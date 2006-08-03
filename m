@@ -1,2511 +1,1088 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k77FDj9o001631
-	for <selinux@tycho.nsa.gov>; Mon, 7 Aug 2006 11:13:45 -0400
-Received: from moss-lions.epoch.ncsc.mil (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id k77FDcCS012312
-	for <selinux@tycho.nsa.gov>; Mon, 7 Aug 2006 15:13:38 GMT
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k77FDgRr001583
+	for <selinux@tycho.nsa.gov>; Mon, 7 Aug 2006 11:13:42 -0400
+Received: from moss-lions.epoch.ncsc.mil (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id k77FDPME023951
+	for <selinux@tycho.nsa.gov>; Mon, 7 Aug 2006 15:13:25 GMT
 Received: from moss-lions.epoch.ncsc.mil (localhost.localdomain [127.0.0.1])
-	by moss-lions.epoch.ncsc.mil (8.13.6/8.13.6) with ESMTP id k77FDXTb019491
-	for <selinux@tycho.nsa.gov>; Mon, 7 Aug 2006 11:13:34 -0400
+	by moss-lions.epoch.ncsc.mil (8.13.6/8.13.6) with ESMTP id k77FDVxv019487
+	for <selinux@tycho.nsa.gov>; Mon, 7 Aug 2006 11:13:31 -0400
 Received: (from jwcart2@localhost)
-	by moss-lions.epoch.ncsc.mil (8.13.7/8.13.7/Submit) id k77FDVvA019490
+	by moss-lions.epoch.ncsc.mil (8.13.7/8.13.7/Submit) id k77FDV4Q019486
 	for selinux@tycho.nsa.gov; Mon, 7 Aug 2006 11:13:31 -0400
-Message-Id: <20060803201556.996420000@flek.zko.hp.com>
+Message-Id: <20060803201554.666682000@flek.zko.hp.com>
 References: <20060803200928.721027000@flek.zko.hp.com>
-Date: Thu, 03 Aug 2006 16:09:32 -0400
+Date: Thu, 03 Aug 2006 16:09:29 -0400
 From: paul.moore@hp.com
 To: netdev@vger.kernel.org, selinux@tycho.nsa.gov
 Cc: linda.knippers@hp.com, sds@tycho.nsa.gov, jmorris@namei.org,
         davem@davemloft.net, Paul Moore <paul.moore@hp.com>
-Subject: [PATCH-v01 4/7] NetLabel: core NetLabel subsystem
+Subject: [PATCH-v01 1/7] NetLabel: documentation
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Add a new kernel subsystem, NetLabel, to provide explicit packet labeling 
-services (CIPSO, RIPSO, etc.) to LSM developers.  NetLabel is designed to work
-in conjunction with a LSM to intercept and decode security labels on incoming
-network packets as well as ensure that outgoing network packets are labeled
-according to the security mechanism employed by the LSM.  The NetLabel
-subsystem is configured through a Generic NETLINK interface described in the
-header files included in this patch.
+Documentation for the NetLabel system, this includes a basic overview of how
+NetLabel works, how LSM developers can integrate it into their favorite
+LSM, as well as documentation on the CIPSO related sysctl variables.  Also,
+due to the difficulty of finding expired IETF drafts, I am including the IETF
+CIPSO draft that is the basis of the NetLabel CIPSO implementation.
 
 Signed-off-by: Paul Moore <paul.moore@hp.com>
 ---
- net/Makefile                       |    1 
- net/netlabel/Kconfig               |   14 
- net/netlabel/Makefile              |   16 
- net/netlabel/netlabel_cipso_v4.h   |  217 ++++++++++++
- net/netlabel/netlabel_domainhash.c |  513 ++++++++++++++++++++++++++++++
- net/netlabel/netlabel_domainhash.h |   63 +++
- net/netlabel/netlabel_kapi.c       |  231 +++++++++++++
- net/netlabel/netlabel_mgmt.c       |  624 +++++++++++++++++++++++++++++++++++++
- net/netlabel/netlabel_mgmt.h       |  246 ++++++++++++++
- net/netlabel/netlabel_unlabeled.h  |   98 +++++
- net/netlabel/netlabel_user.c       |  158 +++++++++
- net/netlabel/netlabel_user.h       |  214 ++++++++++++
- 12 files changed, 2395 insertions(+)
+ CREDITS                                                   |    7 
+ Documentation/00-INDEX                                    |    2 
+ Documentation/netlabel/00-INDEX                           |   10 
+ Documentation/netlabel/cipso_ipv4.txt                     |   48 
+ Documentation/netlabel/draft-ietf-cipso-ipsecurity-01.txt |  791 ++++++++++++++
+ Documentation/netlabel/introduction.txt                   |   46 
+ Documentation/netlabel/lsm_interface.txt                  |   47 
+ Documentation/networking/ip-sysctl.txt                    |   35 
+ 8 files changed, 986 insertions(+)
 
-Index: net-2.6.19/net/Makefile
+Index: net-2.6.19/CREDITS
 ===================================================================
---- net-2.6.19.orig/net/Makefile
-+++ net-2.6.19/net/Makefile
-@@ -46,6 +46,7 @@ obj-$(CONFIG_IP_DCCP)		+= dccp/
- obj-$(CONFIG_IP_SCTP)		+= sctp/
- obj-$(CONFIG_IEEE80211)		+= ieee80211/
- obj-$(CONFIG_TIPC)		+= tipc/
-+obj-$(CONFIG_NETLABEL)		+= netlabel/
+--- net-2.6.19.orig/CREDITS
++++ net-2.6.19/CREDITS
+@@ -2384,6 +2384,13 @@ N: Thomas Molina
+ E: tmolina@cablespeed.com
+ D: bug fixes, documentation, minor hackery
  
- ifeq ($(CONFIG_NET),y)
- obj-$(CONFIG_SYSCTL)		+= sysctl_net.o
-Index: net-2.6.19/net/netlabel/Kconfig
++N: Paul Moore
++E: paul.moore@hp.com
++D: NetLabel author
++S: Hewlett-Packard
++S: 110 Spit Brook Road
++S: Nashua, NH 03062
++
+ N: James Morris
+ E: jmorris@namei.org
+ W: http://namei.org/
+Index: net-2.6.19/Documentation/00-INDEX
+===================================================================
+--- net-2.6.19.orig/Documentation/00-INDEX
++++ net-2.6.19/Documentation/00-INDEX
+@@ -184,6 +184,8 @@ mtrr.txt
+ 	- how to use PPro Memory Type Range Registers to increase performance.
+ nbd.txt
+ 	- info on a TCP implementation of a network block device.
++netlabel/
++	- directory with information on the NetLabel subsystem.
+ networking/
+ 	- directory with info on various aspects of networking with Linux.
+ nfsroot.txt
+Index: net-2.6.19/Documentation/netlabel/00-INDEX
 ===================================================================
 --- /dev/null
-+++ net-2.6.19/net/netlabel/Kconfig
-@@ -0,0 +1,14 @@
-+#
-+# NetLabel configuration
-+#
-+
-+config NETLABEL
-+	bool "NetLabel subsystem support"
-+	depends on NET && SECURITY
-+	default n
-+	---help---
-+	  NetLabel provides support for explicit network packet labeling
-+	  protocols such as CIPSO and RIPSO.  For more information see
-+	  Documentation/netlabel.
-+
-+	  If you are unsure, say N.
-Index: net-2.6.19/net/netlabel/Makefile
++++ net-2.6.19/Documentation/netlabel/00-INDEX
+@@ -0,0 +1,10 @@
++00-INDEX
++	- this file.
++cipso_ipv4.txt
++	- documentation on the IPv4 CIPSO protocol engine.
++draft-ietf-cipso-ipsecurity-01.txt
++	- IETF draft of the CIPSO protocol, dated 16 July 1992.
++introduction.txt
++	- NetLabel introduction, READ THIS FIRST.
++lsm_interface.txt
++	- documentation on the NetLabel kernel security module API.
+Index: net-2.6.19/Documentation/netlabel/cipso_ipv4.txt
 ===================================================================
 --- /dev/null
-+++ net-2.6.19/net/netlabel/Makefile
-@@ -0,0 +1,16 @@
-+#
-+# Makefile for the NetLabel subsystem.
-+#
-+# Feb 9, 2006, Paul Moore <paul.moore@hp.com>
-+#
++++ net-2.6.19/Documentation/netlabel/cipso_ipv4.txt
+@@ -0,0 +1,48 @@
++NetLabel CIPSO/IPv4 Protocol Engine
++==============================================================================
++Paul Moore, paul.moore@hp.com
 +
-+# base objects
-+obj-y	:= netlabel_user.o netlabel_kapi.o netlabel_domainhash.o
++May 17, 2006
 +
-+# management objects
-+obj-y	+= netlabel_mgmt.o
++ * Overview
 +
-+# protocol modules
-+obj-y	+= netlabel_unlabeled.o
-+obj-y	+= netlabel_cipso_v4.o
++The NetLabel CIPSO/IPv4 protocol engine is based on the IETF Commercial IP
++Security Option (CIPSO) draft from July 16, 1992.  A copy of this draft can be
++found in this directory, consult '00-INDEX' for the filename.  While the IETF
++draft never made it to an RFC standard it has become a de-facto standard for
++labeled networking and is used in many trusted operating systems.
 +
-Index: net-2.6.19/net/netlabel/netlabel_cipso_v4.h
++ * Outbound Packet Processing
++
++The CIPSO/IPv4 protocol engine applies the CIPSO IP option to packets by
++adding the CIPSO label to the socket.  This causes all packets leaving the
++system through the socket to have the CIPSO IP option applied.  The socket's
++CIPSO label can be changed at any point in time, however, it is recommended
++that it is set upon the socket's creation.  The LSM can set the socket's CIPSO
++label by using the NetLabel security module API; if the NetLabel "domain" is
++configured to use CIPSO for packet labeling then a CIPSO IP option will be
++generated and attached to the socket.
++
++ * Inbound Packet Processing
++
++The CIPSO/IPv4 protocol engine validates every CIPSO IP option it finds at the
++IP layer without any special handling required by the LSM.  However, in order
++to decode and translate the CIPSO label on the packet the LSM must use the
++NetLabel security module API to extract the security attributes of the packet.
++This is typically done at the socket layer using the 'socket_sock_rcv_skb()'
++LSM hook.
++
++ * Label Translation
++
++The CIPSO/IPv4 protocol engine contains a mechanism to translate CIPSO security
++attributes such as sensitivity level and category to values which are
++appropriate for the host.  These mappings are defined as part of a CIPSO
++Domain Of Interpretation (DOI) definition and are configured through the
++NetLabel user space communication layer.  Each DOI definition can have a
++different security attribute mapping table.
++
++ * Label Translation Cache
++
++The NetLabel system provides a framework for caching security attribute
++mappings from the network labels to the corresponding LSM identifiers.  The
++CIPSO/IPv4 protocol engine supports this caching mechanism.
+Index: net-2.6.19/Documentation/netlabel/draft-ietf-cipso-ipsecurity-01.txt
 ===================================================================
 --- /dev/null
-+++ net-2.6.19/net/netlabel/netlabel_cipso_v4.h
-@@ -0,0 +1,217 @@
-+/*
-+ * NetLabel CIPSO/IPv4 Support
-+ *
-+ * This file defines the CIPSO/IPv4 functions for the NetLabel system.  The
-+ * NetLabel system manages static and dynamic label mappings for network
-+ * protocols such as CIPSO and RIPSO.
-+ *
-+ * Author: Paul Moore <paul.moore@hp.com>
-+ *
-+ */
++++ net-2.6.19/Documentation/netlabel/draft-ietf-cipso-ipsecurity-01.txt
+@@ -0,0 +1,791 @@
++IETF CIPSO Working Group
++16 July, 1992
 +
-+/*
-+ * (c) Copyright Hewlett-Packard Development Company, L.P., 2006
-+ *
-+ * This program is free software;  you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License as published by
-+ * the Free Software Foundation; either version 2 of the License, or
-+ * (at your option) any later version.
-+ *
-+ * This program is distributed in the hope that it will be useful,
-+ * but WITHOUT ANY WARRANTY;  without even the implied warranty of
-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See
-+ * the GNU General Public License for more details.
-+ *
-+ * You should have received a copy of the GNU General Public License
-+ * along with this program;  if not, write to the Free Software
-+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
-+ *
-+ */
 +
-+#ifndef _NETLABEL_CIPSO_V4
-+#define _NETLABEL_CIPSO_V4
 +
-+#include <net/netlabel.h>
++                 COMMERCIAL IP SECURITY OPTION (CIPSO 2.2)
 +
-+/*
-+ * The following NetLabel payloads are supported by the CIPSO subsystem, all
-+ * of which are preceeded by the nlmsghdr struct.
-+ *
-+ * o ACK:
-+ *   Sent by the kernel in response to an applications message, applications
-+ *   should never send this message.
-+ *
-+ *   +----------------------+-----------------------+
-+ *   | seq number (32 bits) | return code (32 bits) |
-+ *   +----------------------+-----------------------+
-+ *
-+ *     seq number:  the sequence number of the original message, taken from the
-+ *                  nlmsghdr structure
-+ *     return code: return value, based on errno values
-+ *
-+ * o ADD:
-+ *   Sent by an application to add a new DOI mapping table, after completion
-+ *   of the task the kernel should ACK this message.
-+ *
-+ *   +---------------+--------------------+---------------------+
-+ *   | DOI (32 bits) | map type (32 bits) | tag count (32 bits) | ...
-+ *   +---------------+--------------------+---------------------+
-+ *
-+ *   +-----------------+
-+ *   | tag #X (8 bits) | ... repeated
-+ *   +-----------------+
-+ *
-+ *   +-------------- ---- --- -- -
-+ *   | mapping data
-+ *   +-------------- ---- --- -- -
-+ *
-+ *     DOI:          the DOI value
-+ *     map type:     the mapping table type (defined in the cipso_ipv4.h header
-+ *                   as CIPSO_V4_MAP_*)
-+ *     tag count:    the number of tags, must be greater than zero
-+ *     tag:          the CIPSO tag for the DOI, tags listed first are given
-+ *                   higher priorirty when sending packets
-+ *     mapping data: specific to the map type (see below)
-+ *
-+ *   CIPSO_V4_MAP_STD
-+ *
-+ *   +------------------+-----------------------+----------------------+
-+ *   | levels (32 bits) | max l level (32 bits) | max r level (8 bits) | ...
-+ *   +------------------+-----------------------+----------------------+
-+ *
-+ *   +----------------------+---------------------+---------------------+
-+ *   | categories (32 bits) | max l cat (32 bits) | max r cat (16 bits) | ...
-+ *   +----------------------+---------------------+---------------------+
-+ *
-+ *   +--------------------------+-------------------------+
-+ *   | local level #X (32 bits) | CIPSO level #X (8 bits) | ... repeated
-+ *   +--------------------------+-------------------------+
-+ *
-+ *   +-----------------------------+-----------------------------+
-+ *   | local category #X (32 bits) | CIPSO category #X (16 bits) | ... repeated
-+ *   +-----------------------------+-----------------------------+
-+ *
-+ *     levels:         the number of level mappings
-+ *     max l level:    the highest local level
-+ *     max r level:    the highest remote/CIPSO level
-+ *     categories:     the number of category mappings
-+ *     max l cat:      the highest local category
-+ *     max r cat:      the highest remote/CIPSO category
-+ *     local level:    the local part of a level mapping
-+ *     CIPSO level:    the remote/CIPSO part of a level mapping
-+ *     local category: the local part of a category mapping
-+ *     CIPSO category: the remote/CIPSO part of a category mapping
-+ *
-+ *   CIPSO_V4_MAP_PASS
-+ *
-+ *   No mapping data is needed for this map type.
-+ *
-+ * o REMOVE:
-+ *   Sent by an application to remove a specific DOI mapping table from the
-+ *   CIPSO V4 system.  The kernel should ACK this message.
-+ *
-+ *   +---------------+
-+ *   | DOI (32 bits) |
-+ *   +---------------+
-+ *
-+ *     DOI:          the DOI value
-+ *
-+ * o LIST:
-+ *   Sent by an application to list the details of a DOI definition.  The
-+ *   kernel should send an ACK on error or a response as indicated below.  The
-+ *   application generated message format is shown below.
-+ *
-+ *   +---------------+
-+ *   | DOI (32 bits) |
-+ *   +---------------+
-+ *
-+ *     DOI:          the DOI value
-+ *
-+ *   The valid response message format depends on the type of the DOI mapping,
-+ *   the known formats are shown below.
-+ *
-+ *   +--------------------+
-+ *   | map type (32 bits) | ...
-+ *   +--------------------+
-+ *
-+ *     map type:       the DOI mapping table type (defined in the cipso_ipv4.h
-+ *                     header as CIPSO_V4_MAP_*)
-+ *
-+ *   (map type == CIPSO_V4_MAP_STD)
-+ *
-+ *   +----------------+------------------+----------------------+
-+ *   | tags (32 bits) | levels (32 bits) | categories (32 bits) | ...
-+ *   +----------------+------------------+----------------------+
-+ *
-+ *   +-----------------+
-+ *   | tag #X (8 bits) | ... repeated
-+ *   +-----------------+
-+ *
-+ *   +--------------------------+-------------------------+
-+ *   | local level #X (32 bits) | CIPSO level #X (8 bits) | ... repeated
-+ *   +--------------------------+-------------------------+
-+ *
-+ *   +-----------------------------+-----------------------------+
-+ *   | local category #X (32 bits) | CIPSO category #X (16 bits) | ... repeated
-+ *   +-----------------------------+-----------------------------+
-+ *
-+ *     tags:           the number of CIPSO tag types
-+ *     levels:         the number of level mappings
-+ *     categories:     the number of category mappings
-+ *     tag:            the tag number, tags listed first are given higher
-+ *                     priority when sending packets
-+ *     local level:    the local part of a level mapping
-+ *     CIPSO level:    the remote/CIPSO part of a level mapping
-+ *     local category: the local part of a category mapping
-+ *     CIPSO category: the remote/CIPSO part of a category mapping
-+ *
-+ *   (map type == CIPSO_V4_MAP_PASS)
-+ *
-+ *   +----------------+
-+ *   | tags (32 bits) | ...
-+ *   +----------------+
-+ *
-+ *   +-----------------+
-+ *   | tag #X (8 bits) | ... repeated
-+ *   +-----------------+
-+ *
-+ *     tags:           the number of CIPSO tag types
-+ *     tag:            the tag number, tags listed first are given higher
-+ *                     priority when sending packets
-+ *
-+ * o LISTALL:
-+ *   This message is sent by an application to list the valid DOIs on the
-+ *   system.  There is no payload and the kernel should respond with an ACK
-+ *   or the following message.
-+ *
-+ *   +---------------------+------------------+-----------------------+
-+ *   | DOI count (32 bits) | DOI #X (32 bits) | map type #X (32 bits) |
-+ *   +---------------------+------------------+-----------------------+
-+ *
-+ *   +-----------------------+
-+ *   | map type #X (32 bits) | ...
-+ *   +-----------------------+
-+ *
-+ *     DOI count:      the number of DOIs
-+ *     DOI:            the DOI value
-+ *     map type:       the DOI mapping table type (defined in the cipso_ipv4.h
-+ *                     header as CIPSO_V4_MAP_*)
-+ *
-+ */
 +
-+/* NetLabel CIPSOv4 commands */
-+enum {
-+	NLBL_CIPSOV4_C_UNSPEC,
-+	NLBL_CIPSOV4_C_ACK,
-+	NLBL_CIPSOV4_C_ADD,
-+	NLBL_CIPSOV4_C_REMOVE,
-+	NLBL_CIPSOV4_C_LIST,
-+	NLBL_CIPSOV4_C_LISTALL,
-+	__NLBL_CIPSOV4_C_MAX,
-+};
-+#define NLBL_CIPSOV4_C_MAX (__NLBL_CIPSOV4_C_MAX - 1)
 +
-+/* NetLabel protocol functions */
-+int netlbl_cipsov4_genl_init(void);
++1.    Status
 +
-+#endif
-Index: net-2.6.19/net/netlabel/netlabel_domainhash.c
++This Internet Draft provides the high level specification for a Commercial
++IP Security Option (CIPSO).  This draft reflects the version as approved by
++the CIPSO IETF Working Group.  Distribution of this memo is unlimited.
++
++This document is an Internet Draft.  Internet Drafts are working documents
++of the Internet Engineering Task Force (IETF), its Areas, and its Working
++Groups. Note that other groups may also distribute working documents as
++Internet Drafts.
++
++Internet Drafts are draft documents valid for a maximum of six months.
++Internet Drafts may be updated, replaced, or obsoleted by other documents
++at any time.  It is not appropriate to use Internet Drafts as reference
++material or to cite them other than as a "working draft" or "work in
++progress."
++
++Please check the I-D abstract listing contained in each Internet Draft
++directory to learn the current status of this or any other Internet Draft.
++
++
++
++
++2.    Background
++
++Currently the Internet Protocol includes two security options.  One of
++these options is the DoD Basic Security Option (BSO) (Type 130) which allows
++IP datagrams to be labeled with security classifications.  This option
++provides sixteen security classifications and a variable number of handling
++restrictions.  To handle additional security information, such as security
++categories or compartments, another security option (Type 133) exists and
++is referred to as the DoD Extended Security Option (ESO).  The values for
++the fixed fields within these two options are administered by the Defense
++Information Systems Agency (DISA).
++
++Computer vendors are now building commercial operating systems with
++mandatory access controls and multi-level security.  These systems are
++no longer built specifically for a particular group in the defense or
++intelligence communities.  They are generally available commercial systems
++for use in a variety of government and civil sector environments.
++
++The small number of ESO format codes can not support all the possible
++applications of a commercial security option.  The BSO and ESO were
++designed to only support the United States DoD.  CIPSO has been designed
++to support multiple security policies.  This Internet Draft provides the
++format and procedures required to support a Mandatory Access Control
++security policy.  Support for additional security policies shall be
++defined in future RFCs.
++
++
++
++
++Internet Draft, Expires 15 Jan 93                                 [PAGE 1]
++
++
++
++CIPSO INTERNET DRAFT                                         16 July, 1992
++
++
++
++
++3.    CIPSO Format
++
++Option type: 134 (Class 0, Number 6, Copy on Fragmentation)
++Option length: Variable
++
++This option permits security related information to be passed between
++systems within a single Domain of Interpretation (DOI).  A DOI is a
++collection of systems which agree on the meaning of particular values
++in the security option.  An authority that has been assigned a DOI
++identifier will define a mapping between appropriate CIPSO field values
++and their human readable equivalent.  This authority will distribute that
++mapping to hosts within the authority's domain.  These mappings may be
++sensitive, therefore a DOI authority is not required to make these
++mappings available to anyone other than the systems that are included in
++the DOI.
++
++This option MUST be copied on fragmentation.  This option appears at most
++once in a datagram.  All multi-octet fields in the option are defined to be
++transmitted in network byte order.  The format of this option is as follows:
++
+++----------+----------+------//------+-----------//---------+
++| 10000110 | LLLLLLLL | DDDDDDDDDDDD | TTTTTTTTTTTTTTTTTTTT |
+++----------+----------+------//------+-----------//---------+
++
++  TYPE=134    OPTION    DOMAIN OF               TAGS
++              LENGTH    INTERPRETATION
++
++
++                Figure 1. CIPSO Format
++
++
++3.1    Type
++
++This field is 1 octet in length.  Its value is 134.
++
++
++3.2    Length
++
++This field is 1 octet in length.  It is the total length of the option
++including the type and length fields.  With the current IP header length
++restriction of 40 octets the value of this field MUST not exceed 40.
++
++
++3.3    Domain of Interpretation Identifier
++
++This field is an unsigned 32 bit integer.  The value 0 is reserved and MUST
++not appear as the DOI identifier in any CIPSO option.  Implementations
++should assume that the DOI identifier field is not aligned on any particular
++byte boundary.
++
++To conserve space in the protocol, security levels and categories are
++represented by numbers rather than their ASCII equivalent.  This requires
++a mapping table within CIPSO hosts to map these numbers to their
++corresponding ASCII representations.  Non-related groups of systems may
++
++
++
++Internet Draft, Expires 15 Jan 93                                 [PAGE 2]
++
++
++
++CIPSO INTERNET DRAFT                                         16 July, 1992
++
++
++
++have their own unique mappings.  For example, one group of systems may
++use the number 5 to represent Unclassified while another group may use the
++number 1 to represent that same security level.  The DOI identifier is used
++to identify which mapping was used for the values within the option.
++
++
++3.4    Tag Types
++
++A common format for passing security related information is necessary
++for interoperability.  CIPSO uses sets of "tags" to contain the security
++information relevant to the data in the IP packet.  Each tag begins with
++a tag type identifier followed by the length of the tag and ends with the
++actual security information to be passed.  All multi-octet fields in a tag
++are defined to be transmitted in network byte order.  Like the DOI
++identifier field in the CIPSO header, implementations should assume that
++all tags, as well as fields within a tag, are not aligned on any particular
++octet boundary.   The tag types defined in this document contain alignment
++bytes to assist alignment of some information, however alignment can not
++be guaranteed if CIPSO is not the first IP option.
++
++CIPSO tag types 0 through 127 are reserved for defining standard tag
++formats.  Their definitions will be published in RFCs.  Tag types whose
++identifiers are greater than 127 are defined by the DOI authority and may
++only be meaningful in certain Domains of Interpretation.  For these tag
++types, implementations will require the DOI identifier as well as the tag
++number to determine the security policy and the format associated with the
++tag.  Use of tag types above 127 are restricted to closed networks where
++interoperability with other networks will not be an issue.  Implementations
++that support a tag type greater than 127 MUST support at least one DOI that
++requires only tag types 1 to 127.
++
++Tag type 0 is reserved. Tag types 1, 2, and 5 are defined in this
++Internet Draft.  Types 3 and 4 are reserved for work in progress.
++The standard format for all current and future CIPSO tags is shown below:
++
+++----------+----------+--------//--------+
++| TTTTTTTT | LLLLLLLL | IIIIIIIIIIIIIIII |
+++----------+----------+--------//--------+
++    TAG       TAG         TAG
++    TYPE      LENGTH      INFORMATION
++
++    Figure 2:  Standard Tag Format
++
++In the three tag types described in this document, the length and count
++restrictions are based on the current IP limitation of 40 octets for all
++IP options.  If the IP header is later expanded, then the length and count
++restrictions specified in this document may increase to use the full area
++provided for IP options.
++
++
++3.4.1    Tag Type Classes
++
++Tag classes consist of tag types that have common processing requirements
++and support the same security policy.  The three tags defined in this
++Internet Draft belong to the Mandatory Access Control (MAC) Sensitivity
++
++
++
++Internet Draft, Expires 15 Jan 93                                 [PAGE 3]
++
++
++
++CIPSO INTERNET DRAFT                                         16 July, 1992
++
++
++
++class and support the MAC Sensitivity security policy.
++
++
++3.4.2    Tag Type 1
++
++This is referred to as the "bit-mapped" tag type.  Tag type 1 is included
++in the MAC Sensitivity tag type class.  The format of this tag type is as
++follows:
++
+++----------+----------+----------+----------+--------//---------+
++| 00000001 | LLLLLLLL | 00000000 | LLLLLLLL | CCCCCCCCCCCCCCCCC |
+++----------+----------+----------+----------+--------//---------+
++
++    TAG       TAG      ALIGNMENT  SENSITIVITY    BIT MAP OF
++    TYPE      LENGTH   OCTET      LEVEL          CATEGORIES
++
++            Figure 3. Tag Type 1 Format
++
++
++3.4.2.1    Tag Type
++
++This field is 1 octet in length and has a value of 1.
++
++
++3.4.2.2    Tag Length
++
++This field is 1 octet in length.  It is the total length of the tag type
++including the type and length fields.  With the current IP header length
++restriction of 40 bytes the value within this field is between 4 and 34.
++
++
++3.4.2.3    Alignment Octet
++
++This field is 1 octet in length and always has the value of 0.  Its purpose
++is to align the category bitmap field on an even octet boundary.  This will
++speed many implementations including router implementations.
++
++
++3.4.2.4    Sensitivity Level
++
++This field is 1 octet in length.  Its value is from 0 to 255.  The values
++are ordered with 0 being the minimum value and 255 representing the maximum
++value.
++
++
++3.4.2.5    Bit Map of Categories
++
++The length of this field is variable and ranges from 0 to 30 octets.  This
++provides representation of categories 0 to 239.  The ordering of the bits
++is left to right or MSB to LSB.  For example category 0 is represented by
++the most significant bit of the first byte and category 15 is represented
++by the least significant bit of the second byte.  Figure 4 graphically
++shows this ordering.  Bit N is binary 1 if category N is part of the label
++for the datagram, and bit N is binary 0 if category N is not part of the
++label.  Except for the optimized tag 1 format described in the next section,
++
++
++
++Internet Draft, Expires 15 Jan 93                                 [PAGE 4]
++
++
++
++CIPSO INTERNET DRAFT                                         16 July, 1992
++
++
++
++minimal encoding SHOULD be used resulting in no trailing zero octets in the
++category bitmap.
++
++        octet 0  octet 1  octet 2  octet 3  octet 4  octet 5
++        XXXXXXXX XXXXXXXX XXXXXXXX XXXXXXXX XXXXXXXX XXXXXXXX . . .
++bit     01234567 89111111 11112222 22222233 33333333 44444444
++number             012345 67890123 45678901 23456789 01234567
++
++            Figure 4. Ordering of Bits in Tag 1 Bit Map
++
++
++3.4.2.6    Optimized Tag 1 Format
++
++Routers work most efficiently when processing fixed length fields.  To
++support these routers there is an optimized form of tag type 1.  The format
++does not change.  The only change is to the category bitmap which is set to
++a constant length of 10 octets.  Trailing octets required to fill out the 10
++octets are zero filled.  Ten octets, allowing for 80 categories, was chosen
++because it makes the total length of the CIPSO option 20 octets.  If CIPSO
++is the only option then the option will be full word aligned and additional
++filler octets will not be required.
++
++
++3.4.3    Tag Type 2
++
++This is referred to as the "enumerated" tag type.  It is used to describe
++large but sparsely populated sets of categories.  Tag type 2 is in the MAC
++Sensitivity tag type class.  The format of this tag type is as follows:
++
+++----------+----------+----------+----------+-------------//-------------+
++| 00000010 | LLLLLLLL | 00000000 | LLLLLLLL | CCCCCCCCCCCCCCCCCCCCCCCCCC |
+++----------+----------+----------+----------+-------------//-------------+
++
++    TAG       TAG      ALIGNMENT  SENSITIVITY         ENUMERATED
++    TYPE      LENGTH   OCTET      LEVEL               CATEGORIES
++
++                Figure 5. Tag Type 2 Format
++
++
++3.4.3.1     Tag Type
++
++This field is one octet in length and has a value of 2.
++
++
++3.4.3.2    Tag Length
++
++This field is 1 octet in length. It is the total length of the tag type
++including the type and length fields.  With the current IP header length
++restriction of 40 bytes the value within this field is between 4 and 34.
++
++
++3.4.3.3    Alignment Octet
++
++This field is 1 octet in length and always has the value of 0.  Its purpose
++is to align the category field on an even octet boundary.  This will
++
++
++
++Internet Draft, Expires 15 Jan 93                                 [PAGE 5]
++
++
++
++CIPSO INTERNET DRAFT                                         16 July, 1992
++
++
++
++speed many implementations including router implementations.
++
++
++3.4.3.4    Sensitivity Level
++
++This field is 1 octet in length. Its value is from 0 to 255.  The values
++are ordered with 0 being the minimum value and 255 representing the
++maximum value.
++
++
++3.4.3.5    Enumerated Categories
++
++In this tag, categories are represented by their actual value rather than
++by their position within a bit field.  The length of each category is 2
++octets.  Up to 15 categories may be represented by this tag.  Valid values
++for categories are 0 to 65534.  Category 65535 is not a valid category
++value.  The categories MUST be listed in ascending order within the tag.
++
++
++3.4.4    Tag Type 5
++
++This is referred to as the "range" tag type.  It is used to represent
++labels where all categories in a range, or set of ranges, are included
++in the sensitivity label.  Tag type 5 is in the MAC Sensitivity tag type
++class.  The format of this tag type is as follows:
++
+++----------+----------+----------+----------+------------//-------------+
++| 00000101 | LLLLLLLL | 00000000 | LLLLLLLL |  Top/Bottom | Top/Bottom  |
+++----------+----------+----------+----------+------------//-------------+
++
++    TAG       TAG      ALIGNMENT  SENSITIVITY        CATEGORY RANGES
++    TYPE      LENGTH   OCTET      LEVEL
++
++                     Figure 6. Tag Type 5 Format
++
++
++3.4.4.1     Tag Type
++
++This field is one octet in length and has a value of 5.
++
++
++3.4.4.2    Tag Length
++
++This field is 1 octet in length. It is the total length of the tag type
++including the type and length fields.  With the current IP header length
++restriction of 40 bytes the value within this field is between 4 and 34.
++
++
++3.4.4.3    Alignment Octet
++
++This field is 1 octet in length and always has the value of 0.  Its purpose
++is to align the category range field on an even octet boundary.  This will
++speed many implementations including router implementations.
++
++
++
++
++
++Internet Draft, Expires 15 Jan 93                                 [PAGE 6]
++
++
++
++CIPSO INTERNET DRAFT                                         16 July, 1992
++
++
++
++3.4.4.4    Sensitivity Level
++
++This field is 1 octet in length. Its value is from 0 to 255.  The values
++are ordered with 0 being the minimum value and 255 representing the maximum
++value.
++
++
++3.4.4.5    Category Ranges
++
++A category range is a 4 octet field comprised of the 2 octet index of the
++highest numbered category followed by the 2 octet index of the lowest
++numbered category.  These range endpoints are inclusive within the range of
++categories.  All categories within a range are included in the sensitivity
++label.  This tag may contain a maximum of 7 category pairs.  The bottom
++category endpoint for the last pair in the tag MAY be omitted and SHOULD be
++assumed to be 0.  The ranges MUST be non-overlapping and be listed in
++descending order.  Valid values for categories are 0 to 65534.  Category
++65535 is not a valid category value.
++
++
++3.4.5     Minimum Requirements
++
++A CIPSO implementation MUST be capable of generating at least tag type 1 in
++the non-optimized form.  In addition, a CIPSO implementation MUST be able
++to receive any valid tag type 1 even those using the optimized tag type 1
++format.
++
++
++4.    Configuration Parameters
++
++The configuration parameters defined below are required for all CIPSO hosts,
++gateways, and routers that support multiple sensitivity labels.  A CIPSO
++host is defined to be the origination or destination system for an IP
++datagram.  A CIPSO gateway provides IP routing services between two or more
++IP networks and may be required to perform label translations between
++networks.  A CIPSO gateway may be an enhanced CIPSO host or it may just
++provide gateway services with no end system CIPSO capabilities.  A CIPSO
++router is a dedicated IP router that routes IP datagrams between two or more
++IP networks.
++
++An implementation of CIPSO on a host MUST have the capability to reject a
++datagram for reasons that the information contained can not be adequately
++protected by the receiving host or if acceptance may result in violation of
++the host or network security policy.  In addition, a CIPSO gateway or router
++MUST be able to reject datagrams going to networks that can not provide
++adequate protection or may violate the network's security policy.  To
++provide this capability the following minimal set of configuration
++parameters are required for CIPSO implementations:
++
++HOST_LABEL_MAX - This parameter contains the maximum sensitivity label that
++a CIPSO host is authorized to handle.  All datagrams that have a label
++greater than this maximum MUST be rejected by the CIPSO host.  This
++parameter does not apply to CIPSO gateways or routers.  This parameter need
++not be defined explicitly as it can be implicitly derived from the
++PORT_LABEL_MAX parameters for the associated interfaces.
++
++
++
++Internet Draft, Expires 15 Jan 93                                 [PAGE 7]
++
++
++
++CIPSO INTERNET DRAFT                                         16 July, 1992
++
++
++
++
++HOST_LABEL_MIN - This parameter contains the minimum sensitivity label that
++a CIPSO host is authorized to handle.  All datagrams that have a label less
++than this minimum MUST be rejected by the CIPSO host.  This parameter does
++not apply to CIPSO gateways or routers.  This parameter need not be defined
++explicitly as it can be implicitly derived from the PORT_LABEL_MIN
++parameters for the associated interfaces.
++
++PORT_LABEL_MAX - This parameter contains the maximum sensitivity label for
++all datagrams that may exit a particular network interface port.  All
++outgoing datagrams that have a label greater than this maximum MUST be
++rejected by the CIPSO system.  The label within this parameter MUST be
++less than or equal to the label within the HOST_LABEL_MAX parameter.  This
++parameter does not apply to CIPSO hosts that support only one network port.
++
++PORT_LABEL_MIN - This parameter contains the minimum sensitivity label for
++all datagrams that may exit a particular network interface port.  All
++outgoing datagrams that have a label less than this minimum MUST be
++rejected by the CIPSO system.  The label within this parameter MUST be
++greater than or equal to the label within the HOST_LABEL_MIN parameter.
++This parameter does not apply to CIPSO hosts that support only one network
++port.
++
++PORT_DOI - This parameter is used to assign a DOI identifier value to a
++particular network interface port.  All CIPSO labels within datagrams
++going out this port MUST use the specified DOI identifier.  All CIPSO
++hosts and gateways MUST support either this parameter, the NET_DOI
++parameter, or the HOST_DOI parameter.
++
++NET_DOI - This parameter is used to assign a DOI identifier value to a
++particular IP network address.  All CIPSO labels within datagrams destined
++for the particular IP network MUST use the specified DOI identifier.  All
++CIPSO hosts and gateways MUST support either this parameter, the PORT_DOI
++parameter, or the HOST_DOI parameter.
++
++HOST_DOI - This parameter is used to assign a DOI identifier value to a
++particular IP host address.  All CIPSO labels within datagrams destined for
++the particular IP host will use the specified DOI identifier.  All CIPSO
++hosts and gateways MUST support either this parameter, the PORT_DOI
++parameter, or the NET_DOI parameter.
++
++This list represents the minimal set of configuration parameters required
++to be compliant.  Implementors are encouraged to add to this list to
++provide enhanced functionality and control.  For example, many security
++policies may require both incoming and outgoing datagrams be checked against
++the port and host label ranges.
++
++
++4.1    Port Range Parameters
++
++The labels represented by the PORT_LABEL_MAX and PORT_LABEL_MIN parameters
++MAY be in CIPSO or local format.  Some CIPSO systems, such as routers, may
++want to have the range parameters expressed in CIPSO format so that incoming
++labels do not have to be converted to a local format before being compared
++against the range.  If multiple DOIs are supported by one of these CIPSO
++
++
++
++Internet Draft, Expires 15 Jan 93                                 [PAGE 8]
++
++
++
++CIPSO INTERNET DRAFT                                         16 July, 1992
++
++
++
++systems then multiple port range parameters would be needed, one set for
++each DOI supported on a particular port.
++
++The port range will usually represent the total set of labels that may
++exist on the logical network accessed through the corresponding network
++interface.  It may, however, represent a subset of these labels that are
++allowed to enter the CIPSO system.
++
++
++4.2    Single Label CIPSO Hosts
++
++CIPSO implementations that support only one label are not required to
++support the parameters described above.  These limited implementations are
++only required to support a NET_LABEL parameter.  This parameter contains
++the CIPSO label that may be inserted in datagrams that exit the host.  In
++addition, the host MUST reject any incoming datagram that has a label which
++is not equivalent to the NET_LABEL parameter.
++
++
++5.    Handling Procedures
++
++This section describes the processing requirements for incoming and
++outgoing IP datagrams.  Just providing the correct CIPSO label format
++is not enough.  Assumptions will be made by one system on how a
++receiving system will handle the CIPSO label.  Wrong assumptions may
++lead to non-interoperability or even a security incident.  The
++requirements described below represent the minimal set needed for
++interoperability and that provide users some level of confidence.
++Many other requirements could be added to increase user confidence,
++however at the risk of restricting creativity and limiting vendor
++participation.
++
++
++5.1    Input Procedures
++
++All datagrams received through a network port MUST have a security label
++associated with them, either contained in the datagram or assigned to the
++receiving port.  Without this label the host, gateway, or router will not
++have the information it needs to make security decisions.  This security
++label will be obtained from the CIPSO if the option is present in the
++datagram.  See section 4.1.2 for handling procedures for unlabeled
++datagrams.  This label will be compared against the PORT (if appropriate)
++and HOST configuration parameters defined in section 3.
++
++If any field within the CIPSO option, such as the DOI identifier, is not
++recognized the IP datagram is discarded and an ICMP "parameter problem"
++(type 12) is generated and returned.  The ICMP code field is set to "bad
++parameter" (code 0) and the pointer is set to the start of the CIPSO field
++that is unrecognized.
++
++If the contents of the CIPSO are valid but the security label is
++outside of the configured host or port label range, the datagram is
++discarded and an ICMP "destination unreachable" (type 3) is generated
++and returned.  The code field of the ICMP is set to "communication with
++destination network administratively prohibited" (code 9) or to
++
++
++
++Internet Draft, Expires 15 Jan 93                                 [PAGE 9]
++
++
++
++CIPSO INTERNET DRAFT                                         16 July, 1992
++
++
++
++"communication with destination host administratively prohibited"
++(code 10).  The value of the code field used is dependent upon whether
++the originator of the ICMP message is acting as a CIPSO host or a CIPSO
++gateway.  The recipient of the ICMP message MUST be able to handle either
++value.  The same procedure is performed if a CIPSO can not be added to an
++IP packet because it is too large to fit in the IP options area.
++
++If the error is triggered by receipt of an ICMP message, the message
++is discarded and no response is permitted (consistent with general ICMP
++processing rules).
++
++
++5.1.1    Unrecognized tag types
++
++The default condition for any CIPSO implementation is that an
++unrecognized tag type MUST be treated as a "parameter problem" and
++handled as described in section 4.1.  A CIPSO implementation MAY allow
++the system administrator to identify tag types that may safely be
++ignored.  This capability is an allowable enhancement, not a
++requirement.
++
++
++5.1.2    Unlabeled Packets
++
++A network port may be configured to not require a CIPSO label for all
++incoming  datagrams.  For this configuration a CIPSO label must be
++assigned to that network port and associated with all unlabeled IP
++datagrams.  This capability might be used for single level networks or
++networks that have CIPSO and non-CIPSO hosts and the non-CIPSO hosts
++all operate at the same label.
++
++If a CIPSO option is required and none is found, the datagram is
++discarded and an ICMP "parameter problem" (type 12) is generated and
++returned to the originator of the datagram.  The code field of the ICMP
++is set to "option missing" (code 1) and the ICMP pointer is set to 134
++(the value of the option type for the missing CIPSO option).
++
++
++5.2    Output Procedures
++
++A CIPSO option MUST appear only once in a datagram.  Only one tag type
++from the MAC Sensitivity class MAY be included in a CIPSO option.  Given
++the current set of defined tag types, this means that CIPSO labels at
++first will contain only one tag.
++
++All datagrams leaving a CIPSO system MUST meet the following condition:
++
++        PORT_LABEL_MIN <= CIPSO label <= PORT_LABEL_MAX
++
++If this condition is not satisfied the datagram MUST be discarded.
++If the CIPSO system only supports one port, the HOST_LABEL_MIN and the
++HOST_LABEL_MAX parameters MAY be substituted for the PORT parameters in
++the above condition.
++
++The DOI identifier to be used for all outgoing datagrams is configured by
++
++
++
++Internet Draft, Expires 15 Jan 93                                 [PAGE 10]
++
++
++
++CIPSO INTERNET DRAFT                                         16 July, 1992
++
++
++
++the administrator.  If port level DOI identifier assignment is used, then
++the PORT_DOI configuration parameter MUST contain the DOI identifier to
++use.  If network level DOI assignment is used, then the NET_DOI parameter
++MUST contain the DOI identifier to use.  And if host level DOI assignment
++is employed, then the HOST_DOI parameter MUST contain the DOI identifier
++to use.  A CIPSO implementation need only support one level of DOI
++assignment.
++
++
++5.3    DOI Processing Requirements
++
++A CIPSO implementation MUST support at least one DOI and SHOULD support
++multiple DOIs.  System and network administrators are cautioned to
++ensure that at least one DOI is common within an IP network to allow for
++broadcasting of IP datagrams.
++
++CIPSO gateways MUST be capable of translating a CIPSO option from one
++DOI to another when forwarding datagrams between networks.  For
++efficiency purposes this capability is only a desired feature for CIPSO
++routers.
++
++
++5.4    Label of ICMP Messages
++
++The CIPSO label to be used on all outgoing ICMP messages MUST be equivalent
++to the label of the datagram that caused the ICMP message.  If the ICMP was
++generated due to a problem associated with the original CIPSO label then the
++following responses are allowed:
++
++  a.  Use the CIPSO label of the original IP datagram
++  b.  Drop the original datagram with no return message generated
++
++In most cases these options will have the same effect.  If you can not
++interpret the label or if it is outside the label range of your host or
++interface then an ICMP message with the same label will probably not be
++able to exit the system.
++
++
++6.    Assignment of DOI Identifier Numbers                                   =
++
++Requests for assignment of a DOI identifier number should be addressed to
++the Internet Assigned Numbers Authority (IANA).
++
++
++7.    Acknowledgements
++
++Much of the material in this RFC is based on (and copied from) work
++done by Gary Winiger of Sun Microsystems and published as Commercial
++IP Security Option at the INTEROP 89, Commercial IPSO Workshop.
++
++
++8.    Author's Address
++
++To submit mail for distribution to members of the IETF CIPSO Working
++Group, send mail to: cipso@wdl1.wdl.loral.com.
++
++
++
++Internet Draft, Expires 15 Jan 93                                 [PAGE 11]
++
++
++
++CIPSO INTERNET DRAFT                                         16 July, 1992
++
++
++
++
++To be added to or deleted from this distribution, send mail to:
++cipso-request@wdl1.wdl.loral.com.
++
++
++9.    References
++
++RFC 1038, "Draft Revised IP Security Option", M. St. Johns, IETF, January
++1988.
++
++RFC 1108, "U.S. Department of Defense Security Options
++for the Internet Protocol", Stephen Kent, IAB, 1 March, 1991.
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++Internet Draft, Expires 15 Jan 93                                 [PAGE 12]
++
++
++
+Index: net-2.6.19/Documentation/netlabel/introduction.txt
 ===================================================================
 --- /dev/null
-+++ net-2.6.19/net/netlabel/netlabel_domainhash.c
-@@ -0,0 +1,513 @@
-+/*
-+ * NetLabel Domain Hash Table
-+ *
-+ * This file manages the domain hash table that NetLabel uses to determine
-+ * which network labeling protocol to use for a given domain.  The NetLabel
-+ * system manages static and dynamic label mappings for network protocols such
-+ * as CIPSO and RIPSO.
-+ *
-+ * Author: Paul Moore <paul.moore@hp.com>
-+ *
-+ */
++++ net-2.6.19/Documentation/netlabel/introduction.txt
+@@ -0,0 +1,46 @@
++NetLabel Introduction
++==============================================================================
++Paul Moore, paul.moore@hp.com
 +
-+/*
-+ * (c) Copyright Hewlett-Packard Development Company, L.P., 2006
-+ *
-+ * This program is free software;  you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License as published by
-+ * the Free Software Foundation; either version 2 of the License, or
-+ * (at your option) any later version.
-+ *
-+ * This program is distributed in the hope that it will be useful,
-+ * but WITHOUT ANY WARRANTY;  without even the implied warranty of
-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See
-+ * the GNU General Public License for more details.
-+ *
-+ * You should have received a copy of the GNU General Public License
-+ * along with this program;  if not, write to the Free Software
-+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
-+ *
-+ */
++August 2, 2006
 +
-+#include <linux/types.h>
-+#include <linux/rcupdate.h>
-+#include <linux/list.h>
-+#include <linux/skbuff.h>
-+#include <linux/spinlock.h>
-+#include <linux/string.h>
-+#include <net/netlabel.h>
-+#include <net/cipso_ipv4.h>
-+#include <asm/bug.h>
++ * Overview
 +
-+#include "netlabel_mgmt.h"
-+#include "netlabel_domainhash.h"
++NetLabel is a mechanism which can be used by kernel security modules to attach
++security attributes to outgoing network packets generated from user space
++applications and read security attributes from incoming network packets.  It
++is composed of three main components, the protocol engines, the communication
++layer, and the kernel security module API.
 +
-+struct netlbl_domhsh_tbl {
-+	struct list_head *tbl;
-+	u32 size;
-+};
++ * Protocol Engines
 +
-+/* Domain hash table */
-+/* XXX - updates should be so rare that having one spinlock for the entire
-+ * hash table should be okay */
-+DEFINE_SPINLOCK(netlbl_domhsh_lock);
-+static struct netlbl_domhsh_tbl *netlbl_domhsh = NULL;
++The protocol engines are responsible for both applying and retrieving the
++network packet's security attributes.  If any translation between the network
++security attributes and those on the host are required then the protocol
++engine will handle those tasks as well.  Other kernel subsystems should
++refrain from calling the protocol engines directly, instead they should use
++the NetLabel kernel security module API described below.
 +
-+/* Default domain mapping */
-+DEFINE_SPINLOCK(netlbl_domhsh_def_lock);
-+static struct netlbl_dom_map *netlbl_domhsh_def = NULL;
++Detailed information about each NetLabel protocol engine can be found in this
++directory, consult '00-INDEX' for filenames.
 +
-+/*
-+ * Domain Hash Table Helper Functions
-+ */
++ * Communication Layer
 +
-+/**
-+ * netlbl_domhsh_free_entry - Frees a domain hash table entry
-+ * @entry: the entry's RCU field
-+ *
-+ * Description:
-+ * This function is designed to be used as a callback to the call_rcu()
-+ * function so that the memory allocated to a hash table entry can be released
-+ * safely.
-+ *
-+ */
-+static void netlbl_domhsh_free_entry(struct rcu_head *entry)
-+{
-+	struct netlbl_dom_map *ptr;
++The communication layer exists to allow NetLabel configuration and monitoring
++from user space.  The NetLabel communication layer uses a message based
++protocol built on top of the Generic NETLINK transport mechanism.  The exact
++formatting of these NetLabel messages as well as the Generic NETLINK family
++names can be found in the the 'net/netlabel/' directory as comments in the
++header files as well as in 'include/net/netlabel.h'.
 +
-+	ptr = container_of(entry, struct netlbl_dom_map, rcu);
-+	kfree(ptr->domain);
-+	kfree(ptr);
-+}
++ * Security Module API
 +
-+/**
-+ * netlbl_domhsh_hash - Hashing function for the domain hash table
-+ * @domain: the domain name to hash
-+ *
-+ * Description:
-+ * This is the hashing function for the domain hash table, it returns the
-+ * correct bucket number for the domain.  The caller is responsibile for
-+ * calling the rcu_read_[un]lock() functions.
-+ *
-+ */
-+static u32 netlbl_domhsh_hash(const char *key)
-+{
-+	u32 iter;
-+	u32 val;
-+	u32 len;
++The purpose of the NetLabel security module API is to provide a protocol
++independent interface to the underlying NetLabel protocol engines.  In addition
++to protocol independence, the security module API is designed to be completely
++LSM independent which should allow multiple LSMs to leverage the same code
++base.
 +
-+	/* This is taken (with slight modification) from
-+	 * security/selinux/ss/symtab.c:symhash() */
-+
-+	for (iter = 0, val = 0, len = strlen(key); iter < len; iter++)
-+		val = (val << 4 | (val >> (8 * sizeof(u32) - 4))) ^ key[iter];
-+	return val & (rcu_dereference(netlbl_domhsh)->size - 1);
-+}
-+
-+/**
-+ * netlbl_domhsh_search - Search for a domain entry
-+ * @domain: the domain
-+ * @def: return default if no match is found
-+ *
-+ * Description:
-+ * Searches the domain hash table and returns a pointer to the hash table
-+ * entry if found, otherwise NULL is returned.  If @def is non-zero and a
-+ * match is not found in the domain hash table the default mapping is returned
-+ * if it exists.  The caller is responsibile for the rcu hash table locks
-+ * (i.e. the caller much call rcu_read_[un]lock()).
-+ *
-+ */
-+static struct netlbl_dom_map *netlbl_domhsh_search(const char *domain, u32 def)
-+{
-+	u32 bkt;
-+	struct netlbl_dom_map *iter;
-+
-+	if (domain != NULL) {
-+		bkt = netlbl_domhsh_hash(domain);
-+		list_for_each_entry_rcu(iter, &netlbl_domhsh->tbl[bkt], list)
-+			if (iter->valid && strcmp(iter->domain, domain) == 0)
-+				return iter;
-+	}
-+
-+	if (def != 0) {
-+		iter = rcu_dereference(netlbl_domhsh_def);
-+		if (iter != NULL && iter->valid)
-+			return iter;
-+	}
-+
-+	return NULL;
-+}
-+
-+/*
-+ * Domain Hash Table Functions
-+ */
-+
-+/**
-+ * netlbl_domhsh_init - Init for the domain hash
-+ * @size: the number of bits to use for the hash buckets
-+ *
-+ * Description:
-+ * Initializes the domain hash table, should be called only by
-+ * netlbl_user_init() during initialization.  Returns zero on success, non-zero
-+ * values on error.
-+ *
-+ */
-+int netlbl_domhsh_init(u32 size)
-+{
-+	u32 iter;
-+	struct netlbl_domhsh_tbl *hsh_tbl;
-+
-+	if (size == 0)
-+		return -EINVAL;
-+
-+	hsh_tbl = kmalloc(sizeof(*hsh_tbl), GFP_KERNEL);
-+	if (hsh_tbl == NULL)
-+		return -ENOMEM;
-+	hsh_tbl->size = 1 << size;
-+	hsh_tbl->tbl = kcalloc(hsh_tbl->size,
-+			       sizeof(struct list_head),
-+			       GFP_KERNEL);
-+	if (hsh_tbl->tbl == NULL) {
-+		kfree(hsh_tbl);
-+		return -ENOMEM;
-+	}
-+	for (iter = 0; iter < hsh_tbl->size; iter++)
-+		INIT_LIST_HEAD(&hsh_tbl->tbl[iter]);
-+
-+	rcu_read_lock();
-+	spin_lock(&netlbl_domhsh_lock);
-+	rcu_assign_pointer(netlbl_domhsh, hsh_tbl);
-+	spin_unlock(&netlbl_domhsh_lock);
-+	rcu_read_unlock();
-+
-+	return 0;
-+}
-+
-+/**
-+ * netlbl_domhsh_add - Adds a entry to the domain hash table
-+ * @entry: the entry to add
-+ *
-+ * Description:
-+ * Adds a new entry to the domain hash table and handles any updates to the
-+ * lower level protocol handler (i.e. CIPSO).  Returns zero on success,
-+ * negative on failure.
-+ *
-+ */
-+int netlbl_domhsh_add(struct netlbl_dom_map *entry)
-+{
-+	int ret_val;
-+	u32 bkt;
-+
-+	switch (entry->type) {
-+	case NETLBL_NLTYPE_UNLABELED:
-+		ret_val = 0;
-+		break;
-+	case NETLBL_NLTYPE_CIPSOV4:
-+		ret_val = cipso_v4_doi_domhsh_add(entry->type_def.cipsov4,
-+						  entry->domain);
-+		break;
-+	default:
-+		return -EINVAL;
-+	}
-+	if (ret_val != 0)
-+		return ret_val;
-+
-+	entry->valid = 1;
-+	INIT_RCU_HEAD(&entry->rcu);
-+
-+	ret_val = 0;
-+	rcu_read_lock();
-+	if (entry->domain != NULL) {
-+		bkt = netlbl_domhsh_hash(entry->domain);
-+		spin_lock(&netlbl_domhsh_lock);
-+		if (netlbl_domhsh_search(entry->domain, 0) == NULL)
-+			list_add_tail_rcu(&entry->list,
-+					  &netlbl_domhsh->tbl[bkt]);
-+		else
-+			ret_val = -EEXIST;
-+		spin_unlock(&netlbl_domhsh_lock);
-+	} else if (entry->domain == NULL) {
-+		INIT_LIST_HEAD(&entry->list);
-+		spin_lock(&netlbl_domhsh_def_lock);
-+		if (rcu_dereference(netlbl_domhsh_def) == NULL)
-+			rcu_assign_pointer(netlbl_domhsh_def, entry);
-+		else
-+			ret_val = -EEXIST;
-+		spin_unlock(&netlbl_domhsh_def_lock);
-+	} else
-+		ret_val = -EINVAL;
-+	rcu_read_unlock();
-+
-+	if (ret_val != 0) {
-+		switch (entry->type) {
-+		case NETLBL_NLTYPE_CIPSOV4:
-+			if (cipso_v4_doi_domhsh_remove(entry->type_def.cipsov4,
-+						       entry->domain) != 0)
-+				BUG();
-+			break;
-+		}
-+	}
-+
-+	return ret_val;
-+}
-+
-+/**
-+ * netlbl_domhsh_add_default - Adds the default entry to the domain hash table
-+ * @entry: the entry to add
-+ *
-+ * Description:
-+ * Adds a new default entry to the domain hash table and handles any updates
-+ * to the lower level protocol handler (i.e. CIPSO).  Returns zero on success,
-+ * negative on failure.
-+ *
-+ */
-+int netlbl_domhsh_add_default(struct netlbl_dom_map *entry)
-+{
-+	return netlbl_domhsh_add(entry);
-+}
-+
-+/**
-+ * netlbl_domhsh_remove - Removes an entry from the domain hash table
-+ * @domain: the domain to remove
-+ *
-+ * Description:
-+ * Removes an entry from the domain hash table and handles any updates to the
-+ * lower level protocol handler (i.e. CIPSO).  Returns zero on success,
-+ * negative on failure.
-+ *
-+ */
-+int netlbl_domhsh_remove(const char *domain)
-+{
-+	int ret_val = -ENOENT;
-+	struct netlbl_dom_map *entry;
-+
-+	rcu_read_lock();
-+	if (domain != NULL)
-+		entry = netlbl_domhsh_search(domain, 0);
-+	else
-+		entry = netlbl_domhsh_search(domain, 1);
-+	if (entry == NULL)
-+		goto remove_return;
-+	switch (entry->type) {
-+	case NETLBL_NLTYPE_UNLABELED:
-+		break;
-+	case NETLBL_NLTYPE_CIPSOV4:
-+		ret_val = cipso_v4_doi_domhsh_remove(entry->type_def.cipsov4,
-+						     entry->domain);
-+		if (ret_val != 0)
-+			goto remove_return;
-+		break;
-+	}
-+	ret_val = 0;
-+	if (entry != rcu_dereference(netlbl_domhsh_def)) {
-+		spin_lock(&netlbl_domhsh_lock);
-+		if (entry->valid) {
-+			entry->valid = 0;
-+			list_del_rcu(&entry->list);
-+		} else
-+			ret_val = -ENOENT;
-+		spin_unlock(&netlbl_domhsh_lock);
-+	} else {
-+		spin_lock(&netlbl_domhsh_def_lock);
-+		if (entry->valid) {
-+			entry->valid = 0;
-+			rcu_assign_pointer(netlbl_domhsh_def, NULL);
-+		} else
-+			ret_val = -ENOENT;
-+		spin_unlock(&netlbl_domhsh_def_lock);
-+	}
-+	if (ret_val == 0)
-+		call_rcu(&entry->rcu, netlbl_domhsh_free_entry);
-+
-+remove_return:
-+	rcu_read_unlock();
-+	return ret_val;
-+}
-+
-+/**
-+ * netlbl_domhsh_remove_default - Removes the default entry from the table
-+ *
-+ * Description:
-+ * Removes/resets the default entry for the domain hash table and handles any
-+ * updates to the lower level protocol handler (i.e. CIPSO).  Returns zero on
-+ * success, non-zero on failure.
-+ *
-+ */
-+int netlbl_domhsh_remove_default(void)
-+{
-+	return netlbl_domhsh_remove(NULL);
-+}
-+
-+/**
-+ * netlbl_domhsh_getentry - Get an entry from the domain hash table
-+ * @domain: the domain name to search for
-+ *
-+ * Description:
-+ * Look through the domain hash table searching for an entry to match @domain,
-+ * return a pointer to a copy of the entry or NULL.  The caller is responsibile
-+ * for ensuring that rcu_read_[un]lock() is called.
-+ *
-+ */
-+struct netlbl_dom_map *netlbl_domhsh_getentry(const char *domain)
-+{
-+	return netlbl_domhsh_search(domain, 1);
-+}
-+
-+/**
-+ * netlbl_domhsh_dump - Dump the domain hash table into a sk_buff
-+ *
-+ * Description:
-+ * Dump the domain hash table into a buffer suitable for returning to an
-+ * application in response to a NetLabel management DOMAIN message.  This
-+ * function may fail if another process is growing the hash table at the same
-+ * time.  The returned sk_buff has room at the front of the sk_buff for
-+ * @headroom bytes.  See netlabel.h for the DOMAIN message format.  Returns a
-+ * pointer to a sk_buff on success, NULL on error.
-+ *
-+ */
-+struct sk_buff *netlbl_domhsh_dump(size_t headroom)
-+{
-+	struct sk_buff *skb = NULL;
-+	ssize_t buf_len;
-+	u32 bkt_iter;
-+	u32 dom_cnt = 0;
-+	struct netlbl_domhsh_tbl *hsh_tbl;
-+	struct netlbl_dom_map *list_iter;
-+	ssize_t tmp_len;
-+
-+	buf_len = NETLBL_LEN_U32;
-+	rcu_read_lock();
-+	hsh_tbl = rcu_dereference(netlbl_domhsh);
-+	for (bkt_iter = 0; bkt_iter < hsh_tbl->size; bkt_iter++)
-+		list_for_each_entry_rcu(list_iter,
-+					&hsh_tbl->tbl[bkt_iter], list) {
-+			buf_len += NETLBL_LEN_U32 +
-+				nla_total_size(strlen(list_iter->domain) + 1);
-+			switch (list_iter->type) {
-+			case NETLBL_NLTYPE_UNLABELED:
-+				break;
-+			case NETLBL_NLTYPE_CIPSOV4:
-+				buf_len += 2 * NETLBL_LEN_U32;
-+				break;
-+			}
-+			dom_cnt++;
-+		}
-+
-+	skb = netlbl_netlink_alloc_skb(headroom, buf_len, GFP_ATOMIC);
-+	if (skb == NULL)
-+		goto dump_failure;
-+
-+	if (nla_put_u32(skb, NLA_U32, dom_cnt) != 0)
-+		goto dump_failure;
-+	buf_len -= NETLBL_LEN_U32;
-+	hsh_tbl = rcu_dereference(netlbl_domhsh);
-+	for (bkt_iter = 0; bkt_iter < hsh_tbl->size; bkt_iter++)
-+		list_for_each_entry_rcu(list_iter,
-+					&hsh_tbl->tbl[bkt_iter], list) {
-+			tmp_len = nla_total_size(strlen(list_iter->domain) +
-+						 1);
-+			if (buf_len < NETLBL_LEN_U32 + tmp_len)
-+				goto dump_failure;
-+			if (nla_put_string(skb,
-+					   NLA_STRING,
-+					   list_iter->domain) != 0)
-+				goto dump_failure;
-+			if (nla_put_u32(skb, NLA_U32, list_iter->type) != 0)
-+				goto dump_failure;
-+			buf_len -= NETLBL_LEN_U32 + tmp_len;
-+			switch (list_iter->type) {
-+			case NETLBL_NLTYPE_UNLABELED:
-+				break;
-+			case NETLBL_NLTYPE_CIPSOV4:
-+				if (buf_len < 2 * NETLBL_LEN_U32)
-+					goto dump_failure;
-+				if (nla_put_u32(skb,
-+				       NLA_U32,
-+				       list_iter->type_def.cipsov4->type) != 0)
-+					goto dump_failure;
-+				if (nla_put_u32(skb,
-+				       NLA_U32,
-+				       list_iter->type_def.cipsov4->doi) != 0)
-+					goto dump_failure;
-+				buf_len -= 2 * NETLBL_LEN_U32;
-+				break;
-+			}
-+		}
-+	rcu_read_unlock();
-+
-+	return skb;
-+
-+dump_failure:
-+	rcu_read_unlock();
-+	kfree_skb(skb);
-+	return NULL;
-+}
-+
-+/**
-+ * netlbl_domhsh_dump_default - Dump the default domain mapping into a sk_buff
-+ *
-+ * Description:
-+ * Dump the default domain mapping into a buffer suitable for returning to an
-+ * application in response to a NetLabel management DEFDOMAIN message.  This
-+ * function may fail if another process is changing the default domain mapping
-+ * at the same time.  The returned sk_buff has room at the front of the
-+ * skb_buff for @headroom bytes.  See netlabel.h for the DEFDOMAIN message
-+ * format.  Returns a pointer to a sk_buff on success, NULL on error.
-+ *
-+ */
-+struct sk_buff *netlbl_domhsh_dump_default(size_t headroom)
-+{
-+	struct sk_buff *skb;
-+	ssize_t buf_len;
-+	struct netlbl_dom_map *entry;
-+
-+	buf_len = NETLBL_LEN_U32;
-+	rcu_read_lock();
-+	entry = rcu_dereference(netlbl_domhsh_def);
-+	if (entry != NULL)
-+		switch (entry->type) {
-+		case NETLBL_NLTYPE_UNLABELED:
-+			break;
-+		case NETLBL_NLTYPE_CIPSOV4:
-+			buf_len += 2 * NETLBL_LEN_U32;
-+			break;
-+		}
-+
-+	skb = netlbl_netlink_alloc_skb(headroom, buf_len, GFP_ATOMIC);
-+	if (skb == NULL)
-+		goto dump_default_failure;
-+
-+	if (entry != rcu_dereference(netlbl_domhsh_def))
-+		goto dump_default_failure;
-+	if (entry != NULL) {
-+		if (nla_put_u32(skb, NLA_U32, entry->type) != 0)
-+			goto dump_default_failure;
-+		buf_len -= NETLBL_LEN_U32;
-+		switch (entry->type) {
-+		case NETLBL_NLTYPE_UNLABELED:
-+			break;
-+		case NETLBL_NLTYPE_CIPSOV4:
-+			if (buf_len < 2 * NETLBL_LEN_U32)
-+				goto dump_default_failure;
-+			if (nla_put_u32(skb,
-+					NLA_U32,
-+					entry->type_def.cipsov4->type) != 0)
-+				goto dump_default_failure;
-+			if (nla_put_u32(skb,
-+					NLA_U32,
-+					entry->type_def.cipsov4->doi) != 0)
-+				goto dump_default_failure;
-+			buf_len -= 2 * NETLBL_LEN_U32;
-+			break;
-+		}
-+	} else
-+		nla_put_u32(skb, NLA_U32, NETLBL_NLTYPE_NONE);
-+	rcu_read_unlock();
-+
-+	return skb;
-+
-+dump_default_failure:
-+	rcu_read_unlock();
-+	kfree_skb(skb);
-+	return NULL;
-+}
-Index: net-2.6.19/net/netlabel/netlabel_domainhash.h
++Detailed information about the NetLabel security module API can be found in the
++'include/net/netlabel.h' header file as well as the 'lsm_interface.txt' file
++found in this directory.
+Index: net-2.6.19/Documentation/netlabel/lsm_interface.txt
 ===================================================================
 --- /dev/null
-+++ net-2.6.19/net/netlabel/netlabel_domainhash.h
-@@ -0,0 +1,63 @@
-+/*
-+ * NetLabel Domain Hash Table
-+ *
-+ * This file manages the domain hash table that NetLabel uses to determine
-+ * which network labeling protocol to use for a given domain.  The NetLabel
-+ * system manages static and dynamic label mappings for network protocols such
-+ * as CIPSO and RIPSO.
-+ *
-+ * Author: Paul Moore <paul.moore@hp.com>
-+ *
-+ */
++++ net-2.6.19/Documentation/netlabel/lsm_interface.txt
+@@ -0,0 +1,47 @@
++NetLabel Linux Security Module Interface
++==============================================================================
++Paul Moore, paul.moore@hp.com
 +
-+/*
-+ * (c) Copyright Hewlett-Packard Development Company, L.P., 2006
-+ *
-+ * This program is free software;  you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License as published by
-+ * the Free Software Foundation; either version 2 of the License, or
-+ * (at your option) any later version.
-+ *
-+ * This program is distributed in the hope that it will be useful,
-+ * but WITHOUT ANY WARRANTY;  without even the implied warranty of
-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See
-+ * the GNU General Public License for more details.
-+ *
-+ * You should have received a copy of the GNU General Public License
-+ * along with this program;  if not, write to the Free Software
-+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
-+ *
-+ */
++May 17, 2006
 +
-+#ifndef _NETLABEL_DOMAINHASH_H
-+#define _NETLABEL_DOMAINHASH_H
++ * Overview
 +
-+/* Domain hash table size */
-+/* XXX - currently this number is an uneducated guess */
-+#define NETLBL_DOMHSH_BITSIZE       7
++NetLabel is a mechanism which can set and retrieve security attributes from
++network packets.  It is intended to be used by LSM developers who want to make
++use of a common code base for several different packet labeling protocols.
++The NetLabel security module API is defined in 'include/net/netlabel.h' but a
++brief overview is given below.
 +
-+/* Domain mapping definition struct */
-+struct netlbl_dom_map {
-+	char *domain;
-+	u32 type;
-+	union {
-+		struct cipso_v4_doi *cipsov4;
-+	} type_def;
++ * NetLabel Security Attributes
 +
-+	u32 valid;
-+	struct list_head list;
-+	struct rcu_head rcu;
-+};
++Since NetLabel supports multiple different packet labeling protocols and LSMs
++it uses the concept of security attributes to refer to the packet's security
++labels.  The NetLabel security attributes are defined by the
++'netlbl_lsm_secattr' structure in the NetLabel header file.  Internally the
++NetLabel subsystem converts the security attributes to and from the correct
++low-level packet label depending on the NetLabel build time and run time
++configuration.  It is up to the LSM developer to translate the NetLabel
++security attributes into whatever security identifiers are in use for their
++particular LSM.
 +
-+/* init function */
-+int netlbl_domhsh_init(u32 size);
++ * NetLabel LSM Protocol Operations
 +
-+/* Manipulate the domain hash table */
-+int netlbl_domhsh_add(struct netlbl_dom_map *entry);
-+int netlbl_domhsh_add_default(struct netlbl_dom_map *entry);
-+int netlbl_domhsh_remove_default(void);
-+struct netlbl_dom_map *netlbl_domhsh_getentry(const char *domain);
-+struct sk_buff *netlbl_domhsh_dump(size_t headroom);
-+struct sk_buff *netlbl_domhsh_dump_default(size_t headroom);
++These are the functions which allow the LSM developer to manipulate the labels
++on outgoing packets as well as read the labels on incoming packets.  Functions
++exist to operate both on sockets as well as the sk_buffs directly.  These high
++level functions are translated into low level protocol operations based on how
++the administrator has configured the NetLabel subsystem.
 +
-+#endif
-Index: net-2.6.19/net/netlabel/netlabel_kapi.c
++ * NetLabel Label Mapping Cache Operations
++
++Depending on the exact configuration, translation between the network packet
++label and the internal LSM security identifier can be time consuming.  The
++NetLabel label mapping cache is a caching mechanism which can be used to
++sidestep much of this overhead once a mapping has been established.  Once the
++LSM has received a packet, used NetLabel to decode it's security attributes,
++and translated the security attributes into a LSM internal identifier the LSM
++can use the NetLabel caching functions to associate the LSM internal
++identifier with the network packet's label.  This means that in the future
++when a incoming packet matches a cached value not only are the internal
++NetLabel translation mechanisms bypassed but the LSM translation mechanisms are
++bypassed as well which should result in a significant reduction in overhead.
+Index: net-2.6.19/Documentation/networking/ip-sysctl.txt
 ===================================================================
---- /dev/null
-+++ net-2.6.19/net/netlabel/netlabel_kapi.c
-@@ -0,0 +1,231 @@
-+/*
-+ * NetLabel Kernel API
-+ *
-+ * This file defines the kernel API for the NetLabel system.  The NetLabel
-+ * system manages static and dynamic label mappings for network protocols such
-+ * as CIPSO and RIPSO.
-+ *
-+ * Author: Paul Moore <paul.moore@hp.com>
-+ *
-+ */
-+
-+/*
-+ * (c) Copyright Hewlett-Packard Development Company, L.P., 2006
-+ *
-+ * This program is free software;  you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License as published by
-+ * the Free Software Foundation; either version 2 of the License, or
-+ * (at your option) any later version.
-+ *
-+ * This program is distributed in the hope that it will be useful,
-+ * but WITHOUT ANY WARRANTY;  without even the implied warranty of
-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See
-+ * the GNU General Public License for more details.
-+ *
-+ * You should have received a copy of the GNU General Public License
-+ * along with this program;  if not, write to the Free Software
-+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
-+ *
-+ */
-+
-+#include <linux/init.h>
-+#include <linux/types.h>
-+#include <net/ip.h>
-+#include <net/netlabel.h>
-+#include <net/cipso_ipv4.h>
-+#include <asm/bug.h>
-+
-+#include "netlabel_domainhash.h"
-+#include "netlabel_unlabeled.h"
-+#include "netlabel_user.h"
-+
-+/*
-+ * LSM Functions
-+ */
-+
-+/**
-+ * netlbl_socket_setattr - Label a socket using the correct protocol
-+ * @sock: the socket to label
-+ * @secattr: the security attributes
-+ *
-+ * Description:
-+ * Attach the correct label to the given socket using the security attributes
-+ * specified in @secattr.  This function requires exclusive access to
-+ * @sock->sk, which means it either needs to be in the process of being
-+ * created or locked via lock_sock(sock->sk).  Returns zero on success,
-+ * negative values on failure.
-+ *
-+ */
-+int netlbl_socket_setattr(const struct socket *sock,
-+			  const struct netlbl_lsm_secattr *secattr)
-+{
-+	int ret_val = -ENOENT;
-+	struct netlbl_dom_map *dom_entry;
-+
-+	rcu_read_lock();
-+	dom_entry = netlbl_domhsh_getentry(secattr->domain);
-+	if (dom_entry == NULL)
-+		goto socket_setattr_return;
-+	switch (dom_entry->type) {
-+	case NETLBL_NLTYPE_CIPSOV4:
-+		ret_val = cipso_v4_socket_setattr(sock,
-+						  dom_entry->type_def.cipsov4,
-+						  secattr);
-+		break;
-+	case NETLBL_NLTYPE_UNLABELED:
-+		ret_val = 0;
-+		break;
-+	default:
-+		ret_val = -ENOENT;
-+	}
-+
-+socket_setattr_return:
-+	rcu_read_unlock();
-+	return ret_val;
-+}
-+
-+/**
-+ * netlbl_socket_getattr - Determine the security attributes of a socket
-+ * @sock: the socket
-+ * @secattr: the security attributes
-+ *
-+ * Description:
-+ * Examines the given socket to see any NetLabel style labeling has been
-+ * applied to the socket, if so it parses the socket label and returns the
-+ * security attributes in @secattr.  Returns zero on success, negative values
-+ * on failure.
-+ *
-+ */
-+int netlbl_socket_getattr(const struct socket *sock,
-+			  struct netlbl_lsm_secattr *secattr)
-+{
-+	int ret_val;
-+
-+	ret_val = cipso_v4_socket_getattr(sock, secattr);
-+	if (ret_val == 0)
-+		return 0;
-+
-+	return netlbl_unlabel_getattr(secattr);
-+}
-+
-+/**
-+ * netlbl_skbuff_getattr - Determine the security attributes of a packet
-+ * @skb: the packet
-+ * @secattr: the security attributes
-+ *
-+ * Description:
-+ * Examines the given packet to see if a recognized form of packet labeling
-+ * is present, if so it parses the packet label and returns the security
-+ * attributes in @secattr.  Returns zero on success, negative values on
-+ * failure.
-+ *
-+ */
-+int netlbl_skbuff_getattr(const struct sk_buff *skb,
-+			  struct netlbl_lsm_secattr *secattr)
-+{
-+	int ret_val;
-+
-+	ret_val = cipso_v4_skbuff_getattr(skb, secattr);
-+	if (ret_val == 0)
-+		return 0;
-+
-+	return netlbl_unlabel_getattr(secattr);
-+}
-+
-+/**
-+ * netlbl_skbuff_err - Handle a LSM error on a sk_buff
-+ * @skb: the packet
-+ * @error: the error code
-+ *
-+ * Description:
-+ * Deal with a LSM problem when handling the packet in @skb, typically this is
-+ * a permission denied problem (-EACCES).  The correct action is determined
-+ * according to the packet's labeling protocol.
-+ *
-+ */
-+void netlbl_skbuff_err(struct sk_buff *skb, int error)
-+{
-+	if (CIPSO_V4_OPTEXIST(skb))
-+		cipso_v4_error(skb, error, 0);
-+}
-+
-+/**
-+ * netlbl_cache_invalidate - Invalidate all of the NetLabel protocol caches
-+ *
-+ * Description:
-+ * For all of the NetLabel protocols that support some form of label mapping
-+ * cache, invalidate the cache.  Returns zero on success, negative values on
-+ * error.
-+ *
-+ */
-+void netlbl_cache_invalidate(void)
-+{
-+	cipso_v4_cache_invalidate();
-+}
-+
-+/**
-+ * netlbl_cache_add - Add an entry to a NetLabel protocol cache
-+ * @skb: the packet
-+ * @secattr: the packet's security attributes
-+ *
-+ * Description:
-+ * Add the LSM security attributes for the given packet to the underlying
-+ * NetLabel protocol's label mapping cache.  Returns zero on success, negative
-+ * values on error.
-+ *
-+ */
-+int netlbl_cache_add(const struct sk_buff *skb,
-+		     const struct netlbl_lsm_secattr *secattr)
-+{
-+	if (secattr->cache.data == NULL)
-+		return -ENOMSG;
-+
-+	if (CIPSO_V4_OPTEXIST(skb))
-+		return cipso_v4_cache_add(skb, secattr);
-+
-+	return -ENOMSG;
-+}
-+
-+/*
-+ * Setup Functions
-+ */
-+
-+/**
-+ * netlbl_init - Initialize NetLabel
-+ *
-+ * Description:
-+ * Perform the required NetLabel initialization before first use.
-+ *
-+ */
-+static int __init netlbl_init(void)
-+{
-+	int ret_val;
-+
-+	printk(KERN_INFO "NetLabel: Initializing\n");
-+	printk(KERN_INFO "NetLabel:  domain hash size = %u\n",
-+	       (1 << NETLBL_DOMHSH_BITSIZE));
-+	printk(KERN_INFO "NetLabel:  protocols ="
-+	       " UNLABELED"
-+	       " CIPSOv4"
-+	       "\n");
-+
-+	ret_val = netlbl_domhsh_init(NETLBL_DOMHSH_BITSIZE);
-+	if (ret_val != 0)
-+		goto init_failure;
-+
-+	ret_val = netlbl_netlink_init();
-+	if (ret_val != 0)
-+		goto init_failure;
-+
-+	ret_val = netlbl_unlabel_defconf();
-+	if (ret_val != 0)
-+		goto init_failure;
-+	printk(KERN_INFO "NetLabel:  unlabeled traffic allowed by default\n");
-+
-+	return 0;
-+
-+init_failure:
-+	panic("NetLabel: failed to initialize properly (%d)\n", ret_val);
-+}
-+
-+subsys_initcall(netlbl_init);
-Index: net-2.6.19/net/netlabel/netlabel_mgmt.c
-===================================================================
---- /dev/null
-+++ net-2.6.19/net/netlabel/netlabel_mgmt.c
-@@ -0,0 +1,624 @@
-+/*
-+ * NetLabel Management Support
-+ *
-+ * This file defines the management functions for the NetLabel system.  The
-+ * NetLabel system manages static and dynamic label mappings for network
-+ * protocols such as CIPSO and RIPSO.
-+ *
-+ * Author: Paul Moore <paul.moore@hp.com>
-+ *
-+ */
-+
-+/*
-+ * (c) Copyright Hewlett-Packard Development Company, L.P., 2006
-+ *
-+ * This program is free software;  you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License as published by
-+ * the Free Software Foundation; either version 2 of the License, or
-+ * (at your option) any later version.
-+ *
-+ * This program is distributed in the hope that it will be useful,
-+ * but WITHOUT ANY WARRANTY;  without even the implied warranty of
-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See
-+ * the GNU General Public License for more details.
-+ *
-+ * You should have received a copy of the GNU General Public License
-+ * along with this program;  if not, write to the Free Software
-+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
-+ *
-+ */
-+
-+#include <linux/types.h>
-+#include <linux/socket.h>
-+#include <linux/string.h>
-+#include <linux/skbuff.h>
-+#include <net/sock.h>
-+#include <net/netlink.h>
-+#include <net/genetlink.h>
-+#include <net/netlabel.h>
-+#include <net/cipso_ipv4.h>
-+
-+#include "netlabel_domainhash.h"
-+#include "netlabel_user.h"
-+#include "netlabel_mgmt.h"
-+
-+/* NetLabel Generic NETLINK CIPSOv4 family */
-+static struct genl_family netlbl_mgmt_gnl_family = {
-+	.id = GENL_ID_GENERATE,
-+	.hdrsize = 0,
-+	.name = NETLBL_NLTYPE_MGMT_NAME,
-+	.version = NETLBL_PROTO_VERSION,
-+	.maxattr = 0,
-+};
-+
-+
-+/*
-+ * NetLabel Command Handlers
-+ */
-+
-+/**
-+ * netlbl_mgmt_add - Handle an ADD message
-+ * @skb: the NETLINK buffer
-+ * @info: the Generic NETLINK info block
-+ *
-+ * Description:
-+ * Process a user generated ADD message and add the domains from the message
-+ * to the hash table.  See netlabel.h for a description of the message format.
-+ * Returns zero on success, negative values on failure.
-+ *
-+ */
-+static int netlbl_mgmt_add(struct sk_buff *skb, struct genl_info *info)
-+{
-+	int ret_val = -EINVAL;
-+	struct nlattr *msg_ptr = netlbl_netlink_payload_data(skb);
-+	int msg_len = netlbl_netlink_payload_len(skb);
-+	u32 count;
-+	struct netlbl_dom_map *entry = NULL;
-+	u32 iter;
-+	u32 tmp_val;
-+	int tmp_size;
-+
-+	ret_val = netlbl_netlink_cap_check(skb, CAP_NET_ADMIN);
-+	if (ret_val != 0)
-+		goto add_failure;
-+
-+	if (msg_len < NETLBL_LEN_U32)
-+		goto add_failure;
-+	count = netlbl_getinc_u32(&msg_ptr, &msg_len);
-+
-+	for (iter = 0; iter < count && msg_len > 0; iter++, entry = NULL) {
-+		if (msg_len <= 0) {
-+			ret_val = -EINVAL;
-+			goto add_failure;
-+		}
-+		entry = kzalloc(sizeof(*entry), GFP_KERNEL);
-+		if (entry == NULL) {
-+			ret_val = -ENOMEM;
-+			goto add_failure;
-+		}
-+		tmp_size = nla_len(msg_ptr);
-+		if (tmp_size <= 0 || tmp_size > msg_len) {
-+			ret_val = -EINVAL;
-+			goto add_failure;
-+		}
-+		entry->domain = kmalloc(tmp_size, GFP_KERNEL);
-+		if (entry->domain == NULL) {
-+			ret_val = -ENOMEM;
-+			goto add_failure;
-+		}
-+		nla_strlcpy(entry->domain, msg_ptr, tmp_size);
-+		entry->domain[tmp_size - 1] = '\0';
-+		msg_ptr = nla_next(msg_ptr, &msg_len);
-+
-+		if (msg_len < NETLBL_LEN_U32) {
-+			ret_val = -EINVAL;
-+			goto add_failure;
-+		}
-+		tmp_val = netlbl_getinc_u32(&msg_ptr, &msg_len);
-+		entry->type = tmp_val;
-+		switch (tmp_val) {
-+		case NETLBL_NLTYPE_UNLABELED:
-+			ret_val = netlbl_domhsh_add(entry);
-+			break;
-+		case NETLBL_NLTYPE_CIPSOV4:
-+			if (msg_len < NETLBL_LEN_U32) {
-+				ret_val = -EINVAL;
-+				goto add_failure;
-+			}
-+			tmp_val = netlbl_getinc_u32(&msg_ptr, &msg_len);
-+			/* We should be holding a rcu_read_lock() here
-+			 * while we hold the result but since the entry
-+			 * will always be deleted when the CIPSO DOI
-+			 * is deleted we aren't going to keep the lock. */
-+			rcu_read_lock();
-+			entry->type_def.cipsov4 = cipso_v4_doi_getdef(tmp_val);
-+			if (entry->type_def.cipsov4 == NULL) {
-+				rcu_read_unlock();
-+				ret_val = -EINVAL;
-+				goto add_failure;
-+			}
-+			ret_val = netlbl_domhsh_add(entry);
-+			rcu_read_unlock();
-+			break;
-+		default:
-+			ret_val = -EINVAL;
-+		}
-+		if (ret_val != 0)
-+			goto add_failure;
-+	}
-+
-+	netlbl_netlink_send_ack(info,
-+				netlbl_mgmt_gnl_family.id,
-+				NLBL_MGMT_C_ACK,
-+				NETLBL_E_OK);
-+	return 0;
-+
-+add_failure:
-+	if (entry)
-+		kfree(entry->domain);
-+	kfree(entry);
-+	netlbl_netlink_send_ack(info,
-+				netlbl_mgmt_gnl_family.id,
-+				NLBL_MGMT_C_ACK,
-+				-ret_val);
-+	return ret_val;
-+}
-+
-+/**
-+ * netlbl_mgmt_remove - Handle a REMOVE message
-+ * @skb: the NETLINK buffer
-+ * @info: the Generic NETLINK info block
-+ *
-+ * Description:
-+ * Process a user generated REMOVE message and remove the specified domain
-+ * mappings.  Returns zero on success, negative values on failure.
-+ *
-+ */
-+static int netlbl_mgmt_remove(struct sk_buff *skb, struct genl_info *info)
-+{
-+	int ret_val = -EINVAL;
-+	struct nlattr *msg_ptr = netlbl_netlink_payload_data(skb);
-+	int msg_len = netlbl_netlink_payload_len(skb);
-+	u32 count;
-+	u32 iter;
-+	int tmp_size;
-+	unsigned char *domain;
-+
-+	ret_val = netlbl_netlink_cap_check(skb, CAP_NET_ADMIN);
-+	if (ret_val != 0)
-+		goto remove_return;
-+
-+	if (msg_len < NETLBL_LEN_U32)
-+		goto remove_return;
-+	count = netlbl_getinc_u32(&msg_ptr, &msg_len);
-+
-+	for (iter = 0; iter < count && msg_len > 0; iter++) {
-+		if (msg_len <= 0) {
-+			ret_val = -EINVAL;
-+			goto remove_return;
-+		}
-+		tmp_size = nla_len(msg_ptr);
-+		domain = nla_data(msg_ptr);
-+		if (tmp_size <= 0 || tmp_size > msg_len ||
-+		    domain[tmp_size - 1] != '\0') {
-+			ret_val = -EINVAL;
-+			goto remove_return;
-+		}
-+		ret_val = netlbl_domhsh_remove(domain);
-+		if (ret_val != 0)
-+			goto remove_return;
-+		msg_ptr = nla_next(msg_ptr, &msg_len);
-+	}
-+
-+	ret_val = 0;
-+
-+remove_return:
-+	netlbl_netlink_send_ack(info,
-+				netlbl_mgmt_gnl_family.id,
-+				NLBL_MGMT_C_ACK,
-+				-ret_val);
-+	return ret_val;
-+}
-+
-+/**
-+ * netlbl_mgmt_list - Handle a LIST message
-+ * @skb: the NETLINK buffer
-+ * @info: the Generic NETLINK info block
-+ *
-+ * Description:
-+ * Process a user generated LIST message and dumps the domain hash table in a
-+ * form suitable for use in a kernel generated LIST message.  Returns zero on
-+ * success, negative values on failure.
-+ *
-+ */
-+static int netlbl_mgmt_list(struct sk_buff *skb, struct genl_info *info)
-+{
-+	int ret_val = -ENOMEM;
-+	struct sk_buff *ans_skb;
-+
-+	ans_skb = netlbl_domhsh_dump(NLMSG_SPACE(GENL_HDRLEN));
-+	if (ans_skb == NULL)
-+		goto list_failure;
-+	netlbl_netlink_hdr_push(ans_skb,
-+				info->snd_pid,
-+				0,
-+				netlbl_mgmt_gnl_family.id,
-+				NLBL_MGMT_C_LIST);
-+
-+	ret_val = netlbl_netlink_snd(ans_skb, info->snd_pid);
-+	if (ret_val != 0)
-+		goto list_failure;
-+
-+	return 0;
-+
-+list_failure:
-+	netlbl_netlink_send_ack(info,
-+				netlbl_mgmt_gnl_family.id,
-+				NLBL_MGMT_C_ACK,
-+				-ret_val);
-+	return ret_val;
-+}
-+
-+/**
-+ * netlbl_mgmt_adddef - Handle an ADDDEF message
-+ * @skb: the NETLINK buffer
-+ * @info: the Generic NETLINK info block
-+ *
-+ * Description:
-+ * Process a user generated ADDDEF message and respond accordingly.  Returns
-+ * zero on success, negative values on failure.
-+ *
-+ */
-+static int netlbl_mgmt_adddef(struct sk_buff *skb, struct genl_info *info)
-+{
-+	int ret_val = -EINVAL;
-+	struct nlattr *msg_ptr = netlbl_netlink_payload_data(skb);
-+	int msg_len = netlbl_netlink_payload_len(skb);
-+	struct netlbl_dom_map *entry = NULL;
-+	u32 tmp_val;
-+
-+	ret_val = netlbl_netlink_cap_check(skb, CAP_NET_ADMIN);
-+	if (ret_val != 0)
-+		goto adddef_failure;
-+
-+	if (msg_len < NETLBL_LEN_U32)
-+		goto adddef_failure;
-+	tmp_val = netlbl_getinc_u32(&msg_ptr, &msg_len);
-+
-+	entry = kzalloc(sizeof(*entry), GFP_KERNEL);
-+	if (entry == NULL) {
-+		ret_val = -ENOMEM;
-+		goto adddef_failure;
-+	}
-+
-+	entry->type = tmp_val;
-+	switch (entry->type) {
-+	case NETLBL_NLTYPE_UNLABELED:
-+		ret_val = netlbl_domhsh_add_default(entry);
-+		break;
-+	case NETLBL_NLTYPE_CIPSOV4:
-+		if (msg_len < NETLBL_LEN_U32) {
-+			ret_val = -EINVAL;
-+			goto adddef_failure;
-+		}
-+		tmp_val = netlbl_getinc_u32(&msg_ptr, &msg_len);
-+		/* We should be holding a rcu_read_lock here while we
-+		 * hold the result but since the entry will always be
-+		 * deleted when the CIPSO DOI is deleted we are going
-+		 * to skip the lock. */
-+		rcu_read_lock();
-+		entry->type_def.cipsov4 = cipso_v4_doi_getdef(tmp_val);
-+		if (entry->type_def.cipsov4 == NULL) {
-+			rcu_read_unlock();
-+			ret_val = -EINVAL;
-+			goto adddef_failure;
-+		}
-+		ret_val = netlbl_domhsh_add_default(entry);
-+		rcu_read_unlock();
-+		break;
-+	default:
-+		ret_val = -EINVAL;
-+	}
-+	if (ret_val != 0)
-+		goto adddef_failure;
-+
-+	netlbl_netlink_send_ack(info,
-+				netlbl_mgmt_gnl_family.id,
-+				NLBL_MGMT_C_ACK,
-+				NETLBL_E_OK);
-+	return 0;
-+
-+adddef_failure:
-+	kfree(entry);
-+	netlbl_netlink_send_ack(info,
-+				netlbl_mgmt_gnl_family.id,
-+				NLBL_MGMT_C_ACK,
-+				-ret_val);
-+	return ret_val;
-+}
-+
-+/**
-+ * netlbl_mgmt_removedef - Handle a REMOVEDEF message
-+ * @skb: the NETLINK buffer
-+ * @info: the Generic NETLINK info block
-+ *
-+ * Description:
-+ * Process a user generated REMOVEDEF message and remove the default domain
-+ * mapping.  Returns zero on success, negative values on failure.
-+ *
-+ */
-+static int netlbl_mgmt_removedef(struct sk_buff *skb, struct genl_info *info)
-+{
-+	int ret_val;
-+
-+	ret_val = netlbl_netlink_cap_check(skb, CAP_NET_ADMIN);
-+	if (ret_val != 0)
-+		goto removedef_return;
-+
-+	ret_val = netlbl_domhsh_remove_default();
-+
-+removedef_return:
-+	netlbl_netlink_send_ack(info,
-+				netlbl_mgmt_gnl_family.id,
-+				NLBL_MGMT_C_ACK,
-+				-ret_val);
-+	return ret_val;
-+}
-+
-+/**
-+ * netlbl_mgmt_listdef - Handle a LISTDEF message
-+ * @skb: the NETLINK buffer
-+ * @info: the Generic NETLINK info block
-+ *
-+ * Description:
-+ * Process a user generated LISTDEF message and dumps the default domain
-+ * mapping in a form suitable for use in a kernel generated LISTDEF message.
-+ * Returns zero on success, negative values on failure.
-+ *
-+ */
-+static int netlbl_mgmt_listdef(struct sk_buff *skb, struct genl_info *info)
-+{
-+	int ret_val = -ENOMEM;
-+	struct sk_buff *ans_skb;
-+
-+	ans_skb = netlbl_domhsh_dump_default(NLMSG_SPACE(GENL_HDRLEN));
-+	if (ans_skb == NULL)
-+		goto listdef_failure;
-+	netlbl_netlink_hdr_push(ans_skb,
-+				info->snd_pid,
-+				0,
-+				netlbl_mgmt_gnl_family.id,
-+				NLBL_MGMT_C_LISTDEF);
-+
-+	ret_val = netlbl_netlink_snd(ans_skb, info->snd_pid);
-+	if (ret_val != 0)
-+		goto listdef_failure;
-+
-+	return 0;
-+
-+listdef_failure:
-+	netlbl_netlink_send_ack(info,
-+				netlbl_mgmt_gnl_family.id,
-+				NLBL_MGMT_C_ACK,
-+				-ret_val);
-+	return ret_val;
-+}
-+
-+/**
-+ * netlbl_mgmt_modules - Handle a MODULES message
-+ * @skb: the NETLINK buffer
-+ * @info: the Generic NETLINK info block
-+ *
-+ * Description:
-+ * Process a user generated MODULES message and respond accordingly.
-+ *
-+ */
-+static int netlbl_mgmt_modules(struct sk_buff *skb, struct genl_info *info)
-+{
-+	int ret_val = -ENOMEM;
-+	size_t data_size;
-+	u32 mod_count;
-+	struct sk_buff *ans_skb = NULL;
-+
-+	/* unlabeled + cipsov4 */
-+	mod_count = 2;
-+
-+	data_size = GENL_HDRLEN + NETLBL_LEN_U32 + mod_count * NETLBL_LEN_U32;
-+	ans_skb = netlbl_netlink_alloc_skb(0, data_size, GFP_KERNEL);
-+	if (ans_skb == NULL)
-+		goto modules_failure;
-+
-+	if (netlbl_netlink_hdr_put(ans_skb,
-+				   info->snd_pid,
-+				   0,
-+				   netlbl_mgmt_gnl_family.id,
-+				   NLBL_MGMT_C_MODULES) == NULL)
-+		goto modules_failure;
-+
-+	ret_val = nla_put_u32(ans_skb, NLA_U32, mod_count);
-+	if (ret_val != 0)
-+		goto modules_failure;
-+	ret_val = nla_put_u32(ans_skb, NLA_U32, NETLBL_NLTYPE_UNLABELED);
-+	if (ret_val != 0)
-+		goto modules_failure;
-+	ret_val = nla_put_u32(ans_skb, NLA_U32, NETLBL_NLTYPE_CIPSOV4);
-+	if (ret_val != 0)
-+		goto modules_failure;
-+
-+	ret_val = netlbl_netlink_snd(ans_skb, info->snd_pid);
-+	if (ret_val != 0)
-+		goto modules_failure;
-+
-+	return 0;
-+
-+modules_failure:
-+	kfree_skb(ans_skb);
-+	netlbl_netlink_send_ack(info,
-+				netlbl_mgmt_gnl_family.id,
-+				NLBL_MGMT_C_ACK,
-+				-ret_val);
-+	return ret_val;
-+}
-+
-+/**
-+ * netlbl_mgmt_version - Handle a VERSION message
-+ * @skb: the NETLINK buffer
-+ * @info: the Generic NETLINK info block
-+ *
-+ * Description:
-+ * Process a user generated VERSION message and respond accordingly.  Returns
-+ * zero on success, negative values on failure.
-+ *
-+ */
-+static int netlbl_mgmt_version(struct sk_buff *skb, struct genl_info *info)
-+{
-+	int ret_val = -ENOMEM;
-+	struct sk_buff *ans_skb = NULL;
-+
-+	ans_skb = netlbl_netlink_alloc_skb(0,
-+					   GENL_HDRLEN + NETLBL_LEN_U32,
-+					   GFP_KERNEL);
-+	if (ans_skb == NULL)
-+		goto version_failure;
-+	if (netlbl_netlink_hdr_put(ans_skb,
-+				   info->snd_pid,
-+				   0,
-+				   netlbl_mgmt_gnl_family.id,
-+				   NLBL_MGMT_C_VERSION) == NULL)
-+		goto version_failure;
-+
-+	ret_val = nla_put_u32(ans_skb, NLA_U32, NETLBL_PROTO_VERSION);
-+	if (ret_val != 0)
-+		goto version_failure;
-+
-+	ret_val = netlbl_netlink_snd(ans_skb, info->snd_pid);
-+	if (ret_val != 0)
-+		goto version_failure;
-+
-+	return 0;
-+
-+version_failure:
-+	kfree_skb(ans_skb);
-+	netlbl_netlink_send_ack(info,
-+				netlbl_mgmt_gnl_family.id,
-+				NLBL_MGMT_C_ACK,
-+				-ret_val);
-+	return ret_val;
-+}
-+
-+
-+/*
-+ * NetLabel Generic NETLINK Command Definitions
-+ */
-+
-+static struct genl_ops netlbl_mgmt_genl_c_add = {
-+	.cmd = NLBL_MGMT_C_ADD,
-+	.flags = 0,
-+	.doit = netlbl_mgmt_add,
-+	.dumpit = NULL,
-+};
-+
-+static struct genl_ops netlbl_mgmt_genl_c_remove = {
-+	.cmd = NLBL_MGMT_C_REMOVE,
-+	.flags = 0,
-+	.doit = netlbl_mgmt_remove,
-+	.dumpit = NULL,
-+};
-+
-+static struct genl_ops netlbl_mgmt_genl_c_list = {
-+	.cmd = NLBL_MGMT_C_LIST,
-+	.flags = 0,
-+	.doit = netlbl_mgmt_list,
-+	.dumpit = NULL,
-+};
-+
-+static struct genl_ops netlbl_mgmt_genl_c_adddef = {
-+	.cmd = NLBL_MGMT_C_ADDDEF,
-+	.flags = 0,
-+	.doit = netlbl_mgmt_adddef,
-+	.dumpit = NULL,
-+};
-+
-+static struct genl_ops netlbl_mgmt_genl_c_removedef = {
-+	.cmd = NLBL_MGMT_C_REMOVEDEF,
-+	.flags = 0,
-+	.doit = netlbl_mgmt_removedef,
-+	.dumpit = NULL,
-+};
-+
-+static struct genl_ops netlbl_mgmt_genl_c_listdef = {
-+	.cmd = NLBL_MGMT_C_LISTDEF,
-+	.flags = 0,
-+	.doit = netlbl_mgmt_listdef,
-+	.dumpit = NULL,
-+};
-+
-+static struct genl_ops netlbl_mgmt_genl_c_modules = {
-+	.cmd = NLBL_MGMT_C_MODULES,
-+	.flags = 0,
-+	.doit = netlbl_mgmt_modules,
-+	.dumpit = NULL,
-+};
-+
-+static struct genl_ops netlbl_mgmt_genl_c_version = {
-+	.cmd = NLBL_MGMT_C_VERSION,
-+	.flags = 0,
-+	.doit = netlbl_mgmt_version,
-+	.dumpit = NULL,
-+};
-+
-+/*
-+ * NetLabel Generic NETLINK Protocol Functions
-+ */
-+
-+/**
-+ * netlbl_mgmt_genl_init - Register the NetLabel management component
-+ *
-+ * Description:
-+ * Register the NetLabel management component with the Generic NETLINK
-+ * mechanism.  Returns zero on success, negative values on failure.
-+ *
-+ */
-+int netlbl_mgmt_genl_init(void)
-+{
-+	int ret_val;
-+
-+	ret_val = genl_register_family(&netlbl_mgmt_gnl_family);
-+	if (ret_val != 0)
-+		return ret_val;
-+
-+	ret_val = genl_register_ops(&netlbl_mgmt_gnl_family,
-+				    &netlbl_mgmt_genl_c_add);
-+	if (ret_val != 0)
-+		return ret_val;
-+	ret_val = genl_register_ops(&netlbl_mgmt_gnl_family,
-+				    &netlbl_mgmt_genl_c_remove);
-+	if (ret_val != 0)
-+		return ret_val;
-+	ret_val = genl_register_ops(&netlbl_mgmt_gnl_family,
-+				    &netlbl_mgmt_genl_c_list);
-+	if (ret_val != 0)
-+		return ret_val;
-+	ret_val = genl_register_ops(&netlbl_mgmt_gnl_family,
-+				    &netlbl_mgmt_genl_c_adddef);
-+	if (ret_val != 0)
-+		return ret_val;
-+	ret_val = genl_register_ops(&netlbl_mgmt_gnl_family,
-+				    &netlbl_mgmt_genl_c_removedef);
-+	if (ret_val != 0)
-+		return ret_val;
-+	ret_val = genl_register_ops(&netlbl_mgmt_gnl_family,
-+				    &netlbl_mgmt_genl_c_listdef);
-+	if (ret_val != 0)
-+		return ret_val;
-+	ret_val = genl_register_ops(&netlbl_mgmt_gnl_family,
-+				    &netlbl_mgmt_genl_c_modules);
-+	if (ret_val != 0)
-+		return ret_val;
-+	ret_val = genl_register_ops(&netlbl_mgmt_gnl_family,
-+				    &netlbl_mgmt_genl_c_version);
-+	if (ret_val != 0)
-+		return ret_val;
-+
-+	return 0;
-+}
-Index: net-2.6.19/net/netlabel/netlabel_mgmt.h
-===================================================================
---- /dev/null
-+++ net-2.6.19/net/netlabel/netlabel_mgmt.h
-@@ -0,0 +1,246 @@
-+/*
-+ * NetLabel Management Support
-+ *
-+ * This file defines the management functions for the NetLabel system.  The
-+ * NetLabel system manages static and dynamic label mappings for network
-+ * protocols such as CIPSO and RIPSO.
-+ *
-+ * Author: Paul Moore <paul.moore@hp.com>
-+ *
-+ */
-+
-+/*
-+ * (c) Copyright Hewlett-Packard Development Company, L.P., 2006
-+ *
-+ * This program is free software;  you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License as published by
-+ * the Free Software Foundation; either version 2 of the License, or
-+ * (at your option) any later version.
-+ *
-+ * This program is distributed in the hope that it will be useful,
-+ * but WITHOUT ANY WARRANTY;  without even the implied warranty of
-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See
-+ * the GNU General Public License for more details.
-+ *
-+ * You should have received a copy of the GNU General Public License
-+ * along with this program;  if not, write to the Free Software
-+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
-+ *
-+ */
-+
-+#ifndef _NETLABEL_MGMT_H
-+#define _NETLABEL_MGMT_H
-+
-+#include <net/netlabel.h>
-+
-+/*
-+ * The following NetLabel payloads are supported by the management interface,
-+ * all of which are preceeded by the nlmsghdr struct.
-+ *
-+ * o ACK:
-+ *   Sent by the kernel in response to an applications message, applications
-+ *   should never send this message.
-+ *
-+ *   +----------------------+-----------------------+
-+ *   | seq number (32 bits) | return code (32 bits) |
-+ *   +----------------------+-----------------------+
-+ *
-+ *     seq number:  the sequence number of the original message, taken from the
-+ *                  nlmsghdr structure
-+ *     return code: return value, based on errno values
-+ *
-+ * o ADD:
-+ *   Sent by an application to add a domain mapping to the NetLabel system.
-+ *   The kernel should respond with an ACK.
-+ *
-+ *   +-------------------+
-+ *   | domains (32 bits) | ...
-+ *   +-------------------+
-+ *
-+ *     domains: the number of domains in the message
-+ *
-+ *   +--------------------------+-------------------------+
-+ *   | domain string (variable) | protocol type (32 bits) | ...
-+ *   +--------------------------+-------------------------+
-+ *
-+ *   +-------------- ---- --- -- -
-+ *   | mapping data                ... repeated
-+ *   +-------------- ---- --- -- -
-+ *
-+ *     domain string: the domain string, NULL terminated
-+ *     protocol type: the protocol type (defined by NETLBL_NLTYPE_*)
-+ *     mapping data:  specific to the map type (see below)
-+ *
-+ *   NETLBL_NLTYPE_UNLABELED
-+ *
-+ *     No mapping data for this protocol type.
-+ *
-+ *   NETLBL_NLTYPE_CIPSOV4
-+ *
-+ *   +---------------+
-+ *   | doi (32 bits) |
-+ *   +---------------+
-+ *
-+ *     doi:  the CIPSO DOI value
-+ *
-+ * o REMOVE:
-+ *   Sent by an application to remove a domain mapping from the NetLabel
-+ *   system.  The kernel should ACK this message.
-+ *
-+ *   +-------------------+
-+ *   | domains (32 bits) | ...
-+ *   +-------------------+
-+ *
-+ *     domains: the number of domains in the message
-+ *
-+ *   +--------------------------+
-+ *   | domain string (variable) | ...
-+ *   +--------------------------+
-+ *
-+ *     domain string: the domain string, NULL terminated
-+ *
-+ * o LIST:
-+ *   This message can be sent either from an application or by the kernel in
-+ *   response to an application generated LIST message.  When sent by an
-+ *   application there is no payload.  The kernel should respond to a LIST
-+ *   message either with a LIST message on success or an ACK message on
-+ *   failure.
-+ *
-+ *   +-------------------+
-+ *   | domains (32 bits) | ...
-+ *   +-------------------+
-+ *
-+ *     domains: the number of domains in the message
-+ *
-+ *   +--------------------------+
-+ *   | domain string (variable) | ...
-+ *   +--------------------------+
-+ *
-+ *   +-------------------------+-------------- ---- --- -- -
-+ *   | protocol type (32 bits) | mapping data                ... repeated
-+ *   +-------------------------+-------------- ---- --- -- -
-+ *
-+ *     domain string: the domain string, NULL terminated
-+ *     protocol type: the protocol type (defined by NETLBL_NLTYPE_*)
-+ *     mapping data:  specific to the map type (see below)
-+ *
-+ *   NETLBL_NLTYPE_UNLABELED
-+ *
-+ *     No mapping data for this protocol type.
-+ *
-+ *   NETLBL_NLTYPE_CIPSOV4
-+ *
-+ *   +----------------+---------------+
-+ *   | type (32 bits) | doi (32 bits) |
-+ *   +----------------+---------------+
-+ *
-+ *     type: the CIPSO mapping table type (defined in the cipso_ipv4.h header
-+ *           as CIPSO_V4_MAP_*)
-+ *     doi:  the CIPSO DOI value
-+ *
-+ * o ADDDEF:
-+ *   Sent by an application to set the default domain mapping for the NetLabel
-+ *   system.  The kernel should respond with an ACK.
-+ *
-+ *   +-------------------------+-------------- ---- --- -- -
-+ *   | protocol type (32 bits) | mapping data                ... repeated
-+ *   +-------------------------+-------------- ---- --- -- -
-+ *
-+ *     protocol type: the protocol type (defined by NETLBL_NLTYPE_*)
-+ *     mapping data:  specific to the map type (see below)
-+ *
-+ *   NETLBL_NLTYPE_UNLABELED
-+ *
-+ *     No mapping data for this protocol type.
-+ *
-+ *   NETLBL_NLTYPE_CIPSOV4
-+ *
-+ *   +---------------+
-+ *   | doi (32 bits) |
-+ *   +---------------+
-+ *
-+ *     doi:  the CIPSO DOI value
-+ *
-+ * o REMOVEDEF:
-+ *   Sent by an application to remove the default domain mapping from the
-+ *   NetLabel system, there is no payload.  The kernel should ACK this message.
-+ *
-+ * o LISTDEF:
-+ *   This message can be sent either from an application or by the kernel in
-+ *   response to an application generated LISTDEF message.  When sent by an
-+ *   application there is no payload.  The kernel should respond to a
-+ *   LISTDEF message either with a LISTDEF message on success or an ACK message
-+ *   on failure.
-+ *
-+ *   +-------------------------+-------------- ---- --- -- -
-+ *   | protocol type (32 bits) | mapping data                ... repeated
-+ *   +-------------------------+-------------- ---- --- -- -
-+ *
-+ *     protocol type: the protocol type (defined by NETLBL_NLTYPE_*)
-+ *     mapping data:  specific to the map type (see below)
-+ *
-+ *   NETLBL_NLTYPE_UNLABELED
-+ *
-+ *     No mapping data for this protocol type.
-+ *
-+ *   NETLBL_NLTYPE_CIPSOV4
-+ *
-+ *   +----------------+---------------+
-+ *   | type (32 bits) | doi (32 bits) |
-+ *   +----------------+---------------+
-+ *
-+ *     type: the CIPSO mapping table type (defined in the cipso_ipv4.h header
-+ *           as CIPSO_V4_MAP_*)
-+ *     doi:  the CIPSO DOI value
-+ *
-+ * o MODULES:
-+ *   Sent by an application to request a list of configured NetLabel modules
-+ *   in the kernel.  When sent by an application there is no payload.
-+ *
-+ *   +-------------------+
-+ *   | modules (32 bits) | ...
-+ *   +-------------------+
-+ *
-+ *     modules: the number of modules in the message, if this is an application
-+ *              generated message and the value is zero then return a list of
-+ *              the configured modules
-+ *
-+ *   +------------------+
-+ *   | module (32 bits) | ... repeated
-+ *   +------------------+
-+ *
-+ *     module: the module number as defined by NETLBL_NLTYPE_*
-+ *
-+ * o VERSION:
-+ *   Sent by an application to request the NetLabel version string.  When sent
-+ *   by an application there is no payload.  This message type is also used by
-+ *   the kernel to respond to an VERSION request.
-+ *
-+ *   +-------------------+
-+ *   | version (32 bits) |
-+ *   +-------------------+
-+ *
-+ *     version: the protocol version number
-+ *
-+ */
-+
-+/* NetLabel Management commands */
-+enum {
-+	NLBL_MGMT_C_UNSPEC,
-+	NLBL_MGMT_C_ACK,
-+	NLBL_MGMT_C_ADD,
-+	NLBL_MGMT_C_REMOVE,
-+	NLBL_MGMT_C_LIST,
-+	NLBL_MGMT_C_ADDDEF,
-+	NLBL_MGMT_C_REMOVEDEF,
-+	NLBL_MGMT_C_LISTDEF,
-+	NLBL_MGMT_C_MODULES,
-+	NLBL_MGMT_C_VERSION,
-+	__NLBL_MGMT_C_MAX,
-+};
-+#define NLBL_MGMT_C_MAX (__NLBL_MGMT_C_MAX - 1)
-+
-+/* NetLabel protocol functions */
-+int netlbl_mgmt_genl_init(void);
-+
-+#endif
-Index: net-2.6.19/net/netlabel/netlabel_unlabeled.h
-===================================================================
---- /dev/null
-+++ net-2.6.19/net/netlabel/netlabel_unlabeled.h
-@@ -0,0 +1,98 @@
-+/*
-+ * NetLabel Unlabeled Support
-+ *
-+ * This file defines functions for dealing with unlabeled packets for the
-+ * NetLabel system.  The NetLabel system manages static and dynamic label
-+ * mappings for network protocols such as CIPSO and RIPSO.
-+ *
-+ * Author: Paul Moore <paul.moore@hp.com>
-+ *
-+ */
-+
-+/*
-+ * (c) Copyright Hewlett-Packard Development Company, L.P., 2006
-+ *
-+ * This program is free software;  you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License as published by
-+ * the Free Software Foundation; either version 2 of the License, or
-+ * (at your option) any later version.
-+ *
-+ * This program is distributed in the hope that it will be useful,
-+ * but WITHOUT ANY WARRANTY;  without even the implied warranty of
-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See
-+ * the GNU General Public License for more details.
-+ *
-+ * You should have received a copy of the GNU General Public License
-+ * along with this program;  if not, write to the Free Software
-+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
-+ *
-+ */
-+
-+#ifndef _NETLABEL_UNLABELED_H
-+#define _NETLABEL_UNLABELED_H
-+
-+#include <net/netlabel.h>
-+
-+/*
-+ * The following NetLabel payloads are supported by the Unlabeled subsystem.
-+ *
-+ * o ACK:
-+ *   Sent by the kernel in response to an applications message, applications
-+ *   should never send this message.
-+ *
-+ *   +----------------------+-----------------------+
-+ *   | seq number (32 bits) | return code (32 bits) |
-+ *   +----------------------+-----------------------+
-+ *
-+ *     seq number:  the sequence number of the original message, taken from the
-+ *                  nlmsghdr structure
-+ *     return code: return value, based on errno values
-+ *
-+ * o ACCEPT
-+ *   This message is sent from an application to specify if the kernel should
-+ *   allow unlabled packets to pass if they do not match any of the static
-+ *   mappings defined in the unlabeled module.
-+ *
-+ *   +-----------------+
-+ *   | allow (32 bits) |
-+ *   +-----------------+
-+ *
-+ *     allow: if true (1) then allow the packets to pass, if false (0) then
-+ *            reject the packets
-+ *
-+ * o LIST
-+ *   This message can be sent either from an application or by the kernel in
-+ *   response to an application generated LIST message.  When sent by an
-+ *   application there is no payload.  The kernel should respond to a LIST
-+ *   message either with a LIST message on success or an ACK message on
-+ *   failure.
-+ *
-+ *   +-----------------------+
-+ *   | accept flag (32 bits) |
-+ *   +-----------------------+
-+ *
-+ *     accept flag: if true (1) then unlabeled packets are allowed to pass,
-+ *                  if false (0) then unlabeled packets are rejected
-+ *
-+ */
-+
-+/* NetLabel Unlabeled commands */
-+enum {
-+	NLBL_UNLABEL_C_UNSPEC,
-+	NLBL_UNLABEL_C_ACK,
-+	NLBL_UNLABEL_C_ACCEPT,
-+	NLBL_UNLABEL_C_LIST,
-+	__NLBL_UNLABEL_C_MAX,
-+};
-+#define NLBL_UNLABEL_C_MAX (__NLBL_UNLABEL_C_MAX - 1)
-+
-+/* NetLabel protocol functions */
-+int netlbl_unlabel_genl_init(void);
-+
-+/* Process Unlabeled incoming network packets */
-+int netlbl_unlabel_getattr(struct netlbl_lsm_secattr *secattr);
-+
-+/* Set the default configuration to allow Unlabeled packets */
-+int netlbl_unlabel_defconf(void);
-+
-+#endif
-Index: net-2.6.19/net/netlabel/netlabel_user.c
-===================================================================
---- /dev/null
-+++ net-2.6.19/net/netlabel/netlabel_user.c
-@@ -0,0 +1,158 @@
-+/*
-+ * NetLabel NETLINK Interface
-+ *
-+ * This file defines the NETLINK interface for the NetLabel system.  The
-+ * NetLabel system manages static and dynamic label mappings for network
-+ * protocols such as CIPSO and RIPSO.
-+ *
-+ * Author: Paul Moore <paul.moore@hp.com>
-+ *
-+ */
-+
-+/*
-+ * (c) Copyright Hewlett-Packard Development Company, L.P., 2006
-+ *
-+ * This program is free software;  you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License as published by
-+ * the Free Software Foundation; either version 2 of the License, or
-+ * (at your option) any later version.
-+ *
-+ * This program is distributed in the hope that it will be useful,
-+ * but WITHOUT ANY WARRANTY;  without even the implied warranty of
-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See
-+ * the GNU General Public License for more details.
-+ *
-+ * You should have received a copy of the GNU General Public License
-+ * along with this program;  if not, write to the Free Software
-+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
-+ *
-+ */
-+
-+#include <linux/init.h>
-+#include <linux/types.h>
-+#include <linux/list.h>
-+#include <linux/socket.h>
-+#include <net/sock.h>
-+#include <net/netlink.h>
-+#include <net/genetlink.h>
-+#include <net/netlabel.h>
-+#include <asm/bug.h>
-+
-+#include "netlabel_mgmt.h"
-+#include "netlabel_unlabeled.h"
-+#include "netlabel_cipso_v4.h"
-+#include "netlabel_user.h"
-+
-+/*
-+ * NetLabel NETLINK Setup Functions
-+ */
-+
-+/**
-+ * netlbl_netlink_init - Initialize the NETLINK communication channel
-+ *
-+ * Description:
-+ * Call out to the NetLabel components so they can register their families and
-+ * commands with the Generic NETLINK mechanism.  Returns zero on success and
-+ * non-zero on failure.
-+ *
-+ */
-+int netlbl_netlink_init(void)
-+{
-+	int ret_val;
-+
-+	ret_val = netlbl_mgmt_genl_init();
-+	if (ret_val != 0)
-+		return ret_val;
-+
-+	ret_val = netlbl_cipsov4_genl_init();
-+	if (ret_val != 0)
-+		return ret_val;
-+
-+	ret_val = netlbl_unlabel_genl_init();
-+	if (ret_val != 0)
-+		return ret_val;
-+
-+	return 0;
-+}
-+
-+/*
-+ * NetLabel Common Protocol Functions
-+ */
-+
-+/**
-+ * netlbl_netlink_send_ack - Send an ACK message
-+ * @info: the generic NETLINK information
-+ * @genl_family: the generic NETLINK family ID value
-+ * @ack_cmd: the generic NETLINK family ACK command value
-+ * @ret_code: return code to use
-+ *
-+ * Description:
-+ * This function sends an ACK message to the sender of the NETLINK message
-+ * specified by @info.
-+ *
-+ */
-+void netlbl_netlink_send_ack(const struct genl_info *info,
-+			     u32 genl_family,
-+			     u8 ack_cmd,
-+			     u32 ret_code)
-+{
-+	size_t data_size;
-+	struct sk_buff *skb;
-+
-+	data_size = GENL_HDRLEN + 2 * NETLBL_LEN_U32;
-+	skb = netlbl_netlink_alloc_skb(0, data_size, GFP_KERNEL);
-+	if (skb == NULL)
-+		return;
-+
-+	if (netlbl_netlink_hdr_put(skb,
-+				   info->snd_pid,
-+				   0,
-+				   genl_family,
-+				   ack_cmd) == NULL)
-+		goto send_ack_failure;
-+
-+	if (nla_put_u32(skb, NLA_U32, info->snd_seq) != 0)
-+		goto send_ack_failure;
-+	if (nla_put_u32(skb, NLA_U32, ret_code) != 0)
-+		goto send_ack_failure;
-+
-+	netlbl_netlink_snd(skb, info->snd_pid);
-+	return;
-+
-+send_ack_failure:
-+	kfree_skb(skb);
-+}
-+
-+/*
-+ * NETLINK I/O Functions
-+ */
-+
-+/**
-+ * netlbl_netlink_snd - Send a NetLabel message
-+ * @skb: NetLabel message
-+ * @pid: destination PID
-+ *
-+ * Description:
-+ * Sends a unicast NetLabel message over the NETLINK socket.
-+ *
-+ */
-+int netlbl_netlink_snd(struct sk_buff *skb, u32 pid)
-+{
-+	return genlmsg_unicast(skb, pid);
-+}
-+
-+/**
-+ * netlbl_netlink_snd - Send a NetLabel message
-+ * @skb: NetLabel message
-+ * @pid: sending PID
-+ * @group: multicast group id
-+ *
-+ * Description:
-+ * Sends a multicast NetLabel message over the NETLINK socket to all members
-+ * of @group except @pid.
-+ *
-+ */
-+int netlbl_netlink_snd_multicast(struct sk_buff *skb, u32 pid, u32 group)
-+{
-+	return genlmsg_multicast(skb, pid, group);
-+}
-Index: net-2.6.19/net/netlabel/netlabel_user.h
-===================================================================
---- /dev/null
-+++ net-2.6.19/net/netlabel/netlabel_user.h
-@@ -0,0 +1,214 @@
-+/*
-+ * NetLabel NETLINK Interface
-+ *
-+ * This file defines the NETLINK interface for the NetLabel system.  The
-+ * NetLabel system manages static and dynamic label mappings for network
-+ * protocols such as CIPSO and RIPSO.
-+ *
-+ * Author: Paul Moore <paul.moore@hp.com>
-+ *
-+ */
-+
-+/*
-+ * (c) Copyright Hewlett-Packard Development Company, L.P., 2006
-+ *
-+ * This program is free software;  you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License as published by
-+ * the Free Software Foundation; either version 2 of the License, or
-+ * (at your option) any later version.
-+ *
-+ * This program is distributed in the hope that it will be useful,
-+ * but WITHOUT ANY WARRANTY;  without even the implied warranty of
-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See
-+ * the GNU General Public License for more details.
-+ *
-+ * You should have received a copy of the GNU General Public License
-+ * along with this program;  if not, write to the Free Software
-+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
-+ *
-+ */
-+
-+#ifndef _NETLABEL_USER_H
-+#define _NETLABEL_USER_H
-+
-+#include <linux/skbuff.h>
-+#include <linux/capability.h>
-+#include <linux/genetlink.h>
-+#include <net/netlabel.h>
-+#include <net/genetlink.h>
-+
-+/* NetLabel NETLINK helper functions */
-+
-+/**
-+ * netlbl_netlink_cap_check - Check the NETLINK msg capabilities
-+ * @skb: the NETLINK buffer
-+ * @req_cap: the required capability
-+ *
-+ * Description:
-+ * Check the NETLINK buffer's capabilities against the required capabilities.
-+ * Returns zero on success, negative values on failure.
-+ *
-+ */
-+static inline int netlbl_netlink_cap_check(const struct sk_buff *skb,
-+					   kernel_cap_t req_cap)
-+{
-+	if (cap_raised(NETLINK_CB(skb).eff_cap, req_cap))
-+		return 0;
-+	return -EPERM;
-+}
-+
-+/**
-+ * netlbl_getinc_u8 - Read a u8 value from a nlattr stream and move on
-+ * @nla: the attribute
-+ * @rem_len: remaining length
-+ *
-+ * Description:
-+ * Return a u8 value pointed to by @nla and advance it to the next attribute.
-+ *
-+ */
-+static inline u8 netlbl_getinc_u8(struct nlattr **nla, int *rem_len)
-+{
-+	u8 val = nla_get_u8(*nla);
-+	*nla = nla_next(*nla, rem_len);
-+	return val;
-+}
-+
-+/**
-+ * netlbl_getinc_u16 - Read a u16 value from a nlattr stream and move on
-+ * @nla: the attribute
-+ * @rem_len: remaining length
-+ *
-+ * Description:
-+ * Return a u16 value pointed to by @nla and advance it to the next attribute.
-+ *
-+ */
-+static inline u16 netlbl_getinc_u16(struct nlattr **nla, int *rem_len)
-+{
-+	u16 val = nla_get_u16(*nla);
-+	*nla = nla_next(*nla, rem_len);
-+	return val;
-+}
-+
-+/**
-+ * netlbl_getinc_u32 - Read a u32 value from a nlattr stream and move on
-+ * @nla: the attribute
-+ * @rem_len: remaining length
-+ *
-+ * Description:
-+ * Return a u32 value pointed to by @nla and advance it to the next attribute.
-+ *
-+ */
-+static inline u32 netlbl_getinc_u32(struct nlattr **nla, int *rem_len)
-+{
-+	u32 val = nla_get_u32(*nla);
-+	*nla = nla_next(*nla, rem_len);
-+	return val;
-+}
-+
-+/**
-+ * netlbl_netlink_hdr_put - Write the NETLINK buffers into a sk_buff
-+ * @skb: the packet
-+ * @pid: the PID of the receipient
-+ * @seq: the sequence number
-+ * @type: the generic NETLINK message family type
-+ * @cmd: command
-+ *
-+ * Description:
-+ * Write both a NETLINK nlmsghdr structure and a Generic NETLINK genlmsghdr
-+ * struct to the packet.  Returns a pointer to the start of the payload buffer
-+ * on success or NULL on failure.
-+ *
-+ */
-+static inline void *netlbl_netlink_hdr_put(struct sk_buff *skb,
-+					   u32 pid,
-+					   u32 seq,
-+					   int type,
-+					   u8 cmd)
-+{
-+	return genlmsg_put(skb,
-+			   pid,
-+			   seq,
-+			   type,
-+			   0,
-+			   0,
-+			   cmd,
-+			   NETLBL_PROTO_VERSION);
-+}
-+
-+/**
-+ * netlbl_netlink_hdr_push - Write the NETLINK buffers into a sk_buff
-+ * @skb: the packet
-+ * @pid: the PID of the receipient
-+ * @seq: the sequence number
-+ * @type: the generic NETLINK message family type
-+ * @cmd: command
-+ *
-+ * Description:
-+ * Write both a NETLINK nlmsghdr structure and a Generic NETLINK genlmsghdr
-+ * struct to the packet.
-+ *
-+ */
-+static inline void netlbl_netlink_hdr_push(struct sk_buff *skb,
-+					   u32 pid,
-+					   u32 seq,
-+					   int type,
-+					   u8 cmd)
-+
-+{
-+	struct nlmsghdr *nlh;
-+	struct genlmsghdr *hdr;
-+
-+	nlh = (struct nlmsghdr *)skb_push(skb, NLMSG_SPACE(GENL_HDRLEN));
-+	nlh->nlmsg_type = type;
-+	nlh->nlmsg_len = skb->len;
-+	nlh->nlmsg_flags = 0;
-+	nlh->nlmsg_pid = pid;
-+	nlh->nlmsg_seq = seq;
-+
-+	hdr = nlmsg_data(nlh);
-+	hdr->cmd = cmd;
-+	hdr->version = NETLBL_PROTO_VERSION;
-+	hdr->reserved = 0;
-+}
-+
-+/**
-+ * netlbl_netlink_payload_len - Return the length of the payload
-+ * @skb: the NETLINK buffer
-+ *
-+ * Description:
-+ * This function returns the length of the NetLabel payload.
-+ *
-+ */
-+static inline u32 netlbl_netlink_payload_len(const struct sk_buff *skb)
-+{
-+	return nlmsg_len((struct nlmsghdr *)skb->data) - GENL_HDRLEN;
-+}
-+
-+/**
-+ * netlbl_netlink_payload_data - Returns a pointer to the start of the payload
-+ * @skb: the NETLINK buffer
-+ *
-+ * Description:
-+ * This function returns a pointer to the start of the NetLabel payload.
-+ *
-+ */
-+static inline void *netlbl_netlink_payload_data(const struct sk_buff *skb)
-+{
-+  return (unsigned char *)nlmsg_data((struct nlmsghdr *)skb->data) +
-+	  GENL_HDRLEN;
-+}
-+
-+/* NetLabel common protocol functions */
-+
-+void netlbl_netlink_send_ack(const struct genl_info *info,
-+			     u32 genl_family,
-+			     u8 ack_cmd,
-+			     u32 ret_code);
-+
-+/* NetLabel NETLINK I/O functions */
-+
-+int netlbl_netlink_init(void);
-+int netlbl_netlink_snd(struct sk_buff *skb, u32 pid);
-+int netlbl_netlink_snd_multicast(struct sk_buff *skb, u32 pid, u32 group);
-+
-+#endif
+--- net-2.6.19.orig/Documentation/networking/ip-sysctl.txt
++++ net-2.6.19/Documentation/networking/ip-sysctl.txt
+@@ -369,6 +369,41 @@ tcp_slow_start_after_idle - BOOLEAN
+ 	be timed out after an idle period.
+ 	Default: 1
+ 
++CIPSOv4 Variables:
++
++cipso_cache_enable - BOOLEAN
++	If set, enable additions to and lookups from the CIPSO label mapping
++	cache.  If unset, additions are ignored and lookups always result in a
++	miss.  However, regardless of the setting the cache is still
++	invalidated when required when means you can safely toggle this on and
++	off and the cache will always be "safe".
++	Default: 1
++
++cipso_cache_bucket_size - INTEGER
++	The CIPSO label cache consists of a fixed size hash table with each
++	hash bucket containing a number of cache entries.  This variable limits
++	the number of entries in each hash bucket; the larger the value the
++	more CIPSO label mappings that can be cached.  When the number of
++	entries in a given hash bucket reaches this limit adding new entries
++	causes the oldest entry in the bucket to be removed to make room.
++	Default: 10
++
++cipso_rbm_optfmt - BOOLEAN
++	Enable the "Optimized Tag 1 Format" as defined in section 3.4.2.6 of
++	the CIPSO draft specification (see Documentation/netlabel for details).
++	This means that when set the CIPSO tag will be padded with empty
++	categories in order to make the packet data 32-bit aligned.
++	Default: 0
++
++cipso_rbm_structvalid - BOOLEAN
++	If set, do a very strict check of the CIPSO option when
++	ip_options_compile() is called.  If unset, relax the checks done during
++	ip_options_compile().  Either way is "safe" as errors are caught else
++	where in the CIPSO processing code but setting this to 0 (False) should
++	result in less work (i.e. it should be faster) but could cause problems
++	with other implementations that require strict checking.
++	Default: 0
++
+ IP Variables:
+ 
+ ip_local_port_range - 2 INTEGERS
 
 --
 paul moore
