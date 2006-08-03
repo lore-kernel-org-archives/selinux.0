@@ -1,470 +1,394 @@
-Subject: [PATCH 2/5] libsepol test commons
+Subject: [PATCH 0/5] libsepol unit tests
 From: Joshua Brindle <jbrindle@tresys.com>
 To: selinux@tycho.nsa.gov
 Cc: sds@tycho.nsa.gov, kmacmillan@mentalrootkit.com
-Content-Type: text/plain
-Date: Thu, 03 Aug 2006 10:17:36 -0400
-Message-Id: <1154614656.4909.20.camel@twoface.columbia.tresys.com>
+Content-Type: multipart/mixed; boundary="=-WUVKMncz5cph4nfeQObf"
+Date: Thu, 03 Aug 2006 10:17:29 -0400
+Message-Id: <1154614649.4909.17.camel@twoface.columbia.tresys.com>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This adds the common functions that are used by more than one test and
-the debug files used for debugging tests.
 
-diff -pruN -x policies trunk.old/libsepol/tests/debug.c trunk/libsepol/tests/debug.c
---- trunk.old/libsepol/tests/debug.c	1969-12-31 19:00:00.000000000 -0500
-+++ trunk/libsepol/tests/debug.c	2006-07-26 11:01:56.000000000 -0400
-@@ -0,0 +1,69 @@
-+/*
-+ * Author: Joshua Brindle <jbrindle@tresys.com>
-+ *
-+ * Copyright (C) 2006 Tresys Technology, LLC
-+ *
-+ *  This library is free software; you can redistribute it and/or
-+ *  modify it under the terms of the GNU Lesser General Public
-+ *  License as published by the Free Software Foundation; either
-+ *  version 2.1 of the License, or (at your option) any later version.
-+ *
-+ *  This library is distributed in the hope that it will be useful,
-+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-+ *  Lesser General Public License for more details.
-+ *
-+ *  You should have received a copy of the GNU Lesser General Public
-+ *  License along with this library; if not, write to the Free Software
-+ *  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
-+ */
-+
-+/* This includes functions used to debug tests (display bitmaps, conditional expressions, etc */
-+
-+#include "debug.h"
-+
-+#include <stdlib.h>
-+
-+void print_ebitmap(ebitmap_t * bitmap, FILE * fp)
-+{
-+	uint32_t i;
-+	for (i = 0; i < bitmap->highbit; i++) {
-+		fprintf(fp, "%d", ebitmap_get_bit(bitmap, i));
-+	}
-+	fprintf(fp, "\n");
-+}
-+
-+/* stolen from dispol.c */
-+void display_expr(policydb_t * p, cond_expr_t * exp, FILE * fp)
-+{
-+
-+	cond_expr_t *cur;
-+	for (cur = exp; cur != NULL; cur = cur->next) {
-+		switch (cur->expr_type) {
-+		case COND_BOOL:
-+			fprintf(fp, "%s ", p->p_bool_val_to_name[cur->bool - 1]);
-+			break;
-+		case COND_NOT:
-+			fprintf(fp, "! ");
-+			break;
-+		case COND_OR:
-+			fprintf(fp, "|| ");
-+			break;
-+		case COND_AND:
-+			fprintf(fp, "&& ");
-+			break;
-+		case COND_XOR:
-+			fprintf(fp, "^ ");
-+			break;
-+		case COND_EQ:
-+			fprintf(fp, "== ");
-+			break;
-+		case COND_NEQ:
-+			fprintf(fp, "!= ");
-+			break;
-+		default:
-+			fprintf(fp, "error! (%d)", cur->expr_type);
-+			break;
-+		}
-+	}
-+}
-diff -pruN -x policies trunk.old/libsepol/tests/debug.h trunk/libsepol/tests/debug.h
---- trunk.old/libsepol/tests/debug.h	1969-12-31 19:00:00.000000000 -0500
-+++ trunk/libsepol/tests/debug.h	2006-07-26 11:01:56.000000000 -0400
-@@ -0,0 +1,27 @@
-+/*
-+ * Author: Joshua Brindle <jbrindle@tresys.com>
-+ *
-+ * Copyright (C) 2006 Tresys Technology, LLC
-+ *
-+ *  This library is free software; you can redistribute it and/or
-+ *  modify it under the terms of the GNU Lesser General Public
-+ *  License as published by the Free Software Foundation; either
-+ *  version 2.1 of the License, or (at your option) any later version.
-+ *
-+ *  This library is distributed in the hope that it will be useful,
-+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-+ *  Lesser General Public License for more details.
-+ *
-+ *  You should have received a copy of the GNU Lesser General Public
-+ *  License along with this library; if not, write to the Free Software
-+ *  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
-+ */
-+
-+/* This includes functions used to debug tests (display bitmaps, conditional expressions, etc */
-+
-+#include <sepol/policydb/policydb.h>
-+#include <sepol/policydb/conditional.h>
-+
-+extern void print_ebitmap(ebitmap_t * bitmap, FILE * fp);
-+extern void display_expr(policydb_t * p, cond_expr_t * exp, FILE * fp);
-diff -pruN -x policies trunk.old/libsepol/tests/test-common.c trunk/libsepol/tests/test-common.c
---- trunk.old/libsepol/tests/test-common.c	1969-12-31 19:00:00.000000000 -0500
-+++ trunk/libsepol/tests/test-common.c	2006-08-02 13:27:49.000000000 -0400
-@@ -0,0 +1,262 @@
-+/*
-+ * Author: Joshua Brindle <jbrindle@tresys.com>
-+ *         Chad Sellers <csellers@tresys.com>
-+ *         Chris PeBenito <cpebenito@tresys.com>
-+ *
-+ * Copyright (C) 2006 Tresys Technology, LLC
-+ *
-+ *  This library is free software; you can redistribute it and/or
-+ *  modify it under the terms of the GNU Lesser General Public
-+ *  License as published by the Free Software Foundation; either
-+ *  version 2.1 of the License, or (at your option) any later version.
-+ *
-+ *  This library is distributed in the hope that it will be useful,
-+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-+ *  Lesser General Public License for more details.
-+ *
-+ *  You should have received a copy of the GNU Lesser General Public
-+ *  License along with this library; if not, write to the Free Software
-+ *  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
-+ */
-+
-+/* This has tests that are common between test suites*/
-+
-+#include <sepol/policydb/avrule_block.h>
-+
-+#include <CUnit/Basic.h>
-+
-+void test_sym_presence(policydb_t * p, char *id, int sym_type, unsigned int scope_type, unsigned int *decls, unsigned int len)
-+{
-+	scope_datum_t *scope;
-+	int found;
-+	unsigned int i, j;
-+	/* make sure it is in global symtab */
-+	if (!hashtab_search(p->symtab[sym_type].table, id)) {
-+		fprintf(stderr, "symbol %s not found in table %d\n", id, sym_type);
-+		CU_FAIL_FATAL();
-+	}
-+	/* make sure its scope is correct */
-+	scope = hashtab_search(p->scope[sym_type].table, id);
-+	CU_ASSERT_FATAL(scope != NULL);
-+	CU_ASSERT(scope->scope == scope_type);
-+	CU_ASSERT(scope->decl_ids_len == len);
-+	if (scope->decl_ids_len != len)
-+		fprintf(stderr, "sym %s has %d decls, %d expected\n", id, scope->decl_ids_len, len);
-+	for (i = 0; i < len; i++) {
-+		found = 0;
-+		for (j = 0; j < len; j++) {
-+			if (decls[i] == scope->decl_ids[j])
-+				found++;
-+		}
-+		CU_ASSERT(found == 1);
-+	}
-+
-+}
-+
-+static int common_test_index(hashtab_key_t key, hashtab_datum_t datum, void *data)
-+{
-+	common_datum_t *d = (common_datum_t *) datum;
-+	policydb_t *p = (policydb_t *) data;
-+
-+	CU_ASSERT(p->sym_val_to_name[SYM_COMMONS][d->value - 1] == (char *)key);
-+	return 0;
-+}
-+
-+static int class_test_index(hashtab_key_t key, hashtab_datum_t datum, void *data)
-+{
-+	class_datum_t *d = (class_datum_t *) datum;
-+	policydb_t *p = (policydb_t *) data;
-+
-+	CU_ASSERT(p->sym_val_to_name[SYM_CLASSES][d->value - 1] == (char *)key);
-+	CU_ASSERT(p->class_val_to_struct[d->value - 1] == d);
-+	return 0;
-+}
-+
-+static int role_test_index(hashtab_key_t key, hashtab_datum_t datum, void *data)
-+{
-+	role_datum_t *d = (role_datum_t *) datum;
-+	policydb_t *p = (policydb_t *) data;
-+
-+	CU_ASSERT(p->sym_val_to_name[SYM_ROLES][d->value - 1] == (char *)key);
-+	CU_ASSERT(p->role_val_to_struct[d->value - 1] == d);
-+	return 0;
-+}
-+
-+static int type_test_index(hashtab_key_t key, hashtab_datum_t datum, void *data)
-+{
-+	type_datum_t *d = (type_datum_t *) datum;
-+	policydb_t *p = (policydb_t *) data;
-+
-+	if (!d->primary)
-+		return 0;
-+
-+	CU_ASSERT(p->sym_val_to_name[SYM_TYPES][d->value - 1] == (char *)key);
-+	CU_ASSERT(p->type_val_to_struct[d->value - 1] == d);
-+
-+	return 0;
-+}
-+
-+static int user_test_index(hashtab_key_t key, hashtab_datum_t datum, void *data)
-+{
-+	user_datum_t *d = (user_datum_t *) datum;
-+	policydb_t *p = (policydb_t *) data;
-+
-+	CU_ASSERT(p->sym_val_to_name[SYM_USERS][d->value - 1] == (char *)key);
-+	CU_ASSERT(p->user_val_to_struct[d->value - 1] == d);
-+	return 0;
-+}
-+
-+static int cond_test_index(hashtab_key_t key, hashtab_datum_t datum, void *data)
-+{
-+	cond_bool_datum_t *d = (cond_bool_datum_t *) datum;
-+	policydb_t *p = (policydb_t *) data;
-+
-+	CU_ASSERT(p->sym_val_to_name[SYM_BOOLS][d->value - 1] == (char *)key);
-+	CU_ASSERT(p->bool_val_to_struct[d->value - 1] == d);
-+	return 0;
-+}
-+
-+static int level_test_index(hashtab_key_t key, hashtab_datum_t datum, void *data)
-+{
-+	level_datum_t *d = (level_datum_t *) datum;
-+	policydb_t *p = (policydb_t *) data;
-+
-+	CU_ASSERT(p->sym_val_to_name[SYM_LEVELS][d->level->sens - 1] == (char *)key);
-+	return 0;
-+}
-+
-+static int cat_test_index(hashtab_key_t key, hashtab_datum_t datum, void *data)
-+{
-+	cat_datum_t *d = (cat_datum_t *) datum;
-+	policydb_t *p = (policydb_t *) data;
-+
-+	CU_ASSERT(p->sym_val_to_name[SYM_CATS][d->value - 1] == (char *)key);
-+	return 0;
-+}
-+
-+static int (*test_index_f[SYM_NUM]) (hashtab_key_t key, hashtab_datum_t datum, void *p) = {
-+common_test_index, class_test_index, role_test_index, type_test_index, user_test_index, cond_test_index, level_test_index, cat_test_index,};
-+
-+void test_policydb_indexes(policydb_t * p)
-+{
-+	int i;
-+
-+	for (i = 0; i < SYM_NUM; i++) {
-+		hashtab_map(p->symtab[i].table, test_index_f[i], p);
-+	}
-+}
-+
-+void test_alias_datum(policydb_t * p, char *id, char *primary_id, char mode, unsigned int flavor)
-+{
-+	type_datum_t *type, *primary;
-+	unsigned int my_primary, my_flavor, my_value;
-+
-+	type = hashtab_search(p->p_types.table, id);
-+	primary = hashtab_search(p->p_types.table, primary_id);
-+
-+	CU_ASSERT_PTR_NOT_NULL(type);
-+	CU_ASSERT_PTR_NOT_NULL(primary);
-+
-+	if (type && primary) {
-+		if (mode) {
-+			my_flavor = type->flavor;
-+		} else {
-+			my_flavor = flavor;
-+		}
-+
-+		if (my_flavor == TYPE_TYPE) {
-+			my_primary = 0;
-+			my_value = primary->value;
-+		} else if (my_flavor == TYPE_ALIAS) {
-+			my_primary = primary->value;
-+			CU_ASSERT_NOT_EQUAL(type->value, primary->value);
-+			my_value = type->value;
-+		} else {
-+			CU_FAIL("not an alias");
-+		}
-+
-+		CU_ASSERT(type->primary == my_primary);
-+		CU_ASSERT(type->flavor == my_flavor);
-+		CU_ASSERT(type->value == my_value);
-+	}
-+}
-+
-+role_datum_t *test_role_type_set(policydb_t * p, char *id, avrule_decl_t * decl, char **types, unsigned int len, unsigned int flags)
-+{
-+	ebitmap_node_t *tnode;
-+	unsigned int i, j, new, found = 0;
-+	role_datum_t *role;
-+
-+	if (decl)
-+		role = hashtab_search(decl->p_roles.table, id);
-+	else
-+		role = hashtab_search(p->p_roles.table, id);
-+
-+	if (!role)
-+		printf("role %s can't be found! \n", id);
-+
-+	CU_ASSERT_FATAL(role != NULL);
-+
-+	ebitmap_for_each_bit(&role->types.types, tnode, i) {
-+		if (ebitmap_node_get_bit(tnode, i)) {
-+			new = 0;
-+			for (j = 0; j < len; j++) {
-+				if (strcmp(p->sym_val_to_name[SYM_TYPES][i], types[j]) == 0) {
-+					found++;
-+					new = 1;
-+				}
-+			}
-+			if (new == 0) {
-+				printf("\nRole %s had type %s not in types array\n", id, p->sym_val_to_name[SYM_TYPES][i]);
-+			}
-+			CU_ASSERT(new == 1);
-+		}
-+	}
-+	CU_ASSERT(found == len);
-+	if (found != len)
-+		printf("\nrole %s has %d types, %d expected\n", p->sym_val_to_name[SYM_ROLES][role->value - 1], found, len);
-+	/* roles should never have anything in the negset */
-+	CU_ASSERT(role->types.negset.highbit == 0);
-+	CU_ASSERT(role->types.flags == flags);
-+
-+	return role;
-+}
-+
-+void test_attr_types(policydb_t * p, char *id, avrule_decl_t * decl, char **types, int len)
-+{
-+	ebitmap_node_t *tnode;
-+	int j, new, found = 0;
-+	unsigned int i;
-+	type_datum_t *attr;
-+
-+	if (decl)
-+		attr = hashtab_search(decl->p_types.table, id);
-+	else
-+		attr = hashtab_search(p->p_types.table, id);
-+
-+	if (attr == NULL)
-+		printf("could not find attr %s in decl %d\n", id, decl->decl_id);
-+	CU_ASSERT_FATAL(attr != NULL);
-+	CU_ASSERT(attr->flavor == TYPE_ATTRIB);
-+	CU_ASSERT(attr->primary == 1);
-+
-+	ebitmap_for_each_bit(&attr->types, tnode, i) {
-+		if (ebitmap_node_get_bit(tnode, i)) {
-+			new = 0;
-+			for (j = 0; j < len; j++) {
-+				if (strcmp(p->sym_val_to_name[SYM_TYPES][i], types[j]) == 0) {
-+					found++;
-+					new = 1;
-+				}
-+			}
-+			if (new == 0) {
-+				printf("\nattr %s had type %s not in types array\n", id, p->sym_val_to_name[SYM_TYPES][i]);
-+			}
-+			CU_ASSERT(new == 1);
-+		}
-+	}
-+	CU_ASSERT(found == len);
-+	if (found != len)
-+		printf("\nattr %s has %d types, %d expected\n", id, found, len);
-+}
-diff -pruN -x policies trunk.old/libsepol/tests/test-common.h trunk/libsepol/tests/test-common.h
---- trunk.old/libsepol/tests/test-common.h	1969-12-31 19:00:00.000000000 -0500
-+++ trunk/libsepol/tests/test-common.h	2006-08-02 13:27:49.000000000 -0400
-@@ -0,0 +1,78 @@
-+/*
-+ * Author: Joshua Brindle <jbrindle@tresys.com>
-+ *         Chad Sellers <csellers@tresys.com>
-+ *
-+ * Copyright (C) 2006 Tresys Technology, LLC
-+ *
-+ *  This library is free software; you can redistribute it and/or
-+ *  modify it under the terms of the GNU Lesser General Public
-+ *  License as published by the Free Software Foundation; either
-+ *  version 2.1 of the License, or (at your option) any later version.
-+ *
-+ *  This library is distributed in the hope that it will be useful,
-+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-+ *  Lesser General Public License for more details.
-+ *
-+ *  You should have received a copy of the GNU Lesser General Public
-+ *  License along with this library; if not, write to the Free Software
-+ *  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
-+ */
-+
-+#ifndef __TEST_COMMON_H__
-+#define __TEST_COMMON_H__
-+
-+#include <sepol/policydb/policydb.h>
-+
-+/* p		the policy being inspected
-+ * id		string symbol identifier
-+ * sym_type	symbol type (eg., SYM_ROLES, SYM_TYPES)
-+ * scope_type	what scope the role should have (eg., SCOPE_DECL or SCOPE_REQ)
-+ * decls	integer array of decl id's that we expect the role to have in the scope table
-+ * len		number of elements in decls
-+ * 
-+ * This is a utility function to test for the symbol's presence in the global symbol table, 
-+ * the scope table, and that the decl blocks we think this symbol is in are correct
-+ */
-+extern void test_sym_presence(policydb_t * p, char *id, int sym_type, unsigned int scope_type, unsigned int *decls, unsigned int len);
-+
-+/* Test the indexes in the policydb to ensure their correctness. These include
-+ * the sym_val_to_name[], class_val_to_struct, role_val_to_struct, type_val_to_struct,
-+ * user_val_to_struct, and bool_val_to_struct indexes.
-+ */
-+extern void test_policydb_indexes(policydb_t * p);
-+
-+/* Test alias datum to ensure that it is as expected
-+ *
-+ * id = the key for the alias
-+ * primary_id = the key for its primary
-+ * mode: 0 = test the datum according to the flavor value in the call
-+         1 = automatically detect the flavor value and test the datum accordingly
-+ * flavor = flavor value if in mode 0
-+ */
-+extern void test_alias_datum(policydb_t * p, char *id, char *primary_id, char mode, unsigned int flavor);
-+
-+/* p		the policy being inspected
-+ * id		string role identifier
-+ * decl		the decl block which we are looking in for the role datum
-+ * types	the array of string types which we expect the role has in its type ebitmap
-+ * len		number of elements in types
-+ * flags	the expected flags in the role typeset (eg., * or ~)
-+ *
-+ * This is a utility function to test whether the type set associated with a role in a specific
-+ * avrule decl block matches our expectations
-+ */
-+extern role_datum_t *test_role_type_set(policydb_t * p, char *id, avrule_decl_t * decl, char **types, unsigned int len, unsigned int flags);
-+
-+/* p		the policy being inspected
-+ * id		string attribute identifier
-+ * decl		the decl block which we are looking in for the attribute datum
-+ * types	the array of string types which we expect the attribute has in its type ebitmap
-+ * len		number of elements in types
-+ *
-+ * This is a utility function to test whether the type set associated with an attribute in a specific
-+ * avrule decl block matches our expectations 
-+ */
-+extern void test_attr_types(policydb_t * p, char *id, avrule_decl_t * decl, char **types, int len);
-+
-+#endif
+--=-WUVKMncz5cph4nfeQObf
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
 
+This patchset adds unit tests to libsepol for the linker, the expander
+and the dependency algorithm as well as more infrastructure to make
+adding tests much easier. The linker and dep tests are fairly exhaustive
+but the expander ones will need to be added to over time. I lindented
+the patches but removed the line length limit, since almost all the
+calls were over 80 columns the link limit mutilated the tests and made
+them very difficult to read.
+
+It runs all tests once with mls on and again with it off so you'll get 2
+sets of results:
+
+./libsepol-tests
+
+
+     CUnit - A Unit testing framework for C - Version 2.1-0
+     http://cunit.sourceforge.net/
+
+
+Suite: cond
+  Test: cond_expr_equal ... passed
+Suite: linker
+  Test: linker_indexes ... passed
+  Test: linker_types ... passed
+  Test: linker_roles ... passed
+  Test: linker_cond ... passed
+Suite: expander
+  Test: expander_indexes ... passed
+  Test: expander_role_mapping ... passed
+  Test: expander_user_mapping ... passed
+  Test: expander_alias ... passed
+Suite: deps
+  Test: deps_modreq_global ... passed
+  Test: deps_modreq_opt ... passed
+
+--Run Summary: Type      Total     Ran  Passed  Failed
+               suites        4       4     n/a       0
+               tests        11      11      11       0
+               asserts    1088    1088    1088       0
+
+
+     CUnit - A Unit testing framework for C - Version 2.1-0
+     http://cunit.sourceforge.net/
+
+
+Suite: cond
+  Test: cond_expr_equal ... passed
+Suite: linker
+  Test: linker_indexes ... passed
+  Test: linker_types ... passed
+  Test: linker_roles ... passed
+  Test: linker_cond ... passed
+Suite: expander
+  Test: expander_indexes ... passed
+  Test: expander_role_mapping ... passed
+  Test: expander_user_mapping ... passed
+  Test: expander_alias ... passed
+Suite: deps
+  Test: deps_modreq_global ... passed
+  Test: deps_modreq_opt ... passed
+
+--Run Summary: Type      Total     Ran  Passed  Failed
+               suites        4       4     n/a       0
+               tests        11      11      11       0
+               asserts    1138    1138    1138       0
+
+
+The policies are quite large (452k) so I've included a bzip of them in
+this email. Please delete the old contents of libsepol/tests/policies
+and untar this from the top of the repository.
+
+
+
+--=-WUVKMncz5cph4nfeQObf
+Content-Disposition: attachment; filename=libsepol-tests-policies.tar.bz2
+Content-Type: application/x-bzip-compressed-tar; name=libsepol-tests-policies.tar.bz2
+Content-Transfer-Encoding: base64
+
+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
+FOFCQsL/9HA=
+
+
+--=-WUVKMncz5cph4nfeQObf--
 
 
 --
