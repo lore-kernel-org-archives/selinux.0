@@ -1,1526 +1,1744 @@
 Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k77FDfrQ001536
-	for <selinux@tycho.nsa.gov>; Mon, 7 Aug 2006 11:13:41 -0400
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k77FDgH6001580
+	for <selinux@tycho.nsa.gov>; Mon, 7 Aug 2006 11:13:42 -0400
 Received: from moss-lions.epoch.ncsc.mil (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id k77FDNME023944
-	for <selinux@tycho.nsa.gov>; Mon, 7 Aug 2006 15:13:23 GMT
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id k77FDPME023950
+	for <selinux@tycho.nsa.gov>; Mon, 7 Aug 2006 15:13:25 GMT
 Received: from moss-lions.epoch.ncsc.mil (localhost.localdomain [127.0.0.1])
-	by moss-lions.epoch.ncsc.mil (8.13.6/8.13.6) with ESMTP id k77FDTvo019458
-	for <selinux@tycho.nsa.gov>; Mon, 7 Aug 2006 11:13:29 -0400
+	by moss-lions.epoch.ncsc.mil (8.13.6/8.13.6) with ESMTP id k77FDVNL019483
+	for <selinux@tycho.nsa.gov>; Mon, 7 Aug 2006 11:13:31 -0400
 Received: (from jwcart2@localhost)
-	by moss-lions.epoch.ncsc.mil (8.13.7/8.13.7/Submit) id k77FDTKo019457
-	for selinux@tycho.nsa.gov; Mon, 7 Aug 2006 11:13:29 -0400
-Subject: [PATCH 1/2] Optionally expand neverallows, propagate errors in
-	policydb
-From: "Jeremy A. Mowery" <jmowery@tresys.com>
-To: selinux@tycho.nsa.gov
-Cc: selinux-dev@tresys.com, sds@tycho.nsa.gov
-Content-Type: text/plain
-Date: Thu, 03 Aug 2006 09:39:03 -0400
-Message-Id: <1154612344.12897.43.camel@Bishop.columbia.tresys.com>
-Mime-Version: 1.0
+	by moss-lions.epoch.ncsc.mil (8.13.7/8.13.7/Submit) id k77FDVva019482
+	for selinux@tycho.nsa.gov; Mon, 7 Aug 2006 11:13:31 -0400
+Message-Id: <20060803201556.234807000@flek.zko.hp.com>
+References: <20060803200928.721027000@flek.zko.hp.com>
+Date: Thu, 03 Aug 2006 16:09:31 -0400
+From: paul.moore@hp.com
+To: netdev@vger.kernel.org, selinux@tycho.nsa.gov
+Cc: linda.knippers@hp.com, sds@tycho.nsa.gov, jmorris@namei.org,
+        davem@davemloft.net, Paul Moore <paul.moore@hp.com>
+Subject: [PATCH-v01 3/7] NetLabel: CIPSOv4 engine
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This patch allows neverallow rules to be expanded into the avtab for
-analysis purposes. This option is added to the expand state structure
-(and set to off by default).  When neverallows are expanded, the
-unsupported_format flag is set for the policydb disallowing hierarchy
-and assertion checking, and disabling writing the binary file. The read
-and write functions now recognize this state and appropriate defines
-were added for the return values.
+Add support for the Commercial IP Security Option (CIPSO) to the IPv4 network
+stack.  CIPSO has become a de-facto standard for trusted/labeled networking
+amongst existing Trusted Operating Systems such as Trusted Solaris, HP-UX CMW,
+etc.  This implementation is designed to be used with the NetLabel subsystem
+to provide explicit packet labeling to LSM developers.
 
-(This is a resend of the previous patch set with corrections made as per
-suggestions on the list.)
+The CIPSO/IPv4 packet labeling works by the LSM calling a NetLabel API function
+which attaches a CIPSO label (IPv4 option) to a given socket; this in turn
+attaches the CIPSO label to every packet leaving the socket without any extra
+processing on the outbound side.  On the inbound side the individual packet's
+sk_buff is examined through a call to a NetLabel API function to determine if a
+CIPSO/IPv4 label is present and if so the security attributes of the CIPSO
+label are returned to the caller of the NetLabel API function.
 
-Jeremy A. Mowery
-Tresys Technology
-410-290-1411 x148
+Signed-off-by: Paul Moore <paul.moore@hp.com>
+---
+ include/linux/sysctl.h     |    4 
+ net/ipv4/Makefile          |    1 
+ net/ipv4/cipso_ipv4.c      | 1607 +++++++++++++++++++++++++++++++++++++++++++++
+ net/ipv4/sysctl_net_ipv4.c |   35 
+ 4 files changed, 1647 insertions(+)
 
-diff -urpN -x 'Change*' -x entries -x '*.orig' -x '*.rej' -x '*.svn*' -x '*.swp' trunk/libsepol/include/sepol/policydb/avtab.h branch/setools_public-policydb-components/libsepol/include/sepol/policydb/avtab.h
---- trunk/libsepol/include/sepol/policydb/avtab.h	2006-07-13 10:19:14.000000000 -0400
-+++ trunk/libsepol/include/sepol/policydb/avtab.h	2006-07-13 10:46:33.000000000 -0400
-@@ -45,6 +45,7 @@ typedef struct avtab_key {
- #define AVTAB_ALLOWED     1
- #define AVTAB_AUDITALLOW  2
- #define AVTAB_AUDITDENY   4
-+#define AVTAB_NEVERALLOW 128
- #define AVTAB_AV         (AVTAB_ALLOWED | AVTAB_AUDITALLOW | AVTAB_AUDITDENY)
- #define AVTAB_TRANSITION 16
- #define AVTAB_MEMBER     32
-diff -urpN -x 'Change*' -x entries -x '*.orig' -x '*.rej' -x '*.svn*' -x '*.swp' trunk/libsepol/include/sepol/policydb/policydb.h branch/setools_public-policydb-components/libsepol/include/sepol/policydb/policydb.h
---- trunk/libsepol/include/sepol/policydb/policydb.h	2006-08-01 09:22:41.000000000 -0400
-+++ trunk/libsepol/include/sepol/policydb/policydb.h	2006-08-01 09:56:18.000000000 -0400
-@@ -65,6 +65,10 @@
- 
- #define ERRMSG_LEN 1024
- 
-+#define POLICYDB_SUCCESS      0
-+#define POLICYDB_ERROR       -1
-+#define POLICYDB_UNSUPPORTED -2
-+
- /*
-  * A datum type is defined for each kind of symbol 
-  * in the configuration data:  individual permissions, 
-@@ -194,12 +198,12 @@ typedef struct avrule {
- #define AVRULE_AUDITALLOW  2
- #define AVRULE_AUDITDENY   4
- #define AVRULE_DONTAUDIT   8
--#define AVRULE_AV         (AVRULE_ALLOWED | AVRULE_AUDITALLOW | AVRULE_AUDITDENY | AVRULE_DONTAUDIT)
-+#define AVRULE_NEVERALLOW 128
-+#define AVRULE_AV         (AVRULE_ALLOWED | AVRULE_AUDITALLOW | AVRULE_AUDITDENY | AVRULE_DONTAUDIT | AVRULE_NEVERALLOW)
- #define AVRULE_TRANSITION 16
- #define AVRULE_MEMBER     32
- #define AVRULE_CHANGE     64
- #define AVRULE_TYPE       (AVRULE_TRANSITION | AVRULE_MEMBER | AVRULE_CHANGE)
--#define AVRULE_NEVERALLOW 128
- 	uint32_t specified;
- #define RULE_SELF 1
- 	uint32_t flags;
-@@ -371,6 +375,9 @@ typedef struct policydb {
- 	char *name;
- 	char *version;
- 
-+	/* Set when the policydb is modified such that writing is unsupported */
-+	int unsupported_format;
-+
- 	/* Whether this policydb is mls, should always be set */
- 	int mls;
- 
-diff -urpN -x 'Change*' -x entries -x '*.orig' -x '*.rej' -x '*.svn*' -x '*.swp' trunk/libsepol/src/link.c branch/setools_public-policydb-components/libsepol/src/link.c
---- trunk/libsepol/src/link.c	2006-08-01 09:22:41.000000000 -0400
-+++ trunk/libsepol/src/link.c	2006-08-01 09:50:25.000000000 -0400
-@@ -964,8 +964,7 @@ static int copy_avrule_list(avrule_t * l
- 			    module->map[SYM_CLASSES][cur_perm->class - 1];
- 			assert(new_perm->class);
- 
--			if (new_rule->
--			    specified & (AVRULE_AV | AVRULE_NEVERALLOW)) {
-+			if (new_rule->specified & AVRULE_AV) {
- 				for (i = 0;
- 				     i <
- 				     module->perm_map_len[cur_perm->class - 1];
-diff -urpN -x 'Change*' -x entries -x '*.orig' -x '*.rej' -x '*.svn*' -x '*.swp' trunk/libsepol/src/policydb.c branch/setools_public-policydb-components/libsepol/src/policydb.c
---- trunk/libsepol/src/policydb.c	2006-07-13 10:19:21.000000000 -0400
-+++ trunk/libsepol/src/policydb.c	2006-07-31 10:39:49.000000000 -0400
-@@ -2618,7 +2618,7 @@ int policydb_read(policydb_t * p, struct
- 	/* Read the magic number and string length. */
- 	buf = next_entry(fp, sizeof(uint32_t) * 2);
- 	if (!buf)
--		return -1;
-+		return POLICYDB_ERROR;
- 	for (i = 0; i < 2; i++)
- 		buf[i] = le32_to_cpu(buf[i]);
- 
-@@ -2632,26 +2632,26 @@ int policydb_read(policydb_t * p, struct
- 		ERR(fp->handle, "policydb magic number %#08x does not "
- 		    "match expected magic number %#08x or %#08x",
- 		    buf[0], POLICYDB_MAGIC, POLICYDB_MOD_MAGIC);
--		return -1;
-+		return POLICYDB_ERROR;
- 	}
- 
- 	len = buf[1];
- 	if (len != strlen(target_str)) {
- 		ERR(fp->handle, "policydb string length %zu does not match "
- 		    "expected length %zu", len, strlen(target_str));
--		return -1;
-+		return POLICYDB_ERROR;
- 	}
- 
- 	buf = next_entry(fp, len);
- 	if (!buf) {
- 		ERR(fp->handle, "truncated policydb string identifier");
--		return -1;
-+		return POLICYDB_ERROR;
- 	}
- 	policydb_str = malloc(len + 1);
- 	if (!policydb_str) {
- 		ERR(fp->handle, "unable to allocate memory for policydb "
- 		    "string of length %zu", len);
--		return -1;
-+		return POLICYDB_ERROR;
- 	}
- 	memcpy(policydb_str, buf, len);
- 	policydb_str[len] = 0;
-@@ -2659,7 +2659,7 @@ int policydb_read(policydb_t * p, struct
- 		ERR(fp->handle, "policydb string %s does not match "
- 		    "my string %s", policydb_str, target_str);
- 		free(policydb_str);
--		return -1;
-+		return POLICYDB_ERROR;
- 	}
- 	/* Done with policydb_str. */
- 	free(policydb_str);
-@@ -2673,7 +2673,7 @@ int policydb_read(policydb_t * p, struct
- 
- 	buf = next_entry(fp, sizeof(uint32_t) * nel);
- 	if (!buf)
--		return -1;
-+		return POLICYDB_ERROR;
- 	for (i = 0; i < nel; i++)
- 		buf[i] = le32_to_cpu(buf[i]);
- 
-@@ -2687,7 +2687,7 @@ int policydb_read(policydb_t * p, struct
- 		if (policy_type != POLICY_MOD && policy_type != POLICY_BASE) {
- 			ERR(fp->handle, "unknown module type: %#08x",
- 			    policy_type);
--			return -1;
-+			return POLICYDB_ERROR;
- 		}
- 		bufindex++;
- 	}
-@@ -2699,7 +2699,7 @@ int policydb_read(policydb_t * p, struct
- 			ERR(fp->handle, "policydb version %d does not match "
- 			    "my version range %d-%d", buf[bufindex],
- 			    POLICYDB_VERSION_MIN, POLICYDB_VERSION_MAX);
--			return -1;
-+			return POLICYDB_ERROR;
- 		}
- 	} else if (policy_type == POLICY_BASE || policy_type == POLICY_MOD) {
- 		if (r_policyvers < MOD_POLICYDB_VERSION_MIN ||
-@@ -2708,7 +2708,7 @@ int policydb_read(policydb_t * p, struct
- 			    "not match my version range %d-%d",
- 			    buf[bufindex], MOD_POLICYDB_VERSION_MIN,
- 			    MOD_POLICYDB_VERSION_MAX);
--			return -1;
-+			return POLICYDB_ERROR;
- 		}
- 	} else {
- 		assert(0);
-@@ -2870,9 +2870,9 @@ int policydb_read(policydb_t * p, struct
- 		}
- 	}
- 
--	return 0;
-+	return POLICYDB_SUCCESS;
-       bad:
--	return -1;
-+	return POLICYDB_ERROR;
- }
- 
- int policydb_reindex_users(policydb_t * p)
-diff -urpN -x 'Change*' -x entries -x '*.orig' -x '*.rej' -x '*.svn*' -x '*.swp' trunk/libsepol/src/write.c branch/setools_public-policydb-components/libsepol/src/write.c
---- trunk/libsepol/src/write.c	2006-07-13 10:19:21.000000000 -0400
-+++ trunk/libsepol/src/write.c	2006-07-31 10:39:51.000000000 -0400
-@@ -68,21 +68,21 @@ static int ebitmap_write(ebitmap_t * e, 
- 
- 	items = put_entry(buf, sizeof(uint32_t), 3, fp);
- 	if (items != 3)
--		return -1;
-+		return POLICYDB_ERROR;
- 
- 	for (n = e->node; n; n = n->next) {
- 		bit = cpu_to_le32(n->startbit);
- 		items = put_entry(&bit, sizeof(uint32_t), 1, fp);
- 		if (items != 1)
--			return -1;
-+			return POLICYDB_ERROR;
- 		map = cpu_to_le64(n->map);
- 		items = put_entry(&map, sizeof(uint64_t), 1, fp);
- 		if (items != 1)
--			return -1;
-+			return POLICYDB_ERROR;
- 
- 	}
- 
--	return 0;
-+	return POLICYDB_SUCCESS;
- }
- 
- /* Ordering of datums in the original avtab format in the policy file. */
-@@ -113,7 +113,7 @@ static int avtab_write_item(policydb_t *
- 		   Requires merging similar entries if uncond avtab. */
- 		if (merge) {
- 			if (cur->merged)
--				return 0;	/* already merged by prior merge */
-+				return POLICYDB_SUCCESS;	/* already merged by prior merge */
- 		}
- 
- 		items = 1;	/* item 0 is used for the item count */
-@@ -137,7 +137,7 @@ static int avtab_write_item(policydb_t *
- 			else if (val & AVTAB_TYPE)
- 				lookup = AVTAB_TYPE;
- 			else
--				return -1;
-+				return POLICYDB_ERROR;
- 			for (node = avtab_search_node_next(cur, lookup);
- 			     node;
- 			     node = avtab_search_node_next(node, lookup)) {
-@@ -150,12 +150,12 @@ static int avtab_write_item(policydb_t *
- 
- 		if (!(val & (AVTAB_AV | AVTAB_TYPE))) {
- 			ERR(fp->handle, "null entry");
--			return -1;
-+			return POLICYDB_ERROR;
- 		}
- 		if ((val & AVTAB_AV) && (val & AVTAB_TYPE)) {
- 			ERR(fp->handle, "entry has both access "
- 			    "vectors and types");
--			return -1;
-+			return POLICYDB_ERROR;
- 		}
- 
- 		buf32[items++] = cpu_to_le32(val);
-@@ -180,7 +180,7 @@ static int avtab_write_item(policydb_t *
- 
- 					if (!node) {
- 						ERR(fp->handle, "missing node");
--						return -1;
-+						return POLICYDB_ERROR;
- 					}
- 					buf32[items++] =
- 					    cpu_to_le32(node->datum.data);
-@@ -196,7 +196,7 @@ static int avtab_write_item(policydb_t *
- 
- 		if (set) {
- 			ERR(fp->handle, "data count wrong");
--			return -1;
-+			return POLICYDB_ERROR;
- 		}
- 
- 		buf32[0] = cpu_to_le32(items - 1);
-@@ -205,10 +205,10 @@ static int avtab_write_item(policydb_t *
- 			/* Commit this item to the policy file. */
- 			items2 = put_entry(buf32, sizeof(uint32_t), items, fp);
- 			if (items != items2)
--				return -1;
-+				return POLICYDB_ERROR;
- 		}
- 
--		return 0;
-+		return POLICYDB_SUCCESS;
- 	}
- 
- 	/* Generate the new avtab format. */
-@@ -218,12 +218,12 @@ static int avtab_write_item(policydb_t *
- 	buf16[3] = cpu_to_le16(cur->key.specified);
- 	items = put_entry(buf16, sizeof(uint16_t), 4, fp);
- 	if (items != 4)
--		return -1;
-+		return POLICYDB_ERROR;
- 	buf32[0] = cpu_to_le32(cur->datum.data);
- 	items = put_entry(buf32, sizeof(uint32_t), 1, fp);
- 	if (items != 1)
--		return -1;
--	return 0;
-+		return POLICYDB_ERROR;
-+	return POLICYDB_SUCCESS;
- }
- 
- static inline void avtab_reset_merged(avtab_t * a)
-@@ -252,7 +252,7 @@ static int avtab_write(struct policydb *
- 		   merge similar entries, so we need to track merged nodes 
- 		   and compute the final nel. */
- 		if (avtab_init(&expa))
--			return -1;
-+			return POLICYDB_ERROR;
- 		if (expand_avtab(p, a, &expa)) {
- 			rc = -1;
- 			goto out;
-@@ -265,7 +265,7 @@ static int avtab_write(struct policydb *
- 		nel = cpu_to_le32(a->nel);
- 		items = put_entry(&nel, sizeof(uint32_t), 1, fp);
- 		if (items != 1)
--			return -1;
-+			return POLICYDB_ERROR;
- 	}
- 
- 	for (i = 0; i < AVTAB_SIZE; i++) {
-@@ -318,12 +318,12 @@ static int mls_write_level(mls_level_t *
- 	sens = cpu_to_le32(l->sens);
- 	items = put_entry(&sens, sizeof(uint32_t), 1, fp);
- 	if (items != 1)
--		return -1;
-+		return POLICYDB_ERROR;
- 
- 	if (ebitmap_write(&l->cat, fp))
--		return -1;
-+		return POLICYDB_ERROR;
- 
--	return 0;
-+	return POLICYDB_SUCCESS;
- }
- 
- /*
-@@ -346,15 +346,15 @@ static int mls_write_range_helper(mls_ra
- 
- 	items2 = put_entry(buf, sizeof(uint32_t), items, fp);
- 	if (items2 != items)
--		return -1;
-+		return POLICYDB_ERROR;
- 
- 	if (ebitmap_write(&r->level[0].cat, fp))
--		return -1;
-+		return POLICYDB_ERROR;
- 	if (!eq)
- 		if (ebitmap_write(&r->level[1].cat, fp))
--			return -1;
-+			return POLICYDB_ERROR;
- 
--	return 0;
-+	return POLICYDB_SUCCESS;
- }
- 
- static int sens_write(hashtab_key_t key, hashtab_datum_t datum, void *ptr)
-@@ -373,16 +373,16 @@ static int sens_write(hashtab_key_t key,
- 	buf[items++] = cpu_to_le32(levdatum->isalias);
- 	items2 = put_entry(buf, sizeof(uint32_t), items, fp);
- 	if (items != items2)
--		return -1;
-+		return POLICYDB_ERROR;
- 
- 	items = put_entry(key, 1, len, fp);
- 	if (items != len)
--		return -1;
-+		return POLICYDB_ERROR;
- 
- 	if (mls_write_level(levdatum->level, fp))
--		return -1;
-+		return POLICYDB_ERROR;
- 
--	return 0;
-+	return POLICYDB_SUCCESS;
- }
- 
- static int cat_write(hashtab_key_t key, hashtab_datum_t datum, void *ptr)
-@@ -402,13 +402,13 @@ static int cat_write(hashtab_key_t key, 
- 	buf[items++] = cpu_to_le32(catdatum->isalias);
- 	items2 = put_entry(buf, sizeof(uint32_t), items, fp);
- 	if (items != items2)
--		return -1;
-+		return POLICYDB_ERROR;
- 
- 	items = put_entry(key, 1, len, fp);
- 	if (items != len)
--		return -1;
-+		return POLICYDB_ERROR;
- 
--	return 0;
-+	return POLICYDB_SUCCESS;
- }
- 
- static int role_trans_write(role_trans_t * r, struct policy_file *fp)
-@@ -423,17 +423,17 @@ static int role_trans_write(role_trans_t
- 	buf[0] = cpu_to_le32(nel);
- 	items = put_entry(buf, sizeof(uint32_t), 1, fp);
- 	if (items != 1)
--		return -1;
-+		return POLICYDB_ERROR;
- 	for (tr = r; tr; tr = tr->next) {
- 		buf[0] = cpu_to_le32(tr->role);
- 		buf[1] = cpu_to_le32(tr->type);
- 		buf[2] = cpu_to_le32(tr->new_role);
- 		items = put_entry(buf, sizeof(uint32_t), 3, fp);
- 		if (items != 3)
--			return -1;
-+			return POLICYDB_ERROR;
- 	}
- 
--	return 0;
-+	return POLICYDB_SUCCESS;
- }
- 
- static int role_allow_write(role_allow_t * r, struct policy_file *fp)
-@@ -448,15 +448,15 @@ static int role_allow_write(role_allow_t
- 	buf[0] = cpu_to_le32(nel);
- 	items = put_entry(buf, sizeof(uint32_t), 1, fp);
- 	if (items != 1)
--		return -1;
-+		return POLICYDB_ERROR;
- 	for (ra = r; ra; ra = ra->next) {
- 		buf[0] = cpu_to_le32(ra->role);
- 		buf[1] = cpu_to_le32(ra->new_role);
- 		items = put_entry(buf, sizeof(uint32_t), 2, fp);
- 		if (items != 2)
--			return -1;
-+			return POLICYDB_ERROR;
- 	}
--	return 0;
-+	return POLICYDB_SUCCESS;
- }
- 
- static int role_set_write(role_set_t * x, struct policy_file *fp)
-@@ -465,14 +465,14 @@ static int role_set_write(role_set_t * x
- 	uint32_t buf[1];
- 
- 	if (ebitmap_write(&x->roles, fp))
--		return -1;
-+		return POLICYDB_ERROR;
- 
- 	buf[0] = cpu_to_le32(x->flags);
- 	items = put_entry(buf, sizeof(uint32_t), 1, fp);
- 	if (items != 1)
--		return -1;
-+		return POLICYDB_ERROR;
- 
--	return 0;
-+	return POLICYDB_SUCCESS;
- }
- 
- static int type_set_write(type_set_t * x, struct policy_file *fp)
-@@ -481,16 +481,16 @@ static int type_set_write(type_set_t * x
- 	uint32_t buf[1];
- 
- 	if (ebitmap_write(&x->types, fp))
--		return -1;
-+		return POLICYDB_ERROR;
- 	if (ebitmap_write(&x->negset, fp))
--		return -1;
-+		return POLICYDB_ERROR;
- 
- 	buf[0] = cpu_to_le32(x->flags);
- 	items = put_entry(buf, sizeof(uint32_t), 1, fp);
- 	if (items != 1)
--		return -1;
-+		return POLICYDB_ERROR;
- 
--	return 0;
-+	return POLICYDB_SUCCESS;
- }
- 
- static int cond_write_bool(hashtab_key_t key, hashtab_datum_t datum, void *ptr)
-@@ -510,11 +510,11 @@ static int cond_write_bool(hashtab_key_t
- 	buf[items++] = cpu_to_le32(len);
- 	items2 = put_entry(buf, sizeof(uint32_t), items, fp);
- 	if (items != items2)
--		return -1;
-+		return POLICYDB_ERROR;
- 	items = put_entry(key, 1, len, fp);
- 	if (items != len)
--		return -1;
--	return 0;
-+		return POLICYDB_ERROR;
-+	return POLICYDB_SUCCESS;
- }
- 
- /*
-@@ -539,7 +539,7 @@ static int cond_write_av_list(policydb_t
- 
- 	if (oldvers) {
- 		if (avtab_init(&expa))
--			return -1;
-+			return POLICYDB_ERROR;
- 		if (expand_cond_av_list(p, list, &new_list, &expa))
- 			goto out;
- 		list = new_list;
-@@ -587,7 +587,7 @@ static int cond_write_node(policydb_t * 
- 	buf[0] = cpu_to_le32(node->cur_state);
- 	items = put_entry(buf, sizeof(uint32_t), 1, fp);
- 	if (items != 1)
--		return -1;
-+		return POLICYDB_ERROR;
- 
- 	/* expr */
- 	len = 0;
-@@ -597,7 +597,7 @@ static int cond_write_node(policydb_t * 
- 	buf[0] = cpu_to_le32(len);
- 	items = put_entry(buf, sizeof(uint32_t), 1, fp);
- 	if (items != 1)
--		return -1;
-+		return POLICYDB_ERROR;
- 
- 	for (cur_expr = node->expr; cur_expr != NULL; cur_expr = cur_expr->next) {
- 		items = 0;
-@@ -605,22 +605,22 @@ static int cond_write_node(policydb_t * 
- 		buf[items++] = cpu_to_le32(cur_expr->bool);
- 		items2 = put_entry(buf, sizeof(uint32_t), items, fp);
- 		if (items2 != items)
--			return -1;
-+			return POLICYDB_ERROR;
- 	}
- 
- 	if (p->policy_type == POLICY_KERN) {
- 		if (cond_write_av_list(p, node->true_list, fp) != 0)
--			return -1;
-+			return POLICYDB_ERROR;
- 		if (cond_write_av_list(p, node->false_list, fp) != 0)
--			return -1;
-+			return POLICYDB_ERROR;
- 	} else {
- 		if (avrule_write_list(node->avtrue_list, fp))
--			return -1;
-+			return POLICYDB_ERROR;
- 		if (avrule_write_list(node->avfalse_list, fp))
--			return -1;
-+			return POLICYDB_ERROR;
- 	}
- 
--	return 0;
-+	return POLICYDB_SUCCESS;
- }
- 
- static int cond_write_list(policydb_t * p, cond_list_t * list,
-@@ -636,13 +636,13 @@ static int cond_write_list(policydb_t * 
- 	buf[0] = cpu_to_le32(len);
- 	items = put_entry(buf, sizeof(uint32_t), 1, fp);
- 	if (items != 1)
--		return -1;
-+		return POLICYDB_ERROR;
- 
- 	for (cur = list; cur != NULL; cur = cur->next) {
- 		if (cond_write_node(p, cur, fp) != 0)
--			return -1;
-+			return POLICYDB_ERROR;
- 	}
--	return 0;
-+	return POLICYDB_SUCCESS;
- }
- 
- /*
-@@ -661,15 +661,15 @@ static int context_write(struct policydb
- 	buf[items++] = cpu_to_le32(c->type);
- 	items2 = put_entry(buf, sizeof(uint32_t), items, fp);
- 	if (items2 != items)
--		return -1;
-+		return POLICYDB_ERROR;
- 	if ((p->policyvers >= POLICYDB_VERSION_MLS
- 	     && p->policy_type == POLICY_KERN)
- 	    || (p->policyvers >= MOD_POLICYDB_VERSION_MLS
- 		&& p->policy_type == POLICY_BASE))
- 		if (mls_write_range_helper(&c->range, fp))
--			return -1;
-+			return POLICYDB_ERROR;
- 
--	return 0;
-+	return POLICYDB_SUCCESS;
- }
- 
- /*
-@@ -694,13 +694,13 @@ static int perm_write(hashtab_key_t key,
- 	buf[items++] = cpu_to_le32(perdatum->value);
- 	items2 = put_entry(buf, sizeof(uint32_t), items, fp);
- 	if (items != items2)
--		return -1;
-+		return POLICYDB_ERROR;
- 
- 	items = put_entry(key, 1, len, fp);
- 	if (items != len)
--		return -1;
-+		return POLICYDB_ERROR;
- 
--	return 0;
-+	return POLICYDB_SUCCESS;
- }
- 
- static int common_write(hashtab_key_t key, hashtab_datum_t datum, void *ptr)
-@@ -721,16 +721,16 @@ static int common_write(hashtab_key_t ke
- 	buf[items++] = cpu_to_le32(comdatum->permissions.table->nel);
- 	items2 = put_entry(buf, sizeof(uint32_t), items, fp);
- 	if (items != items2)
--		return -1;
-+		return POLICYDB_ERROR;
- 
- 	items = put_entry(key, 1, len, fp);
- 	if (items != len)
--		return -1;
-+		return POLICYDB_ERROR;
- 
- 	if (hashtab_map(comdatum->permissions.table, perm_write, pd))
--		return -1;
-+		return POLICYDB_ERROR;
- 
--	return 0;
-+	return POLICYDB_SUCCESS;
- }
- 
- static int write_cons_helper(policydb_t * p,
-@@ -751,7 +751,7 @@ static int write_cons_helper(policydb_t 
- 		buf[1] = cpu_to_le32(nexpr);
- 		items = put_entry(buf, sizeof(uint32_t), 2, fp);
- 		if (items != 2)
--			return -1;
-+			return POLICYDB_ERROR;
- 		for (e = c->expr; e; e = e->next) {
- 			items = 0;
- 			buf[0] = cpu_to_le32(e->expr_type);
-@@ -759,18 +759,18 @@ static int write_cons_helper(policydb_t 
- 			buf[2] = cpu_to_le32(e->op);
- 			items = put_entry(buf, sizeof(uint32_t), 3, fp);
- 			if (items != 3)
--				return -1;
-+				return POLICYDB_ERROR;
- 
- 			switch (e->expr_type) {
- 			case CEXPR_NAMES:
- 				if (!allowxtarget && (e->attr & CEXPR_XTARGET))
--					return -1;
-+					return POLICYDB_ERROR;
- 				if (ebitmap_write(&e->names, fp)) {
--					return -1;
-+					return POLICYDB_ERROR;
- 				}
- 				if (p->policy_type != POLICY_KERN &&
- 				    type_set_write(e->type_names, fp)) {
--					return -1;
-+					return POLICYDB_ERROR;
- 				}
- 				break;
- 			default:
-@@ -779,7 +779,7 @@ static int write_cons_helper(policydb_t 
- 		}
- 	}
- 
--	return 0;
-+	return POLICYDB_SUCCESS;
- }
- 
- static int class_write(hashtab_key_t key, hashtab_datum_t datum, void *ptr)
-@@ -817,22 +817,22 @@ static int class_write(hashtab_key_t key
- 	buf[items++] = cpu_to_le32(ncons);
- 	items2 = put_entry(buf, sizeof(uint32_t), items, fp);
- 	if (items != items2)
--		return -1;
-+		return POLICYDB_ERROR;
- 
- 	items = put_entry(key, 1, len, fp);
- 	if (items != len)
--		return -1;
-+		return POLICYDB_ERROR;
- 
- 	if (cladatum->comkey) {
- 		items = put_entry(cladatum->comkey, 1, len2, fp);
- 		if (items != len2)
--			return -1;
-+			return POLICYDB_ERROR;
- 	}
- 	if (hashtab_map(cladatum->permissions.table, perm_write, pd))
--		return -1;
-+		return POLICYDB_ERROR;
- 
- 	if (write_cons_helper(p, cladatum->constraints, 0, fp))
--		return -1;
-+		return POLICYDB_ERROR;
- 
- 	if ((p->policy_type == POLICY_KERN
- 	     && p->policyvers >= POLICYDB_VERSION_VALIDATETRANS)
-@@ -846,12 +846,12 @@ static int class_write(hashtab_key_t key
- 		buf[0] = cpu_to_le32(ncons);
- 		items = put_entry(buf, sizeof(uint32_t), 1, fp);
- 		if (items != 1)
--			return -1;
-+			return POLICYDB_ERROR;
- 		if (write_cons_helper(p, cladatum->validatetrans, 1, fp))
--			return -1;
-+			return POLICYDB_ERROR;
- 	}
- 
--	return 0;
-+	return POLICYDB_SUCCESS;
- }
- 
- static int role_write(hashtab_key_t key, hashtab_datum_t datum, void *ptr)
-@@ -871,23 +871,23 @@ static int role_write(hashtab_key_t key,
- 	buf[items++] = cpu_to_le32(role->value);
- 	items2 = put_entry(buf, sizeof(uint32_t), items, fp);
- 	if (items != items2)
--		return -1;
-+		return POLICYDB_ERROR;
- 
- 	items = put_entry(key, 1, len, fp);
- 	if (items != len)
--		return -1;
-+		return POLICYDB_ERROR;
- 
- 	if (ebitmap_write(&role->dominates, fp))
--		return -1;
-+		return POLICYDB_ERROR;
- 	if (p->policy_type == POLICY_KERN) {
- 		if (ebitmap_write(&role->types.types, fp))
--			return -1;
-+			return POLICYDB_ERROR;
- 	} else {
- 		if (type_set_write(&role->types, fp))
--			return -1;
-+			return POLICYDB_ERROR;
- 	}
- 
--	return 0;
-+	return POLICYDB_SUCCESS;
- }
- 
- static int type_write(hashtab_key_t key, hashtab_datum_t datum, void *ptr)
-@@ -911,18 +911,18 @@ static int type_write(hashtab_key_t key,
- 	}
- 	items2 = put_entry(buf, sizeof(uint32_t), items, fp);
- 	if (items != items2)
--		return -1;
-+		return POLICYDB_ERROR;
- 
- 	if (p->policy_type != POLICY_KERN) {
- 		if (ebitmap_write(&typdatum->types, fp))
--			return -1;
-+			return POLICYDB_ERROR;
- 	}
- 
- 	items = put_entry(key, 1, len, fp);
- 	if (items != len)
--		return -1;
-+		return POLICYDB_ERROR;
- 
--	return 0;
-+	return POLICYDB_SUCCESS;
- }
- 
- static int user_write(hashtab_key_t key, hashtab_datum_t datum, void *ptr)
-@@ -942,18 +942,18 @@ static int user_write(hashtab_key_t key,
- 	buf[items++] = cpu_to_le32(usrdatum->value);
- 	items2 = put_entry(buf, sizeof(uint32_t), items, fp);
- 	if (items != items2)
--		return -1;
-+		return POLICYDB_ERROR;
- 
- 	items = put_entry(key, 1, len, fp);
- 	if (items != len)
--		return -1;
-+		return POLICYDB_ERROR;
- 
- 	if (p->policy_type == POLICY_KERN) {
- 		if (ebitmap_write(&usrdatum->roles.roles, fp))
--			return -1;
-+			return POLICYDB_ERROR;
- 	} else {
- 		if (role_set_write(&usrdatum->roles, fp))
--			return -1;
-+			return POLICYDB_ERROR;
- 	}
- 	/* Users are allowed in non-mls modules, so the empty field will be present
- 	   in modules with users >= MOD_POLICYDB_VERSION_MLS */
-@@ -964,12 +964,12 @@ static int user_write(hashtab_key_t key,
- 	    || (p->policyvers >= MOD_POLICYDB_VERSION_MLS
- 		&& p->policy_type == POLICY_BASE)) {
- 		if (mls_write_range_helper(&usrdatum->range, fp))
--			return -1;
-+			return POLICYDB_ERROR;
- 		if (mls_write_level(&usrdatum->dfltlevel, fp))
--			return -1;
-+			return POLICYDB_ERROR;
- 	}
- 
--	return 0;
-+	return POLICYDB_SUCCESS;
- }
- 
- static int (*write_f[SYM_NUM]) (hashtab_key_t key, hashtab_datum_t datum,
-@@ -991,16 +991,16 @@ static int ocontext_write(struct policyd
- 		buf[0] = cpu_to_le32(nel);
- 		items = put_entry(buf, sizeof(uint32_t), 1, fp);
- 		if (items != 1)
--			return -1;
-+			return POLICYDB_ERROR;
- 		for (c = p->ocontexts[i]; c; c = c->next) {
- 			switch (i) {
- 			case OCON_ISID:
- 				buf[0] = cpu_to_le32(c->sid[0]);
- 				items = put_entry(buf, sizeof(uint32_t), 1, fp);
- 				if (items != 1)
--					return -1;
-+					return POLICYDB_ERROR;
- 				if (context_write(p, &c->context[0], fp))
--					return -1;
-+					return POLICYDB_ERROR;
- 				break;
- 			case OCON_FS:
- 			case OCON_NETIF:
-@@ -1008,14 +1008,14 @@ static int ocontext_write(struct policyd
- 				buf[0] = cpu_to_le32(len);
- 				items = put_entry(buf, sizeof(uint32_t), 1, fp);
- 				if (items != 1)
--					return -1;
-+					return POLICYDB_ERROR;
- 				items = put_entry(c->u.name, 1, len, fp);
- 				if (items != len)
--					return -1;
-+					return POLICYDB_ERROR;
- 				if (context_write(p, &c->context[0], fp))
--					return -1;
-+					return POLICYDB_ERROR;
- 				if (context_write(p, &c->context[1], fp))
--					return -1;
-+					return POLICYDB_ERROR;
- 				break;
- 			case OCON_PORT:
- 				buf[0] = c->u.port.protocol;
-@@ -1026,18 +1026,18 @@ static int ocontext_write(struct policyd
- 				}
- 				items = put_entry(buf, sizeof(uint32_t), 3, fp);
- 				if (items != 3)
--					return -1;
-+					return POLICYDB_ERROR;
- 				if (context_write(p, &c->context[0], fp))
--					return -1;
-+					return POLICYDB_ERROR;
- 				break;
- 			case OCON_NODE:
- 				buf[0] = cpu_to_le32(c->u.node.addr);
- 				buf[1] = cpu_to_le32(c->u.node.mask);
- 				items = put_entry(buf, sizeof(uint32_t), 2, fp);
- 				if (items != 2)
--					return -1;
-+					return POLICYDB_ERROR;
- 				if (context_write(p, &c->context[0], fp))
--					return -1;
-+					return POLICYDB_ERROR;
- 				break;
- 			case OCON_FSUSE:
- 				buf[0] = cpu_to_le32(c->v.behavior);
-@@ -1045,12 +1045,12 @@ static int ocontext_write(struct policyd
- 				buf[1] = cpu_to_le32(len);
- 				items = put_entry(buf, sizeof(uint32_t), 2, fp);
- 				if (items != 2)
--					return -1;
-+					return POLICYDB_ERROR;
- 				items = put_entry(c->u.name, 1, len, fp);
- 				if (items != len)
--					return -1;
-+					return POLICYDB_ERROR;
- 				if (context_write(p, &c->context[0], fp))
--					return -1;
-+					return POLICYDB_ERROR;
- 				break;
- 			case OCON_NODE6:
- 				for (j = 0; j < 4; j++)
-@@ -1061,14 +1061,14 @@ static int ocontext_write(struct policyd
- 					    cpu_to_le32(c->u.node6.mask[j]);
- 				items = put_entry(buf, sizeof(uint32_t), 8, fp);
- 				if (items != 8)
--					return -1;
-+					return POLICYDB_ERROR;
- 				if (context_write(p, &c->context[0], fp))
--					return -1;
-+					return POLICYDB_ERROR;
- 				break;
- 			}
- 		}
- 	}
--	return 0;
-+	return POLICYDB_SUCCESS;
- }
- 
- static int genfs_write(policydb_t * p, struct policy_file *fp)
-@@ -1083,41 +1083,41 @@ static int genfs_write(policydb_t * p, s
- 	buf[0] = cpu_to_le32(nel);
- 	items = put_entry(buf, sizeof(uint32_t), 1, fp);
- 	if (items != 1)
--		return -1;
-+		return POLICYDB_ERROR;
- 	for (genfs = p->genfs; genfs; genfs = genfs->next) {
- 		len = strlen(genfs->fstype);
- 		buf[0] = cpu_to_le32(len);
- 		items = put_entry(buf, sizeof(uint32_t), 1, fp);
- 		if (items != 1)
--			return -1;
-+			return POLICYDB_ERROR;
- 		items = put_entry(genfs->fstype, 1, len, fp);
- 		if (items != len)
--			return -1;
-+			return POLICYDB_ERROR;
- 		nel = 0;
- 		for (c = genfs->head; c; c = c->next)
- 			nel++;
- 		buf[0] = cpu_to_le32(nel);
- 		items = put_entry(buf, sizeof(uint32_t), 1, fp);
- 		if (items != 1)
--			return -1;
-+			return POLICYDB_ERROR;
- 		for (c = genfs->head; c; c = c->next) {
- 			len = strlen(c->u.name);
- 			buf[0] = cpu_to_le32(len);
- 			items = put_entry(buf, sizeof(uint32_t), 1, fp);
- 			if (items != 1)
--				return -1;
-+				return POLICYDB_ERROR;
- 			items = put_entry(c->u.name, 1, len, fp);
- 			if (items != len)
--				return -1;
-+				return POLICYDB_ERROR;
- 			buf[0] = cpu_to_le32(c->v.sclass);
- 			items = put_entry(buf, sizeof(uint32_t), 1, fp);
- 			if (items != 1)
--				return -1;
-+				return POLICYDB_ERROR;
- 			if (context_write(p, &c->context[0], fp))
--				return -1;
-+				return POLICYDB_ERROR;
- 		}
- 	}
--	return 0;
-+	return POLICYDB_SUCCESS;
- }
- 
- static int range_write(policydb_t * p, struct policy_file *fp)
-@@ -1131,17 +1131,17 @@ static int range_write(policydb_t * p, s
- 	buf[0] = cpu_to_le32(nel);
- 	items = put_entry(buf, sizeof(uint32_t), 1, fp);
- 	if (items != 1)
--		return -1;
-+		return POLICYDB_ERROR;
- 	for (rt = p->range_tr; rt; rt = rt->next) {
- 		buf[0] = cpu_to_le32(rt->dom);
- 		buf[1] = cpu_to_le32(rt->type);
- 		items = put_entry(buf, sizeof(uint32_t), 2, fp);
- 		if (items != 2)
--			return -1;
-+			return POLICYDB_ERROR;
- 		if (mls_write_range_helper(&rt->range, fp))
--			return -1;
-+			return POLICYDB_ERROR;
- 	}
--	return 0;
-+	return POLICYDB_SUCCESS;
- }
- 
- /************** module writing functions below **************/
-@@ -1157,13 +1157,13 @@ static int avrule_write(avrule_t * avrul
- 	buf[items++] = cpu_to_le32(avrule->flags);
- 	items2 = put_entry(buf, sizeof(uint32_t), items, fp);
- 	if (items2 != items)
--		return -1;
-+		return POLICYDB_ERROR;
- 
- 	if (type_set_write(&avrule->stypes, fp))
--		return -1;
-+		return POLICYDB_ERROR;
- 
- 	if (type_set_write(&avrule->ttypes, fp))
--		return -1;
-+		return POLICYDB_ERROR;
- 
- 	cur = avrule->perms;
- 	len = 0;
-@@ -1175,7 +1175,7 @@ static int avrule_write(avrule_t * avrul
- 	buf[items++] = cpu_to_le32(len);
- 	items2 = put_entry(buf, sizeof(uint32_t), items, fp);
- 	if (items2 != items)
--		return -1;
-+		return POLICYDB_ERROR;
- 	cur = avrule->perms;
- 	while (cur) {
- 		items = 0;
-@@ -1183,12 +1183,12 @@ static int avrule_write(avrule_t * avrul
- 		buf[items++] = cpu_to_le32(cur->data);
- 		items2 = put_entry(buf, sizeof(uint32_t), items, fp);
- 		if (items2 != items)
--			return -1;
-+			return POLICYDB_ERROR;
- 
- 		cur = cur->next;
- 	}
- 
--	return 0;
-+	return POLICYDB_SUCCESS;
- }
- 
- static int avrule_write_list(avrule_t * avrules, struct policy_file *fp)
-@@ -1205,7 +1205,7 @@ static int avrule_write_list(avrule_t * 
- 
- 	buf[0] = cpu_to_le32(len);
- 	if (put_entry(buf, sizeof(uint32_t), 1, fp) != 1)
--		return -1;
-+		return POLICYDB_ERROR;
- 
- 	avrule = avrules;
- 	while (avrule) {
-@@ -1213,7 +1213,7 @@ static int avrule_write_list(avrule_t * 
- 		avrule = avrule->next;
- 	}
- 
--	return 0;
-+	return POLICYDB_SUCCESS;
- }
- 
- static int role_trans_rule_write(role_trans_rule_t * t, struct policy_file *fp)
-@@ -1228,18 +1228,18 @@ static int role_trans_rule_write(role_tr
- 	buf[0] = cpu_to_le32(nel);
- 	items = put_entry(buf, sizeof(uint32_t), 1, fp);
- 	if (items != 1)
--		return -1;
-+		return POLICYDB_ERROR;
- 	for (tr = t; tr; tr = tr->next) {
- 		if (role_set_write(&tr->roles, fp))
--			return -1;
-+			return POLICYDB_ERROR;
- 		if (type_set_write(&tr->types, fp))
--			return -1;
-+			return POLICYDB_ERROR;
- 		buf[0] = cpu_to_le32(tr->new_role);
- 		items = put_entry(buf, sizeof(uint32_t), 1, fp);
- 		if (items != 1)
--			return -1;
-+			return POLICYDB_ERROR;
- 	}
--	return 0;
-+	return POLICYDB_SUCCESS;
- }
- 
- static int role_allow_rule_write(role_allow_rule_t * r, struct policy_file *fp)
-@@ -1254,14 +1254,14 @@ static int role_allow_rule_write(role_al
- 	buf[0] = cpu_to_le32(nel);
- 	items = put_entry(buf, sizeof(uint32_t), 1, fp);
- 	if (items != 1)
--		return -1;
-+		return POLICYDB_ERROR;
- 	for (ra = r; ra; ra = ra->next) {
- 		if (role_set_write(&ra->roles, fp))
--			return -1;
-+			return POLICYDB_ERROR;
- 		if (role_set_write(&ra->new_roles, fp))
--			return -1;
-+			return POLICYDB_ERROR;
- 	}
--	return 0;
-+	return POLICYDB_SUCCESS;
- }
- 
- static int scope_index_write(scope_index_t * scope_index,
-@@ -1272,19 +1272,19 @@ static int scope_index_write(scope_index
- 	uint32_t buf[1];
- 	for (i = 0; i < num_scope_syms; i++) {
- 		if (ebitmap_write(scope_index->scope + i, fp) == -1) {
--			return -1;
-+			return POLICYDB_ERROR;
- 		}
- 	}
- 	buf[0] = cpu_to_le32(scope_index->class_perms_len);
- 	if (put_entry(buf, sizeof(uint32_t), 1, fp) != 1) {
--		return -1;
-+		return POLICYDB_ERROR;
- 	}
- 	for (i = 0; i < scope_index->class_perms_len; i++) {
- 		if (ebitmap_write(scope_index->class_perms_map + i, fp) == -1) {
--			return -1;
-+			return POLICYDB_ERROR;
- 		}
- 	}
--	return 0;
-+	return POLICYDB_SUCCESS;
- }
- 
- static int avrule_decl_write(avrule_decl_t * decl, int num_scope_syms,
-@@ -1296,17 +1296,17 @@ static int avrule_decl_write(avrule_decl
- 	buf[0] = cpu_to_le32(decl->decl_id);
- 	buf[1] = cpu_to_le32(decl->enabled);
- 	if (put_entry(buf, sizeof(uint32_t), 2, fp) != 2) {
--		return -1;
-+		return POLICYDB_ERROR;
- 	}
- 	if (cond_write_list(p, decl->cond_list, fp) == -1 ||
- 	    avrule_write_list(decl->avrules, fp) == -1 ||
- 	    role_trans_rule_write(decl->role_tr_rules, fp) == -1 ||
- 	    role_allow_rule_write(decl->role_allow_rules, fp) == -1) {
--		return -1;
-+		return POLICYDB_ERROR;
- 	}
- 	if (scope_index_write(&decl->required, num_scope_syms, fp) == -1 ||
- 	    scope_index_write(&decl->declared, num_scope_syms, fp) == -1) {
--		return -1;
-+		return POLICYDB_ERROR;
- 	}
- 	pd.fp = fp;
- 	pd.p = p;
-@@ -1314,13 +1314,13 @@ static int avrule_decl_write(avrule_decl
- 		buf[0] = cpu_to_le32(decl->symtab[i].nprim);
- 		buf[1] = cpu_to_le32(decl->symtab[i].table->nel);
- 		if (put_entry(buf, sizeof(uint32_t), 2, fp) != 2) {
--			return -1;
-+			return POLICYDB_ERROR;
- 		}
- 		if (hashtab_map(decl->symtab[i].table, write_f[i], &pd)) {
--			return -1;
-+			return POLICYDB_ERROR;
- 		}
- 	}
--	return 0;
-+	return POLICYDB_SUCCESS;
- }
- 
- static int avrule_block_write(avrule_block_t * block, int num_scope_syms,
-@@ -1334,7 +1334,7 @@ static int avrule_block_write(avrule_blo
- 	}
- 	buf[0] = cpu_to_le32(num_blocks);
- 	if (put_entry(buf, sizeof(uint32_t), 1, fp) != 1) {
--		return -1;
-+		return POLICYDB_ERROR;
- 	}
- 
- 	/* now write each block */
-@@ -1347,16 +1347,16 @@ static int avrule_block_write(avrule_blo
- 		}
- 		buf[0] = cpu_to_le32(num_decls);
- 		if (put_entry(buf, sizeof(uint32_t), 1, fp) != 1) {
--			return -1;
-+			return POLICYDB_ERROR;
- 		}
- 		for (decl = cur->branch_list; decl != NULL; decl = decl->next) {
- 			if (avrule_decl_write(decl, num_scope_syms, p, fp) ==
- 			    -1) {
--				return -1;
-+				return POLICYDB_ERROR;
- 			}
- 		}
- 	}
--	return 0;
-+	return POLICYDB_SUCCESS;
- }
- 
- static int scope_write(hashtab_key_t key, hashtab_datum_t datum, void *ptr)
-@@ -1373,7 +1373,7 @@ static int scope_write(hashtab_key_t key
- 		 * buffer.  this would have been easier with C99's
- 		 * dynamic arrays... */
- 		if ((dyn_buf = malloc(items * sizeof(*dyn_buf))) == NULL) {
--			return -1;
-+			return POLICYDB_ERROR;
- 		}
- 		buf = dyn_buf;
- 	} else {
-@@ -1382,7 +1382,7 @@ static int scope_write(hashtab_key_t key
- 	buf[0] = cpu_to_le32(key_len);
- 	if (put_entry(buf, sizeof(*buf), 1, fp) != 1 ||
- 	    put_entry(key, 1, key_len, fp) != key_len) {
--		return -1;
-+		return POLICYDB_ERROR;
- 	}
- 	buf[0] = cpu_to_le32(scope->scope);
- 	buf[1] = cpu_to_le32(scope->decl_ids_len);
-@@ -1391,10 +1391,10 @@ static int scope_write(hashtab_key_t key
- 	}
- 	if (put_entry(buf, sizeof(*buf), items, fp) != items) {
- 		free(dyn_buf);
--		return -1;
-+		return POLICYDB_ERROR;
- 	}
- 	free(dyn_buf);
--	return 0;
-+	return POLICYDB_SUCCESS;
- }
- 
- /*
-@@ -1411,6 +1411,9 @@ int policydb_write(policydb_t * p, struc
- 	struct policy_data pd;
- 	char *policydb_str;
- 
-+	if (p->unsupported_format)
-+		return POLICYDB_UNSUPPORTED;
-+
- 	pd.fp = fp;
- 	pd.p = p;
- 
-@@ -1432,10 +1435,10 @@ int policydb_write(policydb_t * p, struc
- 	buf[items++] = cpu_to_le32(len);
- 	items2 = put_entry(buf, sizeof(uint32_t), items, fp);
- 	if (items != items2)
--		return -1;
-+		return POLICYDB_ERROR;
- 	items = put_entry(policydb_str, 1, len, fp);
- 	if (items != len)
--		return -1;
-+		return POLICYDB_ERROR;
- 
- 	/* Write the version, config, and table sizes. */
- 	items = 0;
-@@ -1443,7 +1446,7 @@ int policydb_write(policydb_t * p, struc
- 	if (!info) {
- 		ERR(fp->handle, "compatibility lookup failed for policy "
- 		    "version %d", p->policyvers);
--		return -1;
-+		return POLICYDB_ERROR;
- 	}
- 
- 	if (p->policy_type != POLICY_KERN) {
-@@ -1456,7 +1459,7 @@ int policydb_write(policydb_t * p, struc
- 
- 	items2 = put_entry(buf, sizeof(uint32_t), items, fp);
- 	if (items != items2)
--		return -1;
-+		return POLICYDB_ERROR;
- 
- 	if (p->policy_type == POLICY_MOD) {
- 		/* Write module name and version */
-@@ -1464,18 +1467,18 @@ int policydb_write(policydb_t * p, struc
- 		buf[0] = cpu_to_le32(len);
- 		items = put_entry(buf, sizeof(uint32_t), 1, fp);
- 		if (items != 1)
--			return -1;
-+			return POLICYDB_ERROR;
- 		items = put_entry(p->name, 1, len, fp);
- 		if (items != len)
--			return -1;
-+			return POLICYDB_ERROR;
- 		len = strlen(p->version);
- 		buf[0] = cpu_to_le32(len);
- 		items = put_entry(buf, sizeof(uint32_t), 1, fp);
- 		if (items != 1)
--			return -1;
-+			return POLICYDB_ERROR;
- 		items = put_entry(p->version, 1, len, fp);
- 		if (items != len)
--			return -1;
-+			return POLICYDB_ERROR;
- 	}
- 	num_syms = info->sym_num;
- 	for (i = 0; i < num_syms; i++) {
-@@ -1483,43 +1486,43 @@ int policydb_write(policydb_t * p, struc
- 		buf[1] = cpu_to_le32(p->symtab[i].table->nel);
- 		items = put_entry(buf, sizeof(uint32_t), 2, fp);
- 		if (items != 2)
--			return -1;
-+			return POLICYDB_ERROR;
- 		if (hashtab_map(p->symtab[i].table, write_f[i], &pd))
--			return -1;
-+			return POLICYDB_ERROR;
- 	}
- 
- 	if (p->policy_type == POLICY_KERN) {
- 		if (avtab_write(p, &p->te_avtab, fp))
--			return -1;
-+			return POLICYDB_ERROR;
- 		if (p->policyvers < POLICYDB_VERSION_BOOL) {
- 			if (p->p_bools.nprim)
- 				WARN(fp->handle, "Discarding "
- 				     "booleans and conditional rules");
- 		} else {
- 			if (cond_write_list(p, p->cond_list, fp))
--				return -1;
-+				return POLICYDB_ERROR;
- 		}
- 		if (role_trans_write(p->role_tr, fp))
--			return -1;
-+			return POLICYDB_ERROR;
- 		if (role_allow_write(p->role_allow, fp))
--			return -1;
-+			return POLICYDB_ERROR;
- 	} else {
- 		if (avrule_block_write(p->global, num_syms, p, fp) == -1) {
--			return -1;
-+			return POLICYDB_ERROR;
- 		}
- 
- 		for (i = 0; i < num_syms; i++) {
- 			buf[0] = cpu_to_le32(p->scope[i].table->nel);
- 			if (put_entry(buf, sizeof(uint32_t), 1, fp) != 1) {
--				return -1;
-+				return POLICYDB_ERROR;
- 			}
- 			if (hashtab_map(p->scope[i].table, scope_write, &pd))
--				return -1;
-+				return POLICYDB_ERROR;
- 		}
- 	}
- 
- 	if (ocontext_write(info, p, fp) == -1 || genfs_write(p, fp) == -1) {
--		return -1;
-+		return POLICYDB_ERROR;
- 	}
- 
- 	if ((p->policyvers >= POLICYDB_VERSION_MLS
-@@ -1527,7 +1530,7 @@ int policydb_write(policydb_t * p, struc
- 	    || (p->policyvers >= MOD_POLICYDB_VERSION_MLS
- 		&& p->policy_type == POLICY_BASE)) {
- 		if (range_write(p, fp)) {
--			return -1;
-+			return POLICYDB_ERROR;
- 		}
- 	}
- 
-@@ -1535,9 +1538,9 @@ int policydb_write(policydb_t * p, struc
- 	    && p->policyvers >= POLICYDB_VERSION_AVTAB) {
- 		for (i = 0; i < p->p_types.nprim; i++) {
- 			if (ebitmap_write(&p->type_attr_map[i], fp) == -1)
--				return -1;
-+				return POLICYDB_ERROR;
- 		}
- 	}
- 
--	return 0;
-+	return POLICYDB_SUCCESS;
- }
-diff -urpN -x 'Change*' -x entries -x '*.orig' -x '*.rej' -x '*.svn*' -x '*.swp' trunk/libsepol/src/expand.c branch/setools_public-policydb-components/libsepol/src/expand.c
---- trunk/libsepol/src/expand.c	2006-07-13 13:57:39.000000000 -0400
-+++ trunk/libsepol/src/expand.c	2006-08-01 11:05:06.000000000 -0400
-@@ -41,6 +41,7 @@ typedef struct expand_state {
- 	policydb_t *base;
- 	policydb_t *out;
- 	sepol_handle_t *handle;
-+	int expand_neverallow;
- } expand_state_t;
- 
- static int type_copy_callback(hashtab_key_t key, hashtab_datum_t datum,
-@@ -1007,6 +1008,10 @@ static avtab_ptr_t find_avtab_node(sepol
- 	return node;
- }
- 
-+#define EXPAND_RULE_SUCCESS   1
-+#define EXPAND_RULE_CONFLICT  0
-+#define EXPAND_RULE_ERROR    -1
-+
- static int expand_terule_helper(sepol_handle_t * handle,
- 				policydb_t * p, uint32_t * typemap,
- 				uint32_t specified, cond_av_list_t ** cond,
-@@ -1069,7 +1074,7 @@ static int expand_terule_helper(sepol_ha
- 				 * or in same conditional then ignore it */
- 				if ((conflict == 1 && cond == NULL)
- 				    || node->parse_context == cond)
--					return 1;
-+					return EXPAND_RULE_SUCCESS;
- 				ERR(handle, "duplicate TE rule for %s %s:%s %s",
- 				    p->p_type_val_to_name[avkey.source_type -
- 							  1],
-@@ -1078,7 +1083,7 @@ static int expand_terule_helper(sepol_ha
- 				    p->p_class_val_to_name[avkey.target_class -
- 							   1],
- 				    p->p_type_val_to_name[oldtype - 1]);
--				return 0;
-+				return EXPAND_RULE_CONFLICT;
- 			}
- 			ERR(handle,
- 			    "conflicting TE rule for (%s, %s:%s):  old was %s, new is %s",
-@@ -1087,7 +1092,7 @@ static int expand_terule_helper(sepol_ha
- 			    p->p_class_val_to_name[avkey.target_class - 1],
- 			    p->p_type_val_to_name[oldtype - 1],
- 			    p->p_type_val_to_name[remapped_data - 1]);
--			return 0;
-+			return EXPAND_RULE_CONFLICT;
- 		}
- 
- 		node = find_avtab_node(handle, avtab, &avkey, cond);
-@@ -1113,7 +1118,7 @@ static int expand_terule_helper(sepol_ha
- 		cur = cur->next;
- 	}
- 
--	return 1;
-+	return EXPAND_RULE_SUCCESS;
- }
- 
- static int expand_avrule_helper(sepol_handle_t * handle,
-@@ -1137,6 +1142,8 @@ static int expand_avrule_helper(sepol_ha
- 		spec = AVTAB_AUDITDENY;
- 	} else if (specified & AVRULE_DONTAUDIT) {
- 		spec = AVTAB_AUDITDENY;
-+	} else if (specified & AVRULE_NEVERALLOW) {
-+		spec = AVTAB_NEVERALLOW;
- 	} else {
- 		assert(0);	/* unreachable */
- 	}
-@@ -1150,7 +1157,7 @@ static int expand_avrule_helper(sepol_ha
- 
- 		node = find_avtab_node(handle, avtab, &avkey, cond);
- 		if (!node)
--			return -1;
-+			return EXPAND_RULE_ERROR;
- 		if (enabled) {
- 			node->key.specified |= AVTAB_ENABLED;
- 		} else {
-@@ -1162,6 +1169,8 @@ static int expand_avrule_helper(sepol_ha
- 			avdatump->data |= cur->data;
- 		} else if (specified & AVRULE_AUDITALLOW) {
- 			avdatump->data |= cur->data;
-+		} else if (specified & AVRULE_NEVERALLOW) {
-+			avdatump->data |= cur->data;
- 		} else if (specified & AVRULE_AUDITDENY) {
- 			/* Since a '0' in an auditdeny mask represents
- 			 * a permission we do NOT want to audit
-@@ -1182,7 +1191,7 @@ static int expand_avrule_helper(sepol_ha
- 
- 		cur = cur->next;
- 	}
--	return 1;
-+	return EXPAND_RULE_SUCCESS;
- }
- 
- static int expand_rule_helper(sepol_handle_t * handle,
-@@ -1253,25 +1262,28 @@ static int expand_rule_helper(sepol_hand
- 		}
- 	}
- 
--	return 1;
-+	return EXPAND_RULE_SUCCESS;
- }
- 
--/* Expand a rule into a given avtab - checking for conflicting type
-- * rules in the destination policy.  Return 1 on success, 0 if the
-- * rule conflicts with something (and hence was not added), or -1 on
-- * error. */
+Index: net-2.6.19/include/linux/sysctl.h
+===================================================================
+--- net-2.6.19.orig/include/linux/sysctl.h
++++ net-2.6.19/include/linux/sysctl.h
+@@ -411,6 +411,10 @@ enum
+ 	NET_IPV4_TCP_WORKAROUND_SIGNED_WINDOWS=115,
+ 	NET_TCP_DMA_COPYBREAK=116,
+ 	NET_TCP_SLOW_START_AFTER_IDLE=117,
++	NET_CIPSOV4_CACHE_ENABLE=118,
++	NET_CIPSOV4_CACHE_BUCKET_SIZE=119,
++	NET_CIPSOV4_RBM_OPTFMT=120,
++	NET_CIPSOV4_RBM_STRICTVALID=121,
+ };
+ 
+ enum {
+Index: net-2.6.19/net/ipv4/Makefile
+===================================================================
+--- net-2.6.19.orig/net/ipv4/Makefile
++++ net-2.6.19/net/ipv4/Makefile
+@@ -47,6 +47,7 @@ obj-$(CONFIG_TCP_CONG_VEGAS) += tcp_vega
+ obj-$(CONFIG_TCP_CONG_VENO) += tcp_veno.o
+ obj-$(CONFIG_TCP_CONG_SCALABLE) += tcp_scalable.o
+ obj-$(CONFIG_TCP_CONG_LP) += tcp_lp.o
++obj-$(CONFIG_NETLABEL) += cipso_ipv4.o
+ 
+ obj-$(CONFIG_XFRM) += xfrm4_policy.o xfrm4_state.o xfrm4_input.o \
+ 		      xfrm4_output.o
+Index: net-2.6.19/net/ipv4/cipso_ipv4.c
+===================================================================
+--- /dev/null
++++ net-2.6.19/net/ipv4/cipso_ipv4.c
+@@ -0,0 +1,1607 @@
 +/*
-+ * Expand a rule into a given avtab - checking for conflicting type
-+ * rules in the destination policy.  Return EXPAND_RULE_SUCCESS on 
-+ * success, EXPAND_RULE_CONFLICT if the rule conflicts with something
-+ * (and hence was not added), or EXPAND_RULE_ERROR on error.
++ * CIPSO - Commercial IP Security Option
++ *
++ * This is an implementation of the CIPSO 2.2 protocol as specified in
++ * draft-ietf-cipso-ipsecurity-01.txt with additional tag types as found in
++ * FIPS-188, copies of both documents can be found in the Documentation
++ * directory.  While CIPSO never became a full IETF RFC standard many vendors
++ * have chosen to adopt the protocol and over the years it has become a
++ * de-facto standard for labeled networking.
++ *
++ * Author: Paul Moore <paul.moore@hp.com>
++ *
 + */
- static int convert_and_expand_rule(sepol_handle_t * handle,
- 				   policydb_t * dest_pol, uint32_t * typemap,
- 				   avrule_t * source_rule, avtab_t * dest_avtab,
- 				   cond_av_list_t ** cond,
--				   cond_av_list_t ** other, int enabled)
-+				   cond_av_list_t ** other, int enabled,
-+				   int do_neverallow)
- {
- 	int retval;
- 	ebitmap_t stypes, ttypes;
- 	unsigned char alwaysexpand;
- 
--	if (source_rule->specified & AVRULE_NEVERALLOW)
--		return 1;
-+	if (!do_neverallow && source_rule->specified & AVRULE_NEVERALLOW)
-+		return EXPAND_RULE_SUCCESS;
- 
- 	ebitmap_init(&stypes);
- 	ebitmap_init(&ttypes);
-@@ -1282,10 +1294,10 @@ static int convert_and_expand_rule(sepol
- 
- 	if (expand_convert_type_set
- 	    (dest_pol, typemap, &source_rule->stypes, &stypes, alwaysexpand))
--		return -1;
-+		return EXPAND_RULE_ERROR;
- 	if (expand_convert_type_set
- 	    (dest_pol, typemap, &source_rule->ttypes, &ttypes, alwaysexpand))
--		return -1;
-+		return EXPAND_RULE_ERROR;
- 
- 	retval = expand_rule_helper(handle, dest_pol, typemap,
- 				    source_rule, dest_avtab,
-@@ -1306,7 +1318,8 @@ static int cond_avrule_list_copy(policyd
- 	while (cur) {
- 		if (convert_and_expand_rule(state->handle, dest_pol,
- 					    typemap, cur, dest_avtab,
--					    list, other, enabled) != 1) {
-+					    list, other, enabled,
-+					    0) != EXPAND_RULE_SUCCESS) {
- 			return -1;
- 		}
- 
-@@ -2033,17 +2046,21 @@ int expand_module(sepol_handle_t * handl
- 		/* copy rules */
- 		cur_avrule = decl->avrules;
- 		while (cur_avrule != NULL) {
--			if (cur_avrule->specified & AVRULE_NEVERALLOW) {
-+			if (!(state.expand_neverallow)
-+			    && cur_avrule->specified & AVRULE_NEVERALLOW) {
- 				/* copy this over directly so that assertions are checked later */
- 				if (copy_neverallow
- 				    (out, state.typemap, cur_avrule))
- 					ERR(handle,
- 					    "Error while copying neverallow.");
- 			} else {
-+				if (cur_avrule->specified & AVRULE_NEVERALLOW) {
-+					state.out->unsupported_format = 1;
++
++/*
++ * (c) Copyright Hewlett-Packard Development Company, L.P., 2006
++ *
++ * This program is free software;  you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License as published by
++ * the Free Software Foundation; either version 2 of the License, or
++ * (at your option) any later version.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY;  without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See
++ * the GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this program;  if not, write to the Free Software
++ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
++ *
++ */
++
++#include <linux/init.h>
++#include <linux/types.h>
++#include <linux/rcupdate.h>
++#include <linux/list.h>
++#include <linux/spinlock.h>
++#include <linux/string.h>
++#include <linux/jhash.h>
++#include <net/ip.h>
++#include <net/icmp.h>
++#include <net/tcp.h>
++#include <net/netlabel.h>
++#include <net/cipso_ipv4.h>
++#include <asm/bug.h>
++
++struct cipso_v4_domhsh_entry {
++	char *domain;
++	u32 valid;
++	struct list_head list;
++	struct rcu_head rcu;
++};
++
++/* List of available DOI definitions */
++/* XXX - Updates should be minimal so having a single lock for the
++ * cipso_v4_doi_list and the cipso_v4_doi_list->dom_list should be
++ * okay. */
++/* XXX - This currently assumes a minimal number of different DOIs in use,
++ * if in practice there are a lot of different DOIs this list should
++ * probably be turned into a hash table or something similar so we
++ * can do quick lookups. */
++DEFINE_SPINLOCK(cipso_v4_doi_list_lock);
++static struct list_head cipso_v4_doi_list = LIST_HEAD_INIT(cipso_v4_doi_list);
++
++/* Label mapping cache */
++int cipso_v4_cache_enabled = 1;
++int cipso_v4_cache_bucketsize = 10;
++#define CIPSO_V4_CACHE_BUCKETBITS     7
++#define CIPSO_V4_CACHE_BUCKETS        (1 << CIPSO_V4_CACHE_BUCKETBITS)
++#define CIPSO_V4_CACHE_REORDERLIMIT   10
++struct cipso_v4_map_cache_bkt {
++	spinlock_t lock;
++	u32 size;
++	struct list_head list;
++};
++struct cipso_v4_map_cache_entry {
++	u32 hash;
++	unsigned char *key;
++	size_t key_len;
++
++	struct netlbl_lsm_cache lsm_data;
++
++	u32 activity;
++	struct list_head list;
++};
++static struct cipso_v4_map_cache_bkt *cipso_v4_cache = NULL;
++
++/* Restricted bitmap (tag #1) flags */
++int cipso_v4_rbm_optfmt = 0;
++int cipso_v4_rbm_strictvalid = 1;
++
++/*
++ * Helper Functions
++ */
++
++/**
++ * cipso_v4_bitmap_walk - Walk a bitmap looking for a bit
++ * @bitmap: the bitmap
++ * @bitmap_len: length in bits
++ * @offset: starting offset
++ * @state: if non-zero, look for a set (1) bit else look for a cleared (0) bit
++ *
++ * Description:
++ * Starting at @offset, walk the bitmap from left to right until either the
++ * desired bit is found or we reach the end.  Return the bit offset, -1 if
++ * not found, or -2 if error.
++ */
++static int cipso_v4_bitmap_walk(const unsigned char *bitmap,
++				u32 bitmap_len,
++				u32 offset,
++				u8 state)
++{
++	u32 bit_spot;
++	u32 byte_offset;
++	unsigned char bitmask;
++	unsigned char byte;
++
++	/* gcc always rounds to zero when doing integer division */
++	byte_offset = offset / 8;
++	byte = bitmap[byte_offset];
++	bit_spot = offset;
++	bitmask = 0x80 >> (offset % 8);
++
++	while (bit_spot < bitmap_len) {
++		if ((state && (byte & bitmask) == bitmask) ||
++		    (state == 0 && (byte & bitmask) == 0))
++			return bit_spot;
++
++		bit_spot++;
++		bitmask >>= 1;
++		if (bitmask == 0) {
++			byte = bitmap[++byte_offset];
++			bitmask = 0x80;
++		}
++	}
++
++	return -1;
++}
++
++/**
++ * cipso_v4_bitmap_setbit - Sets a single bit in a bitmap
++ * @bitmap: the bitmap
++ * @bit: the bit
++ * @state: if non-zero, set the bit (1) else clear the bit (0)
++ *
++ * Description:
++ * Set a single bit in the bitmask.  Returns zero on success, negative values
++ * on error.
++ */
++static void cipso_v4_bitmap_setbit(unsigned char *bitmap,
++				   u32 bit,
++				   u8 state)
++{
++	u32 byte_spot;
++	u8 bitmask;
++
++	/* gcc always rounds to zero when doing integer division */
++	byte_spot = bit / 8;
++	bitmask = 0x80 >> (bit % 8);
++	if (state)
++		bitmap[byte_spot] |= bitmask;
++	else
++		bitmap[byte_spot] &= ~bitmask;
++}
++
++/**
++ * cipso_v4_doi_domhsh_free - Frees a domain list entry
++ * @entry: the entry's RCU field
++ *
++ * Description:
++ * This function is designed to be used as a callback to the call_rcu()
++ * function so that the memory allocated to a domain list entry can be released
++ * safely.
++ *
++ */
++static void cipso_v4_doi_domhsh_free(struct rcu_head *entry)
++{
++	struct cipso_v4_domhsh_entry *ptr;
++
++	ptr = container_of(entry, struct cipso_v4_domhsh_entry, rcu);
++	kfree(ptr->domain);
++	kfree(ptr);
++}
++
++/**
++ * cipso_v4_cache_entry_free - Frees a cache entry
++ * @entry: the entry to free
++ *
++ * Description:
++ * This function frees the memory associated with a cache entry.
++ *
++ */
++static void cipso_v4_cache_entry_free(struct cipso_v4_map_cache_entry *entry)
++{
++	if (entry->lsm_data.free)
++		entry->lsm_data.free(entry->lsm_data.data);
++	kfree(entry->key);
++	kfree(entry);
++}
++
++/**
++ * cipso_v4_map_cache_hash - Hashing function for the CIPSO cache
++ * @key: the hash key
++ * @key_len: the length of the key in bytes
++ *
++ * Description:
++ * The CIPSO tag hashing function.  Returns a 32-bit hash value.
++ *
++ */
++static u32 cipso_v4_map_cache_hash(const unsigned char *key, u32 key_len)
++{
++	return jhash(key, key_len, 0);
++}
++
++/*
++ * Label Mapping Cache Functions
++ */
++
++/**
++ * cipso_v4_cache_init - Initialize the CIPSO cache
++ *
++ * Description:
++ * Initializes the CIPSO label mapping cache, this function should be called
++ * before any of the other functions defined in this file.  Returns zero on
++ * success, negative values on error.
++ *
++ */
++static int cipso_v4_cache_init(void)
++{
++	u32 iter;
++
++	cipso_v4_cache = kcalloc(CIPSO_V4_CACHE_BUCKETS,
++				 sizeof(struct cipso_v4_map_cache_bkt),
++				 GFP_KERNEL);
++	if (cipso_v4_cache == NULL)
++		return -ENOMEM;
++
++	for (iter = 0; iter < CIPSO_V4_CACHE_BUCKETS; iter++) {
++		spin_lock_init(&cipso_v4_cache[iter].lock);
++		cipso_v4_cache[iter].size = 0;
++		INIT_LIST_HEAD(&cipso_v4_cache[iter].list);
++	}
++
++	return 0;
++}
++
++/**
++ * cipso_v4_cache_invalidate - Invalidates the current CIPSO cache
++ *
++ * Description:
++ * Invalidates and frees any entries in the CIPSO cache.  Returns zero on
++ * success and negative values on failure.
++ *
++ */
++void cipso_v4_cache_invalidate(void)
++{
++	struct cipso_v4_map_cache_entry *entry, *tmp_entry;
++	u32 iter;
++
++	for (iter = 0; iter < CIPSO_V4_CACHE_BUCKETS; iter++) {
++		spin_lock(&cipso_v4_cache[iter].lock);
++		list_for_each_entry_safe(entry,
++					 tmp_entry,
++					 &cipso_v4_cache[iter].list, list) {
++			list_del(&entry->list);
++			cipso_v4_cache_entry_free(entry);
++		}
++		cipso_v4_cache[iter].size = 0;
++		spin_unlock(&cipso_v4_cache[iter].lock);
++	}
++
++	return;
++}
++
++/**
++ * cipso_v4_cache_check - Check the CIPSO cache for a label mapping
++ * @key: the buffer to check
++ * @key_len: buffer length in bytes
++ * @secattr: the security attribute struct to use
++ *
++ * Description:
++ * This function checks the cache to see if a label mapping already exists for
++ * the given key.  If there is a match then the cache is adjusted and the
++ * @secattr struct is populated with the correct LSM security attributes.  The
++ * cache is adjusted in the following manner if the entry is not already the
++ * first in the cache bucket:
++ *
++ *  1. The cache entry's activity counter is incremented
++ *  2. The previous (higher ranking) entry's activity counter is decremented
++ *  3. If the difference between the two activity counters is geater than
++ *     CIPSO_V4_CACHE_REORDERLIMIT the two entries are swapped
++ *
++ * Returns zero on success, -ENOENT for a cache miss, and other negative values
++ * on error.
++ *
++ */
++static int cipso_v4_cache_check(const unsigned char *key,
++				u32 key_len,
++				struct netlbl_lsm_secattr *secattr)
++{
++	u32 bkt;
++	struct cipso_v4_map_cache_entry *entry;
++	struct cipso_v4_map_cache_entry *prev_entry = NULL;
++	u32 hash;
++
++	if (!cipso_v4_cache_enabled)
++		return -ENOENT;
++
++	hash = cipso_v4_map_cache_hash(key, key_len);
++	bkt = hash & (CIPSO_V4_CACHE_BUCKETBITS - 1);
++	spin_lock(&cipso_v4_cache[bkt].lock);
++	list_for_each_entry(entry, &cipso_v4_cache[bkt].list, list) {
++		if (entry->hash == hash &&
++		    entry->key_len == key_len &&
++		    memcmp(entry->key, key, key_len) == 0) {
++			entry->activity += 1;
++			secattr->cache.free = entry->lsm_data.free;
++			secattr->cache.data = entry->lsm_data.data;
++			if (prev_entry == NULL) {
++				spin_unlock(&cipso_v4_cache[bkt].lock);
++				return 0;
++			}
++
++			if (prev_entry->activity > 0)
++				prev_entry->activity -= 1;
++			if (entry->activity > prev_entry->activity &&
++			    entry->activity - prev_entry->activity >
++			    CIPSO_V4_CACHE_REORDERLIMIT) {
++				__list_del(entry->list.prev, entry->list.next);
++				__list_add(&entry->list,
++					   prev_entry->list.prev,
++					   &prev_entry->list);
++			}
++
++			spin_unlock(&cipso_v4_cache[bkt].lock);
++			return 0;
++		}
++		prev_entry = entry;
++	}
++	spin_unlock(&cipso_v4_cache[bkt].lock);
++
++	return -ENOENT;
++}
++
++/**
++ * cipso_v4_cache_add - Add an entry to the CIPSO cache
++ * @skb: the packet
++ * @secattr: the packet's security attributes
++ *
++ * Description:
++ * Add a new entry into the CIPSO label mapping cache.  Add the new entry to
++ * head of the cache bucket's list, if the cache bucket is out of room remove
++ * the last entry in the list first.  It is important to note that there is
++ * currently no checking for duplicate keys.  Returns zero on success,
++ * negative values on failure.
++ *
++ */
++int cipso_v4_cache_add(const struct sk_buff *skb,
++		       const struct netlbl_lsm_secattr *secattr)
++{
++	int ret_val = -EPERM;
++	u32 bkt;
++	struct cipso_v4_map_cache_entry *entry = NULL;
++	struct cipso_v4_map_cache_entry *old_entry = NULL;
++	unsigned char *cipso_ptr;
++	u32 cipso_ptr_len;
++
++	if (!cipso_v4_cache_enabled || cipso_v4_cache_bucketsize <= 0)
++		return 0;
++
++	cipso_ptr = CIPSO_V4_OPTPTR(skb);
++	cipso_ptr_len = cipso_ptr[1];
++
++	entry = kzalloc(sizeof(*entry), GFP_ATOMIC);
++	if (entry == NULL)
++		return -ENOMEM;
++	entry->key = kmalloc(cipso_ptr_len, GFP_ATOMIC);
++	if (entry->key == NULL) {
++		ret_val = -ENOMEM;
++		goto cache_add_failure;
++	}
++	memcpy(entry->key, cipso_ptr, cipso_ptr_len);
++	entry->key_len = cipso_ptr_len;
++	entry->hash = cipso_v4_map_cache_hash(cipso_ptr, cipso_ptr_len);
++	entry->lsm_data.free = secattr->cache.free;
++	entry->lsm_data.data = secattr->cache.data;
++
++	bkt = entry->hash & (CIPSO_V4_CACHE_BUCKETBITS - 1);
++	spin_lock(&cipso_v4_cache[bkt].lock);
++	if (cipso_v4_cache[bkt].size < cipso_v4_cache_bucketsize) {
++		list_add(&entry->list, &cipso_v4_cache[bkt].list);
++		cipso_v4_cache[bkt].size += 1;
++	} else {
++		old_entry = list_entry(cipso_v4_cache[bkt].list.prev,
++				       struct cipso_v4_map_cache_entry, list);
++		list_del(&old_entry->list);
++		list_add(&entry->list, &cipso_v4_cache[bkt].list);
++		cipso_v4_cache_entry_free(old_entry);
++	}
++	spin_unlock(&cipso_v4_cache[bkt].lock);
++
++	return 0;
++
++cache_add_failure:
++	if (entry)
++		cipso_v4_cache_entry_free(entry);
++	return ret_val;
++}
++
++/*
++ * DOI List Functions
++ */
++
++/**
++ * cipso_v4_doi_search - Searches for a DOI definition
++ * @doi: the DOI to search for
++ *
++ * Description:
++ * Search the DOI definition list for a DOI definition with a DOI value that
++ * matches @doi.  The caller is responsibile for calling rcu_read_[un]lock().
++ * Returns a pointer to the DOI definition on success and NULL on failure.
++ */
++static struct cipso_v4_doi *cipso_v4_doi_search(u32 doi)
++{
++	struct cipso_v4_doi *iter;
++
++	list_for_each_entry_rcu(iter, &cipso_v4_doi_list, list)
++		if (iter->doi == doi && iter->valid)
++			return iter;
++	return NULL;
++}
++
++/**
++ * cipso_v4_doi_add - Add a new DOI to the CIPSO protocol engine
++ * @doi_def: the DOI structure
++ *
++ * Description:
++ * The caller defines a new DOI for use by the CIPSO engine and calls this
++ * function to add it to the list of acceptable domains.  The caller must
++ * ensure that the mapping table specified in @doi_def->map meets all of the
++ * requirements of the mapping type (see cipso_ipv4.h for details).  Returns
++ * zero on success and non-zero on failure.
++ *
++ */
++int cipso_v4_doi_add(struct cipso_v4_doi *doi_def)
++{
++	if (doi_def == NULL || doi_def->doi == CIPSO_V4_DOI_UNKNOWN)
++		return -EINVAL;
++
++	doi_def->valid = 1;
++	INIT_RCU_HEAD(&doi_def->rcu);
++	INIT_LIST_HEAD(&doi_def->dom_list);
++
++	rcu_read_lock();
++	if (cipso_v4_doi_search(doi_def->doi) != NULL)
++		goto doi_add_failure_rlock;
++	spin_lock(&cipso_v4_doi_list_lock);
++	if (cipso_v4_doi_search(doi_def->doi) != NULL)
++		goto doi_add_failure_slock;
++	list_add_tail_rcu(&doi_def->list, &cipso_v4_doi_list);
++	spin_unlock(&cipso_v4_doi_list_lock);
++	rcu_read_unlock();
++
++	return 0;
++
++doi_add_failure_slock:
++	spin_unlock(&cipso_v4_doi_list_lock);
++doi_add_failure_rlock:
++	rcu_read_unlock();
++	return -EEXIST;
++}
++
++/**
++ * cipso_v4_doi_remove - Remove an existing DOI from the CIPSO protocol engine
++ * @doi: the DOI value
++ * @callback: the DOI cleanup/free callback
++ *
++ * Description:
++ * Removes a DOI definition from the CIPSO engine, @callback is called to
++ * free any memory.  The NetLabel routines will be called to release their own
++ * LSM domain mappings as well as our own domain list.  Returns zero on
++ * success and negative values on failure.
++ *
++ */
++int cipso_v4_doi_remove(u32 doi, void (*callback) (struct rcu_head * head))
++{
++	struct cipso_v4_doi *doi_def;
++	struct cipso_v4_domhsh_entry *dom_iter;
++
++	rcu_read_lock();
++	if (cipso_v4_doi_search(doi) != NULL) {
++		spin_lock(&cipso_v4_doi_list_lock);
++		doi_def = cipso_v4_doi_search(doi);
++		if (doi_def == NULL) {
++			spin_unlock(&cipso_v4_doi_list_lock);
++			rcu_read_unlock();
++			return -ENOENT;
++		}
++		doi_def->valid = 0;
++		list_del_rcu(&doi_def->list);
++		spin_unlock(&cipso_v4_doi_list_lock);
++		list_for_each_entry_rcu(dom_iter, &doi_def->dom_list, list)
++			if (dom_iter->valid)
++				netlbl_domhsh_remove(dom_iter->domain);
++		cipso_v4_cache_invalidate();
++		rcu_read_unlock();
++
++		call_rcu(&doi_def->rcu, callback);
++		return 0;
++	}
++	rcu_read_unlock();
++
++	return -ENOENT;
++}
++
++/**
++ * cipso_v4_doi_getdef - Returns a pointer to a valid DOI definition
++ * @doi: the DOI value
++ *
++ * Description:
++ * Searches for a valid DOI definition and if one is found it is returned to
++ * the caller.  Otherwise NULL is returned.  The caller must ensure that
++ * rcu_read_lock() is held while accessing the returned definition.
++ *
++ */
++struct cipso_v4_doi *cipso_v4_doi_getdef(u32 doi)
++{
++	return cipso_v4_doi_search(doi);
++}
++
++/**
++ * cipso_v4_doi_dump_all - Dump all the CIPSO DOI definitions into a sk_buff
++ * @headroom: the amount of headroom to allocate for the sk_buff
++ *
++ * Description:
++ * Dump a list of all the configured DOI values into a sk_buff.  The returned
++ * sk_buff has room at the front of the sk_buff for @headroom bytes.  See
++ * net/netlabel/netlabel_cipso_v4.h for the LISTALL message format.  This
++ * function may fail if another process is changing the DOI list at the same
++ * time.  Returns a pointer to a sk_buff on success, NULL on error.
++ *
++ */
++struct sk_buff *cipso_v4_doi_dump_all(size_t headroom)
++{
++	struct sk_buff *skb = NULL;
++	struct cipso_v4_doi *iter;
++	u32 doi_cnt = 0;
++	ssize_t buf_len;
++
++	buf_len = NETLBL_LEN_U32;
++	rcu_read_lock();
++	list_for_each_entry_rcu(iter, &cipso_v4_doi_list, list)
++		if (iter->valid) {
++			doi_cnt += 1;
++			buf_len += 2 * NETLBL_LEN_U32;
++		}
++
++	skb = netlbl_netlink_alloc_skb(headroom, buf_len, GFP_ATOMIC);
++	if (skb == NULL)
++		goto doi_dump_all_failure;
++
++	if (nla_put_u32(skb, NLA_U32, doi_cnt) != 0)
++		goto doi_dump_all_failure;
++	buf_len -= NETLBL_LEN_U32;
++	list_for_each_entry_rcu(iter, &cipso_v4_doi_list, list)
++		if (iter->valid) {
++			if (buf_len < 2 * NETLBL_LEN_U32)
++				goto doi_dump_all_failure;
++			if (nla_put_u32(skb, NLA_U32, iter->doi) != 0)
++				goto doi_dump_all_failure;
++			if (nla_put_u32(skb, NLA_U32, iter->type) != 0)
++				goto doi_dump_all_failure;
++			buf_len -= 2 * NETLBL_LEN_U32;
++		}
++	rcu_read_unlock();
++
++	return skb;
++
++doi_dump_all_failure:
++	rcu_read_unlock();
++	kfree(skb);
++	return NULL;
++}
++
++/**
++ * cipso_v4_doi_dump - Dump a CIPSO DOI definition into a sk_buff
++ * @doi: the DOI value
++ * @headroom: the amount of headroom to allocate for the sk_buff
++ *
++ * Description:
++ * Lookup the DOI definition matching @doi and dump it's contents into a
++ * sk_buff.  The returned sk_buff has room at the front of the sk_buff for
++ * @headroom bytes.  See net/netlabel/netlabel_cipso_v4.h for the LIST message
++ * format.  This function may fail if another process is changing the DOI list
++ * at the same time.  Returns a pointer to a sk_buff on success, NULL on error.
++ *
++ */
++struct sk_buff *cipso_v4_doi_dump(u32 doi, size_t headroom)
++{
++	struct sk_buff *skb = NULL;
++	struct cipso_v4_doi *iter;
++	u32 tag_cnt = 0;
++	u32 lvl_cnt = 0;
++	u32 cat_cnt = 0;
++	ssize_t buf_len;
++	ssize_t tmp;
++
++	rcu_read_lock();
++	iter = cipso_v4_doi_getdef(doi);
++	if (iter == NULL)
++		goto doi_dump_failure;
++	buf_len = NETLBL_LEN_U32;
++	switch (iter->type) {
++	case CIPSO_V4_MAP_PASS:
++		buf_len += NETLBL_LEN_U32;
++		while(tag_cnt < CIPSO_V4_TAG_MAXCNT &&
++		      iter->tags[tag_cnt] != CIPSO_V4_TAG_INVALID) {
++			tag_cnt += 1;
++			buf_len += NETLBL_LEN_U8;
++		}
++		break;
++	case CIPSO_V4_MAP_STD:
++		buf_len += 3 * NETLBL_LEN_U32;
++		while (tag_cnt < CIPSO_V4_TAG_MAXCNT &&
++		       iter->tags[tag_cnt] != CIPSO_V4_TAG_INVALID) {
++			tag_cnt += 1;
++			buf_len += NETLBL_LEN_U8;
++		}
++		for (tmp = 0; tmp < iter->map.std->lvl.local_size; tmp++)
++			if (iter->map.std->lvl.local[tmp] !=
++			    CIPSO_V4_INV_LVL) {
++				lvl_cnt += 1;
++				buf_len += NETLBL_LEN_U32 + NETLBL_LEN_U8;
++			}
++		for (tmp = 0; tmp < iter->map.std->cat.local_size; tmp++)
++			if (iter->map.std->cat.local[tmp] !=
++			    CIPSO_V4_INV_CAT) {
++				cat_cnt += 1;
++				buf_len += NETLBL_LEN_U32 + NETLBL_LEN_U16;
++			}
++		break;
++	}
++
++	skb = netlbl_netlink_alloc_skb(headroom, buf_len, GFP_ATOMIC);
++	if (skb == NULL)
++		goto doi_dump_failure;
++
++	if (nla_put_u32(skb, NLA_U32, iter->type) != 0)
++		goto doi_dump_failure;
++	buf_len -= NETLBL_LEN_U32;
++	if (iter != cipso_v4_doi_getdef(doi))
++		goto doi_dump_failure;
++	switch (iter->type) {
++	case CIPSO_V4_MAP_PASS:
++		if (nla_put_u32(skb, NLA_U32, tag_cnt) != 0)
++			goto doi_dump_failure;
++		buf_len -= NETLBL_LEN_U32;
++		for (tmp = 0;
++		     tmp < CIPSO_V4_TAG_MAXCNT &&
++			     iter->tags[tmp] != CIPSO_V4_TAG_INVALID;
++		     tmp++) {
++			if (buf_len < NETLBL_LEN_U8)
++				goto doi_dump_failure;
++			if (nla_put_u8(skb, NLA_U8, iter->tags[tmp]) != 0)
++				goto doi_dump_failure;
++			buf_len -= NETLBL_LEN_U8;
++		}
++		break;
++	case CIPSO_V4_MAP_STD:
++		if (nla_put_u32(skb, NLA_U32, tag_cnt) != 0)
++			goto doi_dump_failure;
++		if (nla_put_u32(skb, NLA_U32, lvl_cnt) != 0)
++			goto doi_dump_failure;
++		if (nla_put_u32(skb, NLA_U32, cat_cnt) != 0)
++			goto doi_dump_failure;
++		buf_len -= 3 * NETLBL_LEN_U32;
++		for (tmp = 0;
++		     tmp < CIPSO_V4_TAG_MAXCNT &&
++			     iter->tags[tmp] != CIPSO_V4_TAG_INVALID;
++		     tmp++) {
++			if (buf_len < NETLBL_LEN_U8)
++				goto doi_dump_failure;
++			if (nla_put_u8(skb, NLA_U8, iter->tags[tmp]) != 0)
++				goto doi_dump_failure;
++			buf_len -= NETLBL_LEN_U8;
++		}
++		for (tmp = 0; tmp < iter->map.std->lvl.local_size; tmp++)
++			if (iter->map.std->lvl.local[tmp] !=
++			    CIPSO_V4_INV_LVL) {
++				if (buf_len < NETLBL_LEN_U32 + NETLBL_LEN_U8)
++					goto doi_dump_failure;
++				if (nla_put_u32(skb, NLA_U32, tmp) != 0)
++					goto doi_dump_failure;
++				if (nla_put_u8(skb,
++					   NLA_U8,
++					   iter->map.std->lvl.local[tmp]) != 0)
++					goto doi_dump_failure;
++				buf_len -= NETLBL_LEN_U32 + NETLBL_LEN_U8;
++			}
++		for (tmp = 0; tmp < iter->map.std->cat.local_size; tmp++)
++			if (iter->map.std->cat.local[tmp] !=
++			    CIPSO_V4_INV_CAT) {
++				if (buf_len < NETLBL_LEN_U32 + NETLBL_LEN_U16)
++					goto doi_dump_failure;
++				if (nla_put_u32(skb, NLA_U32, tmp) != 0)
++					goto doi_dump_failure;
++				if (nla_put_u16(skb,
++					   NLA_U16,
++					   iter->map.std->cat.local[tmp]) != 0)
++					goto doi_dump_failure;
++				buf_len -= NETLBL_LEN_U32 + NETLBL_LEN_U16;
++			}
++		break;
++	}
++	rcu_read_unlock();
++
++	return skb;
++
++doi_dump_failure:
++	rcu_read_unlock();
++	kfree(skb);
++	return NULL;
++}
++
++/**
++ * cipso_v4_doi_domhsh_add - Adds a domain entry to a DOI definition
++ * @doi_def: the DOI definition
++ * @domain: the domain to add
++ *
++ * Description:
++ * Adds the @domain to the the DOI specified by @doi_def, this function
++ * should only be called by external functions (i.e. NetLabel).  This function
++ * does allocate memory.  Returns zero on success, negative values on failure.
++ *
++ */
++int cipso_v4_doi_domhsh_add(struct cipso_v4_doi *doi_def, const char *domain)
++{
++	struct cipso_v4_domhsh_entry *iter;
++	struct cipso_v4_domhsh_entry *new_dom;
++
++	new_dom = kzalloc(sizeof(*new_dom), GFP_KERNEL);
++	if (new_dom == NULL)
++		return -ENOMEM;
++	if (domain) {
++		new_dom->domain = kstrdup(domain, GFP_KERNEL);
++		if (new_dom->domain == NULL) {
++			kfree(new_dom);
++			return -ENOMEM;
++		}
++	}
++	new_dom->valid = 1;
++	INIT_RCU_HEAD(&new_dom->rcu);
++
++	rcu_read_lock();
++	spin_lock(&cipso_v4_doi_list_lock);
++	list_for_each_entry_rcu(iter, &doi_def->dom_list, list)
++		if (iter->valid &&
++		    ((domain != NULL && iter->domain != NULL &&
++		      strcmp(iter->domain, domain) == 0) ||
++		     (domain == NULL && iter->domain == NULL))) {
++			spin_unlock(&cipso_v4_doi_list_lock);
++			rcu_read_unlock();
++			kfree(new_dom->domain);
++			kfree(new_dom);
++			return -EEXIST;
++		}
++	list_add_tail_rcu(&new_dom->list, &doi_def->dom_list);
++	spin_unlock(&cipso_v4_doi_list_lock);
++	rcu_read_unlock();
++
++	return 0;
++}
++
++/**
++ * cipso_v4_doi_domhsh_remove - Removes a domain entry from a DOI definition
++ * @doi_def: the DOI definition
++ * @domain: the domain to remove
++ *
++ * Description:
++ * Removes the @domain from the DOI specified by @doi_def, this function
++ * should only be called by external functions (i.e. NetLabel).   Returns zero
++ * on success and negative values on error.
++ *
++ */
++int cipso_v4_doi_domhsh_remove(struct cipso_v4_doi *doi_def,
++			       const char *domain)
++{
++	struct cipso_v4_domhsh_entry *iter;
++
++	rcu_read_lock();
++	spin_lock(&cipso_v4_doi_list_lock);
++	list_for_each_entry_rcu(iter, &doi_def->dom_list, list)
++		if (iter->valid &&
++		    ((domain != NULL && iter->domain != NULL &&
++		      strcmp(iter->domain, domain) == 0) ||
++		     (domain == NULL && iter->domain == NULL))) {
++			iter->valid = 0;
++			list_del_rcu(&iter->list);
++			spin_unlock(&cipso_v4_doi_list_lock);
++			rcu_read_unlock();
++			call_rcu(&iter->rcu, cipso_v4_doi_domhsh_free);
++
++			return 0;
++		}
++	spin_unlock(&cipso_v4_doi_list_lock);
++	rcu_read_unlock();
++
++	return -ENOENT;
++}
++
++/*
++ * Label Mapping Functions
++ */
++
++/**
++ * cipso_v4_map_lvl_valid - Checks to see if the given level is understood
++ * @doi_def: the DOI definition
++ * @level: the level to check
++ *
++ * Description:
++ * Checks the given level against the given DOI definition and returns a
++ * negative value if the level does not have a valid mapping and a zero value
++ * if the level is defined by the DOI.
++ *
++ */
++static int cipso_v4_map_lvl_valid(const struct cipso_v4_doi *doi_def, u8 level)
++{
++	switch (doi_def->type) {
++	case CIPSO_V4_MAP_PASS:
++		return 0;
++	case CIPSO_V4_MAP_STD:
++		if (doi_def->map.std->lvl.cipso[level] < CIPSO_V4_INV_LVL)
++			return 0;
++		break;
++	}
++
++	return -EFAULT;
++}
++
++/**
++ * cipso_v4_map_lvl_hton - Perform a level mapping from the host to the network
++ * @doi_def: the DOI definition
++ * @host_lvl: the host MLS level
++ * @net_lvl: the network/CIPSO MLS level
++ *
++ * Description:
++ * Perform a label mapping to translate a local MLS level to the correct
++ * CIPSO level using the given DOI definition.  Returns zero on success,
++ * negative values otherwise.
++ *
++ */
++static int cipso_v4_map_lvl_hton(const struct cipso_v4_doi *doi_def,
++				 u32 host_lvl,
++				 u32 *net_lvl)
++{
++	switch (doi_def->type) {
++	case CIPSO_V4_MAP_PASS:
++		*net_lvl = host_lvl;
++		return 0;
++	case CIPSO_V4_MAP_STD:
++		if (host_lvl < doi_def->map.std->lvl.local_size) {
++			*net_lvl = doi_def->map.std->lvl.local[host_lvl];
++			return 0;
++		}
++		break;
++	}
++
++	return -EINVAL;
++}
++
++/**
++ * cipso_v4_map_lvl_ntoh - Perform a level mapping from the network to the host
++ * @doi_def: the DOI definition
++ * @net_lvl: the network/CIPSO MLS level
++ * @host_lvl: the host MLS level
++ *
++ * Description:
++ * Perform a label mapping to translate a CIPSO level to the correct local MLS
++ * level using the given DOI definition.  Returns zero on success, negative
++ * values otherwise.
++ *
++ */
++static int cipso_v4_map_lvl_ntoh(const struct cipso_v4_doi *doi_def,
++				 u32 net_lvl,
++				 u32 *host_lvl)
++{
++	struct cipso_v4_std_map_tbl *map_tbl;
++
++	switch (doi_def->type) {
++	case CIPSO_V4_MAP_PASS:
++		*host_lvl = net_lvl;
++		return 0;
++	case CIPSO_V4_MAP_STD:
++		map_tbl = doi_def->map.std;
++		if (net_lvl < map_tbl->lvl.cipso_size &&
++		    map_tbl->lvl.cipso[net_lvl] < CIPSO_V4_INV_LVL) {
++			*host_lvl = doi_def->map.std->lvl.cipso[net_lvl];
++			return 0;
++		}
++		break;
++	}
++
++	return -EINVAL;
++}
++
++/**
++ * cipso_v4_map_cat_rbm_valid - Checks to see if the category bitmap is valid
++ * @doi_def: the DOI definition
++ * @bitmap: category bitmap
++ * @bitmap_len: bitmap length in bytes
++ *
++ * Description:
++ * Checks the given category bitmap against the given DOI definition and
++ * returns a negative value if any of the categories in the bitmap do not have
++ * a valid mapping and a zero value if all of the categories are valid.
++ *
++ */
++static int cipso_v4_map_cat_rbm_valid(const struct cipso_v4_doi *doi_def,
++				      const unsigned char *bitmap,
++				      u32 bitmap_len)
++{
++	int cat = -1;
++	u32 bitmap_len_bits = bitmap_len * 8;
++	u32 cipso_cat_size = doi_def->map.std->cat.cipso_size;
++	u32 *cipso_array = doi_def->map.std->cat.cipso;
++
++	switch (doi_def->type) {
++	case CIPSO_V4_MAP_PASS:
++		return 0;
++	case CIPSO_V4_MAP_STD:
++		for (;;) {
++			cat = cipso_v4_bitmap_walk(bitmap,
++						   bitmap_len_bits,
++						   cat + 1,
++						   1);
++			if (cat < 0)
++				break;
++			if (cat >= cipso_cat_size ||
++			    cipso_array[cat] >= CIPSO_V4_INV_CAT)
++				return -EFAULT;
++		}
++
++		if (cat == -1)
++			return 0;
++		break;
++	}
++
++	return -EFAULT;
++}
++
++/**
++ * cipso_v4_map_cat_rbm_hton - Perform a category mapping from host to network
++ * @doi_def: the DOI definition
++ * @host_cat: the category bitmap in host format
++ * @host_cat_len: the length of the host's category bitmap in bytes
++ * @net_cat: the zero'd out category bitmap in network/CIPSO format
++ * @net_cat_len: the length of the CIPSO bitmap in bytes
++ *
++ * Description:
++ * Perform a label mapping to translate a local MLS category bitmap to the
++ * correct CIPSO bitmap using the given DOI definition.  Returns the minimum
++ * size in bytes of the network bitmap on success, negative values otherwise.
++ *
++ */
++static int cipso_v4_map_cat_rbm_hton(const struct cipso_v4_doi *doi_def,
++				     const unsigned char *host_cat,
++				     u32 host_cat_len,
++				     unsigned char *net_cat,
++				     u32 net_cat_len)
++{
++	int host_spot = -1;
++	u32 net_spot;
++	u32 net_spot_max = 0;
++	u32 host_clen_bits = host_cat_len * 8;
++	u32 net_clen_bits = net_cat_len * 8;
++	u32 host_cat_size = doi_def->map.std->cat.local_size;
++	u32 *host_cat_array = doi_def->map.std->cat.local;
++
++	switch (doi_def->type) {
++	case CIPSO_V4_MAP_PASS:
++		net_spot_max = host_cat_len - 1;
++		while (net_spot_max > 0 && host_cat[net_spot_max] == 0)
++			net_spot_max--;
++		if (net_spot_max > net_cat_len)
++			return -EINVAL;
++		memcpy(net_cat, host_cat, net_spot_max);
++		return net_spot_max;
++	case CIPSO_V4_MAP_STD:
++		for (;;) {
++			host_spot = cipso_v4_bitmap_walk(host_cat,
++							 host_clen_bits,
++							 host_spot + 1,
++							 1);
++			if (host_spot < 0)
++				break;
++			if (host_spot >= host_cat_size)
++				return -EPERM;
++
++			net_spot = host_cat_array[host_spot];
++			if (net_spot >= net_clen_bits)
++				return -ENOSPC;
++			cipso_v4_bitmap_setbit(net_cat, net_spot, 1);
++
++			if (net_spot > net_spot_max)
++				net_spot_max = net_spot;
++		}
++
++		if (host_spot == -2)
++			return -EFAULT;
++
++		if (++net_spot_max % 8)
++			return net_spot_max / 8 + 1;
++		return net_spot_max / 8;
++	}
++
++	return -EINVAL;
++}
++
++/**
++ * cipso_v4_map_cat_rbm_ntoh - Perform a category mapping from network to host
++ * @doi_def: the DOI definition
++ * @net_cat: the category bitmap in network/CIPSO format
++ * @net_cat_len: the length of the CIPSO bitmap in bytes
++ * @host_cat: the zero'd out category bitmap in host format
++ * @host_cat_len: the length of the host's category bitmap in bytes
++ *
++ * Description:
++ * Perform a label mapping to translate a CIPSO bitmap to the correct local
++ * MLS category bitmap using the given DOI definition.  Returns the minimum
++ * size in bytes of the host bitmap on success, negative values otherwise.
++ *
++ */
++static int cipso_v4_map_cat_rbm_ntoh(const struct cipso_v4_doi *doi_def,
++				     const unsigned char *net_cat,
++				     u32 net_cat_len,
++				     unsigned char *host_cat,
++				     u32 host_cat_len)
++{
++	u32 host_spot;
++	u32 host_spot_max = 0;
++	int net_spot = -1;
++	u32 net_clen_bits = net_cat_len * 8;
++	u32 host_clen_bits = host_cat_len * 8;
++	u32 net_cat_size = doi_def->map.std->cat.cipso_size;
++	u32 *net_cat_array = doi_def->map.std->cat.cipso;
++
++	switch (doi_def->type) {
++	case CIPSO_V4_MAP_PASS:
++		if (net_cat_len > host_cat_len)
++			return -EINVAL;
++		memcpy(host_cat, net_cat, net_cat_len);
++		return net_cat_len;
++	case CIPSO_V4_MAP_STD:
++		for (;;) {
++			net_spot = cipso_v4_bitmap_walk(net_cat,
++							net_clen_bits,
++							net_spot + 1,
++							1);
++			if (net_spot < 0)
++				break;
++			if (net_spot >= net_cat_size ||
++			    net_cat_array[net_spot] >= CIPSO_V4_INV_CAT)
++				return -EPERM;
++
++			host_spot = net_cat_array[net_spot];
++			if (host_spot >= host_clen_bits)
++				return -ENOSPC;
++			cipso_v4_bitmap_setbit(host_cat, host_spot, 1);
++
++			if (host_spot > host_spot_max)
++				host_spot_max = host_spot;
++		}
++
++		if (net_spot == -2)
++			return -EFAULT;
++
++		if (++host_spot_max % 8)
++			return host_spot_max / 8 + 1;
++		return host_spot_max / 8;
++	}
++
++	return -EINVAL;
++}
++
++/*
++ * Protocol Handling Functions
++ */
++
++#define CIPSO_V4_HDR_LEN              6
++
++/**
++ * cipso_v4_gentag_hdr - Generate a CIPSO option header
++ * @doi_def: the DOI definition
++ * @len: the total tag length in bytes
++ * @buf: the CIPSO option buffer
++ *
++ * Description:
++ * Write a CIPSO header into the beginning of @buffer.  Return zero on success,
++ * negative values on failure.
++ *
++ */
++static int cipso_v4_gentag_hdr(const struct cipso_v4_doi *doi_def,
++			       u32 len,
++			       unsigned char *buf)
++{
++	if (CIPSO_V4_HDR_LEN + len > 40)
++		return -ENOSPC;
++
++	buf[0] = IPOPT_CIPSO;
++	buf[1] = CIPSO_V4_HDR_LEN + len;
++	*(u32 *)&buf[2] = htonl(doi_def->doi);
++
++	return 0;
++}
++
++#define CIPSO_V4_TAG1_CAT_LEN         30
++
++/**
++ * cipso_v4_gentag_rbm - Generate a CIPSO restricted bitmap tag (type #1)
++ * @doi_def: the DOI definition
++ * @secattr: the security attributes
++ * @buffer: the option buffer
++ * @buffer_len: length of buffer in bytes
++ *
++ * Description:
++ * Generate a CIPSO option using the restricted bitmap tag, tag type #1.  The
++ * actual buffer length may be larger than the indicated size due to
++ * translation between host and network category bitmaps.  Returns zero on
++ * success, negative values on failure.
++ *
++ */
++static int cipso_v4_gentag_rbm(const struct cipso_v4_doi *doi_def,
++			       const struct netlbl_lsm_secattr *secattr,
++			       unsigned char **buffer,
++			       u32 *buffer_len)
++{
++	int ret_val = -EPERM;
++	unsigned char *buf = NULL;
++	u32 buf_len;
++	u32 level;
++
++	if (secattr->mls_cat) {
++		buf = kzalloc(CIPSO_V4_HDR_LEN + 4 + CIPSO_V4_TAG1_CAT_LEN,
++			      GFP_ATOMIC);
++		if (buf == NULL)
++			return -ENOMEM;
++
++		ret_val = cipso_v4_map_cat_rbm_hton(doi_def,
++						    secattr->mls_cat,
++						    secattr->mls_cat_len,
++						    &buf[CIPSO_V4_HDR_LEN + 4],
++						    CIPSO_V4_TAG1_CAT_LEN);
++		if (ret_val < 0)
++			goto gentag_failure;
++
++		/* This will send packets using the "optimized" format when
++		 * possibile as specified in  section 3.4.2.6 of the
++		 * CIPSO draft. */
++		if (cipso_v4_rbm_optfmt && (ret_val > 0 && ret_val < 10))
++			ret_val = 10;
++
++		buf_len = 4 + ret_val;
++	} else {
++		buf = kzalloc(CIPSO_V4_HDR_LEN + 4, GFP_ATOMIC);
++		if (buf == NULL)
++			return -ENOMEM;
++		buf_len = 4;
++	}
++
++	ret_val = cipso_v4_map_lvl_hton(doi_def, secattr->mls_lvl, &level);
++	if (ret_val != 0)
++		goto gentag_failure;
++
++	ret_val = cipso_v4_gentag_hdr(doi_def, buf_len, buf);
++	if (ret_val != 0)
++		goto gentag_failure;
++
++	buf[CIPSO_V4_HDR_LEN] = 0x01;
++	buf[CIPSO_V4_HDR_LEN + 1] = buf_len;
++	buf[CIPSO_V4_HDR_LEN + 3] = level;
++
++	*buffer = buf;
++	*buffer_len = CIPSO_V4_HDR_LEN + buf_len;
++
++	return 0;
++
++gentag_failure:
++	kfree(buf);
++	return ret_val;
++}
++
++/**
++ * cipso_v4_parsetag_rbm - Parse a CIPSO restricted bitmap tag
++ * @doi_def: the DOI definition
++ * @tag: the CIPSO tag
++ * @secattr: the security attributes
++ *
++ * Description:
++ * Parse a CIPSO restricted bitmap tag (tag type #1) and return the security
++ * attributes in @secattr.  Return zero on success, negatives values on
++ * failure.
++ *
++ */
++static int cipso_v4_parsetag_rbm(const struct cipso_v4_doi *doi_def,
++				 const unsigned char *tag,
++				 struct netlbl_lsm_secattr *secattr)
++{
++	int ret_val;
++	u8 tag_len = tag[1];
++	u32 level;
++
++	ret_val = cipso_v4_map_lvl_ntoh(doi_def, tag[3], &level);
++	if (ret_val != 0)
++		return ret_val;
++	secattr->mls_lvl = level;
++	secattr->mls_lvl_vld = 1;
++
++	if (tag_len > 4) {
++		switch (doi_def->type) {
++		case CIPSO_V4_MAP_PASS:
++			secattr->mls_cat_len = tag_len - 4;
++			break;
++		case CIPSO_V4_MAP_STD:
++			secattr->mls_cat_len =
++				doi_def->map.std->cat.local_size;
++			break;
++		}
++		secattr->mls_cat = kzalloc(secattr->mls_cat_len, GFP_ATOMIC);
++		if (secattr->mls_cat == NULL)
++			return -ENOMEM;
++
++		ret_val = cipso_v4_map_cat_rbm_ntoh(doi_def,
++						    &tag[4],
++						    tag_len - 4,
++						    secattr->mls_cat,
++						    secattr->mls_cat_len);
++		if (ret_val < 0) {
++			kfree(secattr->mls_cat);
++			return ret_val;
++		}
++		secattr->mls_cat_len = ret_val;
++	}
++
++	return 0;
++}
++
++/**
++ * cipso_v4_validate - Validate a CIPSO option
++ * @option: the start of the option, on error it is set to point to the error
++ *
++ * Description:
++ * This routine is called to validate a CIPSO option, it checks all of the
++ * fields to ensure that they are at least valid, see the draft snippet below
++ * for details.  If the option is valid then a zero value is returned and
++ * the value of @option is unchanged.  If the option is invalid then a
++ * non-zero value is returned and @option is adjusted to point to the
++ * offending portion of the option.  From the IETF draft ...
++ *
++ *  "If any field within the CIPSO options, such as the DOI identifier, is not
++ *   recognized the IP datagram is discarded and an ICMP 'parameter problem'
++ *   (type 12) is generated and returned.  The ICMP code field is set to 'bad
++ *   parameter' (code 0) and the pointer is set to the start of the CIPSO field
++ *   that is unrecognized."
++ *
++ */
++int cipso_v4_validate(unsigned char **option)
++{
++	unsigned char *opt = *option;
++	unsigned char *tag;
++	unsigned char opt_iter;
++	unsigned char err_offset = 0;
++	u8 opt_len;
++	u8 tag_len;
++	struct cipso_v4_doi *doi_def = NULL;
++	u32 tag_iter;
++
++	/* caller already checks for length values that are too large */
++	opt_len = opt[1];
++	if (opt_len < 8) {
++		err_offset = 1;
++		goto validate_return;
++	}
++
++	rcu_read_lock();
++	doi_def = cipso_v4_doi_getdef(ntohl(*((u32 *)&opt[2])));
++	if (doi_def == NULL) {
++		err_offset = 2;
++		goto validate_return_locked;
++	}
++
++	opt_iter = 6;
++	tag = opt + opt_iter;
++	while (opt_iter < opt_len) {
++		for (tag_iter = 0; doi_def->tags[tag_iter] != tag[0];)
++			if (doi_def->tags[tag_iter] == CIPSO_V4_TAG_INVALID ||
++			    ++tag_iter == CIPSO_V4_TAG_MAXCNT) {
++				err_offset = opt_iter;
++				goto validate_return_locked;
++			}
++
++		tag_len = tag[1];
++		if (tag_len > (opt_len - opt_iter)) {
++			err_offset = opt_iter + 1;
++			goto validate_return_locked;
++		}
++
++		switch (tag[0]) {
++		case CIPSO_V4_TAG_RBITMAP:
++			if (tag_len < 4) {
++				err_offset = opt_iter + 1;
++				goto validate_return_locked;
++			}
++
++			/* We are already going to do all the verification
++			 * necessary at the socket layer so from our point of
++			 * view it is safe to turn these checks off (and less
++			 * work), however, the CIPSO draft says we should do
++			 * all the CIPSO validations here but it doesn't
++			 * really specify _exactly_ what we need to validate
++			 * ... so, just make it a sysctl tunable. */
++			if (cipso_v4_rbm_strictvalid) {
++				if (cipso_v4_map_lvl_valid(doi_def,
++							   tag[3]) < 0) {
++					err_offset = opt_iter + 3;
++					goto validate_return_locked;
 +				}
- 				if (convert_and_expand_rule
- 				    (state.handle, out, state.typemap,
- 				     cur_avrule, &out->te_avtab, NULL, NULL,
--				     0) != 1) {
-+				     0, 0) != 1) {
-					goto cleanup;
-				}
-			}
-@@ -2098,7 +2115,7 @@ int expand_module(sepol_handle_t * handl
- 		goto cleanup;
- 	hashtab_map_remove_on_error(state.out->p_types.table,
- 				    type_attr_remove, type_destroy, state.out);
--	if (check) {
-+	if (check && !(out->unsupported_format)) {
- 		if (hierarchy_check_constraints(handle, state.out))
- 			goto cleanup;
++				if (tag_len > 4 &&
++				    cipso_v4_map_cat_rbm_valid(doi_def,
++							    &tag[4],
++							    tag_len - 4) < 0) {
++					err_offset = opt_iter + 4;
++					goto validate_return_locked;
++				}
++			}
++			break;
++		default:
++			err_offset = opt_iter;
++			goto validate_return_locked;
++		}
++
++		tag += tag_len;
++		opt_iter += tag_len;
++	}
++
++validate_return_locked:
++	rcu_read_unlock();
++validate_return:
++	*option = opt + err_offset;
++	return err_offset;
++}
++
++/**
++ * cipso_v4_error - Send the correct reponse for a bad packet
++ * @skb: the packet
++ * @error: the error code
++ * @gateway: CIPSO gateway flag
++ *
++ * Description:
++ * Based on the error code given in @error, send an ICMP error message back to
++ * the originating host.  From the IETF draft ...
++ *
++ *  "If the contents of the CIPSO [option] are valid but the security label is
++ *   outside of the configured host or port label range, the datagram is
++ *   discarded and an ICMP 'destination unreachable' (type 3) is generated and
++ *   returned.  The code field of the ICMP is set to 'communication with
++ *   destination network administratively prohibited' (code 9) or to
++ *   'communication with destination host administratively prohibited'
++ *   (code 10).  The value of the code is dependent on whether the originator
++ *   of the ICMP message is acting as a CIPSO host or a CIPSO gateway.  The
++ *   recipient of the ICMP message MUST be able to handle either value.  The
++ *   same procedure is performed if a CIPSO [option] can not be added to an
++ *   IP packet because it is too large to fit in the IP options area."
++ *
++ *  "If the error is triggered by receipt of an ICMP message, the message is
++ *   discarded and no response is permitted (consistent with general ICMP
++ *   processing rules)."
++ *
++ */
++void cipso_v4_error(struct sk_buff *skb, int error, u32 gateway)
++{
++	if (skb->nh.iph->protocol == IPPROTO_ICMP || error != -EACCES)
++		return;
++
++	if (gateway)
++		icmp_send(skb, ICMP_DEST_UNREACH, ICMP_NET_ANO, 0);
++	else
++		icmp_send(skb, ICMP_DEST_UNREACH, ICMP_HOST_ANO, 0);
++}
++
++/**
++ * cipso_v4_socket_setattr - Add a CIPSO option to a socket
++ * @sock: the socket
++ * @doi_def: the CIPSO DOI to use
++ * @secattr: the specific security attributes of the socket
++ *
++ * Description:
++ * Set the CIPSO option on the given socket using the DOI definition and
++ * security attributes passed to the function.  This function requires
++ * exclusive access to @sock->sk, which means it either needs to be in the
++ * process of being created or locked via lock_sock(sock->sk).  Returns zero on
++ * success and negative values on failure.
++ *
++ */
++int cipso_v4_socket_setattr(const struct socket *sock,
++			    const struct cipso_v4_doi *doi_def,
++			    const struct netlbl_lsm_secattr *secattr)
++{
++	int ret_val = -EPERM;
++	u32 iter;
++	unsigned char *buf = NULL;
++	u32 buf_len = 0;
++	u32 opt_len;
++	struct ip_options *opt = NULL;
++	struct sock *sk;
++	struct inet_sock *sk_inet;
++	struct inet_connection_sock *sk_conn;
++
++	/* In the case of sock_create_lite(), the sock->sk field is not
++	 * defined yet but it is not a problem as the only users of these
++	 * "lite" PF_INET sockets are functions which do an accept() call
++	 * afterwards so we will label the socket as part of the accept(). */
++	sk = sock->sk;
++	if (sk == NULL)
++		return 0;
++
++	/* XXX - This code assumes only one tag per CIPSO option which isn't
++	 * really a good assumption to make but since we only support the MAC
++	 * tags right now it is a safe assumption. */
++	iter = 0;
++	do {
++		switch (doi_def->tags[iter]) {
++		case CIPSO_V4_TAG_RBITMAP:
++			ret_val = cipso_v4_gentag_rbm(doi_def,
++						      secattr,
++						      &buf,
++						      &buf_len);
++			break;
++		default:
++			ret_val = -EPERM;
++			goto socket_setattr_failure;
++		}
++
++		iter++;
++	} while (ret_val != 0 &&
++		 iter < CIPSO_V4_TAG_MAXCNT &&
++		 doi_def->tags[iter] != CIPSO_V4_TAG_INVALID);
++	if (ret_val != 0)
++		goto socket_setattr_failure;
++
++	/* We can't use ip_options_get() directly because it makes a call to
++	 * ip_options_get_alloc() which allocates memory with GFP_KERNEL and
++	 * we can't block here. */
++	opt_len = (buf_len + 3) & ~3;
++	opt = kzalloc(sizeof(*opt) + opt_len, GFP_ATOMIC);
++	if (opt == NULL) {
++		ret_val = -ENOMEM;
++		goto socket_setattr_failure;
++	}
++	memcpy(opt->__data, buf, buf_len);
++	opt->optlen = opt_len;
++	opt->is_data = 1;
++	kfree(buf);
++	buf = NULL;
++	ret_val = ip_options_compile(opt, NULL);
++	if (ret_val != 0)
++		goto socket_setattr_failure;
++
++	sk_inet = inet_sk(sk);
++	if (sk_inet->is_icsk) {
++		sk_conn = inet_csk(sk);
++		if (sk_inet->opt)
++			sk_conn->icsk_ext_hdr_len -= sk_inet->opt->optlen;
++		sk_conn->icsk_ext_hdr_len += opt->optlen;
++		sk_conn->icsk_sync_mss(sk, sk_conn->icsk_pmtu_cookie);
++	}
++	opt = xchg(&sk_inet->opt, opt);
++	kfree(opt);
++
++	return 0;
++
++socket_setattr_failure:
++	kfree(buf);
++	kfree(opt);
++	return ret_val;
++}
++
++/**
++ * cipso_v4_socket_getattr - Get the security attributes from a socket
++ * @sock: the socket
++ * @secattr: the security attributes
++ *
++ * Description:
++ * Query @sock to see if there is a CIPSO option attached to the socket and if
++ * there is return the CIPSO security attributes in @secattr.  Returns zero on
++ * success and negative values on failure.
++ *
++ */
++int cipso_v4_socket_getattr(const struct socket *sock,
++			    struct netlbl_lsm_secattr *secattr)
++{
++	int ret_val = -ENOMSG;
++	struct sock *sk;
++	struct inet_sock *sk_inet;
++	unsigned char *cipso_ptr;
++	u32 doi;
++	struct cipso_v4_doi *doi_def;
++
++	sk = sock->sk;
++	lock_sock(sk);
++	sk_inet = inet_sk(sk);
++	if (sk_inet->opt == NULL || sk_inet->opt->cipso == 0)
++		goto socket_getattr_return;
++	cipso_ptr = sk_inet->opt->__data + sk_inet->opt->cipso -
++		sizeof(struct iphdr);
++	ret_val = cipso_v4_cache_check(cipso_ptr, cipso_ptr[1], secattr);
++	if (ret_val == 0)
++		goto socket_getattr_return;
++
++	doi = ntohl(*(u32 *)&cipso_ptr[2]);
++	rcu_read_lock();
++	doi_def = cipso_v4_doi_getdef(doi);
++	if (doi_def == NULL) {
++		rcu_read_unlock();
++		goto socket_getattr_return;
++	}
++	switch (cipso_ptr[6]) {
++	case CIPSO_V4_TAG_RBITMAP:
++		ret_val = cipso_v4_parsetag_rbm(doi_def,
++						&cipso_ptr[6],
++						secattr);
++		break;
++	}
++	rcu_read_unlock();
++
++socket_getattr_return:
++	release_sock(sk);
++	return ret_val;
++}
++
++/**
++ * cipso_v4_skbuff_getattr - Get the security attributes from the CIPSO option
++ * @skb: the packet
++ * @secattr: the security attributes
++ *
++ * Description:
++ * Parse the given packet's CIPSO option and return the security attributes.
++ * Returns zero on success and negative values on failure.
++ *
++ */
++int cipso_v4_skbuff_getattr(const struct sk_buff *skb,
++			    struct netlbl_lsm_secattr *secattr)
++{
++	int ret_val = -ENOMSG;
++	unsigned char *cipso_ptr;
++	u32 doi;
++	struct cipso_v4_doi *doi_def;
++
++	if (!CIPSO_V4_OPTEXIST(skb))
++		return -ENOMSG;
++	cipso_ptr = CIPSO_V4_OPTPTR(skb);
++	if (cipso_v4_cache_check(cipso_ptr, cipso_ptr[1], secattr) == 0)
++		return 0;
++
++	doi = ntohl(*(u32 *)&cipso_ptr[2]);
++	rcu_read_lock();
++	doi_def = cipso_v4_doi_getdef(doi);
++	if (doi_def == NULL)
++		goto skbuff_getattr_return;
++	switch (cipso_ptr[6]) {
++	case CIPSO_V4_TAG_RBITMAP:
++		ret_val = cipso_v4_parsetag_rbm(doi_def,
++						&cipso_ptr[6],
++						secattr);
++		break;
++	}
++
++skbuff_getattr_return:
++	rcu_read_unlock();
++	return ret_val;
++}
++
++/*
++ * Setup Functions
++ */
++
++/**
++ * cipso_v4_init - Initialize the CIPSO module
++ *
++ * Description:
++ * Initialize the CIPSO module and prepare it for use.  Returns zero on success
++ * and negative values on failure.
++ *
++ */
++static int __init cipso_v4_init(void)
++{
++	int ret_val;
++
++	ret_val = cipso_v4_cache_init();
++	if (ret_val != 0)
++		panic("Failed to initialize the CIPSO/IPv4 cache (%d)\n",
++		      ret_val);
++
++	return 0;
++}
++
++subsys_initcall(cipso_v4_init);
+Index: net-2.6.19/net/ipv4/sysctl_net_ipv4.c
+===================================================================
+--- net-2.6.19.orig/net/ipv4/sysctl_net_ipv4.c
++++ net-2.6.19/net/ipv4/sysctl_net_ipv4.c
+@@ -17,6 +17,7 @@
+ #include <net/ip.h>
+ #include <net/route.h>
+ #include <net/tcp.h>
++#include <net/cipso_ipv4.h>
  
+ /* From af_inet.c */
+ extern int sysctl_ip_nonlocal_bind;
+@@ -697,6 +698,40 @@ ctl_table ipv4_table[] = {
+ 		.mode		= 0644,
+ 		.proc_handler	= &proc_dointvec
+ 	},
++#ifdef CONFIG_NETLABEL
++	{
++		.ctl_name	= NET_CIPSOV4_CACHE_ENABLE,
++		.procname	= "cipso_cache_enable",
++		.data		= &cipso_v4_cache_enabled,
++		.maxlen		= sizeof(int),
++		.mode		= 0644,
++		.proc_handler	= &proc_dointvec,
++	},
++	{
++		.ctl_name	= NET_CIPSOV4_CACHE_BUCKET_SIZE,
++		.procname	= "cipso_cache_bucket_size",
++		.data		= &cipso_v4_cache_bucketsize,
++		.maxlen		= sizeof(int),
++		.mode		= 0644,
++		.proc_handler	= &proc_dointvec,
++	},
++	{
++		.ctl_name	= NET_CIPSOV4_RBM_OPTFMT,
++		.procname	= "cipso_rbm_optfmt",
++		.data		= &cipso_v4_rbm_optfmt,
++		.maxlen		= sizeof(int),
++		.mode		= 0644,
++		.proc_handler	= &proc_dointvec,
++	},
++	{
++		.ctl_name	= NET_CIPSOV4_RBM_STRICTVALID,
++		.procname	= "cipso_rbm_strictvalid",
++		.data		= &cipso_v4_rbm_strictvalid,
++		.maxlen		= sizeof(int),
++		.mode		= 0644,
++		.proc_handler	= &proc_dointvec,
++	},
++#endif /* CONFIG_NETLABEL */
+ 	{ .ctl_name = 0 }
+ };
+ 
+
+--
+paul moore
+linux security @ hp
 
 --
 This message was distributed to subscribers of the selinux mailing list.
