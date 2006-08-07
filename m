@@ -1,221 +1,70 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k77EpEBn000627
-	for <selinux@tycho.nsa.gov>; Mon, 7 Aug 2006 10:51:14 -0400
-Received: from exchange.columbia.tresys.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with SMTP id k77EowME019442
-	for <selinux@tycho.nsa.gov>; Mon, 7 Aug 2006 14:50:58 GMT
-Subject: [PATCH 2/3] Refactor expander
-From: "Jeremy A. Mowery" <jmowery@tresys.com>
-To: Karl MacMillan <kmacmillan@mentalrootkit.com>
-Cc: selinux@tycho.nsa.gov
+Subject: RE: [PATCH 0/2] new and improved range_transition statements
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Joshua Brindle <jbrindle@tresys.com>
+Cc: Valdis.Kletnieks@vt.edu, James Morris <jmorris@namei.org>,
+        Karl MacMillan <kmacmillan@mentalrootkit.com>,
+        Darrel Goeddel <dgoeddel@TrustedCS.com>,
+        SELinux List <SELinux@tycho.nsa.gov>, Eric Paris <eparis@redhat.com>
+In-Reply-To: <6FE441CD9F0C0C479F2D88F959B0158832ADD8@exchange.columbia.tresys.com>
+References: 
+	 <6FE441CD9F0C0C479F2D88F959B0158832ADD8@exchange.columbia.tresys.com>
 Content-Type: text/plain
-Date: Mon, 07 Aug 2006 10:51:40 -0400
-Message-Id: <1154962301.12897.99.camel@Bishop.columbia.tresys.com>
+Date: Mon, 07 Aug 2006 10:57:51 -0400
+Message-Id: <1154962671.26697.34.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-(As per Karl's request, this is a resend of this patch set.)
+On Mon, 2006-08-07 at 10:32 -0400, Joshua Brindle wrote:
+> > From: Stephen Smalley [mailto:sds@tycho.nsa.gov] 
+> > Possibly we aren't communicating - the current userland (e.g. 
+> > in FC5 and
+> > later) already handles this situation correctly; libsemanage 
+> > always generates the latest policy version supported by 
+> > libsepol (unless overridden by semanage.conf), and libselinux 
+> > loads the latest policy version supported by libsepol, or the 
+> > closest one to it, downgrading on the fly if necessary via 
+> > libsepol to the kernel's policyvers, and SysVinit uses the 
+> > libselinux policy loader now.  The purpose of this kernel 
+> > patch is to avoid breaking legacy userland (e.g. FC3, FC4) 
+> > that predates all of this support (libsemanage altogether, 
+> > the libsepol interfaces needed to make it work, the 
+> > libselinux helper function to fully encapsulate the policy 
+> > load, and the changes to SysVinit to use the libselinux 
+> > helper function).
+> > 
+> 
+> Ah, ok, fair enough. It seems strange that people are upgrading kernels
+> in FC3, FC4 but not userland, just seems like a bad idea.
 
-The patch adds a new function called expand_module_avrules that creates
-an expand_state object and expands the avrules (including the
-neverallows).  This function permits external users of libsepol to
-expand the avrules into the same policy.  We refactored and created a
-static function called copy_and_expand_avrule_block since its
-functionality is needed in the original expand_module and the new
-expand_module_avrules functions.
+IIUC, that's standard practice in Fedora - userland freezes except for
+bug fixes at release time, while kernels re-base to each new kernel.org
+release during the life cycle of the distribution.  Not something I can
+control...
 
-Jeremy A. Mowery
-Tresys Technology
-410-290-1411 x148
+More importantly, kernel developers and some users often build and test
+new kernels on existing distros, and expect new kernels to always
+provide backward compatibility for existing userland, even when that
+existing userland is broken. 
 
-diff -urpN -x 'Change*' -x entries -x '*.orig' -x '*.rej' -x '*.svn*' -x '*.swp' trunk/libsepol/include/sepol/policydb/expand.h branch/setools_public-policydb-components/libsepol/include/sepol/policydb/expand.h
---- trunk/libsepol/include/sepol/policydb/expand.h	2006-07-13 10:19:14.000000000 -0400
-+++ trunk/libsepol/include/sepol/policydb/expand.h	2006-07-26 11:51:39.000000000 -0400
-@@ -29,6 +29,22 @@
- #include <sepol/handle.h>
- #include <sepol/policydb/conditional.h>
+> > BTW, one way to address Darrel's concern is to leave the 
+> > default value unchanged (at 20) when we merge the range 
+> > transition patch, so that the kernel package maintainer or 
+> > user has to take positive action to force the kernel to 
+> > support policy version 21.
+> > 
+> 
+> That is reasonable for RH to do for its legacy systems but doing it in
+> mainline seems silly, particularly since its going to mean very few
+> people testing out the new code.
+
+Mainline seems to take the opposite view, i.e. require people to take
+positive action to do anything that will break their existing userland.
+Compatibility given precedence over new features.
  
-+/*
-+ * Expand only the avrules for a module (optionally including
-+ * neverallow rules). It is valid for this function to expand
-+ * base into itself (i.e. base == out); the typemap for this
-+ * special case should map type[i] to i+1. No assertion or 
-+ * hierarchy checking is performed.
-+ */
-+extern int expand_module_avrules(sepol_handle_t * handle, policydb_t * base,
-+				 policydb_t * out, uint32_t * typemap,
-+				 int verbose, int expand_neverallow);
-+/*
-+ * Expand all parts of a module. Neverallow rules are not
-+ * expanded (only copied). It is not valid to expand base
-+ * into itself. If check is non-zero, performs hierarchy
-+ * and assertion checking.
-+ */
- extern int expand_module(sepol_handle_t * handle,
- 			 policydb_t * base, policydb_t * out,
- 			 int verbose, int check);
-diff -urpN -x 'Change*' -x entries -x '*.orig' -x '*.rej' -x '*.svn*' -x '*.swp' trunk/libsepol/src/expand.c branch/setools_public-policydb-components/libsepol/src/expand.c
---- trunk/libsepol/src/expand.c	2006-08-01 15:36:17.000000000 -0400
-+++ trunk/libsepol/src/expand.c	2006-08-01 09:54:12.000000000 -0400
-@@ -44,6 +44,11 @@ typedef struct expand_state {
- 	int expand_neverallow;
- } expand_state_t;
- 
-+static void expand_state_init(expand_state_t * state)
-+{
-+	memset(state, 0, sizeof(expand_state_t));
-+}
-+
- static int type_copy_callback(hashtab_key_t key, hashtab_datum_t datum,
- 			      void *data)
- {
-@@ -1897,6 +1902,82 @@ static int copy_neverallow(policydb_t * 
- 	return -1;
- }
- 
-+static int copy_and_expand_avrule_block(expand_state_t * state)
-+{
-+	avrule_block_t *curblock;
-+	int retval = -1;
-+
-+	for (curblock = state->base->global; curblock != NULL;
-+	     curblock = curblock->next) {
-+		avrule_decl_t *decl = curblock->enabled;
-+		avrule_t *cur_avrule;
-+
-+		if (decl == NULL) {
-+			/* nothing was enabled within this block */
-+			continue;
-+		}
-+
-+		/* copy role allows and role trans */
-+		if (copy_role_allows(state, decl->role_allow_rules) != 0 ||
-+		    copy_role_trans(state, decl->role_tr_rules) != 0) {
-+			goto cleanup;
-+		}
-+
-+		/* copy rules */
-+		cur_avrule = decl->avrules;
-+		while (cur_avrule != NULL) {
-+			if (!(state->expand_neverallow)
-+			    && cur_avrule->specified & AVRULE_NEVERALLOW) {
-+				/* copy this over directly so that assertions are checked later */
-+				if (copy_neverallow
-+				    (state->out, state->typemap, cur_avrule))
-+					ERR(state->handle,
-+					    "Error while copying neverallow.");
-+			} else {
-+				if (cur_avrule->specified & AVRULE_NEVERALLOW) {
-+					state->out->unsupported_format = 1;
-+				}
-+				if (convert_and_expand_rule
-+				    (state->handle, state->out, state->typemap,
-+				     cur_avrule, &state->out->te_avtab, NULL,
-+				     NULL, 0,
-+				     state->expand_neverallow) !=
-+				    EXPAND_RULE_SUCCESS) {
-+					goto cleanup;
-+				}
-+			}
-+			cur_avrule = cur_avrule->next;
-+		}
-+
-+		/* copy conditional rules */
-+		if (cond_node_copy(state, decl->cond_list))
-+			goto cleanup;
-+	}
-+
-+	retval = 0;
-+
-+      cleanup:
-+	return retval;
-+}
-+
-+int expand_module_avrules(sepol_handle_t * handle, policydb_t * base,
-+			  policydb_t * out, uint32_t * typemap, int verbose,
-+			  int expand_neverallow)
-+{
-+	expand_state_t state;
-+
-+	expand_state_init(&state);
-+
-+	state.base = base;
-+	state.out = out;
-+	state.typemap = typemap;
-+	state.handle = handle;
-+	state.verbose = verbose;
-+	state.expand_neverallow = expand_neverallow;
-+
-+	return copy_and_expand_avrule_block(&state);
-+}
-+
- /* Linking should always be done before calling expand, even if
-  * there is only a base since all optionals are dealt with at link time
-  * the base passed in should be indexed and avrule blocks should be 
-@@ -1910,6 +1991,8 @@ int expand_module(sepol_handle_t * handl
- 	expand_state_t state;
- 	avrule_block_t *curblock;
- 
-+	expand_state_init(&state);
-+
- 	state.verbose = verbose;
- 	state.typemap = NULL;
- 	state.base = base;
-@@ -2026,50 +2109,9 @@ int expand_module(sepol_handle_t * handl
- 
- 	}
- 
--	/* then loop through delcs to copy and expand rules */
--	for (curblock = state.base->global; curblock != NULL;
--	     curblock = curblock->next) {
--		avrule_decl_t *decl = curblock->enabled;
--		avrule_t *cur_avrule;
--
--		if (decl == NULL) {
--			/* nothing was enabled within this block */
--			continue;
--		}
--
--		/* copy role allows and role trans */
--		if (copy_role_allows(&state, decl->role_allow_rules) != 0 ||
--		    copy_role_trans(&state, decl->role_tr_rules) != 0) {
--			goto cleanup;
--		}
--
--		/* copy rules */
--		cur_avrule = decl->avrules;
--		while (cur_avrule != NULL) {
--			if (!(state.expand_neverallow)
--			    && cur_avrule->specified & AVRULE_NEVERALLOW) {
--				/* copy this over directly so that assertions are checked later */
--				if (copy_neverallow
--				    (out, state.typemap, cur_avrule))
--					ERR(handle,
--					    "Error while copying neverallow.");
--			} else {
--				if (cur_avrule->specified & AVRULE_NEVERALLOW) {
--					state.out->unsupported_format = 1;
--				}
--				if (convert_and_expand_rule
--				    (state.handle, out, state.typemap,
--				     cur_avrule, &out->te_avtab, NULL, NULL,
--				     0, 0) != 1) {
--					goto cleanup;
--				}
--			}
--			cur_avrule = cur_avrule->next;
--		}
--
--		/* copy conditional rules */
--		if (cond_node_copy(&state, decl->cond_list))
--			goto cleanup;
-+	if (copy_and_expand_avrule_block(&state) < 0) {
-+		ERR(handle, "Error during expand");
-+		goto cleanup;
- 	}
- 
- 	/* copy constraints */
+-- 
+Stephen Smalley
+National Security Agency
 
 
 --
