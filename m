@@ -1,78 +1,50 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k77GKGpp004257
-	for <selinux@tycho.nsa.gov>; Mon, 7 Aug 2006 12:20:16 -0400
-Received: from e1.ny.us.ibm.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id k77GK0ME007126
-	for <selinux@tycho.nsa.gov>; Mon, 7 Aug 2006 16:20:00 GMT
-Received: from d01relay04.pok.ibm.com (d01relay04.pok.ibm.com [9.56.227.236])
-	by e1.ny.us.ibm.com (8.12.11.20060308/8.12.11) with ESMTP id k77GKFpF007031
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-SHA bits=256 verify=FAIL)
-	for <selinux@tycho.nsa.gov>; Mon, 7 Aug 2006 12:20:15 -0400
-Received: from d01av02.pok.ibm.com (d01av02.pok.ibm.com [9.56.224.216])
-	by d01relay04.pok.ibm.com (8.13.6/NCO/VER7.0) with ESMTP id k77GKFL9295598
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-SHA bits=256 verify=NO)
-	for <selinux@tycho.nsa.gov>; Mon, 7 Aug 2006 12:20:15 -0400
-Received: from d01av02.pok.ibm.com (loopback [127.0.0.1])
-	by d01av02.pok.ibm.com (8.12.11.20060308/8.13.3) with ESMTP id k77GKE0n024681
-	for <selinux@tycho.nsa.gov>; Mon, 7 Aug 2006 12:20:15 -0400
-Subject: hierarchical roles
-From: Janak Desai <janak@us.ibm.com>
-Reply-To: janak@us.ibm.com
-To: dwalsh@redhat.com
-Cc: klaus@atsec.com, selinux@tycho.nsa.gov
-In-Reply-To: <1154965823.8936.46.camel@localhost.localdomain>
-References: <1154965823.8936.46.camel@localhost.localdomain>
+Subject: Re: mrtg policy addons
+From: "Christopher J. PeBenito" <cpebenito@tresys.com>
+To: Stefan <stefan@sf-net.com>
+Cc: SELinux List <SELinux@tycho.nsa.gov>
+In-Reply-To: <10DF1BC8-13BA-4A7A-ADF9-036A237186B7@sf-net.com>
+References: <10DF1BC8-13BA-4A7A-ADF9-036A237186B7@sf-net.com>
 Content-Type: text/plain
-Date: Mon, 07 Aug 2006 12:20:09 -0400
-Message-Id: <1154967609.8936.55.camel@localhost.localdomain>
+Date: Mon, 07 Aug 2006 13:14:25 -0400
+Message-Id: <1154970866.31522.245.camel@sgc>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-I sent the following to the redhat-lspp mailing list. I should
-have sent it to this mailing list since it involves a question
-about core selinux and not necessarily lspp. Dan/Klaus, sorry 
-for the duplication. 
+On Sat, 2006-08-05 at 14:42 +0200, Stefan wrote:
+> the mrtg policy module from cvs (refpolicy last updated on  
+> 2006-08-04)
 
-Thanks.
+The refpolicy repo has been moved from sourceforge to oss.tresys.com
+(svn).
 
--Janak
+>  needs an update when the mrtg program runs as a daemon  
+> and not via cron.
+> 
+> mrtg.te
+> type mrtg_var_run_t;
+> files_pid_file(mrtg_var_run_t)
+> files_pid_filetrans(mrtg_t,mrtg_var_run_t,file)
+> allow mrtg_t mrtg_var_run_t:file create_file_perms;
+> allow mrtg_t lo_netif_t:netif { udp_recv udp_send };
+> allow mrtg_t nscd_var_run_t:dir search;
+> allow mrtg_t self:capability chown;
+> 
+> mrtg.fc
+> /var/run/mrtg\.pid               gen_context 
+> (system_u:object_r:mrtg_var_run_t,s0)
 
-On Mon, 2006-08-07 at 11:50 -0400, Janak Desai wrote:
-> As part of testing rbac evaluation requirements, I have been 
-> trying to create a loadable policy module that creates
-> a new role that dominates a few of the existing roles. I am able 
-> to create a role using the dominance statement and "semanage user"
-> correctly assigns other roles (which the new role dominates) to a
-> user when that user is assigned the new role. From what I can
-> see, I still have to setup needed access rights for the new
-> domain associated with this new role. That makes sense, since
-> roles only allow you access to a domain and are not involved in
-> the access decision. So hierarchical roles only give you the
-> ability to change into roles that you dominate but do not give
-> you aggregate access rights of roles that you dominate, is that
-> correct or am I missing something? 
-> 
-> Let me explain what I am asking with an example. strict-mls 
-> policy has roles sysadm_r and secadm_r. I created a new role 
-> cnorris_r that dominates these two roles and runs in the 
-> default domain cnorris_t. A user xyz is assigned the cnorris_r.
-> Now the user xyz can use newrole to switch into sysadm_r
-> or secadm_r, to perform actions that those roles are allowed.
-> However, as cnorris_r in cnorris_t domain, xyz cannot perform
-> actions that they could as sysadm_r or secadm_r. Is that
-> correct or am I missing some policy magic that will allow
-> cnorris_r to perform sysadm_r/secadm_r duties directly (without
-> newrole'ing to them)?
-> 
-> Thanks.
-> 
-> -Janak
-> 
-> --
-> redhat-lspp mailing list
-> redhat-lspp@redhat.com
-> https://www.redhat.com/mailman/listinfo/redhat-lspp
+Merged.  In the future, a patch would be preferable, and also use
+interfaces.
+
+> With these addings mrtg is ready to run as a standalone server.
+> The nscd_var_run_t could also be a dontaudit rule. I think that  
+> doesn't make any difference.
+
+-- 
+Chris PeBenito
+Tresys Technology, LLC
+(410) 290-1411 x150
 
 
 --
