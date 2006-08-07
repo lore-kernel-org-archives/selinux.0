@@ -1,105 +1,103 @@
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Subject: RE: [PATCH 2/2] userland support for new range_transition statements
-Date: Mon, 7 Aug 2006 09:18:32 -0400
-Message-ID: <6FE441CD9F0C0C479F2D88F959B0158832ADAE@exchange.columbia.tresys.com>
-In-Reply-To: <44D37216.8090902@trustedcs.com>
-From: "Joshua Brindle" <jbrindle@tresys.com>
-To: "Darrel Goeddel" <dgoeddel@TrustedCS.com>
-Cc: "SELinux List" <SELinux@tycho.nsa.gov>,
-        "Stephen Smalley" <sds@tycho.nsa.gov>,
-        "Eric Paris" <eparis@redhat.com>,
-        "Karl MacMillan" <kmacmillan@mentalrootkit.com>
+Subject: RE: [PATCH 0/2] new and improved range_transition statements
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Joshua Brindle <jbrindle@tresys.com>
+Cc: Valdis.Kletnieks@vt.edu, James Morris <jmorris@namei.org>,
+        Karl MacMillan <kmacmillan@mentalrootkit.com>,
+        Darrel Goeddel <dgoeddel@TrustedCS.com>,
+        SELinux List <SELinux@tycho.nsa.gov>, Eric Paris <eparis@redhat.com>
+In-Reply-To: <6FE441CD9F0C0C479F2D88F959B0158832AD94@exchange.columbia.tresys.com>
+References: 
+	 <6FE441CD9F0C0C479F2D88F959B0158832AD94@exchange.columbia.tresys.com>
+Content-Type: text/plain
+Date: Mon, 07 Aug 2006 10:19:51 -0400
+Message-Id: <1154960391.26697.20.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-> From: Darrel Goeddel [mailto:dgoeddel@trustedcs.com] 
-> > I think the string may be easiest.  Otherwise a list of structs
-like:
+On Mon, 2006-08-07 at 08:04 -0400, Joshua Brindle wrote:
+>  
+> > -----Original Message-----
+> > From: Stephen Smalley [mailto:sds@tycho.nsa.gov] 
+> > Sent: Friday, August 04, 2006 9:20 AM
+> > To: Valdis.Kletnieks@vt.edu
+> > Cc: James Morris; Karl MacMillan; Darrel Goeddel; 'SELinux 
+> > List'; Eric Paris; Joshua Brindle
+> > Subject: Re: [PATCH 0/2] new and improved range_transition statements
+> > 
+> > On Mon, 2006-07-31 at 11:10 -0400, Valdis.Kletnieks@vt.edu wrote:
+> > > On Mon, 31 Jul 2006 10:43:15 EDT, Stephen Smalley said:
+> > > 
+> > > > I agree that it is too late for 2.6.18, but just to clarify - the 
+> > > > kernel patch preserves backward compatibility for older binary 
+> > > > policy formats.
+> > > > 
+> > > > As far as compatibility is concerned, FC4 will need some kind of 
+> > > > userland update when it updates to a kernel with the new policy 
+> > > > format; otherwise, init will give up when it cannot find 
+> > policy.21 
+> > > > or policy.20 (older sysvinit selinux patch only tried n 
+> > and (n-1)), 
+> > > > and the policy in
+> > > > FC4 was version 19.
+> > > 
+> > > Given that Andrew Morton is currently having a cow over the 
+> > fact that
+> > > 2.6.18-rc3 includes a change that breaks the udev that shipped with 
+> > > FC3, we might want to make sure we have all our ducks lined up....
+> > > 
+> > > (To be fair, the udev change is one that breaks any udev 
+> > more than 10 
+> > > months or so old...)
+> > 
+> > After a bit of discussion (see bug 201242 in the redhat 
+> > bugzilla) about updating FC4 userland, it seems that we 
+> > should try to address this compatibility concern for legacy 
+> > userland in the kernel.  We could first upstream the patch 
+> > below, then re-base the range_transition kernel patch against 
+> > it.  This patch makes the maximum policy version a kernel 
+> > config option so that it can be adjusted down to accommodate 
+> > legacy userland, with instructions and examples in the help 
+> > text of the config option on how to determine what value to 
+> > use.  The range_transition kernel patch would then adjust the 
+> > "range" and "default" attributes of this new config option to 
+> > reflect the new version support, while users could still 
+> > build kernels to an older version.  Thoughts?
 > 
-> struct mls_cat_component {
-> 	int start;
-> 	int stop;
-> 	struct mls_cat_component *next;
-> } mls_cat_component_t
+> Hrm, I'd have really prefered this be handled in userspace, for example
+> by having init query semanage to find out what policy version to use
+> (this not only affects loading old policies but also potentially stale
+> ones which we have no protection against right now)
 > 
-> could be used.  Where something like c0,c4,c10.c20,c25 would 
-> be represented as:
+> If libsemanage wrote the latest policy name into the store an semanage
+> call could give it the info whether it was policy.n, policy.n-2 or
+> policy.somethingentirelydifferent.One thing to think about with this
+> solution is how to handle multiple security servers though. 
 > 
->    start=1
->    stop=1
->    next=......start=4
->               stop=4
->               next=......start=c10
->                          stop=c20
->                          next=......start=25
->                                     stop=25
->                                     next=NULL
->
+> However, this seems fairly imperative and your proposed way of handling
+> it is fast and simple so I guess it needs to go in regardless.
 
-Should start/stop be datum values or just pointers to the datum?
+Possibly we aren't communicating - the current userland (e.g. in FC5 and
+later) already handles this situation correctly; libsemanage always
+generates the latest policy version supported by libsepol (unless
+overridden by semanage.conf), and libselinux loads the latest policy
+version supported by libsepol, or the closest one to it, downgrading on
+the fly if necessary via libsepol to the kernel's policyvers, and
+SysVinit uses the libselinux policy loader now.  The purpose of this
+kernel patch is to avoid breaking legacy userland (e.g. FC3, FC4) that
+predates all of this support (libsemanage altogether, the libsepol
+interfaces needed to make it work, the libselinux helper function to
+fully encapsulate the policy load, and the changes to SysVinit to use
+the libselinux helper function).
 
-> I can play with working something up based on storing the 
-> string rather than the mls_range_t just to see what it would 
-> look like.  I'm not sure going with a more complicated 
-> structure based method really buys us much.  If there are 
-> other structure ideas - I'd sure like to investigate them.
-> 
-> BTW, sorry for the delay, I was unavailable yesterday...
-> 
+BTW, one way to address Darrel's concern is to leave the default value
+unchanged (at 20) when we merge the range transition patch, so that the
+kernel package maintainer or user has to take positive action to force
+the kernel to support policy version 21.
 
-How likely is it that the mls component in the context will ever change?
-There is an interesting benefit to making the mls component opaque to
-the compiler and the module format (by storing a string) but it also
-makes error checking harder. Then again, right now you can only do
-syntactic checking anyway since we don't know the level/cat
-configuration from a module.
-
-One other thing, we need a require syntax for these things, we have been
-using each symbol type so s1-s10:c0,c4,c10.c20 would look like
-
-Require {
-	sens s1, s10;
-	cats c0, c4, c10, c20;
-}
-
-Which ensures the symbols are present but not that they make sense, we
-have a similar problem with class requires since the permissions for the
-class may not be there, the error must be handled at link time, likewise
-this would also.
-
-Another option we threw around when thinking about this problem was
-using the entire component as the symbol:
-Require {
-	level s1-s10:c0,c4,c10.c20;
-}
-
-I'm not sure which is more appropriate, since MLS does not view each cat
-as a separate entity the second one seems more within the model but it
-isn't a real symbol in terms of the symbol tables (unless we turn it
-into one)
-
-I think the latter might be the best bet, the entire level could be a
-symbol and the mls_range_rule_t (or whatever) would just have the value
-of the level. Then at expand time the mls_range_rule_t gets converted
-into an mls_range_t and the symbol is interpreted and checked for
-validity.
-
-I'm dubious about using the same symbol table to store sens (s1) and
-levels (s1-s10:c0) but adding a new symtab that is missing in the kernel
-format while the sens and cats are unused in the module format seems
-silly. 
-
-I'm also a little skeptical about having levels in this fashion at all,
-categories are a local configuration and, in general, we've been pushing
-local configurations to libsemanage. Granted policy modules have file
-contexts with levels but they can still be overridden locally. I almost
-think the policy modules need to be using symbolic names so that they
-can be converted to the local system configuration, throwing translation
-into the expander mix seems fairly non-ideal though, what are your
-thoughts on this?
-
+-- 
+Stephen Smalley
+National Security Agency
 
 
 --
