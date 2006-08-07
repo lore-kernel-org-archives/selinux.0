@@ -1,75 +1,78 @@
-Subject: Re: [PATCH 1/2] put neverallows in avtab, propagate errors in
-	policydb
-From: Karl MacMillan <kmacmillan@mentalrootkit.com>
-To: Joshua Brindle <jbrindle@tresys.com>
-Cc: selinux@tycho.nsa.gov, sds@tycho.nsa.gov
-In-Reply-To: <1154452452.25566.3.camel@twoface.columbia.tresys.com>
-References: <1154452452.25566.3.camel@twoface.columbia.tresys.com>
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k77GKGpp004257
+	for <selinux@tycho.nsa.gov>; Mon, 7 Aug 2006 12:20:16 -0400
+Received: from e1.ny.us.ibm.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id k77GK0ME007126
+	for <selinux@tycho.nsa.gov>; Mon, 7 Aug 2006 16:20:00 GMT
+Received: from d01relay04.pok.ibm.com (d01relay04.pok.ibm.com [9.56.227.236])
+	by e1.ny.us.ibm.com (8.12.11.20060308/8.12.11) with ESMTP id k77GKFpF007031
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-SHA bits=256 verify=FAIL)
+	for <selinux@tycho.nsa.gov>; Mon, 7 Aug 2006 12:20:15 -0400
+Received: from d01av02.pok.ibm.com (d01av02.pok.ibm.com [9.56.224.216])
+	by d01relay04.pok.ibm.com (8.13.6/NCO/VER7.0) with ESMTP id k77GKFL9295598
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-SHA bits=256 verify=NO)
+	for <selinux@tycho.nsa.gov>; Mon, 7 Aug 2006 12:20:15 -0400
+Received: from d01av02.pok.ibm.com (loopback [127.0.0.1])
+	by d01av02.pok.ibm.com (8.12.11.20060308/8.13.3) with ESMTP id k77GKE0n024681
+	for <selinux@tycho.nsa.gov>; Mon, 7 Aug 2006 12:20:15 -0400
+Subject: hierarchical roles
+From: Janak Desai <janak@us.ibm.com>
+Reply-To: janak@us.ibm.com
+To: dwalsh@redhat.com
+Cc: klaus@atsec.com, selinux@tycho.nsa.gov
+In-Reply-To: <1154965823.8936.46.camel@localhost.localdomain>
+References: <1154965823.8936.46.camel@localhost.localdomain>
 Content-Type: text/plain
-Date: Mon, 07 Aug 2006 11:48:00 -0400
-Message-Id: <1154965681.6799.31.camel@localhost.localdomain>
+Date: Mon, 07 Aug 2006 12:20:09 -0400
+Message-Id: <1154967609.8936.55.camel@localhost.localdomain>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2006-08-01 at 13:14 -0400, Joshua Brindle wrote:
-> This is a rebase of the patch sent recently to allow neverallow rules to
-> be put in the avtab. The suggestions including using
-> policydb->unsupported_format and adding defined error codes to policydb
-> read and write have been added.
+I sent the following to the redhat-lspp mailing list. I should
+have sent it to this mailing list since it involves a question
+about core selinux and not necessarily lspp. Dan/Klaus, sorry 
+for the duplication. 
+
+Thanks.
+
+-Janak
+
+On Mon, 2006-08-07 at 11:50 -0400, Janak Desai wrote:
+> As part of testing rbac evaluation requirements, I have been 
+> trying to create a loadable policy module that creates
+> a new role that dominates a few of the existing roles. I am able 
+> to create a role using the dominance statement and "semanage user"
+> correctly assigns other roles (which the new role dominates) to a
+> user when that user is assigned the new role. From what I can
+> see, I still have to setup needed access rights for the new
+> domain associated with this new role. That makes sense, since
+> roles only allow you access to a domain and are not involved in
+> the access decision. So hierarchical roles only give you the
+> ability to change into roles that you dominate but do not give
+> you aggregate access rights of roles that you dominate, is that
+> correct or am I missing something? 
 > 
-
-Almost everything looks good to me except:
-
-> @@ -2033,13 +2046,17 @@ int expand_module(sepol_handle_t * handl
->  		/* copy rules */
->  		cur_avrule = decl->avrules;
->  		while (cur_avrule != NULL) {
-> -			if (cur_avrule->specified & AVRULE_NEVERALLOW) {
-> +			if (!(state->expand_neverallow)
-> +			    && cur_avrule->specified & AVRULE_NEVERALLOW) {
->  				/* copy this over directly so that assertions are checked later */
->  				if (copy_neverallow
->  				    (out, state.typemap, cur_avrule))
->  					ERR(handle,
->  					    "Error while copying neverallow.");
->  			} else {
-> +				if (cur_avrule->specified & AVRULE_NEVERALLOW) {
-> +					state->out->unsupported_format = 1;
-> +				}
->  				if (convert_and_expand_rule
->  				    (state.handle, out, state.typemap,
-
-As I mentioned before, isn't it possible that you would want the
-expanded and unexpanded neverallow rules? This is a surprising side
-effect - it at least needs documentation.
-
->  				     cur_avrule, &out->te_avtab, NULL, NULL,
-> @@ -2098,7 +2115,7 @@ int expand_module(sepol_handle_t * handl
->  		goto cleanup;
->  	hashtab_map_remove_on_error(state.out->p_types.table,
->  				    type_attr_remove, type_destroy, state.out);
-> -	if (check) {
-> +	if (check && !(out->unsupported_format)) {
->  		if (hierarchy_check_constraints(handle, state.out))
->  			goto cleanup;
->  
+> Let me explain what I am asking with an example. strict-mls 
+> policy has roles sysadm_r and secadm_r. I created a new role 
+> cnorris_r that dominates these two roles and runs in the 
+> default domain cnorris_t. A user xyz is assigned the cnorris_r.
+> Now the user xyz can use newrole to switch into sysadm_r
+> or secadm_r, to perform actions that those roles are allowed.
+> However, as cnorris_r in cnorris_t domain, xyz cannot perform
+> actions that they could as sysadm_r or secadm_r. Is that
+> correct or am I missing some policy magic that will allow
+> cnorris_r to perform sysadm_r/secadm_r duties directly (without
+> newrole'ing to them)?
 > 
-
-I thought that this was going to be removed so that the check would
-happen if requested. You said:
-
-
+> Thanks.
 > 
-> I guess I can see this, I doubt that someone who requests an 
-> unsupported_format would also request checking so the explicit check
-> is 
-> not necessary.
+> -Janak
 > 
-
-Did I parse this incorrectly?
-
-Karl
+> --
+> redhat-lspp mailing list
+> redhat-lspp@redhat.com
+> https://www.redhat.com/mailman/listinfo/redhat-lspp
 
 
 --
