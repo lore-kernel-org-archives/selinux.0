@@ -1,51 +1,48 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k78IwWw1009769
-	for <selinux@tycho.nsa.gov>; Tue, 8 Aug 2006 14:58:32 -0400
-Received: from mx1.redhat.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id k78IwNvS025997
-	for <selinux@tycho.nsa.gov>; Tue, 8 Aug 2006 18:58:24 GMT
-Received: from int-mx1.corp.redhat.com (int-mx1.corp.redhat.com [172.16.52.254])
-	by mx1.redhat.com (8.12.11.20060308/8.12.11) with ESMTP id k78IwVlG025181
-	for <selinux@tycho.nsa.gov>; Tue, 8 Aug 2006 14:58:31 -0400
-Message-ID: <44D8DED5.4040304@redhat.com>
-Date: Tue, 08 Aug 2006 14:58:29 -0400
-From: Daniel J Walsh <dwalsh@redhat.com>
 MIME-Version: 1.0
-To: Jim Meyering <meyering@redhat.com>, SE Linux <selinux@tycho.nsa.gov>
-Subject: re: id -Z subsumed by secon?
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain;
+	charset="us-ascii"
+Subject: RE: [PATCH 2/2 take 2] userland support for new range_transition statements
+Date: Tue, 8 Aug 2006 18:25:32 -0400
+Message-ID: <6FE441CD9F0C0C479F2D88F959B0158832AE65@exchange.columbia.tresys.com>
+In-Reply-To: <44D37F6D.70207@trustedcs.com>
+From: "Joshua Brindle" <jbrindle@tresys.com>
+To: "Darrel Goeddel" <dgoeddel@TrustedCS.com>
+Cc: "SELinux List" <SELinux@tycho.nsa.gov>,
+        "Stephen Smalley" <sds@tycho.nsa.gov>,
+        "Eric Paris" <eparis@redhat.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
->
->
-> James Antill <james.antill@redhat.com> wrote:
->   
->> >  No, what Steven was saying is that the label for execcon will be reset
->> > on exec (after doing it's thing). To see this visually use "secon
->> > --self-exec" instead of id.
->> >
->> > % secon
->> > user: user_u
->>     
-> ...
->
-> Thanks for the example.
->
-> By the way, doesn't secon make id's -Z option unnecessary?
-> I'm planning not to include the 'id -Z' patches upstream,
-> Instead, runcon (with neither CONTEXT nor COMMAND) will
-> print the current security context -- to be analogous to how nice(1)
-> works if you don't give it a command.
->
-> Any objection?
->
->
->   
-Yes I would like to maintain the idea of "-Z" being the way to view 
-contexts.  This makes it easy for
-a user to figure out how to see what context is being used.  ls -Z, ps 
--Z, netstat -Z ...
+> From: Darrel Goeddel [mailto:dgoeddel@trustedcs.com] 
+> 
+
+Sorry it took so long to reply to this.
+
+> 
+>  for module policy versions up to 6, there are no 
+> range_transitions  for base policy versions 6 and up, an 
+
+This is only per the grammar right? You are writing range_trans_rule_t's
+in every avrule block so version 6 does support them, just not the
+grammar yet.
+
+
+>  #if 0
+> @@ -307,6 +326,32 @@
+>  	}
+>  }
+>  
+> +void range_trans_rule_init(range_trans_rule_t *x) {
+> +	type_set_init(&x->stypes);
+> +	type_set_init(&x->ttypes);
+> +	ebitmap_init(&x->tclasses);
+> +	mls_range_init(&x->trange);
+> +}
+
+x->next = NULL? 
+
+
+That's all I have, looks good sans the semantic range representation. 
 
 
 --
