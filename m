@@ -1,10 +1,10 @@
 MIME-Version: 1.0
 Content-Type: text/plain;
 	charset="us-ascii"
-Subject: RE: [RFC 0/3] libsepol enforcement hooks for policy server
-Date: Wed, 9 Aug 2006 18:50:17 -0400
-Message-ID: <6FE441CD9F0C0C479F2D88F959B0158832AF50@exchange.columbia.tresys.com>
-In-Reply-To: <1155159858.942.103.camel@localhost.localdomain>
+Subject: RE: [RFC 1/3] hook callbacks
+Date: Wed, 9 Aug 2006 18:53:13 -0400
+Message-ID: <6FE441CD9F0C0C479F2D88F959B0158832AF51@exchange.columbia.tresys.com>
+In-Reply-To: <1155160182.942.109.camel@localhost.localdomain>
 From: "Joshua Brindle" <jbrindle@tresys.com>
 To: "Karl MacMillan" <kmacmillan@mentalrootkit.com>
 Cc: <selinux@tycho.nsa.gov>, <sds@tycho.nsa.gov>
@@ -13,75 +13,59 @@ List-Id: selinux@tycho.nsa.gov
 
 > From: Karl MacMillan [mailto:kmacmillan@mentalrootkit.com] 
 > 
-> > 
+> On Tue, 2006-08-01 at 07:51 -0400, Josh Brindle wrote:
 > 
-> I assume that this approach stems from the desire to enforce 
-> the results of the policy (the semantics) rather than the 
-> syntax. For example, you want to enforce _both_ the adding of 
-> an attribute to a type and the additional access that this generates.
+> <snip>
 > 
-
-As is the style in SELinux we'd like to do as many checks as possible,
-in this case we check both the syntactic (eg., adding an attribute to a
-type) and the semantic (an allow rule after expansion)
-
-> Additionally the process adding the module does not have to 
-> have sufficient access to add everything in the policy - only 
-> the added elements.
+> > +
+> > +typedef struct sepol_security_internal sepol_security_internal_t;
+> > +
+> > +typedef struct sepol_security_ops {
+> > +	int (*symbol_add) (int sym_type, char *type);
+> > +	int (*symbol_remove) (int sym_type, char *type);
+> > +
+> > +	/* type hooks */
+> > +	int (*type_add_attrib) (char *attrib, char *type);
+> > +
 > 
-> These two decisions produce the bulk of your complexity: they 
-> require the extra expansion and diffing of the policies. 
-> Otherwise you could do a simple syntactic check of the module 
-> and only refer to the other policy to enforce symbol removal. 
-> I also think that the access removal checks are of 
-> questionable value (unlike the symbol removal checks) - who 
-> cares about DOS anyway?
+> It seems more natural for this to be the reverse 
+> (attrib_add_type) though I understand that it doesn't really matter.
 > 
 
-Well, syntactic checking means walking each rule on the old policy
-avrule_decl list for each rule on the new policy, this is rediculously
-ineffecient, the purpose of the avtabs is for fast lookups, which is the
-reason we are using them. 
+>From the point of view of the library we are adding a type to an
+attribute, however in the policy server callback permission checks would
+be done where the type is the object being added to and also the
+attribute is being added to. The callbacks here do not necessarilly
+represent 1 access check.
 
-> So, I think that the syntactic check would be sufficient 
-> because the semantics of the syntax are clearly defined and 
-> can be taken into account by the meta-policy author. It would 
-> also _greatly_ reduce the complexity of enforcement.
+> > +	/* role hooks */
+> > +	int (*role_allow_add) (char *role, char *new_role);
+> > +	int (*role_trans_add) (char *role, char *type, char *new_role);
+> > +	int (*role_add_type) (char *role, char *type);
+> > +
+> > +	/* user hooks */
+> > +	int (*user_add_role) (char *user, char *role);
+> > +
+> > +	int (*avrule_add) (int type, char *src, char *tgt, char 
+> *class, char 
+> > +**perms, int num_perms);
+> > +
 > 
-> My question: do you have examples where a well-crafted 
-> meta-policy could not successfully enforce policy access 
-> control doing only the checks that I am suggesting? My guess 
-> is that you are only going to get a reduction in granularity 
-> that is acceptable.
-> 
-
-At this point I do not have well crafted examples, however I do not
-believe the object model will be complete and non-bypassable without
-semantic checking.
-
-> > A main concern I have about the current patches is that the 
-> > security_ops struct is publically accessible by shared 
-> users of this 
-> > library. This is obviously non-ideal because of abi compatibility. 
-> > Anyone with better ideas of how to implement the callback system 
-> > please speak up :)
-> > 
-> 
-> Are you certain that you don't want to restrict these to static users?
+> Type rules aren't handled at all? Neverallow (to prevent 
+> those DOS attacks on policy add).
 > 
 
-I'd like it to be available to shared users.
+Like I said, this is an incomplete rfc, type_ rules would certainly be
+handled, not sure about neverallows.
 
-> You can pad the struct so that you can add additional members 
-> in the future, though this sucks.
+> For the syntactic checking that I am suggesting you will need 
+> to add checks for the use of each symbol in each rule variant.
 > 
 
-Right, or add accessors for every field, which also sucks.
-
-> I'll comment on some of the specifics of the other patches.
-> 
-
-Thanks
+Yes, the actual callback in the policy server would check if src could
+be used in a "type" rule, tgt can be used, object class can be used and
+so on. The callbacks may end up being several permission checks on the
+backend.
 
 
 --
