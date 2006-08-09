@@ -1,81 +1,88 @@
-Subject: Re: [RFC 3/3] expander support for hooks
-From: Karl MacMillan <kmacmillan@mentalrootkit.com>
-To: Josh Brindle <jbrindle@tresys.com>
-Cc: selinux@tycho.nsa.gov, sds@tycho.nsa.gov
-In-Reply-To: <1154433128.23513.10.camel@twoface.columbia.tresys.com>
-References: <1154433128.23513.10.camel@twoface.columbia.tresys.com>
-Content-Type: text/plain
-Date: Wed, 09 Aug 2006 17:59:09 -0400
-Message-Id: <1155160749.942.117.camel@localhost.localdomain>
-Mime-Version: 1.0
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Subject: RE: [RFC 0/3] libsepol enforcement hooks for policy server
+Date: Wed, 9 Aug 2006 18:50:17 -0400
+Message-ID: <6FE441CD9F0C0C479F2D88F959B0158832AF50@exchange.columbia.tresys.com>
+In-Reply-To: <1155159858.942.103.camel@localhost.localdomain>
+From: "Joshua Brindle" <jbrindle@tresys.com>
+To: "Karl MacMillan" <kmacmillan@mentalrootkit.com>
+Cc: <selinux@tycho.nsa.gov>, <sds@tycho.nsa.gov>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2006-08-01 at 07:52 -0400, Josh Brindle wrote:
-> These are the expander changes, some hooks aren't implemented yet so it
-> is marked with an XXX comment where I think the enforcement needs to
-> go. 
+> From: Karl MacMillan [mailto:kmacmillan@mentalrootkit.com] 
+> 
+> > 
+> 
+> I assume that this approach stems from the desire to enforce 
+> the results of the policy (the semantics) rather than the 
+> syntax. For example, you want to enforce _both_ the adding of 
+> an attribute to a type and the additional access that this generates.
+> 
 
-> diff -pruN -xhooks.c trunk-old/libsepol/include/sepol/policydb/policydb.h trunk/libsepol/include/sepol/policydb/policydb.h
-> --- trunk-old/libsepol/include/sepol/policydb/policydb.h	2006-08-01 07:27:29.000000000 -0400
-> +++ trunk/libsepol/include/sepol/policydb/policydb.h	2006-08-01 07:17:00.000000000 -0400
-> @@ -115,6 +115,8 @@ typedef struct role_datum {
->  	ebitmap_t dominates;	/* set of roles dominated by this role */
->  	type_set_t types;	/* set of authorized types for role */
->  	ebitmap_t cache;	/* This is an expanded set used for context validation during parsing */
-> +	type_set_t all_types;	/* used during policy access control check */
-> +	ebitmap_t all_doms;	/* used during policy access control check */
->  } role_datum_t;
->  
->  typedef struct role_trans {
-> @@ -139,6 +141,7 @@ typedef struct type_datum {
->  #define TYPE_ALIAS 2		/* alias in modular policy */
->  	uint32_t flavor;
->  	ebitmap_t types;	/* types with this attribute */
-> +	ebitmap_t all_types;	/* used during policy access control check */
->  } type_datum_t;
->  
->  /* User attributes */
-> @@ -148,6 +151,7 @@ typedef struct user_datum {
->  	mls_range_t range;	/* MLS range (min. - max.) for user */
->  	mls_level_t dfltlevel;	/* default login MLS level for user */
->  	ebitmap_t cache;	/* This is an expanded set used for context validation during parsing */
-> +	role_set_t all_roles;	/* used during policy access control check */
->  } user_datum_t;
->  
+As is the style in SELinux we'd like to do as many checks as possible,
+in this case we check both the syntactic (eg., adding an attribute to a
+type) and the semantic (an allow rule after expansion)
 
-These changes are what I am most concerned about and I don't think that
-they are necessary. For the "other" policy expand all can simply expand
-into the existing fields (e.g., role_datum->types can hold all of the
-authorized types even those for disabled optionals).
+> Additionally the process adding the module does not have to 
+> have sufficient access to add everything in the policy - only 
+> the added elements.
+> 
+> These two decisions produce the bulk of your complexity: they 
+> require the extra expansion and diffing of the policies. 
+> Otherwise you could do a simple syntactic check of the module 
+> and only refer to the other policy to enforce symbol removal. 
+> I also think that the access removal checks are of 
+> questionable value (unlike the symbol removal checks) - who 
+> cares about DOS anyway?
+> 
 
-For the current policy, you can make the expander walk all of the
-optional blocks calling the hooks but _not_ storing the results for the
-non-active options.
+Well, syntactic checking means walking each rule on the old policy
+avrule_decl list for each rule on the new policy, this is rediculously
+ineffecient, the purpose of the avtabs is for fast lookups, which is the
+reason we are using them. 
 
-The downside is that some hooks will be called multiple times, but I
-think that the reduction in changes is worth it.
+> So, I think that the syntactic check would be sufficient 
+> because the semantics of the syntax are clearly defined and 
+> can be taken into account by the meta-policy author. It would 
+> also _greatly_ reduce the complexity of enforcement.
+> 
+> My question: do you have examples where a well-crafted 
+> meta-policy could not successfully enforce policy access 
+> control doing only the checks that I am suggesting? My guess 
+> is that you are only going to get a reduction in granularity 
+> that is acceptable.
+> 
 
-Any reason this won't work?
+At this point I do not have well crafted examples, however I do not
+believe the object model will be complete and non-bypassable without
+semantic checking.
 
->  /* Sensitivity attributes */
-> @@ -374,6 +378,12 @@ typedef struct policydb {
->  	/* Whether this policydb is mls, should always be set */
->  	int mls;
->  
-> +	/* Whether this is an invalid policy, currently set when EXPAND_ALL
-> +	 * is passed to the expander to prevent this policy from being written
-> +	 * to disk. 
-> +	 */
-> +	int invalid;
-> +
+> > A main concern I have about the current patches is that the 
+> > security_ops struct is publically accessible by shared 
+> users of this 
+> > library. This is obviously non-ideal because of abi compatibility. 
+> > Anyone with better ideas of how to implement the callback system 
+> > please speak up :)
+> > 
+> 
+> Are you certain that you don't want to restrict these to static users?
+> 
 
-No comment :)
+I'd like it to be available to shared users.
 
-I'll leave any more specific comments until I hear back about my general
-comments.
+> You can pad the struct so that you can add additional members 
+> in the future, though this sucks.
+> 
 
-Karl
+Right, or add accessors for every field, which also sucks.
+
+> I'll comment on some of the specifics of the other patches.
+> 
+
+Thanks
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
