@@ -1,95 +1,92 @@
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Subject: RE: [PATCH 2/2 take 2] userland support for new range_transitionstatements
-Date: Wed, 9 Aug 2006 11:39:44 -0400
-Message-ID: <6FE441CD9F0C0C479F2D88F959B0158832AED9@exchange.columbia.tresys.com>
-In-Reply-To: <1155136425.942.35.camel@localhost.localdomain>
-From: "Joshua Brindle" <jbrindle@tresys.com>
-To: "Karl MacMillan" <kmacmillan@mentalrootkit.com>,
-        "Darrel Goeddel" <dgoeddel@TrustedCS.com>
-Cc: "SELinux List" <SELinux@tycho.nsa.gov>,
-        "Stephen Smalley" <sds@tycho.nsa.gov>,
-        "Eric Paris" <eparis@redhat.com>
+Subject: Re: [RFC 0/3] libsepol enforcement hooks for policy server
+From: Karl MacMillan <kmacmillan@mentalrootkit.com>
+To: Josh Brindle <jbrindle@tresys.com>
+Cc: selinux@tycho.nsa.gov, sds@tycho.nsa.gov
+In-Reply-To: <1154433100.23513.7.camel@twoface.columbia.tresys.com>
+References: <1154433100.23513.7.camel@twoface.columbia.tresys.com>
+Content-Type: text/plain
+Date: Wed, 09 Aug 2006 17:44:18 -0400
+Message-Id: <1155159858.942.103.camel@localhost.localdomain>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-> From: Karl MacMillan [mailto:kmacmillan@mentalrootkit.com] 
-> 
-> On Wed, 2006-08-09 at 10:06 -0500, Darrel Goeddel wrote:
-> > Joshua Brindle wrote:
-> 
-> <snip>
-> 
-> 
-> I very much prefer the structures. Using the string requires 
-> all users of libsepol to parse the string - currently we push 
-> all parsing to checkpolicy and sepol includes a structured, 
-> semantic representation of the data.
+On Tue, 2006-08-01 at 07:51 -0400, Josh Brindle wrote:
+> This is an RFC for libsepol enforcement hooks. These patches are to show
+> the concept and will in no way compile, I've intentionally left out
+> utility functions so that just the important parts are here to discuss.
 > 
 
-At this point I prefer the structures to but I disagree with your
-justification, policydb is owned by libsepol, no user of libsepol should
-be parsing the string (which would only exist in the linked copy, other
-out-of-tree users like apol only operate on the expanded copy).
+Thanks for sending this out for comment.
 
+> The enforcement model has changed quite a bit. Rather than looping over
+> the policydb inside the policy server as before these hooks will make
+> calls back into the policy server if a decision is needed.
 
-> > 2) how to handle mls requirements.
-> > 
-> >      My preference at this point would be to require each 
-> component separately.
-> >      (e.g.  s1:c0,c4.c10,c30 would have:
-> >          Require {
-> >              sens s1;
-> >              cats c0, c4, c10, c30;
-> >          }
-> >      That should work just fine for the current format.  
-> Making a requirement
-> >      on the whole range seems to require too many extra 
-> changes for little
-> >      benefit IMO.
-> > 
-> 
-> I agree.
+I think this is a good overall approach.
+
+>  To decide
+> whether a decision is needed we are essentially doing a semantic diff of
+> the policies. The enforcer provides the 'other' or previous linked
+> policy when initializing its hooks. When a callback is encountered
+> hooks.c will determine if an equivalent rule or symbol is present in the
+> other policy and if not call the callback. Only strings are passed into
+> the callbacks.
 > 
 
-That's fine, and easier to accomplish since there are already sens and
-cats tables in every avrule_decl block, the logic to require them can be
-easily copied from other symbols.
+I assume that this approach stems from the desire to enforce the results
+of the policy (the semantics) rather than the syntax. For example, you
+want to enforce _both_ the adding of an attribute to a type and the
+additional access that this generates.
 
-> > That said, punting would not be a huge problem if we can 
-> get updates 
-> > into FC RHEL when the userspace work for modular support is 
-> complete.  
-> > This is desired either way, but I was concerned that a 
-> format change 
-> > may may people more wary about the update, even though it would be 
-> > completely backwards compatible.  The only real drawback to not 
-> > getting the format tweaked now is that it will introduce more "if 
-> > (version < MOD_POLICYDB...)" into the code.  Unfortunately, 
-> resources and time are limited as far as I can see...
-> > 
+Additionally the process adding the module does not have to have
+sufficient access to add everything in the policy - only the added
+elements.
+
+These two decisions produce the bulk of your complexity: they require
+the extra expansion and diffing of the policies. Otherwise you could do
+a simple syntactic check of the module and only refer to the other
+policy to enforce symbol removal. I also think that the access removal
+checks are of questionable value (unlike the symbol removal checks) -
+who cares about DOS anyway?
+
+So, I think that the syntactic check would be sufficient because the
+semantics of the syntax are clearly defined and can be taken into
+account by the meta-policy author. It would also _greatly_ reduce the
+complexity of enforcement.
+
+My question: do you have examples where a well-crafted meta-policy could
+not successfully enforce policy access control doing only the checks
+that I am suggesting? My guess is that you are only going to get a
+reduction in granularity that is acceptable.
+
+> To accomplish the semantic diff there were significant changes to the
+> compiler to 1) expand the 'other' policy fully including disabled rules
+> and symbols (including conflicting rules) and 2) to expand the new
+> policy fully to do checks but then not add the disabled rules. The
+> disabled symbols must be added for value mapping but I push the disabled
+> symbols on to the end of the values so that they can be removed without
+> holes in the hashtable forming.
 > 
-> It would definitely be better to get the support in now, but 
-> I think that we are in real danger of missing already.
+
+If you decide that you must do the semantic checks, I think that it may
+be possible to reduce some of the data structure changes you are making
+for the expand. I'll put the suggestion in the relevant patch emails.
+
+> A main concern I have about the current patches is that the security_ops
+> struct is publically accessible by shared users of this library. This is
+> obviously non-ideal because of abi compatibility. Anyone with better
+> ideas of how to implement the callback system please speak up :)
 > 
 
-Refpolicy needs this support badly, right now all range_transitions are
-moved into base breaking encapsulation since modules don't support them.
+Are you certain that you don't want to restrict these to static users?
 
+You can pad the struct so that you can add additional members in the
+future, though this sucks.
 
+I'll comment on some of the specifics of the other patches.
 
-I vote for doing the structured semantic representation, getting
-everything merged so that it makes it in for sure and then working on
-the module changes (which should be very small but something unexpected
-might pop out). That way the new range_trans are available and hopefully
-the module support gets in after that.
-
-One other thing, since there is now a unit test suite in libsepol I'd
-like to see some unit tests for the new structures, I know there is a
-time crunch right now but I think they should be written as soon as they
-can be.
-
+Karl
 
 --
 This message was distributed to subscribers of the selinux mailing list.
