@@ -1,77 +1,61 @@
-Subject: RE: [RFC 0/3] libsepol enforcement hooks for policy server
+Subject: RE: [RFC 3/3] expander support for hooks
 From: Karl MacMillan <kmacmillan@mentalrootkit.com>
 To: Joshua Brindle <jbrindle@tresys.com>
 Cc: selinux@tycho.nsa.gov, sds@tycho.nsa.gov
-In-Reply-To: <6FE441CD9F0C0C479F2D88F959B0158832AF50@exchange.columbia.tresys.com>
+In-Reply-To: <6FE441CD9F0C0C479F2D88F959B0158832AF52@exchange.columbia.tresys.com>
 References: 
-	 <6FE441CD9F0C0C479F2D88F959B0158832AF50@exchange.columbia.tresys.com>
+	 <6FE441CD9F0C0C479F2D88F959B0158832AF52@exchange.columbia.tresys.com>
 Content-Type: text/plain
-Date: Thu, 10 Aug 2006 12:07:27 -0400
-Message-Id: <1155226047.8018.20.camel@localhost.localdomain>
+Date: Thu, 10 Aug 2006 12:13:18 -0400
+Message-Id: <1155226398.8018.26.camel@localhost.localdomain>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2006-08-09 at 18:50 -0400, Joshua Brindle wrote:
+On Wed, 2006-08-09 at 18:56 -0400, Joshua Brindle wrote:
 > > From: Karl MacMillan [mailto:kmacmillan@mentalrootkit.com] 
 > > 
-> > > 
+> > On Tue, 2006-08-01 at 07:52 -0400, Josh Brindle wrote:
+> > >  /* User attributes */
+> > > @@ -148,6 +151,7 @@ typedef struct user_datum {
+> > >  	mls_range_t range;	/* MLS range (min. - max.) for user */
+> > >  	mls_level_t dfltlevel;	/* default login MLS level for user */
+> > >  	ebitmap_t cache;	/* This is an expanded set used 
+> > for context validation during parsing */
+> > > +	role_set_t all_roles;	/* used during policy access 
+> > control check */
+> > >  } user_datum_t;
+> > >  
 > > 
-> > I assume that this approach stems from the desire to enforce 
-> > the results of the policy (the semantics) rather than the 
-> > syntax. For example, you want to enforce _both_ the adding of 
-> > an attribute to a type and the additional access that this generates.
-> > 
-> 
-> As is the style in SELinux we'd like to do as many checks as possible,
-> in this case we check both the syntactic (eg., adding an attribute to a
-> type) and the semantic (an allow rule after expansion)
-> 
-
-I don't feel strongly about this.
-
-> > Additionally the process adding the module does not have to 
-> > have sufficient access to add everything in the policy - only 
-> > the added elements.
-> > 
-> > These two decisions produce the bulk of your complexity: they 
-> > require the extra expansion and diffing of the policies. 
-> > Otherwise you could do a simple syntactic check of the module 
-> > and only refer to the other policy to enforce symbol removal. 
-> > I also think that the access removal checks are of 
-> > questionable value (unlike the symbol removal checks) - who 
-> > cares about DOS anyway?
+> > These changes are what I am most concerned about and I don't 
+> > think that they are necessary. For the "other" policy expand 
+> > all can simply expand into the existing fields (e.g., 
+> > role_datum->types can hold all of the authorized types even 
+> > those for disabled optionals).
 > > 
 > 
-> Well, syntactic checking means walking each rule on the old policy
-> avrule_decl list for each rule on the new policy, this is rediculously
-> ineffecient, the purpose of the avtabs is for fast lookups, which is the
-> reason we are using them. 
+> This is merely for efficiency. The "other" policy *does* expand into
+> role_datum->types, the role_datum->all_types is used for the new policy
+> so that disabled 'aggregate' rules don't pollute the real policy and can
+> be easily discarded.
 > 
 
-Only if you want to detect changes to prevent the source type from
-having to have permission to add all rules in the policy module. I think
-that it is acceptable to simply require permission to add all rules.
+Avoiding the semantic checks will reduce algorithmic complexity far more
+simply because the number of rules far outweighs symbol manipulations
+(like typeattribute).
 
-> > So, I think that the syntactic check would be sufficient 
-> > because the semantics of the syntax are clearly defined and 
-> > can be taken into account by the meta-policy author. It would 
-> > also _greatly_ reduce the complexity of enforcement.
-> > 
-> > My question: do you have examples where a well-crafted 
-> > meta-policy could not successfully enforce policy access 
-> > control doing only the checks that I am suggesting? My guess 
-> > is that you are only going to get a reduction in granularity 
-> > that is acceptable.
-> > 
-> 
-> At this point I do not have well crafted examples, however I do not
-> believe the object model will be complete and non-bypassable without
-> semantic checking.
-> 
+I don't think that this is a good space/time tradeoff but I don't have
+any real evidence.
 
-I can't think of any bypass from only performing syntactic checks - I'd
-be curious to hear a counter-example, but again I don't feel strongly.
+> 
+> That's fine, I believe this approach is sound (though it has quite a bit
+> of complexity added)
+
+I agree - we are mainly trying to balance code efficiency / algorithmic
+complexity against meta-policy simplicity. I believe that most
+meta-policies are going to be coarse-grained and short anyway, so I am
+pushing the balance towards code simplicity. Ultimately I'm fine with
+either.
 
 Karl
 
