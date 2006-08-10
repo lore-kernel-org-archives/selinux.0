@@ -1,80 +1,39 @@
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k7AADTRJ032411
+	for <selinux@tycho.nsa.gov>; Thu, 10 Aug 2006 06:13:29 -0400
+Received: from mx.meyering.net (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id k7AADJFH010917
+	for <selinux@tycho.nsa.gov>; Thu, 10 Aug 2006 10:13:20 GMT
+From: Jim Meyering <jim@meyering.net>
+To: selinux@tycho.nsa.gov
+Subject: does mv need a --context=CTX (-Z) option, too?
+Date: Thu, 10 Aug 2006 12:13:27 +0200
+Message-ID: <87hd0kc308.fsf@rho.meyering.net>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Subject: RE: [RFC 3/3] expander support for hooks
-Date: Wed, 9 Aug 2006 18:56:48 -0400
-Message-ID: <6FE441CD9F0C0C479F2D88F959B0158832AF52@exchange.columbia.tresys.com>
-In-Reply-To: <1155160749.942.117.camel@localhost.localdomain>
-From: "Joshua Brindle" <jbrindle@tresys.com>
-To: "Karl MacMillan" <kmacmillan@mentalrootkit.com>
-Cc: <selinux@tycho.nsa.gov>, <sds@tycho.nsa.gov>
+Content-Type: text/plain; charset=us-ascii
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-> From: Karl MacMillan [mailto:kmacmillan@mentalrootkit.com] 
-> 
-> On Tue, 2006-08-01 at 07:52 -0400, Josh Brindle wrote:
-> >  /* User attributes */
-> > @@ -148,6 +151,7 @@ typedef struct user_datum {
-> >  	mls_range_t range;	/* MLS range (min. - max.) for user */
-> >  	mls_level_t dfltlevel;	/* default login MLS level for user */
-> >  	ebitmap_t cache;	/* This is an expanded set used 
-> for context validation during parsing */
-> > +	role_set_t all_roles;	/* used during policy access 
-> control check */
-> >  } user_datum_t;
-> >  
-> 
-> These changes are what I am most concerned about and I don't 
-> think that they are necessary. For the "other" policy expand 
-> all can simply expand into the existing fields (e.g., 
-> role_datum->types can hold all of the authorized types even 
-> those for disabled optionals).
-> 
+It might make sense to add a --context=CTX (-Z) option to mv.  Currently,
+cp, install, mkdir, mknod, mkfifo all have that option, but not mv.
+Most of the time, mv would have no need, since it simply calls rename.
+But when that fails, it reverts to using the very same copying code
+(copy.c) that cp uses.  It is trivial to add this option to mv, with the
+understanding that it'd take effect solely for e.g., cross-device moves.
+I.e., if you want to simulate a cross device move, you'd have to use
+cp -pr and rm -rf, so if it makes sense for cp to have the --context=CTX
+(-Z) option, then it follows that mv must accept it as well.
 
-This is merely for efficiency. The "other" policy *does* expand into
-role_datum->types, the role_datum->all_types is used for the new policy
-so that disabled 'aggregate' rules don't pollute the real policy and can
-be easily discarded.
+This brings up another minor inconsistency: should the other
+named-file-creation programs (dd, ln, link, touch) in coreutils also
+accept the --context=CTX (-Z) option?
 
-> For the current policy, you can make the expander walk all of 
-> the optional blocks calling the hooks but _not_ storing the 
-> results for the non-active options.
-> 
-
-That's what we do.
-
-> The downside is that some hooks will be called multiple 
-> times, but I think that the reduction in changes is worth it.
-> 
-> Any reason this won't work?
-> 
-> >  /* Sensitivity attributes */
-> > @@ -374,6 +378,12 @@ typedef struct policydb {
-> >  	/* Whether this policydb is mls, should always be set */
-> >  	int mls;
-> >  
-> > +	/* Whether this is an invalid policy, currently set 
-> when EXPAND_ALL
-> > +	 * is passed to the expander to prevent this policy 
-> from being written
-> > +	 * to disk. 
-> > +	 */
-> > +	int invalid;
-> > +
-> 
-> No comment :)
-> 
-
-Yea, yea, I didn't change this per the previous converstation.
-
-> I'll leave any more specific comments until I hear back about 
-> my general comments.
-> 
-
-That's fine, I believe this approach is sound (though it has quite a bit
-of complexity added)
-
+With that only partly rhetorical question, you should see why I'd like
+an selinux/kernel hook that'd let me set the default fscreate context
+for the upcoming execve.  Then I could simply add one option to runcon
+and forget about all of these "-Z CTX" options.  IMHO, requiring all of
+these tools to add an option like "-Z CTX" to perform the same simple
+function is almost prohibitively onerous.
 
 --
 This message was distributed to subscribers of the selinux mailing list.
