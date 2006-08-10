@@ -1,101 +1,92 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k7AG0Ffr008236
-	for <selinux@tycho.nsa.gov>; Thu, 10 Aug 2006 12:00:16 -0400
-Received: from mail.and.org (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id k7AG06mM025025
-	for <selinux@tycho.nsa.gov>; Thu, 10 Aug 2006 16:00:06 GMT
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k7AG1Fw5008293
+	for <selinux@tycho.nsa.gov>; Thu, 10 Aug 2006 12:01:15 -0400
+Received: from localhost.localdomain (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id k7AG0vuR007529
+	for <selinux@tycho.nsa.gov>; Thu, 10 Aug 2006 16:00:58 GMT
 Subject: Re: does mv need a --context=CTX (-Z) option, too?
-From: James Antill <jantill@redhat.com>
+From: Karl MacMillan <kmacmillan@mentalrootkit.com>
 To: Jim Meyering <jim@meyering.net>
-Cc: kmacmillan@mentalrootkit.com, selinux@tycho.nsa.gov
+Cc: selinux@tycho.nsa.gov
 In-Reply-To: <87y7twk4fb.fsf@rho.meyering.net>
 References: <87hd0kc308.fsf@rho.meyering.net>
 	 <Pine.LNX.4.64.0608100843530.4511@tachyon.snu.edu>
 	 <87y7twk4fb.fsf@rho.meyering.net>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-I7GPf5hpmR0S1YhVSQ0w"
-Date: Thu, 10 Aug 2006 12:00:08 -0400
-Message-Id: <1155225608.2496.7.camel@code.and.org>
+Content-Type: text/plain
+Date: Thu, 10 Aug 2006 12:01:10 -0400
+Message-Id: <1155225670.8018.12.camel@localhost.localdomain>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
-
-
---=-I7GPf5hpmR0S1YhVSQ0w
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
 
 On Thu, 2006-08-10 at 17:15 +0200, Jim Meyering wrote:
 > kmacmillan@mentalrootkit.com wrote:
 > > On Thu, 10 Aug 2006, Jim Meyering wrote:
 > >
-> >> It might make sense to add a --context=3DCTX (-Z) option to mv.  Curre=
-ntly,
+> >> It might make sense to add a --context=CTX (-Z) option to mv.  Currently,
 > >> cp, install, mkdir, mknod, mkfifo all have that option, but not mv.
 > >> Most of the time, mv would have no need, since it simply calls rename.
 > >> But when that fails, it reverts to using the very same copying code
-> >> (copy.c) that cp uses.  It is trivial to add this option to mv, with t=
-he
-> >> understanding that it'd take effect solely for e.g., cross-device move=
-s.
+> >> (copy.c) that cp uses.  It is trivial to add this option to mv, with the
+> >> understanding that it'd take effect solely for e.g., cross-device moves.
 > >> I.e., if you want to simulate a cross device move, you'd have to use
-> >> cp -pr and rm -rf, so if it makes sense for cp to have the --context=
-=3DCTX
+> >> cp -pr and rm -rf, so if it makes sense for cp to have the --context=CTX
 > >> (-Z) option, then it follows that mv must accept it as well.
 > >>
 > >
-> > I think that mv should have that option. Actually, I think that the mor=
-e
-> > pressing option is --preserve so that users can simulate the rename cas=
-e
+> > I think that mv should have that option. Actually, I think that the more
+> > pressing option is --preserve so that users can simulate the rename case
 > > across devices.
->=20
+> 
 > Why would mv need a new --preserve option?
 > mv already tries to preserve as much as possible when
 > performing any cross-device copy.
+> 
 
- Then, IMO, it should preserve xattrs and SELinux context by default
-too. It already seems to try and do ACLs (although it's a bit
-weird[1]) ... so this seems natural. I really wouldn't want to explain
-what a mv -Z call did to someone.
+I had the impression that mv did not preserve contexts across devices,
+but I guess I was mistaken.
 
 > Admittedly, mv doesn't fail if it cannot preserve some attribute,
 > but that's a POSIX requirement (cp -p *does*).  Maybe you'd like
 > --preserve to change that?  I added a comment suggesting
 > just such a change years ago.  From coreutils/src/mv.c:
->   x->require_preserve =3D false;  /* FIXME: maybe make this an option */
+>   x->require_preserve = false;  /* FIXME: maybe make this an option */
 > but no one has been motivated to do that.
 > SELinux might be the necessary prod.
 
- That might be useful, esp. with ACLs and SELinux context.
+That might be nice, but I don't know that it is required.
 
+> A related option I've contemplated adding to mv is one that'd make it
+> perform the move operation only if rename succeeds.  I.e., don't fall
+> back on copy/remove.
+> 
 
-[1] strace shows:
+<snip>
 
-getxattr("/boot/james/abcd", "system.posix_acl_access", 0xbfdbd580, 132) =
-=3D -1 EOPNOTSUPP (Operation not supported)
-setxattr("./abcd", "system.posix_acl_access", "\x02\x00\x00\x00\x01\x00\x06=
-\x00\xff\xff\xff\xff\x04\x00\x04\x00\xff\xff\xff\xff \x00\x04\x00\xff\xff\x=
-ff\xff", 28, 0) =3D 0
+> >
+> > As Steve explained, this option is not safe. Trivial example: with this
+> > mechanism I could potentially cause passwd to create /etc/shadow with any
+> > context (well, passwd explicitly requests that context so that wouldn't
+> > work, but I think you get the idea). SELinux goes to great lengths to
+> > make execve safe for gaining privileges - this would go against that
+> > goal.
+> 
+> I realize that many programs do depend on the current semantics
+> (where, upon exec, the fscreate is guaranteed to be the default),
+> so obviously any change that simply removes that guarantee would
+> break things.  A change like I'm hinting at would require more
+> than that.  Perhaps a policy as simple as allowing a new, non-default
+> fscreate context IFF some other measure (exec context?) remains the
+> same.  So, for a program like passwd that gets elevated privilege,
+> setting the apply-on-exec fscreate context would have no effect.
 
-...which is pretty surprising.
+Yeah - if there is no change in context that would be safe. Other
+comments in the thread seem to be suggesting that the behavior that is
+really needed for most of coreutils is just the preservation contexts,
+so the need for this change doesn't seem as pressing (touch being the
+exception - it probably needs --context).
 
---=20
-James Antill <jantill@redhat.com>
-
---=-I7GPf5hpmR0S1YhVSQ0w
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.5 (GNU/Linux)
-
-iD8DBQBE21gH11eXTEMrxtQRAqpKAJ40xA8CMXkuqP0EVj8TfAURF9ud4ACeLq24
-AAKFL+96ejjKA/srjg4HozU=
-=4t6i
------END PGP SIGNATURE-----
-
---=-I7GPf5hpmR0S1YhVSQ0w--
-
+Karl
 
 --
 This message was distributed to subscribers of the selinux mailing list.
