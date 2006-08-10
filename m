@@ -1,38 +1,107 @@
 Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k7AEKfww005446
-	for <selinux@tycho.nsa.gov>; Thu, 10 Aug 2006 10:20:41 -0400
-Received: from mail2.sea5.speakeasy.net (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id k7AEKVmM010617
-	for <selinux@tycho.nsa.gov>; Thu, 10 Aug 2006 14:20:31 GMT
-Received: from megaweapon.nightmoose.net (HELO d.namei) ([66.92.66.197])
-          (envelope-sender <jmorris@namei.org>)
-          by mail2.sea5.speakeasy.net (qmail-ldap-1.03) with AES256-SHA encrypted SMTP
-          for <selinux@tycho.nsa.gov>; 10 Aug 2006 14:20:38 -0000
-Date: Thu, 10 Aug 2006 10:20:35 -0400 (EDT)
-From: James Morris <jmorris@namei.org>
-To: selinux@tycho.nsa.gov
-cc: Paul Moore <paul.moore@hp.com>,
-        Venkat Yekkirala <vyekkirala@TrustedCS.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: Labeled networking code now in Fedora rawhide kernel
-Message-ID: <Pine.LNX.4.64.0608101018060.27442@d.namei>
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k7AEUHMQ005739
+	for <selinux@tycho.nsa.gov>; Thu, 10 Aug 2006 10:30:17 -0400
+Received: from moss-lions.epoch.ncsc.mil (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id k7AEU8mM011804
+	for <selinux@tycho.nsa.gov>; Thu, 10 Aug 2006 14:30:08 GMT
+Received: from moss-lions.epoch.ncsc.mil (localhost.localdomain [127.0.0.1])
+	by moss-lions.epoch.ncsc.mil (8.13.7/8.13.7) with ESMTP id k7AEU6Ip024852
+	for <selinux@tycho.nsa.gov>; Thu, 10 Aug 2006 10:30:06 -0400
+Received: (from jwcart2@localhost)
+	by moss-lions.epoch.ncsc.mil (8.13.7/8.13.7/Submit) id k7AEU6Ne024851
+	for selinux@tycho.nsa.gov; Thu, 10 Aug 2006 10:30:06 -0400
+From: Jim Meyering <jim@meyering.net>
+To: Stephen Smalley <sds@tycho.nsa.gov>
+Cc: James Morris <jmorris@namei.org>, Eric Paris <eparis@redhat.com>,
+        selinux@tycho.nsa.gov
+Subject: Re: does mv need a --context=CTX (-Z) option, too?
+In-Reply-To: <1155218058.1123.301.camel@moss-spartans.epoch.ncsc.mil> (Stephen
+	Smalley's message of "Thu, 10 Aug 2006 09:54:18 -0400")
+References: <87hd0kc308.fsf@rho.meyering.net>
+	<1155218058.1123.301.camel@moss-spartans.epoch.ncsc.mil>
+Date: Thu, 10 Aug 2006 16:27:32 +0200
+Message-ID: <874pwkll7v.fsf@rho.meyering.net>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-The MLS enhancements for xfrm labeling, and the Netlabel code, have now 
-been backported to the Fedora rawhide kernel:
+Stephen Smalley <sds@tycho.nsa.gov> wrote:
+> On Thu, 2006-08-10 at 12:13 +0200, Jim Meyering wrote:
+>> It might make sense to add a --context=CTX (-Z) option to mv.  Currently,
+>> cp, install, mkdir, mknod, mkfifo all have that option, but not mv.
+>> Most of the time, mv would have no need, since it simply calls rename.
+>> But when that fails, it reverts to using the very same copying code
+>> (copy.c) that cp uses.  It is trivial to add this option to mv, with the
+>> understanding that it'd take effect solely for e.g., cross-device moves.
+>> I.e., if you want to simulate a cross device move, you'd have to use
+>> cp -pr and rm -rf, so if it makes sense for cp to have the --context=CTX
+>> (-Z) option, then it follows that mv must accept it as well.
+>
+> mv should just preserve the context of the original in all cases,
+> whether it is just doing a rename(2) or copying the file.
 
-kernel-2.6.17-1.2543.fc6
+What if it's not possible to preserve the original, yet it
+would be possible to set some other desirable context?
 
-Please test this and let me know the outcome.
+Stepping back a little, if mv doesn't need the option, then why
+does cp need it?  After all, cp has no option to set classic
+permissions.
 
+>> This brings up another minor inconsistency: should the other
+>> named-file-creation programs (dd, ln, link, touch) in coreutils also
+>> accept the --context=CTX (-Z) option?
+>
+> ln/link likewise wouldn't need it, as it is the inodes that are labeled,
+> not the links.  Unless you mean for ln -s, where the symlink itself has
+> a label.
 
-- James
--- 
-James Morris
-<jmorris@namei.org>
+You're right that link isn't an issue.
+However, for consistency, ln (for -s), dd, and touch seem like
+they would need the new option, No?
+
+>> With that only partly rhetorical question, you should see why I'd like
+>> an selinux/kernel hook that'd let me set the default fscreate context
+>> for the upcoming execve.  Then I could simply add one option to runcon
+>> and forget about all of these "-Z CTX" options.  IMHO, requiring all of
+>> these tools to add an option like "-Z CTX" to perform the same simple
+>> function is almost prohibitively onerous.
+>
+> It's consistent with the idea of MAC being a first class citizen of
+> Linux, just like file owner/mode/ACL.
+
+Slightly off-topic...
+What if ACLs come into vogue?
+Should I expect (longer term) to have an option to set
+an ACL as well, in each of these programs?
+
+> Now, as far as preserving fscreate across execve goes, doing that in the
+> case where there is no change in the current context of the task is
+> conceivable (so no implications for letting the caller influence the
+> program), although it would be a change in behavior that has been
+> present for quite some time (and seems rather late to make it into e.g.
+> RHEL5 or FC6).
+
+I don't expect any of these upstream coreutils changes to affect RHEL5
+or FC6 either, so that's fine.  The important thing, from my standpoint,
+is to avoid adding these -Z options if they're not absolutely necessary.
+
+> I have no strong opinion on that, but it could introduce
+> unexpected behaviors; some programs today might be setting fscreate and
+> exec'ing helpers while not expecting the helpers to pick up that
+> fscreate context.
+
+But if there is some *new* interface (and underlying data structure
+support) that sets the to-be-used-upon-exec fscreate context, then
+no preexisting program would be affected, since they wouldn't be
+using the new interface.
+
+I'd like to be able to write a new program (let's call it fscon) that'd
+take an fscreate context, FSC and exec a user-specified program for
+which FSC would be the default.
+
+That would obviate most of these -Z options, and more importantly, would
+help more applications work with SELinux without requiring source changes.
 
 --
 This message was distributed to subscribers of the selinux mailing list.
