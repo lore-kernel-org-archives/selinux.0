@@ -1,50 +1,45 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k7AG1UJs008310
-	for <selinux@tycho.nsa.gov>; Thu, 10 Aug 2006 12:01:30 -0400
-Received: from web36611.mail.mud.yahoo.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with SMTP id k7AG1DuR007557
-	for <selinux@tycho.nsa.gov>; Thu, 10 Aug 2006 16:01:13 GMT
-Message-ID: <20060810160129.77778.qmail@web36611.mail.mud.yahoo.com>
-Date: Thu, 10 Aug 2006 09:01:29 -0700 (PDT)
-From: Casey Schaufler <casey@schaufler-ca.com>
-Reply-To: casey@schaufler-ca.com
 Subject: Re: does mv need a --context=CTX (-Z) option, too?
-To: Daniel J Walsh <dwalsh@redhat.com>, casey@schaufler-ca.com
-Cc: selinux@tycho.nsa.gov
-In-Reply-To: <44DB5696.5000102@redhat.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+From: Karl MacMillan <kmacmillan@mentalrootkit.com>
+To: Daniel J Walsh <dwalsh@redhat.com>
+Cc: Jim Meyering <jim@meyering.net>, Stephen Smalley <sds@tycho.nsa.gov>,
+        James Morris <jmorris@namei.org>, Eric Paris <eparis@redhat.com>,
+        selinux@tycho.nsa.gov
+In-Reply-To: <44DB4585.3070500@redhat.com>
+References: <87hd0kc308.fsf@rho.meyering.net>
+	 <1155218058.1123.301.camel@moss-spartans.epoch.ncsc.mil>
+	 <874pwkll7v.fsf@rho.meyering.net>  <44DB4585.3070500@redhat.com>
+Content-Type: text/plain
+Date: Thu, 10 Aug 2006 12:03:16 -0400
+Message-Id: <1155225796.8018.15.camel@localhost.localdomain>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+On Thu, 2006-08-10 at 10:41 -0400, Daniel J Walsh wrote:
+> Jim Meyering wrote:
+> > Stephen Smalley <sds@tycho.nsa.gov> wrote:
+> >   
 
+<snip>
 
---- Daniel J Walsh <dwalsh@redhat.com> wrote:
+> > Stepping back a little, if mv doesn't need the option, then why
+> > does cp need it?  After all, cp has no option to set classic
+> > permissions.
+> >
+> >   
+> I agree cp should not need this qualifier.  It should either be preserve 
+> or get the new default context.
+> mv should just try to preserve
 
+Agreed.
 
-> I am saying cp should not have a qualified where you
-> specify the 
-> context.  It should either default to the ordinary
-> system behaviour or 
-> if preserve is set try to maintain the file context.
+> install should use the matchpathcon similar to rpm.
 
-Sound reasoning.
+Though this should be optional because it is fairly expensive. Also,
+there is at least some existing software that uses install --context, so
+I would hate to see that go.
 
-> Since cp does not have a -mode= or -owner= it
-> probably should not have a 
-> -context=
-
-Those who advocate commands with lots of
-options would say there should be -mode=
-and -owner= as well. There is some logic
-based on the value of atomic operations to
-support that stand, and context is something
-that really ought to be set correctly at all
-times. I'm good with classic behavior.
-
-
-Casey Schaufler
-casey@schaufler-ca.com
+Karl
 
 --
 This message was distributed to subscribers of the selinux mailing list.
