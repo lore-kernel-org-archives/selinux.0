@@ -1,56 +1,108 @@
 Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k7BDwPkQ004222
-	for <selinux@tycho.nsa.gov>; Fri, 11 Aug 2006 09:58:25 -0400
-Received: from mx.meyering.net (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id k7BDwFmM015035
-	for <selinux@tycho.nsa.gov>; Fri, 11 Aug 2006 13:58:15 GMT
-From: Jim Meyering <jim@meyering.net>
-To: selinux@tycho.nsa.gov
-Cc: Russell Coker <russell@coker.com.au>
-Subject: justifying --context=CTX (-Z) for upstream coreutils, like mkdir
-Date: Fri, 11 Aug 2006 15:58:23 +0200
-Message-ID: <87mzabgyrk.fsf@rho.meyering.net>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k7BEwQok005745
+	for <selinux@tycho.nsa.gov>; Fri, 11 Aug 2006 10:58:26 -0400
+Received: from localhost.localdomain (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id k7BEwGmM022615
+	for <selinux@tycho.nsa.gov>; Fri, 11 Aug 2006 14:58:16 GMT
+Subject: Re: justifying --context=CTX (-Z) for upstream coreutils, like
+	mkdir
+From: Karl MacMillan <kmacmillan@mentalrootkit.com>
+To: Jim Meyering <jim@meyering.net>
+Cc: selinux@tycho.nsa.gov, Russell Coker <russell@coker.com.au>
+In-Reply-To: <87mzabgyrk.fsf@rho.meyering.net>
+References: <87mzabgyrk.fsf@rho.meyering.net>
+Content-Type: text/plain
+Date: Fri, 11 Aug 2006 10:58:14 -0400
+Message-Id: <1155308294.8018.59.camel@localhost.localdomain>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hello again,
+On Fri, 2006-08-11 at 15:58 +0200, Jim Meyering wrote:
+> Hello again,
+> 
+> With clear agreement that neither cp nor mv needs the --context=CTX (-Z)
+> option, I am nearly convinced that the this option does not belong in any
+> other program in upstream coreutils.  [of course, I expect it to remain
+> in RHEL and probably in Fedora for some time]  Upstream coreutils will
+> display contexts (stat, ls, uname), and preserve them (cp, mv, install?),
+> and add chcon+runcon, but that's all.
+> 
+> For a little context on why, ...
+> I'm also considering the xattr patch that's been floating around for
+> years.  Currently it's part of SuSE's coreutils patch set.  It ensures
+> that mv and cp -p preserve any (selected) XATTR attributes.
 
-With clear agreement that neither cp nor mv needs the --context=CTX (-Z)
-option, I am nearly convinced that the this option does not belong in any
-other program in upstream coreutils.  [of course, I expect it to remain
-in RHEL and probably in Fedora for some time]  Upstream coreutils will
-display contexts (stat, ls, uname), and preserve them (cp, mv, install?),
-and add chcon+runcon, but that's all.
+Only selected attributes or you can optionally preserve only a subset?
+I.e., is the default to preserve all?
 
-For a little context on why, ...
-I'm also considering the xattr patch that's been floating around for
-years.  Currently it's part of SuSE's coreutils patch set.  It ensures
-that mv and cp -p preserve any (selected) XATTR attributes.  There is
-no option to let install(1) apply XATTR attributes.  Nor mkdir, mkfifo,
-mknod.  Similarly for the ACL support that's widely available, there is
-no option to let those programs apply a specified ACL.  Why should
-SELinux security contexts be treated differently?
+>   There is
+> no option to let install(1) apply XATTR attributes.
 
-I do understand the race condition argument, but any sysadmin who is
-silly enough to create new files in such a way that those races matter,
-deserves whatever s/he gets.  If a destination file really must be in a
-vulnerable place, it's not so hard to create it first in a safe place,
-apply any necessary context via chcon, and then `install' them via rename.
+Is there a need for this? I have no idea.
 
-Am I missing some justification for why e.g., mkdir should have the
-option?  Yes, it does accept --mode=M (-m), but is that enough to
-justify the SELinux---ACL/XATTR dichotomy?  Not to me.  But I'm
-willing to be educated :)
+>   Nor mkdir, mkfifo,
+> mknod.  Similarly for the ACL support that's widely available, there is
+> no option to let those programs apply a specified ACL.  Why should
+> SELinux security contexts be treated differently?
 
-BTW, what makes install so special that it needs to call matchpathcon?
-Can it accomplish the same goal via "chcon ...;
-install --preserve-context ..."?
+Acls are a discretionary mechanism and it is, therefore, appropriate for
+them to be applied by users after file creation.
 
-Thanks for your feedback,
+SELinux is fundamentally different as a mandatory mechanism and a core
+property is that objects should be labeled correctly at creation time.
 
-Jim
+> 
+> I do understand the race condition argument, but any sysadmin who is
+> silly enough to create new files in such a way that those races matter,
+> deserves whatever s/he gets.
+
+But what real options do they have? Forcing the app to install into a
+DESTDIR, labeling and copying? What about a developer trying to
+distribute a tarball with selinux support at install - what option would
+this leave them?
+
+>   If a destination file really must be in a
+> vulnerable place, it's not so hard to create it first in a safe place,
+> apply any necessary context via chcon, and then `install' them via rename.
+> 
+
+You are assuming a policy where relabeling is allowed fairly broadly -
+not all policies are written in this way. Heavily locked-down systems
+will want to prevent relabeling wherever possible and not providing
+tools to create files labeled correctly prevents this.
+
+> Am I missing some justification for why e.g., mkdir should have the
+> option?  Yes, it does accept --mode=M (-m), but is that enough to
+> justify the SELinux---ACL/XATTR dichotomy?  Not to me.  But I'm
+> willing to be educated :)
+> 
+
+Again, SELinux is fundamentally different from ACL/XATTRs.
+
+> BTW, what makes install so special that it needs to call matchpathcon?
+> Can it accomplish the same goal via "chcon ...;
+> install --preserve-context ..."?
+> 
+
+It allows install to correctly label for different policies, including
+policies distributed separately from the application. Otherwise the
+makefile must hardcode all possible labels in the chcon statements or
+provide a mechanism that is essentially matchpathcon.
+
+This could be done with the separate matchpatcon utility though, so I
+wouldn't be against dropping this.
+
+Karl
+
+> Thanks for your feedback,
+> 
+> Jim
+> 
+> --
+> This message was distributed to subscribers of the selinux mailing list.
+> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
+> the words "unsubscribe selinux" without quotes as the message.
 
 --
 This message was distributed to subscribers of the selinux mailing list.
