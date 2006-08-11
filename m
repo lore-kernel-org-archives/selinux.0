@@ -1,91 +1,83 @@
 Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k7BDYNj1003493
-	for <selinux@tycho.nsa.gov>; Fri, 11 Aug 2006 09:34:23 -0400
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k7BDYN07003505
+	for <selinux@tycho.nsa.gov>; Fri, 11 Aug 2006 09:34:24 -0400
 Received: from exchange.columbia.tresys.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with SMTP id k7BDY57f019161
-	for <selinux@tycho.nsa.gov>; Fri, 11 Aug 2006 13:34:05 GMT
-Subject: [PATCH 2/3] Separate local file contexts into file_contexts.local
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with SMTP id k7BDY57f019164
+	for <selinux@tycho.nsa.gov>; Fri, 11 Aug 2006 13:34:06 GMT
+Subject: [PATCH 3/3] Separate local file contexts into file_contexts.local
 From: "Christopher J. PeBenito" <cpebenito@tresys.com>
 To: SELinux Mail List <selinux@tycho.nsa.gov>
 Content-Type: text/plain
 Date: Fri, 11 Aug 2006 09:34:28 -0400
-Message-Id: <1155303268.8722.63.camel@sgc.columbia.tresys.com>
+Message-Id: <1155303269.8722.64.camel@sgc.columbia.tresys.com>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This patch stops libsemanage from merging local file contexts into the
-main file contexts provided by the policy, and then will copy the local
-file contexts out to the system.
+Semanage was looking at the main file contexts in some cases, since the
+local file contexts were merged into the main file contexts.  This patch
+fixes the code to look at the appropriate file context databases.
 
- libsemanage/src/policy_components.c |    3 ---
- libsemanage/src/semanage_store.c    |   13 +++++++++++++
- 2 files changed, 13 insertions(+), 3 deletions(-)
+ policycoreutils/semanage/seobject.py |   24 +++++++++++++++---------
+ 1 file changed, 15 insertions(+), 9 deletions(-)
 
-diff --exclude .svn -urN trunk/libsemanage/src/policy_components.c fc-local-fix/libsemanage/src/policy_components.c
---- trunk/libsemanage/src/policy_components.c	2006-07-03 10:42:01.031370000 -0400
-+++ fc-local-fix/libsemanage/src/policy_components.c	2006-08-10 10:10:19.483096500 -0400
-@@ -132,9 +132,6 @@
- 		{semanage_bool_dbase_local(handle),
- 		 semanage_bool_dbase_policy(handle), MODE_SET},
+diff --exclude .svn -urN trunk/policycoreutils/semanage/seobject.py fc-local-fix/policycoreutils/semanage/seobject.py
+--- trunk/policycoreutils/semanage/seobject.py	2006-07-31 16:41:07.033676000 -0400
++++ fc-local-fix/policycoreutils/semanage/seobject.py	2006-08-10 09:57:09.205707250 -0400
+@@ -1085,13 +1085,13 @@
+ 		if rc < 0:
+ 			raise ValueError(_("Could not create a key for %s") % target)
  
--		{semanage_fcontext_dbase_local(handle),
--		 semanage_fcontext_dbase_policy(handle), MODE_MODIFY},
--
- 		{semanage_seuser_dbase_local(handle),
- 		 semanage_seuser_dbase_policy(handle), MODE_MODIFY},
+-		(rc,exists) = semanage_fcontext_exists(self.sh, k)
++		(rc,exists) = semanage_fcontext_exists_local(self.sh, k)
+ 		if rc < 0:
+ 			raise ValueError(_("Could not check if file context for %s is defined") % target)
+ 		if not exists:
+ 			raise ValueError(_("File context for %s is not defined") % target)
+ 		
+-		(rc,fcontext) = semanage_fcontext_query(self.sh, k)
++		(rc,fcontext) = semanage_fcontext_query_local(self.sh, k)
+ 		if rc < 0:
+ 			raise ValueError(_("Could not query file context for %s") % target)
  
-diff --exclude .svn -urN trunk/libsemanage/src/semanage_store.c fc-local-fix/libsemanage/src/semanage_store.c
---- trunk/libsemanage/src/semanage_store.c	2006-08-03 11:01:12.429812000 -0400
-+++ fc-local-fix/libsemanage/src/semanage_store.c	2006-08-10 10:11:33.943750000 -0400
-@@ -1006,6 +1006,8 @@
- 	const char *active_kernel =
- 	    semanage_path(SEMANAGE_ACTIVE, SEMANAGE_KERNEL);
- 	const char *active_fc = semanage_path(SEMANAGE_ACTIVE, SEMANAGE_FC);
-+	const char *active_fc_loc =
-+	    semanage_path(SEMANAGE_ACTIVE, SEMANAGE_FC_LOCAL);
- 	const char *active_hd =
- 	    semanage_path(SEMANAGE_ACTIVE, SEMANAGE_HOMEDIR_TMPL);
- 	const char *active_seusers =
-@@ -1013,6 +1015,7 @@
- 	const char *active_nc = semanage_path(SEMANAGE_ACTIVE, SEMANAGE_NC);
+@@ -1124,17 +1124,17 @@
+ 		if rc < 0:
+ 			raise ValueError(_("Could not create a key for %s") % target)
  
- 	const char *running_fc = selinux_file_context_path();
-+	const char *running_fc_loc = selinux_file_context_local_path();
- 	const char *running_hd = selinux_homedir_context_path();
- 	const char *running_policy = selinux_binary_policy_path();
- 	const char *running_seusers = selinux_usersconf_path();
-@@ -1023,6 +1026,7 @@
- 	 * building code in libselinux so that you can get paths for a given 
- 	 * POLICYTYPE and should probably be done in the future. */
- 	char store_fc[PATH_MAX];
-+	char store_fc_loc[PATH_MAX];
- 	char store_hd[PATH_MAX];
- 	char store_pol[PATH_MAX];
- 	char store_seusers[PATH_MAX];
-@@ -1030,6 +1034,7 @@
+-		(rc,exists) = semanage_fcontext_exists(self.sh, k)
+-		if rc < 0:
+-			raise ValueError(_("Could not check if file context for %s is defined") % target)
+-		if not exists:
+-			raise ValueError(_("File context for %s is not defined") % target)
+-		
+ 		(rc,exists) = semanage_fcontext_exists_local(self.sh, k)
+ 		if rc < 0:
+ 			raise ValueError(_("Could not check if file context for %s is defined") % target)
+ 		if not exists:
+-			raise ValueError(_("File context for %s is defined in policy, cannot be deleted") % target)
++			(rc,exists) = semanage_fcontext_exists(self.sh, k)
++			if rc < 0:
++				raise ValueError(_("Could not check if file context for %s is defined") % target)
++			if exists:
++				raise ValueError(_("File context for %s is defined in policy, cannot be deleted") % target)
++			else:
++				raise ValueError(_("File context for %s is not defined") % target)
  
- 	len = strlen(really_active_store);
- 	running_fc += len;
-+	running_fc_loc += len;
- 	running_hd += len;
- 	running_policy += len;
- 	running_seusers += len;
-@@ -1062,6 +1067,14 @@
- 		goto cleanup;
- 	}
+ 		rc = semanage_begin_transaction(self.sh)
+ 		if rc < 0:
+@@ -1156,6 +1156,12 @@
+ 		if rc < 0:
+ 			raise ValueError(_("Could not list file contexts"))
  
-+	snprintf(store_fc_loc, PATH_MAX, "%s%s", storepath, running_fc_loc);
-+	if (semanage_copy_file(active_fc_loc, store_fc_loc, sh->conf->file_mode)
-+	    < 0) {
-+		ERR(sh, "Could not copy %s to %s.", active_fc_loc,
-+		    store_fc_loc);
-+		goto cleanup;
-+	}
++		(rc, fclocal) = semanage_fcontext_list_local(self.sh)
++		if rc < 0:
++			raise ValueError(_("Could not list local file contexts"))
 +
- 	snprintf(store_seusers, PATH_MAX, "%s%s", storepath, running_seusers);
- 	if (semanage_copy_file
- 	    (active_seusers, store_seusers, sh->conf->file_mode) == -1) {
++		self.flist += fclocal
++
+ 		for fcontext in self.flist:
+ 			expr = semanage_fcontext_get_expr(fcontext)
+ 			ftype = semanage_fcontext_get_type(fcontext)
 
 
 -- 
