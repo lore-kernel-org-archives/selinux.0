@@ -1,68 +1,58 @@
-Subject: Re: [patch] libselinux:  access per-thread proc pid attr nodes,
-	unify code
-From: James Antill <jantill@redhat.com>
+Message-ID: <44DDD5BE.6020402@tresys.com>
+Date: Sat, 12 Aug 2006 09:21:02 -0400
+From: Joshua Brindle <jbrindle@tresys.com>
+MIME-Version: 1.0
 To: Stephen Smalley <sds@tycho.nsa.gov>
-Cc: SE Linux <selinux@tycho.nsa.gov>
-In-Reply-To: <1155324042.30078.100.camel@moss-spartans.epoch.ncsc.mil>
-References: <1155324042.30078.100.camel@moss-spartans.epoch.ncsc.mil>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-K9FFkUhoY3bYanJ5sLXo"
-Date: Sat, 12 Aug 2006 01:34:45 -0400
-Message-Id: <1155360886.2496.29.camel@code.and.org>
-Mime-Version: 1.0
+CC: "Christopher J. PeBenito" <cpebenito@tresys.com>,
+        Karl MacMillan <kmacmillan@mentalrootkit.com>,
+        SELinux Mail List <selinux@tycho.nsa.gov>
+Subject: Re: [PATCH 3/3] Separate local file contexts into	file_contexts.local
+References: <1155303269.8722.64.camel@sgc.columbia.tresys.com> <1155329531.30078.121.camel@moss-spartans.epoch.ncsc.mil>
+In-Reply-To: <1155329531.30078.121.camel@moss-spartans.epoch.ncsc.mil>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+Stephen Smalley wrote:
+> On Fri, 2006-08-11 at 09:34 -0400, Christopher J. PeBenito wrote:
+>> Semanage was looking at the main file contexts in some cases, since the
+>> local file contexts were merged into the main file contexts.  This patch
+>> fixes the code to look at the appropriate file context databases.
+> 
+> Thanks, merged, although I did make the libsemanage copy file error
+> non-fatal (another patch has made several others non-fatal too).
+> 
 
---=-K9FFkUhoY3bYanJ5sLXo
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+I never saw the other patch, did it not get sent to the list? I have 
+some concerns about making those non-fatal, as I already told Karl. 
+Leaving labeling files in an inconsistent state on policy update is an 
+easy to way to break your system and with no automated reconciliation 
+(eg., install the new policy, let it fix the permissions problems then 
+reinstall it again automatically to make the labeling files consistent) 
+I have serious doubts that the consistency will get fixed. Bailing on a 
+policy update is probably better than killing the users network 
+connection (for example) where they won't even be able to use the 
+internet to find the solution.
 
-On Fri, 2006-08-11 at 15:20 -0400, Stephen Smalley wrote:
-> Rework the libselinux functions that access /proc/pid/attr to access the
-> per-thread nodes, and unify the code to simplify maintenance.
+Not to mention, anything being installed after the policy (in an rpm 
+transaction) will be using the wrong file_contexts file for some amount 
+of time before a user even could intervene and reinstall the policy to 
+update the context files.
 
- The main glibc author has stated[1] that gettid() isn't a public
-function because he reserves the right to not have the user space thread
-tied to the kernel space thread, which would really confuse anyone using
-these functions...
+If these issues are fine with others (Karl indicated they were better 
+than the alternative in his opinion) thats fine but I want them noted.
 
-On Thu, 2006-06-08 at 09:02 -0700, Ulrich Drepper wrote:
->  And currently we use the same TID (for the kernel: the PID) for the
-> lifetime of the thread.  But this could change at any time.  It's an
-> implementation detail and if there are advantages to do some userlevel
-> scheduling (i.e., swap the underlying process of two threads) I'll
-> implement this and it'll break all code depending on the fixed
-> relationship.
->=20
-> If they don't care and don't blame us they can use
->=20
->   syscall (__NR_gettid)
->=20
-> after including <sys/syscall.h>.  But get it in writing that they
-> won't put it in production code.=20
+I honestly believe they'll create more problems than they will solve. It 
+wasn't arbitrary that we made all those errors fatal, we had a system in 
+place to be able to back out of a policy install when something that 
+would leave the system in an inconsistent state happened.
 
+> Also, I'm not sure that semanage handles conflicts very well presently,
+> e.g.
+> 	semanage fcontext -a -t login_exec_t '/bin/bash'
+> 
 
-[1] This is from a semi-private mail, so I can't provide a link ...
-however I'm sure Ulrich will publicly state something resembling the
-above if you ask him.
-
---=20
-James Antill <jantill@redhat.com>
-
---=-K9FFkUhoY3bYanJ5sLXo
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.5 (GNU/Linux)
-
-iD8DBQBE3Wh111eXTEMrxtQRAv3xAJ9sGveEBJ6b6dBRvUPGFXEdU/fYfwCfSmcL
-FgmkeJe5AAdGw3EUrsAZUh8=
-=kugV
------END PGP SIGNATURE-----
-
---=-K9FFkUhoY3bYanJ5sLXo--
-
+we'll check on that.
 
 --
 This message was distributed to subscribers of the selinux mailing list.
