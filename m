@@ -1,63 +1,38 @@
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k7CEA2wm000746
+	for <selinux@tycho.nsa.gov>; Sat, 12 Aug 2006 10:10:02 -0400
+Received: from mail7.sea5.speakeasy.net (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id k7CE9hmk015259
+	for <selinux@tycho.nsa.gov>; Sat, 12 Aug 2006 14:09:43 GMT
+Received: from megaweapon.nightmoose.net (HELO d.namei) ([66.92.66.197])
+          (envelope-sender <jmorris@namei.org>)
+          by mail7.sea5.speakeasy.net (qmail-ldap-1.03) with AES256-SHA encrypted SMTP
+          for <selinux@tycho.nsa.gov>; 12 Aug 2006 14:10:00 -0000
+Date: Sat, 12 Aug 2006 10:09:59 -0400 (EDT)
+From: James Morris <jmorris@namei.org>
+To: selinux@tycho.nsa.gov
+Subject: [PATCH] fixfiles: fix test for $LOGFILE
+Message-ID: <Pine.LNX.4.64.0608121008560.14758@d.namei>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Subject: RE: [RFC 3/3] expander support for hooks
-Date: Sat, 12 Aug 2006 09:42:50 -0400
-Message-ID: <6FE441CD9F0C0C479F2D88F959B0158832B16F@exchange.columbia.tresys.com>
-In-Reply-To: <1155226398.8018.26.camel@localhost.localdomain>
-From: "Joshua Brindle" <jbrindle@tresys.com>
-To: "Karl MacMillan" <kmacmillan@mentalrootkit.com>
-Cc: <selinux@tycho.nsa.gov>, <sds@tycho.nsa.gov>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-> From: Karl MacMillan [mailto:kmacmillan@mentalrootkit.com] 
-> 
-> On Wed, 2006-08-09 at 18:56 -0400, Joshua Brindle wrote:
-> > > From: Karl MacMillan [mailto:kmacmillan@mentalrootkit.com]
-> > > 
-> 
-> Avoiding the semantic checks will reduce algorithmic 
-> complexity far more simply because the number of rules far 
-> outweighs symbol manipulations (like typeattribute).
-> 
+Please apply.
 
-It will reduce the runtime, granted.
+---
 
-> I don't think that this is a good space/time tradeoff but I 
-> don't have any real evidence.
-> 
-
-I've done some initial testing and it doesn't seem so bad (aside from
-having to expand 2 modules instead of 1), I'll do more when I have a
-chance.
-
-> > 
-> > That's fine, I believe this approach is sound (though it 
-> has quite a 
-> > bit of complexity added)
-> 
-> I agree - we are mainly trying to balance code efficiency / 
-> algorithmic complexity against meta-policy simplicity. I 
-> believe that most meta-policies are going to be 
-> coarse-grained and short anyway, so I am pushing the balance 
-> towards code simplicity. Ultimately I'm fine with either.
-> 
-
-I disagree, this is the same argument opponents of SELinux use, just
-because most implementations will be simple and course-grained does not
-mean the architecture should artificially simplify and reduce
-granulatity because if anyone ever wants to take advantage of the
-increased granularity they will be unable to.
-
-The code isn't too complex to maintain, the expander simply has to
-expand more stuff, I'm not adding entirely separate codepaths for this. 
-
-Unfortunately at this point coming up with a complete metapolicy that
-has specific security goals is difficult, and as you noted before much
-of the infrastructure is not yet available (eg., hierarchical
-refpolicy). I'll try to work on this.
-
+--- fixfiles.orig	2006-08-12 00:52:22.000000000 -0400
++++ fixfiles	2006-08-12 10:07:30.000000000 -0400
+@@ -48,7 +48,7 @@
+ # Log to either syslog or a LOGFILE
+ #
+ logit () {
+-if [ -z $LOGFILE ]; then
++if [ ! -z $LOGFILE ]; then
+     echo $1 >> $LOGFILE
+ fi
+ }
 
 --
 This message was distributed to subscribers of the selinux mailing list.
