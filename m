@@ -1,76 +1,76 @@
-Subject: Re: [PATCH 3/3] Separate local file contexts
-	into	file_contexts.local
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Joshua Brindle <jbrindle@tresys.com>
-Cc: "Christopher J. PeBenito" <cpebenito@tresys.com>,
-        Karl MacMillan <kmacmillan@mentalrootkit.com>,
-        SELinux Mail List <selinux@tycho.nsa.gov>
-In-Reply-To: <44DDD5BE.6020402@tresys.com>
-References: <1155303269.8722.64.camel@sgc.columbia.tresys.com>
-	 <1155329531.30078.121.camel@moss-spartans.epoch.ncsc.mil>
-	 <44DDD5BE.6020402@tresys.com>
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k7EEuxYU023111
+	for <selinux@tycho.nsa.gov>; Mon, 14 Aug 2006 10:56:59 -0400
+Received: from localhost.localdomain (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id k7EEukmN025164
+	for <selinux@tycho.nsa.gov>; Mon, 14 Aug 2006 14:56:47 GMT
+Subject: Re: justifying --context=CTX (-Z) for upstream coreutils, like
+	mkdir
+From: Karl MacMillan <kmacmillan@mentalrootkit.com>
+To: Jim Meyering <jim@meyering.net>
+Cc: selinux@tycho.nsa.gov, Russell Coker <russell@coker.com.au>
+In-Reply-To: <87irkzfcgr.fsf@rho.meyering.net>
+References: <87mzabgyrk.fsf@rho.meyering.net>
+	 <1155308294.8018.59.camel@localhost.localdomain>
+	 <87irkzfcgr.fsf@rho.meyering.net>
 Content-Type: text/plain
-Date: Mon, 14 Aug 2006 10:38:33 -0400
-Message-Id: <1155566313.28766.68.camel@moss-spartans.epoch.ncsc.mil>
+Date: Mon, 14 Aug 2006 10:56:44 -0400
+Message-Id: <1155567404.23601.10.camel@localhost.localdomain>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Sat, 2006-08-12 at 09:21 -0400, Joshua Brindle wrote:
-> Stephen Smalley wrote:
-> > On Fri, 2006-08-11 at 09:34 -0400, Christopher J. PeBenito wrote:
-> >> Semanage was looking at the main file contexts in some cases, since the
-> >> local file contexts were merged into the main file contexts.  This patch
-> >> fixes the code to look at the appropriate file context databases.
-> > 
-> > Thanks, merged, although I did make the libsemanage copy file error
-> > non-fatal (another patch has made several others non-fatal too).
-> > 
+On Fri, 2006-08-11 at 18:45 +0200, Jim Meyering wrote:
+> Karl MacMillan <kmacmillan@mentalrootkit.com> wrote:
 > 
-> I never saw the other patch, did it not get sent to the list? I have 
-> some concerns about making those non-fatal, as I already told Karl. 
-> Leaving labeling files in an inconsistent state on policy update is an 
-> easy to way to break your system and with no automated reconciliation 
-> (eg., install the new policy, let it fix the permissions problems then 
-> reinstall it again automatically to make the labeling files consistent) 
-> I have serious doubts that the consistency will get fixed. Bailing on a 
-> policy update is probably better than killing the users network 
-> connection (for example) where they won't even be able to use the 
-> internet to find the solution.
+
+<snip>
+
+> >>   Nor mkdir, mkfifo,
+> >> mknod.  Similarly for the ACL support that's widely available, there is
+> >> no option to let those programs apply a specified ACL.  Why should
+> >> SELinux security contexts be treated differently?
+> >
+> > Acls are a discretionary mechanism and it is, therefore, appropriate for
+> > them to be applied by users after file creation.
+> >
+> > SELinux is fundamentally different as a mandatory mechanism and a core
+> > property is that objects should be labeled correctly at creation time.
 > 
-> Not to mention, anything being installed after the policy (in an rpm 
-> transaction) will be using the wrong file_contexts file for some amount 
-> of time before a user even could intervene and reinstall the policy to 
-> update the context files.
+> If using chcon is sometimes not an option for a user who must be able
+> to create files in a non-default context, then we have to choose between:
 > 
-> If these issues are fine with others (Karl indicated they were better 
-> than the alternative in his opinion) thats fine but I want them noted.
+>   1) adding the --context=CTX (-Z) option to many of the programs
+>       that create a named output file.
 > 
-> I honestly believe they'll create more problems than they will solve. It 
-> wasn't arbitrary that we made all those errors fatal, we had a system in 
-> place to be able to back out of a policy install when something that 
-> would leave the system in an inconsistent state happened.
+>   2) providing a tool to change the fscreate context for an exec'd program
+> 
+> The latter seems much cleaner.
+> Is there any hope on that front?
+> The problem is that if I add an options upstream, it's
+> a big deal/hassle to remove it later, if a more appropriate
+> mechanism becomes available.  As long as there's a hint
+> of hope for a cleaner approach, I'm extremely reluctant
+> to impose on the coreutils something that looks like a kludge.
+> 
 
-Possibly, although both the netfilter_contexts and now the
-file_contexts.local changes have run into such errors in rawhide.  In
-fact, you need to get the kernel policy update into place to address the
-netfilter_contexts problem, so if the inability to install
-netfilter_contexts prevents you from completing the transaction, how do
-you make forward progress w/o going permissive?
+So your thinking is that the user would have to run a tool - e.g.:
 
-I do agree that a partial write of any of the files should abort the
-transaction, so we should distinguish that case in the error handling.
-But if the source file is not present, that shouldn't be fatal.
+fscon -t httpd_sys_content_t touch foo.html
 
-Also, I think libsemanage is too dependent on pre-setup by the policy
-package, e.g. if you don't already have
-a /etc/selinux/$SELINUXTYPE/policy
-and /etc/selinux/$SELINUXTYPE/contexts/files directory, it doesn't
-create them for you.
+Whether this is cleaner from an implementation perspective I think is
+questionable, particularly because the restrictions (must have same
+context as caller) will be confusing. This is especially with MLS.
+Additionally, how are we going to then handle cases where the contexts
+don't match (for example, running install in a different context to
+limit what contexts it can set)?
 
--- 
-Stephen Smalley
-National Security Agency
+More importantly to me, though, is that this mechanism will be much
+harder to find for users and will break several years of documented
+behavior. I think that the explicit options are the correct model from a
+user perspective.
+
+Karl
 
 
 --
