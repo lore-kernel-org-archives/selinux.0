@@ -1,155 +1,140 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k7EHIhh9027943
-	for <selinux@tycho.nsa.gov>; Mon, 14 Aug 2006 13:18:43 -0400
-Received: from mx.meyering.net (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id k7EHITmN014063
-	for <selinux@tycho.nsa.gov>; Mon, 14 Aug 2006 17:18:30 GMT
-From: Jim Meyering <jim@meyering.net>
-To: Karl MacMillan <kmacmillan@mentalrootkit.com>
-Cc: selinux@tycho.nsa.gov, Russell Coker <russell@coker.com.au>
-Subject: Re: justifying --context=CTX (-Z) for upstream coreutils, like mkdir
-In-Reply-To: <1155571378.23601.32.camel@localhost.localdomain> (Karl
-	MacMillan's message of "Mon, 14 Aug 2006 12:02:58 -0400")
-References: <87mzabgyrk.fsf@rho.meyering.net>
-	<1155308294.8018.59.camel@localhost.localdomain>
-	<87irkzfcgr.fsf@rho.meyering.net>
-	<1155567404.23601.10.camel@localhost.localdomain>
-	<87ac67iaao.fsf@rho.meyering.net>
-	<1155571378.23601.32.camel@localhost.localdomain>
-Date: Mon, 14 Aug 2006 19:18:38 +0200
-Message-ID: <873bbzi6c1.fsf@rho.meyering.net>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Subject: Re: [PATCH 3/3] Separate local file contexts
+	into	file_contexts.local
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Joshua Brindle <jbrindle@tresys.com>
+Cc: Daniel J Walsh <dwalsh@redhat.com>,
+        "Christopher J. PeBenito" <cpebenito@tresys.com>,
+        Karl MacMillan <kmacmillan@mentalrootkit.com>,
+        SELinux Mail List <selinux@tycho.nsa.gov>
+In-Reply-To: <1155566313.28766.68.camel@moss-spartans.epoch.ncsc.mil>
+References: <1155303269.8722.64.camel@sgc.columbia.tresys.com>
+	 <1155329531.30078.121.camel@moss-spartans.epoch.ncsc.mil>
+	 <44DDD5BE.6020402@tresys.com>
+	 <1155566313.28766.68.camel@moss-spartans.epoch.ncsc.mil>
+Content-Type: text/plain
+Date: Mon, 14 Aug 2006 15:06:23 -0400
+Message-Id: <1155582383.28766.229.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Karl MacMillan <kmacmillan@mentalrootkit.com> wrote:
-> On Mon, 2006-08-14 at 17:53 +0200, Jim Meyering wrote:
->> Karl MacMillan <kmacmillan@mentalrootkit.com> wrote:
->> ...
->> >> > Acls are a discretionary mechanism and it is, therefore, appropriate for
->> >> > them to be applied by users after file creation.
->> >> >
->> >> > SELinux is fundamentally different as a mandatory mechanism and a core
->> >> > property is that objects should be labeled correctly at creation time.
->> >>
->> >> If using chcon is sometimes not an option for a user who must be able
->> >> to create files in a non-default context, then we have to choose between:
->> >>
->> >>   1) adding the --context=CTX (-Z) option to many of the programs
->> >>       that create a named output file.
->> >>
->> >>   2) providing a tool to change the fscreate context for an exec'd program
->> >>
->> >> The latter seems much cleaner.
->> >> Is there any hope on that front?
->> >> The problem is that if I add an options upstream, it's
->> >> a big deal/hassle to remove it later, if a more appropriate
->> >> mechanism becomes available.  As long as there's a hint
->> >> of hope for a cleaner approach, I'm extremely reluctant
->> >> to impose on the coreutils something that looks like a kludge.
->>
->> Hi Karl,
->>
->> > So your thinking is that the user would have to run a tool - e.g.:
->> >
->> > fscon -t httpd_sys_content_t touch foo.html
->>
->> Exactly.
->> Your example brings up the question of whether touch needs -Z CTX.
->> The user-specified context would be relevant only when creating a file,
->> not when merely updating atime or mtime, and hence, it'd be used only
->> when creating an _empty_ file.  Can you think of a context in which the
->> context of a regular, zero-length file actually matters?  I couldn't.
->> I.e., there's no risk of a race: if the context matters, applying it
->> via chcon as a separate step, after invoking touch would be safe.
->> Maybe that's why touch (on an SELinux system) doesn't already have
->> this option.
->>
->
-> Again, you are assuming that relabeling is always possible. It is
-> possible for the policy to severely limit or completely prohibit
-> relabeling. I don't know that the option is needed, though.
+On Mon, 2006-08-14 at 10:38 -0400, Stephen Smalley wrote:
+> On Sat, 2006-08-12 at 09:21 -0400, Joshua Brindle wrote:
+> > Stephen Smalley wrote:
+> > > On Fri, 2006-08-11 at 09:34 -0400, Christopher J. PeBenito wrote:
+> > >> Semanage was looking at the main file contexts in some cases, since the
+> > >> local file contexts were merged into the main file contexts.  This patch
+> > >> fixes the code to look at the appropriate file context databases.
+> > > 
+> > > Thanks, merged, although I did make the libsemanage copy file error
+> > > non-fatal (another patch has made several others non-fatal too).
+> > > 
+> > 
+> > I never saw the other patch, did it not get sent to the list? I have 
+> > some concerns about making those non-fatal, as I already told Karl. 
+> > Leaving labeling files in an inconsistent state on policy update is an 
+> > easy to way to break your system and with no automated reconciliation 
+> > (eg., install the new policy, let it fix the permissions problems then 
+> > reinstall it again automatically to make the labeling files consistent) 
+> > I have serious doubts that the consistency will get fixed. Bailing on a 
+> > policy update is probably better than killing the users network 
+> > connection (for example) where they won't even be able to use the 
+> > internet to find the solution.
+> > 
+> > Not to mention, anything being installed after the policy (in an rpm 
+> > transaction) will be using the wrong file_contexts file for some amount 
+> > of time before a user even could intervene and reinstall the policy to 
+> > update the context files.
+> > 
+> > If these issues are fine with others (Karl indicated they were better 
+> > than the alternative in his opinion) thats fine but I want them noted.
+> > 
+> > I honestly believe they'll create more problems than they will solve. It 
+> > wasn't arbitrary that we made all those errors fatal, we had a system in 
+> > place to be able to back out of a policy install when something that 
+> > would leave the system in an inconsistent state happened.
+> 
+> Possibly, although both the netfilter_contexts and now the
+> file_contexts.local changes have run into such errors in rawhide.  In
+> fact, you need to get the kernel policy update into place to address the
+> netfilter_contexts problem, so if the inability to install
+> netfilter_contexts prevents you from completing the transaction, how do
+> you make forward progress w/o going permissive?
+> 
+> I do agree that a partial write of any of the files should abort the
+> transaction, so we should distinguish that case in the error handling.
+> But if the source file is not present, that shouldn't be fatal.
 
-No.  I'm simply assuming that anyone who needs to create a file
-with a non-default context will be working in an environment that
-permits relabeling.  I've tried to make the point that it's not
-feasible to change every named-file-writing program to accept a new
-SELinux-context-specifying argument.  Sure, people can modify the most
-commonly used ones, but I think they shouldn't have to.  Remember that
-this is Unix, with it's pipes and the one-task-one-tool philosophy.
+Patch below restores the errors to being fatal, with exceptions being
+granted for an ENOENT for file_contexts.local (optional), seusers (was
+already non-fatal and optional), and netfilter_contexts (may not exist
+in all policies, e.g. legacy ones and ones that are using compat_net=1).
+Acceptable to all parties?
 
->> > Whether this is cleaner from an implementation perspective I think is
->> > questionable, particularly because the restrictions (must have same
->> > context as caller) will be confusing. This is especially with MLS.
->> > Additionally, how are we going to then handle cases where the contexts
->> > don't match (for example, running install in a different context to
->> > limit what contexts it can set)?
->>
->> Can't we use runcon to work around that limitation?
->>
->>   runcon -Z ... fscon -t httpd_sys_content_t touch foo.html
->>
->
-> Well, maybe, but that is not exactly user friendly.
+Index: libsemanage/src/semanage_store.c
+===================================================================
+RCS file: /nfshome/pal/CVS/selinux-usr/libsemanage/src/semanage_store.c,v
+retrieving revision 1.56
+diff -u -p -r1.56 semanage_store.c
+--- libsemanage/src/semanage_store.c	11 Aug 2006 20:03:44 -0000	1.56
++++ libsemanage/src/semanage_store.c	14 Aug 2006 18:40:53 -0000
+@@ -1057,37 +1057,33 @@ static int semanage_install_active(seman
+ 
+ 	snprintf(store_hd, PATH_MAX, "%s%s", storepath, running_hd);
+ 	if (semanage_copy_file(active_hd, store_hd, sh->conf->file_mode) == -1) {
+-		INFO(sh, "Non-fatal error:  Could not copy %s to %s.",
+-		     active_hd, store_hd);
+-		/* Non-fatal; fall through */
++		ERR(sh, "Could not copy %s to %s.", active_hd, store_hd);
++		goto cleanup;
+ 	}
+ 
+ 	snprintf(store_fc, PATH_MAX, "%s%s", storepath, running_fc);
+ 	if (semanage_copy_file(active_fc, store_fc, sh->conf->file_mode) == -1) {
+-		INFO(sh, "Non-fatal error:  Could not copy %s to %s.",
+-		     active_fc, store_fc);
+-		/* Non-fatal; fall through */
++		ERR(sh, "Could not copy %s to %s.", active_fc, store_fc);
++		goto cleanup;
+ 	}
+ 
+ 	snprintf(store_fc_loc, PATH_MAX, "%s%s", storepath, running_fc_loc);
+-	if (semanage_copy_file(active_fc_loc, store_fc_loc, sh->conf->file_mode) == -1) {
+-		INFO(sh, "Non-fatal error:  Could not copy %s to %s.",
+-		     active_fc_loc, store_fc_loc);
+-		/* Non-fatal; fall through */
++	if (semanage_copy_file(active_fc_loc, store_fc_loc, sh->conf->file_mode) == -1 && errno != ENOENT) {
++		ERR(sh, "Could not copy %s to %s.", active_fc_loc, store_fc_loc);
++		goto cleanup;
+ 	}
+ 
+ 	snprintf(store_seusers, PATH_MAX, "%s%s", storepath, running_seusers);
+ 	if (semanage_copy_file
+-	    (active_seusers, store_seusers, sh->conf->file_mode) == -1) {
+-		INFO(sh, "Non-fatal error:  Could not copy %s to %s.",
+-		     active_seusers, store_seusers);
+-		/* Non-fatal; fall through */
++	    (active_seusers, store_seusers, sh->conf->file_mode) == -1 && errno != ENOENT) {
++		ERR(sh, "Could not copy %s to %s.", active_seusers, store_seusers);
++		goto cleanup;
+ 	}
+ 
+ 	snprintf(store_nc, PATH_MAX, "%s%s", storepath, running_nc);
+-	if (semanage_copy_file(active_nc, store_nc, sh->conf->file_mode) == -1) {
+-		INFO(sh, "Non-fatal error:  Could not copy %s to %s.", active_nc, store_nc);
+-		/* Non-fatal; fall through */
++	if (semanage_copy_file(active_nc, store_nc, sh->conf->file_mode) == -1 && errno != ENOENT) {
++		ERR(sh, "Could not copy %s to %s.", active_nc, store_nc);
++		goto cleanup;
+ 	}
+ 
+ 	if (!sh->do_reload)
 
-User friendly is nice, but there's a tension between keeping code
-maintainable (e.g., small or even minimal) and providing features.
-That's one of the reasons it's so hard to justify adding a new option
-to ls :-)  When supporting a new "feature" requires adding an option to
-nearly every program that writes a file, then isn't it time to look for
-a less invasive approach?
 
->> > More importantly to me, though, is that this mechanism will be much
->> > harder to find for users and will break several years of documented
->> > behavior. I think that the explicit options are the correct model from a
->> > user perspective.
->>
->> I wouldn't expect anything in FCx or RHEL to change overnight.
->> The usual routine is to let the option in question continue to work
->> for some time, but with an added diagnostic saying that it is slated
->> to be removed, and suggesting the new/preferred approach.  Then, only
->> a couple of years later, would it actually be removed.
->>
->
-> My point is less about backwards compatibility and more about usability.
+-- 
+Stephen Smalley
+National Security Agency
 
-We all know that security and usability are often (always?) at odds.
-When you add software complexity into the mix, most agree that keeping
-code/interfaces as simple as possible is one of the keys to keeping
-is robust.  If the code to set the default fscreate context is in one
-place (the hypothetical fscon program), then it's far easier to audit
-and maintain than if the code is smeared across the tens or hundreds of
-programs that accept a -Z CTX option.
-
-> A separate utility is much more difficult to find and harder for the
-> user to understand (for example, they would likely never find it looking
-> in the man page for install).
-
-If my hopes pan out, RHEL's install -Z option won't go away any time
-soon, and there would be a long transition period, with diagnostics
-to help affected users learn the new way.  Besides, won't most of
-the affected users be ones who actually read (or know how to read)
-documentation?  With a little luck, by the time install's -Z option goes
-away, there would be plenty of documentation explaining how things work.
-
-> Your runcon workaround above is a perfect example - that would be very
-> difficult to explain to most users without quickly diving into
-> implementation details that should not and probably do not care about.
-
-I agree that it's not a trivial way to use programs, but isn't the
-scenario that'd require such usage a little bit off the beaten track?
-If it were something that Joe user would have to run before clicking on
-the icon to start OpenOffice, then I'd agree completely.  Even if it
-were something that an average command-line-savvy user would have to
-do... maybe.  But that seems more like something a package maintainer
-would do.  Or more likely, an SELinux guru would do it, in order to
-help the package maintainer get his job done safely.  Then, if it needs
-to be done for too many packages, it'd be documented -- then package
-maintainers would learn.
-
-But of course, my whole scenario depends on SELinux
-making it possible to write a program like fscon.
 
 --
 This message was distributed to subscribers of the selinux mailing list.
