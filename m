@@ -1,145 +1,108 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k7EKeKrO001861
-	for <selinux@tycho.nsa.gov>; Mon, 14 Aug 2006 16:40:20 -0400
-Received: from exchange.columbia.tresys.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with SMTP id k7EKe7oQ011731
-	for <selinux@tycho.nsa.gov>; Mon, 14 Aug 2006 20:40:08 GMT
-Date: Mon, 14 Aug 2006 16:40:22 -0400
-Subject: Re: [RFC] Dynamic discover of object classes
-From: Chad Sellers <csellers@tresys.com>
-To: Karl MacMillan <kmacmillan@mentalrootkit.com>
-CC: <selinux@tycho.nsa.gov>, selinux-dev <selinux-dev@tresys.com>
-Message-ID: <C10657F6.16513%csellers@tresys.com>
-In-Reply-To: <1155585599.4756.23.camel@localhost.localdomain>
-Mime-version: 1.0
-Content-type: text/plain;
-	charset="US-ASCII"
+Subject: [PATCH] work around filesystems which incorrectly call
+	d_instantiate before setting inode mode
+From: Eric Paris <eparis@parisplace.org>
+To: selinux@tycho.nsa.gov
+Cc: sds@tycho.nsa.gov, James Morris <jmorris@redhat.com>
+Content-Type: text/plain
+Date: Mon, 14 Aug 2006 17:57:52 -0400
+Message-Id: <1155592672.17242.88.camel@localhost.localdomain>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On 8/14/06 3:59 PM, "Karl MacMillan" <kmacmillan@mentalrootkit.com> wrote:
+One filesystem in particular, CIFS, will do this when you list the
+contents of a directory.  It will create a dentry for any subdirectories
+thereby calling d_instantiate but does so before setting the inode mode
+for these subdirectories.  Thus the selinux sclass in the corresponding
+inode security struct is set incorrectly to believe these directories
+are files.  Then when operations are performed on these subdirectories
+at a later point in time SELinux will deny operations which are being
+may be allowed for directories but not for files or SELinux may do
+things like ask for permission to rmdir what it believes is a 'file',
+which is obviously not properly defined.  What this patch does is to
+recalculate the sclass on each permission check.  Thus if the filesystem
+in question decided to later set the mode bits (as CIFS does) we will
+make the correct security checks.  We also output a warning message
+letting the user know that they have a filesystem which is creating
+things improperly.  I believe that the CIFS people were contacted twice
+trying to get this fixed but we want SELinux users to be able to work
+now.  This patch will also let us know if some other filesystem makes
+such a mistake in the future.
 
-> On Mon, 2006-08-14 at 15:24 -0400, Chad Sellers wrote:
->> I sent out an RFC on this subject a long time ago (see below), but I was
->> overcome by events and didn't actually get to implement it. I'm finally
->> getting back to it, but wanted to send out an updated RFC on the subject.
->> The question that still remains is whether to do this entirely in userspace
->> or to create a kernel interface (via selinuxfs) to query the kernel about
->> object class values and permission offsets. I'd prefer to do this in
->> userspace if possible, as that would mean that a userspace object manager
->> could use the same mechanism for querying any security server (i.e. the
->> kernel one or a userspace security server).
->> 
->> So, the basic approach I talked about before is to have the policy compiler
->> write out an auxiliary file with the necessary data, and a userspace object
->> manager would look it up there before checking permissions. The problem with
->> this approach is consistency, as the policy on disk may not be consistent
->> with the one in the security server. This could result in one userspace
->> object manager (say mysql) accidentally checking permissions for another
->> userspace object manager's object class (say apache). We could help this by
->> writing the auxiliary file at policy load time instead of compile time, but
->> this would require the filesystem to be writeable when the policy was
->> loaded. Either way, there are also race conditions associated with
->> synchronizing filesystem data with kernel state.
->> 
->> So, I think I'm back to creating an interface to the kernel to query object
->> class value and permission offsets. A similar interface for the userspace
->> security server will be necessary in the future as well. I'd love to hear
->> any other ideas anyone may have, or any comments on the above approach.
->> 
-> 
-> The other drawback to the kernel approach is that the kernel would have
-> to know about all object classes, but that isn't a large problem.
-That's not necessarily true. The userspace security server could provide a
-similar interface for its object classes (if the policies were split). Then
-libselinux could route the object class/perm lookup request in the same way
-that it would route permission checks (again, if the policies were split).
+As a general question how do you decide where to put things (like this
+helper function) in hooks.c?  I just put it immediately before it's
+first user, but is there some organization I should be paying attention
+to if I am to add things like this?
 
-> Just
-> to be clear, the policy toolchain and kernel would still have to agree
-> on the ids for classes and perms, correct? This is only for userspace
-> code doing enforcement?
-> 
-Yes, all kernel object classes and permissions would have to be agreed on
-still. This would only support object classes designed for userspace code
-doing enforcement (like dbus, etc.).
+Signed-off-by: Eric Paris <eparis@redhat.com>
 
-> What would the kernel interface look like?
-> 
-I haven't put too much thought into this yet, but probably a new selinuxfs
-file that you would write an object class name to and get back the object
-class value followed by the permission names in order. These would be
-strings separated by spaces (in a similar fashion to /selinux/user, etc.).
-I'm open to other suggestions if you have them.
+ security/selinux/hooks.c |   24 ++++++++++++++++++++++++
+ 1 files changed, 24 insertions(+), 0 deletions(-)
 
-> Karl
-> 
->> Thanks,
->> Chad Sellers
->> 
->> 
->> On 10/17/05 1:28 PM, "Chad Sellers" <csellers@tresys.com> wrote:
->> 
->>> One of the efforts of the selinux policy server project is to make a
->>> functional userspace security server to give access control decisions to
->>> userspace object managers (eg., passwd, dbus, SE-X). This would free up
->>> kernel resources associated with the userspace object classes.
->>> Additionally, as userspace object managers grow in numbers, so will
->>> userspace object classes.  Consequently, we would like to support easy
->>> addition and use of userspace object classes.
->>> 
->>> Currently it is possible to add object classes and permissions to policy.
->>> Unfortunately, there is no infrastructure in place to discover the numeric
->>> class value and permission bitmap assigned when the policy is compiled.
->>> This model is not flexible enough for easy addition and use of userspace
->>> object classes and permissions.
->>> 
->>> We would rather not change the current security server interface for
->>> permission queries, as this works quite well.  Instead, we would like to
->>> modify libselinux so that userspace object managers can translate object
->>> classes into their numeric values.
->>> 
->>> In order to do this, a userspace object manager must be able to discover the
->>> value for the object classes it manages, and must be able to translate its
->>> permissions into bit values to compare against the resulting decision from
->>> the security server.  This would get rid of the need for hardcoded values in
->>> all object classes and libselinux awareness of all possible object classes.
->>> 
->>> To accomplish this goal there are a number of possibilities. We believe that
->>> there are 2 good choices. The first is to add interfaces to selinuxfs and
->>> the userspace security server to query the object class and permissions
->>> values from the in-memory policy. This would require interfaces on the
->>> security server to access the policydb and return the results. The
->>> interfaces would take strings and return integer values. The userspace
->>> security server would implement a similar interface.  These simple
->>> interfaces would allow the userspace object manager (through libselinux) to
->>> query the running policy to discover object classes and their associated
->>> permission bitmaps.  This is a conceptually simple method of discovery, but
->>> requires kernel changes to add this interface.  Additionally, using this
->>> libselinux call on a kernel without object class discovery support could
->>> fall
->>> back to the previous system of utilizing the predefined values in the
->>> headers.
->>> 
->>> The second choice is to discover this information from disk.  The
->>> information is already available in the on-disk policy (assuming policy on
->>> disk and in the security servers is in sync), so the userspace object
->>> manager could query the policy for discovery.  This would mean all userspace
->>> object managers would need to have read access to the policy and would
->>> introduce some overhead to parse the policy.  To solve these problems, an
->>> ancillary file could be built at policy link time which contains the
->>> information required.  This addresses the problems of querying policy
->>> directly, but adds another file to disk and duplicates information already
->>> in the policy.
->>> 
->>> We would like to begin implementing option 1, as this seems to be the
->>> cleanest.  Any feedback would be appreciated.
->> 
->> 
->> --
->> This message was distributed to subscribers of the selinux mailing list.
->> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
->> the words "unsubscribe selinux" without quotes as the message.
+diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+index 5d1b8c7..ee08b1e 100644
+--- a/security/selinux/hooks.c
++++ b/security/selinux/hooks.c
+@@ -1066,6 +1066,22 @@ static int task_has_system(struct task_s
+ 			    SECCLASS_SYSTEM, perms, NULL);
+ }
+ 
++/* 
++ * Update the sclass of an inode.  This shouldn't ever do anything unless a FS
++ * actually called d_instantiate before it set the i_mode. (which is wrong)
++ */
++static inline void inode_update_sclass(struct inode *inode)
++{
++	struct inode_security_struct *isec = inode->i_security;
++	if (isec->sclass == SECCLASS_FILE)
++	{
++		isec->sclass = inode_mode_to_security_class(inode->i_mode);
++		if (unlikely(isec->sclass != SECCLASS_FILE) && printk_ratelimit())
++			printk(KERN_INFO "Fixing up inode found with sclass "
++				"set improperly on dev=%s\n", inode->i_sb->s_id);
++	}
++}
++
+ /* Check whether a task has a particular permission to an inode.
+    The 'adp' parameter is optional and allows other audit
+    data to be passed (e.g. the dentry). */
+@@ -1081,6 +1097,8 @@ static int inode_has_perm(struct task_st
+ 	tsec = tsk->security;
+ 	isec = inode->i_security;
+ 
++	inode_update_sclass(inode);
++
+ 	if (!adp) {
+ 		adp = &ad;
+ 		AVC_AUDIT_DATA_INIT(&ad, FS);
+@@ -1220,6 +1238,8 @@ static int may_link(struct inode *dir,
+ 	dsec = dir->i_security;
+ 	isec = dentry->d_inode->i_security;
+ 
++	inode_update_sclass(dentry->d_inode);
++
+ 	AVC_AUDIT_DATA_INIT(&ad, FS);
+ 	ad.u.fs.dentry = dentry;
+ 
+@@ -1266,6 +1286,8 @@ static inline int may_rename(struct inod
+ 	old_is_dir = S_ISDIR(old_dentry->d_inode->i_mode);
+ 	new_dsec = new_dir->i_security;
+ 
++	inode_update_sclass(old_dir);
++
+ 	AVC_AUDIT_DATA_INIT(&ad, FS);
+ 
+ 	ad.u.fs.dentry = old_dentry;
+@@ -2260,6 +2282,8 @@ static int selinux_inode_setxattr(struct
+ 	if ((current->fsuid != inode->i_uid) && !capable(CAP_FOWNER))
+ 		return -EPERM;
+ 
++	inode_update_sclass(inode);
++
+ 	AVC_AUDIT_DATA_INIT(&ad,FS);
+ 	ad.u.fs.dentry = dentry;
+ 
+
 
 
 --
