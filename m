@@ -1,118 +1,130 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k7FFuY89030038
-	for <selinux@tycho.nsa.gov>; Tue, 15 Aug 2006 11:56:34 -0400
-Received: from tcsfw4.tcs-sec.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id k7FFuIFK020494
-	for <selinux@tycho.nsa.gov>; Tue, 15 Aug 2006 15:56:20 GMT
-Received: (from smmsp@localhost)
-	by tcsfw4.tcs-sec.com (8.12.2/8.12.2) id k7FFuUNp012376
-	for <selinux@tycho.nsa.gov>; Tue, 15 Aug 2006 11:56:30 -0400 (EDT)
-Date: Tue, 15 Aug 2006 10:56:15 -0500
-From: Cory Olmo <colmo@TrustedCS.com>
-To: selinux@tycho.nsa.gov
-Subject: [RFC Patch 1/3] Context Mounts and Unsupported Contexts: kernel
-Message-Id: <20060815105615.82a6a474.colmo@TrustedCS.com>
+Subject: Re: [PATCH] work around filesystems which incorrectly call
+	d_instantiate before setting inode mode
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Eric Paris <eparis@parisplace.org>
+Cc: selinux@tycho.nsa.gov, James Morris <jmorris@redhat.com>
+In-Reply-To: <1155592672.17242.88.camel@localhost.localdomain>
+References: <1155592672.17242.88.camel@localhost.localdomain>
+Content-Type: text/plain
+Date: Tue, 15 Aug 2006 13:45:22 -0400
+Message-Id: <1155663922.1780.53.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
-Content-Type: multipart/mixed;
- boundary="Multipart=_Tue__15_Aug_2006_10_56_15_-0500_nz_SIruuDgaAyI5+"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This is a multi-part message in MIME format.
+On Mon, 2006-08-14 at 17:57 -0400, Eric Paris wrote:
+> One filesystem in particular, CIFS, will do this when you list the
+> contents of a directory.  It will create a dentry for any subdirectories
+> thereby calling d_instantiate but does so before setting the inode mode
+> for these subdirectories.  Thus the selinux sclass in the corresponding
+> inode security struct is set incorrectly to believe these directories
+> are files.  Then when operations are performed on these subdirectories
+> at a later point in time SELinux will deny operations which are being
+> may be allowed for directories but not for files or SELinux may do
+> things like ask for permission to rmdir what it believes is a 'file',
+> which is obviously not properly defined.  What this patch does is to
+> recalculate the sclass on each permission check.  Thus if the filesystem
+> in question decided to later set the mode bits (as CIFS does) we will
+> make the correct security checks.  We also output a warning message
+> letting the user know that they have a filesystem which is creating
+> things improperly.  I believe that the CIFS people were contacted twice
+> trying to get this fixed but we want SELinux users to be able to work
+> now.  This patch will also let us know if some other filesystem makes
+> such a mistake in the future.
 
---Multipart=_Tue__15_Aug_2006_10_56_15_-0500_nz_SIruuDgaAyI5+
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+I'd reword this a little more kindly; the filesystem folks might argue
+that d_instantiate didn't used to care whether the mode was set before
+SELinux came along (although there is the issue that an inode might
+become visible to other threads via the dcache without having been
+properly set up if the dentry is actually added to the hash queues).
 
-This patch modifies selinux_sb_copy_data() so that it will only take an 
-option after seeing a ',' if it hasn't seen a quote or if the quotes are 
-matched.  When it does take the option, if the option is an selinux option 
-then it calls a new function take_selinux_option().  This new function will 
-strip the quotes and replace the previously used comma separator with a '|'.  
-try_context_mount() was modified to look for the '|' as the separator 
-instead of ','.
+> As a general question how do you decide where to put things (like this
+> helper function) in hooks.c?  I just put it immediately before it's
+> first user, but is there some organization I should be paying attention
+> to if I am to add things like this?
 
- linux-2.6.17/security/selinux/hooks.c |   36 +++++++++++++++++++++++++++++++++---
- 1 file changed, 33 insertions(+), 3 deletions(-)
+No, that placement is fine.
 
---Multipart=_Tue__15_Aug_2006_10_56_15_-0500_nz_SIruuDgaAyI5+
-Content-Type: text/x-patch;
- name="linux-2.6-quoted_context.patch"
-Content-Disposition: attachment;
- filename="linux-2.6-quoted_context.patch"
-Content-Transfer-Encoding: 7bit
+> Signed-off-by: Eric Paris <eparis@redhat.com>
+> 
+>  security/selinux/hooks.c |   24 ++++++++++++++++++++++++
+>  1 files changed, 24 insertions(+), 0 deletions(-)
+> 
+> diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+> index 5d1b8c7..ee08b1e 100644
+> --- a/security/selinux/hooks.c
+> +++ b/security/selinux/hooks.c
+> @@ -1066,6 +1066,22 @@ static int task_has_system(struct task_s
+>  			    SECCLASS_SYSTEM, perms, NULL);
+>  }
+>  
+> +/* 
+> + * Update the sclass of an inode.  This shouldn't ever do anything unless a FS
+> + * actually called d_instantiate before it set the i_mode. (which is wrong)
+> + */
+> +static inline void inode_update_sclass(struct inode *inode)
+> +{
+> +	struct inode_security_struct *isec = inode->i_security;
+> +	if (isec->sclass == SECCLASS_FILE)
+> +	{
+> +		isec->sclass = inode_mode_to_security_class(inode->i_mode);
+> +		if (unlikely(isec->sclass != SECCLASS_FILE) && printk_ratelimit())
+> +			printk(KERN_INFO "Fixing up inode found with sclass "
+> +				"set improperly on dev=%s\n", inode->i_sb->s_id);
+> +	}
 
-diff --git a/linux-2.6.17.i686/security/selinux/hooks.c b/linux-2.6.17.i686/security/selinux/hooks.c
-index 93bc2df..378d90c 100644
---- a/linux-2.6.17.i686/security/selinux/hooks.c
-+++ b/linux-2.6.17.i686/security/selinux/hooks.c
-@@ -398,7 +398,7 @@ static int try_context_mount(struct supe
- 		/* Standard string-based options. */
- 		char *p, *options = data;
- 
--		while ((p = strsep(&options, ",")) != NULL) {
-+		while ((p = strsep(&options, "|")) != NULL) {
- 			int token;
- 			substring_t args[MAX_OPT_ARGS];
- 
-@@ -1949,11 +1949,34 @@ static inline void take_option(char **to
- 	*to += len;
- }
- 
-+static inline void take_selinux_option(char **to, char *from, int *first, 
-+		                       int len)
-+{
-+	int current_size = 0;
-+
-+	if (!*first) {
-+		**to = '|';
-+		*to += 1;
-+	}
-+	else
-+		*first = 0;
-+
-+	while (current_size < len) {
-+		if (*from != '"') {
-+			**to = *from;
-+			*to += 1;
-+		}
-+		from += 1;
-+		current_size += 1;
-+	}
-+}
-+
- static int selinux_sb_copy_data(struct file_system_type *type, void *orig, void *copy)
- {
- 	int fnosec, fsec, rc = 0;
- 	char *in_save, *in_curr, *in_end;
- 	char *sec_curr, *nosec_save, *nosec;
-+	int open_quote = 0;
- 
- 	in_curr = orig;
- 	sec_curr = copy;
-@@ -1975,11 +1998,18 @@ static int selinux_sb_copy_data(struct f
- 	in_save = in_end = orig;
- 
- 	do {
--		if (*in_end == ',' || *in_end == '\0') {
-+		if (*in_end == '"') {
-+			if (open_quote == 0)
-+				open_quote -= 1;
-+			else
-+				open_quote += 1;
-+		}
-+		if (((*in_end == ',') && (open_quote == 0)) ||
-+				*in_end == '\0') {
- 			int len = in_end - in_curr;
- 
- 			if (selinux_option(in_curr, len))
--				take_option(&sec_curr, in_curr, &fsec, len);
-+				take_selinux_option(&sec_curr, in_curr, &fsec, len);
- 			else
- 				take_option(&nosec, in_curr, &fnosec, len);
- 
+I'd use KERN_WARNING, include a "SELinux:  " prefix to the message, and
+likely print the filesystem type (inode->i_sb->s_type->name) rather than
+the superblock id.  Possibly make the error message more informative
+too, like "SELinux:  Inode from a %s filesystem changed formats (was %s
+now %s), reclassifying.".
 
---Multipart=_Tue__15_Aug_2006_10_56_15_-0500_nz_SIruuDgaAyI5+--
+> +}
+> +
+>  /* Check whether a task has a particular permission to an inode.
+>     The 'adp' parameter is optional and allows other audit
+>     data to be passed (e.g. the dentry). */
+> @@ -1081,6 +1097,8 @@ static int inode_has_perm(struct task_st
+>  	tsec = tsk->security;
+>  	isec = inode->i_security;
+>  
+> +	inode_update_sclass(inode);
+> +
+>  	if (!adp) {
+>  		adp = &ad;
+>  		AVC_AUDIT_DATA_INIT(&ad, FS);
+> @@ -1220,6 +1238,8 @@ static int may_link(struct inode *dir,
+>  	dsec = dir->i_security;
+>  	isec = dentry->d_inode->i_security;
+>  
+> +	inode_update_sclass(dentry->d_inode);
+> +
+>  	AVC_AUDIT_DATA_INIT(&ad, FS);
+>  	ad.u.fs.dentry = dentry;
+>  
+> @@ -1266,6 +1286,8 @@ static inline int may_rename(struct inod
+>  	old_is_dir = S_ISDIR(old_dentry->d_inode->i_mode);
+>  	new_dsec = new_dir->i_security;
+>  
+> +	inode_update_sclass(old_dir);
+> +
+>  	AVC_AUDIT_DATA_INIT(&ad, FS);
+>  
+>  	ad.u.fs.dentry = old_dentry;
+> @@ -2260,6 +2282,8 @@ static int selinux_inode_setxattr(struct
+>  	if ((current->fsuid != inode->i_uid) && !capable(CAP_FOWNER))
+>  		return -EPERM;
+>  
+> +	inode_update_sclass(inode);
+> +
+>  	AVC_AUDIT_DATA_INIT(&ad,FS);
+>  	ad.u.fs.dentry = dentry;
+>  
+> 
+-- 
+Stephen Smalley
+National Security Agency
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
