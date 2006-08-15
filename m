@@ -1,62 +1,44 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k7FKnV9b007080
-	for <selinux@tycho.nsa.gov>; Tue, 15 Aug 2006 16:49:31 -0400
-Received: from tcsfw4.tcs-sec.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id k7FKn8Yh024078
-	for <selinux@tycho.nsa.gov>; Tue, 15 Aug 2006 20:49:08 GMT
-Date: Tue, 15 Aug 2006 15:49:14 -0500
-From: Cory Olmo <colmo@TrustedCS.com>
-To: James Morris <jmorris@namei.org>
-Cc: selinux@tycho.nsa.gov
-Subject: Re: [RFC Patch 1/3] Context Mounts and Unsupported Contexts: kernel
-Message-Id: <20060815154914.3ee6b06b.colmo@TrustedCS.com>
-In-Reply-To: <Pine.LNX.4.64.0608151521300.32340@d.namei>
-References: <Pine.LNX.4.64.0608151521300.32340@d.namei>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k7FLoeEo008489
+	for <selinux@tycho.nsa.gov>; Tue, 15 Aug 2006 17:50:40 -0400
+Received: from omr2.networksolutionsemail.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id k7FLoRFK010345
+	for <selinux@tycho.nsa.gov>; Tue, 15 Aug 2006 21:50:27 GMT
+Received: from mail.networksolutionsemail.com (ns-omr2.mgt.netsol.com [10.49.6.65])
+	by omr2.networksolutionsemail.com (8.13.6/8.13.6) with SMTP id k7FLoUvp014563
+	for <selinux@tycho.nsa.gov>; Tue, 15 Aug 2006 17:50:38 -0400
+From: "Daniel Musgrave" <dmusgrave@abodiosoftware.com>
+To: selinux@tycho.nsa.gov
+Message-ID: <W7685912732296271155678629@webmail16>
+Date: Tue, 15 Aug 2006 21:50:29 +0000
+Subject: Invalid context in targeted SELinux policy
+MIME-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 15 Aug 2006 15:21:48 -0400
-James Morris <jmorris@namei.org> wrote:
+I am in the process of writing an application and associated policy in Centos 4.3, running a targeted SELinux environment at version 1.17.30-2.126.  After succesfully creating the necessary rules in my .te file, and the associated file contexts in the .fc file, I am attempting to resolve one last problem.  After compiling my policy and running the application, I get the following error:
 
-> On Tue, 15 Aug 2006, Cory Olmo wrote:
-> 
-> > This patch modifies selinux_sb_copy_data() so that it will only take
-> an 
-> > option after seeing a ',' if it hasn't seen a quote or if the quotes
-> are 
-> > matched. 
-> 
-> 
-> Why?
+audit(...): security_compute_sid: invalid context root:system_r:upgrade_t for scontext=root:system_r:unconfined_t tcontext=system_u:object_r:upgrade_exec_t tclass=process
 
-Sorry the wording was poor on this one.  The goal is to allow the context 
-portion of the option data to contain commas.  To do that I went with 
-quoting the context.  In order for the quoted context to be taken as a 
-single option, selinux_sb_copy_data() needed to know when it had seen an 
-opening quote and be able to hold off on taking the option until it had 
-seen the closing quote.  
+The domain for this executable is 'upgrade' and the file context of the binary is 'upgrade_exec_t' (there are some associated *_log_t and *_tmp_t files as well).  The .te file defines upgrade using the application_domain macro.
 
-This patch modifies selinux_sb_copy_data() to mark a flag value when it runs 
-across a '"'.  This flag value is consulted each time a comma is 
-encountered.  If the flag indicates that the current option has an embedded 
-quote it will move on to the next character.  If the flag indicates that 
-there is either a matched set of quotes or no quotes at all then the option 
-can be taken.  If the option happens to be an selinux option then the new 
-routine take_selinux_option() is called.  take_selinux_option() will copy the 
-option to the previously allocated selinux data page.  While it is doing the 
-copying it will skip any quotes present in the option so the data page contains 
-only the raw unquoted context.  The previously used comma separator between 
-options in the selinux data page is also replaced with a '|' character which 
-allows try_context_mount() to properly extract whole context option strings 
-as well.
+I have thus far been unable to find any sort of documentation or discussion that relates to this specific problem (most file_context issues seem to come from improperly-formatted .fc files during labeling, rather than at runtime).  Am I forgetting to include some line in my .te file?  Do I need to include the new domain/type I've created in some other location?  Any insight you can provide would be greatly appreciated.
 
-> 
-> 
-> -- 
-> James Morris
-> <jmorris@namei.org>
+Thanks,
+
+Daniel
+
+PS - here is my .fc file, in case my problem somehow *does* involve it.
+
+upgrade.fc
+# upgrade
+/usr/bin/upgrade      --  system_u:object_r:upgrade_exec_t
+/var/log/upgrade.log  --  system_u:object_r:upgrade_log_t
+/tmp/upgrade(/.*)?    --  system_u:object_r:upgrade_tmp_t
+
+
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
