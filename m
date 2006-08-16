@@ -1,79 +1,77 @@
-Subject: Re: [PATCH] SELinux: 1/3-v3 eliminate inode_security_set_security
+Subject: Re: [PATCH] SELinux: 3/3-v3 convert sbsec->sem to a mutex
 From: Stephen Smalley <sds@tycho.nsa.gov>
 To: Eric Paris <eparis@redhat.com>
 Cc: selinux@tycho.nsa.gov, James Morris <jmorris@redhat.com>
-In-Reply-To: <1154639260.8428.37.camel@localhost.localdomain>
-References: <1154639260.8428.37.camel@localhost.localdomain>
+In-Reply-To: <1154639274.8428.39.camel@localhost.localdomain>
+References: <1154639274.8428.39.camel@localhost.localdomain>
 Content-Type: text/plain
-Date: Wed, 16 Aug 2006 09:47:55 -0400
-Message-Id: <1155736075.18911.45.camel@moss-spartans.epoch.ncsc.mil>
+Date: Wed, 16 Aug 2006 09:48:27 -0400
+Message-Id: <1155736107.18911.47.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 On Thu, 2006-08-03 at 17:07 -0400, Eric Paris wrote:
-> inode_security_set_sid is only called by security_inode_init_security,
-> which is called when a new file is being created and needs to have its
-> incore security state initialized and its security xattr set.  This
-> helper used to be called other places in the past, no now only has the
-> one.  So this patch rolls inode_security_set_sid directly back into
-> security_inode_init_security.  There also is no need to help the
-> isec->sem while doing this, as the inode is not available to other
-> threads at this point in time.
+> This patch converts the semaphore in the superblock security struct to a
+> mutex.  No locking changes or other code changes are done.
 > 
 > Signed-off-by: Eric Paris <eparis@redhat.com>
 
 Acked-by:  Stephen Smalley <sds@tycho.nsa.gov>
 
 > 
->  security/selinux/hooks.c |   28 ++++++++--------------------
->  1 files changed, 8 insertions(+), 20 deletions(-)
+>  security/selinux/hooks.c          |    7 +++----
+>  security/selinux/include/objsec.h |    2 +-
+>  2 files changed, 4 insertions(+), 5 deletions(-)
 > 
-> diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-> index a91c961..a8ff26c 100644
-> --- a/security/selinux/hooks.c
-> +++ b/security/selinux/hooks.c
-> @@ -1364,25 +1364,6 @@ static inline u32 file_to_av(struct file
->  	return av;
+> --- linux-2.6-sem-changes/security/selinux/include/objsec.h.patch3	2006-08-03 14:04:07.000000000 -0400
+> +++ linux-2.6-sem-changes/security/selinux/include/objsec.h	2006-08-03 14:18:44.000000000 -0400
+> @@ -63,7 +63,7 @@ struct superblock_security_struct {
+>  	unsigned int behavior;          /* labeling behavior */
+>  	unsigned char initialized;      /* initialization flag */
+>  	unsigned char proc;             /* proc fs */
+> -	struct semaphore sem;
+> +	struct mutex lock;
+>  	struct list_head isec_head;
+>  	spinlock_t isec_lock;
+>  };
+> --- linux-2.6-sem-changes/security/selinux/hooks.c.patch3	2006-08-02 14:29:28.000000000 -0400
+> +++ linux-2.6-sem-changes/security/selinux/hooks.c	2006-08-03 14:21:48.000000000 -0400
+> @@ -49,7 +49,6 @@
+>  #include <net/ip.h>		/* for sysctl_local_port_range[] */
+>  #include <net/tcp.h>		/* struct or_callable used in sock_rcv_skb */
+>  #include <asm/uaccess.h>
+> -#include <asm/semaphore.h>
+>  #include <asm/ioctls.h>
+>  #include <linux/bitops.h>
+>  #include <linux/interrupt.h>
+> @@ -240,7 +239,7 @@ static int superblock_alloc_security(str
+>  	if (!sbsec)
+>  		return -ENOMEM;
+>  
+> -	init_MUTEX(&sbsec->sem);
+> +	mutex_init(&sbsec->lock);
+>  	INIT_LIST_HEAD(&sbsec->list);
+>  	INIT_LIST_HEAD(&sbsec->isec_head);
+>  	spin_lock_init(&sbsec->isec_lock);
+> @@ -595,7 +594,7 @@ static int superblock_doinit(struct supe
+>  	struct inode *inode = root->d_inode;
+>  	int rc = 0;
+>  
+> -	down(&sbsec->sem);
+> +	mutex_lock(&sbsec->lock);
+>  	if (sbsec->initialized)
+>  		goto out;
+>  
+> @@ -690,7 +689,7 @@ next_inode:
+>  	}
+>  	spin_unlock(&sbsec->isec_lock);
+>  out:
+> -	up(&sbsec->sem);
+> +	mutex_unlock(&sbsec->lock);
+>  	return rc;
 >  }
 >  
-> -/* Set an inode's SID to a specified value. */
-> -static int inode_security_set_sid(struct inode *inode, u32 sid)
-> -{
-> -	struct inode_security_struct *isec = inode->i_security;
-> -	struct superblock_security_struct *sbsec = inode->i_sb->s_security;
-> -
-> -	if (!sbsec->initialized) {
-> -		/* Defer initialization to selinux_complete_init. */
-> -		return 0;
-> -	}
-> -
-> -	down(&isec->sem);
-> -	isec->sclass = inode_mode_to_security_class(inode->i_mode);
-> -	isec->sid = sid;
-> -	isec->initialized = 1;
-> -	up(&isec->sem);
-> -	return 0;
-> -}
-> -
->  /* Hook functions begin here. */
->  
->  static int selinux_ptrace(struct task_struct *parent, struct task_struct *child)
-> @@ -2091,7 +2073,13 @@ static int selinux_inode_init_security(s
->  		}
->  	}
->  
-> -	inode_security_set_sid(inode, newsid);
-> +	/* Possibly defer initialization to selinux_complete_init. */
-> +	if (sbsec->initialized) {
-> +		struct inode_security_struct *isec = inode->i_security;
-> +		isec->sclass = inode_mode_to_security_class(inode->i_mode);
-> +		isec->sid = newsid;
-> +		isec->initialized = 1;
-> +	}
->  
->  	if (!ss_initialized || sbsec->behavior == SECURITY_FS_USE_MNTPOINT)
->  		return -EOPNOTSUPP;
 > 
 > 
 > 
