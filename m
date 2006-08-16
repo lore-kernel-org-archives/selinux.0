@@ -1,54 +1,182 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k7GDbOoL030494
-	for <selinux@tycho.nsa.gov>; Wed, 16 Aug 2006 09:37:24 -0400
-Received: from legolas.drinsama.de (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id k7GDaxXM007482
-	for <selinux@tycho.nsa.gov>; Wed, 16 Aug 2006 13:37:00 GMT
-Received: from localhost (localhost [127.0.0.1])
-	by localhost (Postfix) with ESMTP id 4F6DFC4C089
-	for <selinux@tycho.nsa.gov>; Wed, 16 Aug 2006 15:37:21 +0200 (CEST)
-Received: from legolas.drinsama.de ([127.0.0.1])
-	by localhost (legolas [127.0.0.1]) (amavisd-new, port 10024)
-	with SMTP id 26553-02 for <selinux@tycho.nsa.gov>;
-	Wed, 16 Aug 2006 15:37:20 +0200 (CEST)
-Received: from wintermute.xmldesign.de (p549A4807.dip0.t-ipconnect.de [84.154.72.7])
-	by legolas.drinsama.de (Postfix) with ESMTP id BD501C4C083
-	for <selinux@tycho.nsa.gov>; Wed, 16 Aug 2006 15:37:20 +0200 (CEST)
-Received: from wintermute.xmldesign.de (wintermute.xmldesign.de [127.0.0.1])
-	by wintermute.xmldesign.de (Postfix) with ESMTP id B900D234959
-	for <selinux@tycho.nsa.gov>; Wed, 16 Aug 2006 15:37:20 +0200 (CEST)
-Subject: Re: Invalid context in targeted SELinux policy
-From: Erich Schubert <erich@debian.org>
-To: SELinux List <selinux@tycho.nsa.gov>
-In-Reply-To: <1155733377.10971.2.camel@localhost.localdomain>
-References: <W7685912732296271155678629@webmail16>
-	 <1155733377.10971.2.camel@localhost.localdomain>
-Content-Type: text/plain; charset=ISO-8859-15
-Date: Wed, 16 Aug 2006 15:37:19 +0200
-Message-Id: <1155735440.15689.3.camel@wintermute.xmldesign.de>
+Subject: Re: [PATCH] SELinux: 2/3-v3.1 change isec->sem to a mutex
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Eric Paris <eparis@parisplace.org>
+Cc: selinux@tycho.nsa.gov, James Morris <jmorris@redhat.com>
+In-Reply-To: <1154705155.8428.57.camel@localhost.localdomain>
+References: <1154639264.8428.38.camel@localhost.localdomain>
+	 <1154705155.8428.57.camel@localhost.localdomain>
+Content-Type: text/plain
+Date: Wed, 16 Aug 2006 09:44:56 -0400
+Message-Id: <1155735896.18911.43.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hi,
-> role system_r upgrade_t;
+On Fri, 2006-08-04 at 11:25 -0400, Eric Paris wrote:
+> On Thu, 2006-08-03 at 17:07 -0400, Eric Paris wrote:
+> > This patch converts the remaining isec->sem into a mutex.  Very similar
+> > locking is provided as before only in the faster smaller mutex rather
+> > than a semaphore.  An out_unlock path is introduced rather than the
+> > conditional unlocking found in the original code.
+> > 
+> > Signed-off-by: Eric Paris <eparis@redhat.com>
 
-You're missing the "types" keyword.
+Acked-by:  Stephen Smalley <sds@tycho.nsa.gov>
 
-The sxid.te file is missing a
-
-role system_r types sxid_t;
-
-btw. Not committed to the Debian policy yet, maybe tonight.
-
-best regards,
-Erich Schubert
+> 
+> So as usual I'm a moron and forgot something.  Part of this part wasn't
+> attached (the change to the struct in objsec.h)  Below is the complete
+> patch.  uggh (maybe try 5 or 6 I'll finally get things right)
+> 
+>  security/selinux/hooks.c          |   30 ++++++++++++++----------------
+>  security/selinux/include/objsec.h |    2 +-
+>  2 files changed, 15 insertions(+), 17 deletions(-)
+> 
+> --- linux-2.6-sem-changes/security/selinux/include/objsec.h.patch2	2006-07-28 12:59:55.000000000 -0400
+> +++ linux-2.6-sem-changes/security/selinux/include/objsec.h	2006-08-03 16:52:56.000000000 -0400
+> @@ -44,7 +44,7 @@ struct inode_security_struct {
+>  	u32 sid;             /* SID of this object */
+>  	u16 sclass;       /* security class of this object */
+>  	unsigned char initialized;     /* initialization flag */
+> -	struct semaphore sem;
+> +	struct mutex lock;
+>  	unsigned char inherit;         /* inherit SID from parent entry */
+>  };
+>  
+> --- linux-2.6-sem-changes/security/selinux/hooks.c.patch2	2006-07-28 12:59:55.000000000 -0400
+> +++ linux-2.6-sem-changes/security/selinux/hooks.c	2006-08-04 10:59:22.000000000 -0400
+> @@ -69,6 +69,7 @@
+>  #include <linux/audit.h>
+>  #include <linux/string.h>
+>  #include <linux/selinux.h>
+> +#include <linux/mutex.h>
+>  
+>  #include "avc.h"
+>  #include "objsec.h"
+> @@ -182,7 +183,7 @@ static int inode_alloc_security(struct i
+>  		return -ENOMEM;
+>  
+>  	memset(isec, 0, sizeof(*isec));
+> -	init_MUTEX(&isec->sem);
+> +	mutex_init(&isec->lock);
+>  	INIT_LIST_HEAD(&isec->list);
+>  	isec->inode = inode;
+>  	isec->sid = SECINITSID_UNLABELED;
+> @@ -843,15 +844,13 @@ static int inode_doinit_with_dentry(stru
+>  	char *context = NULL;
+>  	unsigned len = 0;
+>  	int rc = 0;
+> -	int hold_sem = 0;
+>  
+>  	if (isec->initialized)
+>  		goto out;
+>  
+> -	down(&isec->sem);
+> -	hold_sem = 1;
+> +	mutex_lock(&isec->lock);
+>  	if (isec->initialized)
+> -		goto out;
+> +		goto out_unlock;
+>  
+>  	sbsec = inode->i_sb->s_security;
+>  	if (!sbsec->initialized) {
+> @@ -862,7 +861,7 @@ static int inode_doinit_with_dentry(stru
+>  		if (list_empty(&isec->list))
+>  			list_add(&isec->list, &sbsec->isec_head);
+>  		spin_unlock(&sbsec->isec_lock);
+> -		goto out;
+> +		goto out_unlock;
+>  	}
+>  
+>  	switch (sbsec->behavior) {
+> @@ -885,7 +884,7 @@ static int inode_doinit_with_dentry(stru
+>  			printk(KERN_WARNING "%s:  no dentry for dev=%s "
+>  			       "ino=%ld\n", __FUNCTION__, inode->i_sb->s_id,
+>  			       inode->i_ino);
+> -			goto out;
+> +			goto out_unlock;
+>  		}
+>  
+>  		len = INITCONTEXTLEN;
+> @@ -893,7 +892,7 @@ static int inode_doinit_with_dentry(stru
+>  		if (!context) {
+>  			rc = -ENOMEM;
+>  			dput(dentry);
+> -			goto out;
+> +			goto out_unlock;
+>  		}
+>  		rc = inode->i_op->getxattr(dentry, XATTR_NAME_SELINUX,
+>  					   context, len);
+> @@ -903,7 +902,7 @@ static int inode_doinit_with_dentry(stru
+>  						   NULL, 0);
+>  			if (rc < 0) {
+>  				dput(dentry);
+> -				goto out;
+> +				goto out_unlock;
+>  			}
+>  			kfree(context);
+>  			len = rc;
+> @@ -911,7 +910,7 @@ static int inode_doinit_with_dentry(stru
+>  			if (!context) {
+>  				rc = -ENOMEM;
+>  				dput(dentry);
+> -				goto out;
+> +				goto out_unlock;
+>  			}
+>  			rc = inode->i_op->getxattr(dentry,
+>  						   XATTR_NAME_SELINUX,
+> @@ -924,7 +923,7 @@ static int inode_doinit_with_dentry(stru
+>  				       "%d for dev=%s ino=%ld\n", __FUNCTION__,
+>  				       -rc, inode->i_sb->s_id, inode->i_ino);
+>  				kfree(context);
+> -				goto out;
+> +				goto out_unlock;
+>  			}
+>  			/* Map ENODATA to the default file SID */
+>  			sid = sbsec->def_sid;
+> @@ -960,7 +959,7 @@ static int inode_doinit_with_dentry(stru
+>  					     isec->sclass,
+>  					     &sid);
+>  		if (rc)
+> -			goto out;
+> +			goto out_unlock;
+>  		isec->sid = sid;
+>  		break;
+>  	case SECURITY_FS_USE_MNTPOINT:
+> @@ -978,7 +977,7 @@ static int inode_doinit_with_dentry(stru
+>  							  isec->sclass,
+>  							  &sid);
+>  				if (rc)
+> -					goto out;
+> +					goto out_unlock;
+>  				isec->sid = sid;
+>  			}
+>  		}
+> @@ -987,12 +986,11 @@ static int inode_doinit_with_dentry(stru
+>  
+>  	isec->initialized = 1;
+>  
+> +out_unlock:
+> +	mutex_unlock(&isec->lock);
+>  out:
+>  	if (isec->sclass == SECCLASS_FILE)
+>  		isec->sclass = inode_mode_to_security_class(inode->i_mode);
+> -
+> -	if (hold_sem)
+> -		up(&isec->sem);
+>  	return rc;
+>  }
+>  
+> 
+> 
+> 
+> --
+> This message was distributed to subscribers of the selinux mailing list.
+> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
+> the words "unsubscribe selinux" without quotes as the message.
 -- 
-   erich@(vitavonni.de|debian.org)    --    GPG Key ID: 4B3A135C    (o_
-     Which is worse: ignorance or apathy? Who knows? Who cares?     //\
-    Eine Stadt ist einem erst wirklich vertraut wenn man Freunde    V_/_
-              in ihr hat. --- Antoine de Saint-Exupéry
-
+Stephen Smalley
+National Security Agency
 
 
 --
