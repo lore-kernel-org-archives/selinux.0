@@ -1,57 +1,32 @@
-Subject: RE: [PATCH 3/3] Separate local file
-	contextsinto	file_contexts.local
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k7GD30cr029457
+	for <selinux@tycho.nsa.gov>; Wed, 16 Aug 2006 09:03:00 -0400
+Received: from localhost.localdomain (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id k7GD2kjK022514
+	for <selinux@tycho.nsa.gov>; Wed, 16 Aug 2006 13:02:47 GMT
+Subject: Re: Invalid context in targeted SELinux policy
 From: Karl MacMillan <kmacmillan@mentalrootkit.com>
-To: Stephen Smalley <sds@tycho.nsa.gov>
-Cc: Joshua Brindle <jbrindle@tresys.com>, Daniel J Walsh <dwalsh@redhat.com>,
-        "Christopher J. PeBenito" <cpebenito@tresys.com>,
-        SELinux Mail List <selinux@tycho.nsa.gov>
-In-Reply-To: <1155732066.18911.4.camel@moss-spartans.epoch.ncsc.mil>
-References: 
-	 <6FE441CD9F0C0C479F2D88F959B0158832B368@exchange.columbia.tresys.com>
-	 <1155732066.18911.4.camel@moss-spartans.epoch.ncsc.mil>
+To: Daniel Musgrave <dmusgrave@abodiosoftware.com>
+Cc: selinux@tycho.nsa.gov
+In-Reply-To: <W7685912732296271155678629@webmail16>
+References: <W7685912732296271155678629@webmail16>
 Content-Type: text/plain
-Date: Wed, 16 Aug 2006 09:00:57 -0400
-Message-Id: <1155733257.10971.0.camel@localhost.localdomain>
+Date: Wed, 16 Aug 2006 09:02:57 -0400
+Message-Id: <1155733377.10971.2.camel@localhost.localdomain>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2006-08-16 at 08:41 -0400, Stephen Smalley wrote:
-> On Tue, 2006-08-15 at 19:42 -0400, Joshua Brindle wrote:
-> > > From: Stephen Smalley [mailto:sds@tycho.nsa.gov] 
-> > > 
-> > > On Mon, 2006-08-14 at 10:38 -0400, Stephen Smalley wrote:
-> > > > On Sat, 2006-08-12 at 09:21 -0400, Joshua Brindle wrote:
-> > > > > Stephen Smalley wrote:
-> > > > > > On Fri, 2006-08-11 at 09:34 -0400, Christopher J. 
-> > > PeBenito wrote:
-> > > 
-> > > Patch below restores the errors to being fatal, with 
-> > > exceptions being granted for an ENOENT for 
-> > > file_contexts.local (optional), seusers (was already 
-> > > non-fatal and optional), and netfilter_contexts (may not 
-> > > exist in all policies, e.g. legacy ones and ones that are 
-> > > using compat_net=1).
-> > > Acceptable to all parties?
-> > > 
-> > 
-> > I'm happy with this but does it fix the permission problem? I thought
-> > the motivation behind the patch was to be able to install the policy
-> > when the policy didn't allow copying of some files? ENOENT will just
-> > check if it doesn't exist won't it?
+On Tue, 2006-08-15 at 21:50 +0000, Daniel Musgrave wrote:
+> I am in the process of writing an application and associated policy in Centos 4.3, running a targeted SELinux environment at version 1.17.30-2.126.  After succesfully creating the necessary rules in my .te file, and the associated file contexts in the .fc file, I am attempting to resolve one last problem.  After compiling my policy and running the application, I get the following error:
 > 
-> I decided that it wasn't adequate justification, since:
-> a) the same kind of permission problem could occur on the kernel policy
-> file too, at which point we have to go permissive to recover,
-> b) such a denial would reflect a bug in policy, and there is no general
-> way to recover from bugs in policy without going permissive,
-> c) all such issues would presumably be caught and resolved in
-> development and never hit a production system.
+> audit(...): security_compute_sid: invalid context root:system_r:upgrade_t for scontext=root:system_r:unconfined_t tcontext=system_u:object_r:upgrade_exec_t tclass=process
 > 
-> So if everyone is satisfied with the patch, I'll go ahead and commit it.
+> The domain for this executable is 'upgrade' and the file context of the binary is 'upgrade_exec_t' (there are some associated *_log_t and *_tmp_t files as well).  The .te file defines upgrade using the application_domain macro.
 > 
+Did you authorize your type for the system_r role?
 
-It's fine with me since you and Josh are in agreement about this.
+role system_r upgrade_t;
 
 Karl
 
