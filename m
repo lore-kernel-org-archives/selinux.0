@@ -1,19 +1,20 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k7HJvUjp019505
-	for <selinux@tycho.nsa.gov>; Thu, 17 Aug 2006 15:57:30 -0400
-Received: from mail.gmx.net (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with SMTP id k7HJvGkD020308
-	for <selinux@tycho.nsa.gov>; Thu, 17 Aug 2006 19:57:16 GMT
-Content-Type: text/plain; charset="utf-8"
-Date: Thu, 17 Aug 2006 21:57:29 +0200
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k7HKDIuM019878
+	for <selinux@tycho.nsa.gov>; Thu, 17 Aug 2006 16:13:18 -0400
+Received: from mail.gmx.net (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with SMTP id k7HKCqHE024052
+	for <selinux@tycho.nsa.gov>; Thu, 17 Aug 2006 20:12:53 GMT
+Content-Type: text/plain; charset="iso-8859-1"
+Date: Thu, 17 Aug 2006 22:13:16 +0200
 From: selinux770@tortenboxer.de
-Message-ID: <20060817195729.112220@gmx.net>
+Message-ID: <20060817201316.112230@gmx.net>
 MIME-Version: 1.0
+Subject: Controlling term: unknown (Operation not supported)
 To: selinux@tycho.nsa.gov
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hi there.
+Hi once again, sorry for not putting a subject into my last email. Bad start on this list. So let's start over:
 
 I'm trying to enable SELinux on my Nokia 770 Internet Tablet which is running a modified Debian Linux for ARM processors. Until now I have replaced and installed several files and packages, but now I need further guidance. It seems like SELinux is working in some kind of way. But one main problem/question that persists is that i get a
 Controlling term:               unknown (Operation not supported)
@@ -62,12 +63,11 @@ Controlling term:               unknown (Operation not supported)
 
 ~# uname -r
 2.6.12.3-omap1
-
 -- 
 
 
-"Feel free" â€“ 10 GB Mailbox, 100 FreeSMS/Monat ...
-Jetzt GMX TopMail testen: http://www.gmx.net/de/go/topmail
+Der GMX SmartSurfer hilft bis zu 70% Ihrer Onlinekosten zu sparen!
+Ideal für Modem und ISDN: http://www.gmx.net/de/go/smartsurfer
 
 --
 This message was distributed to subscribers of the selinux mailing list.
