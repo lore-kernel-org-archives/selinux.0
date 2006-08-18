@@ -1,63 +1,65 @@
 Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k7I1SaHK027446
-	for <selinux@tycho.nsa.gov>; Thu, 17 Aug 2006 21:28:36 -0400
-Received: from legolas.drinsama.de (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id k7I1SJhn027784
-	for <selinux@tycho.nsa.gov>; Fri, 18 Aug 2006 01:28:21 GMT
-Received: from localhost (localhost [127.0.0.1])
-	by localhost (Postfix) with ESMTP id D0FF0C4C084
-	for <selinux@tycho.nsa.gov>; Fri, 18 Aug 2006 03:28:31 +0200 (CEST)
-Received: from legolas.drinsama.de ([127.0.0.1])
-	by localhost (legolas [127.0.0.1]) (amavisd-new, port 10024)
-	with SMTP id 23480-05 for <selinux@tycho.nsa.gov>;
-	Fri, 18 Aug 2006 03:28:31 +0200 (CEST)
-Received: from wintermute.xmldesign.de (p549A043A.dip0.t-ipconnect.de [84.154.4.58])
-	by legolas.drinsama.de (Postfix) with ESMTP id 25E75C4C083
-	for <selinux@tycho.nsa.gov>; Fri, 18 Aug 2006 03:28:30 +0200 (CEST)
-Received: from wintermute.xmldesign.de (wintermute.xmldesign.de [127.0.0.1])
-	by wintermute.xmldesign.de (Postfix) with ESMTP id 37692234070
-	for <selinux@tycho.nsa.gov>; Fri, 18 Aug 2006 03:19:33 +0200 (CEST)
-Subject: refpoliy issues
-From: Erich Schubert <erich@debian.org>
-To: selinux@tycho.nsa.gov
-Content-Type: text/plain; charset=ISO-8859-15
-Date: Fri, 18 Aug 2006 03:19:32 +0200
-Message-Id: <1155863972.7443.36.camel@wintermute.xmldesign.de>
-Mime-Version: 1.0
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k7IAbt1I005954
+	for <selinux@tycho.nsa.gov>; Fri, 18 Aug 2006 06:37:55 -0400
+Received: from mx.meyering.net (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id k7IAbern028737
+	for <selinux@tycho.nsa.gov>; Fri, 18 Aug 2006 10:37:40 GMT
+To: Daniel J Walsh <dwalsh@redhat.com>
+Cc: Karl MacMillan <kmacmillan@mentalrootkit.com>, selinux@tycho.nsa.gov,
+        Russell Coker <russell@coker.com.au>
+Subject: install vs. matchpathcon(8) [Re: justifying --context=CTX (-Z) ...
+In-Reply-To: <44DE134A.3030104@redhat.com> (Daniel J. Walsh's message of "Sat,
+	12 Aug 2006 13:43:38 -0400")
+References: <87mzabgyrk.fsf@rho.meyering.net>
+	<1155308294.8018.59.camel@localhost.localdomain>
+	<87irkzfcgr.fsf@rho.meyering.net> <44DE134A.3030104@redhat.com>
+From: Jim Meyering <meyering@redhat.com>
+Date: Fri, 18 Aug 2006 12:37:52 +0200
+Message-ID: <87d5ay72in.fsf_-_@rho.meyering.net>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Reference policy issues I've come around recently:
+Daniel J Walsh <dwalsh@redhat.com> wrote:
+> Jim Meyering wrote:
+>>>> BTW, what makes install so special that it needs to call matchpathcon?
+>>>> Can it accomplish the same goal via "chcon ...;
+>>>> install --preserve-context ..."?
+...
+>> Thanks for explaining.
+>> If install really needs -Z, I'd prefer to drop its internal
+>> use of matchpathcon.
+>>
+> -Z implies that the builder of the application knows the security
+> context for all possible environemnts.  Matchpatchcon asks the system
+> how a file in a certain path should be labeled.  They are very different
+> things.
+>
+> Two different machines running the same install could/should have
+> different end file context.  For example a strict policy machine might
+> label firefox, mozilla_exec_t, while a targeted might label it bin_t.
 
-- sxid not in role system_r, missing access to /dev
-- cron needs to su for certain cronjobs
-- semanage writes netfilter_contexts to default_contexts instead of the
-files subdir (default contexts is read only for semanage)?
-- load_policy tries to contact setrans, but I don't have setrans (found
-also no docs on it or source...) - but the rules to search /var/run are
-only active when setrans policy was loaded. This probably applies to
-other apps as well.
-and it tries to make a unix_stream_socket
+[Oh!  I see I never send this reply. ]
 
-I don't know much about this one:
+I'm inclined to keep upstream GNU install minimalist.  So if there's
+a way to accomplish this task without embedding the specialized
+matchpathcon-related code, I have to ask "why embed?".  If by adding
+only -Z (or providing an fscon program), I don't absolutely need to
+include the matchpathcon-calling code in install.c, then I'd rather not.
 
-kernel: audit(1155735318.128:5897): avc:  denied  { relabelfrom } for
-pid=3325 comm="sshd" name="0" dev=devpts ino=2
-scontext=system_u:system_r:sshd_t:s0-s0:c0.c255
-tcontext=root:object_r:sysadm_devpts_t:s0 tclass=chr_file
+For example, can't one use the matchpathcon _program_ like this?
 
-on each ssh login.
+  install -Z $(matchpathcon -n $bindir/SOME_EXECUTABLE) SOME_EXECUTABLE $bindir
 
-best regards,
-Erich Schubert
--- 
-   erich@(vitavonni.de|debian.org)    --    GPG Key ID: 4B3A135C    (o_
-                Friends are those who reach out for                 //\
-                  your hand but touch your heart.                   V_/_
-     Mathematik ist die Kunst, verschiedene Dinge mit demselben
-                Namen zu belegen. --- Henri Poincaré
+This seems better, since it'd work any version of install:
 
+  fscon -Z $(matchpathcon -n $bindir/SOME_EXECUTABLE) \
+    install SOME_EXECUTABLE $bindir
 
+Obviously, that's more verbose than we'd prefer, but an
+selinux-specific wrapper script could do the job transparently.
+Then, the only change would be to build via "make INSTALL=install-con".
 
 --
 This message was distributed to subscribers of the selinux mailing list.
