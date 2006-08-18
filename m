@@ -1,62 +1,56 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k7IFxq7G014971
-	for <selinux@tycho.nsa.gov>; Fri, 18 Aug 2006 11:59:52 -0400
-Received: from legolas.drinsama.de (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id k7IFxQx0006057
-	for <selinux@tycho.nsa.gov>; Fri, 18 Aug 2006 15:59:26 GMT
-Subject: Re: refpoliy issues
-From: Erich Schubert <erich@debian.org>
-To: "Christopher J. PeBenito" <cpebenito@tresys.com>
-Cc: selinux@tycho.nsa.gov
-In-Reply-To: <1155910539.14126.17.camel@sgc.columbia.tresys.com>
-References: <1155863972.7443.36.camel@wintermute.xmldesign.de>
-	 <1155910539.14126.17.camel@sgc.columbia.tresys.com>
-Content-Type: text/plain
-Date: Fri, 18 Aug 2006 17:50:51 +0200
-Message-Id: <1155916251.14563.5.camel@wintermute.xmldesign.de>
-Mime-Version: 1.0
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k7II34nP019018
+	for <selinux@tycho.nsa.gov>; Fri, 18 Aug 2006 14:03:04 -0400
+Received: from mx.meyering.net (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id k7II2omr027942
+	for <selinux@tycho.nsa.gov>; Fri, 18 Aug 2006 18:02:51 GMT
+From: Jim Meyering <jim@meyering.net>
+To: selinux@tycho.nsa.gov
+Subject: cp: --preserve={context,xattr,acl}
+Date: Fri, 18 Aug 2006 20:03:02 +0200
+Message-ID: <87veop2a7d.fsf@rho.meyering.net>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hi Christopher,
-> > - sxid not in role system_r, missing access to /dev
-> Already fixed the role.  You'll have to be more specific about access
-> to /dev.
+Currently, upstream cp can selectively preserve a few different attributes.
+>From the documentation:
 
-How about /dev/*
-sxid by nature tries to getattr all files there.
+  `-p'
+  `--preserve[=ATTRIBUTE_LIST]'
+       Preserve the specified attributes of the original files.  If
+       specified, the ATTRIBUTE_LIST must be a comma-separated list of
+       one or more of the following strings:
 
-> > - cron needs to su for certain cronjobs
-> Can you be more specific?
+      `mode' ...
+      `ownership'
+      `timestamps'
+      `links'
+      `all'
 
-Amavisd-new for example. /etc/cron.daily/* support, because these files
-don't have cron syntax, but are plain shell scripts.
-But I had the impression that adding su for system_crond_t is the clean
-way, so it wouldn't really matter which of the jobs in there uses su...
+       Using `--preserve' with no ATTRIBUTE_LIST is equivalent to
+       `--preserve=mode,ownership,timestamps'.
 
-> I believe setrans is in fedora cvs.  The access looks like its only due
-> to libselinux's init; however, if you're using MLS or MCS, you're really
-> going to want the translation daemon anyway.
+       In the absence of this option, each destination file is created
+       with the permissions of the corresponding source file, minus the
+       bits set in the umask and minus the set-user-ID and set-group-ID
+       bits.  *Note File permissions::.
 
-I agree that I want setrans if I manage to get it from somewhere and
-some docs how to set it up... still we should probably handle these
-errors. I don't know if they occur on non-MLS-non-MCS systems, though.
-But right now, I guess more people might be affected by this.
+The SELinux patches add "context" to the list.
+and upstream treats ACLs like "mode".
 
-> Based on the evidence that relabelfrom on unpriv user ptys is
-> dontaudited, my guess is this is also a dontaudit.  I'm guessing you
-> have sysadm ssh login on?
+However, with XATTR support, I may well add two more: "xattr" and "acl".
 
-Yes, that makes selinux policy debugging a bit easier, not having to
-auth all the time.
+But then there'd be overlap between --preserve=xattr and --preserve=context,
+Since I presume the latter subsumes the former.  Right?
 
-best regards,
-Erich Schubert
--- 
-    erich@(vitavonni.de|debian.org)    --    GPG Key ID: 4B3A135C    (o_
-   It's not denial. I'm just selective about the reality I accept.   //\
-                 Wege entstehen, wenn wir sie gehen.                 V_/_
+So if both were specified on a selinux-enabled system,
+would there be any point in doing anything XATTR-specific?
 
+What do you think?
+
+Jim
 
 --
 This message was distributed to subscribers of the selinux mailing list.
