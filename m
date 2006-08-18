@@ -1,67 +1,52 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k7IIV8k4019954
-	for <selinux@tycho.nsa.gov>; Fri, 18 Aug 2006 14:31:08 -0400
-Received: from mail.and.org (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id k7IIUg02006122
-	for <selinux@tycho.nsa.gov>; Fri, 18 Aug 2006 18:30:42 GMT
-From: James Antill <jantill@redhat.com>
-To: Jim Meyering <jim@meyering.net>
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k7IJwxIm022730
+	for <selinux@tycho.nsa.gov>; Fri, 18 Aug 2006 15:58:59 -0400
+Received: from exchange.columbia.tresys.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with SMTP id k7IJwlmr014047
+	for <selinux@tycho.nsa.gov>; Fri, 18 Aug 2006 19:58:47 GMT
+Subject: Re: refpoliy issues
+From: "Christopher J. PeBenito" <cpebenito@tresys.com>
+To: Erich Schubert <erich@debian.org>
 Cc: selinux@tycho.nsa.gov
-In-Reply-To: <87veop2a7d.fsf@rho.meyering.net>
-References: <87veop2a7d.fsf@rho.meyering.net>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-a3nPeMYg1XnekFE3HEmp"
-Date: Fri, 18 Aug 2006 14:30:55 -0400
-Message-Id: <1155925855.18274.16.camel@code.and.org>
+In-Reply-To: <1155916251.14563.5.camel@wintermute.xmldesign.de>
+References: <1155863972.7443.36.camel@wintermute.xmldesign.de>
+	 <1155910539.14126.17.camel@sgc.columbia.tresys.com>
+	 <1155916251.14563.5.camel@wintermute.xmldesign.de>
+Content-Type: text/plain
+Date: Fri, 18 Aug 2006 15:59:05 -0400
+Message-Id: <1155931146.14126.39.camel@sgc.columbia.tresys.com>
 Mime-Version: 1.0
-Subject: Re: cp: --preserve={context,xattr,acl}
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+On Fri, 2006-08-18 at 17:50 +0200, Erich Schubert wrote:
+> Hi Christopher,
+> > > - sxid not in role system_r, missing access to /dev
+> > Already fixed the role.  You'll have to be more specific about access
+> > to /dev.
+> 
+> How about /dev/*
+> sxid by nature tries to getattr all files there.
 
---=-a3nPeMYg1XnekFE3HEmp
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+Still more specific.  The typically the only files in /dev are
+in /dev/.udev.  Or do you mean the device nodes and character nodes?
 
-On Fri, 2006-08-18 at 20:03 +0200, Jim Meyering wrote:
-> Currently, upstream cp can selectively preserve a few different attribute=
-s.
-> From the documentation:
-[...]
-> The SELinux patches add "context" to the list.
-> and upstream treats ACLs like "mode".
->=20
-> However, with XATTR support, I may well add two more: "xattr" and "acl".
->=20
-> But then there'd be overlap between --preserve=3Dxattr and --preserve=3Dc=
-ontext,
-> Since I presume the latter subsumes the former.  Right?
->=20
-> So if both were specified on a selinux-enabled system,
-> would there be any point in doing anything XATTR-specific?
+> > I believe setrans is in fedora cvs.  The access looks like its only due
+> > to libselinux's init; however, if you're using MLS or MCS, you're really
+> > going to want the translation daemon anyway.
+> 
+> I agree that I want setrans if I manage to get it from somewhere and
+> some docs how to set it up... still we should probably handle these
+> errors. I don't know if they occur on non-MLS-non-MCS systems, though.
+> But right now, I guess more people might be affected by this.
 
- With tar I had xattr imply acl and selinux, but then they could be used
-individually like: --preserve=3Dxattrs --no-preserve=3Dselinux (does generi=
-c
-user xattrs and acls, but not selinux context).
- Although the tar patches haven't been accepted upstream yet (they are
-just before a stable release, so aren't accepting features).
+It doesn't affect standard setups.  If MLS is disabled, then all of
+functions in question return success immediately.
 
---=20
-James Antill <jantill@redhat.com>
-
---=-a3nPeMYg1XnekFE3HEmp
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.5 (GNU/Linux)
-
-iD8DBQBE5gdf11eXTEMrxtQRAnQBAJ46ybLLWvvFFPdHjiueLOZfaib6TQCeJ9IY
-WViE2xKtOzmHqYwW4fxvF7Y=
-=KkIi
------END PGP SIGNATURE-----
-
---=-a3nPeMYg1XnekFE3HEmp--
+-- 
+Chris PeBenito
+Tresys Technology, LLC
+(410) 290-1411 x150
 
 
 --
