@@ -1,37 +1,35 @@
 Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k7JDmvZE011719
-	for <selinux@tycho.nsa.gov>; Sat, 19 Aug 2006 09:48:57 -0400
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k7JE4Yta012149
+	for <selinux@tycho.nsa.gov>; Sat, 19 Aug 2006 10:04:34 -0400
 Received: from smtp.sws.net.au (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id k7JDmSj1001188
-	for <selinux@tycho.nsa.gov>; Sat, 19 Aug 2006 13:48:29 GMT
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id k7JE46j1002854
+	for <selinux@tycho.nsa.gov>; Sat, 19 Aug 2006 14:04:07 GMT
 From: Russell Coker <russell@coker.com.au>
 Reply-To: russell@coker.com.au
-To: Erich Schubert <erich@debian.org>
-Subject: Re: refpoliy issues
-Date: Sat, 19 Aug 2006 23:48:45 +1000
-Cc: "Christopher J. PeBenito" <cpebenito@tresys.com>, selinux@tycho.nsa.gov
-References: <1155863972.7443.36.camel@wintermute.xmldesign.de> <1155910539.14126.17.camel@sgc.columbia.tresys.com> <1155916251.14563.5.camel@wintermute.xmldesign.de>
-In-Reply-To: <1155916251.14563.5.camel@wintermute.xmldesign.de>
+To: selinux770@tortenboxer.de
+Subject: Re:
+Date: Sun, 20 Aug 2006 00:04:26 +1000
+Cc: selinux@tycho.nsa.gov
+References: <20060817195729.112220@gmx.net>
+In-Reply-To: <20060817195729.112220@gmx.net>
 MIME-Version: 1.0
 Content-Type: text/plain;
   charset="utf-8"
-Message-Id: <200608192348.48603.russell@coker.com.au>
+Message-Id: <200608200004.28925.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Saturday 19 August 2006 01:50, Erich Schubert <erich@debian.org> wrote:
-> > > - cron needs to su for certain cronjobs
-> >
-> > Can you be more specific?
->
-> Amavisd-new for example. /etc/cron.daily/* support, because these files
-> don't have cron syntax, but are plain shell scripts.
-> But I had the impression that adding su for system_crond_t is the clean
-> way, so it wouldn't really matter which of the jobs in there uses su...
+On Friday 18 August 2006 05:57, selinux770@tortenboxer.de wrote:
+> Within the device (when opening a console or whatever) the "Current
+> context" is system_u:system_r:kernel_t. (uid=0(root) gid=0(root)
+> groups=0(root) context=system_u:system_r:kernel_t) Just as many other
+> (nearly all) processes, too.
 
-I think that start-stop-daemon is a better program to use for this.  The 
-procedure in Red Hat distributions is to use the runuser program (Red Hat's 
-nearest equivalent to start-stop-daemon) for such things.
+Your main problem is that you don't have a SE Linux modified login program.  
+There are patches floating around for kdm, xdm, and gdm, you will have to 
+select whichever is appropriate for your use and build a new gdm.
+
+Eventually we want the standard xdm programs to support SE Linux.
 
 -- 
 http://etbe.blogspot.com/          My Blog
