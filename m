@@ -1,40 +1,50 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k7LEYfq9004903
-	for <selinux@tycho.nsa.gov>; Mon, 21 Aug 2006 10:34:41 -0400
-Received: from ug-out-f131.google.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id k7LEYA3i024719
-	for <selinux@tycho.nsa.gov>; Mon, 21 Aug 2006 14:34:11 GMT
-Received: by ug-out-f131.google.com with SMTP id 63so24537ugl
-        for <selinux@tycho.nsa.gov>; Mon, 21 Aug 2006 07:34:38 -0700 (PDT)
-Message-ID: <59ad41340608210734k221a25c8ue8786fad4145ebcd@mail.gmail.com>
-Date: Mon, 21 Aug 2006 16:34:38 +0200
-From: "=?ISO-8859-1?Q?Lorenzo_Hern=E1ndez_Garc=EDa-Hierro?=" <lorenzohgh@tuxedo-es.org>
-Reply-To: lorenzo@tuxedo-es.org
-To: selinux@tycho.nsa.gov
-Subject: AVC message logs
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k7LFhP4m007207
+	for <selinux@tycho.nsa.gov>; Mon, 21 Aug 2006 11:43:26 -0400
+Received: from e35.co.us.ibm.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id k7LFh97G002768
+	for <selinux@tycho.nsa.gov>; Mon, 21 Aug 2006 15:43:10 GMT
+Received: from westrelay02.boulder.ibm.com (westrelay02.boulder.ibm.com [9.17.195.11])
+	by e35.co.us.ibm.com (8.12.11.20060308/8.12.11) with ESMTP id k7LFhNrd013653
+	for <selinux@tycho.nsa.gov>; Mon, 21 Aug 2006 11:43:23 -0400
+Received: from d03av02.boulder.ibm.com (d03av02.boulder.ibm.com [9.17.195.168])
+	by westrelay02.boulder.ibm.com (8.13.6/8.13.6/NCO v8.1.1) with ESMTP id k7LFhMqp356084
+	for <selinux@tycho.nsa.gov>; Mon, 21 Aug 2006 09:43:22 -0600
+Received: from d03av02.boulder.ibm.com (loopback [127.0.0.1])
+	by d03av02.boulder.ibm.com (8.12.11.20060308/8.13.3) with ESMTP id k7LFhMnP032102
+	for <selinux@tycho.nsa.gov>; Mon, 21 Aug 2006 09:43:22 -0600
+Received: from sergelap.hallyn.com (sig-9-65-87-32.mts.ibm.com [9.65.87.32])
+	by d03av02.boulder.ibm.com (8.12.11.20060308/8.12.11) with ESMTP id k7LFhML1032052
+	for <selinux@tycho.nsa.gov>; Mon, 21 Aug 2006 09:43:22 -0600
+Date: Mon, 21 Aug 2006 10:43:15 -0500
+From: "Serge E. Hallyn" <serue@us.ibm.com>
+To: SELinux <selinux@tycho.nsa.gov>
+Subject: [PATCH -mm] selinux: add selinux_install make option
+Message-ID: <20060821154315.GC2356@sergelap.austin.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 Hi,
 
-I would like to get different avc message logs from people around,
-preferable not just testing related, although the only requirement is
-that it should be more than 50K size.
+I try to test -mm kernels regularly on certain machines which have older
+distros, or on which I'm experimenting with various things.  For the
+sake of easily being able to test a kernel with selinux enabled, without
+getting "random" permission denials or obscuring important long msgs
+avc messages, I'm starting to use the following patch to install a dummy
+policy matched to the kernel.
 
-I'm working on some stuff and it would be of invaluable help to have
-different data-sets to play with. It's a rather basic thing I may send
-around when It gets polished, maybe not really useful 'out of the
-box'.
+After compiling a kernel, I do 'make selinux_policy', followed by
+'su; make selinux_install'.  It requires manually setting your
+SELINUXTYPE=dummy, and places the policy under /etc/selinux/dummy.
 
-Reply privately with attachment in gzip or uncompressed plain text format.
+Since the policy is generated, adding a new permission or class (i.e.
+process:execmem) does not affect my boot/ltp run.
 
-Many thanks in advance.
+For now I'm mostly sending this out in case anyone else might find it
+useful.  I don't plan to try to get it upstream unless I in fact hear of
+others using it.
 
-Kind regards.
-
---
-This message was distributed to subscribers of the selinux mailing list.
-If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
-the words "unsubscribe selinux" without quotes as the message.
+thanks,
+-serge
