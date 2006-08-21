@@ -1,9 +1,8 @@
 Subject: Re: justifying --context=CTX (-Z) for upstream coreutils, like
 	mkdir
-From: "Christopher J. PeBenito" <cpebenito@tresys.com>
+From: Karl MacMillan <kmacmillan@mentalrootkit.com>
 To: Jim Meyering <jim@meyering.net>
-Cc: Stephen Smalley <sds@tycho.nsa.gov>,
-        Karl MacMillan <kmacmillan@mentalrootkit.com>, selinux@tycho.nsa.gov
+Cc: Stephen Smalley <sds@tycho.nsa.gov>, selinux@tycho.nsa.gov
 In-Reply-To: <87wt929j25.fsf@rho.meyering.net>
 References: <87mzabgyrk.fsf@rho.meyering.net>
 	 <1155308294.8018.59.camel@localhost.localdomain>
@@ -15,8 +14,8 @@ References: <87mzabgyrk.fsf@rho.meyering.net>
 	 <1155581090.28766.217.camel@moss-spartans.epoch.ncsc.mil>
 	 <87wt929j25.fsf@rho.meyering.net>
 Content-Type: text/plain
-Date: Mon, 21 Aug 2006 13:40:56 -0400
-Message-Id: <1156182056.14126.91.camel@sgc>
+Date: Mon, 21 Aug 2006 13:58:07 -0400
+Message-Id: <1156183087.8126.27.camel@localhost.localdomain>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
@@ -38,33 +37,56 @@ On Mon, 2006-08-21 at 17:58 +0200, Jim Meyering wrote:
 > 
 >   http://lists.gnu.org/archive/html/bug-coreutils/2006-08/msg00147.html
 > 
+
+Response so far has not exactly been overwhelming.
+
 > Support (and even rebuttal) welcomed.
 > Even silence is ok, as long as it implies consent :)
+> 
 
-It has mentioned before but I think it needs to be said again.  Since
-SELinux support is being merged upstream, it should be treated like a
-first class citizen.  Many of the tools have the -m options, and the
-mode is to Linux DAC as the context is to SELinux; therefore, the -Z
-options should be kept.  Any coreutils program that has a -m option
-should likely have a -Z option.
+I still think that the current flags are better. Here are some reasons
+(I can come up with more if you like):
 
-Fscon has security implications.  For example, if the program fscon
-exec's transitions to a different domain, either it would have to be
-disallowed across a transition, or we would have to add a permission to
-allow it to work across transitions.  If a misbehaving program doesn't
-clear its fscreate, then all its child programs will be broken by trying
-to create programs in the wrong context, which would be common for the
-non-transitioning exec() case.
+1) The proposed fscon only works in some circumstances. I think that
+most users will have trouble knowing when they can just use fscon and
+when they have to resort to runcon + fscon. You suggest that this is a
+corner case only, but I am not convinced that it won't pop up in normal
+usage.
 
-Fscon doesn't work for any program that isn't simple like coreutils
-programs.  For example, it does not work for any program that creates
-multiple files in different locations, because using fscon assumes that
-they should all be the same context, when they likely shouldn't.
+2) Fscon is in my opinion much less friendly than the direct flags.
+Using runcon + fscon is not just unfriendly it is downright user
+hostile. Imaging using this if you have MCS/MLS involved.
 
--- 
-Chris PeBenito
-Tresys Technology, LLC
-(410) 290-1411 x150
+I have taught probably hundreds of users how to use SELinux (both in
+formal class settings and informally). I have seen many of these
+students have trouble understanding the relationship between file
+contexts and process contexts - introducing a dependency between the two
+with runcon and fscon will just make things that much worse.
+
+3) This will be kernel dependent, resulting in maintenance problems. Not
+only that, this kernel change will miss many major distro releases
+including RHEL 5 meaning that the problem will be around for a long
+time.
+
+4) The current flags have been around for several years and are
+documented everywhere. Your argument that RHEL/Fedora will likely
+preserve these for years doesn't help - the whole point of upstreaming
+this is to get long-term, consistent usage across distros. Switching now
+doesn't help it hurts that goal.
+
+5) It is not clear that the change in kernel semantics is desirable.
+
+6) It makes the handling of SELinux contexts divergent from handle ACLs,
+standard unix permissions, and extended attributes. It is more natural,
+in my opinion, to treat the SELinux permissions as peers of these
+concepts. 
+
+7) How will fscon interact with the proposed xattr flags? Won't
+applications that handle xattrs have to have logic to ignore or set the
+SELinux xattrs, destroying the stated advantage of removing this support
+with fscon?
+
+Karl
 
 
 --
