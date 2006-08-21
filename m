@@ -1,50 +1,80 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k7LFhP4m007207
-	for <selinux@tycho.nsa.gov>; Mon, 21 Aug 2006 11:43:26 -0400
-Received: from e35.co.us.ibm.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id k7LFh97G002768
-	for <selinux@tycho.nsa.gov>; Mon, 21 Aug 2006 15:43:10 GMT
-Received: from westrelay02.boulder.ibm.com (westrelay02.boulder.ibm.com [9.17.195.11])
-	by e35.co.us.ibm.com (8.12.11.20060308/8.12.11) with ESMTP id k7LFhNrd013653
-	for <selinux@tycho.nsa.gov>; Mon, 21 Aug 2006 11:43:23 -0400
-Received: from d03av02.boulder.ibm.com (d03av02.boulder.ibm.com [9.17.195.168])
-	by westrelay02.boulder.ibm.com (8.13.6/8.13.6/NCO v8.1.1) with ESMTP id k7LFhMqp356084
-	for <selinux@tycho.nsa.gov>; Mon, 21 Aug 2006 09:43:22 -0600
-Received: from d03av02.boulder.ibm.com (loopback [127.0.0.1])
-	by d03av02.boulder.ibm.com (8.12.11.20060308/8.13.3) with ESMTP id k7LFhMnP032102
-	for <selinux@tycho.nsa.gov>; Mon, 21 Aug 2006 09:43:22 -0600
-Received: from sergelap.hallyn.com (sig-9-65-87-32.mts.ibm.com [9.65.87.32])
-	by d03av02.boulder.ibm.com (8.12.11.20060308/8.12.11) with ESMTP id k7LFhML1032052
-	for <selinux@tycho.nsa.gov>; Mon, 21 Aug 2006 09:43:22 -0600
-Date: Mon, 21 Aug 2006 10:43:15 -0500
-From: "Serge E. Hallyn" <serue@us.ibm.com>
-To: SELinux <selinux@tycho.nsa.gov>
-Subject: [PATCH -mm] selinux: add selinux_install make option
-Message-ID: <20060821154315.GC2356@sergelap.austin.ibm.com>
-Mime-Version: 1.0
+From: Jim Meyering <jim@meyering.net>
+To: Stephen Smalley <sds@tycho.nsa.gov>
+Cc: Karl MacMillan <kmacmillan@mentalrootkit.com>
+Subject: Re: justifying --context=CTX (-Z) for upstream coreutils, like mkdir
+In-Reply-To: <1155581090.28766.217.camel@moss-spartans.epoch.ncsc.mil>
+	(Stephen Smalley's message of "Mon, 14 Aug 2006 14:44:50 -0400")
+References: <87mzabgyrk.fsf@rho.meyering.net>
+	<1155308294.8018.59.camel@localhost.localdomain>
+	<87irkzfcgr.fsf@rho.meyering.net>
+	<1155567404.23601.10.camel@localhost.localdomain>
+	<87ac67iaao.fsf@rho.meyering.net>
+	<1155571378.23601.32.camel@localhost.localdomain>
+	<873bbzi6c1.fsf@rho.meyering.net>
+	<1155581090.28766.217.camel@moss-spartans.epoch.ncsc.mil>
+CC: selinux@tycho.nsa.gov
+Date: Mon, 21 Aug 2006 17:58:58 +0200
+Message-ID: <87wt929j25.fsf@rho.meyering.net>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hi,
+Stephen Smalley <sds@tycho.nsa.gov> wrote:
+> On Mon, 2006-08-14 at 19:18 +0200, Jim Meyering wrote:
+>> I agree that it's not a trivial way to use programs, but isn't the
+>> scenario that'd require such usage a little bit off the beaten track?
+>
+> I'm not sure that this is a valid assumption.  It might be educational
+> (or perhaps not) to take your proposal to fedora-selinux-list, and seek
+> feedback there, as I think they have a much larger subscriber base and
 
-I try to test -mm kernels regularly on certain machines which have older
-distros, or on which I'm experimenting with various things.  For the
-sake of easily being able to test a kernel with selinux enabled, without
-getting "random" permission denials or obscuring important long msgs
-avc messages, I'm starting to use the following patch to install a dummy
-policy matched to the kernel.
+As you've probably noticed, I posted to the lists, as you suggested:
+  https://www.redhat.com/archives/fedora-list/2006-August/msg02264.html (long)
 
-After compiling a kernel, I do 'make selinux_policy', followed by
-'su; make selinux_install'.  It requires manually setting your
-SELINUXTYPE=dummy, and places the policy under /etc/selinux/dummy.
+I suppose it's still early, but so far, all I have is positive feedback:
 
-Since the policy is generated, adding a new permission or class (i.e.
-process:execmem) does not affect my boot/ltp run.
+  http://lists.gnu.org/archive/html/bug-coreutils/2006-08/msg00147.html
 
-For now I'm mostly sending this out in case anyone else might find it
-useful.  I don't plan to try to get it upstream unless I in fact hear of
-others using it.
+Support (and even rebuttal) welcomed.
+Even silence is ok, as long as it implies consent :)
 
-thanks,
--serge
+> have people who are more representative of ordinary users.  Or even
+> fedora-list itself, as plenty of people are using Fedora w/SELinux
+> without even subscribing to any of the SELinux-specific lists.
+>
+>> But of course, my whole scenario depends on SELinux
+>> making it possible to write a program like fscon.
+>
+> I'm not convinced that even if SELinux supported such a program that it
+> should replace the -Z options in coreutils.  I'd see that more as a way
+> of applying SELinux to the much larger set of utils, particularly third
+> party ones, that are truly not feasible for us to patch.
+
+FYI, I learned of another tool, like the proposed fscon, that performs a
+kernel state change just before exec'ing some other program: setarch(8):
+
+  $ man setarch
+  SETARCH(8)                 Linux Programmer's Manual                SETARCH(8)
+
+  NAME
+         setarch - change reported architecture in new program environment
+         and set personality flags
+
+  SYNOPSIS
+         setarch <arch> [options] [program [arguments]]
+
+         arch [options] [program [arguments]]
+
+  DESCRIPTION
+         setarch This utility currently only affects the output  of  uname
+         -m.  For  example, on an AMD64 system, running 'setarch i386 pro-
+         gram' will cause 'program' to see i686 (or other  relevant  arch)
+         instead  of x86_64 as machine type. It also allows to set various
+         personality options.
+  ...
+
+--
+This message was distributed to subscribers of the selinux mailing list.
+If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
+the words "unsubscribe selinux" without quotes as the message.
