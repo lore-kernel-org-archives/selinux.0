@@ -1,35 +1,50 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k7JE4Yta012149
-	for <selinux@tycho.nsa.gov>; Sat, 19 Aug 2006 10:04:34 -0400
-Received: from smtp.sws.net.au (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id k7JE46j1002854
-	for <selinux@tycho.nsa.gov>; Sat, 19 Aug 2006 14:04:07 GMT
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k7L0ubR1019033
+	for <selinux@tycho.nsa.gov>; Sun, 20 Aug 2006 20:56:38 -0400
+Received: from smtp.sws.net.au (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id k7L0uJeD021016
+	for <selinux@tycho.nsa.gov>; Mon, 21 Aug 2006 00:56:21 GMT
+Received: from localhost (localhost [127.0.0.1])
+	by smtp.sws.net.au (Postfix) with ESMTP id 201F661B13
+	for <selinux@tycho.nsa.gov>; Mon, 21 Aug 2006 10:56:28 +1000 (EST)
+Received: from smtp.sws.net.au ([127.0.0.1])
+	by localhost (smtp [127.0.0.1]) (amavisd-new, port 10024) with ESMTP
+	id 15370-06 for <selinux@tycho.nsa.gov>;
+	Mon, 21 Aug 2006 10:56:28 +1000 (EST)
+Received: from aeon.coker.com.au (localhost [127.0.0.1])
+	by smtp.sws.net.au (Postfix) with ESMTP id EB80361AF2
+	for <selinux@tycho.nsa.gov>; Mon, 21 Aug 2006 10:56:27 +1000 (EST)
+Received: from aeon (aeon [127.0.0.1])
+	by aeon.coker.com.au (Postfix) with ESMTP id F3592A7D6A
+	for <selinux@tycho.nsa.gov>; Mon, 21 Aug 2006 10:56:24 +1000 (EST)
 From: Russell Coker <russell@coker.com.au>
 Reply-To: russell@coker.com.au
-To: selinux770@tortenboxer.de
-Subject: Re:
-Date: Sun, 20 Aug 2006 00:04:26 +1000
-Cc: selinux@tycho.nsa.gov
-References: <20060817195729.112220@gmx.net>
-In-Reply-To: <20060817195729.112220@gmx.net>
+To: "SE-Linux" <selinux@tycho.nsa.gov>
+Subject: CFP for LCA
+Date: Mon, 21 Aug 2006 10:56:20 +1000
 MIME-Version: 1.0
 Content-Type: text/plain;
-  charset="utf-8"
-Message-Id: <200608200004.28925.russell@coker.com.au>
+  charset="us-ascii"
+Message-Id: <200608211056.22533.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Friday 18 August 2006 05:57, selinux770@tortenboxer.de wrote:
-> Within the device (when opening a console or whatever) the "Current
-> context" is system_u:system_r:kernel_t. (uid=0(root) gid=0(root)
-> groups=0(root) context=system_u:system_r:kernel_t) Just as many other
-> (nearly all) processes, too.
+http://www.linux.conf.au/cfp
 
-Your main problem is that you don't have a SE Linux modified login program.  
-There are patches floating around for kdm, xdm, and gdm, you will have to 
-select whichever is appropriate for your use and build a new gdm.
+This CFP closes in 9 days.  Any suggestions on what I should offer?
 
-Eventually we want the standard xdm programs to support SE Linux.
+I'm thinking of a half-day hands-on tutorial based on the 45 minute talk I'm 
+giving in a few days time on deploying SE Linux on a production server with 
+custom software (which goes through all steps from secure application design 
+to writing policy).  I might do it both on RHEL4 and FC5 to show both ways of 
+doing it.  45 minutes is only enough time to skim such a topic, but I'm 
+concerned that four hours might be going too far.
+
+Also I'm thinking of making two offers for LCA to let the organizers choose 
+which one they want.
+
+
+PS  Please reply off-list.
 
 -- 
 http://etbe.blogspot.com/          My Blog
