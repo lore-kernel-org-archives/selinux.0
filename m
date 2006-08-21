@@ -1,56 +1,38 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k7L0ubR1019033
-	for <selinux@tycho.nsa.gov>; Sun, 20 Aug 2006 20:56:38 -0400
-Received: from smtp.sws.net.au (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id k7L0uJeD021016
-	for <selinux@tycho.nsa.gov>; Mon, 21 Aug 2006 00:56:21 GMT
-Received: from localhost (localhost [127.0.0.1])
-	by smtp.sws.net.au (Postfix) with ESMTP id 201F661B13
-	for <selinux@tycho.nsa.gov>; Mon, 21 Aug 2006 10:56:28 +1000 (EST)
-Received: from smtp.sws.net.au ([127.0.0.1])
-	by localhost (smtp [127.0.0.1]) (amavisd-new, port 10024) with ESMTP
-	id 15370-06 for <selinux@tycho.nsa.gov>;
-	Mon, 21 Aug 2006 10:56:28 +1000 (EST)
-Received: from aeon.coker.com.au (localhost [127.0.0.1])
-	by smtp.sws.net.au (Postfix) with ESMTP id EB80361AF2
-	for <selinux@tycho.nsa.gov>; Mon, 21 Aug 2006 10:56:27 +1000 (EST)
-Received: from aeon (aeon [127.0.0.1])
-	by aeon.coker.com.au (Postfix) with ESMTP id F3592A7D6A
-	for <selinux@tycho.nsa.gov>; Mon, 21 Aug 2006 10:56:24 +1000 (EST)
-From: Russell Coker <russell@coker.com.au>
-Reply-To: russell@coker.com.au
-To: "SE-Linux" <selinux@tycho.nsa.gov>
-Subject: CFP for LCA
-Date: Mon, 21 Aug 2006 10:56:20 +1000
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k7LEYfq9004903
+	for <selinux@tycho.nsa.gov>; Mon, 21 Aug 2006 10:34:41 -0400
+Received: from ug-out-f131.google.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id k7LEYA3i024719
+	for <selinux@tycho.nsa.gov>; Mon, 21 Aug 2006 14:34:11 GMT
+Received: by ug-out-f131.google.com with SMTP id 63so24537ugl
+        for <selinux@tycho.nsa.gov>; Mon, 21 Aug 2006 07:34:38 -0700 (PDT)
+Message-ID: <59ad41340608210734k221a25c8ue8786fad4145ebcd@mail.gmail.com>
+Date: Mon, 21 Aug 2006 16:34:38 +0200
+From: "=?ISO-8859-1?Q?Lorenzo_Hern=E1ndez_Garc=EDa-Hierro?=" <lorenzohgh@tuxedo-es.org>
+Reply-To: lorenzo@tuxedo-es.org
+To: selinux@tycho.nsa.gov
+Subject: AVC message logs
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Message-Id: <200608211056.22533.russell@coker.com.au>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-http://www.linux.conf.au/cfp
+Hi,
 
-This CFP closes in 9 days.  Any suggestions on what I should offer?
+I would like to get different avc message logs from people around,
+preferable not just testing related, although the only requirement is
+that it should be more than 50K size.
 
-I'm thinking of a half-day hands-on tutorial based on the 45 minute talk I'm 
-giving in a few days time on deploying SE Linux on a production server with 
-custom software (which goes through all steps from secure application design 
-to writing policy).  I might do it both on RHEL4 and FC5 to show both ways of 
-doing it.  45 minutes is only enough time to skim such a topic, but I'm 
-concerned that four hours might be going too far.
+I'm working on some stuff and it would be of invaluable help to have
+different data-sets to play with. It's a rather basic thing I may send
+around when It gets polished, maybe not really useful 'out of the
+box'.
 
-Also I'm thinking of making two offers for LCA to let the organizers choose 
-which one they want.
+Reply privately with attachment in gzip or uncompressed plain text format.
 
+Many thanks in advance.
 
-PS  Please reply off-list.
-
--- 
-http://etbe.blogspot.com/          My Blog
-http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
-
-http://www.coker.com.au/sponsorship.html Sponsoring Free Software development
+Kind regards.
 
 --
 This message was distributed to subscribers of the selinux mailing list.
