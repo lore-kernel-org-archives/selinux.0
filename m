@@ -1,79 +1,52 @@
-Subject: Bug in restorecon for symlinks in root dir
-From: Erich Schubert <erich@debian.org>
-To: Stephen Smalley <sds@tycho.nsa.gov>, selinux@tycho.nsa.gov
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-c0GWOO6LNFkb+ClTeWVj"
-Date: Tue, 22 Aug 2006 02:17:21 +0200
-Message-Id: <1156205841.22905.33.camel@wintermute.xmldesign.de>
-Mime-Version: 1.0
+Message-ID: <44EB02B3.5040100@tresys.com>
+Date: Tue, 22 Aug 2006 09:12:19 -0400
+From: Joshua Brindle <jbrindle@tresys.com>
+MIME-Version: 1.0
+To: Jim Meyering <jim@meyering.net>
+CC: "Christopher J. PeBenito" <cpebenito@tresys.com>,
+        Stephen Smalley <sds@tycho.nsa.gov>,
+        Karl MacMillan <kmacmillan@mentalrootkit.com>, selinux@tycho.nsa.gov
+Subject: Re: justifying --context=CTX (-Z) for upstream coreutils, like mkdir
+References: <87mzabgyrk.fsf@rho.meyering.net>	<1155308294.8018.59.camel@localhost.localdomain>	<87irkzfcgr.fsf@rho.meyering.net>	<1155567404.23601.10.camel@localhost.localdomain>	<87ac67iaao.fsf@rho.meyering.net>	<1155571378.23601.32.camel@localhost.localdomain>	<873bbzi6c1.fsf@rho.meyering.net>	<1155581090.28766.217.camel@moss-spartans.epoch.ncsc.mil>	<87wt929j25.fsf@rho.meyering.net> <1156182056.14126.91.camel@sgc> <87pset93nk.fsf@rho.meyering.net>
+In-Reply-To: <87pset93nk.fsf@rho.meyering.net>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+Jim Meyering wrote:
+> "Christopher J. PeBenito" <cpebenito@tresys.com> wrote:
+<snip>
+>> Fscon has security implications.  For example, if the program fscon
+>> exec's transitions to a different domain, either it would have to be
+>> disallowed across a transition, or we would have to add a permission to
+> 
+> I understood that making fscon disallow a transition would be fine.
+> Any cross-transition use could be achieved via runcon.
+> 
+>> allow it to work across transitions.  If a misbehaving program doesn't
+>> clear its fscreate, then all its child programs will be broken by trying
+>> to create programs in the wrong context, which would be common for the
+>> non-transitioning exec() case.
+>>
+>> Fscon doesn't work for any program that isn't simple like coreutils
+>> programs.
+> 
+> But there are many others that *would* benefit.
+> 
 
---=-c0GWOO6LNFkb+ClTeWVj
-Content-Type: multipart/mixed; boundary="=-9hLX5aXQhtMLfU6VpW5U"
+You didn't respond to this and its probably the most important point. 
+Being able to set your childrens fscreatecon is _dangerous_ and 
+potentially affects robustness if a parent forgets to unset it before 
+spawning children. Granted doing this across domain transitions can (and 
+must) be protected by policy but within the same domain there is little 
+that can be done. You'll risk making the filesystem inconsistent with this.
 
-
---=-9hLX5aXQhtMLfU6VpW5U
-Content-Type: text/plain; charset=ISO-8859-15
-Content-Transfer-Encoding: quoted-printable
-
-Hi,
-restorecon has a bug for symlinks in the root directory, such
-as /vmlinuz
-or the /lib64 -> /lib symlink found on all debian amd64 systems.
-
-The bug arises in the way the containing directories "realname" is found
-for symlinks. Basically, the directory name is split by overwriting the
-last / character with a \0 char; then calling realname(3) on the first
-component, then joining them again.
-For obvious reasons, this doesn't work for filenames such as /lib64; but
-it only affects symlinks (thats why "restorecon /etc" works fine).
-The easiest workaround is to use "restorecon //lib64"
-
-Attached is a patch to fix this bug. It's untested yet, but I guess
-you'll review it anyway. And it's a very easy thing, it's got to
-work. ;-)
-
-best regards,
-Erich Schubert
---=20
-   erich@(vitavonni.de|debian.org)    --    GPG Key ID: 4B3A135C    (o_
-     This one's tricky. You have to use imaginary numbers, like     //\
-                      eleventeen... --- Hobbes                      V_/_
-          Die St=E4rke eines Menschen kann man daran messen,
-              wie er mit seinen Schw=E4chen fertig wird!
-
---=-9hLX5aXQhtMLfU6VpW5U
-Content-Disposition: attachment; filename=restorecon-fix-for-symlinks-in-root.diff
-Content-Type: text/x-patch; name=restorecon-fix-for-symlinks-in-root.diff;
-	charset=ISO-8859-15
-Content-Transfer-Encoding: base64
-
-LS0tIHBvbGljeWNvcmV1dGlscy0xLjMwLjI2Lm9yaWcvcmVzdG9yZWNvbi9yZXN0b3JlY29uLmMN
-CisrKyBwb2xpY3ljb3JldXRpbHMtMS4zMC4yNi9yZXN0b3JlY29uL3Jlc3RvcmVjb24uYw0KQEAg
-LTE3OCw3ICsxNzgsMTAgQEANCiAJCQlyZXR1cm4gMTsNCiAJCX0NCiAJCWZpbGVfc2VwID0gc3Ry
-cmNocih0bXBfcGF0aCwgJy8nKTsNCi0JCWlmIChmaWxlX3NlcCkgew0KKwkJaWYgKGZpbGVfc2Vw
-ID09IHRtcF9wYXRoKSB7DQorCQkJZmlsZV9zZXArKzsNCisJCQlwID0gc3RyY3B5KHBhdGgsIi8i
-KTsNCisJCX0gZWxzZSBpZiAoZmlsZV9zZXApIHsNCiAJCQkqZmlsZV9zZXAgPSAwOw0KIAkJCWZp
-bGVfc2VwKys7DQogCQkJcCA9IHJlYWxwYXRoKHRtcF9wYXRoLCBwYXRoKTsNCg==
-
-
---=-9hLX5aXQhtMLfU6VpW5U--
-
---=-c0GWOO6LNFkb+ClTeWVj
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: Dies ist ein digital signierter Nachrichtenteil
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.5 (GNU/Linux)
-
-iD8DBQBE6k0QntB470s6E1wRAoEUAJwOQJH5oKvKNY6XSc95rCVNFiErLwCfVBVK
-2v0UJJREAlyDumdVaDISFMI=
-=LoFm
------END PGP SIGNATURE-----
-
---=-c0GWOO6LNFkb+ClTeWVj--
-
+I honestly don't understand the problem here, these applications are 
+simple and adding -Z (to be standard with every other selinux aware 
+util) doesn't hurt anything. fscon is _not_ a better way to do this, its 
+a hack that can only be used by coreutils because of the point above 
+that any app of sufficient complexity will be writing files with 
+different contexts.
 
 --
 This message was distributed to subscribers of the selinux mailing list.
