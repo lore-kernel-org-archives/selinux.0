@@ -1,40 +1,47 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k7NGEs9N014228
-	for <selinux@tycho.nsa.gov>; Wed, 23 Aug 2006 12:14:54 -0400
-Received: from web51505.mail.yahoo.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with SMTP id k7NGEbkH021313
-	for <selinux@tycho.nsa.gov>; Wed, 23 Aug 2006 16:14:37 GMT
-Message-ID: <20060823161452.97820.qmail@web51505.mail.yahoo.com>
-Date: Wed, 23 Aug 2006 09:14:52 -0700 (PDT)
-From: Steve G <linux_4ever@yahoo.com>
-Subject: Re: Don't send statistics to audit logs
+Subject: Re: Bug in restorecon for symlinks in root dir
+From: Erich Schubert <erich@debian.org>
 To: Stephen Smalley <sds@tycho.nsa.gov>
 Cc: Darrel Goeddel <dgoeddel@TrustedCS.com>,
         Joshua Brindle <jbrindle@tresys.com>,
         Karl MacMillan <kmacmillan@mentalrootkit.com>, selinux@tycho.nsa.gov
-In-Reply-To: <1156345190.8506.50.camel@moss-spartans.epoch.ncsc.mil>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+In-Reply-To: <1156346855.8506.62.camel@moss-spartans.epoch.ncsc.mil>
+References: <1156205841.22905.33.camel@wintermute.xmldesign.de>
+	 <1156346855.8506.62.camel@moss-spartans.epoch.ncsc.mil>
+Content-Type: text/plain; charset=ISO-8859-15
+Date: Wed, 23 Aug 2006 19:40:39 +0200
+Message-Id: <1156354840.2883.4.camel@wintermute.xmldesign.de>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+Hi Stephen,
+> restorecon reset //lib64 context user_u:object_r:root_t:s0->system_u:object_r:default_t:s0
+> versus the expected result of:
+> restorecon reset /lib64 context user_u:object_r:root_t:s0->system_u:object_r:lib_t:s0
 
->So I think the patch below would likely suffice for your need.
+Ah, I was already wondering why this was happening already...
 
-OK, sounds good.
+> The following seems to work, although it is a bit strange.  Possibly the
+> entire approach there needs to be reworked.
+> +			p = strcpy(path, "");
 
-On a separate note...I found that with avc_log, there was no good way to specify
-the audit message type. They are all AUDIT_USER_AVC. Suppose some should be
-AUDIT_USER_SELINUX_ERR? (There are some messages that are error conditions and
-not an access vector calculation.)
+Yep, that should work better. The problem is that realpath("") doesn't
+work for obvious reasons. I wonder what realpath does to a trailing
+slash.
 
-Thanks,
--Steve
+Do we need some handling for double slashes? I.e. will
+restorecon /etc//shadow work as expected? Does it work correctly for
+links like //lib64?
+I assume it will, but I didn't verify it.
 
-__________________________________________________
-Do You Yahoo!?
-Tired of spam?  Yahoo! Mail has the best spam protection around 
-http://mail.yahoo.com 
+best regards,
+Erich Schubert
+-- 
+    erich@(vitavonni.de|debian.org)    --    GPG Key ID: 4B3A135C    (o_
+   It's not denial. I'm just selective about the reality I accept.   //\
+       Signatur befindet sich auf der Rückseite dieser E-Mail.       V_/_
+
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
