@@ -1,148 +1,48 @@
-Message-ID: <44EDB287.2090101@trustedcs.com>
-Date: Thu, 24 Aug 2006 09:07:03 -0500
-From: Darrel Goeddel <dgoeddel@TrustedCS.com>
-MIME-Version: 1.0
-To: Stephen Smalley <sds@tycho.nsa.gov>
-CC: Karl MacMillan <kmacmillan@mentalrootkit.com>,
-        Joshua Brindle <jbrindle@tresys.com>, selinux@tycho.nsa.gov,
-        James Morris <jmorris@namei.org>
-Subject: Re: [patch] libselinux:  do not set compat_net upon policy load
-References: <1156360389.8506.100.camel@moss-spartans.epoch.ncsc.mil>	 <1156361845.4242.18.camel@twoface.columbia.tresys.com>	 <1156362514.8506.108.camel@moss-spartans.epoch.ncsc.mil>	 <1156372921.4242.33.camel@twoface.columbia.tresys.com> <1156425694.24806.5.camel@localhost.localdomain>
-In-Reply-To: <1156425694.24806.5.camel@localhost.localdomain>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Subject: Re: Bug in restorecon for symlinks in root dir
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Erich Schubert <erich@debian.org>
+Cc: Darrel Goeddel <dgoeddel@TrustedCS.com>,
+        Joshua Brindle <jbrindle@tresys.com>,
+        Karl MacMillan <kmacmillan@mentalrootkit.com>, selinux@tycho.nsa.gov
+In-Reply-To: <1156354840.2883.4.camel@wintermute.xmldesign.de>
+References: <1156205841.22905.33.camel@wintermute.xmldesign.de>
+	 <1156346855.8506.62.camel@moss-spartans.epoch.ncsc.mil>
+	 <1156354840.2883.4.camel@wintermute.xmldesign.de>
+Content-Type: text/plain
+Date: Thu, 24 Aug 2006 11:27:32 -0400
+Message-Id: <1156433253.8506.175.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Karl MacMillan wrote:
-> On Wed, 2006-08-23 at 18:42 -0400, Joshua Brindle wrote:
+On Wed, 2006-08-23 at 19:40 +0200, Erich Schubert wrote:
+> Hi Stephen,
+> > restorecon reset //lib64 context user_u:object_r:root_t:s0->system_u:object_r:default_t:s0
+> > versus the expected result of:
+> > restorecon reset /lib64 context user_u:object_r:root_t:s0->system_u:object_r:lib_t:s0
 > 
->>On Wed, 2006-08-23 at 15:48 -0400, Stephen Smalley wrote:
->>
->>>On Wed, 2006-08-23 at 15:37 -0400, Joshua Brindle wrote:
->>>
->>>>On Wed, 2006-08-23 at 15:13 -0400, Stephen Smalley wrote:
->>>>
->>>>>Revert the change to automatically set /selinux/compat_net at policy
->>>>>load time based on the policy, as this prevents compat_net from being
->>>>>effectively used with refpolicy-based policies that include the packet
->>>>>class definition.
->>>>>
->>>>>Signed-off-by:  Stephen Smalley <sds@tycho.nsa.gov>
->>>>>
->>>>So it has to be set manually now? How does the setting persist?
->>>
->>>The original idea was for it to be set manually, either via grub.conf
->>>(if using the boot parameter) or via an rc script (if
->>>using /selinux/compat_net).  I had modified libselinux to automatically
->>>set it based on the policy (packet class definition) a while ago, but
->>>that turns out to be a weak indicator and interferes with the ability of
->>>people to force the system to use compat_net checks when using a modern
->>>policy.  In particular, this is posing a problem for the LSPP effort,
->>>see the redhat-lspp list.
->>>
->>
->>sounds good,
->>
->>Acked-by: Joshua Brindle <jbrindle@tresys.com>
->>
+> Ah, I was already wondering why this was happening already...
 > 
-> Acked-by: Karl MacMillan <kmacmillan@mentalrootkit.com>
+> > The following seems to work, although it is a bit strange.  Possibly the
+> > entire approach there needs to be reworked.
+> > +			p = strcpy(path, "");
 > 
+> Yep, that should work better. The problem is that realpath("") doesn't
+> work for obvious reasons. I wonder what realpath does to a trailing
+> slash.
+> 
+> Do we need some handling for double slashes? I.e. will
+> restorecon /etc//shadow work as expected? Does it work correctly for
+> links like //lib64?
+> I assume it will, but I didn't verify it.
 
-Acked-by: Darrel Goeddel <dgoeddel@trustedcs.com>
+restorecon /etc//shadow or //lib64/libc.so.6 appear to work correctly,
+but restorecon //lib64 would end up with default_t even with this patch.
 
->>---
->>
->>> src/load_policy.c |   46 +++++++++++++++-------------------------------
->>> 1 files changed, 15 insertions(+), 31 deletions(-)
->>>
->>>Index: libselinux/src/load_policy.c
->>>===================================================================
->>>RCS file: /nfshome/pal/CVS/selinux-usr/libselinux/src/load_policy.c,v
->>>retrieving revision 1.17
->>>diff -u -p -r1.17 load_policy.c
->>>--- libselinux/src/load_policy.c	29 Jun 2006 18:21:04 -0000	1.17
->>>+++ libselinux/src/load_policy.c	23 Aug 2006 18:48:46 -0000
->>>@@ -49,7 +49,7 @@ int selinux_mkload_policy(int preservebo
->>> 	struct stat sb;
->>> 	size_t size;
->>> 	void *map, *data;
->>>-	int fd, rc = -1, *values, len, i, prot, compat_net;
->>>+	int fd, rc = -1, *values, len, i, prot;
->>> 	sepol_policydb_t *policydb;
->>> 	sepol_policy_file_t *pf;
->>> 
->>>@@ -79,23 +79,20 @@ int selinux_mkload_policy(int preservebo
->>> 	if (map == MAP_FAILED)
->>> 		goto close;
->>> 
->>>-	if (sepol_policy_file_create(&pf))
->>>-		goto unmap;
->>>-	if (sepol_policydb_create(&policydb)) {
->>>-		sepol_policy_file_free(pf);
->>>-		goto unmap;
->>>-	}
->>>-	sepol_policy_file_set_mem(pf, data, size);
->>>-	if (sepol_policydb_read(policydb, pf)) {
->>>-		sepol_policy_file_free(pf);
->>>-		sepol_policydb_free(policydb);
->>>-		goto unmap;
->>>-	}
->>>-
->>>-	compat_net = sepol_policydb_compat_net(policydb);
->>>-
->>> 	if (vers > kernvers) {
->>> 		/* Need to downgrade to kernel-supported version. */
->>>+		if (sepol_policy_file_create(&pf))
->>>+			goto unmap;
->>>+		if (sepol_policydb_create(&policydb)) {
->>>+			sepol_policy_file_free(pf);
->>>+			goto unmap;
->>>+		}
->>>+		sepol_policy_file_set_mem(pf, data, size);
->>>+		if (sepol_policydb_read(policydb, pf)) {
->>>+			sepol_policy_file_free(pf);
->>>+			sepol_policydb_free(policydb);
->>>+			goto unmap;
->>>+		}
->>> 		if (sepol_policydb_set_vers(policydb, kernvers) ||
->>> 		    sepol_policydb_to_image(NULL, policydb, &data, &size)) {
->>> 			/* Downgrade failed, keep searching. */
->>>@@ -106,11 +103,10 @@ int selinux_mkload_policy(int preservebo
->>> 			vers--;
->>> 			goto search;
->>> 		}
->>>+		sepol_policy_file_free(pf);
->>>+		sepol_policydb_free(policydb);
->>> 	}
->>> 
->>>-	sepol_policy_file_free(pf);
->>>-	sepol_policydb_free(policydb);
->>>-
->>> 	if (load_setlocaldefs) {
->>> 		void *olddata = data;
->>> 		size_t oldsize = size;
->>>@@ -150,18 +146,6 @@ int selinux_mkload_policy(int preservebo
->>> 
->>> 	rc = security_load_policy(data, size);
->>> 
->>>-	if (!rc && selinux_mnt) {
->>>-		int fd2;
->>>-		char buf[2];
->>>-		snprintf(path, sizeof path, "%s/compat_net", selinux_mnt);
->>>-		fd2 = open(path, O_RDWR);
->>>-		if (fd2 < 0)
->>>-			goto unmap;
->>>-		buf[0] = compat_net ? '1' : '0';
->>>-		buf[1] = '\0';
->>>-		(void)write(fd2, buf, 2);
->>>-		close(fd2);
->>>-	}
->>>       unmap:
->>> 	if (data != map)
->>> 		free(data);
->>>
->>
+-- 
+Stephen Smalley
+National Security Agency
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
