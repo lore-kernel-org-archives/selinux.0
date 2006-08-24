@@ -1,48 +1,98 @@
-Subject: Re: Bug in restorecon for symlinks in root dir
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Erich Schubert <erich@debian.org>
-Cc: Darrel Goeddel <dgoeddel@TrustedCS.com>,
-        Joshua Brindle <jbrindle@tresys.com>,
-        Karl MacMillan <kmacmillan@mentalrootkit.com>, selinux@tycho.nsa.gov
-In-Reply-To: <1156354840.2883.4.camel@wintermute.xmldesign.de>
-References: <1156205841.22905.33.camel@wintermute.xmldesign.de>
-	 <1156346855.8506.62.camel@moss-spartans.epoch.ncsc.mil>
-	 <1156354840.2883.4.camel@wintermute.xmldesign.de>
-Content-Type: text/plain
-Date: Thu, 24 Aug 2006 11:27:32 -0400
-Message-Id: <1156433253.8506.175.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+Message-ID: <44EDE723.1020501@trustedcs.com>
+Date: Thu, 24 Aug 2006 12:51:31 -0500
+From: Venkat Yekkirala <vyekkirala@TrustedCS.com>
+MIME-Version: 1.0
+To: netdev@vger.kernel.org, selinux@tycho.nsa.gov
+CC: jmorris@namei.org, sds@tycho.nsa.gov, chanson@TrustedCS.com
+Subject: [PATCH 3/3] secid reconciliation-v01: core networking changes
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2006-08-23 at 19:40 +0200, Erich Schubert wrote:
-> Hi Stephen,
-> > restorecon reset //lib64 context user_u:object_r:root_t:s0->system_u:object_r:default_t:s0
-> > versus the expected result of:
-> > restorecon reset /lib64 context user_u:object_r:root_t:s0->system_u:object_r:lib_t:s0
-> 
-> Ah, I was already wondering why this was happening already...
-> 
-> > The following seems to work, although it is a bit strange.  Possibly the
-> > entire approach there needs to be reworked.
-> > +			p = strcpy(path, "");
-> 
-> Yep, that should work better. The problem is that realpath("") doesn't
-> work for obvious reasons. I wonder what realpath does to a trailing
-> slash.
-> 
-> Do we need some handling for double slashes? I.e. will
-> restorecon /etc//shadow work as expected? Does it work correctly for
-> links like //lib64?
-> I assume it will, but I didn't verify it.
+Invoke the skb_policy_check LSM hook from within networking code.
 
-restorecon /etc//shadow or //lib64/libc.so.6 appear to work correctly,
-but restorecon //lib64 would end up with default_t even with this patch.
+This is being done at the same time and as a part of checking
+xfrm policy. This is hopefully adequate (not anticipating
+IP protos that don't use xfrm).
 
--- 
-Stephen Smalley
-National Security Agency
+Signed-off-by: Venkat Yekkirala <vyekkirala@TrustedCS.com>
+---
+ include/net/xfrm.h |   50 +++++++++++++++++++++++--------------------
+ 1 file changed, 27 insertions(+), 23 deletions(-)
 
+--- net-2.6.19.sid2/include/net/xfrm.h	2006-08-24 09:19:13.000000000 -0500
++++ net-2.6.19.sid3/include/net/xfrm.h	2006-08-24 11:00:27.000000000 -0500
+@@ -663,22 +663,20 @@ extern int __xfrm_policy_check(struct so
+ 
+ static inline int xfrm_policy_check(struct sock *sk, int dir, struct sk_buff *skb, unsigned short family)
+ {
+-	if (sk && sk->sk_policy[XFRM_POLICY_IN])
+-		return __xfrm_policy_check(sk, dir, skb, family);
+-
+-	return	(!xfrm_policy_count[dir] && !skb->sp) ||
+-		(skb->dst->flags & DST_NOPOLICY) ||
+-		__xfrm_policy_check(sk, dir, skb, family);
+-}
+-
+-static inline int xfrm4_policy_check(struct sock *sk, int dir, struct sk_buff *skb)
+-{
+-	return xfrm_policy_check(sk, dir, skb, AF_INET);
+-}
++	int ret;
+ 
+-static inline int xfrm6_policy_check(struct sock *sk, int dir, struct sk_buff *skb)
+-{
+-	return xfrm_policy_check(sk, dir, skb, AF_INET6);
++	if (sk && sk->sk_policy[XFRM_POLICY_IN])
++		ret = __xfrm_policy_check(sk, dir, skb, family);
++	else
++		ret = (!xfrm_policy_count[dir] && !skb->sp) ||
++		      (skb->dst->flags & DST_NOPOLICY) ||
++		      __xfrm_policy_check(sk, dir, skb, family);
++
++#ifdef CONFIG_SECURITY_NETWORK
++	if (ret)
++		ret = security_skb_policy_check(skb, family);
++#endif /* CONFIG_SECURITY_NETWORK */
++	return ret;
+ }
+ 
+ extern int xfrm_decode_session(struct sk_buff *skb, struct flowi *fl, unsigned short family);
+@@ -730,20 +728,26 @@ static inline void xfrm_sk_free_policy(s
+ static inline int xfrm_sk_clone_policy(struct sock *sk) { return 0; }
+ static inline int xfrm6_route_forward(struct sk_buff *skb) { return 1; }  
+ static inline int xfrm4_route_forward(struct sk_buff *skb) { return 1; } 
+-static inline int xfrm6_policy_check(struct sock *sk, int dir, struct sk_buff *skb)
+-{ 
+-	return 1; 
+-} 
+-static inline int xfrm4_policy_check(struct sock *sk, int dir, struct sk_buff *skb)
+-{
+-	return 1;
+-}
+ static inline int xfrm_policy_check(struct sock *sk, int dir, struct sk_buff *skb, unsigned short family)
+ {
++#ifdef CONFIG_SECURITY_NETWORK
++	return security_skb_policy_check(skb, family);
++#else
+ 	return 1;
++#endif /* CONFIG_SECURITY_NETWORK */
+ }
+ #endif
+ 
++static inline int xfrm4_policy_check(struct sock *sk, int dir, struct sk_buff *skb)
++{
++	return xfrm_policy_check(sk, dir, skb, AF_INET);
++}
++
++static inline int xfrm6_policy_check(struct sock *sk, int dir, struct sk_buff *skb)
++{
++	return xfrm_policy_check(sk, dir, skb, AF_INET6);
++}
++
+ static __inline__
+ xfrm_address_t *xfrm_flowi_daddr(struct flowi *fl, unsigned short family)
+ {
 
 --
 This message was distributed to subscribers of the selinux mailing list.
