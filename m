@@ -1,98 +1,27 @@
-Message-ID: <44EDE723.1020501@trustedcs.com>
-Date: Thu, 24 Aug 2006 12:51:31 -0500
+Message-ID: <44EDE6EA.1090601@trustedcs.com>
+Date: Thu, 24 Aug 2006 12:50:34 -0500
 From: Venkat Yekkirala <vyekkirala@TrustedCS.com>
 MIME-Version: 1.0
 To: netdev@vger.kernel.org, selinux@tycho.nsa.gov
 CC: jmorris@namei.org, sds@tycho.nsa.gov, chanson@TrustedCS.com
-Subject: [PATCH 3/3] secid reconciliation-v01: core networking changes
+Subject: [PATCH 0/3] secid reconciliation-v01: Repost patchset with updates
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Invoke the skb_policy_check LSM hook from within networking code.
+The following are the changes included in this patchset since the previous post:
 
-This is being done at the same time and as a part of checking
-xfrm policy. This is hopefully adequate (not anticipating
-IP protos that don't use xfrm).
+- Use SELinux transition rules instead of precedence when reconciling the secid's
+  making it flexible/policy-driven; xfrm secid would prevail by default.
+- Change the naming of access vector perms to flow_in and flow_out.
+- Make selinux_xfrm_sock_rcv_skb checks conditional on compat_net.
+- Switch selinux_inet_conn_request to use secmark; cipso is still allowed to
+  override secmark currently in this regard (will rely on Paul Moore at HP
+  to bring cipso into the reconciliation path).
 
-Signed-off-by: Venkat Yekkirala <vyekkirala@TrustedCS.com>
----
- include/net/xfrm.h |   50 +++++++++++++++++++++++--------------------
- 1 file changed, 27 insertions(+), 23 deletions(-)
+This patchset is relative to David Miller's net-2.6.19.git.
 
---- net-2.6.19.sid2/include/net/xfrm.h	2006-08-24 09:19:13.000000000 -0500
-+++ net-2.6.19.sid3/include/net/xfrm.h	2006-08-24 11:00:27.000000000 -0500
-@@ -663,22 +663,20 @@ extern int __xfrm_policy_check(struct so
- 
- static inline int xfrm_policy_check(struct sock *sk, int dir, struct sk_buff *skb, unsigned short family)
- {
--	if (sk && sk->sk_policy[XFRM_POLICY_IN])
--		return __xfrm_policy_check(sk, dir, skb, family);
--
--	return	(!xfrm_policy_count[dir] && !skb->sp) ||
--		(skb->dst->flags & DST_NOPOLICY) ||
--		__xfrm_policy_check(sk, dir, skb, family);
--}
--
--static inline int xfrm4_policy_check(struct sock *sk, int dir, struct sk_buff *skb)
--{
--	return xfrm_policy_check(sk, dir, skb, AF_INET);
--}
-+	int ret;
- 
--static inline int xfrm6_policy_check(struct sock *sk, int dir, struct sk_buff *skb)
--{
--	return xfrm_policy_check(sk, dir, skb, AF_INET6);
-+	if (sk && sk->sk_policy[XFRM_POLICY_IN])
-+		ret = __xfrm_policy_check(sk, dir, skb, family);
-+	else
-+		ret = (!xfrm_policy_count[dir] && !skb->sp) ||
-+		      (skb->dst->flags & DST_NOPOLICY) ||
-+		      __xfrm_policy_check(sk, dir, skb, family);
-+
-+#ifdef CONFIG_SECURITY_NETWORK
-+	if (ret)
-+		ret = security_skb_policy_check(skb, family);
-+#endif /* CONFIG_SECURITY_NETWORK */
-+	return ret;
- }
- 
- extern int xfrm_decode_session(struct sk_buff *skb, struct flowi *fl, unsigned short family);
-@@ -730,20 +728,26 @@ static inline void xfrm_sk_free_policy(s
- static inline int xfrm_sk_clone_policy(struct sock *sk) { return 0; }
- static inline int xfrm6_route_forward(struct sk_buff *skb) { return 1; }  
- static inline int xfrm4_route_forward(struct sk_buff *skb) { return 1; } 
--static inline int xfrm6_policy_check(struct sock *sk, int dir, struct sk_buff *skb)
--{ 
--	return 1; 
--} 
--static inline int xfrm4_policy_check(struct sock *sk, int dir, struct sk_buff *skb)
--{
--	return 1;
--}
- static inline int xfrm_policy_check(struct sock *sk, int dir, struct sk_buff *skb, unsigned short family)
- {
-+#ifdef CONFIG_SECURITY_NETWORK
-+	return security_skb_policy_check(skb, family);
-+#else
- 	return 1;
-+#endif /* CONFIG_SECURITY_NETWORK */
- }
- #endif
- 
-+static inline int xfrm4_policy_check(struct sock *sk, int dir, struct sk_buff *skb)
-+{
-+	return xfrm_policy_check(sk, dir, skb, AF_INET);
-+}
-+
-+static inline int xfrm6_policy_check(struct sock *sk, int dir, struct sk_buff *skb)
-+{
-+	return xfrm_policy_check(sk, dir, skb, AF_INET6);
-+}
-+
- static __inline__
- xfrm_address_t *xfrm_flowi_daddr(struct flowi *fl, unsigned short family)
- {
+Please consider for inclusion in 2.6.19.
 
 --
 This message was distributed to subscribers of the selinux mailing list.
