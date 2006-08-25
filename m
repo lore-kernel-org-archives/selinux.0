@@ -1,160 +1,45 @@
-Subject: [PATCH] SELinux: work around filesystems which call d_instantiate
-	before setting inode mode
-From: Eric Paris <eparis@parisplace.org>
-To: selinux@tycho.nsa.gov
-Cc: sds@tycho.nsa.gov, James Morris <jmorris@redhat.com>
-Content-Type: text/plain
-Date: Fri, 25 Aug 2006 15:48:06 -0400
-Message-Id: <1156535286.6662.99.camel@localhost.localdomain>
-Mime-Version: 1.0
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k7PLPD4W002344
+	for <selinux@tycho.nsa.gov>; Fri, 25 Aug 2006 17:25:14 -0400
+Received: from legolas.drinsama.de (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id k7PLOdP8009978
+	for <selinux@tycho.nsa.gov>; Fri, 25 Aug 2006 21:24:39 GMT
+Date: Fri, 25 Aug 2006 23:24:01 +0200
+From: Erich Schubert <erich@debian.org>
+To: Salvo Giuffrida <giuffsalvo@hotmail.it>
+Cc: selinux@tycho.nsa.gov
+Subject: Re: Users
+Message-ID: <20060825212401.GA6260@wintermute.xmldesign.de>
+References: <BAY114-F8DE042F4A120882ADBA3EAF450@phx.gbl>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <BAY114-F8DE042F4A120882ADBA3EAF450@phx.gbl>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-One filesystem in particular, CIFS, is known to call d_instantiate
-before setting the mode for for some operations.  It will create a
-dentry for any children when doing a directory search and thereby is
-calling d_instantiate.   But it does so before setting the inode mode
-for the child inodes.  Thus the selinux sclass in the corresponding
-inode security struct is set incorrectly to always believe these inodes
-are regular files.  Then when operations are performed on these inodes
-at a later point in time SELinux will deny operations which may be
-allowed for the correct class but not for files or SELinux may check for
-access permissions to do operations which do not even pertain to the
-'file' class.  An example would be the user may attempt to remove a
-subdirectory which would need SELinux permissions to rmdir what it
-believes is a 'file.'  rmdir'ing a regular file doesn't make sense and
-is obviously not properly defined.  What this patch does is to
-recalculate the sclass for each inode on each permission check.  Thus if
-a filesystem decided to later (after the d_instantiate) set the mode
-bits (as CIFS does) we will make the correct security checks.  We also
-output a warning message letting the user know that they have a
-filesystem which doing operations in a questionable order.
-(Questionable because after calling d_instantiate the new inode may be
-available to other threads through the dentry cache with the mode set
-improperly)
+Hi Salvo,
+> the domain/type of the subject/object, to take his decision...So, what's 
+> the use of the user part?
 
-I believe that the CIFS people were contacted twice trying to get this
-changed but we want SELinux users to be able to work now and we want to
-know if any other filesystem uses this same ordering or choose to
-implement it in the future.
+Which roles are acceptable.
+A user logged in as user_u for example can never become sysadm_r. unless
+there is a way for him to switch his identity too, that is.
+The only identity switch I'm aware of is sysadm_u -> system_u when
+running init scripts IIRC.
 
-Signed-off-by: Eric Paris <eparis@redhat.com>
+The roles work the same way, they define which types are acceptable. The
+question I don't know the answer to is why we have these three levels,
+and not four or two or whatever. ;-)
+Probably because they suit our mind model best.
+user identity, role, application domain
 
- security/selinux/hooks.c       |   27 +++++++++++++++++++++++++++
- security/selinux/include/avc.h |    2 ++
- security/selinux/avc.c         |   14 +++++++++++++-
- 3 files changed, 42 insertions(+), 1 deletions(-)
-
-diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-index 5d1b8c7..5527aec 100644
---- a/security/selinux/hooks.c
-+++ b/security/selinux/hooks.c
-@@ -1066,6 +1066,25 @@ static int task_has_system(struct task_s
- 			    SECCLASS_SYSTEM, perms, NULL);
- }
- 
-+/* 
-+ * Update the sclass of an inode.  This shouldn't ever do anything unless a FS
-+ * actually called d_instantiate before it set the i_mode.
-+ */
-+static inline void inode_update_sclass(struct inode *inode)
-+{
-+	struct inode_security_struct *isec = inode->i_security;
-+	if (isec->sclass == SECCLASS_FILE)
-+	{
-+		isec->sclass = inode_mode_to_security_class(inode->i_mode);
-+		if (unlikely(isec->sclass != SECCLASS_FILE) && printk_ratelimit())
-+			printk(KERN_WARNING "SELinux: Inode on a %s filesystem "
-+				"with sclass=file but should have been sclass="
-+				"%s, fixing up this issue\n", 
-+				inode->i_sb->s_type->name, 
-+				avc_class_to_string(isec->sclass));
-+	}
-+}
-+
- /* Check whether a task has a particular permission to an inode.
-    The 'adp' parameter is optional and allows other audit
-    data to be passed (e.g. the dentry). */
-@@ -1081,6 +1100,8 @@ static int inode_has_perm(struct task_st
- 	tsec = tsk->security;
- 	isec = inode->i_security;
- 
-+	inode_update_sclass(inode);
-+
- 	if (!adp) {
- 		adp = &ad;
- 		AVC_AUDIT_DATA_INIT(&ad, FS);
-@@ -1220,6 +1241,8 @@ static int may_link(struct inode *dir,
- 	dsec = dir->i_security;
- 	isec = dentry->d_inode->i_security;
- 
-+	inode_update_sclass(dentry->d_inode);
-+
- 	AVC_AUDIT_DATA_INIT(&ad, FS);
- 	ad.u.fs.dentry = dentry;
- 
-@@ -1266,6 +1289,8 @@ static inline int may_rename(struct inod
- 	old_is_dir = S_ISDIR(old_dentry->d_inode->i_mode);
- 	new_dsec = new_dir->i_security;
- 
-+	inode_update_sclass(old_dir);
-+
- 	AVC_AUDIT_DATA_INIT(&ad, FS);
- 
- 	ad.u.fs.dentry = old_dentry;
-@@ -2260,6 +2285,8 @@ static int selinux_inode_setxattr(struct
- 	if ((current->fsuid != inode->i_uid) && !capable(CAP_FOWNER))
- 		return -EPERM;
- 
-+	inode_update_sclass(inode);
-+
- 	AVC_AUDIT_DATA_INIT(&ad,FS);
- 	ad.u.fs.dentry = dentry;
- 
-diff --git a/security/selinux/include/avc.h b/security/selinux/include/avc.h
-index 960ef18..043d479 100644
---- a/security/selinux/include/avc.h
-+++ b/security/selinux/include/avc.h
-@@ -125,6 +125,8 @@ int avc_add_callback(int (*callback)(u32
- 		     u32 events, u32 ssid, u32 tsid,
- 		     u16 tclass, u32 perms);
- 
-+const char *avc_class_to_string(u16 tclass);
-+
- /* Exported to selinuxfs */
- int avc_get_hash_stats(char *page);
- extern unsigned int avc_cache_threshold;
-diff --git a/security/selinux/avc.c b/security/selinux/avc.c
-index a300702..88bba69 100644
---- a/security/selinux/avc.c
-+++ b/security/selinux/avc.c
-@@ -218,7 +218,7 @@ static void avc_dump_query(struct audit_
- 		audit_log_format(ab, " tcontext=%s", scontext);
- 		kfree(scontext);
- 	}
--	audit_log_format(ab, " tclass=%s", class_to_string[tclass]);
-+	audit_log_format(ab, " tclass=%s", avc_class_to_string(tclass));
- }
- 
- /**
-@@ -913,3 +913,15 @@ int avc_has_perm(u32 ssid, u32 tsid, u16
- 	avc_audit(ssid, tsid, tclass, requested, &avd, rc, auditdata);
- 	return rc;
- }
-+
-+/**
-+ * avc_class_to_string - return a human readable string given an object class.
-+ * @tclass: the target class we wish to translate
-+ *
-+ * Simply take the target object class passed to us and return the human
-+ * readable string associated with that class
-+ */
-+const char *avc_class_to_string(u16 tclass)
-+{
-+	return class_to_string[tclass];
-+}
-
-
+Regards,
+Erich Schubert
+-- 
+     erich@(mucl.de|debian.org)      --      GPG Key ID: 4B3A135C      (o_
+      This one's tricky. You have to use imaginary numbers, like       //\
+                       eleventeen... --- Hobbes                        V_/_
+ Nur der ist weise, der weiss, dass er es nicht ist. --- Sokrates
 
 --
 This message was distributed to subscribers of the selinux mailing list.
