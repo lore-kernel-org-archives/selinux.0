@@ -1,75 +1,160 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k7PGK3ZC026525
-	for <selinux@tycho.nsa.gov>; Fri, 25 Aug 2006 12:20:03 -0400
-Received: from mail.atsec.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id k7PGJSP8024702
-	for <selinux@tycho.nsa.gov>; Fri, 25 Aug 2006 16:19:29 GMT
-Date: Fri, 25 Aug 2006 11:29:51 -0500
-From: Klaus Weidner <klaus@atsec.com>
-To: "Christopher J. PeBenito" <cpebenito@tresys.com>
-Cc: SELinux Mail List <selinux@tycho.nsa.gov>,
-        redhat-lspp-list <redhat-lspp@redhat.com>
-Subject: Re: [PATCH] Add boolean controlling user access to kernel keyring
-Message-ID: <20060825162951.GA17482@w-m-p.com>
-References: <20060825005512.GA17489@w-m-p.com> <1156515928.3199.14.camel@sgc.columbia.tresys.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1156515928.3199.14.camel@sgc.columbia.tresys.com>
+Subject: [PATCH] SELinux: work around filesystems which call d_instantiate
+	before setting inode mode
+From: Eric Paris <eparis@parisplace.org>
+To: selinux@tycho.nsa.gov
+Cc: sds@tycho.nsa.gov, James Morris <jmorris@redhat.com>
+Content-Type: text/plain
+Date: Fri, 25 Aug 2006 15:48:06 -0400
+Message-Id: <1156535286.6662.99.camel@localhost.localdomain>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, Aug 25, 2006 at 10:25:27AM -0400, Christopher J. PeBenito wrote:
-> On Thu, 2006-08-24 at 19:55 -0500, Klaus Weidner wrote:
-> > This patch adds the boolean "allow_kernel_keyring_user_access" with the
-> > goal of implementing an on/off switch for the kernel keyring as far as
-> > unprivileged users are concerned. It defaults to true which corresponds
-> > to the original behavior without this patch.
-> > 
-> > The reason for the patch is that the kernel keyring is a fairly complex
-> > piece of code that would need testing and documentation if it were
-> > available in the evaluated configuration for LSPP (labeled security
-> > protection profile) compliant systems, and since it's unlikely to
-> > currently be useful on those systems it would greatly simplify things to
-> > have a way to disable the feature for unprivileged users at runtime.
-> 
-> I'm confused, there isn't any unprivileged user access that is disabled
-> by this policy, only login programs.
+One filesystem in particular, CIFS, is known to call d_instantiate
+before setting the mode for for some operations.  It will create a
+dentry for any children when doing a directory search and thereby is
+calling d_instantiate.   But it does so before setting the inode mode
+for the child inodes.  Thus the selinux sclass in the corresponding
+inode security struct is set incorrectly to always believe these inodes
+are regular files.  Then when operations are performed on these inodes
+at a later point in time SELinux will deny operations which may be
+allowed for the correct class but not for files or SELinux may check for
+access permissions to do operations which do not even pertain to the
+'file' class.  An example would be the user may attempt to remove a
+subdirectory which would need SELinux permissions to rmdir what it
+believes is a 'file.'  rmdir'ing a regular file doesn't make sense and
+is obviously not properly defined.  What this patch does is to
+recalculate the sclass for each inode on each permission check.  Thus if
+a filesystem decided to later (after the d_instantiate) set the mode
+bits (as CIFS does) we will make the correct security checks.  We also
+output a warning message letting the user know that they have a
+filesystem which doing operations in a questionable order.
+(Questionable because after calling d_instantiate the new inode may be
+available to other threads through the dentry cache with the mode set
+improperly)
 
-My goal was to conditionalize all "allow" rules for operations on the key
-class in the current policy, based on a comment by Stephen Smalley that
-this would make the keys inaccessible. I was expecting that the user
-processes would inherit the permissions from the login program used to
-access the system, but that's apparently not how it works (sorry about
-the confusion).
+I believe that the CIFS people were contacted twice trying to get this
+changed but we want SELinux users to be able to work now and we want to
+know if any other filesystem uses this same ordering or choose to
+implement it in the future.
 
-I've now experimented with the keyctl program and it appears that the
-current policy already doesn't allow key operations for users.  I'm
-getting "permission denied" errors for simple operations such as
-"keyctl add user mykey stuff @u" when run as a staff_u user.
+Signed-off-by: Eric Paris <eparis@redhat.com>
 
-If the current refpolicy already disables access to the keyring, and
-admins would need to add site-specific policy rules to allow it, I agree
-that the patch isn't necessary.
+ security/selinux/hooks.c       |   27 +++++++++++++++++++++++++++
+ security/selinux/include/avc.h |    2 ++
+ security/selinux/avc.c         |   14 +++++++++++++-
+ 3 files changed, 42 insertions(+), 1 deletions(-)
 
-(If there are plans to make the keyring features available to general
-userspace programs by default in the refpolicy in the future, I think a
-boolean to control it would be useful at that time.)
+diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+index 5d1b8c7..5527aec 100644
+--- a/security/selinux/hooks.c
++++ b/security/selinux/hooks.c
+@@ -1066,6 +1066,25 @@ static int task_has_system(struct task_s
+ 			    SECCLASS_SYSTEM, perms, NULL);
+ }
+ 
++/* 
++ * Update the sclass of an inode.  This shouldn't ever do anything unless a FS
++ * actually called d_instantiate before it set the i_mode.
++ */
++static inline void inode_update_sclass(struct inode *inode)
++{
++	struct inode_security_struct *isec = inode->i_security;
++	if (isec->sclass == SECCLASS_FILE)
++	{
++		isec->sclass = inode_mode_to_security_class(inode->i_mode);
++		if (unlikely(isec->sclass != SECCLASS_FILE) && printk_ratelimit())
++			printk(KERN_WARNING "SELinux: Inode on a %s filesystem "
++				"with sclass=file but should have been sclass="
++				"%s, fixing up this issue\n", 
++				inode->i_sb->s_type->name, 
++				avc_class_to_string(isec->sclass));
++	}
++}
++
+ /* Check whether a task has a particular permission to an inode.
+    The 'adp' parameter is optional and allows other audit
+    data to be passed (e.g. the dentry). */
+@@ -1081,6 +1100,8 @@ static int inode_has_perm(struct task_st
+ 	tsec = tsk->security;
+ 	isec = inode->i_security;
+ 
++	inode_update_sclass(inode);
++
+ 	if (!adp) {
+ 		adp = &ad;
+ 		AVC_AUDIT_DATA_INIT(&ad, FS);
+@@ -1220,6 +1241,8 @@ static int may_link(struct inode *dir,
+ 	dsec = dir->i_security;
+ 	isec = dentry->d_inode->i_security;
+ 
++	inode_update_sclass(dentry->d_inode);
++
+ 	AVC_AUDIT_DATA_INIT(&ad, FS);
+ 	ad.u.fs.dentry = dentry;
+ 
+@@ -1266,6 +1289,8 @@ static inline int may_rename(struct inod
+ 	old_is_dir = S_ISDIR(old_dentry->d_inode->i_mode);
+ 	new_dsec = new_dir->i_security;
+ 
++	inode_update_sclass(old_dir);
++
+ 	AVC_AUDIT_DATA_INIT(&ad, FS);
+ 
+ 	ad.u.fs.dentry = old_dentry;
+@@ -2260,6 +2285,8 @@ static int selinux_inode_setxattr(struct
+ 	if ((current->fsuid != inode->i_uid) && !capable(CAP_FOWNER))
+ 		return -EPERM;
+ 
++	inode_update_sclass(inode);
++
+ 	AVC_AUDIT_DATA_INIT(&ad,FS);
+ 	ad.u.fs.dentry = dentry;
+ 
+diff --git a/security/selinux/include/avc.h b/security/selinux/include/avc.h
+index 960ef18..043d479 100644
+--- a/security/selinux/include/avc.h
++++ b/security/selinux/include/avc.h
+@@ -125,6 +125,8 @@ int avc_add_callback(int (*callback)(u32
+ 		     u32 events, u32 ssid, u32 tsid,
+ 		     u16 tclass, u32 perms);
+ 
++const char *avc_class_to_string(u16 tclass);
++
+ /* Exported to selinuxfs */
+ int avc_get_hash_stats(char *page);
+ extern unsigned int avc_cache_threshold;
+diff --git a/security/selinux/avc.c b/security/selinux/avc.c
+index a300702..88bba69 100644
+--- a/security/selinux/avc.c
++++ b/security/selinux/avc.c
+@@ -218,7 +218,7 @@ static void avc_dump_query(struct audit_
+ 		audit_log_format(ab, " tcontext=%s", scontext);
+ 		kfree(scontext);
+ 	}
+-	audit_log_format(ab, " tclass=%s", class_to_string[tclass]);
++	audit_log_format(ab, " tclass=%s", avc_class_to_string(tclass));
+ }
+ 
+ /**
+@@ -913,3 +913,15 @@ int avc_has_perm(u32 ssid, u32 tsid, u16
+ 	avc_audit(ssid, tsid, tclass, requested, &avd, rc, auditdata);
+ 	return rc;
+ }
++
++/**
++ * avc_class_to_string - return a human readable string given an object class.
++ * @tclass: the target class we wish to translate
++ *
++ * Simply take the target object class passed to us and return the human
++ * readable string associated with that class
++ */
++const char *avc_class_to_string(u16 tclass)
++{
++	return class_to_string[tclass];
++}
 
-> Besides that, I really don't think this is needed because what you're
-> saying is that you don't trust the key code.  However, the code that
-> enforces this policy is the code that you don't trust, so this policy
-> wouldn't gain anything.
 
-I don't mistrust it in the sense that I expect it to do anything
-malicious. The reason for the disabling switch is for the ongoing Common
-Criteria LSPP evaluations -- any IPC mechanism that the system offers to
-regular users needs to be fully documented and tested. That's a lot of
-work, and it doesn't seem justified in this case since it's not something
-that people running an MLS server would currently expect to be available.
-If the system always denies access due to the policy, that's easy to
-verify and will avoid the need for extensive testing and documentation.
-
--Klaus
 
 --
 This message was distributed to subscribers of the selinux mailing list.
