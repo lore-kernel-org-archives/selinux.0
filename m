@@ -1,45 +1,39 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k7PLPD4W002344
-	for <selinux@tycho.nsa.gov>; Fri, 25 Aug 2006 17:25:14 -0400
-Received: from legolas.drinsama.de (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id k7PLOdP8009978
-	for <selinux@tycho.nsa.gov>; Fri, 25 Aug 2006 21:24:39 GMT
-Date: Fri, 25 Aug 2006 23:24:01 +0200
-From: Erich Schubert <erich@debian.org>
-To: Salvo Giuffrida <giuffsalvo@hotmail.it>
-Cc: selinux@tycho.nsa.gov
-Subject: Re: Users
-Message-ID: <20060825212401.GA6260@wintermute.xmldesign.de>
-References: <BAY114-F8DE042F4A120882ADBA3EAF450@phx.gbl>
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k7RBG5Y2012828
+	for <selinux@tycho.nsa.gov>; Sun, 27 Aug 2006 07:16:06 -0400
+Received: from smtp.sws.net.au (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id k7RBFie7008816
+	for <selinux@tycho.nsa.gov>; Sun, 27 Aug 2006 11:15:46 GMT
+From: Russell Coker <russell@coker.com.au>
+Reply-To: russell@coker.com.au
+To: "SE-Linux" <selinux@tycho.nsa.gov>, drepper@redhat.com
+Subject: PIE
+Date: Sun, 27 Aug 2006 20:56:00 +1000
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <BAY114-F8DE042F4A120882ADBA3EAF450@phx.gbl>
+Content-Type: text/plain;
+  charset="us-ascii"
+Message-Id: <200608272056.03253.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hi Salvo,
-> the domain/type of the subject/object, to take his decision...So, what's 
-> the use of the user part?
+http://people.redhat.com/drepper/nonselsec.pdf
 
-Which roles are acceptable.
-A user logged in as user_u for example can never become sysadm_r. unless
-there is a way for him to switch his identity too, that is.
-The only identity switch I'm aware of is sysadm_u -> system_u when
-running init scripts IIRC.
+Ulrich, in the above PDF file you say that "eu-readelf -d BINARY|grep TEXTREL" 
+will indicate whether there is a text relocation that needs to be fixed.
 
-The roles work the same way, they define which types are acceptable. The
-question I don't know the answer to is why we have these three levels,
-and not four or two or whatever. ;-)
-Probably because they suit our mind model best.
-user identity, role, application domain
+In a stock install of FC6T2 and in the latest rawhide when using "gcc -pie 
+hello.c" to compile a hello-world program (#include <stdio.h> and 
+printf("hello\n")) will have such a TEXTREL.  I'm posting here because this 
+of course gives an execmod AVC message and having PIE and SE Linux not work 
+together is something that will concern many people here.
 
-Regards,
-Erich Schubert
+What package would be responsible for this?
+
 -- 
-     erich@(mucl.de|debian.org)      --      GPG Key ID: 4B3A135C      (o_
-      This one's tricky. You have to use imaginary numbers, like       //\
-                       eleventeen... --- Hobbes                        V_/_
- Nur der ist weise, der weiss, dass er es nicht ist. --- Sokrates
+http://etbe.blogspot.com/          My Blog
+http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
+
+http://www.coker.com.au/sponsorship.html Sponsoring Free Software development
 
 --
 This message was distributed to subscribers of the selinux mailing list.
