@@ -1,70 +1,68 @@
-Subject: Re: install vs. matchpathcon(8) [Re: justifying --context=CTX (-Z)
-	...
+Subject: Re: justifying --context=CTX (-Z) for upstream coreutils, like
+	mkdir
 From: Stephen Smalley <sds@tycho.nsa.gov>
 To: Jim Meyering <meyering@redhat.com>
-Cc: Daniel J Walsh <dwalsh@redhat.com>,
-        Karl MacMillan <kmacmillan@mentalrootkit.com>, selinux@tycho.nsa.gov,
-        Russell Coker <russell@coker.com.au>
-In-Reply-To: <87d5ay72in.fsf_-_@rho.meyering.net>
+Cc: James Antill <jantill@redhat.com>, selinux@tycho.nsa.gov
+In-Reply-To: <871wrgcrbm.fsf@rho.meyering.net>
 References: <87mzabgyrk.fsf@rho.meyering.net>
-	 <1155308294.8018.59.camel@localhost.localdomain>
-	 <87irkzfcgr.fsf@rho.meyering.net> <44DE134A.3030104@redhat.com>
-	 <87d5ay72in.fsf_-_@rho.meyering.net>
+	 <1155747947.11138.18.camel@code.and.org>  <871wrgcrbm.fsf@rho.meyering.net>
 Content-Type: text/plain
-Date: Mon, 28 Aug 2006 15:14:52 -0400
-Message-Id: <1156792492.22210.115.camel@moss-spartans.epoch.ncsc.mil>
+Date: Mon, 28 Aug 2006 16:00:19 -0400
+Message-Id: <1156795219.22210.146.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2006-08-18 at 12:37 +0200, Jim Meyering wrote:
-> Daniel J Walsh <dwalsh@redhat.com> wrote:
-> > Jim Meyering wrote:
-> >>>> BTW, what makes install so special that it needs to call matchpathcon?
-> >>>> Can it accomplish the same goal via "chcon ...;
-> >>>> install --preserve-context ..."?
-> ...
-> >> Thanks for explaining.
-> >> If install really needs -Z, I'd prefer to drop its internal
-> >> use of matchpathcon.
-> >>
-> > -Z implies that the builder of the application knows the security
-> > context for all possible environemnts.  Matchpatchcon asks the system
-> > how a file in a certain path should be labeled.  They are very different
-> > things.
+On Wed, 2006-08-16 at 23:18 +0200, Jim Meyering wrote:
+> James Antill <jantill@redhat.com> wrote:
+> > On Fri, 2006-08-11 at 15:58 +0200, Jim Meyering wrote:
+> >> For a little context on why, ...
+> >> I'm also considering the xattr patch that's been floating around for
+> >> years.  Currently it's part of SuSE's coreutils patch set.  It ensures
+> >> that mv and cp -p preserve any (selected) XATTR attributes.
 > >
-> > Two different machines running the same install could/should have
-> > different end file context.  For example a strict policy machine might
-> > label firefox, mozilla_exec_t, while a targeted might label it bin_t.
+> >  Note that I did a patch, which is different from the SuSE patch ... it
+> > doesn't include the regexp handling but mv does Do The Right
+> > Thing(tm)[1]:
+> >
+> > https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=201088
+> > http://people.redhat.com/jantill/patches/coreutils-5.97-xattrs.patch
 > 
-> [Oh!  I see I never send this reply. ]
+> Your patch looks good, but shouldn't it also preserve attributes
+> on directories and other non-regular files?
 > 
-> I'm inclined to keep upstream GNU install minimalist.  So if there's
-> a way to accomplish this task without embedding the specialized
-> matchpathcon-related code, I have to ask "why embed?".  If by adding
-> only -Z (or providing an fscon program), I don't absolutely need to
-> include the matchpathcon-calling code in install.c, then I'd rather not.
+> Since I rarely use ACLs, I'm not in a good position to gauge the
+> value of Andreas' cp option to select via regexp.
 > 
-> For example, can't one use the matchpathcon _program_ like this?
+> Also, in looking through your patch, I wondered if there is some scenario
+> where it'd be worthwhile to attempt to preserve xattrs even if fchmod
+> fails.  Or even to attempt to preserve xattrs *before* calling fchmod?
 > 
->   install -Z $(matchpathcon -n $bindir/SOME_EXECUTABLE) SOME_EXECUTABLE $bindir
+> >  It also makes preservation of xattrs a hard error, unless it's because
+> > of ENOTSUPP ... and there's no way to turn just preservation of xattrs
+> > off (would you want this before accepting upstream)?
 > 
-> This seems better, since it'd work any version of install:
+> For upstream at least, the 5.9x branch is a bug-fix-only branch.
+> New features like xattr support will go on the trunk.
 > 
->   fscon -Z $(matchpathcon -n $bindir/SOME_EXECUTABLE) \
->     install SOME_EXECUTABLE $bindir
+> What do you think about adding a new cp option: --preserve=xattr ?
+> That would be in line with the --preserve=context option (added to cp)
+> that's part of the SELinux patch.
+> Which means it could be turned off via --no-preserve=xattr.
 > 
-> Obviously, that's more verbose than we'd prefer, but an
-> selinux-specific wrapper script could do the job transparently.
-> Then, the only change would be to build via "make INSTALL=install-con".
+> Currently, cp's --preserve option treats ACLs like mode bits.  I.e. both
+> cp -p and cp --preserve=mode copy ACLs.  mv preserves ACLs, too.
+> As mentioned before, failing to preserve an ACL has different consequences
+> in cp -p (warn and exit nonzero) and mv (warn, but exit successfully).
+> 
+> So should cp have a separate --preserve=acl option, too?
+> 
+> This brings up the question of whether cp's -p should also
+> imply --preserve=xattr.
 
-This breaks down when you are installing multiple files that should have
-different contexts to a single destination directory via a single
-install command.  And the point of the install modification to use
-matchpathcon was to provide transparency for users, so that when a
-typical admin does a 'make install' of his favorite third party software
-that is not packaged as an rpm, the installed files are labeled
-correctly.
+Caveat:  A process may be able to copy a file and preserve its
+discretionary attributes, but not its MAC/SELinux attribute.  That
+shouldn't be fatal to the copy itself.
 
 -- 
 Stephen Smalley
