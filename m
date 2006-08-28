@@ -1,472 +1,169 @@
-Message-ID: <44F31951.1070706@trustedcs.com>
-Date: Mon, 28 Aug 2006 11:26:57 -0500
-From: Darrel Goeddel <dgoeddel@TrustedCS.com>
-MIME-Version: 1.0
-To: "'SELinux List'" <SELinux@tycho.nsa.gov>,
-        Joshua Brindle <jbrindle@tresys.com>,
-        Karl MacMillan <kmacmillan@mentalrootkit.com>,
-        Stephen Smalley <sds@tycho.nsa.gov>,
-        Christopher PeBenito <cpebenito@tresys.com>
-Subject: [PATCH 3/3] semantic MLS representation for users
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Subject: Re: [PATCH] SELinux: work around filesystems which call
+	d_instantiate before setting inode mode
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Eric Paris <eparis@parisplace.org>
+Cc: selinux@tycho.nsa.gov, James Morris <jmorris@redhat.com>
+In-Reply-To: <1156535286.6662.99.camel@localhost.localdomain>
+References: <1156535286.6662.99.camel@localhost.localdomain>
+Content-Type: text/plain
+Date: Mon, 28 Aug 2006 13:43:29 -0400
+Message-Id: <1156787009.22210.51.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Use the semantic representation for user_datums in modular policy formats.
+On Fri, 2006-08-25 at 15:48 -0400, Eric Paris wrote:
+> One filesystem in particular, CIFS, is known to call d_instantiate
+> before setting the mode for for some operations.  It will create a
+> dentry for any children when doing a directory search and thereby is
+> calling d_instantiate.   But it does so before setting the inode mode
+> for the child inodes.  Thus the selinux sclass in the corresponding
+> inode security struct is set incorrectly to always believe these inodes
+> are regular files.  Then when operations are performed on these inodes
+> at a later point in time SELinux will deny operations which may be
+> allowed for the correct class but not for files or SELinux may check for
+> access permissions to do operations which do not even pertain to the
+> 'file' class.  An example would be the user may attempt to remove a
+> subdirectory which would need SELinux permissions to rmdir what it
+> believes is a 'file.'  rmdir'ing a regular file doesn't make sense and
+> is obviously not properly defined.  What this patch does is to
+> recalculate the sclass for each inode on each permission check.  Thus if
+> a filesystem decided to later (after the d_instantiate) set the mode
+> bits (as CIFS does) we will make the correct security checks.  We also
+> output a warning message letting the user know that they have a
+> filesystem which doing operations in a questionable order.
+> (Questionable because after calling d_instantiate the new inode may be
+> available to other threads through the dentry cache with the mode set
+> improperly)
+> 
+> I believe that the CIFS people were contacted twice trying to get this
+> changed but we want SELinux users to be able to work now and we want to
+> know if any other filesystem uses this same ordering or choose to
+> implement it in the future.
+> 
+> Signed-off-by: Eric Paris <eparis@redhat.com>
 
-All user_datums in a modular format use the semantic representation of the MLS
-range and dfltlevel.  There is also the possibility of having an expanded
-version of that data also present in the user_datum.  This is used much like
-the role cache in the user_datum.  When the user are indexed, the MLS info is
-expanded.  This info may be used to check the validity of context.  This
-expansion is not used when writing out a kernel format policy - the expansion
-is performed again to ensure that the data it is present and in sync with the
-rest of the policy.
+Acked-by:  Stephen Smalley <sds@tycho.nsa.gov>
 
-Like the range_trans structs, user_datums from older modular formats will have
-their MLS data converted to the new semantic structs.
+> 
+>  security/selinux/hooks.c       |   27 +++++++++++++++++++++++++++
+>  security/selinux/include/avc.h |    2 ++
+>  security/selinux/avc.c         |   14 +++++++++++++-
+>  3 files changed, 42 insertions(+), 1 deletions(-)
+> 
+> diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+> index 5d1b8c7..5527aec 100644
+> --- a/security/selinux/hooks.c
+> +++ b/security/selinux/hooks.c
+> @@ -1066,6 +1066,25 @@ static int task_has_system(struct task_s
+>  			    SECCLASS_SYSTEM, perms, NULL);
+>  }
+>  
+> +/* 
+> + * Update the sclass of an inode.  This shouldn't ever do anything unless a FS
+> + * actually called d_instantiate before it set the i_mode.
+> + */
+> +static inline void inode_update_sclass(struct inode *inode)
+> +{
+> +	struct inode_security_struct *isec = inode->i_security;
+> +	if (isec->sclass == SECCLASS_FILE)
+> +	{
+> +		isec->sclass = inode_mode_to_security_class(inode->i_mode);
+> +		if (unlikely(isec->sclass != SECCLASS_FILE) && printk_ratelimit())
+> +			printk(KERN_WARNING "SELinux: Inode on a %s filesystem "
+> +				"with sclass=file but should have been sclass="
+> +				"%s, fixing up this issue\n", 
+> +				inode->i_sb->s_type->name, 
+> +				avc_class_to_string(isec->sclass));
+> +	}
+> +}
+> +
+>  /* Check whether a task has a particular permission to an inode.
+>     The 'adp' parameter is optional and allows other audit
+>     data to be passed (e.g. the dentry). */
+> @@ -1081,6 +1100,8 @@ static int inode_has_perm(struct task_st
+>  	tsec = tsk->security;
+>  	isec = inode->i_security;
+>  
+> +	inode_update_sclass(inode);
+> +
+>  	if (!adp) {
+>  		adp = &ad;
+>  		AVC_AUDIT_DATA_INIT(&ad, FS);
+> @@ -1220,6 +1241,8 @@ static int may_link(struct inode *dir,
+>  	dsec = dir->i_security;
+>  	isec = dentry->d_inode->i_security;
+>  
+> +	inode_update_sclass(dentry->d_inode);
+> +
+>  	AVC_AUDIT_DATA_INIT(&ad, FS);
+>  	ad.u.fs.dentry = dentry;
+>  
+> @@ -1266,6 +1289,8 @@ static inline int may_rename(struct inod
+>  	old_is_dir = S_ISDIR(old_dentry->d_inode->i_mode);
+>  	new_dsec = new_dir->i_security;
+>  
+> +	inode_update_sclass(old_dir);
+> +
+>  	AVC_AUDIT_DATA_INIT(&ad, FS);
+>  
+>  	ad.u.fs.dentry = old_dentry;
+> @@ -2260,6 +2285,8 @@ static int selinux_inode_setxattr(struct
+>  	if ((current->fsuid != inode->i_uid) && !capable(CAP_FOWNER))
+>  		return -EPERM;
+>  
+> +	inode_update_sclass(inode);
+> +
+>  	AVC_AUDIT_DATA_INIT(&ad,FS);
+>  	ad.u.fs.dentry = dentry;
+>  
+> diff --git a/security/selinux/include/avc.h b/security/selinux/include/avc.h
+> index 960ef18..043d479 100644
+> --- a/security/selinux/include/avc.h
+> +++ b/security/selinux/include/avc.h
+> @@ -125,6 +125,8 @@ int avc_add_callback(int (*callback)(u32
+>  		     u32 events, u32 ssid, u32 tsid,
+>  		     u16 tclass, u32 perms);
+>  
+> +const char *avc_class_to_string(u16 tclass);
+> +
+>  /* Exported to selinuxfs */
+>  int avc_get_hash_stats(char *page);
+>  extern unsigned int avc_cache_threshold;
+> diff --git a/security/selinux/avc.c b/security/selinux/avc.c
+> index a300702..88bba69 100644
+> --- a/security/selinux/avc.c
+> +++ b/security/selinux/avc.c
+> @@ -218,7 +218,7 @@ static void avc_dump_query(struct audit_
+>  		audit_log_format(ab, " tcontext=%s", scontext);
+>  		kfree(scontext);
+>  	}
+> -	audit_log_format(ab, " tclass=%s", class_to_string[tclass]);
+> +	audit_log_format(ab, " tclass=%s", avc_class_to_string(tclass));
+>  }
+>  
+>  /**
+> @@ -913,3 +913,15 @@ int avc_has_perm(u32 ssid, u32 tsid, u16
+>  	avc_audit(ssid, tsid, tclass, requested, &avd, rc, auditdata);
+>  	return rc;
+>  }
+> +
+> +/**
+> + * avc_class_to_string - return a human readable string given an object class.
+> + * @tclass: the target class we wish to translate
+> + *
+> + * Simply take the target object class passed to us and return the human
+> + * readable string associated with that class
+> + */
+> +const char *avc_class_to_string(u16 tclass)
+> +{
+> +	return class_to_string[tclass];
+> +}
+> 
+-- 
+Stephen Smalley
+National Security Agency
 
-
-Signed-off-by:  Darrel Goeddel <dgoeddel@trustedcs.com>
-
-
- checkpolicy/policy_parse.y                 |   37 +++-----------
- libsepol/include/sepol/policydb/policydb.h |    9 ++-
- libsepol/src/expand.c                      |   72 ++++++++++++++++++++++++-----
- libsepol/src/mls.c                         |    8 +--
- libsepol/src/policydb.c                    |   57 ++++++++++++++++++----
- libsepol/src/users.c                       |   13 ++---
- libsepol/src/write.c                       |   17 +++++-
- 7 files changed, 142 insertions(+), 71 deletions(-)
-
-diff --exclude=.svn -ruNp selinux-rangetrans/checkpolicy/policy_parse.y selinux-mls-users/checkpolicy/policy_parse.y
---- selinux-rangetrans/checkpolicy/policy_parse.y	2006-08-24 14:08:31.000000000 -0500
-+++ selinux-mls-users/checkpolicy/policy_parse.y	2006-08-24 14:14:17.000000000 -0500
-@@ -3736,11 +3736,10 @@ static int define_user(void)
- 		free(id);
- 
- 		usrdatum->dfltlevel.sens = levdatum->level->sens;
--		ebitmap_init(&usrdatum->dfltlevel.cat);
- 
- 		while ((id = queue_remove(id_queue))) {
--			if (parse_categories(id, levdatum,
--					     &usrdatum->dfltlevel.cat)) {
-+			if (parse_semantic_categories(id, levdatum,
-+			                            &usrdatum->dfltlevel.cat)) {
- 				free(id);
- 				return -1;
- 			}
-@@ -3762,13 +3761,12 @@ static int define_user(void)
- 				return -1;
- 			}
- 			free(id);
-+
- 			usrdatum->range.level[l].sens = levdatum->level->sens;
--			ebitmap_init(&usrdatum->range.level[l].cat);
- 
- 			while ((id = queue_remove(id_queue))) {
--				if (parse_categories(id, levdatum,
--						     &usrdatum->range.level[l].
--						     cat)) {
-+				if (parse_semantic_categories(id, levdatum,
-+				               &usrdatum->range.level[l].cat)) {
- 					free(id);
- 					return -1;
- 				}
-@@ -3781,33 +3779,14 @@ static int define_user(void)
- 		}
- 
- 		if (l == 0) {
--			usrdatum->range.level[1].sens =
--			    usrdatum->range.level[0].sens;
--			if (ebitmap_cpy(&usrdatum->range.level[1].cat,
--					&usrdatum->range.level[0].cat)) {
-+			if (mls_semantic_level_cpy(&usrdatum->range.level[1],
-+			                           &usrdatum->range.level[0])) {
- 				yyerror("out of memory");
--				goto out;
-+				return -1;
- 			}
- 		}
--		if (!mls_level_dom(&usrdatum->range.level[1],
--				   &usrdatum->range.level[0])) {
--			yyerror("high level does not dominate low level");
--			goto out;
--		}
--		if (!mls_level_between(&usrdatum->dfltlevel,
--				       &usrdatum->range.level[0],
--				       &usrdatum->range.level[1])) {
--			yyerror("default level not within user range");
--			goto out;
--		}
- 	}
- 	return 0;
--
--      out:
--	ebitmap_destroy(&usrdatum->dfltlevel.cat);
--	ebitmap_destroy(&usrdatum->range.level[0].cat);
--	ebitmap_destroy(&usrdatum->range.level[1].cat);
--	return -1;
- }
- 
- static int parse_security_context(context_struct_t * c)
-diff --exclude=.svn -ruNp selinux-rangetrans/libsepol/include/sepol/policydb/policydb.h selinux-mls-users/libsepol/include/sepol/policydb/policydb.h
---- selinux-rangetrans/libsepol/include/sepol/policydb/policydb.h	2006-08-25 06:00:15.000000000 -0500
-+++ selinux-mls-users/libsepol/include/sepol/policydb/policydb.h	2006-08-25 06:03:46.000000000 -0500
-@@ -149,9 +149,11 @@ typedef struct type_datum {
- typedef struct user_datum {
- 	symtab_datum_t s;
- 	role_set_t roles;	/* set of authorized roles for user */
--	mls_range_t range;	/* MLS range (min. - max.) for user */
--	mls_level_t dfltlevel;	/* default login MLS level for user */
-+	mls_semantic_range_t range;	/* MLS range (min. - max.) for user */
-+	mls_semantic_level_t dfltlevel;	/* default login MLS level for user */
- 	ebitmap_t cache;	/* This is an expanded set used for context validation during parsing */
-+	mls_range_t exp_range;     /* expanded range used for validation */
-+	mls_level_t exp_dfltlevel; /* expanded range used for validation */
- } user_datum_t;
- 
- /* Sensitivity attributes */
-@@ -586,9 +588,10 @@ extern int policydb_write(struct policyd
- #define MOD_POLICYDB_VERSION_VALIDATETRANS 5
- #define MOD_POLICYDB_VERSION_MLS	   5
- #define MOD_POLICYDB_VERSION_RANGETRANS	   6
-+#define MOD_POLICYDB_VERSION_MLS_USERS	   6
- 
- #define MOD_POLICYDB_VERSION_MIN MOD_POLICYDB_VERSION_BASE
--#define MOD_POLICYDB_VERSION_MAX MOD_POLICYDB_VERSION_RANGETRANS
-+#define MOD_POLICYDB_VERSION_MAX MOD_POLICYDB_VERSION_MLS_USERS
- 
- #define POLICYDB_CONFIG_MLS    1
- 
-diff --exclude=.svn -ruNp selinux-rangetrans/libsepol/src/expand.c selinux-mls-users/libsepol/src/expand.c
---- selinux-rangetrans/libsepol/src/expand.c	2006-08-25 07:37:42.000000000 -0500
-+++ selinux-mls-users/libsepol/src/expand.c	2006-08-25 07:50:48.000000000 -0500
-@@ -688,13 +688,57 @@ static int user_copy_callback(hashtab_ke
- 			return -1;
- 		}
- 
--		/* clone MLS stuff */
--		if (mls_range_cpy(&new_user->range, &user->range) == -1
--		    || mls_level_cpy(&new_user->dfltlevel,
--				     &user->dfltlevel) == -1) {
-+		/* copy semantic MLS info */
-+		if (mls_semantic_range_cpy(&new_user->range, &user->range)) {
- 			ERR(state->handle, "Out of memory!");
- 			return -1;
- 		}
-+		if (mls_semantic_level_cpy(&new_user->dfltlevel,
-+					   &user->dfltlevel)) {
-+			ERR(state->handle, "Out of memory!");
-+			return -1;
-+		}
-+
-+		/* expand the semantic MLS info */
-+		if (mls_semantic_range_expand(&new_user->range,
-+					      &new_user->exp_range,
-+					      state->out, state->handle)) {
-+			return -1;
-+		}
-+		if (mls_semantic_level_expand(&new_user->dfltlevel,
-+					      &new_user->exp_dfltlevel,
-+					      state->out, state->handle)) {
-+			return -1;
-+		}
-+		if (!mls_level_between(&new_user->exp_dfltlevel,
-+				       &new_user->exp_range.level[0],
-+				       &new_user->exp_range.level[1])) {
-+			ERR(state->handle, "default level not within user "
-+			    "range");
-+			return -1;
-+		}
-+	} else {
-+		/* require that the MLS info match */
-+		mls_range_t tmp_range;
-+		mls_level_t tmp_level;
-+
-+		if (mls_semantic_range_expand(&user->range, &tmp_range,
-+					      state->out, state->handle)) {
-+			return -1;
-+		}
-+		if (mls_semantic_level_expand(&user->dfltlevel, &tmp_level,
-+					      state->out, state->handle)) {
-+			mls_range_destroy(&tmp_range);
-+			return -1;
-+		}
-+		if (!mls_range_eq(&new_user->exp_range, &tmp_range) ||
-+		    !mls_level_eq(&new_user->exp_dfltlevel, &tmp_level)) {
-+			mls_range_destroy(&tmp_range);
-+			mls_level_destroy(&tmp_level);
-+			return -1;
-+		}
-+		mls_range_destroy(&tmp_range);
-+		mls_level_destroy(&tmp_level);
- 	}
- 
- 	ebitmap_init(&tmp_union);
-@@ -784,7 +828,7 @@ static int sens_copy_callback(hashtab_ke
- 	}
- 
- 	if (state->verbose)
--		INFO(state->handle, "copying senitivity level %s", id);
-+		INFO(state->handle, "copying sensitivity level %s", id);
- 
- 	if ((new_level =
- 	     (level_datum_t *) calloc(1, sizeof(*new_level))) == NULL
-@@ -2203,6 +2247,17 @@ int expand_module(sepol_handle_t * handl
- 	if (hashtab_map(state.base->p_roles.table, role_copy_callback, &state))
- 		goto cleanup;
- 
-+	/* copy MLS's sensitivity level and categories - this needs to be done
-+	 * before expanding users (they need to be indexed too) */
-+	if (hashtab_map(state.base->p_levels.table, sens_copy_callback, &state))
-+		goto cleanup;
-+	if (hashtab_map(state.base->p_cats.table, cats_copy_callback, &state))
-+		goto cleanup;
-+	if (policydb_index_others(handle, out, verbose)) {
-+		ERR(handle, "Error while indexing out symbols");
-+		goto cleanup;
-+	}
-+
- 	/* copy users */
- 	if (hashtab_map(state.base->p_users.table, user_copy_callback, &state))
- 		goto cleanup;
-@@ -2211,13 +2266,6 @@ int expand_module(sepol_handle_t * handl
- 	if (hashtab_map(state.base->p_bools.table, bool_copy_callback, &state))
- 		goto cleanup;
- 
--	/* now copy MLS's sensitivity level and categories */
--	if (hashtab_map(state.base->p_levels.table, sens_copy_callback, &state)
--	    || hashtab_map(state.base->p_cats.table, cats_copy_callback,
--			   &state)) {
--		goto cleanup;
--	}
--
- 	if (policydb_index_classes(out)) {
- 		ERR(handle, "Error while indexing out classes");
- 		goto cleanup;
-diff --exclude=.svn -ruNp selinux-rangetrans/libsepol/src/mls.c selinux-mls-users/libsepol/src/mls.c
---- selinux-rangetrans/libsepol/src/mls.c	2006-08-25 07:37:42.000000000 -0500
-+++ selinux-mls-users/libsepol/src/mls.c	2006-08-25 07:50:48.000000000 -0500
-@@ -310,7 +310,7 @@ int mls_context_isvalid(const policydb_t
- 	if (!c->user || c->user > p->p_users.nprim)
- 		return 0;
- 	usrdatum = p->user_val_to_struct[c->user - 1];
--	if (!mls_range_contains(usrdatum->range, c->range))
-+	if (!mls_range_contains(usrdatum->exp_range, c->range))
- 		return 0;	/* user may not be associated with range */
- 
- 	return 1;
-@@ -512,9 +512,9 @@ int mls_setup_user_range(context_struct_
- 	if (mls) {
- 		mls_level_t *fromcon_sen = &(fromcon->range.level[0]);
- 		mls_level_t *fromcon_clr = &(fromcon->range.level[1]);
--		mls_level_t *user_low = &(user->range.level[0]);
--		mls_level_t *user_clr = &(user->range.level[1]);
--		mls_level_t *user_def = &(user->dfltlevel);
-+		mls_level_t *user_low = &(user->exp_range.level[0]);
-+		mls_level_t *user_clr = &(user->exp_range.level[1]);
-+		mls_level_t *user_def = &(user->exp_dfltlevel);
- 		mls_level_t *usercon_sen = &(usercon->range.level[0]);
- 		mls_level_t *usercon_clr = &(usercon->range.level[1]);
- 
-diff --exclude=.svn -ruNp selinux-rangetrans/libsepol/src/policydb.c selinux-mls-users/libsepol/src/policydb.c
---- selinux-rangetrans/libsepol/src/policydb.c	2006-08-25 07:37:42.000000000 -0500
-+++ selinux-mls-users/libsepol/src/policydb.c	2006-08-25 07:50:48.000000000 -0500
-@@ -112,7 +112,7 @@ static struct policydb_compat_info polic
- 	 },
- 	{
- 	 .type = POLICY_BASE,
--	 .version = MOD_POLICYDB_VERSION_RANGETRANS,
-+	 .version = MOD_POLICYDB_VERSION_MLS_USERS,
- 	 .sym_num = SYM_NUM,
- 	 .ocon_num = OCON_NODE6 + 1,
- 	 },
-@@ -130,7 +130,7 @@ static struct policydb_compat_info polic
- 	 },
- 	{
- 	 .type = POLICY_MOD,
--	 .version = MOD_POLICYDB_VERSION_RANGETRANS,
-+	 .version = MOD_POLICYDB_VERSION_MLS_USERS,
- 	 .sym_num = SYM_NUM,
- 	 .ocon_num = 0},
- };
-@@ -233,18 +233,22 @@ void user_datum_init(user_datum_t * x)
- {
- 	memset(x, 0, sizeof(user_datum_t));
- 	role_set_init(&x->roles);
--	mls_range_init(&x->range);
--	mls_level_init(&x->dfltlevel);
-+	mls_semantic_range_init(&x->range);
-+	mls_semantic_level_init(&x->dfltlevel);
- 	ebitmap_init(&x->cache);
-+	mls_range_init(&x->exp_range);
-+	mls_level_init(&x->exp_dfltlevel);
- }
- 
- void user_datum_destroy(user_datum_t * x)
- {
- 	if (x != NULL) {
- 		role_set_destroy(&x->roles);
--		mls_range_destroy(&x->range);
--		mls_level_destroy(&x->dfltlevel);
-+		mls_semantic_range_destroy(&x->range);
-+		mls_semantic_level_destroy(&x->dfltlevel);
- 		ebitmap_destroy(&x->cache);
-+		mls_range_destroy(&x->exp_range);
-+		mls_level_destroy(&x->exp_dfltlevel);
- 	}
- }
- 
-@@ -498,6 +502,17 @@ int policydb_user_cache(hashtab_key_t ke
- 		return -1;
- 	}
- 
-+	mls_range_destroy(&user->exp_range);
-+	if (mls_semantic_range_expand(&user->range, &user->exp_range, p, NULL)) {
-+		return -1;
-+	}
-+
-+	mls_level_destroy(&user->exp_dfltlevel);
-+	if (mls_semantic_level_expand(&user->dfltlevel,
-+				      &user->exp_dfltlevel, p, NULL)) {
-+		return -1;
-+	}
-+
- 	return 0;
- }
- 
-@@ -2234,17 +2249,35 @@ static int user_read(policydb_t * p, has
- 			goto bad;
- 	}
- 
--	/* users aren't allowed in mls modules but they can be required, the mls fields will be empty,
--	 * user declarations in non-mls modules will also have empty mls fields */
-+	/* users were not allowed in mls modules before version
-+	 * MOD_POLICYDB_VERSION_MLS_USERS, but they could have been
-+	 * required - the mls fields will be empty.  user declarations in
-+	 * non-mls modules will also have empty mls fields */
- 	if ((p->policy_type == POLICY_KERN
- 	     && p->policyvers >= POLICYDB_VERSION_MLS)
- 	    || (p->policy_type == POLICY_MOD
--		&& p->policyvers >= MOD_POLICYDB_VERSION_MLS)
-+		&& p->policyvers >= MOD_POLICYDB_VERSION_MLS
-+		&& p->policyvers < MOD_POLICYDB_VERSION_MLS_USERS)
- 	    || (p->policy_type == POLICY_BASE
--		&& p->policyvers >= MOD_POLICYDB_VERSION_MLS)) {
--		if (mls_read_range_helper(&usrdatum->range, fp))
-+		&& p->policyvers >= MOD_POLICYDB_VERSION_MLS
-+		&& p->policyvers < MOD_POLICYDB_VERSION_MLS_USERS)) {
-+		if (mls_read_range_helper(&usrdatum->exp_range, fp))
-+			goto bad;
-+		if (mls_range_to_semantic(&usrdatum->exp_range,
-+					  &usrdatum->range))
-+			goto bad;
-+		if (mls_read_level(&usrdatum->exp_dfltlevel, fp))
-+			goto bad;
-+		if (mls_level_to_semantic(&usrdatum->exp_dfltlevel,
-+					  &usrdatum->dfltlevel))
-+			goto bad;
-+	} else if ((p->policy_type == POLICY_MOD
-+		    && p->policyvers >= MOD_POLICYDB_VERSION_MLS_USERS)
-+		   || (p->policy_type == POLICY_BASE
-+		       && p->policyvers >= MOD_POLICYDB_VERSION_MLS_USERS)) {
-+		if (mls_read_semantic_range_helper(&usrdatum->range, fp))
- 			goto bad;
--		if (mls_read_level(&usrdatum->dfltlevel, fp))
-+		if (mls_read_semantic_level_helper(&usrdatum->dfltlevel, fp))
- 			goto bad;
- 	}
- 
-diff --exclude=.svn -ruNp selinux-rangetrans/libsepol/src/users.c selinux-mls-users/libsepol/src/users.c
---- selinux-rangetrans/libsepol/src/users.c	2006-08-25 07:37:42.000000000 -0500
-+++ selinux-mls-users/libsepol/src/users.c	2006-08-25 10:02:12.000000000 -0500
-@@ -47,13 +47,13 @@ static int user_to_record(sepol_handle_t
- 
- 		context_init(&context);
- 		if (mls_level_cpy(&context.range.level[0],
--				  &usrdatum->dfltlevel) < 0) {
-+				  &usrdatum->exp_dfltlevel) < 0) {
- 			ERR(handle, "could not copy MLS level");
- 			context_destroy(&context);
- 			goto err;
- 		}
- 		if (mls_level_cpy(&context.range.level[1],
--				  &usrdatum->dfltlevel) < 0) {
-+				  &usrdatum->exp_dfltlevel) < 0) {
- 			ERR(handle, "could not copy MLS level");
- 			context_destroy(&context);
- 			goto err;
-@@ -71,7 +71,7 @@ static int user_to_record(sepol_handle_t
- 		free(str);
- 
- 		context_init(&context);
--		if (mls_range_cpy(&context.range, &usrdatum->range) < 0) {
-+		if (mls_range_cpy(&context.range, &usrdatum->exp_range) < 0) {
- 			ERR(handle, "could not copy MLS range");
- 			context_destroy(&context);
- 			goto err;
-@@ -191,8 +191,8 @@ int sepol_user_modify(sepol_handle_t * h
- 			context_destroy(&context);
- 			goto err;
- 		}
--		if (mls_level_cpy(&usrdatum->dfltlevel, &context.range.level[0])
--		    < 0) {
-+		if (mls_level_cpy(&usrdatum->exp_dfltlevel,
-+				  &context.range.level[0]) < 0) {
- 			ERR(handle, "could not copy MLS level %s", cmls_level);
- 			context_destroy(&context);
- 			goto err;
-@@ -211,13 +211,12 @@ int sepol_user_modify(sepol_handle_t * h
- 			context_destroy(&context);
- 			goto err;
- 		}
--		if (mls_range_cpy(&usrdatum->range, &context.range) < 0) {
-+		if (mls_range_cpy(&usrdatum->exp_range, &context.range) < 0) {
- 			ERR(handle, "could not copy MLS range %s", cmls_range);
- 			context_destroy(&context);
- 			goto err;
- 		}
- 		context_destroy(&context);
--
- 	} else if (cmls_level != NULL || cmls_range != NULL) {
- 		ERR(handle, "MLS is disabled, but MLS level/range "
- 		    "was found for user %s", cname);
-diff --exclude=.svn -ruNp selinux-rangetrans/libsepol/src/write.c selinux-mls-users/libsepol/src/write.c
---- selinux-rangetrans/libsepol/src/write.c	2006-08-25 07:37:42.000000000 -0500
-+++ selinux-mls-users/libsepol/src/write.c	2006-08-25 07:50:48.000000000 -0500
-@@ -1005,18 +1005,27 @@ static int user_write(hashtab_key_t key,
- 		if (role_set_write(&usrdatum->roles, fp))
- 			return POLICYDB_ERROR;
- 	}
--	/* Users are allowed in non-mls modules, so the empty field will be present
--	   in modules with users >= MOD_POLICYDB_VERSION_MLS */
-+
- 	if ((p->policyvers >= POLICYDB_VERSION_MLS
- 	     && p->policy_type == POLICY_KERN)
- 	    || (p->policyvers >= MOD_POLICYDB_VERSION_MLS
-+		&& p->policyvers < MOD_POLICYDB_VERSION_MLS_USERS
- 		&& p->policy_type == POLICY_MOD)
- 	    || (p->policyvers >= MOD_POLICYDB_VERSION_MLS
-+		&& p->policyvers < MOD_POLICYDB_VERSION_MLS_USERS
- 		&& p->policy_type == POLICY_BASE)) {
--		if (mls_write_range_helper(&usrdatum->range, fp))
-+		if (mls_write_range_helper(&usrdatum->exp_range, fp))
- 			return POLICYDB_ERROR;
--		if (mls_write_level(&usrdatum->dfltlevel, fp))
-+		if (mls_write_level(&usrdatum->exp_dfltlevel, fp))
- 			return POLICYDB_ERROR;
-+	} else if ((p->policyvers >= MOD_POLICYDB_VERSION_MLS_USERS
-+		    && p->policy_type == POLICY_MOD)
-+		   || (p->policyvers >= MOD_POLICYDB_VERSION_MLS_USERS
-+		       && p->policy_type == POLICY_BASE)) {
-+		if (mls_write_semantic_range_helper(&usrdatum->range, fp))
-+			return -1;
-+		if (mls_write_semantic_level_helper(&usrdatum->dfltlevel, fp))
-+			return -1;
- 	}
- 
- 	return POLICYDB_SUCCESS;
 
 --
 This message was distributed to subscribers of the selinux mailing list.
