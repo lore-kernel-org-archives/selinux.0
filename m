@@ -1,89 +1,45 @@
-Message-ID: <44F31A4F.9070800@trustedcs.com>
-Date: Mon, 28 Aug 2006 11:31:11 -0500
+Message-ID: <44F318A2.60100@trustedcs.com>
+Date: Mon, 28 Aug 2006 11:24:02 -0500
 From: Darrel Goeddel <dgoeddel@TrustedCS.com>
 MIME-Version: 1.0
-To: "'SELinux List'" <SELinux@tycho.nsa.gov>
-CC: Joshua Brindle <jbrindle@tresys.com>,
+To: "'SELinux List'" <SELinux@tycho.nsa.gov>,
+        Joshua Brindle <jbrindle@tresys.com>,
         Karl MacMillan <kmacmillan@mentalrootkit.com>,
         Stephen Smalley <sds@tycho.nsa.gov>,
         Christopher PeBenito <cpebenito@tresys.com>
-Subject: Re: [PATCH 1/3] support for extended range_transitions
-References: <44F318B9.6010303@trustedcs.com>
-In-Reply-To: <44F318B9.6010303@trustedcs.com>
+Subject: [PATCH 0/3] range_transition revisited
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Darrel Goeddel wrote:
-> Introduce support for kernel policy format version 21, base policy 
-> format version
-> 6, and policy module format 6.  These new formats allow for the 
-> definition of
-> range_transitions on security classes other than "process".  The new 
-> module and
-> base formats (both 6) also move expansion of the range_transition 
-> statements
-> from compile time to the actual expansion phase.  This change should 
-> allow for
-> using range_transitions in policy modules (with a bit more work in the 
-> future)
-> with another change in format.
-> 
-> The current range_transition statements are of the form:
->   range_transition <source types> <target types> <new range>
-> These statements affect process transitions only.  The new supported 
-> format is:
->   range_transition <source types> <target types>:<target classes> <new 
-> range>
-> With this format it is possible to to specify a new range for operations 
-> such
-> as file creation.  The old style statements are still allowed and they
-> implicitly refer to the "process" security class, thereby retaining the 
-> same
-> behavior as before.
-> 
-> The new kernel format now stores the security class on which the rule 
-> operates.
-> When dealing with older kernel policy formats, the "process" security 
-> class is
-> implicit.
-> 
-> The new module and base formats now store a representation of the rule 
-> just (the
-> new addition to the avrule_decl structure) and are expanded at the 
-> proper time.
-> The previous implementation expanded the rules at compilation time and 
-> could
-> produce an incomplete set of transitions if type attributes were used in 
-> the
-> statement. Here is how range_transition statements are handled for the 
-> various formats:
-> for kernel policy version up to 18, there are no range_transition
-> for kernel policy versions 19 and 20, a list of old-style (no class 
-> specified)
->   range_trans structures are encoded
-> for kernel policy versions 21 and up, a list of new-style (class specified)
->   range_trans structures are encoded
-> 
-> for base policy versions up to 5, there are no range_transitions
-> for base policy version 5, a compile-time generated list of old-style (no
->   class specified) range_trans structures are encoded as they are in kernel
->   formats 19 and 20
-> for base policy versions 6 and up, an expressive rule stating the intention
->   of the statement is stored - that will be properly linked and expanded
->   for further usage
-> 
-> for module policy versions up to 6, there are no range_transitions
-> for base policy versions 6 and up, an expressive rule stating the intention
->   of the statement is stored jut like in base policy version 6 (of 
-> course we
->   still need more work to get them in there, but the format is supportive).
+The kernel portion of the range_transition work has been included in the -mm
+tree and should go into 2.6.19.  I hope that I finally some userspace patches
+that are acceptable to take advantage of that kernel patch...
 
-Signed-off-by:  Darrel Goeddel <dgoeddel@trustedcs.com>
+The first patch is just an update of the last patch posted to this list:
+http://marc.theaimsgroup.com/?l=selinux&m=115471167305358&w=2
+This is just an update to the latest svn tree - no logic changes.  I separated
+this out because it seemed that everyone was good with this code.
 
----
+The second patch addresses the question "Is an mls_range_t semantic enough for
+use in modules?".  Unfortunately, the answer was no.
 
-I forgot that we're doing this for the userspace code now, sorry.
+The third patch used the new semantic MLS representation for storing user's MLS
+data in modules.  This format will allow users in MLS modules in the future.
+
+Note that these patches are intended to go together.  There are two new ideas
+put into the modular policy version, but the number is only bumped once.  Once
+again, I think that the policy formats are ready to go and should support
+everything we could ever possibly want in the future (well a few things anyway).
+
+As before, this patch only addresses the necessary format changes to get modular
+support for range_transition statements (and now users).  However, it does allow
+immediate use of the extended range_transition statements where they were valid
+before.
+
+-- 
+
+Darrel
 
 --
 This message was distributed to subscribers of the selinux mailing list.
