@@ -1,5 +1,5 @@
-Message-ID: <44F3192B.2000408@trustedcs.com>
-Date: Mon, 28 Aug 2006 11:26:19 -0500
+Message-ID: <44F31951.1070706@trustedcs.com>
+Date: Mon, 28 Aug 2006 11:26:57 -0500
 From: Darrel Goeddel <dgoeddel@TrustedCS.com>
 MIME-Version: 1.0
 To: "'SELinux List'" <SELinux@tycho.nsa.gov>,
@@ -7,855 +7,465 @@ To: "'SELinux List'" <SELinux@tycho.nsa.gov>,
         Karl MacMillan <kmacmillan@mentalrootkit.com>,
         Stephen Smalley <sds@tycho.nsa.gov>,
         Christopher PeBenito <cpebenito@tresys.com>
-Subject: [PATCH 2/3] semantic MLS representation for range_trans_rules
+Subject: [PATCH 3/3] semantic MLS representation for users
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Introduce a semantic representation for MLS levels and ranges to be used in
-modular policy formats.  This will allow expansion of levels such as "s0:c1.c5"
-to happen at module expansion time.  The range_trans_rules were updated to use
-this new semantic format.
+Use the semantic representation for user_datums in modular policy formats.
 
-All range_transitions are now represented as range_trans_rules when in a modular
-format (old range_trans structs are converted when the policy is read).  The
-semantic rules are expanded along with other rules when the module is expanded.
+All user_datums in a modular format use the semantic representation of the MLS
+range and dfltlevel.  There is also the possibility of having an expanded
+version of that data also present in the user_datum.  This is used much like
+the role cache in the user_datum.  When the user are indexed, the MLS info is
+expanded.  This info may be used to check the validity of context.  This
+expansion is not used when writing out a kernel format policy - the expansion
+is performed again to ensure that the data it is present and in sync with the
+rest of the policy.
 
-The ebitmap used for classes in the range_trans_rules has also been fixed to use
-the standard "value - 1" indexing.
+Like the range_trans structs, user_datums from older modular formats will have
+their MLS data converted to the new semantic structs.
 
 
 Signed-off-by:  Darrel Goeddel <dgoeddel@trustedcs.com>
 
 
- checkpolicy/policy_parse.y                  |   76 ++++++++++--
- libsepol/include/sepol/policydb/expand.h    |    4
- libsepol/include/sepol/policydb/mls_types.h |   94 ++++++++++++++
- libsepol/include/sepol/policydb/policydb.h  |    2
- libsepol/src/expand.c                       |  159 +++++++++++++------------
- libsepol/src/policydb.c                     |  176 +++++++++++++++++++++++++++-
- libsepol/src/write.c                        |   51 +++++++-
- 7 files changed, 469 insertions(+), 93 deletions(-)
+ checkpolicy/policy_parse.y                 |   37 +++-----------
+ libsepol/include/sepol/policydb/policydb.h |    9 ++-
+ libsepol/src/expand.c                      |   72 ++++++++++++++++++++++++-----
+ libsepol/src/mls.c                         |    8 +--
+ libsepol/src/policydb.c                    |   57 ++++++++++++++++++----
+ libsepol/src/users.c                       |   13 ++---
+ libsepol/src/write.c                       |   17 +++++-
+ 7 files changed, 142 insertions(+), 71 deletions(-)
 
-diff --exclude=.svn -ruNp selinux-list/checkpolicy/policy_parse.y selinux-rangetrans/checkpolicy/policy_parse.y
---- selinux-list/checkpolicy/policy_parse.y	2006-08-25 06:16:11.000000000 -0500
-+++ selinux-rangetrans/checkpolicy/policy_parse.y	2006-08-24 14:08:31.000000000 -0500
-@@ -3616,6 +3616,64 @@ parse_categories(char *id, level_datum_t
- 	return 0;
- }
- 
-+static int
-+parse_semantic_categories(char *id, level_datum_t * levdatum,
-+                          mls_semantic_cat_t ** cats)
-+{
-+	cat_datum_t *cdatum;
-+	mls_semantic_cat_t *newcat;
-+	unsigned int range_start, range_end;
-+
-+	if (id_has_dot(id)) {
-+		char *id_start = id;
-+		char *id_end = strchr(id, '.');
-+
-+		*(id_end++) = '\0';
-+
-+		cdatum = (cat_datum_t *) hashtab_search(policydbp->p_cats.table,
-+							(hashtab_key_t)
-+							id_start);
-+		if (!cdatum) {
-+			sprintf(errormsg, "unknown category %s", id_start);
-+			yyerror(errormsg);
-+			return -1;
-+		}
-+		range_start = cdatum->s.value;
-+
-+		cdatum = (cat_datum_t *) hashtab_search(policydbp->p_cats.table,
-+							(hashtab_key_t) id_end);
-+		if (!cdatum) {
-+			sprintf(errormsg, "unknown category %s", id_end);
-+			yyerror(errormsg);
-+			return -1;
-+		}
-+		range_end = cdatum->s.value;
-+	} else {
-+		cdatum = (cat_datum_t *) hashtab_search(policydbp->p_cats.table,
-+							(hashtab_key_t) id);
-+		if (!cdatum) {
-+			sprintf(errormsg, "unknown category %s", id);
-+			yyerror(errormsg);
-+			return -1;
-+		}
-+		range_start = range_end = cdatum->s.value;
-+	}
-+
-+	newcat = (mls_semantic_cat_t *) calloc(1, sizeof(mls_semantic_cat_t));
-+	if (!newcat) {
-+		yyerror("out of memory");
-+		return -1;
-+	}
-+
-+	newcat->next = *cats;
-+	newcat->low = range_start;
-+	newcat->high = range_end;
-+
-+	*cats = newcat;
-+
-+	return 0;
-+}
-+
- static int define_user(void)
- {
- 	char *id;
-@@ -4541,7 +4599,7 @@ static int define_range_trans(int class_
- 				goto out;
- 			}
- 
--			ebitmap_set_bit(&rule->tclasses, cladatum->s.value,
-+			ebitmap_set_bit(&rule->tclasses, cladatum->s.value - 1,
- 			                TRUE);
- 			free(id);
- 		}
-@@ -4555,7 +4613,7 @@ static int define_range_trans(int class_
- 			goto out;
- 		}
- 
--		ebitmap_set_bit(&rule->tclasses, cladatum->s.value, TRUE);
-+		ebitmap_set_bit(&rule->tclasses, cladatum->s.value - 1, TRUE);
- 	}
- 
- 	id = (char *)queue_remove(id_queue);
-@@ -4574,11 +4632,12 @@ static int define_range_trans(int class_
- 			goto out;
- 		}
+diff --exclude=.svn -ruNp selinux-rangetrans/checkpolicy/policy_parse.y selinux-mls-users/checkpolicy/policy_parse.y
+--- selinux-rangetrans/checkpolicy/policy_parse.y	2006-08-24 14:08:31.000000000 -0500
++++ selinux-mls-users/checkpolicy/policy_parse.y	2006-08-24 14:14:17.000000000 -0500
+@@ -3736,11 +3736,10 @@ static int define_user(void)
  		free(id);
-+
- 		rule->trange.level[l].sens = levdatum->level->sens;
+ 
+ 		usrdatum->dfltlevel.sens = levdatum->level->sens;
+-		ebitmap_init(&usrdatum->dfltlevel.cat);
  
  		while ((id = queue_remove(id_queue))) {
 -			if (parse_categories(id, levdatum,
--			                     &rule->trange.level[l].cat)) {
+-					     &usrdatum->dfltlevel.cat)) {
 +			if (parse_semantic_categories(id, levdatum,
-+			                          &rule->trange.level[l].cat)) {
++			                            &usrdatum->dfltlevel.cat)) {
  				free(id);
- 				goto out;
+ 				return -1;
  			}
-@@ -4590,17 +4649,12 @@ static int define_range_trans(int class_
- 			break;
- 	}
- 	if (l == 0) {
--		if (mls_level_cpy(&rule->trange.level[1],
--		                  &rule->trange.level[0])) {
-+		if (mls_semantic_level_cpy(&rule->trange.level[1],
-+		                           &rule->trange.level[0])) {
- 			yyerror("out of memory");
- 			goto out;
+@@ -3762,13 +3761,12 @@ static int define_user(void)
+ 				return -1;
+ 			}
+ 			free(id);
++
+ 			usrdatum->range.level[l].sens = levdatum->level->sens;
+-			ebitmap_init(&usrdatum->range.level[l].cat);
+ 
+ 			while ((id = queue_remove(id_queue))) {
+-				if (parse_categories(id, levdatum,
+-						     &usrdatum->range.level[l].
+-						     cat)) {
++				if (parse_semantic_categories(id, levdatum,
++				               &usrdatum->range.level[l].cat)) {
+ 					free(id);
+ 					return -1;
+ 				}
+@@ -3781,33 +3779,14 @@ static int define_user(void)
  		}
- 	}
--	if (!mls_level_dom(&rule->trange.level[1], &rule->trange.level[0])) {
--		yyerror("range_transition high level does not dominate "
--		        "low level");
--		goto out;
--	}
  
- 	append_range_trans(rule);
- 	return 0;
-diff --exclude=.svn -ruNp selinux-list/libsepol/include/sepol/policydb/expand.h selinux-rangetrans/libsepol/include/sepol/policydb/expand.h
---- selinux-list/libsepol/include/sepol/policydb/expand.h	2006-08-25 06:16:10.000000000 -0500
-+++ selinux-rangetrans/libsepol/include/sepol/policydb/expand.h	2006-08-25 06:00:15.000000000 -0500
-@@ -58,6 +58,10 @@ extern int expand_convert_type_set(polic
- extern int type_set_expand(type_set_t * set, ebitmap_t * t, policydb_t * p,
- 			   unsigned char alwaysexpand);
- extern int role_set_expand(role_set_t * x, ebitmap_t * r, policydb_t * p);
-+extern int mls_semantic_level_expand(mls_semantic_level_t *sl, mls_level_t *l,
-+                                     policydb_t *p, sepol_handle_t *h);
-+extern int mls_semantic_range_expand(mls_semantic_range_t *sr, mls_range_t *r,
-+                                     policydb_t *p, sepol_handle_t *h);
- extern int expand_rule(sepol_handle_t * handle,
- 		       policydb_t * source_pol,
- 		       avrule_t * source_rule, avtab_t * dest_avtab,
-diff --exclude=.svn -ruNp selinux-list/libsepol/include/sepol/policydb/mls_types.h selinux-rangetrans/libsepol/include/sepol/policydb/mls_types.h
---- selinux-list/libsepol/include/sepol/policydb/mls_types.h	2006-08-25 06:16:10.000000000 -0500
-+++ selinux-rangetrans/libsepol/include/sepol/policydb/mls_types.h	2006-08-23 14:59:17.000000000 -0500
-@@ -32,6 +32,7 @@
- #define _SEPOL_POLICYDB_MLS_TYPES_H_
- 
- #include <stdint.h>
-+#include <stdlib.h>
- #include <sepol/policydb/ebitmap.h>
- #include <sepol/policydb/flask_types.h>
- 
-@@ -125,4 +126,97 @@ static inline int mls_range_eq(struct ml
- 	        mls_level_eq(&r1->level[1], &r2->level[1]));
- }
- 
-+typedef struct mls_semantic_cat {
-+	uint32_t low;	/* first bit this struct represents */
-+	uint32_t high;	/* last bit represented - equals low for a single cat */
-+	struct mls_semantic_cat *next;
-+} mls_semantic_cat_t;
-+
-+typedef struct mls_semantic_level {
-+	uint32_t sens;
-+	mls_semantic_cat_t *cat;
-+} mls_semantic_level_t;
-+
-+typedef struct mls_semantic_range {
-+	mls_semantic_level_t level[2];
-+} mls_semantic_range_t;
-+
-+static inline void mls_semantic_level_init(mls_semantic_level_t *l)
-+{
-+	memset(l, 0, sizeof(mls_semantic_level_t));
-+}
-+
-+static inline void mls_semantic_level_destroy(mls_semantic_level_t *l)
-+{
-+	mls_semantic_cat_t *cur, *next;
-+
-+	if (l == NULL)
-+		return;
-+
-+	next = l->cat;
-+	while (next) {
-+		cur = next;
-+		next = cur->next;
-+		free(cur);
-+	}
-+}
-+
-+static inline int mls_semantic_level_cpy(mls_semantic_level_t *dst,
-+                                         mls_semantic_level_t *src)
-+{
-+	mls_semantic_cat_t *cat, *newcat, *lnewcat = NULL;
-+
-+	mls_semantic_level_init(dst);
-+	dst->sens = src->sens;
-+	cat = src->cat;
-+	while (cat) {
-+		newcat = (mls_semantic_cat_t *)calloc(1,
-+		                                    sizeof(mls_semantic_cat_t));
-+		if (!newcat)
-+			goto err;
-+
-+		if (lnewcat)
-+			lnewcat->next = newcat;
-+		else
-+			dst->cat = newcat;
-+
-+		newcat->low = cat->low;
-+		newcat->high = cat->high;
-+
-+		lnewcat = newcat;
-+		cat = cat->next;
-+	}
-+	return 0;
-+
-+err:
-+	mls_semantic_level_destroy(dst);
-+	return -1;
-+}
-+
-+static inline void mls_semantic_range_init(mls_semantic_range_t *r)
-+{
-+	mls_semantic_level_init(&r->level[0]);
-+	mls_semantic_level_init(&r->level[1]);
-+}
-+
-+static inline void mls_semantic_range_destroy(mls_semantic_range_t *r)
-+{
-+	mls_semantic_level_destroy(&r->level[0]);
-+	mls_semantic_level_destroy(&r->level[1]);
-+}
-+
-+static inline int mls_semantic_range_cpy(mls_semantic_range_t *dst,
-+                                         mls_semantic_range_t *src)
-+{
-+	if (mls_semantic_level_cpy(&dst->level[0], &src->level[0]) < 0)
-+		return -1;
-+
-+	if (mls_semantic_level_cpy(&dst->level[1], &src->level[1]) < 0) {
-+		mls_semantic_level_destroy(&dst->level[0]);
-+		return -1;
-+	}
-+
-+	return 0;
-+}
-+
- #endif
-diff --exclude=.svn -ruNp selinux-list/libsepol/include/sepol/policydb/policydb.h selinux-rangetrans/libsepol/include/sepol/policydb/policydb.h
---- selinux-list/libsepol/include/sepol/policydb/policydb.h	2006-08-25 06:16:10.000000000 -0500
-+++ selinux-rangetrans/libsepol/include/sepol/policydb/policydb.h	2006-08-25 06:00:15.000000000 -0500
-@@ -233,7 +233,7 @@ typedef struct range_trans_rule {
- 	type_set_t stypes;
- 	type_set_t ttypes;
- 	ebitmap_t tclasses;
--	mls_range_t trange;
-+	mls_semantic_range_t trange;
- 	struct range_trans_rule *next;
- } range_trans_rule_t;
- 
-diff --exclude=.svn -ruNp selinux-list/libsepol/src/expand.c selinux-rangetrans/libsepol/src/expand.c
---- selinux-list/libsepol/src/expand.c	2006-08-25 06:16:43.000000000 -0500
-+++ selinux-rangetrans/libsepol/src/expand.c	2006-08-25 07:37:42.000000000 -0500
-@@ -580,12 +580,60 @@ static int role_copy_callback(hashtab_ke
- 	return 0;
- }
- 
--static int mls_level_clone(mls_level_t * dst, mls_level_t * src)
-+int mls_semantic_level_expand(mls_semantic_level_t * sl, mls_level_t * l,
-+			      policydb_t * p, sepol_handle_t * h)
- {
--	dst->sens = src->sens;
--	if (ebitmap_cpy(&dst->cat, &src->cat)) {
-+	mls_semantic_cat_t *cat;
-+	level_datum_t *levdatum;
-+	unsigned int i;
-+
-+	mls_level_init(l);
-+	l->sens = sl->sens;
-+	levdatum = (level_datum_t *) hashtab_search(p->p_levels.table,
-+						    p->p_sens_val_to_name[l->
-+									  sens -
-+									  1]);
-+	for (cat = sl->cat; cat; cat = cat->next) {
-+		if (cat->low > cat->high) {
-+			ERR(h, "Category range is not valid %s.%s",
-+			    p->p_cat_val_to_name[cat->low - 1],
-+			    p->p_cat_val_to_name[cat->high - 1]);
-+			return -1;
-+		}
-+		for (i = cat->low - 1; i < cat->high; i++) {
-+			if (!ebitmap_get_bit(&levdatum->level->cat, i)) {
-+				ERR(h, "Category %s can not be associate with "
-+				    "level %s",
-+				    p->p_cat_val_to_name[i],
-+				    p->p_sens_val_to_name[l->sens - 1]);
-+			}
-+			if (ebitmap_set_bit(&l->cat, i, 1)) {
-+				ERR(h, "Out of memory!");
+ 		if (l == 0) {
+-			usrdatum->range.level[1].sens =
+-			    usrdatum->range.level[0].sens;
+-			if (ebitmap_cpy(&usrdatum->range.level[1].cat,
+-					&usrdatum->range.level[0].cat)) {
++			if (mls_semantic_level_cpy(&usrdatum->range.level[1],
++			                           &usrdatum->range.level[0])) {
+ 				yyerror("out of memory");
+-				goto out;
 +				return -1;
-+			}
-+		}
-+	}
-+
-+	return 0;
-+}
-+
-+int mls_semantic_range_expand(mls_semantic_range_t * sr, mls_range_t * r,
-+			      policydb_t * p, sepol_handle_t * h)
-+{
-+	if (mls_semantic_level_expand(&sr->level[0], &r->level[0], p, h) < 0)
-+		return -1;
-+
-+	if (mls_semantic_level_expand(&sr->level[1], &r->level[1], p, h) < 0) {
-+		mls_semantic_level_destroy(&sr->level[0]);
- 		return -1;
+ 			}
+ 		}
+-		if (!mls_level_dom(&usrdatum->range.level[1],
+-				   &usrdatum->range.level[0])) {
+-			yyerror("high level does not dominate low level");
+-			goto out;
+-		}
+-		if (!mls_level_between(&usrdatum->dfltlevel,
+-				       &usrdatum->range.level[0],
+-				       &usrdatum->range.level[1])) {
+-			yyerror("default level not within user range");
+-			goto out;
+-		}
  	}
-+
-+	if (!mls_level_dom(&r->level[1], &r->level[0])) {
-+		mls_range_destroy(r);
-+		ERR(h, "MLS range high level does not dominate low level");
-+		return -1;
-+	}
-+
  	return 0;
+-
+-      out:
+-	ebitmap_destroy(&usrdatum->dfltlevel.cat);
+-	ebitmap_destroy(&usrdatum->range.level[0].cat);
+-	ebitmap_destroy(&usrdatum->range.level[1].cat);
+-	return -1;
  }
  
-@@ -641,12 +689,9 @@ static int user_copy_callback(hashtab_ke
+ static int parse_security_context(context_struct_t * c)
+diff --exclude=.svn -ruNp selinux-rangetrans/libsepol/include/sepol/policydb/policydb.h selinux-mls-users/libsepol/include/sepol/policydb/policydb.h
+--- selinux-rangetrans/libsepol/include/sepol/policydb/policydb.h	2006-08-25 06:00:15.000000000 -0500
++++ selinux-mls-users/libsepol/include/sepol/policydb/policydb.h	2006-08-25 06:03:46.000000000 -0500
+@@ -149,9 +149,11 @@ typedef struct type_datum {
+ typedef struct user_datum {
+ 	symtab_datum_t s;
+ 	role_set_t roles;	/* set of authorized roles for user */
+-	mls_range_t range;	/* MLS range (min. - max.) for user */
+-	mls_level_t dfltlevel;	/* default login MLS level for user */
++	mls_semantic_range_t range;	/* MLS range (min. - max.) for user */
++	mls_semantic_level_t dfltlevel;	/* default login MLS level for user */
+ 	ebitmap_t cache;	/* This is an expanded set used for context validation during parsing */
++	mls_range_t exp_range;     /* expanded range used for validation */
++	mls_level_t exp_dfltlevel; /* expanded range used for validation */
+ } user_datum_t;
+ 
+ /* Sensitivity attributes */
+@@ -586,9 +588,10 @@ extern int policydb_write(struct policyd
+ #define MOD_POLICYDB_VERSION_VALIDATETRANS 5
+ #define MOD_POLICYDB_VERSION_MLS	   5
+ #define MOD_POLICYDB_VERSION_RANGETRANS	   6
++#define MOD_POLICYDB_VERSION_MLS_USERS	   6
+ 
+ #define MOD_POLICYDB_VERSION_MIN MOD_POLICYDB_VERSION_BASE
+-#define MOD_POLICYDB_VERSION_MAX MOD_POLICYDB_VERSION_RANGETRANS
++#define MOD_POLICYDB_VERSION_MAX MOD_POLICYDB_VERSION_MLS_USERS
+ 
+ #define POLICYDB_CONFIG_MLS    1
+ 
+diff --exclude=.svn -ruNp selinux-rangetrans/libsepol/src/expand.c selinux-mls-users/libsepol/src/expand.c
+--- selinux-rangetrans/libsepol/src/expand.c	2006-08-25 07:37:42.000000000 -0500
++++ selinux-mls-users/libsepol/src/expand.c	2006-08-25 07:50:48.000000000 -0500
+@@ -688,13 +688,57 @@ static int user_copy_callback(hashtab_ke
+ 			return -1;
  		}
  
- 		/* clone MLS stuff */
--		if (mls_level_clone
--		    (&new_user->range.level[0], &user->range.level[0]) == -1
--		    || mls_level_clone(&new_user->range.level[1],
--				       &user->range.level[1]) == -1
--		    || mls_level_clone(&new_user->dfltlevel,
--				       &user->dfltlevel) == -1) {
-+		if (mls_range_cpy(&new_user->range, &user->range) == -1
-+		    || mls_level_cpy(&new_user->dfltlevel,
-+				     &user->dfltlevel) == -1) {
+-		/* clone MLS stuff */
+-		if (mls_range_cpy(&new_user->range, &user->range) == -1
+-		    || mls_level_cpy(&new_user->dfltlevel,
+-				     &user->dfltlevel) == -1) {
++		/* copy semantic MLS info */
++		if (mls_semantic_range_cpy(&new_user->range, &user->range)) {
  			ERR(state->handle, "Out of memory!");
  			return -1;
  		}
-@@ -749,7 +794,7 @@ static int sens_copy_callback(hashtab_ke
- 		goto out_of_mem;
- 	}
- 
--	if (mls_level_clone(new_level->level, level->level)) {
-+	if (mls_level_cpy(new_level->level, level->level)) {
- 		goto out_of_mem;
- 	}
- 	new_level->isalias = level->isalias;
-@@ -965,16 +1010,23 @@ static int copy_role_trans(expand_state_
- }
- 
- static int exp_rangetr_helper(uint32_t stype, uint32_t ttype, uint32_t tclass,
--			      mls_range_t * trange, expand_state_t * state)
-+			      mls_semantic_range_t * trange,
-+			      expand_state_t * state)
- {
- 	range_trans_t *rt, *check_rt = state->out->range_tr;
-+	mls_range_t exp_range;
-+	int rc = -1;
++		if (mls_semantic_level_cpy(&new_user->dfltlevel,
++					   &user->dfltlevel)) {
++			ERR(state->handle, "Out of memory!");
++			return -1;
++		}
 +
-+	if (mls_semantic_range_expand(trange, &exp_range, state->out,
-+				      state->handle))
-+		goto out;
- 
- 	/* check for duplicates/conflicts */
- 	while (check_rt) {
- 		if ((check_rt->source_type == stype) &&
- 		    (check_rt->target_type == ttype) &&
- 		    (check_rt->target_class == tclass)) {
--			if (mls_range_eq(&check_rt->target_range, trange)) {
-+			if (mls_range_eq(&check_rt->target_range, &exp_range)) {
- 				/* duplicate */
- 				break;
- 			} else {
-@@ -983,19 +1035,23 @@ static int exp_rangetr_helper(uint32_t s
- 				    "Conflicting range trans rule %s %s : %s",
- 				    state->out->p_type_val_to_name[stype - 1],
- 				    state->out->p_type_val_to_name[ttype - 1],
--				    state->out->p_class_val_to_name[tclass]);
--				return -1;
-+				    state->out->p_class_val_to_name[tclass -
-+								    1]);
-+				goto out;
- 			}
- 		}
- 		check_rt = check_rt->next;
- 	}
--	if (check_rt)		/* this is a dup - skip */
--		return 0;
-+	if (check_rt) {
-+		/* this is a dup - skip */
-+		rc = 0;
-+		goto out;
-+	}
- 
- 	rt = (range_trans_t *) calloc(1, sizeof(range_trans_t));
- 	if (!rt) {
- 		ERR(state->handle, "Out of memory!");
--		return -1;
-+		goto out;
- 	}
- 
- 	rt->next = state->out->range_tr;
-@@ -1004,12 +1060,16 @@ static int exp_rangetr_helper(uint32_t s
- 	rt->source_type = stype;
- 	rt->target_type = ttype;
- 	rt->target_class = tclass;
--	if (mls_range_cpy(&rt->target_range, trange)) {
-+	if (mls_range_cpy(&rt->target_range, &exp_range)) {
- 		ERR(state->handle, "Out of memory!");
--		return -1;
-+		goto out;
- 	}
- 
--	return 0;
-+	rc = 0;
++		/* expand the semantic MLS info */
++		if (mls_semantic_range_expand(&new_user->range,
++					      &new_user->exp_range,
++					      state->out, state->handle)) {
++			return -1;
++		}
++		if (mls_semantic_level_expand(&new_user->dfltlevel,
++					      &new_user->exp_dfltlevel,
++					      state->out, state->handle)) {
++			return -1;
++		}
++		if (!mls_level_between(&new_user->exp_dfltlevel,
++				       &new_user->exp_range.level[0],
++				       &new_user->exp_range.level[1])) {
++			ERR(state->handle, "default level not within user "
++			    "range");
++			return -1;
++		}
++	} else {
++		/* require that the MLS info match */
++		mls_range_t tmp_range;
++		mls_level_t tmp_level;
 +
-+      out:
-+	mls_range_destroy(&exp_range);
-+	return rc;
- }
++		if (mls_semantic_range_expand(&user->range, &tmp_range,
++					      state->out, state->handle)) {
++			return -1;
++		}
++		if (mls_semantic_level_expand(&user->dfltlevel, &tmp_level,
++					      state->out, state->handle)) {
++			mls_range_destroy(&tmp_range);
++			return -1;
++		}
++		if (!mls_range_eq(&new_user->exp_range, &tmp_range) ||
++		    !mls_level_eq(&new_user->exp_dfltlevel, &tmp_level)) {
++			mls_range_destroy(&tmp_range);
++			mls_level_destroy(&tmp_level);
++			return -1;
++		}
++		mls_range_destroy(&tmp_range);
++		mls_level_destroy(&tmp_level);
+ 	}
  
- static int expand_range_trans(expand_state_t * state,
-@@ -1021,6 +1081,9 @@ static int expand_range_trans(expand_sta
- 	ebitmap_t stypes, ttypes;
- 	ebitmap_node_t *snode, *tnode, *cnode;
+ 	ebitmap_init(&tmp_union);
+@@ -784,7 +828,7 @@ static int sens_copy_callback(hashtab_ke
+ 	}
  
-+	if (state->verbose)
-+		INFO(state->handle, "expanding range transitions");
-+
- 	for (rule = rules; rule; rule = rule->next) {
- 		ebitmap_init(&stypes);
- 		ebitmap_init(&ttypes);
-@@ -1053,7 +1116,7 @@ static int expand_range_trans(expand_sta
+ 	if (state->verbose)
+-		INFO(state->handle, "copying senitivity level %s", id);
++		INFO(state->handle, "copying sensitivity level %s", id);
  
- 					if (exp_rangetr_helper(i + 1,
- 							       j + 1,
--							       k,
-+							       k + 1,
- 							       &rule->trange,
- 							       state)) {
- 						ebitmap_destroy(&stypes);
-@@ -1615,52 +1678,6 @@ static int genfs_copy(expand_state_t * s
- 	return 0;
- }
- 
--static int range_trans_clone(expand_state_t * state)
--{
--	range_trans_t *range = state->base->range_tr, *last_new_range = NULL,
--	    *new_range = NULL;
--	state->out->range_tr = NULL;
--
--	if (state->verbose)
--		INFO(state->handle, "copying range transitions");
--
--	while (range != NULL) {
--		if ((new_range = malloc(sizeof(*new_range))) == NULL) {
--			goto out_of_mem;
--		}
--		memset(new_range, 0, sizeof(*new_range));
--		new_range->source_type = state->typemap[range->source_type - 1];
--		new_range->target_type = state->typemap[range->target_type - 1];
--		new_range->target_class = range->target_class;
--		if (mls_level_clone(&new_range->target_range.level[0],
--				    &range->target_range.level[0])) {
--			goto out_of_mem;
--		}
--		if (mls_level_clone(&new_range->target_range.level[1],
--				    &range->target_range.level[1])) {
--			goto out_of_mem;
--		}
--		new_range->next = NULL;
--		if (last_new_range == NULL) {
--			state->out->range_tr = last_new_range = new_range;
--		} else {
--			last_new_range->next = new_range;
--			last_new_range = new_range;
--		}
--		range = range->next;
--	}
--	return 0;
--
--      out_of_mem:
--	ERR(state->handle, "Out of memory!");
--	if (new_range) {
--		ebitmap_destroy(&new_range->target_range.level[0].cat);
--		ebitmap_destroy(&new_range->target_range.level[1].cat);
--		free(new_range);
--	}
--	return -1;
--}
--
- static int type_attr_map(hashtab_key_t key
- 			 __attribute__ ((unused)), hashtab_datum_t datum,
- 			 void *ptr)
-@@ -2044,8 +2061,7 @@ static int copy_and_expand_avrule_block(
- 		}
- 
- 		/* expand the range transition rules */
--		if ((base->policyvers >= MOD_POLICYDB_VERSION_RANGETRANS) &&
--		    expand_range_trans(state, decl->range_tr_rules))
-+		if (expand_range_trans(state, decl->range_tr_rules))
- 			goto cleanup;
- 
- 		/* copy rules */
-@@ -2261,11 +2277,6 @@ int expand_module(sepol_handle_t * handl
- 	if (genfs_copy(&state))
+ 	if ((new_level =
+ 	     (level_datum_t *) calloc(1, sizeof(*new_level))) == NULL
+@@ -2203,6 +2247,17 @@ int expand_module(sepol_handle_t * handl
+ 	if (hashtab_map(state.base->p_roles.table, role_copy_callback, &state))
  		goto cleanup;
  
--	if ((base->policyvers < MOD_POLICYDB_VERSION_RANGETRANS) &&
--	    range_trans_clone(&state) == -1) {
++	/* copy MLS's sensitivity level and categories - this needs to be done
++	 * before expanding users (they need to be indexed too) */
++	if (hashtab_map(state.base->p_levels.table, sens_copy_callback, &state))
++		goto cleanup;
++	if (hashtab_map(state.base->p_cats.table, cats_copy_callback, &state))
++		goto cleanup;
++	if (policydb_index_others(handle, out, verbose)) {
++		ERR(handle, "Error while indexing out symbols");
++		goto cleanup;
++	}
++
+ 	/* copy users */
+ 	if (hashtab_map(state.base->p_users.table, user_copy_callback, &state))
+ 		goto cleanup;
+@@ -2211,13 +2266,6 @@ int expand_module(sepol_handle_t * handl
+ 	if (hashtab_map(state.base->p_bools.table, bool_copy_callback, &state))
+ 		goto cleanup;
+ 
+-	/* now copy MLS's sensitivity level and categories */
+-	if (hashtab_map(state.base->p_levels.table, sens_copy_callback, &state)
+-	    || hashtab_map(state.base->p_cats.table, cats_copy_callback,
+-			   &state)) {
 -		goto cleanup;
 -	}
 -
- 	/* Build the type<->attribute maps and remove attributes. */
- 	state.out->attr_type_map = malloc(state.out->p_types.nprim *
- 					  sizeof(ebitmap_t));
-diff --exclude=.svn -ruNp selinux-list/libsepol/src/policydb.c selinux-rangetrans/libsepol/src/policydb.c
---- selinux-list/libsepol/src/policydb.c	2006-08-25 06:16:43.000000000 -0500
-+++ selinux-rangetrans/libsepol/src/policydb.c	2006-08-25 07:37:42.000000000 -0500
-@@ -233,6 +233,8 @@ void user_datum_init(user_datum_t * x)
+ 	if (policydb_index_classes(out)) {
+ 		ERR(handle, "Error while indexing out classes");
+ 		goto cleanup;
+diff --exclude=.svn -ruNp selinux-rangetrans/libsepol/src/mls.c selinux-mls-users/libsepol/src/mls.c
+--- selinux-rangetrans/libsepol/src/mls.c	2006-08-25 07:37:42.000000000 -0500
++++ selinux-mls-users/libsepol/src/mls.c	2006-08-25 07:50:48.000000000 -0500
+@@ -310,7 +310,7 @@ int mls_context_isvalid(const policydb_t
+ 	if (!c->user || c->user > p->p_users.nprim)
+ 		return 0;
+ 	usrdatum = p->user_val_to_struct[c->user - 1];
+-	if (!mls_range_contains(usrdatum->range, c->range))
++	if (!mls_range_contains(usrdatum->exp_range, c->range))
+ 		return 0;	/* user may not be associated with range */
+ 
+ 	return 1;
+@@ -512,9 +512,9 @@ int mls_setup_user_range(context_struct_
+ 	if (mls) {
+ 		mls_level_t *fromcon_sen = &(fromcon->range.level[0]);
+ 		mls_level_t *fromcon_clr = &(fromcon->range.level[1]);
+-		mls_level_t *user_low = &(user->range.level[0]);
+-		mls_level_t *user_clr = &(user->range.level[1]);
+-		mls_level_t *user_def = &(user->dfltlevel);
++		mls_level_t *user_low = &(user->exp_range.level[0]);
++		mls_level_t *user_clr = &(user->exp_range.level[1]);
++		mls_level_t *user_def = &(user->exp_dfltlevel);
+ 		mls_level_t *usercon_sen = &(usercon->range.level[0]);
+ 		mls_level_t *usercon_clr = &(usercon->range.level[1]);
+ 
+diff --exclude=.svn -ruNp selinux-rangetrans/libsepol/src/policydb.c selinux-mls-users/libsepol/src/policydb.c
+--- selinux-rangetrans/libsepol/src/policydb.c	2006-08-25 07:37:42.000000000 -0500
++++ selinux-mls-users/libsepol/src/policydb.c	2006-08-25 07:50:48.000000000 -0500
+@@ -112,7 +112,7 @@ static struct policydb_compat_info polic
+ 	 },
+ 	{
+ 	 .type = POLICY_BASE,
+-	 .version = MOD_POLICYDB_VERSION_RANGETRANS,
++	 .version = MOD_POLICYDB_VERSION_MLS_USERS,
+ 	 .sym_num = SYM_NUM,
+ 	 .ocon_num = OCON_NODE6 + 1,
+ 	 },
+@@ -130,7 +130,7 @@ static struct policydb_compat_info polic
+ 	 },
+ 	{
+ 	 .type = POLICY_MOD,
+-	 .version = MOD_POLICYDB_VERSION_RANGETRANS,
++	 .version = MOD_POLICYDB_VERSION_MLS_USERS,
+ 	 .sym_num = SYM_NUM,
+ 	 .ocon_num = 0},
+ };
+@@ -233,18 +233,22 @@ void user_datum_init(user_datum_t * x)
  {
  	memset(x, 0, sizeof(user_datum_t));
  	role_set_init(&x->roles);
-+	mls_range_init(&x->range);
-+	mls_level_init(&x->dfltlevel);
+-	mls_range_init(&x->range);
+-	mls_level_init(&x->dfltlevel);
++	mls_semantic_range_init(&x->range);
++	mls_semantic_level_init(&x->dfltlevel);
  	ebitmap_init(&x->cache);
++	mls_range_init(&x->exp_range);
++	mls_level_init(&x->exp_dfltlevel);
  }
  
-@@ -240,9 +242,8 @@ void user_datum_destroy(user_datum_t * x
+ void user_datum_destroy(user_datum_t * x)
  {
  	if (x != NULL) {
  		role_set_destroy(&x->roles);
--		ebitmap_destroy(&x->range.level[0].cat);
--		ebitmap_destroy(&x->range.level[1].cat);
--		ebitmap_destroy(&x->dfltlevel.cat);
-+		mls_range_destroy(&x->range);
-+		mls_level_destroy(&x->dfltlevel);
+-		mls_range_destroy(&x->range);
+-		mls_level_destroy(&x->dfltlevel);
++		mls_semantic_range_destroy(&x->range);
++		mls_semantic_level_destroy(&x->dfltlevel);
  		ebitmap_destroy(&x->cache);
++		mls_range_destroy(&x->exp_range);
++		mls_level_destroy(&x->exp_dfltlevel);
  	}
  }
-@@ -330,7 +331,8 @@ void range_trans_rule_init(range_trans_r
- 	type_set_init(&x->stypes);
- 	type_set_init(&x->ttypes);
- 	ebitmap_init(&x->tclasses);
--	mls_range_init(&x->trange);
-+	mls_semantic_range_init(&x->trange);
-+	x->next = NULL;
- }
  
- void range_trans_rule_destroy(range_trans_rule_t * x)
-@@ -338,7 +340,7 @@ void range_trans_rule_destroy(range_tran
- 	type_set_destroy(&x->stypes);
- 	type_set_destroy(&x->ttypes);
- 	ebitmap_destroy(&x->tclasses);
--	mls_range_destroy(&x->trange);
-+	mls_semantic_range_destroy(&x->trange);
- }
- 
- void range_trans_rule_list_destroy(range_trans_rule_t * x)
-@@ -1348,6 +1350,115 @@ static int mls_read_range_helper(mls_ran
- }
- 
- /*
-+ * Read a semantic MLS level structure from a policydb binary 
-+ * representation file.
-+ */
-+static int mls_read_semantic_level_helper(mls_semantic_level_t * l,
-+					  struct policy_file *fp)
-+{
-+	uint32_t *buf, ncat;
-+	unsigned int i;
-+	mls_semantic_cat_t *cat;
-+
-+	mls_semantic_level_init(l);
-+
-+	buf = next_entry(fp, sizeof(uint32_t) * 2);
-+	if (!buf) {
-+		ERR(fp->handle, "truncated level");
-+		goto bad;
-+	}
-+	l->sens = le32_to_cpu(buf[0]);
-+
-+	ncat = le32_to_cpu(buf[1]);
-+	for (i = 0; i < ncat; i++) {
-+		cat = (mls_semantic_cat_t *) calloc(1,
-+						    sizeof(mls_semantic_cat_t));
-+		if (!cat) {
-+			ERR(fp->handle, "out of memory");
-+			goto bad;
-+		}
-+
-+		cat->next = l->cat;
-+		l->cat = cat;
-+
-+		buf = next_entry(fp, sizeof(uint32_t) * 2);
-+		if (!buf) {
-+			ERR(fp->handle, "error reading level categories");
-+			goto bad;
-+		}
-+		cat->low = le32_to_cpu(buf[0]);
-+		cat->high = le32_to_cpu(buf[1]);
-+	}
-+
-+	return 0;
-+
-+      bad:
-+	return -EINVAL;
-+}
-+
-+/*
-+ * Read a semantic MLS range structure from a policydb binary 
-+ * representation file.
-+ */
-+static int mls_read_semantic_range_helper(mls_semantic_range_t * r,
-+					  struct policy_file *fp)
-+{
-+	int rc;
-+
-+	rc = mls_read_semantic_level_helper(&r->level[0], fp);
-+	if (rc)
-+		return rc;
-+
-+	rc = mls_read_semantic_level_helper(&r->level[1], fp);
-+
-+	return rc;
-+}
-+
-+static int mls_level_to_semantic(mls_level_t * l, mls_semantic_level_t * sl)
-+{
-+	unsigned int i;
-+	ebitmap_node_t *cnode;
-+	mls_semantic_cat_t *open_cat = NULL;
-+
-+	mls_semantic_level_init(sl);
-+	sl->sens = l->sens;
-+	ebitmap_for_each_bit(&l->cat, cnode, i) {
-+		if (ebitmap_node_get_bit(cnode, i)) {
-+			if (open_cat)
-+				continue;
-+			open_cat = (mls_semantic_cat_t *) calloc(1,
-+								 sizeof
-+								 (mls_semantic_cat_t));
-+			if (!open_cat)
-+				return -1;
-+			open_cat->low = i + 1;
-+			open_cat->next = sl->cat;
-+			sl->cat = open_cat;
-+		} else {
-+			if (!open_cat)
-+				continue;
-+			open_cat->high = i;
-+			open_cat = NULL;
-+		}
-+	}
-+	if (open_cat)
-+		open_cat->high = i;
-+
-+	return 0;
-+}
-+
-+static int mls_range_to_semantic(mls_range_t * r, mls_semantic_range_t * sr)
-+{
-+	if (mls_level_to_semantic(&r->level[0], &sr->level[0]))
-+		return -1;
-+
-+	if (mls_level_to_semantic(&r->level[1], &sr->level[1]))
-+		return -1;
-+
-+	return 0;
-+}
-+
-+/*
-  * Read and validate a security context structure
-  * from a policydb binary representation file.
-  */
-@@ -2303,6 +2414,7 @@ static int range_read(policydb_t * p, st
- {
- 	uint32_t *buf, nel;
- 	range_trans_t *rt, *lrt;
-+	range_trans_rule_t *rtr, *lrtr = NULL;
- 	unsigned int i;
- 	int new_rangetr = (p->policy_type == POLICY_KERN &&
- 			   p->policyvers >= POLICYDB_VERSION_RANGETRANS);
-@@ -2336,6 +2448,58 @@ static int range_read(policydb_t * p, st
- 			return -1;
- 		lrt = rt;
+@@ -498,6 +502,17 @@ int policydb_user_cache(hashtab_key_t ke
+ 		return -1;
  	}
-+
-+	/* if this is a kernel policy, we are done - otherwise we need to
-+	 * convert these structs to range_trans_rule_ts */
-+	if (p->policy_type == POLICY_KERN)
-+		return 0;
-+
-+	/* create range_trans_rules_ts that correspond to the range_trans_ts
-+	 * that were just read in from an older policy */
-+	for (rt = p->range_tr; rt; rt = rt->next) {
-+		rtr = malloc(sizeof(range_trans_rule_t));
-+		if (!rtr) {
-+			return -1;
-+		}
-+		range_trans_rule_init(rtr);
-+
-+		if (lrtr)
-+			lrtr->next = rtr;
-+		else
-+			p->global->enabled->range_tr_rules = rtr;
-+
-+		if (ebitmap_set_bit(&rtr->stypes.types, rt->source_type - 1, 1))
-+			return -1;
-+
-+		if (ebitmap_set_bit(&rtr->ttypes.types, rt->target_type - 1, 1))
-+			return -1;
-+
-+		if (ebitmap_set_bit(&rtr->tclasses, rt->target_class - 1, 1))
-+			return -1;
-+
-+		if (mls_range_to_semantic(&rt->target_range, &rtr->trange))
-+			return -1;
-+
-+		lrtr = rtr;
+ 
++	mls_range_destroy(&user->exp_range);
++	if (mls_semantic_range_expand(&user->range, &user->exp_range, p, NULL)) {
++		return -1;
 +	}
 +
-+	/* now destroy the range_trans_ts */
-+	lrt = NULL;
-+	for (rt = p->range_tr; rt; rt = rt->next) {
-+		if (lrt) {
-+			ebitmap_destroy(&lrt->target_range.level[0].cat);
-+			ebitmap_destroy(&lrt->target_range.level[1].cat);
-+			free(lrt);
-+		}
-+		lrt = rt;
++	mls_level_destroy(&user->exp_dfltlevel);
++	if (mls_semantic_level_expand(&user->dfltlevel,
++				      &user->exp_dfltlevel, p, NULL)) {
++		return -1;
 +	}
-+	if (lrt) {
-+		ebitmap_destroy(&lrt->target_range.level[0].cat);
-+		ebitmap_destroy(&lrt->target_range.level[1].cat);
-+		free(lrt);
-+	}
-+	p->range_tr = NULL;
 +
  	return 0;
  }
  
-@@ -2478,7 +2642,7 @@ static int range_trans_rule_read(range_t
- 		if (ebitmap_read(&rt->tclasses, fp))
- 			return -1;
+@@ -2234,17 +2249,35 @@ static int user_read(policydb_t * p, has
+ 			goto bad;
+ 	}
  
--		if (mls_read_range_helper(&rt->trange, fp))
-+		if (mls_read_semantic_range_helper(&rt->trange, fp))
- 			return -1;
+-	/* users aren't allowed in mls modules but they can be required, the mls fields will be empty,
+-	 * user declarations in non-mls modules will also have empty mls fields */
++	/* users were not allowed in mls modules before version
++	 * MOD_POLICYDB_VERSION_MLS_USERS, but they could have been
++	 * required - the mls fields will be empty.  user declarations in
++	 * non-mls modules will also have empty mls fields */
+ 	if ((p->policy_type == POLICY_KERN
+ 	     && p->policyvers >= POLICYDB_VERSION_MLS)
+ 	    || (p->policy_type == POLICY_MOD
+-		&& p->policyvers >= MOD_POLICYDB_VERSION_MLS)
++		&& p->policyvers >= MOD_POLICYDB_VERSION_MLS
++		&& p->policyvers < MOD_POLICYDB_VERSION_MLS_USERS)
+ 	    || (p->policy_type == POLICY_BASE
+-		&& p->policyvers >= MOD_POLICYDB_VERSION_MLS)) {
+-		if (mls_read_range_helper(&usrdatum->range, fp))
++		&& p->policyvers >= MOD_POLICYDB_VERSION_MLS
++		&& p->policyvers < MOD_POLICYDB_VERSION_MLS_USERS)) {
++		if (mls_read_range_helper(&usrdatum->exp_range, fp))
++			goto bad;
++		if (mls_range_to_semantic(&usrdatum->exp_range,
++					  &usrdatum->range))
++			goto bad;
++		if (mls_read_level(&usrdatum->exp_dfltlevel, fp))
++			goto bad;
++		if (mls_level_to_semantic(&usrdatum->exp_dfltlevel,
++					  &usrdatum->dfltlevel))
++			goto bad;
++	} else if ((p->policy_type == POLICY_MOD
++		    && p->policyvers >= MOD_POLICYDB_VERSION_MLS_USERS)
++		   || (p->policy_type == POLICY_BASE
++		       && p->policyvers >= MOD_POLICYDB_VERSION_MLS_USERS)) {
++		if (mls_read_semantic_range_helper(&usrdatum->range, fp))
+ 			goto bad;
+-		if (mls_read_level(&usrdatum->dfltlevel, fp))
++		if (mls_read_semantic_level_helper(&usrdatum->dfltlevel, fp))
+ 			goto bad;
+ 	}
  
- 		lrt = rt;
-diff --exclude=.svn -ruNp selinux-list/libsepol/src/write.c selinux-rangetrans/libsepol/src/write.c
---- selinux-list/libsepol/src/write.c	2006-08-25 06:16:43.000000000 -0500
-+++ selinux-rangetrans/libsepol/src/write.c	2006-08-25 07:37:42.000000000 -0500
-@@ -308,6 +308,55 @@ static int avtab_write(struct policydb *
- }
+diff --exclude=.svn -ruNp selinux-rangetrans/libsepol/src/users.c selinux-mls-users/libsepol/src/users.c
+--- selinux-rangetrans/libsepol/src/users.c	2006-08-25 07:37:42.000000000 -0500
++++ selinux-mls-users/libsepol/src/users.c	2006-08-25 10:02:12.000000000 -0500
+@@ -47,13 +47,13 @@ static int user_to_record(sepol_handle_t
  
- /*
-+ * Write a semantic MLS level structure to a policydb binary 
-+ * representation file.
-+ */
-+static int mls_write_semantic_level_helper(mls_semantic_level_t * l,
-+					   struct policy_file *fp)
-+{
-+	uint32_t buf[2], ncat = 0;
-+	size_t items;
-+	mls_semantic_cat_t *cat;
-+
-+	for (cat = l->cat; cat; cat = cat->next)
-+		ncat++;
-+
-+	buf[0] = l->sens;
-+	buf[1] = ncat;
-+	items = put_entry(buf, sizeof(uint32_t), 2, fp);
-+	if (items != 2)
-+		return POLICYDB_ERROR;
-+
-+	for (cat = l->cat; cat; cat = cat->next) {
-+		buf[0] = cat->low;
-+		buf[1] = cat->high;
-+		items = put_entry(buf, sizeof(uint32_t), 2, fp);
-+		if (items != 2)
-+			return POLICYDB_ERROR;
-+	}
-+
-+	return POLICYDB_SUCCESS;
-+}
-+
-+/*
-+ * Read a semantic MLS range structure to a policydb binary 
-+ * representation file.
-+ */
-+static int mls_write_semantic_range_helper(mls_semantic_range_t * r,
-+					   struct policy_file *fp)
-+{
-+	int rc;
-+
-+	rc = mls_write_semantic_level_helper(&r->level[0], fp);
-+	if (rc)
-+		return rc;
-+
-+	rc = mls_write_semantic_level_helper(&r->level[1], fp);
-+
-+	return rc;
-+}
-+
-+/*
-  * Write a MLS level structure to a policydb binary 
-  * representation file.
-  */
-@@ -1309,7 +1358,7 @@ static int range_trans_rule_write(range_
- 			return POLICYDB_ERROR;
- 		if (ebitmap_write(&rt->tclasses, fp))
- 			return POLICYDB_ERROR;
--		if (mls_write_range_helper(&rt->trange, fp))
-+		if (mls_write_semantic_range_helper(&rt->trange, fp))
+ 		context_init(&context);
+ 		if (mls_level_cpy(&context.range.level[0],
+-				  &usrdatum->dfltlevel) < 0) {
++				  &usrdatum->exp_dfltlevel) < 0) {
+ 			ERR(handle, "could not copy MLS level");
+ 			context_destroy(&context);
+ 			goto err;
+ 		}
+ 		if (mls_level_cpy(&context.range.level[1],
+-				  &usrdatum->dfltlevel) < 0) {
++				  &usrdatum->exp_dfltlevel) < 0) {
+ 			ERR(handle, "could not copy MLS level");
+ 			context_destroy(&context);
+ 			goto err;
+@@ -71,7 +71,7 @@ static int user_to_record(sepol_handle_t
+ 		free(str);
+ 
+ 		context_init(&context);
+-		if (mls_range_cpy(&context.range, &usrdatum->range) < 0) {
++		if (mls_range_cpy(&context.range, &usrdatum->exp_range) < 0) {
+ 			ERR(handle, "could not copy MLS range");
+ 			context_destroy(&context);
+ 			goto err;
+@@ -191,8 +191,8 @@ int sepol_user_modify(sepol_handle_t * h
+ 			context_destroy(&context);
+ 			goto err;
+ 		}
+-		if (mls_level_cpy(&usrdatum->dfltlevel, &context.range.level[0])
+-		    < 0) {
++		if (mls_level_cpy(&usrdatum->exp_dfltlevel,
++				  &context.range.level[0]) < 0) {
+ 			ERR(handle, "could not copy MLS level %s", cmls_level);
+ 			context_destroy(&context);
+ 			goto err;
+@@ -211,13 +211,12 @@ int sepol_user_modify(sepol_handle_t * h
+ 			context_destroy(&context);
+ 			goto err;
+ 		}
+-		if (mls_range_cpy(&usrdatum->range, &context.range) < 0) {
++		if (mls_range_cpy(&usrdatum->exp_range, &context.range) < 0) {
+ 			ERR(handle, "could not copy MLS range %s", cmls_range);
+ 			context_destroy(&context);
+ 			goto err;
+ 		}
+ 		context_destroy(&context);
+-
+ 	} else if (cmls_level != NULL || cmls_range != NULL) {
+ 		ERR(handle, "MLS is disabled, but MLS level/range "
+ 		    "was found for user %s", cname);
+diff --exclude=.svn -ruNp selinux-rangetrans/libsepol/src/write.c selinux-mls-users/libsepol/src/write.c
+--- selinux-rangetrans/libsepol/src/write.c	2006-08-25 07:37:42.000000000 -0500
++++ selinux-mls-users/libsepol/src/write.c	2006-08-25 07:50:48.000000000 -0500
+@@ -1005,18 +1005,27 @@ static int user_write(hashtab_key_t key,
+ 		if (role_set_write(&usrdatum->roles, fp))
  			return POLICYDB_ERROR;
  	}
+-	/* Users are allowed in non-mls modules, so the empty field will be present
+-	   in modules with users >= MOD_POLICYDB_VERSION_MLS */
++
+ 	if ((p->policyvers >= POLICYDB_VERSION_MLS
+ 	     && p->policy_type == POLICY_KERN)
+ 	    || (p->policyvers >= MOD_POLICYDB_VERSION_MLS
++		&& p->policyvers < MOD_POLICYDB_VERSION_MLS_USERS
+ 		&& p->policy_type == POLICY_MOD)
+ 	    || (p->policyvers >= MOD_POLICYDB_VERSION_MLS
++		&& p->policyvers < MOD_POLICYDB_VERSION_MLS_USERS
+ 		&& p->policy_type == POLICY_BASE)) {
+-		if (mls_write_range_helper(&usrdatum->range, fp))
++		if (mls_write_range_helper(&usrdatum->exp_range, fp))
+ 			return POLICYDB_ERROR;
+-		if (mls_write_level(&usrdatum->dfltlevel, fp))
++		if (mls_write_level(&usrdatum->exp_dfltlevel, fp))
+ 			return POLICYDB_ERROR;
++	} else if ((p->policyvers >= MOD_POLICYDB_VERSION_MLS_USERS
++		    && p->policy_type == POLICY_MOD)
++		   || (p->policyvers >= MOD_POLICYDB_VERSION_MLS_USERS
++		       && p->policy_type == POLICY_BASE)) {
++		if (mls_write_semantic_range_helper(&usrdatum->range, fp))
++			return -1;
++		if (mls_write_semantic_level_helper(&usrdatum->dfltlevel, fp))
++			return -1;
+ 	}
+ 
  	return POLICYDB_SUCCESS;
 
 --
