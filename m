@@ -1,75 +1,104 @@
 Subject: Re: justifying --context=CTX (-Z) for upstream coreutils, like
 	mkdir
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Jim Meyering <meyering@redhat.com>
-Cc: James Antill <jantill@redhat.com>, selinux@tycho.nsa.gov
-In-Reply-To: <1156795219.22210.146.camel@moss-spartans.epoch.ncsc.mil>
+To: Joshua Brindle <jbrindle@tresys.com>
+Cc: Jim Meyering <jim@meyering.net>, James Antill <james.antill@redhat.com>,
+        "Christopher J. PeBenito" <cpebenito@tresys.com>,
+        Karl MacMillan <kmacmillan@mentalrootkit.com>, selinux@tycho.nsa.gov
+In-Reply-To: <1156767829.3283.35.camel@twoface.columbia.tresys.com>
 References: <87mzabgyrk.fsf@rho.meyering.net>
-	 <1155747947.11138.18.camel@code.and.org>  <871wrgcrbm.fsf@rho.meyering.net>
-	 <1156795219.22210.146.camel@moss-spartans.epoch.ncsc.mil>
+	 <1155308294.8018.59.camel@localhost.localdomain>
+	 <87irkzfcgr.fsf@rho.meyering.net>
+	 <1155567404.23601.10.camel@localhost.localdomain>
+	 <87ac67iaao.fsf@rho.meyering.net>
+	 <1155571378.23601.32.camel@localhost.localdomain>
+	 <873bbzi6c1.fsf@rho.meyering.net>
+	 <1155581090.28766.217.camel@moss-spartans.epoch.ncsc.mil>
+	 <87wt929j25.fsf@rho.meyering.net> <1156182056.14126.91.camel@sgc>
+	 <87pset93nk.fsf@rho.meyering.net> <44EB02B3.5040100@tresys.com>
+	 <87sljo69le.fsf@rho.meyering.net>
+	 <1156263820.4242.8.camel@twoface.columbia.tresys.com>
+	 <87k6506682.fsf@rho.meyering.net> <1156292847.8627.25.camel@code.and.org>
+	 <87ac5vu3ys.fsf@rho.meyering.net>
+	 <1156767829.3283.35.camel@twoface.columbia.tresys.com>
 Content-Type: text/plain
-Date: Mon, 28 Aug 2006 16:10:25 -0400
-Message-Id: <1156795825.22210.156.camel@moss-spartans.epoch.ncsc.mil>
+Date: Mon, 28 Aug 2006 16:24:00 -0400
+Message-Id: <1156796640.22210.167.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 2006-08-28 at 16:00 -0400, Stephen Smalley wrote:
-> On Wed, 2006-08-16 at 23:18 +0200, Jim Meyering wrote:
-> > James Antill <jantill@redhat.com> wrote:
-> > > On Fri, 2006-08-11 at 15:58 +0200, Jim Meyering wrote:
-> > >> For a little context on why, ...
-> > >> I'm also considering the xattr patch that's been floating around for
-> > >> years.  Currently it's part of SuSE's coreutils patch set.  It ensures
-> > >> that mv and cp -p preserve any (selected) XATTR attributes.
-> > >
-> > >  Note that I did a patch, which is different from the SuSE patch ... it
-> > > doesn't include the regexp handling but mv does Do The Right
-> > > Thing(tm)[1]:
-> > >
-> > > https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=201088
-> > > http://people.redhat.com/jantill/patches/coreutils-5.97-xattrs.patch
+On Mon, 2006-08-28 at 08:23 -0400, Joshua Brindle wrote:
+> On Wed, 2006-08-23 at 12:43 +0200, Jim Meyering wrote:
+> <snip>
+> > Hi James,
 > > 
-> > Your patch looks good, but shouldn't it also preserve attributes
-> > on directories and other non-regular files?
+> > That's a good description.  And I like the new function name.
+> > As you know, functions other than file-creating-open are affected, too:
+> > mkfifo, mknod, symlink, creat.  And it's not quite like setexeccon, where
+> > at most one execve call is affected.
+> > Also, any use of setfscreatecon-with-non-NULL-arg in the exec'd process
+> > would cancel the effect of a parent's setfspostexeccon.  I think an initial
+> > setfscreatecon(NULL) in the exec'd process would be a no-op.
+> > So here's what I want:
 > > 
-> > Since I rarely use ACLs, I'm not in a good position to gauge the
-> > value of Andreas' cp option to select via regexp.
+> >         setfspostexeccon
+> >         [...stuff which isn't exec...]
+> >         exec
+> >         [...operations that don't create files
+> >             and that don't call setfscreatecon...]
+> >         open(O_CREAT), or mkfifo, etc. <-- affects this.
+> >         [...still no setfscreatecon...]
+> >         symlink, or mknod, etc.        <-- and this.
 > > 
-> > Also, in looking through your patch, I wondered if there is some scenario
-> > where it'd be worthwhile to attempt to preserve xattrs even if fchmod
-> > fails.  Or even to attempt to preserve xattrs *before* calling fchmod?
+> > How is this an argument against making fscon possible?
 > > 
-> > >  It also makes preservation of xattrs a hard error, unless it's because
-> > > of ENOTSUPP ... and there's no way to turn just preservation of xattrs
-> > > off (would you want this before accepting upstream)?
-> > 
-> > For upstream at least, the 5.9x branch is a bug-fix-only branch.
-> > New features like xattr support will go on the trunk.
-> > 
-> > What do you think about adding a new cp option: --preserve=xattr ?
-> > That would be in line with the --preserve=context option (added to cp)
-> > that's part of the SELinux patch.
-> > Which means it could be turned off via --no-preserve=xattr.
-> > 
-> > Currently, cp's --preserve option treats ACLs like mode bits.  I.e. both
-> > cp -p and cp --preserve=mode copy ACLs.  mv preserves ACLs, too.
-> > As mentioned before, failing to preserve an ACL has different consequences
-> > in cp -p (warn and exit nonzero) and mv (warn, but exit successfully).
-> > 
-> > So should cp have a separate --preserve=acl option, too?
-> > 
-> > This brings up the question of whether cp's -p should also
-> > imply --preserve=xattr.
 > 
-> Caveat:  A process may be able to copy a file and preserve its
-> discretionary attributes, but not its MAC/SELinux attribute.  That
-> shouldn't be fatal to the copy itself.
+> Its a very broken design, we want to taint the new process as little as
+> possible and this is a big nasty piece of environment you want to place
+> solidly in the upcoming process, further you are saying you want to make
+> it more difficult for the child to ignore it?!
 
-Sorry..."unless the caller explicitly requested copying of the
-MAC/SELinux attribute or all attributes".  Which isn't the case for just
-cp -p and others that imply -p, like -a.  Otherwise, you'll encounter
-breakage in existing usage.
+The last part is definitely problematic, I agree.  The first part would
+be addressed by resetting the attribute upon a context-changing exec
+either unconditionally in all cases or based on some new permission
+check modeled after noatsecure, rlimitinh, and siginh for other kinds of
+state inheritance across a context change.  
+
+> Consider what would happen if you were able to set the mode for files
+> opened by the next process, something like:
+> 
+> setmostexecmode(S_IROTH | S_IWOTH)
+> exec(/usr/bin/passwd)
+> and the resulting shadow is readable and writable by everyone?
+> 
+> Granted this particular piece of environment would have to be removed
+> with ATSECURE
+
+More like rlimitinh/siginh, since the kernel can directly handle both
+the checking and sanitization of this piece of state, unlike the
+environment purging by glibc (where the kernel just provides the
+decision via AT_SECURE).  
+
+>  which means domain transitions could also eliminate it but
+> with the targeted policy I don't think we want unconfined_t using this
+> which means fscon would be unusable anyway.
+
+I was following you up to this point, but don't follow this statement.
+Why can't unconfined_t use fscon? 
+
+>  Also, the command line
+> syntax is all but intuitive, even for seasoned UNIX people who are
+> probably much more familiar with using command line arguments,
+> especially when you need to domain transition manually *and* set the
+> file context this way, noone will ever do it.
+
+The runcon piece of this puzzle is actually a bit more of a problem,
+because of entrypoint controls.  You can't just say:
+	runcon <context> fscon -t type <program> <args>
+because program is the authorized entrypoint for <context>, not fscon.
+fscon would have to become a shared entrypoint for all such contexts,
+and that would be a bad thing.
 
 -- 
 Stephen Smalley
