@@ -1,83 +1,61 @@
-Subject: Re: [PATCH 3/3] semantic MLS representation for users
-From: Joshua Brindle <jbrindle@tresys.com>
-To: Darrel Goeddel <dgoeddel@TrustedCS.com>
-Cc: "'SELinux List'" <SELinux@tycho.nsa.gov>,
-        Karl MacMillan <kmacmillan@mentalrootkit.com>,
-        Stephen Smalley <sds@tycho.nsa.gov>,
-        Christopher PeBenito <cpebenito@tresys.com>
-In-Reply-To: <44F31951.1070706@trustedcs.com>
-References: <44F31951.1070706@trustedcs.com>
+Subject: Re: ipsec and getpeercon()
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Joshua Brindle <jbrindle@tresys.com>
+Cc: Joy Latten <latten@us.ibm.com>,
+        Venkat Yekkirala <vyekkirala@TrustedCS.com>, selinux@tycho.nsa.gov,
+        paul.moore@hp.com
+In-Reply-To: <1156880819.8075.14.camel@twoface.columbia.tresys.com>
+References: <1156874881.6255.5.camel@twoface.columbia.tresys.com>
+	 <1156880256.22210.216.camel@moss-spartans.epoch.ncsc.mil>
+	 <1156880819.8075.14.camel@twoface.columbia.tresys.com>
 Content-Type: text/plain
-Date: Tue, 29 Aug 2006 15:52:57 -0400
-Message-Id: <1156881177.8075.18.camel@twoface.columbia.tresys.com>
+Date: Tue, 29 Aug 2006 16:25:10 -0400
+Message-Id: <1156883110.22210.222.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 2006-08-28 at 11:26 -0500, Darrel Goeddel wrote:
-> Use the semantic representation for user_datums in modular policy formats.
+On Tue, 2006-08-29 at 15:46 -0400, Joshua Brindle wrote:
+> On Tue, 2006-08-29 at 15:37 -0400, Stephen Smalley wrote:
+> > On Tue, 2006-08-29 at 14:08 -0400, Joshua Brindle wrote:
+> > > I'm trying to use getpeercon() with a tcp stream socket over an ipsec
+> > > host2host connection and it isn't working, it always returns the context
+> > > of the local domain/socket:
+> > > 
+> > > 
+> > > [root@rawhide-clone ~]# runcon -t passwd_t ./server
+> > > server: got connection from 10.1.13.104, root:system_r:passwd_t:s0-s0:c0.c255
+> > > 
+> > > [root@rawhide-clone ~]# runcon -t initrc_t ./server
+> > > server: got connection from 10.1.13.104, root:system_r:initrc_t:s0-s0:c0.c255
+> > > 
+> > > the process connecting is unconfined_t
+> > > 
+> > > Am I doing something wrong or is something broken?
+> > 
+> > You didn't provide much information above.  Kernel version?  ipsec-tools
+> > version?  racoon version?  ipsec configuration?  setkey -D output?
+> > setkey -DP output?
 > 
-> All user_datums in a modular format use the semantic representation of the MLS
-> range and dfltlevel.  There is also the possibility of having an expanded
-> version of that data also present in the user_datum.  This is used much like
-> the role cache in the user_datum.  When the user are indexed, the MLS info is
-> expanded.  This info may be used to check the validity of context.  This
-> expansion is not used when writing out a kernel format policy - the expansion
-> is performed again to ensure that the data it is present and in sync with the
-> rest of the policy.
+> Sorry,
 > 
-> Like the range_trans structs, user_datums from older modular formats will have
-> their MLS data converted to the new semantic structs.
+> Linux rawhide-clone 2.6.17-1.2586.fc6 #1 SMP Thu Aug 24 08:51:22 EDT
+> 2006 i686 i686 i386 GNU/Linux
 > 
+> ipsec-tools.i386                         0.6.5-3.1
 > 
-> Signed-off-by:  Darrel Goeddel <dgoeddel@trustedcs.com>
-> 
-<snip> 
-> diff --exclude=.svn -ruNp selinux-rangetrans/libsepol/src/expand.c selinux-mls-users/libsepol/src/expand.c
-> --- selinux-rangetrans/libsepol/src/expand.c	2006-08-25 07:37:42.000000000 -0500
-> +++ selinux-mls-users/libsepol/src/expand.c	2006-08-25 07:50:48.000000000 -0500
-> @@ -688,13 +688,57 @@ static int user_copy_callback(hashtab_ke
->  			return -1;
->  		}
->  
-> -		/* clone MLS stuff */
-> -		if (mls_range_cpy(&new_user->range, &user->range) == -1
-> -		    || mls_level_cpy(&new_user->dfltlevel,
-> -				     &user->dfltlevel) == -1) {
-> +		/* copy semantic MLS info */
-> +		if (mls_semantic_range_cpy(&new_user->range, &user->range)) {
->  			ERR(state->handle, "Out of memory!");
->  			return -1;
->  		}
-> +		if (mls_semantic_level_cpy(&new_user->dfltlevel,
-> +					   &user->dfltlevel)) {
-> +			ERR(state->handle, "Out of memory!");
-> +			return -1;
-> +		}
-> +
-> +		/* expand the semantic MLS info */
-> +		if (mls_semantic_range_expand(&new_user->range,
-> +					      &new_user->exp_range,
-> +					      state->out, state->handle)) {
-> +			return -1;
-> +		}
-> +		if (mls_semantic_level_expand(&new_user->dfltlevel,
-> +					      &new_user->exp_dfltlevel,
-> +					      state->out, state->handle)) {
-> +			return -1;
-> +		}
-> +		if (!mls_level_between(&new_user->exp_dfltlevel,
-> +				       &new_user->exp_range.level[0],
-> +				       &new_user->exp_range.level[1])) {
-> +			ERR(state->handle, "default level not within user "
-> +			    "range");
-> +			return -1;
+> [root@rawhide-clone ~]# setkey -D
+<snip>
+> [root@rawhide-clone ~]# setkey -D
 
-not sure here, we normally outright expand into the new datum in the
-copy_callbacks. Is there a reason you need to keep the semantic copy
-around? Is there a problem moving user copying to after level copying if
-that is the issue. 
+One of those was supposed to be a setkey -DP.
 
+You did remember to specify a -ctx option when you added spd entries,
+right?
+
+-- 
+Stephen Smalley
+National Security Agency
 
 
 --
