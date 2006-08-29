@@ -1,139 +1,72 @@
-Subject: Re: justifying --context=CTX (-Z) for upstream coreutils, like
-	mkdir
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Joshua Brindle <jbrindle@tresys.com>
-Cc: Jim Meyering <jim@meyering.net>, James Antill <james.antill@redhat.com>,
-        "Christopher J. PeBenito" <cpebenito@tresys.com>,
-        Karl MacMillan <kmacmillan@mentalrootkit.com>, selinux@tycho.nsa.gov
-In-Reply-To: <1156796640.22210.167.camel@moss-spartans.epoch.ncsc.mil>
-References: <87mzabgyrk.fsf@rho.meyering.net>
-	 <1155308294.8018.59.camel@localhost.localdomain>
-	 <87irkzfcgr.fsf@rho.meyering.net>
-	 <1155567404.23601.10.camel@localhost.localdomain>
-	 <87ac67iaao.fsf@rho.meyering.net>
-	 <1155571378.23601.32.camel@localhost.localdomain>
-	 <873bbzi6c1.fsf@rho.meyering.net>
-	 <1155581090.28766.217.camel@moss-spartans.epoch.ncsc.mil>
-	 <87wt929j25.fsf@rho.meyering.net> <1156182056.14126.91.camel@sgc>
-	 <87pset93nk.fsf@rho.meyering.net> <44EB02B3.5040100@tresys.com>
-	 <87sljo69le.fsf@rho.meyering.net>
-	 <1156263820.4242.8.camel@twoface.columbia.tresys.com>
-	 <87k6506682.fsf@rho.meyering.net> <1156292847.8627.25.camel@code.and.org>
-	 <87ac5vu3ys.fsf@rho.meyering.net>
-	 <1156767829.3283.35.camel@twoface.columbia.tresys.com>
-	 <1156796640.22210.167.camel@moss-spartans.epoch.ncsc.mil>
-Content-Type: text/plain
-Date: Tue, 29 Aug 2006 15:11:04 -0400
-Message-Id: <1156878664.22210.207.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k7TJI0ps028330
+	for <selinux@tycho.nsa.gov>; Tue, 29 Aug 2006 15:18:00 -0400
+Received: from mail1.sea5.speakeasy.net (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id k7TJHNRT000348
+	for <selinux@tycho.nsa.gov>; Tue, 29 Aug 2006 19:17:24 GMT
+Date: Tue, 29 Aug 2006 15:17:56 -0400 (EDT)
+From: James Morris <jmorris@namei.org>
+To: Paul Moore <paul.moore@hp.com>
+cc: netdev@vger.kernel.org, selinux@tycho.nsa.gov,
+        Stephen Smalley <sds@tycho.nsa.gov>, Andrew Morton <akpm@osdl.org>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: Re: [PATCH 1/6] NetLabel: correctly initialize the NetLabel fields
+In-Reply-To: <44F47FB0.5000700@hp.com>
+Message-ID: <Pine.LNX.4.64.0608291514060.30227@d.namei>
+References: <20060829144251.452774000@hp.com> <20060829144444.202106000@hp.com>
+ <Pine.LNX.4.64.0608291248410.29142@d.namei> <44F47FB0.5000700@hp.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 2006-08-28 at 16:24 -0400, Stephen Smalley wrote:
-> On Mon, 2006-08-28 at 08:23 -0400, Joshua Brindle wrote:
-> > On Wed, 2006-08-23 at 12:43 +0200, Jim Meyering wrote:
-> > <snip>
-> > > Hi James,
-> > > 
-> > > That's a good description.  And I like the new function name.
-> > > As you know, functions other than file-creating-open are affected, too:
-> > > mkfifo, mknod, symlink, creat.  And it's not quite like setexeccon, where
-> > > at most one execve call is affected.
-> > > Also, any use of setfscreatecon-with-non-NULL-arg in the exec'd process
-> > > would cancel the effect of a parent's setfspostexeccon.  I think an initial
-> > > setfscreatecon(NULL) in the exec'd process would be a no-op.
-> > > So here's what I want:
-> > > 
-> > >         setfspostexeccon
-> > >         [...stuff which isn't exec...]
-> > >         exec
-> > >         [...operations that don't create files
-> > >             and that don't call setfscreatecon...]
-> > >         open(O_CREAT), or mkfifo, etc. <-- affects this.
-> > >         [...still no setfscreatecon...]
-> > >         symlink, or mknod, etc.        <-- and this.
-> > > 
-> > > How is this an argument against making fscon possible?
-> > > 
-> > 
-> > Its a very broken design, we want to taint the new process as little as
-> > possible and this is a big nasty piece of environment you want to place
-> > solidly in the upcoming process, further you are saying you want to make
-> > it more difficult for the child to ignore it?!
-> 
-> The last part is definitely problematic, I agree.  The first part would
-> be addressed by resetting the attribute upon a context-changing exec
-> either unconditionally in all cases or based on some new permission
-> check modeled after noatsecure, rlimitinh, and siginh for other kinds of
-> state inheritance across a context change.  
-> 
-> > Consider what would happen if you were able to set the mode for files
-> > opened by the next process, something like:
-> > 
-> > setmostexecmode(S_IROTH | S_IWOTH)
-> > exec(/usr/bin/passwd)
-> > and the resulting shadow is readable and writable by everyone?
-> > 
-> > Granted this particular piece of environment would have to be removed
-> > with ATSECURE
-> 
-> More like rlimitinh/siginh, since the kernel can directly handle both
-> the checking and sanitization of this piece of state, unlike the
-> environment purging by glibc (where the kernel just provides the
-> decision via AT_SECURE).  
-> 
-> >  which means domain transitions could also eliminate it but
-> > with the targeted policy I don't think we want unconfined_t using this
-> > which means fscon would be unusable anyway.
-> 
-> I was following you up to this point, but don't follow this statement.
-> Why can't unconfined_t use fscon? 
-> 
-> >  Also, the command line
-> > syntax is all but intuitive, even for seasoned UNIX people who are
-> > probably much more familiar with using command line arguments,
-> > especially when you need to domain transition manually *and* set the
-> > file context this way, noone will ever do it.
-> 
-> The runcon piece of this puzzle is actually a bit more of a problem,
-> because of entrypoint controls.  You can't just say:
-> 	runcon <context> fscon -t type <program> <args>
-> because program is the authorized entrypoint for <context>, not fscon.
-> fscon would have to become a shared entrypoint for all such contexts,
-> and that would be a bad thing.
+On Tue, 29 Aug 2006, Paul Moore wrote:
 
-Actually, I'm not sure that we would need to combine runcon with fscon
-in this manner, given the intended usage.  Previously we were executing
-<program> -Z <fscontext> <args>, optionally with a runcon prefix to
-force it into a specified process context.  The caller was supplying the
-fscontext to the program, with no kernel mediation of the fscontext at
-all relative to the caller (since arguments aren't interpreted by the
-kernel), just when the program itself passes it to setfscreatecon().
-Under the proposed approach, we would be executing fscon <fscontext>
-<program> <args> or optionally fscon <fscontext> runcon <proccontext> --
-<program> <args>.  The caller is still providing the context, but now
-there is a kernel mediation of the context relative to the caller when
-it performs setfscreatecon(), and there can be mediation of the
-inheritance across a context-changing exec based on some new permission
-check.  In this case, since we were fine with the caller providing the
-context in the first place, we could just allow the inheritance in the
-policy, and we don't need the runcon to precede the fscon.  It is only
-if we hardcode a behavior of resetting the fscreate attribute on all
-context changes that we have to use runcon first, but that behavior
-doesn't match the trust model that is already present in the use of the
--Z options.
+> James Morris wrote:
+> > On Tue, 29 Aug 2006, paul.moore@hp.com wrote:
+> >>+void selinux_netlbl_sk_security_init(struct sk_security_struct *ssec,
+> >>+				     int family)
+> >>+{
+> >>+        if (family == PF_INET)
+> > 
+> > No tab. 
+> 
+> I see you already ack'd this patch, should I resubmit with the tab
+> correction or just leave it alone?
 
-Now, all of this assumes that the program in question would apply that
--Z context to all files it creates; otherwise, these are not equivalent.
-That is likely true of coreutils.  For programs that create a primary
-output file but also generate ancillary files for e.g. audit,
-bookkeeping, statistics, etc, use of fscon may not be sufficient, but
-then neither would a single -Z option.
+Probably easiest to fix it as it's applied.
 
+> Example case:
+> 
+> 1. Configure NetLabel so that packets are labeled with CIPSO
+> 2. Ensure SSH is listening for both IPv4 and IPv6 connections and
+> restart the daemon
+> 3. Connect to the SSH daemon using IPv4
+> 
+> I haven't looked at the sshd code enough in detail to see what it is
+> doing exactly but simply running 'netstat -nl' shows that sshd is
+> listening for connections with an IPv6 socket (at least it is listening
+> on port ':::22').  Once the connection is established the daemon
+> continues to use an IPv6 socket, '::ffff:127.0.0.1:22', whereas the
+> client uses a traditional IPv4 socket.  Sniffing the connection
+> indicates that both directions of network traffic are labeled with the
+> correct CIPSO tags.
+
+IIRC, the way I originally tested this was to write a simple app.  I 
+wonder if something has changed in the networking code which means we 
+don't need to test for this now.
+
+> On the outbound side, yes, we only NetLabel sockets which are PF_INET
+> but I didn't think I could set an IPv4 option on a PF_INET6 socket can
+> I?  It just sounds wrong ...
+
+If it's carrying IPv4 traffic, it may make sense in some cases.
+
+
+- James
 -- 
-Stephen Smalley
-National Security Agency
-
+James Morris
+<jmorris@namei.org>
 
 --
 This message was distributed to subscribers of the selinux mailing list.
