@@ -1,19 +1,19 @@
 Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k7TGwWhg023166
-	for <selinux@tycho.nsa.gov>; Tue, 29 Aug 2006 12:58:32 -0400
-Received: from mail2.sea5.speakeasy.net (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id k7TGwCx8002772
-	for <selinux@tycho.nsa.gov>; Tue, 29 Aug 2006 16:58:13 GMT
-Date: Tue, 29 Aug 2006 12:58:27 -0400 (EDT)
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k7TH1OSJ023331
+	for <selinux@tycho.nsa.gov>; Tue, 29 Aug 2006 13:01:24 -0400
+Received: from mail1.sea5.speakeasy.net (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id k7TH15x8003095
+	for <selinux@tycho.nsa.gov>; Tue, 29 Aug 2006 17:01:06 GMT
+Date: Tue, 29 Aug 2006 13:01:20 -0400 (EDT)
 From: James Morris <jmorris@namei.org>
 To: Paul Moore <paul.moore@hp.com>
 cc: netdev@vger.kernel.org, selinux@tycho.nsa.gov,
         Stephen Smalley <sds@tycho.nsa.gov>, Andrew Morton <akpm@osdl.org>,
         "David S. Miller" <davem@davemloft.net>
-Subject: Re: [PATCH 4/6] NetLabel: cleanup ebitmap_import()
-In-Reply-To: <20060829144446.324001000@hp.com>
-Message-ID: <Pine.LNX.4.64.0608291258180.29142@d.namei>
-References: <20060829144251.452774000@hp.com> <20060829144446.324001000@hp.com>
+Subject: Re: [PATCH 1/6] NetLabel: correctly initialize the NetLabel fields
+In-Reply-To: <20060829144444.202106000@hp.com>
+Message-ID: <Pine.LNX.4.64.0608291259490.29142@d.namei>
+References: <20060829144251.452774000@hp.com> <20060829144444.202106000@hp.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
@@ -21,9 +21,15 @@ List-Id: selinux@tycho.nsa.gov
 
 On Tue, 29 Aug 2006, paul.moore@hp.com wrote:
 
-> Rewrite ebitmap_import() so it is a bit cleaner and easier to read.
+> Fix a problem where the NetLabel specific fields of the sk_security_struct
+> structure were not being initialized early enough in some cases.
 > 
 > Signed-off-by: Paul Moore <paul.moore@hp.com>
+
+Regardless of the mapped ipv6 socket issue, I think these should be 
+applied as fixes in their own right.  The mapped ipv6 socket stuff can be 
+done separately if required.
+
 
 Acked-by: James Morris <jmorris@namei.org>
 
