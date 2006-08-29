@@ -1,30 +1,21 @@
-Date: Tue, 29 Aug 2006 00:15:39 -0400 (EDT)
-From: James Morris <jmorris@redhat.com>
-To: Stephen Smalley <sds@tycho.nsa.gov>
-cc: Eric Paris <eparis@parisplace.org>, <selinux@tycho.nsa.gov>
-Subject: Re: [PATCH] SELinux: work around filesystems which call d_instantiate
- before setting inode mode
-In-Reply-To: <1156787009.22210.51.camel@moss-spartans.epoch.ncsc.mil>
-Message-ID: <Pine.LNX.4.44.0608290015060.25796-100000@redline.boston.redhat.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Message-Id: <20060829144251.452774000@hp.com>
+Date: Tue, 29 Aug 2006 10:42:51 -0400
+From: paul.moore@hp.com
+To: netdev@vger.kernel.org, selinux@tycho.nsa.gov
+Cc: jmorris@namei.org, sds@tycho.nsa.gov, akpm@osdl.org
+Subject: [PATCH 0/6] Various NetLabel fixes and cleanups
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 28 Aug 2006, Stephen Smalley wrote:
+This patchset contains a series of small patches to fix a bug and some general
+ugliness from the original author (that moron ...).  All of the following
+patches are against David's net-2.6.19 tree.
 
-> > Signed-off-by: Eric Paris <eparis@redhat.com>
-> 
-> Acked-by:  Stephen Smalley <sds@tycho.nsa.gov>
+Please consider these for 2.6.19, thanks.
 
-Acked-by: James Morris <jmorris@redhat.com>
-
-
--- 
-James Morris
-<jmorris@redhat.com>
-
-
+--
+paul moore
+linux security @ hp
 
 --
 This message was distributed to subscribers of the selinux mailing list.
