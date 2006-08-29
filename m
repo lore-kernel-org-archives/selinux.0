@@ -1,64 +1,109 @@
-Subject: Re: ipsec and getpeercon()
+Subject: Re: [PATCH] newrole: use pam session management services -v3
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Joshua Brindle <jbrindle@tresys.com>
-Cc: Joy Latten <latten@us.ibm.com>,
-        Venkat Yekkirala <vyekkirala@TrustedCS.com>, selinux@tycho.nsa.gov,
-        paul.moore@hp.com
-In-Reply-To: <1156883110.22210.222.camel@moss-spartans.epoch.ncsc.mil>
-References: <1156874881.6255.5.camel@twoface.columbia.tresys.com>
-	 <1156880256.22210.216.camel@moss-spartans.epoch.ncsc.mil>
-	 <1156880819.8075.14.camel@twoface.columbia.tresys.com>
-	 <1156883110.22210.222.camel@moss-spartans.epoch.ncsc.mil>
+To: janak@us.ibm.com
+Cc: sgrubb@redhat.com, klaus@atsec.com, chanson@TrustedCS.com,
+        kmacmillan@redhat.com, dwalsh@redhat.com, ltcgcw@us.ibm.com,
+        selinux@tycho.nsa.gov
+In-Reply-To: <1156731269.25806.3.camel@localhost.localdomain>
+References: <1156731269.25806.3.camel@localhost.localdomain>
 Content-Type: text/plain
-Date: Tue, 29 Aug 2006 16:32:51 -0400
-Message-Id: <1156883571.22210.225.camel@moss-spartans.epoch.ncsc.mil>
+Date: Tue, 29 Aug 2006 17:08:20 -0400
+Message-Id: <1156885700.22210.238.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2006-08-29 at 16:25 -0400, Stephen Smalley wrote:
-> On Tue, 2006-08-29 at 15:46 -0400, Joshua Brindle wrote:
-> > On Tue, 2006-08-29 at 15:37 -0400, Stephen Smalley wrote:
-> > > On Tue, 2006-08-29 at 14:08 -0400, Joshua Brindle wrote:
-> > > > I'm trying to use getpeercon() with a tcp stream socket over an ipsec
-> > > > host2host connection and it isn't working, it always returns the context
-> > > > of the local domain/socket:
-> > > > 
-> > > > 
-> > > > [root@rawhide-clone ~]# runcon -t passwd_t ./server
-> > > > server: got connection from 10.1.13.104, root:system_r:passwd_t:s0-s0:c0.c255
-> > > > 
-> > > > [root@rawhide-clone ~]# runcon -t initrc_t ./server
-> > > > server: got connection from 10.1.13.104, root:system_r:initrc_t:s0-s0:c0.c255
-> > > > 
-> > > > the process connecting is unconfined_t
-> > > > 
-> > > > Am I doing something wrong or is something broken?
-> > > 
-> > > You didn't provide much information above.  Kernel version?  ipsec-tools
-> > > version?  racoon version?  ipsec configuration?  setkey -D output?
-> > > setkey -DP output?
-> > 
-> > Sorry,
-> > 
-> > Linux rawhide-clone 2.6.17-1.2586.fc6 #1 SMP Thu Aug 24 08:51:22 EDT
-> > 2006 i686 i686 i386 GNU/Linux
-> > 
-> > ipsec-tools.i386                         0.6.5-3.1
-> > 
-> > [root@rawhide-clone ~]# setkey -D
-> <snip>
-> > [root@rawhide-clone ~]# setkey -D
+On Sun, 2006-08-27 at 22:14 -0400, Janak Desai wrote:
+> This patch updates newrole to allow it to use pam session mangement
+> services. Currently newrole only uses the authenticaion services of
+> pam. Session management services are needed to allow pam_namespace
+> to appropriately reconfigure polyinstantiated namespace for the
+> new session being established with nerole.
 > 
-> One of those was supposed to be a setkey -DP.
+> Changes since v2 of this patch, posted on 8/16/06:
+>     1. Restructured to use pam_start and pam_end only once
+>     2. Updated to use pam_open_session and pam_close_session appropriately
+>     3. Removed system-auth and pam_xauth session services from newrole.pamd.
+>        These were not used since newrole did not have session management
+>        support, and could result in unintended behavior now that session
+>        management support is enabled with this patch.
+>     4. Forward ported to the latest selinux subversion tree (version 2000)
+>        on sourceforge. 
 > 
-> You did remember to specify a -ctx option when you added spd entries,
-> right?
+> Signed-off-by: Janak Desai <janak@us.ibm.com>
+> 
+> ---
+> 
+>  newrole.c    |   95 +++++++++++++++++++++++++++++++++++------------------------
+>  newrole.pamd |    2 -
+>  2 files changed, 57 insertions(+), 40 deletions(-)
 
-BTW, Joy & Venkat - it would be nice if the usage/configuration of the
-ipsec labeling was documented somewhere.  I've seen emails in the past
-with sample usage, but has it been captured anywhere we can refer people
-to, like in the Fedora SELinux wiki?
+You didn't introduce this, but it appears that newrole no longer builds
+properly with make LOG_AUDIT_PRIV=y (duplicate _GNU_SOURCE definitions)
+when building on rawhide.  Aren't you encountering this?
+
+> @@ -797,6 +794,18 @@ int main(int argc, char *argv[])
+>  			rc = wait(NULL);
+>  		} while (rc < 0 && errno == EINTR);
+>  
+> +#ifdef USE_PAM
+> +		rc = pam_close_session(pam_handle,0);
+> +		if(rc != PAM_SUCCESS) {
+> +			fprintf(stderr, "pam_close_session failed\n");
+> +			pam_end(pam_handle, rc);
+> +			exit(-1);
+> +		}
+
+Hmm...so a pam_close_session failure bails before we restore the tty
+label?  Possibly the error message should include the pam_strerror()
+string as well?
+
+> +
+> +		/* We're done with PAM.  Free `pam_handle'. */
+> +		pam_end(pam_handle, rc);
+> +#endif
+> +
+>  		if (!new_tty_context || !tty_context)
+>  			exit(0);
+>  
+> @@ -900,6 +909,16 @@ int main(int argc, char *argv[])
+>  	}
+>  #endif
+>  	freecon(old_context);
+> +
+> +#ifdef USE_PAM
+> +	/* Ask PAM to setup session for user running this program */
+> +	rc = pam_open_session(pam_handle,0);
+> +	if(rc != PAM_SUCCESS) {
+> +		fprintf(stderr, _("Namespace setup failed.\n"));
+> +		exit(-1);
+> +	}
+> +#endif
+
+I understand that you need this to happen after the setexeccon, but do
+you really want it to happen after the audit message has already been
+generated?  The error message also should likely be both more general
+(since you only know that pam_open_session failed, not that it was
+specifically namespace related) and more specific (including
+pam_strerror result).
+
+> +
+>  	execv(pw->pw_shell, argv + optind - 1);
+>  
+>  	/* If we reach here, then we failed to exec the new shell. */
+> diff -Naurp policycoreutils/newrole/newrole.pamd policycoreutils+newrolepatch/newrole/newrole.pamd
+> --- policycoreutils/newrole/newrole.pamd	2006-08-27 21:22:13.000000000 +0000
+> +++ policycoreutils+newrolepatch/newrole/newrole.pamd	2006-08-27 21:22:56.000000000 +0000
+> @@ -2,5 +2,3 @@
+>  auth       include	system-auth
+>  account    include	system-auth
+>  password   include	system-auth
+> -session    include	system-auth
+> -session    optional	pam_xauth.so
+
+Unfortunately, this seems to yield a non-working newrole, as
+pam_open_session() then always fails due to the absence of any session
+modules.  What is the graceful way of handling this?
 
 -- 
 Stephen Smalley
