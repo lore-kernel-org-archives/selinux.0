@@ -1,94 +1,138 @@
-Subject: Re: [PATCH 1/3] support for extended range_transitions
-From: Joshua Brindle <jbrindle@tresys.com>
-To: Darrel Goeddel <dgoeddel@TrustedCS.com>
-Cc: "'SELinux List'" <SELinux@tycho.nsa.gov>,
-        Karl MacMillan <kmacmillan@mentalrootkit.com>,
-        Stephen Smalley <sds@tycho.nsa.gov>,
-        Christopher PeBenito <cpebenito@tresys.com>
-In-Reply-To: <44F31A4F.9070800@trustedcs.com>
-References: <44F318B9.6010303@trustedcs.com>
-	 <44F31A4F.9070800@trustedcs.com>
+Subject: Re: justifying --context=CTX (-Z) for upstream coreutils, like
+	mkdir
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Joshua Brindle <jbrindle@tresys.com>
+Cc: Jim Meyering <jim@meyering.net>, James Antill <james.antill@redhat.com>,
+        "Christopher J. PeBenito" <cpebenito@tresys.com>,
+        Karl MacMillan <kmacmillan@mentalrootkit.com>, selinux@tycho.nsa.gov
+In-Reply-To: <1156796640.22210.167.camel@moss-spartans.epoch.ncsc.mil>
+References: <87mzabgyrk.fsf@rho.meyering.net>
+	 <1155308294.8018.59.camel@localhost.localdomain>
+	 <87irkzfcgr.fsf@rho.meyering.net>
+	 <1155567404.23601.10.camel@localhost.localdomain>
+	 <87ac67iaao.fsf@rho.meyering.net>
+	 <1155571378.23601.32.camel@localhost.localdomain>
+	 <873bbzi6c1.fsf@rho.meyering.net>
+	 <1155581090.28766.217.camel@moss-spartans.epoch.ncsc.mil>
+	 <87wt929j25.fsf@rho.meyering.net> <1156182056.14126.91.camel@sgc>
+	 <87pset93nk.fsf@rho.meyering.net> <44EB02B3.5040100@tresys.com>
+	 <87sljo69le.fsf@rho.meyering.net>
+	 <1156263820.4242.8.camel@twoface.columbia.tresys.com>
+	 <87k6506682.fsf@rho.meyering.net> <1156292847.8627.25.camel@code.and.org>
+	 <87ac5vu3ys.fsf@rho.meyering.net>
+	 <1156767829.3283.35.camel@twoface.columbia.tresys.com>
+	 <1156796640.22210.167.camel@moss-spartans.epoch.ncsc.mil>
 Content-Type: text/plain
-Date: Tue, 29 Aug 2006 15:04:47 -0400
-Message-Id: <1156878287.8075.8.camel@twoface.columbia.tresys.com>
+Date: Tue, 29 Aug 2006 15:11:04 -0400
+Message-Id: <1156878664.22210.207.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 2006-08-28 at 11:31 -0500, Darrel Goeddel wrote:
-> Darrel Goeddel wrote:
-> > Introduce support for kernel policy format version 21, base policy 
-> > format version
-> > 6, and policy module format 6.  These new formats allow for the 
-> > definition of
-> > range_transitions on security classes other than "process".  The new 
-> > module and
-> > base formats (both 6) also move expansion of the range_transition 
-> > statements
-> > from compile time to the actual expansion phase.  This change should 
-> > allow for
-> > using range_transitions in policy modules (with a bit more work in the 
-> > future)
-> > with another change in format.
+On Mon, 2006-08-28 at 16:24 -0400, Stephen Smalley wrote:
+> On Mon, 2006-08-28 at 08:23 -0400, Joshua Brindle wrote:
+> > On Wed, 2006-08-23 at 12:43 +0200, Jim Meyering wrote:
+> > <snip>
+> > > Hi James,
+> > > 
+> > > That's a good description.  And I like the new function name.
+> > > As you know, functions other than file-creating-open are affected, too:
+> > > mkfifo, mknod, symlink, creat.  And it's not quite like setexeccon, where
+> > > at most one execve call is affected.
+> > > Also, any use of setfscreatecon-with-non-NULL-arg in the exec'd process
+> > > would cancel the effect of a parent's setfspostexeccon.  I think an initial
+> > > setfscreatecon(NULL) in the exec'd process would be a no-op.
+> > > So here's what I want:
+> > > 
+> > >         setfspostexeccon
+> > >         [...stuff which isn't exec...]
+> > >         exec
+> > >         [...operations that don't create files
+> > >             and that don't call setfscreatecon...]
+> > >         open(O_CREAT), or mkfifo, etc. <-- affects this.
+> > >         [...still no setfscreatecon...]
+> > >         symlink, or mknod, etc.        <-- and this.
+> > > 
+> > > How is this an argument against making fscon possible?
+> > > 
 > > 
-> > The current range_transition statements are of the form:
-> >   range_transition <source types> <target types> <new range>
-> > These statements affect process transitions only.  The new supported 
-> > format is:
-> >   range_transition <source types> <target types>:<target classes> <new 
-> > range>
-> > With this format it is possible to to specify a new range for operations 
-> > such
-> > as file creation.  The old style statements are still allowed and they
-> > implicitly refer to the "process" security class, thereby retaining the 
-> > same
-> > behavior as before.
-> > 
-> > The new kernel format now stores the security class on which the rule 
-> > operates.
-> > When dealing with older kernel policy formats, the "process" security 
-> > class is
-> > implicit.
-> > 
-> > The new module and base formats now store a representation of the rule 
-> > just (the
-> > new addition to the avrule_decl structure) and are expanded at the 
-> > proper time.
-> > The previous implementation expanded the rules at compilation time and 
-> > could
-> > produce an incomplete set of transitions if type attributes were used in 
-> > the
-> > statement. Here is how range_transition statements are handled for the 
-> > various formats:
-> > for kernel policy version up to 18, there are no range_transition
-> > for kernel policy versions 19 and 20, a list of old-style (no class 
-> > specified)
-> >   range_trans structures are encoded
-> > for kernel policy versions 21 and up, a list of new-style (class specified)
-> >   range_trans structures are encoded
-> > 
-> > for base policy versions up to 5, there are no range_transitions
-> > for base policy version 5, a compile-time generated list of old-style (no
-> >   class specified) range_trans structures are encoded as they are in kernel
-> >   formats 19 and 20
-> > for base policy versions 6 and up, an expressive rule stating the intention
-> >   of the statement is stored - that will be properly linked and expanded
-> >   for further usage
-> > 
-> > for module policy versions up to 6, there are no range_transitions
-> > for base policy versions 6 and up, an expressive rule stating the intention
-> >   of the statement is stored jut like in base policy version 6 (of 
-> > course we
-> >   still need more work to get them in there, but the format is supportive).
+> > Its a very broken design, we want to taint the new process as little as
+> > possible and this is a big nasty piece of environment you want to place
+> > solidly in the upcoming process, further you are saying you want to make
+> > it more difficult for the child to ignore it?!
 > 
-> Signed-off-by:  Darrel Goeddel <dgoeddel@trustedcs.com>
+> The last part is definitely problematic, I agree.  The first part would
+> be addressed by resetting the attribute upon a context-changing exec
+> either unconditionally in all cases or based on some new permission
+> check modeled after noatsecure, rlimitinh, and siginh for other kinds of
+> state inheritance across a context change.  
+> 
+> > Consider what would happen if you were able to set the mode for files
+> > opened by the next process, something like:
+> > 
+> > setmostexecmode(S_IROTH | S_IWOTH)
+> > exec(/usr/bin/passwd)
+> > and the resulting shadow is readable and writable by everyone?
+> > 
+> > Granted this particular piece of environment would have to be removed
+> > with ATSECURE
+> 
+> More like rlimitinh/siginh, since the kernel can directly handle both
+> the checking and sanitization of this piece of state, unlike the
+> environment purging by glibc (where the kernel just provides the
+> decision via AT_SECURE).  
+> 
+> >  which means domain transitions could also eliminate it but
+> > with the targeted policy I don't think we want unconfined_t using this
+> > which means fscon would be unusable anyway.
+> 
+> I was following you up to this point, but don't follow this statement.
+> Why can't unconfined_t use fscon? 
+> 
+> >  Also, the command line
+> > syntax is all but intuitive, even for seasoned UNIX people who are
+> > probably much more familiar with using command line arguments,
+> > especially when you need to domain transition manually *and* set the
+> > file context this way, noone will ever do it.
+> 
+> The runcon piece of this puzzle is actually a bit more of a problem,
+> because of entrypoint controls.  You can't just say:
+> 	runcon <context> fscon -t type <program> <args>
+> because program is the authorized entrypoint for <context>, not fscon.
+> fscon would have to become a shared entrypoint for all such contexts,
+> and that would be a bad thing.
 
-Acked-by: Joshua Brindle <jbrindle@tresys.com>
+Actually, I'm not sure that we would need to combine runcon with fscon
+in this manner, given the intended usage.  Previously we were executing
+<program> -Z <fscontext> <args>, optionally with a runcon prefix to
+force it into a specified process context.  The caller was supplying the
+fscontext to the program, with no kernel mediation of the fscontext at
+all relative to the caller (since arguments aren't interpreted by the
+kernel), just when the program itself passes it to setfscreatecon().
+Under the proposed approach, we would be executing fscon <fscontext>
+<program> <args> or optionally fscon <fscontext> runcon <proccontext> --
+<program> <args>.  The caller is still providing the context, but now
+there is a kernel mediation of the context relative to the caller when
+it performs setfscreatecon(), and there can be mediation of the
+inheritance across a context-changing exec based on some new permission
+check.  In this case, since we were fine with the caller providing the
+context in the first place, we could just allow the inheritance in the
+policy, and we don't need the runcon to precede the fscon.  It is only
+if we hardcode a behavior of resetting the fscreate attribute on all
+context changes that we have to use runcon first, but that behavior
+doesn't match the trust model that is already present in the use of the
+-Z options.
 
-> 
-> ---
-> 
-> I forgot that we're doing this for the userspace code now, sorry.
+Now, all of this assumes that the program in question would apply that
+-Z context to all files it creates; otherwise, these are not equivalent.
+That is likely true of coreutils.  For programs that create a primary
+output file but also generate ancillary files for e.g. audit,
+bookkeeping, statistics, etc, use of fscon may not be sufficient, but
+then neither would a single -Z option.
+
+-- 
+Stephen Smalley
+National Security Agency
 
 
 --
