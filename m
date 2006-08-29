@@ -1,78 +1,49 @@
-Message-ID: <44F47FB0.5000700@hp.com>
-Date: Tue, 29 Aug 2006 13:56:00 -0400
-From: Paul Moore <paul.moore@hp.com>
-MIME-Version: 1.0
-To: James Morris <jmorris@namei.org>
-Cc: netdev@vger.kernel.org, selinux@tycho.nsa.gov, sds@tycho.nsa.gov,
-        akpm@osdl.org
-Subject: Re: [PATCH 1/6] NetLabel: correctly initialize the NetLabel fields
-References: <20060829144251.452774000@hp.com> <20060829144444.202106000@hp.com> <Pine.LNX.4.64.0608291248410.29142@d.namei>
-In-Reply-To: <Pine.LNX.4.64.0608291248410.29142@d.namei>
-Content-Type: text/plain; charset=ISO-8859-1
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k7TI7JvB025705
+	for <selinux@tycho.nsa.gov>; Tue, 29 Aug 2006 14:07:19 -0400
+Received: from twoface.columbia.tresys.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id k7TI70x8012291
+	for <selinux@tycho.nsa.gov>; Tue, 29 Aug 2006 18:07:01 GMT
+Subject: ipsec and getpeercon()
+From: Joshua Brindle <jbrindle@tresys.com>
+To: selinux@tycho.nsa.gov
+Cc: paul.moore@hp.com
+Content-Type: text/plain
+Date: Tue, 29 Aug 2006 14:08:01 -0400
+Message-Id: <1156874881.6255.5.camel@twoface.columbia.tresys.com>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-James Morris wrote:
-> On Tue, 29 Aug 2006, paul.moore@hp.com wrote:
->>+void selinux_netlbl_sk_security_init(struct sk_security_struct *ssec,
->>+				     int family)
->>+{
->>+        if (family == PF_INET)
-> 
-> No tab. 
+I'm trying to use getpeercon() with a tcp stream socket over an ipsec
+host2host connection and it isn't working, it always returns the context
+of the local domain/socket:
 
-I see you already ack'd this patch, should I resubmit with the tab
-correction or just leave it alone?
 
->>+		ssec->nlbl_state = NLBL_REQUIRE;
->>+	else
->>+		ssec->nlbl_state = NLBL_UNSET;
->>+}
->  
-> It doesn't look like this code handles ipv4 packets mapped on ipv6 
-> sockets.  See the test elsewhere in the SELinux code:
-> 
-> 	if (family == PF_INET6 && skb->protocol == ntohs(ETH_P_IP))
+[root@rawhide-clone ~]# runcon -t passwd_t ./server
+server: got connection from 10.1.13.104, root:system_r:passwd_t:s0-s0:c0.c255
 
-This is an issue which I am still thinking about, but I haven't devoted
-to much time to it because in the one example case I have tried
-everything works as expected.
+[root@rawhide-clone ~]# runcon -t initrc_t ./server
+server: got connection from 10.1.13.104, root:system_r:initrc_t:s0-s0:c0.c255
 
-Example case:
+the process connecting is unconfined_t
 
-1. Configure NetLabel so that packets are labeled with CIPSO
-2. Ensure SSH is listening for both IPv4 and IPv6 connections and
-restart the daemon
-3. Connect to the SSH daemon using IPv4
+Am I doing something wrong or is something broken?
 
-I haven't looked at the sshd code enough in detail to see what it is
-doing exactly but simply running 'netstat -nl' shows that sshd is
-listening for connections with an IPv6 socket (at least it is listening
-on port ':::22').  Once the connection is established the daemon
-continues to use an IPv6 socket, '::ffff:127.0.0.1:22', whereas the
-client uses a traditional IPv4 socket.  Sniffing the connection
-indicates that both directions of network traffic are labeled with the
-correct CIPSO tags.
+if ((new_fd = accept(sockfd, (struct sockaddr *)&their_addr,
+                            &sin_size)) == -1) {
+    perror("accept");
+    continue;
+}
+if (getpeercon(new_fd, con))
+         perror("getpeercon");
+}
+    printf("server: got connection from %s, %s\n",
+                 inet_ntoa(their_addr.sin_addr), con);
 
-On the receive side in selinux_socket_sock_rcv_skb() the socket's IP
-address family is not consulted, only the SELinux socket class and the
-skbuff's CIPSO tag if present.
 
-On the outbound side, yes, we only NetLabel sockets which are PF_INET
-but I didn't think I could set an IPv4 option on a PF_INET6 socket can
-I?  It just sounds wrong ...
+I also tried getsockopt(new_fd, SOL_SOCKET, SO_PEERSEC, con, &len)
 
-> Also, can you verify that you've tested these fixes and that they resolve 
-> all issues that you've encountered?
-
-I have verified that this patchset fixes all the issues that I've
-encountered.  In addition I have run the patches overnight on a test
-machine while hitting the machine pretty hard and I have not noticed any
-other problems or regressions.
-
--- 
-paul moore
-linux security @ hp
 
 --
 This message was distributed to subscribers of the selinux mailing list.
