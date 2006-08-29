@@ -1,104 +1,41 @@
-Message-Id: <20060829144447.363702000@hp.com>
+Message-Id: <20060829144445.034768000@hp.com>
 References: <20060829144251.452774000@hp.com>
-Date: Tue, 29 Aug 2006 10:42:57 -0400
+Date: Tue, 29 Aug 2006 10:42:53 -0400
 From: paul.moore@hp.com
 To: netdev@vger.kernel.org, selinux@tycho.nsa.gov
 Cc: jmorris@namei.org, sds@tycho.nsa.gov, akpm@osdl.org,
         Paul Moore <paul.moore@hp.com>
-Subject: [PATCH 6/6] NetLabel: add some missing #includes to various header files
+Subject: [PATCH 2/6] NetLabel: remove unused function prototypes
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Add some missing include files to the NetLabel related header files.
+Removed some older function prototypes for functions that no longer exist.
 
 Signed-off-by: Paul Moore <paul.moore@hp.com>
 ---
- include/net/cipso_ipv4.h                    |    2 ++
- include/net/netlabel.h                      |    1 +
- net/netlabel/netlabel_domainhash.h          |    4 ++++
- net/netlabel/netlabel_user.h                |    5 +++--
- security/selinux/include/selinux_netlabel.h |    9 +++++++++
- 5 files changed, 19 insertions(+), 2 deletions(-)
+ include/net/cipso_ipv4.h |    6 ------
+ 1 file changed, 6 deletions(-)
 
-Index: net-2.6.19/include/net/cipso_ipv4.h
+Index: linux-2.6.17.i686/include/net/cipso_ipv4.h
 ===================================================================
---- net-2.6.19.orig/include/net/cipso_ipv4.h
-+++ net-2.6.19/include/net/cipso_ipv4.h
-@@ -37,6 +37,8 @@
- #include <linux/types.h>
- #include <linux/rcupdate.h>
- #include <linux/list.h>
-+#include <linux/net.h>
-+#include <linux/skbuff.h>
- #include <net/netlabel.h>
+--- linux-2.6.17.i686.orig/include/net/cipso_ipv4.h
++++ linux-2.6.17.i686/include/net/cipso_ipv4.h
+@@ -200,15 +200,9 @@ static inline int cipso_v4_cache_add(con
  
- /* known doi values */
-Index: net-2.6.19/include/net/netlabel.h
-===================================================================
---- net-2.6.19.orig/include/net/netlabel.h
-+++ net-2.6.19/include/net/netlabel.h
-@@ -31,6 +31,7 @@
- #define _NETLABEL_H
- 
- #include <linux/types.h>
-+#include <linux/net.h>
- #include <linux/skbuff.h>
- #include <net/netlink.h>
- 
-Index: net-2.6.19/net/netlabel/netlabel_domainhash.h
-===================================================================
---- net-2.6.19.orig/net/netlabel/netlabel_domainhash.h
-+++ net-2.6.19/net/netlabel/netlabel_domainhash.h
-@@ -32,6 +32,10 @@
- #ifndef _NETLABEL_DOMAINHASH_H
- #define _NETLABEL_DOMAINHASH_H
- 
-+#include <linux/types.h>
-+#include <linux/rcupdate.h>
-+#include <linux/list.h>
-+
- /* Domain hash table size */
- /* XXX - currently this number is an uneducated guess */
- #define NETLBL_DOMHSH_BITSIZE       7
-Index: net-2.6.19/net/netlabel/netlabel_user.h
-===================================================================
---- net-2.6.19.orig/net/netlabel/netlabel_user.h
-+++ net-2.6.19/net/netlabel/netlabel_user.h
-@@ -31,11 +31,12 @@
- #ifndef _NETLABEL_USER_H
- #define _NETLABEL_USER_H
- 
-+#include <linux/types.h>
- #include <linux/skbuff.h>
- #include <linux/capability.h>
--#include <linux/genetlink.h>
--#include <net/netlabel.h>
-+#include <net/netlink.h>
- #include <net/genetlink.h>
-+#include <net/netlabel.h>
- 
- /* NetLabel NETLINK helper functions */
- 
-Index: net-2.6.19/security/selinux/include/selinux_netlabel.h
-===================================================================
---- net-2.6.19.orig/security/selinux/include/selinux_netlabel.h
-+++ net-2.6.19/security/selinux/include/selinux_netlabel.h
-@@ -27,6 +27,15 @@
- #ifndef _SELINUX_NETLABEL_H_
- #define _SELINUX_NETLABEL_H_
- 
-+#include <linux/types.h>
-+#include <linux/fs.h>
-+#include <linux/net.h>
-+#include <linux/skbuff.h>
-+#include <net/sock.h>
-+
-+#include "avc.h"
-+#include "objsec.h"
-+
  #ifdef CONFIG_NETLABEL
- void selinux_netlbl_cache_invalidate(void);
- int selinux_netlbl_socket_post_create(struct socket *sock,
+ void cipso_v4_error(struct sk_buff *skb, int error, u32 gateway);
+-int cipso_v4_socket_setopt(struct socket *sock,
+-			   unsigned char *opt,
+-			   u32 opt_len);
+ int cipso_v4_socket_setattr(const struct socket *sock,
+ 			    const struct cipso_v4_doi *doi_def,
+ 			    const struct netlbl_lsm_secattr *secattr);
+-int cipso_v4_socket_getopt(const struct socket *sock,
+-			   unsigned char **opt,
+-			   u32 *opt_len);
+ int cipso_v4_socket_getattr(const struct socket *sock,
+ 			    struct netlbl_lsm_secattr *secattr);
+ int cipso_v4_skbuff_getattr(const struct sk_buff *skb,
 
 --
 paul moore
