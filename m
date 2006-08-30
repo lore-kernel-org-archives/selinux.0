@@ -1,64 +1,123 @@
-Subject: Re: Bug in restorecon for symlinks in root dir
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Erich Schubert <erich@debian.org>
-Cc: Darrel Goeddel <dgoeddel@TrustedCS.com>,
-        Joshua Brindle <jbrindle@tresys.com>,
-        Karl MacMillan <kmacmillan@mentalrootkit.com>, selinux@tycho.nsa.gov
-In-Reply-To: <1156944181.18406.19.camel@wintermute.xmldesign.de>
-References: <1156205841.22905.33.camel@wintermute.xmldesign.de>
-	 <1156346855.8506.62.camel@moss-spartans.epoch.ncsc.mil>
-	 <1156354840.2883.4.camel@wintermute.xmldesign.de>
-	 <1156433253.8506.175.camel@moss-spartans.epoch.ncsc.mil>
-	 <1156446186.13088.45.camel@wintermute.xmldesign.de>
-	 <1156944181.18406.19.camel@wintermute.xmldesign.de>
-Content-Type: text/plain
-Date: Wed, 30 Aug 2006 09:51:03 -0400
-Message-Id: <1156945863.22210.308.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+Message-ID: <44F59B7F.6030904@trustedcs.com>
+Date: Wed, 30 Aug 2006 09:06:55 -0500
+From: Darrel Goeddel <dgoeddel@TrustedCS.com>
+MIME-Version: 1.0
+To: Joshua Brindle <jbrindle@tresys.com>
+CC: "'SELinux List'" <SELinux@tycho.nsa.gov>,
+        Karl MacMillan <kmacmillan@mentalrootkit.com>,
+        Stephen Smalley <sds@tycho.nsa.gov>,
+        Christopher PeBenito <cpebenito@tresys.com>
+Subject: Re: [PATCH 2/3] semantic MLS representation for range_trans_rules
+References: <44F3192B.2000408@trustedcs.com> <1156880221.8075.9.camel@twoface.columbia.tresys.com>
+In-Reply-To: <1156880221.8075.9.camel@twoface.columbia.tresys.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2006-08-30 at 15:23 +0200, Erich Schubert wrote:
-> Hello Stephen,
-> I've seen you've commited the fix for restorecon on the /lib64 symlink.
+Joshua Brindle wrote:
+> On Mon, 2006-08-28 at 11:26 -0500, Darrel Goeddel wrote:
 > 
-> How about this fix for correct handling of //lib64 etc.?
-> In contrast to my previous mail, the "len == 0" part in the if statement
-> should be necessary (for the /lib64 case; since path="" in that
-> situation)
-> The "len == 0" test is only unneeded if we used my initial patch (with
-> strcpy("/", path)); since the len == 0 case should then never occur.
+>>Introduce a semantic representation for MLS levels and ranges to be used in
+>>modular policy formats.  This will allow expansion of levels such as "s0:c1.c5"
+>>to happen at module expansion time.  The range_trans_rules were updated to use
+>>this new semantic format.
+>>
+>>All range_transitions are now represented as range_trans_rules when in a modular
+>>format (old range_trans structs are converted when the policy is read).  The
+>>semantic rules are expanded along with other rules when the module is expanded.
+>>
+>>The ebitmap used for classes in the range_trans_rules has also been fixed to use
+>>the standard "value - 1" indexing.
+>>
+>>
+>>Signed-off-by:  Darrel Goeddel <dgoeddel@trustedcs.com>
+>>
+>>
+>> checkpolicy/policy_parse.y                  |   76 ++++++++++--
+>> libsepol/include/sepol/policydb/expand.h    |    4
+>> libsepol/include/sepol/policydb/mls_types.h |   94 ++++++++++++++
+>> libsepol/include/sepol/policydb/policydb.h  |    2
+>> libsepol/src/expand.c                       |  159 +++++++++++++------------
+>> libsepol/src/policydb.c                     |  176 +++++++++++++++++++++++++++-
+>> libsepol/src/write.c                        |   51 +++++++-
+>> 7 files changed, 469 insertions(+), 93 deletions(-)
+>>
+>>diff --exclude=.svn -ruNp selinux-list/checkpolicy/policy_parse.y selinux-rangetrans/checkpolicy/policy_parse.y
+>>--- selinux-list/checkpolicy/policy_parse.y	2006-08-25 06:16:11.000000000 -0500
+>>+++ selinux-rangetrans/checkpolicy/policy_parse.y	2006-08-24 14:08:31.000000000 -0500
+>>@@ -3616,6 +3616,64 @@ parse_categories(char *id, level_datum_t
+>> 	return 0;
+>> }
+>> 
+>>+static int
+>>+parse_semantic_categories(char *id, level_datum_t * levdatum,
+>>+                          mls_semantic_cat_t ** cats)
+>>+{
+>>+	cat_datum_t *cdatum;
+>>+	mls_semantic_cat_t *newcat;
+>>+	unsigned int range_start, range_end;
+>>+
+>>+	if (id_has_dot(id)) {
+>>+		char *id_start = id;
+>>+		char *id_end = strchr(id, '.');
+>>+
+>>+		*(id_end++) = '\0';
+>>+
+>>+		cdatum = (cat_datum_t *) hashtab_search(policydbp->p_cats.table,
+>>+							(hashtab_key_t)
+>>+							id_start);
+>>+		if (!cdatum) {
+>>+			sprintf(errormsg, "unknown category %s", id_start);
+>>+			yyerror(errormsg);
+>>+			return -1;
+>>+		}
+>>+		range_start = cdatum->s.value;
+>>+
+>>+		cdatum = (cat_datum_t *) hashtab_search(policydbp->p_cats.table,
+>>+							(hashtab_key_t) id_end);
+>>+		if (!cdatum) {
+>>+			sprintf(errormsg, "unknown category %s", id_end);
+>>+			yyerror(errormsg);
+>>+			return -1;
+>>+		}
+>>+		range_end = cdatum->s.value;
+>>+	} else {
+>>+		cdatum = (cat_datum_t *) hashtab_search(policydbp->p_cats.table,
+>>+							(hashtab_key_t) id);
+>>+		if (!cdatum) {
+>>+			sprintf(errormsg, "unknown category %s", id);
+>>+			yyerror(errormsg);
+>>+			return -1;
+>>+		}
+>>+		range_start = range_end = cdatum->s.value;
+>>+	}
+>>+
+>>+	newcat = (mls_semantic_cat_t *) calloc(1, sizeof(mls_semantic_cat_t));
+>>+	if (!newcat) {
+>>+		yyerror("out of memory");
+>>+		return -1;
+>>+	}
+>>+
+>>+	newcat->next = *cats;
+>>+	newcat->low = range_start;
+>>+	newcat->high = range_end;
+>>+
 > 
-> The patch is straightforward - it only adds / to the path if it doesn't
-> end in a slash yet. Since this will result in path names at most 1 char
-> shorter than before, the buffer size check doesn't need to be modified
-> (though it wastes one character then)
 > 
-> > --- restorecon.c        2006-08-24 20:57:56.000000000 +0200
-> > +++ restorecon.c        2006-08-24 21:01:44.000000000 +0200
-> > @@ -197,8 +197,11 @@
-> >                         return 1;
-> >                 }
-> >                 p += len;
-> > -               *p = '/';
-> > -               p++;
-> > +               /* ensure trailing slash of directory name */
-> > +               if (len == 0 || *(p-1) != '/') {
-> > +                       *p = '/';
-> > +                       p++;
-> > +               }
-> >                 strcpy(p, file_sep);
-> >                 filename = path;
-> >         } else {
+> mls_semantic_cat_init?
 
-Looks fine to me.
+OK, I was hoping to slide by with the calloc ;)
 
-Acked-by:  Stephen Smalley <sds@tycho.nsa.gov>
+> 
+>>+
+> 
+> 
+> Otherwise looks fine
+
 
 -- 
-Stephen Smalley
-National Security Agency
 
+Darrel
 
 --
 This message was distributed to subscribers of the selinux mailing list.
