@@ -1,20 +1,20 @@
-Message-ID: <44F59B7F.6030904@trustedcs.com>
-Date: Wed, 30 Aug 2006 09:06:55 -0500
+Message-ID: <44F59D53.5080406@trustedcs.com>
+Date: Wed, 30 Aug 2006 09:14:43 -0500
 From: Darrel Goeddel <dgoeddel@TrustedCS.com>
 MIME-Version: 1.0
-To: Joshua Brindle <jbrindle@tresys.com>
+To: Karl MacMillan <kmacmillan@mentalrootkit.com>
 CC: "'SELinux List'" <SELinux@tycho.nsa.gov>,
-        Karl MacMillan <kmacmillan@mentalrootkit.com>,
+        Joshua Brindle <jbrindle@tresys.com>,
         Stephen Smalley <sds@tycho.nsa.gov>,
         Christopher PeBenito <cpebenito@tresys.com>
 Subject: Re: [PATCH 2/3] semantic MLS representation for range_trans_rules
-References: <44F3192B.2000408@trustedcs.com> <1156880221.8075.9.camel@twoface.columbia.tresys.com>
-In-Reply-To: <1156880221.8075.9.camel@twoface.columbia.tresys.com>
+References: <44F3192B.2000408@trustedcs.com> <1156880218.380.27.camel@localhost.localdomain>
+In-Reply-To: <1156880218.380.27.camel@localhost.localdomain>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Joshua Brindle wrote:
+Karl MacMillan wrote:
 > On Mon, 2006-08-28 at 11:26 -0500, Darrel Goeddel wrote:
 > 
 >>Introduce a semantic representation for MLS levels and ranges to be used in
@@ -42,78 +42,97 @@ Joshua Brindle wrote:
 >> libsepol/src/write.c                        |   51 +++++++-
 >> 7 files changed, 469 insertions(+), 93 deletions(-)
 >>
->>diff --exclude=.svn -ruNp selinux-list/checkpolicy/policy_parse.y selinux-rangetrans/checkpolicy/policy_parse.y
->>--- selinux-list/checkpolicy/policy_parse.y	2006-08-25 06:16:11.000000000 -0500
->>+++ selinux-rangetrans/checkpolicy/policy_parse.y	2006-08-24 14:08:31.000000000 -0500
->>@@ -3616,6 +3616,64 @@ parse_categories(char *id, level_datum_t
->> 	return 0;
->> }
->> 
->>+static int
->>+parse_semantic_categories(char *id, level_datum_t * levdatum,
->>+                          mls_semantic_cat_t ** cats)
+> 
+> 
+> <snip>
+> 
+>>+
+>>+static inline void mls_semantic_level_init(mls_semantic_level_t *l)
 >>+{
->>+	cat_datum_t *cdatum;
->>+	mls_semantic_cat_t *newcat;
->>+	unsigned int range_start, range_end;
+>>+	memset(l, 0, sizeof(mls_semantic_level_t));
+>>+}
 >>+
->>+	if (id_has_dot(id)) {
->>+		char *id_start = id;
->>+		char *id_end = strchr(id, '.');
+>>+static inline void mls_semantic_level_destroy(mls_semantic_level_t *l)
+>>+{
+>>+	mls_semantic_cat_t *cur, *next;
 >>+
->>+		*(id_end++) = '\0';
+>>+	if (l == NULL)
+>>+		return;
 >>+
->>+		cdatum = (cat_datum_t *) hashtab_search(policydbp->p_cats.table,
->>+							(hashtab_key_t)
->>+							id_start);
->>+		if (!cdatum) {
->>+			sprintf(errormsg, "unknown category %s", id_start);
->>+			yyerror(errormsg);
->>+			return -1;
->>+		}
->>+		range_start = cdatum->s.value;
->>+
->>+		cdatum = (cat_datum_t *) hashtab_search(policydbp->p_cats.table,
->>+							(hashtab_key_t) id_end);
->>+		if (!cdatum) {
->>+			sprintf(errormsg, "unknown category %s", id_end);
->>+			yyerror(errormsg);
->>+			return -1;
->>+		}
->>+		range_end = cdatum->s.value;
->>+	} else {
->>+		cdatum = (cat_datum_t *) hashtab_search(policydbp->p_cats.table,
->>+							(hashtab_key_t) id);
->>+		if (!cdatum) {
->>+			sprintf(errormsg, "unknown category %s", id);
->>+			yyerror(errormsg);
->>+			return -1;
->>+		}
->>+		range_start = range_end = cdatum->s.value;
+>>+	next = l->cat;
+>>+	while (next) {
+>>+		cur = next;
+>>+		next = cur->next;
+>>+		free(cur);
 >>+	}
+>>+}
 >>+
->>+	newcat = (mls_semantic_cat_t *) calloc(1, sizeof(mls_semantic_cat_t));
->>+	if (!newcat) {
->>+		yyerror("out of memory");
+>>+static inline int mls_semantic_level_cpy(mls_semantic_level_t *dst,
+>>+                                         mls_semantic_level_t *src)
+>>+{
+>>+	mls_semantic_cat_t *cat, *newcat, *lnewcat = NULL;
+>>+
+>>+	mls_semantic_level_init(dst);
+>>+	dst->sens = src->sens;
+>>+	cat = src->cat;
+>>+	while (cat) {
+>>+		newcat = (mls_semantic_cat_t *)calloc(1,
+>>+		                                    sizeof(mls_semantic_cat_t));
+>>+		if (!newcat)
+>>+			goto err;
+>>+
+>>+		if (lnewcat)
+>>+			lnewcat->next = newcat;
+>>+		else
+>>+			dst->cat = newcat;
+>>+
+>>+		newcat->low = cat->low;
+>>+		newcat->high = cat->high;
+>>+
+>>+		lnewcat = newcat;
+>>+		cat = cat->next;
+>>+	}
+>>+	return 0;
+>>+
+>>+err:
+>>+	mls_semantic_level_destroy(dst);
+>>+	return -1;
+>>+}
+>>+
+>>+static inline void mls_semantic_range_init(mls_semantic_range_t *r)
+>>+{
+>>+	mls_semantic_level_init(&r->level[0]);
+>>+	mls_semantic_level_init(&r->level[1]);
+>>+}
+>>+
+>>+static inline void mls_semantic_range_destroy(mls_semantic_range_t *r)
+>>+{
+>>+	mls_semantic_level_destroy(&r->level[0]);
+>>+	mls_semantic_level_destroy(&r->level[1]);
+>>+}
+>>+
+>>+static inline int mls_semantic_range_cpy(mls_semantic_range_t *dst,
+>>+                                         mls_semantic_range_t *src)
+>>+{
+>>+	if (mls_semantic_level_cpy(&dst->level[0], &src->level[0]) < 0)
+>>+		return -1;
+>>+
+>>+	if (mls_semantic_level_cpy(&dst->level[1], &src->level[1]) < 0) {
+>>+		mls_semantic_level_destroy(&dst->level[0]);
 >>+		return -1;
 >>+	}
 >>+
->>+	newcat->next = *cats;
->>+	newcat->low = range_start;
->>+	newcat->high = range_end;
+>>+	return 0;
+>>+}
 >>+
 > 
 > 
-> mls_semantic_cat_init?
+> Why are these inlined?
 
-OK, I was hoping to slide by with the calloc ;)
-
-> 
->>+
-> 
-> 
-> Otherwise looks fine
-
+Because all of the other functions there are inlined (I know - bad reasoning).
+I'll chuck them into the mls file.  Should I convert all of the other functions
+defined in mls_types.h in there as well?  Separate follow-on patch, or roll it
+into this one?
 
 -- 
 
