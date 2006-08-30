@@ -1,49 +1,62 @@
-Message-ID: <44F59022.30907@hp.com>
-Date: Wed, 30 Aug 2006 09:18:26 -0400
-From: Paul Moore <paul.moore@hp.com>
-MIME-Version: 1.0
-To: David Miller <davem@davemloft.net>
-Cc: netdev@vger.kernel.org, selinux@tycho.nsa.gov, jmorris@namei.org,
-        sds@tycho.nsa.gov, akpm@osdl.org
-Subject: Re: [PATCH 0/6] Various NetLabel fixes and cleanups
-References: <20060829144251.452774000@hp.com> <20060829.175644.66176288.davem@davemloft.net>
-In-Reply-To: <20060829.175644.66176288.davem@davemloft.net>
-Content-Type: text/plain; charset=ISO-8859-1
+Subject: Re: Bug in restorecon for symlinks in root dir
+From: Erich Schubert <erich@debian.org>
+To: Stephen Smalley <sds@tycho.nsa.gov>
+Cc: Darrel Goeddel <dgoeddel@TrustedCS.com>,
+        Joshua Brindle <jbrindle@tresys.com>,
+        Karl MacMillan <kmacmillan@mentalrootkit.com>, selinux@tycho.nsa.gov
+In-Reply-To: <1156446186.13088.45.camel@wintermute.xmldesign.de>
+References: <1156205841.22905.33.camel@wintermute.xmldesign.de>
+	 <1156346855.8506.62.camel@moss-spartans.epoch.ncsc.mil>
+	 <1156354840.2883.4.camel@wintermute.xmldesign.de>
+	 <1156433253.8506.175.camel@moss-spartans.epoch.ncsc.mil>
+	 <1156446186.13088.45.camel@wintermute.xmldesign.de>
+Content-Type: text/plain; charset=ISO-8859-15
+Date: Wed, 30 Aug 2006 15:23:00 +0200
+Message-Id: <1156944181.18406.19.camel@wintermute.xmldesign.de>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-David Miller wrote:
-> From: paul.moore@hp.com
-> Date: Tue, 29 Aug 2006 10:42:51 -0400
-> 
-> 
->>This patchset contains a series of small patches to fix a bug and some general
->>ugliness from the original author (that moron ...).  All of the following
->>patches are against David's net-2.6.19 tree.
->>
->>Please consider these for 2.6.19, thanks.
-> 
-> Applied to net-2.6.19, thanks a lot Paul.
+Hello Stephen,
+I've seen you've commited the fix for restorecon on the /lib64 symlink.
 
-No problem.
+How about this fix for correct handling of //lib64 etc.?
+In contrast to my previous mail, the "len == 0" part in the if statement
+should be necessary (for the /lib64 case; since path="" in that
+situation)
+The "len == 0" test is only unneeded if we used my initial patch (with
+strcpy("/", path)); since the len == 0 case should then never occur.
 
-> Does the bug fix in that first patch fix the ssh problem?
+The patch is straightforward - it only adds / to the path if it doesn't
+end in a slash yet. Since this will result in path names at most 1 char
+shorter than before, the buffer size check doesn't need to be modified
+(though it wastes one character then)
 
-As far as the kernel is concerned, yes.  There was a problem in the
-kernel of the sk_security_struct->sclass variable not being initialized
-correctly which the posted patch fixes as well as a problem with the ssh
-daemon rejecting all connections with IP options.  Looking at the ssh
-code it appears that they wanted to reject source routed connections but
-they were a bit heavy handed and simply rejected connections if any
-options were present.
+> --- restorecon.c        2006-08-24 20:57:56.000000000 +0200
+> +++ restorecon.c        2006-08-24 21:01:44.000000000 +0200
+> @@ -197,8 +197,11 @@
+>                         return 1;
+>                 }
+>                 p += len;
+> -               *p = '/';
+> -               p++;
+> +               /* ensure trailing slash of directory name */
+> +               if (len == 0 || *(p-1) != '/') {
+> +                       *p = '/';
+> +                       p++;
+> +               }
+>                 strcpy(p, file_sep);
+>                 filename = path;
+>         } else {
 
-There is more information in this Fedora Bugzilla:
-
- * https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=202856
-
+best regards,
+Erich Schubert
 -- 
-paul moore
-linux security @ hp
+     erich@(vitavonni.de|debian.org)    --    GPG Key ID: 4B3A135C     (o_
+The problem with the future is that it keeps turning into the present. //\
+        Signatur befindet sich auf der Rückseite dieser E-Mail.        V_/_
+
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
