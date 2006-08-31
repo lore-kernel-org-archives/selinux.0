@@ -1,39 +1,48 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k7UNIAXe009264
-	for <selinux@tycho.nsa.gov>; Wed, 30 Aug 2006 19:18:10 -0400
-Received: from smtp.sws.net.au (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id k7UNHoDP014950
-	for <selinux@tycho.nsa.gov>; Wed, 30 Aug 2006 23:17:51 GMT
-From: Russell Coker <russell@coker.com.au>
-Reply-To: russell@coker.com.au
-To: Klaus Weidner <klaus@atsec.com>
-Subject: Re: type transitioning script race condition?
-Date: Thu, 31 Aug 2006 09:18:00 +1000
-Cc: selinux@tycho.nsa.gov, Stephan Mueller <smueller@atsec.com>
-References: <20060830223937.GB12307@w-m-p.com>
-In-Reply-To: <20060830223937.GB12307@w-m-p.com>
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k7V3CUds014877
+	for <selinux@tycho.nsa.gov>; Wed, 30 Aug 2006 23:12:30 -0400
+Received: from exchange.columbia.tresys.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with SMTP id k7V3BrNt029582
+	for <selinux@tycho.nsa.gov>; Thu, 31 Aug 2006 03:11:53 GMT
+Message-ID: <44F6539E.7090800@gentoo.org>
+Date: Wed, 30 Aug 2006 23:12:30 -0400
+From: Joshua Brindle <method@gentoo.org>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Message-Id: <200608310918.03263.russell@coker.com.au>
+To: russell@coker.com.au
+CC: Klaus Weidner <klaus@atsec.com>, selinux@tycho.nsa.gov,
+        Stephan Mueller <smueller@atsec.com>
+Subject: Re: type transitioning script race condition?
+References: <20060830223937.GB12307@w-m-p.com> <200608310918.03263.russell@coker.com.au>
+In-Reply-To: <200608310918.03263.russell@coker.com.au>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thursday 31 August 2006 08:39, Klaus Weidner <klaus@atsec.com> wrote:
-> This sounds as if it suffers from the well known race condition that
-> makes setuid shell scripts a bad idea - is there any protection in place
-> to prevent users from exploiting the race condition to run code of their
-> own choice in the new domain?
+Russell Coker wrote:
 
-Correct.  As long as the script is run in a domain that has less privileges 
-than the calling code this isn't a problem.  If running a script causes a 
-transition to a more privileged domain then that's a policy bug.
+>On Thursday 31 August 2006 08:39, Klaus Weidner <klaus@atsec.com> wrote:
+>  
+>
+>>This sounds as if it suffers from the well known race condition that
+>>makes setuid shell scripts a bad idea - is there any protection in place
+>>to prevent users from exploiting the race condition to run code of their
+>>own choice in the new domain?
+>>    
+>>
+>
+>Correct.  As long as the script is run in a domain that has less privileges 
+>than the calling code this isn't a problem.  If running a script causes a 
+>transition to a more privileged domain then that's a policy bug.
+>
+>  
+>
+this happens quite a bit, including our own selinux management script 
+semanage. In addition to the race condition (that is not fixable on 
+Linux AFAIK) there are other environmental contamination issues,
 
--- 
-http://etbe.blogspot.com/          My Blog
-http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
-
-http://www.coker.com.au/sponsorship.html Sponsoring Free Software development
+There are some plans to fix the environmental contamination issues using 
+a wrapper that cleanses the environment ala atsecure but the race is not 
+fixable as far as I know.
 
 --
 This message was distributed to subscribers of the selinux mailing list.
