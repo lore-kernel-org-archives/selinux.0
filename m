@@ -1,60 +1,106 @@
-Message-ID: <36282A1733C57546BE392885C061859201512B91@chaos.tcs.tcs-sec.com>
-From: Venkat Yekkirala <vyekkirala@TrustedCS.com>
-To: Paul Moore <paul.moore@hp.com>,
-        Venkat Yekkirala
-	 <vyekkirala@TrustedCS.com>
-Cc: James Morris <jmorris@namei.org>, netdev@vger.kernel.org,
-        selinux@tycho.nsa.gov, Stephen Smalley <sds@tycho.nsa.gov>,
-        Chad Hanson
-	 <chanson@TrustedCS.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: RE: [PATCH 0/3] secid reconciliation-v01: Repost patchset with up
-	 dates
-Date: Thu, 31 Aug 2006 11:13:23 -0400
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k7VFTpuE004948
+	for <selinux@tycho.nsa.gov>; Thu, 31 Aug 2006 11:29:51 -0400
+Received: from mx1.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id k7VFTEi7007183
+	for <selinux@tycho.nsa.gov>; Thu, 31 Aug 2006 15:29:14 GMT
+Subject: Re: type transitioning script race condition?
+From: Karl MacMillan <kmacmillan@mentalrootkit.com>
+To: Joshua Brindle <method@manicmethod.com>
+Cc: Joshua Brindle <method@gentoo.org>, russell@coker.com.au,
+        Klaus Weidner <klaus@atsec.com>, selinux@tycho.nsa.gov,
+        Stephan Mueller <smueller@atsec.com>
+In-Reply-To: <1157032383.24429.90.camel@twoface.columbia.tresys.com>
+References: <20060830223937.GB12307@w-m-p.com>
+	 <200608310918.03263.russell@coker.com.au>  <44F6539E.7090800@gentoo.org>
+	 <1157030632.3106.7.camel@localhost.localdomain>
+	 <1157032383.24429.90.camel@twoface.columbia.tresys.com>
+Content-Type: text/plain
+Date: Thu, 31 Aug 2006 11:29:24 -0400
+Message-Id: <1157038164.14623.6.camel@localhost.localdomain>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-> Assuming the permission is granted the packet's secmark is 
-> replaced with
-> the updated context.  This updated secmark context would then 
-> be used in
-> sock_rcv_skb() to make an access decision, yes?
-
-You got it.
-
-> 
-> >> The ability to make access decisions based on the process
-> >>consuming the data and the data itself it one of the nicer 
-> >>qualities of
-> >>NetLabel in my opinion.
+On Thu, 2006-08-31 at 09:53 -0400, Joshua Brindle wrote:
+> On Thu, 2006-08-31 at 09:23 -0400, Karl MacMillan wrote:
+> > On Wed, 2006-08-30 at 23:12 -0400, Joshua Brindle wrote:
+> > > Russell Coker wrote:
+> > > 
+> > > >On Thursday 31 August 2006 08:39, Klaus Weidner <klaus@atsec.com> wrote:
+> > > >  
+> > > >
+> > > >>This sounds as if it suffers from the well known race condition that
+> > > >>makes setuid shell scripts a bad idea - is there any protection in place
+> > > >>to prevent users from exploiting the race condition to run code of their
+> > > >>own choice in the new domain?
+> > > >>    
+> > > >>
+> > > >
+> > > >Correct.  As long as the script is run in a domain that has less privileges 
+> > > >than the calling code this isn't a problem.  If running a script causes a 
+> > > >transition to a more privileged domain then that's a policy bug.
+> > > >
+> > > >  
+> > > >
+> > > this happens quite a bit, including our own selinux management script 
+> > > semanage. In addition to the race condition (that is not fixable on 
+> > > Linux AFAIK) there are other environmental contamination issues,
+> > > 
+> > > There are some plans to fix the environmental contamination issues using 
+> > > a wrapper that cleanses the environment ala atsecure but the race is not 
+> > > fixable as far as I know.
+> > > 
 > > 
-> > This nicer quality ends up being preserved as explained above :)
+> > If you write a C program that wrapper both issues should be greatly
+> > mitigated because you are no longer gaining privilege on the script
+> > execution - see
+> > http://svn.python.org/view/python/trunk/Misc/setuid-prog.c?rev=11583&view=auto. I've been meaning to do this for semanage for a while but haven't gotten to it yet.
 > 
-> It wasn't clear to me from your patch or the "master plan" what you
-> intended to do with the NetLabel context.  I thought the "/* See if
-> CIPSO can flow in thru the current secmark here */" comment in your
-> patch was rather cryptic.
-
-That was a test for you :)
+> I think we need to consolidate efforts because we are starting to work
+> on a wrapper here as well. 
 > 
-> > We just need to get out of the mindset of viewing netlabel 
-> separately
-> > once we are past the reconciliation point.
+> The one you referenced is specific to python but I'd like something more
+> general, basically what I'm envisioning is a wrapper that you symlink
+> all your interpreters to:
 > 
-> Agreed.  Although to be honest, I think the NetLabel context can be
-> reconciled with the secmark and XFRM contexts just as easily using the
-> existing sock_rcv_skb() hook.
+> /usr/bin/perl -> /usr/lib/wrapper/envcleaner (or whatever)
+> same with python, php, etc
+> 
+> and when the wrapper is run it looks at how it was run argv[0] and
+> checks a config file, something like:
+> 
+> /usr/bin/python:
+> (from the above link)
+> bad_vars: LD_* _RLD* PYTHON IFS CDPATH ENV
+> 
+> or whatever, something generic that we can use to protect any kind of
+> interpreted script, it could check for uid changes as well as do an
+> atsecure check to decide if it needs to cleanse the environment.
+> 
 
-Nope. That won't work for forwarded traffic.
+I think this general solution is going to be a hard sell because of
+compatibility problems. So I think it is best to go in two directions -
+a practical per-application solution and the more complete and general
+solution.
 
->  I guess I need to see where the
-> xfrm[4|6]_policy_check() hooks are called from in the stack to better
-> understand ...
+> One thing, you said both issues can be mitigated, how can the race be
+> mitigated? The app executes the interpreter with the argv you pass into
+> it so the race to swap the file still exists (and the privilege has
+> already been raised via the wrapper)
+> 
 
-You are on the right path here.
+Sorry - started one message and sent another. If you embed the script
+(as a string) and interpreter in the C wrapper you can avoid the race.
+
+In practice - for the scripts we are discussing - if you have sufficient
+privilege to modify the script or the environment to take advantage of
+the race condition you likely have a more direct attack vector. So the
+environment cleansing seems more important to me.
+
+Karl
+
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
