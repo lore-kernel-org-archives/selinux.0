@@ -1,99 +1,41 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k7VEJHQj002323
-	for <selinux@tycho.nsa.gov>; Thu, 31 Aug 2006 10:19:17 -0400
-Received: from moss-lions.epoch.ncsc.mil (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id k7VEIdi7024327
-	for <selinux@tycho.nsa.gov>; Thu, 31 Aug 2006 14:18:39 GMT
-Received: from moss-lions.epoch.ncsc.mil (localhost.localdomain [127.0.0.1])
-	by moss-lions.epoch.ncsc.mil (8.13.7/8.13.7) with ESMTP id k7VEIvIc003909
-	for <selinux@tycho.nsa.gov>; Thu, 31 Aug 2006 10:18:57 -0400
-Received: (from jwcart2@localhost)
-	by moss-lions.epoch.ncsc.mil (8.13.7/8.13.7/Submit) id k7VEIvnV003908
-	for selinux@tycho.nsa.gov; Thu, 31 Aug 2006 10:18:57 -0400
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k7VDqdXP001337
-	for <selinux@tycho.nsa.gov>; Thu, 31 Aug 2006 09:52:40 -0400
-Received: from twoface.columbia.tresys.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id k7VDqKmg018031
-	for <selinux@tycho.nsa.gov>; Thu, 31 Aug 2006 13:52:20 GMT
-Subject: Re: type transitioning script race condition?
-From: Joshua Brindle <method@manicmethod.com>
-To: Karl MacMillan <kmacmillan@mentalrootkit.com>
-Cc: Joshua Brindle <method@gentoo.org>, russell@coker.com.au,
-        Klaus Weidner <klaus@atsec.com>, selinux@tycho.nsa.gov,
-        Stephan Mueller <smueller@atsec.com>
-In-Reply-To: <1157030632.3106.7.camel@localhost.localdomain>
-References: <20060830223937.GB12307@w-m-p.com>
-	 <200608310918.03263.russell@coker.com.au>  <44F6539E.7090800@gentoo.org>
-	 <1157030632.3106.7.camel@localhost.localdomain>
-Content-Type: text/plain
-Date: Thu, 31 Aug 2006 09:53:03 -0400
-Message-Id: <1157032383.24429.90.camel@twoface.columbia.tresys.com>
-Mime-Version: 1.0
+Message-ID: <44F6F3A5.2020401@trustedcs.com>
+Date: Thu, 31 Aug 2006 09:35:17 -0500
+From: Darrel Goeddel <dgoeddel@TrustedCS.com>
+MIME-Version: 1.0
+To: Joshua Brindle <jbrindle@tresys.com>
+CC: "'SELinux List'" <SELinux@tycho.nsa.gov>,
+        Karl MacMillan <kmacmillan@mentalrootkit.com>,
+        Stephen Smalley <sds@tycho.nsa.gov>,
+        Christopher PeBenito <cpebenito@tresys.com>
+Subject: Re: [PATCH 2/3 v2] semantic MLS representation for range_trans_rules
+References: <44F3192B.2000408@trustedcs.com>	 <44F6E74B.3030904@trustedcs.com> <1157033407.24429.94.camel@twoface.columbia.tresys.com>
+In-Reply-To: <1157033407.24429.94.camel@twoface.columbia.tresys.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2006-08-31 at 09:23 -0400, Karl MacMillan wrote:
-> On Wed, 2006-08-30 at 23:12 -0400, Joshua Brindle wrote:
-> > Russell Coker wrote:
-> > 
-> > >On Thursday 31 August 2006 08:39, Klaus Weidner <klaus@atsec.com> wrote:
-> > >  
-> > >
-> > >>This sounds as if it suffers from the well known race condition that
-> > >>makes setuid shell scripts a bad idea - is there any protection in place
-> > >>to prevent users from exploiting the race condition to run code of their
-> > >>own choice in the new domain?
-> > >>    
-> > >>
-> > >
-> > >Correct.  As long as the script is run in a domain that has less privileges 
-> > >than the calling code this isn't a problem.  If running a script causes a 
-> > >transition to a more privileged domain then that's a policy bug.
-> > >
-> > >  
-> > >
-> > this happens quite a bit, including our own selinux management script 
-> > semanage. In addition to the race condition (that is not fixable on 
-> > Linux AFAIK) there are other environmental contamination issues,
-> > 
-> > There are some plans to fix the environmental contamination issues using 
-> > a wrapper that cleanses the environment ala atsecure but the race is not 
-> > fixable as far as I know.
-> > 
+Joshua Brindle wrote:
+
+<snip>
+
+>>diff --exclude=.svn -ruNp selinux-list/checkpolicy/policy_parse.y selinux-rangetrans-2/checkpolicy/policy_parse.y
+>>--- selinux-list/checkpolicy/policy_parse.y	2006-08-25 06:16:11.000000000 -0500
+>>+++ selinux-rangetrans-2/checkpolicy/policy_parse.y	2006-08-30 06:23:54.000000000 -0500
+>>@@ -3616,6 +3616,65 @@ parse_categories(char *id, level_datum_t
+>> 	return 0;
+>> }
+>> 
+>>+static int
+>>+parse_semantic_categories(char *id, level_datum_t * levdatum,
 > 
-> If you write a C program that wrapper both issues should be greatly
-> mitigated because you are no longer gaining privilege on the script
-> execution - see
-> http://svn.python.org/view/python/trunk/Misc/setuid-prog.c?rev=11583&view=auto. I've been meaning to do this for semanage for a while but haven't gotten to it yet.
+> 
+> hrm, did lindent do this?
 
-I think we need to consolidate efforts because we are starting to work
-on a wrapper here as well. 
+Nope, the cut-paste-modify of parse_categories did it.
 
-The one you referenced is specific to python but I'd like something more
-general, basically what I'm envisioning is a wrapper that you symlink
-all your interpreters to:
+-- 
 
-/usr/bin/perl -> /usr/lib/wrapper/envcleaner (or whatever)
-same with python, php, etc
-
-and when the wrapper is run it looks at how it was run argv[0] and
-checks a config file, something like:
-
-/usr/bin/python:
-(from the above link)
-bad_vars: LD_* _RLD* PYTHON IFS CDPATH ENV
-
-or whatever, something generic that we can use to protect any kind of
-interpreted script, it could check for uid changes as well as do an
-atsecure check to decide if it needs to cleanse the environment.
-
-One thing, you said both issues can be mitigated, how can the race be
-mitigated? The app executes the interpreter with the argv you pass into
-it so the race to swap the file still exists (and the privilege has
-already been raised via the wrapper)
-
-
+Darrel
 
 --
 This message was distributed to subscribers of the selinux mailing list.
