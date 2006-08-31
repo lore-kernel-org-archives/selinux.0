@@ -1,92 +1,93 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k7VGfBgv007468
-	for <selinux@tycho.nsa.gov>; Thu, 31 Aug 2006 12:41:11 -0400
-Received: from mail.atsec.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id k7VGeWi2019774
-	for <selinux@tycho.nsa.gov>; Thu, 31 Aug 2006 16:40:33 GMT
-Date: Thu, 31 Aug 2006 11:40:06 -0500
-From: Klaus Weidner <klaus@atsec.com>
-To: Joshua Brindle <jbrindle@tresys.com>
-Cc: Karl MacMillan <kmacmillan@mentalrootkit.com>, russell@coker.com.au,
-        selinux@tycho.nsa.gov, Stephan Mueller <smueller@atsec.com>
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k7VGdWMj007389
+	for <selinux@tycho.nsa.gov>; Thu, 31 Aug 2006 12:39:32 -0400
+Received: from mx1.redhat.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id k7VGdCSk011154
+	for <selinux@tycho.nsa.gov>; Thu, 31 Aug 2006 16:39:12 GMT
 Subject: Re: type transitioning script race condition?
-Message-ID: <20060831164006.GE12307@w-m-p.com>
-References: <20060830223937.GB12307@w-m-p.com> <200608310918.03263.russell@coker.com.au> <44F6539E.7090800@gentoo.org> <1157030632.3106.7.camel@localhost.localdomain> <1157032383.24429.90.camel@twoface.columbia.tresys.com> <20060831154635.GC12307@w-m-p.com> <1157040794.24429.116.camel@twoface.columbia.tresys.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1157040794.24429.116.camel@twoface.columbia.tresys.com>
+From: Karl MacMillan <kmacmillan@mentalrootkit.com>
+To: Klaus Weidner <klaus@atsec.com>
+Cc: Joshua Brindle <method@manicmethod.com>,
+        Joshua Brindle <method@gentoo.org>, russell@coker.com.au,
+        selinux@tycho.nsa.gov, Stephan Mueller <smueller@atsec.com>
+In-Reply-To: <20060831160222.GD12307@w-m-p.com>
+References: <20060830223937.GB12307@w-m-p.com>
+	 <200608310918.03263.russell@coker.com.au> <44F6539E.7090800@gentoo.org>
+	 <1157030632.3106.7.camel@localhost.localdomain>
+	 <1157032383.24429.90.camel@twoface.columbia.tresys.com>
+	 <1157038164.14623.6.camel@localhost.localdomain>
+	 <20060831160222.GD12307@w-m-p.com>
+Content-Type: text/plain
+Date: Thu, 31 Aug 2006 12:39:10 -0400
+Message-Id: <1157042350.14623.25.camel@localhost.localdomain>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, Aug 31, 2006 at 12:13:14PM -0400, Joshua Brindle wrote:
-> The race is insignificant compared to the environment. The scripts
-> cannot clean their own environment because the environment affects the
-> interpreters potentially before the script is started (like PATH
-> variables specific to the interpreter, or preload like PYTHONSTARTUP
-> (run before the script is started).
-
-perl has a couple of features to support suid execution, mainly the
-"taint" mode which is activated automatically when it detects that it's
-running setuid, and which can be specified on the #! line so that it's
-activated race-free by the kernel. In that mode, it ignores variables
-like PERLLIB automatically.
-
-I'm not sure how Python handles it, and I'm not disagreeing with you in
-general, it *is* very important to clean the environment and I think it's
-safest to do this in the wrapper program.
-
-> On Thu, 2006-08-31 at 10:46 -0500, Klaus Weidner wrote:
-> > - other environment variables may be dangerous, for example program "foo"
-> >   launched indirectly from the script may look at a FOORC variable to
-> >   find its config file. In general it's safer to completely wipe the
-> >   environment and only retain specific variables from a whitelist.
+On Thu, 2006-08-31 at 11:02 -0500, Klaus Weidner wrote:
+> On Thu, Aug 31, 2006 at 11:29:24AM -0400, Karl MacMillan wrote:
+> > Sorry - started one message and sent another. If you embed the script
+> > (as a string) and interpreter in the C wrapper you can avoid the race.
 > 
-> applications that use their own environment and are trusted within a
-> specific domain are a non-issue, we already trust them to act
-> appropriately within the confines we've given.
-
-I think it's more dangerous than that - if you use a blacklist approach
-to clean the environment, you're likely to miss variables which
-indirectly affect things.
-
-For example, say /usr/sbin/trustedapp is a shell script, and your wrapper
-takes care to sanitize all environment variables that the shell cares
-about (IFS, PATH, ...). But /usr/sbin/trustedapp contains a perl
-one-liner, and you haven't sanitized PERLLIB, PERL5OPT, PERLDB_OPT etc,
-so the trusted app ends up running user specified code at its current
-privilege level due to that. You'd have to do a lot of analysis to find
-all the potentially dangerous options, and it's a lot simpler to use a
-whitelist.
-
-> > - make sure that resource limits are reasonable. Another hack involved
-> >   setting the max file size to a very low value and calling passwd(1),
-> >   which then truncated /etc/shadow due to the limit.
+> Yes, the important thing is to ensure that raising the privileges and
+> picking the thing to execute is a single operation.
 > 
-> not sure why this helps.
-
-Well, this example is a denial of service, and I can't think of an
-example how to use it to gain privileges, so I agree that it's probably
-less critical. But it wouldn't surprise me if people find creative ways
-to abuse such limits.
-
-> > These things should be done for all suid/privileged programs, not just
-> > scripts, because they may be using system(3) or equivalent to call a
-> > program via the shell which could then get contaminated by $IFS or other
-> > malicious settings.
+> > In practice - for the scripts we are discussing - if you have sufficient
+> > privilege to modify the script or the environment to take advantage of
+> > the race condition you likely have a more direct attack vector. So the
+> > environment cleansing seems more important to me.
 > 
-> privileged programs already handle this if they are binary (atsecure
-> cleanses things that can affect the binary that are out of its control)
+> You don't need to modify the script or have special privileges to exploit
+> the race condition. A possible example looks like this:
+> 
+> - create link to executable (the link can be one of the path components),
+>   for example:
+> 
+> 	ln -s /usr/sbin /tmp/hack
+> 
 
-atsecure doesn't do anything to protect against indirect effects, for
-example if the C app uses system(3) without cleaning IFS and PATH first,
-so it's not sufficient to rely on the atsecure mechanism alone. You're
-right that it's good protection against things out of the binary's
-control, but it's important for it to do the security measures that are
-under its control.
+In a strict environment the creation of the symlinks to privileged
+applications should be controlled.
 
--Klaus
+> - execute /tmp/hack/semanage
+> 
+> - kernel looks at label of /tmp/hack/semanage, gets the label of
+>   /usr/sbin/semanage
+> 
+> - kernel decides to do a domain transition, suid, whatever
+> 
+> - kernel executes: /usr/bin/python /tmp/hack/semanage
+> 
+> - attacker redirects /tmp/hack to /tmp/malicious/ which contains a
+>   different semanage script
+> 
+> - python opens /tmp/hack/semanage which now resolves to
+>   /tmp/malicious/semanage
+> 
 
--Klaus
+Good point. Seems like a less invasive option than opening the file
+descriptor is to pass in the target of the symlink instead of the
+symlink, but this has several other problems.
+
+> (As an aside, I think in this specific case the AppArmor approach of
+> making the security decisions based on the path name is actually safer
+> than using the file label. Time for a flame war about "label based
+> security considered harmful"? ;-)  But the real solution is to avoid the
+> race in the first place.)
+> 
+
+Well, this is more a problem that the privilege escalation is not
+properly tied to the entrypoint object, which is why this is a problem
+for both suid and selinux - in which both _correctly_ associate security
+attributes with the object :).
+
+This should be fixed for semanage. Actually, things are even worse since
+semanage has "#! /usr/bin/env python" - no need to try to exploit a race
+condition when you can just execute whatever you want with privileges as
+long as it is called python.
+
+Karl
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
