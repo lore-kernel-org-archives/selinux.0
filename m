@@ -1,40 +1,30 @@
-Message-ID: <36282A1733C57546BE392885C061859201512D0F@chaos.tcs.tcs-sec.com>
-From: Venkat Yekkirala <vyekkirala@TrustedCS.com>
-To: Stephen Smalley <sds@tycho.nsa.gov>
-Cc: Joshua Brindle <jbrindle@tresys.com>, Joy Latten <latten@us.ibm.com>,
-        selinux@tycho.nsa.gov, paul.moore@hp.com
-Subject: RE: ipsec and getpeercon()
-Date: Fri, 1 Sep 2006 10:35:36 -0400 
+Message-ID: <44F84578.8090406@trustedcs.com>
+Date: Fri, 01 Sep 2006 09:36:40 -0500
+From: Darrel Goeddel <dgoeddel@TrustedCS.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+To: Stephen Smalley <sds@tycho.nsa.gov>
+CC: Daniel J Walsh <dwalsh@redhat.com>, SE Linux <selinux@tycho.nsa.gov>
+Subject: Re: policycoreutils translations patch
+References: <44EDF281.4070605@redhat.com> <1156885902.22210.241.camel@moss-spartans.epoch.ncsc.mil>
+In-Reply-To: <1156885902.22210.241.camel@moss-spartans.epoch.ncsc.mil>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-> I'd tentatively guess that the lack of any definition or rules
-> authorizing polmatch is causing the SAs to be left unlabeled.
-
-It should have then returned the unlabeled context (if it were
-working correctly).
-
+Stephen Smalley wrote:
+> On Thu, 2006-08-24 at 14:40 -0400, Daniel J Walsh wrote:
 > 
-> But Joshua's point about needing to manually define spd entries per
-> context (at least per TE domain/type, even if using a MLS 
-> range), would
-> still hold, right?
+>>Along with fixfiles patch.
+> 
+> 
+> Acked-by:  Stephen Smalley <sds@tycho.nsa.gov>
+> 
 
-In the most practical/intuitive sense, yes, you would want to define
-a unique spd entry for each domain you want to communicate. As for
-"expectation of what domain is on the otherside" like Joshua was
-wondering about, this could either be implicit (by using static SA's;
-spi 0x01 could refer to a_t on one machine and b_t on the other machine)
-or explicit (when using racoon to negotiate). In the latter case, a_t and
-b_t must exist on both machines or the negotiation will fail.
+Acked-by:  Darrel Goeddel <dgoeddel@trustedcs.com>
 
-Also in theory, multiple domains can share a single spd domain (by
-polmatch'ing
-to the spd domain), with the secmark rules doing finer differentiation in
-conjunction with appropriate transition sid rules :).
+-- 
+
+Darrel
 
 --
 This message was distributed to subscribers of the selinux mailing list.
