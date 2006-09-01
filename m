@@ -1,48 +1,60 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k81FTkR4012026
-	for <selinux@tycho.nsa.gov>; Fri, 1 Sep 2006 11:29:47 -0400
-Received: from web36605.mail.mud.yahoo.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with SMTP id k81FT7Oi018491
-	for <selinux@tycho.nsa.gov>; Fri, 1 Sep 2006 15:29:08 GMT
-Message-ID: <20060901152930.44570.qmail@web36605.mail.mud.yahoo.com>
-Date: Fri, 1 Sep 2006 08:29:30 -0700 (PDT)
-From: Casey Schaufler <casey@schaufler-ca.com>
-Reply-To: casey@schaufler-ca.com
-Subject: Re: FW: [serue@us.ibm.com: Re: [redhat-lspp] LSPP Development Telecon  08/21/2006 Minutes]
-To: Venkat Yekkirala <vyekkirala@TrustedCS.com>, selinux@tycho.nsa.gov
-In-Reply-To: <36282A1733C57546BE392885C061859201512D15@chaos.tcs.tcs-sec.com>
+Message-ID: <44F85481.80203@hp.com>
+Date: Fri, 01 Sep 2006 11:40:49 -0400
+From: Paul Moore <paul.moore@hp.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+To: Joshua Brindle <jbrindle@tresys.com>
+Cc: Venkat Yekkirala <vyekkirala@TrustedCS.com>,
+        Stephen Smalley <sds@tycho.nsa.gov>, Joy Latten <latten@us.ibm.com>,
+        selinux@tycho.nsa.gov
+Subject: Re: ipsec and getpeercon()
+References: <36282A1733C57546BE392885C061859201512D0F@chaos.tcs.tcs-sec.com> <1157124313.20971.27.camel@twoface.columbia.tresys.com>
+In-Reply-To: <1157124313.20971.27.camel@twoface.columbia.tresys.com>
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+Joshua Brindle wrote:
+> Hrm, am I right in understanding that the selinux context from one
+> machine is never sent over ipsec to the destination? 
+> 
+> What you talk about above (using static SA's which refer to different
+> contexts on each side) is doable but seems inconvenient and fragile
+> (multiple client domains talking to the same destination daemon using
+> lots of SA's that have to be managed).
+> 
+> One option (maybe) is to get racoon to send the context of the
+> connecting domain as part of the negotiation, this still requires lots
+> of SA's.
+> 
+> Another way is if I could have a local proxy that has a single SA to the
+> destination machine and can send an appropriate context in the AH or ESP
+> header (in the authentication data field? I don't now the ipsec spec at
+> all so I'm not sure if any of this is possible, please let me know if
+> not so I can start looking elsewhere).
+> 
+> Note that we may be sending contexts that aren't even valid on the local
+> machine, but would be valid on the destination machine. 
+> 
+> is any of this possible?
 
+WARNING: *shameless* plug ahead, read at your own risk :)
 
---- Venkat Yekkirala <vyekkirala@TrustedCS.com> wrote:
+NetLabel takes it's security context directly from the socket which is
+writing the data to the network, not from a separate source.  This
+allows for the dynamic context packet labeling I think you are looking
+for ... yes?
 
+However, in the interest of full disclosure I should point out that
+currently NetLabel only supports the MLS label portion of the context
+but I plan on extending that in the future.  Also, NetLabel only offers
+packet labeling, not packet autentication or encryption like IPsec.
+However, NetLabel could be used in conjunction with regular IPsec
+without problems.  This would allow you a dynamically labeled, secure
+connection between two parties with as few SAs as you desire.
 
-> It started by us looking at what cipso provides.  My
-> idea was that
-> algorithm would identify the LSM, and doi would
-> identify some policy
-> domain.  I.e. you could clearly separate hosts
-> within a network based
-> on policy properties by using distinct doi's.
-
-The intent of the 1980s CIPSO developers
-was that the Domain Of Interpretation (DOI)
-be used to distinguish administrative domains.
-It was assumed that if a socket received a
-packet marked with a DOI that is was not able
-to properly interpret that the packet would be
-rejected. It was also assumed that if the DOI
-was recognized it was a clear indication that
-the information in the CIPSO header ought to
-be interpretable on this machine.
-
-
-Casey Schaufler
-casey@schaufler-ca.com
+-- 
+paul moore
+linux security @ hp
 
 --
 This message was distributed to subscribers of the selinux mailing list.
