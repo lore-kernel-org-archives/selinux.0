@@ -1,152 +1,60 @@
 Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k81FoUWv012928
-	for <selinux@tycho.nsa.gov>; Fri, 1 Sep 2006 11:50:30 -0400
-Received: from exchange.columbia.tresys.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with SMTP id k81FoArI015423
-	for <selinux@tycho.nsa.gov>; Fri, 1 Sep 2006 15:50:10 GMT
-Subject: Re: Latest updates
-From: "Christopher J. PeBenito" <cpebenito@tresys.com>
-To: Daniel J Walsh <dwalsh@redhat.com>
-Cc: SE Linux <selinux@tycho.nsa.gov>
-In-Reply-To: <44F7358E.4010101@redhat.com>
-References: <44F7358E.4010101@redhat.com>
-Content-Type: text/plain
-Date: Fri, 01 Sep 2006 11:51:28 -0400
-Message-Id: <1157125888.3199.157.camel@sgc.columbia.tresys.com>
-Mime-Version: 1.0
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k81GUi3E014147
+	for <selinux@tycho.nsa.gov>; Fri, 1 Sep 2006 12:30:44 -0400
+Received: from wr-out-0506.google.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id k81GUOIk020927
+	for <selinux@tycho.nsa.gov>; Fri, 1 Sep 2006 16:30:24 GMT
+Received: by wr-out-0506.google.com with SMTP id 68so388714wri
+        for <selinux@tycho.nsa.gov>; Fri, 01 Sep 2006 09:30:43 -0700 (PDT)
+Message-ID: <46ffa45f0609010930h403bf000k6cbf561c1334dfef@mail.gmail.com>
+Date: Fri, 1 Sep 2006 11:30:43 -0500
+From: "Aleks Kissinger" <aleks0@gmail.com>
+To: selinux@tycho.nsa.gov
+Subject: Using scripting languages to "macro" policy
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2006-08-31 at 15:16 -0400, Daniel J Walsh wrote:
-> Amanda changes, not sure why you didn't take them last time
+I've been poking around with the idea of using Ruby and some
+meta-programming to specify policy.  The complaint I've heard voiced
+by a couple of people is that while many of the m4-based abstractions
+present in refpolicy are pretty intuitive and useful, the limitation
+of m4 as a language is that you cannot maintain relationships and
+resolve conflicts automatically.  Therefore, in many cases you need to
+result to naming conventions to do that work.
 
-Sorry about that, forgot to send an email about that last patch.  As for
-this bit, I'm hesitant to remove the contexts.  This policy seems to be
-overengineered, and since we intend to fix it, the unused types should
-be removed too.  Otherwise we start getting dead policy, and more mess
-in general.
+The idea I put forward here is to create a set of base objects in
+Ruby, Python, or something of that ilk that can be extended and used
+to define policy in an organized, error-checking, and namespaced
+manner.  Heres a quick little example:
 
-> Fixing some labels to march what actually ends up on disk  see /boot/grub
+class LogDir < FileType
+  pattern '/var/log/.*'
+end
 
-These say /boot/grup; I assume this is a typo.  Also they should be in
-the files module.
+class SomeProgam < Application
+  executable '/usr/bin/someprog'
+  allow_role SysadminRole
+  allow self, LogDir, File, File.perms(:r, :w)
+end
 
-> Change firstboot to create etc_runtime_t instead of firstboot_rw_t.
+This expands to all the relevant TE & FC statements.  'executable'
+generates the someprogram_exec_t type and all needed type transitions
+and allows, 'allow_role' looks up types associated with the role and
+generates relevant allows and transitions.  The 'allow' statement
+works pretty much as expected, except that the FLASK class File is an
+actual Ruby class, with the ability to filter on permission
+categories, etc.
 
-The type should be removed too, see above comments on
-amanda.  /usr/share/firstboot is also labeled firstboot_rw_t, so that
-should be resolved too.
-
-> Please change /opt java line to match what IBM ships
-
-I'm concerned this is too broad.  Can we get additional, more specific
-regexes?
-
-> In corecommands prelink also creates lnk_file, when it recreates 
-> executables.
-
-I assume this refers to the hunk in corecommands.if?  I don't agree with
-this change.  Only the executables should be specially labeled, not the
-symlinks.
-
-> gfs supports xattr
-
-IIRC, last time the question was if this was widely avaiable?
-
-> Lots of domains need term_dontaudit_use_unallocated_ttys for startup 
-> from a tty.
-
-Can you clarify this?  I don't know what you mean by "startup from a
-tty".
-
-> Apache uses ldap
-
-This reverts my change; this access is handled by auth_use_nsswitch().
-
-> bluetooth_helper started for startx needs some more privs
-
-This corenet addition seems out of place, since it doesn't have complete
-networking perms.  Fixed the xserver_stream_connect_xdm() interface
-instead of the xdm addition.
-
-> crontab changes for setting MLS values.
-
-The userdomain sending a sigchld to crontab doesn't make sense to me.
-Also $1_tmp_t can't be referenced directly by this template, it needs to
-use the userdomain interfaces.  Besides that, I think it would probably
-be best for crontab to have its own $1_crontab_tmp_t type anyway, unless
-there is a compelling reason for it to write the user's tmp files.
-
-Why does system_crond_t need to create crond pid files?
-
-> dovecot wants to read some files labeled var_t.
-
-Moved rule down.
-
-> ldap uses a socket to communicate
-
-Generic socket doesn't make sense here.
-
-> NetworkManager wants to ptrace itself
-
-I can't reproduce this on my notebook.  Can you look more into this?  It
-seems highly irregular.
-
-> stunnel reads route table
-> and connects to smtp
-
-Is this an explicit requirement, or should it really be tcp connect to
-all ports?
-
-> X No longer needs execstack, execheap, execmem
-
-I am setting this to !distro_redhat, as this is not necessarily the case
-for other distros (incl RHEL4).
-
-> Changes to semanage
-
-Can't use these templates here.  The netlink addition is handled by
-auth_use_nsswitch().
-
-> /usr/lib/ia32el/ia32x_loader needs to run unconfined_execmem_t if we 
-> have any hope of turning off allow_execmem
-
-Out of curiosity, what is this program?
-
-The ntp change shouldn't be needed, since net_bind_service is allowed by
-corenet_udp_bind_ntp_port(ntpd_t).
-
-The procmail change shouldn't be needed since udp bind to inaddr_any is
-allowed by corenet_udp_bind_all_nodes(procmail_t).
-
-The rpc change shouldn't be needed since all domains have self:file
-{ getattr read };
-
-The unconfined change should not be needed since it can do * to all
-domains keys (see domain.te).
-
-Holding off on the other new policies since you said they're still WiP.
-
-Why are the following needed?
-
-fsadm exec a shell
-
-initrc write locale_t
-
-lvm_t net_admin (!)
-
-depmod using terms other than the ones it gets from it's run interface
-
-udev transition to dhcpc
+This system isn't meant to replace all the work thats gone in to
+existing policies, nor does it set out to be a policy language of its
+own like existing high-level lanaguage work, but I think it would make
+an interesting little project.  Ideas, comments, suggestions,
+criticisms, etc. would be appreciated.
 
 
-The remainder is merged.
-
--- 
-Chris PeBenito
-Tresys Technology, LLC
-(410) 290-1411 x150
-
+Aleks Kissinger
 
 --
 This message was distributed to subscribers of the selinux mailing list.
