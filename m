@@ -1,46 +1,76 @@
-Subject: RE: ipsec and getpeercon()
-From: Joshua Brindle <jbrindle@tresys.com>
-To: Venkat Yekkirala <vyekkirala@TrustedCS.com>
-Cc: Stephen Smalley <sds@tycho.nsa.gov>, Joy Latten <latten@us.ibm.com>,
-        selinux@tycho.nsa.gov, paul.moore@hp.com
-In-Reply-To: <36282A1733C57546BE392885C0618592014C0C72@chaos.tcs.tcs-sec.com>
-References: <36282A1733C57546BE392885C0618592014C0C72@chaos.tcs.tcs-sec.com>
-Content-Type: text/plain
-Date: Fri, 01 Sep 2006 08:15:48 -0400
-Message-Id: <1157112948.20971.5.camel@twoface.columbia.tresys.com>
-Mime-Version: 1.0
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k81Cn2Am006571
+	for <selinux@tycho.nsa.gov>; Fri, 1 Sep 2006 08:49:02 -0400
+Received: from smtp.sws.net.au (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id k81CmLOi021250
+	for <selinux@tycho.nsa.gov>; Fri, 1 Sep 2006 12:48:22 GMT
+From: Russell Coker <russell@coker.com.au>
+Reply-To: russell@coker.com.au
+To: Joshua Brindle <method@manicmethod.com>
+Subject: Re: type transitioning script race condition?
+Date: Fri, 1 Sep 2006 22:48:51 +1000
+Cc: Karl MacMillan <kmacmillan@mentalrootkit.com>,
+        Joshua Brindle <method@gentoo.org>, Klaus Weidner <klaus@atsec.com>,
+        selinux@tycho.nsa.gov, Stephan Mueller <smueller@atsec.com>
+References: <20060830223937.GB12307@w-m-p.com> <1157030632.3106.7.camel@localhost.localdomain> <1157032383.24429.90.camel@twoface.columbia.tresys.com>
+In-Reply-To: <1157032383.24429.90.camel@twoface.columbia.tresys.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="utf-8"
+Message-Id: <200609012248.56275.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2006-08-30 at 12:43 -0400, Venkat Yekkirala wrote:
-> > BTW, Joy & Venkat - it would be nice if the usage/configuration of the
-> > ipsec labeling was documented somewhere.  I've seen emails in the past
-> > with sample usage, but has it been captured anywhere we can 
-> > refer people
-> > to, like in the Fedora SELinux wiki?
-> 
-> If I remember right, Joy was either working on or had a comprehensive doc
-> from the original work on labeled ipsec that was going to be modified for
-> the recent changes and posted to selinux/redhat-lspp. My emails with sample
-> usage were more a stop gap as well as to aid in the modifications to the
-> original doc.
-> 
+On Thursday 31 August 2006 23:53, Joshua Brindle <method@manicmethod.com> 
+wrote:
+> The one you referenced is specific to python but I'd like something more
+> general, basically what I'm envisioning is a wrapper that you symlink
+> all your interpreters to:
+>
+> /usr/bin/perl -> /usr/lib/wrapper/envcleaner (or whatever)
+> same with python, php, etc
 
-Ok, aside from the bug I'm apparently experiencing (Joy is looking in to
-it) I think I have misunderstood what getpeercon() is suppose to do over
-ipsec. I was under the impression it would act like getpeercon() over
-unix stream sockets and get the context of the application on the other
-side of the socket but that is apparently not what getpeercon() for
-ipsec does.
+Do all interpreters have the same requirements for environment cleaning?  Is 
+there a case where cleaning the environment for interpreter A will break 
+interpreter B in some way?
 
-So basically to use ipsec in any useful way you have to have separate
-ipsec connections between 2 machines for every domain you plan to
-communicate across (with the expectation of knowing what domain is on
-the other side)..
+> and when the wrapper is run it looks at how it was run argv[0] and
+> checks a config file, something like:
 
-This seems very fragile to me and difficult to keep working (especially
-since the ipsec policy isn't tied to the selinux policy in any way)
+We are talking about a wrapper that does something similar to suid-perl.  The 
+security history of suid-perl isn't that good, I am concerned that a program 
+which is designed to suit more than one interpreter will be harder to 
+secure...
 
+http://www.coker.com.au/selinux/talks/ols2003/
+
+In the paper I presented at OLS 2003 I considered some options for domain 
+transitions with a single program.  I was looking at busybox, but a single 
+interpreter with multiple scripts will work in similar ways.
+
+If we were to have hundreds of types used for domain transitions then there 
+would be an administrative burden in configuring the system which was not a 
+factor I considered in my paper (I was just looking at the needs of programs 
+that are parts of busybox).  In such a case the single wrapper would offer 
+some benefits at the cost of slightly weakening security.
+
+Will we have hundreds of types used for such transitions?  Or will the number 
+of scripts that require domain transitions for correct operation be small 
+enough that a wrapper for each is possible?
+
+If there is only a small number of types used for scripts then we can have a C 
+wrapper that causes the transition.
+
+So you have /usr/bin/a.sh and /usr/bin/b.sh being shell scripts with the type 
+bin_t and /usr/bin/a and /usr/bin/b being executables labeled with types to 
+cause domain transition which would then execute the shell scripts.  Before 
+executing the shell scripts they could change the environment as necessary.
+
+-- 
+http://etbe.blogspot.com/          My Blog
+http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
+
+http://www.coker.com.au/sponsorship.html Sponsoring Free Software development
 
 --
 This message was distributed to subscribers of the selinux mailing list.
