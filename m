@@ -1,79 +1,72 @@
-Subject: Re: [PATCH FOR REFERENCE ONLY] MLSXFRM-v02: Add support to
-	serefpolicy
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: "Christopher J. PeBenito" <cpebenito@tresys.com>
-Cc: Venkat Yekkirala <vyekkirala@TrustedCS.com>,
-        Joshua Brindle <jbrindle@tresys.com>,
-        Daniel J Walsh <dwalsh@redhat.com>, selinux@tycho.nsa.gov,
-        jmorris@namei.org, latten@austin.ibm.com, tjaeger@cse.psu.edu
-In-Reply-To: <1157117196.3199.95.camel@sgc.columbia.tresys.com>
-References: <44BD1970.7010207@trustedcs.com>
-	 <1157112503.26621.38.camel@moss-spartans.epoch.ncsc.mil>
-	 <1157117196.3199.95.camel@sgc.columbia.tresys.com>
-Content-Type: text/plain
-Date: Fri, 01 Sep 2006 09:43:33 -0400
-Message-Id: <1157118213.26621.93.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+Message-ID: <44F839FD.4000602@trustedcs.com>
+Date: Fri, 01 Sep 2006 08:47:41 -0500
+From: Venkat Yekkirala <vyekkirala@TrustedCS.com>
+MIME-Version: 1.0
+To: selinux@tycho.nsa.gov
+CC: sds@tycho.nsa.gov, cpebenito@tresys.com
+Subject: MLSXFRM-v02: Add support to serefpolicy
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2006-09-01 at 09:26 -0400, Christopher J. PeBenito wrote:
-> On Fri, 2006-09-01 at 08:08 -0400, Stephen Smalley wrote:
-> > On Tue, 2006-07-18 at 12:25 -0500, Venkat Yekkirala wrote:
-> > > This patch has been included here just for reference for anyone wanting to
-> > > try the patchset in enforcing mode. It will be submitted to the serefpolicy
-> > > list later.
-> > > 
-> > > This patch adds a polmatch avperm to arbitrate flow/state's access to
-> > > a xfrm policy. It also defines MLS policy for association { sendto,
-> > > recvfrom, polmatch }.
-> > > 
-> > > NOTE: When an inbound packet is not using an IPSec SA, a check is performed
-> > > between the socket label and the unlabeled sid (SYSTEM_HIGH MLS label). For
-> > > MLS purposes however, the target of the check should be the MLS label taken
-> > > from the node sid (or secmark in the new secmark world). This would present
-> > > a severe performance overhead (to make a new sid based on the unlabeled sid
-> > > with the MLS taken from the node sid or secmark and then using this sid as
-> > > the target). Pending reconciliation of the netlabel, ipsec and iptables contexts,
-> > > I have chosen to currently make an exception for unlabeled_t SAs if TE policy
-> > > allowed it. A similar problem exists for the outbound case and it has been similarly
-> > > handled in the policy below (by making an exception for unlabeled_t).
-> > > 
-> > > The mlsconstrains are from myself and the rest (sample/basic pieces to get
-> > > communication going without or with unlabeled IPSec) are from Joy Latten at IBM
-> > > (latten@austin.ibm.com).
-> > > 
-> > > diff -urpN serefpolicy-2.2.47.orig/policy/flask/access_vectors serefpolicy-2.2.47.diff/policy/flask/access_vectors
-> > > --- serefpolicy-2.2.47.orig/policy/flask/access_vectors	2006-07-11 05:15:39.000000000 -0500
-> > > +++ serefpolicy-2.2.47.diff/policy/flask/access_vectors	2006-07-11 07:43:37.000000000 -0500
-> > > @@ -602,6 +602,7 @@ class association
-> > >  	sendto
-> > >  	recvfrom
-> > >  	setcontext
-> > > +	polmatch
-> > >  }
-> > >  
-> > >  # Updated Netlink class for KOBJECT_UEVENT family.
-> > 
-> > I still don't see polmatch permission in the upstream reference policy.
-> > Not even a definition, much less sufficient rules to allow it when
-> > needed.  So 2.6.19 or the 2.6.18 kernel with the back ported patch can't
-> > possibly work right now for labeled networking via IPSEC, right?
-> 
-> The top of the email said the final patch would be submitted later.  I
-> never saw any submission.  Is this the patch we want use?  Other than
-> the permission and MLS constraints, the other parts are questionable,
-> since they refer to unlabeled processes.
+This patch adds a polmatch avperm to arbitrate flow/state's access to
+a xfrm policy. It also defines MLS policy for association { sendto,
+recvfrom, polmatch }.
 
-I agree that the original reference patch was neither final nor
-adequate; my message is just a reminder to the relevant parties (i.e.
-the TCS and IBM folks) that a final patch needs to be upstreamed if they
-want this to work.
+NOTE: When an inbound packet is not using an IPSec SA, a check is performed
+between the socket label and the unlabeled sid (SYSTEM_HIGH MLS label). For
+MLS purposes however, the target of the check should be the MLS label taken
+from the node sid (or secmark in the new secmark world). This would present
+a severe performance overhead (to make a new sid based on the unlabeled sid
+with the MLS taken from the node sid or secmark and then using this sid as
+the target). Pending reconciliation of the netlabel, ipsec and iptables contexts,
+I have chosen to currently make an exception for unlabeled_t SAs if TE policy
+allowed it. A similar problem exists for the outbound case and it has been similarly
+handled in the policy below (by making an exception for unlabeled_t).
 
--- 
-Stephen Smalley
-National Security Agency
+I am submitting the below limited patch pending a comprehensive patch from
+Joy Latten at IBM (latten@austin.ibm.com).
 
+I am not sure if I needed to manually do a "make tolib" in the flask subdir
+and submit the results as well. Please let me know if I needed to.
+
+Signed-off-by: Venkat Yekkirala <vyekkirala@TrustedCS.com>
+---
+
+--- serefpolicy-2.3.2.vanilla/policy/mls	2006-07-09 04:51:24.000000000 -0500
++++ serefpolicy-2.3.2/policy/mls	2006-07-29 11:48:50.000000000 -0500
+@@ -668,7 +668,19 @@ mlsconstrain xinput { setattr relabelinp
+ # MLS policy for the association class
+ #
+ 
+-# these access vectors have no MLS restrictions
+-# association *
++mlsconstrain association { recvfrom }
++	((( l1 dom l2 ) and ( l1 domby h2 )) or
++	 (( t1 == mlsnetreadtoclr ) and ( h1 dom l2 )) or
++	 ( t1 == mlsnetread ) or
++	 ( t2 == unlabeled_t ));
++
++mlsconstrain association { sendto }
++	((( l1 dom l2 ) and ( l1 domby h2 )) or
++	 ( t2 == unlabeled_t ));
++
++mlsconstrain association { polmatch }
++	((( l1 dom l2 ) and ( h1 domby h2 )) or
++	 ( t2 == unlabeled_t ));
++
+ 
+ ') dnl end enable_mls
+--- serefpolicy-2.3.2.vanilla/policy/flask/access_vectors	2006-07-09 04:51:24.000000000 -0500
++++ serefpolicy-2.3.2/policy/flask/access_vectors	2006-07-29 12:08:31.000000000 -0500
+@@ -603,6 +603,7 @@ class association
+ 	sendto
+ 	recvfrom
+ 	setcontext
++	polmatch
+ }
+ 
+ # Updated Netlink class for KOBJECT_UEVENT family.
 
 --
 This message was distributed to subscribers of the selinux mailing list.
