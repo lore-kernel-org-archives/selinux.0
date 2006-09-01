@@ -1,45 +1,78 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k81HV2WA016698
-	for <selinux@tycho.nsa.gov>; Fri, 1 Sep 2006 13:31:02 -0400
-Received: from mx1.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id k81HUNlZ007966
-	for <selinux@tycho.nsa.gov>; Fri, 1 Sep 2006 17:30:23 GMT
-Subject: Re: Latest updates
-From: Eric Paris <eparis@parisplace.org>
-To: "Christopher J. PeBenito" <cpebenito@tresys.com>
-Cc: Daniel J Walsh <dwalsh@redhat.com>, SE Linux <selinux@tycho.nsa.gov>
-In-Reply-To: <1157125888.3199.157.camel@sgc.columbia.tresys.com>
-References: <44F7358E.4010101@redhat.com>
-	 <1157125888.3199.157.camel@sgc.columbia.tresys.com>
+Subject: RE: ipsec and getpeercon()
+From: Joshua Brindle <jbrindle@tresys.com>
+To: Venkat Yekkirala <vyekkirala@TrustedCS.com>
+Cc: Stephen Smalley <sds@tycho.nsa.gov>, Joy Latten <latten@us.ibm.com>,
+        selinux@tycho.nsa.gov, paul.moore@hp.com
+In-Reply-To: <36282A1733C57546BE392885C061859201512D46@chaos.tcs.tcs-sec.com>
+References: <36282A1733C57546BE392885C061859201512D46@chaos.tcs.tcs-sec.com>
 Content-Type: text/plain
-Date: Fri, 01 Sep 2006 13:32:35 -0400
-Message-Id: <1157131955.3195.114.camel@localhost.localdomain>
+Date: Fri, 01 Sep 2006 13:48:45 -0400
+Message-Id: <1157132925.20971.38.camel@twoface.columbia.tresys.com>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2006-09-01 at 11:51 -0400, Christopher J. PeBenito wrote:
-
-> > gfs supports xattr
+On Fri, 2006-09-01 at 11:49 -0400, Venkat Yekkirala wrote:
+<snip>
 > 
-> IIRC, last time the question was if this was widely avaiable?
-
-I'm not sure what your question is not did I see what dan's change was.
-But at this time gfs2 has selinux xtarrs.  gfs(1) does not ship in any
-form with xattr support (although patches were done they will never be
-put into play).  Since gfs(1) is not upstream we should continue to
-treat it as we always have but all gfs2 filesystems should be able to
-support xattrs
-
-> > /usr/lib/ia32el/ia32x_loader needs to run unconfined_execmem_t if we 
-> > have any hope of turning off allow_execmem
+> I am thinking about this as well. Rather than use the Type specified in
+> the SPD rule, we could use the one from the connecting domain. Should
+> only be a minor change code-wise.
 > 
-> Out of curiosity, what is this program?
 
-it is the interpreter that allows ia32 programs to run on the intel
-itanium processors (ia64)  It dynamically takes the x86 program and
-interprets it into ia64 instructions on the fly.  So it makes sense that
-it needs to execute the memory of the instructions it just wrote.
+so you want to implicitly label the SA's? I'm doubtful that this will
+help, unless applications are going to take on the burden of setting up
+their own SA's, I'm not sure that will ever happen.
+
+> This way you could have just a set of domains that "polmatch"
+> to a specific policy domain/Type, but they could all be using
+> unique SAs based on the context of the connecting domain.
+> 
+
+Is there much overhead in having lots of SA's between 2 hosts? How can
+you do things like RPC where the port will be dynamic with multiple SA's
+in use?
+
+> > 
+> > Another way is if I could have a local proxy that has a 
+> > single SA to the
+> > destination machine and can send an appropriate context in 
+> > the AH or ESP
+> > header (in the authentication data field? I don't now the 
+> > ipsec spec at
+> > all so I'm not sure if any of this is possible, please let me know if
+> > not so I can start looking elsewhere).
+> 
+> Not feasible AFAIK. The spi is the only identifier that can
+> reasonably be leveraged like we do currently.
+> 
+> > 
+> > Note that we may be sending contexts that aren't even valid 
+> > on the local
+> > machine, but would be valid on the destination machine. 
+> 
+> Could you please elaborate on this (a practical scenario).
+> 
+
+The most obvious scenario I have is 2 SELinux machines, one using MLS
+and one not. The context on the client side (root:sysadm_r:admin_tool_t)
+would be invalid on the destination.
+
+We are also looking at how SELinux machines that are in different
+administrative realms can interact, particularly when the policies are
+disparate and they have no shared namespace and the context structure
+may or may not be the same (as above).
+
+We basically need to be able to send an opaque context to the
+destination that is not verified locally (via a trusted proxy) 
+
+> > 
+> > is any of this possible?
+> > 
+> 
+> Sounds like we are making some progress here. Thanks for the discussion.
+
+Thank you, I'm getting an understanding of how all this works now..
 
 
 --
