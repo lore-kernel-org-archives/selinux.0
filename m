@@ -1,79 +1,38 @@
+Date: Fri, 1 Sep 2006 13:17:23 -0500
+From: Joy Latten <latten@austin.ibm.com>
+Message-Id: <200609011817.k81IHNlO019842@faith.austin.ibm.com>
+To: vyekkirala@TrustedCS.com
 Subject: RE: ipsec and getpeercon()
-From: Joshua Brindle <jbrindle@tresys.com>
-To: Venkat Yekkirala <vyekkirala@TrustedCS.com>
-Cc: Stephen Smalley <sds@tycho.nsa.gov>, Joy Latten <latten@us.ibm.com>,
-        selinux@tycho.nsa.gov, paul.moore@hp.com
-In-Reply-To: <36282A1733C57546BE392885C061859201512D46@chaos.tcs.tcs-sec.com>
-References: <36282A1733C57546BE392885C061859201512D46@chaos.tcs.tcs-sec.com>
-Content-Type: text/plain
-Date: Fri, 01 Sep 2006 13:48:45 -0400
-Message-Id: <1157132925.20971.38.camel@twoface.columbia.tresys.com>
-Mime-Version: 1.0
+Cc: jbrindle@tresys.com, paul.moore@hp.com, sds@tycho.nsa.gov,
+        selinux@tycho.nsa.gov
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2006-09-01 at 11:49 -0400, Venkat Yekkirala wrote:
-<snip>
-> 
-> I am thinking about this as well. Rather than use the Type specified in
-> the SPD rule, we could use the one from the connecting domain. Should
-> only be a minor change code-wise.
-> 
+>> Ok, aside from the bug I'm apparently experiencing (Joy is 
+>> looking in to
+>> it) I think I have misunderstood what getpeercon() is suppose 
+>> to do over
+>> ipsec. I was under the impression it would act like getpeercon() over
+>> unix stream sockets and get the context of the application on 
+>> the other
+>> side of the socket but that is apparently not what getpeercon() for
+>> ipsec does.
+>
+>It should indeed return the peer's context when using ipsec as well.
+>I would consider the current behaviour as a bug. Joy is looking but
+>I will try to take a look as well.
 
-so you want to implicitly label the SA's? I'm doubtful that this will
-help, unless applications are going to take on the burden of setting up
-their own SA's, I'm not sure that will ever happen.
+Ok, I looked at the code, and yes, if the socket class is 
+tcp_socket, the dst for the socket is examined for a 
+xfrm (in other words, an SA). If there is a xfrm, the context 
+in the xfrm is used. Otherwise, we return -ENOPROTOOPT.
 
-> This way you could have just a set of domains that "polmatch"
-> to a specific policy domain/Type, but they could all be using
-> unique SAs based on the context of the connecting domain.
-> 
+So yes, it is assumed that the context in the SA associated with the 
+destination is the peer's context. I have always viewed labeled SAs 
+as meaning, I want to restrict access to this socket/traffic stream 
+to this context.  
 
-Is there much overhead in having lots of SA's between 2 hosts? How can
-you do things like RPC where the port will be dynamic with multiple SA's
-in use?
-
-> > 
-> > Another way is if I could have a local proxy that has a 
-> > single SA to the
-> > destination machine and can send an appropriate context in 
-> > the AH or ESP
-> > header (in the authentication data field? I don't now the 
-> > ipsec spec at
-> > all so I'm not sure if any of this is possible, please let me know if
-> > not so I can start looking elsewhere).
-> 
-> Not feasible AFAIK. The spi is the only identifier that can
-> reasonably be leveraged like we do currently.
-> 
-> > 
-> > Note that we may be sending contexts that aren't even valid 
-> > on the local
-> > machine, but would be valid on the destination machine. 
-> 
-> Could you please elaborate on this (a practical scenario).
-> 
-
-The most obvious scenario I have is 2 SELinux machines, one using MLS
-and one not. The context on the client side (root:sysadm_r:admin_tool_t)
-would be invalid on the destination.
-
-We are also looking at how SELinux machines that are in different
-administrative realms can interact, particularly when the policies are
-disparate and they have no shared namespace and the context structure
-may or may not be the same (as above).
-
-We basically need to be able to send an opaque context to the
-destination that is not verified locally (via a trusted proxy) 
-
-> > 
-> > is any of this possible?
-> > 
-> 
-> Sounds like we are making some progress here. Thanks for the discussion.
-
-Thank you, I'm getting an understanding of how all this works now..
-
+Joy
 
 --
 This message was distributed to subscribers of the selinux mailing list.
