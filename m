@@ -1,134 +1,45 @@
-Subject: Re: [PATCH FOR REFERENCE ONLY] MLSXFRM-v02: Add support to
-	serefpolicy
-From: Stephen Smalley <sds@tycho.nsa.gov>
+Subject: RE: ipsec and getpeercon()
+From: Joshua Brindle <jbrindle@tresys.com>
 To: Venkat Yekkirala <vyekkirala@TrustedCS.com>
-Cc: Joshua Brindle <jbrindle@tresys.com>, Daniel J Walsh <dwalsh@redhat.com>,
-        "Christopher J. PeBenito" <cpebenito@tresys.com>,
-        selinux@tycho.nsa.gov, jmorris@namei.org, latten@austin.ibm.com,
-        tjaeger@cse.psu.edu
-In-Reply-To: <44BD1970.7010207@trustedcs.com>
-References: <44BD1970.7010207@trustedcs.com>
+Cc: Stephen Smalley <sds@tycho.nsa.gov>, Joy Latten <latten@us.ibm.com>,
+        selinux@tycho.nsa.gov, paul.moore@hp.com
+In-Reply-To: <36282A1733C57546BE392885C0618592014C0C72@chaos.tcs.tcs-sec.com>
+References: <36282A1733C57546BE392885C0618592014C0C72@chaos.tcs.tcs-sec.com>
 Content-Type: text/plain
-Date: Fri, 01 Sep 2006 08:08:23 -0400
-Message-Id: <1157112503.26621.38.camel@moss-spartans.epoch.ncsc.mil>
+Date: Fri, 01 Sep 2006 08:15:48 -0400
+Message-Id: <1157112948.20971.5.camel@twoface.columbia.tresys.com>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2006-07-18 at 12:25 -0500, Venkat Yekkirala wrote:
-> This patch has been included here just for reference for anyone wanting to
-> try the patchset in enforcing mode. It will be submitted to the serefpolicy
-> list later.
+On Wed, 2006-08-30 at 12:43 -0400, Venkat Yekkirala wrote:
+> > BTW, Joy & Venkat - it would be nice if the usage/configuration of the
+> > ipsec labeling was documented somewhere.  I've seen emails in the past
+> > with sample usage, but has it been captured anywhere we can 
+> > refer people
+> > to, like in the Fedora SELinux wiki?
 > 
-> This patch adds a polmatch avperm to arbitrate flow/state's access to
-> a xfrm policy. It also defines MLS policy for association { sendto,
-> recvfrom, polmatch }.
+> If I remember right, Joy was either working on or had a comprehensive doc
+> from the original work on labeled ipsec that was going to be modified for
+> the recent changes and posted to selinux/redhat-lspp. My emails with sample
+> usage were more a stop gap as well as to aid in the modifications to the
+> original doc.
 > 
-> NOTE: When an inbound packet is not using an IPSec SA, a check is performed
-> between the socket label and the unlabeled sid (SYSTEM_HIGH MLS label). For
-> MLS purposes however, the target of the check should be the MLS label taken
-> from the node sid (or secmark in the new secmark world). This would present
-> a severe performance overhead (to make a new sid based on the unlabeled sid
-> with the MLS taken from the node sid or secmark and then using this sid as
-> the target). Pending reconciliation of the netlabel, ipsec and iptables contexts,
-> I have chosen to currently make an exception for unlabeled_t SAs if TE policy
-> allowed it. A similar problem exists for the outbound case and it has been similarly
-> handled in the policy below (by making an exception for unlabeled_t).
-> 
-> The mlsconstrains are from myself and the rest (sample/basic pieces to get
-> communication going without or with unlabeled IPSec) are from Joy Latten at IBM
-> (latten@austin.ibm.com).
-> 
-> diff -urpN serefpolicy-2.2.47.orig/policy/flask/access_vectors serefpolicy-2.2.47.diff/policy/flask/access_vectors
-> --- serefpolicy-2.2.47.orig/policy/flask/access_vectors	2006-07-11 05:15:39.000000000 -0500
-> +++ serefpolicy-2.2.47.diff/policy/flask/access_vectors	2006-07-11 07:43:37.000000000 -0500
-> @@ -602,6 +602,7 @@ class association
->  	sendto
->  	recvfrom
->  	setcontext
-> +	polmatch
->  }
->  
->  # Updated Netlink class for KOBJECT_UEVENT family.
 
-I still don't see polmatch permission in the upstream reference policy.
-Not even a definition, much less sufficient rules to allow it when
-needed.  So 2.6.19 or the 2.6.18 kernel with the back ported patch can't
-possibly work right now for labeled networking via IPSEC, right?
+Ok, aside from the bug I'm apparently experiencing (Joy is looking in to
+it) I think I have misunderstood what getpeercon() is suppose to do over
+ipsec. I was under the impression it would act like getpeercon() over
+unix stream sockets and get the context of the application on the other
+side of the socket but that is apparently not what getpeercon() for
+ipsec does.
 
-> diff -urpN serefpolicy-2.2.47.orig/policy/mls serefpolicy-2.2.47.diff/policy/mls
-> --- serefpolicy-2.2.47.orig/policy/mls	2006-07-11 05:15:39.000000000 -0500
-> +++ serefpolicy-2.2.47.diff/policy/mls	2006-07-11 07:44:23.000000000 -0500
-> @@ -671,4 +671,18 @@ mlsconstrain xinput { setattr relabelinp
->  # these access vectors have no MLS restrictions
->  # association *
->  
-> +mlsconstrain association { recvfrom }
-> +        ((( l1 dom l2 ) and ( l1 domby h2 )) or
-> +         (( t1 == mlsnetreadtoclr ) and ( h1 dom l2 )) or
-> +         ( t1 == mlsnetread ) or
-> +         ( t2 == unlabeled_t ));
-> +
-> +mlsconstrain association { sendto }
-> +        ((( l1 dom l2 ) and ( l1 domby h2 )) or
-> +         ( t2 == unlabeled_t ));
-> +
-> +mlsconstrain association { polmatch }
-> +         ((( l1 dom l2 ) and ( h1 domby h2 )) or
-> +          ( t2 == unlabeled_t));
-> +
->  ') dnl end enable_mls
-> diff -urpN serefpolicy-2.2.47.orig/policy/modules/kernel/kernel.if serefpolicy-2.2.47.diff/policy/modules/kernel/kernel.if
-> --- serefpolicy-2.2.47.orig/policy/modules/kernel/kernel.if	2006-07-11 05:15:39.000000000 -0500
-> +++ serefpolicy-2.2.47.diff/policy/modules/kernel/kernel.if	2006-07-14 04:29:32.000000000 -0500
-> @@ -2134,3 +2134,11 @@ interface(`kernel_dontaudit_list_all_pro
->  	dontaudit $1 proc_type:dir list_dir_perms;
->  	dontaudit $1 proc_type:file getattr;
->  ')
-> +
-> +interface(`kernel_read_unlabeled_tcpsocket',`
-> +	gen_require(`
-> +		type unlabeled_t;
-> +	')
-> +
-> +	allow $1 unlabeled_t:tcp_socket { read write shutdown };
-> +')
-> diff -urpN serefpolicy-2.2.47.orig/policy/modules/kernel/kernel.te serefpolicy-2.2.47.diff/policy/modules/kernel/kernel.te
-> --- serefpolicy-2.2.47.orig/policy/modules/kernel/kernel.te	2006-07-11 05:15:39.000000000 -0500
-> +++ serefpolicy-2.2.47.diff/policy/modules/kernel/kernel.te	2006-07-14 04:28:18.000000000 -0500
-> @@ -332,6 +332,11 @@ optional_policy(`
->  ifdef(`targeted_policy',`
->  	allow unlabeled_t self:filesystem associate;
->  ')
-> +# Joy
-> +allow unlabeled_t self:association *;
-> +corenet_tcp_sendrecv_generic_if(unlabeled_t)
-> +corenet_tcp_sendrecv_generic_node(unlabeled_t)
-> +corenet_tcp_sendrecv_generic_port(unlabeled_t)
->  
->  optional_policy(`
->  	# If you load a new policy that removes active domains, processes can
-> diff -urpN serefpolicy-2.2.47.orig/policy/modules/system/unconfined.te serefpolicy-2.2.47.diff/policy/modules/system/unconfined.te
-> --- serefpolicy-2.2.47.orig/policy/modules/system/unconfined.te	2006-07-11 05:15:39.000000000 -0500
-> +++ serefpolicy-2.2.47.diff/policy/modules/system/unconfined.te	2006-07-14 04:32:33.000000000 -0500
-> @@ -29,6 +29,8 @@ unconfined_domain(unconfined_t)
->  
->  logging_send_syslog_msg(unconfined_t)
->  
-> +kernel_read_unlabeled_tcpsocket(unconfined_t)
-> +
->  ifdef(`targeted_policy',`
->  	allow unconfined_t self:system syslog_read;
->  	dontaudit unconfined_t self:capability sys_module;
-> 
-> 
-> --
-> This message was distributed to subscribers of the selinux mailing list.
-> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
-> the words "unsubscribe selinux" without quotes as the message.
--- 
-Stephen Smalley
-National Security Agency
+So basically to use ipsec in any useful way you have to have separate
+ipsec connections between 2 machines for every domain you plan to
+communicate across (with the expectation of knowing what domain is on
+the other side)..
+
+This seems very fragile to me and difficult to keep working (especially
+since the ipsec policy isn't tied to the selinux policy in any way)
 
 
 --
