@@ -1,91 +1,93 @@
-Subject: Re: [PATCH 1/3] support for extended range_transitions
+Subject: Re: [PATCH 2/3 v2] semantic MLS representation for
+	range_trans_rules
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Joshua Brindle <jbrindle@tresys.com>
-Cc: Darrel Goeddel <dgoeddel@TrustedCS.com>,
-        "'SELinux List'" <SELinux@tycho.nsa.gov>,
+To: Darrel Goeddel <dgoeddel@TrustedCS.com>
+Cc: "'SELinux List'" <SELinux@tycho.nsa.gov>,
+        Joshua Brindle <jbrindle@tresys.com>,
         Karl MacMillan <kmacmillan@mentalrootkit.com>,
         Christopher PeBenito <cpebenito@tresys.com>
-In-Reply-To: <1156878287.8075.8.camel@twoface.columbia.tresys.com>
-References: <44F318B9.6010303@trustedcs.com>
-	 <44F31A4F.9070800@trustedcs.com>
-	 <1156878287.8075.8.camel@twoface.columbia.tresys.com>
+In-Reply-To: <1157141546.26621.232.camel@moss-spartans.epoch.ncsc.mil>
+References: <44F3192B.2000408@trustedcs.com>
+	 <44F6E74B.3030904@trustedcs.com>
+	 <1157141546.26621.232.camel@moss-spartans.epoch.ncsc.mil>
 Content-Type: text/plain
-Date: Fri, 01 Sep 2006 16:25:42 -0400
-Message-Id: <1157142342.26621.235.camel@moss-spartans.epoch.ncsc.mil>
+Date: Fri, 01 Sep 2006 16:26:35 -0400
+Message-Id: <1157142395.26621.237.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2006-08-29 at 15:04 -0400, Joshua Brindle wrote:
-> On Mon, 2006-08-28 at 11:31 -0500, Darrel Goeddel wrote:
-> > Darrel Goeddel wrote:
-> > > Introduce support for kernel policy format version 21, base policy 
-> > > format version
-> > > 6, and policy module format 6.  These new formats allow for the 
-> > > definition of
-> > > range_transitions on security classes other than "process".  The new 
-> > > module and
-> > > base formats (both 6) also move expansion of the range_transition 
-> > > statements
-> > > from compile time to the actual expansion phase.  This change should 
-> > > allow for
-> > > using range_transitions in policy modules (with a bit more work in the 
-> > > future)
-> > > with another change in format.
-> > > 
-> > > The current range_transition statements are of the form:
-> > >   range_transition <source types> <target types> <new range>
-> > > These statements affect process transitions only.  The new supported 
-> > > format is:
-> > >   range_transition <source types> <target types>:<target classes> <new 
-> > > range>
-> > > With this format it is possible to to specify a new range for operations 
-> > > such
-> > > as file creation.  The old style statements are still allowed and they
-> > > implicitly refer to the "process" security class, thereby retaining the 
-> > > same
-> > > behavior as before.
-> > > 
-> > > The new kernel format now stores the security class on which the rule 
-> > > operates.
-> > > When dealing with older kernel policy formats, the "process" security 
-> > > class is
-> > > implicit.
-> > > 
-> > > The new module and base formats now store a representation of the rule 
-> > > just (the
-> > > new addition to the avrule_decl structure) and are expanded at the 
-> > > proper time.
-> > > The previous implementation expanded the rules at compilation time and 
-> > > could
-> > > produce an incomplete set of transitions if type attributes were used in 
-> > > the
-> > > statement. Here is how range_transition statements are handled for the 
-> > > various formats:
-> > > for kernel policy version up to 18, there are no range_transition
-> > > for kernel policy versions 19 and 20, a list of old-style (no class 
-> > > specified)
-> > >   range_trans structures are encoded
-> > > for kernel policy versions 21 and up, a list of new-style (class specified)
-> > >   range_trans structures are encoded
-> > > 
-> > > for base policy versions up to 5, there are no range_transitions
-> > > for base policy version 5, a compile-time generated list of old-style (no
-> > >   class specified) range_trans structures are encoded as they are in kernel
-> > >   formats 19 and 20
-> > > for base policy versions 6 and up, an expressive rule stating the intention
-> > >   of the statement is stored - that will be properly linked and expanded
-> > >   for further usage
-> > > 
-> > > for module policy versions up to 6, there are no range_transitions
-> > > for base policy versions 6 and up, an expressive rule stating the intention
-> > >   of the statement is stored jut like in base policy version 6 (of 
-> > > course we
-> > >   still need more work to get them in there, but the format is supportive).
+On Fri, 2006-09-01 at 16:12 -0400, Stephen Smalley wrote:
+> On Thu, 2006-08-31 at 08:42 -0500, Darrel Goeddel wrote:
+> > Here is a second take on the previous patch.  The changes are:
+> > - create functions to initialize and destroy mls_semantic_cat structs
+> > - move the definitions of the semantic_cat related functions to mls.c and just
+> >   declare the functions in mls_types.h
+> > - fix a problem with compiling non-MLS policies (do not attempt expansion of
+> >   mls_semantic_cat structs because the MLS symbols will not be available)
+> > 
+> > ---
+> > 
+> > Introduce a semantic representation for MLS levels and ranges to be used in
+> > modular policy formats.  This will allow expansion of levels such as "s0:c1.c5"
+> > to happen at module expansion time.  The range_trans_rules were updated to use
+> > this new semantic format.
+> > 
+> > All range_transitions are now represented as range_trans_rules when in a modular
+> > format (old range_trans structs are converted when the policy is read).  The
+> > semantic rules are expanded along with other rules when the module is expanded.
+> > 
+> > The ebitmap used for classes in the range_trans_rules has also been fixed to use
+> > the standard "value - 1" indexing.
+> > 
 > > 
 > > Signed-off-by:  Darrel Goeddel <dgoeddel@trustedcs.com>
 > 
-> Acked-by: Joshua Brindle <jbrindle@tresys.com>
+> > diff --exclude=.svn -ruNp selinux-list/libsepol/src/write.c selinux-rangetrans-2/libsepol/src/write.c
+> > --- selinux-list/libsepol/src/write.c	2006-08-25 06:16:43.000000000 -0500
+> > +++ selinux-rangetrans-2/libsepol/src/write.c	2006-08-30 11:11:18.000000000 -0500
+> > @@ -308,6 +308,55 @@ static int avtab_write(struct policydb *
+> >  }
+> >  
+> >  /*
+> > + * Write a semantic MLS level structure to a policydb binary 
+> > + * representation file.
+> > + */
+> > +static int mls_write_semantic_level_helper(mls_semantic_level_t * l,
+> > +					   struct policy_file *fp)
+> > +{
+> > +	uint32_t buf[2], ncat = 0;
+> > +	size_t items;
+> > +	mls_semantic_cat_t *cat;
+> > +
+> > +	for (cat = l->cat; cat; cat = cat->next)
+> > +		ncat++;
+> > +
+> > +	buf[0] = l->sens;
+> > +	buf[1] = ncat;
+> 
+> Needs cpu_to_le32() conversion.
+> 
+> > +	items = put_entry(buf, sizeof(uint32_t), 2, fp);
+> > +	if (items != 2)
+> > +		return POLICYDB_ERROR;
+> > +
+> > +	for (cat = l->cat; cat; cat = cat->next) {
+> > +		buf[0] = cat->low;
+> > +		buf[1] = cat->high;
+> 
+> Ditto.
+> 
+> > +		items = put_entry(buf, sizeof(uint32_t), 2, fp);
+> > +		if (items != 2)
+> > +			return POLICYDB_ERROR;
+> > +	}
+> > +
+> > +	return POLICYDB_SUCCESS;
+> > +}
+> > +
+
+Otherwise, looks fine.  With the above two items fixed,
 
 Acked-by:  Stephen Smalley <sds@tycho.nsa.gov>
 
