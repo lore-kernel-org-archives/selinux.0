@@ -1,100 +1,91 @@
-Subject: Re: [PATCH 2/3 v2] semantic MLS representation for
-	range_trans_rules
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Darrel Goeddel <dgoeddel@TrustedCS.com>
-Cc: "'SELinux List'" <SELinux@tycho.nsa.gov>,
-        Joshua Brindle <jbrindle@tresys.com>,
-        Karl MacMillan <kmacmillan@mentalrootkit.com>,
-        Christopher PeBenito <cpebenito@tresys.com>
-In-Reply-To: <1157141546.26621.232.camel@moss-spartans.epoch.ncsc.mil>
-References: <44F3192B.2000408@trustedcs.com>
-	 <44F6E74B.3030904@trustedcs.com>
-	 <1157141546.26621.232.camel@moss-spartans.epoch.ncsc.mil>
-Content-Type: text/plain
-Date: Fri, 01 Sep 2006 16:26:35 -0400
-Message-Id: <1157142395.26621.237.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+Message-ID: <36282A1733C57546BE392885C061859201512DCE@chaos.tcs.tcs-sec.com>
+From: Venkat Yekkirala <vyekkirala@TrustedCS.com>
+To: Joshua Brindle <jbrindle@tresys.com>
+Cc: Stephen Smalley <sds@tycho.nsa.gov>, Joy Latten <latten@us.ibm.com>,
+        selinux@tycho.nsa.gov, paul.moore@hp.com
+Subject: RE: ipsec and getpeercon()
+Date: Fri, 1 Sep 2006 16:35:48 -0400 
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2006-09-01 at 16:12 -0400, Stephen Smalley wrote:
-> On Thu, 2006-08-31 at 08:42 -0500, Darrel Goeddel wrote:
-> > Here is a second take on the previous patch.  The changes are:
-> > - create functions to initialize and destroy mls_semantic_cat structs
-> > - move the definitions of the semantic_cat related functions to mls.c and just
-> >   declare the functions in mls_types.h
-> > - fix a problem with compiling non-MLS policies (do not attempt expansion of
-> >   mls_semantic_cat structs because the MLS symbols will not be available)
-> > 
-> > ---
-> > 
-> > Introduce a semantic representation for MLS levels and ranges to be used in
-> > modular policy formats.  This will allow expansion of levels such as "s0:c1.c5"
-> > to happen at module expansion time.  The range_trans_rules were updated to use
-> > this new semantic format.
-> > 
-> > All range_transitions are now represented as range_trans_rules when in a modular
-> > format (old range_trans structs are converted when the policy is read).  The
-> > semantic rules are expanded along with other rules when the module is expanded.
-> > 
-> > The ebitmap used for classes in the range_trans_rules has also been fixed to use
-> > the standard "value - 1" indexing.
-> > 
-> > 
-> > Signed-off-by:  Darrel Goeddel <dgoeddel@trustedcs.com>
-> 
-> > diff --exclude=.svn -ruNp selinux-list/libsepol/src/write.c selinux-rangetrans-2/libsepol/src/write.c
-> > --- selinux-list/libsepol/src/write.c	2006-08-25 06:16:43.000000000 -0500
-> > +++ selinux-rangetrans-2/libsepol/src/write.c	2006-08-30 11:11:18.000000000 -0500
-> > @@ -308,6 +308,55 @@ static int avtab_write(struct policydb *
-> >  }
-> >  
-> >  /*
-> > + * Write a semantic MLS level structure to a policydb binary 
-> > + * representation file.
-> > + */
-> > +static int mls_write_semantic_level_helper(mls_semantic_level_t * l,
-> > +					   struct policy_file *fp)
-> > +{
-> > +	uint32_t buf[2], ncat = 0;
-> > +	size_t items;
-> > +	mls_semantic_cat_t *cat;
-> > +
-> > +	for (cat = l->cat; cat; cat = cat->next)
-> > +		ncat++;
-> > +
-> > +	buf[0] = l->sens;
-> > +	buf[1] = ncat;
-> 
-> Needs cpu_to_le32() conversion.
-> 
-> > +	items = put_entry(buf, sizeof(uint32_t), 2, fp);
-> > +	if (items != 2)
-> > +		return POLICYDB_ERROR;
-> > +
-> > +	for (cat = l->cat; cat; cat = cat->next) {
-> > +		buf[0] = cat->low;
-> > +		buf[1] = cat->high;
-> 
-> Ditto.
-> 
-> > +		items = put_entry(buf, sizeof(uint32_t), 2, fp);
-> > +		if (items != 2)
-> > +			return POLICYDB_ERROR;
-> > +	}
-> > +
-> > +	return POLICYDB_SUCCESS;
-> > +}
-> > +
+<snip>
+> so you want to implicitly label the SA's?
 
-Otherwise, looks fine.  With the above two items fixed,
+No, these will be explicit/unique SAs negotiated by IKE. We would
+use the initiator's context in the negotiation (Joy, take note),
+as opposed to using, as we currently do, the spd context (with the
+mls portion taken from the initiator).
 
-Acked-by:  Stephen Smalley <sds@tycho.nsa.gov>
+> I'm doubtful that this will
+> help, unless applications are going to take on the burden of 
+> setting up
+> their own SA's, I'm not sure that will ever happen.
 
--- 
-Stephen Smalley
-National Security Agency
+The above would be transparent to the apps (except that there's
+a general issue, unrelated to our changes, with connection requests
+failing the first time round while the negotiation is going on).
 
+> 
+> > This way you could have just a set of domains that "polmatch"
+> > to a specific policy domain/Type, but they could all be using
+> > unique SAs based on the context of the connecting domain.
+> > 
+> 
+> Is there much overhead in having lots of SA's between 2 hosts?
+
+I haven't had a chance to do any sort of performance analyses. But I would
+guess that the impact from the label portion would be pretty small as
+compared
+to the base ipsec obverhead (and there probably are figures available out
+there
+on this). I don't know if Trent, Joy et al performed any analyses
+in this regard for the original work.
+
+> How can
+> you do things like RPC where the port will be dynamic with 
+> multiple SA's
+> in use?
+
+The standard ipsec policy for rpc services should already be
+taking the dynamicity of port into account. The only difference
+will be that there will be a different SA for each connection
+when negotiated by IKE. Or did I miss something here?
+
+IKE negotiation happens transparent to the apps (with the exception noted
+above).
+
+<snip>
+> > > 
+> > > Note that we may be sending contexts that aren't even valid 
+> > > on the local
+> > > machine, but would be valid on the destination machine. 
+> > 
+> > Could you please elaborate on this (a practical scenario).
+> > 
+> 
+> The most obvious scenario I have is 2 SELinux machines, one using MLS
+> and one not. The context on the client side 
+> (root:sysadm_r:admin_tool_t)
+> would be invalid on the destination.
+> 
+> We are also looking at how SELinux machines that are in different
+> administrative realms can interact, particularly when the policies are
+> disparate and they have no shared namespace and the context structure
+> may or may not be the same (as above).
+> 
+> We basically need to be able to send an opaque context to the
+> destination that is not verified locally (via a trusted proxy) 
+
+Currently, there's an expectation of at least the IPSec portions of the
+policy namespace being shared between the machines (and also either all mls
+or no-mls), for racoon negotiation to work. An alternative might be using
+statically defined SAs where spi 0x001 would mean a_t on machine A and b_t
+on machine B.
+
+Long term, we may want to build handling of IPSec DOIs into racoon/IKE.
 
 --
 This message was distributed to subscribers of the selinux mailing list.
