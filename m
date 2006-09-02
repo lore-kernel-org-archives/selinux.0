@@ -1,175 +1,181 @@
 Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k81NA8Hk026699
-	for <selinux@tycho.nsa.gov>; Fri, 1 Sep 2006 19:10:08 -0400
-Received: from wx-out-0506.google.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id k81N9m5I006620
-	for <selinux@tycho.nsa.gov>; Fri, 1 Sep 2006 23:09:48 GMT
-Received: by wx-out-0506.google.com with SMTP id i26so1501989wxd
-        for <selinux@tycho.nsa.gov>; Fri, 01 Sep 2006 16:10:08 -0700 (PDT)
-Message-ID: <46ffa45f0609011610r1fc3885fp2204df9d6b45415e@mail.gmail.com>
-Date: Fri, 1 Sep 2006 18:10:07 -0500
-From: "Aleks Kissinger" <aleks0@gmail.com>
-To: selinux@tycho.nsa.gov
-Subject: Re: Using scripting languages to "macro" policy
-In-Reply-To: <1157137351.9799.23.camel@wintermute.xmldesign.de>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-References: <46ffa45f0609010930h403bf000k6cbf561c1334dfef@mail.gmail.com>
-	 <1157137351.9799.23.camel@wintermute.xmldesign.de>
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k821bqlx029723
+	for <selinux@tycho.nsa.gov>; Fri, 1 Sep 2006 21:37:52 -0400
+Received: from legolas.drinsama.de (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id k821bU5I020097
+	for <selinux@tycho.nsa.gov>; Sat, 2 Sep 2006 01:37:31 GMT
+Subject: refpolicy updates from debian
+From: Erich Schubert <erich@debian.org>
+To: "Christopher J. PeBenito" <cpebenito@tresys.com>,
+        SE Linux <selinux@tycho.nsa.gov>
+Content-Type: multipart/mixed; boundary="=-hTy5CcqcKi0PecVltp/B"
+Date: Sat, 02 Sep 2006 03:37:44 +0200
+Message-Id: <1157161065.9799.28.camel@wintermute.xmldesign.de>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Thanks for all your input.  First, I'd like to address Lorenzo's concerns...
+
+--=-hTy5CcqcKi0PecVltp/B
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+
+Hi,
+Attached is a diff with the changes in my modified policy for Debian.
+You probably won't like some of it (netuser), or prefer a different
+approach, but there are also some fixes in there that should go into the
+main branch.
+some are no brainers (e.g. slapd location in debian; you might want to
+do an ifdef around that one however) The /dev/.static/dev/ stuff is a
+bit ugly, I know. But it'll hose udev otherwise.
+
+best regards,
+Erich Schubert
+-- 
+     erich@(vitavonni.de|debian.org)    --    GPG Key ID: 4B3A135C    (o_
+ Why waste time learning, when ignorance is instantaneous? --- Calvin //\
+        Ein Freund ist ein Geschenk, das man sich selbst macht.       V_/_
+
+--=-hTy5CcqcKi0PecVltp/B
+Content-Disposition: attachment; filename=refpolicy-debian-changes.gz
+Content-Type: application/x-gzip; name=refpolicy-debian-changes.gz
+Content-Transfer-Encoding: base64
+
+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
+f+xGCjQ6IBEDeCf+xnyY/A9ThRNOUr8AAA==
 
 
-> Ruby is great for text processing, hence it can be a good option to
-> write policy-related tools, say, policy browsers, an IDE, etc. I'm
-> working myself on such stuff but using it to define the policy itself,
-> while "fun" as a prototype it turns to be non scalable at all.
->
-> Why? Check out the Ruby VMs out there.
->
-> It will lower the performance dramatically. Think about loading
-> hundreds of objects on kernel land... it's just insane. As an
-> exercise, initialize 200-300 instances of something else similar to an
-> existing profile of the current refpolicy. Add all the properties (or
-> accessors/attributes now that we are on Ruby coding), etc. Then
-> calculate the size on memory and access times (ex. when reading,
-> writing, sorting, etc).
+--=-hTy5CcqcKi0PecVltp/B--
 
-I think this may be an overly-pessimistic view of the scalability.
-With the current prototype of the system I'm working on, a policy with
-about 2000 types and about 60000 AV directives takes a little over a
-minute to compile, generating a 38 MB policy.conf.  This is pretty
-high overhead for an iterative developement process, but some tweaking
-and modularization of the compilation procedure could probably
-mitigate these problems.
-
-I'm not quite sure what you mean by objects in kernel land and 200-300
-instances of refpolicy, but once the Ruby policy is compiled to FLASK,
-the hard work is done.  Then it just remains to push it through
-checkpolicy.
-
-
-
->
-> You would have to translate everything for using a much lower level
-> instruction set.
-> Also, such a solution has itself way more dependencies than the
-> current one. And in the end you would have to develop and invest much
-> more time on something just to find it's not usable.
->
-
-Just one more dep: Ruby.  The base objects are distributed with the
-policy itself.
-
-> Disclaimer: I'm a Ruby guy, so to speak. Now I rarely code something
-> in other language, except C.
->
-> A collaborative policy development tool might be in the works. If you
-> are familiar with Rails and interested about it, drop me a line.
->
-
-Sounds interesting.  I've had some (mixed) Rails experiences.  If you
-want to shoot me an email about this or point me somewhere with more
-information, I'd like that.
-
-
-*******
-Now, in response to Christopher:
-
-> What you're talking about is what I would call policy patterns.  Policy
-
-<snip>
-
-Yes, I took some inspiration for the Ruby arch. by the way refpolicy
-structures its abstractions into patterns.
-
-
->
-> > The idea I put forward here is to create a set of base objects in
-> > Ruby, Python, or something of that ilk that can be extended and used
-> > to define policy in an organized, error-checking, and namespaced
-> > manner.  Heres a quick little example:
-> >
-> > class LogDir < FileType
-> >   pattern '/var/log/.*'
-> > end
-> >
-> > class SomeProgam < Application
-> >   executable '/usr/bin/someprog'
-> >   allow_role SysadminRole
-> >   allow self, LogDir, File, File.perms(:r, :w)
-> > end
->
-> I'm not sure that this is actually easier, in fact its confusing to me
-> (what does :r and :w mean? just read and write?).  It seems like an
-> unnecessary abstraction, for example allow_role.
-
-
-A good point.  Here the semantics are less clear than they could be.
-The Ruby policy organizes permissions in a class into permission
-"categories".  The existance of these is reflected in some of the
-existing macros like file_read_perms, etc. which expand to a list of
-permissions that are "read-like".  The :r and :w filter on those
-categories.  Or...you can spefify perms explicitly (the File.perms()
-call just returns an array of perms), or you can do some array ops to
-get the perm set you want. For example:
-
-allow self, self, (Policy::CLASSES-[Security]), '*'
-allow self, self, Security, (Security.perms-[:load_policy, :setenforce])
-
-
-Determining which abstractions are and are not necessary is a hard
-task, so I'm not really married to any that I've mentioned.
-
-
-*******
-And Erics comments...
-
-
-> Hi Aleks,
-> When you are planning a different system to write policy, please
-> consider that people might want to use tools to edit or automatically
-> the policy source. This is already a serious limitation of the current
-> M4 policy.
-> Russel Coker recently had the example on how to merge two domains into
-> one.
-> There are conflicts, so it can't be done fully automatic. But you can't
-> automate too much with the current M4 policy. It basically boils down to
-> doing it all manually. If you want it somewhat automated, you probably
-> will have to process the two policy files with M4 and lose all the
-> benefits of the macros since you can't go back into pre-M4-processed
-> code.
-
-
-I've had the use of tools in mind from the start.  In fact, as it
-stands, you can load the policy up in an interactive, irb shell.  From
-there, you can query relationships, alter the policy, and ask
-individual components to produce TE/FC output.  For a more
-sophisticated tool to leverage this, it would simply need to include a
-Ruby interpreter.
-
->
-> It would be very good to have a policy language which does NOT embed
-> code.
-> Like some XML files for the policy and a set of transformation utilities
-> to process them. When done in a good way, the XML policy source files
-> could then be processed with all kinds of XML-capable tools, that don't
-> need extensive knowledge of the policy.
->
-
-We went down the XML road a couple of years ago.  Hopefully someone
-will have success at it, but what we found was that XML proved too
-verbose and time-intensive to parse of the volume of policy in what
-was available at the time ("strict").
-
-
-
-*****
-Again, thanks for all your comments.  If any of you are not too
-discouraged yet and would like to contribute (or at least see some of
-it in action) let me know.
 
 --
 This message was distributed to subscribers of the selinux mailing list.
