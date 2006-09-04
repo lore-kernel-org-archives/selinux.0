@@ -1,48 +1,44 @@
 Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k84MXqkN015709
-	for <selinux@tycho.nsa.gov>; Mon, 4 Sep 2006 18:33:52 -0400
-Received: from mail.and.org (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id k84MXTEV009626
-	for <selinux@tycho.nsa.gov>; Mon, 4 Sep 2006 22:33:29 GMT
-From: James Antill <jantill@redhat.com>
-To: redhat-lspp <redhat-lspp@redhat.com>
-Cc: SE Linux <selinux@tycho.nsa.gov>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-kqyvvC/G40RNR29aGvhU"
-Date: Mon, 04 Sep 2006 18:33:43 -0400
-Message-Id: <1157409223.6269.5.camel@code.and.org>
-Mime-Version: 1.0
-Subject: Netlabel tools in Fedora development
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k84N03Hr016248
+	for <selinux@tycho.nsa.gov>; Mon, 4 Sep 2006 19:00:03 -0400
+Received: from smtp.sws.net.au (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id k84MxdEV012131
+	for <selinux@tycho.nsa.gov>; Mon, 4 Sep 2006 22:59:40 GMT
+From: Russell Coker <russell@coker.com.au>
+Reply-To: russell@coker.com.au
+To: "Christopher J. PeBenito" <cpebenito@tresys.com>
+Subject: Re: Latest updates
+Date: Tue, 5 Sep 2006 08:59:53 +1000
+Cc: Daniel J Walsh <dwalsh@redhat.com>, SE Linux <selinux@tycho.nsa.gov>
+References: <44F7358E.4010101@redhat.com> <44F88DD4.6020804@redhat.com> <1157382946.3199.211.camel@sgc>
+In-Reply-To: <1157382946.3199.211.camel@sgc>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="utf-8"
+Message-Id: <200609050859.56692.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+On Tuesday 05 September 2006 01:15, "Christopher J. PeBenito" 
+<cpebenito@tresys.com> wrote:
+> on further review, why does /boot/grub/* need to be boot_runtime_t?
+> GRUB shouldn't be writing these files.
 
---=-kqyvvC/G40RNR29aGvhU
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+boot_runtime_t is not needed any more, and has not been needed since Red Hat 
+stopped creating sym-links such as /boot/kernel.h and /boot/System.map.  It's 
+been quite a while since that has been needed, I don't think that there has 
+never been a Fedora release which supported SE Linux that had such symlinks.
 
+On a couple of occasions I have submitted patches to remove that.  But it 
+seems almost impossible to remove things from the policy.  Any time I submit 
+a patch to remove something someone else immediately submits a patch to put 
+it back in.
 
- Just a note to let you know that netlabel_tools is now in the Fedora
-Development repository (aka. rawhide). If anyone finds bugs, feel free
-to put them in the Fedora Bugzilla.
- Thanks.
+-- 
+http://etbe.blogspot.com/          My Blog
+http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
 
---=20
-James Antill <jantill@redhat.com>
-
---=-kqyvvC/G40RNR29aGvhU
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.5 (GNU/Linux)
-
-iD8DBQBE/KnG11eXTEMrxtQRAlM4AJwIIX1F2mhfb9g0gKSYk6dlXuXl0QCgqIJ8
-Xf2GyfP8xGFppNlAMt9uwJs=
-=xBD5
------END PGP SIGNATURE-----
-
---=-kqyvvC/G40RNR29aGvhU--
-
+http://www.coker.com.au/sponsorship.html Sponsoring Free Software development
 
 --
 This message was distributed to subscribers of the selinux mailing list.
