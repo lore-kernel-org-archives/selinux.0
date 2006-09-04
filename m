@@ -1,84 +1,41 @@
 Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k84FEBg7006177
-	for <selinux@tycho.nsa.gov>; Mon, 4 Sep 2006 11:14:11 -0400
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k84IKEGX009956
+	for <selinux@tycho.nsa.gov>; Mon, 4 Sep 2006 14:20:14 -0400
 Received: from exchange.columbia.tresys.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with SMTP id k84FDng0029348
-	for <selinux@tycho.nsa.gov>; Mon, 4 Sep 2006 15:13:50 GMT
-Subject: Re: Latest updates
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with SMTP id k84IJq79016644
+	for <selinux@tycho.nsa.gov>; Mon, 4 Sep 2006 18:19:52 GMT
+Subject: Re: refpolicy updates from debian
 From: "Christopher J. PeBenito" <cpebenito@tresys.com>
-To: Daniel J Walsh <dwalsh@redhat.com>
+To: Erich Schubert <erich@debian.org>
 Cc: SE Linux <selinux@tycho.nsa.gov>
-In-Reply-To: <44F88DD4.6020804@redhat.com>
-References: <44F7358E.4010101@redhat.com>
-	 <1157125888.3199.157.camel@sgc.columbia.tresys.com>
-	 <44F88DD4.6020804@redhat.com>
+In-Reply-To: <1157161065.9799.28.camel@wintermute.xmldesign.de>
+References: <1157161065.9799.28.camel@wintermute.xmldesign.de>
 Content-Type: text/plain
-Date: Mon, 04 Sep 2006 11:15:46 -0400
-Message-Id: <1157382946.3199.211.camel@sgc>
+Date: Mon, 04 Sep 2006 14:21:49 -0400
+Message-Id: <1157394109.3199.234.camel@sgc>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2006-09-01 at 15:45 -0400, Daniel J Walsh wrote:
-> Christopher J. PeBenito wrote:
-> > On Thu, 2006-08-31 at 15:16 -0400, Daniel J Walsh wrote:
-> >> Fixing some labels to march what actually ends up on disk  see /boot/grub
-> >
-> > These say /boot/grup; I assume this is a typo.  Also they should be in
-> > the files module.
+On Sat, 2006-09-02 at 03:37 +0200, Erich Schubert wrote:
+> Attached is a diff with the changes in my modified policy for Debian.
+> You probably won't like some of it (netuser), or prefer a different
+> approach, but there are also some fixes in there that should go into the
+> main branch.
+> some are no brainers (e.g. slapd location in debian; you might want to
+> do an ifdef around that one however) The /dev/.static/dev/ stuff is a
+> bit ugly, I know. But it'll hose udev otherwise.
 
-on further review, why does /boot/grub/* need to be boot_runtime_t?
-GRUB shouldn't be writing these files.
+- changed fsadm_var_log_t to fsadm_log_t
+- dropped netuser
+- rearranged several additions
+- dropped dev/.static/dev/ stuff.  please put in distro_debian
+- please make a more descriptive name for usbmodules_var_lib_t.  maybe
+usbmodules_ids_t?
+- why does crond_t transition to amavis? why not system_crond_t?
+- why does system_crond_t connect to mysql?
 
-> >> Please change /opt java line to match what IBM ships
-> >>     
-> >
-> > I'm concerned this is too broad.  Can we get additional, more specific
-> > regexes?
-> >
-> >   
-> I went looking for this, and I believe it was placed in a IBM directory, 
-> but can not find it right now.
-> Also not sure where BEA places there java.
-
-I'm still going to have to drop this.  The more complex regexs we have,
-the more likely there will be fc sorting problems.
-
-> >> Lots of domains need term_dontaudit_use_unallocated_ttys for startup 
-> >> from a tty.
-> >>     
-> >
-> > Can you clarify this?  I don't know what you mean by "startup from a
-> > tty".
-> >
-> >   
-> Log in to console terminals
-> 
-> ctrl-alt-f1
-> 
-> restart daemons, generated lots of avc messages when daemons try to talk 
-> to tty_device_t. 
-> 
-> you will see this same pattern on almost all daemons.
-
-Ok, so this is a direct_run_init+targeted issue.  Now it makes sense to
-put it back into init_daemon_domain().  I'll take care of that.
-
-> >> NetworkManager wants to ptrace itself
-> >
-> > I can't reproduce this on my notebook.  Can you look more into this?  It
-> > seems highly irregular.
-> >   
-> https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=204161
-
-I installed gdb to reproduce this, and I got the ptrace denial but
-didn't get a sys_ptrace denial.
-
-> > udev transition to dhcpc
-> >   
-> It does when networks are plugged in, I believe.
-
-Thats odd, because that sounds like networkmanager's job.
+The remainder should be merged.
 
 -- 
 Chris PeBenito
