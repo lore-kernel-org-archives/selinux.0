@@ -1,54 +1,41 @@
-Message-ID: <36282A1733C57546BE392885C061859201512F12@chaos.tcs.tcs-sec.com>
+Message-ID: <36282A1733C57546BE392885C061859201512F14@chaos.tcs.tcs-sec.com>
 From: Venkat Yekkirala <vyekkirala@TrustedCS.com>
-To: Joy Latten <latten@austin.ibm.com>, jbrindle@tresys.com, paul.moore@hp.com
-Cc: latten@us.ibm.com, sds@tycho.nsa.gov, selinux@tycho.nsa.gov
+To: Joshua Brindle <jbrindle@tresys.com>,
+        Stephen Smalley
+	 <sds@tycho.nsa.gov>
+Cc: Paul Moore <paul.moore@hp.com>, Joy Latten <latten@austin.ibm.com>,
+        latten@us.ibm.com, Venkat Yekkirala <vyekkirala@TrustedCS.com>,
+        selinux@tycho.nsa.gov
 Subject: RE: ipsec and getpeercon()
-Date: Tue, 5 Sep 2006 16:01:47 -0400 
+Date: Tue, 5 Sep 2006 16:04:39 -0400 
 MIME-Version: 1.0
 Content-Type: text/plain;
 	charset="iso-8859-1"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-> >Or it could just be that I'm retarded and booted up on the 
-> wrong kernel
-> >after cloning the VM. The new results (with no SAD or SPD 
-> entries) is a
-> >nice "Protocol not available" on both sides. With the 
-> entries I now get 
-> >
-> >server: got connection from 10.1.13.104, 
-> system_u:object_r:unlabeled_t
-> >
-> >which is the correct label of the local ipsec socket 
-> (changed it to make
-> >sure it was getting the local context) which still isn't 
-> what I'd expect
-> >getpeercon() to tell me.
-> >
+> Yes, I'm getting the local socket context. I don't know whether its
+> netlabel or ipsec, it only happens when i have an spd policy 
+> specifying
+> the context for ipsec, without an sa set up i get 
 > 
-> Actually, this sounds correct. If neither Cipso nor IPSec or 
-> configured,
-> then code should return -ENOPROTOPT. Thus the "Protocol not 
-> available".
-> 
-> When using basic IPSec, two SAs, an In & Out SA must exist for each 
-> traffic stream you wish to protect and on both the local and 
-> remote machines. 
-> When using labeled SAs, we have extended this such that 
-> whatever you have
-> as the label in the SA, is what that socket is restricted to 
-> send or receive on 
-> both the local and remote machines. Thus you can conclude, that the 
-> label getpeercon() gets back from labeled SA is the label of 
-> the remote socket.
-> 
+Did you mean to post any results here?
 
-It should have been whatever context is associated with the incoming SA.
-But the current code returns the context associated with the outgoing SA
-and this is not right. Even so, this doesn't explain getpeercon returning
-the local socket context as opposed to the outgoing SA's context (which
-is derived from the SPD entry currently).
+Are you sure you are seeing the socket context as opposed to the
+label associated with the outgoing SA? Are you running racoon to negotiate
+SAs?
+Are you using labels on SPD entries? Can you get us your latest
+configeration?
+
+Can you perform the following steps and let us know what you see:
+
+- setkey -DP
+- setkey -D
+- Run server proc that accepts, does getpeercon and then sleeps for a few
+minutes.
+- While the server is sleeping, display label on the server proc.
+- setkey -DP
+- setkey -D
 
 --
 This message was distributed to subscribers of the selinux mailing list.
