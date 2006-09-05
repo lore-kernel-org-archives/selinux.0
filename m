@@ -1,74 +1,112 @@
-Subject: Re: ipsec and getpeercon()
-From: Joshua Brindle <jbrindle@tresys.com>
-To: Stephen Smalley <sds@tycho.nsa.gov>
-Cc: Paul Moore <paul.moore@hp.com>, Joy Latten <latten@austin.ibm.com>,
-        latten@us.ibm.com, vyekkirala@TrustedCS.com, selinux@tycho.nsa.gov
-In-Reply-To: <1157463081.4014.37.camel@moss-spartans.epoch.ncsc.mil>
-References: <200609011947.k81JlxUF020293@faith.austin.ibm.com>
-	 <44F895EF.5070706@hp.com>
-	 <1157373781.6716.8.camel@twoface.columbia.tresys.com>
-	 <200609042332.34493.paul.moore@hp.com>
-	 <1157457484.15886.12.camel@twoface.columbia.tresys.com>
-	 <1157463081.4014.37.camel@moss-spartans.epoch.ncsc.mil>
-Content-Type: text/plain
-Date: Tue, 05 Sep 2006 09:34:50 -0400
-Message-Id: <1157463290.15886.27.camel@twoface.columbia.tresys.com>
-Mime-Version: 1.0
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k85DY5nj003277
+	for <selinux@tycho.nsa.gov>; Tue, 5 Sep 2006 09:34:05 -0400
+Received: from smtp.hivsa.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id k85DXLN4007236
+	for <selinux@tycho.nsa.gov>; Tue, 5 Sep 2006 13:33:37 GMT
+Message-ID: <44FD7CDB.5000609@hivsa.com>
+Date: Tue, 05 Sep 2006 15:34:19 +0200
+From: jayendren anand maduray <jayendren@hivsa.com>
+MIME-Version: 1.0
+To: Mark <elihusmails@gmail.com>
+CC: selinux@tycho.nsa.gov
+Subject: Re: bootable SE Linux distro
+References: <9f066ee90609050558v1490780fqb14c9cb8b686e13c@mail.gmail.com>
+In-Reply-To: <9f066ee90609050558v1490780fqb14c9cb8b686e13c@mail.gmail.com>
+Content-Type: multipart/alternative;
+ boundary="------------070809080005090204070405"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2006-09-05 at 09:31 -0400, Stephen Smalley wrote:
-> On Tue, 2006-09-05 at 07:58 -0400, Joshua Brindle wrote:
-> > I don't know, how are you really going to be able to reconcile multiple
-> > labels on the underlying network connection? You don't think application
-> > developers should be able to get the one they really want?
-> 
-> See the secid reconciliation threads, along with Venkat's earlier
-> Labeled Networking Requirements and Design postings.
-> 
-> Application developers want a uniform way to get the peer security
-> information, without needing to know what mechanism was used to convey
-> it.
-> 
-> > Either way getpeercon() currently gets the context of the socket which I
-> > don't think is expected by application developers, either when it is on
-> > a local machine or with network labeling.
-> 
-> Do you mean the context of the peer socket or the context of the local
-> socket?  I'd agree that getting the context of the local socket makes no
-> sense for a getpeercon() call; I'm not sure what NetLabel is doing
-> there.  But if your concern is with using the context of the peer socket
-> vs. the peer process, that is intentional and part of the original Flask
-> design, pre-SELinux.  The sockets are the endpoints and serve as proxies
-> for the processes.
-> 
+This is a multi-part message in MIME format.
+--------------070809080005090204070405
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
-Yes, I'm getting the local socket context. I don't know whether its
-netlabel or ipsec, it only happens when i have an spd policy specifying
-the context for ipsec, without an sa set up i get 
+Good day Mark.
 
-> > On the other hand using the socket label locally at least implements a
-> > kind of IPC impersonation that flask specifies and can be very useful to
-> > object managers, which is why I think the application developer should
-> > be able to get the context that is actually interesting to them. Perhaps
-> > a version that takes a class value that way one could get the
-> > association context, the tcp socket (netlbl), process (actual remote
-> > domain) and so on.
-> 
-> No, that exposes the mechanism, and the application shouldn't have to
-> care.  It just wants security data for the peer, regardless of how it is
-> determined.  Whether that security data is determined based on the IPSEC
-> SA corresponding to the packet's SPI or from an IP option in the packet
-> or based on iptables secmark configuration (e.g. all packets received on
-> netif eth0 get a given context) is immaterial.
-> 
+There are no distros that I know of, perhaps you can create your own.
+Some projects that are out there:
 
-That's fine, I was suggesting a way for application developers to get
-labels from various points if they want, getpeercon() should always get
-the remote context though, which I guess means remote socket which is
-very unfortunate for ipsec since that means at least 1 SPD entry per
-domain connecting to the local machine.
+[Slax <http://slax.linux-live.org/>] - is based on Slackware GNU Linux. 
+There are also available all scripts and source codes, which can be used 
+to build your own live CD.
 
+or you can use Gentoo.
+
+Hope this helps.
+
+God bless.
+
+Mark wrote:
+> Does anyone know of a knoppix-like distro that has SE Linux support?
+>
+> -- 
+> This message was distributed to subscribers of the selinux mailing list.
+> If you no longer wish to subscribe, send mail to 
+> majordomo@tycho.nsa.gov with
+> the words "unsubscribe selinux" without quotes as the message.
+
+-- 
+Jayendren Anand Maduray
+Senior IT Administrator
+Perinatal HIV Research Unit
+University of Witwaterstrand
+
+
+--------------070809080005090204070405
+Content-Type: text/html; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+  <meta content="text/html;charset=ISO-8859-1" http-equiv="Content-Type">
+</head>
+<body bgcolor="#ffffff" text="#000000">
+Good day Mark.<br>
+<br>
+There are no distros that I know of, perhaps you can create your own.<br>
+Some projects that are out there:<br>
+<br>
+[<a href="http://slax.linux-live.org/">Slax</a>]
+- is based on Slackware GNU Linux. There are also available all scripts
+and source codes, which can be used to build your own live CD.<br>
+<br>
+or you can use Gentoo.<br>
+<br>
+Hope this helps.<br>
+<br>
+God bless.<br>
+<br>
+Mark wrote:
+<blockquote
+ cite="mid9f066ee90609050558v1490780fqb14c9cb8b686e13c@mail.gmail.com"
+ type="cite">Does anyone know of a knoppix-like distro that has SE
+Linux support?
+  <br>
+  <br>
+--
+  <br>
+This message was distributed to subscribers of the selinux mailing
+list.
+  <br>
+If you no longer wish to subscribe, send mail to
+<a class="moz-txt-link-abbreviated" href="mailto:majordomo@tycho.nsa.gov">majordomo@tycho.nsa.gov</a> with
+  <br>
+the words "unsubscribe selinux" without quotes as the message.
+  <br>
+</blockquote>
+<br>
+<pre class="moz-signature" cols="72">-- 
+Jayendren Anand Maduray
+Senior IT Administrator
+Perinatal HIV Research Unit
+University of Witwaterstrand</pre>
+</body>
+</html>
+
+--------------070809080005090204070405--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
