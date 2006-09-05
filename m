@@ -1,77 +1,94 @@
 Subject: Re: ipsec and getpeercon()
 From: Joshua Brindle <jbrindle@tresys.com>
 To: Paul Moore <paul.moore@hp.com>
-Cc: Venkat Yekkirala <vyekkirala@TrustedCS.com>,
-        Joy Latten <latten@austin.ibm.com>, latten@us.ibm.com,
-        sds@tycho.nsa.gov, selinux@tycho.nsa.gov
-In-Reply-To: <200609050000.10205.paul.moore@hp.com>
-References: <36282A1733C57546BE392885C061859201512DD1@chaos.tcs.tcs-sec.com>
-	 <44F8B50E.3060303@hp.com>
-	 <1157395888.10620.2.camel@twoface.columbia.tresys.com>
-	 <200609050000.10205.paul.moore@hp.com>
+Cc: Joy Latten <latten@austin.ibm.com>, latten@us.ibm.com,
+        vyekkirala@TrustedCS.com, sds@tycho.nsa.gov, selinux@tycho.nsa.gov
+In-Reply-To: <200609042332.34493.paul.moore@hp.com>
+References: <200609011947.k81JlxUF020293@faith.austin.ibm.com>
+	 <44F895EF.5070706@hp.com>
+	 <1157373781.6716.8.camel@twoface.columbia.tresys.com>
+	 <200609042332.34493.paul.moore@hp.com>
 Content-Type: text/plain
-Date: Tue, 05 Sep 2006 07:53:24 -0400
-Message-Id: <1157457204.15886.7.camel@twoface.columbia.tresys.com>
+Date: Tue, 05 Sep 2006 07:58:04 -0400
+Message-Id: <1157457484.15886.12.camel@twoface.columbia.tresys.com>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2006-09-05 at 00:00 -0400, Paul Moore wrote:
-> On Monday 04 September 2006 2:51 pm, Joshua Brindle wrote:
-> > On Fri, 2006-09-01 at 18:32 -0400, Paul Moore wrote:
-> > > Paul Moore wrote:
-> > > > Venkat Yekkirala wrote:
-> > > >>>Unfortunately, the fix
-> > > >>>is not immediately obvious.
-> > > >>
-> > > >>You would use the xfrm_sid and in it's absence the node
-> > > >>sid as the base sid.
+On Mon, 2006-09-04 at 23:32 -0400, Paul Moore wrote:
+> On Monday 04 September 2006 8:43 am, Joshua Brindle wrote:
+> > On Fri, 2006-09-01 at 16:19 -0400, Paul Moore wrote:
+> > > Joy Latten wrote:
+> > > > Yes, that is coming from netlabel. In
+> > > > selinux_socket_getpeersec_stream() if the socket is tcp_socket class,
+> > > > we call the cipso routine
+> > > > first, selinux_netlbl_socket_getpeersec_stream(). I have not
+> > > > thoroughly examined the cipso code, but at a glance I assumed
+> > > > if cipso is enabled and its maps set up, this will come back with
+> > > > something. If it doesn't come back with anything, I assumed
+> > > > that meant cipso is either disabled or its maps not set up.
+> > > > According to code, if nothing comes back from cipso, then
+> > > > selinux_socket_getpeer_stream() is called which will look
+> > > > for a xfrm on the dst. And if there is one, then use the security
+> > > > context from the xfrm. Otherwise, return error.
 > > > >
-> > > > That is not the issue I am dealing with right now.
-> > > >
-> > > > I now have a solution in mind, however, it is doubtful I will have a
-> > > > chance to do any sort of testing on it before I leave tonight.  Once I
-> > > > can give it a quick test to verify that it doesn't break anything I'll
-> > > > post a patch for you and Joy to verify.
+> > > > hmmm... this makes me wonder if Joshua had cipso enabled and that is
+> > > > why it looks like getpeercon was not honoring the ipsec labels...
 > > >
-> > > Sorry for attaching the patch as an attachment but I'm in a rush to get
-> > > out of here ...
+> > > A simple 'dmesg | grep NetLabel' will answer that question.
 > > >
-> > > This patch is against David Miller's net-2.6.19 tree from a day or two
-> > > ago, depending on your kernel you may have some fuzz when applying this
-> > > patch.  I've only done some quick functional tests, but it seems to
-> > > solve this problem.
-> > >
-> > > Joy, Venkat if you are able to test this and let me know the results I
-> > > would appreciate it.
-> > >
-> > > Thanks.
+> > > I'll work on this and post something next week.  Unfortunately, the fix
+> > > is not immediately obvious.
 > >
-> > I tried the (rebased patch below, there were some rejects when applying
-> > it to todays net-2.6.19) and got the same behavior as before:
+> > Right, so I do have NetLabel running (didn't know that it shipped on in
+> > Fedora kernels already)..
 > >
-> > [root@joker-rawhide-clone ~]# ./server
-> > server: got connection from 10.1.13.104, root:system_r:unconfined_t:s0
-> >
-> > [root@joker-rawhide-clone ~]# runcon -t passwd_t ./server
-> > server: got connection from 10.1.13.104, root:system_r:passwd_t:s0
+> > There were no maps set up, it looks like all I had was the unlabeled
+> > module.
 > 
-> Thanks for giving the patch a try.  I'm confused as to why it didn't work for 
-> you, can you try it without IPsec configured to see what results you get 
-> (that is what I did and it worked fine)?
+> That is what caused the problem then.  You don't need to have anything 
+> actively configured, just having NetLabel built into the kernel and activated 
+> will cause the bug.  If you feel like spinning your own kernel you can try 
+> the patch I posted last Friday, it should fix the bug.
 > 
-> Thanks.
+> > This getpeercon() overloading seems to be a problem, how can an
+> > application react reasonably if the label it gets when it calls
+> > getpeercon() could come from multiple objects and have multiple
+> > meanings?
+> 
+> It may be a problem right now but I think it is more of an issue of 
+> reconciling the different network labeling systems.  The good news is that 
+> work is ongoing to deal with this.
+> 
+> > To me getpeercon() means the context of the domain on the other side,
+> > granted the implementation has been the socket context which, until now,
+> > was always the domain on the other side. With the ability to label
+> > sockets and with ipsec socket labeling and NetLabel (domain?) labeling
+> > perhaps getpeercon() should be refactored into 2 functions, getpeercon()
+> > and getsocketcon()?
+> 
+> I'm not sure that solves anything, all it does it make it the applications 
+> problem as now the app developer has to have knowledge of the underlying 
+> network labeling.  I think the best solution is to let the network labeling 
+> reconciliation work take place, let the bugs get shaken out, and go from 
+> there.
+> 
 
-Or it could just be that I'm retarded and booted up on the wrong kernel
-after cloning the VM. The new results (with no SAD or SPD entries) is a
-nice "Protocol not available" on both sides. With the entries I now get 
+I don't know, how are you really going to be able to reconcile multiple
+labels on the underlying network connection? You don't think application
+developers should be able to get the one they really want? 
 
-server: got connection from 10.1.13.104, system_u:object_r:unlabeled_t
+Either way getpeercon() currently gets the context of the socket which I
+don't think is expected by application developers, either when it is on
+a local machine or with network labeling.
 
-which is the correct label of the local ipsec socket (changed it to make
-sure it was getting the local context) which still isn't what I'd expect
-getpeercon() to tell me.
-
+On the other hand using the socket label locally at least implements a
+kind of IPC impersonation that flask specifies and can be very useful to
+object managers, which is why I think the application developer should
+be able to get the context that is actually interesting to them. Perhaps
+a version that takes a class value that way one could get the
+association context, the tcp socket (netlbl), process (actual remote
+domain) and so on.
 
 
 --
