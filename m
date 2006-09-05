@@ -1,59 +1,41 @@
-Message-ID: <44FD9694.2050609@hp.com>
-Date: Tue, 05 Sep 2006 11:24:04 -0400
-From: Paul Moore <paul.moore@hp.com>
-MIME-Version: 1.0
-To: Joshua Brindle <jbrindle@tresys.com>
-Cc: Stephen Smalley <sds@tycho.nsa.gov>, Joy Latten <latten@austin.ibm.com>,
-        latten@us.ibm.com, vyekkirala@TrustedCS.com, selinux@tycho.nsa.gov
-Subject: Re: ipsec and getpeercon()
-References: <200609011947.k81JlxUF020293@faith.austin.ibm.com>	 <44F895EF.5070706@hp.com>	 <1157373781.6716.8.camel@twoface.columbia.tresys.com>	 <200609042332.34493.paul.moore@hp.com>	 <1157457484.15886.12.camel@twoface.columbia.tresys.com>	 <1157463081.4014.37.camel@moss-spartans.epoch.ncsc.mil> <1157463290.15886.27.camel@twoface.columbia.tresys.com>
-In-Reply-To: <1157463290.15886.27.camel@twoface.columbia.tresys.com>
-Content-Type: text/plain; charset=ISO-8859-1
+Subject: Re: SE Linux API
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Mark <elihusmails@gmail.com>
+Cc: selinux@tycho.nsa.gov
+In-Reply-To: <9f066ee90609050644r4e38ec73x937b6dd51fb60251@mail.gmail.com>
+References: <9f066ee90609050644r4e38ec73x937b6dd51fb60251@mail.gmail.com>
+Content-Type: text/plain
+Date: Tue, 05 Sep 2006 11:28:38 -0400
+Message-Id: <1157470118.4014.140.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Joshua Brindle wrote:
-> On Tue, 2006-09-05 at 09:31 -0400, Stephen Smalley wrote:
-> 
->>On Tue, 2006-09-05 at 07:58 -0400, Joshua Brindle wrote:
->>
->>>I don't know, how are you really going to be able to reconcile multiple
->>>labels on the underlying network connection? You don't think application
->>>developers should be able to get the one they really want?
->>
->>See the secid reconciliation threads, along with Venkat's earlier
->>Labeled Networking Requirements and Design postings.
->>
->>Application developers want a uniform way to get the peer security
->>information, without needing to know what mechanism was used to convey
->>it.
->>
->>
->>>Either way getpeercon() currently gets the context of the socket which I
->>>don't think is expected by application developers, either when it is on
->>>a local machine or with network labeling.
->>
->>Do you mean the context of the peer socket or the context of the local
->>socket?  I'd agree that getting the context of the local socket makes no
->>sense for a getpeercon() call; I'm not sure what NetLabel is doing
->>there.  But if your concern is with using the context of the peer socket
->>vs. the peer process, that is intentional and part of the original Flask
->>design, pre-SELinux.  The sockets are the endpoints and serve as proxies
->>for the processes.
->>
-> 
-> Yes, I'm getting the local socket context. I don't know whether its
-> netlabel or ipsec, it only happens when i have an spd policy specifying
-> the context for ipsec, without an sa set up i get 
+On Tue, 2006-09-05 at 09:44 -0400, Mark wrote:
+> Is there documentation for the SE Linux API?  I would like to start
+> getting familiar with the programming end of SE Linux.
 
-Assuming you are running a version of the patch I posted last Friday and
-you have not configured NetLabel at all (other than the default config
-you get from booting with NetLabel built into the kernel) this context
-is coming from the IPsec code and not the NetLabel code.
+There isn't an application development guide for SELinux, if that's what
+you mean.  The guides and books I've seen have been focused on policy
+writing, not application development.
+
+libselinux includes man pages for (most of) its public functions, but
+not a general overview/intro-style page.
+
+There is a brief selinux-doc/PORTING guide I wrote a long time ago to
+help in making the transition to the new SELinux API introduced in Linux
+2.6; while it was oriented toward people making that transition and is a
+bit old, it has some useful info.
+
+Naturally, you can look at examples in libselinux/utils,
+policycoreutils, and a wide range of modified packages in Fedora, e.g.
+see
+http://selinux.sourceforge.net/devel/userland.php3
 
 -- 
-paul moore
-linux security @ hp
+Stephen Smalley
+National Security Agency
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
