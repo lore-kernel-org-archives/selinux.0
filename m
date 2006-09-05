@@ -1,39 +1,44 @@
-Message-ID: <36282A1733C57546BE392885C061859201512E82@chaos.tcs.tcs-sec.com>
-From: Venkat Yekkirala <vyekkirala@TrustedCS.com>
-To: Paul Moore <paul.moore@hp.com>
-Cc: Stephen Smalley <sds@tycho.nsa.gov>,
-        Joshua Brindle
-	 <jbrindle@tresys.com>,
-        Joy Latten <latten@austin.ibm.com>, latten@us.ibm.com,
-        selinux@tycho.nsa.gov
-Subject: RE: ipsec and getpeercon()
-Date: Tue, 5 Sep 2006 12:14:55 -0400 
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k85GKLbh009187
+	for <selinux@tycho.nsa.gov>; Tue, 5 Sep 2006 12:20:21 -0400
+Received: from legolas.drinsama.de (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id k85GJbN8001291
+	for <selinux@tycho.nsa.gov>; Tue, 5 Sep 2006 16:19:38 GMT
+Subject: Re: refpolicy updates from debian
+From: Erich Schubert <erich@debian.org>
+To: "Christopher J. PeBenito" <cpebenito@tresys.com>
+Cc: SE Linux <selinux@tycho.nsa.gov>
+In-Reply-To: <1157467072.3199.255.camel@sgc>
+References: <1157161065.9799.28.camel@wintermute.xmldesign.de>
+	 <1157394109.3199.234.camel@sgc>
+	 <1157399016.4446.20.camel@wintermute.xmldesign.de>
+	 <1157464940.3199.250.camel@sgc>
+	 <1157466795.20129.1.camel@wintermute.xmldesign.de>
+	 <1157467072.3199.255.camel@sgc>
+Content-Type: text/plain; charset=ISO-8859-15
+Date: Tue, 05 Sep 2006 18:19:38 +0200
+Message-Id: <1157473178.20129.9.camel@wintermute.xmldesign.de>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-> What would you propose the proper behavior for when there is 
-> no xfrm or
-> node sid?
+Hi,
+> +allow usbmodules_t usbmodules_var_lib_t:dir rw_dir_perms;
+> +allow usbmodules_t usbmodules_var_lib_t:file create_file_perms;
 
-The netif sid and in it's absense, the unlabeled init sid.
+r_ should be sufficient, yes. Sorry about that.
 
->  It seems to be much more consistent (and desirable) to pull
-> the TE bits from a single source.
+best regards,
+Erich Schubert
+-- 
+    erich@(vitavonni.de|debian.org)    --    GPG Key ID: 4B3A135C    (o_
+           There are only 10 types of people in the world:           //\
+           Those who understand binary and those who don't           V_/_
+   Freund in der Not will nicht viel heißen; hilfreich möchte sich
+    mancher erweisen. Aber die neidlos dein Glück dir gönnen, die
+        darfst du wahrlich Freunde nennen. --- Paul von Heyse
 
-If the single source were the correct source, then yes. :)
 
->  Also, from a practical 
-> point of view
-> I suspect it to be very unlikely that anyone would be using more than
-> one form of network labeling for a connection.  Meaning that I would
-> expect the common case for NetLabel to be no xfrm or node sid.
-
-Well, a node/netif could be used to constrain the range of cipso labels
-that can come/leave thru to the node/interface. Example: Secret on one
-netif, TS on another.
 
 --
 This message was distributed to subscribers of the selinux mailing list.
