@@ -1,74 +1,115 @@
 From: Paul Moore <paul.moore@hp.com>
 To: Joshua Brindle <jbrindle@tresys.com>
 Subject: Re: ipsec and getpeercon()
-Date: Mon, 4 Sep 2006 23:32:33 -0400
-Cc: Joy Latten <latten@austin.ibm.com>, latten@us.ibm.com,
-        vyekkirala@TrustedCS.com, sds@tycho.nsa.gov, selinux@tycho.nsa.gov
-References: <200609011947.k81JlxUF020293@faith.austin.ibm.com> <44F895EF.5070706@hp.com> <1157373781.6716.8.camel@twoface.columbia.tresys.com>
-In-Reply-To: <1157373781.6716.8.camel@twoface.columbia.tresys.com>
+Date: Mon, 4 Sep 2006 23:50:04 -0400
+Cc: Venkat Yekkirala <vyekkirala@TrustedCS.com>,
+        Stephen Smalley <sds@tycho.nsa.gov>, Joy Latten <latten@us.ibm.com>,
+        selinux@tycho.nsa.gov
+References: <36282A1733C57546BE392885C061859201512D0F@chaos.tcs.tcs-sec.com> <44F85481.80203@hp.com> <1157374764.6716.14.camel@twoface.columbia.tresys.com>
+In-Reply-To: <1157374764.6716.14.camel@twoface.columbia.tresys.com>
 MIME-Version: 1.0
 Content-Type: text/plain;
   charset="iso-8859-6"
-Message-Id: <200609042332.34493.paul.moore@hp.com>
+Message-Id: <200609042350.05828.paul.moore@hp.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Monday 04 September 2006 8:43 am, Joshua Brindle wrote:
-> On Fri, 2006-09-01 at 16:19 -0400, Paul Moore wrote:
-> > Joy Latten wrote:
-> > > Yes, that is coming from netlabel. In
-> > > selinux_socket_getpeersec_stream() if the socket is tcp_socket class,
-> > > we call the cipso routine
-> > > first, selinux_netlbl_socket_getpeersec_stream(). I have not
-> > > thoroughly examined the cipso code, but at a glance I assumed
-> > > if cipso is enabled and its maps set up, this will come back with
-> > > something. If it doesn't come back with anything, I assumed
-> > > that meant cipso is either disabled or its maps not set up.
-> > > According to code, if nothing comes back from cipso, then
-> > > selinux_socket_getpeer_stream() is called which will look
-> > > for a xfrm on the dst. And if there is one, then use the security
-> > > context from the xfrm. Otherwise, return error.
+On Monday 04 September 2006 8:59 am, Joshua Brindle wrote:
+> On Fri, 2006-09-01 at 11:40 -0400, Paul Moore wrote:
+> > Joshua Brindle wrote:
+> > > Hrm, am I right in understanding that the selinux context from one
+> > > machine is never sent over ipsec to the destination?
 > > >
-> > > hmmm... this makes me wonder if Joshua had cipso enabled and that is
-> > > why it looks like getpeercon was not honoring the ipsec labels...
+> > > What you talk about above (using static SA's which refer to different
+> > > contexts on each side) is doable but seems inconvenient and fragile
+> > > (multiple client domains talking to the same destination daemon using
+> > > lots of SA's that have to be managed).
+> > >
+> > > One option (maybe) is to get racoon to send the context of the
+> > > connecting domain as part of the negotiation, this still requires lots
+> > > of SA's.
+> > >
+> > > Another way is if I could have a local proxy that has a single SA to
+> > > the destination machine and can send an appropriate context in the AH
+> > > or ESP header (in the authentication data field? I don't now the ipsec
+> > > spec at all so I'm not sure if any of this is possible, please let me
+> > > know if not so I can start looking elsewhere).
+> > >
+> > > Note that we may be sending contexts that aren't even valid on the
+> > > local machine, but would be valid on the destination machine.
+> > >
+> > > is any of this possible?
 > >
-> > A simple 'dmesg | grep NetLabel' will answer that question.
+> > WARNING: *shameless* plug ahead, read at your own risk :)
 > >
-> > I'll work on this and post something next week.  Unfortunately, the fix
-> > is not immediately obvious.
+> > NetLabel takes it's security context directly from the socket which is
+> > writing the data to the network, not from a separate source.  This
+> > allows for the dynamic context packet labeling I think you are looking
+> > for ... yes?
+> >
+> > However, in the interest of full disclosure I should point out that
+> > currently NetLabel only supports the MLS label portion of the context
+> > but I plan on extending that in the future.  Also, NetLabel only offers
+> > packet labeling, not packet autentication or encryption like IPsec.
+> > However, NetLabel could be used in conjunction with regular IPsec
+> > without problems.  This would allow you a dynamically labeled, secure
+> > connection between two parties with as few SAs as you desire.
 >
-> Right, so I do have NetLabel running (didn't know that it shipped on in
-> Fedora kernels already)..
->
-> There were no maps set up, it looks like all I had was the unlabeled
-> module.
+> Yes, I have considered NetLabel, contingent on it getting merged into
+> mainline and supporting full contexts. I've been looking in to the specs
+> and it looks like you are going to have to make an entirely new tag for
+> full contexts. This will eliminate its ability to communicate with tsol,
+> et al right? (unless you change the netlabel policy obviously, I mean by
+> default).
 
-That is what caused the problem then.  You don't need to have anything 
-actively configured, just having NetLabel built into the kernel and activated 
-will cause the bug.  If you feel like spinning your own kernel you can try 
-the patch I posted last Friday, it should fix the bug.
+The good news it that the NetLabel patches have been picked up by David Miller 
+in his net-2.6.19 git tree.  Baring any major problems I think this means 
+it's stands a good chance for 2.6.19.
 
-> This getpeercon() overloading seems to be a problem, how can an
-> application react reasonably if the label it gets when it calls
-> getpeercon() could come from multiple objects and have multiple
-> meanings?
+You are correct that the CIPSO spec only defines tags which are useful for 
+sending MLS labels but as James Morris' selopt implementation demonstrated it 
+is possibile to extend CIPSO using the FIPS 188 freefrom (#7) tag.  There may 
+also be other options to labeling packets with a full SELinux context but I 
+haven't had much time to look into them yet.  Regardless, it's important to 
+note the adding this functionality would not in any way eliminate the ability 
+to communicate with other MLS implementations through CIPSO (or other 
+explicit labeling protocols supported by NetLabel).  NetLabel supports the 
+ability to specify labeling protocols per-domain; meaning each LSM/SELinux 
+domain could be configured to either send traditional MLS CIPSO labels, new 
+full SELinux context labels, or plain 'ole unlabeled traffic.
 
-It may be a problem right now but I think it is more of an issue of 
-reconciling the different network labeling systems.  The good news is that 
-work is ongoing to deal with this.
+Look at the "map" commands for netlabelctl for more details on how to do this.
 
-> To me getpeercon() means the context of the domain on the other side,
-> granted the implementation has been the socket context which, until now,
-> was always the domain on the other side. With the ability to label
-> sockets and with ipsec socket labeling and NetLabel (domain?) labeling
-> perhaps getpeercon() should be refactored into 2 functions, getpeercon()
-> and getsocketcon()?
+> It also looks like the tags currently use bitmaps (which is fair since
+> levels are better represented that way) but for full contexts we'd want
+> just a u32 right? (u32 is used in the sidtab so a machine can't have
+> more contexts than that active).
 
-I'm not sure that solves anything, all it does it make it the applications 
-problem as now the app developer has to have knowledge of the underlying 
-network labeling.  I think the best solution is to let the network labeling 
-reconciliation work take place, let the bugs get shaken out, and go from 
-there.
+Using the existing MLS tags defined in the CIPSO draft the (I'm going from 
+memory here, I don't have a copy of the draft in front of me) MLS sensitivity 
+level is an 8 bit value while the categories can be defined in a variety of 
+ways including a 240 bit bitmap (all Linux supports right now) and a 16 bit 
+value.
+
+In order to get around these limitations the Linux CIPSO implementation 
+supports multiple CIPSO Domains Of Interpretations (DOI) which can be 
+configured on a per-domain basis, each DOI having the ability to "translate" 
+MLS values between local and remote hosts.  Please see the NetLabel kernel 
+documentation and the netlabel_tools documentation for more details.
+
+ * kernel-*/Documentation/netlabel
+ * http://netlabel.sf.net
+
+> I'm just thinking out loud here.. are there plans at HP to support full
+> contexts or is this more of a 'someone might do this in the future and
+> it should work' thing?
+
+There are several things I would like to add to NetLabel, full SELinux 
+contexts are very close to the top of the list.  However, right now my focus 
+is getting the NetLabel patch into a mainline kernel with enough support so 
+that we can interoperate with other MLS operating systems.  Without 
+CIPSO/NetLabel we don't have any sort of interoperable labeled networking so 
+this seemed to be the most significant task.
 
 -- 
 paul moore
