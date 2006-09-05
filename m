@@ -1,52 +1,34 @@
-Message-ID: <44FDA56A.6080806@hp.com>
-Date: Tue, 05 Sep 2006 12:27:22 -0400
-From: Paul Moore <paul.moore@hp.com>
-MIME-Version: 1.0
-To: Venkat Yekkirala <vyekkirala@TrustedCS.com>
-Cc: Stephen Smalley <sds@tycho.nsa.gov>, Joshua Brindle <jbrindle@tresys.com>,
+Message-ID: <36282A1733C57546BE392885C061859201512E87@chaos.tcs.tcs-sec.com>
+From: Venkat Yekkirala <vyekkirala@TrustedCS.com>
+To: Paul Moore <paul.moore@hp.com>
+Cc: Stephen Smalley <sds@tycho.nsa.gov>,
+        Joshua Brindle
+	 <jbrindle@tresys.com>,
         Joy Latten <latten@austin.ibm.com>, latten@us.ibm.com,
         selinux@tycho.nsa.gov
-Subject: Re: ipsec and getpeercon()
-References: <36282A1733C57546BE392885C061859201512E82@chaos.tcs.tcs-sec.com>
-In-Reply-To: <36282A1733C57546BE392885C061859201512E82@chaos.tcs.tcs-sec.com>
-Content-Type: text/plain; charset=ISO-8859-1
+Subject: RE: ipsec and getpeercon()
+Date: Tue, 5 Sep 2006 12:27:43 -0400 
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Venkat Yekkirala wrote:
->>What would you propose the proper behavior for when there is 
->>no xfrm or
->>node sid?
+> > In the secmark world, we will be setting peer_sid to the 
+> final secmark
+> > of the packet (post reconciliation). So, I am not as much 
+> worried about
+> > the above netlabel behavior (unless someone is intent on 
+> using the compat
+> > case in conjunction with cipso with any seriousness).
 > 
-> The netif sid and in it's absense, the unlabeled init sid.
+> This is an important discussion but I think it's probably 
+> best until you
+> post the entire secid reconciliation patch so we are all on 
+> the same page.
 
-I don't like using the default unlabeled sid, it implies that the packet
-is not labeled when it is - just not with any TE information.
-
-I think that when you get down to it, in the absence of a xfrm or node
-sid any TE value in the case of getpeercon() is going to be equally
-"right" or "wrong" as they are all generated values in absence of the TE
-bits.  Using the socket's sid as a TE base makes the most sense to me as
-that is what is used to make access decisions on accepting the packet
-into the socket's receive buffer.
-
->> Also, from a practical 
->>point of view
->>I suspect it to be very unlikely that anyone would be using more than
->>one form of network labeling for a connection.  Meaning that I would
->>expect the common case for NetLabel to be no xfrm or node sid.
-> 
-> Well, a node/netif could be used to constrain the range of cipso labels
-> that can come/leave thru to the node/interface. Example: Secret on one
-> netif, TS on another.
-
-Yep, that's possibile, but not required.  I suspect we can play
-everybody's favorite game of "Guess What the User's Thinking!" all day
-long if we like ;)
-
--- 
-paul moore
-linux security @ hp
+Well, there are always people out there that appreciate getting a feel
+for what's coming up, but I understand your anxiousness. :)
 
 --
 This message was distributed to subscribers of the selinux mailing list.
