@@ -1,57 +1,51 @@
-Subject: Re: [PATCH] newrole: use pam session management services - v4
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: janak@us.ibm.com
-Cc: Joshua Brindle <jbrindle@tresys.com>, sgrubb@redhat.com, dwalsh@redhat.com,
-        tmraz@redhat.com, ltcgcw@us.ibm.com, klaus@atsec.com,
-        selinux@tycho.nsa.gov
-In-Reply-To: <1157403682.7223.16.camel@localhost.localdomain>
-References: <1157403682.7223.16.camel@localhost.localdomain>
+Subject: Re: [PATCH 0/3] range_transition revisited
+From: Joshua Brindle <jbrindle@tresys.com>
+To: Darrel Goeddel <dgoeddel@TrustedCS.com>
+Cc: "'SELinux List'" <SELinux@tycho.nsa.gov>,
+        Karl MacMillan <kmacmillan@mentalrootkit.com>,
+        Stephen Smalley <sds@tycho.nsa.gov>,
+        Christopher PeBenito <cpebenito@tresys.com>
+In-Reply-To: <44F318A2.60100@trustedcs.com>
+References: <44F318A2.60100@trustedcs.com>
 Content-Type: text/plain
-Date: Tue, 05 Sep 2006 10:41:55 -0400
-Message-Id: <1157467315.4014.105.camel@moss-spartans.epoch.ncsc.mil>
+Date: Tue, 05 Sep 2006 10:40:51 -0400
+Message-Id: <1157467251.15886.31.camel@twoface.columbia.tresys.com>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 2006-09-04 at 17:01 -0400, Janak Desai wrote:
-> This patch updates newrole to allow it to use pam session mangement
-> services. Currently newrole only uses the authenticaion services of
-> pam. Session management services are needed to allow pam_namespace
-> to appropriately reconfigure polyinstantiated namespace for the
-> new session being established with newrole.
+On Mon, 2006-08-28 at 11:24 -0500, Darrel Goeddel wrote:
+> The kernel portion of the range_transition work has been included in the -mm
+> tree and should go into 2.6.19.  I hope that I finally some userspace patches
+> that are acceptable to take advantage of that kernel patch...
 > 
-> For newrole to work correctly with pam_namespace, in addtion to
-> this patch, a patch to pam_namespace and a patch to the lssp 
-> policy will also be required. These additional patches will be
-> posted the selinux mailing list following this patch.
+> The first patch is just an update of the last patch posted to this list:
+> http://marc.theaimsgroup.com/?l=selinux&m=115471167305358&w=2
+> This is just an update to the latest svn tree - no logic changes.  I separated
+> this out because it seemed that everyone was good with this code.
 > 
-> Changes since v3 of this patch, posted on 8/27/06:
->     1. Incorporated feedback to v2
->        a. Create/install an lspp version of newrole.pamd when
->           building with LSPP_PRIV=y
->        b. Removed duplicate definition of _GNU_SOURCE
->        c. Keep CAP_SYS_ADMIN, CAP_FOWNER, CAP_CHOWN and
->           CAP_DAC_OVERRIDE in permitted set and raise them in the
->           effective set prior to calling pam session management
->           functions.
+> The second patch addresses the question "Is an mls_range_t semantic enough for
+> use in modules?".  Unfortunately, the answer was no.
+> 
+> The third patch used the new semantic MLS representation for storing user's MLS
+> data in modules.  This format will allow users in MLS modules in the future.
+> 
+> Note that these patches are intended to go together.  There are two new ideas
+> put into the modular policy version, but the number is only bumped once.  Once
+> again, I think that the policy formats are ready to go and should support
+> everything we could ever possibly want in the future (well a few things anyway).
+> 
+> As before, this patch only addresses the necessary format changes to get modular
+> support for range_transition statements (and now users).  However, it does allow
+> immediate use of the extended range_transition statements where they were valid
+> before.
+> 
 
-Implications of retaining those capabilities while still reverting to
-the caller's uid?  ptrace checks capabilities, but e.g. kill does not.
-This is similar to the issues associated with file capabilities, see
-http://marc.theaimsgroup.com/?t=115422220700001&r=1&w=2
+Thanks, merged as of checkpolicy 1.30.11 and libsepol 1.12.26 with
+changes to patch 2 for endieness correctness.
 
-Now, in the case where newrole runs in its own domain, SELinux will
-itself provide isolation/protection, so for the strict/MLS policy,
-newrole should be protected against interference by the caller.  But
-under targeted/MCS, you don't get such guarantees.  But I assume you
-want to build a single newrole binary for everyone.
-
-Does running in the caller's uid have any other implications for
-pam_namespace, e.g. ownership of the directories it creates?
-
--- 
-Stephen Smalley
-National Security Agency
+I'd like to see some unit tests for the linker and expander portions of
+this when you get a chance..
 
 
 --
