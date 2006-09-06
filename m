@@ -1,69 +1,61 @@
-Subject: RE: ipsec and getpeercon()
-From: Joshua Brindle <jbrindle@tresys.com>
-To: Venkat Yekkirala <vyekkirala@TrustedCS.com>
+Message-ID: <36282A1733C57546BE392885C061859201513066@chaos.tcs.tcs-sec.com>
+From: Venkat Yekkirala <vyekkirala@TrustedCS.com>
+To: Joshua Brindle <jbrindle@tresys.com>
 Cc: Joy Latten <latten@austin.ibm.com>, paul.moore@hp.com, latten@us.ibm.com,
         sds@tycho.nsa.gov, selinux@tycho.nsa.gov
-In-Reply-To: <36282A1733C57546BE392885C061859201512F12@chaos.tcs.tcs-sec.com>
-References: <36282A1733C57546BE392885C061859201512F12@chaos.tcs.tcs-sec.com>
-Content-Type: text/plain
-Date: Wed, 06 Sep 2006 11:55:22 -0400
-Message-Id: <1157558122.15886.42.camel@twoface.columbia.tresys.com>
-Mime-Version: 1.0
+Subject: RE: ipsec and getpeercon()
+Date: Wed, 6 Sep 2006 12:19:15 -0400 
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2006-09-05 at 16:01 -0400, Venkat Yekkirala wrote:
-> > >Or it could just be that I'm retarded and booted up on the 
-> > wrong kernel
-> > >after cloning the VM. The new results (with no SAD or SPD 
-> > entries) is a
-> > >nice "Protocol not available" on both sides. With the 
-> > entries I now get 
-> > >
-> > >server: got connection from 10.1.13.104, 
-> > system_u:object_r:unlabeled_t
-> > >
-> > >which is the correct label of the local ipsec socket 
-> > (changed it to make
-> > >sure it was getting the local context) which still isn't 
-> > what I'd expect
-> > >getpeercon() to tell me.
-> > >
-> > 
-> > Actually, this sounds correct. If neither Cipso nor IPSec or 
-> > configured,
-> > then code should return -ENOPROTOPT. Thus the "Protocol not 
-> > available".
-> > 
-> > When using basic IPSec, two SAs, an In & Out SA must exist for each 
-> > traffic stream you wish to protect and on both the local and 
-> > remote machines. 
-> > When using labeled SAs, we have extended this such that 
-> > whatever you have
-> > as the label in the SA, is what that socket is restricted to 
-> > send or receive on 
-> > both the local and remote machines. Thus you can conclude, that the 
-> > label getpeercon() gets back from labeled SA is the label of 
-> > the remote socket.
-> > 
+> Actually I think I'm finally getting the expected results, the context
+> for the outgoing (which is incorrect but expected?) SPD entry on the
+> local machine.
+
+Good. We are all on the same page so far.
 > 
-> It should have been whatever context is associated with the incoming SA.
-> But the current code returns the context associated with the outgoing SA
-> and this is not right. Even so, this doesn't explain getpeercon returning
-> the local socket context as opposed to the outgoing SA's context (which
-> is derived from the SPD entry currently).
+> This, however, is not what I'd expect. I guess when I heard "labeled
+> network over ipsec" I thought the labels (from the source 
+> domain) would
+> traverse the wire and be readable on the destination. 
 
-Actually I think I'm finally getting the expected results, the context
-for the outgoing (which is incorrect but expected?) SPD entry on the
-local machine.
+This can very much be accomplished by appropriate policy rules as explained
+further down.
 
-This, however, is not what I'd expect. I guess when I heard "labeled
-network over ipsec" I thought the labels (from the source domain) would
-traverse the wire and be readable on the destination. 
+> 
+> I don't know how useful or even usable the current setup is, 
+> what is the
+> use case you guys are going for?
+> 
 
-I don't know how useful or even usable the current setup is, what is the
-use case you guys are going for?
+Source machine:
 
+- a_t polmatch'es spd entry that's associated with spd1_t
+- racoon negotiates/creates sa with a_t (currently it creates
+	sa with spd1_t but I am going to change this).
+- packet gets encrypted with spi 0x001 (which by now maps to
+	a_t on both the source and destination)
+
+Destination machine:
+
+- packet with spi 0x001 received
+- packet initially gets secmark'ed with iptables context (ip_t)
+	like it currently does.
+- secid reconciliation will reconcile a_t (that spi 0x001 maps to)
+	with ip_t using the transition sid mechanism and arrives at:
+		a. a_t (default when no transition rule exists).
+		b. trans_t (which can very well be ip_t or ip_a_t or
+			a_ip_t or whatever)
+- you now have a packet that has a_t (default) or a local policy
+	interpretation (using transition rules).
+- Socket Vs. packet.secmark checks and others will follow as they
+  currently do.
+
+We essentially leverage the spi on ipsec packets to denote its
+context.
 
 --
 This message was distributed to subscribers of the selinux mailing list.
