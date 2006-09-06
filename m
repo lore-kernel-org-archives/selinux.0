@@ -1,50 +1,47 @@
 Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k86Era4a010958
-	for <selinux@tycho.nsa.gov>; Wed, 6 Sep 2006 10:53:36 -0400
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k86F2pj8011249
+	for <selinux@tycho.nsa.gov>; Wed, 6 Sep 2006 11:02:51 -0400
 Received: from tcsfw4.tcs-sec.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id k86Eqmjo001793
-	for <selinux@tycho.nsa.gov>; Wed, 6 Sep 2006 14:52:50 GMT
-Message-ID: <44FEE0DC.8030408@trustedcs.com>
-Date: Wed, 06 Sep 2006 09:53:16 -0500
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id k86F25jo003506
+	for <selinux@tycho.nsa.gov>; Wed, 6 Sep 2006 15:02:06 GMT
+Message-ID: <44FEE306.1060404@trustedcs.com>
+Date: Wed, 06 Sep 2006 10:02:30 -0500
 From: Darrel Goeddel <dgoeddel@TrustedCS.com>
 MIME-Version: 1.0
-To: Todd Miller <Todd.Miller@sparta.com>
-CC: SE Linux <selinux@tycho.nsa.gov>
-Subject: Re: current selinux-usr incompatible with refpolicy-20060307?
-References: <3F89D16F-5FBA-405B-A179-EC48DF45D6A4@sparta.com>
-In-Reply-To: <3F89D16F-5FBA-405B-A179-EC48DF45D6A4@sparta.com>
+To: LC Bruzenak <lenny@bruzenak.com>
+CC: selinux@tycho.nsa.gov
+Subject: Re: mls policy problem
+References: <1157481701.4164.13.camel@fryspc>
+In-Reply-To: <1157481701.4164.13.camel@fryspc>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Todd Miller wrote:
-> In trying to build refpolicy-20060307 on an FC5 machine using an  
-> selinux userland with the following svn tags: checkpolicy_1_30_11  
-> libselinux_1_30_27 libsemanage_1_6_15 libsepol_1_12_26  
-> policycoreutils_1_30_28 I get this error:
+LC Bruzenak wrote:
+> Trying to yum install the selinux-policy-mls policy I get:
+>   
+> Installing: selinux-policy-mls           ######################### [1/1]
+> libsepol.sepol_module_package_read: unknown magic number at section 4,
+> offset: a2ba9e, number: 159186835x
+> /var/tmp/rpm-tmp.90280: line 4:  2833 Segmentation fault      semodule -
+> b base.pp -s mls
 > 
-> /usr/bin/checkpolicy policy.conf -o policy.21
-> /usr/bin/checkpolicy:  loading policy configuration from policy.conf
-> libsepol.expand_terule_helper: duplicate TE rule for initrc_t  
-> insmod_exec_t:process insmod_t
-> libsepol.expand_module: Error during expand
-> Error while expanding policy
-> make: *** [policy.21] Error 1
+> # uname -a:
 > 
-> The selinux userland components that ship with FC5 are able to build  
-> the policy.conf into a binary file without problems.  Is there a  newer 
-> version of refpolicy that folks are using for development?
+> Linux ibm 2.6.17-1.2614.fc6 #1 SMP Sun Sep 3 15:16:56 EDT 2006 x86_64
+> x86_64 x86_64 GNU/Linux
+> 
+> Let me know what info I should send; didn't want to overload the first
+> plea for help.
 
-The reference policy used to have a conflicting statement in an optional
-block of policy that was not caught due to a bug in the toolchain.  The
-patchset is outlined in the following email:
+rpm versions for yum, libsepol, policycoreutils, and the policy packages
+that you are trying to install would be helpful.
 
-http://marc.theaimsgroup.com/?l=selinux&m=115107448603049&w=2
+Was this a first install of the package, or an upgrade?
 
-You can always grab the latest snapshot of the reference policy using svn
-as described here:
-
-http://oss.tresys.com/projects/refpolicy/wiki/SubversionCheckout
+I have been updating daily with the Fedora Core development repositories and
+have yet to see anything like this.  Have you tried again (with the newer
+packages available)?
 
 -- 
 
