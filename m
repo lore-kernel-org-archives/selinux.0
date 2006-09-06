@@ -1,57 +1,53 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k86GK21e013843
-	for <selinux@tycho.nsa.gov>; Wed, 6 Sep 2006 12:20:02 -0400
-Received: from e2.ny.us.ibm.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id k86GJckO012980
-	for <selinux@tycho.nsa.gov>; Wed, 6 Sep 2006 16:19:38 GMT
-Received: from d01relay04.pok.ibm.com (d01relay04.pok.ibm.com [9.56.227.236])
-	by e2.ny.us.ibm.com (8.13.8/8.12.11) with ESMTP id k86GK0xf030775
-	for <selinux@tycho.nsa.gov>; Wed, 6 Sep 2006 12:20:00 -0400
-Received: from d01av02.pok.ibm.com (d01av02.pok.ibm.com [9.56.224.216])
-	by d01relay04.pok.ibm.com (8.13.6/8.13.6/NCO v8.1.1) with ESMTP id k86GK0OZ293384
-	for <selinux@tycho.nsa.gov>; Wed, 6 Sep 2006 12:20:00 -0400
-Received: from d01av02.pok.ibm.com (loopback [127.0.0.1])
-	by d01av02.pok.ibm.com (8.12.11.20060308/8.13.3) with ESMTP id k86GK03n002089
-	for <selinux@tycho.nsa.gov>; Wed, 6 Sep 2006 12:20:00 -0400
-Received: from sergelap.hallyn.com (sig-9-65-113-206.mts.ibm.com [9.65.113.206])
-	by d01av02.pok.ibm.com (8.12.11.20060308/8.12.11) with ESMTP id k86GJx4s002068
-	for <selinux@tycho.nsa.gov>; Wed, 6 Sep 2006 12:20:00 -0400
-Date: Wed, 6 Sep 2006 11:19:59 -0500
-From: "Serge E. Hallyn" <serue@us.ibm.com>
-To: SELinux <selinux@tycho.nsa.gov>
-Subject: semanage user
-Message-ID: <20060906161959.GA29623@sergelap.austin.ibm.com>
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k86GW8lB014346
+	for <selinux@tycho.nsa.gov>; Wed, 6 Sep 2006 12:32:08 -0400
+Received: from exchange.columbia.tresys.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with SMTP id k86GVOsu021156
+	for <selinux@tycho.nsa.gov>; Wed, 6 Sep 2006 16:31:24 GMT
+Subject: Re: Latest Diffs
+From: "Christopher J. PeBenito" <cpebenito@tresys.com>
+To: Daniel J Walsh <dwalsh@redhat.com>
+Cc: SE Linux <selinux@tycho.nsa.gov>
+In-Reply-To: <44FDE6BE.2010008@redhat.com>
+References: <44FDE6BE.2010008@redhat.com>
+Content-Type: text/plain
+Date: Wed, 06 Sep 2006 12:33:58 -0400
+Message-Id: <1157560438.26420.16.camel@sgc.columbia.tresys.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hi,
+On Tue, 2006-09-05 at 17:06 -0400, Daniel J Walsh wrote:
+> Bluetooth_helper hits the unlabeled_t:socket stuff
 
-It appears removing a user with semanage does not also remove it's
-associated logins.  This is a problem because then re-adding the
-user fails.  (I do not have the error handy as my test machines are all
-down atm)
+Unlabeled generic socket?  I don't see this in the patch, and it doesn't
+make sense to me anyway.
 
-I had done:
-	semanage user -a -R abat_r -P abat abat_u
-	semanage login -a -s abat_u abat
-	semanage user -r abat_u   [ or is it -d? ]
-	semanage user -a -R abat_r -P abat abat_u
+> What is the problem with the following?
+> 
+> +',`
+> +       ifdef(`enable_mls',`
+> +               userdom_read_user_tmp_files(secadm, semanage_t)
+> +       ',`
+> +               userdom_read_user_tmp_files(sysadm, semanage_t)
+> +       ')
+>  ')
 
-the last step failed.  When I then did
+Can't use these prefixes here since they don't originate from this
+module.
 
-	semanage login -d abat  (or was it -r?  :)
-	semanage user -a -R abat_r -P abat abat_u
+> Added validatefc to check file context against base.pp.
+> 
+> Only works on targeted policy since others have ROLE_home_dir_t and the 
+> like.
 
-it succeeded.
+I don't see this as being very useful since its only the base module.
 
-Not sure whether there is a good reason to leave the code like
-that, or whether semanage user -r should automatically imply
-semanage login -r.
+-- 
+Chris PeBenito
+Tresys Technology, LLC
+(410) 290-1411 x150
 
-thanks,
--serge
 
 --
 This message was distributed to subscribers of the selinux mailing list.
