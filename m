@@ -1,51 +1,33 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k86F2pj8011249
-	for <selinux@tycho.nsa.gov>; Wed, 6 Sep 2006 11:02:51 -0400
-Received: from tcsfw4.tcs-sec.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id k86F25jo003506
-	for <selinux@tycho.nsa.gov>; Wed, 6 Sep 2006 15:02:06 GMT
-Message-ID: <44FEE306.1060404@trustedcs.com>
-Date: Wed, 06 Sep 2006 10:02:30 -0500
-From: Darrel Goeddel <dgoeddel@TrustedCS.com>
+Message-ID: <20060906154757.76508.qmail@web51514.mail.yahoo.com>
+Date: Wed, 6 Sep 2006 08:47:57 -0700 (PDT)
+From: Steve G <linux_4ever@yahoo.com>
+Subject: service start/stop test script
+To: SELinux@tycho.nsa.gov
 MIME-Version: 1.0
-To: LC Bruzenak <lenny@bruzenak.com>
-CC: selinux@tycho.nsa.gov
-Subject: Re: mls policy problem
-References: <1157481701.4164.13.camel@fryspc>
-In-Reply-To: <1157481701.4164.13.camel@fryspc>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain; charset=iso-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-LC Bruzenak wrote:
-> Trying to yum install the selinux-policy-mls policy I get:
->   
-> Installing: selinux-policy-mls           ######################### [1/1]
-> libsepol.sepol_module_package_read: unknown magic number at section 4,
-> offset: a2ba9e, number: 159186835x
-> /var/tmp/rpm-tmp.90280: line 4:  2833 Segmentation fault      semodule -
-> b base.pp -s mls
-> 
-> # uname -a:
-> 
-> Linux ibm 2.6.17-1.2614.fc6 #1 SMP Sun Sep 3 15:16:56 EDT 2006 x86_64
-> x86_64 x86_64 GNU/Linux
-> 
-> Let me know what info I should send; didn't want to overload the first
-> plea for help.
+Hello,
 
-rpm versions for yum, libsepol, policycoreutils, and the policy packages
-that you are trying to install would be helpful.
+I just wanted to let everyone know that I'm making a test script available to
+help policy writers. The script will go though /etc/rc.d/init.d and make a list
+of services installed. It filters out some that you'd really not want to run
+(like halt). Then it checks the service to see if its running. If so, it stops
+and starts the service. Otherwise it starts then stops the service. After each
+service cycle, it scans the audit logs to look for avcs. If any are found they
+are run through audit2allow and output. The script can be found here:
 
-Was this a first install of the package, or an upgrade?
+http://people.redhat.com/sgrubb/files/testing/service-avc-test
 
-I have been updating daily with the Fedora Core development repositories and
-have yet to see anything like this.  Have you tried again (with the newer
-packages available)?
+Feedback and updates are welcome.
 
--- 
+-Steve
 
-Darrel
+__________________________________________________
+Do You Yahoo!?
+Tired of spam?  Yahoo! Mail has the best spam protection around 
+http://mail.yahoo.com 
 
 --
 This message was distributed to subscribers of the selinux mailing list.
