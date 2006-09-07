@@ -1,119 +1,81 @@
 Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k87F1SSs016459
-	for <selinux@tycho.nsa.gov>; Thu, 7 Sep 2006 11:01:29 -0400
-Received: from exchange.columbia.tresys.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with SMTP id k87F13Eu020761
-	for <selinux@tycho.nsa.gov>; Thu, 7 Sep 2006 15:01:04 GMT
-Message-ID: <3FCBC9B9.8000302@tresys.com>
-Date: Mon, 01 Dec 2003 18:07:37 -0500
-From: Joshua Brindle <jbrindle@tresys.com>
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k87F78Ub016627
+	for <selinux@tycho.nsa.gov>; Thu, 7 Sep 2006 11:07:08 -0400
+Received: from py-out-1112.google.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id k87F6hEu021580
+	for <selinux@tycho.nsa.gov>; Thu, 7 Sep 2006 15:06:44 GMT
+Received: by py-out-1112.google.com with SMTP id 39so322479pyu
+        for <selinux@tycho.nsa.gov>; Thu, 07 Sep 2006 08:07:05 -0700 (PDT)
+Message-ID: <4500358F.9030808@kaigai.gr.jp>
+Date: Fri, 08 Sep 2006 00:06:55 +0900
+From: KaiGai Kohei <kaigai@kaigai.gr.jp>
 MIME-Version: 1.0
-To: KaiGai Kohei <kaigai@kaigai.gr.jp>
+To: Joshua Brindle <jbrindle@tresys.com>
 CC: russell@coker.com.au, selinux@tycho.nsa.gov
 Subject: Re: [RFC] SELinux and PostgreSQL
-References: <44FFEB42.90203@kaigai.gr.jp> <1157633535.14982.9.camel@twoface.columbia.tresys.com> <200609072324.51487.russell@coker.com.au> <45002CA4.40907@kaigai.gr.jp>
-In-Reply-To: <45002CA4.40907@kaigai.gr.jp>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+References: <44FFEB42.90203@kaigai.gr.jp>	 <200609072324.51487.russell@coker.com.au>	 <1157637259.14982.22.camel@twoface.columbia.tresys.com>	 <200609080007.39558.russell@coker.com.au> <1157638500.14982.29.camel@twoface.columbia.tresys.com>
+In-Reply-To: <1157638500.14982.29.camel@twoface.columbia.tresys.com>
+Content-Type: text/plain; charset=ISO-2022-JP
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-KaiGai Kohei wrote:
-> Sorry for delayed replying. :)
-> 
-> Russell Coker wrote:
->> On Thursday 07 September 2006 22:52, Joshua Brindle 
->> <jbrindle@tresys.com> wrote:
->>>> I propose a new object class named as 'database' which contains the
->>>> following access vectors.
->>>>
->>>>   class database
->>>>   {
->>>>       createtbl
->>>>       altertbl
->>>>       droptbl
->>>>       select
->>>>       update
->>>>       insert
->>>>       delete
->>>>       relabelfrom
->>>>       relabelto
->>>>   }
->>> I think you are almost there, below you talk about labeling the tables,
->>> rows, etc individually but your object model above isn't treating them
->>> any differently.
+I intend to filter the result set by appending avc_has_perm(...) condition
+for each targeted table. I believe it is the most simple implementation
+and it can utilize the optimizer of PostgreSQL.
+
+>>> (A) select * from customer;
 >>>
->>> The object model should have an object class for each distinct kind of
->>> object, for example database should have create, drop, createtable,
->>> droptable, relabelto, relabelfrom. the table object class should have
->>> insert. update, delete, select, drop, create, etc. field (or column)
->>> object class should have select, update, etc.
+>>> (B) select * from customer where avc_has_perm(getpeercon(),
+>>>                                               security_context,
+>>>                                               DATABASE__SELECT);
+> 
+> A turns in to B via the proxy. Then the database does the avc_has_perm
+> check as part of the query. An administrator would have more access via
+> the policy. The proxy would not be discarding anything.
+
+If we consider the modules in PostgreSQL as separated processes,
+we may be able to say this mechanism the proxy.
+But we cannot rewrite SQL statement outside the server process,
+because PosgreSQL itself may rewrite the query tree internally.
+
+The details are described in the following URL:
+  Chapter 34. The Rule System
+  http://www.postgresql.org/docs/8.1/static/rules.html
+
+By the above reason, we must inject additional conditions of
+SELinux after completion of query rewriting, and we cannot
+have any option except the implementation within DBMS.
+
+>> Then when you do a join of two tables with such configurations things would 
+>> get even more interesting for the author of a proxy.
 >>
->> Do we need separate object classes for database and table?
->>
->> We can consider databases and tables to be both roughly equivalent to 
->> directories in the filesystem permissions.  In a Reiser4 model that 
->> would be /database/table/row.  ;)
->>
->> So we could have:
->> table_auto_trans(dba1_t, system_db_t, database1_t, table)
->> table_auto_trans(dba1_t, database1_t, table1_t, table)
->> table_trans(dba1_t, database1_t, { table2_t table3_t }, table)
->> table_auto_trans({ dba1_t db_user1_t }, table2_t, row1_t, row)
+>>> One could even use the proxy model within the same process space to
+>>> manipulate the query as it enters the database server instead of hooking
+>>> in to the database server at every access point.
+>>>
+>>> The bad part about this is that it makes for a less fine grained model
+>>> than hooking at access points.
+>> If you want to only control table access then things become much easier.
+
+When we do a join of two tables, the joined virtual table are generated
+from filtered two result set. All of its contains are allowed to select.
+
+The result is same, even if a view was defined as a select statement
+which do a join of multiple tables.
+
+> like I said, "it makes for a less fine grained model"
 > 
-> I agree Russell's suggestion, because we can describe those structure
-> with separated type and type_trans rule.
-> In addition, it will be more easily applicable to another DBMS.
-> 
+>>> One thing to think about is stored procedures and how those can be dealt
+>>> with, triggers, etc. Without access control hooks triggers are much
+>>> harder to deal with access control wise, as are stored procedures.
 
-under flask object classes are used to differentiate kinds of objects. 
-It will make the database access control much more fine grained if you 
-implement a proper object model.
+The stored procedure is a bit considerable.
+Now I cannot conclude about its handling whether it's suitable for this solution.
+More hacking to PostgreSQL is necessary. ;)
 
-> I have a question to Russell.
-> How is the security context of database attached?
-> I estimate it should be done by type_trans rule with server process context
-> and clients process's context on database object class.
-> 
-
-you shouldn't use the server process context since the objects are being 
-created by the client ultimately and should be labeled based on the 
-label of the client. Labeling based on the server context would make for 
-almost unusable labeling granularity.
-
->>>> (A) select * from customer;
->>>>
->>>> (B) select * from customer where avc_has_perm(getpeercon(),
->>>>                                               security_context,
->>>>                                               DATABASE__SELECT);
->>> So is this done from within the database or are you trying to make a
->>> trusted proxy that will munge requests before they make it to the
->>> database server?
->>
->> When I briefly discussed such things with KaiGai the idea was to have 
->> it within the database.  A proxy would be very inefficient for this if 
->> SE Linux controls were used in any serious manner.  Large amounts of 
->> data could be retrieved only to be discarded by the proxy.
-> 
-> I intend to implement it as a patch against to PostgreSQL, not a 
-> independent
-> proxy server.
-> The reason of this decision is that we cannot enforce SELinux's access 
-> controls
-> to any tables, columns and rows, even if the proxy server rewrite SQL 
-> statement.
-> A query to view is a representative example.
-> PostgreSQL often rewrite SQL statement into something completely different.
-> 
-> Thanks,
-
-Proxy didn't necessarily mean a proxy server, it could mean anything 
-(even in the same process space) that just relayed and changed the query 
-rather than adding access control callbacks at access points in the 
-database, it is 2 different models of implementing access control and it 
-sounds like you want do to the proxy rather than the hooks.
-
-I still think triggers and stored procedures can be problematic with 
-this model, just keep it in mind..
+Thanks,
+-- 
+KaiGai Kohei <kaigai@kaigai.gr.jp>
 
 --
 This message was distributed to subscribers of the selinux mailing list.
