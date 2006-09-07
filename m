@@ -1,52 +1,34 @@
-Message-ID: <45008570.8000209@hp.com>
-Date: Thu, 07 Sep 2006 16:47:44 -0400
-From: Linda Knippers <linda.knippers@hp.com>
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k87L5EZc027079
+	for <selinux@tycho.nsa.gov>; Thu, 7 Sep 2006 17:05:14 -0400
+Received: from web51510.mail.yahoo.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with SMTP id k87L4SuU002705
+	for <selinux@tycho.nsa.gov>; Thu, 7 Sep 2006 21:04:28 GMT
+Message-ID: <20060907210503.73467.qmail@web51510.mail.yahoo.com>
+Date: Thu, 7 Sep 2006 14:05:02 -0700 (PDT)
+From: Steve G <linux_4ever@yahoo.com>
+Subject: Re: IPC security context
+To: Stephen Smalley <sds@tycho.nsa.gov>, andy.suchoski@comcast.net
+Cc: selinux@tycho.nsa.gov
+In-Reply-To: <1157659981.22197.121.camel@moss-spartans.epoch.ncsc.mil>
 MIME-Version: 1.0
-To: Stephen Smalley <sds@tycho.nsa.gov>
-Cc: Salvo Giuffrida <giuffsalvo@hotmail.it>, selinux@tycho.nsa.gov
-Subject: Re: Problems with the MLS policy
-References: <BAY114-F17D2660BD6C3262245D6CEAF360@phx.gbl> <1157660977.22197.136.camel@moss-spartans.epoch.ncsc.mil>
-In-Reply-To: <1157660977.22197.136.camel@moss-spartans.epoch.ncsc.mil>
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=iso-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Stephen Smalley wrote:
-> On Thu, 2006-09-07 at 19:59 +0200, Salvo Giuffrida wrote:
-> 
->>I have Fedora Core 6 Test 1 (it's the VMware image found 
->>here:http://www.thoughtpolice.co.uk/vmware/),
-> 
-> 
-> Do you mean test 2?
-> 
-> 
->> I installed the package 
->>selinux-policy-mls-2.3.9-3. So, I now can switch to the "mls", in theory. 
->>The problem is that there's no binary policy file in 
->>/etc/selinux/mls/policy; so, I tough "I must compile it by myself", but in 
->>/usr/devel/selinux/mls there aren't source files (there are only sources for 
->>the targeted policy), only a lot of .pp files...
->>Where can I find those sources, or the rpm with them? And, where can I find 
->>more information to the classification system used (I didn't understand what 
->>those "SystemLow-SystemHigh" stand for)?
-> 
-> 
-> If you have installed the selinux-policy-mls rpm successfully, then
-> there should be a binary policy file under /etc/selinux/mls/policy/.  
 
-I've saw the same problem recently when I installed the mls policy on
-my FC6T2 system using yum.  The rpm seemed to install but got non-fatal
-errors which left it without a binary policy file and a few other
-important files.  I had to remove the rpm and update all the various
-selinux rpms to get the mls policy to install correctly.
+>To re-add, we would need a specific application that required such support.
 
-I believe Dan has fixed some dependency problems with the rpms to solve
-this problem.
+Would ipcs be that app?  I would think that you want to be able to display IPC
+labels to check up on things to make sure nothing unexpected is being allowed to
+happen.
 
--- ljk
+-Steve
 
-
+__________________________________________________
+Do You Yahoo!?
+Tired of spam?  Yahoo! Mail has the best spam protection around 
+http://mail.yahoo.com 
 
 --
 This message was distributed to subscribers of the selinux mailing list.
