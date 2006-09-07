@@ -1,34 +1,38 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k87L5EZc027079
-	for <selinux@tycho.nsa.gov>; Thu, 7 Sep 2006 17:05:14 -0400
-Received: from web51510.mail.yahoo.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with SMTP id k87L4SuU002705
-	for <selinux@tycho.nsa.gov>; Thu, 7 Sep 2006 21:04:28 GMT
-Message-ID: <20060907210503.73467.qmail@web51510.mail.yahoo.com>
-Date: Thu, 7 Sep 2006 14:05:02 -0700 (PDT)
-From: Steve G <linux_4ever@yahoo.com>
-Subject: Re: IPC security context
-To: Stephen Smalley <sds@tycho.nsa.gov>, andy.suchoski@comcast.net
-Cc: selinux@tycho.nsa.gov
-In-Reply-To: <1157659981.22197.121.camel@moss-spartans.epoch.ncsc.mil>
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k87LYsm6027784
+	for <selinux@tycho.nsa.gov>; Thu, 7 Sep 2006 17:34:54 -0400
+Received: from e3.ny.us.ibm.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id k87LYTDY013888
+	for <selinux@tycho.nsa.gov>; Thu, 7 Sep 2006 21:34:30 GMT
+Received: from d01relay02.pok.ibm.com (d01relay02.pok.ibm.com [9.56.227.234])
+	by e3.ny.us.ibm.com (8.13.8/8.12.11) with ESMTP id k87LYpnS008883
+	for <selinux@tycho.nsa.gov>; Thu, 7 Sep 2006 17:34:51 -0400
+Received: from d01av03.pok.ibm.com (d01av03.pok.ibm.com [9.56.224.217])
+	by d01relay02.pok.ibm.com (8.13.6/8.13.6/NCO v8.1.1) with ESMTP id k87LYhTv233338
+	for <selinux@tycho.nsa.gov>; Thu, 7 Sep 2006 17:34:51 -0400
+Received: from d01av03.pok.ibm.com (loopback [127.0.0.1])
+	by d01av03.pok.ibm.com (8.12.11.20060308/8.13.3) with ESMTP id k87LYhoB032368
+	for <selinux@tycho.nsa.gov>; Thu, 7 Sep 2006 17:34:43 -0400
+Message-ID: <4500906A.3000502@us.ibm.com>
+Date: Thu, 07 Sep 2006 16:34:34 -0500
+From: Michael C Thompson <thompsmc@us.ibm.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+To: Daniel J Walsh <dwalsh@redhat.com>, lspp-list <redhat-lspp@redhat.com>,
+        selinux@tycho.nsa.gov
+Subject: MLS Policy (rawhide)
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+Hey all,
 
->To re-add, we would need a specific application that required such support.
+It seems that ssh is unable to add entries to known_hosts for the root 
+user as sysadm_t. Is this a known issue? And if so, who can add entries 
+to /root/.ssh/known_hosts ?
 
-Would ipcs be that app?  I would think that you want to be able to display IPC
-labels to check up on things to make sure nothing unexpected is being allowed to
-happen.
+Thanks,
+Mike
 
--Steve
-
-__________________________________________________
-Do You Yahoo!?
-Tired of spam?  Yahoo! Mail has the best spam protection around 
-http://mail.yahoo.com 
 
 --
 This message was distributed to subscribers of the selinux mailing list.
