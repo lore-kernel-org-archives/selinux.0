@@ -1,62 +1,155 @@
 Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k86I4wGC017283
-	for <selinux@tycho.nsa.gov>; Wed, 6 Sep 2006 14:05:00 -0400
-Received: from M4.sparta.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id k86I4YkO027016
-	for <selinux@tycho.nsa.gov>; Wed, 6 Sep 2006 18:04:35 GMT
-Received: from Beta5.sparta.com (beta5.sparta.com [157.185.63.21])
-	by M4.sparta.com (8.13.5/8.13.5) with ESMTP id k86I4uAn027544
-	for <selinux@tycho.nsa.gov>; Wed, 6 Sep 2006 13:04:56 -0500
-Received: from nemo.columbia.ads.sparta.com (nemo.columbia.sparta.com [157.185.80.75])
-	by Beta5.sparta.com (8.12.11/8.13.1) with ESMTP id k86I4u2T027629
-	for <selinux@tycho.nsa.gov>; Wed, 6 Sep 2006 13:04:56 -0500
-Mime-Version: 1.0 (Apple Message framework v752.2)
-In-Reply-To: <4B7876D7-978C-4EDA-ABCA-DE8AB4CA9F6F@sparta.com>
-References: <4B7876D7-978C-4EDA-ABCA-DE8AB4CA9F6F@sparta.com>
-Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
-Message-Id: <16A7CD41-31E3-4079-8F6D-E3217991500C@sparta.com>
-From: Todd Miller <Todd.Miller@sparta.com>
-Subject: Re: current selinux-usr incompatible with refpolicy-20060307?
-Date: Wed, 6 Sep 2006 09:19:07 -0400
-To: SE Linux <selinux@tycho.nsa.gov>
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k879o2l5007155
+	for <selinux@tycho.nsa.gov>; Thu, 7 Sep 2006 05:50:02 -0400
+Received: from py-out-1112.google.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id k879ndvK010421
+	for <selinux@tycho.nsa.gov>; Thu, 7 Sep 2006 09:49:39 GMT
+Received: by py-out-1112.google.com with SMTP id 39so221042pyu
+        for <selinux@tycho.nsa.gov>; Thu, 07 Sep 2006 02:50:02 -0700 (PDT)
+Message-ID: <44FFEB42.90203@kaigai.gr.jp>
+Date: Thu, 07 Sep 2006 18:49:54 +0900
+From: KaiGai Kohei <kaigai@kaigai.gr.jp>
+MIME-Version: 1.0
+To: selinux@tycho.nsa.gov
+Subject: [RFC] SELinux and PostgreSQL
+Content-Type: text/plain; charset=ISO-2022-JP
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-I just tried a current checkout of refpolicy from the tresys svn and  
-it works with the current userland tools so I'll just use that...
+Hello,
 
-  - todd
+In recent days, I'm making a plan to enhance PostgreSQL with SELinux,
+and the followings are simple description about the plan currently
+I have.
+Any comments are so welcome. I want to revise the original design
+and security model before starting implementation.
 
-On Sep 5, 2006, at 4:57 PM, Todd Miller wrote:
+I hope to release it within next one year, if possible. :)
 
-> In trying to build refpolicy-20060307 on an FC5 machine using an  
-> selinux userland with the following svn tags: checkpolicy_1_30_11  
-> libselinux_1_30_27 libsemanage_1_6_15 libsepol_1_12_26  
-> policycoreutils_1_30_28 I get this error:
->
-> /usr/bin/checkpolicy policy.conf -o policy.21
-> /usr/bin/checkpolicy:  loading policy configuration from policy.conf
-> libsepol.expand_terule_helper: duplicate TE rule for initrc_t  
-> insmod_exec_t:process insmod_t
-> libsepol.expand_module: Error during expand
-> Error while expanding policy
-> make: *** [policy.21] Error 1
->
-> The selinux userland components that ship with FC5 are able to  
-> build the policy.conf into a binary file without problems.  Is  
-> there a newer version of refpolicy that folks are using for  
-> development?
->
-> Thanks!
->
->  - todd
->
-> --
-> This message was distributed to subscribers of the selinux mailing  
-> list.
-> If you no longer wish to subscribe, send mail to  
-> majordomo@tycho.nsa.gov with
-> the words "unsubscribe selinux" without quotes as the message.
+* The basic idea
+The core facility of what I plan to enhance is an additional access
+control between the client of PostgreSQL and tables, columns, rows.
+(In future, the access control on binary large object(BLOB) is desirable.)
+
+For the purpose, those database objects (table, column, row) must
+have capability to hold its security context. The security context
+of table and column can be stored in system catalog (pg_class and
+pg_attribute), and row's one will be stored in the row generated
+implicitlly.
+The security context of PostgreSQL client will be obtained via
+getpeercon().
+
+I propose a new object class named as 'database' which contains the
+following access vectors.
+
+  class database
+  {
+      createtbl
+      altertbl
+      droptbl
+      select
+      update
+      insert
+      delete
+      relabelfrom
+      relabelto
+  }
+
+I propose some SQL functions reflecting to libselinux functions
+like avc_has_perm(), getpeercon() and so on. We can use them not
+only from SQL explicitly, but also implicitly appended to mask
+the result set.
+For example, the statement (B) will be actually executed when the
+server received the statement (A).
+
+(A) select * from customer;
+
+(B) select * from customer where avc_has_perm(getpeercon(),
+                                              security_context,
+                                              DATABASE__SELECT);
+
+* The expected behavior
+
+When we try to create a new table, the client must have 'createtbl'
+permission to the PostgreSQL server process. Then the created table
+inherits the security context of the server process.
+When we try to alter/drop a existing table, the client must have
+'altertbl' or 'droptbl' permission to the targeted table.
+If the client didn't have suitable permissions, the transaction is
+aborted.
+
+When we try to query with select statement, the client must have
+'select' permission to all of the targeted table and column.
+And any rows on which the client didn'n have permission is eliminated
+from the result set.
+
+When we try to query with insert statement, the client must have
+'insert' permission to the targeted table and column. And any new
+rows are attached a new security context given by security_compute_create()
+with the client's context and the table's one.
+
+When we try to query with update/delete, the client must have 'update'
+or 'delete' permission to the target table and column. And any rows on
+which the client didn't have permission is eliminated from the targets
+to update or delete.
+In addition, when we try to update the column contains security context,
+'relabelfrom' and 'relabelto' are also evaluated.
+
+* An example
+
++-------------------------------------------------------------------------+
+| TABLE: customer                                                         |
++-------------------------------+-----+-----------+--------------+--------+
+|        security_context       | id  | name      |  address     | income |
++-------------------------------+-----+-----------+--------------+--------+
+|system_u:object_r:pgrow_t:s0   | 100 | Onodera   | Hokkaido ... | 2000   |
+|system_u:object_r:pgrow_t:s0   | 101 | Hayashi   | Tokyo ...    | 2200   |
+|system_u:object_r:pgrow_t:s0:c0| 102 | Meguro    | Yokohama ... | 1800   |
+|system_u:object_r:pgrow_t:s0:c0| 103 | Terada    | Aomori ...   | 2100   |
+|system_u:object_r:pgrow_t:s0   | 104 | Motohashi | Kyoto ...    | 2500   |
++-------------------------------+-----+-----------+--------------+--------+
+| [security contexts]                                                     |
+| table:  customer                  = system_u:object_r:postgresql_t:s0   |
+| column: customer.security_context = system_u:object_r:postgresql_t:s0   |
+| column: customer.id               = system_u:object_r:postgresql_t:s0   |
+| column: customer.name             = system_u:object_r:postgresql_t:s0   |
+| column: customer.mail             = system_u:object_r:postgresql_t:s0   |
+| column: customer.income           = system_u:object_r:postgresql_t:s0.c1|
++-------------------------------------------------------------------------+
+'income' is marked as different category, because it is a sensitive
+information in this case, and it's configured non-privileged client
+cannot access to some rows.
+
+If the client context is user_u:system_r:unconfined_t:s0,
+an SQL statement of "select * from customer" will return the following
+result set.
++-----+-----------+--------------+
+| id  | name      | address      |
++-----+-----------+--------------+
+| 100 | Onodera   | Hokkaido ... |
+| 101 | Hayashi   | Tokyo ...    |
+| 104 | Motohashi | Kyoto ...    |
++-----+-----------+--------------+
+
+If the client context is user_u:system_r:unconfined_t:SystemLow-SystemHigh,
+the same SQL statement will return the following result set.
++-----+-----------+--------------+--------+
+| id  | name      |  address     | income |
++-----+-----------+--------------+--------+
+| 100 | Onodera   | Hokkaido ... | 2000   |
+| 101 | Hayashi   | Tokyo ...    | 2200   |
+| 102 | Meguro    | Yokohama ... | 1800   |
+| 103 | Terada    | Aomori ...   | 2100   |
+| 104 | Motohashi | Kyoto ...    | 2500   |
++-----+-----------+--------------+--------+
+
+(*) '*' is not extract into 'security_context' and the column on which
+    the client didn't have a permission.
+
+Thanks for reading the long description.
+Any comments are welcome for me.
+-- 
+KaiGai Kohei <kaigai@kaigai.gr.jp>
 
 
 --
