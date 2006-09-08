@@ -1,88 +1,87 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k88C6BcX015714
-	for <selinux@tycho.nsa.gov>; Fri, 8 Sep 2006 08:06:12 -0400
-Received: from smtp.sws.net.au (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id k88C5K4V018440
-	for <selinux@tycho.nsa.gov>; Fri, 8 Sep 2006 12:05:22 GMT
-From: Russell Coker <russell@coker.com.au>
-Reply-To: russell@coker.com.au
-To: "Joshua Brindle" <jbrindle@tresys.com>
-Subject: Re: [RFC] SELinux and PostgreSQL
-Date: Fri, 8 Sep 2006 22:05:57 +1000
-Cc: "James W. Hoeft" <Jim@MagitekLtd.com>,
-        "KaiGai Kohei" <kaigai@kaigai.gr.jp>, selinux@tycho.nsa.gov
-References: <6FE441CD9F0C0C479F2D88F959B015883C163D@exchange.columbia.tresys.com>
-In-Reply-To: <6FE441CD9F0C0C479F2D88F959B015883C163D@exchange.columbia.tresys.com>
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k88CPFbp016264
+	for <selinux@tycho.nsa.gov>; Fri, 8 Sep 2006 08:25:15 -0400
+Received: from py-out-1112.google.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id k88COoFw017808
+	for <selinux@tycho.nsa.gov>; Fri, 8 Sep 2006 12:24:51 GMT
+Received: by py-out-1112.google.com with SMTP id 39so670059pyu
+        for <selinux@tycho.nsa.gov>; Fri, 08 Sep 2006 05:25:14 -0700 (PDT)
+Message-ID: <4501611E.9060901@kaigai.gr.jp>
+Date: Fri, 08 Sep 2006 21:25:02 +0900
+From: KaiGai Kohei <kaigai@kaigai.gr.jp>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Message-Id: <200609082206.02747.russell@coker.com.au>
+To: Joshua Brindle <jbrindle@tresys.com>
+CC: russell@coker.com.au, selinux@tycho.nsa.gov
+Subject: Re: [RFC] SELinux and PostgreSQL
+References: <6FE441CD9F0C0C479F2D88F959B015883C1638@exchange.columbia.tresys.com>
+In-Reply-To: <6FE441CD9F0C0C479F2D88F959B015883C1638@exchange.columbia.tresys.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Friday 08 September 2006 12:10, "Joshua Brindle" <jbrindle@tresys.com> 
-wrote:
-> > I'm confused. Password column is a good example - let's say
-> > the password column is labeled at top secret, then how can a
-> > secret user create a new row? I would assume a password would
->
-> Well, first of all a secret user can write a top secret column but I
-> think I know what you meant..
+Because the SMTP server of my office was not allowed to deliver
+SELinux-list, I posted it again from my house.
+I'm sorry if you received same message twice.
 
-Yes, in the MLS side of things the user can write-up (limited to the high 
-level of their range unless there is an attribute on either the domain or the 
-type to allow going higher).
+Joshua Brindle wrote:
+>> From: Russell Coker [mailto:russell@coker.com.au] 
+>>
+>> On Friday 08 September 2006 00:28, KaiGai Kohei 
+>> <kaigai@kaigai.gr.jp> wrote:
+>>> The reason of this decision is that we cannot enforce 
+>> SELinux's access 
+>>> controls to any tables, columns and rows, even if the proxy server 
+>>> rewrite SQL statement.
+>> You want to label columns AND rows?
+>>
+>> How is that going to work?  I can understand the desire for 
+>> this (EG have a password column in the user table), but the 
+>> mechanism of enforcing this will be tricky to say the least.  
+>> Will you perform two access checks on each cell, one for 
+>> column and one for row?
+> 
+> Columns are part of the schema, rows are data, they are different
+> objects.
 
-But if you have the password labeled with a restrictive type (something 
-equivalent to shadow_t) then it becomes a little more tricky.
+My opinion is same as Joshua's one.
 
-> > be required, but that either means a secret user cannot read
-> > or cannot write (or can't do either). If that's not the case,
-> > then does that mean the row can be created without a
-> > password? In which case, does that mean only top secret users
->
-> Probably a trusted stored procedure that has a higher level of access
-> would be used
+In my planning implementation, the security context of targeted
+tables and columns are checked before execution the given query,
+and the transaction will be aborted if the client does not have
+suitable permissions.
+The filtering to rows are done during executing query by appended
+condition (avs_has_perm() function).
 
-Or a trusted SQL client program.  When considering ways of improving the 
-security of database backed web sites my best ideas involved having multiple 
-programs doing database access with different contexts.
+I think it isn't tricky way.
 
-For example the PHP script that wants to delete a topic might run a program 
-that takes the user-name and password for the database connection on stdin 
-(which would be used to validate the user's rights to delete the topic), and 
-command-line parameters to specify the forum and topic to be deleted.  That 
-way someone who cracks part of the forum software would only be able to 
-delete topics that their UID is permitted to delete.
+Thanks,
 
-Also for database access I think we want permission for a trusted connection 
-manager to perform connections on behalf of other contexts.  So we need to be 
-able to specify in policy that domain foo_t can connect as bar_t and maybe 
-permit range transitions too.  I expect this to be controversial.  But a very 
-common need for database security is where you start with a front-end process 
-that runs under the same context for all users.  There are several places 
-where the privileges for different users can be separated, the database 
-connection is one of them.
-
-> > I would also think multiple security queries per database
-> > query would present a significant performance hit (but then
-> > again, that may be the price we have to pay for the added security).
->
-> Many of the lookups are already going to be done (eg., table, column DAC
-> permissions) and the AVC is pretty fast, I don't think the hit will be
-> significant but I'd be very willing to find out..
-
-I agree.  Lots of database operations can be CPU intensive, SE Linux checks 
-with the AVC in user-space should not be a factor in overall performance.
-
-Security Enhanced X is where we will have difficulty in delivering 
-performance.
-
+> You label columns because an entire column might contain important data
+> (eg., a password). The rows are labeled because some domain X is putting
+> data in them and you still want to be able to use policy to enforce
+> information flow goals with the policy whether you are using kernel
+> objects or userspace objects. In other words, if user X is topsecret and
+> writes a row to a table you don't want user Y who is just secret to read
+> it. 
+> 
+> The latter can be accomplished in many ways including virtual databases
+> (eg., views) or by modifying queries (like KaiGai mentioned in his first
+> email) or filtering results or course grained labeling on tables so that
+> each table is only 1 context. Some are better approaches than others, I
+> won't go into that at this point..
+> 
+> The answer is yes, there may be multiple security queries per database
+> query, due to the data model of relational databases this is optimal and
+> necessary IMO. This isn't abnormal either. Creating a file, for example,
+> requires dir { add_name search}, file { create } and filesystem {
+> associate } (for the object). The policy server has similar multiple
+> checks in its current state. I don't think there is a problem if they
+> overlap some as long as one isn't necessarilly a superset of another
+> (which would just be redundant) which is not the case here since we are
+> talking about different objects that can be labeled differently for any
+> given query.
 -- 
-http://etbe.blogspot.com/          My Blog
-http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
-
-http://www.coker.com.au/sponsorship.html Sponsoring Free Software development
+KaiGai Kohei <kaigai@kaigai.gr.jp>
 
 --
 This message was distributed to subscribers of the selinux mailing list.
