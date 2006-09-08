@@ -1,73 +1,67 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k88DIuTB018065
-	for <selinux@tycho.nsa.gov>; Fri, 8 Sep 2006 09:18:56 -0400
-Received: from exchange.columbia.tresys.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with SMTP id k88DIAIs003464
-	for <selinux@tycho.nsa.gov>; Fri, 8 Sep 2006 13:18:10 GMT
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Subject: RE: [RFC] SELinux and PostgreSQL
-Date: Fri, 8 Sep 2006 09:19:56 -0400
-Message-ID: <6FE441CD9F0C0C479F2D88F959B015883C166F@exchange.columbia.tresys.com>
-In-Reply-To: <200609082206.02747.russell@coker.com.au>
-From: "Joshua Brindle" <jbrindle@tresys.com>
-To: <russell@coker.com.au>
-Cc: "James W. Hoeft" <Jim@MagitekLtd.com>,
-        "KaiGai Kohei" <kaigai@kaigai.gr.jp>, <selinux@tycho.nsa.gov>
+Subject: Re: IPC security context
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: russell@coker.com.au
+Cc: Eric Paris <eparis@parisplace.org>, James Morris <jmorris@namei.org>,
+        Steve G <linux_4ever@yahoo.com>, andy.suchoski@comcast.net,
+        selinux@tycho.nsa.gov
+In-Reply-To: <200609081005.37716.russell@coker.com.au>
+References: <20060907210503.73467.qmail@web51510.mail.yahoo.com>
+	 <200609081005.37716.russell@coker.com.au>
+Content-Type: text/plain
+Date: Fri, 08 Sep 2006 09:25:01 -0400
+Message-Id: <1157721901.31695.33.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-> From: Russell Coker [mailto:russell@coker.com.au] 
-> 
-> On Friday 08 September 2006 12:10, "Joshua Brindle" 
-> <jbrindle@tresys.com>
-> wrote:
-> > > I'm confused. Password column is a good example - let's say the 
-> > > password column is labeled at top secret, then how can a 
-> secret user 
-> > > create a new row? I would assume a password would
+On Fri, 2006-09-08 at 10:05 +1000, Russell Coker wrote:
+> On Friday 08 September 2006 07:05, Steve G <linux_4ever@yahoo.com> wrote:
+> > >To re-add, we would need a specific application that required such
+> > > support.
 > >
-> > Well, first of all a secret user can write a top secret 
-> column but I 
-> > think I know what you meant..
+> > Would ipcs be that app?
 > 
-> Yes, in the MLS side of things the user can write-up (limited 
-> to the high level of their range unless there is an attribute 
-> on either the domain or the type to allow going higher).
+> I believe so.
 > 
-> But if you have the password labeled with a restrictive type 
-> (something equivalent to shadow_t) then it becomes a little 
-> more tricky.
-> 
-> > > be required, but that either means a secret user cannot read or 
-> > > cannot write (or can't do either). If that's not the 
-> case, then does 
-> > > that mean the row can be created without a password? In 
-> which case, 
-> > > does that mean only top secret users
-> >
-> > Probably a trusted stored procedure that has a higher level 
-> of access 
-> > would be used
-> 
-> Or a trusted SQL client program.  When considering ways of 
-> improving the security of database backed web sites my best 
-> ideas involved having multiple programs doing database access 
-> with different contexts.
-> 
+> I am currently working on writing policy for some proprietary software that 
+> uses a lot of shared memory and semaphores.  The inability to display 
+> contexts through ipcs is a significant obstacle for me in this work.
 
-Trusted stored procedures are nicer IMO. They allow a centralized way
-for any other client to check eg., passwords. For example, instead of
-being able to do select * from users where uid = '1'; and get the entire
-row (including password) they would have to do fetch_my_user_row(1,
-'mypassword'); and the stored proc would only return it if the password
-matched the password in the row.
+I'm a bit skeptical that ipcs itself is sufficient motivation, as one
+can always make use of audit configuration (whether via auditallow in
+policy or auditctl with the enhanced syscall audit that includes
+contexts) to see the object contexts in the audit logs for development
+purposes.  The motivating application would have to be software that is
+actually using the IPC objects and needs to get or set the context of
+those objects, and at least one such application would likely need to be
+open source to serve as a compelling example for upstream.  See the
+earlier discussion about adding a /proc/self/attr/ipccreate node on this
+list and in redhat bug 197114; the same issue applies there.
 
-Even if the password column is hashed (which in most cases it will be)
-its still better to force people to use stored procedures instead of
-letting them get the entire table with hashed passwords to brute force
-at their leasure.
+Note that I'm not the obstacle here - I would be happy to see the entire
+original SELinux API revived (in a different form that is acceptable
+upstream, naturally, but equivalent in functionality to the old API),
+but at the time we were forced to refactor the SELinux API (upon removal
+of sys_security in 2.5), we were told that we needed real examples of
+users for any interfaces we added.  Hence, we limited ourselves to the
+process, file, and security interfaces, then added other interfaces as
+needed (e.g. getpeercon).
+
+If we want to go down this road, I think we need two things:
+1) A concrete proposal on what such interfaces should look like, taking
+into consideration the factors that led to the rejection of the original
+API.  Offhand, I'd think that the approach most in line with the
+existing IPC interfaces would be a new cmd value for msgctl, semctl, and
+shmctl that gets the context, calling into the security module to obtain
+the value, modeled on getpeercon.
+2) A real user of such interfaces to demonstrate that they will be used
+and that we at least have some evidence that the interface is correct
+for the intended usage and won't have to immediately change when a real
+user manifests.
+
+-- 
+Stephen Smalley
+National Security Agency
 
 
 --
