@@ -1,58 +1,52 @@
 Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k88JKu3C031003
-	for <selinux@tycho.nsa.gov>; Fri, 8 Sep 2006 15:20:56 -0400
-Received: from e2.ny.us.ibm.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id k88JKAeD009571
-	for <selinux@tycho.nsa.gov>; Fri, 8 Sep 2006 19:20:10 GMT
-Received: from d01relay02.pok.ibm.com (d01relay02.pok.ibm.com [9.56.227.234])
-	by e2.ny.us.ibm.com (8.13.8/8.12.11) with ESMTP id k88JKuCj020497
-	for <selinux@tycho.nsa.gov>; Fri, 8 Sep 2006 15:20:56 -0400
-Received: from d01av02.pok.ibm.com (d01av02.pok.ibm.com [9.56.224.216])
-	by d01relay02.pok.ibm.com (8.13.6/8.13.6/NCO v8.1.1) with ESMTP id k88JKu9s280962
-	for <selinux@tycho.nsa.gov>; Fri, 8 Sep 2006 15:20:56 -0400
-Received: from d01av02.pok.ibm.com (loopback [127.0.0.1])
-	by d01av02.pok.ibm.com (8.12.11.20060308/8.13.3) with ESMTP id k88JKtQK028316
-	for <selinux@tycho.nsa.gov>; Fri, 8 Sep 2006 15:20:55 -0400
-Date: Fri, 8 Sep 2006 14:09:38 -0500
-From: Joy Latten <latten@austin.ibm.com>
-Message-Id: <200609081909.k88J9cG4013361@faith.austin.ibm.com>
-To: redhat-lspp@redhat.com, selinux@tycho.nsa.gov
-Subject: Which role to configure IPSec?
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k88JSnnS031336
+	for <selinux@tycho.nsa.gov>; Fri, 8 Sep 2006 15:28:49 -0400
+Received: from e36.co.us.ibm.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id k88JS2eD010966
+	for <selinux@tycho.nsa.gov>; Fri, 8 Sep 2006 19:28:02 GMT
+Received: from d03relay04.boulder.ibm.com (d03relay04.boulder.ibm.com [9.17.195.106])
+	by e36.co.us.ibm.com (8.13.8/8.12.11) with ESMTP id k88JSm3s001913
+	for <selinux@tycho.nsa.gov>; Fri, 8 Sep 2006 15:28:48 -0400
+Received: from d03av03.boulder.ibm.com (d03av03.boulder.ibm.com [9.17.195.169])
+	by d03relay04.boulder.ibm.com (8.13.6/8.13.6/NCO v8.1.1) with ESMTP id k88JSmcc234882
+	for <selinux@tycho.nsa.gov>; Fri, 8 Sep 2006 13:28:48 -0600
+Received: from d03av03.boulder.ibm.com (loopback [127.0.0.1])
+	by d03av03.boulder.ibm.com (8.12.11.20060308/8.13.3) with ESMTP id k88JSlm5007674
+	for <selinux@tycho.nsa.gov>; Fri, 8 Sep 2006 13:28:48 -0600
+Message-ID: <4501C466.7060309@us.ibm.com>
+Date: Fri, 08 Sep 2006 14:28:38 -0500
+From: Michael C Thompson <thompsmc@us.ibm.com>
+MIME-Version: 1.0
+To: Daniel J Walsh <dwalsh@redhat.com>
+CC: lspp-list <redhat-lspp@redhat.com>, selinux@tycho.nsa.gov
+Subject: Re: [redhat-lspp] Re: MLS Policy (rawhide)
+References: <4500906A.3000502@us.ibm.com> <4501B1B1.4020103@redhat.com>
+In-Reply-To: <4501B1B1.4020103@redhat.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-I am running rawhide which I installed on Sept 5,
-and it has selinux-policy-mls-2.3.11-1. I logged in 
-and did a newrole -r sysadm_r, so my context is 
-root:sysadm_r:sysadm_t:SystemLow-SystemHigh. I wasn't
-able to configure nor run IPSec in enforcing.
+Daniel J Walsh wrote:
+> Michael C Thompson wrote:
+>> Hey all,
+>>
+>> It seems that ssh is unable to add entries to known_hosts for the root 
+>> user as sysadm_t. Is this a known issue? And if so, who can add 
+>> entries to /root/.ssh/known_hosts ?
+>>
+>> Thanks,
+>> Mike
+>>
+> This works for me.  How is the file labeled?
 
-I am wondering is sysadm_r the correct role to configure
-IPSec? I also am just trying to run plain IPSec, with no
-labels, thus it is taking the default of unlabeled_t.
+# ls -alZ /root/.ssh
+drwx------  root root root:object_r:user_home_ssh_t:SystemLow .
+drwxr-x---  root root 
+root:object_r:sysadm_home_dir_t:SystemLow-SystemHigh ..
+-rw-------  root root root:object_r:bin_t:SystemLow    id_rsa
+-rw-r--r--  root root root:object_r:bin_t:SystemLow    id_rsa.pub
+-rw-r--r--  root root root:object_r:user_home_ssh_t:SystemLow known_hosts
 
-So far, audit.log says I need the following rules to configure
-IPSec with the setkey command and then do a ping to test the connection.
-
-allow unlabeled_t self:association { polmatch sendto recvfrom };
-allow ping_t unlabeled_t:association polmatch;
-allow sysadm_t self:key_socket { create read setopt write };
-
-The first 2 rules appear to be generally applicable.
-The first one I added to kernel.te because I didn't know where else
-to place it. For the second rule, I added "polmatch" to 
-kernel_sendrecv_unlabeled_association interface so that other
-networking utilities would also acquire the permission. Again,
-I don't really know if this is the best place to put it.
-But the last one is particular to sysadm_t or whoever runs
-the setkey command which is used to configure IPSec. I also
-tried secadm_r and got similar complaints.
-
-I guess what I would like to know is whether sysadm_r the correct role
-to configure ipsec? 
-
-Regards,
-Joy
 
 --
 This message was distributed to subscribers of the selinux mailing list.
