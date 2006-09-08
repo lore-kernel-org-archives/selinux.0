@@ -1,44 +1,45 @@
-Subject: Re: Latest policycoreutils patch
-From: Karl MacMillan <kmacmillan@mentalrootkit.com>
-To: Daniel J Walsh <dwalsh@redhat.com>
-Cc: Stephen Smalley <sds@tycho.nsa.gov>, SE Linux <selinux@tycho.nsa.gov>
-In-Reply-To: <45001F1A.3080004@redhat.com>
-References: <45001F1A.3080004@redhat.com>
+Subject: Re: Problems with the MLS policy
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Salvo Giuffrida <giuffsalvo@hotmail.it>
+Cc: linda.knippers@hp.com, selinux@tycho.nsa.gov
+In-Reply-To: <BAY114-F25F8A25DECDDB93554F5DBAF370@phx.gbl>
+References: <BAY114-F25F8A25DECDDB93554F5DBAF370@phx.gbl>
 Content-Type: text/plain
-Date: Fri, 08 Sep 2006 10:00:05 -0400
-Message-Id: <1157724005.21235.10.camel@localhost.localdomain>
+Date: Fri, 08 Sep 2006 10:10:10 -0400
+Message-Id: <1157724610.31695.68.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2006-09-07 at 09:31 -0400, Daniel J Walsh wrote:
-> For some reason this did not go out last week.
-> 
-> More translations.
-> 
+On Fri, 2006-09-08 at 12:30 +0200, Salvo Giuffrida wrote:
+> I did as you said, but the problems remain: there's no binary policy file in 
+> /etc/selinux/mls/policy, and when I go to /etc/selinux/mls/modules/active, 
+> and so "semanage -B", it gives me "Segmentation fault".
 
-Can you send these as separate patches in the future - it would make the
-review easier.
+Please update to the latest devel versions of:
+libsepol
+libselinux
+libsemanage
+policycoreutils
 
-> Change all python to use /usr/bin/python -E, to make it a little bit 
-> harder to muck with.
-> 
-> Have newrole ignore sigpipe so it gives correct error message when 
-> flooded with 4000 character security context.
-> 
-> Add -i qualifier to restorecon to tell it to ignore files that do not 
-> exist.  This fixes a problem in
-> fixfiles -R rpmlint restore
-> 
-> 
-> Which could hand restorecon files that do not exists and restorecon 
-> prints ugly warnings.
-> 
-> restorecond init script description needs line continuation marks to 
-> make system-config-services happy.
-> 
+Then update to the latest selinux-policy-mls.
 
-Acked-by Karl MacMillan <kmacmillan@mentalrootkit.com>
+> Where can I find more info on the classification system? I'd like to know 
+> how the categories are mapped to the TopSecret,Secret,ecc... classification 
+> levels...
+
+They are mapped via setrans.conf, in /etc/selinux/mls/setrans.conf.  You
+should be able to manage those mappings via semanage, e.g.
+run /usr/sbin/semanage translation -l to list the current mappings.
+
+You might want to look at:
+http://selinux-symposium.org/2006/papers/03-SELinux-and-MLS.pdf
+http://fedoraproject.org/wiki/SELinux/MLS
+
+
+-- 
+Stephen Smalley
+National Security Agency
 
 
 --
