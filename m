@@ -1,65 +1,54 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k88305O6001934
-	for <selinux@tycho.nsa.gov>; Thu, 7 Sep 2006 23:00:05 -0400
-Received: from e5.ny.us.ibm.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id k882xe7M018154
-	for <selinux@tycho.nsa.gov>; Fri, 8 Sep 2006 02:59:41 GMT
-Received: from d01relay04.pok.ibm.com (d01relay04.pok.ibm.com [9.56.227.236])
-	by e5.ny.us.ibm.com (8.13.8/8.12.11) with ESMTP id k88304O4008759
-	for <selinux@tycho.nsa.gov>; Thu, 7 Sep 2006 23:00:04 -0400
-Received: from d01av02.pok.ibm.com (d01av02.pok.ibm.com [9.56.224.216])
-	by d01relay04.pok.ibm.com (8.13.6/8.13.6/NCO v8.1.1) with ESMTP id k88304qi296778
-	for <selinux@tycho.nsa.gov>; Thu, 7 Sep 2006 23:00:04 -0400
-Received: from d01av02.pok.ibm.com (loopback [127.0.0.1])
-	by d01av02.pok.ibm.com (8.12.11.20060308/8.13.3) with ESMTP id k883030G019118
-	for <selinux@tycho.nsa.gov>; Thu, 7 Sep 2006 23:00:04 -0400
-Date: Thu, 7 Sep 2006 22:00:03 -0500
-From: "Serge E. Hallyn" <serue@us.ibm.com>
-To: Karl MacMillan <kmacmillan@mentalrootkit.com>
-Cc: "Serge E. Hallyn" <serue@us.ibm.com>, SELinux <selinux@tycho.nsa.gov>
-Subject: Re: semanage user
-Message-ID: <20060908030003.GA3086@sergelap.austin.ibm.com>
-References: <20060906161959.GA29623@sergelap.austin.ibm.com> <1157648827.20616.1.camel@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1157648827.20616.1.camel@localhost.localdomain>
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k8853LXs004397
+	for <selinux@tycho.nsa.gov>; Fri, 8 Sep 2006 01:03:23 -0400
+Received: from testdomain.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with SMTP id k8852XLJ027904
+	for <selinux@tycho.nsa.gov>; Fri, 8 Sep 2006 05:02:35 GMT
+Message-ID: <004d01c6d304$14bdf0c0$a000a8c0@iscasldm>
+From: "dongmei" <ldm@ercist.iscas.ac.cn>
+To: <selinux@tycho.nsa.gov>
+Subject: How can I get the fedora sources through cvs?Are there any anonymous account for cvs.fedora.redhat.com?
+Date: Fri, 8 Sep 2006 13:03:10 +0800
+MIME-Version: 1.0
+Content-Type: multipart/alternative;
+	boundary="----=_NextPart_000_004A_01C6D347.22BE1860"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Quoting Karl MacMillan (kmacmillan@mentalrootkit.com):
-> On Wed, 2006-09-06 at 11:19 -0500, Serge E. Hallyn wrote:
-> > Hi,
-> > 
-> > It appears removing a user with semanage does not also remove it's
-> > associated logins.  This is a problem because then re-adding the
-> > user fails.  (I do not have the error handy as my test machines are all
-> > down atm)
-> > 
-> > I had done:
-> > 	semanage user -a -R abat_r -P abat abat_u
-> > 	semanage login -a -s abat_u abat
-> > 	semanage user -r abat_u   [ or is it -d? ]
-> > 	semanage user -a -R abat_r -P abat abat_u
-> > 
-> > the last step failed.  When I then did
-> > 
-> > 	semanage login -d abat  (or was it -r?  :)
-> > 	semanage user -a -R abat_r -P abat abat_u
-> > 
-> > it succeeded.
-> > 
-> > Not sure whether there is a good reason to leave the code like
-> > that, or whether semanage user -r should automatically imply
-> > semanage login -r.
-> > 
-> 
-> Please create a bug on the newly working upstream bug tracker -
-> http://sourceforge.net/projects/selinux. You can assign it to me if you
-> want.
+This is a multi-part message in MIME format.
 
-Thanks, done.
+------=_NextPart_000_004A_01C6D347.22BE1860
+Content-Type: text/plain;
+	charset="gb2312"
+Content-Transfer-Encoding: base64
 
--serge
+SSB3YW50IHRvIGdldCB0aGUgc291cmNlIG9mIGEgcHJldmlvdXMgdmVyc2lvbiBsaWJzZWxpbnV4
+LCBub3QgdGhlIGxhdGVzdCB2ZXJzaW9uIDEuMzAuMy4gSG93IGNhbiBJIGdldCBpdD9BcmUgdGhl
+cmUgYW55IGFub255bW91cyBhY2NvdW50IGZvciBjdnMuZmVkb3JhLnJlZGhhdC5jb20/DQoNClRo
+YW5rcyEgDQoNCg0K
+
+------=_NextPart_000_004A_01C6D347.22BE1860
+Content-Type: text/html;
+	charset="gb2312"
+Content-Transfer-Encoding: base64
+
+PCFET0NUWVBFIEhUTUwgUFVCTElDICItLy9XM0MvL0RURCBIVE1MIDQuMCBUcmFuc2l0aW9uYWwv
+L0VOIj4NCjxIVE1MPjxIRUFEPg0KPE1FVEEgaHR0cC1lcXVpdj1Db250ZW50LVR5cGUgY29udGVu
+dD0idGV4dC9odG1sOyBjaGFyc2V0PWdiMjMxMiI+DQo8TUVUQSBjb250ZW50PSJNU0hUTUwgNi4w
+MC4yODAwLjExMDYiIG5hbWU9R0VORVJBVE9SPg0KPFNUWUxFPjwvU1RZTEU+DQo8L0hFQUQ+DQo8
+Qk9EWSBiZ0NvbG9yPSNmZmZmZmY+DQo8RElWPjxGT05UIHNpemU9Mj5JIHdhbnQgdG8gZ2V0Jm5i
+c3A7dGhlIHNvdXJjZSBvZiBhIHByZXZpb3VzIA0KdmVyc2lvbiZuYnNwO2xpYnNlbGludXgsIG5v
+dCB0aGUgbGF0ZXN0IHZlcnNpb24gMS4zMC4zLiZuYnNwO0hvdyBjYW4gSSBnZXQgDQppdD88L0ZP
+TlQ+PEZPTlQgc2l6ZT0yPkFyZSB0aGVyZSBhbnkgYW5vbnltb3VzIGFjY291bnQgZm9yIA0KY3Zz
+LmZlZG9yYS5yZWRoYXQuY29tPzwvRk9OVD48L0RJVj4NCjxESVY+PEZPTlQgc2l6ZT0yPjwvRk9O
+VD4mbmJzcDs8L0RJVj4NCjxESVY+PEZPTlQgc2l6ZT0yPlRoYW5rcyE8L0ZPTlQ+Jm5ic3A7PC9E
+SVY+DQo8RElWPjxGT05UIHNpemU9Mj48L0ZPTlQ+Jm5ic3A7PC9ESVY+DQo8RElWPjxGT05UIHNp
+emU9Mj48L0ZPTlQ+Jm5ic3A7PC9ESVY+DQo8RElWPiZuYnNwOzwvRElWPjwvQk9EWT48L0hUTUw+
+DQo=
+
+------=_NextPart_000_004A_01C6D347.22BE1860--
+
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
