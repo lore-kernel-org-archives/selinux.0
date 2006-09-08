@@ -1,79 +1,58 @@
-Message-ID: <4501BB5A.1060301@redhat.com>
-Date: Fri, 08 Sep 2006 14:50:02 -0400
-From: Daniel J Walsh <dwalsh@redhat.com>
-MIME-Version: 1.0
-To: Stephen Smalley <sds@tycho.nsa.gov>
-CC: Darrel Goeddel <dgoeddel@TrustedCS.com>, janak@us.ibm.com,
-        sgrubb@redhat.com, tmraz@redhat.com, ltcgcw@us.ibm.com,
-        klaus@atsec.com, selinux@tycho.nsa.gov
-Subject: Re: [PATCH] newrole: use pam session management services - v4
-References: <1157403682.7223.16.camel@localhost.localdomain>	 <45004926.5010206@trustedcs.com>	 <1157736146.31695.145.camel@moss-spartans.epoch.ncsc.mil>	 <4501A841.4060006@redhat.com> <1157740847.31695.207.camel@moss-spartans.epoch.ncsc.mil>
-In-Reply-To: <1157740847.31695.207.camel@moss-spartans.epoch.ncsc.mil>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k88JKu3C031003
+	for <selinux@tycho.nsa.gov>; Fri, 8 Sep 2006 15:20:56 -0400
+Received: from e2.ny.us.ibm.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id k88JKAeD009571
+	for <selinux@tycho.nsa.gov>; Fri, 8 Sep 2006 19:20:10 GMT
+Received: from d01relay02.pok.ibm.com (d01relay02.pok.ibm.com [9.56.227.234])
+	by e2.ny.us.ibm.com (8.13.8/8.12.11) with ESMTP id k88JKuCj020497
+	for <selinux@tycho.nsa.gov>; Fri, 8 Sep 2006 15:20:56 -0400
+Received: from d01av02.pok.ibm.com (d01av02.pok.ibm.com [9.56.224.216])
+	by d01relay02.pok.ibm.com (8.13.6/8.13.6/NCO v8.1.1) with ESMTP id k88JKu9s280962
+	for <selinux@tycho.nsa.gov>; Fri, 8 Sep 2006 15:20:56 -0400
+Received: from d01av02.pok.ibm.com (loopback [127.0.0.1])
+	by d01av02.pok.ibm.com (8.12.11.20060308/8.13.3) with ESMTP id k88JKtQK028316
+	for <selinux@tycho.nsa.gov>; Fri, 8 Sep 2006 15:20:55 -0400
+Date: Fri, 8 Sep 2006 14:09:38 -0500
+From: Joy Latten <latten@austin.ibm.com>
+Message-Id: <200609081909.k88J9cG4013361@faith.austin.ibm.com>
+To: redhat-lspp@redhat.com, selinux@tycho.nsa.gov
+Subject: Which role to configure IPSec?
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Stephen Smalley wrote:
-> On Fri, 2006-09-08 at 13:28 -0400, Daniel J Walsh wrote:
->   
->> Stephen Smalley wrote:
->>     
->>> On Thu, 2006-09-07 at 11:30 -0500, Darrel Goeddel wrote:
->>>   
->>>       
->>>> Could we untangle the pam/lspp bits like I have below if we include
->>>> pam_permit as a session module in the "regular" pam config?  I think
->>>> that should take care of the case where we use pam, but do not have
->>>> any session management needs.  The use of pam_permit in this situation
->>>> seems perfectly acceptable to me.  This would give us real session
->>>> management capabilities via pam even if we are not using the lspp
->>>> configuration which requires privilege for pam_namespace.so.
->>>>     
->>>>         
->>> Even better would be if there was an easy way for newrole to dynamically
->>> probe for whether pam_namespace is in its pam config, and to only enable
->>> those capabilities if it is there.  Then we can have a single newrole
->>> binary built with the LSPP support, but it will still drop all
->>> capabilities other than CAP_AUDIT_WRITE at startup if there is no
->>> pam_namespace in its config (as in a non-LSPP system).
->>>
->>>   
->>>       
->> Could we label it differently.  So if it runs in newrole_lspp_t domain 
->> it does not drop, otherwise it does.
->>     
->
-> For the strict policy, we can easily wrap the allow rules for the
-> additional capabilities for newrole_t in a conditional with a boolean
-> that is only enabled in the LSPP config, or we can put the allow rules
-> in a separate policy module that is only added in the LSPP config.  But
-> that doesn't help in the case of the default targeted policy where
-> neither newrole nor its caller are confined by SELinux.
->
-> Part of the confusion here is what you plan to put in vanilla
-> Fedora/RHEL versus the LSPP certified configuration.  I assume you want
-> a single newrole binary that can handle either case (which means it has
-> to be setuid root, and include the capability manipulation code and
-> pam_open_session call).  Do you plan to include pam_namespace in the pam
-> config always, or only in the LSPP certified configuration?  If the
-> former, then checking for it at runtime serves no purpose; the build
-> time option is sufficient.  If the latter, then policycoreutils itself
-> should never install a newrole pam config that includes pam_namespace;
-> that should only be done by some LSPP-specific package, and having a
-> runtime check of whether pam_namespace is present would allow newrole to
-> immediately shed those capabilities for vanilla Fedora/RHEL users so
-> that they have no additional exposure.
->
->   
+I am running rawhide which I installed on Sept 5,
+and it has selinux-policy-mls-2.3.11-1. I logged in 
+and did a newrole -r sysadm_r, so my context is 
+root:sysadm_r:sysadm_t:SystemLow-SystemHigh. I wasn't
+able to configure nor run IPSec in enforcing.
 
-Why not have newrole not be setuid at all, but when you install the LSPP 
-package is sets it setuid.  Then we can only call pam_session if we are 
-setuid.  (I think you can check that.)
-If you want to use pam_namespace you need to setuid the app, for strict 
-policy.
+I am wondering is sysadm_r the correct role to configure
+IPSec? I also am just trying to run plain IPSec, with no
+labels, thus it is taking the default of unlabeled_t.
 
-This way the bulk of users do not have another setuid app around.  
-newrole is of little use currently in targeted policy.
+So far, audit.log says I need the following rules to configure
+IPSec with the setkey command and then do a ping to test the connection.
+
+allow unlabeled_t self:association { polmatch sendto recvfrom };
+allow ping_t unlabeled_t:association polmatch;
+allow sysadm_t self:key_socket { create read setopt write };
+
+The first 2 rules appear to be generally applicable.
+The first one I added to kernel.te because I didn't know where else
+to place it. For the second rule, I added "polmatch" to 
+kernel_sendrecv_unlabeled_association interface so that other
+networking utilities would also acquire the permission. Again,
+I don't really know if this is the best place to put it.
+But the last one is particular to sysadm_t or whoever runs
+the setkey command which is used to configure IPSec. I also
+tried secadm_r and got similar complaints.
+
+I guess what I would like to know is whether sysadm_r the correct role
+to configure ipsec? 
+
+Regards,
+Joy
 
 --
 This message was distributed to subscribers of the selinux mailing list.
