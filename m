@@ -1,71 +1,36 @@
-Message-ID: <45019F57.9070501@trustedcs.com>
-Date: Fri, 08 Sep 2006 11:50:31 -0500
+Message-ID: <45019F50.1090408@trustedcs.com>
+Date: Fri, 08 Sep 2006 11:50:24 -0500
 From: Venkat Yekkirala <vyekkirala@TrustedCS.com>
 MIME-Version: 1.0
 To: netdev@vger.kernel.org, selinux@tycho.nsa.gov
 CC: jmorris@namei.org, sds@tycho.nsa.gov, chanson@TrustedCS.com
-Subject: [PATCH 1/7] secid reconciliation-v02
+Subject: [PATCH 0/7] secid reconciliation-v02: Repost patchset with updates
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Currently a packet accumulates multiple security identifiers, each of a
-different class, as it enters/leaves the system. This patch set reconciles these
-identifiers into a single identifier while also allowing LSM (SELinux is
-addressed in this patch set) to impose flow control checks based on the
-identifiers.
+The following are the changes included in this patchset since the previous post:
 
-The reconciliation steps for SELinux are explained in the Labeled Networking
-document at:
-http://marc.theaimsgroup.com/?l=linux-netdev&m=115136637800361&w=2
-with the change that SELinux transition rules are used when available
-to arrive at the new secid.
+- Perform flow_in check before (as opposed to after) computing transition
+  secid on inbound; this seems more intuitive and correct.
+- Implement reconciliation and flow control for outbound traffic
+  (forward case being a sequence of inbound checks followed by outbound checks).
+- Make selinux_xfrm_postroute_last checks conditional on compat_net.
 
-The following are the identifiers handled here:
+This patchset is relative to David Miller's net-2.6.19.git (last updated on Sep 1st).
 
-1. secmark on the skb
-2. xfrm security identifier associated with the skb if it used any xfrms,
- a zero secid otherwise.
+Please consider for inclusion in 2.6.19.
 
-This patch: Add new flask definitions to SELinux
 
-Adds a new avperm "flow_in" to arbitrate among the identifiers on the
-inbound (input/forward). Also adds a new avperm "flow_out" to enable flow
-control checks on the outbound (output/forward), addressed in this patch
-as well.
+UPCOMING WORK:
 
-Signed-off-by: Venkat Yekkirala <vyekkirala@TrustedCS.com>
----
- security/selinux/include/av_perm_to_string.h |    2 ++
- security/selinux/include/av_permissions.h    |    2 ++
- 2 files changed, 4 insertions(+)
+The following per the discussion at:
+  http://marc.theaimsgroup.com/?l=selinux&m=115755980516072&w=2
 
-diff --git a/security/selinux/include/av_perm_to_string.h b/security/selinux/include/av_perm_to_string.h
-index 09fc8a2..1e65d28 100644
---- a/security/selinux/include/av_perm_to_string.h
-+++ b/security/selinux/include/av_perm_to_string.h
-@@ -245,6 +245,8 @@
-    S_(SECCLASS_PACKET, PACKET__SEND, "send")
-    S_(SECCLASS_PACKET, PACKET__RECV, "recv")
-    S_(SECCLASS_PACKET, PACKET__RELABELTO, "relabelto")
-+   S_(SECCLASS_PACKET, PACKET__FLOW_IN, "flow_in")
-+   S_(SECCLASS_PACKET, PACKET__FLOW_OUT, "flow_out")
-    S_(SECCLASS_KEY, KEY__VIEW, "view")
-    S_(SECCLASS_KEY, KEY__READ, "read")
-    S_(SECCLASS_KEY, KEY__WRITE, "write")
-diff --git a/security/selinux/include/av_permissions.h b/security/selinux/include/av_permissions.h
-index 81f4f52..2faf3d8 100644
---- a/security/selinux/include/av_permissions.h
-+++ b/security/selinux/include/av_permissions.h
-@@ -962,6 +962,8 @@ #define APPLETALK_SOCKET__NAME_BIND     
- #define PACKET__SEND                              0x00000001UL
- #define PACKET__RECV                              0x00000002UL
- #define PACKET__RELABELTO                         0x00000004UL
-+#define PACKET__FLOW_IN                           0x00000008UL
-+#define PACKET__FLOW_OUT                          0x00000010UL
- 
- #define KEY__VIEW                                 0x00000001UL
- #define KEY__READ                                 0x00000002UL
+- Create IPSec SAs to be acquired with the creating sock's context as opposed
+  to that of the matching SPD rule, resulting in a simpler SPD as well as policy.
+- Set peer_sid on tcp sockets to the reconciled secmark so trusted applications
+  can retrieve and service the data at the appropriate context.
 
 --
 This message was distributed to subscribers of the selinux mailing list.
