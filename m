@@ -1,338 +1,120 @@
-Message-ID: <45019F72.2050708@trustedcs.com>
-Date: Fri, 08 Sep 2006 11:50:58 -0500
+Message-ID: <45019F5C.3030102@trustedcs.com>
+Date: Fri, 08 Sep 2006 11:50:36 -0500
 From: Venkat Yekkirala <vyekkirala@TrustedCS.com>
 MIME-Version: 1.0
 To: netdev@vger.kernel.org, selinux@tycho.nsa.gov
 CC: jmorris@namei.org, sds@tycho.nsa.gov, chanson@TrustedCS.com
-Subject: [PATCH 7/7] secid reconciliation-v02: Enforcement for SELinux
+Subject: [PATCH 2/7] secid reconciliation-v02: Add LSM hooks
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This defines SELinux enforcement of the 2 new LSM hooks.
+Add skb_policy_check and skb_netfilter_check hooks to LSM to enable
+reconciliation of the various security identifiers as well as enforce
+flow control on inbound (INPUT/FORWARD) and outbound (OUTPUT/FORWARD)
+traffic.
 
 Signed-off-by: Venkat Yekkirala <vyekkirala@TrustedCS.com>
 ---
- security/selinux/hooks.c        |  125 ++++++++++++++++++++++++------
- security/selinux/include/xfrm.h |    5 +
- security/selinux/ss/mls.c       |    2 
- security/selinux/ss/services.c  |    2 
- security/selinux/xfrm.c         |   28 ++++++
- 5 files changed, 136 insertions(+), 26 deletions(-)
+ include/linux/security.h |   32 ++++++++++++++++++++++++++++++++
+ security/dummy.c         |   13 +++++++++++++
+ 2 files changed, 45 insertions(+)
 
-diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-index 5a66c4c..044e452 100644
---- a/security/selinux/hooks.c
-+++ b/security/selinux/hooks.c
-@@ -3449,8 +3449,12 @@ static int selinux_sock_rcv_skb_compat(s
- 
- 		err = avc_has_perm(sock_sid, port_sid,
- 				   sock_class, recv_perm, ad);
-+		if (err)
-+			goto out;
- 	}
- 
-+	err = selinux_xfrm_sock_rcv_skb(sock_sid, skb, ad);
-+
- out:
- 	return err;
- }
-@@ -3489,10 +3493,6 @@ static int selinux_socket_sock_rcv_skb(s
- 		goto out;
- 
- 	err = selinux_netlbl_sock_rcv_skb(sksec, skb, &ad);
--	if (err)
--		goto out;
--
--	err = selinux_xfrm_sock_rcv_skb(sksec->sid, skb, &ad);
- out:	
- 	return err;
- }
-@@ -3626,13 +3626,16 @@ static int selinux_inet_conn_request(str
- 		return 0;
- 	}
- 
--	err = selinux_xfrm_decode_session(skb, &peersid, 0);
--	BUG_ON(err);
-+	if (selinux_compat_net) {
-+		err = selinux_xfrm_decode_session(skb, &peersid, 0);
-+		BUG_ON(err);
- 
--	if (peersid == SECSID_NULL) {
--		req->secid = sksec->sid;
--		return 0;
--	}
-+		if (peersid == SECSID_NULL) {
-+			req->secid = sksec->sid;
-+			return 0;
-+		}
-+	} else
-+		peersid = skb->secmark;
- 
- 	err = security_sid_mls_copy(sksec->sid, peersid, &newsid);
- 	if (err)
-@@ -3662,6 +3665,78 @@ static void selinux_req_classify_flow(co
- 	fl->secid = req->secid;
- }
- 
-+static int selinux_skb_policy_check(struct sk_buff *skb, unsigned short family)
-+{
-+	u32 xfrm_sid, trans_sid;
-+	int err;
-+
-+	if (selinux_compat_net)
-+		return 1;
-+
-+	err = selinux_xfrm_decode_session(skb, &xfrm_sid, 0);
-+	BUG_ON(err);
-+
-+	err = avc_has_perm(xfrm_sid, skb->secmark, SECCLASS_PACKET,
-+					PACKET__FLOW_IN, NULL);
-+	if (err)
-+		goto out;
-+
-+	if (xfrm_sid) {
-+		err = security_transition_sid(xfrm_sid, skb->secmark,
-+						SECCLASS_PACKET, &trans_sid);
-+		if (err)
-+			goto out;
-+
-+		skb->secmark = trans_sid;
-+	}
-+
-+	/* See if CIPSO can flow in thru the current secmark here */
-+
-+out:
-+	return err ? 0 : 1;
-+};
-+
-+static int selinux_skb_netfilter_check(struct sk_buff *skb, u32 nf_secid)
-+{
-+	u32 xfrm_sid;
-+	u32 trans_sid;
-+	int err;
-+
-+	if (selinux_compat_net)
-+		return 1;
-+
-+	if (!skb->secmark && skb->sk) {
-+		struct sk_security_struct *sksec = skb->sk->sk_security;
-+		skb->secmark = sksec->sid;
-+	}
-+
-+	selinux_skb_xfrm_sid(skb, &xfrm_sid);
-+
-+	err = avc_has_perm(skb->secmark, xfrm_sid, SECCLASS_PACKET,
-+				PACKET__FLOW_OUT, NULL);
-+
-+	if (err)
-+		goto out;
-+
-+	if (xfrm_sid) {
-+		err = security_transition_sid(xfrm_sid, skb->secmark,
-+						SECCLASS_PACKET, &trans_sid);
-+		if (err)
-+			goto out;
-+
-+		skb->secmark = trans_sid;
-+	}
-+
-+	err = avc_has_perm(skb->secmark, nf_secid, SECCLASS_PACKET,
-+				PACKET__FLOW_OUT, NULL);
-+
-+out:
-+	/* Signal postroute_last that we are done with this skb */
-+	skb->secmark = SECSID_WILD;
-+
-+	return err ? 0 : 1;
-+}
-+
- static int selinux_nlmsg_perm(struct sock *sk, struct sk_buff *skb)
- {
- 	int err = 0;
-@@ -3700,7 +3775,8 @@ out:
- 
- #ifdef CONFIG_NETFILTER
- 
--static int selinux_ip_postroute_last_compat(struct sock *sk, struct net_device *dev,
-+static int selinux_ip_postroute_last_compat(struct sock *sk, struct sk_buff *skb,
-+					    struct net_device *dev,
- 					    struct avc_audit_data *ad,
- 					    u16 family, char *addrp, int len)
- {
-@@ -3710,6 +3786,9 @@ static int selinux_ip_postroute_last_com
- 	struct inode *inode;
- 	struct inode_security_struct *isec;
- 
-+	if (!sk)
-+		goto out;
-+
- 	sock = sk->sk_socket;
- 	if (!sock)
- 		goto out;
-@@ -3768,7 +3847,11 @@ static int selinux_ip_postroute_last_com
- 
- 		err = avc_has_perm(isec->sid, port_sid, isec->sclass,
- 				   send_perm, ad);
-+		if (err)
-+			goto out;
- 	}
-+
-+	err = selinux_xfrm_postroute_last(isec->sid, skb, ad);
- out:
- 	return err;
- }
-@@ -3782,18 +3865,13 @@ static unsigned int selinux_ip_postroute
- {
- 	char *addrp;
- 	int len, err = 0;
--	struct sock *sk;
- 	struct sk_buff *skb = *pskb;
- 	struct avc_audit_data ad;
- 	struct net_device *dev = (struct net_device *)out;
--	struct sk_security_struct *sksec;
- 
--	sk = skb->sk;
--	if (!sk)
-+	if (!selinux_compat_net && skb->secmark == SECSID_WILD)
- 		goto out;
- 
--	sksec = sk->sk_security;
--
- 	AVC_AUDIT_DATA_INIT(&ad, NET);
- 	ad.u.net.netif = dev->name;
- 	ad.u.net.family = family;
-@@ -3803,16 +3881,11 @@ static unsigned int selinux_ip_postroute
- 		goto out;
- 
- 	if (selinux_compat_net)
--		err = selinux_ip_postroute_last_compat(sk, dev, &ad,
-+		err = selinux_ip_postroute_last_compat(skb->sk, skb, dev, &ad,
- 						       family, addrp, len);
- 	else
--		err = avc_has_perm(sksec->sid, skb->secmark, SECCLASS_PACKET,
--				   PACKET__SEND, &ad);
--
--	if (err)
--		goto out;
--
--	err = selinux_xfrm_postroute_last(sksec->sid, skb, &ad);
-+		err = avc_has_perm(skb->secmark, SECINITSID_UNLABELED,
-+				   SECCLASS_PACKET, PACKET__FLOW_OUT, &ad);
- out:
- 	return err ? NF_DROP : NF_ACCEPT;
- }
-@@ -4719,6 +4792,8 @@ static struct security_operations selinu
- 	.inet_conn_request =		selinux_inet_conn_request,
- 	.inet_csk_clone =		selinux_inet_csk_clone,
- 	.req_classify_flow =		selinux_req_classify_flow,
-+	.skb_policy_check =		selinux_skb_policy_check,
-+	.skb_netfilter_check =		selinux_skb_netfilter_check,
+diff --git a/include/linux/security.h b/include/linux/security.h
+index 9f56fb8..032cede 100644
+--- a/include/linux/security.h
++++ b/include/linux/security.h
+@@ -828,6 +828,12 @@ #ifdef CONFIG_SECURITY
+  *	Sets the new child socket's sid to the openreq sid.
+  * @req_classify_flow:
+  *	Sets the flow's sid to the openreq sid.
++ * @skb_policy_check:
++ *	Checks to see if security policy would allow skb into the system.
++ *	Returns 1 if skb allowed into system, 0 otherwise.
++ * @skb_netfilter_check:
++ *	Checks to see if security policy would allow skb to go out of system.
++ *	Returns 1 if skb allowed out of system, 0 otherwise.
+  *
+  * Security hooks for XFRM operations.
+  *
+@@ -1372,6 +1378,8 @@ #ifdef CONFIG_SECURITY_NETWORK
+ 					struct request_sock *req);
+ 	void (*inet_csk_clone)(struct sock *newsk, const struct request_sock *req);
+ 	void (*req_classify_flow)(const struct request_sock *req, struct flowi *fl);
++	int (*skb_policy_check)(struct sk_buff *skb, unsigned short family);
++	int (*skb_netfilter_check)(struct sk_buff *skb, u32 nf_secid);
+ #endif	/* CONFIG_SECURITY_NETWORK */
  
  #ifdef CONFIG_SECURITY_NETWORK_XFRM
- 	.xfrm_policy_alloc_security =	selinux_xfrm_policy_alloc,
-diff --git a/security/selinux/include/xfrm.h b/security/selinux/include/xfrm.h
-index 81eb598..ed07f92 100644
---- a/security/selinux/include/xfrm.h
-+++ b/security/selinux/include/xfrm.h
-@@ -41,6 +41,7 @@ int selinux_xfrm_postroute_last(u32 isec
- u32 selinux_socket_getpeer_stream(struct sock *sk);
- u32 selinux_socket_getpeer_dgram(struct sk_buff *skb);
- int selinux_xfrm_decode_session(struct sk_buff *skb, u32 *sid, int ckall);
-+void selinux_skb_xfrm_sid(struct sk_buff *skb, u32 *sid);
- #else
- static inline int selinux_xfrm_sock_rcv_skb(u32 isec_sid, struct sk_buff *skb,
- 			struct avc_audit_data *ad)
-@@ -68,6 +69,10 @@ static inline int selinux_xfrm_decode_se
- 	*sid = SECSID_NULL;
- 	return 0;
+@@ -2946,6 +2954,18 @@ static inline void security_req_classify
+ 	security_ops->req_classify_flow(req, fl);
  }
-+static inline void selinux_skb_xfrm_sid(struct sk_buff *skb, u32 *sid)
+ 
++static inline int security_skb_policy_check(struct sk_buff *skb,
++					unsigned short family)
 +{
-+	*sid = SECSID_NULL;
-+}
- #endif
- 
- #endif /* _SELINUX_XFRM_H_ */
-diff --git a/security/selinux/ss/mls.c b/security/selinux/ss/mls.c
-index 119bd60..c551def 100644
---- a/security/selinux/ss/mls.c
-+++ b/security/selinux/ss/mls.c
-@@ -548,6 +548,8 @@ int mls_compute_sid(struct context *scon
- 				}
- 			}
- 		}
-+		else if (tclass == SECCLASS_PACKET)
-+			return mls_copy_context(newcontext, scontext);
- 		/* Fallthrough */
- 	case AVTAB_CHANGE:
- 		if (tclass == SECCLASS_PROCESS)
-diff --git a/security/selinux/ss/services.c b/security/selinux/ss/services.c
-index 27ee28c..f9cd484 100644
---- a/security/selinux/ss/services.c
-+++ b/security/selinux/ss/services.c
-@@ -832,6 +832,7 @@ static int security_compute_sid(u32 ssid
- 
- 	if (!ss_initialized) {
- 		switch (tclass) {
-+		case SECCLASS_PACKET:
- 		case SECCLASS_PROCESS:
- 			*out_sid = ssid;
- 			break;
-@@ -876,6 +877,7 @@ static int security_compute_sid(u32 ssid
- 
- 	/* Set the role and type to default values. */
- 	switch (tclass) {
-+	case SECCLASS_PACKET:
- 	case SECCLASS_PROCESS:
- 		/* Use the current role and type of process. */
- 		newcontext.role = scontext->role;
-diff --git a/security/selinux/xfrm.c b/security/selinux/xfrm.c
-index 3e742b8..3a68723 100644
---- a/security/selinux/xfrm.c
-+++ b/security/selinux/xfrm.c
-@@ -155,7 +155,7 @@ int selinux_xfrm_flow_state_match(struct
- }
- 
- /*
-- * LSM hook implementation that determines the sid for the session.
-+ * LSM hook implementation that checks/returns the xfrm sid for the incoming packet.
-  */
- 
- int selinux_xfrm_decode_session(struct sk_buff *skb, u32 *sid, int ckall)
-@@ -193,6 +193,32 @@ int selinux_xfrm_decode_session(struct s
- }
- 
- /*
-+ * LSM hook implementation that returns the xfrm sid for the outgoing packet.
-+ */
-+
-+void selinux_skb_xfrm_sid(struct sk_buff *skb, u32 *sid)
-+{
-+	struct dst_entry *dst;
-+
-+	*sid = SECSID_NULL;
-+
-+	dst = skb->dst;
-+	if (dst) {
-+		struct dst_entry *dst_test;
-+		for (dst_test = dst; dst_test != 0;
-+			dst_test = dst_test->child) {
-+			struct xfrm_state *x = dst_test->xfrm;
-+
-+			if (x && selinux_authorizable_xfrm(x)) {
-+				struct xfrm_sec_ctx *ctx = x->security;
-+				*sid = ctx->ctx_sid;
-+				break;
-+			}
-+		}
-+	}
++	return security_ops->skb_policy_check(skb, family);
 +}
 +
-+/*
-  * Security blob allocation for xfrm_policy and xfrm_state
-  * CTX does not have a meaningful value on input
-  */
++static inline int security_skb_netfilter_check(struct sk_buff *skb,
++					u32 nf_secid)
++{
++	return security_ops->skb_netfilter_check(skb, nf_secid);
++}
++
+ static inline void security_sock_graft(struct sock* sk, struct socket *parent)
+ {
+ 	security_ops->sock_graft(sk, parent);
+@@ -3097,6 +3117,18 @@ static inline void security_req_classify
+ {
+ }
+ 
++static inline int security_skb_policy_check(struct sk_buff *skb,
++					unsigned short family)
++{
++	return 1;
++}
++
++static inline int security_skb_netfilter_check(struct sk_buff *skb,
++					u32 nf_secid)
++{
++	return 1;
++}
++
+ static inline void security_sock_graft(struct sock* sk, struct socket *parent)
+ {
+ }
+diff --git a/security/dummy.c b/security/dummy.c
+index aeee705..077d3c9 100644
+--- a/security/dummy.c
++++ b/security/dummy.c
+@@ -832,6 +832,17 @@ static inline void dummy_req_classify_fl
+ 			struct flowi *fl)
+ {
+ }
++
++static inline int dummy_skb_policy_check(struct sk_buff *skb,
++			unsigned short family)
++{
++	return 1;
++}
++
++static inline int dummy_skb_netfilter_check(struct sk_buff *skb, u32 nf_secid)
++{
++	return 1;
++}
+ #endif	/* CONFIG_SECURITY_NETWORK */
+ 
+ #ifdef CONFIG_SECURITY_NETWORK_XFRM
+@@ -1108,6 +1119,8 @@ #ifdef CONFIG_SECURITY_NETWORK
+ 	set_to_dummy_if_null(ops, inet_conn_request);
+ 	set_to_dummy_if_null(ops, inet_csk_clone);
+ 	set_to_dummy_if_null(ops, req_classify_flow);
++	set_to_dummy_if_null(ops, skb_policy_check);
++	set_to_dummy_if_null(ops, skb_netfilter_check);
+  #endif	/* CONFIG_SECURITY_NETWORK */
+ #ifdef  CONFIG_SECURITY_NETWORK_XFRM
+ 	set_to_dummy_if_null(ops, xfrm_policy_alloc_security);
 
 --
 This message was distributed to subscribers of the selinux mailing list.
