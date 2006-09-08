@@ -1,43 +1,36 @@
 Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k88CPLxO016281
-	for <selinux@tycho.nsa.gov>; Fri, 8 Sep 2006 08:25:21 -0400
-Received: from py-out-1112.google.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id k88COoFx017808
-	for <selinux@tycho.nsa.gov>; Fri, 8 Sep 2006 12:24:57 GMT
-Received: by py-out-1112.google.com with SMTP id 39so670059pyu
-        for <selinux@tycho.nsa.gov>; Fri, 08 Sep 2006 05:25:21 -0700 (PDT)
-Message-ID: <45016127.3090607@kaigai.gr.jp>
-Date: Fri, 08 Sep 2006 21:25:11 +0900
-From: KaiGai Kohei <kaigai@kaigai.gr.jp>
-MIME-Version: 1.0
-To: Joshua Brindle <jbrindle@tresys.com>
-CC: russell@coker.com.au, selinux@tycho.nsa.gov
-Subject: Re: [RFC] SELinux and PostgreSQL
-References: <44FFEB42.90203@kaigai.gr.jp>	 <1157633535.14982.9.camel@twoface.columbia.tresys.com>	 <200609072324.51487.russell@coker.com.au> <45002CA4.40907@kaigai.gr.jp>	 <3FCBC9B9.8000302@tresys.com>  <45004041.3020407@kaigai.gr.jp>	 <1157648557.22185.8.camel@twoface.columbia.tresys.com> <1157649490.22185.11.camel@twoface.columbia.tresys.com>
-In-Reply-To: <1157649490.22185.11.camel@twoface.columbia.tresys.com>
-Content-Type: text/plain; charset=ISO-2022-JP
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k88CePh0016832
+	for <selinux@tycho.nsa.gov>; Fri, 8 Sep 2006 08:40:25 -0400
+Received: from M4.sparta.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id k88Ce1Fw020857
+	for <selinux@tycho.nsa.gov>; Fri, 8 Sep 2006 12:40:01 GMT
+In-Reply-To: <004d01c6d304$14bdf0c0$a000a8c0@iscasldm>
+References: <004d01c6d304$14bdf0c0$a000a8c0@iscasldm>
+Mime-Version: 1.0 (Apple Message framework v752.2)
+Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
+Message-Id: <BB700F05-CAC3-4CA0-81EC-4C249D309E11@sparta.com>
+Cc: SE Linux <selinux@tycho.nsa.gov>, Todd.Miller@courtesan.com
+From: Todd Miller <Todd.Miller@sparta.com>
+Subject: Re: How can I get the fedora sources through cvs?Are there any anonymous account for cvs.fedora.redhat.com?
+Date: Fri, 8 Sep 2006 08:40:04 -0400
+To: "dongmei" <ldm@ercist.iscas.ac.cn>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Because the SMTP server of my office was not allowed to deliver
-SELinux-list, I posted it again from my house.
-I'm sorry if you received same message twice.
 
->> At a minimum you should have the different kinds of objects (databases,
->> tables, columns, stored procedures) and label them either explicitly or
->> via security_compute_create.
-> 
-> Speaking of stored procedures, Karl reminded me that we probably want
-> stored procedures to be entrypoints into other domains so that you can
-> use them as trusted info flow filters.
+On Sep 8, 2006, at 1:03 AM, dongmei wrote:
 
-I also think it's a good idea.
-This mechanism makes none-privileged users deal with sensitive data like
-password safety.
+> I want to get the source of a previous version libselinux, not the  
+> latest version 1.30.3. How can I get it?Are there any anonymous  
+> account for cvs.fedora.redhat.com?
 
-Thanks,
--- 
-KaiGai Kohei <kaigai@kaigai.gr.jp>
+You can get it via subversion on the sourceforge selinux site, see  
+http://selinux.sourceforge.net/devel/svn.php3
+The different versions are tagged, for instance http:// 
+svn.sourceforge.net/viewvc/selinux/tags/libselinux_1_30 would be  
+version 1.30
+
+  - todd
 
 --
 This message was distributed to subscribers of the selinux mailing list.
