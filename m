@@ -1,53 +1,75 @@
 Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k88FDS5G022179
-	for <selinux@tycho.nsa.gov>; Fri, 8 Sep 2006 11:13:28 -0400
-Received: from mx1.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id k88FCfn3024888
-	for <selinux@tycho.nsa.gov>; Fri, 8 Sep 2006 15:12:42 GMT
-Subject: Re: [PATCH] policycoreutils semanage for nodes
-From: Karl MacMillan <kmacmillan@mentalrootkit.com>
-To: Joshua Brindle <method@gentoo.org>
-Cc: Rodrigo Vivi <vivijim@br.ibm.com>, SE Linux <selinux@tycho.nsa.gov>
-In-Reply-To: <4501762F.9020803@gentoo.org>
-References: <200609051527.41081.vivijim@br.ibm.com>
-	 <4501762F.9020803@gentoo.org>
-Content-Type: text/plain
-Date: Fri, 08 Sep 2006 11:12:03 -0400
-Message-Id: <1157728323.21235.24.camel@localhost.localdomain>
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k88FVgr7022724
+	for <selinux@tycho.nsa.gov>; Fri, 8 Sep 2006 11:31:42 -0400
+Received: from legolas.drinsama.de (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id k88FUuA0028739
+	for <selinux@tycho.nsa.gov>; Fri, 8 Sep 2006 15:30:56 GMT
+Received: from localhost (localhost [127.0.0.1])
+	by localhost (Postfix) with ESMTP id E9F38C4C090
+	for <selinux@tycho.nsa.gov>; Fri,  8 Sep 2006 17:31:40 +0200 (CEST)
+Received: from legolas.drinsama.de ([127.0.0.1])
+	by localhost (legolas [127.0.0.1]) (amavisd-new, port 10024)
+	with SMTP id 13934-01 for <selinux@tycho.nsa.gov>;
+	Fri, 8 Sep 2006 17:31:39 +0200 (CEST)
+Received: from wintermute.xmldesign.de (p549A4E46.dip.t-dialin.net [84.154.78.70])
+	by legolas.drinsama.de (Postfix) with ESMTP id 6E7ADC4C08C
+	for <selinux@tycho.nsa.gov>; Fri,  8 Sep 2006 17:31:38 +0200 (CEST)
+Received: from wintermute.xmldesign.de (wintermute.xmldesign.de [127.0.0.1])
+	by wintermute.xmldesign.de (Postfix) with ESMTP id 8ED24234057
+	for <selinux@tycho.nsa.gov>; Fri,  8 Sep 2006 17:31:34 +0200 (CEST)
+Subject: Supporting multiple python versions
+From: Erich Schubert <erich@debian.org>
+To: SE Linux <selinux@tycho.nsa.gov>
+Content-Type: text/plain; charset=ISO-8859-15
+Date: Fri, 08 Sep 2006 17:31:33 +0200
+Message-Id: <1157729493.31336.14.camel@wintermute.xmldesign.de>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2006-09-08 at 09:54 -0400, Joshua Brindle wrote:
-> Rodrigo Vivi wrote:
-> > Hi all,
-> >
-> > Since libsemanage support node context management and semanage command for 
-> > policycoreutils does not, I thought that was a good idea to implement this.
-> >
-> > This patch provide all that semanage command needs to manage nodes context.
-> > (including a man page updated)
-> >
-> > However I know that SECMARK mechanism largely obsoletes the use of
-> > netif and node contexts going forward, but I did this patch because I was 
-> > missing the node management at semanage command.
-> >
-> > Thanks,
-> > Rodrigo Vivi.
-> > (vivijim at #selinux)
-> >   
-> >   
-> In addition to the comments below, I tried this patch out and while it 
-> indeed added the nodecon it didn't seem to have a net effect on the 
-> system. This is probably because of ordering issues which IIRC is why we 
-> never had this support to begin with.
-> 
+Hi,
+Supporting multiple python versions is far from easy, as you might not
+be aware of...
 
-How is this different from the port sorting problem? For a simple
-example pre-pending the local modifications should have the desired
-effect, so this sounds like a general semanage bug to me.
+Python, when it encounters a .py file via "import", will try to compile
+this file into a .pyc file residing in the same directory.
+If it encounters an incompatible .pyc file, it will try to delete and
+replace it. And of course different python versions may require
+different .pyc files.
 
-Karl
+Most linux distributions try to precompile all .py files, to avoid .pyc
+files being created by random processes when ran by root (users won't
+have write permissions there).
+However, if you have two python versions, that still might happen.
+
+Debian therefore has moved the .pyc files to the /var/lib/python-support
+directories, and a helper application that will precompile them for all
+installed python versions (along with building an appropriate search
+path)
+
+However this means that many applications that so far only needed access
+to usr_t will now need (read) access to var_lib_python_t.
+
+Since these files are supposedly not secret, I'd be fine with allowing
+any application access to them. They need a python interpreter running
+to use them anyway, and python will want to read the .py file (which is
+symlinked to the original one in /usr).
+
+So what is the proper way of giving access to this type to "just about
+every" domain? Or should we add an interface and try to find out which
+domains need it?
+I mean - bind doesn't need it. Samba shouldn't (except when someone
+writes a password changing backend in python maybe). Apache probably
+when mod_python is used...
+
+best regards,
+Erich Schubert
+-- 
+    erich@(vitavonni.de|debian.org)    --    GPG Key ID: 4B3A135C    (o_
+   It's not denial. I'm just selective about the reality I accept.   //\
+      Mathematik ist die Kunst, verschiedene Dinge mit demselben     V_/_
+                 Namen zu belegen. --- Henri Poincaré
+
 
 
 --
