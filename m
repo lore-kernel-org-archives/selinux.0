@@ -1,42 +1,51 @@
-Subject: Re: Problems with the MLS policy
+Subject: Re: Latest policycoreutils patch
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Salvo Giuffrida <giuffsalvo@hotmail.it>
-Cc: linda.knippers@hp.com, selinux@tycho.nsa.gov
-In-Reply-To: <BAY114-F25F8A25DECDDB93554F5DBAF370@phx.gbl>
-References: <BAY114-F25F8A25DECDDB93554F5DBAF370@phx.gbl>
+To: Daniel J Walsh <dwalsh@redhat.com>
+Cc: Darrel Goeddel <dgoeddel@TrustedCS.com>,
+        Joshua Brindle <jbrindle@tresys.com>,
+        Karl MacMillan <kmacmillan@mentalrootkit.com>,
+        SE Linux <selinux@tycho.nsa.gov>
+In-Reply-To: <45001F1A.3080004@redhat.com>
+References: <45001F1A.3080004@redhat.com>
 Content-Type: text/plain
-Date: Fri, 08 Sep 2006 10:10:10 -0400
-Message-Id: <1157724610.31695.68.camel@moss-spartans.epoch.ncsc.mil>
+Date: Fri, 08 Sep 2006 10:35:59 -0400
+Message-Id: <1157726159.31695.83.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2006-09-08 at 12:30 +0200, Salvo Giuffrida wrote:
-> I did as you said, but the problems remain: there's no binary policy file in 
-> /etc/selinux/mls/policy, and when I go to /etc/selinux/mls/modules/active, 
-> and so "semanage -B", it gives me "Segmentation fault".
+On Thu, 2006-09-07 at 09:31 -0400, Daniel J Walsh wrote:
+> Have newrole ignore sigpipe so it gives correct error message when 
+> flooded with 4000 character security context.
 
-Please update to the latest devel versions of:
-libsepol
-libselinux
-libsemanage
-policycoreutils
+I'm a little unclear on this one, although I did find a bug report about
+it (which would be helpful to identify in the patch posting in the
+future when it applies for easy reference), at
+https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=203801
 
-Then update to the latest selinux-policy-mls.
+If I read that one correctly, the SIGPIPE is actually happening when
+libselinux tries to write the context to the setrans socket, because the
+daemon is dropping the connection immediately upon getting the header
+with such a large length (more generally, any failure in the daemon
+before reading the entire request could lead to this).  So that could
+affect any user of libselinux, not just newrole, right?
 
-> Where can I find more info on the classification system? I'd like to know 
-> how the categories are mapped to the TopSecret,Secret,ecc... classification 
-> levels...
+Looking around a bit, I see that if we changed the use of writev() in
+libselinux to instead use sendmsg() with an explicit MSG_NOSIGNAL flag,
+we could avoid having such failures generate SIGPIPE altogether.  Then
+we would just get an error return and have the usual fallback handling.
 
-They are mapped via setrans.conf, in /etc/selinux/mls/setrans.conf.  You
-should be able to manage those mappings via semanage, e.g.
-run /usr/sbin/semanage translation -l to list the current mappings.
-
-You might want to look at:
-http://selinux-symposium.org/2006/papers/03-SELinux-and-MLS.pdf
-http://fedoraproject.org/wiki/SELinux/MLS
-
-
+> Add -i qualifier to restorecon to tell it to ignore files that do not 
+> exist.  This fixes a problem in
+> fixfiles -R rpmlint restore
+> 
+> 
+> Which could hand restorecon files that do not exists and restorecon 
+> prints ugly warnings.
+> 
+> restorecond init script description needs line continuation marks to 
+> make system-config-services happy.
+> 
 -- 
 Stephen Smalley
 National Security Agency
