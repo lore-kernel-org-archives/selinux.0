@@ -1,58 +1,111 @@
-Message-ID: <45019C39.2090008@redhat.com>
-Date: Fri, 08 Sep 2006 12:37:13 -0400
-From: Daniel J Walsh <dwalsh@redhat.com>
+Message-ID: <45019F6A.4070208@trustedcs.com>
+Date: Fri, 08 Sep 2006 11:50:50 -0500
+From: Venkat Yekkirala <vyekkirala@TrustedCS.com>
 MIME-Version: 1.0
-To: Stephen Smalley <sds@tycho.nsa.gov>
-CC: Darrel Goeddel <dgoeddel@TrustedCS.com>,
-        Joshua Brindle <jbrindle@tresys.com>,
-        Karl MacMillan <kmacmillan@mentalrootkit.com>,
-        SE Linux <selinux@tycho.nsa.gov>
-Subject: Re: Latest policycoreutils patch
-References: <45001F1A.3080004@redhat.com> <1157726159.31695.83.camel@moss-spartans.epoch.ncsc.mil>
-In-Reply-To: <1157726159.31695.83.camel@moss-spartans.epoch.ncsc.mil>
+To: netdev@vger.kernel.org, selinux@tycho.nsa.gov
+CC: jmorris@namei.org, sds@tycho.nsa.gov, chanson@TrustedCS.com
+Subject: [PATCH 5/7] secid reconciliation-v02: Label locally generated IPv6
+ traffic
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Stephen Smalley wrote:
-> On Thu, 2006-09-07 at 09:31 -0400, Daniel J Walsh wrote:
->   
->> Have newrole ignore sigpipe so it gives correct error message when 
->> flooded with 4000 character security context.
->>     
->
-> I'm a little unclear on this one, although I did find a bug report about
-> it (which would be helpful to identify in the patch posting in the
-> future when it applies for easy reference), at
-> https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=203801
->
-> If I read that one correctly, the SIGPIPE is actually happening when
-> libselinux tries to write the context to the setrans socket, because the
-> daemon is dropping the connection immediately upon getting the header
-> with such a large length (more generally, any failure in the daemon
-> before reading the entire request could lead to this).  So that could
-> affect any user of libselinux, not just newrole, right?
->
-> Looking around a bit, I see that if we changed the use of writev() in
-> libselinux to instead use sendmsg() with an explicit MSG_NOSIGNAL flag,
-> we could avoid having such failures generate SIGPIPE altogether.  Then
-> we would just get an error return and have the usual fallback handling.
->   
-That sounds like a better solution.
->   
->> Add -i qualifier to restorecon to tell it to ignore files that do not 
->> exist.  This fixes a problem in
->> fixfiles -R rpmlint restore
->>
->>
->> Which could hand restorecon files that do not exists and restorecon 
->> prints ugly warnings.
->>
->> restorecond init script description needs line continuation marks to 
->> make system-config-services happy.
->>
->>     
+This labels the skb(s) for locally generated IPv6 traffic. This will
+be reconciled with xfrm secid as well as used in pertinent flow control
+checks on the outbound later in the LSM hook.
 
+NOTE: Forwarded traffic is already labeled with the reconciled
+secmark on the inbound.
+
+Signed-off-by: Venkat Yekkirala <vyekkirala@TrustedCS.com>
+---
+ include/linux/skbuff.h           |   29 +++++++++++++++++++++++++++++
+ net/ipv6/ip6_output.c            |    5 +++++
+ net/ipv6/netfilter/ip6t_REJECT.c |    2 ++
+ 3 files changed, 36 insertions(+)
+
+diff --git a/include/linux/skbuff.h b/include/linux/skbuff.h
+index 85577a4..18967f2 100644
+--- a/include/linux/skbuff.h
++++ b/include/linux/skbuff.h
+@@ -29,6 +29,7 @@ #include <linux/net.h>
+ #include <linux/textsearch.h>
+ #include <net/checksum.h>
+ #include <linux/dmaengine.h>
++#include <net/flow.h>
+ 
+ #define HAVE_ALLOC_SKB		/* For the drivers to know */
+ #define HAVE_ALIGNABLE_SKB	/* Ditto 8)		   */
+@@ -1499,5 +1500,33 @@ static inline int skb_is_gso(const struc
+ 	return skb_shinfo(skb)->gso_size;
+ }
+ 
++#ifdef CONFIG_SECURITY_NETWORK
++
++static inline void security_skb_classify_skb(struct sk_buff *from,
++					struct sk_buff *skb)
++{
++	skb->secmark = from->secmark;
++}
++
++static inline void security_flow_classify_skb(struct flowi *fl,
++					struct sk_buff *skb)
++{
++	skb->secmark = fl->secid;
++}
++
++#else
++
++static inline void security_skb_classify_skb(struct sk_buff *from,
++					struct sk_buff *skb)
++{
++}
++
++static inline void security_flow_classify_skb(struct flowi *fl,
++					struct sk_buff *skb)
++{
++}
++
++#endif /* CONFIG_SECURITY_NETWORK */
++
+ #endif	/* __KERNEL__ */
+ #endif	/* _LINUX_SKBUFF_H */
+diff --git a/net/ipv6/ip6_output.c b/net/ipv6/ip6_output.c
+index c14ea1e..753e3b4 100644
+--- a/net/ipv6/ip6_output.c
++++ b/net/ipv6/ip6_output.c
+@@ -170,6 +170,8 @@ int ip6_xmit(struct sock *sk, struct sk_
+ 	int hlimit, tclass;
+ 	u32 mtu;
+ 
++	security_flow_classify_skb(fl, skb);
++
+ 	if (opt) {
+ 		int head_room;
+ 
+@@ -1088,6 +1090,9 @@ alloc_new_skb:
+ 			}
+ 			if (skb == NULL)
+ 				goto error;
++
++			security_flow_classify_skb(fl, skb);
++
+ 			/*
+ 			 *	Fill in the control structures
+ 			 */
+diff --git a/net/ipv6/netfilter/ip6t_REJECT.c b/net/ipv6/netfilter/ip6t_REJECT.c
+index 311eae8..0508c30 100644
+--- a/net/ipv6/netfilter/ip6t_REJECT.c
++++ b/net/ipv6/netfilter/ip6t_REJECT.c
+@@ -128,6 +128,8 @@ static void send_reset(struct sk_buff *o
+ 	ipv6_addr_copy(&ip6h->saddr, &oip6h->daddr);
+ 	ipv6_addr_copy(&ip6h->daddr, &oip6h->saddr);
+ 
++	security_skb_classify_skb(oldskb, nskb);
++
+ 	tcph = (struct tcphdr *)skb_put(nskb, sizeof(struct tcphdr));
+ 	/* Truncate to length (no data) */
+ 	tcph->doff = sizeof(struct tcphdr)/4;
 
 --
 This message was distributed to subscribers of the selinux mailing list.
