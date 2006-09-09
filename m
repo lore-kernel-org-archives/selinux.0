@@ -1,131 +1,38 @@
-Subject: Re: Latest policycoreutils patch
-From: Stephen Smalley <sds@tycho.nsa.gov>
+From: Russell Coker <russell@coker.com.au>
+Reply-To: russell@coker.com.au
 To: Daniel J Walsh <dwalsh@redhat.com>
-Cc: Darrel Goeddel <dgoeddel@TrustedCS.com>,
-        Joshua Brindle <jbrindle@tresys.com>,
-        Karl MacMillan <kmacmillan@mentalrootkit.com>,
-        SE Linux <selinux@tycho.nsa.gov>
-In-Reply-To: <45019C39.2090008@redhat.com>
-References: <45001F1A.3080004@redhat.com>
-	 <1157726159.31695.83.camel@moss-spartans.epoch.ncsc.mil>
-	 <45019C39.2090008@redhat.com>
-Content-Type: text/plain
-Date: Fri, 08 Sep 2006 16:25:16 -0400
-Message-Id: <1157747116.31695.223.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+Subject: Re: [PATCH] newrole: use pam session management services - v4
+Date: Sat, 9 Sep 2006 10:56:56 +1000
+Cc: Stephen Smalley <sds@tycho.nsa.gov>,
+        Darrel Goeddel <dgoeddel@TrustedCS.com>, janak@us.ibm.com,
+        sgrubb@redhat.com, tmraz@redhat.com, ltcgcw@us.ibm.com,
+        klaus@atsec.com, selinux@tycho.nsa.gov
+References: <1157403682.7223.16.camel@localhost.localdomain> <1157740847.31695.207.camel@moss-spartans.epoch.ncsc.mil> <4501BB5A.1060301@redhat.com>
+In-Reply-To: <4501BB5A.1060301@redhat.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Message-Id: <200609091057.03846.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2006-09-08 at 12:37 -0400, Daniel J Walsh wrote:
-> Stephen Smalley wrote:
-> > On Thu, 2006-09-07 at 09:31 -0400, Daniel J Walsh wrote:
-> >   
-> >> Have newrole ignore sigpipe so it gives correct error message when 
-> >> flooded with 4000 character security context.
-> >>     
-> >
-> > I'm a little unclear on this one, although I did find a bug report about
-> > it (which would be helpful to identify in the patch posting in the
-> > future when it applies for easy reference), at
-> > https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=203801
-> >
-> > If I read that one correctly, the SIGPIPE is actually happening when
-> > libselinux tries to write the context to the setrans socket, because the
-> > daemon is dropping the connection immediately upon getting the header
-> > with such a large length (more generally, any failure in the daemon
-> > before reading the entire request could lead to this).  So that could
-> > affect any user of libselinux, not just newrole, right?
-> >
-> > Looking around a bit, I see that if we changed the use of writev() in
-> > libselinux to instead use sendmsg() with an explicit MSG_NOSIGNAL flag,
-> > we could avoid having such failures generate SIGPIPE altogether.  Then
-> > we would just get an error return and have the usual fallback handling.
-> >   
-> That sounds like a better solution.
+On Saturday 09 September 2006 04:50, Daniel J Walsh <dwalsh@redhat.com> wrote:
+> Why not have newrole not be setuid at all, but when you install the LSPP
+> package is sets it setuid.  Then we can only call pam_session if we are
+> setuid.  (I think you can check that.)
+> If you want to use pam_namespace you need to setuid the app, for strict
+> policy.
 
-Possible patch below.  Changes:
-1) Collect up the entire request into a single msg and send it once.
-2) Use sendmsg with MSG_NOSIGNAL rather than writev.
+Yes, namespaces with strict policy is a desirable configuration, so having it 
+depend on the LSPP package isn't going to solve all problems.
 
-Can anyone explain what data2 is for?  It is always NULL at present
-AFAICS.
-
-Index: libselinux/src/setrans_client.c
-===================================================================
-RCS file: /nfshome/pal/CVS/selinux-usr/libselinux/src/setrans_client.c,v
-retrieving revision 1.8
-diff -u -p -r1.8 setrans_client.c
---- libselinux/src/setrans_client.c	29 Jun 2006 18:21:05 -0000	1.8
-+++ libselinux/src/setrans_client.c	8 Sep 2006 20:18:07 -0000
-@@ -58,11 +58,12 @@ static int setransd_open(void)
- static int
- send_request(int fd, uint32_t function, const char *data1, const char *data2)
- {
--	struct iovec req_hdr[3];
-+	struct msghdr msgh;
-+	struct iovec iov[5];
- 	uint32_t data1_size;
- 	uint32_t data2_size;
--	struct iovec req_data[2];
--	ssize_t count;
-+	ssize_t count, expected;
-+	unsigned int i;
- 
- 	if (fd < 0)
- 		return -1;
-@@ -75,28 +76,27 @@ send_request(int fd, uint32_t function, 
- 	data1_size = strlen(data1) + 1;
- 	data2_size = strlen(data2) + 1;
- 
--	req_hdr[0].iov_base = &function;
--	req_hdr[0].iov_len = sizeof(function);
--	req_hdr[1].iov_base = &data1_size;
--	req_hdr[1].iov_len = sizeof(data1_size);
--	req_hdr[2].iov_base = &data2_size;
--	req_hdr[2].iov_len = sizeof(data2_size);
--
--	while (((count = writev(fd, req_hdr, 3)) < 0) && (errno == EINTR)) ;
--	if (count != (sizeof(function) + sizeof(data1_size) +
--		      sizeof(data2_size))) {
--		return -1;
--	}
-+	iov[0].iov_base = &function;
-+	iov[0].iov_len = sizeof(function);
-+	iov[1].iov_base = &data1_size;
-+	iov[1].iov_len = sizeof(data1_size);
-+	iov[2].iov_base = &data2_size;
-+	iov[2].iov_len = sizeof(data2_size);
-+	iov[3].iov_base = (char *)data1;
-+	iov[3].iov_len = data1_size;
-+	iov[4].iov_base = (char *)data2;
-+	iov[4].iov_len = data2_size;
-+	memset(&msgh, 0, sizeof(msgh));
-+	msgh.msg_iov = iov;
-+	msgh.msg_iovlen = sizeof(iov)/sizeof(iov[0]);
-+
-+	expected = 0;
-+	for (i = 0; i < sizeof(iov)/sizeof(iov[0]); i++)
-+		expected += iov[i].iov_len;
- 
--	req_data[0].iov_base = (char *)data1;
--	req_data[0].iov_len = data1_size;
--	req_data[1].iov_base = (char *)data2;
--	req_data[1].iov_len = data2_size;
--
--	while (((count = writev(fd, req_data, 2)) < 0) && (errno == EINTR)) ;
--	if (count < 0 || (uint32_t) count != (data1_size + data2_size)) {
-+	while (((count = sendmsg(fd, &msgh, MSG_NOSIGNAL)) < 0) && (errno == EINTR)) ;
-+	if (count < 0 || count != expected)
- 		return -1;
--	}
- 
- 	return 0;
- }
-
+I guess you could have the strict policy package make it setuid.
 
 -- 
-Stephen Smalley
-National Security Agency
+http://etbe.blogspot.com/          My Blog
+http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
+
+http://www.coker.com.au/sponsorship.html Sponsoring Free Software development
 
 
 --
