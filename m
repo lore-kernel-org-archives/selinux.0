@@ -1,49 +1,50 @@
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k891GDtq007259
+	for <selinux@tycho.nsa.gov>; Fri, 8 Sep 2006 21:16:13 -0400
+Received: from smtp.sws.net.au (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id k891FPJ8022267
+	for <selinux@tycho.nsa.gov>; Sat, 9 Sep 2006 01:15:26 GMT
 From: Russell Coker <russell@coker.com.au>
 Reply-To: russell@coker.com.au
-To: Stephen Smalley <sds@tycho.nsa.gov>
-Subject: Re: [PATCH] newrole: use pam session management services - v4
-Date: Sat, 9 Sep 2006 11:01:06 +1000
-Cc: Daniel J Walsh <dwalsh@redhat.com>,
-        Darrel Goeddel <dgoeddel@TrustedCS.com>, janak@us.ibm.com,
-        sgrubb@redhat.com, tmraz@redhat.com, ltcgcw@us.ibm.com,
-        klaus@atsec.com, selinux@tycho.nsa.gov
-References: <1157403682.7223.16.camel@localhost.localdomain> <4501A841.4060006@redhat.com> <1157740847.31695.207.camel@moss-spartans.epoch.ncsc.mil>
-In-Reply-To: <1157740847.31695.207.camel@moss-spartans.epoch.ncsc.mil>
+To: Erich Schubert <erich@debian.org>
+Subject: Re: Supporting multiple python versions
+Date: Sat, 9 Sep 2006 11:16:03 +1000
+Cc: SE Linux <selinux@tycho.nsa.gov>
+References: <1157729493.31336.14.camel@wintermute.xmldesign.de>
+In-Reply-To: <1157729493.31336.14.camel@wintermute.xmldesign.de>
 MIME-Version: 1.0
 Content-Type: text/plain;
-  charset="utf-8"
-Message-Id: <200609091101.13457.russell@coker.com.au>
+  charset="iso-8859-15"
+Message-Id: <200609091116.10256.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Saturday 09 September 2006 04:40, Stephen Smalley <sds@tycho.nsa.gov> 
-wrote:
-> Part of the confusion here is what you plan to put in vanilla
-> Fedora/RHEL versus the LSPP certified configuration.  I assume you want
-> a single newrole binary that can handle either case (which means it has
-> to be setuid root, and include the capability manipulation code and
-> pam_open_session call).  Do you plan to include pam_namespace in the pam
-> config always, or only in the LSPP certified configuration?
+On Saturday 09 September 2006 01:31, Erich Schubert <erich@debian.org> wrote:
+> Most linux distributions try to precompile all .py files, to avoid .pyc
+> files being created by random processes when ran by root (users won't
+> have write permissions there).
+> However, if you have two python versions, that still might happen.
+>
+> Debian therefore has moved the .pyc files to the /var/lib/python-support
+> directories, and a helper application that will precompile them for all
+> installed python versions (along with building an appropriate search
+> path)
+>
+> However this means that many applications that so far only needed access
+> to usr_t will now need (read) access to var_lib_python_t.
 
-pam_namespace will provide great benefits for many people who can't use the 
-MLS policy, even on targetted systems it can do a lot of good (in some ways 
-it can do more good on targetted systems than on strict or MLS).
+One option is to relabel /var/lib/python-support as usr_t.  It's a little 
+ugly, but I think that naming types after directories was a mistake anyway 
+and this is just the symptom.
 
-Why not have a separate package for the newrole program which has 
-selinux-policy-strict and selinux-policy-mls depend on it?  Then people who 
-only use the targetted policy (most users) will not have newrole installed.
-
-Another thing to consider is to have a type nonexec_t in the targeted policy 
-assigned to the newrole program with an assertion that the type in question 
-can never be executed.  Then the only case you have to worry about is running 
-newrole on a system with SE Linux disabled.
+Another option is to have a new type python_compiled_t that can be used for 
+all distributions.
 
 -- 
 http://etbe.blogspot.com/          My Blog
 http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
 
 http://www.coker.com.au/sponsorship.html Sponsoring Free Software development
-
 
 --
 This message was distributed to subscribers of the selinux mailing list.
