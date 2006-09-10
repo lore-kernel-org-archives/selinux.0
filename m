@@ -1,60 +1,39 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k8AIRakk024650
-	for <selinux@tycho.nsa.gov>; Sun, 10 Sep 2006 14:27:36 -0400
-Received: from exchange.columbia.tresys.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with SMTP id k8AIRDSZ019202
-	for <selinux@tycho.nsa.gov>; Sun, 10 Sep 2006 18:27:13 GMT
-Message-ID: <45045913.5080500@gentoo.org>
-Date: Sun, 10 Sep 2006 14:27:31 -0400
-From: Joshua Brindle <method@gentoo.org>
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k8AKnG93027802
+	for <selinux@tycho.nsa.gov>; Sun, 10 Sep 2006 16:49:16 -0400
+Received: from mail8.sea5.speakeasy.net (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id k8AKmRvn027980
+	for <selinux@tycho.nsa.gov>; Sun, 10 Sep 2006 20:48:27 GMT
+Date: Sun, 10 Sep 2006 16:49:11 -0400 (EDT)
+From: James Morris <jmorris@namei.org>
+To: Venkat Yekkirala <vyekkirala@TrustedCS.com>
+cc: netdev@vger.kernel.org, selinux@tycho.nsa.gov, sds@tycho.nsa.gov,
+        Chad Hanson <chanson@TrustedCS.com>
+Subject: RE: [PATCH 2/7] secid reconciliation-v02: Add LSM hooks
+In-Reply-To: <36282A1733C57546BE392885C06185920151348A@chaos.tcs.tcs-sec.com>
+Message-ID: <Pine.LNX.4.64.0609101648260.11901@d.namei>
+References: <36282A1733C57546BE392885C06185920151348A@chaos.tcs.tcs-sec.com>
 MIME-Version: 1.0
-To: Richard Hally <rhally@mindspring.com>
-CC: KaiGai Kohei <kaigai@kaigai.gr.jp>, selinux@tycho.nsa.gov
-Subject: Re: [RFC] SELinux and PostgreSQL (draft v2)
-References: <44FFEB42.90203@kaigai.gr.jp> <45039AC2.3040309@kaigai.gr.jp> <45045046.40905@mindspring.com>
-In-Reply-To: <45045046.40905@mindspring.com>
-Content-Type: text/plain; charset=ISO-2022-JP
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Richard Hally wrote:
-> KaiGai Kohei wrote:
->   
->> In recent days, I'm making a plan to enhance PostgreSQL with SELinux.
->> I posted the first draft of this plan a few days ago, and I got many
->> response. Thanks for your comments so much.
->> (Especially, Joshua and Russell)
->>
->> The followings are the revised and summarized plan (draft v2).
->> I'm welcoming any comments to improve the project.
->>
->>     
->
-> Please help me understand why this addition is needed.
-> Would it be more appropriate to extend the existing roles and privileges
-> mechanism that already exists in PostgreSQL rather than adding all this
-> additional burden to the kernel object classes and access vector cache?
-> I can understand the need to extend access control the columns and rows
-> but most of the higher level controls already exist.
->
-> Thank you for your help,
-> Richard Hally
->
->   
-It extends a proven MAC system to the database and allows us to have
-centralized policies and use the already existing process labels. It
-also allows the flexibility of SELinux (both mechanism and policy) to be
-applied to the database without modifying the database server down the
-line.
+On Sun, 10 Sep 2006, Venkat Yekkirala wrote:
 
-You can do privilege separation in the database system via process
-labels instead of only by dbms role. This is analogous to using fine
-grained types to break up root privileges.
+> > Is there any way you can send patches without "format=flowed" in the 
+> > content-type?  On two mailers I've tried, the patches get mangled.
+> 
+> Yes. I will send them to you in a few minutes with format=flowed disabled.
+> As soon as you let me know you see them fine, I will resend them to the
+> lists.
 
-Also, at some point (hopefully soon) we should be moving userspace
-object class decision making to a userspace security server that can
-provide answers to userspace object managers without the policy being in
-unswappable kernel memory.
+Tanks, they look fine now.  Don't worry about re-sending yet.
+
+
+
+-- 
+James Morris
+<jmorris@namei.org>
 
 --
 This message was distributed to subscribers of the selinux mailing list.
