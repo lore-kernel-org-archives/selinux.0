@@ -1,45 +1,147 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k8FGx1tL003164
-	for <selinux@tycho.nsa.gov>; Fri, 15 Sep 2006 12:59:01 -0400
-Received: from e34.co.us.ibm.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id k8FGw6Xe019639
-	for <selinux@tycho.nsa.gov>; Fri, 15 Sep 2006 16:58:07 GMT
-Received: from d03relay04.boulder.ibm.com (d03relay04.boulder.ibm.com [9.17.195.106])
-	by e34.co.us.ibm.com (8.13.8/8.12.11) with ESMTP id k8FGwxOp006688
-	for <selinux@tycho.nsa.gov>; Fri, 15 Sep 2006 12:58:59 -0400
-Received: from d03av04.boulder.ibm.com (d03av04.boulder.ibm.com [9.17.195.170])
-	by d03relay04.boulder.ibm.com (8.13.6/8.13.6/NCO v8.1.1) with ESMTP id k8FGwwjA276662
-	for <selinux@tycho.nsa.gov>; Fri, 15 Sep 2006 10:58:58 -0600
-Received: from d03av04.boulder.ibm.com (loopback [127.0.0.1])
-	by d03av04.boulder.ibm.com (8.12.11.20060308/8.13.3) with ESMTP id k8FGwwbx007648
-	for <selinux@tycho.nsa.gov>; Fri, 15 Sep 2006 10:58:58 -0600
-Date: Fri, 15 Sep 2006 11:47:30 -0500
-From: Joy Latten <latten@austin.ibm.com>
-Message-Id: <200609151647.k8FGlUA2007824@faith.austin.ibm.com>
-To: jbrindle@tresys.com, vyekkirala@TrustedCS.com
-Subject: Re: Labeled IPSec status
-Cc: chanson@TrustedCS.com, latten@austin.ibm.com, selinux@tycho.nsa.gov
+Subject: RE: Latest policycoreutils patch
+From: Karl MacMillan <kmacmillan@mentalrootkit.com>
+To: Joshua Brindle <jbrindle@tresys.com>
+Cc: Stephen Smalley <sds@tycho.nsa.gov>, Daniel J Walsh <dwalsh@redhat.com>,
+        Darrel Goeddel <dgoeddel@TrustedCS.com>,
+        SE Linux <selinux@tycho.nsa.gov>
+In-Reply-To: <6FE441CD9F0C0C479F2D88F959B015883C1743@exchange.columbia.tresys.com>
+References: 
+	 <6FE441CD9F0C0C479F2D88F959B015883C1743@exchange.columbia.tresys.com>
+Content-Type: text/plain
+Date: Tue, 12 Sep 2006 08:45:35 -0400
+Message-Id: <1158065135.2580.2.camel@dhcp83-5.boston.redhat.com>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
->On Tue, 2006-09-12 at 15:03 -0500, Venkat Yekkirala wrote:
->> UPCOMING CHANGES:
->> 
->> 1. There's a racoon patch being tested by Joy Latten that will use
->> the security context in the negotiation that should be submitted for
->> upstreaming soon.
->> 
->
->Is this available somewhere to test out in the mean time?
+On Mon, 2006-09-11 at 08:25 -0400, Joshua Brindle wrote:
+> > From: Stephen Smalley [mailto:sds@tycho.nsa.gov] 
+> > 
+> > On Fri, 2006-09-08 at 12:37 -0400, Daniel J Walsh wrote:
+> > > Stephen Smalley wrote:
+> > > > On Thu, 2006-09-07 at 09:31 -0400, Daniel J Walsh wrote:
+> > > >   
+> > > >> Have newrole ignore sigpipe so it gives correct error 
+> > message when 
+> > > >> flooded with 4000 character security context.
+> > > >>     
+> > > >
+> > > > I'm a little unclear on this one, although I did find a 
+> > bug report 
+> > > > about it (which would be helpful to identify in the patch 
+> > posting in 
+> > > > the future when it applies for easy reference), at
+> > > > https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=203801
+> > > >
+> > > > If I read that one correctly, the SIGPIPE is actually 
+> > happening when 
+> > > > libselinux tries to write the context to the setrans 
+> > socket, because 
+> > > > the daemon is dropping the connection immediately upon 
+> > getting the 
+> > > > header with such a large length (more generally, any 
+> > failure in the 
+> > > > daemon before reading the entire request could lead to this).  So 
+> > > > that could affect any user of libselinux, not just newrole, right?
+> > > >
+> > > > Looking around a bit, I see that if we changed the use of 
+> > writev() 
+> > > > in libselinux to instead use sendmsg() with an explicit 
+> > MSG_NOSIGNAL 
+> > > > flag, we could avoid having such failures generate SIGPIPE 
+> > > > altogether.  Then we would just get an error return and 
+> > have the usual fallback handling.
+> > > >   
+> > > That sounds like a better solution.
+> > 
+> > Possible patch below.  Changes:
+> > 1) Collect up the entire request into a single msg and send it once.
+> > 2) Use sendmsg with MSG_NOSIGNAL rather than writev.
+> > 
+> > Can anyone explain what data2 is for?  It is always NULL at 
+> > present AFAICS.
+> > 
+> > Index: libselinux/src/setrans_client.c
+> > ===================================================================
+> > RCS file: 
+> > /nfshome/pal/CVS/selinux-usr/libselinux/src/setrans_client.c,v
+> > retrieving revision 1.8
+> > diff -u -p -r1.8 setrans_client.c
+> > --- libselinux/src/setrans_client.c	29 Jun 2006 18:21:05 
+> > -0000	1.8
+> > +++ libselinux/src/setrans_client.c	8 Sep 2006 20:18:07 -0000
+> > @@ -58,11 +58,12 @@ static int setransd_open(void)  static 
+> > int  send_request(int fd, uint32_t function, const char 
+> > *data1, const char *data2)  {
+> > -	struct iovec req_hdr[3];
+> > +	struct msghdr msgh;
+> > +	struct iovec iov[5];
+> >  	uint32_t data1_size;
+> >  	uint32_t data2_size;
+> > -	struct iovec req_data[2];
+> > -	ssize_t count;
+> > +	ssize_t count, expected;
+> > +	unsigned int i;
+> >  
+> >  	if (fd < 0)
+> >  		return -1;
+> > @@ -75,28 +76,27 @@ send_request(int fd, uint32_t function, 
+> >  	data1_size = strlen(data1) + 1;
+> >  	data2_size = strlen(data2) + 1;
+> >  
+> > -	req_hdr[0].iov_base = &function;
+> > -	req_hdr[0].iov_len = sizeof(function);
+> > -	req_hdr[1].iov_base = &data1_size;
+> > -	req_hdr[1].iov_len = sizeof(data1_size);
+> > -	req_hdr[2].iov_base = &data2_size;
+> > -	req_hdr[2].iov_len = sizeof(data2_size);
+> > -
+> > -	while (((count = writev(fd, req_hdr, 3)) < 0) && (errno 
+> > == EINTR)) ;
+> > -	if (count != (sizeof(function) + sizeof(data1_size) +
+> > -		      sizeof(data2_size))) {
+> > -		return -1;
+> > -	}
+> > +	iov[0].iov_base = &function;
+> > +	iov[0].iov_len = sizeof(function);
+> > +	iov[1].iov_base = &data1_size;
+> > +	iov[1].iov_len = sizeof(data1_size);
+> > +	iov[2].iov_base = &data2_size;
+> > +	iov[2].iov_len = sizeof(data2_size);
+> > +	iov[3].iov_base = (char *)data1;
+> > +	iov[3].iov_len = data1_size;
+> > +	iov[4].iov_base = (char *)data2;
+> > +	iov[4].iov_len = data2_size;
+> > +	memset(&msgh, 0, sizeof(msgh));
+> > +	msgh.msg_iov = iov;
+> > +	msgh.msg_iovlen = sizeof(iov)/sizeof(iov[0]);
+> > +
+> > +	expected = 0;
+> > +	for (i = 0; i < sizeof(iov)/sizeof(iov[0]); i++)
+> > +		expected += iov[i].iov_len;
+> >  
+> > -	req_data[0].iov_base = (char *)data1;
+> > -	req_data[0].iov_len = data1_size;
+> > -	req_data[1].iov_base = (char *)data2;
+> > -	req_data[1].iov_len = data2_size;
+> > -
+> > -	while (((count = writev(fd, req_data, 2)) < 0) && 
+> > (errno == EINTR)) ;
+> > -	if (count < 0 || (uint32_t) count != (data1_size + 
+> > data2_size)) {
+> > +	while (((count = sendmsg(fd, &msgh, MSG_NOSIGNAL)) < 0) 
+> > && (errno == EINTR)) ;
+> > +	if (count < 0 || count != expected)
+> >  		return -1;
+> > -	}
+> >  
+> >  	return 0;
+> >  }
+> > 
+> 
+> Acked-By: Joshua Brindle <jbrindle@tresys.com>
 
-Sorry for the lack of response. I have been attending a conference
-this week and not always able to log into internet. I will
-work on this as soon as I get back home this weekend.
-
-Regards,
-Joy
-~
-~
+Acked-By: Karl MacMillan <kmacmillan@mentalrootkit.com>
 
 --
 This message was distributed to subscribers of the selinux mailing list.
