@@ -1,40 +1,59 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k8DLDr3Y011034
-	for <selinux@tycho.nsa.gov>; Wed, 13 Sep 2006 17:13:53 -0400
-Subject: Re: [PATCH] refpolicy: add X object classes to unconfined_t
-From: Eamon Walsh <ewalsh@tycho.nsa.gov>
-Reply-To: ewalsh@tycho.nsa.gov
-To: "Christopher J. PeBenito" <cpebenito@tresys.com>
-Cc: selinux@tycho.nsa.gov
-In-Reply-To: <1158155277.26420.70.camel@sgc>
-References: <1158088282.7554.95.camel@moss-huskies.epoch.ncsc.mil>
-	 <1158155277.26420.70.camel@sgc>
-Content-Type: text/plain
-Date: Wed, 13 Sep 2006 17:13:52 -0400
-Message-Id: <1158182032.7554.190.camel@moss-huskies.epoch.ncsc.mil>
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k8DMFEtc012513
+	for <selinux@tycho.nsa.gov>; Wed, 13 Sep 2006 18:15:17 -0400
+Received: from legolas.drinsama.de (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id k8DMENib022912
+	for <selinux@tycho.nsa.gov>; Wed, 13 Sep 2006 22:14:23 GMT
+Received: from localhost (localhost [127.0.0.1])
+	by localhost (Postfix) with ESMTP id 230FAC4C088
+	for <selinux@tycho.nsa.gov>; Thu, 14 Sep 2006 00:15:14 +0200 (CEST)
+Received: from legolas.drinsama.de ([127.0.0.1])
+	by localhost (legolas [127.0.0.1]) (amavisd-new, port 10024)
+	with SMTP id 01571-06 for <selinux@tycho.nsa.gov>;
+	Thu, 14 Sep 2006 00:15:13 +0200 (CEST)
+Received: from wintermute.xmldesign.de (p549A4DF1.dip.t-dialin.net [84.154.77.241])
+	by legolas.drinsama.de (Postfix) with ESMTP id D4B83C4C083
+	for <selinux@tycho.nsa.gov>; Thu, 14 Sep 2006 00:15:12 +0200 (CEST)
+Received: from wintermute.xmldesign.de (wintermute.xmldesign.de [127.0.0.1])
+	by wintermute.xmldesign.de (Postfix) with ESMTP id CA41D234017
+	for <selinux@tycho.nsa.gov>; Thu, 14 Sep 2006 00:15:10 +0200 (CEST)
+Subject: awk, isatty(), libc and ioctl()
+From: Erich Schubert <erich@debian.org>
+To: selinux@tycho.nsa.gov
+Content-Type: text/plain; charset=ISO-8859-15
+Date: Thu, 14 Sep 2006 00:15:10 +0200
+Message-Id: <1158185710.1594.94.camel@wintermute.xmldesign.de>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2006-09-13 at 09:47 -0400, Christopher J. PeBenito wrote:
-> On Tue, 2006-09-12 at 15:11 -0400, Eamon Walsh wrote:
-> > I'm working on the XSELinux code, which has just been brought up to date
-> > with the current X.org code base.
-> 
-> Is there any idea when this is going to be merged into xorg trunk?
+Hi,
+one of the few audit errors remaining on my test box is
+  initrc_t postfix_etc_t:file ioctl;
 
-X.org is on a 6-month cycle with the 7.2 release scheduled for November.
-I'm targeting the 7.3 release, but I may be able to get the hooks layer
-into 7.2.
+Which sounds like an odd behaviour to me. I've tracked it down to the
+init script using an awk-one-liner to determine if it needs to sync the
+chroot.
+Awk however calls isatty() on any file it processes. Which is
+implemented in the libc apparently using an ioctl TCGETS; this will fail
+for regular files.
 
-In the meantime, the code can be checked out of the XACE-SELINUX branch
-of the X.org "xserver" git repository.  It it fully up to date with the
-trunk, and builds and runs fine, except that there isn't any policy
-support for it yet other than what TCS has done.
+So should I add a "dontaudit" for this behaviour (but it will resurface
+again whenever awk is used in a script!) or maybe find a workaround for
+isatty()?
+Awk (or isatty()) could probably use fstat(), too. Anyone deep enough in
+kernel interfaces to comment on that? Any chance of modifying the LSM
+hooks to not audit this type of behaviour (calling unsupported ioctls)?
+Or anything?
 
+best regards,
+Erich Schubert
 -- 
-Eamon Walsh <ewalsh@tycho.nsa.gov>
-National Security Agency
+    erich@(vitavonni.de|debian.org)    --    GPG Key ID: 4B3A135C   (o_
+      The future is here. It's just not evenly distributed yet.     //\
+   Es ist beschämender seinen Freunden zu mißtrauen als von ihnen   V_/_
+        getäuscht zu werden. --- François de la Rochefoucauld
+
 
 
 --
