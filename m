@@ -1,128 +1,259 @@
-Message-ID: <45082058.5040106@tresys.com>
-Date: Wed, 13 Sep 2006 11:14:32 -0400
-From: Joshua Brindle <jbrindle@tresys.com>
-MIME-Version: 1.0
-To: Stephen Smalley <sds@tycho.nsa.gov>
-CC: Daniel J Walsh <dwalsh@redhat.com>,
-        Darrel Goeddel <dgoeddel@TrustedCS.com>,
-        Karl MacMillan <kmacmillan@mentalrootkit.com>,
-        SE Linux <selinux@tycho.nsa.gov>
-Subject: Re: Latest policycoreutils patch
-References: <45001F1A.3080004@redhat.com>	 <1157726159.31695.83.camel@moss-spartans.epoch.ncsc.mil>	 <45019C39.2090008@redhat.com> <1157747116.31695.223.camel@moss-spartans.epoch.ncsc.mil>
-In-Reply-To: <1157747116.31695.223.camel@moss-spartans.epoch.ncsc.mil>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k8DFhb4r032244
+	for <selinux@tycho.nsa.gov>; Wed, 13 Sep 2006 11:43:37 -0400
+Received: from legolas.drinsama.de (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id k8DFgjSW022757
+	for <selinux@tycho.nsa.gov>; Wed, 13 Sep 2006 15:42:46 GMT
+Subject: Moving xconsole from xserver to logging policy
+From: Erich Schubert <erich@debian.org>
+To: SELinux List <selinux@tycho.nsa.gov>
+Cc: "Christopher J. PeBenito" <cpebenito@tresys.com>
+Content-Type: multipart/mixed; boundary="=-GP7Og8BB3JyHgx2ANM8f"
+Date: Wed, 13 Sep 2006 17:43:27 +0200
+Message-Id: <1158162208.1594.37.camel@wintermute.xmldesign.de>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Stephen Smalley wrote:
-> On Fri, 2006-09-08 at 12:37 -0400, Daniel J Walsh wrote:
->> Stephen Smalley wrote:
->>> On Thu, 2006-09-07 at 09:31 -0400, Daniel J Walsh wrote:
->>>   
->>>> Have newrole ignore sigpipe so it gives correct error message when 
->>>> flooded with 4000 character security context.
->>>>     
->>> I'm a little unclear on this one, although I did find a bug report about
->>> it (which would be helpful to identify in the patch posting in the
->>> future when it applies for easy reference), at
->>> https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=203801
->>>
->>> If I read that one correctly, the SIGPIPE is actually happening when
->>> libselinux tries to write the context to the setrans socket, because the
->>> daemon is dropping the connection immediately upon getting the header
->>> with such a large length (more generally, any failure in the daemon
->>> before reading the entire request could lead to this).  So that could
->>> affect any user of libselinux, not just newrole, right?
->>>
->>> Looking around a bit, I see that if we changed the use of writev() in
->>> libselinux to instead use sendmsg() with an explicit MSG_NOSIGNAL flag,
->>> we could avoid having such failures generate SIGPIPE altogether.  Then
->>> we would just get an error return and have the usual fallback handling.
->>>   
->> That sounds like a better solution.
-> 
-> Possible patch below.  Changes:
-> 1) Collect up the entire request into a single msg and send it once.
-> 2) Use sendmsg with MSG_NOSIGNAL rather than writev.
-> 
-> Can anyone explain what data2 is for?  It is always NULL at present
-> AFAICS.
-> 
-> Index: libselinux/src/setrans_client.c
-> ===================================================================
-> RCS file: /nfshome/pal/CVS/selinux-usr/libselinux/src/setrans_client.c,v
-> retrieving revision 1.8
-> diff -u -p -r1.8 setrans_client.c
-> --- libselinux/src/setrans_client.c	29 Jun 2006 18:21:05 -0000	1.8
-> +++ libselinux/src/setrans_client.c	8 Sep 2006 20:18:07 -0000
-> @@ -58,11 +58,12 @@ static int setransd_open(void)
->  static int
->  send_request(int fd, uint32_t function, const char *data1, const char *data2)
->  {
-> -	struct iovec req_hdr[3];
-> +	struct msghdr msgh;
-> +	struct iovec iov[5];
->  	uint32_t data1_size;
->  	uint32_t data2_size;
-> -	struct iovec req_data[2];
-> -	ssize_t count;
-> +	ssize_t count, expected;
-> +	unsigned int i;
->  
->  	if (fd < 0)
->  		return -1;
-> @@ -75,28 +76,27 @@ send_request(int fd, uint32_t function, 
->  	data1_size = strlen(data1) + 1;
->  	data2_size = strlen(data2) + 1;
->  
-> -	req_hdr[0].iov_base = &function;
-> -	req_hdr[0].iov_len = sizeof(function);
-> -	req_hdr[1].iov_base = &data1_size;
-> -	req_hdr[1].iov_len = sizeof(data1_size);
-> -	req_hdr[2].iov_base = &data2_size;
-> -	req_hdr[2].iov_len = sizeof(data2_size);
-> -
-> -	while (((count = writev(fd, req_hdr, 3)) < 0) && (errno == EINTR)) ;
-> -	if (count != (sizeof(function) + sizeof(data1_size) +
-> -		      sizeof(data2_size))) {
-> -		return -1;
-> -	}
-> +	iov[0].iov_base = &function;
-> +	iov[0].iov_len = sizeof(function);
-> +	iov[1].iov_base = &data1_size;
-> +	iov[1].iov_len = sizeof(data1_size);
-> +	iov[2].iov_base = &data2_size;
-> +	iov[2].iov_len = sizeof(data2_size);
-> +	iov[3].iov_base = (char *)data1;
-> +	iov[3].iov_len = data1_size;
-> +	iov[4].iov_base = (char *)data2;
-> +	iov[4].iov_len = data2_size;
-> +	memset(&msgh, 0, sizeof(msgh));
-> +	msgh.msg_iov = iov;
-> +	msgh.msg_iovlen = sizeof(iov)/sizeof(iov[0]);
-> +
-> +	expected = 0;
-> +	for (i = 0; i < sizeof(iov)/sizeof(iov[0]); i++)
-> +		expected += iov[i].iov_len;
->  
-> -	req_data[0].iov_base = (char *)data1;
-> -	req_data[0].iov_len = data1_size;
-> -	req_data[1].iov_base = (char *)data2;
-> -	req_data[1].iov_len = data2_size;
-> -
-> -	while (((count = writev(fd, req_data, 2)) < 0) && (errno == EINTR)) ;
-> -	if (count < 0 || (uint32_t) count != (data1_size + data2_size)) {
-> +	while (((count = sendmsg(fd, &msgh, MSG_NOSIGNAL)) < 0) && (errno == EINTR)) ;
-> +	if (count < 0 || count != expected)
->  		return -1;
-> -	}
->  
->  	return 0;
->  }
-> 
-> 
 
-Thanks, merged.
+--=-GP7Og8BB3JyHgx2ANM8f
+Content-Type: text/plain; charset=ISO-8859-15
+Content-Transfer-Encoding: quoted-printable
+
+Hi,
+Basically, /dev/xconsole is a FIFO written to by syslog, and often is
+present even when there is no X. Therefore, this should go into the
+logging policy.
+Patch attached.
+
+best regards,
+Erich Schubert
+--=20
+     erich@(vitavonni.de|debian.org)    --    GPG Key ID: 4B3A135C    (o_
+ Nothing prevents happiness like the memory of happiness. --- A. Gide //\
+       Die einzige Hoffnung auf Freude liegt in den menschlichen      V_/=
+_
+               Beziehungen. --- Antoine de Saint-Exup=E9ry
+
+--=-GP7Og8BB3JyHgx2ANM8f
+Content-Disposition: attachment; filename=xconsole
+Content-Type: text/x-patch; name=xconsole; charset=ISO-8859-15
+Content-Transfer-Encoding: 7bit
+
+Index: policy/modules/services/xserver.te
+===================================================================
+--- policy/modules/services/xserver.te	(Revision 242)
++++ policy/modules/services/xserver.te	(Arbeitskopie)
+@@ -19,12 +19,6 @@
+ type xauth_exec_t;
+ corecmd_executable_file(xauth_exec_t)
+ 
+-# this is not actually a device, its a pipe
+-type xconsole_device_t;
+-files_type(xconsole_device_t)
+-fs_associate_tmpfs(xconsole_device_t)
+-files_associate_tmp(xconsole_device_t)
+-
+ type xdm_t;
+ # real declaration moved to mls until
+ # range_transition works in loadable modules
+@@ -97,8 +91,6 @@
+ # Supress permission check on .ICE-unix
+ dontaudit xdm_t ice_tmp_t:dir { getattr setattr };
+ 
+-allow xdm_t xconsole_device_t:fifo_file { getattr setattr };
+-
+ allow xdm_t xdm_tmp_t:dir manage_dir_perms;
+ allow xdm_t xdm_tmp_t:file manage_file_perms;
+ allow xdm_t xdm_tmp_t:sock_file manage_file_perms;
+@@ -204,6 +196,7 @@
+ libs_exec_lib_files(xdm_t)
+ 
+ logging_read_generic_logs(xdm_t)
++logging_setattr_xconsole_pipes(xdm_t)
+ 
+ miscfiles_read_localization(xdm_t)
+ miscfiles_read_fonts(xdm_t)
+Index: policy/modules/services/xserver.fc
+===================================================================
+--- policy/modules/services/xserver.fc	(Revision 242)
++++ policy/modules/services/xserver.fc	(Arbeitskopie)
+@@ -12,11 +12,6 @@
+ ')
+ 
+ #
+-# /dev
+-#
+-/dev/xconsole		-p	gen_context(system_u:object_r:xconsole_device_t,s0)
+-
+-#
+ # /etc
+ #
+ 
+Index: policy/modules/services/xserver.if
+===================================================================
+--- policy/modules/services/xserver.if	(Revision 242)
++++ policy/modules/services/xserver.if	(Arbeitskopie)
+@@ -694,42 +694,6 @@
+ 
+ ########################################
+ ## <summary>
+-##	Set the attributes of the X windows console named pipes.
+-## </summary>
+-## <param name="domain">
+-##	<summary>
+-##	Domain allowed access.
+-##	</summary>
+-## </param>
+-#
+-interface(`xserver_setattr_console_pipes',`
+-	gen_require(`
+-		type xconsole_device_t;
+-	')
+-
+-	allow $1 xconsole_device_t:fifo_file setattr;
+-')
+-
+-########################################
+-## <summary>
+-##	Read and write the X windows console named pipe.
+-## </summary>
+-## <param name="domain">
+-##	<summary>
+-##	Domain allowed access.
+-##	</summary>
+-## </param>
+-#
+-interface(`xserver_rw_console',`
+-	gen_require(`
+-		type xconsole_device_t;
+-	')
+-
+-	allow $1 xconsole_device_t:fifo_file { getattr read write };
+-')
+-
+-########################################
+-## <summary>
+ ##	Use file descriptors for xdm.
+ ## </summary>
+ ## <param name="domain">
+Index: policy/modules/system/logging.te
+===================================================================
+--- policy/modules/system/logging.te	(Revision 242)
++++ policy/modules/system/logging.te	(Arbeitskopie)
+@@ -57,6 +57,12 @@
+ type var_log_t;
+ logging_log_file(var_log_t)
+ 
++# this is not actually a device, its a pipe
++type xconsole_device_t;
++files_type(xconsole_device_t)
++fs_associate_tmpfs(xconsole_device_t)
++files_associate_tmp(xconsole_device_t)
++
+ ########################################
+ #
+ # Auditd local policy
+@@ -294,6 +300,9 @@
+ allow syslogd_t syslogd_var_run_t:dir rw_dir_perms;
+ files_pid_filetrans(syslogd_t,syslogd_var_run_t,file)
+ 
++# log to xconsole
++allow syslogd_t xconsole_device_t:fifo_file rw_file_perms;
++
+ kernel_read_kernel_sysctls(syslogd_t)
+ kernel_read_proc_symlinks(syslogd_t)
+ # Allow access to /proc/kmsg for syslog-ng
+@@ -388,8 +397,3 @@
+ optional_policy(`
+ 	udev_read_db(syslogd_t)
+ ')
+-
+-optional_policy(`
+-	# log to the xconsole
+-	xserver_rw_console(syslogd_t)
+-')
+Index: policy/modules/system/logging.if
+===================================================================
+--- policy/modules/system/logging.if	(Revision 242)
++++ policy/modules/system/logging.if	(Arbeitskopie)
+@@ -583,3 +583,40 @@
+ 	allow $1 var_log_t:dir rw_dir_perms;
+ 	allow $1 var_log_t:file create_file_perms;
+ ')
++
++########################################
++## <summary>
++##	Set the attributes of the xconsole named pipes.
++## </summary>
++## <param name="domain">
++##	<summary>
++##	Domain allowed access.
++##	</summary>
++## </param>
++#
++interface(`logging_setattr_xconsole_pipes',`
++	gen_require(`
++		type xconsole_device_t;
++	')
++
++	allow $1 xconsole_device_t:fifo_file setattr;
++')
++
++########################################
++## <summary>
++##	Read the xconsole named pipe.
++## </summary>
++## <param name="domain">
++##	<summary>
++##	Domain allowed access.
++##	</summary>
++## </param>
++#
++interface(`logging_r_xconsole',`
++	gen_require(`
++		type xconsole_device_t;
++	')
++
++	allow $1 xconsole_device_t:fifo_file { getattr read };
++')
++
+Index: policy/modules/system/init.te
+===================================================================
+--- policy/modules/system/init.te	(Revision 242)
++++ policy/modules/system/init.te	(Arbeitskopie)
+@@ -360,6 +360,7 @@
+ logging_read_all_logs(initrc_t)
+ logging_append_all_logs(initrc_t)
+ logging_read_audit_config(initrc_t)
++logging_setattr_xconsole_pipes(initrc_t)
+ 
+ miscfiles_read_localization(initrc_t)
+ # slapd needs to read cert files from its initscript
+@@ -757,9 +758,6 @@
+ ')
+ 
+ optional_policy(`
+-	# Set device ownerships/modes.
+-	xserver_setattr_console_pipes(initrc_t)
+-
+ 	# init script wants to check if it needs to update windowmanagerlist
+ 	xserver_read_xdm_rw_config(initrc_t)
+ ')
+Index: policy/modules/system/logging.fc
+===================================================================
+--- policy/modules/system/logging.fc	(Revision 242)
++++ policy/modules/system/logging.fc	(Arbeitskopie)
+@@ -1,5 +1,6 @@
+ 
+ /dev/log		-s	gen_context(system_u:object_r:devlog_t,s0)
++/dev/xconsole		-p	gen_context(system_u:object_r:xconsole_device_t,s0)
+ 
+ /etc/audit(/.*)?		gen_context(system_u:object_r:auditd_etc_t,s15:c0.c255)
+ 
+
+--=-GP7Og8BB3JyHgx2ANM8f--
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
