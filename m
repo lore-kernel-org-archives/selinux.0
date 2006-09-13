@@ -1,27 +1,41 @@
 Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k8DKUhp3009722
-	for <selinux@tycho.nsa.gov>; Wed, 13 Sep 2006 16:30:43 -0400
-Received: from nz-out-0102.google.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id k8DKUHPt013488
-	for <selinux@tycho.nsa.gov>; Wed, 13 Sep 2006 20:30:17 GMT
-Received: by nz-out-0102.google.com with SMTP id i11so1048982nzi
-        for <selinux@tycho.nsa.gov>; Wed, 13 Sep 2006 13:30:40 -0700 (PDT)
-Message-ID: <9f066ee90609131330m3c80a87em8c30e509ce499d36@mail.gmail.com>
-Date: Wed, 13 Sep 2006 16:30:40 -0400
-From: Mark <elihusmails@gmail.com>
-To: selinux@tycho.nsa.gov
-Subject: writing a policy
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k8DLDr3Y011034
+	for <selinux@tycho.nsa.gov>; Wed, 13 Sep 2006 17:13:53 -0400
+Subject: Re: [PATCH] refpolicy: add X object classes to unconfined_t
+From: Eamon Walsh <ewalsh@tycho.nsa.gov>
+Reply-To: ewalsh@tycho.nsa.gov
+To: "Christopher J. PeBenito" <cpebenito@tresys.com>
+Cc: selinux@tycho.nsa.gov
+In-Reply-To: <1158155277.26420.70.camel@sgc>
+References: <1158088282.7554.95.camel@moss-huskies.epoch.ncsc.mil>
+	 <1158155277.26420.70.camel@sgc>
+Content-Type: text/plain
+Date: Wed, 13 Sep 2006 17:13:52 -0400
+Message-Id: <1158182032.7554.190.camel@moss-huskies.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-I am just starting to get into SELinux for a project, and I will need
-to write my own policy.  Where can I get information on writing a
-policy, and what tools are available to write my own policy.  I am
-using RHEL4
+On Wed, 2006-09-13 at 09:47 -0400, Christopher J. PeBenito wrote:
+> On Tue, 2006-09-12 at 15:11 -0400, Eamon Walsh wrote:
+> > I'm working on the XSELinux code, which has just been brought up to date
+> > with the current X.org code base.
+> 
+> Is there any idea when this is going to be merged into xorg trunk?
 
-Thank you.
+X.org is on a 6-month cycle with the 7.2 release scheduled for November.
+I'm targeting the 7.3 release, but I may be able to get the hooks layer
+into 7.2.
+
+In the meantime, the code can be checked out of the XACE-SELINUX branch
+of the X.org "xserver" git repository.  It it fully up to date with the
+trunk, and builds and runs fine, except that there isn't any policy
+support for it yet other than what TCS has done.
+
+-- 
+Eamon Walsh <ewalsh@tycho.nsa.gov>
+National Security Agency
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
