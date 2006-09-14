@@ -1,108 +1,94 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k8EIso5A014116
-	for <selinux@tycho.nsa.gov>; Thu, 14 Sep 2006 14:54:50 -0400
-Received: from smtp107.sbc.mail.mud.yahoo.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with SMTP id k8EIsNTl003265
-	for <selinux@tycho.nsa.gov>; Thu, 14 Sep 2006 18:54:24 GMT
-In-Reply-To: <1158178755.15278.186.camel@moss-spartans.epoch.ncsc.mil>
-References: <p06002030c12ded62fc17@[192.168.50.32]> <1158178755.15278.186.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0 (Apple Message framework v752.2)
-Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
-Message-Id: <76A138F7-7C39-423B-B6D8-6D6E5EA03CEA@nall.com>
-Cc: Rosalie Hiebel <rosalie.hiebel@L-3Com.com>, janak@us.ibm.com,
-        LSPP <redhat-lspp@redhat.com>, selinux@tycho.nsa.gov
-From: Joe Nall <joe@nall.com>
-Subject: Re: [redhat-lspp] Re: Polyinstantiation based on context with MLS
-Date: Thu, 14 Sep 2006 13:54:12 -0500
-To: Stephen Smalley <sds@tycho.nsa.gov>
+Subject: Re: ipsec, netlabels, secmark- How about a little usability?
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: James Antill <jantill@redhat.com>
+Cc: "Christopher J. PeBenito" <cpebenito@tresys.com>,
+        Joshua Brindle <jbrindle@tresys.com>, SE Linux <selinux@tycho.nsa.gov>
+In-Reply-To: <1158254695.8442.30.camel@code.and.org>
+References: <45095092.6080603@redhat.com>  <45095E10.2020205@tresys.com>
+	 <1158249777.8442.13.camel@code.and.org>
+	 <1158252565.25629.111.camel@moss-spartans.epoch.ncsc.mil>
+	 <1158254695.8442.30.camel@code.and.org>
+Content-Type: text/plain
+Date: Thu, 14 Sep 2006 15:45:03 -0400
+Message-Id: <1158263103.25629.207.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+On Thu, 2006-09-14 at 13:24 -0400, James Antill wrote:
+> On Thu, 2006-09-14 at 12:49 -0400, Stephen Smalley wrote:
+> > On Thu, 2006-09-14 at 12:02 -0400, James Antill wrote:
+> 
+> > The iptables rule only deals with labeling the packet with a type.  The
+> > policy deals with what domains can send/recv a given packet via allow
+> > rules like:
+> > 	allow httpd_t http_client_packet_t:packet { send recv };
+> > encapsulated in interfaces like:
+> > 	corenet_sendrecv_http_client_packet(httpd_t)
+> > 
+> > But the problem I see with the above example is that refpolicy already
+> > generates a netfilter contexts entry that maps _everything_ going to
+> > port 80 with http_client_packet_t, so we would need to delete that entry
+> > to make the above work, or use a different type
+> > (http_client_packet_lo_t) and only allow httpd_t to send it, not the
+> > generic http_client_packet_t.  All of which gets back to proper
+> > integration.
+> 
+>  The problem is you can't just use "send recv", because httpd_t needs to
+> call send on sockets it receives from all over the place. So you need an
+> interface specifically for connect (which, I understood, was called 
+> something like name_bind)?
 
-On Sep 13, 2006, at 3:19 PM, Stephen Smalley wrote:
+name_connect is just a pairwise check between the socket and the port.
+It has nothing to do with secmark.
 
->
-> As a side bar, it looks like there is an error in the build of the - 
-> mls
-> policy that is leaving the usual polyinstantiation-related rules
-> disabled (controlled by the POLY= build option).
+Are you aware of the CONNSECMARK target?  See
+http://james-morris.livejournal.com/11010.html
 
-I think this spec file change will fix the error
+>  Think of the difference between something coming to port X:80 from Y:Z,
+> being accepted, processed and a response being sent against some
+> attacker in httpd_t doing a connect from X:80 to Y:Z as part of some
+> botnet.
 
---- selinux-policy.spec.orig    2006-09-14 08:46:07.000000000 -0500
-+++ selinux-policy.spec 2006-09-14 08:46:59.000000000 -0500
-@@ -73,8 +73,8 @@ SELinux Policy development package
-%dir %{_usr}/share/selinux/mls
+Yes, that can be distinguished.   The issue is not send/recv, but the
+labels of the packets, as initially established via secmark and
+propagated via connsecmark to all traffic on the connection.
 
-%define setupCmds() \
--make NAME=%1 TYPE=%2 DISTRO=%{distro} DIRECT_INITRC=%3 MONOLITHIC=% 
-{monolithic} POLY=%3 bare \
--make NAME=%1 TYPE=%2 DISTRO=%{distro} DIRECT_INITRC=%3 MONOLITHIC=% 
-{monolithic} POLY=%3  conf \
-+make NAME=%1 TYPE=%2 DISTRO=%{distro} DIRECT_INITRC=%3 MONOLITHIC=% 
-{monolithic} POLY=%4 bare \
-+make NAME=%1 TYPE=%2 DISTRO=%{distro} DIRECT_INITRC=%3 MONOLITHIC=% 
-{monolithic} POLY=%4  conf \
-cp -f ${RPM_SOURCE_DIR}/modules-%1.conf  ./policy/modules.conf \
-cp -f ${RPM_SOURCE_DIR}/booleans-%1.conf ./policy/booleans.conf \
+> > > 1. httpd_t on one machine is only allowed to connect to mysqld_t(?) on
+> > > one of these 3 machines.
+> > > 
+> > > ...AIUI secmark doesn't know the label of the proc. on the other
+> > > machines, even when using ipsec/netlabel.
+> > 
+> > Yes, but you can label the output packet via secmark with one type if it
+> > is destined for the mysql port on one of the "good" machines and a
+> > different type otherwise, and only allow httpd_t to send the "good"
+> > type.   On the internal machines, you can ensure that only mysqld_t can
+> > bind to that port.  That doesn't really require a network labeling
+> > mechanism like ipsec or netlabel per se.
+> 
+>  That works, but is significantly more interdependent. From a useability
+> POV it would be much nicer to just be able to say something like
+> "httpd_t can only connect to mysqld_t, and also only on these
+> machines/networks".
 
-@@ -82,18 +82,18 @@ cp -f ${RPM_SOURCE_DIR}/booleans-%1.conf
-awk '$1 !~ "/^#/" && $2 == "=" && $3 == "module" { printf "-i %%s.pp  
-", $1 }' %{_sourcedir}/modules-%{1}.conf )
+That's your high level goal - you can implement it in different ways.
+Not sure why it is more interdependent.  
 
-%define installCmds() \
--make NAME=%1 TYPE=%2 DISTRO=%{distro} DIRECT_INITRC=%3 MONOLITHIC=% 
-{monolithic} POLY=%3 base.pp \
--make NAME=%1 TYPE=%2 DISTRO=%{distro} DIRECT_INITRC=%3 MONOLITHIC=% 
-{monolithic} POLY=%3 modules \
--make NAME=%1 TYPE=%2 DISTRO=%{distro} DIRECT_INITRC=%3 MONOLITHIC=% 
-{monolithic} DESTDIR=%{buildroot} POLY=%3 install \
--make NAME=%1 TYPE=%2 DISTRO=%{distro} DIRECT_INITRC=%3 MONOLITHIC=% 
-{monolithic} DESTDIR=%{buildroot} POLY=%3 install-appconfig \
-+make NAME=%1 TYPE=%2 DISTRO=%{distro} DIRECT_INITRC=%3 MONOLITHIC=% 
-{monolithic} POLY=%4 base.pp \
-+make NAME=%1 TYPE=%2 DISTRO=%{distro} DIRECT_INITRC=%3 MONOLITHIC=% 
-{monolithic} POLY=%4 modules \
-+make NAME=%1 TYPE=%2 DISTRO=%{distro} DIRECT_INITRC=%3 MONOLITHIC=% 
-{monolithic} DESTDIR=%{buildroot} POLY=%4 install \
-+make NAME=%1 TYPE=%2 DISTRO=%{distro} DIRECT_INITRC=%3 MONOLITHIC=% 
-{monolithic} DESTDIR=%{buildroot} POLY=%4 install-appconfig \
-#%{__cp} *.pp %{buildroot}/%{_usr}/share/selinux/%1/ \
-%{__mkdir} -p %{buildroot}/%{_sysconfdir}/selinux/%1/policy \
-%{__mkdir} -p %{buildroot}/%{_sysconfdir}/selinux/%1/modules/active \
-%{__mkdir} -p %{buildroot}/%{_sysconfdir}/selinux/%1/contexts/files \
-touch %{buildroot}/%{_sysconfdir}/selinux/%1/modules/ 
-semanage.read.LOCK \
-touch %{buildroot}/%{_sysconfdir}/selinux/%1/modules/ 
-semanage.trans.LOCK \
--make NAME=%1 TYPE=%2 DISTRO=%{distro} DIRECT_INITRC=%3 MONOLITHIC=% 
-{monolithic} POLY=%3  enableaudit \
--make -W base.conf NAME=%1 TYPE=%2 DISTRO=%{distro} DIRECT_INITRC=%3  
-MONOLITHIC=%{monolithic} POLY=%3 base.pp \
-+make NAME=%1 TYPE=%2 DISTRO=%{distro} DIRECT_INITRC=%3 MONOLITHIC=% 
-{monolithic} POLY=%4  enableaudit \
-+make -W base.conf NAME=%1 TYPE=%2 DISTRO=%{distro} DIRECT_INITRC=%3  
-MONOLITHIC=%{monolithic} POLY=%4 base.pp \
-install -m0644 base.pp %{buildroot}%{_usr}/share/selinux/%1/ 
-enableaudit.pp \
-rm -rf %{buildroot}%{_sysconfdir}/selinux/%1/booleans \
-touch %{buildroot}%{_sysconfdir}/selinux/%1/seusers \
-@@ -179,7 +179,7 @@ mkdir -p %{buildroot}%{_usr}/share/selin
+>  Also I can pretty much guarantee that if the accepted practice is "just
+> trust the port number on the other machines". The solution will be to
+> just use iptables to REJECT packets without that port (as that works
+> with or without SELinux).
 
-# Install devel
-make clean
--make NAME=targeted TYPE=targeted-mcs DISTRO=%{distro}  
-DIRECT_INITRC=y MONOLITHIC=%{monolithic} DESTDIR=%{buildroot} PKGNAME= 
-%{name}-%{version} POLY=%3 install-headers install-docs
-+make NAME=targeted TYPE=targeted-mcs DISTRO=%{distro}  
-DIRECT_INITRC=y MONOLITHIC=%{monolithic} DESTDIR=%{buildroot} PKGNAME= 
-%{name}-%{version} POLY=n install-headers install-docs
-mkdir %{buildroot}%{_usr}/share/selinux/devel/
-mv %{buildroot}%{_usr}/share/selinux/targeted/include %{buildroot}% 
-{_usr}/share/selinux/devel/include
-install -m 755 ${RPM_SOURCE_DIR}/policygentool %{buildroot}%{_usr}/ 
-share/selinux/devel/
+Not sure I see that. You are using SELinux on the web server to enforce
+the restriction that httpd can only initiate connections to the mysql
+port of certain hosts, and you are using SELinux on those hosts to
+enforce the restriction that only the approved mysqld can bind to that
+port.
 
+-- 
+Stephen Smalley
+National Security Agency
 
 
 --
