@@ -1,36 +1,33 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k8EEtes3005791
-	for <selinux@tycho.nsa.gov>; Thu, 14 Sep 2006 10:55:40 -0400
-Received: from e33.co.us.ibm.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id k8EEsmg7017641
-	for <selinux@tycho.nsa.gov>; Thu, 14 Sep 2006 14:54:48 GMT
-Received: from d03relay04.boulder.ibm.com (d03relay04.boulder.ibm.com [9.17.195.106])
-	by e33.co.us.ibm.com (8.13.8/8.12.11) with ESMTP id k8EEtbPk006684
-	for <selinux@tycho.nsa.gov>; Thu, 14 Sep 2006 10:55:37 -0400
-Received: from d03av02.boulder.ibm.com (d03av02.boulder.ibm.com [9.17.195.168])
-	by d03relay04.boulder.ibm.com (8.13.6/8.13.6/NCO v8.1.1) with ESMTP id k8EEtafG145636
-	for <selinux@tycho.nsa.gov>; Thu, 14 Sep 2006 08:55:36 -0600
-Received: from d03av02.boulder.ibm.com (loopback [127.0.0.1])
-	by d03av02.boulder.ibm.com (8.12.11.20060308/8.13.3) with ESMTP id k8EEta7Z011430
-	for <selinux@tycho.nsa.gov>; Thu, 14 Sep 2006 08:55:36 -0600
-Message-ID: <45096D60.5010902@us.ibm.com>
-Date: Thu, 14 Sep 2006 09:55:28 -0500
-From: Michael C Thompson <thompsmc@us.ibm.com>
-MIME-Version: 1.0
-To: lspp-list <redhat-lspp@redhat.com>, selinux@tycho.nsa.gov
-Subject: MAC_POLICY_LOAD on unloading module
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Subject: Re: MAC_POLICY_LOAD on unloading module
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Michael C Thompson <thompsmc@us.ibm.com>
+Cc: lspp-list <redhat-lspp@redhat.com>, selinux@tycho.nsa.gov
+In-Reply-To: <45096D60.5010902@us.ibm.com>
+References: <45096D60.5010902@us.ibm.com>
+Content-Type: text/plain
+Date: Thu, 14 Sep 2006 11:08:44 -0400
+Message-Id: <1158246524.25629.71.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hey Steve,
+On Thu, 2006-09-14 at 09:55 -0500, Michael C Thompson wrote:
+> Hey Steve,
+> 
+> on semodule -r module, the audit message you get (MAC_POLICY_LOAD) has 
+> the exact same message as the audit message you get on semodule -i 
+> module. That is, "policy loaded". Shouldn't there be a different between 
+> module load and module unload?
 
-on semodule -r module, the audit message you get (MAC_POLICY_LOAD) has 
-the exact same message as the audit message you get on semodule -i 
-module. That is, "policy loaded". Shouldn't there be a different between 
-module load and module unload?
+>From the kernel's POV, they are both a policy load.  The modular
+insertion/removal is done in userspace and a new kernel policy is
+generated and then loaded.  So if you want that granularity of audit,
+you need it to be done in semodule or better in libsemanage (and
+ultimately in the policy management server when that is deployed).
 
-Mike
+-- 
+Stephen Smalley
+National Security Agency
 
 
 --
