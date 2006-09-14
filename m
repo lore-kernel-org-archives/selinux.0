@@ -1,46 +1,33 @@
 Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k8EKlP9Y017663
-	for <selinux@tycho.nsa.gov>; Thu, 14 Sep 2006 16:47:25 -0400
-Received: from legolas.drinsama.de (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id k8EKkWJg016106
-	for <selinux@tycho.nsa.gov>; Thu, 14 Sep 2006 20:46:32 GMT
-Subject: Re: Moving xconsole from xserver to logging policy
-From: Erich Schubert <erich@debian.org>
-To: "Christopher J. PeBenito" <cpebenito@tresys.com>
-Cc: SELinux List <selinux@tycho.nsa.gov>
-In-Reply-To: <1158240772.26420.102.camel@sgc.columbia.tresys.com>
-References: <1158162208.1594.37.camel@wintermute.xmldesign.de>
-	 <1158164561.26420.72.camel@sgc.columbia.tresys.com>
-	 <1158166443.1594.51.camel@wintermute.xmldesign.de>
-	 <1158167487.26420.75.camel@sgc.columbia.tresys.com>
-	 <1158174972.1594.61.camel@wintermute.xmldesign.de>
-	 <1158240772.26420.102.camel@sgc.columbia.tresys.com>
-Content-Type: text/plain; charset=ISO-8859-15
-Date: Thu, 14 Sep 2006 22:46:29 +0200
-Message-Id: <1158266789.32661.9.camel@wintermute.xmldesign.de>
-Mime-Version: 1.0
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k8EL0B3F018063
+	for <selinux@tycho.nsa.gov>; Thu, 14 Sep 2006 17:00:11 -0400
+Received: from web51511.mail.yahoo.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with SMTP id k8EKxIJg018178
+	for <selinux@tycho.nsa.gov>; Thu, 14 Sep 2006 20:59:18 GMT
+Message-ID: <20060914210005.95111.qmail@web51511.mail.yahoo.com>
+Date: Thu, 14 Sep 2006 14:00:05 -0700 (PDT)
+From: Steve G <linux_4ever@yahoo.com>
+Subject: Re: Latest patch for policycoreutils, reworked from previous.
+To: Stephen Smalley <sds@tycho.nsa.gov>
+Cc: Daniel J Walsh <dwalsh@redhat.com>, SE Linux <selinux@tycho.nsa.gov>
+In-Reply-To: <1158265516.25629.235.camel@moss-spartans.epoch.ncsc.mil>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hi,
-Another reason why that usage you mentioned is broken - it's not
-multi-user compatible. They definitely should use a fifo in their home
-directory.
 
-> Regardless if this is a good use or not, having a xconsole without an
-> xserver makes no sense.
+>Sure, so why can't you use -o - (with this patch) but not pass -v,
+>thereby avoiding the need to change -v handling altogether?
 
-How about displaying the information remotely?
-There are so many uses for fifos...
+OK, I'll give that a try. I'll let Dan explain the -v...
 
-best regards,
-Erich Schubert
--- 
-   erich@(vitavonni.de|debian.org)    --    GPG Key ID: 4B3A135C    (o_
-     The future is here. It's just not evenly distributed yet.      //\
-            Ohne Tränen hat die Seele keinen Regenbogen.            V_/_
+-Steve
 
-
+__________________________________________________
+Do You Yahoo!?
+Tired of spam?  Yahoo! Mail has the best spam protection around 
+http://mail.yahoo.com 
 
 --
 This message was distributed to subscribers of the selinux mailing list.
