@@ -1,81 +1,83 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k8EG32aM008329
-	for <selinux@tycho.nsa.gov>; Thu, 14 Sep 2006 12:03:02 -0400
-Received: from mail.and.org (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id k8EG29g7029515
-	for <selinux@tycho.nsa.gov>; Thu, 14 Sep 2006 16:02:09 GMT
-From: James Antill <jantill@redhat.com>
-To: Joshua Brindle <jbrindle@tresys.com>
-Cc: SE Linux <selinux@tycho.nsa.gov>
-In-Reply-To: <45095E10.2020205@tresys.com>
-References: <45095092.6080603@redhat.com>  <45095E10.2020205@tresys.com>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-uLVUXgh/O7bOiH8TrDFh"
-Date: Thu, 14 Sep 2006 12:02:57 -0400
-Message-Id: <1158249777.8442.13.camel@code.and.org>
-Mime-Version: 1.0
 Subject: Re: ipsec, netlabels, secmark- How about a little usability?
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: James Antill <jantill@redhat.com>
+Cc: "Christopher J. PeBenito" <cpebenito@tresys.com>,
+        Joshua Brindle <jbrindle@tresys.com>, SE Linux <selinux@tycho.nsa.gov>
+In-Reply-To: <1158249777.8442.13.camel@code.and.org>
+References: <45095092.6080603@redhat.com>  <45095E10.2020205@tresys.com>
+	 <1158249777.8442.13.camel@code.and.org>
+Content-Type: text/plain
+Date: Thu, 14 Sep 2006 12:49:25 -0400
+Message-Id: <1158252565.25629.111.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+On Thu, 2006-09-14 at 12:02 -0400, James Antill wrote:
+> On Thu, 2006-09-14 at 09:50 -0400, Joshua Brindle wrote:
+> > Daniel J Walsh wrote:
+> > > 1.  By default httpd has to be able to talk to itself in order to do 
+> > > gracefull shutdown,
+> > > service httpd graceful.
+> > >
+> > > So I end up adding a rule allowing httpd to name_connect to the 
+> > > httpd_port_t.    But I really only want to allow this for localhost.  
+> > > IE I don't want to allow my httpd to name_connect to other machines 
+> > > httpd ports?  I can't do this now.
+> > >
+> > you can with secmark can't you?
+> > iptables -I -p tcp -d localhost -s localhost -i lo --dport 80 -j SECMARK 
+> > --selctx system_u:object_r:httpd_client_packet_t
+> 
+>  This one rule, both allows httpd_t to connect to localhost:80 and
+> disallows it from connecting to anything-else:80 ?
+> 
+>  From the documentation --selctx just sets the "SELinux security
+> context" ... so you presumably _also_ need some bit of policy code that
+> says "httpd_t can only name_bind(?) with httpd_client_packet_t"?
 
---=-uLVUXgh/O7bOiH8TrDFh
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+The iptables rule only deals with labeling the packet with a type.  The
+policy deals with what domains can send/recv a given packet via allow
+rules like:
+	allow httpd_t http_client_packet_t:packet { send recv };
+encapsulated in interfaces like:
+	corenet_sendrecv_http_client_packet(httpd_t)
 
-On Thu, 2006-09-14 at 09:50 -0400, Joshua Brindle wrote:
-> Daniel J Walsh wrote:
-> > 1.  By default httpd has to be able to talk to itself in order to do=20
-> > gracefull shutdown,
-> > service httpd graceful.
-> >
-> > So I end up adding a rule allowing httpd to name_connect to the=20
-> > httpd_port_t.    But I really only want to allow this for localhost. =20
-> > IE I don't want to allow my httpd to name_connect to other machines=20
-> > httpd ports?  I can't do this now.
-> >
-> you can with secmark can't you?
-> iptables -I -p tcp -d localhost -s localhost -i lo --dport 80 -j SECMARK=20
-> --selctx system_u:object_r:httpd_client_packet_t
+But the problem I see with the above example is that refpolicy already
+generates a netfilter contexts entry that maps _everything_ going to
+port 80 with http_client_packet_t, so we would need to delete that entry
+to make the above work, or use a different type
+(http_client_packet_lo_t) and only allow httpd_t to send it, not the
+generic http_client_packet_t.  All of which gets back to proper
+integration.
 
- This one rule, both allows httpd_t to connect to localhost:80 and
-disallows it from connecting to anything-else:80 ?
+> 
+> > > 2.  I as a sysadm have setup a apache web site that allows connections 
+> > > from the outside and needs to connect to three mysql servers on my 
+> > > internal network. So I need to allow it to connect to those three 
+> > > machines on the internal network only.  How am I as the Sysadm going 
+> > > to set this up.
+> > >
+> > again, secmark
+> 
+>  Err, no. The requirement here is that:
+> 
+> 1. httpd_t on one machine is only allowed to connect to mysqld_t(?) on
+> one of these 3 machines.
+> 
+> ...AIUI secmark doesn't know the label of the proc. on the other
+> machines, even when using ipsec/netlabel.
 
- From the documentation --selctx just sets the "SELinux security
-context" ... so you presumably _also_ need some bit of policy code that
-says "httpd_t can only name_bind(?) with httpd_client_packet_t"?
+Yes, but you can label the output packet via secmark with one type if it
+is destined for the mysql port on one of the "good" machines and a
+different type otherwise, and only allow httpd_t to send the "good"
+type.   On the internal machines, you can ensure that only mysqld_t can
+bind to that port.  That doesn't really require a network labeling
+mechanism like ipsec or netlabel per se.
 
-> > 2.  I as a sysadm have setup a apache web site that allows connections=20
-> > from the outside and needs to connect to three mysql servers on my=20
-> > internal network. So I need to allow it to connect to those three=20
-> > machines on the internal network only.  How am I as the Sysadm going=20
-> > to set this up.
-> >
-> again, secmark
-
- Err, no. The requirement here is that:
-
-1. httpd_t on one machine is only allowed to connect to mysqld_t(?) on
-one of these 3 machines.
-
-...AIUI secmark doesn't know the label of the proc. on the other
-machines, even when using ipsec/netlabel.
-
---=20
-James Antill <jantill@redhat.com>
-
---=-uLVUXgh/O7bOiH8TrDFh
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.5 (GNU/Linux)
-
-iD8DBQBFCX0x11eXTEMrxtQRAqDJAKDAuu4rjKaR9uvw0I3aKT3NNBwz8gCfSRjt
-m3/TFJEqIwbewg059EkgD8o=
-=suzI
------END PGP SIGNATURE-----
-
---=-uLVUXgh/O7bOiH8TrDFh--
+-- 
+Stephen Smalley
+National Security Agency
 
 
 --
