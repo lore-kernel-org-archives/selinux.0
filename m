@@ -1,33 +1,34 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k8FCgJDa027908
-	for <selinux@tycho.nsa.gov>; Fri, 15 Sep 2006 08:42:19 -0400
-Received: from twoface.columbia.tresys.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id k8FCfq7O021685
-	for <selinux@tycho.nsa.gov>; Fri, 15 Sep 2006 12:41:52 GMT
-Subject: Re: Labeled IPSec status
+Subject: Re: [PATCH] refpolicy: add X object classes to unconfined_t
 From: Joshua Brindle <jbrindle@tresys.com>
-To: Venkat Yekkirala <vyekkirala@TrustedCS.com>
-Cc: selinux@tycho.nsa.gov, chanson@TrustedCS.com,
-        Joy Latten <latten@austin.ibm.com>
-In-Reply-To: <45071277.5020702@trustedcs.com>
-References: <45071277.5020702@trustedcs.com>
+To: ewalsh@tycho.nsa.gov
+Cc: cpebenito@tresys.com, selinux@tycho.nsa.gov
+In-Reply-To: <450962DB.7050107@tresys.com>
+References: <1158088282.7554.95.camel@moss-huskies.epoch.ncsc.mil>
+	 <450962DB.7050107@tresys.com>
 Content-Type: text/plain
-Date: Fri, 15 Sep 2006 08:43:49 -0400
-Message-Id: <1158324229.8680.2.camel@twoface.columbia.tresys.com>
+Date: Fri, 15 Sep 2006 08:46:56 -0400
+Message-Id: <1158324416.8680.5.camel@twoface.columbia.tresys.com>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2006-09-12 at 15:03 -0500, Venkat Yekkirala wrote:
-> UPCOMING CHANGES:
+On Thu, 2006-09-14 at 10:10 -0400, Joshua Brindle wrote:
+> Eamon Walsh wrote:
+> > Hello,
+> > I'm working on the XSELinux code, which has just been brought up to date
+> > with the current X.org code base.
+> > 
+> > The following patch adds the X Windows userspace object classes to
+> > unconfined_t.
+> > 
 > 
-> 1. There's a racoon patch being tested by Joy Latten that will use
-> the security context in the negotiation that should be submitted for
-> upstreaming soon.
-> 
+> This patch doesn't add the types necessary to run the default XSELinux 
+> installation. Do you have a module that adds those types so that we can 
+> test the codebase out?
 
-Is this available somewhere to test out in the mean time?
-
+It also seems that the XSELinuxConfig in the git repository doesn't have
+all the necessary entries, one for root_window_context needs to be added
+to start the X server up.
 
 
 --
