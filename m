@@ -1,62 +1,45 @@
-Message-ID: <450AC895.3060905@redhat.com>
-Date: Fri, 15 Sep 2006 11:36:53 -0400
-From: Daniel J Walsh <dwalsh@redhat.com>
-MIME-Version: 1.0
-To: Stephen Smalley <sds@tycho.nsa.gov>
-CC: Joshua Brindle <jbrindle@tresys.com>,
-        Karl MacMillan <kmacmillan@mentalrootkit.com>,
-        SE Linux <selinux@tycho.nsa.gov>
-Subject: Re: ipsec, netlabels, secmark- How about a little usability?
-References: <45095092.6080603@redhat.com>  <45095E10.2020205@tresys.com> <1158245034.25629.65.camel@moss-spartans.epoch.ncsc.mil>
-In-Reply-To: <1158245034.25629.65.camel@moss-spartans.epoch.ncsc.mil>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k8FGx1tL003164
+	for <selinux@tycho.nsa.gov>; Fri, 15 Sep 2006 12:59:01 -0400
+Received: from e34.co.us.ibm.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id k8FGw6Xe019639
+	for <selinux@tycho.nsa.gov>; Fri, 15 Sep 2006 16:58:07 GMT
+Received: from d03relay04.boulder.ibm.com (d03relay04.boulder.ibm.com [9.17.195.106])
+	by e34.co.us.ibm.com (8.13.8/8.12.11) with ESMTP id k8FGwxOp006688
+	for <selinux@tycho.nsa.gov>; Fri, 15 Sep 2006 12:58:59 -0400
+Received: from d03av04.boulder.ibm.com (d03av04.boulder.ibm.com [9.17.195.170])
+	by d03relay04.boulder.ibm.com (8.13.6/8.13.6/NCO v8.1.1) with ESMTP id k8FGwwjA276662
+	for <selinux@tycho.nsa.gov>; Fri, 15 Sep 2006 10:58:58 -0600
+Received: from d03av04.boulder.ibm.com (loopback [127.0.0.1])
+	by d03av04.boulder.ibm.com (8.12.11.20060308/8.13.3) with ESMTP id k8FGwwbx007648
+	for <selinux@tycho.nsa.gov>; Fri, 15 Sep 2006 10:58:58 -0600
+Date: Fri, 15 Sep 2006 11:47:30 -0500
+From: Joy Latten <latten@austin.ibm.com>
+Message-Id: <200609151647.k8FGlUA2007824@faith.austin.ibm.com>
+To: jbrindle@tresys.com, vyekkirala@TrustedCS.com
+Subject: Re: Labeled IPSec status
+Cc: chanson@TrustedCS.com, latten@austin.ibm.com, selinux@tycho.nsa.gov
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Stephen Smalley wrote:
-> On Thu, 2006-09-14 at 09:50 -0400, Joshua Brindle wrote:
->   
->>> 1.  By default httpd has to be able to talk to itself in order to do 
->>> gracefull shutdown,
->>> service httpd graceful.
->>>
->>> So I end up adding a rule allowing httpd to name_connect to the 
->>> httpd_port_t.    But I really only want to allow this for localhost.  
->>> IE I don't want to allow my httpd to name_connect to other machines 
->>> httpd ports?  I can't do this now.
->>>
->>>       
->> you can with secmark can't you?
->> iptables -I -p tcp -d localhost -s localhost -i lo --dport 80 -j SECMARK 
->> --selctx system_u:object_r:httpd_client_packet_t
->>     
+>On Tue, 2006-09-12 at 15:03 -0500, Venkat Yekkirala wrote:
+>> UPCOMING CHANGES:
+>> 
+>> 1. There's a racoon patch being tested by Joy Latten that will use
+>> the security context in the negotiation that should be submitted for
+>> upstreaming soon.
+>> 
 >
-> IIUC, the mechanism is there, but the necessary integration is not.  How
-> do we intend to manage local secmark rules, via semanage as with
-> port/node/netif contexts or via iptables?  How does one express this
-> kind of goal in refpolicy itself, going beyond just the support for auto
-> generation of dport-based rules?  Where do we stand on iptables
-> integration?
->
->   
-I still think this is not fully thought out. We have a lot of booleans 
-that this stuff will blow out of the water.  setsebool -A 
-allow_ypbind=1  for example,  httpd_can_connect_any ...  Are these 
-things going to have to replace iptables rules when they get set?  I 
-find the hole thing unmanagable and I think we are going to see 
-performance problems when we start adding hundreds (thousands) of rules 
-to iptables.
+>Is this available somewhere to test out in the mean time?
 
-I believe we need an integrated solution that can setup full networking 
-support, in which I state that
-Domain X on Host Y can talk to Domain A on Host B.  This needs to be 
-able to setup the proper network requirements to make this happen.  If 
-this is a combination of secmark rules, and netlabel/ipsec that is 
-fine.  But I don't expect many admins in to be able to set this up on 
-their own.
+Sorry for the lack of response. I have been attending a conference
+this week and not always able to log into internet. I will
+work on this as soon as I get back home this weekend.
 
-
-
+Regards,
+Joy
+~
+~
 
 --
 This message was distributed to subscribers of the selinux mailing list.
