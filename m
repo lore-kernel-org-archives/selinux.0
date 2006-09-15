@@ -1,147 +1,119 @@
-Subject: RE: Latest policycoreutils patch
-From: Karl MacMillan <kmacmillan@mentalrootkit.com>
-To: Joshua Brindle <jbrindle@tresys.com>
-Cc: Stephen Smalley <sds@tycho.nsa.gov>, Daniel J Walsh <dwalsh@redhat.com>,
-        Darrel Goeddel <dgoeddel@TrustedCS.com>,
-        SE Linux <selinux@tycho.nsa.gov>
-In-Reply-To: <6FE441CD9F0C0C479F2D88F959B015883C1743@exchange.columbia.tresys.com>
-References: 
-	 <6FE441CD9F0C0C479F2D88F959B015883C1743@exchange.columbia.tresys.com>
+Subject: Re: Question on type_member rule
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Rosalie Hiebel <rosalie.hiebel@L-3Com.com>
+Cc: Janak Desai <jdesai@us.ibm.com>, Darrel Goeddel <dgoeddel@TrustedCS.com>,
+        LSPP <redhat-lspp@redhat.com>, selinux@tycho.nsa.gov
+In-Reply-To: <p06002037c130476cd8d9@[192.168.50.32]>
+References: <p06002037c130476cd8d9@[192.168.50.32]>
 Content-Type: text/plain
-Date: Tue, 12 Sep 2006 08:45:35 -0400
-Message-Id: <1158065135.2580.2.camel@dhcp83-5.boston.redhat.com>
+Date: Fri, 15 Sep 2006 13:40:58 -0400
+Message-Id: <1158342058.18951.85.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 2006-09-11 at 08:25 -0400, Joshua Brindle wrote:
-> > From: Stephen Smalley [mailto:sds@tycho.nsa.gov] 
-> > 
-> > On Fri, 2006-09-08 at 12:37 -0400, Daniel J Walsh wrote:
-> > > Stephen Smalley wrote:
-> > > > On Thu, 2006-09-07 at 09:31 -0400, Daniel J Walsh wrote:
-> > > >   
-> > > >> Have newrole ignore sigpipe so it gives correct error 
-> > message when 
-> > > >> flooded with 4000 character security context.
-> > > >>     
-> > > >
-> > > > I'm a little unclear on this one, although I did find a 
-> > bug report 
-> > > > about it (which would be helpful to identify in the patch 
-> > posting in 
-> > > > the future when it applies for easy reference), at
-> > > > https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=203801
-> > > >
-> > > > If I read that one correctly, the SIGPIPE is actually 
-> > happening when 
-> > > > libselinux tries to write the context to the setrans 
-> > socket, because 
-> > > > the daemon is dropping the connection immediately upon 
-> > getting the 
-> > > > header with such a large length (more generally, any 
-> > failure in the 
-> > > > daemon before reading the entire request could lead to this).  So 
-> > > > that could affect any user of libselinux, not just newrole, right?
-> > > >
-> > > > Looking around a bit, I see that if we changed the use of 
-> > writev() 
-> > > > in libselinux to instead use sendmsg() with an explicit 
-> > MSG_NOSIGNAL 
-> > > > flag, we could avoid having such failures generate SIGPIPE 
-> > > > altogether.  Then we would just get an error return and 
-> > have the usual fallback handling.
-> > > >   
-> > > That sounds like a better solution.
-> > 
-> > Possible patch below.  Changes:
-> > 1) Collect up the entire request into a single msg and send it once.
-> > 2) Use sendmsg with MSG_NOSIGNAL rather than writev.
-> > 
-> > Can anyone explain what data2 is for?  It is always NULL at 
-> > present AFAICS.
-> > 
-> > Index: libselinux/src/setrans_client.c
-> > ===================================================================
-> > RCS file: 
-> > /nfshome/pal/CVS/selinux-usr/libselinux/src/setrans_client.c,v
-> > retrieving revision 1.8
-> > diff -u -p -r1.8 setrans_client.c
-> > --- libselinux/src/setrans_client.c	29 Jun 2006 18:21:05 
-> > -0000	1.8
-> > +++ libselinux/src/setrans_client.c	8 Sep 2006 20:18:07 -0000
-> > @@ -58,11 +58,12 @@ static int setransd_open(void)  static 
-> > int  send_request(int fd, uint32_t function, const char 
-> > *data1, const char *data2)  {
-> > -	struct iovec req_hdr[3];
-> > +	struct msghdr msgh;
-> > +	struct iovec iov[5];
-> >  	uint32_t data1_size;
-> >  	uint32_t data2_size;
-> > -	struct iovec req_data[2];
-> > -	ssize_t count;
-> > +	ssize_t count, expected;
-> > +	unsigned int i;
-> >  
-> >  	if (fd < 0)
-> >  		return -1;
-> > @@ -75,28 +76,27 @@ send_request(int fd, uint32_t function, 
-> >  	data1_size = strlen(data1) + 1;
-> >  	data2_size = strlen(data2) + 1;
-> >  
-> > -	req_hdr[0].iov_base = &function;
-> > -	req_hdr[0].iov_len = sizeof(function);
-> > -	req_hdr[1].iov_base = &data1_size;
-> > -	req_hdr[1].iov_len = sizeof(data1_size);
-> > -	req_hdr[2].iov_base = &data2_size;
-> > -	req_hdr[2].iov_len = sizeof(data2_size);
-> > -
-> > -	while (((count = writev(fd, req_hdr, 3)) < 0) && (errno 
-> > == EINTR)) ;
-> > -	if (count != (sizeof(function) + sizeof(data1_size) +
-> > -		      sizeof(data2_size))) {
-> > -		return -1;
-> > -	}
-> > +	iov[0].iov_base = &function;
-> > +	iov[0].iov_len = sizeof(function);
-> > +	iov[1].iov_base = &data1_size;
-> > +	iov[1].iov_len = sizeof(data1_size);
-> > +	iov[2].iov_base = &data2_size;
-> > +	iov[2].iov_len = sizeof(data2_size);
-> > +	iov[3].iov_base = (char *)data1;
-> > +	iov[3].iov_len = data1_size;
-> > +	iov[4].iov_base = (char *)data2;
-> > +	iov[4].iov_len = data2_size;
-> > +	memset(&msgh, 0, sizeof(msgh));
-> > +	msgh.msg_iov = iov;
-> > +	msgh.msg_iovlen = sizeof(iov)/sizeof(iov[0]);
-> > +
-> > +	expected = 0;
-> > +	for (i = 0; i < sizeof(iov)/sizeof(iov[0]); i++)
-> > +		expected += iov[i].iov_len;
-> >  
-> > -	req_data[0].iov_base = (char *)data1;
-> > -	req_data[0].iov_len = data1_size;
-> > -	req_data[1].iov_base = (char *)data2;
-> > -	req_data[1].iov_len = data2_size;
-> > -
-> > -	while (((count = writev(fd, req_data, 2)) < 0) && 
-> > (errno == EINTR)) ;
-> > -	if (count < 0 || (uint32_t) count != (data1_size + 
-> > data2_size)) {
-> > +	while (((count = sendmsg(fd, &msgh, MSG_NOSIGNAL)) < 0) 
-> > && (errno == EINTR)) ;
-> > +	if (count < 0 || count != expected)
-> >  		return -1;
-> > -	}
-> >  
-> >  	return 0;
-> >  }
-> > 
+On Fri, 2006-09-15 at 08:51 -0400, Rosalie Hiebel wrote:
+> I'm trying to understand precisely how a type_member rule specifies 
+> the context to place on an instance of a polyinstantiated directory 
+> when it's done by context.
 > 
-> Acked-By: Joshua Brindle <jbrindle@tresys.com>
+>    type_member <source_type> <target_type>:dir <member_type>;
+> 
+> What exactly will be the context placed on the instance of the 
+> directory created by a process?   Will this context be the same as 
+> the context passed to setexeccon ?  Is the <member_type> placed in 
+> the context of the instance directory ?   Does running in permissive 
+> mode result in a different context ?
+> 
+> I have experimented with this, and I seem to always get instance 
+> directories created with the same context as that of the base 
+> directory (the one being polyinstantiated.)
 
-Acked-By: Karl MacMillan <kmacmillan@mentalrootkit.com>
+Let's distinguish between what security_compute_member() computes, and
+how pam_namespace calls and uses it.
+
+Further, before we delve too deep here, I have to ask:  Does your
+application truly require polyinstantiated directories?  From what
+you've described thus far, it sounds as though the application is
+already security-aware and multi-level, so what does it gain from
+polyinstantiation vs. explicit directory/file management?
+Polyinstantiation is more oriented toward providing compatibility for
+security-unaware applications when accessing a shared resource like /tmp
+that must be partitioned in a multi-level environment without having to
+modify those applications to know about per-level instances.  But if the
+application already knows that it is operating in a multi-level
+environment and even knows what level it needs to operate in, why does
+it need polyinstantiation vs. just accessing the right subdir directly?
+(I'd also be interested in exploring the architecture of your
+application and whether it can be decomposed to minimize trust, but that
+is another topic.)
+
+Going back now to your questions, security_compute_member() is a
+function to compute a member/instance context for a given
+polyinstantiated object based on three inputs:
+1) a source context, typically the context of the process that will be
+accessing the instance,
+2) a target context, typically the context of the polyinstantiated
+object, and
+3) the class of the object, so that we can distinguish different kinds
+of polyinstantiated objects that might ultimately exist beyond just
+directories.
+
+The function itself has no knowledge of how these inputs are determined;
+they are provided by the caller (pam_namespace in this case).  The
+function computes a member context from these inputs based on its
+internal rules, which are:
+1) Look for a type_member rule that matches the type from the source
+context (source_type), the type from the target context (target_type),
+and the class.
+2) If no such rule exists, then the function just returns a member
+context equal to the target context (no instantiation).
+3) If a rule exists, then use the member_type from the rule as the type
+in the member context.  Further, if that member_type differs from the
+target_type (*), use the level of the source context as the level in the
+member context.
+
+(*) Implementation artifact:  In concept, the type_member rule indicates
+when to polyinstantiate an object, and it was assumed that one would
+always want to polyinstantiate by type as well as level in such cases,
+so member_type != target_type is used as the test in the MLS component
+to determine whether it should polyinstantiate levels.  That could be
+changed (in fact, there was some discussion of it in the past), but
+until such a change occurs, you need to use member_type != target_type
+in the rule to cause instantiation to occur.
+
+pam_namespace uses security_compute_member() to get the member context.
+It passes the following as inputs:
+1) the exec context as the source context,
+2) the context of the directory to be polyinstantiated as the target
+context.
+3) the directory class.
+
+The use of the exec context is because we want to instantiate based on
+the context of the process that will be accessing the member, which is
+typically _not_ the current process.  Instead, it is typically a user
+shell or other program executed by the current process (or a child) that
+will run in the exec context rather than the current one.  This is the
+case for e.g. login and newrole.  If your application doesn't follow
+such a model, we need to talk about your application's architecture.
+
+Examples of type_member rules from the refpolicy:
+	type_member user_t tmp_t:dir user_tmp_t;
+	type_member staff_t tmp_t:dir staff_tmp_t;
+
+Then, if pam_namespace is configured to polyinstantiate /tmp by context
+and the user is not in the list of excluded uids, it would call
+security_compute_member with the exec context (set by the caller of
+pam_namespace, e.g. sds:staff_r:staff_t:s3) and the context of the /tmp
+directory (e.g. system_u:object_r:tmp_t:s0).  security_compute_member()
+would find the matching type_member rule for (staff_t, tmp_t) and should
+return the context system_u:object_r:staff_tmp_t:s3 as the
+member/instance context.
+
+-- 
+Stephen Smalley
+National Security Agency
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
