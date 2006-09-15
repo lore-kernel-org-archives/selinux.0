@@ -1,49 +1,62 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k8FFcK7n000585
-	for <selinux@tycho.nsa.gov>; Fri, 15 Sep 2006 11:38:20 -0400
-Received: from mx1.redhat.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id k8FFbq7O015453
-	for <selinux@tycho.nsa.gov>; Fri, 15 Sep 2006 15:37:52 GMT
-Message-ID: <450AC8E7.10306@redhat.com>
-Date: Fri, 15 Sep 2006 11:38:15 -0400
+Message-ID: <450AC895.3060905@redhat.com>
+Date: Fri, 15 Sep 2006 11:36:53 -0400
 From: Daniel J Walsh <dwalsh@redhat.com>
 MIME-Version: 1.0
-To: selinux770@tortenboxer.de
-CC: selinux@tycho.nsa.gov
-Subject: Re: Cannot find your entry in the shadow passwd file
-References: <20060914172151.119780@gmx.net>
-In-Reply-To: <20060914172151.119780@gmx.net>
+To: Stephen Smalley <sds@tycho.nsa.gov>
+CC: Joshua Brindle <jbrindle@tresys.com>,
+        Karl MacMillan <kmacmillan@mentalrootkit.com>,
+        SE Linux <selinux@tycho.nsa.gov>
+Subject: Re: ipsec, netlabels, secmark- How about a little usability?
+References: <45095092.6080603@redhat.com>  <45095E10.2020205@tresys.com> <1158245034.25629.65.camel@moss-spartans.epoch.ncsc.mil>
+In-Reply-To: <1158245034.25629.65.camel@moss-spartans.epoch.ncsc.mil>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-selinux770@tortenboxer.de wrote:
-> Hey there,
+Stephen Smalley wrote:
+> On Thu, 2006-09-14 at 09:50 -0400, Joshua Brindle wrote:
+>   
+>>> 1.  By default httpd has to be able to talk to itself in order to do 
+>>> gracefull shutdown,
+>>> service httpd graceful.
+>>>
+>>> So I end up adding a rule allowing httpd to name_connect to the 
+>>> httpd_port_t.    But I really only want to allow this for localhost.  
+>>> IE I don't want to allow my httpd to name_connect to other machines 
+>>> httpd ports?  I can't do this now.
+>>>
+>>>       
+>> you can with secmark can't you?
+>> iptables -I -p tcp -d localhost -s localhost -i lo --dport 80 -j SECMARK 
+>> --selctx system_u:object_r:httpd_client_packet_t
+>>     
 >
-> i've got a strange problem. I created a new user on my system which is
-> not able to switch between different roles. Looks like this:
->
-> ~ $ id -Z
-> setester:user_r:user_t
-> ~ $ newrole -r staff_r
-> Authenticating setester.
-> Cannot find your entry in the shadow passwd file.
-> ~ $
->
-> This happens to all users except root:
->
-> ~# id -Z
-> root:staff_r:staff_t
-> ~# newrole -r sysadm_r
-> Authenticating root.
-> Password:
-> ~# id -Z
-> root:sysadm_r:sysadm_t
->
-> Any suggestions what is wrong? Could that be a misfunction in pam?
+> IIUC, the mechanism is there, but the necessary integration is not.  How
+> do we intend to manage local secmark rules, via semanage as with
+> port/node/netif contexts or via iptables?  How does one express this
+> kind of goal in refpolicy itself, going beyond just the support for auto
+> generation of dport-based rules?  Where do we stand on iptables
+> integration?
 >
 >   
-I think newrole is looking up setester in /etc/passwd.
+I still think this is not fully thought out. We have a lot of booleans 
+that this stuff will blow out of the water.  setsebool -A 
+allow_ypbind=1  for example,  httpd_can_connect_any ...  Are these 
+things going to have to replace iptables rules when they get set?  I 
+find the hole thing unmanagable and I think we are going to see 
+performance problems when we start adding hundreds (thousands) of rules 
+to iptables.
+
+I believe we need an integrated solution that can setup full networking 
+support, in which I state that
+Domain X on Host Y can talk to Domain A on Host B.  This needs to be 
+able to setup the proper network requirements to make this happen.  If 
+this is a combination of secmark rules, and netlabel/ipsec that is 
+fine.  But I don't expect many admins in to be able to set this up on 
+their own.
+
+
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
