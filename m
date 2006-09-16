@@ -1,50 +1,46 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k8GC8Bnn024708
-	for <selinux@tycho.nsa.gov>; Sat, 16 Sep 2006 08:08:11 -0400
-Received: from smtp.sws.net.au (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id k8GC7CSA012208
-	for <selinux@tycho.nsa.gov>; Sat, 16 Sep 2006 12:07:13 GMT
-From: Russell Coker <russell@coker.com.au>
-Reply-To: russell@coker.com.au
-To: Erich Schubert <erich@debian.org>
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k8GCdcAn025221
+	for <selinux@tycho.nsa.gov>; Sat, 16 Sep 2006 08:39:38 -0400
+Received: from legolas.drinsama.de (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id k8GCdAdN000853
+	for <selinux@tycho.nsa.gov>; Sat, 16 Sep 2006 12:39:10 GMT
 Subject: Re: awk, isatty(), libc and ioctl()
-Date: Sat, 16 Sep 2006 22:08:08 +1000
+From: Erich Schubert <erich@debian.org>
+To: russell@coker.com.au
 Cc: selinux@tycho.nsa.gov
+In-Reply-To: <200609162208.13198.russell@coker.com.au>
 References: <1158185710.1594.94.camel@wintermute.xmldesign.de>
-In-Reply-To: <1158185710.1594.94.camel@wintermute.xmldesign.de>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-15"
-Message-Id: <200609162208.13198.russell@coker.com.au>
+	 <200609162208.13198.russell@coker.com.au>
+Content-Type: text/plain
+Date: Sat, 16 Sep 2006 14:37:16 +0200
+Message-Id: <1158410236.10929.8.camel@wintermute.xmldesign.de>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thursday 14 September 2006 08:15, Erich Schubert <erich@debian.org> wrote:
-> one of the few audit errors remaining on my test box is
->   initrc_t postfix_etc_t:file ioctl;
->
-> Which sounds like an odd behaviour to me. I've tracked it down to the
-> init script using an awk-one-liner to determine if it needs to sync the
-> chroot.
-> Awk however calls isatty() on any file it processes. Which is
-> implemented in the libc apparently using an ioctl TCGETS; this will fail
-> for regular files.
+Hello Russel,
+> One thing to note is that Perl has the same issue in regard to ioctl() on all 
+> files.
 
-One thing to note is that Perl has the same issue in regard to ioctl() on all 
-files.
+What can ioctl() on *regular* files do?
+The "ioctl" manpage just mentions "special files".
 
-The isatty() code could stat the file first, anything that's not a character 
-device is not a tty.  But I doubt that we are going to get a change to glibc 
-for this.
+I mean... we'll probably have to add ioctl dontaudits for so many
+domains, we might want to go with something like
+"dontaudit domain file_type:file ioctl;"
+at least for any user domain (I mean, most admins will allow their users
+to use awk or perl in one way or another).
 
-It's easiest to just allow or dontaudit the ioctl.  It's what we've been doing 
-for the past 5 years...
-
+best regards,
+Erich Schubert
 -- 
-russell@coker.com.au
-http://etbe.blogspot.com/          My Blog
+   erich@(vitavonni.de|debian.org)    --    GPG Key ID: 4B3A135C    (o_
+     You know we all became mathematicians for the same reason:     //\
+                  we were lazy. --- Max Rosenlicht                  V_/_
+       Wenn Leute nicht glauben, dass Mathematik einfach ist,
+            dann nur deshalb, weil sie nicht begreifen,
+        wie kompliziert das Leben ist. --- John von Neumann
 
-http://www.coker.com.au/sponsorship.html Sponsoring Free Software development
 
 --
 This message was distributed to subscribers of the selinux mailing list.
