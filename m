@@ -1,57 +1,44 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k8FN94sU012675
-	for <selinux@tycho.nsa.gov>; Fri, 15 Sep 2006 19:09:04 -0400
-Received: from smtp106.sbc.mail.mud.yahoo.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with SMTP id k8FN8Ai1015433
-	for <selinux@tycho.nsa.gov>; Fri, 15 Sep 2006 23:08:11 GMT
-Mime-Version: 1.0 (Apple Message framework v752.2)
-Content-Type: text/plain; charset=WINDOWS-1252; delsp=yes; format=flowed
-Message-Id: <67358AB2-DB43-4555-9E0A-77180679B0FC@nall.com>
-Cc: John Wiseman <john.wiseman@L-3Com.com>
-From: Joe Nall <joe@nall.com>
-Subject: C++ reserved word 'class' used in selinux/avc.h with patch
-Date: Fri, 15 Sep 2006 18:08:24 -0500
-To: SELinux List <selinux@tycho.nsa.gov>
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k8GC69Cr024670
+	for <selinux@tycho.nsa.gov>; Sat, 16 Sep 2006 08:06:10 -0400
+Received: from smtp.sws.net.au (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id k8GC5ddN026349
+	for <selinux@tycho.nsa.gov>; Sat, 16 Sep 2006 12:05:41 GMT
+From: Russell Coker <russell@coker.com.au>
+Reply-To: russell@coker.com.au
+To: selinux770@tortenboxer.de
+Subject: Re: Cannot find your entry in the shadow passwd file
+Date: Sat, 16 Sep 2006 22:06:08 +1000
+Cc: selinux@tycho.nsa.gov
+References: <20060914172151.119780@gmx.net>
+In-Reply-To: <20060914172151.119780@gmx.net>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Message-Id: <200609162206.10419.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-John Wiseman noticed that 'class', a reserved word in C++, is used  
-in /usr/include/selinux/avc.h.
+On Friday 15 September 2006 03:21, selinux770@tortenboxer.de wrote:
+> i've got a strange problem. I created a new user on my system which is
+> not able to switch between different roles. Looks like this:
+>
+> ~ $ id -Z
+> setester:user_r:user_t
+> ~ $ newrole -r staff_r
+> Authenticating setester.
+> Cannot find your entry in the shadow passwd file.
+> ~ $
+>
+> This happens to all users except root:
 
-Save the following code as test.cc and compile
+Is the newrole program setuid?
 
-#include <selinux/avc.h>
+-- 
+russell@coker.com.au
+http://etbe.blogspot.com/          My Blog
 
-int
-main (int, char **)
-     {
-     }
-
-results are
-
-cc test.cc
-/usr/include/selinux/avc.h:123: error: expected identifier before ‘,’  
-token
-/usr/include/selinux/avc.h:124: error: two or more data types in  
-declaration of ‘parameter’
-
-Fix:
-
---- avc.h.orig  2006-09-15 12:48:44.000000000 -0500
-+++ avc.h       2006-09-15 12:49:02.000000000 -0500
-@@ -120,7 +120,7 @@ extern "C" {
-                 void (*func_log) (const char *fmt, ...);
-                 /* store a string representation of auditdata  
-(corresponding
-                    to the given security class) into msgbuf. */
--               void (*func_audit) (void *auditdata, security_class_t  
-class,
-+               void (*func_audit) (void *auditdata, security_class_t  
-cls,
-                                     char *msgbuf, size_t msgbufsize);
-         };
-
-
+http://www.coker.com.au/sponsorship.html Sponsoring Free Software development
 
 --
 This message was distributed to subscribers of the selinux mailing list.
