@@ -1,34 +1,69 @@
-Message-ID: <36282A1733C57546BE392885C061859201572F5C@chaos.tcs.tcs-sec.com>
-From: Venkat Yekkirala <vyekkirala@TrustedCS.com>
-To: James Morris <jmorris@namei.org>
-Cc: netdev@vger.kernel.org, selinux@tycho.nsa.gov, sds@tycho.nsa.gov,
-        Chad Hanson <chanson@TrustedCS.com>
-Subject: RE: [PATCH 4/7] secid reconciliation-v02: Invoke LSM hook for out
-	bound traffic
-Date: Mon, 18 Sep 2006 15:12:02 -0400
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Subject: Re: C++ reserved word 'class' used in selinux/avc.h with patch
+From: Joshua Brindle <jbrindle@tresys.com>
+To: Stephen Smalley <sds@tycho.nsa.gov>
+Cc: Joe Nall <joe@nall.com>, SELinux List <selinux@tycho.nsa.gov>,
+        John Wiseman <john.wiseman@L-3Com.com>
+In-Reply-To: <1158597624.18951.237.camel@moss-spartans.epoch.ncsc.mil>
+References: <67358AB2-DB43-4555-9E0A-77180679B0FC@nall.com>
+	 <1158583382.8680.36.camel@twoface.columbia.tresys.com>
+	 <1158597624.18951.237.camel@moss-spartans.epoch.ncsc.mil>
+Content-Type: text/plain; charset=utf-8
+Date: Mon, 18 Sep 2006 15:14:05 -0400
+Message-Id: <1158606845.3056.18.camel@twoface.columbia.tresys.com>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-> On Fri, 8 Sep 2006, Venkat Yekkirala wrote:
+On Mon, 2006-09-18 at 12:40 -0400, Stephen Smalley wrote:
+> On Mon, 2006-09-18 at 08:43 -0400, Joshua Brindle wrote:
+> > On Fri, 2006-09-15 at 18:08 -0500, Joe Nall wrote:
+> > > John Wiseman noticed that 'class', a reserved word in C++, is used  
+> > > in /usr/include/selinux/avc.h.
+> > > 
+> > > Save the following code as test.cc and compile
+> > > 
+> > > #include <selinux/avc.h>
+> > > 
+> > > int
+> > > main (int, char **)
+> > >      {
+> > >      }
+> > > 
+> > > results are
+> > > 
+> > > cc test.cc
+> > > /usr/include/selinux/avc.h:123: error: expected identifier before ‘,’  
+> > > token
+> > > /usr/include/selinux/avc.h:124: error: two or more data types in  
+> > > declaration of ‘parameter’
+> > > 
+> > > Fix:
+> > > 
+> > > --- avc.h.orig  2006-09-15 12:48:44.000000000 -0500
+> > > +++ avc.h       2006-09-15 12:49:02.000000000 -0500
+> > > @@ -120,7 +120,7 @@ extern "C" {
+> > >                  void (*func_log) (const char *fmt, ...);
+> > >                  /* store a string representation of auditdata  
+> > > (corresponding
+> > >                     to the given security class) into msgbuf. */
+> > > -               void (*func_audit) (void *auditdata, security_class_t  
+> > > class,
+> > > +               void (*func_audit) (void *auditdata, security_class_t  
+> > > cls,
+> > >                                      char *msgbuf, size_t msgbufsize);
+> > >          };
+> > > 
+> > > 
+> > 
+> > Acked-By: Joshua Brindle <jbrindle@tresys.com>
 > 
-> > @@ -114,6 +128,9 @@ static struct xt_target xt_connsecmark_t
-> > 		.target		= target,
-> > 		.targetsize	= sizeof(struct 
-> xt_connsecmark_target_info),
-> > 		.table		= "mangle",
-> > +		.hooks		= (1 << NF_IP_LOCAL_IN) |
-> > +				  (1 << NF_IP_FORWARD) |
-> > +				  (1 << NF_IP_POST_ROUTING),
+> Acked-by:  Stephen Smalley <sds@tycho.nsa.gov>
 > 
-> Why have you added constraints on the hooks?
+> P.S.  C++ considered harmful.
 > 
-> This breaks a bunch of things.
 
-I was trying to restrict the module usage to these, but later realized
-I really needn't. Will take these out.
+Thanks, merged into libselinux 1.30.28 without a version bump
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
