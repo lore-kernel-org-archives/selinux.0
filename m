@@ -1,63 +1,42 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k8ICfc3i008418
-	for <selinux@tycho.nsa.gov>; Mon, 18 Sep 2006 08:41:39 -0400
-Received: from twoface.columbia.tresys.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id k8ICf9OQ010425
-	for <selinux@tycho.nsa.gov>; Mon, 18 Sep 2006 12:41:10 GMT
-Subject: Re: C++ reserved word 'class' used in selinux/avc.h with patch
-From: Joshua Brindle <jbrindle@tresys.com>
-To: Joe Nall <joe@nall.com>
-Cc: SELinux List <selinux@tycho.nsa.gov>,
-        John Wiseman <john.wiseman@L-3Com.com>
-In-Reply-To: <67358AB2-DB43-4555-9E0A-77180679B0FC@nall.com>
-References: <67358AB2-DB43-4555-9E0A-77180679B0FC@nall.com>
-Content-Type: text/plain; charset=utf-8
-Date: Mon, 18 Sep 2006 08:43:02 -0400
-Message-Id: <1158583382.8680.36.camel@twoface.columbia.tresys.com>
+Subject: Re: [PATCH] refpolicy: add X object classes to unconfined_t
+From: "Christopher J. PeBenito" <cpebenito@tresys.com>
+To: ewalsh@tycho.nsa.gov
+Cc: Joshua Brindle <jbrindle@tresys.com>, selinux@tycho.nsa.gov
+In-Reply-To: <1158355183.7554.268.camel@moss-huskies.epoch.ncsc.mil>
+References: <1158088282.7554.95.camel@moss-huskies.epoch.ncsc.mil>
+	 <450962DB.7050107@tresys.com>
+	 <1158324416.8680.5.camel@twoface.columbia.tresys.com>
+	 <1158355183.7554.268.camel@moss-huskies.epoch.ncsc.mil>
+Content-Type: text/plain
+Date: Mon, 18 Sep 2006 10:43:03 -0400
+Message-Id: <1158590583.26420.159.camel@sgc>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2006-09-15 at 18:08 -0500, Joe Nall wrote:
-> John Wiseman noticed that 'class', a reserved word in C++, is used  
-> in /usr/include/selinux/avc.h.
+On Fri, 2006-09-15 at 17:19 -0400, Eamon Walsh wrote:
+> On Fri, 2006-09-15 at 08:46 -0400, Joshua Brindle wrote:
+> > On Thu, 2006-09-14 at 10:10 -0400, Joshua Brindle wrote:
+> [snip]
+> > It also seems that the XSELinuxConfig in the git repository doesn't have
+> > all the necessary entries, one for root_window_context needs to be added
+> > to start the X server up.
 > 
-> Save the following code as test.cc and compile
-> 
-> #include <selinux/avc.h>
-> 
-> int
-> main (int, char **)
->      {
->      }
-> 
-> results are
-> 
-> cc test.cc
-> /usr/include/selinux/avc.h:123: error: expected identifier before ‘,’  
-> token
-> /usr/include/selinux/avc.h:124: error: two or more data types in  
-> declaration of ‘parameter’
-> 
-> Fix:
-> 
-> --- avc.h.orig  2006-09-15 12:48:44.000000000 -0500
-> +++ avc.h       2006-09-15 12:49:02.000000000 -0500
-> @@ -120,7 +120,7 @@ extern "C" {
->                  void (*func_log) (const char *fmt, ...);
->                  /* store a string representation of auditdata  
-> (corresponding
->                     to the given security class) into msgbuf. */
-> -               void (*func_audit) (void *auditdata, security_class_t  
-> class,
-> +               void (*func_audit) (void *auditdata, security_class_t  
-> cls,
->                                      char *msgbuf, size_t msgbufsize);
->          };
-> 
-> 
+> I've been using the attached config file, however, without the
+> unconfined_t patch for targeted, it still won't work unless in
+> permissive mode.
 
-Acked-By: Joshua Brindle <jbrindle@tresys.com>
+I'm not convinced the original patch should go in refpolicy.  What we
+need to do is reestablish all the types for the X server properties,
+extensions, etc.  Then the unconfined rules would use all the the above,
+and then have access to all domains' windows, etc.  Its hard for me to
+articulate, since I don't know how all the X object classes work.  What
+I'd really like to see would be an example policy.
+
+-- 
+Chris PeBenito
+Tresys Technology, LLC
+(410) 290-1411 x150
 
 
 --
