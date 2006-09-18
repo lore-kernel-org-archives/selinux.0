@@ -1,40 +1,58 @@
-Subject: Re: [RFC PATCH] allow range_transitions and MLS users in modules
-From: Joshua Brindle <jbrindle@tresys.com>
-To: Darrel Goeddel <dgoeddel@TrustedCS.com>
-Cc: SELinux List <selinux@tycho.nsa.gov>, Serge Hallyn <serue@us.ibm.com>,
-        "Christopher J. PeBenito" <cpebenito@tresys.com>,
-        Stephen Smalley <sds@tycho.nsa.gov>,
-        Karl MacMillan <kmacmillan@mentalrootkit.com>
-In-Reply-To: <450EDC2E.50009@trustedcs.com>
-References: <450EDC2E.50009@trustedcs.com>
-Content-Type: text/plain
-Date: Mon, 18 Sep 2006 14:01:20 -0400
-Message-Id: <1158602480.3056.12.camel@twoface.columbia.tresys.com>
-Mime-Version: 1.0
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k8II53F8016245
+	for <selinux@tycho.nsa.gov>; Mon, 18 Sep 2006 14:05:03 -0400
+Received: from mail5.sea5.speakeasy.net (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id k8II4XuA025967
+	for <selinux@tycho.nsa.gov>; Mon, 18 Sep 2006 18:04:34 GMT
+Date: Mon, 18 Sep 2006 14:05:00 -0400 (EDT)
+From: James Morris <jmorris@namei.org>
+To: Venkat Yekkirala <vyekkirala@TrustedCS.com>
+cc: netdev@vger.kernel.org, selinux@tycho.nsa.gov, sds@tycho.nsa.gov,
+        chanson@TrustedCS.com
+Subject: Re: [PATCH 3/7] secid reconciliation-v02: Invoke LSM hook for inbound
+ traffic
+In-Reply-To: <45019F62.7000305@trustedcs.com>
+Message-ID: <Pine.LNX.4.64.0609181404050.5976@d.namei>
+References: <45019F62.7000305@trustedcs.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 2006-09-18 at 13:49 -0400, Darrel Goeddel wrote:
-> - Add the ability to require MLS sensitivities and categories in
-> policy
->   modules.
-> - Remove the restrictions on defining users in MLS-enabled modules.
-> - Handle range_trans_rules in modules.
-> 
-> This all allows range_transition statements to be used in policy
-> modules
-> and allows definition of users in MLS policy modules.
-> 
-> I haven't tested this as much as I would like, but it is working
-> nicely
-> for me.  I have built several policies (MLS, non-MLS, strict,
-> targeted,
-> etc.) and have built several modules exercising the new functionality.
-> I'd appreciate any feedback you may have at this point.
-> 
-what is the syntax for requiring levels? Got a sample module we can try?
+On Fri, 8 Sep 2006, Venkat Yekkirala wrote:
+
+> -static inline int xfrm6_policy_check(struct sock *sk, int dir, struct sk_buff
+> *skb)
+> -{
+> -	return xfrm_policy_check(sk, dir, skb, AF_INET6);
+> +	if (sk && sk->sk_policy[XFRM_POLICY_IN])
+> +		ret = __xfrm_policy_check(sk, dir, skb, family);
+> +	else
+> +		ret = (!xfrm_policy_count[dir] && !skb->sp) ||
+> +		      (skb->dst->flags & DST_NOPOLICY) ||
+> +		      __xfrm_policy_check(sk, dir, skb, family);
+> +
+> +#ifdef CONFIG_SECURITY_NETWORK
+> +	if (ret)
+> +		ret = security_skb_policy_check(skb, family);
+> +#endif /* CONFIG_SECURITY_NETWORK */
+
+Why is this code ifdef'd when the function is conditionally compiled?
+
+> {
+> +#ifdef CONFIG_SECURITY_NETWORK
+> +	return security_skb_policy_check(skb, family);
+> +#else
+> 	return 1;
+> +#endif /* CONFIG_SECURITY_NETWORK */
+
+Ditto.
 
 
+
+-- 
+James Morris
+<jmorris@namei.org>
 
 --
 This message was distributed to subscribers of the selinux mailing list.
