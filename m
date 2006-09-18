@@ -1,75 +1,34 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k8IIJvvh016744
-	for <selinux@tycho.nsa.gov>; Mon, 18 Sep 2006 14:19:57 -0400
-Received: from mail3.sea5.speakeasy.net (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id k8IIJRuA028414
-	for <selinux@tycho.nsa.gov>; Mon, 18 Sep 2006 18:19:27 GMT
-Date: Mon, 18 Sep 2006 14:19:54 -0400 (EDT)
-From: James Morris <jmorris@namei.org>
-To: Venkat Yekkirala <vyekkirala@TrustedCS.com>
-cc: netdev@vger.kernel.org, selinux@tycho.nsa.gov, sds@tycho.nsa.gov,
-        chanson@TrustedCS.com
-Subject: Re: [PATCH 4/7] secid reconciliation-v02: Invoke LSM hook for outbound
- traffic
-In-Reply-To: <45019F66.20603@trustedcs.com>
-Message-ID: <Pine.LNX.4.64.0609181418310.5976@d.namei>
-References: <45019F66.20603@trustedcs.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Subject: Re: awk, isatty(), libc and ioctl()
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Erich Schubert <erich@debian.org>
+Cc: russell@coker.com.au, selinux@tycho.nsa.gov
+In-Reply-To: <1158601304.14335.12.camel@wintermute.xmldesign.de>
+References: <1158185710.1594.94.camel@wintermute.xmldesign.de>
+	 <200609162208.13198.russell@coker.com.au>
+	 <1158410236.10929.8.camel@wintermute.xmldesign.de>
+	 <1158598780.18951.254.camel@moss-spartans.epoch.ncsc.mil>
+	 <1158601304.14335.12.camel@wintermute.xmldesign.de>
+Content-Type: text/plain
+Date: Mon, 18 Sep 2006 14:26:07 -0400
+Message-Id: <1158603967.18951.287.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 8 Sep 2006, Venkat Yekkirala wrote:
+On Mon, 2006-09-18 at 19:41 +0200, Erich Schubert wrote:
+> Hello Stephen,
+> So what should we do - add the missing dontaudit/allow rules, provide
+> patches for awk/perl (and likely others) to not use isatty() on regular
+> files but stat() first, or ask the glibc maintainers to modify isatty()?
 
-> @@ -114,6 +128,9 @@ static struct xt_target xt_connsecmark_t
-> 		.target		= target,
-> 		.targetsize	= sizeof(struct xt_connsecmark_target_info),
-> 		.table		= "mangle",
-> +		.hooks		= (1 << NF_IP_LOCAL_IN) |
-> +				  (1 << NF_IP_FORWARD) |
-> +				  (1 << NF_IP_POST_ROUTING),
-
-Why have you added constraints on the hooks?
-
-This breaks a bunch of things.
-
-
-> @@ -123,6 +140,9 @@ static struct xt_target xt_connsecmark_t
-> 		.target		= target,
-> 		.targetsize	= sizeof(struct xt_connsecmark_target_info),
-> 		.table		= "mangle",
-> +		.hooks		= (1 << NF_IP6_LOCAL_IN) |
-> +				  (1 << NF_IP6_FORWARD) |
-> +				  (1 << NF_IP6_POST_ROUTING),
-> 		.me		= THIS_MODULE,
-
-Ditto...
-
-> @@ -119,6 +129,9 @@ static struct xt_target xt_secmark_targe
-> 		.target		= target,
-> 		.targetsize	= sizeof(struct xt_secmark_target_info),
-> 		.table		= "mangle",
-> +		.hooks		= (1 << NF_IP_LOCAL_IN) |
-> +				  (1 << NF_IP_FORWARD) |
-> +				  (1 << NF_IP_POST_ROUTING),
-> 		.me		= THIS_MODULE,
-> 	},
-> 	{
-> @@ -128,6 +141,9 @@ static struct xt_target xt_secmark_targe
-> 		.target		= target,
-> 		.targetsize	= sizeof(struct xt_secmark_target_info),
-> 		.table		= "mangle",
-> +		.hooks		= (1 << NF_IP6_LOCAL_IN) |
-> +				  (1 << NF_IP6_FORWARD) |
-> +				  (1 << NF_IP6_POST_ROUTING),
-> 		.me		= THIS_MODULE,
-> 	},
-> };
-> 
+I'm doubtful that the latter two options are viable.  More likely:
+1) Add dontaudit rules as needed for now,
+2) Reconsider the SELinux ioctl checking in the future.
 
 -- 
-James Morris
-<jmorris@namei.org>
+Stephen Smalley
+National Security Agency
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
