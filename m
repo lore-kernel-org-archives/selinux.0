@@ -1,73 +1,72 @@
-Message-ID: <450F1188.9010603@redhat.com>
-Date: Mon, 18 Sep 2006 17:37:12 -0400
-From: Daniel J Walsh <dwalsh@redhat.com>
+From: Paul Moore <paul.moore@hp.com>
+To: Venkat Yekkirala <vyekkirala@TrustedCS.com>
+Subject: Re: [PATCH 7/7] secid reconciliation-v02: Enforcement for SELinux
+Date: Mon, 18 Sep 2006 18:26:47 -0400
+Cc: netdev@vger.kernel.org, selinux@tycho.nsa.gov, jmorris@namei.org,
+        sds@tycho.nsa.gov, chanson@TrustedCS.com
+References: <45019F72.2050708@trustedcs.com>
+In-Reply-To: <45019F72.2050708@trustedcs.com>
 MIME-Version: 1.0
-To: Stephen Smalley <sds@tycho.nsa.gov>
-CC: Steve G <linux_4ever@yahoo.com>, SE Linux <selinux@tycho.nsa.gov>
-Subject: Re: Latest patch for policycoreutils, reworked from previous.
-References: <20060914210005.95111.qmail@web51511.mail.yahoo.com>	 <450AA9BF.1080101@redhat.com> <1158611077.14194.65.camel@moss-spartans.epoch.ncsc.mil>
-In-Reply-To: <1158611077.14194.65.camel@moss-spartans.epoch.ncsc.mil>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Message-Id: <200609181826.47622.paul.moore@hp.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Stephen Smalley wrote:
-> On Fri, 2006-09-15 at 09:25 -0400, Daniel J Walsh wrote:
->   
->> Reworked patch.
->>
->> restorecon -v goes back to stdout
->>
->> added "verify" to print out files with out the verbose mode.
->>     
->
-> Hmm...just noticed this:
->
-> diff --exclude-from=exclude --exclude='*.po' -N -u -r nsapolicycoreutils/restorecon/restorecon.c policycoreutils-1.30.29/restorecon/restorecon.c
-> --- nsapolicycoreutils/restorecon/restorecon.c	2006-09-01 22:32:11.000000000 -0400
-> +++ policycoreutils-1.30.29/restorecon/restorecon.c	2006-09-15 09:19:49.000000000 -0400
-> @@ -249,7 +254,10 @@
->  						freecon(scontext);
->  						return 1;
->  					}
-> -				}
-> +				} 
-> +				else
-> +					change_ctr++;
+On Friday 08 September 2006 12:50 pm, Venkat Yekkirala wrote:
+> This defines SELinux enforcement of the 2 new LSM hooks.
+
+{snip}
+
+> +static int selinux_skb_policy_check(struct sk_buff *skb, unsigned short
+> family) +{
+> +	u32 xfrm_sid, trans_sid;
+> +	int err;
 > +
->
->
-> I don't think this is matching up with the right if statement; it
-> currently matches if (change), so it only executes if restorecon is
-> making no changes (-n option).  Looks like you meant it to match the if
-> (lsetfilecon(...) < 0).
->
-> <snip>
-> @@ -428,5 +445,7 @@
->  	if (outfile)
->  		fclose(outfile);
->  
-> +	if (change) return change_ctr;
->   
-Yes this should be
-if (!change) return change_ctr;
-
-
-The idea is to check how many files would be changed if the tool was 
-run, as opposed to whether
-the tool was successful.
-
-I agree this is a little shaky.
+> +	if (selinux_compat_net)
+> +		return 1;
 > +
->  	return errors;
->  }
->
-> The problem here is that existing callers may assume that an exit status
-> of non-zero means failure.  Again, an interface change.  How did you
-> intend to use this?  
->
->   
+> +	err = selinux_xfrm_decode_session(skb, &xfrm_sid, 0);
+> +	BUG_ON(err);
 
+First, any reason against including the "struct sock *" in the LSM hook?  At a 
+quick glance it looks like it is available at each place 
+security_skb_policy_check() is invoked?  If there are no objections I would 
+like to see it included in the hook.
+
+Second, I wonder if it would be better to do a NetLabel/CIPSO query here using 
+the xfrm_sid as the NetLabel "base_sid" instead of at the end of the function 
+(see your comment)?  This way we wouldn't have to duplicate the 
+avc_has_perm() and security_transition_sid() calls for both xfrm and 
+NetLabel.  It just seems to be more inline with the whole secid 
+reconciliation concept.
+
+I don't feel too strongly either way, I just thought it was worth exploring - 
+thoughts?
+
+> +	err = avc_has_perm(xfrm_sid, skb->secmark, SECCLASS_PACKET,
+> +					PACKET__FLOW_IN, NULL);
+> +	if (err)
+> +		goto out;
+> +
+> +	if (xfrm_sid) {
+> +		err = security_transition_sid(xfrm_sid, skb->secmark,
+> +						SECCLASS_PACKET, &trans_sid);
+> +		if (err)
+> +			goto out;
+> +
+> +		skb->secmark = trans_sid;
+> +	}
+> +
+> +	/* See if CIPSO can flow in thru the current secmark here */
+> +
+> +out:
+> +	return err ? 0 : 1;
+> +};
+
+-- 
+paul moore
+linux security @ hp
 
 --
 This message was distributed to subscribers of the selinux mailing list.
