@@ -1,55 +1,58 @@
-Subject: Re: [PATCH 1/7] secid reconciliation-v02
+Subject: Re: Latest patch for policycoreutils, reworked from previous.
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Venkat Yekkirala <vyekkirala@TrustedCS.com>
-Cc: Daniel J Walsh <dwalsh@redhat.com>,
-        "Christopher J. PeBenito" <cpebenito@tresys.com>,
-        Joshua Brindle <jbrindle@tresys.com>, selinux@tycho.nsa.gov,
-        jmorris@namei.org, chanson@TrustedCS.com
-In-Reply-To: <45019F57.9070501@trustedcs.com>
-References: <45019F57.9070501@trustedcs.com>
+To: Daniel J Walsh <dwalsh@redhat.com>
+Cc: Steve G <linux_4ever@yahoo.com>, SE Linux <selinux@tycho.nsa.gov>
+In-Reply-To: <450AA9BF.1080101@redhat.com>
+References: <20060914210005.95111.qmail@web51511.mail.yahoo.com>
+	 <450AA9BF.1080101@redhat.com>
 Content-Type: text/plain
-Date: Mon, 18 Sep 2006 15:44:14 -0400
-Message-Id: <1158608654.14194.37.camel@moss-spartans.epoch.ncsc.mil>
+Date: Mon, 18 Sep 2006 16:24:37 -0400
+Message-Id: <1158611077.14194.65.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2006-09-08 at 11:50 -0500, Venkat Yekkirala wrote:
-> Currently a packet accumulates multiple security identifiers, each of a
-> different class, as it enters/leaves the system. This patch set reconciles these
-> identifiers into a single identifier while also allowing LSM (SELinux is
-> addressed in this patch set) to impose flow control checks based on the
-> identifiers.
+On Fri, 2006-09-15 at 09:25 -0400, Daniel J Walsh wrote:
+> Reworked patch.
 > 
-> The reconciliation steps for SELinux are explained in the Labeled Networking
-> document at:
-> http://marc.theaimsgroup.com/?l=linux-netdev&m=115136637800361&w=2
-> with the change that SELinux transition rules are used when available
-> to arrive at the new secid.
+> restorecon -v goes back to stdout
 > 
-> The following are the identifiers handled here:
-> 
-> 1. secmark on the skb
-> 2. xfrm security identifier associated with the skb if it used any xfrms,
->  a zero secid otherwise.
-> 
-> This patch: Add new flask definitions to SELinux
-> 
-> Adds a new avperm "flow_in" to arbitrate among the identifiers on the
-> inbound (input/forward). Also adds a new avperm "flow_out" to enable flow
-> control checks on the outbound (output/forward), addressed in this patch
-> as well.
+> added "verify" to print out files with out the verbose mode.
 
-What does the resulting policy look like given this sequence of checks
-and transitions?  How does this integrate with the current refpolicy-
-secmark / netfilter_contexts rules or what would you replace them with?
-What are some samples of how one might configure xfrm in combination
-with secmark to achieve useful goals?  Does this help with the usability
-issues raised by Dan?
+Hmm...just noticed this:
 
-I think answering the above questions would help to make clearer whether
-the patches are on the right track, as well as motivate their acceptance
-if they are.
+diff --exclude-from=exclude --exclude='*.po' -N -u -r nsapolicycoreutils/restorecon/restorecon.c policycoreutils-1.30.29/restorecon/restorecon.c
+--- nsapolicycoreutils/restorecon/restorecon.c	2006-09-01 22:32:11.000000000 -0400
++++ policycoreutils-1.30.29/restorecon/restorecon.c	2006-09-15 09:19:49.000000000 -0400
+@@ -249,7 +254,10 @@
+ 						freecon(scontext);
+ 						return 1;
+ 					}
+-				}
++				} 
++				else
++					change_ctr++;
++
+
+
+I don't think this is matching up with the right if statement; it
+currently matches if (change), so it only executes if restorecon is
+making no changes (-n option).  Looks like you meant it to match the if
+(lsetfilecon(...) < 0).
+
+<snip>
+@@ -428,5 +445,7 @@
+ 	if (outfile)
+ 		fclose(outfile);
+ 
++	if (change) return change_ctr;
++
+ 	return errors;
+ }
+
+The problem here is that existing callers may assume that an exit status
+of non-zero means failure.  Again, an interface change.  How did you
+intend to use this?  
 
 -- 
 Stephen Smalley
