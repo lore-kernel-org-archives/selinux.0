@@ -1,63 +1,45 @@
-Subject: Re: C++ reserved word 'class' used in selinux/avc.h with patch
+Subject: Re: awk, isatty(), libc and ioctl()
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Joshua Brindle <jbrindle@tresys.com>
-Cc: Joe Nall <joe@nall.com>, SELinux List <selinux@tycho.nsa.gov>,
-        John Wiseman <john.wiseman@L-3Com.com>
-In-Reply-To: <1158583382.8680.36.camel@twoface.columbia.tresys.com>
-References: <67358AB2-DB43-4555-9E0A-77180679B0FC@nall.com>
-	 <1158583382.8680.36.camel@twoface.columbia.tresys.com>
-Content-Type: text/plain; charset=utf-8
-Date: Mon, 18 Sep 2006 12:40:24 -0400
-Message-Id: <1158597624.18951.237.camel@moss-spartans.epoch.ncsc.mil>
+To: Erich Schubert <erich@debian.org>
+Cc: russell@coker.com.au, selinux@tycho.nsa.gov
+In-Reply-To: <1158410236.10929.8.camel@wintermute.xmldesign.de>
+References: <1158185710.1594.94.camel@wintermute.xmldesign.de>
+	 <200609162208.13198.russell@coker.com.au>
+	 <1158410236.10929.8.camel@wintermute.xmldesign.de>
+Content-Type: text/plain
+Date: Mon, 18 Sep 2006 12:59:40 -0400
+Message-Id: <1158598780.18951.254.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 2006-09-18 at 08:43 -0400, Joshua Brindle wrote:
-> On Fri, 2006-09-15 at 18:08 -0500, Joe Nall wrote:
-> > John Wiseman noticed that 'class', a reserved word in C++, is used  
-> > in /usr/include/selinux/avc.h.
-> > 
-> > Save the following code as test.cc and compile
-> > 
-> > #include <selinux/avc.h>
-> > 
-> > int
-> > main (int, char **)
-> >      {
-> >      }
-> > 
-> > results are
-> > 
-> > cc test.cc
-> > /usr/include/selinux/avc.h:123: error: expected identifier before ‘,’  
-> > token
-> > /usr/include/selinux/avc.h:124: error: two or more data types in  
-> > declaration of ‘parameter’
-> > 
-> > Fix:
-> > 
-> > --- avc.h.orig  2006-09-15 12:48:44.000000000 -0500
-> > +++ avc.h       2006-09-15 12:49:02.000000000 -0500
-> > @@ -120,7 +120,7 @@ extern "C" {
-> >                  void (*func_log) (const char *fmt, ...);
-> >                  /* store a string representation of auditdata  
-> > (corresponding
-> >                     to the given security class) into msgbuf. */
-> > -               void (*func_audit) (void *auditdata, security_class_t  
-> > class,
-> > +               void (*func_audit) (void *auditdata, security_class_t  
-> > cls,
-> >                                      char *msgbuf, size_t msgbufsize);
-> >          };
-> > 
-> > 
+On Sat, 2006-09-16 at 14:37 +0200, Erich Schubert wrote:
+> Hello Russel,
+> > One thing to note is that Perl has the same issue in regard to ioctl() on all 
+> > files.
 > 
-> Acked-By: Joshua Brindle <jbrindle@tresys.com>
+> What can ioctl() on *regular* files do?
+> The "ioctl" manpage just mentions "special files".
 
-Acked-by:  Stephen Smalley <sds@tycho.nsa.gov>
+For all files, you have FIBMAP, FIGETBZ, FIONREAD.
+Then the individual filesystem types implement their own operations,
+like ext3 has [gs]etflags, [gs]etversion, etc.
 
-P.S.  C++ considered harmful.
+There has been past discussion of altering the SELinux ioctl checking,
+including some rfc/patches [1], but the main problem is someone taking
+the time to not only implement such a patch but also to thoroughly test
+its effect on applications, update current policy, provide a graceful
+way to migrate from the old checks to the new [2], etc.
+
+[1] http://marc.theaimsgroup.com/?l=selinux&m=113519095102526&w=2
+[2] https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=195238
+
+> I mean... we'll probably have to add ioctl dontaudits for so many
+> domains, we might want to go with something like
+> "dontaudit domain file_type:file ioctl;"
+> at least for any user domain (I mean, most admins will allow their users
+> to use awk or perl in one way or another).
+
 
 -- 
 Stephen Smalley
