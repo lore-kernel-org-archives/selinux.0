@@ -1,46 +1,117 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k8JH6QXA016683
-	for <selinux@tycho.nsa.gov>; Tue, 19 Sep 2006 13:06:27 -0400
-Received: from macii.ads-oh.atg.titan.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id k8JH5uL7016444
-	for <selinux@tycho.nsa.gov>; Tue, 19 Sep 2006 17:05:57 GMT
-Received: from [192.168.50.32] (macii.ads-oh.atg.titan.com [66.218.141.147])
-	by macii.ads-oh.atg.titan.com (Postfix) with ESMTP id 68B23142699
-	for <selinux@tycho.nsa.gov>; Tue, 19 Sep 2006 16:57:15 +0000 (GMT)
+Subject: Re: ipsec, netlabels, secmark- How about a little usability?
+From: Karl MacMillan <kmacmillan@mentalrootkit.com>
+To: Stephen Smalley <sds@tycho.nsa.gov>
+Cc: James Antill <jantill@redhat.com>,
+        "Christopher J. PeBenito" <cpebenito@tresys.com>,
+        Joshua Brindle <jbrindle@tresys.com>, SE Linux <selinux@tycho.nsa.gov>
+In-Reply-To: <1158263103.25629.207.camel@moss-spartans.epoch.ncsc.mil>
+References: <45095092.6080603@redhat.com>  <45095E10.2020205@tresys.com>
+	 <1158249777.8442.13.camel@code.and.org>
+	 <1158252565.25629.111.camel@moss-spartans.epoch.ncsc.mil>
+	 <1158254695.8442.30.camel@code.and.org>
+	 <1158263103.25629.207.camel@moss-spartans.epoch.ncsc.mil>
+Content-Type: text/plain
+Date: Tue, 19 Sep 2006 16:13:44 -0400
+Message-Id: <1158696824.15306.12.camel@localhost.localdomain>
 Mime-Version: 1.0
-Message-Id: <p0600203ac135cffa140b@[192.168.50.32]>
-Date: Tue, 19 Sep 2006 13:06:19 -0400
-To: selinux@tycho.nsa.gov
-From: Rosalie Hiebel <rosalie.hiebel@L-3Com.com>
-Subject: Problem with sshd and polyinstantiation
-Content-Type: text/plain; charset="us-ascii" ; format="flowed"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-I have noticed that when I have polyinstantiation with the instance 
-directory contained in the base directory, then sshd fails.  It 
-appears that sshd goes through pam_namespace (which creates/mounts 
-instance directories), and then launches another sshd process which 
-also goes through pam_namespace.  The second sshd fails to stat the 
-instance directory.
+On Thu, 2006-09-14 at 15:45 -0400, Stephen Smalley wrote:
+> On Thu, 2006-09-14 at 13:24 -0400, James Antill wrote:
+> > On Thu, 2006-09-14 at 12:49 -0400, Stephen Smalley wrote:
+> > > On Thu, 2006-09-14 at 12:02 -0400, James Antill wrote:
+> > 
+> > > The iptables rule only deals with labeling the packet with a type.  The
+> > > policy deals with what domains can send/recv a given packet via allow
+> > > rules like:
+> > > 	allow httpd_t http_client_packet_t:packet { send recv };
+> > > encapsulated in interfaces like:
+> > > 	corenet_sendrecv_http_client_packet(httpd_t)
+> > > 
+> > > But the problem I see with the above example is that refpolicy already
+> > > generates a netfilter contexts entry that maps _everything_ going to
+> > > port 80 with http_client_packet_t, so we would need to delete that entry
+> > > to make the above work, or use a different type
+> > > (http_client_packet_lo_t) and only allow httpd_t to send it, not the
+> > > generic http_client_packet_t.  All of which gets back to proper
+> > > integration.
+> > 
+> >  The problem is you can't just use "send recv", because httpd_t needs to
+> > call send on sockets it receives from all over the place. So you need an
+> > interface specifically for connect (which, I understood, was called 
+> > something like name_bind)?
+> 
+> name_connect is just a pairwise check between the socket and the port.
+> It has nothing to do with secmark.
+> 
 
-So, if my namespace.conf contains the following entry,
-     /var/poly   /var/poly/poly-inst context adm
-then when I ssh in as root, two sshd processes output pam_namespace 
-messages  to /var/log/secure.  The first sshd successfully mounts the 
-instance directory, but the second sshd is unsuccessful (since it's 
-already mounted).  The second sshd outputs the following error:
-   pam_namespace(sshd:session): Error stating /var/poly/poly-inst, No 
-such file or directory
-   pam_namespace(sshd:session): Error mounting 
-/var/poly/poly-inst/root on /var/poly, No such file or directory
+[Trying to restart this conversation again]
 
-When I change the instance directory not to be a subdir of the base, 
-then sshd works fine.  Is this a problem with sshd or is my setup 
-incorrect ?
+Yes, but it is not clear (at least to me) how to allow apache to connect
+to certain hosts but send and receive to all other hosts using secmark.
+The mention of name_connect was just asking for something similar with
+secmark I believe.
 
-Thanks,
-Rosalie
+> Are you aware of the CONNSECMARK target?  See
+> http://james-morris.livejournal.com/11010.html
+> 
+> >  Think of the difference between something coming to port X:80 from Y:Z,
+> > being accepted, processed and a response being sent against some
+> > attacker in httpd_t doing a connect from X:80 to Y:Z as part of some
+> > botnet.
+> 
+> Yes, that can be distinguished.   The issue is not send/recv, but the
+> labels of the packets, as initially established via secmark and
+> propagated via connsecmark to all traffic on the connection.
+> 
+
+I never saw a working example of sorting this all out - I'd be
+interested if someone with more iptables experience could demonstrate
+how this can be achieved.
+
+Even if it can be achieved I'm concerned that it will be overly complex
+and not idiomatic for iptables rules. One of the main advantages to
+using iptables is that it is familiar to admins, but if it must be used
+in strange new ways much of that advantage might be lost.
+
+> > > > 1. httpd_t on one machine is only allowed to connect to mysqld_t(?) on
+> > > > one of these 3 machines.
+> > > > 
+> > > > ...AIUI secmark doesn't know the label of the proc. on the other
+> > > > machines, even when using ipsec/netlabel.
+> > > 
+> > > Yes, but you can label the output packet via secmark with one type if it
+> > > is destined for the mysql port on one of the "good" machines and a
+> > > different type otherwise, and only allow httpd_t to send the "good"
+> > > type.   On the internal machines, you can ensure that only mysqld_t can
+> > > bind to that port.  That doesn't really require a network labeling
+> > > mechanism like ipsec or netlabel per se.
+> > 
+> >  That works, but is significantly more interdependent. From a useability
+> > POV it would be much nicer to just be able to say something like
+> > "httpd_t can only connect to mysqld_t, and also only on these
+> > machines/networks".
+> 
+> That's your high level goal - you can implement it in different ways.
+> Not sure why it is more interdependent.  
+> 
+
+Leaving aside interdependence, I'm having a lot of trouble connecting
+high level goals to implementations using _any_ of the new networking
+controls. I'd like to see some examples where this is done so that we
+can:
+
+a) smooth out the process using tools,
+b) document things sufficiently,
+c) or (least desirable) change the implementation
+
+So much of the discussion until now has centered around implementation
+issues and use cases that I don't think are as interesting as unmodified
+networking applications (selinux aware apps and MLS).
+
+Karl
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
