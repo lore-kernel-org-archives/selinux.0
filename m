@@ -1,65 +1,82 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k8J7V0AH001945
-	for <selinux@tycho.nsa.gov>; Tue, 19 Sep 2006 03:31:00 -0400
-Received: from wx-out-0506.google.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id k8J7U5xU021195
-	for <selinux@tycho.nsa.gov>; Tue, 19 Sep 2006 07:30:05 GMT
-Received: by wx-out-0506.google.com with SMTP id i26so4934068wxd
-        for <selinux@tycho.nsa.gov>; Tue, 19 Sep 2006 00:31:00 -0700 (PDT)
-Message-ID: <6a9b0ede0609190031p7f7610cfy87d8c54ab90a32d4@mail.gmail.com>
-Date: Tue, 19 Sep 2006 13:01:00 +0530
-From: "abcde efghi" <svmdcv@gmail.com>
-To: "Stephen Smalley" <sds@tycho.nsa.gov>
-Subject: Re: disabling selinux
-Cc: selinux@tycho.nsa.gov
-In-Reply-To: <1158337309.18951.9.camel@moss-spartans.epoch.ncsc.mil>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-References: <6a9b0ede0609140355i4eeb58a7na4306260bdff7d72@mail.gmail.com>
-	 <1158235692.25629.25.camel@moss-spartans.epoch.ncsc.mil>
-	 <6a9b0ede0609142230u6db9a10fqf4f4059e7a90695e@mail.gmail.com>
-	 <1158337309.18951.9.camel@moss-spartans.epoch.ncsc.mil>
+Subject: Re: [RFC PATCH] allow range_transitions and MLS users in modules
+From: Joshua Brindle <jbrindle@tresys.com>
+To: Darrel Goeddel <dgoeddel@TrustedCS.com>
+Cc: SELinux List <selinux@tycho.nsa.gov>, Serge Hallyn <serue@us.ibm.com>,
+        Christopher PeBenito <cpebenito@tresys.com>,
+        Stephen Smalley <sds@tycho.nsa.gov>,
+        Karl MacMillan <kmacmillan@mentalrootkit.com>
+In-Reply-To: <450EDC2E.50009@trustedcs.com>
+References: <450EDC2E.50009@trustedcs.com>
+Content-Type: text/plain
+Date: Tue, 19 Sep 2006 08:07:43 -0400
+Message-Id: <1158667663.3056.27.camel@twoface.columbia.tresys.com>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-my tests are failing bcoz i have disabled selinux post-install
-should i do any changes to filesystems then also?
-and what other things i need to do once i disable selinux which  was
-enabled during installation?
+On Mon, 2006-09-18 at 12:49 -0500, Darrel Goeddel wrote:
+> - Add the ability to require MLS sensitivities and categories in policy
+>   modules.
+> - Remove the restrictions on defining users in MLS-enabled modules.
+> - Handle range_trans_rules in modules.
+> 
+> This all allows range_transition statements to be used in policy modules
+> and allows definition of users in MLS policy modules.
+> 
+> I haven't tested this as much as I would like, but it is working nicely
+> for me.  I have built several policies (MLS, non-MLS, strict, targeted,
+> etc.) and have built several modules exercising the new functionality.
+> I'd appreciate any feedback you may have at this point.
 
 
-thanks
-satish
+Thank you, this is badly needed functionality
 
-On 9/15/06, Stephen Smalley <sds@tycho.nsa.gov> wrote:
-> On Fri, 2006-09-15 at 11:00 +0530, abcde efghi wrote:
-> > hi Stephen
-> >
-> > let me tell u the first basic pbm
-> >
-> > oracle Db(database) creation fails when selinux is enabled during run
-> > time which was disabled during installation on RHEL4u4 (kernel version
-> > = 2.6.9-39.ELhugemem i686 GNU/Linux )
-> >
-> > does enabling selinux during run time has same feature of selinux
-> > enabled during installation?
->
-> Keep mail on list, please, so that others can benefit and the discussion
-> is archived for future queries.
->
-> To answer your question though, yes, there is nothing magical about
-> enabling SELinux at install time vs. turning it on later post-install.
-> The only thing you need to do in the post-install case is to label the
-> filesystems, which it should actually do automatically the first time
-> you boot with SELinux enabled.  If not, you can touch /.autorelabel and
-> reboot to force it to relabel, or boot with 'autorelabel' in the kernel
-> command line.
->
-> --
-> Stephen Smalley
-> National Security Agency
->
->
+> <snip>
+
+> +	level->level = malloc(sizeof(mls_level_t));
+> +
+> +int require_cat(int pass)
+> +{
+> +	char *id = queue_remove(id_queue);
+> +	cat_datum_t *cat = NULL;
+> +	int retval;
+> +	if (pass == 2) {
+> +		free(id);
+> +		return 0;
+> +	}
+> +	if (!id) {
+> +		yyerror("no category name");
+> +		return -1;
+> +	}
+> +	cat = calloc(1, sizeof(cat_datum_t));
+> +	if (!cat) {
+> +		free(id);
+> +		yyerror("Out of memory!");
+> +		return -1;
+> +	}
+
+cat_datum_init?
+
+<snip>
+> +static int mls_level_convert(mls_semantic_level_t * src,
+> +			     mls_semantic_level_t * dst, policy_module_t * mod)
+> +{
+> +	mls_semantic_cat_t *src_cat, *new_cat;
+> +
+> +	assert(mod->map[SYM_LEVELS][src->sens - 1]);
+> +	dst->sens = mod->map[SYM_LEVELS][src->sens - 1];
+> +
+> +	for (src_cat = src->cat; src_cat; src_cat = src_cat->next) {
+> +		new_cat =
+> +		    (mls_semantic_cat_t *) calloc(1,
+> +						  sizeof(mls_semantic_cat_t));
+
+mls_semantic_cat_init?
+
+
+Otherwise I don't see anything obvious, I'll hopefully do some testing
+this afternoon.
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
