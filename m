@@ -1,81 +1,51 @@
-Subject: Re: [RFC PATCH] allow range_transitions and MLS users in modules
-From: Joshua Brindle <jbrindle@tresys.com>
-To: Darrel Goeddel <dgoeddel@TrustedCS.com>
-Cc: SELinux List <selinux@tycho.nsa.gov>, Serge Hallyn <serue@us.ibm.com>,
-        Christopher PeBenito <cpebenito@tresys.com>,
-        Stephen Smalley <sds@tycho.nsa.gov>,
-        Karl MacMillan <kmacmillan@mentalrootkit.com>
-In-Reply-To: <450EDC2E.50009@trustedcs.com>
-References: <450EDC2E.50009@trustedcs.com>
+Subject: Re: [PATCH 1/1] SELINUX: Bug fix in security_sid_mls_copy
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Venkat Yekkirala <vyekkirala@TrustedCS.com>
+Cc: Eric Paris <eparis@parisplace.org>, James Morris <jmorris@namei.org>,
+        selinux@tycho.nsa.gov, chanson@TrustedCS.com, jbrindle@tresys.com
+In-Reply-To: <450F3ABE.605@trustedcs.com>
+References: <450F3ABE.605@trustedcs.com>
 Content-Type: text/plain
-Date: Tue, 19 Sep 2006 08:07:43 -0400
-Message-Id: <1158667663.3056.27.camel@twoface.columbia.tresys.com>
+Date: Tue, 19 Sep 2006 08:40:33 -0400
+Message-Id: <1158669633.15340.13.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 2006-09-18 at 12:49 -0500, Darrel Goeddel wrote:
-> - Add the ability to require MLS sensitivities and categories in policy
->   modules.
-> - Remove the restrictions on defining users in MLS-enabled modules.
-> - Handle range_trans_rules in modules.
+On Mon, 2006-09-18 at 19:33 -0500, Venkat Yekkirala wrote:
+> The following fixes a bug where random mem is being tampered
+> with in the non-mls case; encountered by Jashua Brindle on a
+> gentoo box.
 > 
-> This all allows range_transition statements to be used in policy modules
-> and allows definition of users in MLS policy modules.
+> Signed-off-by: Venkat Yekkirala <vyekkirala@TrustedCS.com>
+
+Acked-by:  Stephen Smalley <sds@tycho.nsa.gov>
+
+> ---
 > 
-> I haven't tested this as much as I would like, but it is working nicely
-> for me.  I have built several policies (MLS, non-MLS, strict, targeted,
-> etc.) and have built several modules exercising the new functionality.
-> I'd appreciate any feedback you may have at this point.
+> PS: NOT SURE IF THIS ALSO NEEDS TO BE SENT TO NETDEV. PLEASE LET
+> ME KNOW IF I SHOULD.
 
+Yes.  Note that it is for 2.6.19 as well as a bug fix for the prior
+patches.
 
-Thank you, this is badly needed functionality
-
-> <snip>
-
-> +	level->level = malloc(sizeof(mls_level_t));
-> +
-> +int require_cat(int pass)
-> +{
-> +	char *id = queue_remove(id_queue);
-> +	cat_datum_t *cat = NULL;
-> +	int retval;
-> +	if (pass == 2) {
-> +		free(id);
-> +		return 0;
-> +	}
-> +	if (!id) {
-> +		yyerror("no category name");
-> +		return -1;
-> +	}
-> +	cat = calloc(1, sizeof(cat_datum_t));
-> +	if (!cat) {
-> +		free(id);
-> +		yyerror("Out of memory!");
-> +		return -1;
-> +	}
-
-cat_datum_init?
-
-<snip>
-> +static int mls_level_convert(mls_semantic_level_t * src,
-> +			     mls_semantic_level_t * dst, policy_module_t * mod)
-> +{
-> +	mls_semantic_cat_t *src_cat, *new_cat;
-> +
-> +	assert(mod->map[SYM_LEVELS][src->sens - 1]);
-> +	dst->sens = mod->map[SYM_LEVELS][src->sens - 1];
-> +
-> +	for (src_cat = src->cat; src_cat; src_cat = src_cat->next) {
-> +		new_cat =
-> +		    (mls_semantic_cat_t *) calloc(1,
-> +						  sizeof(mls_semantic_cat_t));
-
-mls_semantic_cat_init?
-
-
-Otherwise I don't see anything obvious, I'll hopefully do some testing
-this afternoon.
+> 
+> diff --git a/security/selinux/ss/services.c b/security/selinux/ss/services.c
+> index 27ee28c..7eb69a6 100644
+> --- a/security/selinux/ss/services.c
+> +++ b/security/selinux/ss/services.c
+> @@ -1841,7 +1841,7 @@ int security_sid_mls_copy(u32 sid, u32 m
+>  	u32 len;
+>  	int rc = 0;
+>  
+> -	if (!ss_initialized) {
+> +	if (!ss_initialized || !selinux_mls_enabled) {
+>  		*new_sid = sid;
+>  		goto out;
+>  	}
+-- 
+Stephen Smalley
+National Security Agency
 
 
 --
