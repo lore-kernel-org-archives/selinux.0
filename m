@@ -1,125 +1,121 @@
 Subject: Re: ipsec, netlabels, secmark- How about a little usability?
 From: Karl MacMillan <kmacmillan@mentalrootkit.com>
-To: Stephen Smalley <sds@tycho.nsa.gov>
-Cc: James Antill <jantill@redhat.com>,
-        "Christopher J. PeBenito" <cpebenito@tresys.com>,
+To: "Christopher J. PeBenito" <cpebenito@tresys.com>
+Cc: Stephen Smalley <sds@tycho.nsa.gov>, James Antill <jantill@redhat.com>,
         Joshua Brindle <jbrindle@tresys.com>, SE Linux <selinux@tycho.nsa.gov>
-In-Reply-To: <1158252565.25629.111.camel@moss-spartans.epoch.ncsc.mil>
+In-Reply-To: <1158698123.26420.183.camel@sgc>
 References: <45095092.6080603@redhat.com>  <45095E10.2020205@tresys.com>
 	 <1158249777.8442.13.camel@code.and.org>
 	 <1158252565.25629.111.camel@moss-spartans.epoch.ncsc.mil>
+	 <1158254695.8442.30.camel@code.and.org>
+	 <1158263103.25629.207.camel@moss-spartans.epoch.ncsc.mil>
+	 <1158696824.15306.12.camel@localhost.localdomain>
+	 <1158698123.26420.183.camel@sgc>
 Content-Type: text/plain
-Date: Tue, 19 Sep 2006 16:47:11 -0400
-Message-Id: <1158698831.15306.27.camel@localhost.localdomain>
+Date: Tue, 19 Sep 2006 17:12:26 -0400
+Message-Id: <1158700346.15306.47.camel@localhost.localdomain>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2006-09-14 at 12:49 -0400, Stephen Smalley wrote:
-> On Thu, 2006-09-14 at 12:02 -0400, James Antill wrote:
-> > On Thu, 2006-09-14 at 09:50 -0400, Joshua Brindle wrote:
-> > > Daniel J Walsh wrote:
-> > > > 1.  By default httpd has to be able to talk to itself in order to do 
-> > > > gracefull shutdown,
-> > > > service httpd graceful.
-> > > >
-> > > > So I end up adding a rule allowing httpd to name_connect to the 
-> > > > httpd_port_t.    But I really only want to allow this for localhost.  
-> > > > IE I don't want to allow my httpd to name_connect to other machines 
-> > > > httpd ports?  I can't do this now.
-> > > >
-> > > you can with secmark can't you?
-> > > iptables -I -p tcp -d localhost -s localhost -i lo --dport 80 -j SECMARK 
-> > > --selctx system_u:object_r:httpd_client_packet_t
+On Tue, 2006-09-19 at 16:35 -0400, Christopher J. PeBenito wrote:
+> On Tue, 2006-09-19 at 16:13 -0400, Karl MacMillan wrote:
+> > On Thu, 2006-09-14 at 15:45 -0400, Stephen Smalley wrote:
+> > > On Thu, 2006-09-14 at 13:24 -0400, James Antill wrote:
+> > > > On Thu, 2006-09-14 at 12:49 -0400, Stephen Smalley wrote:
+> > > > > On Thu, 2006-09-14 at 12:02 -0400, James Antill wrote:
+> > > > 
+> > > > > The iptables rule only deals with labeling the packet with a type.  The
+> > > > > policy deals with what domains can send/recv a given packet via allow
+> > > > > rules like:
+> > > > > 	allow httpd_t http_client_packet_t:packet { send recv };
+> > > > > encapsulated in interfaces like:
+> > > > > 	corenet_sendrecv_http_client_packet(httpd_t)
+> > > > > 
+> > > > > But the problem I see with the above example is that refpolicy already
+> > > > > generates a netfilter contexts entry that maps _everything_ going to
+> > > > > port 80 with http_client_packet_t, so we would need to delete that entry
+> > > > > to make the above work, or use a different type
+> > > > > (http_client_packet_lo_t) and only allow httpd_t to send it, not the
+> > > > > generic http_client_packet_t.  All of which gets back to proper
+> > > > > integration.
+> > > > 
+> > > >  The problem is you can't just use "send recv", because httpd_t needs to
+> > > > call send on sockets it receives from all over the place. So you need an
+> > > > interface specifically for connect (which, I understood, was called 
+> > > > something like name_bind)?
+> > > 
+> > > name_connect is just a pairwise check between the socket and the port.
+> > > It has nothing to do with secmark.
+> > > 
 > > 
-> >  This one rule, both allows httpd_t to connect to localhost:80 and
-> > disallows it from connecting to anything-else:80 ?
+> > [Trying to restart this conversation again]
 > > 
-> >  From the documentation --selctx just sets the "SELinux security
-> > context" ... so you presumably _also_ need some bit of policy code that
-> > says "httpd_t can only name_bind(?) with httpd_client_packet_t"?
+> > Yes, but it is not clear (at least to me) how to allow apache to connect
+> > to certain hosts but send and receive to all other hosts using secmark.
+> > The mention of name_connect was just asking for something similar with
+> > secmark I believe.
 > 
-> The iptables rule only deals with labeling the packet with a type.  The
-> policy deals with what domains can send/recv a given packet via allow
-> rules like:
-> 	allow httpd_t http_client_packet_t:packet { send recv };
-> encapsulated in interfaces like:
-> 	corenet_sendrecv_http_client_packet(httpd_t)
-> 
-> But the problem I see with the above example is that refpolicy already
-> generates a netfilter contexts entry that maps _everything_ going to
-> port 80 with http_client_packet_t, so we would need to delete that entry
-> to make the above work, or use a different type
-> (http_client_packet_lo_t) and only allow httpd_t to send it, not the
-> generic http_client_packet_t.  All of which gets back to proper
-> integration.
-> 
-
-I'm beginning to think that this integration is a mistake, which is one
-of the reasons it has not been enabled in rawhide. The problems are:
-
-1) This generates _many_ rules - most of which are unnecessary - that
-are going to have an adverse effect on performance. This is made worse
-by the fact they are mangle rules and will be run even if the other
-iptables rules ultimately drop the packet.
-
-2) The policy doesn't allow expressing the full iptables semantics (as
-it probably shouldn't).
-
-3) It is not clear how users should override the defaults - using
-semanage has the disadvantage of forcing full iptables syntax into
-semanage. Adding rules later with iptables means that some rules come
-from the policy and some from iptables (it also leaves unused rules
-further hurting performance).
-
-Of course, leaving this all up to iptables is hard as well. I don't have
-a good answer - all the management options we have evaluated so far have
-serious drawbacks. Any suggestions?
-
-> > 
-> > > > 2.  I as a sysadm have setup a apache web site that allows connections 
-> > > > from the outside and needs to connect to three mysql servers on my 
-> > > > internal network. So I need to allow it to connect to those three 
-> > > > machines on the internal network only.  How am I as the Sysadm going 
-> > > > to set this up.
-> > > >
-> > > again, secmark
-> > 
-> >  Err, no. The requirement here is that:
-> > 
-> > 1. httpd_t on one machine is only allowed to connect to mysqld_t(?) on
-> > one of these 3 machines.
-> > 
-> > ...AIUI secmark doesn't know the label of the proc. on the other
-> > machines, even when using ipsec/netlabel.
+> Lets make the example more concrete.  From what I understand what we're
+> trying to distinguish is from requests made to apache (incoming from
+> anywhere), and outgoing apache connections (say a php script is
+> connecting to a mysql server).  This can be done, and is currently done
+> by the refpolicy rules.  From the perspective of the server, incoming
+> requests are all httpd_server_packet_t connections.  New connections
+> made to mysql from the apache server would be mysql_client_packet_t.
+> The default refpolicy rule already handles labeling incoming connections
+> to port 80 from everywhere as httpd_server_packet_t.  If we only wanted
+> to allow mysql client connections to be to 1.2.3.4:3306, then the
+> mysql_client_packet_t netfilter rule would have to be changed to include
+> that as the destination ip/port.  Connections to mysql on another ip
+> would fall through to client_packet_t.
 > 
 
-This brings up another problem with secmark / ipsec / netlabel. Secmark
-will be labeling the packets with a derived type (e.g., mysql_packet_t)
-while netlabel / ipsec will label them with the process type (mysql_t).
-Assuming that the packet object class permissions are enforced with
-netlabel / ipsec (is this true?), then how are we going to manage
-policy?
+I assume that you mean these two rules (reverting back to Dan's example
+- only allow apache to initiate connections to port 80 over localhost
+but otherwise send and receive on port 80):
 
-One of the nice parts of separating the labeling from the enforcement is
-that the policy shouldn't change. Currently, though, it looks like that
-won't be the case.
+-A selinux_new_output -p tcp --dport 80 -j SECMARK --selctx
+system_u:object_r:http_client_packet_t:s0
+-A selinux_new_input -p tcp --dport 80 -j SECMARK --selctx
+system_u:object_r:http_server_packet_t:s0
 
-> Yes, but you can label the output packet via secmark with one type if it
-> is destined for the mysql port on one of the "good" machines and a
-> different type otherwise, and only allow httpd_t to send the "good"
-> type.   On the internal machines, you can ensure that only mysqld_t can
-> bind to that port.  That doesn't really require a network labeling
-> mechanism like ipsec or netlabel per se.
-> 
+And the difference is which chain based set up at the top, which
+differentiates betweein incoming and outgoing packets, correct?
 
-Given the fact that for ipsec or netlabel to work correctly you must
-have two trusted machines with similar or the same policies, what
-advantage is there to labeling the packets? Why not just have
-complimentary secmark configurations? Does this help with non-tcp
-protocols?
+-A selinux_input -m state --state NEW -j selinux_new_input
+-A selinux_output -m state --state NEW -j selinux_new_output
+
+I guess the real magic, though, is the following which means that a
+packet associated with an established connections gets labeled the same
+as the initial connection:
+
+-A selinux_input -m state --state RELATED,ESTABLISHED -j CONNSECMARK
+--restore
+-A selinux_output -m state --state RELATED,ESTABLISHED -j CONNSECMARK
+--restore
+
+So the initial packet comes in as http_server_packet_t because it is on
+the incoming chain and, even though the reply packet goes through the
+output side, it is connection tracked and labeled http_server_packet_t,
+correct? I can only assume that this is obvious to an iptables admin.
+
+Good so far - I can then add:
+
+-A selinux_new_output -p tcp --dport 80 --out-interface lo -j SECMARK
+--selctx system_u:object_r:http_local_client_packet_t:s0
+
+So assuming that I only allow send and receive for http_server_packet_t
+and http_local_client_packet_t (and not http_client_packet_t) then this
+seems to solve Dan's original question.
+
+Now we just need to figure out how add the policy and iptables rules in
+a manageable way.
+
+Thanks Chris,
 
 Karl
+
 
 
 --
