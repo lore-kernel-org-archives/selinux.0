@@ -1,48 +1,35 @@
-Subject: Re: [PATCH 1/1] SELINUX: Bug fix in security_sid_mls_copy
+Subject: Re: disabling selinux
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Venkat Yekkirala <vyekkirala@TrustedCS.com>
-Cc: Eric Paris <eparis@parisplace.org>, James Morris <jmorris@namei.org>,
-        selinux@tycho.nsa.gov, chanson@TrustedCS.com, jbrindle@tresys.com
-In-Reply-To: <450F3ABE.605@trustedcs.com>
-References: <450F3ABE.605@trustedcs.com>
+To: abcde efghi <svmdcv@gmail.com>
+Cc: selinux@tycho.nsa.gov
+In-Reply-To: <6a9b0ede0609190031p7f7610cfy87d8c54ab90a32d4@mail.gmail.com>
+References: <6a9b0ede0609140355i4eeb58a7na4306260bdff7d72@mail.gmail.com>
+	 <1158235692.25629.25.camel@moss-spartans.epoch.ncsc.mil>
+	 <6a9b0ede0609142230u6db9a10fqf4f4059e7a90695e@mail.gmail.com>
+	 <1158337309.18951.9.camel@moss-spartans.epoch.ncsc.mil>
+	 <6a9b0ede0609190031p7f7610cfy87d8c54ab90a32d4@mail.gmail.com>
 Content-Type: text/plain
-Date: Tue, 19 Sep 2006 08:40:33 -0400
-Message-Id: <1158669633.15340.13.camel@moss-spartans.epoch.ncsc.mil>
+Date: Tue, 19 Sep 2006 09:09:14 -0400
+Message-Id: <1158671354.15340.41.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 2006-09-18 at 19:33 -0500, Venkat Yekkirala wrote:
-> The following fixes a bug where random mem is being tampered
-> with in the non-mls case; encountered by Jashua Brindle on a
-> gentoo box.
-> 
-> Signed-off-by: Venkat Yekkirala <vyekkirala@TrustedCS.com>
+On Tue, 2006-09-19 at 13:01 +0530, abcde efghi wrote:
+> my tests are failing bcoz i have disabled selinux post-install
+> should i do any changes to filesystems then also?
+> and what other things i need to do once i disable selinux which  was
+> enabled during installation?
 
-Acked-by:  Stephen Smalley <sds@tycho.nsa.gov>
+- What tests?
+- How are they failing?
+- What makes you think it has anything to do with SELinux?
+- If you disable SELinux, then it is disabled.  End of story.  Nothing
+more to do.  
+- If you want to re-enable SELinux, you will need to relabel your
+filesystems.
+- You can check the status of SELinux by running /usr/sbin/sestatus.
 
-> ---
-> 
-> PS: NOT SURE IF THIS ALSO NEEDS TO BE SENT TO NETDEV. PLEASE LET
-> ME KNOW IF I SHOULD.
-
-Yes.  Note that it is for 2.6.19 as well as a bug fix for the prior
-patches.
-
-> 
-> diff --git a/security/selinux/ss/services.c b/security/selinux/ss/services.c
-> index 27ee28c..7eb69a6 100644
-> --- a/security/selinux/ss/services.c
-> +++ b/security/selinux/ss/services.c
-> @@ -1841,7 +1841,7 @@ int security_sid_mls_copy(u32 sid, u32 m
->  	u32 len;
->  	int rc = 0;
->  
-> -	if (!ss_initialized) {
-> +	if (!ss_initialized || !selinux_mls_enabled) {
->  		*new_sid = sid;
->  		goto out;
->  	}
 -- 
 Stephen Smalley
 National Security Agency
