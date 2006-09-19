@@ -1,38 +1,66 @@
-Subject: Re: disabling selinux
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: abcde efghi <svmdcv@gmail.com>
-Cc: selinux@tycho.nsa.gov
-In-Reply-To: <6a9b0ede0609190031p7f7610cfy87d8c54ab90a32d4@mail.gmail.com>
-References: <6a9b0ede0609140355i4eeb58a7na4306260bdff7d72@mail.gmail.com>
-	 <1158235692.25629.25.camel@moss-spartans.epoch.ncsc.mil>
-	 <6a9b0ede0609142230u6db9a10fqf4f4059e7a90695e@mail.gmail.com>
-	 <1158337309.18951.9.camel@moss-spartans.epoch.ncsc.mil>
-	 <6a9b0ede0609190031p7f7610cfy87d8c54ab90a32d4@mail.gmail.com>
-Content-Type: text/plain
-Date: Tue, 19 Sep 2006 09:09:14 -0400
-Message-Id: <1158671354.15340.41.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+Message-ID: <450FF8D5.7010004@redhat.com>
+Date: Tue, 19 Sep 2006 10:04:05 -0400
+From: Daniel J Walsh <dwalsh@redhat.com>
+MIME-Version: 1.0
+To: Michael C Thompson <thompsmc@us.ibm.com>
+CC: Stephen Smalley <sds@tycho.nsa.gov>, lspp-list <redhat-lspp@redhat.com>,
+        selinux@tycho.nsa.gov
+Subject: Re: [redhat-lspp] Re: MLS Policy (rawhide)
+References: <4500906A.3000502@us.ibm.com> <4501B1B1.4020103@redhat.com>	<4501C466.7060309@us.ibm.com>	<1157744430.31695.210.camel@moss-spartans.epoch.ncsc.mil>	<4501C8EA.7020105@us.ibm.com> <1157745813.31695.218.camel@moss-spartans.epoch.ncsc.mil> <4501CD96.8020508@us.ibm.com>
+In-Reply-To: <4501CD96.8020508@us.ibm.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2006-09-19 at 13:01 +0530, abcde efghi wrote:
-> my tests are failing bcoz i have disabled selinux post-install
-> should i do any changes to filesystems then also?
-> and what other things i need to do once i disable selinux which  was
-> enabled during installation?
+Michael C Thompson wrote:
+> Stephen Smalley wrote:
+>> On Fri, 2006-09-08 at 14:47 -0500, Michael C Thompson wrote:
+>>> Stephen Smalley wrote:
+>>>> On Fri, 2006-09-08 at 14:28 -0500, Michael C Thompson wrote:
+>>>>> Daniel J Walsh wrote:
+>>>>>> Michael C Thompson wrote:
+>>>>>>> Hey all,
+>>>>>>>
+>>>>>>> It seems that ssh is unable to add entries to known_hosts for 
+>>>>>>> the root user as sysadm_t. Is this a known issue? And if so, who 
+>>>>>>> can add entries to /root/.ssh/known_hosts ?
+>>>>>>>
+>>>>>>> Thanks,
+>>>>>>> Mike
+>>>>>>>
+>>>>>> This works for me.  How is the file labeled?
+>>>>> # ls -alZ /root/.ssh
+>>>>> drwx------  root root root:object_r:user_home_ssh_t:SystemLow .
+>>>>> drwxr-x---  root root 
+>>>>> root:object_r:sysadm_home_dir_t:SystemLow-SystemHigh ..
+>>>>> -rw-------  root root root:object_r:bin_t:SystemLow    id_rsa
+>>>>> -rw-r--r--  root root root:object_r:bin_t:SystemLow    id_rsa.pub
+>>>>> -rw-r--r--  root root root:object_r:user_home_ssh_t:SystemLow 
+>>>>> known_hosts
+>>>> /sbin/restorecon -R /root/.ssh
+>>> I have relabeled this system numerous times with touch 
+>>> /.autorelabel... why wasn't this picked up?
+>>
+>> Not sure, not a big fan of autorelabeling myself.
+>
+> Me either, not sure how it got some messed up though.
+>
+> > Is /home on a
+>> separate partition?  Would it be mounted when the relabel runs from
+>> rc.sysinit?
+>
+> Well, it wasn't in /home, but even then that isn't the case. But it 
+> works now, so thanks Stephen :)
+>
+> Mike
+>
+touch /.autorelabel should only be used when you have a serious labeling 
+problem (file_t, selinux=0, changing policy types).
 
-- What tests?
-- How are they failing?
-- What makes you think it has anything to do with SELinux?
-- If you disable SELinux, then it is disabled.  End of story.  Nothing
-more to do.  
-- If you want to re-enable SELinux, you will need to relabel your
-filesystems.
-- You can check the status of SELinux by running /usr/sbin/sestatus.
+This should seldom be done.  I have not done it in over a year. 
 
--- 
-Stephen Smalley
-National Security Agency
+The file system should not be getting badly mislabeled at this point.
+
 
 
 --
