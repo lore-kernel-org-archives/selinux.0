@@ -1,51 +1,33 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k8KEk4kg015648
-	for <selinux@tycho.nsa.gov>; Wed, 20 Sep 2006 10:46:04 -0400
-Received: from mail6.sea5.speakeasy.net (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id k8KEjWFd019334
-	for <selinux@tycho.nsa.gov>; Wed, 20 Sep 2006 14:45:33 GMT
-Date: Wed, 20 Sep 2006 10:45:59 -0400 (EDT)
-From: James Morris <jmorris@namei.org>
-To: "Christopher J. PeBenito" <cpebenito@tresys.com>
-cc: Karl MacMillan <kmacmillan@mentalrootkit.com>,
-        Stephen Smalley <sds@tycho.nsa.gov>, James Antill <jantill@redhat.com>,
-        Joshua Brindle <jbrindle@tresys.com>, SE Linux <selinux@tycho.nsa.gov>
-Subject: Re: ipsec, netlabels, secmark- How about a little usability?
-In-Reply-To: <1158762458.26420.229.camel@sgc.columbia.tresys.com>
-Message-ID: <Pine.LNX.4.64.0609201042230.27878@d.namei>
-References: <45095092.6080603@redhat.com>  <45095E10.2020205@tresys.com>
- <1158249777.8442.13.camel@code.and.org>  <1158252565.25629.111.camel@moss-spartans.epoch.ncsc.mil>
-  <1158698831.15306.27.camel@localhost.localdomain>  <1158759005.26420.198.camel@sgc>
-  <Pine.LNX.4.64.0609200938590.27451@d.namei> <1158762458.26420.229.camel@sgc.columbia.tresys.com>
+Message-ID: <45115834.30504@hp.com>
+Date: Wed, 20 Sep 2006 11:03:16 -0400
+From: Paul Moore <paul.moore@hp.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Stephen Smalley <sds@tycho.nsa.gov>, James Morris <jmorris@redhat.com>,
+        SELinux <SELinux@tycho.nsa.gov>
+Cc: Venkat Yekkirala <vyekkirala@TrustedCS.com>
+Subject: NetLabel base SID
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 20 Sep 2006, Christopher J. PeBenito wrote:
+As discussed earlier I am going to be submitting a patch which converts
+the NetLabel receive permission from "recv_msg" to "recvfrom".  I've
+also been thinking about a discussion I've had with Venkat about what to
+use as the NetLabel "base" SID in this particular case (this is ignoring
+the secid reconciliation work right now as I think we need to have a
+good solution in place until the secid work is completed).
 
-> netfilter labeling rules enabled too.  I didn't follow your example
-> because of that, otherwise we would have about 180 chains.
+Currently NetLabel uses the socket's SID which is convienient but may
+make it difficult to distinguish NetLabel traffic in policy.  Venkat
+suggested using the SECINITSID_UNLABELED as a base but I don't like that
+approach because of the unlabeled connotation.  I believe Stephen
+suggested at some point using SECINITSID_NETMSG as the base (Stephen, my
+apologies for not doing this sooner, I didn't fully understand at the
+time) - any objections?
 
-Not sure why this is a problem.
-
-> Since the cost of going through the labeling chain only happens on the 
-> first packet of a connection, it didn't seem like a problem that the 
-> remainder of the rules were not bypassed once a match was made.
-
-This will be an issue for things like web servers, where you have high 
-connection rates and there will be lots of syn packets needing to be 
-matched and traversing each rule.
-
-On such a server, you should have the port 80 match first and jump to a 
-chain which applies the secmark and then returns a verdict, so the packet 
-does not traverse any more rules in that table.
-
-
-- James
 -- 
-James Morris
-<jmorris@namei.org>
+paul moore
+linux security @ hp
 
 --
 This message was distributed to subscribers of the selinux mailing list.
