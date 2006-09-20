@@ -1,36 +1,45 @@
 Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k8K8oP1t006853
-	for <selinux@tycho.nsa.gov>; Wed, 20 Sep 2006 04:50:26 -0400
-Received: from testdomain.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with SMTP id k8K8nH1o014000
-	for <selinux@tycho.nsa.gov>; Wed, 20 Sep 2006 08:49:28 GMT
-From: dongmei <ldm@ercist.iscas.ac.cn>
-To: SE Linux <selinux@tycho.nsa.gov>
-Subject: What is the exactly meaning of local store policy, persistent policy and active policy in the API of libsemanage?
-Date: Wed, 20 Sep 2006 16:51:29 +0800
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k8KD2b1e012473
+	for <selinux@tycho.nsa.gov>; Wed, 20 Sep 2006 09:02:37 -0400
+Received: from tcsfw4.tcs-sec.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id k8KD1bNK020645
+	for <selinux@tycho.nsa.gov>; Wed, 20 Sep 2006 13:01:38 GMT
+Message-ID: <36282A1733C57546BE392885C061859201573104@chaos.tcs.tcs-sec.com>
+From: Venkat Yekkirala <vyekkirala@TrustedCS.com>
+To: Joshua Brindle <jbrindle@tresys.com>
+Cc: dwalsh@redhat.com, selinux@tycho.nsa.gov
+Subject: RE: ipsec, netlabels, secmark- How about a little usability?
+Date: Wed, 20 Sep 2006 09:02:21 -0400
 MIME-Version: 1.0
 Content-Type: text/plain;
-  charset="iso-8859-1"
-Message-Id: <200609201651.29484.ldm@ercist.iscas.ac.cn>
+	charset="iso-8859-1"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hi, all. I can't understand the exactly meaning of local store policy, 
-persistent policy and active policy. Is the local store policy means the path 
-where the reference policy source located, and the persistent policy means 
-the binary policy? What's the meaning of active policy?
+> > So, what happens if an externally labeled packet (e.g.: 
+> Labeled IPSec)
+> > comes in thru the above entry point? First of all, a check 
+> is made to
+> > see if a packet so labeled using IPSec (unlabeled if no IPSec) can
+> > "flow in" thru the "entry point". If it can, and if there's an
+> > IPSec label on the packet, a transition sid is computed between the
+> > "entry point" label and the IPSec label and the packet will 
+> be marked
+> > with this transition sid. The transition label will either 
+> be the IPSec
+> > label (default) or any other label as defined by SELinux 
+> policy transition
+> > rules.
+> >
+> >   
+> What if there are 2 external labels (ipsec and cipso) ?
 
-Thanks!
-
--- 
-Sincere regards,
-Dongmei
--------------------------------------------------------------------
-Dongmei Liu  
-Institute of Software, Chinese Academy of Sciences
-National Engineering Research Center for Fundamental Software
-P.O. Box 8718, Beijing 100080, CHINA. 
-
+A "cipso label" will be constructed using the transition label,
+determined in the above process, or in it's absence (i.e., no labeled IPSec)
+the "entry point" label, as the base sid. A check is made to see
+if a packet with this "cipso label" can "flow in" thru
+the transition label (or the "entry point" label if no labeled IPSec)
+and if it can, then the packet is marked with this cipso label.
 
 --
 This message was distributed to subscribers of the selinux mailing list.
