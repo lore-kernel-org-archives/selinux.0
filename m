@@ -1,39 +1,38 @@
-Subject: Re: What is the exactly meaning of local store policy, persistent
-	policy and active policy in the API of libsemanage?
+Subject: Re: NetLabel base SID
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: dongmei <ldm@ercist.iscas.ac.cn>
-Cc: SE Linux <selinux@tycho.nsa.gov>
-In-Reply-To: <200609201651.29484.ldm@ercist.iscas.ac.cn>
-References: <200609201651.29484.ldm@ercist.iscas.ac.cn>
+To: Paul Moore <paul.moore@hp.com>
+Cc: James Morris <jmorris@redhat.com>, SELinux <SELinux@tycho.nsa.gov>,
+        Venkat Yekkirala <vyekkirala@TrustedCS.com>
+In-Reply-To: <45115834.30504@hp.com>
+References: <45115834.30504@hp.com>
 Content-Type: text/plain
-Date: Wed, 20 Sep 2006 16:44:33 -0400
-Message-Id: <1158785073.15340.214.camel@moss-spartans.epoch.ncsc.mil>
+Date: Wed, 20 Sep 2006 16:56:17 -0400
+Message-Id: <1158785777.15340.219.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2006-09-20 at 16:51 +0800, dongmei wrote:
-> Hi, all. I can't understand the exactly meaning of local store policy, 
-> persistent policy and active policy. Is the local store policy means the path 
-> where the reference policy source located, and the persistent policy means 
-> the binary policy? What's the meaning of active policy?
+On Wed, 2006-09-20 at 11:03 -0400, Paul Moore wrote:
+> As discussed earlier I am going to be submitting a patch which converts
+> the NetLabel receive permission from "recv_msg" to "recvfrom".  I've
+> also been thinking about a discussion I've had with Venkat about what to
+> use as the NetLabel "base" SID in this particular case (this is ignoring
+> the secid reconciliation work right now as I think we need to have a
+> good solution in place until the secid work is completed).
+> 
+> Currently NetLabel uses the socket's SID which is convienient but may
+> make it difficult to distinguish NetLabel traffic in policy.  Venkat
+> suggested using the SECINITSID_UNLABELED as a base but I don't like that
+> approach because of the unlabeled connotation.  I believe Stephen
+> suggested at some point using SECINITSID_NETMSG as the base (Stephen, my
+> apologies for not doing this sooner, I didn't fully understand at the
+> time) - any objections?
 
-I assume you are referring to semanage_bool(3)?
+Fine with me.
 
-local store refers to local customizations to the default boolean values
-stored in the policy.  These are stored in the booleans.local file
-within the policy module store and are typically set via setsebool -P.
-They are applied when the on-disk policy binary image is generated.
-
-persistent policy refers to the values stored in policy modules.  These
-values can be overridden by the local settings.  If not overridden by
-local settings, their values are applied when the on-disk binary policy
-image is generated.
-
-active policy refers to the currently active boolean values being
-applied by the kernel, which can be changed at runtime, e.g. using
-setsebool without -P, to effect temporary changes in the effective rules
-being applied.
+Note that the kernel will ignore changes to initial SID contexts upon a
+policy reload, so that change in policy won't take affect anyway until
+the kernel is rebooted.
 
 -- 
 Stephen Smalley
