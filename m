@@ -1,60 +1,155 @@
-Subject: Re: disabling selinux
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: abcde efghi <svmdcv@gmail.com>
-Cc: selinux@tycho.nsa.gov
-In-Reply-To: <6a9b0ede0609190852y4fe7cffqbb97178c008abe3b@mail.gmail.com>
-References: <6a9b0ede0609140355i4eeb58a7na4306260bdff7d72@mail.gmail.com>
-	 <1158235692.25629.25.camel@moss-spartans.epoch.ncsc.mil>
-	 <6a9b0ede0609142230u6db9a10fqf4f4059e7a90695e@mail.gmail.com>
-	 <1158337309.18951.9.camel@moss-spartans.epoch.ncsc.mil>
-	 <6a9b0ede0609190031p7f7610cfy87d8c54ab90a32d4@mail.gmail.com>
-	 <1158671354.15340.41.camel@moss-spartans.epoch.ncsc.mil>
-	 <6a9b0ede0609190852y4fe7cffqbb97178c008abe3b@mail.gmail.com>
-Content-Type: text/plain
-Date: Wed, 20 Sep 2006 14:36:23 -0400
-Message-Id: <1158777383.15340.118.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+Message-ID: <36282A1733C57546BE392885C061859201573239@chaos.tcs.tcs-sec.com>
+From: Venkat Yekkirala <vyekkirala@TrustedCS.com>
+To: James Morris <jmorris@namei.org>
+Cc: netdev@vger.kernel.org, selinux@tycho.nsa.gov, sds@tycho.nsa.gov,
+        Chad Hanson <chanson@TrustedCS.com>
+Subject: RE: [PATCH 4/7] secid reconciliation-v02: Invoke LSM hook for out
+	bound traffic
+Date: Wed, 20 Sep 2006 15:49:36 -0400
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2006-09-19 at 21:22 +0530, abcde efghi wrote:
-> i am running some stress tests(oracle+linux) like mem-pressure and
-> mem-leak(if u want i can give more detail on these tests,) on Rhel4
-> with selinux enabled during installation, they are working fine, if i
-> disable selinux during boot time or run time these tests are
-> failing.and if i am running same tests on same machine with selinux
-> disabled during installation and enabled during post-install , these
-> tests are failing
+See below.
+
+> -----Original Message-----
+> From: James Morris [mailto:jmorris@namei.org]
+> Sent: Monday, September 18, 2006 2:12 PM
+> To: Venkat Yekkirala
+> Cc: netdev@vger.kernel.org; selinux@tycho.nsa.gov; sds@tycho.nsa.gov;
+> chanson@trustedcs.com
+> Subject: Re: [PATCH 4/7] secid reconciliation-v02: Invoke LSM hook for
+> outbound traffic
 > 
-> note: i am not doing any relabling on any filesystems whenever i am
-> switching from enabling to disabling and vice-versa
 > 
-> these tests are running fine if i am not changing selinux during runtime
+> On Fri, 8 Sep 2006, Venkat Yekkirala wrote:
 > 
-> i want to get clarified on two things
+> > -static void secmark_restore(struct sk_buff *skb)
+> > +static unsigned int secmark_restore(struct sk_buff *skb, 
+> unsigned int
+> > hooknum,
+> > +			   const struct xt_target *target)
+> > {
+> > -	if (!skb->secmark) {
+> > -		u32 *connsecmark;
+> > -		enum ip_conntrack_info ctinfo;
+> > +	u32 *psecmark;
+> > +	u32 secmark = 0;
+> > +	enum ip_conntrack_info ctinfo;
+> > 
+> > -		connsecmark = nf_ct_get_secmark(skb, &ctinfo);
+> > -		if (connsecmark && *connsecmark)
+> > -			if (skb->secmark != *connsecmark)
+> > -				skb->secmark = *connsecmark;
+> > -	}
+> > +	psecmark = nf_ct_get_secmark(skb, &ctinfo);
+> > +	if (psecmark)
+> > +		secmark = *psecmark;
+> > +
+> > +	if (!secmark)
+> > +		return XT_CONTINUE;
+> > +
+> > +	/* Set secmark on inbound and filter it on outbound */
+> > +	if (hooknum == NF_IP_POST_ROUTING || hooknum == 
+> NF_IP6_POST_ROUTING) {
+> > +		if (!security_skb_netfilter_check(skb, secmark))
+> > +			return NF_DROP;
+> > +	} else
+> > +		if (skb->secmark != secmark)
+> > +			skb->secmark = secmark;
+> > +
+> > +	return XT_CONTINUE;
+> > }
 > 
-> 1) do i need to relable filesystems once i chnage selinux state from
-> enforce(enabled) to disable and vice-versa
+> Quite a lot of logic has changed here.
+> 
+> With the original code, we only restored a secmark once for 
+> the lifetime 
+> of a packet or connetcion (to make behavior deterministic and 
+> security 
+> marks immutable in the face of arbitrarily complex iptables rules).
+> 
+> With your patch, secmarks are always writable.
 
-Only when changing from disabled to enabled.  To cause a relabel,
-touch /.autorelabel and boot with selinux enabled.  It is done from
-rc.sysinit.  Or you can do it manually by running fixfiles relabel.
+Hopefully the following thread addressed these concerns.
+http://marc.theaimsgroup.com/?l=selinux&m=115870100405571&w=2
 
-> 2) if so what are all the filesystems i need to re-lable and how(any doc's)?
+> 
+> What about packets on the OUTPUT hook?
 
-The fixfiles script will handle it for you; just run fixfiles relabel,
-or touch /.autorelabel and reboot.
+I will check for OUTPUT as well as POSTROUTING to kickoff skb_flow_out().
 
-But I don't understand why such tests would fail with SELinux disabled.
-With SELinux enabled and unlabeled files, you could run into permission
-denials that would prevent them from running properly, but with SELinux
-disabled, there should be no effect.  Again, what do you mean by
-"failing"?  What output do you get from them?
+> 
+> Also, we did not restore a 'null' (zero) secmark to the skb 
+> (while this 
+> should never happen with the current SECMARK target, there may be 
+> non-SELinux extensions later which set a null marking).
 
--- 
-Stephen Smalley
-National Security Agency
+How do you envision this (i.e. resoring a null secmark) being useful?
+secmark is anyway zero by default (when no labeling rules exist for the
+connection) right?
 
+> 
+> Why not just do something like:
+> 
+> 
+> 	psecmark = nf_ct_get_secmark(skb, &ctinfo);
+> 	if (psecmark && *psecmark) {
+> 
+> 		... core of function ...
+> 
+> 	}
+> 
+> 	return XT_CONTINUE;
+> 
+> I don't think you need the new secmark variable.
+
+Will do.
+
+> 
+> You've also changed the logic for the dummy case of 
+> security_skb_netfilter_check()
+
+I am not getting this. This is a new function. Did you mean
+to point to a different function?
+
+> 
+> 
+> +static inline int security_skb_netfilter_check(struct sk_buff *skb,
+> +                                       u32 nf_secid)
+> +{
+> +       return 1;
+> +}
+> +
+> 
+> This code does not now behave as it did originally.  Keep in 
+> mind that 
+> SELinux is not the only user of SECMARK.
+
+Missed this as well (this is a new function in this patch). Please
+elaborate.
+> 
+> (The documentation of the hook in security.h doesn't match 
+> the behavior, 
+> either -- it's (re-)labeling, not just filtering).
+
+Will fix this.
+
+> 
+> I really don't know if connection tracking is the right place 
+> to be doing 
+> policy enforcment, either.  Perhaps you should just do the 
+> relabeling here 
+> and enforcement later.
+
+We could have done enforcement, in the SELinux postroute_last
+hook for example, if only there were a place to hold onto the
+"exit point context", separate from the label already associated
+with the skb in the secmark field. postroute_last would need BOTH
+the label of the skb (available in the secmark field) and the
+"exit point context" to do enforcement.
 
 --
 This message was distributed to subscribers of the selinux mailing list.
