@@ -1,74 +1,45 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k8LI4rGO021306
-	for <selinux@tycho.nsa.gov>; Thu, 21 Sep 2006 14:04:53 -0400
-Received: from exchange.columbia.tresys.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with SMTP id k8LI4OcD010709
-	for <selinux@tycho.nsa.gov>; Thu, 21 Sep 2006 18:04:24 GMT
-Subject: Re: Latest diffs
-From: "Christopher J. PeBenito" <cpebenito@tresys.com>
-To: Karl MacMillan <kmacmillan@mentalrootkit.com>
-Cc: Daniel J Walsh <dwalsh@redhat.com>, SE Linux <selinux@tycho.nsa.gov>
-In-Reply-To: <1158856416.28640.41.camel@localhost.localdomain>
-References: <45116881.3060406@redhat.com>
-	 <1158846352.3920.33.camel@sgc.columbia.tresys.com>
-	 <45129C7F.6090801@redhat.com>
-	 <1158849263.3920.63.camel@sgc.columbia.tresys.com>
-	 <1158856416.28640.41.camel@localhost.localdomain>
-Content-Type: text/plain
-Date: Thu, 21 Sep 2006 14:05:00 -0400
-Message-Id: <1158861900.3920.81.camel@sgc.columbia.tresys.com>
-Mime-Version: 1.0
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k8LI8JYL021404
+	for <selinux@tycho.nsa.gov>; Thu, 21 Sep 2006 14:08:19 -0400
+Received: from mail5.sea5.speakeasy.net (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id k8LI7J9P029419
+	for <selinux@tycho.nsa.gov>; Thu, 21 Sep 2006 18:07:20 GMT
+Date: Thu, 21 Sep 2006 14:08:14 -0400 (EDT)
+From: James Morris <jmorris@namei.org>
+To: Paul Moore <paul.moore@hp.com>
+cc: selinux@tycho.nsa.gov, netdev@vger.kernel.org, sds@epoch.ncsc.mil,
+        jmorris@redhat.com, tgraf@suug.ch
+Subject: Re: [PATCH 1/6] NetLabel: correct improper handling of non-NetLabel
+ peer contexts
+In-Reply-To: <20060921170335.013411000@hp.com>
+Message-ID: <Pine.LNX.4.64.0609211406030.7534@d.namei>
+References: <20060921165703.251871000@hp.com> <20060921170335.013411000@hp.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2006-09-21 at 12:33 -0400, Karl MacMillan wrote:
-> On Thu, 2006-09-21 at 10:34 -0400, Christopher J. PeBenito wrote:
-> > On Thu, 2006-09-21 at 10:06 -0400, Daniel J Walsh wrote:
-> > > Christopher J. PeBenito wrote:
-> > > > On Wed, 2006-09-20 at 12:12 -0400, Daniel J Walsh wrote:
-> > > >
-> > > > I haven't looked at the patch but I have some initial reactions from
-> > > > your description:
-> > > >
-> > > >   
-> > > >> http://people.redhat.com/dwalsh/SELinux/policy.diff
-> > > >>
-> > > >> Changed to allow 1024 categories.
-> > > >>     
-> > > >
-> > > > Why do we need this many?  This isn't even an incremental change up to
-> > > > something like 384 or 512.
-> > > >
-> > > >   
-> > > MLS People have past 256 and wanted a big jump to prevent hitting this 
-> > > problem again.  I put it in for both to prevent confusion between MCS/MLS
-> > 
-> > Ok, we'll go with 1024, but that's where I draw the line; I consider any
-> > higher to be a corner case.  Anyone that needs more than that will have
-> > to build their own custom policy.
-> > 
-> 
-> We have also discussed reserving category ranges for different purposes
-> - e.g., categories local to a machine and categories managed across a
-> network. With that usage model higher numbers start looking more
-> reasonable quickly.
->
-> What is the objection to the higher numbers of categories? It shouldn't
-> have a large impact on policy size I wouldn't think.
-> 
-> If you are trying to prevent misuse I think that is a losing battle. We
-> should provide tools that can be used reasonably not prevent potentially
-> legitimate uses because some people are clueless.
+On Thu, 21 Sep 2006, paul.moore@hp.com wrote:
 
-The line has to be drawn somewhere.  If you want to argue another number
-that's fine.  I'd prefer setting a max now, rather than bumping
-categories every few months for every new use of categories.
+> Fix a problem where NetLabel would always set the value of 
+> sk_security_struct->peer_sid in selinux_netlbl_sock_graft() to the context of
+> the socket, causing problems when users would query the context of the
+> connection.  This patch fixes this so that the value in
+> sk_security_struct->peer_sid is only set when the connection is NetLabel based,
+> otherwise the value is untouched.
 
+I'll let Thomas comment on the Netlink changes, as he's been working with 
+you on them.
+
+These changes otherwise seem ok.  How much testing has this had with and 
+without Netlabel enabled?
+
+
+
+- James
 -- 
-Chris PeBenito
-Tresys Technology, LLC
-(410) 290-1411 x150
-
+James Morris
+<jmorris@namei.org>
 
 --
 This message was distributed to subscribers of the selinux mailing list.
