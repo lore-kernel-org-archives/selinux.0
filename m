@@ -1,66 +1,62 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k8LEYI25013334
-	for <selinux@tycho.nsa.gov>; Thu, 21 Sep 2006 10:34:20 -0400
-Received: from exchange.columbia.tresys.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with SMTP id k8LEXmRL009560
-	for <selinux@tycho.nsa.gov>; Thu, 21 Sep 2006 14:33:48 GMT
-Subject: Re: Latest diffs
-From: "Christopher J. PeBenito" <cpebenito@tresys.com>
-To: Daniel J Walsh <dwalsh@redhat.com>
-Cc: SE Linux <selinux@tycho.nsa.gov>
-In-Reply-To: <45129C7F.6090801@redhat.com>
-References: <45116881.3060406@redhat.com>
-	 <1158846352.3920.33.camel@sgc.columbia.tresys.com>
-	 <45129C7F.6090801@redhat.com>
+Subject: Re: How to configure and reload selinux policy
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: "Christopher J. PeBenito" <cpebenito@tresys.com>
+Cc: "Jin, Yihua" <yihua.jin@intel.com>, SELinux@tycho.nsa.gov
+In-Reply-To: <1158844909.3920.21.camel@sgc.columbia.tresys.com>
+References: 
+	 <117E3EB5059E4E48ADFF2822933287A40176C48B@pdsmsx404.ccr.corp.intel.com>
+	 <1158844909.3920.21.camel@sgc.columbia.tresys.com>
 Content-Type: text/plain
-Date: Thu, 21 Sep 2006 10:34:23 -0400
-Message-Id: <1158849263.3920.63.camel@sgc.columbia.tresys.com>
+Date: Thu, 21 Sep 2006 10:38:36 -0400
+Message-Id: <1158849516.7748.54.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2006-09-21 at 10:06 -0400, Daniel J Walsh wrote:
-> Christopher J. PeBenito wrote:
-> > On Wed, 2006-09-20 at 12:12 -0400, Daniel J Walsh wrote:
-> >
-> > I haven't looked at the patch but I have some initial reactions from
-> > your description:
-> >
-> >   
-> >> http://people.redhat.com/dwalsh/SELinux/policy.diff
-> >>
-> >> Changed to allow 1024 categories.
-> >>     
-> >
-> > Why do we need this many?  This isn't even an incremental change up to
-> > something like 384 or 512.
-> >
-> >   
-> MLS People have past 256 and wanted a big jump to prevent hitting this 
-> problem again.  I put it in for both to prevent confusion between MCS/MLS
+On Thu, 2006-09-21 at 09:21 -0400, Christopher J. PeBenito wrote:
+> On Thu, 2006-09-21 at 16:59 +0800, Jin, Yihua wrote:
+> > I used targeted policy 1.17 in RHEL4U4 
+> > 
+> > Modify the domain/unconfined_t, added:
+> > 
+> > Bool allow_execmem false;
+> > 
+> > If ( allow_execmem ) {
+> > 
+> >          Allow domain self :process execmem;
+> > 
+> > }
+> > 
+> > Than I type make reload to load this modified policy, but I find exec
+> > memory is still allowed by system.
+> > 
+> > That is, I check avc_has_perm and it allowed this operation.
+> 
+> Booleans are runtime options.  The value above is just the initial
+> value.  When you reload the policy on the running system, the boolean
+> states are preserved, so if allow_execmem was true before, then it would
+> stay true until you `setsebool allow_execmem 0`.  In addition, you don't
+> need to rebuild the policy to alter the initial value of the booleans,
+> you can edit the /etc/selinux/targeted/booleans file.  The values in
+> this file will be set when the policy is loaded the first time by init.
+> 
+> On a side note, I don't think the RHEL4 kernels have execmem checking,
+> so this rule has no effect.
 
-Ok, we'll go with 1024, but that's where I draw the line; I consider any
-higher to be a corner case.  Anyone that needs more than that will have
-to build their own custom policy.
+One other observation: allow rules are additive, so if any other allow
+rule exists that grants the domain in question (unconfined_t?) execmem
+permission, then it will get that permission.  For example, the
+unconfined_domain() macro includes the rule:
+	allow $1 domain:process ~transition;
+which would also grant execmem implicitly.  You could alter that to say:
+	allow $1 domain:process ~{ transition execmem };
 
-> >> +corecmd_etc_runtime_alias(firstboot_rw_t)
-> >> Adding a new alias is a pain in reference policy.  We need a better way of doing this.
-> >>     
-> >
-> > No.  We don't want aliases that cross module boundaries.  Otherwise it
-> > turns into a way to access other module's types directly instead of
-> > through an interface.  The ones that cross modules in the policy right
-> > now are for compatibility in targeted policy.
-> >   
-> So how do I get rid of firstboot_rw_t which should be etc_runtime_t?
-
-Since this is a compat thing due to a type removal, and will eventually
-be dropped, just put it in files.te.
+But as Chris notes, the RHEL4 kernel didn't include execmem checking as
+far as I know.
 
 -- 
-Chris PeBenito
-Tresys Technology, LLC
-(410) 290-1411 x150
+Stephen Smalley
+National Security Agency
 
 
 --
