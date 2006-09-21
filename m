@@ -1,23 +1,62 @@
 Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k8LH3dKg019045
-	for <selinux@tycho.nsa.gov>; Thu, 21 Sep 2006 13:03:39 -0400
-Received: from atlrel6.hp.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id k8LH39cD001837
-	for <selinux@tycho.nsa.gov>; Thu, 21 Sep 2006 17:03:10 GMT
-Message-Id: <20060921165703.251871000@hp.com>
-Date: Thu, 21 Sep 2006 12:57:03 -0400
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k8LH3fWP019081
+	for <selinux@tycho.nsa.gov>; Thu, 21 Sep 2006 13:03:41 -0400
+Received: from atlrel9.hp.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id k8LH3BcD001848
+	for <selinux@tycho.nsa.gov>; Thu, 21 Sep 2006 17:03:12 GMT
+Message-Id: <20060921170338.666423000@hp.com>
+References: <20060921165703.251871000@hp.com>
+Date: Thu, 21 Sep 2006 12:57:09 -0400
 From: paul.moore@hp.com
 To: selinux@tycho.nsa.gov, netdev@vger.kernel.org
-Cc: sds@epoch.ncsc.mil, jmorris@redhat.com, tgraf@suug.ch
-Subject: [PATCH 0/6] NetLabel fixes and reworked Netlink interface
+Cc: sds@epoch.ncsc.mil, jmorris@redhat.com, tgraf@suug.ch,
+        Paul Moore <paul.moore@hp.com>
+Subject: [PATCH 6/6] NetLabel: update docs with website information
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This patchset, made against net-2.6.19, contains a collection of fixes for bugs found over the past few weeks as well as reworked Netlink interface which should bring NetLabel more inline with common Netlink methods.  My apologies for not getting this out sooner, but the Netlink interface rewrite was a bit more involved than I originally thought.  For those wishing to test/use these patches you will need a new copy of netlabel_tools; you can get a working version from the SVN respository at http://netlabel.sf.net.
+Now that all of the supporting pieces of NetLabel have a home at SourceForge
+update the Kconfig help text and add an entry to the MAINTAINERS file.
 
-I have tested these patches and verified that they work and solve all known issues.  Please review and consider them for 2.6.19.
+Signed-off-by: Paul Moore <paul.moore@hp.com>
+---
+ MAINTAINERS          |    7 +++++++
+ net/netlabel/Kconfig |    5 ++++-
+ 2 files changed, 11 insertions(+), 1 deletion(-)
 
-Thanks.
+Index: net-2.6.19/MAINTAINERS
+===================================================================
+--- net-2.6.19.orig/MAINTAINERS
++++ net-2.6.19/MAINTAINERS
+@@ -2008,6 +2008,13 @@ L:	netfilter@lists.netfilter.org
+ L:	netfilter-devel@lists.netfilter.org
+ S:	Supported
+ 
++NETLABEL
++P:	Paul Moore
++M:	paul.moore@hp.com
++W:	http://netlabel.sf.net
++L:	netdev@vger.kernel.org
++S:	Supported
++
+ NETROM NETWORK LAYER
+ P:	Ralf Baechle
+ M:	ralf@linux-mips.org
+Index: net-2.6.19/net/netlabel/Kconfig
+===================================================================
+--- net-2.6.19.orig/net/netlabel/Kconfig
++++ net-2.6.19/net/netlabel/Kconfig
+@@ -9,6 +9,9 @@ config NETLABEL
+ 	---help---
+ 	  NetLabel provides support for explicit network packet labeling
+ 	  protocols such as CIPSO and RIPSO.  For more information see
+-	  Documentation/netlabel.
++	  Documentation/netlabel as well as the NetLabel SourceForge project
++	  for configuration tools and additional documentation.
++
++	   * http://netlabel.sf.net
+ 
+ 	  If you are unsure, say N.
 
 --
 paul moore
