@@ -1,51 +1,134 @@
-Message-ID: <4511C4A8.2090709@hp.com>
-Date: Wed, 20 Sep 2006 18:46:00 -0400
-From: Paul Moore <paul.moore@hp.com>
-MIME-Version: 1.0
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k8L2GMcB001113
+	for <selinux@tycho.nsa.gov>; Wed, 20 Sep 2006 22:16:22 -0400
+Received: from mail5.sea5.speakeasy.net (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id k8L2Fp6b018103
+	for <selinux@tycho.nsa.gov>; Thu, 21 Sep 2006 02:15:51 GMT
+Date: Wed, 20 Sep 2006 22:16:17 -0400 (EDT)
+From: James Morris <jmorris@namei.org>
 To: Venkat Yekkirala <vyekkirala@TrustedCS.com>
-Cc: netdev@vger.kernel.org, selinux@tycho.nsa.gov, jmorris@namei.org,
-        sds@tycho.nsa.gov, Chad Hanson <chanson@TrustedCS.com>
-Subject: Re: [PATCH 7/7] secid reconciliation-v02: Enforcement for SELinux
-References: <36282A1733C57546BE392885C061859201573267@chaos.tcs.tcs-sec.com>
-In-Reply-To: <36282A1733C57546BE392885C061859201573267@chaos.tcs.tcs-sec.com>
-Content-Type: text/plain; charset=ISO-8859-1
+cc: netdev@vger.kernel.org, selinux@tycho.nsa.gov,
+        Stephen Smalley <sds@tycho.nsa.gov>,
+        Chad Hanson <chanson@TrustedCS.com>
+Subject: RE: [PATCH 4/7] secid reconciliation-v02: Invoke LSM hook for out
+ bound traffic
+In-Reply-To: <36282A1733C57546BE392885C061859201573239@chaos.tcs.tcs-sec.com>
+Message-ID: <Pine.LNX.4.64.0609202201090.32645@d.namei>
+References: <36282A1733C57546BE392885C061859201573239@chaos.tcs.tcs-sec.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Venkat Yekkirala wrote:
->>>+static int selinux_skb_policy_check(struct sk_buff *skb, 
->>
->>unsigned short
->>
->>>family) +{
->>>+	u32 xfrm_sid, trans_sid;
->>>+	int err;
->>>+
->>>+	if (selinux_compat_net)
->>>+		return 1;
->>>+
->>>+	err = selinux_xfrm_decode_session(skb, &xfrm_sid, 0);
->>>+	BUG_ON(err);
->>
->>First, any reason against including the "struct sock *" in 
->>the LSM hook?  At a 
->>quick glance it looks like it is available at each place 
->>security_skb_policy_check() is invoked?  If there are no 
->>objections I would 
->>like to see it included in the hook.
->  
-> There's no sock available (NULL) for forward, no-sock, time-wait cases, etc.
+On Wed, 20 Sep 2006, Venkat Yekkirala wrote:
 
-... which would be why I should have taken a closer look :)
+> > Quite a lot of logic has changed here.
+> > 
+> > With the original code, we only restored a secmark once for 
+> > the lifetime 
+> > of a packet or connetcion (to make behavior deterministic and 
+> > security 
+> > marks immutable in the face of arbitrarily complex iptables rules).
+> > 
+> > With your patch, secmarks are always writable.
+> 
+> Hopefully the following thread addressed these concerns.
+> http://marc.theaimsgroup.com/?l=selinux&m=115870100405571&w=2
 
-> What you are trying to accomplish with the sock here anyway?
+Ok, but can we preserve existing behavior when packet are only being 
+labeled internally?
 
-Actually this is no longer an issue because of something else - you can
-ignore this now.
+(We should probably settle on the use of 'external' for cipso/xfrm 
+labeling and 'internal' for iptables only).
 
+
+> > Also, we did not restore a 'null' (zero) secmark to the skb 
+> > (while this 
+> > should never happen with the current SECMARK target, there may be 
+> > non-SELinux extensions later which set a null marking).
+> 
+> How do you envision this (i.e. resoring a null secmark) being useful?
+> secmark is anyway zero by default (when no labeling rules exist for the
+> connection) right?
+
+Actually, don't worry about this.  The implementation can decide what a 
+'null' mark might be and manage it themselves.
+
+
+> > You've also changed the logic for the dummy case of 
+> > security_skb_netfilter_check()
+> 
+> I am not getting this. This is a new function. Did you mean
+> to point to a different function?
+> 
+> > 
+> > 
+> > +static inline int security_skb_netfilter_check(struct sk_buff *skb,
+> > +                                       u32 nf_secid)
+> > +{
+> > +       return 1;
+> > +}
+> > +
+> > 
+> > This code does not now behave as it did originally.  Keep in 
+> > mind that 
+> > SELinux is not the only user of SECMARK.
+
+I'm talking about the code as a whole and the way this hook does not 
+preserve existing behavior in the default case.
+
+Look at the original code:
+
+static void secmark_restore(struct sk_buff *skb)
+{
+        if (!skb->secmark) {
+                u32 *connsecmark;
+                enum ip_conntrack_info ctinfo;
+
+                connsecmark = nf_ct_get_secmark(skb, &ctinfo);
+                if (connsecmark && *connsecmark)
+                        if (skb->secmark != *connsecmark)
+                                skb->secmark = *connsecmark;
+        }
+}
+
+Now, you have added an LSM hook in here:
+
++       /* Set secmark on inbound and filter it on outbound */
++       if (hooknum == NF_IP_POST_ROUTING || hooknum == NF_IP6_POST_ROUTING) {
++               if (!security_skb_netfilter_check(skb, secmark))
++                       return NF_DROP;
++       } else
++               if (skb->secmark != secmark)
++                       skb->secmark = secmark;
+
+The dummy hook does not restore the secmark in the way that the original 
+code does, now depending on the hooknum.
+
+When LSM is not configured or no LSM module is active, the behavior of the 
+code must be identical to the original version.
+
+> > I really don't know if connection tracking is the right place 
+> > to be doing 
+> > policy enforcment, either.  Perhaps you should just do the 
+> > relabeling here 
+> > and enforcement later.
+> 
+> We could have done enforcement, in the SELinux postroute_last
+> hook for example, if only there were a place to hold onto the
+> "exit point context", separate from the label already associated
+> with the skb in the secmark field. postroute_last would need BOTH
+> the label of the skb (available in the secmark field) and the
+> "exit point context" to do enforcement.
+
+Ok, it's not pretty, but I guess it's much better than adding another 
+field to the skb or similar.
+
+
+- James
 -- 
-paul moore
-linux security @ hp
+James Morris
+<jmorris@namei.org>
 
 --
 This message was distributed to subscribers of the selinux mailing list.
