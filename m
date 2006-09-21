@@ -1,56 +1,53 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k8LG98JG017077
-	for <selinux@tycho.nsa.gov>; Thu, 21 Sep 2006 12:09:08 -0400
-Received: from web36612.mail.mud.yahoo.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with SMTP id k8LG8ccD024352
-	for <selinux@tycho.nsa.gov>; Thu, 21 Sep 2006 16:08:39 GMT
-Message-ID: <20060921160852.61171.qmail@web36612.mail.mud.yahoo.com>
-Date: Thu, 21 Sep 2006 09:08:52 -0700 (PDT)
-From: Casey Schaufler <casey@schaufler-ca.com>
-Reply-To: casey@schaufler-ca.com
-Subject: Re: Latest diffs
-To: SE Linux <selinux@tycho.nsa.gov>
-In-Reply-To: <1158850172.11048.2.camel@twoface.columbia.tresys.com>
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k8LGS3q5017746
+	for <selinux@tycho.nsa.gov>; Thu, 21 Sep 2006 12:28:03 -0400
+Message-ID: <36282A1733C57546BE392885C061859201573327@chaos.tcs.tcs-sec.com>
+From: Venkat Yekkirala <vyekkirala@TrustedCS.com>
+To: Stephen Smalley <sds@epoch.ncsc.mil>
+Cc: Karl MacMillan <kmacmillan@mentalrootkit.com>,
+        Joshua Brindle
+	 <jbrindle@tresys.com>, Paul Moore <paul.moore@hp.com>,
+        latten@austin.ibm.com, jmorris@redhat.com, dwalsh@redhat.com,
+        Darrel Goeddel <DGoeddel@TrustedCS.com>,
+        Chad Hanson
+	 <chanson@TrustedCS.com>, selinux@tycho.nsa.gov
+Subject: RE: Labeled networking packets
+Date: Thu, 21 Sep 2006 12:27:38 -0400
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-
-
---- Joshua Brindle <jbrindle@tresys.com> wrote:
-
- 
-> > We have customers that use all of our 1024
-> categories and want more. 
-> > They have requested 10,000 categories.
+> On Thu, 2006-09-21 at 11:01 -0400, Venkat Yekkirala wrote:
+> > > I agree about what getpeercon should return, even to the point of
+> > > returning nothing or error if only secmark is being used.
 > > 
+> > And why should that be the case? Everything has a label on 
+> a MAC system
+> > and why should apps care about the configuration (explicit 
+> IPSec label
+> > Vs. implicit via secmark)?
+> <snip>
+> > You will want to deal with only 1 label at the app level, 
+> and it should be
+> > the label that was used in determining whether the socket could read
+> > the skb or not.
+> > 
+> > Can you give any examples on where differentiation is needed?
 > 
-> That is because they are probably using categories
-> as an integrity
-> mechanism which is entirely inappropriate for
-> SELinux since TE should be
-> used for integrity and mls should only be used for
-> confidentiality. I
-> seriously doubt that a reasonable system could have
-> 10000 useful
-> categories.
+> Callers of getpeercon() expect it to return a subject label that they
+> can use in a call to e.g. avc_has_perm() as the source/subject context
+> or setexeccon() or (shudder) setcon().  If it returns
+> httpd_client_packet_lo_t, then the caller is going to run into trouble
+> upon trying to use the context as a subject label.
 
-If y'all don't support on the order of 10,000
-categories I know of potential users (they may
-be the same ones refered to initially) who
-use a category for each "project", which is
-perfectly reasonable, never reuse categories
-because many "projects" have extended lifetimes
-(sometimes decades), and have many projects
-start every month. This is correct usage of
-MLS categories. These people have been MLS
-users since the Reagan administration because
-it gives them what they want.
-
-
-Casey Schaufler
-casey@schaufler-ca.com
+Yes, the caller is going to run into trouble here, but only because your
+policy
+is wanting it, is it not? i.e., a trusted app can always work in conjunction
+with policy (via transitions and whatnot if need be) in servicing the
+request
+at the appropriate label.
 
 --
 This message was distributed to subscribers of the selinux mailing list.
