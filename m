@@ -1,51 +1,65 @@
-Subject: Re: How to configure and reload selinux policy
-From: "Christopher J. PeBenito" <cpebenito@tresys.com>
-To: "Jin, Yihua" <yihua.jin@intel.com>
-Cc: SELinux@tycho.nsa.gov
-In-Reply-To: <117E3EB5059E4E48ADFF2822933287A40176C48B@pdsmsx404.ccr.corp.intel.com>
-References: 
-	 <117E3EB5059E4E48ADFF2822933287A40176C48B@pdsmsx404.ccr.corp.intel.com>
-Content-Type: text/plain
-Date: Thu, 21 Sep 2006 09:21:49 -0400
-Message-Id: <1158844909.3920.21.camel@sgc.columbia.tresys.com>
-Mime-Version: 1.0
+Message-ID: <45129698.5080503@redhat.com>
+Date: Thu, 21 Sep 2006 09:41:44 -0400
+From: Daniel J Walsh <dwalsh@redhat.com>
+MIME-Version: 1.0
+To: "Christopher J. PeBenito" <cpebenito@tresys.com>,
+        Stephen Smalley <sds@tycho.nsa.gov>
+CC: Michael C Thompson <thompsmc@us.ibm.com>,
+        "Serge E. Hallyn" <serue@us.ibm.com>, SE Linux <selinux@tycho.nsa.gov>
+Subject: Re: SSH pubkey authentication & MLS policy
+References: <4511AAF2.8090809@us.ibm.com>
+In-Reply-To: <4511AAF2.8090809@us.ibm.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2006-09-21 at 16:59 +0800, Jin, Yihua wrote:
-> I used targeted policy 1.17 in RHEL4U4 
-> 
-> Modify the domain/unconfined_t, added:
-> 
-> Bool allow_execmem false;
-> 
-> If ( allow_execmem ) {
-> 
->          Allow domain self :process execmem;
-> 
-> }
-> 
-> Than I type make reload to load this modified policy, but I find exec
-> memory is still allowed by system.
-> 
-> That is, I check avc_has_perm and it allowed this operation.
+Chris, how do you want to handle this?
 
-Booleans are runtime options.  The value above is just the initial
-value.  When you reload the policy on the running system, the boolean
-states are preserved, so if allow_execmem was true before, then it would
-stay true until you `setsebool allow_execmem 0`.  In addition, you don't
-need to rebuild the policy to alter the initial value of the booleans,
-you can edit the /etc/selinux/targeted/booleans file.  The values in
-this file will be set when the policy is loaded the first time by init.
 
-On a side note, I don't think the RHEL4 kernels have execmem checking,
-so this rule has no effect.
 
--- 
-Chris PeBenito
-Tresys Technology, LLC
-(410) 290-1411 x150
-
+Michael C Thompson wrote:
+> Hey Dan,
+>
+> We're trying to get ssh to use public key authentication to log in, 
+> and it seems that sshd can't access the various home directories for 
+> the contents of .ssh
+>
+> Is there something that we can change in the policy to permit this 
+> action?
+>
+> For root:
+>
+> type=AVC msg=audit(1158784742.480:63): avc:  denied  { getattr } for 
+> pid=1798 comm="sshd" name="root" dev=sda3 ino=11436033 
+> scontext=system_u:system_r:sshd_t:s0-s15:c0.c255 
+> tcontext=root:object_r:sysadm_home_dir_t:s0-s15:c0.c255 tclass=dir
+> type=SYSCALL msg=audit(1158784742.480:63): arch=c000003e syscall=6 
+> success=yes exit=0 a0=7fff8877e100 a1=7fff8877cf80 a2=7fff8877cf80 
+> a3=0 items=0 ppid=1554 pid=1798 auid=4294967295 uid=0 gid=0 euid=0 
+> suid=0 fsuid=0 egid=0 sgid=0 fsgid=0 tty=(none) comm="sshd" 
+> exe="/usr/sbin/sshd" subj=system_u:system_r:sshd_t:s0-s15:c0.c255 
+> key=(null)
+> type=AVC_PATH msg=audit(1158784742.480:63):  path="/root"
+>
+> For non-root users:
+>
+> type=AVC msg=audit(1158784771.664:76): avc:  denied  { getattr } for 
+> pid=1827 comm="sshd" name="mcthomps" dev=sda3 ino=9175059 
+> scontext=system_u:system_r:sshd_t:s0-s15:c0.c255 
+> tcontext=user_u:object_r:user_home_dir_t:s0-s15:c0.c255 tclass=dir
+> type=SYSCALL msg=audit(1158784771.664:76): arch=c000003e syscall=6 
+> success=yes exit=0 a0=7ffff3244bc0 a1=7ffff3243a40 a2=7ffff3243a40 
+> a3=0 items=0 ppid=1554 pid=1827 auid=4294967295 uid=0 gid=0 euid=503 
+> suid=0 fsuid=503 egid=503 sgid=0 fsgid=503 tty=(none) comm="sshd" 
+> exe="/usr/sbin/sshd" subj=system_u:system_r:sshd_t:s0-s15:c0.c255 
+> key=(null)
+> type=AVC_PATH msg=audit(1158784771.664:76):  path="/home/mcthomps"
+>
+>
+> Thanks,
+> Mike
+>
+Could you do this in permissive mode to capture all of the avc
 
 --
 This message was distributed to subscribers of the selinux mailing list.
