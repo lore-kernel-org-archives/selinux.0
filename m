@@ -1,53 +1,38 @@
-Subject: Re: Latest diffs
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Joshua Brindle <jbrindle@tresys.com>
-Cc: "Mikel L. Matthews" <mikel@argus-systems.com>,
-        "Christopher J. PeBenito" <cpebenito@tresys.com>,
-        Daniel J Walsh <dwalsh@redhat.com>, SE Linux <selinux@tycho.nsa.gov>
-In-Reply-To: <1158850172.11048.2.camel@twoface.columbia.tresys.com>
-References: <45116881.3060406@redhat.com>
-	 <1158846352.3920.33.camel@sgc.columbia.tresys.com>
-	 <45129CD0.5040507@argus-systems.com>
-	 <1158850172.11048.2.camel@twoface.columbia.tresys.com>
-Content-Type: text/plain
-Date: Thu, 21 Sep 2006 11:18:46 -0400
-Message-Id: <1158851926.7748.93.camel@moss-spartans.epoch.ncsc.mil>
+Subject: Re: SSH pubkey authentication & MLS policy
+From: Erich Schubert <erich@debian.org>
+To: Daniel J Walsh <dwalsh@redhat.com>
+Cc: "Christopher J. PeBenito" <cpebenito@tresys.com>,
+        Stephen Smalley <sds@tycho.nsa.gov>,
+        Michael C Thompson <thompsmc@us.ibm.com>,
+        "Serge E. Hallyn" <serue@us.ibm.com>, SE Linux <selinux@tycho.nsa.gov>
+In-Reply-To: <45129698.5080503@redhat.com>
+References: <4511AAF2.8090809@us.ibm.com>  <45129698.5080503@redhat.com>
+Content-Type: text/plain; charset=ISO-8859-15
+Date: Thu, 21 Sep 2006 17:28:48 +0200
+Message-Id: <1158852528.14117.48.camel@wintermute.xmldesign.de>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2006-09-21 at 10:49 -0400, Joshua Brindle wrote:
-> On Thu, 2006-09-21 at 09:08 -0500, Mikel L. Matthews wrote:
-> > 
-> > Christopher J. PeBenito wrote:
-> > > On Wed, 2006-09-20 at 12:12 -0400, Daniel J Walsh wrote:
-> > > 
-> > > I haven't looked at the patch but I have some initial reactions from
-> > > your description:
-> > > 
-> > >> http://people.redhat.com/dwalsh/SELinux/policy.diff
-> > >>
-> > >> Changed to allow 1024 categories.
-> > > 
-> > > Why do we need this many?  This isn't even an incremental change up to
-> > > something like 384 or 512.
-> > 
-> > We have customers that use all of our 1024 categories and want more. 
-> > They have requested 10,000 categories.
-> > 
-> 
-> That is because they are probably using categories as an integrity
-> mechanism which is entirely inappropriate for SELinux since TE should be
-> used for integrity and mls should only be used for confidentiality. I
-> seriously doubt that a reasonable system could have 10000 useful
-> categories.
+Hi,
+This is not MLS related.
+Here's the Debian diff used to allow public key logins.
+http://svn.debian.org/wsvn/selinux/refpolicy/branches/debian/policy/modules/services/ssh.te?op=diff&rev=0&sc=0
 
-More like "one category assigned per project, never to be re-used".  For
-confidentiality, not integrity.
+I believe that sshd verifies the home directory to be not
+world-writeable.
+The patch above adds "search", although "getattr" probably is
+sufficient. But I didn't want to add another interface... yeah, I'm a
+bit lazy sometimes.
 
+best regards,
+Erich Schubert
 -- 
-Stephen Smalley
-National Security Agency
+     erich@(vitavonni.de|debian.org)    --    GPG Key ID: 4B3A135C     (o_
+ A man doesn't know what he knows until he knows what he doesn't know. //\
+     Während das Glück dir lacht, wirst Freunde du zählen in Menge;    V_/_
+       wenn sich der Himmel bewölkt, findest du dich bald allein.
+
 
 
 --
