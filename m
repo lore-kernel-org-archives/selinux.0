@@ -1,37 +1,56 @@
-Date: Thu, 21 Sep 2006 11:04:26 -0500
-From: "Serge E. Hallyn" <serue@us.ibm.com>
-To: Erich Schubert <erich@debian.org>
-Cc: Daniel J Walsh <dwalsh@redhat.com>,
-        "Christopher J. PeBenito" <cpebenito@tresys.com>,
-        Stephen Smalley <sds@tycho.nsa.gov>,
-        Michael C Thompson <thompsmc@us.ibm.com>,
-        "Serge E. Hallyn" <serue@us.ibm.com>, SE Linux <selinux@tycho.nsa.gov>
-Subject: Re: SSH pubkey authentication & MLS policy
-Message-ID: <20060921160426.GA2487@sergelap.austin.ibm.com>
-References: <4511AAF2.8090809@us.ibm.com> <45129698.5080503@redhat.com> <1158852528.14117.48.camel@wintermute.xmldesign.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1158852528.14117.48.camel@wintermute.xmldesign.de>
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k8LG98JG017077
+	for <selinux@tycho.nsa.gov>; Thu, 21 Sep 2006 12:09:08 -0400
+Received: from web36612.mail.mud.yahoo.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with SMTP id k8LG8ccD024352
+	for <selinux@tycho.nsa.gov>; Thu, 21 Sep 2006 16:08:39 GMT
+Message-ID: <20060921160852.61171.qmail@web36612.mail.mud.yahoo.com>
+Date: Thu, 21 Sep 2006 09:08:52 -0700 (PDT)
+From: Casey Schaufler <casey@schaufler-ca.com>
+Reply-To: casey@schaufler-ca.com
+Subject: Re: Latest diffs
+To: SE Linux <selinux@tycho.nsa.gov>
+In-Reply-To: <1158850172.11048.2.camel@twoface.columbia.tresys.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Quoting Erich Schubert (erich@debian.org):
-> Hi,
-> This is not MLS related.
-> Here's the Debian diff used to allow public key logins.
-> http://svn.debian.org/wsvn/selinux/refpolicy/branches/debian/policy/modules/services/ssh.te?op=diff&rev=0&sc=0
 
-Looks like the statements we need, but why do you have this
-under tunable_policy(`ssh_sysadm_login')?
 
-> I believe that sshd verifies the home directory to be not
-> world-writeable.
-> The patch above adds "search", although "getattr" probably is
-> sufficient. But I didn't want to add another interface... yeah, I'm a
-> bit lazy sometimes.
+--- Joshua Brindle <jbrindle@tresys.com> wrote:
 
-thanks,
--serge
+ 
+> > We have customers that use all of our 1024
+> categories and want more. 
+> > They have requested 10,000 categories.
+> > 
+> 
+> That is because they are probably using categories
+> as an integrity
+> mechanism which is entirely inappropriate for
+> SELinux since TE should be
+> used for integrity and mls should only be used for
+> confidentiality. I
+> seriously doubt that a reasonable system could have
+> 10000 useful
+> categories.
+
+If y'all don't support on the order of 10,000
+categories I know of potential users (they may
+be the same ones refered to initially) who
+use a category for each "project", which is
+perfectly reasonable, never reuse categories
+because many "projects" have extended lifetimes
+(sometimes decades), and have many projects
+start every month. This is correct usage of
+MLS categories. These people have been MLS
+users since the Reagan administration because
+it gives them what they want.
+
+
+Casey Schaufler
+casey@schaufler-ca.com
 
 --
 This message was distributed to subscribers of the selinux mailing list.
