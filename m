@@ -1,92 +1,52 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k8LGm3hE018462
-	for <selinux@tycho.nsa.gov>; Thu, 21 Sep 2006 12:48:03 -0400
-Received: from mx1.redhat.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id k8LGlXcD029679
-	for <selinux@tycho.nsa.gov>; Thu, 21 Sep 2006 16:47:34 GMT
-Subject: RE: Labeled networking packets
-From: Karl MacMillan <kmacmillan@mentalrootkit.com>
-To: Venkat Yekkirala <vyekkirala@TrustedCS.com>
-Cc: Stephen Smalley <sds@epoch.ncsc.mil>, Joshua Brindle <jbrindle@tresys.com>,
-        Paul Moore <paul.moore@hp.com>, latten@austin.ibm.com,
-        jmorris@redhat.com, dwalsh@redhat.com,
-        Darrel Goeddel <DGoeddel@TrustedCS.com>,
-        Chad Hanson <chanson@TrustedCS.com>, selinux@tycho.nsa.gov
-In-Reply-To: <36282A1733C57546BE392885C061859201573327@chaos.tcs.tcs-sec.com>
-References: <36282A1733C57546BE392885C061859201573327@chaos.tcs.tcs-sec.com>
-Content-Type: text/plain
-Date: Thu, 21 Sep 2006 12:47:46 -0400
-Message-Id: <1158857266.28640.56.camel@localhost.localdomain>
+Date: Thu, 21 Sep 2006 11:55:38 -0500
+From: "Serge E. Hallyn" <serue@us.ibm.com>
+To: "Serge E. Hallyn" <serue@us.ibm.com>
+Cc: Erich Schubert <erich@debian.org>, Daniel J Walsh <dwalsh@redhat.com>,
+        "Christopher J. PeBenito" <cpebenito@tresys.com>,
+        Stephen Smalley <sds@tycho.nsa.gov>,
+        Michael C Thompson <thompsmc@us.ibm.com>,
+        SE Linux <selinux@tycho.nsa.gov>
+Subject: Re: SSH pubkey authentication & MLS policy
+Message-ID: <20060921165538.GA29036@sergelap.austin.ibm.com>
+References: <4511AAF2.8090809@us.ibm.com> <45129698.5080503@redhat.com> <1158852528.14117.48.camel@wintermute.xmldesign.de> <20060921160426.GA2487@sergelap.austin.ibm.com>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <20060921160426.GA2487@sergelap.austin.ibm.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2006-09-21 at 12:27 -0400, Venkat Yekkirala wrote:
-> > On Thu, 2006-09-21 at 11:01 -0400, Venkat Yekkirala wrote:
-> > > > I agree about what getpeercon should return, even to the point of
-> > > > returning nothing or error if only secmark is being used.
-> > > 
-> > > And why should that be the case? Everything has a label on 
-> > a MAC system
-> > > and why should apps care about the configuration (explicit 
-> > IPSec label
-> > > Vs. implicit via secmark)?
-> > <snip>
-> > > You will want to deal with only 1 label at the app level, 
-> > and it should be
-> > > the label that was used in determining whether the socket could read
-> > > the skb or not.
-> > > 
-> > > Can you give any examples on where differentiation is needed?
-> > 
-> > Callers of getpeercon() expect it to return a subject label that they
-> > can use in a call to e.g. avc_has_perm() as the source/subject context
-> > or setexeccon() or (shudder) setcon().  If it returns
-> > httpd_client_packet_lo_t, then the caller is going to run into trouble
-> > upon trying to use the context as a subject label.
+Quoting Serge E. Hallyn (serue@us.ibm.com):
+> Quoting Erich Schubert (erich@debian.org):
+> > Hi,
+> > This is not MLS related.
+> > Here's the Debian diff used to allow public key logins.
+> > http://svn.debian.org/wsvn/selinux/refpolicy/branches/debian/policy/modules/services/ssh.te?op=diff&rev=0&sc=0
 > 
-> Yes, the caller is going to run into trouble here, but only because your
-> policy
-> is wanting it, is it not? i.e., a trusted app can always work in conjunction
-> with policy (via transitions and whatnot if need be) in servicing the
-> request
-> at the appropriate label.
+> Looks like the statements we need, but why do you have this
+> under tunable_policy(`ssh_sysadm_login')?
+> 
+> > I believe that sshd verifies the home directory to be not
+> > world-writeable.
+> > The patch above adds "search", although "getattr" probably is
+> > sufficient. But I didn't want to add another interface... yeah, I'm a
+> > bit lazy sometimes.
 
-I doubt it will work in all cases. And returning a label when in fact we
-don't have the information (e.g., when only using secmark) changes the
-semantics of this call. The call should indicate what information it has
-by returning an error without ipsec or netlabel.
+The following module allowed pubkey ssh login to work:
 
-I also think this change is confusing which object class we are dealing
-with. Packets are a separate object from a process. Yes packets may
-inherit the context of the process in some circumstances, but they
-remain distinct objects. Making getpeercon return the packet label is
-returning the label of the wrong object.
+policy_module(sergessh,1.0.0)
 
-I started to write a long post on scenarios where the distinction would
-be important, but honestly I think it comes down to what I said above.
-We have two objects and each object should be labeled independently. It
-might be possible to use transition rules to combine the information
-from the two labels into a third (which is essentially what would be
-happening), but it mis-represents the underlying system and is going to
-be difficult to manage. It would require an explosion of types to not
-lose information (i.e., one type for every possible process / packet
-type pair).
+gen_require(`
+        type sshd_t;
+')
 
-The reconciliation scheme currently changes the semantics of both
-getpeercon and the new packet object classes in what I see as
-non-intuitive ways. Apps and policy will have to take into account which
-labeling mechanism is in use (e.g., the packet object class checks will
-sometimes get packet types and sometimes get process types - same for
-getpeercon). It seems like this will require additional policy and code.
+userdom_search_all_users_home_dirs(sshd_t)
+userdom_search_generic_user_home_dirs(sshd_t)
+userdom_search_staff_home_dirs(sshd_t)
 
-The simplest solution is to keep the labels separate as Josh suggested.
-However, I think that it would be better to pass packet and process
-labels over ipsec but that would likely be a fundamental change to the
-ipsec labeling model.
+Which seems odd to me - i thought a loadable module should not
+be able to directly address sshd_t...
 
-Karl
-
+-serge
 
 --
 This message was distributed to subscribers of the selinux mailing list.
