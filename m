@@ -1,71 +1,73 @@
-Message-ID: <4512A44B.2010908@us.ibm.com>
-Date: Thu, 21 Sep 2006 09:40:11 -0500
-From: Michael C Thompson <thompsmc@us.ibm.com>
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k8LEo52L013887
+	for <selinux@tycho.nsa.gov>; Thu, 21 Sep 2006 10:50:05 -0400
+Received: from tcsfw4.tcs-sec.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id k8LEnYRL011964
+	for <selinux@tycho.nsa.gov>; Thu, 21 Sep 2006 14:49:35 GMT
+Received: (from smmsp@localhost)
+	by tcsfw4.tcs-sec.com (8.12.2/8.12.2) id k8LEo3Uq000272
+	for <selinux@tycho.nsa.gov>; Thu, 21 Sep 2006 10:50:03 -0400 (EDT)
+Message-ID: <36282A1733C57546BE392885C0618592015732DC@chaos.tcs.tcs-sec.com>
+From: Venkat Yekkirala <vyekkirala@TrustedCS.com>
+To: selinux@tycho.nsa.gov
+Subject: FW: Labeled networking packets
+Date: Thu, 21 Sep 2006 10:49:47 -0400
 MIME-Version: 1.0
-To: Daniel J Walsh <dwalsh@redhat.com>
-CC: "Christopher J. PeBenito" <cpebenito@tresys.com>,
-        Stephen Smalley <sds@tycho.nsa.gov>,
-        "Serge E. Hallyn" <serue@us.ibm.com>, SE Linux <selinux@tycho.nsa.gov>
-Subject: Re: SSH pubkey authentication & MLS policy
-References: <4511AAF2.8090809@us.ibm.com> <45129698.5080503@redhat.com>
-In-Reply-To: <45129698.5080503@redhat.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Daniel J Walsh wrote:
-> Chris, how do you want to handle this?
-> 
-> 
-> 
-> Michael C Thompson wrote:
->> Hey Dan,
->>
->> We're trying to get ssh to use public key authentication to log in, 
->> and it seems that sshd can't access the various home directories for 
->> the contents of .ssh
->>
->> Is there something that we can change in the policy to permit this 
->> action?
->>
->> For root:
->>
->> type=AVC msg=audit(1158784742.480:63): avc:  denied  { getattr } for 
->> pid=1798 comm="sshd" name="root" dev=sda3 ino=11436033 
->> scontext=system_u:system_r:sshd_t:s0-s15:c0.c255 
->> tcontext=root:object_r:sysadm_home_dir_t:s0-s15:c0.c255 tclass=dir
->> type=SYSCALL msg=audit(1158784742.480:63): arch=c000003e syscall=6 
->> success=yes exit=0 a0=7fff8877e100 a1=7fff8877cf80 a2=7fff8877cf80 
->> a3=0 items=0 ppid=1554 pid=1798 auid=4294967295 uid=0 gid=0 euid=0 
->> suid=0 fsuid=0 egid=0 sgid=0 fsgid=0 tty=(none) comm="sshd" 
->> exe="/usr/sbin/sshd" subj=system_u:system_r:sshd_t:s0-s15:c0.c255 
->> key=(null)
->> type=AVC_PATH msg=audit(1158784742.480:63):  path="/root"
->>
->> For non-root users:
->>
->> type=AVC msg=audit(1158784771.664:76): avc:  denied  { getattr } for 
->> pid=1827 comm="sshd" name="mcthomps" dev=sda3 ino=9175059 
->> scontext=system_u:system_r:sshd_t:s0-s15:c0.c255 
->> tcontext=user_u:object_r:user_home_dir_t:s0-s15:c0.c255 tclass=dir
->> type=SYSCALL msg=audit(1158784771.664:76): arch=c000003e syscall=6 
->> success=yes exit=0 a0=7ffff3244bc0 a1=7ffff3243a40 a2=7ffff3243a40 
->> a3=0 items=0 ppid=1554 pid=1827 auid=4294967295 uid=0 gid=0 euid=503 
->> suid=0 fsuid=503 egid=503 sgid=0 fsgid=503 tty=(none) comm="sshd" 
->> exe="/usr/sbin/sshd" subj=system_u:system_r:sshd_t:s0-s15:c0.c255 
->> key=(null)
->> type=AVC_PATH msg=audit(1158784771.664:76):  path="/home/mcthomps"
->>
->>
->> Thanks,
->> Mike
->>
-> Could you do this in permissive mode to capture all of the avc
+I see selinux wasn't on the cc list...
 
-I did, thats all the ones that were generated that seemed pertinant to 
-sshd, I can re-do this and send you the complete transaction log if you 
-want.
+-----Original Message-----
+From: Joshua Brindle [mailto:jbrindle@tresys.com]
+Sent: Thursday, September 21, 2006 6:18 AM
+To: Venkat Yekkirala; Paul Moore
+Cc: Karl MacMillan; latten@austin.ibm.com; sds; jmorris@redhat.com;
+dwalsh@redhat.com; Darrel Goeddel; Chad Hanson
+Subject: RE: Labeled networking packets
 
+
+> From: Venkat Yekkirala [mailto:vyekkirala@TrustedCS.com] 
+> 
+> > We really need this in if we expect useful network labeling 
+> in rhel5 
+> > but I'm still skeptical about reconciling cipso + ipsec 
+> together with 
+> > secmark.
+> > From what I can tell cipso is taking priority and is 
+> getting the type 
+> > transition calculated and ipsec isn't.
+> 
+> It would actually be the other way around. A transition is 
+> computed only in the labeled IPSec case. In the cipso case, 
+> only a "flow in" check happens (this would obviously change 
+> when whole SELinux contexts are transmitted using options, as 
+> Paul is understood to be looking into, in the future).
+> 
+
+Eh, I knew that, sorry, I don't know what I was thinking..
+
+> > I'm not sure
+> > if this is
+> > the desirable behavior.
+> 
+> Could you lay out an example; perhaps there's a 
+> misunderstanding somewhere?
+> 
+
+In one of my first emails I pointed out that an app doing getpeercon()
+is really expecting the context of the domain on the other side of a
+connection (peer?). With unix domain sockets that would still happen
+(unless they were relabeled) but with ipsec connections you are getting
+a strange combination of the secmark label and the ipsec label. It seems
+strange to me that getpeercon() would care at all about the secmark
+label, that's just for enforcement. I guess what I'm getting to is why
+is it so hard to just get the context of the domain on the other side
+(like the developer probably expects). Secmark and ipsec should be
+entirely orthogonal it seems, maybe I haven't thought about this hard
+enough...
 
 --
 This message was distributed to subscribers of the selinux mailing list.
