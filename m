@@ -1,103 +1,54 @@
 Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k8LEocGa013932
-	for <selinux@tycho.nsa.gov>; Thu, 21 Sep 2006 10:50:38 -0400
-Received: from tcsfw4.tcs-sec.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id k8LEnbSR019853
-	for <selinux@tycho.nsa.gov>; Thu, 21 Sep 2006 14:49:39 GMT
-Received: (from smmsp@localhost)
-	by tcsfw4.tcs-sec.com (8.12.2/8.12.2) id k8LEoYHd009650
-	for <selinux@tycho.nsa.gov>; Thu, 21 Sep 2006 10:50:34 -0400 (EDT)
-Message-ID: <36282A1733C57546BE392885C0618592015732DD@chaos.tcs.tcs-sec.com>
-From: Venkat Yekkirala <vyekkirala@TrustedCS.com>
-To: selinux@tycho.nsa.gov
-Subject: FW: Labeled networking packets
-Date: Thu, 21 Sep 2006 10:50:25 -0400
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k8LEoE9F013908
+	for <selinux@tycho.nsa.gov>; Thu, 21 Sep 2006 10:50:14 -0400
+Received: from twoface.columbia.tresys.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id k8LEnFSR019789
+	for <selinux@tycho.nsa.gov>; Thu, 21 Sep 2006 14:49:16 GMT
+Subject: Re: Latest diffs
+From: Joshua Brindle <jbrindle@tresys.com>
+To: "Mikel L. Matthews" <mikel@argus-systems.com>
+Cc: "Christopher J. PeBenito" <cpebenito@tresys.com>,
+        Daniel J Walsh <dwalsh@redhat.com>, SE Linux <selinux@tycho.nsa.gov>
+In-Reply-To: <45129CD0.5040507@argus-systems.com>
+References: <45116881.3060406@redhat.com>
+	 <1158846352.3920.33.camel@sgc.columbia.tresys.com>
+	 <45129CD0.5040507@argus-systems.com>
+Content-Type: text/plain
+Date: Thu, 21 Sep 2006 10:49:32 -0400
+Message-Id: <1158850172.11048.2.camel@twoface.columbia.tresys.com>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-FYI-
+On Thu, 2006-09-21 at 09:08 -0500, Mikel L. Matthews wrote:
+> 
+> Christopher J. PeBenito wrote:
+> > On Wed, 2006-09-20 at 12:12 -0400, Daniel J Walsh wrote:
+> > 
+> > I haven't looked at the patch but I have some initial reactions from
+> > your description:
+> > 
+> >> http://people.redhat.com/dwalsh/SELinux/policy.diff
+> >>
+> >> Changed to allow 1024 categories.
+> > 
+> > Why do we need this many?  This isn't even an incremental change up to
+> > something like 384 or 512.
+> 
+> We have customers that use all of our 1024 categories and want more. 
+> They have requested 10,000 categories.
+> 
 
------Original Message-----
-From: Venkat Yekkirala 
-Sent: Thursday, September 21, 2006 9:46 AM
-To: 'Joshua Brindle'; Venkat Yekkirala; Paul Moore
-Cc: Karl MacMillan; latten@austin.ibm.com; sds; jmorris@redhat.com;
-dwalsh@redhat.com; Darrel Goeddel; Chad Hanson
-Subject: RE: Labeled networking packets
+That is because they are probably using categories as an integrity
+mechanism which is entirely inappropriate for SELinux since TE should be
+used for integrity and mls should only be used for confidentiality. I
+seriously doubt that a reasonable system could have 10000 useful
+categories.
 
+I don't think this change should be made to the refpolicy policy without
+a good justification, saying "MLS people want it" isn't good, its
+possible that they are also misusing categories.
 
-> In one of my first emails I pointed out that an app doing getpeercon()
-> is really expecting the context of the domain on the other side of a
-> connection (peer?). With unix domain sockets that would still happen
-> (unless they were relabeled) but with ipsec connections you 
-> are getting
-> a strange combination of the secmark label and the ipsec 
-> label.
-
-The peercon would by default (i.e. no applicable transition rules)
-be the ipsec label, when a labeled-ipsec SA is used. So no extra
-rules are needed to get this context. But let's say you want to
-service the connection request at the label of the secmark or
-a "common label" that's applicable to several incoming labels, then
-you could have some fancy transition rules.
-
-> It seems
-> strange to me that getpeercon() would care at all about the secmark
-> label, that's just for enforcement.
-
-Not quite. It ought to be left to policy entirely to determine what
-the label of the connection request is. Let's take the following
-example where sshd needs to process a connection at the label of
-the peer. Now the "peer" could be configured (on the server) in
-one of the following ways:
-
-a. a labeled-ipsec client; i.e. we have a sort of a trusted client
-   that is able to "convey" the appropriate label of the connection
-   request by using "labeled" IPSec SAs, one for Secret, another
-   for Top Secret for example.
-
-b. a non-(labeled)ipsec client: i.e. you have to treat/service the client
-   at "a" level (most likely at a single level no matter what the
-   type of the connection is), Secret for example, on the server.
-   This you would do by using an iptables rule in conjunction with
-  (CONN)SECMARK. This would be analogous to taking the label from
-   a nodecon rule in the compat case (which we didn't get around to doing).
-
-> I guess what I'm getting to is why
-> is it so hard to just get the context of the domain on the other side
-> (like the developer probably expects).
-
-Not hard at all. The IPSec label is returned by default. No extra rules
-needed as explained above.
-
-> Secmark and ipsec should be
-> entirely orthogonal it seems, maybe I haven't thought about this hard
-> enough...
-
-There's actually a relationship. You could do the following now:
-
-1. Specify a range (Unclassified - Secret) for a network "entry/exit point"
-   using iptables rules.
-
-2. Any externally labeled data (labeled-ipsec/cipso) would then be subject
-to the
-   entry/exit point range.
-
-3. You could further have "ranged" IPSec SAs (Confidential - Secret or
-Secret - Secret with
-   all the compartments applicable for Secret) that could
-   constrain the cipso labeled data to be within that range.
-
-I think the problem is that secmark is still being looked at as a marking
-scheme when, in the new paradigm, it's a flow control mechanism with a
-"side-effect" of externally unlabeled data being labeled with the label
-of the data BUT ONLY BY VIRTUE OF THE DATA COMING IN THRU THAT ENTRY POINT.
-
-I am almost tempted to rename the secmark module to SECPOINT or SECGATE
-if that will help convey the above.
 
 --
 This message was distributed to subscribers of the selinux mailing list.
