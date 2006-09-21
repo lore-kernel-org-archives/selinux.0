@@ -1,23 +1,17 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k8L8n8Wx004788
-	for <selinux@tycho.nsa.gov>; Thu, 21 Sep 2006 04:49:08 -0400
-Received: from mga03.intel.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id k8L8mAJJ020506
-	for <selinux@tycho.nsa.gov>; Thu, 21 Sep 2006 08:48:10 GMT
 MIME-Version: 1.0
 Content-Type: multipart/alternative;
-	boundary="----_=_NextPart_001_01C6DD5A.8632F1E0"
-Subject: How to modify and reload policy file
-Date: Thu, 21 Sep 2006 16:47:09 +0800
-Message-ID: <117E3EB5059E4E48ADFF2822933287A40176C464@pdsmsx404.ccr.corp.intel.com>
+	boundary="----_=_NextPart_001_01C6DD5C.4D692AB2"
+Subject: How to configure and reload selinux policy
+Date: Thu, 21 Sep 2006 16:59:53 +0800
+Message-ID: <117E3EB5059E4E48ADFF2822933287A40176C48B@pdsmsx404.ccr.corp.intel.com>
 From: "Jin, Yihua" <yihua.jin@intel.com>
-To: <selinux@tycho.nsa.gov>
+To: <SELinux@tycho.nsa.gov>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 This is a multi-part message in MIME format.
 
-------_=_NextPart_001_01C6DD5A.8632F1E0
+------_=_NextPart_001_01C6DD5C.4D692AB2
 Content-Type: text/plain;
 	charset="us-ascii"
 Content-Transfer-Encoding: quoted-printable
@@ -49,7 +43,7 @@ example.
 
 =20
 
-Thanks a lot=20
+=20
 
 Best Regards
 
@@ -60,13 +54,18 @@ Tel: 8821 6173
 =20
 
 
-------_=_NextPart_001_01C6DD5A.8632F1E0
+------_=_NextPart_001_01C6DD5C.4D692AB2
 Content-Type: text/html;
 	charset="us-ascii"
 Content-Transfer-Encoding: quoted-printable
 
-<html xmlns:o=3D"urn:schemas-microsoft-com:office:office" =
+<html xmlns:v=3D"urn:schemas-microsoft-com:vml" =
+xmlns:o=3D"urn:schemas-microsoft-com:office:office" =
 xmlns:w=3D"urn:schemas-microsoft-com:office:word" =
+xmlns:x=3D"urn:schemas-microsoft-com:office:excel" =
+xmlns:p=3D"urn:schemas-microsoft-com:office:powerpoint" =
+xmlns:dt=3D"uuid:C2F41010-65B3-11d1-A29F-00AA00C14882" =
+xmlns:oa=3D"urn:schemas-microsoft-com:office:activation" =
 xmlns=3D"http://www.w3.org/TR/REC-html40">
 
 <head>
@@ -117,51 +116,77 @@ style=3D'text-justify-trim:punctuation'>
 
 <div class=3DSection1 style=3D'layout-grid:15.6pt'>
 
-<p class=3DMsoNormal><font size=3D1 face=3DArial><span lang=3DEN-US =
-style=3D'font-size:
-9.0pt;font-family:Arial'>I used targeted policy 1.17 in RHEL4U4 =
-<o:p></o:p></span></font></p>
+<p class=3DMsoNormal style=3D'layout-grid-mode:char'><font size=3D1 =
+face=3DArial><span
+lang=3DEN-US style=3D'font-size:9.0pt;font-family:Arial'>I used targeted =
+policy
+1.17 in RHEL4U4 <o:p></o:p></span></font></p>
 
-<p class=3DMsoNormal><font size=3D1 face=3DArial><span lang=3DEN-US =
-style=3D'font-size:
-9.0pt;font-family:Arial'>Modify the domain/unconfined_t, =
-added:<o:p></o:p></span></font></p>
+<p class=3DMsoNormal style=3D'layout-grid-mode:char'><font size=3D1 =
+face=3DArial><span
+lang=3DEN-US style=3D'font-size:9.0pt;font-family:Arial'>Modify the
+domain/unconfined_t, added:<o:p></o:p></span></font></p>
 
-<p class=3DMsoNormal><b><i><font size=3D1 face=3DArial><span =
-lang=3DEN-US
-style=3D'font-size:9.0pt;font-family:Arial;font-weight:bold;font-style:it=
-alic'>Bool
-allow_execmem false;<o:p></o:p></span></font></i></b></p>
+<p class=3DMsoNormal style=3D'layout-grid-mode:char'><b><i><font =
+size=3D1 face=3DArial><span
+lang=3DEN-US =
+style=3D'font-size:9.0pt;font-family:Arial;font-weight:bold;
+font-style:italic'>Bool allow_execmem =
+false;<o:p></o:p></span></font></i></b></p>
 
-<p class=3DMsoNormal><b><i><font size=3D1 face=3DArial><span =
-lang=3DEN-US
-style=3D'font-size:9.0pt;font-family:Arial;font-weight:bold;font-style:it=
-alic'>If
-( allow_execmem ) {<o:p></o:p></span></font></i></b></p>
+<p class=3DMsoNormal style=3D'layout-grid-mode:char'><b><i><font =
+size=3D1 face=3DArial><span
+lang=3DEN-US =
+style=3D'font-size:9.0pt;font-family:Arial;font-weight:bold;
+font-style:italic'>If ( allow_execmem ) =
+{<o:p></o:p></span></font></i></b></p>
 
-<p class=3DMsoNormal><b><i><font size=3D1 face=3DArial><span =
-lang=3DEN-US
-style=3D'font-size:9.0pt;font-family:Arial;font-weight:bold;font-style:it=
-alic'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Allow
+<p class=3DMsoNormal style=3D'layout-grid-mode:char'><b><i><font =
+size=3D1 face=3DArial><span
+lang=3DEN-US =
+style=3D'font-size:9.0pt;font-family:Arial;font-weight:bold;
+font-style:italic'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; =
+Allow
 domain self :process execmem;<o:p></o:p></span></font></i></b></p>
 
-<p class=3DMsoNormal><b><i><font size=3D1 face=3DArial><span =
-lang=3DEN-US
-style=3D'font-size:9.0pt;font-family:Arial;font-weight:bold;font-style:it=
-alic'>}<o:p></o:p></span></font></i></b></p>
+<p class=3DMsoNormal style=3D'layout-grid-mode:char'><b><i><font =
+size=3D1 face=3DArial><span
+lang=3DEN-US =
+style=3D'font-size:9.0pt;font-family:Arial;font-weight:bold;
+font-style:italic'>}<o:p></o:p></span></font></i></b></p>
 
-<p class=3DMsoNormal><font size=3D1 face=3DArial><span lang=3DEN-US =
-style=3D'font-size:
-9.0pt;font-family:Arial'>Than I type make reload to load this modified =
-policy,
-but I find exec memory is still allowed by =
+<p class=3DMsoNormal style=3D'layout-grid-mode:char'><font size=3D1 =
+face=3DArial><span
+lang=3DEN-US style=3D'font-size:9.0pt;font-family:Arial'>Than I type =
+make reload to
+load this modified policy, but I find exec memory is still allowed by =
 system.<o:p></o:p></span></font></p>
 
-<p class=3DMsoNormal><font size=3D1 face=3DArial><span lang=3DEN-US =
-style=3D'font-size:
-9.0pt;font-family:Arial'>That is, I check avc_has_perm and it allowed =
-this
-operation.<o:p></o:p></span></font></p>
+<p class=3DMsoNormal style=3D'layout-grid-mode:char'><font size=3D1 =
+face=3DArial><span
+lang=3DEN-US style=3D'font-size:9.0pt;font-family:Arial'>That is, I =
+check
+avc_has_perm and it allowed this operation.<o:p></o:p></span></font></p>
+
+<p class=3DMsoNormal style=3D'layout-grid-mode:char'><font size=3D1 =
+face=3DArial><span
+lang=3DEN-US =
+style=3D'font-size:9.0pt;font-family:Arial'><o:p>&nbsp;</o:p></span></fon=
+t></p>
+
+<p class=3DMsoNormal style=3D'layout-grid-mode:char'><font size=3D1 =
+face=3DArial><span
+lang=3DEN-US style=3D'font-size:9.0pt;font-family:Arial'>I want to know =
+if there is
+some trick in reconfigure and reload selinux policy, how it can =
+works.<o:p></o:p></span></font></p>
+
+<p class=3DMsoNormal style=3D'layout-grid-mode:char'><font size=3D1 =
+face=3DArial><span
+lang=3DEN-US style=3D'font-size:9.0pt;font-family:Arial'>It&#8217;s =
+highly appreciated
+that someone can give an configure and reload =
+example.<o:p></o:p></span></font></p>
 
 <p class=3DMsoNormal><font size=3D1 face=3DArial><span lang=3DEN-US =
 style=3D'font-size:
@@ -169,23 +194,7 @@ style=3D'font-size:
 
 <p class=3DMsoNormal><font size=3D1 face=3DArial><span lang=3DEN-US =
 style=3D'font-size:
-9.0pt;font-family:Arial'>I want to know if there is some trick in =
-reconfigure and
-reload selinux policy, how it can works.<o:p></o:p></span></font></p>
-
-<p class=3DMsoNormal><font size=3D1 face=3DArial><span lang=3DEN-US =
-style=3D'font-size:
-9.0pt;font-family:Arial'>It&#8217;s highly appreciated that someone can =
-give an
-configure and reload example.<o:p></o:p></span></font></p>
-
-<p class=3DMsoNormal><font size=3D1 face=3DArial><span lang=3DEN-US =
-style=3D'font-size:
 9.0pt;font-family:Arial'><o:p>&nbsp;</o:p></span></font></p>
-
-<p class=3DMsoNormal><font size=3D1 face=3DArial><span lang=3DEN-US =
-style=3D'font-size:
-9.0pt;font-family:Arial'>Thanks a lot <o:p></o:p></span></font></p>
 
 <p class=3DMsoNormal><em><b><i><font size=3D2 face=3D"Times New =
 Roman"><span
@@ -214,7 +223,7 @@ lang=3DEN-US><o:p>&nbsp;</o:p></span></font></p>
 
 </html>
 
-------_=_NextPart_001_01C6DD5A.8632F1E0--
+------_=_NextPart_001_01C6DD5C.4D692AB2--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
