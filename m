@@ -1,9 +1,11 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k8MFvBhp024005
-	for <selinux@tycho.nsa.gov>; Fri, 22 Sep 2006 11:57:11 -0400
-Message-ID: <36282A1733C57546BE392885C061859201573500@chaos.tcs.tcs-sec.com>
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k8MG6XJ3024361
+	for <selinux@tycho.nsa.gov>; Fri, 22 Sep 2006 12:06:33 -0400
+Message-ID: <36282A1733C57546BE392885C061859201573506@chaos.tcs.tcs-sec.com>
 From: Venkat Yekkirala <vyekkirala@TrustedCS.com>
-To: Paul Moore <paul.moore@hp.com>
+To: Paul Moore <paul.moore@hp.com>,
+        Venkat Yekkirala
+	 <vyekkirala@TrustedCS.com>
 Cc: Joshua Brindle <jbrindle@tresys.com>,
         Stephen Smalley
 	 <sds@epoch.ncsc.mil>,
@@ -13,47 +15,52 @@ Cc: Joshua Brindle <jbrindle@tresys.com>,
         Chad Hanson
 	 <chanson@TrustedCS.com>, selinux@tycho.nsa.gov
 Subject: RE: Labeled networking packets
-Date: Fri, 22 Sep 2006 11:56:40 -0400
+Date: Fri, 22 Sep 2006 12:05:32 -0400
 MIME-Version: 1.0
 Content-Type: text/plain;
 	charset="iso-8859-1"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-> > It IS FOR LABELING as far as MLS is concerned.
+> Venkat Yekkirala wrote:
+> >>Good point.  We could always have getpeercon() error out if 
+> >>both SA and
+> >>NetLabel labels are present.  It may not be ideal, but it's safe.
+> >  
+> > No need to error out since no transitions are needed. The current
+> > expected uses for cipso are a. all by itself, b. in conjunction
+> > with ipsec. In the latter case, we do an additional check to make
+> > sure the cipso label can come thru the ipsec tunnel/transport.
 > 
-> Perhaps we are just overloading the term "labeling".  It kinda sounds
-> like the non-MLS folks want to be able to distinguish between "remote
-> labeling", i.e. SA or NetLabel, and "local labeling", i.e. secmark.  I
-> realize that there are certain users who don't care to make that
-> distinction because they can put a certain level of trust in the
-> physical network configuration.  However, considering the 
-> flexibility of
-> SELinux in general I think any built-in assumption is going to upset
-> someone.  I think the best idea is to arrive at some sort of policy
-> abstraction which would allow either of the behaviors listed above.
-
-This we have attempted to do via transitions.
-
+> The comments below apply here as well.
 > 
-> For handling incoming packets this may mean that we keep all of the
-> packet labeling mechanisms separate, allowing each to have it's own
-> permission check.
-
-But how would you then make sure a secret cipso didn't arrive thru a
-TopSecret SA?
-
+> >>>Do you have a scenario where one might want both labeling 
+> >>
+> >>schemes at the
+> >>
+> >>>same time? Note that if you need netlabel (legacy os on the 
+> >>
+> >>other side)
+> >>
+> >>>and you also want ipsec for integrity then the isakmp 
+> >>
+> >>negotiation would
+> >>
+> >>>not include a context and netlabel would be used.
+> >>
+> >>Honestly, I can't think of why you would want to use both SA and
+> >>NetLabel labeling on the same connection - that's just stupid :)
+> > 
+> > I can think of ALL Secret and its compartments using one SA
+> > for example (a very realistic one).
 > 
-> For dealing with getpeercon() issues perhaps we only allow "remote
-> labeled" contexts to be reported by default, but if policy 
-> allows (yes,
-> we would need some sort of new allow rule or policy construct) the
-> "locally labeled" context could be used as a fallback.
-> 
-> I know it's not ideal for any one scenario, but I think it may be
-> flexibile enough to deal with all of them.
+> If you have NetLabel carrying the MLS label why would you want to make
+> your life complicated by using SA labeling as well?
 
-That would mean you would have separate policies.
+It's not a matter of complicated or not. Unless you make sure both
+are NOT used at the same time, you *must* make you they work like
+they are supposed to (cipso falling in the rage of the SA) if/when
+they are used together.
 
 --
 This message was distributed to subscribers of the selinux mailing list.
