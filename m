@@ -1,49 +1,52 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k8MLh19U003161
-	for <selinux@tycho.nsa.gov>; Fri, 22 Sep 2006 17:43:01 -0400
-Message-ID: <36282A1733C57546BE392885C0618592015735C7@chaos.tcs.tcs-sec.com>
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k8MLtqBK003449
+	for <selinux@tycho.nsa.gov>; Fri, 22 Sep 2006 17:55:52 -0400
+Received: from tcsfw4.tcs-sec.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id k8MLtI3K004860
+	for <selinux@tycho.nsa.gov>; Fri, 22 Sep 2006 21:55:21 GMT
+Message-ID: <36282A1733C57546BE392885C0618592015735C9@chaos.tcs.tcs-sec.com>
 From: Venkat Yekkirala <vyekkirala@TrustedCS.com>
-To: James Morris <jmorris@namei.org>, Joshua Brindle <jbrindle@tresys.com>
-Cc: Venkat Yekkirala <vyekkirala@TrustedCS.com>,
-        Karl MacMillan
-	 <kmacmillan@mentalrootkit.com>,
-        Stephen Smalley <sds@epoch.ncsc.mil>, Paul Moore <paul.moore@hp.com>,
-        latten@austin.ibm.com, jmorris@redhat.com, dwalsh@redhat.com,
-        Darrel Goeddel <DGoeddel@TrustedCS.com>,
-        Chad Hanson
-	 <chanson@TrustedCS.com>, selinux@tycho.nsa.gov
+To: Stephen Smalley <sds@tycho.nsa.gov>
+Cc: selinux@tycho.nsa.gov, Chad Hanson <chanson@TrustedCS.com>,
+        Darrel Goeddel <DGoeddel@TrustedCS.com>, dwalsh@redhat.com,
+        jmorris@redhat.com, latten@austin.ibm.com,
+        Paul Moore <paul.moore@hp.com>,
+        Karl MacMillan <kmacmillan@mentalrootkit.com>,
+        Joshua Brindle
+	 <jbrindle@tresys.com>
 Subject: RE: Labeled networking packets
-Date: Fri, 22 Sep 2006 17:42:36 -0400
+Date: Fri, 22 Sep 2006 17:55:13 -0400
 MIME-Version: 1.0
 Content-Type: text/plain;
 	charset="iso-8859-1"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-> On Fri, 22 Sep 2006, Joshua Brindle wrote:
+> On Fri, 2006-09-22 at 13:23 -0400, Venkat Yekkirala wrote:
+> > OK, here's what we will do:
+> > 
+> > 1. We will have getpeercon() fail if there's no labeled-SA.
+> > 
+> > 2. We will do a getdatacon() or something similar to retrieve the
+> >    secmark (as reconciled in the proposed reconciliation 
+> logic, of course).
+> > 
+> > Comments?
 > 
-> > Once again, I don't think the "ts data coming into a secret 
-> SA" makes
-> > sense.
+> I think that just moves the problem.
 
-Where did I suggest this? All that we are trying to enforce are
-flow control checks to *prevent* this from happening, for added
-assurance.
+We put a design doc out 3 months or so back (alerting selinux list
+at least 2 times 
+http://marc.theaimsgroup.com/?l=linux-netdev&m=115136637800361&w=2),
+thought got the buy in, and went ahead and implemented
+it.
 
-> If that happens your policy is broken,
+What baffles me is that people even had problems using secmark as it
+currently exists, just a few days back. It tells me people look at what
+has come along, and THEN find (lack of) uses for it.
 
-Not necessarily. Consider the forwarding scenario where data is
-coming in thru a Top Secret interface and leaving thru a
- Secret interface. Currenlty you have *nothing* to prvent that.
-
-> this data shouldn't be
-> > allowed in at all
-> let alone having magic level changes to 
-> let it happen.
-
-Nice combination of words :), but "magic level changes to let it happen"
-isn't happening at all. In fact the whole effort here is to prevent this
-among others.
+Let's go back to the drawing board, first of all define the problems
+we are trying to solve, and come up with a design.
 
 --
 This message was distributed to subscribers of the selinux mailing list.
