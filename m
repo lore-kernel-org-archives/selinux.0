@@ -1,11 +1,11 @@
 Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k8MF9qXb022014
-	for <selinux@tycho.nsa.gov>; Fri, 22 Sep 2006 11:09:52 -0400
-Message-ID: <36282A1733C57546BE392885C0618592015734E5@chaos.tcs.tcs-sec.com>
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k8MFFcUB022254
+	for <selinux@tycho.nsa.gov>; Fri, 22 Sep 2006 11:15:38 -0400
+Message-ID: <36282A1733C57546BE392885C0618592015734E7@chaos.tcs.tcs-sec.com>
 From: Venkat Yekkirala <vyekkirala@TrustedCS.com>
-To: Stephen Smalley <sds@epoch.ncsc.mil>,
-        Joshua Brindle
-	 <jbrindle@tresys.com>
+To: Joshua Brindle <jbrindle@tresys.com>,
+        Stephen Smalley
+	 <sds@epoch.ncsc.mil>
 Cc: Venkat Yekkirala <vyekkirala@TrustedCS.com>,
         Karl MacMillan
 	 <kmacmillan@mentalrootkit.com>,
@@ -15,96 +15,56 @@ Cc: Venkat Yekkirala <vyekkirala@TrustedCS.com>,
         Chad Hanson
 	 <chanson@TrustedCS.com>, selinux@tycho.nsa.gov
 Subject: RE: Labeled networking packets
-Date: Fri, 22 Sep 2006 11:09:44 -0400
+Date: Fri, 22 Sep 2006 11:15:27 -0400
 MIME-Version: 1.0
 Content-Type: text/plain;
 	charset="iso-8859-1"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-> Yes, that would be like computing a process label from an old process
-> label and an executable file label.  Or like computing a new 
-> file label
-> from a process label and a parent directory label.  Who could imagine
-> such a thing?  ;)
-> 
-> Seriously, there isn't anything wrong with the notion of using label
-> transitions to capture state from multiple labels, and we do that all
-> the time for _object_ labels.  Where we run into a problem here is the
-> fact that the user of getpeercon() wants a subject label, not 
-> an object
-> label.  If the label transition function had an inverse, that might be
-> workable,
+> bah, fair enough :\. I guess the reason I was objecting was 
+> because the
+> objects seem *very* different. standard object and subject transitions
+> seem pretty intuitive (I'm in a domain, i execute something, I'm in a
+> new domain or directories containing files guiding 
+> transitions. packets
+> and associations are totally separate and used for totally different
+> things. And the other problem was that I don't even know if we were
+> *trying* to derive a subject label or not, some of the examples I've
+> seen floating around indicate that others don't either.
 
-The "inverse" is the default. The IPSec label is what's returned
-by default (in the absence of any transition rules). A transition
-can always turn out a "domain" in the non-ipsec case if a domain is
-what's needed.
-
-> although I'd hate to require applications to deal 
-> with it, but
-> it doesn't have an inverse (in general; specific policy may 
-> permit such
-> inversion, but the function itself provides no such guarantee).
-> 
-> > And it also isn't what I (personally) want. I want the domain on the
-> > other end, I don't want to have to have some incredibly 
-> complex setup of
-> > associations and secmarks just to get recalculate the 
-> context we already
-> > had on the other end, I just want it. That is what 
-> getpeercon() should
-> > return. I don't care either way about getdatacon() but 
-> getpeercon should
-> > stick around and should get the peer domain.
-> 
-> Yes, we don't want to change the getpeercon() interface, and we want
-> consistent semantics between AF_LOCAL and AF_INET.
-
-Again, a transition can always turn out an appropriate domain, because
-we can't have getpeercon() fail in the MLS case.
+You can always have getpeercon return a "domain" by turning out a
+domain (a unlabeled_t one?) in the non labeled-ipsec case.
 
 > 
-> > That said, I'm thinking that this scheme should be scrapped 
-> and instead
-> > we do something like the following: secmark is totally 
-> non-relavent to
-> > the peer context, it labels packets and I don't believe 
-> there is ever a
-> > need to know the label of a packet (if there is we can add
-> > getpacketcon()). Secmark will be used for enforcement of 
-> network flow
-> > only.
+> > Seriously, there isn't anything wrong with the notion of using label
+> > transitions to capture state from multiple labels, and we 
+> do that all
+> > the time for _object_ labels.  Where we run into a problem 
+> here is the
+> > fact that the user of getpeercon() wants a subject label, not an
+> > object
 > 
-> That may be the right approach given the divergent purposes of secmark
-> vs. labeled networking, but it doesn't resolve what motivated 
-> the secid
-> reconciliation work in the first place.
+> This was my main point
 
-The following being the main objectives:
+See above.
 
-1. Socket-independent flow control at the entry and exit points.
-2. Ability to service requests at the lavel of an interface, node, etc.
+> This scheme has a new label that is negotiated by racoon and 
+> is used as
+> the subject label returned by getpeercon(), it is different 
+> from what we
+> are already doing. The rest would basically be the same, 
+> there would be
+> no reconciliation.
 
+This won't work for MLS.
 
-> 
-> >  The security association can have a context, that context will be
-> > used for enforcement of polmatch, just like now. The label 
-> won't be used
-> > for getpeercon(), only to create associations and give 
-> access to them.
-> > Then the actual domain making the connection can be sent to 
-> the remote
-> > side by racoon, this should be the label that getpeercon() returns.
-> 
-> If you just mean that the SA context would come from the 
-> flow's context
-> rather than the SPD rule, then I think we all agreed to that.  But the
-> context is still ultimately stored in the SA and obtained from it by
-> getpeercon().  That doesn't change.
+> The only thing I'm not sure of here is the
+> interaction of the label negotiated by racoon and a cipso label. It
+> almost seems like we need to disallow using them at the same time, I
+> suspect people might not like this limitation though.
 
-That's correct. Whatever is the socket context on the remote end that
-will (could) become the SA context.
+I think Paul has addressed this in his follow-on to this.
 
 --
 This message was distributed to subscribers of the selinux mailing list.
