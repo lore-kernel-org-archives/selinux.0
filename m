@@ -1,65 +1,42 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k8MG7LfS024453
-	for <selinux@tycho.nsa.gov>; Fri, 22 Sep 2006 12:07:21 -0400
-Received: from atlrel6.hp.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id k8MG6p3K019296
-	for <selinux@tycho.nsa.gov>; Fri, 22 Sep 2006 16:06:51 GMT
-Message-ID: <45140A35.7000308@hp.com>
-Date: Fri, 22 Sep 2006 12:07:17 -0400
-From: Paul Moore <paul.moore@hp.com>
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k8MGBpBL024669
+	for <selinux@tycho.nsa.gov>; Fri, 22 Sep 2006 12:11:51 -0400
+Received: from web51505.mail.yahoo.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with SMTP id k8MGAqEW017727
+	for <selinux@tycho.nsa.gov>; Fri, 22 Sep 2006 16:10:52 GMT
+Message-ID: <20060922161150.72513.qmail@web51505.mail.yahoo.com>
+Date: Fri, 22 Sep 2006 09:11:50 -0700 (PDT)
+From: Steve G <linux_4ever@yahoo.com>
+Subject: mkdir avc
+To: selinux@tycho.nsa.gov
 MIME-Version: 1.0
-To: Venkat Yekkirala <vyekkirala@TrustedCS.com>
-Cc: Joshua Brindle <jbrindle@tresys.com>, Stephen Smalley <sds@epoch.ncsc.mil>,
-        Karl MacMillan <kmacmillan@mentalrootkit.com>, latten@austin.ibm.com,
-        jmorris@redhat.com, dwalsh@redhat.com,
-        Darrel Goeddel <DGoeddel@TrustedCS.com>,
-        Chad Hanson <chanson@TrustedCS.com>, selinux@tycho.nsa.gov
-Subject: Re: Labeled networking packets
-References: <36282A1733C57546BE392885C0618592015734F8@chaos.tcs.tcs-sec.com>
-In-Reply-To: <36282A1733C57546BE392885C0618592015734F8@chaos.tcs.tcs-sec.com>
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=iso-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Venkat Yekkirala wrote:
->>>You can always have getpeercon return a "domain" by turning out a
->>>domain (a unlabeled_t one?) in the non labeled-ipsec case.
->>
->>The only thing I don't like about this is that it starts giving
->>types/domains implicit meaning that is not defined by policy.
-> 
-> I don't know what you are talking about here. I was saying you
-> could turn out a "true domain" using transitions.
+Hi,
 
-Well, as I understand it right now types/domains have no inherent
-meaning; they are given defined through their use in the policy.  Having
-the kernel return "unlabeled_t" to signify a special case starts giving
-"unlabeled_t" inherent meaning.  Maybe it's not a big deal as I guess
-"unlabeled_t" will always have a certain conotation about it but I still
-think sending an error is much cleaner.
+When there is a denial doing mkdir syscall, should there be an avc_path or path
+audit record? Example:
 
-Applications that depend on getpeercon() could check for the error and
-substitute "unlabeled_t".
+type=AVC msg=audit(1118918038.404:14545): avc:  denied  { create } for  pid=4407
+comm="useradd" name="usertwo" scontext=root:sysadm_r:useradd_t:s0-s15:c0.c1023
+tcontext=root:object_r:user_home_dir_t:s0 tclass=dir
+type=SYSCALL msg=audit(1118918038.404:14545): arch=c000003e syscall=83 success=no
+exit=-13 a0=813cc0 a1=0 a2=2 a3=1 items=0 ppid=4222 pid=4407 auid=0 uid=0 gid=0
+euid=0 suid=0 fsuid=0 egid=0 sgid=0 fsgid=0 tty=pts1 comm="useradd"
+exe="/usr/sbin/useradd" subj=root:sysadm_r:useradd_t:s0-s15:c0.c1023 key=(null)
 
->> I know we
->>sort of do that already with some of the MLS attributes
-> 
-> Examples?
+Seems like we should know the path being created or the parent dir where it
+failed.
 
-Look at all of the "mls*" attributes defined in mls.te and how they are
-used in the MLS constraints file.
+Thanks,
+-Steve
 
->>Plus, what if the remote domain was honestly running in "unlabeled_t"?
->>Stupid, yes, but possibile I imagine.
->  
-> unlabeled_t anywhere is unlabeled. It doesn't matter how it came to be
-> unlabeled_t.
-
-No, not always, see the comments above.
-
--- 
-paul moore
-linux security @ hp
+__________________________________________________
+Do You Yahoo!?
+Tired of spam?  Yahoo! Mail has the best spam protection around 
+http://mail.yahoo.com 
 
 --
 This message was distributed to subscribers of the selinux mailing list.
