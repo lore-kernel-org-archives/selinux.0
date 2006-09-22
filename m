@@ -1,70 +1,106 @@
 Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k8MFFcUB022254
-	for <selinux@tycho.nsa.gov>; Fri, 22 Sep 2006 11:15:38 -0400
-Message-ID: <36282A1733C57546BE392885C0618592015734E7@chaos.tcs.tcs-sec.com>
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k8MFLNn4022466
+	for <selinux@tycho.nsa.gov>; Fri, 22 Sep 2006 11:21:23 -0400
+Message-ID: <36282A1733C57546BE392885C0618592015734E9@chaos.tcs.tcs-sec.com>
 From: Venkat Yekkirala <vyekkirala@TrustedCS.com>
 To: Joshua Brindle <jbrindle@tresys.com>,
-        Stephen Smalley
-	 <sds@epoch.ncsc.mil>
-Cc: Venkat Yekkirala <vyekkirala@TrustedCS.com>,
         Karl MacMillan
-	 <kmacmillan@mentalrootkit.com>,
-        Paul Moore <paul.moore@hp.com>, latten@austin.ibm.com,
-        jmorris@redhat.com, dwalsh@redhat.com,
+	 <kmacmillan@mentalrootkit.com>
+Cc: Stephen Smalley <sds@epoch.ncsc.mil>, Paul Moore <paul.moore@hp.com>,
+        latten@austin.ibm.com, jmorris@redhat.com, dwalsh@redhat.com,
         Darrel Goeddel <DGoeddel@TrustedCS.com>,
         Chad Hanson
 	 <chanson@TrustedCS.com>, selinux@tycho.nsa.gov
 Subject: RE: Labeled networking packets
-Date: Fri, 22 Sep 2006 11:15:27 -0400
+Date: Fri, 22 Sep 2006 11:21:07 -0400
 MIME-Version: 1.0
 Content-Type: text/plain;
 	charset="iso-8859-1"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-> bah, fair enough :\. I guess the reason I was objecting was 
-> because the
-> objects seem *very* different. standard object and subject transitions
-> seem pretty intuitive (I'm in a domain, i execute something, I'm in a
-> new domain or directories containing files guiding 
-> transitions. packets
-> and associations are totally separate and used for totally different
-> things. And the other problem was that I don't even know if we were
-> *trying* to derive a subject label or not, some of the examples I've
-> seen floating around indicate that others don't either.
+> The argument that the incoming interface should be part of setting the
+> context because data coming in on a secret interface should 
+> be secret is
+> a strawman I think. If there is a domain talking to you on a secret
+> interface and the domain on the other side isn't secret you have much
+> bigger problems. You really want to know *who* you are talking to when
+> you do getpeercon(), not how they are talking to you.
 
-You can always have getpeercon return a "domain" by turning out a
-domain (a unlabeled_t one?) in the non labeled-ipsec case.
+For MLS, we care about the later (i.e. "how they are talking to you").
+Once data is labeled Secret, it doesn't matter to us *who* lebeled it
+Secret.
 
 > 
-> > Seriously, there isn't anything wrong with the notion of using label
-> > transitions to capture state from multiple labels, and we 
-> do that all
-> > the time for _object_ labels.  Where we run into a problem 
-> here is the
-> > fact that the user of getpeercon() wants a subject label, not an
+> 
+> > >   Where we run into a problem here is the
+> > > fact that the user of getpeercon() wants a subject label, not an
 > > object
+> > > label.  If the label transition function had an inverse, 
+> that might
+> > be
+> > > workable, although I'd hate to require applications to 
+> deal with it,
+> > but
+> > > it doesn't have an inverse (in general; specific policy may permit
+> > such
+> > > inversion, but the function itself provides no such guarantee).
+> > >
+> > > > And it also isn't what I (personally) want. I want the domain on
+> > the
+> > > > other end, I don't want to have to have some incredibly complex
+> > setup of
+> > > > associations and secmarks just to get recalculate the context we
+> > already
+> > > > had on the other end, I just want it. That is what getpeercon()
+> > should
+> > > > return. I don't care either way about getdatacon() but 
+> getpeercon
+> > should
+> > > > stick around and should get the peer domain.
+> > >
+> > > Yes, we don't want to change the getpeercon() interface, 
+> and we want
+> > > consistent semantics between AF_LOCAL and AF_INET.
+> > >
+> > 
+> > We also want consistent policy with different combinations 
+> of network
+> > labeling mechanisms - which is going to be very difficult 
+> to achieve.
+> > 
+> > > > That said, I'm thinking that this scheme should be scrapped and
+> > instead
+> > > > we do something like the following: secmark is totally
+> > non-relavent to
+> > > > the peer context, it labels packets and I don't believe there is
+> > ever a
+> > > > need to know the label of a packet (if there is we can add
+> > > > getpacketcon()). Secmark will be used for enforcement of network
+> > flow
+> > > > only.
+> > >
+> > > That may be the right approach given the divergent purposes of
+> > secmark
+> > > vs. labeled networking, but it doesn't resolve what motivated the
+> > secid
+> > > reconciliation work in the first place.
+> > >
+> > 
+> > Which was? It appears to me that we need to resolve the Netlabel and
+> > ipsec labels and store the result separately from the secid (or
+> > whatever
+> > the secmark label is). Is that what you are thinking?
+> > 
 > 
-> This was my main point
+> I don't know about this either. I was under the impression that
+> reconciliation was for multiple *data* labels (e.g., using ipsec and
+> cipso at the same time). I don't know how secmark ever got pulled into
+> this mess, secmark is for labeling packet objects, we never ask (or
+> probably care) what the label on an individual packet is.
 
-See above.
-
-> This scheme has a new label that is negotiated by racoon and 
-> is used as
-> the subject label returned by getpeercon(), it is different 
-> from what we
-> are already doing. The rest would basically be the same, 
-> there would be
-> no reconciliation.
-
-This won't work for MLS.
-
-> The only thing I'm not sure of here is the
-> interaction of the label negotiated by racoon and a cipso label. It
-> almost seems like we need to disallow using them at the same time, I
-> suspect people might not like this limitation though.
-
-I think Paul has addressed this in his follow-on to this.
+For the sake of asking, why wouldn't you care that you have receieved
+a packet of Type sysadm_pkt_t vs. secadm_pkt_t?
 
 --
 This message was distributed to subscribers of the selinux mailing list.
