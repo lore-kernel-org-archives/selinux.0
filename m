@@ -1,70 +1,61 @@
 Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k8MIqXnp030401
-	for <selinux@tycho.nsa.gov>; Fri, 22 Sep 2006 14:52:33 -0400
-Received: from twoface.columbia.tresys.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id k8MIpXEW017577
-	for <selinux@tycho.nsa.gov>; Fri, 22 Sep 2006 18:51:34 GMT
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k8MJ1GTu030724
+	for <selinux@tycho.nsa.gov>; Fri, 22 Sep 2006 15:01:16 -0400
 Subject: RE: Labeled networking packets
-From: Joshua Brindle <jbrindle@tresys.com>
-To: Venkat Yekkirala <vyekkirala@TrustedCS.com>
-Cc: Karl MacMillan <kmacmillan@mentalrootkit.com>,
-        Stephen Smalley <sds@epoch.ncsc.mil>, Paul Moore <paul.moore@hp.com>,
-        latten@austin.ibm.com, jmorris@redhat.com, dwalsh@redhat.com,
+From: Stephen Smalley <sds@epoch.ncsc.mil>
+To: Joshua Brindle <jbrindle@tresys.com>
+Cc: Venkat Yekkirala <vyekkirala@TrustedCS.com>,
+        Karl MacMillan <kmacmillan@mentalrootkit.com>,
+        Paul Moore <paul.moore@hp.com>, latten@austin.ibm.com,
+        jmorris@redhat.com, dwalsh@redhat.com,
         Darrel Goeddel <DGoeddel@TrustedCS.com>,
         Chad Hanson <chanson@TrustedCS.com>, selinux@tycho.nsa.gov
-In-Reply-To: <36282A1733C57546BE392885C061859201573525@chaos.tcs.tcs-sec.com>
-References: <36282A1733C57546BE392885C061859201573525@chaos.tcs.tcs-sec.com>
+In-Reply-To: <1158930147.17541.10.camel@twoface.columbia.tresys.com>
+References: 
+	 <6FE441CD9F0C0C479F2D88F959B01588443997@exchange.columbia.tresys.com>
+	 <1158929251.7748.224.camel@moss-spartans.epoch.ncsc.mil>
+	 <1158930147.17541.10.camel@twoface.columbia.tresys.com>
 Content-Type: text/plain
-Date: Fri, 22 Sep 2006 14:52:21 -0400
-Message-Id: <1158951141.17541.53.camel@twoface.columbia.tresys.com>
+Date: Fri, 22 Sep 2006 15:02:21 -0400
+Message-Id: <1158951742.19877.7.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2006-09-22 at 13:23 -0400, Venkat Yekkirala wrote:
-> OK, here's what we will do:
-> 
-> 1. We will have getpeercon() fail if there's no labeled-SA.
-> 
-Also, I still think the getpeercon() answer should be coming from the
-remote machine. The context can be negotiated by racoon and the SA label
-will continue to be the local socket context.
+On Fri, 2006-09-22 at 09:02 -0400, Joshua Brindle wrote:
+> On Fri, 2006-09-22 at 08:47 -0400, Stephen Smalley wrote:
+> > If you just mean that the SA context would come from the flow's
+> > context
+> > rather than the SPD rule, then I think we all agreed to that.  But the
+> > context is still ultimately stored in the SA and obtained from it by
+> > getpeercon().  That doesn't change.
+> > 
+> This scheme has a new label that is negotiated by racoon and is used as
+> the subject label returned by getpeercon(), it is different from what we
+> are already doing.
 
-If there is ever a reason to get the local socket context (as opposed to
-the remote domain) that could be added but at least I wouldn't care for
-it.
+AFAICT, that is no different than what has already been agreed to.
+Understand that the this new label / subject label is still the label of
+the SA; the only difference is how the SA label is computed.  getpeercon
+_has_ to get the label from the SA when using IPSEC-based labeling.  At
+most, one might introduce multiple labels stored in the SA, with one
+indicating the "peer" and one indicating the "data", but that goes
+beyond what we have even in the AF_LOCAL case.
 
-> 2. We will do a getdatacon() or something similar to retrieve the
->    secmark (as reconciled in the proposed reconciliation logic, of
-> course).
-> 
-I still don't know how you are handling the management of this. Consider
-2 machines. One machine has clients (eg., sysadm_mozilla_t,
-sysadm_mysql_client_t, sysadm_ldap_client_t .... and the same for staff
-and user). The server has the corresponding services running.
+>  The rest would basically be the same, there would be
+> no reconciliation. The only thing I'm not sure of here is the
+> interaction of the label negotiated by racoon and a cipso label. It
+> almost seems like we need to disallow using them at the same time, I
+> suspect people might not like this limitation though.
 
-For apache to be able to get the appropriate remote context
-(sysadm_mozilla_t, staff_mozilla_t, user_mozilla_t) in order to do some
-sort of access control. There would be a secmark rule for port 80 on the
-server (apache_server_packet_t) and on the client
-(apache_client_packet_t). There would also be 3 SA's on both the server
-side and the client side. The SA's would be labeled sysadm_mozilla_sa_t
-and so on. 
+No, that would be an unwise and unnecessary limitation; fine-grained
+labeling via CIPSO within an authorized range for an IPSEC SA would be
+quite useful.  The fact that TE doesn't yet understand a notion of
+"ranges" is just a limitation of the present TE implementation ;)
 
-So after setting up all that labeling (which I doubt is feasible
-anywhere outside of static MLS setups) you'd have to have type
-transition rules for each pair. That comes up to 18 type trans rules for
-3 services and 3 users and 6 SA's and 2 secmark rules. Start adding in
-more machines and services and this gets ridiculous very fast.
-
-And after all that it still doesn't seem very useful. If you used
-getpeercon() from 1 racoon could negotiate the correct context (and
-level) and there would be no ambiguity. 
-
-Once again, I don't think the "ts data coming into a secret SA" makes
-sense. If that happens your policy is broken, this data shouldn't be
-allowed in at all let alone having magic level changes to let it happen.
-
+-- 
+Stephen Smalley
+National Security Agency
 
 
 --
