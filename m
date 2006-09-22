@@ -1,41 +1,70 @@
-Subject: RE: How to configure and reload selinux policy
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: "Jin, Yihua" <yihua.jin@intel.com>
-Cc: "Christopher J. PeBenito" <cpebenito@tresys.com>, SELinux@tycho.nsa.gov
-In-Reply-To: <117E3EB5059E4E48ADFF2822933287A40176C6BF@pdsmsx404.ccr.corp.intel.com>
-References: 
-	 <117E3EB5059E4E48ADFF2822933287A40176C6BF@pdsmsx404.ccr.corp.intel.com>
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k8MIqXnp030401
+	for <selinux@tycho.nsa.gov>; Fri, 22 Sep 2006 14:52:33 -0400
+Received: from twoface.columbia.tresys.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id k8MIpXEW017577
+	for <selinux@tycho.nsa.gov>; Fri, 22 Sep 2006 18:51:34 GMT
+Subject: RE: Labeled networking packets
+From: Joshua Brindle <jbrindle@tresys.com>
+To: Venkat Yekkirala <vyekkirala@TrustedCS.com>
+Cc: Karl MacMillan <kmacmillan@mentalrootkit.com>,
+        Stephen Smalley <sds@epoch.ncsc.mil>, Paul Moore <paul.moore@hp.com>,
+        latten@austin.ibm.com, jmorris@redhat.com, dwalsh@redhat.com,
+        Darrel Goeddel <DGoeddel@TrustedCS.com>,
+        Chad Hanson <chanson@TrustedCS.com>, selinux@tycho.nsa.gov
+In-Reply-To: <36282A1733C57546BE392885C061859201573525@chaos.tcs.tcs-sec.com>
+References: <36282A1733C57546BE392885C061859201573525@chaos.tcs.tcs-sec.com>
 Content-Type: text/plain
-Date: Fri, 22 Sep 2006 14:45:52 -0400
-Message-Id: <1158950752.7748.253.camel@moss-spartans.epoch.ncsc.mil>
+Date: Fri, 22 Sep 2006 14:52:21 -0400
+Message-Id: <1158951141.17541.53.camel@twoface.columbia.tresys.com>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2006-09-22 at 09:28 +0800, Jin, Yihua wrote:
-> This policy has no Boolean allow_execmem defined initially and I add
-> this Boolean switch. after reload, this Boolean appears
-> in /selinux/Booleans, but not in /etc/selinux/targeted/booleans file,
-> I don't know what is the relationship between these two locations 
-> Actually, what I want to know is how to make a modified policy take effect.
+On Fri, 2006-09-22 at 13:23 -0400, Venkat Yekkirala wrote:
+> OK, here's what we will do:
+> 
+> 1. We will have getpeercon() fail if there's no labeled-SA.
+> 
+Also, I still think the getpeercon() answer should be coming from the
+remote machine. The context can be negotiated by racoon and the SA label
+will continue to be the local socket context.
 
-/selinux/booleans shows you the runtime state of the booleans in the
-currently loaded policy, so if the boolean appears there, you have
-successfully loaded your new policy into the kernel.   You can cat that
-file or run 'getsebool allow_execmem' to see the current runtime value
-of the boolean. 
+If there is ever a reason to get the local socket context (as opposed to
+the remote domain) that could be added but at least I wouldn't care for
+it.
 
-> For this problem, I've update kernel to 2.6.11.7 and confirm the kernel has such check.
+> 2. We will do a getdatacon() or something similar to retrieve the
+>    secmark (as reconciled in the proposed reconciliation logic, of
+> course).
+> 
+I still don't know how you are handling the management of this. Consider
+2 machines. One machine has clients (eg., sysadm_mozilla_t,
+sysadm_mysql_client_t, sysadm_ldap_client_t .... and the same for staff
+and user). The server has the corresponding services running.
 
-Then I'd again note that if any other allow rule in the policy allows
-execmem permission, it will still be allowed regardless of this boolean,
-since allow rules are additive, and you would need to modify the
-unconfined_domain() macro as I said in my other message to completely
-eliminate execmem from unconfined_t there.
+For apache to be able to get the appropriate remote context
+(sysadm_mozilla_t, staff_mozilla_t, user_mozilla_t) in order to do some
+sort of access control. There would be a secmark rule for port 80 on the
+server (apache_server_packet_t) and on the client
+(apache_client_packet_t). There would also be 3 SA's on both the server
+side and the client side. The SA's would be labeled sysadm_mozilla_sa_t
+and so on. 
 
--- 
-Stephen Smalley
-National Security Agency
+So after setting up all that labeling (which I doubt is feasible
+anywhere outside of static MLS setups) you'd have to have type
+transition rules for each pair. That comes up to 18 type trans rules for
+3 services and 3 users and 6 SA's and 2 secmark rules. Start adding in
+more machines and services and this gets ridiculous very fast.
+
+And after all that it still doesn't seem very useful. If you used
+getpeercon() from 1 racoon could negotiate the correct context (and
+level) and there would be no ambiguity. 
+
+Once again, I don't think the "ts data coming into a secret SA" makes
+sense. If that happens your policy is broken, this data shouldn't be
+allowed in at all let alone having magic level changes to let it happen.
+
 
 
 --
