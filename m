@@ -1,51 +1,58 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k8MFjZjX023452
-	for <selinux@tycho.nsa.gov>; Fri, 22 Sep 2006 11:45:35 -0400
-Message-ID: <36282A1733C57546BE392885C0618592015734F8@chaos.tcs.tcs-sec.com>
-From: Venkat Yekkirala <vyekkirala@TrustedCS.com>
-To: Paul Moore <paul.moore@hp.com>
-Cc: Joshua Brindle <jbrindle@tresys.com>,
-        Stephen Smalley
-	 <sds@epoch.ncsc.mil>,
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k8MFp8FP023663
+	for <selinux@tycho.nsa.gov>; Fri, 22 Sep 2006 11:51:08 -0400
+Received: from atlrel6.hp.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id k8MFoZ8R016815
+	for <selinux@tycho.nsa.gov>; Fri, 22 Sep 2006 15:50:37 GMT
+Message-ID: <4514065F.5040403@hp.com>
+Date: Fri, 22 Sep 2006 11:50:55 -0400
+From: Paul Moore <paul.moore@hp.com>
+MIME-Version: 1.0
+To: Venkat Yekkirala <vyekkirala@TrustedCS.com>
+Cc: Joshua Brindle <jbrindle@tresys.com>, Stephen Smalley <sds@epoch.ncsc.mil>,
         Karl MacMillan <kmacmillan@mentalrootkit.com>, latten@austin.ibm.com,
         jmorris@redhat.com, dwalsh@redhat.com,
         Darrel Goeddel <DGoeddel@TrustedCS.com>,
-        Chad Hanson
-	 <chanson@TrustedCS.com>, selinux@tycho.nsa.gov
-Subject: RE: Labeled networking packets
-Date: Fri, 22 Sep 2006 11:45:13 -0400
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+        Chad Hanson <chanson@TrustedCS.com>, selinux@tycho.nsa.gov
+Subject: Re: Labeled networking packets
+References: <36282A1733C57546BE392885C0618592015734F0@chaos.tcs.tcs-sec.com>
+In-Reply-To: <36282A1733C57546BE392885C0618592015734F0@chaos.tcs.tcs-sec.com>
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-> > You can always have getpeercon return a "domain" by turning out a
-> > domain (a unlabeled_t one?) in the non labeled-ipsec case.
-> 
-> The only thing I don't like about this is that it starts giving
-> types/domains implicit meaning that is not defined by policy.
+Venkat Yekkirala wrote:
+>>>Ignoring the secmark issue for a moment ...
+>>
+>>there is no secmark issue, secmark isn't for labeling.
+>  
+> It IS FOR LABELING as far as MLS is concerned.
 
-I don't know what you are talking about here. I was saying you
-could turn out a "true domain" using transitions.
- 
->  I know we
-> sort of do that already with some of the MLS attributes
+Perhaps we are just overloading the term "labeling".  It kinda sounds
+like the non-MLS folks want to be able to distinguish between "remote
+labeling", i.e. SA or NetLabel, and "local labeling", i.e. secmark.  I
+realize that there are certain users who don't care to make that
+distinction because they can put a certain level of trust in the
+physical network configuration.  However, considering the flexibility of
+SELinux in general I think any built-in assumption is going to upset
+someone.  I think the best idea is to arrive at some sort of policy
+abstraction which would allow either of the behaviors listed above.
 
-Examples?
+For handling incoming packets this may mean that we keep all of the
+packet labeling mechanisms separate, allowing each to have it's own
+permission check.
 
-> but I 
-> think it's
-> worth trying to avoid.
+For dealing with getpeercon() issues perhaps we only allow "remote
+labeled" contexts to be reported by default, but if policy allows (yes,
+we would need some sort of new allow rule or policy construct) the
+"locally labeled" context could be used as a fallback.
 
-Not an issue as long as you get your policy right.
+I know it's not ideal for any one scenario, but I think it may be
+flexibile enough to deal with all of them.
 
-> 
-> Plus, what if the remote domain was honestly running in "unlabeled_t"?
-> Stupid, yes, but possibile I imagine.
-
-unlabeled_t anywhere is unlabeled. It doesn't matter how it came to be
-unlabeled_t.
+-- 
+paul moore
+linux security @ hp
 
 --
 This message was distributed to subscribers of the selinux mailing list.
