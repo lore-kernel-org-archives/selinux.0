@@ -1,42 +1,47 @@
-Subject: Re: mkdir avc
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Steve G <linux_4ever@yahoo.com>
-Cc: selinux@tycho.nsa.gov
-In-Reply-To: <20060922161150.72513.qmail@web51505.mail.yahoo.com>
-References: <20060922161150.72513.qmail@web51505.mail.yahoo.com>
-Content-Type: text/plain
-Date: Fri, 22 Sep 2006 13:47:29 -0400
-Message-Id: <1158947249.7748.235.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k8MHlsDL028158
+	for <selinux@tycho.nsa.gov>; Fri, 22 Sep 2006 13:47:54 -0400
+Received: from atlrel9.hp.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id k8MHlO3K003173
+	for <selinux@tycho.nsa.gov>; Fri, 22 Sep 2006 17:47:24 GMT
+Message-ID: <451421C6.5050003@hp.com>
+Date: Fri, 22 Sep 2006 13:47:50 -0400
+From: Paul Moore <paul.moore@hp.com>
+MIME-Version: 1.0
+To: Venkat Yekkirala <vyekkirala@TrustedCS.com>
+Cc: Joshua Brindle <jbrindle@tresys.com>,
+        Karl MacMillan <kmacmillan@mentalrootkit.com>,
+        Stephen Smalley <sds@epoch.ncsc.mil>, latten@austin.ibm.com,
+        jmorris@redhat.com, dwalsh@redhat.com,
+        Darrel Goeddel <DGoeddel@TrustedCS.com>,
+        Chad Hanson <chanson@TrustedCS.com>, selinux@tycho.nsa.gov
+Subject: Re: Labeled networking packets
+References: <36282A1733C57546BE392885C061859201573525@chaos.tcs.tcs-sec.com>
+In-Reply-To: <36282A1733C57546BE392885C061859201573525@chaos.tcs.tcs-sec.com>
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2006-09-22 at 09:11 -0700, Steve G wrote:
-> Hi,
+Venkat Yekkirala wrote:
+> OK, here's what we will do:
 > 
-> When there is a denial doing mkdir syscall, should there be an avc_path or path
-> audit record? Example:
-> 
-> type=AVC msg=audit(1118918038.404:14545): avc:  denied  { create } for  pid=4407
-> comm="useradd" name="usertwo" scontext=root:sysadm_r:useradd_t:s0-s15:c0.c1023
-> tcontext=root:object_r:user_home_dir_t:s0 tclass=dir
-> type=SYSCALL msg=audit(1118918038.404:14545): arch=c000003e syscall=83 success=no
-> exit=-13 a0=813cc0 a1=0 a2=2 a3=1 items=0 ppid=4222 pid=4407 auid=0 uid=0 gid=0
-> euid=0 suid=0 fsuid=0 egid=0 sgid=0 fsgid=0 tty=pts1 comm="useradd"
-> exe="/usr/sbin/useradd" subj=root:sysadm_r:useradd_t:s0-s15:c0.c1023 key=(null)
-> 
-> Seems like we should know the path being created or the parent dir where it
-> failed.
+> 1. We will have getpeercon() fail if there's no labeled-SA.
 
-The necessary information (vfsmount) isn't available to the AVC, so it
-cannot create such a record.  I would have expected the syscall audit
-record to have captured the path, but am not seeing it now either (but
-do see it in older audit logs).  Regression in the audit code?
+... or NetLabel :)  What do you propose we do if there is both a SA and
+NetLabel label, bearing in mind that NetLabel may be a full context?
+
+> 2. We will do a getdatacon() or something similar to retrieve the
+>    secmark (as reconciled in the proposed reconciliation logic, of course).
+
+Since the getdatacon *could* change from one packet to the next, I
+wonder if it might make more sense to handle the "data context" as an
+ancillary messags similar to IP_PASSSEC.
+
+Also, didn't Karl have an objection to the proposed reconciliation logic?
 
 -- 
-Stephen Smalley
-National Security Agency
-
+paul moore
+linux security @ hp
 
 --
 This message was distributed to subscribers of the selinux mailing list.
