@@ -1,35 +1,37 @@
-Subject: Re: mkdir avc
+Subject: RE: How to configure and reload selinux policy
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Steve G <linux_4ever@yahoo.com>
-Cc: selinux@tycho.nsa.gov
-In-Reply-To: <1158948389.7748.240.camel@moss-spartans.epoch.ncsc.mil>
-References: <20060922175743.5272.qmail@web51510.mail.yahoo.com>
-	 <1158948389.7748.240.camel@moss-spartans.epoch.ncsc.mil>
+To: "Jin, Yihua" <yihua.jin@intel.com>
+Cc: "Christopher J. PeBenito" <cpebenito@tresys.com>, SELinux@tycho.nsa.gov
+In-Reply-To: <117E3EB5059E4E48ADFF2822933287A40176C6BF@pdsmsx404.ccr.corp.intel.com>
+References: 
+	 <117E3EB5059E4E48ADFF2822933287A40176C6BF@pdsmsx404.ccr.corp.intel.com>
 Content-Type: text/plain
-Date: Fri, 22 Sep 2006 14:15:39 -0400
-Message-Id: <1158948939.7748.243.camel@moss-spartans.epoch.ncsc.mil>
+Date: Fri, 22 Sep 2006 14:45:52 -0400
+Message-Id: <1158950752.7748.253.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2006-09-22 at 14:06 -0400, Stephen Smalley wrote:
-> On Fri, 2006-09-22 at 10:57 -0700, Steve G wrote:
-> > >I would have expected the syscall audit record to have captured the path, but am
-> > >not seeing it now either (but do see it in older audit logs).  Regression in the
-> > >audit code?
-> > 
-> > Could be...that's why I'm asking. I wanted to get confirmation that one or the
-> > other should be there. When you audit the mkdir syscall, a path record is there.
-> > But in the case of the avc, its not.
-> 
-> Related to the optimization for no audit filters (suppressing collection
-> of path in that case)?
+On Fri, 2006-09-22 at 09:28 +0800, Jin, Yihua wrote:
+> This policy has no Boolean allow_execmem defined initially and I add
+> this Boolean switch. after reload, this Boolean appears
+> in /selinux/Booleans, but not in /etc/selinux/targeted/booleans file,
+> I don't know what is the relationship between these two locations 
+> Actually, what I want to know is how to make a modified policy take effect.
 
-Ok, tried adding and removing a simple audit filter on execve (i.e.
-anything but mkdir), and it changed the behavior.  With the filter, a
-PATH record was generated; without it, it was not generated.  So as long
-as you have some audit filter defined, you should get the PATH data for
-the avc denial.
+/selinux/booleans shows you the runtime state of the booleans in the
+currently loaded policy, so if the boolean appears there, you have
+successfully loaded your new policy into the kernel.   You can cat that
+file or run 'getsebool allow_execmem' to see the current runtime value
+of the boolean. 
+
+> For this problem, I've update kernel to 2.6.11.7 and confirm the kernel has such check.
+
+Then I'd again note that if any other allow rule in the policy allows
+execmem permission, it will still be allowed regardless of this boolean,
+since allow rules are additive, and you would need to modify the
+unconfined_domain() macro as I said in my other message to completely
+eliminate execmem from unconfined_t there.
 
 -- 
 Stephen Smalley
