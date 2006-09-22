@@ -1,99 +1,110 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k8MF4Zvp021772
-	for <selinux@tycho.nsa.gov>; Fri, 22 Sep 2006 11:04:35 -0400
-Received: from twoface.columbia.tresys.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id k8MF3UO3004426
-	for <selinux@tycho.nsa.gov>; Fri, 22 Sep 2006 15:03:34 GMT
-Subject: Re: Labeled networking packets
-From: Joshua Brindle <jbrindle@tresys.com>
-To: Paul Moore <paul.moore@hp.com>
-Cc: Stephen Smalley <sds@epoch.ncsc.mil>,
-        Venkat Yekkirala <vyekkirala@TrustedCS.com>,
-        Karl MacMillan <kmacmillan@mentalrootkit.com>, latten@austin.ibm.com,
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k8MF9qXb022014
+	for <selinux@tycho.nsa.gov>; Fri, 22 Sep 2006 11:09:52 -0400
+Message-ID: <36282A1733C57546BE392885C0618592015734E5@chaos.tcs.tcs-sec.com>
+From: Venkat Yekkirala <vyekkirala@TrustedCS.com>
+To: Stephen Smalley <sds@epoch.ncsc.mil>,
+        Joshua Brindle
+	 <jbrindle@tresys.com>
+Cc: Venkat Yekkirala <vyekkirala@TrustedCS.com>,
+        Karl MacMillan
+	 <kmacmillan@mentalrootkit.com>,
+        Paul Moore <paul.moore@hp.com>, latten@austin.ibm.com,
         jmorris@redhat.com, dwalsh@redhat.com,
         Darrel Goeddel <DGoeddel@TrustedCS.com>,
-        Chad Hanson <chanson@TrustedCS.com>, selinux@tycho.nsa.gov
-In-Reply-To: <4513F790.9020603@hp.com>
-References: 
-	 <6FE441CD9F0C0C479F2D88F959B01588443997@exchange.columbia.tresys.com>
-	 <1158929251.7748.224.camel@moss-spartans.epoch.ncsc.mil>
-	 <1158930147.17541.10.camel@twoface.columbia.tresys.com>
-	 <4513F790.9020603@hp.com>
-Content-Type: text/plain
-Date: Fri, 22 Sep 2006 10:58:05 -0400
-Message-Id: <1158937085.17541.27.camel@twoface.columbia.tresys.com>
-Mime-Version: 1.0
+        Chad Hanson
+	 <chanson@TrustedCS.com>, selinux@tycho.nsa.gov
+Subject: RE: Labeled networking packets
+Date: Fri, 22 Sep 2006 11:09:44 -0400
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2006-09-22 at 10:47 -0400, Paul Moore wrote:
-> <snip>
-> > This scheme has a new label that is negotiated by racoon and is used
-> as
-> > the subject label returned by getpeercon(), it is different from
-> what we
-> > are already doing. The rest would basically be the same, there would
-> be
-> > no reconciliation. The only thing I'm not sure of here is the
-> > interaction of the label negotiated by racoon and a cipso label. It
-> > almost seems like we need to disallow using them at the same time, I
-> > suspect people might not like this limitation though.
-> >
+> Yes, that would be like computing a process label from an old process
+> label and an executable file label.  Or like computing a new 
+> file label
+> from a process label and a parent directory label.  Who could imagine
+> such a thing?  ;)
 > 
-> Since all of the remote network labeling mechanisms, SA and NetLabel
-> labeling, are relatively new to Linux I think it's going to be hard to
-> say for certain how users will end up using them.  While similar in
-> that
-> both mechanisms allow remote packet labeling, they acomplish very
-> different goals so I think it is reasonable to expect users who need
-> remote network labeling to run both SA and NetLabel labels on the same
-> system.
+> Seriously, there isn't anything wrong with the notion of using label
+> transitions to capture state from multiple labels, and we do that all
+> the time for _object_ labels.  Where we run into a problem here is the
+> fact that the user of getpeercon() wants a subject label, not 
+> an object
+> label.  If the label transition function had an inverse, that might be
+> workable,
+
+The "inverse" is the default. The IPSec label is what's returned
+by default (in the absence of any transition rules). A transition
+can always turn out a "domain" in the non-ipsec case if a domain is
+what's needed.
+
+> although I'd hate to require applications to deal 
+> with it, but
+> it doesn't have an inverse (in general; specific policy may 
+> permit such
+> inversion, but the function itself provides no such guarantee).
 > 
-so we need to define the limitations now before people start using them
-in unexpected ways.
-
-> Ignoring the secmark issue for a moment ...
+> > And it also isn't what I (personally) want. I want the domain on the
+> > other end, I don't want to have to have some incredibly 
+> complex setup of
+> > associations and secmarks just to get recalculate the 
+> context we already
+> > had on the other end, I just want it. That is what 
+> getpeercon() should
+> > return. I don't care either way about getdatacon() but 
+> getpeercon should
+> > stick around and should get the peer domain.
 > 
-there is no secmark issue, secmark isn't for labeling.
+> Yes, we don't want to change the getpeercon() interface, and we want
+> consistent semantics between AF_LOCAL and AF_INET.
 
-> Resolving a SA label and a NetLabel label right now isn't too
-> difficult.
->  Currently we do two separate checks for each labeling mechanism.  If
-> we
-> wanted to consolidate the checks into one we could do as Stephen
-> originally suggested and check to make sure that the NetLabel label
-> falls within the range of the SA label and that the socket was allowed
-> to receive packets from the resulting combination (TE from the SA
-> context, MLS label from NetLabel).  This becomes a bit more
-> complicated
-> once NetLabel starts labeling packets with a full context but the
-> basics
-> would still apply I believe.
+Again, a transition can always turn out an appropriate domain, because
+we can't have getpeercon() fail in the MLS case.
+
 > 
-Right, that is all well and good as long as netlabel is MLS only. I
-don't think we should be making assumptions like checking that the
-netlabel is within the range of the SA label if there is ever an
-expectation of doing full contexts in netlabel.
+> > That said, I'm thinking that this scheme should be scrapped 
+> and instead
+> > we do something like the following: secmark is totally 
+> non-relavent to
+> > the peer context, it labels packets and I don't believe 
+> there is ever a
+> > need to know the label of a packet (if there is we can add
+> > getpacketcon()). Secmark will be used for enforcement of 
+> network flow
+> > only.
+> 
+> That may be the right approach given the divergent purposes of secmark
+> vs. labeled networking, but it doesn't resolve what motivated 
+> the secid
+> reconciliation work in the first place.
 
-Further, I don't think we've fully understood each other yet. I don't
-want the SA label used for anything except permission checks. The SA
-label is the 'local socket' label for an association and isn't
-interesting at all. The label returned with getpeercon() should be a
-domain label that is negotiated by racoon.
+The following being the main objectives:
 
-I think we've mostly agreed that getpeercon() should be returning
-domains, now the question is how. Assuming the racoon thing works we can
-get one from ipsec, and netlabel obviously has a labeling scheme. If
-both are in use we have an ambiguous label which I think is an error, I
-don't think trying to reconcile both labels using a type_transition is
-the right way to go (domain_a->domain_b == new_domain?), I'm not even
-sure what the ramifications are there. 
+1. Socket-independent flow control at the entry and exit points.
+2. Ability to service requests at the lavel of an interface, node, etc.
 
-Do you have a scenario where one might want both labeling schemes at the
-same time? Note that if you need netlabel (legacy os on the other side)
-and you also want ipsec for integrity then the isakmp negotiation would
-not include a context and netlabel would be used.
 
+> 
+> >  The security association can have a context, that context will be
+> > used for enforcement of polmatch, just like now. The label 
+> won't be used
+> > for getpeercon(), only to create associations and give 
+> access to them.
+> > Then the actual domain making the connection can be sent to 
+> the remote
+> > side by racoon, this should be the label that getpeercon() returns.
+> 
+> If you just mean that the SA context would come from the 
+> flow's context
+> rather than the SPD rule, then I think we all agreed to that.  But the
+> context is still ultimately stored in the SA and obtained from it by
+> getpeercon().  That doesn't change.
+
+That's correct. Whatever is the socket context on the remote end that
+will (could) become the SA context.
 
 --
 This message was distributed to subscribers of the selinux mailing list.
