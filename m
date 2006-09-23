@@ -1,44 +1,55 @@
 Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k8MNpQgp005761
-	for <selinux@tycho.nsa.gov>; Fri, 22 Sep 2006 19:51:26 -0400
-Received: from e3.ny.us.ibm.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id k8MNoMYb001614
-	for <selinux@tycho.nsa.gov>; Fri, 22 Sep 2006 23:50:25 GMT
-Received: from d01relay02.pok.ibm.com (d01relay02.pok.ibm.com [9.56.227.234])
-	by e3.ny.us.ibm.com (8.13.8/8.12.11) with ESMTP id k8MNpJd9002012
-	for <selinux@tycho.nsa.gov>; Fri, 22 Sep 2006 19:51:19 -0400
-Received: from d01av04.pok.ibm.com (d01av04.pok.ibm.com [9.56.224.64])
-	by d01relay02.pok.ibm.com (8.13.6/8.13.6/NCO v8.1.1) with ESMTP id k8MNpJYs272542
-	for <selinux@tycho.nsa.gov>; Fri, 22 Sep 2006 19:51:19 -0400
-Received: from d01av04.pok.ibm.com (loopback [127.0.0.1])
-	by d01av04.pok.ibm.com (8.12.11.20060308/8.13.3) with ESMTP id k8MNpC22012283
-	for <selinux@tycho.nsa.gov>; Fri, 22 Sep 2006 19:51:18 -0400
-Date: Fri, 22 Sep 2006 18:39:32 -0500
-From: Joy Latten <latten@austin.ibm.com>
-Message-Id: <200609222339.k8MNdWXl003177@faith.austin.ibm.com>
-To: vyekkirala@TrustedCS.com
-Subject: RE: Labeled networking packets
-Cc: chanson@TrustedCS.com, DGoeddel@TrustedCS.com, dwalsh@redhat.com,
-        jbrindle@tresys.com, jmorris@redhat.com, kmacmillan@mentalrootkit.com,
-        sds@epoch.ncsc.mil, selinux@tycho.nsa.gov
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k8N2MwpV008353
+	for <selinux@tycho.nsa.gov>; Fri, 22 Sep 2006 22:23:08 -0400
+Received: from smtp.sws.net.au (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id k8N2LtYb017672
+	for <selinux@tycho.nsa.gov>; Sat, 23 Sep 2006 02:21:58 GMT
+From: Russell Coker <russell@coker.com.au>
+Reply-To: russell@coker.com.au
+To: "Christopher J. PeBenito" <cpebenito@tresys.com>
+Subject: Re: Latest diffs
+Date: Sat, 23 Sep 2006 12:22:51 +1000
+Cc: Daniel J Walsh <dwalsh@redhat.com>, SE Linux <selinux@tycho.nsa.gov>
+References: <45116881.3060406@redhat.com> <1158945196.3920.131.camel@sgc.columbia.tresys.com>
+In-Reply-To: <1158945196.3920.131.camel@sgc.columbia.tresys.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="utf-8"
+Message-Id: <200609231222.54604.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
->> For handling incoming packets this may mean that we keep all of the
->> packet labeling mechanisms separate, allowing each to have it's own
->> permission check.
+On Saturday 23 September 2006 03:13, "Christopher J. PeBenito" 
+<cpebenito@tresys.com> wrote:
+> On Wed, 2006-09-20 at 12:12 -0400, Daniel J Walsh wrote:
+> > http://people.redhat.com/dwalsh/SELinux/policy.diff
+> >
+> > Changed to allow 1024 categories.
 >
->But how would you then make sure a secret cipso didn't arrive thru a
->TopSecret SA?
+> Not adding this yet.  Waiting for concensus on how high we should go.
 
-But why would you want to configure an ipsec policy containing a
-security context that will generate a TopSecret SA, over a traffic
-stream that you know will use cipso? If the answer is customers
-might do this... but I still don't get why?  Couldn't it be usage?
-I may be misunderstanding...
+I think that the only solution for this is to allow semanage to configure it.
 
-Joy
+If you have 10,000 categories and a system that is run for 20 years that never 
+re-uses categories (as previously described) then you have the scope for 41 
+categories per month.  Assuming 20 working days per month that's two 
+categories per day.
 
+I find it easy to imagine organizations that are large enough to have two new 
+projects started per day.
+
+Based on the information in Casey's email I think you could justify 64K 
+categories, or whatever the upper limit might be.
+
+It seems to me that the ideal solution would be to default to 256 categories 
+for regular users and allow people who need it to reconfigure their system 
+for more.
+
+-- 
+russell@coker.com.au
+http://etbe.blogspot.com/          My Blog
+
+http://www.coker.com.au/sponsorship.html Sponsoring Free Software development
 
 --
 This message was distributed to subscribers of the selinux mailing list.
