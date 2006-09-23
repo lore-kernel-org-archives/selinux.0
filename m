@@ -1,55 +1,84 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k8N2MwpV008353
-	for <selinux@tycho.nsa.gov>; Fri, 22 Sep 2006 22:23:08 -0400
-Received: from smtp.sws.net.au (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id k8N2LtYb017672
-	for <selinux@tycho.nsa.gov>; Sat, 23 Sep 2006 02:21:58 GMT
-From: Russell Coker <russell@coker.com.au>
-Reply-To: russell@coker.com.au
-To: "Christopher J. PeBenito" <cpebenito@tresys.com>
-Subject: Re: Latest diffs
-Date: Sat, 23 Sep 2006 12:22:51 +1000
-Cc: Daniel J Walsh <dwalsh@redhat.com>, SE Linux <selinux@tycho.nsa.gov>
-References: <45116881.3060406@redhat.com> <1158945196.3920.131.camel@sgc.columbia.tresys.com>
-In-Reply-To: <1158945196.3920.131.camel@sgc.columbia.tresys.com>
 MIME-Version: 1.0
+Subject: RE: Labeled networking packets
 Content-Type: text/plain;
-  charset="utf-8"
-Message-Id: <200609231222.54604.russell@coker.com.au>
+	charset="US-ASCII"
+Date: Sat, 23 Sep 2006 10:13:35 -0400
+Message-ID: <6FE441CD9F0C0C479F2D88F959B01588443A34@exchange.columbia.tresys.com>
+In-Reply-To: <36282A1733C57546BE392885C0618592015735C9@chaos.tcs.tcs-sec.com>
+From: "Joshua Brindle" <jbrindle@tresys.com>
+To: "Venkat Yekkirala" <vyekkirala@TrustedCS.com>,
+        "Stephen Smalley" <sds@tycho.nsa.gov>
+Cc: <selinux@tycho.nsa.gov>, "Chad Hanson" <chanson@TrustedCS.com>,
+        "Darrel Goeddel" <DGoeddel@TrustedCS.com>, <dwalsh@redhat.com>,
+        <jmorris@redhat.com>, <latten@austin.ibm.com>,
+        "Paul Moore" <paul.moore@hp.com>,
+        "Karl MacMillan" <kmacmillan@mentalrootkit.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Saturday 23 September 2006 03:13, "Christopher J. PeBenito" 
-<cpebenito@tresys.com> wrote:
-> On Wed, 2006-09-20 at 12:12 -0400, Daniel J Walsh wrote:
-> > http://people.redhat.com/dwalsh/SELinux/policy.diff
-> >
-> > Changed to allow 1024 categories.
->
-> Not adding this yet.  Waiting for concensus on how high we should go.
+> From: Venkat Yekkirala [mailto:vyekkirala@TrustedCS.com] 
+> 
+<snip>
+> We put a design doc out 3 months or so back (alerting selinux 
+> list at least 2 times 
+> http://marc.theaimsgroup.com/?l=linux-netdev&m=115136637800361&w=2),
+> thought got the buy in, and went ahead and implemented it.
+> 
 
-I think that the only solution for this is to allow semanage to configure it.
+I never had an indication of the type trans calculation of the incoming
+socket, from the list above:
+1.	Set the packet's secmark to the iptables context (R1a).
+2.	If it is an ipsec packet,
+...
+		Yes: Set the secmark to ipsec label (replacing iptables
+context
+		     set in step 1) (R1b).
 
-If you have 10,000 categories and a system that is run for 20 years that never 
-re-uses categories (as previously described) then you have the scope for 41 
-categories per month.  Assuming 20 working days per month that's two 
-categories per day.
+However (at least for me) the ramifications of using the secmark (I
+think there is a vocabulary issue above) label from iptables in labeling
+the socket weren't immediately obvious, this all took a while to sink
+in...
 
-I find it easy to imagine organizations that are large enough to have two new 
-projects started per day.
+> What baffles me is that people even had problems using 
+> secmark as it currently exists, just a few days back. It 
+> tells me people look at what has come along, and THEN find 
+> (lack of) uses for it.
+> 
 
-Based on the information in Casey's email I think you could justify 64K 
-categories, or whatever the upper limit might be.
+Seems like that is a fact of development.. How many times do you design
+an API for a library and then find that it is inadequate when you write
+a user for it.. Sometimes you get lucky, sometimes not. There were also
+quite a few misconceptions (on my part and on others) about how labeled
+networking was expected to work so it took a little while to catch up.
 
-It seems to me that the ideal solution would be to default to 256 categories 
-for regular users and allow people who need it to reconfigure their system 
-for more.
+> Let's go back to the drawing board, first of all define the 
+> problems we are trying to solve, and come up with a design.
+> 
 
--- 
-russell@coker.com.au
-http://etbe.blogspot.com/          My Blog
+My single requirement is that getpeercon() returns the full context of
+the remote process (or some translation negotiated by racoon). 
 
-http://www.coker.com.au/sponsorship.html Sponsoring Free Software development
+For clarity sake, what are your own requirements? I can't follow the top
+secret coming in a secret interface thing. If the interface is secret
+the ipsec sa will be secret, the secmark labels will be secret and the
+enforcement won't let it in (which is desirable right?) Why is a type
+transition necessary for this situation?
+
+Also, Stephen mentioned a couple times that using netlabel and ipsec is
+ok basically to allow course grained ranged ipsec associations and finer
+grained netlabel labels for the actual level. Assuming that we are sure
+we can deal with it when (if) netlabel handles full contexts I guess I
+don't have a problem with this anymore. It wouldn't be any kind of
+transition though (I think). It would just be that the contexts were
+compared and if netlabel is within the range it takes priority, if it is
+outside the range it should be an error and the packet should be
+rejected.
+
+If we use racoon to negotiate the label of the SA, and racoon is made to
+be flexible (eg., if you want the domain it can use that, if you want
+the data label you could use that) then I don't see any reason why you
+(or anyone) would want to use the secmark label anymore, right? 
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
