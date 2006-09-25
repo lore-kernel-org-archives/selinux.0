@@ -1,62 +1,65 @@
 Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k8PI6lMG021687
-	for <selinux@tycho.nsa.gov>; Mon, 25 Sep 2006 14:06:47 -0400
-Received: from atlrel7.hp.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id k8PI5jAk023418
-	for <selinux@tycho.nsa.gov>; Mon, 25 Sep 2006 18:05:45 GMT
-Message-Id: <20060925180644.042122000@hp.com>
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k8PI6jcl021659
+	for <selinux@tycho.nsa.gov>; Mon, 25 Sep 2006 14:06:45 -0400
+Received: from atlrel6.hp.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id k8PI5gAk023402
+	for <selinux@tycho.nsa.gov>; Mon, 25 Sep 2006 18:05:42 GMT
+Message-Id: <20060925180642.032407000@hp.com>
 References: <20060925180412.715069000@hp.com>
-Date: Mon, 25 Sep 2006 14:04:20 -0400
+Date: Mon, 25 Sep 2006 14:04:17 -0400
 From: paul.moore@hp.com
 To: netdev@vger.kernel.org, selinux@tycho.nsa.gov
 Cc: tgraf@suug.ch, jmorris@redhat.com, sds@epoch.ncsc.mil,
         Paul Moore <paul.moore@hp.com>
-Subject: [PATCH v2 8/8] NetLabel: update docs with website information
+Subject: [PATCH v2 5/8] Netlink: add nla_validate_nested()
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Now that all of the supporting pieces of NetLabel have a home at SourceForge
-update the Kconfig help text and add an entry to the MAINTAINERS file.
+Add a new function, nla_validate_nested(), to validate nested Netlink
+attributes.
 
 Signed-off-by: Paul Moore <paul.moore@hp.com>
 ---
- MAINTAINERS          |    7 +++++++
- net/netlabel/Kconfig |    5 ++++-
- 2 files changed, 11 insertions(+), 1 deletion(-)
+ include/net/netlink.h |   19 +++++++++++++++++++
+ 1 files changed, 19 insertions(+)
 
-Index: net-2.6.19/MAINTAINERS
+Index: net-2.6.19/include/net/netlink.h
 ===================================================================
---- net-2.6.19.orig/MAINTAINERS
-+++ net-2.6.19/MAINTAINERS
-@@ -2008,6 +2008,13 @@ L:	netfilter@lists.netfilter.org
- L:	netfilter-devel@lists.netfilter.org
- S:	Supported
+--- net-2.6.19.orig/include/net/netlink.h
++++ net-2.6.19/include/net/netlink.h
+@@ -146,6 +146,7 @@
+  *   nla_ok(nla, remaining)		does nla fit into remaining bytes?
+  *   nla_next(nla, remaining)		get next netlink attribute
+  *   nla_validate()			validate a stream of attributes
++ *   nla_validate_nested()		validate a stream of nested attributes
+  *   nla_find()				find attribute in stream of attributes
+  *   nla_find_nested()			find attribute in nested attributes
+  *   nla_parse()			parse and validate stream of attrs
+@@ -951,6 +952,24 @@ static inline int nla_nest_cancel(struct
+ }
  
-+NETLABEL
-+P:	Paul Moore
-+M:	paul.moore@hp.com
-+W:	http://netlabel.sf.net
-+L:	netdev@vger.kernel.org
-+S:	Supported
+ /**
++ * nla_validate_nested - Validate a stream of nested attributes
++ * @start: container attribute
++ * @maxtype: maximum attribute type to be expected
++ * @policy: validation policy
++ *
++ * Validates all attributes in the nested attribute stream against the
++ * specified policy. Attributes with a type exceeding maxtype will be
++ * ignored. See documenation of struct nla_policy for more details.
++ *
++ * Returns 0 on success or a negative error code.
++ */
++static inline int nla_validate_nested(struct nlattr *start, int maxtype,
++				      struct nla_policy *policy)
++{
++	return nla_validate(nla_data(start), nla_len(start), maxtype, policy);
++}
 +
- NETROM NETWORK LAYER
- P:	Ralf Baechle
- M:	ralf@linux-mips.org
-Index: net-2.6.19/net/netlabel/Kconfig
-===================================================================
---- net-2.6.19.orig/net/netlabel/Kconfig
-+++ net-2.6.19/net/netlabel/Kconfig
-@@ -9,6 +9,9 @@ config NETLABEL
- 	---help---
- 	  NetLabel provides support for explicit network packet labeling
- 	  protocols such as CIPSO and RIPSO.  For more information see
--	  Documentation/netlabel.
-+	  Documentation/netlabel as well as the NetLabel SourceForge project
-+	  for configuration tools and additional documentation.
-+
-+	   * http://netlabel.sf.net
- 
- 	  If you are unsure, say N.
++/**
+  * nla_for_each_attr - iterate over a stream of attributes
+  * @pos: loop counter, set to current attribute
+  * @head: head of attribute stream
 
 --
 paul moore
