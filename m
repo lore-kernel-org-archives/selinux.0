@@ -1,43 +1,67 @@
-Subject: RE: Labeled networking packets
+Subject: Re: Labeled networking packets
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Chad Hanson <chanson@TrustedCS.com>
+To: Paul Moore <paul.moore@hp.com>
 Cc: Karl MacMillan <kmacmillan@mentalrootkit.com>,
+        Joshua Brindle <jbrindle@tresys.com>,
         Venkat Yekkirala <vyekkirala@TrustedCS.com>, selinux@tycho.nsa.gov,
+        Chad Hanson <chanson@TrustedCS.com>,
         Darrel Goeddel <DGoeddel@TrustedCS.com>, dwalsh@redhat.com,
-        jmorris@redhat.com, latten@austin.ibm.com,
-        Paul Moore <paul.moore@hp.com>, Joshua Brindle <jbrindle@tresys.com>
-In-Reply-To: <36282A1733C57546BE392885C061859201573731@chaos.tcs.tcs-sec.com>
-References: <36282A1733C57546BE392885C061859201573731@chaos.tcs.tcs-sec.com>
+        jmorris@redhat.com, latten@austin.ibm.com
+In-Reply-To: <4518275B.9040609@hp.com>
+References: 
+	 <6FE441CD9F0C0C479F2D88F959B01588443A34@exchange.columbia.tresys.com>
+	 <1159198525.21540.72.camel@moss-spartans.epoch.ncsc.mil>
+	 <1159202108.4252.4.camel@localhost.localdomain>
+	 <1159207486.15305.60.camel@moss-spartans.epoch.ncsc.mil>
+	 <1159208755.3169.47.camel@twoface.columbia.tresys.com>
+	 <1159209686.4741.46.camel@localhost.localdomain>  <4518275B.9040609@hp.com>
 Content-Type: text/plain
-Date: Mon, 25 Sep 2006 15:24:26 -0400
-Message-Id: <1159212266.16246.10.camel@moss-spartans.epoch.ncsc.mil>
+Date: Mon, 25 Sep 2006 15:25:39 -0400
+Message-Id: <1159212339.16246.12.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 2006-09-25 at 14:56 -0400, Chad Hanson wrote:
-> Correct, I just wanted to state that we need to have an interface to get the
-> packet context, no matter if it is from a labeled network connection or just
-> an implicit context from secmark labeling. If getpeercon() can do this,
-> there is no need for getdatacon().
+On Mon, 2006-09-25 at 15:00 -0400, Paul Moore wrote:
+> Karl MacMillan wrote:
+> > On Mon, 2006-09-25 at 14:25 -0400, Joshua Brindle wrote:
+> > 
+> >>On Mon, 2006-09-25 at 14:04 -0400, Stephen Smalley wrote:
+> > 
+> > 
+> > <snip>
+> > 
+> >>>>The remote socket is probably good enough, though, and as Josh points
+> >>>>out policy can enforce that the socket type matches the current process
+> >>>>domain type (or at least a domain type).
+> >>>
+> >>>It doesn't need to do that, and setsockcreatecon() wouldn't exist if we
+> >>>always wanted that relationship to be fixed.
+> >>>
+> >>
+> >>what was the use case behind adding setsockcreatecon? For guards its
+> >>helpful so that you don't have to alternate ipc mechanisms in the
+> >>pipeline but for client server relationships.. not sure. 
+> > 
+> > xinetd was one - it allows the creation of sockets with the "correct"
+> > label (e.g., telnetd_t) so that all processes spawned by xinetd to have
+> > to have permissions on all xinetd sockets.
+> 
+> I belive that the SELinux/xinetd (at least the initial version, not sure
+> if it has changed) patch did not use setsockcreatecon() to set the
+> socket's context.  The kernel was tasked with setting the context of the
+> accept()'d TCP socket to match the context of the connection.  The idea
+> being that xinetd would accept() the incoming connection, do a
+> getpeercon() to fetch a context, call setexeccon() with that context,
+> and finally spawn the server daemon.
 
-The problem is that the secmark labeling is generally not suitable as a
-subject label or as a data origin label, so you can't use it in the way
-you described.
+But that doesn't deal with the TE aspect of the socket context, right?
+So you end up with the sockets being left in xinetd_t.
 
 > 
-> -Chad
+> > Any time sockets are going to be created by one process and passed to
+> > another it is useful to have setsockcreatecon.
 > 
-> > 
-> > But your example is precisely how getpeercon() is used, so the
-> > distinction between getdatacon() and getpeercon() seems artificial to
-> > me.  The real problem is figuring out how to reconcile secmark with
-> > labeled networking, not getpeercon vs. getdatacon.
-> > 
-> > -- 
-> > Stephen Smalley
-> > National Security Agency
-> > 
 -- 
 Stephen Smalley
 National Security Agency
