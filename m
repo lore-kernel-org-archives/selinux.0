@@ -1,120 +1,50 @@
-Subject: RE: Labeled networking packets
-From: Karl MacMillan <kmacmillan@mentalrootkit.com>
-To: Venkat Yekkirala <vyekkirala@TrustedCS.com>
-Cc: Stephen Smalley <sds@tycho.nsa.gov>, selinux@tycho.nsa.gov,
-        Chad Hanson <chanson@TrustedCS.com>,
-        Darrel Goeddel <DGoeddel@TrustedCS.com>, dwalsh@redhat.com,
-        jmorris@redhat.com, latten@austin.ibm.com,
-        Paul Moore <paul.moore@hp.com>, Joshua Brindle <jbrindle@tresys.com>
-In-Reply-To: <36282A1733C57546BE392885C0618592015735C9@chaos.tcs.tcs-sec.com>
-References: <36282A1733C57546BE392885C0618592015735C9@chaos.tcs.tcs-sec.com>
-Content-Type: text/plain
-Date: Mon, 25 Sep 2006 10:59:26 -0400
-Message-Id: <1159196366.3450.13.camel@localhost.localdomain>
+Date: Mon, 25 Sep 2006 10:04:06 -0500
+From: "Serge E. Hallyn" <serue@us.ibm.com>
+To: Erich Schubert <erich@debian.org>
+Cc: "Serge E. Hallyn" <serue@us.ibm.com>, Daniel J Walsh <dwalsh@redhat.com>,
+        "Christopher J. PeBenito" <cpebenito@tresys.com>,
+        Stephen Smalley <sds@tycho.nsa.gov>,
+        Michael C Thompson <thompsmc@us.ibm.com>,
+        SE Linux <selinux@tycho.nsa.gov>
+Subject: Re: SSH pubkey authentication & MLS policy
+Message-ID: <20060925150406.GA11645@sergelap.austin.ibm.com>
+References: <4511AAF2.8090809@us.ibm.com> <45129698.5080503@redhat.com> <1158852528.14117.48.camel@wintermute.xmldesign.de> <20060921160426.GA2487@sergelap.austin.ibm.com> <1158866649.16609.2.camel@wintermute.xmldesign.de>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1158866649.16609.2.camel@wintermute.xmldesign.de>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2006-09-22 at 17:55 -0400, Venkat Yekkirala wrote: 
-> > On Fri, 2006-09-22 at 13:23 -0400, Venkat Yekkirala wrote:
-> > > OK, here's what we will do:
-> > > 
-> > > 1. We will have getpeercon() fail if there's no labeled-SA.
-> > > 
-> > > 2. We will do a getdatacon() or something similar to retrieve the
-> > >    secmark (as reconciled in the proposed reconciliation 
-> > logic, of course).
-> > > 
-> > > Comments?
+Quoting Erich Schubert (erich@debian.org):
+> Hi,
+> > > http://svn.debian.org/wsvn/selinux/refpolicy/branches/debian/policy/modules/services/ssh.te?op=diff&rev=0&sc=0
 > > 
-> > I think that just moves the problem.
+> > Looks like the statements we need, but why do you have this
+> > under tunable_policy(`ssh_sysadm_login')?
 > 
-> We put a design doc out 3 months or so back (alerting selinux list
-> at least 2 times 
-> http://marc.theaimsgroup.com/?l=linux-netdev&m=115136637800361&w=2),
-> thought got the buy in, and went ahead and implemented
-> it.
+> IIRC it was in the static vs. targeted construct, not in
+> ssh_sysadm_login.
+> Or it was because in the case of not allowing sysadm logins, I didn't
+> want it to be able to scan the sysadm's home directory. YMMV.
 > 
+> Anyway, getattr should be enough. Could you try modifying your sergessh
+> module to only add getattr attributes, if that is enough? If so, we
+> should add a new interface which includes getattr, but not full search
+> to home directories.
 
-I've been loosely following this, but had not looked closely until two
-weeks ago when we tried to sit down and figure out how we were going to
-use all of this new stuff to accomplish our goals.
+Yup, the following module also works:
 
-I know it is frustrating to get delayed feedback, but I hope that it
-will ultimately result in something better.
+policy_module(sergessh,1.0.0)
 
-> What baffles me is that people even had problems using secmark as it
-> currently exists, just a few days back. It tells me people look at what
-> has come along, and THEN find (lack of) uses for it.
-> 
-> Let's go back to the drawing board, first of all define the problems
-> we are trying to solve, and come up with a design.
+gen_require(`
+        type sshd_t;
+	type abat_home_dir_t;
+')
 
-Thinking about this over the weekend, it seems to me that we are still
-talking around the problem a bit. We essentially have 2 goals:
+allow sshd_t abat_home_dir_t:dir { getattr };
 
-    1) Packet labeling - assigning labels to the _data_ transferred
-       over the network. Secmark does only this and - from what I can 
-       tell - this has been the primary motivation for Netlabel and 
-       ipsec.
-
-    2) Domain (process) context transmission - essentially, making 
-       getpeercon work for non-local sockets. The important thing here 
-       is that this is separate and distinct from the label of the 
-       packet. getpeercon (which is not just a poorly named function - 
-       the semantic is intentional and useful) should return the full 
-       context of the process on the other end of the network 
-       connection.
-
-There have been various suggestions about how to reconcile these two
-goals, essentially via encoding additional data via range and type
-transitions. I believe that this _will never work_. It is not possible
-to recover the domain context fully from the packet label - if nothing
-else the user and role will be lost (e.g., a data label would likely use
-object_r), which is unacceptable for the imagined uses of getpeercon.
-
-The choices I see are:
-
-    1) Leave netlabel and ipsec as packet labeling _only_. Somehow 
-       reconcile / prioritize the various packet labels.
-
-    2) Make netlabel and ipsec transmit the sending domain context 
-       _only_. Somehow reconcile the various domain labels.
-
-    3) Allow ipsec to transmit 2 contexts or designate that Netlabel 
-       passes 1 kind of remote label and ipsec transmits the other 
-       (e.g., netlabel labels the packet while ipsec transmits the 
-       sending domain context).
-
-The primary drawbacks I see to 1 are that getpeercon will not work for
-remote sockets and the current reconciliation schemes require divergent
-policies depending upon the labeling mechanisms employed.
-
-The problem with 2 is that it doesn't allow the sending machine to pass
-information that it has about the label of the packet - this is probably
-a large loss for MLS, but is also problematic for TE (e.g., my bind
-example - only bind knows whether a packet is part of a zone transfer or
-not).
-
-3 is the most flexible but is probably the most complicated. It also
-probably requires the most rewriting.
-
-Just a general note - I think that multiple packet labeling mechanisms
-cooperating is going to be difficult for users to understand and debug -
-if we get users used to writing secmark rules with iptables it will be
-surprising if those simply stop working for hosts that use labeled ipsec
-(which is the current default). The notion that we need to have multiple
-policies is going to make things difficult for distributors and users
-(and is an unacceptable solution in my view). I think we need to focus
-more on what the resulting policies will look like and what the
-writing / debugging /setup process will look like for users.
-
-Thanks,
-
-Karl
-
-
-
+thanks,
+-serge
 
 --
 This message was distributed to subscribers of the selinux mailing list.
