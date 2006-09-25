@@ -1,595 +1,529 @@
-Message-ID: <45182FCB.4070104@trustedcs.com>
-Date: Mon, 25 Sep 2006 14:36:43 -0500
-From: Darrel Goeddel <dgoeddel@TrustedCS.com>
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k8PJkifD025838
+	for <selinux@tycho.nsa.gov>; Mon, 25 Sep 2006 15:46:44 -0400
+Received: from mx1.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id k8PJjdAk011756
+	for <selinux@tycho.nsa.gov>; Mon, 25 Sep 2006 19:45:41 GMT
+Message-ID: <45183220.8090106@redhat.com>
+Date: Mon, 25 Sep 2006 15:46:40 -0400
+From: Daniel J Walsh <dwalsh@redhat.com>
 MIME-Version: 1.0
-To: Joshua Brindle <jbrindle@tresys.com>
-CC: SELinux List <selinux@tycho.nsa.gov>,
-        Christopher PeBenito <cpebenito@tresys.com>,
-        Stephen Smalley <sds@tycho.nsa.gov>,
-        Karl MacMillan <kmacmillan@mentalrootkit.com>
-Subject: [PATCH take 2] allow range_transitions and MLS users in modules
-References: <450EDC2E.50009@trustedcs.com>
-In-Reply-To: <450EDC2E.50009@trustedcs.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: "Christopher J. PeBenito" <cpebenito@tresys.com>,
+        SE Linux <selinux@tycho.nsa.gov>
+Subject: Latest diffs.  Trimmed down this time.
+Content-Type: multipart/mixed;
+ boundary="------------010600080008070608040403"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-- Add the ability to require MLS sensitivities and categories in policy
-  modules.
-- Remove the restrictions on defining users in MLS-enabled modules.
-- Handle range_trans_rules in modules.
+This is a multi-part message in MIME format.
+--------------010600080008070608040403
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
-This all allows range_transition statements to be used in policy modules
-and allows definition of users in MLS policy modules.
+Unlinking the /etc/prelink.cache file requires ability
+allow $1 etc_t:dir rw_dir_perms;
 
-Signed-off-by: Darrel Goeddel <dgoeddel@trustedcs.com>
+slocate needs to getattr on rpc_pipefs
 
----
+mdadm does a getattr on everything in /dev.  Need to dontaudit 
+device_t:file getattr;
 
-This version incorporates the requested struct initializers.
+Adding a cron_var_lib_t and cron_log_t so that sysadm_cron_t can write 
+to these directories.
+Policy explains which scripts need these privs
 
-checkpolicy/module_compiler.c              |  113 +++++++++++++++++
-checkpolicy/module_compiler.h              |    2
-checkpolicy/policy_parse.y                 |   19 +-
-libsepol/include/sepol/policydb/policydb.h |    2
-libsepol/src/expand.c                      |   10 +
-libsepol/src/link.c                        |  189 +++++++++++++++++++++++++----
-libsepol/src/policydb.c                    |   21 ++-
-7 files changed, 317 insertions(+), 39 deletions(-)
+Additional lpr_exec_t applications
 
-diff -ruNp --exclude=.svn selinux/checkpolicy/module_compiler.c selinux-modular-mls/checkpolicy/module_compiler.c
---- selinux/checkpolicy/module_compiler.c	2006-09-05 06:44:56.000000000 -0500
-+++ selinux-modular-mls/checkpolicy/module_compiler.c	2006-09-25 04:14:15.000000000 -0500
-@@ -937,6 +937,119 @@ int require_bool(int pass)
- 	}
- }
- 
-+int require_sens(int pass)
-+{
-+	char *id = queue_remove(id_queue);
-+	level_datum_t *level = NULL;
-+	int retval;
-+	if (pass == 2) {
-+		free(id);
-+		return 0;
-+	}
-+	if (!id) {
-+		yyerror("no sensitivity name");
-+		return -1;
-+	}
-+	level = calloc(1, sizeof(level_datum_t));
-+	if (!level) {
-+		free(id);
-+		yyerror("Out of memory!");
-+		return -1;
-+	}
-+	level->level = malloc(sizeof(mls_level_t));
-+	if (!level->level) {
-+		free(id);
-+		free(level);
-+		yyerror("Out of memory!");
-+		return -1;
-+	}
-+	mls_level_init(level->level);
-+	retval = require_symbol(SYM_LEVELS, id, (hashtab_datum_t *) level,
-+				&level->level->sens, &level->level->sens);
-+	if (retval != 0) {
-+		free(id);
-+		mls_level_destroy(level->level);
-+		free(level->level);
-+		free(level);
-+	}
-+	switch (retval) {
-+	case -3:{
-+			yyerror("Out of memory!");
-+			return -1;
-+		}
-+	case -2:{
-+			yyerror("duplicate declaration of sensitivity");
-+			return -1;
-+		}
-+	case -1:{
-+			yyerror("could not require sensitivity here");
-+			return -1;
-+		}
-+	case 0:{
-+			return 0;
-+		}
-+	case 1:{
-+			return 0;	/* sensitivity already required */
-+		}
-+	default:{
-+			assert(0);	/* should never get here */
-+		}
-+	}
-+}
-+
-+int require_cat(int pass)
-+{
-+	char *id = queue_remove(id_queue);
-+	cat_datum_t *cat = NULL;
-+	int retval;
-+	if (pass == 2) {
-+		free(id);
-+		return 0;
-+	}
-+	if (!id) {
-+		yyerror("no category name");
-+		return -1;
-+	}
-+	cat = malloc(sizeof(cat_datum_t));
-+	if (!cat) {
-+		free(id);
-+		yyerror("Out of memory!");
-+		return -1;
-+	}
-+	cat_datum_init(cat);
-+
-+	retval = require_symbol(SYM_CATS, id, (hashtab_datum_t *) cat,
-+				&cat->s.value, &cat->s.value);
-+	if (retval != 0) {
-+		free(id);
-+		cat_datum_destroy(cat);
-+		free(cat);
-+	}
-+	switch (retval) {
-+	case -3:{
-+			yyerror("Out of memory!");
-+			return -1;
-+		}
-+	case -2:{
-+			yyerror("duplicate declaration of category");
-+			return -1;
-+		}
-+	case -1:{
-+			yyerror("could not require category here");
-+			return -1;
-+		}
-+	case 0:{
-+			return 0;
-+		}
-+	case 1:{
-+			return 0;	/* category already required */
-+		}
-+	default:{
-+			assert(0);	/* should never get here */
-+		}
-+	}
-+}
-+
- static int is_scope_in_stack(scope_datum_t * scope, scope_stack_t * stack)
- {
- 	int i;
-diff -ruNp --exclude=.svn selinux/checkpolicy/module_compiler.h selinux-modular-mls/checkpolicy/module_compiler.h
---- selinux/checkpolicy/module_compiler.h	2006-09-05 06:44:56.000000000 -0500
-+++ selinux-modular-mls/checkpolicy/module_compiler.h	2006-09-25 04:14:15.000000000 -0500
-@@ -56,6 +56,8 @@ int require_type(int pass);
- int require_attribute(int pass);
- int require_user(int pass);
- int require_bool(int pass);
-+int require_sens(int pass);
-+int require_cat(int pass);
- 
- /* Check if an identifier is within the scope of the current
-  * declaration or any of its parents.  Return 1 if it is, 0 if not.
-diff -ruNp --exclude=.svn selinux/checkpolicy/policy_parse.y selinux-modular-mls/checkpolicy/policy_parse.y
---- selinux/checkpolicy/policy_parse.y	2006-09-05 06:17:18.000000000 -0500
-+++ selinux-modular-mls/checkpolicy/policy_parse.y	2006-09-25 04:12:01.000000000 -0500
-@@ -834,10 +834,8 @@ require_decl_def        : ROLE        { 
-                         | ATTRIBUTE   { $$ = require_attribute; }
-                         | USER        { $$ = require_user; }
-                         | BOOL        { $$ = require_bool; }
--/* MLS-enabled modules are not implemented at this time.
-                         | SENSITIVITY { $$ = require_sens; }
-                         | CATEGORY    { $$ = require_cat; }
--*/
-                         ;
- require_id_list         : identifier
-                         { if ($<require_func>0 (pass)) return -1; }
-@@ -1480,7 +1478,7 @@ static int define_category(void)
- 		yyerror("out of memory");
- 		goto bad;
- 	}
--	memset(datum, 0, sizeof(cat_datum_t));
-+	cat_datum_init(datum);
- 	datum->isalias = FALSE;
- 
- 	ret = declare_symbol(SYM_CATS, id, datum, &value, &value);
-@@ -1517,7 +1515,7 @@ static int define_category(void)
- 			yyerror("out of memory");
- 			goto bad_alias;
- 		}
--		memset(aliasdatum, 0, sizeof(cat_datum_t));
-+		cat_datum_init(aliasdatum);
- 		aliasdatum->isalias = TRUE;
- 		aliasdatum->s.value = datum->s.value;
- 
-@@ -1554,15 +1552,19 @@ static int define_category(void)
-       bad:
- 	if (id)
- 		free(id);
--	if (datum)
-+	if (datum) {
-+		cat_datum_destroy(datum);
- 		free(datum);
-+	}
- 	return -1;
- 
-       bad_alias:
- 	if (id)
- 		free(id);
--	if (aliasdatum)
-+	if (aliasdatum) {
-+		cat_datum_destroy(aliasdatum);
- 		free(aliasdatum);
-+	}
- 	return -1;
- }
- 
-@@ -3682,11 +3684,6 @@ static int define_user(void)
- 	level_datum_t *levdatum;
- 	int l;
- 
--	if (policydbp->policy_type == POLICY_MOD && mlspol) {
--		yyerror("Users cannot be declared in MLS modules");
--		return -1;
--	}
+Corrected oddjob policy
+
+
+Sendmail needs to read netlink_route_socket
+
+Switch fsdaemon to mls_read_up
+
+Doesn't ssh need
++       userdom_search_all_users_home_dirs(sshd_t)
+
+
+Cups init script wants to clear the error_log
+
+auditd_log_t is supposed to be able to have a device mounted on it for 
+compliance reasons.
+
+mdadm wants to getattr_core_if
+
+
+--------------010600080008070608040403
+Content-Type: text/plain;
+ name="diff"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="diff"
+
+diff --exclude-from=exclude -N -u -r nsaserefpolicy/policy/modules/admin/prelink.if serefpolicy-2.3.16/policy/modules/admin/prelink.if
+--- nsaserefpolicy/policy/modules/admin/prelink.if	2006-07-14 17:04:46.000000000 -0400
++++ serefpolicy-2.3.16/policy/modules/admin/prelink.if	2006-09-25 15:27:25.000000000 -0400
+@@ -76,7 +76,7 @@
+ 	gen_require(`
+ 		type prelink_cache_t;
+ 	')
 -
- 	if (pass == 1) {
- 		while ((id = queue_remove(id_queue)))
- 			free(id);
-diff -ruNp --exclude=.svn selinux/libsepol/include/sepol/policydb/policydb.h selinux-modular-mls/libsepol/include/sepol/policydb/policydb.h
---- selinux/libsepol/include/sepol/policydb/policydb.h	2006-09-05 06:16:47.000000000 -0500
-+++ selinux-modular-mls/libsepol/include/sepol/policydb/policydb.h	2006-09-25 03:57:59.000000000 -0500
-@@ -532,6 +532,8 @@ extern void type_datum_init(type_datum_t
- extern void type_datum_destroy(type_datum_t * x);
- extern void user_datum_init(user_datum_t * x);
- extern void user_datum_destroy(user_datum_t * x);
-+extern void cat_datum_init(cat_datum_t * x);
-+extern void cat_datum_destroy(cat_datum_t * x);
++	files_rw_etc_dir($1)
+ 	allow $1 prelink_cache_t:file unlink;
+ ')
  
- extern int check_assertions(sepol_handle_t * handle,
- 			    policydb_t * p, avrule_t * avrules);
-diff -ruNp --exclude=.svn selinux/libsepol/src/expand.c selinux-modular-mls/libsepol/src/expand.c
---- selinux/libsepol/src/expand.c	2006-09-05 06:44:54.000000000 -0500
-+++ selinux-modular-mls/libsepol/src/expand.c	2006-09-25 04:14:14.000000000 -0500
-@@ -870,10 +870,13 @@ static int cats_copy_callback(hashtab_ke
- 	if (state->verbose)
- 		INFO(state->handle, "copying category attribute %s", id);
+diff --exclude-from=exclude -N -u -r nsaserefpolicy/policy/modules/admin/readahead.te serefpolicy-2.3.16/policy/modules/admin/readahead.te
+--- nsaserefpolicy/policy/modules/admin/readahead.te	2006-09-25 15:11:11.000000000 -0400
++++ serefpolicy-2.3.16/policy/modules/admin/readahead.te	2006-09-25 15:27:25.000000000 -0400
+@@ -36,6 +36,8 @@
+ dev_getattr_all_blk_files(readahead_t)
+ dev_dontaudit_read_all_blk_files(readahead_t)
+ dev_dontaudit_getattr_memory_dev(readahead_t)
++dev_dontaudit_getattr_nvram(readahead_t)
++storage_dontaudit_getattr_fixed_disk_dev(readahead_t)
  
--	if ((new_cat = (cat_datum_t *) calloc(1, sizeof(*new_cat))) == NULL ||
--	    (new_id = strdup(id)) == NULL) {
-+	new_cat = (cat_datum_t *) malloc(sizeof(*new_cat));
-+	if (!new_cat)
-+		goto out_of_mem;
-+	cat_datum_init(new_cat);
-+	new_id = strdup(id);
-+	if (!new_id)
- 		goto out_of_mem;
--	}
+ domain_use_interactive_fds(readahead_t)
  
- 	new_cat->s.value = cat->s.value;
- 	new_cat->isalias = cat->isalias;
-@@ -887,6 +890,7 @@ static int cats_copy_callback(hashtab_ke
+diff --exclude-from=exclude -N -u -r nsaserefpolicy/policy/modules/apps/slocate.te serefpolicy-2.3.16/policy/modules/apps/slocate.te
+--- nsaserefpolicy/policy/modules/apps/slocate.te	2006-07-14 17:04:31.000000000 -0400
++++ serefpolicy-2.3.16/policy/modules/apps/slocate.te	2006-09-25 15:27:25.000000000 -0400
+@@ -45,6 +45,7 @@
+ files_dontaudit_getattr_all_dirs(locate_t)
  
-       out_of_mem:
- 	ERR(state->handle, "Out of memory!");
-+	cat_datum_destroy(new_cat);
- 	free(new_cat);
- 	free(new_id);
- 	return -1;
-diff -ruNp --exclude=.svn selinux/libsepol/src/link.c selinux-modular-mls/libsepol/src/link.c
---- selinux/libsepol/src/link.c	2006-09-05 06:44:54.000000000 -0500
-+++ selinux-modular-mls/libsepol/src/link.c	2006-09-25 04:43:51.000000000 -0500
-@@ -468,25 +468,8 @@ static int user_copy_callback(hashtab_ke
- 	char *id = key, *new_id = NULL;
- 	user_datum_t *user, *base_user, *new_user = NULL;
- 	link_state_t *state = (link_state_t *) data;
--	scope_datum_t *scope;
+ fs_getattr_xattr_fs(locate_t)
++fs_getattr_rpc_pipefs(locate_t)
  
- 	user = (user_datum_t *) datum;
--	if (state->base->mls) {
--		scope =
--		    hashtab_search(state->cur->policy->p_users_scope.table, id);
--		if (!scope) {
--			ERR(state->handle,
--			    "No scope information for user %s in module %s\n",
--			    id, state->cur_mod_name);
--			return -1;
--		}
--		if (scope->scope == SCOPE_DECL) {
--			ERR(state->handle,
--			    "Users cannot be declared in MLS modules");
--			return -1;
--		}
--		/* required users fall through */
--	}
+ libs_use_shared_libs(locate_t)
+ libs_use_ld_so(locate_t)
+diff --exclude-from=exclude -N -u -r nsaserefpolicy/policy/modules/kernel/devices.if serefpolicy-2.3.16/policy/modules/kernel/devices.if
+--- nsaserefpolicy/policy/modules/kernel/devices.if	2006-09-22 09:35:44.000000000 -0400
++++ serefpolicy-2.3.16/policy/modules/kernel/devices.if	2006-09-25 15:27:25.000000000 -0400
+@@ -3211,3 +3211,23 @@
  
- 	base_user = hashtab_search(state->base->p_users.table, id);
- 	if (base_user == NULL) {
-@@ -502,9 +485,8 @@ static int user_copy_callback(hashtab_ke
- 			goto cleanup;
- 		}
- 		user_datum_init(new_user);
--		/* new_users's roles field will be copied during
--		   fix_user_callback().  the MLS fields are currently
--		   unimplemented */
-+		/* new_users's roles and MLS fields will be copied during
-+		   user_fix_callback(). */
+ 	typeattribute $1 devices_unconfined_type;
+ ')
++
++########################################
++## <summary>
++##	dontaudit getattr generic files in /dev.
++## </summary>
++## <param name="domain">
++##	<summary>
++##	Domain to not audit.
++##	</summary>
++## </param>
++#
++interface(`dev_dontaudit_getattr_generic_files',`
++	gen_require(`
++		type device_t;
++	')
++
++	allow $1 device_t:dir search;
++	dontaudit $1 device_t:file getattr;
++')
++
+diff --exclude-from=exclude -N -u -r nsaserefpolicy/policy/modules/kernel/files.if serefpolicy-2.3.16/policy/modules/kernel/files.if
+--- nsaserefpolicy/policy/modules/kernel/files.if	2006-09-22 14:07:03.000000000 -0400
++++ serefpolicy-2.3.16/policy/modules/kernel/files.if	2006-09-25 15:27:25.000000000 -0400
+@@ -4541,3 +4541,23 @@
  
- 		new_user->s.value = state->base->p_users.nprim + 1;
+ 	typealias etc_runtime_t alias $1;
+ ')
++
++########################################
++## <summary>
++##	Read and write files in /etc.
++## </summary>
++## <param name="domain">
++##	<summary>
++##	Domain allowed access.
++##	</summary>
++## </param>
++## <rolecap/>
++#
++interface(`files_rw_etc_dir',`
++	gen_require(`
++		type etc_t;
++	')
++
++	allow $1 etc_t:dir rw_dir_perms;
++')
++
+diff --exclude-from=exclude -N -u -r nsaserefpolicy/policy/modules/kernel/storage.if serefpolicy-2.3.16/policy/modules/kernel/storage.if
+--- nsaserefpolicy/policy/modules/kernel/storage.if	2006-07-14 17:04:29.000000000 -0400
++++ serefpolicy-2.3.16/policy/modules/kernel/storage.if	2006-09-25 15:27:25.000000000 -0400
+@@ -37,6 +37,7 @@
+ 	')
  
-@@ -592,10 +574,72 @@ static int bool_copy_callback(hashtab_ke
- 	return -1;
- }
+ 	dontaudit $1 fixed_disk_device_t:blk_file getattr;
++	dontaudit $1 fixed_disk_device_t:chr_file getattr; # /dev/rawctl
+ ')
  
-+static int sens_copy_callback(hashtab_key_t key, hashtab_datum_t datum,
-+			      void *data)
-+{
-+	char *id = key;
-+	level_datum_t *level, *base_level;
-+	link_state_t *state = (link_state_t *) data;
-+	scope_datum_t *scope;
-+
-+	level = (level_datum_t *) datum;
-+
-+	base_level = hashtab_search(state->base->p_levels.table, id);
-+	if (!base_level) {
-+		scope =
-+		    hashtab_search(state->cur->policy->p_sens_scope.table, id);
-+		if (!scope)
-+			return -SEPOL_LINK_ERROR;
-+		if (scope->scope == SCOPE_DECL) {
-+			/* disallow declarations in modules */
-+			ERR(state->handle,
-+			    "%s: Modules may not declare new sensitivities.",
-+			    state->cur_mod_name);
-+			return -SEPOL_LINK_NOTSUP;
-+		}
-+	}
-+
-+	state->cur->map[SYM_LEVELS][level->level->sens - 1] =
-+	    base_level->level->sens;
-+
-+	return 0;
-+}
-+
-+static int cat_copy_callback(hashtab_key_t key, hashtab_datum_t datum,
-+			     void *data)
-+{
-+	char *id = key;
-+	cat_datum_t *cat, *base_cat;
-+	link_state_t *state = (link_state_t *) data;
-+	scope_datum_t *scope;
-+
-+	cat = (cat_datum_t *) datum;
-+
-+	base_cat = hashtab_search(state->base->p_cats.table, id);
-+	if (!base_cat) {
-+		scope =
-+		    hashtab_search(state->cur->policy->p_cat_scope.table, id);
-+		if (!scope)
-+			return -SEPOL_LINK_ERROR;
-+		if (scope->scope == SCOPE_DECL) {
-+			/* disallow declarations in modules */
-+			ERR(state->handle,
-+			    "%s: Modules may not declare new categories.",
-+			    state->cur_mod_name);
-+			return -SEPOL_LINK_NOTSUP;
-+		}
-+	}
-+
-+	state->cur->map[SYM_CATS][cat->s.value - 1] = base_cat->s.value;
-+
-+	return 0;
-+}
-+
- static int (*copy_callback_f[SYM_NUM]) (hashtab_key_t key,
- 					hashtab_datum_t datum, void *datap) = {
- NULL, class_copy_callback, role_copy_callback, type_copy_callback,
--	    user_copy_callback, bool_copy_callback, NULL, NULL};
-+	    user_copy_callback, bool_copy_callback, sens_copy_callback,
-+	    cat_copy_callback};
+ ########################################
+diff --exclude-from=exclude -N -u -r nsaserefpolicy/policy/modules/services/automount.te serefpolicy-2.3.16/policy/modules/services/automount.te
+--- nsaserefpolicy/policy/modules/services/automount.te	2006-09-22 14:07:05.000000000 -0400
++++ serefpolicy-2.3.16/policy/modules/services/automount.te	2006-09-25 15:27:25.000000000 -0400
+@@ -74,6 +76,7 @@
+ files_mounton_all_mountpoints(automount_t)
+ files_mount_all_file_type_fs(automount_t)
+ files_unmount_all_file_type_fs(automount_t)
++files_manage_non_security_dirs(automount_t)
  
- /* The aliases have to be copied after the types and attributes to be
-  * certain that the base symbol table will have the type that the
-@@ -783,6 +827,43 @@ static int role_set_or_convert(role_set_
- 	return -1;
- }
+ fs_mount_all_fs(automount_t)
+ fs_unmount_all_fs(automount_t)
+diff --exclude-from=exclude -N -u -r nsaserefpolicy/policy/modules/services/cron.te serefpolicy-2.3.16/policy/modules/services/cron.te
+--- nsaserefpolicy/policy/modules/services/cron.te	2006-09-25 15:11:11.000000000 -0400
++++ serefpolicy-2.3.16/policy/modules/services/cron.te	2006-09-25 15:27:25.000000000 -0400
+@@ -17,6 +17,14 @@
+ type cron_spool_t;
+ files_type(cron_spool_t)
  
-+static int mls_level_convert(mls_semantic_level_t * src,
-+			     mls_semantic_level_t * dst, policy_module_t * mod)
-+{
-+	mls_semantic_cat_t *src_cat, *new_cat;
++# var/lib files
++type cron_var_lib_t;
++files_type(cron_var_lib_t)
 +
-+	assert(mod->map[SYM_LEVELS][src->sens - 1]);
-+	dst->sens = mod->map[SYM_LEVELS][src->sens - 1];
++# var/log files
++type cron_log_t;
++logging_log_file(cron_log_t)
 +
-+	for (src_cat = src->cat; src_cat; src_cat = src_cat->next) {
-+		new_cat =
-+		    (mls_semantic_cat_t *) malloc(sizeof(mls_semantic_cat_t));
-+		if (!new_cat)
-+			return -1;
-+		mls_semantic_cat_init(new_cat);
-+
-+		new_cat->next = dst->cat;
-+		dst->cat = new_cat;
-+
-+		assert(mod->map[SYM_CATS][src_cat->low - 1]);
-+		dst->cat->low = mod->map[SYM_CATS][src_cat->low - 1];
-+		assert(mod->map[SYM_CATS][src_cat->high - 1]);
-+		dst->cat->high = mod->map[SYM_CATS][src_cat->high - 1];
-+	}
-+
-+	return 0;
-+}
-+
-+static int mls_range_convert(mls_semantic_range_t * src,
-+			     mls_semantic_range_t * dst, policy_module_t * mod)
-+{
-+	if (mls_level_convert(&src->level[0], &dst->level[0], mod))
-+		return -1;
-+	if (mls_level_convert(&src->level[1], &dst->level[1], mod))
-+		return -1;
-+	return 0;
-+}
-+
- static int role_fix_callback(hashtab_key_t key, hashtab_datum_t datum,
- 			     void *data)
- {
-@@ -893,13 +974,16 @@ static int user_fix_callback(hashtab_key
- 	user_datum_t *user, *new_user = NULL;
- 	link_state_t *state = (link_state_t *) data;
- 	policy_module_t *mod = state->cur;
-+	symtab_t *usertab;
+ type crond_t;
+ # real declaration moved to mls until
+ # range_transition works in loadable modules
+@@ -184,6 +192,17 @@
+ 	files_tmp_filetrans(crond_t, crond_tmp_t, { file dir })
+ ')
  
- 	user = (user_datum_t *) datum;
++# This is to handle /var/lib/misc directory.  Used currently by prelink
++# var/lib files for cron 
++allow system_crond_t cron_var_lib_t:file create_file_perms;
++files_var_lib_filetrans(system_crond_t,cron_var_lib_t,file)
++
++# This is to handle creation of files in /var/log directory.  Used currently by rpm script
++# log files
++allow system_crond_t cron_log_t:file create_file_perms;
++logging_log_filetrans(system_crond_t,cron_log_t,{ file })
++
++
+ tunable_policy(`fcron_crond', `
+ 	allow crond_t system_cron_spool_t:file create_file_perms;
+ ')
+diff --exclude-from=exclude -N -u -r nsaserefpolicy/policy/modules/services/lpd.fc serefpolicy-2.3.16/policy/modules/services/lpd.fc
+--- nsaserefpolicy/policy/modules/services/lpd.fc	2006-09-22 14:07:06.000000000 -0400
++++ serefpolicy-2.3.16/policy/modules/services/lpd.fc	2006-09-25 15:27:25.000000000 -0400
+@@ -8,11 +8,14 @@
+ #
+ /usr/sbin/checkpc	--	gen_context(system_u:object_r:checkpc_exec_t,s0)
+ /usr/sbin/lpd		--	gen_context(system_u:object_r:lpd_exec_t,s0)
++/usr/sbin/lpadmin	--	gen_context(system_u:object_r:lpr_exec_t,s0)
++/usr/sbin/lpc(\.cups)?	--	gen_context(system_u:object_r:lpr_exec_t,s0)
+ /usr/share/printconf/.* --	gen_context(system_u:object_r:printconf_t,s0)
+ /usr/bin/lp(\.cups)?	--	gen_context(system_u:object_r:lpr_exec_t,s0)
+ /usr/bin/lpr(\.cups)?	--	gen_context(system_u:object_r:lpr_exec_t,s0)
+ /usr/bin/lpq(\.cups)?	--	gen_context(system_u:object_r:lpr_exec_t,s0)
+ /usr/bin/lprm(\.cups)?	--	gen_context(system_u:object_r:lpr_exec_t,s0)
++/usr/bin/lpstat(\.cups)? --	gen_context(system_u:object_r:lpr_exec_t,s0)
  
- 	if (state->dest_decl == NULL)
--		return 0;
-+		usertab = &state->base->p_users;
-+	else
-+		usertab = &state->dest_decl->p_users;
+ #
+ # /var
+diff --exclude-from=exclude -N -u -r nsaserefpolicy/policy/modules/services/oddjob.fc serefpolicy-2.3.16/policy/modules/services/oddjob.fc
+--- nsaserefpolicy/policy/modules/services/oddjob.fc	1969-12-31 19:00:00.000000000 -0500
++++ serefpolicy-2.3.16/policy/modules/services/oddjob.fc	2006-09-25 15:27:25.000000000 -0400
+@@ -0,0 +1,8 @@
++# oddjob executable will have:
++# label: system_u:object_r:oddjob_exec_t
++# MLS sensitivity: s0
++# MCS categories: <none>
++
++/usr/sbin/oddjobd		--	gen_context(system_u:object_r:oddjob_exec_t,s0)
++/var/run/oddjobd.pid			gen_context(system_u:object_r:oddjob_var_run_t,s0)
++/usr/lib/oddjob/mkhomedir	--	gen_context(system_u:object_r:oddjob_mkhomedir_exec_t,s0)
+diff --exclude-from=exclude -N -u -r nsaserefpolicy/policy/modules/services/oddjob.if serefpolicy-2.3.16/policy/modules/services/oddjob.if
+--- nsaserefpolicy/policy/modules/services/oddjob.if	1969-12-31 19:00:00.000000000 -0500
++++ serefpolicy-2.3.16/policy/modules/services/oddjob.if	2006-09-25 15:27:25.000000000 -0400
+@@ -0,0 +1,99 @@
++## <summary>policy for oddjob</summary>
++
++########################################
++## <summary>
++##	Execute a domain transition to run oddjob.
++## </summary>
++## <param name="domain">
++## <summary>
++##	Domain allowed to transition.
++## </summary>
++## </param>
++#
++interface(`oddjob_domtrans',`
++	gen_require(`
++		type oddjob_t, oddjob_exec_t;
++	')
++
++	domain_auto_trans($1,oddjob_exec_t,oddjob_t)
++
++	allow $1 oddjob_t:fd use;
++	allow oddjob_t $1:fd use;
++	allow oddjob_t $1:fifo_file rw_file_perms;
++	allow oddjob_t $1:process sigchld;
++')
++
++########################################
++## <summary>
++##	Make the specified program domain accessable
++##	from the oddjob.
++## </summary>
++## <param name="domain">
++##	<summary>
++##	The type of the process to transition to.
++##	</summary>
++## </param>
++## <param name="entrypoint">
++##	<summary>
++##	The type of the file used as an entrypoint to this domain.
++##	</summary>
++## </param>
++#
++interface(`oddjob_system_entry',`
++	gen_require(`
++		type oddjob_t;
++	')
++
++	domain_auto_trans(oddjob_t, $2, $1)
++
++	allow oddjob_t $1:fd use;
++	allow $1 oddjob_t:fd use;
++	allow $1 oddjob_t:fifo_file rw_file_perms;
++	allow $1 oddjob_t:process sigchld;
++
++')
++
++
++########################################
++## <summary>
++##	Send and receive messages from
++##	oddjob over dbus.
++## </summary>
++## <param name="domain">
++##	<summary>
++##	Domain allowed access.
++##	</summary>
++## </param>
++#
++interface(`oddjob_dbus_chat',`
++	gen_require(`
++		type oddjob_t;
++		class dbus send_msg;
++	')
++
++	allow $1 oddjob_t:dbus send_msg;
++	allow oddjob_t $1:dbus send_msg;
++')
++
++########################################
++## <summary>
++##	Execute a domain transition to run oddjob_mkhomedir.
++## </summary>
++## <param name="domain">
++## <summary>
++##	Domain allowed to transition.
++## </summary>
++## </param>
++#
++interface(`oddjob_mkhomedir_domtrans',`
++	gen_require(`
++		type oddjob_mkhomedir_t, oddjob_mkhomedir_exec_t;
++	')
++
++	domain_auto_trans($1,oddjob_mkhomedir_exec_t,oddjob_mkhomedir_t)
++
++	allow $1 oddjob_mkhomedir_t:fd use;
++	allow oddjob_mkhomedir_t $1:fd use;
++	allow oddjob_mkhomedir_t $1:fifo_file rw_file_perms;
++	allow oddjob_mkhomedir_t $1:process sigchld;
++')
+diff --exclude-from=exclude -N -u -r nsaserefpolicy/policy/modules/services/oddjob.te serefpolicy-2.3.16/policy/modules/services/oddjob.te
+--- nsaserefpolicy/policy/modules/services/oddjob.te	1969-12-31 19:00:00.000000000 -0500
++++ serefpolicy-2.3.16/policy/modules/services/oddjob.te	2006-09-25 15:27:25.000000000 -0400
+@@ -0,0 +1,85 @@
++policy_module(oddjob,1.0.0)
++
++########################################
++#
++# Declarations
++#
++
++type oddjob_t;
++type oddjob_exec_t;
++domain_type(oddjob_t)
++init_daemon_domain(oddjob_t, oddjob_exec_t)
++
++# pid files
++type oddjob_var_run_t;
++files_pid_file(oddjob_var_run_t)
++
++type oddjob_mkhomedir_t;
++type oddjob_mkhomedir_exec_t;
++domain_type(oddjob_mkhomedir_t)
++init_daemon_domain(oddjob_mkhomedir_t, oddjob_mkhomedir_exec_t)
++
++########################################
++#
++# oddjob local policy
++#
++# Check in /etc/selinux/refpolicy/include for macros to use instead of allow rules.
++
++# Some common macros (you might be able to remove some)
++files_read_etc_files(oddjob_t)
++libs_use_ld_so(oddjob_t)
++libs_use_shared_libs(oddjob_t)
++miscfiles_read_localization(oddjob_t)
++## internal communication is often done using fifo and unix sockets.
++allow oddjob_t self:fifo_file { read write };
++allow oddjob_t self:unix_stream_socket create_stream_socket_perms;
++
++# pid file
++allow oddjob_t oddjob_var_run_t:file manage_file_perms;
++allow oddjob_t oddjob_var_run_t:sock_file manage_file_perms;
++allow oddjob_t oddjob_var_run_t:dir rw_dir_perms;
++files_pid_filetrans(oddjob_t,oddjob_var_run_t, { file sock_file })
++
++init_dontaudit_use_fds(oddjob_t)
++allow oddjob_t self:capability { audit_write setgid } ;
++allow oddjob_t self:process setexec;
++
++locallogin_dontaudit_use_fds(oddjob_t)
++
++optional_policy(`
++	dbus_system_bus_client_template(oddjob,oddjob_t)
++	dbus_send_system_bus(oddjob_t)
++	dbus_connect_system_bus(oddjob_t)
++')
++
++corecmd_search_sbin(oddjob_t)
++corecmd_exec_shell(oddjob_t)
++
++selinux_compute_create_context(oddjob_t)
++
++kernel_read_system_state(oddjob_t)
++
++unconfined_domtrans(oddjob_t)
++
++ifdef(`targeted_policy', `
++	term_dontaudit_use_generic_ptys(oddjob_t)
++	term_dontaudit_use_unallocated_ttys(oddjob_t)
++')
++
++########################################
++#
++# oddjob_mkhomedir local policy
++#
++
++# Some common macros (you might be able to remove some)
++files_read_etc_files(oddjob_mkhomedir_t)
++libs_use_ld_so(oddjob_mkhomedir_t)
++libs_use_shared_libs(oddjob_mkhomedir_t)
++miscfiles_read_localization(oddjob_mkhomedir_t)
++## internal communication is often done using fifo and unix sockets.
++allow oddjob_mkhomedir_t self:fifo_file { read write };
++allow oddjob_mkhomedir_t self:unix_stream_socket create_stream_socket_perms;
++
++oddjob_system_entry(oddjob_mkhomedir_t, oddjob_mkhomedir_exec_t)
++domain_auto_trans(unconfined_t,oddjob_mkhomedir_exec_t,oddjob_mkhomedir_t)
++
+diff --exclude-from=exclude -N -u -r nsaserefpolicy/policy/modules/services/sendmail.te serefpolicy-2.3.16/policy/modules/services/sendmail.te
+--- nsaserefpolicy/policy/modules/services/sendmail.te	2006-09-22 14:07:06.000000000 -0400
++++ serefpolicy-2.3.16/policy/modules/services/sendmail.te	2006-09-25 15:27:25.000000000 -0400
+@@ -32,6 +32,7 @@
+ allow sendmail_t self:unix_dgram_socket create_socket_perms;
+ allow sendmail_t self:tcp_socket create_stream_socket_perms;
+ allow sendmail_t self:udp_socket create_socket_perms;
++allow sendmail_t self:netlink_route_socket r_netlink_socket_perms;
  
--	new_user = hashtab_search(state->dest_decl->p_users.table, id);
-+	new_user = hashtab_search(usertab->table, id);
- 	assert(new_user != NULL);
+ allow sendmail_t sendmail_log_t:file create_file_perms;
+ allow sendmail_t sendmail_log_t:dir { rw_dir_perms setattr };
+diff --exclude-from=exclude -N -u -r nsaserefpolicy/policy/modules/services/smartmon.te serefpolicy-2.3.16/policy/modules/services/smartmon.te
+--- nsaserefpolicy/policy/modules/services/smartmon.te	2006-07-14 17:04:41.000000000 -0400
++++ serefpolicy-2.3.16/policy/modules/services/smartmon.te	2006-09-25 15:30:14.000000000 -0400
+@@ -60,8 +60,11 @@
+ fs_getattr_all_fs(fsdaemon_t)
+ fs_search_auto_mountpoints(fsdaemon_t)
  
- 	if (state->verbose) {
-@@ -910,6 +994,12 @@ static int user_fix_callback(hashtab_key
- 		goto cleanup;
- 	}
++mls_file_read_up(fsdaemon_t)
++
+ storage_raw_read_fixed_disk(fsdaemon_t)
+ storage_raw_write_fixed_disk(fsdaemon_t)
++storage_raw_read_removable_device(fsdaemon_t)
  
-+	if (mls_range_convert(&user->range, &new_user->range, mod))
-+		goto cleanup;
-+
-+	if (mls_level_convert(&user->dfltlevel, &new_user->dfltlevel, mod))
-+		goto cleanup;
-+
- 	return 0;
+ term_dontaudit_use_console(fsdaemon_t)
+ term_dontaudit_search_ptys(fsdaemon_t)
+diff --exclude-from=exclude -N -u -r nsaserefpolicy/policy/modules/services/ssh.te serefpolicy-2.3.16/policy/modules/services/ssh.te
+--- nsaserefpolicy/policy/modules/services/ssh.te	2006-09-25 15:11:11.000000000 -0400
++++ serefpolicy-2.3.16/policy/modules/services/ssh.te	2006-09-25 15:27:25.000000000 -0400
+@@ -72,18 +72,19 @@
+ 	# so a tunnel can point to another ssh tunnel
+ 	allow sshd_t self:netlink_route_socket r_netlink_socket_perms;
+ 	allow sshd_t self:key { search link write };
+-
+ 	allow sshd_t sshd_tmp_t:dir create_dir_perms;
+ 	allow sshd_t sshd_tmp_t:file create_file_perms;
+ 	allow sshd_t sshd_tmp_t:sock_file create_file_perms;
+ 	files_tmp_filetrans(sshd_t, sshd_tmp_t, { dir file sock_file })
  
-       cleanup:
-@@ -1096,6 +1186,55 @@ static int copy_role_allow_list(role_all
- 	return -1;
- }
+-	kernel_link_key(sshd_t)
+-
+ 	# for X forwarding
+ 	corenet_tcp_bind_xserver_port(sshd_t)
+ 	corenet_sendrecv_xserver_server_packets(sshd_t)
  
-+static int copy_range_trans_list(range_trans_rule_t * rules,
-+				 range_trans_rule_t ** dst,
-+				 policy_module_t * mod, link_state_t * state)
-+{
-+	range_trans_rule_t *rule, *new_rule = NULL;
-+	unsigned int i;
-+	ebitmap_node_t *cnode;
++	kernel_link_key(sshd_t)
 +
-+	for (rule = rules; rule; rule = rule->next) {
-+		new_rule =
-+		    (range_trans_rule_t *) malloc(sizeof(range_trans_rule_t));
-+		if (!new_rule)
-+			goto cleanup;
++	userdom_search_all_users_home_dirs(sshd_t)
 +
-+		range_trans_rule_init(new_rule);
-+
-+		new_rule->next = *dst;
-+		*dst = new_rule;
-+
-+		if (type_set_convert(&rule->stypes, &new_rule->stypes,
-+				     mod, state))
-+			goto cleanup;
-+
-+		if (type_set_convert(&rule->ttypes, &new_rule->ttypes,
-+				     mod, state))
-+			goto cleanup;
-+
-+		ebitmap_for_each_bit(&rule->tclasses, cnode, i) {
-+			if (ebitmap_node_get_bit(cnode, i)) {
-+				assert(mod->map[SYM_CLASSES][i]);
-+				if (ebitmap_set_bit
-+				    (&new_rule->tclasses,
-+				     mod->map[SYM_CLASSES][i] - 1, 1)) {
-+					goto cleanup;
-+				}
-+			}
-+		}
-+
-+		if (mls_range_convert(&rule->trange, &new_rule->trange, mod))
-+			goto cleanup;
-+	}
-+	return 0;
-+
-+      cleanup:
-+	ERR(state->handle, "Out of memory!");
-+	range_trans_rule_list_destroy(new_rule);
-+	return -1;
-+}
-+
- static int copy_cond_list(cond_node_t * list, cond_node_t ** dst,
- 			  policy_module_t * module, link_state_t * state)
- {
-@@ -1278,6 +1417,10 @@ static int copy_avrule_decl(link_state_t
- 		return -1;
- 	}
+ 	tunable_policy(`ssh_sysadm_login',`
+ 		# Relabel and access ptys created by sshd
+ 		# ioctl is necessary for logout() processing for utmp entry and for w to
+diff --exclude-from=exclude -N -u -r nsaserefpolicy/policy/modules/system/init.te serefpolicy-2.3.16/policy/modules/system/init.te
+--- nsaserefpolicy/policy/modules/system/init.te	2006-09-25 15:11:11.000000000 -0400
++++ serefpolicy-2.3.16/policy/modules/system/init.te	2006-09-25 15:27:25.000000000 -0400
+@@ -579,6 +580,8 @@
+ 	dev_getattr_printer_dev(initrc_t)
  
-+	if (copy_range_trans_list(src_decl->range_tr_rules,
-+				  &dest_decl->range_tr_rules, module, state))
-+		return -1;
-+
- 	/* finally copy any identifiers local to this declaration */
- 	ret = copy_identifiers(state, src_decl->symtab, dest_decl);
- 	if (ret < 0) {
-diff -ruNp --exclude=.svn selinux/libsepol/src/policydb.c selinux-modular-mls/libsepol/src/policydb.c
---- selinux/libsepol/src/policydb.c	2006-09-05 06:44:54.000000000 -0500
-+++ selinux-modular-mls/libsepol/src/policydb.c	2006-09-25 04:34:37.000000000 -0500
-@@ -252,6 +252,17 @@ void user_datum_destroy(user_datum_t * x
- 	}
- }
+ 	cups_read_log(initrc_t)
++#cups init script clears error log
++	cups_write_log(initrc_t)
+ 	cups_read_rw_config(initrc_t)
+ ')
  
-+void cat_datum_init(cat_datum_t * x)
-+{
-+	memset(x, 0, sizeof(cat_datum_t));
-+}
-+
-+void cat_datum_destroy(cat_datum_t * x __attribute__ ((unused)))
-+{
-+	/* it's currently a simple struct - really nothing to destroy */
-+	return;
-+}
-+
- void class_perm_node_init(class_perm_node_t * x)
- {
- 	memset(x, 0, sizeof(class_perm_node_t));
-@@ -502,7 +513,11 @@ int policydb_user_cache(hashtab_key_t ke
- 		return -1;
- 	}
+diff --exclude-from=exclude -N -u -r nsaserefpolicy/policy/modules/system/logging.te serefpolicy-2.3.16/policy/modules/system/logging.te
+--- nsaserefpolicy/policy/modules/system/logging.te	2006-09-25 15:11:11.000000000 -0400
++++ serefpolicy-2.3.16/policy/modules/system/logging.te	2006-09-25 15:27:25.000000000 -0400
+@@ -18,6 +18,7 @@
  
--	if (p->policy_type != POLICY_KERN) {
-+	/* we do not expand user's MLS info in kernel policies because the
-+	 * semantic representation is not present and we do not expand user's
-+	 * MLS info in module policies because all of the necessary mls
-+	 * information is not present */
-+	if (p->policy_type != POLICY_KERN && p->policy_type != POLICY_MOD) {
- 		mls_range_destroy(&user->exp_range);
- 		if (mls_semantic_range_expand(&user->range,
- 					      &user->exp_range, p, NULL)) {
-@@ -918,6 +933,7 @@ static int cat_destroy(hashtab_key_t key
- {
- 	if (key)
- 		free(key);
-+	cat_datum_destroy((cat_datum_t *) datum);
- 	free(datum);
- 	return 0;
- }
-@@ -2347,9 +2363,10 @@ static int cat_read(policydb_t * p
- 	cat_datum_t *catdatum;
- 	uint32_t *buf, len;
+ type auditd_log_t;
+ files_security_file(auditd_log_t)
++files_mountpoint(auditd_log_t)
  
--	catdatum = calloc(1, sizeof(cat_datum_t));
-+	catdatum = malloc(sizeof(cat_datum_t));
- 	if (!catdatum)
- 		return -1;
-+	cat_datum_init(catdatum);
+ type auditd_t;
+ # real declaration moved to mls until
+diff --exclude-from=exclude -N -u -r nsaserefpolicy/policy/modules/system/raid.te serefpolicy-2.3.16/policy/modules/system/raid.te
+--- nsaserefpolicy/policy/modules/system/raid.te	2006-07-14 17:04:44.000000000 -0400
++++ serefpolicy-2.3.16/policy/modules/system/raid.te	2006-09-25 15:27:25.000000000 -0400
+@@ -29,11 +29,13 @@
+ kernel_read_system_state(mdadm_t)
+ kernel_read_kernel_sysctls(mdadm_t)
+ kernel_rw_software_raid_state(mdadm_t)
++kernel_getattr_core_if(mdadm_t)
  
- 	buf = next_entry(fp, (sizeof(uint32_t) * 3));
- 	if (!buf)
+ dev_read_sysfs(mdadm_t)
+ # Ignore attempts to read every device file
+ dev_dontaudit_getattr_all_blk_files(mdadm_t)
+ dev_dontaudit_getattr_all_chr_files(mdadm_t)
++dev_dontaudit_getattr_generic_files(mdadm_t)
+ 
+ fs_search_auto_mountpoints(mdadm_t)
+ fs_dontaudit_list_tmpfs(mdadm_t)
+
+--------------010600080008070608040403--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
