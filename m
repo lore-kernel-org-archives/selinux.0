@@ -1,86 +1,170 @@
 Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k8PJ4hac024308
-	for <selinux@tycho.nsa.gov>; Mon, 25 Sep 2006 15:04:43 -0400
-Received: from e32.co.us.ibm.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id k8PJ43aU025020
-	for <selinux@tycho.nsa.gov>; Mon, 25 Sep 2006 19:04:09 GMT
-Received: from westrelay02.boulder.ibm.com (westrelay02.boulder.ibm.com [9.17.195.11])
-	by e32.co.us.ibm.com (8.13.8/8.12.11) with ESMTP id k8PJ4WDT009876
-	for <selinux@tycho.nsa.gov>; Mon, 25 Sep 2006 15:04:32 -0400
-Received: from d03av02.boulder.ibm.com (d03av02.boulder.ibm.com [9.17.195.168])
-	by westrelay02.boulder.ibm.com (8.13.6/8.13.6/NCO v8.1.1) with ESMTP id k8PJ4OQH325142
-	for <selinux@tycho.nsa.gov>; Mon, 25 Sep 2006 13:04:24 -0600
-Received: from d03av02.boulder.ibm.com (loopback [127.0.0.1])
-	by d03av02.boulder.ibm.com (8.12.11.20060308/8.13.3) with ESMTP id k8PJ4N3C001510
-	for <selinux@tycho.nsa.gov>; Mon, 25 Sep 2006 13:04:24 -0600
-Date: Mon, 25 Sep 2006 13:52:39 -0500
-From: Joy Latten <latten@austin.ibm.com>
-Message-Id: <200609251852.k8PIqd5w031210@faith.austin.ibm.com>
-To: dwalsh@redhat.com, latten@austin.ibm.com, redhat-lspp@redhat.com,
-        selinux@tycho.nsa.gov
-Subject: Re: [Fwd: How should we handle polmatch avcs?]
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k8PJB6CE024496
+	for <selinux@tycho.nsa.gov>; Mon, 25 Sep 2006 15:11:06 -0400
+Received: from mx1.redhat.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id k8PJAPaU026008
+	for <selinux@tycho.nsa.gov>; Mon, 25 Sep 2006 19:10:30 GMT
+Message-ID: <451829B6.7050606@redhat.com>
+Date: Mon, 25 Sep 2006 15:10:46 -0400
+From: Daniel J Walsh <dwalsh@redhat.com>
+MIME-Version: 1.0
+To: "Christopher J. PeBenito" <cpebenito@tresys.com>
+CC: SE Linux <selinux@tycho.nsa.gov>
+Subject: Re: Latest diffs
+References: <45116881.3060406@redhat.com>	 <1158945196.3920.131.camel@sgc.columbia.tresys.com>	 <451447EA.70905@redhat.com> <1159210299.3920.218.camel@sgc>
+In-Reply-To: <1159210299.3920.218.camel@sgc>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
->Seems like we have a problem with current OpenSwan/IPSec stuff.
+Christopher J. PeBenito wrote:
+> On Fri, 2006-09-22 at 16:30 -0400, Daniel J Walsh wrote:
+>   
+>> Christopher J. PeBenito wrote:
+>>     
+>>> On Wed, 2006-09-20 at 12:12 -0400, Daniel J Walsh wrote:
+>>>   
+>>>       
+>>>> http://people.redhat.com/dwalsh/SELinux/policy.diff
+>>>>
+>>>> Changed to allow 1024 categories.
+>>>>         
+>>> Not adding this yet.  Waiting for concensus on how high we should go.
+>>>   
+>>>       
+>> Ok, any way we could make this a constant defined in the Makefile?
+>>
+>> TOTAL_CATS=1024, MAX_CAT=c1023
+>>     
 >
->I believe that some of these are bugs in the implementation.
+> This was suggested to me by others; it seems like a reasonable
+> compromise.  I'll probably make build options for the number of MLS and
+> MCS categories, and the number of MLS sensitivities.
 >
->-------- Original Message --------
->Subject: 	How should we handle polmatch avcs?
->Date: 	Sat, 23 Sep 2006 06:59:30 -0400
->From: 	Daniel J Walsh <dwalsh@redhat.com>
->To: 	Stephen Smalley <sds@tycho.nsa.gov>, "Christopher J. PeBenito" 
-><cpebenito@tresys.com>
+>   
+>>>> Add a files_manage_non_secure_dirs for autofs
+>>>>         
+>>> This seems suspect.
+>>>   
+>>>       
+>> Autofs creates a file/directory in every directory it mounts over.
+>>     
 >
+> But why does it do this?
 >
+>   
+Taken off list to get an answer from autofs package maintainer, will 
+post answer.
+> Also, the other change sounds suspect since it can't do any rawip send
+> or receive:
 >
->https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=207304
+>   
+>> automount uses rawip_socket  
+>>     
 >
->allow initrc_t self:association polmatch;
->allow unlabeled_t initrc_t:association polmatch;
->allow unlabeled_t self:association polmatch;
+>   
+>>>> Stop using bluetooth_helper_t
+>>>>         
+>>> Why?
+>>>
+>>>       
+>> Two many bugs and it is confining userspace with X-Windows.
+>>     
+>
+> I assume you're referring to targeted, in which case, the transition
+> should be removed from unconfined_t, not the label from the file.
+>
+>   
+Yes although I think it will not work well in strict, but we can remove 
+the transition.
+>>>> oddjob policy should be added
+>>>>         
+>
+> /usr/lib/oddjobd    gen_context(system_u:object_r:oddjob_var_lib_t,s0)
+>
+> Is this right?  Not /var/lib/oddjobd since its oddjob_var_lib_t?
+>   
+Yes this should be eliminated.  Not needed. 
+>   
+>>> * What is the /opt/fortitude stuff in apache?
+>>>   
+>>>       
+>> It is a new Red Hat product for government use, I believe. 
+>>     
+>
+> I'm not sure this should upstreamed in that case.
+>
+>   
+Fine.
+>> readahead needs mls_read_up priv, donaudit looking at nvram
+>>     
+>
+> The second part seems weird since there already is:
+>
+> dev_getattr_all_chr_files(readahead_t)
+>
+>   
+Your right this would be fixes by mls_read_up.
+>> fsdaemon_exec_t needs to run at SystemHigh to be able to look at fixed disks
+>>     
+>
+> Holding off on this one until the range_transitions work in modules,
+> which should hopefully be very soon.  Also, why not just do mls_read_up
+> instead?
+>
+>   
+I will try that.
+>> /dev/rawctl is labeled as a fixed_disk_device_t even though it is a 
+>> chr_file.  Not sure if this is correct.
+>>     
+>
+> According to drivers/char/raw.c:
+>
+>  * Front-end raw character devices.  These can be bound to any block
+>  * devices to provide genuine Unix raw character device semantics.
+>  *
+>  * We reserve minor number 0 for a control interface.  ioctl()s on this
+>  * device are used to bind the other minor numbers to block devices.
+>
+> So it sounds like we need two types, one for the control device and one
+> for raw1, etc.
+>
+>   
+>> nscd needs to be accessable from sysadm_r.
+>>     
+>
+> I think there may be another way to fix this.  I looked back at the
+> direct_sysadm_daemon stuff, and I realized that there are two parts to
+> this.  The first is the role transition to allow sysadm_t to restart
+> services without using run_init.  The second allows sysadm_t to start up
+> daemons by directly executing them.  Right now they're both controlled
+> by the DIRECT_INITRC build option.
+>
+> So the question is, do we still want the second part?  If so, it should
+> be separated into its own build option or tunable.
+>
+> I understand that usermod restarts nscd; its too bad it can't just
+> signal nscd to clear its cache rather than doing something broken like
+> this.
+>
+>   
+This is a similar problem to rpm.  Where sysadm_r is required access to 
+all domains that could be run in a rpm scriptlet.  Currently I require 
+mls people to run rpm with run_init to get it to work correctly.
+>> need a userdom_use_unpriv_users_ttys so sysadm_t can write to all users 
+>> terminals when system is going down.
+>>     
+>
+> Moved this change down.
+>
+>   
+>> auditadm and secadm need to be able to messages to syslog
+>>     
+>
+> * moved firstboot_rw_t alias to files.
+>
+>   
 
-I have run across the last of the 3 rules, and believe we do need it.
-The first 2, I have not come across yet.
-
-The last rule will definitely be needed by selinux_xfrm_state_pol_flow_match()
-when sending unlabeled packets. Because, avc_has_perm() takes SA sid and 
-policy sid to check. And when sending unlabeled packets, these will
-both be unlabeled_t. 
-
-I am not very familiar with openswan or pluto. My guess is they
-do not contain modifications to use labeled ipsec. Thus this is
-running just plain non-labeled ipsec.
-
-The first two rules, I am not sure I understand where they are being 
-required. Could not be the hook mentioned above, because in the case
-of unlabeled packets, policy and SA sids will always be unlabeled_t.
-The only other hook that uses polmatch is selinux_xfrm_policy_lookup()
-and avc_has_perm() checks flow sid and policy sid. Again, in the case
-of unlabeled packets, the policy sid should always be unlabeled_t. So,
-target will always be unlabeled_t... maybe some sort of transition happens?
-
-
-I added "polmatch" to kernel_sendrecv_unlabeled_association interface 
-in kernel.if. Originally, the check in selinux_xfrm_policy_lookup()
-was for association:sendto recvfrom. This was changed with the 
-introduction of the latest set of patches to labeled ipsec that 
-introduced, polmatch. Thus I figured we needed to add "polmatch"
-here too.  
-
-Also, selinux_xfrm_policy_lookup() will get called when an app wants 
-to send a packet. It does an avc_has_perm()
-using flow sid as source and policy sid as target.  I noticed that the 
-flow_sid must sometimes be assigned the socket sid, because for a ping, 
-my source sid aka flow_sid is ping_t. avc_has_perm() appears to check
-if ping_t can access unlabeled_t. Thus, apps sending unlabeled
-ipsec packets, will call selinux_xfrm_policy_lookup... so it seem
-easier to just add polmatch in this interface. This interface gets called
-by corenet_non_ipsec_sendrecv in corenetwork.if. I noticed most
-apps/daemons and init call corenet_non_ipsec_sendrecv.
-
-Joy
 
 --
 This message was distributed to subscribers of the selinux mailing list.
