@@ -1,50 +1,41 @@
-Date: Mon, 25 Sep 2006 10:04:06 -0500
-From: "Serge E. Hallyn" <serue@us.ibm.com>
-To: Erich Schubert <erich@debian.org>
-Cc: "Serge E. Hallyn" <serue@us.ibm.com>, Daniel J Walsh <dwalsh@redhat.com>,
-        "Christopher J. PeBenito" <cpebenito@tresys.com>,
-        Stephen Smalley <sds@tycho.nsa.gov>,
-        Michael C Thompson <thompsmc@us.ibm.com>,
-        SE Linux <selinux@tycho.nsa.gov>
-Subject: Re: SSH pubkey authentication & MLS policy
-Message-ID: <20060925150406.GA11645@sergelap.austin.ibm.com>
-References: <4511AAF2.8090809@us.ibm.com> <45129698.5080503@redhat.com> <1158852528.14117.48.camel@wintermute.xmldesign.de> <20060921160426.GA2487@sergelap.austin.ibm.com> <1158866649.16609.2.camel@wintermute.xmldesign.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1158866649.16609.2.camel@wintermute.xmldesign.de>
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k8PFOEwd015905
+	for <selinux@tycho.nsa.gov>; Mon, 25 Sep 2006 11:24:14 -0400
+Received: from mx1.redhat.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id k8PFNfcl025367
+	for <selinux@tycho.nsa.gov>; Mon, 25 Sep 2006 15:23:42 GMT
+Message-ID: <4517F48A.80506@redhat.com>
+Date: Mon, 25 Sep 2006 11:23:54 -0400
+From: Daniel J Walsh <dwalsh@redhat.com>
+MIME-Version: 1.0
+To: Joy Latten <latten@austin.ibm.com>, SE Linux <selinux@tycho.nsa.gov>,
+        redhat-lspp <redhat-lspp@redhat.com>
+Subject: [Fwd: How should we handle polmatch avcs?]
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Quoting Erich Schubert (erich@debian.org):
-> Hi,
-> > > http://svn.debian.org/wsvn/selinux/refpolicy/branches/debian/policy/modules/services/ssh.te?op=diff&rev=0&sc=0
-> > 
-> > Looks like the statements we need, but why do you have this
-> > under tunable_policy(`ssh_sysadm_login')?
-> 
-> IIRC it was in the static vs. targeted construct, not in
-> ssh_sysadm_login.
-> Or it was because in the case of not allowing sysadm logins, I didn't
-> want it to be able to scan the sysadm's home directory. YMMV.
-> 
-> Anyway, getattr should be enough. Could you try modifying your sergessh
-> module to only add getattr attributes, if that is enough? If so, we
-> should add a new interface which includes getattr, but not full search
-> to home directories.
+Seems like we have a problem with current OpenSwan/IPSec stuff.
 
-Yup, the following module also works:
+I believe that some of these are bugs in the implementation.
 
-policy_module(sergessh,1.0.0)
+-------- Original Message --------
+Subject: 	How should we handle polmatch avcs?
+Date: 	Sat, 23 Sep 2006 06:59:30 -0400
+From: 	Daniel J Walsh <dwalsh@redhat.com>
+To: 	Stephen Smalley <sds@tycho.nsa.gov>, "Christopher J. PeBenito" 
+<cpebenito@tresys.com>
 
-gen_require(`
-        type sshd_t;
-	type abat_home_dir_t;
-')
 
-allow sshd_t abat_home_dir_t:dir { getattr };
 
-thanks,
--serge
+https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=207304
+
+allow initrc_t self:association polmatch;
+allow unlabeled_t initrc_t:association polmatch;
+allow unlabeled_t self:association polmatch;
+
+
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
