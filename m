@@ -1,47 +1,47 @@
-Message-ID: <4517DA77.7000408@trustedcs.com>
-Date: Mon, 25 Sep 2006 08:32:39 -0500
-From: Darrel Goeddel <dgoeddel@TrustedCS.com>
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k8PDlS6e012679
+	for <selinux@tycho.nsa.gov>; Mon, 25 Sep 2006 09:47:28 -0400
+From: Steve Grubb <sgrubb@redhat.com>
+To: redhat-lspp@redhat.com
+Subject: Re: [redhat-lspp] updated racoon patch
+Date: Mon, 25 Sep 2006 09:47:52 -0400
+Cc: Stephen Smalley <sds@epoch.ncsc.mil>, Daniel Walsh <dwalsh@redhat.com>,
+        "SELinux List" <selinux@tycho.nsa.gov>
+References: <200609211855.k8LItkZw026669@faith.austin.ibm.com> <200609250843.09248.sgrubb@redhat.com>
+In-Reply-To: <200609250843.09248.sgrubb@redhat.com>
 MIME-Version: 1.0
-To: Joshua Brindle <jbrindle@tresys.com>
-CC: SELinux List <selinux@tycho.nsa.gov>, Serge Hallyn <serue@us.ibm.com>,
-        "Christopher J. PeBenito" <cpebenito@tresys.com>,
-        Stephen Smalley <sds@tycho.nsa.gov>,
-        Karl MacMillan <kmacmillan@mentalrootkit.com>
-Subject: Re: [RFC PATCH] allow range_transitions and MLS users in modules
-References: <6FE441CD9F0C0C479F2D88F959B01588443A3E@exchange.columbia.tresys.com>
-In-Reply-To: <6FE441CD9F0C0C479F2D88F959B01588443A3E@exchange.columbia.tresys.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain;
+  charset="utf-8"
+Message-Id: <200609250947.52327.sgrubb@redhat.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Joshua Brindle wrote:
->>From: Darrel Goeddel [mailto:dgoeddel@trustedcs.com] 
->>
->>- Add the ability to require MLS sensitivities and categories 
->>in policy
->>  modules.
->>- Remove the restrictions on defining users in MLS-enabled modules.
->>- Handle range_trans_rules in modules.
->>
->>This all allows range_transition statements to be used in 
->>policy modules and allows definition of users in MLS policy modules.
->>
->>I haven't tested this as much as I would like, but it is 
->>working nicely for me.  I have built several policies (MLS, 
->>non-MLS, strict, targeted,
->>etc.) and have built several modules exercising the new functionality.
->>I'd appreciate any feedback you may have at this point.
->>
-> 
-> 
-> Aside from the 2 initializers I mentioned earlier this looks good, can
-> you add those initializers and resend please?
+On Monday 25 September 2006 08:43, Steve Grubb wrote:
+> This doesn't build. Where does the POLMATCH define come from? I can't find
+> it anywhere.
 
-Thanks,  I'll get that out today.
+Found that libselinux-devel and 2.6.18 kernel are not in sync. Please apply
+this patch:
 
--- 
-
-Darrel
+diff -ur libselinux-1.30.28.orig/include/selinux/av_permissions.h libselinux-1.30.28/include/selinux/av_permissions.h
+--- libselinux-1.30.28.orig/include/selinux/av_permissions.h	2006-09-25 09:44:13.000000000 -0400
++++ libselinux-1.30.28/include/selinux/av_permissions.h	2006-09-25 09:44:47.000000000 -0400
+@@ -468,6 +468,7 @@
+ #define PROCESS__EXECSTACK                        0x04000000UL
+ #define PROCESS__EXECHEAP                         0x08000000UL
+ #define PROCESS__SETKEYCREATE                     0x10000000UL
++#define PROCESS__SETSOCKCREATE                    0x20000000UL
+ 
+ #define IPC__CREATE                               0x00000001UL
+ #define IPC__DESTROY                              0x00000002UL
+@@ -910,6 +911,7 @@
+ #define ASSOCIATION__SENDTO                       0x00000001UL
+ #define ASSOCIATION__RECVFROM                     0x00000002UL
+ #define ASSOCIATION__SETCONTEXT                   0x00000004UL
++#define ASSOCIATION__POLMATCH                     0x00000008UL
+ 
+ #define NETLINK_KOBJECT_UEVENT_SOCKET__IOCTL      0x00000001UL
+ #define NETLINK_KOBJECT_UEVENT_SOCKET__READ       0x00000002UL
 
 --
 This message was distributed to subscribers of the selinux mailing list.
