@@ -1,41 +1,47 @@
 Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k8PFOEwd015905
-	for <selinux@tycho.nsa.gov>; Mon, 25 Sep 2006 11:24:14 -0400
-Received: from mx1.redhat.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id k8PFNfcl025367
-	for <selinux@tycho.nsa.gov>; Mon, 25 Sep 2006 15:23:42 GMT
-Message-ID: <4517F48A.80506@redhat.com>
-Date: Mon, 25 Sep 2006 11:23:54 -0400
-From: Daniel J Walsh <dwalsh@redhat.com>
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k8PFSZd6016097
+	for <selinux@tycho.nsa.gov>; Mon, 25 Sep 2006 11:28:35 -0400
+Received: from tcsfw4.tcs-sec.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id k8PFS2cl026036
+	for <selinux@tycho.nsa.gov>; Mon, 25 Sep 2006 15:28:03 GMT
+Message-ID: <36282A1733C57546BE392885C0618592015736AE@chaos.tcs.tcs-sec.com>
+From: Chad Hanson <chanson@TrustedCS.com>
+To: Karl MacMillan <kmacmillan@mentalrootkit.com>,
+        Venkat Yekkirala
+	 <vyekkirala@TrustedCS.com>
+Cc: Stephen Smalley <sds@tycho.nsa.gov>, selinux@tycho.nsa.gov,
+        Chad Hanson <chanson@TrustedCS.com>,
+        Darrel Goeddel
+	 <DGoeddel@TrustedCS.com>, dwalsh@redhat.com,
+        jmorris@redhat.com, latten@austin.ibm.com,
+        Paul Moore <paul.moore@hp.com>, Joshua Brindle
+	 <jbrindle@tresys.com>
+Subject: RE: Labeled networking packets
+Date: Mon, 25 Sep 2006 11:28:21 -0400
 MIME-Version: 1.0
-To: Joy Latten <latten@austin.ibm.com>, SE Linux <selinux@tycho.nsa.gov>,
-        redhat-lspp <redhat-lspp@redhat.com>
-Subject: [Fwd: How should we handle polmatch avcs?]
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Seems like we have a problem with current OpenSwan/IPSec stuff.
 
-I believe that some of these are bugs in the implementation.
+> 
+>     2) Domain (process) context transmission - essentially, making 
+>        getpeercon work for non-local sockets. The important thing here 
+>        is that this is separate and distinct from the label of the 
+>        packet. getpeercon (which is not just a poorly named function - 
+>        the semantic is intentional and useful) should return the full 
+>        context of the process on the other end of the network 
+>        connection.
+> 
 
--------- Original Message --------
-Subject: 	How should we handle polmatch avcs?
-Date: 	Sat, 23 Sep 2006 06:59:30 -0400
-From: 	Daniel J Walsh <dwalsh@redhat.com>
-To: 	Stephen Smalley <sds@tycho.nsa.gov>, "Christopher J. PeBenito" 
-<cpebenito@tresys.com>
+This is why we just introduced the getdatacon() notion. Regardless of
+whether a packet arrived from a trusted or non-trusted host, we may have the
+desire to utilize the label of the packet. An example of this would be a
+trusted app, such as xinetd or a guard, which wants to use the label of the
+traffic to launch a service or make a security decision.
 
-
-
-https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=207304
-
-allow initrc_t self:association polmatch;
-allow unlabeled_t initrc_t:association polmatch;
-allow unlabeled_t self:association polmatch;
-
-
-
+-Chad
 
 --
 This message was distributed to subscribers of the selinux mailing list.
