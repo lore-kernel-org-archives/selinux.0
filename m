@@ -1,27 +1,27 @@
 Subject: RE: Labeled networking packets
-From: Karl MacMillan <kmacmillan@mentalrootkit.com>
+From: Joshua Brindle <jbrindle@tresys.com>
 To: Stephen Smalley <sds@tycho.nsa.gov>
-Cc: Joshua Brindle <jbrindle@tresys.com>,
+Cc: Karl MacMillan <kmacmillan@mentalrootkit.com>,
         Venkat Yekkirala <vyekkirala@TrustedCS.com>, selinux@tycho.nsa.gov,
         Chad Hanson <chanson@TrustedCS.com>,
         Darrel Goeddel <DGoeddel@TrustedCS.com>, dwalsh@redhat.com,
         jmorris@redhat.com, latten@austin.ibm.com,
         Paul Moore <paul.moore@hp.com>
-In-Reply-To: <1159203754.21540.156.camel@moss-spartans.epoch.ncsc.mil>
+In-Reply-To: <1159207486.15305.60.camel@moss-spartans.epoch.ncsc.mil>
 References: 
 	 <6FE441CD9F0C0C479F2D88F959B01588443A34@exchange.columbia.tresys.com>
 	 <1159198525.21540.72.camel@moss-spartans.epoch.ncsc.mil>
-	 <1159199759.3169.29.camel@twoface.columbia.tresys.com>
-	 <1159203754.21540.156.camel@moss-spartans.epoch.ncsc.mil>
+	 <1159202108.4252.4.camel@localhost.localdomain>
+	 <1159207486.15305.60.camel@moss-spartans.epoch.ncsc.mil>
 Content-Type: text/plain
-Date: Mon, 25 Sep 2006 14:14:14 -0400
-Message-Id: <1159208054.4741.20.camel@localhost.localdomain>
+Date: Mon, 25 Sep 2006 14:25:55 -0400
+Message-Id: <1159208755.3169.47.camel@twoface.columbia.tresys.com>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 2006-09-25 at 13:02 -0400, Stephen Smalley wrote: 
-> On Mon, 2006-09-25 at 11:55 -0400, Joshua Brindle wrote:
+On Mon, 2006-09-25 at 14:04 -0400, Stephen Smalley wrote:
+> On Mon, 2006-09-25 at 12:35 -0400, Karl MacMillan wrote:
 > > On Mon, 2006-09-25 at 11:35 -0400, Stephen Smalley wrote:
 > > > On Sat, 2006-09-23 at 10:13 -0400, Joshua Brindle wrote:
 > > > > > From: Venkat Yekkirala [mailto:vyekkirala@TrustedCS.com] 
@@ -37,48 +37,45 @@ On Mon, 2006-09-25 at 13:02 -0400, Stephen Smalley wrote:
 > > > same as the process, but not necessarily.
 > > > 
 > > 
-> > That's fine, it matches the semantics of getpeercon() locally. Policy
-> > can dictate that the socket endpoint is necessarily the domain context.
+> > Just because it will be hard or impossible to get this data doesn't mean
+> > the requirement is bogus. It seems to me that getting the process
+> > context is helpful whenever the data stream is really some form of
+> > remote procedure call. So, are you really objecting to the requirement
+> > conceptually or just pointing out that it won't happen?
 > 
-> If we always wanted that, why would we have
-> added /proc/self/attr/sockcreate?
-> 
-> > Nonetheless, if I can't get something that represents the exact domain
-> > (not an SA that can be used by lots of domains) I can't do access
-> > control on network clients (at least not with getpeercon()..
-> 
-> s/SA/socket/ above and think about what you just said.  It is no
-> different.  Socket or SA - they are levels of indirection that are
-> necessarily present because the relationship is indirect.  And as long
-> as you have control over the relationships, you can establish the higher
-> level security goal.
+> Conceptually.  There is always going to be a level of indirection here,
+> and the higher level security goal always has to be decomposed into
+> multiple relationships.
 > 
 
-You know - I have this blind spot in my mental model of how networking
-works. Yes - sockets means that there is an additional level of
-indirection which will make any attempt to treat these connections as
-between two process break.
+Why is it conceptually bogus to want the context of the domain talking
+to you? You are saying there is indirection, and there is, but that
+doesn't mean there isn't a legitimate need to know the remote domain
+rather than the socket, data, packet, whatever. getpeercon() acted this
+way for years before the option to label sockets came around (which has
+no users afaik). 
 
-The ipc model I was using as a strawman sounds nice - I think it would
-be more natural for server processes that act as surrogates for remote
-processes to enforce access based on the process context (including the
-ability to use the role for additional restrictions - e.g., when
-exec'ing new processes based on an rpc call). I don't think that this
-maps well to the socket model, however. In reality I think that the
-current semantics of getpeercon must remain local only.
+I know flask specified impersonation, and that is what the socket
+labeling does for us. Is this why you are saying there shouldn't be an
+option to get access to the remote domain while ignoring the
+intermediate indirection?
 
-As to the ability to enforce higher level goals if you can control the
-relationships, I don't disagree. I will note, however, that each level
-of indirection makes it more difficult for many users to understand.
-When I have taught SELinux classes most users have some amount of
-difficulty with types (1 level of indirection). Most have more trouble
-with attributes (2 levels of indirection) and some never make the leap.
+> > The remote socket is probably good enough, though, and as Josh points
+> > out policy can enforce that the socket type matches the current process
+> > domain type (or at least a domain type).
+> 
+> It doesn't need to do that, and setsockcreatecon() wouldn't exist if we
+> always wanted that relationship to be fixed.
+> 
 
-So I am getting very concerned that our model has all of these layers
-(process->sockets->SA combined with secmark rules via type_transition).
+what was the use case behind adding setsockcreatecon? For guards its
+helpful so that you don't have to alternate ipc mechanisms in the
+pipeline but for client server relationships.. not sure. 
 
-Karl
-
+Trusted proxies are one use case but I'm not sure how compelling that
+is. Another is context translation but at that point setsockcreatecon
+won't work anyway since the remote context isn't valid on the local
+system.
 
 
 --
