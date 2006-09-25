@@ -1,73 +1,61 @@
-Message-ID: <4518302F.4070804@hp.com>
-Date: Mon, 25 Sep 2006 15:38:23 -0400
-From: Paul Moore <paul.moore@hp.com>
-MIME-Version: 1.0
-To: Stephen Smalley <sds@tycho.nsa.gov>
-Cc: Karl MacMillan <kmacmillan@mentalrootkit.com>,
-        Joshua Brindle <jbrindle@tresys.com>,
-        Venkat Yekkirala <vyekkirala@TrustedCS.com>, selinux@tycho.nsa.gov,
-        Chad Hanson <chanson@TrustedCS.com>,
-        Darrel Goeddel <DGoeddel@TrustedCS.com>, dwalsh@redhat.com,
-        jmorris@redhat.com, latten@austin.ibm.com
-Subject: Re: Labeled networking packets
-References: <6FE441CD9F0C0C479F2D88F959B01588443A34@exchange.columbia.tresys.com>	 <1159198525.21540.72.camel@moss-spartans.epoch.ncsc.mil>	 <1159202108.4252.4.camel@localhost.localdomain>	 <1159207486.15305.60.camel@moss-spartans.epoch.ncsc.mil>	 <1159208755.3169.47.camel@twoface.columbia.tresys.com>	 <1159209686.4741.46.camel@localhost.localdomain>  <4518275B.9040609@hp.com> <1159212339.16246.12.camel@moss-spartans.epoch.ncsc.mil>
-In-Reply-To: <1159212339.16246.12.camel@moss-spartans.epoch.ncsc.mil>
-Content-Type: text/plain; charset=ISO-8859-1
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k8PJcsie025504
+	for <selinux@tycho.nsa.gov>; Mon, 25 Sep 2006 15:38:54 -0400
+Received: from exchange.columbia.tresys.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with SMTP id k8PJbqAk010278
+	for <selinux@tycho.nsa.gov>; Mon, 25 Sep 2006 19:37:52 GMT
+Subject: Re: Errors with runcon - RHEL4/refpolicy
+From: "Christopher J. PeBenito" <cpebenito@tresys.com>
+To: "Osborn, Justin D." <Justin.Osborn@jhuapl.edu>
+Cc: selinux@tycho.nsa.gov
+In-Reply-To: <7B95239DDD54E54B9BFA23847142B1EE10A28A@aplesnation.dom1.jhuapl.edu>
+References: 
+	 <7B95239DDD54E54B9BFA23847142B1EE10A28A@aplesnation.dom1.jhuapl.edu>
+Content-Type: text/plain
+Date: Mon, 25 Sep 2006 15:39:34 -0400
+Message-Id: <1159213174.3920.238.camel@sgc>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Stephen Smalley wrote:
-> On Mon, 2006-09-25 at 15:00 -0400, Paul Moore wrote:
+On Mon, 2006-09-25 at 10:09 -0400, Osborn, Justin D. wrote:
+>       I'm working on a project to do containment of VMware VMs using
+> SELinux policy.  Our system is set up on RHEL4 and I have the
+> Reference Policy installed. 
 > 
->>Karl MacMillan wrote:
->>
->>>On Mon, 2006-09-25 at 14:25 -0400, Joshua Brindle wrote:
->>>
->>>
->>>>On Mon, 2006-09-25 at 14:04 -0400, Stephen Smalley wrote:
->>>
->>>
->>><snip>
->>>
->>>>>>The remote socket is probably good enough, though, and as Josh points
->>>>>>out policy can enforce that the socket type matches the current process
->>>>>>domain type (or at least a domain type).
->>>>>
->>>>>It doesn't need to do that, and setsockcreatecon() wouldn't exist if we
->>>>>always wanted that relationship to be fixed.
->>>>>
->>>>
->>>>what was the use case behind adding setsockcreatecon? For guards its
->>>>helpful so that you don't have to alternate ipc mechanisms in the
->>>>pipeline but for client server relationships.. not sure. 
->>>
->>>xinetd was one - it allows the creation of sockets with the "correct"
->>>label (e.g., telnetd_t) so that all processes spawned by xinetd to have
->>>to have permissions on all xinetd sockets.
->>
->>I belive that the SELinux/xinetd (at least the initial version, not sure
->>if it has changed) patch did not use setsockcreatecon() to set the
->>socket's context.  The kernel was tasked with setting the context of the
->>accept()'d TCP socket to match the context of the connection.  The idea
->>being that xinetd would accept() the incoming connection, do a
->>getpeercon() to fetch a context, call setexeccon() with that context,
->>and finally spawn the server daemon.
+>       We're trying to reuse the VMware policy that was originally
+> distributed with the Reference Policy.  Specifically there is a
+> per-user-domain template that we modified for our use and instantiate
+> from another te file.  The policy compiles and our VMs are properly
+> labeled after relabeling.
 > 
-> But that doesn't deal with the TE aspect of the socket context, right?
-> So you end up with the sockets being left in xinetd_t.
+>      The problem is that when I try to kick off a VM using runcon, I
+> get the non-descript "unable to setup security context" error.  The
+> command I'm running is: runcon root:system_r:ziplock_vm1_vmware_t
+> vmware-cmd start /VMs/foo.vmx.  My bash shell is running as
+> root:system_r:unconfined_t.  I added my types to system_r and verified
+> with apol.
+> 
+>      So my questions are:
+>      a) Why was the VMware policy renoved from the Reference Policy?
 
-That depends on the underlying labeling protocol.  Steve Grubb's xinetd
-patch simply takes the output of getpeercon() and feeds it back into
-setexeccon().  In the case of NetLabel, the context returned by
-getpeercon is the concatenation of the parent socket's TE context and
-the MLS label of the remote socket.  So for NetLabel, yes, the spawned
-server process will run in the xinetd_t domain, or whatever domain
-xinetd was running in when the connection was established.  With labeled
-IPsec this will obviously be different.
+I don't understand the question.  Its in refpolicy, and you said you
+were using it...
+
+>      b) What am I missing with the runcon error?  Is there somewhere I
+> can look for a more descriptive error message?
+
+It means the setexeccon() failed.  Usually a setexeccon() error means
+either the context is invalid or it was denied setexec on the processs.
+You're unconfined, so you have setexec, so most likely it is an invalid
+context.  Newer versions of runcon have a different message explicitly
+saying if the context is invalid.
 
 -- 
-paul moore
-linux security @ hp
+Chris PeBenito
+Tresys Technology, LLC
+(410) 290-1411 x150
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
