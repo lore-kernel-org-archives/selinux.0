@@ -1,59 +1,62 @@
 Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k8PI6i8G021626
-	for <selinux@tycho.nsa.gov>; Mon, 25 Sep 2006 14:06:44 -0400
-Received: from atlrel8.hp.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id k8PI5fAk023397
-	for <selinux@tycho.nsa.gov>; Mon, 25 Sep 2006 18:05:41 GMT
-Message-Id: <20060925180640.679073000@hp.com>
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k8PI6lMG021687
+	for <selinux@tycho.nsa.gov>; Mon, 25 Sep 2006 14:06:47 -0400
+Received: from atlrel7.hp.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id k8PI5jAk023418
+	for <selinux@tycho.nsa.gov>; Mon, 25 Sep 2006 18:05:45 GMT
+Message-Id: <20060925180644.042122000@hp.com>
 References: <20060925180412.715069000@hp.com>
-Date: Mon, 25 Sep 2006 14:04:15 -0400
+Date: Mon, 25 Sep 2006 14:04:20 -0400
 From: paul.moore@hp.com
 To: netdev@vger.kernel.org, selinux@tycho.nsa.gov
-Cc: tgraf@suug.ch, jmorris@redhat.com, sds@epoch.ncsc.mil
-Subject: [PATCH v2 3/8] NetLabel: change the SELinux permissions
+Cc: tgraf@suug.ch, jmorris@redhat.com, sds@epoch.ncsc.mil,
+        Paul Moore <paul.moore@hp.com>
+Subject: [PATCH v2 8/8] NetLabel: update docs with website information
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Change NetLabel to use the 'recvfrom' socket permission and the
-SECINITSID_NETMSG SELinux SID as the NetLabel base SID for incoming packets.
-This patch effectively makes the old, and currently unused, SELinux NETMSG
-permissions NetLabel permissions.
+Now that all of the supporting pieces of NetLabel have a home at SourceForge
+update the Kconfig help text and add an entry to the MAINTAINERS file.
 
-Signed-of-by: Paul Moore <paul.moore@hp.com>
+Signed-off-by: Paul Moore <paul.moore@hp.com>
 ---
- security/selinux/ss/services.c |    8 ++++----
- 1 files changed, 4 insertions(+), 4 deletions(-)
+ MAINTAINERS          |    7 +++++++
+ net/netlabel/Kconfig |    5 ++++-
+ 2 files changed, 11 insertions(+), 1 deletion(-)
 
-Index: net-2.6.19/security/selinux/ss/services.c
+Index: net-2.6.19/MAINTAINERS
 ===================================================================
---- net-2.6.19.orig/security/selinux/ss/services.c
-+++ net-2.6.19/security/selinux/ss/services.c
-@@ -2611,7 +2611,7 @@ int selinux_netlbl_sock_rcv_skb(struct s
- 	u32 netlbl_sid;
- 	u32 recv_perm;
+--- net-2.6.19.orig/MAINTAINERS
++++ net-2.6.19/MAINTAINERS
+@@ -2008,6 +2008,13 @@ L:	netfilter@lists.netfilter.org
+ L:	netfilter-devel@lists.netfilter.org
+ S:	Supported
  
--	rc = selinux_netlbl_skbuff_getsid(skb, sksec->sid, &netlbl_sid);
-+	rc = selinux_netlbl_skbuff_getsid(skb, SECINITSID_NETMSG, &netlbl_sid);
- 	if (rc != 0)
- 		return rc;
++NETLABEL
++P:	Paul Moore
++M:	paul.moore@hp.com
++W:	http://netlabel.sf.net
++L:	netdev@vger.kernel.org
++S:	Supported
++
+ NETROM NETWORK LAYER
+ P:	Ralf Baechle
+ M:	ralf@linux-mips.org
+Index: net-2.6.19/net/netlabel/Kconfig
+===================================================================
+--- net-2.6.19.orig/net/netlabel/Kconfig
++++ net-2.6.19/net/netlabel/Kconfig
+@@ -9,6 +9,9 @@ config NETLABEL
+ 	---help---
+ 	  NetLabel provides support for explicit network packet labeling
+ 	  protocols such as CIPSO and RIPSO.  For more information see
+-	  Documentation/netlabel.
++	  Documentation/netlabel as well as the NetLabel SourceForge project
++	  for configuration tools and additional documentation.
++
++	   * http://netlabel.sf.net
  
-@@ -2620,13 +2620,13 @@ int selinux_netlbl_sock_rcv_skb(struct s
- 
- 	switch (sksec->sclass) {
- 	case SECCLASS_UDP_SOCKET:
--		recv_perm = UDP_SOCKET__RECV_MSG;
-+		recv_perm = UDP_SOCKET__RECVFROM;
- 		break;
- 	case SECCLASS_TCP_SOCKET:
--		recv_perm = TCP_SOCKET__RECV_MSG;
-+		recv_perm = TCP_SOCKET__RECVFROM;
- 		break;
- 	default:
--		recv_perm = RAWIP_SOCKET__RECV_MSG;
-+		recv_perm = RAWIP_SOCKET__RECVFROM;
- 	}
- 
- 	rc = avc_has_perm(sksec->sid,
+ 	  If you are unsure, say N.
 
 --
 paul moore
