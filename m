@@ -1,49 +1,46 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k8PJwuxZ026255
-	for <selinux@tycho.nsa.gov>; Mon, 25 Sep 2006 15:58:56 -0400
-Received: from mail6.sea5.speakeasy.net (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id k8PJwMaU002728
-	for <selinux@tycho.nsa.gov>; Mon, 25 Sep 2006 19:58:23 GMT
-Date: Mon, 25 Sep 2006 15:58:50 -0400 (EDT)
-From: James Morris <jmorris@namei.org>
-To: Karl MacMillan <kmacmillan@mentalrootkit.com>
-cc: Stephen Smalley <sds@tycho.nsa.gov>, Joshua Brindle <jbrindle@tresys.com>,
-        Venkat Yekkirala <vyekkirala@TrustedCS.com>, selinux@tycho.nsa.gov,
-        Chad Hanson <chanson@TrustedCS.com>,
-        Darrel Goeddel <DGoeddel@TrustedCS.com>, dwalsh@redhat.com,
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k8PK2vEr026427
+	for <selinux@tycho.nsa.gov>; Mon, 25 Sep 2006 16:02:57 -0400
+Received: from tcsfw4.tcs-sec.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id k8PK1rAk014824
+	for <selinux@tycho.nsa.gov>; Mon, 25 Sep 2006 20:01:55 GMT
+Message-ID: <36282A1733C57546BE392885C061859201573762@chaos.tcs.tcs-sec.com>
+From: Chad Hanson <chanson@TrustedCS.com>
+To: Stephen Smalley <sds@tycho.nsa.gov>, Chad Hanson
+	 <chanson@TrustedCS.com>
+Cc: Karl MacMillan <kmacmillan@mentalrootkit.com>,
+        Venkat Yekkirala
+	 <vyekkirala@TrustedCS.com>, selinux@tycho.nsa.gov,
+        Darrel Goeddel
+	 <DGoeddel@TrustedCS.com>, dwalsh@redhat.com,
         jmorris@redhat.com, latten@austin.ibm.com,
-        Paul Moore <paul.moore@hp.com>
+        Paul Moore <paul.moore@hp.com>, Joshua Brindle
+	 <jbrindle@tresys.com>
 Subject: RE: Labeled networking packets
-In-Reply-To: <1159208054.4741.20.camel@localhost.localdomain>
-Message-ID: <Pine.LNX.4.64.0609251555000.26346@d.namei>
-References: <6FE441CD9F0C0C479F2D88F959B01588443A34@exchange.columbia.tresys.com>
-  <1159198525.21540.72.camel@moss-spartans.epoch.ncsc.mil>
- <1159199759.3169.29.camel@twoface.columbia.tresys.com>
- <1159203754.21540.156.camel@moss-spartans.epoch.ncsc.mil>
- <1159208054.4741.20.camel@localhost.localdomain>
+Date: Mon, 25 Sep 2006 16:02:50 -0400
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 25 Sep 2006, Karl MacMillan wrote:
 
-> So I am getting very concerned that our model has all of these layers
-> (process->sockets->SA combined with secmark rules via type_transition).
+In the absence of any other labeling, I would the secmark label would be
+equivalent to the old selinux network labels. If I have guard that sits
+between two unlabeled networks, I still want to be able to get the label of
+a packet. Since these networks are unlabeled and thus don't speak IPSEC or
+CIPSO, why wouldn't I use the MLS label that is in the secmark, as it is the
+best information I have for the label of the data.
 
-It's fine.  Think of it like a file being created, which may get a label 
-based on a number of factors including the creating context and the parent 
-directory context.
+-Chad
 
-For networking, we're doing something similar, and just allowing all of 
-the important factors to contribute to the labeling, including 
-policy-controlled transitions as the labeling requirements become more 
-specific.
-
-
--- 
-James Morris
-<jmorris@namei.org>
+> -----Original Message-----
+> From: Stephen Smalley [mailto:sds@tycho.nsa.gov]
+> 
+> The problem is that the secmark labeling is generally not suitable as a
+> subject label or as a data origin label, so you can't use it in the way
+> you described.
+> 
 
 --
 This message was distributed to subscribers of the selinux mailing list.
