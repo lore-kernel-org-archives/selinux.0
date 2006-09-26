@@ -1,47 +1,40 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k8PM0ZwO029507
-	for <selinux@tycho.nsa.gov>; Mon, 25 Sep 2006 18:00:35 -0400
-Received: from mail2.sea5.speakeasy.net (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id k8PLxVAk003916
-	for <selinux@tycho.nsa.gov>; Mon, 25 Sep 2006 21:59:33 GMT
-Date: Mon, 25 Sep 2006 18:00:29 -0400 (EDT)
-From: James Morris <jmorris@namei.org>
-To: Venkat Yekkirala <vyekkirala@TrustedCS.com>
-cc: Stephen Smalley <sds@tycho.nsa.gov>,
-        Karl MacMillan <kmacmillan@mentalrootkit.com>, selinux@tycho.nsa.gov,
+Date: Mon, 25 Sep 2006 19:44:45 -0500
+From: "George C. Wilson" <ltcgcw@us.ibm.com>
+To: SELinux <SELinux@tycho.nsa.gov>, LSPP <redhat-lspp@redhat.com>,
+        Venkat Yekkirala <vyekkirala@TrustedCS.com>,
+        Stephen Smalley <sds@tycho.nsa.gov>,
+        Karl MacMillan <kmacmillan@mentalrootkit.com>,
         Chad Hanson <chanson@TrustedCS.com>,
         Darrel Goeddel <DGoeddel@TrustedCS.com>, dwalsh@redhat.com,
         jmorris@redhat.com, latten@austin.ibm.com,
         Paul Moore <paul.moore@hp.com>, Joshua Brindle <jbrindle@tresys.com>
-Subject: RE: Labeled networking packets
-In-Reply-To: <36282A1733C57546BE392885C0618592015737C5@chaos.tcs.tcs-sec.com>
-Message-ID: <Pine.LNX.4.64.0609251759010.27442@d.namei>
-References: <36282A1733C57546BE392885C0618592015737C5@chaos.tcs.tcs-sec.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Cc: Steve Grubb <sgrubb@redhat.com>, Linda Knippers <linda.knippers@hp.com>,
+        Irina Boverman <iboverma@redhat.com>,
+        Serge Hallyn <serue@linux.ibm.com>, Trent Jaeger <tjaeger@cse.psu.edu>,
+        Klaus Weidner <klaus@atsec.com>, Joe Nall <joe@nall.com>
+Subject: Labeled networking telecon
+Message-ID: <20060926004445.GA19051@us.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 25 Sep 2006, Venkat Yekkirala wrote:
+Today the LSPP telecon participants suggested that we have a separate meeting
+to discuss labeled networking.  We would have to hold it soon because the RHEL5
+cutoff date is approaching.  IBM is willing to host using the same number as
+the LSPP call.
 
-> > > I thin the only real choices are:
-> > > 1) Add a separate field to the sk_buff for use by labeled 
-> > networking so
-> > > that we don't have to overload secmark in this manner, or
-> > 
-> > This won't fly upstream.
-> 
-> Do you think the life-cycle management associated with a security
-> pointer will unacceptable even when we do it ONLY in the
-> SECURITY_NETWORK case?
+How about 1 PM CDT tomorrow, Tuesday, Sept. 26?  I think we need at least the
+core labeled networking experts from HP, IBM, NSA, Red Hat, Tresys, and TCS.
+Please respond to me if you are willing to participate.  Be sure to include
+issues you want to see on the agenda.  If 1 PM CDT tomorrow is bad for you,
+please send a counterproposal.  I will send out a notice at roughly 11 AM CDT
+if we can get what looks like a quorum.  If not, I will suggest a new time
+based on the responses.
 
-Yep, it's been rejected before.
-
-
-- James
 -- 
-James Morris
-<jmorris@namei.org>
+George Wilson <ltcgcw@us.ibm.com>
+IBM Linux Technology Center
 
 --
 This message was distributed to subscribers of the selinux mailing list.
