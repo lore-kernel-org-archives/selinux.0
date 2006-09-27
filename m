@@ -1,99 +1,81 @@
-Subject: Re: Labeled networking packets
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Joshua Brindle <jbrindle@tresys.com>
-Cc: James Morris <jmorris@namei.org>,
-        Venkat Yekkirala <vyekkirala@TrustedCS.com>,
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k8RCxWT8016603
+	for <selinux@tycho.nsa.gov>; Wed, 27 Sep 2006 08:59:32 -0400
+Received: from mail7.sea5.speakeasy.net (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id k8RCwxFc005897
+	for <selinux@tycho.nsa.gov>; Wed, 27 Sep 2006 12:59:00 GMT
+Date: Wed, 27 Sep 2006 08:59:29 -0400 (EDT)
+From: James Morris <jmorris@namei.org>
+To: Stephen Smalley <sds@tycho.nsa.gov>
+cc: Venkat Yekkirala <vyekkirala@TrustedCS.com>,
         "Christopher J. PeBenito" <cpebenito@tresys.com>,
         Chad Hanson <chanson@TrustedCS.com>,
         Karl MacMillan <kmacmillan@mentalrootkit.com>, selinux@tycho.nsa.gov,
         Darrel Goeddel <DGoeddel@TrustedCS.com>, dwalsh@redhat.com,
         jmorris@redhat.com, latten@austin.ibm.com,
-        Paul Moore <paul.moore@hp.com>
-In-Reply-To: <451A7151.3000800@tresys.com>
+        Paul Moore <paul.moore@hp.com>, Joshua Brindle <jbrindle@tresys.com>
+Subject: RE: Labeled networking packets
+In-Reply-To: <1159357078.32075.20.camel@moss-spartans.epoch.ncsc.mil>
+Message-ID: <Pine.LNX.4.64.0609270853420.12766@d.namei>
 References: <36282A1733C57546BE392885C061859201573917@chaos.tcs.tcs-sec.com>
-	 <Pine.LNX.4.64.0609261835060.5342@d.namei>
-	 <1159357078.32075.20.camel@moss-spartans.epoch.ncsc.mil>
-	 <451A7151.3000800@tresys.com>
-Content-Type: text/plain
-Date: Wed, 27 Sep 2006 08:58:28 -0400
-Message-Id: <1159361908.32075.42.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+  <Pine.LNX.4.64.0609261835060.5342@d.namei> <1159357078.32075.20.camel@moss-spartans.epoch.ncsc.mil>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2006-09-27 at 08:40 -0400, Joshua Brindle wrote:
-> Stephen Smalley wrote:
-> >
-> > On Tue, 2006-09-26 at 18:43 -0400, James Morris wrote:
-> > > On Tue, 26 Sep 2006, Venkat Yekkirala wrote:
-> > >
-> > > > FOR "INCOMING" CONNECTIONS TO HTTPD (define the client peer):
-> > > >
-> > > > # Create a chain for connection setup and security point labeling
-> > > > # for http client peers.
-> > > > iptables -t mangle -N SEL_HTTP
-> > > >
-> > > > # Accept incoming connections from, and define and save the 
-> > security point
-> > > > for
-> > > > # http client peers.
-> > > > iptables -t mangle -A INPUT -p tcp --dport 80 -m state --state NEW -j
-> > > > SEL_HTTP
-> > > > iptables -t mangle -A SEL_HTTP -j SECPOINT --selctx
-> > > > system_u:object_r:http_client_t:s0
-> > > > iptables -t mangle -A SEL_HTTP -j CONNSECPOINT --save
-> > > > iptables -t mangle -A SEL_HTTP -j ACCEPT
-> > > >
-> > > > # Common rules which restore security points for established
-> > > > # and related packets.
-> > > > iptables -t mangle -A INPUT -m state --state ESTABLISHED,RELATED -j
-> > > > CONNSECPOINT --restore
-> > > > iptables -t mangle -A OUTPUT -m state --state ESTABLISHED,RELATED -j
-> > > > CONNSECPOINT --restore
-> > > >
-> > > > FOR "OUTGOING" CONNECTIONS TO POSTGRES (define the postgres server 
-> > peer):
-> > > >
-> > > > iptables -t mangle -N SEL_PGRESD
-> > > > iptables -t mangle -A OUTPUT -p tcp --dport <postgres-port> -m 
-> > state --state
-> > > > NEW -j SEL_POSTGRESD
-> > > > iptables -t mangle -A SEL_PGRESD -j SECPOINT --selctx
-> > > > system_u:object_r:postgresd_t:s0
-> > > > iptables -t mangle -A SEL_PGRESD -j CONNSECPOINT --save
-> > > > iptables -t mangle -A SEL_PGRESD -j ACCEPT
-> > >
-> > > This just seems the same as SECMARK and CONNSECMARK but with different
-> > > naming.  What problem is this solving?
-> >
-> > The name isn't important (Venkat just views the "secpoint" and "peer"
-> > names as more intuitive).  The issue is how we label the packets -
-> > Venkat is assigning labels that correspond to domains (potentially
-> > generic placeholder domains when we don't actually know a specific one),
-> > like http_client_t (or mozilla_t) and httpd_t versus object types like
-> > http_client_packet_t and http_server_packet_t.
-> >
-> > We could leave the secmark and packet names alone.
-> >
-> I'd rather change the packet name as that could lead to some serious 
-> confusion when reconciliation happens. "packet" has a connotation of 
-> being a discrete visible thing so overriding its label with something 
-> more abstract (eg., an ipsec tunnel) will be confusing. Since "peer" is 
-> a more abstract object it can, more understandably, represent more than 
-> 1 kind of network labeling.
+On Wed, 27 Sep 2006, Stephen Smalley wrote:
 
-Sorry, I don't see that.  There is a discrete visible object here (the
-sk_buff), and it isn't truly a "peer", even if it is propagating the
-peer's information.  "packet" is no less applicable to all forms of
-network labeling than "peer".  "peer" is also confusing in the datagram
-case, as peer usually suggests the remote endpoint of a (stream)
-connection.  And changing the names means a lot of useless busy work
-when there is plenty of real work to be done.
-  
+> > This just seems the same as SECMARK and CONNSECMARK but with different 
+> > naming.  What problem is this solving?
+> 
+> The name isn't important (Venkat just views the "secpoint" and "peer"
+> names as more intuitive).  The issue is how we label the packets -
+> Venkat is assigning labels that correspond to domains (potentially
+> generic placeholder domains when we don't actually know a specific one),
+> like http_client_t (or mozilla_t) and httpd_t versus object types like
+> http_client_packet_t and http_server_packet_t.
+> 
+> We could leave the secmark and packet names alone.
+
+Certainly, changing the iptables target names would be highly intrusive.  
+
+And for internal labeling only, it still seems correct to me that packets 
+are being labeled.
+
+> > > On the http clients and the postgres server, you would define the
+> > > httpd server peer and the postges client peer respectively, if they
+> > > are SELinux machines that is.
+> > > 
+> > > On the http server, you would additionally have rules to allow other
+> > > client labels such as:
+> > > 
+> > > allow firefox_t http_client_t:peer { equiv/from/flow_in }
+> > > allow rss_aggregator_t http_client_t:peer { equiv/from/flow_in }
+> > 
+> > I don't think this is helping with usability.  I'm not even sure what the 
+> > above means.
+
+The above still hasn't been addressed.  I understood the earlier flow 
+permissions, but what is equiv and from?
+
+Please translate the rules into English.
+
+> > > Turns out the "object Type" nature of a packet label doesn't jive
+> > > well with the "domain Type" nature of the external labeling mechanisms
+> > > that are of interest to us here, apart from the shortcoming of not
+> > > being able to handle transient traffic in the forwarding case.
+> > 
+> > I don't see why the packet can't be thought of as carrying the label of 
+> > the originating process.
+
+
+
+
+- James
 -- 
-Stephen Smalley
-National Security Agency
-
+James Morris
+<jmorris@namei.org>
 
 --
 This message was distributed to subscribers of the selinux mailing list.
