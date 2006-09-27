@@ -1,38 +1,37 @@
-Subject: Re: disabling selinux
+Subject: Re: MLS and Biba
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: abcde efghi <svmdcv@gmail.com>
+To: Salvo Giuffrida <giuffsalvo@hotmail.it>
 Cc: selinux@tycho.nsa.gov
-In-Reply-To: <6a9b0ede0609262348i513406t78028f986de8cf42@mail.gmail.com>
-References: <6a9b0ede0609140355i4eeb58a7na4306260bdff7d72@mail.gmail.com>
-	 <1158235692.25629.25.camel@moss-spartans.epoch.ncsc.mil>
-	 <6a9b0ede0609142230u6db9a10fqf4f4059e7a90695e@mail.gmail.com>
-	 <1158337309.18951.9.camel@moss-spartans.epoch.ncsc.mil>
-	 <6a9b0ede0609190031p7f7610cfy87d8c54ab90a32d4@mail.gmail.com>
-	 <1158671354.15340.41.camel@moss-spartans.epoch.ncsc.mil>
-	 <6a9b0ede0609190852y4fe7cffqbb97178c008abe3b@mail.gmail.com>
-	 <1158777383.15340.118.camel@moss-spartans.epoch.ncsc.mil>
-	 <6a9b0ede0609262348i513406t78028f986de8cf42@mail.gmail.com>
+In-Reply-To: <BAY114-F93133EE31869D548BEF16AF250@phx.gbl>
+References: <BAY114-F93133EE31869D548BEF16AF250@phx.gbl>
 Content-Type: text/plain
-Date: Wed, 27 Sep 2006 07:30:15 -0400
-Message-Id: <1159356615.32075.11.camel@moss-spartans.epoch.ncsc.mil>
+Date: Wed, 27 Sep 2006 07:34:26 -0400
+Message-Id: <1159356866.32075.15.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2006-09-27 at 12:18 +0530, abcde efghi wrote:
-> i am using NFS and OCFS(oracle cluster file system) filesystems, does
-> xattr (extended attributes) supports these filesystems?
-> as of man pages it's no!.
-> i think my pbm is bcoz of these filesystems?
+On Wed, 2006-09-27 at 00:39 +0200, Salvo Giuffrida wrote:
+> Good morning, is it possible to configure the MLS policy, using 
+> mlsconstraint, to enforce a Biba integrity model of security (no read down, 
+> no write up), instead of the Bell-LaPadula (no read up, no write down)? I'm 
+> reading the book "SELinux by example", and there there's written that the 
+> MLS facility in the Security Server is not very flexible, and allows only to 
+> enforce the rules "no read up, no write down". But, if I'm the one 
+> configuring the policy in the file "mls", shouldn't I be able to change the 
+> rules to the opposite?
+> Thanks a lot...
 
-NFS doesn't yet support SELinux attributes, although there is work in
-progress there.
+Are you referring to the statement:
+"Unlike type enforcement, which is flexible and adaptable, MLS is
+intended to strictly and inflexibly enforce a single security invariant
+("no write down, no read up")"
 
-I'm not aware of any ocfs support for xattrs.
-
-For such filesystems, you can map all files to a single context via
-policy or via the context= mount option.  But all of this only matters
-when SELinux is actually enabled, of course.
+That is describing the MLS/BLP model, not a limitation of the SELinux
+security server.  As you note, the SELinux security server allows for
+very flexible configuration of the MLS constraints, including the
+ability to switch the logic as you say (but at that point it is no
+longer enforcing a "MLS policy").
 
 -- 
 Stephen Smalley
