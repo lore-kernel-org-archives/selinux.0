@@ -1,10 +1,10 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k8RH3GAT024407
-	for <selinux@tycho.nsa.gov>; Wed, 27 Sep 2006 13:03:16 -0400
-Received: from mail2.sea5.speakeasy.net (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id k8RH2Ajj014939
-	for <selinux@tycho.nsa.gov>; Wed, 27 Sep 2006 17:02:11 GMT
-Date: Wed, 27 Sep 2006 13:03:10 -0400 (EDT)
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k8RH8M3L024852
+	for <selinux@tycho.nsa.gov>; Wed, 27 Sep 2006 13:08:22 -0400
+Received: from mail3.sea5.speakeasy.net (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id k8RH7mJr009966
+	for <selinux@tycho.nsa.gov>; Wed, 27 Sep 2006 17:07:49 GMT
+Date: Wed, 27 Sep 2006 13:08:17 -0400 (EDT)
 From: James Morris <jmorris@namei.org>
 To: Stephen Smalley <sds@tycho.nsa.gov>
 cc: Venkat Yekkirala <vyekkirala@TrustedCS.com>,
@@ -16,7 +16,7 @@ cc: Venkat Yekkirala <vyekkirala@TrustedCS.com>,
         Paul Moore <paul.moore@hp.com>, Joshua Brindle <jbrindle@tresys.com>
 Subject: RE: Labeled networking packets
 In-Reply-To: <1159363761.32075.53.camel@moss-spartans.epoch.ncsc.mil>
-Message-ID: <Pine.LNX.4.64.0609271301550.14583@d.namei>
+Message-ID: <Pine.LNX.4.64.0609271306490.14583@d.namei>
 References: <36282A1733C57546BE392885C061859201573917@chaos.tcs.tcs-sec.com>
   <Pine.LNX.4.64.0609261835060.5342@d.namei>  <1159357078.32075.20.camel@moss-spartans.epoch.ncsc.mil>
   <Pine.LNX.4.64.0609270853420.12766@d.namei> <1159363761.32075.53.camel@moss-spartans.epoch.ncsc.mil>
@@ -27,18 +27,14 @@ List-Id: selinux@tycho.nsa.gov
 
 On Wed, 27 Sep 2006, Stephen Smalley wrote:
 
-> In short, nothing really changes from the earlier secid reconciliation
-> patches except for dealing with your earlier comments.  And then we also
-> need the other patches mentioned in that thread, like labeling the SAs
-> from the socket rather than the spd so that we no longer need per-domain
-> spd rules, and setting the peer sid on TCP sockets to the reconciled
-> secmark.
+> My impression was that he was just offering up alternative names for the
+> flow_in permission.  Which likewise doesn't really need to be renamed.
 
-In terms of need, it may be useful if someone could distinguish what is 
-required for LSPP cert and for a full implementation, given that we are on 
-a very short lead for the cert.
+Ok, Venkat, please don't rename the iptables matches or the object classes 
+or the permissions.
 
 
+- James
 -- 
 James Morris
 <jmorris@namei.org>
