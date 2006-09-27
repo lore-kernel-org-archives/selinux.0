@@ -1,60 +1,35 @@
-Date: Wed, 27 Sep 2006 14:15:33 -0500
-From: Joy Latten <latten@austin.ibm.com>
-Message-Id: <200609271915.k8RJFXXj013322@faith.austin.ibm.com>
-To: jmorris@namei.org, latten@austin.ibm.com, sds@tycho.nsa.gov,
-        vyekkirala@TrustedCS.com
-Subject: RE: Labeled networking packets
-Cc: chanson@TrustedCS.com, cpebenito@tresys.com, DGoeddel@TrustedCS.com,
-        dwalsh@redhat.com, jbrindle@tresys.com, jmorris@redhat.com,
-        kmacmillan@mentalrootkit.com, paul.moore@hp.com, selinux@tycho.nsa.gov
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k8RJXbQO029329
+	for <selinux@tycho.nsa.gov>; Wed, 27 Sep 2006 15:33:37 -0400
+Received: from mx1.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id k8RJWXjj014329
+	for <selinux@tycho.nsa.gov>; Wed, 27 Sep 2006 19:32:33 GMT
+Received: from int-mx1.corp.redhat.com (int-mx1.corp.redhat.com [172.16.52.254])
+	by mx1.redhat.com (8.12.11.20060308/8.12.11) with ESMTP id k8RJXbAT002259
+	for <selinux@tycho.nsa.gov>; Wed, 27 Sep 2006 15:33:37 -0400
+Received: from mail.boston.redhat.com (mail.boston.redhat.com [172.16.76.12])
+	by int-mx1.corp.redhat.com (8.12.11.20060308/8.12.11) with ESMTP id k8RJXb8G025507
+	for <selinux@tycho.nsa.gov>; Wed, 27 Sep 2006 15:33:37 -0400
+From: Steve Grubb <sgrubb@redhat.com>
+To: "lspp-list" <redhat-lspp@redhat.com>,
+        "SELinux List" <selinux@tycho.nsa.gov>
+Subject: Updated iptables for secmark testing
+Date: Wed, 27 Sep 2006 15:34:23 -0400
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
+Message-Id: <200609271534.23884.sgrubb@redhat.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
->> >In short, nothing really changes from the earlier secid 
->> reconciliation
->> >patches except for dealing with your earlier comments.  And 
->> then we also
->> >need the other patches mentioned in that thread, like 
->> labeling the SAs
->> >from the socket rather than the spd so that we no longer 
->> need per-domain
->> >spd rules, and setting the peer sid on TCP sockets to the reconciled
->> >secmark.
->> 
->> I need to clarify a few things to determine whether I need to 
->> modify racoon's code. 
->> Since we will label SAs from socket rather than from spd, do 
->> we still need to check SA's label against spd's label? 
->
->Yes. This way we can control what "domains" would use (un)labeled
->IPSec. These domains would "polmatch" to the spd label in the policy.
->
->> If not, do we still need spd to contain a label?
->
->Regardless an spd needn't contain a label; e.g.: you don't want to
->export the domain with the data; in this case you would use unlabeled
->IPSec; the domain would then have to polmatch to "unlabeled_t".
->
->> 
->> Also, I am not very clear how the local and remote racoons will
->> negotiate the labels. Initiator sends over security context from
->> socket... how does Remote side negotiate or determine it is 
->> valid or acceptable to him?
->
->racoon on the remote side will make sure the domain sent by the
->Initiator polmatches a policy on its (repsonder's) side, before
->responding. This should be already happening, so I don't envision
->any changes to racoon because of the change in the kernel. racoon
->will be just dealing with a different context received from the
->kernel, that's all.
+Hi,
 
-Ok, thanks. I get it now. 
-Venkat, let me know if there is anything I can 
-do to help out with this portion, for example
-any coding. 
+Just wanted to mention that updated iptables rpms can be gotten from the lspp 
+yum repo. http://people.redhat.com/sgrubb/files/lspp
 
-Regards,
-Joy
+This rpm is needed to test the secmark iptables rules.
+
+-Steve
 
 --
 This message was distributed to subscribers of the selinux mailing list.
