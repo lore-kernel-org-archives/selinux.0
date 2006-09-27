@@ -1,54 +1,60 @@
-Subject: Re: Bug in 2.6.18: read of /proc/$PID/exe triggers ptrace check
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Thomas Bleher <bleher@informatik.uni-muenchen.de>
-Cc: SELinux ML <selinux@tycho.nsa.gov>
-In-Reply-To: <20060927165234.GA5448@warschau.cip.ifi.lmu.de>
-References: <20060927165234.GA5448@warschau.cip.ifi.lmu.de>
-Content-Type: text/plain
-Date: Wed, 27 Sep 2006 13:34:44 -0400
-Message-Id: <1159378484.2260.27.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+Date: Wed, 27 Sep 2006 14:15:33 -0500
+From: Joy Latten <latten@austin.ibm.com>
+Message-Id: <200609271915.k8RJFXXj013322@faith.austin.ibm.com>
+To: jmorris@namei.org, latten@austin.ibm.com, sds@tycho.nsa.gov,
+        vyekkirala@TrustedCS.com
+Subject: RE: Labeled networking packets
+Cc: chanson@TrustedCS.com, cpebenito@tresys.com, DGoeddel@TrustedCS.com,
+        dwalsh@redhat.com, jbrindle@tresys.com, jmorris@redhat.com,
+        kmacmillan@mentalrootkit.com, paul.moore@hp.com, selinux@tycho.nsa.gov
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2006-09-27 at 18:52 +0200, Thomas Bleher wrote:
-> It seems like there's a bug in the linux kernel, v2.6.18.
-> Whenever a process wants to read the /proc/$PID/exe symlink of a process
-> in another domain, SELinux checks for the ptrace permission.
-> 
-> That's very unfortunate, as SUSE uses a program called killproc to shut
-> down system services, which reads this symlink before doing anything.
-> SUSE's mingetty also fails because of this, which means that the system
-> is practically unusable.
-> With 2.6.17 (or any earlier kernel), the system works fine.
-> 
-> I think this change should be reverted. The right to read this symlink
-> is already covered by the check on read permission; also,
-> /proc/$PID/cmdline contains the same information, most of the time.
+>> >In short, nothing really changes from the earlier secid 
+>> reconciliation
+>> >patches except for dealing with your earlier comments.  And 
+>> then we also
+>> >need the other patches mentioned in that thread, like 
+>> labeling the SAs
+>> >from the socket rather than the spd so that we no longer 
+>> need per-domain
+>> >spd rules, and setting the peer sid on TCP sockets to the reconciled
+>> >secmark.
+>> 
+>> I need to clarify a few things to determine whether I need to 
+>> modify racoon's code. 
+>> Since we will label SAs from socket rather than from spd, do 
+>> we still need to check SA's label against spd's label? 
+>
+>Yes. This way we can control what "domains" would use (un)labeled
+>IPSec. These domains would "polmatch" to the spd label in the policy.
+>
+>> If not, do we still need spd to contain a label?
+>
+>Regardless an spd needn't contain a label; e.g.: you don't want to
+>export the domain with the data; in this case you would use unlabeled
+>IPSec; the domain would then have to polmatch to "unlabeled_t".
+>
+>> 
+>> Also, I am not very clear how the local and remote racoons will
+>> negotiate the labels. Initiator sends over security context from
+>> socket... how does Remote side negotiate or determine it is 
+>> valid or acceptable to him?
+>
+>racoon on the remote side will make sure the domain sent by the
+>Initiator polmatches a policy on its (repsonder's) side, before
+>responding. This should be already happening, so I don't envision
+>any changes to racoon because of the change in the kernel. racoon
+>will be just dealing with a different context received from the
+>kernel, that's all.
 
-See
-http://marc.theaimsgroup.com/?l=git-commits-head&m=115134544830164&w=2 and
-http://marc.theaimsgroup.com/?l=git-commits-head&m=115134545732646&w=2
+Ok, thanks. I get it now. 
+Venkat, let me know if there is anything I can 
+do to help out with this portion, for example
+any coding. 
 
-proc has been getting an overhaul by the containers people, but this is
-just a continuation of what has already happened in the past (e.g. the
-prior change to likewise apply ptrace checking on environ).  The
-file-based checks aren't quite sufficient, as the inode label only gets
-revalidated on open.
-
-One option would be to define a ptrace_may_read() function to
-distinguish reading process state from full ptrace attach, and then
-change proc_fd_access_allowed() and proc_pid_environ() to call the new
-function instead of ptrace_may_attach().  Internally, that function
-would apply the usual ptrace-related DAC checking, but call a different
-security hook, so that SELinux could distinguish it and possibly remap
-it to another permission check, even emulating the file-based one if
-desired so that policy would look the same.  Want to make a patch?
-
--- 
-Stephen Smalley
-National Security Agency
-
+Regards,
+Joy
 
 --
 This message was distributed to subscribers of the selinux mailing list.
