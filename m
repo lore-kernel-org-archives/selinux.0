@@ -1,41 +1,40 @@
-Subject: Re: [PATCH] libsepol: compile archive with -fpic
+Subject: Re: About Negation Special Operator
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: "Jeremy A. Mowery" <jmowery@tresys.com>
-Cc: selinux@tycho.nsa.gov, selinux-dev@tresys.com
-In-Reply-To: <1159293291.2723.14.camel@Bishop.columbia.tresys.com>
-References: <1159293291.2723.14.camel@Bishop.columbia.tresys.com>
+To: Shintaro Fujiwara <shintaro.fujiwara@gmail.com>
+Cc: selinux <selinux@tycho.nsa.gov>
+In-Reply-To: <f71a82820609260834k1c885675se75ad4ad82fe0dac@mail.gmail.com>
+References: <f71a82820609260834k1c885675se75ad4ad82fe0dac@mail.gmail.com>
 Content-Type: text/plain
-Date: Wed, 27 Sep 2006 07:43:44 -0400
-Message-Id: <1159357424.32075.22.camel@moss-spartans.epoch.ncsc.mil>
+Date: Wed, 27 Sep 2006 07:44:43 -0400
+Message-Id: <1159357483.32075.24.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2006-09-26 at 13:54 -0400, Jeremy A. Mowery wrote:
-> The libsepol archive is compiled normally without the -fpic flag.  This
-> causes problems with other things that use libsepol.a with dynamic
-> relocation on 64-bit machines.  The setools project uses libsepol.a in a
-> shared object library; checkpolicy is prevented from being built as a
-> position independent executable.  The following patch modifies
-> libsepol's Makefile to build the archive using position independent
-> code.
+On Wed, 2006-09-27 at 00:34 +0900, Shintaro Fujiwara wrote:
+> Hello.
 > 
-> --- libsepol/src/Makefile-orig  2006-09-19 10:03:54.000000000 -0400
-> +++ libsepol/src/Makefile       2006-09-19 10:06:21.000000000 -0400
-> @@ -24,7 +24,7 @@ $(LIBSO): $(LOBJS)
->         ln -sf $@ $(TARGET)
+> I have a question on writing a modular policy.
+> When I want to allow someting like,
 > 
->  %.o:  %.c
-> -       $(CC) $(CFLAGS) -c -o $@ $<
-> +       $(CC) $(CFLAGS) -fpic -c -o $@ $<
+> allow domain { exec_type -sbin_t } : file execute;
 > 
->  %.lo:  %.c
->         $(CC) $(CFLAGS) -fpic -DSHARED -c -o $@ $<
+> module test_policy 1.0.0;
 > 
+> require {
+> 	attribute domain;
+> 	type sbin_t;
+> 	class file execute;
+> }
+> allow domain { exec_type -sbin_t } : file execute;
+> 
+> will suffice or should I add every exec_type
+> in require brace?
 
-There is a cost associated with doing that.  Possibly we could provide a
-libsepol_pic.a.  See:
-http://www.mail-archive.com/debian-devel@lists.debian.org/msg239046.html
+You need to require the exec_type attribute, but not the list of types
+it contains (naturally).  The attribute will be expanded after all
+modules have been linked together, at which point we know the full set
+of types.
 
 -- 
 Stephen Smalley
