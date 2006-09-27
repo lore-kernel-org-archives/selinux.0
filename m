@@ -1,35 +1,30 @@
 Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k8RJXbQO029329
-	for <selinux@tycho.nsa.gov>; Wed, 27 Sep 2006 15:33:37 -0400
-Received: from mx1.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id k8RJWXjj014329
-	for <selinux@tycho.nsa.gov>; Wed, 27 Sep 2006 19:32:33 GMT
-Received: from int-mx1.corp.redhat.com (int-mx1.corp.redhat.com [172.16.52.254])
-	by mx1.redhat.com (8.12.11.20060308/8.12.11) with ESMTP id k8RJXbAT002259
-	for <selinux@tycho.nsa.gov>; Wed, 27 Sep 2006 15:33:37 -0400
-Received: from mail.boston.redhat.com (mail.boston.redhat.com [172.16.76.12])
-	by int-mx1.corp.redhat.com (8.12.11.20060308/8.12.11) with ESMTP id k8RJXb8G025507
-	for <selinux@tycho.nsa.gov>; Wed, 27 Sep 2006 15:33:37 -0400
-From: Steve Grubb <sgrubb@redhat.com>
-To: "lspp-list" <redhat-lspp@redhat.com>,
-        "SELinux List" <selinux@tycho.nsa.gov>
-Subject: Updated iptables for secmark testing
-Date: Wed, 27 Sep 2006 15:34:23 -0400
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k8RJa0KA029429
+	for <selinux@tycho.nsa.gov>; Wed, 27 Sep 2006 15:36:00 -0400
+Received: from tcsfw4.tcs-sec.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id k8RJYsjj014675
+	for <selinux@tycho.nsa.gov>; Wed, 27 Sep 2006 19:34:55 GMT
+Message-ID: <36282A1733C57546BE392885C061859201573A9E@chaos.tcs.tcs-sec.com>
+From: Venkat Yekkirala <vyekkirala@TrustedCS.com>
+To: Joy Latten <latten@austin.ibm.com>, jmorris@namei.org, sds@tycho.nsa.gov
+Cc: Chad Hanson <chanson@TrustedCS.com>, cpebenito@tresys.com,
+        Darrel Goeddel <DGoeddel@TrustedCS.com>, dwalsh@redhat.com,
+        jbrindle@tresys.com, jmorris@redhat.com, kmacmillan@mentalrootkit.com,
+        paul.moore@hp.com, selinux@tycho.nsa.gov
+Subject: RE: Labeled networking packets
+Date: Wed, 27 Sep 2006 15:35:36 -0400
 MIME-Version: 1.0
 Content-Type: text/plain;
-  charset="us-ascii"
-Message-Id: <200609271534.23884.sgrubb@redhat.com>
+	charset="iso-8859-1"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hi,
+> Ok, thanks. I get it now. 
+> Venkat, let me know if there is anything I can 
+> do to help out with this portion, for example
+> any coding. 
 
-Just wanted to mention that updated iptables rpms can be gotten from the lspp 
-yum repo. http://people.redhat.com/sgrubb/files/lspp
-
-This rpm is needed to test the secmark iptables rules.
-
--Steve
+nah. The documentation you are working on for this is crucial enough...
 
 --
 This message was distributed to subscribers of the selinux mailing list.
