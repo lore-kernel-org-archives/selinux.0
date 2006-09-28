@@ -1,48 +1,41 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k8SEZEpZ018777
-	for <selinux@tycho.nsa.gov>; Thu, 28 Sep 2006 10:35:16 -0400
-Received: from exchange.columbia.tresys.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with SMTP id k8SEY8oX018496
-	for <selinux@tycho.nsa.gov>; Thu, 28 Sep 2006 14:34:09 GMT
-Subject: Re: Latest diffs.  Trimmed down this time.
-From: "Christopher J. PeBenito" <cpebenito@tresys.com>
-To: Daniel J Walsh <dwalsh@redhat.com>
-Cc: SE Linux <selinux@tycho.nsa.gov>
-In-Reply-To: <45183220.8090106@redhat.com>
-References: <45183220.8090106@redhat.com>
-Content-Type: text/plain
-Date: Thu, 28 Sep 2006 10:36:17 -0400
-Message-Id: <1159454177.2850.9.camel@sgc.columbia.tresys.com>
-Mime-Version: 1.0
+Date: Thu, 28 Sep 2006 10:37:30 -0400 (EDT)
+From: James Morris <jmorris@redhat.com>
+To: "George C. Wilson" <ltcgcw@us.ibm.com>
+cc: SELinux <SELinux@tycho.nsa.gov>, LSPP <redhat-lspp@redhat.com>,
+        Venkat Yekkirala <vyekkirala@TrustedCS.com>,
+        Stephen Smalley <sds@tycho.nsa.gov>,
+        Karl MacMillan <kmacmillan@mentalrootkit.com>,
+        Chad Hanson <chanson@TrustedCS.com>,
+        Darrel Goeddel <DGoeddel@TrustedCS.com>, <dwalsh@redhat.com>,
+        <latten@austin.ibm.com>, Paul Moore <paul.moore@hp.com>,
+        Joshua Brindle <jbrindle@tresys.com>, Steve Grubb <sgrubb@redhat.com>,
+        Linda Knippers <linda.knippers@hp.com>,
+        Irina Boverman <iboverma@redhat.com>, Serge Hallyn <serue@redhat.com>,
+        Trent Jaeger <tjaeger@cse.psu.edu>, Klaus Weidner <klaus@atsec.com>,
+        Joe Nall <joe@nall.com>
+Subject: Re: [redhat-lspp] Labeled Networking Telecon Notes
+In-Reply-To: <20060928001306.GA12728@us.ibm.com>
+Message-ID: <Pine.LNX.4.44.0609281034190.29703-100000@redline.boston.redhat.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Merged.
+On Wed, 27 Sep 2006, George C. Wilson wrote:
 
-On Mon, 2006-09-25 at 15:46 -0400, Daniel J Walsh wrote:
-> Corrected oddjob policy
+> George:  The big problem is there seems to be no overall architecture.
 
-The mkhomedir policy looks incomplete.
+Just to clarify, because I'm not sure if it was on the call, we asked for 
+and received an architecture document upstream from Venkat:
 
-fixed the stray 
+http://marc.theaimsgroup.com/?l=linux-netdev&m=115136637800361&w=2
 
-domain_auto_trans(unconfined_t,oddjob_mkhomedir_exec_t,oddjob_mkhomedir_t)
 
-in the module.
-
-> Doesn't ssh need
-> +       userdom_search_all_users_home_dirs(sshd_t)
-
-See my response to Erich.
-
-> Cups init script wants to clear the error_log
-
-Does initrc_t need read on this still?
 
 -- 
-Chris PeBenito
-Tresys Technology, LLC
-(410) 290-1411 x150
+James Morris
+<jmorris@redhat.com>
+
 
 
 --
