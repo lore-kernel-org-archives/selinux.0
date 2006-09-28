@@ -1,49 +1,174 @@
-Message-ID: <451C325F.8060605@us.ibm.com>
-Date: Thu, 28 Sep 2006 15:36:47 -0500
+Message-ID: <451C38C0.5090904@us.ibm.com>
+Date: Thu, 28 Sep 2006 16:04:00 -0500
 From: Michael C Thompson <thompsmc@us.ibm.com>
 MIME-Version: 1.0
-To: Stephen Smalley <sds@tycho.nsa.gov>
-CC: Steve Grubb <sgrubb@redhat.com>, SE Linux <selinux@tycho.nsa.gov>
-Subject: Re: [PATCH] newrole auditing of failures due to user actions
-References: <451C2473.7050102@us.ibm.com>  <451C2B03.1060300@us.ibm.com> <1159475362.14884.9.camel@moss-spartans.epoch.ncsc.mil>
-In-Reply-To: <1159475362.14884.9.camel@moss-spartans.epoch.ncsc.mil>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: Linux Audit <linux-audit@redhat.com>, SE Linux <selinux@tycho.nsa.gov>,
+        Stephen Smalley <sds@tycho.nsa.gov>
+Subject: [PATCH] -v2 newrole auditing of failures due to user actions
+Content-Type: multipart/mixed;
+ boundary="------------070503070608030801090006"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Stephen Smalley wrote:
-> On Thu, 2006-09-28 at 15:05 -0500, Michael C Thompson wrote:
->> Michael C Thompson wrote:
->>> This patch introduces two new point in the code where audit records are 
->>> generated for newrole. Both points are when the attempt to newrole fails.
-> 
-> In addition to my prior comments about the #ifdefs:
-> 
->>> --- policycoreutils-1.30.29/newrole/newrole.c	2006-09-14 07:07:26.000000000 -0500
->>> +++ policycoreutils-1.30.29.orig.dev/newrole/newrole.c	2006-09-28 14:21:27.000000000 -0500
->>> @@ -394,6 +396,41 @@
->>> +/* Send audit message */
->>> +int send_audit_message(int success, security_context_t old_context,
->>> +			security_context_t new_context, const char *ttyn)
->>> +{
->>> +	char *msg = NULL;
->>> +	int rc;
->>> +	int audit_fd = audit_open();
->>> +
->>> +	if (audit_fd < 0) {
->>> +		fprintf(stderr, _("Error connecting to audit system.\n"));
->>> +		rc = -1;
->>> +		goto out;
-> 
-> I think you just want to return -1 here, as there is no cleanup to be
-> done at this point and the out path will try to do a close(audit_fd)
-> i.e. close(-1) in this case, which isn't legal.
+This is a multi-part message in MIME format.
+--------------070503070608030801090006
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
-Ah yes, my fault. I had caught that in one of my previous patch drafts. 
-I will fix this and re-send, copying the proper lists.
+This patch introduces two new point in the code where audit records are 
+generated for newrole. Both points are when the attempt to newrole fails.
 
-Thanks.
+The first point is when the default type could not be determine for the 
+specified role - this is audited because, as sgrubb pointed out, it is 
+currently non-tracked path to probe the policy.
 
+The second point is when the desired context to change to is invalid.
+
+There record format remains unchanged. Failing to validate the desired 
+context will result in the old and new contexts being recorded intact to 
+the log. For the default type, the old and new contexts have not yet 
+been obtained, so they are recorded in the log as XXX_context=?
+
+Changes since version 1 of the patch:
+  * removed wrapping #ifdefs around send_audit_message()
+  * provided a "no-op" style function
+  * removed -D_GNU_SOURCE from the Makefile (as its defined in the code)
+  * fixed the error path of the send_audit_message function
+
+The solution that I have for the "no-op" function is not that pretty, 
+but the Makefile is configured with -Werror and a function which doesn't 
+use its parameters causes warnings. Is there a better solution to this 
+problem?
+
+Signed-off-by: Michael Thompson <thompsmc@us.ibm.com>
+
+----
+
+
+--------------070503070608030801090006
+Content-Type: text/x-diff;
+ name="newrole_audit_fail.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="newrole_audit_fail.patch"
+
+diff -rNau policycoreutils-1.30.29/newrole/Makefile policycoreutils-1.30.29.orig.dev/newrole/Makefile
+--- policycoreutils-1.30.29/newrole/Makefile	2006-09-14 07:07:26.000000000 -0500
++++ policycoreutils-1.30.29.orig.dev/newrole/Makefile	2006-09-28 15:47:21.000000000 -0500
+@@ -27,7 +27,7 @@
+ 	LDLIBS += -laudit
+ endif
+ ifeq (${LOG_AUDIT_PRIV},y)
+-	override CFLAGS += -DLOG_AUDIT_PRIV -D_GNU_SOURCE
++	override CFLAGS += -DLOG_AUDIT_PRIV
+ 	LDLIBS += -lcap
+ 	MODE := 4555
+ else
+diff -rNau policycoreutils-1.30.29/newrole/newrole.c policycoreutils-1.30.29.orig.dev/newrole/newrole.c
+--- policycoreutils-1.30.29/newrole/newrole.c	2006-09-14 07:07:26.000000000 -0500
++++ policycoreutils-1.30.29.orig.dev/newrole/newrole.c	2006-09-28 15:56:05.000000000 -0500
+@@ -396,6 +396,48 @@
+ }
+ #endif
+ 
++#ifdef LOG_AUDIT_PRIV
++/* Send audit message */
++static
++int send_audit_message(int success, security_context_t old_context,
++		       security_context_t new_context, const char *ttyn)
++{
++	char *msg = NULL;
++	int rc;
++	int audit_fd = audit_open();
++
++	if (audit_fd < 0) {
++		fprintf(stderr, _("Error connecting to audit system.\n"));
++		return -1;
++	}
++	if (asprintf(&msg, "newrole: old-context=%s new-context=%s",
++				old_context ? old_context : "?",
++				new_context ? new_context : "?") < 0) {
++		fprintf(stderr, _("Error allocating memory.\n"));
++		rc = -1;
++		goto out;
++	}
++	rc = audit_log_user_message(audit_fd, AUDIT_USER_ROLE_CHANGE,
++			msg, NULL, NULL, ttyn, success);
++	if (rc <= 0) {
++		fprintf(stderr, _("Error sending audit message.\n"));
++		rc = -1;
++		goto out;
++	}
++	rc = 0;
++out:
++	free(msg);
++	close(audit_fd);
++	return rc;
++}
++#else
++#define send_audit_message(a,b,c,d) no_op()
++static inline int no_op()
++{
++	return 0;
++}
++#endif
++
+ /************************************************************************
+  *
+  * All code used for both PAM and shadow passwd goes in this section.
+@@ -536,6 +578,7 @@
+ 	if (role_s && !type_s) {
+ 		if (get_default_type(role_s, &type_s)) {
+ 			fprintf(stderr, _("Couldn't get default type.\n"));
++			send_audit_message(0, old_context, new_context, ttyn);
+ 			exit(-1);
+ 		}
+ #ifdef CANTSPELLGDB
+@@ -715,6 +758,7 @@
+ 
+ 	if (security_check_context(new_context) < 0) {
+ 		fprintf(stderr, _("%s is not a valid context\n"), new_context);
++		send_audit_message(0, old_context, new_context, ttyn);
+ 		exit(-1);
+ 	}
+ 
+@@ -873,32 +917,8 @@
+ 			new_context);
+ 		exit(-1);
+ 	}
+-#ifdef LOG_AUDIT_PRIV
+-	/* Send audit message */
+-	{
+-		char *msg;
+-		int rc;
+-		int audit_fd = audit_open();
+-		if (audit_fd < 0) {
+-			fprintf(stderr,
+-				_("Error connecting to audit system.\n"));
+-			exit(-1);
+-		}
+-		if (asprintf(&msg, "newrole: old-context=%s new-context=%s",
+-			     old_context, new_context) < 0) {
+-			fprintf(stderr, _("Error allocating memory.\n"));
+-			exit(-1);
+-		}
+-		rc = audit_log_user_message(audit_fd, AUDIT_USER_ROLE_CHANGE,
+-					    msg, NULL, NULL, ttyn, 1);
+-		if (rc <= 0) {
+-			fprintf(stderr, _("Error sending audit message.\n"));
+-			exit(-1);
+-		}
+-		free(msg);
+-		close(audit_fd);
+-	}
+-#endif
++	if (send_audit_message(1, old_context, new_context, ttyn))
++		exit(-1);
+ 	freecon(old_context);
+ 	execv(pw->pw_shell, argv + optind - 1);
+ 
+
+--------------070503070608030801090006--
 
 
 --
