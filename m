@@ -1,42 +1,49 @@
 Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k8SEEUSV018169
-	for <selinux@tycho.nsa.gov>; Thu, 28 Sep 2006 10:14:30 -0400
-Received: from mail7.sea5.speakeasy.net (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id k8SEDOoX014214
-	for <selinux@tycho.nsa.gov>; Thu, 28 Sep 2006 14:13:24 GMT
-Date: Thu, 28 Sep 2006 10:14:24 -0400 (EDT)
-From: James Morris <jmorris@namei.org>
-To: Cory Olmo <colmo@TrustedCS.com>
-cc: selinux@tycho.nsa.gov, sds@tycho.nsa.gov, eparis@redhat.com,
-        chanson@TrustedCS.com, dgoeddel@TrustedCS.com
-Subject: Re: [Patch 1/3] SELinux: add support for quoted context mount option
-In-Reply-To: <20060928082045.d52f4de8.colmo@TrustedCS.com>
-Message-ID: <Pine.LNX.4.64.0609281012430.25566@d.namei>
-References: <20060928082045.d52f4de8.colmo@TrustedCS.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k8SEZEpZ018777
+	for <selinux@tycho.nsa.gov>; Thu, 28 Sep 2006 10:35:16 -0400
+Received: from exchange.columbia.tresys.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with SMTP id k8SEY8oX018496
+	for <selinux@tycho.nsa.gov>; Thu, 28 Sep 2006 14:34:09 GMT
+Subject: Re: Latest diffs.  Trimmed down this time.
+From: "Christopher J. PeBenito" <cpebenito@tresys.com>
+To: Daniel J Walsh <dwalsh@redhat.com>
+Cc: SE Linux <selinux@tycho.nsa.gov>
+In-Reply-To: <45183220.8090106@redhat.com>
+References: <45183220.8090106@redhat.com>
+Content-Type: text/plain
+Date: Thu, 28 Sep 2006 10:36:17 -0400
+Message-Id: <1159454177.2850.9.camel@sgc.columbia.tresys.com>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 28 Sep 2006, Cory Olmo wrote:
+Merged.
 
-> Signed-off-by: Cory Olmo <colmo@TrustedCS.com>
+On Mon, 2006-09-25 at 15:46 -0400, Daniel J Walsh wrote:
+> Corrected oddjob policy
 
-Looks ok to me, and if Stephen acks it, I'll forward it upstream.
+The mkhomedir policy looks incomplete.
 
-> ---
-> 
->  hooks.c |   33 ++++++++++++++++++++++++++++++---
->  1 file changed, 30 insertions(+), 3 deletions(-)
+fixed the stray 
 
-In the future, please use 'diffstat -p1' for this, from the top directory 
-of the kernel.
+domain_auto_trans(unconfined_t,oddjob_mkhomedir_exec_t,oddjob_mkhomedir_t)
 
+in the module.
 
+> Doesn't ssh need
+> +       userdom_search_all_users_home_dirs(sshd_t)
+
+See my response to Erich.
+
+> Cups init script wants to clear the error_log
+
+Does initrc_t need read on this still?
 
 -- 
-James Morris
-<jmorris@namei.org>
+Chris PeBenito
+Tresys Technology, LLC
+(410) 290-1411 x150
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
