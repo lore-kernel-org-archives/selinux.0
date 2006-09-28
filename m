@@ -1,59 +1,31 @@
-Subject: Re: [PATCH] refpolicy: Add GConf policy
-From: "Christopher J. PeBenito" <cpebenito@tresys.com>
-To: jwcart2@tycho.nsa.gov
-Cc: SELinux <selinux@tycho.nsa.gov>
-In-Reply-To: <1159295299.18973.74.camel@moss-lions.epoch.ncsc.mil>
-References: <1159295299.18973.74.camel@moss-lions.epoch.ncsc.mil>
-Content-Type: text/plain
-Date: Thu, 28 Sep 2006 10:52:48 -0400
-Message-Id: <1159455168.2850.19.camel@sgc.columbia.tresys.com>
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k8SFLiYq020092
+	for <selinux@tycho.nsa.gov>; Thu, 28 Sep 2006 11:21:44 -0400
+Received: from bay0-omc2-s16.bay0.hotmail.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id k8SFLBLE013073
+	for <selinux@tycho.nsa.gov>; Thu, 28 Sep 2006 15:21:11 GMT
+Message-ID: <BAY114-F6D03603069FF329A71681AF1B0@phx.gbl>
+From: "Salvo Giuffrida" <giuffsalvo@hotmail.it>
+To: selinux@tycho.nsa.gov
+Subject: run_init, and benchmarking
+Date: Thu, 28 Sep 2006 17:21:37 +0200
 Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2006-09-26 at 14:28 -0400, James Carter wrote:
-> This patch adds a GConf policy to refpolicy.  
-> 
-> This policy is much tighter than the GConf policy from the old example
-> policy.  It only allows gconfd to access configuration data stored by
-> GConf.  Users can modify configuration data using gconftool-2 or
-> gconf-editor, both of which use gconfd.  GConf manages multiple
-> configuration sources, so gconfd should be used to make any changes
-> anyway.  Normal users who aren't trying to directly edit the
-> configuration data of GConf won't notice anything different.
-> 
-> There is also a difference between this policy and the old example
-> policy in handling directories in /tmp.  The old example policy
-> labeled /tmp/gconfd-USER with ROLE_gconfd_tmp_t, but, since there was no
-> use of the file_type_auto_trans macro, if that directory was deleted
-> gconfd would create one labeled as tmp_t.  This policy uses the
-> files_tmp-filetrans macro to cause a directory in /tmp created by gconfd
-> to be labeled as $1_tmp_t.  It is not labeled with $1_gconf_tmp_t,
-> because if /tmp/orbit-USER is deleted, gconfd will create it (through
-> use of ORBit) and it would get the $1_gconf_tmp_t label.  By having
-> gconfd create $1_tmp_t directories in /tmp and $1_gconf_tmp_t files and
-> directories in directories labeled with $1_tmp_t, it can control its
-> data without requiring any future bonobo or Gnome policies to have
-> access to $1_gconf_tmp_t.
-> 
-> This patch is related to work that I am doing in making gconfd an
-> userspace object manager.  If any user program can modify the
-> configuration data that GConf stores, than making gconfd an userspace
-> object manager would be useless.
+Why is there such a command like run_init? I mean, even if I directly start 
+a service through /etc/init.d/nameservice start, shouldn't there be a domain 
+transition (automatic, through type_transition statements) that places the 
+process in the right security context?
+Another thing: what is the impact on performance of the Security Server-AVC 
+control? What is the percentage in comparison on a "normal" Linux? Is there 
+such a site with benchmarks on this?
+Thanks a lot
 
-So to make a gconf object manager more useful, it seems like we would
-want more confined desktop apps.  Do you think more core pieces of gnome
-will be confined, such as gnome vfs and bonobo?  The group of gnome
-modules in the example policy didn't seem to gain anything and also
-seemed overengineered.  Do you anticipate a need to bring back some of
-this?  If so, I think it would be better to have this as a start of a
-gnome refpolicy module, which would have all the core pieces of gnome
-policy.
-
--- 
-Chris PeBenito
-Tresys Technology, LLC
-(410) 290-1411 x150
+_________________________________________________________________
+Cerchi un campeggio per le tue vacanze? 
+http://search.msn.it/results.aspx?q=campeggio&FORM=MSNH&CP=1252&srch_type=0
 
 
 --
