@@ -1,57 +1,46 @@
-Subject: Re: [PATCH] refpolicy: Add GConf policy
-From: "Christopher J. PeBenito" <cpebenito@tresys.com>
-To: jwcart2@tycho.nsa.gov
-Cc: SELinux <selinux@tycho.nsa.gov>
-In-Reply-To: <1159472462.3439.73.camel@moss-lions.epoch.ncsc.mil>
-References: <1159295299.18973.74.camel@moss-lions.epoch.ncsc.mil>
-	 <1159455168.2850.19.camel@sgc.columbia.tresys.com>
-	 <1159472462.3439.73.camel@moss-lions.epoch.ncsc.mil>
+Subject: Re: [PATCH] newrole auditing of failures due to user actions
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Michael C Thompson <thompsmc@us.ibm.com>
+Cc: Steve Grubb <sgrubb@redhat.com>, SE Linux <selinux@tycho.nsa.gov>
+In-Reply-To: <451C2B03.1060300@us.ibm.com>
+References: <451C2473.7050102@us.ibm.com>  <451C2B03.1060300@us.ibm.com>
 Content-Type: text/plain
-Date: Thu, 28 Sep 2006 16:21:22 -0400
-Message-Id: <1159474882.2850.74.camel@sgc.columbia.tresys.com>
+Date: Thu, 28 Sep 2006 16:29:22 -0400
+Message-Id: <1159475362.14884.9.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2006-09-28 at 15:41 -0400, James Carter wrote:
-> On Thu, 2006-09-28 at 10:52 -0400, Christopher J. PeBenito wrote:
-> > So to make a gconf object manager more useful, it seems like we would
-> > want more confined desktop apps.  Do you think more core pieces of gnome
-> > will be confined, such as gnome vfs and bonobo?  The group of gnome
-> > modules in the example policy didn't seem to gain anything and also
-> > seemed overengineered.  Do you anticipate a need to bring back some of
-> > this?  If so, I think it would be better to have this as a start of a
-> > gnome refpolicy module, which would have all the core pieces of gnome
-> > policy.
-> 
-> You're right.  More desktop apps need to be confined for a gconf object
-> manager to be useful.  I am not planning on writing a gnome-vfs-daemon
-> or bonobo policy.
+On Thu, 2006-09-28 at 15:05 -0500, Michael C Thompson wrote:
+> Michael C Thompson wrote:
+> > This patch introduces two new point in the code where audit records are 
+> > generated for newrole. Both points are when the attempt to newrole fails.
 
-I was just curious if you feel that them having policies would be
-useful.
+In addition to my prior comments about the #ifdefs:
 
->   After finishing up GConf, I'll be looking at window
-> managers.
-> 
-> I think that you can make a case for putting GConf in a gnome policy
-> since it is not being used by any other desktop. It really doesn't
-> matter too much to me.  It does seem, however, like a gnome policy could
-> become quite large.  I guess I imagined policy for a particular desktop
-> eventually being kept in a separate policy directory like
-> policy/modules/desktops/gnome to keep it organized together, but still
-> consisting of many smaller modules.  
-> 
-> What do you think would be part of the gnome policy?
+> > --- policycoreutils-1.30.29/newrole/newrole.c	2006-09-14 07:07:26.000000000 -0500
+> > +++ policycoreutils-1.30.29.orig.dev/newrole/newrole.c	2006-09-28 14:21:27.000000000 -0500
+> > @@ -394,6 +396,41 @@
+> > +/* Send audit message */
+> > +int send_audit_message(int success, security_context_t old_context,
+> > +			security_context_t new_context, const char *ttyn)
+> > +{
+> > +	char *msg = NULL;
+> > +	int rc;
+> > +	int audit_fd = audit_open();
+> > +
+> > +	if (audit_fd < 0) {
+> > +		fprintf(stderr, _("Error connecting to audit system.\n"));
+> > +		rc = -1;
+> > +		goto out;
 
-Core pieces that are common to all gnome systems, like gnome-vfs,
-bonobo, orbit, etc.  Other things such as nautilus could go in their own
-modules.  That is, assuming any of these need policies.
+I think you just want to return -1 here, as there is no cleanup to be
+done at this point and the out path will try to do a close(audit_fd)
+i.e. close(-1) in this case, which isn't legal.
 
 -- 
-Chris PeBenito
-Tresys Technology, LLC
-(410) 290-1411 x150
+Stephen Smalley
+National Security Agency
 
 
 --
