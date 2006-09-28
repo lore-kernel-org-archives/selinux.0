@@ -1,56 +1,41 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k8SJoiIb027989
-	for <selinux@tycho.nsa.gov>; Thu, 28 Sep 2006 15:50:44 -0400
-Received: from mail1.sea5.speakeasy.net (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id k8SJoBQW022879
-	for <selinux@tycho.nsa.gov>; Thu, 28 Sep 2006 19:50:11 GMT
-Date: Thu, 28 Sep 2006 15:50:42 -0400 (EDT)
-From: James Morris <jmorris@namei.org>
-To: Paul Moore <paul.moore@hp.com>, "David S. Miller" <davem@davemloft.net>
-cc: netdev@vger.kernel.org, linux-audit@redhat.com,
-        Eric Paris <eparis@redhat.com>, selinux@tycho.nsa.gov
-Subject: Re: [PATCH 1/1] NetLabel: add audit support for configuration changes
-In-Reply-To: <20060928180337.570612000@hp.com>
-Message-ID: <Pine.LNX.4.64.0609281547060.28120@d.namei>
-References: <20060928180326.896170000@hp.com> <20060928180337.570612000@hp.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k8SJt0q4028134
+	for <selinux@tycho.nsa.gov>; Thu, 28 Sep 2006 15:55:00 -0400
+Received: from exchange.columbia.tresys.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with SMTP id k8SJrsbB016608
+	for <selinux@tycho.nsa.gov>; Thu, 28 Sep 2006 19:53:55 GMT
+Subject: Re: SELINUX_ERR using chcon to set a printer to Secret
+From: "Christopher J. PeBenito" <cpebenito@tresys.com>
+To: Matt Anderson <mra@hp.com>
+Cc: selinux@tycho.nsa.gov
+In-Reply-To: <451C239F.7070003@hp.com>
+References: <451C1B7A.7010203@hp.com>  <451C239F.7070003@hp.com>
+Content-Type: text/plain
+Date: Thu, 28 Sep 2006 15:56:05 -0400
+Message-Id: <1159473365.2850.62.camel@sgc.columbia.tresys.com>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+On Thu, 2006-09-28 at 15:33 -0400, Matt Anderson wrote:
+> When I add the policy:
+> 
+> allow secadm_t printer_device_t:chr_file { getattr relabelfrom relabelto };
+> 
+> I'm able to perform the relabel from secadm_r.  This meets my needs wrt
+> CUPS, but could one of the policy gurus point what in the policy allows
+> secadm_r to do this?
 
-> +struct audit_buffer *netlbl_audit_start_common(int type, u32 secid)
+You need MLS upgrade and/or downgrade permissions:
 
-> +	if (current->mm) {
-> +		down_read(&current->mm->mmap_sem);
-> +		vma = current->mm->mmap;
-> +		while (vma) {
-> +			if ((vma->vm_flags & VM_EXECUTABLE) &&
-> +			    vma->vm_file) {
-> +				audit_log_d_path(audit_buf,
-> +						 " exe=",
-> +						 vma->vm_file->f_dentry,
-> +						 vma->vm_file->f_vfsmnt);
-> +				break;
-> +			}
-> +			vma = vma->vm_next;
-> +		}
-> +		up_read(&current->mm->mmap_sem);
+mls_file_upgrade(secadm_t)
+mls_file_downgrade(secadm_t)
 
-
-Suggestion for the future: I think it'd be wortwhile consolidating this 
-with the code in audit_log_task_info().
-
-In any case, the patch looks fine to me.
-
-Acked-by: James Morris <jmorris@namei.org>
-
-
-
-- James
 -- 
-James Morris
-<jmorris@namei.org>
+Chris PeBenito
+Tresys Technology, LLC
+(410) 290-1411 x150
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
