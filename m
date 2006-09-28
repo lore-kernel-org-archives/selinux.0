@@ -1,58 +1,120 @@
-Date: Thu, 28 Sep 2006 19:03:15 +0200
-From: Thomas Bleher <bleher@informatik.uni-muenchen.de>
-To: Stephen Smalley <sds@tycho.nsa.gov>
-Cc: SELinux ML <selinux@tycho.nsa.gov>
-Subject: Re: Bug in 2.6.18: read of /proc/$PID/exe triggers ptrace check
-Message-ID: <20060928170315.GA7769@warschau.cip.ifi.lmu.de>
-References: <20060927165234.GA5448@warschau.cip.ifi.lmu.de> <1159378484.2260.27.camel@moss-spartans.epoch.ncsc.mil>
+Subject: Re: [Patch 1/3] SELinux: add support for quoted context mount
+	option
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Cory Olmo <colmo@TrustedCS.com>
+Cc: selinux@tycho.nsa.gov, eparis@redhat.com, jmorris@namei.org,
+        chanson@TrustedCS.com, dgoeddel@TrustedCS.com
+In-Reply-To: <20060928082045.d52f4de8.colmo@TrustedCS.com>
+References: <20060928082045.d52f4de8.colmo@TrustedCS.com>
+Content-Type: text/plain
+Date: Thu, 28 Sep 2006 13:49:05 -0400
+Message-Id: <1159465745.13131.7.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1159378484.2260.27.camel@moss-spartans.epoch.ncsc.mil>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-* Stephen Smalley <sds@tycho.nsa.gov> [2006-09-27 19:33]:
-> On Wed, 2006-09-27 at 18:52 +0200, Thomas Bleher wrote:
-> > It seems like there's a bug in the linux kernel, v2.6.18.
-> > Whenever a process wants to read the /proc/$PID/exe symlink of a process
-> > in another domain, SELinux checks for the ptrace permission.
-> > 
-> > That's very unfortunate, as SUSE uses a program called killproc to shut
-> > down system services, which reads this symlink before doing anything.
-> > SUSE's mingetty also fails because of this, which means that the system
-> > is practically unusable.
-> > With 2.6.17 (or any earlier kernel), the system works fine.
-> > 
-> > I think this change should be reverted. The right to read this symlink
-> > is already covered by the check on read permission; also,
-> > /proc/$PID/cmdline contains the same information, most of the time.
+On Thu, 2006-09-28 at 08:20 -0500, Cory Olmo wrote:
+> A collision is occuring between security contexts that contain a comma 
+> and the comma that is used to separate options for mount.  To resolve 
+> the collision the patch introduces support for quoting the context mount 
+> option.
 > 
-> See
-> http://marc.theaimsgroup.com/?l=git-commits-head&m=115134544830164&w=2 and
-> http://marc.theaimsgroup.com/?l=git-commits-head&m=115134545732646&w=2
+> The routine selinux_sb_copy_data() was modified to mark a flag value 
+> when it runs across a '"'.  This flag value is consulted each time a 
+> comma is encountered during the processing of the mount options.  If 
+> the flag indicates that the current option contains a quote it will 
+> move on to the next character.  If the flag indicates that there is 
+> either a matched set of quotes or no quotes at all then the option 
+> is taken.  If the option happens to be an selinux option then the new 
+> routine take_selinux_option() is called.  take_selinux_option() will 
+> copy the option to the previously allocated selinux data page.  While 
+> it is doing the copying it will skip any quotes present in the option 
+> so the data page contains only the raw unquoted context.  The previously 
+> used comma separator between options in the selinux data page was 
+> replaced with a '|' character to allow try_context_mount() to properly 
+> extract whole context option strings as well.
 > 
-> proc has been getting an overhaul by the containers people, but this is
-> just a continuation of what has already happened in the past (e.g. the
-> prior change to likewise apply ptrace checking on environ).  The
-> file-based checks aren't quite sufficient, as the inode label only gets
-> revalidated on open.
+> Signed-off-by: Cory Olmo <colmo@TrustedCS.com>
+> ---
 > 
-> One option would be to define a ptrace_may_read() function to
-> distinguish reading process state from full ptrace attach, and then
-> change proc_fd_access_allowed() and proc_pid_environ() to call the new
-> function instead of ptrace_may_attach().  Internally, that function
-> would apply the usual ptrace-related DAC checking, but call a different
-> security hook, so that SELinux could distinguish it and possibly remap
-> it to another permission check, even emulating the file-based one if
-> desired so that policy would look the same.  Want to make a patch?
+>  hooks.c |   33 ++++++++++++++++++++++++++++++---
+>  1 file changed, 30 insertions(+), 3 deletions(-)
+> 
+> 
+> --- linux-2.6.18.fc6t3/security/selinux/hooks.c	2006-09-21 13:57:29.000000000 -0500
+> +++ linux-2.6.18/security/selinux/hooks.c	2006-09-21 14:04:07.000000000 -0500
+> @@ -398,7 +398,7 @@ static int try_context_mount(struct supe
+>  		/* Standard string-based options. */
+>  		char *p, *options = data;
+>  
+> -		while ((p = strsep(&options, ",")) != NULL) {
+> +		while ((p = strsep(&options, "|")) != NULL) {
+>  			int token;
+>  			substring_t args[MAX_OPT_ARGS];
+>  
+> @@ -1955,11 +1955,34 @@ static inline void take_option(char **to
+>  	*to += len;
+>  }
+>  
+> +static inline void take_selinux_option(char **to, char *from, int *first, 
+> +		                       int len)
+> +{
+> +	int current_size = 0;
+> +
+> +	if (!*first) {
+> +		**to = '|';
+> +		*to += 1;
+> +	}
+> +	else
+> +		*first = 0;
+> +
+> +	while (current_size < len) {
+> +		if (*from != '"') {
+> +			**to = *from;
+> +			*to += 1;
+> +		}
+> +		from += 1;
+> +		current_size += 1;
+> +	}
+> +}
+> +
+>  static int selinux_sb_copy_data(struct file_system_type *type, void *orig, void *copy)
+>  {
+>  	int fnosec, fsec, rc = 0;
+>  	char *in_save, *in_curr, *in_end;
+>  	char *sec_curr, *nosec_save, *nosec;
+> +	int open_quote = 0;
+>  
+>  	in_curr = orig;
+>  	sec_curr = copy;
+> @@ -1981,11 +2004,15 @@ static int selinux_sb_copy_data(struct f
+>  	in_save = in_end = orig;
+>  
+>  	do {
+> -		if (*in_end == ',' || *in_end == '\0') {
+> +		if (*in_end == '"') {
+> +			open_quote = !open_quote;
+> +		}
 
-This seems like a sensible way forward.
-Unfortunately, I won't have time to play with kernel patches in the next
-months (I'm starting to write my diploma thesis on monday), so I hope
-someone else will make a patch; I'll use 2.6.17 in the meantime.
+Nit:  No { } for a single line.
 
-Thanks,
-Thomas
+> +		if ((*in_end == ',' && open_quote == 0) ||
+> +				*in_end == '\0') {
+>  			int len = in_end - in_curr;
+>  
+>  			if (selinux_option(in_curr, len))
+> -				take_option(&sec_curr, in_curr, &fsec, len);
+> +				take_selinux_option(&sec_curr, in_curr, &fsec, len);
+>  			else
+>  				take_option(&nosec, in_curr, &fnosec, len);
+
+Otherwise,
+
+Acked-by:  Stephen Smalley <sds@tycho.nsa.gov>
+ 
+-- 
+Stephen Smalley
+National Security Agency
 
 
 --
