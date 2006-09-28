@@ -1,31 +1,57 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k8SKEfe6028867
-	for <selinux@tycho.nsa.gov>; Thu, 28 Sep 2006 16:14:41 -0400
-Received: from mx1.redhat.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id k8SKE5QW026228
-	for <selinux@tycho.nsa.gov>; Thu, 28 Sep 2006 20:14:06 GMT
-From: Steve Grubb <sgrubb@redhat.com>
-To: Michael C Thompson <thompsmc@us.ibm.com>
-Subject: Re: [PATCH] newrole auditing of failures due to user actions
-Date: Thu, 28 Sep 2006 16:15:22 -0400
-Cc: Linux Audit <linux-audit@redhat.com>, lspp-list <redhat-lspp@redhat.com>,
-        SE Linux <selinux@tycho.nsa.gov>
-References: <451C2473.7050102@us.ibm.com> <451C2B03.1060300@us.ibm.com>
-In-Reply-To: <451C2B03.1060300@us.ibm.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Message-Id: <200609281615.22315.sgrubb@redhat.com>
+Subject: Re: [PATCH] refpolicy: Add GConf policy
+From: "Christopher J. PeBenito" <cpebenito@tresys.com>
+To: jwcart2@tycho.nsa.gov
+Cc: SELinux <selinux@tycho.nsa.gov>
+In-Reply-To: <1159472462.3439.73.camel@moss-lions.epoch.ncsc.mil>
+References: <1159295299.18973.74.camel@moss-lions.epoch.ncsc.mil>
+	 <1159455168.2850.19.camel@sgc.columbia.tresys.com>
+	 <1159472462.3439.73.camel@moss-lions.epoch.ncsc.mil>
+Content-Type: text/plain
+Date: Thu, 28 Sep 2006 16:21:22 -0400
+Message-Id: <1159474882.2850.74.camel@sgc.columbia.tresys.com>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thursday 28 September 2006 16:05, Michael C Thompson wrote:
-> > This patch introduces two new point in the code where audit records are
-> > generated for newrole. Both points are when the attempt to newrole fails.
+On Thu, 2006-09-28 at 15:41 -0400, James Carter wrote:
+> On Thu, 2006-09-28 at 10:52 -0400, Christopher J. PeBenito wrote:
+> > So to make a gconf object manager more useful, it seems like we would
+> > want more confined desktop apps.  Do you think more core pieces of gnome
+> > will be confined, such as gnome vfs and bonobo?  The group of gnome
+> > modules in the example policy didn't seem to gain anything and also
+> > seemed overengineered.  Do you anticipate a need to bring back some of
+> > this?  If so, I think it would be better to have this as a start of a
+> > gnome refpolicy module, which would have all the core pieces of gnome
+> > policy.
+> 
+> You're right.  More desktop apps need to be confined for a gconf object
+> manager to be useful.  I am not planning on writing a gnome-vfs-daemon
+> or bonobo policy.
 
->From an audit perspective I think it does the right thing. ACK.
+I was just curious if you feel that them having policies would be
+useful.
 
--Steve
+>   After finishing up GConf, I'll be looking at window
+> managers.
+> 
+> I think that you can make a case for putting GConf in a gnome policy
+> since it is not being used by any other desktop. It really doesn't
+> matter too much to me.  It does seem, however, like a gnome policy could
+> become quite large.  I guess I imagined policy for a particular desktop
+> eventually being kept in a separate policy directory like
+> policy/modules/desktops/gnome to keep it organized together, but still
+> consisting of many smaller modules.  
+> 
+> What do you think would be part of the gnome policy?
+
+Core pieces that are common to all gnome systems, like gnome-vfs,
+bonobo, orbit, etc.  Other things such as nautilus could go in their own
+modules.  That is, assuming any of these need policies.
+
+-- 
+Chris PeBenito
+Tresys Technology, LLC
+(410) 290-1411 x150
 
 
 --
