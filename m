@@ -1,48 +1,87 @@
-Subject: Re: [PATCH] -v2 newrole auditing of failures due to user actions
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Michael C Thompson <thompsmc@us.ibm.com>
-Cc: Linux Audit <linux-audit@redhat.com>, SE Linux <selinux@tycho.nsa.gov>
-In-Reply-To: <451C38C0.5090904@us.ibm.com>
-References: <451C38C0.5090904@us.ibm.com>
-Content-Type: text/plain
-Date: Thu, 28 Sep 2006 17:31:06 -0400
-Message-Id: <1159479066.15365.1.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k8SLVk3Q031182
+	for <selinux@tycho.nsa.gov>; Thu, 28 Sep 2006 17:31:46 -0400
+Received: from exchange.columbia.tresys.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with SMTP id k8SLVCin006455
+	for <selinux@tycho.nsa.gov>; Thu, 28 Sep 2006 21:31:12 GMT
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Subject: [PATCH] libsemanage: add genhomedircon path to semanage.conf parsing
+Date: Thu, 28 Sep 2006 17:31:46 -0400
+Message-ID: <6FE441CD9F0C0C479F2D88F959B01588052618@exchange.columbia.tresys.com>
+From: "James Athey" <jathey@tresys.com>
+To: <selinux@tycho.nsa.gov>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2006-09-28 at 16:04 -0500, Michael C Thompson wrote:
-> This patch introduces two new point in the code where audit records are 
-> generated for newrole. Both points are when the attempt to newrole fails.
-> 
-> The first point is when the default type could not be determine for the 
-> specified role - this is audited because, as sgrubb pointed out, it is 
-> currently non-tracked path to probe the policy.
-> 
-> The second point is when the desired context to change to is invalid.
-> 
-> There record format remains unchanged. Failing to validate the desired 
-> context will result in the old and new contexts being recorded intact to 
-> the log. For the default type, the old and new contexts have not yet 
-> been obtained, so they are recorded in the log as XXX_context=?
-> 
-> Changes since version 1 of the patch:
->   * removed wrapping #ifdefs around send_audit_message()
->   * provided a "no-op" style function
->   * removed -D_GNU_SOURCE from the Makefile (as its defined in the code)
->   * fixed the error path of the send_audit_message function
-> 
-> The solution that I have for the "no-op" function is not that pretty, 
-> but the Makefile is configured with -Werror and a function which doesn't 
-> use its parameters causes warnings. Is there a better solution to this 
-> problem?
+This patch adds the ability to specify a path to genhomedircon in semanage.conf, similar to specifying a path to setfiles or load_policy.  For example:
 
-Yes, mark the arguments with __attribute__((unused)).  You'll see
-examples in other policycoreutils code.
+[genhomedircon]
+path = /usr/local/sbin/genhomedircon_modified
+args = -t $@
+[end]
 
--- 
-Stephen Smalley
-National Security Agency
+Index: libsemanage/src/conf-parse.y
+===================================================================
+--- libsemanage/src/conf-parse.y        (revision 2032)
++++ libsemanage/src/conf-parse.y        (working copy)
+@@ -1,6 +1,7 @@
+-/* Author: Jason Tang     <jtang@tresys.com>
++/* Authors: Jason Tang     <jtang@tresys.com>
++ *          James Athey    <jathey@tresys.com>
+  *
+- * Copyright (C) 2004-2005 Tresys Technology, LLC
++ * Copyright (C) 2004-2006 Tresys Technology, LLC
+  *
+  *  This library is free software; you can redistribute it and/or
+  *  modify it under the terms of the GNU Lesser General Public
+@@ -56,7 +57,7 @@
+ }
+
+ %token MODULE_STORE VERSION EXPAND_CHECK FILE_MODE
+-%token LOAD_POLICY_START SETFILES_START
++%token LOAD_POLICY_START SETFILES_START GENHOMEDIRCON_START
+ %token VERIFY_MOD_START VERIFY_LINKED_START VERIFY_KERNEL_START BLOCK_END
+ %token PROG_PATH PROG_ARGS
+ %token <s> ARG
+@@ -137,6 +138,14 @@
+                                 YYABORT;
+                         }
+                 }
++        |       GENHOMEDIRCON_START {
++                        semanage_conf_external_prog_destroy(current_conf->genhomedircon);
++                        current_conf->genhomedircon = NULL;
++                        if (new_external_prog(&current_conf->genhomedircon) == -1) {
++                                parse_errors++;
++                                YYABORT;
++                        }
++                }
+         ;
+
+ verify_block:   verify_start external_opts BLOCK_END  {
+Index: libsemanage/src/conf-scan.l
+===================================================================
+--- libsemanage/src/conf-scan.l (revision 2032)
++++ libsemanage/src/conf-scan.l (working copy)
+@@ -1,6 +1,7 @@
+-/* Author: Jason Tang     <jtang@tresys.com>
++/* Authors: Jason Tang     <jtang@tresys.com>
++ *          James Athey    <jathey@tresys.com>
+  *
+- * Copyright (C) 2004-2005 Tresys Technology, LLC
++ * Copyright (C) 2004-2006 Tresys Technology, LLC
+  *
+  *  This library is free software; you can redistribute it and/or
+  *  modify it under the terms of the GNU Lesser General Public
+@@ -43,6 +44,7 @@
+ file-mode         return FILE_MODE;
+ "[load_policy]"   return LOAD_POLICY_START;
+ "[setfiles]"      return SETFILES_START;
++"[genhomedircon]" return GENHOMEDIRCON_START;
+ "[verify module]" return VERIFY_MOD_START;
+ "[verify linked]" return VERIFY_LINKED_START;
+ "[verify kernel]" return VERIFY_KERNEL_START;
 
 
 --
