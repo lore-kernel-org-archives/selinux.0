@@ -1,174 +1,90 @@
-Message-ID: <451C38C0.5090904@us.ibm.com>
-Date: Thu, 28 Sep 2006 16:04:00 -0500
+Message-ID: <451C3A37.8080509@us.ibm.com>
+Date: Thu, 28 Sep 2006 16:10:15 -0500
 From: Michael C Thompson <thompsmc@us.ibm.com>
 MIME-Version: 1.0
-To: Linux Audit <linux-audit@redhat.com>, SE Linux <selinux@tycho.nsa.gov>,
-        Stephen Smalley <sds@tycho.nsa.gov>
-Subject: [PATCH] -v2 newrole auditing of failures due to user actions
-Content-Type: multipart/mixed;
- boundary="------------070503070608030801090006"
+To: Stephen Smalley <sds@tycho.nsa.gov>
+CC: Karl MacMillan <kmacmillan@mentalrootkit.com>,
+        Joshua Brindle <jbrindle@tresys.com>,
+        Darrel Goeddel <dgoeddel@TrustedCS.com>,
+        Steve Grubb <sgrubb@redhat.com>, SE Linux <selinux@tycho.nsa.gov>
+Subject: newrole - adding capabilities for polyinstantiation
+References: <451AEC39.2090409@us.ibm.com> <1159450384.11489.5.camel@moss-spartans.epoch.ncsc.mil>
+In-Reply-To: <1159450384.11489.5.camel@moss-spartans.epoch.ncsc.mil>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This is a multi-part message in MIME format.
---------------070503070608030801090006
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Stephen Smalley wrote:
+> On Wed, 2006-09-27 at 16:25 -0500, Michael C Thompson wrote: 
+>> Hey Stephen,
+>>
+>> It looks like I will be taking over the newrole work that Janak was doing.
+> 
+> Ok, good.  Please keep discussion on list.  Also there was discussion of
+> needing more auditing from newrole on redhat-lspp.
 
-This patch introduces two new point in the code where audit records are 
-generated for newrole. Both points are when the attempt to newrole fails.
+Copying the selinux list on this reply to continue the discussion.
 
-The first point is when the default type could not be determine for the 
-specified role - this is audited because, as sgrubb pointed out, it is 
-currently non-tracked path to probe the policy.
+>> After reading the thread, it seems like Janak's patches were getting 
+>> close, but quite a few ideas were thrown out there, namely:
+>>
+>> 1) Have newrole be non-suid by default, and require the LSPP 
+>> configuration package to enable its suid status (which would then enable 
+>> the capabilities)
+>>
+>> 2) Have newrole be suid all of the time.
+>>
+>> 3) Have newrole determine if namespace is used for the configuration, 
+>> which would then determine if the caps need to be loaded or not.
+>>
+>> Do you know if there was any decision on the path to take that I am 
+>> unable to find on the mailing list?
+> 
+> I think (2) is unacceptable (the real issue is not whether it is suid
+> per se, but whether it retains powerful capabilities like CAP_SYS_ADMIN
+> - it is already suid for the earlier audit support, but drops everything
+> but CAP_AUDIT_WRITE and reverts to the caller's uid upon startup).
 
-The second point is when the desired context to change to is invalid.
+With Janak's patch, there is no differentiation between the capabilities 
+needed to polyinstantiate and the capabilities to audit. Is there a 
+desire to audit outside of an LSPP environment? If so, then I will 
+address this issue in the patch (I see AUDIT being a requirement of 
+LSPP, so there is a clear dependence chain).
 
-There record format remains unchanged. Failing to validate the desired 
-context will result in the old and new contexts being recorded intact to 
-the log. For the default type, the old and new contexts have not yet 
-been obtained, so they are recorded in the log as XXX_context=?
+There is also the issue which Russel Coker brought up which is that 
+pam_namespace is valuable to people outside an LSPP environment. Should 
+this future work take that into account?
 
-Changes since version 1 of the patch:
-  * removed wrapping #ifdefs around send_audit_message()
-  * provided a "no-op" style function
-  * removed -D_GNU_SOURCE from the Makefile (as its defined in the code)
-  * fixed the error path of the send_audit_message function
+> I don't know how to do (3) cleanly, as it seems to violate PAM
+> encapsulation.
+> 
+> (1) addresses the concern for non-LSPP users, but doesn't fully address
+> my concerns about the additional risk to LSPP users.  One obvious issue
+> is that drop_capabilities() currently also resets to the caller's uid,
+> which Janak's patches do not change.  Which I think means that any
+> directories and files created by pam_namespace will initially be
+> assigned the caller's uid, and potentially exposed to tampering by
+> processes in the caller's uid.  SELinux policy might prevent such
+> tampering, but it bears investigating.  Likewise, this means that the
+> newrole process itself runs in the caller's uid and might be exposed to
+> interference by the caller in some forms, although I would expect that
+> SELinux would block that as long as newrole is running in a different
+> domain.
 
-The solution that I have for the "no-op" function is not that pretty, 
-but the Makefile is configured with -Werror and a function which doesn't 
-use its parameters causes warnings. Is there a better solution to this 
-problem?
+I will take some time and look at this further.
 
-Signed-off-by: Michael Thompson <thompsmc@us.ibm.com>
+> We also need to consider whether more of the guidelines in e.g. the
+> Secure Programming HOWTO or the kinds of safeguards implemented
+> in /bin/su should be applied to newrole when it is suid.  Historically,
+> newrole wasn't viewed as an especially privileged program, since it
+> wasn't suid originally and since the user-role authorizations were
+> actually enforced by the kernel, not by newrole.  Thus it wasn't written
+> to be as paranoid about the caller as /bin/su is.
 
-----
+Will look at this as well.
 
-
---------------070503070608030801090006
-Content-Type: text/x-diff;
- name="newrole_audit_fail.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="newrole_audit_fail.patch"
-
-diff -rNau policycoreutils-1.30.29/newrole/Makefile policycoreutils-1.30.29.orig.dev/newrole/Makefile
---- policycoreutils-1.30.29/newrole/Makefile	2006-09-14 07:07:26.000000000 -0500
-+++ policycoreutils-1.30.29.orig.dev/newrole/Makefile	2006-09-28 15:47:21.000000000 -0500
-@@ -27,7 +27,7 @@
- 	LDLIBS += -laudit
- endif
- ifeq (${LOG_AUDIT_PRIV},y)
--	override CFLAGS += -DLOG_AUDIT_PRIV -D_GNU_SOURCE
-+	override CFLAGS += -DLOG_AUDIT_PRIV
- 	LDLIBS += -lcap
- 	MODE := 4555
- else
-diff -rNau policycoreutils-1.30.29/newrole/newrole.c policycoreutils-1.30.29.orig.dev/newrole/newrole.c
---- policycoreutils-1.30.29/newrole/newrole.c	2006-09-14 07:07:26.000000000 -0500
-+++ policycoreutils-1.30.29.orig.dev/newrole/newrole.c	2006-09-28 15:56:05.000000000 -0500
-@@ -396,6 +396,48 @@
- }
- #endif
- 
-+#ifdef LOG_AUDIT_PRIV
-+/* Send audit message */
-+static
-+int send_audit_message(int success, security_context_t old_context,
-+		       security_context_t new_context, const char *ttyn)
-+{
-+	char *msg = NULL;
-+	int rc;
-+	int audit_fd = audit_open();
-+
-+	if (audit_fd < 0) {
-+		fprintf(stderr, _("Error connecting to audit system.\n"));
-+		return -1;
-+	}
-+	if (asprintf(&msg, "newrole: old-context=%s new-context=%s",
-+				old_context ? old_context : "?",
-+				new_context ? new_context : "?") < 0) {
-+		fprintf(stderr, _("Error allocating memory.\n"));
-+		rc = -1;
-+		goto out;
-+	}
-+	rc = audit_log_user_message(audit_fd, AUDIT_USER_ROLE_CHANGE,
-+			msg, NULL, NULL, ttyn, success);
-+	if (rc <= 0) {
-+		fprintf(stderr, _("Error sending audit message.\n"));
-+		rc = -1;
-+		goto out;
-+	}
-+	rc = 0;
-+out:
-+	free(msg);
-+	close(audit_fd);
-+	return rc;
-+}
-+#else
-+#define send_audit_message(a,b,c,d) no_op()
-+static inline int no_op()
-+{
-+	return 0;
-+}
-+#endif
-+
- /************************************************************************
-  *
-  * All code used for both PAM and shadow passwd goes in this section.
-@@ -536,6 +578,7 @@
- 	if (role_s && !type_s) {
- 		if (get_default_type(role_s, &type_s)) {
- 			fprintf(stderr, _("Couldn't get default type.\n"));
-+			send_audit_message(0, old_context, new_context, ttyn);
- 			exit(-1);
- 		}
- #ifdef CANTSPELLGDB
-@@ -715,6 +758,7 @@
- 
- 	if (security_check_context(new_context) < 0) {
- 		fprintf(stderr, _("%s is not a valid context\n"), new_context);
-+		send_audit_message(0, old_context, new_context, ttyn);
- 		exit(-1);
- 	}
- 
-@@ -873,32 +917,8 @@
- 			new_context);
- 		exit(-1);
- 	}
--#ifdef LOG_AUDIT_PRIV
--	/* Send audit message */
--	{
--		char *msg;
--		int rc;
--		int audit_fd = audit_open();
--		if (audit_fd < 0) {
--			fprintf(stderr,
--				_("Error connecting to audit system.\n"));
--			exit(-1);
--		}
--		if (asprintf(&msg, "newrole: old-context=%s new-context=%s",
--			     old_context, new_context) < 0) {
--			fprintf(stderr, _("Error allocating memory.\n"));
--			exit(-1);
--		}
--		rc = audit_log_user_message(audit_fd, AUDIT_USER_ROLE_CHANGE,
--					    msg, NULL, NULL, ttyn, 1);
--		if (rc <= 0) {
--			fprintf(stderr, _("Error sending audit message.\n"));
--			exit(-1);
--		}
--		free(msg);
--		close(audit_fd);
--	}
--#endif
-+	if (send_audit_message(1, old_context, new_context, ttyn))
-+		exit(-1);
- 	freecon(old_context);
- 	execv(pw->pw_shell, argv + optind - 1);
- 
-
---------------070503070608030801090006--
+Thanks,
+Mike
 
 
 --
