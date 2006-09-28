@@ -1,174 +1,64 @@
 Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k8SK5VBX028467
-	for <selinux@tycho.nsa.gov>; Thu, 28 Sep 2006 16:05:31 -0400
-Received: from e33.co.us.ibm.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id k8SK4QbB018368
-	for <selinux@tycho.nsa.gov>; Thu, 28 Sep 2006 20:04:26 GMT
-Received: from d03relay04.boulder.ibm.com (d03relay04.boulder.ibm.com [9.17.195.106])
-	by e33.co.us.ibm.com (8.13.8/8.12.11) with ESMTP id k8SK5Vov024153
-	for <selinux@tycho.nsa.gov>; Thu, 28 Sep 2006 16:05:31 -0400
-Received: from d03av02.boulder.ibm.com (d03av02.boulder.ibm.com [9.17.195.168])
-	by d03relay04.boulder.ibm.com (8.13.6/8.13.6/NCO v8.1.1) with ESMTP id k8SK5VRR347306
-	for <selinux@tycho.nsa.gov>; Thu, 28 Sep 2006 14:05:31 -0600
-Received: from d03av02.boulder.ibm.com (loopback [127.0.0.1])
-	by d03av02.boulder.ibm.com (8.12.11.20060308/8.13.3) with ESMTP id k8SK5VSl030948
-	for <selinux@tycho.nsa.gov>; Thu, 28 Sep 2006 14:05:31 -0600
-Message-ID: <451C2B03.1060300@us.ibm.com>
-Date: Thu, 28 Sep 2006 15:05:23 -0500
-From: Michael C Thompson <thompsmc@us.ibm.com>
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k8SK5965028431
+	for <selinux@tycho.nsa.gov>; Thu, 28 Sep 2006 16:05:09 -0400
+Received: from atlrel9.hp.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id k8SK44bB018312
+	for <selinux@tycho.nsa.gov>; Thu, 28 Sep 2006 20:04:04 GMT
+Message-ID: <451C2AEA.7050608@hp.com>
+Date: Thu, 28 Sep 2006 16:04:58 -0400
+From: Paul Moore <paul.moore@hp.com>
 MIME-Version: 1.0
-To: Michael C Thompson <thompsmc@us.ibm.com>
-CC: Linux Audit <linux-audit@redhat.com>, lspp-list <redhat-lspp@redhat.com>,
-        Steve Grubb <sgrubb@redhat.com>, SE Linux <selinux@tycho.nsa.gov>
-Subject: Re: [PATCH] newrole auditing of failures due to user actions
-References: <451C2473.7050102@us.ibm.com>
-In-Reply-To: <451C2473.7050102@us.ibm.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: James Morris <jmorris@namei.org>
+Cc: "David S. Miller" <davem@davemloft.net>, netdev@vger.kernel.org,
+        linux-audit@redhat.com, Eric Paris <eparis@redhat.com>,
+        selinux@tycho.nsa.gov
+Subject: Re: [PATCH 1/1] NetLabel: add audit support for configuration changes
+References: <20060928180326.896170000@hp.com> <20060928180337.570612000@hp.com> <Pine.LNX.4.64.0609281547060.28120@d.namei>
+In-Reply-To: <Pine.LNX.4.64.0609281547060.28120@d.namei>
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Michael C Thompson wrote:
-> This patch introduces two new point in the code where audit records are 
-> generated for newrole. Both points are when the attempt to newrole fails.
+James Morris wrote:
+>>+struct audit_buffer *netlbl_audit_start_common(int type, u32 secid)
+> 
+> 
+>>+	if (current->mm) {
+>>+		down_read(&current->mm->mmap_sem);
+>>+		vma = current->mm->mmap;
+>>+		while (vma) {
+>>+			if ((vma->vm_flags & VM_EXECUTABLE) &&
+>>+			    vma->vm_file) {
+>>+				audit_log_d_path(audit_buf,
+>>+						 " exe=",
+>>+						 vma->vm_file->f_dentry,
+>>+						 vma->vm_file->f_vfsmnt);
+>>+				break;
+>>+			}
+>>+			vma = vma->vm_next;
+>>+		}
+>>+		up_read(&current->mm->mmap_sem);
+> 
+> 
+> 
+> Suggestion for the future: I think it'd be wortwhile consolidating this 
+> with the code in audit_log_task_info().
 
-Forgot to copy the SELinux mailing list.
+Agreed, in fact, as I suspect you have already noticed, this was ripped
+right from that function.  It was private to kernel/auditsc.c making it
+offlimits, but I would have gladly used it instead; making
+audit_log_task_info() public seemed like something that was beyond this
+NetLabel specific patch.
 
-> The first point is when the default type could not be determine for the 
-> specified role - this is audited because, as sgrubb pointed out, it is 
-> currently non-tracked path to probe the policy.
+> In any case, the patch looks fine to me.
 > 
-> The second point is when the desired context to change to is invalid.
-> 
-> There record format remains unchanged. Failing to validate the desired 
-> context will result in the old and new contexts being recorded intact to 
-> the log. For the default type, the old and new contexts have not yet 
-> been obtained, so they are recorded in the log as XXX_context=?
-> 
-> Signed-off-by: Michael Thompson <thompsmc@us.ibm.com>
-> 
-> ----
-> 
-> 
-> 
-> ------------------------------------------------------------------------
-> 
-> --- policycoreutils-1.30.29/newrole/newrole.c	2006-09-14 07:07:26.000000000 -0500
-> +++ policycoreutils-1.30.29.orig.dev/newrole/newrole.c	2006-09-28 14:21:27.000000000 -0500
-> @@ -47,7 +47,9 @@
->   *
->   *************************************************************************/
->  
-> +#ifndef _GNU_SOURCE
->  #define _GNU_SOURCE
-> +#endif
->  #include <stdio.h>
->  #include <stdlib.h>		/* for malloc(), realloc(), free() */
->  #include <pwd.h>		/* for getpwuid() */
-> @@ -394,6 +396,41 @@
->  		cap_free(new_caps);
->  	}
->  }
-> +
-> +/* Send audit message */
-> +int send_audit_message(int success, security_context_t old_context,
-> +			security_context_t new_context, const char *ttyn)
-> +{
-> +	char *msg = NULL;
-> +	int rc;
-> +	int audit_fd = audit_open();
-> +
-> +	if (audit_fd < 0) {
-> +		fprintf(stderr, _("Error connecting to audit system.\n"));
-> +		rc = -1;
-> +		goto out;
-> +	}
-> +	if (asprintf(&msg, "newrole: old-context=%s new-context=%s",
-> +				old_context ? old_context : "?",
-> +				new_context ? new_context : "?") < 0) {
-> +		fprintf(stderr, _("Error allocating memory.\n"));
-> +		rc = -1;
-> +		goto out;
-> +	}
-> +	rc = audit_log_user_message(audit_fd, AUDIT_USER_ROLE_CHANGE,
-> +			msg, NULL, NULL, ttyn, success);
-> +	if (rc <= 0) {
-> +		fprintf(stderr, _("Error sending audit message.\n"));
-> +		rc = -1;
-> +		goto out;
-> +	}
-> +	rc = 0;
-> +out:
-> +	free(msg);
-> +	close(audit_fd);
-> +	return rc;
-> +}
-> +
->  #endif
->  
->  /************************************************************************
-> @@ -536,6 +573,9 @@
->  	if (role_s && !type_s) {
->  		if (get_default_type(role_s, &type_s)) {
->  			fprintf(stderr, _("Couldn't get default type.\n"));
-> +#ifdef LOG_AUDIT_PRIV
-> +			send_audit_message(0, old_context, new_context, ttyn);
-> +#endif
->  			exit(-1);
->  		}
->  #ifdef CANTSPELLGDB
-> @@ -715,6 +755,9 @@
->  
->  	if (security_check_context(new_context) < 0) {
->  		fprintf(stderr, _("%s is not a valid context\n"), new_context);
-> +#ifdef LOG_AUDIT_PRIV
-> +		send_audit_message(0, old_context, new_context, ttyn);
-> +#endif
->  		exit(-1);
->  	}
->  
-> @@ -874,30 +917,8 @@
->  		exit(-1);
->  	}
->  #ifdef LOG_AUDIT_PRIV
-> -	/* Send audit message */
-> -	{
-> -		char *msg;
-> -		int rc;
-> -		int audit_fd = audit_open();
-> -		if (audit_fd < 0) {
-> -			fprintf(stderr,
-> -				_("Error connecting to audit system.\n"));
-> -			exit(-1);
-> -		}
-> -		if (asprintf(&msg, "newrole: old-context=%s new-context=%s",
-> -			     old_context, new_context) < 0) {
-> -			fprintf(stderr, _("Error allocating memory.\n"));
-> -			exit(-1);
-> -		}
-> -		rc = audit_log_user_message(audit_fd, AUDIT_USER_ROLE_CHANGE,
-> -					    msg, NULL, NULL, ttyn, 1);
-> -		if (rc <= 0) {
-> -			fprintf(stderr, _("Error sending audit message.\n"));
-> -			exit(-1);
-> -		}
-> -		free(msg);
-> -		close(audit_fd);
-> -	}
-> +	if (send_audit_message(1, old_context, new_context, ttyn))
-> +		exit(-1);
->  #endif
->  	freecon(old_context);
->  	execv(pw->pw_shell, argv + optind - 1);
-> 
-> 
-> ------------------------------------------------------------------------
-> 
-> --
-> Linux-audit mailing list
-> Linux-audit@redhat.com
-> https://www.redhat.com/mailman/listinfo/linux-audit
+> Acked-by: James Morris <jmorris@namei.org>
 
+Thanks.
 
+-- 
+paul moore
+linux security @ hp
 
 --
 This message was distributed to subscribers of the selinux mailing list.
