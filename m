@@ -1,37 +1,48 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k8SJXwwb027465
-	for <selinux@tycho.nsa.gov>; Thu, 28 Sep 2006 15:33:58 -0400
-Received: from ccerelbas02.cce.hp.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id k8SJXOQW020271
-	for <selinux@tycho.nsa.gov>; Thu, 28 Sep 2006 19:33:24 GMT
-Received: from mailrelay01.cce.cpqcorp.net (relay.jp.compaq.com [16.47.68.171])
-	by ccerelbas02.cce.hp.com (Postfix) with ESMTP id 09B0D3457E
-	for <selinux@tycho.nsa.gov>; Thu, 28 Sep 2006 14:33:58 -0500 (CDT)
-Received: from kitche.zk3.dec.com (kitche3.zk3.dec.com [16.140.160.165])
-	by mailrelay01.cce.cpqcorp.net (Postfix) with ESMTP id 662DBBF80
-	for <selinux@tycho.nsa.gov>; Thu, 28 Sep 2006 14:33:55 -0500 (CDT)
-Message-ID: <451C239F.7070003@hp.com>
-Date: Thu, 28 Sep 2006 15:33:51 -0400
-From: Matt Anderson <mra@hp.com>
-MIME-Version: 1.0
-To: selinux@tycho.nsa.gov
-Subject: Re: SELINUX_ERR using chcon to set a printer to Secret
-References: <451C1B7A.7010203@hp.com>
-In-Reply-To: <451C1B7A.7010203@hp.com>
-Content-Type: text/plain; charset=ISO-8859-1
+Subject: Re: [PATCH] refpolicy: Add GConf policy
+From: James Carter <jwcart2@tycho.nsa.gov>
+Reply-To: jwcart2@tycho.nsa.gov
+To: "Christopher J. PeBenito" <cpebenito@tresys.com>
+Cc: SELinux <selinux@tycho.nsa.gov>
+In-Reply-To: <1159455168.2850.19.camel@sgc.columbia.tresys.com>
+References: <1159295299.18973.74.camel@moss-lions.epoch.ncsc.mil>
+	 <1159455168.2850.19.camel@sgc.columbia.tresys.com>
+Content-Type: text/plain
+Date: Thu, 28 Sep 2006 15:41:02 -0400
+Message-Id: <1159472462.3439.73.camel@moss-lions.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-When I add the policy:
+On Thu, 2006-09-28 at 10:52 -0400, Christopher J. PeBenito wrote:
+> So to make a gconf object manager more useful, it seems like we would
+> want more confined desktop apps.  Do you think more core pieces of gnome
+> will be confined, such as gnome vfs and bonobo?  The group of gnome
+> modules in the example policy didn't seem to gain anything and also
+> seemed overengineered.  Do you anticipate a need to bring back some of
+> this?  If so, I think it would be better to have this as a start of a
+> gnome refpolicy module, which would have all the core pieces of gnome
+> policy.
+> 
 
-allow secadm_t printer_device_t:chr_file { getattr relabelfrom relabelto };
+You're right.  More desktop apps need to be confined for a gconf object
+manager to be useful.  I am not planning on writing a gnome-vfs-daemon
+or bonobo policy.  After finishing up GConf, I'll be looking at window
+managers.
 
-I'm able to perform the relabel from secadm_r.  This meets my needs wrt
-CUPS, but could one of the policy gurus point what in the policy allows
-secadm_r to do this?
+I think that you can make a case for putting GConf in a gnome policy
+since it is not being used by any other desktop. It really doesn't
+matter too much to me.  It does seem, however, like a gnome policy could
+become quite large.  I guess I imagined policy for a particular desktop
+eventually being kept in a separate policy directory like
+policy/modules/desktops/gnome to keep it organized together, but still
+consisting of many smaller modules.  
 
-thanks
--matt
+What do you think would be part of the gnome policy?
+
+-- 
+James Carter <jwcart2@tycho.nsa.gov>
+National Security Agency
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
