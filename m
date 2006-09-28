@@ -1,31 +1,56 @@
 Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k8SFLiYq020092
-	for <selinux@tycho.nsa.gov>; Thu, 28 Sep 2006 11:21:44 -0400
-Received: from bay0-omc2-s16.bay0.hotmail.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id k8SFLBLE013073
-	for <selinux@tycho.nsa.gov>; Thu, 28 Sep 2006 15:21:11 GMT
-Message-ID: <BAY114-F6D03603069FF329A71681AF1B0@phx.gbl>
-From: "Salvo Giuffrida" <giuffsalvo@hotmail.it>
-To: selinux@tycho.nsa.gov
-Subject: run_init, and benchmarking
-Date: Thu, 28 Sep 2006 17:21:37 +0200
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1; format=flowed
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k8SFjgAU020772
+	for <selinux@tycho.nsa.gov>; Thu, 28 Sep 2006 11:45:42 -0400
+Received: from mx1.redhat.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id k8SFj8Xf016268
+	for <selinux@tycho.nsa.gov>; Thu, 28 Sep 2006 15:45:08 GMT
+Message-ID: <451BEE24.7040609@redhat.com>
+Date: Thu, 28 Sep 2006 11:45:40 -0400
+From: Daniel J Walsh <dwalsh@redhat.com>
+MIME-Version: 1.0
+To: "Christopher J. PeBenito" <cpebenito@tresys.com>
+CC: SE Linux <selinux@tycho.nsa.gov>
+Subject: Re: Latest diffs.  Trimmed down this time.
+References: <45183220.8090106@redhat.com> <1159454177.2850.9.camel@sgc.columbia.tresys.com>
+In-Reply-To: <1159454177.2850.9.camel@sgc.columbia.tresys.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Why is there such a command like run_init? I mean, even if I directly start 
-a service through /etc/init.d/nameservice start, shouldn't there be a domain 
-transition (automatic, through type_transition statements) that places the 
-process in the right security context?
-Another thing: what is the impact on performance of the Security Server-AVC 
-control? What is the percentage in comparison on a "normal" Linux? Is there 
-such a site with benchmarks on this?
-Thanks a lot
-
-_________________________________________________________________
-Cerchi un campeggio per le tue vacanze? 
-http://search.msn.it/results.aspx?q=campeggio&FORM=MSNH&CP=1252&srch_type=0
+Christopher J. PeBenito wrote:
+> Merged.
+>
+> On Mon, 2006-09-25 at 15:46 -0400, Daniel J Walsh wrote:
+>   
+>> Corrected oddjob policy
+>>     
+>
+> The mkhomedir policy looks incomplete.
+>
+>   
+Yes it needs more testing.
+> fixed the stray 
+>
+> domain_auto_trans(unconfined_t,oddjob_mkhomedir_exec_t,oddjob_mkhomedir_t)
+>
+> in the module.
+>
+>   
+>> Doesn't ssh need
+>> +       userdom_search_all_users_home_dirs(sshd_t)
+>>     
+>
+> See my response to Erich.
+>
+>   
+I removed this.
+>> Cups init script wants to clear the error_log
+>>     
+>
+> Does initrc_t need read on this still?
+>
+>   
+I don't think so.
 
 
 --
