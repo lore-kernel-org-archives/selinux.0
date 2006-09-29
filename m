@@ -1,65 +1,31 @@
-Message-ID: <36282A1733C57546BE392885C0618592015CF3BE@chaos.tcs.tcs-sec.com>
-From: Venkat Yekkirala <vyekkirala@TrustedCS.com>
-To: Paul Moore <paul.moore@hp.com>, James Morris <jmorris@namei.org>
-Cc: Stephen Smalley <sds@tycho.nsa.gov>, Joshua Brindle
-	 <method@gentoo.org>,
-        netdev@vger.kernel.org, selinux@tycho.nsa.gov,
-        kmacmillan@mentalrootkit.com
-Subject: RE: [PATCH 7/7] secid reconciliation-v03: Enforcement for SELinux
-Date: Fri, 29 Sep 2006 18:10:05 -0400
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k8TMhuCI006186
+	for <selinux@tycho.nsa.gov>; Fri, 29 Sep 2006 18:43:56 -0400
+Received: from atlrel8.hp.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id k8TMgnNd007401
+	for <selinux@tycho.nsa.gov>; Fri, 29 Sep 2006 22:42:49 GMT
+Message-Id: <20060929223948.975556000@hp.com>
+Date: Fri, 29 Sep 2006 18:39:49 -0400
+From: paul.moore@hp.com
+To: netdev@vger.kernel.org, linux-audit@redhat.com
+Cc: selinux@tycho.nsa.gov, sgrubb@redhat.com
+Subject: [PATCH 0/1] NetLabel audit fixup
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-> >>>>It seems more of a pain to actually
-> >>>>prevent their use at the same time and/or explain 
-> strange/unnatural
-> >>>>behavior.
-> >>>
-> >>>Agreed, the solution that we agreed upon is much easier to 
-> implement and
-> >>>explain than a lot of the alternatives.
-> >>
-> >>Ok, can you please explain it further?
-> >>
-> >>i.e. show me what the policy looks like, exactly what the 
-> user is trying 
-> >>to achieve, and explain what happens to each packet exactly 
-> in terms of 
-> >>labeling on the input and output paths.
-> >  
-> > Also, why can't this be done just with xfrm labeling?
-> 
-> I believe the issue Venkat and I were discussing was how to handle the
-> case of multiple external labeling protocols, i.e. what to do 
-> if we get
-> a packet through labeled SA which has a CIPSO option.  As I've said
-> before, I don't believe this is something we will see much in practice
-> but I think we need to decide what to do: handle it somehow 
-> or just punt
-> on the problem and drop it.  Several people with experience with
-> external labeling have commented on how supporting both external
-> labeling protocols would be a good idea so Venkat and I are trying to
-> come up with a solution that works.
+This patch is against the current net-2.6 tree and should address the issues
+that Steve Grubb had with the original patch.  Please consider this for the
+2.6.19 release.
 
-Here's the scoop on using xfrm and cipso at the same time:
+Dave - you may want to wait until Steve explicitly ACKs this ...
 
-JUST REDUNDANT
+Steve - can you please explicitly ACK (or complain) about this patch ...
 
-I was only paying attention to the inbound side when I was
-saying a ranged SA could be used in conjunction with fine-grained
-cipso labeling. In actuality, this isn't possible because of the
-change we are instituting for SA selection to be based on the context
-of the sock (specifically, the sock's MLS range must "equal" the range
-on the SA, and cipso at this point would be representing this same range).
+Thanks for your patience guys.
 
-So, if someone were to configure CIPSO along with labeled ipsec, BOTH
-mechanisms will be used, with BOTH labels carrying the same MLS range,
-and with CIPSO always overriding the SA (after a
-flow_in check) on the inbound. Should just be additional overhead, that's
-all.
+--
+paul moore
+linux security @ hp
 
 --
 This message was distributed to subscribers of the selinux mailing list.
