@@ -1,57 +1,66 @@
-Message-ID: <451D5CE4.30700@hp.com>
-Date: Fri, 29 Sep 2006 13:50:28 -0400
-From: Paul Moore <paul.moore@hp.com>
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k8THoxhO029580
+	for <selinux@tycho.nsa.gov>; Fri, 29 Sep 2006 13:50:59 -0400
+Received: from mx1.redhat.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id k8THoPu8025406
+	for <selinux@tycho.nsa.gov>; Fri, 29 Sep 2006 17:50:25 GMT
+Message-ID: <451D5D06.6080401@redhat.com>
+Date: Fri, 29 Sep 2006 13:51:02 -0400
+From: Daniel J Walsh <dwalsh@redhat.com>
 MIME-Version: 1.0
-To: James Morris <jmorris@namei.org>
-Cc: Venkat Yekkirala <vyekkirala@TrustedCS.com>,
-        Stephen Smalley <sds@tycho.nsa.gov>,
-        Joshua Brindle <method@gentoo.org>, netdev@vger.kernel.org,
-        selinux@tycho.nsa.gov, kmacmillan@mentalrootkit.com
-Subject: Re: [PATCH 7/7] secid reconciliation-v03: Enforcement for SELinux
-References: <36282A1733C57546BE392885C0618592015CF2BE@chaos.tcs.tcs-sec.com> <451D4A51.4000603@hp.com> <Pine.LNX.4.64.0609291247170.6007@d.namei> <Pine.LNX.4.64.0609291329030.7218@d.namei>
-In-Reply-To: <Pine.LNX.4.64.0609291329030.7218@d.namei>
-Content-Type: text/plain; charset=ISO-8859-1
+To: "Christopher J. PeBenito" <cpebenito@tresys.com>
+CC: Matt Anderson <mra@hp.com>, selinux@tycho.nsa.gov
+Subject: Re: SELINUX_ERR using chcon to set a printer to Secret
+References: <451C1B7A.7010203@hp.com>  <451C239F.7070003@hp.com> <1159473365.2850.62.camel@sgc.columbia.tresys.com>
+In-Reply-To: <1159473365.2850.62.camel@sgc.columbia.tresys.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-James Morris wrote:
-> On Fri, 29 Sep 2006, James Morris wrote:
-> 
-> 
->>On Fri, 29 Sep 2006, Paul Moore wrote:
+Christopher J. PeBenito wrote:
+> On Thu, 2006-09-28 at 15:33 -0400, Matt Anderson wrote:
+>   
+>> When I add the policy:
 >>
+>> allow secadm_t printer_device_t:chr_file { getattr relabelfrom relabelto };
 >>
->>>>It seems more of a pain to actually
->>>>prevent their use at the same time and/or explain strange/unnatural
->>>>behavior.
->>>
->>>Agreed, the solution that we agreed upon is much easier to implement and
->>>explain than a lot of the alternatives.
->>
->>Ok, can you please explain it further?
->>
->>i.e. show me what the policy looks like, exactly what the user is trying 
->>to achieve, and explain what happens to each packet exactly in terms of 
->>labeling on the input and output paths.
->  
-> Also, why can't this be done just with xfrm labeling?
+>> I'm able to perform the relabel from secadm_r.  This meets my needs wrt
+>> CUPS, but could one of the policy gurus point what in the policy allows
+>> secadm_r to do this?
+>>     
+>
+> You need MLS upgrade and/or downgrade permissions:
+>
+> mls_file_upgrade(secadm_t)
+> mls_file_downgrade(secadm_t)
+>
+>   
+No those rules are already there.  I think the problem is in
 
-I believe the issue Venkat and I were discussing was how to handle the
-case of multiple external labeling protocols, i.e. what to do if we get
-a packet through labeled SA which has a CIPSO option.  As I've said
-before, I don't believe this is something we will see much in practice
-but I think we need to decide what to do: handle it somehow or just punt
-on the problem and drop it.  Several people with experience with
-external labeling have commented on how supporting both external
-labeling protocols would be a good idea so Venkat and I are trying to
-come up with a solution that works.
+files_relabel_all_files
 
-Please see my reponse with the pseudo code/policy examples as this might
-help clear things up.
+I believe it needs this patch
 
--- 
-paul moore
-linux security @ hp
+diff -u files.if~ files.if
+--- files.if~   2006-09-27 17:07:37.000000000 -0400
++++ files.if    2006-09-29 13:48:53.000000000 -0400
+@@ -896,8 +896,8 @@
+        allow $1 { file_type $2 }:lnk_file { getattr relabelfrom 
+relabelto };
+        allow $1 { file_type $2 }:fifo_file { getattr relabelfrom 
+relabelto };
+        allow $1 { file_type $2 }:sock_file { getattr relabelfrom 
+relabelto };
+-       allow $1 { file_type $2 }:blk_file { getattr relabelfrom };
+-       allow $1 { file_type $2 }:chr_file { getattr relabelfrom };
++       allow $1 { file_type $2 }:blk_file { getattr relabelfrom 
+relabelto };
++       allow $1 { file_type $2 }:chr_file { getattr relabelfrom 
+relabelto };
+ 
+        # satisfy the assertions:
+        seutil_relabelto_bin_policy($1)
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
