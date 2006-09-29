@@ -1,86 +1,32 @@
-Subject: Re: [PATCH] libsemanage: add genhomedircon path to semanage.conf
-	parsing
+Subject: Re: [PATCH] libsemanage: don't destroy the sepol handle if the
+	connection fails
 From: Stephen Smalley <sds@tycho.nsa.gov>
 To: James Athey <jathey@tresys.com>
 Cc: selinux@tycho.nsa.gov
-In-Reply-To: <6FE441CD9F0C0C479F2D88F959B01588052618@exchange.columbia.tresys.com>
+In-Reply-To: <6FE441CD9F0C0C479F2D88F959B01588052619@exchange.columbia.tresys.com>
 References: 
-	 <6FE441CD9F0C0C479F2D88F959B01588052618@exchange.columbia.tresys.com>
+	 <6FE441CD9F0C0C479F2D88F959B01588052619@exchange.columbia.tresys.com>
 Content-Type: text/plain
-Date: Fri, 29 Sep 2006 11:00:44 -0400
-Message-Id: <1159542044.8496.68.camel@moss-spartans.epoch.ncsc.mil>
+Date: Fri, 29 Sep 2006 11:01:03 -0400
+Message-Id: <1159542063.8496.70.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2006-09-28 at 17:31 -0400, James Athey wrote:
-> This patch adds the ability to specify a path to genhomedircon in semanage.conf, similar to specifying a path to setfiles or load_policy.  For example:
+On Thu, 2006-09-28 at 17:37 -0400, James Athey wrote:
+> This patch removes the call to sepol_handle_destroy() if the connection to the semanage store fails.  Without this patch, if a connection fails for any reason, any later connection attempts on the same semanage handle will dump core.  semanage_handle_create() is responsible for creating the sepol handle, and semanage_handle_destroy() already destroys it.
 > 
-> [genhomedircon]
-> path = /usr/local/sbin/genhomedircon_modified
-> args = -t $@
-> [end]
-> 
-> Index: libsemanage/src/conf-parse.y
+> Index: libsemanage/src/direct_api.c
 > ===================================================================
-> --- libsemanage/src/conf-parse.y        (revision 2032)
-> +++ libsemanage/src/conf-parse.y        (working copy)
-> @@ -1,6 +1,7 @@
-> -/* Author: Jason Tang     <jtang@tresys.com>
-> +/* Authors: Jason Tang     <jtang@tresys.com>
-> + *          James Athey    <jathey@tresys.com>
->   *
-> - * Copyright (C) 2004-2005 Tresys Technology, LLC
-> + * Copyright (C) 2004-2006 Tresys Technology, LLC
->   *
->   *  This library is free software; you can redistribute it and/or
->   *  modify it under the terms of the GNU Lesser General Public
-> @@ -56,7 +57,7 @@
+> --- libsemanage/src/direct_api.c        (revision 2032)
+> +++ libsemanage/src/direct_api.c        (working copy)
+> @@ -218,7 +218,6 @@
+> 
+>        err:
+>         ERR(sh, "could not establish direct connection");
+> -       sepol_handle_destroy(sh->sepolh);
+>         return STATUS_ERR;
 >  }
-> 
->  %token MODULE_STORE VERSION EXPAND_CHECK FILE_MODE
-> -%token LOAD_POLICY_START SETFILES_START
-> +%token LOAD_POLICY_START SETFILES_START GENHOMEDIRCON_START
->  %token VERIFY_MOD_START VERIFY_LINKED_START VERIFY_KERNEL_START BLOCK_END
->  %token PROG_PATH PROG_ARGS
->  %token <s> ARG
-> @@ -137,6 +138,14 @@
->                                  YYABORT;
->                          }
->                  }
-> +        |       GENHOMEDIRCON_START {
-> +                        semanage_conf_external_prog_destroy(current_conf->genhomedircon);
-> +                        current_conf->genhomedircon = NULL;
-> +                        if (new_external_prog(&current_conf->genhomedircon) == -1) {
-> +                                parse_errors++;
-> +                                YYABORT;
-> +                        }
-> +                }
->          ;
-> 
->  verify_block:   verify_start external_opts BLOCK_END  {
-> Index: libsemanage/src/conf-scan.l
-> ===================================================================
-> --- libsemanage/src/conf-scan.l (revision 2032)
-> +++ libsemanage/src/conf-scan.l (working copy)
-> @@ -1,6 +1,7 @@
-> -/* Author: Jason Tang     <jtang@tresys.com>
-> +/* Authors: Jason Tang     <jtang@tresys.com>
-> + *          James Athey    <jathey@tresys.com>
->   *
-> - * Copyright (C) 2004-2005 Tresys Technology, LLC
-> + * Copyright (C) 2004-2006 Tresys Technology, LLC
->   *
->   *  This library is free software; you can redistribute it and/or
->   *  modify it under the terms of the GNU Lesser General Public
-> @@ -43,6 +44,7 @@
->  file-mode         return FILE_MODE;
->  "[load_policy]"   return LOAD_POLICY_START;
->  "[setfiles]"      return SETFILES_START;
-> +"[genhomedircon]" return GENHOMEDIRCON_START;
->  "[verify module]" return VERIFY_MOD_START;
->  "[verify linked]" return VERIFY_LINKED_START;
->  "[verify kernel]" return VERIFY_KERNEL_START;
 
 Acked-by:  Stephen Smalley <sds@tycho.nsa.gov>
 
