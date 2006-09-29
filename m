@@ -1,43 +1,52 @@
-Subject: Re: [PATCH 7/7] secid reconciliation-v03: Enforcement for SELinux
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: James Morris <jmorris@namei.org>
-Cc: Joshua Brindle <method@gentoo.org>,
-        Venkat Yekkirala <vyekkirala@TrustedCS.com>, netdev@vger.kernel.org,
-        selinux@tycho.nsa.gov, paul.moore@hp.com, kmacmillan@mentalrootkit.com
-In-Reply-To: <Pine.LNX.4.64.0609291030520.5023@d.namei>
-References: <451C85F4.7000406@trustedcs.com>  <451C9897.6030306@gentoo.org>
-	 <1159534759.8496.1.camel@moss-spartans.epoch.ncsc.mil>
-	 <1159538414.3592.5.camel@twoface.columbia.tresys.com>
-	 <1159540113.8496.59.camel@moss-spartans.epoch.ncsc.mil>
-	 <Pine.LNX.4.64.0609291030520.5023@d.namei>
-Content-Type: text/plain
-Date: Fri, 29 Sep 2006 10:39:14 -0400
-Message-Id: <1159540754.8496.62.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+Message-ID: <451D3116.7030109@redhat.com>
+Date: Fri, 29 Sep 2006 10:43:34 -0400
+From: Daniel J Walsh <dwalsh@redhat.com>
+MIME-Version: 1.0
+To: Stephen Smalley <sds@tycho.nsa.gov>
+CC: Joshua Brindle <jbrindle@tresys.com>, Karl MacMillan <kmacmill@redhat.com>,
+        SE Linux <selinux@tycho.nsa.gov>
+Subject: libsemanage patch to handle installation problem
+References: <451BEFA4.60507@redhat.com>	 <1159463932.11489.44.camel@moss-spartans.epoch.ncsc.mil>	 <1159464256.11489.48.camel@moss-spartans.epoch.ncsc.mil>	 <451C0C79.4000105@redhat.com>	 <1159537518.29474.6.camel@twoface.columbia.tresys.com> <1159538012.8496.35.camel@moss-spartans.epoch.ncsc.mil>
+In-Reply-To: <1159538012.8496.35.camel@moss-spartans.epoch.ncsc.mil>
+Content-Type: multipart/mixed;
+ boundary="------------030409040500030005020701"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2006-09-29 at 10:33 -0400, James Morris wrote:
-> On Fri, 29 Sep 2006, Stephen Smalley wrote:
-> 
-> > However, since the transition was removed in the flow_out case, it would
-> > be logical to remove it from the flow_in case as well, and that would
-> > have the side benefit of less overhead.
-> 
-> How about adding secmark transitions later, if needed, perhaps with an 
-> /selinux config control ?
-> 
-> It does keep things simpler for now, in terms of getting this code merged, 
-> deployed into distros and likely certified.
+This is a multi-part message in MIME format.
+--------------030409040500030005020701
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
-Fine with me, unless Venkat has an immediate use case for such
-transitions in the flow_in case (but I think this is mostly my fault for
-suggesting transitions a while ago).
+During install if selinux-policy-mls or selinux-policy-strict get 
+installed before targeted, libsemanage will
+try to load those policies when it should not.
 
--- 
-Stephen Smalley
-National Security Agency
+Dan
 
+
+--------------030409040500030005020701
+Content-Type: text/x-patch;
+ name="libsemanage-rhat.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="libsemanage-rhat.patch"
+
+--- libsemanage-1.6.16/src/semanage_store.c~	2006-08-23 13:57:48.000000000 -0400
++++ libsemanage-1.6.16/src/semanage_store.c	2006-09-29 10:41:08.000000000 -0400
+@@ -1106,6 +1106,10 @@
+ 			goto skip_reload;
+ 		}
+ 	}
++	else 
++		if (errno == ENOENT && 
++		    strcmp(really_active_store, storepath) != 0)
++			goto skip_reload;
+ 
+ 	if (semanage_reload_policy(sh)) {
+ 		goto cleanup;
+
+--------------030409040500030005020701--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
