@@ -1,54 +1,48 @@
-Subject: Re: newrole - adding capabilities for polyinstantiation
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Michael C Thompson <thompsmc@us.ibm.com>
-Cc: Karl MacMillan <kmacmillan@mentalrootkit.com>,
-        Joshua Brindle <jbrindle@tresys.com>,
-        Darrel Goeddel <dgoeddel@TrustedCS.com>,
-        Steve Grubb <sgrubb@redhat.com>, SE Linux <selinux@tycho.nsa.gov>
-In-Reply-To: <451D771F.5080905@us.ibm.com>
-References: <451AEC39.2090409@us.ibm.com>
-	 <1159450384.11489.5.camel@moss-spartans.epoch.ncsc.mil>
-	 <451C3A37.8080509@us.ibm.com>  <451D771F.5080905@us.ibm.com>
-Content-Type: text/plain
-Date: Fri, 29 Sep 2006 16:51:00 -0400
-Message-Id: <1159563060.8496.223.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k8TLCP3c003965
+	for <selinux@tycho.nsa.gov>; Fri, 29 Sep 2006 17:12:25 -0400
+Received: from e2.ny.us.ibm.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id k8TLBI7b025256
+	for <selinux@tycho.nsa.gov>; Fri, 29 Sep 2006 21:11:18 GMT
+Received: from d01relay02.pok.ibm.com (d01relay02.pok.ibm.com [9.56.227.234])
+	by e2.ny.us.ibm.com (8.13.8/8.12.11) with ESMTP id k8TLCP0Z001895
+	for <selinux@tycho.nsa.gov>; Fri, 29 Sep 2006 17:12:25 -0400
+Received: from d01av01.pok.ibm.com (d01av01.pok.ibm.com [9.56.224.215])
+	by d01relay02.pok.ibm.com (8.13.6/8.13.6/NCO v8.1.1) with ESMTP id k8TLCPdc254426
+	for <selinux@tycho.nsa.gov>; Fri, 29 Sep 2006 17:12:25 -0400
+Received: from d01av01.pok.ibm.com (loopback [127.0.0.1])
+	by d01av01.pok.ibm.com (8.12.11.20060308/8.13.3) with ESMTP id k8TLCO5R006844
+	for <selinux@tycho.nsa.gov>; Fri, 29 Sep 2006 17:12:24 -0400
+Received: from [127.0.0.1] (pendarric.austin.ibm.com [9.41.46.108])
+	by d01av01.pok.ibm.com (8.12.11.20060308/8.12.11) with ESMTP id k8TLCOZk006805
+	for <selinux@tycho.nsa.gov>; Fri, 29 Sep 2006 17:12:24 -0400
+Message-ID: <451D8C2F.9040901@us.ibm.com>
+Date: Fri, 29 Sep 2006 16:12:15 -0500
+From: Michael C Thompson <thompsmc@us.ibm.com>
+MIME-Version: 1.0
+To: SE Linux <selinux@tycho.nsa.gov>
+Subject: Default Mikefile in /usr/share/selinux/devel not nice
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2006-09-29 at 14:42 -0500, Michael C Thompson wrote:
-> After some discussion with some people in my department, I would like to 
-> suggest the following proposal for newrole, which I believe would 
-> address the need for polyinstantiation in the LSPP environment.
-> 
-> I propose we fork newrole into a two separate processes in the LSPP 
-> environment. One process would retain only the CAP_AUDIT_WRITE 
-> capability, and be responsible for handling the bulk of newrole 
-> operation. The other process, which would only be forked when compiled 
-> for the LSPP environment, would retain all capabilities required for the 
-> polyinstantiation operation.
-> 
-> This second, more privilaged, process's scope would be limited to 
-> handling the pam_session requests. This would allow this separate 
-> process to remain suid for its lifetime (hopefully alleviating Stephen 
-> Smalley's concerns) and split it from the more vulnerable code.
-> 
-> Interactions between the less-secure and more-secure processes would be 
-> handled through a restricted IPC mechanism.
-> 
-> What do people think of this idea?
+I just discovered a nasty surprise waiting for me in the default 
+Makefile provided by selinux-policy-devel.
 
-pam_namespace has to run in the same process that exec's the user shell;
-otherwise, it ends up manipulating the namespace of its own process and
-has no effect on the user shell's namespace.  That is why you can't just
-run it as a helper or separate process.  You'd have to move the exec'ing
-of the user shell into it as well, at which point you also have to move
-the setting up of the new context into it, and voila!  you've re-created
-newrole in this second process.
+Basically, the Makefile produces, on an MLS system, a TYPE value of 
+mls-msc (this is due to the SELINUXTYPE=mls line in 
+/etc/selinux/config). This will not 'enable_mls' for the M4FLAGS, 
+because the Makefile in /usr/share/selinux/devel/include/ does a 
+findstring for '-mls'.
 
--- 
-Stephen Smalley
-National Security Agency
+Dan Walsh has suggested a fix for the default Makefile, but I'm 
+wondering why we can't just change 
+/usr/share/selinux/devel/include/Makefile to do a $(findstring 
+mls,$TYPE)) instead, since its not unreasonable to think that TYPE=mls 
+makes sense.
+
+Thanks,
+Mike
 
 
 --
