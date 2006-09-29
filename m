@@ -1,112 +1,81 @@
-Message-ID: <451C85E7.60405@trustedcs.com>
-Date: Thu, 28 Sep 2006 21:33:11 -0500
+Message-ID: <451C85C9.4020804@trustedcs.com>
+Date: Thu, 28 Sep 2006 21:32:41 -0500
 From: Venkat Yekkirala <vyekkirala@TrustedCS.com>
 MIME-Version: 1.0
 To: netdev@vger.kernel.org
 CC: selinux@tycho.nsa.gov, jmorris@namei.org, sds@tycho.nsa.gov,
         paul.moore@hp.com
-Subject: [PATCH 5/7] secid reconciliation-v03: Label locally generated IPv6
- traffic
+Subject: [PATCH 0/7] secid reconciliation-v03: Repost patchset with updates
 Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This labels the skb(s) for locally generated IPv6 traffic. This will
-be used in pertinent flow control checks on the outbound later in the
-LSM hook.
+This patchset is relative to davem's net-2.6.git
 
-NOTE: Forwarded traffic is already labeled with the reconciled
-secmark on the inbound.
+The following are the changes included in this patchset since the previous post:
 
-Signed-off-by: Venkat Yekkirala <vyekkirala@TrustedCS.com>
----
- include/linux/skbuff.h           |   29 +++++++++++++++++++++++++++++
- net/ipv6/ip6_output.c            |    5 +++++
- net/ipv6/netfilter/ip6t_REJECT.c |    2 ++
- 3 files changed, 36 insertions(+)
+- Retain secmark (from the originating socket/flow) on loopback traffic;
+  this traffic is now flow controlled on the outbound only.
 
-diff --git a/include/linux/skbuff.h b/include/linux/skbuff.h
-index 85577a4..18967f2 100644
---- a/include/linux/skbuff.h
-+++ b/include/linux/skbuff.h
-@@ -29,6 +29,7 @@ #include <linux/net.h>
- #include <linux/textsearch.h>
- #include <net/checksum.h>
- #include <linux/dmaengine.h>
-+#include <net/flow.h>
- 
- #define HAVE_ALLOC_SKB		/* For the drivers to know */
- #define HAVE_ALIGNABLE_SKB	/* Ditto 8)		   */
-@@ -1499,5 +1500,33 @@ static inline int skb_is_gso(const struc
- 	return skb_shinfo(skb)->gso_size;
- }
- 
-+#ifdef CONFIG_SECURITY_NETWORK
-+
-+static inline void security_skb_classify_skb(struct sk_buff *from,
-+					struct sk_buff *skb)
-+{
-+	skb->secmark = from->secmark;
-+}
-+
-+static inline void security_flow_classify_skb(struct flowi *fl,
-+					struct sk_buff *skb)
-+{
-+	skb->secmark = fl->secid;
-+}
-+
-+#else
-+
-+static inline void security_skb_classify_skb(struct sk_buff *from,
-+					struct sk_buff *skb)
-+{
-+}
-+
-+static inline void security_flow_classify_skb(struct flowi *fl,
-+					struct sk_buff *skb)
-+{
-+}
-+
-+#endif /* CONFIG_SECURITY_NETWORK */
-+
- #endif	/* __KERNEL__ */
- #endif	/* _LINUX_SKBUFF_H */
-diff --git a/net/ipv6/ip6_output.c b/net/ipv6/ip6_output.c
-index 6671691..6648eb3 100644
---- a/net/ipv6/ip6_output.c
-+++ b/net/ipv6/ip6_output.c
-@@ -170,6 +170,8 @@ int ip6_xmit(struct sock *sk, struct sk_
- 	int hlimit, tclass;
- 	u32 mtu;
- 
-+	security_flow_classify_skb(fl, skb);
-+
- 	if (opt) {
- 		int head_room;
- 
-@@ -1150,6 +1152,9 @@ alloc_new_skb:
- 			}
- 			if (skb == NULL)
- 				goto error;
-+
-+			security_flow_classify_skb(fl, skb);
-+
- 			/*
- 			 *	Fill in the control structures
- 			 */
-diff --git a/net/ipv6/netfilter/ip6t_REJECT.c b/net/ipv6/netfilter/ip6t_REJECT.c
-index 311eae8..0508c30 100644
---- a/net/ipv6/netfilter/ip6t_REJECT.c
-+++ b/net/ipv6/netfilter/ip6t_REJECT.c
-@@ -128,6 +128,8 @@ static void send_reset(struct sk_buff *o
- 	ipv6_addr_copy(&ip6h->saddr, &oip6h->daddr);
- 	ipv6_addr_copy(&ip6h->daddr, &oip6h->saddr);
- 
-+	security_skb_classify_skb(oldskb, nskb);
-+
- 	tcph = (struct tcphdr *)skb_put(nskb, sizeof(struct tcphdr));
- 	/* Truncate to length (no data) */
- 	tcph->doff = sizeof(struct tcphdr)/4;
+- When multiple iptables labeling rules are present (e.g.: both on PREROUTING and INPUT)
+	INBOUND: The label in the last rule will prevail.
+	OUTBOUND: secmark (from the originating socket) is flow-controlled against
+		the label on the first rule, and, if it passes, the label on the
+		first rule overrides the secmark (from the originating socket).
+		This secmark is flow controlled against labels on the subsequent
+		rules, each time, overridden by those labels.
+
+- Forwarded packets: The FORWARD chain is treated as an outbound chain for flow
+  control purposes. e.g: label with PREROUTING and flow-control with FORWARD or
+  POSTROUTING.
+
+- Simplification of the flow_out hook for SELinux: deleted the redundant flow_out
+  check against the xfrm secid and the transition between the xfrm secid and the
+  netfilter secid.
+
+- SELinux postroute_last hook: unfortunately, the secmark Vs. UNLABELED SID check
+  will now be done for ALL traffic (I couldn't except traffic already processed
+  by (CONN)SECMARK outbound rules; a better understanding of iptabels resulted
+  in realizing that the SECSID_WILD thing attempted in the previous patchset won't
+  work well).
+
+Please consider for inclusion in 2.6.19.
+
+
+PATCHES TO BE POSTED BY COB FRIDAY (tomorrow):
+
+NOTE: These patches were originally planned/desired to be included in this set
+but I didn't want to hold this critical patchset up for one more day since
+it needs a good extensive review.
+
+- Create IPSec SAs to be acquired with the creating sock's context as opposed
+  to that of the matching SPD rule, resulting in a simpler SPD as well as policy.
+- Set peer_sid on tcp sockets to the reconciled secmark so trusted applications
+  can retrieve and service the data at the appropriate context.
+
+ include/linux/security.h                     |   35 ++++
+ include/linux/skbuff.h                       |   29 +++
+ include/net/ip.h                             |   32 ++++
+ include/net/request_sock.h                   |   17 ++
+ include/net/xfrm.h                           |   45 ++---
+ net/dccp/ipv4.c                              |    5 
+ net/ipv4/icmp.c                              |    4 
+ net/ipv4/ip_output.c                         |    6 
+ net/ipv4/tcp_ipv4.c                          |    1 
+ net/ipv6/ip6_output.c                        |    5 
+ net/ipv6/netfilter/ip6t_REJECT.c             |    2 
+ net/netfilter/xt_CONNSECMARK.c               |   70 +++++++--
+ net/netfilter/xt_SECMARK.c                   |   33 ++++
+ security/dummy.c                             |   13 +
+ security/selinux/hooks.c                     |  129 +++++++++++++----
+ security/selinux/include/av_perm_to_string.h |    2 
+ security/selinux/include/av_permissions.h    |    2 
+ security/selinux/include/xfrm.h              |    5 
+ security/selinux/ss/mls.c                    |    2 
+ security/selinux/ss/services.c               |    2 
+ security/selinux/xfrm.c                      |   28 +++
+ 21 files changed, 399 insertions(+), 68 deletions(-)
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
