@@ -1,34 +1,41 @@
-Message-ID: <451C9897.6030306@gentoo.org>
-Date: Thu, 28 Sep 2006 23:52:55 -0400
-From: Joshua Brindle <method@gentoo.org>
-MIME-Version: 1.0
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k8T7YlGl010211
+	for <selinux@tycho.nsa.gov>; Fri, 29 Sep 2006 03:34:47 -0400
+Received: from mail2.sea5.speakeasy.net (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id k8T7YDaq008723
+	for <selinux@tycho.nsa.gov>; Fri, 29 Sep 2006 07:34:13 GMT
+Date: Fri, 29 Sep 2006 03:34:45 -0400 (EDT)
+From: James Morris <jmorris@namei.org>
 To: Venkat Yekkirala <vyekkirala@TrustedCS.com>
-CC: netdev@vger.kernel.org, selinux@tycho.nsa.gov, jmorris@namei.org,
-        sds@tycho.nsa.gov, paul.moore@hp.com
-Subject: Re: [PATCH 7/7] secid reconciliation-v03: Enforcement for SELinux
-References: <451C85F4.7000406@trustedcs.com>
-In-Reply-To: <451C85F4.7000406@trustedcs.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+cc: netdev@vger.kernel.org, selinux@tycho.nsa.gov, sds@tycho.nsa.gov,
+        paul.moore@hp.com
+Subject: Re: [PATCH 6/7] secid reconciliation-v03: Label locally generated
+ IPv4 traffic
+In-Reply-To: <451C85EE.4030307@trustedcs.com>
+Message-ID: <Pine.LNX.4.64.0609290333470.1650@d.namei>
+References: <451C85EE.4030307@trustedcs.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Venkat Yekkirala wrote:
-> <snip>
-> +
-> +	err = avc_has_perm(xfrm_sid, skb->secmark, SECCLASS_PACKET,
-> +					PACKET__FLOW_IN, NULL);
-> +	if (err)
-> +		goto out;
-> +
-> +	if (xfrm_sid) {
-> +		err = security_transition_sid(xfrm_sid, skb->secmark,
-> +						SECCLASS_PACKET, &trans_sid);
-> +		if (err)
-> +			goto out;
-> +
->   
-I thought we weren't doing transitions to label packets anymore per the 
-conference call?
+On Thu, 28 Sep 2006, Venkat Yekkirala wrote:
+
+> +static inline void security_skb_classify_ipcm(struct sk_buff *skb,
+> +					struct ipcm_cookie *ipc)
+> +{
+> +	ipc->secid = 0;
+> +	ipc->secid = skb->secmark;
+> +}
+
+You don't need the assignment to 0.
+
+
+
+- James
+-- 
+James Morris
+<jmorris@namei.org>
 
 --
 This message was distributed to subscribers of the selinux mailing list.
