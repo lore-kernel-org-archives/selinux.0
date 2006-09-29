@@ -1,45 +1,80 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k8TLYfNV004540
-	for <selinux@tycho.nsa.gov>; Fri, 29 Sep 2006 17:34:41 -0400
-Received: from mail6.sea5.speakeasy.net (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id k8TLY7u8023307
-	for <selinux@tycho.nsa.gov>; Fri, 29 Sep 2006 21:34:07 GMT
-Date: Fri, 29 Sep 2006 17:34:39 -0400 (EDT)
-From: James Morris <jmorris@namei.org>
-To: "David S. Miller" <davem@davemloft.net>, Andrew Morton <akpm@osdl.org>
-cc: Stephen Smalley <sds@tycho.nsa.gov>, selinux@tycho.nsa.gov,
-        Eric Paris <eparis@redhat.com>
-Subject: git trees for SELinux kernel
-Message-ID: <Pine.LNX.4.64.0609291729450.9262@d.namei>
+Message-ID: <451D94DB.1010605@hp.com>
+Date: Fri, 29 Sep 2006 17:49:15 -0400
+From: Paul Moore <paul.moore@hp.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Venkat Yekkirala <vyekkirala@TrustedCS.com>
+Cc: netdev@vger.kernel.org, selinux@tycho.nsa.gov, jmorris@namei.org,
+        sds@tycho.nsa.gov, method@gentoo.org, kmacmillan@mentalrootkit.com
+Subject: Re: [PATCH 1/1] NetLabel: secid reconciliation support
+References: <36282A1733C57546BE392885C0618592015CF3A5@chaos.tcs.tcs-sec.com>
+In-Reply-To: <36282A1733C57546BE392885C0618592015CF3A5@chaos.tcs.tcs-sec.com>
+Content-Type: text/plain; charset=iso-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-FYI,
+Venkat Yekkirala wrote:
+>>@@ -3672,16 +3674,20 @@ static int selinux_skb_flow_in(struct sk
+>> 	if (err)
+>> 		goto out;
+>> 
+>>-	if (xfrm_sid) {
+>>-		err = security_transition_sid(xfrm_sid, skb->secmark,
+>>-						
+>>SECCLASS_PACKET, &trans_sid);
+>>-		if (err)
+>>-			goto out;
+>>+	if (xfrm_sid)
+>>+		skb->secmark = xfrm_sid;
+>> 
+>>-		skb->secmark = trans_sid;
+>>-	}
+>>+	err = selinux_netlbl_skb_sid(skb, skb->secmark, &nlbl_sid);
+> 
+> 
+> I take it nlbl_sid here will be 0 if netlabel is NOT configured
+> for the traffic correct?
 
-I'm experimenting with public git trees for managing patches heading 
-upstream, and if all goes well, will try and push all SELinux kernel 
-patches via them.
+That would be the desired behavior yes, however, in verifying this
+against the
+patch I posted I noticed that the dummy function in
+security/selinux/include/selinux_netlabel.h is wrong - it should be replaced
+with the following (I mistakenly set it to SECINITSID_UNLABELED):
 
-Currently, I'll probably be pushing stuff to Dave only (if I can figure 
-out how to do it at all), for all of the labeled networking stuff we 
-expect over the next few days.
+static inline int selinux_netlbl_skb_sid(struct sk_buff *skb,
+                                         u32 base_sid,
+                                         u32 *sid)
+{
+        *sid = 0;
+        return 0;
+}
 
-The trees are here:
+>>--- net-2.6.orig/security/selinux/ss/mls.c
+>>+++ net-2.6/security/selinux/ss/mls.c
+>>@@ -547,7 +547,7 @@ int mls_compute_sid(struct context *scon
+>> 				                     
+> 
+> &rtr->target_range);
+> 
+>> 			}
+>> 		}
+>>-		else if (tclass == SECCLASS_PACKET)
+>>+		if (tclass == SECCLASS_PACKET)
+> 
+> 
+> What's the purpose of getting rid of "else" above?
 
-http://git.infradead.org/?p=users/jmorris/selinux-2.6.git;a=summary
-http://git.infradead.org/?p=users/jmorris/selinux-net-2.6.git;a=summary
+Fix a compile problem - the braces above the else belong to a for loop.
+ Feel free to disregard this, it was one of the changes I had to make to
+your patch to get it to compile against the latest net-2.6 tree.
 
+> I haven't reviewed the netlbl native changes, but the hooks.c changes
+> seem ok to me.
 
-A special thanks to David Woodhouse for making his server available.
+Okay, if you have any other questions you know where to find me.
 
-
-
-- James
 -- 
-James Morris
-<jmorris@namei.org>
+paul moore
+linux security @ hp
 
 --
 This message was distributed to subscribers of the selinux mailing list.
