@@ -1,50 +1,45 @@
-Message-ID: <36282A1733C57546BE392885C0618592015CF3A5@chaos.tcs.tcs-sec.com>
-From: Venkat Yekkirala <vyekkirala@TrustedCS.com>
-To: paul.moore@hp.com, netdev@vger.kernel.org, selinux@tycho.nsa.gov
-Cc: jmorris@namei.org, sds@tycho.nsa.gov, method@gentoo.org,
-        kmacmillan@mentalrootkit.com
-Subject: RE: [PATCH 1/1] NetLabel: secid reconciliation support
-Date: Fri, 29 Sep 2006 17:20:09 -0400
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k8TLYfNV004540
+	for <selinux@tycho.nsa.gov>; Fri, 29 Sep 2006 17:34:41 -0400
+Received: from mail6.sea5.speakeasy.net (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id k8TLY7u8023307
+	for <selinux@tycho.nsa.gov>; Fri, 29 Sep 2006 21:34:07 GMT
+Date: Fri, 29 Sep 2006 17:34:39 -0400 (EDT)
+From: James Morris <jmorris@namei.org>
+To: "David S. Miller" <davem@davemloft.net>, Andrew Morton <akpm@osdl.org>
+cc: Stephen Smalley <sds@tycho.nsa.gov>, selinux@tycho.nsa.gov,
+        Eric Paris <eparis@redhat.com>
+Subject: git trees for SELinux kernel
+Message-ID: <Pine.LNX.4.64.0609291729450.9262@d.namei>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-> @@ -3672,16 +3674,20 @@ static int selinux_skb_flow_in(struct sk
->  	if (err)
->  		goto out;
->  
-> -	if (xfrm_sid) {
-> -		err = security_transition_sid(xfrm_sid, skb->secmark,
-> -						
-> SECCLASS_PACKET, &trans_sid);
-> -		if (err)
-> -			goto out;
-> +	if (xfrm_sid)
-> +		skb->secmark = xfrm_sid;
->  
-> -		skb->secmark = trans_sid;
-> -	}
-> +	err = selinux_netlbl_skb_sid(skb, skb->secmark, &nlbl_sid);
+FYI,
 
-I take it nlbl_sid here will be 0 if netlabel is NOT configured
-for the traffic correct?
+I'm experimenting with public git trees for managing patches heading 
+upstream, and if all goes well, will try and push all SELinux kernel 
+patches via them.
 
-> --- net-2.6.orig/security/selinux/ss/mls.c
-> +++ net-2.6/security/selinux/ss/mls.c
-> @@ -547,7 +547,7 @@ int mls_compute_sid(struct context *scon
->  				                     
-&rtr->target_range);
->  			}
->  		}
-> -		else if (tclass == SECCLASS_PACKET)
-> +		if (tclass == SECCLASS_PACKET)
+Currently, I'll probably be pushing stuff to Dave only (if I can figure 
+out how to do it at all), for all of the labeled networking stuff we 
+expect over the next few days.
 
-What's the purpose of getting rid of "else" above?
+The trees are here:
 
-I haven't reviewed the netlbl native changes, but the hooks.c changes
-seem ok to me.
+http://git.infradead.org/?p=users/jmorris/selinux-2.6.git;a=summary
+http://git.infradead.org/?p=users/jmorris/selinux-net-2.6.git;a=summary
+
+
+A special thanks to David Woodhouse for making his server available.
+
+
+
+- James
+-- 
+James Morris
+<jmorris@namei.org>
 
 --
 This message was distributed to subscribers of the selinux mailing list.
