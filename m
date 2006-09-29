@@ -1,60 +1,99 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k8TJX5pN000774
-	for <selinux@tycho.nsa.gov>; Fri, 29 Sep 2006 15:33:05 -0400
-Received: from mail4.sea5.speakeasy.net (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id k8TJWVu8008670
-	for <selinux@tycho.nsa.gov>; Fri, 29 Sep 2006 19:32:31 GMT
-Date: Fri, 29 Sep 2006 15:33:02 -0400 (EDT)
-From: James Morris <jmorris@namei.org>
-To: Paul Moore <paul.moore@hp.com>
-cc: Venkat Yekkirala <vyekkirala@TrustedCS.com>,
-        Stephen Smalley <sds@tycho.nsa.gov>,
-        Joshua Brindle <method@gentoo.org>, netdev@vger.kernel.org,
-        selinux@tycho.nsa.gov, kmacmillan@mentalrootkit.com
-Subject: Re: [PATCH 7/7] secid reconciliation-v03: Enforcement for SELinux
-In-Reply-To: <451D6EB1.3040006@hp.com>
-Message-ID: <Pine.LNX.4.64.0609291517170.7975@d.namei>
-References: <36282A1733C57546BE392885C0618592015CF2BE@chaos.tcs.tcs-sec.com>
- <451D4A51.4000603@hp.com> <Pine.LNX.4.64.0609291247170.6007@d.namei>
- <451D5B3F.70206@hp.com> <Pine.LNX.4.64.0609291430130.7553@d.namei>
- <451D6EB1.3040006@hp.com>
+Message-ID: <451D771F.5080905@us.ibm.com>
+Date: Fri, 29 Sep 2006 14:42:23 -0500
+From: Michael C Thompson <thompsmc@us.ibm.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Michael C Thompson <thompsmc@us.ibm.com>
+CC: Stephen Smalley <sds@tycho.nsa.gov>,
+        Karl MacMillan <kmacmillan@mentalrootkit.com>,
+        Joshua Brindle <jbrindle@tresys.com>,
+        Darrel Goeddel <dgoeddel@TrustedCS.com>,
+        Steve Grubb <sgrubb@redhat.com>, SE Linux <selinux@tycho.nsa.gov>
+Subject: Re: newrole - adding capabilities for polyinstantiation
+References: <451AEC39.2090409@us.ibm.com> <1159450384.11489.5.camel@moss-spartans.epoch.ncsc.mil> <451C3A37.8080509@us.ibm.com>
+In-Reply-To: <451C3A37.8080509@us.ibm.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 29 Sep 2006, Paul Moore wrote:
-
-> > Say that the SA is labeled "secret" and you have two FTP clients 
-> > connecting to a server via xinetd on this SA.  Each client additionally 
-> > labels their packets via CIPSO as secret:c1 and secret:c2 respectively.  
-> > xinetd launches an FTP server for each at the correct level.
+Michael C Thompson wrote:
+> Stephen Smalley wrote:
+>> On Wed, 2006-09-27 at 16:25 -0500, Michael C Thompson wrote:
+<snip>
+>>> After reading the thread, it seems like Janak's patches were getting 
+>>> close, but quite a few ideas were thrown out there, namely:
+>>>
+>>> 1) Have newrole be non-suid by default, and require the LSPP 
+>>> configuration package to enable its suid status (which would then 
+>>> enable the capabilities)
+>>>
+>>> 2) Have newrole be suid all of the time.
+>>>
+>>> 3) Have newrole determine if namespace is used for the configuration, 
+>>> which would then determine if the caps need to be loaded or not.
+>>>
+>>> Do you know if there was any decision on the path to take that I am 
+>>> unable to find on the mailing list?
+>>
+>> I think (2) is unacceptable (the real issue is not whether it is suid
+>> per se, but whether it retains powerful capabilities like CAP_SYS_ADMIN
+>> - it is already suid for the earlier audit support, but drops everything
+>> but CAP_AUDIT_WRITE and reverts to the caller's uid upon startup).
 > 
-> I believe Venkat can address this.
+> With Janak's patch, there is no differentiation between the capabilities 
+> needed to polyinstantiate and the capabilities to audit. Is there a 
+> desire to audit outside of an LSPP environment? If so, then I will 
+> address this issue in the patch (I see AUDIT being a requirement of 
+> LSPP, so there is a clear dependence chain).
+> 
+> There is also the issue which Russel Coker brought up which is that 
+> pam_namespace is valuable to people outside an LSPP environment. Should 
+> this future work take that into account?
 
-Ok, I'd still really like to see a worked example of just Netlabel + 
-secmark/connseckmark, to see what happens to the connection marks.  It 
-seems that the connection mark should always be correct, and restored to 
-the packet.  In which case, what happens when a CIPSO label on an 
-established or related packet doesn't match, or you get no CIPSO label 
-(e.g. ICMP from intermediate router) ?  Or, is would you be always 
-overwriting secmark/connsecmark labeling, and if so, how/why are you using 
-them?
+I think it would be acceptable to have AUDIT_PRIV and NAMESPACE_PRIV, 
+based on my suggestion below.
 
-Venkat,
+>> I don't know how to do (3) cleanly, as it seems to violate PAM
+>> encapsulation.
+>>
+>> (1) addresses the concern for non-LSPP users, but doesn't fully address
+>> my concerns about the additional risk to LSPP users.  One obvious issue
+>> is that drop_capabilities() currently also resets to the caller's uid,
+>> which Janak's patches do not change.  Which I think means that any
+>> directories and files created by pam_namespace will initially be
+>> assigned the caller's uid, and potentially exposed to tampering by
+>> processes in the caller's uid.  SELinux policy might prevent such
+>> tampering, but it bears investigating.  Likewise, this means that the
+>> newrole process itself runs in the caller's uid and might be exposed to
+>> interference by the caller in some forms, although I would expect that
+>> SELinux would block that as long as newrole is running in a different
+>> domain.
+> 
+> I will take some time and look at this further.
 
-With xfrm labeling, the external packets are always going to be protocol 
-ESP or AH, and we can't connection track the inner protocols.  So, 
-external labeling when using xfrm labeling seems somewhat superfluous, 
-except for the case of setting a label based on the interface the packets 
-arrived on.  Correct?  If so, all you can realistically do with the flow 
-permissions is bind the ESP/AH packets to types of interfaces (which does 
-seem useful for some folk).
+After some discussion with some people in my department, I would like to 
+suggest the following proposal for newrole, which I believe would 
+address the need for polyinstantiation in the LSPP environment.
 
+I propose we fork newrole into a two separate processes in the LSPP 
+environment. One process would retain only the CAP_AUDIT_WRITE 
+capability, and be responsible for handling the bulk of newrole 
+operation. The other process, which would only be forked when compiled 
+for the LSPP environment, would retain all capabilities required for the 
+polyinstantiation operation.
 
--- 
-James Morris
-<jmorris@namei.org>
+This second, more privilaged, process's scope would be limited to 
+handling the pam_session requests. This would allow this separate 
+process to remain suid for its lifetime (hopefully alleviating Stephen 
+Smalley's concerns) and split it from the more vulnerable code.
+
+Interactions between the less-secure and more-secure processes would be 
+handled through a restricted IPC mechanism.
+
+What do people think of this idea?
+
+Thanks,
+Mike
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
