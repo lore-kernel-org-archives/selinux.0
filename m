@@ -1,49 +1,50 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k8TLCP3c003965
-	for <selinux@tycho.nsa.gov>; Fri, 29 Sep 2006 17:12:25 -0400
-Received: from e2.ny.us.ibm.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id k8TLBI7b025256
-	for <selinux@tycho.nsa.gov>; Fri, 29 Sep 2006 21:11:18 GMT
-Received: from d01relay02.pok.ibm.com (d01relay02.pok.ibm.com [9.56.227.234])
-	by e2.ny.us.ibm.com (8.13.8/8.12.11) with ESMTP id k8TLCP0Z001895
-	for <selinux@tycho.nsa.gov>; Fri, 29 Sep 2006 17:12:25 -0400
-Received: from d01av01.pok.ibm.com (d01av01.pok.ibm.com [9.56.224.215])
-	by d01relay02.pok.ibm.com (8.13.6/8.13.6/NCO v8.1.1) with ESMTP id k8TLCPdc254426
-	for <selinux@tycho.nsa.gov>; Fri, 29 Sep 2006 17:12:25 -0400
-Received: from d01av01.pok.ibm.com (loopback [127.0.0.1])
-	by d01av01.pok.ibm.com (8.12.11.20060308/8.13.3) with ESMTP id k8TLCO5R006844
-	for <selinux@tycho.nsa.gov>; Fri, 29 Sep 2006 17:12:24 -0400
-Received: from [127.0.0.1] (pendarric.austin.ibm.com [9.41.46.108])
-	by d01av01.pok.ibm.com (8.12.11.20060308/8.12.11) with ESMTP id k8TLCOZk006805
-	for <selinux@tycho.nsa.gov>; Fri, 29 Sep 2006 17:12:24 -0400
-Message-ID: <451D8C2F.9040901@us.ibm.com>
-Date: Fri, 29 Sep 2006 16:12:15 -0500
-From: Michael C Thompson <thompsmc@us.ibm.com>
+Message-ID: <36282A1733C57546BE392885C0618592015CF3A5@chaos.tcs.tcs-sec.com>
+From: Venkat Yekkirala <vyekkirala@TrustedCS.com>
+To: paul.moore@hp.com, netdev@vger.kernel.org, selinux@tycho.nsa.gov
+Cc: jmorris@namei.org, sds@tycho.nsa.gov, method@gentoo.org,
+        kmacmillan@mentalrootkit.com
+Subject: RE: [PATCH 1/1] NetLabel: secid reconciliation support
+Date: Fri, 29 Sep 2006 17:20:09 -0400
 MIME-Version: 1.0
-To: SE Linux <selinux@tycho.nsa.gov>
-Subject: Default Mikefile in /usr/share/selinux/devel not nice
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-I just discovered a nasty surprise waiting for me in the default 
-Makefile provided by selinux-policy-devel.
+> @@ -3672,16 +3674,20 @@ static int selinux_skb_flow_in(struct sk
+>  	if (err)
+>  		goto out;
+>  
+> -	if (xfrm_sid) {
+> -		err = security_transition_sid(xfrm_sid, skb->secmark,
+> -						
+> SECCLASS_PACKET, &trans_sid);
+> -		if (err)
+> -			goto out;
+> +	if (xfrm_sid)
+> +		skb->secmark = xfrm_sid;
+>  
+> -		skb->secmark = trans_sid;
+> -	}
+> +	err = selinux_netlbl_skb_sid(skb, skb->secmark, &nlbl_sid);
 
-Basically, the Makefile produces, on an MLS system, a TYPE value of 
-mls-msc (this is due to the SELINUXTYPE=mls line in 
-/etc/selinux/config). This will not 'enable_mls' for the M4FLAGS, 
-because the Makefile in /usr/share/selinux/devel/include/ does a 
-findstring for '-mls'.
+I take it nlbl_sid here will be 0 if netlabel is NOT configured
+for the traffic correct?
 
-Dan Walsh has suggested a fix for the default Makefile, but I'm 
-wondering why we can't just change 
-/usr/share/selinux/devel/include/Makefile to do a $(findstring 
-mls,$TYPE)) instead, since its not unreasonable to think that TYPE=mls 
-makes sense.
+> --- net-2.6.orig/security/selinux/ss/mls.c
+> +++ net-2.6/security/selinux/ss/mls.c
+> @@ -547,7 +547,7 @@ int mls_compute_sid(struct context *scon
+>  				                     
+&rtr->target_range);
+>  			}
+>  		}
+> -		else if (tclass == SECCLASS_PACKET)
+> +		if (tclass == SECCLASS_PACKET)
 
-Thanks,
-Mike
+What's the purpose of getting rid of "else" above?
 
+I haven't reviewed the netlbl native changes, but the hooks.c changes
+seem ok to me.
 
 --
 This message was distributed to subscribers of the selinux mailing list.
