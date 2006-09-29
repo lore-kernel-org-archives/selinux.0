@@ -1,86 +1,60 @@
-Message-ID: <451D703E.3020500@hp.com>
-Date: Fri, 29 Sep 2006 15:13:02 -0400
-From: Paul Moore <paul.moore@hp.com>
-MIME-Version: 1.0
-To: Venkat Yekkirala <vyekkirala@TrustedCS.com>
-Cc: netdev@vger.kernel.org, selinux@tycho.nsa.gov, jmorris@namei.org,
-        sds@tycho.nsa.gov
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k8TJX5pN000774
+	for <selinux@tycho.nsa.gov>; Fri, 29 Sep 2006 15:33:05 -0400
+Received: from mail4.sea5.speakeasy.net (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id k8TJWVu8008670
+	for <selinux@tycho.nsa.gov>; Fri, 29 Sep 2006 19:32:31 GMT
+Date: Fri, 29 Sep 2006 15:33:02 -0400 (EDT)
+From: James Morris <jmorris@namei.org>
+To: Paul Moore <paul.moore@hp.com>
+cc: Venkat Yekkirala <vyekkirala@TrustedCS.com>,
+        Stephen Smalley <sds@tycho.nsa.gov>,
+        Joshua Brindle <method@gentoo.org>, netdev@vger.kernel.org,
+        selinux@tycho.nsa.gov, kmacmillan@mentalrootkit.com
 Subject: Re: [PATCH 7/7] secid reconciliation-v03: Enforcement for SELinux
-References: <36282A1733C57546BE392885C0618592015CF32C@chaos.tcs.tcs-sec.com>
-In-Reply-To: <36282A1733C57546BE392885C0618592015CF32C@chaos.tcs.tcs-sec.com>
-Content-Type: text/plain; charset=ISO-8859-1
+In-Reply-To: <451D6EB1.3040006@hp.com>
+Message-ID: <Pine.LNX.4.64.0609291517170.7975@d.namei>
+References: <36282A1733C57546BE392885C0618592015CF2BE@chaos.tcs.tcs-sec.com>
+ <451D4A51.4000603@hp.com> <Pine.LNX.4.64.0609291247170.6007@d.namei>
+ <451D5B3F.70206@hp.com> <Pine.LNX.4.64.0609291430130.7553@d.namei>
+ <451D6EB1.3040006@hp.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Venkat Yekkirala wrote:
->>>>While I don't see any explicit mention of it in the documentation or
->>>>your comments, I assume we would want a flow_out check for 
->>>>NetLabel here
->>>>as well?
->>>
->>> 
->>>I don't believe we do. By this time, the packet is or 
->>
->>should already be
->>
->>>carrying the CIPSO/NetLabel option which should already be 
->>
->>the right one
->>
->>>(derived from the socket or flow as appropriate), but you 
->>
->>would want to
->>
->>>audit the code to make sure. IOW, the label option in the 
->>
->>IP header should
->>
->>>already be reflecting the secmark on the skb. But again, 
->>
->>you may want to
->>
->>>audit the code to make sure.
->>
->>In the case above I am concerned about the situation where the
->>skb->secmark == 0 and there is a IPv4 option (i.e. it is NetLabel
->>labeled) on the packet.
+On Fri, 29 Sep 2006, Paul Moore wrote:
 
-It's unfortunate that you cut out the code in your reply.
+> > Say that the SA is labeled "secret" and you have two FTP clients 
+> > connecting to a server via xinetd on this SA.  Each client additionally 
+> > labels their packets via CIPSO as secret:c1 and secret:c2 respectively.  
+> > xinetd launches an FTP server for each at the correct level.
+> 
+> I believe Venkat can address this.
 
-> Where we initialize the secmark should be immaterial from the NetLabel
-> point of view. The kernel mechanisms should assure that the IP option
-> reflects the MLS portion (or a label in the SA range) elsewhere.
+Ok, I'd still really like to see a worked example of just Netlabel + 
+secmark/connseckmark, to see what happens to the connection marks.  It 
+seems that the connection mark should always be correct, and restored to 
+the packet.  In which case, what happens when a CIPSO label on an 
+established or related packet doesn't match, or you get no CIPSO label 
+(e.g. ICMP from intermediate router) ?  Or, is would you be always 
+overwriting secmark/connsecmark labeling, and if so, how/why are you using 
+them?
 
-Yep, I agree.
+Venkat,
 
-> In any
-> case, a flow_out check doesn't make sense since the IP option and the
-> secmark are (should be) mirroring each other and there's in actuality
-> no "flow out" happening; they are just 2 representation of the SAME label.
+With xfrm labeling, the external packets are always going to be protocol 
+ESP or AH, and we can't connection track the inner protocols.  So, 
+external labeling when using xfrm labeling seems somewhat superfluous, 
+except for the case of setting a label based on the interface the packets 
+arrived on.  Correct?  If so, all you can realistically do with the flow 
+permissions is bind the ESP/AH packets to types of interfaces (which does 
+seem useful for some folk).
 
-Well, reading the code I see that if the secmark is zero upon entering
-the function you query the XFRM subsystem to query the SA label and set
-the secmark accordingly, yes?  All I am suggesting is that we do the
-same thing for NetLabel.
-
-Please see the mail I sent earlier with the code in it to address James'
-concerns, this has a proposed solution for the flow_out case.
-
-> Your suggestion as to adjusting the secmark per the IP option might be
-> fraught with danger since, in certain cases, I believe, you just return
-> the incoming options in the outgoing packet (timewait, openreq, etc.?),
-> and there's no assurance that that's a valid enough option that you can
-> retrieve a sid with it, correct?
-
-As implemented in the code snippets I sent earlier the generated
-NetLabel SID would reflect the secmark as determined by the IPsec label
-and the IP options on the packet.  I believe this is what we want as the
-resulting secmark value would directly represent the security attributes
-of the packet.
 
 -- 
-paul moore
-linux security @ hp
+James Morris
+<jmorris@namei.org>
 
 --
 This message was distributed to subscribers of the selinux mailing list.
