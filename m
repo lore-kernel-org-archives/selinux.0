@@ -1,46 +1,39 @@
-Message-ID: <451D4647.3060306@hp.com>
-Date: Fri, 29 Sep 2006 12:13:59 -0400
+Message-ID: <451D46B2.9010906@hp.com>
+Date: Fri, 29 Sep 2006 12:15:46 -0400
 From: Paul Moore <paul.moore@hp.com>
 MIME-Version: 1.0
-To: Venkat Yekkirala <vyekkirala@TrustedCS.com>
-Cc: Stephen Smalley <sds@tycho.nsa.gov>, James Morris <jmorris@namei.org>,
-        Joshua Brindle <method@gentoo.org>, netdev@vger.kernel.org,
+To: James Morris <jmorris@namei.org>
+Cc: Stephen Smalley <sds@tycho.nsa.gov>, Joshua Brindle <method@gentoo.org>,
+        Venkat Yekkirala <vyekkirala@TrustedCS.com>, netdev@vger.kernel.org,
         selinux@tycho.nsa.gov, kmacmillan@mentalrootkit.com
 Subject: Re: [PATCH 7/7] secid reconciliation-v03: Enforcement for SELinux
-References: <36282A1733C57546BE392885C061859201573D58@chaos.tcs.tcs-sec.com>
-In-Reply-To: <36282A1733C57546BE392885C061859201573D58@chaos.tcs.tcs-sec.com>
-Content-Type: text/plain; charset=iso-8859-1
+References: <451C85F4.7000406@trustedcs.com>  <451C9897.6030306@gentoo.org>  <1159534759.8496.1.camel@moss-spartans.epoch.ncsc.mil>  <1159538414.3592.5.camel@twoface.columbia.tresys.com>  <1159540113.8496.59.camel@moss-spartans.epoch.ncsc.mil>  <Pine.LNX.4.64.0609291030520.5023@d.namei> <1159540754.8496.62.camel@moss-spartans.epoch.ncsc.mil> <451D4475.3020003@hp.com> <Pine.LNX.4.64.0609291209150.5698@d.namei>
+In-Reply-To: <Pine.LNX.4.64.0609291209150.5698@d.namei>
+Content-Type: text/plain; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Venkat Yekkirala wrote:
->>>Fine with me, unless Venkat has an immediate use case for such
->>>transitions in the flow_in case (but I think this is mostly 
->>
->>my fault for
->>
->>>suggesting transitions a while ago).
+James Morris wrote:
+> On Fri, 29 Sep 2006, Paul Moore wrote:
 > 
-> I don't have a use case currently.
 > 
->>Unless I'm confusing something, there still may be a need for 
->>transitions
+>>Unless I'm confusing something, there still may be a need for transitions
 >>if we want to support both IPsec and NetLabel labeling on the same
 >>connection.
->>If we don't support transitions and allow both labeling methods on the
->>same connection we'll need to decide how to handle resolving the two -
->>maybe use a transition is this one case?
 > 
+> I'd prefer not to support this, as it's too complicated, and CIPSO is a 
+> legacy protocol.
 > 
-> Since CIPSO doesn't do full contexts currently, it would be just a
-> matter of an additional flow_in check. The base sid used here would
-> be the current secmark at that point (which will be the xfrm sid
-> if xfrm was used). So, no transitions needed here currently.
+> Normal IPsec protection applied to CIPSO: yes, but not IPsec labeling and 
+> CIPSO labeling on the same connection.
 
-That's fine by me, I just wanted to make sure something like that would
-be acceptable.  So, in summary, we would do the normal flow_in checks
-for both IPsec and NetLabel and then set the secmark using the IPsec
-label as the "base sid" for the NetLabel's generated SID?
+I tend to agree, I just can't see it being all that useful in the real
+world.  However, each time it comes up (including the conference call
+earlier this week) it seems that people would prefer to use both at the
+same time.
+
+The good news is that it sounds like there is a reasonable solution (see
+the last email exchance between Venkat and myself).
 
 -- 
 paul moore
