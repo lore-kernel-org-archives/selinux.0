@@ -1,63 +1,42 @@
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="US-ASCII"
-Subject: RE: Indirect access to type
-Date: Fri, 29 Sep 2006 10:34:30 -0400
-Message-ID: <6FE441CD9F0C0C479F2D88F959B01588443D7D@exchange.columbia.tresys.com>
-In-Reply-To: <1159538174.8496.40.camel@moss-spartans.epoch.ncsc.mil>
-From: "David Caplan" <dac@tresys.com>
-To: "Stephen Smalley" <sds@tycho.nsa.gov>,
-        "Salvo Giuffrida" <giuffsalvo@hotmail.it>
-Cc: <selinux@tycho.nsa.gov>
+Subject: Re: [PATCH 7/7] secid reconciliation-v03: Enforcement for SELinux
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: James Morris <jmorris@namei.org>
+Cc: Joshua Brindle <method@gentoo.org>,
+        Venkat Yekkirala <vyekkirala@TrustedCS.com>, netdev@vger.kernel.org,
+        selinux@tycho.nsa.gov, paul.moore@hp.com, kmacmillan@mentalrootkit.com
+In-Reply-To: <Pine.LNX.4.64.0609291030520.5023@d.namei>
+References: <451C85F4.7000406@trustedcs.com>  <451C9897.6030306@gentoo.org>
+	 <1159534759.8496.1.camel@moss-spartans.epoch.ncsc.mil>
+	 <1159538414.3592.5.camel@twoface.columbia.tresys.com>
+	 <1159540113.8496.59.camel@moss-spartans.epoch.ncsc.mil>
+	 <Pine.LNX.4.64.0609291030520.5023@d.namei>
+Content-Type: text/plain
+Date: Fri, 29 Sep 2006 10:39:14 -0400
+Message-Id: <1159540754.8496.62.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-  
-> On Fri, 2006-09-29 at 15:13 +0200, Salvo Giuffrida wrote:
-> > In the book "SELinux by example", at paragraph 14.4.2, the author 
-> > talks about indirect access to types, which is possible to look for 
-> > using apol (checking the option "Include indirect matches" when you 
-> > search for TE rules). I don't understand the meaning of this...How 
-> > could a domain gain access to a type it is not authorized 
-> for? Using domain transitions?
+On Fri, 2006-09-29 at 10:33 -0400, James Morris wrote:
+> On Fri, 29 Sep 2006, Stephen Smalley wrote:
 > 
-
-Also, see section 5.3.1.2, Using Attributes in AV Rules, in the book. If
-you did not include indirect matches in the search then you would miss
-allow rules that authorize permission through the type's associated
-attributes. The purpose of the example was to show how to verify that
-the ircd_t type could not write to its configuration type. You want to
-make sure the policy doesn't inadvertently (whether directly or through
-an interface/macro) grant access.
-
-> See the help text for apol.  As described there:
-> "The "Include Indirect Match" checkbox alters the meaning of 
-> the search if a type is used in the given field (this option 
-> is not available if an attribute is used). In this case, the 
-> search will find rules that have either the provided type or 
-> any of the type's attributes in the appropriate field."
+> > However, since the transition was removed in the flow_out case, it would
+> > be logical to remove it from the flow_in case as well, and that would
+> > have the side benefit of less overhead.
 > 
-> Example:  
-> If your policy has the rule:
-> 	allow domain self:process fork;
-> Then a search with source type "httpd_t" without indirect 
-> matches enabled will not show the above rule, since "httpd_t" 
-> is not explicitly listed.  But if you enable indirect 
-> matches, the above rule will be listed since "domain" is a 
-> type attribute that expands to all types with that attribute, 
-> and this includes "httpd_t".
+> How about adding secmark transitions later, if needed, perhaps with an 
+> /selinux config control ?
 > 
-> That is still limited to direct relationships between type 
-> pairs.  If you want to consider domain transitions and/or 
-> information flow, then the Analysis tab is what you want.
-> 
+> It does keep things simpler for now, in terms of getting this code merged, 
+> deployed into distros and likely certified.
 
-Note that the analysis functions in apol implicitly include attributes
-(i.e., "indirect matches").
+Fine with me, unless Venkat has an immediate use case for such
+transitions in the flow_in case (but I think this is mostly my fault for
+suggesting transitions a while ago).
 
-David
-
- 
+-- 
+Stephen Smalley
+National Security Agency
 
 
 --
