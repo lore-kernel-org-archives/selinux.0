@@ -1,68 +1,223 @@
-Subject: Re: Where is the AVC?
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Salvo Giuffrida <giuffsalvo@hotmail.it>
-Cc: selinux@tycho.nsa.gov
-In-Reply-To: <BAY114-F1FFF391047B48196CAC48AF180@phx.gbl>
-References: <BAY114-F1FFF391047B48196CAC48AF180@phx.gbl>
-Content-Type: text/plain
-Date: Fri, 29 Sep 2006 13:20:52 -0400
-Message-Id: <1159550452.8496.152.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+Message-ID: <36282A1733C57546BE392885C0618592015CF2DE@chaos.tcs.tcs-sec.com>
+From: Venkat Yekkirala <vyekkirala@TrustedCS.com>
+To: Paul Moore <paul.moore@hp.com>
+Cc: netdev@vger.kernel.org, selinux@tycho.nsa.gov, jmorris@namei.org,
+        sds@tycho.nsa.gov
+Subject: RE: [PATCH 7/7] secid reconciliation-v03: Enforcement for SELinux
+Date: Fri, 29 Sep 2006 13:27:57 -0400
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2006-09-29 at 18:08 +0200, Salvo Giuffrida wrote:
-> >From reading the book "SELinux by example", it seems that the AVC is managed 
-> by the Security Server (figure 3-2). Instead, by reading the paper "The 
-> Flask Security Architecture: System support for Diverse Security Policies" 
-> in the NSA website, it looks like the AVC is managed by the Object Managers 
-> (why the plural? I though that there was just one object manager, but maybe 
-> it's because I was thinking only about files...So, there's an object manager 
-> for every macro-class of objects (files, processes, network objects?)?). Who 
-> is wrong and who is right?
+> > +static int selinux_skb_flow_in(struct sk_buff *skb, 
+> unsigned short family)
+> > +{
+> > +	u32 xfrm_sid, trans_sid;
+> > +	int err;
+> > +
+> > +	if (selinux_compat_net)
+> > +		return 1;
+> > +
+> > +	/* xfrm/cipso inapplicable for loopback traffic */
+> > +	if (skb->dev == &loopback_dev)
+> > +		return 1;
+> 
+> Just to clarify (I believe this is the case from your remarks 
+> as well as
+> the code, but better safe than sorry) the secmark for loopback traffic
+> is set by the originating socket, yes?
 
-An object manager gets access decisions from its AVC, which consults the
-security server when the decision isn't already cached.  Meanwhile, if a
-policy change occurs, the security server needs to notify the AVCs of
-all object managers of the change so that their state can be updated (in
-simplest form, by flushing the caches).  There can be any number of
-object managers.  In Linux, the entire kernel is really a single object
-manager, but in earlier microkernel-based systems, there were separate
-object managers for process management, filesystems, and networking.
-Further, even in Linux, there are userspace object managers that need to
-enforce policy over their own objects and operations, like D-BUS, X,
-Postgres, etc.  The architecture itself is general and widely
-applicable.  I doubt there is any real contradiction between the book
-and the paper, but the paper is obviously the more authoritative
-description of the architecture.  When in doubt, I'm always right ;)
+That's correct.
 
-> Another thing: the security context of files, in ext2/ext3/jfs/xfs 
-> filesystems is memorized in the xattr space of inodes, in the attribute 
-> security.selinux. But, is it memorized in the string form (user:role:type), 
-> or in the PSID form (the 32-integer which is mapped by the Security Server 
-> into a "true" security context)? Doing "getfattr -n security.selinux file" 
-> on a file gives me the string rapresentation of the Security Context, but 
-> also on objects like /dev/men...
+> 
+> Beware: a bit of a nit follows :)
+> 
+> While I understand that NetLabel currently only supports 
+> CIPSO, it is a
+> framework that can support multiple labeling procotols (i.e. RIPSO
+> support is planned).  Please change the comment from cipso/CIPSO to
+> netlabel/NetLabel so it is consistent with the rest of the code which
+> makes use of NetLabel.
 
-String form.  To clarify:
-1) PSIDs or persistent SIDs were an artifact of the original SELinux
-implementation before we migrated to using extended attributes (which
-were not yet in the mainline kernel at the time we first developed
-SELinux).  They do not exist at all in the current SELinux.  They were
-integers that indexed to security contexts in a mapping database in each
-filesystem, with the integers then stored in a field of the on-disk
-inode.  The security server had no awareness of them.
-2) SIDs are non-persistent, local handles (integers) that refer to
-security contexts and are mapped by the security server.  They still
-exist, but the kernel SIDs are now private to the kernel and not
-exported to userspace, unlike the original SELinux.  Userspace programs
-can create their own userspace SID mappings via the libselinux AVC,
-which is used by e.g. D-BUS and XSELinux.
+Sure.
 
--- 
-Stephen Smalley
-National Security Agency
+> 
+> > +	err = selinux_xfrm_decode_session(skb, &xfrm_sid, 0);
+> > +	BUG_ON(err);
+> > +
+> > +	err = avc_has_perm(xfrm_sid, skb->secmark, SECCLASS_PACKET,
+> > +					PACKET__FLOW_IN, NULL);
+> > +	if (err)
+> > +		goto out;
+> > +
+> > +	if (xfrm_sid) {
+> > +		err = security_transition_sid(xfrm_sid, skb->secmark,
+> > +						
+> SECCLASS_PACKET, &trans_sid);
+> > +		if (err)
+> > +			goto out;
+> > +
+> > +		skb->secmark = trans_sid;
+> > +	}
+> > +	/* See if CIPSO can flow in thru the current secmark here */
+> 
+> Same nit applies about the use of "CIPSO" vs "NetLabel".
 
+Sure.
+
+> 
+> > +out:
+> > +	return err ? 0 : 1;
+> > +};
+> > +
+> > +static int selinux_skb_flow_out(struct sk_buff *skb, u32 nf_secid)
+> > +{
+> > +	u32 trans_sid;
+> > +	int err;
+> > +
+> > +	if (selinux_compat_net)
+> > +		return 1;
+> > +
+> > +	if (!skb->secmark) {
+> > +		u32 xfrm_sid;
+> > +
+> > +		selinux_skb_xfrm_sid(skb, &xfrm_sid);
+> > +
+> > +		if (xfrm_sid)
+> > +			skb->secmark = xfrm_sid;
+> > +		else if (skb->sk) {
+> > +			struct sk_security_struct *sksec = 
+> skb->sk->sk_security;
+> > +			skb->secmark = sksec->sid;
+> > +		}
+> > +	}
+> > +
+> > +	err = avc_has_perm(skb->secmark, nf_secid, SECCLASS_PACKET,
+> > +				PACKET__FLOW_OUT, NULL);
+> 
+> While I don't see any explicit mention of it in the documentation or
+> your comments, I assume we would want a flow_out check for 
+> NetLabel here
+> as well?
+
+I don't believe we do. By this time, the packet is or should already be
+carrying the CIPSO/NetLabel option which should already be the right one
+(derived from the socket or flow as appropriate), but you would want to
+audit the code to make sure. IOW, the label option in the IP header should
+already be reflecting the secmark on the skb. But again, you may want to
+audit the code to make sure.
+
+> 
+> > +out:
+> > +	return err ? 0 : 1;
+> > +}
+> > +
+> >  static int selinux_nlmsg_perm(struct sock *sk, struct sk_buff *skb)
+> >  {
+> >  	int err = 0;
+> > @@ -3700,7 +3766,8 @@ out:
+> >  
+> >  #ifdef CONFIG_NETFILTER
+> >  
+> > -static int selinux_ip_postroute_last_compat(struct sock 
+> *sk, struct net_device *dev,
+> > +static int selinux_ip_postroute_last_compat(struct sock 
+> *sk, struct sk_buff *skb,
+> > +					    struct net_device *dev,
+> >  					    struct avc_audit_data *ad,
+> >  					    u16 family, char 
+> *addrp, int len)
+> >  {
+> > @@ -3710,6 +3777,9 @@ static int selinux_ip_postroute_last_com
+> >  	struct inode *inode;
+> >  	struct inode_security_struct *isec;
+> >  
+> > +	if (!sk)
+> > +		goto out;
+> > +
+> >  	sock = sk->sk_socket;
+> >  	if (!sock)
+> >  		goto out;
+> > @@ -3768,7 +3838,11 @@ static int selinux_ip_postroute_last_com
+> >  
+> >  		err = avc_has_perm(isec->sid, port_sid, isec->sclass,
+> >  				   send_perm, ad);
+> > +		if (err)
+> > +			goto out;
+> >  	}
+> > +
+> > +	err = selinux_xfrm_postroute_last(isec->sid, skb, ad);
+> >  out:
+> >  	return err;
+> >  }
+> > @@ -3782,17 +3856,9 @@ static unsigned int selinux_ip_postroute
+> >  {
+> >  	char *addrp;
+> >  	int len, err = 0;
+> > -	struct sock *sk;
+> >  	struct sk_buff *skb = *pskb;
+> >  	struct avc_audit_data ad;
+> >  	struct net_device *dev = (struct net_device *)out;
+> > -	struct sk_security_struct *sksec;
+> > -
+> > -	sk = skb->sk;
+> > -	if (!sk)
+> > -		goto out;
+> > -
+> > -	sksec = sk->sk_security;
+> >  
+> >  	AVC_AUDIT_DATA_INIT(&ad, NET);
+> >  	ad.u.net.netif = dev->name;
+> > @@ -3803,16 +3869,25 @@ static unsigned int selinux_ip_postroute
+> >  		goto out;
+> >  
+> >  	if (selinux_compat_net)
+> > -		err = selinux_ip_postroute_last_compat(sk, dev, &ad,
+> > +		err = selinux_ip_postroute_last_compat(skb->sk, 
+> skb, dev, &ad,
+> >  						       family, 
+> addrp, len);
+> > -	else
+> > -		err = avc_has_perm(sksec->sid, skb->secmark, 
+> SECCLASS_PACKET,
+> > -				   PACKET__SEND, &ad);
+> > +	else {
+> > +		if (!skb->secmark) {
+> > +			u32 xfrm_sid;
+> >  
+> > -	if (err)
+> > -		goto out;
+> > +			selinux_skb_xfrm_sid(skb, &xfrm_sid);
+> >  
+> > -	err = selinux_xfrm_postroute_last(sksec->sid, skb, &ad);
+> > +			if (xfrm_sid)
+> > +				skb->secmark = xfrm_sid;
+> > +			else if (skb->sk) {
+> > +				struct sk_security_struct *sksec =
+> > +						skb->sk->sk_security;
+> > +				skb->secmark = sksec->sid;
+> > +			}
+> > +		}
+> > +		err = avc_has_perm(skb->secmark, SECINITSID_UNLABELED,
+> > +				   SECCLASS_PACKET, 
+> PACKET__FLOW_OUT, &ad);
+> > +	}
+> 
+> This looks nearly identical to selinux_skb_flow_out() as implemented
+> above, the only real differences being two of the args to the
+> avc_has_perm() call.  Any reason you don't abstract out the 
+> common parts
+> to a separate function?
+
+May be in the future.
+
+> 
+> Also, the same comment/question about NetLabel support in
+> selinux_skb_flow_out() applies here as well I suspect.
+
+My comments earlier should apply here as well. 
 
 --
 This message was distributed to subscribers of the selinux mailing list.
