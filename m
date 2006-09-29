@@ -1,41 +1,52 @@
-Subject: Re: libsemanage patch to handle installation problem
-From: Joshua Brindle <jbrindle@tresys.com>
-To: Daniel J Walsh <dwalsh@redhat.com>
-Cc: Stephen Smalley <sds@tycho.nsa.gov>, Karl MacMillan <kmacmill@redhat.com>,
-        SE Linux <selinux@tycho.nsa.gov>
-In-Reply-To: <451D3116.7030109@redhat.com>
-References: <451BEFA4.60507@redhat.com>
-	 <1159463932.11489.44.camel@moss-spartans.epoch.ncsc.mil>
-	 <1159464256.11489.48.camel@moss-spartans.epoch.ncsc.mil>
-	 <451C0C79.4000105@redhat.com>
-	 <1159537518.29474.6.camel@twoface.columbia.tresys.com>
-	 <1159538012.8496.35.camel@moss-spartans.epoch.ncsc.mil>
-	 <451D3116.7030109@redhat.com>
+Subject: Re: [PATCH] -v3 newrole auditing of failures due to user actions
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Michael C Thompson <thompsmc@us.ibm.com>
+Cc: SE Linux <selinux@tycho.nsa.gov>, Linux Audit <linux-audit@redhat.com>
+In-Reply-To: <451C43A2.9050706@us.ibm.com>
+References: <451C43A2.9050706@us.ibm.com>
 Content-Type: text/plain
-Date: Fri, 29 Sep 2006 11:01:12 -0400
-Message-Id: <1159542072.3592.12.camel@twoface.columbia.tresys.com>
+Date: Fri, 29 Sep 2006 11:04:45 -0400
+Message-Id: <1159542285.8496.72.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2006-09-29 at 10:43 -0400, Daniel J Walsh wrote:
-> --- libsemanage-1.6.16/src/semanage_store.c~    2006-08-23
-> 13:57:48.000000000 -0400
-> +++ libsemanage-1.6.16/src/semanage_store.c     2006-09-29
-> 10:41:08.000000000 -0400
-> @@ -1106,6 +1106,10 @@
->                         goto skip_reload;
->                 }
->         }
-> +       else 
-> +               if (errno == ENOENT && 
-> +                   strcmp(really_active_store, storepath) != 0)
-> +                       goto skip_reload;
->  
->         if (semanage_reload_policy(sh)) {
->                 goto cleanup; 
+On Thu, 2006-09-28 at 16:50 -0500, Michael C Thompson wrote:
+> This patch introduces two new point in the code where audit records are 
+> generated for newrole. Both points are when the attempt to newrole fails.
+> 
+> The first point is when the default type could not be determine for the 
+> specified role - this is audited because, as sgrubb pointed out, it is 
+> currently non-tracked path to probe the policy.
+> 
+> The second point is when the desired context to change to is invalid.
+> 
+> There record format remains unchanged. Failing to validate the desired 
+> context will result in the old and new contexts being recorded intact to 
+> the log. For the default type, the old and new contexts have not yet 
+> been obtained, so they are recorded in the log as XXX_context=?
+> 
+> Changes since version 2 of the patch:
+>   * Added __attribute__((unused)) to "no-op" inline
+> 
+> Changes since version 1 of the patch:
+>   * removed wrapping #ifdefs around send_audit_message()
+>   * provided a "no-op" style function
+>   * removed -D_GNU_SOURCE from the Makefile (as its defined in the code)
+>   * fixed the error path of the send_audit_message function
+> 
+> The solution that I have for the "no-op" function is not that pretty, 
+> but the Makefile is configured with -Werror and a function which doesn't 
+> use its parameters causes warnings. Is there a better solution to this 
+> problem?
+> 
+> Signed-off-by: Michael Thompson <thompsmc@us.ibm.com>
 
-Acked-By: Joshua Brindle <jbrindle@tresys.com>
+Acked-by:  Stephen Smalley <sds@tycho.nsa.gov>
+
+-- 
+Stephen Smalley
+National Security Agency
 
 
 --
