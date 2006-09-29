@@ -1,64 +1,175 @@
-Message-ID: <BAY114-F38B57DECF2A6270738CF26AF180@phx.gbl>
-In-Reply-To: <1159550452.8496.152.camel@moss-spartans.epoch.ncsc.mil>
-From: "Salvo Giuffrida" <giuffsalvo@hotmail.it>
-To: sds@tycho.nsa.gov
-Cc: selinux@tycho.nsa.gov
-Subject: Re: Where is the AVC?
-Date: Fri, 29 Sep 2006 19:34:06 +0200
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1; format=flowed
+Message-ID: <451D5A25.9090803@hp.com>
+Date: Fri, 29 Sep 2006 13:38:45 -0400
+From: Paul Moore <paul.moore@hp.com>
+MIME-Version: 1.0
+To: Venkat Yekkirala <vyekkirala@TrustedCS.com>
+Cc: netdev@vger.kernel.org, selinux@tycho.nsa.gov, jmorris@namei.org,
+        sds@tycho.nsa.gov
+Subject: Re: [PATCH 7/7] secid reconciliation-v03: Enforcement for SELinux
+References: <36282A1733C57546BE392885C0618592015CF2DE@chaos.tcs.tcs-sec.com>
+In-Reply-To: <36282A1733C57546BE392885C0618592015CF2DE@chaos.tcs.tcs-sec.com>
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+Venkat Yekkirala wrote:
+>>>+static int selinux_skb_flow_out(struct sk_buff *skb, u32 nf_secid)
+>>>+{
+>>>+	u32 trans_sid;
+>>>+	int err;
+>>>+
+>>>+	if (selinux_compat_net)
+>>>+		return 1;
+>>>+
+>>>+	if (!skb->secmark) {
+>>>+		u32 xfrm_sid;
+>>>+
+>>>+		selinux_skb_xfrm_sid(skb, &xfrm_sid);
+>>>+
+>>>+		if (xfrm_sid)
+>>>+			skb->secmark = xfrm_sid;
+>>>+		else if (skb->sk) {
+>>>+			struct sk_security_struct *sksec = 
+>>
+>>skb->sk->sk_security;
+>>
+>>>+			skb->secmark = sksec->sid;
+>>>+		}
+>>>+	}
+>>>+
+>>>+	err = avc_has_perm(skb->secmark, nf_secid, SECCLASS_PACKET,
+>>>+				PACKET__FLOW_OUT, NULL);
+>>
+>>While I don't see any explicit mention of it in the documentation or
+>>your comments, I assume we would want a flow_out check for 
+>>NetLabel here
+>>as well?
+>  
+> I don't believe we do. By this time, the packet is or should already be
+> carrying the CIPSO/NetLabel option which should already be the right one
+> (derived from the socket or flow as appropriate), but you would want to
+> audit the code to make sure. IOW, the label option in the IP header should
+> already be reflecting the secmark on the skb. But again, you may want to
+> audit the code to make sure.
 
+In the case above I am concerned about the situation where the
+skb->secmark == 0 and there is a IPv4 option (i.e. it is NetLabel
+labeled) on the packet.  It would seem that the right/consistent thing
+to do would be to adjust the secmark accordingly, similar to what we
+would do on the flow_in case, yes?
 
+>>>+static int selinux_ip_postroute_last_compat(struct sock 
+>>
+>>*sk, struct sk_buff *skb,
+>>
+>>>+					    struct net_device *dev,
+>>> 					    struct avc_audit_data *ad,
+>>> 					    u16 family, char 
+>>
+>>*addrp, int len)
+>>
+>>> {
+>>>@@ -3710,6 +3777,9 @@ static int selinux_ip_postroute_last_com
+>>> 	struct inode *inode;
+>>> 	struct inode_security_struct *isec;
+>>> 
+>>>+	if (!sk)
+>>>+		goto out;
+>>>+
+>>> 	sock = sk->sk_socket;
+>>> 	if (!sock)
+>>> 		goto out;
+>>>@@ -3768,7 +3838,11 @@ static int selinux_ip_postroute_last_com
+>>> 
+>>> 		err = avc_has_perm(isec->sid, port_sid, isec->sclass,
+>>> 				   send_perm, ad);
+>>>+		if (err)
+>>>+			goto out;
+>>> 	}
+>>>+
+>>>+	err = selinux_xfrm_postroute_last(isec->sid, skb, ad);
+>>> out:
+>>> 	return err;
+>>> }
+>>>@@ -3782,17 +3856,9 @@ static unsigned int selinux_ip_postroute
+>>> {
+>>> 	char *addrp;
+>>> 	int len, err = 0;
+>>>-	struct sock *sk;
+>>> 	struct sk_buff *skb = *pskb;
+>>> 	struct avc_audit_data ad;
+>>> 	struct net_device *dev = (struct net_device *)out;
+>>>-	struct sk_security_struct *sksec;
+>>>-
+>>>-	sk = skb->sk;
+>>>-	if (!sk)
+>>>-		goto out;
+>>>-
+>>>-	sksec = sk->sk_security;
+>>> 
+>>> 	AVC_AUDIT_DATA_INIT(&ad, NET);
+>>> 	ad.u.net.netif = dev->name;
+>>>@@ -3803,16 +3869,25 @@ static unsigned int selinux_ip_postroute
+>>> 		goto out;
+>>> 
+>>> 	if (selinux_compat_net)
+>>>-		err = selinux_ip_postroute_last_compat(sk, dev, &ad,
+>>>+		err = selinux_ip_postroute_last_compat(skb->sk, 
+>>
+>>skb, dev, &ad,
+>>
+>>> 						       family, 
+>>
+>>addrp, len);
+>>
+>>>-	else
+>>>-		err = avc_has_perm(sksec->sid, skb->secmark, 
+>>
+>>SECCLASS_PACKET,
+>>
+>>>-				   PACKET__SEND, &ad);
+>>>+	else {
+>>>+		if (!skb->secmark) {
+>>>+			u32 xfrm_sid;
+>>> 
+>>>-	if (err)
+>>>-		goto out;
+>>>+			selinux_skb_xfrm_sid(skb, &xfrm_sid);
+>>> 
+>>>-	err = selinux_xfrm_postroute_last(sksec->sid, skb, &ad);
+>>>+			if (xfrm_sid)
+>>>+				skb->secmark = xfrm_sid;
+>>>+			else if (skb->sk) {
+>>>+				struct sk_security_struct *sksec =
+>>>+						skb->sk->sk_security;
+>>>+				skb->secmark = sksec->sid;
+>>>+			}
+>>>+		}
+>>>+		err = avc_has_perm(skb->secmark, SECINITSID_UNLABELED,
+>>>+				   SECCLASS_PACKET, 
+>>
+>>PACKET__FLOW_OUT, &ad);
+>>
+>>>+	}
+>>
+>>This looks nearly identical to selinux_skb_flow_out() as implemented
+>>above, the only real differences being two of the args to the
+>>avc_has_perm() call.  Any reason you don't abstract out the 
+>>common parts
+>>to a separate function?
+> 
+> May be in the future.
+> 
+>>Also, the same comment/question about NetLabel support in
+>>selinux_skb_flow_out() applies here as well I suspect.
+> 
+> My comments earlier should apply here as well. 
 
->From: Stephen Smalley <sds@tycho.nsa.gov>
->To: Salvo Giuffrida <giuffsalvo@hotmail.it>
->CC: selinux@tycho.nsa.gov
->Subject: Re: Where is the AVC?
->Date: Fri, 29 Sep 2006 13:20:52 -0400
->
->An object manager gets access decisions from its AVC, which consults the
->security server when the decision isn't already cached.  Meanwhile, if a
->policy change occurs, the security server needs to notify the AVCs of
->all object managers of the change so that their state can be updated (in
->simplest form, by flushing the caches).  There can be any number of
->object managers.  In Linux, the entire kernel is really a single object
->manager, but in earlier microkernel-based systems, there were separate
->object managers for process management, filesystems, and networking.
->Further, even in Linux, there are userspace object managers that need to
->enforce policy over their own objects and operations, like D-BUS, X,
->Postgres, etc.  The architecture itself is general and widely
->applicable.  I doubt there is any real contradiction between the book
->and the paper, but the paper is obviously the more authoritative
->description of the architecture.  When in doubt, I'm always right ;)
+Mine too :)
 
-If you look at figure 3-2 (if you want, I can send to you), the AVC is 
-designed in kernel-space, whereas the object manager is in userspace. So, if 
-the AVC is managed by the object manager, shouldn't it be in userspace?
-I even still have some doubt on the real function of Object Managers: after 
-they contact the AVC/S.S., they serve just for implementing "in concrete, 
-low level actions" the decisions of the AVC/S.S.? Like, writing the security 
-context in the xattr of a file/dir, or blocking IPC between processes? If 
-so, looks like it is standard Linux kernel component (nothing new, something 
-that already existed with a new name. The only different thing is the use of 
-the policy interface with the AVC). Am I wrong?
-
->String form.  To clarify:
->2) SIDs are non-persistent, local handles (integers) that refer to
->security contexts and are mapped by the security server.  They still
->exist, but the kernel SIDs are now private to the kernel and not
->exported to userspace, unlike the original SELinux.  Userspace programs
->can create their own userspace SID mappings via the libselinux AVC,
->which is used by e.g. D-BUS and XSELinux.
-SIDs are now used only for non-persistent objects?
-Thanks
-
-_________________________________________________________________
-Ricerche online più semplici e veloci con MSN Toolbar! 
-http://toolbar.msn.it/
-
+-- 
+paul moore
+linux security @ hp
 
 --
 This message was distributed to subscribers of the selinux mailing list.
