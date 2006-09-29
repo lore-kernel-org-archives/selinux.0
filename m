@@ -1,52 +1,59 @@
-Message-ID: <451D3116.7030109@redhat.com>
-Date: Fri, 29 Sep 2006 10:43:34 -0400
-From: Daniel J Walsh <dwalsh@redhat.com>
-MIME-Version: 1.0
-To: Stephen Smalley <sds@tycho.nsa.gov>
-CC: Joshua Brindle <jbrindle@tresys.com>, Karl MacMillan <kmacmill@redhat.com>,
-        SE Linux <selinux@tycho.nsa.gov>
-Subject: libsemanage patch to handle installation problem
-References: <451BEFA4.60507@redhat.com>	 <1159463932.11489.44.camel@moss-spartans.epoch.ncsc.mil>	 <1159464256.11489.48.camel@moss-spartans.epoch.ncsc.mil>	 <451C0C79.4000105@redhat.com>	 <1159537518.29474.6.camel@twoface.columbia.tresys.com> <1159538012.8496.35.camel@moss-spartans.epoch.ncsc.mil>
-In-Reply-To: <1159538012.8496.35.camel@moss-spartans.epoch.ncsc.mil>
-Content-Type: multipart/mixed;
- boundary="------------030409040500030005020701"
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k8TEscw5022756
+	for <selinux@tycho.nsa.gov>; Fri, 29 Sep 2006 10:54:38 -0400
+Subject: Re: [redhat-lspp] updated racoon patch
+From: Stephen Smalley <sds@epoch.ncsc.mil>
+To: Steve Grubb <sgrubb@redhat.com>
+Cc: "Christopher J. PeBenito" <cpebenito@tresys.com>,
+        Daniel Walsh <dwalsh@redhat.com>, SELinux List <selinux@tycho.nsa.gov>
+In-Reply-To: <200609250947.52327.sgrubb@redhat.com>
+References: <200609211855.k8LItkZw026669@faith.austin.ibm.com>
+	 <200609250843.09248.sgrubb@redhat.com>
+	 <200609250947.52327.sgrubb@redhat.com>
+Content-Type: text/plain
+Date: Fri, 29 Sep 2006 10:55:47 -0400
+Message-Id: <1159541747.8496.67.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This is a multi-part message in MIME format.
---------------030409040500030005020701
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+On Mon, 2006-09-25 at 09:47 -0400, Steve Grubb wrote:
+> On Monday 25 September 2006 08:43, Steve Grubb wrote:
+> > This doesn't build. Where does the POLMATCH define come from? I can't find
+> > it anywhere.
+> 
+> Found that libselinux-devel and 2.6.18 kernel are not in sync. Please apply
+> this patch:
+> 
+> diff -ur libselinux-1.30.28.orig/include/selinux/av_permissions.h libselinux-1.30.28/include/selinux/av_permissions.h
+> --- libselinux-1.30.28.orig/include/selinux/av_permissions.h	2006-09-25 09:44:13.000000000 -0400
+> +++ libselinux-1.30.28/include/selinux/av_permissions.h	2006-09-25 09:44:47.000000000 -0400
+> @@ -468,6 +468,7 @@
+>  #define PROCESS__EXECSTACK                        0x04000000UL
+>  #define PROCESS__EXECHEAP                         0x08000000UL
+>  #define PROCESS__SETKEYCREATE                     0x10000000UL
+> +#define PROCESS__SETSOCKCREATE                    0x20000000UL
 
-During install if selinux-policy-mls or selinux-policy-strict get 
-installed before targeted, libsemanage will
-try to load those policies when it should not.
+This one needs to be added to refpolicy too.
 
-Dan
+>  
+>  #define IPC__CREATE                               0x00000001UL
+>  #define IPC__DESTROY                              0x00000002UL
+> @@ -910,6 +911,7 @@
+>  #define ASSOCIATION__SENDTO                       0x00000001UL
+>  #define ASSOCIATION__RECVFROM                     0x00000002UL
+>  #define ASSOCIATION__SETCONTEXT                   0x00000004UL
+> +#define ASSOCIATION__POLMATCH                     0x00000008UL
+>  
+>  #define NETLINK_KOBJECT_UEVENT_SOCKET__IOCTL      0x00000001UL
+>  #define NETLINK_KOBJECT_UEVENT_SOCKET__READ       0x00000002UL
 
+Acked-by:  Stephen Smalley <sds@tycho.nsa.gov>
 
---------------030409040500030005020701
-Content-Type: text/x-patch;
- name="libsemanage-rhat.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="libsemanage-rhat.patch"
+-- 
+Stephen Smalley
+National Security Agency
 
---- libsemanage-1.6.16/src/semanage_store.c~	2006-08-23 13:57:48.000000000 -0400
-+++ libsemanage-1.6.16/src/semanage_store.c	2006-09-29 10:41:08.000000000 -0400
-@@ -1106,6 +1106,10 @@
- 			goto skip_reload;
- 		}
- 	}
-+	else 
-+		if (errno == ENOENT && 
-+		    strcmp(really_active_store, storepath) != 0)
-+			goto skip_reload;
- 
- 	if (semanage_reload_policy(sh)) {
- 		goto cleanup;
-
---------------030409040500030005020701--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
