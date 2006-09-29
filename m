@@ -1,29 +1,65 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k8TDDxaL019455
-	for <selinux@tycho.nsa.gov>; Fri, 29 Sep 2006 09:13:59 -0400
-Received: from bay0-omc1-s18.bay0.hotmail.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id k8TDCpi6027256
-	for <selinux@tycho.nsa.gov>; Fri, 29 Sep 2006 13:12:52 GMT
-Message-ID: <BAY114-F2644C21E9B06171BFE5147AF180@phx.gbl>
-From: "Salvo Giuffrida" <giuffsalvo@hotmail.it>
-To: selinux@tycho.nsa.gov
-Subject: Indirect access to type
-Date: Fri, 29 Sep 2006 15:13:54 +0200
+Subject: Re: [PATCH] refpolicy: Add GConf policy
+From: James Carter <jwcart2@tycho.nsa.gov>
+Reply-To: jwcart2@tycho.nsa.gov
+To: "Christopher J. PeBenito" <cpebenito@tresys.com>
+Cc: SELinux <selinux@tycho.nsa.gov>
+In-Reply-To: <1159474882.2850.74.camel@sgc.columbia.tresys.com>
+References: <1159295299.18973.74.camel@moss-lions.epoch.ncsc.mil>
+	 <1159455168.2850.19.camel@sgc.columbia.tresys.com>
+	 <1159472462.3439.73.camel@moss-lions.epoch.ncsc.mil>
+	 <1159474882.2850.74.camel@sgc.columbia.tresys.com>
+Content-Type: text/plain
+Date: Fri, 29 Sep 2006 09:23:50 -0400
+Message-Id: <1159536230.11477.27.camel@moss-lions.epoch.ncsc.mil>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-In the book "SELinux by example", at paragraph 14.4.2, the author talks 
-about indirect access to types, which is possible to look for using apol 
-(checking the option "Include indirect matches" when you search for TE 
-rules). I don't understand the meaning of this...How could a domain gain 
-access to a type it is not authorized for? Using domain transitions?
-Thanks
+On Thu, 2006-09-28 at 16:21 -0400, Christopher J. PeBenito wrote:
+> On Thu, 2006-09-28 at 15:41 -0400, James Carter wrote:
+> > On Thu, 2006-09-28 at 10:52 -0400, Christopher J. PeBenito wrote:
+> > > So to make a gconf object manager more useful, it seems like we would
+> > > want more confined desktop apps.  Do you think more core pieces of gnome
+> > > will be confined, such as gnome vfs and bonobo?  The group of gnome
+> > > modules in the example policy didn't seem to gain anything and also
+> > > seemed overengineered.  Do you anticipate a need to bring back some of
+> > > this?  If so, I think it would be better to have this as a start of a
+> > > gnome refpolicy module, which would have all the core pieces of gnome
+> > > policy.
+> > 
+> > You're right.  More desktop apps need to be confined for a gconf object
+> > manager to be useful.  I am not planning on writing a gnome-vfs-daemon
+> > or bonobo policy.
+> 
+> I was just curious if you feel that them having policies would be
+> useful.
+> 
+I am not sure yet what would be useful.  I do agree that the example
+policy for gnome didn't achieve as much security as its complexity would
+have suggested.
 
-_________________________________________________________________
-Condivi foto, pensieri ed altro ancora creando il tuo Blog su Windows Live 
-Spaces ! http://discoverspaces.live.com/?loc=it-IT
+> >   After finishing up GConf, I'll be looking at window
+> > managers.
+> > 
+> > I think that you can make a case for putting GConf in a gnome policy
+> > since it is not being used by any other desktop. It really doesn't
+> > matter too much to me.  It does seem, however, like a gnome policy could
+> > become quite large.  I guess I imagined policy for a particular desktop
+> > eventually being kept in a separate policy directory like
+> > policy/modules/desktops/gnome to keep it organized together, but still
+> > consisting of many smaller modules.  
+> > 
+> > What do you think would be part of the gnome policy?
+> 
+> Core pieces that are common to all gnome systems, like gnome-vfs,
+> bonobo, orbit, etc.  Other things such as nautilus could go in their own
+> modules.  That is, assuming any of these need policies.
+> 
+That makes sense.
+
+-- 
+James Carter <jwcart2@tycho.nsa.gov>
+National Security Agency
 
 
 --
