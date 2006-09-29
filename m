@@ -1,45 +1,29 @@
-Subject: Re: [PATCH 7/7] secid reconciliation-v03: Enforcement for SELinux
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Joshua Brindle <method@gentoo.org>
-Cc: Venkat Yekkirala <vyekkirala@TrustedCS.com>, netdev@vger.kernel.org,
-        selinux@tycho.nsa.gov, jmorris@namei.org, paul.moore@hp.com
-In-Reply-To: <451C9897.6030306@gentoo.org>
-References: <451C85F4.7000406@trustedcs.com>  <451C9897.6030306@gentoo.org>
-Content-Type: text/plain
-Date: Fri, 29 Sep 2006 08:59:19 -0400
-Message-Id: <1159534759.8496.1.camel@moss-spartans.epoch.ncsc.mil>
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k8TDDxaL019455
+	for <selinux@tycho.nsa.gov>; Fri, 29 Sep 2006 09:13:59 -0400
+Received: from bay0-omc1-s18.bay0.hotmail.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id k8TDCpi6027256
+	for <selinux@tycho.nsa.gov>; Fri, 29 Sep 2006 13:12:52 GMT
+Message-ID: <BAY114-F2644C21E9B06171BFE5147AF180@phx.gbl>
+From: "Salvo Giuffrida" <giuffsalvo@hotmail.it>
+To: selinux@tycho.nsa.gov
+Subject: Indirect access to type
+Date: Fri, 29 Sep 2006 15:13:54 +0200
 Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2006-09-28 at 23:52 -0400, Joshua Brindle wrote:
-> Venkat Yekkirala wrote:
-> > <snip>
-> > +
-> > +	err = avc_has_perm(xfrm_sid, skb->secmark, SECCLASS_PACKET,
-> > +					PACKET__FLOW_IN, NULL);
-> > +	if (err)
-> > +		goto out;
-> > +
-> > +	if (xfrm_sid) {
-> > +		err = security_transition_sid(xfrm_sid, skb->secmark,
-> > +						SECCLASS_PACKET, &trans_sid);
-> > +		if (err)
-> > +			goto out;
-> > +
-> >   
-> I thought we weren't doing transitions to label packets anymore per the 
-> conference call?
+In the book "SELinux by example", at paragraph 14.4.2, the author talks 
+about indirect access to types, which is possible to look for using apol 
+(checking the option "Include indirect matches" when you search for TE 
+rules). I don't understand the meaning of this...How could a domain gain 
+access to a type it is not authorized for? Using domain transitions?
+Thanks
 
-No, transitions are still part of the reconciliation process.  By
-default, this just means that we end up with the xfrm_sid (which is what
-you want).  But it allows us the freedom to define transitions on the
-secmark label if desired, and those transitions can still yield subject
-labels.
-
--- 
-Stephen Smalley
-National Security Agency
+_________________________________________________________________
+Condivi foto, pensieri ed altro ancora creando il tuo Blog su Windows Live 
+Spaces ! http://discoverspaces.live.com/?loc=it-IT
 
 
 --
