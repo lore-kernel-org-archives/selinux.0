@@ -1,52 +1,86 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k8TEscw5022756
-	for <selinux@tycho.nsa.gov>; Fri, 29 Sep 2006 10:54:38 -0400
-Subject: Re: [redhat-lspp] updated racoon patch
-From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: Steve Grubb <sgrubb@redhat.com>
-Cc: "Christopher J. PeBenito" <cpebenito@tresys.com>,
-        Daniel Walsh <dwalsh@redhat.com>, SELinux List <selinux@tycho.nsa.gov>
-In-Reply-To: <200609250947.52327.sgrubb@redhat.com>
-References: <200609211855.k8LItkZw026669@faith.austin.ibm.com>
-	 <200609250843.09248.sgrubb@redhat.com>
-	 <200609250947.52327.sgrubb@redhat.com>
+Subject: Re: [PATCH] libsemanage: add genhomedircon path to semanage.conf
+	parsing
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: James Athey <jathey@tresys.com>
+Cc: selinux@tycho.nsa.gov
+In-Reply-To: <6FE441CD9F0C0C479F2D88F959B01588052618@exchange.columbia.tresys.com>
+References: 
+	 <6FE441CD9F0C0C479F2D88F959B01588052618@exchange.columbia.tresys.com>
 Content-Type: text/plain
-Date: Fri, 29 Sep 2006 10:55:47 -0400
-Message-Id: <1159541747.8496.67.camel@moss-spartans.epoch.ncsc.mil>
+Date: Fri, 29 Sep 2006 11:00:44 -0400
+Message-Id: <1159542044.8496.68.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 2006-09-25 at 09:47 -0400, Steve Grubb wrote:
-> On Monday 25 September 2006 08:43, Steve Grubb wrote:
-> > This doesn't build. Where does the POLMATCH define come from? I can't find
-> > it anywhere.
+On Thu, 2006-09-28 at 17:31 -0400, James Athey wrote:
+> This patch adds the ability to specify a path to genhomedircon in semanage.conf, similar to specifying a path to setfiles or load_policy.  For example:
 > 
-> Found that libselinux-devel and 2.6.18 kernel are not in sync. Please apply
-> this patch:
+> [genhomedircon]
+> path = /usr/local/sbin/genhomedircon_modified
+> args = -t $@
+> [end]
 > 
-> diff -ur libselinux-1.30.28.orig/include/selinux/av_permissions.h libselinux-1.30.28/include/selinux/av_permissions.h
-> --- libselinux-1.30.28.orig/include/selinux/av_permissions.h	2006-09-25 09:44:13.000000000 -0400
-> +++ libselinux-1.30.28/include/selinux/av_permissions.h	2006-09-25 09:44:47.000000000 -0400
-> @@ -468,6 +468,7 @@
->  #define PROCESS__EXECSTACK                        0x04000000UL
->  #define PROCESS__EXECHEAP                         0x08000000UL
->  #define PROCESS__SETKEYCREATE                     0x10000000UL
-> +#define PROCESS__SETSOCKCREATE                    0x20000000UL
-
-This one needs to be added to refpolicy too.
-
->  
->  #define IPC__CREATE                               0x00000001UL
->  #define IPC__DESTROY                              0x00000002UL
-> @@ -910,6 +911,7 @@
->  #define ASSOCIATION__SENDTO                       0x00000001UL
->  #define ASSOCIATION__RECVFROM                     0x00000002UL
->  #define ASSOCIATION__SETCONTEXT                   0x00000004UL
-> +#define ASSOCIATION__POLMATCH                     0x00000008UL
->  
->  #define NETLINK_KOBJECT_UEVENT_SOCKET__IOCTL      0x00000001UL
->  #define NETLINK_KOBJECT_UEVENT_SOCKET__READ       0x00000002UL
+> Index: libsemanage/src/conf-parse.y
+> ===================================================================
+> --- libsemanage/src/conf-parse.y        (revision 2032)
+> +++ libsemanage/src/conf-parse.y        (working copy)
+> @@ -1,6 +1,7 @@
+> -/* Author: Jason Tang     <jtang@tresys.com>
+> +/* Authors: Jason Tang     <jtang@tresys.com>
+> + *          James Athey    <jathey@tresys.com>
+>   *
+> - * Copyright (C) 2004-2005 Tresys Technology, LLC
+> + * Copyright (C) 2004-2006 Tresys Technology, LLC
+>   *
+>   *  This library is free software; you can redistribute it and/or
+>   *  modify it under the terms of the GNU Lesser General Public
+> @@ -56,7 +57,7 @@
+>  }
+> 
+>  %token MODULE_STORE VERSION EXPAND_CHECK FILE_MODE
+> -%token LOAD_POLICY_START SETFILES_START
+> +%token LOAD_POLICY_START SETFILES_START GENHOMEDIRCON_START
+>  %token VERIFY_MOD_START VERIFY_LINKED_START VERIFY_KERNEL_START BLOCK_END
+>  %token PROG_PATH PROG_ARGS
+>  %token <s> ARG
+> @@ -137,6 +138,14 @@
+>                                  YYABORT;
+>                          }
+>                  }
+> +        |       GENHOMEDIRCON_START {
+> +                        semanage_conf_external_prog_destroy(current_conf->genhomedircon);
+> +                        current_conf->genhomedircon = NULL;
+> +                        if (new_external_prog(&current_conf->genhomedircon) == -1) {
+> +                                parse_errors++;
+> +                                YYABORT;
+> +                        }
+> +                }
+>          ;
+> 
+>  verify_block:   verify_start external_opts BLOCK_END  {
+> Index: libsemanage/src/conf-scan.l
+> ===================================================================
+> --- libsemanage/src/conf-scan.l (revision 2032)
+> +++ libsemanage/src/conf-scan.l (working copy)
+> @@ -1,6 +1,7 @@
+> -/* Author: Jason Tang     <jtang@tresys.com>
+> +/* Authors: Jason Tang     <jtang@tresys.com>
+> + *          James Athey    <jathey@tresys.com>
+>   *
+> - * Copyright (C) 2004-2005 Tresys Technology, LLC
+> + * Copyright (C) 2004-2006 Tresys Technology, LLC
+>   *
+>   *  This library is free software; you can redistribute it and/or
+>   *  modify it under the terms of the GNU Lesser General Public
+> @@ -43,6 +44,7 @@
+>  file-mode         return FILE_MODE;
+>  "[load_policy]"   return LOAD_POLICY_START;
+>  "[setfiles]"      return SETFILES_START;
+> +"[genhomedircon]" return GENHOMEDIRCON_START;
+>  "[verify module]" return VERIFY_MOD_START;
+>  "[verify linked]" return VERIFY_LINKED_START;
+>  "[verify kernel]" return VERIFY_KERNEL_START;
 
 Acked-by:  Stephen Smalley <sds@tycho.nsa.gov>
 
