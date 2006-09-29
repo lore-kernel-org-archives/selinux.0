@@ -1,69 +1,86 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k8TJDjGo032400
-	for <selinux@tycho.nsa.gov>; Fri, 29 Sep 2006 15:13:45 -0400
-Received: from mx1.redhat.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id k8TJDBu8006158
-	for <selinux@tycho.nsa.gov>; Fri, 29 Sep 2006 19:13:11 GMT
-Message-ID: <451D706C.7070503@redhat.com>
-Date: Fri, 29 Sep 2006 15:13:48 -0400
-From: Daniel J Walsh <dwalsh@redhat.com>
+Message-ID: <451D703E.3020500@hp.com>
+Date: Fri, 29 Sep 2006 15:13:02 -0400
+From: Paul Moore <paul.moore@hp.com>
 MIME-Version: 1.0
-To: "Christopher J. PeBenito" <cpebenito@tresys.com>
-CC: Matt Anderson <mra@hp.com>, selinux@tycho.nsa.gov
-Subject: Re: SELINUX_ERR using chcon to set a printer to Secret
-References: <451C1B7A.7010203@hp.com>  <451C239F.7070003@hp.com>	 <1159473365.2850.62.camel@sgc.columbia.tresys.com>	 <451D5D06.6080401@redhat.com> <1159554192.14286.19.camel@sgc.columbia.tresys.com>
-In-Reply-To: <1159554192.14286.19.camel@sgc.columbia.tresys.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: Venkat Yekkirala <vyekkirala@TrustedCS.com>
+Cc: netdev@vger.kernel.org, selinux@tycho.nsa.gov, jmorris@namei.org,
+        sds@tycho.nsa.gov
+Subject: Re: [PATCH 7/7] secid reconciliation-v03: Enforcement for SELinux
+References: <36282A1733C57546BE392885C0618592015CF32C@chaos.tcs.tcs-sec.com>
+In-Reply-To: <36282A1733C57546BE392885C0618592015CF32C@chaos.tcs.tcs-sec.com>
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Christopher J. PeBenito wrote:
-> On Fri, 2006-09-29 at 13:51 -0400, Daniel J Walsh wrote:
->   
->> Christopher J. PeBenito wrote:
->>     
->>> On Thu, 2006-09-28 at 15:33 -0400, Matt Anderson wrote:
->>>   
->>>       
->>>> When I add the policy:
->>>>
->>>> allow secadm_t printer_device_t:chr_file { getattr relabelfrom relabelto };
->>>>
->>>> I'm able to perform the relabel from secadm_r.  This meets my needs wrt
->>>> CUPS, but could one of the policy gurus point what in the policy allows
->>>> secadm_r to do this?
->>>>     
->>>>         
->>> You need MLS upgrade and/or downgrade permissions:
+Venkat Yekkirala wrote:
+>>>>While I don't see any explicit mention of it in the documentation or
+>>>>your comments, I assume we would want a flow_out check for 
+>>>>NetLabel here
+>>>>as well?
 >>>
->>> mls_file_upgrade(secadm_t)
->>> mls_file_downgrade(secadm_t)
->>>
->>>   
->>>       
->> No those rules are already there.  I think the problem is in
->>     
->
-> I was specifying what made secadm able to do that, as Matt asked :)
->
->   
->> files_relabel_all_files
+>>> 
+>>>I don't believe we do. By this time, the packet is or 
 >>
->> I believe it needs this patch
->> -       allow $1 { file_type $2 }:blk_file { getattr relabelfrom };
->> -       allow $1 { file_type $2 }:chr_file { getattr relabelfrom };
->> +       allow $1 { file_type $2 }:blk_file { getattr relabelfrom 
->> relabelto };
->> +       allow $1 { file_type $2 }:chr_file { getattr relabelfrom 
->> relabelto };
->>     
->
-> I don't agree with this, because there shouldn't be any blk_files and
-> chr_files that are file_type.
->
->   
+>>should already be
+>>
+>>>carrying the CIPSO/NetLabel option which should already be 
+>>
+>>the right one
+>>
+>>>(derived from the socket or flow as appropriate), but you 
+>>
+>>would want to
+>>
+>>>audit the code to make sure. IOW, the label option in the 
+>>
+>>IP header should
+>>
+>>>already be reflecting the secmark on the skb. But again, 
+>>
+>>you may want to
+>>
+>>>audit the code to make sure.
+>>
+>>In the case above I am concerned about the situation where the
+>>skb->secmark == 0 and there is a IPv4 option (i.e. it is NetLabel
+>>labeled) on the packet.
 
-Ok I misread the entire discussion. 
+It's unfortunate that you cut out the code in your reply.
+
+> Where we initialize the secmark should be immaterial from the NetLabel
+> point of view. The kernel mechanisms should assure that the IP option
+> reflects the MLS portion (or a label in the SA range) elsewhere.
+
+Yep, I agree.
+
+> In any
+> case, a flow_out check doesn't make sense since the IP option and the
+> secmark are (should be) mirroring each other and there's in actuality
+> no "flow out" happening; they are just 2 representation of the SAME label.
+
+Well, reading the code I see that if the secmark is zero upon entering
+the function you query the XFRM subsystem to query the SA label and set
+the secmark accordingly, yes?  All I am suggesting is that we do the
+same thing for NetLabel.
+
+Please see the mail I sent earlier with the code in it to address James'
+concerns, this has a proposed solution for the flow_out case.
+
+> Your suggestion as to adjusting the secmark per the IP option might be
+> fraught with danger since, in certain cases, I believe, you just return
+> the incoming options in the outgoing packet (timewait, openreq, etc.?),
+> and there's no assurance that that's a valid enough option that you can
+> retrieve a sid with it, correct?
+
+As implemented in the code snippets I sent earlier the generated
+NetLabel SID would reflect the secmark as determined by the IPsec label
+and the IP options on the packet.  I believe this is what we want as the
+resulting secmark value would directly represent the security attributes
+of the packet.
+
+-- 
+paul moore
+linux security @ hp
 
 --
 This message was distributed to subscribers of the selinux mailing list.
