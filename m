@@ -1,38 +1,41 @@
-Subject: Re: [PATCH] libsemanage: don't destroy the sepol handle if the
-	connection fails
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: James Athey <jathey@tresys.com>
-Cc: selinux@tycho.nsa.gov
-In-Reply-To: <6FE441CD9F0C0C479F2D88F959B01588052619@exchange.columbia.tresys.com>
-References: 
-	 <6FE441CD9F0C0C479F2D88F959B01588052619@exchange.columbia.tresys.com>
+Subject: Re: libsemanage patch to handle installation problem
+From: Joshua Brindle <jbrindle@tresys.com>
+To: Daniel J Walsh <dwalsh@redhat.com>
+Cc: Stephen Smalley <sds@tycho.nsa.gov>, Karl MacMillan <kmacmill@redhat.com>,
+        SE Linux <selinux@tycho.nsa.gov>
+In-Reply-To: <451D3116.7030109@redhat.com>
+References: <451BEFA4.60507@redhat.com>
+	 <1159463932.11489.44.camel@moss-spartans.epoch.ncsc.mil>
+	 <1159464256.11489.48.camel@moss-spartans.epoch.ncsc.mil>
+	 <451C0C79.4000105@redhat.com>
+	 <1159537518.29474.6.camel@twoface.columbia.tresys.com>
+	 <1159538012.8496.35.camel@moss-spartans.epoch.ncsc.mil>
+	 <451D3116.7030109@redhat.com>
 Content-Type: text/plain
-Date: Fri, 29 Sep 2006 11:01:03 -0400
-Message-Id: <1159542063.8496.70.camel@moss-spartans.epoch.ncsc.mil>
+Date: Fri, 29 Sep 2006 11:01:12 -0400
+Message-Id: <1159542072.3592.12.camel@twoface.columbia.tresys.com>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2006-09-28 at 17:37 -0400, James Athey wrote:
-> This patch removes the call to sepol_handle_destroy() if the connection to the semanage store fails.  Without this patch, if a connection fails for any reason, any later connection attempts on the same semanage handle will dump core.  semanage_handle_create() is responsible for creating the sepol handle, and semanage_handle_destroy() already destroys it.
-> 
-> Index: libsemanage/src/direct_api.c
-> ===================================================================
-> --- libsemanage/src/direct_api.c        (revision 2032)
-> +++ libsemanage/src/direct_api.c        (working copy)
-> @@ -218,7 +218,6 @@
-> 
->        err:
->         ERR(sh, "could not establish direct connection");
-> -       sepol_handle_destroy(sh->sepolh);
->         return STATUS_ERR;
->  }
+On Fri, 2006-09-29 at 10:43 -0400, Daniel J Walsh wrote:
+> --- libsemanage-1.6.16/src/semanage_store.c~    2006-08-23
+> 13:57:48.000000000 -0400
+> +++ libsemanage-1.6.16/src/semanage_store.c     2006-09-29
+> 10:41:08.000000000 -0400
+> @@ -1106,6 +1106,10 @@
+>                         goto skip_reload;
+>                 }
+>         }
+> +       else 
+> +               if (errno == ENOENT && 
+> +                   strcmp(really_active_store, storepath) != 0)
+> +                       goto skip_reload;
+>  
+>         if (semanage_reload_policy(sh)) {
+>                 goto cleanup; 
 
-Acked-by:  Stephen Smalley <sds@tycho.nsa.gov>
-
--- 
-Stephen Smalley
-National Security Agency
+Acked-By: Joshua Brindle <jbrindle@tresys.com>
 
 
 --
