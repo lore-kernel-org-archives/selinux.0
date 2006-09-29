@@ -1,47 +1,68 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k8TGoa8O026645
-	for <selinux@tycho.nsa.gov>; Fri, 29 Sep 2006 12:50:36 -0400
-Received: from mail8.sea5.speakeasy.net (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id k8TGo0u8016534
-	for <selinux@tycho.nsa.gov>; Fri, 29 Sep 2006 16:50:01 GMT
-Date: Fri, 29 Sep 2006 12:50:32 -0400 (EDT)
-From: James Morris <jmorris@namei.org>
-To: Paul Moore <paul.moore@hp.com>
-cc: Venkat Yekkirala <vyekkirala@TrustedCS.com>,
-        Stephen Smalley <sds@tycho.nsa.gov>,
-        Joshua Brindle <method@gentoo.org>, netdev@vger.kernel.org,
-        selinux@tycho.nsa.gov, kmacmillan@mentalrootkit.com
-Subject: Re: [PATCH 7/7] secid reconciliation-v03: Enforcement for SELinux
-In-Reply-To: <451D4A51.4000603@hp.com>
-Message-ID: <Pine.LNX.4.64.0609291247170.6007@d.namei>
-References: <36282A1733C57546BE392885C0618592015CF2BE@chaos.tcs.tcs-sec.com>
- <451D4A51.4000603@hp.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Subject: Re: Where is the AVC?
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Salvo Giuffrida <giuffsalvo@hotmail.it>
+Cc: selinux@tycho.nsa.gov
+In-Reply-To: <BAY114-F1FFF391047B48196CAC48AF180@phx.gbl>
+References: <BAY114-F1FFF391047B48196CAC48AF180@phx.gbl>
+Content-Type: text/plain
+Date: Fri, 29 Sep 2006 13:20:52 -0400
+Message-Id: <1159550452.8496.152.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 29 Sep 2006, Paul Moore wrote:
+On Fri, 2006-09-29 at 18:08 +0200, Salvo Giuffrida wrote:
+> >From reading the book "SELinux by example", it seems that the AVC is managed 
+> by the Security Server (figure 3-2). Instead, by reading the paper "The 
+> Flask Security Architecture: System support for Diverse Security Policies" 
+> in the NSA website, it looks like the AVC is managed by the Object Managers 
+> (why the plural? I though that there was just one object manager, but maybe 
+> it's because I was thinking only about files...So, there's an object manager 
+> for every macro-class of objects (files, processes, network objects?)?). Who 
+> is wrong and who is right?
 
-> > It seems more of a pain to actually
-> > prevent their use at the same time and/or explain strange/unnatural
-> > behavior.
-> 
-> Agreed, the solution that we agreed upon is much easier to implement and
-> explain than a lot of the alternatives.
+An object manager gets access decisions from its AVC, which consults the
+security server when the decision isn't already cached.  Meanwhile, if a
+policy change occurs, the security server needs to notify the AVCs of
+all object managers of the change so that their state can be updated (in
+simplest form, by flushing the caches).  There can be any number of
+object managers.  In Linux, the entire kernel is really a single object
+manager, but in earlier microkernel-based systems, there were separate
+object managers for process management, filesystems, and networking.
+Further, even in Linux, there are userspace object managers that need to
+enforce policy over their own objects and operations, like D-BUS, X,
+Postgres, etc.  The architecture itself is general and widely
+applicable.  I doubt there is any real contradiction between the book
+and the paper, but the paper is obviously the more authoritative
+description of the architecture.  When in doubt, I'm always right ;)
 
-Ok, can you please explain it further?
+> Another thing: the security context of files, in ext2/ext3/jfs/xfs 
+> filesystems is memorized in the xattr space of inodes, in the attribute 
+> security.selinux. But, is it memorized in the string form (user:role:type), 
+> or in the PSID form (the 32-integer which is mapped by the Security Server 
+> into a "true" security context)? Doing "getfattr -n security.selinux file" 
+> on a file gives me the string rapresentation of the Security Context, but 
+> also on objects like /dev/men...
 
-i.e. show me what the policy looks like, exactly what the user is trying 
-to achieve, and explain what happens to each packet exactly in terms of 
-labeling on the input and output paths.
-
-
-
+String form.  To clarify:
+1) PSIDs or persistent SIDs were an artifact of the original SELinux
+implementation before we migrated to using extended attributes (which
+were not yet in the mainline kernel at the time we first developed
+SELinux).  They do not exist at all in the current SELinux.  They were
+integers that indexed to security contexts in a mapping database in each
+filesystem, with the integers then stored in a field of the on-disk
+inode.  The security server had no awareness of them.
+2) SIDs are non-persistent, local handles (integers) that refer to
+security contexts and are mapped by the security server.  They still
+exist, but the kernel SIDs are now private to the kernel and not
+exported to userspace, unlike the original SELinux.  Userspace programs
+can create their own userspace SID mappings via the libselinux AVC,
+which is used by e.g. D-BUS and XSELinux.
 
 -- 
-James Morris
-<jmorris@namei.org>
+Stephen Smalley
+National Security Agency
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
