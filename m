@@ -1,51 +1,137 @@
-Message-ID: <4520326B.4020008@trustedcs.com>
-Date: Sun, 01 Oct 2006 16:26:03 -0500
+Message-ID: <45203288.9060500@trustedcs.com>
+Date: Sun, 01 Oct 2006 16:26:32 -0500
 From: Venkat Yekkirala <vyekkirala@TrustedCS.com>
 MIME-Version: 1.0
 To: netdev@vger.kernel.org
 CC: selinux@tycho.nsa.gov, jmorris@namei.org, sds@tycho.nsa.gov,
         paul.moore@hp.com, eparis@redhat.com
-Subject: [PATCH 0/9] secid reconciliation-v04: Repost patchset with updates
+Subject: [PATCH 2/9] secid reconciliation-v04: Add LSM hooks
 Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This patchset is relative to davem's net-2.6.git
+Add skb_policy_check and skb_netfilter_check hooks to LSM to enable
+reconciliation of the various security identifiers as well as enforce
+flow control on inbound (PREROUTING/INPUT) and outbound (OUTPUT/FORWARD/POSTROUTING)
+traffic.
 
-The following are the changes included in this patchset since the previous post:
+Signed-off-by: Venkat Yekkirala <vyekkirala@TrustedCS.com>
+---
+ include/linux/security.h |   41 ++++++++++++++++++++++++++++++++++++-
+ security/dummy.c         |   13 +++++++++++
+ 2 files changed, 53 insertions(+), 1 deletion(-)
 
-- Create IPSec SAs to be acquired with the creating sock's context as opposed
-  to that of the matching SPD rule, resulting in a simpler SPD as well as policy.
-- Set peer_sid on tcp sockets to the reconciled secmark so trusted applications
-  can retrieve and service the data at the appropriate context. Also return secmark
-  when security is queried for a UDP packet.
-- Fix minor things from James Morris' review.
-
-Paul, please spin a new patch to bring NetLabel into the reconciliation path
-as well as to address any NetLabel changes needed in regard to the above.
-
-Please consider for inclusion in 2.6.19.
-
- include/linux/security.h                     |   51 ++++-
- include/linux/skbuff.h                       |   49 +++++
- include/net/ip.h                             |   31 +++
- include/net/request_sock.h                   |   18 ++
- include/net/xfrm.h                           |   45 ++---
- net/dccp/ipv4.c                              |    5 
- net/ipv4/icmp.c                              |    4 
- net/ipv4/ip_output.c                         |    6 
- net/ipv4/tcp_ipv4.c                          |    1 
- net/ipv6/ip6_output.c                        |    5 
- net/ipv6/netfilter/ip6t_REJECT.c             |    2 
- net/netfilter/xt_CONNSECMARK.c               |   72 ++++++--
- net/netfilter/xt_SECMARK.c                   |   45 ++++-
- security/dummy.c                             |   13 +
- security/selinux/hooks.c                     |  148 +++++++++++++----
- security/selinux/include/av_perm_to_string.h |    2 
- security/selinux/include/av_permissions.h    |    2 
- security/selinux/include/xfrm.h              |   11 -
- security/selinux/xfrm.c                      |   66 +++----
- 19 files changed, 450 insertions(+), 126 deletions(-)
+diff --git a/include/linux/security.h b/include/linux/security.h
+index 9f56fb8..84b826b 100644
+--- a/include/linux/security.h
++++ b/include/linux/security.h
+@@ -828,6 +828,15 @@ #ifdef CONFIG_SECURITY
+  *	Sets the new child socket's sid to the openreq sid.
+  * @req_classify_flow:
+  *	Sets the flow's sid to the openreq sid.
++ * @skb_flow_in:
++ *	Checks to see if security policy would allow skb into the system
++ *	while also reconciling the xfrm secid, cipso, etc, if any, and
++ *	relabeling the skb with the reconciled secid.
++ *	Returns 1 if skb allowed into system, 0 otherwise.
++ * @skb_flow_out:
++ *	Checks to see if security policy would allow skb to go out of system.
++ *	Returns 1 if skb allowed out of system, 0 if not, and -ENOENT if there's
++ *	no hook defined.
+  *
+  * Security hooks for XFRM operations.
+  *
+@@ -1372,6 +1381,8 @@ #ifdef CONFIG_SECURITY_NETWORK
+ 					struct request_sock *req);
+ 	void (*inet_csk_clone)(struct sock *newsk, const struct request_sock *req);
+ 	void (*req_classify_flow)(const struct request_sock *req, struct flowi *fl);
++	int (*skb_flow_in)(struct sk_buff *skb, unsigned short family);
++	int (*skb_flow_out)(struct sk_buff *skb, u32 nf_secid);
+ #endif	/* CONFIG_SECURITY_NETWORK */
+ 
+ #ifdef CONFIG_SECURITY_NETWORK_XFRM
+@@ -2946,6 +2957,18 @@ static inline void security_req_classify
+ 	security_ops->req_classify_flow(req, fl);
+ }
+ 
++static inline int security_skb_flow_in(struct sk_buff *skb,
++					unsigned short family)
++{
++	return security_ops->skb_flow_in(skb, family);
++}
++
++static inline int security_skb_flow_out(struct sk_buff *skb,
++					u32 nf_secid)
++{
++	return security_ops->skb_flow_out(skb, nf_secid);
++}
++
+ static inline void security_sock_graft(struct sock* sk, struct socket *parent)
+ {
+ 	security_ops->sock_graft(sk, parent);
+@@ -3097,6 +3120,18 @@ static inline void security_req_classify
+ {
+ }
+ 
++static inline int security_skb_flow_in(struct sk_buff *skb,
++					unsigned short family)
++{
++	return 1;
++}
++
++static inline int security_skb_flow_out(struct sk_buff *skb,
++					u32 nf_secid)
++{
++	return -ENOENT;
++}
++
+ static inline void security_sock_graft(struct sock* sk, struct socket *parent)
+ {
+ }
+@@ -3150,7 +3185,11 @@ static inline int security_xfrm_state_al
+ {
+ 	if (!polsec)
+ 		return 0;
+-	return security_ops->xfrm_state_alloc_security(x, NULL, polsec, secid);
++	/*
++	 * No need to pass polsec along since we want the context to be
++	 * taken from secid which is usually from the sock.
++	 */
++	return security_ops->xfrm_state_alloc_security(x, NULL, NULL, secid);
+ }
+ 
+ static inline int security_xfrm_state_delete(struct xfrm_state *x)
+diff --git a/security/dummy.c b/security/dummy.c
+index aeee705..921be56 100644
+--- a/security/dummy.c
++++ b/security/dummy.c
+@@ -832,6 +832,17 @@ static inline void dummy_req_classify_fl
+ 			struct flowi *fl)
+ {
+ }
++
++static inline int dummy_skb_flow_in(struct sk_buff *skb,
++			unsigned short family)
++{
++	return -ENOENT;
++}
++
++static inline int dummy_skb_flow_out(struct sk_buff *skb, u32 nf_secid)
++{
++	return -ENOENT;
++}
+ #endif	/* CONFIG_SECURITY_NETWORK */
+ 
+ #ifdef CONFIG_SECURITY_NETWORK_XFRM
+@@ -1108,6 +1119,8 @@ #ifdef CONFIG_SECURITY_NETWORK
+ 	set_to_dummy_if_null(ops, inet_conn_request);
+ 	set_to_dummy_if_null(ops, inet_csk_clone);
+ 	set_to_dummy_if_null(ops, req_classify_flow);
++	set_to_dummy_if_null(ops, skb_flow_in);
++	set_to_dummy_if_null(ops, skb_flow_out);
+  #endif	/* CONFIG_SECURITY_NETWORK */
+ #ifdef  CONFIG_SECURITY_NETWORK_XFRM
+ 	set_to_dummy_if_null(ops, xfrm_policy_alloc_security);
 
 --
 This message was distributed to subscribers of the selinux mailing list.
