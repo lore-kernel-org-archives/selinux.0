@@ -1,217 +1,51 @@
-Message-ID: <45203297.6000901@trustedcs.com>
-Date: Sun, 01 Oct 2006 16:26:47 -0500
+Message-ID: <4520326B.4020008@trustedcs.com>
+Date: Sun, 01 Oct 2006 16:26:03 -0500
 From: Venkat Yekkirala <vyekkirala@TrustedCS.com>
 MIME-Version: 1.0
 To: netdev@vger.kernel.org
 CC: selinux@tycho.nsa.gov, jmorris@namei.org, sds@tycho.nsa.gov,
         paul.moore@hp.com, eparis@redhat.com
-Subject: [PATCH 4/9] secid reconciliation-v04: Invoke LSM hook for outbound
- traffic
+Subject: [PATCH 0/9] secid reconciliation-v04: Repost patchset with updates
 Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Invoke the skb_flow_out LSM hook for outbound
-traffic for secid reconciliation and flow control.
+This patchset is relative to davem's net-2.6.git
 
-Signed-off-by: Venkat Yekkirala <vyekkirala@TrustedCS.com>
----
- net/netfilter/xt_CONNSECMARK.c |   72 ++++++++++++++++++++++++-------
- net/netfilter/xt_SECMARK.c     |   45 ++++++++++++++++++-
- 2 files changed, 100 insertions(+), 17 deletions(-)
+The following are the changes included in this patchset since the previous post:
 
-diff --git a/net/netfilter/xt_CONNSECMARK.c b/net/netfilter/xt_CONNSECMARK.c
-index 4673862..cca4a0c 100644
---- a/net/netfilter/xt_CONNSECMARK.c
-+++ b/net/netfilter/xt_CONNSECMARK.c
-@@ -17,6 +17,8 @@
-  */
- #include <linux/module.h>
- #include <linux/skbuff.h>
-+#include <linux/security.h>
-+#include <linux/netfilter_ipv6.h>
- #include <linux/netfilter/x_tables.h>
- #include <linux/netfilter/xt_CONNSECMARK.h>
- #include <net/netfilter/nf_conntrack_compat.h>
-@@ -29,38 +31,78 @@ MODULE_DESCRIPTION("ip[6]tables CONNSECM
- MODULE_ALIAS("ipt_CONNSECMARK");
- MODULE_ALIAS("ip6t_CONNSECMARK");
- 
-+static inline int outbound(unsigned short family, unsigned int hooknum)
-+{
-+	if ((family == AF_INET &&
-+		(hooknum == NF_IP_POST_ROUTING ||
-+		 hooknum == NF_IP_LOCAL_OUT ||
-+		 hooknum == NF_IP_FORWARD)) ||
-+	    (family == AF_INET6 &&
-+		(hooknum == NF_IP6_POST_ROUTING ||
-+		 hooknum == NF_IP6_LOCAL_OUT ||
-+		 hooknum == NF_IP6_FORWARD)))
-+		return 1;
-+	else
-+		return 0;
-+}
-+
- /*
-  * If the packet has a security mark and the connection does not, copy
-  * the security mark from the packet to the connection.
-  */
--static void secmark_save(struct sk_buff *skb)
-+static void secmark_save(struct sk_buff *skb, unsigned int hooknum)
- {
- 	if (skb->secmark) {
- 		u32 *connsecmark;
- 		enum ip_conntrack_info ctinfo;
- 
- 		connsecmark = nf_ct_get_secmark(skb, &ctinfo);
--		if (connsecmark && !*connsecmark)
-+		if (connsecmark)
- 			if (*connsecmark != skb->secmark)
- 				*connsecmark = skb->secmark;
- 	}
- }
- 
- /*
-- * If packet has no security mark, and the connection does, restore the
-- * security mark from the connection to the packet.
-+ * On the inbound, restore the security mark from the connection to the packet.
-+ * On the outbound, filter based on the current secmark.
-  */
--static void secmark_restore(struct sk_buff *skb)
-+static unsigned int secmark_restore(struct sk_buff *skb, unsigned int hooknum,
-+		   const struct net_device *in, unsigned short family)
- {
--	if (!skb->secmark) {
--		u32 *connsecmark;
--		enum ip_conntrack_info ctinfo;
--
--		connsecmark = nf_ct_get_secmark(skb, &ctinfo);
--		if (connsecmark && *connsecmark)
--			if (skb->secmark != *connsecmark)
--				skb->secmark = *connsecmark;
-+	u32 *psecmark;
-+	enum ip_conntrack_info ctinfo;
-+
-+	psecmark = nf_ct_get_secmark(skb, &ctinfo);
-+
-+	if (psecmark && *psecmark) {
-+
-+		/* Set secmark on inbound and filter it on outbound */
-+		if (outbound(family, hooknum)) {
-+			int err;
-+
-+			err = security_skb_flow_out(skb, *psecmark);
-+			if (!err)
-+				return NF_DROP;
-+		} else
-+			/* 
-+			 * inbound:
-+			 * loopback traffic should already be labeled
-+			 * and any filtering on outbound should suffice
-+			 */
-+			if (in == &loopback_dev)
-+				goto out;
-+
-+		/*
-+		 * inbound or done with outbound check or no LSM hook
-+		 * for outbound
-+		 */
-+		if (skb->secmark != *psecmark)
-+			skb->secmark = *psecmark;
- 	}
-+
-+out:
-+	return XT_CONTINUE;
- }
- 
- static unsigned int target(struct sk_buff **pskb, const struct net_device *in,
-@@ -73,11 +115,11 @@ static unsigned int target(struct sk_buf
- 
- 	switch (info->mode) {
- 	case CONNSECMARK_SAVE:
--		secmark_save(skb);
-+		secmark_save(skb, hooknum);
- 		break;
- 
- 	case CONNSECMARK_RESTORE:
--		secmark_restore(skb);
-+		return secmark_restore(skb, hooknum, in, target->family);
- 		break;
- 
- 	default:
-diff --git a/net/netfilter/xt_SECMARK.c b/net/netfilter/xt_SECMARK.c
-index add7521..9ecce66 100644
---- a/net/netfilter/xt_SECMARK.c
-+++ b/net/netfilter/xt_SECMARK.c
-@@ -15,8 +15,10 @@
- #include <linux/module.h>
- #include <linux/skbuff.h>
- #include <linux/selinux.h>
-+#include <linux/security.h>
- #include <linux/netfilter/x_tables.h>
- #include <linux/netfilter/xt_SECMARK.h>
-+#include <linux/netfilter_ipv6.h>
- 
- MODULE_LICENSE("GPL");
- MODULE_AUTHOR("James Morris <jmorris@redhat.com>");
-@@ -28,6 +30,21 @@ #define PFX "SECMARK: "
- 
- static u8 mode;
- 
-+static inline int outbound(unsigned short family, unsigned int hooknum)
-+{
-+	if ((family == AF_INET &&
-+		(hooknum == NF_IP_POST_ROUTING ||
-+		 hooknum == NF_IP_LOCAL_OUT ||
-+		 hooknum == NF_IP_FORWARD)) ||
-+	    (family == AF_INET6 &&
-+		(hooknum == NF_IP6_POST_ROUTING ||
-+		 hooknum == NF_IP6_LOCAL_OUT ||
-+		 hooknum == NF_IP6_FORWARD)))
-+		return 1;
-+	else
-+		return 0;
-+}
-+
- static unsigned int target(struct sk_buff **pskb, const struct net_device *in,
- 			   const struct net_device *out, unsigned int hooknum,
- 			   const struct xt_target *target,
-@@ -47,9 +64,33 @@ static unsigned int target(struct sk_buf
- 		BUG();
- 	}
- 
--	if ((*pskb)->secmark != secmark)
--		(*pskb)->secmark = secmark;
-+	if (secmark) {
-+
-+		/* Set secmark on inbound and filter it on outbound */
-+		if (outbound(target->family, hooknum)) {
-+			int err;
-+
-+			err = security_skb_flow_out(*pskb, secmark);
-+			if (!err)
-+				return NF_DROP;
-+		} else
-+			/*
-+			 * inbound:
-+			 * loopback traffic should already be labeled
-+			 * and any filtering on outbound should suffice
-+			 */
-+			if (in == &loopback_dev)
-+				goto out;
-+
-+		/* 
-+		 * inbound or done with outbound check or no LSM hook
-+		 * for outbound
-+		 */
-+		if ((*pskb)->secmark != secmark)
-+			(*pskb)->secmark = secmark;
-+	}
- 
-+out:
- 	return XT_CONTINUE;
- }
- 
+- Create IPSec SAs to be acquired with the creating sock's context as opposed
+  to that of the matching SPD rule, resulting in a simpler SPD as well as policy.
+- Set peer_sid on tcp sockets to the reconciled secmark so trusted applications
+  can retrieve and service the data at the appropriate context. Also return secmark
+  when security is queried for a UDP packet.
+- Fix minor things from James Morris' review.
+
+Paul, please spin a new patch to bring NetLabel into the reconciliation path
+as well as to address any NetLabel changes needed in regard to the above.
+
+Please consider for inclusion in 2.6.19.
+
+ include/linux/security.h                     |   51 ++++-
+ include/linux/skbuff.h                       |   49 +++++
+ include/net/ip.h                             |   31 +++
+ include/net/request_sock.h                   |   18 ++
+ include/net/xfrm.h                           |   45 ++---
+ net/dccp/ipv4.c                              |    5 
+ net/ipv4/icmp.c                              |    4 
+ net/ipv4/ip_output.c                         |    6 
+ net/ipv4/tcp_ipv4.c                          |    1 
+ net/ipv6/ip6_output.c                        |    5 
+ net/ipv6/netfilter/ip6t_REJECT.c             |    2 
+ net/netfilter/xt_CONNSECMARK.c               |   72 ++++++--
+ net/netfilter/xt_SECMARK.c                   |   45 ++++-
+ security/dummy.c                             |   13 +
+ security/selinux/hooks.c                     |  148 +++++++++++++----
+ security/selinux/include/av_perm_to_string.h |    2 
+ security/selinux/include/av_permissions.h    |    2 
+ security/selinux/include/xfrm.h              |   11 -
+ security/selinux/xfrm.c                      |   66 +++----
+ 19 files changed, 450 insertions(+), 126 deletions(-)
 
 --
 This message was distributed to subscribers of the selinux mailing list.
