@@ -1,33 +1,112 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k8ULGwD4027369
-	for <selinux@tycho.nsa.gov>; Sat, 30 Sep 2006 17:16:58 -0400
-Received: from mailhub.hp.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id k8ULFpsN004677
-	for <selinux@tycho.nsa.gov>; Sat, 30 Sep 2006 21:15:51 GMT
-Message-ID: <451EDEC6.1090401@hp.com>
-Date: Sat, 30 Sep 2006 17:16:54 -0400
-From: Linda Knippers <linda.knippers@hp.com>
+Message-ID: <4520329B.3010506@trustedcs.com>
+Date: Sun, 01 Oct 2006 16:26:51 -0500
+From: Venkat Yekkirala <vyekkirala@TrustedCS.com>
 MIME-Version: 1.0
-To: Steve G <linux_4ever@yahoo.com>
-Cc: selinux@tycho.nsa.gov
-Subject: Re: Audit events for IPsec based network labeling
-References: <20060930144449.37002.qmail@web51505.mail.yahoo.com>
-In-Reply-To: <20060930144449.37002.qmail@web51505.mail.yahoo.com>
+To: netdev@vger.kernel.org
+CC: selinux@tycho.nsa.gov, jmorris@namei.org, sds@tycho.nsa.gov,
+        paul.moore@hp.com, eparis@redhat.com
+Subject: [PATCH 5/9] secid reconciliation-v04: Label locally generated IPv6
+ traffic
 Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Steve G wrote:
+This labels the skb(s) for locally generated IPv6 traffic. This will
+be used in pertinent flow control checks on the outbound later in the
+LSM hook.
 
-> Do we need any audit events for the inserting or deletion of rules for the IPsec
-> based network labeling scheme? What about Secmark?
+NOTE: Forwarded traffic is already labeled with the reconciled
+secmark on the inbound.
 
-The way I read the application notes in the LSPP sections about
-importing and exporting labeled and unlabeled data, I'd say we do if
-we're using them for labeling and for security decisions in an LSPP
-configuration.
+Signed-off-by: Venkat Yekkirala <vyekkirala@TrustedCS.com>
+---
+ include/linux/skbuff.h           |   29 +++++++++++++++++++++++++++++
+ net/ipv6/ip6_output.c            |    5 +++++
+ net/ipv6/netfilter/ip6t_REJECT.c |    2 ++
+ 3 files changed, 36 insertions(+)
 
--- ljk
+diff --git a/include/linux/skbuff.h b/include/linux/skbuff.h
+index 85577a4..18967f2 100644
+--- a/include/linux/skbuff.h
++++ b/include/linux/skbuff.h
+@@ -29,6 +29,7 @@ #include <linux/net.h>
+ #include <linux/textsearch.h>
+ #include <net/checksum.h>
+ #include <linux/dmaengine.h>
++#include <net/flow.h>
+ 
+ #define HAVE_ALLOC_SKB		/* For the drivers to know */
+ #define HAVE_ALIGNABLE_SKB	/* Ditto 8)		   */
+@@ -1499,5 +1500,33 @@ static inline int skb_is_gso(const struc
+ 	return skb_shinfo(skb)->gso_size;
+ }
+ 
++#ifdef CONFIG_SECURITY_NETWORK
++
++static inline void security_skb_classify_skb(struct sk_buff *from,
++					struct sk_buff *skb)
++{
++	skb->secmark = from->secmark;
++}
++
++static inline void security_flow_classify_skb(struct flowi *fl,
++					struct sk_buff *skb)
++{
++	skb->secmark = fl->secid;
++}
++
++#else
++
++static inline void security_skb_classify_skb(struct sk_buff *from,
++					struct sk_buff *skb)
++{
++}
++
++static inline void security_flow_classify_skb(struct flowi *fl,
++					struct sk_buff *skb)
++{
++}
++
++#endif /* CONFIG_SECURITY_NETWORK */
++
+ #endif	/* __KERNEL__ */
+ #endif	/* _LINUX_SKBUFF_H */
+diff --git a/net/ipv6/ip6_output.c b/net/ipv6/ip6_output.c
+index 6671691..6648eb3 100644
+--- a/net/ipv6/ip6_output.c
++++ b/net/ipv6/ip6_output.c
+@@ -170,6 +170,8 @@ int ip6_xmit(struct sock *sk, struct sk_
+ 	int hlimit, tclass;
+ 	u32 mtu;
+ 
++	security_flow_classify_skb(fl, skb);
++
+ 	if (opt) {
+ 		int head_room;
+ 
+@@ -1150,6 +1152,9 @@ alloc_new_skb:
+ 			}
+ 			if (skb == NULL)
+ 				goto error;
++
++			security_flow_classify_skb(fl, skb);
++
+ 			/*
+ 			 *	Fill in the control structures
+ 			 */
+diff --git a/net/ipv6/netfilter/ip6t_REJECT.c b/net/ipv6/netfilter/ip6t_REJECT.c
+index 311eae8..0508c30 100644
+--- a/net/ipv6/netfilter/ip6t_REJECT.c
++++ b/net/ipv6/netfilter/ip6t_REJECT.c
+@@ -128,6 +128,8 @@ static void send_reset(struct sk_buff *o
+ 	ipv6_addr_copy(&ip6h->saddr, &oip6h->daddr);
+ 	ipv6_addr_copy(&ip6h->daddr, &oip6h->saddr);
+ 
++	security_skb_classify_skb(oldskb, nskb);
++
+ 	tcph = (struct tcphdr *)skb_put(nskb, sizeof(struct tcphdr));
+ 	/* Truncate to length (no data) */
+ 	tcph->doff = sizeof(struct tcphdr)/4;
 
 --
 This message was distributed to subscribers of the selinux mailing list.
