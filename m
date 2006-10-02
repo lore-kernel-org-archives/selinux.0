@@ -1,36 +1,31 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k9274PQY002284
-	for <selinux@tycho.nsa.gov>; Mon, 2 Oct 2006 03:04:25 -0400
-Received: from py-out-1112.google.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id k9273ndh021882
-	for <selinux@tycho.nsa.gov>; Mon, 2 Oct 2006 07:03:50 GMT
-Received: by py-out-1112.google.com with SMTP id 39so1831517pyu
-        for <selinux@tycho.nsa.gov>; Mon, 02 Oct 2006 00:04:25 -0700 (PDT)
-Message-ID: <750109470610020004n7ce1873fp2a4ea66b15147cbb@mail.gmail.com>
-Date: Mon, 2 Oct 2006 03:04:25 -0400
-From: alex323 <alex323@gmail.com>
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k92D6K90008965
+	for <selinux@tycho.nsa.gov>; Mon, 2 Oct 2006 09:06:20 -0400
+Received: from web51505.mail.yahoo.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with SMTP id k92D5Cgt024189
+	for <selinux@tycho.nsa.gov>; Mon, 2 Oct 2006 13:05:12 GMT
+Message-ID: <20061002130616.66994.qmail@web51505.mail.yahoo.com>
+Date: Mon, 2 Oct 2006 06:06:15 -0700 (PDT)
+From: Steve G <linux_4ever@yahoo.com>
+Subject: gpm & mls
 To: selinux@tycho.nsa.gov
-Subject: Trouble installing SELinux on Ubuntu
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain; charset=iso-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-I am attempting to install SELinux on Ubuntu using the HOWTO guide
-located at http://www.lurking-grue.org/selinuxHOWTO.html. I am running
-into some trouble.
+Hi,
 
-I have compiled the kernel from sources just as instructed (2.6.17.13)
-and I booted into the new kernel with selinux enabled.
+I was wondering if gpm should be patched to be an Object Manager? The reason I
+ask is that its possible to be logged into 2 consoles at 2 levels. Its just a
+copy and paste to downgrade text and it is not controlled or audited.
 
->From there I installed the selinux-policy-default package. However
-when 'make relabel' starts going, I get errors like this:
+-Steve
 
-inode_doinit_with_dentry context_to_sid(kernel) returned 22 for
-dev=sda2 inode=#########
-
-Would anyone know what is going on? I've tried installing selinux for
-about 6 hours now and nothing I do seems to work. :(
+__________________________________________________
+Do You Yahoo!?
+Tired of spam?  Yahoo! Mail has the best spam protection around 
+http://mail.yahoo.com 
 
 --
 This message was distributed to subscribers of the selinux mailing list.
