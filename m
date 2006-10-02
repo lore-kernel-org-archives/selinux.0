@@ -1,98 +1,56 @@
-Message-ID: <45212E9E.5050208@mentalrootkit.com>
-Date: Mon, 02 Oct 2006 11:22:06 -0400
-From: Karl MacMillan <kmacmillan@mentalrootkit.com>
-MIME-Version: 1.0
-To: Stephen Smalley <sds@tycho.nsa.gov>
-CC: James Athey <jathey@tresys.com>, selinux@tycho.nsa.gov
-Subject: Re: [PATCH] libsemanage: add genhomedircon path to semanage.conf
- parsing
-References: <6FE441CD9F0C0C479F2D88F959B01588052618@exchange.columbia.tresys.com> <1159542044.8496.68.camel@moss-spartans.epoch.ncsc.mil>
-In-Reply-To: <1159542044.8496.68.camel@moss-spartans.epoch.ncsc.mil>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k92FXTss014091
+	for <selinux@tycho.nsa.gov>; Mon, 2 Oct 2006 11:33:29 -0400
+Received: from exchange.columbia.tresys.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with SMTP id k92FWKgt020708
+	for <selinux@tycho.nsa.gov>; Mon, 2 Oct 2006 15:32:20 GMT
+Subject: Re: Default Mikefile in /usr/share/selinux/devel not nice
+From: "Christopher J. PeBenito" <cpebenito@tresys.com>
+To: Michael C Thompson <thompsmc@us.ibm.com>
+Cc: SE Linux <selinux@tycho.nsa.gov>
+In-Reply-To: <45212E39.9080105@us.ibm.com>
+References: <451D8C2F.9040901@us.ibm.com>
+	 <1159590751.12161.10.camel@gorn.pebenito.net> <45212E39.9080105@us.ibm.com>
+Content-Type: text/plain
+Date: Mon, 02 Oct 2006 11:33:24 -0400
+Message-Id: <1159803204.14831.34.camel@sgc>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Stephen Smalley wrote:
-> On Thu, 2006-09-28 at 17:31 -0400, James Athey wrote:
->   
->> This patch adds the ability to specify a path to genhomedircon in semanage.conf, similar to specifying a path to setfiles or load_policy.  For example:
->>
->> [genhomedircon]
->> path = /usr/local/sbin/genhomedircon_modified
->> args = -t $@
->> [end]
->>
->> Index: libsemanage/src/conf-parse.y
->> ===================================================================
->> --- libsemanage/src/conf-parse.y        (revision 2032)
->> +++ libsemanage/src/conf-parse.y        (working copy)
->> @@ -1,6 +1,7 @@
->> -/* Author: Jason Tang     <jtang@tresys.com>
->> +/* Authors: Jason Tang     <jtang@tresys.com>
->> + *          James Athey    <jathey@tresys.com>
->>   *
->> - * Copyright (C) 2004-2005 Tresys Technology, LLC
->> + * Copyright (C) 2004-2006 Tresys Technology, LLC
->>   *
->>   *  This library is free software; you can redistribute it and/or
->>   *  modify it under the terms of the GNU Lesser General Public
->> @@ -56,7 +57,7 @@
->>  }
->>
->>  %token MODULE_STORE VERSION EXPAND_CHECK FILE_MODE
->> -%token LOAD_POLICY_START SETFILES_START
->> +%token LOAD_POLICY_START SETFILES_START GENHOMEDIRCON_START
->>  %token VERIFY_MOD_START VERIFY_LINKED_START VERIFY_KERNEL_START BLOCK_END
->>  %token PROG_PATH PROG_ARGS
->>  %token <s> ARG
->> @@ -137,6 +138,14 @@
->>                                  YYABORT;
->>                          }
->>                  }
->> +        |       GENHOMEDIRCON_START {
->> +                        semanage_conf_external_prog_destroy(current_conf->genhomedircon);
->> +                        current_conf->genhomedircon = NULL;
->> +                        if (new_external_prog(&current_conf->genhomedircon) == -1) {
->> +                                parse_errors++;
->> +                                YYABORT;
->> +                        }
->> +                }
->>          ;
->>
->>  verify_block:   verify_start external_opts BLOCK_END  {
->> Index: libsemanage/src/conf-scan.l
->> ===================================================================
->> --- libsemanage/src/conf-scan.l (revision 2032)
->> +++ libsemanage/src/conf-scan.l (working copy)
->> @@ -1,6 +1,7 @@
->> -/* Author: Jason Tang     <jtang@tresys.com>
->> +/* Authors: Jason Tang     <jtang@tresys.com>
->> + *          James Athey    <jathey@tresys.com>
->>   *
->> - * Copyright (C) 2004-2005 Tresys Technology, LLC
->> + * Copyright (C) 2004-2006 Tresys Technology, LLC
->>   *
->>   *  This library is free software; you can redistribute it and/or
->>   *  modify it under the terms of the GNU Lesser General Public
->> @@ -43,6 +44,7 @@
->>  file-mode         return FILE_MODE;
->>  "[load_policy]"   return LOAD_POLICY_START;
->>  "[setfiles]"      return SETFILES_START;
->> +"[genhomedircon]" return GENHOMEDIRCON_START;
->>  "[verify module]" return VERIFY_MOD_START;
->>  "[verify linked]" return VERIFY_LINKED_START;
->>  "[verify kernel]" return VERIFY_KERNEL_START;
->>     
->
-> Acked-by:  Stephen Smalley <sds@tycho.nsa.gov>
->
->   
-Acked-by: Karl MacMillan <kmacmillan@mentalrootkit.com>
+On Mon, 2006-10-02 at 10:20 -0500, Michael C Thompson wrote:
+> Chris PeBenito wrote:
+> > On Fri, 2006-09-29 at 16:12 -0500, Michael C Thompson wrote:
+> >> I just discovered a nasty surprise waiting for me in the default 
+> >> Makefile provided by selinux-policy-devel.
+> >>
+> >> Basically, the Makefile produces, on an MLS system, a TYPE value of 
+> >> mls-msc (this is due to the SELINUXTYPE=mls line in 
+> >> /etc/selinux/config). This will not 'enable_mls' for the M4FLAGS, 
+> >> because the Makefile in /usr/share/selinux/devel/include/ does a 
+> >> findstring for '-mls'.
+> >>
+> >> Dan Walsh has suggested a fix for the default Makefile, but I'm 
+> >> wondering why we can't just change 
+> >> /usr/share/selinux/devel/include/Makefile to do a $(findstring 
+> >> mls,$TYPE)) instead, since its not unreasonable to think that TYPE=mls 
+> >> makes sense.
+> > 
+> > There is some confusion here, the SELINUXTYPE is not the same as TYPE in
+> > refpolicy, it is NAME in refpolicy.  The TYPE of the Redhat MLS policy
+> > is strict-mls.  TYPE=mls does not make sense, since it does not specify
+> > if the policy is strict or targeted.
+> 
+> Are there flags (like 'enable_mls') in the policy which require this 
+> delineation?
 
-I will note, however, that we should eventually remove this parser to 
-remove the flex dependency in such a low-level library.
+Yes, strict_policy and targeted_policy.
 
-Karl
+-- 
+Chris PeBenito
+Tresys Technology, LLC
+(410) 290-1411 x150
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
