@@ -1,49 +1,36 @@
 Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k920K9ki029253
-	for <selinux@tycho.nsa.gov>; Sun, 1 Oct 2006 20:20:09 -0400
-Received: from smtp.sws.net.au (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id k920JVYw015424
-	for <selinux@tycho.nsa.gov>; Mon, 2 Oct 2006 00:19:33 GMT
-From: Russell Coker <russell@coker.com.au>
-Reply-To: russell@coker.com.au
-To: "Salvo Giuffrida" <giuffsalvo@hotmail.it>
-Subject: Re: 'chcon': possible weakness
-Date: Mon, 2 Oct 2006 10:20:12 +1000
-Cc: selinux@tycho.nsa.gov
-References: <BAY114-F2E3CC85812D9DF59FB8D2AF1E0@phx.gbl>
-In-Reply-To: <BAY114-F2E3CC85812D9DF59FB8D2AF1E0@phx.gbl>
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k9274PQY002284
+	for <selinux@tycho.nsa.gov>; Mon, 2 Oct 2006 03:04:25 -0400
+Received: from py-out-1112.google.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id k9273ndh021882
+	for <selinux@tycho.nsa.gov>; Mon, 2 Oct 2006 07:03:50 GMT
+Received: by py-out-1112.google.com with SMTP id 39so1831517pyu
+        for <selinux@tycho.nsa.gov>; Mon, 02 Oct 2006 00:04:25 -0700 (PDT)
+Message-ID: <750109470610020004n7ce1873fp2a4ea66b15147cbb@mail.gmail.com>
+Date: Mon, 2 Oct 2006 03:04:25 -0400
+From: alex323 <alex323@gmail.com>
+To: selinux@tycho.nsa.gov
+Subject: Trouble installing SELinux on Ubuntu
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Message-Id: <200610021020.14310.russell@coker.com.au>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Monday 02 October 2006 08:59, "Salvo Giuffrida" <giuffsalvo@hotmail.it> 
-wrote:
-> I found in the FC5 targeted policy that httpd_t has execute access on files
-> of type bin_t...Isn't this an huge security hole? Couldn't one who exploit
-> an httpd weakness execute 'chcon' (which has security attributes rwxr-xr-x
-> root root system_u:object_r:bin_t), and change the Security Context of a
-> file he wants access to?
+I am attempting to install SELinux on Ubuntu using the HOWTO guide
+located at http://www.lurking-grue.org/selinuxHOWTO.html. I am running
+into some trouble.
 
-Sure they can execute chcon, but they can only change context in accordance 
-with policy.
+I have compiled the kernel from sources just as instructed (2.6.17.13)
+and I booted into the new kernel with selinux enabled.
 
-Having chcon with type bin_t is no more a security issue than having chmod 
-with mode 0755 in the Unix permissions system.  You can run the program 
-without limits, but what operations that program will be capable of are very 
-limited.
+>From there I installed the selinux-policy-default package. However
+when 'make relabel' starts going, I get errors like this:
 
-Do an experiment by running a shell as httpd_t and try execing chcon and see 
-what you can do.  Or use "apol" to analyse the policy and see what relabelto 
-and relabelfrom operations are permitted.
+inode_doinit_with_dentry context_to_sid(kernel) returned 22 for
+dev=sda2 inode=#########
 
--- 
-russell@coker.com.au
-http://etbe.blogspot.com/          My Blog
-
-http://www.coker.com.au/sponsorship.html Sponsoring Free Software development
+Would anyone know what is going on? I've tried installing selinux for
+about 6 hours now and nothing I do seems to work. :(
 
 --
 This message was distributed to subscribers of the selinux mailing list.
