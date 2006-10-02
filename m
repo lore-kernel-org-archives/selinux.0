@@ -1,55 +1,49 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k92E2TY7010549
-	for <selinux@tycho.nsa.gov>; Mon, 2 Oct 2006 10:02:29 -0400
-Received: from exchange.columbia.tresys.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with SMTP id k92E1Kgt004351
-	for <selinux@tycho.nsa.gov>; Mon, 2 Oct 2006 14:01:21 GMT
-Subject: Re: RFC tweak for lpd.if to make it fit CUPS
+Subject: Re: [PATCH] refpolicy: Add GConf policy
 From: "Christopher J. PeBenito" <cpebenito@tresys.com>
-To: russell@coker.com.au
-Cc: Matt Anderson <mra@hp.com>, selinux@tycho.nsa.gov, redhat-lspp@redhat.com
-In-Reply-To: <200609301423.45245.russell@coker.com.au>
-References: <451DEA8B.2070609@hp.com>
-	 <200609301423.45245.russell@coker.com.au>
+To: James Carter <jwcart2@tycho.nsa.gov>
+Cc: SELinux <selinux@tycho.nsa.gov>
+In-Reply-To: <1159536230.11477.27.camel@moss-lions.epoch.ncsc.mil>
+References: <1159295299.18973.74.camel@moss-lions.epoch.ncsc.mil>
+	 <1159455168.2850.19.camel@sgc.columbia.tresys.com>
+	 <1159472462.3439.73.camel@moss-lions.epoch.ncsc.mil>
+	 <1159474882.2850.74.camel@sgc.columbia.tresys.com>
+	 <1159536230.11477.27.camel@moss-lions.epoch.ncsc.mil>
 Content-Type: text/plain
-Date: Mon, 02 Oct 2006 10:02:24 -0400
-Message-Id: <1159797744.14831.15.camel@sgc>
+Date: Mon, 02 Oct 2006 10:27:54 -0400
+Message-Id: <1159799274.14831.29.camel@sgc>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Sat, 2006-09-30 at 14:23 +1000, Russell Coker wrote:
-> On Saturday 30 September 2006 13:54, Matt Anderson <mra@hp.com> wrote:
-> > I've been playing around with the printing portion of the policy a bit
-> > and would like to suggest some changes.  Looking at the source for
-> > lpd.if it seems the the policy was originally written with a lpr/lpd in
-> > mind that is not CUPS.
-> 
-> Correct.  The lpr/lpd policy was written a long time before the cups policy.  
-> My recollection is that I wrote the cups policy to support mixed-mode systems 
-> with lpr/lpd emulation in CUPS and easy conversion between cups and lpd.
-> 
-> For today's use it's probably best to just dump support for lpd.  In Fedora 
-> cups is the only supported option, for LSPP you have the same but no option 
-> of getting lprng from extras, in Debian things are tending towards cups (and 
-> with Debian having more support for modules we can probably switch between 
-> cups and lpd modules).
+On Fri, 2006-09-29 at 09:23 -0400, James Carter wrote:
+> On Thu, 2006-09-28 at 16:21 -0400, Christopher J. PeBenito wrote:
+> > On Thu, 2006-09-28 at 15:41 -0400, James Carter wrote:
+> > >   After finishing up GConf, I'll be looking at window
+> > > managers.
+> > > 
+> > > I think that you can make a case for putting GConf in a gnome policy
+> > > since it is not being used by any other desktop. It really doesn't
+> > > matter too much to me.  It does seem, however, like a gnome policy could
+> > > become quite large.  I guess I imagined policy for a particular desktop
+> > > eventually being kept in a separate policy directory like
+> > > policy/modules/desktops/gnome to keep it organized together, but still
+> > > consisting of many smaller modules.  
+> > > 
+> > > What do you think would be part of the gnome policy?
+> > 
+> > Core pieces that are common to all gnome systems, like gnome-vfs,
+> > bonobo, orbit, etc.  Other things such as nautilus could go in their own
+> > modules.  That is, assuming any of these need policies.
+> > 
+> That makes sense.
 
-Seems that we're going to have to split lpr out again, and turn it into
-a mta-like setup.
-
-> > There are comments referencing a lightweight 
-> > mode, and $1_lpr_t is allowed to read and write to the spool directly.
-> > CUPS does not do these things.  Attached is a patch I've applied to my
-> > systems that allows CUPS to work just fine in Targeted and MLS mode with
-> > 13 less allow rules.
-> 
-> That seems fine to me.
-
-If we split out lpr, then we can make all the rules optional on lpd or
-cups, depending on what is installed.  I'd rather not remove the rules
-completely unless we can confirm it doesn't need these rules, otherwise
-lpd support may break.
+I did some more investigating because I didn't want to add a gconf
+module and then later find out a gnome module is needed, or add a gnome
+module and then later find out it isn't needed.  It looks like
+gnome-pty-helper is a good policy to add, since it updates lastlog and
+wtmp, and was around long before the overengineered pieces were added.
+So if we have two pieces of Gnome, then gconf can be made a part of a
+gnome module.  Seem reasonable (I can do the g-p-h part)?
 
 -- 
 Chris PeBenito
