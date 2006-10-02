@@ -1,98 +1,40 @@
-Message-ID: <45217457.6070303@hp.com>
-Date: Mon, 02 Oct 2006 16:19:35 -0400
-From: Paul Moore <paul.moore@hp.com>
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k92Lup7B025559
+	for <selinux@tycho.nsa.gov>; Mon, 2 Oct 2006 17:56:51 -0400
+Received: from smtp.sws.net.au (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id k92Ltf7Y022892
+	for <selinux@tycho.nsa.gov>; Mon, 2 Oct 2006 21:55:42 GMT
+From: Russell Coker <russell@coker.com.au>
+Reply-To: russell@coker.com.au
+To: alex323 <alex323@gmail.com>
+Subject: Re: Trouble installing SELinux on Ubuntu
+Date: Tue, 3 Oct 2006 07:56:46 +1000
+Cc: selinux@tycho.nsa.gov
+References: <750109470610020004n7ce1873fp2a4ea66b15147cbb@mail.gmail.com>
+In-Reply-To: <750109470610020004n7ce1873fp2a4ea66b15147cbb@mail.gmail.com>
 MIME-Version: 1.0
-To: Stephen Smalley <sds@tycho.nsa.gov>,
-        Venkat Yekkirala <vyekkirala@TrustedCS.com>
-Cc: netdev@vger.kernel.org, selinux@tycho.nsa.gov, jmorris@namei.org,
-        eparis@redhat.com
-Subject: Re: [PATCH v2 1/1] NetLabel: secid reconciliation support
-References: <20061002180633.639599000@hp.com>	 <20061002181633.788771000@hp.com> <1159817041.6855.150.camel@moss-spartans.epoch.ncsc.mil>
-In-Reply-To: <1159817041.6855.150.camel@moss-spartans.epoch.ncsc.mil>
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Message-Id: <200610030756.48364.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Stephen Smalley wrote:
-> On Mon, 2006-10-02 at 14:06 -0400, paul.moore@hp.com wrote:
-> 
->>plain text document attachment (netlabel-secid_support)
->>This patch provides the missing NetLabel support to the secid reconciliation
->>patchset.
->>
->>Signed-off-by: Paul Moore <paul.moore@hp.com>
->>---
->> security/selinux/hooks.c                    |   67 +++++++++++------
->> security/selinux/include/objsec.h           |    1 
->> security/selinux/include/selinux_netlabel.h |   28 +++----
->> security/selinux/ss/services.c              |  106 ++++++++++------------------
->> 4 files changed, 98 insertions(+), 104 deletions(-)
-> 
-> 
->>@@ -3725,7 +3723,16 @@ static int selinux_skb_flow_in(struct sk
->>+
->>+	err = avc_has_perm(nlbl_sid, skb->secmark, SECCLASS_PACKET,
->>+					PACKET__FLOW_IN, NULL);
-> 
-> 
-> This means we end up with two flow_in checks each time, even if only one
-> or none of the two labeling mechanisms was used, right?  Given the
-> conclusion on the discussion of what it means to use them together (just
-> redundant), this seems to be pointless overhead.
+On Monday 02 October 2006 17:04, alex323 <alex323@gmail.com> wrote:
+> I am attempting to install SELinux on Ubuntu using the HOWTO guide
+> located at http://www.lurking-grue.org/selinuxHOWTO.html. I am running
+> into some trouble.
 
-Okay, how about something like this?
+Currently there is active work in progress in Debian to update SE Linux.  The 
+old packages referenced by Faye's document are outdated and the new packages 
+are not ready for wide use yet.
 
-static int selinux_skb_flow_in(struct sk_buff *skb, unsigned short family)
-{
-	u32 xfrm_sid;
-	u32 nlbl_sid;
-	u32 ext_sid;
-	int err;
-
-	if (selinux_compat_net)
-		return 1;
-
-	/*
-	 * loopback traffic already labeled and
-	 * flow-controlled on outbound. We may
-	 * need to flow-control on the inbound
-	 * as well if there's ever a use-case for it.
-	 */
-	if (skb->dev == &loopback_dev)
-		return 1;
-
-	err = selinux_xfrm_decode_session(skb, &xfrm_sid, 0);
-	BUG_ON(err);
-
-	err = selinux_netlbl_skb_sid(skb,
-				     xfrm_sid ? xfrm_sid : skb->secmark,
-				     &nlbl_sid);
-	if (err)
-		goto out;
-
-	if (nlbl_sid)
-		ext_sid = nlbl_sid;
-	else
-		ext_sid = xfrm_sid;
-
-	err = avc_has_perm(ext_sid,
-			   skb->secmark,
-			   SECCLASS_PACKET,
-			   PACKET__FLOW_IN,
-			   NULL);
-	if (err)
-		goto out;
-
-	if (ext_sid)
-		skb->secmark = ext_sid;
-
-out:
-	return err ? 0 : 1;
-};
+Hopefully in the near future it will be a lot easier for new users.
 
 -- 
-paul moore
-linux security @ hp
+russell@coker.com.au
+http://etbe.blogspot.com/          My Blog
+
+http://www.coker.com.au/sponsorship.html Sponsoring Free Software development
 
 --
 This message was distributed to subscribers of the selinux mailing list.
