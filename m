@@ -1,50 +1,40 @@
-Subject: Re: [PATCH 2/9] secid reconciliation-v04: Add LSM hooks
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Venkat Yekkirala <vyekkirala@TrustedCS.com>
-Cc: netdev@vger.kernel.org, selinux@tycho.nsa.gov, jmorris@namei.org,
-        paul.moore@hp.com, eparis@redhat.com
-In-Reply-To: <45203288.9060500@trustedcs.com>
-References: <45203288.9060500@trustedcs.com>
-Content-Type: text/plain
-Date: Mon, 02 Oct 2006 12:40:06 -0400
-Message-Id: <1159807206.6855.63.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k92GhhLC016381
+	for <selinux@tycho.nsa.gov>; Mon, 2 Oct 2006 12:43:43 -0400
+Received: from mail2.sea5.speakeasy.net (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id k92GgW7Y003199
+	for <selinux@tycho.nsa.gov>; Mon, 2 Oct 2006 16:42:33 GMT
+Date: Mon, 2 Oct 2006 12:43:36 -0400 (EDT)
+From: James Morris <jmorris@namei.org>
+To: Stephen Smalley <sds@tycho.nsa.gov>
+cc: Paul Moore <paul.moore@hp.com>,
+        Venkat Yekkirala <vyekkirala@TrustedCS.com>, netdev@vger.kernel.org,
+        selinux@tycho.nsa.gov, eparis@redhat.com
+Subject: Re: [PATCH 7/9] secid reconciliation-v04: Enforcement for SELinux
+In-Reply-To: <1159806908.6855.58.camel@moss-spartans.epoch.ncsc.mil>
+Message-ID: <Pine.LNX.4.64.0610021242330.11172@d.namei>
+References: <452032A6.1080306@trustedcs.com>  <45213A55.8070205@hp.com>
+ <1159806908.6855.58.camel@moss-spartans.epoch.ncsc.mil>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Sun, 2006-10-01 at 16:26 -0500, Venkat Yekkirala wrote:
-> Add skb_policy_check and skb_netfilter_check hooks to LSM to enable
-> reconciliation of the various security identifiers as well as enforce
-> flow control on inbound (PREROUTING/INPUT) and outbound (OUTPUT/FORWARD/POSTROUTING)
-> traffic.
-> 
-> Signed-off-by: Venkat Yekkirala <vyekkirala@TrustedCS.com>
-> ---
->  include/linux/security.h |   41 ++++++++++++++++++++++++++++++++++++-
->  security/dummy.c         |   13 +++++++++++
->  2 files changed, 53 insertions(+), 1 deletion(-)
+On Mon, 2 Oct 2006, Stephen Smalley wrote:
 
-> @@ -3150,7 +3185,11 @@ static inline int security_xfrm_state_al
->  {
->  	if (!polsec)
->  		return 0;
-> -	return security_ops->xfrm_state_alloc_security(x, NULL, polsec, secid);
-> +	/*
-> +	 * No need to pass polsec along since we want the context to be
-> +	 * taken from secid which is usually from the sock.
-> +	 */
-> +	return security_ops->xfrm_state_alloc_security(x, NULL, NULL, secid);
->  }
+> It appears that selinux_xfrm_decode_session() can only legitimately
+> return an error if the last argument (ckall) is non-zero.
+> security_skb_classify_flow() was doing the same thing prior to this
+> patch series.  It would be clearer if there were two separate interfaces
+> that internally use the same helper, with one of the functions returning
+> void.
 
-As a follow-up patch, you could then drop polsec from the hook interface
-in security_ops (but not the static inline function interface), and from
-the underlying selinux functions.  That would simplify
-selinux_xfrm_sec_ctx_alloc() a bit and make the logic clearer.
+Ok, this can be a followup patch request (and not block merging).
 
+- James
 -- 
-Stephen Smalley
-National Security Agency
-
+James Morris
+<jmorris@namei.org>
 
 --
 This message was distributed to subscribers of the selinux mailing list.
