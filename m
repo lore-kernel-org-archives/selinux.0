@@ -1,58 +1,53 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k92FKVmg013580
-	for <selinux@tycho.nsa.gov>; Mon, 2 Oct 2006 11:20:32 -0400
-Received: from e2.ny.us.ibm.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id k92FJMgt018674
-	for <selinux@tycho.nsa.gov>; Mon, 2 Oct 2006 15:19:22 GMT
-Received: from d01relay04.pok.ibm.com (d01relay04.pok.ibm.com [9.56.227.236])
-	by e2.ny.us.ibm.com (8.13.8/8.12.11) with ESMTP id k92FKV16020768
-	for <selinux@tycho.nsa.gov>; Mon, 2 Oct 2006 11:20:31 -0400
-Received: from d01av04.pok.ibm.com (d01av04.pok.ibm.com [9.56.224.64])
-	by d01relay04.pok.ibm.com (8.13.6/8.13.6/NCO v8.1.1) with ESMTP id k92FKTRn129530
-	for <selinux@tycho.nsa.gov>; Mon, 2 Oct 2006 11:20:31 -0400
-Received: from d01av04.pok.ibm.com (loopback [127.0.0.1])
-	by d01av04.pok.ibm.com (8.12.11.20060308/8.13.3) with ESMTP id k92FKSsF005500
-	for <selinux@tycho.nsa.gov>; Mon, 2 Oct 2006 11:20:29 -0400
-Message-ID: <45212E39.9080105@us.ibm.com>
-Date: Mon, 02 Oct 2006 10:20:25 -0500
-From: Michael C Thompson <thompsmc@us.ibm.com>
-MIME-Version: 1.0
-To: Chris PeBenito <pebenito@gentoo.org>
-CC: SE Linux <selinux@tycho.nsa.gov>
-Subject: Re: Default Mikefile in /usr/share/selinux/devel not nice
-References: <451D8C2F.9040901@us.ibm.com> <1159590751.12161.10.camel@gorn.pebenito.net>
-In-Reply-To: <1159590751.12161.10.camel@gorn.pebenito.net>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Subject: Re: [PATCH] refpolicy: Add GConf policy
+From: "Christopher J. PeBenito" <cpebenito@tresys.com>
+To: jwcart2@tycho.nsa.gov
+Cc: SELinux <selinux@tycho.nsa.gov>
+In-Reply-To: <1159295299.18973.74.camel@moss-lions.epoch.ncsc.mil>
+References: <1159295299.18973.74.camel@moss-lions.epoch.ncsc.mil>
+Content-Type: text/plain
+Date: Mon, 02 Oct 2006 11:22:31 -0400
+Message-Id: <1159802551.14831.32.camel@sgc>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Chris PeBenito wrote:
-> On Fri, 2006-09-29 at 16:12 -0500, Michael C Thompson wrote:
->> I just discovered a nasty surprise waiting for me in the default 
->> Makefile provided by selinux-policy-devel.
->>
->> Basically, the Makefile produces, on an MLS system, a TYPE value of 
->> mls-msc (this is due to the SELINUXTYPE=mls line in 
->> /etc/selinux/config). This will not 'enable_mls' for the M4FLAGS, 
->> because the Makefile in /usr/share/selinux/devel/include/ does a 
->> findstring for '-mls'.
->>
->> Dan Walsh has suggested a fix for the default Makefile, but I'm 
->> wondering why we can't just change 
->> /usr/share/selinux/devel/include/Makefile to do a $(findstring 
->> mls,$TYPE)) instead, since its not unreasonable to think that TYPE=mls 
->> makes sense.
+On Tue, 2006-09-26 at 14:28 -0400, James Carter wrote:
+> This patch adds a GConf policy to refpolicy.  
 > 
-> There is some confusion here, the SELINUXTYPE is not the same as TYPE in
-> refpolicy, it is NAME in refpolicy.  The TYPE of the Redhat MLS policy
-> is strict-mls.  TYPE=mls does not make sense, since it does not specify
-> if the policy is strict or targeted.
+> This policy is much tighter than the GConf policy from the old example
+> policy.  It only allows gconfd to access configuration data stored by
+> GConf.  Users can modify configuration data using gconftool-2 or
+> gconf-editor, both of which use gconfd.  GConf manages multiple
+> configuration sources, so gconfd should be used to make any changes
+> anyway.  Normal users who aren't trying to directly edit the
+> configuration data of GConf won't notice anything different.
+> 
+> There is also a difference between this policy and the old example
+> policy in handling directories in /tmp.  The old example policy
+> labeled /tmp/gconfd-USER with ROLE_gconfd_tmp_t, but, since there was no
+> use of the file_type_auto_trans macro, if that directory was deleted
+> gconfd would create one labeled as tmp_t.  This policy uses the
+> files_tmp-filetrans macro to cause a directory in /tmp created by gconfd
+> to be labeled as $1_tmp_t.  It is not labeled with $1_gconf_tmp_t,
+> because if /tmp/orbit-USER is deleted, gconfd will create it (through
+> use of ORBit) and it would get the $1_gconf_tmp_t label.  By having
+> gconfd create $1_tmp_t directories in /tmp and $1_gconf_tmp_t files and
+> directories in directories labeled with $1_tmp_t, it can control its
+> data without requiring any future bonobo or Gnome policies to have
+> access to $1_gconf_tmp_t.
+> 
+> This patch is related to work that I am doing in making gconfd an
+> userspace object manager.  If any user program can modify the
+> configuration data that GConf stores, than making gconfd an userspace
+> object manager would be useless.
 
-Are there flags (like 'enable_mls') in the policy which require this 
-delineation?
+Merged as the gnome module, with some reordering.  Also converted
+$1_tmp_t lines to interfaces.
 
-Mike
-
+-- 
+Chris PeBenito
+Tresys Technology, LLC
+(410) 290-1411 x150
 
 
 --
