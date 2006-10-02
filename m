@@ -1,30 +1,65 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k92G66pp015104
-	for <selinux@tycho.nsa.gov>; Mon, 2 Oct 2006 12:06:07 -0400
-Received: from atlrel7.hp.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id k92G4vgt026127
-	for <selinux@tycho.nsa.gov>; Mon, 2 Oct 2006 16:04:57 GMT
-Message-ID: <452138EA.1080702@hp.com>
-Date: Mon, 02 Oct 2006 12:06:02 -0400
+Message-ID: <45213A55.8070205@hp.com>
+Date: Mon, 02 Oct 2006 12:12:05 -0400
 From: Paul Moore <paul.moore@hp.com>
 MIME-Version: 1.0
-To: Steve G <linux_4ever@yahoo.com>
-Cc: Chad Hanson <chanson@TrustedCS.com>, selinux@tycho.nsa.gov,
-        redhat-lspp@redhat.com
-Subject: Re: gpm & mls
-References: <20061002144738.61005.qmail@web51515.mail.yahoo.com>
-In-Reply-To: <20061002144738.61005.qmail@web51515.mail.yahoo.com>
+To: Venkat Yekkirala <vyekkirala@TrustedCS.com>
+Cc: netdev@vger.kernel.org, selinux@tycho.nsa.gov, jmorris@namei.org,
+        sds@tycho.nsa.gov, eparis@redhat.com
+Subject: Re: [PATCH 7/9] secid reconciliation-v04: Enforcement for SELinux
+References: <452032A6.1080306@trustedcs.com>
+In-Reply-To: <452032A6.1080306@trustedcs.com>
 Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Steve G wrote:
->>For the certification, I would suggest that gpm is disabled or removed to avoid
->>the problem.
->  
-> True, but its a royal PITA to admin a machine without it.
+Venkat Yekkirala wrote:
+> This defines SELinux enforcement of the 2 new LSM hooks as well
+> as related changes elsewhere in the SELinux code.
+> 
+> This also now keeps track of the peersid thru the establishment
+> of a connection on the server (tracking peersid on the client
+> is covered later in this patch set).
+> 
+> Signed-off-by: Venkat Yekkirala <vyekkirala@TrustedCS.com>
+> 
+> {snip}
+>
+> +static int selinux_skb_flow_in(struct sk_buff *skb, unsigned short family)
+> +{
+> +	u32 xfrm_sid;
+> +	int err;
+> +
+> +	if (selinux_compat_net)
+> +		return 1;
+> +
+> +	/*
+> +	 * loopback traffic already labeled and
+> +	 * flow-controlled on outbound. We may
+> +	 * need to flow-control on the inbound
+> +	 * as well if there's ever a use-case for it.
+> +	 */
+> +	if (skb->dev == &loopback_dev)
+> +		return 1;
+> +
+> +	err = selinux_xfrm_decode_session(skb, &xfrm_sid, 0);
+> +	BUG_ON(err);
 
-So is MLS in enforcing mode, but we suffer through it ;)
+Just a quick question that has been nagging me for awhile - any
+particular reason why this is a BUG_ON() and not an "if (err) goto out;"?
+
+> +	err = avc_has_perm(xfrm_sid, skb->secmark, SECCLASS_PACKET,
+> +					PACKET__FLOW_IN, NULL);
+> +	if (err)
+> +		goto out;
+> +
+> +	if (xfrm_sid)
+> +		skb->secmark = xfrm_sid;
+> +
+> +	/* See if NetLabel can flow in thru the current secmark here */
+> +
+> +out:
+> +	return err ? 0 : 1;
+> +};
 
 -- 
 paul moore
