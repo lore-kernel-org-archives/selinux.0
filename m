@@ -1,32 +1,101 @@
-Message-Id: <20061002180633.639599000@hp.com>
-Date: Mon, 02 Oct 2006 14:06:33 -0400
-From: paul.moore@hp.com
-To: netdev@vger.kernel.org, selinux@tycho.nsa.gov
-Cc: jmorris@namei.org, sds@tycho.nsa.gov, eparis@redhat.com
-Subject: [PATCH v2 0/1] Respun patch to match the latest secid patchset
+Subject: Re: [PATCH v2 1/1] NetLabel: secid reconciliation support
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: paul.moore@hp.com
+Cc: netdev@vger.kernel.org, selinux@tycho.nsa.gov, jmorris@namei.org,
+        eparis@redhat.com
+In-Reply-To: <20061002181633.788771000@hp.com>
+References: <20061002180633.639599000@hp.com>
+	 <20061002181633.788771000@hp.com>
+Content-Type: text/plain
+Date: Mon, 02 Oct 2006 15:24:01 -0400
+Message-Id: <1159817041.6855.150.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This patchset is against the net-2.6 tree from this morning plus the secid
-patches posted by Venkat yesterday night.  Unfortunately the net-2.6 trees from
-the past few days seem to have problems booting on my test machine, so testing
-of this patch has been ... well ... "minimal".  However, I know there are a lot
-of deadlines floating around right now so I thought it best to post this ASAP.
+On Mon, 2006-10-02 at 14:06 -0400, paul.moore@hp.com wrote:
+> plain text document attachment (netlabel-secid_support)
+> This patch provides the missing NetLabel support to the secid reconciliation
+> patchset.
+> 
+> Signed-off-by: Paul Moore <paul.moore@hp.com>
+> ---
+>  security/selinux/hooks.c                    |   67 +++++++++++------
+>  security/selinux/include/objsec.h           |    1 
+>  security/selinux/include/selinux_netlabel.h |   28 +++----
+>  security/selinux/ss/services.c              |  106 ++++++++++------------------
+>  4 files changed, 98 insertions(+), 104 deletions(-)
 
-This patch is basically what I posted last week plus some changes to make use
-of the secid patches support of the peer_sid field in the sk_security_struct.
-NetLabel used the field previously but had to special case it's handling since
-it was the only user for INET sockets, the secid patchset makes this much
-cleaner.  There are most likely additional NetLabel specific cleanups that can
-be made, but considering my testing problems I thought it best to play it as
-safe as possibile with this patch.  I'll deal with the other cleanups once I
-can prove them during testing.
+> @@ -3725,7 +3723,16 @@ static int selinux_skb_flow_in(struct sk
+>  	if (xfrm_sid)
+>  		skb->secmark = xfrm_sid;
+>  
+> -	/* See if NetLabel can flow in thru the current secmark here */
+> +	err = selinux_netlbl_skb_sid(skb, skb->secmark, &nlbl_sid);
+> +	BUG_ON(err);
 
-Please consider this for inclusion in 2.6.19.
+If this selinux_netlbl_skb_sid() call can fail for any reason other than
+a kernel bug, then this needs to goto out instead of using BUG_ON.  For
+example, if the function can fail due to temporary memory pressure
+leading to a failed allocation, then you want to simply drop the packet,
+not panic the kernel.  
 
---
-paul moore
-linux security @ hp
+> +
+> +	err = avc_has_perm(nlbl_sid, skb->secmark, SECCLASS_PACKET,
+> +					PACKET__FLOW_IN, NULL);
+
+This means we end up with two flow_in checks each time, even if only one
+or none of the two labeling mechanisms was used, right?  Given the
+conclusion on the discussion of what it means to use them together (just
+redundant), this seems to be pointless overhead.
+
+> @@ -3749,6 +3757,12 @@ static int selinux_skb_flow_out(struct s
+>  			struct sk_security_struct *sksec = skb->sk->sk_security;
+>  			skb->secmark = sksec->sid;
+>  		}
+> +
+> +		err = selinux_netlbl_skb_sid(skb, skb->secmark, &nlbl_sid);
+> +		BUG_ON(err);
+
+Same concern about BUG_ON as above.  Also, I'd have expected this to
+happen at the same point that selinux_skb_xfrm_sid() is called.
+
+> +		if (nlbl_sid)
+> +			skb->secmark = nlbl_sid;
+
+And then I'd expect this to be moved up prior to the if (xfrm_sid)
+clause, turning that into an else clause, e.g.:
+	if (nlbl_sid)
+		skb->secmark = nlbl_sid;
+	else if (xfrm_sid)
+		skb->secmark = xfrm_sid;
+	else if (skb->sk) ...
+
+> @@ -3913,9 +3928,15 @@ static unsigned int selinux_ip_postroute
+>  						skb->sk->sk_security;
+>  				skb->secmark = sksec->sid;
+>  			}
+> +
+> +			err = selinux_netlbl_skb_sid(skb,
+> +						     skb->secmark,
+> +						     &nlbl_sid);
+> +			BUG_ON(err);
+> +
+> +			if (nlbl_sid)
+> +				skb->secmark = nlbl_sid;
+
+Similar comments as above.
+
+>  		}
+> -		err = avc_has_perm(skb->secmark, SECINITSID_UNLABELED,
+> -				   SECCLASS_PACKET, PACKET__FLOW_OUT, &ad);
+
+Why do you think you can remove this?
+
+-- 
+Stephen Smalley
+National Security Agency
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
