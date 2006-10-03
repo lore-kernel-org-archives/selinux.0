@@ -1,58 +1,93 @@
 Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k93JSS3Z023148
-	for <selinux@tycho.nsa.gov>; Tue, 3 Oct 2006 15:28:28 -0400
-Received: from e1.ny.us.ibm.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id k93JRIqf000955
-	for <selinux@tycho.nsa.gov>; Tue, 3 Oct 2006 19:27:18 GMT
-Received: from d01relay04.pok.ibm.com (d01relay04.pok.ibm.com [9.56.227.236])
-	by e1.ny.us.ibm.com (8.13.8/8.12.11) with ESMTP id k93JST3b000489
-	for <selinux@tycho.nsa.gov>; Tue, 3 Oct 2006 15:28:29 -0400
-Received: from d01av04.pok.ibm.com (d01av04.pok.ibm.com [9.56.224.64])
-	by d01relay04.pok.ibm.com (8.13.6/8.13.6/NCO v8.1.1) with ESMTP id k93JSSpV146996
-	for <selinux@tycho.nsa.gov>; Tue, 3 Oct 2006 15:28:29 -0400
-Received: from d01av04.pok.ibm.com (loopback [127.0.0.1])
-	by d01av04.pok.ibm.com (8.12.11.20060308/8.13.3) with ESMTP id k93JSQ2J002528
-	for <selinux@tycho.nsa.gov>; Tue, 3 Oct 2006 15:28:27 -0400
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k93JT5Us023226
+	for <selinux@tycho.nsa.gov>; Tue, 3 Oct 2006 15:29:05 -0400
+Received: from exchange.columbia.tresys.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with SMTP id k93JRtqf001111
+	for <selinux@tycho.nsa.gov>; Tue, 3 Oct 2006 19:27:55 GMT
+Message-ID: <4522B9FC.1030002@tresys.com>
+Date: Tue, 03 Oct 2006 15:29:00 -0400
+From: Joshua Brindle <jbrindle@tresys.com>
+MIME-Version: 1.0
+To: selinux@tycho.nsa.gov
+CC: James Morris <jmorris@namei.org>, Eric Paris <eparis@parisplace.org>,
+        Linda Knippers <linda.knippers@hp.com>, redhat-lspp@redhat.com,
+        paul.moore@hp.com, vyekkirala@TrustedCS.com
 Subject: Re: RHEL5 Kernel with labeled networking
-From: Joy Latten <latten@austin.ibm.com>
-To: Joshua Brindle <method@gentoo.org>
-Cc: eparis@parisplace.org, redhat-lssp@redhat.com, selinux@tycho.nsa.gov,
-        jmorris@namei.org, paul.moore@hp.com, vyekkirala@TrustedCS.com
-In-Reply-To: <4522B79C.2060405@gentoo.org>
-References: <200610031837.k93Ib7cQ003247@faith.austin.ibm.com>
-	 <4522B79C.2060405@gentoo.org>
-Content-Type: text/plain
-Date: Tue, 03 Oct 2006 14:16:28 -0500
-Message-Id: <1159902988.29928.2.camel@faith.austin.ibm.com>
-Mime-Version: 1.0
+References: <1159834998.28144.115.camel@localhost.localdomain>  <452282F2.1000107@hp.com> <1159890356.28144.136.camel@localhost.localdomain> <Pine.LNX.4.64.0610031207260.21081@d.namei> <452293F6.2050304@tresys.com>
+In-Reply-To: <452293F6.2050304@tresys.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2006-10-03 at 15:18 -0400, Joshua Brindle wrote:
-> Joy Latten wrote:
-> >> Before network labeling is completed we still need some work
-> >> implementing how we plan to audit configuration changes in ipsec
-> >> labeling decisions.  I believe we agreed today that this auditing must
-> >> be done in kernelspace since we do not have fine grained enough controls
-> >> on netlink messages to allow for all of the auditing in userspace.
-> >>
-> >>     
-> >
-> > I've talked to Klaus about what needs to be audited for ipsec and
-> > lspp compliance. I will begin work on a patch and get this out
-> > to the list as soon as I can. We will audit everytime a policy is 
-> > added/removed to/from the ipsec policy database.
-> >
-> >   
-> why not just auditallow all association setcontext?
+Joshua Brindle wrote:
+> James Morris wrote:
+>> On Tue, 3 Oct 2006, Eric Paris wrote:
+>>
+>>  
+>>> I think there is going to need to be a policy change that I'm actually
+>>> talking with Dan about as I type this e-mail.  I think we  need
+>>>
+>>> allow $1 unlabeled_t:packet { flow_in flow_out };
+>>>
+>>> to be added to policy to allow things to work as they did.  I'll post
+>>> again as soon as we have a policy that appears to let normal networking
+>>> work in enforcing.
+>>>     
+>>
+>> We need this policy in rawhide before the kernel patches are merged 
+>> upstream, so we can note the required policy version associated with 
+>> the patches.  We've do not want to kill Andrew Morton's box again 
+>> with this kind of thing.
+>>
+>>   
+>
+> Using these kernels I'm getting some interesting denials. I labeled 
+> the spd's with system_u:object_r:ipsec_spd_t:s0 so that it would be 
+> discernible from any socket contexts that may appear.
+>
+> First I had to add a polmatch rule for unconfined_t to ipsec_spd_t, so 
+> far it makes sense.
+>
+> Next I need polmatch on unconfined_t to unconfined_t, I assume this is 
+> because the SA is going to be labeled unconfined_t, seems reasonable. 
+> Racoon also needed setcontext for unconfined_t unconfined_t (not sure 
+> what the source and target mean here)
+>
+> the denial I totally don't understand is:
+> audit(1159877238.937:35): avc:  denied  { polmatch } for  
+> scontext=system_u:object_r:unlabeled_t:s0 
+> tcontext=root:system_r:unconfined_t:s0-s0:c0.c255 tclass=association
+>
+> there is no unlabeled anything, except for a non-ipsec connection 
+> which isn't being used, I don't understand how this would happen at all.
+>
+> After all that it isn't working as expected. the SA's get set up 
+> correctly based on the initiators socket (I'm using semanage_t in this 
+> case) but the reciever SA's aren't set up with the receiving process 
+> socket context so I get:
+>
+> Received: Hello, root:system_r:semanage_t:s0-s0:c0.c255 from 
+> root:system_r:semanage_t:s0-s0:c0.c255
+>
+> no matter what context the server is running in.
+>
+> Further, once that SA is created all domains can use it and it retains 
+> the same context, if I rerun the client in unconfined_t I still get:
+>
+> Received: Hello, root:system_r:semanage_t:s0-s0:c0.c255 from 
+> root:system_r:semanage_t:s0-s0:c0.c255
+>
+> I am running in permissive (I'd hope that wouldn't affect this but I 
+> can see how it could) because my policy doesn't yet have flow_in and 
+> flow_out permissions (any chance to get a policy patch? :) )
+>
+> Am I off base here, is this the expected results? 
+On the bright side localhost connections seem to work well:
+# ./client 127.0.0.1
+Received: Hello, root:system_r:unconfined_t:s0-s0:c0.c255 from 
+root:system_r:semanage_t:s0-s0:c0.c255
 
-Dang! Why didn't I think of that! :-) 
-Such a good idea. I will do a quick test and
-show Klaus and see if it all looks ok to him.
-Thanks!!!
-
-Regards,
-Joy
+so getpeercon got the right answer on both sides.
 
 --
 This message was distributed to subscribers of the selinux mailing list.
