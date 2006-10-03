@@ -1,53 +1,71 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k93LsCYB027873
-	for <selinux@tycho.nsa.gov>; Tue, 3 Oct 2006 17:54:12 -0400
-Received: from smtp.sws.net.au (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id k93LrZGw020167
-	for <selinux@tycho.nsa.gov>; Tue, 3 Oct 2006 21:53:37 GMT
-From: Russell Coker <russell@coker.com.au>
-Reply-To: russell@coker.com.au
-To: Daniel J Walsh <dwalsh@redhat.com>
-Subject: Re: init unconfined in RHEL4?
-Date: Wed, 4 Oct 2006 07:54:03 +1000
-Cc: "Osborn, Justin D." <Justin.Osborn@jhuapl.edu>, selinux@tycho.nsa.gov
-References: <7B95239DDD54E54B9BFA23847142B1EE10A28A@aplesnation.dom1.jhuapl.edu> <7B95239DDD54E54B9BFA23847142B1EE10A29E@aplesnation.dom1.jhuapl.edu> <4522CFC7.7040801@redhat.com>
-In-Reply-To: <4522CFC7.7040801@redhat.com>
+Message-ID: <4522E6DA.1000200@us.ibm.com>
+Date: Tue, 03 Oct 2006 17:40:26 -0500
+From: Michael C Thompson <thompsmc@us.ibm.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Message-Id: <200610040754.06676.russell@coker.com.au>
+To: Michael C Thompson <thompsmc@us.ibm.com>
+CC: Stephen Smalley <sds@tycho.nsa.gov>,
+        Karl MacMillan <kmacmillan@mentalrootkit.com>,
+        Joshua Brindle <jbrindle@tresys.com>,
+        Darrel Goeddel <dgoeddel@TrustedCS.com>,
+        Steve Grubb <sgrubb@redhat.com>, SE Linux <selinux@tycho.nsa.gov>
+Subject: Re: newrole - adding capabilities for polyinstantiation
+References: <451AEC39.2090409@us.ibm.com> <1159450384.11489.5.camel@moss-spartans.epoch.ncsc.mil> <451C3A37.8080509@us.ibm.com>
+In-Reply-To: <451C3A37.8080509@us.ibm.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wednesday 04 October 2006 07:01, Daniel J Walsh <dwalsh@redhat.com> wrote:
-> Osborn, Justin D. wrote:
-> > I'm working on a RHEL4 system with the Reference Policy and init is
-> > running in unconfined_t.  This leads to most other processes on the
-> > system running in unconfined_t.  Has anyone seen similar errors?
->
-> In RHEL4 only 15 Targets are confined,  Everything else runs in an
-> unconfined domain.
->
-> > This is the Ref. Policy version released in March, I got the latest
-> > svn version but it doesn't work with the libsepol and checkpolicy
-> > RHEL4 RPMs on the Tresys site.
+Michael C Thompson wrote:
+> Stephen Smalley wrote:
+>> (1) addresses the concern for non-LSPP users, but doesn't fully address
+>> my concerns about the additional risk to LSPP users.  One obvious issue
+>> is that drop_capabilities() currently also resets to the caller's uid,
+>> which Janak's patches do not change.  Which I think means that any
+>> directories and files created by pam_namespace will initially be
+>> assigned the caller's uid, and potentially exposed to tampering by
+>> processes in the caller's uid.
 
-Justin, the problem is that you are running a non-standard policy on RHEL4.
+As the code stands, even if we delayed the setresuid till right before 
+the call to exec the shell, the files created by pam_namespace would 
+still have the caller's uid because the real uid of the process isn't 
+affected by the suid bit (only the effective uid), and file system 
+operations are based on the real uid.
 
-If you run the back-port of the reference policy on RHEL4 then Red Hat won't 
-support you and most developers won't be interested as development happens on 
-Rawhide.
+What we would need to do is change the real uid to be, say, root in 
+order to protect the operations done by pam_namespace. This could be 
+done right before the calls to pam_namespace, but I'm not sure how much 
+value is obtained from that approach.
 
-If you have problems with Refpolicy on RHEL4 and can reproduce them on FC6test 
-releases then many people will be interested in investigating the problems.  
-But if it's only a problem for Refpolicy on RHEL4 then you are probably on 
-your own.
+<snip>
+>> We also need to consider whether more of the guidelines in e.g. the
+>> Secure Programming HOWTO or the kinds of safeguards implemented
+>> in /bin/su should be applied to newrole when it is suid.  Historically,
+>> newrole wasn't viewed as an especially privileged program, since it
+>> wasn't suid originally and since the user-role authorizations were
+>> actually enforced by the kernel, not by newrole.  Thus it wasn't written
+>> to be as paranoid about the caller as /bin/su is.
+> 
+> Will look at this as well.
 
--- 
-russell@coker.com.au
-http://etbe.blogspot.com/          My Blog
+There are a few concerns which have arisen due to this polyinstantiation 
+and suid newrole work. One such concern is that with labeled networking, 
+using newrole to change your MLS level will not work as intended, since 
+the relabeled tty will not be able to talk to the socket. This would 
+limit using newrole to manipulate our MLS to the console, and would 
+leave newrole capable of only changing the role and type on network 
+connections.
 
-http://www.coker.com.au/sponsorship.html Sponsoring Free Software development
+However, even with this MLS level concern aside, is it expected that 
+using newrole to change your active role will also polyinstantiate 
+directories? If so, then newrole needs to be a setuid root program.
+
+If making newrole to be a setuid root program is considered 
+unacceptable, an alternative needs to be provided for users to specify 
+the desired role (and type) to assume upon login.
+
+Thanks,
+Mike
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
