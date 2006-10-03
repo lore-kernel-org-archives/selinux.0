@@ -1,63 +1,39 @@
 Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k930LsGV028558
-	for <selinux@tycho.nsa.gov>; Mon, 2 Oct 2006 20:21:54 -0400
-Received: from mx1.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id k930KiiE010680
-	for <selinux@tycho.nsa.gov>; Tue, 3 Oct 2006 00:20:44 GMT
-Subject: RHEL5 Kernel with labeled networking
-From: Eric Paris <eparis@parisplace.org>
-To: selinux@tycho.nsa.gov, redhat-lssp@redhat.com
-Cc: paul.moore@hp.com, vyekkirala@TrustedCS.com, jmorris@namei.org
-Content-Type: text/plain
-Date: Mon, 02 Oct 2006 20:23:18 -0400
-Message-Id: <1159834998.28144.115.camel@localhost.localdomain>
-Mime-Version: 1.0
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k93FYSPi014648
+	for <selinux@tycho.nsa.gov>; Tue, 3 Oct 2006 11:34:28 -0400
+Received: from atlrel9.hp.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id k93FXHe7015441
+	for <selinux@tycho.nsa.gov>; Tue, 3 Oct 2006 15:33:18 GMT
+Message-ID: <452282F2.1000107@hp.com>
+Date: Tue, 03 Oct 2006 11:34:10 -0400
+From: Linda Knippers <linda.knippers@hp.com>
+MIME-Version: 1.0
+To: Eric Paris <eparis@parisplace.org>
+Cc: selinux@tycho.nsa.gov, redhat-lssp@redhat.com, paul.moore@hp.com,
+        vyekkirala@TrustedCS.com, jmorris@namei.org
+Subject: Re: RHEL5 Kernel with labeled networking
+References: <1159834998.28144.115.camel@localhost.localdomain>
+In-Reply-To: <1159834998.28144.115.camel@localhost.localdomain>
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-DO NOT USE THESE KERNELS ON A PRODUCTION SYSTEM!
+Eric,
 
-If you go to http://people.redhat.com/eparis/RHEL5_labeled_networking/
-you should find a set of kernels based off of the Red Hat RHEL5 source
-tree.  These should include patches for 
+I've booted your kernel on the following systems:
 
-network labeling support from Venkat
-netlabel auditing
-ipsec/secmark secid reconciliation
-netlabel secid reconciliation
+ia64 box running rhel5 beta 1 targeted policy
+x86 box running fc6t2 mls policy
 
-I need a very fast response from everyone involved if these kernels
+I don't have any labeled networking specifically configured.
 
-A) boot
-B) run without labeled networking (very very important)
-C) run with labeled networking
+Networking only works in permissive mode.  If I put either system
+in enforcing mode, I can't ping, bring up X, or do anything.
 
-If you run across a problem feel free to let me or the list know.  You
-may also feel free to open a bug in bugzilla.redhat.com for the product
-choose Red Hat Enterprise Linux Public Beta and RHEL5.  If you open a
-bug for this labeled networking you can go ahead and assign it to
-eparis@redhat.com so I'm sure to see it and bug the correct people.
+Are there some policy changes that are needed?   Seems like by default
+everything should work like it did before?
 
-At this time there is a known ipsec problem with these kernels.  I
-haven't looked at it closely but I believe the problem is that processes
-which intend to send over an ipsec tunnels but have certain avc denials
-will actually cause traffic to flow unencrypted.  SO PLEASE DO NOT USE
-THESE ON ANY PRODUCTION SYSTEM!!  There is work going on upstream (on
-linux-netdev not either of these lists) to fix this issue in the 2.6-net
-tree and when it is finished it will get brought back into RHEL5.  (I
-don't think you will hit this bug with relatively modern policy but it
-is there and can be a serious security flaw)
-
-Before network labeling is completed we still need some work
-implementing how we plan to audit configuration changes in ipsec
-labeling decisions.  I believe we agreed today that this auditing must
-be done in kernelspace since we do not have fine grained enough controls
-on netlink messages to allow for all of the auditing in userspace.
-
-DO NOT USE THESE KERNELS ON A PRODUCTION SYSTEM
-
--Eric
-
+-- ljk
 
 --
 This message was distributed to subscribers of the selinux mailing list.
