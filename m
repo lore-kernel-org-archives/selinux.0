@@ -1,86 +1,30 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k93GlQpZ017872
-	for <selinux@tycho.nsa.gov>; Tue, 3 Oct 2006 12:47:26 -0400
-Received: from exchange.columbia.tresys.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with SMTP id k93GkF50000026
-	for <selinux@tycho.nsa.gov>; Tue, 3 Oct 2006 16:46:16 GMT
-Message-ID: <452293F6.2050304@tresys.com>
-Date: Tue, 03 Oct 2006 12:46:46 -0400
-From: Joshua Brindle <jbrindle@tresys.com>
+Message-ID: <36282A1733C57546BE392885C0618592015CF6F5@chaos.tcs.tcs-sec.com>
+From: Venkat Yekkirala <vyekkirala@TrustedCS.com>
+To: Stephen Smalley <sds@tycho.nsa.gov>,
+        Linda Knippers
+	 <linda.knippers@hp.com>
+Cc: Eric Paris <eparis@parisplace.org>, selinux@tycho.nsa.gov,
+        redhat-lssp@redhat.com, paul.moore@hp.com,
+        Venkat Yekkirala
+	 <vyekkirala@TrustedCS.com>, jmorris@namei.org
+Subject: RE: RHEL5 Kernel with labeled networking
+Date: Tue, 3 Oct 2006 13:16:26 -0400 
 MIME-Version: 1.0
-To: James Morris <jmorris@namei.org>
-CC: Eric Paris <eparis@parisplace.org>, Linda Knippers <linda.knippers@hp.com>,
-        selinux@tycho.nsa.gov, redhat-lspp@redhat.com, paul.moore@hp.com,
-        vyekkirala@TrustedCS.com
-Subject: Re: RHEL5 Kernel with labeled networking
-References: <1159834998.28144.115.camel@localhost.localdomain>  <452282F2.1000107@hp.com> <1159890356.28144.136.camel@localhost.localdomain> <Pine.LNX.4.64.0610031207260.21081@d.namei>
-In-Reply-To: <Pine.LNX.4.64.0610031207260.21081@d.namei>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-James Morris wrote:
-> On Tue, 3 Oct 2006, Eric Paris wrote:
->
->   
->> I think there is going to need to be a policy change that I'm actually
->> talking with Dan about as I type this e-mail.  I think we  need
->>
->> allow $1 unlabeled_t:packet { flow_in flow_out };
->>
->> to be added to policy to allow things to work as they did.  I'll post
->> again as soon as we have a policy that appears to let normal networking
->> work in enforcing.
->>     
->
-> We need this policy in rawhide before the kernel patches are merged 
-> upstream, so we can note the required policy version associated with the 
-> patches.  We've do not want to kill Andrew Morton's box again with this 
-> kind of thing.
->
->   
+> Only if you set /selinux/compat_net to 1.
+> Otherwise, you need modified policy to define and allow 
+> flow_in/flow_out
+> permissions as required, and I suspect you need more in order to deal
+> with the fact that we now get labeled traffic on loopback by default
+> (thus affecting packet send/recv as well).  Venkat, do you 
+> have a policy
+> patch?
 
-Using these kernels I'm getting some interesting denials. I labeled the 
-spd's with system_u:object_r:ipsec_spd_t:s0 so that it would be 
-discernible from any socket contexts that may appear.
-
-First I had to add a polmatch rule for unconfined_t to ipsec_spd_t, so 
-far it makes sense.
-
-Next I need polmatch on unconfined_t to unconfined_t, I assume this is 
-because the SA is going to be labeled unconfined_t, seems reasonable. 
-Racoon also needed setcontext for unconfined_t unconfined_t (not sure 
-what the source and target mean here)
-
-the denial I totally don't understand is:
-audit(1159877238.937:35): avc:  denied  { polmatch } for  
-scontext=system_u:object_r:unlabeled_t:s0 
-tcontext=root:system_r:unconfined_t:s0-s0:c0.c255 tclass=association
-
-there is no unlabeled anything, except for a non-ipsec connection which 
-isn't being used, I don't understand how this would happen at all.
-
-After all that it isn't working as expected. the SA's get set up 
-correctly based on the initiators socket (I'm using semanage_t in this 
-case) but the reciever SA's aren't set up with the receiving process 
-socket context so I get:
-
-Received: Hello, root:system_r:semanage_t:s0-s0:c0.c255 from 
-root:system_r:semanage_t:s0-s0:c0.c255
-
-no matter what context the server is running in.
-
-Further, once that SA is created all domains can use it and it retains 
-the same context, if I rerun the client in unconfined_t I still get:
-
-Received: Hello, root:system_r:semanage_t:s0-s0:c0.c255 from 
-root:system_r:semanage_t:s0-s0:c0.c255
-
-I am running in permissive (I'd hope that wouldn't affect this but I can 
-see how it could) because my policy doesn't yet have flow_in and 
-flow_out permissions (any chance to get a policy patch? :) )
-
-Am I off base here, is this the expected results?
+Will post one in a couple of hours.
 
 --
 This message was distributed to subscribers of the selinux mailing list.
