@@ -1,54 +1,45 @@
-Message-ID: <452286ED.7070307@hp.com>
-Date: Tue, 03 Oct 2006 11:51:09 -0400
-From: Linda Knippers <linda.knippers@hp.com>
-MIME-Version: 1.0
-To: Stephen Smalley <sds@tycho.nsa.gov>
-Cc: Eric Paris <eparis@parisplace.org>, selinux@tycho.nsa.gov,
-        lspp-list <redhat-lspp@redhat.com>, paul.moore@hp.com,
-        vyekkirala@TrustedCS.com, jmorris@namei.org
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k93G8eS4016184
+	for <selinux@tycho.nsa.gov>; Tue, 3 Oct 2006 12:08:40 -0400
+Received: from mail2.sea5.speakeasy.net (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id k93G84O7000606
+	for <selinux@tycho.nsa.gov>; Tue, 3 Oct 2006 16:08:05 GMT
+Date: Tue, 3 Oct 2006 12:08:35 -0400 (EDT)
+From: James Morris <jmorris@namei.org>
+To: Eric Paris <eparis@parisplace.org>
+cc: Linda Knippers <linda.knippers@hp.com>, selinux@tycho.nsa.gov,
+        redhat-lspp@redhat.com, paul.moore@hp.com, vyekkirala@TrustedCS.com
 Subject: Re: RHEL5 Kernel with labeled networking
-References: <1159834998.28144.115.camel@localhost.localdomain>	 <452282F2.1000107@hp.com> <1159890073.19176.51.camel@moss-spartans.epoch.ncsc.mil>
-In-Reply-To: <1159890073.19176.51.camel@moss-spartans.epoch.ncsc.mil>
-Content-Type: text/plain; charset=ISO-8859-1
+In-Reply-To: <1159890356.28144.136.camel@localhost.localdomain>
+Message-ID: <Pine.LNX.4.64.0610031207260.21081@d.namei>
+References: <1159834998.28144.115.camel@localhost.localdomain>
+ <452282F2.1000107@hp.com> <1159890356.28144.136.camel@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Stephen Smalley wrote:
-> On Tue, 2006-10-03 at 11:34 -0400, Linda Knippers wrote:
-> 
->>Eric,
->>
->>I've booted your kernel on the following systems:
->>
->>ia64 box running rhel5 beta 1 targeted policy
->>x86 box running fc6t2 mls policy
->>
->>I don't have any labeled networking specifically configured.
->>
->>Networking only works in permissive mode.  If I put either system
->>in enforcing mode, I can't ping, bring up X, or do anything.
->>
->>Are there some policy changes that are needed?   Seems like by default
->>everything should work like it did before?
-> 
-> 
-> Only if you set /selinux/compat_net to 1.
-> Otherwise, you need modified policy to define and allow flow_in/flow_out
-> permissions as required, and I suspect you need more in order to deal
-> with the fact that we now get labeled traffic on loopback by default
-> (thus affecting packet send/recv as well).  Venkat, do you have a policy
-> patch?
-> 
+On Tue, 3 Oct 2006, Eric Paris wrote:
 
-Ok, with /selinux/compat_net set to 1, I can go into enforcing mode
-on my rhel5 beta 1 targeted system.  Its got selinux-policy-2.3.3-22.
+> I think there is going to need to be a policy change that I'm actually
+> talking with Dan about as I type this e-mail.  I think we  need
+> 
+> allow $1 unlabeled_t:packet { flow_in flow_out };
+> 
+> to be added to policy to allow things to work as they did.  I'll post
+> again as soon as we have a policy that appears to let normal networking
+> work in enforcing.
 
-The first time I tried the same thing on my fc6/mls system it killed
-all my network sessions.  The second time I tried it my established
-sessions stayed up but the mouse quit working.  This system has
-selinux-policy-mls-2.3.16-6.
+We need this policy in rawhide before the kernel patches are merged 
+upstream, so we can note the required policy version associated with the 
+patches.  We've do not want to kill Andrew Morton's box again with this 
+kind of thing.
 
--- ljk
+
+- James
+-- 
+James Morris
+<jmorris@namei.org>
 
 --
 This message was distributed to subscribers of the selinux mailing list.
