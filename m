@@ -1,70 +1,78 @@
-Message-ID: <4522E6DA.1000200@us.ibm.com>
-Date: Tue, 03 Oct 2006 17:40:26 -0500
-From: Michael C Thompson <thompsmc@us.ibm.com>
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k93MewQK029074
+	for <selinux@tycho.nsa.gov>; Tue, 3 Oct 2006 18:40:58 -0400
+Received: from exchange.columbia.tresys.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with SMTP id k93MdmSJ007176
+	for <selinux@tycho.nsa.gov>; Tue, 3 Oct 2006 22:39:48 GMT
+Message-ID: <4522E6F7.1040207@gentoo.org>
+Date: Tue, 03 Oct 2006 18:40:55 -0400
+From: Joshua Brindle <method@gentoo.org>
 MIME-Version: 1.0
-To: Michael C Thompson <thompsmc@us.ibm.com>
-CC: Stephen Smalley <sds@tycho.nsa.gov>,
-        Karl MacMillan <kmacmillan@mentalrootkit.com>,
-        Joshua Brindle <jbrindle@tresys.com>,
-        Darrel Goeddel <dgoeddel@TrustedCS.com>,
-        Steve Grubb <sgrubb@redhat.com>, SE Linux <selinux@tycho.nsa.gov>
-Subject: Re: newrole - adding capabilities for polyinstantiation
-References: <451AEC39.2090409@us.ibm.com> <1159450384.11489.5.camel@moss-spartans.epoch.ncsc.mil> <451C3A37.8080509@us.ibm.com>
-In-Reply-To: <451C3A37.8080509@us.ibm.com>
+To: Linda Knippers <linda.knippers@hp.com>
+CC: Karl MacMillan <kmacmillan@mentalrootkit.com>,
+        Joy Latten <latten@austin.ibm.com>, eparis@parisplace.org,
+        redhat-lspp@redhat.com, selinux@tycho.nsa.gov, jmorris@namei.org,
+        paul.moore@hp.com, vyekkirala@TrustedCS.com
+Subject: Re: RHEL5 Kernel with labeled networking
+References: <200610031837.k93Ib7cQ003247@faith.austin.ibm.com>	 <4522B79C.2060405@gentoo.org> <1159902988.29928.2.camel@faith.austin.ibm.com> <4522CAB7.6090109@hp.com> <4522D554.7080708@gentoo.org> <4522D5C2.8060702@hp.com> <4522D667.5030401@mentalrootkit.com> <4522DA79.6080708@hp.com>
+In-Reply-To: <4522DA79.6080708@hp.com>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Michael C Thompson wrote:
-> Stephen Smalley wrote:
->> (1) addresses the concern for non-LSPP users, but doesn't fully address
->> my concerns about the additional risk to LSPP users.  One obvious issue
->> is that drop_capabilities() currently also resets to the caller's uid,
->> which Janak's patches do not change.  Which I think means that any
->> directories and files created by pam_namespace will initially be
->> assigned the caller's uid, and potentially exposed to tampering by
->> processes in the caller's uid.
+Linda Knippers wrote:
+> Karl MacMillan wrote:
+>   
+>> Linda Knippers wrote:
+>>
+>>     
+>>> Joshua Brindle wrote:
+>>>  
+>>>
+>>>       
+>>>> Linda Knippers wrote:
+>>>>
+>>>>     
+>>>>         
+>> <snip>
+>>
+>>     
+>>>>> If we go the auditallow route then we lose some audit record management
+>>>>> features, like the ability to enable/disble/search for these records,
+>>>>> don't we?  Do we care?
+>>>>>           
+>>>> enable and disable with a boolean
+>>>>
+>>>> searching? surely you can search avc records..
+>>>>         
+>>> I meant with the audit tools, so using auditctl to add/remove rules and
+>>> ausearch for looking for specific record types.
+>>>   
+>>>       
+>>  
+>> As I said in my other mail the searching should be fine. Why does the
+>> addition or removal need to be handled by auditctl?
+>>     
+>
+> There was a discussion a long, long time about about how administrators should
+> manage what gets into the audit logs, whether its with the audit tools, the
+> policy or both.  There are explicit message types for alot of management
+> operations so that the admin can decide whether to get them and the tools
+> make it easy to search for.  If changing the ipsec label configuration is just
+> an AVC message, it will be different from just about everything else.  It might
+> be easy, but is it what we want?
+>
+>   
+what about relabeling files? or setting secmark labels? or domain 
+transitions? setexec(), etc. I'm very skeptical that lspp requires any 
+kind of auditing of ipsec label change but none of these. Further, all 
+the others are in policy, you want to special case ipsec? and for that 
+matter just the spd rules which is pretty much useless without 
+accompanying polmatch rules. I'm very dubious about this entire thread.
 
-As the code stands, even if we delayed the setresuid till right before 
-the call to exec the shell, the files created by pam_namespace would 
-still have the caller's uid because the real uid of the process isn't 
-affected by the suid bit (only the effective uid), and file system 
-operations are based on the real uid.
-
-What we would need to do is change the real uid to be, say, root in 
-order to protect the operations done by pam_namespace. This could be 
-done right before the calls to pam_namespace, but I'm not sure how much 
-value is obtained from that approach.
-
-<snip>
->> We also need to consider whether more of the guidelines in e.g. the
->> Secure Programming HOWTO or the kinds of safeguards implemented
->> in /bin/su should be applied to newrole when it is suid.  Historically,
->> newrole wasn't viewed as an especially privileged program, since it
->> wasn't suid originally and since the user-role authorizations were
->> actually enforced by the kernel, not by newrole.  Thus it wasn't written
->> to be as paranoid about the caller as /bin/su is.
-> 
-> Will look at this as well.
-
-There are a few concerns which have arisen due to this polyinstantiation 
-and suid newrole work. One such concern is that with labeled networking, 
-using newrole to change your MLS level will not work as intended, since 
-the relabeled tty will not be able to talk to the socket. This would 
-limit using newrole to manipulate our MLS to the console, and would 
-leave newrole capable of only changing the role and type on network 
-connections.
-
-However, even with this MLS level concern aside, is it expected that 
-using newrole to change your active role will also polyinstantiate 
-directories? If so, then newrole needs to be a setuid root program.
-
-If making newrole to be a setuid root program is considered 
-unacceptable, an alternative needs to be provided for users to specify 
-the desired role (and type) to assume upon login.
-
-Thanks,
-Mike
+> I wish sgrubb were reading mail today.  I think this is something that he
+> cares about, at least he did the last time we had this conversation.
+>   
 
 
 --
