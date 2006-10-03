@@ -1,92 +1,142 @@
 Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k93L1v9K026172
-	for <selinux@tycho.nsa.gov>; Tue, 3 Oct 2006 17:01:57 -0400
-Received: from mx1.redhat.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id k93L1NGw012857
-	for <selinux@tycho.nsa.gov>; Tue, 3 Oct 2006 21:01:23 GMT
-Message-ID: <4522CFC7.7040801@redhat.com>
-Date: Tue, 03 Oct 2006 17:01:59 -0400
-From: Daniel J Walsh <dwalsh@redhat.com>
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k93LHMHp026674
+	for <selinux@tycho.nsa.gov>; Tue, 3 Oct 2006 17:17:22 -0400
+Received: from atlrel7.hp.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id k93LGlGw014949
+	for <selinux@tycho.nsa.gov>; Tue, 3 Oct 2006 21:16:48 GMT
+Message-ID: <4522D361.3030008@hp.com>
+Date: Tue, 03 Oct 2006 17:17:21 -0400
+From: Paul Moore <paul.moore@hp.com>
 MIME-Version: 1.0
-To: "Osborn, Justin D." <Justin.Osborn@jhuapl.edu>
-CC: selinux@tycho.nsa.gov
-Subject: Re: init unconfined in RHEL4?
-References: <7B95239DDD54E54B9BFA23847142B1EE10A28A@aplesnation.dom1.jhuapl.edu> <7B95239DDD54E54B9BFA23847142B1EE10A29E@aplesnation.dom1.jhuapl.edu>
-In-Reply-To: <7B95239DDD54E54B9BFA23847142B1EE10A29E@aplesnation.dom1.jhuapl.edu>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: Eric Paris <eparis@redhat.com>
+Cc: selinux@tycho.nsa.gov, redhat-lspp@redhat.com
+Subject: Re: Labeled networking at the end of the day Oct 2, 2006
+References: <1159908799.10614.22.camel@localhost.localdomain>
+In-Reply-To: <1159908799.10614.22.camel@localhost.localdomain>
+Content-Type: multipart/mixed;
+ boundary="------------030209000300050309000103"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Osborn, Justin D. wrote:
->
-> I'm working on a RHEL4 system with the Reference Policy and init is 
-> running in unconfined_t.  This leads to most other processes on the 
-> system running in unconfined_t.  Has anyone seen similar errors?
->
-In RHEL4 only 15 Targets are confined,  Everything else runs in an 
-unconfined domain.
->
-> This is the Ref. Policy version released in March, I got the latest 
-> svn version but it doesn't work with the libsepol and checkpolicy 
-> RHEL4 RPMs on the Tresys site.
->
-> I'm also having a strange error where I get denied messages saying 
-> something was trying to access a file with context unlabeled_t when 
-> `ls -Z` shows the file is clearly labeled something else.
->
-ls -Z is reading the label on the file.  While the other domains are 
-getting it from the kernel.  Probably the type of the file is no longer 
-defined in policy, so the kernel says it is unlabled_t.  You should 
-execute  restorecon on it to clean it up.
+This is a multi-part message in MIME format.
+--------------030209000300050309000103
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 
->
-> Has anyone seen similar things on RHEL4?
->
-> Thanks,
-> Justin
->
-> P.S. I managed to get my template working, many thanks to Dave Caplan.
->
-> -----Original Message-----
-> From: Osborn, Justin D.
-> Sent: Mon 9/25/2006 10:09 AM
-> To: selinux@tycho.nsa.gov
-> Subject: Errors with runcon - RHEL4/refpolicy
->
-> Hi everybody,
->       I'm working on a project to do containment of VMware VMs using 
-> SELinux policy.  Our system is set up on RHEL4 and I have the 
-> Reference Policy installed. 
->
->       We're trying to reuse the VMware policy that was originally 
-> distributed with the Reference Policy.  Specifically there is a 
-> per-user-domain template that we modified for our use and instantiate 
-> from another te file.  The policy compiles and our VMs are properly 
-> labeled after relabeling.
->
->      The problem is that when I try to kick off a VM using runcon, I 
-> get the non-descript "unable to setup security context" error.  The 
-> command I'm running is: runcon root:system_r:ziplock_vm1_vmware_t 
-> vmware-cmd start /VMs/foo.vmx.  My bash shell is running as 
-> root:system_r:unconfined_t.  I added my types to system_r and verified 
-> with apol.
->
->      So my questions are:
->      a) Why was the VMware policy renoved from the Reference Policy?
->      b) What am I missing with the runcon error?  Is there somewhere I 
-> can look for a more descriptive error message?
->
-> Thanks,
-> Justin
-> JHU/APL
->
->
->
->
->
->
->
+Eric Paris wrote:
+> Where do we stand with labeled networking today?
+> 
+> I published a kernel yesterday which is sorta close to having what we
+> need for labeled networking.  This kernel includes 3 patch sets.
+> 
+> 1) netlabel changes to audit configuration changes
+> 2) secid reconciliation patch set (9 patches) for secmark/ipsec
+> 3) secid reconciliation patch to include netlabel
+> 
+> to even be close to a usable kernel we still need
+> 
+> 1) fix for packets intended for ipsec tunnels to not be clear text.
+> Venkat indicated he had his own way he wanted to solve this problem on
+> Monday but I did not see any updates today.  This is a major problem
+> which must get fixed somehow, soon.
+> 2) ipsec configuration auditing.  if we can do this in policy all the
+> better.  if not, I need a patch.
+> 3) fix for netlabel caching race which can cause an opps.  Can be worked
+> around by using a sysctl (see the e-mail from paul moore)
+> 4) fix for netlabel correctness in the same e-mail from paul he
+> mentioned correctness issues in -v3 inside selinux-ip-postroute-last
 
+Updates from the NetLabel side of the house:
+
+I have patches for both #3 and #4 sitting on my disk.  I've got a kernel
+(based on the source RPMs you posted this morning) building right now
+with the patch for #3, it should be done pretty soon.  I want to let it
+run overnight and if everything looks okay I'll post it to the lists.
+
+The fix for patch #4 is probably just going to be a respin, i.e. "v4" of
+the NetLabel secid reconciliation patch as I don't think the "v3"
+version of the patch has made it into a tree yet (net-2.6 seems to be
+missing?).  For those who are curious attached is a diff between the
+"v3" and upcoming "v4" patch.  I'll post this once I have pushed out the
+patch for #3 and have had time to test this.
+
+-- 
+paul moore
+linux security @ hp
+
+--------------030209000300050309000103
+Content-Type: text/x-patch;
+ name="secid_netlabel_v3-v4.diff"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="secid_netlabel_v3-v4.diff"
+
+diff -u net-2.6/security/selinux/hooks.c net-2.6/security/selinux/hooks.c
+--- net-2.6/security/selinux/hooks.c
++++ net-2.6/security/selinux/hooks.c
+@@ -3750,22 +3750,23 @@
+ 		return 1;
+ 
+ 	if (!skb->secmark) {
++		struct sk_security_struct *sksec = skb->sk->sk_security;
+ 		u32 xfrm_sid;
+ 		u32 nlbl_sid;
+ 
+-		err = selinux_netlbl_skb_sid(skb, skb->secmark, &nlbl_sid);
++		selinux_skb_xfrm_sid(skb, &xfrm_sid);
++		err = selinux_netlbl_skb_sid(skb,
++					     xfrm_sid ? xfrm_sid : sksec->sid,
++					     &nlbl_sid);
+ 		if (err)
+ 			goto out;
+-		selinux_skb_xfrm_sid(skb, &xfrm_sid);
+ 
+ 		if (nlbl_sid)
+ 			skb->secmark = nlbl_sid;
+ 		else if (xfrm_sid)
+ 			skb->secmark = xfrm_sid;
+-		else if (skb->sk) {
+-			struct sk_security_struct *sksec = skb->sk->sk_security;
++		else if (skb->sk)
+ 			skb->secmark = sksec->sid;
+-		}
+ 	}
+ 
+ 	err = avc_has_perm(skb->secmark, nf_secid, SECCLASS_PACKET,
+@@ -3920,25 +3921,24 @@
+ 						       family, addrp, len);
+ 	else {
+ 		if (!skb->secmark) {
++			struct sk_security_struct *sksec =
++				skb->sk->sk_security;
+ 			u32 xfrm_sid;
+ 			u32 nlbl_sid;
+ 
++			selinux_skb_xfrm_sid(skb, &xfrm_sid);
+ 			err = selinux_netlbl_skb_sid(skb,
+-						     skb->secmark,
+-						     &nlbl_sid);
++					      xfrm_sid ? xfrm_sid : sksec->sid,
++					      &nlbl_sid);
+ 			if (err)
+ 				goto out;
+-			selinux_skb_xfrm_sid(skb, &xfrm_sid);
+ 
+ 			if (nlbl_sid)
+ 				skb->secmark = nlbl_sid;
+ 			else if (xfrm_sid)
+ 				skb->secmark = xfrm_sid;
+-			else if (skb->sk) {
+-				struct sk_security_struct *sksec =
+-						skb->sk->sk_security;
++			else if (skb->sk)
+ 				skb->secmark = sksec->sid;
+-			}
+ 		}
+ 		err = avc_has_perm(skb->secmark, SECINITSID_UNLABELED,
+ 				   SECCLASS_PACKET, PACKET__FLOW_OUT, &ad);
+
+--------------030209000300050309000103--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
