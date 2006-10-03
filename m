@@ -1,15 +1,20 @@
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k93FjJTi015061
+	for <selinux@tycho.nsa.gov>; Tue, 3 Oct 2006 11:45:19 -0400
+Received: from mx1.redhat.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id k93FihBu026675
+	for <selinux@tycho.nsa.gov>; Tue, 3 Oct 2006 15:44:44 GMT
 Subject: Re: RHEL5 Kernel with labeled networking
-From: Stephen Smalley <sds@tycho.nsa.gov>
+From: Eric Paris <eparis@parisplace.org>
 To: Linda Knippers <linda.knippers@hp.com>
-Cc: Eric Paris <eparis@parisplace.org>, selinux@tycho.nsa.gov,
-        redhat-lssp@redhat.com, paul.moore@hp.com, vyekkirala@TrustedCS.com,
-        jmorris@namei.org
+Cc: selinux@tycho.nsa.gov, redhat-lspp@redhat.com, paul.moore@hp.com,
+        vyekkirala@TrustedCS.com, jmorris@namei.org
 In-Reply-To: <452282F2.1000107@hp.com>
 References: <1159834998.28144.115.camel@localhost.localdomain>
 	 <452282F2.1000107@hp.com>
 Content-Type: text/plain
-Date: Tue, 03 Oct 2006 11:41:13 -0400
-Message-Id: <1159890073.19176.51.camel@moss-spartans.epoch.ncsc.mil>
+Date: Tue, 03 Oct 2006 11:45:56 -0400
+Message-Id: <1159890356.28144.136.camel@localhost.localdomain>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
@@ -29,17 +34,19 @@ On Tue, 2006-10-03 at 11:34 -0400, Linda Knippers wrote:
 > 
 > Are there some policy changes that are needed?   Seems like by default
 > everything should work like it did before?
+> 
+> -- ljk
 
-Only if you set /selinux/compat_net to 1.
-Otherwise, you need modified policy to define and allow flow_in/flow_out
-permissions as required, and I suspect you need more in order to deal
-with the fact that we now get labeled traffic on loopback by default
-(thus affecting packet send/recv as well).  Venkat, do you have a policy
-patch?
+I think there is going to need to be a policy change that I'm actually
+talking with Dan about as I type this e-mail.  I think we  need
 
--- 
-Stephen Smalley
-National Security Agency
+allow $1 unlabeled_t:packet { flow_in flow_out };
+
+to be added to policy to allow things to work as they did.  I'll post
+again as soon as we have a policy that appears to let normal networking
+work in enforcing.
+
+-Eric
 
 
 --
