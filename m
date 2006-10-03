@@ -1,63 +1,53 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k93LlotS027686
-	for <selinux@tycho.nsa.gov>; Tue, 3 Oct 2006 17:47:50 -0400
-Received: from atlrel8.hp.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id k93Lkdqf028166
-	for <selinux@tycho.nsa.gov>; Tue, 3 Oct 2006 21:46:40 GMT
-Message-ID: <4522DA79.6080708@hp.com>
-Date: Tue, 03 Oct 2006 17:47:37 -0400
-From: Linda Knippers <linda.knippers@hp.com>
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k93LsCYB027873
+	for <selinux@tycho.nsa.gov>; Tue, 3 Oct 2006 17:54:12 -0400
+Received: from smtp.sws.net.au (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id k93LrZGw020167
+	for <selinux@tycho.nsa.gov>; Tue, 3 Oct 2006 21:53:37 GMT
+From: Russell Coker <russell@coker.com.au>
+Reply-To: russell@coker.com.au
+To: Daniel J Walsh <dwalsh@redhat.com>
+Subject: Re: init unconfined in RHEL4?
+Date: Wed, 4 Oct 2006 07:54:03 +1000
+Cc: "Osborn, Justin D." <Justin.Osborn@jhuapl.edu>, selinux@tycho.nsa.gov
+References: <7B95239DDD54E54B9BFA23847142B1EE10A28A@aplesnation.dom1.jhuapl.edu> <7B95239DDD54E54B9BFA23847142B1EE10A29E@aplesnation.dom1.jhuapl.edu> <4522CFC7.7040801@redhat.com>
+In-Reply-To: <4522CFC7.7040801@redhat.com>
 MIME-Version: 1.0
-To: Karl MacMillan <kmacmillan@mentalrootkit.com>
-Cc: Joshua Brindle <method@gentoo.org>, Joy Latten <latten@austin.ibm.com>,
-        eparis@parisplace.org, redhat-lspp@redhat.com, selinux@tycho.nsa.gov,
-        jmorris@namei.org, paul.moore@hp.com, vyekkirala@TrustedCS.com
-Subject: Re: RHEL5 Kernel with labeled networking
-References: <200610031837.k93Ib7cQ003247@faith.austin.ibm.com>	 <4522B79C.2060405@gentoo.org> <1159902988.29928.2.camel@faith.austin.ibm.com> <4522CAB7.6090109@hp.com> <4522D554.7080708@gentoo.org> <4522D5C2.8060702@hp.com> <4522D667.5030401@mentalrootkit.com>
-In-Reply-To: <4522D667.5030401@mentalrootkit.com>
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Message-Id: <200610040754.06676.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Karl MacMillan wrote:
-> Linda Knippers wrote:
-> 
->> Joshua Brindle wrote:
->>  
->>
->>> Linda Knippers wrote:
->>>
->>>     
-> 
-> <snip>
-> 
->>>> If we go the auditallow route then we lose some audit record management
->>>> features, like the ability to enable/disble/search for these records,
->>>> don't we?  Do we care?
->>>
->>> enable and disable with a boolean
->>>
->>> searching? surely you can search avc records..
->>
->> I meant with the audit tools, so using auditctl to add/remove rules and
->> ausearch for looking for specific record types.
->>   
->  
-> As I said in my other mail the searching should be fine. Why does the
-> addition or removal need to be handled by auditctl?
+On Wednesday 04 October 2006 07:01, Daniel J Walsh <dwalsh@redhat.com> wrote:
+> Osborn, Justin D. wrote:
+> > I'm working on a RHEL4 system with the Reference Policy and init is
+> > running in unconfined_t.  This leads to most other processes on the
+> > system running in unconfined_t.  Has anyone seen similar errors?
+>
+> In RHEL4 only 15 Targets are confined,  Everything else runs in an
+> unconfined domain.
+>
+> > This is the Ref. Policy version released in March, I got the latest
+> > svn version but it doesn't work with the libsepol and checkpolicy
+> > RHEL4 RPMs on the Tresys site.
 
-There was a discussion a long, long time about about how administrators should
-manage what gets into the audit logs, whether its with the audit tools, the
-policy or both.  There are explicit message types for alot of management
-operations so that the admin can decide whether to get them and the tools
-make it easy to search for.  If changing the ipsec label configuration is just
-an AVC message, it will be different from just about everything else.  It might
-be easy, but is it what we want?
+Justin, the problem is that you are running a non-standard policy on RHEL4.
 
-I wish sgrubb were reading mail today.  I think this is something that he
-cares about, at least he did the last time we had this conversation.
+If you run the back-port of the reference policy on RHEL4 then Red Hat won't 
+support you and most developers won't be interested as development happens on 
+Rawhide.
 
--- ljk
+If you have problems with Refpolicy on RHEL4 and can reproduce them on FC6test 
+releases then many people will be interested in investigating the problems.  
+But if it's only a problem for Refpolicy on RHEL4 then you are probably on 
+your own.
+
+-- 
+russell@coker.com.au
+http://etbe.blogspot.com/          My Blog
+
+http://www.coker.com.au/sponsorship.html Sponsoring Free Software development
 
 --
 This message was distributed to subscribers of the selinux mailing list.
