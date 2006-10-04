@@ -1,126 +1,44 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k94MUcvJ002730
-	for <selinux@tycho.nsa.gov>; Wed, 4 Oct 2006 18:30:38 -0400
-Received: from e1.ny.us.ibm.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id k94MU3lO015236
-	for <selinux@tycho.nsa.gov>; Wed, 4 Oct 2006 22:30:03 GMT
-Received: from d01relay04.pok.ibm.com (d01relay04.pok.ibm.com [9.56.227.236])
-	by e1.ny.us.ibm.com (8.13.8/8.12.11) with ESMTP id k94MUcRq010350
-	for <selinux@tycho.nsa.gov>; Wed, 4 Oct 2006 18:30:38 -0400
-Received: from d01av01.pok.ibm.com (d01av01.pok.ibm.com [9.56.224.215])
-	by d01relay04.pok.ibm.com (8.13.6/8.13.6/NCO v8.1.1) with ESMTP id k94MUcrY122338
-	for <selinux@tycho.nsa.gov>; Wed, 4 Oct 2006 18:30:38 -0400
-Received: from d01av01.pok.ibm.com (loopback [127.0.0.1])
-	by d01av01.pok.ibm.com (8.12.11.20060308/8.13.3) with ESMTP id k94MUbV7030134
-	for <selinux@tycho.nsa.gov>; Wed, 4 Oct 2006 18:30:38 -0400
-Subject: RE: [redhat-lspp] Re: RHEL5 Kernel with labeled networking
-From: Joy Latten <latten@austin.ibm.com>
-To: Venkat Yekkirala <vyekkirala@TrustedCS.com>
-Cc: Joshua Brindle <jbrindle@tresys.com>, selinux@tycho.nsa.gov,
-        paul.moore@hp.com, Linda Knippers <linda.knippers@hp.com>,
-        redhat-lspp@redhat.com, James Morris <jmorris@namei.org>,
-        Eric Paris <eparis@parisplace.org>
-In-Reply-To: <36282A1733C57546BE392885C0618592015CF925@chaos.tcs.tcs-sec.com>
-References: <36282A1733C57546BE392885C0618592015CF925@chaos.tcs.tcs-sec.com>
-Content-Type: text/plain
-Date: Wed, 04 Oct 2006 17:18:37 -0500
-Message-Id: <1160000317.7146.101.camel@faith.austin.ibm.com>
-Mime-Version: 1.0
+Message-ID: <45243804.80902@us.ibm.com>
+Date: Wed, 04 Oct 2006 17:39:00 -0500
+From: Michael C Thompson <thompsmc@us.ibm.com>
+MIME-Version: 1.0
+To: Stephen Smalley <sds@tycho.nsa.gov>
+CC: Karl MacMillan <kmacmillan@mentalrootkit.com>,
+        Joshua Brindle <jbrindle@tresys.com>,
+        Darrel Goeddel <dgoeddel@TrustedCS.com>,
+        Steve Grubb <sgrubb@redhat.com>, SE Linux <selinux@tycho.nsa.gov>
+Subject: Re: newrole - adding capabilities for polyinstantiation
+References: <451AEC39.2090409@us.ibm.com>	 <1159450384.11489.5.camel@moss-spartans.epoch.ncsc.mil>	 <451C3A37.8080509@us.ibm.com>  <4522E6DA.1000200@us.ibm.com>	 <1159973532.19176.84.camel@moss-spartans.epoch.ncsc.mil>	 <4523E1E5.7030907@us.ibm.com> <1159980742.19176.140.camel@moss-spartans.epoch.ncsc.mil>
+In-Reply-To: <1159980742.19176.140.camel@moss-spartans.epoch.ncsc.mil>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2006-10-04 at 14:41 -0400, Venkat Yekkirala wrote:
-> > > Using these kernels I'm getting some interesting denials. I labeled 
-> > > the spd's with system_u:object_r:ipsec_spd_t:s0 so that it would be 
-> > > discernible from any socket contexts that may appear.
-> > >
-> > > First I had to add a polmatch rule for unconfined_t to 
-> > ipsec_spd_t, so 
-> > > far it makes sense.
+Stephen Smalley wrote:
+> On Wed, 2006-10-04 at 11:31 -0500, Michael C Thompson wrote:
+>> Stephen Smalley wrote:
+>>> That is not correct.  File system operations in Linux are based on the
+>>> fsuid, which shadows the euid unless explicitly set.
+>> hmm, you are right (and I, alas, was wrong). However, the files will be 
+>> created with the egid being the calling user (as it stands). I imagine 
+>> we'd want to change that.
 > 
-> Yes.
-> 
-> > >
-> > > Next I need polmatch on unconfined_t to unconfined_t, I 
-> > assume this is 
-> > > because the SA is going to be labeled unconfined_t, seems 
-> > reasonable.
-> 
-> If you have the contraints from the policy patch I posted last night
-> applied to your policy, you won't need the above allow rule.
-> 
-> > > Racoon also needed setcontext for unconfined_t unconfined_t 
-> > (not sure 
-> > > what the source and target mean here)
-> 
-> The source should be racoon (running in unconfined_t?) and the
-> target is the new SA context (unconfined_t I suppose).
-> 
-I was playing around and noticed the same behaviour. I did a ping, which
-resulted in kernel sending acquire to racoon. 
-I needed "allow sysadm_t ping_t association:setcontext". I had newroled
-to sysadm_r when I did the ping and my SA's context was ping_t.
-I am guessing in above case, context that started program was
-unconfined_t (I think method said he did runcon.) and program which
-caused acquire was unconfined_t too.
-
-I have not yet applied the new policy patch, but does it take care of
-this?
- 
-> > >
-> > > the denial I totally don't understand is:
-> > > audit(1159877238.937:35): avc:  denied  { polmatch } for  
-> > > scontext=system_u:object_r:unlabeled_t:s0 
-> > > tcontext=root:system_r:unconfined_t:s0-s0:c0.c255 tclass=association
+> Not clear that it matters.  IIUC, pam_namespace already sets the user
+> and group ownership after creation, so the only reason we care about
+> euid/fsuid is ensuring that the directory isn't temporarily accessible
+> to the caller.  As long as the directory mode is owner-only (as I think
+> it is), the initial gid on the directory shouldn't matter.
 > 
 
-I saw this too with my ping example, except mine needed
-"allow unlabeled_t sysadm_t association:polmatch". I noticed
-this occured as the last deny on initiator and first one on receiver,
-not that it means anything. Again, I will apply new set of policy
-patches and see what happens. 
+ From pam_namespace.c:
+mkdir(ipath, S_IRUSR)
 
-> This can happen if, for example, iptables rejects an "unlabeled"
-> packet with a TCP Reset. The reply packet flow will derive its
-> label from the original packet (unlabeled in this case).
-> 
-> Other examples are where an outgoing packet would derive its label
-> from an incoming packet are:
-> 
-> - icmp messages
-> - tcp resets generated by tcp.
-> - tcp aknowledgements when the socket is in time_wait and SYN_RCVD states.
-> 
-> One thing to keep in mind is that secid reconciliation occurs AFTER all
-> the IPSec xfrm(s) are applied (decrypted, decompressed, etc). So the
-> label a packet has at the point a response is generated (expect the last
-> 2 tcp in the above) might not have been reconciled, and thus could be
-> carrying whatever label has been defined via secmark.
-> 
+After this, the security attributes of the directory are set according 
+to those of the original with the appropriate uid/gid and perm mask.
 
-I noticed something else, and this is perhaps my not understanding
-something. In my spd on both sides, the security context was
-"system_u:object_r:passwd_t:s2", my SAs, on both sides were created with
-"root:sysadm_r:ping_t:s0-s15:c0.c1023". Shouldn't the mls label in my
-spd be honored in SA? Should SA be allowed an mls label of s0 or S1, in
-this case? Or is it just as long as the "polmatch" succeeds?
+So again, you are indeed correct. One of these days...!
 
-In the code security_xfrm_state_alloc_acquire() we pass the fl->secid,
-which will be used to acquire the mls label for the SA. I am not sure I 
-understand this? Also, when does fl->secid get set on output or do we
-care? The only place I see it get set is in
-security_xfrm_decode_session(), which eventually gets called via
-xfrm_policy_check()/xfrm4_policy_check (which I think gets called on
-input) or xfrm_route_forward(). So, for example, my ping created a
-packet on output, and I think security_xfrm_decode_session() hasn't been
-called. I am not sure what fl->secid will be if not 0... So,
-"s0-s15:c0.c1023" was passed in the acquire for the SA. Is this ok or
-right?
-
-I need to test labeled ipsec in mls for lspp and need to understand. 
-
-Joy
-
+Mike
 
 
 --
