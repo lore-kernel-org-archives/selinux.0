@@ -1,77 +1,111 @@
-Message-ID: <4523CAEB.4070200@hp.com>
-Date: Wed, 04 Oct 2006 10:53:31 -0400
-From: Paul Moore <paul.moore@hp.com>
-MIME-Version: 1.0
-To: "Christopher J. PeBenito" <cpebenito@tresys.com>
-Cc: Venkat Yekkirala <vyekkirala@TrustedCS.com>, netdev@vger.kernel.org,
-        selinux@tycho.nsa.gov, jmorris@namei.org, sds@tycho.nsa.gov,
-        eparis@redhat.com
-Subject: Re: [PATCH 1/1] secid reconcialiation: Replace unlabeled_t with	the
- network_t
-References: <45231F6F.4030509@trustedcs.com>  <4523C655.7010008@hp.com> <1159973254.14831.71.camel@sgc>
-In-Reply-To: <1159973254.14831.71.camel@sgc>
-Content-Type: text/plain; charset=ISO-8859-1
+Subject: Re: RHEL5 Kernel with labeled networking
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Linda Knippers <linda.knippers@hp.com>
+Cc: Joshua Brindle <method@gentoo.org>,
+        Karl MacMillan <kmacmillan@mentalrootkit.com>,
+        Joy Latten <latten@austin.ibm.com>, eparis@parisplace.org,
+        redhat-lspp@redhat.com, selinux@tycho.nsa.gov, jmorris@namei.org,
+        paul.moore@hp.com, vyekkirala@TrustedCS.com
+In-Reply-To: <4522EB42.9070502@hp.com>
+References: <200610031837.k93Ib7cQ003247@faith.austin.ibm.com>
+	 <4522B79C.2060405@gentoo.org>
+	 <1159902988.29928.2.camel@faith.austin.ibm.com> <4522CAB7.6090109@hp.com>
+	 <4522D554.7080708@gentoo.org> <4522D5C2.8060702@hp.com>
+	 <4522D667.5030401@mentalrootkit.com> <4522DA79.6080708@hp.com>
+	 <4522E6F7.1040207@gentoo.org>  <4522EB42.9070502@hp.com>
+Content-Type: text/plain
+Date: Wed, 04 Oct 2006 10:57:16 -0400
+Message-Id: <1159973836.19176.89.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Christopher J. PeBenito wrote:
-> On Wed, 2006-10-04 at 10:33 -0400, Paul Moore wrote:
+On Tue, 2006-10-03 at 18:59 -0400, Linda Knippers wrote:
+> Joshua Brindle wrote:
+> > Linda Knippers wrote:
+> >> Karl MacMillan wrote:
+> >>> Linda Knippers wrote:
+> >>>> Joshua Brindle wrote:
+> >>>>> Linda Knippers wrote:
+> >>>>>
+> >>>
+> >>> <snip>
+> >>>
+> >>>    
+> >>>
+> >>>>>> If we go the auditallow route then we lose some audit record
+> >>>>>> management
+> >>>>>> features, like the ability to enable/disble/search for these records,
+> >>>>>> don't we?  Do we care?
+> >>>>>>           
+> >>>>>
+> >>>>> enable and disable with a boolean
+> >>>>>
+> >>>>> searching? surely you can search avc records..
+> >>>>>         
+> >>>>
+> >>>> I meant with the audit tools, so using auditctl to add/remove rules and
+> >>>> ausearch for looking for specific record types.
+> >>>>         
+> >>>
+> >>>  
+> >>> As I said in my other mail the searching should be fine. Why does the
+> >>> addition or removal need to be handled by auditctl?
+> >>>     
+> >>
+> >>
+> >> There was a discussion a long, long time about about how
+> >> administrators should
+> >> manage what gets into the audit logs, whether its with the audit
+> >> tools, the
+> >> policy or both.  There are explicit message types for alot of management
+> >> operations so that the admin can decide whether to get them and the tools
+> >> make it easy to search for.  If changing the ipsec label configuration
+> >> is just
+> >> an AVC message, it will be different from just about everything else. 
+> >> It might
+> >> be easy, but is it what we want?
+> >>
+> >>   
+> > 
+> > what about relabeling files? or setting secmark labels? or domain
+> > transitions? setexec(), etc. I'm very skeptical that lspp requires any
+> > kind of auditing of ipsec label change but none of these. 
 > 
->>Venkat Yekkirala wrote:
->>
->>>The following replaces unlabeled_t with network_t for
->>>better characterization of the flow out/in checks in
->>>SELinux, as well as to allow for mls packets to
->>>flow out/in from the network since network_t would allow
->>>the full range of MLS labels, as opposed to the unlabeled init sid
->>>that only allows system-hi.
->>>
->>>Signed-off-by: Venkat Yekkirala <vyekkirala@TrustedCS.com>
->>>---
->>>This is an incremental patch the secid-reconcilation v4 patchset.
->>>
->>>--- net-2.6.sid3/security/selinux/hooks.c	2006-10-01 15:43:12.000000000 -0500
->>>+++ net-2.6/security/selinux/hooks.c	2006-10-03 16:43:21.000000000 -0500
->>>@@ -3703,7 +3703,8 @@ static int selinux_skb_flow_in(struct sk
->>> 	err = selinux_xfrm_decode_session(skb, &xfrm_sid, 0);
->>> 	BUG_ON(err);
->>> 
->>>-	err = avc_has_perm(xfrm_sid, skb->secmark, SECCLASS_PACKET,
->>>+	err = avc_has_perm(xfrm_sid, skb->secmark? : SECINITSID_NETMSG,
->>>+					SECCLASS_PACKET,
->>> 					PACKET__FLOW_IN, NULL);
->>> 	if (err)
->>> 		goto out;
->>>@@ -3900,7 +3901,7 @@ static unsigned int selinux_ip_postroute
->>> 				skb->secmark = sksec->sid;
->>> 			}
->>> 		}
->>>-		err = avc_has_perm(skb->secmark, SECINITSID_UNLABELED,
->>>+		err = avc_has_perm(skb->secmark, SECINITSID_NETMSG,
->>> 				   SECCLASS_PACKET, PACKET__FLOW_OUT, &ad);
->>> 	}
->>> out:
->>
->>Considering the above change, I wonder if it would also make sense to
->>update the secmark to SECINITSID_UNLABELED in the abscence of any
->>external labeling (labeled IPsec or NetLabel)?
->  
-> Wouldn't that make secmark useless in the non labeled networking case?
+> It has a requirement to be able to audit all modifications of the
+> values of security attributes, so we can audit a bunch of syscalls
+> that do that (chmod, chown, setxattr, ...).  Relabeling files
+> would definitely count and be covered.  There's also a requirement about
+> auditing changes to the way data is imported/exported, so this is where
+> the networking stuff comes in.  I don't know about domain transitions.
 > 
+> > Further, all
+> > the others are in policy, you want to special case ipsec? and for that
+> > matter just the spd rules which is pretty much useless without
+> > accompanying polmatch rules. I'm very dubious about this entire thread.
+> 
+> I'm not trying to special case ipsec.  In fact, that was the point of
+> my comment.  In general, we have explicit message types for the things
+> that we care about auditing.  Paul added auditing for the netlabel
+> configuration changes because the only other way to know about the
+> changes would be watching the netlink messages.
+> 
+> I asked the question about using auditallow because its different from
+> how all the other things that lspp cares about are handled from an
+> audit administrator's perspective.  I personally don't care that much
+> either way but if its going to be different, folks ought to know,
+> especially the folks who have to document and test it.
 
-Sorry, I didn't do a very good job explaining things in my first email
-so let me try it again ...
-
-If there is no external labeling, i.e. labeled IPsec or NetLabel, *and*
-the secmark is equal to zero/SECSID_NULL I think it might be a good idea
-to set the secmark to SECINITSID_NETMSG.
-
-This not affect either local or external labels if they are present, but
-if both are not it would give the secmark some meaningful value.
+As I recall, auditallow was deemed acceptable for auditing of writing to
+the /proc/self/attr nodes earlier on redhat-lspp.  Note that auditallow
+yields not only the avc audit message but also causes a syscall audit
+record to be emitted upon syscall exit.  The best thing to do is to
+actually try it and see whether the resulting data meets your need.
 
 -- 
-paul moore
-linux security @ hp
+Stephen Smalley
+National Security Agency
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
