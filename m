@@ -1,96 +1,83 @@
-Message-ID: <452417AE.3090203@hp.com>
-Date: Wed, 04 Oct 2006 16:21:02 -0400
-From: Paul Moore <paul.moore@hp.com>
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k94KKj7q031707
+	for <selinux@tycho.nsa.gov>; Wed, 4 Oct 2006 16:20:45 -0400
+Received: from mail.atsec.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id k94KJX5l004056
+	for <selinux@tycho.nsa.gov>; Wed, 4 Oct 2006 20:19:33 GMT
+Date: Wed, 4 Oct 2006 15:20:41 -0500
+From: Klaus Weidner <klaus@atsec.com>
+To: Russell Coker <russell@coker.com.au>
+Cc: Michael C Thompson <thompsmc@us.ibm.com>,
+        Stephen Smalley <sds@tycho.nsa.gov>,
+        Karl MacMillan <kmacmillan@mentalrootkit.com>,
+        Joshua Brindle <jbrindle@tresys.com>,
+        Darrel Goeddel <dgoeddel@TrustedCS.com>,
+        Steve Grubb <sgrubb@redhat.com>, SE Linux <selinux@tycho.nsa.gov>
+Subject: Re: newrole - adding capabilities for polyinstantiation
+Message-ID: <20061004202041.GC10204@w-m-p.com>
+References: <451AEC39.2090409@us.ibm.com> <451C3A37.8080509@us.ibm.com> <4522E6DA.1000200@us.ibm.com> <200610040952.07843.russell@coker.com.au>
 MIME-Version: 1.0
-To: Stephen Smalley <sds@tycho.nsa.gov>
-Cc: Venkat Yekkirala <vyekkirala@TrustedCS.com>, selinux@tycho.nsa.gov,
-        eparis@redhat.com, jmorris@namei.org
-Subject: Re: [PATCH v4 1/2] NetLabel: secid reconciliation support
-References: <36282A1733C57546BE392885C0618592015CF961@chaos.tcs.tcs-sec.com>	 <45241108.5040303@hp.com> <1159992565.19176.240.camel@moss-spartans.epoch.ncsc.mil>
-In-Reply-To: <1159992565.19176.240.camel@moss-spartans.epoch.ncsc.mil>
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <200610040952.07843.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Stephen Smalley wrote:
-> On Wed, 2006-10-04 at 15:52 -0400, Paul Moore wrote:
+On Wed, Oct 04, 2006 at 09:52:02AM +1000, Russell Coker wrote:
+> On Wednesday 04 October 2006 08:40, Michael C Thompson <thompsmc@us.ibm.com> 
+> wrote:
+> > There are a few concerns which have arisen due to this polyinstantiation
+> > and suid newrole work. One such concern is that with labeled networking,
+> > using newrole to change your MLS level will not work as intended, since
+> > the relabeled tty will not be able to talk to the socket. This would
+> > limit using newrole to manipulate our MLS to the console, and would
+> > leave newrole capable of only changing the role and type on network
+> > connections.
 > 
->>Venkat Yekkirala wrote:
->>
->>>>>>* XFRM present
->>>>>>
->>>>>> xfrm_sid = <full context from xfrm>
->>>>>> loc_sid = SECINITSID_NETMSG
->>>>>> nlbl_sid = SECSID_NULL/0
->>>>>> ext_sid = xfrm_sid
->>>>>> final skb->secmark = avc_ok : ext_sid ? unchanged
->>>
->>>Actually, I meant to cite the following instead of the above:
->>>
->>> * Nothing
->>>
->>>   xfrm_sid = SECSID_NULL/0
->>>   loc_sid = SECSID_NULL/0
->>>   nlbl_sid = SECSID_NULL/0
->>>   ext_sid = xfrm_sid
->>>   final skb->secmark = avc_ok : ext_sid ? unchanged
->>
->>Okay, thanks, I think I understand your point now.  Let me try to
->>restate just to make sure.
->>
->>Take two cases: the first being no labeling at all, the second being
->>only NetLabel ...
->>
->> * Nothing
->>
->>   xfrm_sid = SECSID_NULL/0
->>   loc_sid = SECSID_NULL/0
->>   nlbl_sid = SECSID_NULL/0
->>   ext_sid = xfrm_sid
->>   final skb->secmark = avc_ok : ext_sid ? unchanged
->>
->> * NetLabel
->>
->>  xfrm_sid = SECSID_NULL/0
->>  loc_sid = SECSID_NULL/0
->>  nlbl_sid = <SECINITSID_NETMSG te ctx, netlabel mls ctx>
->>  ext_sid = nlbl_sid
->>  final skb->secmark = avc_ok : ext_sid ? unchanged
->>
->>In the "Nothing" case the final skb->secmark is set to SECSID_NULL/0;
->>getpeercon() should return an error. In the "NetLabel" case the final
->>skb->secmark is set using the TE portions of SECINITSID_NETMSG and the
->>MLS label of the NetLabel packet; getpeercon() will succeed.
+> What do you mean?
 > 
-> ...but return a context that isn't a subject label.
+> You have sshd talking to /dev/ptmx and the shell talking to /dev/pts/X.  
+> If /dev/pts/X is relabeled to a different range then sshd will still keep 
+> talking to /dev/ptmx without any change (in fact sshd can't conveniently know 
+> about this change).
 
-The alternative is to go back to having getpeercon() return the socket's
-TE context with the NetLabel's MLS label - would that be better?  Or do
-you want it to use SECINITSID_UNLABELED for the TE context?
+But that's not supposed to work, see:
 
-I would prefer the socket's TE context but if I'm the only one that
-thinks that way I'll cave on the issue.
+	https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=200110
 
->>I understand in the "NetLabel" case above you think the TE portion of
->>the final skb->secmark value should come from
->>SECSID_NULL/SECINITSID_UNLABELED/0, but do you also want getpeercon() to
->>return an error in the "NetLabel" case?  I think that's a bad idea as it
->>will made it *extremely* difficult for applications to determine the MLS
->>label of a connection using NetLabel.
->  
-> It doesn't need to fail in that case, no.  But it should return a
-> subject label.  From a TE pov, the subject label is "unlabeled_t", i.e.
-> no labeling information available.  From the MLS pov, you have your
-> CIPSO label.  Why "network_t" instead?
+and the thread that Stephen Smalley also referred to:
 
-The reason for using "network_t" is becuase that is what Venkat is
-assigning to the SECINITSID_NETMSG SID and that is what the NetLabel
-secid patches currently use for a TE context when there is no other TE
-information available, i.e. no SECMARK, no XFRM.
+	http://www.redhat.com/archives/redhat-lspp/2006-July/msg00024.html
 
--- 
-paul moore
-linux security @ hp
+The communication between the master and slave ends of the pty violates
+the MLS policy, and makes it easy for unprivileged users to violate the
+policy restrictions.
+
+LSPP is not concerned with covert channels, but the pty hole isn't
+covert, it's a direct use of official interfaces according to their
+specification, and that's not acceptable for an evaluation.
+
+Unfortunately this means that the current system will make "newrole -l"
+essentially useless over ssh sessions, and since there is no support for
+selecting a level at login time it may be necessary to use workarounds,
+such as creating multiple Linux usernames mapped to the same UID but with
+different default MLS levels (configured via "semanage login"). (I've
+just tested that - it works, but I'm not sure if that's how people expect
+the system to behave.)
+
+> Also for an X session it's quite viable to ssh to localhost from an xterm to 
+> create a session with a different context, and that is no more difficult than 
+> running newrole.  I am not advocating doing this, just noting that it is 
+> possible.
+
+Well, this should only work if you have a proper MLS aware desktop that
+can prevent cut&paste between the sessions at various levels, and would
+require MLS override capabilites for the X server and/or window manager.
+
+Currently, even localhost networking is supposed to be labeled, so you
+wouldn't be able to use a SSH session running at a different label for
+communication.
+
+-Klaus
 
 --
 This message was distributed to subscribers of the selinux mailing list.
