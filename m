@@ -1,65 +1,78 @@
-Subject: Re: [PATCH v4 1/2] NetLabel: secid reconciliation support
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Paul Moore <paul.moore@hp.com>
-Cc: Venkat Yekkirala <vyekkirala@TrustedCS.com>, netdev@vger.kernel.org,
-        selinux@tycho.nsa.gov, eparis@redhat.com, jmorris@namei.org
-In-Reply-To: <45240B3B.3040603@hp.com>
-References: <36282A1733C57546BE392885C0618592015CF939@chaos.tcs.tcs-sec.com>
-	 <45240B3B.3040603@hp.com>
-Content-Type: text/plain
-Date: Wed, 04 Oct 2006 15:45:57 -0400
-Message-Id: <1159991157.19176.227.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+Message-ID: <36282A1733C57546BE392885C0618592015CF969@chaos.tcs.tcs-sec.com>
+From: Venkat Yekkirala <vyekkirala@TrustedCS.com>
+To: Paul Moore <paul.moore@hp.com>,
+        Venkat Yekkirala
+	 <vyekkirala@TrustedCS.com>
+Cc: James Morris <jmorris@namei.org>, selinux@tycho.nsa.gov, eparis@redhat.com,
+        sds@tycho.nsa.gov
+Subject: RE: [PATCH 0/2] [PATCH 0/2] Updated NetLabel/secid-reconciliation
+	 bits and a bugfix
+Date: Wed, 4 Oct 2006 15:48:59 -0400 
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2006-10-04 at 15:27 -0400, Paul Moore wrote:
-> Venkat Yekkirala wrote:
-> >> * XFRM present
-> >>
-> >>   xfrm_sid = <full context from xfrm>
-> >>   loc_sid = SECINITSID_NETMSG
-> >>   nlbl_sid = SECSID_NULL/0
-> >>   ext_sid = xfrm_sid
-> >>   final skb->secmark = avc_ok : ext_sid ? unchanged
-> >>
-> >> * NetLabel present
-> >>
-> >>   xfrm_sid = SECSID_NULL/0
-> >>   loc_sid = SECSID_NULL/0
-> >>   nlbl_sid = <SECINITSID_NETMSG te ctx, netlabel mls ctx>
-> >>   ext_sid = nlbl_sid
-> >>   final skb->secmark = avc_ok : ext_sid ? unchanged
-> > 
-> > I was referring to the differences in what getpeercon would
-> > return in the above 2 scenarios.
-> > 
-> > In the xfrm case:     final skb->secmark would be 0 resulting in getpeercon
-> > to return EPROTONOOPT
+[ EXCLUDING netdev ]
+> There was a secid patchset posted on Thursday (9/28) night, I 
+> posted the
+> a patch on Friday (9/29) to provide NetLabel support.
 > 
-> In the "XFRM present" case above if the access is allowed (avc_ok is
-> true) then the final skb->secmark value is going to be set to the value
-> of ext_sid which is the xfrm_sid.  Any calls made to getpeercon() would
-> return success with the context matching xfrm_sid.
+> There was a secid patchset posted on Sunday (10/1) night, I respun the
+> NetLabel support patch on Monday (10/2) - "v2".
 > 
-> I have a hunch we are still on different pages here ...
+> I respun the NetLabel support patch to take into account Stephen
+> Smalley's comments on Monday (10/2) - "v3".
 > 
-> > In the NetLabel case: final skb->secmark would be network_t resulting in
-> > getpeercon to return network_t
-> 
-> Yep, and I understand you would like to see it as unlabeled_t.  I think
-> we both have valid arguments for either case and we are just waiting to
-> hear from others.
+> There was a small update to the secid patches yesterday (10/3) so I
+> respun the NetLabel support patch (10/4) - "v4".
 
-I don't understand the argument for network_t, and it seems to violate
-our goals of 1) having consistent policy regardless of network labeling
-mechanism, and 2) having getpeercon() always return a subject label that
-can be used as a basis for avc_has_perm() and setexeccon() calls.
+You are making my head spin :)
 
--- 
-Stephen Smalley
-National Security Agency
+> 
+> >> As a result I
+> >>keep posting updated patches backed against Venkat's latest and
+> >>incorporating the latest feedback.
+> >  
+> > And let's keep this going like this on the selinux list. 
+> When all the
+> > testing is done and selinux ok's the patchsets, I will combine them
+> > and send them onto netdev. How does that sound?
+> 
+> Yes, the discussion is a good one I don't want to disrupt that.
+> 
+> I would prefer if all of the patches were in one patchset, 
+> pushed out by
+> one person as that would save me from having to respin my 
+> patch if all I
+> need to do is update it for the latest secid patches.  I 
+> think that has
+> value so people can review/test/etc all of the parts as one coherent
+> patchset.  However, it's ultimately up to you as you are the 
+> one working
+> on the main secid patchset.
+> 
+> >>Venkat, can you please merge the latest my latest NetLabel 
+> >>secid support
+> >>patch in with your next release?
+> >  
+> > I would, but it currently is premature. As James says, let's
+> > get policy done, the design proven, and tested and then we will
+> > go to netdev with one patchset.
+> 
+> I think it's easier to decide on policy, review the design, 
+> and test it
+> all if there is one place/patchset with all of the latest 
+> bits/patches.
+>  Right not it's not that easy with different patches scattered around.
 
+I believe Eric Paris is already keeping track of this and I believe
+people are testing HIS kernel.
+
+Actually since your patches need to be modified based on mine, it seems
+to make sense for either you or Eric take on the responsibility of tracking
+the patches and forwarding them on finally.
 
 --
 This message was distributed to subscribers of the selinux mailing list.
