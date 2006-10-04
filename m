@@ -1,53 +1,37 @@
-Subject: Re: [PATCH] enable/disable context translation in libselinux
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Klaus Weidner <klaus@atsec.com>
-Cc: Darrel Goeddel <dgoeddel@TrustedCS.com>,
-        Linda Knippers <linda.knippers@hp.com>,
-        SELinux Mail List <selinux@tycho.nsa.gov>
-In-Reply-To: <20061004205527.GA28525@w-m-p.com>
-References: <4523E6D5.1040805@hp.com>  <20061004205527.GA28525@w-m-p.com>
+Subject: Re: xdm leaks file descriptors on purpose, but this is causing
+	random avc messages.
+From: "Christopher J. PeBenito" <cpebenito@tresys.com>
+To: Daniel J Walsh <dwalsh@redhat.com>
+Cc: Stephen Smalley <sds@tycho.nsa.gov>, SE Linux <selinux@tycho.nsa.gov>
+In-Reply-To: <45241C2B.6070504@redhat.com>
+References: <45241C2B.6070504@redhat.com>
 Content-Type: text/plain
-Date: Wed, 04 Oct 2006 17:04:49 -0400
-Message-Id: <1159995889.19176.272.camel@moss-spartans.epoch.ncsc.mil>
+Date: Wed, 04 Oct 2006 17:07:56 -0400
+Message-Id: <1159996076.14831.110.camel@sgc>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2006-10-04 at 15:55 -0500, Klaus Weidner wrote:
-> On Wed, Oct 04, 2006 at 12:52:37PM -0400, Linda Knippers wrote:
-> > --- libselinux-1.30.28/src/setrans_client.c     2006-09-13 13:37:04.000000000 -0400
-> > +++ libselinux-1.30.28.ljk/src/setrans_client.c 2006-10-04 11:35:48.000000000 -0400
-> > @@ -17,6 +17,7 @@
-> >  #include "setrans_internal.h"
-> > 
-> >  static int mls_enabled = -1;
-> > +static int trans_enabled = 1;
-> [...]
-> > +void selinux_set_translation (int value)
-> > +{
-> > +       trans_enabled = value;
-> > +       return;
-> > +}
+On Wed, 2006-10-04 at 16:40 -0400, Daniel J Walsh wrote:
+> https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=206709
 > 
-> This is unsafe for multithreading - mls_enabled won't change during the
-> lifetime of a process, but it could cause strange results when a thread
-> toggling translation affects the results returned by another thread.
+> Basically by design xdm/gdm opens a file descriptor to xsession-errors 
+> and then passes this to the session as stdout/stderr.  If at some time 
+> later a user opens up a gnome terminal and restarts a confined domain.  
+> AVC's are generated on this fd.
 > 
-> Does anyone care? Alternatively, should the interface offer a translation
-> flag parameter, with a backwards compatible function that sets the
-> translation flag to "true"?
+> Not sure of a way to handle this other then "
+> dontaudit domain xdm_t:fd use;
 
-I think that patch itself will be obsoleted by Darrel's patch for the
-userspace AVC, and the use of _raw functions by mcstransd.
-
-However, if we still wanted this patch (and addressed the other issue I
-mentioned - retaining the ability to explicitly request translations but
-disable automatic ones), we could simply mark the trans_enabled flag
-with the __thread attribute to use thread-local storage.
+There's something here that doesn't compute for me.  When you open up a
+gnome-terminal, the shell's fd 0, 1, and 2 should be set to the user's
+own pty, replacing the fd 0, 1, and 2 that gnome-terminal itself
+inherits from xdm.  So I don't see how a daemon would get it.
 
 -- 
-Stephen Smalley
-National Security Agency
+Chris PeBenito
+Tresys Technology, LLC
+(410) 290-1411 x150
 
 
 --
