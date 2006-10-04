@@ -1,84 +1,47 @@
-From: Russell Coker <russell@coker.com.au>
-Reply-To: russell@coker.com.au
-To: Michael C Thompson <thompsmc@us.ibm.com>
-Subject: Re: newrole - adding capabilities for polyinstantiation
-Date: Wed, 4 Oct 2006 09:52:02 +1000
-Cc: Stephen Smalley <sds@tycho.nsa.gov>,
-        Karl MacMillan <kmacmillan@mentalrootkit.com>,
-        Joshua Brindle <jbrindle@tresys.com>,
-        Darrel Goeddel <dgoeddel@TrustedCS.com>,
-        Steve Grubb <sgrubb@redhat.com>, SE Linux <selinux@tycho.nsa.gov>
-References: <451AEC39.2090409@us.ibm.com> <451C3A37.8080509@us.ibm.com> <4522E6DA.1000200@us.ibm.com>
-In-Reply-To: <4522E6DA.1000200@us.ibm.com>
+Message-ID: <45231F6F.4030509@trustedcs.com>
+Date: Tue, 03 Oct 2006 21:41:51 -0500
+From: Venkat Yekkirala <vyekkirala@TrustedCS.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Message-Id: <200610040952.07843.russell@coker.com.au>
+To: netdev@vger.kernel.org
+CC: selinux@tycho.nsa.gov, jmorris@namei.org, sds@tycho.nsa.gov,
+        paul.moore@hp.com, eparis@redhat.com
+Subject: [PATCH 1/1] secid reconcialiation: Replace unlabeled_t with the network_t
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wednesday 04 October 2006 08:40, Michael C Thompson <thompsmc@us.ibm.com> 
-wrote:
-> There are a few concerns which have arisen due to this polyinstantiation
-> and suid newrole work. One such concern is that with labeled networking,
-> using newrole to change your MLS level will not work as intended, since
-> the relabeled tty will not be able to talk to the socket. This would
-> limit using newrole to manipulate our MLS to the console, and would
-> leave newrole capable of only changing the role and type on network
-> connections.
+The following replaces unlabeled_t with network_t for
+better characterization of the flow out/in checks in
+SELinux, as well as to allow for mls packets to
+flow out/in from the network since network_t would allow
+the full range of MLS labels, as opposed to the unlabeled init sid
+that only allows system-hi.
 
-What do you mean?
+Signed-off-by: Venkat Yekkirala <vyekkirala@TrustedCS.com>
+---
+This is an incremental patch the secid-reconcilation v4 patchset.
 
-You have sshd talking to /dev/ptmx and the shell talking to /dev/pts/X.  
-If /dev/pts/X is relabeled to a different range then sshd will still keep 
-talking to /dev/ptmx without any change (in fact sshd can't conveniently know 
-about this change).
-
-The only problems you have with network logins and newrole are if you do "exec 
-newrole" or if your connection is closed due to a network error.  In those 
-cases sshd may try to restore the context of a /dev/pts/X device that it is 
-not permitted to access.  Of course given that /dev/pts/X is going to 
-disappear this makes no real difference.
-
-The only way I can think of network context being an issue is if you run the 
-following command:
-ssh user@host "newrole -r foo_r"
-
-In that case sshd will not create a pty and will instead use a Unix domain 
-socket.  But I can't imagine any situation in which you would do that 
-(newrole typically requires an interactive session).
-
-> However, even with this MLS level concern aside, is it expected that
-> using newrole to change your active role will also polyinstantiate
-> directories? If so, then newrole needs to be a setuid root program.
-
-I believe that this is necessary.  What is the point of having 
-poly-instantiated directories if the standard commands used to change 
-security contexts don't use them?  Also if you have two shells open in role 
-foo_r which have different versions of /tmp because the initial logins were 
-from different contexts then it will be at best confusing and at worst a 
-security leak.
-
-> If making newrole to be a setuid root program is considered
-> unacceptable, an alternative needs to be provided for users to specify
-> the desired role (and type) to assume upon login.
-
-We already have that for ssh and console logins.  Doing it for X logins was 
-not viable in the past due to lack of PI.  But with a PI home directory it is 
-viable to allow the user to select a context through an XDM program.  With PI 
-directories my previous objections to context selection for an X login have
-become obsolete.
-
-Also for an X session it's quite viable to ssh to localhost from an xterm to 
-create a session with a different context, and that is no more difficult than 
-running newrole.  I am not advocating doing this, just noting that it is 
-possible.
-
--- 
-russell@coker.com.au
-http://etbe.blogspot.com/          My Blog
-
-http://www.coker.com.au/sponsorship.html Sponsoring Free Software development
+--- net-2.6.sid3/security/selinux/hooks.c	2006-10-01 15:43:12.000000000 -0500
++++ net-2.6/security/selinux/hooks.c	2006-10-03 16:43:21.000000000 -0500
+@@ -3703,7 +3703,8 @@ static int selinux_skb_flow_in(struct sk
+ 	err = selinux_xfrm_decode_session(skb, &xfrm_sid, 0);
+ 	BUG_ON(err);
+ 
+-	err = avc_has_perm(xfrm_sid, skb->secmark, SECCLASS_PACKET,
++	err = avc_has_perm(xfrm_sid, skb->secmark? : SECINITSID_NETMSG,
++					SECCLASS_PACKET,
+ 					PACKET__FLOW_IN, NULL);
+ 	if (err)
+ 		goto out;
+@@ -3900,7 +3901,7 @@ static unsigned int selinux_ip_postroute
+ 				skb->secmark = sksec->sid;
+ 			}
+ 		}
+-		err = avc_has_perm(skb->secmark, SECINITSID_UNLABELED,
++		err = avc_has_perm(skb->secmark, SECINITSID_NETMSG,
+ 				   SECCLASS_PACKET, PACKET__FLOW_OUT, &ad);
+ 	}
+ out:
 
 --
 This message was distributed to subscribers of the selinux mailing list.
