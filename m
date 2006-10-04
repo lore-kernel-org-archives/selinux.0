@@ -1,51 +1,60 @@
-Subject: Re: newrole - adding capabilities for polyinstantiation
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Michael C Thompson <thompsmc@us.ibm.com>
-Cc: Daniel J Walsh <dwalsh@redhat.com>, russell@coker.com.au,
-        Karl MacMillan <kmacmillan@mentalrootkit.com>,
-        Joshua Brindle <jbrindle@tresys.com>,
-        Darrel Goeddel <dgoeddel@TrustedCS.com>,
-        Steve Grubb <sgrubb@redhat.com>, SE Linux <selinux@tycho.nsa.gov>
-In-Reply-To: <4523DF14.6080602@us.ibm.com>
-References: <451AEC39.2090409@us.ibm.com> <451C3A37.8080509@us.ibm.com>
-	 <4522E6DA.1000200@us.ibm.com> <200610040952.07843.russell@coker.com.au>
-	 <4523DF14.6080602@us.ibm.com>
-Content-Type: text/plain
-Date: Wed, 04 Oct 2006 14:53:37 -0400
-Message-Id: <1159988017.19176.194.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+Message-ID: <45240369.4030107@hp.com>
+Date: Wed, 04 Oct 2006 14:54:33 -0400
+From: Paul Moore <paul.moore@hp.com>
+MIME-Version: 1.0
+To: James Morris <jmorris@namei.org>
+Cc: netdev@vger.kernel.org, selinux@tycho.nsa.gov, eparis@redhat.com,
+        sds@tycho.nsa.gov, vyekkirala@TrustedCS.com
+Subject: Re: [PATCH 0/2] [PATCH 0/2] Updated NetLabel/secid-reconciliation
+ bits and a bugfix
+References: <20061004154629.186531000@hp.com> <Pine.LNX.4.64.0610041439050.6196@d.namei>
+In-Reply-To: <Pine.LNX.4.64.0610041439050.6196@d.namei>
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2006-10-04 at 11:19 -0500, Michael C Thompson wrote:
-> Russell Coker wrote:
-> > On Wednesday 04 October 2006 08:40, Michael C Thompson <thompsmc@us.ibm.com> 
-> > wrote:
-> >> If making newrole to be a setuid root program is considered
-> >> unacceptable, an alternative needs to be provided for users to specify
-> >> the desired role (and type) to assume upon login.
-> > 
-> > We already have that for ssh and console logins.
+James Morris wrote:
+> On Wed, 4 Oct 2006, paul.moore@hp.com wrote:
 > 
-> I wasn't aware. What is the mechanism?
+>>This patchset includes an update to the NetLabel/secid-reconciliation patch,
+>>replacing my "v3" patch from earlier this week, and a bugfix patch to cure a
+>>race condition found during testing this week.  The bugfix patch does not
+>>rely on the secid patches and should be merged regardless as it fixes a bug
+>>which has been around since the very first NetLabel patches (not sure why I
+>>didn't see this sooner).
+> 
+> So, patch 2/2 should go in on it's own against upstream?  If so, in 5B
+> future, please post such patches separately.
 
-It did exist at one time, but I don't think it is still there.
-pam_selinux used to provide support for context selection when there
-were multiple contexts authorized for the user, but I think it was
-ultimately dropped by Red Hat, as they wanted to simplify and provide
-consistency among all forms of login, and chose to only allow initial
-login in the default context for the user.  There was also experimental
-support (by Colin Walters) for specifying a role for ssh a long time ago
-(e.g. ssh root/sysadm_r@hostname) and I see that code in the Fedora tree
-still (but whether it works with current policy is another matter), but
-it doesn't appear to be included in the selinux support that is now
-included in the upstream openssh (as of 4.4p1), so I assume it is slated
-for demise.
+Yes, please commit patch 2/2 regardless as it fixes a bug which is not
+dependent on any of the secid patches which are being discussed.  My
+apologies for including it in the same patchset, I'll be sure to split
+it up next time.
+
+> As for the rest of the network labeling, please work together with Venkat 
+> and the SELinux developers on a final patchset which meets all of the 
+> design goals and has been tested, with policy which has been merged 
+> upstream and is available via Fedora devel.  Please keep the discussion 
+> going, but ensure that the final patchset for review and merge 
+> consideration is a complete set against the current git kernel coming from 
+> one person.
+
+I'm trying :)  When I posted the NetLabel secid support patch last week
+I asked Venkat if he could merge it with the main secid patchset (due to
+size and dependencies that seemed like the most reasonable course of
+action).  For reasons I'm not aware of he chose not to.  As a result I
+keep posting updated patches backed against Venkat's latest and
+incorporating the latest feedback.
+
+Venkat, can you please merge the latest my latest NetLabel secid support
+patch in with your next release?  If not, would you have a problem if I
+pushed out a patchset which included your latest patches with the
+NetLabel secid support patch and we used this patchset as the basis for
+future work?
 
 -- 
-Stephen Smalley
-National Security Agency
-
+paul moore
+linux security @ hp
 
 --
 This message was distributed to subscribers of the selinux mailing list.
