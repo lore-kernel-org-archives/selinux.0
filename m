@@ -1,116 +1,323 @@
-Message-ID: <4523D140.5030103@hp.com>
-Date: Wed, 04 Oct 2006 11:20:32 -0400
-From: Linda Knippers <linda.knippers@hp.com>
-MIME-Version: 1.0
-To: Stephen Smalley <sds@tycho.nsa.gov>
-Cc: Joshua Brindle <method@gentoo.org>,
-        Karl MacMillan <kmacmillan@mentalrootkit.com>,
-        Joy Latten <latten@austin.ibm.com>, eparis@parisplace.org,
-        redhat-lspp@redhat.com, selinux@tycho.nsa.gov, jmorris@namei.org,
-        Paul Moore <paul.moore@hp.com>,
-        Venkat Yekkirala <vyekkirala@TrustedCS.com>
-Subject: Re: RHEL5 Kernel with labeled networking
-References: <200610031837.k93Ib7cQ003247@faith.austin.ibm.com>	 <4522B79C.2060405@gentoo.org>	 <1159902988.29928.2.camel@faith.austin.ibm.com> <4522CAB7.6090109@hp.com>	 <4522D554.7080708@gentoo.org> <4522D5C2.8060702@hp.com>	 <4522D667.5030401@mentalrootkit.com> <4522DA79.6080708@hp.com>	 <4522E6F7.1040207@gentoo.org>  <4522EB42.9070502@hp.com> <1159973836.19176.89.camel@moss-spartans.epoch.ncsc.mil>
-In-Reply-To: <1159973836.19176.89.camel@moss-spartans.epoch.ncsc.mil>
-Content-Type: text/plain; charset=ISO-8859-1
+Message-Id: <20061004154645.400637000@hp.com>
+References: <20061004154629.186531000@hp.com>
+Date: Wed, 04 Oct 2006 11:46:31 -0400
+From: paul.moore@hp.com
+To: netdev@vger.kernel.org, selinux@tycho.nsa.gov
+Cc: eparis@redhat.com, jmorris@namei.org, sds@tycho.nsa.gov,
+        vyekkirala@TrustedCS.com, Paul Moore <paul.moore@hp.com>
+Subject: [PATCH 2/2] NetLabel: fix a cache race condition
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Stephen Smalley wrote:
-> On Tue, 2006-10-03 at 18:59 -0400, Linda Knippers wrote:
-> 
->>Joshua Brindle wrote:
->>
->>>Linda Knippers wrote:
->>>
->>>>Karl MacMillan wrote:
->>>>
->>>>>Linda Knippers wrote:
->>>>>
->>>>>>Joshua Brindle wrote:
->>>>>>
->>>>>>>Linda Knippers wrote:
->>>>>>>
->>>>>
->>>>>>>>If we go the auditallow route then we lose some audit record
->>>>>>>>management
->>>>>>>>features, like the ability to enable/disble/search for these records,
->>>>>>>>don't we?  Do we care?
->>>>>>>>          
->>>>>>>
->>>>>>>enable and disable with a boolean
->>>>>>>
->>>>>>>searching? surely you can search avc records..
->>>>>>>        
->>>>>>
->>>>>>I meant with the audit tools, so using auditctl to add/remove rules and
->>>>>>ausearch for looking for specific record types.
->>>>>>        
->>>>>
->>>>> 
->>>>>As I said in my other mail the searching should be fine. Why does the
->>>>>addition or removal need to be handled by auditctl?
->>>>>    
->>>>
->>>>
->>>>There was a discussion a long, long time about about how
->>>>administrators should
->>>>manage what gets into the audit logs, whether its with the audit
->>>>tools, the
->>>>policy or both.  There are explicit message types for alot of management
->>>>operations so that the admin can decide whether to get them and the tools
->>>>make it easy to search for.  If changing the ipsec label configuration
->>>>is just
->>>>an AVC message, it will be different from just about everything else. 
->>>>It might
->>>>be easy, but is it what we want?
->>>>
->>>>  
->>>
->>>what about relabeling files? or setting secmark labels? or domain
->>>transitions? setexec(), etc. I'm very skeptical that lspp requires any
->>>kind of auditing of ipsec label change but none of these. 
->>
->>It has a requirement to be able to audit all modifications of the
->>values of security attributes, so we can audit a bunch of syscalls
->>that do that (chmod, chown, setxattr, ...).  Relabeling files
->>would definitely count and be covered.  There's also a requirement about
->>auditing changes to the way data is imported/exported, so this is where
->>the networking stuff comes in.  I don't know about domain transitions.
->>
->>
->>>Further, all
->>>the others are in policy, you want to special case ipsec? and for that
->>>matter just the spd rules which is pretty much useless without
->>>accompanying polmatch rules. I'm very dubious about this entire thread.
->>
->>I'm not trying to special case ipsec.  In fact, that was the point of
->>my comment.  In general, we have explicit message types for the things
->>that we care about auditing.  Paul added auditing for the netlabel
->>configuration changes because the only other way to know about the
->>changes would be watching the netlink messages.
->>
->>I asked the question about using auditallow because its different from
->>how all the other things that lspp cares about are handled from an
->>audit administrator's perspective.  I personally don't care that much
->>either way but if its going to be different, folks ought to know,
->>especially the folks who have to document and test it.
-> 
-> 
-> As I recall, auditallow was deemed acceptable for auditing of writing to
-> the /proc/self/attr nodes earlier on redhat-lspp.  Note that auditallow
-> yields not only the avc audit message but also causes a syscall audit
-> record to be emitted upon syscall exit.  The best thing to do is to
-> actually try it and see whether the resulting data meets your need.
+Testing revealed a problem with the NetLabel cache where a cached entry could
+be freed while in use by the LSM layer causing an oops and other problems.
+This patch fixes that problem by introducing a reference counter to the cache
+entry so that it is only freed when it is no longer in use.
 
-Thanks for the reminder about that thread.
-https://www.redhat.com/archives/redhat-lspp/2006-August/msg00008.html
+Signed-off-by: Paul Moore <paul.moore@hp.com>
+---
+ include/net/netlabel.h         |   62 +++++++++++++++++++++++++++++++----------
+ net/ipv4/cipso_ipv4.c          |   18 ++++++-----
+ net/netlabel/netlabel_kapi.c   |    2 -
+ security/selinux/ss/services.c |   37 +++++++++++++-----------
+ 4 files changed, 79 insertions(+), 40 deletions(-)
 
-I didn't really see a conclusion though.  Dan was waiting to hear from
-Steve.  Steve didn't like it for the reasons I mentioned above.  Were
-the auditallows added to the MLS policy?  Did anyone create a module?
+Index: net-2.6/include/net/netlabel.h
+===================================================================
+--- net-2.6.orig/include/net/netlabel.h
++++ net-2.6/include/net/netlabel.h
+@@ -34,6 +34,7 @@
+ #include <linux/net.h>
+ #include <linux/skbuff.h>
+ #include <net/netlink.h>
++#include <asm/atomic.h>
+ 
+ /*
+  * NetLabel - A management interface for maintaining network packet label
+@@ -106,6 +107,7 @@ int netlbl_domhsh_remove(const char *dom
+ 
+ /* LSM security attributes */
+ struct netlbl_lsm_cache {
++	atomic_t refcount;
+ 	void (*free) (const void *data);
+ 	void *data;
+ };
+@@ -117,7 +119,7 @@ struct netlbl_lsm_secattr {
+ 	unsigned char *mls_cat;
+ 	size_t mls_cat_len;
+ 
+-	struct netlbl_lsm_cache cache;
++	struct netlbl_lsm_cache *cache;
+ };
+ 
+ /*
+@@ -126,6 +128,43 @@ struct netlbl_lsm_secattr {
+ 
+ 
+ /**
++ * netlbl_secattr_cache_alloc - Allocate and initialize a secattr cache
++ * @flags: the memory allocation flags
++ *
++ * Description:
++ * Allocate and initialize a netlbl_lsm_cache structure.  Returns a pointer
++ * on success, NULL on failure.
++ *
++ */
++static inline struct netlbl_lsm_cache *netlbl_secattr_cache_alloc(int flags)
++{
++	struct netlbl_lsm_cache *cache;
++
++	cache = kzalloc(sizeof(*cache), flags);
++	if (cache)
++		atomic_set(&cache->refcount, 1);
++	return cache;
++}
++
++/**
++ * netlbl_secattr_cache_free - Frees a netlbl_lsm_cache struct
++ * @cache: the struct to free
++ *
++ * Description:
++ * Frees @secattr including all of the internal buffers.
++ *
++ */
++static inline void netlbl_secattr_cache_free(struct netlbl_lsm_cache *cache)
++{
++	if (!atomic_dec_and_test(&cache->refcount))
++		return;
++
++	if (cache->free)
++		cache->free(cache->data);
++	kfree(cache);
++}
++
++/**
+  * netlbl_secattr_init - Initialize a netlbl_lsm_secattr struct
+  * @secattr: the struct to initialize
+  *
+@@ -143,20 +182,16 @@ static inline int netlbl_secattr_init(st
+ /**
+  * netlbl_secattr_destroy - Clears a netlbl_lsm_secattr struct
+  * @secattr: the struct to clear
+- * @clear_cache: cache clear flag
+  *
+  * Description:
+  * Destroys the @secattr struct, including freeing all of the internal buffers.
+- * If @clear_cache is true then free the cache fields, otherwise leave them
+- * intact.  The struct must be reset with a call to netlbl_secattr_init()
+- * before reuse.
++ * The struct must be reset with a call to netlbl_secattr_init() before reuse.
+  *
+  */
+-static inline void netlbl_secattr_destroy(struct netlbl_lsm_secattr *secattr,
+-					  u32 clear_cache)
++static inline void netlbl_secattr_destroy(struct netlbl_lsm_secattr *secattr)
+ {
+-	if (clear_cache && secattr->cache.data != NULL && secattr->cache.free)
+-		secattr->cache.free(secattr->cache.data);
++	if (secattr->cache)
++		netlbl_secattr_cache_free(secattr->cache);
+ 	kfree(secattr->domain);
+ 	kfree(secattr->mls_cat);
+ }
+@@ -178,17 +213,14 @@ static inline struct netlbl_lsm_secattr 
+ /**
+  * netlbl_secattr_free - Frees a netlbl_lsm_secattr struct
+  * @secattr: the struct to free
+- * @clear_cache: cache clear flag
+  *
+  * Description:
+- * Frees @secattr including all of the internal buffers.  If @clear_cache is
+- * true then free the cache fields, otherwise leave them intact.
++ * Frees @secattr including all of the internal buffers.
+  *
+  */
+-static inline void netlbl_secattr_free(struct netlbl_lsm_secattr *secattr,
+-				       u32 clear_cache)
++static inline void netlbl_secattr_free(struct netlbl_lsm_secattr *secattr)
+ {
+-	netlbl_secattr_destroy(secattr, clear_cache);
++	netlbl_secattr_destroy(secattr);
+ 	kfree(secattr);
+ }
+ 
+Index: net-2.6/net/ipv4/cipso_ipv4.c
+===================================================================
+--- net-2.6.orig/net/ipv4/cipso_ipv4.c
++++ net-2.6/net/ipv4/cipso_ipv4.c
+@@ -43,6 +43,7 @@
+ #include <net/tcp.h>
+ #include <net/netlabel.h>
+ #include <net/cipso_ipv4.h>
++#include <asm/atomic.h>
+ #include <asm/bug.h>
+ 
+ struct cipso_v4_domhsh_entry {
+@@ -79,7 +80,7 @@ struct cipso_v4_map_cache_entry {
+ 	unsigned char *key;
+ 	size_t key_len;
+ 
+-	struct netlbl_lsm_cache lsm_data;
++	struct netlbl_lsm_cache *lsm_data;
+ 
+ 	u32 activity;
+ 	struct list_head list;
+@@ -188,13 +189,14 @@ static void cipso_v4_doi_domhsh_free(str
+  * @entry: the entry to free
+  *
+  * Description:
+- * This function frees the memory associated with a cache entry.
++ * This function frees the memory associated with a cache entry including the
++ * LSM cache data if there are no longer any users, i.e. reference count == 0.
+  *
+  */
+ static void cipso_v4_cache_entry_free(struct cipso_v4_map_cache_entry *entry)
+ {
+-	if (entry->lsm_data.free)
+-		entry->lsm_data.free(entry->lsm_data.data);
++	if (entry->lsm_data)
++		netlbl_secattr_cache_free(entry->lsm_data);
+ 	kfree(entry->key);
+ 	kfree(entry);
+ }
+@@ -315,8 +317,8 @@ static int cipso_v4_cache_check(const un
+ 		    entry->key_len == key_len &&
+ 		    memcmp(entry->key, key, key_len) == 0) {
+ 			entry->activity += 1;
+-			secattr->cache.free = entry->lsm_data.free;
+-			secattr->cache.data = entry->lsm_data.data;
++			atomic_inc(&entry->lsm_data->refcount);
++			secattr->cache = entry->lsm_data;
+ 			if (prev_entry == NULL) {
+ 				spin_unlock_bh(&cipso_v4_cache[bkt].lock);
+ 				return 0;
+@@ -383,8 +385,8 @@ int cipso_v4_cache_add(const struct sk_b
+ 	memcpy(entry->key, cipso_ptr, cipso_ptr_len);
+ 	entry->key_len = cipso_ptr_len;
+ 	entry->hash = cipso_v4_map_cache_hash(cipso_ptr, cipso_ptr_len);
+-	entry->lsm_data.free = secattr->cache.free;
+-	entry->lsm_data.data = secattr->cache.data;
++	atomic_inc(&secattr->cache->refcount);
++	entry->lsm_data = secattr->cache;
+ 
+ 	bkt = entry->hash & (CIPSO_V4_CACHE_BUCKETBITS - 1);
+ 	spin_lock_bh(&cipso_v4_cache[bkt].lock);
+Index: net-2.6/net/netlabel/netlabel_kapi.c
+===================================================================
+--- net-2.6.orig/net/netlabel/netlabel_kapi.c
++++ net-2.6/net/netlabel/netlabel_kapi.c
+@@ -200,7 +200,7 @@ void netlbl_cache_invalidate(void)
+ int netlbl_cache_add(const struct sk_buff *skb,
+ 		     const struct netlbl_lsm_secattr *secattr)
+ {
+-	if (secattr->cache.data == NULL)
++	if (secattr->cache == NULL)
+ 		return -ENOMSG;
+ 
+ 	if (CIPSO_V4_OPTEXIST(skb))
+Index: net-2.6/security/selinux/ss/services.c
+===================================================================
+--- net-2.6.orig/security/selinux/ss/services.c
++++ net-2.6/security/selinux/ss/services.c
+@@ -2173,7 +2173,12 @@ struct netlbl_cache {
+  */
+ static void selinux_netlbl_cache_free(const void *data)
+ {
+-	struct netlbl_cache *cache = NETLBL_CACHE(data);
++	struct netlbl_cache *cache;
++
++	if (data == NULL)
++		return;
++
++	cache = NETLBL_CACHE(data);
+ 	switch (cache->type) {
+ 	case NETLBL_CACHE_T_MLS:
+ 		ebitmap_destroy(&cache->data.mls_label.level[0].cat);
+@@ -2198,17 +2203,20 @@ static void selinux_netlbl_cache_add(str
+ 	struct netlbl_lsm_secattr secattr;
+ 
+ 	netlbl_secattr_init(&secattr);
++	secattr.cache = netlbl_secattr_cache_alloc(GFP_ATOMIC);
++	if (secattr.cache == NULL)
++		goto netlbl_cache_add_return;
+ 
+ 	cache = kzalloc(sizeof(*cache),	GFP_ATOMIC);
+ 	if (cache == NULL)
+-		goto netlbl_cache_add_failure;
+-	secattr.cache.free = selinux_netlbl_cache_free;
+-	secattr.cache.data = (void *)cache;
++		goto netlbl_cache_add_return;
++	secattr.cache->free = selinux_netlbl_cache_free;
++	secattr.cache->data = (void *)cache;
+ 
+ 	cache->type = NETLBL_CACHE_T_MLS;
+ 	if (ebitmap_cpy(&cache->data.mls_label.level[0].cat,
+ 			&ctx->range.level[0].cat) != 0)
+-		goto netlbl_cache_add_failure;
++		goto netlbl_cache_add_return;
+ 	cache->data.mls_label.level[1].cat.highbit =
+ 		cache->data.mls_label.level[0].cat.highbit;
+ 	cache->data.mls_label.level[1].cat.node =
+@@ -2216,13 +2224,10 @@ static void selinux_netlbl_cache_add(str
+ 	cache->data.mls_label.level[0].sens = ctx->range.level[0].sens;
+ 	cache->data.mls_label.level[1].sens = ctx->range.level[0].sens;
+ 
+-	if (netlbl_cache_add(skb, &secattr) != 0)
+-		goto netlbl_cache_add_failure;
+-
+-	return;
++	netlbl_cache_add(skb, &secattr);
+ 
+-netlbl_cache_add_failure:
+-	netlbl_secattr_destroy(&secattr, 1);
++netlbl_cache_add_return:
++	netlbl_secattr_destroy(&secattr);
+ }
+ 
+ /**
+@@ -2264,8 +2269,8 @@ static int selinux_netlbl_secattr_to_sid
+ 
+ 	POLICY_RDLOCK;
+ 
+-	if (secattr->cache.data) {
+-		cache = NETLBL_CACHE(secattr->cache.data);
++	if (secattr->cache) {
++		cache = NETLBL_CACHE(secattr->cache->data);
+ 		switch (cache->type) {
+ 		case NETLBL_CACHE_T_SID:
+ 			*sid = cache->data.sid;
+@@ -2370,7 +2375,7 @@ static int selinux_netlbl_skbuff_getsid(
+ 						   &secattr,
+ 						   base_sid,
+ 						   sid);
+-	netlbl_secattr_destroy(&secattr, 0);
++	netlbl_secattr_destroy(&secattr);
+ 
+ 	return rc;
+ }
+@@ -2416,7 +2421,7 @@ static int selinux_netlbl_socket_setsid(
+ 	if (rc == 0)
+ 		sksec->nlbl_state = NLBL_LABELED;
+ 
+-	netlbl_secattr_destroy(&secattr, 0);
++	netlbl_secattr_destroy(&secattr);
+ 
+ netlbl_socket_setsid_return:
+ 	POLICY_RDUNLOCK;
+@@ -2512,7 +2517,7 @@ void selinux_netlbl_sock_graft(struct so
+ 						  sksec->sid,
+ 						  &nlbl_peer_sid) == 0)
+ 			sksec->peer_sid = nlbl_peer_sid;
+-		netlbl_secattr_destroy(&secattr, 0);
++		netlbl_secattr_destroy(&secattr);
+ 	}
+ 
+ 	sksec->nlbl_state = NLBL_REQUIRE;
 
--- ljk
+--
+paul moore
+linux security @ hp
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
