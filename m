@@ -1,78 +1,169 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k94JE24P028628
-	for <selinux@tycho.nsa.gov>; Wed, 4 Oct 2006 15:14:02 -0400
-Received: from e5.ny.us.ibm.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id k94JDQUx021122
-	for <selinux@tycho.nsa.gov>; Wed, 4 Oct 2006 19:13:26 GMT
-Received: from d01relay02.pok.ibm.com (d01relay02.pok.ibm.com [9.56.227.234])
-	by e5.ny.us.ibm.com (8.13.8/8.12.11) with ESMTP id k94JE0lq002144
-	for <selinux@tycho.nsa.gov>; Wed, 4 Oct 2006 15:14:00 -0400
-Received: from d01av04.pok.ibm.com (d01av04.pok.ibm.com [9.56.224.64])
-	by d01relay02.pok.ibm.com (8.13.6/8.13.6/NCO v8.1.1) with ESMTP id k94JDtwD282822
-	for <selinux@tycho.nsa.gov>; Wed, 4 Oct 2006 15:14:00 -0400
-Received: from d01av04.pok.ibm.com (loopback [127.0.0.1])
-	by d01av04.pok.ibm.com (8.12.11.20060308/8.13.3) with ESMTP id k94JDt6J001058
-	for <selinux@tycho.nsa.gov>; Wed, 4 Oct 2006 15:13:55 -0400
-Date: Wed, 4 Oct 2006 14:01:51 -0500
-From: Joy Latten <latten@austin.ibm.com>
-Message-Id: <200610041901.k94J1px0009061@faith.austin.ibm.com>
-To: eparis@parisplace.org, redhat-lssp@redhat.com, selinux@tycho.nsa.gov
-Subject: Re: RHEL5 Kernel with labeled networking
+Subject: Re: [PATCH] enable/disable context translation in libselinux
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Linda Knippers <linda.knippers@hp.com>
+Cc: Eamon Walsh <ewalsh@tycho.nsa.gov>,
+        Darrel Goeddel <dgoeddel@TrustedCS.com>,
+        SELinux Mail List <selinux@tycho.nsa.gov>
+In-Reply-To: <4523E6D5.1040805@hp.com>
+References: <4523E6D5.1040805@hp.com>
+Content-Type: text/plain
+Date: Wed, 04 Oct 2006 15:17:24 -0400
+Message-Id: <1159989444.19176.215.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
->DO NOT USE THESE KERNELS ON A PRODUCTION SYSTEM!
->
->If you go to http://people.redhat.com/eparis/RHEL5_labeled_networking/
->you should find a set of kernels based off of the Red Hat RHEL5 source
->tree.  These should include patches for 
->
->network labeling support from Venkat
->netlabel auditing
->ipsec/secmark secid reconciliation
->netlabel secid reconciliation
->
->I need a very fast response from everyone involved if these kernels
->
->A) boot
->B) run without labeled networking (very very important)
->C) run with labeled networking
->
->If you run across a problem feel free to let me or the list know.  You
->may also feel free to open a bug in bugzilla.redhat.com for the product
->choose Red Hat Enterprise Linux Public Beta and RHEL5.  If you open a
->bug for this labeled networking you can go ahead and assign it to
->eparis@redhat.com so I'm sure to see it and bug the correct people.
->
->At this time there is a known ipsec problem with these kernels.  I
->haven't looked at it closely but I believe the problem is that processes
->which intend to send over an ipsec tunnels but have certain avc denials
->will actually cause traffic to flow unencrypted.  SO PLEASE DO NOT USE
->THESE ON ANY PRODUCTION SYSTEM!!  There is work going on upstream (on
->linux-netdev not either of these lists) to fix this issue in the 2.6-net
->tree and when it is finished it will get brought back into RHEL5.  (I
->don't think you will hit this bug with relatively modern policy but it
->is there and can be a serious security flaw)
->
->Before network labeling is completed we still need some work
->implementing how we plan to audit configuration changes in ipsec
->labeling decisions.  I believe we agreed today that this auditing must
->be done in kernelspace since we do not have fine grained enough controls
->on netlink messages to allow for all of the auditing in userspace.
+On Wed, 2006-10-04 at 12:52 -0400, Linda Knippers wrote:
+> There was a discussion on the redhat-lspp mailing list about a problem
+> with mcstransd and whether it needs to check whether the user is allowed
+> to see a translated context.  See
+> https://www.redhat.com/archives/redhat-lspp/2006-September/msg00086.html
+> 
+> While prototyping adding an avc_has_perm() to the mcstransd, we discovered
+> that avc_has_perm() can go down a path where it needs to translate the
+> context in order to make the check, which is not what we want to do from
+> mcstransd.  Stephen suggested adding a call in libselinux to allow a process
+> to enabled/disable translations for subsequent calls into libselinux so
+> the following patch does that.  Comments?
 
-A stress test sending streams of tcp and udp packets completed
-a 15 hour run successfully. Purpose was to regression test.
+After that discussion, I later realized that the patch in its current
+form would disable translation even if the application explicitly called
+selinux_trans_to_raw_context or selinux_raw_to_trans_context.  Hence, if
+you had an application that wanted to disable automatic translations for
+internal processing but still perform translations explicitly at certain
+points (e.g. user input or display), it wouldn't be able to use this
+mechanism.  We would need to split the translation functions into two
+sets of functions, one for internal use by libselinux that would check
+this flag and skip automatic translations if disabled, and one for
+external use by applications that would always translate upon explicit
+request by the application.
 
-Configuration:
-non-labeled ipsec, encryption and authentication, 
-transport mode using racoon
-selinux-policy-mls-2.3.16-2 in permissive
-hardware: 2 pseries lpars
+Darrel has put together a patch for the userspace AVC based on the
+discussion on redhat-lspp that would enable an application to avoid any
+automatic translations when using the AVC by using appropriate _raw
+interfaces (Darrel, please post here).  With Darrel's patch applied to
+libselinux, mcstransd could then use getpeercon_raw and
+avc_context_to_sid_raw, and then just use avc_has_perm normally without
+causing any translations to occur.  Userspace object managers like X
+could do likewise, while still being able to use non-raw functions or
+the explicit translation functions to perform translations for user
+input or display.
 
-I plan to run a stress test using labels with ipsec tonight.
+> -- ljk
+> 
+>  include/selinux/selinux.h |    4 ++++
+>  src/setrans_client.c      |   15 +++++++++++++--
+>  2 files changed, 17 insertions(+), 2 deletions(-)
+> 
+> --- libselinux-1.30.28/src/setrans_client.c     2006-09-13 13:37:04.000000000 -0400
+> +++ libselinux-1.30.28.ljk/src/setrans_client.c 2006-10-04 11:35:48.000000000 -0400
+> @@ -17,6 +17,7 @@
+>  #include "setrans_internal.h"
+> 
+>  static int mls_enabled = -1;
+> +static int trans_enabled = 1;
+> 
+>  // Simple cache
+>  static __thread security_context_t prev_t2r_trans = NULL;
+> @@ -245,7 +246,7 @@ int selinux_trans_to_raw_context(securit
+>                 return 0;
+>         }
+> 
+> -       if (!mls_enabled) {
+> +       if (!mls_enabled || !trans_enabled) {
+>                 *rawp = strdup(trans);
+>                 goto out;
+>         }
+> @@ -287,7 +288,7 @@ int selinux_raw_to_trans_context(securit
+>                 return 0;
+>         }
+> 
+> -       if (!mls_enabled) {
+> +       if (!mls_enabled || !trans_enabled) {
+>                 *transp = strdup(raw);
+>                 goto out;
+>         }
+> @@ -320,3 +321,13 @@ int selinux_raw_to_trans_context(securit
+>  }
+> 
+>  hidden_def(selinux_raw_to_trans_context)
+> +
+> +/*
+> + * Enable/disable context translation.
+> + * 0 means disable.
+> + */
+> +void selinux_set_translation (int value)
+> +{
+> +       trans_enabled = value;
+> +       return;
+> +}
+> --- libselinux-1.30.28/include/selinux/selinux.h        2006-09-13
+> 13:37:05.000000000 -0400
+> +++ libselinux-1.30.28.ljk/include/selinux/selinux.h    2006-10-04
+> 11:37:44.000000000 -0400
+> @@ -444,6 +444,10 @@ extern "C" {
+>         extern int selinux_raw_to_trans_context(security_context_t raw,
+>                                                 security_context_t * transp);
+> 
+> +/* Enable/disable the translation of contexts for the calling process.
+> +   0 means disabled */
+> +       extern void selinux_set_translation(int value);
+> +
+>  /* Get the SELinux username and level to use for a given Linux username.
+>     These values may then be passed into the get_ordered_context_list*
+>     and get_default_context* functions to obtain a context for the user.
+> 
+> 
+> --- mcstrans-0.1.8/src/mcstransd.c      2006-06-19 14:38:08.000000000 -0400
+> +++ mcstrans-0.1.8.ljk/src/mcstransd.c  2006-10-04 11:40:00.000000000 -0400
+> @@ -17,6 +17,9 @@
+>  #include <sys/types.h>
+>  #include <sys/capability.h>
+>  #include <sys/resource.h>
+> +#include <selinux/avc.h>
+> +#include <selinux/flask.h>
+> +#include <selinux/av_permissions.h>
+> 
+>  #ifdef UNUSED
+>  #elif defined(__GNUC__)
+> @@ -71,22 +74,43 @@ static  __attribute__((noreturn)) void c
+>  }
+> 
+>  /*
+> + * Check to see if the subject requesting the translation
+> + * is cleared to see the translation.
+> + * Returns: 0 on success (allowed), 1 on failure (denied).
+> + */
+> +static int
+> +cleared_to_translate(char *in, char *pcon)
+> +{
+> +
+> +       security_id_t           ssid,tsid; /* SELinux SIDS                  */
+> +       int     retval;
+> +
+> +       avc_init(SETRANSD_PROGNAME, NULL, NULL, NULL, NULL);
+> +       if (avc_context_to_sid(pcon, &ssid) != 0)
+> +               return 1;
+> +       if (avc_context_to_sid(in, &tsid) != 0)
+> +               return 1;
+> +       retval = avc_has_perm(ssid, tsid, SECCLASS_FILE, FILE__GETATTR,
+> +                       NULL, NULL);
+> +       if (retval == 0)
+> +               return 0;
+> +       return 1;
+> +}
+> +
+> +/*
+>   * Convert raw label portion of a security context to translated label
+>   * Returns:  0 on success, 1 on failure
+>   */
+>  static int
+> 
 
-Regards,
-Joy
+-- 
+Stephen Smalley
+National Security Agency
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
