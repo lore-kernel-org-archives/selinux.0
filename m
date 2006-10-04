@@ -1,99 +1,58 @@
-Message-ID: <36282A1733C57546BE392885C0618592015CF8A7@chaos.tcs.tcs-sec.com>
-From: Venkat Yekkirala <vyekkirala@TrustedCS.com>
-To: Venkat Yekkirala <vyekkirala@TrustedCS.com>,
-        "'paul.moore@hp.com'"
-	 <paul.moore@hp.com>,
-        "'netdev@vger.kernel.org'" <netdev@vger.kernel.org>,
-        "'selinux@tycho.nsa.gov'" <selinux@tycho.nsa.gov>
-Cc: "'eparis@redhat.com'" <eparis@redhat.com>,
-        "'jmorris@namei.org'"
-	 <jmorris@namei.org>,
-        "'sds@tycho.nsa.gov'" <sds@tycho.nsa.gov>
-Subject: RE: [PATCH v4 1/2] NetLabel: secid reconciliation support
-Date: Wed, 4 Oct 2006 13:09:52 -0400 
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k94HfpEl024700
+	for <selinux@tycho.nsa.gov>; Wed, 4 Oct 2006 13:41:51 -0400
+Received: from mail.atsec.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id k94Hed5l003491
+	for <selinux@tycho.nsa.gov>; Wed, 4 Oct 2006 17:40:40 GMT
+Date: Wed, 4 Oct 2006 12:41:49 -0500
+From: Klaus Weidner <klaus@atsec.com>
+To: Linda Knippers <linda.knippers@hp.com>
+Cc: Stephen Smalley <sds@tycho.nsa.gov>, Joshua Brindle <method@gentoo.org>,
+        Joy Latten <latten@austin.ibm.com>, redhat-lspp@redhat.com,
+        Venkat Yekkirala <vyekkirala@TrustedCS.com>, jmorris@namei.org,
+        Paul Moore <paul.moore@hp.com>, selinux@tycho.nsa.gov,
+        eparis@parisplace.org, Karl MacMillan <kmacmillan@mentalrootkit.com>
+Subject: Re: [redhat-lspp] Re: RHEL5 Kernel with labeled networking
+Message-ID: <20061004174149.GD10195@w-m-p.com>
+References: <1159902988.29928.2.camel@faith.austin.ibm.com> <4522CAB7.6090109@hp.com> <4522D554.7080708@gentoo.org> <4522D5C2.8060702@hp.com> <4522D667.5030401@mentalrootkit.com> <4522DA79.6080708@hp.com> <4522E6F7.1040207@gentoo.org> <4522EB42.9070502@hp.com> <1159973836.19176.89.camel@moss-spartans.epoch.ncsc.mil> <4523D140.5030103@hp.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <4523D140.5030103@hp.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-> > @@ -3714,19 +3714,34 @@ static int selinux_skb_flow_in(struct sk
-> >  	if (skb->dev == &loopback_dev)
-> >  		return 1;
-> >  
-> > +	if (skb->secmark)
-> > +		loc_sid = skb->secmark;
-> > +	else
-> > +		loc_sid = SECINITSID_NETMSG;
-> > +
-> >  	err = selinux_xfrm_decode_session(skb, &xfrm_sid, 0);
-> >  	BUG_ON(err);
-> > -
-> > -	err = avc_has_perm(xfrm_sid, skb->secmark? : SECINITSID_NETMSG,
-> > -					SECCLASS_PACKET,
-> > -					PACKET__FLOW_IN, NULL);
-> > +	err = selinux_netlbl_skb_sid(skb,
-> > +				     xfrm_sid ? xfrm_sid : loc_sid,
-> > +				     &nlbl_sid);
-> >  	if (err)
-> >  		goto out;
-> >  
-> > -	if (xfrm_sid)
-> > -		skb->secmark = xfrm_sid;
-> > +	if (nlbl_sid)
-> > +		ext_sid = nlbl_sid;
-> > +	else
-> > +		ext_sid = xfrm_sid;
+On Wed, Oct 04, 2006 at 11:20:32AM -0400, Linda Knippers wrote:
+> Thanks for the reminder about that thread.
+> https://www.redhat.com/archives/redhat-lspp/2006-August/msg00008.html
 > 
-> There's a problem here in that it would require 2 different policies
-> depending on whether one is using netlabel or xfrm. Specifically, in
-> the absence of matching iptables contexts (secmark),
+> I didn't really see a conclusion though.  Dan was waiting to hear from
+> Steve.  Steve didn't like it for the reasons I mentioned above.  Were
+> the auditallows added to the MLS policy?  Did anyone create a module?
 
-as well as any external labeling via ipsec/NetLabel,
+Yes, it's part of the "lspp_policy" module included in the kickstart
+config RPM I posted yesterday.
 
-> the skb here
-> will get:
-> 
-> - 0 (xfrm case)
-> - network_t (netlabel)
-> 
-> This has implications for getpeercon() where it would
-> 
-> - fail with ENOPROTOOPT (xfrm case)
-> - returns network_t (netlabel)
-> 
-> I would still argue that the nature of the domain being carried by
-> the packet is still unlabeled_t as implied by the null secmark. While
-> I view secmark/point as specifying BOTH a flow control point and a
-> default domain (incidentally using the same label more because of
-> implementation constrainst), I view network_t as purely a flow control
-> point.
-> 
-> But I also realize there can be equally forceful arguments 
-> for what this
-> patch does.
-> 
-> What does the community think? We need to resolve it one way or the
-> other unless the above differences in behavior are desired or somehow
-> accounted for in policy and apps.
-> 
-> > +
-> > +	err = avc_has_perm(ext_sid,
-> > +			   loc_sid,
-> > +			   SECCLASS_PACKET,
-> > +			   PACKET__FLOW_IN,
-> > +			   NULL);
-> > +	if (err)
-> > +		goto out;
-> >  
-> > -	/* See if NetLabel can flow in thru the current secmark here */
-> > +	if (ext_sid)
-> > +		skb->secmark = ext_sid;
-> >  
-> >  out:
-> >  	return err ? 0 : 1;
-> > 
-> 
+This reminds me - can we assume that the setsocketcreate and
+setipccreate attributes will remain unimplemented for RHEL5? If they get
+added at the last minute the people who write the tests would get very
+unhappy.
+
+-Klaus
+
+policy_module(lspp_policy,1.0)
+
+gen_require(`
+        attribute domain;
+')
+
+# Audit setting of security relevant process attributes
+# These settings are OPTIONAL
+auditallow domain self:process setcurrent;
+auditallow domain self:process setexec;
+auditallow domain self:process setfscreate;
+#auditallow domain self:process setsocketcreate; # FIXME
+#auditallow domain self:process setipccreate; # FIXME
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
