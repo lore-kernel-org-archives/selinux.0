@@ -1,72 +1,77 @@
-Subject: Re: newrole - adding capabilities for polyinstantiation
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Michael C Thompson <thompsmc@us.ibm.com>
-Cc: Karl MacMillan <kmacmillan@mentalrootkit.com>,
-        Joshua Brindle <jbrindle@tresys.com>,
-        Darrel Goeddel <dgoeddel@TrustedCS.com>,
-        Steve Grubb <sgrubb@redhat.com>, SE Linux <selinux@tycho.nsa.gov>
-In-Reply-To: <4522E6DA.1000200@us.ibm.com>
-References: <451AEC39.2090409@us.ibm.com>
-	 <1159450384.11489.5.camel@moss-spartans.epoch.ncsc.mil>
-	 <451C3A37.8080509@us.ibm.com>  <4522E6DA.1000200@us.ibm.com>
-Content-Type: text/plain
-Date: Wed, 04 Oct 2006 10:52:12 -0400
-Message-Id: <1159973532.19176.84.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+Message-ID: <4523CAEB.4070200@hp.com>
+Date: Wed, 04 Oct 2006 10:53:31 -0400
+From: Paul Moore <paul.moore@hp.com>
+MIME-Version: 1.0
+To: "Christopher J. PeBenito" <cpebenito@tresys.com>
+Cc: Venkat Yekkirala <vyekkirala@TrustedCS.com>, netdev@vger.kernel.org,
+        selinux@tycho.nsa.gov, jmorris@namei.org, sds@tycho.nsa.gov,
+        eparis@redhat.com
+Subject: Re: [PATCH 1/1] secid reconcialiation: Replace unlabeled_t with	the
+ network_t
+References: <45231F6F.4030509@trustedcs.com>  <4523C655.7010008@hp.com> <1159973254.14831.71.camel@sgc>
+In-Reply-To: <1159973254.14831.71.camel@sgc>
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2006-10-03 at 17:40 -0500, Michael C Thompson wrote:
-> Michael C Thompson wrote:
-> > Stephen Smalley wrote:
-> >> (1) addresses the concern for non-LSPP users, but doesn't fully address
-> >> my concerns about the additional risk to LSPP users.  One obvious issue
-> >> is that drop_capabilities() currently also resets to the caller's uid,
-> >> which Janak's patches do not change.  Which I think means that any
-> >> directories and files created by pam_namespace will initially be
-> >> assigned the caller's uid, and potentially exposed to tampering by
-> >> processes in the caller's uid.
+Christopher J. PeBenito wrote:
+> On Wed, 2006-10-04 at 10:33 -0400, Paul Moore wrote:
 > 
-> As the code stands, even if we delayed the setresuid till right before 
-> the call to exec the shell, the files created by pam_namespace would 
-> still have the caller's uid because the real uid of the process isn't 
-> affected by the suid bit (only the effective uid), and file system 
-> operations are based on the real uid.
-
-That is not correct.  File system operations in Linux are based on the
-fsuid, which shadows the euid unless explicitly set.  
-
-> What we would need to do is change the real uid to be, say, root in 
-> order to protect the operations done by pam_namespace. This could be 
-> done right before the calls to pam_namespace, but I'm not sure how much 
-> value is obtained from that approach.
-
-If you delay the setresuid call until after pam_namespace runs, then
-files created by it should be created in uid 0 by default, and thus not
-immediately accessible to the caller.
-
-> There are a few concerns which have arisen due to this polyinstantiation 
-> and suid newrole work. One such concern is that with labeled networking, 
-> using newrole to change your MLS level will not work as intended, since 
-> the relabeled tty will not be able to talk to the socket. This would 
-> limit using newrole to manipulate our MLS to the console, and would 
-> leave newrole capable of only changing the role and type on network 
-> connections.
+>>Venkat Yekkirala wrote:
+>>
+>>>The following replaces unlabeled_t with network_t for
+>>>better characterization of the flow out/in checks in
+>>>SELinux, as well as to allow for mls packets to
+>>>flow out/in from the network since network_t would allow
+>>>the full range of MLS labels, as opposed to the unlabeled init sid
+>>>that only allows system-hi.
+>>>
+>>>Signed-off-by: Venkat Yekkirala <vyekkirala@TrustedCS.com>
+>>>---
+>>>This is an incremental patch the secid-reconcilation v4 patchset.
+>>>
+>>>--- net-2.6.sid3/security/selinux/hooks.c	2006-10-01 15:43:12.000000000 -0500
+>>>+++ net-2.6/security/selinux/hooks.c	2006-10-03 16:43:21.000000000 -0500
+>>>@@ -3703,7 +3703,8 @@ static int selinux_skb_flow_in(struct sk
+>>> 	err = selinux_xfrm_decode_session(skb, &xfrm_sid, 0);
+>>> 	BUG_ON(err);
+>>> 
+>>>-	err = avc_has_perm(xfrm_sid, skb->secmark, SECCLASS_PACKET,
+>>>+	err = avc_has_perm(xfrm_sid, skb->secmark? : SECINITSID_NETMSG,
+>>>+					SECCLASS_PACKET,
+>>> 					PACKET__FLOW_IN, NULL);
+>>> 	if (err)
+>>> 		goto out;
+>>>@@ -3900,7 +3901,7 @@ static unsigned int selinux_ip_postroute
+>>> 				skb->secmark = sksec->sid;
+>>> 			}
+>>> 		}
+>>>-		err = avc_has_perm(skb->secmark, SECINITSID_UNLABELED,
+>>>+		err = avc_has_perm(skb->secmark, SECINITSID_NETMSG,
+>>> 				   SECCLASS_PACKET, PACKET__FLOW_OUT, &ad);
+>>> 	}
+>>> out:
+>>
+>>Considering the above change, I wonder if it would also make sense to
+>>update the secmark to SECINITSID_UNLABELED in the abscence of any
+>>external labeling (labeled IPsec or NetLabel)?
+>  
+> Wouldn't that make secmark useless in the non labeled networking case?
 > 
-> However, even with this MLS level concern aside, is it expected that 
-> using newrole to change your active role will also polyinstantiate 
-> directories? If so, then newrole needs to be a setuid root program.
 
-For some users, yes.  But this will vary depending on user need.
+Sorry, I didn't do a very good job explaining things in my first email
+so let me try it again ...
 
-> If making newrole to be a setuid root program is considered 
-> unacceptable, an alternative needs to be provided for users to specify 
-> the desired role (and type) to assume upon login.
+If there is no external labeling, i.e. labeled IPsec or NetLabel, *and*
+the secmark is equal to zero/SECSID_NULL I think it might be a good idea
+to set the secmark to SECINITSID_NETMSG.
+
+This not affect either local or external labels if they are present, but
+if both are not it would give the secmark some meaningful value.
 
 -- 
-Stephen Smalley
-National Security Agency
-
+paul moore
+linux security @ hp
 
 --
 This message was distributed to subscribers of the selinux mailing list.
