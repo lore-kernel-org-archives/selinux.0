@@ -1,64 +1,46 @@
-Message-ID: <36282A1733C57546BE392885C0618592015CF83F@chaos.tcs.tcs-sec.com>
-From: Venkat Yekkirala <vyekkirala@TrustedCS.com>
-To: James Morris <jmorris@namei.org>,
-        Venkat Yekkirala
-	 <vyekkirala@TrustedCS.com>
-Cc: johnpol@2ka.mipt.ru, herbert@gondor.apana.org.au, davem@davemloft.net,
-        sds@tycho.nsa.gov, paul.moore@hp.com, selinux@tycho.nsa.gov
-Subject: RE: [PATCH] Fix for IPsec leakage with SELinux enabled - V.02
-Date: Wed, 4 Oct 2006 09:58:15 -0400 
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Subject: Re: [redhat-lspp] Re: RHEL5 Kernel with labeled networking
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: James Morris <jmorris@namei.org>
+Cc: Eric Paris <eparis@parisplace.org>, redhat-lspp@redhat.com,
+        vyekkirala@TrustedCS.com, paul.moore@hp.com, selinux@tycho.nsa.gov,
+        Linda Knippers <linda.knippers@hp.com>
+In-Reply-To: <Pine.LNX.4.64.0610031207260.21081@d.namei>
+References: <1159834998.28144.115.camel@localhost.localdomain>
+	 <452282F2.1000107@hp.com>
+	 <1159890356.28144.136.camel@localhost.localdomain>
+	 <Pine.LNX.4.64.0610031207260.21081@d.namei>
+Content-Type: text/plain
+Date: Wed, 04 Oct 2006 10:09:02 -0400
+Message-Id: <1159970943.19176.57.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-[ CCing selinux ]
+On Tue, 2006-10-03 at 12:08 -0400, James Morris wrote:
+> On Tue, 3 Oct 2006, Eric Paris wrote:
+> 
+> > I think there is going to need to be a policy change that I'm actually
+> > talking with Dan about as I type this e-mail.  I think we  need
+> > 
+> > allow $1 unlabeled_t:packet { flow_in flow_out };
+> > 
+> > to be added to policy to allow things to work as they did.  I'll post
+> > again as soon as we have a policy that appears to let normal networking
+> > work in enforcing.
+> 
+> We need this policy in rawhide before the kernel patches are merged 
+> upstream, so we can note the required policy version associated with the 
+> patches.  We've do not want to kill Andrew Morton's box again with this 
+> kind of thing.
 
-Oops! Here's the explanation:
+The compat_net support should avoid such breakage, and compat_net is
+enabled by default in a default kernel config (just not in the Fedora
+kernel config).
 
-Currently when an IPSec policy rule doesn't specify a security
-context, it is assumed to be "unlabeled" by SELinux, and so
-the IPSec policy rule fails to match to a flow that it would
-otherwise match to, unless one has explicitly added an SELinux
-policy rule allowing the flow to "polmatch" to the "unlabeled"
-IPSec policy rules. In the absence of such an explicitly added
-SELinux policy rule, the IPSec policy rule fails to match and
-so the packet(s) flow in clear text without the otherwise applicable
-xfrm(s) applied.
+-- 
+Stephen Smalley
+National Security Agency
 
-The above SELinux behavior violates the SELinux security notion of
-"deny by default" which should actually translate to "encrypt by
-default" in the above case.
-
-With this patch applied, SELinux "polmatching" of flows Vs. IPSec
-policy rules will only come into play when there's a explicit context
-specified for the IPSec policy rule (which also means there's corresponding
-SELinux policy allowing appropriate domains/flows to polmatch to this
-context).
-
-> -----Original Message-----
-> From: James Morris [mailto:jmorris@namei.org]
-> Sent: Wednesday, October 04, 2006 8:03 AM
-> To: Venkat Yekkirala
-> Cc: johnpol@2ka.mipt.ru; herbert@gondor.apana.org.au;
-> davem@davemloft.net; sds@tycho.nsa.gov; paul.moore@hp.com
-> Subject: Re: [PATCH] Fix for IPsec leakage with SELinux enabled - V.02
-> 
-> 
-> On Tue, 3 Oct 2006, Venkat Yekkirala wrote:
-> 
-> > Following is the patch that should prevent the kind of "leaks"
-> > that Evgeniy reported that were ostyensibly caused by the current
-> > labeled-ipsec design requiring rules to be added for ipsec policy
-> > to match.
-> 
-> Also, I think some explanation of this patch would be useful.
-> 
-> -- 
-> James Morris
-> <jmorris@namei.org>
-> 
 
 --
 This message was distributed to subscribers of the selinux mailing list.
