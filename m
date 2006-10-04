@@ -1,45 +1,68 @@
-Message-ID: <45243804.80902@us.ibm.com>
-Date: Wed, 04 Oct 2006 17:39:00 -0500
-From: Michael C Thompson <thompsmc@us.ibm.com>
+Message-ID: <452438FB.2090600@hp.com>
+Date: Wed, 04 Oct 2006 18:43:07 -0400
+From: Paul Moore <paul.moore@hp.com>
 MIME-Version: 1.0
-To: Stephen Smalley <sds@tycho.nsa.gov>
-CC: Karl MacMillan <kmacmillan@mentalrootkit.com>,
-        Joshua Brindle <jbrindle@tresys.com>,
-        Darrel Goeddel <dgoeddel@TrustedCS.com>,
-        Steve Grubb <sgrubb@redhat.com>, SE Linux <selinux@tycho.nsa.gov>
-Subject: Re: newrole - adding capabilities for polyinstantiation
-References: <451AEC39.2090409@us.ibm.com>	 <1159450384.11489.5.camel@moss-spartans.epoch.ncsc.mil>	 <451C3A37.8080509@us.ibm.com>  <4522E6DA.1000200@us.ibm.com>	 <1159973532.19176.84.camel@moss-spartans.epoch.ncsc.mil>	 <4523E1E5.7030907@us.ibm.com> <1159980742.19176.140.camel@moss-spartans.epoch.ncsc.mil>
-In-Reply-To: <1159980742.19176.140.camel@moss-spartans.epoch.ncsc.mil>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: Joe Nall <joe@nall.com>
+Cc: Stephen Smalley <sds@tycho.nsa.gov>,
+        Venkat Yekkirala <vyekkirala@TrustedCS.com>,
+        SE Linux <selinux@tycho.nsa.gov>, eparis@redhat.com,
+        James Morris <jmorris@namei.org>, Steve Grubb <sgrubb@redhat.com>
+Subject: Re: [PATCH v4 1/2] NetLabel: secid reconciliation support
+References: <36282A1733C57546BE392885C0618592015CF96F@chaos.tcs.tcs-sec.com> <1159993643.19176.256.camel@moss-spartans.epoch.ncsc.mil> <45241EFF.2000108@hp.com> <200610041712.00629.sgrubb@redhat.com> <C89A4409-F96D-430D-8DF5-7BEF0F972A4F@nall.com>
+In-Reply-To: <C89A4409-F96D-430D-8DF5-7BEF0F972A4F@nall.com>
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Stephen Smalley wrote:
-> On Wed, 2006-10-04 at 11:31 -0500, Michael C Thompson wrote:
->> Stephen Smalley wrote:
->>> That is not correct.  File system operations in Linux are based on the
->>> fsuid, which shadows the euid unless explicitly set.
->> hmm, you are right (and I, alas, was wrong). However, the files will be 
->> created with the egid being the calling user (as it stands). I imagine 
->> we'd want to change that.
+Joe Nall wrote:
+> On Oct 4, 2006, at 4:12 PM, Steve Grubb wrote:
 > 
-> Not clear that it matters.  IIUC, pam_namespace already sets the user
-> and group ownership after creation, so the only reason we care about
-> euid/fsuid is ensuring that the directory isn't temporarily accessible
-> to the caller.  As long as the directory mode is owner-only (as I think
-> it is), the initial gid on the directory shouldn't matter.
 > 
+>>On Wednesday 04 October 2006 16:52, Paul Moore wrote:
+>>
+>>>I think we are all in agreement that the current xinetd patch is  
+>>>broken.
+>>> Hopefully Steve Grubb will have fix it soon (I just added him as  
+>>>a CC).
+>>
+>>In my opinion, this should be in bugzilla. This is the first I  
+>>heard of xinetd
+>>being broken. LSPP issues that need quick solutions like this can  
+>>get lost in
+>>mail.
+> 
+> 
+> Using Eric's kernel and rawhide xinetd, I get what I expect from this  
+> simple test -
+> 
+> [joe@mls user_u:user_r:user_t:SystemLow ~]$ telnet localhost test
+> Trying 127.0.0.1...
+> Connected to localhost.localdomain (127.0.0.1).
+> Escape character is '^]'.
+> uid=0(root) gid=0(root) groups=0(root),1(bin),2(daemon),3(sys),4(adm), 
+> 6(disk),10(wheel) context=user_u:user_r:user_t:SystemLow
+> Connection closed by foreign host.
+> 
+> [joe@mls user_u:user_r:user_t:SystemLow ~]$ newrole -l S-S
+> ...
+> [joe@mls user_u:user_r:user_t:SECRET ~]$ telnet localhost test
+> Trying 127.0.0.1...
+> Connected to localhost.localdomain (127.0.0.1).
+> Escape character is '^]'.
+> uid=0(root) gid=0(root) groups=0(root),1(bin),2(daemon),3(sys),4(adm), 
+> 6(disk),10(wheel) context=user_u:user_r:user_t:SECRET
 
- From pam_namespace.c:
-mkdir(ipath, S_IRUSR)
+Handling of loopback is a special case when using the secid patches, the
+behavior you are seeing is expected.
 
-After this, the security attributes of the directory are set according 
-to those of the original with the appropriate uid/gid and perm mask.
+> Can anyone provide a simple test that demonstrates how xinetd is broken?
 
-So again, you are indeed correct. One of these days...!
+Try telneting into a remote host and note the context that in.telnetd is
+running on the remote machine.
 
-Mike
-
+-- 
+paul moore
+linux security @ hp
 
 --
 This message was distributed to subscribers of the selinux mailing list.
