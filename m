@@ -1,28 +1,36 @@
-Message-ID: <4523F60B.70108@hp.com>
-Date: Wed, 04 Oct 2006 13:57:31 -0400
-From: Linda Knippers <linda.knippers@hp.com>
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k94HwIXq025379
+	for <selinux@tycho.nsa.gov>; Wed, 4 Oct 2006 13:58:18 -0400
+Received: from tcsfw4.tcs-sec.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id k94HvfUx010486
+	for <selinux@tycho.nsa.gov>; Wed, 4 Oct 2006 17:57:42 GMT
+Message-ID: <36282A1733C57546BE392885C0618592015CF8EB@chaos.tcs.tcs-sec.com>
+From: Venkat Yekkirala <vyekkirala@TrustedCS.com>
+To: Venkat Yekkirala <vyekkirala@TrustedCS.com>,
+        Eric Paris
+	 <eparis@redhat.com>, selinux@tycho.nsa.gov,
+        redhat-lspp@redhat.com
+Subject: RE: [redhat-lspp] Labeled networking at the end of the day Oct 2,
+	 2006
+Date: Wed, 4 Oct 2006 13:57:58 -0400 
 MIME-Version: 1.0
-To: Eric Paris <eparis@parisplace.org>
-Cc: Klaus Weidner <klaus@atsec.com>, Joshua Brindle <method@gentoo.org>,
-        selinux@tycho.nsa.gov, redhat-lspp@redhat.com,
-        Venkat Yekkirala <vyekkirala@TrustedCS.com>, jmorris@namei.org,
-        Joy Latten <latten@austin.ibm.com>, Paul Moore <paul.moore@hp.com>,
-        Stephen Smalley <sds@tycho.nsa.gov>,
-        Karl MacMillan <kmacmillan@mentalrootkit.com>
-Subject: Re: [redhat-lspp] Re: RHEL5 Kernel with labeled networking
-References: <1159902988.29928.2.camel@faith.austin.ibm.com>	 <4522CAB7.6090109@hp.com> <4522D554.7080708@gentoo.org>	 <4522D5C2.8060702@hp.com> <4522D667.5030401@mentalrootkit.com>	 <4522DA79.6080708@hp.com> <4522E6F7.1040207@gentoo.org>	 <4522EB42.9070502@hp.com>	 <1159973836.19176.89.camel@moss-spartans.epoch.ncsc.mil>	 <4523D140.5030103@hp.com>  <20061004174149.GD10195@w-m-p.com> <1159984301.10614.35.camel@localhost.localdomain>
-In-Reply-To: <1159984301.10614.35.camel@localhost.localdomain>
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Eric Paris wrote:
-> seipccreate is dead.  it will not be implemented without a user.
-> setsockcreate i believe is already there....
-
-Yes, I see it in beta 1.
-
--- ljk
+> > Non-kernel code issues which must be resolved/explained
+> > 1) I also haven't heard any response to method's inquiry about the
+> > meaning of some unlabeled_t denials namely
+> > 
+> > audit(1159877238.937:35): avc:  denied  { polmatch } for  
+> > scontext=system_u:object_r:unlabeled_t:s0 
+> > tcontext=root:system_r:unconfined_t:s0-s0:c0.c255 tclass=association
+> 
+> The patch I posted last night should take care of this as well.
+>
+I misread the target in the above denial to be unlabeled_t. But I
+see it's unconfined_t. Currently looking at Joshua's post in this regard.
 
 --
 This message was distributed to subscribers of the selinux mailing list.
