@@ -1,103 +1,59 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k94EQHHU015830
-	for <selinux@tycho.nsa.gov>; Wed, 4 Oct 2006 10:26:17 -0400
-Received: from tcsfw4.tcs-sec.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id k94EPfCa009540
-	for <selinux@tycho.nsa.gov>; Wed, 4 Oct 2006 14:25:42 GMT
-Message-ID: <36282A1733C57546BE392885C0618592015CF850@chaos.tcs.tcs-sec.com>
-From: Venkat Yekkirala <vyekkirala@TrustedCS.com>
-To: Eric Paris <eparis@redhat.com>, selinux@tycho.nsa.gov,
-        redhat-lspp@redhat.com
-Subject: RE: [redhat-lspp] Labeled networking at the end of the day Oct 2,
-	 2006
-Date: Wed, 4 Oct 2006 10:25:42 -0400 
+Message-ID: <4523C655.7010008@hp.com>
+Date: Wed, 04 Oct 2006 10:33:57 -0400
+From: Paul Moore <paul.moore@hp.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+To: Venkat Yekkirala <vyekkirala@TrustedCS.com>
+Cc: netdev@vger.kernel.org, selinux@tycho.nsa.gov, jmorris@namei.org,
+        sds@tycho.nsa.gov, eparis@redhat.com
+Subject: Re: [PATCH 1/1] secid reconcialiation: Replace unlabeled_t with the
+ network_t
+References: <45231F6F.4030509@trustedcs.com>
+In-Reply-To: <45231F6F.4030509@trustedcs.com>
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-> 1) fix for packets intended for ipsec tunnels to not be clear text.
-> Venkat indicated he had his own way he wanted to solve this problem on
-> Monday but I did not see any updates today.  This is a major problem
-> which must get fixed somehow, soon.
-
-The patch I posted last night should take of this to a large extent (99%).
-At least for policy sake (the patch affects policy), we could start with
-that patch. James' patch is about propagating errors other than EACCES
-(very very rare), and this could IMO go between beta2 and GA, since it
-doesn't affect policy.
-
-> 2) ipsec configuration auditing.  if we can do this in policy all the
-> better.  if not, I need a patch.
-
-I see Joy is working on this.
-
-> 3) fix for netlabel caching race which can cause an opps.  
-> Can be worked
-> around by using a sysctl (see the e-mail from paul moore)
-> 4) fix for netlabel correctness in the same e-mail from paul he
-> mentioned correctness issues in -v3 inside selinux-ip-postroute-last
+Venkat Yekkirala wrote:
+> The following replaces unlabeled_t with network_t for
+> better characterization of the flow out/in checks in
+> SELinux, as well as to allow for mls packets to
+> flow out/in from the network since network_t would allow
+> the full range of MLS labels, as opposed to the unlabeled init sid
+> that only allows system-hi.
 > 
-> Testing with compat-net is not going to help us.  At this time I don't
-> believe that RHEL5 is going to ship with compat-net set (at least I
-> don't plan to right now)
+> Signed-off-by: Venkat Yekkirala <vyekkirala@TrustedCS.com>
+> ---
+> This is an incremental patch the secid-reconcilation v4 patchset.
+> 
+> --- net-2.6.sid3/security/selinux/hooks.c	2006-10-01 15:43:12.000000000 -0500
+> +++ net-2.6/security/selinux/hooks.c	2006-10-03 16:43:21.000000000 -0500
+> @@ -3703,7 +3703,8 @@ static int selinux_skb_flow_in(struct sk
+>  	err = selinux_xfrm_decode_session(skb, &xfrm_sid, 0);
+>  	BUG_ON(err);
+>  
+> -	err = avc_has_perm(xfrm_sid, skb->secmark, SECCLASS_PACKET,
+> +	err = avc_has_perm(xfrm_sid, skb->secmark? : SECINITSID_NETMSG,
+> +					SECCLASS_PACKET,
+>  					PACKET__FLOW_IN, NULL);
+>  	if (err)
+>  		goto out;
+> @@ -3900,7 +3901,7 @@ static unsigned int selinux_ip_postroute
+>  				skb->secmark = sksec->sid;
+>  			}
+>  		}
+> -		err = avc_has_perm(skb->secmark, SECINITSID_UNLABELED,
+> +		err = avc_has_perm(skb->secmark, SECINITSID_NETMSG,
+>  				   SECCLASS_PACKET, PACKET__FLOW_OUT, &ad);
+>  	}
+>  out:
 
-Thanks for pointing out. Everyone should test with compat_net off (0)
-meaning they would be using secmark/flow-control.
+Considering the above change, I wonder if it would also make sense to
+update the secmark to SECINITSID_UNLABELED in the abscence of any
+external labeling (labeled IPsec or NetLabel)?
 
-> 
-> Non-kernel code issues which must be resolved/explained
-> 1) I also haven't heard any response to method's inquiry about the
-> meaning of some unlabeled_t denials namely
-> 
-> audit(1159877238.937:35): avc:  denied  { polmatch } for  
-> scontext=system_u:object_r:unlabeled_t:s0 
-> tcontext=root:system_r:unconfined_t:s0-s0:c0.c255 tclass=association
-
-The patch I posted last night should take care of this as well.
-
-> 
-> 2) policy must be updated to include flow_in and flow_out for
-> unlabeled_t packets.  dwalsh made a policy to at least define these
-> which I may put on my people page in a bit.  Doesn't fix the denials,
-> but at least you can fix them yourself in modules.  Venkat 
-> has promised
-> a policy patch to fix these issues.  I certainly hope that 
-> will be soon.
-
-The sample policy I posted last night might be of some help here.
-
-> 3) policy must be updated to understand that by default traffic on the
-> loopback interface is going to be labeled and not unlabeled_t any more
-> (avahi_t I'm seeing hitting this)
-> 
-> Also we have at least 2 cleanups that need to be done to the labeled
-> networking code.
-> 
-> 1) Patch 7/9 from the reconciliation thread should be cleaned up to
-> better use BUG_ON()
-> 2) Patch 2/9 should drop polsec from the hook interface in 
-> security_ops
-
-These minor things as well as any optimizations can again go in between
-beta2 and GA.
-
-> 
-> I think this is a pretty good outline of where we are, what is broken,
-> what is backported in my RHEL5 based kernel, and what needs to be
-> answered/cleaned up for the future.  If I missed something, if you see
-> something else wrong, if there is anything you can do to 
-> address any of
-> these point please don't hesitate to send an e-mail.
-> 
-> -Eric
-> 
-> --
-> redhat-lspp mailing list
-> redhat-lspp@redhat.com
-> https://www.redhat.com/mailman/listinfo/redhat-lspp
-> 
+-- 
+paul moore
+linux security @ hp
 
 --
 This message was distributed to subscribers of the selinux mailing list.
