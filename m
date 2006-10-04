@@ -1,47 +1,81 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k94GCmM5020307
-	for <selinux@tycho.nsa.gov>; Wed, 4 Oct 2006 12:12:48 -0400
-Received: from mx1.redhat.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id k94GCCUx024840
-	for <selinux@tycho.nsa.gov>; Wed, 4 Oct 2006 16:12:13 GMT
-From: Steve Grubb <sgrubb@redhat.com>
-To: redhat-lspp@redhat.com
-Subject: Re: [redhat-lspp] Re: RHEL5 Kernel with labeled networking
-Date: Wed, 4 Oct 2006 12:13:03 -0400
-Cc: Linda Knippers <linda.knippers@hp.com>, Joy Latten <latten@austin.ibm.com>,
-        paul.moore@hp.com, vyekkirala@TrustedCS.com, jmorris@namei.org,
-        selinux@tycho.nsa.gov, Joshua Brindle <method@gentoo.org>,
-        eparis@parisplace.org
-References: <200610031837.k93Ib7cQ003247@faith.austin.ibm.com> <1159902988.29928.2.camel@faith.austin.ibm.com> <4522CAB7.6090109@hp.com>
-In-Reply-To: <4522CAB7.6090109@hp.com>
+Message-ID: <4523DF14.6080602@us.ibm.com>
+Date: Wed, 04 Oct 2006 11:19:32 -0500
+From: Michael C Thompson <thompsmc@us.ibm.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Message-Id: <200610041213.03223.sgrubb@redhat.com>
+To: russell@coker.com.au
+CC: Stephen Smalley <sds@tycho.nsa.gov>,
+        Karl MacMillan <kmacmillan@mentalrootkit.com>,
+        Joshua Brindle <jbrindle@tresys.com>,
+        Darrel Goeddel <dgoeddel@TrustedCS.com>,
+        Steve Grubb <sgrubb@redhat.com>, SE Linux <selinux@tycho.nsa.gov>
+Subject: Re: newrole - adding capabilities for polyinstantiation
+References: <451AEC39.2090409@us.ibm.com> <451C3A37.8080509@us.ibm.com> <4522E6DA.1000200@us.ibm.com> <200610040952.07843.russell@coker.com.au>
+In-Reply-To: <200610040952.07843.russell@coker.com.au>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tuesday 03 October 2006 16:40, Linda Knippers wrote:
-> > Dang! Why didn't I think of that! :-)
-> > Such a good idea. I will do a quick test and
-> > show Klaus and see if it all looks ok to him.
-> > Thanks!!!
->
-> If we go the auditallow route then we lose some audit record management
-> features, like the ability to enable/disble/search for these records,
-> don't we?  Do we care?
+Russell Coker wrote:
+> On Wednesday 04 October 2006 08:40, Michael C Thompson <thompsmc@us.ibm.com> 
+> wrote:
+>> There are a few concerns which have arisen due to this polyinstantiation
+>> and suid newrole work. One such concern is that with labeled networking,
+>> using newrole to change your MLS level will not work as intended, since
+>> the relabeled tty will not be able to talk to the socket. This would
+>> limit using newrole to manipulate our MLS to the console, and would
+>> leave newrole capable of only changing the role and type on network
+>> connections.
+> 
+> What do you mean?
 
-Yes we care! And we should not do it with auditallow rules. The problem is 
-that to SE linux, EVERYTHING is an AVC. There is no separation of meaning by 
-using the message type. If an admin wants to query to see all the config 
-changes made during a range of time, using AVC's will not be considered in 
-the results.
+TBH, I don't totally understand it myself. However, it was explained to 
+me that if you newrole to a new level over a labeled network connection, 
+this will break the session since the network connection is at one 
+level, and you are now at another.
 
-There needs to be a new message type for this or we need to consolidate around 
-the ones Paul used for netlabel and change them as needed. This allows better 
-reporting and understanding of the system's real status.
+> You have sshd talking to /dev/ptmx and the shell talking to /dev/pts/X.  
+> If /dev/pts/X is relabeled to a different range then sshd will still keep 
+> talking to /dev/ptmx without any change (in fact sshd can't conveniently know 
+> about this change).
+> 
+> The only problems you have with network logins and newrole are if you do "exec 
+> newrole" or if your connection is closed due to a network error.  In those 
+> cases sshd may try to restore the context of a /dev/pts/X device that it is 
+> not permitted to access.  Of course given that /dev/pts/X is going to 
+> disappear this makes no real difference.
+> 
+> The only way I can think of network context being an issue is if you run the 
+> following command:
+> ssh user@host "newrole -r foo_r"
+> 
+> In that case sshd will not create a pty and will instead use a Unix domain 
+> socket.  But I can't imagine any situation in which you would do that 
+> (newrole typically requires an interactive session).
+> 
+>> However, even with this MLS level concern aside, is it expected that
+>> using newrole to change your active role will also polyinstantiate
+>> directories? If so, then newrole needs to be a setuid root program.
+> 
+> I believe that this is necessary.  What is the point of having 
+> poly-instantiated directories if the standard commands used to change 
+> security contexts don't use them?  Also if you have two shells open in role 
+> foo_r which have different versions of /tmp because the initial logins were 
+> from different contexts then it will be at best confusing and at worst a 
+> security leak.
 
--Steve
+The I will gladly continue my work on it :) I just wanted to make sure 
+that I wasn't spending time on something that would end up having no value.
+
+>> If making newrole to be a setuid root program is considered
+>> unacceptable, an alternative needs to be provided for users to specify
+>> the desired role (and type) to assume upon login.
+> 
+> We already have that for ssh and console logins.
+
+I wasn't aware. What is the mechanism?
+
+
+
 
 
 --
