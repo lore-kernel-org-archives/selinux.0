@@ -3,141 +3,107 @@ From: Stephen Smalley <sds@tycho.nsa.gov>
 To: Paul Moore <paul.moore@hp.com>
 Cc: Venkat Yekkirala <vyekkirala@TrustedCS.com>, selinux@tycho.nsa.gov,
         eparis@redhat.com, jmorris@namei.org
-In-Reply-To: <452414A5.8060001@hp.com>
-References: <36282A1733C57546BE392885C0618592015CF96F@chaos.tcs.tcs-sec.com>
-	 <452414A5.8060001@hp.com>
+In-Reply-To: <452417AE.3090203@hp.com>
+References: <36282A1733C57546BE392885C0618592015CF961@chaos.tcs.tcs-sec.com>
+	 <45241108.5040303@hp.com>
+	 <1159992565.19176.240.camel@moss-spartans.epoch.ncsc.mil>
+	 <452417AE.3090203@hp.com>
 Content-Type: text/plain
-Date: Wed, 04 Oct 2006 16:27:23 -0400
-Message-Id: <1159993643.19176.256.camel@moss-spartans.epoch.ncsc.mil>
+Date: Wed, 04 Oct 2006 16:39:14 -0400
+Message-Id: <1159994354.19176.267.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-(also dropping netdev, as this isn't relevant there)
-
-On Wed, 2006-10-04 at 16:08 -0400, Paul Moore wrote:
-> Venkat Yekkirala wrote:
-> >>On Wed, 2006-10-04 at 15:27 -0400, Paul Moore wrote:
+On Wed, 2006-10-04 at 16:21 -0400, Paul Moore wrote:
+> Stephen Smalley wrote:
+> > On Wed, 2006-10-04 at 15:52 -0400, Paul Moore wrote:
+> > 
+> >>Venkat Yekkirala wrote:
 > >>
-> >>>Venkat Yekkirala wrote:
+> >>>>>>* XFRM present
+> >>>>>>
+> >>>>>> xfrm_sid = <full context from xfrm>
+> >>>>>> loc_sid = SECINITSID_NETMSG
+> >>>>>> nlbl_sid = SECSID_NULL/0
+> >>>>>> ext_sid = xfrm_sid
+> >>>>>> final skb->secmark = avc_ok : ext_sid ? unchanged
 > >>>
-> >>>>>* XFRM present
-> >>>>>
-> >>>>>  xfrm_sid = <full context from xfrm>
-> >>>>>  loc_sid = SECINITSID_NETMSG
-> >>>>>  nlbl_sid = SECSID_NULL/0
-> >>>>>  ext_sid = xfrm_sid
-> >>>>>  final skb->secmark = avc_ok : ext_sid ? unchanged
-> > 
-> > 
-> > As noted subsequently, I actually meant to refer to the below
-> > instead of the XFRM case above:
-> > 
-> >  * Nothing
-> > 
-> >    xfrm_sid = SECSID_NULL/0
-> >    loc_sid = SECSID_NULL/0
-> >    nlbl_sid = SECSID_NULL/0
-> >    ext_sid = xfrm_sid
-> >    final skb->secmark = avc_ok : ext_sid ? unchanged
-> > 
-> > 
-> >>>>>* NetLabel present
-> >>>>>
-> >>>>>  xfrm_sid = SECSID_NULL/0
-> >>>>>  loc_sid = SECSID_NULL/0
-> >>>>>  nlbl_sid = <SECINITSID_NETMSG te ctx, netlabel mls ctx>
-> >>>>>  ext_sid = nlbl_sid
-> >>>>>  final skb->secmark = avc_ok : ext_sid ? unchanged
-> >>>>
-> >>>>I was referring to the differences in what getpeercon would
-> >>>>return in the above 2 scenarios.
-> >>>>
-> >>>>In the xfrm case:     final skb->secmark would be 0 
-> >>
-> >>resulting in getpeercon
-> >>
-> >>>>to return EPROTONOOPT
+> >>>Actually, I meant to cite the following instead of the above:
 > >>>
-> >>>In the "XFRM present" case above if the access is allowed (avc_ok is
-> >>>true) then the final skb->secmark value is going to be set 
-> >>
-> >>to the value
-> >>
-> >>>of ext_sid which is the xfrm_sid.  Any calls made to 
-> >>
-> >>getpeercon() would
-> >>
-> >>>return success with the context matching xfrm_sid.
+> >>> * Nothing
 > >>>
-> >>>I have a hunch we are still on different pages here ...
-> >>>
-> >>>
-> >>>>In the NetLabel case: final skb->secmark would be 
+> >>>   xfrm_sid = SECSID_NULL/0
+> >>>   loc_sid = SECSID_NULL/0
+> >>>   nlbl_sid = SECSID_NULL/0
+> >>>   ext_sid = xfrm_sid
+> >>>   final skb->secmark = avc_ok : ext_sid ? unchanged
 > >>
-> >>network_t resulting in
+> >>Okay, thanks, I think I understand your point now.  Let me try to
+> >>restate just to make sure.
 > >>
-> >>>>getpeercon to return network_t
-> >>>
-> >>>Yep, and I understand you would like to see it as 
+> >>Take two cases: the first being no labeling at all, the second being
+> >>only NetLabel ...
 > >>
-> >>unlabeled_t.  I think
+> >> * Nothing
 > >>
-> >>>we both have valid arguments for either case and we are 
+> >>   xfrm_sid = SECSID_NULL/0
+> >>   loc_sid = SECSID_NULL/0
+> >>   nlbl_sid = SECSID_NULL/0
+> >>   ext_sid = xfrm_sid
+> >>   final skb->secmark = avc_ok : ext_sid ? unchanged
 > >>
-> >>just waiting to
+> >> * NetLabel
 > >>
-> >>>hear from others.
+> >>  xfrm_sid = SECSID_NULL/0
+> >>  loc_sid = SECSID_NULL/0
+> >>  nlbl_sid = <SECINITSID_NETMSG te ctx, netlabel mls ctx>
+> >>  ext_sid = nlbl_sid
+> >>  final skb->secmark = avc_ok : ext_sid ? unchanged
 > >>
-> >>I don't understand the argument for network_t, and it seems to violate
-> >>our goals of 1) having consistent policy regardless of 
-> >>network labeling
-> >>mechanism, and 2) having getpeercon() always return a subject 
-> >>label that
-> >>can be used as a basis for avc_has_perm() and setexeccon() calls.
+> >>In the "Nothing" case the final skb->secmark is set to SECSID_NULL/0;
+> >>getpeercon() should return an error. In the "NetLabel" case the final
+> >>skb->secmark is set using the TE portions of SECINITSID_NETMSG and the
+> >>MLS label of the NetLabel packet; getpeercon() will succeed.
 > > 
-> > But in the case where there's no domain info, but a cipso label,
-> > getpeercon will fail (EPROTONOOPT). Do I rememember that Paul was
-> > trying to use a special SID to use as a base sid in this case?
+> > ...but return a context that isn't a subject label.
 > 
-> [I'm replying to both Stephen and Venkat here as the email is coming in
-> faster than I can type :)]
+> The alternative is to go back to having getpeercon() return the socket's
+> TE context with the NetLabel's MLS label - would that be better?  Or do
+> you want it to use SECINITSID_UNLABELED for the TE context?
 > 
-> In the current non-secid world, if the connection is NetLabel labeled,
-> the sock_rcv_skb() LSM hook uses SECINITSID_NETMSG as the base_sid and
-> the recvfrom permission to control access.  Calls to getpeercon() on a
-> NetLabel connection use the socket's SID as the base_sid and the network
-> traffic's MLS label.
+> I would prefer the socket's TE context but if I'm the only one that
+> thinks that way I'll cave on the issue.
 
-So if xinetd calls getpeercon(), it gets a context with type
-"xinetd_t" (from its own socket) and the MLS label of the client?
+As noted in my other email, that seems the least desirable option,
+because the application will see that as meaning that its peer is
+operating in the same domain as itself, whereas we don't know the peer's
+domain at all.  This in turn could lead to passing a userspace
+permission check incorrectly.
 
-> In the latest secid world, when there is only NetLabel labeling present
-> on the connection SECINITSID_NETMSG is used as the base_sid for the
-> final skb->secmark value as determined by the flow_in() LSM hook with
-> the MLS label being set to match the NetLabel on the packet.  Calls to
-> getpeercon() will use the secmark value of the packet when the
-> connection is establishes (in *all* cases) so getpeercon() in the
-> NetLabel only case will succeed and return the value determined above.
+> >>I understand in the "NetLabel" case above you think the TE portion of
+> >>the final skb->secmark value should come from
+> >>SECSID_NULL/SECINITSID_UNLABELED/0, but do you also want getpeercon() to
+> >>return an error in the "NetLabel" case?  I think that's a bad idea as it
+> >>will made it *extremely* difficult for applications to determine the MLS
+> >>label of a connection using NetLabel.
+> >  
+> > It doesn't need to fail in that case, no.  But it should return a
+> > subject label.  From a TE pov, the subject label is "unlabeled_t", i.e.
+> > no labeling information available.  From the MLS pov, you have your
+> > CIPSO label.  Why "network_t" instead?
+> 
+> The reason for using "network_t" is becuase that is what Venkat is
+> assigning to the SECINITSID_NETMSG SID and that is what the NetLabel
+> secid patches currently use for a TE context when there is no other TE
+> information available, i.e. no SECMARK, no XFRM.
 
-So if xinetd calls getpeercon(), it gets a context with type
-"network_t" (if using netmsg) or "unlabeled_t" (if using unlabeled) and
-the MLS label of the client?  So what's the issue with using
-SECINITSID_UNLABELED instead?  It isn't equivalent to SECSID_NULL.  Is
-that the source of confusion?
-
-Note btw that the current xinetd patch won't work well with any of the
-above, e.g. ftpd shouldn't run in any of xinetd_t, network_t, or
-unlabeled_t.  And if xinetd takes the alternative approach I suggested,
-then the TE portion of the peer context is completely irrelevant.
-
-Meanwhile, for e.g. a networked policy management daemon, none of these
-domains is likely to get past the avc_has_perm() check.  Which is what
-we'd want, since we don't know anything about the real domain of the
-client.  But the first case (return local socket's domain) is a bit
-frightening - I can see policy allowing a domain to act on itself, and
-not expecting that to permit arbitrary clients of unknown domain to do
-likewise.
+And what distinction do you intend to make based on this type versus
+unlabeled_t?  They should both yield a failure whenever an application
+attempts to use them as a subject label, since neither has any
+permissions (other than a sigchld one for unlabeled_t to init_t for
+reaping of processes whose labels were invalidated by a policy reload).
+Do you anticipate allowing permissions to network_t in some situation?
 
 -- 
 Stephen Smalley
