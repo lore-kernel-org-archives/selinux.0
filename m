@@ -1,68 +1,45 @@
-Message-ID: <452438FB.2090600@hp.com>
-Date: Wed, 04 Oct 2006 18:43:07 -0400
-From: Paul Moore <paul.moore@hp.com>
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k94MuO5E003371
+	for <selinux@tycho.nsa.gov>; Wed, 4 Oct 2006 18:56:24 -0400
+Received: from mail5.sea5.speakeasy.net (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id k94MtmlO018179
+	for <selinux@tycho.nsa.gov>; Wed, 4 Oct 2006 22:55:48 GMT
+Date: Wed, 4 Oct 2006 18:56:20 -0400 (EDT)
+From: James Morris <jmorris@namei.org>
+To: Paul Moore <paul.moore@hp.com>
+cc: netdev@vger.kernel.org, selinux@tycho.nsa.gov, eparis@redhat.com,
+        sds@tycho.nsa.gov, vyekkirala@TrustedCS.com
+Subject: Re: [PATCH 0/2] [PATCH 0/2] Updated NetLabel/secid-reconciliation
+ bits and a bugfix
+In-Reply-To: <45240369.4030107@hp.com>
+Message-ID: <Pine.LNX.4.64.0610041855560.16024@d.namei>
+References: <20061004154629.186531000@hp.com> <Pine.LNX.4.64.0610041439050.6196@d.namei>
+ <45240369.4030107@hp.com>
 MIME-Version: 1.0
-To: Joe Nall <joe@nall.com>
-Cc: Stephen Smalley <sds@tycho.nsa.gov>,
-        Venkat Yekkirala <vyekkirala@TrustedCS.com>,
-        SE Linux <selinux@tycho.nsa.gov>, eparis@redhat.com,
-        James Morris <jmorris@namei.org>, Steve Grubb <sgrubb@redhat.com>
-Subject: Re: [PATCH v4 1/2] NetLabel: secid reconciliation support
-References: <36282A1733C57546BE392885C0618592015CF96F@chaos.tcs.tcs-sec.com> <1159993643.19176.256.camel@moss-spartans.epoch.ncsc.mil> <45241EFF.2000108@hp.com> <200610041712.00629.sgrubb@redhat.com> <C89A4409-F96D-430D-8DF5-7BEF0F972A4F@nall.com>
-In-Reply-To: <C89A4409-F96D-430D-8DF5-7BEF0F972A4F@nall.com>
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Joe Nall wrote:
-> On Oct 4, 2006, at 4:12 PM, Steve Grubb wrote:
-> 
-> 
->>On Wednesday 04 October 2006 16:52, Paul Moore wrote:
->>
->>>I think we are all in agreement that the current xinetd patch is  
->>>broken.
->>> Hopefully Steve Grubb will have fix it soon (I just added him as  
->>>a CC).
->>
->>In my opinion, this should be in bugzilla. This is the first I  
->>heard of xinetd
->>being broken. LSPP issues that need quick solutions like this can  
->>get lost in
->>mail.
-> 
-> 
-> Using Eric's kernel and rawhide xinetd, I get what I expect from this  
-> simple test -
-> 
-> [joe@mls user_u:user_r:user_t:SystemLow ~]$ telnet localhost test
-> Trying 127.0.0.1...
-> Connected to localhost.localdomain (127.0.0.1).
-> Escape character is '^]'.
-> uid=0(root) gid=0(root) groups=0(root),1(bin),2(daemon),3(sys),4(adm), 
-> 6(disk),10(wheel) context=user_u:user_r:user_t:SystemLow
-> Connection closed by foreign host.
-> 
-> [joe@mls user_u:user_r:user_t:SystemLow ~]$ newrole -l S-S
-> ...
-> [joe@mls user_u:user_r:user_t:SECRET ~]$ telnet localhost test
-> Trying 127.0.0.1...
-> Connected to localhost.localdomain (127.0.0.1).
-> Escape character is '^]'.
-> uid=0(root) gid=0(root) groups=0(root),1(bin),2(daemon),3(sys),4(adm), 
-> 6(disk),10(wheel) context=user_u:user_r:user_t:SECRET
+On Wed, 4 Oct 2006, Paul Moore wrote:
 
-Handling of loopback is a special case when using the secid patches, the
-behavior you are seeing is expected.
+> > So, patch 2/2 should go in on it's own against upstream?  If so, in 5B
+> > future, please post such patches separately.
+> 
+> Yes, please commit patch 2/2 regardless as it fixes a bug which is not
+> dependent on any of the secid patches which are being discussed.  My
+> apologies for including it in the same patchset, I'll be sure to split
+> it up next time.
 
-> Can anyone provide a simple test that demonstrates how xinetd is broken?
+Applied.
 
-Try telneting into a remote host and note the context that in.telnetd is
-running on the remote machine.
+http://git.infradead.org/?p=users/jmorris/selinux-2.6.git
+
+(This repo may move soon).
+
 
 -- 
-paul moore
-linux security @ hp
+James Morris
+<jmorris@namei.org>
 
 --
 This message was distributed to subscribers of the selinux mailing list.
