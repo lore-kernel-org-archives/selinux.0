@@ -1,95 +1,148 @@
-Subject: MLS login (Was: Re: newrole - adding capabilities for
-	polyinstantiation)
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Klaus Weidner <klaus@atsec.com>
-Cc: Eric Paris <eparis@redhat.com>, Russell Coker <russell@coker.com.au>,
-        Michael C Thompson <thompsmc@us.ibm.com>,
-        Karl MacMillan <kmacmillan@mentalrootkit.com>,
+Message-ID: <4525580E.8040603@tresys.com>
+Date: Thu, 05 Oct 2006 15:07:58 -0400
+From: Joshua Brindle <jbrindle@tresys.com>
+MIME-Version: 1.0
+To: Darrel Goeddel <dgoeddel@TrustedCS.com>
+CC: SELinux List <selinux@tycho.nsa.gov>, Stephen Smalley <sds@tycho.nsa.gov>,
         Joshua Brindle <jbrindle@tresys.com>,
-        Darrel Goeddel <dgoeddel@TrustedCS.com>,
-        Steve Grubb <sgrubb@redhat.com>, SE Linux <selinux@tycho.nsa.gov>
-In-Reply-To: <20061005160810.GB28525@w-m-p.com>
-References: <451AEC39.2090409@us.ibm.com>
-	 <200610040952.07843.russell@coker.com.au>
-	 <20061004202041.GC10204@w-m-p.com>
-	 <200610051045.41833.russell@coker.com.au>
-	 <20061005160810.GB28525@w-m-p.com>
-Content-Type: text/plain
-Date: Thu, 05 Oct 2006 15:04:37 -0400
-Message-Id: <1160075077.2132.181.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+        Karl MacMillan <kmacmillan@mentalrootkit.com>,
+        Linda Knippers <linda.knippers@hp.com>,
+        Daniel Walsh <dwalsh@redhat.com>
+Subject: Re: [PATCH] libselinux: always store raw contexts in the avc sidtab
+References: <45253C1C.7010803@trustedcs.com>
+In-Reply-To: <45253C1C.7010803@trustedcs.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2006-10-05 at 11:08 -0500, Klaus Weidner wrote:
-> On Thu, Oct 05, 2006 at 10:45:35AM +1000, Russell Coker wrote:
-> > On Thursday 05 October 2006 06:20, Klaus Weidner <klaus@atsec.com> wrote:
-> > > But that's not supposed to work, see:
-> > > 	https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=200110
-> > > and the thread that Stephen Smalley also referred to:
-> > > 	http://www.redhat.com/archives/redhat-lspp/2006-July/msg00024.html
-> > >
-> > > The communication between the master and slave ends of the pty violates
-> > > the MLS policy, and makes it easy for unprivileged users to violate the
-> > > policy restrictions.
-> > 
-> > How is ssh supposed to work then?
-> 
-> I think the sane behaviors for MLS login would be any of the following:
-> 
-> - for local VTs or serial terminals, login at the default level,
->   and permit using newrole to change level (or role). newrole relabels
->   the tty device to match. Alternatively, choosing a context when
->   logging in would be ok.
-> 
-> - when using SSH with labeled networking, the network connection has a
->   MLS label corresponding to the sending process (ssh client), and the
->   login session gets this MLS level if it's within the user's clearance
->   range, otherwise the session is rejected.
-
-Just to be clear, this behavior would only occur if running sshd under
-xinetd, right?  So that the sshd instance is run in the peer's range and
-is already bound by it?  Otherwise, the normal sshd selinux support will
-just select a default context for the user without consideration of the
-peer label.
-
->  Newrole is not useful for
->   changing levels since the input or output stream won't be permitted
->   to communicate over the socket, but newrole can be used for launching
->   noninteractive programs that don't need to communicate with the pty.
-
-Not sure that will work presently without some changes to newrole.
-
-> - when using SSH over unlabeled networks (which is of course a leak for
->   MLS information), newrole can relabel the pty. Alternatively, choosing
->   a context when logging in would be ok.
-> 
-> For SSH with labeled networking, since you don't get to choose the level
-> you want to work at, your ssh client needs to be at the correct level
-> already. This means that you need to be logged in at the local machine at
-> the appropriate level, or use a MLS capable GUI desktop with a terminal
-> window at the right level. The GUI version doesn't work (yet) for Linux,
-> but it could be a legacy trusted OS that uses CIPSO to communicate.
-> 
-> Maybe the easiest way to get this behavior is to ensure that relabeling
-> one end of a pty pair automatically relabels the other end too. Of
-> course, trusted apps can use MLS overrides, but sshd should not do so.
-
-I think sshd_t gets MLS overrides in policy, like other login-like
-domains, since it can create user sessions at various levels and sets
-the pty labels accordingly.
-
-> For the MLS levels, it shouldn't be necessary to modify sshd to support
-> the restrictions - on the contrary, the restrictions should happen
-> automatically since sshd doesn't have MLS override capabilities.
-
-...except I think it does.  The discussion seems a bit divorced from
-reality.
-
--- 
-Stephen Smalley
-National Security Agency
-
+Darrel Goeddel wrote:
+> Always store raw contexts in the avc sidtab.  This is accomplished by
+> providing functions to deal with raw contexts when converting contexts
+> to sids and vice versa.  The security_compute_av is also switch to the 
+> raw
+> version because the contexts will now all be raw.  When the raw 
+> context is
+> being converted to a sid, there will be no overhead.  When a 
+> translated context
+> is converted, there will be a translation to raw for storage.  There 
+> conversion
+> back from sid to context via avc_context_to_sid() will translate the 
+> context,
+> while avc_context_to_sid_raw() will not.  These functions make it easy to
+> optimize some code paths be removing translations for contexts that 
+> will never
+> be presented to the user.
+>
+> Signed-off-by: Darrel Goeddel <dgoeddel@trustedcs.com>
+>
+> ___
+>
+> Note that I will be posting some patches for comment that make use of 
+> these
+> new functions in RedHat's context translation daemon.
+>
+> include/selinux/avc.h |    2 ++
+> src/avc.c             |   39 +++++++++++++++++++++++++++++++++++----
+> 2 files changed, 37 insertions(+), 4 deletions(-)
+>
+>
+> diff -ruNp --exclude=.svn 
+> selinux-base/libselinux/include/selinux/avc.h 
+> selinux/libselinux/include/selinux/avc.h
+> --- selinux-base/libselinux/include/selinux/avc.h    2006-10-03 
+> 05:08:16.000000000 -0500
+> +++ selinux/libselinux/include/selinux/avc.h    2006-10-05 
+> 03:25:59.000000000 -0500
+> @@ -38,6 +38,7 @@ extern "C" {
+>  * available to make the copy, or %EINVAL if the input SID is invalid.
+>  */
+>     int avc_sid_to_context(security_id_t sid, security_context_t * ctx);
+> +    int avc_sid_to_context_raw(security_id_t sid, security_context_t 
+> * ctx);
+>
+> /**
+>  * avc_context_to_sid - get SID for context.
+> @@ -51,6 +52,7 @@ extern "C" {
+>  * returning %0 on success or -%1 on error with @errno set.   */
+>     int avc_context_to_sid(security_context_t ctx, security_id_t * sid);
+> +    int avc_context_to_sid_raw(security_context_t ctx, security_id_t 
+> * sid);
+>
+> /**
+>  * sidget - increment SID reference counter.
+> diff -ruNp --exclude=.svn selinux-base/libselinux/src/avc.c 
+> selinux/libselinux/src/avc.c
+> --- selinux-base/libselinux/src/avc.c    2006-10-03 05:08:17.000000000 
+> -0500
+> +++ selinux/libselinux/src/avc.c    2006-10-05 03:25:58.000000000 -0500
+> @@ -203,7 +203,7 @@ static inline int avc_hash(security_id_t
+>         & (AVC_CACHE_SLOTS - 1);
+> }
+>
+> -int avc_context_to_sid(security_context_t ctx, security_id_t * sid)
+> +int avc_context_to_sid_raw(security_context_t ctx, security_id_t * sid)
+> {
+>     int rc;
+>     avc_get_lock(avc_lock);
+> @@ -214,7 +214,22 @@ int avc_context_to_sid(security_context_
+>     return rc;
+> }
+>
+> -int avc_sid_to_context(security_id_t sid, security_context_t * ctx)
+> +int avc_context_to_sid(security_context_t ctx, security_id_t * sid)
+> +{
+> +    int ret;
+> +    security_context_t rctx;
+> +
+> +    if (selinux_trans_to_raw_context(ctx, &rctx))
+> +        return -1;
+> +
+> +    ret = avc_context_to_sid_raw(rctx, sid);
+> +
+> +    freecon(rctx);
+> +
+> +    return ret;
+> +}
+> +
+> +int avc_sid_to_context_raw(security_id_t sid, security_context_t * ctx)
+> {
+>     int rc;
+>     *ctx = NULL;
+> @@ -230,6 +245,21 @@ int avc_sid_to_context(security_id_t sid
+>     return rc;
+> }
+>
+> +int avc_sid_to_context(security_id_t sid, security_context_t * ctx)
+> +{
+> +    int ret;
+> +    security_context_t rctx;
+> +
+> +    ret = avc_sid_to_context_raw(sid, &rctx);
+> +
+> +    if (ret == 0) {
+> +        ret = selinux_raw_to_trans_context(rctx, ctx);
+> +        freecon(rctx);
+> +    }
+> +
+> +    return ret;
+> +}
+> +
+> int sidget(security_id_t sid)
+> {
+>     int rc;
+> @@ -935,8 +965,9 @@ int avc_has_perm_noaudit(security_id_t s
+>                 rc = -1;
+>                 goto out;
+>             }
+> -            rc = security_compute_av(ssid->ctx, tsid->ctx, tclass,
+> -                         requested, &entry.avd);
+> +            rc = security_compute_av_raw(ssid->ctx, tsid->ctx,
+> +                             tclass, requested,
+> +                             &entry.avd);
+>             if (rc)
+>                 goto out;
+>             rc = avc_insert(ssid, tsid, tclass, &entry, aeref);
+Acked-By: Joshua Brindle <jbrindle@tresys.com>
 
 --
 This message was distributed to subscribers of the selinux mailing list.
