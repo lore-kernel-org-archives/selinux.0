@@ -1,181 +1,75 @@
-Message-ID: <452549CF.5080707@trustedcs.com>
-Date: Thu, 05 Oct 2006 13:07:11 -0500
-From: Darrel Goeddel <dgoeddel@TrustedCS.com>
-MIME-Version: 1.0
-To: SELinux List <selinux@tycho.nsa.gov>
-CC: Daniel Walsh <dwalsh@redhat.com>, Stephen Smalley <sds@tycho.nsa.gov>,
-        Joshua Brindle <jbrindle@tresys.com>,
-        Karl MacMillan <kmacmillan@mentalrootkit.com>,
-        Linda Knippers <linda.knippers@hp.com>,
-        Christopher PeBenito <cpebenito@tresys.com>
-Subject: [RFC PATCH 3/3] mcstransd: perform an access check on the conext
- to be translated
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k95IIHC1029146
+	for <selinux@tycho.nsa.gov>; Thu, 5 Oct 2006 14:18:17 -0400
+Received: from exchange.columbia.tresys.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with SMTP id k95IHfZv000875
+	for <selinux@tycho.nsa.gov>; Thu, 5 Oct 2006 18:17:41 GMT
+Subject: Re: Networking policy patch
+From: "Christopher J. PeBenito" <cpebenito@tresys.com>
+To: Venkat Yekkirala <vyekkirala@TrustedCS.com>
+Cc: selinux@tycho.nsa.gov, redhat-lspp@redhat.com
+In-Reply-To: <45232276.2080105@trustedcs.com>
+References: <45232276.2080105@trustedcs.com>
+Content-Type: text/plain
+Date: Thu, 05 Oct 2006 14:18:07 -0400
+Message-Id: <1160072287.26418.18.camel@sgc>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Perform an access check on the conext to be translated.  This uses the new
-security class/perm of "context"/"translate".  A userspace AVC is used to
-cache all decisions and the _raw functions are used to eliminate extra
-translations for contexts never seen by users.  Dan Walsh has noted that he
-would like this to turnoffable - I haven't done that yet.  I was figuring on
-just including a paramter like "-c" to enable access checks or something like
-that - I'm open to suggestions.  I also do not have the AVC hooked up to
-auditing right now - I imagine I'll want to do that as well.
+On Tue, 2006-10-03 at 21:54 -0500, Venkat Yekkirala wrote:
+> FYI- I have posted the following patches separate from this one.
+> 
+> 1. A patch to address the "leask" issue. Once verified, it needs
+> to be rolled in with James' patch and sent on after verification.
+> 
+> 2. A fix for flow_in and flow_out where we were using the unlabeled
+>    init sid. We would now use a new network_t with a range of (s0-s15...)
+>    to allow for mls traffic to flow out/in, in the absence of explicit secmark
+>    rules.
+> 
+> 
+> The following is a sample patch for networking using the new controls
+> in conjunction with secmark.
+> 
+> NOTE FOR JOSHUA: This patch also defines the constraints to force context
+> equality for association:sendto.
 
+I'm starting a labeled networking branch of refpolicy to work with this.
+I'm waiting until the dust settles before adding TE rules, but I have
+some questions:
 
----
+> +mlsconstrain association { recvfrom }
+> +	((( l1 dom l2 ) and ( l1 domby h2 )) or
+> +	 (( t1 == mlsnetreadtoclr ) and ( h1 dom l2 )) or
+> +	 ( t1 == mlsnetread ) or
+> +	 ( t2 == unlabeled_t ));
 
+Don't we want network_t instead of unlabeled_t?
 
-diff --git a/src/mcstransd.c b/src/mcstransd.c
-index 637c508..fb2f912 100644
---- a/src/mcstransd.c
-+++ b/src/mcstransd.c
-@@ -13,6 +13,9 @@ #include <stdlib.h>
- #include <signal.h>
- #include <string.h>
- #include <syslog.h>
-+#include <selinux/avc.h>
-+#include <selinux/av_permissions.h>
-+#include <selinux/flask.h>
- #include <selinux/selinux.h>
- #include <sys/types.h>
- #include <sys/capability.h>
-@@ -59,6 +62,8 @@ static void cleanup_exit(int ret) __attr
- static void
- cleanup_exit(int ret) 
- {
-+	avc_destroy();
-+
- 	if (sockfd >=0)
- 		(void)unlink(SETRANS_UNIX_SOCKET);
- 	exit(ret);
-@@ -75,18 +80,21 @@ static  __attribute__((noreturn)) void c
-  * Returns:  0 on success, 1 on failure
-  */
- static int
--raw_to_trans_context(char *in, char **out, char *UNUSED(pcon))
-+raw_to_trans_context(char *in, char **out, char *pcon)
- {
-+	security_id_t psid, csid;
- 
- 	*out = NULL; 
- 
--	/* TODO: Check if MLS clearance (in "pcon") dominates the MLS label
--	 * (in "in").
--	 */
-+	if (avc_context_to_sid_raw(pcon, &psid))
-+		return -1;
-+	if (avc_context_to_sid_raw(in, &csid))
-+		return -1;
-+	if (avc_has_perm(psid, csid, SECCLASS_CONTEXT, CONTEXT__TRANSLATE,
-+	                 NULL, NULL))
-+		return -1;
- 
--	trans_context(in, out);
--	
--	return 0;
-+	return trans_context(in, out);
- }
- 
- 
-@@ -95,17 +103,30 @@ raw_to_trans_context(char *in, char **ou
-  * Returns:  0 on success, 1 on failure
-  */
- static int
--trans_to_raw_context(char *in, char **out, char *UNUSED(pcon))
-+trans_to_raw_context(char *in, char **out, char *pcon)
- {
-+	security_id_t psid, csid;
-+	int retval;
-+
- 	*out = NULL;
- 	
--	/* TODO: Check if MLS clearance (in "pcon") dominates the MLS label
--	 * (in "in").
--	 */
--
--	untrans_context(in, out);
-+	retval = untrans_context(in, out);
-+	if (retval)
-+		return retval;
-+
-+	if (avc_context_to_sid_raw(pcon, &psid))
-+		goto out_err;
-+	if (avc_context_to_sid_raw(*out, &csid))
-+		goto out_err;
-+	if (avc_has_perm(psid, csid, SECCLASS_CONTEXT, CONTEXT__TRANSLATE,
-+	                 NULL, NULL))
-+		goto out_err;
- 
- 	return 0;
-+out_err:
-+	free(*out);
-+	*out = NULL;
-+	return -1;
- }
- 
- static int
-@@ -152,29 +173,6 @@ send_response(int fd, uint32_t function,
- }
- 
- static int
--get_peer_con(int fd, char **peercon)
--{
--	int ret;
--	socklen_t size = sizeof(struct ucred);
--	struct ucred peercred;
--
--	/* get the context of the requesting process */
--	ret = getsockopt(fd, SOL_SOCKET, SO_PEERCRED, &peercred, &size);
--	if (ret < 0) {
--		syslog(LOG_ERR, "Failed to get PID of client process");
--		return -1;
--	}
--	ret = getpidcon_raw(peercred.pid, peercon);
--	if (ret) {
--		syslog(LOG_ERR, 
--			"Failed to get context of client process (pid=%u)",
--			peercred.pid);
--		return -1;
--	}
--	return 0;
--}
--
--static int
- process_request(int fd, uint32_t function, char *data1, char *data2)
- {
- 	int32_t result;
-@@ -191,14 +189,14 @@ process_request(int fd, uint32_t functio
- 		ret = send_response(fd, function, NULL, result);
- 		break;
- 	case RAW_TO_TRANS_CONTEXT:
--		ret = get_peer_con(fd, &peercon);
-+		ret = getpeercon_raw(fd, &peercon);
- 		if (ret)
- 			return ret;
- 		result = raw_to_trans_context(data1, &out, peercon);
- 		ret = send_response(fd, function, out, result);
- 		break;
- 	case TRANS_TO_RAW_CONTEXT:
--		ret = get_peer_con(fd, &peercon);
-+		ret = getpeercon_raw(fd, &peercon);
- 		if (ret)
- 			return ret;
- 		result = trans_to_raw_context(data1, &out, peercon);
-@@ -493,6 +491,12 @@ initialize(void)
- 		cleanup_exit(1);
- 	}
- 
-+	if (avc_init("setransd", NULL, NULL, NULL, NULL)) {
-+		syslog(LOG_ERR, "Failed to initialize AVC for "
-+		       "label translations");
-+		cleanup_exit(1);
-+	}
-+
- 	/* the socket will be unlinked when the daemon terminates */
- 	act.sa_handler = sigterm_handler;
- 	sigemptyset(&act.sa_mask);
+> +mlsconstrain association { sendto }
+> +	(( l1 eq l2 ) and ( h1 eq h2 ));
+
+or (t2 == network_t) ?
+
+> +mlsconstrain association { polmatch }
+> +	((( l1 dom l2 ) and ( l1 domby h2 )) or
+> +	 ( t2 == unlabeled_t ));
+
+same thing about network_t
+
+> +constrain association sendto
+> +	( u1 == u2 and r1 == r2 and t1 == t2 );
+
+I talked with Joshua and we determined that there is a case were we
+don't want this constraint (looking forward to policy management
+server's use of labeled networking), so I've dropped it.
+
+-- 
+Chris PeBenito
+Tresys Technology, LLC
+(410) 290-1411 x150
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
