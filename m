@@ -1,74 +1,98 @@
-Message-ID: <45252ADE.7080905@us.ibm.com>
-Date: Thu, 05 Oct 2006 10:55:10 -0500
+Message-ID: <45252DB9.4000506@us.ibm.com>
+Date: Thu, 05 Oct 2006 11:07:21 -0500
 From: Michael C Thompson <thompsmc@us.ibm.com>
 MIME-Version: 1.0
 To: Stephen Smalley <sds@tycho.nsa.gov>
 CC: Daniel J Walsh <dwalsh@redhat.com>, SE Linux <selinux@tycho.nsa.gov>,
         jdesai@us.ibm.com
 Subject: Re: [RFC PATCH] newrole suid breakdown
-References: <452432FA.1060009@us.ibm.com> <45250F35.6030204@redhat.com>	 <452519BC.1060204@us.ibm.com> <1160060310.2132.102.camel@moss-spartans.epoch.ncsc.mil>
-In-Reply-To: <1160060310.2132.102.camel@moss-spartans.epoch.ncsc.mil>
+References: <452432FA.1060009@us.ibm.com> <1160059227.2132.88.camel@moss-spartans.epoch.ncsc.mil>
+In-Reply-To: <1160059227.2132.88.camel@moss-spartans.epoch.ncsc.mil>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 Stephen Smalley wrote:
-> On Thu, 2006-10-05 at 09:42 -0500, Michael C Thompson wrote:
->> Daniel J Walsh wrote:
->>> Does the code continue to work correctly if I compile in AUDIT_LOG_PRIV 
->>> and NAMESPACE_PRIV but run it without the setuid bit and as a normal 
->>> user.  IE, We want the option to only set this setuid when in an MLS 
->>> environment.  This is not required for targeted or strict policy machines.
->> What happens (currently), is it attempts to drop capabilities and if it 
->> can't do that, newrole fails and exists. The reason I chose this 
->> behavior is, as I figured, if you have compiled newrole with 
->> AUDIT_LOG_PRIV or NAMESPACE_PRIV, you requiring that behaviour.
+> On Wed, 2006-10-04 at 17:17 -0500, Michael C Thompson wrote:
+>>  From what I have seen, the points of possible attack (i.e. input) to 
+>> newrole include:
+>> * command line options
+>> * reading the password from stdin
+>> * reading the contents of /etc/passwd and /etc/shell
 >>
->> It should be easy to change this behavior, as I expect RH will want a 
->> single compiled binary that can do it all, right? :)
+>> I doubt this is an exhaustive list. Since /etc/passwd and /etc/shell are 
+>> restricted to root-only write, I've discounted these. Since we require 
+>> PAM to do namespaces, which will cause PAM to handle the password check, 
+>> we should be able to defer any vulnerabilities to PAM, and I would hope 
+>> that PAM is secure.
 >>
->> Suggested patch attached. If you have a more elegant solution, feel free 
->> to let me know.
+>> This leaves command line options. These are parsed with getopt_long, and 
+>> are currently passed into libselinux without any scrubbing. Since 
+>> SELinux doesn't apply a limit on the length of its context strings, is 
+>> there any checks that need to be done before handing these strings into 
+>> libselinux?
 > 
-> Concerns with this approach:
-> 1) The geteuid() test is ambiguous in the case where the caller was
-> already uid 0 (i.e. root runs newrole).
-
-Well, this is a really hackish patch. I could integrate this check into 
-drop_capabilties, and have it return 0 on success, >0 for ignore 
-privileged actions, and <0 on real failure. This way its more consolidated.
-
- > For dropping capabilities and
-> switching uids, this has no real effect since that processing is skipped
-> when the caller had uid 0.  But it does have an impact on the audit and
-> namespace functionality.
-
-In what way? Either you have the capability to do these actions, or you 
-don't, right? I can see 4 cases:
-uid == 0 && euid == 0 : you're root
-uid == 0 && euid != 0 : you're root with euid non-0
-                         (not sure why you would have this)
-uid != 0 && euid == 0 : non-root running suid newrole
-uid == 0 && euid != 0 : non-root running non-suid newrole
-
-In the case you are root with non-0 euid, this would ignore the 
-privileged actions, although I suspect you would still have the 
-capabilities to do them (being root and all)?
-
- > Note btw that the
-> pam_open_session/pam_close_session calls don't strictly require such a
-> test, since we can always put pam_permit as a session module in the
-> default pam config.
-
-Is that something we would want to rely on though?
-
-> 2) I'm not sure how RH plans to set and maintain the suid bit on newrole
-> in the LSPP case, since they want to have it off by default.  If another
-> package, like the lspp package, modifies the suid bit on newrole, then a
-> rpm -V policycoreutils will report a change in mode from the package
-> defaults and any update of policycoreutils could reset the mode to the
-> original one.
+> I don't think so.  The larger concern is not the command line arguments
+> but the environment.  glibc does some automatic sanitization of the
+> environment for setuid programs, but is limited in what it can do.
+> You likely want to save the environment or portions of it for
+> propagation to the newrole'd shell, reset the environment to a clean
+> state for newrole itself, and then invoke the user shell with the
+> previously saved environment.  Look at other setuid programs, like su
+> and sudo, as possible examples.   Also see:
+> http://www.dwheeler.com/secure-programs/Secure-Programs-HOWTO/environment-variables.html
 > 
+> Since pam_namespace further executes a script (namespace.init), the
+> environment is especially critical, and you need to consider the
+> implications of how the shell handles setuid execution.  For example,
+> unless namespace.init invokes /bin/sh with the -p option (privileged
+> mode), bash will reset the effective identities to the real identities
+> during startup, such that the script itself will run in the caller's
+> identity (and thus likely fail if it tries to do its job, like bind
+> mounting the .X11-unix directory into the member directory, as well as
+> creating any files or directories in the caller's uid).  If you change
+> namespace.init to use the -p option, then bash will leave the effective
+> identities alone, and will ignore certain aspects of the environment
+> that would normally affect it.  One might argue that pam_namespace
+> itself should do some environment cleansing, since it executes a script
+> and this won't be immediately obvious to all potential users of
+> pam_namespace.
+> 
+>> The cleanup process for errors within newrole currently does not make a 
+>> call to pam_end (after pam_start). Is this an issue? There are also 
+>> other cases where cleanup isn't really handled as nicely as it could. 
+>> Since this is a user-space app, a lot of cleanup is handled by the 
+>> kernel, but I do have some patches that go a ways to begin cleaning this 
+>> sort of thing up. Are they desirable?
+> 
+> Yes.
+
+OK, shall I merge these changes into 1 large patch? or how would you 
+like this delivered? I can do some seperate smaller patches, which take 
+care of cleanup, and then those that take care of adding suid related 
+changes.
+
+>> I have tested all 4 ways of compiling newrole (no priv, AUDIT_LOG_PRIV, 
+>> NAMESPACE_PRIV, LSPP_PRIV (both)), and it functions as expected.
+> 
+> Did you check the effective identity and capability sets at each stage
+> of execution to see if they were what you expected?  Within newrole
+> after each change?  On entry to pam_namespace?  On entry to
+> namespace.init?  In the newrole'd shell?
+
+I have run this with debug output (omitted from my patches) and yes the 
+capabilities, uid and euid are all as I expected them to be. I did not 
+check the capabilities on entrance to namespace.init since I would 
+require rebuilding pam_namespace.so, I can do this if desired. From 
+looking at the code, it didn't look like pam_namespace did anything to 
+the capabilities or uids, but I'm only human, so I could be wrong.
+
+> Also, I'm not clear on how this resolves the issue of being able to have
+> a single newrole binary in a distribution, and of not requiring any
+> additional exposure for systems that do not require the privileged
+> functionality, which Dan also noted.
+
+Yes, I basically glossed over that requirement in my mind.
 
 
 
