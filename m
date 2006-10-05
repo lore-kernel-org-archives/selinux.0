@@ -1,67 +1,79 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k95LDc8j003670
-	for <selinux@tycho.nsa.gov>; Thu, 5 Oct 2006 17:13:38 -0400
-Received: from mx1.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id k95LCPhL026162
-	for <selinux@tycho.nsa.gov>; Thu, 5 Oct 2006 21:12:26 GMT
-Message-ID: <45257577.7050709@redhat.com>
-Date: Thu, 05 Oct 2006 17:13:27 -0400
-From: Daniel J Walsh <dwalsh@redhat.com>
+Message-ID: <36282A1733C57546BE392885C0618592015CFB62@chaos.tcs.tcs-sec.com>
+From: Venkat Yekkirala <vyekkirala@TrustedCS.com>
+To: James Morris <jmorris@namei.org>,
+        Venkat Yekkirala
+	 <vyekkirala@TrustedCS.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Paul Moore <paul.moore@hp.com>
+Cc: netdev@vger.kernel.org, selinux@tycho.nsa.gov,
+        Stephen Smalley
+	 <sds@tycho.nsa.gov>, Eric Paris <eparis@redhat.com>,
+        johnpol@2ka.mipt.ru, Herbert Xu <herbert@gondor.apana.org.au>
+Subject: RE: [PATCH 1/3] Fix for IPsec leakage with SELinux enabled - V.03
+Date: Thu, 5 Oct 2006 17:17:47 -0400 
 MIME-Version: 1.0
-To: "Christopher J. PeBenito" <cpebenito@tresys.com>
-CC: russell@coker.com.au, SELinux Mail List <selinux@tycho.nsa.gov>
-Subject: Re: policy patch against subversion tree
-References: <200610052244.51091.russell@coker.com.au> <1160078114.26418.54.camel@sgc>
-In-Reply-To: <1160078114.26418.54.camel@sgc>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Christopher J. PeBenito wrote:
-> Merged, with some notes:
->
-> On Thu, 2006-10-05 at 22:44 +1000, Russell Coker wrote:
->   
->> Allow unconfined processes to see unlabeled processes in ps.
->>     
->
-> Enhanced the kern_unconfined rules in kernel.te instead.
->
->   
->> Removed a redundant rule in samba.te, and some inappropriate permissions in 
->> amavis.te.
->>     
->
-> This amavis removals were added from Dan from August, so there needs to
-> be some discussion on this.  Dan?
->
->   
-Go with Russells changes, I believe the input for some of my changes 
-came from him.
->> Removed support for the pre-Fedora Red Hat code to create sym-links in /boot.
->>     
->
-> Kept the interface, in case there are 3rd party callers of this
-> interface.
->
->   
->> Removed support for devpts_t files in /tmp (there is no way that would ever 
->> work).
->>
->> Allowed postgrey to create socket files.
->>     
->
-> Moved this hunk down.
->
->   
->> Made the specs for the /lib and /lib64 directories better support stem 
->> compression.
->>     
->
-> Fixed the mailman addition to use an interface.
->
->   
+> > -		if (xfrm_policy_match(pol, fl, type, family, dir)) {
+> > +		err = xfrm_policy_match(pol, fl, type, family, dir);
+> > +		if (err) {
+> > +			if (err == -ESRCH)
+> > +				continue;
+> > +			else {
+> > +				ret = ERR_PTR(err);
+> > +				goto fail;
+> > +			}
+> > +		} else {
+> 
+> Semantics issue: if the exact policy match fails with 
+> -EACCESS, should we 
+> then try an inexact match before failing?
 
+I wonder what you mean by an inexact match here.
+
+> 
+> >  #ifdef CONFIG_XFRM_SUB_POLICY
+> >  	pol = xfrm_policy_lookup_bytype(XFRM_POLICY_TYPE_SUB, 
+> fl, family, dir);
+> > -	if (pol)
+> > +	if (IS_ERR(pol)) {
+> > +		err = PTR_ERR(pol);
+> > +		pol = NULL;
+> > +	}
+> > +	if (pol || err)
+> >  		goto end;
+> 
+> Similarly, if the sub-policy lookup returns -EACCESS, should 
+> we then try a 
+> main policy lookup before failing?
+
+I would think not since we are already handling the more usual
+"failure" of EACCES properly, and any other error would usually
+have to be a near-fatal error concerning the whole LSM policy or
+temporary memory pressure, for example. Usually the latter is auto
+handled when the callers reattempt the llokup.
+
+While it is theoretically possible
+that the LSM might generate an error for the sub but not for the main,
+we would have to first redefine the LSM hook to communicate this
+differentiation. And at least in the case of the current user of LSM
+(SELinux)
+I don't currently see the need for this differentiation.
+
+> 
+> I would think yes to both.
+> 
+> Opinions?
+> 
+> 
+> - James
+> -- 
+> James Morris
+> <jmorris@namei.org>
+> 
 
 --
 This message was distributed to subscribers of the selinux mailing list.
