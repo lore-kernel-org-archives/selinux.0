@@ -1,52 +1,192 @@
-Subject: Re: [RFC PATCH 1/3] reference policy: add "context" security class
-From: "Christopher J. PeBenito" <cpebenito@tresys.com>
-To: Darrel Goeddel <dgoeddel@TrustedCS.com>
-Cc: SELinux List <selinux@tycho.nsa.gov>, Daniel Walsh <dwalsh@redhat.com>,
-        Stephen Smalley <sds@tycho.nsa.gov>,
-        Joshua Brindle <jbrindle@tresys.com>,
-        Karl MacMillan <kmacmillan@mentalrootkit.com>,
-        Linda Knippers <linda.knippers@hp.com>
-In-Reply-To: <4525496E.4090209@trustedcs.com>
-References: <4525496E.4090209@trustedcs.com>
-Content-Type: text/plain
-Date: Thu, 05 Oct 2006 14:50:31 -0400
-Message-Id: <1160074231.26418.30.camel@sgc>
-Mime-Version: 1.0
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k95Iui6w030692
+	for <selinux@tycho.nsa.gov>; Thu, 5 Oct 2006 14:56:44 -0400
+Received: from localhost.localdomain (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id k95ItWhL028832
+	for <selinux@tycho.nsa.gov>; Thu, 5 Oct 2006 18:55:32 GMT
+Date: Thu, 5 Oct 2006 14:56:43 -0400
+From: Caleb Case <ccase@tresys.com>
+Message-Id: <200610051856.k95IuhVO028187@localhost.localdomain>
+To: selinux-dev@tresys.com, selinux@tycho.nsa.gov
+Subject: [patch 1/1] removal of unused private.h from libsemanage
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2006-10-05 at 13:05 -0500, Darrel Goeddel wrote:
-> Define a new security class "context" and its permission "translate" for
-> use by the context translation daemon.  The bit of policy added to the
-> setrans_translate_context interface only allows for translation of
-> domains and file_contexts.  You can see how this is bad if you try to
-> ls -Z /dev.
 
-Yes, as device nodes don't have the file_type attribute, they have
-device_node.
+The header libsemanage/src/private.h is no longer used and should be removed.  It appears to be left over from the libsemod days.
 
-> I don't have a trick to allow TE access to every type other
-> than grabbing some "big" attributes, then listing every remaining type.
-> That obviously does not work in the modular policy model anyway.  Any
-> ideas on how we could maybe handle that one? (assuming that anyone else
-> does not want TE restriction on the translations :))  How about a
-> privilege to use '*' or '~' in typesets...
+---
+ libsemanage/src/private.h |   72 ----------------------------------------------
+ 1 file changed, 72 deletions(-)
 
-It shouldn't be to hard to build up, we just need things like:
+Index: selinux-pms-support/libsemanage/src/private.h
+===================================================================
+--- selinux-pms-support.orig/libsemanage/src/private.h
++++ /dev/null
+@@ -1,72 +0,0 @@
+-/* Private definitions for libsemod. */
+-
+-/* Endian conversion for reading and writing binary policies */
+-
+-#include <byteswap.h>
+-#include <endian.h>
+-
+-#if __BYTE_ORDER == __LITTLE_ENDIAN
+-#define cpu_to_le32(x) (x)
+-#define le32_to_cpu(x) (x)
+-#define cpu_to_le64(x) (x)
+-#define le64_to_cpu(x) (x)
+-#else
+-#define cpu_to_le32(x) bswap_32(x)
+-#define le32_to_cpu(x) bswap_32(x)
+-#define cpu_to_le64(x) bswap_64(x)
+-#define le64_to_cpu(x) bswap_64(x)
+-#endif
+-
+-/* Read from a policy "file" and return a pointer to the requested set
+-   of bytes.  Do *NOT* free the returned pointer.  Returns NULL if the
+-   requested number of bytes is larger than the read buffer or if an
+-   I/O error occurred.  Note that this function is thread-safe. */
+-static inline void *next_entry(struct policy_file *fp, size_t bytes)
+-{
+-	size_t nread;
+-
+-	if (bytes > sizeof(fp->buffer))
+-		return NULL;
+-
+-	switch (fp->type) {
+-	case PF_USE_STDIO:
+-		nread = fread(fp->buffer, bytes, 1, fp->fp);
+-		if (nread != 1)
+-			return NULL;
+-		break;
+-	case PF_USE_MEMORY:
+-		if (bytes > fp->len)
+-			return NULL;
+-		memcpy(fp->buffer, fp->data, bytes);
+-		fp->data += bytes;
+-		fp->len -= bytes;
+-		break;
+-	default:
+-		return NULL;
+-	}
+-	return fp->buffer;
+-}
+-
+-static inline size_t put_entry(const void *ptr, size_t size, size_t n,
+-			       struct policy_file *fp)
+-{
+-	size_t bytes = size * n;
+-
+-	switch (fp->type) {
+-	case PF_USE_STDIO:
+-		return fwrite(ptr, size, n, fp->fp);
+-	case PF_USE_MEMORY:
+-		if (bytes > fp->len) {
+-			errno = ENOSPC;
+-			return 0;
+-		}
+-
+-		memcpy(fp->data, ptr, bytes);
+-		fp->data += bytes;
+-		fp->len -= bytes;
+-		return n;
+-	default:
+-		return 0;
+-	}
+-	return 0;
+-}
 
-files_translate_all_contexts()
-corenet_translate_all_contexts()
-fs_translate_all_contexts()
-dev_translate_all_contexts()
-domain_translate_all_contexts()
+--
 
-I believe that are the modules that need translate interfaces, and that
-should be fairly comprehensive coverage (not complete).
 
--- 
-Chris PeBenito
-Tresys Technology, LLC
-(410) 290-1411 x150
+The header libsemanage/src/private.h is no longer used and should be removed.  It appears to be left over from the libsemod days.
+
+---
+ libsemanage/src/private.h |   72 ----------------------------------------------
+ 1 file changed, 72 deletions(-)
+
+Index: selinux-pms-support/libsemanage/src/private.h
+===================================================================
+--- selinux-pms-support.orig/libsemanage/src/private.h
++++ /dev/null
+@@ -1,72 +0,0 @@
+-/* Private definitions for libsemod. */
+-
+-/* Endian conversion for reading and writing binary policies */
+-
+-#include <byteswap.h>
+-#include <endian.h>
+-
+-#if __BYTE_ORDER == __LITTLE_ENDIAN
+-#define cpu_to_le32(x) (x)
+-#define le32_to_cpu(x) (x)
+-#define cpu_to_le64(x) (x)
+-#define le64_to_cpu(x) (x)
+-#else
+-#define cpu_to_le32(x) bswap_32(x)
+-#define le32_to_cpu(x) bswap_32(x)
+-#define cpu_to_le64(x) bswap_64(x)
+-#define le64_to_cpu(x) bswap_64(x)
+-#endif
+-
+-/* Read from a policy "file" and return a pointer to the requested set
+-   of bytes.  Do *NOT* free the returned pointer.  Returns NULL if the
+-   requested number of bytes is larger than the read buffer or if an
+-   I/O error occurred.  Note that this function is thread-safe. */
+-static inline void *next_entry(struct policy_file *fp, size_t bytes)
+-{
+-	size_t nread;
+-
+-	if (bytes > sizeof(fp->buffer))
+-		return NULL;
+-
+-	switch (fp->type) {
+-	case PF_USE_STDIO:
+-		nread = fread(fp->buffer, bytes, 1, fp->fp);
+-		if (nread != 1)
+-			return NULL;
+-		break;
+-	case PF_USE_MEMORY:
+-		if (bytes > fp->len)
+-			return NULL;
+-		memcpy(fp->buffer, fp->data, bytes);
+-		fp->data += bytes;
+-		fp->len -= bytes;
+-		break;
+-	default:
+-		return NULL;
+-	}
+-	return fp->buffer;
+-}
+-
+-static inline size_t put_entry(const void *ptr, size_t size, size_t n,
+-			       struct policy_file *fp)
+-{
+-	size_t bytes = size * n;
+-
+-	switch (fp->type) {
+-	case PF_USE_STDIO:
+-		return fwrite(ptr, size, n, fp->fp);
+-	case PF_USE_MEMORY:
+-		if (bytes > fp->len) {
+-			errno = ENOSPC;
+-			return 0;
+-		}
+-
+-		memcpy(fp->data, ptr, bytes);
+-		fp->data += bytes;
+-		fp->len -= bytes;
+-		return n;
+-	default:
+-		return 0;
+-	}
+-	return 0;
+-}
+
+--
+
+Signed-Off-By: Joshua Brindle <jbrindle@tresys.com>
 
 
 --
