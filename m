@@ -1,192 +1,94 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k95Iui6w030692
-	for <selinux@tycho.nsa.gov>; Thu, 5 Oct 2006 14:56:44 -0400
-Received: from localhost.localdomain (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id k95ItWhL028832
-	for <selinux@tycho.nsa.gov>; Thu, 5 Oct 2006 18:55:32 GMT
-Date: Thu, 5 Oct 2006 14:56:43 -0400
-From: Caleb Case <ccase@tresys.com>
-Message-Id: <200610051856.k95IuhVO028187@localhost.localdomain>
-To: selinux-dev@tresys.com, selinux@tycho.nsa.gov
-Subject: [patch 1/1] removal of unused private.h from libsemanage
+Subject: MLS login (Was: Re: newrole - adding capabilities for
+	polyinstantiation)
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Klaus Weidner <klaus@atsec.com>
+Cc: Eric Paris <eparis@redhat.com>, Russell Coker <russell@coker.com.au>,
+        Michael C Thompson <thompsmc@us.ibm.com>,
+        Karl MacMillan <kmacmillan@mentalrootkit.com>,
+        Joshua Brindle <jbrindle@tresys.com>,
+        Darrel Goeddel <dgoeddel@TrustedCS.com>,
+        Steve Grubb <sgrubb@redhat.com>, SE Linux <selinux@tycho.nsa.gov>
+In-Reply-To: <20061005160810.GB28525@w-m-p.com>
+References: <451AEC39.2090409@us.ibm.com>
+	 <200610040952.07843.russell@coker.com.au>
+	 <20061004202041.GC10204@w-m-p.com>
+	 <200610051045.41833.russell@coker.com.au>
+	 <20061005160810.GB28525@w-m-p.com>
+Content-Type: text/plain
+Date: Thu, 05 Oct 2006 15:04:37 -0400
+Message-Id: <1160075077.2132.181.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+On Thu, 2006-10-05 at 11:08 -0500, Klaus Weidner wrote:
+> On Thu, Oct 05, 2006 at 10:45:35AM +1000, Russell Coker wrote:
+> > On Thursday 05 October 2006 06:20, Klaus Weidner <klaus@atsec.com> wrote:
+> > > But that's not supposed to work, see:
+> > > 	https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=200110
+> > > and the thread that Stephen Smalley also referred to:
+> > > 	http://www.redhat.com/archives/redhat-lspp/2006-July/msg00024.html
+> > >
+> > > The communication between the master and slave ends of the pty violates
+> > > the MLS policy, and makes it easy for unprivileged users to violate the
+> > > policy restrictions.
+> > 
+> > How is ssh supposed to work then?
+> 
+> I think the sane behaviors for MLS login would be any of the following:
+> 
+> - for local VTs or serial terminals, login at the default level,
+>   and permit using newrole to change level (or role). newrole relabels
+>   the tty device to match. Alternatively, choosing a context when
+>   logging in would be ok.
+> 
+> - when using SSH with labeled networking, the network connection has a
+>   MLS label corresponding to the sending process (ssh client), and the
+>   login session gets this MLS level if it's within the user's clearance
+>   range, otherwise the session is rejected.
 
-The header libsemanage/src/private.h is no longer used and should be removed.  It appears to be left over from the libsemod days.
+Just to be clear, this behavior would only occur if running sshd under
+xinetd, right?  So that the sshd instance is run in the peer's range and
+is already bound by it?  Otherwise, the normal sshd selinux support will
+just select a default context for the user without consideration of the
+peer label.
 
----
- libsemanage/src/private.h |   72 ----------------------------------------------
- 1 file changed, 72 deletions(-)
+>  Newrole is not useful for
+>   changing levels since the input or output stream won't be permitted
+>   to communicate over the socket, but newrole can be used for launching
+>   noninteractive programs that don't need to communicate with the pty.
 
-Index: selinux-pms-support/libsemanage/src/private.h
-===================================================================
---- selinux-pms-support.orig/libsemanage/src/private.h
-+++ /dev/null
-@@ -1,72 +0,0 @@
--/* Private definitions for libsemod. */
--
--/* Endian conversion for reading and writing binary policies */
--
--#include <byteswap.h>
--#include <endian.h>
--
--#if __BYTE_ORDER == __LITTLE_ENDIAN
--#define cpu_to_le32(x) (x)
--#define le32_to_cpu(x) (x)
--#define cpu_to_le64(x) (x)
--#define le64_to_cpu(x) (x)
--#else
--#define cpu_to_le32(x) bswap_32(x)
--#define le32_to_cpu(x) bswap_32(x)
--#define cpu_to_le64(x) bswap_64(x)
--#define le64_to_cpu(x) bswap_64(x)
--#endif
--
--/* Read from a policy "file" and return a pointer to the requested set
--   of bytes.  Do *NOT* free the returned pointer.  Returns NULL if the
--   requested number of bytes is larger than the read buffer or if an
--   I/O error occurred.  Note that this function is thread-safe. */
--static inline void *next_entry(struct policy_file *fp, size_t bytes)
--{
--	size_t nread;
--
--	if (bytes > sizeof(fp->buffer))
--		return NULL;
--
--	switch (fp->type) {
--	case PF_USE_STDIO:
--		nread = fread(fp->buffer, bytes, 1, fp->fp);
--		if (nread != 1)
--			return NULL;
--		break;
--	case PF_USE_MEMORY:
--		if (bytes > fp->len)
--			return NULL;
--		memcpy(fp->buffer, fp->data, bytes);
--		fp->data += bytes;
--		fp->len -= bytes;
--		break;
--	default:
--		return NULL;
--	}
--	return fp->buffer;
--}
--
--static inline size_t put_entry(const void *ptr, size_t size, size_t n,
--			       struct policy_file *fp)
--{
--	size_t bytes = size * n;
--
--	switch (fp->type) {
--	case PF_USE_STDIO:
--		return fwrite(ptr, size, n, fp->fp);
--	case PF_USE_MEMORY:
--		if (bytes > fp->len) {
--			errno = ENOSPC;
--			return 0;
--		}
--
--		memcpy(fp->data, ptr, bytes);
--		fp->data += bytes;
--		fp->len -= bytes;
--		return n;
--	default:
--		return 0;
--	}
--	return 0;
--}
+Not sure that will work presently without some changes to newrole.
 
---
+> - when using SSH over unlabeled networks (which is of course a leak for
+>   MLS information), newrole can relabel the pty. Alternatively, choosing
+>   a context when logging in would be ok.
+> 
+> For SSH with labeled networking, since you don't get to choose the level
+> you want to work at, your ssh client needs to be at the correct level
+> already. This means that you need to be logged in at the local machine at
+> the appropriate level, or use a MLS capable GUI desktop with a terminal
+> window at the right level. The GUI version doesn't work (yet) for Linux,
+> but it could be a legacy trusted OS that uses CIPSO to communicate.
+> 
+> Maybe the easiest way to get this behavior is to ensure that relabeling
+> one end of a pty pair automatically relabels the other end too. Of
+> course, trusted apps can use MLS overrides, but sshd should not do so.
 
+I think sshd_t gets MLS overrides in policy, like other login-like
+domains, since it can create user sessions at various levels and sets
+the pty labels accordingly.
 
-The header libsemanage/src/private.h is no longer used and should be removed.  It appears to be left over from the libsemod days.
+> For the MLS levels, it shouldn't be necessary to modify sshd to support
+> the restrictions - on the contrary, the restrictions should happen
+> automatically since sshd doesn't have MLS override capabilities.
 
----
- libsemanage/src/private.h |   72 ----------------------------------------------
- 1 file changed, 72 deletions(-)
+...except I think it does.  The discussion seems a bit divorced from
+reality.
 
-Index: selinux-pms-support/libsemanage/src/private.h
-===================================================================
---- selinux-pms-support.orig/libsemanage/src/private.h
-+++ /dev/null
-@@ -1,72 +0,0 @@
--/* Private definitions for libsemod. */
--
--/* Endian conversion for reading and writing binary policies */
--
--#include <byteswap.h>
--#include <endian.h>
--
--#if __BYTE_ORDER == __LITTLE_ENDIAN
--#define cpu_to_le32(x) (x)
--#define le32_to_cpu(x) (x)
--#define cpu_to_le64(x) (x)
--#define le64_to_cpu(x) (x)
--#else
--#define cpu_to_le32(x) bswap_32(x)
--#define le32_to_cpu(x) bswap_32(x)
--#define cpu_to_le64(x) bswap_64(x)
--#define le64_to_cpu(x) bswap_64(x)
--#endif
--
--/* Read from a policy "file" and return a pointer to the requested set
--   of bytes.  Do *NOT* free the returned pointer.  Returns NULL if the
--   requested number of bytes is larger than the read buffer or if an
--   I/O error occurred.  Note that this function is thread-safe. */
--static inline void *next_entry(struct policy_file *fp, size_t bytes)
--{
--	size_t nread;
--
--	if (bytes > sizeof(fp->buffer))
--		return NULL;
--
--	switch (fp->type) {
--	case PF_USE_STDIO:
--		nread = fread(fp->buffer, bytes, 1, fp->fp);
--		if (nread != 1)
--			return NULL;
--		break;
--	case PF_USE_MEMORY:
--		if (bytes > fp->len)
--			return NULL;
--		memcpy(fp->buffer, fp->data, bytes);
--		fp->data += bytes;
--		fp->len -= bytes;
--		break;
--	default:
--		return NULL;
--	}
--	return fp->buffer;
--}
--
--static inline size_t put_entry(const void *ptr, size_t size, size_t n,
--			       struct policy_file *fp)
--{
--	size_t bytes = size * n;
--
--	switch (fp->type) {
--	case PF_USE_STDIO:
--		return fwrite(ptr, size, n, fp->fp);
--	case PF_USE_MEMORY:
--		if (bytes > fp->len) {
--			errno = ENOSPC;
--			return 0;
--		}
--
--		memcpy(fp->data, ptr, bytes);
--		fp->data += bytes;
--		fp->len -= bytes;
--		return n;
--	default:
--		return 0;
--	}
--	return 0;
--}
-
---
-
-Signed-Off-By: Joshua Brindle <jbrindle@tresys.com>
+-- 
+Stephen Smalley
+National Security Agency
 
 
 --
