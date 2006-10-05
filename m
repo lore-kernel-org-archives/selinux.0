@@ -1,88 +1,88 @@
-From: Russell Coker <russell@coker.com.au>
-Reply-To: russell@coker.com.au
-To: Klaus Weidner <klaus@atsec.com>
-Subject: Re: newrole - adding capabilities for polyinstantiation
-Date: Thu, 5 Oct 2006 10:45:35 +1000
-Cc: Michael C Thompson <thompsmc@us.ibm.com>,
-        Stephen Smalley <sds@tycho.nsa.gov>,
-        Karl MacMillan <kmacmillan@mentalrootkit.com>,
-        Joshua Brindle <jbrindle@tresys.com>,
-        Darrel Goeddel <dgoeddel@TrustedCS.com>,
-        Steve Grubb <sgrubb@redhat.com>, SE Linux <selinux@tycho.nsa.gov>
-References: <451AEC39.2090409@us.ibm.com> <200610040952.07843.russell@coker.com.au> <20061004202041.GC10204@w-m-p.com>
-In-Reply-To: <20061004202041.GC10204@w-m-p.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Message-Id: <200610051045.41833.russell@coker.com.au>
+Subject: xinetd SELinux support (Was: Re: [PATCH v4 1/2] NetLabel: secid
+	reconciliation support)
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Joe Nall <joe@nall.com>
+Cc: Paul Moore <paul.moore@hp.com>,
+        Venkat Yekkirala <vyekkirala@TrustedCS.com>,
+        SE Linux <selinux@tycho.nsa.gov>, eparis@redhat.com,
+        James Morris <jmorris@namei.org>, Steve Grubb <sgrubb@redhat.com>
+In-Reply-To: <C89A4409-F96D-430D-8DF5-7BEF0F972A4F@nall.com>
+References: <36282A1733C57546BE392885C0618592015CF96F@chaos.tcs.tcs-sec.com>
+	 <1159993643.19176.256.camel@moss-spartans.epoch.ncsc.mil>
+	 <45241EFF.2000108@hp.com> <200610041712.00629.sgrubb@redhat.com>
+	 <C89A4409-F96D-430D-8DF5-7BEF0F972A4F@nall.com>
+Content-Type: text/plain
+Date: Thu, 05 Oct 2006 08:15:42 -0400
+Message-Id: <1160050542.2132.11.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thursday 05 October 2006 06:20, Klaus Weidner <klaus@atsec.com> wrote:
-> > You have sshd talking to /dev/ptmx and the shell talking to /dev/pts/X.
-> > If /dev/pts/X is relabeled to a different range then sshd will still keep
-> > talking to /dev/ptmx without any change (in fact sshd can't conveniently
-> > know about this change).
->
-> But that's not supposed to work, see:
->
-> 	https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=200110
->
-> and the thread that Stephen Smalley also referred to:
->
-> 	http://www.redhat.com/archives/redhat-lspp/2006-July/msg00024.html
->
-> The communication between the master and slave ends of the pty violates
-> the MLS policy, and makes it easy for unprivileged users to violate the
-> policy restrictions.
+On Wed, 2006-10-04 at 17:03 -0500, Joe Nall wrote:
+> On Oct 4, 2006, at 4:12 PM, Steve Grubb wrote:
+> 
+> > On Wednesday 04 October 2006 16:52, Paul Moore wrote:
+> >> I think we are all in agreement that the current xinetd patch is  
+> >> broken.
+> >>  Hopefully Steve Grubb will have fix it soon (I just added him as  
+> >> a CC).
+> >
+> > In my opinion, this should be in bugzilla. This is the first I  
+> > heard of xinetd
+> > being broken. LSPP issues that need quick solutions like this can  
+> > get lost in
+> > mail.
+> 
+> Using Eric's kernel and rawhide xinetd, I get what I expect from this  
+> simple test -
+> 
+> [joe@mls user_u:user_r:user_t:SystemLow ~]$ telnet localhost test
+> Trying 127.0.0.1...
+> Connected to localhost.localdomain (127.0.0.1).
+> Escape character is '^]'.
+> uid=0(root) gid=0(root) groups=0(root),1(bin),2(daemon),3(sys),4(adm), 
+> 6(disk),10(wheel) context=user_u:user_r:user_t:SystemLow
+> Connection closed by foreign host.
+> 
+> [joe@mls user_u:user_r:user_t:SystemLow ~]$ newrole -l S-S
+> ...
+> [joe@mls user_u:user_r:user_t:SECRET ~]$ telnet localhost test
+> Trying 127.0.0.1...
+> Connected to localhost.localdomain (127.0.0.1).
+> Escape character is '^]'.
+> uid=0(root) gid=0(root) groups=0(root),1(bin),2(daemon),3(sys),4(adm), 
+> 6(disk),10(wheel) context=user_u:user_r:user_t:SECRET
+> 
+> Where /etc/xinetd.d/test is
+> service test
+> {
+>          flags           = LABELED
+>          socket_type     = stream
+>          wait            = no
+>          user            = root
+>          group           = root
+>          server          = /usr/bin/id
+>          log_on_failure  += USERID
+>          disable         = no
+> }
+> 
+> Can anyone provide a simple test that demonstrates how xinetd is broken?
 
-How is ssh supposed to work then?
+It isn't broken from a MLS perspective, but it yields unexpected
+behavior for TE.  References:
+http://www.redhat.com/archives/redhat-lspp/2005-September/msg00125.html
+http://marc.theaimsgroup.com/?l=selinux&m=115988978821514&w=2
 
-Currently the sshd code for selecting roles is being discussed.  I never 
-expected the sshd upstream people to include that at the first pass and 
-considered that they might refuse to ever include it.  This is not a big deal 
-IMHO as patching base SE Linux support in the openssh source tree to have 
-more features is less work and less risk than patching in SE Linux support 
-where previously there was none.
-
-If sshd role selection support is maintained and if it's then extended to 
-support a selection of MLS/MCS ranges then what restrictions will be placed 
-on the range selected?  Is the aim to make sshd use labeled networking 
-features to enforce a range that matches the client end?  If so then newrole 
-should be prevented on ssh sessions (IE all pty sessions).
-
-If the ssh client should be permitted to select the role and range then there 
-is little extra vulnerability in also permitting the newrole program to 
-perform the operations being discussed as the user could always cat the file 
-from one ssh session and then proxy it to a cat command in another session at 
-a different level.  This issue may still apply if the ssh client can not 
-select the level as the user may have multiple Unix accounts on the server 
-that have different levels.
-
-It seems to me that the minimal solution to this problem of data relabeling is 
-to prevent newrole from accessing regular pty devices (*) and to prevent ssh 
-logins unless the labeled networking functionality is enabled, the client 
-process is at the same level, and the client computer has the same level of 
-integrity and the same meanings for MLS levels.
-
-(*) This can be achieved by having more types for tty devices, we have 
-user_devpts_t for ptys created by the user and we could have 
-user_system_devpts_t for ptys created for the user by sshd or similar 
-programs.  Then newrole could operate on ptys created by sshd but not on 
-those created by the user.  This also means that newrole in an xterm would be 
-impossible, but given the issues related to capturing data from an xterm this 
-is a good thing.  It would be quite easy to have the default policy have such 
-types and have a boolean to determine whether newrole_t can access 
-user_devpts_t.
-
-When we get SE-X going we could have an X enabled version of newrole that 
-spawns an xterm in the new context.
+We would expect your "server" to run in a domain based on the service
+(e.g. the id_t domain if such a thing existed) with permissions limited
+to least privilege for its purpose, or alternatively, to run in a
+derived domain based on both the peer and the service (e.g. the
+user_id_t domain for the id service launched from a user_t client).
 
 -- 
-russell@coker.com.au
-http://etbe.blogspot.com/          My Blog
+Stephen Smalley
+National Security Agency
 
-http://www.coker.com.au/sponsorship.html Sponsoring Free Software development
 
 --
 This message was distributed to subscribers of the selinux mailing list.
