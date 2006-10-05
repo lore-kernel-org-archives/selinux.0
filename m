@@ -1,36 +1,40 @@
-Subject: Re: [RFC PATCH] newrole suid breakdown
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Michael C Thompson <thompsmc@us.ibm.com>
-Cc: Daniel J Walsh <dwalsh@redhat.com>, SE Linux <selinux@tycho.nsa.gov>,
-        jdesai@us.ibm.com
-In-Reply-To: <452528C0.1050907@us.ibm.com>
-References: <452432FA.1060009@us.ibm.com> <45250F35.6030204@redhat.com>
-	 <452519BC.1060204@us.ibm.com> <45251C15.6020506@redhat.com>
-	 <452528C0.1050907@us.ibm.com>
-Content-Type: text/plain
-Date: Thu, 05 Oct 2006 13:56:46 -0400
-Message-Id: <1160071006.2132.120.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+Message-ID: <4525494C.6080901@trustedcs.com>
+Date: Thu, 05 Oct 2006 13:05:00 -0500
+From: Darrel Goeddel <dgoeddel@TrustedCS.com>
+MIME-Version: 1.0
+To: SELinux List <selinux@tycho.nsa.gov>
+CC: Daniel Walsh <dwalsh@redhat.com>, Stephen Smalley <sds@tycho.nsa.gov>,
+        Joshua Brindle <jbrindle@tresys.com>,
+        Karl MacMillan <kmacmillan@mentalrootkit.com>,
+        Linda Knippers <linda.knippers@hp.com>,
+        Christopher PeBenito <cpebenito@tresys.com>
+Subject: [RFC PATCH 0/3] access checks for translating contexts
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2006-10-05 at 10:46 -0500, Michael C Thompson wrote:
-> Daniel J Walsh wrote:
-> > I think this is all you need.  Audit can handle the fact that it can't 
-> > send a message by sending it to /var/log/messages.  And if You use 
-> > pam_namespace.so you should fail if you are not setuid and you are not 
-> > root.
-> 
-> True, but right now we are set to abort newrole if those actions are 
-> expected to succeed (we have compiled with the respective _PRIV). Should 
-> that behavior be changed?
+The following is an attempt to perform access checks for context translations.
+The idea being that a process should not know about labels that are outside
+of it's clearance.  Since there are now standalone MLS checks available, I have
+added a new security class "context" with permission "translate".  The
+mlsconstraint on that permission handles the MLS clearance portion.  TE access
+must also be granted for the context to be translated - I see this a drawback
+of the implementation because now we need a way to give TE access to all types
+if we want a process to do translations limited purely by MLS.
 
-No.
+Now... The daemon running at the lowest MLS level and the file describing
+translations is at the lowest MLS level.  This throws the whole idea of
+protecting the labels (the reason for the daemon in the first place) themselves
+out the door since everyone can just read the file.  That daemon needs to run
+at the highest MLS level and the file needs to be at the highest MLS level.
+We (TCS) had things set up that way when we did some of the initial work on
+the daemon.  Has anyone looked into actually fixing this issue (or at least
+have an idea on what caused the breakage)?  If not, this whole patchset is
+really not necessary.  I guess I could look into that as well...
 
 -- 
-Stephen Smalley
-National Security Agency
 
+Darrel
 
 --
 This message was distributed to subscribers of the selinux mailing list.
