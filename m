@@ -1,87 +1,92 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k95IefDG029991
-	for <selinux@tycho.nsa.gov>; Thu, 5 Oct 2006 14:40:41 -0400
-Received: from twoface.columbia.tresys.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id k95IdShL025663
-	for <selinux@tycho.nsa.gov>; Thu, 5 Oct 2006 18:39:28 GMT
-Message-ID: <452551B2.70307@tresys.com>
-Date: Thu, 05 Oct 2006 14:40:50 -0400
-From: Joshua Brindle <jbrindle@tresys.com>
-MIME-Version: 1.0
-To: Venkat Yekkirala <vyekkirala@TrustedCS.com>
-CC: selinux@tycho.nsa.gov, redhat-lspp@redhat.com
-Subject: Re: Networking policy patch
-References: <45232276.2080105@trustedcs.com>
-In-Reply-To: <45232276.2080105@trustedcs.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Subject: Re: [RFC PATCH] newrole suid breakdown
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Michael C Thompson <thompsmc@us.ibm.com>
+Cc: Daniel J Walsh <dwalsh@redhat.com>, SE Linux <selinux@tycho.nsa.gov>,
+        jdesai@us.ibm.com
+In-Reply-To: <45252ADE.7080905@us.ibm.com>
+References: <452432FA.1060009@us.ibm.com> <45250F35.6030204@redhat.com>
+	 <452519BC.1060204@us.ibm.com>
+	 <1160060310.2132.102.camel@moss-spartans.epoch.ncsc.mil>
+	 <45252ADE.7080905@us.ibm.com>
+Content-Type: text/plain
+Date: Thu, 05 Oct 2006 14:39:10 -0400
+Message-Id: <1160073550.2132.163.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Venkat Yekkirala wrote:
-> FYI- I have posted the following patches separate from this one.
->
-> 1. A patch to address the "leask" issue. Once verified, it needs
-> to be rolled in with James' patch and sent on after verification.
->
-> 2. A fix for flow_in and flow_out where we were using the unlabeled
->    init sid. We would now use a new network_t with a range of (s0-s15...)
->    to allow for mls traffic to flow out/in, in the absence of explicit secmark
->    rules.
->
->
-> The following is a sample patch for networking using the new controls
-> in conjunction with secmark.
->
-> NOTE FOR JOSHUA: This patch also defines the constraints to force context
-> equality for association:sendto.
->
-> I couldn't readily figure out where to stick these in, but these would
-> help the system come up without any denials.
->
->   
-Ok, this may be an unpopular email but I was going over how everything 
-(sans netlabel) was working as of right now (as I understand it) and I 
-came across some things that seem strange. Maybe my understanding is 
-wrong...
+On Thu, 2006-10-05 at 10:55 -0500, Michael C Thompson wrote:
+> Stephen Smalley wrote:
+> > On Thu, 2006-10-05 at 09:42 -0500, Michael C Thompson wrote:
+> >> Daniel J Walsh wrote:
+> >>> Does the code continue to work correctly if I compile in AUDIT_LOG_PRIV 
+> >>> and NAMESPACE_PRIV but run it without the setuid bit and as a normal 
+> >>> user.  IE, We want the option to only set this setuid when in an MLS 
+> >>> environment.  This is not required for targeted or strict policy machines.
+> >> What happens (currently), is it attempts to drop capabilities and if it 
+> >> can't do that, newrole fails and exists. The reason I chose this 
+> >> behavior is, as I figured, if you have compiled newrole with 
+> >> AUDIT_LOG_PRIV or NAMESPACE_PRIV, you requiring that behaviour.
+> >>
+> >> It should be easy to change this behavior, as I expect RH will want a 
+> >> single compiled binary that can do it all, right? :)
+> >>
+> >> Suggested patch attached. If you have a more elegant solution, feel free 
+> >> to let me know.
+> > 
+> > Concerns with this approach:
+> > 1) The geteuid() test is ambiguous in the case where the caller was
+> > already uid 0 (i.e. root runs newrole).
+> 
+> Well, this is a really hackish patch. I could integrate this check into 
+> drop_capabilties, and have it return 0 on success, >0 for ignore 
+> privileged actions, and <0 on real failure. This way its more consolidated.
 
-Basically I was trying the most complex situation (which includes socket 
-labels that are different from the domain).
-spd 1 is  ipsec_spd_t.
-domain 1 is pms_proxy_t
-socket 1 is sysadm_t (via setsockcreatecon)
-secmark 1 is pms_c_p_t
+That doesn't change the ambiguity in the geteuid() test.  The point is
+that if we want to make certain logic in newrole conditional on whether
+or not newrole is suid, we can't distinguish in the case where the
+caller was already uid 0.  See below.
 
-spd 2 is ipsec_spd2_t
-domain 2 is inetd_t
-socket 2 is pms_t
-secmark 2 is pms_s_p_t
+>  > For dropping capabilities and
+> > switching uids, this has no real effect since that processing is skipped
+> > when the caller had uid 0.  But it does have an impact on the audit and
+> > namespace functionality.
+> 
+> In what way? Either you have the capability to do these actions, or you 
+> don't, right? I can see 4 cases:
+> uid == 0 && euid == 0 : you're root
 
-therefore SA 1 is pms_t and SA 2 is sysadm_t
+Right.  And per your logic, this means that newrole would always try to
+send an audit message and call pam_open/close_session, right?  Even if
+newrole was _not_ marked suid, just by virtue of the fact that the
+caller was uid 0.  Suppose that I have a non-LSPP system and I run
+newrole as root - it will still end up trying to perform those actions.
 
-So here are the rules I came up with
-side1:
-allow pms_proxy_t pms_c_p_t : packet { send recv }
- - straightforward, already how secmark works
-allow sysadm_t pms_t : packet { flow_in flow_out }
- - don't understand this, pms_t isn't a packet object, why are we using 
-the packet object class?
-allow pms_proxy_t ipsec_spd_t : association { polmatch }
- - likewise, an spd isn't an association, maybe this class needs to be 
-more generic
-allow pms_proxy_t pms_t : association { sendto recvfrom }
- - Not sure if this one is right, is the source suppose to be the domain 
-or the socket?
+>  > Note btw that the
+> > pam_open_session/pam_close_session calls don't strictly require such a
+> > test, since we can always put pam_permit as a session module in the
+> > default pam config.
+> 
+> Is that something we would want to rely on though?
 
-side2:
-allow inetd_t pms_s_p_t : packet {send recv }
-allow pms_t sysadm_t : packet { flow_in flow_out }
-allow inetd_t ipsec_spd2_t : association { polmatch }
-allow inetd_t sysadm_t : association { sendto recvfrom }
+It is cleaner to make the calls unconditional and just let the
+configuration vary.  It would be nice if we could do the same thing with
+the audit support, just letting libaudit do different things in the
+non-LSPP vs. LSPP configurations.
 
+> > 2) I'm not sure how RH plans to set and maintain the suid bit on newrole
+> > in the LSPP case, since they want to have it off by default.  If another
+> > package, like the lspp package, modifies the suid bit on newrole, then a
+> > rpm -V policycoreutils will report a change in mode from the package
+> > defaults and any update of policycoreutils could reset the mode to the
+> > original one.
 
-do these rules seem correct given the scenerio above?
+This remains a problem AFAICS.
 
-If so there seems to be some object class confusion.
+-- 
+Stephen Smalley
+National Security Agency
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
