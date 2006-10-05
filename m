@@ -1,58 +1,41 @@
 Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k95NWXdB007473
-	for <selinux@tycho.nsa.gov>; Thu, 5 Oct 2006 19:32:33 -0400
-Received: from smtp.sws.net.au (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id k95NVKqJ017430
-	for <selinux@tycho.nsa.gov>; Thu, 5 Oct 2006 23:31:20 GMT
-Received: from localhost (localhost [127.0.0.1])
-	by smtp.sws.net.au (Postfix) with ESMTP id 7C72761AF7
-	for <selinux@tycho.nsa.gov>; Fri,  6 Oct 2006 09:32:32 +1000 (EST)
-Received: from smtp.sws.net.au ([127.0.0.1])
-	by localhost (smtp.sws.net.au [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id uJHqXiryp5jq for <selinux@tycho.nsa.gov>;
-	Fri,  6 Oct 2006 09:32:32 +1000 (EST)
-Received: from aeon.coker.com.au (localhost [127.0.0.1])
-	by smtp.sws.net.au (Postfix) with ESMTP id 4C80E61AF5
-	for <selinux@tycho.nsa.gov>; Fri,  6 Oct 2006 09:32:32 +1000 (EST)
-Received: from aeon (aeon [127.0.0.1])
-	by aeon.coker.com.au (Postfix) with ESMTP id 5DD23A7E6E
-	for <selinux@tycho.nsa.gov>; Fri,  6 Oct 2006 09:32:31 +1000 (EST)
-From: Russell Coker <russell@coker.com.au>
-Reply-To: russell@coker.com.au
-To: SE Linux <selinux@tycho.nsa.gov>
-Subject: selective quoting
-Date: Fri, 6 Oct 2006 09:32:29 +1000
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k95NrwDq007932
+	for <selinux@tycho.nsa.gov>; Thu, 5 Oct 2006 19:53:58 -0400
+Received: from mail2.sea5.speakeasy.net (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id k95NqjqJ020615
+	for <selinux@tycho.nsa.gov>; Thu, 5 Oct 2006 23:52:45 GMT
+Date: Thu, 5 Oct 2006 19:53:56 -0400 (EDT)
+From: James Morris <jmorris@namei.org>
+To: Venkat Yekkirala <vyekkirala@TrustedCS.com>
+cc: netdev@vger.kernel.org, selinux@tycho.nsa.gov, sds@tycho.nsa.gov,
+        eparis@redhat.com, johnpol@2ka.mipt.ru, herbert@gondor.apana.org.au
+Subject: Re: [PATCH 3/3] Fix for IPsec leakage with SELinux enabled - V.03:
+ Process security errors for scket policies also
+In-Reply-To: <45256E3B.7070508@trustedcs.com>
+Message-ID: <Pine.LNX.4.64.0610051947200.27547@d.namei>
+References: <45256E3B.7070508@trustedcs.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Message-Id: <200610060932.31189.russell@coker.com.au>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-When replying to messages could you please only quote the sections that are 
-relevant to your message?
+For future patches, please follow the recommended subject line outlined in 
+http://www.zip.com.au/~akpm/linux/patches/stuff/tpp.txt
 
-A 10 page message that has 3 lines of text and 9.9 pages of quotes does not 
-permit efficient reading of the list traffic.  All MUAs have the ability to 
-sort messages by topic and almost all MUAs support threading.  So it's quite 
-easy for anyone to read the original message without having it quoted 
-entirely in your new message.
+e.g.  "[patch 2/5] ext2: improve scalability of bitmap searching"
 
-Also if you quote 9.9 pages of text it may not be clear exactly which parts of 
-the quoted text you consider relevant.  While if you quote one or two 
-paragraphs then the reader will know that those paragraphs contain the most 
-relevant background, this can be helpful in interpreting the intent of 
-messages.
 
-As a general rule I suggest that the only situation in which there should be a 
-greater volume of quoted text than original text in your message is if you 
-are acknowledging or rejecting a patch.
+Also, can you please try and figure out how to get outlook to stop 
+breaking threads or switch to Thunderbird or something?  It's very 
+difficult with hundreds of emails in a discussion, many of which are 
+important patches to dig out.  Also, some kernel developers filter posts 
+from mailers which break threads.
 
+
+- James
 -- 
-russell@coker.com.au
-http://etbe.blogspot.com/          My Blog
-
-http://www.coker.com.au/sponsorship.html Sponsoring Free Software development
+James Morris
+<jmorris@namei.org>
 
 --
 This message was distributed to subscribers of the selinux mailing list.
