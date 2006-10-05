@@ -1,148 +1,188 @@
-Message-ID: <4525580E.8040603@tresys.com>
-Date: Thu, 05 Oct 2006 15:07:58 -0400
-From: Joshua Brindle <jbrindle@tresys.com>
+Message-ID: <45255AB1.9050408@redhat.com>
+Date: Thu, 05 Oct 2006 15:19:13 -0400
+From: Daniel J Walsh <dwalsh@redhat.com>
 MIME-Version: 1.0
 To: Darrel Goeddel <dgoeddel@TrustedCS.com>
 CC: SELinux List <selinux@tycho.nsa.gov>, Stephen Smalley <sds@tycho.nsa.gov>,
         Joshua Brindle <jbrindle@tresys.com>,
         Karl MacMillan <kmacmillan@mentalrootkit.com>,
         Linda Knippers <linda.knippers@hp.com>,
-        Daniel Walsh <dwalsh@redhat.com>
-Subject: Re: [PATCH] libselinux: always store raw contexts in the avc sidtab
-References: <45253C1C.7010803@trustedcs.com>
-In-Reply-To: <45253C1C.7010803@trustedcs.com>
+        Christopher PeBenito <cpebenito@tresys.com>
+Subject: Re: [RFC PATCH 3/3] mcstransd: perform an access check on the conext
+ to be translated
+References: <452549CF.5080707@trustedcs.com>
+In-Reply-To: <452549CF.5080707@trustedcs.com>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 Darrel Goeddel wrote:
-> Always store raw contexts in the avc sidtab.  This is accomplished by
-> providing functions to deal with raw contexts when converting contexts
-> to sids and vice versa.  The security_compute_av is also switch to the 
-> raw
-> version because the contexts will now all be raw.  When the raw 
-> context is
-> being converted to a sid, there will be no overhead.  When a 
-> translated context
-> is converted, there will be a translation to raw for storage.  There 
-> conversion
-> back from sid to context via avc_context_to_sid() will translate the 
-> context,
-> while avc_context_to_sid_raw() will not.  These functions make it easy to
-> optimize some code paths be removing translations for contexts that 
-> will never
-> be presented to the user.
+> Perform an access check on the conext to be translated.  This uses the 
+> new
+> security class/perm of "context"/"translate".  A userspace AVC is used to
+> cache all decisions and the _raw functions are used to eliminate extra
+> translations for contexts never seen by users.  Dan Walsh has noted 
+> that he
+> would like this to turnoffable - I haven't done that yet.  I was 
+> figuring on
+> just including a paramter like "-c" to enable access checks or 
+> something like
+> that - I'm open to suggestions.  I also do not have the AVC hooked up to
+> auditing right now - I imagine I'll want to do that as well.
 >
-> Signed-off-by: Darrel Goeddel <dgoeddel@trustedcs.com>
+Put it in the config file. 
 >
-> ___
->
-> Note that I will be posting some patches for comment that make use of 
-> these
-> new functions in RedHat's context translation daemon.
->
-> include/selinux/avc.h |    2 ++
-> src/avc.c             |   39 +++++++++++++++++++++++++++++++++++----
-> 2 files changed, 37 insertions(+), 4 deletions(-)
+> ---
 >
 >
-> diff -ruNp --exclude=.svn 
-> selinux-base/libselinux/include/selinux/avc.h 
-> selinux/libselinux/include/selinux/avc.h
-> --- selinux-base/libselinux/include/selinux/avc.h    2006-10-03 
-> 05:08:16.000000000 -0500
-> +++ selinux/libselinux/include/selinux/avc.h    2006-10-05 
-> 03:25:59.000000000 -0500
-> @@ -38,6 +38,7 @@ extern "C" {
->  * available to make the copy, or %EINVAL if the input SID is invalid.
+> diff --git a/src/mcstransd.c b/src/mcstransd.c
+> index 637c508..fb2f912 100644
+> --- a/src/mcstransd.c
+> +++ b/src/mcstransd.c
+> @@ -13,6 +13,9 @@ #include <stdlib.h>
+> #include <signal.h>
+> #include <string.h>
+> #include <syslog.h>
+> +#include <selinux/avc.h>
+> +#include <selinux/av_permissions.h>
+> +#include <selinux/flask.h>
+> #include <selinux/selinux.h>
+> #include <sys/types.h>
+> #include <sys/capability.h>
+> @@ -59,6 +62,8 @@ static void cleanup_exit(int ret) __attr
+> static void
+> cleanup_exit(int ret) {
+> +    avc_destroy();
+> +
+>     if (sockfd >=0)
+>         (void)unlink(SETRANS_UNIX_SOCKET);
+>     exit(ret);
+> @@ -75,18 +80,21 @@ static  __attribute__((noreturn)) void c
+>  * Returns:  0 on success, 1 on failure
 >  */
->     int avc_sid_to_context(security_id_t sid, security_context_t * ctx);
-> +    int avc_sid_to_context_raw(security_id_t sid, security_context_t 
-> * ctx);
->
-> /**
->  * avc_context_to_sid - get SID for context.
-> @@ -51,6 +52,7 @@ extern "C" {
->  * returning %0 on success or -%1 on error with @errno set.   */
->     int avc_context_to_sid(security_context_t ctx, security_id_t * sid);
-> +    int avc_context_to_sid_raw(security_context_t ctx, security_id_t 
-> * sid);
->
-> /**
->  * sidget - increment SID reference counter.
-> diff -ruNp --exclude=.svn selinux-base/libselinux/src/avc.c 
-> selinux/libselinux/src/avc.c
-> --- selinux-base/libselinux/src/avc.c    2006-10-03 05:08:17.000000000 
-> -0500
-> +++ selinux/libselinux/src/avc.c    2006-10-05 03:25:58.000000000 -0500
-> @@ -203,7 +203,7 @@ static inline int avc_hash(security_id_t
->         & (AVC_CACHE_SLOTS - 1);
-> }
->
-> -int avc_context_to_sid(security_context_t ctx, security_id_t * sid)
-> +int avc_context_to_sid_raw(security_context_t ctx, security_id_t * sid)
+> static int
+> -raw_to_trans_context(char *in, char **out, char *UNUSED(pcon))
+> +raw_to_trans_context(char *in, char **out, char *pcon)
 > {
->     int rc;
->     avc_get_lock(avc_lock);
-> @@ -214,7 +214,22 @@ int avc_context_to_sid(security_context_
->     return rc;
-> }
+> +    security_id_t psid, csid;
 >
-> -int avc_sid_to_context(security_id_t sid, security_context_t * ctx)
-> +int avc_context_to_sid(security_context_t ctx, security_id_t * sid)
-> +{
-> +    int ret;
-> +    security_context_t rctx;
-> +
-> +    if (selinux_trans_to_raw_context(ctx, &rctx))
+>     *out = NULL;
+> -    /* TODO: Check if MLS clearance (in "pcon") dominates the MLS label
+> -     * (in "in").
+> -     */
+> +    if (avc_context_to_sid_raw(pcon, &psid))
 > +        return -1;
-> +
-> +    ret = avc_context_to_sid_raw(rctx, sid);
-> +
-> +    freecon(rctx);
-> +
-> +    return ret;
-> +}
-> +
-> +int avc_sid_to_context_raw(security_id_t sid, security_context_t * ctx)
-> {
->     int rc;
->     *ctx = NULL;
-> @@ -230,6 +245,21 @@ int avc_sid_to_context(security_id_t sid
->     return rc;
+> +    if (avc_context_to_sid_raw(in, &csid))
+> +        return -1;
+> +    if (avc_has_perm(psid, csid, SECCLASS_CONTEXT, CONTEXT__TRANSLATE,
+> +                     NULL, NULL))
+> +        return -1;
+>
+> -    trans_context(in, out);
+> -   
+> -    return 0;
+> +    return trans_context(in, out);
 > }
 >
-> +int avc_sid_to_context(security_id_t sid, security_context_t * ctx)
-> +{
-> +    int ret;
-> +    security_context_t rctx;
+>
+> @@ -95,17 +103,30 @@ raw_to_trans_context(char *in, char **ou
+>  * Returns:  0 on success, 1 on failure
+>  */
+> static int
+> -trans_to_raw_context(char *in, char **out, char *UNUSED(pcon))
+> +trans_to_raw_context(char *in, char **out, char *pcon)
+> {
+> +    security_id_t psid, csid;
+> +    int retval;
 > +
-> +    ret = avc_sid_to_context_raw(sid, &rctx);
+>     *out = NULL;
+>     
+> -    /* TODO: Check if MLS clearance (in "pcon") dominates the MLS label
+> -     * (in "in").
+> -     */
+> -
+> -    untrans_context(in, out);
+> +    retval = untrans_context(in, out);
+> +    if (retval)
+> +        return retval;
 > +
-> +    if (ret == 0) {
-> +        ret = selinux_raw_to_trans_context(rctx, ctx);
-> +        freecon(rctx);
+> +    if (avc_context_to_sid_raw(pcon, &psid))
+> +        goto out_err;
+> +    if (avc_context_to_sid_raw(*out, &csid))
+> +        goto out_err;
+> +    if (avc_has_perm(psid, csid, SECCLASS_CONTEXT, CONTEXT__TRANSLATE,
+> +                     NULL, NULL))
+> +        goto out_err;
+>
+>     return 0;
+> +out_err:
+> +    free(*out);
+> +    *out = NULL;
+> +    return -1;
+> }
+>
+> static int
+> @@ -152,29 +173,6 @@ send_response(int fd, uint32_t function,
+> }
+>
+> static int
+> -get_peer_con(int fd, char **peercon)
+> -{
+> -    int ret;
+> -    socklen_t size = sizeof(struct ucred);
+> -    struct ucred peercred;
+> -
+> -    /* get the context of the requesting process */
+> -    ret = getsockopt(fd, SOL_SOCKET, SO_PEERCRED, &peercred, &size);
+> -    if (ret < 0) {
+> -        syslog(LOG_ERR, "Failed to get PID of client process");
+> -        return -1;
+> -    }
+> -    ret = getpidcon_raw(peercred.pid, peercon);
+> -    if (ret) {
+> -        syslog(LOG_ERR, -            "Failed to get context of client 
+> process (pid=%u)",
+> -            peercred.pid);
+> -        return -1;
+> -    }
+> -    return 0;
+> -}
+> -
+> -static int
+> process_request(int fd, uint32_t function, char *data1, char *data2)
+> {
+>     int32_t result;
+> @@ -191,14 +189,14 @@ process_request(int fd, uint32_t functio
+>         ret = send_response(fd, function, NULL, result);
+>         break;
+>     case RAW_TO_TRANS_CONTEXT:
+> -        ret = get_peer_con(fd, &peercon);
+> +        ret = getpeercon_raw(fd, &peercon);
+>         if (ret)
+>             return ret;
+>         result = raw_to_trans_context(data1, &out, peercon);
+>         ret = send_response(fd, function, out, result);
+>         break;
+>     case TRANS_TO_RAW_CONTEXT:
+> -        ret = get_peer_con(fd, &peercon);
+> +        ret = getpeercon_raw(fd, &peercon);
+>         if (ret)
+>             return ret;
+>         result = trans_to_raw_context(data1, &out, peercon);
+> @@ -493,6 +491,12 @@ initialize(void)
+>         cleanup_exit(1);
+>     }
+>
+> +    if (avc_init("setransd", NULL, NULL, NULL, NULL)) {
+> +        syslog(LOG_ERR, "Failed to initialize AVC for "
+> +               "label translations");
+> +        cleanup_exit(1);
 > +    }
 > +
-> +    return ret;
-> +}
-> +
-> int sidget(security_id_t sid)
-> {
->     int rc;
-> @@ -935,8 +965,9 @@ int avc_has_perm_noaudit(security_id_t s
->                 rc = -1;
->                 goto out;
->             }
-> -            rc = security_compute_av(ssid->ctx, tsid->ctx, tclass,
-> -                         requested, &entry.avd);
-> +            rc = security_compute_av_raw(ssid->ctx, tsid->ctx,
-> +                             tclass, requested,
-> +                             &entry.avd);
->             if (rc)
->                 goto out;
->             rc = avc_insert(ssid, tsid, tclass, &entry, aeref);
-Acked-By: Joshua Brindle <jbrindle@tresys.com>
+>     /* the socket will be unlinked when the daemon terminates */
+>     act.sa_handler = sigterm_handler;
+>     sigemptyset(&act.sa_mask);
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
