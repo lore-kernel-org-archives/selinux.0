@@ -1,188 +1,76 @@
-Message-ID: <45255AB1.9050408@redhat.com>
-Date: Thu, 05 Oct 2006 15:19:13 -0400
-From: Daniel J Walsh <dwalsh@redhat.com>
+Message-ID: <45255B19.8080303@trustedcs.com>
+Date: Thu, 05 Oct 2006 14:20:57 -0500
+From: Darrel Goeddel <dgoeddel@TrustedCS.com>
 MIME-Version: 1.0
-To: Darrel Goeddel <dgoeddel@TrustedCS.com>
-CC: SELinux List <selinux@tycho.nsa.gov>, Stephen Smalley <sds@tycho.nsa.gov>,
-        Joshua Brindle <jbrindle@tresys.com>,
+To: Joshua Brindle <jbrindle@tresys.com>
+CC: SELinux List <selinux@tycho.nsa.gov>, Daniel Walsh <dwalsh@redhat.com>,
+        Stephen Smalley <sds@tycho.nsa.gov>,
         Karl MacMillan <kmacmillan@mentalrootkit.com>,
         Linda Knippers <linda.knippers@hp.com>,
         Christopher PeBenito <cpebenito@tresys.com>
-Subject: Re: [RFC PATCH 3/3] mcstransd: perform an access check on the conext
- to be translated
-References: <452549CF.5080707@trustedcs.com>
-In-Reply-To: <452549CF.5080707@trustedcs.com>
+Subject: Re: [RFC PATCH 1/3] reference policy: add "context" security class
+References: <4525496E.4090209@trustedcs.com> <452553BE.3080805@tresys.com>
+In-Reply-To: <452553BE.3080805@tresys.com>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Darrel Goeddel wrote:
-> Perform an access check on the conext to be translated.  This uses the 
-> new
-> security class/perm of "context"/"translate".  A userspace AVC is used to
-> cache all decisions and the _raw functions are used to eliminate extra
-> translations for contexts never seen by users.  Dan Walsh has noted 
-> that he
-> would like this to turnoffable - I haven't done that yet.  I was 
-> figuring on
-> just including a paramter like "-c" to enable access checks or 
-> something like
-> that - I'm open to suggestions.  I also do not have the AVC hooked up to
-> auditing right now - I imagine I'll want to do that as well.
->
-Put it in the config file. 
->
-> ---
->
->
-> diff --git a/src/mcstransd.c b/src/mcstransd.c
-> index 637c508..fb2f912 100644
-> --- a/src/mcstransd.c
-> +++ b/src/mcstransd.c
-> @@ -13,6 +13,9 @@ #include <stdlib.h>
-> #include <signal.h>
-> #include <string.h>
-> #include <syslog.h>
-> +#include <selinux/avc.h>
-> +#include <selinux/av_permissions.h>
-> +#include <selinux/flask.h>
-> #include <selinux/selinux.h>
-> #include <sys/types.h>
-> #include <sys/capability.h>
-> @@ -59,6 +62,8 @@ static void cleanup_exit(int ret) __attr
-> static void
-> cleanup_exit(int ret) {
-> +    avc_destroy();
-> +
->     if (sockfd >=0)
->         (void)unlink(SETRANS_UNIX_SOCKET);
->     exit(ret);
-> @@ -75,18 +80,21 @@ static  __attribute__((noreturn)) void c
->  * Returns:  0 on success, 1 on failure
->  */
-> static int
-> -raw_to_trans_context(char *in, char **out, char *UNUSED(pcon))
-> +raw_to_trans_context(char *in, char **out, char *pcon)
-> {
-> +    security_id_t psid, csid;
->
->     *out = NULL;
-> -    /* TODO: Check if MLS clearance (in "pcon") dominates the MLS label
-> -     * (in "in").
-> -     */
-> +    if (avc_context_to_sid_raw(pcon, &psid))
-> +        return -1;
-> +    if (avc_context_to_sid_raw(in, &csid))
-> +        return -1;
-> +    if (avc_has_perm(psid, csid, SECCLASS_CONTEXT, CONTEXT__TRANSLATE,
-> +                     NULL, NULL))
-> +        return -1;
->
-> -    trans_context(in, out);
-> -   
-> -    return 0;
-> +    return trans_context(in, out);
-> }
->
->
-> @@ -95,17 +103,30 @@ raw_to_trans_context(char *in, char **ou
->  * Returns:  0 on success, 1 on failure
->  */
-> static int
-> -trans_to_raw_context(char *in, char **out, char *UNUSED(pcon))
-> +trans_to_raw_context(char *in, char **out, char *pcon)
-> {
-> +    security_id_t psid, csid;
-> +    int retval;
-> +
->     *out = NULL;
->     
-> -    /* TODO: Check if MLS clearance (in "pcon") dominates the MLS label
-> -     * (in "in").
-> -     */
-> -
-> -    untrans_context(in, out);
-> +    retval = untrans_context(in, out);
-> +    if (retval)
-> +        return retval;
-> +
-> +    if (avc_context_to_sid_raw(pcon, &psid))
-> +        goto out_err;
-> +    if (avc_context_to_sid_raw(*out, &csid))
-> +        goto out_err;
-> +    if (avc_has_perm(psid, csid, SECCLASS_CONTEXT, CONTEXT__TRANSLATE,
-> +                     NULL, NULL))
-> +        goto out_err;
->
->     return 0;
-> +out_err:
-> +    free(*out);
-> +    *out = NULL;
-> +    return -1;
-> }
->
-> static int
-> @@ -152,29 +173,6 @@ send_response(int fd, uint32_t function,
-> }
->
-> static int
-> -get_peer_con(int fd, char **peercon)
-> -{
-> -    int ret;
-> -    socklen_t size = sizeof(struct ucred);
-> -    struct ucred peercred;
-> -
-> -    /* get the context of the requesting process */
-> -    ret = getsockopt(fd, SOL_SOCKET, SO_PEERCRED, &peercred, &size);
-> -    if (ret < 0) {
-> -        syslog(LOG_ERR, "Failed to get PID of client process");
-> -        return -1;
-> -    }
-> -    ret = getpidcon_raw(peercred.pid, peercon);
-> -    if (ret) {
-> -        syslog(LOG_ERR, -            "Failed to get context of client 
-> process (pid=%u)",
-> -            peercred.pid);
-> -        return -1;
-> -    }
-> -    return 0;
-> -}
-> -
-> -static int
-> process_request(int fd, uint32_t function, char *data1, char *data2)
-> {
->     int32_t result;
-> @@ -191,14 +189,14 @@ process_request(int fd, uint32_t functio
->         ret = send_response(fd, function, NULL, result);
->         break;
->     case RAW_TO_TRANS_CONTEXT:
-> -        ret = get_peer_con(fd, &peercon);
-> +        ret = getpeercon_raw(fd, &peercon);
->         if (ret)
->             return ret;
->         result = raw_to_trans_context(data1, &out, peercon);
->         ret = send_response(fd, function, out, result);
->         break;
->     case TRANS_TO_RAW_CONTEXT:
-> -        ret = get_peer_con(fd, &peercon);
-> +        ret = getpeercon_raw(fd, &peercon);
->         if (ret)
->             return ret;
->         result = trans_to_raw_context(data1, &out, peercon);
-> @@ -493,6 +491,12 @@ initialize(void)
->         cleanup_exit(1);
->     }
->
-> +    if (avc_init("setransd", NULL, NULL, NULL, NULL)) {
-> +        syslog(LOG_ERR, "Failed to initialize AVC for "
-> +               "label translations");
-> +        cleanup_exit(1);
-> +    }
-> +
->     /* the socket will be unlinked when the daemon terminates */
->     act.sa_handler = sigterm_handler;
->     sigemptyset(&act.sa_mask);
+Joshua Brindle wrote:
+> Darrel Goeddel wrote:
+> 
+>> Define a new security class "context" and its permission "translate" for
+>> use by the context translation daemon.  The bit of policy added to the
+>> setrans_translate_context interface only allows for translation of
+>> domains and file_contexts.  You can see how this is bad if you try to
+>> ls -Z /dev.  I don't have a trick to allow TE access to every type other
+>> than grabbing some "big" attributes, then listing every remaining type.
+>> That obviously does not work in the modular policy model anyway.  Any
+>> ideas on how we could maybe handle that one? (assuming that anyone else
+>> does not want TE restriction on the translations :))  How about a
+>> privilege to use '*' or '~' in typesets...
+>>
+> * and ~ in typesets considered harmful. In addition to the badness of 
+> not actually knowing what you are giving access to they would cause the 
+> avtab to be much bigger (they'd have to be expanded whereas "big" 
+> attributes don't anymore).
 
+I know, I agreed with the restriction.  I just didn't have a situation
+back then where I only wanted an MLS check :(
+
+> However, I'm not sure you want to go this route anyway. You are 
+> basically implying that the label of a context is the context itself 
+> (mind bending I know, we did this same thing forever ago with the policy 
+> server). We finally decided that it was much better to explicitly label 
+> then (this was part of the '.' notation). For example the policy server 
+> labeling file might have:
+> 
+> type apache_t   system_u:object_r:apache_root_type_t
+> type apache_t.   system_u:object_r:apache_types_t
+> 
+> then you can give access to everything "under" apache_t in the hierarchy 
+> with just one allow rule but not give access to apache_t. I know this 
+> exact thing won't work for you since you are doing full contexts but you 
+> may want to consider your labeling scheme.
+
+We could make a "shadow" to every type on the system like foo_t would have
+foo_t.context_type_t, then give all of the *.context_type_t types an attribute
+of context_type, and then do "allow domain context_type:context translate;".
+Anyone mind if I double the number of types?  I'm note really serious here
+in case anyone was wondering ;)
+
+> In the mean time, since the translation permissions is primarily for MLS 
+> anyway you might consider a much more course permission that lets you do 
+> translations in general with the expectation that at some point in the 
+> future you could implement a more fine grained mechanism.
+
+I take it that you are talking about something like a "self" permission
+(allow domain self:security translate_context; or some such).  The problem there
+is that the actual context must be the target of the check so we can actually
+do the MLS comparison.  If I misunderstood, could you please explain further.
+
+-- 
+
+Darrel
 
 --
 This message was distributed to subscribers of the selinux mailing list.
