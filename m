@@ -1,103 +1,100 @@
-Message-ID: <452561FE.8090708@trustedcs.com>
-Date: Thu, 05 Oct 2006 14:50:22 -0500
-From: Darrel Goeddel <dgoeddel@TrustedCS.com>
+Message-ID: <4525629C.90804@us.ibm.com>
+Date: Thu, 05 Oct 2006 14:53:00 -0500
+From: Michael C Thompson <thompsmc@us.ibm.com>
 MIME-Version: 1.0
 To: Stephen Smalley <sds@tycho.nsa.gov>
-CC: Joshua Brindle <jbrindle@tresys.com>, SELinux List <selinux@tycho.nsa.gov>,
-        Daniel Walsh <dwalsh@redhat.com>,
-        Karl MacMillan <kmacmillan@mentalrootkit.com>,
-        Linda Knippers <linda.knippers@hp.com>,
-        Christopher PeBenito <cpebenito@tresys.com>
-Subject: Re: [RFC PATCH 1/3] reference policy: add "context" security class
-References: <4525496E.4090209@trustedcs.com> <452553BE.3080805@tresys.com>	 <45255B19.8080303@trustedcs.com> <1160077219.2132.213.camel@moss-spartans.epoch.ncsc.mil>
-In-Reply-To: <1160077219.2132.213.camel@moss-spartans.epoch.ncsc.mil>
+CC: Daniel J Walsh <dwalsh@redhat.com>, SE Linux <selinux@tycho.nsa.gov>,
+        jdesai@us.ibm.com
+Subject: Re: [RFC PATCH] newrole suid breakdown
+References: <452432FA.1060009@us.ibm.com> <45250F35.6030204@redhat.com>	 <452519BC.1060204@us.ibm.com>	 <1160060310.2132.102.camel@moss-spartans.epoch.ncsc.mil>	 <45252ADE.7080905@us.ibm.com> <1160073550.2132.163.camel@moss-spartans.epoch.ncsc.mil>
+In-Reply-To: <1160073550.2132.163.camel@moss-spartans.epoch.ncsc.mil>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 Stephen Smalley wrote:
-> On Thu, 2006-10-05 at 14:20 -0500, Darrel Goeddel wrote:
-> 
->>Joshua Brindle wrote:
->>
->>>Darrel Goeddel wrote:
->>>
->>>
->>>>Define a new security class "context" and its permission "translate" for
->>>>use by the context translation daemon.  The bit of policy added to the
->>>>setrans_translate_context interface only allows for translation of
->>>>domains and file_contexts.  You can see how this is bad if you try to
->>>>ls -Z /dev.  I don't have a trick to allow TE access to every type other
->>>>than grabbing some "big" attributes, then listing every remaining type.
->>>>That obviously does not work in the modular policy model anyway.  Any
->>>>ideas on how we could maybe handle that one? (assuming that anyone else
->>>>does not want TE restriction on the translations :))  How about a
->>>>privilege to use '*' or '~' in typesets...
+> On Thu, 2006-10-05 at 10:55 -0500, Michael C Thompson wrote:
+>> Stephen Smalley wrote:
+>>> On Thu, 2006-10-05 at 09:42 -0500, Michael C Thompson wrote:
+>>>> Daniel J Walsh wrote:
+>>>>> Does the code continue to work correctly if I compile in AUDIT_LOG_PRIV 
+>>>>> and NAMESPACE_PRIV but run it without the setuid bit and as a normal 
+>>>>> user.  IE, We want the option to only set this setuid when in an MLS 
+>>>>> environment.  This is not required for targeted or strict policy machines.
+>>>> What happens (currently), is it attempts to drop capabilities and if it 
+>>>> can't do that, newrole fails and exists. The reason I chose this 
+>>>> behavior is, as I figured, if you have compiled newrole with 
+>>>> AUDIT_LOG_PRIV or NAMESPACE_PRIV, you requiring that behaviour.
 >>>>
->>>
->>>* and ~ in typesets considered harmful. In addition to the badness of 
->>>not actually knowing what you are giving access to they would cause the 
->>>avtab to be much bigger (they'd have to be expanded whereas "big" 
->>>attributes don't anymore).
->>
->>I know, I agreed with the restriction.  I just didn't have a situation
->>back then where I only wanted an MLS check :(
->>
->>
->>>However, I'm not sure you want to go this route anyway. You are 
->>>basically implying that the label of a context is the context itself 
->>>(mind bending I know, we did this same thing forever ago with the policy 
->>>server). We finally decided that it was much better to explicitly label 
->>>then (this was part of the '.' notation). For example the policy server 
->>>labeling file might have:
->>>
->>>type apache_t   system_u:object_r:apache_root_type_t
->>>type apache_t.   system_u:object_r:apache_types_t
->>>
->>>then you can give access to everything "under" apache_t in the hierarchy 
->>>with just one allow rule but not give access to apache_t. I know this 
->>>exact thing won't work for you since you are doing full contexts but you 
->>>may want to consider your labeling scheme.
->>
->>We could make a "shadow" to every type on the system like foo_t would have
->>foo_t.context_type_t, then give all of the *.context_type_t types an attribute
->>of context_type, and then do "allow domain context_type:context translate;".
->>Anyone mind if I double the number of types?  I'm note really serious here
->>in case anyone was wondering ;)
->>
->>
->>>In the mean time, since the translation permissions is primarily for MLS 
->>>anyway you might consider a much more course permission that lets you do 
->>>translations in general with the expectation that at some point in the 
->>>future you could implement a more fine grained mechanism.
->>
->>I take it that you are talking about something like a "self" permission
->>(allow domain self:security translate_context; or some such).  The problem there
->>is that the actual context must be the target of the check so we can actually
->>do the MLS comparison.
+>>>> It should be easy to change this behavior, as I expect RH will want a 
+>>>> single compiled binary that can do it all, right? :)
+>>>>
+>>>> Suggested patch attached. If you have a more elegant solution, feel free 
+>>>> to let me know.
+>>> Concerns with this approach:
+>>> 1) The geteuid() test is ambiguous in the case where the caller was
+>>> already uid 0 (i.e. root runs newrole).
+>> Well, this is a really hackish patch. I could integrate this check into 
+>> drop_capabilties, and have it return 0 on success, >0 for ignore 
+>> privileged actions, and <0 on real failure. This way its more consolidated.
 > 
+> That doesn't change the ambiguity in the geteuid() test.  The point is
+> that if we want to make certain logic in newrole conditional on whether
+> or not newrole is suid, we can't distinguish in the case where the
+> caller was already uid 0.  See below.
 > 
-> Given that translation doesn't actually translate the TE component at
-> this time, making the check per-type serves no purpose.  So you could
-> just manipulate the target context for the purposes of checking such
-> that it has the actual MLS label of the target but a fixed
-> user:role:type prefix.  Then the TE policy is quite simple - a single
-> rule for all domains (allow domain translate_t:context translate;).
+>>  > For dropping capabilities and
+>>> switching uids, this has no real effect since that processing is skipped
+>>> when the caller had uid 0.  But it does have an impact on the audit and
+>>> namespace functionality.
+>> In what way? Either you have the capability to do these actions, or you 
+>> don't, right? I can see 4 cases:
+>> uid == 0 && euid == 0 : you're root
+> 
+> Right.  And per your logic, this means that newrole would always try to
+> send an audit message and call pam_open/close_session, right?  Even if
+> newrole was _not_ marked suid, just by virtue of the fact that the
+> caller was uid 0.  Suppose that I have a non-LSPP system and I run
+> newrole as root - it will still end up trying to perform those actions.
+> 
+>>  > Note btw that the
+>>> pam_open_session/pam_close_session calls don't strictly require such a
+>>> test, since we can always put pam_permit as a session module in the
+>>> default pam config.
+>> Is that something we would want to rely on though?
+> 
+> It is cleaner to make the calls unconditional and just let the
+> configuration vary.  It would be nice if we could do the same thing with
+> the audit support, just letting libaudit do different things in the
+> non-LSPP vs. LSPP configurations.
 
-Wow, I actually had that idea typed in right there in my message, but I
-deleted it after I considered the overhead.  Must be the NSA's email undelete
-feature at work ;)  I was considering doing a check between
-process vs. "system_u:system_r:dummy_translation_type_t:<mls from context>"
+What I didn't understand that the desire was to have those actions be 
+dependent on the suid state of newrole, and not the ability to perform 
+the actions.
 
-That would entail creating a context struct from target context, then setting
-up the fake values, and then extracting the new string from that struct to
-get the context to use for the avc check.  How do you think that stacks up
-compared to the overhead already incurred?  I like this idea if it is
-acceptable.  
+It would be possible to stat the newrole binary's permissions to see if 
+newrole is suid, but we then need to watch out for the possibility that 
+argv[0] isn't correct, so we'd need to address that (could hardcode into 
+newrole where it expects to be, for example).
 
--- 
+With this approach, we would either attempt to perform the privileged 
+actions we've been compiled with, or not. Audit would always be 
+performed, and pam_open_session would always be called, but we could 
+disable the namespace actions through the pam.d file. Is this approach 
+acceptable?
 
-Darrel
+>>> 2) I'm not sure how RH plans to set and maintain the suid bit on newrole
+>>> in the LSPP case, since they want to have it off by default.  If another
+>>> package, like the lspp package, modifies the suid bit on newrole, then a
+>>> rpm -V policycoreutils will report a change in mode from the package
+>>> defaults and any update of policycoreutils could reset the mode to the
+>>> original one.
+> 
+> This remains a problem AFAICS.
+
+Yup, can't really weigh in on that though.
+
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
