@@ -1,56 +1,73 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k95JtM5M000738
-	for <selinux@tycho.nsa.gov>; Thu, 5 Oct 2006 15:55:22 -0400
-Received: from exchange.columbia.tresys.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with SMTP id k95JskZv014990
-	for <selinux@tycho.nsa.gov>; Thu, 5 Oct 2006 19:54:46 GMT
-Subject: Re: policy patch against subversion tree
-From: "Christopher J. PeBenito" <cpebenito@tresys.com>
-To: russell@coker.com.au, Daniel J Walsh <dwalsh@redhat.com>
-Cc: SELinux Mail List <selinux@tycho.nsa.gov>
-In-Reply-To: <200610052244.51091.russell@coker.com.au>
-References: <200610052244.51091.russell@coker.com.au>
-Content-Type: text/plain
-Date: Thu, 05 Oct 2006 15:55:14 -0400
-Message-Id: <1160078114.26418.54.camel@sgc>
-Mime-Version: 1.0
+Message-ID: <452566B2.7040003@us.ibm.com>
+Date: Thu, 05 Oct 2006 15:10:26 -0500
+From: Michael C Thompson <thompsmc@us.ibm.com>
+MIME-Version: 1.0
+To: Stephen Smalley <sds@tycho.nsa.gov>
+CC: Daniel J Walsh <dwalsh@redhat.com>, SE Linux <selinux@tycho.nsa.gov>,
+        jdesai@us.ibm.com
+Subject: Re: [RFC PATCH] newrole suid breakdown
+References: <452432FA.1060009@us.ibm.com> <1160059227.2132.88.camel@moss-spartans.epoch.ncsc.mil>
+In-Reply-To: <1160059227.2132.88.camel@moss-spartans.epoch.ncsc.mil>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Merged, with some notes:
-
-On Thu, 2006-10-05 at 22:44 +1000, Russell Coker wrote:
-> Allow unconfined processes to see unlabeled processes in ps.
-
-Enhanced the kern_unconfined rules in kernel.te instead.
-
-> Removed a redundant rule in samba.te, and some inappropriate permissions in 
-> amavis.te.
-
-This amavis removals were added from Dan from August, so there needs to
-be some discussion on this.  Dan?
-
-> Removed support for the pre-Fedora Red Hat code to create sym-links in /boot.
-
-Kept the interface, in case there are 3rd party callers of this
-interface.
-
-> Removed support for devpts_t files in /tmp (there is no way that would ever 
-> work).
+Stephen Smalley wrote:
+> On Wed, 2006-10-04 at 17:17 -0500, Michael C Thompson wrote:
+>>  From what I have seen, the points of possible attack (i.e. input) to 
+>> newrole include:
+>> * command line options
+>> * reading the password from stdin
+>> * reading the contents of /etc/passwd and /etc/shell
+>>
+>> I doubt this is an exhaustive list. Since /etc/passwd and /etc/shell are 
+>> restricted to root-only write, I've discounted these. Since we require 
+>> PAM to do namespaces, which will cause PAM to handle the password check, 
+>> we should be able to defer any vulnerabilities to PAM, and I would hope 
+>> that PAM is secure.
+>>
+>> This leaves command line options. These are parsed with getopt_long, and 
+>> are currently passed into libselinux without any scrubbing. Since 
+>> SELinux doesn't apply a limit on the length of its context strings, is 
+>> there any checks that need to be done before handing these strings into 
+>> libselinux?
 > 
-> Allowed postgrey to create socket files.
+> I don't think so.  The larger concern is not the command line arguments
+> but the environment.  glibc does some automatic sanitization of the
+> environment for setuid programs, but is limited in what it can do.
+> You likely want to save the environment or portions of it for
+> propagation to the newrole'd shell, reset the environment to a clean
+> state for newrole itself, and then invoke the user shell with the
+> previously saved environment.  Look at other setuid programs, like su
+> and sudo, as possible examples.   Also see:
+> http://www.dwheeler.com/secure-programs/Secure-Programs-HOWTO/environment-variables.html
 
-Moved this hunk down.
+Working towards this now. I am mimicing the behavior of su. By the time 
+we invoke pam_namespace, the environment will be scrubbed clean and will 
+contain a limited set of values (stardard shell related HOME, PATH, 
+TERM, etc). PATH will be set to a set of trusted paths like 
+/bin:/usr/bin, etc.
 
-> Made the specs for the /lib and /lib64 directories better support stem 
-> compression.
+> Since pam_namespace further executes a script (namespace.init), the
+> environment is especially critical, and you need to consider the
+> implications of how the shell handles setuid execution.  For example,
+> unless namespace.init invokes /bin/sh with the -p option (privileged
+> mode), bash will reset the effective identities to the real identities
+> during startup, such that the script itself will run in the caller's
+> identity (and thus likely fail if it tries to do its job, like bind
+> mounting the .X11-unix directory into the member directory, as well as
+> creating any files or directories in the caller's uid).  If you change
+> namespace.init to use the -p option, then bash will leave the effective
+> identities alone, and will ignore certain aspects of the environment
+> that would normally affect it.  One might argue that pam_namespace
+> itself should do some environment cleansing, since it executes a script
+> and this won't be immediately obvious to all potential users of
+> pam_namespace.
 
-Fixed the mailman addition to use an interface.
+So I take it changing namespace.init is an acceptable solution?
 
--- 
-Chris PeBenito
-Tresys Technology, LLC
-(410) 290-1411 x150
+Thanks,
+Mike
 
 
 --
