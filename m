@@ -1,62 +1,58 @@
 Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k95NUa2V007411
-	for <selinux@tycho.nsa.gov>; Thu, 5 Oct 2006 19:30:36 -0400
-Received: from mail2.sea5.speakeasy.net (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id k95NTNqJ017267
-	for <selinux@tycho.nsa.gov>; Thu, 5 Oct 2006 23:29:23 GMT
-Date: Thu, 5 Oct 2006 19:30:33 -0400 (EDT)
-From: James Morris <jmorris@namei.org>
-To: Venkat Yekkirala <vyekkirala@TrustedCS.com>
-cc: "David S. Miller" <davem@davemloft.net>, Paul Moore <paul.moore@hp.com>,
-        netdev@vger.kernel.org, selinux@tycho.nsa.gov,
-        Stephen Smalley <sds@tycho.nsa.gov>, Eric Paris <eparis@redhat.com>,
-        johnpol@2ka.mipt.ru, Herbert Xu <herbert@gondor.apana.org.au>
-Subject: RE: [PATCH 1/3] Fix for IPsec leakage with SELinux enabled - V.03
-In-Reply-To: <36282A1733C57546BE392885C0618592015CFB62@chaos.tcs.tcs-sec.com>
-Message-ID: <Pine.LNX.4.64.0610051918080.26924@d.namei>
-References: <36282A1733C57546BE392885C0618592015CFB62@chaos.tcs.tcs-sec.com>
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k95NWXdB007473
+	for <selinux@tycho.nsa.gov>; Thu, 5 Oct 2006 19:32:33 -0400
+Received: from smtp.sws.net.au (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id k95NVKqJ017430
+	for <selinux@tycho.nsa.gov>; Thu, 5 Oct 2006 23:31:20 GMT
+Received: from localhost (localhost [127.0.0.1])
+	by smtp.sws.net.au (Postfix) with ESMTP id 7C72761AF7
+	for <selinux@tycho.nsa.gov>; Fri,  6 Oct 2006 09:32:32 +1000 (EST)
+Received: from smtp.sws.net.au ([127.0.0.1])
+	by localhost (smtp.sws.net.au [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id uJHqXiryp5jq for <selinux@tycho.nsa.gov>;
+	Fri,  6 Oct 2006 09:32:32 +1000 (EST)
+Received: from aeon.coker.com.au (localhost [127.0.0.1])
+	by smtp.sws.net.au (Postfix) with ESMTP id 4C80E61AF5
+	for <selinux@tycho.nsa.gov>; Fri,  6 Oct 2006 09:32:32 +1000 (EST)
+Received: from aeon (aeon [127.0.0.1])
+	by aeon.coker.com.au (Postfix) with ESMTP id 5DD23A7E6E
+	for <selinux@tycho.nsa.gov>; Fri,  6 Oct 2006 09:32:31 +1000 (EST)
+From: Russell Coker <russell@coker.com.au>
+Reply-To: russell@coker.com.au
+To: SE Linux <selinux@tycho.nsa.gov>
+Subject: selective quoting
+Date: Fri, 6 Oct 2006 09:32:29 +1000
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+  charset="us-ascii"
+Message-Id: <200610060932.31189.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 5 Oct 2006, Venkat Yekkirala wrote:
+When replying to messages could you please only quote the sections that are 
+relevant to your message?
 
-> > > -		if (xfrm_policy_match(pol, fl, type, family, dir)) {
-> > > +		err = xfrm_policy_match(pol, fl, type, family, dir);
-> > > +		if (err) {
-> > > +			if (err == -ESRCH)
-> > > +				continue;
-> > > +			else {
-> > > +				ret = ERR_PTR(err);
-> > > +				goto fail;
-> > > +			}
-> > > +		} else {
-> > 
-> > Semantics issue: if the exact policy match fails with 
-> > -EACCESS, should we 
-> > then try an inexact match before failing?
-> 
-> I wonder what you mean by an inexact match here.
+A 10 page message that has 3 lines of text and 9.9 pages of quotes does not 
+permit efficient reading of the list traffic.  All MUAs have the ability to 
+sort messages by topic and almost all MUAs support threading.  So it's quite 
+easy for anyone to read the original message without having it quoted 
+entirely in your new message.
 
-There are two policy chains in the kernel: 'bydst'for non-prefixed 
-addresses (e.g. /32 or /128 nodes) and 'byidx' for prefixed addresses.
+Also if you quote 9.9 pages of text it may not be clear exactly which parts of 
+the quoted text you consider relevant.  While if you quote one or two 
+paragraphs then the reader will know that those paragraphs contain the most 
+relevant background, this can be helpful in interpreting the intent of 
+messages.
 
-xfrm_policy_lookup_bytype() first checks for a non-prefixed match and then 
-for a prefixed match with a higher priority mark.
+As a general rule I suggest that the only situation in which there should be a 
+greater volume of quoted text than original text in your message is if you 
+are acknowledging or rejecting a patch.
 
-So, I wonder if it makes sense to continue on to the prefixed lookup if we 
-get an -EACCESS on the non-prefixed lookup.
-
-Perhaps some further discussion on this with MLS folk is needed, but in 
-any case, I don't think it should block this patchset going in as a 
-bugfix, as the behavior can be changed in a further patch if required.
-
-
-- James
 -- 
-James Morris
-<jmorris@namei.org>
+russell@coker.com.au
+http://etbe.blogspot.com/          My Blog
+
+http://www.coker.com.au/sponsorship.html Sponsoring Free Software development
 
 --
 This message was distributed to subscribers of the selinux mailing list.
