@@ -1,57 +1,33 @@
-Subject: Re: [RFC PATCH] newrole suid breakdown
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Michael C Thompson <thompsmc@us.ibm.com>
-Cc: Daniel J Walsh <dwalsh@redhat.com>, SE Linux <selinux@tycho.nsa.gov>,
-        jdesai@us.ibm.com
-In-Reply-To: <452519BC.1060204@us.ibm.com>
-References: <452432FA.1060009@us.ibm.com> <45250F35.6030204@redhat.com>
-	 <452519BC.1060204@us.ibm.com>
-Content-Type: text/plain
-Date: Thu, 05 Oct 2006 10:58:30 -0400
-Message-Id: <1160060310.2132.102.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+Message-ID: <452525C1.7010304@hp.com>
+Date: Thu, 05 Oct 2006 11:33:21 -0400
+From: Paul Moore <paul.moore@hp.com>
+MIME-Version: 1.0
+To: selinux list <selinux@tycho.nsa.gov>, Stephen Smalley <sds@tycho.nsa.gov>
+Cc: Venkat Yekkirala <vyekkirala@TrustedCS.com>,
+        James Morris <jmorris@redhat.com>, Eric Paris <eparis@redhat.com>
+Subject: Re: [RFC] NetLabel: shift to using SECINITSID_UNLABLED as a base
+References: <45250AF3.1020304@hp.com>
+In-Reply-To: <45250AF3.1020304@hp.com>
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2006-10-05 at 09:42 -0500, Michael C Thompson wrote:
-> Daniel J Walsh wrote:
-> > Does the code continue to work correctly if I compile in AUDIT_LOG_PRIV 
-> > and NAMESPACE_PRIV but run it without the setuid bit and as a normal 
-> > user.  IE, We want the option to only set this setuid when in an MLS 
-> > environment.  This is not required for targeted or strict policy machines.
+Paul Moore wrote:
+> This patch changes NetLabel from using SECINITSID_NETMSG and the parent socket's
+> SID as the for the TE portion of the NetLabel context to now use
+> SECINITSID_UNLABELED.  This should address the issues brought up yesterday.
+> Please take a look and let me know if this what you had in mind; if it is
+> acceptable I'll repost this for inclusion.
 > 
-> What happens (currently), is it attempts to drop capabilities and if it 
-> can't do that, newrole fails and exists. The reason I chose this 
-> behavior is, as I figured, if you have compiled newrole with 
-> AUDIT_LOG_PRIV or NAMESPACE_PRIV, you requiring that behaviour.
-> 
-> It should be easy to change this behavior, as I expect RH will want a 
-> single compiled binary that can do it all, right? :)
-> 
-> Suggested patch attached. If you have a more elegant solution, feel free 
-> to let me know.
+> This patch is independent of the secid patches and should be treated as a bugfix
+> for 2.6.19.  A similar patch to deal with the secid case will be coming later today.
 
-Concerns with this approach:
-1) The geteuid() test is ambiguous in the case where the caller was
-already uid 0 (i.e. root runs newrole).  For dropping capabilities and
-switching uids, this has no real effect since that processing is skipped
-when the caller had uid 0.  But it does have an impact on the audit and
-namespace functionality.  Note btw that the
-pam_open_session/pam_close_session calls don't strictly require such a
-test, since we can always put pam_permit as a session module in the
-default pam config.
-
-2) I'm not sure how RH plans to set and maintain the suid bit on newrole
-in the LSPP case, since they want to have it off by default.  If another
-package, like the lspp package, modifies the suid bit on newrole, then a
-rpm -V policycoreutils will report a change in mode from the package
-defaults and any update of policycoreutils could reset the mode to the
-original one.
+Testing has shown that this patch is still missing a few pieces.  I'll have an
+updated version later.  Sorry about that.
 
 -- 
-Stephen Smalley
-National Security Agency
-
+paul moore
+linux security @ hp
 
 --
 This message was distributed to subscribers of the selinux mailing list.
