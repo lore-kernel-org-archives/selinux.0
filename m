@@ -1,45 +1,50 @@
-Message-ID: <36282A1733C57546BE392885C0618592015CFB64@chaos.tcs.tcs-sec.com>
+Message-ID: <36282A1733C57546BE392885C0618592015CFB65@chaos.tcs.tcs-sec.com>
 From: Venkat Yekkirala <vyekkirala@TrustedCS.com>
-To: Venkat Yekkirala <vyekkirala@TrustedCS.com>,
-        "'David Miller'"
-	 <davem@davemloft.net>
-Cc: "'netdev@vger.kernel.org'" <netdev@vger.kernel.org>,
-        "'selinux@tycho.nsa.gov'" <selinux@tycho.nsa.gov>,
-        "'jmorris@namei.org'"
-	 <jmorris@namei.org>,
-        "'sds@tycho.nsa.gov'" <sds@tycho.nsa.gov>,
-        "'eparis@redhat.com'" <eparis@redhat.com>,
-        "'johnpol@2ka.mipt.ru'"
-	 <johnpol@2ka.mipt.ru>,
-        "'herbert@gondor.apana.org.au'"
-	 <herbert@gondor.apana.org.au>
-Subject: RE: [PATCH 0/3] Fix for IPsec leakage with SELinux enabled - V.03
-Date: Thu, 5 Oct 2006 17:21:47 -0400 
+To: David Miller <davem@davemloft.net>, jmorris@namei.org
+Cc: Venkat Yekkirala <vyekkirala@TrustedCS.com>, paul.moore@hp.com,
+        netdev@vger.kernel.org, selinux@tycho.nsa.gov, sds@tycho.nsa.gov,
+        eparis@redhat.com, johnpol@2ka.mipt.ru, herbert@gondor.apana.org.au
+Subject: RE: [PATCH 1/3] Fix for IPsec leakage with SELinux enabled - V.03
+Date: Thu, 5 Oct 2006 17:27:03 -0400 
 MIME-Version: 1.0
 Content-Type: text/plain;
 	charset="iso-8859-1"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-> > > This version takes into account David Miller's comments
-> > > regarding treatment of security layer errors in the case
-> > > of socket policies. Specifically, these errors will be
-> > > treated like how these kind of errors are treated for
-> > > the main/sub policies, which is to return a full lookup
-> > > failure.
-> > 
-> > I only have patches "1" and "3" in my inbox, did you forget
-> > to send the second one out or are they simply misnumbered?
-> > 
+> From: James Morris <jmorris@namei.org>
+> Date: Thu, 5 Oct 2006 16:54:38 -0400 (EDT)
 > 
-> My apologies. The second one is also numbered 1, but has the
-> following distinct subject line:
-> [PATCH 1/3] Fix for IPsec leakage with SELinux enabled - 
-> V.03: Fix xfrm code
+> > >  #ifdef CONFIG_XFRM_SUB_POLICY
+> > >  	pol = xfrm_policy_lookup_bytype(XFRM_POLICY_TYPE_SUB, 
+> fl, family, dir);
+> > > -	if (pol)
+> > > +	if (IS_ERR(pol)) {
+> > > +		err = PTR_ERR(pol);
+> > > +		pol = NULL;
+> > > +	}
+> > > +	if (pol || err)
+> > >  		goto end;
+> > 
+> > Similarly, if the sub-policy lookup returns -EACCESS, 
+> should we then try a 
+> > main policy lookup before failing?
+> 
+> We're trying to fill the flow cache here.  In the case where we'd
+> have a match in both the sub-policy and main table, I think the
+> sub-policy is supposed to take precedence, and if you fail to get
+> this sub-policy you should fail the entire lookup.
 
-In actuality, patch 2 in the series has the following subject line:
+Which is what's happening here correct?
 
-[PATCH 1/3] Fix for IPsec leakage with SELinux enabled - V.03
+> 
+> The way the sub-policied entries work is that you find the sub-policy
+> as the primary object in the flow cache, and once you notice you have
+> a sub-policy you do an explicit lookup in the main table to put the
+> whole thing together.
+
+May be James can help me understand this; when exactly would a sub-policy
+be "notice"d here? What does "put the whole thing together" mean?
 
 --
 This message was distributed to subscribers of the selinux mailing list.
