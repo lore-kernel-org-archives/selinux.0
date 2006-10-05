@@ -1,44 +1,36 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k95N5phJ006753
-	for <selinux@tycho.nsa.gov>; Thu, 5 Oct 2006 19:05:51 -0400
-Received: from mail5.sea5.speakeasy.net (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id k95N4cqJ013346
-	for <selinux@tycho.nsa.gov>; Thu, 5 Oct 2006 23:04:38 GMT
-Date: Thu, 5 Oct 2006 19:05:48 -0400 (EDT)
-From: James Morris <jmorris@namei.org>
-To: Venkat Yekkirala <vyekkirala@TrustedCS.com>
-cc: David Miller <davem@davemloft.net>, paul.moore@hp.com,
-        netdev@vger.kernel.org, selinux@tycho.nsa.gov, sds@tycho.nsa.gov,
-        eparis@redhat.com, johnpol@2ka.mipt.ru, herbert@gondor.apana.org.au
-Subject: RE: [PATCH 1/3] Fix for IPsec leakage with SELinux enabled - V.03
-In-Reply-To: <36282A1733C57546BE392885C0618592015CFB65@chaos.tcs.tcs-sec.com>
-Message-ID: <Pine.LNX.4.64.0610051903500.26861@d.namei>
-References: <36282A1733C57546BE392885C0618592015CFB65@chaos.tcs.tcs-sec.com>
+From: Russell Coker <russell@coker.com.au>
+Reply-To: russell@coker.com.au
+To: Daniel J Walsh <dwalsh@redhat.com>
+Subject: Re: [RFC PATCH] newrole suid breakdown
+Date: Fri, 6 Oct 2006 09:15:11 +1000
+Cc: Michael C Thompson <thompsmc@us.ibm.com>, SE Linux <selinux@tycho.nsa.gov>,
+        Stephen Smalley <sds@tycho.nsa.gov>, jdesai@us.ibm.com
+References: <452432FA.1060009@us.ibm.com> <45250F35.6030204@redhat.com>
+In-Reply-To: <45250F35.6030204@redhat.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Message-Id: <200610060915.15441.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 5 Oct 2006, Venkat Yekkirala wrote:
+On Thursday 05 October 2006 23:57, Daniel J Walsh <dwalsh@redhat.com> wrote:
+> Does the code continue to work correctly if I compile in AUDIT_LOG_PRIV
+> and NAMESPACE_PRIV but run it without the setuid bit and as a normal
+> user.  IE, We want the option to only set this setuid when in an MLS
+> environment.  This is not required for targeted or strict policy machines.
 
-> > We're trying to fill the flow cache here.  In the case where we'd
-> > have a match in both the sub-policy and main table, I think the
-> > sub-policy is supposed to take precedence, and if you fail to get
-> > this sub-policy you should fail the entire lookup.
-> 
-> Which is what's happening here correct?
+Who does "we" mean in this context?
 
-Yes, the patch is correct for this.
+I would like to have newrole work with namespaces in a strict policy 
+environment!
 
-The way sub-policy is used is during Mobile IP, where you have multiple 
-policies composed, so it wouldn't make sense for one of the policies to be 
-rejected and the other allowed and for packets to flow.
-
-
-- James
 -- 
-James Morris
-<jmorris@namei.org>
+russell@coker.com.au
+http://etbe.blogspot.com/          My Blog
+
+http://www.coker.com.au/sponsorship.html Sponsoring Free Software development
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
