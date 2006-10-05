@@ -1,49 +1,44 @@
 Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k95Mlhs7006236
-	for <selinux@tycho.nsa.gov>; Thu, 5 Oct 2006 18:47:43 -0400
-Received: from mail.atsec.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id k95MkUqJ010518
-	for <selinux@tycho.nsa.gov>; Thu, 5 Oct 2006 22:46:31 GMT
-Date: Thu, 5 Oct 2006 17:47:34 -0500
-From: Klaus Weidner <klaus@atsec.com>
-To: Casey Schaufler <casey@schaufler-ca.com>
-Cc: Linda Knippers <linda.knippers@hp.com>, Joshua Brindle <method@gentoo.org>,
-        paul.moore@hp.com, selinux@tycho.nsa.gov, redhat-lspp@redhat.com,
-        vyekkirala@TrustedCS.com, jmorris@namei.org,
-        Joy Latten <latten@austin.ibm.com>, eparis@parisplace.org,
-        Karl MacMillan <kmacmillan@mentalrootkit.com>
-Subject: Re: [redhat-lspp] Re: RHEL5 Kernel with labeled networking
-Message-ID: <20061005224734.GA28520@w-m-p.com>
-References: <4522EB42.9070502@hp.com> <20061003233848.21938.qmail@web36606.mail.mud.yahoo.com>
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k95N5phJ006753
+	for <selinux@tycho.nsa.gov>; Thu, 5 Oct 2006 19:05:51 -0400
+Received: from mail5.sea5.speakeasy.net (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id k95N4cqJ013346
+	for <selinux@tycho.nsa.gov>; Thu, 5 Oct 2006 23:04:38 GMT
+Date: Thu, 5 Oct 2006 19:05:48 -0400 (EDT)
+From: James Morris <jmorris@namei.org>
+To: Venkat Yekkirala <vyekkirala@TrustedCS.com>
+cc: David Miller <davem@davemloft.net>, paul.moore@hp.com,
+        netdev@vger.kernel.org, selinux@tycho.nsa.gov, sds@tycho.nsa.gov,
+        eparis@redhat.com, johnpol@2ka.mipt.ru, herbert@gondor.apana.org.au
+Subject: RE: [PATCH 1/3] Fix for IPsec leakage with SELinux enabled - V.03
+In-Reply-To: <36282A1733C57546BE392885C0618592015CFB65@chaos.tcs.tcs-sec.com>
+Message-ID: <Pine.LNX.4.64.0610051903500.26861@d.namei>
+References: <36282A1733C57546BE392885C0618592015CFB65@chaos.tcs.tcs-sec.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20061003233848.21938.qmail@web36606.mail.mud.yahoo.com>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, Oct 03, 2006 at 04:38:48PM -0700, Casey Schaufler wrote:
-> --- Linda Knippers <linda.knippers@hp.com> wrote:
-> > It has a requirement to be able to audit all modifications of the
-> > values of security attributes, so we can audit a bunch of syscalls
-> > that do that (chmod, chown, setxattr, ...).  Relabeling files would
-> > definitely count and be covered.  There's also a requirement about
-> > auditing changes to the way data is imported/exported, so this is
-> > where the networking stuff comes in.  I don't know about domain
-> > transitions.
+On Thu, 5 Oct 2006, Venkat Yekkirala wrote:
+
+> > We're trying to fill the flow cache here.  In the case where we'd
+> > have a match in both the sub-policy and main table, I think the
+> > sub-policy is supposed to take precedence, and if you fail to get
+> > this sub-policy you should fail the entire lookup.
 > 
-> I think you would have trouble arguing that a domain transition is not
-> a change in the security state of the system. For the evaluations I
-> worked auditing was required for any change to uids, gids,
-> capabilities, sensitivity, integrity, or any other security relevent
-> attribute.
+> Which is what's happening here correct?
 
-Yes, it is a change in the process security state.
+Yes, the patch is correct for this.
 
-Domain transitions are auditable already - dynamic transitions through
-the auditallow rules on /proc/$PID/attr/*, and automatic transitions by
-putting filesystem watches on the *_exec_t binaries you're interested in.
+The way sub-policy is used is during Mobile IP, where you have multiple 
+policies composed, so it wouldn't make sense for one of the policies to be 
+rejected and the other allowed and for packets to flow.
 
--Klaus
+
+- James
+-- 
+James Morris
+<jmorris@namei.org>
 
 --
 This message was distributed to subscribers of the selinux mailing list.
