@@ -1,70 +1,122 @@
-From: Russell Coker <russell@coker.com.au>
-Reply-To: russell@coker.com.au
-To: Daniel J Walsh <dwalsh@redhat.com>
-Subject: Re: [RFC PATCH] newrole suid breakdown
-Date: Sat, 7 Oct 2006 03:37:36 +1000
-Cc: Michael C Thompson <thompsmc@us.ibm.com>, SE Linux <selinux@tycho.nsa.gov>,
-        Stephen Smalley <sds@tycho.nsa.gov>, jdesai@us.ibm.com
-References: <452432FA.1060009@us.ibm.com> <200610060915.15441.russell@coker.com.au> <45268BD9.9050809@redhat.com>
-In-Reply-To: <45268BD9.9050809@redhat.com>
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k96HhA8C001933
+	for <selinux@tycho.nsa.gov>; Fri, 6 Oct 2006 13:43:10 -0400
+Received: from atlrel7.hp.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id k96HfuQW027990
+	for <selinux@tycho.nsa.gov>; Fri, 6 Oct 2006 17:41:57 GMT
+Message-ID: <452695AC.2000803@hp.com>
+Date: Fri, 06 Oct 2006 13:43:08 -0400
+From: Paul Moore <paul.moore@hp.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Message-Id: <200610070337.40031.russell@coker.com.au>
+To: Venkat Yekkirala <vyekkirala@TrustedCS.com>
+Cc: Eric Paris <eparis@redhat.com>, selinux@tycho.nsa.gov,
+        redhat-lspp@redhat.com, Chad Hanson <chanson@TrustedCS.com>
+Subject: Re: Labeled Networking For LSPP: Where we are and where we need t
+ o go	(quickly)
+References: <36282A1733C57546BE392885C0618592015CFC4C@chaos.tcs.tcs-sec.com>
+In-Reply-To: <36282A1733C57546BE392885C0618592015CFC4C@chaos.tcs.tcs-sec.com>
+Content-Type: text/plain; charset=iso-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Saturday 07 October 2006 03:01, Daniel J Walsh <dwalsh@redhat.com> wrote:
-> Russell Coker wrote:
-> > On Thursday 05 October 2006 23:57, Daniel J Walsh <dwalsh@redhat.com> 
-wrote:
-> >> Does the code continue to work correctly if I compile in AUDIT_LOG_PRIV
-> >> and NAMESPACE_PRIV but run it without the setuid bit and as a normal
-> >> user.  IE, We want the option to only set this setuid when in an MLS
-> >> environment.  This is not required for targeted or strict policy
-> >> machines.
-> >
-> > Who does "we" mean in this context?
-> >
-> > I would like to have newrole work with namespaces in a strict policy
-> > environment!
->
-> I am not denying you that right.  I am asking for the tool to continue
-> working with or without setuid.
+Venkat Yekkirala wrote:
+> Paul Moore wrote:
+> 
+>>Eric Paris wrote:
+>>
+>>>Last night I built a new test kernel for labeled networking in RHEL5
+>>>kernels.  That kernel can be found at 
+>>>
+>>>http://people.redhat.com/sgrubb/files/lspp
+>>>
+>>>and you want the lspp kernel 51.
+>>>
+> 
+> <snip>
+> 
+>>>Patch3: find and fix current issues with unlabeled_t 
+>>
+>>packets that can't
+>>
+>>>be explained (Paul Moore and Venkat)
+>>
+>>I'm working on this but it's taking time getting all the 
+>>right policy bits
+>>sorted so I can differentiate between SECINITSID_UNLABELED 
+>>and SECINITSID_NETMSG
+>>as they will both show up as "unlabeled_t" in all the 
+>>released policies (at
+>>least I think so).
+>>
+>>Venkat, if you have a policy rpm/clean-patch/tarball 
+>>something it would be a
+>>help if you could post that or send it to me (I saw your 
+>>earlier postings, but
+>>only the constraints were really in patch form).  Or if you 
+>>could verify the
+>>lspp.51 kernel w/o the NetLabel/secid patch (turn off patch 
+>>25008, if you want I
+>>can send you a diff to the spec file - it's only two lines).  
+>>So far I have not
+>>seen any differences between the stock lspp.51 kernel and the 
+>>lspp.51 kernel
+>>without the NetLabel/secid patch.
+>  
+> As for the policy, I don't have anything more than what I posted
+> earlier. To distinguish between the SECINITSID_NULL and NETMSG,
+> see the policy patch I posted, sepcifically, policy/domains/kernel/kernel.te
+> where you will see that NETMSG is being set to network_t. You should
+> be able to apply at least that one bit of patch.
 
-Without setuid means without poly-instantiation based on SE Linux context, 
-which means that probably most strict policy systems won't be able to 
-effectively use poly-instantiation.
+Yes, I was hoping to have something I could just rpm/yum onto the machine so
+there would be no issues about specific version I was using.  However, if it's
+not possibile, it's not possibile.
 
-> IE Don't force a setuid app on the OS, if I don't do pam_namespace or
-> care about role auditing.
+One thing that does cause me to wonder is that Joshua said he was using the
+targeted policy from Rawhide, which doesn't have SECINITSID_NETMSG assigned to
+network_t I don't believe ...
 
-/usr/kerberos/bin/ksu is forced on the OS even though the vast majority of 
-Fedora users will never use Kerberos.
+> ALso, are you seeing the following denials without NetLabel/secid?
+> 
+> [Pasted from Jashua's email]
+> 
+> avc:  denied  { flow_in } for  pid=1815 comm="avahi-daemon"
+> scontext=system_u:object_r:unlabeled_t:s0
+> tcontext=system_u:system_r:avahi_t:s0 tclass=packet
 
-/usr/sbin/ccreds_validate seems to always get installed even on systems that 
-will never use network authentication (again the majority).
+[NOTE: this is with the 2.3.7-2 mls policy - I know, it's really old]
 
-/usr/libexec/openssh/ssh-keysign is always installed even though it's 
-generally recommended that you don't use host based authentication (and my 
-observation is that almost no-one is using it).
+Here is what I have seen using lspp.51:
 
-The rsh package has three setuid root programs and again is almost never 
-needed (in fact it's recommended that you don't have it for several reasons).
+type=AVC msg=audit(1160150058.918:61): avc:  denied  { flow_in } for  pid=2296
+comm="avahi-daemon" scontext=system_u:object_r:unlabeled_t:s15:c0.c255
+tcontext=system_u:object_r:unlabeled_t:s15:c0.c255 tclass=packet
 
+type=AVC msg=audit(1160150058.918:61): avc:  denied  { flow_out } for  pid=2296
+comm="avahi-daemon" saddr=10.0.0.255 src=5353 daddr=224.0.0.251 dest=5353
+netif=eth0 scontext=root:staff_r:staff_t:s0-s15:c0.c255
+tcontext=system_u:object_r:unlabeled_t:s15:c0.c255 tclass=packet
 
-Without even trying I've found six setuid-root programs that are included in a 
-fairly default install of Fedora and which are never needed by the vast 
-majority of users.  I doubt that all six are as well audited as newrole.
+Here is what I have seen using lspp.51 without the NetLabel/secid patch:
 
-It seems that the decision to force setuid programs on the OS has already been 
-made.
+type=AVC msg=audit(1160149828.291:105): avc:  denied  { flow_in } for  pid=2429
+comm="avahi-daemon" scontext=system_u:object_r:unlabeled_t:s15:c0.c255
+tcontext=system_u:object_r:unlabeled_t:s15:c0.c255 tclass=packet
+
+type=AVC msg=audit(1160149828.291:105): avc:  denied  { flow_out } for  pid=2429
+comm="avahi-daemon" saddr=10.0.0.255 src=5353 daddr=224.0.0.251 dest=5353
+netif=eth0 scontext=root:staff_r:staff_t:s0-s15:c0.c255
+tcontext=system_u:object_r:unlabeled_t:s15:c0.c255 tclass=packet
+
+So no real visible difference in the contexts, I'm going to keep working on this
+but if you haven't already started looking into this yourself it might be a good
+idea considering the time crunch.  One tidbit worth noting, I never saw any
+"recv" denials; I'm not sure if the daemon just didn't receive any packets or if
+ the permission was already allowed ...
 
 -- 
-russell@coker.com.au
-http://etbe.blogspot.com/          My Blog
-
-http://www.coker.com.au/sponsorship.html Sponsoring Free Software development
+paul moore
+linux security @ hp
 
 --
 This message was distributed to subscribers of the selinux mailing list.
