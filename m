@@ -1,93 +1,89 @@
 Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k96DtieO025403
-	for <selinux@tycho.nsa.gov>; Fri, 6 Oct 2006 09:55:44 -0400
-Received: from twoface.columbia.tresys.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id k96Dt403016219
-	for <selinux@tycho.nsa.gov>; Fri, 6 Oct 2006 13:55:06 GMT
-Subject: RE: Denials from newest kernel
-From: Joshua Brindle <jbrindle@tresys.com>
-To: Venkat Yekkirala <vyekkirala@TrustedCS.com>
-Cc: selinux@tycho.nsa.gov
-In-Reply-To: <36282A1733C57546BE392885C0618592015CFBCB@chaos.tcs.tcs-sec.com>
-References: <36282A1733C57546BE392885C0618592015CFBCB@chaos.tcs.tcs-sec.com>
-Content-Type: text/plain
-Date: Fri, 06 Oct 2006 09:55:58 -0400
-Message-Id: <1160142958.16462.40.camel@twoface.columbia.tresys.com>
-Mime-Version: 1.0
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k96EAX0Z025998
+	for <selinux@tycho.nsa.gov>; Fri, 6 Oct 2006 10:10:33 -0400
+Received: from atlrel7.hp.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id k96E9v03018248
+	for <selinux@tycho.nsa.gov>; Fri, 6 Oct 2006 14:09:57 GMT
+Message-ID: <452663D3.4060103@hp.com>
+Date: Fri, 06 Oct 2006 10:10:27 -0400
+From: Paul Moore <paul.moore@hp.com>
+MIME-Version: 1.0
+To: "Christopher J. PeBenito" <cpebenito@tresys.com>
+Cc: Venkat Yekkirala <vyekkirala@TrustedCS.com>, redhat-lspp@redhat.com,
+        selinux@tycho.nsa.gov, Klaus Weidner <klaus@atsec.com>
+Subject: Re: [redhat-lspp] Re: Networking policy patch
+References: <45232276.2080105@trustedcs.com> <1160072287.26418.18.camel@sgc>
+In-Reply-To: <1160072287.26418.18.camel@sgc>
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2006-10-06 at 09:45 -0400, Venkat Yekkirala wrote:
-> > -----Original Message-----
-> > From: Joshua Brindle [mailto:jbrindle@tresys.com]
-> > Sent: Friday, October 06, 2006 8:32 AM
-> > To: selinux@tycho.nsa.gov; Venkat Yekkirala
-> > Subject: Denials from newest kernel
-> > 
-> > 
-> > I grabbed Erics new kernel builds and installed them and got some
-> > interesting denials. I started with no secmark rules whatsoever on the
-> > machine.
-> > 
-> > avc:  denied  { flow_out } for  pid=1815 comm="avahi-daemon" 
-> > saddr=10.1.13.105 daddr=224.0.0.22 netif=eth0 
-> > scontext=system_u:object_r:unlabeled_t:s0 
-> > tcontext=system_u:object_r:unlabeled_t:s0 tclass=packet
-> > 
-> > the target seems reasonable (unlabeled_t since there are no secmark
-> > rules) but the target should have been network_t (the unlabeled
-> > association) right?
+Christopher J. PeBenito wrote:
+> On Tue, 2006-10-03 at 21:54 -0500, Venkat Yekkirala wrote:
 > 
-> Actually, the source should have read avahi_t and the target network_t.
+>>FYI- I have posted the following patches separate from this one.
+>>
+>>1. A patch to address the "leask" issue. Once verified, it needs
+>>to be rolled in with James' patch and sent on after verification.
+>>
+>>2. A fix for flow_in and flow_out where we were using the unlabeled
+>>   init sid. We would now use a new network_t with a range of (s0-s15...)
+>>   to allow for mls traffic to flow out/in, in the absence of explicit secmark
+>>   rules.
+>>
+>>
+>>The following is a sample patch for networking using the new controls
+>>in conjunction with secmark.
+>>
+>>NOTE FOR JOSHUA: This patch also defines the constraints to force context
+>>equality for association:sendto.
 > 
-> network_t refers to the "network cloud" so to speak.
-> 
-> IOW, "can a packet from domain avahi_t flow_out to the network?".
-> 
+> I'm starting a labeled networking branch of refpolicy to work with this.
 
-I was under the impression that the flow_out permissions referred to a
-packet object (you are claiming that the association label will be the
-target, this is object class confusion) flowing out an association so it
-should be allow network_t unlabeled_t (or avahi_server_packet_t if I had
-secmark on : packet { flow_out }
+Is this available yet?  If so, how do I got about getting a copy to take a look?
 
-If this is intentionally referring to the association as the target then
-the permissions need to be moved to the association object class
+> I'm waiting until the dust settles before adding TE rules, but I have
+> some questions:
 
-> > 
-> > avc:  denied  { flow_in } for  pid=1815 comm="avahi-daemon" 
-> > scontext=system_u:object_r:unlabeled_t:s0 
-> > tcontext=system_u:system_r:avahi_t:s0 tclass=packet
-> > 
-> > don't understand this one at all, source should be network_t 
-> > (i thought)
-> > and target should be a packet object (and there aren't any). Why is it
-> > getting the domain context?
-> 
-> Source seems fine (unlabeled since no secmark and no labeled-ipsec I
-> suppose), but target should have been network_t.
-> 
-> I would like Paul to first clear the netlabel changes as the culprit.
-> 
+Now that things are starting to calm down a bit I'm trying to get a chance to
+look at the current policy and how it affects NetLabel.  In the secid case I
+believe NetLabel can just ride on the back of the policy work you and Venkat are
+discussing, however, if the reference policy is also going to support the
+network compatability mode I suspect there will need to be some changes to allow
+NetLabel'd traffic to work.
 
-seems like there is confusion again, if the target is network_t (which
-is the default association label) then the target class should be
-association. This should have been (to my understanding) allow network_t
-unlabeled_t : packet { flow_in }
+In the network compatability mode there is really only one new access check for
+NetLabel:
 
-> > 
-> > avc:  denied  { recv } for  pid=1815 comm="avahi-daemon" 
-> > src=5353 dest=5353 netif=eth0 
-> > scontext=system_u:system_r:avahi_t:s0 
-> > tcontext=system_u:system_r:avahi_t:s0 tclass=packet
-> > 
-> > So the source here seems correct but the target is avahi_t again..
-> 
-> Bizarre...
-> 
+ avc_has_perm(sock_sid, netlbl_sid, sock_class, recv_perm, ...)
 
-where are these contexts coming from?
+  sock_sid: the socket's SID
+  netlbl_sid: SECINITSID_UNLABELED w/the MLS label of the connection
+  sock_class: SECCLASS_{UDP,TCP,<other*>}_SOCKET
+  recv_perm: {UDP,TCP,RAWIP}_SOCKET__RECVFROM
 
+  *other: all sockets not either a UDP or TCP socket use the RAWIP recvfrom
+          permission
+
+Based on my very limited knowledge of SELinux policy I think we would need the
+following allow rules:
+
+ # assumes the socket's context matches the parent processes' domain
+ allow <domain> self:{udp_socket tcp_socket rawip_socket} { recvfrom }
+
+I don't believe the above rule currently exists in the reference policy.
+
+There is also an issue of writing policy for netlabelctl, the NetLabel
+configuration tool.  Klaus and I have passed around some simple policy modules
+on the lspp list which have provided policy for netlabelctl.  I'm going to try
+and revisit the last version posted and see if it needs to be updated, once it
+is working I would like to try and have it included in the reference policy.
+Would you prefer I post the policy as a standalone policy module or as a patch
+against the reference policy currently in SVN?
+
+-- 
+paul moore
+linux security @ hp
 
 --
 This message was distributed to subscribers of the selinux mailing list.
