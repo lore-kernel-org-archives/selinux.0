@@ -1,56 +1,69 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k96GduAS031956
-	for <selinux@tycho.nsa.gov>; Fri, 6 Oct 2006 12:39:56 -0400
-Received: from atlrel8.hp.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id k96GdJru008536
-	for <selinux@tycho.nsa.gov>; Fri, 6 Oct 2006 16:39:20 GMT
-Message-ID: <452686DB.8070606@hp.com>
-Date: Fri, 06 Oct 2006 12:39:55 -0400
-From: Paul Moore <paul.moore@hp.com>
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k96GjkYN032186
+	for <selinux@tycho.nsa.gov>; Fri, 6 Oct 2006 12:45:46 -0400
+Received: from mx1.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id k96GiVQW017798
+	for <selinux@tycho.nsa.gov>; Fri, 6 Oct 2006 16:44:32 GMT
+Message-ID: <45268811.90904@mentalrootkit.com>
+Date: Fri, 06 Oct 2006 12:45:05 -0400
+From: Karl MacMillan <kmacmillan@mentalrootkit.com>
 MIME-Version: 1.0
-To: vyekkirala@TrustedCS.com, Joshua Brindle <jbrindle@tresys.com>
-Cc: Eric Paris <eparis@redhat.com>, redhat-lspp@redhat.com,
-        chanson@TrustedCS.com, selinux@tycho.nsa.gov
-Subject: Re: [redhat-lspp] Re: Labeled Networking For LSPP: Where we are and
- where we need to go	(quickly)
-References: <1160150738.10614.116.camel@localhost.localdomain> <4526835A.2080707@hp.com>
-In-Reply-To: <4526835A.2080707@hp.com>
-Content-Type: text/plain; charset=ISO-8859-1
+To: Klaus Weidner <klaus@atsec.com>
+CC: Casey Schaufler <casey@schaufler-ca.com>,
+        Linda Knippers <linda.knippers@hp.com>,
+        Joshua Brindle <method@gentoo.org>, paul.moore@hp.com,
+        selinux@tycho.nsa.gov, redhat-lspp@redhat.com,
+        vyekkirala@TrustedCS.com, jmorris@namei.org,
+        Joy Latten <latten@austin.ibm.com>, eparis@parisplace.org
+Subject: Re: [redhat-lspp] Re: RHEL5 Kernel with labeled networking
+References: <4522EB42.9070502@hp.com> <20061003233848.21938.qmail@web36606.mail.mud.yahoo.com> <20061005224734.GA28520@w-m-p.com>
+In-Reply-To: <20061005224734.GA28520@w-m-p.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Paul Moore wrote:
-> Eric Paris wrote:
->>This is great, we are getting there.  But, we still need at least 3-4
->>more patches before tomorrow!!
->>
->>Patch1: finish the error propagation backport for the ipsec leak (Being
->>completed by Eric Paris)
->>Patch2: audit ipsec config changes (Being completed by Joy Latten)
->>Patch3: find and fix current issues with unlabeled_t packets that can't
->>be explained (Paul Moore and Venkat)
-> 
-> I'm working on this but it's taking time getting all the right policy bits
-> sorted so I can differentiate between SECINITSID_UNLABELED and SECINITSID_NETMSG
-> as they will both show up as "unlabeled_t" in all the released policies (at
-> least I think so).
-> 
-> Venkat, if you have a policy rpm/clean-patch/tarball something it would be a
-> help if you could post that or send it to me (I saw your earlier postings, but
-> only the constraints were really in patch form).  Or if you could verify the
-> lspp.51 kernel w/o the NetLabel/secid patch (turn off patch 25008, if you want I
-> can send you a diff to the spec file - it's only two lines).  So far I have not
-> seen any differences between the stock lspp.51 kernel and the lspp.51 kernel
-> without the NetLabel/secid patch.
+Klaus Weidner wrote:
+> On Tue, Oct 03, 2006 at 04:38:48PM -0700, Casey Schaufler wrote:
+>   
+>> --- Linda Knippers <linda.knippers@hp.com> wrote:
+>>     
+>>> It has a requirement to be able to audit all modifications of the
+>>> values of security attributes, so we can audit a bunch of syscalls
+>>> that do that (chmod, chown, setxattr, ...).  Relabeling files would
+>>> definitely count and be covered.  There's also a requirement about
+>>> auditing changes to the way data is imported/exported, so this is
+>>> where the networking stuff comes in.  I don't know about domain
+>>> transitions.
+>>>       
+>> I think you would have trouble arguing that a domain transition is not
+>> a change in the security state of the system. For the evaluations I
+>> worked auditing was required for any change to uids, gids,
+>> capabilities, sensitivity, integrity, or any other security relevent
+>> attribute.
+>>     
+>
+> Yes, it is a change in the process security state.
+>
+> Domain transitions are auditable already - dynamic transitions through
+> the auditallow rules on /proc/$PID/attr/*,
 
-In case anyone wants to play with the lspp.51 minus the NetLabel/secid patch, I
-put up a modified source RPM here:
+Just to be clear - this would catch both dynamic transitions (dyntrans) 
+and explicitly requested exec transitions. The problem is that the audit 
+record will record the request for the security state change and not 
+whether it succeeded.
 
- * http://free.linux.hp.com/~pmoore/files
+>  and automatic transitions by
+> putting filesystem watches on the *_exec_t binaries you're interested in.
+>
+>   
 
--- 
-paul moore
-linux security @ hp
+Josh's suggestion of the auditallow will catch all exec transitions 
+without the false positives I mentioned above. I think the impedance 
+mismatch between the audit rules and SELinux will make it very hard to 
+capture SELinux specific actions in an accurate and natural way.
+
+Karl
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
