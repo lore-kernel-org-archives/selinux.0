@@ -1,18 +1,13 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k96FHub4028597
-	for <selinux@tycho.nsa.gov>; Fri, 6 Oct 2006 11:17:56 -0400
-Received: from twoface.columbia.tresys.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id k96FHJ03027181
-	for <selinux@tycho.nsa.gov>; Fri, 6 Oct 2006 15:17:19 GMT
 Subject: RE: Denials from newest kernel
-From: Joshua Brindle <jbrindle@tresys.com>
+From: Stephen Smalley <sds@tycho.nsa.gov>
 To: Venkat Yekkirala <vyekkirala@TrustedCS.com>
-Cc: selinux@tycho.nsa.gov
+Cc: Joy Latten <latten@us.ibm.com>, Joshua Brindle <jbrindle@tresys.com>,
+        selinux@tycho.nsa.gov
 In-Reply-To: <36282A1733C57546BE392885C0618592015CFC0C@chaos.tcs.tcs-sec.com>
 References: <36282A1733C57546BE392885C0618592015CFC0C@chaos.tcs.tcs-sec.com>
 Content-Type: text/plain
-Date: Fri, 06 Oct 2006 11:17:57 -0400
-Message-Id: <1160147877.2876.3.camel@twoface.columbia.tresys.com>
+Date: Fri, 06 Oct 2006 11:21:57 -0400
+Message-Id: <1160148117.12253.106.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
@@ -33,22 +28,14 @@ On Fri, 2006-10-06 at 11:11 -0400, Venkat Yekkirala wrote:
 > Stephen and others can correct me if I am wrong, but while
 > the naming was bin/null'd AFTER the con call, the policy was
 > going to be done substantially as related in the peer conversation.
-> 
 
-maybe so but that doesn't mean they need to be fixed now :)
+Correct.  BTW, that's /dev/null to most people ;)
 
-> > the conference 
-> > call we had
-> > indicated that the new model was going to be 
-> > 
 > > 1) domains send/recv packets
 > 
 > 1(a). packets "carry" originating socket domains
 > 1(b). domains "recv" from other domains the packets are "carrying".
 > 
-
-fine.
-
 > > 2) packets flow_in and flow_out associations
 > 
 > 2(a) Associations again merely "carry" the domain of the originating socket
@@ -56,34 +43,34 @@ fine.
 > 2(b) domains as carried by packets can either flow_in or flow_out of
 >      the security points as defined using the secmark rules.
 > 
-
-regardless of the semantics the target type *must* be the kind of object
-referred to by the target object class, anything else is very confusing.
-
 > > 3) domains polmatch spd's (which are classified as associations)
 > 
 > I wish the association class were renamed more like "ipsec" considering
 > the only 2 perms used in there are polmatch and setcontext.
-
-why not do it? none of this is merged yet.
-
 > 
 > > 4) domains sendto/recvfrom associations
 > 
 > In the compat_net case, yes. But not in the secmark world.
 > 
-
-I think we need this, in my proxy example we depend on being able to
-differentiate the socket label from the domain label. The socket label
-(which is the proxy client label) needs to be able to flow over the
-association but the proxy client itself should not be able to, only the
-proxy server should.
-
 > > 
 > > IMO we need to get the permissions and object classes cleared 
 > > up before
 > > merging this stuff, its very confusing and inappropriate right now.
-> > 
+
+More importantly:
+- We need to fix real bug (e.g. incorrect source or target context for a
+given check, incorrect set of checks applied on some operation/code
+path).
+- We need to document what the checks mean and how they are applied so
+that policy writers can understand them.
+
+Renaming them doesn't really help.  Classes have always been a fairly
+artificial construct, and you can see that already in the existing
+checks prior to this work.
+
+-- 
+Stephen Smalley
+National Security Agency
 
 
 --
