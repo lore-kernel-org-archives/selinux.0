@@ -1,42 +1,41 @@
-Message-ID: <452674B8.4050604@hp.com>
-Date: Fri, 06 Oct 2006 11:22:32 -0400
-From: Linda Knippers <linda.knippers@hp.com>
+Message-ID: <452674C8.2040105@us.ibm.com>
+Date: Fri, 06 Oct 2006 10:22:48 -0500
+From: Michael C Thompson <thompsmc@us.ibm.com>
 MIME-Version: 1.0
 To: Stephen Smalley <sds@tycho.nsa.gov>
-Cc: Steve Grubb <sgrubb@redhat.com>, Michael C Thompson <thompsmc@us.ibm.com>,
-        Daniel J Walsh <dwalsh@redhat.com>, SE Linux <selinux@tycho.nsa.gov>,
-        jdesai@us.ibm.com
+CC: Steve Grubb <sgrubb@redhat.com>, Daniel J Walsh <dwalsh@redhat.com>,
+        SE Linux <selinux@tycho.nsa.gov>, jdesai@us.ibm.com
 Subject: Re: [RFC PATCH] newrole suid breakdown
 References: <452432FA.1060009@us.ibm.com>	 <1160079125.2132.232.camel@moss-spartans.epoch.ncsc.mil>	 <45256F49.1070105@us.ibm.com>  <200610051748.06669.sgrubb@redhat.com> <1160146343.12253.85.camel@moss-spartans.epoch.ncsc.mil>
 In-Reply-To: <1160146343.12253.85.camel@moss-spartans.epoch.ncsc.mil>
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 Stephen Smalley wrote:
-<snip>
+> On the question of checking whether an app is suid, I don't see any way
+> to do that in Linux unambiguously, since there is always the case where
+> the caller was already in the same uid as the file.
 
-> No one has yet commented on the concern I raised about whether setting
-> the suid bit on newrole in this manner is workable from a packaging and
-> maintenance point of view (if policycoreutils installs a non-suid
-> newrole and the lspp package makes it suid from a scriptlet, then rpm -V
-> policycoreutils will report variance in the file mode, and an update of
-> policycoreutils will reset the newrole mode back to non-suid).  That
-> seems a bit problematic to me.
+Apparently, there is a way to check. Klaus showed me this yesterday, but 
+he pointed out that it might not be accurate due to SELinux transitions. 
+I have tried this, it doesn't seem like the context of the executable 
+(for transitions) affects this value.
 
-This may be a general problem if we do for LSPP what we did for CAPP,
-which was strip suid/sgid bits off some programs and change the mode
-bits to only allow the owner (root) to execute others.  The kickstart
-script Klaus posted still does this.
+#include <stdio.h>
 
-I think this was something George was dealing with as part of the
-self-test script.  If the self-test uses rpm -V, it would need to
-check that the variance is expected.  Now sure what to do about the
-update case but with CAPP the configuration script could be re-run at any time
-to re-do the original changes so maybe this part of the problem is solved
-with documentation.
+extern int __libc_enable_secure;
 
--- ljk
+int main() {
+	printf("%d\n", __libc_enable_secure);
+}
+
+If someone can also confirm this behavior, this could be the solution 
+we're looking for. Not sure how acceptable it is though, as it is kinda 
+hackish.
+
+Mike
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
