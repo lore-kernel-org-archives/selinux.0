@@ -1,38 +1,35 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k96JosdL006792
-	for <selinux@tycho.nsa.gov>; Fri, 6 Oct 2006 15:50:54 -0400
-Received: from mail6.sea5.speakeasy.net (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id k96JneQW020702
-	for <selinux@tycho.nsa.gov>; Fri, 6 Oct 2006 19:49:41 GMT
-Date: Fri, 6 Oct 2006 15:50:52 -0400 (EDT)
-From: James Morris <jmorris@namei.org>
-To: Steve G <linux_4ever@yahoo.com>
-cc: Joshua Brindle <jbrindle@tresys.com>,
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k96JuNPV006961
+	for <selinux@tycho.nsa.gov>; Fri, 6 Oct 2006 15:56:23 -0400
+Received: from twoface.columbia.tresys.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id k96Jtlru003521
+	for <selinux@tycho.nsa.gov>; Fri, 6 Oct 2006 19:55:47 GMT
+Subject: Re: Denials from newest kernel
+From: Joshua Brindle <jbrindle@tresys.com>
+To: James Morris <jmorris@namei.org>
+Cc: Steve G <linux_4ever@yahoo.com>,
         "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>,
         Venkat Yekkirala <vyekkirala@TrustedCS.com>
-Subject: Re: Denials from newest kernel
-In-Reply-To: <20061006184110.90042.qmail@web51508.mail.yahoo.com>
-Message-ID: <Pine.LNX.4.64.0610061550250.7528@d.namei>
+In-Reply-To: <Pine.LNX.4.64.0610061550250.7528@d.namei>
 References: <20061006184110.90042.qmail@web51508.mail.yahoo.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	 <Pine.LNX.4.64.0610061550250.7528@d.namei>
+Content-Type: text/plain
+Date: Fri, 06 Oct 2006 15:56:24 -0400
+Message-Id: <1160164584.2905.39.camel@twoface.columbia.tresys.com>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 6 Oct 2006, Steve G wrote:
-
+On Fri, 2006-10-06 at 15:50 -0400, James Morris wrote:
 > 
-> >You need compat_net=1 to test what FC6 and RHEL5 will be shipping.
-> 
-> FC6 turned off secmark support, but RHEL5 has it on.
+> Is there policy to support secmark properly in RHEL5?  If not, it
+> needs 
+> to be disabled. 
 
-Is there policy to support secmark properly in RHEL5?  If not, it needs 
-to be disabled.
+refpolicy defines the secmark rules and the selinux rules so that is
+fine, however there is no infrastructure to get the netfilter_contexts
+into the running iptables so things explode quickly.
 
-
--- 
-James Morris
-<jmorris@namei.org>
 
 --
 This message was distributed to subscribers of the selinux mailing list.
