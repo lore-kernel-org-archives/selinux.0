@@ -1,76 +1,87 @@
-Subject: RE: Denials from newest kernel
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Venkat Yekkirala <vyekkirala@TrustedCS.com>
-Cc: Joy Latten <latten@us.ibm.com>, Joshua Brindle <jbrindle@tresys.com>,
-        selinux@tycho.nsa.gov
-In-Reply-To: <36282A1733C57546BE392885C0618592015CFC0C@chaos.tcs.tcs-sec.com>
-References: <36282A1733C57546BE392885C0618592015CFC0C@chaos.tcs.tcs-sec.com>
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k96FMDTR028765
+	for <selinux@tycho.nsa.gov>; Fri, 6 Oct 2006 11:22:13 -0400
+Received: from exchange.columbia.tresys.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with SMTP id k96FLa03027859
+	for <selinux@tycho.nsa.gov>; Fri, 6 Oct 2006 15:21:37 GMT
+Subject: Re: [redhat-lspp] Re: Networking policy patch
+From: "Christopher J. PeBenito" <cpebenito@tresys.com>
+To: Paul Moore <paul.moore@hp.com>
+Cc: Venkat Yekkirala <vyekkirala@TrustedCS.com>, redhat-lspp@redhat.com,
+        selinux@tycho.nsa.gov, Klaus Weidner <klaus@atsec.com>
+In-Reply-To: <452663D3.4060103@hp.com>
+References: <45232276.2080105@trustedcs.com> <1160072287.26418.18.camel@sgc>
+	 <452663D3.4060103@hp.com>
 Content-Type: text/plain
-Date: Fri, 06 Oct 2006 11:21:57 -0400
-Message-Id: <1160148117.12253.106.camel@moss-spartans.epoch.ncsc.mil>
+Date: Fri, 06 Oct 2006 11:22:03 -0400
+Message-Id: <1160148124.26418.62.camel@sgc.columbia.tresys.com>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2006-10-06 at 11:11 -0400, Venkat Yekkirala wrote:
-> Joshua Brindle wrote:
-> > On Fri, 2006-10-06 at 10:23 -0400, Venkat Yekkirala wrote:
-> > > > -----Original Message-----
-> > > > From: Joshua Brindle [mailto:jbrindle@tresys.com]
-> > > > Sent: Friday, October 06, 2006 8:56 AM
-> > > I would have to refer you to the following discussion we had on how
-> > > secpoint err secmark is intended to be used thru to deciding not to
-> > > mess with the naming.
-> > > http://marc.theaimsgroup.com/?l=selinux&m=115928609916717&w=2
+On Fri, 2006-10-06 at 10:10 -0400, Paul Moore wrote:
+> Christopher J. PeBenito wrote:
+> > On Tue, 2006-10-03 at 21:54 -0500, Venkat Yekkirala wrote:
 > > 
-> > That peer conversation was bin/null'd though,
-> 
-> Stephen and others can correct me if I am wrong, but while
-> the naming was bin/null'd AFTER the con call, the policy was
-> going to be done substantially as related in the peer conversation.
-
-Correct.  BTW, that's /dev/null to most people ;)
-
-> > 1) domains send/recv packets
-> 
-> 1(a). packets "carry" originating socket domains
-> 1(b). domains "recv" from other domains the packets are "carrying".
-> 
-> > 2) packets flow_in and flow_out associations
-> 
-> 2(a) Associations again merely "carry" the domain of the originating socket
->      and as such are not of much relevance.
-> 2(b) domains as carried by packets can either flow_in or flow_out of
->      the security points as defined using the secmark rules.
-> 
-> > 3) domains polmatch spd's (which are classified as associations)
-> 
-> I wish the association class were renamed more like "ipsec" considering
-> the only 2 perms used in there are polmatch and setcontext.
-> 
-> > 4) domains sendto/recvfrom associations
-> 
-> In the compat_net case, yes. But not in the secmark world.
-> 
+> >>FYI- I have posted the following patches separate from this one.
+> >>
+> >>1. A patch to address the "leask" issue. Once verified, it needs
+> >>to be rolled in with James' patch and sent on after verification.
+> >>
+> >>2. A fix for flow_in and flow_out where we were using the unlabeled
+> >>   init sid. We would now use a new network_t with a range of (s0-s15...)
+> >>   to allow for mls traffic to flow out/in, in the absence of explicit secmark
+> >>   rules.
+> >>
+> >>
+> >>The following is a sample patch for networking using the new controls
+> >>in conjunction with secmark.
+> >>
+> >>NOTE FOR JOSHUA: This patch also defines the constraints to force context
+> >>equality for association:sendto.
 > > 
-> > IMO we need to get the permissions and object classes cleared 
-> > up before
-> > merging this stuff, its very confusing and inappropriate right now.
+> > I'm starting a labeled networking branch of refpolicy to work with this.
+> 
+> Is this available yet?  If so, how do I got about getting a copy to take a look?
 
-More importantly:
-- We need to fix real bug (e.g. incorrect source or target context for a
-given check, incorrect set of checks applied on some operation/code
-path).
-- We need to document what the checks mean and how they are applied so
-that policy writers can understand them.
+Yes, however it doesn't have anything interesting yet, just the flow_in
+and flow_out perms.
 
-Renaming them doesn't really help.  Classes have always been a fairly
-artificial construct, and you can see that already in the existing
-checks prior to this work.
+svn co http://oss.tresys.com/repos/refpolicy/branches/labeled-networking-2029 refpolicy
+
+> > I'm waiting until the dust settles before adding TE rules, but I have
+> > some questions:
+> 
+> Now that things are starting to calm down a bit I'm trying to get a chance to
+> look at the current policy and how it affects NetLabel.  In the secid case I
+> believe NetLabel can just ride on the back of the policy work you and Venkat are
+> discussing, however, if the reference policy is also going to support the
+> network compatability mode I suspect there will need to be some changes to allow
+> NetLabel'd traffic to work.
+> 
+> In the network compatability mode there is really only one new access check for
+> NetLabel:
+
+Changing the behavior of compat_net seems very bad, since the point of
+it is compatibility.  If we need to update the policy, then that is not
+compatibility.
+
+> There is also an issue of writing policy for netlabelctl, the NetLabel
+> configuration tool.  Klaus and I have passed around some simple policy modules
+> on the lspp list which have provided policy for netlabelctl.  I'm going to try
+> and revisit the last version posted and see if it needs to be updated, once it
+> is working I would like to try and have it included in the reference policy.
+> Would you prefer I post the policy as a standalone policy module or as a patch
+> against the reference policy currently in SVN?
+
+If it makes no changes to other modules, then either way is ok,
+otherwise a patch would be better.  Use the labeled networking branch
+above.
 
 -- 
-Stephen Smalley
-National Security Agency
+Chris PeBenito
+Tresys Technology, LLC
+(410) 290-1411 x150
 
 
 --
