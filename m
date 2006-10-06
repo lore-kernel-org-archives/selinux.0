@@ -1,88 +1,42 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k96FMDTR028765
-	for <selinux@tycho.nsa.gov>; Fri, 6 Oct 2006 11:22:13 -0400
-Received: from exchange.columbia.tresys.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with SMTP id k96FLa03027859
-	for <selinux@tycho.nsa.gov>; Fri, 6 Oct 2006 15:21:37 GMT
-Subject: Re: [redhat-lspp] Re: Networking policy patch
-From: "Christopher J. PeBenito" <cpebenito@tresys.com>
-To: Paul Moore <paul.moore@hp.com>
-Cc: Venkat Yekkirala <vyekkirala@TrustedCS.com>, redhat-lspp@redhat.com,
-        selinux@tycho.nsa.gov, Klaus Weidner <klaus@atsec.com>
-In-Reply-To: <452663D3.4060103@hp.com>
-References: <45232276.2080105@trustedcs.com> <1160072287.26418.18.camel@sgc>
-	 <452663D3.4060103@hp.com>
-Content-Type: text/plain
-Date: Fri, 06 Oct 2006 11:22:03 -0400
-Message-Id: <1160148124.26418.62.camel@sgc.columbia.tresys.com>
-Mime-Version: 1.0
+Message-ID: <452674B8.4050604@hp.com>
+Date: Fri, 06 Oct 2006 11:22:32 -0400
+From: Linda Knippers <linda.knippers@hp.com>
+MIME-Version: 1.0
+To: Stephen Smalley <sds@tycho.nsa.gov>
+Cc: Steve Grubb <sgrubb@redhat.com>, Michael C Thompson <thompsmc@us.ibm.com>,
+        Daniel J Walsh <dwalsh@redhat.com>, SE Linux <selinux@tycho.nsa.gov>,
+        jdesai@us.ibm.com
+Subject: Re: [RFC PATCH] newrole suid breakdown
+References: <452432FA.1060009@us.ibm.com>	 <1160079125.2132.232.camel@moss-spartans.epoch.ncsc.mil>	 <45256F49.1070105@us.ibm.com>  <200610051748.06669.sgrubb@redhat.com> <1160146343.12253.85.camel@moss-spartans.epoch.ncsc.mil>
+In-Reply-To: <1160146343.12253.85.camel@moss-spartans.epoch.ncsc.mil>
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2006-10-06 at 10:10 -0400, Paul Moore wrote:
-> Christopher J. PeBenito wrote:
-> > On Tue, 2006-10-03 at 21:54 -0500, Venkat Yekkirala wrote:
-> > 
-> >>FYI- I have posted the following patches separate from this one.
-> >>
-> >>1. A patch to address the "leask" issue. Once verified, it needs
-> >>to be rolled in with James' patch and sent on after verification.
-> >>
-> >>2. A fix for flow_in and flow_out where we were using the unlabeled
-> >>   init sid. We would now use a new network_t with a range of (s0-s15...)
-> >>   to allow for mls traffic to flow out/in, in the absence of explicit secmark
-> >>   rules.
-> >>
-> >>
-> >>The following is a sample patch for networking using the new controls
-> >>in conjunction with secmark.
-> >>
-> >>NOTE FOR JOSHUA: This patch also defines the constraints to force context
-> >>equality for association:sendto.
-> > 
-> > I'm starting a labeled networking branch of refpolicy to work with this.
-> 
-> Is this available yet?  If so, how do I got about getting a copy to take a look?
+Stephen Smalley wrote:
+<snip>
 
-Yes, however it doesn't have anything interesting yet, just the flow_in
-and flow_out perms.
+> No one has yet commented on the concern I raised about whether setting
+> the suid bit on newrole in this manner is workable from a packaging and
+> maintenance point of view (if policycoreutils installs a non-suid
+> newrole and the lspp package makes it suid from a scriptlet, then rpm -V
+> policycoreutils will report variance in the file mode, and an update of
+> policycoreutils will reset the newrole mode back to non-suid).  That
+> seems a bit problematic to me.
 
-svn co http://oss.tresys.com/repos/refpolicy/branches/labeled-networking-2029 refpolicy
+This may be a general problem if we do for LSPP what we did for CAPP,
+which was strip suid/sgid bits off some programs and change the mode
+bits to only allow the owner (root) to execute others.  The kickstart
+script Klaus posted still does this.
 
-> > I'm waiting until the dust settles before adding TE rules, but I have
-> > some questions:
-> 
-> Now that things are starting to calm down a bit I'm trying to get a chance to
-> look at the current policy and how it affects NetLabel.  In the secid case I
-> believe NetLabel can just ride on the back of the policy work you and Venkat are
-> discussing, however, if the reference policy is also going to support the
-> network compatability mode I suspect there will need to be some changes to allow
-> NetLabel'd traffic to work.
-> 
-> In the network compatability mode there is really only one new access check for
-> NetLabel:
+I think this was something George was dealing with as part of the
+self-test script.  If the self-test uses rpm -V, it would need to
+check that the variance is expected.  Now sure what to do about the
+update case but with CAPP the configuration script could be re-run at any time
+to re-do the original changes so maybe this part of the problem is solved
+with documentation.
 
-Changing the behavior of compat_net seems very bad, since the point of
-it is compatibility.  If we need to update the policy, then that is not
-compatibility.
-
-> There is also an issue of writing policy for netlabelctl, the NetLabel
-> configuration tool.  Klaus and I have passed around some simple policy modules
-> on the lspp list which have provided policy for netlabelctl.  I'm going to try
-> and revisit the last version posted and see if it needs to be updated, once it
-> is working I would like to try and have it included in the reference policy.
-> Would you prefer I post the policy as a standalone policy module or as a patch
-> against the reference policy currently in SVN?
-
-If it makes no changes to other modules, then either way is ok,
-otherwise a patch would be better.  Use the labeled networking branch
-above.
-
--- 
-Chris PeBenito
-Tresys Technology, LLC
-(410) 290-1411 x150
-
+-- ljk
 
 --
 This message was distributed to subscribers of the selinux mailing list.
