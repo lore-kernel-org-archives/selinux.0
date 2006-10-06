@@ -1,66 +1,57 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k96Aks3o020359
-	for <selinux@tycho.nsa.gov>; Fri, 6 Oct 2006 06:46:54 -0400
-Received: from exchange.columbia.tresys.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with SMTP id k96AjfQx012839
-	for <selinux@tycho.nsa.gov>; Fri, 6 Oct 2006 10:45:42 GMT
-Message-ID: <45263417.8050602@tresys.com>
-Date: Fri, 06 Oct 2006 06:46:47 -0400
-From: Joshua Brindle <jbrindle@tresys.com>
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k96AngNi020425
+	for <selinux@tycho.nsa.gov>; Fri, 6 Oct 2006 06:49:42 -0400
+Received: from exchange.columbia.tresys.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with SMTP id k96An703023492
+	for <selinux@tycho.nsa.gov>; Fri, 6 Oct 2006 10:49:07 GMT
+Message-ID: <452634C0.3010700@gentoo.org>
+Date: Fri, 06 Oct 2006 06:49:36 -0400
+From: Joshua Brindle <method@gentoo.org>
 MIME-Version: 1.0
-To: Venkat Yekkirala <vyekkirala@TrustedCS.com>
-CC: selinux@tycho.nsa.gov, redhat-lspp@redhat.com
-Subject: Re: Networking policy patch
-References: <45232276.2080105@trustedcs.com> <452551B2.70307@tresys.com>
-In-Reply-To: <452551B2.70307@tresys.com>
+To: Klaus Weidner <klaus@atsec.com>
+CC: Casey Schaufler <casey@schaufler-ca.com>,
+        Linda Knippers <linda.knippers@hp.com>, paul.moore@hp.com,
+        selinux@tycho.nsa.gov, redhat-lspp@redhat.com,
+        vyekkirala@TrustedCS.com, jmorris@namei.org,
+        Joy Latten <latten@austin.ibm.com>, eparis@parisplace.org,
+        Karl MacMillan <kmacmillan@mentalrootkit.com>
+Subject: Re: [redhat-lspp] Re: RHEL5 Kernel with labeled networking
+References: <4522EB42.9070502@hp.com> <20061003233848.21938.qmail@web36606.mail.mud.yahoo.com> <20061005224734.GA28520@w-m-p.com>
+In-Reply-To: <20061005224734.GA28520@w-m-p.com>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Joshua Brindle wrote:
-> <snip>
-
-> Ok, this may be an unpopular email but I was going over how everything 
-> (sans netlabel) was working as of right now (as I understand it) and I 
-> came across some things that seem strange. Maybe my understanding is 
-> wrong...
+Klaus Weidner wrote:
+> On Tue, Oct 03, 2006 at 04:38:48PM -0700, Casey Schaufler wrote:
+>   
+>> --- Linda Knippers <linda.knippers@hp.com> wrote:
+>>     
+>>> It has a requirement to be able to audit all modifications of the
+>>> values of security attributes, so we can audit a bunch of syscalls
+>>> that do that (chmod, chown, setxattr, ...).  Relabeling files would
+>>> definitely count and be covered.  There's also a requirement about
+>>> auditing changes to the way data is imported/exported, so this is
+>>> where the networking stuff comes in.  I don't know about domain
+>>> transitions.
+>>>       
+>> I think you would have trouble arguing that a domain transition is not
+>> a change in the security state of the system. For the evaluations I
+>> worked auditing was required for any change to uids, gids,
+>> capabilities, sensitivity, integrity, or any other security relevent
+>> attribute.
+>>     
 >
-> Basically I was trying the most complex situation (which includes 
-> socket labels that are different from the domain).
-> spd 1 is  ipsec_spd_t.
-> domain 1 is pms_proxy_t
-> socket 1 is sysadm_t (via setsockcreatecon)
-> secmark 1 is pms_c_p_t
+> Yes, it is a change in the process security state.
 >
-> spd 2 is ipsec_spd2_t
-> domain 2 is inetd_t
-> socket 2 is pms_t
-> secmark 2 is pms_s_p_t
+> Domain transitions are auditable already - dynamic transitions through
+> the auditallow rules on /proc/$PID/attr/*, and automatic transitions by
+> putting filesystem watches on the *_exec_t binaries you're interested in.
 >
-> therefore SA 1 is pms_t and SA 2 is sysadm_t
->
-> So here are the rules I came up with
-> side1:
-> allow pms_proxy_t pms_c_p_t : packet { send recv }
-> - straightforward, already how secmark works
-> allow sysadm_t pms_t : packet { flow_in flow_out }
-> - don't understand this, pms_t isn't a packet object, why are we using 
-> the packet object class?
-Er, I totally messed this up, it should have been
-allow pms_t pms_c_p_t : packet { flow_in flow_out } which has the 
-correct object class, not sure what I was thinking
-> allow pms_proxy_t ipsec_spd_t : association { polmatch }
-> - likewise, an spd isn't an association, maybe this class needs to be 
-> more generic
-this one still applies but its an aesthetic thing and I suppose noone is 
-going to want to rename the object class
-> allow pms_proxy_t pms_t : association { sendto recvfrom }
-> - Not sure if this one is right, is the source suppose to be the 
-> domain or the socket?
->
-This is domain, right?
-
-
+>   
+Um, you can just auditallow domain domain : process transition for all 
+transitions but the point was that they didn't want a mixture of policy 
+auditing and audit framework auditing
 
 --
 This message was distributed to subscribers of the selinux mailing list.
