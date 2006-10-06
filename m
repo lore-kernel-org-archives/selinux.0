@@ -1,99 +1,76 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k96G4CEN030662
-	for <selinux@tycho.nsa.gov>; Fri, 6 Oct 2006 12:04:12 -0400
-Received: from mx1.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id k96G2w4o010384
-	for <selinux@tycho.nsa.gov>; Fri, 6 Oct 2006 16:02:59 GMT
-Subject: Labeled Networking For LSPP: Where we are and where we need to go
-	(quickly)
-From: Eric Paris <eparis@redhat.com>
-To: selinux@tycho.nsa.gov, redhat-lspp@redhat.com
-Cc: paul.moore@hp.com, vyekkirala@TrustedCS.com, chanson@TrustedCS.com
+Subject: Re: [RFC PATCH] newrole suid breakdown
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Steve Grubb <sgrubb@redhat.com>
+Cc: Michael C Thompson <thompsmc@us.ibm.com>,
+        Daniel J Walsh <dwalsh@redhat.com>, SE Linux <selinux@tycho.nsa.gov>,
+        jdesai@us.ibm.com
+In-Reply-To: <200610061134.27916.sgrubb@redhat.com>
+References: <452432FA.1060009@us.ibm.com>
+	 <200610051748.06669.sgrubb@redhat.com>
+	 <1160146343.12253.85.camel@moss-spartans.epoch.ncsc.mil>
+	 <200610061134.27916.sgrubb@redhat.com>
 Content-Type: text/plain
-Date: Fri, 06 Oct 2006 12:05:38 -0400
-Message-Id: <1160150738.10614.116.camel@localhost.localdomain>
+Date: Fri, 06 Oct 2006 12:14:12 -0400
+Message-Id: <1160151252.12253.144.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Last night I built a new test kernel for labeled networking in RHEL5
-kernels.  That kernel can be found at 
+On Fri, 2006-10-06 at 11:34 -0400, Steve Grubb wrote:
+> On Friday 06 October 2006 10:52, Stephen Smalley wrote:
+> > Dan had suggested only making newrole suid under the LSPP configuration,
+> > leaving it non-suid otherwise, and having newrole dynamically test
+> > whether it is suid (which it cannot actually do precisely) to decide
+> > whether or not to perform privileged operations.
+> 
+> It can easily test for CAP_SYS_ADMIN, CAP_DAC_OVERRIDE.
 
-http://people.redhat.com/sgrubb/files/lspp
+True.  That still has the same issue of yielding a "false" positive when
+the caller was already uid 0.
 
-and you want the lspp kernel 51.
+> > This was motivated by the desire to not expose non-LSPP systems
+> > (particularly a stock system with targeted policy) to greater risk, since
+> > the changes to newrole for pam_namespace leave it much more privileged than
+> > your earlier changes for audit.
+> 
+> So, in a higher assurance deployment we will have something more powerful that 
+> is not being used by the majority of users? If its dangerous for general 
+> deployment, it would be dangerous for higher assurance, too.
 
-What's in this kernel?  A whole bunch of patches which might just make
-it into RHEL5.  I have until this Monday, Oct 9 to try again.  That
-means that I really really need everything finished very quickly (aka
-today) so we can get some basic testing!  ALL testing needs to be done
-with compat_net = 0 and hopefully in enforcing.  We don't have a good
-policy for this yet, but i'll mention that again later.  In this last
-kernel we have
+That's why Michael is working on making newrole more paranoid about its
+caller.  But in the "general deployment" there is no functional need for
+a privileged newrole, so there is no benefit to making it privileged
+there and there is risk.  The risk in fact is _greater_ in the general
+deployment if you make newrole privileged because neither newrole nor
+its caller are confined in -targeted policy, so you have _only_ DAC
+protections and you've just removed almost all DAC restrictions from
+newrole.  Whereas under -strict or -mls, you further have SELinux
+protection/isolation of newrole's domain, and the caller is much more
+limited.  
 
--netlabel config auditing patch
--netlabel cache opps patch
--netlabel unlabeled patch
--secid reconciliation between secmark and xfrm
--network_t addition
--secid reconciliation with netlabel
--1/3 of the complete fix for the ipsec information escape
+> You know, it occurs to me that we would not need newrole if we were able to 
+> chose a role at login. We used to be able to do that a long time ago. Maybe 
+> that solves all the problems? Need to change roles...log out and log in.
 
-This is great, we are getting there.  But, we still need at least 3-4
-more patches before tomorrow!!
+Well, I would certainly be glad to see such support restored and
+expanded (e.g. to include gdm).  But there was resistance to that from
+RH in the past.
 
-Patch1: finish the error propagation backport for the ipsec leak (Being
-completed by Eric Paris)
-Patch2: audit ipsec config changes (Being completed by Joy Latten)
-Patch3: find and fix current issues with unlabeled_t packets that can't
-be explained (Paul Moore and Venkat)
+> > Possibly, but if we can just call audit_open() unconditionally and use
+> > get_auditfail_action() to decide how to handle an error, then I don't
+> > think we need to do any checking of suid or capability first.  
+> 
+> What if they don't have audit compiled into their kernel but want 
+> pam_namespace? Weird, but people are like that.
 
-There also is some question from Joshua Brindle if the object classes
-are correct for a number of things.  These changes also will need to be
-done quickly.  I'm going to call this Patch4.
+Not sure why that presents a problem if newrole unconditionally calls
+audit_open() but uses get_auditfail_action() to decide how to handle an
+error (in that case, they presumably have it configured to ignore
+failures since they built their kernel without support for it).  
 
-Patch4: verify/fix the object class for all netlabel hooks.  (Hopefully
-Venkat will be able to take the lead on this)
-
-It does seem reasonable to think that I will get all 4 of these patches
-by the end of the day.  I really really need that to happen.  If so we
-stand a good chance of getting all of this into RHEL5 and having working
-labeled networking for LSPP!
-
-After these kernel patches go in we still have more work to do!
-
-Policy!  Christopher J. PeBenito has a refpolicy branch with little
-other than flow_in and flow_out defined at:
-
-svn co http://oss.tresys.com/repos/refpolicy/branches/labeled-networking-2029 refpolicy
-
-I don't think the new constraints are in there as they will cause other
-problems.  Hopefully the constraint issue will pan out in the next day
-or 2.  You can expect lots of denials, but at least enough will be
-defined that you can get stuff working in enforcing with your own policy
-modules.
-
-When all is said and done we then have a little bit of kernel cleanup
-but it won't be for RHEL5.  It will just be upstream code cleanup.
-Namely 
-
-1) Patch 7/9 from the reconciliation thread should be cleaned up to
-better use BUG_ON()
-2) Patch 2/9 should drop polsec from the hook interface in security_ops
-
-I only mention those so they won't be forgotten.
-
-********
-
-If your name was mentioned in one of the 4 patches that I want today can
-you please reply and let me know if you think it is possible?  (by
-"today" I really mean "before about 9AM saturday morning")  Once again
-we are coming up on a tight deadline.  Everyone has done so much to get
-us this close and it looks like Red Hat management is giving me again
-until this Monday.  But I sure wouldn't expect another extension like
-this again!!
-
--Eric
+-- 
+Stephen Smalley
+National Security Agency
 
 
 --
