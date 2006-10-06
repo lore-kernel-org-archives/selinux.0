@@ -1,52 +1,37 @@
-Message-ID: <4526CF73.1070200@trustedcs.com>
-Date: Fri, 06 Oct 2006 16:49:39 -0500
+Message-ID: <4526D09D.7070506@trustedcs.com>
+Date: Fri, 06 Oct 2006 16:54:37 -0500
 From: Venkat Yekkirala <vyekkirala@TrustedCS.com>
 MIME-Version: 1.0
-To: selinux@tycho.nsa.gov
-CC: jmorris@namei.org, sds@tycho.nsa.gov, paul.moore@hp.com, eparis@redhat.com,
-        sgrubb@redhat.com, jbrindle@tresys.com
-Subject: [PATCH 1/1] selinux: Null-out secmark after use - V.02
+To: Venkat Yekkirala <vyekkirala@TrustedCS.com>
+CC: selinux@tycho.nsa.gov, jmorris@namei.org, sds@tycho.nsa.gov,
+        paul.moore@hp.com, eparis@redhat.com, sgrubb@redhat.com,
+        jbrindle@tresys.com
+Subject: Re: [PATCH 1/1] selinux: Null-out secmark after use
+References: <4526CE64.9050704@trustedcs.com> <4526CEB7.4090206@trustedcs.com>
+In-Reply-To: <4526CEB7.4090206@trustedcs.com>
 Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This nulls out the secmark field on the skb after
-we are done with ALL the access checks in the postroute_last
-hook to handle the case where multicast packets that we send
-might be arriving back to us on a non-loopback device. This
-would cause the flow_in hook to use the secmark on the skb
-(ostensibly from the originating socket) as a security point
-context, which it isn't.
-
-Signed-off-by: Venkat Yekkirala <vyekkirala@TrustedCS.com>
----
-Right sign-off this time :)
-
---- net-2.6.sid6/security/selinux/hooks.c	2006-10-03 16:43:21.000000000 -0500
-+++ net-2.6/security/selinux/hooks.c	2006-10-06 16:18:55.000000000 -0500
-@@ -3903,6 +3903,22 @@ static unsigned int selinux_ip_postroute
- 		}
- 		err = avc_has_perm(skb->secmark, SECINITSID_NETMSG,
- 				   SECCLASS_PACKET, PACKET__FLOW_OUT, &ad);
-+
-+		if (skb->secmark  && skb->dev != &loopback_dev)
-+			/*
-+			 * Our multicast packets could get copied back
-+			 * to us, arriving on a non-loopback device.
-+			 * Leaving the secmark intact here will cause it
-+			 * to be used as a security point context in
-+			 * the flow_in hook above while it's not in fact
-+			 * a security point context.
-+			 *
-+			 * We may be able to retain this marking if
-+			 * we can reliably determine that it was a local
-+			 * packet although it arrived on a non-loopback
-+			 * device, in the flow_in hook above.
-+			 */
-+			skb->secmark = SECSID_NULL;
- 	}
- out:
- 	return err ? NF_DROP : NF_ACCEPT;
+Venkat Yekkirala wrote:
+> Venkat Yekkirala wrote:
+>> This nulls out the secmark field on the skb after
+>> we are done with ALL the access checks in the postroute_last
+>> hook to handle the case where multicast packets that we send
+>> might be arriving back to us on a non-loopback device. This
+>> would cause the flow_in hook to use the secmark on the skb
+>> (ostensibly from the originating socket) as a security point
+>> context, which it isn't.
+>>
+>> Signed-off-by: James Morris <jmorris@namei.org>
+> 
+> Actually the sign-off should be (copied and pasted from the wrong email :):
+> 
+> Signed-off-by: Venkat Yekkirala <vyekkirala@TrustedCS.com>
+> 
+> Please disregard this patch.
+> 
+Oh yeah. But the code in fact is exactly what James would write though :)
 
 --
 This message was distributed to subscribers of the selinux mailing list.
