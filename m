@@ -1,79 +1,64 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k96FDwUc028337
-	for <selinux@tycho.nsa.gov>; Fri, 6 Oct 2006 11:13:58 -0400
-Received: from twoface.columbia.tresys.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id k96FCi4o001003
-	for <selinux@tycho.nsa.gov>; Fri, 6 Oct 2006 15:12:45 GMT
-Message-ID: <452672AB.4020309@tresys.com>
-Date: Fri, 06 Oct 2006 11:13:47 -0400
-From: Joshua Brindle <jbrindle@tresys.com>
+From: Russell Coker <russell@coker.com.au>
+Reply-To: russell@coker.com.au
+To: Stephen Smalley <sds@tycho.nsa.gov>
+Subject: Re: [RFC PATCH] newrole suid breakdown
+Date: Sat, 7 Oct 2006 01:16:34 +1000
+Cc: Steve Grubb <sgrubb@redhat.com>, Michael C Thompson <thompsmc@us.ibm.com>,
+        Daniel J Walsh <dwalsh@redhat.com>, SE Linux <selinux@tycho.nsa.gov>,
+        jdesai@us.ibm.com
+References: <452432FA.1060009@us.ibm.com> <200610051748.06669.sgrubb@redhat.com> <1160146343.12253.85.camel@moss-spartans.epoch.ncsc.mil>
+In-Reply-To: <1160146343.12253.85.camel@moss-spartans.epoch.ncsc.mil>
 MIME-Version: 1.0
-To: Venkat Yekkirala <vyekkirala@TrustedCS.com>
-CC: "Christopher J. PeBenito" <cpebenito@tresys.com>, selinux@tycho.nsa.gov,
-        redhat-lspp@redhat.com
-Subject: Re: Networking policy patch
-References: <36282A1733C57546BE392885C0618592015CFBBB@chaos.tcs.tcs-sec.com>
-In-Reply-To: <36282A1733C57546BE392885C0618592015CFBBB@chaos.tcs.tcs-sec.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain;
+  charset="utf-8"
+Message-Id: <200610070116.39485.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Venkat Yekkirala wrote:
->>
->>> +mlsconstrain association { recvfrom }
->>> +	((( l1 dom l2 ) and ( l1 domby h2 )) or
->>> +	 (( t1 == mlsnetreadtoclr ) and ( h1 dom l2 )) or
->>> +	 ( t1 == mlsnetread ) or
->>> +	 ( t2 == unlabeled_t ));
->>>       
->> Don't we want network_t instead of unlabeled_t?
->>     
->
-> Actually, the above only applies to the compat_net case
-> and there unlabeled_t is just fine.
->
->   
-why isn't compat_net using the same default sid for associations?
-> So, there are different MLS constraints (and policy) for
-> the compat_net case as opposed to the new secmark controls.
->
->   
-there shouldn't be, compat_net and secmark use different object classes 
-(except association) and the behaviors should not conflict
-> I guess you are planning to have one policy for compat_net
-> and another for secmark?
->
->   
-I'll let Chris comment here but I don't think that is ideal.
->>> +mlsconstrain association { sendto }
->>> +	(( l1 eq l2 ) and ( h1 eq h2 ));
->>>       
->> or (t2 == network_t) ?
->>     
->
-> No. Not in the secmark case.
->   
-If there are no ipsec associations at all it will default to 
-network_t:SystemHigh-SystemLow so this would only allow domains that are 
-SystemHigh-SystemLow to send plaintext? Not sure this is what we want
+On Saturday 07 October 2006 00:52, Stephen Smalley <sds@tycho.nsa.gov> wrote:
+> Russell had alternatively suggested moving newrole into its own package
+> and only installing it (always suid) if installing a -strict or -mls
+> policy (i.e. make it a dependency of those policy packages), so that a
+> default install does not include it at all (as -targeted has no need for
+> newrole functionality).   Concerns there might include: a) mere
+> installation of -strict or -mls on a system does not mean that they are
+> the active policy, so one could still end up with the suid newrole on a
+> machine running targeted, b) not all users of -strict necessarily want
+> pam_namespace functionality.   Also not sure about whether that poses
+> any packaging or dependency issues.
 
-> <snip>
->>> +constrain association sendto
->>> +	( u1 == u2 and r1 == r2 and t1 == t2 );
->>>       
->> I talked with Joshua and we determined that there is a case were we
->> don't want this constraint (looking forward to policy management
->> server's use of labeled networking), so I've dropped it.
->>     
->
-> The above constraint is necessary for the kernel portions of SELinux
-> to work properly. In fact I was going to originally implement it in the
-> kernel and when Darrel made me aware of the constraint framework and the
-> benefits with avc caching, etc., I decided to use it.
->
->   
-This completely disallows the use of setsockcreatecon() with labeled 
-networking, not good.
+You are correct that if my suggestion is followed then a very small portion of 
+the machines running targeted policy or without SE Linux will have newrole 
+installed setuid-root.
+
+But let's put things in perspective.  A typical install of Fedora has about 30 
+setuid-root programs (mine has 36).  The same typical Fedora install can be 
+expected to have some setgid programs that give access to important groups 
+and some possible indirect chains of execution that lead from non-root to 
+root.
+
+Of those programs many of them are of old implementation or old design, for 
+example when writing this message I realised that I had several setuid-root 
+programs from the rsh package.  I had never desired rsh to be installed, it 
+must have either been dragged in by dependencies or be part of a default 
+install.
+
+Also there are a number of daemons that run as root (dhclient and cups are on 
+most workstations).
+
+I agree that we don't want to reduce security through making a mistake, but 
+there are plenty of better avenues of attack than newrole.  It might be a 
+better use of our time to just accept that a few people will have a 
+setuid-root copy of newrole installed when they don't need it and save our 
+time for other things.  After all most Fedora users get a kerberos version of 
+su installed when they don't need it.
+
+-- 
+russell@coker.com.au
+http://etbe.blogspot.com/          My Blog
+
+http://www.coker.com.au/sponsorship.html Sponsoring Free Software development
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
