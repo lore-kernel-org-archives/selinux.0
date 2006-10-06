@@ -1,242 +1,123 @@
-Date: Fri, 06 Oct 2006 18:25:48 -0400
-Subject: Re: [PATCH 4/4] Validate kernel object classes and permissions
-From: Chad Sellers <csellers@tresys.com>
-To: Stephen Smalley <sds@tycho.nsa.gov>
-CC: <selinux@tycho.nsa.gov>
-Message-ID: <C14C502C.18471%csellers@tresys.com>
-In-Reply-To: <1160170630.20202.64.camel@moss-spartans.epoch.ncsc.mil>
-Mime-version: 1.0
-Content-type: text/plain;
-	charset="US-ASCII"
+Message-ID: <4526D889.7070701@us.ibm.com>
+Date: Fri, 06 Oct 2006 17:28:25 -0500
+From: Michael C Thompson <thompsmc@us.ibm.com>
+MIME-Version: 1.0
+To: Michael C Thompson <thompsmc@us.ibm.com>
+CC: SE Linux <selinux@tycho.nsa.gov>, Stephen Smalley <sds@tycho.nsa.gov>
+Subject: Re: [PATCH 4/4] make newrole suid
+References: <4526D6F3.5010009@us.ibm.com>
+In-Reply-To: <4526D6F3.5010009@us.ibm.com>
+Content-Type: multipart/mixed;
+ boundary="------------030905030801080808000303"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On 10/6/06 5:37 PM, "Stephen Smalley" <sds@tycho.nsa.gov> wrote:
+This is a multi-part message in MIME format.
+--------------030905030801080808000303
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
-> On Fri, 2006-10-06 at 16:09 -0400, Chad Sellers wrote:
->> plain text document attachment (verify_kernel.diff)
->> This patch replaces the object class and permission validation code to
->> validate against the defined kernel headers, and allow extra classes
->> and permissions that do not conflict with the kernel definitions. Note
->> that validation is now done for all policy loads, not just subsequent
->> loads after the first policy load.
+Michael C Thompson wrote:
+> This is the 4th of 4 patches.
+> This patch applies against policycoreutils-1.30.30-1.
 > 
-> I haven't looked closely, but it doesn't quite look right to me.  The
-> old logic would walk the "good" definitions from the old policy,
-> checking each one against the definitions in the new policy.  This logic
-> appears to walk the new policy, checking each of its definitions against
-> the kernel tables.  But what if the new policy simply omits a definition
-> required by the kernel, e.g. delete the last class or the last five
-> classes altogether from policy?  Interestingly, the old logic includes
-> messages like "permission %s disappeared" or "class %s disappeared" but
-> this logic does not (only messages about incorrect values).  I think you
-> want it the other way around, i.e. walk the kernel tables and look up
-> each definition there in the policy being loaded, then see if it is
-> correct.  That also avoids having to skip around things that are defined
-> in policy but not in the kernel tables.
+> Changes:
+>  * Makefile now has AUDIT_LOG_PRIV and NAMESPACE_PRIV, as well as
+>    LSPP_PRIV (causes both previous to be on)
+>  * Adds newrole-lspp.pamd
 > 
-I don't think that's the logic we want, though. Part of the eventual idea
-here is to help out the "Andrew Morton syndrome," where a kernel developer
-has a new kernel class/permission, but no policy for it. If we require all
-kernel defined classes/perms to be present in the policy, then we can't
-support this situation. The logic in my patch requires that all the kernel
-classes defined in the policy are consistent with the kernel, but allows for
-the possibility of the kernel having new classes/permissions that aren't in
-policy yet. The logic you propose would not allow a kernel developer to load
-a policy until that policy supported their new object class/permission.
+> Signed-off-by: Michael Thompson <thompsmc@us.ibm.com>
 
-Chad
+Please ignore the previously sent patch. There is an extra, naughty line 
+in Makefile I was using for testing, but failed to catch.
+
+The correct (I hope) patch is attached.
+
+Signed-off-by: Michael Thompson <thompsmc@us.ibm.com>
 
 
->> Signed-off-by: Chad Sellers <csellers@tresys.com>
->> 
->> ---
->>  security/selinux/ss/services.c |  161
->> ++++++++++++++++++++++++++++++++++++++++-
->>  1 file changed, 160 insertions(+), 1 deletion(-)
->> 
->> Index: linux-2.6-discovery/security/selinux/ss/services.c
->> ===================================================================
->> --- linux-2.6-discovery.orig/security/selinux/ss/services.c
->> +++ linux-2.6-discovery/security/selinux/ss/services.c
->> @@ -1018,6 +1027,138 @@ int security_change_sid(u32 ssid,
->> return security_compute_sid(ssid, tsid, tclass, AVTAB_CHANGE, out_sid);
->>  }
->>  
->> +/*
->> + * Verify that each kernel permission that is defined in a
->> + * policy class is correct
->> + */
->> +static int validate_class_perm(void *key, void *datum, void *p)
->> +{
->> + struct perm_datum *perdatum;
->> + u32 *class, val;
->> + char *name;
->> + int rc = 0, i;
->> +
->> + class = p;
->> + perdatum = datum;
->> + name = key;
->> + val = 1 << (perdatum->value - 1);
->> +
->> + for (i = 0; i < defined_classes_perms.av_perm_to_string_len; i++) {
->> +  if ((defined_classes_perms.av_perm_to_string[i].tclass == *class)
->> +      && (defined_classes_perms.av_perm_to_string[i].value == val)) {
->> +   if (strcmp(name, defined_classes_perms.av_perm_to_string[i].name)) {
->> +    printk(KERN_ERR
->> +           "security:  the value of permission %s is incorrect",
->> +           (char *)key);
->> +    rc = -EINVAL;
->> +   }
->> +   break;
->> +  }
->> + }
->> + return rc;
->> +}
->> +
->> +/*
->> + * Verify that each kernel permission that is defined in a
->> + * policy common is correct
->> + */
->> +static int validate_common_perm(void *key, void *datum, void *p)
->> +{
->> + struct perm_datum *perdatum;
->> + u32 *class, tmp, common_pts_len = 0;
->> + char *name;
->> + int rc = 0, i;
->> +
->> + class = p;
->> + perdatum = datum;
->> + name = key;
->> +
->> + for (i = 0; i < defined_classes_perms.av_inherit_len; i++) {
->> +  if (defined_classes_perms.av_inherit[i].tclass == *class) {
->> +   tmp = defined_classes_perms.av_inherit[i].common_base;
->> +   while (!(tmp & 0x01)) {
->> +    common_pts_len++;
->> +    tmp >>= 1;
->> +   }
->> +   if (perdatum->value > common_pts_len)
->> +    break;
->> +   if (strcmp(name, defined_classes_perms.av_inherit[i].
->> +        common_pts[perdatum->value - 1])) {
->> +    printk(KERN_ERR
->> +           "security:  the value of permission %s is incorrect",
->> +           (char *)key);
->> +    rc = -EINVAL;
->> +   }
->> +   break;
->> +  }
->> + }
->> + return rc;
->> +}
->> +
->> +/*
->> + * Verify that each kernel class that is defined in the
->> + * policy is correct
->> + */
->> +static int validate_class(void *key, void *datum, void *p)
->> +{
->> + struct class_datum *cladatum;
->> + int rc, i;
->> + char *name;
->> + u8 has_common = 0;
->> +
->> + cladatum = datum;
->> + name = key;
->> +
->> + if (cladatum->value >= defined_classes_perms.class_to_string_len) {
->> +  rc = 0;
->> +  goto out;
->> + }
->> + if (strcmp(name, defined_classes_perms.class_to_string[cladatum->value])) {
->> +  printk(KERN_ERR "security:  the value of class %s is incorrect\n",
->> +         (char *)key);
->> +  rc = -EINVAL;
->> +  goto out;
->> + }
->> + for (i = 0; i < defined_classes_perms.av_inherit_len; i++) {
->> +  if (defined_classes_perms.av_inherit[i].tclass == cladatum->value) {
->> +   has_common = 1;
->> +   break;
->> +  }
->> + }
->> + if (!((cladatum->comdatum && has_common) ||
->> +       (!cladatum->comdatum && !has_common))) {
->> +  if (has_common) {
->> +   printk(KERN_ERR
->> +          "security:  the access vector definition for class"
->> +          "%s should have an inherits clause but does not\n",
->> +          (char *)key);
->> +  } else {
->> +   printk(KERN_ERR
->> +          "security:  the access vector definition for class"
->> +          "%s should not have an inherits clause but does\n",
->> +          (char *)key);
->> +  }
->> +  rc = -EINVAL;
->> +  goto out;
->> + }
->> + if (cladatum->comdatum) {
->> +  rc = hashtab_map(cladatum->comdatum->permissions.table,
->> +     validate_common_perm, &cladatum->value);
->> +  if (rc) {
->> +   printk(" in the access vector definition for class "
->> +          "%s\n", (char *)key);
->> +   goto out;
->> +  }
->> + }
->> + rc = hashtab_map(cladatum->permissions.table, validate_class_perm,
->> +    &cladatum->value);
->> + if (rc)
->> +  printk(" in access vector definition for class %s\n",
->> +         (char *)key);
->> +out:
->> + return rc;
->> +}
->> +
->>  /* Clone the SID into the new SID table. */
->>  static int clone_sid(u32 sid,
->>     struct context *context,
->> @@ -1160,6 +1301,16 @@ int security_load_policy(void *data, siz
->> avtab_cache_destroy();
->> return -EINVAL;
->> }
->> +  /* Verify that the kernel defined classes are correct. */
->> +  if (hashtab_map(policydb.p_classes.table, validate_class, NULL)) {
->> +   printk(KERN_ERR
->> +          "security:  the definition of a class is incorrect\n");
->> +   LOAD_UNLOCK;
->> +   sidtab_destroy(&sidtab);
->> +   policydb_destroy(&policydb);
->> +   avtab_cache_destroy();
->> +   return -EINVAL;
->> +  }
->> policydb_loaded_version = policydb.policyvers;
->> ss_initialized = 1;
->> seqno = ++latest_granting;
->> @@ -1182,6 +1333,14 @@ int security_load_policy(void *data, siz
->>  
->> sidtab_init(&newsidtab);
->>  
->> + /* Verify that the kernel defined classes are correct. */
->> + if (hashtab_map(newpolicydb.p_classes.table, validate_class, NULL)) {
->> +  printk(KERN_ERR
->> +         "security:  the definition of a class is incorrect\n");
->> +  rc = -EINVAL;
->> +  goto err;
->> + }
->> +
->> /* Clone the SID table. */
->> sidtab_shutdown(&sidtab);
->> if (sidtab_map(&sidtab, clone_sid, &newsidtab)) {
->> 
->> --
->> 
->> --
->> This message was distributed to subscribers of the selinux mailing list.
->> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
->> the words "unsubscribe selinux" without quotes as the message.
+--------------030905030801080808000303
+Content-Type: text/x-diff;
+ name="03-update_support_files.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="03-update_support_files.patch"
+
+diff -Naur policycoreutils-1.30.30/newrole/Makefile policycoreutils-1.30.30.suid/newrole/Makefile
+--- policycoreutils-1.30.30/newrole/Makefile	2006-09-29 10:50:27.000000000 -0500
++++ policycoreutils-1.30.30.suid/newrole/Makefile	2006-10-06 17:25:33.000000000 -0500
+@@ -6,10 +6,18 @@
+ LOCALEDIR = /usr/share/locale
+ PAMH = $(shell ls /usr/include/security/pam_appl.h 2>/dev/null)
+ AUDITH = $(shell ls /usr/include/libaudit.h 2>/dev/null)
+-# If LOG_AUDIT_PRIV is y, then newrole will be made into setuid root program.
+-# This is so that we have the CAP_AUDIT_WRITE capability. newrole will
+-# shed all privileges and change to the user's uid.
+-LOG_AUDIT_PRIV ?= n
++# Enable capabilities to permit newrole to generate audit records.
++# This will make newrole a setuid root program.
++# The capabilities used are: CAP_AUDIT_WRITE.
++AUDIT_LOG_PRIV ?= n
++# Enable capabilities to permit newrole to utilitize the pam_namespace module.
++# This will make newrole a setuid root program.
++# The capabilities used are: CAP_SYS_ADMIN, CAP_CHOWN, CAP_FOWNER and
++# CAP_DAC_OVERRIDE. 
++NAMESPACE_PRIV ?= n
++# If LSPP_PRIV is y, then newrole will be made into setuid root program.
++# Enabling this option will force AUDIT_LOG_PRIV and NAMESPACE_PRIV to be y.
++LSPP_PRIV ?= n
+ VERSION = $(shell cat ../VERSION)
+ 
+ CFLAGS ?= -Werror -Wall -W
+@@ -26,10 +34,21 @@
+ 	override CFLAGS += -DUSE_AUDIT
+ 	LDLIBS += -laudit
+ endif
+-ifeq (${LOG_AUDIT_PRIV},y)
+-	override CFLAGS += -DLOG_AUDIT_PRIV
+-	LDLIBS += -lcap
++ifeq (${LSPP_PRIV},y)
++	override AUDIT_LOG_PRIV=y
++	override NAMESPACE_PRIV=y
++endif
++ifeq (${AUDIT_LOG_PRIV},y)
++	override CFLAGS += -DAUDIT_LOG_PRIV
++	IS_SUID=y
++endif
++ifeq (${NAMESPACE_PRIV},y)
++	override CFLAGS += -DNAMESPACE_PRIV
++	IS_SUID=y
++endif
++ifeq (${IS_SUID},y)
+ 	MODE := 4555
++	LDLIBS += -lcap
+ else
+ 	MODE := 555
+ endif
+@@ -46,8 +65,12 @@
+ 	install -m 644 newrole.1 $(MANDIR)/man1/
+ ifeq (${PAMH}, /usr/include/security/pam_appl.h)
+ 	test -d $(ETCDIR)/pam.d || install -m 755 -d $(ETCDIR)/pam.d
++ifeq (${LSPP_PRIV},y)
++	install -m 644 newrole-lspp.pamd $(ETCDIR)/pam.d/newrole
++else
+ 	install -m 644 newrole.pamd $(ETCDIR)/pam.d/newrole
+ endif
++endif
+ 
+ clean:
+ 	rm -f $(TARGETS) *.o 
+diff -Naur policycoreutils-1.30.30/newrole/newrole-lspp.pamd policycoreutils-1.30.30.suid/newrole/newrole-lspp.pamd
+--- policycoreutils-1.30.30/newrole/newrole-lspp.pamd	1969-12-31 18:00:00.000000000 -0600
++++ policycoreutils-1.30.30.suid/newrole/newrole-lspp.pamd	2006-10-06 17:25:26.000000000 -0500
+@@ -0,0 +1,5 @@
++#%PAM-1.0
++auth       include	system-auth
++account    include	system-auth
++password   include	system-auth
++session    required	pam_namespace.so unmnt_remnt no_unmount_on_close
+
+--------------030905030801080808000303--
 
 
 --
