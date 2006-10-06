@@ -1,41 +1,39 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k95NrwDq007932
-	for <selinux@tycho.nsa.gov>; Thu, 5 Oct 2006 19:53:58 -0400
-Received: from mail2.sea5.speakeasy.net (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id k95NqjqJ020615
-	for <selinux@tycho.nsa.gov>; Thu, 5 Oct 2006 23:52:45 GMT
-Date: Thu, 5 Oct 2006 19:53:56 -0400 (EDT)
-From: James Morris <jmorris@namei.org>
-To: Venkat Yekkirala <vyekkirala@TrustedCS.com>
-cc: netdev@vger.kernel.org, selinux@tycho.nsa.gov, sds@tycho.nsa.gov,
-        eparis@redhat.com, johnpol@2ka.mipt.ru, herbert@gondor.apana.org.au
-Subject: Re: [PATCH 3/3] Fix for IPsec leakage with SELinux enabled - V.03:
- Process security errors for scket policies also
-In-Reply-To: <45256E3B.7070508@trustedcs.com>
-Message-ID: <Pine.LNX.4.64.0610051947200.27547@d.namei>
-References: <45256E3B.7070508@trustedcs.com>
+Message-ID: <4525A0CF.2070800@tresys.com>
+Date: Thu, 05 Oct 2006 20:18:23 -0400
+From: Joshua Brindle <jbrindle@tresys.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Darrel Goeddel <dgoeddel@TrustedCS.com>
+CC: SELinux List <selinux@tycho.nsa.gov>, Stephen Smalley <sds@tycho.nsa.gov>,
+        Karl MacMillan <kmacmillan@mentalrootkit.com>,
+        Linda Knippers <linda.knippers@hp.com>,
+        Daniel Walsh <dwalsh@redhat.com>
+Subject: Re: [PATCH] libselinux: always store raw contexts in the avc sidtab
+References: <45253C1C.7010803@trustedcs.com>
+In-Reply-To: <45253C1C.7010803@trustedcs.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-For future patches, please follow the recommended subject line outlined in 
-http://www.zip.com.au/~akpm/linux/patches/stuff/tpp.txt
+Darrel Goeddel wrote:
+> Always store raw contexts in the avc sidtab.  This is accomplished by
+> providing functions to deal with raw contexts when converting contexts
+> to sids and vice versa.  The security_compute_av is also switch to the raw
+> version because the contexts will now all be raw.  When the raw context is
+> being converted to a sid, there will be no overhead.  When a translated 
+> context
+> is converted, there will be a translation to raw for storage.  There 
+> conversion
+> back from sid to context via avc_context_to_sid() will translate the 
+> context,
+> while avc_context_to_sid_raw() will not.  These functions make it easy to
+> optimize some code paths be removing translations for contexts that will 
+> never
+> be presented to the user.
+> 
+> Signed-off-by: Darrel Goeddel <dgoeddel@trustedcs.com>
+> 
 
-e.g.  "[patch 2/5] ext2: improve scalability of bitmap searching"
-
-
-Also, can you please try and figure out how to get outlook to stop 
-breaking threads or switch to Thunderbird or something?  It's very 
-difficult with hundreds of emails in a discussion, many of which are 
-important patches to dig out.  Also, some kernel developers filter posts 
-from mailers which break threads.
-
-
-- James
--- 
-James Morris
-<jmorris@namei.org>
+Thanks, merged as of libselinux 1.30.30
 
 --
 This message was distributed to subscribers of the selinux mailing list.
