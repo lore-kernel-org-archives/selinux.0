@@ -1,72 +1,52 @@
-Subject: Re: [RFC PATCH] newrole suid breakdown
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Michael C Thompson <thompsmc@us.ibm.com>
-Cc: russell@coker.com.au, Daniel J Walsh <dwalsh@redhat.com>,
-        SE Linux <selinux@tycho.nsa.gov>, jdesai@us.ibm.com
-In-Reply-To: <4526CC7A.8040403@us.ibm.com>
-References: <452432FA.1060009@us.ibm.com>
-	 <200610060915.15441.russell@coker.com.au> <45268BD9.9050809@redhat.com>
-	 <200610070337.40031.russell@coker.com.au>
-	 <1160160879.20202.38.camel@moss-spartans.epoch.ncsc.mil>
-	 <4526CC7A.8040403@us.ibm.com>
-Content-Type: text/plain
-Date: Fri, 06 Oct 2006 17:50:40 -0400
-Message-Id: <1160171440.20202.73.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+Message-ID: <4526CF73.1070200@trustedcs.com>
+Date: Fri, 06 Oct 2006 16:49:39 -0500
+From: Venkat Yekkirala <vyekkirala@TrustedCS.com>
+MIME-Version: 1.0
+To: selinux@tycho.nsa.gov
+CC: jmorris@namei.org, sds@tycho.nsa.gov, paul.moore@hp.com, eparis@redhat.com,
+        sgrubb@redhat.com, jbrindle@tresys.com
+Subject: [PATCH 1/1] selinux: Null-out secmark after use - V.02
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2006-10-06 at 16:36 -0500, Michael C Thompson wrote:
-> Stephen Smalley wrote:
-> > On Sat, 2006-10-07 at 03:37 +1000, Russell Coker wrote:
-> >> Without even trying I've found six setuid-root programs that are included in a 
-> >> fairly default install of Fedora and which are never needed by the vast 
-> >> majority of users.  I doubt that all six are as well audited as newrole.
-> > 
-> > Keep in mind that newrole didn't start life as a setuid program, so it
-> > wasn't written specifically from that perspective.   It was even fairly
-> > limited wrt SELinux - it couldn't transition you to an arbitrary role
-> > and domain, only one that you were already authorized for in the kernel
-> > policy (vs. su, which can serve as the gateway from any uid to any uid).
-> > The only real power it had was access to the tty/ptys.
-> 
-> I have a patch (its really big, so I'll try to break it down into 
-> meaningful chunks) that basically restructures newrole in a more 
-> maintainable, and paranoid, way. If I can't break it down easily, would 
-> you (the reader) be ok with reading a ~1600 line patch? Like I said, 
-> I'll try to break it down, but the changes are very wide sweeping, and 
-> hopefully a large improvement of what was there.
-> 
-> Based on all of the previous discussion wrt checking the capabilities, 
-> if this is still desired, I can change the behavior to be:
-> 
-> call_do_priv_action
-> {
->    if !(have_right_capabilities)
->      return 0 (flag success, even though its not done anything)
->    /* if we do have caps, then do actions and expect them to work */
->    ...
-> }
-> 
-> That acceptable? (And is it even needed anymore due to new package?)
+This nulls out the secmark field on the skb after
+we are done with ALL the access checks in the postroute_last
+hook to handle the case where multicast packets that we send
+might be arriving back to us on a non-loopback device. This
+would cause the flow_in hook to use the secmark on the skb
+(ostensibly from the originating socket) as a security point
+context, which it isn't.
 
-My understanding was that you could make the audit and pam calls
-unconditional (using get_auditfail_action to decide how to handle
-audit_open failure), since they can be addressed in the configuration
-files (libaudit.conf and /etc/pam.d/newrole).  Only the actual dropping
-of capabilities and switching of uids would need to be conditional if we
-wanted to a single newrole binary to work both suid and non-suid.  But
-it sounds like Dan has decided to just make it suid always in a separate
-package, at which point you don't need any runtime conditionals at all.
+Signed-off-by: Venkat Yekkirala <vyekkirala@TrustedCS.com>
+---
+Right sign-off this time :)
 
-Naturally, it all stays under build options so that people can still
-build it non-suid with no auditing or namespace functionality (and that
-remains the default for the upstream Makefile).
-
--- 
-Stephen Smalley
-National Security Agency
-
+--- net-2.6.sid6/security/selinux/hooks.c	2006-10-03 16:43:21.000000000 -0500
++++ net-2.6/security/selinux/hooks.c	2006-10-06 16:18:55.000000000 -0500
+@@ -3903,6 +3903,22 @@ static unsigned int selinux_ip_postroute
+ 		}
+ 		err = avc_has_perm(skb->secmark, SECINITSID_NETMSG,
+ 				   SECCLASS_PACKET, PACKET__FLOW_OUT, &ad);
++
++		if (skb->secmark  && skb->dev != &loopback_dev)
++			/*
++			 * Our multicast packets could get copied back
++			 * to us, arriving on a non-loopback device.
++			 * Leaving the secmark intact here will cause it
++			 * to be used as a security point context in
++			 * the flow_in hook above while it's not in fact
++			 * a security point context.
++			 *
++			 * We may be able to retain this marking if
++			 * we can reliably determine that it was a local
++			 * packet although it arrived on a non-loopback
++			 * device, in the flow_in hook above.
++			 */
++			skb->secmark = SECSID_NULL;
+ 	}
+ out:
+ 	return err ? NF_DROP : NF_ACCEPT;
 
 --
 This message was distributed to subscribers of the selinux mailing list.
