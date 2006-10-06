@@ -1,77 +1,45 @@
 Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k96DRxbb024586
-	for <selinux@tycho.nsa.gov>; Fri, 6 Oct 2006 09:27:59 -0400
-Received: from tcsfw4.tcs-sec.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id k96DQk4o011234
-	for <selinux@tycho.nsa.gov>; Fri, 6 Oct 2006 13:26:46 GMT
-Message-ID: <36282A1733C57546BE392885C0618592015CFBBB@chaos.tcs.tcs-sec.com>
-From: Venkat Yekkirala <vyekkirala@TrustedCS.com>
-To: "Christopher J. PeBenito" <cpebenito@tresys.com>
-Cc: selinux@tycho.nsa.gov, redhat-lspp@redhat.com
-Subject: RE: Networking policy patch
-Date: Fri, 6 Oct 2006 09:27:36 -0400 
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k96DVnWs024695
+	for <selinux@tycho.nsa.gov>; Fri, 6 Oct 2006 09:31:49 -0400
+Received: from twoface.columbia.tresys.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id k96DUX4o012218
+	for <selinux@tycho.nsa.gov>; Fri, 6 Oct 2006 13:30:34 GMT
+Subject: Denials from newest kernel
+From: Joshua Brindle <jbrindle@tresys.com>
+To: "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>,
+        Venkat Yekkirala <vyekkirala@TrustedCS.com>
+Content-Type: text/plain
+Date: Fri, 06 Oct 2006 09:31:59 -0400
+Message-Id: <1160141519.16462.33.camel@twoface.columbia.tresys.com>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-> > NOTE FOR JOSHUA: This patch also defines the constraints to 
-> force context
-> > equality for association:sendto.
-> 
-> I'm starting a labeled networking branch of refpolicy to work 
-> with this.
-> I'm waiting until the dust settles before adding TE rules, but I have
-> some questions:
-> 
-> > +mlsconstrain association { recvfrom }
-> > +	((( l1 dom l2 ) and ( l1 domby h2 )) or
-> > +	 (( t1 == mlsnetreadtoclr ) and ( h1 dom l2 )) or
-> > +	 ( t1 == mlsnetread ) or
-> > +	 ( t2 == unlabeled_t ));
-> 
-> Don't we want network_t instead of unlabeled_t?
+I grabbed Erics new kernel builds and installed them and got some
+interesting denials. I started with no secmark rules whatsoever on the
+machine.
 
-Actually, the above only applies to the compat_net case
-and there unlabeled_t is just fine.
+avc:  denied  { flow_out } for  pid=1815 comm="avahi-daemon" saddr=10.1.13.105 daddr=224.0.0.22 netif=eth0 scontext=system_u:object_r:unlabeled_t:s0 tcontext=system_u:object_r:unlabeled_t:s0 tclass=packet
 
-So, there are different MLS constraints (and policy) for
-the compat_net case as opposed to the new secmark controls.
+the target seems reasonable (unlabeled_t since there are no secmark
+rules) but the target should have been network_t (the unlabeled
+association) right?
 
-I guess you are planning to have one policy for compat_net
-and another for secmark?
+avc:  denied  { flow_in } for  pid=1815 comm="avahi-daemon" scontext=system_u:object_r:unlabeled_t:s0 tcontext=system_u:system_r:avahi_t:s0 tclass=packet
 
-> 
-> > +mlsconstrain association { sendto }
-> > +	(( l1 eq l2 ) and ( h1 eq h2 ));
-> 
-> or (t2 == network_t) ?
+don't understand this one at all, source should be network_t (i thought)
+and target should be a packet object (and there aren't any). Why is it
+getting the domain context?
 
-No. Not in the secmark case.
+avc:  denied  { recv } for  pid=1815 comm="avahi-daemon" src=5353 dest=5353 netif=eth0 scontext=system_u:system_r:avahi_t:s0 tcontext=system_u:system_r:avahi_t:s0 tclass=packet
 
-> 
-> > +mlsconstrain association { polmatch }
-> > +	((( l1 dom l2 ) and ( l1 domby h2 )) or
-> > +	 ( t2 == unlabeled_t ));
-> 
-> same thing about network_t
+So the source here seems correct but the target is avahi_t again..
 
-Actually, chuck the t2 == unlabeled_t exception all together.
-It doesn't apply to the secmark policy.
 
-> 
-> > +constrain association sendto
-> > +	( u1 == u2 and r1 == r2 and t1 == t2 );
-> 
-> I talked with Joshua and we determined that there is a case were we
-> don't want this constraint (looking forward to policy management
-> server's use of labeled networking), so I've dropped it.
+I'm going to load up some secmark rules as soon as I get an iptables
+build that lets me (wonder why rawhides doesn't come with SECMARK :\ )
+and try this again.
 
-The above constraint is necessary for the kernel portions of SELinux
-to work properly. In fact I was going to originally implement it in the
-kernel and when Darrel made me aware of the constraint framework and the
-benefits with avc caching, etc., I decided to use it.
 
 --
 This message was distributed to subscribers of the selinux mailing list.
