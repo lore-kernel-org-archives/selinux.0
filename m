@@ -1,39 +1,41 @@
-Message-ID: <45268BD9.9050809@redhat.com>
-Date: Fri, 06 Oct 2006 13:01:13 -0400
-From: Daniel J Walsh <dwalsh@redhat.com>
+Message-ID: <45268B5B.7080709@mentalrootkit.com>
+Date: Fri, 06 Oct 2006 12:59:07 -0400
+From: Karl MacMillan <kmacmillan@mentalrootkit.com>
 MIME-Version: 1.0
-To: russell@coker.com.au
-CC: Michael C Thompson <thompsmc@us.ibm.com>, SE Linux <selinux@tycho.nsa.gov>,
-        Stephen Smalley <sds@tycho.nsa.gov>, jdesai@us.ibm.com
-Subject: Re: [RFC PATCH] newrole suid breakdown
-References: <452432FA.1060009@us.ibm.com> <45250F35.6030204@redhat.com> <200610060915.15441.russell@coker.com.au>
-In-Reply-To: <200610060915.15441.russell@coker.com.au>
+To: Stephen Smalley <sds@tycho.nsa.gov>
+CC: Joshua Brindle <jbrindle@tresys.com>,
+        Venkat Yekkirala <vyekkirala@TrustedCS.com>,
+        Joy Latten <latten@us.ibm.com>, selinux@tycho.nsa.gov
+Subject: Re: Denials from newest kernel
+References: <36282A1733C57546BE392885C0618592015CFC0C@chaos.tcs.tcs-sec.com>	 <1160148117.12253.106.camel@moss-spartans.epoch.ncsc.mil>	 <1160149463.2905.5.camel@twoface.columbia.tresys.com> <1160150179.12253.127.camel@moss-spartans.epoch.ncsc.mil>
+In-Reply-To: <1160150179.12253.127.camel@moss-spartans.epoch.ncsc.mil>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Russell Coker wrote:
-> On Thursday 05 October 2006 23:57, Daniel J Walsh <dwalsh@redhat.com> wrote:
+Stephen Smalley wrote:
+> On Fri, 2006-10-06 at 11:44 -0400, Joshua Brindle wrote:
 >   
->> Does the code continue to work correctly if I compile in AUDIT_LOG_PRIV
->> and NAMESPACE_PRIV but run it without the setuid bit and as a normal
->> user.  IE, We want the option to only set this setuid when in an MLS
->> environment.  This is not required for targeted or strict policy machines.
->>     
 >
-> Who does "we" mean in this context?
->
-> I would like to have newrole work with namespaces in a strict policy 
-> environment!
+> But in the case where an object inherits the label of another object,
+> that is to be expected - we will end up seeing "packets" with the labels
+> of associations, which in turn are labels of sockets, which in turn are
+> (usually) labels of processes.  No need to turn every check on a
+> "packet" into a check on some original class from which its label was
+> derived.
 >
 >   
-I am not denying you that right.  I am asking for the tool to continue 
-working with or without setuid.
-IE Don't force a setuid app on the OS, if I don't do pam_namespace or 
-care about role auditing.
 
-We means Red Hat/Fedora.
+Agreed.
+> Also, the above isn't true of all checks, e.g.
+> 	allow ftpd_t ftp_port_t:tcp_socket name_bind;
+>
+>   
 
+For what its worth I always found that the overloading of the socket 
+objects for port checks to be very confusing and difficult to explain.
+
+Karl
 
 
 --
