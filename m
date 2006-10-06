@@ -1,30 +1,33 @@
 Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k96HWevY001502
-	for <selinux@tycho.nsa.gov>; Fri, 6 Oct 2006 13:32:40 -0400
-Received: from mail6.sea5.speakeasy.net (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id k96HVQQW026206
-	for <selinux@tycho.nsa.gov>; Fri, 6 Oct 2006 17:31:27 GMT
-Date: Fri, 6 Oct 2006 13:32:36 -0400 (EDT)
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k96HaGGm001641
+	for <selinux@tycho.nsa.gov>; Fri, 6 Oct 2006 13:36:16 -0400
+Received: from mail4.sea5.speakeasy.net (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id k96HZ2QW026679
+	for <selinux@tycho.nsa.gov>; Fri, 6 Oct 2006 17:35:02 GMT
+Date: Fri, 6 Oct 2006 13:36:14 -0400 (EDT)
 From: James Morris <jmorris@namei.org>
-To: Joshua Brindle <jbrindle@tresys.com>
-cc: "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>,
-        Venkat Yekkirala <vyekkirala@TrustedCS.com>
-Subject: Re: Denials from newest kernel
-In-Reply-To: <1160141519.16462.33.camel@twoface.columbia.tresys.com>
-Message-ID: <Pine.LNX.4.64.0610061331590.6460@d.namei>
-References: <1160141519.16462.33.camel@twoface.columbia.tresys.com>
+To: Paul Moore <paul.moore@hp.com>
+cc: Eric Paris <eparis@redhat.com>, vyekkirala@TrustedCS.com,
+        selinux@tycho.nsa.gov, redhat-lspp@redhat.com, chanson@TrustedCS.com
+Subject: Re: Labeled Networking For LSPP: Where we are and where we need to
+ go (quickly)
+In-Reply-To: <4526835A.2080707@hp.com>
+Message-ID: <Pine.LNX.4.64.0610061335270.6460@d.namei>
+References: <1160150738.10614.116.camel@localhost.localdomain>
+ <4526835A.2080707@hp.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 6 Oct 2006, Joshua Brindle wrote:
+On Fri, 6 Oct 2006, Paul Moore wrote:
 
-> I'm going to load up some secmark rules as soon as I get an iptables
-> build that lets me (wonder why rawhides doesn't come with SECMARK :\ )
-> and try this again.
+> > -netlabel unlabeled patch
+> 
+> While not a bugfix like the previous two, this is a "logic bug" fix which should
+> go into RHEL5.
 
-You need compat_net=1 to test what FC6 and RHEL5 will be shipping.
+Where is the patch for this?
 
 
 
