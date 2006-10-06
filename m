@@ -1,99 +1,69 @@
-Subject: Re: [RFC PATCH] newrole suid breakdown
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Steve Grubb <sgrubb@redhat.com>
-Cc: Michael C Thompson <thompsmc@us.ibm.com>,
-        Daniel J Walsh <dwalsh@redhat.com>, SE Linux <selinux@tycho.nsa.gov>,
-        jdesai@us.ibm.com
-In-Reply-To: <200610051748.06669.sgrubb@redhat.com>
-References: <452432FA.1060009@us.ibm.com>
-	 <1160079125.2132.232.camel@moss-spartans.epoch.ncsc.mil>
-	 <45256F49.1070105@us.ibm.com>  <200610051748.06669.sgrubb@redhat.com>
-Content-Type: text/plain
-Date: Fri, 06 Oct 2006 10:52:23 -0400
-Message-Id: <1160146343.12253.85.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k96FBPLu028224
+	for <selinux@tycho.nsa.gov>; Fri, 6 Oct 2006 11:11:25 -0400
+Received: from tcsfw4.tcs-sec.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id k96FAB4o000701
+	for <selinux@tycho.nsa.gov>; Fri, 6 Oct 2006 15:10:12 GMT
+Message-ID: <36282A1733C57546BE392885C0618592015CFC0C@chaos.tcs.tcs-sec.com>
+From: Venkat Yekkirala <vyekkirala@TrustedCS.com>
+To: Joshua Brindle <jbrindle@tresys.com>,
+        Venkat Yekkirala
+	 <vyekkirala@TrustedCS.com>
+Cc: selinux@tycho.nsa.gov
+Subject: RE: Denials from newest kernel
+Date: Fri, 6 Oct 2006 11:11:19 -0400 
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2006-10-05 at 17:48 -0400, Steve Grubb wrote:
-> On Thursday 05 October 2006 16:47, Michael C Thompson wrote:
-> > AFAIK, we can't call audit without getting a failure, and I would really
-> > rather not suppress those errors.
+Joshua Brindle wrote:
+> On Fri, 2006-10-06 at 10:23 -0400, Venkat Yekkirala wrote:
+> > > -----Original Message-----
+> > > From: Joshua Brindle [mailto:jbrindle@tresys.com]
+> > > Sent: Friday, October 06, 2006 8:56 AM
+> > I would have to refer you to the following discussion we had on how
+> > secpoint err secmark is intended to be used thru to deciding not to
+> > mess with the naming.
+> > http://marc.theaimsgroup.com/?l=selinux&m=115928609916717&w=2
 > 
-> There is a library function get_auditfail_action where admins can say what the 
-> expected behavior should be. There is a man page for it.
+> That peer conversation was bin/null'd though,
 
-Ok, so newrole can call get_auditfail_action() upon an audit_open()
-failure, and return 0 from send_audit_message() if the failmode is
-FAIL_IGNORE.  Then a stock RHEL 5 system can have 'failure_action =
-ignore' in /etc/libaudit.conf and 'session required pam_permit.so'
-in /etc/pam.d/newrole, and newrole can unconditionally invoke the audit
-calls and pam_open/close_session calls.  And the LSPP package can
-replace /etc/libaudit.conf to change the failure_action and can
-replace /etc/pam.d/newrole to change the session module to
-pam_namespace.
+Stephen and others can correct me if I am wrong, but while
+the naming was bin/null'd AFTER the con call, the policy was
+going to be done substantially as related in the peer conversation.
 
-> However, why would sending an audit message fail? newrole is setuid, that's 
-> why I did a code review last winter...and we can do another code review if 
-> people still aren't sure. pam is already used in several setuid programs, so 
-> I hope that is not the issue.
-
-Dan had suggested only making newrole suid under the LSPP configuration,
-leaving it non-suid otherwise, and having newrole dynamically test
-whether it is suid (which it cannot actually do precisely) to decide
-whether or not to perform privileged operations.  This was motivated by
-the desire to not expose non-LSPP systems (particularly a stock system
-with targeted policy) to greater risk, since the changes to newrole for
-pam_namespace leave it much more privileged than your earlier changes
-for audit.  Unlike the audit support, pam_namespace requires retaining
-several powerful capabilities (CAP_SYS_ADMIN, CAP_DAC_OVERRIDE, etc) and
-euid 0 for most of the lifetime of newrole (until after pam_namespace
-runs, which occurs late).
-
-No one has yet commented on the concern I raised about whether setting
-the suid bit on newrole in this manner is workable from a packaging and
-maintenance point of view (if policycoreutils installs a non-suid
-newrole and the lspp package makes it suid from a scriptlet, then rpm -V
-policycoreutils will report variance in the file mode, and an update of
-policycoreutils will reset the newrole mode back to non-suid).  That
-seems a bit problematic to me.
-
-Russell had alternatively suggested moving newrole into its own package
-and only installing it (always suid) if installing a -strict or -mls
-policy (i.e. make it a dependency of those policy packages), so that a
-default install does not include it at all (as -targeted has no need for
-newrole functionality).   Concerns there might include: a) mere
-installation of -strict or -mls on a system does not mean that they are
-the active policy, so one could still end up with the suid newrole on a
-machine running targeted, b) not all users of -strict necessarily want
-pam_namespace functionality.   Also not sure about whether that poses
-any packaging or dependency issues.
-
-I had earlier suggested having newrole somehow perform a runtime check
-of whether pam_namespace is in its pam config, and dropping all
-capabilities other than CAP_AUDIT_WRITE if it is not present.  But I
-don't see any PAM interface for getting such information, and it seems
-to violate pam encapsulation.
-
-> > Is there no sane way to check if an app is suid? Because this would
-> > relieve some of the headaches from this.
+> the conference 
+> call we had
+> indicated that the new model was going to be 
 > 
-> I don't think checking suid is the right thing. Checking the capability is.
+> 1) domains send/recv packets
 
-Possibly, but if we can just call audit_open() unconditionally and use
-get_auditfail_action() to decide how to handle an error, then I don't
-think we need to do any checking of suid or capability first.  At that
-point, we only need to bracket the code that tries to drop capabilities
-and revert the uid with a check of whether the process is privileged.
+1(a). packets "carry" originating socket domains
+1(b). domains "recv" from other domains the packets are "carrying".
 
-On the question of checking whether an app is suid, I don't see any way
-to do that in Linux unambiguously, since there is always the case where
-the caller was already in the same uid as the file.
+> 2) packets flow_in and flow_out associations
 
--- 
-Stephen Smalley
-National Security Agency
+2(a) Associations again merely "carry" the domain of the originating socket
+     and as such are not of much relevance.
+2(b) domains as carried by packets can either flow_in or flow_out of
+     the security points as defined using the secmark rules.
 
+> 3) domains polmatch spd's (which are classified as associations)
+
+I wish the association class were renamed more like "ipsec" considering
+the only 2 perms used in there are polmatch and setcontext.
+
+> 4) domains sendto/recvfrom associations
+
+In the compat_net case, yes. But not in the secmark world.
+
+> 
+> IMO we need to get the permissions and object classes cleared 
+> up before
+> merging this stuff, its very confusing and inappropriate right now.
+> 
 
 --
 This message was distributed to subscribers of the selinux mailing list.
