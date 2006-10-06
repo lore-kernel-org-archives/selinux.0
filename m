@@ -1,39 +1,42 @@
-Message-ID: <4525A0CF.2070800@tresys.com>
-Date: Thu, 05 Oct 2006 20:18:23 -0400
-From: Joshua Brindle <jbrindle@tresys.com>
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k961kA5h010206
+	for <selinux@tycho.nsa.gov>; Thu, 5 Oct 2006 21:46:10 -0400
+Received: from mail3.sea5.speakeasy.net (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id k961ivqJ003909
+	for <selinux@tycho.nsa.gov>; Fri, 6 Oct 2006 01:44:57 GMT
+Date: Thu, 5 Oct 2006 21:46:06 -0400 (EDT)
+From: James Morris <jmorris@namei.org>
+To: Paul Moore <paul.moore@hp.com>
+cc: netdev@vger.kernel.org, selinux@tycho.nsa.gov
+Subject: Re: [PATCH 1/1] NetLabel: use SECINITSID_UNLABELED for a base SID
+In-Reply-To: <20061005223704.067757000@hp.com>
+Message-ID: <Pine.LNX.4.64.0610052145030.29449@d.namei>
+References: <20061005222823.387569000@hp.com> <20061005223704.067757000@hp.com>
 MIME-Version: 1.0
-To: Darrel Goeddel <dgoeddel@TrustedCS.com>
-CC: SELinux List <selinux@tycho.nsa.gov>, Stephen Smalley <sds@tycho.nsa.gov>,
-        Karl MacMillan <kmacmillan@mentalrootkit.com>,
-        Linda Knippers <linda.knippers@hp.com>,
-        Daniel Walsh <dwalsh@redhat.com>
-Subject: Re: [PATCH] libselinux: always store raw contexts in the avc sidtab
-References: <45253C1C.7010803@trustedcs.com>
-In-Reply-To: <45253C1C.7010803@trustedcs.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Darrel Goeddel wrote:
-> Always store raw contexts in the avc sidtab.  This is accomplished by
-> providing functions to deal with raw contexts when converting contexts
-> to sids and vice versa.  The security_compute_av is also switch to the raw
-> version because the contexts will now all be raw.  When the raw context is
-> being converted to a sid, there will be no overhead.  When a translated 
-> context
-> is converted, there will be a translation to raw for storage.  There 
-> conversion
-> back from sid to context via avc_context_to_sid() will translate the 
-> context,
-> while avc_context_to_sid_raw() will not.  These functions make it easy to
-> optimize some code paths be removing translations for contexts that will 
-> never
-> be presented to the user.
-> 
-> Signed-off-by: Darrel Goeddel <dgoeddel@trustedcs.com>
-> 
+On Thu, 5 Oct 2006, paul.moore@hp.com wrote:
 
-Thanks, merged as of libselinux 1.30.30
+> This patch changes NetLabel to use SECINITSID_UNLABLELED as it's source of
+> SELinux type information when generating a NetLabel context.
+
+Applied.
+
+
+Git:
+git://git.infradead.org/~jmorris/selinux-2.6.git
+
+Web:
+http://git.infradead.org/?p=users/jmorris/selinux-2.6.git;a=summary
+
+
+
+
+-- 
+James Morris
+<jmorris@namei.org>
 
 --
 This message was distributed to subscribers of the selinux mailing list.
