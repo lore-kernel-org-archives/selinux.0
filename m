@@ -1,107 +1,36 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k96HOiH6001216
-	for <selinux@tycho.nsa.gov>; Fri, 6 Oct 2006 13:24:44 -0400
-Received: from tcsfw4.tcs-sec.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id k96HO6ru014401
-	for <selinux@tycho.nsa.gov>; Fri, 6 Oct 2006 17:24:07 GMT
-Message-ID: <36282A1733C57546BE392885C0618592015CFC4C@chaos.tcs.tcs-sec.com>
-From: Venkat Yekkirala <vyekkirala@TrustedCS.com>
-To: Paul Moore <paul.moore@hp.com>, Eric Paris <eparis@redhat.com>,
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k96HWevY001502
+	for <selinux@tycho.nsa.gov>; Fri, 6 Oct 2006 13:32:40 -0400
+Received: from mail6.sea5.speakeasy.net (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id k96HVQQW026206
+	for <selinux@tycho.nsa.gov>; Fri, 6 Oct 2006 17:31:27 GMT
+Date: Fri, 6 Oct 2006 13:32:36 -0400 (EDT)
+From: James Morris <jmorris@namei.org>
+To: Joshua Brindle <jbrindle@tresys.com>
+cc: "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>,
         Venkat Yekkirala <vyekkirala@TrustedCS.com>
-Cc: selinux@tycho.nsa.gov, redhat-lspp@redhat.com,
-        Chad Hanson
-	 <chanson@TrustedCS.com>
-Subject: RE: Labeled Networking For LSPP: Where we are and where we need t
-	o go	(quickly)
-Date: Fri, 6 Oct 2006 13:24:15 -0400 
+Subject: Re: Denials from newest kernel
+In-Reply-To: <1160141519.16462.33.camel@twoface.columbia.tresys.com>
+Message-ID: <Pine.LNX.4.64.0610061331590.6460@d.namei>
+References: <1160141519.16462.33.camel@twoface.columbia.tresys.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Paul Moore wrote:
-> Eric Paris wrote:
-> > Last night I built a new test kernel for labeled networking in RHEL5
-> > kernels.  That kernel can be found at 
-> > 
-> > http://people.redhat.com/sgrubb/files/lspp
-> > 
-> > and you want the lspp kernel 51.
-> > 
-<snip>
-> > Patch3: find and fix current issues with unlabeled_t 
-> packets that can't
-> > be explained (Paul Moore and Venkat)
-> 
-> I'm working on this but it's taking time getting all the 
-> right policy bits
-> sorted so I can differentiate between SECINITSID_UNLABELED 
-> and SECINITSID_NETMSG
-> as they will both show up as "unlabeled_t" in all the 
-> released policies (at
-> least I think so).
-> 
-> Venkat, if you have a policy rpm/clean-patch/tarball 
-> something it would be a
-> help if you could post that or send it to me (I saw your 
-> earlier postings, but
-> only the constraints were really in patch form).  Or if you 
-> could verify the
-> lspp.51 kernel w/o the NetLabel/secid patch (turn off patch 
-> 25008, if you want I
-> can send you a diff to the spec file - it's only two lines).  
-> So far I have not
-> seen any differences between the stock lspp.51 kernel and the 
-> lspp.51 kernel
-> without the NetLabel/secid patch.
+On Fri, 6 Oct 2006, Joshua Brindle wrote:
 
-As for the policy, I don't have anything more than what I posted
-earlier. To distinguish between the SECINITSID_NULL and NETMSG,
-see the policy patch I posted, sepcifically, policy/domains/kernel/kernel.te
-where you will see that NETMSG is being set to network_t. You should
-be able to apply at least that one bit of patch.
+> I'm going to load up some secmark rules as soon as I get an iptables
+> build that lets me (wonder why rawhides doesn't come with SECMARK :\ )
+> and try this again.
 
-ALso, are you seeing the following denials without NetLabel/secid?
+You need compat_net=1 to test what FC6 and RHEL5 will be shipping.
 
-[Pasted from Jashua's email]
 
-avc:  denied  { flow_in } for  pid=1815 comm="avahi-daemon"
-scontext=system_u:object_r:unlabeled_t:s0
-tcontext=system_u:system_r:avahi_t:s0 tclass=packet
 
-don't understand this one at all, source should be network_t (i thought)
-and target should be a packet object (and there aren't any). Why is it
-getting the domain context?
-
-avc:  denied  { recv } for  pid=1815 comm="avahi-daemon" src=5353 dest=5353
-netif=eth0 scontext=system_u:system_r:avahi_t:s0
-tcontext=system_u:system_r:avahi_t:s0 tclass=packet
-
-So the source here seems correct but the target is avahi_t again..
-
-> 
-> > There also is some question from Joshua Brindle if the 
-> object classes
-> > are correct for a number of things.  These changes also 
-> will need to be
-> > done quickly.  I'm going to call this Patch4.
-> > 
-> > Patch4: verify/fix the object class for all netlabel hooks. 
->  (Hopefully
-> > Venkat will be able to take the lead on this)
-> 
-> Just to clarify, these aren't netlabel specific 
-> hooks/changes, these are secid
-> hooks/changes.  Otherwise, I agree, Venkat has the best 
-> understanding of this
-> work so I believe he should "drive" - I'll do whatever I can 
-> to support this work.
-> 
-> -- 
-> paul moore
-> linux security @ hp
-> 
+-- 
+James Morris
+<jmorris@namei.org>
 
 --
 This message was distributed to subscribers of the selinux mailing list.
