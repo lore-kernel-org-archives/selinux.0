@@ -1,63 +1,89 @@
-From: Russell Coker <russell@coker.com.au>
-Reply-To: russell@coker.com.au
-To: Stephen Smalley <sds@tycho.nsa.gov>
-Subject: Re: [RFC PATCH] newrole suid breakdown
-Date: Sat, 7 Oct 2006 01:16:34 +1000
-Cc: Steve Grubb <sgrubb@redhat.com>, Michael C Thompson <thompsmc@us.ibm.com>,
-        Daniel J Walsh <dwalsh@redhat.com>, SE Linux <selinux@tycho.nsa.gov>,
-        jdesai@us.ibm.com
-References: <452432FA.1060009@us.ibm.com> <200610051748.06669.sgrubb@redhat.com> <1160146343.12253.85.camel@moss-spartans.epoch.ncsc.mil>
-In-Reply-To: <1160146343.12253.85.camel@moss-spartans.epoch.ncsc.mil>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
-Message-Id: <200610070116.39485.russell@coker.com.au>
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k96FHub4028597
+	for <selinux@tycho.nsa.gov>; Fri, 6 Oct 2006 11:17:56 -0400
+Received: from twoface.columbia.tresys.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id k96FHJ03027181
+	for <selinux@tycho.nsa.gov>; Fri, 6 Oct 2006 15:17:19 GMT
+Subject: RE: Denials from newest kernel
+From: Joshua Brindle <jbrindle@tresys.com>
+To: Venkat Yekkirala <vyekkirala@TrustedCS.com>
+Cc: selinux@tycho.nsa.gov
+In-Reply-To: <36282A1733C57546BE392885C0618592015CFC0C@chaos.tcs.tcs-sec.com>
+References: <36282A1733C57546BE392885C0618592015CFC0C@chaos.tcs.tcs-sec.com>
+Content-Type: text/plain
+Date: Fri, 06 Oct 2006 11:17:57 -0400
+Message-Id: <1160147877.2876.3.camel@twoface.columbia.tresys.com>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Saturday 07 October 2006 00:52, Stephen Smalley <sds@tycho.nsa.gov> wrote:
-> Russell had alternatively suggested moving newrole into its own package
-> and only installing it (always suid) if installing a -strict or -mls
-> policy (i.e. make it a dependency of those policy packages), so that a
-> default install does not include it at all (as -targeted has no need for
-> newrole functionality).   Concerns there might include: a) mere
-> installation of -strict or -mls on a system does not mean that they are
-> the active policy, so one could still end up with the suid newrole on a
-> machine running targeted, b) not all users of -strict necessarily want
-> pam_namespace functionality.   Also not sure about whether that poses
-> any packaging or dependency issues.
+On Fri, 2006-10-06 at 11:11 -0400, Venkat Yekkirala wrote:
+> Joshua Brindle wrote:
+> > On Fri, 2006-10-06 at 10:23 -0400, Venkat Yekkirala wrote:
+> > > > -----Original Message-----
+> > > > From: Joshua Brindle [mailto:jbrindle@tresys.com]
+> > > > Sent: Friday, October 06, 2006 8:56 AM
+> > > I would have to refer you to the following discussion we had on how
+> > > secpoint err secmark is intended to be used thru to deciding not to
+> > > mess with the naming.
+> > > http://marc.theaimsgroup.com/?l=selinux&m=115928609916717&w=2
+> > 
+> > That peer conversation was bin/null'd though,
+> 
+> Stephen and others can correct me if I am wrong, but while
+> the naming was bin/null'd AFTER the con call, the policy was
+> going to be done substantially as related in the peer conversation.
+> 
 
-You are correct that if my suggestion is followed then a very small portion of 
-the machines running targeted policy or without SE Linux will have newrole 
-installed setuid-root.
+maybe so but that doesn't mean they need to be fixed now :)
 
-But let's put things in perspective.  A typical install of Fedora has about 30 
-setuid-root programs (mine has 36).  The same typical Fedora install can be 
-expected to have some setgid programs that give access to important groups 
-and some possible indirect chains of execution that lead from non-root to 
-root.
+> > the conference 
+> > call we had
+> > indicated that the new model was going to be 
+> > 
+> > 1) domains send/recv packets
+> 
+> 1(a). packets "carry" originating socket domains
+> 1(b). domains "recv" from other domains the packets are "carrying".
+> 
 
-Of those programs many of them are of old implementation or old design, for 
-example when writing this message I realised that I had several setuid-root 
-programs from the rsh package.  I had never desired rsh to be installed, it 
-must have either been dragged in by dependencies or be part of a default 
-install.
+fine.
 
-Also there are a number of daemons that run as root (dhclient and cups are on 
-most workstations).
+> > 2) packets flow_in and flow_out associations
+> 
+> 2(a) Associations again merely "carry" the domain of the originating socket
+>      and as such are not of much relevance.
+> 2(b) domains as carried by packets can either flow_in or flow_out of
+>      the security points as defined using the secmark rules.
+> 
 
-I agree that we don't want to reduce security through making a mistake, but 
-there are plenty of better avenues of attack than newrole.  It might be a 
-better use of our time to just accept that a few people will have a 
-setuid-root copy of newrole installed when they don't need it and save our 
-time for other things.  After all most Fedora users get a kerberos version of 
-su installed when they don't need it.
+regardless of the semantics the target type *must* be the kind of object
+referred to by the target object class, anything else is very confusing.
 
--- 
-russell@coker.com.au
-http://etbe.blogspot.com/          My Blog
+> > 3) domains polmatch spd's (which are classified as associations)
+> 
+> I wish the association class were renamed more like "ipsec" considering
+> the only 2 perms used in there are polmatch and setcontext.
 
-http://www.coker.com.au/sponsorship.html Sponsoring Free Software development
+why not do it? none of this is merged yet.
+
+> 
+> > 4) domains sendto/recvfrom associations
+> 
+> In the compat_net case, yes. But not in the secmark world.
+> 
+
+I think we need this, in my proxy example we depend on being able to
+differentiate the socket label from the domain label. The socket label
+(which is the proxy client label) needs to be able to flow over the
+association but the proxy client itself should not be able to, only the
+proxy server should.
+
+> > 
+> > IMO we need to get the permissions and object classes cleared 
+> > up before
+> > merging this stuff, its very confusing and inappropriate right now.
+> > 
 
 
 --
