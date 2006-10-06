@@ -1,33 +1,80 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k96If9Hd004049
-	for <selinux@tycho.nsa.gov>; Fri, 6 Oct 2006 14:41:09 -0400
-Received: from web51508.mail.yahoo.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with SMTP id k96IeXru024374
-	for <selinux@tycho.nsa.gov>; Fri, 6 Oct 2006 18:40:33 GMT
-Message-ID: <20061006184110.90042.qmail@web51508.mail.yahoo.com>
-Date: Fri, 6 Oct 2006 11:41:10 -0700 (PDT)
-From: Steve G <linux_4ever@yahoo.com>
-Subject: Re: Denials from newest kernel
-To: James Morris <jmorris@namei.org>, Joshua Brindle <jbrindle@tresys.com>
-Cc: "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>,
-        Venkat Yekkirala <vyekkirala@TrustedCS.com>
-In-Reply-To: <Pine.LNX.4.64.0610061331590.6460@d.namei>
+Message-ID: <4526A592.7020201@redhat.com>
+Date: Fri, 06 Oct 2006 14:50:58 -0400
+From: Daniel J Walsh <dwalsh@redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+To: russell@coker.com.au
+CC: Michael C Thompson <thompsmc@us.ibm.com>, SE Linux <selinux@tycho.nsa.gov>,
+        Stephen Smalley <sds@tycho.nsa.gov>, jdesai@us.ibm.com
+Subject: Re: [RFC PATCH] newrole suid breakdown
+References: <452432FA.1060009@us.ibm.com> <200610060915.15441.russell@coker.com.au> <45268BD9.9050809@redhat.com> <200610070337.40031.russell@coker.com.au>
+In-Reply-To: <200610070337.40031.russell@coker.com.au>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+Russell Coker wrote:
+> On Saturday 07 October 2006 03:01, Daniel J Walsh <dwalsh@redhat.com> wrote:
+>   
+>> Russell Coker wrote:
+>>     
+>>> On Thursday 05 October 2006 23:57, Daniel J Walsh <dwalsh@redhat.com> 
+>>>       
+> wrote:
+>   
+>>>> Does the code continue to work correctly if I compile in AUDIT_LOG_PRIV
+>>>> and NAMESPACE_PRIV but run it without the setuid bit and as a normal
+>>>> user.  IE, We want the option to only set this setuid when in an MLS
+>>>> environment.  This is not required for targeted or strict policy
+>>>> machines.
+>>>>         
+>>> Who does "we" mean in this context?
+>>>
+>>> I would like to have newrole work with namespaces in a strict policy
+>>> environment!
+>>>       
+>> I am not denying you that right.  I am asking for the tool to continue
+>> working with or without setuid.
+>>     
+>
+> Without setuid means without poly-instantiation based on SE Linux context, 
+> which means that probably most strict policy systems won't be able to 
+> effectively use poly-instantiation.
+>
+>   
+>> IE Don't force a setuid app on the OS, if I don't do pam_namespace or
+>> care about role auditing.
+>>     
+>
+> /usr/kerberos/bin/ksu is forced on the OS even though the vast majority of 
+> Fedora users will never use Kerberos.
+>
+> /usr/sbin/ccreds_validate seems to always get installed even on systems that 
+> will never use network authentication (again the majority).
+>
+> /usr/libexec/openssh/ssh-keysign is always installed even though it's 
+> generally recommended that you don't use host based authentication (and my 
+> observation is that almost no-one is using it).
+>
+> The rsh package has three setuid root programs and again is almost never 
+> needed (in fact it's recommended that you don't have it for several reasons).
+>
+>
+> Without even trying I've found six setuid-root programs that are included in a 
+> fairly default install of Fedora and which are never needed by the vast 
+> majority of users.  I doubt that all six are as well audited as newrole.
+>
+> It seems that the decision to force setuid programs on the OS has already been 
+> made.
+>
+>   
 
->You need compat_net=1 to test what FC6 and RHEL5 will be shipping.
+Ok, After talking to people around here, I want to  allow newrole to be 
+setuid, but I want to remove it from policycoreutils and move it to 
+policycoreutils-newrole, then I will require policycoreutils-newrole for 
+mls and strict policy.
 
-FC6 turned off secmark support, but RHEL5 has it on.
-
--Steve
-
-__________________________________________________
-Do You Yahoo!?
-Tired of spam?  Yahoo! Mail has the best spam protection around 
-http://mail.yahoo.com 
+Dan
+That seems to be the easiest solution.
 
 --
 This message was distributed to subscribers of the selinux mailing list.
