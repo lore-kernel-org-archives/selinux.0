@@ -1,137 +1,216 @@
-Message-Id: <20061009195846.817755000@hp.com>
+Message-Id: <20061009195848.642381000@hp.com>
 References: <20061009194223.402695000@hp.com>
-Date: Mon, 09 Oct 2006 15:42:25 -0400
+Date: Mon, 09 Oct 2006 15:42:27 -0400
 From: paul.moore@hp.com
 To: netdev@vger.kernel.org, selinux@tycho.nsa.gov
 Cc: vyekkirala@TrustedCS.com, jmorris@namei.org, sds@tycho.nsa.gov
-Subject: [PATCH 02/11] secid reconciliation: Add LSM hooks
+Subject: [PATCH 04/11] secid reconciliation: Invoke LSM hook for outbound traffic
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 From: Venkat Yekkirala <vyekkirala@TrustedCS.com>
 
-Add skb_policy_check and skb_netfilter_check hooks to LSM to enable
-reconciliation of the various security identifiers as well as enforce
-flow control on inbound (PREROUTING/INPUT) and outbound (OUTPUT/FORWARD/POSTROUTING)
-traffic.
+Invoke the skb_flow_out LSM hook for outbound
+traffic for secid reconciliation and flow control.
 
 Signed-off-by: Venkat Yekkirala <vyekkirala@TrustedCS.com>
 ---
- include/linux/security.h |   41 ++++++++++++++++++++++++++++++++++++++++-
- security/dummy.c         |   13 +++++++++++++
- 2 files changed, 53 insertions(+), 1 deletion(-)
+ net/netfilter/xt_CONNSECMARK.c |   72 ++++++++++++++++++++++++-------
+ net/netfilter/xt_SECMARK.c     |   45 ++++++++++++++++++-
+ 2 files changed, 100 insertions(+), 17 deletions(-)
 
-Index: net-2.6_secidfinal/include/linux/security.h
-===================================================================
---- net-2.6_secidfinal.orig/include/linux/security.h
-+++ net-2.6_secidfinal/include/linux/security.h
-@@ -828,6 +828,15 @@ struct request_sock;
-  *	Sets the new child socket's sid to the openreq sid.
-  * @req_classify_flow:
-  *	Sets the flow's sid to the openreq sid.
-+ * @skb_flow_in:
-+ *	Checks to see if security policy would allow skb into the system
-+ *	while also reconciling the xfrm secid, cipso, etc, if any, and
-+ *	relabeling the skb with the reconciled secid.
-+ *	Returns 1 if skb allowed into system, 0 otherwise.
-+ * @skb_flow_out:
-+ *	Checks to see if security policy would allow skb to go out of system.
-+ *	Returns 1 if skb allowed out of system, 0 if not, and -ENOENT if there's
-+ *	no hook defined.
-  *
-  * Security hooks for XFRM operations.
-  *
-@@ -1372,6 +1381,8 @@ struct security_operations {
- 					struct request_sock *req);
- 	void (*inet_csk_clone)(struct sock *newsk, const struct request_sock *req);
- 	void (*req_classify_flow)(const struct request_sock *req, struct flowi *fl);
-+	int (*skb_flow_in)(struct sk_buff *skb, unsigned short family);
-+	int (*skb_flow_out)(struct sk_buff *skb, u32 nf_secid);
- #endif	/* CONFIG_SECURITY_NETWORK */
+diff --git a/net/netfilter/xt_CONNSECMARK.c b/net/netfilter/xt_CONNSECMARK.c
+index 4673862..cca4a0c 100644
+--- a/net/netfilter/xt_CONNSECMARK.c
++++ b/net/netfilter/xt_CONNSECMARK.c
+@@ -17,6 +17,8 @@
+  */
+ #include <linux/module.h>
+ #include <linux/skbuff.h>
++#include <linux/security.h>
++#include <linux/netfilter_ipv6.h>
+ #include <linux/netfilter/x_tables.h>
+ #include <linux/netfilter/xt_CONNSECMARK.h>
+ #include <net/netfilter/nf_conntrack_compat.h>
+@@ -29,38 +31,78 @@ MODULE_DESCRIPTION("ip[6]tables CONNSECM
+ MODULE_ALIAS("ipt_CONNSECMARK");
+ MODULE_ALIAS("ip6t_CONNSECMARK");
  
- #ifdef CONFIG_SECURITY_NETWORK_XFRM
-@@ -2947,6 +2958,18 @@ static inline void security_req_classify
- 	security_ops->req_classify_flow(req, fl);
++static inline int outbound(unsigned short family, unsigned int hooknum)
++{
++	if ((family == AF_INET &&
++		(hooknum == NF_IP_POST_ROUTING ||
++		 hooknum == NF_IP_LOCAL_OUT ||
++		 hooknum == NF_IP_FORWARD)) ||
++	    (family == AF_INET6 &&
++		(hooknum == NF_IP6_POST_ROUTING ||
++		 hooknum == NF_IP6_LOCAL_OUT ||
++		 hooknum == NF_IP6_FORWARD)))
++		return 1;
++	else
++		return 0;
++}
++
+ /*
+  * If the packet has a security mark and the connection does not, copy
+  * the security mark from the packet to the connection.
+  */
+-static void secmark_save(struct sk_buff *skb)
++static void secmark_save(struct sk_buff *skb, unsigned int hooknum)
+ {
+ 	if (skb->secmark) {
+ 		u32 *connsecmark;
+ 		enum ip_conntrack_info ctinfo;
+ 
+ 		connsecmark = nf_ct_get_secmark(skb, &ctinfo);
+-		if (connsecmark && !*connsecmark)
++		if (connsecmark)
+ 			if (*connsecmark != skb->secmark)
+ 				*connsecmark = skb->secmark;
+ 	}
  }
  
-+static inline int security_skb_flow_in(struct sk_buff *skb,
-+					unsigned short family)
-+{
-+	return security_ops->skb_flow_in(skb, family);
-+}
-+
-+static inline int security_skb_flow_out(struct sk_buff *skb,
-+					u32 nf_secid)
-+{
-+	return security_ops->skb_flow_out(skb, nf_secid);
-+}
-+
- static inline void security_sock_graft(struct sock* sk, struct socket *parent)
+ /*
+- * If packet has no security mark, and the connection does, restore the
+- * security mark from the connection to the packet.
++ * On the inbound, restore the security mark from the connection to the packet.
++ * On the outbound, filter based on the current secmark.
+  */
+-static void secmark_restore(struct sk_buff *skb)
++static unsigned int secmark_restore(struct sk_buff *skb, unsigned int hooknum,
++		   const struct net_device *in, unsigned short family)
  {
- 	security_ops->sock_graft(sk, parent);
-@@ -3098,6 +3121,18 @@ static inline void security_req_classify
- {
+-	if (!skb->secmark) {
+-		u32 *connsecmark;
+-		enum ip_conntrack_info ctinfo;
+-
+-		connsecmark = nf_ct_get_secmark(skb, &ctinfo);
+-		if (connsecmark && *connsecmark)
+-			if (skb->secmark != *connsecmark)
+-				skb->secmark = *connsecmark;
++	u32 *psecmark;
++	enum ip_conntrack_info ctinfo;
++
++	psecmark = nf_ct_get_secmark(skb, &ctinfo);
++
++	if (psecmark && *psecmark) {
++
++		/* Set secmark on inbound and filter it on outbound */
++		if (outbound(family, hooknum)) {
++			int err;
++
++			err = security_skb_flow_out(skb, *psecmark);
++			if (!err)
++				return NF_DROP;
++		} else
++			/* 
++			 * inbound:
++			 * loopback traffic should already be labeled
++			 * and any filtering on outbound should suffice
++			 */
++			if (in == &loopback_dev)
++				goto out;
++
++		/*
++		 * inbound or done with outbound check or no LSM hook
++		 * for outbound
++		 */
++		if (skb->secmark != *psecmark)
++			skb->secmark = *psecmark;
+ 	}
++
++out:
++	return XT_CONTINUE;
  }
  
-+static inline int security_skb_flow_in(struct sk_buff *skb,
-+					unsigned short family)
+ static unsigned int target(struct sk_buff **pskb, const struct net_device *in,
+@@ -73,11 +115,11 @@ static unsigned int target(struct sk_buf
+ 
+ 	switch (info->mode) {
+ 	case CONNSECMARK_SAVE:
+-		secmark_save(skb);
++		secmark_save(skb, hooknum);
+ 		break;
+ 
+ 	case CONNSECMARK_RESTORE:
+-		secmark_restore(skb);
++		return secmark_restore(skb, hooknum, in, target->family);
+ 		break;
+ 
+ 	default:
+diff --git a/net/netfilter/xt_SECMARK.c b/net/netfilter/xt_SECMARK.c
+index add7521..9ecce66 100644
+--- a/net/netfilter/xt_SECMARK.c
++++ b/net/netfilter/xt_SECMARK.c
+@@ -15,8 +15,10 @@
+ #include <linux/module.h>
+ #include <linux/skbuff.h>
+ #include <linux/selinux.h>
++#include <linux/security.h>
+ #include <linux/netfilter/x_tables.h>
+ #include <linux/netfilter/xt_SECMARK.h>
++#include <linux/netfilter_ipv6.h>
+ 
+ MODULE_LICENSE("GPL");
+ MODULE_AUTHOR("James Morris <jmorris@redhat.com>");
+@@ -28,6 +30,21 @@ #define PFX "SECMARK: "
+ 
+ static u8 mode;
+ 
++static inline int outbound(unsigned short family, unsigned int hooknum)
 +{
-+	return 1;
++	if ((family == AF_INET &&
++		(hooknum == NF_IP_POST_ROUTING ||
++		 hooknum == NF_IP_LOCAL_OUT ||
++		 hooknum == NF_IP_FORWARD)) ||
++	    (family == AF_INET6 &&
++		(hooknum == NF_IP6_POST_ROUTING ||
++		 hooknum == NF_IP6_LOCAL_OUT ||
++		 hooknum == NF_IP6_FORWARD)))
++		return 1;
++	else
++		return 0;
 +}
 +
-+static inline int security_skb_flow_out(struct sk_buff *skb,
-+					u32 nf_secid)
-+{
-+	return -ENOENT;
-+}
+ static unsigned int target(struct sk_buff **pskb, const struct net_device *in,
+ 			   const struct net_device *out, unsigned int hooknum,
+ 			   const struct xt_target *target,
+@@ -47,9 +64,33 @@ static unsigned int target(struct sk_buf
+ 		BUG();
+ 	}
+ 
+-	if ((*pskb)->secmark != secmark)
+-		(*pskb)->secmark = secmark;
++	if (secmark) {
 +
- static inline void security_sock_graft(struct sock* sk, struct socket *parent)
- {
- }
-@@ -3151,7 +3186,11 @@ static inline int security_xfrm_state_al
- {
- 	if (!polsec)
- 		return 0;
--	return security_ops->xfrm_state_alloc_security(x, NULL, polsec, secid);
-+	/*
-+	 * No need to pass polsec along since we want the context to be
-+	 * taken from secid which is usually from the sock.
-+	 */
-+	return security_ops->xfrm_state_alloc_security(x, NULL, NULL, secid);
++		/* Set secmark on inbound and filter it on outbound */
++		if (outbound(target->family, hooknum)) {
++			int err;
++
++			err = security_skb_flow_out(*pskb, secmark);
++			if (!err)
++				return NF_DROP;
++		} else
++			/*
++			 * inbound:
++			 * loopback traffic should already be labeled
++			 * and any filtering on outbound should suffice
++			 */
++			if (in == &loopback_dev)
++				goto out;
++
++		/* 
++		 * inbound or done with outbound check or no LSM hook
++		 * for outbound
++		 */
++		if ((*pskb)->secmark != secmark)
++			(*pskb)->secmark = secmark;
++	}
+ 
++out:
+ 	return XT_CONTINUE;
  }
  
- static inline int security_xfrm_state_delete(struct xfrm_state *x)
-Index: net-2.6_secidfinal/security/dummy.c
-===================================================================
---- net-2.6_secidfinal.orig/security/dummy.c
-+++ net-2.6_secidfinal/security/dummy.c
-@@ -832,6 +832,17 @@ static inline void dummy_req_classify_fl
- 			struct flowi *fl)
- {
- }
-+
-+static inline int dummy_skb_flow_in(struct sk_buff *skb,
-+			unsigned short family)
-+{
-+	return -ENOENT;
-+}
-+
-+static inline int dummy_skb_flow_out(struct sk_buff *skb, u32 nf_secid)
-+{
-+	return -ENOENT;
-+}
- #endif	/* CONFIG_SECURITY_NETWORK */
- 
- #ifdef CONFIG_SECURITY_NETWORK_XFRM
-@@ -1108,6 +1119,8 @@ void security_fixup_ops (struct security
- 	set_to_dummy_if_null(ops, inet_conn_request);
- 	set_to_dummy_if_null(ops, inet_csk_clone);
- 	set_to_dummy_if_null(ops, req_classify_flow);
-+	set_to_dummy_if_null(ops, skb_flow_in);
-+	set_to_dummy_if_null(ops, skb_flow_out);
-  #endif	/* CONFIG_SECURITY_NETWORK */
- #ifdef  CONFIG_SECURITY_NETWORK_XFRM
- 	set_to_dummy_if_null(ops, xfrm_policy_alloc_security);
 
 --
 paul moore
