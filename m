@@ -1,43 +1,52 @@
-Message-ID: <452A7884.4010707@hp.com>
-Date: Mon, 09 Oct 2006 12:27:48 -0400
-From: Paul Moore <paul.moore@hp.com>
-MIME-Version: 1.0
-To: Venkat Yekkirala <vyekkirala@TrustedCS.com>
-Cc: selinux@tycho.nsa.gov, redhat-lspp@redhat.com, jmorris@namei.org,
+Message-ID: <36282A1733C57546BE392885C0618592015CFD55@chaos.tcs.tcs-sec.com>
+From: Venkat Yekkirala <vyekkirala@TrustedCS.com>
+To: James Morris <jmorris@namei.org>,
+        Venkat Yekkirala
+	 <vyekkirala@TrustedCS.com>
+Cc: selinux@tycho.nsa.gov, redhat-lspp@redhat.com, paul.moore@hp.com,
         sds@tycho.nsa.gov, eparis@redhat.com, jbrindle@tresys.com
-Subject: Re: [PATCH 0/1] selinux: secid reconciliation fixes V01: Intro
-References: <452A3ECF.5030105@trustedcs.com> <452A5CAB.6010003@hp.com>
-In-Reply-To: <452A5CAB.6010003@hp.com>
-Content-Type: text/plain; charset=ISO-8859-1
+Subject: RE: [PATCH 0/1] selinux: secid reconciliation fixes V01
+Date: Mon, 9 Oct 2006 12:45:03 -0400 
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Paul Moore wrote:
-> Venkat Yekkirala wrote:
->>Paul, if you could respin your patchset relative to this one I would
->>appreciate it. While doing so, can you look for NetLabel only when
->>there's no xfrm label on a packet, since we now know that using both
->>is redundant? This way we don't have to worry about NetLabel code
->>bugs/side effects when someone is using just xfrm. Thanks.
-> 
-> As far as I can tell there are no problems with the latest NetLabel/secid patch
-> when layered on top of the secid patches.  There was a lot of testing and debate
-> on this last Friday but it turned out to be a problem with the secid patch not
-> clearing the secmark on exit as well as some confusion around policy and
-> multicast traffic.  All of the NetLabel bugs from the past month or two have
-> only occurred on communication channels when NetLabel was in use - there was
-> some thought that the recent Bluetooth bug was NetLabel related but it wasn't,
-> it was a fault with the MLSXFRM patchset.
-> 
-> If there is some issue I'm not aware of send me some mail or give me a call
-> (XXX-XXX-XXXX) and we can work it out.
+[Thought I had sent this earlier, but found this waiting for me to finish]
 
-Please disregard the phone number I send out earlier, it was the wrong number -
-if you need to get ahold of me please call me at 603-884-5056.
+> -----Original Message-----
+> From: James Morris [mailto:jmorris@namei.org]
+> Sent: Monday, October 09, 2006 9:25 AM
+> To: Venkat Yekkirala
+> Cc: selinux@tycho.nsa.gov; redhat-lspp@redhat.com; paul.moore@hp.com;
+> sds@tycho.nsa.gov; eparis@redhat.com; jbrindle@tresys.com
+> Subject: RE: [PATCH 0/1] selinux: secid reconciliation fixes V01
+> 
+> 
+> On Mon, 9 Oct 2006, Venkat Yekkirala wrote:
+> 
+> > > > 3. Label igmp traffic with the igmp_packet initial context.
+> > > 
+> > > Why is IGMP being handled separately?  How many other 
+> > > protocols will need 
+> > > their own specific hooks?
+> > 
+> > igmp seems like the only odd ball out in that it sends packets
+> > outside of a socket (even a kernel sock) context; which also
+> > explains why there's a separate init sid defined/deprecated for
+> > this in the selinux policy. 
+> 
+> I don't think a protocol-specific hook is going to be 
+> acceptable.  Can you 
+> test inside SELinux to determine that it's IGMP?
 
--- 
-paul moore
-linux security @ hp
+I did in fact test inside SELinux, and that's how I found
+out these were igmp packets. These were getting labeled implicitly
+with unlabeled_t, and now after labeling thse distinctly, policy won't
+have to grant access to the network to unlabeled packets. An alternative
+is to not flow control any traffic that doesn't have a sock associated
+with it.
 
 --
 This message was distributed to subscribers of the selinux mailing list.
