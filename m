@@ -1,56 +1,104 @@
-Message-ID: <452A94A2.8040905@us.ibm.com>
-Date: Mon, 09 Oct 2006 13:27:46 -0500
-From: Michael C Thompson <thompsmc@us.ibm.com>
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k99JRT6Z025454
+	for <selinux@tycho.nsa.gov>; Mon, 9 Oct 2006 15:27:29 -0400
+Received: from tcsfw4.tcs-sec.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id k99JQh1s002859
+	for <selinux@tycho.nsa.gov>; Mon, 9 Oct 2006 19:26:47 GMT
+Message-ID: <452AA26C.7050901@trustedcs.com>
+Date: Mon, 09 Oct 2006 14:26:36 -0500
+From: Venkat Yekkirala <vyekkirala@TrustedCS.com>
 MIME-Version: 1.0
-To: Michael C Thompson <thompsmc@us.ibm.com>
-CC: SE Linux <selinux@tycho.nsa.gov>, Stephen Smalley <sds@tycho.nsa.gov>
-Subject: Re: [PATCH 2/4] make newrole suid
-References: <4526D5C6.3090505@us.ibm.com>
-In-Reply-To: <4526D5C6.3090505@us.ibm.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: selinux@tycho.nsa.gov, redhat-lspp@redhat.com
+Subject: Re: DOCUMENTATION OF SECID RECONCILIATION AND FLOW CONTROL FOR POLICY
+ WRITERS
+References: <452A3F8C.5080401@trustedcs.com>
+In-Reply-To: <452A3F8C.5080401@trustedcs.com>
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Michael C Thompson wrote:
-> This is the 2nd of 4 patches.
-> This patch applies against policycoreutils-1.30.30-1.
+Venkat Yekkirala wrote:
+> DOCUMENTATION OF SECID RECONCILIATION AND FLOW CONTROL FOR POLICY WRITERS:
 > 
-> Changes:
->  * main is changed in the following ways:
->    - remove the duplicated functionality for patch 1/4
->    - set to call the new functions
->    - introduces better error handling and cleanup paths
+> ON INBOUND:
 > 
-> Signed-off-by: Michael Thompson <thompsmc@us.ibm.com>
+> 1. PACKETS ENTERING SYSTEM FROM A NON-LOOPBACK DEVICE:
+> 
+>    Can a packet "carrying" external domain label x_t "flow_in" thru the
+>    security point with the peer domain label p_d_t?
+> 
+> 	NOTE:
+> 	a. x_t defaults to unlabeled_t, if no external label.
+> 	b. p_d_t defaults to network_t in the absence of any applicable
+> 	   [conn]secmark rules for the packet. If there are multiple
+> 	   secmark rules applicable to a packet, the context on the LAST
+> 	   rule will apply.
+> 
+>    NO: Drop packet.
+>    YES: If no external label, let packet "carry" p_d_t.
+> 
+> 2. INPUT ONLY: Can a socket "recv" a packet from domain p_d_t?
+> 
+>    NO: Drop packet.
+>    YES: If setting up a tcp connection, set peer context to p_d_t.
+> 
+> ON OUTBOUND:
+> 
+> 1. Let packet "carry" the originating socket domain label.
+> 
+> 2. IPSEC Handling:
+> 
+>    LABELED IPSEC: If packet "polmatch"es to an otherwise applicable and
+>    labeled SPD entry, choose a Security Association (SA) with the SAME context
+>    as the domain label being carried by packet.
+> 	NOTE: If no such SA present, call into IKE with context on packet.
+> 
+>    NON-LABELED (PLAIN/TRADITIONAL) IPSEC: If there's an applicable SPD entry
+>    that does NOT have an explicit context associated with it, an applicable SA
+>    that does NOT have an explicit context associated with it is chosen.
+> 	NOTE: If no such SA present, call into IKE, but with NO context.
+> 
+> 3. PACKETS DESTINED FOR NON-LOOPBACK DEVICE:
+> 
+>    a. IPTABLES Processing:
+>       As EACH applicable iptables [CONN]SECMARK rule with domain p_d_t is
+>       encountered, do the following:
+>    
+>       Can a packet carrying domain label a_t "flow_out" of the security point
+>       with the domain label p_d_t?
+>    
+>          NO: Drop packet.
+>          YES: Replace the domain label a_t on the packet with the security point
+>               label p_d_t.
+> 
+>    b. Before a packet is let out of the system:
+> 
+>       Can a packet with domain label p_d_t "flow_out" into the network domain
+>       network_t?
+> 
+>       NO: Drop packet.
+>       YES: Let packet out.
+> 
+>       NOTE: Ideally this check should be applicable only to packets that
+>             didn't go thru [conn]secmark checks for outbound, but there's
+>             currently no way to know this due to implementation constrains.
+>             Hence a blanket check for ALL packets leaving the system.
 > 
 > 
+> FORWARDED TRAFFIC:
 > 
-> ------------------------------------------------------------------------
+> Forwarded Traffic will undergo the following:
 > 
-> diff -Naur policycoreutils-1.30.30/newrole/newrole.c policycoreutils-1.30.30.suid/newrole/newrole.c
-> --- policycoreutils-1.30.30/newrole/newrole.c	2006-10-06 17:01:10.000000000 -0500
-> +++ policycoreutils-1.30.30.suid/newrole/newrole.c	2006-10-06 17:00:18.000000000 -0500
-<snip>
->  	if (!is_selinux_enabled()) {
-> -		fprintf(stderr,
-> -			_
-> -			("Sorry, newrole may be used only on a SELinux kernel.\n"));
-> -		exit(-1);
-> +		fprintf(stderr, _("Sorry, newrole may be used only on "
-> +			"a SELinux kernel.\n"));
-> +		return -1;
->  	}
-> -	enforcing = security_getenforce();
-> -	if (enforcing < 0) {
-> +
-> +	if (security_getenforce()) {
->  		fprintf(stderr, _("Could not determine enforcing mode.\n"));
-> -		exit(-1);
-> +		return -1;
->  	}
-
-Rather embarrassing, but this was overlooked by myself before I sent 
-this patch out. It's been fixed on my side.
+> 1. Step 1 under ON INBOUND.
+> 
+> 2. Steps 2 and 3 under ON OUTBOUND.
+      NOTE: The iptables FORWARD chain is treated as an outbound chain
+            for flow control purposes. That means forwarded traffic would
+            need to be flow-controlled/labeled when it comes into the system
+            using an applicable rule in the PREROUTING chain, and flow-controlled
+            before it leaves the system using rules either in the FORWARD chain
+            or the POSTROUTING chain.
+> 
 
 
 --
