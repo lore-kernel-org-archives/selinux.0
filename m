@@ -1,52 +1,65 @@
-Message-ID: <36282A1733C57546BE392885C0618592015CFD55@chaos.tcs.tcs-sec.com>
-From: Venkat Yekkirala <vyekkirala@TrustedCS.com>
-To: James Morris <jmorris@namei.org>,
-        Venkat Yekkirala
-	 <vyekkirala@TrustedCS.com>
-Cc: selinux@tycho.nsa.gov, redhat-lspp@redhat.com, paul.moore@hp.com,
-        sds@tycho.nsa.gov, eparis@redhat.com, jbrindle@tresys.com
-Subject: RE: [PATCH 0/1] selinux: secid reconciliation fixes V01
-Date: Mon, 9 Oct 2006 12:45:03 -0400 
+Message-ID: <452A7D62.4030006@hp.com>
+Date: Mon, 09 Oct 2006 12:48:34 -0400
+From: Paul Moore <paul.moore@hp.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+To: Venkat Yekkirala <vyekkirala@TrustedCS.com>
+Cc: selinux@tycho.nsa.gov, jmorris@namei.org, sds@tycho.nsa.gov,
+        eparis@redhat.com, jbrindle@tresys.com, redhat-lspp@redhat.com
+Subject: Re: [PATCH 1/1] selinux: secid reconciliation fixes V02
+References: <452A6A2F.3040202@trustedcs.com>
+In-Reply-To: <452A6A2F.3040202@trustedcs.com>
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-[Thought I had sent this earlier, but found this waiting for me to finish]
+FYI: some changes need to be made to avoid compilation warnings (see below, and
+selinux_ip_postroute_last() to see what I mean), I'm taking the liberty of
+changing the patch myself.
 
-> -----Original Message-----
-> From: James Morris [mailto:jmorris@namei.org]
-> Sent: Monday, October 09, 2006 9:25 AM
-> To: Venkat Yekkirala
-> Cc: selinux@tycho.nsa.gov; redhat-lspp@redhat.com; paul.moore@hp.com;
-> sds@tycho.nsa.gov; eparis@redhat.com; jbrindle@tresys.com
-> Subject: RE: [PATCH 0/1] selinux: secid reconciliation fixes V01
-> 
-> 
-> On Mon, 9 Oct 2006, Venkat Yekkirala wrote:
-> 
-> > > > 3. Label igmp traffic with the igmp_packet initial context.
-> > > 
-> > > Why is IGMP being handled separately?  How many other 
-> > > protocols will need 
-> > > their own specific hooks?
-> > 
-> > igmp seems like the only odd ball out in that it sends packets
-> > outside of a socket (even a kernel sock) context; which also
-> > explains why there's a separate init sid defined/deprecated for
-> > this in the selinux policy. 
-> 
-> I don't think a protocol-specific hook is going to be 
-> acceptable.  Can you 
-> test inside SELinux to determine that it's IGMP?
+Venkat Yekkirala wrote:
+> -static int selinux_skb_flow_out(struct sk_buff *skb, u32 nf_secid)
+> +static int selinux_skb_flow_out(struct sk_buff *skb, u32 nf_secid,
+> +			const struct net_device *out, unsigned short family)
+>  {
+>  	int err;
+> +	char *addrp;
+> +	int len;
+> +	struct avc_audit_data ad;
 
-I did in fact test inside SELinux, and that's how I found
-out these were igmp packets. These were getting labeled implicitly
-with unlabeled_t, and now after labeling thse distinctly, policy won't
-have to grant access to the network to unlabeled packets. An alternative
-is to not flow control any traffic that doesn't have a sock associated
-with it.
+Add the following:
+
+        struct net_device *dev = (struct net_device *)out;
+
+
+>  	if (selinux_compat_net)
+>  		return 1;
+> @@ -3738,9 +3749,17 @@ static int selinux_skb_flow_out(struct s
+>  		}
+>  	}
+>  
+> +	AVC_AUDIT_DATA_INIT(&ad, NET);
+> +	ad.u.net.netif = out->name;
+
+Replace the above line with:
+
+        ad.u.net.netif = dev->name;
+
+> +	ad.u.net.family = family;
+> +	err = selinux_parse_skb(skb, &ad, &addrp, &len, 0);
+> +	if (err)
+> +		goto out;
+> +
+>  	err = avc_has_perm(skb->secmark, nf_secid, SECCLASS_PACKET,
+> -				PACKET__FLOW_OUT, NULL);
+> +				PACKET__FLOW_OUT, &ad);
+>  
+> +out:
+>  	return err ? 0 : 1;
+>  }
+
+-- 
+paul moore
+linux security @ hp
 
 --
 This message was distributed to subscribers of the selinux mailing list.
