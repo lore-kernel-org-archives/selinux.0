@@ -1,43 +1,30 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k99DqZvb017493
-	for <selinux@tycho.nsa.gov>; Mon, 9 Oct 2006 09:52:35 -0400
-Received: from mail4.sea5.speakeasy.net (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id k99DpIv2002673
-	for <selinux@tycho.nsa.gov>; Mon, 9 Oct 2006 13:51:19 GMT
-Date: Mon, 9 Oct 2006 09:52:33 -0400 (EDT)
-From: James Morris <jmorris@namei.org>
-To: Venkat Yekkirala <vyekkirala@TrustedCS.com>
-cc: selinux@tycho.nsa.gov, redhat-lspp@redhat.com, paul.moore@hp.com,
-        sds@tycho.nsa.gov, eparis@redhat.com, jbrindle@tresys.com
-Subject: Re: [PATCH 0/1] selinux: secid reconciliation fixes V01
-In-Reply-To: <452A3ED6.9060403@trustedcs.com>
-Message-ID: <Pine.LNX.4.64.0610090949580.28179@d.namei>
-References: <452A3ED6.9060403@trustedcs.com>
+Message-ID: <36282A1733C57546BE392885C0618592015CFD3F@chaos.tcs.tcs-sec.com>
+From: Venkat Yekkirala <vyekkirala@TrustedCS.com>
+To: Joshua Brindle <jbrindle@tresys.com>,
+        Venkat Yekkirala
+	 <vyekkirala@TrustedCS.com>
+Cc: selinux@tycho.nsa.gov, redhat-lspp@redhat.com, jmorris@namei.org,
+        sds@tycho.nsa.gov, paul.moore@hp.com, eparis@redhat.com
+Subject: RE: [PATCH 0/1] selinux: secid reconciliation fixes V01: Intro
+Date: Mon, 9 Oct 2006 09:56:13 -0400 
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 9 Oct 2006, Venkat Yekkirala wrote:
+> Do you have a git tree with everything you have so far? Some of your
+> patches won't apply to the net-2.6 I have. Perhaps James could put a
+> branch in his selinux-2.6?
 
-> 3. Label igmp traffic with the igmp_packet initial context.
+I unfortunately don't have a git tree accessible from the outside. And
+I haven't updated my git tree since Eric Paris was already having to
+think about updating RHEL5 networking to accommodate the secid work that was
+posted recently. I was really hoping for Eric/Steve to apply this patch to
+the lspp tree and spin a new kernel.
 
-Why is IGMP being handled separately?  How many other protocols will need 
-their own specific hooks?
-
-> + * @igmp_classify_skb:
-> + *	Sets the skb's secid to the igmp initsid.
-
-This explanation is SELinux-specific.
-
-Your patches need to be against the latest net-2.6 tree.
-
-
-
-- James
--- 
-James Morris
-<jmorris@namei.org>
+But I will try to get a cumulative patch out today that will apply to
+the latest net-2.6.
 
 --
 This message was distributed to subscribers of the selinux mailing list.
