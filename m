@@ -1,216 +1,94 @@
-Message-Id: <20061009195848.642381000@hp.com>
+Message-Id: <20061009195845.522853000@hp.com>
 References: <20061009194223.402695000@hp.com>
-Date: Mon, 09 Oct 2006 15:42:27 -0400
+Date: Mon, 09 Oct 2006 15:42:24 -0400
 From: paul.moore@hp.com
 To: netdev@vger.kernel.org, selinux@tycho.nsa.gov
 Cc: vyekkirala@TrustedCS.com, jmorris@namei.org, sds@tycho.nsa.gov
-Subject: [PATCH 04/11] secid reconciliation: Invoke LSM hook for outbound traffic
+Subject: [PATCH 01/11] secid reconciliation: new SELinux flask definitions
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 From: Venkat Yekkirala <vyekkirala@TrustedCS.com>
 
-Invoke the skb_flow_out LSM hook for outbound
-traffic for secid reconciliation and flow control.
+This patchset helps with leveraging secmark in defining fine-grained security
+check points with support for a. a default place holder domain defined using
+secmark for each of the check points and b. flow control and reconciliation
+of domains entering/leaving the system.
+
+The reconciliation steps for SELinux are explained in the Labeled Networking
+document at:
+http://marc.theaimsgroup.com/?l=linux-netdev&m=115136637800361&w=2
+
+Also please refer to the discussion at:
+http://marc.theaimsgroup.com/?l=selinux&m=115885031311565&w=2
+
+The following are the identifiers handled here:
+
+1. secmark on the skb
+2. xfrm security identifier associated with the skb if it used any xfrms,
+ a zero secid otherwise.
+
+The following features are included:
+
+- Retain secmark (from the originating socket/flow) on loopback traffic;
+  this traffic is now flow controlled on the outbound only.
+
+- When multiple iptables labeling rules are present (e.g.: both on PREROUTING and INPUT)
+	INBOUND: The label in the last rule will prevail.
+	OUTBOUND: secmark (from the originating socket) is flow-controlled against
+		the label on the first rule, and, if it passes, the label on the
+		first rule overrides the secmark (from the originating socket).
+		This secmark is flow controlled against labels on the subsequent
+		rules, each time, overridden by those labels.
+
+- Forwarded packets: The FORWARD chain is treated as an outbound chain for flow
+  control purposes. e.g: label with PREROUTING and flow-control with FORWARD or
+  POSTROUTING.
+
+- SELinux postroute_last hook: unfortunately, the secmark Vs. UNLABELED SID check
+  will be done for ALL traffic (couldn't figure out a way to except traffic already
+  processed by (CONN)SECMARK outbound rules).
+
+
+This patch: Add new flask definitions to SELinux
+
+Adds a new avperm "flow_in" to arbitrate among the identifiers on the
+inbound (input/forward). Also adds a new avperm "flow_out" to enable flow
+control checks on the outbound (output/forward), addressed in this patch
+as well.
 
 Signed-off-by: Venkat Yekkirala <vyekkirala@TrustedCS.com>
 ---
- net/netfilter/xt_CONNSECMARK.c |   72 ++++++++++++++++++++++++-------
- net/netfilter/xt_SECMARK.c     |   45 ++++++++++++++++++-
- 2 files changed, 100 insertions(+), 17 deletions(-)
+ security/selinux/include/av_perm_to_string.h |    2 ++
+ security/selinux/include/av_permissions.h    |    2 ++
+ 2 files changed, 4 insertions(+)
 
-diff --git a/net/netfilter/xt_CONNSECMARK.c b/net/netfilter/xt_CONNSECMARK.c
-index 4673862..cca4a0c 100644
---- a/net/netfilter/xt_CONNSECMARK.c
-+++ b/net/netfilter/xt_CONNSECMARK.c
-@@ -17,6 +17,8 @@
-  */
- #include <linux/module.h>
- #include <linux/skbuff.h>
-+#include <linux/security.h>
-+#include <linux/netfilter_ipv6.h>
- #include <linux/netfilter/x_tables.h>
- #include <linux/netfilter/xt_CONNSECMARK.h>
- #include <net/netfilter/nf_conntrack_compat.h>
-@@ -29,38 +31,78 @@ MODULE_DESCRIPTION("ip[6]tables CONNSECM
- MODULE_ALIAS("ipt_CONNSECMARK");
- MODULE_ALIAS("ip6t_CONNSECMARK");
+diff --git a/security/selinux/include/av_perm_to_string.h b/security/selinux/include/av_perm_to_string.h
+index 09fc8a2..1e65d28 100644
+--- a/security/selinux/include/av_perm_to_string.h
++++ b/security/selinux/include/av_perm_to_string.h
+@@ -245,6 +245,8 @@
+    S_(SECCLASS_PACKET, PACKET__SEND, "send")
+    S_(SECCLASS_PACKET, PACKET__RECV, "recv")
+    S_(SECCLASS_PACKET, PACKET__RELABELTO, "relabelto")
++   S_(SECCLASS_PACKET, PACKET__FLOW_IN, "flow_in")
++   S_(SECCLASS_PACKET, PACKET__FLOW_OUT, "flow_out")
+    S_(SECCLASS_KEY, KEY__VIEW, "view")
+    S_(SECCLASS_KEY, KEY__READ, "read")
+    S_(SECCLASS_KEY, KEY__WRITE, "write")
+diff --git a/security/selinux/include/av_permissions.h b/security/selinux/include/av_permissions.h
+index 81f4f52..2faf3d8 100644
+--- a/security/selinux/include/av_permissions.h
++++ b/security/selinux/include/av_permissions.h
+@@ -962,6 +962,8 @@ #define APPLETALK_SOCKET__NAME_BIND     
+ #define PACKET__SEND                              0x00000001UL
+ #define PACKET__RECV                              0x00000002UL
+ #define PACKET__RELABELTO                         0x00000004UL
++#define PACKET__FLOW_IN                           0x00000008UL
++#define PACKET__FLOW_OUT                          0x00000010UL
  
-+static inline int outbound(unsigned short family, unsigned int hooknum)
-+{
-+	if ((family == AF_INET &&
-+		(hooknum == NF_IP_POST_ROUTING ||
-+		 hooknum == NF_IP_LOCAL_OUT ||
-+		 hooknum == NF_IP_FORWARD)) ||
-+	    (family == AF_INET6 &&
-+		(hooknum == NF_IP6_POST_ROUTING ||
-+		 hooknum == NF_IP6_LOCAL_OUT ||
-+		 hooknum == NF_IP6_FORWARD)))
-+		return 1;
-+	else
-+		return 0;
-+}
-+
- /*
-  * If the packet has a security mark and the connection does not, copy
-  * the security mark from the packet to the connection.
-  */
--static void secmark_save(struct sk_buff *skb)
-+static void secmark_save(struct sk_buff *skb, unsigned int hooknum)
- {
- 	if (skb->secmark) {
- 		u32 *connsecmark;
- 		enum ip_conntrack_info ctinfo;
- 
- 		connsecmark = nf_ct_get_secmark(skb, &ctinfo);
--		if (connsecmark && !*connsecmark)
-+		if (connsecmark)
- 			if (*connsecmark != skb->secmark)
- 				*connsecmark = skb->secmark;
- 	}
- }
- 
- /*
-- * If packet has no security mark, and the connection does, restore the
-- * security mark from the connection to the packet.
-+ * On the inbound, restore the security mark from the connection to the packet.
-+ * On the outbound, filter based on the current secmark.
-  */
--static void secmark_restore(struct sk_buff *skb)
-+static unsigned int secmark_restore(struct sk_buff *skb, unsigned int hooknum,
-+		   const struct net_device *in, unsigned short family)
- {
--	if (!skb->secmark) {
--		u32 *connsecmark;
--		enum ip_conntrack_info ctinfo;
--
--		connsecmark = nf_ct_get_secmark(skb, &ctinfo);
--		if (connsecmark && *connsecmark)
--			if (skb->secmark != *connsecmark)
--				skb->secmark = *connsecmark;
-+	u32 *psecmark;
-+	enum ip_conntrack_info ctinfo;
-+
-+	psecmark = nf_ct_get_secmark(skb, &ctinfo);
-+
-+	if (psecmark && *psecmark) {
-+
-+		/* Set secmark on inbound and filter it on outbound */
-+		if (outbound(family, hooknum)) {
-+			int err;
-+
-+			err = security_skb_flow_out(skb, *psecmark);
-+			if (!err)
-+				return NF_DROP;
-+		} else
-+			/* 
-+			 * inbound:
-+			 * loopback traffic should already be labeled
-+			 * and any filtering on outbound should suffice
-+			 */
-+			if (in == &loopback_dev)
-+				goto out;
-+
-+		/*
-+		 * inbound or done with outbound check or no LSM hook
-+		 * for outbound
-+		 */
-+		if (skb->secmark != *psecmark)
-+			skb->secmark = *psecmark;
- 	}
-+
-+out:
-+	return XT_CONTINUE;
- }
- 
- static unsigned int target(struct sk_buff **pskb, const struct net_device *in,
-@@ -73,11 +115,11 @@ static unsigned int target(struct sk_buf
- 
- 	switch (info->mode) {
- 	case CONNSECMARK_SAVE:
--		secmark_save(skb);
-+		secmark_save(skb, hooknum);
- 		break;
- 
- 	case CONNSECMARK_RESTORE:
--		secmark_restore(skb);
-+		return secmark_restore(skb, hooknum, in, target->family);
- 		break;
- 
- 	default:
-diff --git a/net/netfilter/xt_SECMARK.c b/net/netfilter/xt_SECMARK.c
-index add7521..9ecce66 100644
---- a/net/netfilter/xt_SECMARK.c
-+++ b/net/netfilter/xt_SECMARK.c
-@@ -15,8 +15,10 @@
- #include <linux/module.h>
- #include <linux/skbuff.h>
- #include <linux/selinux.h>
-+#include <linux/security.h>
- #include <linux/netfilter/x_tables.h>
- #include <linux/netfilter/xt_SECMARK.h>
-+#include <linux/netfilter_ipv6.h>
- 
- MODULE_LICENSE("GPL");
- MODULE_AUTHOR("James Morris <jmorris@redhat.com>");
-@@ -28,6 +30,21 @@ #define PFX "SECMARK: "
- 
- static u8 mode;
- 
-+static inline int outbound(unsigned short family, unsigned int hooknum)
-+{
-+	if ((family == AF_INET &&
-+		(hooknum == NF_IP_POST_ROUTING ||
-+		 hooknum == NF_IP_LOCAL_OUT ||
-+		 hooknum == NF_IP_FORWARD)) ||
-+	    (family == AF_INET6 &&
-+		(hooknum == NF_IP6_POST_ROUTING ||
-+		 hooknum == NF_IP6_LOCAL_OUT ||
-+		 hooknum == NF_IP6_FORWARD)))
-+		return 1;
-+	else
-+		return 0;
-+}
-+
- static unsigned int target(struct sk_buff **pskb, const struct net_device *in,
- 			   const struct net_device *out, unsigned int hooknum,
- 			   const struct xt_target *target,
-@@ -47,9 +64,33 @@ static unsigned int target(struct sk_buf
- 		BUG();
- 	}
- 
--	if ((*pskb)->secmark != secmark)
--		(*pskb)->secmark = secmark;
-+	if (secmark) {
-+
-+		/* Set secmark on inbound and filter it on outbound */
-+		if (outbound(target->family, hooknum)) {
-+			int err;
-+
-+			err = security_skb_flow_out(*pskb, secmark);
-+			if (!err)
-+				return NF_DROP;
-+		} else
-+			/*
-+			 * inbound:
-+			 * loopback traffic should already be labeled
-+			 * and any filtering on outbound should suffice
-+			 */
-+			if (in == &loopback_dev)
-+				goto out;
-+
-+		/* 
-+		 * inbound or done with outbound check or no LSM hook
-+		 * for outbound
-+		 */
-+		if ((*pskb)->secmark != secmark)
-+			(*pskb)->secmark = secmark;
-+	}
- 
-+out:
- 	return XT_CONTINUE;
- }
- 
+ #define KEY__VIEW                                 0x00000001UL
+ #define KEY__READ                                 0x00000002UL
 
 --
 paul moore
