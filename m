@@ -1,31 +1,31 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k99BhNnF014451
-	for <selinux@tycho.nsa.gov>; Mon, 9 Oct 2006 07:43:23 -0400
-Received: from exchange.columbia.tresys.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with SMTP id k99Bg7v2013503
-	for <selinux@tycho.nsa.gov>; Mon, 9 Oct 2006 11:42:07 GMT
-Message-ID: <452A35CD.4050005@tresys.com>
-Date: Mon, 09 Oct 2006 07:43:09 -0400
-From: Joshua Brindle <jbrindle@tresys.com>
+Message-ID: <452A3ECF.5030105@trustedcs.com>
+Date: Mon, 09 Oct 2006 07:21:35 -0500
+From: Venkat Yekkirala <vyekkirala@TrustedCS.com>
 MIME-Version: 1.0
-To: Salvo Giuffrida <giuffsalvo@hotmail.it>
-CC: selinux@tycho.nsa.gov
-Subject: Re: Who is responsible for role assignment?
-References: <BAY114-F176D19BDB63BBD335C9ED9AF160@phx.gbl>
-In-Reply-To: <BAY114-F176D19BDB63BBD335C9ED9AF160@phx.gbl>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: selinux@tycho.nsa.gov
+CC: redhat-lspp@redhat.com, jmorris@namei.org, sds@tycho.nsa.gov,
+        paul.moore@hp.com, eparis@redhat.com, jbrindle@tresys.com
+Subject: [PATCH 0/1] selinux: secid reconciliation fixes V01: Intro
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Salvo Giuffrida wrote:
-> Who is responsible for role and domain assignment during the login? 
-> The single programs listed in the default_context file (ssh, login, 
-> cron, su, etc..)? Or is this a "trasparent" operation, done by the 
-> security server?
-> Thanks
-The login programs attempt the contexts in default_context in order. The 
-first to succeed wins. The security server doesn't know about abstract 
-events like logins and has no reason to.
+This patchset is relative to davem's net-2.6 git tree as of a few weeks back,
+and is an incremental fix to the secid-reconciliation patch series plus
+the ipsec leak patches.
+
+This patchset includes the fix sent out this past Friday night.
+
+This patchset is more immediately intended for the kernels undergoing
+LSPP certification, but needs to be reviewed for very-near-future
+upstreaming into 2.6.19.
+
+Paul, if you could respin your patchset relative to this one I would
+appreciate it. While doing so, can you look for NetLabel only when
+there's no xfrm label on a packet, since we now know that using both
+is redundant? This way we don't have to worry about NetLabel code
+bugs/side effects when someone is using just xfrm. Thanks.
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
