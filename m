@@ -1,49 +1,43 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k99DXphd017068
-	for <selinux@tycho.nsa.gov>; Mon, 9 Oct 2006 09:33:52 -0400
-Received: from exchange.columbia.tresys.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with SMTP id k99DXDjU023752
-	for <selinux@tycho.nsa.gov>; Mon, 9 Oct 2006 13:33:13 GMT
-Subject: Re: MMCS patch against subversion policy
-From: "Christopher J. PeBenito" <cpebenito@tresys.com>
-To: russell@coker.com.au
-Cc: Daniel J Walsh <dwalsh@redhat.com>, SE-Linux <selinux@tycho.nsa.gov>
-In-Reply-To: <200610072113.18735.russell@coker.com.au>
-References: <200610062109.51031.russell@coker.com.au>
-	 <200610071118.18718.russell@coker.com.au> <452780C3.3090809@redhat.com>
-	 <200610072113.18735.russell@coker.com.au>
-Content-Type: text/plain
-Date: Mon, 09 Oct 2006 08:54:02 -0400
-Message-Id: <1160398442.8690.41.camel@sgc>
-Mime-Version: 1.0
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k99DqZvb017493
+	for <selinux@tycho.nsa.gov>; Mon, 9 Oct 2006 09:52:35 -0400
+Received: from mail4.sea5.speakeasy.net (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id k99DpIv2002673
+	for <selinux@tycho.nsa.gov>; Mon, 9 Oct 2006 13:51:19 GMT
+Date: Mon, 9 Oct 2006 09:52:33 -0400 (EDT)
+From: James Morris <jmorris@namei.org>
+To: Venkat Yekkirala <vyekkirala@TrustedCS.com>
+cc: selinux@tycho.nsa.gov, redhat-lspp@redhat.com, paul.moore@hp.com,
+        sds@tycho.nsa.gov, eparis@redhat.com, jbrindle@tresys.com
+Subject: Re: [PATCH 0/1] selinux: secid reconciliation fixes V01
+In-Reply-To: <452A3ED6.9060403@trustedcs.com>
+Message-ID: <Pine.LNX.4.64.0610090949580.28179@d.namei>
+References: <452A3ED6.9060403@trustedcs.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Sat, 2006-10-07 at 21:13 +1000, Russell Coker wrote:
-> On Saturday 07 October 2006 20:26, Daniel J Walsh <dwalsh@redhat.com> wrote:
-> > There is only 
-> > unconfined users.  All users in by default login with s0, not
-> > SystemLow-SystemHigh.  We could make that change but then it would get
-> > harder to turn on MCS as you would need to start thinking in terms of
-> > administators.
-> 
-> Maybe we need to modify useradd to manage the SE Linux identity.  We could do 
-> something like have membership of group wheel mean that by default a login 
-> entry will be created with SE Linux identity "root".
+On Mon, 9 Oct 2006, Venkat Yekkirala wrote:
 
-A more general solution would be to enhance the user mapping to be able
-to map based on the group, rather than modifying useradd.  So then the
-mapping would match up in the order (first match wins):
+> 3. Label igmp traffic with the igmp_packet initial context.
 
-username match
-group match
-__default__
+Why is IGMP being handled separately?  How many other protocols will need 
+their own specific hooks?
 
+> + * @igmp_classify_skb:
+> + *	Sets the skb's secid to the igmp initsid.
+
+This explanation is SELinux-specific.
+
+Your patches need to be against the latest net-2.6 tree.
+
+
+
+- James
 -- 
-Chris PeBenito
-Tresys Technology, LLC
-(410) 290-1411 x150
-
+James Morris
+<jmorris@namei.org>
 
 --
 This message was distributed to subscribers of the selinux mailing list.
