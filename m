@@ -1,105 +1,101 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k99JRT6Z025454
-	for <selinux@tycho.nsa.gov>; Mon, 9 Oct 2006 15:27:29 -0400
-Received: from tcsfw4.tcs-sec.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id k99JQh1s002859
-	for <selinux@tycho.nsa.gov>; Mon, 9 Oct 2006 19:26:47 GMT
-Message-ID: <452AA26C.7050901@trustedcs.com>
-Date: Mon, 09 Oct 2006 14:26:36 -0500
-From: Venkat Yekkirala <vyekkirala@TrustedCS.com>
-MIME-Version: 1.0
-To: selinux@tycho.nsa.gov, redhat-lspp@redhat.com
-Subject: Re: DOCUMENTATION OF SECID RECONCILIATION AND FLOW CONTROL FOR POLICY
- WRITERS
-References: <452A3F8C.5080401@trustedcs.com>
-In-Reply-To: <452A3F8C.5080401@trustedcs.com>
-Content-Type: text/plain; charset=ISO-8859-1
+Message-Id: <20061009195850.814267000@hp.com>
+References: <20061009194223.402695000@hp.com>
+Date: Mon, 09 Oct 2006 15:42:31 -0400
+From: paul.moore@hp.com
+To: netdev@vger.kernel.org, selinux@tycho.nsa.gov
+Cc: vyekkirala@TrustedCS.com, jmorris@namei.org, sds@tycho.nsa.gov
+Subject: [PATCH 08/11] secid reconciliation: Use secmark when classifying flow using skb
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Venkat Yekkirala wrote:
-> DOCUMENTATION OF SECID RECONCILIATION AND FLOW CONTROL FOR POLICY WRITERS:
-> 
-> ON INBOUND:
-> 
-> 1. PACKETS ENTERING SYSTEM FROM A NON-LOOPBACK DEVICE:
-> 
->    Can a packet "carrying" external domain label x_t "flow_in" thru the
->    security point with the peer domain label p_d_t?
-> 
-> 	NOTE:
-> 	a. x_t defaults to unlabeled_t, if no external label.
-> 	b. p_d_t defaults to network_t in the absence of any applicable
-> 	   [conn]secmark rules for the packet. If there are multiple
-> 	   secmark rules applicable to a packet, the context on the LAST
-> 	   rule will apply.
-> 
->    NO: Drop packet.
->    YES: If no external label, let packet "carry" p_d_t.
-> 
-> 2. INPUT ONLY: Can a socket "recv" a packet from domain p_d_t?
-> 
->    NO: Drop packet.
->    YES: If setting up a tcp connection, set peer context to p_d_t.
-> 
-> ON OUTBOUND:
-> 
-> 1. Let packet "carry" the originating socket domain label.
-> 
-> 2. IPSEC Handling:
-> 
->    LABELED IPSEC: If packet "polmatch"es to an otherwise applicable and
->    labeled SPD entry, choose a Security Association (SA) with the SAME context
->    as the domain label being carried by packet.
-> 	NOTE: If no such SA present, call into IKE with context on packet.
-> 
->    NON-LABELED (PLAIN/TRADITIONAL) IPSEC: If there's an applicable SPD entry
->    that does NOT have an explicit context associated with it, an applicable SA
->    that does NOT have an explicit context associated with it is chosen.
-> 	NOTE: If no such SA present, call into IKE, but with NO context.
-> 
-> 3. PACKETS DESTINED FOR NON-LOOPBACK DEVICE:
-> 
->    a. IPTABLES Processing:
->       As EACH applicable iptables [CONN]SECMARK rule with domain p_d_t is
->       encountered, do the following:
->    
->       Can a packet carrying domain label a_t "flow_out" of the security point
->       with the domain label p_d_t?
->    
->          NO: Drop packet.
->          YES: Replace the domain label a_t on the packet with the security point
->               label p_d_t.
-> 
->    b. Before a packet is let out of the system:
-> 
->       Can a packet with domain label p_d_t "flow_out" into the network domain
->       network_t?
-> 
->       NO: Drop packet.
->       YES: Let packet out.
-> 
->       NOTE: Ideally this check should be applicable only to packets that
->             didn't go thru [conn]secmark checks for outbound, but there's
->             currently no way to know this due to implementation constrains.
->             Hence a blanket check for ALL packets leaving the system.
-> 
-> 
-> FORWARDED TRAFFIC:
-> 
-> Forwarded Traffic will undergo the following:
-> 
-> 1. Step 1 under ON INBOUND.
-> 
-> 2. Steps 2 and 3 under ON OUTBOUND.
-      NOTE: The iptables FORWARD chain is treated as an outbound chain
-            for flow control purposes. That means forwarded traffic would
-            need to be flow-controlled/labeled when it comes into the system
-            using an applicable rule in the PREROUTING chain, and flow-controlled
-            before it leaves the system using rules either in the FORWARD chain
-            or the POSTROUTING chain.
-> 
+From: Venkat Yekkirala <vyekkirala@TrustedCS.com>
 
+This beings secmark into the picture when classifying flows
+using an skb.
+
+Signed-off-by: Venkat Yekkirala <vyekkirala@TrustedCS.com>
+---
+ include/linux/security.h |   10 ----------
+ include/linux/skbuff.h   |   20 ++++++++++++++++++++
+ 2 files changed, 20 insertions(+), 10 deletions(-)
+
+Index: net-2.6_secidfinal/include/linux/security.h
+===================================================================
+--- net-2.6_secidfinal.orig/include/linux/security.h
++++ net-2.6_secidfinal/include/linux/security.h
+@@ -3224,12 +3224,6 @@ static inline int security_xfrm_decode_s
+ 	return security_ops->xfrm_decode_session(skb, secid, 1);
+ }
+ 
+-static inline void security_skb_classify_flow(struct sk_buff *skb, struct flowi *fl)
+-{
+-	int rc = security_ops->xfrm_decode_session(skb, &fl->secid, 0);
+-
+-	BUG_ON(rc);
+-}
+ #else	/* CONFIG_SECURITY_NETWORK_XFRM */
+ static inline int security_xfrm_policy_alloc(struct xfrm_policy *xp, struct xfrm_user_sec_ctx *sec_ctx)
+ {
+@@ -3298,10 +3292,6 @@ static inline int security_xfrm_decode_s
+ 	return 0;
+ }
+ 
+-static inline void security_skb_classify_flow(struct sk_buff *skb, struct flowi *fl)
+-{
+-}
+-
+ #endif	/* CONFIG_SECURITY_NETWORK_XFRM */
+ 
+ #ifdef CONFIG_KEYS
+Index: net-2.6_secidfinal/include/linux/skbuff.h
+===================================================================
+--- net-2.6_secidfinal.orig/include/linux/skbuff.h
++++ net-2.6_secidfinal/include/linux/skbuff.h
+@@ -30,6 +30,7 @@
+ #include <net/checksum.h>
+ #include <linux/dmaengine.h>
+ #include <net/flow.h>
++#include <linux/security.h>
+ 
+ #define HAVE_ALLOC_SKB		/* For the drivers to know */
+ #define HAVE_ALIGNABLE_SKB	/* Ditto 8)		   */
+@@ -1514,6 +1515,20 @@ static inline void security_flow_classif
+ 	skb->secmark = fl->secid;
+ }
+ 
++static inline void security_skb_classify_flow(struct sk_buff *skb,
++					struct flowi *fl)
++{
++	/*
++	 * We need to check for xfrm label here since secid reconciliation
++	 * may or may not have happened yet and we want the
++	 * flow to use the best available label.
++	 */
++	int rc = security_xfrm_decode_session(skb, &fl->secid);
++
++	if (rc || !fl->secid)
++		fl->secid = skb->secmark;
++}
++
+ #else
+ 
+ static inline void security_skb_classify_skb(struct sk_buff *from,
+@@ -1526,6 +1541,11 @@ static inline void security_flow_classif
+ {
+ }
+ 
++static inline void security_skb_classify_flow(struct sk_buff *skb,
++					struct flowi *fl)
++{
++}
++
+ #endif /* CONFIG_SECURITY_NETWORK */
+ 
+ #endif	/* __KERNEL__ */
+
+--
+paul moore
+linux security @ hp
 
 --
 This message was distributed to subscribers of the selinux mailing list.
