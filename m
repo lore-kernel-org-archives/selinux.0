@@ -1,44 +1,57 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k99EOcCf018341
-	for <selinux@tycho.nsa.gov>; Mon, 9 Oct 2006 10:24:38 -0400
-Received: from mail1.sea5.speakeasy.net (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id k99ENxjU029009
-	for <selinux@tycho.nsa.gov>; Mon, 9 Oct 2006 14:23:59 GMT
-Date: Mon, 9 Oct 2006 10:24:35 -0400 (EDT)
-From: James Morris <jmorris@namei.org>
-To: Venkat Yekkirala <vyekkirala@TrustedCS.com>
-cc: selinux@tycho.nsa.gov, redhat-lspp@redhat.com, paul.moore@hp.com,
-        sds@tycho.nsa.gov, eparis@redhat.com, jbrindle@tresys.com
-Subject: RE: [PATCH 0/1] selinux: secid reconciliation fixes V01
-In-Reply-To: <36282A1733C57546BE392885C0618592015CFD40@chaos.tcs.tcs-sec.com>
-Message-ID: <Pine.LNX.4.64.0610091022461.28179@d.namei>
-References: <36282A1733C57546BE392885C0618592015CFD40@chaos.tcs.tcs-sec.com>
+Message-ID: <452A5CAB.6010003@hp.com>
+Date: Mon, 09 Oct 2006 10:28:59 -0400
+From: Paul Moore <paul.moore@hp.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Venkat Yekkirala <vyekkirala@TrustedCS.com>
+Cc: selinux@tycho.nsa.gov, redhat-lspp@redhat.com, jmorris@namei.org,
+        sds@tycho.nsa.gov, eparis@redhat.com, jbrindle@tresys.com
+Subject: Re: [PATCH 0/1] selinux: secid reconciliation fixes V01: Intro
+References: <452A3ECF.5030105@trustedcs.com>
+In-Reply-To: <452A3ECF.5030105@trustedcs.com>
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 9 Oct 2006, Venkat Yekkirala wrote:
-
-> > > 3. Label igmp traffic with the igmp_packet initial context.
-> > 
-> > Why is IGMP being handled separately?  How many other 
-> > protocols will need 
-> > their own specific hooks?
+Venkat Yekkirala wrote:
+> This patchset is relative to davem's net-2.6 git tree as of a few weeks back,
+> and is an incremental fix to the secid-reconciliation patch series plus
+> the ipsec leak patches.
 > 
-> igmp seems like the only odd ball out in that it sends packets
-> outside of a socket (even a kernel sock) context; which also
-> explains why there's a separate init sid defined/deprecated for
-> this in the selinux policy. 
+> This patchset includes the fix sent out this past Friday night.
+> 
+> This patchset is more immediately intended for the kernels undergoing
+> LSPP certification, but needs to be reviewed for very-near-future
+> upstreaming into 2.6.19.
 
-I don't think a protocol-specific hook is going to be acceptable.  Can you 
-test inside SELinux to determine that it's IGMP?
+>From what I understand the merge window for 2.6.19 is closed, it closed last
+week with the release of 2.6.19-rc1.  While 2.6.19 is still open for bugfixes,
+its not entirely clear to me this would qualify.  Perhaps James could give us
+his opinion.
 
+Regardless, there is always 2.6.20 and of course RHEL5 although I wonder at this
+point if that ship has passed too.
 
-- James
+> Paul, if you could respin your patchset relative to this one I would
+> appreciate it. While doing so, can you look for NetLabel only when
+> there's no xfrm label on a packet, since we now know that using both
+> is redundant? This way we don't have to worry about NetLabel code
+> bugs/side effects when someone is using just xfrm. Thanks.
+
+As far as I can tell there are no problems with the latest NetLabel/secid patch
+when layered on top of the secid patches.  There was a lot of testing and debate
+on this last Friday but it turned out to be a problem with the secid patch not
+clearing the secmark on exit as well as some confusion around policy and
+multicast traffic.  All of the NetLabel bugs from the past month or two have
+only occurred on communication channels when NetLabel was in use - there was
+some thought that the recent Bluetooth bug was NetLabel related but it wasn't,
+it was a fault with the MLSXFRM patchset.
+
+If there is some issue I'm not aware of send me some mail or give me a call
+(603-641-0536) and we can work it out.
+
 -- 
-James Morris
-<jmorris@namei.org>
+paul moore
+linux security @ hp
 
 --
 This message was distributed to subscribers of the selinux mailing list.
