@@ -1,38 +1,28 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k97Ef5EX029658
-	for <selinux@tycho.nsa.gov>; Sat, 7 Oct 2006 10:41:05 -0400
-Received: from mail8.sea5.speakeasy.net (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id k97EeRrs022957
-	for <selinux@tycho.nsa.gov>; Sat, 7 Oct 2006 14:40:28 GMT
-Date: Sat, 7 Oct 2006 10:41:02 -0400 (EDT)
-From: James Morris <jmorris@namei.org>
-To: Venkat Yekkirala <vyekkirala@TrustedCS.com>
-cc: selinux@tycho.nsa.gov, sds@tycho.nsa.gov, paul.moore@hp.com,
-        eparis@redhat.com, sgrubb@redhat.com, jbrindle@tresys.com
-Subject: Re: [PATCH 1/1] selinux: Null-out secmark after use - V.02
-In-Reply-To: <4526CF73.1070200@trustedcs.com>
-Message-ID: <Pine.LNX.4.64.0610071040190.21320@d.namei>
-References: <4526CF73.1070200@trustedcs.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k99B093X013626
+	for <selinux@tycho.nsa.gov>; Mon, 9 Oct 2006 07:00:09 -0400
+Received: from bay0-omc1-s4.bay0.hotmail.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id k99Awqv2007466
+	for <selinux@tycho.nsa.gov>; Mon, 9 Oct 2006 10:58:52 GMT
+Message-ID: <BAY114-F176D19BDB63BBD335C9ED9AF160@phx.gbl>
+From: "Salvo Giuffrida" <giuffsalvo@hotmail.it>
+To: selinux@tycho.nsa.gov
+Subject: Who is responsible for role assignment?
+Date: Mon, 09 Oct 2006 13:00:05 +0200
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 6 Oct 2006, Venkat Yekkirala wrote:
+Who is responsible for role and domain assignment during the login? The 
+single programs listed in the default_context file (ssh, login, cron, su, 
+etc..)? Or is this a "trasparent" operation, done by the security server?
+Thanks
 
-> This nulls out the secmark field on the skb after
+_________________________________________________________________
+Personalizza MSN Messenger con sfondi e fotografie! 
+http://www.ilovemessenger.msn.it/
 
-This doesn't apply to an upstream tree.
-
-Please indicate which tree it is for and also whether you want it applied 
-or reviewed.
-
-
-
-- James
--- 
-James Morris
-<jmorris@namei.org>
 
 --
 This message was distributed to subscribers of the selinux mailing list.
