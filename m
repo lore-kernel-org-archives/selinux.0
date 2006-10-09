@@ -1,39 +1,27 @@
-Subject: Re: [PATCH 0/1] selinux: secid reconciliation fixes V01: Intro
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k99Ci8GE016038
+	for <selinux@tycho.nsa.gov>; Mon, 9 Oct 2006 08:44:08 -0400
+Received: from twoface.columbia.tresys.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id k99Cgmv2023066
+	for <selinux@tycho.nsa.gov>; Mon, 9 Oct 2006 12:42:50 GMT
+Subject: SELinux Symposium CFP extended
 From: Joshua Brindle <jbrindle@tresys.com>
-To: Venkat Yekkirala <vyekkirala@TrustedCS.com>
-Cc: selinux@tycho.nsa.gov, redhat-lspp@redhat.com, jmorris@namei.org,
-        sds@tycho.nsa.gov, paul.moore@hp.com, eparis@redhat.com
-In-Reply-To: <452A3ECF.5030105@trustedcs.com>
-References: <452A3ECF.5030105@trustedcs.com>
+To: "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>,
+        "fedora-selinux-list@redhat.com" <fedora-selinux-list@redhat.com>
 Content-Type: text/plain
-Date: Mon, 09 Oct 2006 08:40:18 -0400
-Message-Id: <1160397618.16814.1.camel@twoface.columbia.tresys.com>
+Date: Mon, 09 Oct 2006 08:44:03 -0400
+Message-Id: <1160397843.16814.5.camel@twoface.columbia.tresys.com>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 2006-10-09 at 07:21 -0500, Venkat Yekkirala wrote:
-> This patchset is relative to davem's net-2.6 git tree as of a few weeks back,
-> and is an incremental fix to the secid-reconciliation patch series plus
-> the ipsec leak patches.
-> 
+We have extended the SELinux Symposium call for papers to Next Monday,
+October 16, 2006. At that time all papers must be submitted to be
+considered. 
 
-Do you have a git tree with everything you have so far? Some of your
-patches won't apply to the net-2.6 I have. Perhaps James could put a
-branch in his selinux-2.6?
+Thank you and we look forward to seeing your submissions.
 
-> This patchset includes the fix sent out this past Friday night.
-> 
-> This patchset is more immediately intended for the kernels undergoing
-> LSPP certification, but needs to be reviewed for very-near-future
-> upstreaming into 2.6.19.
-> 
-> Paul, if you could respin your patchset relative to this one I would
-> appreciate it. While doing so, can you look for NetLabel only when
-> there's no xfrm label on a packet, since we now know that using both
-> is redundant? This way we don't have to worry about NetLabel code
-> bugs/side effects when someone is using just xfrm. Thanks.
-> 
+Joshua Brindle
 
 
 --
