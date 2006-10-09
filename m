@@ -1,57 +1,57 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k99HS4lr023172
-	for <selinux@tycho.nsa.gov>; Mon, 9 Oct 2006 13:28:04 -0400
-Received: from M4.sparta.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id k99HQlS2002340
-	for <selinux@tycho.nsa.gov>; Mon, 9 Oct 2006 17:26:47 GMT
-Received: from Beta5.sparta.com (beta5.sparta.com [157.185.63.21])
-	by M4.sparta.com (8.13.5/8.13.5) with ESMTP id k99HS4MU028029
-	for <selinux@tycho.nsa.gov>; Mon, 9 Oct 2006 12:28:04 -0500
-Received: from nemo.columbia.ads.sparta.com (nemo.columbia.sparta.com [157.185.80.75])
-	by Beta5.sparta.com (8.12.11/8.13.1) with ESMTP id k99HS4WR001290
-	for <selinux@tycho.nsa.gov>; Mon, 9 Oct 2006 12:28:04 -0500
-Mime-Version: 1.0 (Apple Message framework v752.3)
-To: SE Linux <selinux@tycho.nsa.gov>
-Message-Id: <1ED46139-F06C-4DC6-A577-09BC257C9FBF@sparta.com>
-Content-Type: multipart/mixed; boundary=Apple-Mail-11--428427765
-From: Todd Miller <Todd.Miller@sparta.com>
-Subject: PATCH: fix memory leak in setfiles.c
-Date: Mon, 9 Oct 2006 13:28:02 -0400
+Message-ID: <452A94A2.8040905@us.ibm.com>
+Date: Mon, 09 Oct 2006 13:27:46 -0500
+From: Michael C Thompson <thompsmc@us.ibm.com>
+MIME-Version: 1.0
+To: Michael C Thompson <thompsmc@us.ibm.com>
+CC: SE Linux <selinux@tycho.nsa.gov>, Stephen Smalley <sds@tycho.nsa.gov>
+Subject: Re: [PATCH 2/4] make newrole suid
+References: <4526D5C6.3090505@us.ibm.com>
+In-Reply-To: <4526D5C6.3090505@us.ibm.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+Michael C Thompson wrote:
+> This is the 2nd of 4 patches.
+> This patch applies against policycoreutils-1.30.30-1.
+> 
+> Changes:
+>  * main is changed in the following ways:
+>    - remove the duplicated functionality for patch 1/4
+>    - set to call the new functions
+>    - introduces better error handling and cleanup paths
+> 
+> Signed-off-by: Michael Thompson <thompsmc@us.ibm.com>
+> 
+> 
+> 
+> ------------------------------------------------------------------------
+> 
+> diff -Naur policycoreutils-1.30.30/newrole/newrole.c policycoreutils-1.30.30.suid/newrole/newrole.c
+> --- policycoreutils-1.30.30/newrole/newrole.c	2006-10-06 17:01:10.000000000 -0500
+> +++ policycoreutils-1.30.30.suid/newrole/newrole.c	2006-10-06 17:00:18.000000000 -0500
+<snip>
+>  	if (!is_selinux_enabled()) {
+> -		fprintf(stderr,
+> -			_
+> -			("Sorry, newrole may be used only on a SELinux kernel.\n"));
+> -		exit(-1);
+> +		fprintf(stderr, _("Sorry, newrole may be used only on "
+> +			"a SELinux kernel.\n"));
+> +		return -1;
+>  	}
+> -	enforcing = security_getenforce();
+> -	if (enforcing < 0) {
+> +
+> +	if (security_getenforce()) {
+>  		fprintf(stderr, _("Could not determine enforcing mode.\n"));
+> -		exit(-1);
+> +		return -1;
+>  	}
 
---Apple-Mail-11--428427765
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain;
-	charset=US-ASCII;
-	format=flowed
+Rather embarrassing, but this was overlooked by myself before I sent 
+this patch out. It's been fixed on my side.
 
-Add a missing freecon() on an error path.
-
-  - todd
-
-
---Apple-Mail-11--428427765
-Content-Transfer-Encoding: 7bit
-Content-Type: application/octet-stream;
-	x-unix-mode=0644;
-	name=setfiles.c.diff
-Content-Disposition: attachment;
-	filename=setfiles.c.diff
-
---- setfiles.c.DIST	2006-10-09 13:20:10.000000000 -0400
-+++ setfiles.c	2006-10-09 13:23:25.000000000 -0400
-@@ -357,6 +357,7 @@
- 				"%s: %s not reset customized by admin to %s\n",
- 				progname, my_file, context);
- 		}
-+		freecon(context);
- 		goto out;
- 	}
- 
-
---Apple-Mail-11--428427765--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
