@@ -1,94 +1,40 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k99CPdhC015486
-	for <selinux@tycho.nsa.gov>; Mon, 9 Oct 2006 08:25:39 -0400
-Received: from tcsfw4.tcs-sec.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id k99COxjU015886
-	for <selinux@tycho.nsa.gov>; Mon, 9 Oct 2006 12:25:00 GMT
-Message-ID: <452A3F8C.5080401@trustedcs.com>
-Date: Mon, 09 Oct 2006 07:24:44 -0500
-From: Venkat Yekkirala <vyekkirala@TrustedCS.com>
-MIME-Version: 1.0
-To: selinux@tycho.nsa.gov, redhat-lspp@redhat.com
-Subject: DOCUMENTATION OF SECID RECONCILIATION AND FLOW CONTROL FOR POLICY
- WRITERS
-Content-Type: text/plain; charset=ISO-8859-1
+Subject: Re: [PATCH 0/1] selinux: secid reconciliation fixes V01: Intro
+From: Joshua Brindle <jbrindle@tresys.com>
+To: Venkat Yekkirala <vyekkirala@TrustedCS.com>
+Cc: selinux@tycho.nsa.gov, redhat-lspp@redhat.com, jmorris@namei.org,
+        sds@tycho.nsa.gov, paul.moore@hp.com, eparis@redhat.com
+In-Reply-To: <452A3ECF.5030105@trustedcs.com>
+References: <452A3ECF.5030105@trustedcs.com>
+Content-Type: text/plain
+Date: Mon, 09 Oct 2006 08:40:18 -0400
+Message-Id: <1160397618.16814.1.camel@twoface.columbia.tresys.com>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-DOCUMENTATION OF SECID RECONCILIATION AND FLOW CONTROL FOR POLICY WRITERS:
+On Mon, 2006-10-09 at 07:21 -0500, Venkat Yekkirala wrote:
+> This patchset is relative to davem's net-2.6 git tree as of a few weeks back,
+> and is an incremental fix to the secid-reconciliation patch series plus
+> the ipsec leak patches.
+> 
 
-ON INBOUND:
+Do you have a git tree with everything you have so far? Some of your
+patches won't apply to the net-2.6 I have. Perhaps James could put a
+branch in his selinux-2.6?
 
-1. PACKETS ENTERING SYSTEM FROM A NON-LOOPBACK DEVICE:
+> This patchset includes the fix sent out this past Friday night.
+> 
+> This patchset is more immediately intended for the kernels undergoing
+> LSPP certification, but needs to be reviewed for very-near-future
+> upstreaming into 2.6.19.
+> 
+> Paul, if you could respin your patchset relative to this one I would
+> appreciate it. While doing so, can you look for NetLabel only when
+> there's no xfrm label on a packet, since we now know that using both
+> is redundant? This way we don't have to worry about NetLabel code
+> bugs/side effects when someone is using just xfrm. Thanks.
+> 
 
-   Can a packet "carrying" external domain label x_t "flow_in" thru the
-   security point with the peer domain label p_d_t?
-
-	NOTE:
-	a. x_t defaults to unlabeled_t, if no external label.
-	b. p_d_t defaults to network_t in the absence of any applicable
-	   [conn]secmark rules for the packet. If there are multiple
-	   secmark rules applicable to a packet, the context on the LAST
-	   rule will apply.
-
-   NO: Drop packet.
-   YES: If no external label, let packet "carry" p_d_t.
-
-2. INPUT ONLY: Can a socket "recv" a packet from domain p_d_t?
-
-   NO: Drop packet.
-   YES: If setting up a tcp connection, set peer context to p_d_t.
-
-ON OUTBOUND:
-
-1. Let packet "carry" the originating socket domain label.
-
-2. IPSEC Handling:
-
-   LABELED IPSEC: If packet "polmatch"es to an otherwise applicable and
-   labeled SPD entry, choose a Security Association (SA) with the SAME context
-   as the domain label being carried by packet.
-	NOTE: If no such SA present, call into IKE with context on packet.
-
-   NON-LABELED (PLAIN/TRADITIONAL) IPSEC: If there's an applicable SPD entry
-   that does NOT have an explicit context associated with it, an applicable SA
-   that does NOT have an explicit context associated with it is chosen.
-	NOTE: If no such SA present, call into IKE, but with NO context.
-
-3. PACKETS DESTINED FOR NON-LOOPBACK DEVICE:
-
-   a. IPTABLES Processing:
-      As EACH applicable iptables [CONN]SECMARK rule with domain p_d_t is
-      encountered, do the following:
-   
-      Can a packet carrying domain label a_t "flow_out" of the security point
-      with the domain label p_d_t?
-   
-         NO: Drop packet.
-         YES: Replace the domain label a_t on the packet with the security point
-              label p_d_t.
-
-   b. Before a packet is let out of the system:
-
-      Can a packet with domain label p_d_t "flow_out" into the network domain
-      network_t?
-
-      NO: Drop packet.
-      YES: Let packet out.
-
-      NOTE: Ideally this check should be applicable only to packets that
-            didn't go thru [conn]secmark checks for outbound, but there's
-            currently no way to know this due to implementation constrains.
-            Hence a blanket check for ALL packets leaving the system.
-
-
-FORWARDED TRAFFIC:
-
-Forwarded Traffic will undergo the following:
-
-1. Step 1 under ON INBOUND.
-
-2. Steps 2 and 3 under ON OUTBOUND.
 
 --
 This message was distributed to subscribers of the selinux mailing list.
