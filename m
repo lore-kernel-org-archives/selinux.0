@@ -1,101 +1,174 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k9AK5TTF028351
-	for <selinux@tycho.nsa.gov>; Tue, 10 Oct 2006 16:05:29 -0400
-Received: from exchange.columbia.tresys.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with SMTP id k9AK4Dvk023112
-	for <selinux@tycho.nsa.gov>; Tue, 10 Oct 2006 20:04:14 GMT
-Subject: RE: Denials from newest kernel
-From: "Christopher J. PeBenito" <cpebenito@tresys.com>
-To: vyekkirala@TrustedCS.com
-Cc: Venkat Yekkirala <vyekkirala@tcsfw4.tcs-sec.com>,
-        Joshua Brindle <jbrindle@tresys.com>, selinux@tycho.nsa.gov
-In-Reply-To: <000801c6eca0$75eee1f0$cc0a010a@tcssec.com>
-References: <000801c6eca0$75eee1f0$cc0a010a@tcssec.com>
+Subject: Re: [PATCH 1/4] make newrole suid
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Michael C Thompson <thompsmc@us.ibm.com>
+Cc: SE Linux <selinux@tycho.nsa.gov>
+In-Reply-To: <4526D531.1090409@us.ibm.com>
+References: <4526D531.1090409@us.ibm.com>
 Content-Type: text/plain
-Date: Tue, 10 Oct 2006 16:05:51 -0400
-Message-Id: <1160510751.20774.115.camel@sgc>
+Date: Tue, 10 Oct 2006 16:27:28 -0400
+Message-Id: <1160512048.3322.54.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2006-10-10 at 14:15 -0500, Venkat Yekkirala wrote:
-> > On Tue, 2006-10-10 at 10:42 -0400, Venkat Yekkirala wrote:
-> > > > I don't think this is a desired behavior for a couple
-> > reasons.  First,
-> > > > this means that every domain that has access to a
-> > specific packet, for
-> > > > example, http_client_packet_t, but not to client_packet_t,
-> > > > will have to
-> > > > dontaudit the client_packet_t access.  Thats a lot of
-> > >
-> > > But this is a problem of our own making in the policy. If we
-> > > jump into a unique chain for a label (or a set of labels all
-> > > fine-grained to the same "grade", and hence are non-conflicting)
-> > > then we shouldn't see this. Please refer to the links I mentioned in
-> > > my response to Joshua.
-> > >
-> > > > dontauditing, and
-> > > > also it will cover up legitimate denials on
-> > client_packet_t.  Second,
-> > >
-> > > It won't if you defined the catch-all security point only for the
-> > > real catch-all cases.
-> >
-> > On both of the above two points, you're making my point.  You're
-> > applying to constraints to the chaining of iptables rules,
+On Fri, 2006-10-06 at 17:14 -0500, Michael C Thompson wrote:
+> This is the 1st of 4 patches.
+> This patch applies against policycoreutils-1.30.30-1.
 > 
-> My point is that you already were applying constraints to the chaining
-> of iptabels rules in the current secmark paradigm, which is that the
-> secmark label on the last rule will prevail. Were you not?
-
-Yes, but this isn't an extra constraint, its how netfilter works.  If
-you have a MARK mangle rule that does --set-mark, and then later in the
-chain you have a MARK mangle rule that does a --set-mark, the result is
-always whatever is done by the last MARK.  Thats how the refpolicy
-SECMARK labeling works right now.
-
-What I'm describing also seems to be consistent with your docs:
-
-> 1. PACKETS ENTERING SYSTEM FROM A NON-LOOPBACK DEVICE:
+> Changes:
+>   * This patch breaks up the operations performed by newrole
+>     into functions. They are called in patch 2/4.
+>   * The following functions do not new functionality:
+>     - extract_pw_data
+>     - relabel_tty
+>     - restore_tty_label
+>     - parse_command_line_arguments
+>   * The following functions do add new functionality:
+>     - xsetenv
+>     - sanitize_environment
+>     - transition_to_caller_uid
+>     - set_signal_handles
 > 
->    Can a packet "carrying" external domain label x_t "flow_in" thru the
->    security point with the peer domain label p_d_t?
+> The new (and existing) functionality should be adequately documented in 
+> the code. If it is not clear, I consider that to be a failure of the 
+> code, and please let me know.
 > 
-> 	NOTE:
-> 	a. x_t defaults to unlabeled_t, if no external label.
-> 	b. p_d_t defaults to network_t in the absence of any applicable
-> 	   [conn]secmark rules for the packet. If there are multiple
-> 	   secmark rules applicable to a packet, the context on the LAST
-> 	   rule will apply.
-> 
->    NO: Drop packet.
->    YES: If no external label, let packet "carry" p_d_t.
+> Signed-off-by: Michael Thompson <thompsmc@us.ibm.com>
 
-On point b, you say the last context will be used in the check.
+diff -Naur policycoreutils-1.30.30/newrole/newrole.c policycoreutils-1.30.30.suid/newrole/newrole.c
+--- policycoreutils-1.30.30/newrole/newrole.c	2006-09-29 10:50:27.000000000 -0500
++++ policycoreutils-1.30.30.suid/newrole/newrole.c	2006-10-06 16:58:06.000000000 -0500
+@@ -101,6 +101,25 @@
+ 	return s2;
+ }
+ 
++/**
++ * Returns zero on success, non-zero otherwise
++ */
++static int xsetenv(char const *name, char const *val)
++{
++	size_t namelen = strlen(name);
++	size_t vallen = strlen(val);
++	char *string = malloc(namelen + 1 + vallen + 1);
++
++	if (!string)
++		return -1;
++	strcpy(string, name);
++	string[namelen] = '=';
++	strcpy(string + namelen + 1, val);
++	if (putenv (string) != 0)
++		return -1;
 
-> > making
-> > secmark work differently than the remainder of netfilter.
-> 
-> I don't understand this point; can't really compare an accessory (semark)
-> to the mechanism it's piggybacking on (netfilter).
+Why not just use setenv(name, val, 1)?  Then you also don't have to
+worry about integer overflow in your string allocation.
 
-I'm comparing SECMARK to IPMARK or MARK, etc.
+@@ -332,6 +351,115 @@
+ 	return found;
+ }
+ 
++/**
++ * Determine the Linux user identity to re-authenticate.
++ * If supported and set, use the login uid, as this should be more stable.
++ * Otherwise, use the real uid.
++ *
++ * This function assigns malloc'd memory into the pw_copy struct.
++ * Returns zero on success, non-zero otherwise
++ */
++int extract_pw_data(struct passwd *pw_copy)
++{
++	uid_t uid;
++	struct passwd *pw;
++
++#ifdef USE_AUDIT
++	uid = audit_getloginuid();
++	if (uid == (uid_t) - 1)
++		uid = getuid();
++#else
++	uid = getuid();
++#endif
++
++	setpwent();
++	pw = getpwuid(uid);
++	endpwent();
++	if (!(pw && pw->pw_name && pw->pw_name[0] && pw->pw_shell
++	      && pw->pw_shell[0] && pw->pw_dir && pw->pw_dir[0])) {
 
-> > > > this will cause permissive to have a different behavior than
-> > > > enforcing.
-> > > > This makes development in permissive more difficult,
-> > since you'll get
-> > > > spurious denials that you wouldn't get in enforcing.
-> 
-> Can you give an example of a spurious denial here?
+This seems unnecessary, unless the interface can actually return NULL
+pointers for the individual fields (vs. empty strings, which are
+possible) and unless later code cannot correctly handle the legal cases
+that might be returned by the interface.  Otherwise, we end up
+cluttering the code with lots of tests that might hide a real bug.
 
-I'm going to retract this, based on the fact that it isn't spurious
-based on the current implementation.
++		fprintf(stderr,
++			_("cannot find valid entry in the passwd file.\n"));
++		return -1;
++	}
++
++	*pw_copy = *pw;
++	pw = pw_copy;
++	pw->pw_name = xstrdup(pw->pw_name);
++	pw->pw_dir = xstrdup(pw->pw_dir);
++	pw->pw_shell = xstrdup(pw->pw_shell);
++
++	if (! (pw->pw_name && pw->pw_dir && pw->pw_shell))
++		goto out_free;
+
+xstrdup by definition exits on OOM errors, so you don't have to re-test
+here, or alternatively you don't need to use xstrdup in the first place
+(vs. just plain strdup).
+
++static int sanitize_environment(const struct passwd *pw)
++{
++	char const *term_env = getenv("TERM");
++	char const *display_env = getenv("DISPLAY");
++	char const *xauthority_env = getenv("XAUTHORITY");
++	char *term = NULL;		/* temporary container */
++	char *display = NULL;		/* temporary container */
++	char *xauthority = NULL;	/* temporary container */
++	int rc;
++
++	/* Save the variable values we want */
++	if (term_env)
++		term = xstrdup(term_env);
++	if (display_env)
++		display = xstrdup(display_env);
++	if (xauthority_env)
++		xauthority = xstrdup(xauthority_env);
++	if ((term_env && !term) || (display_env && !display) ||
++	     (xauthority_env && !xauthority)) {
++		rc = -1;
++		goto out;
++	}
+
+Same point here - you either use xstrdup and don't re-test afterward, or
+you use strdup and test.  Ditto for all other uses of xstrdup.
+
+@@ -396,6 +524,23 @@
+ }
+ #endif
+ 
++#ifdef NAMESPACE_PRIV
++/**
++ * This function will set the uid values to be that of caller's uid, and
++ * will drop any privilages which maybe have been raised.
++ */
++static int transition_to_caller_uid()
++{
++	uid_t uid = getuid();
++
++	if (setresuid(uid, uid, uid)) {
++		fprintf(stderr, _("Error changing uid, aborting.\n"));
++		return -1;
++	}
+
+Note that this will not drop privileges if KEEPCAPS has been set to 1.
+So you might want to explicitly call prctl in this function just prior
+to calling setresuid to make it clear that you are dropping capabilities
+as well.
 
 -- 
-Chris PeBenito
-Tresys Technology, LLC
-(410) 290-1411 x150
+Stephen Smalley
+National Security Agency
 
 
 --
