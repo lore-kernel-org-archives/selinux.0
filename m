@@ -1,50 +1,69 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k9ACeHW7013032
-	for <selinux@tycho.nsa.gov>; Tue, 10 Oct 2006 08:40:17 -0400
-Received: from smtp.sws.net.au (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id k9ACd1ib024998
-	for <selinux@tycho.nsa.gov>; Tue, 10 Oct 2006 12:39:02 GMT
-From: Russell Coker <russell@coker.com.au>
-Reply-To: russell@coker.com.au
-To: "abcde efghi" <svmdcv@gmail.com>
-Subject: Re: glibc error on rhel4
-Date: Tue, 10 Oct 2006 22:40:13 +1000
+Subject: Re: [PATCH 4/4] Validate kernel object classes and permissions
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Chad Sellers <csellers@tresys.com>
 Cc: selinux@tycho.nsa.gov
-References: <6a9b0ede0610100508o7c9d65c0t19b0185e8ffaf19a@mail.gmail.com>
-In-Reply-To: <6a9b0ede0610100508o7c9d65c0t19b0185e8ffaf19a@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Message-Id: <200610102240.15111.russell@coker.com.au>
+In-Reply-To: <C14C502C.18471%csellers@tresys.com>
+References: <C14C502C.18471%csellers@tresys.com>
+Content-Type: text/plain
+Date: Tue, 10 Oct 2006 09:25:02 -0400
+Message-Id: <1160486702.16807.28.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tuesday 10 October 2006 22:08, "abcde efghi" <svmdcv@gmail.com> wrote:
-> grep  -nri  "haithere"  *
->  *** glibc detected *** free(): invalid next size (fast):
-> 0x0000000000616990 ***
->  Aborted (core dumped)
->
-> uname -orp
-> 2.6.9-42.ELsmp x86_64 GNU/Linux
->
-> with selinux enabled i am getting this error.why is it so?
+On Fri, 2006-10-06 at 18:25 -0400, Chad Sellers wrote:
+> On 10/6/06 5:37 PM, "Stephen Smalley" <sds@tycho.nsa.gov> wrote:
+> 
+> > On Fri, 2006-10-06 at 16:09 -0400, Chad Sellers wrote:
+> >> plain text document attachment (verify_kernel.diff)
+> >> This patch replaces the object class and permission validation code to
+> >> validate against the defined kernel headers, and allow extra classes
+> >> and permissions that do not conflict with the kernel definitions. Note
+> >> that validation is now done for all policy loads, not just subsequent
+> >> loads after the first policy load.
+> > 
+> > I haven't looked closely, but it doesn't quite look right to me.  The
+> > old logic would walk the "good" definitions from the old policy,
+> > checking each one against the definitions in the new policy.  This logic
+> > appears to walk the new policy, checking each of its definitions against
+> > the kernel tables.  But what if the new policy simply omits a definition
+> > required by the kernel, e.g. delete the last class or the last five
+> > classes altogether from policy?  Interestingly, the old logic includes
+> > messages like "permission %s disappeared" or "class %s disappeared" but
+> > this logic does not (only messages about incorrect values).  I think you
+> > want it the other way around, i.e. walk the kernel tables and look up
+> > each definition there in the policy being loaded, then see if it is
+> > correct.  That also avoids having to skip around things that are defined
+> > in policy but not in the kernel tables.
+> > 
+> I don't think that's the logic we want, though. Part of the eventual idea
+> here is to help out the "Andrew Morton syndrome," where a kernel developer
+> has a new kernel class/permission, but no policy for it. If we require all
+> kernel defined classes/perms to be present in the policy, then we can't
+> support this situation. The logic in my patch requires that all the kernel
+> classes defined in the policy are consistent with the kernel, but allows for
+> the possibility of the kernel having new classes/permissions that aren't in
+> policy yet. The logic you propose would not allow a kernel developer to load
+> a policy until that policy supported their new object class/permission.
 
-What happens when SE Linux is disabled?
-
-What files were you grepping?  How big were they?
-
-grep has problems if you try grepping a file that has a line significantly 
-larger than memory, files like /var/log/lastlog and /var/log/faillog can get 
-very big if you have large UIDs and cause grep to crash when running out of 
-memory.  I've only tested this on 32bit systems, 64bit might get a slightly 
-different result.
+The only thing that changes in that future situation (for which no patch
+yet exists, and thus this patch should not presume it) is how one
+handles the absence of a kernel class or permission in the policy, not
+the logic for detecting such an absence.  Your logic won't even detect
+the absence, and thus cannot properly deal with it no matter how we want
+it handled, whether that means rejecting the policy altogether,
+accepting the policy and permitting the undefined permissions, or
+accepting the policy and denying the undefined permissions.  Note too
+that the handler will likely remain conditional on some policy-defined
+flag, so we will always need such detection logic even in that future
+situation.  Until we have support for gracefully handling a missing
+class or permission definition, we want to retain the safety property of
+rejecting such policies.
 
 -- 
-russell@coker.com.au
-http://etbe.blogspot.com/          My Blog
+Stephen Smalley
+National Security Agency
 
-http://www.coker.com.au/sponsorship.html Sponsoring Free Software development
 
 --
 This message was distributed to subscribers of the selinux mailing list.
