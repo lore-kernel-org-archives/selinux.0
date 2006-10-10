@@ -1,57 +1,54 @@
 Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k9AEgQqY017493
-	for <selinux@tycho.nsa.gov>; Tue, 10 Oct 2006 10:42:26 -0400
-Received: from exchange.columbia.tresys.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with SMTP id k9AEfkTb002861
-	for <selinux@tycho.nsa.gov>; Tue, 10 Oct 2006 14:41:46 GMT
-Subject: RE: Denials from newest kernel
-From: "Christopher J. PeBenito" <cpebenito@tresys.com>
-To: Venkat Yekkirala <vyekkirala@TrustedCS.com>
-Cc: Joshua Brindle <jbrindle@tresys.com>, selinux@tycho.nsa.gov
-In-Reply-To: <36282A1733C57546BE392885C0618592015CFDDA@chaos.tcs.tcs-sec.com>
-References: <36282A1733C57546BE392885C0618592015CFDDA@chaos.tcs.tcs-sec.com>
-Content-Type: text/plain
-Date: Tue, 10 Oct 2006 10:42:48 -0400
-Message-Id: <1160491368.20774.70.camel@sgc>
-Mime-Version: 1.0
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k9AF7Klr018555
+	for <selinux@tycho.nsa.gov>; Tue, 10 Oct 2006 11:07:20 -0400
+Received: from smtp.sws.net.au (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id k9AF6dTb006069
+	for <selinux@tycho.nsa.gov>; Tue, 10 Oct 2006 15:06:40 GMT
+From: Russell Coker <russell@coker.com.au>
+Reply-To: russell@coker.com.au
+To: "abcde efghi" <svmdcv@gmail.com>
+Subject: Re: nfs mount takes long time on x86 rhel4 u4 with selinux enabled
+Date: Wed, 11 Oct 2006 01:07:14 +1000
+Cc: selinux@tycho.nsa.gov
+References: <6a9b0ede0610100500v4bbe7866v661bb5939446cac2@mail.gmail.com> <6a9b0ede0610100735h1a92f4c3i890391f8a0b0238e@mail.gmail.com>
+In-Reply-To: <6a9b0ede0610100735h1a92f4c3i890391f8a0b0238e@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Message-Id: <200610110107.16261.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2006-10-10 at 10:18 -0400, Venkat Yekkirala wrote:
-> > > It seems like the SECMARK target on the last rule 
-> > > (client_packet_t) got executed BEFORE the port 80 one, 
-> > > causing the packet (yum-updatesd_t?) to
-> > > 
-> > > 1. be flow-controlled first against client_packet_t 2. assume 
-> > > the client_packet_t label overriding yum-updatesd_t 3. be 
-> > > flow-controlled against http_client_packet_t 4. assume 
-> > > http_client_packet_t 5. be flow-controlled against network_t
-> > > 
-> > > It seems like you saw 1,2 and 3 here and 4 & 5 later when you 
-> > > mention you were finally seeing the expected denials.
-> > > 
-> > 
-> > Yep, the client_packet_t one is first, Chris was under the impression
-> > the last one would win and the others wouldn't matter so the fallback
-> > was specified as the first rule in the chain. Look at the
-> 
-> I will have to just refer you to the following to get an idea
-> as to what the developers had in mind :)
-> http://marc.theaimsgroup.com/?l=selinux&m=115876013220221&w=2
-> http://marc.theaimsgroup.com/?l=selinux&m=115876375201000&w=2
+On Wednesday 11 October 2006 00:35, "abcde efghi" <svmdcv@gmail.com> wrote:
+> during installation time it was disabled
+> and during boottime i enabled it
+> (.i.e by setting selinux=enforcing in /etc/selinux/config and reboot)
 
-Thats what was intended, but that doesn't mean its the only solution.
-Netfilter is supposed to be flexible and works in many different ways,
-otherwise everyone would have similar firewalls.  The netfilter
-configuration currently provided by refpolicy provides the anticipated
-behavior on mainline kernels, the same as if it were done the way James
-suggested.  What you're describing breaks the current behavior.
+Before that reboot did you touch /.autorelabel?
+
+> that time it is taking some time to mount
+> what could be the pbm? is it really bcoz of portmap daemon?
+> how does portmap daemon cause this pbm? any pointers?
+
+If it's portmap then it's not an SE Linux issue and is best discussed on 
+another list.
+
+> note the time and call trace details:
+>
+> time mount <server:/disk/disk1/data1/ /mnt --type nfs
+> -orw,bg,nointr,hard,timeo=600,wsize=32768,rsize=32768,nfsvers=3,tcp,actimeo
+>=0, addr=10.0.0.60
+
+You did not provide any information on AVC messages or the time taken for the 
+mount command when SE Linux is in permissive mode (after running
+"setenforce 0").  Without such information we can't help you.  You need to 
+answer every question in my messages if you want useful answers from us.
 
 -- 
-Chris PeBenito
-Tresys Technology, LLC
-(410) 290-1411 x150
+russell@coker.com.au
+http://etbe.blogspot.com/          My Blog
 
+http://www.coker.com.au/sponsorship.html Sponsoring Free Software development
 
 --
 This message was distributed to subscribers of the selinux mailing list.
