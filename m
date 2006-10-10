@@ -1,45 +1,44 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k9ACCTwu012142
-	for <selinux@tycho.nsa.gov>; Tue, 10 Oct 2006 08:12:29 -0400
-Received: from smtp.sws.net.au (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id k9ACBmTb013269
-	for <selinux@tycho.nsa.gov>; Tue, 10 Oct 2006 12:11:49 GMT
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k9ACeHW7013032
+	for <selinux@tycho.nsa.gov>; Tue, 10 Oct 2006 08:40:17 -0400
+Received: from smtp.sws.net.au (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id k9ACd1ib024998
+	for <selinux@tycho.nsa.gov>; Tue, 10 Oct 2006 12:39:02 GMT
 From: Russell Coker <russell@coker.com.au>
 Reply-To: russell@coker.com.au
 To: "abcde efghi" <svmdcv@gmail.com>
-Subject: Re: nfs mount takes long time on x86 rhel4 u4 with selinux enabled
-Date: Tue, 10 Oct 2006 22:12:22 +1000
+Subject: Re: glibc error on rhel4
+Date: Tue, 10 Oct 2006 22:40:13 +1000
 Cc: selinux@tycho.nsa.gov
-References: <6a9b0ede0610100500v4bbe7866v661bb5939446cac2@mail.gmail.com>
-In-Reply-To: <6a9b0ede0610100500v4bbe7866v661bb5939446cac2@mail.gmail.com>
+References: <6a9b0ede0610100508o7c9d65c0t19b0185e8ffaf19a@mail.gmail.com>
+In-Reply-To: <6a9b0ede0610100508o7c9d65c0t19b0185e8ffaf19a@mail.gmail.com>
 MIME-Version: 1.0
 Content-Type: text/plain;
   charset="iso-8859-1"
-Message-Id: <200610102212.24468.russell@coker.com.au>
+Message-Id: <200610102240.15111.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tuesday 10 October 2006 22:00, "abcde efghi" <svmdcv@gmail.com> wrote:
-> nfs mount takes long time on x86 rhel4 u4 with selinux enabled.
-> This happens only with selinux enabled. Without selinx it takes few
-> milli-seconds.
-> When I installed machine with selinux enabled and selinux enabled
-> during run,mount works properly.
+On Tuesday 10 October 2006 22:08, "abcde efghi" <svmdcv@gmail.com> wrote:
+> grep  -nri  "haithere"  *
+>  *** glibc detected *** free(): invalid next size (fast):
+> 0x0000000000616990 ***
+>  Aborted (core dumped)
+>
+> uname -orp
+> 2.6.9-42.ELsmp x86_64 GNU/Linux
+>
+> with selinux enabled i am getting this error.why is it so?
 
-The most common cause of delays in NFS mounts is the portmap daemon not 
-running on the local machine.
+What happens when SE Linux is disabled?
 
-I'm not sure what you mean by "selinux enabled during run".  Did you test by 
-booting with SE Linux in enforcing mode, running "time mount ..." 
-then "umount ... ; setenforce 0 ; time mount ..."?  (where ... means the 
-necessary parameters).
+What files were you grepping?  How big were they?
 
-Did you check the audit log?  If you installed U4 then I think auditd will be 
-on by default so you have to check /var/log/audit/audit.log otherwise 
-run "dmesg" and look for "avc" messages.  If SE Linux is misconfigured then 
-you should see some AVC messages.
-
-Last time I was using RHEL4U4 I had no problems with NFS mounting.
+grep has problems if you try grepping a file that has a line significantly 
+larger than memory, files like /var/log/lastlog and /var/log/faillog can get 
+very big if you have large UIDs and cause grep to crash when running out of 
+memory.  I've only tested this on 32bit systems, 64bit might get a slightly 
+different result.
 
 -- 
 russell@coker.com.au
