@@ -1,46 +1,73 @@
 Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k9AFkHgC019683
-	for <selinux@tycho.nsa.gov>; Tue, 10 Oct 2006 11:46:17 -0400
-Received: from tcsfw4.tcs-sec.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id k9AFjbTb011354
-	for <selinux@tycho.nsa.gov>; Tue, 10 Oct 2006 15:45:38 GMT
-Message-ID: <36282A1733C57546BE392885C0618592015CFE37@chaos.tcs.tcs-sec.com>
-From: Venkat Yekkirala <vyekkirala@TrustedCS.com>
-To: "Christopher J. PeBenito" <cpebenito@tresys.com>,
-        Venkat Yekkirala
-	 <vyekkirala@TrustedCS.com>
-Cc: Joshua Brindle <jbrindle@tresys.com>, selinux@tycho.nsa.gov
-Subject: RE: Denials from newest kernel
-Date: Tue, 10 Oct 2006 11:45:56 -0400
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k9AFtoEQ020007
+	for <selinux@tycho.nsa.gov>; Tue, 10 Oct 2006 11:55:50 -0400
+Received: from exchange.columbia.tresys.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with SMTP id k9AFtBTb012590
+	for <selinux@tycho.nsa.gov>; Tue, 10 Oct 2006 15:55:11 GMT
 MIME-Version: 1.0
 Content-Type: text/plain;
-	charset="iso-8859-1"
+	charset="US-ASCII"
+Subject: RE: Denials from newest kernel
+Date: Tue, 10 Oct 2006 11:55:42 -0400
+Message-ID: <6FE441CD9F0C0C479F2D88F959B015884442D5@exchange.columbia.tresys.com>
+In-Reply-To: <1160489274.20774.56.camel@sgc>
+From: "Joshua Brindle" <jbrindle@tresys.com>
+To: "Christopher J. PeBenito" <cpebenito@tresys.com>,
+        "Venkat Yekkirala" <vyekkirala@TrustedCS.com>
+Cc: <selinux@tycho.nsa.gov>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-> Thats what was intended, but that doesn't mean its the only solution.
-> Netfilter is supposed to be flexible and works in many different ways,
-> otherwise everyone would have similar firewalls.  The netfilter
-> configuration currently provided by refpolicy provides the anticipated
-> behavior on mainline kernels, the same as if it were done the 
-> way James
-> suggested.  What you're describing breaks the current behavior.
+> From: Christopher J. PeBenito 
+> 
+> On Mon, 2006-10-09 at 19:40 -0400, Venkat Yekkirala wrote:
+> > 
+> > > 
+> > > So I guess maybe this is getting the target from the 
+> outgoing port 
+> > > (which is probably 80) and then the source from the local port 
+> > > (which
+> > 
+> > No, the "source" here is whatever domain the packet is 
+> carrying at the 
+> > point it hits the secmark rule that specifies the target.
+> 
+> I don't think this is a desired behavior for a couple 
+> reasons.  First, this means that every domain that has access 
+> to a specific packet, for example, http_client_packet_t, but 
+> not to client_packet_t, will have to dontaudit the 
+> client_packet_t access.  Thats a lot of dontauditing, and 
+> also it will cover up legitimate denials on client_packet_t.  
+> Second, this will cause permissive to have a different 
+> behavior than enforcing.
+> This makes development in permissive more difficult, since 
+> you'll get spurious denials that you wouldn't get in enforcing.
+> 
 
-First of all, we are dealing with a different paradigm here (of security
-points)
-and any policy written to operate within that paradigm is naturally (perhaps
-unfortunately) subject to the constraints as well.
+I (think) understand what is happening technically, everytime you hit a
+secmark rule the label gets set on the skbuff which triggers an access
+check. Subsequent secmark rules trigger an access check between the old
+label and the new one (I still suspect this should be a different
+permission), but it is still very unintuitive to me, and I'd imagine
+pretty much everyone else.
 
-Secondly, as to your contention that this breaks the current behavior,
-it just happened that the policy was written to the paradigm current
-as of the time it was written. For example, if that paradigm said "the
-first label prevails", then the policy would have been done that way
-(more restrictive followed by the catch-all).
+(reading your email that just arrived..) 
+You really think that you can tell millions of users that they have to
+use iptables in James' way, with hundreds or thousands of chains and
+they'll buy it? That is not how iptables is normally used, noone who
+currently uses iptables is going to like it.. 
 
-In fact I view the constraints with the new paradigm  a blessing since
-it has the effect of resulting in a very succinct policy since it
-enforces a strict sequence of flow controls among the security point
-domains when more than one apply to a packet.
+
+Anyway, the real issue I have is that I was under the impression that
+flow_out was a permission between a packet type and an association, to
+indicate that the packet type can flow out the association type. This
+makes sense and is very useful, so that we can bind very specific
+properties of packets to ipsec associations. 
+
+I just don't get why there are denials on flow_in and flow_out that have
+no association in either the source or target, how does flow_out make
+sense for a secmark changing because it hit more than 1 iptables rule? 
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
