@@ -1,44 +1,43 @@
-Subject: Re: Who is responsible for role assignment?
+Subject: Re: PATCH: fix memory leaks in matchpathcon.c
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Salvo Giuffrida <giuffsalvo@hotmail.it>
-Cc: jbrindle@tresys.com, selinux@tycho.nsa.gov
-In-Reply-To: <BAY114-F34E9E30AB0797D837EDF94AF160@phx.gbl>
-References: <BAY114-F34E9E30AB0797D837EDF94AF160@phx.gbl>
+To: Todd Miller <Todd.Miller@sparta.com>
+Cc: SE Linux <selinux@tycho.nsa.gov>
+In-Reply-To: <E0ADF7C3-6BA3-40B0-9CD9-B24339135AF4@sparta.com>
+References: <E0ADF7C3-6BA3-40B0-9CD9-B24339135AF4@sparta.com>
 Content-Type: text/plain
-Date: Tue, 10 Oct 2006 09:34:33 -0400
-Message-Id: <1160487273.16807.34.camel@moss-spartans.epoch.ncsc.mil>
+Date: Tue, 10 Oct 2006 09:59:01 -0400
+Message-Id: <1160488741.16807.45.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 2006-10-09 at 14:50 +0200, Salvo Giuffrida wrote:
-> >From: Joshua Brindle <jbrindle@tresys.com>
-> >To: Salvo Giuffrida <giuffsalvo@hotmail.it>
-> >CC: selinux@tycho.nsa.gov
-> >Subject: Re: Who is responsible for role assignment?
-> >Date: Mon, 09 Oct 2006 07:43:09 -0400
-> >
-> >Salvo Giuffrida wrote:
-> >>Who is responsible for role and domain assignment during the login? The 
-> >>single programs listed in the default_context file (ssh, login, cron, su, 
-> >>etc..)? Or is this a "trasparent" operation, done by the security server?
-> >>Thanks
-> >The login programs attempt the contexts in default_context in order. The 
-> >first to succeed wins. The security server doesn't know about abstract 
-> >events like logins and has no reason to.
-> I though that, during the creation of the shell process by the login 
-> programs (using fork() and execve()), the security server was responsible 
-> for correct labeling of the child process created.
-> But it looks like this is a responsibility of the login programs 
-> themselves....So, this implies that they've been modified to use libselinux 
-> APIs (setexeccon(), and so on)?
+On Mon, 2006-10-09 at 13:18 -0400, Todd Miller wrote:
+> The process_line() function does not clean up correctly on early  
+> return in all cases.
+> This diff does two things:
+> 
+>   1) replaces usage of the non-standard %as scanf() format (which  
+> conflicts with C99)
+>        with simple strtok().  This does mean that line_buf is  
+> modified but this variable is
+>        only used as an argument to process_line() and is then freed.
 
-Yes, they are either modified or leverage existing use of PAM to invoke
-pam_selinux in order to set the exec context for the user shell
-appropriately.  Note however that it is the kernel policy that governs
-the set of authorized contexts that are legitimate for the user and to
-which the login programs can transition.  
+strtok should not be used in library code (compare with strtok_r,
+already in use within libselinux).
 
+>   2) adds a finish: label and ret variable that holds the return  
+> value.  Instead of
+>        returning early we just goto finish and let it clean things up  
+> as needed.  This
+>        does assume that free(NULL) is valid but that as been the case  
+> since C89.
+> 
+> As far as the memory leaks go, #2 is the important part.  I needed #1  
+> for our
+> port of libselinux to FreeBSD and Darwin.
+> 
+>   - todd
+> 
 -- 
 Stephen Smalley
 National Security Agency
