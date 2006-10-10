@@ -1,69 +1,57 @@
 Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k9AEgiSb017518
-	for <selinux@tycho.nsa.gov>; Tue, 10 Oct 2006 10:42:44 -0400
-Received: from tcsfw4.tcs-sec.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id k9AEg4Tb002898
-	for <selinux@tycho.nsa.gov>; Tue, 10 Oct 2006 14:42:04 GMT
-Message-ID: <36282A1733C57546BE392885C0618592015CFDEA@chaos.tcs.tcs-sec.com>
-From: Venkat Yekkirala <vyekkirala@TrustedCS.com>
-To: "Christopher J. PeBenito" <cpebenito@tresys.com>,
-        Venkat Yekkirala
-	 <vyekkirala@TrustedCS.com>
-Cc: Joshua Brindle <jbrindle@tresys.com>,
-        "'selinux@tycho.nsa.gov'"
-	 <selinux@tycho.nsa.gov>
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k9AEgQqY017493
+	for <selinux@tycho.nsa.gov>; Tue, 10 Oct 2006 10:42:26 -0400
+Received: from exchange.columbia.tresys.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with SMTP id k9AEfkTb002861
+	for <selinux@tycho.nsa.gov>; Tue, 10 Oct 2006 14:41:46 GMT
 Subject: RE: Denials from newest kernel
-Date: Tue, 10 Oct 2006 10:42:24 -0400
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+From: "Christopher J. PeBenito" <cpebenito@tresys.com>
+To: Venkat Yekkirala <vyekkirala@TrustedCS.com>
+Cc: Joshua Brindle <jbrindle@tresys.com>, selinux@tycho.nsa.gov
+In-Reply-To: <36282A1733C57546BE392885C0618592015CFDDA@chaos.tcs.tcs-sec.com>
+References: <36282A1733C57546BE392885C0618592015CFDDA@chaos.tcs.tcs-sec.com>
+Content-Type: text/plain
+Date: Tue, 10 Oct 2006 10:42:48 -0400
+Message-Id: <1160491368.20774.70.camel@sgc>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-> I don't think this is a desired behavior for a couple reasons.  First,
-> this means that every domain that has access to a specific packet, for
-> example, http_client_packet_t, but not to client_packet_t, 
-> will have to
-> dontaudit the client_packet_t access.  Thats a lot of 
-
-But this is a problem of our own making in the policy. If we
-jump into a unique chain for a label (or a set of labels all
-fine-grained to the same "grade", and hence are non-conflicting)
-then we shouldn't see this. Please refer to the links I mentioned in
-my response to Joshua.
-
-> dontauditing, and
-> also it will cover up legitimate denials on client_packet_t.  Second,
-
-It won't if you defined the catch-all security point only for the
-real catch-all cases.
-
-> this will cause permissive to have a different behavior than 
-> enforcing.
-> This makes development in permissive more difficult, since you'll get
-> spurious denials that you wouldn't get in enforcing.
-> 
-> > > (PeBenito changed the netmsg initial sid to no_extlabel_t, he 
-> > > didn't like network_t I guess).
+On Tue, 2006-10-10 at 10:18 -0400, Venkat Yekkirala wrote:
+> > > It seems like the SECMARK target on the last rule 
+> > > (client_packet_t) got executed BEFORE the port 80 one, 
+> > > causing the packet (yum-updatesd_t?) to
+> > > 
+> > > 1. be flow-controlled first against client_packet_t 2. assume 
+> > > the client_packet_t label overriding yum-updatesd_t 3. be 
+> > > flow-controlled against http_client_packet_t 4. assume 
+> > > http_client_packet_t 5. be flow-controlled against network_t
+> > > 
+> > > It seems like you saw 1,2 and 3 here and 4 & 5 later when you 
+> > > mention you were finally seeing the expected denials.
+> > > 
 > > 
-> > This is scary to my eyes at least. I had already laid out the
-> > intended usage of these controls in terms of peer "domains" as
-> > opposed to "packet types".
+> > Yep, the client_packet_t one is first, Chris was under the impression
+> > the last one would win and the others wouldn't matter so the fallback
+> > was specified as the first rule in the chain. Look at the
 > 
-> The refpolicy interfaces should be able to make this abstraction.
-> Network_t wasn't clear in my opinion, since you only needed 
-> that access
-> for non labeled networking.
+> I will have to just refer you to the following to get an idea
+> as to what the developers had in mind :)
+> http://marc.theaimsgroup.com/?l=selinux&m=115876013220221&w=2
+> http://marc.theaimsgroup.com/?l=selinux&m=115876375201000&w=2
 
-Nope, all of the following need to be able to flow_out of this pipe
-that represents the network.
+Thats what was intended, but that doesn't mean its the only solution.
+Netfilter is supposed to be flexible and works in many different ways,
+otherwise everyone would have similar firewalls.  The netfilter
+configuration currently provided by refpolicy provides the anticipated
+behavior on mainline kernels, the same as if it were done the way James
+suggested.  What you're describing breaks the current behavior.
 
-1. All the local domains that need to access the network directly
-   without flowing thru any "fine-grained" security points.
+-- 
+Chris PeBenito
+Tresys Technology, LLC
+(410) 290-1411 x150
 
-2. All fine-grained security point domains assumed by packets that
-   are flowing out of these security points. This check should have
-   been avoidable, but is not due to implementation constraints.
 
 --
 This message was distributed to subscribers of the selinux mailing list.
