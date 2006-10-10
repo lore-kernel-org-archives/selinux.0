@@ -1,96 +1,75 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k9AE7Zoe016002
-	for <selinux@tycho.nsa.gov>; Tue, 10 Oct 2006 10:07:35 -0400
-Received: from exchange.columbia.tresys.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with SMTP id k9AE6uTb027923
-	for <selinux@tycho.nsa.gov>; Tue, 10 Oct 2006 14:06:56 GMT
-Subject: RE: Denials from newest kernel
-From: "Christopher J. PeBenito" <cpebenito@tresys.com>
-To: Venkat Yekkirala <vyekkirala@TrustedCS.com>
-Cc: Joshua Brindle <jbrindle@tresys.com>,
-        "'selinux@tycho.nsa.gov'" <selinux@tycho.nsa.gov>
-In-Reply-To: <36282A1733C57546BE392885C0618592015CFD65@chaos.tcs.tcs-sec.com>
-References: <36282A1733C57546BE392885C0618592015CFD65@chaos.tcs.tcs-sec.com>
-Content-Type: text/plain
-Date: Tue, 10 Oct 2006 10:07:54 -0400
-Message-Id: <1160489274.20774.56.camel@sgc>
-Mime-Version: 1.0
+Date: Tue, 10 Oct 2006 10:14:31 -0400
+Subject: Re: [PATCH 4/4] Validate kernel object classes and permissions
+From: Chad Sellers <csellers@tresys.com>
+To: Stephen Smalley <sds@tycho.nsa.gov>
+CC: <selinux@tycho.nsa.gov>
+Message-ID: <C1512307.185F2%csellers@tresys.com>
+In-Reply-To: <1160486702.16807.28.camel@moss-spartans.epoch.ncsc.mil>
+Mime-version: 1.0
+Content-type: text/plain;
+	charset="US-ASCII"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 2006-10-09 at 19:40 -0400, Venkat Yekkirala wrote:
-> > I'm still getting some strange denials. I know some of these are
-> > probably from the patches you've put that that eric hasn't picked up,
-> > I'll try to filter those out. 
-> > 
-> > audit(1160324043.201:242): avc:  denied  { flow_out } for  
-> > pid=1822 comm="yum-updatesd" 
-> > scontext=system_u:object_r:client_packet_t:s0 
-> > tcontext=system_u:object_r:http_client_packet_t:s0 tclass=packet
-> > 
-> > I don't even know what these mean at all. What is the source? What is
-> > the target? The secmark rules that will give these types are: 
-> > -A selinux_new_output -p tcp --dport 80 -j SECMARK --selctx 
-> > system_u:object_r:http_client_packet_t:s0
-> > -A selinux_new_output -p tcp --dport 443 -j SECMARK --selctx 
-> > system_u:object_r:http_client_packet_t:s0
-> > -A selinux_new_output -p tcp --dport 488 -j SECMARK --selctx 
-> > system_u:object_r:http_client_packet_t:s0
-> > -A selinux_new_output -p tcp --dport 8008 -j SECMARK --selctx 
-> > system_u:object_r:http_client_packet_t:s0
-> > -A selinux_new_output -p tcp --dport 8009 -j SECMARK --selctx 
-> > system_u:object_r:http_client_packet_t:s0
-> > -A selinux_new_output -p tcp --dport 8443 -j SECMARK --selctx 
-> > system_u:object_r:http_client_packet_t:s0
-> > and
-> > -A selinux_new_output -j SECMARK --selctx 
-> > system_u:object_r:client_packet_t:s0
-> > (which is the first rule incase no others match)
-> 
-> It seems like the SECMARK target on the last rule (client_packet_t)
-> got executed BEFORE the port 80 one, causing the packet (yum-updatesd_t?)
-> to
-> 
-> 1. be flow-controlled first against client_packet_t
-> 2. assume the client_packet_t label overriding yum-updatesd_t
-> 3. be flow-controlled against http_client_packet_t
-> 4. assume http_client_packet_t
-> 5. be flow-controlled against network_t
-> 
-> It seems like you saw 1,2 and 3 here and 4 & 5 later when you
-> mention you were finally seeing the expected denials.
-> 
-> > 
-> > So I guess maybe this is getting the target from the outgoing port
-> > (which is probably 80) and then the source from the local port (which
-> 
-> No, the "source" here is whatever domain the packet is carrying at the point
-> it hits the secmark rule that specifies the target.
+On 10/10/06 9:25 AM, "Stephen Smalley" <sds@tycho.nsa.gov> wrote:
 
-I don't think this is a desired behavior for a couple reasons.  First,
-this means that every domain that has access to a specific packet, for
-example, http_client_packet_t, but not to client_packet_t, will have to
-dontaudit the client_packet_t access.  Thats a lot of dontauditing, and
-also it will cover up legitimate denials on client_packet_t.  Second,
-this will cause permissive to have a different behavior than enforcing.
-This makes development in permissive more difficult, since you'll get
-spurious denials that you wouldn't get in enforcing.
-
-> > (PeBenito changed the netmsg initial sid to no_extlabel_t, he 
-> > didn't like network_t I guess).
+> On Fri, 2006-10-06 at 18:25 -0400, Chad Sellers wrote:
+>> On 10/6/06 5:37 PM, "Stephen Smalley" <sds@tycho.nsa.gov> wrote:
+>> 
+>>> On Fri, 2006-10-06 at 16:09 -0400, Chad Sellers wrote:
+>>>> plain text document attachment (verify_kernel.diff)
+>>>> This patch replaces the object class and permission validation code to
+>>>> validate against the defined kernel headers, and allow extra classes
+>>>> and permissions that do not conflict with the kernel definitions. Note
+>>>> that validation is now done for all policy loads, not just subsequent
+>>>> loads after the first policy load.
+>>> 
+>>> I haven't looked closely, but it doesn't quite look right to me.  The
+>>> old logic would walk the "good" definitions from the old policy,
+>>> checking each one against the definitions in the new policy.  This logic
+>>> appears to walk the new policy, checking each of its definitions against
+>>> the kernel tables.  But what if the new policy simply omits a definition
+>>> required by the kernel, e.g. delete the last class or the last five
+>>> classes altogether from policy?  Interestingly, the old logic includes
+>>> messages like "permission %s disappeared" or "class %s disappeared" but
+>>> this logic does not (only messages about incorrect values).  I think you
+>>> want it the other way around, i.e. walk the kernel tables and look up
+>>> each definition there in the policy being loaded, then see if it is
+>>> correct.  That also avoids having to skip around things that are defined
+>>> in policy but not in the kernel tables.
+>>> 
+>> I don't think that's the logic we want, though. Part of the eventual idea
+>> here is to help out the "Andrew Morton syndrome," where a kernel developer
+>> has a new kernel class/permission, but no policy for it. If we require all
+>> kernel defined classes/perms to be present in the policy, then we can't
+>> support this situation. The logic in my patch requires that all the kernel
+>> classes defined in the policy are consistent with the kernel, but allows for
+>> the possibility of the kernel having new classes/permissions that aren't in
+>> policy yet. The logic you propose would not allow a kernel developer to load
+>> a policy until that policy supported their new object class/permission.
 > 
-> This is scary to my eyes at least. I had already laid out the
-> intended usage of these controls in terms of peer "domains" as
-> opposed to "packet types".
+> The only thing that changes in that future situation (for which no patch
+> yet exists, and thus this patch should not presume it) is how one
+> handles the absence of a kernel class or permission in the policy, not
+> the logic for detecting such an absence.  Your logic won't even detect
+> the absence, and thus cannot properly deal with it no matter how we want
+> it handled, whether that means rejecting the policy altogether,
+> accepting the policy and permitting the undefined permissions, or
+> accepting the policy and denying the undefined permissions.  Note too
+> that the handler will likely remain conditional on some policy-defined
+> flag, so we will always need such detection logic even in that future
+> situation.  Until we have support for gracefully handling a missing
+> class or permission definition, we want to retain the safety property of
+> rejecting such policies.
 
-The refpolicy interfaces should be able to make this abstraction.
-Network_t wasn't clear in my opinion, since you only needed that access
-for non labeled networking.
+You're right. The reality is that this wouldn't have supported the future
+case anyway, as it would improperly handle the absence of a new kernel class
+combined with the presence of a userspace class using the same value. So,
+please ignore the last 3 patches of this patch set (the bugfix in patch 1
+should stay, though).
 
--- 
-Chris PeBenito
-Tresys Technology, LLC
-(410) 290-1411 x150
+Thanks,
+Chad Sellers
 
 
 --
