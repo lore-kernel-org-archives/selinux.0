@@ -1,97 +1,71 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k9AGSjdM021025
-	for <selinux@tycho.nsa.gov>; Tue, 10 Oct 2006 12:28:45 -0400
-Received: from tcsfw4.tcs-sec.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id k9AGRRvk010423
-	for <selinux@tycho.nsa.gov>; Tue, 10 Oct 2006 16:27:28 GMT
-Message-ID: <36282A1733C57546BE392885C0618592015CFE51@chaos.tcs.tcs-sec.com>
-From: Venkat Yekkirala <vyekkirala@TrustedCS.com>
-To: Joshua Brindle <jbrindle@tresys.com>,
-        "Christopher J. PeBenito"
-	 <cpebenito@tresys.com>,
-        Venkat Yekkirala <vyekkirala@TrustedCS.com>
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k9AGv1W9021918
+	for <selinux@tycho.nsa.gov>; Tue, 10 Oct 2006 12:57:01 -0400
+Received: from wx-out-0506.google.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id k9AGuLlj021139
+	for <selinux@tycho.nsa.gov>; Tue, 10 Oct 2006 16:56:22 GMT
+Received: by wx-out-0506.google.com with SMTP id i26so2127342wxd
+        for <selinux@tycho.nsa.gov>; Tue, 10 Oct 2006 09:57:00 -0700 (PDT)
+Message-ID: <6a9b0ede0610100956g5bf6e638n8a733d127cc9a4f9@mail.gmail.com>
+Date: Tue, 10 Oct 2006 22:26:59 +0530
+From: "abcde efghi" <svmdcv@gmail.com>
+To: russell@coker.com.au
+Subject: Re: nfs mount takes long time on x86 rhel4 u4 with selinux enabled
 Cc: selinux@tycho.nsa.gov
-Subject: RE: Denials from newest kernel
-Date: Tue, 10 Oct 2006 12:28:25 -0400
+In-Reply-To: <200610110107.16261.russell@coker.com.au>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+References: <6a9b0ede0610100500v4bbe7866v661bb5939446cac2@mail.gmail.com>
+	 <6a9b0ede0610100735h1a92f4c3i890391f8a0b0238e@mail.gmail.com>
+	 <200610110107.16261.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-> I (think) understand what is happening technically, everytime 
-> you hit a
-> secmark rule the label gets set on the skbuff which triggers an access
-> check. Subsequent secmark rules trigger an access check 
-> between the old
-> label and the new one (I still suspect this should be a different
-> permission), but it is still very unintuitive to me, and I'd imagine
-> pretty much everyone else.
+hi
 
-I wonder what's so unintuitive about the following description:
+at present i dont have those logs
+one last question.
 
-1. One could define several levels of security check points (one in
-   the OUTPUT chain and another in POSTROUTING for example, or
-   multiple points in the OUTPUT chain itself for another example).
+is it compulsory to do touch /.autorelabel when we are doing reboot?
+and it should be done before or after reboot?(bit confused. i thought
+after reboot)
+note:i am moving from disabled to enforcing selinux
 
-2. As a packet passes a security point, it assumes the label of the
-   security point for further flow control checks at subsequent security
-   points.
+thanks
 
-> 
-> (reading your email that just arrived..) 
-> You really think that you can tell millions of users that they have to
-> use iptables in James' way, with hundreds or thousands of chains and
-> they'll buy it?
 
-They will or they will not, to the same that they won't buy the "constraint"
-that the last label prevails.
-
-> That is not how iptables is normally used, noone who
-> currently uses iptables is going to like it.. 
-
-It's a matter of just looking at all existing and new verdict points and
-just sticking in a SECMARK label before issuing the verdict, possibly in
-the same rule.
-
-> 
-> 
-> Anyway, the real issue I have is that I was under the impression
-
-I hope would have been disspelled by the long discussions we have been
-having on this stuff. Hopefully, the documentation I posted yesterday
-for policy writers is clear enough.
-
-> that
-> flow_out was a permission between a packet type and an association, to
-
-between a domain the packet is carrying and a security point domain
-
-> indicate that the packet type can flow out the association type.
-
-to indicate that the packet from the domain can flow out to the security
-point domain.
-
-> This
-> makes sense and is very useful, so that we can bind very specific
-> properties of packets to ipsec associations. 
-
-This is not possible at the iptables level. Your ability to define
-the "very specific properties of packets" is limited to what the
-spd offers, in conjunction with the polmatch check ofcourse.
-
-ipsec labeling (which is the exact same as the originating domain)
-happens long before and has nothing to do with the new flow controls.
-
-> 
-> I just don't get why there are denials on flow_in and 
-> flow_out that have
-> no association in either the source or target, how does flow_out make
-> sense for a secmark changing because it hit more than 1 
-> iptables rule? 
-> 
-
-Hopefully the above addressed this.
+On 10/10/06, Russell Coker <russell@coker.com.au> wrote:
+> On Wednesday 11 October 2006 00:35, "abcde efghi" <svmdcv@gmail.com> wrote:
+> > during installation time it was disabled
+> > and during boottime i enabled it
+> > (.i.e by setting selinux=enforcing in /etc/selinux/config and reboot)
+>
+> Before that reboot did you touch /.autorelabel?
+>
+> > that time it is taking some time to mount
+> > what could be the pbm? is it really bcoz of portmap daemon?
+> > how does portmap daemon cause this pbm? any pointers?
+>
+> If it's portmap then it's not an SE Linux issue and is best discussed on
+> another list.
+>
+> > note the time and call trace details:
+> >
+> > time mount <server:/disk/disk1/data1/ /mnt --type nfs
+> > -orw,bg,nointr,hard,timeo=600,wsize=32768,rsize=32768,nfsvers=3,tcp,actimeo
+> >=0, addr=10.0.0.60
+>
+> You did not provide any information on AVC messages or the time taken for the
+> mount command when SE Linux is in permissive mode (after running
+> "setenforce 0").  Without such information we can't help you.  You need to
+> answer every question in my messages if you want useful answers from us.
+>
+> --
+> russell@coker.com.au
+> http://etbe.blogspot.com/          My Blog
+>
+> http://www.coker.com.au/sponsorship.html Sponsoring Free Software development
+>
 
 --
 This message was distributed to subscribers of the selinux mailing list.
