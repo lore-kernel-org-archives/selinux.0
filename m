@@ -1,93 +1,69 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k9AEZ8L5017253
-	for <selinux@tycho.nsa.gov>; Tue, 10 Oct 2006 10:35:08 -0400
-Received: from wx-out-0506.google.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id k9AEXqib017767
-	for <selinux@tycho.nsa.gov>; Tue, 10 Oct 2006 14:33:53 GMT
-Received: by wx-out-0506.google.com with SMTP id i26so2085229wxd
-        for <selinux@tycho.nsa.gov>; Tue, 10 Oct 2006 07:35:07 -0700 (PDT)
-Message-ID: <6a9b0ede0610100735h1a92f4c3i890391f8a0b0238e@mail.gmail.com>
-Date: Tue, 10 Oct 2006 20:05:07 +0530
-From: "abcde efghi" <svmdcv@gmail.com>
-To: selinux@tycho.nsa.gov
-Subject: Re: nfs mount takes long time on x86 rhel4 u4 with selinux enabled
-Cc: "Stephen Smalley" <sds@tycho.nsa.gov>
-In-Reply-To: <6a9b0ede0610100500v4bbe7866v661bb5939446cac2@mail.gmail.com>
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k9AEgiSb017518
+	for <selinux@tycho.nsa.gov>; Tue, 10 Oct 2006 10:42:44 -0400
+Received: from tcsfw4.tcs-sec.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id k9AEg4Tb002898
+	for <selinux@tycho.nsa.gov>; Tue, 10 Oct 2006 14:42:04 GMT
+Message-ID: <36282A1733C57546BE392885C0618592015CFDEA@chaos.tcs.tcs-sec.com>
+From: Venkat Yekkirala <vyekkirala@TrustedCS.com>
+To: "Christopher J. PeBenito" <cpebenito@tresys.com>,
+        Venkat Yekkirala
+	 <vyekkirala@TrustedCS.com>
+Cc: Joshua Brindle <jbrindle@tresys.com>,
+        "'selinux@tycho.nsa.gov'"
+	 <selinux@tycho.nsa.gov>
+Subject: RE: Denials from newest kernel
+Date: Tue, 10 Oct 2006 10:42:24 -0400
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-References: <6a9b0ede0610100500v4bbe7866v661bb5939446cac2@mail.gmail.com>
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-hi
+> I don't think this is a desired behavior for a couple reasons.  First,
+> this means that every domain that has access to a specific packet, for
+> example, http_client_packet_t, but not to client_packet_t, 
+> will have to
+> dontaudit the client_packet_t access.  Thats a lot of 
 
-during installation time it was disabled
-and during boottime i enabled it
-(.i.e by setting selinux=enforcing in /etc/selinux/config and reboot)
-that time it is taking some time to mount
-what could be the pbm? is it really bcoz of portmap daemon?
-how does portmap daemon cause this pbm? any pointers?
+But this is a problem of our own making in the policy. If we
+jump into a unique chain for a label (or a set of labels all
+fine-grained to the same "grade", and hence are non-conflicting)
+then we shouldn't see this. Please refer to the links I mentioned in
+my response to Joshua.
 
-note the time and call trace details:
+> dontauditing, and
+> also it will cover up legitimate denials on client_packet_t.  Second,
 
-time mount <server:/disk/disk1/data1/ /mnt --type nfs
--orw,bg,nointr,hard,timeo=600,wsize=32768,rsize=32768,nfsvers=3,tcp,actimeo=0,
-addr=10.0.0.60
+It won't if you defined the catch-all security point only for the
+real catch-all cases.
 
- real    1m45.006s
- user    0m0.000s
- sys     0m0.017s
+> this will cause permissive to have a different behavior than 
+> enforcing.
+> This makes development in permissive more difficult, since you'll get
+> spurious denials that you wouldn't get in enforcing.
+> 
+> > > (PeBenito changed the netmsg initial sid to no_extlabel_t, he 
+> > > didn't like network_t I guess).
+> > 
+> > This is scary to my eyes at least. I had already laid out the
+> > intended usage of these controls in terms of peer "domains" as
+> > opposed to "packet types".
+> 
+> The refpolicy interfaces should be able to make this abstraction.
+> Network_t wasn't clear in my opinion, since you only needed 
+> that access
+> for non labeled networking.
 
- .
- mount         D F8CCB803  2036  4202   4169                     (NOTLB)
- f5c26d04 00000082 00000246 f8ccb803 00000000 f6f2b080 0648da88 f8cccac2
-        f8ccb803 00000000 00000000 06051de0 00000000 00000000 a2fd0280
- 000f456a
-        0231aa80 f744ceb0 f744d01c f6f2b100 02120414 f6f2b080 f6f2b100
- f5c26d30
- Call Trace:
-  [<f8ccb803>] xprt_timer+0x0/0x79 [sunrpc]
-  [<f8cccac2>] rpc_sleep_on+0x24/0x33 [sunrpc]
-  [<f8ccb803>] xprt_timer+0x0/0x79 [sunrpc]
-  [<02120414>] prepare_to_wait+0x12/0x4c
-  [<f8cccfed>] __rpc_execute+0x1a0/0x326 [sunrpc]
-  [<021204e9>] autoremove_wake_function+0x0/0x2d
-  [<021204e9>] autoremove_wake_function+0x0/0x2d
-  [<021204e9>] autoremove_wake_function+0x0/0x2d
-  [<f8cc95de>] rpc_call_sync+0x68/0x8c [sunrpc]
-  [<f8cd2b0e>] rpc_register+0xde/0x11b [sunrpc]
-  [<022b647f>] inet_addr_type+0x20/0xa6
-  [<f8ccf178>] svc_register+0x80/0xd9 [sunrpc]
-  [<f8cd1223>] svc_setup_socket+0x88/0x1af [sunrpc]
-  [<f8cd143f>] svc_create_socket+0xf5/0x12c [sunrpc]
-  [<f8cd1579>] svc_makesock+0x4c/0x53 [sunrpc]
-  [<f8a2e002>] lockd_up+0x95/0x13c [lockd]
-  [<f8d71868>] nfs_fill_super+0x186/0x2ca [nfs]
-  [<022c9864>] __down_failed+0x8/0xc
-  [<f8d735d6>] nfs_get_sb+0x1d0/0x203 [nfs]
-  [<021601ca>] do_kern_mount+0x8a/0x147
-  [<02172eab>] do_new_mount+0x61/0x90
-  [<0217352c>] do_mount+0x178/0x190
-  [<021557c7>] get_user_size+0x30/0x57
-  [<021732d0>] exact_copy_from_user+0x31/0x66
-  [<02173883>] sys_mount+0x91/0x108
+Nope, all of the following need to be able to flow_out of this pipe
+that represents the network.
 
+1. All the local domains that need to access the network directly
+   without flowing thru any "fine-grained" security points.
 
-thanks
-
-
- .
-On 10/10/06, abcde efghi <svmdcv@gmail.com> wrote:
-> hi
->
-> nfs mount takes long time on x86 rhel4 u4 with selinux enabled.
-> This happens only with selinux enabled. Without selinx it takes few
-> milli-seconds.
-> When I installed machine with selinux enabled and selinux enabled
-> during run,mount works properly.
->
-> why is it so?
->
+2. All fine-grained security point domains assumed by packets that
+   are flowing out of these security points. This check should have
+   been avoidable, but is not due to implementation constraints.
 
 --
 This message was distributed to subscribers of the selinux mailing list.
