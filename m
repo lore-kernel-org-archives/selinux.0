@@ -1,33 +1,42 @@
-Reply-To: <vyekkirala@TrustedCS.com>
-From: "Venkat Yekkirala" <vyekkirala@TrustedCS.com>
-To: "'James Morris'" <jmorris@namei.org>, "Paul Moore" <paul.moore@hp.com>,
-        "David S. Miller" <davem@davemloft.net>
-Cc: <netdev@vger.kernel.org>, <selinux@tycho.nsa.gov>,
-        "Venkat Yekkirala" <vyekkirala@tcsfw4.tcs-sec.com>,
-        "Stephen Smalley" <sds@tycho.nsa.gov>,
-        "Eric Paris" <eparis@redhat.com>
-Subject: RE: [PATCH 00/11] The _entire_ secid reconciliation patchset (tada!)
-Date: Wed, 11 Oct 2006 14:20:07 -0500
-Message-ID: <001101c6ed6a$43ae71e0$cc0a010a@tcssec.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-In-Reply-To: <Pine.LNX.4.64.0610091612140.31187@d.namei>
+Subject: Re: security_compute_av
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Salvo Giuffrida <giuffsalvo@hotmail.it>
+Cc: selinux@tycho.nsa.gov
+In-Reply-To: <BAY114-F10CD79456E9624422175DDAF140@phx.gbl>
+References: <BAY114-F10CD79456E9624422175DDAF140@phx.gbl>
+Content-Type: text/plain
+Date: Wed, 11 Oct 2006 16:07:11 -0400
+Message-Id: <1160597231.4795.9.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-> From an initial review of this patchset, it doesn't look 
-> quite ready to 
-> queue for 2.6.20 (which I plan to to via git once it is).
+On Wed, 2006-10-11 at 15:16 +0200, Salvo Giuffrida wrote:
 > 
-> Outstanding items include resolving the igmp skb hook issue 
-> generally, 
-> testing to verify both the design and implementation, and 
-> ensuring that 
-> all the related policy changes are merged upstream first.
 > 
-Regarding the igmp hook issue, we could do a generic hook
-like Paul suggested. Would that be more palatable you think?
+> >From: Stephen Smalley <sds@tycho.nsa.gov>
+> >To: Salvo Giuffrida <giuffsalvo@hotmail.it>
+> >CC: selinux@tycho.nsa.gov
+> >Subject: Re: security_compute_av
+> >Date: Wed, 11 Oct 2006 08:11:53 -0400
+> >
+> >On Wed, 2006-10-11 at 14:02 +0200, Salvo Giuffrida wrote:
+> > > If the security_compute_av function is called by the AVC when a cache 
+> >miss
+> > > occurs, then how is first contacted the AVC by the object manager? Which
+> > > function is used?
+> >
+> >avc_has_perm() is the permission checking interface between the object
+> >manager and the AVC.
+> I saw that is uses SIDs as arguments. Shouldn't it use security_context_t 
+> objects?
+
+No.
+
+-- 
+Stephen Smalley
+National Security Agency
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
