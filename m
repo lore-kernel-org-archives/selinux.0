@@ -1,50 +1,32 @@
-Message-ID: <452C1449.3040207@us.ibm.com>
-Date: Tue, 10 Oct 2006 16:44:41 -0500
-From: Michael C Thompson <thompsmc@us.ibm.com>
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k9B6d7Wk009805
+	for <selinux@tycho.nsa.gov>; Wed, 11 Oct 2006 02:39:07 -0400
+Received: from exchange.columbia.tresys.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with SMTP id k9B6cSY0002625
+	for <selinux@tycho.nsa.gov>; Wed, 11 Oct 2006 06:38:28 GMT
+Message-ID: <452C9182.5070405@tresys.com>
+Date: Wed, 11 Oct 2006 02:38:58 -0400
+From: Joshua Brindle <jbrindle@tresys.com>
 MIME-Version: 1.0
-To: Stephen Smalley <sds@tycho.nsa.gov>
+To: Todd Miller <Todd.Miller@sparta.com>
 CC: SE Linux <selinux@tycho.nsa.gov>
-Subject: Re: [PATCH 1/4] make newrole suid
-References: <4526D531.1090409@us.ibm.com>	 <1160512048.3322.54.camel@moss-spartans.epoch.ncsc.mil> <1160512579.3322.57.camel@moss-spartans.epoch.ncsc.mil>
-In-Reply-To: <1160512579.3322.57.camel@moss-spartans.epoch.ncsc.mil>
+Subject: Re: PATCH: fix memory leak in setfiles.c
+References: <1ED46139-F06C-4DC6-A577-09BC257C9FBF@sparta.com>
+In-Reply-To: <1ED46139-F06C-4DC6-A577-09BC257C9FBF@sparta.com>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Stephen Smalley wrote:
-> On Tue, 2006-10-10 at 16:27 -0400, Stephen Smalley wrote:
->> On Fri, 2006-10-06 at 17:14 -0500, Michael C Thompson wrote:
->> +		fprintf(stderr,
->> +			_("cannot find valid entry in the passwd file.\n"));
->> +		return -1;
->> +	}
->> +
->> +	*pw_copy = *pw;
->> +	pw = pw_copy;
->> +	pw->pw_name = xstrdup(pw->pw_name);
->> +	pw->pw_dir = xstrdup(pw->pw_dir);
->> +	pw->pw_shell = xstrdup(pw->pw_shell);
->> +
->> +	if (! (pw->pw_name && pw->pw_dir && pw->pw_shell))
->> +		goto out_free;
->>
->> xstrdup by definition exits on OOM errors, so you don't have to re-test
->> here, or alternatively you don't need to use xstrdup in the first place
->> (vs. just plain strdup).
-> 
-> Ok, I see that in patch 3, you drop the exit call from xstrdup.  Which I
-> think is a mistake - xmalloc/xstrdup-style functions typically mean
-> "succeed or exit".
+Todd Miller wrote:
+> Add a missing freecon() on an error path.
+>
+>  - todd
+>
+Thanks for finding and fixing this memory leak. For future reference, 
+inlined patches that apply with -p1 from the top of the repository are 
+preferred.
 
-Right, I can see that now. I'll admit ignorance: I wasn't aware that was 
-what the x prefix meant - I've never used that naming style before. I 
-would rather not exit mid-code, so I'll change the use to be strdup and 
-perform the checks.
-
-Thanks,
-Mike
-
-
+Acked-By: Joshua Brindle <jbrindle@tresys.com>
 
 --
 This message was distributed to subscribers of the selinux mailing list.
