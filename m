@@ -1,54 +1,28 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k9BLWVL4004820
-	for <selinux@tycho.nsa.gov>; Wed, 11 Oct 2006 17:32:31 -0400
-Received: from atlrel7.hp.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id k9BLVpCQ004110
-	for <selinux@tycho.nsa.gov>; Wed, 11 Oct 2006 21:31:51 GMT
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k9BLWUCg004802
+	for <selinux@tycho.nsa.gov>; Wed, 11 Oct 2006 17:32:30 -0400
+Received: from atlrel7.hp.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id k9BLVDAB004983
+	for <selinux@tycho.nsa.gov>; Wed, 11 Oct 2006 21:31:13 GMT
 Received: from smtp2.fc.hp.com (smtp-test.fc.hp.com [15.11.136.114])
-	by atlrel7.hp.com (Postfix) with ESMTP id 01E0E34408
-	for <selinux@tycho.nsa.gov>; Wed, 11 Oct 2006 17:32:31 -0400 (EDT)
-Message-Id: <20061011213230.522702000@hp.com>
-References: <20061011212958.265773000@hp.com>
-Date: Wed, 11 Oct 2006 17:30:00 -0400
+	by atlrel7.hp.com (Postfix) with ESMTP id CCAB734408
+	for <selinux@tycho.nsa.gov>; Wed, 11 Oct 2006 17:32:30 -0400 (EDT)
+Message-Id: <20061011212958.265773000@hp.com>
+Date: Wed, 11 Oct 2006 17:29:58 -0400
 From: paul.moore@hp.com
 To: selinux@tycho.nsa.gov
-Subject: [PATCH 2/2] Reference policy: Restrict NetLabel to same MLS label connections by default
+Subject: [PATCH 0/2] NetLabel policy additions for the reference policy
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This patch adjusts the {tcp,udp}_socket recvfrom permissions to only allow
-same MLS label connections.
+This patch is an updated version of the RFC patches I sent out to the list
+yesterday for comments.  Since yesterday I have made changes based on Chris'
+comments as well as changes for problems found during testing today.
 
----
- refpolicy/policy/mls |    8 +++++++-
- 1 files changed, 7 insertions(+), 1 deletion(-)
+Please review and if it is acceptable please merge this into the reference
+policy.
 
-Index: refpolicy.lblnet/refpolicy/policy/mls
-===================================================================
---- refpolicy.lblnet.orig/refpolicy/policy/mls
-+++ refpolicy.lblnet/refpolicy/policy/mls
-@@ -165,7 +165,7 @@ mlsconstrain { socket tcp_socket udp_soc
- 	( h1 dom h2 );
- 
- # the socket "read" ops (note the check is dominance of the low level)
--mlsconstrain { socket tcp_socket udp_socket rawip_socket netlink_socket packet_socket key_socket unix_stream_socket unix_dgram_socket netlink_route_socket netlink_firewall_socket netlink_tcpdiag_socket netlink_nflog_socket netlink_xfrm_socket netlink_selinux_socket netlink_audit_socket netlink_ip6fw_socket netlink_dnrt_socket } { read getattr listen accept getopt recvfrom recv_msg }
-+mlsconstrain { socket tcp_socket udp_socket rawip_socket netlink_socket packet_socket key_socket unix_stream_socket unix_dgram_socket netlink_route_socket netlink_firewall_socket netlink_tcpdiag_socket netlink_nflog_socket netlink_xfrm_socket netlink_selinux_socket netlink_audit_socket netlink_ip6fw_socket netlink_dnrt_socket } { read getattr listen accept getopt recv_msg }
- 	(( l1 dom l2 ) or
- 	 (( t1 == mlsnetreadtoclr ) and ( h1 dom l2 )) or
- 	 ( t1 == mlsnetread ));
-@@ -181,6 +181,12 @@ mlsconstrain { socket tcp_socket udp_soc
- 	 (( t1 == mlsnetwritetoclr ) and ( h1 dom l2 ) and ( l1 domby l2 )) or
- 	 ( t1 == mlsnetwrite ));
- 
-+# used by netlabel to restrict normal domains to same level connections
-+mlsconstrain { tcp_socket udp_socket } recvfrom
-+	(( l1 eq l2 ) or
-+	 (( t1 == mlsnetreadtoclr ) and ( h1 dom l2 )) or
-+	 ( t1 == mlsnetread ));
-+
- # these access vectors have no MLS restrictions
- # { socket tcp_socket udp_socket rawip_socket netlink_socket packet_socket key_socket unix_stream_socket unix_dgram_socket netlink_route_socket netlink_firewall_socket netlink_tcpdiag_socket netlink_nflog_socket netlink_xfrm_socket netlink_selinux_socket netlink_audit_socket netlink_ip6fw_socket netlink_dnrt_socket } { ioctl create lock append bind sendto send_msg name_bind }
- #
+Thanks.
 
 --
 paul moore
