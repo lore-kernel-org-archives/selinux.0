@@ -1,17 +1,17 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k9CFbG70031310
-	for <selinux@tycho.nsa.gov>; Thu, 12 Oct 2006 11:37:16 -0400
-Received: from web36603.mail.mud.yahoo.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with SMTP id k9CFaaPm018945
-	for <selinux@tycho.nsa.gov>; Thu, 12 Oct 2006 15:36:36 GMT
-Message-ID: <20061012153701.75777.qmail@web36603.mail.mud.yahoo.com>
-Date: Thu, 12 Oct 2006 08:37:01 -0700 (PDT)
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k9CGsGOs001390
+	for <selinux@tycho.nsa.gov>; Thu, 12 Oct 2006 12:54:16 -0400
+Received: from web36611.mail.mud.yahoo.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with SMTP id k9CGqvYP013317
+	for <selinux@tycho.nsa.gov>; Thu, 12 Oct 2006 16:52:58 GMT
+Message-ID: <20061012165415.64473.qmail@web36611.mail.mud.yahoo.com>
+Date: Thu, 12 Oct 2006 09:54:15 -0700 (PDT)
 From: Casey Schaufler <casey@schaufler-ca.com>
 Reply-To: casey@schaufler-ca.com
-Subject: Re: MLS enforcing PTYs, sshd, and newrole
-To: russell@coker.com.au
-Cc: selinux@tycho.nsa.gov, redhat-lspp@redhat.com
-In-Reply-To: <200610122025.15043.russell@coker.com.au>
+Subject: Re: [redhat-lspp] Re: MLS enforcing PTYs, sshd, and newrole
+To: Klaus Weidner <klaus@atsec.com>, Russell Coker <russell@coker.com.au>
+Cc: redhat-lspp@redhat.com, selinux@tycho.nsa.gov
+In-Reply-To: <20061012144819.GF28520@w-m-p.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=iso-8859-1
 Sender: owner-selinux@tycho.nsa.gov
@@ -19,102 +19,52 @@ List-Id: selinux@tycho.nsa.gov
 
 
 
---- Russell Coker <russell@coker.com.au> wrote:
+--- Klaus Weidner <klaus@atsec.com> wrote:
 
-> On Thursday 12 October 2006 17:33, Klaus Weidner
-> <klaus@atsec.com> wrote:
-> > If you need local console (or serial) login at
-> different MLS levels for
-> > the same user, you can create multiple Linux users
-> for each human user
-> > that share the same uid and home directory, and
-> use "semanage login" to
-> > map them to appropriate levels. So you'd have
-> smith_secret_cat1,
-> > smith_unclassified and so on.
 
-The Unix MLS systems provide mechanism
-in login to specify MAC the user label.
+> I don't think that it's a significant issue though
+> for current LSPP
+> configurations - any people who plan to use this
+> please speak up if you
+> disagree.  The current LSPP configurations are for
+> server systems,
 
-In Trix 6 I would use:
+A common deployment of an MLS system is the
+the enormous compute "server", where users
+log in at various MLS values to process
+data, some of which is common, and some of
+which is not. Usually this means a network
+login, today typically using ssh. Rarely
+will a user need to log in at more than one
+MLS value, but it can (and has) happened
+that a user will have multiple valid MLS
+values. In some installations they will want
+to allow this over "unlabeled networks",
+and in some they will not.
 
-    login: casey MAC=appropriatevalue
-    passwd: ....
+> and
+> require that local consoles (including serial
+> consoles listed in
+> /etc/securetty) are physically restricted to be
+> accessible by admins
+> only, and admins can still use newrole. This leaves
+> only non-admin serial
+> terminals, and I don't think those are that common
+> these days.
 
-In Trix 4 it was:
+Indeed!
 
-    login: casey
-    label: appropriatevalue
-    passwd: ...
+> Of course, people deploying a system that's based on
+> the LSPP
+> configuration can choose to deviate from the
+> evaluated configuration
+> based on their own risk assessment. This could
+> include restoring general
+> access to "newrole" if they don't consider the PTY
+> exploit to be a
+> concern.
 
-In Solaris I *think* it would be:
-
-    login: casey -l appropriatevalue
-    passwd: ...
-
-but rust could well have filled that part
-of my memory.
-
-Creating a seperate login name for each MLS
-value would be fine if you have a small number
-of users with a small number of labels, but
-will not be competitive in a production
-environment.
-
-> That doesn't work well with password expiry
-> policies.  Having 
-> smith_secret_cat1 password expire at different times
-> to smith_unclassified 
-> would be a pain for users and sys-admins.
-
-That too.
-
-> Then if you want to use RSA SecurID or similar
-> tokens you have an extra level 
-> of pain in mapping them to the right Unix account
-> names.
-> 
-> I think that the right solution is to re-enable the
-> code for selecting the 
-> role etc at login time and adding some code for
-> selecting the level.  It 
-> should not be difficult to do this if there are no
-> plans to ever support it 
-> for ssh or X logins.
-> 
-> > It should still work to put a multilevel X desktop
-> on top of this, since
-> > that presumably uses a mechanism other than
-> "newrole" to launch terminals
-> > or windows at different levels. But that's only
-> guesswork due to not
-> > having seen any code for this...
-> 
-> Can someone who has worked on one of these things
-> before please comment on how 
-> it's done?
-
-Hee Hee Hee. On Trix you get a new window at
-a different label using su -M:
-
-    trix% su -M moresecret -c xterm &
-    trix% su -M evenmoresecret -c xclock &
-
-This works because "su -M" closes all open
-fds, reopening std{in,out,err} on /dev/null,
-and the X server is MLS aware, accepting
-connections with any label the user is cleared
-for and enforcing policy on the objects it
-controls. The X server uses TSIG interfaces
-to obtain MLS information about the far end
-of the connections ...
-
-> It seems to me that the current way of managing
-> desktops isn't going to work 
-> (IE Gnome and KDE won't work).
-
-... and the window manager is also MLS aware.
-
+It might be best if you don't say that out loud.
 
 
 Casey Schaufler
