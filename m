@@ -1,92 +1,68 @@
 Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k9CEn44w029472
-	for <selinux@tycho.nsa.gov>; Thu, 12 Oct 2006 10:49:04 -0400
-Received: from exchange.columbia.tresys.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with SMTP id k9CEmOPm011538
-	for <selinux@tycho.nsa.gov>; Thu, 12 Oct 2006 14:48:24 GMT
-Subject: Re: [PATCH 1/2] Reference policy: NetLabel policy additions
-From: "Christopher J. PeBenito" <cpebenito@tresys.com>
-To: paul.moore@hp.com
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k9CFBuC6030373
+	for <selinux@tycho.nsa.gov>; Thu, 12 Oct 2006 11:11:57 -0400
+Received: from atlrel7.hp.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id k9CFBGPm015317
+	for <selinux@tycho.nsa.gov>; Thu, 12 Oct 2006 15:11:16 GMT
+Message-ID: <452E5B37.5020200@hp.com>
+Date: Thu, 12 Oct 2006 11:11:51 -0400
+From: Paul Moore <paul.moore@hp.com>
+MIME-Version: 1.0
+To: "Christopher J. PeBenito" <cpebenito@tresys.com>
 Cc: selinux@tycho.nsa.gov
-In-Reply-To: <20061011213229.879958000@hp.com>
-References: <20061011212958.265773000@hp.com>
-	 <20061011213229.879958000@hp.com>
-Content-Type: text/plain
-Date: Thu, 12 Oct 2006 10:49:39 -0400
-Message-Id: <1160664579.5980.42.camel@sgc>
-Mime-Version: 1.0
+Subject: Re: [PATCH 1/2] Reference policy: NetLabel policy additions
+References: <20061011212958.265773000@hp.com>	 <20061011213229.879958000@hp.com> <1160664579.5980.42.camel@sgc>
+In-Reply-To: <1160664579.5980.42.camel@sgc>
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2006-10-11 at 17:29 -0400, paul.moore@hp.com wrote:
-> This patch adds basic NetLabel support to the reference policy.
+Christopher J. PeBenito wrote:
+> On Wed, 2006-10-11 at 17:29 -0400, paul.moore@hp.com wrote:
+> 
+>>This patch adds basic NetLabel support to the reference policy.
+> 
+> Merged to the labeled networking branch.  A couple notes, mostly
+> nitpicking that I skipped on your RFC email:
 
-Merged to the labeled networking branch.  A couple notes, mostly
-nitpicking that I skipped on your RFC email:
+Thanks!  I'll grab the version you checked in and give it a quick test just to
+make sure.
 
-> +interface(`kernel_dontaudit_tcp_recv_netlabel',`
-> +	gen_require(`
-> +		type unlabeled_t;
-> +	')
-> +
-> +	allow $1 unlabeled_t:tcp_socket recvfrom;
-> +')
+>>+# allow communication with kernel subsystem
+>>+allow netlabel_mgmt_t self:netlink_socket create_socket_perms;
+>  
+> I'm guessing we don't have time to fix the kernel to make this a
+> specified netlink socket, rather than using the fallback generic netlink
+> socket?
 
-> +interface(`kernel_tcp_recv_netlabel',`
-> +	gen_require(`
-> +		type unlabeled_t;
-> +	')
-> +
-> +	dontaudit $1 unlabeled_t:tcp_socket recvfrom;
-> +')
+No, the problem is that it is a much larger problem than just NetLabel, it's the
+genetlink mechanism in general.  I heard a rumor that someone was working on
+adding proper SELinux genetlink support but I haven't seen anything posted.  If
+nothing appears in the next month or two I'll start working on something for
+genetlink (I also owe Jamal some comments for his genetlink document).
 
-Fixed the above interfaces, you had the allow interface dontaudit and
-vice versa, I didn't notice these the first time around.  I also tweaked
-the names a little.
+>>@@ -155,10 +155,12 @@ ifdef(`enable_mls',`
+>> 	        logging_read_generic_logs(secadm_t)
+>> 		userdom_dontaudit_append_staff_home_content_files(secadm_t)
+>> 		userdom_dontaudit_read_sysadm_home_content_files(secadm_t)
+>>+		netlabel_run_mgmt(secadm_t,secadm_r, { secadm_tty_device_t secadm_devpts_t })
+>> 	',`
+>> 		logging_manage_audit_log(sysadm_t)
+>> 		logging_manage_audit_config(sysadm_t)
+>> 		logging_run_auditctl(sysadm_t,sysadm_r,admin_terminal)
+>>+		netlabel_run_mgmt(sysadm_t,sysadm_r,admin_terminal)
+>> 	')
+> 
+> 
+> I thought that netlabel just had the mls level.  Wouldn't that make it
+> useless on a non mls policy (the second addition is for non mls)?
 
-> +# allow communication with kernel subsystem
-> +allow netlabel_mgmt_t self:netlink_socket create_socket_perms;
-
-I'm guessing we don't have time to fix the kernel to make this a
-specified netlink socket, rather than using the fallback generic netlink
-socket?
-
-I also removed some of the comments, since they seemed obvious because
-they were almost the same as the interface names.
-
-> @@ -512,6 +512,8 @@ template(`userdom_basic_networking_templ
->  	corenet_udp_sendrecv_all_nodes($1_t)
->  	corenet_tcp_sendrecv_all_ports($1_t)
->  	corenet_udp_sendrecv_all_ports($1_t)
-> +	corenet_tcp_recv_netlabel($1_t)
-> +	corenet_udp_recv_netlabel($1_t)
->  	corenet_tcp_connect_all_ports($1_t)
->  	corenet_sendrecv_all_client_packets($1_t)
->  ')
-
-I put this in ifdef enable_mls.  It doesn't hurt non-mls, but might as
-well keep things clean.
-
-> @@ -155,10 +155,12 @@ ifdef(`enable_mls',`
->  	        logging_read_generic_logs(secadm_t)
->  		userdom_dontaudit_append_staff_home_content_files(secadm_t)
->  		userdom_dontaudit_read_sysadm_home_content_files(secadm_t)
-> +		netlabel_run_mgmt(secadm_t,secadm_r, { secadm_tty_device_t secadm_devpts_t })
->  	',`
->  		logging_manage_audit_log(sysadm_t)
->  		logging_manage_audit_config(sysadm_t)
->  		logging_run_auditctl(sysadm_t,sysadm_r,admin_terminal)
-> +		netlabel_run_mgmt(sysadm_t,sysadm_r,admin_terminal)
->  	')
-
-I thought that netlabel just had the mls level.  Wouldn't that make it
-useless on a non mls policy (the second addition is for non mls)?
+There is an argument that it would still apply for the mcs case as well,
+although the quality of that argument is debatable.
 
 -- 
-Chris PeBenito
-Tresys Technology, LLC
-(410) 290-1411 x150
-
+paul moore
+linux security @ hp
 
 --
 This message was distributed to subscribers of the selinux mailing list.
