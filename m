@@ -1,41 +1,124 @@
 Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k9CFH80r030553
-	for <selinux@tycho.nsa.gov>; Thu, 12 Oct 2006 11:17:08 -0400
-Received: from e31.co.us.ibm.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id k9CFGRPm015884
-	for <selinux@tycho.nsa.gov>; Thu, 12 Oct 2006 15:16:28 GMT
-Received: from d03relay04.boulder.ibm.com (d03relay04.boulder.ibm.com [9.17.195.106])
-	by e31.co.us.ibm.com (8.13.8/8.12.11) with ESMTP id k9CFH3h9006688
-	for <selinux@tycho.nsa.gov>; Thu, 12 Oct 2006 11:17:03 -0400
-Received: from d03av02.boulder.ibm.com (d03av02.boulder.ibm.com [9.17.195.168])
-	by d03relay04.boulder.ibm.com (8.13.6/8.13.6/NCO v8.1.1) with ESMTP id k9CFH2Z9340242
-	for <selinux@tycho.nsa.gov>; Thu, 12 Oct 2006 09:17:02 -0600
-Received: from d03av02.boulder.ibm.com (loopback [127.0.0.1])
-	by d03av02.boulder.ibm.com (8.12.11.20060308/8.13.3) with ESMTP id k9CFH1CL017112
-	for <selinux@tycho.nsa.gov>; Thu, 12 Oct 2006 09:17:02 -0600
-Message-ID: <452E5C66.1060201@us.ibm.com>
-Date: Thu, 12 Oct 2006 10:16:54 -0500
-From: Michael C Thompson <thompsmc@us.ibm.com>
-MIME-Version: 1.0
-To: Klaus Weidner <klaus@atsec.com>
-CC: Russell Coker <russell@coker.com.au>, selinux@tycho.nsa.gov,
-        redhat-lspp@redhat.com
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k9CFbG70031310
+	for <selinux@tycho.nsa.gov>; Thu, 12 Oct 2006 11:37:16 -0400
+Received: from web36603.mail.mud.yahoo.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with SMTP id k9CFaaPm018945
+	for <selinux@tycho.nsa.gov>; Thu, 12 Oct 2006 15:36:36 GMT
+Message-ID: <20061012153701.75777.qmail@web36603.mail.mud.yahoo.com>
+Date: Thu, 12 Oct 2006 08:37:01 -0700 (PDT)
+From: Casey Schaufler <casey@schaufler-ca.com>
+Reply-To: casey@schaufler-ca.com
 Subject: Re: MLS enforcing PTYs, sshd, and newrole
-References: <20061012073338.GG28525@w-m-p.com> <200610122025.15043.russell@coker.com.au> <20061012144819.GF28520@w-m-p.com>
-In-Reply-To: <20061012144819.GF28520@w-m-p.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: russell@coker.com.au
+Cc: selinux@tycho.nsa.gov, redhat-lspp@redhat.com
+In-Reply-To: <200610122025.15043.russell@coker.com.au>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Klaus Weidner wrote:
-> Of course, people deploying a system that's based on the LSPP
-> configuration can choose to deviate from the evaluated configuration
-> based on their own risk assessment. This could include restoring general
-> access to "newrole" if they don't consider the PTY exploit to be a
-> concern.
 
-And if you want polyinstation, then an suid newrole needs to be available :)
 
+--- Russell Coker <russell@coker.com.au> wrote:
+
+> On Thursday 12 October 2006 17:33, Klaus Weidner
+> <klaus@atsec.com> wrote:
+> > If you need local console (or serial) login at
+> different MLS levels for
+> > the same user, you can create multiple Linux users
+> for each human user
+> > that share the same uid and home directory, and
+> use "semanage login" to
+> > map them to appropriate levels. So you'd have
+> smith_secret_cat1,
+> > smith_unclassified and so on.
+
+The Unix MLS systems provide mechanism
+in login to specify MAC the user label.
+
+In Trix 6 I would use:
+
+    login: casey MAC=appropriatevalue
+    passwd: ....
+
+In Trix 4 it was:
+
+    login: casey
+    label: appropriatevalue
+    passwd: ...
+
+In Solaris I *think* it would be:
+
+    login: casey -l appropriatevalue
+    passwd: ...
+
+but rust could well have filled that part
+of my memory.
+
+Creating a seperate login name for each MLS
+value would be fine if you have a small number
+of users with a small number of labels, but
+will not be competitive in a production
+environment.
+
+> That doesn't work well with password expiry
+> policies.  Having 
+> smith_secret_cat1 password expire at different times
+> to smith_unclassified 
+> would be a pain for users and sys-admins.
+
+That too.
+
+> Then if you want to use RSA SecurID or similar
+> tokens you have an extra level 
+> of pain in mapping them to the right Unix account
+> names.
+> 
+> I think that the right solution is to re-enable the
+> code for selecting the 
+> role etc at login time and adding some code for
+> selecting the level.  It 
+> should not be difficult to do this if there are no
+> plans to ever support it 
+> for ssh or X logins.
+> 
+> > It should still work to put a multilevel X desktop
+> on top of this, since
+> > that presumably uses a mechanism other than
+> "newrole" to launch terminals
+> > or windows at different levels. But that's only
+> guesswork due to not
+> > having seen any code for this...
+> 
+> Can someone who has worked on one of these things
+> before please comment on how 
+> it's done?
+
+Hee Hee Hee. On Trix you get a new window at
+a different label using su -M:
+
+    trix% su -M moresecret -c xterm &
+    trix% su -M evenmoresecret -c xclock &
+
+This works because "su -M" closes all open
+fds, reopening std{in,out,err} on /dev/null,
+and the X server is MLS aware, accepting
+connections with any label the user is cleared
+for and enforcing policy on the objects it
+controls. The X server uses TSIG interfaces
+to obtain MLS information about the far end
+of the connections ...
+
+> It seems to me that the current way of managing
+> desktops isn't going to work 
+> (IE Gnome and KDE won't work).
+
+... and the window manager is also MLS aware.
+
+
+
+Casey Schaufler
+casey@schaufler-ca.com
 
 --
 This message was distributed to subscribers of the selinux mailing list.
