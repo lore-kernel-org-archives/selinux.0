@@ -1,55 +1,59 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k9DJhTfE012930
-	for <selinux@tycho.nsa.gov>; Fri, 13 Oct 2006 15:43:29 -0400
-Received: from web36612.mail.mud.yahoo.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with SMTP id k9DJgA2X010253
-	for <selinux@tycho.nsa.gov>; Fri, 13 Oct 2006 19:42:11 GMT
-Message-ID: <20061013194330.72618.qmail@web36612.mail.mud.yahoo.com>
-Date: Fri, 13 Oct 2006 12:43:29 -0700 (PDT)
-From: Casey Schaufler <casey@schaufler-ca.com>
-Reply-To: casey@schaufler-ca.com
 Subject: Re: context_sensitivity_{get|set}
-To: selinux@tycho.nsa.gov
-In-Reply-To: <1160765234.14346.138.camel@moss-spartans.epoch.ncsc.mil>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: casey@schaufler-ca.com
+Cc: selinux@tycho.nsa.gov
+In-Reply-To: <20061013194330.72618.qmail@web36612.mail.mud.yahoo.com>
+References: <20061013194330.72618.qmail@web36612.mail.mud.yahoo.com>
+Content-Type: text/plain
+Date: Fri, 13 Oct 2006 16:03:52 -0400
+Message-Id: <1160769832.14346.193.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+On Fri, 2006-10-13 at 12:43 -0700, Casey Schaufler wrote:
+> 
+> --- Stephen Smalley <sds@tycho.nsa.gov> wrote:
+> 
+> 
+> > No, usage is decidedly mixed.  "Security level" is
+> > often used to mean
+> > the entire label, while "sensitivity" is often used
+> > to mean the
+> > hierarchical component only (and this fits more with
+> > the natural
+> > language meaning of sensitivity).  Look around a
+> > bit.
+> 
+> Bah. (waves paw).
+> 
+> > In any event, in SELinux, each context has a MLS
+> > range consisting of a
+> > low level and a high level (reduced to a single
+> > level when they are
+> > equal), and each level consists of a sensitivity
+> > value and an optional
+> > category set.
+> 
+> Then your use of the terms is inconsistant
+> with historical practice and will contribute
+> to the overall confusion.
 
+>From the TCSEC glossary:
+	"Security Level - The combination of a hierarchical classification and
+a set of non-hierarchical categories that represents the sensitivity of
+information."
 
---- Stephen Smalley <sds@tycho.nsa.gov> wrote:
+>From Bell and LaPadula's Secure Computer Systems:  Unified Exposition
+and Multics Interpretation:
+	"A total security designation is a pair:
+		(classification, set of categories).
+	 Such a pair we call a "security level.""
 
+-- 
+Stephen Smalley
+National Security Agency
 
-> No, usage is decidedly mixed.  "Security level" is
-> often used to mean
-> the entire label, while "sensitivity" is often used
-> to mean the
-> hierarchical component only (and this fits more with
-> the natural
-> language meaning of sensitivity).  Look around a
-> bit.
-
-Bah. (waves paw).
-
-> In any event, in SELinux, each context has a MLS
-> range consisting of a
-> low level and a high level (reduced to a single
-> level when they are
-> equal), and each level consists of a sensitivity
-> value and an optional
-> category set.
-
-Then your use of the terms is inconsistant
-with historical practice and will contribute
-to the overall confusion.
-
-Kids.
-
-
-
-Casey Schaufler
-casey@schaufler-ca.com
 
 --
 This message was distributed to subscribers of the selinux mailing list.
