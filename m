@@ -1,118 +1,44 @@
-Reply-To: <vyekkirala@TrustedCS.com>
-From: "Venkat Yekkirala" <vyekkirala@TrustedCS.com>
-To: "'Christopher J. PeBenito'" <cpebenito@tresys.com>
-Cc: "'Karl MacMillan'" <kmacmillan@mentalrootkit.com>,
-        "'Joshua Brindle'" <jbrindle@tresys.com>, <selinux@tycho.nsa.gov>,
-        <sds@tycho.nsa.gov>
-Subject: RE: Denials from newest kernel
-Date: Fri, 13 Oct 2006 16:52:21 -0500
-Message-ID: <001601c6ef11$dccb6ec0$cc0a010a@tcssec.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-In-Reply-To: <1160752013.5980.102.camel@sgc>
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k9DM6YiK017861
+	for <selinux@tycho.nsa.gov>; Fri, 13 Oct 2006 18:06:34 -0400
+Received: from smtp112.sbc.mail.mud.yahoo.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with SMTP id k9DM5r0h011027
+	for <selinux@tycho.nsa.gov>; Fri, 13 Oct 2006 22:05:53 GMT
+In-Reply-To: <20061013213819.37747.qmail@web36601.mail.mud.yahoo.com>
+References: <20061013213819.37747.qmail@web36601.mail.mud.yahoo.com>
+Mime-Version: 1.0 (Apple Message framework v752.3)
+Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
+Message-Id: <D817779A-2E7B-4EEC-A906-89FE94E9C0BC@nall.com>
+Cc: selinux@tycho.nsa.gov
+From: Joe Nall <joe@nall.com>
+Subject: Re: context_sensitivity_{get|set}
+Date: Fri, 13 Oct 2006 17:06:10 -0500
+To: casey@schaufler-ca.com
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-> > > 4. can the domain send to the ipsec association?
-> > >
-> > > 5. can the packet flow into the ipsec association?
-> >
-> > This is actually the same question as "4" above. What's the
-> difference?
->
-> This is like a filesystem associate check.  As an example, we have
-> mozilla_t communicating with httpd_t.
 
-Yes. This we represent by something similar to:
+On Oct 13, 2006, at 4:38 PM, Casey Schaufler wrote:
 
--A selinux_new_output -p tcp --dport 80 -j SECMARK --selctx p_httpd_t
-
-allow mozilla_t p_httpd_t:packet { flow_out };
-
->  Mozilla_t needs to send
-> dns_client_packet_t for doing DNS lookups, and
-
-First of all, all packets from mozilla are mozilla_t packets.
-
-In the new paradigm, mozilla_t needing to send "through to" DNS is
-represented as:
-
--A selinux_new_output --dport 53 -j SECMARK --selctx p_dnsd_t
-
-allow mozilla_t p_dnsd_t:packet { flow_out };
-
-So in the new paradigm, we look at the security points as representing
-corresponding "peers" (not in the tcp sense, just in the general
-communication
-sense) running on remote machines.
-
-> httpd_client_packet_t is
-> obvious.  Mozilla_t needs to send/recv to the httpd_t association.
-
-No. mozilla_t "sends using/to" an association with the context mozilla_t.
-mozilla_t "receives from" an association with the context httpd_t.
-
-> Without 5, we can't restrict the association traffic to just
-> http_client_packet_t, so mozilla_t can't be denied sending/receiving
-> dns_client_packets_t over the httpd_t association.
-
-You can restrict it, but by way of the policy in the SPD, where you
-can use selectors such as ipaddr, port, protocol, etc. (see setkey(8)).
-
-The "security points" have nothing to do with ipsec associations.
 
 >
-> > Like I mentioned yesterday, there's no IPSec stuff involved at the
-> > netfilter level. A packet can only use a labeled IPSec association
-> (SA)
-> > iff the domain on the packet EXACTLY matches the domain on the SA
-> > as signified by the constraint in the policy patch I posted
-> a week or
-> so
-> > back.
->
-> I'm glad you mentioned this constraint, because I forgot about it.  I
-> hadn't planned on adding it to the policy.  In light of setsockcreate
-> and a SELinux aware inetd in the future (having the sockets
-> be the type
-> of their child processes), this constraint makes less sense.
+> In the Unix MLS world everyone calls the
+> hierarchical part the level and the whole
+> thing the label. It is entirely possible
+> that such usage is incorrect.
 
-Can you please elaborate on this?
+That has been my conversational experience, however the HP  
+(Secureware) header has this fugly construction (C++ didn't like this  
+any more than the similar issue in avc.h I reported earlier). The cat  
+array was dynamically sized with post struct padding.
 
-In the case where you have a socket created at a different context
-than the process, you would still want the SA used to be
-the one that corresponds to the socket context. Wouldn't you?
+typedef struct mand_ir {
+         class_ir_t      class;
+         mask_t          cat[1];
+}  mand_ir_t;
 
->  I also
-> find it objectionable to have the code
-> depend on a policy
-> when there is
-> no guarantee that the constraint will be there.
 
-With a couple of minor adjustments to the code I should be able to
-delink it from the dependence on the policy, but the semantics would
-obviously change as follows:
-
-1. The peercon seen on the remote machine would be the SA context
-   which may not necessarily be the same as the true peer context as
-   represented by the socket.
-2. Multiple socket contexts could potentially be sharing the same SA
-   as allowed by policy.
-
-Now one might in fact find some use cases for the above.
-
-Alternatively, we could hardcode the check in the kernel, but with
-some potential performance implications.
-
-Stephen, am I able to mitigate the performance implications by doing
-something like the below:
-
-if (sock_sid == SA_sid)
-	use_SA;
-else if (sock_sid < SECINITSID_NUM || SA_sid < SECINITSID_NUM)
-	retrieve_contexts_and_compare_with_some_performance_penalty;
-
+joe
 
 --
 This message was distributed to subscribers of the selinux mailing list.
