@@ -1,206 +1,79 @@
-Subject: Re: [patch 1/1] removal of unused private.h from libsemanage
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Joshua Brindle <jbrindle@tresys.com>
-Cc: Caleb Case <ccase@tresys.com>, selinux-dev@tresys.com,
-        selinux@tycho.nsa.gov
-In-Reply-To: <1160774164.22172.18.camel@twoface.columbia.tresys.com>
-References: <200610051856.k95IuhVO028187@localhost.localdomain>
-	 <1160774164.22172.18.camel@twoface.columbia.tresys.com>
-Content-Type: text/plain
-Date: Fri, 13 Oct 2006 17:25:46 -0400
-Message-Id: <1160774746.14346.235.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k9DLcSal016929
+	for <selinux@tycho.nsa.gov>; Fri, 13 Oct 2006 17:38:28 -0400
+Received: from web36601.mail.mud.yahoo.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with SMTP id k9DLbleg007224
+	for <selinux@tycho.nsa.gov>; Fri, 13 Oct 2006 21:37:47 GMT
+Message-ID: <20061013213819.37747.qmail@web36601.mail.mud.yahoo.com>
+Date: Fri, 13 Oct 2006 14:38:19 -0700 (PDT)
+From: Casey Schaufler <casey@schaufler-ca.com>
+Reply-To: casey@schaufler-ca.com
+Subject: Re: context_sensitivity_{get|set}
+To: selinux@tycho.nsa.gov
+In-Reply-To: <1160769832.14346.193.camel@moss-spartans.epoch.ncsc.mil>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2006-10-13 at 17:16 -0400, Joshua Brindle wrote:
-> On Thu, 2006-10-05 at 14:56 -0400, Caleb Case wrote:
-> > The header libsemanage/src/private.h is no longer used and should be removed.  It appears to be left over from the libsemod days.
-> > 
+
+
+--- Stephen Smalley <sds@tycho.nsa.gov> wrote:
+
+> >From the TCSEC glossary:
+> 	"Security Level - The combination of a hierarchical
+> classification and
+> a set of non-hierarchical categories that represents
+> the sensitivity of
+> information."
 > 
-> Did this get lost in the labeled network oblivion?
-> 
-> > ---
-> >  libsemanage/src/private.h |   72 ----------------------------------------------
-> >  1 file changed, 72 deletions(-)
-> > 
-> > Index: selinux-pms-support/libsemanage/src/private.h
-> > ===================================================================
-> > --- selinux-pms-support.orig/libsemanage/src/private.h
-> > +++ /dev/null
-> > @@ -1,72 +0,0 @@
-> > -/* Private definitions for libsemod. */
-> > -
-> > -/* Endian conversion for reading and writing binary policies */
-> > -
-> > -#include <byteswap.h>
-> > -#include <endian.h>
-> > -
-> > -#if __BYTE_ORDER == __LITTLE_ENDIAN
-> > -#define cpu_to_le32(x) (x)
-> > -#define le32_to_cpu(x) (x)
-> > -#define cpu_to_le64(x) (x)
-> > -#define le64_to_cpu(x) (x)
-> > -#else
-> > -#define cpu_to_le32(x) bswap_32(x)
-> > -#define le32_to_cpu(x) bswap_32(x)
-> > -#define cpu_to_le64(x) bswap_64(x)
-> > -#define le64_to_cpu(x) bswap_64(x)
-> > -#endif
-> > -
-> > -/* Read from a policy "file" and return a pointer to the requested set
-> > -   of bytes.  Do *NOT* free the returned pointer.  Returns NULL if the
-> > -   requested number of bytes is larger than the read buffer or if an
-> > -   I/O error occurred.  Note that this function is thread-safe. */
-> > -static inline void *next_entry(struct policy_file *fp, size_t bytes)
-> > -{
-> > -	size_t nread;
-> > -
-> > -	if (bytes > sizeof(fp->buffer))
-> > -		return NULL;
-> > -
-> > -	switch (fp->type) {
-> > -	case PF_USE_STDIO:
-> > -		nread = fread(fp->buffer, bytes, 1, fp->fp);
-> > -		if (nread != 1)
-> > -			return NULL;
-> > -		break;
-> > -	case PF_USE_MEMORY:
-> > -		if (bytes > fp->len)
-> > -			return NULL;
-> > -		memcpy(fp->buffer, fp->data, bytes);
-> > -		fp->data += bytes;
-> > -		fp->len -= bytes;
-> > -		break;
-> > -	default:
-> > -		return NULL;
-> > -	}
-> > -	return fp->buffer;
-> > -}
-> > -
-> > -static inline size_t put_entry(const void *ptr, size_t size, size_t n,
-> > -			       struct policy_file *fp)
-> > -{
-> > -	size_t bytes = size * n;
-> > -
-> > -	switch (fp->type) {
-> > -	case PF_USE_STDIO:
-> > -		return fwrite(ptr, size, n, fp->fp);
-> > -	case PF_USE_MEMORY:
-> > -		if (bytes > fp->len) {
-> > -			errno = ENOSPC;
-> > -			return 0;
-> > -		}
-> > -
-> > -		memcpy(fp->data, ptr, bytes);
-> > -		fp->data += bytes;
-> > -		fp->len -= bytes;
-> > -		return n;
-> > -	default:
-> > -		return 0;
-> > -	}
-> > -	return 0;
-> > -}
-> > 
-> > --
-> > 
-> > 
-> > The header libsemanage/src/private.h is no longer used and should be removed.  It appears to be left over from the libsemod days.
-> > 
-> > ---
-> >  libsemanage/src/private.h |   72 ----------------------------------------------
-> >  1 file changed, 72 deletions(-)
-> > 
-> > Index: selinux-pms-support/libsemanage/src/private.h
-> > ===================================================================
-> > --- selinux-pms-support.orig/libsemanage/src/private.h
-> > +++ /dev/null
-> > @@ -1,72 +0,0 @@
-> > -/* Private definitions for libsemod. */
-> > -
-> > -/* Endian conversion for reading and writing binary policies */
-> > -
-> > -#include <byteswap.h>
-> > -#include <endian.h>
-> > -
-> > -#if __BYTE_ORDER == __LITTLE_ENDIAN
-> > -#define cpu_to_le32(x) (x)
-> > -#define le32_to_cpu(x) (x)
-> > -#define cpu_to_le64(x) (x)
-> > -#define le64_to_cpu(x) (x)
-> > -#else
-> > -#define cpu_to_le32(x) bswap_32(x)
-> > -#define le32_to_cpu(x) bswap_32(x)
-> > -#define cpu_to_le64(x) bswap_64(x)
-> > -#define le64_to_cpu(x) bswap_64(x)
-> > -#endif
-> > -
-> > -/* Read from a policy "file" and return a pointer to the requested set
-> > -   of bytes.  Do *NOT* free the returned pointer.  Returns NULL if the
-> > -   requested number of bytes is larger than the read buffer or if an
-> > -   I/O error occurred.  Note that this function is thread-safe. */
-> > -static inline void *next_entry(struct policy_file *fp, size_t bytes)
-> > -{
-> > -	size_t nread;
-> > -
-> > -	if (bytes > sizeof(fp->buffer))
-> > -		return NULL;
-> > -
-> > -	switch (fp->type) {
-> > -	case PF_USE_STDIO:
-> > -		nread = fread(fp->buffer, bytes, 1, fp->fp);
-> > -		if (nread != 1)
-> > -			return NULL;
-> > -		break;
-> > -	case PF_USE_MEMORY:
-> > -		if (bytes > fp->len)
-> > -			return NULL;
-> > -		memcpy(fp->buffer, fp->data, bytes);
-> > -		fp->data += bytes;
-> > -		fp->len -= bytes;
-> > -		break;
-> > -	default:
-> > -		return NULL;
-> > -	}
-> > -	return fp->buffer;
-> > -}
-> > -
-> > -static inline size_t put_entry(const void *ptr, size_t size, size_t n,
-> > -			       struct policy_file *fp)
-> > -{
-> > -	size_t bytes = size * n;
-> > -
-> > -	switch (fp->type) {
-> > -	case PF_USE_STDIO:
-> > -		return fwrite(ptr, size, n, fp->fp);
-> > -	case PF_USE_MEMORY:
-> > -		if (bytes > fp->len) {
-> > -			errno = ENOSPC;
-> > -			return 0;
-> > -		}
-> > -
-> > -		memcpy(fp->data, ptr, bytes);
-> > -		fp->data += bytes;
-> > -		fp->len -= bytes;
-> > -		return n;
-> > -	default:
-> > -		return 0;
-> > -	}
-> > -	return 0;
-> > -}
-> > 
-> > --
-> > 
-> > Signed-Off-By: Joshua Brindle <jbrindle@tresys.com>
+> >From Bell and LaPadula's Secure Computer Systems: 
+> Unified Exposition
+> and Multics Interpretation:
+> 	"A total security designation is a pair:
+> 		(classification, set of categories).
+> 	 Such a pair we call a "security level.""
 
-Acked-by:  Stephen Smalley <sds@tycho.nsa.gov>
+>From FIPS188:
 
-(feel free to merge; trivial fix)
+security label - A marking bound to a resource
+(which may be a data unit) that names or
+designates the security attributes of that
+resource [2].
 
--- 
-Stephen Smalley
-National Security Agency
+security level - A hierarchical indicator of
+the degree of sensitivity to a certain threat.
+It implies, according to the security policy
+being enforced, a specific level of protection.
 
+
+>From Telecom Glossary 2K
+( http://www.atis.org/tg2k/_security_label.html )
+
+security label: Information representing the
+sensitivity of a subject or object, such as its
+hierarchical classification ("confidential," "secret,"
+"top secret") together with any applicable
+nonhierarchical security categories (e.g., sensitive
+compartmented information, critical nuclear weapon
+design information).
+[INFOSEC-99] Synonym security classification. 
+
+
+I suppose that we could throw quotes at each
+other all day and in the end neither would
+convince the other.
+
+In the Unix MLS world everyone calls the
+hierarchical part the level and the whole
+thing the label. It is entirely possible
+that such usage is incorrect.
+
+Well, call it what you will. I gave it my shot.
+
+
+Casey Schaufler
+casey@schaufler-ca.com
 
 --
 This message was distributed to subscribers of the selinux mailing list.
