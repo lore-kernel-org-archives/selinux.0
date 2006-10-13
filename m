@@ -1,85 +1,113 @@
 Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k9DMg9Cv018763
-	for <selinux@tycho.nsa.gov>; Fri, 13 Oct 2006 18:42:09 -0400
-Received: from atlrel6.hp.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id k9DMeoo6008805
-	for <selinux@tycho.nsa.gov>; Fri, 13 Oct 2006 22:40:50 GMT
-Message-ID: <45301640.4060407@hp.com>
-Date: Fri, 13 Oct 2006 18:42:08 -0400
-From: Paul Moore <paul.moore@hp.com>
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k9DNO7ck019696
+	for <selinux@tycho.nsa.gov>; Fri, 13 Oct 2006 19:24:07 -0400
+Received: from tcsfw4.tcs-sec.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id k9DNMmo6014270
+	for <selinux@tycho.nsa.gov>; Fri, 13 Oct 2006 23:22:48 GMT
+Message-ID: <45301FFA.3080805@trustedcs.com>
+Date: Fri, 13 Oct 2006 18:23:38 -0500
+From: Venkat Yekkirala <vyekkirala@TrustedCS.com>
 MIME-Version: 1.0
 To: selinux@tycho.nsa.gov
-Cc: vyekkirala@TrustedCS.com,
-        "'Christopher J. PeBenito'" <cpebenito@tresys.com>,
-        "'Karl MacMillan'" <kmacmillan@mentalrootkit.com>,
-        Joshua Brindle <jbrindle@tresys.com>
-Subject: Re: Denials from newest kernel
-References: <001501c6ee39$dd9cb8a0$cc0a010a@tcssec.com>
-In-Reply-To: <001501c6ee39$dd9cb8a0$cc0a010a@tcssec.com>
+CC: redhat-lspp@redhat.com
+Subject: Re: DOCUMENTATION OF SECID RECONCILIATION AND FLOW CONTROL FOR POLICY
+ WRITERS
+References: <452A3F8C.5080401@trustedcs.com> <452AA26C.7050901@trustedcs.com>
+In-Reply-To: <452AA26C.7050901@trustedcs.com>
 Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-> What security goals can I express in the new paradigm that I can NOT
-> in the existing paradigm?
+Fixed a bug in the doc to be in line with the current proposed implementation.
+
+Venkat Yekkirala wrote:
+> Venkat Yekkirala wrote:
+>> DOCUMENTATION OF SECID RECONCILIATION AND FLOW CONTROL FOR POLICY WRITERS:
+>>
+>> ON INBOUND:
+>>
+>> 1. PACKETS ENTERING SYSTEM FROM A NON-LOOPBACK DEVICE:
+>>
+>>    Can a packet "carrying" external domain label x_t "flow_in" thru the
+>>    security point with the peer domain label p_d_t?
+>>
+>> 	NOTE:
+>> 	a. x_t defaults to unlabeled_t, if no external label.
+>> 	b. p_d_t defaults to network_t in the absence of any applicable
+>> 	   [conn]secmark rules for the packet. If there are multiple
+>> 	   secmark rules applicable to a packet, the context on the LAST
+>> 	   rule will apply.
+>>
+>>    NO: Drop packet.
+>>    YES: If no external label, let packet "carry" p_d_t.
+
+s/p_d_t/p_d_t if it didn't default to network_t/
+
+>>
+>> 2. INPUT ONLY: Can a socket "recv" a packet from domain p_d_t?
+>>
+>>    NO: Drop packet.
+>>    YES: If setting up a tcp connection, set peer context to p_d_t.
+>>
+>> ON OUTBOUND:
+>>
+>> 1. Let packet "carry" the originating socket domain label.
+>>
+>> 2. IPSEC Handling:
+>>
+>>    LABELED IPSEC: If packet "polmatch"es to an otherwise applicable and
+>>    labeled SPD entry, choose a Security Association (SA) with the SAME context
+>>    as the domain label being carried by packet.
+>> 	NOTE: If no such SA present, call into IKE with context on packet.
+>>
+>>    NON-LABELED (PLAIN/TRADITIONAL) IPSEC: If there's an applicable SPD entry
+>>    that does NOT have an explicit context associated with it, an applicable SA
+>>    that does NOT have an explicit context associated with it is chosen.
+>> 	NOTE: If no such SA present, call into IKE, but with NO context.
+>>
+>> 3. PACKETS DESTINED FOR NON-LOOPBACK DEVICE:
+>>
+>>    a. IPTABLES Processing:
+>>       As EACH applicable iptables [CONN]SECMARK rule with domain p_d_t is
+>>       encountered, do the following:
+>>    
+>>       Can a packet carrying domain label a_t "flow_out" of the security point
+>>       with the domain label p_d_t?
+>>    
+>>          NO: Drop packet.
+>>          YES: Replace the domain label a_t on the packet with the security point
+>>               label p_d_t.
+>>
+>>    b. Before a packet is let out of the system:
+>>
+>>       Can a packet with domain label p_d_t "flow_out" into the network domain
+>>       network_t?
+>>
+>>       NO: Drop packet.
+>>       YES: Let packet out.
+>>
+>>       NOTE: Ideally this check should be applicable only to packets that
+>>             didn't go thru [conn]secmark checks for outbound, but there's
+>>             currently no way to know this due to implementation constrains.
+>>             Hence a blanket check for ALL packets leaving the system.
+>>
+>>
+>> FORWARDED TRAFFIC:
+>>
+>> Forwarded Traffic will undergo the following:
+>>
+>> 1. Step 1 under ON INBOUND.
+>>
+>> 2. Steps 2 and 3 under ON OUTBOUND.
+>       NOTE: The iptables FORWARD chain is treated as an outbound chain
+>             for flow control purposes. That means forwarded traffic would
+>             need to be flow-controlled/labeled when it comes into the system
+>             using an applicable rule in the PREROUTING chain, and flow-controlled
+>             before it leaves the system using rules either in the FORWARD chain
+>             or the POSTROUTING chain.
 > 
-> Answer: Flow controlling on forwarded traffic, localhost traffic labeling.
+> 
 
-This is something I have been thinking about a lot lately, even before Venkat
-reponded with the above answer.  More specifically I've been thinking about how
-we can accomplish those two security goals without causing as much disruption as
-the secid patches have seem to have caused.  The goal of combining all the
-different packet labeling mechanisms into the secmark field is a noble one, but
-I think we just loose too much in the process and I don't think we gain enough
-to make it worthwhile.
-
-At the risk of being dragged out into the street and shot for suggesting
-something new at this stage I would like to offer up this rough idea for
-comments, it's not really a big change from the current secid patches but I
-think it should help address a lot of the problems that I have seen on the list:
-
-1. The skb->secmark field should only be used for local/netfilter packet
-labeling, neither labeled IPsec or NetLabel should ever change it's value.
-
-2. Add a selinux_skb_flow_in() similar to what is done with the current secid
-patches but do not change the skb->secmark value (see #1 above) and for each
-external packet label do a permission check similar to the following:
-
- avc_has_perm(extlbl_sid, skb->secmark, "packet", "flow_in");
-
-We could always swap SECINITSID_NETMSG in for the secmark is it was not set
-similar to what the secid patches do now.  If there are no external packet
-labels then there would be a simple "unlabeled" check similar to the following:
-
- avc_has_perm(SECINITSID_UNLABELED, skb->secmark, "packet", "flow_in");
-
-3. In selinuc_socket_sock_rcv_skb() we would have the usual secmark check and if
-external labeling is in use a check similar to the following:
-
- avc_has_perm(extlbl_sid, sock_sid, sock_class, "recvfrom");
-
-4. Add a selinux_skb_flow_out() similar to what is done with the current secid
-patches but do not change the skb->secmark value (see #1 above) and if the
-packet is associated with a socket, i.e. skb->sk != NULL, do a permission check
-similar to the following:
-
- avc_has_perm(skb->sk->sk_security->sid, nf_secid, "packet", "flow_out");
-
-In addition, if there is an external label we would do a permission similar to
-the following:
-
- avc_has_perm(extlbl_sid, nf_secid, "packet", "flow_out");
-
-The suggestions should address all of the packet flow control issues in what I
-think is a reasonable manner.  However, they don't address the localhost
-labeling issue, but honestly I think this is a completely separate issue which
-we shouldn't let clutter up the packet flow issues.  NetLabel works just fine
-over localhost and according to Venkat's email earlier this week it looks like
-labeled IPsec could work over localhost as well, we just need to do some testing.
-
--- 
-paul moore
-linux security @ hp
 
 --
 This message was distributed to subscribers of the selinux mailing list.
