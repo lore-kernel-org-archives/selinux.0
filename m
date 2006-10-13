@@ -1,37 +1,36 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k9CMZM15011492
-	for <selinux@tycho.nsa.gov>; Thu, 12 Oct 2006 18:35:22 -0400
-Received: from mail8.sea5.speakeasy.net (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id k9CMY42c018063
-	for <selinux@tycho.nsa.gov>; Thu, 12 Oct 2006 22:34:04 GMT
-Date: Thu, 12 Oct 2006 18:35:18 -0400 (EDT)
-From: James Morris <jmorris@namei.org>
-To: paul.moore@hp.com
-cc: netdev@vger.kernel.org, selinux@tycho.nsa.gov, eparis@redhat.com
-Subject: Re: [PATCH 0/3] Collection of small NetLabel bugfixes
-In-Reply-To: <20061011231046.825517000@hp.com>
-Message-ID: <Pine.LNX.4.64.0610121834540.2050@d.namei>
-References: <20061011231046.825517000@hp.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Subject: Re: context_sensitivity_{get|set}
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Matt Anderson <mra@hp.com>
+Cc: Darrel Goeddel <dgoeddel@TrustedCS.com>, selinux@tycho.nsa.gov
+In-Reply-To: <452E955F.2050407@hp.com>
+References: <452E955F.2050407@hp.com>
+Content-Type: text/plain
+Date: Fri, 13 Oct 2006 10:04:07 -0400
+Message-Id: <1160748247.14346.26.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 11 Oct 2006, paul.moore@hp.com wrote:
-
-> When doing some more testing today I ran into a few bugs, this patchset
-> addresses those bugs.  This patchset is backed against today's net-2.6 git
-> tree.
+On Thu, 2006-10-12 at 15:19 -0400, Matt Anderson wrote:
+> For my latest CUPS patch I needed to include code that set the
+> sensitivity of the spool file storing the to that of the client's
+> context when they queued the job.  I used context_range_get() to
+> retrieve the MLS range, but then had to use strtok() to get the lower bound.
 > 
-> Please apply these patches for 2.6.19, thanks.
+> Is context_sensitivity_get() or context_sensitivity_set() a function
+> that other consumers might need?  Should it be included in libselinux?
 
-Applied to
-git://git.kernel.org/pub/scm/linux/kernel/git/jmorris/selinux-net-2.6.git
-
+Providing functions to get/set the low and high would make sense (and
+newrole already has to do similar processing internally for newrole -l),
+but I don't follow the function names above - do you want just the low
+sensitivity (i.e. no categories) or the entire low level?  And you need
+to indicate whether you are operating on the low or the high levels in
+the interface.
 
 -- 
-James Morris
-<jmorris@namei.org>
+Stephen Smalley
+National Security Agency
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
