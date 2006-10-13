@@ -1,110 +1,207 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k9DKsrmv015573
-	for <selinux@tycho.nsa.gov>; Fri, 13 Oct 2006 16:54:53 -0400
-Received: from exchange.columbia.tresys.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with SMTP id k9DKrY2X021944
-	for <selinux@tycho.nsa.gov>; Fri, 13 Oct 2006 20:53:34 GMT
-Subject: Re: DOCUMENTATION OF SECID RECONCILIATION AND FLOW CONTROL FOR
-	POLICY WRITERS
-From: "Christopher J. PeBenito" <cpebenito@tresys.com>
-To: Venkat Yekkirala <vyekkirala@TrustedCS.com>
-Cc: selinux@tycho.nsa.gov, redhat-lspp@redhat.com
-In-Reply-To: <452A3F8C.5080401@trustedcs.com>
-References: <452A3F8C.5080401@trustedcs.com>
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k9DLFi3o016233
+	for <selinux@tycho.nsa.gov>; Fri, 13 Oct 2006 17:15:44 -0400
+Received: from twoface.columbia.tresys.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id k9DLF3eg004352
+	for <selinux@tycho.nsa.gov>; Fri, 13 Oct 2006 21:15:03 GMT
+Subject: Re: [patch 1/1] removal of unused private.h from libsemanage
+From: Joshua Brindle <jbrindle@tresys.com>
+To: Caleb Case <ccase@tresys.com>
+Cc: selinux-dev@tresys.com, selinux@tycho.nsa.gov
+In-Reply-To: <200610051856.k95IuhVO028187@localhost.localdomain>
+References: <200610051856.k95IuhVO028187@localhost.localdomain>
 Content-Type: text/plain
-Date: Fri, 13 Oct 2006 16:55:35 -0400
-Message-Id: <1160772935.5980.162.camel@sgc.columbia.tresys.com>
+Date: Fri, 13 Oct 2006 17:16:04 -0400
+Message-Id: <1160774164.22172.18.camel@twoface.columbia.tresys.com>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-So I started testing the labeled networking kernel with no external
-labeling and I have some questions.  I removed all packet rules to
-observe the behavior of the controls via denials, and this is what I got
-on the receive side:
-
-avc:  denied  { flow_in } for  pid=1874 comm="yum-updatesd"
-saddr=10.1.13.2 src=55737 daddr=10.1.13.105 dest=22 netif=eth0
-scontext=system_u:object_r:unlabeled_t:s0
-tcontext=system_u:object_r:ssh_server_packet_t:s0 tclass=packet
-
-avc:  denied  { recv } for  pid=1991 comm="sshd" saddr=10.1.13.2
-src=35562 daddr=10.1.13.105 dest=22 netif=eth0
-scontext=system_u:system_r:unconfined_t:s0
-tcontext=system_u:object_r:ssh_server_packet_t:s0 tclass=packet
-
-and to allow this you would need:
-
-allow unlabeled_t ssh_server_packet_t:packet flow_in;
-allow unconfined_t ssh_server_packet_t:packet recv;
-
-The first one doesn't make sense to me.  From the docs you said:
-
-On Mon, 2006-10-09 at 07:24 -0500, Venkat Yekkirala wrote:
-> 1. PACKETS ENTERING SYSTEM FROM A NON-LOOPBACK DEVICE:
+On Thu, 2006-10-05 at 14:56 -0400, Caleb Case wrote:
+> The header libsemanage/src/private.h is no longer used and should be removed.  It appears to be left over from the libsemod days.
 > 
->    Can a packet "carrying" external domain label x_t "flow_in" thru the
->    security point with the peer domain label p_d_t?
+
+Did this get lost in the labeled network oblivion?
+
+> ---
+>  libsemanage/src/private.h |   72 ----------------------------------------------
+>  1 file changed, 72 deletions(-)
 > 
-> 	NOTE:
-> 	a. x_t defaults to unlabeled_t, if no external label.
-> 	b. p_d_t defaults to network_t in the absence of any applicable
-> 	   [conn]secmark rules for the packet. If there are multiple
-
-Shouldn't the types in a and b above be switched (x_t->network_t,
-p_d_t->unlabeled_t)?  In my opinion, network_t would make more sense
-than unlabeled_t in the first denial.  Since outbound traffic eventually
-flows out to network_t, it would also be more consistent since network_t
-would flow in too.
-
-I also can't help but feel the flow_in check is backwards.  If you
-consider the phrase "flow in from" it makes more sense:
-ssh_server_packet_t flow_in from unlabeled_t association.  In some sense
-the association is a container of packets, so what I'm saying also makes
-sense; consider file types associating to filesystem types:
-
-allow file_t fs_t:filesystem associate;
-
-This case is far clearer since there is no to/from words that cause
-confusion, but the container is the object here (fs_t).
-
-So if we start out with a receive that has no secmark or external label,
-the current policy would be:
-
-allow unlabeled_t network_t:packet flow_in;
-allow unconfined_t network_t:packet recv;
-
-If you swap the types, and then swap the perspective of the flow_in, you
-get:
-
-allow unlabeled_t network_t:packet flow_in;
-allow unconfined_t unlabeled_t:packet recv;
-
-And finally, perhaps we should replace the recv check with a flow_in
-check?  It would make the checks similar to the send, since the packet
-send permission was replaced with flow_out.
-
-With these tweaks, the policy unconfined_t sending and receiving packets
-with no secmark nor external label:
-
-allow unlabeled_t network_t:packet flow_in;
-allow unconfined_t network_t:packet recv;
-allow unconfined_t unlabeled_t:packet flow_out;
-allow unlabeled_t network_t:packet flow_out;
-
-turns into:
-
-allow unlabeled_t network_t:packet flow_in;
-allow unconfined_t unlabeled_t:packet flow_in;
-allow unconfined_t unlabeled_t:packet flow_out;
-allow unlabeled_t network_t:packet flow_out;
-
-which seems more correct to me and is clearer and more consistent.
-
--- 
-Chris PeBenito
-Tresys Technology, LLC
-(410) 290-1411 x150
+> Index: selinux-pms-support/libsemanage/src/private.h
+> ===================================================================
+> --- selinux-pms-support.orig/libsemanage/src/private.h
+> +++ /dev/null
+> @@ -1,72 +0,0 @@
+> -/* Private definitions for libsemod. */
+> -
+> -/* Endian conversion for reading and writing binary policies */
+> -
+> -#include <byteswap.h>
+> -#include <endian.h>
+> -
+> -#if __BYTE_ORDER == __LITTLE_ENDIAN
+> -#define cpu_to_le32(x) (x)
+> -#define le32_to_cpu(x) (x)
+> -#define cpu_to_le64(x) (x)
+> -#define le64_to_cpu(x) (x)
+> -#else
+> -#define cpu_to_le32(x) bswap_32(x)
+> -#define le32_to_cpu(x) bswap_32(x)
+> -#define cpu_to_le64(x) bswap_64(x)
+> -#define le64_to_cpu(x) bswap_64(x)
+> -#endif
+> -
+> -/* Read from a policy "file" and return a pointer to the requested set
+> -   of bytes.  Do *NOT* free the returned pointer.  Returns NULL if the
+> -   requested number of bytes is larger than the read buffer or if an
+> -   I/O error occurred.  Note that this function is thread-safe. */
+> -static inline void *next_entry(struct policy_file *fp, size_t bytes)
+> -{
+> -	size_t nread;
+> -
+> -	if (bytes > sizeof(fp->buffer))
+> -		return NULL;
+> -
+> -	switch (fp->type) {
+> -	case PF_USE_STDIO:
+> -		nread = fread(fp->buffer, bytes, 1, fp->fp);
+> -		if (nread != 1)
+> -			return NULL;
+> -		break;
+> -	case PF_USE_MEMORY:
+> -		if (bytes > fp->len)
+> -			return NULL;
+> -		memcpy(fp->buffer, fp->data, bytes);
+> -		fp->data += bytes;
+> -		fp->len -= bytes;
+> -		break;
+> -	default:
+> -		return NULL;
+> -	}
+> -	return fp->buffer;
+> -}
+> -
+> -static inline size_t put_entry(const void *ptr, size_t size, size_t n,
+> -			       struct policy_file *fp)
+> -{
+> -	size_t bytes = size * n;
+> -
+> -	switch (fp->type) {
+> -	case PF_USE_STDIO:
+> -		return fwrite(ptr, size, n, fp->fp);
+> -	case PF_USE_MEMORY:
+> -		if (bytes > fp->len) {
+> -			errno = ENOSPC;
+> -			return 0;
+> -		}
+> -
+> -		memcpy(fp->data, ptr, bytes);
+> -		fp->data += bytes;
+> -		fp->len -= bytes;
+> -		return n;
+> -	default:
+> -		return 0;
+> -	}
+> -	return 0;
+> -}
+> 
+> --
+> 
+> 
+> The header libsemanage/src/private.h is no longer used and should be removed.  It appears to be left over from the libsemod days.
+> 
+> ---
+>  libsemanage/src/private.h |   72 ----------------------------------------------
+>  1 file changed, 72 deletions(-)
+> 
+> Index: selinux-pms-support/libsemanage/src/private.h
+> ===================================================================
+> --- selinux-pms-support.orig/libsemanage/src/private.h
+> +++ /dev/null
+> @@ -1,72 +0,0 @@
+> -/* Private definitions for libsemod. */
+> -
+> -/* Endian conversion for reading and writing binary policies */
+> -
+> -#include <byteswap.h>
+> -#include <endian.h>
+> -
+> -#if __BYTE_ORDER == __LITTLE_ENDIAN
+> -#define cpu_to_le32(x) (x)
+> -#define le32_to_cpu(x) (x)
+> -#define cpu_to_le64(x) (x)
+> -#define le64_to_cpu(x) (x)
+> -#else
+> -#define cpu_to_le32(x) bswap_32(x)
+> -#define le32_to_cpu(x) bswap_32(x)
+> -#define cpu_to_le64(x) bswap_64(x)
+> -#define le64_to_cpu(x) bswap_64(x)
+> -#endif
+> -
+> -/* Read from a policy "file" and return a pointer to the requested set
+> -   of bytes.  Do *NOT* free the returned pointer.  Returns NULL if the
+> -   requested number of bytes is larger than the read buffer or if an
+> -   I/O error occurred.  Note that this function is thread-safe. */
+> -static inline void *next_entry(struct policy_file *fp, size_t bytes)
+> -{
+> -	size_t nread;
+> -
+> -	if (bytes > sizeof(fp->buffer))
+> -		return NULL;
+> -
+> -	switch (fp->type) {
+> -	case PF_USE_STDIO:
+> -		nread = fread(fp->buffer, bytes, 1, fp->fp);
+> -		if (nread != 1)
+> -			return NULL;
+> -		break;
+> -	case PF_USE_MEMORY:
+> -		if (bytes > fp->len)
+> -			return NULL;
+> -		memcpy(fp->buffer, fp->data, bytes);
+> -		fp->data += bytes;
+> -		fp->len -= bytes;
+> -		break;
+> -	default:
+> -		return NULL;
+> -	}
+> -	return fp->buffer;
+> -}
+> -
+> -static inline size_t put_entry(const void *ptr, size_t size, size_t n,
+> -			       struct policy_file *fp)
+> -{
+> -	size_t bytes = size * n;
+> -
+> -	switch (fp->type) {
+> -	case PF_USE_STDIO:
+> -		return fwrite(ptr, size, n, fp->fp);
+> -	case PF_USE_MEMORY:
+> -		if (bytes > fp->len) {
+> -			errno = ENOSPC;
+> -			return 0;
+> -		}
+> -
+> -		memcpy(fp->data, ptr, bytes);
+> -		fp->data += bytes;
+> -		fp->len -= bytes;
+> -		return n;
+> -	default:
+> -		return 0;
+> -	}
+> -	return 0;
+> -}
+> 
+> --
+> 
+> Signed-Off-By: Joshua Brindle <jbrindle@tresys.com>
+> 
+> 
+> --
+> This message was distributed to subscribers of the selinux mailing list.
+> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
+> the words "unsubscribe selinux" without quotes as the message.
+> 
 
 
 --
