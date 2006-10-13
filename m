@@ -1,66 +1,59 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k9DF6Das003157
-	for <selinux@tycho.nsa.gov>; Fri, 13 Oct 2006 11:06:14 -0400
-Received: from exchange.columbia.tresys.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with SMTP id k9DF4sBI015713
-	for <selinux@tycho.nsa.gov>; Fri, 13 Oct 2006 15:04:55 GMT
-Subject: RE: Denials from newest kernel
-From: "Christopher J. PeBenito" <cpebenito@tresys.com>
-To: vyekkirala@TrustedCS.com
-Cc: "'Karl MacMillan'" <kmacmillan@mentalrootkit.com>,
-        Joshua Brindle <jbrindle@tresys.com>, selinux@tycho.nsa.gov
-In-Reply-To: <001501c6ee39$dd9cb8a0$cc0a010a@tcssec.com>
-References: <001501c6ee39$dd9cb8a0$cc0a010a@tcssec.com>
-Content-Type: text/plain
-Date: Fri, 13 Oct 2006 11:06:53 -0400
-Message-Id: <1160752013.5980.102.camel@sgc>
-Mime-Version: 1.0
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k9DFlVbt004547
+	for <selinux@tycho.nsa.gov>; Fri, 13 Oct 2006 11:47:31 -0400
+Received: from mail.atsec.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id k9DFkovu020870
+	for <selinux@tycho.nsa.gov>; Fri, 13 Oct 2006 15:46:50 GMT
+Date: Fri, 13 Oct 2006 10:47:29 -0500
+From: Klaus Weidner <klaus@atsec.com>
+To: Stephen Smalley <sds@tycho.nsa.gov>
+Cc: Matt Anderson <mra@hp.com>, Darrel Goeddel <dgoeddel@TrustedCS.com>,
+        selinux@tycho.nsa.gov
+Subject: Re: context_sensitivity_{get|set}
+Message-ID: <20061013154729.GI28525@w-m-p.com>
+References: <452E955F.2050407@hp.com> <1160748247.14346.26.camel@moss-spartans.epoch.ncsc.mil>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1160748247.14346.26.camel@moss-spartans.epoch.ncsc.mil>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2006-10-12 at 15:06 -0500, Venkat Yekkirala wrote:
-> What security goals can I express in the new paradigm that I can NOT
-> in the existing paradigm?
-> 
-> Answer: Flow controlling on forwarded traffic, localhost traffic labeling.
-
-Now that you mention the forwarded traffic, I can see this being useful
-in the context of making decision in a network router, so I'll concede
-the point on multiple checks.  Though I'm curious why localhost traffic
-labeling would be tied to the multiple checks.
-
-> > 4. can the domain send to the ipsec association?
+On Fri, Oct 13, 2006 at 10:04:07AM -0400, Stephen Smalley wrote:
+> On Thu, 2006-10-12 at 15:19 -0400, Matt Anderson wrote:
+> > For my latest CUPS patch I needed to include code that set the
+> > sensitivity of the spool file storing the to that of the client's
+> > context when they queued the job.  I used context_range_get() to
+> > retrieve the MLS range, but then had to use strtok() to get the lower bound.
 > > 
-> > 5. can the packet flow into the ipsec association?
+> > Is context_sensitivity_get() or context_sensitivity_set() a function
+> > that other consumers might need?  Should it be included in libselinux?
 > 
-> This is actually the same question as "4" above. What's the difference?
+> Providing functions to get/set the low and high would make sense (and
+> newrole already has to do similar processing internally for newrole -l),
+> but I don't follow the function names above - do you want just the low
+> sensitivity (i.e. no categories) or the entire low level?  And you need
+> to indicate whether you are operating on the low or the high levels in
+> the interface.
 
-This is like a filesystem associate check.  As an example, we have
-mozilla_t communicating with httpd_t.  Mozilla_t needs to send
-dns_client_packet_t for doing DNS lookups, and httpd_client_packet_t is
-obvious.  Mozilla_t needs to send/recv to the httpd_t association.
-Without 5, we can't restrict the association traffic to just
-http_client_packet_t, so mozilla_t can't be denied sending/receiving
-dns_client_packets_t over the httpd_t association.
+The terminology is confusing, and it doesn't help that the LSPP document
+combines the terms in creative ways. It uses "sensitivity label" and
+"security level" to refer to the full set, and generally includes the
+term "hierarchical" when referring to the non-category part only.
 
-> Like I mentioned yesterday, there's no IPSec stuff involved at the
-> netfilter level. A packet can only use a labeled IPSec association (SA)
-> iff the domain on the packet EXACTLY matches the domain on the SA
-> as signified by the constraint in the policy patch I posted a week or so
-> back.
+My preference would be to have separate functions for the high level,
+maybe including "clearance" in the name, since that's generally
+appropriate for subjects only. I'd consider it a bug to assign level
+ranges to objects - they should have either a single level or be a
+trusted object. I think the symmetry in the current implementation is a
+bit of a distraction...
 
-I'm glad you mentioned this constraint, because I forgot about it.  I
-hadn't planned on adding it to the policy.  In light of setsockcreate
-and a SELinux aware inetd in the future (having the sockets be the type
-of their child processes), this constraint makes less sense.  I also
-find it objectionable to have the code depend on a policy when there is
-no guarantee that the constraint will be there.
+How about context_mlslevel_get/set() for objects and the effective level
+of subjects, and context_mlsclearance_get/set() for the high level of
+subjects?  (I'm not saying it needs to actually enforce the
+subject/object distinction, people can use the clearance function to set
+the high level of objects if they insist.)
 
--- 
-Chris PeBenito
-Tresys Technology, LLC
-(410) 290-1411 x150
-
+-Klaus
 
 --
 This message was distributed to subscribers of the selinux mailing list.
