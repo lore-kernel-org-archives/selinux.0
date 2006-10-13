@@ -1,70 +1,44 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k9DKU4ka014750
-	for <selinux@tycho.nsa.gov>; Fri, 13 Oct 2006 16:30:04 -0400
-Received: from exchange.columbia.tresys.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with SMTP id k9DKTNeg028938
-	for <selinux@tycho.nsa.gov>; Fri, 13 Oct 2006 20:29:23 GMT
-Subject: [ANN] SETools - 3.0
-From: "Jeremy A. Mowery" <jmowery@tresys.com>
-To: selinux@tycho.nsa.gov
-Cc: selinux-dev@tresys.com
-Content-Type: text/plain
-Date: Fri, 13 Oct 2006 16:31:44 -0400
-Message-Id: <1160771504.2723.80.camel@Bishop.columbia.tresys.com>
-Mime-Version: 1.0
+Message-ID: <452FF8C2.7080104@hp.com>
+Date: Fri, 13 Oct 2006 16:36:18 -0400
+From: Linda Knippers <linda.knippers@hp.com>
+MIME-Version: 1.0
+To: Stephen Smalley <sds@tycho.nsa.gov>
+Cc: Matt Anderson <mra@hp.com>, Darrel Goeddel <dgoeddel@TrustedCS.com>,
+        selinux@tycho.nsa.gov
+Subject: Re: context_sensitivity_{get|set}
+References: <452E955F.2050407@hp.com>	 <1160748247.14346.26.camel@moss-spartans.epoch.ncsc.mil>	 <452FBCF8.2060805@hp.com> <1160757623.14346.84.camel@moss-spartans.epoch.ncsc.mil>
+In-Reply-To: <1160757623.14346.84.camel@moss-spartans.epoch.ncsc.mil>
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-A new version of SETools is available on the Tresys Open Source Server.
-http://oss.tresys.com/projects/setools
+Stephen Smalley wrote:
+> On Fri, 2006-10-13 at 12:21 -0400, Matt Anderson wrote:
+> 
+>>I agree names are a bit confusing, I was at a loss for what to call them
+>>myself and decided to defer to the output from secon:
+>>
+>># secon
+>>user: root
+>>role: staff_r
+>>type: staff_t
+>>sensitivity: SystemLow
+>>clearance: SystemHigh
+>>mls-range: SystemLow-SystemHigh
+>>
+>>For my usage I need the entire low level.  There may be other users want
+>>just the sensitivity, but I'd be concerned that information would be
+>>unintentionally downgraded by leaving off categories.
+> 
+> 
+> I think unfortunately secon and the audit interface were polluted by a
+> limited notion of the MLS model.  Proper terms are low level and high
+> level, not sensitivity and clearance.
 
-Please note that SETools requires libsepol-1.12.27 or greater.
+Is it too late to clean up these tools?  With audit, is it just changing
+the names of the parameters in some of the user space tools?
 
-SETools 3.0
-
-SETools:
-
-  * Moved entire project to autoconf build system.  This will detect
-    dependencies correctly and make it easier to integrate with Linux
-    distributions and their packaging systems.
-
-SETools libraries:
-
-  * Rewrite of back-end of SETools to use libsepol data structures.
-    Most things should run notably faster.
-
-  * All exported library functions have a standarized naming
-    convention and are fully documented.  This will prove helpful for
-    third-party developers integrating SETools into their own
-    projects.
-
-  * For policies version 15 or greater, domain transition analysis now
-    takes into consideration setexec permission and/or type_transition
-    rules.
-
-apol:
-
-  * Rework Tk interface to fit on 1024x768 displays.
-
-  * Indirect matching of attributes now works with rule searches.
-
-sediff:
-
-  * New diffing algorithm yields significant speed improvements.
-
-  * Can now diff neverallow and role_transition statements.
-
-  * Streamlined results display - should be easier to read.
-        
-sechecker:
-
-  * Updated module format and template for ease of extension.
-
-Jeremy A. Mowery
-Tresys Technology
-410-290-1411 x148
-
-
+-- ljk
 
 
 --
