@@ -1,41 +1,190 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k9E7agpG028647
-	for <selinux@tycho.nsa.gov>; Sat, 14 Oct 2006 03:36:43 -0400
-Received: from mail3.sea5.speakeasy.net (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id k9E7a0UI011362
-	for <selinux@tycho.nsa.gov>; Sat, 14 Oct 2006 07:36:01 GMT
-Date: Sat, 14 Oct 2006 03:36:37 -0400 (EDT)
-From: James Morris <jmorris@namei.org>
-To: Paul Moore <paul.moore@hp.com>
-cc: selinux@tycho.nsa.gov, vyekkirala@TrustedCS.com,
-        "'Christopher J. PeBenito'" <cpebenito@tresys.com>,
-        "'Karl MacMillan'" <kmacmillan@mentalrootkit.com>,
-        Joshua Brindle <jbrindle@tresys.com>
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k9ECDW4p004309
+	for <selinux@tycho.nsa.gov>; Sat, 14 Oct 2006 08:13:32 -0400
+Received: from ccerelrim03.cce.hp.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id k9ECCDh1020586
+	for <selinux@tycho.nsa.gov>; Sat, 14 Oct 2006 12:12:13 GMT
+From: Paul Moore <paul.moore@hp.com>
+To: vyekkirala@TrustedCS.com
 Subject: Re: Denials from newest kernel
-In-Reply-To: <45301640.4060407@hp.com>
-Message-ID: <Pine.LNX.4.64.0610140332010.13740@d.namei>
-References: <001501c6ee39$dd9cb8a0$cc0a010a@tcssec.com> <45301640.4060407@hp.com>
+Date: Sat, 14 Oct 2006 08:13:26 -0400
+Cc: selinux@tycho.nsa.gov, "'Christopher J. PeBenito'" <cpebenito@tresys.com>,
+        "'Karl MacMillan'" <kmacmillan@mentalrootkit.com>,
+        "Joshua Brindle" <jbrindle@tresys.com>
+References: <001901c6ef2c$268afc00$cc0a010a@tcssec.com>
+In-Reply-To: <001901c6ef2c$268afc00$cc0a010a@tcssec.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Message-Id: <200610140813.26473.paul.moore@hp.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 13 Oct 2006, Paul Moore wrote:
+On Friday 13 October 2006 9:00 pm, Venkat Yekkirala wrote:
+> > > What security goals can I express in the new paradigm that I can NOT
+> > > in the existing paradigm?
+> > >
+> > > Answer: Flow controlling on forwarded traffic, localhost
+> >
+> > traffic labeling.
+> >
+> > This is something I have been thinking about a lot lately,
+> > even before Venkat
+> > reponded with the above answer.  More specifically I've been
+> > thinking about how
+> > we can accomplish those two security goals without causing as
+> > much disruption as
+> > the secid patches have seem to have caused.  The goal of
+> > combining all the
+> > different packet labeling mechanisms into the secmark field
+> > is a noble one, but
+> > I think we just loose too much in the process
+>
+> Can you specify what we are exactly loosing, if any, in the process?
 
-> 1. The skb->secmark field should only be used for local/netfilter packet
-> labeling, neither labeled IPsec or NetLabel should ever change it's value.
+In one work, "understandability" (yeah, I just made that word up but I think 
+you get the idea).  From my point of view the number one problem with the 
+current secid work is that is is very difficult for people to understand and 
+use.  You've documented it, discussed it on the mailing lists for weeks now 
+and still people can't quite come to grips with how it is all supposed to 
+work.  Sadly I know some people have just given up on the whole discussion.
 
-Yep, this may be the best way forward.  They really are different types of 
-labeling.  I previously mentioned a way to _internally_ have the secmark 
-field carry multiple distinct labels (assign half to external labeling 
-and half to internal, and transparently perform mapping so that userland 
-tools always deal with the internal label only).  Perhaps this needs to be 
-part of the solution.
+I think if we ever want to make labeled networking usable for real people it 
+needs to be much easier to understand and use than it is with the current 
+secid patches.
 
+> > I would like to offer up this
+> > rough idea for
+> > comments, it's not really a big change from the current secid
+> > patches but I
+> > think it should help address a lot of the problems
+>
+> Again I would very much like to see the particular problems
+> on the list that you are addressing here.
+
+See my comments above, and the mailing lists for the past several weeks.
+
+> > that I
+> > have seen on the list:
+> >
+> > 1. The skb->secmark field should only be used for
+> > local/netfilter packet
+> > labeling, neither labeled IPsec or NetLabel should ever
+> > change it's value.
+>
+> What specifically would we gain with NOT replacing the secmark?
+
+Consistency: secmark would always be the local label no matter what.
+
+> Alternatively, what problems are we warding off here by NOT
+> replacing the secmark?
+
+Confusion by overloading the secmark value.
+
+> > 2. Add a selinux_skb_flow_in() similar to what is done with
+> > the current secid
+> > patches but do not change the skb->secmark value (see #1
+> > above) and for each
+> > external packet label do a permission check similar to the following:
+> >
+> >  avc_has_perm(extlbl_sid, skb->secmark, "packet", "flow_in");
+>
+> Why repeat the check for "each" external label? The current proposal
+> (courtesy Paul Moore :)) determines ONE external label with NetLabel
+> overriding ipsec and performs the check once. We have already determined
+> that multiple external labels are redundant.
+
+Okay so we consolidate/reconcile the external label like we do now.
+
+> > 3. In selinuc_socket_sock_rcv_skb() we would have the usual
+> > secmark check and if
+> > external labeling is in use a check similar to the following:
+> >
+> >  avc_has_perm(extlbl_sid, sock_sid, sock_class, "recvfrom");
+>
+> Again, more access checks (because you don't replace the secmark)
+> and so more policy.
+
+Perhaps, but I think it's policy that is easier to understand, write, and live 
+with.
+
+> > 4. Add a selinux_skb_flow_out() similar to what is done with
+> > the current secid
+> > patches but do not change the skb->secmark value (see #1
+> > above) and if the
+> > packet is associated with a socket, i.e. skb->sk != NULL, do
+> > a permission check
+> > similar to the following:
+> >
+> >  avc_has_perm(skb->sk->sk_security->sid, nf_secid, "packet",
+> > "flow_out");
+>
+> This won't work in the corner cases such as icmp, timewait acks
+> and such where the sock coming with the skb is a proxy sock (not
+> a real one).
+
+In the case where there is not a valid socket SID we just use the unlabeled 
+SID.  If the socket has the kernel's SID we can use that or substitute the 
+unlabeled SID.  I guess I don't consider this too much of a problem as those 
+particular packets don't really carry any user generated data so data flow 
+issue aren't really applicable here.  Regardless, using the unlabeled SID or 
+the kernel SID better reflects the true nature of the packet's contents.
+
+> Also, I don't see the check for forwarded packets (on the way out)
+> here; did you mean to include it here like it happens in the secid
+> patches?
+
+Yes, my mistake; the existing secid code for the flow_out() and 
+postroute_last() functions are so similar I often only speak about one of 
+them.
+
+> > In addition, if there is an external label we would do a
+> > permission similar to
+> > the following:
+> >
+> >  avc_has_perm(extlbl_sid, nf_secid, "packet", "flow_out");
+>
+> Why the additional check? If you leverage secmark like the secid
+> patches do, you would end up with one check instead of two.
+
+See all the comments above about the policy being hard to understand when the 
+secmark value is overridden.
+
+> > The suggestions should address all of the packet flow control
+> > issues in what I
+> > think is a reasonable manner.  However, they don't address
+> > the localhost
+> > labeling issue,
+>
+> They would, effortlessly, if you just let things go with the flow
+> with secmark. i.e., leverage secmark by letting it carry the
+> appropriate/socket label on the outbound.
+
+While I agree it is tempting it would mean we would be overloading the secmark 
+value which I don't think we should do (see point #1 in my original mail).  
+It also has the nasty tendency of using localhost as a special case for 
+labeled networking which could cause some unintended behavior.
+
+> > but honestly I think this is a completely
+> > separate issue which
+> > we shouldn't let clutter up the packet flow issues.  NetLabel
+> > works just fine
+> > over localhost and according to Venkat's email earlier this
+> > week it looks like
+> > labeled IPsec could work over localhost as well, we just need
+> > to do some testing.
+>
+> All in all, the only significant thing I notice is that you don't
+> replace secmark.
+
+That was the point I was trying to make; I think we can still achieve our 
+packet flow control goals without reconciling all of the secids.  In fact I 
+think we can do it in a way that is easier to understand if we *don't* 
+reconcile the secids.
 
 -- 
-James Morris
-<jmorris@namei.org>
+paul moore
+linux security @ hp
 
 --
 This message was distributed to subscribers of the selinux mailing list.
