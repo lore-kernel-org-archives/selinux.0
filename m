@@ -1,67 +1,48 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k9GDFilp018707
-	for <selinux@tycho.nsa.gov>; Mon, 16 Oct 2006 09:15:44 -0400
-Received: from exchange.columbia.tresys.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with SMTP id k9GDEN0e007315
-	for <selinux@tycho.nsa.gov>; Mon, 16 Oct 2006 13:14:23 GMT
+Reply-To: <vyekkirala@TrustedCS.com>
+From: "Venkat Yekkirala" <vyekkirala@TrustedCS.com>
+To: "'Christopher J. PeBenito'" <cpebenito@tresys.com>
+Cc: "'Karl MacMillan'" <kmacmillan@mentalrootkit.com>,
+        "'Joshua Brindle'" <jbrindle@tresys.com>, <selinux@tycho.nsa.gov>,
+        <sds@tycho.nsa.gov>
 Subject: RE: Denials from newest kernel
-From: "Christopher J. PeBenito" <cpebenito@tresys.com>
-To: vyekkirala@TrustedCS.com
-Cc: "'James Morris'" <jmorris@namei.org>, "'Paul Moore'" <paul.moore@hp.com>,
-        selinux@tycho.nsa.gov,
-        "'Karl MacMillan'" <kmacmillan@mentalrootkit.com>,
-        Joshua Brindle <jbrindle@tresys.com>
-In-Reply-To: <001c01c6efe4$a9d6b3c0$cc0a010a@tcssec.com>
-References: <001c01c6efe4$a9d6b3c0$cc0a010a@tcssec.com>
-Content-Type: text/plain
-Date: Mon, 16 Oct 2006 09:16:30 -0400
-Message-Id: <1161004590.5980.186.camel@sgc>
-Mime-Version: 1.0
+Date: Mon, 16 Oct 2006 08:45:10 -0500
+Message-ID: <000001c6f129$4cdbe370$cc0a010a@tcssec.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+In-Reply-To: <1161001890.5980.173.camel@sgc>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Sat, 2006-10-14 at 18:01 -0500, Venkat Yekkirala wrote:
-> > > First of all, the "understandability" problem we have been
-> > having has
-> > > to do with the following:
-> > >
-> > > 1. Naming: we just refuse to change the naming for some
-> > inexplicable reason.
-> >
-> > We are not renaming the SECMARK and CONNSECMARK kernel
-> > modules, which are
-> > already upstream, as well as the userland iptables code, and
-> > the existing
-> > packet labeling policy constructs.  Secmark works fine for
-> > normal users
-> > who are using internal labeling.
+> > > > > 5. can the packet flow into the ipsec association?
 > 
-> Ok. This is where we have a disconnect (I thought we understood this
-> implicitly a long time back, but since we haven't I will say this):
+> > > Without 5, we can't restrict the association traffic to just
+> > > http_client_packet_t, so mozilla_t can't be denied 
+> sending/receiving
+> > > dns_client_packets_t over the httpd_t association.
+> > 
+> > You can restrict it, but by way of the policy in the SPD, where you
+> > can use selectors such as ipaddr, port, protocol, etc. (see 
+> setkey(8)).
+> > 
+> > The "security points" have nothing to do with ipsec associations.
 > 
-> Secmark DOES NOT work fine for normal users who are using internal
-> labeling for the reason that it's scope is very narrow (socket Vs. packet)
-> with no controls for forwarded traffic. Now you may argue that that's what
-> it was designed for, but the fact still remains: it's NOT a comprehensive
-> (still talking internal labeling only) solution to the problem of packet
-> flow control on a modern "security-enhanced" OS. This everyone needs to
-> first
-> understand.
+> This is not sufficient because it encodes the access control 
+> policy into
+> the SPD,
 
-I strongly disagree with this.  It is a replacement for the
-port/node/netif basic networking controls.  Its vastly superior because
-it provides the expressiveness of netfilter so you can have combinations
-of ports, nodes, and netifs (and other netfilter things if you want).
+No it doesn't. You are ONLY labeling the rules in the SPD. Enforcement
+is still via SELinux policy where you would have rules like:
 
-I can see how the flow controls can do something for the forwarding
-case, but in my opinion doesn't do anything for the regular input and
-output cases.
+allow apache_t  httpd_ipsec_t:association { polmatch };
 
--- 
-Chris PeBenito
-Tresys Technology, LLC
-(410) 290-1411 x150
+> instead of putting the policy in the SELinux policy.  Putting
+> it in the SPD can't be analyzed when you do a policy analysis.
 
+Agreed and that's not what's happening. IOW, you are only labeling
+the rules in the SPD leveraging the SPD syntax, but enforcement is
+still via SELinux policy. Hope that clarifies. I think looking at
+www.ipsec-howto.org would give you a good idea.
 
 --
 This message was distributed to subscribers of the selinux mailing list.
