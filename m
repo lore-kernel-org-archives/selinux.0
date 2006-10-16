@@ -1,101 +1,62 @@
-Message-ID: <36282A1733C57546BE392885C0618592238483@chaos.tcs.tcs-sec.com>
-From: Venkat Yekkirala <vyekkirala@TrustedCS.com>
-To: "'selinux@tycho.nsa.gov'" <selinux@tycho.nsa.gov>
-Cc: "'jmorris@namei.org'" <jmorris@namei.org>,
-        "'sds@tycho.nsa.gov'"
-	 <sds@tycho.nsa.gov>
-Subject: SELinux Networking Enhancements
-Date: Sun, 15 Oct 2006 23:14:56 -0400
-MIME-Version: 1.0
-Content-Type: text/plain
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k9GA2nsi031365
+	for <selinux@tycho.nsa.gov>; Mon, 16 Oct 2006 06:02:53 -0400
+Received: from bay0-omc1-s26.bay0.hotmail.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id k9GA1R8K002092
+	for <selinux@tycho.nsa.gov>; Mon, 16 Oct 2006 10:01:28 GMT
+Message-ID: <BAY114-F24561B9608F2DE62BDD1ACAF090@phx.gbl>
+In-Reply-To: <1160939995.22920.3.camel@twoface.columbia.tresys.com>
+From: "Salvo Giuffrida" <giuffsalvo@hotmail.it>
+To: jbrindle@tresys.com
+Cc: selinux@tycho.nsa.gov
+Subject: Re: SE-X
+Date: Mon, 16 Oct 2006 12:02:45 +0200
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-There has been a lot of confusion for some time on the new
-proposed controls vis a vis the controls past and present.
-
-So I wanted to lay out briefly the past, present and the
-proposed future of SELinux networking controls on 2.6 kernels
-to put things in perpective.
-
-PAST:
-
-One could control network access based on node, netif
-and port contexts. Specifically, sockets were subject
-to access checks against the 3 contexts mentioned.
-
-No controls on forwarded traffic available. Also,
-no way to retrieve the peer context on TCP sockets and
-the security context on IP datagrams.
 
 
-PRESENT:
 
-secmark enables contexts to be specified on packets
-based on attributes on a packet (src, dst addresses,
-ports, etc.) that are selectable via iptables rules.
-Access checks are socket Vs. packet.
+>From: Joshua Brindle <jbrindle@tresys.com>
+>To: Salvo Giuffrida <giuffsalvo@hotmail.it>
+>CC: selinux@tycho.nsa.gov
+>Subject: Re: SE-X
+>Date: Sun, 15 Oct 2006 15:19:55 -0400
+>
+>On Sun, 2006-10-15 at 19:26 +0200, Salvo Giuffrida wrote:
+> > I saw that in the file "access_vectors", in the policy source directory,
+> > there are definitions related to X-Window objects (window, drawable, 
+>font,
+> > etc...). But, isn't the object manager supposed to handle only "low 
+>level"
+> > objects, like pipes, sockets, files, etc...?
+> > Thank you
+>
+>Object managers handle whatever kind of objects the app has. For
+>example, a database would have row, table, column, etc. X has windows,
+>cursors.
+>
+>The kernel object managers manage low level things like files but
+>userspace object managers give us the ability to refine that access to a
+>more granular level. For example, SELinux in the kernel can only specify
+>access on database files but if the database was an object manager you
+>could use policy to specify in a more fine grained way what types can
+>access pieces of that file.
+>
+Where can I find (if they exists) the code of this other userspace object 
+managers?
+Another thing, please: the interfaces of the .if files (in the sources of 
+the policy), are expanded during compilation like the M4 macros of the old 
+"example policy"? If so, how is it possible to referer and use them even 
+after the compilation of the modules?
+Thanks
 
-Also, labeled networking via IPSec xfrms and NetLabel/CIPSO
-has become available. Also implemented is a way to retrieve
-the peer context on TCP sockets and the security context on
-datagrams.
+_________________________________________________________________
+Capitan Jack Sparrow ha bisogno del tuo aiuto..prendi il timone della Perla 
+Nera! http://www.msnpiratesofthecaribbeangame.com/it/
 
-But still no controls on forwarded traffic are available.
-Also, still no easy way to retrieve the peer context on
-TCP sockets and the security context on datagrams, in a
-transparent fashion in localhost (loopback) communications.
-While one could use NetLabel/CIPSO (MLS only) and in theory
-IPSec xfrms to do this for localhost communications, it's
-awkward, entails undue overhead and something that needs to
-be configured via policy to work.
-
-
-NEW CONTROLS (SECPOINT):
-
-The implementation of secmark paves the way, from an implementation
-standpoint, for the implementation of a different set of controls
-that seemlessly and comprehensively provide a way to impose controls
-on forwarded traffic as well as traffic destined for and generated on
-the local machine. It also paves the way for carrying the peer/datagram
-contexts for localhost traffic.
-
-Specifically the following objects are defined/used:
-
-1. Fine-grained security filter points defined using iptables rules.
-   These points carry the following contexts:
-        a. A set of domains that can flow-in and/or flow_out the secpoint.
-        b. A default context to be associated with all traffic that enters
-           the secpoint without carrying an explicit label such as NetLabel,
-           labeled-ipsec-SA, etc, iff such "unlabeled" domain can actually
-           flow thru that secpoint.
-
-        NOTE: The way these 2 contexts are specified in this implementation
-        is by specifying the default context with the iptables rule and then
-        using SELinux policy to specify the set of domains that can
-        flow_in/flow_out of a secpoint with such a default context.
-
-2. Packets: These carry the socket label in the outbound case, or the label
-        they came in with, in the inbound case. The label in the inbound
-case
-        can either be an externally specified label (label over the wire) or
-        in it's absence the default label from the secpoint it came in thru.
-
-3. Sockets.
-
-Access Control:
-
-1. Packets are filtered at the security points they pass thru.
-
-   Forwarded traffic: This is filtered on the way in like any other
-   traffic and filtered on the way out like any other traffic as well.
-
-   Peer/datagram context: These are transparently available for localhost
-   traffic without needing any special configuration or use of specific
-   labeling protocols.
-
-2. Access control checks come into play (like they currently do)
-   when a socket receives a packet.
 
 --
 This message was distributed to subscribers of the selinux mailing list.
