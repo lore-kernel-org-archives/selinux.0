@@ -1,135 +1,34 @@
-Subject: Re: Denials from newest kernel
-From: "Christopher J. PeBenito" <cpebenito@tresys.com>
-To: Darrel Goeddel <dgoeddel@TrustedCS.com>
-Cc: vyekkirala@TrustedCS.com,
-        "'Karl MacMillan'" <kmacmillan@mentalrootkit.com>,
-        "'Joshua Brindle'" <jbrindle@tresys.com>, selinux@tycho.nsa.gov,
-        sds@tycho.nsa.gov
-In-Reply-To: <453519D6.8060802@trustedcs.com>
-References: <000501c6f151$147d5180$cc0a010a@tcssec.com>
-	 <1161093390.29584.27.camel@sgc>  <453519D6.8060802@trustedcs.com>
-Content-Type: text/plain
-Date: Tue, 17 Oct 2006 14:22:17 -0400
-Message-Id: <1161109338.10392.12.camel@sgc>
-Mime-Version: 1.0
+Message-ID: <45351FC9.2080204@us.ibm.com>
+Date: Tue, 17 Oct 2006 13:24:09 -0500
+From: Michael C Thompson <thompsmc@us.ibm.com>
+MIME-Version: 1.0
+To: SE Linux <selinux@tycho.nsa.gov>
+CC: Daniel J Walsh <dwalsh@redhat.com>, Stephen Smalley <sds@tycho.nsa.gov>
+Subject: [PATCH 0/4] newrole suid functionality (take 2)
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2006-10-17 at 12:58 -0500, Darrel Goeddel wrote:
-> Christopher J. PeBenito wrote:
-> > On Mon, 2006-10-16 at 13:29 -0500, Venkat Yekkirala wrote:
-> > 
-> >>>>>>allow apache_t  httpd_ipsec_t:association { polmatch };
-> >>>>>>
-> >>
-> >><snip>
-> >>
-> >>>The above rule clearly shows a relationship between a domain(socket?)
-> >>>and a SPD entry.  It does not show a relationship between a packet and
-> >>>an association.
-> >>
-> >>This relationship is implicit in that a packet from apache_t can only
-> >>use an association labeled apache_t. This would be currently shown in the
-> >>SELinux policy itself as:
-> >>
-> >>allow apache_t apache_t:association { sendto };
-> >>
-> >>We did talk about moving this "implicit" relationship into the kernel itself
-> >>essentially eliminating the association indirection for SAs.
-> > 
-> > 
-> > Exactly, implicit isn't sufficient, because we won't be able to specify
-> > that http packets can go over the apache association but not dns
-> > packets.
-> 
-> Wouldn't the absence of "allow dns_t apache_t:association { sendto };" prevent
-> dns packets using an apache_t association?
+This is the intro to a set of four patches.
 
-What I'm referring in this case is dns client packets; the ones used
-when a process does a DNS name resolution.  I believe you're confusing
-that with dns server packets which named_t would be sending to answer
-DNS queries.  Apache can do name resolution, so it sends both httpd
-server packets and dns client packets.
+These patches are an attempt to make newrole be an acceptably secure 
+suid root program, to provide it with the capabilities to generate audit 
+records (existing) and handle polyinstatiation (new).
 
-> >>>When analyzing policy, the labeling is ignored until the very
-> >>>end where
-> >>>you verify that the labeling fits the policy.   If you don't know what
-> >>>is in the SPD, you can not know which packets can go over the
-> >>>association by looking at the above rule.
-> >>
-> >>Can you please explain this in terms of file_contexts in case I am missing
-> >>something here (you seem to be saying in the above para that: If you don't
-> >>know what's in the file_contexts db, you can not know which procs can write
-> >>to which files).
-> > 
-> > 
-> > No, that's not what I'm saying.  Its already understood that, for
-> > example, shadow_t is for the shadow passwords.  There are explicit rules
-> > for allowing a domain access to shadow passwords in the TE policy.  For
-> > the purposes of analysis, we don't need to know which files have this
-> > label until after we have determined that the policy rules match our
-> > security goals.  Then after that, we can look at the labeling to make
-> > sure that it lines up with the policy.
-> > 
-> > Its tough to put this in terms of file contexts, because it doesn't work
-> > like ipsec, but I'll try.  Currently we have something like this:
-> > 
-> > TE:
-> > allow passwd_t shadow_t:file rw_file_perms;
-> > allow passwd_t etc_t:file r_file_perms;
-> > allow checkpasswd_t shadow_t:file r_file_perms;
-> > allow checkpasswd_t etc_t:file r_file_perms;
-> > 
-> > FC:
-> > /etc(/.*)? system_u:object_r:etc_t
-> > /etc/shadow -- system_u:object_r:shadow_t
-> > 
-> > where by looking at only the TE rules, you can see a relationship
-> > between the password and checkpasswd domains and the shadow_t and etc_t
-> > files.  By the policy design, we know that etc_t are general system
-> > config files, and shadow_t are the shadow passwords.  Then after we're
-> > done verifying our security goals in the TE rules, we can check the FC
-> > to see that the labeling is indeed valid, and then label the
-> > filesystems.
-> > 
-> > Now pretend that file contexts are instead loaded into the kernel and
-> > each fc entry is labeled and has rules for access.
-> > 
-> > TE:
-> > allow passwd_t passwd_fc_entries_t:fc fcmatch;
-> > 
-> > FC:
-> > system_u:object_r:passwd_fc_entries_t r /etc(/.*)?
-> > system_u:object_r:passwd_fc_entries_t rw /etc/shadow
-> > system_u:object_r:checkpasswd_fc_entries_t r /etc(/.*)?
-> > system_u:object_r:checkpasswd_fc_entries_t r /etc/shadow
-> > 
-> > See the difference?  Now we can't tell whats going on by looking at the
-> > TE rules because we're putting policy somewhere else.  It doesn't matter
-> > that these other rules also happen to be in the kernel; the point is
-> > that they aren't in the TE policy.
-> 
-> I think the analogy between ipsec and files isn't working all that well :)
-> The policy (SELinux policy) must specifically allow for the sock vs SA
-> polmatch to choose the correct SPD and it must specifically allow for
-> the sock vs SA sendto to choose the correct SA.  If a domain such as
-> apache_t is allow to sendto SAs of many types (say http1_t, http2_t, etc.)
-> and SAs already exist for all of those types, it will use the first SA
-> that it can successfully sendto.  This would be analogous to passwd trying
-> /etc/shadow, /etc/shadow1, ... until it could write a shadow file.  In
-> any case, the policy still governs what can happen.  At least this is my
-> current understanding and that is always subject to change ;)
+The 4 patches are as follows:
+1) New functions introduced to newrole.c, new and existing functionality
+2) Changes to existing functions in newrole.c
+3) Updates to main in newrole.c to use the aforementioned changes
+4) Changes to the Makefile to allow building of newrole with the
+    changes and introduction of newrole-lspp.pamd
 
-I'm not trying to argue that polmatch is a bad check; I understand its
-reasons for existing.  I'm just saying its insufficient for checking if
-a packet can go over an association.  The above contrived example shows
-this, since you can't truly tell what you can access without looking at
-the FC.
+Note: This is an atomically applicable patch set. Applying a subset of 
+these patches will break the build.
 
--- 
-Chris PeBenito
-Tresys Technology, LLC
-(410) 290-1411 x150
+The comments from the previous send of these patches have been integrated.
+
+Thanks,
+Mike
 
 
 --
