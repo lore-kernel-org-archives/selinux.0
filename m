@@ -1,5 +1,5 @@
-Message-ID: <4534FE82.4020306@trustedcs.com>
-Date: Tue, 17 Oct 2006 11:02:10 -0500
+Message-ID: <4534FE1E.4080502@trustedcs.com>
+Date: Tue, 17 Oct 2006 11:00:30 -0500
 From: Darrel Goeddel <dgoeddel@TrustedCS.com>
 MIME-Version: 1.0
 To: SELinux List <selinux@tycho.nsa.gov>
@@ -7,267 +7,175 @@ CC: Stephen Smalley <sds@tycho.nsa.gov>, Joshua Brindle <jbrindle@tresys.com>,
         Karl MacMillan <kmacmillan@mentalrootkit.com>,
         Linda Knippers <linda.knippers@hp.com>,
         Daniel Walsh <dwalsh@redhat.com>
-Subject: [PATCH 4/4] implement setransd access check for translations
+Subject: [PATCH 3/4] reference policy support for setransd enhancement
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Add an access check for translating contexts.  This uses the new context
-security class.  This is currently implemented as strictly an MLS check because
-the target context is always the context of the daemon with the MLS portion
-modified to match that of the context being translated.  The policy to
-translate contexts includes TE access for "<domain doing the translation>
-setrans_t:context translate)".  This allows all TE checks to pass.  The
-mlsconstraint then checks to make sure that the process requesting the
-translation is cleared to do the translation.  This all goes through a userspace
-AVC and is expandable to include a TE check in the future (just get away from
-building the "fake" context).  This access is disabled by default.  One must
-put the line "accesscheck=1" in the setrans.conf file to enable the access
-check (not the prettiest method, but it does work...).  The MLS policy will
-need that line added to the default setrans.conf file as well.
+This patch is for the fedora policy.  I can "translate" (pun?) this to the
+current CVS policy if necessary.
+
+Add the flask definitions for the new context class (and add the setsockcreate
+to the process class so the generated headers do not miss things) and the
+corresponding mlsconstraint.
+
+Add an interface that will allow a domain the ability to override the MLS
+check when translating contexts (mls_context_translate_all_levels).
+
+Make the setrans daemon run at the highest MLS label and protect the config
+file at the same label (and make this work by adding mls_socket_write_all_levels
+to the setransd policy).
+
+Allow the translating domain TE access to translate contexts with the setrans_t
+type.  This is the type that the daemon will use when doing the check.  The
+type is from the running setransd process.
 
 ---
 
- src/mcstrans.c  |   18 +++++++-
- src/mcstransd.c |  118 +++++++++++++++++++++++++++++++++++++-------------------
- 2 files changed, 95 insertions(+), 41 deletions(-)
+ policy/flask/access_vectors          |    6 ++++++
+ policy/flask/security_classes        |    2 ++
+ policy/mls                           |   10 ++++++++++
+ policy/modules/kernel/mls.if         |   20 ++++++++++++++++++++
+ policy/modules/kernel/mls.te         |    4 +++-
+ policy/modules/system/selinuxutil.fc |    1 +
+ policy/modules/system/setrans.if     |    1 +
+ policy/modules/system/setrans.te     |    1 +
+ 8 files changed, 44 insertions(+), 1 deletion(-)
 
-diff --git a/src/mcstrans.c b/src/mcstrans.c
-index b2354df..2ae75ef 100644
---- a/src/mcstrans.c
-+++ b/src/mcstrans.c
-@@ -24,6 +24,8 @@ typedef struct labels {
- 
- static labels_t *labellist=NULL;
- 
-+extern int access_check;
-+
- void finish_context_translations(void) {
- 	labels_t *ptr=NULL;
- 	labels_t *current=NULL;
-@@ -398,14 +400,24 @@ int init_translations(void) {
- 	}
- 
- 	while (getline(&buffer, &size, cfg) > 0) {
--		if(process_label(buffer, &next)) {
--			ptr->next=next;
--			ptr=next;
-+		int ret = process_label(buffer, &next);
-+		if (ret > 0) {
- 			if ((strcasecmp(next->label.name,"disable")==0) &&
- 			    (strcmp(next->label.sename,"1") == 0)) {
- 				finish_context_translations();
- 				break;
- 			}
-+			if ((strcasecmp(next->label.name,"accesscheck")==0) &&
-+			    (strcmp(next->label.sename,"1") == 0)) {
-+				access_check = 1;
-+				free(next);
-+				continue;
-+			}
-+			ptr->next=next;
-+			ptr=next;
-+		} else if (ret < 0){
-+			finish_context_translations();
-+			break;
- 		}
- 	}
- 	free(buffer);
-diff --git a/src/mcstransd.c b/src/mcstransd.c
-index 637c508..d27bcd0 100644
---- a/src/mcstransd.c
-+++ b/src/mcstransd.c
-@@ -13,6 +13,10 @@ #include <stdlib.h>
- #include <signal.h>
- #include <string.h>
- #include <syslog.h>
-+#include <selinux/avc.h>
-+#include <selinux/av_permissions.h>
-+#include <selinux/context.h>
-+#include <selinux/flask.h>
- #include <selinux/selinux.h>
- #include <sys/types.h>
- #include <sys/capability.h>
-@@ -53,12 +57,18 @@ #define SETRANSD_PATHNAME "/sbin/mcstran
- #define SETRANSD_PROGNAME "mcstransd"
- 
- static int sockfd = -1;	/* socket we are listening on */
-+int access_check = 0; /* should we perform access checks */
-+static security_context_t base_context; /* base context for access check */
- 
- static volatile int restart_daemon = 0;
- static void cleanup_exit(int ret) __attribute__ ((noreturn));
- static void
- cleanup_exit(int ret) 
- {
-+	avc_destroy();
-+
-+	free(base_context);
-+
- 	if (sockfd >=0)
- 		(void)unlink(SETRANS_UNIX_SOCKET);
- 	exit(ret);
-@@ -71,22 +81,59 @@ static  __attribute__((noreturn)) void c
+diff --git a/policy/flask/access_vectors b/policy/flask/access_vectors
+index 5d4f36a..6770ff1 100644
+--- a/policy/flask/access_vectors
++++ b/policy/flask/access_vectors
+@@ -253,6 +253,7 @@ class process
+ 	execstack
+ 	execheap
+ 	setkeycreate
++	setsockcreate
  }
  
- /*
-+ * Make sure that the process has permission to translate the context
-+ */
-+static int can_translate(char *pcon, char *tcon)
+ 
+@@ -632,3 +633,8 @@ class key
+ 	setattr
+ 	create
+ }
++
++class context
 +{
-+	security_id_t psid, tsid;
-+	context_t fake_con, target_con;
-+	int retval;
-+
-+	if (access_check) {
-+		if (avc_context_to_sid_raw(pcon, &psid))
-+			return -1;
-+
-+		fake_con = context_new(base_context);
-+		if (!fake_con)
-+			return -1;
-+		target_con = context_new(tcon);
-+		if (!target_con) {
-+			context_free(fake_con);
-+			return -1;
-+		}
-+		retval = context_range_set(fake_con,
-+		                           context_range_get(target_con));
-+		context_free(target_con);
-+		if (retval) {
-+			context_free(fake_con);
-+			return -1;
-+		}
-+		retval = avc_context_to_sid_raw(context_str(fake_con), &tsid);
-+		context_free(fake_con);
-+		if (retval)
-+			return -1;
-+
-+		if (avc_has_perm(psid, tsid, SECCLASS_CONTEXT,
-+		                 CONTEXT__TRANSLATE, NULL, NULL))
-+			return -1;
-+	}
-+
-+	return 0;
++	translate
 +}
+diff --git a/policy/flask/security_classes b/policy/flask/security_classes
+index 57f49bc..53c0cf1 100644
+--- a/policy/flask/security_classes
++++ b/policy/flask/security_classes
+@@ -93,4 +93,6 @@ class packet
+ # Kernel access key retention
+ class key
+ 
++class context			# userspace
 +
-+/*
-  * Convert raw label portion of a security context to translated label
-  * Returns:  0 on success, 1 on failure
-  */
- static int
--raw_to_trans_context(char *in, char **out, char *UNUSED(pcon))
-+raw_to_trans_context(char *in, char **out, char *pcon)
- {
--
- 	*out = NULL; 
+ # FLASK
+diff --git a/policy/mls b/policy/mls
+index 06085c5..fb70a32 100644
+--- a/policy/mls
++++ b/policy/mls
+@@ -617,4 +617,14 @@ mlsconstrain association { polmatch }
+ 	((( l1 dom l2 ) and ( h1 domby h2 )) or
+ 	 ( t2 == unlabeled_t ));
  
--	/* TODO: Check if MLS clearance (in "pcon") dominates the MLS label
--	 * (in "in").
--	 */
-+	if (can_translate(pcon, in))
-+		return -1;
- 
--	trans_context(in, out);
--	
--	return 0;
-+	return trans_context(in, out);
- }
- 
- 
-@@ -95,15 +142,21 @@ raw_to_trans_context(char *in, char **ou
-  * Returns:  0 on success, 1 on failure
-  */
- static int
--trans_to_raw_context(char *in, char **out, char *UNUSED(pcon))
-+trans_to_raw_context(char *in, char **out, char *pcon)
- {
-+	int retval;
 +
- 	*out = NULL;
- 	
--	/* TODO: Check if MLS clearance (in "pcon") dominates the MLS label
--	 * (in "in").
--	 */
-+	retval = untrans_context(in, out);
-+	if (retval)
-+		return retval;
- 
--	untrans_context(in, out);
-+	if (can_translate(pcon, *out)) {
-+		free(*out);
-+		*out = NULL;
-+		return -1;
-+	}
- 
- 	return 0;
- }
-@@ -152,29 +205,6 @@ send_response(int fd, uint32_t function,
- }
- 
- static int
--get_peer_con(int fd, char **peercon)
--{
--	int ret;
--	socklen_t size = sizeof(struct ucred);
--	struct ucred peercred;
--
--	/* get the context of the requesting process */
--	ret = getsockopt(fd, SOL_SOCKET, SO_PEERCRED, &peercred, &size);
--	if (ret < 0) {
--		syslog(LOG_ERR, "Failed to get PID of client process");
--		return -1;
--	}
--	ret = getpidcon_raw(peercred.pid, peercon);
--	if (ret) {
--		syslog(LOG_ERR, 
--			"Failed to get context of client process (pid=%u)",
--			peercred.pid);
--		return -1;
--	}
--	return 0;
--}
--
--static int
- process_request(int fd, uint32_t function, char *data1, char *data2)
- {
- 	int32_t result;
-@@ -191,14 +221,14 @@ process_request(int fd, uint32_t functio
- 		ret = send_response(fd, function, NULL, result);
- 		break;
- 	case RAW_TO_TRANS_CONTEXT:
--		ret = get_peer_con(fd, &peercon);
-+		ret = getpeercon_raw(fd, &peercon);
- 		if (ret)
- 			return ret;
- 		result = raw_to_trans_context(data1, &out, peercon);
- 		ret = send_response(fd, function, out, result);
- 		break;
- 	case TRANS_TO_RAW_CONTEXT:
--		ret = get_peer_con(fd, &peercon);
-+		ret = getpeercon_raw(fd, &peercon);
- 		if (ret)
- 			return ret;
- 		result = trans_to_raw_context(data1, &out, peercon);
-@@ -493,6 +523,18 @@ initialize(void)
- 		cleanup_exit(1);
- 	}
- 
-+	if (avc_init("setransd", NULL, NULL, NULL, NULL)) {
-+		syslog(LOG_ERR, "Failed to initialize AVC for "
-+		       "label translations");
-+		cleanup_exit(1);
-+	}
 +
-+	if (getcon_raw(&base_context)) {
-+		syslog(LOG_ERR, "Failed to initialize base context "
-+		       "label translations");
-+		cleanup_exit(1);
-+	}
 +
- 	/* the socket will be unlinked when the daemon terminates */
- 	act.sa_handler = sigterm_handler;
- 	sigemptyset(&act.sa_mask);
++#
++# MLS policy for the context class
++#
++
++mlsconstrain context translate
++	(( h1 dom h2 ) or ( t1 == mlstranslate ));
++
+ ') dnl end enable_mls
+diff --git a/policy/modules/kernel/mls.if b/policy/modules/kernel/mls.if
+index 5ca509e..8946213 100644
+--- a/policy/modules/kernel/mls.if
++++ b/policy/modules/kernel/mls.if
+@@ -451,3 +451,23 @@ interface(`mls_fd_share_all_levels',`
+ 
+ 	typeattribute $1 mlsfdshare;
+ ')
++
++########################################
++## <summary>
++##	Make specified domain MLS trusted
++##	for translating contexts at all levels.
++## </summary>
++## <param name="domain">
++##	<summary>
++##	Domain allowed access.
++##	</summary>
++## </param>
++#
++interface(`mls_context_translate_all_levels',`
++	gen_require(`
++		attribute mlstranslate;
++	')
++
++	typeattribute $1 mlstranslate;
++')
++
+diff --git a/policy/modules/kernel/mls.te b/policy/modules/kernel/mls.te
+index 6e5cb9f..3dce831 100644
+--- a/policy/modules/kernel/mls.te
++++ b/policy/modules/kernel/mls.te
+@@ -50,6 +50,8 @@ attribute mlsrangetrans;
+ attribute mlsfduse; 
+ attribute mlsfdshare;
+ 
++attribute mlstranslate;
++
+ ########################################
+ #
+ # THIS IS A HACK
+@@ -67,6 +69,6 @@ ifdef(`enable_mls',`
+ range_transition initrc_t auditd_exec_t s15:c0.c1023;
+ range_transition kernel_t init_exec_t s0 - s15:c0.c1023;
+ range_transition kernel_t lvm_exec_t s0 - s15:c0.c1023;
+-#range_transition initrc_t setrans_exec_t s15:c0.c1023;
++range_transition initrc_t setrans_exec_t s15:c0.c1023;
+ range_transition run_init_t initrc_exec_t s0 - s15:c0.c1023;
+ ')
+diff --git a/policy/modules/system/selinuxutil.fc b/policy/modules/system/selinuxutil.fc
+index 78d5e51..4641575 100644
+--- a/policy/modules/system/selinuxutil.fc
++++ b/policy/modules/system/selinuxutil.fc
+@@ -7,6 +7,7 @@ #
+ /etc/selinux/([^/]*/)?contexts(/.*)?	gen_context(system_u:object_r:default_context_t,s0)
+ /etc/selinux/([^/]*/)?contexts/files(/.*)? gen_context(system_u:object_r:file_context_t,s0)
+ /etc/selinux/([^/]*/)?policy(/.*)?	gen_context(system_u:object_r:policy_config_t,s15:c0.c1023)
++/etc/selinux/([^/]*/)?setrans\.conf	--	gen_context(system_u:object_r:selinux_config_t,s15:c0.c1023)
+ /etc/selinux/([^/]*/)?seusers	--	gen_context(system_u:object_r:selinux_config_t,s15:c0.c1023)
+ /etc/selinux/([^/]*/)?modules/(active|tmp|previous)(/.*)?     gen_context(system_u:object_r:semanage_store_t,s0)
+ /etc/selinux/([^/]*/)?modules/semanage\.read\.LOCK    --	gen_context(system_u:object_r:semanage_read_lock_t,s0)
+diff --git a/policy/modules/system/setrans.if b/policy/modules/system/setrans.if
+index 9547503..94f2c53 100644
+--- a/policy/modules/system/setrans.if
++++ b/policy/modules/system/setrans.if
+@@ -22,4 +22,5 @@ interface(`setrans_translate_context',`
+ 	allow $1 setrans_var_run_t:sock_file rw_file_perms;
+ 	allow $1 setrans_var_run_t:dir search_dir_perms;
+ 	files_list_pids($1)
++	allow $1 setrans_t:context translate;
+ ')
+diff --git a/policy/modules/system/setrans.te b/policy/modules/system/setrans.te
+index 2d54d0a..dd68201 100644
+--- a/policy/modules/system/setrans.te
++++ b/policy/modules/system/setrans.te
+@@ -53,6 +53,7 @@ mls_file_read_up(setrans_t)
+ mls_file_write_down(setrans_t)
+ mls_net_receive_all_levels(setrans_t)
+ mls_socket_read_all_levels(setrans_t)
++mls_socket_write_all_levels(setrans_t)
+ mls_rangetrans_target(setrans_t)
+ mls_fd_use_all_levels(setrans_t)
+ 
 
 --
 This message was distributed to subscribers of the selinux mailing list.
