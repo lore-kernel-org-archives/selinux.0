@@ -1,181 +1,133 @@
-Message-ID: <4534FE1E.4080502@trustedcs.com>
-Date: Tue, 17 Oct 2006 11:00:30 -0500
+Message-ID: <453519D6.8060802@trustedcs.com>
+Date: Tue, 17 Oct 2006 12:58:46 -0500
 From: Darrel Goeddel <dgoeddel@TrustedCS.com>
 MIME-Version: 1.0
-To: SELinux List <selinux@tycho.nsa.gov>
-CC: Stephen Smalley <sds@tycho.nsa.gov>, Joshua Brindle <jbrindle@tresys.com>,
-        Karl MacMillan <kmacmillan@mentalrootkit.com>,
-        Linda Knippers <linda.knippers@hp.com>,
-        Daniel Walsh <dwalsh@redhat.com>
-Subject: [PATCH 3/4] reference policy support for setransd enhancement
+To: "Christopher J. PeBenito" <cpebenito@tresys.com>
+CC: vyekkirala@TrustedCS.com,
+        "'Karl MacMillan'" <kmacmillan@mentalrootkit.com>,
+        "'Joshua Brindle'" <jbrindle@tresys.com>, selinux@tycho.nsa.gov,
+        sds@tycho.nsa.gov
+Subject: Re: Denials from newest kernel
+References: <000501c6f151$147d5180$cc0a010a@tcssec.com> <1161093390.29584.27.camel@sgc>
+In-Reply-To: <1161093390.29584.27.camel@sgc>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This patch is for the fedora policy.  I can "translate" (pun?) this to the
-current CVS policy if necessary.
+Christopher J. PeBenito wrote:
+> On Mon, 2006-10-16 at 13:29 -0500, Venkat Yekkirala wrote:
+> 
+>>>>>>allow apache_t  httpd_ipsec_t:association { polmatch };
+>>>>>>
+>>
+>><snip>
+>>
+>>>The above rule clearly shows a relationship between a domain(socket?)
+>>>and a SPD entry.  It does not show a relationship between a packet and
+>>>an association.
+>>
+>>This relationship is implicit in that a packet from apache_t can only
+>>use an association labeled apache_t. This would be currently shown in the
+>>SELinux policy itself as:
+>>
+>>allow apache_t apache_t:association { sendto };
+>>
+>>We did talk about moving this "implicit" relationship into the kernel itself
+>>essentially eliminating the association indirection for SAs.
+> 
+> 
+> Exactly, implicit isn't sufficient, because we won't be able to specify
+> that http packets can go over the apache association but not dns
+> packets.
 
-Add the flask definitions for the new context class (and add the setsockcreate
-to the process class so the generated headers do not miss things) and the
-corresponding mlsconstraint.
+Wouldn't the absence of "allow dns_t apache_t:association { sendto };" prevent
+dns packets using an apache_t association?
 
-Add an interface that will allow a domain the ability to override the MLS
-check when translating contexts (mls_context_translate_all_levels).
+This is probably my fault for suggesting using a policy constraint for choosing
+the SA.  When the SA is being chosen, a check will be done for the socket sendto
+the SA going down the line of SAs until we have a success.  We had used
+constraints of u1==u2, r1==r2, t1==t2, l1==l2, and h1==h2 to ensure that the
+socket context matched the SA context.  Having the entire context match means
+that getpeercon would return the entire context from the peer socket.  The
+alternative to ensuring the exact match, and therefore propagation of the context,
+would be to enforce the context equality check in the kernel rather than leave
+it configurable via policy.  The matching criteria is never really implicit.  It
+requires that the policy allow the socket to send to the SA, this require type
+access and meeting the conditions of the constraints.  This seems to be both
+expressive and analyzable.
 
-Make the setrans daemon run at the highest MLS label and protect the config
-file at the same label (and make this work by adding mls_socket_write_all_levels
-to the setransd policy).
+>>>When analyzing policy, the labeling is ignored until the very
+>>>end where
+>>>you verify that the labeling fits the policy.   If you don't know what
+>>>is in the SPD, you can not know which packets can go over the
+>>>association by looking at the above rule.
+>>
+>>Can you please explain this in terms of file_contexts in case I am missing
+>>something here (you seem to be saying in the above para that: If you don't
+>>know what's in the file_contexts db, you can not know which procs can write
+>>to which files).
+> 
+> 
+> No, that's not what I'm saying.  Its already understood that, for
+> example, shadow_t is for the shadow passwords.  There are explicit rules
+> for allowing a domain access to shadow passwords in the TE policy.  For
+> the purposes of analysis, we don't need to know which files have this
+> label until after we have determined that the policy rules match our
+> security goals.  Then after that, we can look at the labeling to make
+> sure that it lines up with the policy.
+> 
+> Its tough to put this in terms of file contexts, because it doesn't work
+> like ipsec, but I'll try.  Currently we have something like this:
+> 
+> TE:
+> allow passwd_t shadow_t:file rw_file_perms;
+> allow passwd_t etc_t:file r_file_perms;
+> allow checkpasswd_t shadow_t:file r_file_perms;
+> allow checkpasswd_t etc_t:file r_file_perms;
+> 
+> FC:
+> /etc(/.*)? system_u:object_r:etc_t
+> /etc/shadow -- system_u:object_r:shadow_t
+> 
+> where by looking at only the TE rules, you can see a relationship
+> between the password and checkpasswd domains and the shadow_t and etc_t
+> files.  By the policy design, we know that etc_t are general system
+> config files, and shadow_t are the shadow passwords.  Then after we're
+> done verifying our security goals in the TE rules, we can check the FC
+> to see that the labeling is indeed valid, and then label the
+> filesystems.
+> 
+> Now pretend that file contexts are instead loaded into the kernel and
+> each fc entry is labeled and has rules for access.
+> 
+> TE:
+> allow passwd_t passwd_fc_entries_t:fc fcmatch;
+> 
+> FC:
+> system_u:object_r:passwd_fc_entries_t r /etc(/.*)?
+> system_u:object_r:passwd_fc_entries_t rw /etc/shadow
+> system_u:object_r:checkpasswd_fc_entries_t r /etc(/.*)?
+> system_u:object_r:checkpasswd_fc_entries_t r /etc/shadow
+> 
+> See the difference?  Now we can't tell whats going on by looking at the
+> TE rules because we're putting policy somewhere else.  It doesn't matter
+> that these other rules also happen to be in the kernel; the point is
+> that they aren't in the TE policy.
 
-Allow the translating domain TE access to translate contexts with the setrans_t
-type.  This is the type that the daemon will use when doing the check.  The
-type is from the running setransd process.
+I think the analogy between ipsec and files isn't working all that well :)
+The policy (SELinux policy) must specifically allow for the sock vs SA
+polmatch to choose the correct SPD and it must specifically allow for
+the sock vs SA sendto to choose the correct SA.  If a domain such as
+apache_t is allow to sendto SAs of many types (say http1_t, http2_t, etc.)
+and SAs already exist for all of those types, it will use the first SA
+that it can successfully sendto.  This would be analogous to passwd trying
+/etc/shadow, /etc/shadow1, ... until it could write a shadow file.  In
+any case, the policy still governs what can happen.  At least this is my
+current understanding and that is always subject to change ;)
 
----
+-- 
 
- policy/flask/access_vectors          |    6 ++++++
- policy/flask/security_classes        |    2 ++
- policy/mls                           |   10 ++++++++++
- policy/modules/kernel/mls.if         |   20 ++++++++++++++++++++
- policy/modules/kernel/mls.te         |    4 +++-
- policy/modules/system/selinuxutil.fc |    1 +
- policy/modules/system/setrans.if     |    1 +
- policy/modules/system/setrans.te     |    1 +
- 8 files changed, 44 insertions(+), 1 deletion(-)
-
-diff --git a/policy/flask/access_vectors b/policy/flask/access_vectors
-index 5d4f36a..6770ff1 100644
---- a/policy/flask/access_vectors
-+++ b/policy/flask/access_vectors
-@@ -253,6 +253,7 @@ class process
- 	execstack
- 	execheap
- 	setkeycreate
-+	setsockcreate
- }
- 
- 
-@@ -632,3 +633,8 @@ class key
- 	setattr
- 	create
- }
-+
-+class context
-+{
-+	translate
-+}
-diff --git a/policy/flask/security_classes b/policy/flask/security_classes
-index 57f49bc..53c0cf1 100644
---- a/policy/flask/security_classes
-+++ b/policy/flask/security_classes
-@@ -93,4 +93,6 @@ class packet
- # Kernel access key retention
- class key
- 
-+class context			# userspace
-+
- # FLASK
-diff --git a/policy/mls b/policy/mls
-index 06085c5..fb70a32 100644
---- a/policy/mls
-+++ b/policy/mls
-@@ -617,4 +617,14 @@ mlsconstrain association { polmatch }
- 	((( l1 dom l2 ) and ( h1 domby h2 )) or
- 	 ( t2 == unlabeled_t ));
- 
-+
-+
-+
-+#
-+# MLS policy for the context class
-+#
-+
-+mlsconstrain context translate
-+	(( h1 dom h2 ) or ( t1 == mlstranslate ));
-+
- ') dnl end enable_mls
-diff --git a/policy/modules/kernel/mls.if b/policy/modules/kernel/mls.if
-index 5ca509e..8946213 100644
---- a/policy/modules/kernel/mls.if
-+++ b/policy/modules/kernel/mls.if
-@@ -451,3 +451,23 @@ interface(`mls_fd_share_all_levels',`
- 
- 	typeattribute $1 mlsfdshare;
- ')
-+
-+########################################
-+## <summary>
-+##	Make specified domain MLS trusted
-+##	for translating contexts at all levels.
-+## </summary>
-+## <param name="domain">
-+##	<summary>
-+##	Domain allowed access.
-+##	</summary>
-+## </param>
-+#
-+interface(`mls_context_translate_all_levels',`
-+	gen_require(`
-+		attribute mlstranslate;
-+	')
-+
-+	typeattribute $1 mlstranslate;
-+')
-+
-diff --git a/policy/modules/kernel/mls.te b/policy/modules/kernel/mls.te
-index 6e5cb9f..3dce831 100644
---- a/policy/modules/kernel/mls.te
-+++ b/policy/modules/kernel/mls.te
-@@ -50,6 +50,8 @@ attribute mlsrangetrans;
- attribute mlsfduse; 
- attribute mlsfdshare;
- 
-+attribute mlstranslate;
-+
- ########################################
- #
- # THIS IS A HACK
-@@ -67,6 +69,6 @@ ifdef(`enable_mls',`
- range_transition initrc_t auditd_exec_t s15:c0.c1023;
- range_transition kernel_t init_exec_t s0 - s15:c0.c1023;
- range_transition kernel_t lvm_exec_t s0 - s15:c0.c1023;
--#range_transition initrc_t setrans_exec_t s15:c0.c1023;
-+range_transition initrc_t setrans_exec_t s15:c0.c1023;
- range_transition run_init_t initrc_exec_t s0 - s15:c0.c1023;
- ')
-diff --git a/policy/modules/system/selinuxutil.fc b/policy/modules/system/selinuxutil.fc
-index 78d5e51..4641575 100644
---- a/policy/modules/system/selinuxutil.fc
-+++ b/policy/modules/system/selinuxutil.fc
-@@ -7,6 +7,7 @@ #
- /etc/selinux/([^/]*/)?contexts(/.*)?	gen_context(system_u:object_r:default_context_t,s0)
- /etc/selinux/([^/]*/)?contexts/files(/.*)? gen_context(system_u:object_r:file_context_t,s0)
- /etc/selinux/([^/]*/)?policy(/.*)?	gen_context(system_u:object_r:policy_config_t,s15:c0.c1023)
-+/etc/selinux/([^/]*/)?setrans\.conf	--	gen_context(system_u:object_r:selinux_config_t,s15:c0.c1023)
- /etc/selinux/([^/]*/)?seusers	--	gen_context(system_u:object_r:selinux_config_t,s15:c0.c1023)
- /etc/selinux/([^/]*/)?modules/(active|tmp|previous)(/.*)?     gen_context(system_u:object_r:semanage_store_t,s0)
- /etc/selinux/([^/]*/)?modules/semanage\.read\.LOCK    --	gen_context(system_u:object_r:semanage_read_lock_t,s0)
-diff --git a/policy/modules/system/setrans.if b/policy/modules/system/setrans.if
-index 9547503..94f2c53 100644
---- a/policy/modules/system/setrans.if
-+++ b/policy/modules/system/setrans.if
-@@ -22,4 +22,5 @@ interface(`setrans_translate_context',`
- 	allow $1 setrans_var_run_t:sock_file rw_file_perms;
- 	allow $1 setrans_var_run_t:dir search_dir_perms;
- 	files_list_pids($1)
-+	allow $1 setrans_t:context translate;
- ')
-diff --git a/policy/modules/system/setrans.te b/policy/modules/system/setrans.te
-index 2d54d0a..dd68201 100644
---- a/policy/modules/system/setrans.te
-+++ b/policy/modules/system/setrans.te
-@@ -53,6 +53,7 @@ mls_file_read_up(setrans_t)
- mls_file_write_down(setrans_t)
- mls_net_receive_all_levels(setrans_t)
- mls_socket_read_all_levels(setrans_t)
-+mls_socket_write_all_levels(setrans_t)
- mls_rangetrans_target(setrans_t)
- mls_fd_use_all_levels(setrans_t)
- 
+Darrel
 
 --
 This message was distributed to subscribers of the selinux mailing list.
