@@ -1,77 +1,103 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k9GIrT8o031421
-	for <selinux@tycho.nsa.gov>; Mon, 16 Oct 2006 14:53:29 -0400
-Received: from atlrel8.hp.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id k9GIq7At021615
-	for <selinux@tycho.nsa.gov>; Mon, 16 Oct 2006 18:52:07 GMT
-Message-ID: <4533D51E.9030709@hp.com>
-Date: Mon, 16 Oct 2006 14:53:18 -0400
-From: Matt Anderson <mra@hp.com>
-MIME-Version: 1.0
-To: "Christopher J. PeBenito" <cpebenito@tresys.com>
-Cc: selinux@tycho.nsa.gov, redhat-lspp@redhat.com
-Subject: Re: New MLS constraint?
-References: <4533B60E.8010802@hp.com> <1161020854.26428.32.camel@sgc>
-In-Reply-To: <1161020854.26428.32.camel@sgc>
-Content-Type: text/plain; charset=ISO-8859-1
+Subject: RE: Denials from newest kernel
+From: "Christopher J. PeBenito" <cpebenito@tresys.com>
+To: vyekkirala@TrustedCS.com
+Cc: "'Karl MacMillan'" <kmacmillan@mentalrootkit.com>,
+        "'Joshua Brindle'" <jbrindle@tresys.com>, selinux@tycho.nsa.gov,
+        sds@tycho.nsa.gov
+In-Reply-To: <000501c6f151$147d5180$cc0a010a@tcssec.com>
+References: <000501c6f151$147d5180$cc0a010a@tcssec.com>
+Content-Type: text/plain
+Date: Tue, 17 Oct 2006 09:56:30 -0400
+Message-Id: <1161093390.29584.27.camel@sgc>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Christopher J. PeBenito wrote:
-> On Mon, 2006-10-16 at 12:40 -0400, Matt Anderson wrote:
+On Mon, 2006-10-16 at 13:29 -0500, Venkat Yekkirala wrote:
+> > > > >
+> > > > > allow apache_t  httpd_ipsec_t:association { polmatch };
+> > > > >
+> <snip>
+> >
+> > The above rule clearly shows a relationship between a domain(socket?)
+> > and a SPD entry.  It does not show a relationship between a packet and
+> > an association.
 > 
->>With the removal of TCS's dev-allocator the solution for multi-level
->>printers that came out of the LSPP calls was to set a range on the
->>printer device, using chcon, and use SELinux to verify that the print
->>job was inside that range.
->>
->>I've since added checking code to the server which does not allow jobs
->>to be enqueued into the spool or queued and printed unless an
->>avc_has_perm() check passes.  The current check uses SECCLASS_FILE, and
->>checks FILE__WRITE;
+> This relationship is implicit in that a packet from apache_t can only
+> use an association labeled apache_t. This would be currently shown in the
+> SELinux policy itself as:
 > 
+> allow apache_t apache_t:association { sendto };
 > 
-> Why are you using file?  The printer device chr_file.
+> We did talk about moving this "implicit" relationship into the kernel itself
+> essentially eliminating the association indirection for SAs.
 
-You're right, I'll change that.
+Exactly, implicit isn't sufficient, because we won't be able to specify
+that http packets can go over the apache association but not dns
+packets.
 
->>The subject is something like user_u:user_r:user_lpr_t:s2:A
->>The object is: system_u:object_r:printer_device_t:s2-s15:c0.c1023
->>
->>When I do this check however, I get denied whenever the user's context
->>does not equal the lower level.
+> > When analyzing policy, the labeling is ignored until the very
+> > end where
+> > you verify that the labeling fits the policy.   If you don't know what
+> > is in the SPD, you can not know which packets can go over the
+> > association by looking at the above rule.
 > 
-> 
-> Here is the current (abbreviated) constraint:
-> 
-> mlsconstrain { file chr_file ... } { write ... }
-> 	(( l1 eq l2 ) or
-> 	 (( t1 == mlsfilewritetoclr ) and ( h1 dom l2 ) and ( l1 domby l2 )) or
-> 	 ( t1 == mlsfilewrite ) or
-> 	 ( t2 == mlstrustedobject ));
-> 
-> The first line of the expression explains why you needed write equality
-> on the level.
-> 
-> 
->>Is there a constraint that I can apply,
->>preferably to the object's type (printer_device_t as opposed to *_lpr_t,
->>) that would allow the above check to succeed?
-> 
-> 
-> We could add another 'or' on the above constraint:
-> 
-> or ( (t2 == mlsfilewrite_in_range) and (l1 dom l2) and (h1 domby h2) )
-> 
-> I believe that would be the constraint you were looking for.  I don't
-> like the name of that attribute, but I couldn't come up with a better
-> one off the top of my head. :)
+> Can you please explain this in terms of file_contexts in case I am missing
+> something here (you seem to be saying in the above para that: If you don't
+> know what's in the file_contexts db, you can not know which procs can write
+> to which files).
 
-So far all I've come up with is mlsfilewritewithinrange which isn't any
-better in my opinion, or maybe mlsfilewritetorange, but that almost
-sounds like something to modify the range portion of the context.
+No, that's not what I'm saying.  Its already understood that, for
+example, shadow_t is for the shadow passwords.  There are explicit rules
+for allowing a domain access to shadow passwords in the TE policy.  For
+the purposes of analysis, we don't need to know which files have this
+label until after we have determined that the policy rules match our
+security goals.  Then after that, we can look at the labeling to make
+sure that it lines up with the policy.
 
--matt
+Its tough to put this in terms of file contexts, because it doesn't work
+like ipsec, but I'll try.  Currently we have something like this:
+
+TE:
+allow passwd_t shadow_t:file rw_file_perms;
+allow passwd_t etc_t:file r_file_perms;
+allow checkpasswd_t shadow_t:file r_file_perms;
+allow checkpasswd_t etc_t:file r_file_perms;
+
+FC:
+/etc(/.*)? system_u:object_r:etc_t
+/etc/shadow -- system_u:object_r:shadow_t
+
+where by looking at only the TE rules, you can see a relationship
+between the password and checkpasswd domains and the shadow_t and etc_t
+files.  By the policy design, we know that etc_t are general system
+config files, and shadow_t are the shadow passwords.  Then after we're
+done verifying our security goals in the TE rules, we can check the FC
+to see that the labeling is indeed valid, and then label the
+filesystems.
+
+Now pretend that file contexts are instead loaded into the kernel and
+each fc entry is labeled and has rules for access.
+
+TE:
+allow passwd_t passwd_fc_entries_t:fc fcmatch;
+
+FC:
+system_u:object_r:passwd_fc_entries_t r /etc(/.*)?
+system_u:object_r:passwd_fc_entries_t rw /etc/shadow
+system_u:object_r:checkpasswd_fc_entries_t r /etc(/.*)?
+system_u:object_r:checkpasswd_fc_entries_t r /etc/shadow
+
+See the difference?  Now we can't tell whats going on by looking at the
+TE rules because we're putting policy somewhere else.  It doesn't matter
+that these other rules also happen to be in the kernel; the point is
+that they aren't in the TE policy.
+
+-- 
+Chris PeBenito
+Tresys Technology, LLC
+(410) 290-1411 x150
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
