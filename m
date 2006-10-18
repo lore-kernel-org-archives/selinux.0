@@ -1,46 +1,46 @@
-Message-ID: <20061018011433.21838.qmail@web58114.mail.re3.yahoo.com>
-Date: Tue, 17 Oct 2006 18:14:33 -0700 (PDT)
-From: I_am alone <stupid_kid_me@yahoo.com>
-Subject: SID/Context Mapping
-To: SELinux@tycho.nsa.gov
+Message-ID: <45360C37.6020308@tresys.com>
+Date: Wed, 18 Oct 2006 07:12:55 -0400
+From: Joshua Brindle <jbrindle@tresys.com>
 MIME-Version: 1.0
-Content-Type: multipart/alternative; boundary="0-1107203228-1161134073=:17936"
+To: I_am alone <stupid_kid_me@yahoo.com>
+CC: SELinux@tycho.nsa.gov
+Subject: Re: SID/Context Mapping
+References: <20061018011433.21838.qmail@web58114.mail.re3.yahoo.com>
+In-Reply-To: <20061018011433.21838.qmail@web58114.mail.re3.yahoo.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
---0-1107203228-1161134073=:17936
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+I_am alone wrote:
+>
+>
+> Hi All,
+>
+>         I am new to the SELinux Enviorment. Just learning by doing a 
+> Code Review.
+>
+> 1. What i cant figure out is Where does the SID/Security Context 
+> Mapping Occur in the SELinux Source Code . I understand its in the 
+> security server (According to Flask Architecture doc)......Hows does 
+> it happen. (Examlpes of code part would help).... Is it dynamic 
+> everytime the System Restarts ? Or is it Assigned when policy is 
+> compiled .. (Compiled Object File contains SID-Context Mapped 
+> Data.)........(Bec i put sme print statements to see how does the SID 
+> Transition occurs at BPRM Loading ....seems like i get the same SID 4 
+> same processes even i reboot the system .... )
+>
+>
+Several sids are always going to be the same because the policy defines 
+them in a specific order, they are called initial sids, you can look for 
+them in the policy source. After the initial sids all sids are generated 
+at runtime. In the kernel security/selinux/ss/sidtab.c is where the sids 
+are initialized and managed. You'll note that the security server calls 
+sidtab_context_to_sid, this searches for the sid associated with the 
+context, if it is not present it will insert it into the sidtab.
 
-
-
-Hi All,
-
-        I am new to the SELinux Enviorment. Just learning by doing a Code Review.
-
-1. What i cant figure out is Where does the SID/Security Context Mapping Occur in the SELinux Source Code . I understand its in the security server (According to Flask Architecture doc)......Hows does it happen. (Examlpes of code part would help).... Is it dynamic everytime the System Restarts ? Or is it Assigned when policy is compiled .. (Compiled Object File contains SID-Context Mapped Data.)........(Bec i put sme print statements to see how does the SID Transition occurs at BPRM Loading ....seems like i get the same SID 4 same processes even i reboot the system .... )
-
-
-It would be helpful if anyone could clarify it
-
-
-Thanks & Regards
-
-
-
- 
-
- 		
----------------------------------
-Stay in the know. Pulse on the new Yahoo.com.  Check it out. 
---0-1107203228-1161134073=:17936
-Content-Type: text/html; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
-
-<br><br>Hi All,<br><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; I am new to the SELinux Enviorment. Just learning by doing a Code Review.<br><br>1. What i cant figure out is Where does the SID/Security Context Mapping Occur in the SELinux Source Code . I understand its in the security server (According to Flask Architecture doc)......Hows does it happen. (Examlpes of code part would help).... Is it dynamic everytime the System Restarts ? Or is it Assigned when policy is compiled .. (Compiled Object File contains SID-Context Mapped Data.)........(Bec i put sme print statements to see how does the SID Transition occurs at BPRM Loading ....seems like i get the same SID 4 same processes even i reboot the system .... )<br><br><br>It would be helpful if anyone could clarify it<br><br><br>Thanks &amp; Regards<br><br><br><br>&nbsp;<br><p>&#32;
-		<hr size=1>Stay in the know. Pulse on the new Yahoo.com. <a href="http://us.rd.yahoo.com/evt=42974/*http://www.yahoo.com/preview"> Check it out.</a> 
-
---0-1107203228-1161134073=:17936--
+You can also look at the security server code in libsepol which is 
+largely the same as the kernel security server (in terms of 
+functionality) but is easier to play with and learn from.
 
 --
 This message was distributed to subscribers of the selinux mailing list.
