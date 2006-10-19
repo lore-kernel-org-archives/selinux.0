@@ -1,74 +1,215 @@
-Subject: Re: allow tomcat_t self:capability 0x80000000; ??
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Daniel Gil Mayol <Daniel.Gil-Mayol@brunel.de>
-Cc: selinux@tycho.nsa.gov
-In-Reply-To: <200610191446.12206.Daniel.Gil-Mayol@brunel.de>
-References: <200610190933.19483.Daniel.Gil-Mayol@brunel.de>
-	 <1161260478.14632.80.camel@moss-spartans.epoch.ncsc.mil>
-	 <200610191446.12206.Daniel.Gil-Mayol@brunel.de>
-Content-Type: text/plain
-Date: Thu, 19 Oct 2006 09:12:25 -0400
-Message-Id: <1161263545.14632.109.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+Message-ID: <45377C88.1040907@redhat.com>
+Date: Thu, 19 Oct 2006 09:24:24 -0400
+From: Daniel J Walsh <dwalsh@redhat.com>
+MIME-Version: 1.0
+To: Stephen Smalley <sds@tycho.nsa.gov>
+CC: Klaus Weidner <klaus@atsec.com>, Michael C Thompson <thompsmc@us.ibm.com>,
+        lspp-list <redhat-lspp@redhat.com>, SE Linux <selinux@tycho.nsa.gov>
+Subject: Re: policy issues in 2.3.18-10 - sshd & polyinstantiation
+References: <453546FC.2050109@us.ibm.com> <20061017221211.GO28520@w-m-p.com>	 <453770BF.1090500@redhat.com> <1161262305.14632.89.camel@moss-spartans.epoch.ncsc.mil>
+In-Reply-To: <1161262305.14632.89.camel@moss-spartans.epoch.ncsc.mil>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2006-10-19 at 14:46 +0200, Daniel Gil Mayol wrote:
-> My kernel is  2.6.16.9vs2.0.2rc16.
-
-That obviously isn't a Red Hat kernel.  I'm guessing from the name that
-it is a Linux-VServer kernel?  Linux-Vserver patches likely claim that
-capability for their own use, and don't update SELinux to know about it.
-
-> After start auditd and run "/sbin/ausearch -i -c java" I see the next
-> 
-> type=PATH msg=audit(10/19/2006 14:39:57.885:4742) : item=0 name=/proc/self/exe 
-> flags=none inode=1526923273 dev=00:03 mode=symlink,777 ouid=root ogid=root 
-> rdev=00:00
-> type=CWD msg=audit(10/19/2006 14:39:57.885:4742) :  cwd=/work/dagi
-> type=SYSCALL msg=audit(10/19/2006 14:39:57.885:4742) : arch=i386 
-> syscall=readlink per=400000 success=yes exit=30 a0=80553c1 a1=bf82ba50 a2=fff 
-> a3=0 items=1 pid=23299 auid=unknown(4294967295) uid=root gid=root euid=root 
-> suid=root fsuid=root egid=root sgid=root fsgid=root comm=java 
-> exe=/usr/java/jre1.5.0_04/bin/java
-> type=AVC msg=audit(10/19/2006 14:39:57.885:4742) : avc:  denied  
-> { 0x80000000 } for  pid=23299 comm=java capability=31 
-> scontext=root:system_r:tomcat_t tcontext=root:system_r:tomcat_t 
-> tclass=capability
-
-Taking a quick glance at the vs patch, it appears to apply this new
-capability check on accesses to /proc to decide whether to skip certain
-other checks.  Thus, everything that touches /proc will end up
-triggering these audit messages, but you almost never want to allow them
-(only to admin for the virtual server itself).  
-
-Normally, we'd deal with this via a dontaudit statement to silence the
-audit message without allowing it.
-
-In order to reference this capability in such a statement, it needs to
-be defined in the policy/flask/access_vectors file.  In that file, go to
-the "class capability" section, and at the end of the list of
-capabilities (after "audit_control" and before the closing "}") add
-something like "vs_context".  Then you can write a policy statement
-like:
-	dontaudit tomcat_t self:capability vs_context;
-and it should compile and load ok.
-
-If you want the kernel audit messages to use that name instead of the
-number, you have to regenerate the SELinux headers and rebuild your
-kernel.  To do that, after adding the "vs_context" definition to
-access_vectors as above, you would run make in the policy/flask
-subdirectory, then copy the generated .h files in that directory to the
-security/selinux/include directory of your kernel tree (you can also do
-that by running make LINUXDIR=/path/to/kerneltree tokern).
-
-If you want to avoid such headaches in the future, you should then
-submit a diff of the old and new headers back to the Linux-VServer
-project so that they can incorporate it into their patches and releases.
-
--- 
-Stephen Smalley
-National Security Agency
+Stephen Smalley wrote:
+> On Thu, 2006-10-19 at 08:34 -0400, Daniel J Walsh wrote:
+>   
+>> Klaus Weidner wrote:
+>>     
+>>> On Tue, Oct 17, 2006 at 04:11:24PM -0500, Michael C Thompson wrote:
+>>>   
+>>>       
+>>>> So polyinstantiation is broken, it used to work at one point. The 
+>>>> following is the log of what seems to be causing the failure. I'm 
+>>>> looking into this, but it would be nice to have someone more adept at 
+>>>> policy wrangling to jump in and save the day.
+>>>>     
+>>>>         
+>>> The current LSPP ks script sets up policy and contexts to support
+>>> polyinstantiation. I've attached the policy, here's the script fragment.
+>>> Polyinstantiation parent dirs need to be polyparent_t, and
+>>> /etc/security/namespace.init needs to be pam_exec_t or something similar.
+>>>
+>>> (Don't use chcon, define persistent file contexts instead to ensure that
+>>> they don't get overwritten on the next autorelabel. And remember how nice
+>>> it is that SELinux doesn't do path based security ;-)
+>>>
+>>> -Klaus
+>>>
+>>> ConfigurePolyinstantiation() {
+>>>
+>>>     Title " Configure polyinstantiation"
+>>>
+>>>     if ShallI "Update polyinstantiation (pam_namespace) configuration"; then
+>>>         local DIRS=$(
+>>>                 awk '/^[^#]/ {print $2}' $_BASE/$_NAMESPACE_CONF 
+>>>         )
+>>>         Log "Creating base dirs: $DIRS"
+>>>         mkdir -m 0 $DIRS
+>>>
+>>>         local D
+>>>         for D in $DIRS; do
+>>>                 semanage fcontext -a -t polyparent_t $( echo "$D" | sed '
+>>>                         s/\/$//;
+>>>                         s/\([.*?]\)/\\\1/;
+>>>                 ')
+>>>         done
+>>>         restorecon $DIRS
+>>>
+>>>         # FIXME: following should be fixed in upstream package?
+>>>         semanage fcontext -a -t pam_exec_t /etc/security/namespace.init
+>>>         restorecon /etc/security/namespace.init
+>>>
+>>>         Replace /etc/security/$_NAMESPACE_CONF with $_BASE/$_NAMESPACE_CONF
+>>>
+>>>     else
+>>>         Log "configuration update declined."
+>>>         _FAILURE=1
+>>>     fi
+>>> }
+>>>
+>>>   
+>>> ------------------------------------------------------------------------
+>>>
+>>> ## Customized SELinux policy for LSPP evaluated configuration
+>>>
+>>> policy_module(lspp_policy,1.0)
+>>>
+>>> #############################################################################
+>>> ### Additional audit
+>>> #############################################################################
+>>>
+>>> gen_require(`
+>>> 	attribute domain;
+>>> ')
+>>>
+>>> # Audit setting of security relevant process attributes
+>>> # These settings are OPTIONAL
+>>> auditallow domain self:process setcurrent;
+>>> auditallow domain self:process setexec;
+>>> auditallow domain self:process setfscreate;
+>>>   
+>>>       
+>> This gives every process on the system the ability to do these 
+>> commands.  Why do you need this?
+>>     
+>
+> No - they are just auditallow statements, not allow statements, so they
+> merely enable auditing when they are allowed - they don't allow anything
+> new.  This is for auditing of all changes to the process
+> security-relevant attributes.
+>
+>   
+Sorry, you are right.  I guess I am looking at too many lines of policy...
+>>> #auditallow domain self:process setsocketcreate; # FIXME
+>>> #auditallow domain self:process setipccreate; # FIXME
+>>>
+>>> #############################################################################
+>>> ### Relabeling printer devices
+>>> #############################################################################
+>>>
+>>> gen_require(`
+>>> 	type secadm_t, printer_device_t;
+>>> ')
+>>>
+>>> allow secadm_t printer_device_t:chr_file {getattr relabelfrom relabelto};
+>>>
+>>>   
+>>>       
+>> I have just added
+>>         dev_relabel_all_dev_nodes(secadm_t)
+>> in selinux-policy-2.3.19-4.
+>>
+>> Which should cover this.
+>>
+>>     
+>>> #############################################################################
+>>> ### Polyinstantiation support
+>>> #############################################################################
+>>>
+>>> gen_require(`
+>>>         type newrole_t, sshd_t, local_login_t;
+>>> 	type user_t, staff_t;
+>>> 	type tmp_t, user_home_dir_t, staff_home_dir_t;
+>>> 	type user_tmp_t, staff_tmp_t, user_home_t, staff_home_t;
+>>> 	attribute userdomain;
+>>> ')
+>>>
+>>> type polyparent_t;
+>>> type polymember_t;
+>>> files_poly_parent(polyparent_t)
+>>> files_poly_member(polymember_t)
+>>>
+>>>   
+>>>       
+>> There is a new boolean allow_polyinstantiation, which should turn on 
+>> some of this support.
+>> If we are missing something, this should get back into the policy package.
+>>     
+>>> ## FIXME: these don't work?
+>>> #allow userdomain polyparent_t:dir manage_dir_perms;
+>>> #allow userdomain polymember_t:dir manage_dir_perms;
+>>> #type_member userdomain polyparent_t:dir polymember_t;
+>>> #allow user_t polymember_t:dir manage_dir_perms;
+>>> #allow staff_t polymember_t:dir manage_dir_perms;
+>>>
+>>> files_poly(tmp_t)
+>>> files_poly(user_home_dir_t)
+>>> files_poly(staff_home_dir_t)
+>>>
+>>> type_member user_t tmp_t:dir user_tmp_t;
+>>> type_member staff_t tmp_t:dir staff_tmp_t;
+>>>
+>>> type_member user_t user_home_dir_t:dir user_home_t;
+>>> type_member staff_t staff_home_dir_t:dir staff_home_t;
+>>>
+>>> files_polyinstantiate_all(sshd_t)
+>>> files_polyinstantiate_all(local_login_t)
+>>> files_polyinstantiate_all(newrole_t)
+>>>   
+>>>       
+>> Only newole_t does not have this priv in current policy,   Added for 
+>> 2.3.19-4.
+>>     
+>>> ### additional polyinst workarounds
+>>> ### (FIXME, should these be fixed in refpolicy?)
+>>>
+>>> gen_require(`
+>>> 	type bin_t, sshd_t, newrole_t, staff_su_t, run_init_t;
+>>> ')
+>>>
+>>> # let newrole execute the PAM framework (it didn't d<o that originally)
+>>> auth_exec_pam(newrole_t)
+>>>
+>>> # sshd needs to write the faillog / tallylog file
+>>> # FIXME, needs: semanage fcontext -a -t faillog_t /var/log/tallylog
+>>> auth_rw_faillog(sshd_t)
+>>> auth_rw_faillog(newrole_t)
+>>> auth_rw_faillog(staff_su_t)
+>>> auth_rw_faillog(run_init_t)
+>>>   
+>>>       
+>> Latest policy has these rules
+>>     
+>>> # this seems to be missing from refpolicy files_polyinstantiate_all()?
+>>> allow sshd_t polyparent_t:dir {read search create remove_name};
+>>> allow local_login_t polyparent_t:dir {read search create remove_name};
+>>> allow newrole_t polyparent_t:dir {read search create remove_name};
+>>>
+>>> # need to be able to execute /etc/security/namespace.init
+>>> # (that file needs to be labeled as bin_t, default label is bad)
+>>> allow sshd_t bin_t:file {read execute execute_no_trans ioctl};
+>>> allow local_login_t bin_t:file {read execute execute_no_trans ioctl};
+>>> allow newrole_t bin_t:file {read execute execute_no_trans ioctl};
+>>>
+>>>   
+>>>       
+>> --
+>> This message was distributed to subscribers of the selinux mailing list.
+>> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
+>> the words "unsubscribe selinux" without quotes as the message.
+>>     
 
 
 --
