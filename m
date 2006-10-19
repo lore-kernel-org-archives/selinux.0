@@ -1,61 +1,47 @@
-Message-ID: <453789A0.8090105@redhat.com>
-Date: Thu, 19 Oct 2006 10:20:16 -0400
-From: Daniel J Walsh <dwalsh@redhat.com>
-MIME-Version: 1.0
-To: abcde efghi <svmdcv@gmail.com>
-CC: selinux@tycho.nsa.gov, Stephen Smalley <sds@tycho.nsa.gov>
-Subject: Re: rpm throws error with selinux enabled
-References: <6a9b0ede0610100416oa82aaf7t79a76ec935dd20ce@mail.gmail.com>
-In-Reply-To: <6a9b0ede0610100416oa82aaf7t79a76ec935dd20ce@mail.gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Subject: Re: allow tomcat_t self:capability 0x80000000; ??
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Daniel Gil Mayol <Daniel.Gil-Mayol@brunel.de>
+Cc: selinux@tycho.nsa.gov
+In-Reply-To: <200610191626.40684.Daniel.Gil-Mayol@brunel.de>
+References: <200610190933.19483.Daniel.Gil-Mayol@brunel.de>
+	 <200610191446.12206.Daniel.Gil-Mayol@brunel.de>
+	 <1161263545.14632.109.camel@moss-spartans.epoch.ncsc.mil>
+	 <200610191626.40684.Daniel.Gil-Mayol@brunel.de>
+Content-Type: text/plain
+Date: Thu, 19 Oct 2006 10:48:47 -0400
+Message-Id: <1161269327.14632.155.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-abcde efghi wrote:
-> on rhel4 u3 x86_64 2.6.9-34.ELsmp kernel , when selinux is enabled, rpm
-> installation gives the error:
-> 'scriptlet failed, exit status 255'
->
-> The default selinux settings are used
-> #cat /etc/sysconfig/selinux
-> SELINUX=enforcing
-> SELINUXTYPE=targeted
->
-> e.g. on installing asm rpms:
-> # rpm -ivh *.rpm
-> Preparing...                ###########################################
-> @ [100%]
-> @    1:oracleasm-support      ###########################################
-> 33%
-> error: %post(oracleasm-support-2.0.2-1.x86_64) scriptlet failed, exit 
-> status
-> 255
->    2:oracleasm-2.6.9-34.ELsm###########################################
-> 67%]
-> error: %post(oracleasm-2.6.9-34.ELsmp-2.0.2-1.x86_64) scriptlet 
-> failed, exit
-> status 255
->    3:oracleasmlib           ##########################################
-> [100%]
-> .
-> However, asm rpms gets installed
-> # rpm -qa | grep asm
-> oracleasm-support-2.0.2-1
-> oracleasmlib-2.0.2-1
-> oracleasm-2.6.9-34.ELsmp-2.0.2-1
->
-> any help most welcome
->
-This type of question is better off asked on the fedora-selinux list.  
-If you are using Fedora :^)
-Are you seeing any AVC messages in /var/log/messages?  What policy 
-version are you running?
+On Thu, 2006-10-19 at 16:26 +0200, Daniel Gil Mayol wrote:
+> I have added "vs_context" in the class capability but don't seems enough, 
+> after a "make load" I have the next
+> 
+> flask/access_vectors:362:ERROR 'too many permissions to fit in an access 
+> vector' at token '}' on line 485:
+>         vs_context
+> }
 
-> -- 
-> This message was distributed to subscribers of the selinux mailing list.
-> If you no longer wish to subscribe, send mail to 
-> majordomo@tycho.nsa.gov with
-> the words "unsubscribe selinux" without quotes as the message.
+Hmmm...that was a bug in checkpolicy, but has been fixed for a while, at
+least upstream.
+
+> The problem is that currently I can't recompile the kernel. I have written the 
+> next (although is not very nice, is temporal until I become a re-compiled 
+> kernel):
+> 
+> dontaudit tomcat_t self:capability *;
+
+Yes, that works too.  But if you can solve the policy problem above (via
+newer checkpolicy with that bug fixed), then you can just dontaudit the
+vs_context capability even without rebuilding the kernel.  Rebuilding
+the kernel is only needed if you want audit messages it generates to
+include the string name rather than the numeric value (so that
+audit2allow works for you).
+
+-- 
+Stephen Smalley
+National Security Agency
 
 
 --
