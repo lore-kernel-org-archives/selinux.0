@@ -1,71 +1,84 @@
-Subject: Re: [redhat-lspp] Re: MLS enforcing PTYs, sshd, and newrole
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Daniel J Walsh <dwalsh@redhat.com>
-Cc: casey@schaufler-ca.com, russell@coker.com.au, selinux@tycho.nsa.gov,
-        redhat-lspp@redhat.com
-In-Reply-To: <45378681.3000106@redhat.com>
-References: <20061012153701.75777.qmail@web36603.mail.mud.yahoo.com>
-	 <45377BF0.6010403@redhat.com>
-	 <1161264613.14632.120.camel@moss-spartans.epoch.ncsc.mil>
-	 <45378681.3000106@redhat.com>
-Content-Type: text/plain
-Date: Thu, 19 Oct 2006 10:32:35 -0400
-Message-Id: <1161268355.14632.147.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k9JEgGNR006718
+	for <selinux@tycho.nsa.gov>; Thu, 19 Oct 2006 10:42:16 -0400
+Received: from mx1.redhat.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id k9JEN3wO001383
+	for <selinux@tycho.nsa.gov>; Thu, 19 Oct 2006 14:23:04 GMT
+Message-ID: <45378A22.30202@redhat.com>
+Date: Thu, 19 Oct 2006 10:22:26 -0400
+From: Daniel J Walsh <dwalsh@redhat.com>
+MIME-Version: 1.0
+To: abcde efghi <svmdcv@gmail.com>
+CC: russell@coker.com.au, selinux@tycho.nsa.gov
+Subject: Re: nfs mount takes long time on x86 rhel4 u4 with selinux enabled
+References: <6a9b0ede0610100500v4bbe7866v661bb5939446cac2@mail.gmail.com>	 <6a9b0ede0610100735h1a92f4c3i890391f8a0b0238e@mail.gmail.com>	 <200610110107.16261.russell@coker.com.au> <6a9b0ede0610100956g5bf6e638n8a733d127cc9a4f9@mail.gmail.com>
+In-Reply-To: <6a9b0ede0610100956g5bf6e638n8a733d127cc9a4f9@mail.gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2006-10-19 at 10:06 -0400, Daniel J Walsh wrote:
-> Stephen Smalley wrote:
-> > pam_selinux used to have support to let the user pick from the list of
-> > reachable contexts for the user.  So you could just restore that
-> > support.
-> >   
-> I don't think so.  This allowed you to select your TE role, not your 
-> Sensitivity.  The problem is selecting your sensivity.  Since there is 
-> an large number of sensitivities a user can log in as he will need to 
-> key it in.
-
-Ah, I was thinking of the old MLS implementation, pre-TCS.  Fair point.
-
-> > That doesn't address sshd though.  Or gdm.  sshd shouldn't be too
-> > difficult.  There were some externally developed gdm patches for selinux
-> > that enabled context selection long ago, but nothing recent
-> > (pre-Fedora).
-> >   
-> I though the sshd would happen automatically when you login via a secure 
-> channel.  IE If I connect at TopSecret, I get TopSecret.
-
-Only if running it via the modified xinetd and only if using labeled
-networking.  Otherwise, you still need a way for users to select a level
-for their session.
-
-> I think gdm will require other features such that I launch terminals at 
-> different sensitivity levels???
-
-Well, doing that right requires security enhanced X, a modified window
-manager, and a trusted path, so that won't be happening today.
-
-> I think we should separate the TE Context selection from the Sensitivity 
-> Selection, in order to satisfy the MLS problems.
-
-Ok.
-
-> > You don't need to remove -l from newrole; you can just constrain its use
-> > via DAC and via SELinux policy, as Klaus has previously suggested.
-> >
-> >   
-> So it will not work on ptys?  Or are you thinking a boolean? I think it 
-> will be strange for a user to have the app work differently depending on 
-> how they logged in, but I guess this is another short coming of MLS.
-
-It would be restricted via DAC mode and possibly a boolean in policy,
-such that an admin could allow use of it if desired.  Only the LSPP
-config would need to lock it down.
-
--- 
-Stephen Smalley
-National Security Agency
+abcde efghi wrote:
+> hi
+>
+> at present i dont have those logs
+> one last question.
+>
+> is it compulsory to do touch /.autorelabel when we are doing reboot?
+> and it should be done before or after reboot?(bit confused. i thought
+> after reboot)
+> note:i am moving from disabled to enforcing selinux
+>
+> thanks
+>
+>
+> On 10/10/06, Russell Coker <russell@coker.com.au> wrote:
+>> On Wednesday 11 October 2006 00:35, "abcde efghi" <svmdcv@gmail.com> 
+>> wrote:
+>> > during installation time it was disabled
+>> > and during boottime i enabled it
+>> > (.i.e by setting selinux=enforcing in /etc/selinux/config and reboot)
+>>
+>> Before that reboot did you touch /.autorelabel?
+>>
+>> > that time it is taking some time to mount
+>> > what could be the pbm? is it really bcoz of portmap daemon?
+>> > how does portmap daemon cause this pbm? any pointers?
+>>
+>> If it's portmap then it's not an SE Linux issue and is best discussed on
+>> another list.
+>>
+>> > note the time and call trace details:
+>> >
+>> > time mount <server:/disk/disk1/data1/ /mnt --type nfs
+>> > 
+>> -orw,bg,nointr,hard,timeo=600,wsize=32768,rsize=32768,nfsvers=3,tcp,actimeo 
+>>
+>> >=0, addr=10.0.0.60
+>>
+>> You did not provide any information on AVC messages or the time taken 
+>> for the
+>> mount command when SE Linux is in permissive mode (after running
+>> "setenforce 0").  Without such information we can't help you.  You 
+>> need to
+>> answer every question in my messages if you want useful answers from us.
+>>
+When you turn on SELinux you need to relabel the entire file system.  
+touch /.autorelabel, will cause the init scripts to do this before any 
+processes are running.   This is the best way to turn on SELinux.  After 
+you are running SELinux you should not need to relabel again.
+>> -- 
+>> russell@coker.com.au
+>> http://etbe.blogspot.com/          My Blog
+>>
+>> http://www.coker.com.au/sponsorship.html Sponsoring Free Software 
+>> development
+>>
+>
+> -- 
+> This message was distributed to subscribers of the selinux mailing list.
+> If you no longer wish to subscribe, send mail to 
+> majordomo@tycho.nsa.gov with
+> the words "unsubscribe selinux" without quotes as the message.
 
 
 --
