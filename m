@@ -1,93 +1,104 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k9KDd17I009126
-	for <selinux@tycho.nsa.gov>; Fri, 20 Oct 2006 09:39:01 -0400
-Received: from aplesnation.dom1.jhuapl.edu (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id k9KDcIAO003248
-	for <selinux@tycho.nsa.gov>; Fri, 20 Oct 2006 13:38:18 GMT
+Message-ID: <36282A1733C57546BE392885C0618592238484@chaos.tcs.tcs-sec.com>
+From: Venkat Yekkirala <vyekkirala@TrustedCS.com>
+To: "'James Morris '" <jmorris@namei.org>,
+        Venkat Yekkirala
+	 <vyekkirala@TrustedCS.com>
+Cc: "'jbrindle@tresys.com '" <jbrindle@tresys.com>,
+        "'selinux@tycho.nsa.gov '" <selinux@tycho.nsa.gov>,
+        "'sds@tycho.nsa.gov '" <sds@tycho.nsa.gov>
+Subject: RE: SELinux Networking Enhancements
+Date: Fri, 20 Oct 2006 11:10:33 -0400
 MIME-Version: 1.0
 Content-Type: text/plain;
-	charset="us-ascii"
-Subject: RE: rpm throws error with selinux enabled
-Date: Fri, 20 Oct 2006 09:39:01 -0400
-Message-ID: <7B95239DDD54E54B9BFA23847142B1EE12CBB8@aplesnation.dom1.jhuapl.edu>
-From: "Osborn, Justin D." <Justin.Osborn@jhuapl.edu>
-To: "abcde efghi" <svmdcv@gmail.com>
-Cc: <selinux@tycho.nsa.gov>
+	charset="iso-8859-1"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This is an old issue where SELinux was enforcing something even when it
-was disabled.  The details escape me but essentially it prevented rpm
-from running scripts that contained ldconfig in the post install script.
-I had the same problem and had a dickens of a time tracking it down
-because it's such an odd symptom.  Updating to a newer kernel/libselinux
-(or new RHEL4 update) should do the trick.
-
-Justin 
+ 
 
 -----Original Message-----
-From: owner-selinux@tycho.nsa.gov [mailto:owner-selinux@tycho.nsa.gov]
-On Behalf Of Daniel J Walsh
-Sent: Thursday, October 19, 2006 10:20 AM
-To: abcde efghi
-Cc: selinux@tycho.nsa.gov; Stephen Smalley
-Subject: Re: rpm throws error with selinux enabled
+From: James Morris
+To: Venkat Yekkirala
+Cc: jbrindle@tresys.com; selinux@tycho.nsa.gov; sds@tycho.nsa.gov
+Sent: 10/19/2006 5:27 PM
+Subject: RE: SELinux Networking Enhancements
 
-abcde efghi wrote:
-> on rhel4 u3 x86_64 2.6.9-34.ELsmp kernel , when selinux is enabled, 
-> rpm installation gives the error:
-> 'scriptlet failed, exit status 255'
->
-> The default selinux settings are used
-> #cat /etc/sysconfig/selinux
-> SELINUX=enforcing
-> SELINUXTYPE=targeted
->
-> e.g. on installing asm rpms:
-> # rpm -ivh *.rpm
-> Preparing...
-###########################################
-> @ [100%]
-> @    1:oracleasm-support
-###########################################
-> 33%
-> error: %post(oracleasm-support-2.0.2-1.x86_64) scriptlet failed, exit 
-> status
-> 255
->    
-> 2:oracleasm-2.6.9-34.ELsm###########################################
-> 67%]
-> error: %post(oracleasm-2.6.9-34.ELsmp-2.0.2-1.x86_64) scriptlet 
-> failed, exit status 255
->    3:oracleasmlib           ##########################################
-> [100%]
-> .
-> However, asm rpms gets installed
-> # rpm -qa | grep asm
-> oracleasm-support-2.0.2-1
-> oracleasmlib-2.0.2-1
-> oracleasm-2.6.9-34.ELsmp-2.0.2-1
->
-> any help most welcome
->
-This type of question is better off asked on the fedora-selinux list.  
-If you are using Fedora :^)
-Are you seeing any AVC messages in /var/log/messages?  What policy
-version are you running?
+On Thu, 19 Oct 2006, Venkat Yekkirala wrote:
 
-> --
-> This message was distributed to subscribers of the selinux mailing
-list.
-> If you no longer wish to subscribe, send mail to 
-> majordomo@tycho.nsa.gov with the words "unsubscribe selinux" without 
-> quotes as the message.
+> You would have just as many "secpoints" as you currently
+> would "secmarks". No difference there. Same level of flexibility
+> and scalability. Nothing more, nothing less.
+> 
+> Example:
+> 
+> 1. An outbound connection to port 80 on machine 10.0.0.1
+> 
+> SECMARK:
+> -A OUTPUT -m state --state NEW -p tcp -d 10.0.0.1 --dport 80 -j
+> SECMARK --selctx system_u:object_r:http_client_packet_t:s2
+> 
+> SECPOINT:
+> -A OUTPUT -m state --state NEW -p tcp -d 10.0.0.1 --dport 80 -j
+> SECMARK --selctx system_u:object_r:httpd_t:s0
+> 
+> Reason for the change in Type from http_client_packet_t to httpd_t:
+> 
+> All incoming packets on this connection would be from a web-server so
+should
+> be carrying httpd_t as opposed to http_client_packet_t. Also, all
+outbound
+> traffic on this connection carries the originating socket context
+> (firefox_t)
+> which would be flow-controlled against httpd_t.
+> 
+> So, just a change in semantics. Whereas you formerly had
+> allow firefox_t http_client_packet_t:packet { send recv }
+> 
+> you would now have:
+> 
+> allow firefox_t httpd_t:packet { recv }
+> allow firefox_t httpd_t:packet { flow_out }
+> 
+> For the forwarding case:
+> 
+> -A PREROUTING -p tcp -s 10.0.0.5  -j SECMARK --selctx
+> system_u:object_r:webonly_t:s0
+> 
+> -A FORWARD -m state --state NEW -p tcp -d 10.0.0.1 --dport 80 -j
+> SECMARK --selctx system_u:object_r:httpd_t:s0
+> -A PREROUTING -p tcp -s 10.0.0.1 --sport 80 -j SECMARK --selctx
+> system_u:object_r:httpd_t:s0
+> (can also use CONNSECMARK to save from FORWARD and restore it at
+PREROUTING
+> to label all traffic back from
+> the webserver)
+> 
+> allow webonly_t httpd_t:packet { flow_out }
+> allow httpd_t webonly_t:packet { flow_out }
+> 
+> I have only given the main rules and there are ofcourse other
+supporting
+> rules required
+> to get things going.
 
+This is too complicated, most people will not understand it.  I think
+it's 
+also a security risk, because of the complexity of composing these 
+labeling mechanisms and the chance that mistakes will be made in 
+deployment, as well as scaring people away from using the technology 
+altogether.
 
---
-This message was distributed to subscribers of the selinux mailing list.
-If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov
-with the words "unsubscribe selinux" without quotes as the message.
+Venkat's response:
+Hi James, can you please tell me exactly what rules (and only those)
+that one should be able to specify in the forwarding case in the
+following example:
 
+I have a machine 192.168.16.10 that needs to be able to do web-browsing
+only, via the router.
+
+Thanks.
+
+Thanks.
 
 --
 This message was distributed to subscribers of the selinux mailing list.
