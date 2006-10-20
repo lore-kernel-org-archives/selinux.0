@@ -1,104 +1,91 @@
-Message-ID: <36282A1733C57546BE392885C0618592238484@chaos.tcs.tcs-sec.com>
-From: Venkat Yekkirala <vyekkirala@TrustedCS.com>
-To: "'James Morris '" <jmorris@namei.org>,
-        Venkat Yekkirala
-	 <vyekkirala@TrustedCS.com>
-Cc: "'jbrindle@tresys.com '" <jbrindle@tresys.com>,
-        "'selinux@tycho.nsa.gov '" <selinux@tycho.nsa.gov>,
-        "'sds@tycho.nsa.gov '" <sds@tycho.nsa.gov>
-Subject: RE: SELinux Networking Enhancements
-Date: Fri, 20 Oct 2006 11:10:33 -0400
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Subject: Re: Policy tests failed
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Daniel Gil Mayol <Daniel.Gil-Mayol@brunel.de>
+Cc: selinux@tycho.nsa.gov
+In-Reply-To: <200610201458.42923.Daniel.Gil-Mayol@brunel.de>
+References: <200610191700.20138.Daniel.Gil-Mayol@brunel.de>
+	 <1161282600.14632.199.camel@moss-spartans.epoch.ncsc.mil>
+	 <200610201458.42923.Daniel.Gil-Mayol@brunel.de>
+Content-Type: text/plain
+Date: Fri, 20 Oct 2006 13:40:31 -0400
+Message-Id: <1161366031.29755.204.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
- 
+(no html mail please)
 
------Original Message-----
-From: James Morris
-To: Venkat Yekkirala
-Cc: jbrindle@tresys.com; selinux@tycho.nsa.gov; sds@tycho.nsa.gov
-Sent: 10/19/2006 5:27 PM
-Subject: RE: SELinux Networking Enhancements
+On Fri, 2006-10-20 at 14:58 +0200, Daniel Gil Mayol wrote:
+> The version number of the SELinux policy language that I am using to
+> create the binary policy is 18 (policy.18).
 
-On Thu, 19 Oct 2006, Venkat Yekkirala wrote:
+I meant the policy package version, e.g. rpm -q selinux-policy-targeted
+if using the RHEL 4 policy, or whatever you used as your baseline.
 
-> You would have just as many "secpoints" as you currently
-> would "secmarks". No difference there. Same level of flexibility
-> and scalability. Nothing more, nothing less.
-> 
-> Example:
-> 
-> 1. An outbound connection to port 80 on machine 10.0.0.1
-> 
-> SECMARK:
-> -A OUTPUT -m state --state NEW -p tcp -d 10.0.0.1 --dport 80 -j
-> SECMARK --selctx system_u:object_r:http_client_packet_t:s2
-> 
-> SECPOINT:
-> -A OUTPUT -m state --state NEW -p tcp -d 10.0.0.1 --dport 80 -j
-> SECMARK --selctx system_u:object_r:httpd_t:s0
-> 
-> Reason for the change in Type from http_client_packet_t to httpd_t:
-> 
-> All incoming packets on this connection would be from a web-server so
-should
-> be carrying httpd_t as opposed to http_client_packet_t. Also, all
-outbound
-> traffic on this connection carries the originating socket context
-> (firefox_t)
-> which would be flow-controlled against httpd_t.
-> 
-> So, just a change in semantics. Whereas you formerly had
-> allow firefox_t http_client_packet_t:packet { send recv }
-> 
-> you would now have:
-> 
-> allow firefox_t httpd_t:packet { recv }
-> allow firefox_t httpd_t:packet { flow_out }
-> 
-> For the forwarding case:
-> 
-> -A PREROUTING -p tcp -s 10.0.0.5  -j SECMARK --selctx
-> system_u:object_r:webonly_t:s0
-> 
-> -A FORWARD -m state --state NEW -p tcp -d 10.0.0.1 --dport 80 -j
-> SECMARK --selctx system_u:object_r:httpd_t:s0
-> -A PREROUTING -p tcp -s 10.0.0.1 --sport 80 -j SECMARK --selctx
-> system_u:object_r:httpd_t:s0
-> (can also use CONNSECMARK to save from FORWARD and restore it at
-PREROUTING
-> to label all traffic back from
-> the webserver)
-> 
-> allow webonly_t httpd_t:packet { flow_out }
-> allow httpd_t webonly_t:packet { flow_out }
-> 
-> I have only given the main rules and there are ofcourse other
-supporting
-> rules required
-> to get things going.
+> I want that the script makes a transition into a different domain. For
+> this reason now I have the script relabel with the type
+> "initrc_exec_t" and seems that after execute "runcon -t crond_t" it
+> makes a transition to the crond_t domain.
 
-This is too complicated, most people will not understand it.  I think
-it's 
-also a security risk, because of the complexity of composing these 
-labeling mechanisms and the chance that mistakes will be made in 
-deployment, as well as scaring people away from using the technology 
-altogether.
+The above description suggests that you have two scripts, say "foo" and
+"bar", and you have labeled "foo" with initrc_exec_t so that it
+transitions to initrc_t automatically and the "foo" script contains a
+line that does "runcon -t crond_t bar", where the "bar" script contains
+the actual test code that you want to run in crond_t.  Is that correct?
+BTW, in that case, "bar" should be labeled crond_exec_t.
 
-Venkat's response:
-Hi James, can you please tell me exactly what rules (and only those)
-that one should be able to specify in the forwarding case in the
-following example:
+> The script don't execute crond, only prove that being in the crond_t
+> domain can not access to data of another domain (for example
+> httpd_exec_t).
 
-I have a machine 192.168.16.10 that needs to be able to do web-browsing
-only, via the router.
+Ok, but the script itself needs to be run in crond_t then, which means
+that it needs to be labeled with crond_exec_t.
 
-Thanks.
+> Now the script get into anacron_t (now I am testing with anacron)
+> domain using the command "runcon -t anacron_t". The script shows now
+> after execute the command "id" the next:
+> 
+> uid=0(root) gid=0(root)
+> groups=0(root),1(bin),2(daemon),3(sys),4(adm),6(disk),10(wheel)
+> context=root:system_r:anacron_t
 
-Thanks.
+Ok, so the script is running in anacron_t in that case.  Whatever
+anacron_t means in your particular policy.
+
+> I don't have any test scripts but i think rolling back the packages to
+> one with a known vulerability would work, but since one goal of a
+> hacker is to get a root shell, you could use runcon with a shell
+> script to simulate what would happen if a hacker was successfull.
+> 
+> runcon -t httpd_t /bin/sh
+> 
+> Of course I can only get this to work in permissive mode. Setting it
+> to enforcing kills the shell since it can not access the tty.
+
+There should be a boolean that controls tty access.
+Try:
+setsebool httpd_tty_comm=1
+
+> Also get an error "execvp: Permission denied" in enforcing.
+
+It needs to be labeled with the entrypoint type for the domain.
+Try:
+cp /bin/sh myhttpd
+chcon -t httpd_exec_t myhttpd
+runcon -t httpd_t ./myhttpd
+
+> I thought I must run my policy test script in a enforce mode but I get
+> the permission denied error (like the mail says). So, I have to run
+> the script in permissive mode and look the 'audit denies' that appears
+> in /var/log/messages?
+
+No, you can test in enforcing mode but you have to set up the necessary
+preconditions and you may need slightly customized policy to do it.
+
+-- 
+Stephen Smalley
+National Security Agency
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
