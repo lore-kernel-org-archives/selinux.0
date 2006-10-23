@@ -1,58 +1,64 @@
-Subject: Re: [PATCH 0/4] newrole suid functionality (take 2)
+Subject: Re: [PATCH 3/4] newrole suid functionality (take 2)
 From: Stephen Smalley <sds@tycho.nsa.gov>
 To: Michael C Thompson <thompsmc@us.ibm.com>
 Cc: SE Linux <selinux@tycho.nsa.gov>, Daniel J Walsh <dwalsh@redhat.com>
-In-Reply-To: <45351FC9.2080204@us.ibm.com>
-References: <45351FC9.2080204@us.ibm.com>
+In-Reply-To: <45352427.20705@us.ibm.com>
+References: <45351FC9.2080204@us.ibm.com>  <45352427.20705@us.ibm.com>
 Content-Type: text/plain
-Date: Mon, 23 Oct 2006 14:56:11 -0400
-Message-Id: <1161629771.3316.119.camel@moss-spartans.epoch.ncsc.mil>
+Date: Mon, 23 Oct 2006 15:05:59 -0400
+Message-Id: <1161630359.3316.127.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2006-10-17 at 13:24 -0500, Michael C Thompson wrote:
-> This is the intro to a set of four patches.
+On Tue, 2006-10-17 at 13:42 -0500, Michael C Thompson wrote:
+> Michael C Thompson wrote:
+> > This is the intro to a set of four patches.
+> > 
+> > These patches are an attempt to make newrole be an acceptably secure 
+> > suid root program, to provide it with the capabilities to generate audit 
+> > records (existing) and handle polyinstatiation (new).
+> > 
+> > The 4 patches are as follows:
+> > 1) New functions introduced to newrole.c, new and existing functionality
+> > 2) Changes to existing functions in newrole.c
+> > 3) Updates to main in newrole.c to use the aforementioned changes
 > 
-> These patches are an attempt to make newrole be an acceptably secure 
-> suid root program, to provide it with the capabilities to generate audit 
-> records (existing) and handle polyinstatiation (new).
+> This is the 3rd of 4 patches.
+> This patch applies against policycoreutils-1.30.30-1.
 > 
-> The 4 patches are as follows:
-> 1) New functions introduced to newrole.c, new and existing functionality
-> 2) Changes to existing functions in newrole.c
-> 3) Updates to main in newrole.c to use the aforementioned changes
-> 4) Changes to the Makefile to allow building of newrole with the
->     changes and introduction of newrole-lspp.pamd
+> Changes:
+>   * main is changed in the following ways:
+>     - remove the duplicated functionality from patch 1/4
+>     - set to call the new functions from patch 1/4
+>     - set to use changes to functions in patch 2/4
+>     - introduces better error handling and cleanup paths
 > 
-> Note: This is an atomically applicable patch set. Applying a subset of 
-> these patches will break the build.
-> 
-> The comments from the previous send of these patches have been integrated.
+> Signed-off-by: Michael Thompson <thompsmc@us.ibm.com>
 
 diff -Naur policycoreutils-1.30.30.orig/newrole/newrole.c policycoreutils-1.30.30.suid/newrole/newrole.c
---- policycoreutils-1.30.30.orig/newrole/newrole.c	2006-10-17 13:11:41.000000000 -0500
-+++ policycoreutils-1.30.30.suid/newrole/newrole.c	2006-10-17 13:12:29.000000000 -0500
-@@ -87,6 +87,7 @@
- /* USAGE_STRING describes the command-line args of this program. */
- #define USAGE_STRING "USAGE: newrole [ -r role ] [ -t type ] [ -l level ] [ -V ] [ -- args ]"
+--- policycoreutils-1.30.30.orig/newrole/newrole.c	2006-10-17 13:15:20.000000000 -0500
++++ policycoreutils-1.30.30.suid/newrole/newrole.c	2006-10-17 13:15:03.000000000 -0500
+@@ -897,47 +898,43 @@
  
-+#define DEFAULT_PATH "/bin:/usr/bin:/usr/local/bin"
+ int main(int argc, char *argv[])
+<snip>
++	/*
++	 * Step 0: Setup
++	 *
++	 * Do some intial setup, including dropping capabilities, checking
++	 * if it makes sense to continue to run newrole, and setting up
++	 * a scrubbed environment.
++	 */
++	if (set_signal_handles())
++		return -1;
++	if (drop_capabilities())
++		return -1;
 
-Where does this particular path come from?  Why /usr/local/bin at all?
-Why doesn't /usr/bin come before /bin?  
-
-+/**
-+ * Unset all environment variables except:
-+ * TERM, DISPLAY and XAUTHORITY - if they are set, preserve values
-+ * HOME, SHELL, USER and LOGNAME - set to contents of /etc/passwd
-+ * PATH - set to default value DEFAULT_PATH
-
-Anyone relying on the ability to propagate other environment settings to
-a newrole'd shell (that can't be re-created from the user's dotfiles)?
-An alternative would be to save the original environment, reset it in
-this manner for the duration of newrole, but call the user shell with
-the original environment or some combination.
+I'd keep drop_capabilities() first, as it was before this patch.
+It would also make sense to move up sanitize_environment() as soon as
+possible, even if that means splitting it into two phases (in particular
+considering the locale support).
 
 -- 
 Stephen Smalley
