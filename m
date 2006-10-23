@@ -1,121 +1,96 @@
-Subject: Re: vserver and vprocunhide
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Daniel Gil Mayol <Daniel.Gil-Mayol@brunel.de>
-Cc: selinux@tycho.nsa.gov
-In-Reply-To: <200610231751.50609.Daniel.Gil-Mayol@brunel.de>
-References: <200610231751.50609.Daniel.Gil-Mayol@brunel.de>
-Content-Type: text/plain
-Date: Mon, 23 Oct 2006 13:53:06 -0400
-Message-Id: <1161625986.3316.108.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k9NIfdB6015897
+	for <selinux@tycho.nsa.gov>; Mon, 23 Oct 2006 14:41:39 -0400
+Received: from web36602.mail.mud.yahoo.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with SMTP id k9NIesfU019875
+	for <selinux@tycho.nsa.gov>; Mon, 23 Oct 2006 18:40:54 GMT
+Message-ID: <20061023184140.12138.qmail@web36602.mail.mud.yahoo.com>
+Date: Mon, 23 Oct 2006 11:41:40 -0700 (PDT)
+From: Casey Schaufler <casey@schaufler-ca.com>
+Reply-To: casey@schaufler-ca.com
+Subject: Re: [redhat-lspp] Re: MLS enforcing PTYs, sshd, and newrole
+To: Paul Moore <paul.moore@hp.com>
+Cc: selinux@tycho.nsa.gov, redhat-lspp@redhat.com
+In-Reply-To: <453CF1A5.5020200@hp.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 2006-10-23 at 17:51 +0200, Daniel Gil Mayol wrote:
-> 1.)
-> 
-> I have read that vserver and selinux have conflicts, is that true?
 
-Define "conflicts".  You will need to configure SELinux policy
-appropriately, but I'm not aware of any fundamental conflict (e.g. there
-would be a real conflict if vserver used the LSM security fields or
-hooks, but it doesn't AFAIK).
 
-> I am using a vserver and it tries to access ( to /proc/1 (init)  labelled as 
-> unconfined, that means, it tries to {getattr search} over the 
-> directory /proc/1 and audit show me a denied. Vprocunhide have a list of 
-> directories of /proc to "unhide" for vserver. The problem is that I can't 
-> add /proc/1 in vprocunhide (I receive an error when 
-> start /etc/init.d/vprocunhide restart). I can't relabel /proc/1 using chcon 
-> or setfiles. I can't write 
-> "allow vserver_test_t unconfined_t:dir { getattr search };" 
-> because there are in assert.te the following neverallow:
-> 
-> # Confined domains must never see unconfined domain's /proc/pid entries.
-> neverallow { domain -unrestricted -snmpd_t -pegasus_t }
->  unconfined_t:dir { getattr search };
->  
-> What I have done is substract also the vserver daemon:
-> 
-> neverallow { domain -unrestricted -snmpd_t -pegasus_t -vserver_test}
->  unconfined_t:dir { getattr search };
-> 
-> and then I can write 
-> 
-> allow vserver_test_t unconfined_t:dir { getattr search };
-> 
-> Don't seems very elegant this solution, is the right one?
+--- Paul Moore <paul.moore@hp.com> wrote:
 
-What are your goals?  Even aside from the question of allowing the
-vserver daemon to access /proc/1, why do you want to unhide /proc/1 in
-the vservers?  Enabling a "confined" domain to access the /proc/pid
-entries of an unconfined domain is naturally undesirable.  You could
-also move init into its own domain (already true in strict policy), so
-that you only have to allow access to init_t and not to all processes in
-unconfined_t, but even there I have to question why you are allowing
-this.
+> Casey Schaufler wrote:
+> > 
+> > --- James Antill <jantill@redhat.com> wrote:
+> > 
+> >>On Thu, 2006-10-19 at 09:30 -0400, Stephen Smalley
+> >>wrote:
+> >> 
+> >>>That doesn't address sshd though.  Or gdm.  sshd
+> >>shouldn't be too difficult.
+> >>
+> >> Combined with adding similar code to sshd.
+> > 
+> > 
+> > Just a heads up, you want to do this, but
+> > you may not be able to get an evaluation team
+> > to allow it in an evaluated configuration.
+> 
+> Okay, I'm curious so I'll bite - why not, what
+> problems would you expect?
 
-Note btw that there are different ways of configuring SELinux policy in
-your environment:
-- Define a single SELinux domain for each vserver, applied to all
-processes in that vserver (e.g. all processes within vserver X run in
-x_t, all processes within vserver Y run in y_t, ...).  This uses SELinux
-just to reinforce the vserver separation.
-- Define different SELinux domains for different processes within each
-vserver, and use the same set of domains in all vservers (e.g. httpd
-runs in httpd_t in all vservers, and ftpd runs in ftpd_t in all
-vservers).  This uses SELinux just to enforce separation within the
-vservers, not between them.
-- Define different SELinux domains for different processes within each
-vserver, and use orthogonal sets of domains for each vserver (e.g. httpd
-runs in httpd_x_t in vserver X but runs in httpd_y_t in vserver Y, and
-likewise for all other domains).  This uses SELinux to reinforce the
-vserver separation and to enforce separation within each vserver.
+I'm talking strictly from an MLS viewpoint here,
+mind you. If y'all are using TE as a security
+mechanism in your evaluation you'll have to
+deal with that as well. Anywho ...
 
-> 2.) 
-> Each time I try to restart the vserver daemon:
-> 
-> /etc/init.d/vserver_test restart
-> 
-> Then I see the following denied message:
-> 
-> Oct 23 16:45:02 cnsu kernel: audit(1161621902.211:1167): avc:  denied  
-> { mounton } for  pid=9476 comm="mount" name="/" dev=hda2 ino=2 
-> scontext=root:system_r:initrc_t tcontext=system_u:object_r:vprocunhide_t 
-> tclass=dir
-> 
-> and audit2allow writes the next
-> 
-> allow initrc_t vprocunhide_t:dir mounton;
-> 
-> but when this allow is adedd and I compile I see this message
-> 
-> assertion on line 45221 violated by allow initrc_t vprocunhide_t:dir 
-> { mounton };
+If you are treating your network as a single
+level device and allow logins (e.g. via ssh)
+at labels other than that configured to the
+device you are violating the MLS policy on
+the device. A TopSecret login on a device
+configured to be Confidential can not be
+permitted because TopSecret information,
+such as the command prompt, cannot be sent
+to the Confidential device.
 
-And what was that assertion?  Likely just requires an attribute on
-vprocunhide_t to mark it as a mount point directory.
+If you are treating the network as a multi
+level device the communications will take
+place at a label passed along with (or beside)
+the packets. Changing the label of the process
+will prevent it from going out through the
+established connection. If you could, you'd
+be able to pass TopSecret information in
+packets marked Confidential, again a Bad Thing.
 
-> ----------------------------------------------------------------------------------------------
-> 
-> 3.)
-> When I restart the dbus (messagebus) appear the following message.
-> 
-> Oct 23 17:50:29 cnsu dbus: Can't send to audit system: USER_AVC pid=21488 
-> uid=81 loginuid=-1 message=avc:  0 AV entries and 0/512 buckets used, 
-> longestchain length 0
-> 
-> It is not a denied, should I try to correct it?
+If you are treating each packet as a labeled
+entity and the network environment irrelivent
+and you don't change how the packets are labeled
+when you change the process label you are not
+properly labeling them. If you do change the
+labeling of the packets and let them through
+anyway you're not enforcing MLS policy.
 
-Different kind of error - this means that dbusd could not send an audit
-message to the kernel.  Do you have audit configured into your kernel?
-Is this process running within a vserver?  Is the process running as
-root?  Does it have the necessary capabilities to send audit messages?
+You can treat the network as a device, an import/
+export mechanism, or an internal communication
+mechanism but you can't get away from the fact
+that when a process changes its MLS properties
+it can't use the communication channels it was
+using with the old properties. Unless the
+communication channels don't enforce policy,
+in which case your system isn't enforcing
+MLS policy everywhere required.
 
--- 
-Stephen Smalley
-National Security Agency
+I understand that this is not the case with TE.
+I am very curious how domain transitions are
+going to play out in an evaluation. The process
+should be educational.
 
+
+Casey Schaufler
+casey@schaufler-ca.com
 
 --
 This message was distributed to subscribers of the selinux mailing list.
