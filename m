@@ -1,72 +1,39 @@
-Message-ID: <453D185B.9060500@us.ibm.com>
-Date: Mon, 23 Oct 2006 14:30:35 -0500
-From: Michael C Thompson <thompsmc@us.ibm.com>
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k9NLHVfU021865
+	for <selinux@tycho.nsa.gov>; Mon, 23 Oct 2006 17:17:31 -0400
+Received: from mail8.sea5.speakeasy.net (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id k9NLG1OG014327
+	for <selinux@tycho.nsa.gov>; Mon, 23 Oct 2006 21:16:02 GMT
+Date: Mon, 23 Oct 2006 17:17:29 -0400 (EDT)
+From: James Morris <jmorris@namei.org>
+To: Venkat Yekkirala <vyekkirala@TrustedCS.com>
+cc: jbrindle@tresys.com, selinux@tycho.nsa.gov, sds@tycho.nsa.gov
+Subject: RE: SELinux Networking Enhancements
+In-Reply-To: <001301c6f6c0$e3fd9b80$cc0a010a@tcssec.com>
+Message-ID: <Pine.LNX.4.64.0610231715200.22353@d.namei>
+References: <001301c6f6c0$e3fd9b80$cc0a010a@tcssec.com>
 MIME-Version: 1.0
-To: Stephen Smalley <sds@tycho.nsa.gov>
-CC: SE Linux <selinux@tycho.nsa.gov>, Daniel J Walsh <dwalsh@redhat.com>
-Subject: Re: [PATCH 4/4] newrole suid functionality (take 2)
-References: <45351FC9.2080204@us.ibm.com>  <4535245A.4010307@us.ibm.com> <1161630549.3316.130.camel@moss-spartans.epoch.ncsc.mil>
-In-Reply-To: <1161630549.3316.130.camel@moss-spartans.epoch.ncsc.mil>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Stephen Smalley wrote:
-> On Tue, 2006-10-17 at 13:43 -0500, Michael C Thompson wrote:
->> Michael C Thompson wrote:
->>> This is the intro to a set of four patches.
->>>
->>> These patches are an attempt to make newrole be an acceptably secure 
->>> suid root program, to provide it with the capabilities to generate audit 
->>> records (existing) and handle polyinstatiation (new).
->>>
->>> The 4 patches are as follows:
->>> 1) New functions introduced to newrole.c, new and existing functionality
->>> 2) Changes to existing functions in newrole.c
->>> 3) Updates to main in newrole.c to use the aforementioned changes
->>> 4) Changes to the Makefile to allow building of newrole with the
->>>    changes and introduction of newrole-lspp.pamd
->> This is the 4th of 4 patches.
->> This patch applies against policycoreutils-1.30.30-1.
->>
->> Changes:
->>   * Makefile now has AUDIT_LOG_PRIV and NAMESPACE_PRIV, as well as
->>     LSPP_PRIV (causes both previous to be on)
->>   * Adds newrole-lspp.pamd
->>
->> Signed-off-by: Michael Thompson <thompsmc@us.ibm.com>
-> 
-> diff -Naur policycoreutils-1.30.30.orig/newrole/Makefile policycoreutils-1.30.30.suid/newrole/Makefile
-> --- policycoreutils-1.30.30.orig/newrole/Makefile	2006-09-29 10:50:27.000000000 -0500
-> +++ policycoreutils-1.30.30.suid/newrole/Makefile	2006-10-17 12:58:01.000000000 -0500
-> @@ -6,10 +6,18 @@
->  LOCALEDIR = /usr/share/locale
->  PAMH = $(shell ls /usr/include/security/pam_appl.h 2>/dev/null)
->  AUDITH = $(shell ls /usr/include/libaudit.h 2>/dev/null)
-> -# If LOG_AUDIT_PRIV is y, then newrole will be made into setuid root program.
-> -# This is so that we have the CAP_AUDIT_WRITE capability. newrole will
-> -# shed all privileges and change to the user's uid.
-> -LOG_AUDIT_PRIV ?= n
-> +# Enable capabilities to permit newrole to generate audit records.
-> +# This will make newrole a setuid root program.
-> +# The capabilities used are: CAP_AUDIT_WRITE.
-> +AUDIT_LOG_PRIV ?= n
-> +# Enable capabilities to permit newrole to utilitize the pam_namespace module.
-> +# This will make newrole a setuid root program.
-> +# The capabilities used are: CAP_SYS_ADMIN, CAP_CHOWN, CAP_FOWNER and
-> +# CAP_DAC_OVERRIDE. 
-> +NAMESPACE_PRIV ?= n
-> +# If LSPP_PRIV is y, then newrole will be made into setuid root program.
-> +# Enabling this option will force AUDIT_LOG_PRIV and NAMESPACE_PRIV to be y.
-> +LSPP_PRIV ?= y
-> 
-> The plan would be to make LSPP_PRIV = n by default in the upstream
-> Makefile, then Red Hat can build with make LSPP_PRIV=y in their .spec
-> file.  That ensures it is always an explicit choice to enable this.
+On Mon, 23 Oct 2006, Venkat Yekkirala wrote:
 
-Oops. Yes, the intention was supposed to be ?= n by default.
+> Yes. Currently you can't do it. But I would like to get ideas on
+> a "less confusing" way to do forwarding controls. Specifically,
+> what would be an ideal allow-rule-set look like for forwarding
+> controls?
+
+I really don't know at this stage.  It seems like a generally complex 
+problem which needs a comprehensive solution itself, assuming it's worth 
+solving, and I don't believe we need to wait for that to implement 
+protected paths for host to host networking.
 
 
+
+-- 
+James Morris
+<jmorris@namei.org>
 
 --
 This message was distributed to subscribers of the selinux mailing list.
