@@ -1,72 +1,70 @@
-Subject: Re: [PATCH 4/4] newrole suid functionality (take 2)
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Michael C Thompson <thompsmc@us.ibm.com>
-Cc: SE Linux <selinux@tycho.nsa.gov>, Daniel J Walsh <dwalsh@redhat.com>
-In-Reply-To: <4535245A.4010307@us.ibm.com>
-References: <45351FC9.2080204@us.ibm.com>  <4535245A.4010307@us.ibm.com>
-Content-Type: text/plain
-Date: Mon, 23 Oct 2006 15:09:08 -0400
-Message-Id: <1161630549.3316.130.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+Message-ID: <453D1764.3050200@us.ibm.com>
+Date: Mon, 23 Oct 2006 14:26:28 -0500
+From: Michael C Thompson <thompsmc@us.ibm.com>
+MIME-Version: 1.0
+To: Stephen Smalley <sds@tycho.nsa.gov>
+CC: SE Linux <selinux@tycho.nsa.gov>, Daniel J Walsh <dwalsh@redhat.com>
+Subject: Re: [PATCH 0/4] newrole suid functionality (take 2)
+References: <45351FC9.2080204@us.ibm.com> <1161629771.3316.119.camel@moss-spartans.epoch.ncsc.mil>
+In-Reply-To: <1161629771.3316.119.camel@moss-spartans.epoch.ncsc.mil>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2006-10-17 at 13:43 -0500, Michael C Thompson wrote:
-> Michael C Thompson wrote:
-> > This is the intro to a set of four patches.
-> > 
-> > These patches are an attempt to make newrole be an acceptably secure 
-> > suid root program, to provide it with the capabilities to generate audit 
-> > records (existing) and handle polyinstatiation (new).
-> > 
-> > The 4 patches are as follows:
-> > 1) New functions introduced to newrole.c, new and existing functionality
-> > 2) Changes to existing functions in newrole.c
-> > 3) Updates to main in newrole.c to use the aforementioned changes
-> > 4) Changes to the Makefile to allow building of newrole with the
-> >    changes and introduction of newrole-lspp.pamd
+Stephen Smalley wrote:
+> On Tue, 2006-10-17 at 13:24 -0500, Michael C Thompson wrote:
+>> This is the intro to a set of four patches.
+>>
+>> These patches are an attempt to make newrole be an acceptably secure 
+>> suid root program, to provide it with the capabilities to generate audit 
+>> records (existing) and handle polyinstatiation (new).
+>>
+>> The 4 patches are as follows:
+>> 1) New functions introduced to newrole.c, new and existing functionality
+>> 2) Changes to existing functions in newrole.c
+>> 3) Updates to main in newrole.c to use the aforementioned changes
+>> 4) Changes to the Makefile to allow building of newrole with the
+>>     changes and introduction of newrole-lspp.pamd
+>>
+>> Note: This is an atomically applicable patch set. Applying a subset of 
+>> these patches will break the build.
+>>
+>> The comments from the previous send of these patches have been integrated.
 > 
-> This is the 4th of 4 patches.
-> This patch applies against policycoreutils-1.30.30-1.
+> diff -Naur policycoreutils-1.30.30.orig/newrole/newrole.c policycoreutils-1.30.30.suid/newrole/newrole.c
+> --- policycoreutils-1.30.30.orig/newrole/newrole.c	2006-10-17 13:11:41.000000000 -0500
+> +++ policycoreutils-1.30.30.suid/newrole/newrole.c	2006-10-17 13:12:29.000000000 -0500
+> @@ -87,6 +87,7 @@
+>  /* USAGE_STRING describes the command-line args of this program. */
+>  #define USAGE_STRING "USAGE: newrole [ -r role ] [ -t type ] [ -l level ] [ -V ] [ -- args ]"
+>  
+> +#define DEFAULT_PATH "/bin:/usr/bin:/usr/local/bin"
 > 
-> Changes:
->   * Makefile now has AUDIT_LOG_PRIV and NAMESPACE_PRIV, as well as
->     LSPP_PRIV (causes both previous to be on)
->   * Adds newrole-lspp.pamd
+> Where does this particular path come from?  Why /usr/local/bin at all?
+> Why doesn't /usr/bin come before /bin?  
+
+The concept for this came from the su source. The path basically spawned 
+out of my head. It can be changed to anything that people deem appropriate.
+
+> +/**
+> + * Unset all environment variables except:
+> + * TERM, DISPLAY and XAUTHORITY - if they are set, preserve values
+> + * HOME, SHELL, USER and LOGNAME - set to contents of /etc/passwd
+> + * PATH - set to default value DEFAULT_PATH
 > 
-> Signed-off-by: Michael Thompson <thompsmc@us.ibm.com>
+> Anyone relying on the ability to propagate other environment settings to
+> a newrole'd shell (that can't be re-created from the user's dotfiles)?
 
-diff -Naur policycoreutils-1.30.30.orig/newrole/Makefile policycoreutils-1.30.30.suid/newrole/Makefile
---- policycoreutils-1.30.30.orig/newrole/Makefile	2006-09-29 10:50:27.000000000 -0500
-+++ policycoreutils-1.30.30.suid/newrole/Makefile	2006-10-17 12:58:01.000000000 -0500
-@@ -6,10 +6,18 @@
- LOCALEDIR = /usr/share/locale
- PAMH = $(shell ls /usr/include/security/pam_appl.h 2>/dev/null)
- AUDITH = $(shell ls /usr/include/libaudit.h 2>/dev/null)
--# If LOG_AUDIT_PRIV is y, then newrole will be made into setuid root program.
--# This is so that we have the CAP_AUDIT_WRITE capability. newrole will
--# shed all privileges and change to the user's uid.
--LOG_AUDIT_PRIV ?= n
-+# Enable capabilities to permit newrole to generate audit records.
-+# This will make newrole a setuid root program.
-+# The capabilities used are: CAP_AUDIT_WRITE.
-+AUDIT_LOG_PRIV ?= n
-+# Enable capabilities to permit newrole to utilitize the pam_namespace module.
-+# This will make newrole a setuid root program.
-+# The capabilities used are: CAP_SYS_ADMIN, CAP_CHOWN, CAP_FOWNER and
-+# CAP_DAC_OVERRIDE. 
-+NAMESPACE_PRIV ?= n
-+# If LSPP_PRIV is y, then newrole will be made into setuid root program.
-+# Enabling this option will force AUDIT_LOG_PRIV and NAMESPACE_PRIV to be y.
-+LSPP_PRIV ?= y
+If they are, it would be pretty easy to allow the preservation of 
+environment variables like su does.
 
-The plan would be to make LSPP_PRIV = n by default in the upstream
-Makefile, then Red Hat can build with make LSPP_PRIV=y in their .spec
-file.  That ensures it is always an explicit choice to enable this.
+> An alternative would be to save the original environment, reset it in
+> this manner for the duration of newrole, but call the user shell with
+> the original environment or some combination.
 
--- 
-Stephen Smalley
-National Security Agency
+Again, this would be quite possible, say with a -p option?
+
+Mike
 
 
 --
