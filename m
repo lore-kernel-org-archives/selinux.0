@@ -1,66 +1,39 @@
-Subject: Re: Policy tests failed
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Daniel Gil Mayol <Daniel.Gil-Mayol@brunel.de>
-Cc: selinux@tycho.nsa.gov
-In-Reply-To: <200610231050.14167.Daniel.Gil-Mayol@brunel.de>
-References: <200610191700.20138.Daniel.Gil-Mayol@brunel.de>
-	 <200610201458.42923.Daniel.Gil-Mayol@brunel.de>
-	 <1161366031.29755.204.camel@moss-spartans.epoch.ncsc.mil>
-	 <200610231050.14167.Daniel.Gil-Mayol@brunel.de>
-Content-Type: text/plain
-Date: Mon, 23 Oct 2006 08:59:09 -0400
-Message-Id: <1161608349.3316.35.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k9NDZ1s3004248
+	for <selinux@tycho.nsa.gov>; Mon, 23 Oct 2006 09:35:01 -0400
+Received: from exchange.columbia.tresys.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with SMTP id k9NDXXGR004541
+	for <selinux@tycho.nsa.gov>; Mon, 23 Oct 2006 13:33:33 GMT
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Subject: RE: Booleans and tunable_policy
+Date: Mon, 23 Oct 2006 09:35:02 -0400
+Message-ID: <6FE441CD9F0C0C479F2D88F959B0158818653A@exchange.columbia.tresys.com>
+References: <BAY114-F35A32B2A224839C49B0E50AF030@phx.gbl>
+From: "Christopher J. PeBenito" <cpebenito@tresys.com>
+To: "Salvo Giuffrida" <giuffsalvo@hotmail.it>, <selinux@tycho.nsa.gov>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 2006-10-23 at 10:50 +0200, Daniel Gil Mayol wrote:
-> I have one script called  'exectest.py' labelled as 
-> system_u:object_r:initrc_exec_t. This script get a list of all the services 
-> to test. Then the "execute test" call one service of this list (supose 
-> anacron). All the services, with the name format 'SERVICE_NAME.exectest.py', 
-> are links to the script  'exectest.py' but labelled each one as 
-> 'SERVICE_NAME_exec_t'. For example, anacron has the following link file:
-> 
-> lrwxrwxrwx  root     root     system_u:object_r:anacron_exec_t 
-> anacron.exectest.py -> /work/SElinux-test/exectest.py
-> 
-> The idea was the following, we have only one test script program (it is  
-> 'exectest.py') and one link for each service (with the corresponding label).
+On Sun, 22 Oct 2006, Salvo Guffrida wrote:
+>I saw that in the reference policy there aren't anymore if-else constructs 
+>for the conditional evaluation of rules; instead, the tunable_policy macro 
+>is used (which I don't understand where it is declared)...What's wrong with 
+>the old "if-else" method?
 
-That doesn't work; the context of the symlink isn't relevant to the
-context transition on execve (just as the suid bit on a symlink is
-irrelevant to setuid execution).  You would need to copy your script and
-label the copy with the desired entrypoint type.
+Tunable_policy are blocks that will be replaced by a similar language feature when it becomes available.  Tunables will be similar to conditionals, except they will be selected during the policy module linking instead of being selectable at runtime.  This will result in a smaller policy, since there won't be dead policy from disabled booleans (a disabled tunable block will not be in the final policy).  Almost all of the booleans are configuration options, which means they would be better served as tunables.  For example, you wouldn't be toggling use_nfs_home_dirs many times on a running system, you would set it once and be done with it.  The tunable_policy macro will also be used to switch the blocks back to conditional policy if needed (it is always conditional policy currently).  The macro is  declared on line 159 of loadable_module.spt.
 
-> I am trying also to use the macro for dbusd calling "dbusd_domain(system);" 
-> but I receive the following error:
-> 
-> domains/cnsu/messagebus.te:36:ERROR 'unknown boolean read_default_t in 
-> conditional expression' at token 'read_default_t' on line 30533:
-> if (read_default_t) {
-> #line 36
-> domains/cnsu/messagebus.te:36:ERROR 'illegal conditional expression' at token 
-> 'allow' on line 30553:
-> allow system_dbusd_t { root_t usr_t lib_t etc_t }:dir { read getattr lock 
-> search ioctl };
-> #line 36
+The "if-else" conditional policy blocks are still used where it makes sense that the policy is runtime configurable.  See line 153 of selinux.if for an example.
 
-You must be using a macro that is normally only used in strict policy,
-and thus lacks definitions it requires in the targeted policy.  In this
-particular case, you could work around the issue by adding a:
-	bool read_default_t false;
-statement to your .te file.  But you may run into other problems with
-using the macro due to other dependencies on strict policy.
+> And, why should the booleans be first declared in global_booleans?
 
-Have you considered switching to strict policy?  RHEL 4 doesn't ship it,
-but you can get an upstream one and build it yourself.  It takes a bit
-of work to make the transition, but it already includes confined domains
-for these processes.
+Originally when we made refpolicy, we did not know how to export a boolean by an interface that made sense, so we made all booleans and tunables global until we had a solution.  We have began to move tunables back to modules if they are only used in that module, for example, named_write_master_zones.
 
 -- 
-Stephen Smalley
-National Security Agency
+Chris PeBenito
+Tresys Technology, LLC
+(410) 290-1411 x150
 
 
 --
