@@ -1,38 +1,35 @@
-Reply-To: <vyekkirala@TrustedCS.com>
-From: "Venkat Yekkirala" <vyekkirala@TrustedCS.com>
-To: "'James Morris'" <jmorris@namei.org>
-Cc: <jbrindle@tresys.com>, <selinux@tycho.nsa.gov>, <sds@tycho.nsa.gov>,
-        <gcwilson@us.ibm.com>
-Subject: RE: SELinux Networking Enhancements
-Date: Tue, 24 Oct 2006 09:33:04 -0500
-Message-ID: <000001c6f779$515c8840$cc0a010a@tcssec.com>
+Message-ID: <453E26D2.6050903@trustedcs.com>
+Date: Tue, 24 Oct 2006 09:44:34 -0500
+From: Darrel Goeddel <dgoeddel@TrustedCS.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-In-Reply-To: <Pine.LNX.4.64.0610231715200.22353@d.namei>
+To: SELinux List <selinux@tycho.nsa.gov>
+CC: Stephen Smalley <sds@tycho.nsa.gov>, Joshua Brindle <jbrindle@tresys.com>,
+        Karl MacMillan <kmacmillan@mentalrootkit.com>
+Subject: [PATCH] libsepol: fix version comparison when writing policies
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-> > Yes. Currently you can't do it. But I would like to get ideas on
-> > a "less confusing" way to do forwarding controls. Specifically,
-> > what would be an ideal allow-rule-set look like for forwarding
-> > controls?
-> 
-> I really don't know at this stage.  It seems like a generally complex 
-> problem which needs a comprehensive solution itself, assuming 
-> it's worth 
-> solving,
+Fix a version comparison that prohibits the "old style" range transition
+rules from being written for a version 5 base policy.
 
-We have needs for forwarding controls now.
+---
 
-> and I don't believe we need to wait for that to implement 
-> protected paths for host to host networking.
+diff -ruNp --exclude=.svn selinux-base/libsepol/src/write.c selinux/libsepol/src/write.c
+--- selinux-base/libsepol/src/write.c	2006-10-24 09:35:46.000000000 -0500
++++ selinux/libsepol/src/write.c	2006-10-24 09:35:13.000000000 -0500
+@@ -1641,7 +1641,7 @@ int policydb_write(policydb_t * p, struc
+ 	if ((p->policyvers >= POLICYDB_VERSION_MLS
+ 	     && p->policy_type == POLICY_KERN)
+ 	    || (p->policyvers >= MOD_POLICYDB_VERSION_MLS
+-		&& p->policyvers < MOD_POLICYDB_VERSION_MLS
++		&& p->policyvers < MOD_POLICYDB_VERSION_RANGETRANS
+ 		&& p->policy_type == POLICY_BASE)) {
+ 		if (range_write(p, fp)) {
+ 			return POLICYDB_ERROR;
+-- 
 
-Can you please lay out the kind of controls you have in mind
-for "protected paths for host to host networking". I want to
-see what (modified) portions I can present for upstreaming.
-
-For the rest, I guess we will have to just patch our kernel.
+Darrel
 
 --
 This message was distributed to subscribers of the selinux mailing list.
