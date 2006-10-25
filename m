@@ -1,57 +1,126 @@
-Subject: Re: [redhat-lspp] Re: MLS enforcing PTYs, sshd, and newrole
+Subject: Re: Security issues with local filesystem caching
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: James Antill <james.antill@redhat.com>
-Cc: redhat-lspp@redhat.com, Daniel J Walsh <dwalsh@redhat.com>,
-        "GeorgeC.Wilson" <ltcgcw@us.ibm.com>, selinux@tycho.nsa.gov
-In-Reply-To: <1161803724.29689.57.camel@code.and.org>
-References: <20061012153701.75777.qmail@web36603.mail.mud.yahoo.com>
-	 <45377BF0.6010403@redhat.com>
-	 <1161264613.14632.120.camel@moss-spartans.epoch.ncsc.mil>
-	 <1161620097.667.10.camel@code.and.org>
-	 <1161722236.667.20.camel@code.and.org>
-	 <1161776892.3987.193.camel@moss-spartans.epoch.ncsc.mil>
-	 <1161778937.3987.218.camel@moss-spartans.epoch.ncsc.mil>
-	 <1161784251.667.28.camel@code.and.org>
-	 <1161784759.3987.295.camel@moss-spartans.epoch.ncsc.mil>
-	 <1161803724.29689.57.camel@code.and.org>
+To: David Howells <dhowells@redhat.com>
+Cc: aviro@redhat.com, linux-kernel@vger.kernel.org, selinux@tycho.nsa.gov,
+        chrisw@sous-sol.org, jmorris@namei.org
+In-Reply-To: <16969.1161771256@redhat.com>
+References: <16969.1161771256@redhat.com>
 Content-Type: text/plain
-Date: Wed, 25 Oct 2006 15:24:50 -0400
-Message-Id: <1161804290.3987.388.camel@moss-spartans.epoch.ncsc.mil>
+Date: Wed, 25 Oct 2006 17:12:05 -0400
+Message-Id: <1161810725.16681.45.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2006-10-25 at 15:15 -0400, James Antill wrote:
-> On Wed, 2006-10-25 at 09:59 -0400, Stephen Smalley wrote:
-> > On Wed, 2006-10-25 at 09:50 -0400, James Antill wrote:
-> > >  My understanding is that while security_check_context() allows it, the
-> > > setexeccon() will fail. Which seemed to be good enough.
-> > 
-> > No, it won't.  Suppose that I have two Linux users A and B, with A
-> > authorized for category c0 and B authorized for category c2 in seusers,
-> > but both A and B are mapped to SELinux user U who is authorized for all
-> > categories in the kernel policy.  The login-style programs are naturally
-> > going to be authorized to transition to any of those contexts since they
-> > have to deal with user logins at any level, so the setexeccon() will
-> > succeed.  The SELinux security context will have U as the user identity,
-> > so it will always be valid.  You need an explicit check.
+On Wed, 2006-10-25 at 11:14 +0100, David Howells wrote: 
+> Hi,
 > 
->  Ok, I had assumed that "U" would always be different in this case. I
-> think this update to the patch solves the problem ... it gets the list
-> of valid roles/levels from get_ordered_context_list() (which I think is
-> complete, but I'm not 100%) and compares what is entered against that.
->  I'm not 100% sure this is right (it means there would be huge lists
-> returned for MCS, no?), but I don't see what else I can call that would
-> validate the role/level-range for a specific login.
+> Some issues have been raised by Christoph Hellwig over how I'm handling
+> filesystem security in my CacheFiles module, and I'd like advice on how to deal
+> with them.
+> 
+> CacheFiles stores its cache objects as files and directories in a tree under a
+> directory nominated by the configuration.  This means the data it is holding
+> (a) is potentially exposed to userspace, and (b) must be labelled for access
+> control according to the usual filesystem rules.
+> 
+> Currently, CacheFiles temporarily changes fsuid and fsgid to 0 whilst doing its
+> own pathwalk through the cache and whilst creating files and directories in the
+> cache.  This allows it to deal with DAC security directly.  All the directories
+> it creates are given permissions mask 0700 and all files 0000.
+> 
+> However, Christoph has objected to this practice, and has said that I'm not
+> allowed to change fsuid and fsgid.  The problem with not doing so is that this
+> code is running in the context of the process that issued the original open(),
+> read(), write(), etc, and so any accesses or creations it does would be done
+> with that process's fsuid and fsgid, which would lead to a cache with bits that
+> can't be shared between users.
+> 
+> Another thing I'm currently doing is bypassing the usual calls to the LSM
+> hooks.  This means that I'm not setting and checking security labels and MACs.
+> The reason for this is again that I'm running in some random process's context
+> and labelling and MAC'ing will affect the sharability of the cache.  This was
+> objected to also.
+> 
+> This also bypasses auditing (I think).  I don't want the CacheFiles module's
+> access to the cache to be logged against whatever process was accessing, say,
+> an NFS file.  That process didn't ask to access the cache, and the cache is
+> meant to be transparent.
+> 
+> I can see a few ways to deal with this:
+> 
+>  (1) Do all the cache operations in their own thread (sort of like knfsd).
+> 
+>  (2) Add further security ops for the caching code to call.  These might be of
+>      use elsewhere in the kernel.  These would set cache-specific security
+>      labels and check for them.
+> 
+>  (3) Add a flag or something to current to override the normal security on the
+>      basis that it should be using the cache's security rather than the
+>      process's security.
+> 
+> 
+> Option (1) would lead to serialisation of all cached NFS operations over the
+> accesses to disk.  Some of these accesses to disk involve sequences of mkdir(),
+> lookup(), [sg]etxattr() and create() inode op calls - all of which are
+> synchronous.  On the other hand, option (1) gives the simplest way of
+> overriding security, and would entail the least work.  It would, though, give
+> the biggest performance degradation.
+> 
+> Option (2) would require additional security ops, though possibly not many.  It
+> might be sufficient to just add two: to set and to check the security for a
+> cache object (be it file or directory).  This option would also preclude use of
+> the vfs_mkdir() VFS op and suchlike, as they use the wrong sort of security.
+> Some other way of handling the UNIX file ownership would also have to be sought.
+> 
+> Option (3) would require the current security handling in both the filesystem
+> (DAC) and security modules (MAC) to check for the overriding context in
+> current, and to go with that instead.  It might be possible to make such a
+> thing incorporate fsuid and fsgid.
+> 
+> Thoughts anyone?
 
-Sorry, no (at least based on that description - didn't receive the patch
-itself).  get_ordered_context_list() et al are still interfaces based on
-SELinux user identity.  What you need to do is to validate the
-user-supplied level against the range returned by getseuserbyname(), and
-the particular check needs to see whether the level is within the user's
-authorized range.  Which gets into policy specifics, which is why I
-suggested using a permission check via avc_has_perm or
-security_compute_av, and letting policy define a mlsconstrain on it.
+So you have two problems:
+1) You want the cachefiles kernel module to be able to internally access
+the cache files without regard to the permissions of the current
+process.
+2) You want to control how userspace may access the cache files in a way
+that allows the cache daemon to do its job without exposing the cache to
+corruption or leakage by other processes.
+
+With regard to (1), bypassing security checks for internal access is
+already done in certain cases (e.g. fs-private inodes, kernel-internal
+sockets).  That can be done just by a flag on the task as in option (3);
+it is separate from the issue of how to label the new file.
+
+Your solutions for (2) seem to treat the entire cache as having the same
+security properties regardless of the files that are being cached - a
+single ownership and security context for all cache files.  This
+requires a fully trusted cache daemon that can arbitrarily tamper with
+any content cached in this manner.  I think you need to support at least
+per-cache security attributes, and allow people to run separate
+instances of the cache daemon for caches with different security
+attributes (if not already possible), so that no single cache daemon
+process needs to be all powerful.
+
+If I understand correctly, you don't want to just propagate the security
+attributes of the original file being cached to the cache file, because
+that would expose the cache to corruption by processes that can access
+the original file and because you would then have to deal with updating
+those attributes upon changes to the original's attributes.  But
+per-cache security attributes would be a reasonable approach to enabling
+finer-grained protection.
+
+Then the question is just how the cachefile module sets the security
+attributes (including uid/gid and security context) to the appropriate
+per-cache value when creating the cache files.  That could just be a
+matter of setting the fsuid/fsgid and fscreate attributes (the latter
+requiring a hook call) prior to creation, if that approach is palatable.
+It would help to understand the objection to setting fsuid/fsgid more
+clearly - it may have had more to do with always setting them to 0 for
+all cache files, or with using that as a way to work around the lack of
+an explicit mechanism for bypassing security checks for internal
+accesses than with the setting of the fsuid/fsgid itself.
 
 -- 
 Stephen Smalley
