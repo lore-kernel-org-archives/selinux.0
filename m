@@ -1,67 +1,145 @@
-Subject: Re: [redhat-lspp] Re: MLS enforcing PTYs, sshd, and newrole
+Subject: Re: vserver and vprocunhide
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: James Antill <james.antill@redhat.com>
-Cc: Daniel J Walsh <dwalsh@redhat.com>, "GeorgeC.Wilson" <ltcgcw@us.ibm.com>,
-        selinux@tycho.nsa.gov, redhat-lspp@redhat.com
-In-Reply-To: <1161776892.3987.193.camel@moss-spartans.epoch.ncsc.mil>
-References: <20061012153701.75777.qmail@web36603.mail.mud.yahoo.com>
-	 <45377BF0.6010403@redhat.com>
-	 <1161264613.14632.120.camel@moss-spartans.epoch.ncsc.mil>
-	 <1161620097.667.10.camel@code.and.org>
-	 <1161722236.667.20.camel@code.and.org>
-	 <1161776892.3987.193.camel@moss-spartans.epoch.ncsc.mil>
+To: Daniel Gil Mayol <Daniel.Gil-Mayol@brunel.de>
+Cc: selinux@tycho.nsa.gov
+In-Reply-To: <200610251033.18810.Daniel.Gil-Mayol@brunel.de>
+References: <200610231751.50609.Daniel.Gil-Mayol@brunel.de>
+	 <200610240847.58333.Daniel.Gil-Mayol@brunel.de>
+	 <1161705205.3987.88.camel@moss-spartans.epoch.ncsc.mil>
+	 <200610251033.18810.Daniel.Gil-Mayol@brunel.de>
 Content-Type: text/plain
-Date: Wed, 25 Oct 2006 08:22:17 -0400
-Message-Id: <1161778937.3987.218.camel@moss-spartans.epoch.ncsc.mil>
+Date: Wed, 25 Oct 2006 09:07:18 -0400
+Message-Id: <1161781638.3987.256.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2006-10-25 at 07:48 -0400, Stephen Smalley wrote:
-> On Tue, 2006-10-24 at 16:37 -0400, James Antill wrote:
-> > On Mon, 2006-10-23 at 12:14 -0400, James Antill wrote:
-> > > On Thu, 2006-10-19 at 09:30 -0400, Stephen Smalley wrote:
-> > > > pam_selinux used to have support to let the user pick from the list of
-> > > > reachable contexts for the user.  So you could just restore that
-> > > > support.
-> > >
-> > >  So, in summary of the discussion, having pam_selinux let the user pick
-> > > the TE and Sensitivity separately (much as it does now if
-> > > get_ordered_context_list_with_level() fails) is the valid approach?
-> > 
-> >  Ok, I've done a patch to PAM which which adds a config_role option to
-> > the pam_selinux module ... which if turned on takes the users default
-> > context and allows them to change the role and/or level (if mls is
-> > enabled). Entering a blank line sticks with the default.
-> > 
-> >  It's available from:
-> > 
-> > http://people.redhat.com/jantill/pam-config_role/
-> > 
-> > ...the rpms there have been built on FC5.
+On Wed, 2006-10-25 at 10:33 +0200, Daniel Gil Mayol wrote:
+> > > I want to unhide /proc/1 because seems that vserver try to access there:
+> >
+> > That isn't clear.  IIUC, you are getting these denials because you are
+> > trying to unhide /proc/1, not the other way around.  
 > 
-> Doesn't this provide a way of bypassing the per-Linux-user level
-> restrictions defined by the seusers mapping (vs. per-SELinux-user)?
+> But the "denied messages" I sent you before, are reported before I try to 
+> unhide the /proc/1.
 
-To elaborate, as I understood it, seusers (managed via semanage login)
-was to provide per-Linux-user authorizations for MLS/MCS ranges, while
-multiple such Linux users might be mapped to a single SELinux user that
-was authorized for the full system range.  The login-style programs
-would then ensure that the range in the initial security context for the
-Linux user's session was limited by the value defined in seusers, and
-SELinux policy would subsequently ensure that processes in that session
-can not escalate outside of that range via newrole -l (or other
-mechanism).
+Then let's focus first on just addressing the avc messages, not on
+vprocunhide.
 
-It isn't sufficient to check the validity of the context with the
-user-supplied level, because from the kernel's POV, any level might be
-authorized for the underlying SELinux user identity, whereas seusers
-might have defined a more restricted range for the Linux user identity.
-You need a check between the user-supplied level and the seusers-defined
-value (more generally, this could be an avc_has_perm or
-security_compute_av check between contexts containing those levels, and
-the underlying policy could define a mlsconstrain on the corresponding
-permission). 
+> > Where does this process run?  On the "base" system or 
+> > within each vserver instance?
+> 
+> Do you mean vserver_ids? I think within each vserver.
+
+Are you sure?  Please verify.  What is its purpose?  Why would you run
+an IDS within each vserver instance, where it can be compromised by a
+process within that vserver instance, vs. running it in the "host
+context" protected from the vserver instances aka "guests"?
+
+> > No, you wouldn't relabel the /proc/1 files; you would define a domain
+> > transition for init in your policy and then init would automatically run
+> > in init_t, and the /proc/1 files would automatically inherit that
+> > domain.  This is already done in strict policy, as well as in newer
+> > targeted policies in Fedora Core.
+> 
+> I wrote the following:
+>      domain_auto_trans(init_t, vserver_ids_exec_t, vserver_ids_t);
+
+That is a transition from init_t to vserver_ids_t upon executing a file
+labeled vserver_ids_exec_t.  But nothing is yet running in init_t, so
+the rule achieves nothing by itself.
+
+Before playing with an init_t domain, let's just make sure we understand
+what is going on here and what is truly required.  See my questions
+above about vserver_ids_t.
+
+> and I am still receiving the same:
+> 
+> Oct 25 09:18:06 cnsu kernel: audit(1161767886.890:1510): avc:  denied  
+> { search } for  pid=3322 comm="pidof" name="1" dev=proc ino=65538 
+> scontext=root:system_r:vserver_ids_t tcontext=user_u:system_r:unconfined_t 
+> tclass=dir
+
+Ok, so you know of at least one way to address this, by adding an allow
+rule and adjusting the neverallow rule to permit it.  Another way is to
+not allow it but suppress the audit message via a dontaudit rule (same
+syntax as the allow rule); that is appropriate if the access is not
+truly required for the functioning of the vserver daemon.  
+
+> The second "allow" was in my policy, I have added the first (audit_write) and 
+> I see the same message:
+> 
+> Oct 25 07:57:27 cnsu dbus: Can't send to audit system: USER_AVC pid=26679 
+> uid=81 loginuid=-1 message=avc:  0 AV entries and 0/512 buckets used, 
+> longestchain length 0
+
+Ok, I'm not sure about the cause then.  It isn't critical.
+
+> I am trying to understand the "denied messages" to avoid to use allow with 
+> unconfined. For example the following:
+
+Allowing unconfined_t to do things is ok; it is supposed to be
+unrestricted (and usually this happens automatically when you use the
+right type attributes on any new types you define, like the "file_type"
+attribute for file types and the "domain" attribute for domains).
+Allowing other domains to access unconfined_t is the concern.
+
+> Oct 25 08:02:37 cnsu kernel: audit(1161763357.211:1434): avc:  denied  
+> { search } for  pid=30655 comm="ls" name="util-vserver" dev=hda5 ino=208827 
+> scontext=root:system_r:unconfined_t 
+> tcontext=system_u:object_r:vserver_utils_t tclass=dir
+
+If you install the "audit" package and run auditd, then you can also get
+syscall audit records with more information, like the full pathname.
+Note that when auditd is running, both the avc messages and the syscall
+audit records will be logged to /var/log/audit/audit.log instead
+of /var/log/messages.
+
+> In the first denied, ino=208827 is a node that, after execute "find / -inum 
+> 208827" I see that corresponds with the following 
+> directory: /usr/lib/util-vserver that is labelled with 
+> "system_u:object_r:vserver_utils_t", it is not unconfined. So, the denied 
+> message says the process with pid 30655 (that I don't know who is it because 
+> when I execute "ps -e | grep 30655" nothing appears) from the unconfined 
+> domain, executes "ls" over the directory "/usr/lib/util-vserver" and have not 
+> the rights to search in directories labelled with vserver_utils_t. Did I 
+> interpretate right the denied?
+
+Yes.
+
+>  What can I do to avoid this denied without 
+> write:
+>     allow unconfined_t vserver_utils_t:dir { search };
+>     allow unconfined_t vserver_utils_t:file { getattr }
+
+Declare vserver_utils_t as having the file_type attribute, and it will
+be automatically picked up by allow rules on that attribute.  Or if you
+don't want to allow it and don't want to see audit messages about it,
+define dontaudit rules.
+
+> Something that for me is strange is that the "find -inum NUMBER" sometimes 
+> reports me more than one files/directories for the same ino number, can that 
+> happen?
+
+Yes; inode numbers are per-filesystem.  That is why the avc message also
+includes the dev= information.  
+
+> Another thing that I don't understand is, why the unconfined domain ask for 
+> some new permissions like:
+>      allow unconfined_t crontab_exec_t:file getattr;
+> I thought unconfined is free to do everything.
+
+SELinux has no intrinsic definition of unconfined, so everything must be
+explicitly allowed.  But this is usually handled transparently by using
+type attributes, and then defining allow rules on those type attributes
+for unconfined_t such that it picks up access to everything with those
+attributes.  So if you had defined crontab_exec_t as:
+	type crontab_exec_t, file_type;
+or equivalently:
+	type crontab_exec_t;
+	typeattribute crontab_exec_t file_type;
+then the existing allow rule between unconfined_t and file_type would
+have picked up this access.
 
 -- 
 Stephen Smalley
