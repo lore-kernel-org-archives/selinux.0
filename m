@@ -1,82 +1,50 @@
-From: David Howells <dhowells@redhat.com>
-To: sds@tycho.nsa.gov, jmorris@namei.org, chrisw@sous-sol.org
-cc: selinux@tycho.nsa.gov, linux-kernel@vger.kernel.org, dhowells@redhat.com,
-        aviro@redhat.com
-Subject: Security issues with local filesystem caching
-Date: Wed, 25 Oct 2006 11:14:16 +0100
-Message-ID: <16969.1161771256@redhat.com>
+Subject: Re: [redhat-lspp] Re: MLS enforcing PTYs, sshd, and newrole
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: James Antill <james.antill@redhat.com>
+Cc: Daniel J Walsh <dwalsh@redhat.com>, "GeorgeC.Wilson" <ltcgcw@us.ibm.com>,
+        selinux@tycho.nsa.gov, redhat-lspp@redhat.com
+In-Reply-To: <1161722236.667.20.camel@code.and.org>
+References: <20061012153701.75777.qmail@web36603.mail.mud.yahoo.com>
+	 <45377BF0.6010403@redhat.com>
+	 <1161264613.14632.120.camel@moss-spartans.epoch.ncsc.mil>
+	 <1161620097.667.10.camel@code.and.org>
+	 <1161722236.667.20.camel@code.and.org>
+Content-Type: text/plain
+Date: Wed, 25 Oct 2006 07:48:12 -0400
+Message-Id: <1161776892.3987.193.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+On Tue, 2006-10-24 at 16:37 -0400, James Antill wrote:
+> On Mon, 2006-10-23 at 12:14 -0400, James Antill wrote:
+> > On Thu, 2006-10-19 at 09:30 -0400, Stephen Smalley wrote:
+> > > pam_selinux used to have support to let the user pick from the list of
+> > > reachable contexts for the user.  So you could just restore that
+> > > support.
+> >
+> >  So, in summary of the discussion, having pam_selinux let the user pick
+> > the TE and Sensitivity separately (much as it does now if
+> > get_ordered_context_list_with_level() fails) is the valid approach?
+> 
+>  Ok, I've done a patch to PAM which which adds a config_role option to
+> the pam_selinux module ... which if turned on takes the users default
+> context and allows them to change the role and/or level (if mls is
+> enabled). Entering a blank line sticks with the default.
+> 
+>  It's available from:
+> 
+> http://people.redhat.com/jantill/pam-config_role/
+> 
+> ...the rpms there have been built on FC5.
 
-Hi,
+Doesn't this provide a way of bypassing the per-Linux-user level
+restrictions defined by the seusers mapping (vs. per-SELinux-user)?
 
-Some issues have been raised by Christoph Hellwig over how I'm handling
-filesystem security in my CacheFiles module, and I'd like advice on how to deal
-with them.
+-- 
+Stephen Smalley
+National Security Agency
 
-CacheFiles stores its cache objects as files and directories in a tree under a
-directory nominated by the configuration.  This means the data it is holding
-(a) is potentially exposed to userspace, and (b) must be labelled for access
-control according to the usual filesystem rules.
-
-Currently, CacheFiles temporarily changes fsuid and fsgid to 0 whilst doing its
-own pathwalk through the cache and whilst creating files and directories in the
-cache.  This allows it to deal with DAC security directly.  All the directories
-it creates are given permissions mask 0700 and all files 0000.
-
-However, Christoph has objected to this practice, and has said that I'm not
-allowed to change fsuid and fsgid.  The problem with not doing so is that this
-code is running in the context of the process that issued the original open(),
-read(), write(), etc, and so any accesses or creations it does would be done
-with that process's fsuid and fsgid, which would lead to a cache with bits that
-can't be shared between users.
-
-Another thing I'm currently doing is bypassing the usual calls to the LSM
-hooks.  This means that I'm not setting and checking security labels and MACs.
-The reason for this is again that I'm running in some random process's context
-and labelling and MAC'ing will affect the sharability of the cache.  This was
-objected to also.
-
-This also bypasses auditing (I think).  I don't want the CacheFiles module's
-access to the cache to be logged against whatever process was accessing, say,
-an NFS file.  That process didn't ask to access the cache, and the cache is
-meant to be transparent.
-
-I can see a few ways to deal with this:
-
- (1) Do all the cache operations in their own thread (sort of like knfsd).
-
- (2) Add further security ops for the caching code to call.  These might be of
-     use elsewhere in the kernel.  These would set cache-specific security
-     labels and check for them.
-
- (3) Add a flag or something to current to override the normal security on the
-     basis that it should be using the cache's security rather than the
-     process's security.
-
-
-Option (1) would lead to serialisation of all cached NFS operations over the
-accesses to disk.  Some of these accesses to disk involve sequences of mkdir(),
-lookup(), [sg]etxattr() and create() inode op calls - all of which are
-synchronous.  On the other hand, option (1) gives the simplest way of
-overriding security, and would entail the least work.  It would, though, give
-the biggest performance degradation.
-
-Option (2) would require additional security ops, though possibly not many.  It
-might be sufficient to just add two: to set and to check the security for a
-cache object (be it file or directory).  This option would also preclude use of
-the vfs_mkdir() VFS op and suchlike, as they use the wrong sort of security.
-Some other way of handling the UNIX file ownership would also have to be sought.
-
-Option (3) would require the current security handling in both the filesystem
-(DAC) and security modules (MAC) to check for the overriding context in
-current, and to go with that instead.  It might be possible to make such a
-thing incorporate fsuid and fsgid.
-
-Thoughts anyone?
-
-David
 
 --
 This message was distributed to subscribers of the selinux mailing list.
