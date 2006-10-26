@@ -1,81 +1,55 @@
-From: David Howells <dhowells@redhat.com>
-In-Reply-To: <1161880487.16681.232.camel@moss-spartans.epoch.ncsc.mil> 
-References: <1161880487.16681.232.camel@moss-spartans.epoch.ncsc.mil>  <1161867101.16681.115.camel@moss-spartans.epoch.ncsc.mil> <1161810725.16681.45.camel@moss-spartans.epoch.ncsc.mil> <16969.1161771256@redhat.com> <8567.1161859255@redhat.com> <22702.1161878644@redhat.com> 
-To: Stephen Smalley <sds@tycho.nsa.gov>
-Cc: aviro@redhat.com, linux-kernel@vger.kernel.org, selinux@tycho.nsa.gov,
-        chrisw@sous-sol.org, jmorris@namei.org
-Subject: Re: Security issues with local filesystem caching 
-Date: Thu, 26 Oct 2006 18:09:34 +0100
-Message-ID: <24017.1161882574@redhat.com>
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k9QHNCKH005524
+	for <selinux@tycho.nsa.gov>; Thu, 26 Oct 2006 13:23:12 -0400
+Received: from atlrel8.hp.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id k9QHLeW7021771
+	for <selinux@tycho.nsa.gov>; Thu, 26 Oct 2006 17:21:40 GMT
+Message-ID: <4540EEFF.4080606@hp.com>
+Date: Thu, 26 Oct 2006 13:23:11 -0400
+From: Paul Moore <paul.moore@hp.com>
+MIME-Version: 1.0
+To: Stephen Smalley <sds@epoch.ncsc.mil>
+Cc: selinux@tycho.nsa.gov, James Morris <jmorris@redhat.com>
+Subject: Re: socket options ... again
+References: <4540E083.2030304@hp.com> <1161881175.16681.239.camel@moss-spartans.epoch.ncsc.mil>
+In-Reply-To: <1161881175.16681.239.camel@moss-spartans.epoch.ncsc.mil>
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Stephen Smalley <sds@tycho.nsa.gov> wrote:
-
-> > Sounds okay.  I'm not sure how I'd allow that to be configured.  I suspect
-> > it'd have to involve the cache module calling an LSM hook for each cache.
+Stephen Smalley wrote:
+> On Thu, 2006-10-26 at 12:21 -0400, Paul Moore wrote:
 > 
-> I'd expect some userspace process to provide the proper context for each
-> cache to the cache module during normal configuration, and that context would
-> come from the same config file that defines the rest of the cache info.
+>>Thoughts on these options?  Can anyone else think of a better solution?
+> 
+> ip_options_compile() checks CAP_NET_RAW for IPOPT_SEC, IPOPT_SID, and
+> any unknown options.  Is there a reason to not do likewise for setting
+> IPOPT_CIPSO from userspace (which you need to distinguish in some manner
+> from your internal setting)?
 
-This is read by the cachefilesd daemon and fed to the module prior to the
-start of the caching.
+Ah ha ... thank you for the lightbulb moment.
 
-> There would need to be a permission check (via a security hook call) at that
-> point between the process' context and the provided context to prevent a
-> given process from setting the context arbitrarily.
+Adding CAP_NET_RAW in ip_options_compile() would solve the problem in a manner
+which makes the most sense from an application point of view.  However, it does
+present a problem in that potentially even applications without CAP_NET_RAW will
+need to have a CIPSO options set by the kernel, as you noted in the comment
+about distinguishing between NetLabel and applications.
 
-Okay.
+Right now the CIPSO code only makes use of ip_options_compile() in two places
+(that I can think of): the first is when a packet enters the system via
+ip_rcv_options() in ip_rcv_finish(), the second when a socket is created by an
+application and cipso_v4_socket_setattr() is called.  I don't believe
+CAP_NET_RAW should be an issue in the first case (please correct me if I'm
+wrong) but it would cause problems in the second case.  Considering the blank
+slate of a new socket and the very simple nature of the CIPSO code in
+ip_options_compile() it may be the best option is to simply handle the
+ip_options_compile() tasks directly in cipso_v4_socket_setattr().
 
-> Is the configuration of the cache module done by the cache daemon itself?
+Does this sound reasonable?
 
-Yes.
-
-> What access checks is it normally subjected to?  Do you already perform a
-> check against the cache dir?
-
-The module lets the VFS DAC and MAC stuff check that root has writable access
-to the cache dir and will also do checks of the xattr if it's there already.
-
-> The cache module would then internally store the per-cache context values,
-
-Okay.
-
-> and prior to creating a file within the cache, it would set the current
-> fscreate attribute (via a security hook call) to that per-cache value, in
-> much the same way it is presently setting the fsuid/fsgid.
-
-That sounds reasonable.  There has to be some way to revert it, though.
-
-> The fscreate attribute is normally set via the security_setprocattr hook
-> (when a task writes to /proc/self/attr/fscreate);
-
-That makes it sound like fscreate is a per-process attribute, not a per-thread
-attribute.  The former would definitely be a problem.
-
-> however, you may want a specialized hook for this purpose that distinguishes
-> the fact that you are doing this internally.  Or possibly your mechanism for
-> exempting the cache module from permission checking would allow you to just
-> use security_setprocattr as is.
-
-Sounds feasible, I think; but I still need to revert the change I imposed.
-
-> You may also want to convert the context value to a secid once when it is
-> first configured, and then later just pass the secid to the hook call for
-> setting the fscreate value for efficiency.
-
-I'm not sure what you mean by that.  Can you give a pseudo-code example?
-
-> We would need a security_secctx_to_secid() hook for that, and then a variant
-> of security_setprocattr() that takes a secid instead of a context value.
-> Some similar handling already exists for audit, secmark, peersec, and
-> netlink, although some of those are using selinux specific interfaces
-> presently (but they can be turned into LSM hooks fairly easily).
-
-You make it sound so simple:-)
-
-David
+-- 
+paul moore
+linux security @ hp
 
 --
 This message was distributed to subscribers of the selinux mailing list.
