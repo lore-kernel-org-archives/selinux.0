@@ -1,55 +1,90 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k9QHNCKH005524
-	for <selinux@tycho.nsa.gov>; Thu, 26 Oct 2006 13:23:12 -0400
-Received: from atlrel8.hp.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id k9QHLeW7021771
-	for <selinux@tycho.nsa.gov>; Thu, 26 Oct 2006 17:21:40 GMT
-Message-ID: <4540EEFF.4080606@hp.com>
-Date: Thu, 26 Oct 2006 13:23:11 -0400
-From: Paul Moore <paul.moore@hp.com>
-MIME-Version: 1.0
-To: Stephen Smalley <sds@epoch.ncsc.mil>
-Cc: selinux@tycho.nsa.gov, James Morris <jmorris@redhat.com>
-Subject: Re: socket options ... again
-References: <4540E083.2030304@hp.com> <1161881175.16681.239.camel@moss-spartans.epoch.ncsc.mil>
-In-Reply-To: <1161881175.16681.239.camel@moss-spartans.epoch.ncsc.mil>
-Content-Type: text/plain; charset=ISO-8859-1
+Subject: Re: Security issues with local filesystem caching
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: David Howells <dhowells@redhat.com>
+Cc: aviro@redhat.com, linux-kernel@vger.kernel.org, selinux@tycho.nsa.gov,
+        chrisw@sous-sol.org, jmorris@namei.org
+In-Reply-To: <24017.1161882574@redhat.com>
+References: <1161880487.16681.232.camel@moss-spartans.epoch.ncsc.mil>
+	 <1161867101.16681.115.camel@moss-spartans.epoch.ncsc.mil>
+	 <1161810725.16681.45.camel@moss-spartans.epoch.ncsc.mil>
+	 <16969.1161771256@redhat.com> <8567.1161859255@redhat.com>
+	 <22702.1161878644@redhat.com>   <24017.1161882574@redhat.com>
+Content-Type: text/plain
+Date: Thu, 26 Oct 2006 13:45:06 -0400
+Message-Id: <1161884706.16681.270.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Stephen Smalley wrote:
-> On Thu, 2006-10-26 at 12:21 -0400, Paul Moore wrote:
+On Thu, 2006-10-26 at 18:09 +0100, David Howells wrote:
+> > and prior to creating a file within the cache, it would set the current
+> > fscreate attribute (via a security hook call) to that per-cache value, in
+> > much the same way it is presently setting the fsuid/fsgid.
 > 
->>Thoughts on these options?  Can anyone else think of a better solution?
+> That sounds reasonable.  There has to be some way to revert it, though.
+
+Yes, that can be done.  See below.
+
+> > The fscreate attribute is normally set via the security_setprocattr hook
+> > (when a task writes to /proc/self/attr/fscreate);
 > 
-> ip_options_compile() checks CAP_NET_RAW for IPOPT_SEC, IPOPT_SID, and
-> any unknown options.  Is there a reason to not do likewise for setting
-> IPOPT_CIPSO from userspace (which you need to distinguish in some manner
-> from your internal setting)?
+> That makes it sound like fscreate is a per-process attribute, not a per-thread
+> attribute.  The former would definitely be a problem.
 
-Ah ha ... thank you for the lightbulb moment.
+It is actually per-task (thread), sorry for the confusing reference
+to /proc/self.
 
-Adding CAP_NET_RAW in ip_options_compile() would solve the problem in a manner
-which makes the most sense from an application point of view.  However, it does
-present a problem in that potentially even applications without CAP_NET_RAW will
-need to have a CIPSO options set by the kernel, as you noted in the comment
-about distinguishing between NetLabel and applications.
+> > You may also want to convert the context value to a secid once when it is
+> > first configured, and then later just pass the secid to the hook call for
+> > setting the fscreate value for efficiency.
+> 
+> I'm not sure what you mean by that.  Can you give a pseudo-code example?
 
-Right now the CIPSO code only makes use of ip_options_compile() in two places
-(that I can think of): the first is when a packet enters the system via
-ip_rcv_options() in ip_rcv_finish(), the second when a socket is created by an
-application and cipso_v4_socket_setattr() is called.  I don't believe
-CAP_NET_RAW should be an issue in the first case (please correct me if I'm
-wrong) but it would cause problems in the second case.  Considering the blank
-slate of a new socket and the very simple nature of the CIPSO code in
-ip_options_compile() it may be the best option is to simply handle the
-ip_options_compile() tasks directly in cipso_v4_socket_setattr().
+When the daemon writes the context value (a string) to the cachefiles
+module interface for a given cache, the cachefiles module would do
+something like the following:
+	/* Map the context to an integer. */
+	rc = security_secctx_to_secid(value, size, &secid);
+	if (rc)
+		goto err;
+	/* Check permission of current to set this context. */
+	rc = security_cache_set_context(secid);
+	if (rc)
+		goto err;
+	cache->secid = secid;
+SELinux would then provide selinux_secctx_to_secid() and
+selinux_cache_set_context() implementations; the former would just be
+call to selinux_string_to_sid(), while the latter would require some new
+permission check to be defined unless we can treat this as equivalent to
+some existing operation.  You'll find that there is already a
+security_secid_to_secctx() hook defined for LSM, so the first hook just
+adds the other direction.
 
-Does this sound reasonable?
+Later, when going to create a file in that cache, the cachefiles module
+would do something like:
+	/* Save and switch the fs secid for creation. */
+	fssecid = security_getfssecid();
+	security_setfssecid(cache->secid);
+	<create file>
+	/* Restore the original fs secid. */
+	security_setfssecid(fssecid);
+SELinux would then provide selinux_getfsecid() and selinux_setfssecid()
+implementations that are just:
+	u32 selinux_getfssecid(void)
+	{
+		struct task_security_struct *tsec = current->security;
+		return tsec->create_sid;
+	}
+	void selinux_setfssecid(u32 secid)
+	{
+		struct task_security_struct *tsec = current->security;
+		tsec->create_sid = secid;
+	}
 
 -- 
-paul moore
-linux security @ hp
+Stephen Smalley
+National Security Agency
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
