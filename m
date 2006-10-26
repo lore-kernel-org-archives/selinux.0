@@ -1,51 +1,105 @@
-Message-ID: <4540C1AC.5050505@redhat.com>
-Date: Thu, 26 Oct 2006 10:09:48 -0400
-From: Daniel J Walsh <dwalsh@redhat.com>
-MIME-Version: 1.0
+From: David Howells <dhowells@redhat.com>
+In-Reply-To: <1161867101.16681.115.camel@moss-spartans.epoch.ncsc.mil> 
+References: <1161867101.16681.115.camel@moss-spartans.epoch.ncsc.mil>  <1161810725.16681.45.camel@moss-spartans.epoch.ncsc.mil> <16969.1161771256@redhat.com> <8567.1161859255@redhat.com> 
 To: Stephen Smalley <sds@tycho.nsa.gov>
-CC: James Antill <james.antill@redhat.com>, redhat-lspp@redhat.com,
-        "GeorgeC.Wilson" <ltcgcw@us.ibm.com>, selinux@tycho.nsa.gov
-Subject: Re: [redhat-lspp] Re: MLS enforcing PTYs, sshd, and newrole
-References: <20061012153701.75777.qmail@web36603.mail.mud.yahoo.com>	 <45377BF0.6010403@redhat.com>	 <1161264613.14632.120.camel@moss-spartans.epoch.ncsc.mil>	 <1161620097.667.10.camel@code.and.org>	 <1161722236.667.20.camel@code.and.org>	 <1161776892.3987.193.camel@moss-spartans.epoch.ncsc.mil>	 <1161778937.3987.218.camel@moss-spartans.epoch.ncsc.mil>	 <1161784251.667.28.camel@code.and.org>	 <1161784759.3987.295.camel@moss-spartans.epoch.ncsc.mil>	 <1161803724.29689.57.camel@code.and.org> <1161812192.16681.54.camel@moss-spartans.epoch.ncsc.mil>
-In-Reply-To: <1161812192.16681.54.camel@moss-spartans.epoch.ncsc.mil>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Cc: aviro@redhat.com, linux-kernel@vger.kernel.org, selinux@tycho.nsa.gov,
+        chrisw@sous-sol.org, jmorris@namei.org
+Subject: Re: Security issues with local filesystem caching 
+Date: Thu, 26 Oct 2006 17:04:04 +0100
+Message-ID: <22702.1161878644@redhat.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Stephen Smalley wrote:
-> On Wed, 2006-10-25 at 15:15 -0400, James Antill wrote:
->   
->> On Wed, 2006-10-25 at 09:59 -0400, Stephen Smalley wrote:
->>     
->>> On Wed, 2006-10-25 at 09:50 -0400, James Antill wrote:
->>>       
->>>>  My understanding is that while security_check_context() allows it, the
->>>> setexeccon() will fail. Which seemed to be good enough.
->>>>         
->>> No, it won't.  Suppose that I have two Linux users A and B, with A
->>> authorized for category c0 and B authorized for category c2 in seusers,
->>> but both A and B are mapped to SELinux user U who is authorized for all
->>> categories in the kernel policy.  The login-style programs are naturally
->>> going to be authorized to transition to any of those contexts since they
->>> have to deal with user logins at any level, so the setexeccon() will
->>> succeed.  The SELinux security context will have U as the user identity,
->>> so it will always be valid.  You need an explicit check.
->>>       
->>  Ok, I had assumed that "U" would always be different in this case.
->>     
->
-> BTW, using different SELinux user identities (U) was the approach before
-> seusers came into being, but the point of seusers was to avoid having to
-> rebuild the kernel policy every time you wanted to add, remove, or
-> change a Linux user's authorized range.  Thus, the per-Linux-user
-> restriction is specified in seusers and enforced by the login-style
-> programs (and then subsequently bounded for the session based on the
-> high/clearance level).
->   
+Stephen Smalley <sds@tycho.nsa.gov> wrote:
 
-I think the same check should be added to the cron patch also.
+> > Well, we could say that the cache daemon isn't actually allowed to read or
+> > write any of these files; all it need to do is read their cache xattrs,
+> > names and atimes, and rename and delete them.  It also needs to be able to
+> > do readdir and lookup on the directories contained therein.
+> 
+> Yes, SELinux policy could impose such a restriction, as well as ensuring
+> that only the cache daemon can access the cache in the first place (vs.  any
+> arbitrary uid 0 process).
 
+Okay.
 
+> However, can the cache daemon effectively redirect an access by a process to
+> a file that is being cached to another file by renaming cache files within
+> the cache, such that the higher level permission checking and auditing would
+> be applied to one file but the actual access would occur to another one?  If
+> so, then it can effectively downgrade any file it is caching to the security
+> context of any other file it is caching.
+
+Whilst it can do a rename trick like that, there's then another check made by
+the module once it has the dentry it wants.  This involves checking the
+netfs's idea of the net file state against the cache's idea of the net file
+state (coherency management) which is stored in an xattr attached to the cache
+file.
+
+This could be extended to revalidate the key also in some manner, but
+currently if the mtime, ctime or file size are different to that on the
+server, the cache file will be scrapped.
+
+> > > But per-cache security attributes would be a reasonable approach to
+> > > enabling finer-grained protection.
+> > 
+> > I'm not sure what you mean by this exactly.  I'd be happy to set the same
+> > security attributes on the files and directories in the cache that impose
+> > draconian restrictions, but whatever I do has to be representable in the
+> > backing filesystem across reboots.
+> 
+> What I mean is that the cachefiles configuration would allow one to
+> specify a set of security attributes (uid, gid, security context) per
+> cache, and those attributes would then be applied by the cachefiles
+> kernel module when creating files within that cache.
+
+Oh, I see what you mean.  Yes, that's what I'm thinking of.
+
+> This means that all files within a given cache have the same security
+> attributes, but different caches can have different attributes.
+
+That's fine too.
+
+> Then one can run different cache daemon instances with different process
+> security attributes, and ensure that each one can only access the caches it
+> is responsible for managing.
+
+Okay.
+
+> Thus, the cache daemon instance for external data can't tamper with the
+> cache of internal data, or vice versa.  Now, your default configuration may
+> just use a single set of security attributes for all caches, and you might
+> have a default definition in your configuration that is applied in the
+> absence of any per-cache value, but you would be providing a mechanism by
+> which people who want to isolate different caches can do so.
+
+Sounds okay.  I'm not sure how I'd allow that to be configured.  I suspect
+it'd have to involve the cache module calling an LSM hook for each cache.
+
+> > > It would help to understand the objection to setting fsuid/fsgid more
+> > > clearly - it may have had more to do with always setting them to 0 for
+> > > all cache files, or with using that as a way to work around the lack of
+> > > an explicit mechanism for bypassing security checks for internal
+> > > accesses than with the setting of the fsuid/fsgid itself.
+> > 
+> > Christoph did enscribe thus:
+> > 
+> > | - in cachefiles_walk_to_object reseting the fsuid/fsgid is not allowed
+> > 
+> > Which I take to mean that I'm not allowed to change fsuid and fsgid.  Why
+> > not, I'm not entirely certain.  I wouldn't have thought it would matter as
+> > long as I put them back again before returning.
+> 
+> I think he also talked about binding the right access control credentials to
+> the cache files, which I think is more along the lines of the discussion
+> above (and Viro's concern).  I don't think it is so much about setting
+> fsuid/fsgid per se, but about being able to protect the cache at finer
+> granularity.
+
+He did state both objections, yes; but he did specifically say something about
+fsuid and fsgid.  However, he can always be overridden.
+
+David
 
 --
 This message was distributed to subscribers of the selinux mailing list.
