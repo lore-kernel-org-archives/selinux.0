@@ -1,55 +1,55 @@
-Subject: Re: [redhat-lspp] Re: MLS enforcing PTYs, sshd, and newrole
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: James Antill <james.antill@redhat.com>
-Cc: redhat-lspp@redhat.com, Daniel J Walsh <dwalsh@redhat.com>,
-        "GeorgeC.Wilson" <ltcgcw@us.ibm.com>, selinux@tycho.nsa.gov
-In-Reply-To: <1161803724.29689.57.camel@code.and.org>
-References: <20061012153701.75777.qmail@web36603.mail.mud.yahoo.com>
-	 <45377BF0.6010403@redhat.com>
-	 <1161264613.14632.120.camel@moss-spartans.epoch.ncsc.mil>
-	 <1161620097.667.10.camel@code.and.org>
-	 <1161722236.667.20.camel@code.and.org>
-	 <1161776892.3987.193.camel@moss-spartans.epoch.ncsc.mil>
-	 <1161778937.3987.218.camel@moss-spartans.epoch.ncsc.mil>
-	 <1161784251.667.28.camel@code.and.org>
-	 <1161784759.3987.295.camel@moss-spartans.epoch.ncsc.mil>
-	 <1161803724.29689.57.camel@code.and.org>
-Content-Type: text/plain
-Date: Wed, 25 Oct 2006 17:36:32 -0400
-Message-Id: <1161812192.16681.54.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+From: David Howells <dhowells@redhat.com>
+In-Reply-To: <20061025202155.GB3854@filer.fsl.cs.sunysb.edu> 
+References: <20061025202155.GB3854@filer.fsl.cs.sunysb.edu>  <16969.1161771256@redhat.com> 
+To: Josef Sipek <jsipek@fsl.cs.sunysb.edu>
+Cc: sds@tycho.nsa.gov, jmorris@namei.org, chrisw@sous-sol.org,
+        selinux@tycho.nsa.gov, linux-kernel@vger.kernel.org, aviro@redhat.com
+Subject: Re: Security issues with local filesystem caching 
+Date: Thu, 26 Oct 2006 10:56:08 +0100
+Message-ID: <7864.1161856568@redhat.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2006-10-25 at 15:15 -0400, James Antill wrote:
-> On Wed, 2006-10-25 at 09:59 -0400, Stephen Smalley wrote:
-> > On Wed, 2006-10-25 at 09:50 -0400, James Antill wrote:
-> > >  My understanding is that while security_check_context() allows it, the
-> > > setexeccon() will fail. Which seemed to be good enough.
-> > 
-> > No, it won't.  Suppose that I have two Linux users A and B, with A
-> > authorized for category c0 and B authorized for category c2 in seusers,
-> > but both A and B are mapped to SELinux user U who is authorized for all
-> > categories in the kernel policy.  The login-style programs are naturally
-> > going to be authorized to transition to any of those contexts since they
-> > have to deal with user logins at any level, so the setexeccon() will
-> > succeed.  The SELinux security context will have U as the user identity,
-> > so it will always be valid.  You need an explicit check.
-> 
->  Ok, I had assumed that "U" would always be different in this case.
+Josef Sipek <jsipek@fsl.cs.sunysb.edu> wrote:
 
-BTW, using different SELinux user identities (U) was the approach before
-seusers came into being, but the point of seusers was to avoid having to
-rebuild the kernel policy every time you wanted to add, remove, or
-change a Linux user's authorized range.  Thus, the per-Linux-user
-restriction is specified in seusers and enforced by the login-style
-programs (and then subsequently bounded for the session based on the
-high/clearance level).
+> Hrm. How do you do DAC checks if you don't copy over the permissions without
+> alteration?
 
--- 
-Stephen Smalley
-National Security Agency
+You have to remember there are two filesystem layers involved.  NFS or other
+netfs does the DAC, MAC, whatever checks to see whether the user can access a
+file.  NFS then asks the cache to back the netfs file and the cache creates a
+file in the local filesystem to do that.
 
+The cache file doesn't need the DAC/MAC/whatever attributes applied to the
+netfs file, and, in fact, may not be able to support what the netfs deals
+with.
+
+> I'm wondering, why don't just you duplicate all the attributes of the files
+> (including xattrs)? That would take care of most if not all the DAC/MAC
+> issues, no?
+
+You're forgetting that the userspace cache manager daemon still has to access
+the cache.
+
+> >  (1) Do all the cache operations in their own thread (sort of like knfsd).
+>  
+> In our case it works well, however we have only very specific times when we
+> need to use the work queue, so the performance hit doesn't hurt us as much
+> as it would hurt you - I'm assuming you'd be using the thread for a sizable
+> portion of calls you get.
+
+I'm not sure exactly.  Actually, I could probably deal with read/write ops
+inline - though I don't have a file struct to carry a security context - but
+getting and releasing inodes would certainly wind up being farmed off.
+Consider the automounter releasing an NFS share that's been heavily used...
+
+> I'm thinking that it would be nice to combine the caching related security
+> code with those for stackable filesystems.
+
+That's fine by me, though I want the security on a cache file to be different
+to that on the netfs file it's backing.
+
+David
 
 --
 This message was distributed to subscribers of the selinux mailing list.
