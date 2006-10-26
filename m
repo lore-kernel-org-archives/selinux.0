@@ -1,105 +1,62 @@
-From: David Howells <dhowells@redhat.com>
-In-Reply-To: <1161867101.16681.115.camel@moss-spartans.epoch.ncsc.mil> 
-References: <1161867101.16681.115.camel@moss-spartans.epoch.ncsc.mil>  <1161810725.16681.45.camel@moss-spartans.epoch.ncsc.mil> <16969.1161771256@redhat.com> <8567.1161859255@redhat.com> 
-To: Stephen Smalley <sds@tycho.nsa.gov>
-Cc: aviro@redhat.com, linux-kernel@vger.kernel.org, selinux@tycho.nsa.gov,
-        chrisw@sous-sol.org, jmorris@namei.org
-Subject: Re: Security issues with local filesystem caching 
-Date: Thu, 26 Oct 2006 17:04:04 +0100
-Message-ID: <22702.1161878644@redhat.com>
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k9QGLSB8003222
+	for <selinux@tycho.nsa.gov>; Thu, 26 Oct 2006 12:21:28 -0400
+Received: from atlrel6.hp.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id k9QGJvW7009671
+	for <selinux@tycho.nsa.gov>; Thu, 26 Oct 2006 16:19:57 GMT
+Message-ID: <4540E083.2030304@hp.com>
+Date: Thu, 26 Oct 2006 12:21:23 -0400
+From: Paul Moore <paul.moore@hp.com>
+MIME-Version: 1.0
+To: selinux@tycho.nsa.gov
+Cc: Stephen Smalley <sds@epoch.ncsc.mil>, James Morris <jmorris@redhat.com>
+Subject: socket options ... again
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Stephen Smalley <sds@tycho.nsa.gov> wrote:
+I was looking at some policy and just realized that it's pretty liberal in
+handing out the socket setopt permission to domains; for some reason I was
+thought this was a rather rare thing.  This concerns me slightly because this is
+how NetLabel attaches security attributes to outgoing packets.
 
-> > Well, we could say that the cache daemon isn't actually allowed to read or
-> > write any of these files; all it need to do is read their cache xattrs,
-> > names and atimes, and rename and delete them.  It also needs to be able to
-> > do readdir and lookup on the directories contained therein.
-> 
-> Yes, SELinux policy could impose such a restriction, as well as ensuring
-> that only the cache daemon can access the cache in the first place (vs.  any
-> arbitrary uid 0 process).
+As a result I'm starting to look at how to best protect the NetLabel security
+attributes in the socket's IP options.  It is pretty straight forward to hook
+into the selinux_socket_setsockopt() function and watch for the
+IPPROTO_IP/IP_OPTIONS combination but my question to all of you is what is the
+"right" thing to do in such a case?  I can think of the following options (all
+of which are fairly easy to implement):
 
-Okay.
+1. If NetLabel is compiled into the kernel deny the application the right to set
+the socket's IP options.  This is pretty heavy handed but it would preserve the
+security attributes; although I have no idea the problems it might cause in the
+application space.
 
-> However, can the cache daemon effectively redirect an access by a process to
-> a file that is being cached to another file by renaming cache files within
-> the cache, such that the higher level permission checking and auditing would
-> be applied to one file but the actual access would occur to another one?  If
-> so, then it can effectively downgrade any file it is caching to the security
-> context of any other file it is caching.
+2. If the socket has a NetLabel attached to it simply deny the access, otherwise
+allow it to proceed.  This has the problem in that it could allow a "bad"
+application to write it's own "evil" security attributes to the socket's IP
+option, although if there is no NetLabel attached to the socket (i.e. NetLabel
+was told to ignore this domain) this may be okay.
 
-Whilst it can do a rename trick like that, there's then another check made by
-the module once it has the dentry it wants.  This involves checking the
-netfs's idea of the net file state against the cache's idea of the net file
-state (coherency management) which is stored in an xattr attached to the cache
-file.
+3. If the application sets it's own security attributes, clear the socket's
+option field and replace it with the correct NetLabel option even if the
+NetLabel configuration for that domain is to leave the packets unlabeled.  The
+problem here is that we would be allowing the setsockopt() syscall to proceed
+without error then we would end up resetting the options on the socket (this
+would happen on the first write to the socket).
 
-This could be extended to revalidate the key also in some manner, but
-currently if the mtime, ctime or file size are different to that on the
-server, the cache file will be scrapped.
+While option #1 is the easiest I don't really like the idea of simply denying
+applications the ability to set IP options (although I question how common this
+really is).  Option #3 is perhaps the most compatible, although it could lead to
+strange behavior with socket options changing underneath the application.  Which
+leads me to option #2, it does have the drawback I mentioned above, but then
+again there is nothing stopping applications from doing this currently.
 
-> > > But per-cache security attributes would be a reasonable approach to
-> > > enabling finer-grained protection.
-> > 
-> > I'm not sure what you mean by this exactly.  I'd be happy to set the same
-> > security attributes on the files and directories in the cache that impose
-> > draconian restrictions, but whatever I do has to be representable in the
-> > backing filesystem across reboots.
-> 
-> What I mean is that the cachefiles configuration would allow one to
-> specify a set of security attributes (uid, gid, security context) per
-> cache, and those attributes would then be applied by the cachefiles
-> kernel module when creating files within that cache.
+Thoughts on these options?  Can anyone else think of a better solution?
 
-Oh, I see what you mean.  Yes, that's what I'm thinking of.
-
-> This means that all files within a given cache have the same security
-> attributes, but different caches can have different attributes.
-
-That's fine too.
-
-> Then one can run different cache daemon instances with different process
-> security attributes, and ensure that each one can only access the caches it
-> is responsible for managing.
-
-Okay.
-
-> Thus, the cache daemon instance for external data can't tamper with the
-> cache of internal data, or vice versa.  Now, your default configuration may
-> just use a single set of security attributes for all caches, and you might
-> have a default definition in your configuration that is applied in the
-> absence of any per-cache value, but you would be providing a mechanism by
-> which people who want to isolate different caches can do so.
-
-Sounds okay.  I'm not sure how I'd allow that to be configured.  I suspect
-it'd have to involve the cache module calling an LSM hook for each cache.
-
-> > > It would help to understand the objection to setting fsuid/fsgid more
-> > > clearly - it may have had more to do with always setting them to 0 for
-> > > all cache files, or with using that as a way to work around the lack of
-> > > an explicit mechanism for bypassing security checks for internal
-> > > accesses than with the setting of the fsuid/fsgid itself.
-> > 
-> > Christoph did enscribe thus:
-> > 
-> > | - in cachefiles_walk_to_object reseting the fsuid/fsgid is not allowed
-> > 
-> > Which I take to mean that I'm not allowed to change fsuid and fsgid.  Why
-> > not, I'm not entirely certain.  I wouldn't have thought it would matter as
-> > long as I put them back again before returning.
-> 
-> I think he also talked about binding the right access control credentials to
-> the cache files, which I think is more along the lines of the discussion
-> above (and Viro's concern).  I don't think it is so much about setting
-> fsuid/fsgid per se, but about being able to protect the cache at finer
-> granularity.
-
-He did state both objections, yes; but he did specifically say something about
-fsuid and fsgid.  However, he can always be overridden.
-
-David
+-- 
+paul moore
+linux security @ hp
 
 --
 This message was distributed to subscribers of the selinux mailing list.
