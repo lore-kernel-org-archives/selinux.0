@@ -1,74 +1,75 @@
 Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k9QIpUvv008968
-	for <selinux@tycho.nsa.gov>; Thu, 26 Oct 2006 14:51:30 -0400
-Received: from atlrel6.hp.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id k9QInwW7010846
-	for <selinux@tycho.nsa.gov>; Thu, 26 Oct 2006 18:49:58 GMT
-Message-ID: <454103A5.5080902@hp.com>
-Date: Thu, 26 Oct 2006 14:51:17 -0400
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k9QJ7a7T009505
+	for <selinux@tycho.nsa.gov>; Thu, 26 Oct 2006 15:07:37 -0400
+Received: from atlrel9.hp.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id k9QJ65W7014027
+	for <selinux@tycho.nsa.gov>; Thu, 26 Oct 2006 19:06:05 GMT
+Message-ID: <45410778.5040302@hp.com>
+Date: Thu, 26 Oct 2006 15:07:36 -0400
 From: Paul Moore <paul.moore@hp.com>
 MIME-Version: 1.0
 To: Stephen Smalley <sds@epoch.ncsc.mil>
 Cc: selinux@tycho.nsa.gov, James Morris <jmorris@redhat.com>
 Subject: Re: socket options ... again
-References: <4540E083.2030304@hp.com>	 <1161881175.16681.239.camel@moss-spartans.epoch.ncsc.mil>	 <4540EEFF.4080606@hp.com> <1161885634.16681.274.camel@moss-spartans.epoch.ncsc.mil>
-In-Reply-To: <1161885634.16681.274.camel@moss-spartans.epoch.ncsc.mil>
+References: <4540E083.2030304@hp.com> <1161881175.16681.239.camel@moss-spartans.epoch.ncsc.mil>
+In-Reply-To: <1161881175.16681.239.camel@moss-spartans.epoch.ncsc.mil>
 Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 Stephen Smalley wrote:
-> On Thu, 2006-10-26 at 13:23 -0400, Paul Moore wrote:
+> On Thu, 2006-10-26 at 12:21 -0400, Paul Moore wrote:
 > 
->>Stephen Smalley wrote:
+>>I was looking at some policy and just realized that it's pretty liberal in
+>>handing out the socket setopt permission to domains; for some reason I was
+>>thought this was a rather rare thing.  This concerns me slightly because this is
+>>how NetLabel attaches security attributes to outgoing packets.
 >>
->>>On Thu, 2006-10-26 at 12:21 -0400, Paul Moore wrote:
->>>
->>>
->>>>Thoughts on these options?  Can anyone else think of a better solution?
->>>
->>>ip_options_compile() checks CAP_NET_RAW for IPOPT_SEC, IPOPT_SID, and
->>>any unknown options.  Is there a reason to not do likewise for setting
->>>IPOPT_CIPSO from userspace (which you need to distinguish in some manner
->>>from your internal setting)?
+>>As a result I'm starting to look at how to best protect the NetLabel security
+>>attributes in the socket's IP options.  It is pretty straight forward to hook
+>>into the selinux_socket_setsockopt() function and watch for the
+>>IPPROTO_IP/IP_OPTIONS combination but my question to all of you is what is the
+>>"right" thing to do in such a case?  I can think of the following options (all
+>>of which are fairly easy to implement):
 >>
->>Ah ha ... thank you for the lightbulb moment.
+>>1. If NetLabel is compiled into the kernel deny the application the right to set
+>>the socket's IP options.  This is pretty heavy handed but it would preserve the
+>>security attributes; although I have no idea the problems it might cause in the
+>>application space.
 >>
->>Adding CAP_NET_RAW in ip_options_compile() would solve the problem in a manner
->>which makes the most sense from an application point of view.  However, it does
->>present a problem in that potentially even applications without CAP_NET_RAW will
->>need to have a CIPSO options set by the kernel, as you noted in the comment
->>about distinguishing between NetLabel and applications.
+>>2. If the socket has a NetLabel attached to it simply deny the access, otherwise
+>>allow it to proceed.  This has the problem in that it could allow a "bad"
+>>application to write it's own "evil" security attributes to the socket's IP
+>>option, although if there is no NetLabel attached to the socket (i.e. NetLabel
+>>was told to ignore this domain) this may be okay.
 >>
->>Right now the CIPSO code only makes use of ip_options_compile() in two places
->>(that I can think of): the first is when a packet enters the system via
->>ip_rcv_options() in ip_rcv_finish(), the second when a socket is created by an
->>application and cipso_v4_socket_setattr() is called.  I don't believe
->>CAP_NET_RAW should be an issue in the first case (please correct me if I'm
->>wrong) but it would cause problems in the second case.  Considering the blank
->>slate of a new socket and the very simple nature of the CIPSO code in
->>ip_options_compile() it may be the best option is to simply handle the
->>ip_options_compile() tasks directly in cipso_v4_socket_setattr().
+>>3. If the application sets it's own security attributes, clear the socket's
+>>option field and replace it with the correct NetLabel option even if the
+>>NetLabel configuration for that domain is to leave the packets unlabeled.  The
+>>problem here is that we would be allowing the setsockopt() syscall to proceed
+>>without error then we would end up resetting the options on the socket (this
+>>would happen on the first write to the socket).
 >>
->>Does this sound reasonable?
+>>While option #1 is the easiest I don't really like the idea of simply denying
+>>applications the ability to set IP options (although I question how common this
+>>really is).  Option #3 is perhaps the most compatible, although it could lead to
+>>strange behavior with socket options changing underneath the application.  Which
+>>leads me to option #2, it does have the drawback I mentioned above, but then
+>>again there is nothing stopping applications from doing this currently.
+>>
+>>Thoughts on these options?  Can anyone else think of a better solution?
 > 
-> To clarify, the existing capable checks in ip_options_compile() are only
-> applied on the output processing (they check for a NULL skb), never on
-> the input side.
+> ip_options_compile() checks CAP_NET_RAW for IPOPT_SEC, IPOPT_SID, and
+> any unknown options.  Is there a reason to not do likewise for setting
+> IPOPT_CIPSO from userspace (which you need to distinguish in some manner
+> from your internal setting)?
 
-Yep.
-
-> It seems like your internal use of ip_options_compile() from cipso is
-> overkill, since it then just calls back into your cipso code for the
-> CIPSO option, right?  So just handling it directly within the cipso code
-> makes sense to me.
-
-Yes, you are right there is a lot of unnecessary stuff there; its a bit of a
-holdover from the initial code which used ip_options_get().  The original
-thought was that since it wasn't really a critical path it was probably better
-to reuse what was there even if it was slower.
-
-I'm working on a patch now which I should have out in a few hours.
+Ungh.  I really wanted to believe it was that simple, but upon further
+inspection it looks like simply adding CAP_NET_RAW only prevents applications
+from setting their own CIPSO option it does not prevent users from replacing a
+CIPSO option with another option like source routing.  With this in mind I think
+adding the CAP_NET_RAW check and going with option #2 (see above) is the best
+choice ... thoughts?
 
 -- 
 paul moore
