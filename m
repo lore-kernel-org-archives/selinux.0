@@ -1,71 +1,119 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k9Q9tS5J023404
-	for <selinux@tycho.nsa.gov>; Thu, 26 Oct 2006 05:55:28 -0400
-Received: from mailgate1.arcor-ip.de (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id k9Q9sfVH004269
-	for <selinux@tycho.nsa.gov>; Thu, 26 Oct 2006 09:54:42 GMT
-Received: from relay.brunellocal.de (ffmcospub2ffmbrunelfw2lo-cs-nat-mail-server.adm.arcor.net [145.254.28.157])
-	by mailgate1.adm.arcor.net (Arcor-CN-MailRelay-l-A) with ESMTP id 280251D774B
-	for <selinux@tycho.nsa.gov>; Thu, 26 Oct 2006 11:55:28 +0200 (CEST)
-Received: from localhost (unknown [127.0.0.1])
-	by relay.brunellocal.de (Postfix) with ESMTP id 749055BC3
-	for <selinux@tycho.nsa.gov>; Thu, 26 Oct 2006 09:55:28 +0000 (UTC)
-Received: from relay.brunellocal.de ([127.0.0.1])
- by localhost (relay.brunellocal.de [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id 04580-08 for <selinux@tycho.nsa.gov>;
- Thu, 26 Oct 2006 11:55:27 +0200 (CEST)
-Received: from mail-hv.brunel.de (mail-hv.brunellocal.de [192.168.1.234])
-	by relay.brunellocal.de (Postfix) with ESMTP id D9B754C88
-	for <selinux@tycho.nsa.gov>; Thu, 26 Oct 2006 11:55:27 +0200 (CEST)
-From: Daniel Gil Mayol <Daniel.Gil-Mayol@brunel.de>
-To: selinux@tycho.nsa.gov
-Subject: Re: vserver and vprocunhide
-Date: Thu, 26 Oct 2006 11:55:14 +0200
-References: <200610231751.50609.Daniel.Gil-Mayol@brunel.de> <200610251033.18810.Daniel.Gil-Mayol@brunel.de> <1161781638.3987.256.camel@moss-spartans.epoch.ncsc.mil>
-In-Reply-To: <1161781638.3987.256.camel@moss-spartans.epoch.ncsc.mil>
-MIME-Version: 1.0
-Message-Id: <200610261155.14980.Daniel.Gil-Mayol@brunel.de>
-Content-Type: text/plain;
-  charset="utf-8"
+From: David Howells <dhowells@redhat.com>
+In-Reply-To: <1161810725.16681.45.camel@moss-spartans.epoch.ncsc.mil> 
+References: <1161810725.16681.45.camel@moss-spartans.epoch.ncsc.mil>  <16969.1161771256@redhat.com> 
+To: Stephen Smalley <sds@tycho.nsa.gov>
+Cc: aviro@redhat.com, linux-kernel@vger.kernel.org, selinux@tycho.nsa.gov,
+        chrisw@sous-sol.org, jmorris@namei.org
+Subject: Re: Security issues with local filesystem caching 
+Date: Thu, 26 Oct 2006 11:40:55 +0100
+Message-ID: <8567.1161859255@redhat.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-> On Wed, 2006-10-25 at 10:33 +0200, Daniel Gil Mayol wrote:
-> > > > I want to unhide /proc/1 because seems that vserver try to access
-> > > > there:
-> > >
-> > > That isn't clear.  IIUC, you are getting these denials because you are
-> > > trying to unhide /proc/1, not the other way around.
-> >
-> > But the "denied messages" I sent you before, are reported before I try to
-> > unhide the /proc/1.
->
-> Then let's focus first on just addressing the avc messages, not on
-> vprocunhide.
->
-> > > Where does this process run?  On the "base" system or
-> > > within each vserver instance?
-> >
-> > Do you mean vserver_ids? I think within each vserver.
->
-> Are you sure?  Please verify.  What is its purpose?  Why would you run
-> an IDS within each vserver instance, where it can be compromised by a
-> process within that vserver instance, vs. running it in the "host
-> context" protected from the vserver instances aka "guests"?
+Stephen Smalley <sds@tycho.nsa.gov> wrote:
 
-I was wrong, it doesn't run in each vserver. There are a vserver only for IDS 
-called vserver_ids. So, vserver_ids_t runs only within the vserver 
-'vserver_ids'.
+> So you have two problems:
+> 1) You want the cachefiles kernel module to be able to internally access
+> the cache files without regard to the permissions of the current
+> process.
+> 2) You want to control how userspace may access the cache files in a way
+> that allows the cache daemon to do its job without exposing the cache to
+> corruption or leakage by other processes.
 
-> That is a transition from init_t to vserver_ids_t upon executing a file
-> labeled vserver_ids_exec_t.  But nothing is yet running in init_t, so
-> the rule achieves nothing by itself.
->
-> Before playing with an init_t domain, let's just make sure we understand
-> what is going on here and what is truly required.  See my questions
-> above about vserver_ids_t.
+That's about it, yes.
 
+I wanted the management daemon to live in userspace because it has to create a
+couple of big tables of cullable objects and then keep them around for when
+culling becomes a necessity.  Filling the tables takes a long time, and it
+gets longer the more object you have in the cache.
 
+> With regard to (1), bypassing security checks for internal access is
+> already done in certain cases (e.g. fs-private inodes, kernel-internal
+> sockets).  That can be done just by a flag on the task as in option (3);
+> it is separate from the issue of how to label the new file.
+
+Yeah...
+
+> Your solutions for (2) seem to treat the entire cache as having the same
+> security properties regardless of the files that are being cached - a
+> single ownership and security context for all cache files.
+
+Yes.  NFS handles the security for the user, so for files in the cache that
+are acting as data storage objects, I can just have as restrictive a security
+as I can manage.
+
+> This requires a fully trusted cache daemon that can arbitrarily tamper with
+> any content cached in this manner.
+
+Well, we could say that the cache daemon isn't actually allowed to read or
+write any of these files; all it need to do is read their cache xattrs, names
+and atimes, and rename and delete them.  It also needs to be able to do
+readdir and lookup on the directories contained therein.
+
+> I think you need to support at least per-cache security attributes, and
+> allow people to run separate instances of the cache daemon for caches with
+> different security attributes (if not already possible), so that no single
+> cache daemon process needs to be all powerful.
+
+My plan is to have a separate cache daemon for each cache.  That way the cull
+table filling isn't serialised over all caches.
+
+> If I understand correctly, you don't want to just propagate the security
+> attributes of the original file being cached to the cache file,
+
+That is correct.
+
+> because that would expose the cache to corruption by processes that can
+> access the original file
+
+Yes.
+
+> and because you would then have to deal with updating those attributes upon
+> changes to the original's attributes.
+
+Yes.
+
+But also because the netfs may impose stricter access controls than can be
+represented in filesystem underlying the cache.
+
+But mainly because the cache management daemon has to be able to operate on
+the cache.
+
+> But per-cache security attributes would be a reasonable approach to enabling
+> finer-grained protection.
+
+I'm not sure what you mean by this exactly.  I'd be happy to set the same
+security attributes on the files and directories in the cache that impose
+draconian restrictions, but whatever I do has to be representable in the
+backing filesystem across reboots.
+
+> Then the question is just how the cachefile module sets the security
+> attributes (including uid/gid and security context) to the appropriate
+> per-cache value when creating the cache files.
+
+Yes.
+
+> That could just be a matter of setting the fsuid/fsgid and fscreate
+> attributes (the latter requiring a hook call) prior to creation, if that
+> approach is palatable.
+
+It is to me.
+
+> It would help to understand the objection to setting fsuid/fsgid more
+> clearly - it may have had more to do with always setting them to 0 for all
+> cache files, or with using that as a way to work around the lack of an
+> explicit mechanism for bypassing security checks for internal accesses than
+> with the setting of the fsuid/fsgid itself.
+
+Christoph did enscribe thus:
+
+| - in cachefiles_walk_to_object reseting the fsuid/fsgid is not allowed
+
+Which I take to mean that I'm not allowed to change fsuid and fsgid.  Why not,
+I'm not entirely certain.  I wouldn't have thought it would matter as long as
+I put them back again before returning.
+
+David
 
 --
 This message was distributed to subscribers of the selinux mailing list.
