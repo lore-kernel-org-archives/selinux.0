@@ -1,40 +1,46 @@
-Subject: Re: Security issues with local filesystem caching
+Subject: Re: User object manager context location
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: David Howells <dhowells@redhat.com>
-Cc: Daniel J Walsh <dwalsh@redhat.com>, selinux@tycho.nsa.gov,
-        chrisw@sous-sol.org, jmorris@namei.org
-In-Reply-To: <27450.1161960110@redhat.com>
-References: <1161884706.16681.270.camel@moss-spartans.epoch.ncsc.mil>
-	 <1161880487.16681.232.camel@moss-spartans.epoch.ncsc.mil>
-	 <1161867101.16681.115.camel@moss-spartans.epoch.ncsc.mil>
-	 <1161810725.16681.45.camel@moss-spartans.epoch.ncsc.mil>
-	 <16969.1161771256@redhat.com> <8567.1161859255@redhat.com>
-	 <22702.1161878644@redhat.com> <24017.1161882574@redhat.com>
-	 <27450.1161960110@redhat.com>
+To: Joshua Brindle <jbrindle@tresys.com>
+Cc: Eamon Walsh <ewalsh@tycho.nsa.gov>, selinux@tycho.nsa.gov
+In-Reply-To: <6FE441CD9F0C0C479F2D88F959B015885145F7@exchange.columbia.tresys.com>
+References: 
+	 <6FE441CD9F0C0C479F2D88F959B015885145F7@exchange.columbia.tresys.com>
 Content-Type: text/plain
-Date: Fri, 27 Oct 2006 11:03:35 -0400
-Message-Id: <1161961415.1306.4.camel@moss-spartans.epoch.ncsc.mil>
+Date: Fri, 27 Oct 2006 11:06:36 -0400
+Message-Id: <1161961596.1306.8.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2006-10-27 at 15:41 +0100, David Howells wrote:
-> Stephen Smalley <sds@tycho.nsa.gov> wrote:
-> 
-> > When the daemon writes the context value (a string) to the cachefiles
-> > module interface for a given cache, the cachefiles module would do
-> > something like the following:
-> 
-> What would such a context value look like?  I don't really know much about
-> configuring SELinux.  Would it just be the name of a security label?
+On Fri, 2006-10-27 at 10:02 -0400, Joshua Brindle wrote:
+> With more object managers showing up (eg., Gconf, policy server, X) I
+> think we need to make a decision about how the object labeling files are
+> kept and managed. As of right now semanage cannot manage any object
+> labeling files for userspace object managers and I'm not sure that it
+> should.
 
-Yes, just a string.  Same kinds of values that you would see from ls -Z
-output.
+Eamon has previously expressed interest in creating a more general
+mechanism for name-to-context mappings that would supplant the current
+ad-hoc per-object manager mechanisms.
 
-Now, the particular values would be policy-dependent, so you might want
-to push those definitions into a separate config file maintained in the
-policy, similar to /etc/selinux/$SELINUXTYPE/contexts/dbus_contexts and
-the like.
+> Also, where should the files go, these are private resources of the
+> object manager that libselinux doesn't know how to parse, the contexts
+> directory is (IMHO) a resource of libselinux so it should understand
+> files there, on the other hand the object labeling files would be policy
+> specific so they need to be handled in such a way that policy changes
+> don't break the object manager.
+> 
+> We've brought up the idea of a generic section in policy packages for
+> this sort of thing but I'm not sure if this is appropriate, once again
+> because there will basically be random files with random formats in an
+> selinux directory, these should probably be considered configuration
+> files for the object manager and not selinux but I'm not sure, the issue
+> feels very fuzzy. Chris disagrees with me adamently and believes the
+> files should go into the contexts directory and be included in policy
+> packages, I'm very unsure of this though.
+
+They are definitely policy-specific, but we may be able to unify the
+formats and interfaces.
 
 -- 
 Stephen Smalley
