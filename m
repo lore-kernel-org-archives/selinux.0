@@ -1,78 +1,45 @@
-Subject: Re: Security issues with local filesystem caching
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: David Howells <dhowells@redhat.com>
-Cc: Daniel J Walsh <dwalsh@redhat.com>, selinux@tycho.nsa.gov,
-        chrisw@sous-sol.org, jmorris@namei.org
-In-Reply-To: <7319.1161970091@redhat.com>
-References: <1161967078.1306.61.camel@moss-spartans.epoch.ncsc.mil>
-	 <1161961415.1306.4.camel@moss-spartans.epoch.ncsc.mil>
-	 <1161884706.16681.270.camel@moss-spartans.epoch.ncsc.mil>
-	 <1161880487.16681.232.camel@moss-spartans.epoch.ncsc.mil>
-	 <1161867101.16681.115.camel@moss-spartans.epoch.ncsc.mil>
-	 <1161810725.16681.45.camel@moss-spartans.epoch.ncsc.mil>
-	 <16969.1161771256@redhat.com> <8567.1161859255@redhat.com>
-	 <22702.1161878644@redhat.com> <24017.1161882574@redhat.com>
-	 <27450.1161960110@redhat.com> <5318.1161965576@redhat.com>
-	 <7319.1161970091@redhat.com>
-Content-Type: text/plain
-Date: Fri, 27 Oct 2006 14:10:28 -0400
-Message-Id: <1161972628.1306.140.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="US-ASCII"
+Subject: RE: User object manager context location
+Date: Fri, 27 Oct 2006 14:18:34 -0400
+Message-ID: <6FE441CD9F0C0C479F2D88F959B0158851467B@exchange.columbia.tresys.com>
+In-Reply-To: <1161969870.17018.41.camel@moss-huskies.epoch.ncsc.mil>
+From: "Joshua Brindle" <jbrindle@tresys.com>
+To: <ewalsh@tycho.nsa.gov>, "Stephen Smalley" <sds@tycho.nsa.gov>
+Cc: <selinux@tycho.nsa.gov>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2006-10-27 at 18:28 +0100, David Howells wrote:
-> Stephen Smalley <sds@tycho.nsa.gov> wrote:
+> From: Eamon Walsh [mailto:ewalsh@tycho.nsa.gov] 
 > 
-> > Yes, assuming that type is defined in policy as a file type (and assuming
-> > that you keep it in this config file vs. splitting it out as below).
+> > > Also, where should the files go, these are private 
+> resources of the 
+> > > object manager that libselinux doesn't know how to parse, the 
+> > > contexts directory is (IMHO) a resource of libselinux so 
+> it should 
+> > > understand files there, on the other hand the object 
+> labeling files 
+> > > would be policy specific so they need to be handled in such a way 
+> > > that policy changes don't break the object manager.
 > 
-> So those files in /etc/selinux/.../contexts/ are config files for use by
-> applications to detail their security settings?
-
-Yes, essentially (s/detail/discover/).
-
-> > You may wish to run the context through selinux_trans_to_raw_context() before
-> > feeding it to the kernel
+> I think that configurations should be stored in the policy, 
+> not in the individual object managers.  A large part of the X 
+> code right now is just for parsing the text file that 
+> provides the mapping at present.
+> The common string->label model should solve the "random formats"
+> problem.
 > 
-> I assume you mean a userspace function, but:
-> 
-> 	warthog>man selinux_trans_to_raw_context
-> 	No manual entry for selinux_trans_to_raw_context
 
-Sorry, no man page at present, but the function does exist.
-#include <selinux/selinux.h>
+I'm still not convinced by this, an object manager will potentially be
+labeling based on a config, picture an selinux aware apache that is
+labeling vhosts, the vhosts are in the config file and somehow would
+need to by synchronized with the contexts in the policy directory. Other
+object managers are going to store their contexts with the objects (eg.,
+postgresql). I don't know like disparity in the way labels are handled
+and I'm not comfortable forcing object managers to store their contexts
+in an external place.
 
-> > so that people can specify the more human-readable form of a MLS/MCS label
-> > in the config file, or even omit the :s0 altogether in the MCS case.
-> 
-> What is the more human-readable form?
-
-There is a mapping of the s0:c0,c1-style notation to human-readable
-labels like "Unclassified" or "NDA_IBM_01012038".  The rest of the
-context isn't presently translated, just the last component.
-
-> > and applications have been extended to either read them directly
-> 
-> Is there a particular format for these files?
-
-Not a common one, no.  That's also being discussed in that other thread
-I mentioned.
-
-> > or use a libselinux interface for getting them.
-> 
-> Which would be what?
-
-You'd have to introduce one for your new config, as there isn't yet a
-common interface (also under discussion).  matchpathcon(3) is the
-interface for obtaining the install-time file context to apply for a
-given pathname.  In other cases, applications have been directly parsing
-their own config files, but I think that will change (again, that other
-thread).
-
--- 
-Stephen Smalley
-National Security Agency
 
 
 --
