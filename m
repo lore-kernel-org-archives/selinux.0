@@ -1,73 +1,62 @@
 From: David Howells <dhowells@redhat.com>
-In-Reply-To: <1161967078.1306.61.camel@moss-spartans.epoch.ncsc.mil> 
-References: <1161967078.1306.61.camel@moss-spartans.epoch.ncsc.mil>  <1161961415.1306.4.camel@moss-spartans.epoch.ncsc.mil> <1161884706.16681.270.camel@moss-spartans.epoch.ncsc.mil> <1161880487.16681.232.camel@moss-spartans.epoch.ncsc.mil> <1161867101.16681.115.camel@moss-spartans.epoch.ncsc.mil> <1161810725.16681.45.camel@moss-spartans.epoch.ncsc.mil> <16969.1161771256@redhat.com> <8567.1161859255@redhat.com> <22702.1161878644@redhat.com> <24017.1161882574@redhat.com> <27450.1161960110@redhat.com> <5318.1161965576@redhat.com> 
+In-Reply-To: <1161968942.1306.87.camel@moss-spartans.epoch.ncsc.mil> 
+References: <1161968942.1306.87.camel@moss-spartans.epoch.ncsc.mil>  <1161965410.1306.47.camel@moss-spartans.epoch.ncsc.mil> <1161960520.16681.380.camel@moss-spartans.epoch.ncsc.mil> <1161884706.16681.270.camel@moss-spartans.epoch.ncsc.mil> <1161880487.16681.232.camel@moss-spartans.epoch.ncsc.mil> <1161867101.16681.115.camel@moss-spartans.epoch.ncsc.mil> <1161810725.16681.45.camel@moss-spartans.epoch.ncsc.mil> <16969.1161771256@redhat.com> <8567.1161859255@redhat.com> <22702.1161878644@redhat.com> <24017.1161882574@redhat.com> <2340.1161903200@redhat.com> <4786.1161963766@redhat.com> <5506.1161966323@redhat.com> 
 To: Stephen Smalley <sds@tycho.nsa.gov>
-Cc: David Howells <dhowells@redhat.com>, Daniel J Walsh <dwalsh@redhat.com>,
-        selinux@tycho.nsa.gov, chrisw@sous-sol.org, jmorris@namei.org
+Cc: David Howells <dhowells@redhat.com>, aviro@redhat.com,
+        linux-kernel@vger.kernel.org, selinux@tycho.nsa.gov,
+        chrisw@sous-sol.org, jmorris@namei.org
 Subject: Re: Security issues with local filesystem caching 
-Date: Fri, 27 Oct 2006 18:28:11 +0100
-Message-ID: <7319.1161970091@redhat.com>
+Date: Fri, 27 Oct 2006 18:34:10 +0100
+Message-ID: <7451.1161970450@redhat.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 Stephen Smalley <sds@tycho.nsa.gov> wrote:
 
-> Yes, assuming that type is defined in policy as a file type (and assuming
-> that you keep it in this config file vs. splitting it out as below).
-
-So those files in /etc/selinux/.../contexts/ are config files for use by
-applications to detail their security settings?
-
-> You may wish to run the context through selinux_trans_to_raw_context() before
-> feeding it to the kernel
-
-I assume you mean a userspace function, but:
-
-	warthog>man selinux_trans_to_raw_context
-	No manual entry for selinux_trans_to_raw_context
-
-> so that people can specify the more human-readable form of a MLS/MCS label
-> in the config file, or even omit the :s0 altogether in the MCS case.
-
-What is the more human-readable form?
-
-> > > Now, the particular values would be policy-dependent, so you might want
-> > > to push those definitions into a separate config file maintained in the
-> > > policy, similar to /etc/selinux/$SELINUXTYPE/contexts/dbus_contexts and
-> > > the like.
+> > You start the cache by mounting it:
 > > 
-> > I'm not sure how to do that or how it works:-/
+> > 	mount -t cachefs /dev/hdx9 /cachefs
+> > 
+> > Then it's online.  However, you might want to check that whoever's calling
+> > mount has permission to bring a cache online...
 > 
-> The issue with directly encoding the context in your /etc/cachefilesd.conf
-> file is that the context may vary depending on your security policy.
+> Hmmm...that raises a separate issue - how does SELinux label cachefs
+> inodes?  Does cachefs support xattrs?  Other option is to use a mount
+> context (mount -o context=...) to apply a single context to all inodes
+> within it.
 
-Okay; that seems reasonable.
+There are only two inodes publically available through cachefs - the root dir
+and a file of statistics - and they're both read only.  Everything else, for
+the moment, is strictly internal and unavailable to userspace.  In fact, there
+may not be any other inodes.
 
-> ... Various config files have been created under
-> /etc/selinux/$SELINUXTYPE/contexts with these kinds of contexts,
+> Where exactly is the cachefs code available?
 
-I see how it works.
+It'll need a little bit of work to make it compilable again; but I can probably
+get you a copy on Monday.  I've been concentrating on CacheFiles.
 
-> and applications have been extended to either read them directly
+> I'm also unclear on where you establish the binding between the files
+> being cached and the cache.  What specifies that e.g. a given NFS mount
+> should be backed to a given cache?  We need to be able to control that
+> relationship too, to establish that the cache is being protected
+> adequately for the source data.
 
-Is there a particular format for these files?
+Yes.  I haven't worked that one out yet.  Currently it's not a problem as only
+CacheFiles is available at the moment, and that currently only supports one
+cache.
 
-> or use a libselinux interface for getting them.
+But I have an idea that I need to work on to make it possible to associate
+directories and files with caches (or other useful parameters).
 
-Which would be what?
+> >  (1) Permission to bring a cache online or to take a cache offline.
+> 
+> At present, this will show up as the usual checking on mount (security
+> hooks in do_mount and vfs_kern_mount) and on umount (security hook in
+> do_umount) by SELinux.  I'm not sure whether you need anything specific
+> to the cache.
 
-> On the other hand, creating a separate config file makes adding/removing
-> cache definitions more involved, as you then have to update multiple
-> config files.
-
-Yeah, but we can probably live with that.  It might be worth using the cache
-tag name or the cache directory as a key to look up the security rather than
-the location of the config file.
-
-> I also assume that if you ran multiple instances of the daemon, you
-> would run each with its own conf file?
-
-That's the current plan, yes.
+That doesn't apply to CacheFiles, but okay; we can always add it later if we
+decide we want it.
 
 David
 
