@@ -1,40 +1,55 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k9RFGrmR007465
-	for <selinux@tycho.nsa.gov>; Fri, 27 Oct 2006 11:16:53 -0400
-Subject: Re: User object manager context location
-From: James Carter <jwcart2@epoch.ncsc.mil>
-Reply-To: jwcart2@epoch.ncsc.mil
-To: Joshua Brindle <jbrindle@tresys.com>
-Cc: selinux@tycho.nsa.gov
-In-Reply-To: <6FE441CD9F0C0C479F2D88F959B015885145F7@exchange.columbia.tresys.com>
-References: 
-	 <6FE441CD9F0C0C479F2D88F959B015885145F7@exchange.columbia.tresys.com>
-Content-Type: text/plain
-Date: Fri, 27 Oct 2006 11:16:10 -0400
-Message-Id: <1161962170.27616.16.camel@moss-lions.epoch.ncsc.mil>
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k9RFb70U008196
+	for <selinux@tycho.nsa.gov>; Fri, 27 Oct 2006 11:37:07 -0400
+Received: from turing-police.cc.vt.edu (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id k9RFaLlX023497
+	for <selinux@tycho.nsa.gov>; Fri, 27 Oct 2006 15:36:21 GMT
+Message-Id: <200610271536.k9RFactr013813@turing-police.cc.vt.edu>
+To: russell@coker.com.au
+Cc: Daniel J Walsh <dwalsh@redhat.com>, casey@schaufler-ca.com,
+        redhat-lspp@redhat.com, selinux@tycho.nsa.gov
+Subject: Re: [redhat-lspp] Re: MLS enforcing PTYs, sshd, and newrole
+In-Reply-To: Your message of "Fri, 20 Oct 2006 17:00:28 +1000."
+             <200610201700.31748.russell@coker.com.au>
+From: Valdis.Kletnieks@vt.edu
+References: <20061012153701.75777.qmail@web36603.mail.mud.yahoo.com> <45377BF0.6010403@redhat.com>
+            <200610201700.31748.russell@coker.com.au>
 Mime-Version: 1.0
+Content-Type: multipart/signed; boundary="==_Exmh_1161963398_3167P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Date: Fri, 27 Oct 2006 11:36:38 -0400
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2006-10-27 at 10:02 -0400, Joshua Brindle wrote:
-> We've brought up the idea of a generic section in policy packages for
-> this sort of thing but I'm not sure if this is appropriate, once again
-> because there will basically be random files with random formats in an
-> selinux directory, these should probably be considered configuration
-> files for the object manager and not selinux but I'm not sure, the issue
-> feels very fuzzy. Chris disagrees with me adamently and believes the
-> files should go into the contexts directory and be included in policy
-> packages, I'm very unsure of this though.
+--==_Exmh_1161963398_3167P
+Content-Type: text/plain; charset=us-ascii
+
+On Fri, 20 Oct 2006 17:00:28 +1000, Russell Coker said:
+> On Thursday 19 October 2006 23:21, Daniel J Walsh <dwalsh@redhat.com> wrote:
+> > If we then remove -l from newrole we are done?
 > 
+> Why remove it?  Why not just cease using it and leave it there for other 
+> people who have different needs?
 
-D-Bus has its object labeling file in the contexts directory, so there
-is precedence for putting the files there.  I think that it is important
-that these files be kept with the rest of the policy.
+I suspect that it wouldn't fly during an eval, because even if unused, it
+would be a possible avenue to bypass the evel'ed config.  You'd probably
+have to add a flag of some sort someplace that said if it was permitted.
+(If done inside PAM, having the .so have an option 'allow-dash-l' and
+submitting for eval with it not present would probably be OK).
 
--- 
-James Carter <jwcart2@epoch.ncsc.mil>
-National Security Agency
+--==_Exmh_1161963398_3167P
+Content-Type: application/pgp-signature
 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.5 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQFFQieGcC3lWbTT17ARAhcmAKD4qJnfNsupRd9NlMXdJEC69HNUzgCggjyO
+b6XnbrfIYhbYtNzRDMXfY+g=
+=ZFJj
+-----END PGP SIGNATURE-----
+
+--==_Exmh_1161963398_3167P--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
