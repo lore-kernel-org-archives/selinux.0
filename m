@@ -1,72 +1,46 @@
-Subject: Re: Security issues with local filesystem caching
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: David Howells <dhowells@redhat.com>
-Cc: aviro@redhat.com, linux-kernel@vger.kernel.org, selinux@tycho.nsa.gov,
-        chrisw@sous-sol.org, jmorris@namei.org
-In-Reply-To: <4786.1161963766@redhat.com>
-References: <1161960520.16681.380.camel@moss-spartans.epoch.ncsc.mil>
-	 <1161884706.16681.270.camel@moss-spartans.epoch.ncsc.mil>
-	 <1161880487.16681.232.camel@moss-spartans.epoch.ncsc.mil>
-	 <1161867101.16681.115.camel@moss-spartans.epoch.ncsc.mil>
-	 <1161810725.16681.45.camel@moss-spartans.epoch.ncsc.mil>
-	 <16969.1161771256@redhat.com> <8567.1161859255@redhat.com>
-	 <22702.1161878644@redhat.com> <24017.1161882574@redhat.com>
-	 <2340.1161903200@redhat.com>   <4786.1161963766@redhat.com>
-Content-Type: text/plain
-Date: Fri, 27 Oct 2006 12:10:10 -0400
-Message-Id: <1161965410.1306.47.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+From: David Howells <dhowells@redhat.com>
+In-Reply-To: <1161961415.1306.4.camel@moss-spartans.epoch.ncsc.mil> 
+References: <1161961415.1306.4.camel@moss-spartans.epoch.ncsc.mil>  <1161884706.16681.270.camel@moss-spartans.epoch.ncsc.mil> <1161880487.16681.232.camel@moss-spartans.epoch.ncsc.mil> <1161867101.16681.115.camel@moss-spartans.epoch.ncsc.mil> <1161810725.16681.45.camel@moss-spartans.epoch.ncsc.mil> <16969.1161771256@redhat.com> <8567.1161859255@redhat.com> <22702.1161878644@redhat.com> <24017.1161882574@redhat.com> <27450.1161960110@redhat.com> 
+To: Stephen Smalley <sds@tycho.nsa.gov>
+Cc: David Howells <dhowells@redhat.com>, Daniel J Walsh <dwalsh@redhat.com>,
+        selinux@tycho.nsa.gov, chrisw@sous-sol.org, jmorris@namei.org
+Subject: Re: Security issues with local filesystem caching 
+Date: Fri, 27 Oct 2006 17:12:56 +0100
+Message-ID: <5318.1161965576@redhat.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2006-10-27 at 16:42 +0100, David Howells wrote:
-> Stephen Smalley <sds@tycho.nsa.gov> wrote:
+Stephen Smalley <sds@tycho.nsa.gov> wrote:
+
+> > What would such a context value look like?  I don't really know much about
+> > configuring SELinux.  Would it just be the name of a security label?
 > 
-> > We might want more information passed into the hook, like the cache
-> > directory itself,
-> 
-> I can do that.  I have the cache directory path and the cache tag name both
-> available as strings.
-> 
-> > 	int security_cache_set_context(struct vfsmount *mnt, struct dentry *dentry, u32 secid)
-> > 	{
-> 
-> Where are you envisioning this going?  In SELinux, in the LSM core or in
-> cachefiles?
+> Yes, just a string.  Same kinds of values that you would see from ls -Z
+> output.
 
-Sorry, that should have been named selinux_cache_set_context(), a
-SELinux-specific implementation of a security_cache_set_context() LSM
-hook.  The hook would be called after the cache directory pathname has
-been looked up by your module, yielding a (mnt, dentry) pair and after
-the security context string has been mapped to a secid.  
+So I would have something like this?:
 
->   I was also wondering if I could generalise it to handle all cache
-> types, but the permissions checks are probably going to be quite different for
-> each type.  For instance, CacheFiles uses files on a mounted fs, whilst CacheFS
-> uses a block device.
+	[/etc/cachefilesd.conf]
+	dir /var/fscache
+	uid 123
+	gid 456
+	seclabel system_u:object_r:cachefiles_t:s0
+	tag mycache
+	brun 17%
+	bcull 13%
+	bstop 3%
+	frun 10%
+	fcull 7%
+	fstop 3%
 
-So in the latter case, the daemon supplies the path of a block device
-node?  I suppose the hook could internally check the type of inode to
-decide what checks to apply, using the checks I previously sketched when
-it is a directory and using a different set of checks for the block
-device (substituting a write check against the block device for the
-directory-specific checks).  The hook interface itself would look the
-same IIUC, i.e. providing the (mnt, dentry) pair to which the path
-resolved and the secid to which the context resolved.
+> Now, the particular values would be policy-dependent, so you might want
+> to push those definitions into a separate config file maintained in the
+> policy, similar to /etc/selinux/$SELINUXTYPE/contexts/dbus_contexts and
+> the like.
 
-> Also, with your multiple cache example, how would I bring each cachefilesd
-> daemon up in a different context so that it could handle a different cache with
-> a different context?
+I'm not sure how to do that or how it works:-/
 
-runcon will run a program in a specified context, so if you defined
-cachesfilesd_internal_t and aachesfilesd_external_t domains in policy,
-you could then do:
-	runcon -t cachefilesd_internal_t -- /path/to/cachefilesd args...
-
--- 
-Stephen Smalley
-National Security Agency
-
+David
 
 --
 This message was distributed to subscribers of the selinux mailing list.
