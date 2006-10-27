@@ -1,71 +1,75 @@
-Subject: Re: User object manager context location
-From: Eamon Walsh <ewalsh@tycho.nsa.gov>
-Reply-To: ewalsh@tycho.nsa.gov
+From: David Howells <dhowells@redhat.com>
+In-Reply-To: <1161967078.1306.61.camel@moss-spartans.epoch.ncsc.mil> 
+References: <1161967078.1306.61.camel@moss-spartans.epoch.ncsc.mil>  <1161961415.1306.4.camel@moss-spartans.epoch.ncsc.mil> <1161884706.16681.270.camel@moss-spartans.epoch.ncsc.mil> <1161880487.16681.232.camel@moss-spartans.epoch.ncsc.mil> <1161867101.16681.115.camel@moss-spartans.epoch.ncsc.mil> <1161810725.16681.45.camel@moss-spartans.epoch.ncsc.mil> <16969.1161771256@redhat.com> <8567.1161859255@redhat.com> <22702.1161878644@redhat.com> <24017.1161882574@redhat.com> <27450.1161960110@redhat.com> <5318.1161965576@redhat.com> 
 To: Stephen Smalley <sds@tycho.nsa.gov>
-Cc: Joshua Brindle <jbrindle@tresys.com>, selinux@tycho.nsa.gov
-In-Reply-To: <1161961596.1306.8.camel@moss-spartans.epoch.ncsc.mil>
-References: 
-	 <6FE441CD9F0C0C479F2D88F959B015885145F7@exchange.columbia.tresys.com>
-	 <1161961596.1306.8.camel@moss-spartans.epoch.ncsc.mil>
-Content-Type: text/plain
-Date: Fri, 27 Oct 2006 13:24:30 -0400
-Message-Id: <1161969870.17018.41.camel@moss-huskies.epoch.ncsc.mil>
-Mime-Version: 1.0
+Cc: David Howells <dhowells@redhat.com>, Daniel J Walsh <dwalsh@redhat.com>,
+        selinux@tycho.nsa.gov, chrisw@sous-sol.org, jmorris@namei.org
+Subject: Re: Security issues with local filesystem caching 
+Date: Fri, 27 Oct 2006 18:28:11 +0100
+Message-ID: <7319.1161970091@redhat.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2006-10-27 at 11:06 -0400, Stephen Smalley wrote:
-> Eamon has previously expressed interest in creating a more general
-> mechanism for name-to-context mappings that would supplant the current
-> ad-hoc per-object manager mechanisms.
+Stephen Smalley <sds@tycho.nsa.gov> wrote:
 
-What I have been thinking about is a generalization of matchpathcon(3)
-which takes as an additional argument a security class.  The security
-class would serve to identify the configuration being used: for
-SECCLASS_FILE, DIR, BLK_FILE, etc. the file contexts would be used, for
-SECCLASS_XEXTENSION the X extensions configuration would be used, for
-SECCLASS_DBUS the D-BUS configuration, etc.  Note that the "mode"
-argument to matchpathcon currently serves the same purpose for the
-various file types.
+> Yes, assuming that type is defined in policy as a file type (and assuming
+> that you keep it in this config file vs. splitting it out as below).
 
-Since matchpathcon only takes a string as the thing to look up, all
-configurations would be restricted to this as the mapping key.  But the
-string could be interpreted in various ways by pluggable backends for
-each supported security class - such as the regexp format used in the
-file contexts.  I think that for the vast majority of cases, a string is
-fine.  SECMARK is a counterexample (it provides the mapping for
-SECCLASS_PACKET).
+So those files in /etc/selinux/.../contexts/ are config files for use by
+applications to detail their security settings?
 
+> You may wish to run the context through selinux_trans_to_raw_context() before
+> feeding it to the kernel
+
+I assume you mean a userspace function, but:
+
+	warthog>man selinux_trans_to_raw_context
+	No manual entry for selinux_trans_to_raw_context
+
+> so that people can specify the more human-readable form of a MLS/MCS label
+> in the config file, or even omit the :s0 altogether in the MCS case.
+
+What is the more human-readable form?
+
+> > > Now, the particular values would be policy-dependent, so you might want
+> > > to push those definitions into a separate config file maintained in the
+> > > policy, similar to /etc/selinux/$SELINUXTYPE/contexts/dbus_contexts and
+> > > the like.
+> > 
+> > I'm not sure how to do that or how it works:-/
 > 
-> > Also, where should the files go, these are private resources of the
-> > object manager that libselinux doesn't know how to parse, the contexts
-> > directory is (IMHO) a resource of libselinux so it should understand
-> > files there, on the other hand the object labeling files would be policy
-> > specific so they need to be handled in such a way that policy changes
-> > don't break the object manager.
+> The issue with directly encoding the context in your /etc/cachefilesd.conf
+> file is that the context may vary depending on your security policy.
 
-I think that configurations should be stored in the policy, not in the
-individual object managers.  A large part of the X code right now is
-just for parsing the text file that provides the mapping at present.
-The common string->label model should solve the "random formats"
-problem.
+Okay; that seems reasonable.
 
-> > We've brought up the idea of a generic section in policy packages for
-> > this sort of thing but I'm not sure if this is appropriate, once again
-> > because there will basically be random files with random formats in an
-> > selinux directory, these should probably be considered configuration
-> > files for the object manager and not selinux but I'm not sure, the issue
-> > feels very fuzzy. Chris disagrees with me adamently and believes the
-> > files should go into the contexts directory and be included in policy
-> > packages, I'm very unsure of this though.
-> 
-> They are definitely policy-specific, but we may be able to unify the
-> formats and interfaces.
-> 
--- 
-Eamon Walsh <ewalsh@tycho.nsa.gov>
-National Security Agency
+> ... Various config files have been created under
+> /etc/selinux/$SELINUXTYPE/contexts with these kinds of contexts,
 
+I see how it works.
+
+> and applications have been extended to either read them directly
+
+Is there a particular format for these files?
+
+> or use a libselinux interface for getting them.
+
+Which would be what?
+
+> On the other hand, creating a separate config file makes adding/removing
+> cache definitions more involved, as you then have to update multiple
+> config files.
+
+Yeah, but we can probably live with that.  It might be worth using the cache
+tag name or the cache directory as a key to look up the security rather than
+the location of the config file.
+
+> I also assume that if you ran multiple instances of the daemon, you
+> would run each with its own conf file?
+
+That's the current plan, yes.
+
+David
 
 --
 This message was distributed to subscribers of the selinux mailing list.
