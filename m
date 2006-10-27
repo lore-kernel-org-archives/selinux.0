@@ -1,35 +1,22 @@
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k9RFGrmR007465
+	for <selinux@tycho.nsa.gov>; Fri, 27 Oct 2006 11:16:53 -0400
 Subject: Re: User object manager context location
-From: Stephen Smalley <sds@tycho.nsa.gov>
+From: James Carter <jwcart2@epoch.ncsc.mil>
+Reply-To: jwcart2@epoch.ncsc.mil
 To: Joshua Brindle <jbrindle@tresys.com>
-Cc: Eamon Walsh <ewalsh@tycho.nsa.gov>, selinux@tycho.nsa.gov
+Cc: selinux@tycho.nsa.gov
 In-Reply-To: <6FE441CD9F0C0C479F2D88F959B015885145F7@exchange.columbia.tresys.com>
 References: 
 	 <6FE441CD9F0C0C479F2D88F959B015885145F7@exchange.columbia.tresys.com>
 Content-Type: text/plain
-Date: Fri, 27 Oct 2006 11:06:36 -0400
-Message-Id: <1161961596.1306.8.camel@moss-spartans.epoch.ncsc.mil>
+Date: Fri, 27 Oct 2006 11:16:10 -0400
+Message-Id: <1161962170.27616.16.camel@moss-lions.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 On Fri, 2006-10-27 at 10:02 -0400, Joshua Brindle wrote:
-> With more object managers showing up (eg., Gconf, policy server, X) I
-> think we need to make a decision about how the object labeling files are
-> kept and managed. As of right now semanage cannot manage any object
-> labeling files for userspace object managers and I'm not sure that it
-> should.
-
-Eamon has previously expressed interest in creating a more general
-mechanism for name-to-context mappings that would supplant the current
-ad-hoc per-object manager mechanisms.
-
-> Also, where should the files go, these are private resources of the
-> object manager that libselinux doesn't know how to parse, the contexts
-> directory is (IMHO) a resource of libselinux so it should understand
-> files there, on the other hand the object labeling files would be policy
-> specific so they need to be handled in such a way that policy changes
-> don't break the object manager.
-> 
 > We've brought up the idea of a generic section in policy packages for
 > this sort of thing but I'm not sure if this is appropriate, once again
 > because there will basically be random files with random formats in an
@@ -38,12 +25,14 @@ ad-hoc per-object manager mechanisms.
 > feels very fuzzy. Chris disagrees with me adamently and believes the
 > files should go into the contexts directory and be included in policy
 > packages, I'm very unsure of this though.
+> 
 
-They are definitely policy-specific, but we may be able to unify the
-formats and interfaces.
+D-Bus has its object labeling file in the contexts directory, so there
+is precedence for putting the files there.  I think that it is important
+that these files be kept with the rest of the policy.
 
 -- 
-Stephen Smalley
+James Carter <jwcart2@epoch.ncsc.mil>
 National Security Agency
 
 
