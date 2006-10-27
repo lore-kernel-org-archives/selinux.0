@@ -1,42 +1,26 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k9RE2Tbg004788
-	for <selinux@tycho.nsa.gov>; Fri, 27 Oct 2006 10:02:31 -0400
-Received: from exchange.columbia.tresys.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with SMTP id k9RE0uEB021894
-	for <selinux@tycho.nsa.gov>; Fri, 27 Oct 2006 14:00:56 GMT
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="US-ASCII"
-Subject: User object manager context location
-Date: Fri, 27 Oct 2006 10:02:25 -0400
-Message-ID: <6FE441CD9F0C0C479F2D88F959B015885145F7@exchange.columbia.tresys.com>
-From: "Joshua Brindle" <jbrindle@tresys.com>
-To: <selinux@tycho.nsa.gov>
+From: David Howells <dhowells@redhat.com>
+In-Reply-To: <1161884706.16681.270.camel@moss-spartans.epoch.ncsc.mil> 
+References: <1161884706.16681.270.camel@moss-spartans.epoch.ncsc.mil>  <1161880487.16681.232.camel@moss-spartans.epoch.ncsc.mil> <1161867101.16681.115.camel@moss-spartans.epoch.ncsc.mil> <1161810725.16681.45.camel@moss-spartans.epoch.ncsc.mil> <16969.1161771256@redhat.com> <8567.1161859255@redhat.com> <22702.1161878644@redhat.com> <24017.1161882574@redhat.com> 
+To: Stephen Smalley <sds@tycho.nsa.gov>
+Cc: David Howells <dhowells@redhat.com>, aviro@redhat.com,
+        linux-kernel@vger.kernel.org, selinux@tycho.nsa.gov,
+        chrisw@sous-sol.org, jmorris@namei.org
+Subject: Re: Security issues with local filesystem caching 
+Date: Fri, 27 Oct 2006 15:41:50 +0100
+Message-ID: <27450.1161960110@redhat.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-With more object managers showing up (eg., Gconf, policy server, X) I
-think we need to make a decision about how the object labeling files are
-kept and managed. As of right now semanage cannot manage any object
-labeling files for userspace object managers and I'm not sure that it
-should.
+Stephen Smalley <sds@tycho.nsa.gov> wrote:
 
-Also, where should the files go, these are private resources of the
-object manager that libselinux doesn't know how to parse, the contexts
-directory is (IMHO) a resource of libselinux so it should understand
-files there, on the other hand the object labeling files would be policy
-specific so they need to be handled in such a way that policy changes
-don't break the object manager.
+> When the daemon writes the context value (a string) to the cachefiles
+> module interface for a given cache, the cachefiles module would do
+> something like the following:
 
-We've brought up the idea of a generic section in policy packages for
-this sort of thing but I'm not sure if this is appropriate, once again
-because there will basically be random files with random formats in an
-selinux directory, these should probably be considered configuration
-files for the object manager and not selinux but I'm not sure, the issue
-feels very fuzzy. Chris disagrees with me adamently and believes the
-files should go into the contexts directory and be included in policy
-packages, I'm very unsure of this though.
+What would such a context value look like?  I don't really know much about
+configuring SELinux.  Would it just be the name of a security label?
 
+David
 
 --
 This message was distributed to subscribers of the selinux mailing list.
