@@ -1,88 +1,69 @@
-Subject: Re: Security issues with local filesystem caching
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: David Howells <dhowells@redhat.com>
-Cc: aviro@redhat.com, linux-kernel@vger.kernel.org, selinux@tycho.nsa.gov,
-        chrisw@sous-sol.org, jmorris@namei.org
-In-Reply-To: <5506.1161966323@redhat.com>
-References: <1161965410.1306.47.camel@moss-spartans.epoch.ncsc.mil>
-	 <1161960520.16681.380.camel@moss-spartans.epoch.ncsc.mil>
-	 <1161884706.16681.270.camel@moss-spartans.epoch.ncsc.mil>
-	 <1161880487.16681.232.camel@moss-spartans.epoch.ncsc.mil>
-	 <1161867101.16681.115.camel@moss-spartans.epoch.ncsc.mil>
-	 <1161810725.16681.45.camel@moss-spartans.epoch.ncsc.mil>
-	 <16969.1161771256@redhat.com> <8567.1161859255@redhat.com>
-	 <22702.1161878644@redhat.com> <24017.1161882574@redhat.com>
-	 <2340.1161903200@redhat.com> <4786.1161963766@redhat.com>
-	 <5506.1161966323@redhat.com>
+Subject: Re: User object manager context location
+From: Eamon Walsh <ewalsh@tycho.nsa.gov>
+Reply-To: ewalsh@tycho.nsa.gov
+To: Stephen Smalley <sds@tycho.nsa.gov>
+Cc: Joshua Brindle <jbrindle@tresys.com>, selinux@tycho.nsa.gov
+In-Reply-To: <1161961596.1306.8.camel@moss-spartans.epoch.ncsc.mil>
+References: 
+	 <6FE441CD9F0C0C479F2D88F959B015885145F7@exchange.columbia.tresys.com>
+	 <1161961596.1306.8.camel@moss-spartans.epoch.ncsc.mil>
 Content-Type: text/plain
-Date: Fri, 27 Oct 2006 13:09:02 -0400
-Message-Id: <1161968942.1306.87.camel@moss-spartans.epoch.ncsc.mil>
+Date: Fri, 27 Oct 2006 13:24:30 -0400
+Message-Id: <1161969870.17018.41.camel@moss-huskies.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2006-10-27 at 17:25 +0100, David Howells wrote:
-> Stephen Smalley <sds@tycho.nsa.gov> wrote:
-> 
-> > > I was also wondering if I could generalise it to handle all cache types,
-> > > but the permissions checks are probably going to be quite different for
-> > > each type.  For instance, CacheFiles uses files on a mounted fs, whilst
-> > > CacheFS uses a block device.
-> > 
-> > So in the latter case, the daemon supplies the path of a block device
-> > node?
-> 
-> No.  In the latter case, there is no userspace daemon.  As there are no
-> dentries, filenames and paths in CacheFS, keeping track of the cull table
-> consumes a less space than for CacheFiles.
-> 
-> You start the cache by mounting it:
-> 
-> 	mount -t cachefs /dev/hdx9 /cachefs
-> 
-> Then it's online.  However, you might want to check that whoever's calling
-> mount has permission to bring a cache online...
+On Fri, 2006-10-27 at 11:06 -0400, Stephen Smalley wrote:
+> Eamon has previously expressed interest in creating a more general
+> mechanism for name-to-context mappings that would supplant the current
+> ad-hoc per-object manager mechanisms.
 
-Hmmm...that raises a separate issue - how does SELinux label cachefs
-inodes?  Does cachefs support xattrs?  Other option is to use a mount
-context (mount -o context=...) to apply a single context to all inodes
-within it.  Where exactly is the cachefs code available?
+What I have been thinking about is a generalization of matchpathcon(3)
+which takes as an additional argument a security class.  The security
+class would serve to identify the configuration being used: for
+SECCLASS_FILE, DIR, BLK_FILE, etc. the file contexts would be used, for
+SECCLASS_XEXTENSION the X extensions configuration would be used, for
+SECCLASS_DBUS the D-BUS configuration, etc.  Note that the "mode"
+argument to matchpathcon currently serves the same purpose for the
+various file types.
 
-I'm also unclear on where you establish the binding between the files
-being cached and the cache.  What specifies that e.g. a given NFS mount
-should be backed to a given cache?  We need to be able to control that
-relationship too, to establish that the cache is being protected
-adequately for the source data.
+Since matchpathcon only takes a string as the thing to look up, all
+configurations would be restricted to this as the mapping key.  But the
+string could be interpreted in various ways by pluggable backends for
+each supported security class - such as the regexp format used in the
+file contexts.  I think that for the vast majority of cases, a string is
+fine.  SECMARK is a counterexample (it provides the mapping for
+SECCLASS_PACKET).
 
-> Actually, I think the permission to bring a cache online applies in all cases,
-> and is probably separate from checking that CacheFiles(d) is permitted to
-> mangle the filesystem it's using for a cache.  With CacheFS, we could do the
-> equivalent and do a MAC check to make sure we're permitted to read and write
-> the blockdev, as you suggest in the next bit:
 > 
-> > I suppose the hook could internally check the type of inode to decide what
-> > checks to apply, using the checks I previously sketched when it is a
-> > directory and using a different set of checks for the block device
-> > (substituting a write check against the block device for the
-> > directory-specific checks).  The hook interface itself would look the same
-> > IIUC, i.e. providing the (mnt, dentry) pair to which the path resolved and
-> > the secid to which the context resolved.
+> > Also, where should the files go, these are private resources of the
+> > object manager that libselinux doesn't know how to parse, the contexts
+> > directory is (IMHO) a resource of libselinux so it should understand
+> > files there, on the other hand the object labeling files would be policy
+> > specific so they need to be handled in such a way that policy changes
+> > don't break the object manager.
+
+I think that configurations should be stored in the policy, not in the
+individual object managers.  A large part of the X code right now is
+just for parsing the text file that provides the mapping at present.
+The common string->label model should solve the "random formats"
+problem.
+
+> > We've brought up the idea of a generic section in policy packages for
+> > this sort of thing but I'm not sure if this is appropriate, once again
+> > because there will basically be random files with random formats in an
+> > selinux directory, these should probably be considered configuration
+> > files for the object manager and not selinux but I'm not sure, the issue
+> > feels very fuzzy. Chris disagrees with me adamently and believes the
+> > files should go into the contexts directory and be included in policy
+> > packages, I'm very unsure of this though.
 > 
-> So, to summarise, is it worth having two checks:
+> They are definitely policy-specific, but we may be able to unify the
+> formats and interfaces.
 > 
->  (1) Permission to bring a cache online or to take a cache offline.
-
-At present, this will show up as the usual checking on mount (security
-hooks in do_mount and vfs_kern_mount) and on umount (security hook in
-do_umount) by SELinux.  I'm not sure whether you need anything specific
-to the cache.
-
->  (2) Permission for the process bringing the cache online (cachefilesd or
->      mount) to access the backing store, be it a set of files and directories,
->      or be it a blockdev.
-
 -- 
-Stephen Smalley
+Eamon Walsh <ewalsh@tycho.nsa.gov>
 National Security Agency
 
 
