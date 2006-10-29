@@ -1,56 +1,66 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k9T3XZU2024240
-	for <selinux@tycho.nsa.gov>; Sat, 28 Oct 2006 23:33:35 -0400
-Received: from smtp.sws.net.au (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id k9T3VwU8001019
-	for <selinux@tycho.nsa.gov>; Sun, 29 Oct 2006 03:32:00 GMT
-From: Russell Coker <russell@coker.com.au>
-Reply-To: russell@coker.com.au
-To: Michael Graffam <michael.graffam@gmail.com>
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k9T4Urk0025421
+	for <selinux@tycho.nsa.gov>; Sun, 29 Oct 2006 00:30:53 -0400
+Received: from wx-out-0506.google.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id k9T4U6F5023819
+	for <selinux@tycho.nsa.gov>; Sun, 29 Oct 2006 04:30:07 GMT
+Received: by wx-out-0506.google.com with SMTP id i26so1193406wxd
+        for <selinux@tycho.nsa.gov>; Sat, 28 Oct 2006 21:30:54 -0700 (PDT)
 Subject: Re: New to SELinux -- any suggestions?
-Date: Sun, 29 Oct 2006 13:31:59 +1000
+From: Michael Graffam <michael.graffam@gmail.com>
+To: russell@coker.com.au
 Cc: selinux@tycho.nsa.gov
+In-Reply-To: <200610291432.01272.russell@coker.com.au>
 References: <1162086080.2566.16.camel@endless>
-In-Reply-To: <1162086080.2566.16.camel@endless>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
-Message-Id: <200610291432.01272.russell@coker.com.au>
+	 <200610291432.01272.russell@coker.com.au>
+Content-Type: text/plain
+Date: Sun, 29 Oct 2006 00:30:12 -0400
+Message-Id: <1162096212.15530.22.camel@endless>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Sunday 29 October 2006 12:41, Michael Graffam <michael.graffam@gmail.com> 
-wrote:
-> chcon -t uncontained_execmem_exec_t /usr/bin/sbcl
-> (and /usr/local/bin/lisp)
+On Sun, 2006-10-29 at 13:31 +1000, Russell Coker wrote:
+> On Sunday 29 October 2006 12:41, Michael Graffam <michael.graffam@gmail.com> 
+> wrote:
+> > chcon -t uncontained_execmem_exec_t /usr/bin/sbcl
+> > (and /usr/local/bin/lisp)
+> 
+> Incidentally why are you running it from /usr/local/bin?  Why don't you use an 
+> RPM package of it?  If there is no RPM available have you considered building 
+> your own and submitting it to Extras?
 
-Incidentally why are you running it from /usr/local/bin?  Why don't you use an 
-RPM package of it?  If there is no RPM available have you considered building 
-your own and submitting it to Extras?
+As I suspected, a quick Google of 'fedora cmucl' indicates that there
+is, indeed, an RPM of CMUCL. I myself run it from /usr/local/bin because
+I built it from source, along with some modifications for my particular
+application. I've carried this tree along with me for some time, and I'm
+kind of sentimental about it now :)
 
-> After fixing my problem, I wanted to demonstrate the behavior to a
-> friend of mine, and found that I didn't have the foggiest idea of how to
-> actually use chcon :) .. I couldn't remove the indicated permission from
-> my bins.
+> The problem here is your idea of "removing the permission".  Chcon does not 
+> add or remove permissions, it merely changes the labels of files.  What the 
+> label means is determined by the policy.
+> 
+> So if you want to change a file back to it's default context you can 
+> use "restorecon", in this case "restorecon -F -R -v /usr/local /usr/bin" 
+> should do what you want.
 
-The problem here is your idea of "removing the permission".  Chcon does not 
-add or remove permissions, it merely changes the labels of files.  What the 
-label means is determined by the policy.
+Thank you for the help. Can one AND/OR the contexts? Based on the above,
+it would seem to me that if an executable violated two points of policy
+it wouldn't be possible to 'bless' it -- since I'm sure this isn't the
+case, I'm wondering how I might apply multiple contexts. Or am I still
+out in left field here?
 
-So if you want to change a file back to it's default context you can 
-use "restorecon", in this case "restorecon -F -R -v /usr/local /usr/bin" 
-should do what you want.
+> Another option is to know what the original context was (maybe by examining 
+> the file with "ls -Z" before changing it in the first place).  In this case I 
+> know that the bin directories have type bin_t, so the following would work:
+> chcon -t bin_t /usr/bin/sbcl /usr/local/bin/lisp
 
-Another option is to know what the original context was (maybe by examining 
-the file with "ls -Z" before changing it in the first place).  In this case I 
-know that the bin directories have type bin_t, so the following would work:
-chcon -t bin_t /usr/bin/sbcl /usr/local/bin/lisp
+Whooo.. new ls fields too! Man, I feel like a kid again! This is
+great! :) Having been using GNU/Linux for so long, I almost forgot how
+fun it is to learn new stuff about it!
 
--- 
-russell@coker.com.au
-http://etbe.blogspot.com/          My Blog
+-M
 
-http://www.coker.com.au/sponsorship.html Sponsoring Free Software development
 
 --
 This message was distributed to subscribers of the selinux mailing list.
