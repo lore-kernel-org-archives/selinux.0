@@ -1,48 +1,40 @@
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="US-ASCII"
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k9UIeimp019658
+	for <selinux@tycho.nsa.gov>; Mon, 30 Oct 2006 13:40:44 -0500
+Received: from mail6.sea5.speakeasy.net (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id k9UIdsZZ013270
+	for <selinux@tycho.nsa.gov>; Mon, 30 Oct 2006 18:39:55 GMT
+Date: Mon, 30 Oct 2006 13:40:37 -0500 (EST)
+From: James Morris <jmorris@namei.org>
+To: Joshua Brindle <jbrindle@tresys.com>
+cc: Venkat Yekkirala <vyekkirala@TrustedCS.com>, selinux@tycho.nsa.gov,
+        Stephen Smalley <sds@tycho.nsa.gov>, gcwilson@us.ibm.com,
+        Paul Moore <paul.moore@hp.com>
 Subject: RE: SELinux Networking Enhancements
-Date: Mon, 30 Oct 2006 13:34:54 -0500
-Message-ID: <6FE441CD9F0C0C479F2D88F959B0158851478A@exchange.columbia.tresys.com>
-In-Reply-To: <Pine.LNX.4.64.0610301237530.7342@d.namei>
-From: "Joshua Brindle" <jbrindle@tresys.com>
-To: "James Morris" <jmorris@namei.org>,
-        "Venkat Yekkirala" <vyekkirala@TrustedCS.com>
-Cc: <selinux@tycho.nsa.gov>, "Stephen Smalley" <sds@tycho.nsa.gov>,
-        <gcwilson@us.ibm.com>, "Paul Moore" <paul.moore@hp.com>
+In-Reply-To: <6FE441CD9F0C0C479F2D88F959B0158851478A@exchange.columbia.tresys.com>
+Message-ID: <Pine.LNX.4.64.0610301339080.7904@d.namei>
+References: <6FE441CD9F0C0C479F2D88F959B0158851478A@exchange.columbia.tresys.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-> From: James Morris [mailto:jmorris@namei.org] 
-> 
-> On Tue, 24 Oct 2006, Venkat Yekkirala wrote:
->  
-> Let's start with the common case for non-MLS general use 
-> scenarios, then once we have that nailed down, look at what 
-> else is needed to meaningfully support MLS (and possibly 
-> concurrent CIPSO).
-> 
-> What are we currently missing, in terms of being able to 
-> label SAs, authorize their use, enforce flow policy, and 
-> allow applications to determine peer labels ?
-> 
-> For flow enforcement, I would like to see this done as simply 
-> as possible.  
-> e.g.:
-> 
-> # Server policy
-> allow httpd_server_t httpd_client_t:peer { recv send };
-> 
-> # Client policy
-> allow httpd_client_t httpd_server_t:peer { recv send };
-> 
+On Mon, 30 Oct 2006, Joshua Brindle wrote:
 
-I don't think this is enough. For end-to-end control via MAC we need to
-bind domain to socket (already done), socket to SA, SA to peer, peer to
-SA, SA to socket, and socket to domain. The way to do this "simply" is
-unclear but I think the common case for using labeled IPSec will be to
-get end to end control (else why is it useful?)
+> I don't think this is enough. For end-to-end control via MAC we need to
+> bind domain to socket (already done), socket to SA, SA to peer, peer to
+> SA, SA to socket, and socket to domain. The way to do this "simply" is
+> unclear but I think the common case for using labeled IPSec will be to
+> get end to end control (else why is it useful?)
 
+I think this can be managed via IPsec policy, where the admin binds the SA 
+to the peer with SPD/SADB rules so that the SA label is the same as the 
+process label.
+
+
+-- 
+James Morris
+<jmorris@namei.org>
 
 --
 This message was distributed to subscribers of the selinux mailing list.
