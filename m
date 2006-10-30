@@ -1,45 +1,30 @@
-Subject: [PATCH] libsepol users in non-mls policy bugfix
-From: Joshua Brindle <jbrindle@tresys.com>
-To: "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>
-Cc: Stephen Smalley <sds@tycho.nsa.gov>,
-        Karl MacMillan <kmacmillan@mentalrootkit.com>,
-        Darrel Goeddel <dgoeddel@TrustedCS.com>
-Content-Type: text/plain
-Date: Mon, 30 Oct 2006 08:59:22 -0500
-Message-Id: <1162216762.3236.3.camel@twoface.columbia.tresys.com>
-Mime-Version: 1.0
+From: David Howells <dhowells@redhat.com>
+In-Reply-To: <1161972628.1306.140.camel@moss-spartans.epoch.ncsc.mil> 
+References: <1161972628.1306.140.camel@moss-spartans.epoch.ncsc.mil>  <1161967078.1306.61.camel@moss-spartans.epoch.ncsc.mil> <1161961415.1306.4.camel@moss-spartans.epoch.ncsc.mil> <1161884706.16681.270.camel@moss-spartans.epoch.ncsc.mil> <1161880487.16681.232.camel@moss-spartans.epoch.ncsc.mil> <1161867101.16681.115.camel@moss-spartans.epoch.ncsc.mil> <1161810725.16681.45.camel@moss-spartans.epoch.ncsc.mil> <16969.1161771256@redhat.com> <8567.1161859255@redhat.com> <22702.1161878644@redhat.com> <24017.1161882574@redhat.com> <27450.1161960110@redhat.com> <5318.1161965576@redhat.com> <7319.1161970091@redhat.com> 
+To: Stephen Smalley <sds@tycho.nsa.gov>
+Cc: Daniel J Walsh <dwalsh@redhat.com>, selinux@tycho.nsa.gov,
+        chrisw@sous-sol.org, jmorris@namei.org
+Subject: Re: Security issues with local filesystem caching 
+Date: Mon, 30 Oct 2006 15:13:57 +0000
+Message-ID: <10726.1162221237@redhat.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This patch fixes a bug where adding a user in a non-mls module would
-cause a segfault at link time.
+Stephen Smalley <sds@tycho.nsa.gov> wrote:
 
+> > > and applications have been extended to either read them directly
+> > 
+> > Is there a particular format for these files?
+> 
+> Not a common one, no.  That's also being discussed in that other thread
+> I mentioned.
 
-diff -pruN trunk/libsepol/src/link.c user_mls_fix/libsepol/src/link.c
---- trunk/libsepol/src/link.c	2006-10-28 15:35:26.000000000 -0400
-+++ user_mls_fix/libsepol/src/link.c	2006-10-28 15:26:44.000000000 -0400
-@@ -994,11 +994,15 @@ static int user_fix_callback(hashtab_key
- 		goto cleanup;
- 	}
- 
--	if (mls_range_convert(&user->range, &new_user->range, mod))
--		goto cleanup;
-+	if (mod->policy->mls) {
- 
--	if (mls_level_convert(&user->dfltlevel, &new_user->dfltlevel, mod))
--		goto cleanup;
-+		if (mls_range_convert(&user->range, &new_user->range, mod))
-+			goto cleanup;
-+
-+		if (mls_level_convert(&user->dfltlevel, &new_user->dfltlevel, mod))
-+			goto cleanup;
-+
-+	}
- 
- 	return 0;
- 
+Which other thread?  Can you give me a URL.
 
+Can you also recommend a format that's likely to be compatible with whatever's
+decided?
 
+David
 
 --
 This message was distributed to subscribers of the selinux mailing list.
