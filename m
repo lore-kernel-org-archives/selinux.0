@@ -1,124 +1,41 @@
-Subject: RE: [PATCH] libsepol users in non-mls policy bugfix
-From: Karl MacMillan <kmacmillan@mentalrootkit.com>
-To: Joshua Brindle <jbrindle@tresys.com>
-Cc: selinux@tycho.nsa.gov, Stephen Smalley <sds@tycho.nsa.gov>,
-        Darrel Goeddel <dgoeddel@TrustedCS.com>
-In-Reply-To: <6FE441CD9F0C0C479F2D88F959B01588514786@exchange.columbia.tresys.com>
-References: 
-	 <6FE441CD9F0C0C479F2D88F959B01588514786@exchange.columbia.tresys.com>
-Content-Type: text/plain
-Date: Mon, 30 Oct 2006 13:56:47 -0500
-Message-Id: <1162234607.29732.30.camel@localhost.localdomain>
-Mime-Version: 1.0
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k9UIwdOS020337
+	for <selinux@tycho.nsa.gov>; Mon, 30 Oct 2006 13:58:39 -0500
+Received: from mail1.sea5.speakeasy.net (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id k9UIvmZZ016563
+	for <selinux@tycho.nsa.gov>; Mon, 30 Oct 2006 18:57:49 GMT
+Date: Mon, 30 Oct 2006 13:58:35 -0500 (EST)
+From: James Morris <jmorris@namei.org>
+To: Paul Moore <paul.moore@hp.com>
+cc: netdev@vger.kernel.org, selinux@tycho.nsa.gov, jmorris@redhat.com,
+        sds@epoch.ncsc.mil, eparis@redhat.com
+Subject: Re: [patch 1/1] NetLabel: protect the CIPSOv4 socket option from
+ setsockopt()
+In-Reply-To: <20061030180801.641867000@hp.com>
+Message-ID: <Pine.LNX.4.64.0610301357590.8348@d.namei>
+References: <20061030180331.404950000@hp.com> <20061030180801.641867000@hp.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 2006-10-30 at 13:31 -0500, Joshua Brindle wrote:
-> > From: Karl MacMillan [mailto:kmacmillan@mentalrootkit.com] 
-> > 
-> > This patch looks ok, but shouldn't we also stop the segfault 
-> > in mls_level_convert? The use of assert there looks like it 
-> > is catching what should be a runtime error that should cause 
-> > an error message rather than bailing.
-> > 
-> > Otherwise:
+On Mon, 30 Oct 2006, paul.moore@hp.com wrote:
+
+> From: Paul Moore <paul.moore@hp.com>
 > 
-> Yea, I tried thinking of a more elegant way to do it and couldn't come
-> up with anything, any suggestions?
-> 
+> This patch makes two changes to protect applications from either removing or
+> tampering with the CIPSOv4 IP option on a socket. 
 
-You can put the check in mls_level_convert.
+Thanks.  Applied to:
 
-> Clearly those assertions only apply to the MLS case, and we caught a
-> plain bug because of them, I think they are not user errors.
-> 
-
-Yea - I forgot how all of those assertions are used in the link code.
-The alternative is below (with some cleanup up error handling that makes
-it look larger). Honestly, I don't care which patch.
-
-Karl
+git://git.kernel.org/pub/scm/linux/kernel/git/jmorris/selinux-net-2.6.git
 
 
-Index: libsepol/src/link.c
-===================================================================
---- libsepol/src/link.c	(revision 2074)
-+++ libsepol/src/link.c	(working copy)
-@@ -827,19 +827,24 @@
- 	return -1;
- }
- 
--static int mls_level_convert(mls_semantic_level_t * src,
--			     mls_semantic_level_t * dst, policy_module_t * mod)
-+static int mls_level_convert(mls_semantic_level_t * src, mls_semantic_level_t * dst,
-+			     policy_module_t * mod, link_state_t * state)
- {
- 	mls_semantic_cat_t *src_cat, *new_cat;
- 
-+	if (!mod->policy->mls)
-+		return 0;
-+
- 	assert(mod->map[SYM_LEVELS][src->sens - 1]);
- 	dst->sens = mod->map[SYM_LEVELS][src->sens - 1];
- 
- 	for (src_cat = src->cat; src_cat; src_cat = src_cat->next) {
- 		new_cat =
- 		    (mls_semantic_cat_t *) malloc(sizeof(mls_semantic_cat_t));
--		if (!new_cat)
-+		if (!new_cat) {
-+			ERR(state->handle, "Out of memory");
- 			return -1;
-+		}
- 		mls_semantic_cat_init(new_cat);
- 
- 		new_cat->next = dst->cat;
-@@ -854,13 +859,16 @@
- 	return 0;
- }
- 
--static int mls_range_convert(mls_semantic_range_t * src,
--			     mls_semantic_range_t * dst, policy_module_t * mod)
-+static int mls_range_convert(mls_semantic_range_t * src, mls_semantic_range_t * dst,
-+			     policy_module_t * mod, link_state_t * state)
- {
--	if (mls_level_convert(&src->level[0], &dst->level[0], mod))
--		return -1;
--	if (mls_level_convert(&src->level[1], &dst->level[1], mod))
--		return -1;
-+	int ret;
-+	ret = mls_level_convert(&src->level[0], &dst->level[0], mod, state);
-+	if (ret)
-+		return ret;
-+	ret = mls_level_convert(&src->level[1], &dst->level[1], mod, state);
-+	if (ret)
-+		return ret;
- 	return 0;
- }
- 
-@@ -994,10 +1002,10 @@
- 		goto cleanup;
- 	}
- 
--	if (mls_range_convert(&user->range, &new_user->range, mod))
-+	if (mls_range_convert(&user->range, &new_user->range, mod, state))
- 		goto cleanup;
- 
--	if (mls_level_convert(&user->dfltlevel, &new_user->dfltlevel, mod))
-+	if (mls_level_convert(&user->dfltlevel, &new_user->dfltlevel, mod, state))
- 		goto cleanup;
- 
- 	return 0;
-@@ -1224,7 +1232,7 @@
- 			}
- 		}
- 
--		if (mls_range_convert(&rule->trange, &new_rule->trange, mod))
-+		if (mls_range_convert(&rule->trange, &new_rule->trange, mod, state))
- 			goto cleanup;
- 	}
- 	return 0;
 
 
+-- 
+James Morris
+<jmorris@namei.org>
 
 --
 This message was distributed to subscribers of the selinux mailing list.
