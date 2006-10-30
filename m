@@ -1,115 +1,151 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k9UKwjv3024389
-	for <selinux@tycho.nsa.gov>; Mon, 30 Oct 2006 15:58:45 -0500
-Received: from atlrel6.hp.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id k9UKv9oD008828
-	for <selinux@tycho.nsa.gov>; Mon, 30 Oct 2006 20:57:09 GMT
-Message-ID: <45466783.6020301@hp.com>
-Date: Mon, 30 Oct 2006 15:58:43 -0500
-From: Paul Moore <paul.moore@hp.com>
 MIME-Version: 1.0
-To: Eric Paris <eparis@redhat.com>
-Cc: netdev@vger.kernel.org, selinux@tycho.nsa.gov, jmorris@redhat.com,
-        sds@epoch.ncsc.mil
-Subject: Re: [patch 1/1] NetLabel: protect the CIPSOv4 socket option from
- setsockopt()
-References: <20061030180331.404950000@hp.com>	 <20061030180801.641867000@hp.com> <1162240306.20103.8.camel@localhost.localdomain>
-In-Reply-To: <1162240306.20103.8.camel@localhost.localdomain>
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain;
+	charset="US-ASCII"
+Subject: RE: [PATCH] libsepol users in non-mls policy bugfix
+Date: Mon, 30 Oct 2006 16:41:55 -0500
+Message-ID: <6FE441CD9F0C0C479F2D88F959B015885147CD@exchange.columbia.tresys.com>
+In-Reply-To: <1162234607.29732.30.camel@localhost.localdomain>
+From: "Joshua Brindle" <jbrindle@tresys.com>
+To: "Karl MacMillan" <kmacmillan@mentalrootkit.com>
+Cc: <selinux@tycho.nsa.gov>, "Stephen Smalley" <sds@tycho.nsa.gov>,
+        "Darrel Goeddel" <dgoeddel@TrustedCS.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Eric Paris wrote:
-> On Mon, 2006-10-30 at 13:03 -0500, paul.moore@hp.com wrote:
+> From: Karl MacMillan [mailto:kmacmillan@mentalrootkit.com] 
 > 
->>plain text document attachment (netlabel-sockopts)
->>From: Paul Moore <paul.moore@hp.com>
->>
->>This patch makes two changes to protect applications from either removing or
->>tampering with the CIPSOv4 IP option on a socket.  The first is the requirement
->>that applications have the CAP_NET_RAW capability to set an IPOPT_CIPSO option
->>on a socket; this prevents untrusted applications from setting their own
->>CIPSOv4 security attributes on the packets they send.  The second change is to
->>SELinux and it prevents applications from setting any IPv4 options when there
->>is an IPOPT_CIPSO option already present on the socket; this prevents
->>applications from removing CIPSOv4 security attributes from the packets they
->>send.
+> On Mon, 2006-10-30 at 13:31 -0500, Joshua Brindle wrote:
+> > > From: Karl MacMillan [mailto:kmacmillan@mentalrootkit.com]
+> > > 
+> > > This patch looks ok, but shouldn't we also stop the segfault in 
+> > > mls_level_convert? The use of assert there looks like it 
+> is catching 
+> > > what should be a runtime error that should cause an error message 
+> > > rather than bailing.
+> > > 
+> > > Otherwise:
+> > 
+> > Yea, I tried thinking of a more elegant way to do it and 
+> couldn't come 
+> > up with anything, any suggestions?
+> > 
 > 
+> You can put the check in mls_level_convert.
 > 
->>--- net-2.6_sockopt.orig/security/selinux/ss/services.c
->>+++ net-2.6_sockopt/security/selinux/ss/services.c
->>@@ -2682,4 +2682,41 @@ u32 selinux_netlbl_socket_getpeersec_dgr
->> 
->> 	return peer_sid;
->> }
->>+
->>+/**
->>+ * selinux_netlbl_socket_setsockopt - Do not allow users to remove a NetLabel
->>+ * @sock: the socket
->>+ * @level: the socket level or protocol
->>+ * @optname: the socket option name
->>+ *
->>+ * Description:
->>+ * Check the setsockopt() call and if the user is trying to replace the IP
->>+ * options on a socket and a NetLabel is in place for the socket deny the
->>+ * access; otherwise allow the access.  Returns zero when the access is
->>+ * allowed, -EACCES when denied, and other negative values on error.
->>+ *
->>+ */
->>+int selinux_netlbl_socket_setsockopt(struct socket *sock,
->>+				     int level,
->>+				     int optname)
->>+{
->>+	int rc = 0;
->>+	struct inode *inode = SOCK_INODE(sock);
->>+	struct sk_security_struct *sksec = sock->sk->sk_security;
->>+	struct inode_security_struct *isec = inode->i_security;
->>+	struct netlbl_lsm_secattr secattr;
->>+
->>+	mutex_lock(&isec->lock);
->>+	if (level == IPPROTO_IP && optname == IP_OPTIONS &&
->>+	    sksec->nlbl_state == NLBL_LABELED) {
->>+		netlbl_secattr_init(&secattr);
->>+		rc = netlbl_socket_getattr(sock, &secattr);
->>+		if (rc == 0 && (secattr.cache || secattr.mls_lvl_vld))
->>+			rc = -EACCES;
->>+		netlbl_secattr_destroy(&secattr);
->>+	}
->>+	mutex_unlock(&isec->lock);
->>+
->>+	return rc;
->>+}
->> #endif /* CONFIG_NETLABEL */
+> > Clearly those assertions only apply to the MLS case, and we 
+> caught a 
+> > plain bug because of them, I think they are not user errors.
+> > 
 > 
-> I probably should have ask this a while back but both here and in
-> selinux_netlbl_socket_setsid() you are taking the isec->lock.  As I
-> originally understood the isec->lock it was just supposed to just
-> prevent multiple tasks from initializing the isec information
-> simultaneously while the isec information could be in an inconsistent
-> state.  After isec->initialized was set we didn't use the lock any more
-> (as typically the only change inside the isec was the ->sid which
-> couldn't even be 'in the middle').  I'm wondering what you are hoping to
-> protect taking this lock.  It doesn't seem like it would hurt anything,
-> but i'd like to hear what you see it's purpose as being...   (Then again
-> it's just as unlikely that I understood what it was being used for
-> pre-netlabel)
+> Yea - I forgot how all of those assertions are used in the link code.
+> The alternative is below (with some cleanup up error handling 
+> that makes it look larger). Honestly, I don't care which patch.
+> 
 
-Fair question.  It was discussed a while back on either the SELinux or LSPP
-mailing list, I don't have a link handy but I'm sure you could find it with your
-favorite search engine (it was discussed back when it was a semaphore); I might
-be wrong but I think it was Stephen Smalley that suggested using the isec
-semaphore/mutex.  Basically, inode_security_struct mutex also protects the
-sk_security_struct->nlbl_state field.  You will see some cases where the
-nlbl_state field is set/checked without holding the mutex but in those cases
-only one thread should have access to the sock.
+Looks fine aside from the unrelated parts which should have been split
+out :)
 
-Perhaps at some point it would make sense to protect this with some other
-locking mechanism (rcu might make the most sense) but considering the stage that
-2.6.19 is at right now I think we should probably leave it alone right now.
+> Karl
+> 
+> 
+> Index: libsepol/src/link.c
+> ===================================================================
+> --- libsepol/src/link.c	(revision 2074)
+> +++ libsepol/src/link.c	(working copy)
+> @@ -827,19 +827,24 @@
+>  	return -1;
+>  }
+>  
+> -static int mls_level_convert(mls_semantic_level_t * src,
+> -			     mls_semantic_level_t * dst, 
+> policy_module_t * mod)
+> +static int mls_level_convert(mls_semantic_level_t * src, 
+> mls_semantic_level_t * dst,
+> +			     policy_module_t * mod, 
+> link_state_t * state)
+>  {
+>  	mls_semantic_cat_t *src_cat, *new_cat;
+>  
+> +	if (!mod->policy->mls)
+> +		return 0;
+> +
+>  	assert(mod->map[SYM_LEVELS][src->sens - 1]);
+>  	dst->sens = mod->map[SYM_LEVELS][src->sens - 1];
+>  
+>  	for (src_cat = src->cat; src_cat; src_cat = src_cat->next) {
+>  		new_cat =
+>  		    (mls_semantic_cat_t *) 
+> malloc(sizeof(mls_semantic_cat_t));
+> -		if (!new_cat)
+> +		if (!new_cat) {
+> +			ERR(state->handle, "Out of memory");
+>  			return -1;
+> +		}
+>  		mls_semantic_cat_init(new_cat);
+>  
+>  		new_cat->next = dst->cat;
+> @@ -854,13 +859,16 @@
+>  	return 0;
+>  }
+>  
+> -static int mls_range_convert(mls_semantic_range_t * src,
+> -			     mls_semantic_range_t * dst, 
+> policy_module_t * mod)
+> +static int mls_range_convert(mls_semantic_range_t * src, 
+> mls_semantic_range_t * dst,
+> +			     policy_module_t * mod, 
+> link_state_t * state)
+>  {
+> -	if (mls_level_convert(&src->level[0], &dst->level[0], mod))
+> -		return -1;
+> -	if (mls_level_convert(&src->level[1], &dst->level[1], mod))
+> -		return -1;
+> +	int ret;
+> +	ret = mls_level_convert(&src->level[0], &dst->level[0], 
+> mod, state);
+> +	if (ret)
+> +		return ret;
+> +	ret = mls_level_convert(&src->level[1], &dst->level[1], 
+> mod, state);
+> +	if (ret)
+> +		return ret;
+>  	return 0;
+>  }
+>  
+> @@ -994,10 +1002,10 @@
+>  		goto cleanup;
+>  	}
+>  
+> -	if (mls_range_convert(&user->range, &new_user->range, mod))
+> +	if (mls_range_convert(&user->range, &new_user->range, 
+> mod, state))
+>  		goto cleanup;
+>  
+> -	if (mls_level_convert(&user->dfltlevel, 
+> &new_user->dfltlevel, mod))
+> +	if (mls_level_convert(&user->dfltlevel, 
+> &new_user->dfltlevel, mod, 
+> +state))
+>  		goto cleanup;
+>  
+>  	return 0;
+> @@ -1224,7 +1232,7 @@
+>  			}
+>  		}
+>  
+> -		if (mls_range_convert(&rule->trange, 
+> &new_rule->trange, mod))
+> +		if (mls_range_convert(&rule->trange, 
+> &new_rule->trange, mod, state))
+>  			goto cleanup;
+>  	}
+>  	return 0;
+> 
+> 
+> 
 
--- 
-paul moore
-linux security @ hp
+Acked-By: Joshua Brindle <jbrindle@tresys.com>
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
