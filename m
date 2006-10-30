@@ -1,47 +1,178 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k9UHVOR0017263
-	for <selinux@tycho.nsa.gov>; Mon, 30 Oct 2006 12:31:24 -0500
-Received: from ug-out-1314.google.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id k9UHUaZZ002006
-	for <selinux@tycho.nsa.gov>; Mon, 30 Oct 2006 17:30:36 GMT
-Received: by ug-out-1314.google.com with SMTP id 75so1237916ugb
-        for <selinux@tycho.nsa.gov>; Mon, 30 Oct 2006 09:31:24 -0800 (PST)
-Message-ID: <e294b46e0610300931w25367ca4nc8f914dc4277e8ab@mail.gmail.com>
-Date: Mon, 30 Oct 2006 17:31:23 +0000
-From: "Bradley Chapman" <kakadu@gmail.com>
-To: selinux@tycho.nsa.gov
-Subject: A good place to start?
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k9UI87H5018483
+	for <selinux@tycho.nsa.gov>; Mon, 30 Oct 2006 13:08:07 -0500
+Received: from atlrel6.hp.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id k9UI6UoD029881
+	for <selinux@tycho.nsa.gov>; Mon, 30 Oct 2006 18:06:32 GMT
+Message-Id: <20061030180801.641867000@hp.com>
+References: <20061030180331.404950000@hp.com>
+Date: Mon, 30 Oct 2006 13:03:32 -0500
+From: paul.moore@hp.com
+To: netdev@vger.kernel.org, selinux@tycho.nsa.gov
+Cc: jmorris@redhat.com, sds@epoch.ncsc.mil, eparis@redhat.com,
+        Paul Moore <paul.moore@hp.com>
+Subject: [patch 1/1] NetLabel: protect the CIPSOv4 socket option from setsockopt()
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-I've just finished installing a new Debian system and decided to put
-SELinux onto it. After getting the programs installed, the kernel
-recompiled, the filesystem relabeled and the policy reloaded, I now
-have a few questions I want to ask about what to do next:
+From: Paul Moore <paul.moore@hp.com>
 
-- how do I allow domain transitions from user_r to sysadm_r? I keep
-getting the "user_u:sysadm_r:sysadm_t is not a valid context" error,
-even though /etc/selinux/refpolicy-strict/users/local.users AND
-/etc/selinux/refpolicy-strict/src/policy/config/local.users contain
-the following line:
+This patch makes two changes to protect applications from either removing or
+tampering with the CIPSOv4 IP option on a socket.  The first is the requirement
+that applications have the CAP_NET_RAW capability to set an IPOPT_CIPSO option
+on a socket; this prevents untrusted applications from setting their own
+CIPSOv4 security attributes on the packets they send.  The second change is to
+SELinux and it prevents applications from setting any IPv4 options when there
+is an IPOPT_CIPSO option already present on the socket; this prevents
+applications from removing CIPSOv4 security attributes from the packets they
+send.
 
-user user roles { user_r sysadm_r };
+Signed-off-by: Paul Moore <paul.moore@hp.com>
+---
+ net/ipv4/cipso_ipv4.c                       |    7 ++---
+ net/ipv4/ip_options.c                       |    2 -
+ security/selinux/hooks.c                    |    8 +++++-
+ security/selinux/include/selinux_netlabel.h |   10 +++++++
+ security/selinux/ss/services.c              |   37 ++++++++++++++++++++++++++++
+ 5 files changed, 58 insertions(+), 6 deletions(-)
 
-- where should I start editing policy files to remove the various avc:
-denied errors I get when starting the machine? At the moment, there
-are quite a few - most of which occur in the
-system_u:system_r:initrc_t context. Should I begin there?
+Index: net-2.6_sockopt/net/ipv4/cipso_ipv4.c
+===================================================================
+--- net-2.6_sockopt.orig/net/ipv4/cipso_ipv4.c
++++ net-2.6_sockopt/net/ipv4/cipso_ipv4.c
+@@ -1307,7 +1307,8 @@ int cipso_v4_socket_setattr(const struct
+ 
+ 	/* We can't use ip_options_get() directly because it makes a call to
+ 	 * ip_options_get_alloc() which allocates memory with GFP_KERNEL and
+-	 * we can't block here. */
++	 * we won't always have CAP_NET_RAW even though we _always_ want to
++	 * set the IPOPT_CIPSO option. */
+ 	opt_len = (buf_len + 3) & ~3;
+ 	opt = kzalloc(sizeof(*opt) + opt_len, GFP_ATOMIC);
+ 	if (opt == NULL) {
+@@ -1317,11 +1318,9 @@ int cipso_v4_socket_setattr(const struct
+ 	memcpy(opt->__data, buf, buf_len);
+ 	opt->optlen = opt_len;
+ 	opt->is_data = 1;
++	opt->cipso = sizeof(struct iphdr);
+ 	kfree(buf);
+ 	buf = NULL;
+-	ret_val = ip_options_compile(opt, NULL);
+-	if (ret_val != 0)
+-		goto socket_setattr_failure;
+ 
+ 	sk_inet = inet_sk(sk);
+ 	if (sk_inet->is_icsk) {
+Index: net-2.6_sockopt/net/ipv4/ip_options.c
+===================================================================
+--- net-2.6_sockopt.orig/net/ipv4/ip_options.c
++++ net-2.6_sockopt/net/ipv4/ip_options.c
+@@ -443,7 +443,7 @@ int ip_options_compile(struct ip_options
+ 				opt->router_alert = optptr - iph;
+ 			break;
+ 		      case IPOPT_CIPSO:
+-		        if (opt->cipso) {
++			if ((!skb && !capable(CAP_NET_RAW)) || opt->cipso) {
+ 				pp_ptr = optptr;
+ 				goto error;
+ 			}
+Index: net-2.6_sockopt/security/selinux/hooks.c
+===================================================================
+--- net-2.6_sockopt.orig/security/selinux/hooks.c
++++ net-2.6_sockopt/security/selinux/hooks.c
+@@ -3313,7 +3313,13 @@ static int selinux_socket_getpeername(st
+ 
+ static int selinux_socket_setsockopt(struct socket *sock,int level,int optname)
+ {
+-	return socket_has_perm(current, sock, SOCKET__SETOPT);
++	int err;
++
++	err = socket_has_perm(current, sock, SOCKET__SETOPT);
++	if (err)
++		return err;
++
++	return selinux_netlbl_socket_setsockopt(sock, level, optname);
+ }
+ 
+ static int selinux_socket_getsockopt(struct socket *sock, int level,
+Index: net-2.6_sockopt/security/selinux/include/selinux_netlabel.h
+===================================================================
+--- net-2.6_sockopt.orig/security/selinux/include/selinux_netlabel.h
++++ net-2.6_sockopt/security/selinux/include/selinux_netlabel.h
+@@ -53,6 +53,9 @@ void selinux_netlbl_sk_security_init(str
+ void selinux_netlbl_sk_clone_security(struct sk_security_struct *ssec,
+ 				      struct sk_security_struct *newssec);
+ int selinux_netlbl_inode_permission(struct inode *inode, int mask);
++int selinux_netlbl_socket_setsockopt(struct socket *sock,
++				     int level,
++				     int optname);
+ #else
+ static inline void selinux_netlbl_cache_invalidate(void)
+ {
+@@ -114,6 +117,13 @@ static inline int selinux_netlbl_inode_p
+ {
+ 	return 0;
+ }
++
++static inline int selinux_netlbl_socket_setsockopt(struct socket *sock,
++						   int level,
++						   int optname)
++{
++	return 0;
++}
+ #endif /* CONFIG_NETLABEL */
+ 
+ #endif
+Index: net-2.6_sockopt/security/selinux/ss/services.c
+===================================================================
+--- net-2.6_sockopt.orig/security/selinux/ss/services.c
++++ net-2.6_sockopt/security/selinux/ss/services.c
+@@ -2682,4 +2682,41 @@ u32 selinux_netlbl_socket_getpeersec_dgr
+ 
+ 	return peer_sid;
+ }
++
++/**
++ * selinux_netlbl_socket_setsockopt - Do not allow users to remove a NetLabel
++ * @sock: the socket
++ * @level: the socket level or protocol
++ * @optname: the socket option name
++ *
++ * Description:
++ * Check the setsockopt() call and if the user is trying to replace the IP
++ * options on a socket and a NetLabel is in place for the socket deny the
++ * access; otherwise allow the access.  Returns zero when the access is
++ * allowed, -EACCES when denied, and other negative values on error.
++ *
++ */
++int selinux_netlbl_socket_setsockopt(struct socket *sock,
++				     int level,
++				     int optname)
++{
++	int rc = 0;
++	struct inode *inode = SOCK_INODE(sock);
++	struct sk_security_struct *sksec = sock->sk->sk_security;
++	struct inode_security_struct *isec = inode->i_security;
++	struct netlbl_lsm_secattr secattr;
++
++	mutex_lock(&isec->lock);
++	if (level == IPPROTO_IP && optname == IP_OPTIONS &&
++	    sksec->nlbl_state == NLBL_LABELED) {
++		netlbl_secattr_init(&secattr);
++		rc = netlbl_socket_getattr(sock, &secattr);
++		if (rc == 0 && (secattr.cache || secattr.mls_lvl_vld))
++			rc = -EACCES;
++		netlbl_secattr_destroy(&secattr);
++	}
++	mutex_unlock(&isec->lock);
++
++	return rc;
++}
+ #endif /* CONFIG_NETLABEL */
 
-- out of the various GUI-based policy editors out there, which ones
-are good for SELinux newbies?
-
-TIA,
-
-Brad
--- 
-CONTROL YOUR TABS: https://addons.mozilla.org/extensions/158
+--
+paul moore
+linux security @ hp
 
 --
 This message was distributed to subscribers of the selinux mailing list.
