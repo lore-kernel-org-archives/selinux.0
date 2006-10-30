@@ -1,7 +1,7 @@
 From: James Antill <james.antill@redhat.com>
 To: redhat-lspp <redhat-lspp@redhat.com>
 Cc: Stephen Smalley <sds@tycho.nsa.gov>, SE Linux <selinux@tycho.nsa.gov>
-In-Reply-To: <1161974293.1306.167.camel@moss-spartans.epoch.ncsc.mil>
+In-Reply-To: <1162238632.31104.11.camel@code.and.org>
 References: <20061012153701.75777.qmail@web36603.mail.mud.yahoo.com>
 	 <45377BF0.6010403@redhat.com>
 	 <1161264613.14632.120.camel@moss-spartans.epoch.ncsc.mil>
@@ -15,34 +15,39 @@ References: <20061012153701.75777.qmail@web36603.mail.mud.yahoo.com>
 	 <1161804290.3987.388.camel@moss-spartans.epoch.ncsc.mil>
 	 <1161970810.29689.88.camel@code.and.org>
 	 <1161974293.1306.167.camel@moss-spartans.epoch.ncsc.mil>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-Msmsouh2NYWK7C+7ZG+5"
-Date: Mon, 30 Oct 2006 15:03:51 -0500
-Message-Id: <1162238632.31104.11.camel@code.and.org>
+	 <1162238632.31104.11.camel@code.and.org>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-slV5gK3FaLp7be+64LXf"
+Date: Mon, 30 Oct 2006 15:16:34 -0500
+Message-Id: <1162239394.31104.13.camel@code.and.org>
 Mime-Version: 1.0
-Subject: [PATCH 1/3] Re: MLS enforcing PTYs, sshd, and newrole
+Subject: [PATCH 2/3] Re: MLS enforcing PTYs, sshd, and newrole
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 
---=-Msmsouh2NYWK7C+7ZG+5
-Content-Type: multipart/mixed; boundary="=-gmdV1I7NBJIKecaOxHix"
+--=-slV5gK3FaLp7be+64LXf
+Content-Type: multipart/mixed; boundary="=-Zfim6DT8dBAmuf61PZTx"
 
 
---=-gmdV1I7NBJIKecaOxHix
+--=-Zfim6DT8dBAmuf61PZTx
 Content-Type: text/plain
 Content-Transfer-Encoding: quoted-printable
 
-On Fri, 2006-10-27 at 14:38 -0400, Stephen Smalley wrote:
+On Mon, 2006-10-30 at 15:03 -0500, James Antill wrote:
+> On Fri, 2006-10-27 at 14:38 -0400, Stephen Smalley wrote:
+>=20
+> > Look at Darrel's patch for mcstransd to apply a permission check betwee=
+n
+> > the level of the caller and the level being translated for context
+> > translations.=20
+>=20
+>  Thanks to much discussion with Dan and Stephen, I'm pretty sure I have
+> this correct now.
 
-> Look at Darrel's patch for mcstransd to apply a permission check between
-> the level of the caller and the level being translated for context
-> translations.=20
 
- Thanks to much discussion with Dan and Stephen, I'm pretty sure I have
-this correct now.
+ Here is the reference policy part of the patches (libselinux came
+previously and PAM is next).
 
- Here is the libselinux part of the patch (reference policy and PAM are
-next).
 
 --=20
 James Antill - <james.antill@redhat.com>
@@ -51,46 +56,47 @@ setsockopt(fd, IPPROTO_TCP, TCP_DEFER_ACCEPT, ...);
 setsockopt(fd, SOL_SOCKET,  SO_ATTACH_FILTER, ...);
 
 
---=-gmdV1I7NBJIKecaOxHix
-Content-Disposition: inline; filename=selinux-pam-range-checking.patch
-Content-Type: text/x-patch; name=selinux-pam-range-checking.patch; charset=UTF-8
+--=-Zfim6DT8dBAmuf61PZTx
+Content-Disposition: inline; filename=policy-pam-range-checking.patch
 Content-Transfer-Encoding: base64
+Content-Type: text/x-patch; name=policy-pam-range-checking.patch; charset=UTF-8
 
-SW5kZXg6IGxpYnNlbGludXgvaW5jbHVkZS9zZWxpbnV4L2F2X3Blcm1pc3Npb25zLmgNCj09PT09
-PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09
-PT09PT0NCi0tLSBsaWJzZWxpbnV4L2luY2x1ZGUvc2VsaW51eC9hdl9wZXJtaXNzaW9ucy5oCShy
-ZXZpc2lvbiAyMDc0KQ0KKysrIGxpYnNlbGludXgvaW5jbHVkZS9zZWxpbnV4L2F2X3Blcm1pc3Np
-b25zLmgJKHdvcmtpbmcgY29weSkNCkBAIC04OTYsMyArODk2LDQgQEANCiAjZGVmaW5lIEtFWV9f
-U0VUQVRUUiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIDB4MDAwMDAwMjBVTA0KICNkZWZp
-bmUgS0VZX19DUkVBVEUgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgMHgwMDAwMDA0MFVM
-DQogI2RlZmluZSBDT05URVhUX19UUkFOU0xBVEUgICAgICAgICAgICAgICAgICAgICAgICAweDAw
-MDAwMDAxVUwNCisjZGVmaW5lIENPTlRFWFRfX1RSQU5TSVRJT04gICAgICAgICAgICAgICAgICAg
-ICAgIDB4MDAwMDAwMDJVTA0KSW5kZXg6IGxpYnNlbGludXgvc3JjL2F2X3Blcm1fdG9fc3RyaW5n
-LmgNCj09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09
-PT09PT09PT09PT09PT0NCi0tLSBsaWJzZWxpbnV4L3NyYy9hdl9wZXJtX3RvX3N0cmluZy5oCShy
-ZXZpc2lvbiAyMDc0KQ0KKysrIGxpYnNlbGludXgvc3JjL2F2X3Blcm1fdG9fc3RyaW5nLmgJKHdv
-cmtpbmcgY29weSkNCkBAIC0yNjYsMyArMjY2LDQgQEANCiAgICAgU18oU0VDQ0xBU1NfS0VZLCBL
-RVlfX1NFVEFUVFIsICJzZXRhdHRyIikNCiAgICAgU18oU0VDQ0xBU1NfS0VZLCBLRVlfX0NSRUFU
-RSwgImNyZWF0ZSIpDQogICAgIFNfKFNFQ0NMQVNTX0NPTlRFWFQsIENPTlRFWFRfX1RSQU5TTEFU
-RSwgInRyYW5zbGF0ZSIpDQorICAgIFNfKFNFQ0NMQVNTX0NPTlRFWFQsIENPTlRFWFRfX1RSQU5T
-SVRJT04sICJ0cmFuc2l0aW9uIikNCg==
+SW5kZXg6IHBvbGljeS9mbGFzay9hY2Nlc3NfdmVjdG9ycw0KPT09PT09PT09PT09PT09PT09PT09
+PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PQ0KLS0tIHBvbGlj
+eS9mbGFzay9hY2Nlc3NfdmVjdG9ycwkocmV2aXNpb24gMjA2NSkNCisrKyBwb2xpY3kvZmxhc2sv
+YWNjZXNzX3ZlY3RvcnMJKHdvcmtpbmcgY29weSkNCkBAIC02MzUsNCArNjM1LDUgQEANCiBjbGFz
+cyBjb250ZXh0DQogew0KIAl0cmFuc2xhdGUNCisJdHJhbnNpdGlvbg0KIH0NCkluZGV4OiBwb2xp
+Y3kvbW9kdWxlcy9zeXN0ZW0vYXV0aGxvZ2luLmlmDQo9PT09PT09PT09PT09PT09PT09PT09PT09
+PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09DQotLS0gcG9saWN5L21v
+ZHVsZXMvc3lzdGVtL2F1dGhsb2dpbi5pZgkocmV2aXNpb24gMjA2NSkNCisrKyBwb2xpY3kvbW9k
+dWxlcy9zeXN0ZW0vYXV0aGxvZ2luLmlmCSh3b3JraW5nIGNvcHkpDQpAQCAtMjc4LDYgKzI3OCw5
+IEBADQogCWFsbG93ICQyICQxOmZkIHVzZTsNCiAJYWxsb3cgJDIgJDE6Zmlmb19maWxlIHJ3X2Zp
+bGVfcGVybXM7DQogCWFsbG93ICQyICQxOnByb2Nlc3Mgc2lnY2hsZDsNCisNCisgICAgICAgICMg
+Q2hlY2sgTUxTIFJhbmdlDQorICAgICAgICBhbGxvdyAkMSBkb21haW46Y29udGV4dCB0cmFuc2l0
+aW9uOw0KICcpDQogDQogIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIw0K
+SW5kZXg6IHBvbGljeS9tbHMNCj09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09
+PT09PT09PT09PT09PT09PT09PT09PT09PT09PT0NCi0tLSBwb2xpY3kvbWxzCShyZXZpc2lvbiAy
+MDY1KQ0KKysrIHBvbGljeS9tbHMJKHdvcmtpbmcgY29weSkNCkBAIC01OTYsNCArNTk2LDcgQEAN
+CiBtbHNjb25zdHJhaW4gY29udGV4dCB0cmFuc2xhdGUNCiAJKCggaDEgZG9tIGgyICkgb3IgKCB0
+MSA9PSBtbHN0cmFuc2xhdGUgKSk7DQogDQorbWxzY29uc3RyYWluIGNvbnRleHQgdHJhbnNpdGlv
+bg0KKwkoIGgxIGRvbSBoMiApOw0KKw0KICcpIGRubCBlbmQgZW5hYmxlX21scw0K
 
 
---=-gmdV1I7NBJIKecaOxHix--
+--=-Zfim6DT8dBAmuf61PZTx--
 
---=-Msmsouh2NYWK7C+7ZG+5
+--=-slV5gK3FaLp7be+64LXf
 Content-Type: application/pgp-signature; name=signature.asc
 Content-Description: This is a digitally signed message part
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.5 (GNU/Linux)
 
-iD8DBQBFRlqn11eXTEMrxtQRApaNAJ9SjvCrJINRtarmjLuCZFr/XjL3+gCfYy8Z
-W6FOVhVyEtrBJ0oFVl5ncQA=
-=D7Wm
+iD8DBQBFRl2i11eXTEMrxtQRAoMGAJ9rsHf71BjDYsAURybB6VXkw5kwJgCfeSZ+
+VPtLpta+I0KKPyoqQHixJSM=
+=ZJ8f
 -----END PGP SIGNATURE-----
 
---=-Msmsouh2NYWK7C+7ZG+5--
+--=-slV5gK3FaLp7be+64LXf--
 
 
 --
