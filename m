@@ -1,234 +1,83 @@
-From: James Antill <jantill@redhat.com>
-To: redhat-lspp <redhat-lspp@redhat.com>
-Cc: Stephen Smalley <sds@tycho.nsa.gov>, SE Linux <selinux@tycho.nsa.gov>
-In-Reply-To: <1162239394.31104.13.camel@code.and.org>
-References: <20061012153701.75777.qmail@web36603.mail.mud.yahoo.com>
-	 <45377BF0.6010403@redhat.com>
-	 <1161264613.14632.120.camel@moss-spartans.epoch.ncsc.mil>
-	 <1161620097.667.10.camel@code.and.org>
-	 <1161722236.667.20.camel@code.and.org>
-	 <1161776892.3987.193.camel@moss-spartans.epoch.ncsc.mil>
-	 <1161778937.3987.218.camel@moss-spartans.epoch.ncsc.mil>
-	 <1161784251.667.28.camel@code.and.org>
-	 <1161784759.3987.295.camel@moss-spartans.epoch.ncsc.mil>
-	 <1161803724.29689.57.camel@code.and.org>
-	 <1161804290.3987.388.camel@moss-spartans.epoch.ncsc.mil>
-	 <1161970810.29689.88.camel@code.and.org>
-	 <1161974293.1306.167.camel@moss-spartans.epoch.ncsc.mil>
-	 <1162238632.31104.11.camel@code.and.org>
-	 <1162239394.31104.13.camel@code.and.org>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-IRqSHQVQvw0S7KJ45SGA"
-Date: Mon, 30 Oct 2006 15:22:26 -0500
-Message-Id: <1162239746.31104.18.camel@code.and.org>
-Mime-Version: 1.0
-Subject: Re: [PATCH 3/3] Re: MLS enforcing PTYs, sshd, and newrole
+Message-ID: <45466350.5020203@trustedcs.com>
+Date: Mon, 30 Oct 2006 14:40:48 -0600
+From: Venkat Yekkirala <vyekkirala@TrustedCS.com>
+MIME-Version: 1.0
+To: tjaeger@cse.psu.edu
+CC: sds@tycho.nsa.gov, selinux@tycho.nsa.gov, latten@austin.ibm.com,
+        hallyn@elg11.watson.ibm.com
+Subject: Question on checks against unlabeled
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+Hi Trent et al,
 
---=-IRqSHQVQvw0S7KJ45SGA
-Content-Type: multipart/mixed; boundary="=-iBWpT9v2NP3Zn/rCdbih"
+I have a question on the following checks in security/selinux/xfrm.c:
 
+Specifically, there's a check against unlabeled_t even when there's
+no association involved. Is this really intended in the sense of meeting
+a goal such as a process should always use labeled ipsec or was the intention
+to actually use unlabeled_t only when there's an SA being used, but it's
+not labeled.
 
---=-iBWpT9v2NP3Zn/rCdbih
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+Thanks,
 
-On Mon, 2006-10-30 at 15:16 -0500, James Antill wrote:
-> On Mon, 2006-10-30 at 15:03 -0500, James Antill wrote:
-> > On Fri, 2006-10-27 at 14:38 -0400, Stephen Smalley wrote:
-> >=20
-> > > Look at Darrel's patch for mcstransd to apply a permission check betw=
-een
-> > > the level of the caller and the level being translated for context
-> > > translations.=20
-> >=20
-> >  Thanks to much discussion with Dan and Stephen, I'm pretty sure I have
-> > this correct now.
+venkat
 
+int selinux_xfrm_sock_rcv_skb(u32 isec_sid, struct sk_buff *skb,
+                                struct avc_audit_data *ad)
+{
+        int i, rc = 0;
+        struct sec_path *sp;
+        u32 sel_sid = SECINITSID_UNLABELED;
 
- Here is the PAM part of the patches (libselinux and reference policy
-came previously). This requires the libselinux changes.
+        sp = skb->sp;
 
---=20
-James Antill <jantill@redhat.com>
+        if (sp) {
+                for (i = 0; i < sp->len; i++) {
+                        struct xfrm_state *x = sp->xvec[i];
 
---=-iBWpT9v2NP3Zn/rCdbih
-Content-Disposition: inline; filename=pam-0.99.6.2-selinux-config_role.patch
-Content-Type: text/x-patch; name=pam-0.99.6.2-selinux-config_role.patch; charset=UTF-8
-Content-Transfer-Encoding: base64
+                        if (x && selinux_authorizable_xfrm(x)) {
+                                struct xfrm_sec_ctx *ctx = x->security;
+                                sel_sid = ctx->ctx_sid;
+                                break;
+                        }
+                }
+        }
 
-ZGlmZiAtcnVwIExpbnV4LVBBTS0wLjk5LjYuMi1vcmlnL21vZHVsZXMvcGFtX3NlbGludXgvcGFt
-X3NlbGludXguOC54bWwgTGludXgtUEFNLTAuOTkuNi4yL21vZHVsZXMvcGFtX3NlbGludXgvcGFt
-X3NlbGludXguOC54bWwNCi0tLSBMaW51eC1QQU0tMC45OS42LjItb3JpZy9tb2R1bGVzL3BhbV9z
-ZWxpbnV4L3BhbV9zZWxpbnV4LjgueG1sCTIwMDYtMTAtMjMgMDA6MjU6NTMuMDAwMDAwMDAwIC0w
-NDAwDQorKysgTGludXgtUEFNLTAuOTkuNi4yL21vZHVsZXMvcGFtX3NlbGludXgvcGFtX3NlbGlu
-dXguOC54bWwJMjAwNi0xMC0yNyAxMjo0OTowNS4wMDAwMDAwMDAgLTA0MDANCkBAIC0zNiw2ICsz
-Niw5IEBADQogICAgICAgPGFyZyBjaG9pY2U9Im9wdCI+DQogCXZlcmJvc2UNCiAgICAgICA8L2Fy
-Zz4NCisgICAgICA8YXJnIGNob2ljZT0ib3B0Ij4NCisJY29uZmlnX3JvbGUNCisgICAgICA8L2Fy
-Zz4NCiAgICAgPC9jbWRzeW5vcHNpcz4NCiAgIDwvcmVmc3lub3BzaXNkaXY+DQogDQpAQCAtMTIx
-LDYgKzEyNCwxNyBAQA0KICAgICAgICAgICA8L3BhcmE+DQogICAgICAgICA8L2xpc3RpdGVtPg0K
-ICAgICAgIDwvdmFybGlzdGVudHJ5Pg0KKyAgICAgIDx2YXJsaXN0ZW50cnk+DQorICAgICAgICA8
-dGVybT4NCisgICAgICAgICAgPG9wdGlvbj5jb25maWdfcm9sZTwvb3B0aW9uPg0KKyAgICAgICAg
-PC90ZXJtPg0KKyAgICAgICAgPGxpc3RpdGVtPg0KKyAgICAgICAgICA8cGFyYT4NCisgICAgICAg
-ICAgICBhdHRlbXB0IHRvIGFzayB0aGUgdXNlciBmb3IgYSBjdXN0b20gc2VjdXJpdHkgY29udGV4
-dCByb2xlIChhbmQNCisgICAgICAgICAgICBsZXZlbCwgaWYgTUxTIGlzIG9uKS4NCisgICAgICAg
-ICAgPC9wYXJhPg0KKyAgICAgICAgPC9saXN0aXRlbT4NCisgICAgICA8L3Zhcmxpc3RlbnRyeT4N
-CiAgICAgPC92YXJpYWJsZWxpc3Q+DQogICA8L3JlZnNlY3QxPg0KIA0KT25seSBpbiBMaW51eC1Q
-QU0tMC45OS42LjIvbW9kdWxlcy9wYW1fc2VsaW51eDogcGFtX3NlbGludXguOC54bWwuY29uZmln
-X3JvbGUNCmRpZmYgLXJ1cCBMaW51eC1QQU0tMC45OS42LjItb3JpZy9tb2R1bGVzL3BhbV9zZWxp
-bnV4L3BhbV9zZWxpbnV4LmMgTGludXgtUEFNLTAuOTkuNi4yL21vZHVsZXMvcGFtX3NlbGludXgv
-cGFtX3NlbGludXguYw0KLS0tIExpbnV4LVBBTS0wLjk5LjYuMi1vcmlnL21vZHVsZXMvcGFtX3Nl
-bGludXgvcGFtX3NlbGludXguYwkyMDA2LTEwLTIzIDAwOjI1OjUzLjAwMDAwMDAwMCAtMDQwMA0K
-KysrIExpbnV4LVBBTS0wLjk5LjYuMi9tb2R1bGVzL3BhbV9zZWxpbnV4L3BhbV9zZWxpbnV4LmMJ
-MjAwNi0xMC0zMCAxNToyMDoyOC4wMDAwMDAwMDAgLTA1MDANCkBAIC02Myw2ICs2Myw3IEBADQog
-I2luY2x1ZGUgPHNlbGludXgvc2VsaW51eC5oPg0KICNpbmNsdWRlIDxzZWxpbnV4L2dldF9jb250
-ZXh0X2xpc3QuaD4NCiAjaW5jbHVkZSA8c2VsaW51eC9mbGFzay5oPg0KKyNpbmNsdWRlIDxzZWxp
-bnV4L2F2X3Blcm1pc3Npb25zLmg+DQogI2luY2x1ZGUgPHNlbGludXgvc2VsaW51eC5oPg0KICNp
-bmNsdWRlIDxzZWxpbnV4L2NvbnRleHQuaD4NCiANCkBAIC0xNTEsNiArMTUyLDggQEAgbWFudWFs
-X2NvbnRleHQgKHBhbV9oYW5kbGVfdCAqcGFtaCwgY29ucw0KIAl9DQogCWVsc2UNCiAJICBzZW5k
-X3RleHQocGFtaCxfKCJOb3QgYSB2YWxpZCBzZWN1cml0eSBjb250ZXh0IiksZGVidWcpOw0KKw0K
-KyAgICAgICAgY29udGV4dF9mcmVlIChuZXdfY29udGV4dCk7IC8qIG5leHQgdGltZSBhcm91bmQg
-YWxsb2NhdGVzIGFub3RoZXIgKi8NCiAgICAgICB9DQogICAgIGVsc2Ugew0KICAgICAgIF9wYW1f
-ZHJvcChyZXNwb25zZXMpOw0KQEAgLTE2MSw2ICsxNjQsOTAgQEAgbWFudWFsX2NvbnRleHQgKHBh
-bV9oYW5kbGVfdCAqcGFtaCwgY29ucw0KICAgcmV0dXJuIE5VTEw7DQogfQ0KIA0KK3N0YXRpYyBp
-bnQgbWxzX3JhbmdlX2FsbG93ZWQoc2VjdXJpdHlfY29udGV4dF90IHNyYywgc2VjdXJpdHlfY29u
-dGV4dF90IGRzdCkNCit7DQorICBzdHJ1Y3QgYXZfZGVjaXNpb24gYXZkOw0KKyAgaW50IHJldHZh
-bDsNCisgIGludCBiaXQgPSBDT05URVhUX19UUkFOU0lUSU9OOw0KKyAgDQorICByZXR2YWwgPSBz
-ZWN1cml0eV9jb21wdXRlX2F2KHNyYywgZHN0LCBTRUNDTEFTU19DT05URVhULCBiaXQsICZhdmQp
-Ow0KKyAgaWYgKHJldHZhbCB8fCAoKGJpdCAmIGF2ZC5hbGxvd2VkKSAhPSBiaXQpKQ0KKyAgICBy
-ZXR1cm4gMDsNCisgIA0KKyAgcmV0dXJuIDE7DQorfQ0KKw0KK3N0YXRpYyBzZWN1cml0eV9jb250
-ZXh0X3QNCitjb25maWdfY29udGV4dCAocGFtX2hhbmRsZV90ICpwYW1oLCBzZWN1cml0eV9jb250
-ZXh0X3QgcHVzZXJfY29udGV4dCwgaW50IGRlYnVnKQ0KK3sNCisgIHNlY3VyaXR5X2NvbnRleHRf
-dCBuZXdjb247DQorICBjb250ZXh0X3QgbmV3X2NvbnRleHQ7DQorICBpbnQgbWxzX2VuYWJsZWQg
-PSBpc19zZWxpbnV4X21sc19lbmFibGVkKCk7DQorICBjaGFyICpyZXNwb25zZXM7DQorICBjaGFy
-IHJlc3BfdmFsID0gMDsNCisgIA0KKyAgd2hpbGUgKDEpIHsNCisgICAgcXVlcnlfcmVzcG9uc2Uo
-cGFtaCwNCisJCSAgIF8oIldvdWxkIHlvdSBsaWtlIHRvIGVudGVyIGEgcm9sZS9sZXZlbD8gW3ld
-ICIpLA0KKwkJICAgJnJlc3BvbnNlcyxkZWJ1Zyk7DQorDQorICAgIHJlc3BfdmFsID0gcmVzcG9u
-c2VzWzBdOw0KKyAgICBfcGFtX2Ryb3AocmVzcG9uc2VzKTsNCisgICAgaWYgKChyZXNwX3ZhbCA9
-PSAneScpIHx8IChyZXNwX3ZhbCA9PSAnWScpIHx8IChyZXNwX3ZhbCA9PSAnXDAnKSkNCisgICAg
-ICB7DQorICAgICAgICBuZXdfY29udGV4dCA9IGNvbnRleHRfbmV3IChwdXNlcl9jb250ZXh0KTsN
-CisgICAgICAgIA0KKwkvKiBBbGxvdyB0aGUgdXNlciB0byBlbnRlciByb2xlIGFuZCBsZXZlbCBp
-bmRpdmlkdWFsbHkgKi8NCisJcXVlcnlfcmVzcG9uc2UocGFtaCxfKCJyb2xlOiAiKSwmcmVzcG9u
-c2VzLGRlYnVnKTsNCisJaWYgKHJlc3BvbnNlc1swXSAmJiBjb250ZXh0X3JvbGVfc2V0IChuZXdf
-Y29udGV4dCwgcmVzcG9uc2VzKSkNCisgICAgICAgICAgICAgIGdvdG8gZmFpbF9zZXQ7DQorCV9w
-YW1fZHJvcChyZXNwb25zZXMpOw0KKwlpZiAobWxzX2VuYWJsZWQpDQorCSAgew0KKwkgICAgcXVl
-cnlfcmVzcG9uc2UocGFtaCxfKCJsZXZlbDogIiksJnJlc3BvbnNlcyxkZWJ1Zyk7DQorCSAgICBp
-ZiAocmVzcG9uc2VzWzBdICYmIGNvbnRleHRfcmFuZ2Vfc2V0IChuZXdfY29udGV4dCwgcmVzcG9u
-c2VzKSkNCisgICAgICAgICAgICAgIGdvdG8gZmFpbF9zZXQ7DQorCSAgICBfcGFtX2Ryb3AocmVz
-cG9uc2VzKTsNCisJICB9DQorDQorICAgICAgICAvKiBHZXQgdGhlIHN0cmluZyB2YWx1ZSBvZiB0
-aGUgY29udGV4dCBhbmQgc2VlIGlmIGl0IGlzIHZhbGlkLiAqLw0KKyAgICAgICAgaWYgKCFzZWN1
-cml0eV9jaGVja19jb250ZXh0KGNvbnRleHRfc3RyKG5ld19jb250ZXh0KSkpIHsNCisJICBuZXdj
-b24gPSBzdHJkdXAoY29udGV4dF9zdHIobmV3X2NvbnRleHQpKTsNCisJICBjb250ZXh0X2ZyZWUg
-KG5ld19jb250ZXh0KTsNCisNCisgICAgICAgICAgLyogd2UgaGF2ZSB0byBjaGVjayB0aGF0IHRo
-aXMgdXNlciBpcyBhbGxvd2VkIHRvIGdvIGludG8gdGhlDQorICAgICAgICAgICAgIHJhbmdlIHRo
-ZXkgaGF2ZSBzcGVjaWZpZWQgLi4uIHJvbGUgaXMgdGllZCB0byBhbiBzZXVzZXIsIHNvIHRoYXQn
-bGwNCisgICAgICAgICAgICAgYmUgY2hlY2tlZCBhdCBzZXRleGVjY29uIHRpbWUgKi8NCisgICAg
-ICAgICAgaWYgKG1sc19lbmFibGVkICYmICFtbHNfcmFuZ2VfYWxsb3dlZChwdXNlcl9jb250ZXh0
-LCBuZXdjb24pKQ0KKyAgICAgICAgICAgIGdvdG8gZmFpbF9yYW5nZTsNCisNCisgICAgICAgICAg
-ZnJlZWNvbihwdXNlcl9jb250ZXh0KTsNCisJICByZXR1cm4gbmV3Y29uOw0KKwl9DQorCWVsc2UN
-CisJICBzZW5kX3RleHQocGFtaCxfKCJOb3QgYSB2YWxpZCBzZWN1cml0eSBjb250ZXh0IiksZGVi
-dWcpOw0KKw0KKyAgICAgICAgY29udGV4dF9mcmVlIChuZXdfY29udGV4dCk7IC8qIG5leHQgdGlt
-ZSBhcm91bmQgYWxsb2NhdGVzIGFub3RoZXIgKi8NCisgICAgICB9DQorICAgIGVsc2UNCisgICAg
-ICBicmVhazsNCisgIH0gLyogZW5kIHdoaWxlICovDQorDQorICB3aGlsZSAobnVtLS0gPiAwKQ0K
-KyAgICBjb250ZXh0X2ZyZWUoY2xpc3RbbnVtXSk7DQorICBmcmVlKGNsaXN0KTsNCisgIA0KKyAg
-ZnJlZWNvbihwdXNlcl9jb250ZXh0KTsNCisgIHJldHVybiBOVUxMOw0KKw0KKyBmYWlsX3NldDoN
-CisgIF9wYW1fZHJvcChyZXNwb25zZXMpOw0KKyBmYWlsX3JhbmdlOg0KKyAgY29udGV4dF9mcmVl
-IChuZXdfY29udGV4dCk7DQorICBmcmVlY29uKHB1c2VyX2NvbnRleHQpOw0KKyAgcmV0dXJuIE5V
-TEw7ICANCit9DQorDQogc3RhdGljIHZvaWQNCiBzZWN1cml0eV9yZXN0b3JlbGFiZWxfdHR5KGNv
-bnN0IHBhbV9oYW5kbGVfdCAqcGFtaCwNCiAJCQkgIGNvbnN0IGNoYXIgKnR0eSwgc2VjdXJpdHlf
-Y29udGV4dF90IGNvbnRleHQpDQpAQCAtMjczLDEwICszNjAsMTIgQEAgcGFtX3NtX29wZW5fc2Vz
-c2lvbihwYW1faGFuZGxlX3QgKnBhbWgsIA0KIHsNCiAgIGludCBpLCBkZWJ1ZyA9IDAsIHR0eXM9
-MSwgaGFzX3R0eT1pc2F0dHkoMCk7DQogICBpbnQgdmVyYm9zZT0wLCBjbG9zZV9zZXNzaW9uPTA7
-DQorICBpbnQgY29uZmlnX3JvbGUgPSAwOw0KICAgaW50IHJldCA9IDA7DQogICBzZWN1cml0eV9j
-b250ZXh0X3QqIGNvbnRleHRsaXN0ID0gTlVMTDsNCiAgIGludCBudW1fY29udGV4dHMgPSAwOw0K
-LSAgY29uc3Qgdm9pZCAqdXNlcm5hbWUgPSBOVUxMOw0KKyAgY29uc3Qgdm9pZCAqcHVzZXJuYW1l
-ID0gTlVMTDsNCisgIGNvbnN0IGNoYXIgKnVzZXJuYW1lID0gTlVMTDsNCiAgIGNvbnN0IHZvaWQg
-KnR0eSA9IE5VTEw7DQogICBjaGFyICpzZXVzZXI9TlVMTDsNCiAgIGNoYXIgKmxldmVsPU5VTEw7
-DQpAQCAtMjk1LDYgKzM4NCwxMiBAQCBwYW1fc21fb3Blbl9zZXNzaW9uKHBhbV9oYW5kbGVfdCAq
-cGFtaCwgDQogICAgIGlmIChzdHJjbXAoYXJndltpXSwgImNsb3NlIikgPT0gMCkgew0KICAgICAg
-IGNsb3NlX3Nlc3Npb24gPSAxOw0KICAgICB9DQorICAgIGlmIChzdHJjbXAoYXJndltpXSwgImNv
-bmZpZ19yb2xlIikgPT0gMCkgew0KKyAgICAgIGNvbmZpZ19yb2xlID0gMTsNCisgICAgfQ0KKyAg
-ICBpZiAoc3RyY21wKGFyZ3ZbaV0sICJjb25maWdfbWxzIikgPT0gMCkgew0KKyAgICAgIGNvbmZp
-Z19yb2xlID0gMTsNCisgICAgfQ0KICAgfQ0KIA0KICAgaWYgKGRlYnVnKQ0KQEAgLTMwNywxMCAr
-NDAyLDExIEBAIHBhbV9zbV9vcGVuX3Nlc3Npb24ocGFtX2hhbmRsZV90ICpwYW1oLCANCiAgIGlm
-ICghKHNlbGludXhfZW5hYmxlZCA9IGlzX3NlbGludXhfZW5hYmxlZCgpPjApICkNCiAgICAgICBy
-ZXR1cm4gUEFNX1NVQ0NFU1M7DQogDQotICBpZiAocGFtX2dldF9pdGVtKHBhbWgsIFBBTV9VU0VS
-LCAmdXNlcm5hbWUpICE9IFBBTV9TVUNDRVNTIHx8DQotICAgICAgICAgICAgICAgICAgIHVzZXJu
-YW1lID09IE5VTEwpIHsNCisgIGlmIChwYW1fZ2V0X2l0ZW0ocGFtaCwgUEFNX1VTRVIsICZwdXNl
-cm5hbWUpICE9IFBBTV9TVUNDRVNTIHx8DQorICAgICAgICAgICAgICAgICAgIHB1c2VybmFtZSA9
-PSBOVUxMKSB7DQogICAgIHJldHVybiBQQU1fVVNFUl9VTktOT1dOOw0KICAgfQ0KKyAgdXNlcm5h
-bWUgPSBwdXNlcm5hbWU7DQogDQogICBpZiAoZ2V0c2V1c2VyYnluYW1lKHVzZXJuYW1lLCAmc2V1
-c2VyLCAmbGV2ZWwpPT0wKSB7DQogCSAgbnVtX2NvbnRleHRzID0gZ2V0X29yZGVyZWRfY29udGV4
-dF9saXN0X3dpdGhfbGV2ZWwoc2V1c2VyLCANCkBAIC0zMTksMTkgKzQxNSwzMiBAQCBwYW1fc21f
-b3Blbl9zZXNzaW9uKHBhbV9oYW5kbGVfdCAqcGFtaCwgDQogCQkJCQkJCSAgICAgJmNvbnRleHRs
-aXN0KTsNCiAJICBpZiAoZGVidWcpDQogCQkgIHBhbV9zeXNsb2cocGFtaCwgTE9HX0RFQlVHLCAi
-VXNlcm5hbWU9ICVzIFNFTGludXggVXNlciA9ICVzIExldmVsPSAlcyIsDQotCQkJIChjb25zdCBj
-aGFyICopdXNlcm5hbWUsIHNldXNlciwgbGV2ZWwpOw0KKyAgICAgICAgICAgICAgICAgICAgICAg
-ICAgICAgdXNlcm5hbWUsIHNldXNlciwgbGV2ZWwpOw0KIAkgIGZyZWUoc2V1c2VyKTsNCiAJICBm
-cmVlKGxldmVsKTsNCiAgIH0NCiAgIGlmIChudW1fY29udGV4dHMgPiAwKSB7DQogICAgIHVzZXJf
-Y29udGV4dCA9IChzZWN1cml0eV9jb250ZXh0X3QpIHN0cmR1cChjb250ZXh0bGlzdFswXSk7DQor
-DQorICAgIGlmIChjb25maWdfcm9sZSAmJiBoYXNfdHR5KSB7DQorICAgICAgdXNlcl9jb250ZXh0
-ID0gY29uZmlnX2NvbnRleHQocGFtaCwgdXNlcl9jb250ZXh0LCBkZWJ1Zyk7DQorICAgICAgaWYg
-KHVzZXJfY29udGV4dCA9PSBOVUxMKSB7DQorCXBhbV9zeXNsb2cgKHBhbWgsIExPR19FUlIsICJV
-bmFibGUgdG8gZ2V0IHZhbGlkIGNvbnRleHQgZm9yICVzIiwNCisJCSAgICB1c2VybmFtZSk7DQor
-ICAgICAgICBpZiAoc2VjdXJpdHlfZ2V0ZW5mb3JjZSgpID09IDEpDQorICAgICAgICAgIHJldHVy
-biBQQU1fQVVUSF9FUlI7DQorICAgICAgICBlbHNlDQorICAgICAgICAgIHJldHVybiBQQU1fU1VD
-Q0VTUzsNCisgICAgICB9DQorICAgIH0NCisgICAgDQogICAgIGZyZWVjb25hcnkoY29udGV4dGxp
-c3QpOw0KICAgfSBlbHNlIHsNCiAgICAgaWYgKGhhc190dHkpIHsNCiAgICAgICB1c2VyX2NvbnRl
-eHQgPSBtYW51YWxfY29udGV4dChwYW1oLHVzZXJuYW1lLGRlYnVnKTsNCiAgICAgICBpZiAodXNl
-cl9jb250ZXh0ID09IE5VTEwpIHsNCiAJcGFtX3N5c2xvZyAocGFtaCwgTE9HX0VSUiwgIlVuYWJs
-ZSB0byBnZXQgdmFsaWQgY29udGV4dCBmb3IgJXMiLA0KLQkJICAgIChjb25zdCBjaGFyICopdXNl
-cm5hbWUpOw0KKwkJICAgIHVzZXJuYW1lKTsNCiAgICAgICAgIGlmIChzZWN1cml0eV9nZXRlbmZv
-cmNlKCkgPT0gMSkNCiAgICAgICAgICAgcmV0dXJuIFBBTV9BVVRIX0VSUjsNCiAgICAgICAgIGVs
-c2UNCkBAIC0zNDAsNyArNDQ5LDcgQEAgcGFtX3NtX29wZW5fc2Vzc2lvbihwYW1faGFuZGxlX3Qg
-KnBhbWgsIA0KICAgICB9IGVsc2Ugew0KICAgICAgICAgcGFtX3N5c2xvZyAocGFtaCwgTE9HX0VS
-UiwNCiAJCSAgICAiVW5hYmxlIHRvIGdldCB2YWxpZCBjb250ZXh0IGZvciAlcywgTm8gdmFsaWQg
-dHR5IiwNCi0JCSAgICAoY29uc3QgY2hhciAqKXVzZXJuYW1lKTsNCisJCSAgICB1c2VybmFtZSk7
-DQogICAgICAgICBpZiAoc2VjdXJpdHlfZ2V0ZW5mb3JjZSgpID09IDEpDQogICAgICAgICAgIHJl
-dHVybiBQQU1fQVVUSF9FUlI7DQogICAgICAgICBlbHNlDQpAQCAtMzgxLDcgKzQ5MCw3IEBAIHBh
-bV9zbV9vcGVuX3Nlc3Npb24ocGFtX2hhbmRsZV90ICpwYW1oLCANCiAgIGlmIChyZXQpIHsNCiAg
-ICAgcGFtX3N5c2xvZyhwYW1oLCBMT0dfRVJSLA0KIAkgICAgICAgIkVycm9yISAgVW5hYmxlIHRv
-IHNldCAlcyBleGVjdXRhYmxlIGNvbnRleHQgJXMuIiwNCi0JICAgICAgIChjb25zdCBjaGFyICop
-dXNlcm5hbWUsIHVzZXJfY29udGV4dCk7DQorCSAgICAgICB1c2VybmFtZSwgdXNlcl9jb250ZXh0
-KTsNCiAgICAgaWYgKHNlY3VyaXR5X2dldGVuZm9yY2UoKSA9PSAxKSB7DQogICAgICAgIGZyZWVj
-b24odXNlcl9jb250ZXh0KTsNCiAgICAgICAgcmV0dXJuIFBBTV9BVVRIX0VSUjsNCkBAIC0zODks
-NyArNDk4LDcgQEAgcGFtX3NtX29wZW5fc2Vzc2lvbihwYW1faGFuZGxlX3QgKnBhbWgsIA0KICAg
-fSBlbHNlIHsNCiAgICAgaWYgKGRlYnVnKQ0KICAgICAgIHBhbV9zeXNsb2cocGFtaCwgTE9HX05P
-VElDRSwgInNldCAlcyBzZWN1cml0eSBjb250ZXh0IHRvICVzIiwNCi0JCSAoY29uc3QgY2hhciAq
-KXVzZXJuYW1lLCB1c2VyX2NvbnRleHQpOw0KKwkJIHVzZXJuYW1lLCB1c2VyX2NvbnRleHQpOw0K
-ICAgfQ0KICNpZmRlZiBIQVZFX1NFVEtFWUNSRUFURUNPTg0KICAgcmV0ID0gc2V0a2V5Y3JlYXRl
-Y29uKHVzZXJfY29udGV4dCk7DQpAQCAtNDAyLDcgKzUxMSw3IEBAIHBhbV9zbV9vcGVuX3Nlc3Np
-b24ocGFtX2hhbmRsZV90ICpwYW1oLCANCiAgIGlmIChyZXQpIHsNCiAgICAgcGFtX3N5c2xvZyhw
-YW1oLCBMT0dfRVJSLA0KIAkgICAgICAgIkVycm9yISAgVW5hYmxlIHRvIHNldCAlcyBrZXkgY3Jl
-YXRpb24gY29udGV4dCAlcy4iLA0KLQkgICAgICAgKGNvbnN0IGNoYXIgKil1c2VybmFtZSwgdXNl
-cl9jb250ZXh0KTsNCisJICAgICAgIHVzZXJuYW1lLCB1c2VyX2NvbnRleHQpOw0KICAgICBpZiAo
-c2VjdXJpdHlfZ2V0ZW5mb3JjZSgpID09IDEpIHsNCiAgICAgICAgZnJlZWNvbih1c2VyX2NvbnRl
-eHQpOw0KICAgICAgICByZXR1cm4gUEFNX0FVVEhfRVJSOw0KQEAgLTQxMCw3ICs1MTksNyBAQCBw
-YW1fc21fb3Blbl9zZXNzaW9uKHBhbV9oYW5kbGVfdCAqcGFtaCwgDQogICB9IGVsc2Ugew0KICAg
-ICBpZiAoZGVidWcpDQogICAgICAgcGFtX3N5c2xvZyhwYW1oLCBMT0dfTk9USUNFLCAic2V0ICVz
-IGtleSBjcmVhdGlvbiBjb250ZXh0IHRvICVzIiwNCi0JCSAoY29uc3QgY2hhciAqKXVzZXJuYW1l
-LCB1c2VyX2NvbnRleHQpOw0KKwkJIHVzZXJuYW1lLCB1c2VyX2NvbnRleHQpOw0KICAgfQ0KICNl
-bmRpZg0KICAgZnJlZWNvbih1c2VyX2NvbnRleHQpOw0KT25seSBpbiBMaW51eC1QQU0tMC45OS42
-LjIvbW9kdWxlcy9wYW1fc2VsaW51eDogcGFtX3NlbGludXguYy5jb25maWdfcm9sZQ0K
+        rc = avc_has_perm(isec_sid, sel_sid, SECCLASS_ASSOCIATION,
+/*
+ * POSTROUTE_LAST hook's XFRM processing:
+ * If we have no security association, then we need to determine
+ * whether the socket is allowed to send to an unlabelled destination.
+ * If we do have a authorizable security association, then it has already been
+ * checked in xfrm_policy_lookup hook.
+ */
+int selinux_xfrm_postroute_last(u32 isec_sid, struct sk_buff *skb,
+                                        struct avc_audit_data *ad)
+{
+        struct dst_entry *dst;
+        int rc = 0;
 
+        dst = skb->dst;
 
---=-iBWpT9v2NP3Zn/rCdbih--
+        if (dst) {
+                struct dst_entry *dst_test;
 
---=-IRqSHQVQvw0S7KJ45SGA
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
+                for (dst_test = dst; dst_test != 0;
+                     dst_test = dst_test->child) {
+                        struct xfrm_state *x = dst_test->xfrm;
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.5 (GNU/Linux)
+                        if (x && selinux_authorizable_xfrm(x))
+                                goto out;
+                }
+        }
 
-iD8DBQBFRl8C11eXTEMrxtQRAlecAJ9YKJ2geHOnivdzLxbFnV4dyTK9mwCgyVuN
-+Tr7RlLiGF/cYwvegnPpgsk=
-=b7Eo
------END PGP SIGNATURE-----
-
---=-IRqSHQVQvw0S7KJ45SGA--
-
+        rc = avc_has_perm(isec_sid, SECINITSID_UNLABELED, SECCLASS_ASSOCIATION,
+                          ASSOCIATION__SENDTO, ad);
+out:
+        return rc;
+}
 
 --
 This message was distributed to subscribers of the selinux mailing list.
