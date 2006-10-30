@@ -1,83 +1,82 @@
-Message-ID: <45466350.5020203@trustedcs.com>
-Date: Mon, 30 Oct 2006 14:40:48 -0600
-From: Venkat Yekkirala <vyekkirala@TrustedCS.com>
-MIME-Version: 1.0
-To: tjaeger@cse.psu.edu
-CC: sds@tycho.nsa.gov, selinux@tycho.nsa.gov, latten@austin.ibm.com,
-        hallyn@elg11.watson.ibm.com
-Subject: Question on checks against unlabeled
-Content-Type: text/plain; charset=ISO-8859-1
+Subject: RE: User object manager context location
+From: James Carter <jwcart2@epoch.ncsc.mil>
+Reply-To: jwcart2@epoch.ncsc.mil
+To: Joshua Brindle <jbrindle@tresys.com>
+Cc: ewalsh@tycho.nsa.gov, Stephen Smalley <sds@tycho.nsa.gov>,
+        selinux@tycho.nsa.gov
+In-Reply-To: <6FE441CD9F0C0C479F2D88F959B015885146B9@exchange.columbia.tresys.com>
+References: 
+	 <6FE441CD9F0C0C479F2D88F959B015885146B9@exchange.columbia.tresys.com>
+Content-Type: text/plain
+Date: Mon, 30 Oct 2006 15:43:37 -0500
+Message-Id: <1162241017.25643.65.camel@moss-lions.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hi Trent et al,
+On Fri, 2006-10-27 at 18:37 -0400, Joshua Brindle wrote:
+> > From: James Carter [mailto:jwcart2@epoch.ncsc.mil] 
+> > 
+> > On Fri, 2006-10-27 at 15:13 -0400, Joshua Brindle wrote:
+> > > I still don't buy this, if for no other reason than the object 
+> > > labeling (even defaults) are owned by the application, not 
+> > semanage, 
+> > > not the policy. These are a resource of the application. What will 
+> > > matchpathcon return if there is no file for that object 
+> > class? Is it 
+> > > going to default to an initial sid that may not even make 
+> > sense for that object class?
+> > 
+> > Every object class should have its own default context.
+> > 
+> 
+> And that default context comes from here? 
 
-I have a question on the following checks in security/selinux/xfrm.c:
+I'm sorry, I think you lost me.  Where is "here"?
+I don't think any of this would be handled by semanage.
 
-Specifically, there's a check against unlabeled_t even when there's
-no association involved. Is this really intended in the sense of meeting
-a goal such as a process should always use labeled ipsec or was the intention
-to actually use unlabeled_t only when there's an SA being used, but it's
-not labeled.
+> I assume it should be the
+> object manager that determines the default context, how else would it
+> work? 
 
-Thanks,
+I don't think that I've been clear.
 
-venkat
+What I mean by a default context is something like an initial sid used
+by the kernel.  The kernel always has something that it can use that is
+guaranteed to be valid and that is independent of the policy.  It seemed
+like userspace object managers could use something like that.  
 
-int selinux_xfrm_sock_rcv_skb(u32 isec_sid, struct sk_buff *skb,
-                                struct avc_audit_data *ad)
-{
-        int i, rc = 0;
-        struct sec_path *sp;
-        u32 sel_sid = SECINITSID_UNLABELED;
+What I had envisioned is that there would be some function that, given
+the security class, would return the string representation of the
+default context (or the user-space sid, which is a struct) for that
+class.  The policy would have some way to define the default context for
+each object class.
 
-        sp = skb->sp;
+D-Bus uses the context of the system bus for its default context, GConf
+could use the context of the configuration server for its default
+context, and talking to Eamon, it doesn't seem like he needs this sort
+of thing for the X server, so maybe there really isn't a need for this
+after all.
 
-        if (sp) {
-                for (i = 0; i < sp->len; i++) {
-                        struct xfrm_state *x = sp->xvec[i];
+> In that case storing the default context separate from the
+> "actual" contexts is strange anyway. "actual" here is a loose concept
+> since it could be authoritative (eg., policy server uses its context
+> file only) or not authoritative (eg., file contexts where the initial
+> contexts are stored with the policy but the real contexts are stored
+> with the object).
+> 
+> Not that it matters but I still haven't heard really compelling reasons
+> either way..
+> 
+> 
+> --
+> This message was distributed to subscribers of the selinux mailing list.
+> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
+> the words "unsubscribe selinux" without quotes as the message.
+-- 
+James Carter <jwcart2@epoch.ncsc.mil>
+National Security Agency
 
-                        if (x && selinux_authorizable_xfrm(x)) {
-                                struct xfrm_sec_ctx *ctx = x->security;
-                                sel_sid = ctx->ctx_sid;
-                                break;
-                        }
-                }
-        }
-
-        rc = avc_has_perm(isec_sid, sel_sid, SECCLASS_ASSOCIATION,
-/*
- * POSTROUTE_LAST hook's XFRM processing:
- * If we have no security association, then we need to determine
- * whether the socket is allowed to send to an unlabelled destination.
- * If we do have a authorizable security association, then it has already been
- * checked in xfrm_policy_lookup hook.
- */
-int selinux_xfrm_postroute_last(u32 isec_sid, struct sk_buff *skb,
-                                        struct avc_audit_data *ad)
-{
-        struct dst_entry *dst;
-        int rc = 0;
-
-        dst = skb->dst;
-
-        if (dst) {
-                struct dst_entry *dst_test;
-
-                for (dst_test = dst; dst_test != 0;
-                     dst_test = dst_test->child) {
-                        struct xfrm_state *x = dst_test->xfrm;
-
-                        if (x && selinux_authorizable_xfrm(x))
-                                goto out;
-                }
-        }
-
-        rc = avc_has_perm(isec_sid, SECINITSID_UNLABELED, SECCLASS_ASSOCIATION,
-                          ASSOCIATION__SENDTO, ad);
-out:
-        return rc;
-}
 
 --
 This message was distributed to subscribers of the selinux mailing list.
