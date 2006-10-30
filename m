@@ -1,30 +1,64 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k9UI86tc018469
-	for <selinux@tycho.nsa.gov>; Mon, 30 Oct 2006 13:08:06 -0500
-Received: from atlrel9.hp.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id k9UI7IZZ008181
-	for <selinux@tycho.nsa.gov>; Mon, 30 Oct 2006 18:07:18 GMT
-Message-Id: <20061030180331.404950000@hp.com>
-Date: Mon, 30 Oct 2006 13:03:31 -0500
-From: paul.moore@hp.com
-To: netdev@vger.kernel.org, selinux@tycho.nsa.gov
-Cc: jmorris@redhat.com, sds@epoch.ncsc.mil, eparis@redhat.com
-Subject: [patch 0/1] NetLabel bugfix for 2.6.19
+Subject: Re: [PATCH] libsepol users in non-mls policy bugfix
+From: Karl MacMillan <kmacmillan@mentalrootkit.com>
+To: Joshua Brindle <jbrindle@tresys.com>
+Cc: "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>,
+        Stephen Smalley <sds@tycho.nsa.gov>,
+        Darrel Goeddel <dgoeddel@TrustedCS.com>
+In-Reply-To: <1162216762.3236.3.camel@twoface.columbia.tresys.com>
+References: <1162216762.3236.3.camel@twoface.columbia.tresys.com>
+Content-Type: text/plain
+Date: Mon, 30 Oct 2006 13:26:00 -0500
+Message-Id: <1162232760.29732.26.camel@localhost.localdomain>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Sorry, but another bugfix patch for NetLabel which I think should be included
-2.6.19.
+On Mon, 2006-10-30 at 08:59 -0500, Joshua Brindle wrote:
+> This patch fixes a bug where adding a user in a non-mls module would
+> cause a segfault at link time.
+> 
+> 
+> diff -pruN trunk/libsepol/src/link.c user_mls_fix/libsepol/src/link.c
+> --- trunk/libsepol/src/link.c	2006-10-28 15:35:26.000000000 -0400
+> +++ user_mls_fix/libsepol/src/link.c	2006-10-28 15:26:44.000000000 -0400
+> @@ -994,11 +994,15 @@ static int user_fix_callback(hashtab_key
+>  		goto cleanup;
+>  	}
+>  
+> -	if (mls_range_convert(&user->range, &new_user->range, mod))
+> -		goto cleanup;
+> +	if (mod->policy->mls) {
+>  
+> -	if (mls_level_convert(&user->dfltlevel, &new_user->dfltlevel, mod))
+> -		goto cleanup;
+> +		if (mls_range_convert(&user->range, &new_user->range, mod))
+> +			goto cleanup;
+> +
+> +		if (mls_level_convert(&user->dfltlevel, &new_user->dfltlevel, mod))
+> +			goto cleanup;
+> +
+> +	}
+>  
+>  	return 0;
+>  
+> 
 
-The problem is that the SELinux reference policy is a bit more free in allowing
-applications to call setsockopt() than I had originally thought, which means
-that normal applications could add or tamper with the NetLabel/CIPSO options on
-a socket causing all sorts of nastiness.  This patch should solve these
-problems.
+This patch looks ok, but shouldn't we also stop the segfault in
+mls_level_convert? The use of assert there looks like it is catching
+what should be a runtime error that should cause an error message rather
+than bailing.
 
---
-paul moore
-linux security @ hp
+Otherwise:
+
+Acked by: Karl MacMillan <kmacmillan@mentalrootkit.com>
+
+> 
+> 
+> --
+> This message was distributed to subscribers of the selinux mailing list.
+> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
+> the words "unsubscribe selinux" without quotes as the message.
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
