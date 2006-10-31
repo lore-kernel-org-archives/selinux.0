@@ -1,29 +1,73 @@
-From: David Howells <dhowells@redhat.com>
-In-Reply-To: <1162313484.32614.104.camel@moss-spartans.epoch.ncsc.mil> 
-References: <1162313484.32614.104.camel@moss-spartans.epoch.ncsc.mil>  <1161972628.1306.140.camel@moss-spartans.epoch.ncsc.mil> <1161967078.1306.61.camel@moss-spartans.epoch.ncsc.mil> <1161961415.1306.4.camel@moss-spartans.epoch.ncsc.mil> <1161884706.16681.270.camel@moss-spartans.epoch.ncsc.mil> <1161880487.16681.232.camel@moss-spartans.epoch.ncsc.mil> <1161867101.16681.115.camel@moss-spartans.epoch.ncsc.mil> <1161810725.16681.45.camel@moss-spartans.epoch.ncsc.mil> <16969.1161771256@redhat.com> <8567.1161859255@redhat.com> <22702.1161878644@redhat.com> <24017.1161882574@redhat.com> <27450.1161960110@redhat.com> <5318.1161965576@redhat.com> <7319.1161970091@redhat.com> <25910.1162311558@redhat.com> 
-To: Stephen Smalley <sds@tycho.nsa.gov>
-Cc: David Howells <dhowells@redhat.com>, Karl MacMillan <kmacmill@redhat.com>,
-        Daniel J Walsh <dwalsh@redhat.com>, selinux@tycho.nsa.gov,
-        jmorris@namei.org
-Subject: Re: Security issues with local filesystem caching 
-Date: Tue, 31 Oct 2006 19:21:18 +0000
-Message-ID: <28829.1162322478@redhat.com>
+Reply-To: <vyekkirala@TrustedCS.com>
+From: "Venkat Yekkirala" <vyekkirala@TrustedCS.com>
+To: "'James Morris'" <jmorris@namei.org>
+Cc: <jbrindle@tresys.com>, <selinux@tycho.nsa.gov>,
+        "Stephen Smalley" <sds@tycho.nsa.gov>, <gcwilson@us.ibm.com>,
+        "Paul Moore" <paul.moore@hp.com>
+Subject: RE: SELinux Networking Enhancements
+Date: Tue, 31 Oct 2006 14:54:49 -0600
+Message-ID: <000601c6fd2e$ceea6ab0$cc0a010a@tcssec.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+In-Reply-To: <Pine.LNX.4.64.0610301237530.7342@d.namei>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Stephen Smalley <sds@tycho.nsa.gov> wrote:
+> > > and I don't believe we need to wait for that to implement 
+> protected 
+> > > paths for host to host networking.
+> > 
+> > Can you please lay out the kind of controls you have in mind
+> > for "protected paths for host to host networking". I want to
+> > see what (modified) portions I can present for upstreaming.
+> 
+> Let's start with the common case for non-MLS general use 
+> scenarios, then
+> once we have that nailed down, look at what else is needed to 
+> meaningfully
+> support MLS (and possibly concurrent CIPSO).
+> 
+> What are we currently missing, in terms of being able to label SAs, 
+> authorize their use, enforce flow policy, and allow applications to 
+> determine peer labels ?
+> 
+> For flow enforcement, I would like to see this done as simply 
+> as possible.  
+> e.g.:
+> 
+> # Server policy
+> allow httpd_server_t httpd_client_t:peer { recv send };
 
-> To define the type, you would need a policy module.
+This is already effectively covered in the following checks:
 
-Karl MacMillan gave me such a beast, and now I have cachefilesd running in the
-cachefilesd_t context:
+allow httpd_server_t httpd_client_t:association { recvfrom };
 
-user_u:system_r:cachefilesd_t:s0 5019 ?        Ss     0:00 cachefilesd
+allow httpd_server_t http_client_packet_t:packet { send };
 
-With permission to access the cachefiles_t context (in which /var/fscache
-resides).
+> 
+> # Client policy
+> allow httpd_client_t httpd_server_t:peer { recv send };
+> 
 
-David
+In the "peer" abstraction above, the problem is how would we define a
+peer? A "peer" is only available when you receive something. A peer
+isn't available currently when you are sending to the peer. We can't
+use SAs for this purpose since an SA is a unidirectional thing. The
+now-dead secpoint attempted to define peer secpoints.
+
+There's the main issue of what "peers" (external labels) can enter
+the system.
+
+Implementation issues aside, lately I have been wondering about doing
+something in the filter table using something we could call secfilter
+or so.
+
+You would still use secmark to label the packets, but they (along with
+any external labels) could get filtered in the secfilter module. This
+way we could control what external labels could come thru from what peers.
+For internal labels it would be more of an assurance thing. This would also
+automatically take care of forwarding controls.
 
 --
 This message was distributed to subscribers of the selinux mailing list.
