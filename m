@@ -1,126 +1,127 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k9VLXYeC030044
-	for <selinux@tycho.nsa.gov>; Tue, 31 Oct 2006 16:33:34 -0500
-Received: from moss-lions.epoch.ncsc.mil (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id k9VLVvsE025093
-	for <selinux@tycho.nsa.gov>; Tue, 31 Oct 2006 21:31:57 GMT
-Received: from moss-lions.epoch.ncsc.mil (localhost.localdomain [127.0.0.1])
-	by moss-lions.epoch.ncsc.mil (8.13.8/8.13.8) with ESMTP id k9VLWBZ9023825
-	for <selinux@tycho.nsa.gov>; Tue, 31 Oct 2006 16:32:11 -0500
-Received: (from jwcart2@localhost)
-	by moss-lions.epoch.ncsc.mil (8.13.8/8.13.8/Submit) id k9VLWBUS023824
-	for selinux@tycho.nsa.gov; Tue, 31 Oct 2006 16:32:11 -0500
-In-Reply-To: <45466350.5020203@trustedcs.com>
-References: <45466350.5020203@trustedcs.com>
-Mime-Version: 1.0 (Apple Message framework v752.2)
-Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
-Message-Id: <BB15F670-BA6A-47BD-BF04-37A7B9206D87@cse.psu.edu>
-Cc: sds@tycho.nsa.gov, selinux@tycho.nsa.gov, latten@austin.ibm.com,
-        hallyn@elg11.watson.ibm.com
-From: Trent Jaeger <tjaeger@cse.psu.edu>
-Subject: Re: Question on checks against unlabeled
-Date: Mon, 30 Oct 2006 15:58:59 -0500
-To: Venkat Yekkirala <vyekkirala@TrustedCS.com>
+Subject: RE: User object manager context location
+From: Eamon Walsh <ewalsh@tycho.nsa.gov>
+Reply-To: ewalsh@tycho.nsa.gov
+To: Joshua Brindle <jbrindle@tresys.com>
+Cc: sds@tycho.nsa.gov, selinux@tycho.nsa.gov
+In-Reply-To: <6FE441CD9F0C0C479F2D88F959B015885146C1@exchange.columbia.tresys.com>
+References: 
+	 <6FE441CD9F0C0C479F2D88F959B015885146C1@exchange.columbia.tresys.com>
+Content-Type: text/plain
+Date: Tue, 31 Oct 2006 18:11:39 -0500
+Message-Id: <1162336299.6131.68.camel@moss-huskies.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-The intention was to prevent the case that a machine can communicate  
-to another machine w/o IPsec, but it has processes that must not use  
-unencrypted and/or unlabeled communication.  Thus, it was required  
-that a process (actually a socket) that sends w/o IPsec must be able  
-to communicate with unlabeled security associations.
+On Sat, 2006-10-28 at 13:58 -0400, Joshua Brindle wrote:
+> > From: Eamon Walsh [mailto:ewalsh@tycho.nsa.gov] 
+> > The application does own the objects and the runtime labels 
+> > of those objects.  But the mapping that produces the labels 
+> > should be owned by the security administrator.
+> 
+> Why? First of all, there are cases where runtime and initial contexts
+> aren't different (policy server, dbus). So in that case do you concede
+> that the application should own the runtime labels? Do you think it
+> would be valid for the postgres schema to contain the initial labels?
+> That would clearly not be stored with the rest of these contexts with
+> the policy. I don't think it violates any fundamental security
+> principles though..
 
-If we can make it more explicit that a socket requires IPsec or not,  
-then we may not need this check.  We can check on process's access to  
-socket.  I'll think about how we could do this.
+I don't quite understand the meaning of "initial" and "runtime" here. 
 
-Regards,
-Trent.
+> > - N different configuration file formats that the security 
+> > administrator now has to be aware of and have permission to edit.
+> 
+> Which is obviously non-ideal and unscalable. These need infrastructure
+> to manage or noone will ever use them.
 
-On Oct 30, 2006, at 3:40 PM, Venkat Yekkirala wrote:
+And this is precisely what I am proposing.  That we standardize a file
+format for storing string -> context mappings, install them all
+somewhere in /etc/selinux where they are accessible to the security
+administrator only, and provide a matchpathcon-type interface in
+libselinux, indexed by object class, for use by userspace object
+managers to query them. 
 
-> Hi Trent et al,
->
-> I have a question on the following checks in security/selinux/xfrm.c:
->
-> Specifically, there's a check against unlabeled_t even when there's
-> no association involved. Is this really intended in the sense of  
-> meeting
-> a goal such as a process should always use labeled ipsec or was the  
-> intention
-> to actually use unlabeled_t only when there's an SA being used, but  
-> it's
-> not labeled.
->
-> Thanks,
->
-> venkat
->
-> int selinux_xfrm_sock_rcv_skb(u32 isec_sid, struct sk_buff *skb,
->                                 struct avc_audit_data *ad)
-> {
->         int i, rc = 0;
->         struct sec_path *sp;
->         u32 sel_sid = SECINITSID_UNLABELED;
->
->         sp = skb->sp;
->
->         if (sp) {
->                 for (i = 0; i < sp->len; i++) {
->                         struct xfrm_state *x = sp->xvec[i];
->
->                         if (x && selinux_authorizable_xfrm(x)) {
->                                 struct xfrm_sec_ctx *ctx = x- 
-> >security;
->                                 sel_sid = ctx->ctx_sid;
->                                 break;
->                         }
->                 }
->         }
->
->         rc = avc_has_perm(isec_sid, sel_sid, SECCLASS_ASSOCIATION,
-> /*
->  * POSTROUTE_LAST hook's XFRM processing:
->  * If we have no security association, then we need to determine
->  * whether the socket is allowed to send to an unlabelled destination.
->  * If we do have a authorizable security association, then it has  
-> already been
->  * checked in xfrm_policy_lookup hook.
->  */
-> int selinux_xfrm_postroute_last(u32 isec_sid, struct sk_buff *skb,
->                                         struct avc_audit_data *ad)
-> {
->         struct dst_entry *dst;
->         int rc = 0;
->
->         dst = skb->dst;
->
->         if (dst) {
->                 struct dst_entry *dst_test;
->
->                 for (dst_test = dst; dst_test != 0;
->                      dst_test = dst_test->child) {
->                         struct xfrm_state *x = dst_test->xfrm;
->
->                         if (x && selinux_authorizable_xfrm(x))
->                                 goto out;
->                 }
->         }
->
->         rc = avc_has_perm(isec_sid, SECINITSID_UNLABELED,  
-> SECCLASS_ASSOCIATION,
->                           ASSOCIATION__SENDTO, ad);
-> out:
->         return rc;
-> }
+I'm not arguing that the mapping files have to ship in the policy
+package.  If you want to ship them (and policy modules) in the
+individual application packages, that's fine. 
 
-----------------------------------------------
-Trent Jaeger, Associate Professor
-Pennsylvania State University, CSE Dept
-346A IST Bldg, University Park, PA 16802
-Email: tjaeger@cse.psu.edu
-Ph: (814) 865-1042, Fax: (814) 865-3176
+> 
+> > - N different service administrators who now have the ability 
+> > to mess up the security configuration on the system.  This is 
+> > very DACish.
+> 
+> Not really. Individual enforcers can still control who can change them,
+> as well as MAC on the files (or whatever) containing the labels. 
 
+Not if the labels are stored in the same config file with the rest of
+the application configuration.  Which is why I want them broken out into
+separate files.  And once you do that, you might as well stick it
+under /etc/selinux, and symlink to it from /etc/httpd or whatever if
+necessary so that the service administrator knows about it.
+
+Again, I don't care which package it goes in.
+
+> 
+> > - N different upstream projects that you have to convince to 
+> > accept not only the userspace object manager code, but also 
+> > new SELinux-specific configuration parameters.  Imagine if we 
+> > had to convince the coreutils or tar people to incorporate 
+> > the file contexts mapping.
+> 
+> Except neither of those need mappings, they aren't enforcers. Enforcers
+> need configuration parameters to work, upstream should understand that
+> the code being added (the object manager code) has configuration
+> parameters, this is not a stretch I don't think.
+
+For the specific case of string -> context mappings, I think they should
+be handled through libselinux as described.  I think it would simplify
+the upstreaming job and do a lot to make selinux "work behind the
+scenes" like it does in the kernel.
+
+> 
+> > - N different packages that have to be updated when the next 
+> > policy package comes out (since the valid set of types _is_ 
+> > in kernel policy).
+> 
+> Ah! So now we are getting to a good issue. There is nothing preventing
+> the user object manager from being packaged with its own policy module
+> that defines the types used by that UOM. In fact, I think this is what
+> we want, once we have dynamic object class discovery we can even add
+> classes and permissions in modules so any UOM policy can be completely
+> independent of the running policy on the system. 
+
+I'm not arguing that we can't do this.
+
+
+> > You'd have to ship apache-targeted, apache-strict, 
+> > apache-mls, etc. to match the installed policy, and you'd 
+> > have dependencies like
+> > apache-targeted-1.2.3-54 requires selinux-policy-targeted == 
+> > 1.2.3-1234.
+> > 
+> 
+> I don't think that's true, there is nothing preventing an application
+> from installing its policy into
+> /usr/share/selinux/<policytype>/apache.pp and letting the selinux
+> infrastructure figure out how to handle it, in fact I think that is
+> precisely what we want.
+
+...and this is precisely what I want, except for the mapping files
+instead (or in addition to) the policy modules.  (assuming
+that /usr/share/selinux is restricted to the security admin).
+
+Something like the following (notice the by-class structure):
+
+/u/s/selinux/<policytype>/mappings/vhost/apache.map
+/u/s/selinux/<policytype>/mappings/vhost/lighttpd.map
+/u/s/selinux/<policytype>/mappings/xextension/xserver-extensions.map
+/u/s/selinux/<policytype>/mappings/property/xserver-properties.map
+/u/s/selinux/<policytype>/mappings/dbus/dbus-channels.map
+
+-- 
+Eamon Walsh <ewalsh@tycho.nsa.gov>
+National Security Agency
 
 
 --
