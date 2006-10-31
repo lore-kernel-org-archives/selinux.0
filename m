@@ -1,150 +1,56 @@
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="US-ASCII"
-Subject: RE: [PATCH] libsepol users in non-mls policy bugfix
-Date: Mon, 30 Oct 2006 16:41:55 -0500
-Message-ID: <6FE441CD9F0C0C479F2D88F959B015885147CD@exchange.columbia.tresys.com>
-In-Reply-To: <1162234607.29732.30.camel@localhost.localdomain>
-From: "Joshua Brindle" <jbrindle@tresys.com>
-To: "Karl MacMillan" <kmacmillan@mentalrootkit.com>
-Cc: <selinux@tycho.nsa.gov>, "Stephen Smalley" <sds@tycho.nsa.gov>,
-        "Darrel Goeddel" <dgoeddel@TrustedCS.com>
+Subject: Re: [PATCH 2/3] Re: MLS enforcing PTYs, sshd, and newrole
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: James Antill <james.antill@redhat.com>
+Cc: redhat-lspp <redhat-lspp@redhat.com>, SE Linux <selinux@tycho.nsa.gov>
+In-Reply-To: <1162239394.31104.13.camel@code.and.org>
+References: <20061012153701.75777.qmail@web36603.mail.mud.yahoo.com>
+	 <45377BF0.6010403@redhat.com>
+	 <1161264613.14632.120.camel@moss-spartans.epoch.ncsc.mil>
+	 <1161620097.667.10.camel@code.and.org>
+	 <1161722236.667.20.camel@code.and.org>
+	 <1161776892.3987.193.camel@moss-spartans.epoch.ncsc.mil>
+	 <1161778937.3987.218.camel@moss-spartans.epoch.ncsc.mil>
+	 <1161784251.667.28.camel@code.and.org>
+	 <1161784759.3987.295.camel@moss-spartans.epoch.ncsc.mil>
+	 <1161803724.29689.57.camel@code.and.org>
+	 <1161804290.3987.388.camel@moss-spartans.epoch.ncsc.mil>
+	 <1161970810.29689.88.camel@code.and.org>
+	 <1161974293.1306.167.camel@moss-spartans.epoch.ncsc.mil>
+	 <1162238632.31104.11.camel@code.and.org>
+	 <1162239394.31104.13.camel@code.and.org>
+Content-Type: text/plain
+Date: Tue, 31 Oct 2006 09:23:30 -0500
+Message-Id: <1162304610.32614.24.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-> From: Karl MacMillan [mailto:kmacmillan@mentalrootkit.com] 
-> 
-> On Mon, 2006-10-30 at 13:31 -0500, Joshua Brindle wrote:
-> > > From: Karl MacMillan [mailto:kmacmillan@mentalrootkit.com]
-> > > 
-> > > This patch looks ok, but shouldn't we also stop the segfault in 
-> > > mls_level_convert? The use of assert there looks like it 
-> is catching 
-> > > what should be a runtime error that should cause an error message 
-> > > rather than bailing.
-> > > 
-> > > Otherwise:
+On Mon, 2006-10-30 at 15:16 -0500, James Antill wrote:
+> On Mon, 2006-10-30 at 15:03 -0500, James Antill wrote:
+> > On Fri, 2006-10-27 at 14:38 -0400, Stephen Smalley wrote:
 > > 
-> > Yea, I tried thinking of a more elegant way to do it and 
-> couldn't come 
-> > up with anything, any suggestions?
+> > > Look at Darrel's patch for mcstransd to apply a permission check between
+> > > the level of the caller and the level being translated for context
+> > > translations. 
 > > 
+> >  Thanks to much discussion with Dan and Stephen, I'm pretty sure I have
+> > this correct now.
 > 
-> You can put the check in mls_level_convert.
 > 
-> > Clearly those assertions only apply to the MLS case, and we 
-> caught a 
-> > plain bug because of them, I think they are not user errors.
-> > 
-> 
-> Yea - I forgot how all of those assertions are used in the link code.
-> The alternative is below (with some cleanup up error handling 
-> that makes it look larger). Honestly, I don't care which patch.
-> 
+>  Here is the reference policy part of the patches (libselinux came
+> previously and PAM is next).
 
-Looks fine aside from the unrelated parts which should have been split
-out :)
+In addition to the permission name, I'd have expected the rule (and the
+check in the code) to always use the same type in both contexts, so the
+rules could just be:
+	allow $1 self:context <permissionname>;
 
-> Karl
-> 
-> 
-> Index: libsepol/src/link.c
-> ===================================================================
-> --- libsepol/src/link.c	(revision 2074)
-> +++ libsepol/src/link.c	(working copy)
-> @@ -827,19 +827,24 @@
->  	return -1;
->  }
->  
-> -static int mls_level_convert(mls_semantic_level_t * src,
-> -			     mls_semantic_level_t * dst, 
-> policy_module_t * mod)
-> +static int mls_level_convert(mls_semantic_level_t * src, 
-> mls_semantic_level_t * dst,
-> +			     policy_module_t * mod, 
-> link_state_t * state)
->  {
->  	mls_semantic_cat_t *src_cat, *new_cat;
->  
-> +	if (!mod->policy->mls)
-> +		return 0;
-> +
->  	assert(mod->map[SYM_LEVELS][src->sens - 1]);
->  	dst->sens = mod->map[SYM_LEVELS][src->sens - 1];
->  
->  	for (src_cat = src->cat; src_cat; src_cat = src_cat->next) {
->  		new_cat =
->  		    (mls_semantic_cat_t *) 
-> malloc(sizeof(mls_semantic_cat_t));
-> -		if (!new_cat)
-> +		if (!new_cat) {
-> +			ERR(state->handle, "Out of memory");
->  			return -1;
-> +		}
->  		mls_semantic_cat_init(new_cat);
->  
->  		new_cat->next = dst->cat;
-> @@ -854,13 +859,16 @@
->  	return 0;
->  }
->  
-> -static int mls_range_convert(mls_semantic_range_t * src,
-> -			     mls_semantic_range_t * dst, 
-> policy_module_t * mod)
-> +static int mls_range_convert(mls_semantic_range_t * src, 
-> mls_semantic_range_t * dst,
-> +			     policy_module_t * mod, 
-> link_state_t * state)
->  {
-> -	if (mls_level_convert(&src->level[0], &dst->level[0], mod))
-> -		return -1;
-> -	if (mls_level_convert(&src->level[1], &dst->level[1], mod))
-> -		return -1;
-> +	int ret;
-> +	ret = mls_level_convert(&src->level[0], &dst->level[0], 
-> mod, state);
-> +	if (ret)
-> +		return ret;
-> +	ret = mls_level_convert(&src->level[1], &dst->level[1], 
-> mod, state);
-> +	if (ret)
-> +		return ret;
->  	return 0;
->  }
->  
-> @@ -994,10 +1002,10 @@
->  		goto cleanup;
->  	}
->  
-> -	if (mls_range_convert(&user->range, &new_user->range, mod))
-> +	if (mls_range_convert(&user->range, &new_user->range, 
-> mod, state))
->  		goto cleanup;
->  
-> -	if (mls_level_convert(&user->dfltlevel, 
-> &new_user->dfltlevel, mod))
-> +	if (mls_level_convert(&user->dfltlevel, 
-> &new_user->dfltlevel, mod, 
-> +state))
->  		goto cleanup;
->  
->  	return 0;
-> @@ -1224,7 +1232,7 @@
->  			}
->  		}
->  
-> -		if (mls_range_convert(&rule->trange, 
-> &new_rule->trange, mod))
-> +		if (mls_range_convert(&rule->trange, 
-> &new_rule->trange, mod, state))
->  			goto cleanup;
->  	}
->  	return 0;
-> 
-> 
-> 
+Not allow $1 domain:context, which will yield many more rules without
+any real justification.
 
-Acked-By: Joshua Brindle <jbrindle@tresys.com>
+-- 
+Stephen Smalley
+National Security Agency
 
 
 --
