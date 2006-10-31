@@ -1,79 +1,176 @@
-Subject: Re: [PATCH 2/3] Re: MLS enforcing PTYs, sshd, and newrole
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: James Antill <jantill@redhat.com>
-Cc: redhat-lspp <redhat-lspp@redhat.com>, SE Linux <selinux@tycho.nsa.gov>
-In-Reply-To: <1162306839.31104.23.camel@code.and.org>
-References: <20061012153701.75777.qmail@web36603.mail.mud.yahoo.com>
-	 <45377BF0.6010403@redhat.com>
-	 <1161264613.14632.120.camel@moss-spartans.epoch.ncsc.mil>
-	 <1161620097.667.10.camel@code.and.org>
-	 <1161722236.667.20.camel@code.and.org>
-	 <1161776892.3987.193.camel@moss-spartans.epoch.ncsc.mil>
-	 <1161778937.3987.218.camel@moss-spartans.epoch.ncsc.mil>
-	 <1161784251.667.28.camel@code.and.org>
-	 <1161784759.3987.295.camel@moss-spartans.epoch.ncsc.mil>
-	 <1161803724.29689.57.camel@code.and.org>
-	 <1161804290.3987.388.camel@moss-spartans.epoch.ncsc.mil>
-	 <1161970810.29689.88.camel@code.and.org>
-	 <1161974293.1306.167.camel@moss-spartans.epoch.ncsc.mil>
-	 <1162238632.31104.11.camel@code.and.org>
-	 <1162239394.31104.13.camel@code.and.org>
-	 <1162304610.32614.24.camel@moss-spartans.epoch.ncsc.mil>
-	 <1162304681.32614.26.camel@moss-spartans.epoch.ncsc.mil>
-	 <1162306839.31104.23.camel@code.and.org>
-Content-Type: text/plain
-Date: Tue, 31 Oct 2006 10:11:35 -0500
-Message-Id: <1162307495.32614.47.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+Reply-To: <vyekkirala@TrustedCS.com>
+From: "Venkat Yekkirala" <vyekkirala@TrustedCS.com>
+To: <cpebenito@tresys.com>
+Cc: <sds@tycho.nsa.gov>, <selinux@tycho.nsa.gov>, <latten@austin.ibm.com>,
+        <hallyn@elg11.watson.ibm.com>, "'Trent Jaeger'" <tjaeger@cse.psu.edu>
+Subject: RE: Question on checks against unlabeled
+Date: Tue, 31 Oct 2006 09:14:40 -0600
+Message-ID: <000101c6fcff$498e9960$cc0a010a@tcssec.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+In-Reply-To: <BB15F670-BA6A-47BD-BF04-37A7B9206D87@cse.psu.edu>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2006-10-31 at 10:00 -0500, James Antill wrote:
-> On Tue, 2006-10-31 at 09:24 -0500, Stephen Smalley wrote:
-> > On Tue, 2006-10-31 at 09:23 -0500, Stephen Smalley wrote:
-> > > 
-> > > In addition to the permission name, I'd have expected the rule (and the
-> > > check in the code) to always use the same type in both contexts, so the
-> > > rules could just be:
-> > > 	allow $1 self:context <permissionname>;
-> > > 
-> > > Not allow $1 domain:context, which will yield many more rules without
-> > > any real justification.
-> 
->  Ok, I can fix that to be just self:context.
-> 
-> > I'm also unclear as to what you are checking - you seem to be putting
-> > this in authlogin, but I had expected this to be a check between two
-> > user contexts, identical in all respects except for the MLS ranges (one
-> > from seusers, one from the user-supplied input).
-> 
->  AIUI the code in authlogin allows all of the login type programs (like
-> getty) to call the check. The check being performed is in policy/mls and
-> is just:
-> 
-> mlsconstrain context transition
->        ( h1 dom h2 );
-> 
-> ...have I misunderstood this?
+Hi Chris,
 
-As I understood it (and the code in pam seems to match this), you were
-going to generate two security contexts for the user session, one based
-on seusers and one based on the provided range, otherwise identical in
-all respects, and apply a permission check between those two contexts.
-So for example, if my seusers-defined default context would be
-staff_u:staff_r:staff_t:s0-s0:c0.c255 and I entered a level of s0:c3 as
-input, there would be a permission check made by pam_selinux between
-staff_u:staff_r:staff_t:s0-s0:c0.c255 and staff_u:staff_r:staff_t:s0:c3.
-Thus, the TE rule would have to be between staff_t and itself (i.e. the
-user domains), not between local_login_t and anything.
+I am looking for some input :) from your (policywriter's) end on the
+following:
 
-We aren't checking whether login can do anything (or using its context
-anywhere); we are checking whether the seusers-defined default context
-for the user contains the user-supplied context.
+I have code that now "selects" a labeled association that has the same label
+as the socket, when the socket "polmatches" a "labeled" SPD rule.
 
--- 
-Stephen Smalley
-National Security Agency
+There's also the following check in the kernel currently:
+allow socket_t unlabeled_t:association { sendto }
+
+The intent as explained below by Trent is to make sure a socket can
+"use" an "non-labeled" association in the following cases:
+
+a. socket matches a "non-labeled" SPD rule and hence is using a non-labeled
+IPSec SA.
+
+b. no IPSec SA being used by the socket.
+
+
+We have the following choices:
+
+1. We retain the sendto check against unlabeled_t in the above scenarios (a
+and b).
+
+2. We restrict the sendto check only to scenario "a" where we in fact have
+an
+   association (albeit a "non-labeled" SA).
+
+3. We eliminate the sendto check for both the scenarios.
+
+4. We retain the check for both, but for consistency we also do the
+following
+   check after we "select" a labeled SA.
+
+   allow socket_t self:association { sendto };
+
+   IOW, your policy will always need to have one of the following:
+   allow socket_t self:association { sendto } where a "labeled" SA can be
+used.
+   allow socket_t unlabeled_t:association { sendto } where an "non-labeled"
+SA or no SA at all is permitted for the socket.
+
+What's your preference?
+
+> -----Original Message-----
+> From: Trent Jaeger [mailto:tjaeger@cse.psu.edu]
+> Sent: Monday, October 30, 2006 2:59 PM
+> To: Venkat Yekkirala
+> Cc: sds@tycho.nsa.gov; selinux@tycho.nsa.gov; latten@austin.ibm.com;
+> hallyn@elg11.watson.ibm.com
+> Subject: Re: Question on checks against unlabeled
+>
+>
+> The intention was to prevent the case that a machine can communicate
+> to another machine w/o IPsec, but it has processes that must not use
+> unencrypted and/or unlabeled communication.  Thus, it was required
+> that a process (actually a socket) that sends w/o IPsec must be able
+> to communicate with unlabeled security associations.
+>
+> If we can make it more explicit that a socket requires IPsec or not,
+> then we may not need this check.  We can check on process's
+> access to
+> socket.  I'll think about how we could do this.
+>
+> Regards,
+> Trent.
+>
+> On Oct 30, 2006, at 3:40 PM, Venkat Yekkirala wrote:
+>
+> > Hi Trent et al,
+> >
+> > I have a question on the following checks in
+> security/selinux/xfrm.c:
+> >
+> > Specifically, there's a check against unlabeled_t even when there's
+> > no association involved. Is this really intended in the sense of
+> > meeting
+> > a goal such as a process should always use labeled ipsec or
+> was the
+> > intention
+> > to actually use unlabeled_t only when there's an SA being
+> used, but
+> > it's
+> > not labeled.
+> >
+> > Thanks,
+> >
+> > venkat
+> >
+> > int selinux_xfrm_sock_rcv_skb(u32 isec_sid, struct sk_buff *skb,
+> >                                 struct avc_audit_data *ad)
+> > {
+> >         int i, rc = 0;
+> >         struct sec_path *sp;
+> >         u32 sel_sid = SECINITSID_UNLABELED;
+> >
+> >         sp = skb->sp;
+> >
+> >         if (sp) {
+> >                 for (i = 0; i < sp->len; i++) {
+> >                         struct xfrm_state *x = sp->xvec[i];
+> >
+> >                         if (x && selinux_authorizable_xfrm(x)) {
+> >                                 struct xfrm_sec_ctx *ctx = x-
+> > >security;
+> >                                 sel_sid = ctx->ctx_sid;
+> >                                 break;
+> >                         }
+> >                 }
+> >         }
+> >
+> >         rc = avc_has_perm(isec_sid, sel_sid, SECCLASS_ASSOCIATION,
+> > /*
+> >  * POSTROUTE_LAST hook's XFRM processing:
+> >  * If we have no security association, then we need to determine
+> >  * whether the socket is allowed to send to an unlabelled
+> destination.
+> >  * If we do have a authorizable security association, then it has
+> > already been
+> >  * checked in xfrm_policy_lookup hook.
+> >  */
+> > int selinux_xfrm_postroute_last(u32 isec_sid, struct sk_buff *skb,
+> >                                         struct avc_audit_data *ad)
+> > {
+> >         struct dst_entry *dst;
+> >         int rc = 0;
+> >
+> >         dst = skb->dst;
+> >
+> >         if (dst) {
+> >                 struct dst_entry *dst_test;
+> >
+> >                 for (dst_test = dst; dst_test != 0;
+> >                      dst_test = dst_test->child) {
+> >                         struct xfrm_state *x = dst_test->xfrm;
+> >
+> >                         if (x && selinux_authorizable_xfrm(x))
+> >                                 goto out;
+> >                 }
+> >         }
+> >
+> >         rc = avc_has_perm(isec_sid, SECINITSID_UNLABELED,
+> > SECCLASS_ASSOCIATION,
+> >                           ASSOCIATION__SENDTO, ad);
+> > out:
+> >         return rc;
+> > }
+>
+> ----------------------------------------------
+> Trent Jaeger, Associate Professor
+> Pennsylvania State University, CSE Dept
+> 346A IST Bldg, University Park, PA 16802
+> Email: tjaeger@cse.psu.edu
+> Ph: (814) 865-1042, Fax: (814) 865-3176
+>
+>
+>
 
 
 --
