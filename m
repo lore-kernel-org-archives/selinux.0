@@ -1,44 +1,38 @@
-Subject: Re: [PATCH 1/3] Re: MLS enforcing PTYs, sshd, and newrole
+Subject: Re: [redhat-lspp] Re: MLS enforcing PTYs, sshd, and newrole
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: James Antill <james.antill@redhat.com>
-Cc: redhat-lspp <redhat-lspp@redhat.com>, SE Linux <selinux@tycho.nsa.gov>
-In-Reply-To: <1162238632.31104.11.camel@code.and.org>
+To: russell@coker.com.au
+Cc: Valdis.Kletnieks@vt.edu, casey@schaufler-ca.com, redhat-lspp@redhat.com,
+        Daniel J Walsh <dwalsh@redhat.com>, selinux@tycho.nsa.gov
+In-Reply-To: <200610280904.25797.russell@coker.com.au>
 References: <20061012153701.75777.qmail@web36603.mail.mud.yahoo.com>
-	 <45377BF0.6010403@redhat.com>
-	 <1161264613.14632.120.camel@moss-spartans.epoch.ncsc.mil>
-	 <1161620097.667.10.camel@code.and.org>
-	 <1161722236.667.20.camel@code.and.org>
-	 <1161776892.3987.193.camel@moss-spartans.epoch.ncsc.mil>
-	 <1161778937.3987.218.camel@moss-spartans.epoch.ncsc.mil>
-	 <1161784251.667.28.camel@code.and.org>
-	 <1161784759.3987.295.camel@moss-spartans.epoch.ncsc.mil>
-	 <1161803724.29689.57.camel@code.and.org>
-	 <1161804290.3987.388.camel@moss-spartans.epoch.ncsc.mil>
-	 <1161970810.29689.88.camel@code.and.org>
-	 <1161974293.1306.167.camel@moss-spartans.epoch.ncsc.mil>
-	 <1162238632.31104.11.camel@code.and.org>
+	 <200610201700.31748.russell@coker.com.au>
+	 <200610271536.k9RFactr013813@turing-police.cc.vt.edu>
+	 <200610280904.25797.russell@coker.com.au>
 Content-Type: text/plain
-Date: Tue, 31 Oct 2006 09:20:54 -0500
-Message-Id: <1162304454.32614.21.camel@moss-spartans.epoch.ncsc.mil>
+Date: Tue, 31 Oct 2006 09:29:22 -0500
+Message-Id: <1162304962.32614.28.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 2006-10-30 at 15:03 -0500, James Antill wrote:
-> On Fri, 2006-10-27 at 14:38 -0400, Stephen Smalley wrote:
+On Sat, 2006-10-28 at 09:04 +1000, Russell Coker wrote:
+> On Saturday 28 October 2006 01:36, Valdis.Kletnieks@vt.edu wrote:
+> > On Fri, 20 Oct 2006 17:00:28 +1000, Russell Coker said:
+> > > On Thursday 19 October 2006 23:21, Daniel J Walsh <dwalsh@redhat.com> 
+> wrote:
+> > > > If we then remove -l from newrole we are done?
+> > >
+> > > Why remove it?  Why not just cease using it and leave it there for other
+> > > people who have different needs?
+> >
+> > I suspect that it wouldn't fly during an eval, because even if unused, it
 > 
-> > Look at Darrel's patch for mcstransd to apply a permission check between
-> > the level of the caller and the level being translated for context
-> > translations. 
+> OK.
 > 
->  Thanks to much discussion with Dan and Stephen, I'm pretty sure I have
-> this correct now.
-> 
->  Here is the libselinux part of the patch (reference policy and PAM are
-> next).
+> Well #if 0 would still be better than removing the code.  This is something we 
+> may want to resurrect at a later time.
 
-transition is a bit misleading as a name - you are checking a contains
-relationship between two contexts, not transitioning between them.
+It isn't being removed, at least not upstream.
 
 -- 
 Stephen Smalley
