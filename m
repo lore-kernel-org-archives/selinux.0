@@ -1,8 +1,8 @@
-Subject: Re: [PATCH 2/3] Re: MLS enforcing PTYs, sshd, and newrole
+Subject: Re: [PATCH 1/3] Re: MLS enforcing PTYs, sshd, and newrole
 From: Stephen Smalley <sds@tycho.nsa.gov>
 To: James Antill <james.antill@redhat.com>
 Cc: redhat-lspp <redhat-lspp@redhat.com>, SE Linux <selinux@tycho.nsa.gov>
-In-Reply-To: <1162304610.32614.24.camel@moss-spartans.epoch.ncsc.mil>
+In-Reply-To: <1162238632.31104.11.camel@code.and.org>
 References: <20061012153701.75777.qmail@web36603.mail.mud.yahoo.com>
 	 <45377BF0.6010403@redhat.com>
 	 <1161264613.14632.120.camel@moss-spartans.epoch.ncsc.mil>
@@ -17,43 +17,28 @@ References: <20061012153701.75777.qmail@web36603.mail.mud.yahoo.com>
 	 <1161970810.29689.88.camel@code.and.org>
 	 <1161974293.1306.167.camel@moss-spartans.epoch.ncsc.mil>
 	 <1162238632.31104.11.camel@code.and.org>
-	 <1162239394.31104.13.camel@code.and.org>
-	 <1162304610.32614.24.camel@moss-spartans.epoch.ncsc.mil>
 Content-Type: text/plain
-Date: Tue, 31 Oct 2006 09:24:41 -0500
-Message-Id: <1162304681.32614.26.camel@moss-spartans.epoch.ncsc.mil>
+Date: Tue, 31 Oct 2006 09:20:54 -0500
+Message-Id: <1162304454.32614.21.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2006-10-31 at 09:23 -0500, Stephen Smalley wrote:
-> On Mon, 2006-10-30 at 15:16 -0500, James Antill wrote:
-> > On Mon, 2006-10-30 at 15:03 -0500, James Antill wrote:
-> > > On Fri, 2006-10-27 at 14:38 -0400, Stephen Smalley wrote:
-> > > 
-> > > > Look at Darrel's patch for mcstransd to apply a permission check between
-> > > > the level of the caller and the level being translated for context
-> > > > translations. 
-> > > 
-> > >  Thanks to much discussion with Dan and Stephen, I'm pretty sure I have
-> > > this correct now.
-> > 
-> > 
-> >  Here is the reference policy part of the patches (libselinux came
-> > previously and PAM is next).
+On Mon, 2006-10-30 at 15:03 -0500, James Antill wrote:
+> On Fri, 2006-10-27 at 14:38 -0400, Stephen Smalley wrote:
 > 
-> In addition to the permission name, I'd have expected the rule (and the
-> check in the code) to always use the same type in both contexts, so the
-> rules could just be:
-> 	allow $1 self:context <permissionname>;
+> > Look at Darrel's patch for mcstransd to apply a permission check between
+> > the level of the caller and the level being translated for context
+> > translations. 
 > 
-> Not allow $1 domain:context, which will yield many more rules without
-> any real justification.
+>  Thanks to much discussion with Dan and Stephen, I'm pretty sure I have
+> this correct now.
+> 
+>  Here is the libselinux part of the patch (reference policy and PAM are
+> next).
 
-I'm also unclear as to what you are checking - you seem to be putting
-this in authlogin, but I had expected this to be a check between two
-user contexts, identical in all respects except for the MLS ranges (one
-from seusers, one from the user-supplied input).
+transition is a bit misleading as a name - you are checking a contains
+relationship between two contexts, not transitioning between them.
 
 -- 
 Stephen Smalley
