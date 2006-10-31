@@ -1,99 +1,73 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k9VKxOGN029049
-	for <selinux@tycho.nsa.gov>; Tue, 31 Oct 2006 15:59:24 -0500
-Received: from exchange.columbia.tresys.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with SMTP id k9VKvmsE019900
-	for <selinux@tycho.nsa.gov>; Tue, 31 Oct 2006 20:57:48 GMT
-Subject: Re: Latest Diffs
-From: "Christopher J. PeBenito" <cpebenito@tresys.com>
-To: Daniel J Walsh <dwalsh@redhat.com>
-Cc: SE Linux <selinux@tycho.nsa.gov>
-In-Reply-To: <453E2A8C.4070207@redhat.com>
-References: <453E2A8C.4070207@redhat.com>
-Content-Type: text/plain
-Date: Tue, 31 Oct 2006 16:00:08 -0500
-Message-Id: <1162328409.31675.131.camel@sgc.columbia.tresys.com>
-Mime-Version: 1.0
+From: David Howells <dhowells@redhat.com>
+In-Reply-To: <16969.1161771256@redhat.com> 
+References: <16969.1161771256@redhat.com> 
+To: sds@tycho.nsa.gov, Karl MacMillan <kmacmill@redhat.com>
+Cc: David Howells <dhowells@redhat.com>, jmorris@namei.org,
+        chrisw@sous-sol.org, selinux@tycho.nsa.gov,
+        linux-kernel@vger.kernel.org, aviro@redhat.com
+Subject: Re: Security issues with local filesystem caching 
+Date: Tue, 31 Oct 2006 21:26:48 +0000
+Message-ID: <31035.1162330008@redhat.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2006-10-24 at 11:00 -0400, Daniel J Walsh wrote:
-> flow_in flow_out changes for labeled networking.  Not sure if these are 
-> still needed.
 
-Dropped this since labeled networking is still up in the air.
+David Howells <dhowells@redhat.com> wrote:
 
-> Added use_lpd_server boolean to eliminate some not needed permissions 
-> from cups versions of lpr commands.
+> Some issues have been raised by Christoph Hellwig over how I'm handling
+> filesystem security in my CacheFiles module, and I'd like advice on how to
+> deal with them.
 
-I would rather split out the lpr portions out to a lpr module that would
-function like the mta module.  Then the rules that aren't common for lpd
-and cups can go into optionals.
+Having discussed this with Stephen Smally and Karl MacMillan, this is, I think,
+the security model for CacheFiles:
 
-> Added a userdom_executable_file type so that we can change the ability 
-> to execute all commands in MLS, to only be allowed to execute commands 
-> that an admin would legitimately like to execute without transition.
+ (*) There will be four security labels per cache:
 
-I don't like the implementation of this; the idea of a user executable
-doesn't make sense to me.  It may be better defining this concept in
-terms of executables an admin wouldn't execute.
+     (a) A security label attached to the caching directory and all the files
+     	 and directories contained therein.  This identifies those files as
+     	 being part of a particular cache's working set.
 
-In addition, the corecmd_exec_all_executables() change breaks the
-meaning of the interface.
+     (b) A security label that defines the context under which the daemon
+     	 (cachefilesd) operates.  This permits cachefilesd to be restricted to
+     	 only accessing files labelled in (a), and only to do things like stat,
+     	 list and delete them - not read or write them.
 
-> Redhat's Fedora Extras apd-get and apt-shell run as rpm.
+     (c) A security label that defines the context under which the module
+     	 operates when accessing the cache.  This allows the module, when
+     	 accessing the cache, to only operate within the bounds of the cache.
+     	 It also permits the module to set a common security label on all the
+     	 files it creates in the cache.
 
-Can't add this because it causes conflicting file contexts if the dpkg
-module is included.
+     (d) A security label to attached to the cachefiles control character
+     	 device.  This limits access to processes with label (b).
 
-Dropped mcs_killall(rpm_script_t) and mcs_ptrace_all(rpm_script_t) since
-it does not have the requisite TE permissions.
+ (*) The module will obtain label (a) - the security label with which to label
+     the files it creates (create_sid) - by reading the security label on the
+     cache base directory (inode->i_security->sid).
 
-> IBM requests javaws and bin under /opt/ibm/java2-ppc64-50/jre be labeled 
-> java_exec_t
+ (*) The module will obtain label (c) by reading label (b) from the cachefilesd
+     process when it opens the cachefiles control chardev and then passing it
+     through security_change_sid() to ask the security policy to for label (c).
 
-Dropped the other change; I'm trying to stay away from broad
-specifications since it makes more problems for sorting.
+ (*) When accessing the cache to look up a cache object (equivalent to NFS read
+     inode), the CacheFiles module will make temporary substitutions for the
+     following process security attributes:
 
-> mv dosfs_t to nfs_t needs to work.
+     (1) current->fsuid and current->fsgid will both become 0.
 
-You have fs_associate_tmpfs(noxattrfs), which won't do it.  My guess is
-that you want something like fs_associate_noxattr(noxattrfs).
+     (2) current->security->create_sid will be set to label (a) so that
+         vfs_mkdir() and vfs_create() will set the correct labels.
 
-> httpd needs to be able to rotatelogs
+     (3) current->security->sid will be set to label (c) so that vfs_mkdir(),
+         vfs_create() and lookup ops will check for the correct labels.
 
-The problem with this is that it would allow apache to delete its logs.
-I suggest trying rotatelogs labeled as logrotate_exec_t instead.
+     After the access, the old label will be restored.
 
-> Major changes to crontab_t to transition to user_tmp_t.  Why do we have 
-> a user_crond_t, would just transitioning to user_t make more sense?
+     Point (3) shouldn't cause a cross-thread race as it would appear that the
+     security label can only be changed on single-threaded processes.  Attempts
+     to do so on multi-threaded processes are rejected.
 
-I don't know the original intention, but my guess is to be a subset of
-the user domain.
-
-> Fixed for oddjob_mkhomedir_t
-
-Why is domain_subj_id_change_exemption(oddjob_t) needed?
-
-> squid wants to rw_tmpfs for diskd mode.
-
-I'm wondering if this is tmpfs_t because there is no squid_tmpfs_t+type
-transition, or if it is because the machine is targeted.
-
-> getty needs sys_admin 
-
-I find this very questionable, and the bug you mentioned doesn't have
-any good information.
-
-Why does sasl need compute_av?
-
-What program(s) have a dyntrans from unconfined to unconfined_execmem?
-
--- 
-Chris PeBenito
-Tresys Technology, LLC
-(410) 290-1411 x150
-
+David
 
 --
 This message was distributed to subscribers of the selinux mailing list.
