@@ -1,7 +1,8 @@
-From: James Antill <jantill@redhat.com>
-To: Stephen Smalley <sds@tycho.nsa.gov>
+Subject: Re: [PATCH 2/3] Re: MLS enforcing PTYs, sshd, and newrole
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: James Antill <jantill@redhat.com>
 Cc: redhat-lspp <redhat-lspp@redhat.com>, SE Linux <selinux@tycho.nsa.gov>
-In-Reply-To: <1162307495.32614.47.camel@moss-spartans.epoch.ncsc.mil>
+In-Reply-To: <1162310652.31104.46.camel@code.and.org>
 References: <20061012153701.75777.qmail@web36603.mail.mud.yahoo.com>
 	 <45377BF0.6010403@redhat.com>
 	 <1161264613.14632.120.camel@moss-spartans.epoch.ncsc.mil>
@@ -21,65 +22,67 @@ References: <20061012153701.75777.qmail@web36603.mail.mud.yahoo.com>
 	 <1162304681.32614.26.camel@moss-spartans.epoch.ncsc.mil>
 	 <1162306839.31104.23.camel@code.and.org>
 	 <1162307495.32614.47.camel@moss-spartans.epoch.ncsc.mil>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-D7+pH6gg2nW2BiWz6o2j"
-Date: Tue, 31 Oct 2006 11:04:12 -0500
-Message-Id: <1162310652.31104.46.camel@code.and.org>
+	 <1162310652.31104.46.camel@code.and.org>
+Content-Type: text/plain
+Date: Tue, 31 Oct 2006 11:21:15 -0500
+Message-Id: <1162311675.32614.81.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
-Subject: Re: [PATCH 2/3] Re: MLS enforcing PTYs, sshd, and newrole
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+On Tue, 2006-10-31 at 11:04 -0500, James Antill wrote:
+> On Tue, 2006-10-31 at 10:11 -0500, Stephen Smalley wrote:
+> 
+> > As I understood it (and the code in pam seems to match this), you were
+> > going to generate two security contexts for the user session, one based
+> > on seusers and one based on the provided range, otherwise identical in
+> > all respects, and apply a permission check between those two contexts.
+> > So for example, if my seusers-defined default context would be
+> > staff_u:staff_r:staff_t:s0-s0:c0.c255 and I entered a level of s0:c3 as
+> > input, there would be a permission check made by pam_selinux between
+> > staff_u:staff_r:staff_t:s0-s0:c0.c255 and staff_u:staff_r:staff_t:s0:c3.
+> 
+>  This should all be true.
+> 
+> > Thus, the TE rule would have to be between staff_t and itself (i.e. the
+> > user domains), not between local_login_t and anything.
+> 
+>  Right. Does the mlsconstrain line not do that?
 
---=-D7+pH6gg2nW2BiWz6o2j
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+The mlsconstrain line wasn't my concern - it was the TE rule.
 
-On Tue, 2006-10-31 at 10:11 -0500, Stephen Smalley wrote:
+> > We aren't checking whether login can do anything (or using its context
+> > anywhere); we are checking whether the seusers-defined default context
+> > for the user contains the user-supplied context.
+> 
+>  Right my understanding was that the policy line:
+> 
+> allow $1 domain:context transition
+> 
+> ...meant that the login program could make security call:
+> 
+>  security_compute_av(src, dst, SECCLASS_CONTEXT, CONTEXT__TRANSITION, &avd)
 
-> As I understood it (and the code in pam seems to match this), you were
-> going to generate two security contexts for the user session, one based
-> on seusers and one based on the provided range, otherwise identical in
-> all respects, and apply a permission check between those two contexts.
-> So for example, if my seusers-defined default context would be
-> staff_u:staff_r:staff_t:s0-s0:c0.c255 and I entered a level of s0:c3 as
-> input, there would be a permission check made by pam_selinux between
-> staff_u:staff_r:staff_t:s0-s0:c0.c255 and staff_u:staff_r:staff_t:s0:c3.
+No.  The ability to make the security call is controlled by the
+compute_av permission on the security class, and isn't based on the
+individual contexts passed as arguments.  That would be:
+	allow $1 security_t:security compute_av;
+which has an interface:
+	selinux_compute_access_vector($1)
+which is already in authlogin.if.  No change required for allowing the
+call to happen.
 
- This should all be true.
+What you are instead trying to do is to define the _result_ of that
+compute_av call based on its arguments, not whether it can be made by
+login.  So the TE rule would go into userdomain.if and be of the form:
+	allow $1 self:context <permissionname>;
 
-> Thus, the TE rule would have to be between staff_t and itself (i.e. the
-> user domains), not between local_login_t and anything.
-
- Right. Does the mlsconstrain line not do that?
-
-> We aren't checking whether login can do anything (or using its context
-> anywhere); we are checking whether the seusers-defined default context
-> for the user contains the user-supplied context.
-
- Right my understanding was that the policy line:
-
-allow $1 domain:context transition
-
-...meant that the login program could make security call:
-
- security_compute_av(src, dst, SECCLASS_CONTEXT, CONTEXT__TRANSITION, &avd)
-
---=20
-James Antill <jantill@redhat.com>
-
---=-D7+pH6gg2nW2BiWz6o2j
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.5 (GNU/Linux)
-
-iD8DBQBFR3P711eXTEMrxtQRArgqAKCyU9OUR9i37vAlYxe/Gg0xbcKl5gCgySFN
-qurBoB/xQznS94NSMqaE2SM=
-=m3zi
------END PGP SIGNATURE-----
-
---=-D7+pH6gg2nW2BiWz6o2j--
+The mlsconstrain statement is ok, as long as it is sufficient to check
+the high levels and not impose any constraint on the low levels.
+ 
+-- 
+Stephen Smalley
+National Security Agency
 
 
 --
