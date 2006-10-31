@@ -1,89 +1,84 @@
-Subject: Re: [PATCH 2/3] Re: MLS enforcing PTYs, sshd, and newrole
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: James Antill <jantill@redhat.com>
-Cc: redhat-lspp <redhat-lspp@redhat.com>, SE Linux <selinux@tycho.nsa.gov>
-In-Reply-To: <1162310652.31104.46.camel@code.and.org>
-References: <20061012153701.75777.qmail@web36603.mail.mud.yahoo.com>
-	 <45377BF0.6010403@redhat.com>
-	 <1161264613.14632.120.camel@moss-spartans.epoch.ncsc.mil>
-	 <1161620097.667.10.camel@code.and.org>
-	 <1161722236.667.20.camel@code.and.org>
-	 <1161776892.3987.193.camel@moss-spartans.epoch.ncsc.mil>
-	 <1161778937.3987.218.camel@moss-spartans.epoch.ncsc.mil>
-	 <1161784251.667.28.camel@code.and.org>
-	 <1161784759.3987.295.camel@moss-spartans.epoch.ncsc.mil>
-	 <1161803724.29689.57.camel@code.and.org>
-	 <1161804290.3987.388.camel@moss-spartans.epoch.ncsc.mil>
-	 <1161970810.29689.88.camel@code.and.org>
-	 <1161974293.1306.167.camel@moss-spartans.epoch.ncsc.mil>
-	 <1162238632.31104.11.camel@code.and.org>
-	 <1162239394.31104.13.camel@code.and.org>
-	 <1162304610.32614.24.camel@moss-spartans.epoch.ncsc.mil>
-	 <1162304681.32614.26.camel@moss-spartans.epoch.ncsc.mil>
-	 <1162306839.31104.23.camel@code.and.org>
-	 <1162307495.32614.47.camel@moss-spartans.epoch.ncsc.mil>
-	 <1162310652.31104.46.camel@code.and.org>
-Content-Type: text/plain
-Date: Tue, 31 Oct 2006 11:21:15 -0500
-Message-Id: <1162311675.32614.81.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+From: David Howells <dhowells@redhat.com>
+In-Reply-To: <1161972628.1306.140.camel@moss-spartans.epoch.ncsc.mil> 
+References: <1161972628.1306.140.camel@moss-spartans.epoch.ncsc.mil>  <1161967078.1306.61.camel@moss-spartans.epoch.ncsc.mil> <1161961415.1306.4.camel@moss-spartans.epoch.ncsc.mil> <1161884706.16681.270.camel@moss-spartans.epoch.ncsc.mil> <1161880487.16681.232.camel@moss-spartans.epoch.ncsc.mil> <1161867101.16681.115.camel@moss-spartans.epoch.ncsc.mil> <1161810725.16681.45.camel@moss-spartans.epoch.ncsc.mil> <16969.1161771256@redhat.com> <8567.1161859255@redhat.com> <22702.1161878644@redhat.com> <24017.1161882574@redhat.com> <27450.1161960110@redhat.com> <5318.1161965576@redhat.com> <7319.1161970091@redhat.com> 
+To: Stephen Smalley <sds@tycho.nsa.gov>
+Cc: David Howells <dhowells@redhat.com>, Daniel J Walsh <dwalsh@redhat.com>,
+        selinux@tycho.nsa.gov, chrisw@sous-sol.org, jmorris@namei.org
+Subject: Re: Security issues with local filesystem caching 
+Date: Tue, 31 Oct 2006 16:19:18 +0000
+Message-ID: <25910.1162311558@redhat.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2006-10-31 at 11:04 -0500, James Antill wrote:
-> On Tue, 2006-10-31 at 10:11 -0500, Stephen Smalley wrote:
-> 
-> > As I understood it (and the code in pam seems to match this), you were
-> > going to generate two security contexts for the user session, one based
-> > on seusers and one based on the provided range, otherwise identical in
-> > all respects, and apply a permission check between those two contexts.
-> > So for example, if my seusers-defined default context would be
-> > staff_u:staff_r:staff_t:s0-s0:c0.c255 and I entered a level of s0:c3 as
-> > input, there would be a permission check made by pam_selinux between
-> > staff_u:staff_r:staff_t:s0-s0:c0.c255 and staff_u:staff_r:staff_t:s0:c3.
-> 
->  This should all be true.
-> 
-> > Thus, the TE rule would have to be between staff_t and itself (i.e. the
-> > user domains), not between local_login_t and anything.
-> 
->  Right. Does the mlsconstrain line not do that?
+Stephen Smalley <sds@tycho.nsa.gov> wrote:
 
-The mlsconstrain line wasn't my concern - it was the TE rule.
+> You'd have to introduce one for your new config, as there isn't yet a
+> common interface (also under discussion).  matchpathcon(3) is the
+> interface for obtaining the install-time file context to apply for a
+> given pathname.  In other cases, applications have been directly parsing
+> their own config files, but I think that will change (again, that other
+> thread).
 
-> > We aren't checking whether login can do anything (or using its context
-> > anywhere); we are checking whether the seusers-defined default context
-> > for the user contains the user-supplied context.
-> 
->  Right my understanding was that the policy line:
-> 
-> allow $1 domain:context transition
-> 
-> ...meant that the login program could make security call:
-> 
->  security_compute_av(src, dst, SECCLASS_CONTEXT, CONTEXT__TRANSITION, &avd)
+Okay, what I've got for userspace so far is:
 
-No.  The ability to make the security call is controlled by the
-compute_av permission on the security class, and isn't based on the
-individual contexts passed as arguments.  That would be:
-	allow $1 security_t:security compute_av;
-which has an interface:
-	selinux_compute_access_vector($1)
-which is already in authlogin.if.  No change required for allowing the
-call to happen.
+	[seclabel.c]
+	#include <stdlib.h>
+	#include <stdio.h>
+	#include <selinux/selinux.h>
 
-What you are instead trying to do is to define the _result_ of that
-compute_av call based on its arguments, not whether it can be made by
-login.  So the TE rule would go into userdomain.if and be of the form:
-	allow $1 self:context <permissionname>;
+	int main(int argc, char *argv[])
+	{
+		security_context_t con;
+		char *cachesecpath;
 
-The mlsconstrain statement is ok, as long as it is sufficient to check
-the high levels and not impose any constraint on the low levels.
- 
--- 
-Stephen Smalley
-National Security Agency
+		if (argc == 1) {
+			fprintf(stderr, "Format: %s <dir>\n", argv[0]);
+			exit(2);
+		}
 
+		if (asprintf(&cachesecpath,
+			     "%s/cachefiles_contexts",
+			     selinux_contexts_path()
+			     ) == -1
+		    ) {
+			perror("cachefilesd");
+			return 1;
+		}
+
+		printf("path: %s\n", cachesecpath);
+
+		if (matchpathcon_init(cachesecpath) < 0) {
+			perror(cachesecpath);
+			return 1;
+		}
+
+		if (matchpathcon(argv[1], 0, &con) == -1) {
+			perror(argv[1]);
+			return 1;
+		}
+
+		return 0;
+	}
+
+I've created a file of contexts:
+
+	[/etc/selinux/targeted/contexts/cachefiles_contexts]
+	/var/fscache(/.*)?	-d	system_u:object_r:cachefiles_t:s0
+
+Which the program above seems to read quite happily.  However, I run into a
+problem:
+
+	path: /etc/selinux/targeted/contexts/cachefiles_contexts
+	file_contexts:  invalid context system_u:object_r:cachefiles_t:s0
+	/var/fscache/: Invalid argument
+
+I assume this is due to "cachefiles_t" not being defined, but I'm not sure how
+to do that.
+
+Any advice?
+
+Thanks,
+David
 
 --
 This message was distributed to subscribers of the selinux mailing list.
