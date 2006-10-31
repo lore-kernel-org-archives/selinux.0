@@ -1,128 +1,154 @@
-Subject: Re: Security issues with local filesystem caching
+Subject: RE: [PATCH] libsepol users in non-mls policy bugfix
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: David Howells <dhowells@redhat.com>
-Cc: Karl MacMillan <kmacmill@redhat.com>, Daniel J Walsh <dwalsh@redhat.com>,
-        selinux@tycho.nsa.gov, jmorris@namei.org
-In-Reply-To: <25910.1162311558@redhat.com>
-References: <1161972628.1306.140.camel@moss-spartans.epoch.ncsc.mil>
-	 <1161967078.1306.61.camel@moss-spartans.epoch.ncsc.mil>
-	 <1161961415.1306.4.camel@moss-spartans.epoch.ncsc.mil>
-	 <1161884706.16681.270.camel@moss-spartans.epoch.ncsc.mil>
-	 <1161880487.16681.232.camel@moss-spartans.epoch.ncsc.mil>
-	 <1161867101.16681.115.camel@moss-spartans.epoch.ncsc.mil>
-	 <1161810725.16681.45.camel@moss-spartans.epoch.ncsc.mil>
-	 <16969.1161771256@redhat.com> <8567.1161859255@redhat.com>
-	 <22702.1161878644@redhat.com> <24017.1161882574@redhat.com>
-	 <27450.1161960110@redhat.com> <5318.1161965576@redhat.com>
-	 <7319.1161970091@redhat.com>   <25910.1162311558@redhat.com>
+To: Joshua Brindle <jbrindle@tresys.com>
+Cc: Karl MacMillan <kmacmillan@mentalrootkit.com>, selinux@tycho.nsa.gov,
+        Darrel Goeddel <dgoeddel@TrustedCS.com>
+In-Reply-To: <6FE441CD9F0C0C479F2D88F959B015885147CD@exchange.columbia.tresys.com>
+References: 
+	 <6FE441CD9F0C0C479F2D88F959B015885147CD@exchange.columbia.tresys.com>
 Content-Type: text/plain
-Date: Tue, 31 Oct 2006 11:51:24 -0500
-Message-Id: <1162313484.32614.104.camel@moss-spartans.epoch.ncsc.mil>
+Date: Tue, 31 Oct 2006 13:03:47 -0500
+Message-Id: <1162317827.32614.151.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2006-10-31 at 16:19 +0000, David Howells wrote:
-> Stephen Smalley <sds@tycho.nsa.gov> wrote:
+On Mon, 2006-10-30 at 16:41 -0500, Joshua Brindle wrote:
+> > From: Karl MacMillan [mailto:kmacmillan@mentalrootkit.com] 
+> > 
+> > On Mon, 2006-10-30 at 13:31 -0500, Joshua Brindle wrote:
+> > > > From: Karl MacMillan [mailto:kmacmillan@mentalrootkit.com]
+> > > > 
+> > > > This patch looks ok, but shouldn't we also stop the segfault in 
+> > > > mls_level_convert? The use of assert there looks like it 
+> > is catching 
+> > > > what should be a runtime error that should cause an error message 
+> > > > rather than bailing.
+> > > > 
+> > > > Otherwise:
+> > > 
+> > > Yea, I tried thinking of a more elegant way to do it and 
+> > couldn't come 
+> > > up with anything, any suggestions?
+> > > 
+> > 
+> > You can put the check in mls_level_convert.
+> > 
+> > > Clearly those assertions only apply to the MLS case, and we 
+> > caught a 
+> > > plain bug because of them, I think they are not user errors.
+> > > 
+> > 
+> > Yea - I forgot how all of those assertions are used in the link code.
+> > The alternative is below (with some cleanup up error handling 
+> > that makes it look larger). Honestly, I don't care which patch.
+> > 
 > 
-> > You'd have to introduce one for your new config, as there isn't yet a
-> > common interface (also under discussion).  matchpathcon(3) is the
-> > interface for obtaining the install-time file context to apply for a
-> > given pathname.  In other cases, applications have been directly parsing
-> > their own config files, but I think that will change (again, that other
-> > thread).
+> Looks fine aside from the unrelated parts which should have been split
+> out :)
 > 
-> Okay, what I've got for userspace so far is:
+> > Karl
+> > 
+> > 
+> > Index: libsepol/src/link.c
+> > ===================================================================
+> > --- libsepol/src/link.c	(revision 2074)
+> > +++ libsepol/src/link.c	(working copy)
+> > @@ -827,19 +827,24 @@
+> >  	return -1;
+> >  }
+> >  
+> > -static int mls_level_convert(mls_semantic_level_t * src,
+> > -			     mls_semantic_level_t * dst, 
+> > policy_module_t * mod)
+> > +static int mls_level_convert(mls_semantic_level_t * src, 
+> > mls_semantic_level_t * dst,
+> > +			     policy_module_t * mod, 
+> > link_state_t * state)
+> >  {
+> >  	mls_semantic_cat_t *src_cat, *new_cat;
+> >  
+> > +	if (!mod->policy->mls)
+> > +		return 0;
+> > +
+> >  	assert(mod->map[SYM_LEVELS][src->sens - 1]);
+> >  	dst->sens = mod->map[SYM_LEVELS][src->sens - 1];
+> >  
+> >  	for (src_cat = src->cat; src_cat; src_cat = src_cat->next) {
+> >  		new_cat =
+> >  		    (mls_semantic_cat_t *) 
+> > malloc(sizeof(mls_semantic_cat_t));
+> > -		if (!new_cat)
+> > +		if (!new_cat) {
+> > +			ERR(state->handle, "Out of memory");
+> >  			return -1;
+> > +		}
+> >  		mls_semantic_cat_init(new_cat);
+> >  
+> >  		new_cat->next = dst->cat;
+> > @@ -854,13 +859,16 @@
+> >  	return 0;
+> >  }
+> >  
+> > -static int mls_range_convert(mls_semantic_range_t * src,
+> > -			     mls_semantic_range_t * dst, 
+> > policy_module_t * mod)
+> > +static int mls_range_convert(mls_semantic_range_t * src, 
+> > mls_semantic_range_t * dst,
+> > +			     policy_module_t * mod, 
+> > link_state_t * state)
+> >  {
+> > -	if (mls_level_convert(&src->level[0], &dst->level[0], mod))
+> > -		return -1;
+> > -	if (mls_level_convert(&src->level[1], &dst->level[1], mod))
+> > -		return -1;
+> > +	int ret;
+> > +	ret = mls_level_convert(&src->level[0], &dst->level[0], 
+> > mod, state);
+> > +	if (ret)
+> > +		return ret;
+> > +	ret = mls_level_convert(&src->level[1], &dst->level[1], 
+> > mod, state);
+> > +	if (ret)
+> > +		return ret;
+> >  	return 0;
+> >  }
+> >  
+> > @@ -994,10 +1002,10 @@
+> >  		goto cleanup;
+> >  	}
+> >  
+> > -	if (mls_range_convert(&user->range, &new_user->range, mod))
+> > +	if (mls_range_convert(&user->range, &new_user->range, 
+> > mod, state))
+> >  		goto cleanup;
+> >  
+> > -	if (mls_level_convert(&user->dfltlevel, 
+> > &new_user->dfltlevel, mod))
+> > +	if (mls_level_convert(&user->dfltlevel, 
+> > &new_user->dfltlevel, mod, 
+> > +state))
+> >  		goto cleanup;
+> >  
+> >  	return 0;
+> > @@ -1224,7 +1232,7 @@
+> >  			}
+> >  		}
+> >  
+> > -		if (mls_range_convert(&rule->trange, 
+> > &new_rule->trange, mod))
+> > +		if (mls_range_convert(&rule->trange, 
+> > &new_rule->trange, mod, state))
+> >  			goto cleanup;
+> >  	}
+> >  	return 0;
+> > 
+> > 
+> > 
 > 
-> 	[seclabel.c]
-> 	#include <stdlib.h>
-> 	#include <stdio.h>
-> 	#include <selinux/selinux.h>
-> 
-> 	int main(int argc, char *argv[])
-> 	{
-> 		security_context_t con;
-> 		char *cachesecpath;
-> 
-> 		if (argc == 1) {
-> 			fprintf(stderr, "Format: %s <dir>\n", argv[0]);
-> 			exit(2);
-> 		}
-> 
-> 		if (asprintf(&cachesecpath,
-> 			     "%s/cachefiles_contexts",
-> 			     selinux_contexts_path()
-> 			     ) == -1
-> 		    ) {
-> 			perror("cachefilesd");
-> 			return 1;
-> 		}
-> 
-> 		printf("path: %s\n", cachesecpath);
-> 
-> 		if (matchpathcon_init(cachesecpath) < 0) {
-> 			perror(cachesecpath);
-> 			return 1;
-> 		}
-> 
-> 		if (matchpathcon(argv[1], 0, &con) == -1) {
-> 			perror(argv[1]);
-> 			return 1;
-> 		}
-> 
-> 		return 0;
-> 	}
-> 
-> I've created a file of contexts:
-> 
-> 	[/etc/selinux/targeted/contexts/cachefiles_contexts]
-> 	/var/fscache(/.*)?	-d	system_u:object_r:cachefiles_t:s0
-> 
-> Which the program above seems to read quite happily.  However, I run into a
-> problem:
-> 
-> 	path: /etc/selinux/targeted/contexts/cachefiles_contexts
-> 	file_contexts:  invalid context system_u:object_r:cachefiles_t:s0
-> 	/var/fscache/: Invalid argument
-> 
-> I assume this is due to "cachefiles_t" not being defined, but I'm not sure how
-> to do that.
-> 
-> Any advice?
+> Acked-By: Joshua Brindle <jbrindle@tresys.com>
 
-You don't need your own config file if you are just going to use a file
-contexts spec and matchpathcon(); we can just put it into file contexts
-either by local definition (semanage) or policy module.
-
-To define the type, you would need a policy module. Ultimately, this
-would not only define this file type but also the domain and related
-types for the daemon.  For experimentation purposes, you can create your
-own policy module locally, and then submit it for policy inclusion when
-you know it works.
-
-- Install checkpolicy and selinux-policy-devel if you don't already have
-them.
-- Create a temporary working directory and cd into it.
-- cp /usr/share/selinux/devel/Makefile .
-- vi cachefiles.te
-policy_module(cachefiles, 1.0)
-type cachefiles_t;
-file_types(cachefiles_t)
-- vi cachefiles.fc
-/var/fscache(/.*)?		system_u:object_r:cachefiles_t:s0
-- make
-- semodule -i cachefiles.pp
-
-At this point, the type should be defined in the kernel, and
-matchpathcon() should return the expected result.  /sbin/restorecon
--v /var/fscache should apply that context to the directory.
-
-Instead of manually creating cachefiles.te and .fc, you could also try
-running /usr/share/selinux/devel/policygentool to generate an initial
-cachefilesd.te file; that is a script created by Dan as a starting point
-for policy generation.  That would generate initial definitions for the
-daemon's domain and types, and you could then add your type to it as
-well.
+Acked-by: Stephen Smalley <sds@tycho.nsa.gov>
 
 -- 
 Stephen Smalley
