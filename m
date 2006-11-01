@@ -1,39 +1,37 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id kA1Jvk5g032156
-	for <selinux@tycho.nsa.gov>; Wed, 1 Nov 2006 14:57:46 -0500
-Received: from mail3.sea5.speakeasy.net (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id kA1Juu0M015152
-	for <selinux@tycho.nsa.gov>; Wed, 1 Nov 2006 19:56:57 GMT
-Date: Wed, 1 Nov 2006 14:57:43 -0500 (EST)
-From: James Morris <jmorris@namei.org>
-To: "Christopher J. PeBenito" <cpebenito@tresys.com>
-cc: vyekkirala@TrustedCS.com, Venkat Yekkirala <vyekkirala@tcsfw4.tcs-sec.com>,
-        jbrindle@tresys.com, selinux@tycho.nsa.gov,
-        Stephen Smalley <sds@tycho.nsa.gov>, gcwilson@us.ibm.com,
-        Paul Moore <paul.moore@hp.com>
-Subject: RE: SELinux Networking Enhancements
-In-Reply-To: <1162403736.4095.12.camel@sgc>
-Message-ID: <Pine.LNX.4.64.0611011456530.8872@d.namei>
-References: <000c01c6fdce$8b49fcd0$cc0a010a@tcssec.com> <1162403736.4095.12.camel@sgc>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="US-ASCII"
+Subject: RE: SELinux Networking Enhancements
+Date: Wed, 1 Nov 2006 14:59:44 -0500
+Message-ID: <6FE441CD9F0C0C479F2D88F959B015885149A4@exchange.columbia.tresys.com>
+In-Reply-To: <Pine.LNX.4.64.0611011456530.8872@d.namei>
+From: "Joshua Brindle" <jbrindle@tresys.com>
+To: "James Morris" <jmorris@namei.org>,
+        "Christopher J. PeBenito" <cpebenito@tresys.com>
+Cc: <vyekkirala@TrustedCS.com>,
+        "Venkat Yekkirala" <vyekkirala@tcsfw4.tcs-sec.com>,
+        <selinux@tycho.nsa.gov>, "Stephen Smalley" <sds@tycho.nsa.gov>,
+        <gcwilson@us.ibm.com>, "Paul Moore" <paul.moore@hp.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 1 Nov 2006, Christopher J. PeBenito wrote:
+> From: James Morris [mailto:jmorris@namei.org] 
+> 
+> On Wed, 1 Nov 2006, Christopher J. PeBenito wrote:
+> 
+> > This is not acceptable for SELinux because the rules would be in 
+> > netfilter instead of MAC policy.
+> 
+> Not necessarily -- an iptables module can call into the AVC 
+> for a policy decision if needed.
+> 
 
-> This is not acceptable for SELinux because the rules would be in
-> netfilter instead of MAC policy.
+Then what would the filter rules look like? It sounded like Venkat
+wanted something that would drop a packet based on a label (from secmark
+or external) which would be enforcement. I don't know what the iptables
+rule would look like if it was just going to call into the security
+server.
 
-Not necessarily -- an iptables module can call into the AVC for a policy 
-decision if needed.
-
-
-
-- James
--- 
-James Morris
-<jmorris@namei.org>
 
 --
 This message was distributed to subscribers of the selinux mailing list.
