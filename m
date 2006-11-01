@@ -1,46 +1,66 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id kA13kbdB005988
-	for <selinux@tycho.nsa.gov>; Tue, 31 Oct 2006 22:46:38 -0500
-Received: from mail1.sea5.speakeasy.net (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id kA13ixKW024548
-	for <selinux@tycho.nsa.gov>; Wed, 1 Nov 2006 03:45:00 GMT
-Date: Tue, 31 Oct 2006 22:46:35 -0500 (EST)
-From: James Morris <jmorris@namei.org>
-To: Venkat Yekkirala <vyekkirala@TrustedCS.com>
-cc: jbrindle@tresys.com, selinux@tycho.nsa.gov,
-        Stephen Smalley <sds@tycho.nsa.gov>, gcwilson@us.ibm.com,
-        Paul Moore <paul.moore@hp.com>
-Subject: RE: SELinux Networking Enhancements
-In-Reply-To: <000601c6fd2e$ceea6ab0$cc0a010a@tcssec.com>
-Message-ID: <Pine.LNX.4.64.0610312242270.27961@d.namei>
-References: <000601c6fd2e$ceea6ab0$cc0a010a@tcssec.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Subject: Re: [PATCH 2/3] Re: MLS enforcing PTYs, sshd, and newrole
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: James Antill <jantill@redhat.com>
+Cc: redhat-lspp <redhat-lspp@redhat.com>, SE Linux <selinux@tycho.nsa.gov>
+In-Reply-To: <1162319582.23631.1.camel@code.and.org>
+References: <20061012153701.75777.qmail@web36603.mail.mud.yahoo.com>
+	 <45377BF0.6010403@redhat.com>
+	 <1161264613.14632.120.camel@moss-spartans.epoch.ncsc.mil>
+	 <1161620097.667.10.camel@code.and.org>
+	 <1161722236.667.20.camel@code.and.org>
+	 <1161776892.3987.193.camel@moss-spartans.epoch.ncsc.mil>
+	 <1161778937.3987.218.camel@moss-spartans.epoch.ncsc.mil>
+	 <1161784251.667.28.camel@code.and.org>
+	 <1161784759.3987.295.camel@moss-spartans.epoch.ncsc.mil>
+	 <1161803724.29689.57.camel@code.and.org>
+	 <1161804290.3987.388.camel@moss-spartans.epoch.ncsc.mil>
+	 <1161970810.29689.88.camel@code.and.org>
+	 <1161974293.1306.167.camel@moss-spartans.epoch.ncsc.mil>
+	 <1162238632.31104.11.camel@code.and.org>
+	 <1162239394.31104.13.camel@code.and.org>
+	 <1162304610.32614.24.camel@moss-spartans.epoch.ncsc.mil>
+	 <1162304681.32614.26.camel@moss-spartans.epoch.ncsc.mil>
+	 <1162306839.31104.23.camel@code.and.org>
+	 <1162307495.32614.47.camel@moss-spartans.epoch.ncsc.mil>
+	 <1162310652.31104.46.camel@code.and.org>
+	 <1162311675.32614.81.camel@moss-spartans.epoch.ncsc.mil>
+	 <1162319582.23631.1.camel@code.and.org>
+Content-Type: text/plain
+Date: Wed, 01 Nov 2006 07:36:43 -0500
+Message-Id: <1162384603.32614.163.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 31 Oct 2006, Venkat Yekkirala wrote:
-
-> Implementation issues aside, lately I have been wondering about doing
-> something in the filter table using something we could call secfilter
-> or so.
+On Tue, 2006-10-31 at 13:33 -0500, James Antill wrote:
+> On Tue, 2006-10-31 at 11:21 -0500, Stephen Smalley wrote:
 > 
-> You would still use secmark to label the packets, but they (along with
-> any external labels) could get filtered in the secfilter module. This
-> way we could control what external labels could come thru from what peers.
-> For internal labels it would be more of an assurance thing. This would also
-> automatically take care of forwarding controls.
+> > No.  The ability to make the security call is controlled by the
+> > compute_av permission on the security class, and isn't based on the
+> > individual contexts passed as arguments.  That would be:
+> > 	allow $1 security_t:security compute_av;
+> > which has an interface:
+> > 	selinux_compute_access_vector($1)
+> > which is already in authlogin.if.  No change required for allowing the
+> > call to happen.
+> > 
+> > What you are instead trying to do is to define the _result_ of that
+> > compute_av call based on its arguments, not whether it can be made by
+> > login.  So the TE rule would go into userdomain.if and be of the form:
+> > 	allow $1 self:context <permissionname>;
+> 
+>  Ok, I think I have it now. Both patches are at (with the renamed
+> permission):
+> 
+>  http://people.redhat.com/jantill/pam-config_role/upstream/
 
-Ok, so, there'd be an iptables match which looked up the security context 
-on the SA the packet arrives/departs on?  Sounds like it could work.  
-Perhaps call it xfrmlabel ?
+They look sane to me.  Please post them in separate messages, preferably
+inline, and cc Chris PeBenito on the policy patch.
 
-
-
-- James
 -- 
-James Morris
-<jmorris@namei.org>
+Stephen Smalley
+National Security Agency
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
