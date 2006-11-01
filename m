@@ -1,39 +1,86 @@
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="US-ASCII"
-Subject: RE: How should I run genfscon in my module?
-Date: Wed, 1 Nov 2006 10:27:59 -0500
-Message-ID: <6FE441CD9F0C0C479F2D88F959B0158851492D@exchange.columbia.tresys.com>
-In-Reply-To: <1162394514.29617.5.camel@localhost.localdomain>
-From: "Joshua Brindle" <jbrindle@tresys.com>
-To: "Karl MacMillan" <kmacmillan@mentalrootkit.com>,
-        "Stephen Smalley" <sds@tycho.nsa.gov>
-Cc: "Dawid Gajownik" <gajownik@gmail.com>, <fedora-selinux-list@redhat.com>,
-        "SELinux List" <selinux@tycho.nsa.gov>
+From: David Howells <dhowells@redhat.com>
+In-Reply-To: <1162387735.32614.184.camel@moss-spartans.epoch.ncsc.mil> 
+References: <1162387735.32614.184.camel@moss-spartans.epoch.ncsc.mil>  <16969.1161771256@redhat.com> <31035.1162330008@redhat.com> 
+To: Stephen Smalley <sds@tycho.nsa.gov>
+Cc: David Howells <dhowells@redhat.com>, Karl MacMillan <kmacmill@redhat.com>,
+        jmorris@namei.org, chrisw@sous-sol.org, selinux@tycho.nsa.gov,
+        linux-kernel@vger.kernel.org, aviro@redhat.com
+Subject: Re: Security issues with local filesystem caching 
+Date: Wed, 01 Nov 2006 15:34:54 +0000
+Message-ID: <4417.1162395294@redhat.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-> From: Karl MacMillan [mailto:kmacmillan@mentalrootkit.com] 
-> 
-> > > I looked at fixing this by changing genfscon to use 
-> user_identifier 
-> > > instead of identifier (they are the same except user_identifier 
-> > > includes "-"). This made checkpolicy generate a syntax 
-> error for all 
-> > > genfscon statements - haven't tracked down what the 
-> problem is. The 
-> > > grammer still seems to be unambiguous.
-> > 
-> > Use "user_id" instead.  Otherwise, you'll get a syntax 
-> error when the 
-> > token is classified as an IDENTIFIER (first match) and the grammar 
-> > says that it must be a USER_IDENTIFIER.
-> 
-> Right as usual.
-> 
+Stephen Smalley <sds@tycho.nsa.gov> wrote:
 
-Maybe make user_id more generic as it is no longer only used for users..
+> >      (c) A security label that defines the context under which the module
+> >          operates when accessing the cache.  This allows the module, when
+> >          accessing the cache, to only operate within the bounds of the
+> >          cache.
+> 
+> Well, only if the module is well-behaved in the first place, since a
+> kernel module can naturally bypass SELinux at will.  What drives this
+> approach vs. exempting the module from SELinux checking via a task flag
+> that it raises and lowers around the access (vs. setting and resetting
+> the sid around the access to the per-cache module context)?
 
+Christoph objected very strongly to my bypassing of vfs_mkdir() and co, and Al
+wasn't to happy about it either.  This should allow me, for example, to call
+vfs_mkdir() rather than calling the inode op directly as the reason I wasn't
+was that I was having to avoid the security checks it made.
+
+Stephen Smalley <sds@tycho.nsa.gov> wrote:
+
+> >  (*) The module will obtain label (c) by reading label (b) from the
+> >      cachefilesd process when it opens the cachefiles control chardev and
+> >      then passing it through security_change_sid() to ask the security
+> >      policy to for label (c).
+> 
+> Do you mean security_transition_sid()?  security_change_sid() doesn't
+> seem suited to that purpose
+
+That's what Karl said to use.
+
+> What would you use as the target SID and class?
+
+I've no idea.  I tried to find out how to use this function from Karl, but he
+said I should ask on the list.
+
+> >      (3) current->security->sid will be set to label (c) so that
+> >          vfs_mkdir(), vfs_create() and lookup ops will check for the
+> >          correct labels.
+> 
+> I think you would want this to be a new ->fssid field instead, and
+> adjust SELinux to use it if set for permission checking (which could
+> also be leveraged by NFS later).
+
+I could do that.  Does it actually gain anything?  Or are there good reasons
+for not altering current->security->sid?  For instance, does that affect the
+label seen on /proc/pid/ files?
+
+> Or just use a task flag to disable checking on the module internal accesses.
+
+I could do that too.
+
+> >      Point (3) shouldn't cause a cross-thread race as it would appear that
+> >      the security label can only be changed on single-threaded processes.
+> >      Attempts to do so on multi-threaded processes are rejected.
+> 
+> I don't quite follow this.
+
+Sorry, I meant that a process can only change its own security label if it's a
+single-threaded process.  A kernel module can, of course, change the security
+label at any time.
+
+> But mutating ->sid could yield unfortunate behavior if e.g. another process
+> happens to be sending that task a signal at the same time, so if you go this
+> route, you want a ->fssid.
+
+Okay... that seems like a good reason to do use the ->fssid approach.  How do I
+tell if ->fssid is set?  Is zero usable as 'unset'?  Alternatively, would it be
+reasonable to have ->fssid track ->sid when the latter changes?
+
+David
 
 --
 This message was distributed to subscribers of the selinux mailing list.
