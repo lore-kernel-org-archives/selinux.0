@@ -1,49 +1,39 @@
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="US-ASCII"
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id kA1Jvk5g032156
+	for <selinux@tycho.nsa.gov>; Wed, 1 Nov 2006 14:57:46 -0500
+Received: from mail3.sea5.speakeasy.net (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id kA1Juu0M015152
+	for <selinux@tycho.nsa.gov>; Wed, 1 Nov 2006 19:56:57 GMT
+Date: Wed, 1 Nov 2006 14:57:43 -0500 (EST)
+From: James Morris <jmorris@namei.org>
+To: "Christopher J. PeBenito" <cpebenito@tresys.com>
+cc: vyekkirala@TrustedCS.com, Venkat Yekkirala <vyekkirala@tcsfw4.tcs-sec.com>,
+        jbrindle@tresys.com, selinux@tycho.nsa.gov,
+        Stephen Smalley <sds@tycho.nsa.gov>, gcwilson@us.ibm.com,
+        Paul Moore <paul.moore@hp.com>
 Subject: RE: SELinux Networking Enhancements
-Date: Wed, 1 Nov 2006 14:46:33 -0500
-Message-ID: <6FE441CD9F0C0C479F2D88F959B0158851499F@exchange.columbia.tresys.com>
-In-Reply-To: <000d01c6fdeb$732ed9f0$cc0a010a@tcssec.com>
-From: "Joshua Brindle" <jbrindle@tresys.com>
-To: <vyekkirala@TrustedCS.com>, "Paul Moore" <paul.moore@hp.com>
-Cc: "Venkat Yekkirala" <vyekkirala@tcsfw4.tcs-sec.com>,
-        "Christopher J. PeBenito" <cpebenito@tresys.com>,
-        "James Morris" <jmorris@namei.org>, <selinux@tycho.nsa.gov>,
-        "Stephen Smalley" <sds@tycho.nsa.gov>, <gcwilson@us.ibm.com>
+In-Reply-To: <1162403736.4095.12.camel@sgc>
+Message-ID: <Pine.LNX.4.64.0611011456530.8872@d.namei>
+References: <000c01c6fdce$8b49fcd0$cc0a010a@tcssec.com> <1162403736.4095.12.camel@sgc>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-> From: Venkat Yekkirala [mailto:vyekkirala@trustedcs.com] 
-> 
-> > >>As may have been noticed, I am currently thinking of a separate 
-> > >>generic filtering module in the filter table that would filter 
-> > >>packets based on the label (internal as well as
-> > >>external) on the packet and the label on the filtering point. 
-> > > 
-> > > This is not appropriate, the TE/MLS policy should be in 
-> the SELinux 
-> > > policy, not in the SELinux policy and the filter 
-> tables(or anywhere 
-> > > else). Policy should be centralized and analyzable to be
-> > part of the MAC
-> > > policy at all.
-> > 
-> > Maybe I'm missing something, but I think you could make 
-> this part of 
-> > the SELinux policy much like SECMARK rules are part of the 
-> policy now, 
-> > right?
-> 
-> That's correct. The filtering rules as well as the policy 
-> that goes with them would all be part of the policy like with secmark.
-> 
+On Wed, 1 Nov 2006, Christopher J. PeBenito wrote:
 
-This is a misunderstanding. Secmark is not enforcement policy, secmark
-is labeling policy. You want to put enforcement policy into iptables
-which is not appropriate since it splits the enforcement policy into 2
-separate places.
+> This is not acceptable for SELinux because the rules would be in
+> netfilter instead of MAC policy.
 
+Not necessarily -- an iptables module can call into the AVC for a policy 
+decision if needed.
+
+
+
+- James
+-- 
+James Morris
+<jmorris@namei.org>
 
 --
 This message was distributed to subscribers of the selinux mailing list.
