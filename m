@@ -1,32 +1,54 @@
-Message-ID: <4548DBDA.7010700@hp.com>
-Date: Wed, 01 Nov 2006 12:39:38 -0500
-From: Paul Moore <paul.moore@hp.com>
-MIME-Version: 1.0
-To: James Morris <jmorris@namei.org>
-Cc: Venkat Yekkirala <vyekkirala@TrustedCS.com>, jbrindle@tresys.com,
-        selinux@tycho.nsa.gov, Stephen Smalley <sds@tycho.nsa.gov>,
-        gcwilson@us.ibm.com
-Subject: Re: SELinux Networking Enhancements
-References: <000601c6fd2e$ceea6ab0$cc0a010a@tcssec.com> <Pine.LNX.4.64.0610312242270.27961@d.namei> <4548B792.7070604@hp.com> <Pine.LNX.4.64.0611011059190.6253@d.namei> <4548C6D7.1050709@hp.com> <Pine.LNX.4.64.0611011225520.7222@d.namei>
-In-Reply-To: <Pine.LNX.4.64.0611011225520.7222@d.namei>
-Content-Type: text/plain; charset=ISO-8859-1
+Subject: Re: Security issues with local filesystem caching
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Karl MacMillan <kmacmill@redhat.com>
+Cc: David Howells <dhowells@redhat.com>, jmorris@namei.org,
+        chrisw@sous-sol.org, selinux@tycho.nsa.gov,
+        linux-kernel@vger.kernel.org, aviro@redhat.com
+In-Reply-To: <1162396705.29617.18.camel@localhost.localdomain>
+References: <1162387735.32614.184.camel@moss-spartans.epoch.ncsc.mil>
+	 <16969.1161771256@redhat.com> <31035.1162330008@redhat.com>
+	 <4417.1162395294@redhat.com>
+	 <1162396705.29617.18.camel@localhost.localdomain>
+Content-Type: text/plain
+Date: Wed, 01 Nov 2006 12:45:34 -0500
+Message-Id: <1162403134.32614.242.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-James Morris wrote:
-> On Wed, 1 Nov 2006, Paul Moore wrote:
->  
->>I got the impression that Venkat was intending this to work for external labels
->>(both XFRM and NetLabel) as well as internal labels (SECMARK).  I would be a lot
->>happier if the name didn't limit it to just XFRM labeling.
-> 
-> If you want a secmark match, make it a separate module.
+On Wed, 2006-11-01 at 10:58 -0500, Karl MacMillan wrote:
+> I suggested change instead of transition because, like most uses of
+> change, this was a manual relabel rather than automatic. Transition
+> probably makes more sense, though.
 
-Okay, the argument about multiple external labeling mechanisms still applies.
+Yes, if we need it at all.
+
+> This is all predicated on the notion that there is a need to have the
+> normal SELinux checks performed. Since this serves only as a sanity
+> check and doesn't add any real security the best option seems bypass,
+> but I guess that isn't an option.
+
+"Bypass" in the sense of directly calling the inode ops rather than the
+vfs helpers is undesirable.  "Bypass" in the sense of temporarily
+setting a task flag indicating that permission checking should be
+disabled for an internal access attempt seems ok.
+
+> fssid seems like the wrong name, though it does match the DAC concept.
+> This is really more general impersonation of another domain by the
+> kernel and might have other uses.
+
+NFS will want a fssid in order to have file access checks applied
+against the client process' SID if/when the client process' context
+becomes available.  But it isn't really necessary here as far as I can
+see; the cachefiles module is not trying to act on behalf of a task, but
+instead is performing an internal access to local cache that should
+always succeed, and the usual permission checking for userspace is
+handled by the fs before cachefiles is called.
 
 -- 
-paul moore
-linux security @ hp
+Stephen Smalley
+National Security Agency
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
