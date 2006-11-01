@@ -1,53 +1,33 @@
-Subject: Re: Security issues with local filesystem caching
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Karl MacMillan <kmacmill@redhat.com>
-Cc: David Howells <dhowells@redhat.com>, jmorris@namei.org,
-        chrisw@sous-sol.org, selinux@tycho.nsa.gov,
-        linux-kernel@vger.kernel.org, aviro@redhat.com
-In-Reply-To: <1162396705.29617.18.camel@localhost.localdomain>
-References: <1162387735.32614.184.camel@moss-spartans.epoch.ncsc.mil>
-	 <16969.1161771256@redhat.com> <31035.1162330008@redhat.com>
-	 <4417.1162395294@redhat.com>
-	 <1162396705.29617.18.camel@localhost.localdomain>
-Content-Type: text/plain
-Date: Wed, 01 Nov 2006 12:45:34 -0500
-Message-Id: <1162403134.32614.242.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="US-ASCII"
+Subject: RE: SELinux Networking Enhancements
+Date: Wed, 1 Nov 2006 12:54:43 -0500
+Message-ID: <6FE441CD9F0C0C479F2D88F959B01588514973@exchange.columbia.tresys.com>
+In-Reply-To: <000c01c6fdce$8b49fcd0$cc0a010a@tcssec.com>
+From: "Joshua Brindle" <jbrindle@tresys.com>
+To: <vyekkirala@TrustedCS.com>,
+        "Christopher J. PeBenito" <cpebenito@tresys.com>,
+        "James Morris" <jmorris@namei.org>
+Cc: "Venkat Yekkirala" <vyekkirala@tcsfw4.tcs-sec.com>,
+        <selinux@tycho.nsa.gov>, "Stephen Smalley" <sds@tycho.nsa.gov>,
+        <gcwilson@us.ibm.com>, "Paul Moore" <paul.moore@hp.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2006-11-01 at 10:58 -0500, Karl MacMillan wrote:
-> I suggested change instead of transition because, like most uses of
-> change, this was a manual relabel rather than automatic. Transition
-> probably makes more sense, though.
+> From: Venkat Yekkirala [mailto:vyekkirala@trustedcs.com] 
+> 
+<snip>
+> 
+> As may have been noticed, I am currently thinking of a 
+> separate generic filtering module in the filter table that 
+> would filter packets based on the label (internal as well as 
+> external) on the packet and the label on the filtering point. 
 
-Yes, if we need it at all.
-
-> This is all predicated on the notion that there is a need to have the
-> normal SELinux checks performed. Since this serves only as a sanity
-> check and doesn't add any real security the best option seems bypass,
-> but I guess that isn't an option.
-
-"Bypass" in the sense of directly calling the inode ops rather than the
-vfs helpers is undesirable.  "Bypass" in the sense of temporarily
-setting a task flag indicating that permission checking should be
-disabled for an internal access attempt seems ok.
-
-> fssid seems like the wrong name, though it does match the DAC concept.
-> This is really more general impersonation of another domain by the
-> kernel and might have other uses.
-
-NFS will want a fssid in order to have file access checks applied
-against the client process' SID if/when the client process' context
-becomes available.  But it isn't really necessary here as far as I can
-see; the cachefiles module is not trying to act on behalf of a task, but
-instead is performing an internal access to local cache that should
-always succeed, and the usual permission checking for userspace is
-handled by the fs before cachefiles is called.
-
--- 
-Stephen Smalley
-National Security Agency
+This is not appropriate, the TE/MLS policy should be in the SELinux
+policy, not in the SELinux policy and the filter tables(or anywhere
+else). Policy should be centralized and analyzable to be part of the MAC
+policy at all.
 
 
 --
