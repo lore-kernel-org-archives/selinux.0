@@ -1,43 +1,73 @@
-Message-ID: <4548B792.7070604@hp.com>
-Date: Wed, 01 Nov 2006 10:04:50 -0500
-From: Paul Moore <paul.moore@hp.com>
-MIME-Version: 1.0
-To: James Morris <jmorris@namei.org>
-Cc: Venkat Yekkirala <vyekkirala@TrustedCS.com>, jbrindle@tresys.com,
-        selinux@tycho.nsa.gov, Stephen Smalley <sds@tycho.nsa.gov>,
-        gcwilson@us.ibm.com
-Subject: Re: SELinux Networking Enhancements
-References: <000601c6fd2e$ceea6ab0$cc0a010a@tcssec.com> <Pine.LNX.4.64.0610312242270.27961@d.namei>
-In-Reply-To: <Pine.LNX.4.64.0610312242270.27961@d.namei>
-Content-Type: text/plain; charset=ISO-8859-1
+Subject: Re: How should I run genfscon in my module?
+From: Karl MacMillan <kmacmillan@mentalrootkit.com>
+To: Stephen Smalley <sds@tycho.nsa.gov>
+Cc: Dawid Gajownik <gajownik@gmail.com>, Joshua Brindle <jbrindle@tresys.com>,
+        fedora-selinux-list@redhat.com, SELinux List <selinux@tycho.nsa.gov>
+In-Reply-To: <1162387933.32614.188.camel@moss-spartans.epoch.ncsc.mil>
+References: 
+	 <6FE441CD9F0C0C479F2D88F959B015885146CC@exchange.columbia.tresys.com>
+	 <454509C2.7080008@gmail.com>
+	 <1162316975.32614.146.camel@moss-spartans.epoch.ncsc.mil>
+	 <1162331334.4147.6.camel@localhost.localdomain>
+	 <1162387933.32614.188.camel@moss-spartans.epoch.ncsc.mil>
+Content-Type: text/plain; charset=utf-8
+Date: Wed, 01 Nov 2006 10:21:54 -0500
+Message-Id: <1162394514.29617.5.camel@localhost.localdomain>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-James Morris wrote:
-> On Tue, 31 Oct 2006, Venkat Yekkirala wrote:
+On Wed, 2006-11-01 at 08:32 -0500, Stephen Smalley wrote:
+> On Tue, 2006-10-31 at 16:48 -0500, Karl MacMillan wrote:
+> > On Tue, 2006-10-31 at 12:49 -0500, Stephen Smalley wrote:
+> > > On Sun, 2006-10-29 at 21:06 +0100, Dawid Gajownik wrote:
+> > > > Dnia 10/29/2006 06:33 PM, Użytkownik Joshua Brindle napisał:
+> > > > > Right, that's a hard fix I think, dashes aren't allowed in
+> > > > > identifiers and they are treated specially for use in MLS ranges..
+> > > > 
+> > > > Oh, that's really bad :( Without that line files on ntfs-3g filesystem 
+> > > > have unlabeled_t type and I would need to give to many privileges to 
+> > > > mount_t domain.
+> > > > 
+> > > > So there is no hope to fix it in the clean way?
+> > > 
+> > > File it as a bug against checkpolicy.  
+> > 
+> > I looked at fixing this by changing genfscon to use user_identifier
+> > instead of identifier (they are the same except user_identifier includes
+> > "-"). This made checkpolicy generate a syntax error for all genfscon
+> > statements - haven't tracked down what the problem is. The grammer still
+> > seems to be unambiguous.
 > 
->>Implementation issues aside, lately I have been wondering about doing
->>something in the filter table using something we could call secfilter
->>or so.
->>
->>You would still use secmark to label the packets, but they (along with
->>any external labels) could get filtered in the secfilter module. This
->>way we could control what external labels could come thru from what peers.
->>For internal labels it would be more of an assurance thing. This would also
->>automatically take care of forwarding controls.
-> 
-> Ok, so, there'd be an iptables match which looked up the security context 
-> on the SA the packet arrives/departs on?  Sounds like it could work.  
-> Perhaps call it xfrmlabel ?
+> Use "user_id" instead.  Otherwise, you'll get a syntax error when the
+> token is classified as an IDENTIFIER (first match) and the grammar says
+> that it must be a USER_IDENTIFIER.  
 
-What we name it probably isn't that important, but I sorta prefer Venkat's
-original suggestion of secfilter (or secidfilter, or <generic security
-token>filter) since it sounds like this new component would be strictly for
-filtering and not labeling.
+Right as usual.
 
--- 
-paul moore
-linux security @ hp
+Index: trunk/checkpolicy/policy_parse.y
+===================================================================
+--- trunk/checkpolicy/policy_parse.y	(revision 2076)
++++ trunk/checkpolicy/policy_parse.y	(working copy)
+@@ -679,11 +679,11 @@
+ genfs_contexts          : genfs_context_def
+                         | genfs_contexts genfs_context_def
+                         ;
+-genfs_context_def	: GENFSCON identifier path '-' identifier security_context_def
++genfs_context_def	: GENFSCON user_id path '-' identifier security_context_def
+ 			{if (define_genfs_context(1)) return -1;}
+-			| GENFSCON identifier path '-' '-' {insert_id("-", 0);} security_context_def
++			| GENFSCON user_id path '-' '-' {insert_id("-", 0);} security_context_def
+ 			{if (define_genfs_context(1)) return -1;}
+-                        | GENFSCON identifier path security_context_def
++                        | GENFSCON user_id path security_context_def
+ 			{if (define_genfs_context(0)) return -1;}
+ 			;
+ ipv4_addr_def		: number '.' number '.' number '.' number
+
+
+Signed-off by: Karl MacMillan <kmacmillan@mentalrootkit.com>
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
