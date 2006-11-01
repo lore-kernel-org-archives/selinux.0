@@ -1,72 +1,43 @@
-Subject: RE: Question on checks against unlabeled
-From: "Christopher J. PeBenito" <cpebenito@tresys.com>
-To: vyekkirala@TrustedCS.com
-Cc: sds@tycho.nsa.gov, selinux@tycho.nsa.gov, latten@austin.ibm.com,
-        hallyn@elg11.watson.ibm.com, "'Trent Jaeger'" <tjaeger@cse.psu.edu>
-In-Reply-To: <000101c6fcff$498e9960$cc0a010a@tcssec.com>
-References: <000101c6fcff$498e9960$cc0a010a@tcssec.com>
-Content-Type: text/plain
-Date: Wed, 01 Nov 2006 09:48:58 -0500
-Message-Id: <1162392538.31675.162.camel@sgc>
-Mime-Version: 1.0
+Message-ID: <4548B792.7070604@hp.com>
+Date: Wed, 01 Nov 2006 10:04:50 -0500
+From: Paul Moore <paul.moore@hp.com>
+MIME-Version: 1.0
+To: James Morris <jmorris@namei.org>
+Cc: Venkat Yekkirala <vyekkirala@TrustedCS.com>, jbrindle@tresys.com,
+        selinux@tycho.nsa.gov, Stephen Smalley <sds@tycho.nsa.gov>,
+        gcwilson@us.ibm.com
+Subject: Re: SELinux Networking Enhancements
+References: <000601c6fd2e$ceea6ab0$cc0a010a@tcssec.com> <Pine.LNX.4.64.0610312242270.27961@d.namei>
+In-Reply-To: <Pine.LNX.4.64.0610312242270.27961@d.namei>
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2006-10-31 at 09:14 -0600, Venkat Yekkirala wrote:
-> Hi Chris,
+James Morris wrote:
+> On Tue, 31 Oct 2006, Venkat Yekkirala wrote:
 > 
-> I am looking for some input :) from your (policywriter's) end on the
-> following:
+>>Implementation issues aside, lately I have been wondering about doing
+>>something in the filter table using something we could call secfilter
+>>or so.
+>>
+>>You would still use secmark to label the packets, but they (along with
+>>any external labels) could get filtered in the secfilter module. This
+>>way we could control what external labels could come thru from what peers.
+>>For internal labels it would be more of an assurance thing. This would also
+>>automatically take care of forwarding controls.
 > 
-> I have code that now "selects" a labeled association that has the same label
-> as the socket, when the socket "polmatches" a "labeled" SPD rule.
-> 
-> There's also the following check in the kernel currently:
-> allow socket_t unlabeled_t:association { sendto }
-> 
-> The intent as explained below by Trent is to make sure a socket can
-> "use" an "non-labeled" association in the following cases:
-> 
-> a. socket matches a "non-labeled" SPD rule and hence is using a non-labeled
-> IPSec SA.
-> 
-> b. no IPSec SA being used by the socket.
-> 
-> 
-> We have the following choices:
-> 
-> 1. We retain the sendto check against unlabeled_t in the above scenarios (a
-> and b).
-> 
-> 2. We restrict the sendto check only to scenario "a" where we in fact have
-> an
->    association (albeit a "non-labeled" SA).
-> 
-> 3. We eliminate the sendto check for both the scenarios.
-> 
-> 4. We retain the check for both, but for consistency we also do the
-> following
->    check after we "select" a labeled SA.
-> 
->    allow socket_t self:association { sendto };
-> 
->    IOW, your policy will always need to have one of the following:
->    allow socket_t self:association { sendto } where a "labeled" SA can be
-> used.
->    allow socket_t unlabeled_t:association { sendto } where an "non-labeled"
-> SA or no SA at all is permitted for the socket.
-> 
-> What's your preference?
+> Ok, so, there'd be an iptables match which looked up the security context 
+> on the SA the packet arrives/departs on?  Sounds like it could work.  
+> Perhaps call it xfrmlabel ?
 
-I would say 4.  In my response to James (SELinux Networking Enhancements
-thread) that I sent a little earlier, I had what I would consider to be
-an ideal policy.
+What we name it probably isn't that important, but I sorta prefer Venkat's
+original suggestion of secfilter (or secidfilter, or <generic security
+token>filter) since it sounds like this new component would be strictly for
+filtering and not labeling.
 
 -- 
-Chris PeBenito
-Tresys Technology, LLC
-(410) 290-1411 x150
-
+paul moore
+linux security @ hp
 
 --
 This message was distributed to subscribers of the selinux mailing list.
