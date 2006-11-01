@@ -1,128 +1,111 @@
-Subject: RE: User object manager context location
-From: Eamon Walsh <ewalsh@tycho.nsa.gov>
-Reply-To: ewalsh@tycho.nsa.gov
-To: Joshua Brindle <jbrindle@tresys.com>
-Cc: sds@tycho.nsa.gov, selinux@tycho.nsa.gov
-In-Reply-To: <6FE441CD9F0C0C479F2D88F959B015885146C1@exchange.columbia.tresys.com>
-References: 
-	 <6FE441CD9F0C0C479F2D88F959B015885146C1@exchange.columbia.tresys.com>
-Content-Type: text/plain
-Date: Tue, 31 Oct 2006 18:11:39 -0500
-Message-Id: <1162336299.6131.68.camel@moss-huskies.epoch.ncsc.mil>
-Mime-Version: 1.0
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id kA10lXl9002005
+	for <selinux@tycho.nsa.gov>; Tue, 31 Oct 2006 19:47:33 -0500
+Received: from atlrel7.hp.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id kA10jsKW027267
+	for <selinux@tycho.nsa.gov>; Wed, 1 Nov 2006 00:45:55 GMT
+Message-ID: <4547EE97.5040101@hp.com>
+Date: Tue, 31 Oct 2006 19:47:19 -0500
+From: Matt Anderson <mra@hp.com>
+MIME-Version: 1.0
+To: "Christopher J. PeBenito" <cpebenito@tresys.com>
+Cc: selinux@tycho.nsa.gov, redhat-lspp@redhat.com,
+        Daniel J Walsh <dwalsh@redhat.com>
+Subject: Re: New MLS constraint?
+References: <4533B60E.8010802@hp.com> <1161020854.26428.32.camel@sgc>
+In-Reply-To: <1161020854.26428.32.camel@sgc>
+Content-Type: multipart/mixed;
+ boundary="------------080805070508050600070108"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Sat, 2006-10-28 at 13:58 -0400, Joshua Brindle wrote:
-> > From: Eamon Walsh [mailto:ewalsh@tycho.nsa.gov] 
-> > The application does own the objects and the runtime labels 
-> > of those objects.  But the mapping that produces the labels 
-> > should be owned by the security administrator.
+This is a multi-part message in MIME format.
+--------------080805070508050600070108
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+
+Christopher J. PeBenito wrote:
+> We could add another 'or' on the above constraint:
 > 
-> Why? First of all, there are cases where runtime and initial contexts
-> aren't different (policy server, dbus). So in that case do you concede
-> that the application should own the runtime labels? Do you think it
-> would be valid for the postgres schema to contain the initial labels?
-> That would clearly not be stored with the rest of these contexts with
-> the policy. I don't think it violates any fundamental security
-> principles though..
-
-I don't quite understand the meaning of "initial" and "runtime" here. 
-
-> > - N different configuration file formats that the security 
-> > administrator now has to be aware of and have permission to edit.
+> or ( (t2 == mlsfilewrite_in_range) and (l1 dom l2) and (h1 domby h2) )
 > 
-> Which is obviously non-ideal and unscalable. These need infrastructure
-> to manage or noone will ever use them.
-
-And this is precisely what I am proposing.  That we standardize a file
-format for storing string -> context mappings, install them all
-somewhere in /etc/selinux where they are accessible to the security
-administrator only, and provide a matchpathcon-type interface in
-libselinux, indexed by object class, for use by userspace object
-managers to query them. 
-
-I'm not arguing that the mapping files have to ship in the policy
-package.  If you want to ship them (and policy modules) in the
-individual application packages, that's fine. 
-
+> I believe that would be the constraint you were looking for.  I don't
+> like the name of that attribute, but I couldn't come up with a better
+> one off the top of my head. :)
 > 
-> > - N different service administrators who now have the ability 
-> > to mess up the security configuration on the system.  This is 
-> > very DACish.
-> 
-> Not really. Individual enforcers can still control who can change them,
-> as well as MAC on the files (or whatever) containing the labels. 
 
-Not if the labels are stored in the same config file with the rest of
-the application configuration.  Which is why I want them broken out into
-separate files.  And once you do that, you might as well stick it
-under /etc/selinux, and symlink to it from /etc/httpd or whatever if
-necessary so that the service administrator knows about it.
+Attached is a patch which I've tested against selinux-policy-2.4.2-1
+that implements this additional constraint.  The name is still a bit
+forced, but it works.
 
-Again, I don't care which package it goes in.
+-matt
 
-> 
-> > - N different upstream projects that you have to convince to 
-> > accept not only the userspace object manager code, but also 
-> > new SELinux-specific configuration parameters.  Imagine if we 
-> > had to convince the coreutils or tar people to incorporate 
-> > the file contexts mapping.
-> 
-> Except neither of those need mappings, they aren't enforcers. Enforcers
-> need configuration parameters to work, upstream should understand that
-> the code being added (the object manager code) has configuration
-> parameters, this is not a stretch I don't think.
+--------------080805070508050600070108
+Content-Type: text/x-patch;
+ name="writeinrange.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="writeinrange.patch"
 
-For the specific case of string -> context mappings, I think they should
-be handled through libselinux as described.  I think it would simplify
-the upstreaming job and do a lot to make selinux "work behind the
-scenes" like it does in the kernel.
+--- policy/mls	2006-10-27 14:50:37.000000000 -0400
++++ policy/mls-	2006-10-30 10:40:40.000000000 -0500
+@@ -89,6 +89,7 @@
+ mlsconstrain { file lnk_file fifo_file dir chr_file blk_file sock_file } { write create setattr relabelfrom append unlink link rename mounton }
+ 	(( l1 eq l2 ) or
+ 	 (( t1 == mlsfilewritetoclr ) and ( h1 dom l2 ) and ( l1 domby l2 )) or
++         (( t2 == mlsfilewritewithinrange ) and ( l1 dom l2) and (h1 domby h2 )) or
+ 	 ( t1 == mlsfilewrite ) or
+ 	 ( t2 == mlstrustedobject ));
+ 
+--- policy/modules/kernel/mls.te	2006-10-27 13:50:41.000000000 -0500
++++ policy/modules/kernel/mls.te-	2006-10-30 17:19:18.000000000 -0600
+@@ -10,6 +10,7 @@
+ attribute mlsfilereadtoclr;
+ attribute mlsfilewrite;
+ attribute mlsfilewritetoclr;
++attribute mlsfilewritewithinrange;
+ attribute mlsfileupgrade;
+ attribute mlsfiledowngrade;
+ 
+--- policy/modules/kernel/mls.if	2006-10-30 12:07:32.000000000 -0500
++++ policy/modules/kernel/mls.if-	2006-10-30 12:07:22.000000000 -0500
+@@ -470,3 +470,24 @@
+ 
+ 	typeattribute $1 mlstranslate;
+ ')
++
++########################################
++## <summary>
++##	Make specified domain trusted to
++##	be written to within its MLS range.
++##	The subject's MLS range must be a
++##	proper subset of the object's MLS range.
++## </summary>
++## <param name="domain">
++##	<summary>
++##	Domain allowed access.
++##	</summary>
++## </param>
++#
++interface(`mls_file_write_within_range',`
++	gen_require(`
++		attribute mlsfilewritewithinrange;
++	')
++
++	typeattribute $1 mlsfilewritewithinrange;
++')
+--- policy/modules/services/cups.te    2006-10-30 14:41:21.000000000 -0500
++++ policy/modules/services/cups.te-   2006-10-30 14:59:54.000000000 -0500
+@@ -223,6 +223,7 @@
+ 	mls_fd_use_all_levels(cupsd_t)
+ 	mls_file_downgrade(cupsd_t)
+ 	mls_file_write_down(cupsd_t)
++        mls_file_write_within_range(printer_device_t)
+ 	mls_file_read_up(cupsd_t)
+ 	mls_rangetrans_target(cupsd_t)
+ 	mls_socket_write_all_levels(cupsd_t)
 
-> 
-> > - N different packages that have to be updated when the next 
-> > policy package comes out (since the valid set of types _is_ 
-> > in kernel policy).
-> 
-> Ah! So now we are getting to a good issue. There is nothing preventing
-> the user object manager from being packaged with its own policy module
-> that defines the types used by that UOM. In fact, I think this is what
-> we want, once we have dynamic object class discovery we can even add
-> classes and permissions in modules so any UOM policy can be completely
-> independent of the running policy on the system. 
-
-I'm not arguing that we can't do this.
-
-
-> > You'd have to ship apache-targeted, apache-strict, 
-> > apache-mls, etc. to match the installed policy, and you'd 
-> > have dependencies like
-> > apache-targeted-1.2.3-54 requires selinux-policy-targeted == 
-> > 1.2.3-1234.
-> > 
-> 
-> I don't think that's true, there is nothing preventing an application
-> from installing its policy into
-> /usr/share/selinux/<policytype>/apache.pp and letting the selinux
-> infrastructure figure out how to handle it, in fact I think that is
-> precisely what we want.
-
-...and this is precisely what I want, except for the mapping files
-instead (or in addition to) the policy modules.  (assuming
-that /usr/share/selinux is restricted to the security admin).
-
-Something like the following (notice the by-class structure):
-
-/u/s/selinux/<policytype>/mappings/vhost/apache.map
-/u/s/selinux/<policytype>/mappings/vhost/lighttpd.map
-/u/s/selinux/<policytype>/mappings/xextension/xserver-extensions.map
-/u/s/selinux/<policytype>/mappings/property/xserver-properties.map
-/u/s/selinux/<policytype>/mappings/dbus/dbus-channels.map
-
--- 
-Eamon Walsh <ewalsh@tycho.nsa.gov>
-National Security Agency
-
+--------------080805070508050600070108--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
