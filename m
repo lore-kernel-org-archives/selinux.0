@@ -1,45 +1,99 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id kA1FeHdX022722
-	for <selinux@tycho.nsa.gov>; Wed, 1 Nov 2006 10:40:17 -0500
-Received: from exchange.columbia.tresys.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with SMTP id kA1FdPOY004835
-	for <selinux@tycho.nsa.gov>; Wed, 1 Nov 2006 15:39:27 GMT
-Subject: Re: New MLS constraint?
-From: "Christopher J. PeBenito" <cpebenito@tresys.com>
-To: Matt Anderson <mra@hp.com>
-Cc: selinux@tycho.nsa.gov, redhat-lspp@redhat.com,
-        Daniel J Walsh <dwalsh@redhat.com>
-In-Reply-To: <4547EE97.5040101@hp.com>
-References: <4533B60E.8010802@hp.com> <1161020854.26428.32.camel@sgc>
-	 <4547EE97.5040101@hp.com>
-Content-Type: text/plain
-Date: Wed, 01 Nov 2006 10:41:00 -0500
-Message-Id: <1162395661.31675.165.camel@sgc>
-Mime-Version: 1.0
+Reply-To: <vyekkirala@TrustedCS.com>
+From: "Venkat Yekkirala" <vyekkirala@TrustedCS.com>
+To: "'Christopher J. PeBenito'" <cpebenito@tresys.com>,
+        "James Morris" <jmorris@namei.org>
+Cc: "Venkat Yekkirala" <vyekkirala@tcsfw4.tcs-sec.com>, <jbrindle@tresys.com>,
+        <selinux@tycho.nsa.gov>, "Stephen Smalley" <sds@tycho.nsa.gov>,
+        <gcwilson@us.ibm.com>, "Paul Moore" <paul.moore@hp.com>
+Subject: RE: SELinux Networking Enhancements
+Date: Wed, 1 Nov 2006 09:58:15 -0600
+Message-ID: <000c01c6fdce$8b49fcd0$cc0a010a@tcssec.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+In-Reply-To: <1162389729.31675.157.camel@sgc>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2006-10-31 at 19:47 -0500, Matt Anderson wrote:
-> Christopher J. PeBenito wrote:
-> > We could add another 'or' on the above constraint:
-> > 
-> > or ( (t2 == mlsfilewrite_in_range) and (l1 dom l2) and (h1 domby h2) )
-> > 
-> > I believe that would be the constraint you were looking for.  I don't
-> > like the name of that attribute, but I couldn't come up with a better
-> > one off the top of my head. :)
-> > 
-> 
-> Attached is a patch which I've tested against selinux-policy-2.4.2-1
-> that implements this additional constraint.  The name is still a bit
-> forced, but it works.
+> On Mon, 2006-10-30 at 13:27 -0500, James Morris wrote:
+> > # Server policy
+> > allow httpd_server_t httpd_client_t:peer { recv send };
+> >
+> > # Client policy
+> > allow httpd_client_t httpd_server_t:peer { recv send };
+>
+> Since we're talking about how policy, here is how I think the policy
+> should look like ideally, using the server side as example:
+>
+> # service http requests (ipsec):
+> allow apache_t self:tcp_socket create_stream_socket_perms;
+> allow apache_t http_server_packet_t:packet { send recv };
+> allow apache_t http_spd_t:association polmatch;
+> allow apache_t mozilla_t:association { sendto recvfrom };
 
-Merged.  Moved the printer_device_t line to devices.
+Since an association is a uni-directional object and since having
+mozilla_t as the label on associations in BOTH directions would
+mess-up the getpeercon semantics (it would return mozilla_t when
+invoked by the client as well as the server which isn't what we want)
+the above rule will have to be broken into:
 
--- 
-Chris PeBenito
-Tresys Technology, LLC
-(410) 290-1411 x150
+allow apache_t mozilla_t:association { recvfrom };
+allow apache_t self:association { sendto };
+
+with the client having the following rules:
+
+allow mozilla_t apache_t:association { recvfrom };
+allow mozilla_t self:association { sendto };
+
+> allow http_server_packet_t mozilla_t:association { flow_in flow_out };
+
+This won't always work since at least from the MLS standpoint, an
+association
+could be looked at as being more fine-grained than a packet type.
+
+As may have been noticed, I am currently thinking of a separate generic
+filtering module in the filter table that would filter packets based on
+the label (internal as well as external) on the packet and the label on
+the filtering point. So you would still happily secmark packets, but also
+have control over what labels (be they internal or external) can come into
+or leave the system. Being a generic mechanism this would also seemlessly
+cover the forwarding case.
+
+People can look at "Chapter 6. Traversing of tables and chains" at:
+http://iptables-tutorial.frozentux.net/iptables-tutorial.html#TRAVERSINGOFTA
+BLES
+to see where the filtering happens for the input, output and forward cases.
+
+>
+> # do dns lookups (non ipsec):
+> allow apache_t self:tcp_socket create_stream_socket_perms;
+> allow apache_t dns_client_packet_t:packet { send recv };
+> allow apache_t no_extlabel_t:association { sendto recvfrom };
+
+This currently would be (as you also indicate later):
+allow apache_t unlabeled_t:association { sendto recvfrom };
+
+> allow dns_client_packet_t no_extlabel_t:association { flow_in
+> flow_out };
+>
+> This has the requirement that the type of the association is
+> the same as
+> the type of the domain on the other side
+
+For recvfrom this is how it is; the association is the same as
+the type of the domain on the OTHER side. For sendto, we would
+currently allow use of the same association as the sending socket.
+
+So, "sendto" is more like a "use" permission.
+
+> and no_extlabel_t (or
+> unlabeled_t) for unencrypted communications.
+>
+> --
+> Chris PeBenito
+> Tresys Technology, LLC
+> (410) 290-1411 x150
+>
 
 
 --
