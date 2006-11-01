@@ -1,40 +1,94 @@
-Message-ID: <4548C6D7.1050709@hp.com>
-Date: Wed, 01 Nov 2006 11:09:59 -0500
-From: Paul Moore <paul.moore@hp.com>
 MIME-Version: 1.0
-To: James Morris <jmorris@namei.org>
-Cc: Venkat Yekkirala <vyekkirala@TrustedCS.com>, jbrindle@tresys.com,
-        selinux@tycho.nsa.gov, Stephen Smalley <sds@tycho.nsa.gov>,
-        gcwilson@us.ibm.com
-Subject: Re: SELinux Networking Enhancements
-References: <000601c6fd2e$ceea6ab0$cc0a010a@tcssec.com> <Pine.LNX.4.64.0610312242270.27961@d.namei> <4548B792.7070604@hp.com> <Pine.LNX.4.64.0611011059190.6253@d.namei>
-In-Reply-To: <Pine.LNX.4.64.0611011059190.6253@d.namei>
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain;
+	charset="US-ASCII"
+Subject: RE: How should I run genfscon in my module?
+Date: Wed, 1 Nov 2006 11:12:09 -0500
+Message-ID: <6FE441CD9F0C0C479F2D88F959B01588514956@exchange.columbia.tresys.com>
+In-Reply-To: <1162397375.29617.20.camel@localhost.localdomain>
+From: "Joshua Brindle" <jbrindle@tresys.com>
+To: "Karl MacMillan" <kmacmillan@mentalrootkit.com>
+Cc: "Stephen Smalley" <sds@tycho.nsa.gov>,
+        "Dawid Gajownik" <gajownik@gmail.com>,
+        <fedora-selinux-list@redhat.com>,
+        "SELinux List" <selinux@tycho.nsa.gov>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-James Morris wrote:
-> On Wed, 1 Nov 2006, Paul Moore wrote:
+> From: Karl MacMillan [mailto:kmacmillan@mentalrootkit.com] 
 > 
->>>Ok, so, there'd be an iptables match which looked up the security context 
->>>on the SA the packet arrives/departs on?  Sounds like it could work.  
->>>Perhaps call it xfrmlabel ?
->>
->>What we name it probably isn't that important, but I sorta prefer Venkat's
->>original suggestion of secfilter (or secidfilter, or <generic security
->>token>filter) since it sounds like this new component would be strictly for
->>filtering and not labeling.
+> On Wed, 2006-11-01 at 10:27 -0500, Joshua Brindle wrote:
+> > > From: Karl MacMillan [mailto:kmacmillan@mentalrootkit.com]
+> > > 
+> > > > > I looked at fixing this by changing genfscon to use
+> > > user_identifier
+> > > > > instead of identifier (they are the same except 
+> user_identifier 
+> > > > > includes "-"). This made checkpolicy generate a syntax
+> > > error for all
+> > > > > genfscon statements - haven't tracked down what the
+> > > problem is. The
+> > > > > grammer still seems to be unambiguous.
+> > > > 
+> > > > Use "user_id" instead.  Otherwise, you'll get a syntax
+> > > error when the
+> > > > token is classified as an IDENTIFIER (first match) and 
+> the grammar 
+> > > > says that it must be a USER_IDENTIFIER.
+> > > 
+> > > Right as usual.
+> > > 
+> > 
+> > Maybe make user_id more generic as it is no longer only 
+> used for users..
 > 
-> Well, it's matching labels on xfrms.  The filtering concept is implicit in 
-> it being an iptables match, and secid/sec is vague.
+> Just making generic would make the user related parts of the 
+> grammar harder to read. What about this:
+> 
 
-I got the impression that Venkat was intending this to work for external labels
-(both XFRM and NetLabel) as well as internal labels (SECMARK).  I would be a lot
-happier if the name didn't limit it to just XFRM labeling.
+Fine.
 
--- 
-paul moore
-linux security @ hp
+> Index: trunk/checkpolicy/policy_parse.y
+> ===================================================================
+> --- trunk/checkpolicy/policy_parse.y	(revision 2076)
+> +++ trunk/checkpolicy/policy_parse.y	(working copy)
+> @@ -605,6 +605,8 @@
+>  			;
+>  user_id			: identifier
+>  			| user_identifier
+> +                        ;
+> +dash_id                 : user_id
+>  			;
+>  user_def		: USER user_id ROLES names opt_mls_user ';'
+>  	                {if (define_user()) return -1;} @@ 
+> -679,11 +681,11 @@
+>  genfs_contexts          : genfs_context_def
+>                          | genfs_contexts genfs_context_def
+>                          ;
+> -genfs_context_def	: GENFSCON identifier path '-' 
+> identifier security_context_def
+> +genfs_context_def	: GENFSCON dash_id path '-' identifier 
+> security_context_def
+>  			{if (define_genfs_context(1)) return -1;}
+> -			| GENFSCON identifier path '-' '-' 
+> {insert_id("-", 0);} security_context_def
+> +			| GENFSCON dash_id path '-' '-' 
+> {insert_id("-", 0);} 
+> +security_context_def
+>  			{if (define_genfs_context(1)) return -1;}
+> -                        | GENFSCON identifier path 
+> security_context_def
+> +                        | GENFSCON dash_id path security_context_def
+>  			{if (define_genfs_context(0)) return -1;}
+>  			;
+>  ipv4_addr_def		: number '.' number '.' number 
+> '.' number
+> 
+> 
+> Signed-off by: Karl MacMillan <kmacmillan@mentalrootkit.com>
+> 
+
+Acked-By: Joshua Brindle <jbrindle@tresys.com>
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
