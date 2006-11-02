@@ -1,129 +1,147 @@
-Subject: Re: [PATCH 3/4] newrole suid functionality (take 2)
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Michael C Thompson <thompsmc@us.ibm.com>
-Cc: SE Linux <selinux@tycho.nsa.gov>, Daniel J Walsh <dwalsh@redhat.com>
-In-Reply-To: <454A568C.3060201@us.ibm.com>
-References: <45351FC9.2080204@us.ibm.com>  <45352427.20705@us.ibm.com>
-	 <1161630359.3316.127.camel@moss-spartans.epoch.ncsc.mil>
-	 <454A2966.5050702@us.ibm.com>
-	 <1162492463.5519.23.camel@moss-spartans.epoch.ncsc.mil>
-	 <454A568C.3060201@us.ibm.com>
-Content-Type: text/plain
-Date: Thu, 02 Nov 2006 15:54:20 -0500
-Message-Id: <1162500860.5519.105.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+From: David Howells <dhowells@redhat.com>
+In-Reply-To: <1162499621.5519.91.camel@moss-spartans.epoch.ncsc.mil> 
+References: <1162499621.5519.91.camel@moss-spartans.epoch.ncsc.mil>  <1162402218.32614.230.camel@moss-spartans.epoch.ncsc.mil> <1162387735.32614.184.camel@moss-spartans.epoch.ncsc.mil> <16969.1161771256@redhat.com> <31035.1162330008@redhat.com> <4417.1162395294@redhat.com> <25037.1162487801@redhat.com> 
+To: Stephen Smalley <sds@tycho.nsa.gov>
+Cc: David Howells <dhowells@redhat.com>, Karl MacMillan <kmacmill@redhat.com>,
+        jmorris@namei.org, chrisw@sous-sol.org, selinux@tycho.nsa.gov,
+        linux-kernel@vger.kernel.org, aviro@redhat.com
+Subject: Re: Security issues with local filesystem caching 
+Date: Thu, 02 Nov 2006 21:05:02 +0000
+Message-ID: <916.1162501502@redhat.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2006-11-02 at 14:35 -0600, Michael C Thompson wrote:
-> Stephen Smalley wrote:
-> > On Thu, 2006-11-02 at 11:22 -0600, Michael C Thompson wrote:
-> >> Stephen Smalley wrote:
-> >>> On Tue, 2006-10-17 at 13:42 -0500, Michael C Thompson wrote:
-> >>>> Michael C Thompson wrote:
-> >>>>> This is the intro to a set of four patches.
-> >>>>>
-> >>>>> These patches are an attempt to make newrole be an acceptably secure 
-> >>>>> suid root program, to provide it with the capabilities to generate audit 
-> >>>>> records (existing) and handle polyinstatiation (new).
-> >>>>>
-> >>>>> The 4 patches are as follows:
-> >>>>> 1) New functions introduced to newrole.c, new and existing functionality
-> >>>>> 2) Changes to existing functions in newrole.c
-> >>>>> 3) Updates to main in newrole.c to use the aforementioned changes
-> >>>> This is the 3rd of 4 patches.
-> >>>> This patch applies against policycoreutils-1.30.30-1.
-> >>>>
-> >>>> Changes:
-> >>>>   * main is changed in the following ways:
-> >>>>     - remove the duplicated functionality from patch 1/4
-> >>>>     - set to call the new functions from patch 1/4
-> >>>>     - set to use changes to functions in patch 2/4
-> >>>>     - introduces better error handling and cleanup paths
-> >>>>
-> >>>> Signed-off-by: Michael Thompson <thompsmc@us.ibm.com>
-> >>> diff -Naur policycoreutils-1.30.30.orig/newrole/newrole.c policycoreutils-1.30.30.suid/newrole/newrole.c
-> >>> --- policycoreutils-1.30.30.orig/newrole/newrole.c	2006-10-17 13:15:20.000000000 -0500
-> >>> +++ policycoreutils-1.30.30.suid/newrole/newrole.c	2006-10-17 13:15:03.000000000 -0500
-> >>> @@ -897,47 +898,43 @@
-> >>>  
-> >>>  int main(int argc, char *argv[])
-> >>> <snip>
-> >>> +	/*
-> >>> +	 * Step 0: Setup
-> >>> +	 *
-> >>> +	 * Do some intial setup, including dropping capabilities, checking
-> >>> +	 * if it makes sense to continue to run newrole, and setting up
-> >>> +	 * a scrubbed environment.
-> >>> +	 */
-> >>> +	if (set_signal_handles())
-> >>> +		return -1;
-> >>> +	if (drop_capabilities())
-> >>> +		return -1;
-> >>>
-> >>> I'd keep drop_capabilities() first, as it was before this patch.
-> >>> It would also make sense to move up sanitize_environment() as soon as
-> >>> possible, even if that means splitting it into two phases (in particular
-> >>> considering the locale support).
-> >> Would this order be acceptable?
-> >>
-> >> drop_cap
-> >> set_signal_handlers
-> >> setlocale
-> >> sanitize_env
-> >>
-> >> ...
-> >>
-> >> I'm not familiar with locale enough to understand your point above, but 
-> >> I imagine doing environ = NULL will mess up the locale, but I am not 
-> >> sure. If that is right, we need to do it before we sanitize the 
-> >> environment, right?
+Stephen Smalley <sds@tycho.nsa.gov> wrote:
+
+> It doesn't look simpler, but if you take this approach, then:
+> 1) fssid needs to be renamed to reflect its use as the subject/actor
+> label (e.g. => "subjsid"),
+
+Okay.
+
+> 2) Use "secid" in the core code and LSM interfaces rather than just
+> "sid" to avoid confusion with session ids (e.g. => "subjsecid"),
+
+Okay.
+
+> 3) Define and use a SECID_NULL or similar in the LSM interface
+> (SECSID_NULL is SELinux private),
+
+Defining a reset function would be better.
+
+> 4) Be careful about overuse of this id (see below for some examples).
+
+Yeah.
+
+> > The flag approach is a bit more work to implement and will slow most ops
+> > down by virtue of including an extra check, though not all ops can be
+> > bypassed (for instance the op that assigns a security label to an inode
+> > can't be bypassed).
+> 
+> In most cases, you could just generalize the existing IS_PRIVATE(inode)
+> tests in the security static inlines in security.h to also incorporate a
+> task flag test.  security_inode_init_security() would be an exception.
+
+So you were thinking of doing it in security.h?
+
+> > There are a couple of things I'm not sure about with the ->fssid approach:
 > > 
-> > Completely purging the environment could break that functionality, yes.
-> > On the other hand, blindly accepting the locale-related environment
-> > settings can be a risk.  See:
-> > http://www.dwheeler.com/secure-programs/Secure-Programs-HOWTO/locale.html
+> >  (1) What will auditing do?  Is it possible to have an SID that isn't
+> >      audited?
+> > 
+> >  (2) How do I come up with a security label for the module to use?
 > 
-> So, based on reading this, and reviewing code from su and login, what 
-> seems to be the reasonable approach is the following:
+> Note that these issues don't exist in the task flag approach.
+
+Yes.
+
+> I'm not entirely sure what you mean by (1); the existing syscall audit
+> support would never look at your fssid, just the ->sid, and only at syscall
+> entry and exit.
+
+Which is irrelevant since the CacheFiles module doesn't make syscalls.
+
+> SELinux avc audit messages from permission checks would include the fssid's
+> context if that was the basis of the check.
+
+That'd probably be sufficient since at least you could tell them apart.
+
+> For (2), you have to make up a SID.
+
+I've done this and got it working with Karl's help.
+
+In cachefilesd.te, I have:
+
+	...
+	type cachefilesd_t;
+	type cachefilesd_exec_t;
+	domain_type(cachefilesd_t)
+	init_daemon_domain(cachefilesd_t, cachefilesd_exec_t)
+
+	require { type kernel_t; }
+	type cachefiles_kernel_t;
+	domain_type(cachefiles_kernel_t)
+	type_transition cachefilesd_t kernel_t : process cachefiles_kernel_t;
+	...
+
+Then I added a CacheFiles hook to do:
+
+	static int selinux_cachefiles_getsid(u32 secid, u32 *modsecid)
+	{
+		return security_transition_sid(secid, SECINITSID_KERNEL,
+					       SECCLASS_PROCESS, modsecid);
+	}
+
+It takes the daemon's security ID and translates it to the module's security
+ID.
+
+The way I was thinking about it is that a CacheFiles cache has a presence in
+the kernel that lasts as long as the cache is in active service.  This could
+be considered the equivalent of a process, although it doesn't have a
+task_struct of its own; but rather makes use of the task_struct of processes
+that want to use the service.
+
+> This differs from how NFS would use such a facility, since it could just use
+> the client process' context (if that were available),
+
+Indeed; but once NFS had a SID, the two would then be the same.
+
+> But this requires policy configuration to make it work properly, and the
+> absence of the necessary type transition and allow rules could yield a
+> broken cache.
+
+If the rule isn't there then the cache would refuse to start if SELinux is in
+enforcing mode, assuming security_transition_sid() returns an error in that
+case.  Otherwise it'll run in cachefilesd's context, I think, which it will
+cause it to give an error and refuse to cache in enforcing mode because that
+context doesn't permit it to do certain things it checks for (like creating
+files and directories).
+
+> > +		rc = avc_has_perm(secid, tsec->fssid, SECCLASS_PROCESS, perm, NULL);
+> ...
+> The task is the target of a check here, so you don't want to use the
+> overriding SID for it.  Otherwise, you may have a false denial or a
+> false allow of the signal.
+
+Yep...  I got that one wrong.
+
+> > -	isec->sid = tsec->sid;
+> > +	isec->sid = tsec->fssid;
 > 
-> drop_capabilities();
-> set_signal_handles();
-> setlocale(LC_ALL, "");
-> bindtextdomain(PACKAGE, LOCALEDIR);
-> textdomain(PACKAGE);
-> sanitize_environment();
-> 
-> Obviously, this isn't a patch, but this is the guts of the change. I'm 
-> not really sure if bindtextdomain relies on NLSPATH still like "Secure 
-> Programs HOWTO" states, but apparently when newrole is SUID, it will 
-> ignore NLSPATH so we need not worry about that.
-> 
-> There is no use of any of the locale-related information before the 
-> setlocale call, which re-initializes the values (as is my understanding 
-> from reading the code... I can't stand glibc's formatting).
+> Here we are labeling a /proc/pid inode with the task SID, when it is
+> created or revalidated, so you don't want to use the overriding SID here
+> either.  
 
-The man page for setlocale() says:
-	If locale is "", each part of the locale that should be modified is set
-according to the environment variables.
+And again.
 
-Which doesn't sound like it is sanitizing them.  Possibly it has
-different behavior in the libc_enable_secure case, which would be 1 for
-newrole (even the non-suid newrole, due to the domain transition), but I
-don't know offhand.  NLSPATH is on the unsecvars list, so it would be
-ignored.
 
-> There isn't any propsed change in this code, just a better understanding 
-> from the coder. If this is suggested code flow looks OK, I will clean up 
-> the rest of my code and send out the next round of patches.
+Anyway, I'll expand what I've done and give it a go.  I may find compelling
+reasons[*] not to do it this way.  I can always ditch the patches after all...
 
-I take it that su and friends don't do anything special here prior to
-calling the localization functions?
-  
--- 
-Stephen Smalley
-National Security Agency
+[*] Overzealous auditing most probably.
 
+Thanks,
+David
 
 --
 This message was distributed to subscribers of the selinux mailing list.
