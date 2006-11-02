@@ -1,53 +1,54 @@
-Reply-To: <vyekkirala@TrustedCS.com>
-From: "Venkat Yekkirala" <vyekkirala@TrustedCS.com>
-To: "'James Morris'" <jmorris@namei.org>
-Cc: "'Paul Moore'" <paul.moore@hp.com>, <jbrindle@tresys.com>,
-        <selinux@tycho.nsa.gov>, "Stephen Smalley" <sds@tycho.nsa.gov>,
-        <gcwilson@us.ibm.com>
-Subject: RE: SELinux Networking Enhancements
-Date: Thu, 2 Nov 2006 11:10:43 -0600
-Message-ID: <001601c6fea1$d54115c0$cc0a010a@tcssec.com>
+Message-ID: <454A2867.7090401@us.ibm.com>
+Date: Thu, 02 Nov 2006 11:18:31 -0600
+From: Michael C Thompson <thompsmc@us.ibm.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-In-Reply-To: <Pine.LNX.4.64.0611021144520.23444@d.namei>
+To: Stephen Smalley <sds@tycho.nsa.gov>
+CC: SE Linux <selinux@tycho.nsa.gov>, Daniel J Walsh <dwalsh@redhat.com>
+Subject: Re: [PATCH 0/4] newrole suid functionality (take 2)
+References: <45351FC9.2080204@us.ibm.com> <1161629771.3316.119.camel@moss-spartans.epoch.ncsc.mil>
+In-Reply-To: <1161629771.3316.119.camel@moss-spartans.epoch.ncsc.mil>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-> > > Let's say you secmark a packet coming from a certain host with
-> > > webonly_packet_t.
-> > >
-> > > You could have a filter point defined as:
-> > >
-> > > iptables -t filter -A FORWARD -d webserver -dport 80 -j
-> SECFILTER --selctx
-> > > "system_u:object_r:webserver_t:s4-s5"
-> > >
-> > > Your policy could say:
-> > >
-> > > allow webonly_t webserver_t:secfilter { flow_out }
-> >
-> > Is this contstruct needed for anything other than the
-> forwarding case?
+Stephen Smalley wrote:
+> On Tue, 2006-10-17 at 13:24 -0500, Michael C Thompson wrote:
+>> This is the intro to a set of four patches.
+>>
+>> These patches are an attempt to make newrole be an acceptably secure 
+>> suid root program, to provide it with the capabilities to generate audit 
+>> records (existing) and handle polyinstatiation (new).
+>>
+>> The 4 patches are as follows:
+>> 1) New functions introduced to newrole.c, new and existing functionality
+>> 2) Changes to existing functions in newrole.c
+>> 3) Updates to main in newrole.c to use the aforementioned changes
+>> 4) Changes to the Makefile to allow building of newrole with the
+>>     changes and introduction of newrole-lspp.pamd
+>>
+>> Note: This is an atomically applicable patch set. Applying a subset of 
+>> these patches will break the build.
+>>
+>> The comments from the previous send of these patches have been integrated.
+> 
+> diff -Naur policycoreutils-1.30.30.orig/newrole/newrole.c policycoreutils-1.30.30.suid/newrole/newrole.c
+> --- policycoreutils-1.30.30.orig/newrole/newrole.c	2006-10-17 13:11:41.000000000 -0500
+> +++ policycoreutils-1.30.30.suid/newrole/newrole.c	2006-10-17 13:12:29.000000000 -0500
+> @@ -87,6 +87,7 @@
+>  /* USAGE_STRING describes the command-line args of this program. */
+>  #define USAGE_STRING "USAGE: newrole [ -r role ] [ -t type ] [ -l level ] [ -V ] [ -- args ]"
+>  
+> +#define DEFAULT_PATH "/bin:/usr/bin:/usr/local/bin"
+> 
+> Where does this particular path come from?  Why /usr/local/bin at all?
+> Why doesn't /usr/bin come before /bin?  
 
-One could certainly find uses for it in the non-forwarding case as
-well. e.g.:
+So would "/usr/bin:/bin" be sufficent? Not sure if it is desirable to 
+add sbin paths or not.
 
-secmark all incoming packets destined for port 80 with http_server_packet_t
-regardless of source.
+Thanks,
+Mike
 
-Define a filter point with all incoming from interface eth1 with eth1_t (or
-a group of clients or whatever).
-
-allow http_server_packet_t eth1_t:secfilter { flow_in };
-
-Essentially, the flexibility offered by an additional layer of indirection.
-
->
-> In fact, this appears to be entirely indepdent to xfrm labeling...
-
-Correct. This is really labeling-mechanism-agnostic in that it filters
-all.
 
 
 --
