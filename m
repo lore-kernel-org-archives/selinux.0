@@ -1,53 +1,50 @@
 Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id kA2GYLMk032484
-	for <selinux@tycho.nsa.gov>; Thu, 2 Nov 2006 11:34:21 -0500
-Received: from exchange.columbia.tresys.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with SMTP id kA2GWfFI019550
-	for <selinux@tycho.nsa.gov>; Thu, 2 Nov 2006 16:32:42 GMT
-Subject: Re: MLS + MCS?
-From: "Christopher J. PeBenito" <cpebenito@tresys.com>
-To: Michael C Thompson <thompsmc@us.ibm.com>
-Cc: SE Linux <selinux@tycho.nsa.gov>
-In-Reply-To: <454A134D.5060902@us.ibm.com>
-References: <454A134D.5060902@us.ibm.com>
-Content-Type: text/plain
-Date: Thu, 02 Nov 2006 11:35:13 -0500
-Message-Id: <1162485313.18181.9.camel@sgc>
-Mime-Version: 1.0
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id kA2GiBuw000450
+	for <selinux@tycho.nsa.gov>; Thu, 2 Nov 2006 11:44:11 -0500
+Received: from mail4.sea5.speakeasy.net (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id kA2GgPFI021989
+	for <selinux@tycho.nsa.gov>; Thu, 2 Nov 2006 16:42:30 GMT
+Date: Thu, 2 Nov 2006 11:43:59 -0500 (EST)
+From: James Morris <jmorris@namei.org>
+To: Venkat Yekkirala <vyekkirala@TrustedCS.com>
+cc: "'Paul Moore'" <paul.moore@hp.com>,
+        Venkat Yekkirala <vyekkirala@tcsfw4.tcs-sec.com>, jbrindle@tresys.com,
+        selinux@tycho.nsa.gov, Stephen Smalley <sds@tycho.nsa.gov>,
+        gcwilson@us.ibm.com
+Subject: RE: SELinux Networking Enhancements
+In-Reply-To: <000f01c6fe91$bb0926d0$cc0a010a@tcssec.com>
+Message-ID: <Pine.LNX.4.64.0611021140130.23444@d.namei>
+References: <000f01c6fe91$bb0926d0$cc0a010a@tcssec.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2006-11-02 at 09:48 -0600, Michael C Thompson wrote:
-> While writing some policy, I came across a situation that was causing 
-> the policy I was writing to be constructed in an invalid fashion. What 
-> was happening was this:
-> 
-> Using an old Makefile, my $(TYPE) was being generated as 
-> 'strict-mls-mcs', which was causing the support template 'gen_context' 
-> to get completely confused.
-> 
-> The macro is defined thusly:
-[cut]
-> I'm wondering, how does this make sense? I'm unclear as to how having 
-> both mls_sensitivity and [mcs_catergories] defined in this way has meaning.
-> 
-> Because of having both '-mls' and '-mcs' in my $(TYPE), the invalid 
-> policy I was compiling ended up looking like this:
-> user:role:type:$2:s0:$3
-> 
-> It would seem to me that MLS and MCS are mutually exclusive, at least in 
-> this macro.
+On Thu, 2 Nov 2006, Venkat Yekkirala wrote:
 
-Yes, they are mutually exclusive.  Sounds like the Makefile that redhat
-has is making a mistake on setting TYPE; it has to figure out more than
-the upstream refpolicy Makefiles need to because of the
-redhat /usr/share/selinux/*/devel setup.
+> > 1. What would the policy look like?
+> 
+> Let's say you secmark a packet coming from a certain host with
+> webonly_packet_t.
+> 
+> You could have a filter point defined as:
+> 
+> iptables -t filter -A FORWARD -d webserver -dport 80 -j SECFILTER --selctx
+> "system_u:object_r:webserver_t:s4-s5"
+> 
+> Your policy could say:
+> 
+> allow webonly_t webserver_t:secfilter { flow_out }
 
+Is this contstruct needed for anything other than the forwarding case?  
+If not, why don't we solve it specifically for that case?
+
+
+
+- James
 -- 
-Chris PeBenito
-Tresys Technology, LLC
-(410) 290-1411 x150
-
+James Morris
+<jmorris@namei.org>
 
 --
 This message was distributed to subscribers of the selinux mailing list.
