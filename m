@@ -1,71 +1,82 @@
+Message-ID: <454A2966.5050702@us.ibm.com>
+Date: Thu, 02 Nov 2006 11:22:46 -0600
+From: Michael C Thompson <thompsmc@us.ibm.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="US-ASCII"
-Subject: RE: SELinux Networking Enhancements
-Date: Thu, 2 Nov 2006 12:19:54 -0500
-Message-ID: <6FE441CD9F0C0C479F2D88F959B01588514A55@exchange.columbia.tresys.com>
-In-Reply-To: <001501c6fea0$8540d980$cc0a010a@tcssec.com>
-From: "Joshua Brindle" <jbrindle@tresys.com>
-To: <vyekkirala@TrustedCS.com>,
-        "Venkat Yekkirala" <vyekkirala@tcsfw4.tcs-sec.com>,
-        "Paul Moore" <paul.moore@hp.com>
-Cc: "James Morris" <jmorris@namei.org>, <selinux@tycho.nsa.gov>,
-        "Stephen Smalley" <sds@tycho.nsa.gov>, <gcwilson@us.ibm.com>
+To: Stephen Smalley <sds@tycho.nsa.gov>
+CC: SE Linux <selinux@tycho.nsa.gov>, Daniel J Walsh <dwalsh@redhat.com>
+Subject: Re: [PATCH 3/4] newrole suid functionality (take 2)
+References: <45351FC9.2080204@us.ibm.com>  <45352427.20705@us.ibm.com> <1161630359.3316.127.camel@moss-spartans.epoch.ncsc.mil>
+In-Reply-To: <1161630359.3316.127.camel@moss-spartans.epoch.ncsc.mil>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-> From: Venkat Yekkirala [mailto:vyekkirala@trustedcs.com] 
+Stephen Smalley wrote:
+> On Tue, 2006-10-17 at 13:42 -0500, Michael C Thompson wrote:
+>> Michael C Thompson wrote:
+>>> This is the intro to a set of four patches.
+>>>
+>>> These patches are an attempt to make newrole be an acceptably secure 
+>>> suid root program, to provide it with the capabilities to generate audit 
+>>> records (existing) and handle polyinstatiation (new).
+>>>
+>>> The 4 patches are as follows:
+>>> 1) New functions introduced to newrole.c, new and existing functionality
+>>> 2) Changes to existing functions in newrole.c
+>>> 3) Updates to main in newrole.c to use the aforementioned changes
+>> This is the 3rd of 4 patches.
+>> This patch applies against policycoreutils-1.30.30-1.
+>>
+>> Changes:
+>>   * main is changed in the following ways:
+>>     - remove the duplicated functionality from patch 1/4
+>>     - set to call the new functions from patch 1/4
+>>     - set to use changes to functions in patch 2/4
+>>     - introduces better error handling and cleanup paths
+>>
+>> Signed-off-by: Michael Thompson <thompsmc@us.ibm.com>
 > 
-> > > Let's say you secmark a packet coming from a certain host with 
-> > > webonly_packet_t.
-> > >
-> > > You could have a filter point defined as:
-> > >
-> > > iptables -t filter -A FORWARD -d webserver -dport 80 -j SECFILTER 
-> > > --selctx "system_u:object_r:webserver_t:s4-s5"
-> > >
-> > > Your policy could say:
-> > >
-> > > allow webonly_t webserver_t:secfilter { flow_out }
-> >
-> > Ok, I don't think I understand. Are you using the filter table to 
-> > relabel a packet?
+> diff -Naur policycoreutils-1.30.30.orig/newrole/newrole.c policycoreutils-1.30.30.suid/newrole/newrole.c
+> --- policycoreutils-1.30.30.orig/newrole/newrole.c	2006-10-17 13:15:20.000000000 -0500
+> +++ policycoreutils-1.30.30.suid/newrole/newrole.c	2006-10-17 13:15:03.000000000 -0500
+> @@ -897,47 +898,43 @@
+>  
+>  int main(int argc, char *argv[])
+> <snip>
+> +	/*
+> +	 * Step 0: Setup
+> +	 *
+> +	 * Do some intial setup, including dropping capabilities, checking
+> +	 * if it makes sense to continue to run newrole, and setting up
+> +	 * a scrubbed environment.
+> +	 */
+> +	if (set_signal_handles())
+> +		return -1;
+> +	if (drop_capabilities())
+> +		return -1;
 > 
-> No. I am using the FILTER table to FILTER a packet.
-> 
+> I'd keep drop_capabilities() first, as it was before this patch.
+> It would also make sense to move up sanitize_environment() as soon as
+> possible, even if that means splitting it into two phases (in particular
+> considering the locale support).
 
-Ok, I think I'm beginning to get it (I'm a bit slow lately :\).. You are
-defining a condition where iptables will call into the security server
-using the packet label (either secmark or external, how do you decide?)
-and some abstract object to see if it should drop (or is it reject? Can
-you choose?). 
+Would this order be acceptable?
 
-It is interesting, I'm a little dubious, iptables basically becomes an
-object manager and uses iptables rules to determine whether or not to
-call into the security server, which isn't inappropriate, per se. The
-iptables filter rules must be included as part of the policy or the
-expected filtering would occur, the same is true for secmark though. The
-difference is that secmark is labeling packets and if the labels aren't
-in place a restrictive policy will drop them. With these filter rules if
-they aren't in place the policy becomes less restrictive (right?)..
+drop_cap
+set_signal_handlers
+setlocale
+sanitize_env
 
-> > What is the subject here?
-> 
-> The subject is the secmark/external label and the target is 
-> the filter point label.
-> 
-> >
-> > If this is indeed relabeling (which it appears to be from 
-> here) then 
-> > there should be a relabel permission, shouldn't it also be in the 
-> > FORWARD mangle table instead of filter? How is it different from 
-> > secmark at all?
-> 
-> secmark to mark the packets and secfilter to filter them at 
-> the system level (in addition to socket).
-> 
+...
 
-gotcha
+I'm not familiar with locale enough to understand your point above, but 
+I imagine doing environ = NULL will mess up the locale, but I am not 
+sure. If that is right, we need to do it before we sanitize the 
+environment, right?
+
+Thanks,
+Mike
+
 
 
 --
