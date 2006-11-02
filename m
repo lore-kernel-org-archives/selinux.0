@@ -1,89 +1,90 @@
-Subject: RE: SELinux Networking Enhancements
-From: "Christopher J. PeBenito" <cpebenito@tresys.com>
-To: vyekkirala@TrustedCS.com
-Cc: Venkat Yekkirala <vyekkirala@tcsfw4.tcs-sec.com>,
-        James Morris <jmorris@namei.org>, jbrindle@tresys.com,
-        selinux@tycho.nsa.gov, Stephen Smalley <sds@tycho.nsa.gov>,
-        gcwilson@us.ibm.com, Paul Moore <paul.moore@hp.com>
-In-Reply-To: <001201c6fe9a$cfba9c90$cc0a010a@tcssec.com>
-References: <001201c6fe9a$cfba9c90$cc0a010a@tcssec.com>
+Subject: Re: [PATCH 3/4] newrole suid functionality (take 2)
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Michael C Thompson <thompsmc@us.ibm.com>
+Cc: SE Linux <selinux@tycho.nsa.gov>, Daniel J Walsh <dwalsh@redhat.com>
+In-Reply-To: <454A2966.5050702@us.ibm.com>
+References: <45351FC9.2080204@us.ibm.com>  <45352427.20705@us.ibm.com>
+	 <1161630359.3316.127.camel@moss-spartans.epoch.ncsc.mil>
+	 <454A2966.5050702@us.ibm.com>
 Content-Type: text/plain
-Date: Thu, 02 Nov 2006 13:33:37 -0500
-Message-Id: <1162492417.18181.24.camel@sgc>
+Date: Thu, 02 Nov 2006 13:34:23 -0500
+Message-Id: <1162492463.5519.23.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2006-11-02 at 10:20 -0600, Venkat Yekkirala wrote:
-> > > Since an association is a uni-directional object and since having
-> > > mozilla_t as the label on associations in BOTH directions would
-> > > mess-up the getpeercon semantics (it would return mozilla_t when
-> > > invoked by the client as well as the server which isn't 
-> > what we want)
-> > > the above rule will have to be broken into:
+On Thu, 2006-11-02 at 11:22 -0600, Michael C Thompson wrote:
+> Stephen Smalley wrote:
+> > On Tue, 2006-10-17 at 13:42 -0500, Michael C Thompson wrote:
+> >> Michael C Thompson wrote:
+> >>> This is the intro to a set of four patches.
+> >>>
+> >>> These patches are an attempt to make newrole be an acceptably secure 
+> >>> suid root program, to provide it with the capabilities to generate audit 
+> >>> records (existing) and handle polyinstatiation (new).
+> >>>
+> >>> The 4 patches are as follows:
+> >>> 1) New functions introduced to newrole.c, new and existing functionality
+> >>> 2) Changes to existing functions in newrole.c
+> >>> 3) Updates to main in newrole.c to use the aforementioned changes
+> >> This is the 3rd of 4 patches.
+> >> This patch applies against policycoreutils-1.30.30-1.
+> >>
+> >> Changes:
+> >>   * main is changed in the following ways:
+> >>     - remove the duplicated functionality from patch 1/4
+> >>     - set to call the new functions from patch 1/4
+> >>     - set to use changes to functions in patch 2/4
+> >>     - introduces better error handling and cleanup paths
+> >>
+> >> Signed-off-by: Michael Thompson <thompsmc@us.ibm.com>
 > > 
-> > It wouldn't break the getpeercon semantics.  The association would be
-> > labeled mozilla_t on the apache machine, and apache_t on the mozilla
-> > machine.
-> 
-> Yes, but the thing to realize with these SAs is that they are
-> uni-directional. So there's no mozilla_t SA involved when mozilla
-> is sending to apache (if you ignore the transport here).
-> IOW, using SAs you can broadly only control "who can talk to you",
-> not "who you can talk to". The latter can currently be achieved by
-> using secmark controls where you would mark the packet in a
-> fine-grained manner and see if the socket can send that Type of
-> packet.
-
-No, secmark does not help here.  It has nothing to do with the domain on
-the other machine.  It only represents ports, nodes and netifs.
-
-> > > > allow http_server_packet_t mozilla_t:association { 
-> > flow_in flow_out };
-> > > 
-> > > This won't always work since at least from the MLS standpoint, an
-> > > association
-> > > could be looked at as being more fine-grained than a packet type.
+> > diff -Naur policycoreutils-1.30.30.orig/newrole/newrole.c policycoreutils-1.30.30.suid/newrole/newrole.c
+> > --- policycoreutils-1.30.30.orig/newrole/newrole.c	2006-10-17 13:15:20.000000000 -0500
+> > +++ policycoreutils-1.30.30.suid/newrole/newrole.c	2006-10-17 13:15:03.000000000 -0500
+> > @@ -897,47 +898,43 @@
+> >  
+> >  int main(int argc, char *argv[])
+> > <snip>
+> > +	/*
+> > +	 * Step 0: Setup
+> > +	 *
+> > +	 * Do some intial setup, including dropping capabilities, checking
+> > +	 * if it makes sense to continue to run newrole, and setting up
+> > +	 * a scrubbed environment.
+> > +	 */
+> > +	if (set_signal_handles())
+> > +		return -1;
+> > +	if (drop_capabilities())
+> > +		return -1;
 > > 
-> > I don't understand what the problem is.  MLS constraints still apply.
+> > I'd keep drop_capabilities() first, as it was before this patch.
+> > It would also make sense to move up sanitize_environment() as soon as
+> > possible, even if that means splitting it into two phases (in particular
+> > considering the locale support).
 > 
-> Yes MLS constraints apply. But consider the following:
+> Would this order be acceptable?
 > 
-> secmark: s2-s4
-> SA: s3
-
-I still don't see what the problem is.  If this packet shouldn't go over
-the association, the MLS constraints would be written for the above
-permissions to express that goal and it would get denied.
-
-> > > As may have been noticed, I am currently thinking of a 
-> > separate generic
-> > > filtering module in the filter table that would filter 
-> > packets based on
-> > > the label (internal as well as external) on the packet and 
-> > the label on
-> > > the filtering point. So you would still happily secmark 
-> > packets, but also
-> > > have control over what labels (be they internal or 
-> > external) can come into
-> > > or leave the system. Being a generic mechanism this would 
-> > also seemlessly
-> > > cover the forwarding case.
-> > 
-> > This is not acceptable for SELinux because the rules would be in
-> > netfilter instead of MAC policy.
+> drop_cap
+> set_signal_handlers
+> setlocale
+> sanitize_env
 > 
-> The labeling rules (just like in the secmark case) will be in
-> netfilter, but policy and enforcement would still be in SELinux
-> (just like in the secmark case).
+> ...
+> 
+> I'm not familiar with locale enough to understand your point above, but 
+> I imagine doing environ = NULL will mess up the locale, but I am not 
+> sure. If that is right, we need to do it before we sanitize the 
+> environment, right?
 
-I'm not yet convinced, but I need to review the other points you've made
-in the other threads.
+Completely purging the environment could break that functionality, yes.
+On the other hand, blindly accepting the locale-related environment
+settings can be a risk.  See:
+http://www.dwheeler.com/secure-programs/Secure-Programs-HOWTO/locale.html
 
 -- 
-Chris PeBenito
-Tresys Technology, LLC
-(410) 290-1411 x150
+Stephen Smalley
+National Security Agency
 
 
 --
