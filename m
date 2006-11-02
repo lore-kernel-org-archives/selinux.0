@@ -1,53 +1,47 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id kA2GjIok000507
-	for <selinux@tycho.nsa.gov>; Thu, 2 Nov 2006 11:45:18 -0500
-Received: from mail5.sea5.speakeasy.net (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id kA2GiQKL026507
-	for <selinux@tycho.nsa.gov>; Thu, 2 Nov 2006 16:44:28 GMT
-Date: Thu, 2 Nov 2006 11:45:14 -0500 (EST)
-From: James Morris <jmorris@namei.org>
-To: Venkat Yekkirala <vyekkirala@TrustedCS.com>
-cc: "'Paul Moore'" <paul.moore@hp.com>,
-        Venkat Yekkirala <vyekkirala@tcsfw4.tcs-sec.com>, jbrindle@tresys.com,
-        selinux@tycho.nsa.gov, Stephen Smalley <sds@tycho.nsa.gov>,
-        gcwilson@us.ibm.com
-Subject: RE: SELinux Networking Enhancements
-In-Reply-To: <Pine.LNX.4.64.0611021140130.23444@d.namei>
-Message-ID: <Pine.LNX.4.64.0611021144520.23444@d.namei>
-References: <000f01c6fe91$bb0926d0$cc0a010a@tcssec.com>
- <Pine.LNX.4.64.0611021140130.23444@d.namei>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="US-ASCII"
+Subject: RE: SELinux Networking Enhancements
+Date: Thu, 2 Nov 2006 11:49:40 -0500
+Message-ID: <6FE441CD9F0C0C479F2D88F959B01588514A47@exchange.columbia.tresys.com>
+In-Reply-To: <000f01c6fe91$bb0926d0$cc0a010a@tcssec.com>
+From: "Joshua Brindle" <jbrindle@tresys.com>
+To: <vyekkirala@TrustedCS.com>, "Paul Moore" <paul.moore@hp.com>,
+        "Venkat Yekkirala" <vyekkirala@tcsfw4.tcs-sec.com>
+Cc: "James Morris" <jmorris@namei.org>, <selinux@tycho.nsa.gov>,
+        "Stephen Smalley" <sds@tycho.nsa.gov>, <gcwilson@us.ibm.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2 Nov 2006, James Morris wrote:
-
-> On Thu, 2 Nov 2006, Venkat Yekkirala wrote:
+> From: Venkat Yekkirala [mailto:vyekkirala@trustedcs.com] 
 > 
-> > > 1. What would the policy look like?
+
+> > Can you help me understand the forwarding case as you envision it 
+> > (using external labeling)?  The things I am interested in are:
 > > 
-> > Let's say you secmark a packet coming from a certain host with
-> > webonly_packet_t.
-> > 
-> > You could have a filter point defined as:
-> > 
-> > iptables -t filter -A FORWARD -d webserver -dport 80 -j SECFILTER --selctx
-> > "system_u:object_r:webserver_t:s4-s5"
-> > 
-> > Your policy could say:
-> > 
-> > allow webonly_t webserver_t:secfilter { flow_out }
+> > 1. What would the policy look like?
 > 
-> Is this contstruct needed for anything other than the forwarding case?  
+> Let's say you secmark a packet coming from a certain host 
+> with webonly_packet_t.
+> 
+> You could have a filter point defined as:
+> 
+> iptables -t filter -A FORWARD -d webserver -dport 80 -j 
+> SECFILTER --selctx "system_u:object_r:webserver_t:s4-s5"
+> 
+> Your policy could say:
+> 
+> allow webonly_t webserver_t:secfilter { flow_out }
 
-In fact, this appears to be entirely indepdent to xfrm labeling...
+Ok, I don't think I understand. Are you using the filter table to
+relabel a packet? What is the subject here? 
 
+If this is indeed relabeling (which it appears to be from here) then
+there should be a relabel permission, shouldn't it also be in the
+FORWARD mangle table instead of filter? How is it different from secmark
+at all? (eg., why not just have a secmark rule in the mangle table that
+relabels its secmark for doing forward access control?)
 
-
--- 
-James Morris
-<jmorris@namei.org>
 
 --
 This message was distributed to subscribers of the selinux mailing list.
