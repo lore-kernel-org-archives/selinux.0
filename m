@@ -1,100 +1,113 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id kA2E7m0v026732
-	for <selinux@tycho.nsa.gov>; Thu, 2 Nov 2006 09:07:48 -0500
-Received: from mailgate1.arcor-ip.de (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id kA2E67QC015240
-	for <selinux@tycho.nsa.gov>; Thu, 2 Nov 2006 14:06:08 GMT
-Received: from relay.brunellocal.de (ffmcospub2ffmbrunelfw2lo-cs-nat-mail-server.adm.arcor.net [145.254.28.157])
-	by mailgate1.adm.arcor.net (Arcor-CN-MailRelay-l-A) with ESMTP id B59301F7990
-	for <selinux@tycho.nsa.gov>; Thu,  2 Nov 2006 15:07:36 +0100 (CET)
-Received: from localhost (unknown [127.0.0.1])
-	by relay.brunellocal.de (Postfix) with ESMTP id 0CC2962EB
-	for <selinux@tycho.nsa.gov>; Thu,  2 Nov 2006 14:07:36 +0000 (UTC)
-Received: from relay.brunellocal.de ([127.0.0.1])
- by localhost (relay.brunellocal.de [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id 29399-06 for <selinux@tycho.nsa.gov>;
- Thu,  2 Nov 2006 15:07:35 +0100 (CET)
-Received: from mail-hv.brunel.de (mail-hv.brunellocal.de [192.168.1.234])
-	by relay.brunellocal.de (Postfix) with ESMTP id 4DD8A62E6
-	for <selinux@tycho.nsa.gov>; Thu,  2 Nov 2006 15:07:35 +0100 (CET)
-Message-ID: <4549FB9E.3030104@brunel.de>
-Date: Thu, 02 Nov 2006 15:07:26 +0100
-From: Daniel Gil Mayol <daniel.gil-mayol@brunel.de>
+Reply-To: <vyekkirala@TrustedCS.com>
+From: "Venkat Yekkirala" <vyekkirala@TrustedCS.com>
+To: "'Paul Moore'" <paul.moore@hp.com>,
+        "Venkat Yekkirala" <vyekkirala@tcsfw4.tcs-sec.com>
+Cc: "'James Morris'" <jmorris@namei.org>,
+        "Venkat Yekkirala" <vyekkirala@tcsfw4.tcs-sec.com>,
+        <jbrindle@tresys.com>, <selinux@tycho.nsa.gov>,
+        "Stephen Smalley" <sds@tycho.nsa.gov>, <gcwilson@us.ibm.com>
+Subject: RE: SELinux Networking Enhancements
+Date: Thu, 2 Nov 2006 09:15:27 -0600
+Message-ID: <000f01c6fe91$bb0926d0$cc0a010a@tcssec.com>
 MIME-Version: 1.0
-To: selinux@tycho.nsa.gov
-Subject: Re: Policy tests failed
-References: <4549C1E0.6020401@brunel.de> <1162475440.22051.23.camel@moss-spartans.epoch.ncsc.mil>
-In-Reply-To: <1162475440.22051.23.camel@moss-spartans.epoch.ncsc.mil>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain;
+	charset="iso-8859-1"
+In-Reply-To: <454911BC.9060708@hp.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Stephen Smalley wrote:
-> On Thu, 2006-11-02 at 11:01 +0100, Daniel Gil Mayol wrote:
->   
->> Hello, I still have some problems with the policy tests.
->>
->> I am testing that a domain can execute files that are defined in the 
->> policy. For example, lets take tripwire. In the policy is defined that:
->>
->>     can_exec($1_t, shell_exec_t);
->>     can_exec($1_t, bin_t);
->>
->> That means that tripwire_t domain is allowed to execute files labeled 
->> with shell_exec_t and bin_t.
->>
->> The test first relabel as shell_exec_t a copy that I made previously of 
->> /bin/ls (this copy is under my test directory):
->>
->>     [root@cnsu PolicyTest]# chcon -u system_u -r object_r -t shell_exec_t ls
->>
->> Then I try to execute ls (under the domain tripwire_t) over a file 
->> called '/policytest' defined as:
->>
->>     -rw-r--r--  root     root     system_u:object_r:policy_test_t 
->>     policytest
->>
->> where policy_test_t is:
->>
->>     type policy_test_t, file_type;
->>     allow * policy_test_t:file getattr;
->>
->> But this execution fail:
->>
->>     [root@cnsu PolicyTest]# runcon -t tripwire_t ./ls /policytest
->>     execvp: Permission denied
->>
->> The /var/log/messages shows this:
->>
->> Nov  2 11:06:46 cnsu kernel: audit(1162465606.392:25664): avc:  denied  
->> { entrypoint } for  pid=27705 comm="runcon" name="ls" dev=hda2 
->> ino=240308 scontext=root:system_r:tripwire_t 
->> tcontext=system_u:object_r:shell_exec_t tclass=file
->>
->> The question is... should I define for all the services this file 
->> entrypoint or I am doing something wrong in my test?
->> I would like to avoid to write all these entrypoints.
->>     
->
-> SELinux distinguishes between an executable that can be used to enter a
-> given domain (entrypoint) and an executable that can be subsequently
-> executed by that domain.  can_exec() only gives permissions for the
-> latter.  domain_trans() and domain_auto_trans() gives permissions for a
-> domain transition, including the entrypoint permission between the new
-> domain and the executable.  Example:
-> 	domain_trans(unconfined_t, shell_exec_t, $1_t)
-> 	domain_trans(unconfined_t, bin_t, $1_t)
->
-> Reference policy splits the entrypoint permission into a separate
-> macro/interface, domain_entry_file(), but that wouldn't exist in your
-> base policy.
->
->   
-And how can we test in our script this (that tripwire can execute types 
-of shell_exec_t and bin_t) without define a domain_trans?
-We don't want to allow this only for the test.
+> Am I correct is stating that this is basically your 
+> "secpoint" idea with the
+> following changes:
+> 
+> 1. The "secpoint" is no longer the skb->secmark field but 
+> rather the context
+> specified in the iptables command (using the 'selctx' option) above.
 
+Correct. This aims to solve the same flow control issues that
+secpoint tried to solve but leaving secmark alone as purely a
+marking facility.
 
+> 2. There is no longer a need to override/overload/etc. the 
+> skb->secmark context.
+> 
+> Yes?
+
+No overriding per se. I can't really say anything about overloading
+since I haven't really thought about the implementation details yet.
+
+Secmark will retain its current behavior (packets marked with Type in
+secmark and independently access-controlled at the socket level like it
+is currently). Only additional filtering at the network level.
+
+The attempt here is to approach things from top to bottom this time, so
+we need to first agree on things at the user level and then we can think
+about specific implementation details.
+
+> 
+> > If you are also using secmark:
+> > 
+> > Labeling:
+> > <Normal secmark rules to mark http_server_packet_t and 
+> dns_client_packet_t>
+> > 
+> > Additional Policy rules:
+> > allow http_server_packet_t client1_t:secfilter { flow_in flow_out };
+> > allow dns_client_packet_t dns_server_t:secfilter { flow_in 
+> flow_out };
+> 
+> In order to simplify things a bit I wonder if it would be 
+> best to hash out the
+> "secfilter" concept using external labels at first,
+
+We wouldn't want to do that for the simple reason that we wan't a
+comprehensive set of controls that would also work for forwarded
+traffic and for this, we would need to subject secmark also to the
+secfilter controls.
+
+> and then 
+> add internal labels
+> later.  I understand the desire to have the same/similar 
+> access controls for
+> both external and internal labels but I think a smaller, more 
+> iterative approach
+> might be a little easier to get understood and accepted.  
+> Plus, as you stated
+> earlier, using 'secfilter' with 'secmark' really only adds to 
+> your assurance
+> level
+
+more for the locally generated/destined traffic, but for forwarded
+traffic this is a necessity.
+
+>; equivalent access controls already exist for internal labeling.
+> 
+> > You could just as easily define rules for forwarded traffic.
+> 
+> Can you help me understand the forwarding case as you 
+> envision it (using
+> external labeling)?  The things I am interested in are:
+> 
+> 1. What would the policy look like?
+
+Let's say you secmark a packet coming from a certain host with
+webonly_packet_t.
+
+You could have a filter point defined as:
+
+iptables -t filter -A FORWARD -d webserver -dport 80 -j SECFILTER --selctx
+"system_u:object_r:webserver_t:s4-s5"
+
+Your policy could say:
+
+allow webonly_t webserver_t:secfilter { flow_out }
+
+> 2. Where would the access control points be in the code?
+> 3. Does this require segmenting the skb->secmark field?
+
+Implementation specifics ...
+
+> 4. What would the iptables command(s) look like?
 
 --
 This message was distributed to subscribers of the selinux mailing list.
