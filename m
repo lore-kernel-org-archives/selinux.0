@@ -1,65 +1,54 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id kA2Gp62F000805
-	for <selinux@tycho.nsa.gov>; Thu, 2 Nov 2006 11:51:06 -0500
-Received: from e35.co.us.ibm.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id kA2GoDKL027219
-	for <selinux@tycho.nsa.gov>; Thu, 2 Nov 2006 16:50:16 GMT
-Received: from d03relay04.boulder.ibm.com (d03relay04.boulder.ibm.com [9.17.195.106])
-	by e35.co.us.ibm.com (8.13.8/8.12.11) with ESMTP id kA2Gp2rP017051
-	for <selinux@tycho.nsa.gov>; Thu, 2 Nov 2006 11:51:02 -0500
-Received: from d03av03.boulder.ibm.com (d03av03.boulder.ibm.com [9.17.195.169])
-	by d03relay04.boulder.ibm.com (8.13.6/8.13.6/NCO v8.1.1) with ESMTP id kA2Gp273337350
-	for <selinux@tycho.nsa.gov>; Thu, 2 Nov 2006 09:51:02 -0700
-Received: from d03av03.boulder.ibm.com (loopback [127.0.0.1])
-	by d03av03.boulder.ibm.com (8.12.11.20060308/8.13.3) with ESMTP id kA2Go1pk018833
-	for <selinux@tycho.nsa.gov>; Thu, 2 Nov 2006 09:50:01 -0700
-Message-ID: <454A21B3.7040005@us.ibm.com>
-Date: Thu, 02 Nov 2006 10:49:55 -0600
-From: Michael C Thompson <thompsmc@us.ibm.com>
+Reply-To: <vyekkirala@TrustedCS.com>
+From: "Venkat Yekkirala" <vyekkirala@TrustedCS.com>
+To: "'Joshua Brindle'" <jbrindle@tresys.com>,
+        "Venkat Yekkirala" <vyekkirala@tcsfw4.tcs-sec.com>,
+        "Christopher J. PeBenito" <cpebenito@tresys.com>
+Cc: "James Morris" <jmorris@namei.org>, <selinux@tycho.nsa.gov>,
+        "Stephen Smalley" <sds@tycho.nsa.gov>, <gcwilson@us.ibm.com>,
+        "Paul Moore" <paul.moore@hp.com>
+Subject: RE: SELinux Networking Enhancements
+Date: Thu, 2 Nov 2006 10:54:01 -0600
+Message-ID: <001401c6fe9f$803af340$cc0a010a@tcssec.com>
 MIME-Version: 1.0
-To: "Christopher J. PeBenito" <cpebenito@tresys.com>
-CC: SE Linux <selinux@tycho.nsa.gov>
-Subject: Re: MLS + MCS?
-References: <454A134D.5060902@us.ibm.com> <1162485313.18181.9.camel@sgc>
-In-Reply-To: <1162485313.18181.9.camel@sgc>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain;
+	charset="iso-8859-1"
+In-Reply-To: <6FE441CD9F0C0C479F2D88F959B01588514A3C@exchange.columbia.tresys.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Christopher J. PeBenito wrote:
-> On Thu, 2006-11-02 at 09:48 -0600, Michael C Thompson wrote:
->> While writing some policy, I came across a situation that was causing 
->> the policy I was writing to be constructed in an invalid fashion. What 
->> was happening was this:
->>
->> Using an old Makefile, my $(TYPE) was being generated as 
->> 'strict-mls-mcs', which was causing the support template 'gen_context' 
->> to get completely confused.
->>
->> The macro is defined thusly:
-> [cut]
->> I'm wondering, how does this make sense? I'm unclear as to how having 
->> both mls_sensitivity and [mcs_catergories] defined in this way has meaning.
->>
->> Because of having both '-mls' and '-mcs' in my $(TYPE), the invalid 
->> policy I was compiling ended up looking like this:
->> user:role:type:$2:s0:$3
->>
->> It would seem to me that MLS and MCS are mutually exclusive, at least in 
->> this macro.
+> I think he's asking why both SA's aren't labeled as the peer on each
+> side:
 > 
-> Yes, they are mutually exclusive.  Sounds like the Makefile that redhat
-> has is making a mistake on setting TYPE; it has to figure out more than
-> the upstream refpolicy Makefiles need to because of the
-> redhat /usr/share/selinux/*/devel setup.
+> Side 1: socket client_t
+> Outgoing SA: server_t
+> Incomging SA: server_t
+> 
+> Side 2: socket server_t
+> Outgoing SA: client_t
+> Incoming SA: client_t
+> 
+> That way client_t has to be able to send to and recv from server_t, 
+> Likewise server_t has to be able to send to and recv from client_t.
 
-I have since switched to the last Makefile redhat provides and that 
-resolves the problem I was having.
+The problem is that when a client requires an SA to talk to the server,
+there's currently no way to know that the server is at server_t. There's
+currently no way for the IKE daemon (racoon) to figure this out when
+negotiating an SA.
 
-is there a better way to express the gen_context macro, or is this 
-another case of m4 limitations? (I am not familiar with m4 at all btw)
+> 
+> The SA labeling semantics can be changed at this point, they are just
+> userland drive, correct?
 
+Not entirely. racoon currently receives the context to use from the
+spd (upstream kernel) or the sending socket (lspp kernel, soon to be
+submitted for upstreaming).
 
+> Last time I used them the labeling semantics
+> weren't what AFAIK they are suppose to be anyway (eg., every SA was
+> labeled client_t, not one labeled clien_t and the other labeled
+> server_t)
+
+This shouldn't be the case with the lastest lspp kernel.
 
 --
 This message was distributed to subscribers of the selinux mailing list.
