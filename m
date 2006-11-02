@@ -1,83 +1,53 @@
-Message-ID: <454A2966.5050702@us.ibm.com>
-Date: Thu, 02 Nov 2006 11:22:46 -0600
-From: Michael C Thompson <thompsmc@us.ibm.com>
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id kA2HMgoW002260
+	for <selinux@tycho.nsa.gov>; Thu, 2 Nov 2006 12:22:42 -0500
+Received: from mail6.sea5.speakeasy.net (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id kA2HKxFI000665
+	for <selinux@tycho.nsa.gov>; Thu, 2 Nov 2006 17:21:02 GMT
+Date: Thu, 2 Nov 2006 12:22:34 -0500 (EST)
+From: James Morris <jmorris@namei.org>
+To: Venkat Yekkirala <vyekkirala@TrustedCS.com>
+cc: "'Paul Moore'" <paul.moore@hp.com>, jbrindle@tresys.com,
+        selinux@tycho.nsa.gov, Stephen Smalley <sds@tycho.nsa.gov>,
+        gcwilson@us.ibm.com
+Subject: RE: SELinux Networking Enhancements
+In-Reply-To: <001601c6fea1$d54115c0$cc0a010a@tcssec.com>
+Message-ID: <Pine.LNX.4.64.0611021219110.23758@d.namei>
+References: <001601c6fea1$d54115c0$cc0a010a@tcssec.com>
 MIME-Version: 1.0
-To: Stephen Smalley <sds@tycho.nsa.gov>
-CC: SE Linux <selinux@tycho.nsa.gov>, Daniel J Walsh <dwalsh@redhat.com>
-Subject: Re: [PATCH 3/4] newrole suid functionality (take 2)
-References: <45351FC9.2080204@us.ibm.com>  <45352427.20705@us.ibm.com> <1161630359.3316.127.camel@moss-spartans.epoch.ncsc.mil>
-In-Reply-To: <1161630359.3316.127.camel@moss-spartans.epoch.ncsc.mil>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Stephen Smalley wrote:
-> On Tue, 2006-10-17 at 13:42 -0500, Michael C Thompson wrote:
->> Michael C Thompson wrote:
->>> This is the intro to a set of four patches.
->>>
->>> These patches are an attempt to make newrole be an acceptably secure 
->>> suid root program, to provide it with the capabilities to generate audit 
->>> records (existing) and handle polyinstatiation (new).
->>>
->>> The 4 patches are as follows:
->>> 1) New functions introduced to newrole.c, new and existing functionality
->>> 2) Changes to existing functions in newrole.c
->>> 3) Updates to main in newrole.c to use the aforementioned changes
->> This is the 3rd of 4 patches.
->> This patch applies against policycoreutils-1.30.30-1.
->>
->> Changes:
->>   * main is changed in the following ways:
->>     - remove the duplicated functionality from patch 1/4
->>     - set to call the new functions from patch 1/4
->>     - set to use changes to functions in patch 2/4
->>     - introduces better error handling and cleanup paths
->>
->> Signed-off-by: Michael Thompson <thompsmc@us.ibm.com>
+On Thu, 2 Nov 2006, Venkat Yekkirala wrote:
+
+> Define a filter point with all incoming from interface eth1 with eth1_t (or
+> a group of clients or whatever).
 > 
-> diff -Naur policycoreutils-1.30.30.orig/newrole/newrole.c policycoreutils-1.30.30.suid/newrole/newrole.c
-> --- policycoreutils-1.30.30.orig/newrole/newrole.c	2006-10-17 13:15:20.000000000 -0500
-> +++ policycoreutils-1.30.30.suid/newrole/newrole.c	2006-10-17 13:15:03.000000000 -0500
-> @@ -897,47 +898,43 @@
->  
->  int main(int argc, char *argv[])
-> <snip>
-> +	/*
-> +	 * Step 0: Setup
-> +	 *
-> +	 * Do some intial setup, including dropping capabilities, checking
-> +	 * if it makes sense to continue to run newrole, and setting up
-> +	 * a scrubbed environment.
-> +	 */
-> +	if (set_signal_handles())
-> +		return -1;
-> +	if (drop_capabilities())
-> +		return -1;
+> allow http_server_packet_t eth1_t:secfilter { flow_in };
 > 
-> I'd keep drop_capabilities() first, as it was before this patch.
-> It would also make sense to move up sanitize_environment() as soon as
-> possible, even if that means splitting it into two phases (in particular
-> considering the locale support).
+> Essentially, the flexibility offered by an additional layer of indirection.
 
-Would this order be acceptable?
+I think what we'd really want in a case like this is to just use secmark, 
+and create new compound types for labeling packets (which is part of the 
+idea of the design).
 
-drop_cap
-set_signal_handlers
-setlocale
-sanitize_env
+So, eth1 is thought of as "internal", and you use iptables to label 
+packets with --dport 80 and -i eth1 as httpd_internal_t.
 
-...
+> > In fact, this appears to be entirely indepdent to xfrm labeling...
+> 
+> Correct. This is really labeling-mechanism-agnostic in that it filters
+> all.
 
-I'm not familiar with locale enough to understand your point above, but 
-I imagine doing environ = NULL will mess up the locale, but I am not 
-sure. If that is right, we need to do it before we sanitize the 
-environment, right?
-
-Thanks,
-Mike
+Then I'm not sure I understand why it's part of a discussion about 
+protected path labeling.
 
 
+- James
+-- 
+James Morris
+<jmorris@namei.org>
 
 --
 This message was distributed to subscribers of the selinux mailing list.
