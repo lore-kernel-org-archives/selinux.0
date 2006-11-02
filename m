@@ -1,53 +1,47 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id kA2HMgoW002260
-	for <selinux@tycho.nsa.gov>; Thu, 2 Nov 2006 12:22:42 -0500
-Received: from mail6.sea5.speakeasy.net (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id kA2HKxFI000665
-	for <selinux@tycho.nsa.gov>; Thu, 2 Nov 2006 17:21:02 GMT
-Date: Thu, 2 Nov 2006 12:22:34 -0500 (EST)
-From: James Morris <jmorris@namei.org>
-To: Venkat Yekkirala <vyekkirala@TrustedCS.com>
-cc: "'Paul Moore'" <paul.moore@hp.com>, jbrindle@tresys.com,
-        selinux@tycho.nsa.gov, Stephen Smalley <sds@tycho.nsa.gov>,
-        gcwilson@us.ibm.com
+Reply-To: <vyekkirala@TrustedCS.com>
+From: "Venkat Yekkirala" <vyekkirala@TrustedCS.com>
+To: "'James Morris'" <jmorris@namei.org>
+Cc: "'Paul Moore'" <paul.moore@hp.com>, <jbrindle@tresys.com>,
+        <selinux@tycho.nsa.gov>, "Stephen Smalley" <sds@tycho.nsa.gov>,
+        <gcwilson@us.ibm.com>
 Subject: RE: SELinux Networking Enhancements
-In-Reply-To: <001601c6fea1$d54115c0$cc0a010a@tcssec.com>
-Message-ID: <Pine.LNX.4.64.0611021219110.23758@d.namei>
-References: <001601c6fea1$d54115c0$cc0a010a@tcssec.com>
+Date: Thu, 2 Nov 2006 11:31:50 -0600
+Message-ID: <001701c6fea4$c807bdc0$cc0a010a@tcssec.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="iso-8859-1"
+In-Reply-To: <Pine.LNX.4.64.0611021219110.23758@d.namei>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2 Nov 2006, Venkat Yekkirala wrote:
-
-> Define a filter point with all incoming from interface eth1 with eth1_t (or
-> a group of clients or whatever).
+> I think what we'd really want in a case like this is to just 
+> use secmark, 
+> and create new compound types for labeling packets (which is 
+> part of the 
+> idea of the design).
 > 
-> allow http_server_packet_t eth1_t:secfilter { flow_in };
+> So, eth1 is thought of as "internal", and you use iptables to label 
+> packets with --dport 80 and -i eth1 as httpd_internal_t.
+
+Yes, but where such compounding is not desired, one could simply
+identify all httpd packets as of Type httpd_t and go from there.
+
+This essentially could result in a more readable policy where you
+worry strictly about packet Types with secmark and express whether
+you expect those Types from a certain source using secfilter.
+
 > 
-> Essentially, the flexibility offered by an additional layer of indirection.
-
-I think what we'd really want in a case like this is to just use secmark, 
-and create new compound types for labeling packets (which is part of the 
-idea of the design).
-
-So, eth1 is thought of as "internal", and you use iptables to label 
-packets with --dport 80 and -i eth1 as httpd_internal_t.
-
-> > In fact, this appears to be entirely indepdent to xfrm labeling...
+> > > In fact, this appears to be entirely indepdent to xfrm labeling...
+> > 
+> > Correct. This is really labeling-mechanism-agnostic in that 
+> it filters
+> > all.
 > 
-> Correct. This is really labeling-mechanism-agnostic in that it filters
-> all.
+> Then I'm not sure I understand why it's part of a discussion about 
+> protected path labeling.
 
-Then I'm not sure I understand why it's part of a discussion about 
-protected path labeling.
-
-
-- James
--- 
-James Morris
-<jmorris@namei.org>
+Only the nature of the protected paths proposed here is generic
+enough that it could cover all sorts of labeling.
 
 --
 This message was distributed to subscribers of the selinux mailing list.
