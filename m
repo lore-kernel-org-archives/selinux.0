@@ -2,53 +2,56 @@ Reply-To: <vyekkirala@TrustedCS.com>
 From: "Venkat Yekkirala" <vyekkirala@TrustedCS.com>
 To: "'Joshua Brindle'" <jbrindle@tresys.com>,
         "Venkat Yekkirala" <vyekkirala@tcsfw4.tcs-sec.com>,
-        "Christopher J. PeBenito" <cpebenito@tresys.com>
-Cc: "James Morris" <jmorris@namei.org>, <selinux@tycho.nsa.gov>,
-        "Stephen Smalley" <sds@tycho.nsa.gov>, <gcwilson@us.ibm.com>,
         "Paul Moore" <paul.moore@hp.com>
+Cc: "James Morris" <jmorris@namei.org>, <selinux@tycho.nsa.gov>,
+        "Stephen Smalley" <sds@tycho.nsa.gov>, <gcwilson@us.ibm.com>
 Subject: RE: SELinux Networking Enhancements
-Date: Thu, 2 Nov 2006 10:54:01 -0600
-Message-ID: <001401c6fe9f$803af340$cc0a010a@tcssec.com>
+Date: Thu, 2 Nov 2006 11:01:17 -0600
+Message-ID: <001501c6fea0$8540d980$cc0a010a@tcssec.com>
 MIME-Version: 1.0
 Content-Type: text/plain;
 	charset="iso-8859-1"
-In-Reply-To: <6FE441CD9F0C0C479F2D88F959B01588514A3C@exchange.columbia.tresys.com>
+In-Reply-To: <6FE441CD9F0C0C479F2D88F959B01588514A47@exchange.columbia.tresys.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-> I think he's asking why both SA's aren't labeled as the peer on each
-> side:
-> 
-> Side 1: socket client_t
-> Outgoing SA: server_t
-> Incomging SA: server_t
-> 
-> Side 2: socket server_t
-> Outgoing SA: client_t
-> Incoming SA: client_t
-> 
-> That way client_t has to be able to send to and recv from server_t, 
-> Likewise server_t has to be able to send to and recv from client_t.
+> > Let's say you secmark a packet coming from a certain host
+> > with webonly_packet_t.
+> >
+> > You could have a filter point defined as:
+> >
+> > iptables -t filter -A FORWARD -d webserver -dport 80 -j
+> > SECFILTER --selctx "system_u:object_r:webserver_t:s4-s5"
+> >
+> > Your policy could say:
+> >
+> > allow webonly_t webserver_t:secfilter { flow_out }
+>
+> Ok, I don't think I understand. Are you using the filter table to
+> relabel a packet?
 
-The problem is that when a client requires an SA to talk to the server,
-there's currently no way to know that the server is at server_t. There's
-currently no way for the IKE daemon (racoon) to figure this out when
-negotiating an SA.
+No. I am using the FILTER table to FILTER a packet.
 
-> 
-> The SA labeling semantics can be changed at this point, they are just
-> userland drive, correct?
+> What is the subject here?
 
-Not entirely. racoon currently receives the context to use from the
-spd (upstream kernel) or the sending socket (lspp kernel, soon to be
-submitted for upstreaming).
+The subject is the secmark/external label and the target is the filter point
+label.
 
-> Last time I used them the labeling semantics
-> weren't what AFAIK they are suppose to be anyway (eg., every SA was
-> labeled client_t, not one labeled clien_t and the other labeled
-> server_t)
+>
+> If this is indeed relabeling (which it appears to be from here) then
+> there should be a relabel permission, shouldn't it also be in the
+> FORWARD mangle table instead of filter? How is it different
+> from secmark
+> at all?
 
-This shouldn't be the case with the lastest lspp kernel.
+secmark to mark the packets and secfilter to filter them at the system
+level (in addition to socket).
+
+> (eg., why not just have a secmark rule in the mangle
+> table that
+> relabels its secmark for doing forward access control?)
+>
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
