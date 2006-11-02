@@ -1,54 +1,62 @@
-Message-ID: <454A3007.6050300@hp.com>
-Date: Thu, 02 Nov 2006 12:51:03 -0500
-From: Paul Moore <paul.moore@hp.com>
 MIME-Version: 1.0
-To: vyekkirala@TrustedCS.com
-Cc: "'Joshua Brindle'" <jbrindle@tresys.com>, James Morris <jmorris@namei.org>,
-        selinux@tycho.nsa.gov, Stephen Smalley <sds@tycho.nsa.gov>,
-        gcwilson@us.ibm.com
-Subject: Re: SELinux Networking Enhancements
-References: <001801c6fea5$baee0da0$cc0a010a@tcssec.com>
+Content-Type: text/plain;
+	charset="US-ASCII"
+Subject: RE: SELinux Networking Enhancements
+Date: Thu, 2 Nov 2006 12:53:28 -0500
+Message-ID: <6FE441CD9F0C0C479F2D88F959B01588514A65@exchange.columbia.tresys.com>
 In-Reply-To: <001801c6fea5$baee0da0$cc0a010a@tcssec.com>
-Content-Type: text/plain; charset=ISO-8859-1
+From: "Joshua Brindle" <jbrindle@tresys.com>
+To: <vyekkirala@TrustedCS.com>, "Paul Moore" <paul.moore@hp.com>
+Cc: "James Morris" <jmorris@namei.org>, <selinux@tycho.nsa.gov>,
+        "Stephen Smalley" <sds@tycho.nsa.gov>, <gcwilson@us.ibm.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Venkat Yekkirala wrote:
->>Ok, I think I'm beginning to get it (I'm a bit slow lately 
->>:\).. You are
->>defining a condition where iptables will call into the security server
+> From: Venkat Yekkirala [mailto:vyekkirala@trustedcs.com] 
 > 
-> Correct.
-> 
->>using the packet label (either secmark or external, how do 
->>you decide?)
+> > using the packet label (either secmark or external, how do you 
+> > decide?)
 > 
 > Both.
 
-If we use secfilter to do access controls for both internal and external
-labeling using the same class/permission I think we might have a problem similar
-to what we ran into with the secid reconciliation approach: internal labeling
-mechanisms (SECMARK) assign labels based on packet properties while the external
-mechanisms (XFRM, NetLabel) assign labels based on the sending socket's context.
+It calls avc_has_perm for both labels? How will netlabel fit in? What do
+you expect the performance hit to be with so many avc lookups?
 
->>With these 
->>filter rules if
->>they aren't in place the policy becomes less restrictive (right?)..
+> > to see if it should drop (or is it
+> > reject? Can
+> > you choose?). 
+> 
+> Yes. You should be able to.
+> 
+
+So you just pass an additional parameter to the selinux module? I assume
+you aren't going to try to use TE policy to choose.
+
+<snip>
+> 
+> > With these
+> > filter rules if
+> > they aren't in place the policy becomes less restrictive (right?)..
 > 
 > We could also be restrictive or leave it up to the policy entirely.
+> 
 
-More explanation please.
+So if there is no rule present it would always check against unlabeled
+(or some initial SID)? Can you force the selinux module to be called
+under all circumstances? 
 
-I don't understand how secfilter could be made restrictive in the same manner as
-SECMARK.  How can you know if the netfilter rules are missing?  What would you
-compare the loaded netfilter rules against?  I guess you could compare them
-against something maintained inside the SELinux security server, but I think you
-would need to put some rather invasive hooks into the netfilter management code
-to ensure that the required secfilter netfilter rules are not subverted.
+This is starting to sound pretty reasonable. The filter rules really are
+policy they just aren't TE policy, and they are also tightly bound to a
+particular TE policy.
 
--- 
-paul moore
-linux security @ hp
+This is different from other object managers because their "policy" is
+static, they always ask the question at some point in the codepath
+wheras you want to implement a dynamic policy to query the security
+server. I don't think there is anything wrong with it but the
+ramifications need to be examined, synchronicity is probably going to be
+the hardest thing to solve. 
+
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
