@@ -1,47 +1,64 @@
 Reply-To: <vyekkirala@TrustedCS.com>
 From: "Venkat Yekkirala" <vyekkirala@TrustedCS.com>
-To: "'James Morris'" <jmorris@namei.org>
-Cc: "'Paul Moore'" <paul.moore@hp.com>, <jbrindle@tresys.com>,
-        <selinux@tycho.nsa.gov>, "Stephen Smalley" <sds@tycho.nsa.gov>,
-        <gcwilson@us.ibm.com>
+To: "'Joshua Brindle'" <jbrindle@tresys.com>, "Paul Moore" <paul.moore@hp.com>
+Cc: "James Morris" <jmorris@namei.org>, <selinux@tycho.nsa.gov>,
+        "Stephen Smalley" <sds@tycho.nsa.gov>, <gcwilson@us.ibm.com>
 Subject: RE: SELinux Networking Enhancements
-Date: Thu, 2 Nov 2006 11:31:50 -0600
-Message-ID: <001701c6fea4$c807bdc0$cc0a010a@tcssec.com>
+Date: Thu, 2 Nov 2006 11:38:37 -0600
+Message-ID: <001801c6fea5$baee0da0$cc0a010a@tcssec.com>
 MIME-Version: 1.0
 Content-Type: text/plain;
 	charset="iso-8859-1"
-In-Reply-To: <Pine.LNX.4.64.0611021219110.23758@d.namei>
+In-Reply-To: <6FE441CD9F0C0C479F2D88F959B01588514A55@exchange.columbia.tresys.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-> I think what we'd really want in a case like this is to just 
-> use secmark, 
-> and create new compound types for labeling packets (which is 
-> part of the 
-> idea of the design).
-> 
-> So, eth1 is thought of as "internal", and you use iptables to label 
-> packets with --dport 80 and -i eth1 as httpd_internal_t.
-
-Yes, but where such compounding is not desired, one could simply
-identify all httpd packets as of Type httpd_t and go from there.
-
-This essentially could result in a more readable policy where you
-worry strictly about packet Types with secmark and express whether
-you expect those Types from a certain source using secfilter.
-
-> 
-> > > In fact, this appears to be entirely indepdent to xfrm labeling...
+> > No. I am using the FILTER table to FILTER a packet.
 > > 
-> > Correct. This is really labeling-mechanism-agnostic in that 
-> it filters
-> > all.
 > 
-> Then I'm not sure I understand why it's part of a discussion about 
-> protected path labeling.
+> Ok, I think I'm beginning to get it (I'm a bit slow lately 
+> :\).. You are
+> defining a condition where iptables will call into the security server
 
-Only the nature of the protected paths proposed here is generic
-enough that it could cover all sorts of labeling.
+Correct.
+
+> using the packet label (either secmark or external, how do 
+> you decide?)
+
+Both.
+
+> and some abstract object
+
+a filter point defined in the filter table
+
+> to see if it should drop (or is it 
+> reject? Can
+> you choose?). 
+
+Yes. You should be able to.
+
+> 
+> It is interesting, I'm a little dubious, iptables basically becomes an
+> object manager and uses iptables rules to determine whether or not to
+> call into the security server, which isn't inappropriate, per se. The
+> iptables filter rules must be included as part of the policy or the
+> expected filtering would occur, the same is true for secmark 
+> though.
+
+Yes.
+
+> The
+> difference is that secmark is labeling packets and if the 
+> labels aren't
+> in place a restrictive policy will drop them.
+
+this will continue to hold true.
+
+> With these 
+> filter rules if
+> they aren't in place the policy becomes less restrictive (right?)..
+
+We could also be restrictive or leave it up to the policy entirely.
 
 --
 This message was distributed to subscribers of the selinux mailing list.
