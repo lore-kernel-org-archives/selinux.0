@@ -1,90 +1,71 @@
-Subject: Re: [PATCH 3/4] newrole suid functionality (take 2)
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Michael C Thompson <thompsmc@us.ibm.com>
-Cc: SE Linux <selinux@tycho.nsa.gov>, Daniel J Walsh <dwalsh@redhat.com>
-In-Reply-To: <454A2966.5050702@us.ibm.com>
-References: <45351FC9.2080204@us.ibm.com>  <45352427.20705@us.ibm.com>
-	 <1161630359.3316.127.camel@moss-spartans.epoch.ncsc.mil>
-	 <454A2966.5050702@us.ibm.com>
-Content-Type: text/plain
-Date: Thu, 02 Nov 2006 13:34:23 -0500
-Message-Id: <1162492463.5519.23.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+Message-ID: <454A3B3E.2090305@us.ibm.com>
+Date: Thu, 02 Nov 2006 12:38:54 -0600
+From: Michael C Thompson <thompsmc@us.ibm.com>
+MIME-Version: 1.0
+To: Stephen Smalley <sds@tycho.nsa.gov>
+CC: SE Linux <selinux@tycho.nsa.gov>, Daniel J Walsh <dwalsh@redhat.com>
+Subject: Re: [PATCH 0/4] newrole suid functionality (take 2)
+References: <45351FC9.2080204@us.ibm.com>	 <1161629771.3316.119.camel@moss-spartans.epoch.ncsc.mil>	 <454A2867.7090401@us.ibm.com> <1162491680.5519.16.camel@moss-spartans.epoch.ncsc.mil>
+In-Reply-To: <1162491680.5519.16.camel@moss-spartans.epoch.ncsc.mil>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2006-11-02 at 11:22 -0600, Michael C Thompson wrote:
-> Stephen Smalley wrote:
-> > On Tue, 2006-10-17 at 13:42 -0500, Michael C Thompson wrote:
-> >> Michael C Thompson wrote:
-> >>> This is the intro to a set of four patches.
-> >>>
-> >>> These patches are an attempt to make newrole be an acceptably secure 
-> >>> suid root program, to provide it with the capabilities to generate audit 
-> >>> records (existing) and handle polyinstatiation (new).
-> >>>
-> >>> The 4 patches are as follows:
-> >>> 1) New functions introduced to newrole.c, new and existing functionality
-> >>> 2) Changes to existing functions in newrole.c
-> >>> 3) Updates to main in newrole.c to use the aforementioned changes
-> >> This is the 3rd of 4 patches.
-> >> This patch applies against policycoreutils-1.30.30-1.
-> >>
-> >> Changes:
-> >>   * main is changed in the following ways:
-> >>     - remove the duplicated functionality from patch 1/4
-> >>     - set to call the new functions from patch 1/4
-> >>     - set to use changes to functions in patch 2/4
-> >>     - introduces better error handling and cleanup paths
-> >>
-> >> Signed-off-by: Michael Thompson <thompsmc@us.ibm.com>
-> > 
-> > diff -Naur policycoreutils-1.30.30.orig/newrole/newrole.c policycoreutils-1.30.30.suid/newrole/newrole.c
-> > --- policycoreutils-1.30.30.orig/newrole/newrole.c	2006-10-17 13:15:20.000000000 -0500
-> > +++ policycoreutils-1.30.30.suid/newrole/newrole.c	2006-10-17 13:15:03.000000000 -0500
-> > @@ -897,47 +898,43 @@
-> >  
-> >  int main(int argc, char *argv[])
-> > <snip>
-> > +	/*
-> > +	 * Step 0: Setup
-> > +	 *
-> > +	 * Do some intial setup, including dropping capabilities, checking
-> > +	 * if it makes sense to continue to run newrole, and setting up
-> > +	 * a scrubbed environment.
-> > +	 */
-> > +	if (set_signal_handles())
-> > +		return -1;
-> > +	if (drop_capabilities())
-> > +		return -1;
-> > 
-> > I'd keep drop_capabilities() first, as it was before this patch.
-> > It would also make sense to move up sanitize_environment() as soon as
-> > possible, even if that means splitting it into two phases (in particular
-> > considering the locale support).
+Stephen Smalley wrote:
+> On Thu, 2006-11-02 at 11:18 -0600, Michael C Thompson wrote:
+>> Stephen Smalley wrote:
+>>> On Tue, 2006-10-17 at 13:24 -0500, Michael C Thompson wrote:
+>>>> This is the intro to a set of four patches.
+>>>>
+>>>> These patches are an attempt to make newrole be an acceptably secure 
+>>>> suid root program, to provide it with the capabilities to generate audit 
+>>>> records (existing) and handle polyinstatiation (new).
+>>>>
+>>>> The 4 patches are as follows:
+>>>> 1) New functions introduced to newrole.c, new and existing functionality
+>>>> 2) Changes to existing functions in newrole.c
+>>>> 3) Updates to main in newrole.c to use the aforementioned changes
+>>>> 4) Changes to the Makefile to allow building of newrole with the
+>>>>     changes and introduction of newrole-lspp.pamd
+>>>>
+>>>> Note: This is an atomically applicable patch set. Applying a subset of 
+>>>> these patches will break the build.
+>>>>
+>>>> The comments from the previous send of these patches have been integrated.
+>>> diff -Naur policycoreutils-1.30.30.orig/newrole/newrole.c policycoreutils-1.30.30.suid/newrole/newrole.c
+>>> --- policycoreutils-1.30.30.orig/newrole/newrole.c	2006-10-17 13:11:41.000000000 -0500
+>>> +++ policycoreutils-1.30.30.suid/newrole/newrole.c	2006-10-17 13:12:29.000000000 -0500
+>>> @@ -87,6 +87,7 @@
+>>>  /* USAGE_STRING describes the command-line args of this program. */
+>>>  #define USAGE_STRING "USAGE: newrole [ -r role ] [ -t type ] [ -l level ] [ -V ] [ -- args ]"
+>>>  
+>>> +#define DEFAULT_PATH "/bin:/usr/bin:/usr/local/bin"
+>>>
+>>> Where does this particular path come from?  Why /usr/local/bin at all?
+>>> Why doesn't /usr/bin come before /bin?  
+>> So would "/usr/bin:/bin" be sufficent? Not sure if it is desirable to 
+>> add sbin paths or not.
 > 
-> Would this order be acceptable?
-> 
-> drop_cap
-> set_signal_handlers
-> setlocale
-> sanitize_env
-> 
-> ...
-> 
-> I'm not familiar with locale enough to understand your point above, but 
-> I imagine doing environ = NULL will mess up the locale, but I am not 
-> sure. If that is right, we need to do it before we sanitize the 
-> environment, right?
+> I'd expect newrole and any code it executes to use fully specified paths
+> anyway, so I'm not sure it makes a difference.
 
-Completely purging the environment could break that functionality, yes.
-On the other hand, blindly accepting the locale-related environment
-settings can be a risk.  See:
-http://www.dwheeler.com/secure-programs/Secure-Programs-HOWTO/locale.html
+I can easily test that I guess by having PATH be empty or invalid :)
 
--- 
-Stephen Smalley
-National Security Agency
+ > Since newrole and pam is
+> often called by non-root users, that code cannot assume that sbin is in
+> the path, nor would it want to rely on the path.  And for the newrole'd
+> shell, the path is going to be customized by the user's dotfiles
+> typically.  So /usr/bin:/bin is likely fine.  Not sure what value login
+> uses as the initial state for PATH for login sessions.
+
+I have mimic'd the behaviour of su in the original approach. login uses 
+"/usr/bin:/bin" for non-root and "/usr/bin:/bin:/usr/sbin:/sbin" for 
+root. Like I said, I can add that functionality if the calling uid is 0. 
+That might be nice on a minimal system.
+
+Thanks,
+Mike
+
 
 
 --
