@@ -1,65 +1,109 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id kA2IvQ8n006256
-	for <selinux@tycho.nsa.gov>; Thu, 2 Nov 2006 13:57:26 -0500
-Received: from exchange.columbia.tresys.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with SMTP id kA2ItiFI021775
-	for <selinux@tycho.nsa.gov>; Thu, 2 Nov 2006 18:55:46 GMT
-Subject: Re: MLS + MCS?
-From: "Christopher J. PeBenito" <cpebenito@tresys.com>
-To: Michael C Thompson <thompsmc@us.ibm.com>
-Cc: SE Linux <selinux@tycho.nsa.gov>
-In-Reply-To: <454A21B3.7040005@us.ibm.com>
-References: <454A134D.5060902@us.ibm.com> <1162485313.18181.9.camel@sgc>
-	 <454A21B3.7040005@us.ibm.com>
-Content-Type: text/plain
-Date: Thu, 02 Nov 2006 13:58:15 -0500
-Message-Id: <1162493895.18181.31.camel@sgc>
-Mime-Version: 1.0
+Message-ID: <454A568C.3060201@us.ibm.com>
+Date: Thu, 02 Nov 2006 14:35:24 -0600
+From: Michael C Thompson <thompsmc@us.ibm.com>
+MIME-Version: 1.0
+To: Stephen Smalley <sds@tycho.nsa.gov>
+CC: SE Linux <selinux@tycho.nsa.gov>, Daniel J Walsh <dwalsh@redhat.com>
+Subject: Re: [PATCH 3/4] newrole suid functionality (take 2)
+References: <45351FC9.2080204@us.ibm.com>  <45352427.20705@us.ibm.com>	 <1161630359.3316.127.camel@moss-spartans.epoch.ncsc.mil>	 <454A2966.5050702@us.ibm.com> <1162492463.5519.23.camel@moss-spartans.epoch.ncsc.mil>
+In-Reply-To: <1162492463.5519.23.camel@moss-spartans.epoch.ncsc.mil>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2006-11-02 at 10:49 -0600, Michael C Thompson wrote:
-> Christopher J. PeBenito wrote:
-> > On Thu, 2006-11-02 at 09:48 -0600, Michael C Thompson wrote:
-> >> While writing some policy, I came across a situation that was causing 
-> >> the policy I was writing to be constructed in an invalid fashion. What 
-> >> was happening was this:
-> >>
-> >> Using an old Makefile, my $(TYPE) was being generated as 
-> >> 'strict-mls-mcs', which was causing the support template 'gen_context' 
-> >> to get completely confused.
-> >>
-> >> The macro is defined thusly:
-> > [cut]
-> >> I'm wondering, how does this make sense? I'm unclear as to how having 
-> >> both mls_sensitivity and [mcs_catergories] defined in this way has meaning.
-> >>
-> >> Because of having both '-mls' and '-mcs' in my $(TYPE), the invalid 
-> >> policy I was compiling ended up looking like this:
-> >> user:role:type:$2:s0:$3
-> >>
-> >> It would seem to me that MLS and MCS are mutually exclusive, at least in 
-> >> this macro.
-> > 
-> > Yes, they are mutually exclusive.  Sounds like the Makefile that redhat
-> > has is making a mistake on setting TYPE; it has to figure out more than
-> > the upstream refpolicy Makefiles need to because of the
-> > redhat /usr/share/selinux/*/devel setup.
+Stephen Smalley wrote:
+> On Thu, 2006-11-02 at 11:22 -0600, Michael C Thompson wrote:
+>> Stephen Smalley wrote:
+>>> On Tue, 2006-10-17 at 13:42 -0500, Michael C Thompson wrote:
+>>>> Michael C Thompson wrote:
+>>>>> This is the intro to a set of four patches.
+>>>>>
+>>>>> These patches are an attempt to make newrole be an acceptably secure 
+>>>>> suid root program, to provide it with the capabilities to generate audit 
+>>>>> records (existing) and handle polyinstatiation (new).
+>>>>>
+>>>>> The 4 patches are as follows:
+>>>>> 1) New functions introduced to newrole.c, new and existing functionality
+>>>>> 2) Changes to existing functions in newrole.c
+>>>>> 3) Updates to main in newrole.c to use the aforementioned changes
+>>>> This is the 3rd of 4 patches.
+>>>> This patch applies against policycoreutils-1.30.30-1.
+>>>>
+>>>> Changes:
+>>>>   * main is changed in the following ways:
+>>>>     - remove the duplicated functionality from patch 1/4
+>>>>     - set to call the new functions from patch 1/4
+>>>>     - set to use changes to functions in patch 2/4
+>>>>     - introduces better error handling and cleanup paths
+>>>>
+>>>> Signed-off-by: Michael Thompson <thompsmc@us.ibm.com>
+>>> diff -Naur policycoreutils-1.30.30.orig/newrole/newrole.c policycoreutils-1.30.30.suid/newrole/newrole.c
+>>> --- policycoreutils-1.30.30.orig/newrole/newrole.c	2006-10-17 13:15:20.000000000 -0500
+>>> +++ policycoreutils-1.30.30.suid/newrole/newrole.c	2006-10-17 13:15:03.000000000 -0500
+>>> @@ -897,47 +898,43 @@
+>>>  
+>>>  int main(int argc, char *argv[])
+>>> <snip>
+>>> +	/*
+>>> +	 * Step 0: Setup
+>>> +	 *
+>>> +	 * Do some intial setup, including dropping capabilities, checking
+>>> +	 * if it makes sense to continue to run newrole, and setting up
+>>> +	 * a scrubbed environment.
+>>> +	 */
+>>> +	if (set_signal_handles())
+>>> +		return -1;
+>>> +	if (drop_capabilities())
+>>> +		return -1;
+>>>
+>>> I'd keep drop_capabilities() first, as it was before this patch.
+>>> It would also make sense to move up sanitize_environment() as soon as
+>>> possible, even if that means splitting it into two phases (in particular
+>>> considering the locale support).
+>> Would this order be acceptable?
+>>
+>> drop_cap
+>> set_signal_handlers
+>> setlocale
+>> sanitize_env
+>>
+>> ...
+>>
+>> I'm not familiar with locale enough to understand your point above, but 
+>> I imagine doing environ = NULL will mess up the locale, but I am not 
+>> sure. If that is right, we need to do it before we sanitize the 
+>> environment, right?
 > 
-> I have since switched to the last Makefile redhat provides and that 
-> resolves the problem I was having.
-> 
-> is there a better way to express the gen_context macro, or is this 
-> another case of m4 limitations? (I am not familiar with m4 at all btw)
+> Completely purging the environment could break that functionality, yes.
+> On the other hand, blindly accepting the locale-related environment
+> settings can be a risk.  See:
+> http://www.dwheeler.com/secure-programs/Secure-Programs-HOWTO/locale.html
 
-M4 doesn't really have any error handling since it is just a macro
-language.  Since MLS and MCS are mutually exclusive, it hasn't been a
-problem.
+So, based on reading this, and reviewing code from su and login, what 
+seems to be the reasonable approach is the following:
 
--- 
-Chris PeBenito
-Tresys Technology, LLC
-(410) 290-1411 x150
+drop_capabilities();
+set_signal_handles();
+setlocale(LC_ALL, "");
+bindtextdomain(PACKAGE, LOCALEDIR);
+textdomain(PACKAGE);
+sanitize_environment();
+
+Obviously, this isn't a patch, but this is the guts of the change. I'm 
+not really sure if bindtextdomain relies on NLSPATH still like "Secure 
+Programs HOWTO" states, but apparently when newrole is SUID, it will 
+ignore NLSPATH so we need not worry about that.
+
+There is no use of any of the locale-related information before the 
+setlocale call, which re-initializes the values (as is my understanding 
+from reading the code... I can't stand glibc's formatting).
+
+There isn't any propsed change in this code, just a better understanding 
+from the coder. If this is suggested code flow looks OK, I will clean up 
+the rest of my code and send out the next round of patches.
+
+Thanks,
+Mike
 
 
 --
