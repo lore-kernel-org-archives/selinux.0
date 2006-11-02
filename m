@@ -1,65 +1,89 @@
-Subject: Re: [PATCH 0/4] newrole suid functionality (take 2)
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Michael C Thompson <thompsmc@us.ibm.com>
-Cc: SE Linux <selinux@tycho.nsa.gov>, Daniel J Walsh <dwalsh@redhat.com>
-In-Reply-To: <454A2867.7090401@us.ibm.com>
-References: <45351FC9.2080204@us.ibm.com>
-	 <1161629771.3316.119.camel@moss-spartans.epoch.ncsc.mil>
-	 <454A2867.7090401@us.ibm.com>
+Subject: RE: SELinux Networking Enhancements
+From: "Christopher J. PeBenito" <cpebenito@tresys.com>
+To: vyekkirala@TrustedCS.com
+Cc: Venkat Yekkirala <vyekkirala@tcsfw4.tcs-sec.com>,
+        James Morris <jmorris@namei.org>, jbrindle@tresys.com,
+        selinux@tycho.nsa.gov, Stephen Smalley <sds@tycho.nsa.gov>,
+        gcwilson@us.ibm.com, Paul Moore <paul.moore@hp.com>
+In-Reply-To: <001201c6fe9a$cfba9c90$cc0a010a@tcssec.com>
+References: <001201c6fe9a$cfba9c90$cc0a010a@tcssec.com>
 Content-Type: text/plain
-Date: Thu, 02 Nov 2006 13:21:20 -0500
-Message-Id: <1162491680.5519.16.camel@moss-spartans.epoch.ncsc.mil>
+Date: Thu, 02 Nov 2006 13:33:37 -0500
+Message-Id: <1162492417.18181.24.camel@sgc>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2006-11-02 at 11:18 -0600, Michael C Thompson wrote:
-> Stephen Smalley wrote:
-> > On Tue, 2006-10-17 at 13:24 -0500, Michael C Thompson wrote:
-> >> This is the intro to a set of four patches.
-> >>
-> >> These patches are an attempt to make newrole be an acceptably secure 
-> >> suid root program, to provide it with the capabilities to generate audit 
-> >> records (existing) and handle polyinstatiation (new).
-> >>
-> >> The 4 patches are as follows:
-> >> 1) New functions introduced to newrole.c, new and existing functionality
-> >> 2) Changes to existing functions in newrole.c
-> >> 3) Updates to main in newrole.c to use the aforementioned changes
-> >> 4) Changes to the Makefile to allow building of newrole with the
-> >>     changes and introduction of newrole-lspp.pamd
-> >>
-> >> Note: This is an atomically applicable patch set. Applying a subset of 
-> >> these patches will break the build.
-> >>
-> >> The comments from the previous send of these patches have been integrated.
+On Thu, 2006-11-02 at 10:20 -0600, Venkat Yekkirala wrote:
+> > > Since an association is a uni-directional object and since having
+> > > mozilla_t as the label on associations in BOTH directions would
+> > > mess-up the getpeercon semantics (it would return mozilla_t when
+> > > invoked by the client as well as the server which isn't 
+> > what we want)
+> > > the above rule will have to be broken into:
 > > 
-> > diff -Naur policycoreutils-1.30.30.orig/newrole/newrole.c policycoreutils-1.30.30.suid/newrole/newrole.c
-> > --- policycoreutils-1.30.30.orig/newrole/newrole.c	2006-10-17 13:11:41.000000000 -0500
-> > +++ policycoreutils-1.30.30.suid/newrole/newrole.c	2006-10-17 13:12:29.000000000 -0500
-> > @@ -87,6 +87,7 @@
-> >  /* USAGE_STRING describes the command-line args of this program. */
-> >  #define USAGE_STRING "USAGE: newrole [ -r role ] [ -t type ] [ -l level ] [ -V ] [ -- args ]"
-> >  
-> > +#define DEFAULT_PATH "/bin:/usr/bin:/usr/local/bin"
-> > 
-> > Where does this particular path come from?  Why /usr/local/bin at all?
-> > Why doesn't /usr/bin come before /bin?  
+> > It wouldn't break the getpeercon semantics.  The association would be
+> > labeled mozilla_t on the apache machine, and apache_t on the mozilla
+> > machine.
 > 
-> So would "/usr/bin:/bin" be sufficent? Not sure if it is desirable to 
-> add sbin paths or not.
+> Yes, but the thing to realize with these SAs is that they are
+> uni-directional. So there's no mozilla_t SA involved when mozilla
+> is sending to apache (if you ignore the transport here).
+> IOW, using SAs you can broadly only control "who can talk to you",
+> not "who you can talk to". The latter can currently be achieved by
+> using secmark controls where you would mark the packet in a
+> fine-grained manner and see if the socket can send that Type of
+> packet.
 
-I'd expect newrole and any code it executes to use fully specified paths
-anyway, so I'm not sure it makes a difference.  Since newrole and pam is
-often called by non-root users, that code cannot assume that sbin is in
-the path, nor would it want to rely on the path.  And for the newrole'd
-shell, the path is going to be customized by the user's dotfiles
-typically.  So /usr/bin:/bin is likely fine.  Not sure what value login
-uses as the initial state for PATH for login sessions.
+No, secmark does not help here.  It has nothing to do with the domain on
+the other machine.  It only represents ports, nodes and netifs.
+
+> > > > allow http_server_packet_t mozilla_t:association { 
+> > flow_in flow_out };
+> > > 
+> > > This won't always work since at least from the MLS standpoint, an
+> > > association
+> > > could be looked at as being more fine-grained than a packet type.
+> > 
+> > I don't understand what the problem is.  MLS constraints still apply.
+> 
+> Yes MLS constraints apply. But consider the following:
+> 
+> secmark: s2-s4
+> SA: s3
+
+I still don't see what the problem is.  If this packet shouldn't go over
+the association, the MLS constraints would be written for the above
+permissions to express that goal and it would get denied.
+
+> > > As may have been noticed, I am currently thinking of a 
+> > separate generic
+> > > filtering module in the filter table that would filter 
+> > packets based on
+> > > the label (internal as well as external) on the packet and 
+> > the label on
+> > > the filtering point. So you would still happily secmark 
+> > packets, but also
+> > > have control over what labels (be they internal or 
+> > external) can come into
+> > > or leave the system. Being a generic mechanism this would 
+> > also seemlessly
+> > > cover the forwarding case.
+> > 
+> > This is not acceptable for SELinux because the rules would be in
+> > netfilter instead of MAC policy.
+> 
+> The labeling rules (just like in the secmark case) will be in
+> netfilter, but policy and enforcement would still be in SELinux
+> (just like in the secmark case).
+
+I'm not yet convinced, but I need to review the other points you've made
+in the other threads.
 
 -- 
-Stephen Smalley
-National Security Agency
+Chris PeBenito
+Tresys Technology, LLC
+(410) 290-1411 x150
 
 
 --
