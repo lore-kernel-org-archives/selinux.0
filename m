@@ -1,113 +1,152 @@
-Reply-To: <vyekkirala@TrustedCS.com>
-From: "Venkat Yekkirala" <vyekkirala@TrustedCS.com>
-To: "'Paul Moore'" <paul.moore@hp.com>,
-        "Venkat Yekkirala" <vyekkirala@tcsfw4.tcs-sec.com>
-Cc: "'James Morris'" <jmorris@namei.org>,
-        "Venkat Yekkirala" <vyekkirala@tcsfw4.tcs-sec.com>,
-        <jbrindle@tresys.com>, <selinux@tycho.nsa.gov>,
-        "Stephen Smalley" <sds@tycho.nsa.gov>, <gcwilson@us.ibm.com>
-Subject: RE: SELinux Networking Enhancements
-Date: Thu, 2 Nov 2006 09:15:27 -0600
-Message-ID: <000f01c6fe91$bb0926d0$cc0a010a@tcssec.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-In-Reply-To: <454911BC.9060708@hp.com>
+Subject: RE: How should I run genfscon in my module?
+From: Karl MacMillan <kmacmillan@mentalrootkit.com>
+To: Stephen Smalley <sds@tycho.nsa.gov>
+Cc: Joshua Brindle <jbrindle@tresys.com>, Dawid Gajownik <gajownik@gmail.com>,
+        fedora-selinux-list@redhat.com, SELinux List <selinux@tycho.nsa.gov>
+In-Reply-To: <1162405138.32614.248.camel@moss-spartans.epoch.ncsc.mil>
+References: 
+	 <6FE441CD9F0C0C479F2D88F959B0158851492D@exchange.columbia.tresys.com>
+	 <1162397375.29617.20.camel@localhost.localdomain>
+	 <1162405138.32614.248.camel@moss-spartans.epoch.ncsc.mil>
+Content-Type: text/plain
+Date: Thu, 02 Nov 2006 10:22:30 -0500
+Message-Id: <1162480950.6503.4.camel@localhost.localdomain>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-> Am I correct is stating that this is basically your 
-> "secpoint" idea with the
-> following changes:
-> 
-> 1. The "secpoint" is no longer the skb->secmark field but 
-> rather the context
-> specified in the iptables command (using the 'selctx' option) above.
-
-Correct. This aims to solve the same flow control issues that
-secpoint tried to solve but leaving secmark alone as purely a
-marking facility.
-
-> 2. There is no longer a need to override/overload/etc. the 
-> skb->secmark context.
-> 
-> Yes?
-
-No overriding per se. I can't really say anything about overloading
-since I haven't really thought about the implementation details yet.
-
-Secmark will retain its current behavior (packets marked with Type in
-secmark and independently access-controlled at the socket level like it
-is currently). Only additional filtering at the network level.
-
-The attempt here is to approach things from top to bottom this time, so
-we need to first agree on things at the user level and then we can think
-about specific implementation details.
-
-> 
-> > If you are also using secmark:
+On Wed, 2006-11-01 at 13:18 -0500, Stephen Smalley wrote:
+> On Wed, 2006-11-01 at 11:09 -0500, Karl MacMillan wrote:
+> > On Wed, 2006-11-01 at 10:27 -0500, Joshua Brindle wrote:
+> > > > From: Karl MacMillan [mailto:kmacmillan@mentalrootkit.com] 
+> > > > 
+> > > > > > I looked at fixing this by changing genfscon to use 
+> > > > user_identifier 
+> > > > > > instead of identifier (they are the same except user_identifier 
+> > > > > > includes "-"). This made checkpolicy generate a syntax 
+> > > > error for all 
+> > > > > > genfscon statements - haven't tracked down what the 
+> > > > problem is. The 
+> > > > > > grammer still seems to be unambiguous.
+> > > > > 
+> > > > > Use "user_id" instead.  Otherwise, you'll get a syntax 
+> > > > error when the 
+> > > > > token is classified as an IDENTIFIER (first match) and the grammar 
+> > > > > says that it must be a USER_IDENTIFIER.
+> > > > 
+> > > > Right as usual.
+> > > > 
+> > > 
+> > > Maybe make user_id more generic as it is no longer only used for users..
 > > 
-> > Labeling:
-> > <Normal secmark rules to mark http_server_packet_t and 
-> dns_client_packet_t>
-> > 
-> > Additional Policy rules:
-> > allow http_server_packet_t client1_t:secfilter { flow_in flow_out };
-> > allow dns_client_packet_t dns_server_t:secfilter { flow_in 
-> flow_out };
+> > Just making generic would make the user related parts of the grammar
+> > harder to read. What about this:
+
+> Why not just fold USER_IDENTIFIER back into IDENTIFIER? As in:
+
+That's fine with me - there is really no reason to disallow "-" in any
+of the identifiers. Makes a lot of documentation wrong, but the docs
+being more restrictive isn't a big deal.
+
 > 
-> In order to simplify things a bit I wonder if it would be 
-> best to hash out the
-> "secfilter" concept using external labels at first,
-
-We wouldn't want to do that for the simple reason that we wan't a
-comprehensive set of controls that would also work for forwarded
-traffic and for this, we would need to subject secmark also to the
-secfilter controls.
-
-> and then 
-> add internal labels
-> later.  I understand the desire to have the same/similar 
-> access controls for
-> both external and internal labels but I think a smaller, more 
-> iterative approach
-> might be a little easier to get understood and accepted.  
-> Plus, as you stated
-> earlier, using 'secfilter' with 'secmark' really only adds to 
-> your assurance
-> level
-
-more for the locally generated/destined traffic, but for forwarded
-traffic this is a necessity.
-
->; equivalent access controls already exist for internal labeling.
+> Index: checkpolicy/policy_scan.l
+> ===================================================================
+> --- checkpolicy/policy_scan.l	(revision 2076)
+> +++ checkpolicy/policy_scan.l	(working copy)
+> @@ -200,12 +200,11 @@
+>  h2 |
+>  H2				{ return(H2); }
+>  "/"({letter}|{digit}|_|"."|"-"|"/")*	{ return(PATH); }
+> -{letter}({letter}|{digit}|_|".")*	{ if (is_valid_identifier(yytext)) 
+> +{letter}({letter}|{digit}|_|"."|"-")*	{ if (is_valid_identifier(yytext)) 
+>  						return(IDENTIFIER); 
+>  					  else 
+>  					  	REJECT;
+>  					}
+> -{letter}({letter}|{digit}|_|"."|"-")*	{ return(USER_IDENTIFIER); }
+>  {digit}{digit}*                 { return(NUMBER); }
+>  {hexval}{0,4}":"{hexval}{0,4}":"({hexval}|":"|".")*	{ return(IPV6_ADDR); }
+>  {version}/([ \t\f]*;)           { return(VERSION_IDENTIFIER); }
+> Index: checkpolicy/policy_parse.y
+> ===================================================================
+> --- checkpolicy/policy_parse.y	(revision 2076)
+> +++ checkpolicy/policy_parse.y	(working copy)
+> @@ -190,7 +190,6 @@
+>  %token NOT AND OR XOR
+>  %token CTRUE CFALSE
+>  %token IDENTIFIER
+> -%token USER_IDENTIFIER
+>  %token NUMBER
+>  %token EQUALS
+>  %token NOTEQUAL
+> @@ -522,13 +521,13 @@
+>  			| T1 op T2
+>  			{ $$ = define_cexpr(CEXPR_ATTR, CEXPR_TYPE, $2);
+>  			  if ($$ == 0) return -1; }
+> -			| U1 op { if (insert_separator(1)) return -1; } user_names_push
+> +			| U1 op { if (insert_separator(1)) return -1; } names_push
+>  			{ $$ = define_cexpr(CEXPR_NAMES, CEXPR_USER, $2);
+>  			  if ($$ == 0) return -1; }
+> -			| U2 op { if (insert_separator(1)) return -1; } user_names_push
+> +			| U2 op { if (insert_separator(1)) return -1; } names_push
+>  			{ $$ = define_cexpr(CEXPR_NAMES, (CEXPR_USER | CEXPR_TARGET), $2);
+>  			  if ($$ == 0) return -1; }
+> -			| U3 op { if (insert_separator(1)) return -1; } user_names_push
+> +			| U3 op { if (insert_separator(1)) return -1; } names_push
+>  			{ $$ = define_cexpr(CEXPR_NAMES, (CEXPR_USER | CEXPR_XTARGET), $2);
+>  			  if ($$ == 0) return -1; }
+>  			| R1 op { if (insert_separator(1)) return -1; } names_push
+> @@ -603,10 +602,7 @@
+>  users			: user_def
+>  			| users user_def
+>  			;
+> -user_id			: identifier
+> -			| user_identifier
+> -			;
+> -user_def		: USER user_id ROLES names opt_mls_user ';'
+> +user_def		: USER identifier ROLES names opt_mls_user ';'
+>  	                {if (define_user()) return -1;}
+>  			;
+>  opt_mls_user		: LEVEL mls_level_def RANGE mls_range_def
+> @@ -698,7 +694,7 @@
+>  			  $$ = addr;
+>  			}
+>      			;
+> -security_context_def	: user_id ':' identifier ':' identifier opt_mls_range_def
+> +security_context_def	: identifier ':' identifier ':' identifier opt_mls_range_def
+>  	                ;
+>  opt_mls_range_def	: ':' mls_range_def
+>  			|	
+> @@ -766,23 +762,6 @@
+>  identifier		: IDENTIFIER
+>  			{ if (insert_id(yytext,0)) return -1; }
+>  			;
+> -user_identifier		: USER_IDENTIFIER
+> -			{ if (insert_id(yytext,0)) return -1; }
+> -			;
+> -user_identifier_push	: USER_IDENTIFIER
+> -			{ if (insert_id(yytext, 1)) return -1; }
+> -			;
+> -user_identifier_list_push : user_identifier_push
+> -			| identifier_list_push user_identifier_push
+> -			| user_identifier_list_push identifier_push
+> -			| user_identifier_list_push user_identifier_push
+> -			;
+> -user_names_push		: names_push
+> -			| user_identifier_push
+> -			| '{' user_identifier_list_push '}'
+> -			| tilde_push user_identifier_push
+> -			| tilde_push '{' user_identifier_list_push '}'
+> -			;
+>  path     		: PATH
+>  			{ if (insert_id(yytext,0)) return -1; }
+>  			;
 > 
-> > You could just as easily define rules for forwarded traffic.
+> Builds svn refpolicy trunk with strict-mls, no change in policy.21.
 > 
-> Can you help me understand the forwarding case as you 
-> envision it (using
-> external labeling)?  The things I am interested in are:
-> 
-> 1. What would the policy look like?
 
-Let's say you secmark a packet coming from a certain host with
-webonly_packet_t.
+Acked-by: Karl MacMillan <kmacmillan@mentalrootkit.com>
 
-You could have a filter point defined as:
-
-iptables -t filter -A FORWARD -d webserver -dport 80 -j SECFILTER --selctx
-"system_u:object_r:webserver_t:s4-s5"
-
-Your policy could say:
-
-allow webonly_t webserver_t:secfilter { flow_out }
-
-> 2. Where would the access control points be in the code?
-> 3. Does this require segmenting the skb->secmark field?
-
-Implementation specifics ...
-
-> 4. What would the iptables command(s) look like?
 
 --
 This message was distributed to subscribers of the selinux mailing list.
