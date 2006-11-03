@@ -1,110 +1,55 @@
-Reply-To: <vyekkirala@TrustedCS.com>
-From: "Venkat Yekkirala" <vyekkirala@TrustedCS.com>
-To: "'Joshua Brindle'" <jbrindle@tresys.com>, "Paul Moore" <paul.moore@hp.com>
-Cc: "James Morris" <jmorris@namei.org>, <selinux@tycho.nsa.gov>,
-        "Stephen Smalley" <sds@tycho.nsa.gov>, <gcwilson@us.ibm.com>
-Subject: RE: SELinux Networking Enhancements
-Date: Fri, 3 Nov 2006 09:12:35 -0600
-Message-ID: <001a01c6ff5a$7eb99970$cc0a010a@tcssec.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-In-Reply-To: <6FE441CD9F0C0C479F2D88F959B01588514A65@exchange.columbia.tresys.com>
+From: David Howells <dhowells@redhat.com>
+In-Reply-To: <1162561291.5635.64.camel@lade.trondhjem.org> 
+References: <1162561291.5635.64.camel@lade.trondhjem.org>  <1162502667.6071.66.camel@lade.trondhjem.org> <1162496968.6071.38.camel@lade.trondhjem.org> <1162402218.32614.230.camel@moss-spartans.epoch.ncsc.mil> <1162387735.32614.184.camel@moss-spartans.epoch.ncsc.mil> <16969.1161771256@redhat.com> <31035.1162330008@redhat.com> <4417.1162395294@redhat.com> <25037.1162487801@redhat.com> <32754.1162499917@redhat.com> <12984.1162549621@redhat.com> 
+To: Trond Myklebust <trond.myklebust@fys.uio.no>
+Cc: David Howells <dhowells@redhat.com>, Stephen Smalley <sds@tycho.nsa.gov>,
+        Karl MacMillan <kmacmill@redhat.com>, jmorris@namei.org,
+        chrisw@sous-sol.org, selinux@tycho.nsa.gov,
+        linux-kernel@vger.kernel.org, aviro@redhat.com
+Subject: Re: Security issues with local filesystem caching 
+Date: Fri, 03 Nov 2006 15:23:33 +0000
+Message-ID: <22908.1162567413@redhat.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-> > > using the packet label (either secmark or external, how do you
-> > > decide?)
-> >
-> > Both.
->
-> It calls avc_has_perm for both labels? How will netlabel fit
-> in?
+Trond Myklebust <trond.myklebust@fys.uio.no> wrote:
 
-Yes.
+> It is not as if we care about an extra context switch here,
 
-> What do
-> you expect the performance hit to be with so many avc lookups?
->
+Avoiding context switches aren't the main problem; avoiding serialisation is.
 
-I believe the avc has been well-optimized lately.
+> and we really don't want to do that file i/o in the context of the rpciod
+> process if we can avoid it.
 
-> > > to see if it should drop (or is it
-> > > reject? Can
-> > > you choose?).
-> >
-> > Yes. You should be able to.
-> >
->
-> So you just pass an additional parameter to the selinux
-> module? I assume
-> you aren't going to try to use TE policy to choose.
+We aren't doing file I/O in the context of the rpciod process, at least not to
+the cache.  It's either done in the context of the process that issued the
+read, write or pagefault.  keventd handles the copying of data from the backing
+file pages to the netfs pages when we satisfy a read from the cache.
 
-Can you reframe your original question? I am afraid I misunderstood
-it when I answered.
+> It might be nice to be able to do those calls that only involve lookup+read
+> in the context of the user's process in order to avoid the context switch
+> when paging in data from the cache,
 
->
-> <snip>
-> >
-> > > With these
-> > > filter rules if
-> > > they aren't in place the policy becomes less restrictive
-> (right?)..
-> >
-> > We could also be restrictive or leave it up to the policy entirely.
-> >
->
-> So if there is no rule present it would always check against unlabeled
-> (or some initial SID)?
+We do most of both in the user's process's context already.
 
-Yes. I think this would be the simpler approach for now.
+The security problems come from the lookups, creates, xattr ops that we have to
+do when acquiring a cookie.  All of these are done in the context of the
+process that called iget5 for NFS.  We could farm them out to another process
+to avoid the security, but that would then cause serialisation and context
+switches.
 
-> Can you force the selinux module to be called
-> under all circumstances?
+> but writing to it both can and should be done as a write-behind process.
+> 
+> IOW: we should rather set up a separate workqueue to write data to disk,
+> and just concentrate on working out a way to lookup and read data with
+> no fsuid/fsgid changes and preferably a minimum of selinux magic.
 
-Yes, in the proposal we are looking at here, the module will be called
-from within netfilter when there are explicit secfilter rules as well as
-when none have been found in which case there would be a check against
-unlabeled. Is this what you meant to ask?
+Writing data to the cache is done by the pagecache at the moment.  I'd really
+like to use direct I/O instead as that'd mean I wouldn't need shadow pages in
+the page cache and I'd also be able to avoid the page-to-page copy I'm
+currently doing.
 
->
-> This is starting to sound pretty reasonable. The filter rules
-> really are
-> policy
-
-They are a really a labeling policy just like in the secmark case.
-Here we would label the filter points as opposed to packets.
-
-> they just aren't TE policy, and they are also tightly
-> bound to a
-> particular TE policy.
-
-If you meant the "particular" portion of the policy that would
-have the allow rules, etc., to enforce secfilter, yes.
-
->
-> This is different from other object managers because their "policy" is
-> static, they always ask the question at some point in the codepath
-> wheras you want to implement a dynamic policy to query the security
-> server.
-
-I am not sure I understand. This is completely analogous to how the
-filesystem
-checks work. Just like how file contexts live on the File System, secfilter
-contexts live (just like secmark labels) in the netfilter subsystem
-efficiently
-looked up by the iptables framework. Just like how the various portions of
-the
-FS code call into LSM, so would netfilter/secfilter.
-
-> I don't think there is anything wrong with it but the
-> ramifications need to be examined, synchronicity is probably
-> going to be
-> the hardest thing to solve.
-
-Could you please eleborate on the synchronicity issues and how these are
-absent/resolved for the FS case?
-
+David
 
 --
 This message was distributed to subscribers of the selinux mailing list.
