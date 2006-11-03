@@ -7,47 +7,25 @@ Cc: David Howells <dhowells@redhat.com>, Stephen Smalley <sds@tycho.nsa.gov>,
         chrisw@sous-sol.org, selinux@tycho.nsa.gov,
         linux-kernel@vger.kernel.org, aviro@redhat.com
 Subject: Re: Security issues with local filesystem caching 
-Date: Fri, 03 Nov 2006 15:23:33 +0000
-Message-ID: <22908.1162567413@redhat.com>
+Date: Fri, 03 Nov 2006 15:33:18 +0000
+Message-ID: <23076.1162567998@redhat.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 Trond Myklebust <trond.myklebust@fys.uio.no> wrote:
 
-> It is not as if we care about an extra context switch here,
+> No. I was thinking of keeping the cache on its own partition
 
-Avoiding context switches aren't the main problem; avoiding serialisation is.
+That's a requirement I am specifically avoiding with CacheFiles.  I might, for
+instance, want to use it on my laptop, and I don't really have enough space to
+set aside a partition just for that.  The whole point of CacheFiles is that
+you don't have to set one aside.  If you're going to do that, then CacheFS
+should be a better option.
 
-> and we really don't want to do that file i/o in the context of the rpciod
-> process if we can avoid it.
+> and using kernel mounts. cachefilesd could possibly mount the thing in its
+> own private namespace.
 
-We aren't doing file I/O in the context of the rpciod process, at least not to
-the cache.  It's either done in the context of the process that issued the
-read, write or pagefault.  keventd handles the copying of data from the backing
-file pages to the netfs pages when we satisfy a read from the cache.
-
-> It might be nice to be able to do those calls that only involve lookup+read
-> in the context of the user's process in order to avoid the context switch
-> when paging in data from the cache,
-
-We do most of both in the user's process's context already.
-
-The security problems come from the lookups, creates, xattr ops that we have to
-do when acquiring a cookie.  All of these are done in the context of the
-process that called iget5 for NFS.  We could farm them out to another process
-to avoid the security, but that would then cause serialisation and context
-switches.
-
-> but writing to it both can and should be done as a write-behind process.
-> 
-> IOW: we should rather set up a separate workqueue to write data to disk,
-> and just concentrate on working out a way to lookup and read data with
-> no fsuid/fsgid changes and preferably a minimum of selinux magic.
-
-Writing data to the cache is done by the pagecache at the moment.  I'd really
-like to use direct I/O instead as that'd mean I wouldn't need shadow pages in
-the page cache and I'd also be able to avoid the page-to-page copy I'm
-currently doing.
+That's still user visible, and SELinux in enforcing mode would still apply.
 
 David
 
