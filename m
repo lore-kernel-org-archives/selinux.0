@@ -1,19 +1,19 @@
-Message-ID: <454A95BC.7000807@us.ibm.com>
-Date: Thu, 02 Nov 2006 19:05:00 -0600
+Message-ID: <454A95E1.8040900@us.ibm.com>
+Date: Thu, 02 Nov 2006 19:05:37 -0600
 From: Michael C Thompson <thompsmc@us.ibm.com>
 MIME-Version: 1.0
 To: Michael C Thompson <thompsmc@us.ibm.com>
 CC: SE Linux <selinux@tycho.nsa.gov>, Stephen Smalley <sds@tycho.nsa.gov>
-Subject: [PATCH 4/8] make newrole suid (take 3)
+Subject: [PATCH 5/8] make newrole suid (take 3)
 References: <454A8F35.2020006@us.ibm.com>
 In-Reply-To: <454A8F35.2020006@us.ibm.com>
 Content-Type: multipart/mixed;
- boundary="------------090108040801070902040403"
+ boundary="------------040008020407050201080404"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 This is a multi-part message in MIME format.
---------------090108040801070902040403
+--------------040008020407050201080404
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 
@@ -24,245 +24,343 @@ Michael C Thompson wrote:
 > 2) New extract_pw_data function and use in main()
 > 3) Add signal handler function
 > 4) Update drop_capabilities() and use in main()
+> 5) Update the authentication functions and use in main()
+>    Add cleanup since pam_start is now left till program end
 
-This is the 4th of 8 patches.
+This is the 5th of 8 patches.
 This patch applies against policycoreutils-1.30.30-1.
 
-This patch adds expands the drop_capabilities functionality
-to support various compile-time options (with audit, with
-namespace, or neither).
+This patch updates the authentication functions so that they are
+cleaner, and moves pam_start() into main() in prep for namespace
+support.
 
 Changes:
-  * Splits drop_capabilities into three versions (compile time option):
-    - 'No-cap' version, returns true
-    - 'audit-only' version, retains only CAP_AUDIT_WRITE
-       Enable with AUDIT_LOG_PRIV=y
-    - 'namespace+' version, retains CAP_AUDIT_WRITE, CAP_SYS_ADMIN and
-       more to allow namespace actions
-       Enable with NAMESPACE_PRIV = y
-  * main() calls drop_capabilities unconditionally
+  * Updates the authentication functions
+    - Noteably, pam_start is now done in main()
+    - Removed a lot of very obvious comments and clutter
+  * Adds pam variables to main()
+  * Adds pam_start() to main()
+  * Adds cleanup gotos to main() for pam_end() and missing frees
 
 Signed-off-by: Michael Thompson <thompsmc@us.ibm.com>
 
 
---------------090108040801070902040403
+--------------040008020407050201080404
 Content-Type: text/x-diff;
- name="04-drop_capabilties.patch"
+ name="05-update_authentication.patch"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline;
- filename="04-drop_capabilties.patch"
+ filename="05-update_authentication.patch"
 
 diff -Naur policycoreutils-1.30.30/newrole/newrole.c policycoreutils-1.30.30.suid/newrole/newrole.c
---- policycoreutils-1.30.30/newrole/newrole.c	2006-11-02 12:24:57.000000000 -0600
-+++ policycoreutils-1.30.30.suid/newrole/newrole.c	2006-11-02 12:24:19.000000000 -0600
-@@ -387,67 +387,138 @@
- 	return -1;
- }
- 
--/*
-+/**
-  * This function will drop the capabilities so that we are left
-  * only with access to the audit system. If the user is root, we leave
-  * the capabilities alone since they already should have access to the
-  * audit netlink socket.
-+ *
-+ * Returns zero on success, non-zero otherwise
-  */
--#ifdef LOG_AUDIT_PRIV
--static void drop_capabilities(void)
-+#if defined(AUDIT_LOG_PRIV) && !defined(NAMESPACE_PRIV)
-+static int drop_capabilities(void)
- {
-+	int rc = 0;
-+	cap_t new_caps, tmp_caps;
-+	cap_value_t cap_list[] = { CAP_AUDIT_WRITE };
-+	cap_value_t tmp_cap_list[] = { CAP_AUDIT_WRITE, CAP_SETUID };
- 	uid_t uid = getuid();
- 
--	if (uid) {		/* Non-root path */
--		cap_t new_caps, tmp_caps;
--		cap_value_t cap_list[] = { CAP_AUDIT_WRITE };
--		cap_value_t tmp_cap_list[] = { CAP_AUDIT_WRITE, CAP_SETUID };
+--- policycoreutils-1.30.30/newrole/newrole.c	2006-11-02 12:28:46.000000000 -0600
++++ policycoreutils-1.30.30.suid/newrole/newrole.c	2006-11-02 12:37:17.000000000 -0600
+@@ -150,16 +150,11 @@
+  * All PAM code goes in this section.
+  *
+  ************************************************************************/
 -
--		new_caps = cap_init();
--		tmp_caps = cap_init();
--		if (!new_caps || !tmp_caps) {
--			fprintf(stderr,
--				_("Error initing capabilities, aborting.\n"));
--			exit(-1);
--		}
--		cap_set_flag(new_caps, CAP_PERMITTED, 1, cap_list, CAP_SET);
--		cap_set_flag(new_caps, CAP_EFFECTIVE, 1, cap_list, CAP_SET);
--		cap_set_flag(tmp_caps, CAP_PERMITTED, 2, tmp_cap_list, CAP_SET);
--		cap_set_flag(tmp_caps, CAP_EFFECTIVE, 2, tmp_cap_list, CAP_SET);
-+	if (!uid)
-+		return 0;
+-#include <unistd.h>		/* for getuid(), exit(), getopt() */
+-
+ #include <security/pam_appl.h>	/* for PAM functions */
+ #include <security/pam_misc.h>	/* for misc_conv PAM utility function */
  
--		/* Keep capabilities across uid change */
--		prctl(PR_SET_KEEPCAPS, 1, 0, 0, 0);
-+	/* Non-root caller, suid root path */
-+	new_caps = cap_init();
-+	tmp_caps = cap_init();
-+	if (!new_caps || !tmp_caps) {
-+		fprintf(stderr, _("Error initing capabilities, aborting.\n"));
-+		return -1;
-+	}
-+	rc |= cap_set_flag(new_caps, CAP_PERMITTED, 1, cap_list, CAP_SET);
-+	rc |= cap_set_flag(new_caps, CAP_EFFECTIVE, 1, cap_list, CAP_SET);
-+	rc |= cap_set_flag(tmp_caps, CAP_PERMITTED, 2, tmp_cap_list, CAP_SET);
-+	rc |= cap_set_flag(tmp_caps, CAP_EFFECTIVE, 2, tmp_cap_list, CAP_SET);
-+	if (rc) {
-+		fprintf(stderr, _("Error setting capabilities, aborting\n"));
-+		goto out;
-+	}
+ #define SERVICE_NAME "newrole"	/* the name of this program for PAM */
  
--		/* We should still have root's caps, so drop most capabilities now */
--		if (cap_set_proc(tmp_caps)) {
--			fprintf(stderr,
--				_("Error dropping capabilities, aborting\n"));
--			exit(-1);
--		}
--		cap_free(tmp_caps);
-+	/* Keep capabilities across uid change */
-+	if (prctl(PR_SET_KEEPCAPS, 1, 0, 0, 0)) {
-+		fprintf(stderr, _("Error setting KEEPCAPS, aborting\n"));
-+		rc = -1;
-+		goto out;
-+	}
+-int authenticate_via_pam(const struct passwd *, const char *);
+-
+ /* authenticate_via_pam()
+  *
+  * in:     pw - struct containing data from our user's line in 
+@@ -173,63 +168,39 @@
+  * This function uses PAM to authenticate the user running this
+  * program.  This is the only function in this program that makes PAM
+  * calls.
+- *
+  */
+-
+-int authenticate_via_pam(const struct passwd *pw, const char *ttyn)
++int authenticate_via_pam(const char *ttyn, pam_handle_t *pam_handle)
+ {
  
--		/* Change uid */
--		if (setresuid(uid, uid, uid)) {
--			fprintf(stderr, _("Error changing uid, aborting.\n"));
--			exit(-1);
--		}
-+	/* Does this temporary change really buy us much? */
-+	/* We should still have root's caps, so drop most capabilities now */
-+	if ((rc = cap_set_proc(tmp_caps))) {
-+		fprintf(stderr, _("Error dropping capabilities, aborting\n"));
-+		goto out;
-+	}
+-	int result = 0;		/* our result, set to 0 (not authenticated) by default */
+-	int rc;			/* pam return code */
+-	pam_handle_t *pam_handle;	/* opaque handle used by all PAM functions */
++	int result = 0;		/* set to 0 (not authenticated) by default */
++	int pam_rc;		/* pam return code */
+ 	const char *tty_name;
  
--		/* Now get rid of this ability */
--		if (prctl(PR_SET_KEEPCAPS, 0, 0, 0, 0) < 0) {
--			fprintf(stderr,
--				_("Error resetting KEEPCAPS, aborting\n"));
--			exit(-1);
--		}
-+	/* Change uid */
-+	if ((rc = setresuid(uid, uid, uid))) {
-+		fprintf(stderr, _("Error changing uid, aborting.\n"));
-+		goto out;
-+	}
+-	/* This is a jump table of functions for PAM to use when it wants to *
+-	 * communicate with the user.  We'll be using misc_conv(), which is  *
+-	 * provided for us via pam_misc.h.                                   */
+-	struct pam_conv pam_conversation = {
+-		misc_conv,
+-		NULL
+-	};
+-
+-	/* Make `p_pam_handle' a valid PAM handle so we can use it when *
+-	 * calling PAM functions.                                       */
+-	rc = pam_start(SERVICE_NAME,
+-		       pw->pw_name, &pam_conversation, &pam_handle);
+-	if (rc != PAM_SUCCESS) {
+-		fprintf(stderr, _("failed to initialize PAM\n"));
+-		exit(-1);
+-	}
+-
+ 	if (strncmp(ttyn, "/dev/", 5) == 0)
+ 		tty_name = ttyn + 5;
+ 	else
+ 		tty_name = ttyn;
  
--		/* Finish dropping capabilities. */
--		if (cap_set_proc(new_caps)) {
--			fprintf(stderr,
--				_
--				("Error dropping SETUID capability, aborting\n"));
--			exit(-1);
--		}
--		cap_free(new_caps);
-+	/* Now get rid of this ability */
-+	if ((rc = prctl(PR_SET_KEEPCAPS, 0, 0, 0, 0) < 0)) {
-+		fprintf(stderr, _("Error resetting KEEPCAPS, aborting\n"));
-+		goto out;
-+	}
-+
-+	/* Finish dropping capabilities. */
-+	if ((rc = cap_set_proc(new_caps))) {
-+		fprintf(stderr,
-+			_("Error dropping SETUID capability, aborting\n"));
-+		goto out;
-+	}
-+out:
-+	if (cap_free(tmp_caps) || cap_free(new_caps))
-+		fprintf(stderr, _("Error freeing caps\n"));
-+	return rc;
-+}
-+#elif defined(NAMESPACE_PRIV)
-+/**
-+ * This function will drop the capabilities so that we are left
-+ * only with access to the audit system and the ability to raise
-+ * CAP_SYS_ADMIN, CAP_DAC_OVERRIDE, CAP_FOWNER and CAP_CHOWN,
-+ * before invoking pam_namespace.  These capabilities are needed
-+ * for performing bind mounts/unmounts and to create potential new
-+ * instance directories with appropriate DAC attributes. If the
-+ * user is root, we leave the capabilities alone since they already
-+ * should have access to the audit netlink socket and should have
-+ * the ability to create/mount/unmount instance directories.
-+ *
-+ * Returns zero on success, non-zero otherwise
-+ */
-+static int drop_capabilities(void)
-+{
-+	int rc = 0;
-+	cap_t new_caps;
-+	cap_value_t cap_list[] = { CAP_AUDIT_WRITE, CAP_SETUID,
-+				   CAP_SYS_ADMIN, CAP_FOWNER, CAP_CHOWN,
-+				   CAP_DAC_OVERRIDE };
-+
-+	if (!getuid())
-+		return 0;
-+
-+	/* Non-root caller, suid root path */
-+	new_caps = cap_init();
-+	if (!new_caps) {
-+		fprintf(stderr, _("Error initing capabilities, aborting.\n"));
-+		return -1;
-+	}
-+	rc |= cap_set_flag(new_caps, CAP_PERMITTED, 6, cap_list, CAP_SET);
-+	rc |= cap_set_flag(new_caps, CAP_EFFECTIVE, 6, cap_list, CAP_SET);
-+	if (rc) {
-+		fprintf(stderr, _("Error setting capabilities, aborting\n"));
-+		goto out;
-+	}
-+
-+	/* Ensure that caps are dropped after setuid call */
-+	if ((rc = prctl(PR_SET_KEEPCAPS, 0, 0, 0, 0) < 0)) {
-+		fprintf(stderr, _("Error resetting KEEPCAPS, aborting\n"));
-+		goto out;
+-	rc = pam_set_item(pam_handle, PAM_TTY, tty_name);
+-	if (rc != PAM_SUCCESS) {
++	pam_rc = pam_set_item(pam_handle, PAM_TTY, tty_name);
++	if (pam_rc != PAM_SUCCESS) {
+ 		fprintf(stderr, _("failed to set PAM_TTY\n"));
+ 		goto out;
  	}
-+
-+	/* We should still have root's caps, so drop most capabilities now */
-+	if ((rc = cap_set_proc(new_caps))) {
-+		fprintf(stderr, _("Error dropping capabilities, aborting\n"));
-+		goto out;
-+	}
-+out:
-+	if (cap_free(new_caps))
-+		fprintf(stderr, _("Error freeing caps\n"));
-+	return rc;
-+}
-+
-+#else
-+static inline int drop_capabilities(void)
-+{
-+	return 0;
- }
- #endif
  
-@@ -559,10 +630,15 @@
- 	int fd;
+ 	/* Ask PAM to authenticate the user running this program */
+-	rc = pam_authenticate(pam_handle, 0);
+-	if (rc != PAM_SUCCESS) {
++	pam_rc = pam_authenticate(pam_handle, 0);
++	if (pam_rc != PAM_SUCCESS) {
+ 		goto out;
+ 	}
+ 
+ 	/* Ask PAM to verify acct_mgmt */
+-	rc = pam_acct_mgmt(pam_handle, 0);
+-	if (rc == PAM_SUCCESS) {
++	pam_rc = pam_acct_mgmt(pam_handle, 0);
++	if (pam_rc == PAM_SUCCESS) {
+ 		result = 1;	/* user authenticated OK! */
+ 	}
+ 
+-	/* We're done with PAM.  Free `pam_handle'. */
+       out:
+-	pam_end(pam_handle, rc);
+-
+-	return (result);
+-
++	return result;
+ }				/* authenticate_via_pam() */
+ 
+ #else				/* else !USE_PAM */
+@@ -239,19 +210,14 @@
+  * All shadow passwd code goes in this section.
+  *
+  ************************************************************************/
+-
+-#include <unistd.h>		/* for getuid(), exit(), crypt() */
+ #include <shadow.h>		/* for shadow passwd functions */
+ #include <string.h>		/* for strlen(), memset() */
+ 
+ #define PASSWORD_PROMPT _("Password:")	/* prompt for getpass() */
+ 
+-int authenticate_via_shadow_passwd(const struct passwd *);
+-
+ /* authenticate_via_shadow_passwd()
+  *
+- * in:     pw - struct containing data from our user's line in 
+- *                         the passwd file.
++ * in:     uname - the calling user's user name
+  * out:    nothing
+  * return: value   condition
+  *         -----   ---------
+@@ -261,48 +227,34 @@
+  *
+  * This function uses the shadow passwd file to thenticate the user running
+  * this program.
+- *
+  */
+-
+-int authenticate_via_shadow_passwd(const struct passwd *pw)
++int authenticate_via_shadow_passwd(const char *uname)
+ {
+-
+-	struct spwd *p_shadow_line;	/* struct derived from shadow passwd file line */
+-	char *unencrypted_password_s;	/* unencrypted password input by user */
+-	char *encrypted_password_s;	/* user's password input after being crypt()ed */
+-
+-	/* Make `p_shadow_line' point to the data from the current user's *
+-	 * line in the shadow passwd file.                                */
+-	setspent();		/* Begin access to the shadow passwd file. */
+-	p_shadow_line = getspnam(pw->pw_name);
+-	endspent();		/* End access to the shadow passwd file. */
++	struct spwd *p_shadow_line;
++	char *unencrypted_password_s;
++	char *encrypted_password_s;
++
++	setspent();
++	p_shadow_line = getspnam(uname);
++	endspent();
+ 	if (!(p_shadow_line)) {
+-		fprintf(stderr,
+-			_
+-			("Cannot find your entry in the shadow passwd file.\n"));
+-		exit(-1);
++		fprintf(stderr, _("Cannot find your entry in the shadow "
++			"passwd file.\n"));
++		return 0;
+ 	}
+ 
+ 	/* Ask user to input unencrypted password */
+ 	if (!(unencrypted_password_s = getpass(PASSWORD_PROMPT))) {
+ 		fprintf(stderr, _("getpass cannot open /dev/tty\n"));
+-		exit(-1);
++		return 0;
+ 	}
+ 
+-	/* Use crypt() to encrypt user's input password.  Clear the *
+-	 * unencrypted password as soon as we're done, so it is not * 
+-	 * visible to memory snoopers.                              */
++	/* Use crypt() to encrypt user's input password. */
+ 	encrypted_password_s = crypt(unencrypted_password_s,
+ 				     p_shadow_line->sp_pwdp);
+ 	memset(unencrypted_password_s, 0, strlen(unencrypted_password_s));
+-
+-	/* Return 1 (authenticated) iff the encrypted version of the user's *
+-	 * input password matches the encrypted password stored in the      *
+-	 * shadow password file.                                            */
+ 	return (!strcmp(encrypted_password_s, p_shadow_line->sp_pwdp));
+-
+-}				/* authenticate_via_shadow_passwd() */
+-
++}
+ #endif				/* if/else USE_PAM */
+ 
+ /*
+@@ -626,10 +578,22 @@
+ 	char *level_s = NULL;	/* level spec'd by user in argv[] */
+ 	char *ttyn = NULL;	/* tty path */
+ 	pid_t childPid = 0;
+-	uid_t uid;
+-	int fd;
++	int fd, rc;
  	int enforcing;
  
--#ifdef LOG_AUDIT_PRIV
--	drop_capabilities();
++#ifdef USE_PAM
++	int pam_status;		   /* pam return code */
++	pam_handle_t *pam_handle;  /* opaque handle used by all PAM functions */
++
++	/* This is a jump table of functions for PAM to use when it wants to *
++	 * communicate with the user.  We'll be using misc_conv(), which is  *
++	 * provided for us via pam_misc.h.                                   */
++	struct pam_conv pam_conversation = {
++		misc_conv,
++		NULL
++	};
++#endif
++
+ 	/*
+ 	 * Step 0: Setup
+ 	 *
+@@ -771,26 +735,6 @@
+ 		exit(-1);
+ 	}
+ 
+-	/*
+-	 * Determine the Linux user identity to re-authenticate.
+-	 * If supported and set, use the login uid, as this should be more stable.
+-	 * Otherwise, use the real uid.
+-	 * The SELinux user identity is no longer used, as Linux users are now
+-	 * mapped to SELinux users via seusers and the SELinux user identity space
+-	 * is separate.
+-	 */
+-#ifdef USE_AUDIT
+-	uid = audit_getloginuid();
+-	if (uid == (uid_t) - 1)
+-		uid = getuid();
+-#else
+-	uid = getuid();
 -#endif
 -
-+	/*
-+	 * Step 0: Setup
-+	 *
-+	 * Do some intial setup, including dropping capabilities, checking
-+	 * if it makes sense to continue to run newrole, and setting up
-+	 * a scrubbed environment.
-+	 */
-+	if (drop_capabilities())
-+		return -1;
- 	if (set_signal_handles())
- 		return -1;
+-	/* Get the passwd info for the Linux user identity. */
+-	if (extract_pw_data(&pw))
+-		return -1;
+-
+ 	/* Get the tty name. Pam will need it. */
+ 	ttyn = ttyname(0);
+ 	if (!ttyn || *ttyn == '\0') {
+@@ -799,28 +743,36 @@
+ 		exit(-1);
+ 	}
  
+-	printf(_("Authenticating %s.\n"), pw.pw_name);
++	/* Get the passwd info for the Linux user identity. */
++	if (extract_pw_data(&pw))
++		return -1;
+ 
+-	/* 
++	/*
++	 * Step 2:  Authenticate the user.
++	 *
+ 	 * Re-authenticate the user running this program.
+ 	 * This is just to help confirm user intent (vs. invocation by
+ 	 * malicious software), not to authorize the operation (which is covered
+ 	 * by policy).  Trusted path mechanism would be preferred.
+ 	 */
++	printf(_("Authenticating %s.\n"), pw.pw_name);
+ #ifdef USE_PAM
+-	if (!authenticate_via_pam(&pw, ttyn))
+-#else				/* !USE_PAM */
+-	if (!authenticate_via_shadow_passwd(&pw))
+-#endif				/* if/else USE_PAM */
++	pam_status = pam_start(SERVICE_NAME, pw.pw_name, &pam_conversation,
++			       &pam_handle);
++	if (pam_status != PAM_SUCCESS) {
++		fprintf(stderr, _("failed to initialize PAM\n"));
++		goto err_free;
++	}
++
++	if (!authenticate_via_pam(ttyn, pam_handle))
++#else
++	if (!authenticate_via_shadow_passwd(pw.pw_name))
++#endif
+ 	{
+ 		fprintf(stderr, _("newrole: incorrect password for %s\n"),
+ 			pw.pw_name);
+-		return (-1);
++		goto err_close_pam;
+ 	}
+-	/* If we reach here, then we have authenticated the user. */
+-#ifdef CANTSPELLGDB
+-	printf("You are authenticated!\n");
+-#endif
+ 
+ 	/*
+ 	 *
+@@ -1062,7 +1014,26 @@
+ 	freecon(old_context);
+ 	execv(pw.pw_shell, argv + optind - 1);
+ 
+-	/* If we reach here, then we failed to exec the new shell. */
++	/*
++	 * Error path cleanup
++	 *
++	 * If we reach here, then we failed to exec the new shell.
++	 */
+ 	perror(_("failed to exec shell\n"));
+-	return (-1);
++err_close_pam:
++#ifdef USE_PAM
++	rc = pam_end(pam_handle, pam_status);
++	if (rc != PAM_SUCCESS)
++		fprintf(stderr, "pam_end failed with %s\n",
++			pam_strerror(pam_handle, rc));
++#endif
++err_free:
++	freecon(tty_context);
++	freecon(new_tty_context);
++	freecon(old_context);
++	freecon(new_context);
++	free(pw.pw_name);
++	free(pw.pw_dir);
++	free(pw.pw_shell);
++	return -1;
+ }				/* main() */
 
---------------090108040801070902040403--
+--------------040008020407050201080404--
 
 
 --
