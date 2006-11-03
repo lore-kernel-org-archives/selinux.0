@@ -1,74 +1,62 @@
-From: David Howells <dhowells@redhat.com>
-In-Reply-To: <1162502667.6071.66.camel@lade.trondhjem.org> 
-References: <1162502667.6071.66.camel@lade.trondhjem.org>  <1162496968.6071.38.camel@lade.trondhjem.org> <1162402218.32614.230.camel@moss-spartans.epoch.ncsc.mil> <1162387735.32614.184.camel@moss-spartans.epoch.ncsc.mil> <16969.1161771256@redhat.com> <31035.1162330008@redhat.com> <4417.1162395294@redhat.com> <25037.1162487801@redhat.com> <32754.1162499917@redhat.com> 
-To: Trond Myklebust <trond.myklebust@fys.uio.no>
-Cc: David Howells <dhowells@redhat.com>, Stephen Smalley <sds@tycho.nsa.gov>,
-        Karl MacMillan <kmacmill@redhat.com>, jmorris@namei.org,
-        chrisw@sous-sol.org, selinux@tycho.nsa.gov,
-        linux-kernel@vger.kernel.org, aviro@redhat.com
-Subject: Re: Security issues with local filesystem caching 
-Date: Fri, 03 Nov 2006 10:27:01 +0000
-Message-ID: <12984.1162549621@redhat.com>
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id kA3EGOEg024995
+	for <selinux@tycho.nsa.gov>; Fri, 3 Nov 2006 09:16:24 -0500
+Received: from mx1.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id kA3DEiSB019259
+	for <selinux@tycho.nsa.gov>; Fri, 3 Nov 2006 13:14:44 GMT
+Received: from int-mx1.corp.redhat.com (int-mx1.corp.redhat.com [172.16.52.254])
+	by mx1.redhat.com (8.12.11.20060308/8.12.11) with ESMTP id kA3DGPmx009058
+	for <selinux@tycho.nsa.gov>; Fri, 3 Nov 2006 08:16:25 -0500
+Received: from mail.boston.redhat.com (mail.boston.redhat.com [172.16.76.12])
+	by int-mx1.corp.redhat.com (8.13.1/8.13.1) with ESMTP id kA3DGHlG028092
+	for <selinux@tycho.nsa.gov>; Fri, 3 Nov 2006 08:16:25 -0500
+Received: from discovery.boston.redhat.com (discovery.boston.redhat.com [172.16.80.171])
+	by mail.boston.redhat.com (8.12.11.20060308/8.12.11) with ESMTP id kA3DGG1D010670
+	for <selinux@tycho.nsa.gov>; Fri, 3 Nov 2006 08:16:16 -0500
+From: Steve Grubb <sgrubb@redhat.com>
+To: SE Linux <selinux@tycho.nsa.gov>
+Subject: rpmlint
+Date: Fri, 3 Nov 2006 08:16:22 -0500
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
+Message-Id: <200611030816.22148.sgrubb@redhat.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Trond Myklebust <trond.myklebust@fys.uio.no> wrote:
+Hi,
 
-> > Well, both Christoph and Al are of the opinion that I should be using
-> > vfs_mkdir() and co rather than bypassing the security and calling inode ops
-> > directly.
-> 
-> ...but why are you needing to call vfs_mkdir? I thought the standard
-> cachefs backend just uses a pool of files, rather like the original AFS
-> cache did. Are you trying to mirror the layout and the permissions of
-> the NFS filesystem? That is a lot more work than it is worth...
+Below is a patch that I am thinking about submitting to rpmlint. The main idea
+of this patch is to catch places where people might be coding policy knowledge
+into scripts. Chcon would require knowing some types in order to work. If the
+types ever got changed, the script would break. Can anyone think of other
+things we do not want to see in rpm scriplets?
 
-No.
+-Steve
 
-I have to have a way of mapping a netfs file onto a cache storage object.  I do
-this by translating the keys the netfs gives me into a path of directory and
-file names in the cache.
 
-In NFS's case there are three keys describing a file:
-
- (1) "NFS"
-
- (2) { Server IP, Server port, NFS version }
-
- (3) NFS File Handle
-
-These wind up in the filesystem looking something like:
-
-	INDEX     INDEX      INDEX                             DATA FILES
-	========= ========== ================================= ================
-	cache/@4a/I03nfs/@30/Ji000000000000000--fHg8hi8400
-	cache/@4a/I03nfs/@30/Ji000000000000000--fHg8hi8400/@75/Es0g000w...DB1ry
-	cache/@4a/I03nfs/@30/Ji000000000000000--fHg8hi8400/@75/Es0g000w...N22ry
-	cache/@4a/I03nfs/@30/Ji000000000000000--fHg8hi8400/@75/Es0g000w...FP1ry
-
-See Documentation/filesystems/caching/cachefiles.txt for more information, in
-particular the section "Cache Structure".
-
-Anyway, it's not just vfs_mkdir(), there's also vfs_create(), vfs_rename(),
-vfs_unlink(), vfs_setxattr(), vfs_getxattr(), and I'm going to need a
-vfs_lookup() or something (a pathwalk to next dentry).
-
-Yes, I'd prefer not to have to use these, but that doesn't seem to be an
-option.
-
-> > Also I should be setting security labels on the files I create.
-> 
-> To what end? These files shouldn't need to be made visible to userland
-> at all.
-
-But they are visible to userland and they have to be visible to userland.  They
-exist in the filesystem in which the cache resides, and they need to be visible
-so that cachefilesd can do the culling work.  If you were thinking of using
-"deleted" files, remember that I want it to be persistent across reboots, or
-even when an NFS inode is flushed from memory to make space and then reloaded
-later.
-
-David
+diff -ur rpmlint-0.78.orig/PostCheck.py rpmlint-0.78/PostCheck.py
+--- rpmlint-0.78.orig/PostCheck.py	2006-11-01 11:13:04.000000000 -0500
++++ rpmlint-0.78/PostCheck.py	2006-11-01 12:26:49.000000000 -0500
+@@ -38,6 +38,7 @@
+ bracket_regex=re.compile('^[^#]*if.*[^ :\]]\]', re.MULTILINE)
+ home_regex=re.compile('[^a-zA-Z]+~/|\${?HOME(\W|$)', re.MULTILINE)
+ dangerous_command_regex=re.compile("(^|[;\|`]|&&|$\()\s*(?:\S*/s?bin/)?(cp|mv|ln|tar|rpm|chmod|chown|rm|cpio|install|perl|userdel|groupdel)\s", re.MULTILINE)
++selinux_regex=re.compile("(^|[;\|`]|&&|$\()\s*(?:\S*/s?bin/)?(chcon|runcon)\s", re.MULTILINE)
+ single_command_regex=re.compile("^[ \n]*([^ \n]+)[ \n]*$")
+ update_menu_regex=re.compile('update-menus', re.MULTILINE)
+ tmp_regex=re.compile('\s(/var)?/tmp', re.MULTILINE)
+@@ -139,6 +140,10 @@
+                 res=dangerous_command_regex.search(script)
+                 if res:
+                     printWarning(pkg, 'dangerous-command-in-' + tag[2], res.group(2))
++                res=selinux_regex.search(script)
++                if res:
++                    printError(pkg, 'selinux-forbidden-command-in-' + tag[2], res.group(2))
++
+                 if update_menu_regex.search(script):
+                     menu_error=1
+                     for f in files:
 
 --
 This message was distributed to subscribers of the selinux mailing list.
