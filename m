@@ -1,121 +1,140 @@
-Subject: Re: [PATCH 2/4] SELinux: export object class and permission
-	definitions
+Subject: Re: [PATCH 4/4] SELinux: validate kernel object classes and
+	permissions
 From: Stephen Smalley <sds@tycho.nsa.gov>
 To: Chad Sellers <csellers@tresys.com>
 Cc: selinux@tycho.nsa.gov
-In-Reply-To: <20061103203430.147110691@tresys.com>>
+In-Reply-To: <20061103203430.759007300@tresys.com>>
 References: <20061103203354.331494899@tresys.com> >
-	  <20061103203430.147110691@tresys.com>>
+	  <20061103203430.759007300@tresys.com>>
 Content-Type: text/plain
-Date: Fri, 03 Nov 2006 16:14:35 -0500
-Message-Id: <1162588475.5519.200.camel@moss-spartans.epoch.ncsc.mil>
+Date: Fri, 03 Nov 2006 16:39:23 -0500
+Message-Id: <1162589963.5519.215.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 On Fri, 2006-11-03 at 15:33 -0500, Chad Sellers wrote:
-> plain text document attachment (export_classes_perms.diff)
-> Moves the definition of the 3 structs containing object class and permission definitions from avc.c to avc_ss.h so that the security server can access them for validation on policy load. This also adds a new struct type, defined_classes_perms_t, suitable for allowing the security server to access these data structures from the avc.
+> plain text document attachment (verify_kernel.diff)
+> This is a new object class and permission validation scheme that validates against the defined kernel headers. This scheme allows extra classes and permissions that do not conflict with the kernel definitions to be added to the policy. This validation is now done for all policy loads, not just subsequent loads after the first policy load.
+> 
+> The implementation walks the three structrures containing the defined object class and permission values and ensures their values are the same in the policy being loaded. This includes verifying the object classes themselves, the permissions they contain, and the permissions they inherit from commons. Classes or permissions that are present in the kernel but missing from the policy cause a warning (printed to KERN_INFO) to be printed, but do not stop the policy from loading, emulating current behavior. Any other inconsistencies cause the load to fail.
 > 
 > Signed-off-by: Chad Sellers <csellers@tresys.com>
 > 
 > ---
->  security/selinux/avc.c            |   23 +++++++++++------------
->  security/selinux/include/avc_ss.h |   24 ++++++++++++++++++++++++
->  2 files changed, 35 insertions(+), 12 deletions(-)
+>  security/selinux/ss/services.c |  159 ++++++++++++++++++++++++++++++++++++++++-
+>  1 file changed, 158 insertions(+), 1 deletion(-)
 > 
-> Index: linux-2.6-discovery/security/selinux/avc.c
+> Index: linux-2.6-discovery/security/selinux/ss/services.c
 > ===================================================================
-> --- linux-2.6-discovery.orig/security/selinux/avc.c
-> +++ linux-2.6-discovery/security/selinux/avc.c
-> @@ -32,12 +32,7 @@
->  #include "avc.h"
->  #include "avc_ss.h"
+> --- linux-2.6-discovery.orig/security/selinux/ss/services.c
+> +++ linux-2.6-discovery/security/selinux/ss/services.c
+> @@ -1018,6 +1027,136 @@ int security_change_sid(u32 ssid,
+>  	return security_compute_sid(ssid, tsid, tclass, AVTAB_CHANGE, out_sid);
+>  }
 >  
-> -static const struct av_perm_to_string
-> -{
-> -  u16 tclass;
-> -  u32 value;
-> -  const char *name;
-> -} av_perm_to_string[] = {
-> +static const struct av_perm_to_string_t av_perm_to_string[] = {
->  #define S_(c, v, s) { c, v, s },
->  #include "av_perm_to_string.h"
->  #undef S_
-> @@ -57,17 +52,21 @@ static const char *class_to_string[] = {
->  #undef TE_
->  #undef S_
->  
-> -static const struct av_inherit
-> -{
-> -    u16 tclass;
-> -    const char **common_pts;
-> -    u32 common_base;
-> -} av_inherit[] = {
-> +static const struct av_inherit_t av_inherit[] = {
->  #define S_(c, i, b) { c, common_##i##_perm_to_string, b },
->  #include "av_inherit.h"
->  #undef S_
->  };
->  
-> +const struct defined_classes_perms_t defined_classes_perms = {
-
-- Don't use _t in struct names.
-- Use a name for the variable that provides good namespacing (e.g.
-selinux_) but isn't so long as to induce RSI.
-- 
-> +	av_perm_to_string,
-> +	ARRAY_SIZE(av_perm_to_string),
-> +	class_to_string,
-> +	ARRAY_SIZE(class_to_string),
-> +	av_inherit,
-> +	ARRAY_SIZE(av_inherit)
-> +};
-> +
->  #define AVC_CACHE_SLOTS			512
->  #define AVC_DEF_CACHE_THRESHOLD		512
->  #define AVC_CACHE_RECLAIM		16
-> Index: linux-2.6-discovery/security/selinux/include/avc_ss.h
-> ===================================================================
-> --- linux-2.6-discovery.orig/security/selinux/include/avc_ss.h
-> +++ linux-2.6-discovery/security/selinux/include/avc_ss.h
-> @@ -10,5 +10,29 @@
->  
->  int avc_ss_reset(u32 seqno);
->  
-> +struct av_perm_to_string_t
-
-Don't rename these structs.
-
+> +/*
+> + * Verify that each kernel class that is defined in the
+> + * policy is correct
+> + */
+> +static int validate_classes(struct policydb *p)
 > +{
-> +	u16 tclass;
-> +	u32 value;
-> +	const char *name;
-> +};
-> +
-> +struct av_inherit_t
-> +{
-> +	u16 tclass;
-> +	const char **common_pts;
-> +	u32 common_base;
-> +};
-> +
-> +struct defined_classes_perms_t
-> +{
-> +	const struct av_perm_to_string_t *av_perm_to_string;
-> +	u32 av_perm_to_string_len;
+> +	int i, j;
+> +	struct class_datum *cladatum;
+> +	struct perm_datum *perdatum;
+> +	u32 val, tmp, common_pts_len;
 
-Don't go overkill on field name length.
+Use temporary variables to make this code readable, e.g.
+	const struct selinux_class_perm *kdefs = &selinux_class_perm;
 
-> +	const char **class_to_string;
-> +	u32 class_to_string_len;
-> +	const struct av_inherit_t *av_inherit;
-> +	u32 av_inherit_len;
-> +};
 > +
->  #endif /* _SELINUX_AVC_SS_H_ */
->  
-> 
+> +	for (i = 1; i < defined_classes_perms.class_to_string_len; i++) {
+Likewise:
+	  for (i = 1; i < kdefs->nclasses; i++) {
+ 		  const char *kname, *pname;
+		  kname = kdefs->class_to_string[i];
+
+> +		if (i > p->p_classes.nprim) {
+> +			printk(KERN_INFO
+> +			       "security:  class %s not defined in policy\n",
+> +			       defined_classes_perms.class_to_string[i]);
+				 kname);
+> +			continue;
+> +		}
+		  pname = p->p_class_val_to_name[i-1];
+> +		if (strcmp(p->p_class_val_to_name[i-1],
+> +		           defined_classes_perms.class_to_string[i])) {
+		  if (strcmp(pname, kname)) {
+> +			printk(KERN_ERR
+> +			       "security:  class number %d is incorrect, found %s but should be %s\n",
+> +			       i, p->p_class_val_to_name[i-1],
+				 i, pname,
+> +			       defined_classes_perms.class_to_string[i]);
+				 kname);
+> +			return -EINVAL;
+> +		}
+
+> +		cladatum = hashtab_search(p->p_classes.table,
+> +		                          defined_classes_perms.class_to_string[i]);
+> +		if (cladatum == NULL) {
+> +			printk(KERN_ERR "security:  class %s not found in policy\n",
+> +			       defined_classes_perms.class_to_string[i]);
+> +			return -EINVAL;
+> +		}
+
+This seems redundant, as you checked class_val_to_name and it was
+generated from the classes symtab.
+
+> +		if (i != cladatum->value) {
+> +			printk(KERN_ERR
+> +			       "security:  class %s has incorrect value, found %d but should be %d\n",
+> +			       defined_classes_perms.class_to_string[i],
+> +			       cladatum->value, i);
+> +			return -EINVAL;
+> +		}
+
+Ditto.
+
+> +	}
+> +	for (i = 0; i < defined_classes_perms.av_perm_to_string_len; i++) {
+> +		if (defined_classes_perms.av_perm_to_string[i].tclass > p->p_classes.nprim)
+
+More opportunities for short temporary variables.
+
+> +			continue;
+> +		cladatum = hashtab_search(p->p_classes.table,
+> +		                          p->p_class_val_to_name[defined_classes_perms.av_perm_to_string[i].tclass-1]);
+> +		if (cladatum == NULL) {
+> +			printk(KERN_ERR
+> +			       "security:  class %s for permission %s not found in policy\n",
+> +			        p->p_class_val_to_name[defined_classes_perms.av_perm_to_string[i].tclass-1],
+> +			        defined_classes_perms.av_perm_to_string[i].name);
+> +			return -EINVAL;
+> +		}
+
+When would this occur?  Seems like a BUG_ON case.
+
+> +		val = 1 << (cladatum->permissions.nprim - 1);
+> +		if (defined_classes_perms.av_perm_to_string[i].value > val) {
+> +			printk(KERN_INFO
+> +			       "security:  permission %s in class %s not defined in policy\n",
+> +			       defined_classes_perms.av_perm_to_string[i].name,
+> +			       p->p_class_val_to_name[defined_classes_perms.av_perm_to_string[i].tclass-1]);
+
+I can't believe you typed that, and more than once too.
+
+> +			continue;
+> +		}
+> +		perdatum = hashtab_search(cladatum->permissions.table,
+> +		                          defined_classes_perms.av_perm_to_string[i].name);
+> +		if (perdatum == NULL) {
+> +			printk(KERN_ERR
+> +			       "security:  permission %s in class %s not found in policy\n",
+> +			       defined_classes_perms.av_perm_to_string[i].name,
+> +			       p->p_class_val_to_name[defined_classes_perms.av_perm_to_string[i].tclass-1]);
+> +			return -EINVAL;
+> +		}
+
 -- 
 Stephen Smalley
 National Security Agency
