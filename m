@@ -1,19 +1,19 @@
-Message-ID: <454A9527.2010909@us.ibm.com>
-Date: Thu, 02 Nov 2006 19:02:31 -0600
+Message-ID: <454A9594.70407@us.ibm.com>
+Date: Thu, 02 Nov 2006 19:04:20 -0600
 From: Michael C Thompson <thompsmc@us.ibm.com>
 MIME-Version: 1.0
 To: Michael C Thompson <thompsmc@us.ibm.com>
 CC: SE Linux <selinux@tycho.nsa.gov>, Stephen Smalley <sds@tycho.nsa.gov>
-Subject: [PATCH 1/8] make newrole suid (take 3)
+Subject: [PATCH 3/8] make newrole suid (take 3)
 References: <454A8F35.2020006@us.ibm.com>
 In-Reply-To: <454A8F35.2020006@us.ibm.com>
 Content-Type: multipart/mixed;
- boundary="------------050203000001040203010508"
+ boundary="------------010405040509060602060502"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 This is a multi-part message in MIME format.
---------------050203000001040203010508
+--------------010405040509060602060502
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 
@@ -21,102 +21,85 @@ Michael C Thompson wrote:
 > The 8 patches are as follows:
 > 1) Modifications to Makefile to support future patch needs
 >    Add newrole-lspp.pamd
+> 2) New extract_pw_data function and use in main()
+> 3) Add signal handler function
 
-This is the 1st of 8 patches.
+This is the 3rd of 8 patches.
 This patch applies against policycoreutils-1.30.30-1.
 
-This patch adds the new lspp pam.d support file for namespaces,
-and includes new compile-time options to the Makefile.
+This patch moves the signal handler setup from main() into a new
+function.
 
 Changes:
-  * Makefile now has AUDIT_LOG_PRIV and NAMESPACE_PRIV, as well as
-    LSPP_PRIV (causes both previous to be on)
-  * Adds newrole-lspp.pamd
+  * Adds set_signal_handles() and uses it in main()
 
 Signed-off-by: Michael Thompson <thompsmc@us.ibm.com>
 
 
---------------050203000001040203010508
+--------------010405040509060602060502
 Content-Type: text/x-diff;
- name="01-prep_non_source.patch"
+ name="03-signal_func.patch"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline;
- filename="01-prep_non_source.patch"
+ filename="03-signal_func.patch"
 
-diff -Naur policycoreutils-1.30.30/newrole/Makefile policycoreutils-1.30.30.suid/newrole/Makefile
---- policycoreutils-1.30.30/newrole/Makefile	2006-09-29 10:50:27.000000000 -0500
-+++ policycoreutils-1.30.30.suid/newrole/Makefile	2006-11-02 12:13:15.000000000 -0600
-@@ -10,6 +10,19 @@
- # This is so that we have the CAP_AUDIT_WRITE capability. newrole will
- # shed all privileges and change to the user's uid.
- LOG_AUDIT_PRIV ?= n
-+
-+# Enable capabilities to permit newrole to generate audit records.
-+# This will make newrole a setuid root program.
-+# The capabilities used are: CAP_AUDIT_WRITE.
-+AUDIT_LOG_PRIV ?= n
-+# Enable capabilities to permit newrole to utilitize the pam_namespace module.
-+# This will make newrole a setuid root program.
-+# The capabilities used are: CAP_SYS_ADMIN, CAP_CHOWN, CAP_FOWNER and
-+# CAP_DAC_OVERRIDE. 
-+NAMESPACE_PRIV ?= n
-+# If LSPP_PRIV is y, then newrole will be made into setuid root program.
-+# Enabling this option will force AUDIT_LOG_PRIV and NAMESPACE_PRIV to be y.
-+LSPP_PRIV ?= n
- VERSION = $(shell cat ../VERSION)
+diff -Naur policycoreutils-1.30.30/newrole/newrole.c policycoreutils-1.30.30.suid/newrole/newrole.c
+--- policycoreutils-1.30.30/newrole/newrole.c	2006-11-02 12:20:18.000000000 -0600
++++ policycoreutils-1.30.30.suid/newrole/newrole.c	2006-11-02 12:22:27.000000000 -0600
+@@ -498,6 +498,30 @@
+ }
+ #endif
  
- CFLAGS ?= -Werror -Wall -W
-@@ -26,6 +39,26 @@
- 	override CFLAGS += -DUSE_AUDIT
- 	LDLIBS += -laudit
- endif
++/**
++ * Take care of any signal setup
++ */
++static int set_signal_handles()
++{
++	sigset_t empty;
 +
-+ifeq (${LSPP_PRIV},y)
-+	override AUDIT_LOG_PRIV=y
-+	override NAMESPACE_PRIV=y
-+endif
-+ifeq (${AUDIT_LOG_PRIV},y)
-+	override CFLAGS += -DAUDIT_LOG_PRIV
-+	IS_SUID=y
-+endif
-+ifeq (${NAMESPACE_PRIV},y)
-+	override CFLAGS += -DNAMESPACE_PRIV
-+	IS_SUID=y
-+endif
-+ifeq (${IS_SUID},y)
-+	MODE := 4555
-+	LDLIBS += -lcap
-+else
-+	MODE := 0555
-+endif
++	/* Empty the signal mask in case someone is blocking a signal */
++	if (sigemptyset(&empty)) {
++		fprintf(stderr, _("Unable to obtain empty signal set\n"));
++		return -1;
++	}
 +
- ifeq (${LOG_AUDIT_PRIV},y)
- 	override CFLAGS += -DLOG_AUDIT_PRIV
- 	LDLIBS += -lcap
-@@ -46,8 +79,12 @@
- 	install -m 644 newrole.1 $(MANDIR)/man1/
- ifeq (${PAMH}, /usr/include/security/pam_appl.h)
- 	test -d $(ETCDIR)/pam.d || install -m 755 -d $(ETCDIR)/pam.d
-+ifeq (${LSPP_PRIV},y)
-+	install -m 644 newrole-lspp.pamd $(ETCDIR)/pam.d/newrole
-+else
- 	install -m 644 newrole.pamd $(ETCDIR)/pam.d/newrole
- endif
-+endif
++	(void)sigprocmask(SIG_SETMASK, &empty, NULL);
++
++	/* Terminate on SIGHUP. */
++	if (signal(SIGHUP, SIG_DFL) == SIG_ERR) {
++		fprintf(stderr, _("Unable to set SIGHUP handler\n"));
++		return -1;
++	}
++
++	return 0;
++}
++
+ /************************************************************************
+  *
+  * All code used for both PAM and shadow passwd goes in this section.
+@@ -534,18 +558,13 @@
+ 	uid_t uid;
+ 	int fd;
+ 	int enforcing;
+-	sigset_t empty;
  
- clean:
- 	rm -f $(TARGETS) *.o 
-diff -Naur policycoreutils-1.30.30/newrole/newrole-lspp.pamd policycoreutils-1.30.30.suid/newrole/newrole-lspp.pamd
---- policycoreutils-1.30.30/newrole/newrole-lspp.pamd	1969-12-31 18:00:00.000000000 -0600
-+++ policycoreutils-1.30.30.suid/newrole/newrole-lspp.pamd	2006-11-02 12:11:19.000000000 -0600
-@@ -0,0 +1,5 @@
-+#%PAM-1.0
-+auth       include	system-auth
-+account    include	system-auth
-+password   include	system-auth
-+session    required	pam_namespace.so unmnt_remnt no_unmount_on_close
+ #ifdef LOG_AUDIT_PRIV
+ 	drop_capabilities();
+ #endif
+ 
+-	/* Empty the signal mask in case someone is blocking a signal */
+-	sigemptyset(&empty);
+-	(void)sigprocmask(SIG_SETMASK, &empty, NULL);
+-
+-	/* Terminate on SIGHUP. */
+-	signal(SIGHUP, SIG_DFL);
++	if (set_signal_handles())
++		return -1;
+ 
+ #ifdef USE_NLS
+ 	setlocale(LC_ALL, "");
 
---------------050203000001040203010508--
+--------------010405040509060602060502--
 
 
 --
