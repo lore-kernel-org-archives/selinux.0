@@ -1,111 +1,140 @@
-Message-ID: <454B8E1F.5050304@tresys.com>
-Date: Fri, 03 Nov 2006 13:44:47 -0500
-From: Joshua Brindle <jbrindle@tresys.com>
-MIME-Version: 1.0
-To: vyekkirala@TrustedCS.com
-CC: Paul Moore <paul.moore@hp.com>, James Morris <jmorris@namei.org>,
-        selinux@tycho.nsa.gov, Stephen Smalley <sds@tycho.nsa.gov>,
-        gcwilson@us.ibm.com
-Subject: Re: SELinux Networking Enhancements
-References: <001a01c6ff5a$7eb99970$cc0a010a@tcssec.com>
-In-Reply-To: <001a01c6ff5a$7eb99970$cc0a010a@tcssec.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id kA3KZ7Tb006083
+	for <selinux@tycho.nsa.gov>; Fri, 3 Nov 2006 15:35:07 -0500
+Received: from localhost.localdomain (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id kA3KYLEG007785
+	for <selinux@tycho.nsa.gov>; Fri, 3 Nov 2006 20:34:22 GMT
+Message-Id: <20061103203429.861523548@tresys.com>>
+References: <20061103203354.331494899@tresys.com>>
+Date: Fri, 03 Nov 2006 15:33:55 -0500
+From: Chad Sellers <csellers@tresys.com>
+To: selinux@tycho.nsa.gov
+Subject: [PATCH 1/4] SELinux: remove current object class and permission validation mechanism
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Venkat Yekkirala wrote:
->>>
->> So you just pass an additional parameter to the selinux
->> module? I assume
->> you aren't going to try to use TE policy to choose.
-> 
-> Can you reframe your original question? I am afraid I misunderstood
-> it when I answered.
-> 
+Removes the current SELinux object class and permission validation code, as the current code makes it impossible to change or remove object classes and permissions on a running system. Additionally, the current code does not actually validate that the classes and permissions are correct, but instead merely validates that they do not change between policy reloads.
 
-How do you tell it to drop on one peer label but reject another?
+Signed-off-by: Chad Sellers <csellers@tresys.com>
 
->> <snip>
->>>> With these
->>>> filter rules if
->>>> they aren't in place the policy becomes less restrictive
->> (right?)..
->>> We could also be restrictive or leave it up to the policy entirely.
->>>
->> So if there is no rule present it would always check against unlabeled
->> (or some initial SID)?
-> 
-> Yes. I think this would be the simpler approach for now.
-> 
->> Can you force the selinux module to be called
->> under all circumstances?
-> 
-> Yes, in the proposal we are looking at here, the module will be called
-> from within netfilter when there are explicit secfilter rules as well as
-> when none have been found in which case there would be a check against
-> unlabeled. Is this what you meant to ask?
-> 
+---
+Note that this validation code is replaced in the fourth patch of this set, but I removed it completely here to make the patches more readable.
 
-Right, would the module always be 'on', even if iptables has an accept 
-policy.
+---
+ security/selinux/ss/services.c |   91 -----------------------------------------
+ 1 file changed, 91 deletions(-)
 
->> This is starting to sound pretty reasonable. The filter rules
->> really are
->> policy
-> 
-> They are a really a labeling policy just like in the secmark case.
-> Here we would label the filter points as opposed to packets.
-> 
+Index: linux-2.6-discovery/security/selinux/ss/services.c
+===================================================================
+--- linux-2.6-discovery.orig/security/selinux/ss/services.c
++++ linux-2.6-discovery/security/selinux/ss/services.c
+@@ -1018,89 +1018,6 @@ int security_change_sid(u32 ssid,
+ 	return security_compute_sid(ssid, tsid, tclass, AVTAB_CHANGE, out_sid);
+ }
+ 
+-/*
+- * Verify that each permission that is defined under the
+- * existing policy is still defined with the same value
+- * in the new policy.
+- */
+-static int validate_perm(void *key, void *datum, void *p)
+-{
+-	struct hashtab *h;
+-	struct perm_datum *perdatum, *perdatum2;
+-	int rc = 0;
+-
+-
+-	h = p;
+-	perdatum = datum;
+-
+-	perdatum2 = hashtab_search(h, key);
+-	if (!perdatum2) {
+-		printk(KERN_ERR "security:  permission %s disappeared",
+-		       (char *)key);
+-		rc = -ENOENT;
+-		goto out;
+-	}
+-	if (perdatum->value != perdatum2->value) {
+-		printk(KERN_ERR "security:  the value of permission %s changed",
+-		       (char *)key);
+-		rc = -EINVAL;
+-	}
+-out:
+-	return rc;
+-}
+-
+-/*
+- * Verify that each class that is defined under the
+- * existing policy is still defined with the same
+- * attributes in the new policy.
+- */
+-static int validate_class(void *key, void *datum, void *p)
+-{
+-	struct policydb *newp;
+-	struct class_datum *cladatum, *cladatum2;
+-	int rc;
+-
+-	newp = p;
+-	cladatum = datum;
+-
+-	cladatum2 = hashtab_search(newp->p_classes.table, key);
+-	if (!cladatum2) {
+-		printk(KERN_ERR "security:  class %s disappeared\n",
+-		       (char *)key);
+-		rc = -ENOENT;
+-		goto out;
+-	}
+-	if (cladatum->value != cladatum2->value) {
+-		printk(KERN_ERR "security:  the value of class %s changed\n",
+-		       (char *)key);
+-		rc = -EINVAL;
+-		goto out;
+-	}
+-	if ((cladatum->comdatum && !cladatum2->comdatum) ||
+-	    (!cladatum->comdatum && cladatum2->comdatum)) {
+-		printk(KERN_ERR "security:  the inherits clause for the access "
+-		       "vector definition for class %s changed\n", (char *)key);
+-		rc = -EINVAL;
+-		goto out;
+-	}
+-	if (cladatum->comdatum) {
+-		rc = hashtab_map(cladatum->comdatum->permissions.table, validate_perm,
+-		                 cladatum2->comdatum->permissions.table);
+-		if (rc) {
+-			printk(" in the access vector definition for class "
+-			       "%s\n", (char *)key);
+-			goto out;
+-		}
+-	}
+-	rc = hashtab_map(cladatum->permissions.table, validate_perm,
+-	                 cladatum2->permissions.table);
+-	if (rc)
+-		printk(" in access vector definition for class %s\n",
+-		       (char *)key);
+-out:
+-	return rc;
+-}
+-
+ /* Clone the SID into the new SID table. */
+ static int clone_sid(u32 sid,
+ 		     struct context *context,
+@@ -1265,14 +1182,6 @@ int security_load_policy(void *data, siz
+ 
+ 	sidtab_init(&newsidtab);
+ 
+-	/* Verify that the existing classes did not change. */
+-	if (hashtab_map(policydb.p_classes.table, validate_class, &newpolicydb)) {
+-		printk(KERN_ERR "security:  the definition of an existing "
+-		       "class changed\n");
+-		rc = -EINVAL;
+-		goto err;
+-	}
+-
+ 	/* Clone the SID table. */
+ 	sidtab_shutdown(&sidtab);
+ 	if (sidtab_map(&sidtab, clone_sid, &newsidtab)) {
 
-Maybe, if the unlabeled check is really there then it is labeling, if it 
-  isn't then you are using filter rules to set up an external policy.
-
->> they just aren't TE policy, and they are also tightly
->> bound to a
->> particular TE policy.
-> 
-> If you meant the "particular" portion of the policy that would
-> have the allow rules, etc., to enforce secfilter, yes.
-> 
-
-mostly types..
-
->> This is different from other object managers because their "policy" is
->> static, they always ask the question at some point in the codepath
->> wheras you want to implement a dynamic policy to query the security
->> server.
-> 
-> I am not sure I understand. This is completely analogous to how the
-> filesystem
-> checks work. Just like how file contexts live on the File System, secfilter
-> contexts live (just like secmark labels) in the netfilter subsystem
-> efficiently
-> looked up by the iptables framework. Just like how the various portions of
-> the
-> FS code call into LSM, so would netfilter/secfilter.
-> 
-
-Same as above.. if the unlabeled check is done then fine, otherwise you 
-are using iptables as an enforcer with a dynamic policy (eg., its only 
-checked if there is an iptables rule present instead of every single 
-time in a static code path like the filesystem).
-
->> I don't think there is anything wrong with it but the
->> ramifications need to be examined, synchronicity is probably
->> going to be
->> the hardest thing to solve.
-> 
-> Could you please eleborate on the synchronicity issues and how these are
-> absent/resolved for the FS case?
-> 
-
-Mainly applying the rules at the same time as a policy update and 
-keeping them synchronized. It is easier for files because you merely 
-overwrite the label there, with iptables there are ordering issues so 
-you have to apply them in the right order, including any rules that are 
-already there. If any module has a rule that shadows another there are 
-problems, you'll never know which gets put in the chain first, etc.
-
+-- 
 
 --
 This message was distributed to subscribers of the selinux mailing list.
