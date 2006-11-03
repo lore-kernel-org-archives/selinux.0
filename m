@@ -1,169 +1,110 @@
-Subject: RE: How should I run genfscon in my module?
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Karl MacMillan <kmacmillan@mentalrootkit.com>
-Cc: Joshua Brindle <jbrindle@tresys.com>, Dawid Gajownik <gajownik@gmail.com>,
-        fedora-selinux-list@redhat.com, SELinux List <selinux@tycho.nsa.gov>
-In-Reply-To: <1162480950.6503.4.camel@localhost.localdomain>
-References: 
-	 <6FE441CD9F0C0C479F2D88F959B0158851492D@exchange.columbia.tresys.com>
-	 <1162397375.29617.20.camel@localhost.localdomain>
-	 <1162405138.32614.248.camel@moss-spartans.epoch.ncsc.mil>
-	 <1162480950.6503.4.camel@localhost.localdomain>
-Content-Type: text/plain
-Date: Fri, 03 Nov 2006 12:53:06 -0500
-Message-Id: <1162576386.5519.127.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+Message-ID: <454B8E1F.5050304@tresys.com>
+Date: Fri, 03 Nov 2006 13:44:47 -0500
+From: Joshua Brindle <jbrindle@tresys.com>
+MIME-Version: 1.0
+To: vyekkirala@TrustedCS.com
+CC: Paul Moore <paul.moore@hp.com>, James Morris <jmorris@namei.org>,
+        selinux@tycho.nsa.gov, Stephen Smalley <sds@tycho.nsa.gov>,
+        gcwilson@us.ibm.com
+Subject: Re: SELinux Networking Enhancements
+References: <001a01c6ff5a$7eb99970$cc0a010a@tcssec.com>
+In-Reply-To: <001a01c6ff5a$7eb99970$cc0a010a@tcssec.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2006-11-02 at 10:22 -0500, Karl MacMillan wrote:
-> On Wed, 2006-11-01 at 13:18 -0500, Stephen Smalley wrote:
-> > On Wed, 2006-11-01 at 11:09 -0500, Karl MacMillan wrote:
-> > > On Wed, 2006-11-01 at 10:27 -0500, Joshua Brindle wrote:
-> > > > > From: Karl MacMillan [mailto:kmacmillan@mentalrootkit.com] 
-> > > > > 
-> > > > > > > I looked at fixing this by changing genfscon to use 
-> > > > > user_identifier 
-> > > > > > > instead of identifier (they are the same except user_identifier 
-> > > > > > > includes "-"). This made checkpolicy generate a syntax 
-> > > > > error for all 
-> > > > > > > genfscon statements - haven't tracked down what the 
-> > > > > problem is. The 
-> > > > > > > grammer still seems to be unambiguous.
-> > > > > > 
-> > > > > > Use "user_id" instead.  Otherwise, you'll get a syntax 
-> > > > > error when the 
-> > > > > > token is classified as an IDENTIFIER (first match) and the grammar 
-> > > > > > says that it must be a USER_IDENTIFIER.
-> > > > > 
-> > > > > Right as usual.
-> > > > > 
-> > > > 
-> > > > Maybe make user_id more generic as it is no longer only used for users..
-> > > 
-> > > Just making generic would make the user related parts of the grammar
-> > > harder to read. What about this:
+Venkat Yekkirala wrote:
+>>>
+>> So you just pass an additional parameter to the selinux
+>> module? I assume
+>> you aren't going to try to use TE policy to choose.
 > 
-> > Why not just fold USER_IDENTIFIER back into IDENTIFIER? As in:
+> Can you reframe your original question? I am afraid I misunderstood
+> it when I answered.
 > 
-> That's fine with me - there is really no reason to disallow "-" in any
-> of the identifiers. Makes a lot of documentation wrong, but the docs
-> being more restrictive isn't a big deal.
 
-Only possible reason would be to avoid ambiguity in MLS ranges (e.g.
-s0-s0:c0.c255), but we already have that problem in checkpolicy from
-USER_IDENTIFIER, which is why one has to use spaces around the - in the
-range.  So it would only matter is someone put a - in a sensitivity or
-category name.
+How do you tell it to drop on one peer label but reject another?
 
+>> <snip>
+>>>> With these
+>>>> filter rules if
+>>>> they aren't in place the policy becomes less restrictive
+>> (right?)..
+>>> We could also be restrictive or leave it up to the policy entirely.
+>>>
+>> So if there is no rule present it would always check against unlabeled
+>> (or some initial SID)?
 > 
-> > 
-> > Index: checkpolicy/policy_scan.l
-> > ===================================================================
-> > --- checkpolicy/policy_scan.l	(revision 2076)
-> > +++ checkpolicy/policy_scan.l	(working copy)
-> > @@ -200,12 +200,11 @@
-> >  h2 |
-> >  H2				{ return(H2); }
-> >  "/"({letter}|{digit}|_|"."|"-"|"/")*	{ return(PATH); }
-> > -{letter}({letter}|{digit}|_|".")*	{ if (is_valid_identifier(yytext)) 
-> > +{letter}({letter}|{digit}|_|"."|"-")*	{ if (is_valid_identifier(yytext)) 
-> >  						return(IDENTIFIER); 
-> >  					  else 
-> >  					  	REJECT;
-> >  					}
-> > -{letter}({letter}|{digit}|_|"."|"-")*	{ return(USER_IDENTIFIER); }
-> >  {digit}{digit}*                 { return(NUMBER); }
-> >  {hexval}{0,4}":"{hexval}{0,4}":"({hexval}|":"|".")*	{ return(IPV6_ADDR); }
-> >  {version}/([ \t\f]*;)           { return(VERSION_IDENTIFIER); }
-> > Index: checkpolicy/policy_parse.y
-> > ===================================================================
-> > --- checkpolicy/policy_parse.y	(revision 2076)
-> > +++ checkpolicy/policy_parse.y	(working copy)
-> > @@ -190,7 +190,6 @@
-> >  %token NOT AND OR XOR
-> >  %token CTRUE CFALSE
-> >  %token IDENTIFIER
-> > -%token USER_IDENTIFIER
-> >  %token NUMBER
-> >  %token EQUALS
-> >  %token NOTEQUAL
-> > @@ -522,13 +521,13 @@
-> >  			| T1 op T2
-> >  			{ $$ = define_cexpr(CEXPR_ATTR, CEXPR_TYPE, $2);
-> >  			  if ($$ == 0) return -1; }
-> > -			| U1 op { if (insert_separator(1)) return -1; } user_names_push
-> > +			| U1 op { if (insert_separator(1)) return -1; } names_push
-> >  			{ $$ = define_cexpr(CEXPR_NAMES, CEXPR_USER, $2);
-> >  			  if ($$ == 0) return -1; }
-> > -			| U2 op { if (insert_separator(1)) return -1; } user_names_push
-> > +			| U2 op { if (insert_separator(1)) return -1; } names_push
-> >  			{ $$ = define_cexpr(CEXPR_NAMES, (CEXPR_USER | CEXPR_TARGET), $2);
-> >  			  if ($$ == 0) return -1; }
-> > -			| U3 op { if (insert_separator(1)) return -1; } user_names_push
-> > +			| U3 op { if (insert_separator(1)) return -1; } names_push
-> >  			{ $$ = define_cexpr(CEXPR_NAMES, (CEXPR_USER | CEXPR_XTARGET), $2);
-> >  			  if ($$ == 0) return -1; }
-> >  			| R1 op { if (insert_separator(1)) return -1; } names_push
-> > @@ -603,10 +602,7 @@
-> >  users			: user_def
-> >  			| users user_def
-> >  			;
-> > -user_id			: identifier
-> > -			| user_identifier
-> > -			;
-> > -user_def		: USER user_id ROLES names opt_mls_user ';'
-> > +user_def		: USER identifier ROLES names opt_mls_user ';'
-> >  	                {if (define_user()) return -1;}
-> >  			;
-> >  opt_mls_user		: LEVEL mls_level_def RANGE mls_range_def
-> > @@ -698,7 +694,7 @@
-> >  			  $$ = addr;
-> >  			}
-> >      			;
-> > -security_context_def	: user_id ':' identifier ':' identifier opt_mls_range_def
-> > +security_context_def	: identifier ':' identifier ':' identifier opt_mls_range_def
-> >  	                ;
-> >  opt_mls_range_def	: ':' mls_range_def
-> >  			|	
-> > @@ -766,23 +762,6 @@
-> >  identifier		: IDENTIFIER
-> >  			{ if (insert_id(yytext,0)) return -1; }
-> >  			;
-> > -user_identifier		: USER_IDENTIFIER
-> > -			{ if (insert_id(yytext,0)) return -1; }
-> > -			;
-> > -user_identifier_push	: USER_IDENTIFIER
-> > -			{ if (insert_id(yytext, 1)) return -1; }
-> > -			;
-> > -user_identifier_list_push : user_identifier_push
-> > -			| identifier_list_push user_identifier_push
-> > -			| user_identifier_list_push identifier_push
-> > -			| user_identifier_list_push user_identifier_push
-> > -			;
-> > -user_names_push		: names_push
-> > -			| user_identifier_push
-> > -			| '{' user_identifier_list_push '}'
-> > -			| tilde_push user_identifier_push
-> > -			| tilde_push '{' user_identifier_list_push '}'
-> > -			;
-> >  path     		: PATH
-> >  			{ if (insert_id(yytext,0)) return -1; }
-> >  			;
-> > 
-> > Builds svn refpolicy trunk with strict-mls, no change in policy.21.
-> > 
+> Yes. I think this would be the simpler approach for now.
 > 
-> Acked-by: Karl MacMillan <kmacmillan@mentalrootkit.com>
+>> Can you force the selinux module to be called
+>> under all circumstances?
 > 
+> Yes, in the proposal we are looking at here, the module will be called
+> from within netfilter when there are explicit secfilter rules as well as
+> when none have been found in which case there would be a check against
+> unlabeled. Is this what you meant to ask?
 > 
-> --
-> This message was distributed to subscribers of the selinux mailing list.
-> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
-> the words "unsubscribe selinux" without quotes as the message.
--- 
-Stephen Smalley
-National Security Agency
+
+Right, would the module always be 'on', even if iptables has an accept 
+policy.
+
+>> This is starting to sound pretty reasonable. The filter rules
+>> really are
+>> policy
+> 
+> They are a really a labeling policy just like in the secmark case.
+> Here we would label the filter points as opposed to packets.
+> 
+
+Maybe, if the unlabeled check is really there then it is labeling, if it 
+  isn't then you are using filter rules to set up an external policy.
+
+>> they just aren't TE policy, and they are also tightly
+>> bound to a
+>> particular TE policy.
+> 
+> If you meant the "particular" portion of the policy that would
+> have the allow rules, etc., to enforce secfilter, yes.
+> 
+
+mostly types..
+
+>> This is different from other object managers because their "policy" is
+>> static, they always ask the question at some point in the codepath
+>> wheras you want to implement a dynamic policy to query the security
+>> server.
+> 
+> I am not sure I understand. This is completely analogous to how the
+> filesystem
+> checks work. Just like how file contexts live on the File System, secfilter
+> contexts live (just like secmark labels) in the netfilter subsystem
+> efficiently
+> looked up by the iptables framework. Just like how the various portions of
+> the
+> FS code call into LSM, so would netfilter/secfilter.
+> 
+
+Same as above.. if the unlabeled check is done then fine, otherwise you 
+are using iptables as an enforcer with a dynamic policy (eg., its only 
+checked if there is an iptables rule present instead of every single 
+time in a static code path like the filesystem).
+
+>> I don't think there is anything wrong with it but the
+>> ramifications need to be examined, synchronicity is probably
+>> going to be
+>> the hardest thing to solve.
+> 
+> Could you please eleborate on the synchronicity issues and how these are
+> absent/resolved for the FS case?
+> 
+
+Mainly applying the rules at the same time as a policy update and 
+keeping them synchronized. It is easier for files because you merely 
+overwrite the label there, with iptables there are ordering issues so 
+you have to apply them in the right order, including any rules that are 
+already there. If any module has a rule that shadows another there are 
+problems, you'll never know which gets put in the chain first, etc.
 
 
 --
