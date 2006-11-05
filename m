@@ -1,41 +1,67 @@
 Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id kA3M4LQ5008818
-	for <selinux@tycho.nsa.gov>; Fri, 3 Nov 2006 17:04:21 -0500
-Received: from mail5.sea5.speakeasy.net (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id kA3M2kIN007985
-	for <selinux@tycho.nsa.gov>; Fri, 3 Nov 2006 22:02:47 GMT
-Date: Fri, 3 Nov 2006 17:04:24 -0500 (EST)
-From: James Morris <jmorris@namei.org>
-To: Chad Sellers <csellers@tresys.com>
-cc: selinux@tycho.nsa.gov
-Subject: Re: [PATCH 4/4] SELinux: validate kernel object classes and permissions
-In-Reply-To: <20061103203430.759007300@tresys.com>>
-Message-ID: <Pine.LNX.4.64.0611031703220.12217@d.namei>
-References: <20061103203354.331494899@tresys.com>> <20061103203430.759007300@tresys.com>>
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id kA5MW36f010936
+	for <selinux@tycho.nsa.gov>; Sun, 5 Nov 2006 17:32:03 -0500
+Received: from exchange.columbia.tresys.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with SMTP id kA5MUS28017855
+	for <selinux@tycho.nsa.gov>; Sun, 5 Nov 2006 22:30:28 GMT
+Message-ID: <454E6663.8070609@gentoo.org>
+Date: Sun, 05 Nov 2006 17:32:03 -0500
+From: Joshua Brindle <method@gentoo.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Steve Grubb <sgrubb@redhat.com>
+CC: SE Linux <selinux@tycho.nsa.gov>
+Subject: Re: rpmlint
+References: <200611030816.22148.sgrubb@redhat.com>
+In-Reply-To: <200611030816.22148.sgrubb@redhat.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 3 Nov 2006, Chad Sellers wrote:
+Steve Grubb wrote:
+> Hi,
+>
+> Below is a patch that I am thinking about submitting to rpmlint. The main idea
+> of this patch is to catch places where people might be coding policy knowledge
+> into scripts. Chcon would require knowing some types in order to work. If the
+> types ever got changed, the script would break. Can anyone think of other
+> things we do not want to see in rpm scriplets?
+>
+> -Steve
+>
+>   
+calling semanage thusly:
 
-> +	for (i = 0; i < defined_classes_perms.av_perm_to_string_len; i++) {
-> +		if (defined_classes_perms.av_perm_to_string[i].tclass > p->p_classes.nprim)
-> +			continue;
-> +		cladatum = hashtab_search(p->p_classes.table,
-> +		                          p->p_class_val_to_name[defined_classes_perms.av_perm_to_string[i].tclass-1]);
+semanage fcontext -a [any arguments here] /some/file
 
-These lines are too long.  Limit is 80 characters for the function body.
+actually any semanage command except *possibly* login and user, and I'm 
+not sure they should be there either but someone may have an acceptable 
+scenerio.
+> diff -ur rpmlint-0.78.orig/PostCheck.py rpmlint-0.78/PostCheck.py
+> --- rpmlint-0.78.orig/PostCheck.py	2006-11-01 11:13:04.000000000 -0500
+> +++ rpmlint-0.78/PostCheck.py	2006-11-01 12:26:49.000000000 -0500
+> @@ -38,6 +38,7 @@
+>  bracket_regex=re.compile('^[^#]*if.*[^ :\]]\]', re.MULTILINE)
+>  home_regex=re.compile('[^a-zA-Z]+~/|\${?HOME(\W|$)', re.MULTILINE)
+>  dangerous_command_regex=re.compile("(^|[;\|`]|&&|$\()\s*(?:\S*/s?bin/)?(cp|mv|ln|tar|rpm|chmod|chown|rm|cpio|install|perl|userdel|groupdel)\s", re.MULTILINE)
+> +selinux_regex=re.compile("(^|[;\|`]|&&|$\()\s*(?:\S*/s?bin/)?(chcon|runcon)\s", re.MULTILINE)
+>  single_command_regex=re.compile("^[ \n]*([^ \n]+)[ \n]*$")
+>  update_menu_regex=re.compile('update-menus', re.MULTILINE)
+>  tmp_regex=re.compile('\s(/var)?/tmp', re.MULTILINE)
+> @@ -139,6 +140,10 @@
+>                  res=dangerous_command_regex.search(script)
+>                  if res:
+>                      printWarning(pkg, 'dangerous-command-in-' + tag[2], res.group(2))
+> +                res=selinux_regex.search(script)
+> +                if res:
+> +                    printError(pkg, 'selinux-forbidden-command-in-' + tag[2], res.group(2))
+> +
+>                  if update_menu_regex.search(script):
+>                      menu_error=1
+>                      for f in files:
+>
+>   
 
-See Documentation/CodingStyle
 
-
-
-
-- James
--- 
-James Morris
-<jmorris@namei.org>
 
 --
 This message was distributed to subscribers of the selinux mailing list.
