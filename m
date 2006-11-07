@@ -1,79 +1,36 @@
-Subject: Re: [PATCH 4/4] SELinux: validate kernel object classes and
-	permissions
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Chad Sellers <csellers@tresys.com>
-Cc: selinux@tycho.nsa.gov, James Morris <jmorris@namei.org>
-In-Reply-To: <C1751E53.19473%csellers@tresys.com>
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id kA7LKqjs021425
+	for <selinux@tycho.nsa.gov>; Tue, 7 Nov 2006 16:20:52 -0500
+Received: from mail5.sea5.speakeasy.net (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id kA7LK7jq028576
+	for <selinux@tycho.nsa.gov>; Tue, 7 Nov 2006 21:20:08 GMT
+Date: Tue, 7 Nov 2006 16:20:58 -0500 (EST)
+From: James Morris <jmorris@namei.org>
+To: Stephen Smalley <sds@tycho.nsa.gov>
+cc: Chad Sellers <csellers@tresys.com>, selinux@tycho.nsa.gov
+Subject: Re: [PATCH 4/4] SELinux: validate kernel object classes and permissions
+In-Reply-To: <1162933056.3009.62.camel@moss-spartans.epoch.ncsc.mil>
+Message-ID: <Pine.LNX.4.64.0611071620140.21330@d.namei>
 References: <C1751E53.19473%csellers@tresys.com>
-Content-Type: text/plain
-Date: Tue, 07 Nov 2006 15:57:36 -0500
-Message-Id: <1162933056.3009.62.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+ <1162933056.3009.62.camel@moss-spartans.epoch.ncsc.mil>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-(re-added list to cc)
+On Tue, 7 Nov 2006, Stephen Smalley wrote:
 
-On Mon, 2006-11-06 at 17:16 -0500, Chad Sellers wrote:
-> On 11/6/06 4:32 PM, "Stephen Smalley" <sds@tycho.nsa.gov> wrote:
-> 
-> > On Mon, 2006-11-06 at 12:38 -0500, Chad Sellers wrote:
-> >> Index: linux-2.6-discovery/security/selinux/ss/services.c
-> >> ===================================================================
-> >> --- linux-2.6-discovery.orig/security/selinux/ss/services.c
-> >> +++ linux-2.6-discovery/security/selinux/ss/services.c
-> >> @@ -53,6 +57,11 @@
-> >>  extern void selnl_notify_policyload(u32 seqno);
-> >>  unsigned int policydb_loaded_version;
-> >>  
-> >> +/*
-> >> + * This is declared in avc.c
-> >> + */
-> >> +extern const struct selinux_class_perm selinux_class_perm;
-> > 
-> > (nit) Belongs in avc_ss.h.
-> > 
-> OK, I guess that makes sense. Just seems weird since the struct is actually
-> in avc.c, and avc.c includes avc_ss.h. I'll resend with that change if I end
-> up needing to resend for other reasons. Is this a big enough deal to resend
-> if not?
+> (re-added list to cc)
 
-No.
+Thanks.
 
-> > What test cases have you applied?
-> I've tested the following policies:
-> base case - minimal policy that should work fine
-> extra class - add an extra class on the end, which should load
-> extra perm - add an extra perm to a class, which should load
-> missing class - remove a class from the end, simulating a kernel with a new
-> class that isn't in policy yes, which should load
-> missing perm - remove a perm from the end of a class, which should load
-> wrong class - class with wrong value, which should fail
-> wrong perm - perm with wrong value, which should fail
-> change class - load 2 policies back to back, each with extra classes. Change
-> the values of those classes between reloads. Simulates semanage linking a
-> new class and changing the value of an old class, which should load
-> change perm - same as change class but with perms
-> wrong common - switch the inherits for a class, which should fail
-> missing common - delete the inheritance from a class (adding the same number
-> of perms at the beginning of the class), which should fail
-> bad common - common with an incorrect perm, which should fail
-> extra common - add a common to a class that didn't have one, which should
-> fail
-> missing common perm - remove common perm from the end, also ensuring that
-> any class inheriting it does not have perms as the offsets will be off,
-> which should load
-> 
-> Let me know if those descriptions don't make sense. I can send the policies
-> if you'd rather.
-> 
-> Thanks,
-> Chad
+Stephen, do you think these patches are suitable for merging?
 
+
+- James
 -- 
-Stephen Smalley
-National Security Agency
-
+James Morris
+<jmorris@namei.org>
 
 --
 This message was distributed to subscribers of the selinux mailing list.
