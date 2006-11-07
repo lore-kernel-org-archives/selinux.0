@@ -1,78 +1,71 @@
-From: James Antill <james.antill@redhat.com>
-To: "Christopher J. PeBenito" <cpebenito@tresys.com>
-Cc: redhat-lspp <redhat-lspp@redhat.com>, SE Linux <selinux@tycho.nsa.gov>,
-        Stephen Smalley <sds@tycho.nsa.gov>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-Y3fOFD+OPhX41biRZ9Sh"
-Date: Tue, 07 Nov 2006 16:51:36 -0500
-Message-Id: <1162936296.26574.10.camel@code.and.org>
+From: James Antill <jantill@redhat.com>
+To: Stephen Smalley <sds@tycho.nsa.gov>
+Cc: redhat-lspp <redhat-lspp@redhat.com>, SE Linux <selinux@tycho.nsa.gov>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-UMmgEtK0/nX4kAsN3N8e"
+Date: Tue, 07 Nov 2006 16:57:56 -0500
+Message-Id: <1162936676.26574.15.camel@code.and.org>
 Mime-Version: 1.0
-Subject: [PATCH] MLS context contains policy/libselinux changes
+Subject: [PATCH] libselinux MLS range context contains for PAM/cron
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 
---=-Y3fOFD+OPhX41biRZ9Sh
-Content-Type: multipart/mixed; boundary="=-po6K2weBprZYLWr/PYW0"
+--=-UMmgEtK0/nX4kAsN3N8e
+Content-Type: multipart/mixed; boundary="=-nvlvwZu8KGPw3rJxVmFI"
 
 
---=-po6K2weBprZYLWr/PYW0
+--=-nvlvwZu8KGPw3rJxVmFI
 Content-Type: text/plain
 Content-Transfer-Encoding: quoted-printable
 
 
- Here is the policy changes needed for the context contains security
-checking in PAM and cron.
+ Here is the libselinux changes needed to do the security context
+contains checks for PAM and cron.
 
 --=20
-James Antill - <james.antill@redhat.com>
-setsockopt(fd, IPPROTO_TCP, TCP_CONGESTION, ...);
-setsockopt(fd, IPPROTO_TCP, TCP_DEFER_ACCEPT, ...);
-setsockopt(fd, SOL_SOCKET,  SO_ATTACH_FILTER, ...);
+James Antill <jantill@redhat.com>
 
-
---=-po6K2weBprZYLWr/PYW0
-Content-Description: MLS Range checking for cron/PAM
-Content-Disposition: inline; filename=policy-range-checking.patch
+--=-nvlvwZu8KGPw3rJxVmFI
+Content-Description: libselinux MLS range checking bits, for cron and PAM
+Content-Disposition: inline; filename=selinux-range-checking.patch
 Content-Type: text/x-patch; charset=UTF-8
 Content-Transfer-Encoding: base64
 
-SW5kZXg6IHBvbGljeS9mbGFzay9hY2Nlc3NfdmVjdG9ycw0KPT09PT09PT09PT09PT09PT09PT09
-PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PQ0KLS0tIHBvbGlj
-eS9mbGFzay9hY2Nlc3NfdmVjdG9ycwkocmV2aXNpb24gMjA3OCkNCisrKyBwb2xpY3kvZmxhc2sv
-YWNjZXNzX3ZlY3RvcnMJKHdvcmtpbmcgY29weSkNCkBAIC02MzUsNCArNjM1LDUgQEANCiBjbGFz
-cyBjb250ZXh0DQogew0KIAl0cmFuc2xhdGUNCisJY29udGFpbnMNCiB9DQpJbmRleDogcG9saWN5
-L21vZHVsZXMvc3lzdGVtL3VzZXJkb21haW4uaWYNCj09PT09PT09PT09PT09PT09PT09PT09PT09
-PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT0NCi0tLSBwb2xpY3kvbW9k
-dWxlcy9zeXN0ZW0vdXNlcmRvbWFpbi5pZgkocmV2aXNpb24gMjA3OCkNCisrKyBwb2xpY3kvbW9k
-dWxlcy9zeXN0ZW0vdXNlcmRvbWFpbi5pZgkod29ya2luZyBjb3B5KQ0KQEAgLTUxLDYgKzUxLDgg
-QEANCiAJYWxsb3cgJDFfdCBzZWxmOm1zZyB7IHNlbmQgcmVjZWl2ZSB9Ow0KIAlkb250YXVkaXQg
-JDFfdCBzZWxmOnNvY2tldCBjcmVhdGU7DQogDQorCWFsbG93ICQxX3Qgc2VsZjpjb250ZXh0IGNv
-bnRhaW5zOw0KKw0KIAlhbGxvdyAkMV90ICQxX2RldnB0c190OmNocl9maWxlIHsgc2V0YXR0ciBp
-b2N0bCByZWFkIGdldGF0dHIgbG9jayB3cml0ZSBhcHBlbmQgfTsNCiAJdGVybV9jcmVhdGVfcHR5
-KCQxX3QsJDFfZGV2cHRzX3QpDQogDQpJbmRleDogcG9saWN5L21scw0KPT09PT09PT09PT09PT09
-PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PQ0KLS0t
-IHBvbGljeS9tbHMJKHJldmlzaW9uIDIwNzgpDQorKysgcG9saWN5L21scwkod29ya2luZyBjb3B5
-KQ0KQEAgLTU5Nyw0ICs1OTcsNyBAQA0KIG1sc2NvbnN0cmFpbiBjb250ZXh0IHRyYW5zbGF0ZQ0K
-IAkoKCBoMSBkb20gaDIgKSBvciAoIHQxID09IG1sc3RyYW5zbGF0ZSApKTsNCiANCittbHNjb25z
-dHJhaW4gY29udGV4dCBjb250YWlucw0KKwkoIGgxIGRvbSBoMiApOw0KKw0KICcpIGRubCBlbmQg
-ZW5hYmxlX21scw0K
+SW5kZXg6IGxpYnNlbGludXgvaW5jbHVkZS9zZWxpbnV4L2F2X3Blcm1pc3Npb25zLmgNCj09PT09
+PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09
+PT09PT0NCi0tLSBsaWJzZWxpbnV4L2luY2x1ZGUvc2VsaW51eC9hdl9wZXJtaXNzaW9ucy5oCShy
+ZXZpc2lvbiAyMDc2KQ0KKysrIGxpYnNlbGludXgvaW5jbHVkZS9zZWxpbnV4L2F2X3Blcm1pc3Np
+b25zLmgJKHdvcmtpbmcgY29weSkNCkBAIC04OTYsMyArODk2LDQgQEANCiAjZGVmaW5lIEtFWV9f
+U0VUQVRUUiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIDB4MDAwMDAwMjBVTA0KICNkZWZp
+bmUgS0VZX19DUkVBVEUgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgMHgwMDAwMDA0MFVM
+DQogI2RlZmluZSBDT05URVhUX19UUkFOU0xBVEUgICAgICAgICAgICAgICAgICAgICAgICAweDAw
+MDAwMDAxVUwNCisjZGVmaW5lIENPTlRFWFRfX0NPTlRBSU5TICAgICAgICAgICAgICAgICAgICAg
+ICAgIDB4MDAwMDAwMDJVTA0KSW5kZXg6IGxpYnNlbGludXgvc3JjL2F2X3Blcm1fdG9fc3RyaW5n
+LmgNCj09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09
+PT09PT09PT09PT09PT0NCi0tLSBsaWJzZWxpbnV4L3NyYy9hdl9wZXJtX3RvX3N0cmluZy5oCShy
+ZXZpc2lvbiAyMDc2KQ0KKysrIGxpYnNlbGludXgvc3JjL2F2X3Blcm1fdG9fc3RyaW5nLmgJKHdv
+cmtpbmcgY29weSkNCkBAIC0yNjYsMyArMjY2LDQgQEANCiAgICAgU18oU0VDQ0xBU1NfS0VZLCBL
+RVlfX1NFVEFUVFIsICJzZXRhdHRyIikNCiAgICAgU18oU0VDQ0xBU1NfS0VZLCBLRVlfX0NSRUFU
+RSwgImNyZWF0ZSIpDQogICAgIFNfKFNFQ0NMQVNTX0NPTlRFWFQsIENPTlRFWFRfX1RSQU5TTEFU
+RSwgInRyYW5zbGF0ZSIpDQorICAgIFNfKFNFQ0NMQVNTX0NPTlRFWFQsIENPTlRFWFRfX0NPTlRB
+SU5TLCAiY29udGFpbnMiKQ0K
 
 
---=-po6K2weBprZYLWr/PYW0--
+--=-nvlvwZu8KGPw3rJxVmFI--
 
---=-Y3fOFD+OPhX41biRZ9Sh
+--=-UMmgEtK0/nX4kAsN3N8e
 Content-Type: application/pgp-signature; name=signature.asc
 Content-Description: This is a digitally signed message part
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.5 (GNU/Linux)
 
-iD8DBQBFUP/o11eXTEMrxtQRAppuAKDEdh08eQTY7mXe8fbf701tmxzvaQCfZa0u
-8PwFPu0BfFyia74iEJuA8fM=
-=SNIY
+iD8DBQBFUQFk11eXTEMrxtQRArwjAKC5EPUmiI2A7K4NVOCWTMczEPsxXwCglsCh
+a2gedG3f6cHeOMCfhAdhuNY=
+=FV5q
 -----END PGP SIGNATURE-----
 
---=-Y3fOFD+OPhX41biRZ9Sh--
+--=-UMmgEtK0/nX4kAsN3N8e--
 
 
 --
