@@ -1,81 +1,69 @@
-Message-ID: <45523185.40502@us.ibm.com>
-Date: Wed, 08 Nov 2006 13:35:33 -0600
-From: Michael C Thompson <thompsmc@us.ibm.com>
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id kA8KHtaW025817
+	for <selinux@tycho.nsa.gov>; Wed, 8 Nov 2006 15:17:55 -0500
+Received: from glaurung.internal.golden-gryphon.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id kA8KHAFh002666
+	for <selinux@tycho.nsa.gov>; Wed, 8 Nov 2006 20:17:11 GMT
+Received: from glaurung.internal.golden-gryphon.com (srivasta@localhost [127.0.0.1])
+	by glaurung.internal.golden-gryphon.com (8.13.8/8.13.8/Debian-2) with ESMTP id kA8JW3FY004624
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-SHA bits=256 verify=NOT)
+	for <selinux@tycho.nsa.gov>; Wed, 8 Nov 2006 13:32:03 -0600
+From: Manoj Srivastava <manoj.srivastava@stdc.com>
+To: selinux@tycho.nsa.gov
+Subject: SELinux userland patches in Debia
+In-Reply-To: <1161264297.14632.114.camel@moss-spartans.epoch.ncsc.mil>:Stephen Smalley's message of 09:24:57 Thursday,19 October 2006 
+References: <1149012569.524.95.camel@moss-spartans.epoch.ncsc.mil>
+	<1149259375.524.470.camel@moss-spartans.epoch.ncsc.mil>
+	<1161264297.14632.114.camel@moss-spartans.epoch.ncsc.mil>
+Date: Wed, 08 Nov 2006 13:32:02 -0600
+Message-ID: <87irhpka4t.fsf@glaurung.internal.golden-gryphon.com>
 MIME-Version: 1.0
-To: "Serge E. Hallyn" <serue@us.ibm.com>
-CC: SE Linux <selinux@tycho.nsa.gov>, Stephen Smalley <sds@tycho.nsa.gov>
-Subject: Re: [PATCH 4/8] make newrole suid (take 3)
-References: <454A8F35.2020006@us.ibm.com> <454A95BC.7000807@us.ibm.com> <20061107052338.GB11273@sergelap.austin.ibm.com> <4550E7E4.4000505@us.ibm.com> <20061108173224.GB15592@sergelap.austin.ibm.com>
-In-Reply-To: <20061108173224.GB15592@sergelap.austin.ibm.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Serge E. Hallyn wrote:
-> Quoting Michael C Thompson (thompsmc@us.ibm.com):
->> For the 3rd version of drop_capabilities, that is the return 0; inline, 
->> it is used when compiled without auditing or namespace capabilities. 
->> Therefore, there is no need to make newrole suid in this case, and 
->> drop_capabilities is a 'no-op'.
-> 
-> Ok - so will the Makefile in that case automatically not install it
-> suid?
+Hi,
 
-Correct. It will only be made suid if either AUDIT_LOG_PRIV or 
-NAMESPACE_PRIV are flagged yes.
+        I apologize that this mail took so long to come. I was waiting
+ until I was sure that the packages in question have made it into the
+ release.
 
->> In the case where you compile with only auditing support the original 
->> version of drop_capabilities (which does do setresuid) is sufficient 
->> because as long as we maintain the CAP_AUDIT_WRITE, we can get rid of 
->> the other capabilities and switch to the user's uid.
->>
->> However, in order to support namespaces, we need to retain more 
->> capabilities and Stephen Smalley suggested that the euid of the process 
->> not be changed to the caller's uid until after the pam_open_session() 
->> call, so that any actions taken by the pam_namespace module are done as 
->> euid 0. The reasoning was that the calling user would not be able to 
->> take advantage of the directories that get created by the pam_namespace 
->> module before it could set their correct permissions and security 
->> contexts. The transition_to_caller_uid() function is what handles this 
->> setresuid() change when compiled to support namespaces, and is called 
->> after the pam_open_session() call returns.
-> 
-> Ok - sorry for not following the thread on that.
+        The state of SELinux in Debian, heading into the freeze for
+ the Etch release, is:
 
-No worries.
+ 1.  The tool chain is at the latest release versions
+ 2.  dpkg has been patched to install packages and set the initial
+     file contexts correctly
+ 3. The Debian installer has the targeted policy install by default,
+    along with the packages it depends on. These packages are now a
+    part of the standard distribution.
+ 4. the standard kernel images have SELinux compiled in, but require
+    kernel command line options in grub to turn it on. Audit support
+    is also compiled in
+ 5. coreutils has the latest fedora patches, and is scheduled to go
+    into Etch (version 5.97-5.2)
+ 6. sysvinit has the latest fedora patches, and is scheduled to go
+    into Etch (version 2.86.ds1-34)
+ 7. openssh has the latest fedora patches, and is scheduled to go
+    into Etch (version 1:4.3p2-5.1)
+ 8. PAM patches have been submitted to the maintainer, who is also a
+    release manager, and he has promised that it shall go into the
+    release.
+ 9. the policies being shipped are based on the latest released
+    reference policy.
 
-> So the short answer for this case is "it will get set in
-> pam_open_session".  I trust we know exactly what else will get called
-> before pam_open_session happens, and trust it to be safe as root?
+        Strict policy will not be in default install, but is one
+ apt-get invocation away; I am not sure how useable it is out of the
+ box on an end user system.  I run it routinely in my UML virtual
+ servers, though, with some tweaks for mounting unlabeled file
+ systems.
 
-Not sure what you mean by "it will get set in pam_open_session". The uid 
-gets set after the pam_open_session call.
+        manoj
 
-This is a short list of what we do prior to the uid change:
-- locale actions
-- calls into libselinux, libaudit and libc
-- calls to pam
-
-In short, for the case where we want namespace support, we execute as 
-root for nearly the entire lifetime of the application, and the parent 
-process retains euid 0 as well while the shell has been exec'd and is 
-waiting for the child to die.
-
-We don't actually *need* to do this, but my reason was that if we retain 
-the ability to setuid and retain the capabilities on the permitted (but 
-not effective) list, then if an exploit would be discovered for the 
-program, then all the attacker would need to do is re-raise those 
-capabilities and game over.
-
-I've only briefly consider the effects of maintaining euid=0 during the 
-life-time of the application, but it seems to me the only impact it will 
-have is during the pam_open_session call.
-
-Does that make sense?
-
-Thanks,
-Mike
-
+-- 
+It's easier to fight for one's principles than to live up to them.
+Manoj Srivastava <manoj.srivastava@stdc.com> <srivasta@acm.org> 
+1024D/BF24424C print 4966 F272 D093 B493 410B  924B 21BA DABB BF24 424C
 
 --
 This message was distributed to subscribers of the selinux mailing list.
