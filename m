@@ -1,55 +1,80 @@
-Reply-To: <vyekkirala@TrustedCS.com>
-From: "Venkat Yekkirala" <vyekkirala@TrustedCS.com>
-To: "'Stephen Smalley'" <sds@tycho.nsa.gov>,
-        "Venkat Yekkirala" <vyekkirala@tcsfw4.tcs-sec.com>
-Cc: "Paul Moore" <paul.moore@hp.com>, <netdev@vger.kernel.org>,
-        <selinux@tycho.nsa.gov>, <jmorris@namei.org>
-Subject: RE: [PATCH 3/3] mlsxfrm: Various fixes
-Date: Wed, 8 Nov 2006 13:17:05 -0600
-Message-ID: <000701c7036a$7b269010$cc0a010a@tcssec.com>
+Message-ID: <45523185.40502@us.ibm.com>
+Date: Wed, 08 Nov 2006 13:35:33 -0600
+From: Michael C Thompson <thompsmc@us.ibm.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-In-Reply-To: <1163007248.12241.58.camel@moss-spartans.epoch.ncsc.mil>
+To: "Serge E. Hallyn" <serue@us.ibm.com>
+CC: SE Linux <selinux@tycho.nsa.gov>, Stephen Smalley <sds@tycho.nsa.gov>
+Subject: Re: [PATCH 4/8] make newrole suid (take 3)
+References: <454A8F35.2020006@us.ibm.com> <454A95BC.7000807@us.ibm.com> <20061107052338.GB11273@sergelap.austin.ibm.com> <4550E7E4.4000505@us.ibm.com> <20061108173224.GB15592@sergelap.austin.ibm.com>
+In-Reply-To: <20061108173224.GB15592@sergelap.austin.ibm.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-> > >  Not sure
-> > > though when
-> > > that would apply here,
-> >
-> > It could apply to xfrms if they happen to be using the context
-> > represented by any of the initial SIDs.
->
-> Which would happen when?
+Serge E. Hallyn wrote:
+> Quoting Michael C Thompson (thompsmc@us.ibm.com):
+>> For the 3rd version of drop_capabilities, that is the return 0; inline, 
+>> it is used when compiled without auditing or namespace capabilities. 
+>> Therefore, there is no need to make newrole suid in this case, and 
+>> drop_capabilities is a 'no-op'.
+> 
+> Ok - so will the Makefile in that case automatically not install it
+> suid?
 
-If one were attempting to use a context pertaining to the unlabeled init
-sid in the SPD and/or the SAD. But would I be correct in assuming that the
-same sid (unlabeled init sid in all likelyhood) would end up being returned
-when the context is turned into a sid, resulting in the SPD and the SAD
-using
-the same init sid, thus making a full-context compare unnecessary?
+Correct. It will only be made suid if either AUDIT_LOG_PRIV or 
+NAMESPACE_PRIV are flagged yes.
 
->
-> > > and it would only apply if both SIDs
-> > > were initial
-> > > SIDs.
-> >
-> > OK. Will narrow the full context comparison to just this case.
->
-> What's the harm from just using the SID comparison and
-> allowing for the
-> possibility that there might be a few duplicates in rare
-> circumstances?
-> Does it break any assumptions in the rest of the logic?
+>> In the case where you compile with only auditing support the original 
+>> version of drop_capabilities (which does do setresuid) is sufficient 
+>> because as long as we maintain the CAP_AUDIT_WRITE, we can get rid of 
+>> the other capabilities and switch to the user's uid.
+>>
+>> However, in order to support namespaces, we need to retain more 
+>> capabilities and Stephen Smalley suggested that the euid of the process 
+>> not be changed to the caller's uid until after the pam_open_session() 
+>> call, so that any actions taken by the pam_namespace module are done as 
+>> euid 0. The reasoning was that the calling user would not be able to 
+>> take advantage of the directories that get created by the pam_namespace 
+>> module before it could set their correct permissions and security 
+>> contexts. The transition_to_caller_uid() function is what handles this 
+>> setresuid() change when compiled to support namespaces, and is called 
+>> after the pam_open_session() call returns.
+> 
+> Ok - sorry for not following the thread on that.
 
-The best I can think of is if the SA's sid doesn't match the
-socket's SID, IKE would come into play, if it's configured.
+No worries.
 
-I also wanted to conversely ask what harm exists if we did
-a full-context compare in the event the sids didn't match?
+> So the short answer for this case is "it will get set in
+> pam_open_session".  I trust we know exactly what else will get called
+> before pam_open_session happens, and trust it to be safe as root?
 
-Are we just trying to generally avoid extra code?
+Not sure what you mean by "it will get set in pam_open_session". The uid 
+gets set after the pam_open_session call.
+
+This is a short list of what we do prior to the uid change:
+- locale actions
+- calls into libselinux, libaudit and libc
+- calls to pam
+
+In short, for the case where we want namespace support, we execute as 
+root for nearly the entire lifetime of the application, and the parent 
+process retains euid 0 as well while the shell has been exec'd and is 
+waiting for the child to die.
+
+We don't actually *need* to do this, but my reason was that if we retain 
+the ability to setuid and retain the capabilities on the permitted (but 
+not effective) list, then if an exploit would be discovered for the 
+program, then all the attacker would need to do is re-raise those 
+capabilities and game over.
+
+I've only briefly consider the effects of maintaining euid=0 during the 
+life-time of the application, but it seems to me the only impact it will 
+have is during the pam_open_session call.
+
+Does that make sense?
+
+Thanks,
+Mike
 
 
 --
