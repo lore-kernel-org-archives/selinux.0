@@ -1,412 +1,218 @@
-Message-ID: <4552627A.8040709@trustedcs.com>
-Date: Wed, 08 Nov 2006 17:04:26 -0600
-From: Venkat Yekkirala <vyekkirala@TrustedCS.com>
-MIME-Version: 1.0
-To: netdev@vger.kernel.org
-CC: selinux@tycho.nsa.gov, jmorris@namei.org, sds@tycho.nsa.gov
-Subject: [PATCH 3/3] labeled-ipsec: Fix SA selection semantics
-Content-Type: text/plain; charset=ISO-8859-1
+Subject: Re: [PATCH] cron changes needed for MLS range checking (requires
+	at least the libselinux patches)
+From: James Antill <jantill@redhat.com>
+To: Stephen Smalley <sds@tycho.nsa.gov>
+Cc: redhat-lspp <redhat-lspp@redhat.com>, SE Linux <selinux@tycho.nsa.gov>
+In-Reply-To: <1163023990.12241.231.camel@moss-spartans.epoch.ncsc.mil>
+References: <1162936978.26574.20.camel@code.and.org>
+	 <1162994668.3009.82.camel@moss-spartans.epoch.ncsc.mil>
+	 <1163017959.29854.12.camel@code.and.org>
+	 <1163019227.12241.178.camel@moss-spartans.epoch.ncsc.mil>
+	 <1163023021.29854.15.camel@code.and.org>
+	 <1163023990.12241.231.camel@moss-spartans.epoch.ncsc.mil>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-SrdLMBBz7VspK4ZhbduL"
+Date: Wed, 08 Nov 2006 18:47:25 -0500
+Message-Id: <1163029645.29854.20.camel@code.and.org>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Fix the selection of an SA for an outgoing packet to be at the same
-context as the originating socket/flow. This eliminates the SELinux
-policy's ability to use/sendto SAs with contexts other than the socket's.
 
-With this patch applied, the SELinux policy will require one or more of the
-following for a socket to be able to communicate with/without SAs:
+--=-SrdLMBBz7VspK4ZhbduL
+Content-Type: multipart/mixed; boundary="=-DULHOpbhlOBIT23B/6p4"
 
-1. To enable a socket to communicate without using labeled-IPSec SAs:
 
-allow socket_t unlabeled_t:association { sendto recvfrom }
+--=-DULHOpbhlOBIT23B/6p4
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-2. To enable a socket to communicate with labeled-IPSec SAs:
+On Wed, 2006-11-08 at 17:13 -0500, Stephen Smalley wrote:
 
-allow socket_t self:association { sendto };
-allow socket_t peer_sa_t:association { recvfrom };
+> Looks better.  A few nits:
+> +	/*
+> +	 * Since crontab files are not directly executed,
+> +	 * crond must ensure that the crontab range has
+> +	 * a context that is appropriate for the context of
+> +	 * the user cron job.  It performs an entrypoint
+> +	 * permission check for this purpose.
+>=20
+> cut-and-paste
 
-Signed-off-by: Venkat Yekkirala <vyekkirala@TrustedCS.com>
----
- include/linux/security.h        |   19 -----
- net/xfrm/xfrm_policy.c          |    3 
- security/dummy.c                |    7 --
- security/selinux/hooks.c        |   26 +++++--
- security/selinux/include/xfrm.h |    7 --
- security/selinux/xfrm.c         |  101 ++++++++++++++----------------
- 6 files changed, 70 insertions(+), 93 deletions(-)
+ I did alter it a little, but I've altered it more now :).
 
---- net-2.6.lx2/include/linux/security.h	2006-11-08 09:47:42.000000000 -0600
-+++ net-2.6/include/linux/security.h	2006-11-08 16:36:32.000000000 -0600
-@@ -886,11 +886,6 @@ struct request_sock;
-  *	@xp contains the policy to check for a match.
-  *	@fl contains the flow to check for a match.
-  *	Return 1 if there is a match.
-- * @xfrm_flow_state_match:
-- *	@fl contains the flow key to match.
-- *	@xfrm points to the xfrm_state to match.
-- *	@xp points to the xfrm_policy to match.
-- *	Return 1 if there is a match.
-  * @xfrm_decode_session:
-  *	@skb points to skb to decode.
-  *	@secid points to the flow key secid to set.
-@@ -1388,8 +1383,6 @@ struct security_operations {
- 	int (*xfrm_policy_lookup)(struct xfrm_policy *xp, u32 fl_secid, u8 dir);
- 	int (*xfrm_state_pol_flow_match)(struct xfrm_state *x,
- 			struct xfrm_policy *xp, struct flowi *fl);
--	int (*xfrm_flow_state_match)(struct flowi *fl, struct xfrm_state *xfrm,
--			struct xfrm_policy *xp);
- 	int (*xfrm_decode_session)(struct sk_buff *skb, u32 *secid, int ckall);
- #endif	/* CONFIG_SECURITY_NETWORK_XFRM */
- 
-@@ -3186,12 +3179,6 @@ static inline int security_xfrm_state_po
- 	return security_ops->xfrm_state_pol_flow_match(x, xp, fl);
- }
- 
--static inline int security_xfrm_flow_state_match(struct flowi *fl,
--			struct xfrm_state *xfrm, struct xfrm_policy *xp)
--{
--	return security_ops->xfrm_flow_state_match(fl, xfrm, xp);
--}
--
- static inline int security_xfrm_decode_session(struct sk_buff *skb, u32 *secid)
- {
- 	return security_ops->xfrm_decode_session(skb, secid, 1);
-@@ -3255,12 +3242,6 @@ static inline int security_xfrm_state_po
- 	return 1;
- }
- 
--static inline int security_xfrm_flow_state_match(struct flowi *fl,
--			struct xfrm_state *xfrm, struct xfrm_policy *xp)
--{
--	return 1;
--}
--
- static inline int security_xfrm_decode_session(struct sk_buff *skb, u32 *secid)
- {
- 	return 0;
---- net-2.6.lx2/net/xfrm/xfrm_policy.c	2006-11-08 09:38:02.000000000 -0600
-+++ net-2.6/net/xfrm/xfrm_policy.c	2006-11-08 16:36:32.000000000 -0600
-@@ -1894,7 +1894,8 @@ int xfrm_bundle_ok(struct xfrm_policy *p
- 
- 		if (fl && !xfrm_selector_match(&dst->xfrm->sel, fl, family))
- 			return 0;
--		if (fl && !security_xfrm_flow_state_match(fl, dst->xfrm, pol))
-+		if (fl && pol &&
-+		    !security_xfrm_state_pol_flow_match(dst->xfrm, pol, fl))
- 			return 0;
- 		if (dst->xfrm->km.state != XFRM_STATE_VALID)
- 			return 0;
---- net-2.6.lx2/security/dummy.c	2006-11-08 09:47:42.000000000 -0600
-+++ net-2.6/security/dummy.c	2006-11-08 16:36:32.000000000 -0600
-@@ -886,12 +886,6 @@ static int dummy_xfrm_state_pol_flow_mat
- 	return 1;
- }
- 
--static int dummy_xfrm_flow_state_match(struct flowi *fl, struct xfrm_state *xfrm,
--				struct xfrm_policy *xp)
--{
--	return 1;
--}
--
- static int dummy_xfrm_decode_session(struct sk_buff *skb, u32 *fl, int ckall)
- {
- 	return 0;
-@@ -1126,7 +1120,6 @@ void security_fixup_ops (struct security
- 	set_to_dummy_if_null(ops, xfrm_state_delete_security);
- 	set_to_dummy_if_null(ops, xfrm_policy_lookup);
- 	set_to_dummy_if_null(ops, xfrm_state_pol_flow_match);
--	set_to_dummy_if_null(ops, xfrm_flow_state_match);
- 	set_to_dummy_if_null(ops, xfrm_decode_session);
- #endif	/* CONFIG_SECURITY_NETWORK_XFRM */
- #ifdef CONFIG_KEYS
---- net-2.6.lx2/security/selinux/include/xfrm.h	2006-11-08 09:47:42.000000000 -0600
-+++ net-2.6/security/selinux/include/xfrm.h	2006-11-08 16:36:32.000000000 -0600
-@@ -19,9 +19,6 @@ int selinux_xfrm_state_delete(struct xfr
- int selinux_xfrm_policy_lookup(struct xfrm_policy *xp, u32 fl_secid, u8 dir);
- int selinux_xfrm_state_pol_flow_match(struct xfrm_state *x,
- 			struct xfrm_policy *xp, struct flowi *fl);
--int selinux_xfrm_flow_state_match(struct flowi *fl, struct xfrm_state *xfrm,
--			struct xfrm_policy *xp);
--
- 
- /*
-  * Extract the security blob from the sock (it's actually on the socket)
-@@ -38,7 +35,7 @@ static inline struct inode_security_stru
- int selinux_xfrm_sock_rcv_skb(u32 sid, struct sk_buff *skb,
- 			struct avc_audit_data *ad);
- int selinux_xfrm_postroute_last(u32 isec_sid, struct sk_buff *skb,
--			struct avc_audit_data *ad);
-+			struct avc_audit_data *ad, u8 proto);
- u32 selinux_socket_getpeer_dgram(struct sk_buff *skb);
- int selinux_xfrm_decode_session(struct sk_buff *skb, u32 *sid, int ckall);
- #else
-@@ -49,7 +46,7 @@ static inline int selinux_xfrm_sock_rcv_
- }
- 
- static inline int selinux_xfrm_postroute_last(u32 isec_sid, struct sk_buff *skb,
--			struct avc_audit_data *ad)
-+			struct avc_audit_data *ad, u8 proto)
- {
- 	return 0;
- }
---- net-2.6.lx2/security/selinux/hooks.c	2006-11-08 09:47:42.000000000 -0600
-+++ net-2.6/security/selinux/hooks.c	2006-11-08 16:36:32.000000000 -0600
-@@ -2888,7 +2888,8 @@ static void selinux_task_to_inode(struct
- }
- 
- /* Returns error only if unable to parse addresses */
--static int selinux_parse_skb_ipv4(struct sk_buff *skb, struct avc_audit_data *ad)
-+static int selinux_parse_skb_ipv4(struct sk_buff *skb,
-+			struct avc_audit_data *ad, u8 *proto)
- {
- 	int offset, ihlen, ret = -EINVAL;
- 	struct iphdr _iph, *ih;
-@@ -2906,6 +2907,9 @@ static int selinux_parse_skb_ipv4(struct
- 	ad->u.net.v4info.daddr = ih->daddr;
- 	ret = 0;
- 
-+	if (proto)
-+		*proto = ih->protocol;
-+
- 	switch (ih->protocol) {
-         case IPPROTO_TCP: {
-         	struct tcphdr _tcph, *th;
-@@ -2949,7 +2953,8 @@ out:
- #if defined(CONFIG_IPV6) || defined(CONFIG_IPV6_MODULE)
- 
- /* Returns error only if unable to parse addresses */
--static int selinux_parse_skb_ipv6(struct sk_buff *skb, struct avc_audit_data *ad)
-+static int selinux_parse_skb_ipv6(struct sk_buff *skb,
-+			struct avc_audit_data *ad, u8 *proto)
- {
- 	u8 nexthdr;
- 	int ret = -EINVAL, offset;
-@@ -2970,6 +2975,9 @@ static int selinux_parse_skb_ipv6(struct
- 	if (offset < 0)
- 		goto out;
- 
-+	if (proto)
-+		*proto = nexthdr;
-+
- 	switch (nexthdr) {
- 	case IPPROTO_TCP: {
-         	struct tcphdr _tcph, *th;
-@@ -3006,13 +3014,13 @@ out:
- #endif /* IPV6 */
- 
- static int selinux_parse_skb(struct sk_buff *skb, struct avc_audit_data *ad,
--			     char **addrp, int *len, int src)
-+			     char **addrp, int *len, int src, u8 *proto)
- {
- 	int ret = 0;
- 
- 	switch (ad->u.net.family) {
- 	case PF_INET:
--		ret = selinux_parse_skb_ipv4(skb, ad);
-+		ret = selinux_parse_skb_ipv4(skb, ad, proto);
- 		if (ret || !addrp)
- 			break;
- 		*len = 4;
-@@ -3022,7 +3030,7 @@ static int selinux_parse_skb(struct sk_b
- 
- #if defined(CONFIG_IPV6) || defined(CONFIG_IPV6_MODULE)
- 	case PF_INET6:
--		ret = selinux_parse_skb_ipv6(skb, ad);
-+		ret = selinux_parse_skb_ipv6(skb, ad, proto);
- 		if (ret || !addrp)
- 			break;
- 		*len = 16;
-@@ -3493,7 +3501,7 @@ static int selinux_socket_sock_rcv_skb(s
- 	ad.u.net.netif = skb->dev ? skb->dev->name : "[unknown]";
- 	ad.u.net.family = family;
- 
--	err = selinux_parse_skb(skb, &ad, &addrp, &len, 1);
-+	err = selinux_parse_skb(skb, &ad, &addrp, &len, 1, NULL);
- 	if (err)
- 		goto out;
- 
-@@ -3819,6 +3827,7 @@ static unsigned int selinux_ip_postroute
- 	struct avc_audit_data ad;
- 	struct net_device *dev = (struct net_device *)out;
- 	struct sk_security_struct *sksec;
-+	u8 proto;
- 
- 	sk = skb->sk;
- 	if (!sk)
-@@ -3830,7 +3839,7 @@ static unsigned int selinux_ip_postroute
- 	ad.u.net.netif = dev->name;
- 	ad.u.net.family = family;
- 
--	err = selinux_parse_skb(skb, &ad, &addrp, &len, 0);
-+	err = selinux_parse_skb(skb, &ad, &addrp, &len, 0, &proto);
- 	if (err)
- 		goto out;
- 
-@@ -3844,7 +3853,7 @@ static unsigned int selinux_ip_postroute
- 	if (err)
- 		goto out;
- 
--	err = selinux_xfrm_postroute_last(sksec->sid, skb, &ad);
-+	err = selinux_xfrm_postroute_last(sksec->sid, skb, &ad, proto);
- out:
- 	return err ? NF_DROP : NF_ACCEPT;
- }
-@@ -4763,7 +4772,6 @@ static struct security_operations selinu
- 	.xfrm_state_delete_security =	selinux_xfrm_state_delete,
- 	.xfrm_policy_lookup = 		selinux_xfrm_policy_lookup,
- 	.xfrm_state_pol_flow_match =	selinux_xfrm_state_pol_flow_match,
--	.xfrm_flow_state_match =	selinux_xfrm_flow_state_match,
- 	.xfrm_decode_session =		selinux_xfrm_decode_session,
- #endif
- 
---- net-2.6.lx2/security/selinux/xfrm.c	2006-11-08 09:47:42.000000000 -0600
-+++ net-2.6/security/selinux/xfrm.c	2006-11-08 17:03:19.000000000 -0600
-@@ -115,71 +115,40 @@ int selinux_xfrm_state_pol_flow_match(st
- 			struct flowi *fl)
- {
- 	u32 state_sid;
--	u32 pol_sid;
--	int err;
-+	int rc;
- 
--	if (xp->security) {
--		if (!x->security)
--			/* unlabeled SA and labeled policy can't match */
--			return 0;
--		else
--			state_sid = x->security->ctx_sid;
--		pol_sid = xp->security->ctx_sid;
--	} else
-+	if (!xp->security)
- 		if (x->security)
- 			/* unlabeled policy and labeled SA can't match */
- 			return 0;
- 		else
- 			/* unlabeled policy and unlabeled SA match all flows */
- 			return 1;
--
--	err = avc_has_perm(state_sid, pol_sid, SECCLASS_ASSOCIATION,
--			  ASSOCIATION__POLMATCH,
--			  NULL);
--
--	if (err)
--		return 0;
--
--	err = avc_has_perm(fl->secid, state_sid, SECCLASS_ASSOCIATION,
--			  ASSOCIATION__SENDTO,
--			  NULL)? 0:1;
--
--	return err;
--}
--
--/*
-- * LSM hook implementation that authorizes that a particular outgoing flow
-- * can use a given security association.
-- */
--
--int selinux_xfrm_flow_state_match(struct flowi *fl, struct xfrm_state *xfrm,
--				  struct xfrm_policy *xp)
--{
--	int rc = 0;
--	u32 sel_sid = SECINITSID_UNLABELED;
--	struct xfrm_sec_ctx *ctx;
--
--	if (!xp->security)
--		if (!xfrm->security)
--			return 1;
--		else
--			return 0;
- 	else
--		if (!xfrm->security)
-+		if (!x->security)
-+			/* unlabeled SA and labeled policy can't match */
- 			return 0;
-+		else
-+			if (!selinux_authorizable_xfrm(x))
-+				/* Not a SELinux-labeled SA */
-+				return 0;
- 
--	/* Context sid is either set to label or ANY_ASSOC */
--	if ((ctx = xfrm->security)) {
--		if (!selinux_authorizable_ctx(ctx))
--			return 0;
-+	state_sid = x->security->ctx_sid;
- 
--		sel_sid = ctx->ctx_sid;
--	}
-+	if (fl->secid != state_sid)
-+		return 0;
- 
--	rc = avc_has_perm(fl->secid, sel_sid, SECCLASS_ASSOCIATION,
-+	rc = avc_has_perm(fl->secid, state_sid, SECCLASS_ASSOCIATION,
- 			  ASSOCIATION__SENDTO,
- 			  NULL)? 0:1;
- 
-+	/*
-+	 * We don't need a separate SA Vs. policy polmatch check
-+	 * since the SA is now of the same label as the flow and
-+	 * a flow Vs. policy polmatch check had already happened
-+	 * in selinux_xfrm_policy_lookup() above.
-+	 */
-+
- 	return rc;
- }
- 
-@@ -481,6 +450,13 @@ int selinux_xfrm_sock_rcv_skb(u32 isec_s
- 		}
- 	}
- 
-+	/*
-+	 * This check even when there's no association involved is
-+	 * intended, according to Trent Jaeger, to make sure a
-+	 * process can't engage in non-ipsec communication unless
-+	 * explicitly allowed by policy.
-+	 */
-+
- 	rc = avc_has_perm(isec_sid, sel_sid, SECCLASS_ASSOCIATION,
- 			  ASSOCIATION__RECVFROM, ad);
- 
-@@ -492,10 +468,10 @@ int selinux_xfrm_sock_rcv_skb(u32 isec_s
-  * If we have no security association, then we need to determine
-  * whether the socket is allowed to send to an unlabelled destination.
-  * If we do have a authorizable security association, then it has already been
-- * checked in xfrm_policy_lookup hook.
-+ * checked in the selinux_xfrm_state_pol_flow_match hook above.
-  */
- int selinux_xfrm_postroute_last(u32 isec_sid, struct sk_buff *skb,
--					struct avc_audit_data *ad)
-+					struct avc_audit_data *ad, u8 proto)
- {
- 	struct dst_entry *dst;
- 	int rc = 0;
-@@ -514,6 +490,27 @@ int selinux_xfrm_postroute_last(u32 isec
- 		}
- 	}
- 
-+	switch (proto) {
-+	case IPPROTO_AH:
-+	case IPPROTO_ESP:
-+	case IPPROTO_COMP:
-+		/*
-+		 * We should have already seen this packet once before
-+		 * it underwent xfrm(s). No need to subject it to the
-+		 * unlabeled check.
-+		 */
-+		goto out;
-+	default:
-+		break;
-+	}
-+
-+	/*
-+	 * This check even when there's no association involved is
-+	 * intended, according to Trent Jaeger, to make sure a
-+	 * process can't engage in non-ipsec communication unless
-+	 * explicitly allowed by policy.
-+	 */
-+
- 	rc = avc_has_perm(isec_sid, SECINITSID_UNLABELED, SECCLASS_ASSOCIATION,
- 			  ASSOCIATION__SENDTO, ad);
- out:
+> I wouldn't put tests of security_getenforce() on anything other than
+> permission denials
+
+ Done.
+
+> +
+> +	        *ucontextp =3D strdup(context_str(ccon));
+>=20
+> Needs checking of both the intermediate result (context_str return
+> value) and strdup to avoid seg faulting on NULL.
+
+ Ahh, I had copied the assumption that context_x() doesn't fail from
+PAM ... I assumed it preallocated in context_new(). I'll fix PAM too.
+ Attached is the latest cron patch.
+
+--=20
+James Antill <jantill@redhat.com>
+
+--=-DULHOpbhlOBIT23B/6p4
+Content-Disposition: inline; filename=vixie-cron-4.1-_60-SELinux-contains-range.patch
+Content-Transfer-Encoding: base64
+Content-Type: text/x-patch; name=vixie-cron-4.1-_60-SELinux-contains-range.patch;
+	charset=UTF-8
+
+T25seSBpbiB2aXhpZS1jcm9uLTQuMTogY3JvbmQucGFtLnBhbWRfY3JvbmQNCmRpZmYgLXJ1cCB2
+aXhpZS1jcm9uLTQuMS1vcmlnL3NlY3VyaXR5LmMgdml4aWUtY3Jvbi00LjEvc2VjdXJpdHkuYw0K
+LS0tIHZpeGllLWNyb24tNC4xLW9yaWcvc2VjdXJpdHkuYwkyMDA2LTExLTAyIDIyOjI4OjA0LjAw
+MDAwMDAwMCAtMDUwMA0KKysrIHZpeGllLWNyb24tNC4xL3NlY3VyaXR5LmMJMjAwNi0xMS0wOCAx
+NzozNToyNy4wMDAwMDAwMDAgLTA1MDANCkBAIC0yMyw2ICsyMyw3IEBADQogDQogI2lmZGVmIFdJ
+VEhfU0VMSU5VWA0KICNpbmNsdWRlIDxzZWxpbnV4L3NlbGludXguaD4NCisjaW5jbHVkZSA8c2Vs
+aW51eC9jb250ZXh0Lmg+DQogI2luY2x1ZGUgPHNlbGludXgvZmxhc2suaD4NCiAjaW5jbHVkZSA8
+c2VsaW51eC9hdl9wZXJtaXNzaW9ucy5oPg0KICNpbmNsdWRlIDxzZWxpbnV4L2dldF9jb250ZXh0
+X2xpc3QuaD4NCkBAIC0zMCw2ICszMSwxMiBAQA0KIA0KIHN0YXRpYyBjaGFyICoqIGJ1aWxkX2Vu
+dihjaGFyICoqY3JvbmVudik7DQogDQorI2lmZGVmIFdJVEhfU0VMSU5VWA0KK3N0YXRpYyBpbnQg
+Y3Jvbl9jaGFuZ2Vfc2VsaW51eF9yYW5nZSggdXNlciAqdSwNCisgICAgICAgICAgICAgICAgICAg
+ICAgICAgICAgICAgICAgICAgIHNlY3VyaXR5X2NvbnRleHRfdCB1Y29udGV4dCApOw0KK3N0YXRp
+YyBpbnQgY3Jvbl9nZXRfam9iX3JhbmdlKCB1c2VyICp1LCBzZWN1cml0eV9jb250ZXh0X3QgKnVj
+b250ZXh0cCwgY2hhciAqKmpvYmVudiApOw0KKyNlbmRpZg0KKw0KIGludCBjcm9uX3NldF9qb2Jf
+c2VjdXJpdHlfY29udGV4dCggZW50cnkgKmUsIHVzZXIgKnUsIGNoYXIgKioqam9iZW52ICkNCiB7
+DQogICAgIHRpbWVfdCBtaW51dGVseV90aW1lID0gMDsNCkBAIC01OCw5ICs2NSw5IEBAIGludCBj
+cm9uX3NldF9qb2Jfc2VjdXJpdHlfY29udGV4dCggZW50cnkNCiAgICAgICogd2UnbGwgbm90IGJl
+IHBlcm1pdHRlZCB0byByZWFkIHRoZSBjcm9uIHNwb29sIGRpcmVjdG9yeSA6LSkNCiAgICAgICov
+DQogDQotICAgIHNlY3VyaXR5X2NvbnRleHRfdCBzY29udGV4dD0wLCBmaWxlX2NvbnRleHQ9MDsg
+DQorICAgIHNlY3VyaXR5X2NvbnRleHRfdCB1Y29udGV4dD0wOyANCiANCi0gICAgaWYgKCBjcm9u
+X2dldF9qb2JfY29udGV4dCh1LCAmc2NvbnRleHQsICZmaWxlX2NvbnRleHQsICpqb2JlbnYpIDwg
+T0sgKQ0KKyAgICBpZiAoIGNyb25fZ2V0X2pvYl9yYW5nZSh1LCAmdWNvbnRleHQsICpqb2JlbnYp
+IDwgT0sgKQ0KICAgICB7DQogCXN5c2xvZyhMT0dfRVJSLCAiQ1JPTiAoJXMpIEVSUk9SOiBmYWls
+ZWQgdG8gZ2V0IHNlbGludXggY29udGV4dDogJXMiLCANCiAJICAgICAgIGUtPnB3ZC0+cHdfbmFt
+ZSwgc3RyZXJyb3IoZXJybm8pDQpAQCAtNzksMTYgKzg2LDE2IEBAIGludCBjcm9uX3NldF9qb2Jf
+c2VjdXJpdHlfY29udGV4dCggZW50cnkNCiAgICAgfQkNCiANCiAjaWYgV0lUSF9TRUxJTlVYDQot
+ICAgIGlmICggY3Jvbl9jaGFuZ2Vfc2VsaW51eF9jb250ZXh0KCB1LCBzY29udGV4dCwgZmlsZV9j
+b250ZXh0ICkgIT0gMCApDQorICAgIGlmIChjcm9uX2NoYW5nZV9zZWxpbnV4X3JhbmdlKHUsIHVj
+b250ZXh0KSAhPSAwKQ0KICAgICB7DQogICAgICAgICBzeXNsb2coTE9HX0lORk8sIkNST04gKCVz
+KSBFUlJPUjogZmFpbGVkIHRvIGNoYW5nZSBTRUxpbnV4IGNvbnRleHQiLCANCiAJICAgICAgIGUt
+PnB3ZC0+cHdfbmFtZSk7DQotCWlmICggZmlsZV9jb250ZXh0ICkNCi0JCWZyZWVjb24oZmlsZV9j
+b250ZXh0KTsNCisJaWYgKCB1Y29udGV4dCApDQorCQlmcmVlY29uKHVjb250ZXh0KTsNCiAJcmV0
+dXJuIC0xOw0KICAgICB9DQotICAgIGlmICggZmlsZV9jb250ZXh0ICkNCi0JZnJlZWNvbihmaWxl
+X2NvbnRleHQpOw0KKyAgICBpZiAoIHVjb250ZXh0ICkNCisJZnJlZWNvbih1Y29udGV4dCk7DQog
+I2VuZGlmDQogDQogICAgIGxvZ19jbG9zZSgpOw0KQEAgLTIwMSw2ICsyMDgsNyBAQCBjcm9uX2F1
+dGhvcml6ZV9jb250ZXh0DQogI2lmZGVmIFdJVEhfU0VMSU5VWA0KIAlzdHJ1Y3QgYXZfZGVjaXNp
+b24gYXZkOw0KIAlpbnQgcmV0dmFsOw0KKyAgICAgICAgdW5zaWduZWQgaW50IGJpdCA9IEZJTEVf
+X0VOVFJZUE9JTlQ7DQogCS8qDQogCSAqIFNpbmNlIGNyb250YWIgZmlsZXMgYXJlIG5vdCBkaXJl
+Y3RseSBleGVjdXRlZCwNCiAJICogY3JvbmQgbXVzdCBlbnN1cmUgdGhhdCB0aGUgY3JvbnRhYiBm
+aWxlIGhhcw0KQEAgLTIwOCwxMyArMjE2LDM2IEBAIGNyb25fYXV0aG9yaXplX2NvbnRleHQNCiAJ
+ICogdGhlIHVzZXIgY3JvbiBqb2IuICBJdCBwZXJmb3JtcyBhbiBlbnRyeXBvaW50DQogCSAqIHBl
+cm1pc3Npb24gY2hlY2sgZm9yIHRoaXMgcHVycG9zZS4NCiAJICovDQotCXJldHZhbCA9IHNlY3Vy
+aXR5X2NvbXB1dGVfYXYoc2NvbnRleHQsDQotCQkJCSAgICAgZmlsZV9jb250ZXh0LA0KLQkJCQkg
+ICAgIFNFQ0NMQVNTX0ZJTEUsDQotCQkJCSAgICAgRklMRV9fRU5UUllQT0lOVCwNCi0JCQkJICAg
+ICAmYXZkKTsNCisJcmV0dmFsID0gc2VjdXJpdHlfY29tcHV0ZV9hdihzY29udGV4dCwgZmlsZV9j
+b250ZXh0LA0KKwkJCQkgICAgIFNFQ0NMQVNTX0ZJTEUsIGJpdCwgJmF2ZCk7DQorDQorCWlmIChy
+ZXR2YWwgfHwgKChiaXQgJiBhdmQuYWxsb3dlZCkgIT0gYml0KSkNCisJCXJldHVybiAwOw0KKyNl
+bmRpZg0KKwlyZXR1cm4gMTsNCit9DQorDQorc3RhdGljIGludCANCitjcm9uX2F1dGhvcml6ZV9y
+YW5nZQ0KKyggDQorCXNlY3VyaXR5X2NvbnRleHRfdCBzY29udGV4dCwNCisJc2VjdXJpdHlfY29u
+dGV4dF90IHVjb250ZXh0DQorKQkNCit7DQorI2lmZGVmIFdJVEhfU0VMSU5VWA0KKwlzdHJ1Y3Qg
+YXZfZGVjaXNpb24gYXZkOw0KKwlpbnQgcmV0dmFsOw0KKyAgICAgICAgdW5zaWduZWQgaW50IGJp
+dCA9IENPTlRFWFRfX0NPTlRBSU5TOw0KKwkvKg0KKwkgKiBTaW5jZSBjcm9udGFiIGZpbGVzIGFy
+ZSBub3QgZGlyZWN0bHkgZXhlY3V0ZWQsDQorCSAqIHNvIGNyb25kIG11c3QgZW5zdXJlIHRoYXQg
+YW55IHVzZXIgc3BlY2lmaWVkIHJhbmdlDQorCSAqIGlzIGFsbG93ZWQgYnkgdGhlIGRlZmF1bHQg
+dXNlcnMgcmFuZ2UuICBJdCBwZXJmb3Jtcw0KKyAgICAgICAgICogYW4gZW50cnlwb2ludCBwZXJt
+aXNzaW9uIGNoZWNrIGZvciB0aGlzIHB1cnBvc2UuDQorCSAqLw0KKwlyZXR2YWwgPSBzZWN1cml0
+eV9jb21wdXRlX2F2KHNjb250ZXh0LCB1Y29udGV4dCwNCisJCQkJICAgICBTRUNDTEFTU19DT05U
+RVhULCBiaXQsICZhdmQpOw0KIA0KLQlpZiAocmV0dmFsIHx8ICgoRklMRV9fRU5UUllQT0lOVCAm
+IGF2ZC5hbGxvd2VkKSAhPSBGSUxFX19FTlRSWVBPSU5UKSkNCisJaWYgKHJldHZhbCB8fCAoKGJp
+dCAmIGF2ZC5hbGxvd2VkKSAhPSBiaXQpKQ0KIAkJcmV0dXJuIDA7DQogI2VuZGlmDQogCXJldHVy
+biAxOw0KQEAgLTI2NSw2ICsyOTYsNzAgQEAgaW50IGNyb25fZ2V0X2pvYl9jb250ZXh0KCB1c2Vy
+ICp1LCB2b2lkIA0KIAlyZXR1cm4gMDsNCiB9DQogDQorI2lmIFdJVEhfU0VMSU5VWA0KKy8qIGFs
+d2F5cyB1c2VzIHUtPnNjb250ZXh0IGFzIHRoZSBkZWZhdWx0IHByb2Nlc3MgY29udGV4dCwgdGhl
+biBjaGFuZ2VzIHRoZQ0KKyAgIGxldmVsLCBhbmQgcmV0dW5zIGl0IGluIHVjb250ZXh0cCAob3Ig
+TlVMTCBvdGhlcndpc2UpICovDQorc3RhdGljIGludCBjcm9uX2dldF9qb2JfcmFuZ2UoIHVzZXIg
+KnUsIHNlY3VyaXR5X2NvbnRleHRfdCAqdWNvbnRleHRwLA0KKyAgICAgICAgICAgICAgICAgICAg
+ICAgICAgICAgICBjaGFyICoqam9iZW52ICkNCit7DQorCWNoYXIgKnJhbmdlOw0KKw0KKwlpZiAo
+IGlzX3NlbGludXhfZW5hYmxlZCgpIDw9IDAgKQ0KKwkJcmV0dXJuIDA7DQorCWlmICggdWNvbnRl
+eHRwID09IDBMICkNCisJCXJldHVybiAtMTsNCisNCisJKnVjb250ZXh0cCA9IDBMOw0KKw0KKwlp
+ZiAoIChyYW5nZSA9IGVudl9nZXQoIk1MU19MRVZFTCIsam9iZW52KSkgIT0gMEwgKQ0KKwl7DQor
+CQljaGFyIGNyb250YWJbTUFYX0ZOQU1FXTsNCisgICAgICAgICAgICAgICAgY29udGV4dF90IGNj
+b247DQorDQorCQlpZiAoIHN0cmNtcCh1LT5uYW1lLCIqc3lzdGVtKiIpID09IDAgKQ0KKwkJCXN0
+cm5jcHkoY3JvbnRhYiwgdS0+dGFibmFtZSwgTUFYX0ZOQU1FKTsNCisJCWVsc2UNCisJCQlzbnBy
+aW50Zihjcm9udGFiLCBNQVhfRk5BTUUsICIlcy8lcyIsIENST05ESVIsIHUtPnRhYm5hbWUpOw0K
+KyAgICAgICAgICAgICAgICANCisgICAgICAgICAgICAgICAgaWYgKCEoY2NvbiA9IGNvbnRleHRf
+bmV3KHUtPnNjb250ZXh0KSkpDQorICAgICAgICAgICAgICAgIHsNCisJCQlsb2dfaXQodS0+bmFt
+ZSwgDQorICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIGdldHBpZCgpLCAiY29udGV4dF9u
+ZXcgRkFJTEVEIGZvciBNTFNfUkFOR0UiLCANCisgICAgICAgICAgICAgICAgICAgICAgICAgICAg
+ICAgcmFuZ2UpOw0KKyAgICAgICAgICAgICAgICAgICAgICAgIHJldHVybiAtMTsNCisgICAgICAg
+ICAgICAgICAgfSAgICAgICAgICAgICAgICAgIA0KKw0KKyAgICAgICAgICAgICAgICBpZiAoY29u
+dGV4dF9yYW5nZV9zZXQoY2NvbiwgcmFuZ2UpKQ0KKyAgICAgICAgICAgICAgICB7DQorICAgICAg
+ICAgICAgICAgICAgICAgICAgbG9nX2l0KHUtPm5hbWUsIA0KKyAgICAgICAgICAgICAgICAgICAg
+ICAgICAgICAgICBnZXRwaWQoKSwgImNvbnRleHRfcmFuZ2Vfc2V0IEZBSUxFRCBmb3IgTUxTX1JB
+TkdFIiwgDQorICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIHJhbmdlKTsNCisgICAgICAg
+ICAgICAgICAgICAgICAgICByZXR1cm4gLTE7DQorICAgICAgICAgICAgICAgIH0NCisNCisgICAg
+ICAgICAgICAgICAgaWYgKCEoKnVjb250ZXh0ID0gY29udGV4dF9zdHIoY2NvbikpKQ0KKyAgICAg
+ICAgICAgICAgICB7DQorICAgICAgICAgICAgICAgICAgICAgICAgbG9nX2l0KHUtPm5hbWUsIA0K
+KyAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBnZXRwaWQoKSwgImNvbnRleHRfc3RyIEZB
+SUxFRCBmb3IgTUxTX1JBTkdFIiwgDQorICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIHJh
+bmdlKTsNCisgICAgICAgICAgICAgICAgICAgICAgICByZXR1cm4gLTE7DQorICAgICAgICAgICAg
+ICAgIH0NCisNCisgICAgICAgICAgICAgICAgaWYgKCEoKnVjb250ZXh0cCA9IHN0cmR1cCgqdWNv
+bnRleHRwKSkpDQorICAgICAgICAgICAgICAgIHsNCisgICAgICAgICAgICAgICAgICAgICAgICBs
+b2dfaXQodS0+bmFtZSwgDQorICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIGdldHBpZCgp
+LCAic3RyZHVwIEZBSUxFRCBmb3IgTUxTX1JBTkdFIiwgDQorICAgICAgICAgICAgICAgICAgICAg
+ICAgICAgICAgIHJhbmdlKTsNCisgICAgICAgICAgICAgICAgICAgICAgICByZXR1cm4gLTE7DQor
+ICAgICAgICAgICAgICAgIH0NCisNCisgICAgICAgICAgICAgICAgY29udGV4dF9mcmVlKGNjb24p
+Ow0KKwl9DQorDQorCXJldHVybiAwOw0KK30NCisjZW5kaWYNCisNCiBpbnQgY3Jvbl9jaGFuZ2Vf
+c2VsaW51eF9jb250ZXh0KCB1c2VyICp1LCB2b2lkICpzY29udGV4dCwgdm9pZCAqZmlsZV9jb250
+ZXh0ICkNCiB7DQogI2lmZGVmIFdJVEhfU0VMSU5VWA0KQEAgLTMzMiw2ICs0MjcsNzQgQEAgaW50
+IGNyb25fY2hhbmdlX3NlbGludXhfY29udGV4dCggdXNlciAqdQ0KIAlyZXR1cm4gMDsNCiB9DQog
+DQorI2lmZGVmIFdJVEhfU0VMSU5VWA0KK3N0YXRpYyBpbnQgY3Jvbl9jaGFuZ2Vfc2VsaW51eF9y
+YW5nZSggdXNlciAqdSwNCisgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIHNl
+Y3VyaXR5X2NvbnRleHRfdCB1Y29udGV4dCApDQorew0KKwlpZiAoIGlzX3NlbGludXhfZW5hYmxl
+ZCgpIDw9IDAgKQ0KKwkJcmV0dXJuIDA7DQorDQorCWlmICggdS0+c2NvbnRleHQgPT0gMEwgKQ0K
+Kwl7DQorCQlpZiAoc2VjdXJpdHlfZ2V0ZW5mb3JjZSgpID4gMCkgDQorCQl7DQorCQkJbG9nX2l0
+KCB1LT5uYW1lLCBnZXRwaWQoKSwgDQorCQkJCSJOVUxMIHNlY3VyaXR5IGNvbnRleHQgZm9yIHVz
+ZXIiLCANCisJCQkJIiINCisJCQkgICAgICApOw0KKwkJCXJldHVybiAtMTsNCisJCX1lbHNlDQor
+CQl7DQorCQkJbG9nX2l0KCB1LT5uYW1lLCBnZXRwaWQoKSwgDQorCQkJCSJOVUxMIHNlY3VyaXR5
+IGNvbnRleHQgZm9yIHVzZXIsICINCisJCQkJImJ1dCBTRUxpbnV4IGluIHBlcm1pc3NpdmUgbW9k
+ZSwgY29udGludWluZyIsDQorCQkJCSIiDQorCQkJCSk7DQorCQkJcmV0dXJuIDA7DQorCQl9DQor
+CX0NCisJDQorCWlmICggdWNvbnRleHQgJiYgc3RyY21wKHUtPnNjb250ZXh0LCB1Y29udGV4dCkg
+KQ0KKwl7CQkNCisgICAgICAgICAgICAgICAgaWYgKCAhIGNyb25fYXV0aG9yaXplX3JhbmdlKCB1
+LT5zY29udGV4dCwgdWNvbnRleHQgKSkNCisJCXsNCisJCQlpZiAoIHNlY3VyaXR5X2dldGVuZm9y
+Y2UoKSA+IDAgKSANCisJCQl7DQorCQkJCXN5c2xvZyhMT0dfRVJSLA0KKwkJCQkgICAgICAgIkNS
+T04gKCVzKSBFUlJPUjoiDQorCQkJCSAgICAgICAiVW5hdXRob3JpemVkIGV4ZWMgY29udGV4dCB0
+byBTRUxJTlVYX1JPTEVfVFlQRSAlcyBmb3IgdXNlciIsIA0KKwkJCQkgICAgICAgdS0+bmFtZSwg
+KGNoYXIqKXVjb250ZXh0DQorCQkJCSAgICAgICk7DQorCQkJCXJldHVybiAtMTsNCisJCQl9IGVs
+c2UNCisJCQl7DQorCQkJCXN5c2xvZyhMT0dfSU5GTywNCisJCQkJICAgICAgICJDUk9OICglcykg
+V0FSTklORzoiDQorCQkJCSAgICAgICAiVW5hdXRob3JpemVkIGV4ZWMgY29udGV4dCB0byBTRUxJ
+TlVYX1JPTEVfVFlQRSAlcyBmb3IgdXNlciwiDQorCQkJCSAgICAgICAiIGJ1dCBTRUxpbnV4IGlu
+IHBlcm1pc3NpdmUgbW9kZSwgY29udGludWluZyIsIA0KKwkJCQkgICAgICAgdS0+bmFtZSwgKGNo
+YXIqKXVjb250ZXh0DQorCQkJCSAgICAgICk7DQorCQkJfQ0KKwkJfQ0KKwl9IA0KKw0KKwlpZiAo
+IHNldGV4ZWNjb24odWNvbnRleHQpIDwgMCApIA0KKwl7DQorCQlpZiAoc2VjdXJpdHlfZ2V0ZW5m
+b3JjZSgpID4gMCkgDQorCQl7DQorCQkJc3lzbG9nKExPR19FUlIsDQorCQkJICAgICAgICJDUk9O
+ICglcykgRVJST1I6Ig0KKwkJCSAgICAgICAiQ291bGQgbm90IHNldCBleGVjIGNvbnRleHQgdG8g
+JXMgZm9yIHVzZXIiLCANCisJCQkgICAgICAgdS0+bmFtZSwgKGNoYXIqKXVjb250ZXh0DQorCQkJ
+ICAgICAgKTsNCisNCisJCQlyZXR1cm4gLTE7DQorCQl9DQorCX0NCisJcmV0dXJuIDA7DQorfQ0K
+KyNlbmRpZg0KKw0KIGludCBnZXRfc2VjdXJpdHlfY29udGV4dCggY29uc3QgY2hhciAqbmFtZSwg
+DQogCQkJICBpbnQgY3JvbnRhYl9mZCwgDQogCQkJICBzZWN1cml0eV9jb250ZXh0X3QgKnJjb250
+ZXh0LCANCk9ubHkgaW4gdml4aWUtY3Jvbi00LjE6IHNlY3VyaXR5LmMuc2VjdXJpdHkNCk9ubHkg
+aW4gdml4aWUtY3Jvbi00LjE6IHNlY3VyaXR5LmMuc2VsaW51eC1jb250YWlucy1yYW5nZQ0K
+
+
+--=-DULHOpbhlOBIT23B/6p4--
+
+--=-SrdLMBBz7VspK4ZhbduL
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.5 (GNU/Linux)
+
+iD8DBQBFUmyM11eXTEMrxtQRAhCEAKCD6ng0jbCduM52rtBcC68AJS4YRACeIRbC
+8XTQkDBh463v60Ate8w9zOs=
+=Rh/T
+-----END PGP SIGNATURE-----
+
+--=-SrdLMBBz7VspK4ZhbduL--
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
