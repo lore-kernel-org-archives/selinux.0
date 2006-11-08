@@ -1,63 +1,52 @@
-Subject: Re: [PATCH] cron changes needed for MLS range checking (requires
-	at least the libselinux patches)
+Subject: RE: [PATCH 3/3] mlsxfrm: Various fixes
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: James Antill <jantill@redhat.com>
-Cc: redhat-lspp <redhat-lspp@redhat.com>, SE Linux <selinux@tycho.nsa.gov>
-In-Reply-To: <1163017959.29854.12.camel@code.and.org>
-References: <1162936978.26574.20.camel@code.and.org>
-	 <1162994668.3009.82.camel@moss-spartans.epoch.ncsc.mil>
-	 <1163017959.29854.12.camel@code.and.org>
+To: vyekkirala@TrustedCS.com
+Cc: Venkat Yekkirala <vyekkirala@tcsfw4.tcs-sec.com>,
+        Paul Moore <paul.moore@hp.com>, netdev@vger.kernel.org,
+        selinux@tycho.nsa.gov, jmorris@namei.org
+In-Reply-To: <000701c7036a$7b269010$cc0a010a@tcssec.com>
+References: <000701c7036a$7b269010$cc0a010a@tcssec.com>
 Content-Type: text/plain
-Date: Wed, 08 Nov 2006 15:53:47 -0500
-Message-Id: <1163019227.12241.178.camel@moss-spartans.epoch.ncsc.mil>
+Date: Wed, 08 Nov 2006 16:57:15 -0500
+Message-Id: <1163023035.12241.216.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2006-11-08 at 15:32 -0500, James Antill wrote:
-> > As in the pam case, you should be checking between a context for the
-> > user with the seusers-specified range and a context for the user with
-> > the user-specified level.  Your patch doesn't seem to match that
-> > description - it refers to a file context as the target.
+On Wed, 2006-11-08 at 13:17 -0600, Venkat Yekkirala wrote:
+> > > >  Not sure
+> > > > though when
+> > > > that would apply here,
+> > >
+> > > It could apply to xfrms if they happen to be using the context
+> > > represented by any of the initial SIDs.
+> >
+> > Which would happen when?
 > 
->  One context comes from the cron file, and one from that plus the level
-> change as requested by the user. See cron_get_job_range().
->  Changing that to be the result of getseuserbyname(), matching PAM,
-> instead of the file context would be possible ... although I'm not sure
-> if using "root" when u->name is "*system*" is the right thing to do.
+> If one were attempting to use a context pertaining to the unlabeled init
+> sid in the SPD and/or the SAD. But would I be correct in assuming that the
+> same sid (unlabeled init sid in all likelyhood) would end up being returned
+> when the context is turned into a sid, resulting in the SPD and the SAD
+> using
+> the same init sid, thus making a full-context compare unnecessary?
 
-The scontext is supposed to be a process context in which to run the
-cron job, not a file context.  You are presently replacing the default
-scontext (extracted from u->scontext that was previously computed) with
-a strange mixture of the crontab file context and the user-specified
-range.  What you want to do is to take the default scontext value,
-create a new context that is identical except for its range (from the
-environment), and apply a check between those two contexts (and the
-check is only needed when using a user-supplied range).  BTW, you cannot
-continue to refer to the string returned by context_str() after
-performing a context_free() on the structure; you'd have to dup it
-first.
+Yes.
 
-> > Also, the function that performs the setexeccon (which you call
-> > cron_change_selinux_range) is more general - it is supposed to set the
-> > entire user context appropriately for the user on whose behalf cron is
-> > running a job.  
+> > What's the harm from just using the SID comparison and
+> > allowing for the
+> > possibility that there might be a few duplicates in rare
+> > circumstances?
+> > Does it break any assumptions in the rest of the logic?
 > 
->  Right. Are you saying I need to call, cron_authorize_context() as well
-> as cron_authorize_range()?
->  I decided this wasn't required because that function is called from
-> within get_security_context(), and instead of being able to change
-> everything now ... they can only change the level. So we don't need to
-> re-auth the entire security context, just the level.
->  I'm certainly open to just checking it anyway, if you see any holes in
-> my reasoning or if everyone would just prefer to check it twice.
+> The best I can think of is if the SA's sid doesn't match the
+> socket's SID, IKE would come into play, if it's configured.
 > 
->  If that isn't what you meant, could you explain further what the
-> problem is?
+> I also wanted to conversely ask what harm exists if we did
+> a full-context compare in the event the sids didn't match?
+> 
+> Are we just trying to generally avoid extra code?
 
-That is what I meant, but if it is being checked earlier and the crontab
-file cannot be replaced in the interim without going through the check
-again, it may be ok to not recheck in your patch.
+More complexity and overhead for no real gain.
 
 -- 
 Stephen Smalley
