@@ -1,56 +1,40 @@
-Subject: RE: [PATCH] MLS context contains policy/libselinux changes
+Subject: Re: [PATCH] cron changes needed for MLS range checking (requires
+	at least the libselinux patches)
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Joshua Brindle <jbrindle@tresys.com>
-Cc: James Antill <jantill@redhat.com>,
-        "Christopher J. PeBenito" <cpebenito@tresys.com>,
-        redhat-lspp <redhat-lspp@redhat.com>, SE Linux <selinux@tycho.nsa.gov>
-In-Reply-To: <6FE441CD9F0C0C479F2D88F959B01588514DF0@exchange.columbia.tresys.com>
-References: 
-	 <6FE441CD9F0C0C479F2D88F959B01588514DF0@exchange.columbia.tresys.com>
+To: James Antill <jantill@redhat.com>
+Cc: redhat-lspp <redhat-lspp@redhat.com>, SE Linux <selinux@tycho.nsa.gov>
+In-Reply-To: <1162936978.26574.20.camel@code.and.org>
+References: <1162936978.26574.20.camel@code.and.org>
 Content-Type: text/plain
-Date: Wed, 08 Nov 2006 09:00:19 -0500
-Message-Id: <1162994419.3009.77.camel@moss-spartans.epoch.ncsc.mil>
+Date: Wed, 08 Nov 2006 09:04:28 -0500
+Message-Id: <1162994668.3009.82.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2006-11-08 at 08:31 -0500, Joshua Brindle wrote:
-> > From: James Antill [mailto:jantill@redhat.com] 
-> > 
-> > On Wed, 2006-11-08 at 01:32 -0500, Joshua Brindle wrote:
-> > > James Antill wrote:
-> > > >  Here is the policy changes needed for the context 
-> > contains security 
-> > > > checking in PAM and cron.
-> > > > 
-> > > 
-> > > er, where did this come from? I haven't seen any discussions about 
-> > > this and have no idea what its about (perhaps I've just 
-> > totally missed 
-> > > it somehow though..)
-> > 
-> >  The gory details were under the thread "MLS enforcing PTYs, 
-> > sshd, and newrole"
-> > 
-> 
-> Ah, well that explains it, that thread was way too long and had MLS in
-> the subject.....
-> 
-> Any way I could get a summary/conclusion and description of the new
-> permission?
+On Tue, 2006-11-07 at 17:02 -0500, James Antill wrote:
+>  I think this is what we want for the cron patch. It's basically doing
+> the same checks as the PAM patches. It also limits what the user can
+> change to just the MLS range.
+>  At the moment I've just copied the original functions that need to be
+> replaced, so you can see the old vs. the new. As the final commit the
+> old ones should probably just die.
+>  I've also kept the name SELINUX_ROLE_TYPE, I'm not sure if it should be
+> changed to SELINUX_ROLE_RANGE or something else?
 
-If we allow users to enter a level at login time (or specify a level for
-a cron job), then we need to check that the Linux user was authorized
-for that level (based on seusers).  As this gets into level comparisons,
-which are policy-specific, it requires a permission check to the
-security server.  The check is applied between a context generated from
-the seusers entry for the user and the context modified with the
-user-specified level.  The TE policy then authorizes it for the self
-relationship (since the types are the same in both contexts), and the
-MLS constraints ensure that the user-specified level is within the
-seusers-specified clearance.  Same basic idea as the existing context
-translate permission used to similarly check the ability of the user to
-translate a given MLS level.
+As I understood it, you were only going to allow level specification,
+not user/role/domain, so it would just be SELINUX_LEVEL or MLS_LEVEL or
+similar.
+
+As in the pam case, you should be checking between a context for the
+user with the seusers-specified range and a context for the user with
+the user-specified level.  Your patch doesn't seem to match that
+description - it refers to a file context as the target.
+
+Also, the function that performs the setexeccon (which you call
+cron_change_selinux_range) is more general - it is supposed to set the
+entire user context appropriately for the user on whose behalf cron is
+running a job.  
 
 -- 
 Stephen Smalley
