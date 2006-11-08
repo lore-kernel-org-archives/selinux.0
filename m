@@ -1,209 +1,128 @@
 Subject: Re: [PATCH] cron changes needed for MLS range checking (requires
 	at least the libselinux patches)
-From: James Antill <jantill@redhat.com>
-To: Stephen Smalley <sds@tycho.nsa.gov>
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: James Antill <jantill@redhat.com>
 Cc: redhat-lspp <redhat-lspp@redhat.com>, SE Linux <selinux@tycho.nsa.gov>
-In-Reply-To: <1163019227.12241.178.camel@moss-spartans.epoch.ncsc.mil>
+In-Reply-To: <1163023021.29854.15.camel@code.and.org>
 References: <1162936978.26574.20.camel@code.and.org>
 	 <1162994668.3009.82.camel@moss-spartans.epoch.ncsc.mil>
 	 <1163017959.29854.12.camel@code.and.org>
 	 <1163019227.12241.178.camel@moss-spartans.epoch.ncsc.mil>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-29Zsm0OA20RhxtsQT0I0"
-Date: Wed, 08 Nov 2006 16:57:01 -0500
-Message-Id: <1163023021.29854.15.camel@code.and.org>
+	 <1163023021.29854.15.camel@code.and.org>
+Content-Type: text/plain
+Date: Wed, 08 Nov 2006 17:13:10 -0500
+Message-Id: <1163023990.12241.231.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+On Wed, 2006-11-08 at 16:57 -0500, James Antill wrote:
+> On Wed, 2006-11-08 at 15:53 -0500, Stephen Smalley wrote:
+> 
+> > The scontext is supposed to be a process context in which to run the
+> > cron job, not a file context.  You are presently replacing the default
+> > scontext (extracted from u->scontext that was previously computed) with
+> > a strange mixture of the crontab file context and the user-specified
+> > range.  What you want to do is to take the default scontext value,
+> > create a new context that is identical except for its range (from the
+> > environment), and apply a check between those two contexts (and the
+> > check is only needed when using a user-supplied range).
+> 
+>  Ok, I've used u->scontext instead of the file context now. I've also
+> renamed the variables. And the check should only happen if they specify
+> a different level.
+> 
+> >   BTW, you cannot
+> > continue to refer to the string returned by context_str() after
+> > performing a context_free() on the structure; you'd have to dup it
+> > first.
+> 
+>  Right, stupid mistake. Fixed that too.
 
---=-29Zsm0OA20RhxtsQT0I0
-Content-Type: multipart/mixed; boundary="=-p4yctMYZuA1Rw3XztxSg"
+Looks better.  A few nits:
 
++static int 
++cron_authorize_range
++( 
++	security_context_t scontext,
++	security_context_t file_context
 
---=-p4yctMYZuA1Rw3XztxSg
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+s/file_context/ucontext/
 
-On Wed, 2006-11-08 at 15:53 -0500, Stephen Smalley wrote:
++)	
++{
++#ifdef WITH_SELINUX
++	struct av_decision avd;
++	int retval;
++        unsigned int bit = CONTEXT__CONTAINS;
++	/*
++	 * Since crontab files are not directly executed,
++	 * crond must ensure that the crontab range has
++	 * a context that is appropriate for the context of
++	 * the user cron job.  It performs an entrypoint
++	 * permission check for this purpose.
 
-> The scontext is supposed to be a process context in which to run the
-> cron job, not a file context.  You are presently replacing the default
-> scontext (extracted from u->scontext that was previously computed) with
-> a strange mixture of the crontab file context and the user-specified
-> range.  What you want to do is to take the default scontext value,
-> create a new context that is identical except for its range (from the
-> environment), and apply a check between those two contexts (and the
-> check is only needed when using a user-supplied range).
+cut-and-paste
 
- Ok, I've used u->scontext instead of the file context now. I've also
-renamed the variables. And the check should only happen if they specify
-a different level.
++	 */
++	retval = security_compute_av(scontext, file_context,
 
->   BTW, you cannot
-> continue to refer to the string returned by context_str() after
-> performing a context_free() on the structure; you'd have to dup it
-> first.
+s/file_context/ucontext/
 
- Right, stupid mistake. Fixed that too.
++static int cron_get_job_range( user *u, security_context_t *ucontextp,
++                               char **jobenv )
++{
++	char *sroletype;
 
---=20
-James Antill <jantill@redhat.com>
+s/sroletype/range/
 
---=-p4yctMYZuA1Rw3XztxSg
-Content-Disposition: inline; filename=vixie-cron-4.1-_60-SELinux-contains-range.patch
-Content-Transfer-Encoding: base64
-Content-Type: text/x-patch; name=vixie-cron-4.1-_60-SELinux-contains-range.patch;
-	charset=UTF-8
++	if ( (sroletype = env_get("MLS_LEVEL",jobenv)) != 0L )
++	{
++		char crontab[MAX_FNAME];
++                context_t ccon;
++
++		if ( strcmp(u->name,"*system*") == 0 )
++			strncpy(crontab, u->tabname, MAX_FNAME);
++		else
++			snprintf(crontab, MAX_FNAME, "%s/%s", CRONDIR, u->tabname);
++                
++                if (!(ccon = context_new(u->scontext)))
++                {
++			if ( security_getenforce() > 0 ) 
++			{
++				log_it(u->name, 
++				       getpid(), "context_new FAILED for SELINUX_ROLE_TYPE",
 
-T25seSBpbiB2aXhpZS1jcm9uLTQuMTogY3JvbmQucGFtLnBhbWRfY3JvbmQNCmRpZmYgLXJ1cCB2
-aXhpZS1jcm9uLTQuMS1vcmlnL3NlY3VyaXR5LmMgdml4aWUtY3Jvbi00LjEvc2VjdXJpdHkuYw0K
-LS0tIHZpeGllLWNyb24tNC4xLW9yaWcvc2VjdXJpdHkuYwkyMDA2LTExLTAyIDIyOjI4OjA0LjAw
-MDAwMDAwMCAtMDUwMA0KKysrIHZpeGllLWNyb24tNC4xL3NlY3VyaXR5LmMJMjAwNi0xMS0wOCAx
-Njo1NDowMy4wMDAwMDAwMDAgLTA1MDANCkBAIC0yMyw2ICsyMyw3IEBADQogDQogI2lmZGVmIFdJ
-VEhfU0VMSU5VWA0KICNpbmNsdWRlIDxzZWxpbnV4L3NlbGludXguaD4NCisjaW5jbHVkZSA8c2Vs
-aW51eC9jb250ZXh0Lmg+DQogI2luY2x1ZGUgPHNlbGludXgvZmxhc2suaD4NCiAjaW5jbHVkZSA8
-c2VsaW51eC9hdl9wZXJtaXNzaW9ucy5oPg0KICNpbmNsdWRlIDxzZWxpbnV4L2dldF9jb250ZXh0
-X2xpc3QuaD4NCkBAIC0zMCw2ICszMSwxMiBAQA0KIA0KIHN0YXRpYyBjaGFyICoqIGJ1aWxkX2Vu
-dihjaGFyICoqY3JvbmVudik7DQogDQorI2lmZGVmIFdJVEhfU0VMSU5VWA0KK3N0YXRpYyBpbnQg
-Y3Jvbl9jaGFuZ2Vfc2VsaW51eF9yYW5nZSggdXNlciAqdSwNCisgICAgICAgICAgICAgICAgICAg
-ICAgICAgICAgICAgICAgICAgIHNlY3VyaXR5X2NvbnRleHRfdCB1Y29udGV4dCApOw0KK3N0YXRp
-YyBpbnQgY3Jvbl9nZXRfam9iX3JhbmdlKCB1c2VyICp1LCBzZWN1cml0eV9jb250ZXh0X3QgKnVj
-b250ZXh0cCwgY2hhciAqKmpvYmVudiApOw0KKyNlbmRpZg0KKw0KIGludCBjcm9uX3NldF9qb2Jf
-c2VjdXJpdHlfY29udGV4dCggZW50cnkgKmUsIHVzZXIgKnUsIGNoYXIgKioqam9iZW52ICkNCiB7
-DQogICAgIHRpbWVfdCBtaW51dGVseV90aW1lID0gMDsNCkBAIC01OCw5ICs2NSw5IEBAIGludCBj
-cm9uX3NldF9qb2Jfc2VjdXJpdHlfY29udGV4dCggZW50cnkNCiAgICAgICogd2UnbGwgbm90IGJl
-IHBlcm1pdHRlZCB0byByZWFkIHRoZSBjcm9uIHNwb29sIGRpcmVjdG9yeSA6LSkNCiAgICAgICov
-DQogDQotICAgIHNlY3VyaXR5X2NvbnRleHRfdCBzY29udGV4dD0wLCBmaWxlX2NvbnRleHQ9MDsg
-DQorICAgIHNlY3VyaXR5X2NvbnRleHRfdCB1Y29udGV4dD0wOyANCiANCi0gICAgaWYgKCBjcm9u
-X2dldF9qb2JfY29udGV4dCh1LCAmc2NvbnRleHQsICZmaWxlX2NvbnRleHQsICpqb2JlbnYpIDwg
-T0sgKQ0KKyAgICBpZiAoIGNyb25fZ2V0X2pvYl9yYW5nZSh1LCAmdWNvbnRleHQsICpqb2JlbnYp
-IDwgT0sgKQ0KICAgICB7DQogCXN5c2xvZyhMT0dfRVJSLCAiQ1JPTiAoJXMpIEVSUk9SOiBmYWls
-ZWQgdG8gZ2V0IHNlbGludXggY29udGV4dDogJXMiLCANCiAJICAgICAgIGUtPnB3ZC0+cHdfbmFt
-ZSwgc3RyZXJyb3IoZXJybm8pDQpAQCAtNzksMTYgKzg2LDE2IEBAIGludCBjcm9uX3NldF9qb2Jf
-c2VjdXJpdHlfY29udGV4dCggZW50cnkNCiAgICAgfQkNCiANCiAjaWYgV0lUSF9TRUxJTlVYDQot
-ICAgIGlmICggY3Jvbl9jaGFuZ2Vfc2VsaW51eF9jb250ZXh0KCB1LCBzY29udGV4dCwgZmlsZV9j
-b250ZXh0ICkgIT0gMCApDQorICAgIGlmIChjcm9uX2NoYW5nZV9zZWxpbnV4X3JhbmdlKHUsIHVj
-b250ZXh0KSAhPSAwKQ0KICAgICB7DQogICAgICAgICBzeXNsb2coTE9HX0lORk8sIkNST04gKCVz
-KSBFUlJPUjogZmFpbGVkIHRvIGNoYW5nZSBTRUxpbnV4IGNvbnRleHQiLCANCiAJICAgICAgIGUt
-PnB3ZC0+cHdfbmFtZSk7DQotCWlmICggZmlsZV9jb250ZXh0ICkNCi0JCWZyZWVjb24oZmlsZV9j
-b250ZXh0KTsNCisJaWYgKCB1Y29udGV4dCApDQorCQlmcmVlY29uKHVjb250ZXh0KTsNCiAJcmV0
-dXJuIC0xOw0KICAgICB9DQotICAgIGlmICggZmlsZV9jb250ZXh0ICkNCi0JZnJlZWNvbihmaWxl
-X2NvbnRleHQpOw0KKyAgICBpZiAoIHVjb250ZXh0ICkNCisJZnJlZWNvbih1Y29udGV4dCk7DQog
-I2VuZGlmDQogDQogICAgIGxvZ19jbG9zZSgpOw0KQEAgLTIwMSw2ICsyMDgsNyBAQCBjcm9uX2F1
-dGhvcml6ZV9jb250ZXh0DQogI2lmZGVmIFdJVEhfU0VMSU5VWA0KIAlzdHJ1Y3QgYXZfZGVjaXNp
-b24gYXZkOw0KIAlpbnQgcmV0dmFsOw0KKyAgICAgICAgdW5zaWduZWQgaW50IGJpdCA9IEZJTEVf
-X0VOVFJZUE9JTlQ7DQogCS8qDQogCSAqIFNpbmNlIGNyb250YWIgZmlsZXMgYXJlIG5vdCBkaXJl
-Y3RseSBleGVjdXRlZCwNCiAJICogY3JvbmQgbXVzdCBlbnN1cmUgdGhhdCB0aGUgY3JvbnRhYiBm
-aWxlIGhhcw0KQEAgLTIwOCwxMyArMjE2LDM3IEBAIGNyb25fYXV0aG9yaXplX2NvbnRleHQNCiAJ
-ICogdGhlIHVzZXIgY3JvbiBqb2IuICBJdCBwZXJmb3JtcyBhbiBlbnRyeXBvaW50DQogCSAqIHBl
-cm1pc3Npb24gY2hlY2sgZm9yIHRoaXMgcHVycG9zZS4NCiAJICovDQotCXJldHZhbCA9IHNlY3Vy
-aXR5X2NvbXB1dGVfYXYoc2NvbnRleHQsDQotCQkJCSAgICAgZmlsZV9jb250ZXh0LA0KLQkJCQkg
-ICAgIFNFQ0NMQVNTX0ZJTEUsDQotCQkJCSAgICAgRklMRV9fRU5UUllQT0lOVCwNCi0JCQkJICAg
-ICAmYXZkKTsNCisJcmV0dmFsID0gc2VjdXJpdHlfY29tcHV0ZV9hdihzY29udGV4dCwgZmlsZV9j
-b250ZXh0LA0KKwkJCQkgICAgIFNFQ0NMQVNTX0ZJTEUsIGJpdCwgJmF2ZCk7DQorDQorCWlmIChy
-ZXR2YWwgfHwgKChiaXQgJiBhdmQuYWxsb3dlZCkgIT0gYml0KSkNCisJCXJldHVybiAwOw0KKyNl
-bmRpZg0KKwlyZXR1cm4gMTsNCit9DQorDQorc3RhdGljIGludCANCitjcm9uX2F1dGhvcml6ZV9y
-YW5nZQ0KKyggDQorCXNlY3VyaXR5X2NvbnRleHRfdCBzY29udGV4dCwNCisJc2VjdXJpdHlfY29u
-dGV4dF90IGZpbGVfY29udGV4dA0KKykJDQorew0KKyNpZmRlZiBXSVRIX1NFTElOVVgNCisJc3Ry
-dWN0IGF2X2RlY2lzaW9uIGF2ZDsNCisJaW50IHJldHZhbDsNCisgICAgICAgIHVuc2lnbmVkIGlu
-dCBiaXQgPSBDT05URVhUX19DT05UQUlOUzsNCisJLyoNCisJICogU2luY2UgY3JvbnRhYiBmaWxl
-cyBhcmUgbm90IGRpcmVjdGx5IGV4ZWN1dGVkLA0KKwkgKiBjcm9uZCBtdXN0IGVuc3VyZSB0aGF0
-IHRoZSBjcm9udGFiIHJhbmdlIGhhcw0KKwkgKiBhIGNvbnRleHQgdGhhdCBpcyBhcHByb3ByaWF0
-ZSBmb3IgdGhlIGNvbnRleHQgb2YNCisJICogdGhlIHVzZXIgY3JvbiBqb2IuICBJdCBwZXJmb3Jt
-cyBhbiBlbnRyeXBvaW50DQorCSAqIHBlcm1pc3Npb24gY2hlY2sgZm9yIHRoaXMgcHVycG9zZS4N
-CisJICovDQorCXJldHZhbCA9IHNlY3VyaXR5X2NvbXB1dGVfYXYoc2NvbnRleHQsIGZpbGVfY29u
-dGV4dCwNCisJCQkJICAgICBTRUNDTEFTU19DT05URVhULCBiaXQsICZhdmQpOw0KIA0KLQlpZiAo
-cmV0dmFsIHx8ICgoRklMRV9fRU5UUllQT0lOVCAmIGF2ZC5hbGxvd2VkKSAhPSBGSUxFX19FTlRS
-WVBPSU5UKSkNCisJaWYgKHJldHZhbCB8fCAoKGJpdCAmIGF2ZC5hbGxvd2VkKSAhPSBiaXQpKQ0K
-IAkJcmV0dXJuIDA7DQogI2VuZGlmDQogCXJldHVybiAxOw0KQEAgLTI2NSw2ICsyOTcsODAgQEAg
-aW50IGNyb25fZ2V0X2pvYl9jb250ZXh0KCB1c2VyICp1LCB2b2lkIA0KIAlyZXR1cm4gMDsNCiB9
-DQogDQorI2lmIFdJVEhfU0VMSU5VWA0KKy8qIGFsd2F5cyB1c2VzIHUtPnNjb250ZXh0IGFzIHRo
-ZSBkZWZhdWx0IHByb2Nlc3MgY29udGV4dCwgdGhlbiBjaGFuZ2VzIHRoZQ0KKyAgIGxldmVsLCBh
-bmQgcmV0dW5zIGl0IGluIHVjb250ZXh0cCAob3IgTlVMTCBvdGhlcndpc2UpICovDQorc3RhdGlj
-IGludCBjcm9uX2dldF9qb2JfcmFuZ2UoIHVzZXIgKnUsIHNlY3VyaXR5X2NvbnRleHRfdCAqdWNv
-bnRleHRwLA0KKyAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBjaGFyICoqam9iZW52ICkN
-Cit7DQorCWNoYXIgKnNyb2xldHlwZTsNCisNCisJaWYgKCBpc19zZWxpbnV4X2VuYWJsZWQoKSA8
-PSAwICkNCisJCXJldHVybiAwOw0KKwlpZiAoIHVjb250ZXh0cCA9PSAwTCApDQorCQlyZXR1cm4g
-LTE7DQorDQorCSp1Y29udGV4dHAgPSAwTDsNCisNCisJaWYgKCAoc3JvbGV0eXBlID0gZW52X2dl
-dCgiTUxTX0xFVkVMIixqb2JlbnYpKSAhPSAwTCApDQorCXsNCisJCWNoYXIgY3JvbnRhYltNQVhf
-Rk5BTUVdOw0KKyAgICAgICAgICAgICAgICBjb250ZXh0X3QgY2NvbjsNCisNCisJCWlmICggc3Ry
-Y21wKHUtPm5hbWUsIipzeXN0ZW0qIikgPT0gMCApDQorCQkJc3RybmNweShjcm9udGFiLCB1LT50
-YWJuYW1lLCBNQVhfRk5BTUUpOw0KKwkJZWxzZQ0KKwkJCXNucHJpbnRmKGNyb250YWIsIE1BWF9G
-TkFNRSwgIiVzLyVzIiwgQ1JPTkRJUiwgdS0+dGFibmFtZSk7DQorICAgICAgICAgICAgICAgIA0K
-KyAgICAgICAgICAgICAgICBpZiAoIShjY29uID0gY29udGV4dF9uZXcodS0+c2NvbnRleHQpKSkN
-CisgICAgICAgICAgICAgICAgew0KKwkJCWlmICggc2VjdXJpdHlfZ2V0ZW5mb3JjZSgpID4gMCAp
-IA0KKwkJCXsNCisJCQkJbG9nX2l0KHUtPm5hbWUsIA0KKwkJCQkgICAgICAgZ2V0cGlkKCksICJj
-b250ZXh0X25ldyBGQUlMRUQgZm9yIFNFTElOVVhfUk9MRV9UWVBFIiwgDQorCQkJCSAgICAgICBz
-cm9sZXR5cGUNCisJCQkJICAgICAgKTsNCisJCQkJcmV0dXJuIC0xOw0KKwkJCX0gZWxzZQ0KKyAg
-ICAgICAgICAgICAgICAgICAgICAgIHsNCisJCQkJbG9nX2l0KHUtPm5hbWUsDQorCQkJCSAgICAg
-ICBnZXRwaWQoKSwgDQorCQkJCSAgICAgICAiY29udGV4dF9uZXcgRkFJTEVEIGJ1dCBTRUxpbnV4
-IGluIHBlcm1pc3NpdmUgbW9kZSwgY29udGludWluZyAiDQorCQkJCSAgICAgICAiLSBTRUxJTlVY
-X1JPTEVfVFlQRT0iLCBzcm9sZXR5cGUNCisJCQkJICAgICAgICk7DQorCQkJCXJldHVybiAwOw0K
-KyAgICAgICAgICAgICAgICAgICAgICAgIH0NCisgICAgICAgICAgICAgICAgfSAgICAgICAgICAg
-ICAgICAgIA0KKw0KKyAgICAgICAgICAgICAgICBpZiAoY29udGV4dF9yYW5nZV9zZXQoY2Nvbiwg
-c3JvbGV0eXBlKSkNCisgICAgICAgICAgICAgICAgew0KKwkJCWlmICggc2VjdXJpdHlfZ2V0ZW5m
-b3JjZSgpID4gMCApIA0KKwkJCXsNCisJCQkJbG9nX2l0KHUtPm5hbWUsIA0KKwkJCQkgICAgICAg
-Z2V0cGlkKCksICJjb250ZXh0X3JhbmdlX3NldCBGQUlMRUQgZm9yIFNFTElOVVhfUk9MRV9UWVBF
-IiwgDQorCQkJCSAgICAgICBzcm9sZXR5cGUNCisJCQkJICAgICAgKTsNCisJCQkJcmV0dXJuIC0x
-Ow0KKwkJCX0gZWxzZQ0KKyAgICAgICAgICAgICAgICAgICAgICAgIHsNCisJCQkJbG9nX2l0KHUt
-Pm5hbWUsDQorCQkJCSAgICAgICBnZXRwaWQoKSwgDQorCQkJCSAgICAgICAiY29udGV4dF9yYW5n
-ZV9zZXQgRkFJTEVEIGJ1dCBTRUxpbnV4IGluIHBlcm1pc3NpdmUgbW9kZSwgY29udGludWluZyAi
-DQorCQkJCSAgICAgICAiLSBTRUxJTlVYX1JPTEVfVFlQRT0iLCBzcm9sZXR5cGUNCisJCQkJICAg
-ICAgICk7DQorCQkJCXJldHVybiAwOw0KKyAgICAgICAgICAgICAgICAgICAgICAgIH0NCisgICAg
-ICAgICAgICAgICAgfQ0KKw0KKwkgICAgICAgICp1Y29udGV4dHAgPSBzdHJkdXAoY29udGV4dF9z
-dHIoY2NvbikpOw0KKw0KKyAgICAgICAgICAgICAgICBjb250ZXh0X2ZyZWUoY2Nvbik7DQorCX0N
-CisNCisJcmV0dXJuIDA7DQorfQ0KKyNlbmRpZg0KKw0KIGludCBjcm9uX2NoYW5nZV9zZWxpbnV4
-X2NvbnRleHQoIHVzZXIgKnUsIHZvaWQgKnNjb250ZXh0LCB2b2lkICpmaWxlX2NvbnRleHQgKQ0K
-IHsNCiAjaWZkZWYgV0lUSF9TRUxJTlVYDQpAQCAtMzMyLDYgKzQzOCw3NCBAQCBpbnQgY3Jvbl9j
-aGFuZ2Vfc2VsaW51eF9jb250ZXh0KCB1c2VyICp1DQogCXJldHVybiAwOw0KIH0NCiANCisjaWZk
-ZWYgV0lUSF9TRUxJTlVYDQorc3RhdGljIGludCBjcm9uX2NoYW5nZV9zZWxpbnV4X3JhbmdlKCB1
-c2VyICp1LA0KKyAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgc2VjdXJpdHlf
-Y29udGV4dF90IHVjb250ZXh0ICkNCit7DQorCWlmICggaXNfc2VsaW51eF9lbmFibGVkKCkgPD0g
-MCApDQorCQlyZXR1cm4gMDsNCisNCisJaWYgKCB1LT5zY29udGV4dCA9PSAwTCApDQorCXsNCisJ
-CWlmIChzZWN1cml0eV9nZXRlbmZvcmNlKCkgPiAwKSANCisJCXsNCisJCQlsb2dfaXQoIHUtPm5h
-bWUsIGdldHBpZCgpLCANCisJCQkJIk5VTEwgc2VjdXJpdHkgY29udGV4dCBmb3IgdXNlciIsIA0K
-KwkJCQkiIg0KKwkJCSAgICAgICk7DQorCQkJcmV0dXJuIC0xOw0KKwkJfWVsc2UNCisJCXsNCisJ
-CQlsb2dfaXQoIHUtPm5hbWUsIGdldHBpZCgpLCANCisJCQkJIk5VTEwgc2VjdXJpdHkgY29udGV4
-dCBmb3IgdXNlciwgIg0KKwkJCQkiYnV0IFNFTGludXggaW4gcGVybWlzc2l2ZSBtb2RlLCBjb250
-aW51aW5nIiwNCisJCQkJIiINCisJCQkJKTsNCisJCQlyZXR1cm4gMDsNCisJCX0NCisJfQ0KKwkN
-CisJaWYgKCB1Y29udGV4dCAmJiBzdHJjbXAodS0+c2NvbnRleHQsIHVjb250ZXh0KSApDQorCXsJ
-CQ0KKyAgICAgICAgICAgICAgICBpZiAoICEgY3Jvbl9hdXRob3JpemVfcmFuZ2UoIHUtPnNjb250
-ZXh0LCB1Y29udGV4dCApKQ0KKwkJew0KKwkJCWlmICggc2VjdXJpdHlfZ2V0ZW5mb3JjZSgpID4g
-MCApIA0KKwkJCXsNCisJCQkJc3lzbG9nKExPR19FUlIsDQorCQkJCSAgICAgICAiQ1JPTiAoJXMp
-IEVSUk9SOiINCisJCQkJICAgICAgICJVbmF1dGhvcml6ZWQgZXhlYyBjb250ZXh0IHRvIFNFTElO
-VVhfUk9MRV9UWVBFICVzIGZvciB1c2VyIiwgDQorCQkJCSAgICAgICB1LT5uYW1lLCAoY2hhciop
-dWNvbnRleHQNCisJCQkJICAgICAgKTsNCisJCQkJcmV0dXJuIC0xOw0KKwkJCX0gZWxzZQ0KKwkJ
-CXsNCisJCQkJc3lzbG9nKExPR19JTkZPLA0KKwkJCQkgICAgICAgIkNST04gKCVzKSBXQVJOSU5H
-OiINCisJCQkJICAgICAgICJVbmF1dGhvcml6ZWQgZXhlYyBjb250ZXh0IHRvIFNFTElOVVhfUk9M
-RV9UWVBFICVzIGZvciB1c2VyLCINCisJCQkJICAgICAgICIgYnV0IFNFTGludXggaW4gcGVybWlz
-c2l2ZSBtb2RlLCBjb250aW51aW5nIiwgDQorCQkJCSAgICAgICB1LT5uYW1lLCAoY2hhciopdWNv
-bnRleHQNCisJCQkJICAgICAgKTsNCisJCQl9DQorCQl9DQorCX0gDQorDQorCWlmICggc2V0ZXhl
-Y2Nvbih1Y29udGV4dCkgPCAwICkgDQorCXsNCisJCWlmIChzZWN1cml0eV9nZXRlbmZvcmNlKCkg
-PiAwKSANCisJCXsNCisJCQlzeXNsb2coTE9HX0VSUiwNCisJCQkgICAgICAgIkNST04gKCVzKSBF
-UlJPUjoiDQorCQkJICAgICAgICJDb3VsZCBub3Qgc2V0IGV4ZWMgY29udGV4dCB0byAlcyBmb3Ig
-dXNlciIsIA0KKwkJCSAgICAgICB1LT5uYW1lLCAoY2hhciopdWNvbnRleHQNCisJCQkgICAgICAp
-Ow0KKw0KKwkJCXJldHVybiAtMTsNCisJCX0NCisJfQ0KKwlyZXR1cm4gMDsNCit9DQorI2VuZGlm
-DQorDQogaW50IGdldF9zZWN1cml0eV9jb250ZXh0KCBjb25zdCBjaGFyICpuYW1lLCANCiAJCQkg
-IGludCBjcm9udGFiX2ZkLCANCiAJCQkgIHNlY3VyaXR5X2NvbnRleHRfdCAqcmNvbnRleHQsIA0K
-T25seSBpbiB2aXhpZS1jcm9uLTQuMTogc2VjdXJpdHkuYy5zZWN1cml0eQ0KT25seSBpbiB2aXhp
-ZS1jcm9uLTQuMTogc2VjdXJpdHkuYy5zZWxpbnV4LWNvbnRhaW5zLXJhbmdlDQo=
+s/SELINUX_ROLE_TYPE/MLS_LEVEL/
+ 
++				       sroletype
++				      );
++				return -1;
++			} else
++                        {
++				log_it(u->name,
++				       getpid(), 
++				       "context_new FAILED but SELinux in permissive mode, continuing "
++				       "- SELINUX_ROLE_TYPE=", sroletype
++				       );
++				return 0;
++                        }
 
+I wouldn't put tests of security_getenforce() on anything other than
+permission denials (which avc_has_perm would do internally for you if
+you were to use it instead of security_compute_av).  If context_new()
+fails, it means you are out of memory, so permissive mode or not, you
+are going to die.
 
---=-p4yctMYZuA1Rw3XztxSg--
++
++	        *ucontextp = strdup(context_str(ccon));
 
---=-29Zsm0OA20RhxtsQT0I0
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
+Needs checking of both the intermediate result (context_str return
+value) and strdup to avoid seg faulting on NULL.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.5 (GNU/Linux)
-
-iD8DBQBFUlKt11eXTEMrxtQRAiDTAJ472DB/jWoRsvB1nYQAM88YUSFFMgCfWhsC
-6ZbLk2bRkTZZVffD1AqyVR8=
-=ZuUw
------END PGP SIGNATURE-----
-
---=-29Zsm0OA20RhxtsQT0I0--
+-- 
+Stephen Smalley
+National Security Agency
 
 
 --
