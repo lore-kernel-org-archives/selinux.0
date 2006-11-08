@@ -1,129 +1,274 @@
-Subject: Re: [PATCH] cron changes needed for MLS range checking (requires
-	at least the libselinux patches)
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: James Antill <jantill@redhat.com>
-Cc: redhat-lspp <redhat-lspp@redhat.com>, SE Linux <selinux@tycho.nsa.gov>
-In-Reply-To: <1163023021.29854.15.camel@code.and.org>
-References: <1162936978.26574.20.camel@code.and.org>
-	 <1162994668.3009.82.camel@moss-spartans.epoch.ncsc.mil>
-	 <1163017959.29854.12.camel@code.and.org>
-	 <1163019227.12241.178.camel@moss-spartans.epoch.ncsc.mil>
-	 <1163023021.29854.15.camel@code.and.org>
-Content-Type: text/plain
-Date: Wed, 08 Nov 2006 17:13:10 -0500
-Message-Id: <1163023990.12241.231.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+Message-ID: <45526269.4010809@trustedcs.com>
+Date: Wed, 08 Nov 2006 17:04:09 -0600
+From: Venkat Yekkirala <vyekkirala@TrustedCS.com>
+MIME-Version: 1.0
+To: netdev@vger.kernel.org
+CC: selinux@tycho.nsa.gov, jmorris@namei.org, sds@tycho.nsa.gov
+Subject: [PATCH 2/3] labeled-ipsec: Return correct context for SO_PEERSEC
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2006-11-08 at 16:57 -0500, James Antill wrote:
-> On Wed, 2006-11-08 at 15:53 -0500, Stephen Smalley wrote:
-> 
-> > The scontext is supposed to be a process context in which to run the
-> > cron job, not a file context.  You are presently replacing the default
-> > scontext (extracted from u->scontext that was previously computed) with
-> > a strange mixture of the crontab file context and the user-specified
-> > range.  What you want to do is to take the default scontext value,
-> > create a new context that is identical except for its range (from the
-> > environment), and apply a check between those two contexts (and the
-> > check is only needed when using a user-supplied range).
-> 
->  Ok, I've used u->scontext instead of the file context now. I've also
-> renamed the variables. And the check should only happen if they specify
-> a different level.
-> 
-> >   BTW, you cannot
-> > continue to refer to the string returned by context_str() after
-> > performing a context_free() on the structure; you'd have to dup it
-> > first.
-> 
->  Right, stupid mistake. Fixed that too.
+Fix SO_PEERSEC for tcp sockets to return the security context of
+the peer (as represented by the SA from the peer) as opposed to the
+SA used by the local/source socket.
 
-Looks better.  A few nits:
+Signed-off-by: Venkat Yekkirala <vyekkirala@TrustedCS.com>
+---
+ include/linux/security.h        |   14 ++++++++++
+ include/net/request_sock.h      |    1 
+ net/ipv4/tcp_input.c            |    2 +
+ security/dummy.c                |    6 ++++
+ security/selinux/hooks.c        |   21 ++++++++++++---
+ security/selinux/include/xfrm.h |   12 ++++-----
+ security/selinux/xfrm.c         |   40 ++----------------------------
+ 7 files changed, 49 insertions(+), 47 deletions(-)
 
-+static int 
-+cron_authorize_range
-+( 
-+	security_context_t scontext,
-+	security_context_t file_context
-
-s/file_context/ucontext/
-
-+)	
-+{
-+#ifdef WITH_SELINUX
-+	struct av_decision avd;
-+	int retval;
-+        unsigned int bit = CONTEXT__CONTAINS;
-+	/*
-+	 * Since crontab files are not directly executed,
-+	 * crond must ensure that the crontab range has
-+	 * a context that is appropriate for the context of
-+	 * the user cron job.  It performs an entrypoint
-+	 * permission check for this purpose.
-
-cut-and-paste
-
-+	 */
-+	retval = security_compute_av(scontext, file_context,
-
-s/file_context/ucontext/
-
-+static int cron_get_job_range( user *u, security_context_t *ucontextp,
-+                               char **jobenv )
-+{
-+	char *sroletype;
-
-s/sroletype/range/
-
-+	if ( (sroletype = env_get("MLS_LEVEL",jobenv)) != 0L )
-+	{
-+		char crontab[MAX_FNAME];
-+                context_t ccon;
-+
-+		if ( strcmp(u->name,"*system*") == 0 )
-+			strncpy(crontab, u->tabname, MAX_FNAME);
-+		else
-+			snprintf(crontab, MAX_FNAME, "%s/%s", CRONDIR, u->tabname);
-+                
-+                if (!(ccon = context_new(u->scontext)))
-+                {
-+			if ( security_getenforce() > 0 ) 
-+			{
-+				log_it(u->name, 
-+				       getpid(), "context_new FAILED for SELINUX_ROLE_TYPE",
-
-s/SELINUX_ROLE_TYPE/MLS_LEVEL/
+--- net-2.6.lx1/include/linux/security.h	2006-11-08 09:40:42.000000000 -0600
++++ net-2.6/include/linux/security.h	2006-11-08 09:47:42.000000000 -0600
+@@ -826,6 +826,8 @@ struct request_sock;
+  *	Sets the openreq's sid to socket's sid with MLS portion taken from peer sid.
+  * @inet_csk_clone:
+  *	Sets the new child socket's sid to the openreq sid.
++ * @inet_conn_established:
++ *     Sets the connection's peersid to the secmark on skb.
+  * @req_classify_flow:
+  *	Sets the flow's sid to the openreq sid.
+  *
+@@ -1368,6 +1370,7 @@ struct security_operations {
+ 	int (*inet_conn_request)(struct sock *sk, struct sk_buff *skb,
+ 					struct request_sock *req);
+ 	void (*inet_csk_clone)(struct sock *newsk, const struct request_sock *req);
++	void (*inet_conn_established)(struct sock *sk, struct sk_buff *skb);
+ 	void (*req_classify_flow)(const struct request_sock *req, struct flowi *fl);
+ #endif	/* CONFIG_SECURITY_NETWORK */
  
-+				       sroletype
-+				      );
-+				return -1;
-+			} else
-+                        {
-+				log_it(u->name,
-+				       getpid(), 
-+				       "context_new FAILED but SELinux in permissive mode, continuing "
-+				       "- SELINUX_ROLE_TYPE=", sroletype
-+				       );
-+				return 0;
-+                        }
-
-I wouldn't put tests of security_getenforce() on anything other than
-permission denials (which avc_has_perm would do internally for you if
-you were to use it instead of security_compute_av).  If context_new()
-fails, it means you are out of memory, so permissive mode or not, you
-are going to die.
-
+@@ -2961,6 +2964,12 @@ static inline void security_inet_csk_clo
+ {
+ 	security_ops->inet_csk_clone(newsk, req);
+ }
 +
-+	        *ucontextp = strdup(context_str(ccon));
-
-Needs checking of both the intermediate result (context_str return
-value) and strdup to avoid seg faulting on NULL.
-
--- 
-Stephen Smalley
-National Security Agency
-
++static inline void security_inet_conn_established(struct sock *sk,
++			struct sk_buff *skb)
++{
++	security_ops->inet_conn_established(sk, skb);
++}
+ #else	/* CONFIG_SECURITY_NETWORK */
+ static inline int security_unix_stream_connect(struct socket * sock,
+ 					       struct socket * other, 
+@@ -3110,6 +3119,11 @@ static inline void security_inet_csk_clo
+ 			const struct request_sock *req)
+ {
+ }
++
++static inline void security_inet_conn_established(struct sock *sk,
++			struct sk_buff *skb)
++{
++}
+ #endif	/* CONFIG_SECURITY_NETWORK */
+ 
+ #ifdef CONFIG_SECURITY_NETWORK_XFRM
+--- net-2.6.lx1/include/net/request_sock.h	2006-11-08 09:38:06.000000000 -0600
++++ net-2.6/include/net/request_sock.h	2006-11-08 09:47:42.000000000 -0600
+@@ -54,6 +54,7 @@ struct request_sock {
+ 	struct request_sock_ops		*rsk_ops;
+ 	struct sock			*sk;
+ 	u32				secid;
++	u32				peer_secid;
+ };
+ 
+ static inline struct request_sock *reqsk_alloc(struct request_sock_ops *ops)
+--- net-2.6.lx1/net/ipv4/tcp_input.c	2006-11-08 09:38:06.000000000 -0600
++++ net-2.6/net/ipv4/tcp_input.c	2006-11-08 09:47:42.000000000 -0600
+@@ -4230,6 +4230,8 @@ static int tcp_rcv_synsent_state_process
+ 		mb();
+ 		tcp_set_state(sk, TCP_ESTABLISHED);
+ 
++		security_inet_conn_established(sk, skb);
++
+ 		/* Make sure socket is routed, for correct metrics.  */
+ 		icsk->icsk_af_ops->rebuild_header(sk);
+ 
+--- net-2.6.lx1/security/dummy.c	2006-11-08 09:40:42.000000000 -0600
++++ net-2.6/security/dummy.c	2006-11-08 09:47:42.000000000 -0600
+@@ -828,6 +828,11 @@ static inline void dummy_inet_csk_clone(
+ {
+ }
+ 
++static inline void dummy_inet_conn_established(struct sock *sk,
++			struct sk_buff *skb)
++{
++}
++
+ static inline void dummy_req_classify_flow(const struct request_sock *req,
+ 			struct flowi *fl)
+ {
+@@ -1108,6 +1113,7 @@ void security_fixup_ops (struct security
+ 	set_to_dummy_if_null(ops, sock_graft);
+ 	set_to_dummy_if_null(ops, inet_conn_request);
+ 	set_to_dummy_if_null(ops, inet_csk_clone);
++	set_to_dummy_if_null(ops, inet_conn_established);
+ 	set_to_dummy_if_null(ops, req_classify_flow);
+  #endif	/* CONFIG_SECURITY_NETWORK */
+ #ifdef  CONFIG_SECURITY_NETWORK_XFRM
+--- net-2.6.lx1/security/selinux/include/xfrm.h	2006-11-08 09:40:42.000000000 -0600
++++ net-2.6/security/selinux/include/xfrm.h	2006-11-08 09:47:42.000000000 -0600
+@@ -39,7 +39,6 @@ int selinux_xfrm_sock_rcv_skb(u32 sid, s
+ 			struct avc_audit_data *ad);
+ int selinux_xfrm_postroute_last(u32 isec_sid, struct sk_buff *skb,
+ 			struct avc_audit_data *ad);
+-u32 selinux_socket_getpeer_stream(struct sock *sk);
+ u32 selinux_socket_getpeer_dgram(struct sk_buff *skb);
+ int selinux_xfrm_decode_session(struct sk_buff *skb, u32 *sid, int ckall);
+ #else
+@@ -55,11 +54,6 @@ static inline int selinux_xfrm_postroute
+ 	return 0;
+ }
+ 
+-static inline int selinux_socket_getpeer_stream(struct sock *sk)
+-{
+-	return SECSID_NULL;
+-}
+-
+ static inline int selinux_socket_getpeer_dgram(struct sk_buff *skb)
+ {
+ 	return SECSID_NULL;
+@@ -71,4 +65,10 @@ static inline int selinux_xfrm_decode_se
+ }
+ #endif
+ 
++static inline void selinux_skb_xfrm_sid(struct sk_buff *skb, u32 *sid)
++{
++	int err = selinux_xfrm_decode_session(skb, sid, 0);
++	BUG_ON(err);
++}
++
+ #endif /* _SELINUX_XFRM_H_ */
+--- net-2.6.lx1/security/selinux/hooks.c	2006-11-08 09:38:06.000000000 -0600
++++ net-2.6/security/selinux/hooks.c	2006-11-08 09:47:42.000000000 -0600
+@@ -3534,8 +3534,10 @@ static int selinux_socket_getpeersec_str
+ 	}
+ 	else if (isec->sclass == SECCLASS_TCP_SOCKET) {
+ 		peer_sid = selinux_netlbl_socket_getpeersec_stream(sock);
+-		if (peer_sid == SECSID_NULL)
+-			peer_sid = selinux_socket_getpeer_stream(sock->sk);
++		if (peer_sid == SECSID_NULL) {
++			ssec = sock->sk->sk_security;
++			peer_sid = ssec->peer_sid;
++		}
+ 		if (peer_sid == SECSID_NULL) {
+ 			err = -ENOPROTOOPT;
+ 			goto out;
+@@ -3646,11 +3648,11 @@ static int selinux_inet_conn_request(str
+ 		return 0;
+ 	}
+ 
+-	err = selinux_xfrm_decode_session(skb, &peersid, 0);
+-	BUG_ON(err);
++	selinux_skb_xfrm_sid(skb, &peersid);
+ 
+ 	if (peersid == SECSID_NULL) {
+ 		req->secid = sksec->sid;
++		req->peer_secid = 0;
+ 		return 0;
+ 	}
+ 
+@@ -3659,6 +3661,7 @@ static int selinux_inet_conn_request(str
+ 		return err;
+ 
+ 	req->secid = newsid;
++	req->peer_secid = peersid;
+ 	return 0;
+ }
+ 
+@@ -3668,6 +3671,7 @@ static void selinux_inet_csk_clone(struc
+ 	struct sk_security_struct *newsksec = newsk->sk_security;
+ 
+ 	newsksec->sid = req->secid;
++	newsksec->peer_sid = req->peer_secid;
+ 	/* NOTE: Ideally, we should also get the isec->sid for the
+ 	   new socket in sync, but we don't have the isec available yet.
+ 	   So we will wait until sock_graft to do it, by which
+@@ -3676,6 +3680,14 @@ static void selinux_inet_csk_clone(struc
+ 	selinux_netlbl_sk_security_init(newsksec, req->rsk_ops->family);
+ }
+ 
++static void selinux_inet_conn_established(struct sock *sk,
++				struct sk_buff *skb)
++{
++	struct sk_security_struct *sksec = sk->sk_security;
++
++	selinux_skb_xfrm_sid(skb, &sksec->peer_sid);
++}
++
+ static void selinux_req_classify_flow(const struct request_sock *req,
+ 				      struct flowi *fl)
+ {
+@@ -4738,6 +4750,7 @@ static struct security_operations selinu
+ 	.sock_graft =			selinux_sock_graft,
+ 	.inet_conn_request =		selinux_inet_conn_request,
+ 	.inet_csk_clone =		selinux_inet_csk_clone,
++	.inet_conn_established =	selinux_inet_conn_established,
+ 	.req_classify_flow =		selinux_req_classify_flow,
+ 
+ #ifdef CONFIG_SECURITY_NETWORK_XFRM
+--- net-2.6.lx1/security/selinux/xfrm.c	2006-11-08 09:40:42.000000000 -0600
++++ net-2.6/security/selinux/xfrm.c	2006-11-08 09:47:42.000000000 -0600
+@@ -184,7 +184,8 @@ int selinux_xfrm_flow_state_match(struct
+ }
+ 
+ /*
+- * LSM hook implementation that determines the sid for the session.
++ * LSM hook implementation that checks and/or returns the xfrm sid for the
++ * incoming packet.
+  */
+ 
+ int selinux_xfrm_decode_session(struct sk_buff *skb, u32 *sid, int ckall)
+@@ -403,43 +404,8 @@ void selinux_xfrm_state_free(struct xfrm
+ }
+ 
+ /*
+- * SELinux internal function to retrieve the context of a connected
+- * (sk->sk_state == TCP_ESTABLISHED) TCP socket based on its security
+- * association used to connect to the remote socket.
+- *
+- * Retrieve via getsockopt SO_PEERSEC.
+- */
+-u32 selinux_socket_getpeer_stream(struct sock *sk)
+-{
+-	struct dst_entry *dst, *dst_test;
+-	u32 peer_sid = SECSID_NULL;
+-
+-	if (sk->sk_state != TCP_ESTABLISHED)
+-		goto out;
+-
+-	dst = sk_dst_get(sk);
+-	if (!dst)
+-		goto out;
+-
+- 	for (dst_test = dst; dst_test != 0;
+-      	     dst_test = dst_test->child) {
+-		struct xfrm_state *x = dst_test->xfrm;
+-
+- 		if (x && selinux_authorizable_xfrm(x)) {
+-	 	 	struct xfrm_sec_ctx *ctx = x->security;
+-			peer_sid = ctx->ctx_sid;
+-			break;
+-		}
+-	}
+-	dst_release(dst);
+-
+-out:
+-	return peer_sid;
+-}
+-
+-/*
+  * SELinux internal function to retrieve the context of a UDP packet
+- * based on its security association used to connect to the remote socket.
++ * based on its security association.
+  *
+  * Retrieve via setsockopt IP_PASSSEC and recvmsg with control message
+  * type SCM_SECURITY.
 
 --
 This message was distributed to subscribers of the selinux mailing list.
