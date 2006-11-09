@@ -1,95 +1,70 @@
-Subject: Re: [PATCH] cron changes needed for MLS range checking (requires
-	at least the libselinux patches)
-From: James Antill <jantill@redhat.com>
+Date: Thu, 9 Nov 2006 10:37:35 -0600
+From: "Serge E. Hallyn" <serue@us.ibm.com>
 To: Stephen Smalley <sds@tycho.nsa.gov>
-Cc: redhat-lspp <redhat-lspp@redhat.com>, SE Linux <selinux@tycho.nsa.gov>
-In-Reply-To: <1163087868.12241.327.camel@moss-spartans.epoch.ncsc.mil>
-References: <1162936978.26574.20.camel@code.and.org>
-	 <1162994668.3009.82.camel@moss-spartans.epoch.ncsc.mil>
-	 <1163017959.29854.12.camel@code.and.org>
-	 <1163019227.12241.178.camel@moss-spartans.epoch.ncsc.mil>
-	 <1163023021.29854.15.camel@code.and.org>
-	 <1163023990.12241.231.camel@moss-spartans.epoch.ncsc.mil>
-	 <1163029645.29854.20.camel@code.and.org>
-	 <1163084834.12241.293.camel@moss-spartans.epoch.ncsc.mil>
-	 <1163086850.29854.26.camel@code.and.org>
-	 <1163087868.12241.327.camel@moss-spartans.epoch.ncsc.mil>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-XLgDjXpOvpZvMMursPnm"
-Date: Thu, 09 Nov 2006 11:28:00 -0500
-Message-Id: <1163089680.29854.35.camel@code.and.org>
-Mime-Version: 1.0
+Cc: "Serge E. Hallyn" <serue@us.ibm.com>,
+        Michael C Thompson <thompsmc@us.ibm.com>,
+        SE Linux <selinux@tycho.nsa.gov>
+Subject: Re: [PATCH 4/8] make newrole suid (take 3)
+Message-ID: <20061109163735.GA16709@sergelap.austin.ibm.com>
+References: <454A8F35.2020006@us.ibm.com> <454A95BC.7000807@us.ibm.com> <20061107052338.GB11273@sergelap.austin.ibm.com> <4550E7E4.4000505@us.ibm.com> <20061108173224.GB15592@sergelap.austin.ibm.com> <45523185.40502@us.ibm.com> <20061109051513.GA7208@sergelap.austin.ibm.com> <1163080631.12241.242.camel@moss-spartans.epoch.ncsc.mil>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1163080631.12241.242.camel@moss-spartans.epoch.ncsc.mil>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+Quoting Stephen Smalley (sds@tycho.nsa.gov):
+> On Wed, 2006-11-08 at 23:15 -0600, Serge E. Hallyn wrote:
+> > Quoting Michael C Thompson (thompsmc@us.ibm.com):
+> > > This is a short list of what we do prior to the uid change:
+> > > - locale actions
+> > > - calls into libselinux, libaudit and libc
+> > > - calls to pam
+> > > 
+> > > In short, for the case where we want namespace support, we execute as 
+> > > root for nearly the entire lifetime of the application, and the parent 
+> > > process retains euid 0 as well while the shell has been exec'd and is 
+> > > waiting for the child to die.
+> > > 
+> > > We don't actually *need* to do this, but my reason was that if we retain 
+> > > the ability to setuid and retain the capabilities on the permitted (but 
+> > > not effective) list, then if an exploit would be discovered for the 
+> > > program, then all the attacker would need to do is re-raise those 
+> > > capabilities and game over.
+> > > 
+> > > I've only briefly consider the effects of maintaining euid=0 during the 
+> > > life-time of the application, but it seems to me the only impact it will 
+> > > have is during the pam_open_session call.
+> > > 
+> > > Does that make sense?
+> > 
+> > If I'm thinking straight, the main advantage of still dropping euid=0
+> > is that if the attacker has limited space for shellcode, or for some
+> > other reason can only do exec(/bin/sh), the caps will be dropped on
+> > exec, but euid=0 will not.
+> 
+> pam_namespace needs to run with fsuid 0 (so that member directories it
+> creates are immediately assigned a uid that is not accessible to the
 
---=-XLgDjXpOvpZvMMursPnm
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+Actually a quick test (which I may be doing wrong) and the setfsuid
+manpage suggests files are created as the euid, not fsuid.
 
-On Thu, 2006-11-09 at 10:57 -0500, Stephen Smalley wrote:
-> On Thu, 2006-11-09 at 10:40 -0500, James Antill wrote:
-> >  Because without enforcing mode we just ignore the problem and continue=
-,
-> > with it we error out. I think this is more of a theoretical assert type
-> > problem anyway, but still.
->=20
-> That's my point - it seems like it is a bug regardless of whether we are
-> permissive or enforcing, and should thus always return -1.  I'd only
-> expect security_getenforce() to make a difference for error handling on
-> permission checks.
+I suppose a reserved non-root uid could be used, which would address
+both the created file and malicious signals you worry about, as well
+as the retention of uid across a shellcoded exec.
 
- Well get_security_context() does the same thing if fgetfilecon(),
-getseuserbyname()/get_default_context_with_level() or
-cron_authorize_context() fail (which would lead to u->scontext being
-NULL, AIUI), so I really wouldn't want to change it unless all those
-changed in some way.
+But I really don't mean to beat a dead horse.  Thank you both for the
+explanations, the patch does look sane.  (On my first reading I'd
+actually misread the prctl and thought it was going to keep caps
+across the final setuid).
 
-> Anyway, the patch looks sane at this point, although I'm not completely
-> clear how it integrates into the existing pile of selinux-related
-> patches in vixie-cron (it would help to consolidate them).
+thanks,
+-serge
 
- I can't really do that, easily.
-
-> What is your plan on the client (crontab program) side?  The old patch
-> instrumented it to automatically insert a SELINUX_ROLE_TYPE=3D definition
-> with the caller's context if a certain option was used to crontab; will
-> you replace that with your new MLS_LEVEL=3D definition and the caller's
-> current range or just drop it altogether and require the user to
-> manually specify it in the crontab file?
-
- Atm. I've got a patch which changes the crontab command to only add the
-level when -s is specified.
-
->   Am I correct in understanding
-> that there can only be one MLS_LEVEL=3D definition per crontab file (for
-> all cron jobs in that crontab)?
-
- Yes.
-
->   Can it go anywhere in the crontab file?
-
- Yes.
-
---=20
-James Antill - <james.antill@redhat.com>
-setsockopt(fd, IPPROTO_TCP, TCP_CONGESTION, ...);
-setsockopt(fd, IPPROTO_TCP, TCP_DEFER_ACCEPT, ...);
-setsockopt(fd, SOL_SOCKET,  SO_ATTACH_FILTER, ...);
-
-
---=-XLgDjXpOvpZvMMursPnm
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.5 (GNU/Linux)
-
-iD8DBQBFU1cQ11eXTEMrxtQRAj5yAJ0ZR+PSC4vNigZtBG4zii0OohXSVACfUn57
-WwSEywB0S/OjjI2YU+cAhmg=
-=Pl22
------END PGP SIGNATURE-----
-
---=-XLgDjXpOvpZvMMursPnm--
+> unprivileged caller).  Further, in the absence of a kernel with the
+> fscaps patch, reverting uid while retaining capabilities (which
+> pam_namespace also requires) is potentially dangerous, as it exposes the
+> process to e.g. signals and other manipulation by the original uid.
 
 
 --
