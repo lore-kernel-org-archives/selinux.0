@@ -1,37 +1,44 @@
-Subject: Re: [PATCH 4/4] SELinux: validate kernel object classes and
-	permissions
+Subject: Re: [PATCH] libselinux MLS range context contains for PAM/cron
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: James Morris <jmorris@namei.org>
-Cc: Chad Sellers <csellers@tresys.com>, selinux@tycho.nsa.gov
-In-Reply-To: <Pine.LNX.4.64.0611071620140.21330@d.namei>
-References: <C1751E53.19473%csellers@tresys.com>
-	 <1162933056.3009.62.camel@moss-spartans.epoch.ncsc.mil>
-	 <Pine.LNX.4.64.0611071620140.21330@d.namei>
+To: James Antill <jantill@redhat.com>
+Cc: redhat-lspp <redhat-lspp@redhat.com>, SE Linux <selinux@tycho.nsa.gov>,
+        "Christopher J. PeBenito" <cpebenito@tresys.com>
+In-Reply-To: <1162936676.26574.15.camel@code.and.org>
+References: <1162936676.26574.15.camel@code.and.org>
 Content-Type: text/plain
-Date: Thu, 09 Nov 2006 10:36:11 -0500
-Message-Id: <1163086571.12241.310.camel@moss-spartans.epoch.ncsc.mil>
+Date: Thu, 09 Nov 2006 10:37:31 -0500
+Message-Id: <1163086651.12241.313.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2006-11-07 at 16:20 -0500, James Morris wrote:
-> On Tue, 7 Nov 2006, Stephen Smalley wrote:
-> 
-> > (re-added list to cc)
-> 
-> Thanks.
-> 
-> Stephen, do you think these patches are suitable for merging?
+On Tue, 2006-11-07 at 16:57 -0500, James Antill wrote:
+>  Here is the libselinux changes needed to do the security context
+> contains checks for PAM and cron.
 
-Yes.
+Index: libselinux/include/selinux/av_permissions.h
+===================================================================
+--- libselinux/include/selinux/av_permissions.h	(revision 2076)
++++ libselinux/include/selinux/av_permissions.h	(working copy)
+@@ -896,3 +896,4 @@
+ #define KEY__SETATTR                              0x00000020UL
+ #define KEY__CREATE                               0x00000040UL
+ #define CONTEXT__TRANSLATE                        0x00000001UL
++#define CONTEXT__CONTAINS                         0x00000002UL
+Index: libselinux/src/av_perm_to_string.h
+===================================================================
+--- libselinux/src/av_perm_to_string.h	(revision 2076)
++++ libselinux/src/av_perm_to_string.h	(working copy)
+@@ -266,3 +266,4 @@
+     S_(SECCLASS_KEY, KEY__SETATTR, "setattr")
+     S_(SECCLASS_KEY, KEY__CREATE, "create")
+     S_(SECCLASS_CONTEXT, CONTEXT__TRANSLATE, "translate")
++    S_(SECCLASS_CONTEXT, CONTEXT__CONTAINS, "contains")
+
+
+This patch is obviously fine as long as the corresponding policy patch is accepted.
 
 Acked-by:  Stephen Smalley <sds@tycho.nsa.gov>
-
-We should also follow up with a patch that strips the non-kernel classes
-and permissions from the kernel headers (possibly by modifying the
-script in policy to emit two sets of headers, one for kernel and one for
-libselinux, based on the already existing # userspace annotations in
-security_classes).
 
 -- 
 Stephen Smalley
