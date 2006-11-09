@@ -1,128 +1,88 @@
-Subject: Re: [PATCH] cron changes needed for MLS range checking (requires
-	at least the libselinux patches)
+Subject: Re: I would like to propose that we add compression to handle all
+	policy files on disk.
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: James Antill <jantill@redhat.com>
-Cc: redhat-lspp <redhat-lspp@redhat.com>, SE Linux <selinux@tycho.nsa.gov>
-In-Reply-To: <1163029645.29854.20.camel@code.and.org>
-References: <1162936978.26574.20.camel@code.and.org>
-	 <1162994668.3009.82.camel@moss-spartans.epoch.ncsc.mil>
-	 <1163017959.29854.12.camel@code.and.org>
-	 <1163019227.12241.178.camel@moss-spartans.epoch.ncsc.mil>
-	 <1163023021.29854.15.camel@code.and.org>
-	 <1163023990.12241.231.camel@moss-spartans.epoch.ncsc.mil>
-	 <1163029645.29854.20.camel@code.and.org>
+To: Joshua Brindle <jbrindle@tresys.com>
+Cc: Daniel J Walsh <dwalsh@redhat.com>, SE Linux <selinux@tycho.nsa.gov>
+In-Reply-To: <45533C71.3080802@tresys.com>
+References: <45533208.6050806@redhat.com>  <45533C71.3080802@tresys.com>
 Content-Type: text/plain
-Date: Thu, 09 Nov 2006 10:07:14 -0500
-Message-Id: <1163084834.12241.293.camel@moss-spartans.epoch.ncsc.mil>
+Date: Thu, 09 Nov 2006 10:13:34 -0500
+Message-Id: <1163085214.12241.300.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2006-11-08 at 18:47 -0500, James Antill wrote:
->  Attached is the latest cron patch.
+On Thu, 2006-11-09 at 09:34 -0500, Joshua Brindle wrote:
+> Daniel J Walsh wrote:
+> > We are currently storing three sets of pp files on disk in Fedora as 
+> > well as a policy.21 file
+> 3 policy.21 files (deceptively named policy.kern in the module store...) 
+> plus 2 fully linked copies (base.linked) which is essentially a copy of 
+> all the policy packages concatenated (which is much larger than the 
+> policy.21 file)
+> 
+> As of right now base.linked is unused, we had some plans to eventually 
+> use it for 1) verification of the policy via external tools (libsemanage 
+> already supports this but noone is using it) and 2) a while back I 
+> suggested we could do incremental linking to speed up the process.
+> 
+> Getting rid of it almost halves the store size alone:
+> 
+> [root@poisonivy targeted]# du -sh modules/
+> 38M     modules/
+> [root@poisonivy targeted]# rm modules/*/base.linked
+> [root@poisonivy targeted]# du -sh modules/        
+> 21M     modules/
+> 
+> > To get an idea of how much space we can save, I did this little 
+> > experiment.    I believe this change is
+> > critical for minimal installs, and if we want to eventually use 
+> > SELinux on certain small platforms.
+> >
+> > I think just changing libsemanage to handle compressed policy packages 
+> > and to create its itermediary files as compressed files and changing 
+> > libselinux able to read a compressed policy.21 file.
+> >
+> libsepol does all the reading and writing, if we were to support 
+> compressed policies it would have to be there, not in libsemanage.
+> 
+> > # tar cvf /tmp/selinux /etc/selinux/targeted /usr/share/selinux/targeted/
+> there are files in here that we probably wouldn't want to compress like 
+> contexts/*, conf files, etc. (granted they are very small compared to 
+> policy packages and kernel policy..
+> > # gzip -c /tmp/selinux > /tm/selinux.gz
+> >
+> > # du /tmp/selinux*
+> > 57380   /tmp/selinux
+> > 3772    /tmp/selinux.gz
+> 
+> I wouldn't be adverse to someone adding a libsemanage option to not save 
+> the previous directory on success, we don't actually provide a revert 
+> interface as of now (though we probably should if we are going to keep 
+> it around..)
+> 
+> [root@poisonivy targeted]# rm -rf modules/previous/
+> [root@poisonivy targeted]# du -sh modules/
+> 11M     modules/
+> 
+> (this was after the base.linked getting deleted above, add 9 meg to this 
+> if we keep that around..)
+> 
+> so there we've cut the module directory by 1/4 potentially, just how 
+> much space are we needing to save?
+> 
+> The main concern I have with this is that libz hasn't had an awesome 
+> security record and it would have to be used by the component of the 
+> toolchain closest to the kernel, load_policy.
+> 
+> Additionally, on Fedora libz is in /usr/lib which means init won't be 
+> able to use it to decompress the policy at boot time, I really don't 
+> think we should be pulling a static libz into libselinux and libsepol.
 
-diff -rup vixie-cron-4.1-orig/security.c vixie-cron-4.1/security.c
---- vixie-cron-4.1-orig/security.c	2006-11-02 22:28:04.000000000 -0500
-+++ vixie-cron-4.1/security.c	2006-11-08 17:35:27.000000000 -0500
-+static int 
-+cron_authorize_range
-+( 
-+	security_context_t scontext,
-+	security_context_t ucontext
-+)	
-+{
-+#ifdef WITH_SELINUX
-+	struct av_decision avd;
-+	int retval;
-+        unsigned int bit = CONTEXT__CONTAINS;
-+	/*
-+	 * Since crontab files are not directly executed,
-+	 * so crond must ensure that any user specified range
-+	 * is allowed by the default users range.  It performs
-+         * an entrypoint permission check for this purpose.
-+	 */
-
-Still not accurate.  This check is quite different in purpose and
-rationale than the entrypoint check; it has nothing to do with the fact
-that crontab files are not directly executed.  It is just a check of
-whether the user-specified level falls within the seusers-specified
-range for that Linux user.
-
-+static int cron_change_selinux_range( user *u,
-+                                      security_context_t ucontext )
-+{
-+	if ( is_selinux_enabled() <= 0 )
-+		return 0;
-+
-+	if ( u->scontext == 0L )
-+	{
-+		if (security_getenforce() > 0) 
-+		{
-+			log_it( u->name, getpid(), 
-+				"NULL security context for user", 
-+				""
-+			      );
-+			return -1;
-+		}else
-+		{
-+			log_it( u->name, getpid(), 
-+				"NULL security context for user, "
-+				"but SELinux in permissive mode, continuing",
-+				""
-+				);
-+			return 0;
-+		}
-
-Another case where I don't understand why enforcing/permissive makes any
-difference.
-
-+	}
-+	
-+	if ( ucontext && strcmp(u->scontext, ucontext) )
-+	{		
-+                if ( ! cron_authorize_range( u->scontext, ucontext ))
-+		{
-+			if ( security_getenforce() > 0 ) 
-+			{
-+				syslog(LOG_ERR,
-+				       "CRON (%s) ERROR:"
-+				       "Unauthorized exec context to SELINUX_ROLE_TYPE %s for user", 
-+				       u->name, (char*)ucontext
-+				      );
-
-Still refers to SELINUX_ROLE_TYPE in the log message.
-
-+				return -1;
-+			} else
-+			{
-+				syslog(LOG_INFO,
-+				       "CRON (%s) WARNING:"
-+				       "Unauthorized exec context to SELINUX_ROLE_TYPE %s for user,"
-+				       " but SELinux in permissive mode, continuing", 
-+				       u->name, (char*)ucontext
-+				      );
-
-Ditto.
-
-+			}
-+		}
-+	} 
-+
-+	if ( setexeccon(ucontext) < 0 ) 
-+	{
-+		if (security_getenforce() > 0) 
-+		{
-+			syslog(LOG_ERR,
-+			       "CRON (%s) ERROR:"
-+			       "Could not set exec context to %s for user", 
-+			       u->name, (char*)ucontext
-+			      );
-+
-+			return -1;
-+		}
-
-Likely want to log something in the else case too so you don't just
-silently proceed under crond's own context.
+Sounds like dropping base.linked and making previous optional would
+address the problem more effectively.  Also, do we need to keep
+policy.kern after successful installation of policy.N?  If not, we can
+have libsemanage unlink it automatically after installation.
 
 -- 
 Stephen Smalley
