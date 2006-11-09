@@ -1,39 +1,47 @@
-Message-ID: <455364C9.6000701@hp.com>
-Date: Thu, 09 Nov 2006 12:26:33 -0500
-From: Paul Moore <paul.moore@hp.com>
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id kA9HSNUf026127
+	for <selinux@tycho.nsa.gov>; Thu, 9 Nov 2006 12:28:23 -0500
+Received: from mail6.sea5.speakeasy.net (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id kA9HRdx3021936
+	for <selinux@tycho.nsa.gov>; Thu, 9 Nov 2006 17:27:40 GMT
+Date: Thu, 9 Nov 2006 12:28:28 -0500 (EST)
+From: James Morris <jmorris@namei.org>
+To: Stephen Smalley <sds@tycho.nsa.gov>
+cc: Chad Sellers <csellers@tresys.com>, selinux@tycho.nsa.gov
+Subject: Re: [PATCH 4/4] SELinux: validate kernel object classes and permissions
+In-Reply-To: <1163086571.12241.310.camel@moss-spartans.epoch.ncsc.mil>
+Message-ID: <XMMS.LNX.4.64.0611091228200.25192@d.namei>
+References: <C1751E53.19473%csellers@tresys.com>
+ <1162933056.3009.62.camel@moss-spartans.epoch.ncsc.mil>
+ <Pine.LNX.4.64.0611071620140.21330@d.namei> <1163086571.12241.310.camel@moss-spartans.epoch.ncsc.mil>
 MIME-Version: 1.0
-To: James Morris <jmorris@namei.org>
-Cc: vyekkirala@TrustedCS.com, netdev@vger.kernel.org, selinux@tycho.nsa.gov,
-        sds@tycho.nsa.gov
-Subject: Re: [PATCH 2/3] mlsxfrm: Various fixes
-References: <000501c70342$83b9df70$cc0a010a@tcssec.com> <4552A9AC.3060708@hp.com> <Pine.LNX.4.64.0611082337520.5916@d.namei> <4552B5C1.8040007@hp.com> <Pine.LNX.4.64.0611090109120.10907@d.namei> <4552CD3B.40809@hp.com> <XMMS.LNX.4.64.0611090158550.11301@d.namei>
-In-Reply-To: <XMMS.LNX.4.64.0611090158550.11301@d.namei>
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-James Morris wrote:
-> On Thu, 9 Nov 2006, Paul Moore wrote:
-> 
->>It sounds like you have an idea of how you would like to see this implemented,
->>can you give me a rough outline?  Is this the partitioned SECMARK field you
->>talked about earlier?
-> 
-> No, just the fact that you are in the same kernel address space and can 
-> readily access the security context of the peer.
+On Thu, 9 Nov 2006, Stephen Smalley wrote:
 
-For a minute I got all excited thinking that you had found a solution to this :)
+> On Tue, 2006-11-07 at 16:20 -0500, James Morris wrote:
+> > On Tue, 7 Nov 2006, Stephen Smalley wrote:
+> > 
+> > > (re-added list to cc)
+> > 
+> > Thanks.
+> > 
+> > Stephen, do you think these patches are suitable for merging?
+> 
+> Yes.
+> 
+> Acked-by:  Stephen Smalley <sds@tycho.nsa.gov>
 
-The problem I keep running into is that it is not obvious to me how we can
-determine the security context of the sending socket on the receive side by
-looking at the skb.  I'm really hoping that it is just because I haven't looked
-at the code long enough, or thought about it hard enough.  It is just so
-frustrating because you are right - all the information is there, I just don't
-know how to get to it when we need it without using external labeling.
+Applied to 
+git://git.kernel.org/pub/scm/linux/kernel/git/jmorris/selinux-2.6.20.git
+
+
 
 -- 
-paul moore
-linux security @ hp
+James Morris
+<jmorris@namei.org>
 
 --
 This message was distributed to subscribers of the selinux mailing list.
