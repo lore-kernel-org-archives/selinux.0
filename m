@@ -1,46 +1,59 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id kA9Dnrkh018502
-	for <selinux@tycho.nsa.gov>; Thu, 9 Nov 2006 08:49:53 -0500
-Received: from mx1.redhat.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id kA9DnA18018379
-	for <selinux@tycho.nsa.gov>; Thu, 9 Nov 2006 13:49:10 GMT
-Received: from int-mx1.corp.redhat.com (int-mx1.corp.redhat.com [172.16.52.254])
-	by mx1.redhat.com (8.12.11.20060308/8.12.11) with ESMTP id kA9Do31D001993
-	for <selinux@tycho.nsa.gov>; Thu, 9 Nov 2006 08:50:03 -0500
-Received: from mail.boston.redhat.com (mail.boston.redhat.com [172.16.76.12])
-	by int-mx1.corp.redhat.com (8.13.1/8.13.1) with ESMTP id kA9Do3jG000445
-	for <selinux@tycho.nsa.gov>; Thu, 9 Nov 2006 08:50:03 -0500
-Received: from [10.11.14.182] (vpn-14-182.rdu.redhat.com [10.11.14.182])
-	by mail.boston.redhat.com (8.12.11.20060308/8.12.11) with ESMTP id kA9Do0ZT014273
-	for <selinux@tycho.nsa.gov>; Thu, 9 Nov 2006 08:50:02 -0500
-Message-ID: <45533208.6050806@redhat.com>
-Date: Thu, 09 Nov 2006 08:50:00 -0500
-From: Daniel J Walsh <dwalsh@redhat.com>
-MIME-Version: 1.0
-To: SE Linux <selinux@tycho.nsa.gov>
-Subject: I would like to propose that we add compression to handle all policy
- files on disk.
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Subject: Re: [PATCH 4/8] make newrole suid (take 3)
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: "Serge E. Hallyn" <serue@us.ibm.com>
+Cc: Michael C Thompson <thompsmc@us.ibm.com>, SE Linux <selinux@tycho.nsa.gov>
+In-Reply-To: <20061109051513.GA7208@sergelap.austin.ibm.com>
+References: <454A8F35.2020006@us.ibm.com> <454A95BC.7000807@us.ibm.com>
+	 <20061107052338.GB11273@sergelap.austin.ibm.com>
+	 <4550E7E4.4000505@us.ibm.com>
+	 <20061108173224.GB15592@sergelap.austin.ibm.com>
+	 <45523185.40502@us.ibm.com> <20061109051513.GA7208@sergelap.austin.ibm.com>
+Content-Type: text/plain
+Date: Thu, 09 Nov 2006 08:57:11 -0500
+Message-Id: <1163080631.12241.242.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-We are currently storing three sets of pp files on disk in Fedora as 
-well as a policy.21 file
-To get an idea of how much space we can save, I did this little 
-experiment.    I believe this change is
-critical for minimal installs, and if we want to eventually use SELinux 
-on certain small platforms.
+On Wed, 2006-11-08 at 23:15 -0600, Serge E. Hallyn wrote:
+> Quoting Michael C Thompson (thompsmc@us.ibm.com):
+> > This is a short list of what we do prior to the uid change:
+> > - locale actions
+> > - calls into libselinux, libaudit and libc
+> > - calls to pam
+> > 
+> > In short, for the case where we want namespace support, we execute as 
+> > root for nearly the entire lifetime of the application, and the parent 
+> > process retains euid 0 as well while the shell has been exec'd and is 
+> > waiting for the child to die.
+> > 
+> > We don't actually *need* to do this, but my reason was that if we retain 
+> > the ability to setuid and retain the capabilities on the permitted (but 
+> > not effective) list, then if an exploit would be discovered for the 
+> > program, then all the attacker would need to do is re-raise those 
+> > capabilities and game over.
+> > 
+> > I've only briefly consider the effects of maintaining euid=0 during the 
+> > life-time of the application, but it seems to me the only impact it will 
+> > have is during the pam_open_session call.
+> > 
+> > Does that make sense?
+> 
+> If I'm thinking straight, the main advantage of still dropping euid=0
+> is that if the attacker has limited space for shellcode, or for some
+> other reason can only do exec(/bin/sh), the caps will be dropped on
+> exec, but euid=0 will not.
 
-I think just changing libsemanage to handle compressed policy packages 
-and to create its itermediary files as compressed files and changing 
-libselinux able to read a compressed policy.21 file.
+pam_namespace needs to run with fsuid 0 (so that member directories it
+creates are immediately assigned a uid that is not accessible to the
+unprivileged caller).  Further, in the absence of a kernel with the
+fscaps patch, reverting uid while retaining capabilities (which
+pam_namespace also requires) is potentially dangerous, as it exposes the
+process to e.g. signals and other manipulation by the original uid.
 
-# tar cvf /tmp/selinux /etc/selinux/targeted /usr/share/selinux/targeted/
-# gzip -c /tmp/selinux > /tm/selinux.gz
-
-# du /tmp/selinux*
-57380   /tmp/selinux
-3772    /tmp/selinux.gz
+-- 
+Stephen Smalley
+National Security Agency
 
 
 --
