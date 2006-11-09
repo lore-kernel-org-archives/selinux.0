@@ -1,122 +1,76 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id kA9Jkwhm031249
-	for <selinux@tycho.nsa.gov>; Thu, 9 Nov 2006 14:46:58 -0500
-Received: from gateway-1237.mvista.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id kA9JjLew014087
-	for <selinux@tycho.nsa.gov>; Thu, 9 Nov 2006 19:45:21 GMT
-Received: from kelownaxp (asshur.mvista.com [10.0.0.11])
-	by hermes.mvista.com (Postfix) with ESMTP id 1E4801C358
-	for <selinux@tycho.nsa.gov>; Thu,  9 Nov 2006 11:47:06 -0800 (PST)
-Reply-To: <cstone@mvista.com>
-From: "Chris Stone" <cstone@mvista.com>
-To: "'SE Linux'" <selinux@tycho.nsa.gov>
-Subject: RE: I would like to propose that we add compression tohandleallpolicy files on disk.
-Date: Thu, 9 Nov 2006 14:47:26 -0500
-Message-ID: <001101c70437$e2a401a0$b60a10ac@kelownaxp>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-In-Reply-To: <1163099472.32083.55.camel@localhost.localdomain>
+Subject: Re: [PATCH 4/8] make newrole suid (take 3)
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: "Serge E. Hallyn" <serue@us.ibm.com>
+Cc: Michael C Thompson <thompsmc@us.ibm.com>, SE Linux <selinux@tycho.nsa.gov>
+In-Reply-To: <20061109163735.GA16709@sergelap.austin.ibm.com>
+References: <454A8F35.2020006@us.ibm.com> <454A95BC.7000807@us.ibm.com>
+	 <20061107052338.GB11273@sergelap.austin.ibm.com>
+	 <4550E7E4.4000505@us.ibm.com>
+	 <20061108173224.GB15592@sergelap.austin.ibm.com>
+	 <45523185.40502@us.ibm.com> <20061109051513.GA7208@sergelap.austin.ibm.com>
+	 <1163080631.12241.242.camel@moss-spartans.epoch.ncsc.mil>
+	 <20061109163735.GA16709@sergelap.austin.ibm.com>
+Content-Type: text/plain
+Date: Thu, 09 Nov 2006 15:06:23 -0500
+Message-Id: <1163102783.12241.366.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-For embedded devices, size is an issue. We have just started looking at
-this, because it is an issue we need to solve for our customers. I am an
-SELinux newbie, but, I wanted to add my two cents to the discussion. Please
-forgive me if my comments are not relevant.
+On Thu, 2006-11-09 at 10:37 -0600, Serge E. Hallyn wrote:
+> Quoting Stephen Smalley (sds@tycho.nsa.gov):
+> > On Wed, 2006-11-08 at 23:15 -0600, Serge E. Hallyn wrote:
+> > > Quoting Michael C Thompson (thompsmc@us.ibm.com):
+> > > > This is a short list of what we do prior to the uid change:
+> > > > - locale actions
+> > > > - calls into libselinux, libaudit and libc
+> > > > - calls to pam
+> > > > 
+> > > > In short, for the case where we want namespace support, we execute as 
+> > > > root for nearly the entire lifetime of the application, and the parent 
+> > > > process retains euid 0 as well while the shell has been exec'd and is 
+> > > > waiting for the child to die.
+> > > > 
+> > > > We don't actually *need* to do this, but my reason was that if we retain 
+> > > > the ability to setuid and retain the capabilities on the permitted (but 
+> > > > not effective) list, then if an exploit would be discovered for the 
+> > > > program, then all the attacker would need to do is re-raise those 
+> > > > capabilities and game over.
+> > > > 
+> > > > I've only briefly consider the effects of maintaining euid=0 during the 
+> > > > life-time of the application, but it seems to me the only impact it will 
+> > > > have is during the pam_open_session call.
+> > > > 
+> > > > Does that make sense?
+> > > 
+> > > If I'm thinking straight, the main advantage of still dropping euid=0
+> > > is that if the attacker has limited space for shellcode, or for some
+> > > other reason can only do exec(/bin/sh), the caps will be dropped on
+> > > exec, but euid=0 will not.
+> > 
+> > pam_namespace needs to run with fsuid 0 (so that member directories it
+> > creates are immediately assigned a uid that is not accessible to the
+> 
+> Actually a quick test (which I may be doing wrong) and the setfsuid
+> manpage suggests files are created as the euid, not fsuid.
 
-I would think that tools (such as setools) used for policy analysis or
-debugging would be host based. In other words, only the binary policy files
-are loaded on the target, and any other files needed to support analysis
-would be loaded on the host. Tools would connect to the device remotely and
-use the local files to interpret the devices policy, just like gdb loads
-symbols on a host to debug a binary running on a remote device. This is
-because policy analysis would only ever get done in the lab. Once a device
-is deployed, policy analysis would no longer be required. Nobody is going to
-deploy setools on an embedded device. If a problem occurs in the field, it
-would have to be reproduced in the lab, and then a new corrected binary
-policy deployed. I know that the tools don't currently work this way, but,
-they are going to have to be modified to support it.
+Look at ext3_new_inode().  The fsuid is assigned to newly created
+inodes.  However, it is true that the fsuid shadows the euid
+automatically, so if you set the euid, the fsuid will match.  But you
+can independently set the fsuid without affecting the euid.
 
-As far as storing the binary policy in the embedded devices file system,
-that can be solved by using a compressed file system such as sqaushfs,
-cramfs, or jffs2/3. It is certainly true that policies customized for
-embedded devices will have to be developed so that they are smaller. It
-seems to me that current policies are designed to handle the generic PC
-environment, which is not the same as an embedded environment at all.
+> I suppose a reserved non-root uid could be used, which would address
+> both the created file and malicious signals you worry about, as well
+> as the retention of uid across a shellcoded exec.
+>
+> But I really don't mean to beat a dead horse.  Thank you both for the
+> explanations, the patch does look sane.  (On my first reading I'd
+> actually misread the prctl and thought it was going to keep caps
+> across the final setuid).
 
-Finally, and this where I am really past my knowledge, but, it may be
-possible to use memory mapped files to reduce the amount of the binary
-policy that is actually loaded into memory.
-
-I think the bottom line is that it may be too soon to consider compressing
-the policy. We need to define the problem better, and consider the solution
-space, before we jump to a solution. MV is doing that and we hope to
-contribute in this area.
-
-Cheers,
-   Chris.
-
-----------------------------------------
-Christopher Stone
-Senior Software Engineer
-MontaVista Software,Inc. 
-2929 Patrick Henry Drive
-Santa Clara, CA. 95054-1831 
-Web: www.mvista.com
-613-831-1892
-> -----Original Message-----
-> From: owner-selinux@tycho.nsa.gov [mailto:owner-selinux@tycho.nsa.gov] On
-> Behalf Of Karl MacMillan
-> Sent: November 9, 2006 2:11 PM
-> To: Joshua Brindle
-> Cc: Stephen Smalley; Daniel J Walsh; SE Linux
-> Subject: RE: I would like to propose that we add compression
-> tohandleallpolicy files on disk.
-> 
-> On Thu, 2006-11-09 at 13:50 -0500, Joshua Brindle wrote:
-> > > From: Karl MacMillan [mailto:kmacmillan@mentalrootkit.com]
-> > >
-> > > On Thu, 2006-11-09 at 12:00 -0500, Joshua Brindle wrote:
-> > > > > From: Stephen Smalley [mailto:sds@tycho.nsa.gov]
-> > > > >
-> > > > > On Thu, 2006-11-09 at 10:13 -0500, Stephen Smalley wrote:
-> > > > > > On Thu, 2006-11-09 at 09:34 -0500, Joshua Brindle wrote:
-> > > >
-> > > > Karl suggested that we can compress the policy packages but not the
-> > > > kernel policy. As long as this isn't a policy package format change
-> > > > (eg., the policy packages in /usr/share/selinux are the
-> > > same they've
-> > > > always been) and it is only libsemanage manipulating the
-> > > files in the
-> > > > store I'm fine with that. The module store is a private resource of
-> > > > libsemanage so nothing else should be affected in any way by this.
-> > > >
-> > >
-> > > Making semodule recognize bzipped files should be pretty
-> > > simple as well
-> > > - why wouldn't we do that to save space in /usr/share/selinux?
-> > >
-> >
-> > What about everything else that will read modules (including setools in
-> > the future)?
-> 
-> It's a small amount of logic to detect.
-> 
-> >  They need to be stored in their native format and I don't
-> > think that libsepol should link against a compression library to make
-> > that happen.
-> 
-> What's wrong with letting libsepol dlopen libbz2.so?
-> 
-> Karl
-> 
-> 
-> --
-> This message was distributed to subscribers of the selinux mailing list.
-> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov
-> with
-> the words "unsubscribe selinux" without quotes as the message.
+-- 
+Stephen Smalley
+National Security Agency
 
 
 --
