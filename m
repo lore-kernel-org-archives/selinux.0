@@ -1,84 +1,57 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id kABIbRlp026102
-	for <selinux@tycho.nsa.gov>; Sat, 11 Nov 2006 13:37:27 -0500
-Received: from mail.atsec.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id kABIahII006505
-	for <selinux@tycho.nsa.gov>; Sat, 11 Nov 2006 18:36:44 GMT
-Date: Sat, 11 Nov 2006 12:37:21 -0600
-From: Klaus Weidner <klaus@atsec.com>
-To: selinux@tycho.nsa.gov
-Subject: MLS policy constraints verification
-Message-ID: <20061111183721.GA629@w-m-p.com>
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id kACLQkIH029184
+	for <selinux@tycho.nsa.gov>; Sun, 12 Nov 2006 16:26:46 -0500
+Received: from e6.ny.us.ibm.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id kACLP8LY022572
+	for <selinux@tycho.nsa.gov>; Sun, 12 Nov 2006 21:25:08 GMT
+Received: from d01relay02.pok.ibm.com (d01relay02.pok.ibm.com [9.56.227.234])
+	by e6.ny.us.ibm.com (8.13.8/8.12.11) with ESMTP id kACLRIxO013165
+	for <selinux@tycho.nsa.gov>; Sun, 12 Nov 2006 16:27:18 -0500
+Received: from d01av02.pok.ibm.com (d01av02.pok.ibm.com [9.56.224.216])
+	by d01relay02.pok.ibm.com (8.13.6/8.13.6/NCO v8.1.1) with ESMTP id kACLQm2E306172
+	for <selinux@tycho.nsa.gov>; Sun, 12 Nov 2006 16:26:59 -0500
+Received: from d01av02.pok.ibm.com (loopback [127.0.0.1])
+	by d01av02.pok.ibm.com (8.12.11.20060308/8.13.3) with ESMTP id kACLQlTd031349
+	for <selinux@tycho.nsa.gov>; Sun, 12 Nov 2006 16:26:47 -0500
+Received: from [127.0.0.1] (wecm-9-67-59-252.wecm.ibm.com [9.67.59.252])
+	by d01av02.pok.ibm.com (8.12.11.20060308/8.12.11) with ESMTP id kACLQkOD031323
+	for <selinux@tycho.nsa.gov>; Sun, 12 Nov 2006 16:26:47 -0500
+Message-ID: <4557918B.20909@us.ibm.com>
+Date: Sun, 12 Nov 2006 15:26:35 -0600
+From: Michael C Thompson <thompsmc@us.ibm.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: SE Linux <selinux@tycho.nsa.gov>
+Subject: genhomedircon bug
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hello,
+I found a bug in genhomedircon:
 
-in the ongoing LSPP evaluation project, a review of the constraints
-defined in "policy/mls" in the refpolicy turned up some suspicious
-entries.
+policycoreutils.x86_64 1.32-3
 
-Could people who wrote the policy or have opinions on what it's supposed
-to be please comment?
+# genhomedircon
+libsemanage.semanage_direct_connect: could not establish direct connection
+libsemanage.assert_init: A direct or server connection is needed to use 
+this function - please call the corresponding connect() method
+libsemanage.enter_ro: could not enter read-only section
+Traceback (most recent call last):
+   File "/usr/sbin/genhomedircon", line 379, in ?
+     selconf = selinuxConfig(directory, type, usepwd)
+   File "/usr/sbin/genhomedircon", line 140, in __init__
+     (status, self.ulist) = semanage_user_list(self.semanageHandle)
+TypeError: unpack non-sequence
 
-In the following, I'm generally assuming that l1/h1 correspond to the
-process (subject) and l2/h2 correspond to the object. Apparently the only
-way to be sure is to look in security/selinux/hooks.c and see how it's
-used - probably it would be a good idea to add appropriate comments to
-the policy constraints if that isn't the case.
 
-% mlsconstrain dir { add_name remove_name reparent rmdir }
-%	((( l1 dom l2 ) and ( l1 domby h2 )) or [OVERRIDE]
+# id
+uid=0(root) gid=0(root) 
+groups=0(root),1(bin),2(daemon),3(sys),4(adm),6(disk),10(wheel) 
+context=staff_u:secadm_r:secadm_t:SystemLow-SystemHigh
 
-This appears to be a "write" operation on the directory, but the
-constraint looks like a "ranged read" operation. Shouldn't this be "l1
-eq l2" to enforce "write equal" for subjects without overrides?
 
-% # the socket "write" ops
-% mlsconstrain { socket tcp_socket udp_socket [...] }
-% { write setattr relabelfrom connect setopt shutdown }
-%         ((( l1 dom l2 ) and ( l1 domby h2 )) or [OVERRIDE]
+Thanks,
+Mike
 
-The socket "write" check looks like a "ranged read". (Note that "socket
-read" checks for "( l1 dom l2 )").
-
-% # the netif/node "read" ops (implicit single level socket doing the read)
-% #                           (note the check is dominance of the low level)
-% mlsconstrain { node netif } { tcp_recv udp_recv rawip_recv }
-%         (( l1 dom l2 ) or ( t1 == mlsnetrecvall ));
-% 
-% # the netif/node "write" ops (implicit single level socket doing the write)
-% mlsconstrain { netif node } { tcp_send udp_send rawip_send }
-%         (( l1 dom l2 ) and ( l1 domby h2 ));
-
-The "read" and "write" constraints both use "l1 dom l2" which looks
-wrong.
-
-% mlsconstrain association { recvfrom }
-%         ((( l1 dom l2 ) and ( l1 domby h2 )) or [OVERRIDE]
-% 
-% mlsconstrain association { sendto }
-%         ((( l1 dom l2 ) and ( l1 domby h2 )) or [OVERRIDE]
-
-(see previous, the send/recv constraints shouldn't be the same?)
-
-In general, we had previously talked about how it would be more
-appropriate to check for MLS level equality for "connect" and "accept"
-operations. The sockets are generally bidirectional for reading and
-writing, and the levels would need to dominate each other. It greatly
-simplifies analysis if the security enforcing check happens at the time
-you receive the socket descriptor, and you don't need to depend on
-read/write doing MLS checks.
-
-Does anyone have an explanation or justification why the constraints are
-the way they currently are? If not, I'll try preparing a patch to make
-them stricter. (Note that it's fine to have overrides that break the
-strict constraints such as level equality for accept/connect, but the
-default for unprivileged users needs to be secure.)
-
--Klaus
 
 --
 This message was distributed to subscribers of the selinux mailing list.
