@@ -1,41 +1,76 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id kADE0lXH016503
-	for <selinux@tycho.nsa.gov>; Mon, 13 Nov 2006 09:00:47 -0500
-Received: from exchange.columbia.tresys.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with SMTP id kADDxAvm023101
-	for <selinux@tycho.nsa.gov>; Mon, 13 Nov 2006 13:59:11 GMT
-Subject: Re: MLS policy constraints verification
-From: "Christopher J. PeBenito" <cpebenito@tresys.com>
-To: Klaus Weidner <klaus@atsec.com>, Chad Hanson <chanson@TrustedCS.com>,
-        Darrel Goeddel <dgoeddel@TrustedCS.com>
-Cc: selinux@tycho.nsa.gov
-In-Reply-To: <20061111183721.GA629@w-m-p.com>
-References: <20061111183721.GA629@w-m-p.com>
-Content-Type: text/plain
-Date: Mon, 13 Nov 2006 09:02:47 -0500
-Message-Id: <1163426567.18181.104.camel@sgc.columbia.tresys.com>
-Mime-Version: 1.0
+Reply-To: <vyekkirala@TrustedCS.com>
+From: "Venkat Yekkirala" <vyekkirala@TrustedCS.com>
+To: "'Joshua Brindle'" <jbrindle@tresys.com>
+Cc: <netdev@vger.kernel.org>, <selinux@tycho.nsa.gov>, <jmorris@namei.org>,
+        <sds@tycho.nsa.gov>
+Subject: RE: [PATCH 0/3] labeled-ipsec: Repost patchset with updates [Originally: mlsxfrm: Various Fixes]
+Date: Mon, 13 Nov 2006 09:42:38 -0600
+Message-ID: <000401c7073a$5a762be0$cc0a010a@tcssec.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+In-Reply-To: <4555F8BB.30105@tresys.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Sat, 2006-11-11 at 12:37 -0600, Klaus Weidner wrote:
-> in the ongoing LSPP evaluation project, a review of the constraints
-> defined in "policy/mls" in the refpolicy turned up some suspicious
-> entries.
+> I pulled in the lspp respin kernels and am checking the labeling 
+> behavior now so I should have a full response later, however 
+> I ran into 
+> one unexpected thing immediately on bootup with the new kernel:
+
+Just FYI- The labeled-ipsec patch doesn't affect or influence the
+packet class handling in any manner.
+
 > 
-> Could people who wrote the policy or have opinions on what it's supposed
-> to be please comment?
+> audit(1163061323.188:197): avc:  denied  { send } for  pid=1676 
+> comm="modprobe" daddr=ff02:0000:0000:0000:0000:0000:0000:0016 
+> netif=eth0 
+> scontext=system_u:system_r:kernel_t:s0 
+> tcontext=system_u:object_r:unlabeled_t:s0 tclass=packet
+> audit(1163061343.335:204): avc:  denied  { send } for  pid=1804 
+> comm="avahi-daemon" saddr=fe80:0000:0000:0000:020c:29ff:fe72:2dd1 
+> src=5353 daddr=ff02:0000:0000:0000:0000:0000:0000:00fb dest=5353 
+> netif=eth0 scontext=system_u:system_r:avahi_t:s0 
+> tcontext=system_u:object_r:unlabeled_t:s0 tclass=packet
+> audit(1163061343.338:205): avc:  denied  { recv } for  pid=1804 
+> comm="avahi-daemon" saddr=fe80:0000:0000:0000:020c:29ff:fe72:2dd1 
+> src=5353 daddr=ff02:0000:0000:0000:0000:0000:0000:00fb dest=5353 
+> netif=eth0 scontext=system_u:system_r:avahi_t:s0 
+> tcontext=system_u:object_r:unlabeled_t:s0 tclass=packet
+> audit(1163061346.139:210): avc:  denied  { send } for  pid=1856 
+> comm="smartd-conf.py" saddr=fe80:0000:0000:0000:020c:29ff:fe72:2dd1 
+> daddr=ff02:0000:0000:0000:0000:0000:0000:0016 netif=eth0 
+> scontext=system_u:system_r:kernel_t:s0 
+> tcontext=system_u:object_r:unlabeled_t:s0 tclass=packet
+> 
+> These denials come after iptables-restore sets up labeling in 
+> the mangle 
+> table so I'm not sure why they are unlabeled..
 
-The constraints are almost all from the old example policy and were
-written by TCS since they did the enhanced MLS support.  Since I'm not
-familiar with the LSPP requirements, I can't speak to whether or not the
-MLS is strict enough to meet the requirements.  Chad, Darrel?
+Could you list the mangle table rules and see that the above IPv6
+addresses are covered (i.e. labeled appropriately) or otherwise that
+your policy allows kernel_t to receive all packets (may or may not be
+desired/good, just thinking out loud).
 
--- 
-Chris PeBenito
-Tresys Technology, LLC
-(410) 290-1411 x150
+> They also 
+> don't say which 
+> port they were using,
 
+The port info is currently available only for tcp/udp packets.
+
+> perhaps is it a different protocol that 
+> our packet 
+> labeling isn't covering yet?
+
+James can perhaps comment on this better, but it *should* be covered
+to the extent that you are able to define mangle table/secmark rules
+for them.
+
+> Is there any way we could get protocol 
+> information in the denial?
+
+This is possible with kernel changes, specifically by adding protocol
+to avc_audit_data. If Stephen agrees I can look into doing it.
 
 --
 This message was distributed to subscribers of the selinux mailing list.
