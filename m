@@ -1,56 +1,62 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id kACLQkIH029184
-	for <selinux@tycho.nsa.gov>; Sun, 12 Nov 2006 16:26:46 -0500
-Received: from e6.ny.us.ibm.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id kACLP8LY022572
-	for <selinux@tycho.nsa.gov>; Sun, 12 Nov 2006 21:25:08 GMT
-Received: from d01relay02.pok.ibm.com (d01relay02.pok.ibm.com [9.56.227.234])
-	by e6.ny.us.ibm.com (8.13.8/8.12.11) with ESMTP id kACLRIxO013165
-	for <selinux@tycho.nsa.gov>; Sun, 12 Nov 2006 16:27:18 -0500
-Received: from d01av02.pok.ibm.com (d01av02.pok.ibm.com [9.56.224.216])
-	by d01relay02.pok.ibm.com (8.13.6/8.13.6/NCO v8.1.1) with ESMTP id kACLQm2E306172
-	for <selinux@tycho.nsa.gov>; Sun, 12 Nov 2006 16:26:59 -0500
-Received: from d01av02.pok.ibm.com (loopback [127.0.0.1])
-	by d01av02.pok.ibm.com (8.12.11.20060308/8.13.3) with ESMTP id kACLQlTd031349
-	for <selinux@tycho.nsa.gov>; Sun, 12 Nov 2006 16:26:47 -0500
-Received: from [127.0.0.1] (wecm-9-67-59-252.wecm.ibm.com [9.67.59.252])
-	by d01av02.pok.ibm.com (8.12.11.20060308/8.12.11) with ESMTP id kACLQkOD031323
-	for <selinux@tycho.nsa.gov>; Sun, 12 Nov 2006 16:26:47 -0500
-Message-ID: <4557918B.20909@us.ibm.com>
-Date: Sun, 12 Nov 2006 15:26:35 -0600
-From: Michael C Thompson <thompsmc@us.ibm.com>
-MIME-Version: 1.0
-To: SE Linux <selinux@tycho.nsa.gov>
-Subject: genhomedircon bug
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Subject: Flask headers (Was: RE: [PATCH RFC] SELinux support for DCCP)
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: James Morris <jmorris@namei.org>
+Cc: Joshua Brindle <jbrindle@tresys.com>, selinux@tycho.nsa.gov,
+        "Christopher J. PeBenito" <cpebenito@tresys.com>,
+        Chad Sellers <csellers@tresys.com>
+In-Reply-To: <XMMS.LNX.4.64.0611111302030.30219@d.namei>
+References: 
+	 <6FE441CD9F0C0C479F2D88F959B015885C76FB@exchange.columbia.tresys.com>
+	 <XMMS.LNX.4.64.0611111302030.30219@d.namei>
+Content-Type: text/plain
+Date: Mon, 13 Nov 2006 08:28:28 -0500
+Message-Id: <1163424508.24635.14.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-I found a bug in genhomedircon:
+On Sat, 2006-11-11 at 13:03 -0500, James Morris wrote:
+> On Sat, 11 Nov 2006, Joshua Brindle wrote:
+> 
+> > > From: James Morris [mailto:jmorris@namei.org] 
+> > > 
+> > > On Sat, 11 Nov 2006, Joshua Brindle wrote:
+> > > 
+> > > > James Morris wrote:
+> > > > > The kernel patch is included below, please review.
+> > > > > 
+> > > > > Signed-off-by: James Morris <jmorris@namei.org>
+> > > > >   +#define CONTEXT__TRANSLATE                        0x00000001UL
+> > > > > +#define CONTEXT__CONTAINS                         0x00000002UL
+> > > > >   +   S_(SECCLASS_CONTEXT, CONTEXT__TRANSLATE, "translate")
+> > > > > +   S_(SECCLASS_CONTEXT, CONTEXT__CONTAINS, "contains")
+> > > > >   +    S_("context")
+> > > > >   +#define SECCLASS_CONTEXT                                 59
+> > > > >   
+> > > > 
+> > > > oops?
+> > > 
+> > > What?
+> > > 
+> > 
+> > Did you mean to include context classes as part of the dccp patch?
+> 
+> The kernel headers have to match the flask headers in the userland tools, 
+> as they share policy-related data structures.  Ideally, we'd have security 
+> server namespaces, to keep these things separate.
 
-policycoreutils.x86_64 1.32-3
+Given the class/permission validation patches by Chad, we should modify
+the policy scripts that generate the Flask headers to use the existing #
+userspace annotations in security_classes to generate two sets of
+headers, one for the kernel that only includes the kernel definitions
+and one for libselinux that has them all.  The values will stay the
+same, but the kernel doesn't need the userspace definitions and we don't
+want the kernel imposing restrictions on the ability to modify those
+userspace definitions later.
 
-# genhomedircon
-libsemanage.semanage_direct_connect: could not establish direct connection
-libsemanage.assert_init: A direct or server connection is needed to use 
-this function - please call the corresponding connect() method
-libsemanage.enter_ro: could not enter read-only section
-Traceback (most recent call last):
-   File "/usr/sbin/genhomedircon", line 379, in ?
-     selconf = selinuxConfig(directory, type, usepwd)
-   File "/usr/sbin/genhomedircon", line 140, in __init__
-     (status, self.ulist) = semanage_user_list(self.semanageHandle)
-TypeError: unpack non-sequence
-
-
-# id
-uid=0(root) gid=0(root) 
-groups=0(root),1(bin),2(daemon),3(sys),4(adm),6(disk),10(wheel) 
-context=staff_u:secadm_r:secadm_t:SystemLow-SystemHigh
-
-
-Thanks,
-Mike
+-- 
+Stephen Smalley
+National Security Agency
 
 
 --
