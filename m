@@ -1,76 +1,49 @@
-Reply-To: <vyekkirala@TrustedCS.com>
-From: "Venkat Yekkirala" <vyekkirala@TrustedCS.com>
-To: "'Joshua Brindle'" <jbrindle@tresys.com>
-Cc: <netdev@vger.kernel.org>, <selinux@tycho.nsa.gov>, <jmorris@namei.org>,
-        <sds@tycho.nsa.gov>
-Subject: RE: [PATCH 0/3] labeled-ipsec: Repost patchset with updates [Originally: mlsxfrm: Various Fixes]
-Date: Mon, 13 Nov 2006 09:42:38 -0600
-Message-ID: <000401c7073a$5a762be0$cc0a010a@tcssec.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-In-Reply-To: <4555F8BB.30105@tresys.com>
+Subject: Re: Flask headers (Was: RE: [PATCH RFC] SELinux support for DCCP)
+From: "Christopher J. PeBenito" <cpebenito@tresys.com>
+To: Stephen Smalley <sds@tycho.nsa.gov>
+Cc: James Morris <jmorris@namei.org>, Joshua Brindle <jbrindle@tresys.com>,
+        selinux@tycho.nsa.gov, Chad Sellers <csellers@tresys.com>
+In-Reply-To: <1163424508.24635.14.camel@moss-spartans.epoch.ncsc.mil>
+References: 
+	 <6FE441CD9F0C0C479F2D88F959B015885C76FB@exchange.columbia.tresys.com>
+	 <XMMS.LNX.4.64.0611111302030.30219@d.namei>
+	 <1163424508.24635.14.camel@moss-spartans.epoch.ncsc.mil>
+Content-Type: text/plain
+Date: Mon, 13 Nov 2006 11:30:02 -0500
+Message-Id: <1163435402.18181.121.camel@sgc.columbia.tresys.com>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-> I pulled in the lspp respin kernels and am checking the labeling 
-> behavior now so I should have a full response later, however 
-> I ran into 
-> one unexpected thing immediately on bootup with the new kernel:
-
-Just FYI- The labeled-ipsec patch doesn't affect or influence the
-packet class handling in any manner.
-
+On Mon, 2006-11-13 at 08:28 -0500, Stephen Smalley wrote:
+> On Sat, 2006-11-11 at 13:03 -0500, James Morris wrote:
+> > The kernel headers have to match the flask headers in the userland tools, 
+> > as they share policy-related data structures.  Ideally, we'd have security 
+> > server namespaces, to keep these things separate.
 > 
-> audit(1163061323.188:197): avc:  denied  { send } for  pid=1676 
-> comm="modprobe" daddr=ff02:0000:0000:0000:0000:0000:0000:0016 
-> netif=eth0 
-> scontext=system_u:system_r:kernel_t:s0 
-> tcontext=system_u:object_r:unlabeled_t:s0 tclass=packet
-> audit(1163061343.335:204): avc:  denied  { send } for  pid=1804 
-> comm="avahi-daemon" saddr=fe80:0000:0000:0000:020c:29ff:fe72:2dd1 
-> src=5353 daddr=ff02:0000:0000:0000:0000:0000:0000:00fb dest=5353 
-> netif=eth0 scontext=system_u:system_r:avahi_t:s0 
-> tcontext=system_u:object_r:unlabeled_t:s0 tclass=packet
-> audit(1163061343.338:205): avc:  denied  { recv } for  pid=1804 
-> comm="avahi-daemon" saddr=fe80:0000:0000:0000:020c:29ff:fe72:2dd1 
-> src=5353 daddr=ff02:0000:0000:0000:0000:0000:0000:00fb dest=5353 
-> netif=eth0 scontext=system_u:system_r:avahi_t:s0 
-> tcontext=system_u:object_r:unlabeled_t:s0 tclass=packet
-> audit(1163061346.139:210): avc:  denied  { send } for  pid=1856 
-> comm="smartd-conf.py" saddr=fe80:0000:0000:0000:020c:29ff:fe72:2dd1 
-> daddr=ff02:0000:0000:0000:0000:0000:0000:0016 netif=eth0 
-> scontext=system_u:system_r:kernel_t:s0 
-> tcontext=system_u:object_r:unlabeled_t:s0 tclass=packet
-> 
-> These denials come after iptables-restore sets up labeling in 
-> the mangle 
-> table so I'm not sure why they are unlabeled..
+> Given the class/permission validation patches by Chad, we should modify
+> the policy scripts that generate the Flask headers to use the existing #
+> userspace annotations in security_classes to generate two sets of
+> headers, one for the kernel that only includes the kernel definitions
+> and one for libselinux that has them all.
 
-Could you list the mangle table rules and see that the above IPv6
-addresses are covered (i.e. labeled appropriately) or otherwise that
-your policy allows kernel_t to receive all packets (may or may not be
-desired/good, just thinking out loud).
+Let me just clarify this:
 
-> They also 
-> don't say which 
-> port they were using,
+> The values will stay the same, but the kernel doesn't need the
+> userspace definitions and we don't want the kernel imposing
+> restrictions on the ability to modify those userspace definitions
+> later.
 
-The port info is currently available only for tcp/udp packets.
+So basically you're just suggesting we drop out the userspace permission
+definitions in av_permissions.h and in av_perm_to_string.h for the
+kernel?  All the class definitions will still have to stick around so
+the offsets for the classes to remain correct.
 
-> perhaps is it a different protocol that 
-> our packet 
-> labeling isn't covering yet?
+-- 
+Chris PeBenito
+Tresys Technology, LLC
+(410) 290-1411 x150
 
-James can perhaps comment on this better, but it *should* be covered
-to the extent that you are able to define mangle table/secmark rules
-for them.
-
-> Is there any way we could get protocol 
-> information in the denial?
-
-This is possible with kernel changes, specifically by adding protocol
-to avc_audit_data. If Stephen agrees I can look into doing it.
 
 --
 This message was distributed to subscribers of the selinux mailing list.
