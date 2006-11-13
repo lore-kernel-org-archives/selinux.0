@@ -1,43 +1,35 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id kADDtqA2016283
-	for <selinux@tycho.nsa.gov>; Mon, 13 Nov 2006 08:55:52 -0500
-Received: from exchange.columbia.tresys.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with SMTP id kADDt9K7027507
-	for <selinux@tycho.nsa.gov>; Mon, 13 Nov 2006 13:55:09 GMT
-Subject: Re: broken interface: userdom_common_user_template
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id kADE0lXH016503
+	for <selinux@tycho.nsa.gov>; Mon, 13 Nov 2006 09:00:47 -0500
+Received: from exchange.columbia.tresys.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with SMTP id kADDxAvm023101
+	for <selinux@tycho.nsa.gov>; Mon, 13 Nov 2006 13:59:11 GMT
+Subject: Re: MLS policy constraints verification
 From: "Christopher J. PeBenito" <cpebenito@tresys.com>
-To: Michael C Thompson <thompsmc@us.ibm.com>
-Cc: SE Linux <selinux@tycho.nsa.gov>
-In-Reply-To: <4554F6C5.2090308@us.ibm.com>
-References: <4554F6C5.2090308@us.ibm.com>
+To: Klaus Weidner <klaus@atsec.com>, Chad Hanson <chanson@TrustedCS.com>,
+        Darrel Goeddel <dgoeddel@TrustedCS.com>
+Cc: selinux@tycho.nsa.gov
+In-Reply-To: <20061111183721.GA629@w-m-p.com>
+References: <20061111183721.GA629@w-m-p.com>
 Content-Type: text/plain
-Date: Mon, 13 Nov 2006 08:57:51 -0500
-Message-Id: <1163426272.18181.98.camel@sgc.columbia.tresys.com>
+Date: Mon, 13 Nov 2006 09:02:47 -0500
+Message-Id: <1163426567.18181.104.camel@sgc.columbia.tresys.com>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2006-11-10 at 16:01 -0600, Michael C Thompson wrote:
-> So I am seeing a broken interface problem in policy package version 
-> selinux-policy-2.4.3-8.
+On Sat, 2006-11-11 at 12:37 -0600, Klaus Weidner wrote:
+> in the ongoing LSPP evaluation project, a review of the constraints
+> defined in "policy/mls" in the refpolicy turned up some suspicious
+> entries.
 > 
-> The problem is as follows:
-> 
-> # make
-> Compiling strict abat module
-> /usr/bin/checkmodule:  loading policy configuration from tmp/abat.tmp
-> abat.te:49:ERROR 'unknown class context used in rule' at token ';' on 
-> line 82511:
-> #line 49
->          allow abat_t self:context contains;
-> /usr/bin/checkmodule:  error(s) encountered while parsing configuration
-> make: *** [tmp/abat.mod] Error 1
-> 
-> Line 49: userdom_admin_user_template(abat)
+> Could people who wrote the policy or have opinions on what it's supposed
+> to be please comment?
 
-You need to add this to it's gen_require():
-
-class context contains;
+The constraints are almost all from the old example policy and were
+written by TCS since they did the enhanced MLS support.  Since I'm not
+familiar with the LSPP requirements, I can't speak to whether or not the
+MLS is strict enough to meet the requirements.  Chad, Darrel?
 
 -- 
 Chris PeBenito
