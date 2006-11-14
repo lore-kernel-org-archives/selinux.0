@@ -1,48 +1,32 @@
-Message-ID: <4559EC24.90509@mentalrootkit.com>
-Date: Tue, 14 Nov 2006 11:17:40 -0500
-From: Karl MacMillan <kmacmillan@mentalrootkit.com>
-MIME-Version: 1.0
-To: Joshua Brindle <jbrindle@tresys.com>
-CC: Daniel J Walsh <dwalsh@redhat.com>, Stephen Smalley <sds@tycho.nsa.gov>,
-        SE Linux <selinux@tycho.nsa.gov>
-Subject: Re: I would like to propose that we add compression to handle	allpolicy
- files on disk.
-References: <6FE441CD9F0C0C479F2D88F959B015885C7836@exchange.columbia.tresys.com>
-In-Reply-To: <6FE441CD9F0C0C479F2D88F959B015885C7836@exchange.columbia.tresys.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Subject: Re: Multiple small fixes to policycoreutils
+From: "Christopher J. PeBenito" <cpebenito@tresys.com>
+To: Daniel J Walsh <dwalsh@redhat.com>
+Cc: SE Linux <selinux@tycho.nsa.gov>, Stephen Smalley <sds@tycho.nsa.gov>
+In-Reply-To: <4559DB81.7060601@redhat.com>
+References: <4559DB81.7060601@redhat.com>
+Content-Type: text/plain
+Date: Tue, 14 Nov 2006 11:13:32 -0500
+Message-Id: <1163520813.18181.131.camel@sgc.columbia.tresys.com>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Joshua Brindle wrote:
->> From: Daniel J Walsh [mailto:dwalsh@redhat.com] 
->>
-> 
->> I am planning on compressing them, and changing the post 
->> install to uncompress into a temp dir during install.  That 
->> way it will at least be less of a problem.
->>
->> That along with elimination of some of the stuff in modules 
->> subdirs should save us a lot of space, until we get some 
->> consensus on compression of the pp files.
->>
-> 
-> So you are going to compress them *until* we get a consensus on
-> compressing them? This seems like a bad idea if we are going to try to
-> have any kind of consistency between selinux distributions (or even
-> between RH and upstream..)
-> 
+On Tue, 2006-11-14 at 10:06 -0500, Daniel J Walsh wrote:
+> Add -fPIE and -pie to build of restorecond.
 
-Just the files from the rpm.
+> -CFLAGS ?= -g -Werror -Wall -W
+> -override CFLAGS += -I$(PREFIX)/include -D_FILE_OFFSET_BITS=64
+> +LDFLAGS ?= -pie
+> +CFLAGS ?= -g -Werror -Wall -W 
+> +override CFLAGS += -I$(PREFIX)/include -D_FILE_OFFSET_BITS=64 -fPIE
 
-> I think having libsemanage compress files in the store is fine, as
-> that's a private resource of libsemanage users but having files on the
-> filesystem that are compressed but has nothing that can read them in the
-> format they are in on disk is not ideal I don't think..
-> 
+I would say that this shouldn't be added in general, especially not to
+the override.  The default flags should be pretty basic, IMO.
 
-If they sit there with a .bz2 extension I think it is not a big deal.
-
-Karl
+-- 
+Chris PeBenito
+Tresys Technology, LLC
+(410) 290-1411 x150
 
 
 --
