@@ -1,322 +1,288 @@
-From: David Howells <dhowells@redhat.com>
-Subject: [PATCH 19/19] CacheFiles: Permit daemon to probe inuseness of a cache file
-Date: Tue, 14 Nov 2006 20:07:02 +0000
-To: torvalds@osdl.org, akpm@osdl.org, sds@tycho.nsa.gov,
-        trond.myklebust@fys.uio.no
-Cc: dhowells@redhat.com, selinux@tycho.nsa.gov, linux-kernel@vger.kernel.org,
-        aviro@redhat.com, steved@redhat.com
-Message-Id: <20061114200702.12943.39624.stgit@warthog.cambridge.redhat.com>
-In-Reply-To: <20061114200621.12943.18023.stgit@warthog.cambridge.redhat.com>
-References: <20061114200621.12943.18023.stgit@warthog.cambridge.redhat.com>
-Content-Type: text/plain; charset=utf-8; format=fixed
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id kAEKBXWE031537
+	for <selinux@tycho.nsa.gov>; Tue, 14 Nov 2006 15:11:33 -0500
+Received: from mx1.redhat.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id kAEKAnWe017972
+	for <selinux@tycho.nsa.gov>; Tue, 14 Nov 2006 20:10:50 GMT
+Message-ID: <455A2304.5090709@redhat.com>
+Date: Tue, 14 Nov 2006 15:11:48 -0500
+From: Daniel J Walsh <dwalsh@redhat.com>
+MIME-Version: 1.0
+To: "Christopher J. PeBenito" <cpebenito@tresys.com>
+CC: SE Linux <selinux@tycho.nsa.gov>
+Subject: Re: Latest Diffs
+References: <453E2A8C.4070207@redhat.com> <1162328409.31675.131.camel@sgc.columbia.tresys.com>
+In-Reply-To: <1162328409.31675.131.camel@sgc.columbia.tresys.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Permit the daemon to probe to see whether a cache file is in use by a netfs or
-not.
+http://people.redhat.com/dwalsh/SELinux/policy-20061106.patch.gz
 
-Signed-Off-By: David Howells <dhowells@redhat.com>
----
+Christopher J. PeBenito wrote:
+> On Tue, 2006-10-24 at 11:00 -0400, Daniel J Walsh wrote:
+>   
+>> flow_in flow_out changes for labeled networking.  Not sure if these are 
+>> still needed.
+>>     
+>
+> Dropped this since labeled networking is still up in the air.
+>
+>   
+I need to leave it in since I have already released it and any loadable
+modules that have been created require it.
 
- fs/cachefiles/cf-daemon.c |   73 +++++++++++++++++++
- fs/cachefiles/cf-namei.c  |  170 +++++++++++++++++++++++++++++++++++++++++++++
- fs/cachefiles/internal.h  |    3 +
- 3 files changed, 246 insertions(+), 0 deletions(-)
+>> Added use_lpd_server boolean to eliminate some not needed permissions 
+>> from cups versions of lpr commands.
+>>     
+>
+> I would rather split out the lpr portions out to a lpr module that would
+> function like the mta module.  Then the rules that aren't common for lpd
+> and cups can go into optionals.
+>
+>   
+Ok, when that I happens I will switch.
+>> Added a userdom_executable_file type so that we can change the ability 
+>> to execute all commands in MLS, to only be allowed to execute commands 
+>> that an admin would legitimately like to execute without transition.
+>>     
+>
+> I don't like the implementation of this; the idea of a user executable
+> doesn't make sense to me.  It may be better defining this concept in
+> terms of executables an admin wouldn't execute.
+>
+>   
+I am trying to differentiate between executing commands like tools that
+run in a domain and outside a domain cvs, rsync, rpm  from always
+confined domains.
+The requirement for this comes from MLS policy, we want to have a
+failure when sysadm tries to run a SELinux utility.
 
-diff --git a/fs/cachefiles/cf-daemon.c b/fs/cachefiles/cf-daemon.c
-index ae82685..ee07865 100644
---- a/fs/cachefiles/cf-daemon.c
-+++ b/fs/cachefiles/cf-daemon.c
-@@ -38,6 +38,7 @@ static int cachefiles_daemon_cull(struct
- static int cachefiles_daemon_debug(struct cachefiles_cache *cache, char *args);
- static int cachefiles_daemon_dir(struct cachefiles_cache *cache, char *args);
- static int cachefiles_daemon_tag(struct cachefiles_cache *cache, char *args);
-+static int cachefiles_daemon_inuse(struct cachefiles_cache *cache, char *args);
- 
- static unsigned long cachefiles_open;
- 
-@@ -66,6 +67,7 @@ static const struct cachefiles_daemon_cm
- 	{ "frun",	cachefiles_daemon_frun	},
- 	{ "fcull",	cachefiles_daemon_fcull	},
- 	{ "fstop",	cachefiles_daemon_fstop	},
-+	{ "inuse",	cachefiles_daemon_inuse	},
- 	{ "tag",	cachefiles_daemon_tag	},
- 	{ "",		NULL			}
- };
-@@ -602,3 +604,74 @@ inval:
- 	kerror("debug command requires mask");
- 	return -EINVAL;
- }
-+
-+/*
-+ * find out whether an object is in use or not
-+ * - command: "inuse <dirfd> <name>"
-+ */
-+static int cachefiles_daemon_inuse(struct cachefiles_cache *cache, char *args)
-+{
-+	struct dentry *dir;
-+	struct file *dirfile;
-+	uid_t fsuid;
-+	gid_t fsgid;
-+	u32 fscreatesid;
-+	int dirfd, fput_needed, ret;
-+
-+	_enter(",%s", args);
-+
-+	dirfd = simple_strtoul(args, &args, 0);
-+
-+	if (!isspace(*args))
-+		goto inval;
-+
-+	while (isspace(*args))
-+		args++;
-+
-+	if (!*args)
-+		goto inval;
-+
-+	if (strchr(args, '/'))
-+		goto inval;
-+
-+	if (!test_bit(CACHEFILES_READY, &cache->flags)) {
-+		kerror("inuse applied to unready cache");
-+		return -EIO;
-+	}
-+
-+	if (test_bit(CACHEFILES_DEAD, &cache->flags)) {
-+		kerror("inuse applied to dead cache");
-+		return -EIO;
-+	}
-+
-+	/* extract the directory dentry from the fd */
-+	dirfile = fget_light(dirfd, &fput_needed);
-+	if (!dirfile) {
-+		kerror("cull dirfd not open");
-+		return -EBADF;
-+	}
-+
-+	dir = dget(dirfile->f_dentry);
-+	fput_light(dirfile, fput_needed);
-+	dirfile = NULL;
-+
-+	if (!S_ISDIR(dir->d_inode->i_mode))
-+		goto notdir;
-+
-+	cachefiles_begin_secure(cache, &fsuid, &fsgid, &fscreatesid);
-+	ret = cachefiles_check_in_use(cache, dir, args);
-+	cachefiles_end_secure(cache, fsuid, fsgid, fscreatesid);
-+
-+	dput(dir);
-+	_leave(" = %d", ret);
-+	return ret;
-+
-+notdir:
-+	dput(dir);
-+	kerror("inuse command requires dirfd to be a directory");
-+	return -ENOTDIR;
-+
-+inval:
-+	kerror("inuse command requires dirfd and filename");
-+	return -EINVAL;
-+}
-diff --git a/fs/cachefiles/cf-namei.c b/fs/cachefiles/cf-namei.c
-index a3df94a..d0db9b3 100644
---- a/fs/cachefiles/cf-namei.c
-+++ b/fs/cachefiles/cf-namei.c
-@@ -524,6 +524,7 @@ nomem_d_alloc:
- 	return ERR_PTR(-ENOMEM);
- }
- 
-+#if 0
- /*
-  * cull an object if it's not in use
-  * - called only by cache manager daemon
-@@ -631,3 +632,172 @@ choose_error:
- 	_leave(" = %d", ret);
- 	return ret;
- }
-+#endif
-+
-+/*
-+ * find out if an object is in use or not
-+ * - if finds object and it's not in use:
-+ *   - returns a pointer to the object and a reference on it
-+ *   - returns with the directory locked
-+ */
-+static struct dentry *cachefiles_check_active(struct cachefiles_cache *cache,
-+					      struct dentry *dir,
-+					      char *filename)
-+{
-+	struct cachefiles_object *object;
-+	struct rb_node *_n;
-+	struct dentry *victim;
-+	int ret;
-+
-+	_enter(",%*.*s/,%s",
-+	       dir->d_name.len, dir->d_name.len, dir->d_name.name, filename);
-+
-+	/* look up the victim */
-+	mutex_lock(&dir->d_inode->i_mutex);
-+
-+	victim = lookup_one_len(filename, dir, strlen(filename));
-+	if (IS_ERR(victim))
-+		goto lookup_error;
-+
-+	_debug("victim -> %p %s",
-+	       victim, victim->d_inode ? "positive" : "negative");
-+
-+	/* if the object is no longer there then we probably retired the object
-+	 * at the netfs's request whilst the cull was in progress
-+	 */
-+	if (!victim->d_inode) {
-+		mutex_unlock(&dir->d_inode->i_mutex);
-+		dput(victim);
-+		_leave(" = -ENOENT [absent]");
-+		return ERR_PTR(-ENOENT);
-+	}
-+
-+	/* check to see if we're using this object */
-+	read_lock(&cache->active_lock);
-+
-+	_n = cache->active_nodes.rb_node;
-+
-+	while (_n) {
-+		object = rb_entry(_n, struct cachefiles_object, active_node);
-+
-+		if (object->dentry > victim)
-+			_n = _n->rb_left;
-+		else if (object->dentry < victim)
-+			_n = _n->rb_right;
-+		else
-+			goto object_in_use;
-+	}
-+
-+	read_unlock(&cache->active_lock);
-+
-+	_leave(" = %p", victim);
-+	return victim;
-+
-+object_in_use:
-+	read_unlock(&cache->active_lock);
-+	mutex_unlock(&dir->d_inode->i_mutex);
-+	dput(victim);
-+	_leave(" = -EBUSY [in use]");
-+	return ERR_PTR(-EBUSY);
-+
-+lookup_error:
-+	mutex_unlock(&dir->d_inode->i_mutex);
-+	ret = PTR_ERR(victim);
-+	if (ret == -ENOENT) {
-+		/* file or dir now absent - probably retired by netfs */
-+		_leave(" = -ESTALE [absent]");
-+		return ERR_PTR(-ESTALE);
-+	}
-+
-+	if (ret == -EIO) {
-+		cachefiles_io_error(cache, "Lookup failed");
-+	} else if (ret != -ENOMEM) {
-+		kerror("Internal error: %d", ret);
-+		ret = -EIO;
-+	}
-+
-+	_leave(" = %d", ret);
-+	return ERR_PTR(ret);
-+}
-+
-+/*
-+ * cull an object if it's not in use
-+ * - called only by cache manager daemon
-+ */
-+int cachefiles_cull(struct cachefiles_cache *cache, struct dentry *dir,
-+		    char *filename)
-+{
-+	struct dentry *victim;
-+	int ret;
-+
-+	_enter(",%*.*s/,%s",
-+	       dir->d_name.len, dir->d_name.len, dir->d_name.name, filename);
-+
-+	victim = cachefiles_check_active(cache, dir, filename);
-+	if (IS_ERR(victim))
-+		return PTR_ERR(victim);
-+
-+	_debug("victim -> %p %s",
-+	       victim, victim->d_inode ? "positive" : "negative");
-+
-+	/* okay... the victim is not being used so we can cull it
-+	 * - start by marking it as stale
-+	 */
-+	_debug("victim is cullable");
-+
-+	ret = cachefiles_remove_object_xattr(cache, victim);
-+	if (ret < 0)
-+		goto error_unlock;
-+
-+	/*  actually remove the victim (drops the dir mutex) */
-+	_debug("bury");
-+
-+	ret = cachefiles_bury_object(cache, dir, victim);
-+	if (ret < 0)
-+		goto error;
-+
-+	dput(victim);
-+	_leave(" = 0");
-+	return 0;
-+
-+error_unlock:
-+	mutex_unlock(&dir->d_inode->i_mutex);
-+error:
-+	dput(victim);
-+	if (ret == -ENOENT) {
-+		/* file or dir now absent - probably retired by netfs */
-+		_leave(" = -ESTALE [absent]");
-+		return -ESTALE;
-+	}
-+
-+	if (ret != -ENOMEM) {
-+		kerror("Internal error: %d", ret);
-+		ret = -EIO;
-+	}
-+
-+	_leave(" = %d", ret);
-+	return ret;
-+}
-+
-+/*
-+ * find out if an object is in use or not
-+ * - called only by cache manager daemon
-+ * - returns -EBUSY or 0 to indicate whether an object is in use or not
-+ */
-+int cachefiles_check_in_use(struct cachefiles_cache *cache, struct dentry *dir,
-+			    char *filename)
-+{
-+	struct dentry *victim;
-+
-+	_enter(",%*.*s/,%s",
-+	       dir->d_name.len, dir->d_name.len, dir->d_name.name, filename);
-+
-+	victim = cachefiles_check_active(cache, dir, filename);
-+	if (IS_ERR(victim))
-+		return PTR_ERR(victim);
-+
-+	mutex_unlock(&dir->d_inode->i_mutex);
-+	dput(victim);
-+	_leave(" = 0");
-+	return 0;
-+}
-diff --git a/fs/cachefiles/internal.h b/fs/cachefiles/internal.h
-index d56b443..1b7ada2 100644
---- a/fs/cachefiles/internal.h
-+++ b/fs/cachefiles/internal.h
-@@ -183,6 +183,9 @@ extern struct dentry *cachefiles_get_dir
- extern int cachefiles_cull(struct cachefiles_cache *cache, struct dentry *dir,
- 			   char *filename);
- 
-+extern int cachefiles_check_in_use(struct cachefiles_cache *cache,
-+				   struct dentry *dir, char *filename);
-+
- /*
-  * cf-security.c
-  */
+So he executes setsebool he gets a exec failure rather then a partial
+success.
+> In addition, the corecmd_exec_all_executables() change breaks the
+> meaning of the interface.
+>
+>   
+>> Redhat's Fedora Extras apd-get and apt-shell run as rpm.
+>>     
+>
+> Can't add this because it causes conflicting file contexts if the dpkg
+> module is included.
+>
+>   
+I think we need a rewrite of the dpkg te file so on redhat platforms
+dbkg_t is aliased to rpm_t.
+> Dropped mcs_killall(rpm_script_t) and mcs_ptrace_all(rpm_script_t) since
+> it does not have the requisite TE permissions.
+>
+>   
+Since these are unconfined domains, they do have the allows.  This
+prevents the mcs constraint from firing.
+>> IBM requests javaws and bin under /opt/ibm/java2-ppc64-50/jre be labeled 
+>> java_exec_t
+>>     
+>
+> Dropped the other change; I'm trying to stay away from broad
+> specifications since it makes more problems for sorting.
+>
+>   
+>> mv dosfs_t to nfs_t needs to work.
+>>     
+>
+> You have fs_associate_tmpfs(noxattrfs), which won't do it.  My guess is
+> that you want something like fs_associate_noxattr(noxattrfs).
+>
+>   
+Yes, changed in this update.
+>> httpd needs to be able to rotatelogs
+>>     
+>
+> The problem with this is that it would allow apache to delete its logs.
+> I suggest trying rotatelogs labeled as logrotate_exec_t instead.
+>
+>   
+apache can not delete logs, only httpd_rotatelogs_t can.  We could
+combine the domains together but that would give /usr/sbin/rotatelogs
+more power, currently it can only touch apache logs.
+>> Major changes to crontab_t to transition to user_tmp_t.  Why do we have 
+>> a user_crond_t, would just transitioning to user_t make more sense?
+>>     
+>
+> I don't know the original intention, but my guess is to be a subset of
+> the user domain.
+>
+>   
+>> Fixed for oddjob_mkhomedir_t
+>>     
+>
+> Why is domain_subj_id_change_exemption(oddjob_t) needed?
+>
+>   
+oddjob runs jobs on behalf of helper apps,  It asks the kernel how to
+run them.
+
+If I restart oddjob by hand, it will be running as user_u:system_r:oddjob_t
+
+When it asks the kernel what to run jobs on behalf of
+system_u:system_r:ricci_t, it
+gets back system_u:system_r:ricci_modcluster_t, which causes this access
+violation.
+>> squid wants to rw_tmpfs for diskd mode.
+>>     
+>
+> I'm wondering if this is tmpfs_t because there is no squid_tmpfs_t+type
+> transition, or if it is because the machine is targeted.
+>   
+Not sure, this was in the old policy as well.  Never used squid.
+>   
+>> getty needs sys_admin 
+>>     
+>
+> I find this very questionable, and the bug you mentioned doesn't have
+> any good information.
+>
+> Why does sasl need compute_av?
+>
+>   
+I think because it is running through pam and this causes the compute_av
+> What program(s) have a dyntrans from unconfined to unconfined_execmem?
+>
+>   
+on ia32el you need to transition 32 bit apps from unconfined_t to
+unconfined_execmem_t.
+
+
+The kernel steps into do this so there is no transition.
+
+
+
+============================================================
+New changes.
+
+amanda, krb5kdc, postfix_smtp, swat, telnetd, mount - All want to read
+netlink_route
+
+Broke allo_mount_anyfiles boolean into allow_mount_anydir and
+allow_mount_anydir,  So you can mount at the dir level or a bind_mount
+
+Added boolean to allow daemons to dump core in /.
+
+xen wants to read/write raw disks.  Currenly we are allowing this via a
+boolean.  Eventually we want to force users to label devices as
+xen_image_t.  Didn't make it in to RHEL5.  :^(
+
+logwatch wants to search sysfs
+
+prelink wants to execute privs on exe's in homedir.
+
+rpm wants to chat with hal
+
+remove big ugly todo at the bottom or rpm.te - They all looked broken.
+
+Broke reserved ports in to hi_reserved_port_t and reserved_port_t, this
+gives us better security to allow bindresvport, but protect ports
+1-511.  Current implementation was broken, in that callers to
+bindresvport were failing on non-defined ports > 512.
+
+Added netsupport, ocsp ports.
+
+New devices
+           /dev/hpet
+           /dev/kmsg
+           /dev/raw1394.* (Bad def)
+           /dev/snapshot
+           /dev/xvc*
+
+Added aide policy
+
+New apache cache dir
++/var/cache/mod_proxy(/.*)?
+gen_context(system_u:object_r:httpd_cache_t,s0)
+
+New rules for apache.
+
+I think crontab policy is good, to go.
+
+cron wants to look at login keys?  Might be a leak?
+
+cupsd changes to allow it to run in MLS.
+
+Fix policy for dbus running in chroot under bind.
+
+Hal has a new directory /var/lib/hal
+
+
+Lots of changes to kerberos to allow it to work with Public Key
+Infrastructure.
+
+Dontaudit mqueue_spool_t:dir - Talked about in other emails.
+
+Oddjob wants to signal itself.
+
+Procmail using nfs or samba shares
+
+swat needs additional privs
+
+snmp wants to look at homedir.  Needs dontaudit
+
+In order to get rhgb and X to work together had to add
++    allow $1 xdm_xserver_t:process siginh;
+
+xdm opens stdout/stderr to an xdmerrors file and then hands that to
+subprocesses.  If the
+subprocesses don't reopen stderr/stdout and eventually run a confined
+domain, the domain will
+generate avc messages
+
+Some domains try to lock the wtmp file when they update it.
+
+pam_console reads /var when it is mislabled.  This probably could be
+surrounded by a hide_broken_apps boolean
+
+We don't want mkswap running as fsadm_exec_t.  It has SELinux awareness
+in it, so this causes problems.
+
+A bunch of textrel_shlib_t changes
+
+libraries.te has a useless hide_broken_symptoms
+
+/var/lib/mutlipath directory needs context
+
+We have had requests to allow /var/log to be mounted on.
+
+Many fixes for clvmd and additional lvm_var_lib_t context
+
+Lots of changes for lvm_t, mainly tested with new management platform
+for Red Hat (ricci, and conga)
+
+New locale directory under /usr/share/X11/locale
+
+depmod needs to be able to delete kernel modules.
+
+mdadm can create physical devices.
+
+selinux utilities needs to be able to create default_context files
+
+initscripts running setsebool need to transition.
+
+newrole needs privs to run pam/login stuff.
+
+realplayer context wrong
+
+Additional unconfined_execmem_exec_t context
+
+
+oddjob wants to chat with unconfined domain.
+
+fixes for gen_require in userdomain interfaces.
+
+secadm needs to read audit.log, and run aide
+
+More xen changes.
+
+
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
