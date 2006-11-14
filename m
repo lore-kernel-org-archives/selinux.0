@@ -1,58 +1,93 @@
-Subject: Re: Multiple small fixes to policycoreutils
-From: "Christopher J. PeBenito" <cpebenito@tresys.com>
-To: Daniel J Walsh <dwalsh@redhat.com>
-Cc: SE Linux <selinux@tycho.nsa.gov>, Stephen Smalley <sds@tycho.nsa.gov>
-In-Reply-To: <4559EC69.90407@redhat.com>
-References: <4559DB81.7060601@redhat.com>
-	 <1163520813.18181.131.camel@sgc.columbia.tresys.com>
-	 <4559EC69.90407@redhat.com>
-Content-Type: text/plain
-Date: Tue, 14 Nov 2006 14:19:05 -0500
-Message-Id: <1163531945.7374.11.camel@sgc.columbia.tresys.com>
-Mime-Version: 1.0
+From: David Howells <dhowells@redhat.com>
+In-Reply-To: <1162575034.5629.24.camel@lade.trondhjem.org> 
+References: <1162575034.5629.24.camel@lade.trondhjem.org>  <1162561291.5635.64.camel@lade.trondhjem.org> <1162502667.6071.66.camel@lade.trondhjem.org> <1162496968.6071.38.camel@lade.trondhjem.org> <1162402218.32614.230.camel@moss-spartans.epoch.ncsc.mil> <1162387735.32614.184.camel@moss-spartans.epoch.ncsc.mil> <16969.1161771256@redhat.com> <31035.1162330008@redhat.com> <4417.1162395294@redhat.com> <25037.1162487801@redhat.com> <32754.1162499917@redhat.com> <12984.1162549621@redhat.com> <22908.1162567413@redhat.com> 
+To: Trond Myklebust <trond.myklebust@fys.uio.no>
+Cc: David Howells <dhowells@redhat.com>, Stephen Smalley <sds@tycho.nsa.gov>,
+        Karl MacMillan <kmacmill@redhat.com>, jmorris@namei.org,
+        chrisw@sous-sol.org, selinux@tycho.nsa.gov,
+        linux-kernel@vger.kernel.org, aviro@redhat.com
+Subject: Re: Security issues with local filesystem caching 
+Date: Tue, 14 Nov 2006 19:22:48 +0000
+Message-ID: <11957.1163532168@redhat.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2006-11-14 at 11:18 -0500, Daniel J Walsh wrote:
-> Christopher J. PeBenito wrote:
-> > On Tue, 2006-11-14 at 10:06 -0500, Daniel J Walsh wrote:
-> >   
-> >> Add -fPIE and -pie to build of restorecond.
-> >>     
-> >
-> >   
-> >> -CFLAGS ?= -g -Werror -Wall -W
-> >> -override CFLAGS += -I$(PREFIX)/include -D_FILE_OFFSET_BITS=64
-> >> +LDFLAGS ?= -pie
-> >> +CFLAGS ?= -g -Werror -Wall -W 
-> >> +override CFLAGS += -I$(PREFIX)/include -D_FILE_OFFSET_BITS=64 -fPIE
-> >>     
-> >
-> > I would say that this shouldn't be added in general, especially not to
-> > the override.  The default flags should be pretty basic, IMO.
-> >
-> >   
-> How about if we change
-> LDFLAGS ?= ?= $(RANDLDFLAG)
-> override CFLAGS += -I$(PREFIX)/include -D_FILE_OFFSET_BITS=64 $(RANDCFLAG)
+Trond Myklebust <trond.myklebust@fys.uio.no> wrote:
 
-Why does this need to be special?  "?=" means if the variable isn't
-already set (setting CFLAGS to "" counts as set), then its set with the
-right side.  This assignment won't happen if CFLAGS is set:
+> > Avoiding context switches aren't the main problem; avoiding serialisation
+> > is.
+> 
+> Why? It is a backing cache. The only case where serialisation ought to
+> bother you is the case where the client has to invalidate the cache due
+> to a server-side update of the file.
 
-CFLAGS ?= -g -Werror -Wall -W
+Cache invalidation is not so much of a problem as at that point we know exactly
+where whatever it is that we're invalidating is, and if it's a big object we
+just move it somewhere for the userspace daemon to splat.
 
-So in your spec file you just change your make command to `make
-CFLAGS="-fPIE" LDFLAGS="-pie"`, then you'll get the behavior of the
-patch above.  Keeping the makefile as is will keep the defaults safe,
-and then distros can set things whichever way they want with CFLAGS and
-LDFLAGS and not have extra compile/linking flags pop up.
+The serialisation problem is that if we put cache lookup in its own thread,
+then in effect every open[*] of an NFS file, AFS file, whatever, will be
+serialised.
 
--- 
-Chris PeBenito
-Tresys Technology, LLC
-(410) 290-1411 x150
+It almost certainly wouldn't matter if what we did was to asynchronously look
+up the cache cookie for a file.  In the common case, an open(O_RDONLY) syscall
+is followed almost immediately by a read(), so there's not much to be gained
+from asynchronising things as the cache cookie has to be available by the time
+we come to process the read, but we can't get the cache cookie before
+completing the server checks made by open, as we need the coherency data before
+attempting to acquire a cookie.
 
+The serialisation would stem from having to do several synchronous filesystem
+ops for each cache lookup, but only having one thread in which to do them.
+Okay, I could have several worker threads, but why?  Each process attempting to
+access the cache provides me with a suitable worker thread, and then I can have
+as many as there are tasks on the system.
+
+[*] Note that for NFS I've now incorporated a patch from Steve Dickson to
+acquire file cookies on the NFS open() file op, rather than during iget because
+NFS readdir calls iget.
+
+> Once the RPC calls have been launched, the process returns to the VM
+> layer and just waits for the next page to be unlocked. It never returns
+> to the filesystem layer. So where are you using the process context to
+> write out the cached data?
+
+What do you mean by "write out the cached data"?  Do you mean write the data to
+the cache?
+
+If so, that'd be nfs_readpage_to_fscache() as called from nfs_readpage_sync()
+or nfs_readpage_release().
+
+That calls fscache_write_page() which calls cachefiles_write_page() which calls
+generic_file_buffered_write_one_kernel_page().
+
+That last copies the data into the pagecache attached to an ext3 inode to be
+written out (hopefully) asynchronously.
+
+However, that may do other disk accesses, I suppose, as it calls
+prepare_write() and commit_write() on ext3.
+
+I could try and make it asynchronous, but that means more overhead in other
+ways:-(  I presume this will then sometimes be running in rpciod context?
+
+> The cookie lookups need to be synchronous, but why would the file
+> creation need to be synchronous? Creating the cachefs file and waiting
+> on that to complete etc are all utterly useless activities as far as
+> satisfying the user request for data goes. Just start the process of
+> creating a backing file, and then get on with the actual syscall.
+
+vfs_mkdir() is synchronous.  vfs_create() is synchronous.  vfs_[sg]etxattr is
+synchronous.  Lookup is synchronous.
+
+Yes, I could make them all asynchronous, but it'd be a lot more work, and
+mostly unnecessary, and I'd probably have to fight down lots of objections.
+
+
+Remember: in the common case, open(O_RDONLY) is going to be followed quickly by
+a read().  I suppose there may be an intervening stat() and malloc(), but even
+so...
+
+David
 
 --
 This message was distributed to subscribers of the selinux mailing list.
