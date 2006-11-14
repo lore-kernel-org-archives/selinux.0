@@ -1,52 +1,21 @@
-Subject: Re: [PATCH 0/8] make newrole suid (take 3)
+Subject: Re: [PATCH] libselinux MLS range context contains for PAM/cron
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Michael C Thompson <thompsmc@us.ibm.com>
-Cc: SE Linux <selinux@tycho.nsa.gov>
-In-Reply-To: <454A8F35.2020006@us.ibm.com>
-References: <454A8F35.2020006@us.ibm.com>
+To: James Antill <jantill@redhat.com>
+Cc: redhat-lspp <redhat-lspp@redhat.com>, SE Linux <selinux@tycho.nsa.gov>
+In-Reply-To: <1162936676.26574.15.camel@code.and.org>
+References: <1162936676.26574.15.camel@code.and.org>
 Content-Type: text/plain
-Date: Mon, 13 Nov 2006 19:08:57 -0500
-Message-Id: <1163462937.24635.95.camel@moss-spartans.epoch.ncsc.mil>
+Date: Mon, 13 Nov 2006 19:14:42 -0500
+Message-Id: <1163463282.24635.99.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2006-11-02 at 18:37 -0600, Michael C Thompson wrote:
-> This is the intro to a set of eight patches.
-> 
-> I finally took the time to break things down so that (I hope) more 
-> people read and give feedback (I can't believe only Stephen Smalley had 
-> comments, my code isn't that great!)
-> 
-> These patches are an attempt to make newrole be an acceptably secure 
-> suid root program, to provide it with the capabilities to generate audit 
-> records (existing) and handle polyinstatiation (new).
-> 
-> The format of the patches is different from previous sends.
-> 
-> The 8 patches are as follows:
-> 1) Modifications to Makefile to support future patch needs
->     Add newrole-lspp.pamd
-> 2) New extract_pw_data function and use in main()
-> 3) Add signal handler function
-> 4) Update drop_capabilities() and use in main()
-> 5) Update the authentication functions and use in main()
->     Add cleanup since pam_start is now left till program end
-> 6) Move relabeling tty actions into functions
-> 7) Move command-line argument parsing into a function
->     Clear the environment during execution
->     Add support for preserving the environment (-p)
-> 8) Shift to using new defines in the Makefile and in newrole.c
->     Add support for namespaces
->     Remove unused code, cleanup and documentation
-> 
-> It is now possible to apply a single patch and the code will compile; 
-> however, this is not recommended
-> 
-> The comments and discussions from the previous send (take 2) of these 
-> patches have been integrated.
+On Tue, 2006-11-07 at 16:57 -0500, James Antill wrote:
+>  Here is the libselinux changes needed to do the security context
+> contains checks for PAM and cron.
 
-Thanks, merged into policycoreutils 1.33.1.
+Thanks, merged.
 
 -- 
 Stephen Smalley
