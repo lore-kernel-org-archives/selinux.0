@@ -1,117 +1,76 @@
 From: David Howells <dhowells@redhat.com>
-Subject: [PATCH 14/19] CacheFiles: Permit an inode's security ID to be obtained
-Date: Tue, 14 Nov 2006 20:06:52 +0000
+Subject: [PATCH 09/19] CacheFiles: Permit the page lock state to be monitored
+Date: Tue, 14 Nov 2006 20:06:41 +0000
 To: torvalds@osdl.org, akpm@osdl.org, sds@tycho.nsa.gov,
         trond.myklebust@fys.uio.no
 Cc: dhowells@redhat.com, selinux@tycho.nsa.gov, linux-kernel@vger.kernel.org,
         aviro@redhat.com, steved@redhat.com
-Message-Id: <20061114200651.12943.12111.stgit@warthog.cambridge.redhat.com>
+Message-Id: <20061114200641.12943.98546.stgit@warthog.cambridge.redhat.com>
 In-Reply-To: <20061114200621.12943.18023.stgit@warthog.cambridge.redhat.com>
 References: <20061114200621.12943.18023.stgit@warthog.cambridge.redhat.com>
 Content-Type: text/plain; charset=utf-8; format=fixed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Permit an inode's security ID to be obtained by the CacheFiles module.  This is
-then used as the SID with which files and directories will be created in the
-cache.
+Add a function to install a monitor on the page lock waitqueue for a particular
+page, thus allowing the page being unlocked to be detected.
+
+This is used by CacheFiles to detect read completion on a page in the backing
+filesystem so that it can then copy the data to the waiting netfs page.
 
 Signed-Off-By: David Howells <dhowells@redhat.com>
 ---
 
- include/linux/security.h |   13 +++++++++++++
- security/dummy.c         |    6 ++++++
- security/selinux/hooks.c |    8 ++++++++
- 3 files changed, 27 insertions(+), 0 deletions(-)
+ include/linux/pagemap.h |    5 +++++
+ mm/filemap.c            |   19 +++++++++++++++++++
+ 2 files changed, 24 insertions(+), 0 deletions(-)
 
-diff --git a/include/linux/security.h b/include/linux/security.h
-index 63617e4..5913ae7 100644
---- a/include/linux/security.h
-+++ b/include/linux/security.h
-@@ -1259,6 +1259,7 @@ struct security_operations {
-   	int (*inode_getsecurity)(const struct inode *inode, const char *name, void *buffer, size_t size, int err);
-   	int (*inode_setsecurity)(struct inode *inode, const char *name, const void *value, size_t size, int flags);
-   	int (*inode_listsecurity)(struct inode *inode, char *buffer, size_t buffer_size);
-+	u32 (*inode_get_secid)(struct inode *inode);
+diff --git a/include/linux/pagemap.h b/include/linux/pagemap.h
+index 24fdc48..a86693c 100644
+--- a/include/linux/pagemap.h
++++ b/include/linux/pagemap.h
+@@ -200,6 +200,11 @@ static inline void wait_on_page_fs_misc(
+ extern void fastcall end_page_fs_misc(struct page *page);
  
- 	int (*file_permission) (struct file * file, int mask);
- 	int (*file_alloc_security) (struct file * file);
-@@ -1821,6 +1822,13 @@ static inline int security_inode_listsec
- 	return security_ops->inode_listsecurity(inode, buffer, buffer_size);
- }
+ /*
++ * Add an arbitrary waiter to a page's wait queue
++ */
++extern void add_page_wait_queue(struct page *page, wait_queue_t *waiter);
++
++/*
+  * Fault a userspace page into pagetables.  Return non-zero on a fault.
+  *
+  * This assumes that two userspace pages are always sufficient.  That's
+diff --git a/mm/filemap.c b/mm/filemap.c
+index b9eb8b2..4c9c1ac 100644
+--- a/mm/filemap.c
++++ b/mm/filemap.c
+@@ -517,6 +517,25 @@ void fastcall wait_on_page_bit(struct pa
+ EXPORT_SYMBOL(wait_on_page_bit);
  
-+static inline u32 security_inode_get_secid(struct inode *inode)
+ /**
++ * add_page_wait_queue - Add an arbitrary waiter to a page's wait queue
++ * @page - Page defining the wait queue of interest
++ * @waiter - Waiter to add to the queue
++ *
++ * Add an arbitrary @waiter to the wait queue for the nominated @page.
++ */
++void add_page_wait_queue(struct page *page, wait_queue_t *waiter)
 +{
-+	if (unlikely(IS_PRIVATE(inode)))
-+		return 0;
-+	return security_ops->inode_get_secid(inode);
++	wait_queue_head_t *q = page_waitqueue(page);
++	unsigned long flags;
++
++	spin_lock_irqsave(&q->lock, flags);
++	__add_wait_queue(q, waiter);
++	spin_unlock_irqrestore(&q->lock, flags);
 +}
 +
- static inline int security_file_permission (struct file *file, int mask)
- {
- 	return security_ops->file_permission (file, mask);
-@@ -2518,6 +2526,11 @@ static inline int security_inode_listsec
- 	return 0;
- }
- 
-+static inline u32 security_inode_get_secid(struct inode *inode)
-+{
-+	return 0;
-+}
++EXPORT_SYMBOL_GPL(add_page_wait_queue);
 +
- static inline int security_file_permission (struct file *file, int mask)
- {
- 	return 0;
-diff --git a/security/dummy.c b/security/dummy.c
-index f7b47a9..3401ea3 100644
---- a/security/dummy.c
-+++ b/security/dummy.c
-@@ -392,6 +392,11 @@ static int dummy_inode_listsecurity(stru
- 	return 0;
- }
- 
-+static u32 dummy_inode_get_secid(struct inode *inode)
-+{
-+	return 0;
-+}
-+
- static const char *dummy_inode_xattr_getsuffix(void)
- {
- 	return NULL;
-@@ -1039,6 +1044,7 @@ void security_fixup_ops (struct security
- 	set_to_dummy_if_null(ops, inode_getsecurity);
- 	set_to_dummy_if_null(ops, inode_setsecurity);
- 	set_to_dummy_if_null(ops, inode_listsecurity);
-+	set_to_dummy_if_null(ops, inode_get_secid);
- 	set_to_dummy_if_null(ops, file_permission);
- 	set_to_dummy_if_null(ops, file_alloc_security);
- 	set_to_dummy_if_null(ops, file_free_security);
-diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-index 09def09..ddac1bc 100644
---- a/security/selinux/hooks.c
-+++ b/security/selinux/hooks.c
-@@ -2415,6 +2415,13 @@ static int selinux_inode_listsecurity(st
- 	return len;
- }
- 
-+static u32 selinux_inode_get_secid(struct inode *inode)
-+{
-+	struct inode_security_struct *isec = inode->i_security;
-+
-+	return isec->sid;
-+}
-+
- /* file security operations */
- 
- static int selinux_file_permission(struct file *file, int mask)
-@@ -4690,6 +4697,7 @@ static struct security_operations selinu
- 	.inode_getsecurity =            selinux_inode_getsecurity,
- 	.inode_setsecurity =            selinux_inode_setsecurity,
- 	.inode_listsecurity =           selinux_inode_listsecurity,
-+	.inode_get_secid =		selinux_inode_get_secid,
- 
- 	.file_permission =		selinux_file_permission,
- 	.file_alloc_security =		selinux_file_alloc_security,
++/**
+  * unlock_page - unlock a locked page
+  * @page: the page
+  *
 
 --
 This message was distributed to subscribers of the selinux mailing list.
