@@ -1,25 +1,29 @@
-Subject: Re: [PATCH] libselinux MLS range context contains for PAM/cron
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: James Antill <jantill@redhat.com>
-Cc: redhat-lspp <redhat-lspp@redhat.com>, SE Linux <selinux@tycho.nsa.gov>
-In-Reply-To: <1162936676.26574.15.camel@code.and.org>
-References: <1162936676.26574.15.camel@code.and.org>
+Subject: Re: [PATCH] MLS context contains policy/libselinux changes
+From: "Christopher J. PeBenito" <cpebenito@tresys.com>
+To: James Antill <james.antill@redhat.com>
+Cc: redhat-lspp <redhat-lspp@redhat.com>, SE Linux <selinux@tycho.nsa.gov>,
+        Stephen Smalley <sds@tycho.nsa.gov>
+In-Reply-To: <1162936296.26574.10.camel@code.and.org>
+References: <1162936296.26574.10.camel@code.and.org>
 Content-Type: text/plain
-Date: Mon, 13 Nov 2006 19:14:42 -0500
-Message-Id: <1163463282.24635.99.camel@moss-spartans.epoch.ncsc.mil>
+Date: Tue, 14 Nov 2006 08:38:03 -0500
+Message-Id: <1163511483.18181.125.camel@sgc.columbia.tresys.com>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2006-11-07 at 16:57 -0500, James Antill wrote:
->  Here is the libselinux changes needed to do the security context
-> contains checks for PAM and cron.
+On Tue, 2006-11-07 at 16:51 -0500, James Antill wrote:
+>  Here is the policy changes needed for the context contains security
+> checking in PAM and cron.
 
-Thanks, merged.
+Merged.  Added require block to userdomain change since context is a
+userland object class and thus not automatically required by the
+gen_require() macro.
 
 -- 
-Stephen Smalley
-National Security Agency
+Chris PeBenito
+Tresys Technology, LLC
+(410) 290-1411 x150
 
 
 --
