@@ -1,143 +1,64 @@
-From: David Howells <dhowells@redhat.com>
-Subject: [PATCH 08/19] CacheFiles: Add a function to write a single page of data to an inode
-Date: Tue, 14 Nov 2006 20:06:39 +0000
-To: torvalds@osdl.org, akpm@osdl.org, sds@tycho.nsa.gov,
-        trond.myklebust@fys.uio.no
-Cc: dhowells@redhat.com, selinux@tycho.nsa.gov, linux-kernel@vger.kernel.org,
-        aviro@redhat.com, steved@redhat.com
-Message-Id: <20061114200638.12943.61731.stgit@warthog.cambridge.redhat.com>
-In-Reply-To: <20061114200621.12943.18023.stgit@warthog.cambridge.redhat.com>
-References: <20061114200621.12943.18023.stgit@warthog.cambridge.redhat.com>
-Content-Type: text/plain; charset=utf-8; format=fixed
+Message-ID: <455A227E.1040403@redhat.com>
+Date: Tue, 14 Nov 2006 15:09:34 -0500
+From: Daniel J Walsh <dwalsh@redhat.com>
+MIME-Version: 1.0
+To: "Christopher J. PeBenito" <cpebenito@tresys.com>
+CC: SE Linux <selinux@tycho.nsa.gov>, Stephen Smalley <sds@tycho.nsa.gov>
+Subject: Re: Multiple small fixes to policycoreutils
+References: <4559DB81.7060601@redhat.com>	 <1163520813.18181.131.camel@sgc.columbia.tresys.com>	 <4559EC69.90407@redhat.com> <1163531945.7374.11.camel@sgc.columbia.tresys.com>
+In-Reply-To: <1163531945.7374.11.camel@sgc.columbia.tresys.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Add a function to write one single whole page of data to an inode at a
-page-aligned location (thus permitting the function to be highly optimised).
-The function uses the prepare_write() and commit_write() address_space
-operations to bound the actual write.
+Christopher J. PeBenito wrote:
+> On Tue, 2006-11-14 at 11:18 -0500, Daniel J Walsh wrote:
+>   
+>> Christopher J. PeBenito wrote:
+>>     
+>>> On Tue, 2006-11-14 at 10:06 -0500, Daniel J Walsh wrote:
+>>>   
+>>>       
+>>>> Add -fPIE and -pie to build of restorecond.
+>>>>     
+>>>>         
+>>>   
+>>>       
+>>>> -CFLAGS ?= -g -Werror -Wall -W
+>>>> -override CFLAGS += -I$(PREFIX)/include -D_FILE_OFFSET_BITS=64
+>>>> +LDFLAGS ?= -pie
+>>>> +CFLAGS ?= -g -Werror -Wall -W 
+>>>> +override CFLAGS += -I$(PREFIX)/include -D_FILE_OFFSET_BITS=64 -fPIE
+>>>>     
+>>>>         
+>>> I would say that this shouldn't be added in general, especially not to
+>>> the override.  The default flags should be pretty basic, IMO.
+>>>
+>>>   
+>>>       
+>> How about if we change
+>> LDFLAGS ?= ?= $(RANDLDFLAG)
+>> override CFLAGS += -I$(PREFIX)/include -D_FILE_OFFSET_BITS=64 $(RANDCFLAG)
+>>     
+>
+> Why does this need to be special?  "?=" means if the variable isn't
+> already set (setting CFLAGS to "" counts as set), then its set with the
+> right side.  This assignment won't happen if CFLAGS is set:
+>
+> CFLAGS ?= -g -Werror -Wall -W
+>
+> So in your spec file you just change your make command to `make
+> CFLAGS="-fPIE" LDFLAGS="-pie"`, then you'll get the behavior of the
+> patch above.  Keeping the makefile as is will keep the defaults safe,
+> and then distros can set things whichever way they want with CFLAGS and
+> LDFLAGS and not have extra compile/linking flags pop up.
+>
+>   
+No because this will effect all the Makefiles, not just the daemon 
+ones.  I do not want to build restorecon/setfiles etc with -fPIE.
 
-This is used by CacheFiles to store the contents of netfs pages into their
-backing file pages.
 
-Signed-Off-By: David Howells <dhowells@redhat.com>
----
 
- include/linux/fs.h |    2 +
- mm/filemap.c       |   87 ++++++++++++++++++++++++++++++++++++++++++++++++++++
- 2 files changed, 89 insertions(+), 0 deletions(-)
-
-diff --git a/include/linux/fs.h b/include/linux/fs.h
-index 2fe6e3f..2bb027f 100644
---- a/include/linux/fs.h
-+++ b/include/linux/fs.h
-@@ -1748,6 +1748,8 @@ extern ssize_t generic_file_direct_write
- 		unsigned long *, loff_t, loff_t *, size_t, size_t);
- extern ssize_t generic_file_buffered_write(struct kiocb *, const struct iovec *,
- 		unsigned long, loff_t, loff_t *, size_t, ssize_t);
-+extern int generic_file_buffered_write_one_kernel_page(struct address_space *,
-+						       pgoff_t, struct page *);
- extern ssize_t do_sync_read(struct file *filp, char __user *buf, size_t len, loff_t *ppos);
- extern ssize_t do_sync_write(struct file *filp, const char __user *buf, size_t len, loff_t *ppos);
- extern ssize_t generic_file_sendfile(struct file *, loff_t *, size_t, read_actor_t, void *);
-diff --git a/mm/filemap.c b/mm/filemap.c
-index 1b73d3a..b9eb8b2 100644
---- a/mm/filemap.c
-+++ b/mm/filemap.c
-@@ -2236,6 +2236,93 @@ zero_length_segment:
- }
- EXPORT_SYMBOL(generic_file_buffered_write);
- 
-+/**
-+ * generic_file_buffered_write_one_kernel_page - Write a single page of data to
-+ * an inode
-+ * @mapping - The address space of the target inode
-+ * @index - The target page in the target inode to fill
-+ * @source - The data to write into the target page
-+ *
-+ * Write the data from the source page to the page in the nominated address
-+ * space at the @index specified
-+ *
-+ * The @source page does not need to have any association with the file or the
-+ * target page offset
-+ */
-+int
-+generic_file_buffered_write_one_kernel_page(struct address_space *mapping,
-+					    pgoff_t index,
-+					    struct page *source)
-+{
-+	const struct address_space_operations *a_ops = mapping->a_ops;
-+	struct pagevec	lru_pvec;
-+	struct page *page, *cached_page = NULL;
-+	long status = 0;
-+
-+	pagevec_init(&lru_pvec, 0);
-+
-+	page = __grab_cache_page(mapping, index, &cached_page, &lru_pvec);
-+	if (!page) {
-+		BUG_ON(cached_page);
-+		return -ENOMEM;
-+	}
-+
-+	status = a_ops->prepare_write(NULL, page, 0, PAGE_CACHE_SIZE);
-+	if (unlikely(status)) {
-+		loff_t isize = i_size_read(mapping->host);
-+
-+		if (status != AOP_TRUNCATED_PAGE)
-+			unlock_page(page);
-+		page_cache_release(page);
-+		if (status == AOP_TRUNCATED_PAGE)
-+			goto sync;
-+
-+		/* prepare_write() may have instantiated a few blocks outside
-+		 * i_size.  Trim these off again.
-+		 */
-+		if ((1ULL << (index + 1)) > isize)
-+			vmtruncate(mapping->host, isize);
-+		goto sync;
-+	}
-+
-+	copy_highpage(page, source);
-+	flush_dcache_page(page);
-+
-+	status = a_ops->commit_write(NULL, page, 0, PAGE_CACHE_SIZE);
-+	if (status == AOP_TRUNCATED_PAGE) {
-+		page_cache_release(page);
-+		goto sync;
-+	}
-+
-+	if (status > 0)
-+		status = 0;
-+
-+	unlock_page(page);
-+	mark_page_accessed(page);
-+	page_cache_release(page);
-+	if (status < 0)
-+		return status;
-+
-+	balance_dirty_pages_ratelimited(mapping);
-+	cond_resched();
-+
-+sync:
-+	if (cached_page)
-+		page_cache_release(cached_page);
-+
-+	/* the caller must handle O_SYNC themselves, but we handle S_SYNC and
-+	 * MS_SYNCHRONOUS here */
-+	if (unlikely(IS_SYNC(mapping->host)) && !a_ops->writepage)
-+		status = generic_osync_inode(mapping->host, mapping,
-+					     OSYNC_METADATA | OSYNC_DATA);
-+
-+	/* the caller must handle O_DIRECT for themselves */
-+
-+	pagevec_lru_add(&lru_pvec);
-+	return status;
-+}
-+EXPORT_SYMBOL(generic_file_buffered_write_one_kernel_page);
-+
- static ssize_t
- __generic_file_aio_write_nolock(struct kiocb *iocb, const struct iovec *iov,
- 				unsigned long nr_segs, loff_t *ppos)
 
 --
 This message was distributed to subscribers of the selinux mailing list.
