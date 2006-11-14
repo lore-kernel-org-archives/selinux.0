@@ -1,44 +1,33 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id kAELQo3c001520
-	for <selinux@tycho.nsa.gov>; Tue, 14 Nov 2006 16:26:50 -0500
-Received: from mail5.sea5.speakeasy.net (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id kAELPD1p026788
-	for <selinux@tycho.nsa.gov>; Tue, 14 Nov 2006 21:25:13 GMT
-Date: Tue, 14 Nov 2006 16:27:01 -0500 (EST)
-From: James Morris <jmorris@namei.org>
-To: David Howells <dhowells@redhat.com>
-cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-        Stephen Smalley <sds@tycho.nsa.gov>, trond.myklebust@fys.uio.no,
-        selinux@tycho.nsa.gov, linux-kernel@vger.kernel.org, aviro@redhat.com,
-        steved@redhat.com
-Subject: Re: [PATCH 16/19] CacheFiles: Deal with LSM when accessing the cache
-In-Reply-To: <20061114200656.12943.98985.stgit@warthog.cambridge.redhat.com>
-Message-ID: <XMMS.LNX.4.64.0611141625090.25022@d.namei>
-References: <20061114200621.12943.18023.stgit@warthog.cambridge.redhat.com>
- <20061114200656.12943.98985.stgit@warthog.cambridge.redhat.com>
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id kAELwccK002307
+	for <selinux@tycho.nsa.gov>; Tue, 14 Nov 2006 16:58:38 -0500
+Received: from atlrel9.hp.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id kAELvsWe005701
+	for <selinux@tycho.nsa.gov>; Tue, 14 Nov 2006 21:57:54 GMT
+Message-ID: <455A3C1A.20209@hp.com>
+Date: Tue, 14 Nov 2006 16:58:50 -0500
+From: Paul Moore <paul.moore@hp.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: selinux@tycho.nsa.gov
+Cc: vyekkirala@TrustedCS.com, jmorris@namei.org
+Subject: Cleaning up selinux_socket_getpeersec_dgram()
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 14 Nov 2006, David Howells wrote:
+Now that IPsec labeling is using the sksec->peer_sid field too I'm working on a
+patch to clean up the selinux_socket_getpeersec_{stream,dgram}() functions and I
+was wondering if anyone had an objection to replacing
+selinux_socket_getpeer_dgram() with selinux_skb_xfrm_sid()?
 
-> @@ -80,6 +81,8 @@ struct cachefiles_cache {
->  	struct rb_root			active_nodes;	/* active nodes (can't be culled) */
->  	rwlock_t			active_lock;	/* lock for active_nodes */
->  	atomic_t			gravecounter;	/* graveyard uniquifier */
-> +	u32				access_sid;	/* cache access SID */
-> +	u32				cache_sid;	/* cache fs object SID */
+The actual work done is slightly different but I don't think it's different
+enough to cause any problems.  The main issue that I see is that
+selinux_socket_getpeer_dgram() checks to make sure that the packet is a UDP
+packet but I don't think that should cause any problems.
 
-Please uniformly name these security IDs 'secids' in the main kernel, to 
-avoid confusion with session IDs.
-
-
-
-- James
 -- 
-James Morris
-<jmorris@namei.org>
+paul moore
+linux security @ hp
 
 --
 This message was distributed to subscribers of the selinux mailing list.
