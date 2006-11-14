@@ -1,130 +1,117 @@
 From: David Howells <dhowells@redhat.com>
-Subject: [PATCH 15/19] CacheFiles: Get the SID under which the CacheFiles module should operate
-Date: Tue, 14 Nov 2006 20:06:54 +0000
+Subject: [PATCH 14/19] CacheFiles: Permit an inode's security ID to be obtained
+Date: Tue, 14 Nov 2006 20:06:52 +0000
 To: torvalds@osdl.org, akpm@osdl.org, sds@tycho.nsa.gov,
         trond.myklebust@fys.uio.no
 Cc: dhowells@redhat.com, selinux@tycho.nsa.gov, linux-kernel@vger.kernel.org,
         aviro@redhat.com, steved@redhat.com
-Message-Id: <20061114200654.12943.1073.stgit@warthog.cambridge.redhat.com>
+Message-Id: <20061114200651.12943.12111.stgit@warthog.cambridge.redhat.com>
 In-Reply-To: <20061114200621.12943.18023.stgit@warthog.cambridge.redhat.com>
 References: <20061114200621.12943.18023.stgit@warthog.cambridge.redhat.com>
 Content-Type: text/plain; charset=utf-8; format=fixed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Get the SID under which the CacheFiles module should operate so that the
-SELinux security system can control the accesses it makes.
+Permit an inode's security ID to be obtained by the CacheFiles module.  This is
+then used as the SID with which files and directories will be created in the
+cache.
 
 Signed-Off-By: David Howells <dhowells@redhat.com>
 ---
 
- include/linux/security.h |   20 ++++++++++++++++++++
- security/dummy.c         |    7 +++++++
- security/selinux/hooks.c |    7 +++++++
- 3 files changed, 34 insertions(+), 0 deletions(-)
+ include/linux/security.h |   13 +++++++++++++
+ security/dummy.c         |    6 ++++++
+ security/selinux/hooks.c |    8 ++++++++
+ 3 files changed, 27 insertions(+), 0 deletions(-)
 
 diff --git a/include/linux/security.h b/include/linux/security.h
-index 5913ae7..8cfeefc 100644
+index 63617e4..5913ae7 100644
 --- a/include/linux/security.h
 +++ b/include/linux/security.h
-@@ -1171,6 +1171,14 @@ #ifdef CONFIG_SECURITY
-  *      owning security ID, and return the security ID as which the process was
-  *      previously acting.
-  *
-+ * @cachefiles_get_secid:
-+ *	Determine the security ID for the CacheFiles module to use when
-+ *	accessing the filesystem containing the cache.
-+ *	@secid contains the security ID under which cachefiles daemon is
-+ *      running.
-+ *	@modsecid contains the pointer to where the security ID for the module
-+ *	is to be stored.
-+ *
-  * This is the main security structure.
-  */
- struct security_operations {
-@@ -1358,6 +1366,7 @@ struct security_operations {
- 	u32 (*set_fscreate_secid)(u32 secid);
- 	u32 (*act_as_secid)(u32 secid);
- 	u32 (*act_as_self)(void);
-+	int (*cachefiles_get_secid)(u32 secid, u32 *modsecid);
+@@ -1259,6 +1259,7 @@ struct security_operations {
+   	int (*inode_getsecurity)(const struct inode *inode, const char *name, void *buffer, size_t size, int err);
+   	int (*inode_setsecurity)(struct inode *inode, const char *name, const void *value, size_t size, int flags);
+   	int (*inode_listsecurity)(struct inode *inode, char *buffer, size_t buffer_size);
++	u32 (*inode_get_secid)(struct inode *inode);
  
- #ifdef CONFIG_SECURITY_NETWORK
- 	int (*unix_stream_connect) (struct socket * sock,
-@@ -2180,6 +2189,11 @@ static inline u32 security_act_as_self(v
- 	return security_ops->act_as_self();
+ 	int (*file_permission) (struct file * file, int mask);
+ 	int (*file_alloc_security) (struct file * file);
+@@ -1821,6 +1822,13 @@ static inline int security_inode_listsec
+ 	return security_ops->inode_listsecurity(inode, buffer, buffer_size);
  }
  
-+static inline int security_cachefiles_get_secid(u32 secid, u32 *modsecid)
++static inline u32 security_inode_get_secid(struct inode *inode)
 +{
-+	return security_ops->cachefiles_get_secid(secid, modsecid);
++	if (unlikely(IS_PRIVATE(inode)))
++		return 0;
++	return security_ops->inode_get_secid(inode);
 +}
 +
- /* prototypes */
- extern int security_init	(void);
- extern int register_security	(struct security_operations *ops);
-@@ -2885,6 +2899,12 @@ static inline u32 security_act_as_self(v
+ static inline int security_file_permission (struct file *file, int mask)
+ {
+ 	return security_ops->file_permission (file, mask);
+@@ -2518,6 +2526,11 @@ static inline int security_inode_listsec
  	return 0;
  }
  
-+static inline int security_cachefiles_get_secid(u32 secid, u32 *modsecid)
++static inline u32 security_inode_get_secid(struct inode *inode)
 +{
-+	*modsecid = 0;
 +	return 0;
 +}
 +
- #endif	/* CONFIG_SECURITY */
- 
- #ifdef CONFIG_SECURITY_NETWORK
+ static inline int security_file_permission (struct file *file, int mask)
+ {
+ 	return 0;
 diff --git a/security/dummy.c b/security/dummy.c
-index 3401ea3..30096ec 100644
+index f7b47a9..3401ea3 100644
 --- a/security/dummy.c
 +++ b/security/dummy.c
-@@ -952,6 +952,12 @@ static u32 dummy_act_as_self(void)
+@@ -392,6 +392,11 @@ static int dummy_inode_listsecurity(stru
  	return 0;
  }
  
-+static int dummy_cachefiles_get_secid(u32 secid, u32 *modsecid)
++static u32 dummy_inode_get_secid(struct inode *inode)
 +{
-+	*modsecid = 0;
 +	return 0;
 +}
 +
- #ifdef CONFIG_KEYS
- static inline int dummy_key_alloc(struct key *key, struct task_struct *ctx,
- 				  unsigned long flags)
-@@ -1111,6 +1117,7 @@ void security_fixup_ops (struct security
-  	set_to_dummy_if_null(ops, set_fscreate_secid);
-  	set_to_dummy_if_null(ops, act_as_secid);
-  	set_to_dummy_if_null(ops, act_as_self);
-+ 	set_to_dummy_if_null(ops, cachefiles_get_secid);
- #ifdef CONFIG_SECURITY_NETWORK
- 	set_to_dummy_if_null(ops, unix_stream_connect);
- 	set_to_dummy_if_null(ops, unix_may_send);
+ static const char *dummy_inode_xattr_getsuffix(void)
+ {
+ 	return NULL;
+@@ -1039,6 +1044,7 @@ void security_fixup_ops (struct security
+ 	set_to_dummy_if_null(ops, inode_getsecurity);
+ 	set_to_dummy_if_null(ops, inode_setsecurity);
+ 	set_to_dummy_if_null(ops, inode_listsecurity);
++	set_to_dummy_if_null(ops, inode_get_secid);
+ 	set_to_dummy_if_null(ops, file_permission);
+ 	set_to_dummy_if_null(ops, file_alloc_security);
+ 	set_to_dummy_if_null(ops, file_free_security);
 diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-index ddac1bc..3a52698 100644
+index 09def09..ddac1bc 100644
 --- a/security/selinux/hooks.c
 +++ b/security/selinux/hooks.c
-@@ -4586,6 +4586,12 @@ static u32 selinux_act_as_self(void)
- 	return oldactor_sid;
+@@ -2415,6 +2415,13 @@ static int selinux_inode_listsecurity(st
+ 	return len;
  }
  
-+static int selinux_cachefiles_get_secid(u32 secid, u32 *modsecid)
++static u32 selinux_inode_get_secid(struct inode *inode)
 +{
-+	return security_transition_sid(secid, SECINITSID_KERNEL,
-+				       SECCLASS_PROCESS, modsecid);
++	struct inode_security_struct *isec = inode->i_security;
++
++	return isec->sid;
 +}
 +
- #ifdef CONFIG_KEYS
+ /* file security operations */
  
- static int selinux_key_alloc(struct key *k, struct task_struct *tsk,
-@@ -4773,6 +4779,7 @@ static struct security_operations selinu
- 	.set_fscreate_secid =		selinux_set_fscreate_secid,
- 	.act_as_secid =			selinux_act_as_secid,
- 	.act_as_self =			selinux_act_as_self,
-+	.cachefiles_get_secid =		selinux_cachefiles_get_secid,
+ static int selinux_file_permission(struct file *file, int mask)
+@@ -4690,6 +4697,7 @@ static struct security_operations selinu
+ 	.inode_getsecurity =            selinux_inode_getsecurity,
+ 	.inode_setsecurity =            selinux_inode_setsecurity,
+ 	.inode_listsecurity =           selinux_inode_listsecurity,
++	.inode_get_secid =		selinux_inode_get_secid,
  
-         .unix_stream_connect =		selinux_socket_unix_stream_connect,
- 	.unix_may_send =		selinux_socket_unix_may_send,
+ 	.file_permission =		selinux_file_permission,
+ 	.file_alloc_security =		selinux_file_alloc_security,
 
 --
 This message was distributed to subscribers of the selinux mailing list.
