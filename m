@@ -1,352 +1,130 @@
 From: David Howells <dhowells@redhat.com>
-Subject: [PATCH 02/19] FS-Cache: Provide a filesystem-specific sync'able page bit
-Date: Tue, 14 Nov 2006 20:06:26 +0000
+Subject: [PATCH 15/19] CacheFiles: Get the SID under which the CacheFiles module should operate
+Date: Tue, 14 Nov 2006 20:06:54 +0000
 To: torvalds@osdl.org, akpm@osdl.org, sds@tycho.nsa.gov,
         trond.myklebust@fys.uio.no
 Cc: dhowells@redhat.com, selinux@tycho.nsa.gov, linux-kernel@vger.kernel.org,
         aviro@redhat.com, steved@redhat.com
-Message-Id: <20061114200626.12943.29206.stgit@warthog.cambridge.redhat.com>
+Message-Id: <20061114200654.12943.1073.stgit@warthog.cambridge.redhat.com>
 In-Reply-To: <20061114200621.12943.18023.stgit@warthog.cambridge.redhat.com>
 References: <20061114200621.12943.18023.stgit@warthog.cambridge.redhat.com>
 Content-Type: text/plain; charset=utf-8; format=fixed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-The attached patch provides a filesystem-specific page bit that a filesystem
-can synchronise upon.  This can be used, for example, by a netfs to synchronise
-with CacheFS writing its pages to disk.
-
-The PG_checked bit is replaced with PG_fs_misc, and various operations are
-provided based upon that.  The *PageChecked() macros have also been replaced.
+Get the SID under which the CacheFiles module should operate so that the
+SELinux security system can control the accesses it makes.
 
 Signed-Off-By: David Howells <dhowells@redhat.com>
 ---
 
- fs/afs/dir.c               |    5 +----
- fs/ext2/dir.c              |    6 +++---
- fs/ext3/inode.c            |   10 +++++-----
- fs/freevxfs/vxfs_subr.c    |    2 +-
- fs/reiserfs/inode.c        |   10 +++++-----
- fs/ufs/dir.c               |    6 +++---
- include/linux/page-flags.h |   15 ++++++++++-----
- include/linux/pagemap.h    |   11 +++++++++++
- mm/filemap.c               |   17 +++++++++++++++++
- mm/migrate.c               |    4 ++--
- mm/page_alloc.c            |    2 +-
- 11 files changed, 59 insertions(+), 29 deletions(-)
+ include/linux/security.h |   20 ++++++++++++++++++++
+ security/dummy.c         |    7 +++++++
+ security/selinux/hooks.c |    7 +++++++
+ 3 files changed, 34 insertions(+), 0 deletions(-)
 
-diff --git a/fs/afs/dir.c b/fs/afs/dir.c
-index a6ec75c..84a2167 100644
---- a/fs/afs/dir.c
-+++ b/fs/afs/dir.c
-@@ -155,11 +155,9 @@ #endif
- 		}
- 	}
- 
--	SetPageChecked(page);
- 	return;
- 
-  error:
--	SetPageChecked(page);
- 	SetPageError(page);
- 
- } /* end afs_dir_check_page() */
-@@ -191,8 +189,7 @@ static struct page *afs_dir_get_page(str
- 		kmap(page);
- 		if (!PageUptodate(page))
- 			goto fail;
--		if (!PageChecked(page))
--			afs_dir_check_page(dir, page);
-+		afs_dir_check_page(dir, page);
- 		if (PageError(page))
- 			goto fail;
- 	}
-diff --git a/fs/ext2/dir.c b/fs/ext2/dir.c
-index 3e7a84a..89f8318 100644
---- a/fs/ext2/dir.c
-+++ b/fs/ext2/dir.c
-@@ -112,7 +112,7 @@ static void ext2_check_page(struct page 
- 	if (offs != limit)
- 		goto Eend;
- out:
--	SetPageChecked(page);
-+	SetPageFsMisc(page);
- 	return;
- 
- 	/* Too bad, we had an error */
-@@ -152,7 +152,7 @@ Eend:
- 		dir->i_ino, (page->index<<PAGE_CACHE_SHIFT)+offs,
- 		(unsigned long) le32_to_cpu(p->inode));
- fail:
--	SetPageChecked(page);
-+	SetPageFsMisc(page);
- 	SetPageError(page);
- }
- 
-@@ -165,7 +165,7 @@ static struct page * ext2_get_page(struc
- 		kmap(page);
- 		if (!PageUptodate(page))
- 			goto fail;
--		if (!PageChecked(page))
-+		if (!PageFsMisc(page))
- 			ext2_check_page(page);
- 		if (PageError(page))
- 			goto fail;
-diff --git a/fs/ext3/inode.c b/fs/ext3/inode.c
-index 03ba5bc..1d6a61a 100644
---- a/fs/ext3/inode.c
-+++ b/fs/ext3/inode.c
-@@ -1531,12 +1531,12 @@ static int ext3_journalled_writepage(str
- 		goto no_write;
- 	}
- 
--	if (!page_has_buffers(page) || PageChecked(page)) {
-+	if (!page_has_buffers(page) || PageFsMisc(page)) {
- 		/*
- 		 * It's mmapped pagecache.  Add buffers and journal it.  There
- 		 * doesn't seem much point in redirtying the page here.
- 		 */
--		ClearPageChecked(page);
-+		ClearPageFsMisc(page);
- 		ret = block_prepare_write(page, 0, PAGE_CACHE_SIZE,
- 					ext3_get_block);
- 		if (ret != 0) {
-@@ -1593,7 +1593,7 @@ static void ext3_invalidatepage(struct p
- 	 * If it's a full truncate we just forget about the pending dirtying
- 	 */
- 	if (offset == 0)
--		ClearPageChecked(page);
-+		ClearPageFsMisc(page);
- 
- 	journal_invalidatepage(journal, page, offset);
- }
-@@ -1602,7 +1602,7 @@ static int ext3_releasepage(struct page 
- {
- 	journal_t *journal = EXT3_JOURNAL(page->mapping->host);
- 
--	WARN_ON(PageChecked(page));
-+	WARN_ON(PageFsMisc(page));
- 	if (!page_has_buffers(page))
- 		return 0;
- 	return journal_try_to_free_buffers(journal, page, wait);
-@@ -1698,7 +1698,7 @@ out:
-  */
- static int ext3_journalled_set_page_dirty(struct page *page)
- {
--	SetPageChecked(page);
-+	SetPageFsMisc(page);
- 	return __set_page_dirty_nobuffers(page);
- }
- 
-diff --git a/fs/freevxfs/vxfs_subr.c b/fs/freevxfs/vxfs_subr.c
-index decac62..805bbb2 100644
---- a/fs/freevxfs/vxfs_subr.c
-+++ b/fs/freevxfs/vxfs_subr.c
-@@ -78,7 +78,7 @@ vxfs_get_page(struct address_space *mapp
- 		kmap(pp);
- 		if (!PageUptodate(pp))
- 			goto fail;
--		/** if (!PageChecked(pp)) **/
-+		/** if (!PageFsMisc(pp)) **/
- 			/** vxfs_check_page(pp); **/
- 		if (PageError(pp))
- 			goto fail;
-diff --git a/fs/reiserfs/inode.c b/fs/reiserfs/inode.c
-index 9c69bca..a290c26 100644
---- a/fs/reiserfs/inode.c
-+++ b/fs/reiserfs/inode.c
-@@ -2342,7 +2342,7 @@ static int reiserfs_write_full_page(stru
- 	struct buffer_head *head, *bh;
- 	int partial = 0;
- 	int nr = 0;
--	int checked = PageChecked(page);
-+	int checked = PageFsMisc(page);
- 	struct reiserfs_transaction_handle th;
- 	struct super_block *s = inode->i_sb;
- 	int bh_per_page = PAGE_CACHE_SIZE / s->s_blocksize;
-@@ -2420,7 +2420,7 @@ static int reiserfs_write_full_page(stru
- 	 * blocks we're going to log
- 	 */
- 	if (checked) {
--		ClearPageChecked(page);
-+		ClearPageFsMisc(page);
- 		reiserfs_write_lock(s);
- 		error = journal_begin(&th, s, bh_per_page + 1);
- 		if (error) {
-@@ -2801,7 +2801,7 @@ static void reiserfs_invalidatepage(stru
- 	BUG_ON(!PageLocked(page));
- 
- 	if (offset == 0)
--		ClearPageChecked(page);
-+		ClearPageFsMisc(page);
- 
- 	if (!page_has_buffers(page))
- 		goto out;
-@@ -2842,7 +2842,7 @@ static int reiserfs_set_page_dirty(struc
- {
- 	struct inode *inode = page->mapping->host;
- 	if (reiserfs_file_data_log(inode)) {
--		SetPageChecked(page);
-+		SetPageFsMisc(page);
- 		return __set_page_dirty_nobuffers(page);
- 	}
- 	return __set_page_dirty_buffers(page);
-@@ -2865,7 +2865,7 @@ static int reiserfs_releasepage(struct p
- 	struct buffer_head *bh;
- 	int ret = 1;
- 
--	WARN_ON(PageChecked(page));
-+	WARN_ON(PageFsMisc(page));
- 	spin_lock(&j->j_dirty_buffers_lock);
- 	head = page_buffers(page);
- 	bh = head;
-diff --git a/fs/ufs/dir.c b/fs/ufs/dir.c
-index 7f0a0aa..e04327c 100644
---- a/fs/ufs/dir.c
-+++ b/fs/ufs/dir.c
-@@ -135,7 +135,7 @@ static void ufs_check_page(struct page *
- 	if (offs != limit)
- 		goto Eend;
- out:
--	SetPageChecked(page);
-+	SetPageFsMisc(page);
- 	return;
- 
- 	/* Too bad, we had an error */
-@@ -173,7 +173,7 @@ Eend:
- 		   "offset=%lu",
- 		   dir->i_ino, (page->index<<PAGE_CACHE_SHIFT)+offs);
- fail:
--	SetPageChecked(page);
-+	SetPageFsMisc(page);
- 	SetPageError(page);
- }
- 
-@@ -187,7 +187,7 @@ static struct page *ufs_get_page(struct 
- 		kmap(page);
- 		if (!PageUptodate(page))
- 			goto fail;
--		if (!PageChecked(page))
-+		if (!PageFsMisc(page))
- 			ufs_check_page(page);
- 		if (PageError(page))
- 			goto fail;
-diff --git a/include/linux/page-flags.h b/include/linux/page-flags.h
-index 4830a3b..e7b5bbf 100644
---- a/include/linux/page-flags.h
-+++ b/include/linux/page-flags.h
-@@ -76,7 +76,7 @@ #define PG_lru			 5
- #define PG_active		 6
- #define PG_slab			 7	/* slab debug (Suparna wants this) */
- 
--#define PG_checked		 8	/* kill me in 2.5.<early>. */
-+#define PG_fs_misc		 8
- #define PG_arch_1		 9
- #define PG_reserved		10
- #define PG_private		11	/* If pagecache, has fs-private data */
-@@ -165,10 +165,6 @@ #else
- #define PageHighMem(page)	0 /* needed to optimize away at compile time */
- #endif
- 
--#define PageChecked(page)	test_bit(PG_checked, &(page)->flags)
--#define SetPageChecked(page)	set_bit(PG_checked, &(page)->flags)
--#define ClearPageChecked(page)	clear_bit(PG_checked, &(page)->flags)
--
- #define PageReserved(page)	test_bit(PG_reserved, &(page)->flags)
- #define SetPageReserved(page)	set_bit(PG_reserved, &(page)->flags)
- #define ClearPageReserved(page)	clear_bit(PG_reserved, &(page)->flags)
-@@ -267,4 +263,13 @@ static inline void set_page_writeback(st
- 	test_set_page_writeback(page);
- }
- 
-+/*
-+ * Filesystem-specific page bit testing
-+ */
-+#define PageFsMisc(page)		test_bit(PG_fs_misc, &(page)->flags)
-+#define SetPageFsMisc(page)		set_bit(PG_fs_misc, &(page)->flags)
-+#define TestSetPageFsMisc(page)		test_and_set_bit(PG_fs_misc, &(page)->flags)
-+#define ClearPageFsMisc(page)		clear_bit(PG_fs_misc, &(page)->flags)
-+#define TestClearPageFsMisc(page)	test_and_clear_bit(PG_fs_misc, &(page)->flags)
-+
- #endif	/* PAGE_FLAGS_H */
-diff --git a/include/linux/pagemap.h b/include/linux/pagemap.h
-index c3e255b..24fdc48 100644
---- a/include/linux/pagemap.h
-+++ b/include/linux/pagemap.h
-@@ -189,6 +189,17 @@ static inline void wait_on_page_writebac
- extern void end_page_writeback(struct page *page);
- 
- /*
-+ * Wait for filesystem-specific page synchronisation to complete
-+ */
-+static inline void wait_on_page_fs_misc(struct page *page)
-+{
-+	if (PageFsMisc(page))
-+		wait_on_page_bit(page, PG_fs_misc);
-+}
-+
-+extern void fastcall end_page_fs_misc(struct page *page);
-+
-+/*
-  * Fault a userspace page into pagetables.  Return non-zero on a fault.
+diff --git a/include/linux/security.h b/include/linux/security.h
+index 5913ae7..8cfeefc 100644
+--- a/include/linux/security.h
++++ b/include/linux/security.h
+@@ -1171,6 +1171,14 @@ #ifdef CONFIG_SECURITY
+  *      owning security ID, and return the security ID as which the process was
+  *      previously acting.
   *
-  * This assumes that two userspace pages are always sufficient.  That's
-diff --git a/mm/filemap.c b/mm/filemap.c
-index 7b84dc8..1b73d3a 100644
---- a/mm/filemap.c
-+++ b/mm/filemap.c
-@@ -584,6 +584,23 @@ void fastcall __lock_page_nosync(struct 
- 							TASK_UNINTERRUPTIBLE);
++ * @cachefiles_get_secid:
++ *	Determine the security ID for the CacheFiles module to use when
++ *	accessing the filesystem containing the cache.
++ *	@secid contains the security ID under which cachefiles daemon is
++ *      running.
++ *	@modsecid contains the pointer to where the security ID for the module
++ *	is to be stored.
++ *
+  * This is the main security structure.
+  */
+ struct security_operations {
+@@ -1358,6 +1366,7 @@ struct security_operations {
+ 	u32 (*set_fscreate_secid)(u32 secid);
+ 	u32 (*act_as_secid)(u32 secid);
+ 	u32 (*act_as_self)(void);
++	int (*cachefiles_get_secid)(u32 secid, u32 *modsecid);
+ 
+ #ifdef CONFIG_SECURITY_NETWORK
+ 	int (*unix_stream_connect) (struct socket * sock,
+@@ -2180,6 +2189,11 @@ static inline u32 security_act_as_self(v
+ 	return security_ops->act_as_self();
  }
  
-+/*
-+ * Note completion of filesystem specific page synchronisation
-+ *
-+ * This is used to allow a page to be written to a filesystem cache in the
-+ * background without holding up the completion of readpage
-+ */
-+void fastcall end_page_fs_misc(struct page *page)
++static inline int security_cachefiles_get_secid(u32 secid, u32 *modsecid)
 +{
-+	smp_mb__before_clear_bit();
-+	if (!TestClearPageFsMisc(page))
-+		BUG();
-+	smp_mb__after_clear_bit();
-+	__wake_up_bit(page_waitqueue(page), &page->flags, PG_fs_misc);
++	return security_ops->cachefiles_get_secid(secid, modsecid);
 +}
 +
-+EXPORT_SYMBOL(end_page_fs_misc);
+ /* prototypes */
+ extern int security_init	(void);
+ extern int register_security	(struct security_operations *ops);
+@@ -2885,6 +2899,12 @@ static inline u32 security_act_as_self(v
+ 	return 0;
+ }
+ 
++static inline int security_cachefiles_get_secid(u32 secid, u32 *modsecid)
++{
++	*modsecid = 0;
++	return 0;
++}
 +
- /**
-  * find_get_page - find and get a page reference
-  * @mapping: the address_space to search
-diff --git a/mm/migrate.c b/mm/migrate.c
-index b4979d4..bc278d7 100644
---- a/mm/migrate.c
-+++ b/mm/migrate.c
-@@ -348,8 +348,8 @@ static void migrate_page_copy(struct pag
- 		SetPageUptodate(newpage);
- 	if (PageActive(page))
- 		SetPageActive(newpage);
--	if (PageChecked(page))
--		SetPageChecked(newpage);
-+	if (PageFsMisc(page))
-+		SetPageFsMisc(newpage);
- 	if (PageMappedToDisk(page))
- 		SetPageMappedToDisk(newpage);
+ #endif	/* CONFIG_SECURITY */
  
-diff --git a/mm/page_alloc.c b/mm/page_alloc.c
-index bf2f6cf..b4353dd 100644
---- a/mm/page_alloc.c
-+++ b/mm/page_alloc.c
-@@ -602,7 +602,7 @@ static int prep_new_page(struct page *pa
+ #ifdef CONFIG_SECURITY_NETWORK
+diff --git a/security/dummy.c b/security/dummy.c
+index 3401ea3..30096ec 100644
+--- a/security/dummy.c
++++ b/security/dummy.c
+@@ -952,6 +952,12 @@ static u32 dummy_act_as_self(void)
+ 	return 0;
+ }
  
- 	page->flags &= ~(1 << PG_uptodate | 1 << PG_error |
- 			1 << PG_referenced | 1 << PG_arch_1 |
--			1 << PG_checked | 1 << PG_mappedtodisk);
-+			1 << PG_fs_misc | 1 << PG_mappedtodisk);
- 	set_page_private(page, 0);
- 	set_page_refcounted(page);
- 	kernel_map_pages(page, 1 << order, 1);
++static int dummy_cachefiles_get_secid(u32 secid, u32 *modsecid)
++{
++	*modsecid = 0;
++	return 0;
++}
++
+ #ifdef CONFIG_KEYS
+ static inline int dummy_key_alloc(struct key *key, struct task_struct *ctx,
+ 				  unsigned long flags)
+@@ -1111,6 +1117,7 @@ void security_fixup_ops (struct security
+  	set_to_dummy_if_null(ops, set_fscreate_secid);
+  	set_to_dummy_if_null(ops, act_as_secid);
+  	set_to_dummy_if_null(ops, act_as_self);
++ 	set_to_dummy_if_null(ops, cachefiles_get_secid);
+ #ifdef CONFIG_SECURITY_NETWORK
+ 	set_to_dummy_if_null(ops, unix_stream_connect);
+ 	set_to_dummy_if_null(ops, unix_may_send);
+diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+index ddac1bc..3a52698 100644
+--- a/security/selinux/hooks.c
++++ b/security/selinux/hooks.c
+@@ -4586,6 +4586,12 @@ static u32 selinux_act_as_self(void)
+ 	return oldactor_sid;
+ }
+ 
++static int selinux_cachefiles_get_secid(u32 secid, u32 *modsecid)
++{
++	return security_transition_sid(secid, SECINITSID_KERNEL,
++				       SECCLASS_PROCESS, modsecid);
++}
++
+ #ifdef CONFIG_KEYS
+ 
+ static int selinux_key_alloc(struct key *k, struct task_struct *tsk,
+@@ -4773,6 +4779,7 @@ static struct security_operations selinu
+ 	.set_fscreate_secid =		selinux_set_fscreate_secid,
+ 	.act_as_secid =			selinux_act_as_secid,
+ 	.act_as_self =			selinux_act_as_self,
++	.cachefiles_get_secid =		selinux_cachefiles_get_secid,
+ 
+         .unix_stream_connect =		selinux_socket_unix_stream_connect,
+ 	.unix_may_send =		selinux_socket_unix_may_send,
 
 --
 This message was distributed to subscribers of the selinux mailing list.
