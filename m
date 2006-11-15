@@ -1,64 +1,65 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id kAFHX1TR029148
-	for <selinux@tycho.nsa.gov>; Wed, 15 Nov 2006 12:33:01 -0500
-Received: from smtp.sws.net.au (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id kAFHWFcx006684
-	for <selinux@tycho.nsa.gov>; Wed, 15 Nov 2006 17:32:17 GMT
-From: Russell Coker <russell@coker.com.au>
-Reply-To: russell@coker.com.au
-To: Daniel J Walsh <dwalsh@redhat.com>
-Subject: Re: Latest Diffs
-Date: Thu, 16 Nov 2006 04:33:06 +1100
-Cc: "Christopher J. PeBenito" <cpebenito@tresys.com>,
-        SE Linux <selinux@tycho.nsa.gov>
-References: <453E2A8C.4070207@redhat.com> <200611152049.38615.russell@coker.com.au> <455B18AE.6050901@redhat.com>
-In-Reply-To: <455B18AE.6050901@redhat.com>
+Message-ID: <455B53C7.1060604@mentalrootkit.com>
+Date: Wed, 15 Nov 2006 12:52:07 -0500
+From: Karl MacMillan <kmacmillan@mentalrootkit.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Message-Id: <200611160433.09138.russell@coker.com.au>
+To: David Howells <dhowells@redhat.com>
+CC: James Morris <jmorris@namei.org>, Linus Torvalds <torvalds@osdl.org>,
+        Andrew Morton <akpm@osdl.org>, Stephen Smalley <sds@tycho.nsa.gov>,
+        trond.myklebust@fys.uio.no, selinux@tycho.nsa.gov,
+        linux-kernel@vger.kernel.org, aviro@redhat.com, steved@redhat.com
+Subject: Re: [PATCH 12/19] CacheFiles: Permit a process's create SID to be
+ overridden
+References: <XMMS.LNX.4.64.0611151115360.8593@d.namei>  <XMMS.LNX.4.64.0611141618300.25022@d.namei> <20061114200621.12943.18023.stgit@warthog.cambridge.redhat.com> <20061114200647.12943.39802.stgit@warthog.cambridge.redhat.com> <15153.1163593562@redhat.com> <26860.1163607813@redhat.com>
+In-Reply-To: <26860.1163607813@redhat.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thursday 16 November 2006 00:39, Daniel J Walsh <dwalsh@redhat.com> wrote:
-> > I think it's best if Red Hat compiles just don't include dpkg.te.
-> >
-> > Have apt-get and yum run in the same context in Fedora.
->
-> That is the way it is now, but it is unacceptable to upstream.  Chris
-> does not like the conflicting
-> file context.
+David Howells wrote:
+> James Morris <jmorris@namei.org> wrote:
+> 
+>> Well, the value can be changed at any time, so you could be using a 
+>> temporary fscreate value, or your new value could be overwritten 
+>> immediately by writing to /proc/$$/attr/fscreate
+> 
+> Ah.  Hmmm.  By whom?  In selinux_setprocattr():
+> 
+> 	if (current != p) {
+> 		/* SELinux only allows a process to change its own
+> 		   security attributes. */
+> 		return -EACCES;
+> 	}
+> 
+> But current busy inside the cache and can't do this.
+> 
+>> I think we need to add a separate field for this purpose, which can only 
+>> be written to via the in-kernel API and overrides fscreate.
+> 
+> So, like my acts-as security ID patch?
+> 
+> Would it still need to be controlled by MAC policy in that case?
 
-There is no conflict if rpm.te and dpkg.te are never included in the same 
-build.
+Yes - if we are going to perform some MAC checks for this kernel process 
+we need to have all checks performed.
 
-Having a one-line .fc supposed conflict (it's not a conflict if the two .fc 
-files in question are never used at the same time) is much better than 
-massively hacking up an entire .te file.
+   Doing so is
+> a bit of a pain as it means I have a whole bunch of extra failures I still
+> need to check for,
 
-> >>>> squid wants to rw_tmpfs for diskd mode.
-> >>>
-> >>> I'm wondering if this is tmpfs_t because there is no squid_tmpfs_t+type
-> >>> transition, or if it is because the machine is targeted.
-> >>
-> >> Not sure, this was in the old policy as well.  Never used squid.
-> >
-> > I believe that it was a mistake in the Squid policy.
->
-> I have just recently received an AVC requiring it, which is why I put it
-> back.
+This is true for going this route in general rather than simply 
+bypassing MAC. I don't think halfway makes any sense.
 
-Do you have any more information?  If the user is doing something odd like 
-using tmpfs for squid backing store then it's not something we want to 
-support in policy in that manner.  Maybe we could have restorecon run on the 
-Squid spool directory to cater for the case of using tmpfs for it if people 
-want to do that.
+  and the race in which the rules might change is still a
+> possibility I have to deal with.
+> 
 
--- 
-russell@coker.com.au
-http://etbe.blogspot.com/          My Blog
+I don't think this is a race, it is revocation of access. If you check 
+the access at every operation and correctly deal with access failures, 
+then this shouldn't be a problem. Yes it is a pain, but that is how 
+SELinux is supposed to work.
 
-http://www.coker.com.au/sponsorship.html Sponsoring Free Software development
+Karl
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
