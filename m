@@ -1,78 +1,71 @@
 Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id kAF6mpR1012912
-	for <selinux@tycho.nsa.gov>; Wed, 15 Nov 2006 01:48:51 -0500
-Received: from glaurung.internal.golden-gryphon.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id kAF6lDcB020528
-	for <selinux@tycho.nsa.gov>; Wed, 15 Nov 2006 06:47:14 GMT
-Received: from glaurung.internal.golden-gryphon.com (srivasta@localhost [127.0.0.1])
-	by glaurung.internal.golden-gryphon.com (8.13.8/8.13.8/Debian-2) with ESMTP id kAF6kSjo005744
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-SHA bits=256 verify=NOT)
-	for <selinux@tycho.nsa.gov>; Wed, 15 Nov 2006 00:46:36 -0600
-From: Manoj Srivastava <manoj.srivastava@stdc.com>
-To: selinux@tycho.nsa.gov
-Subject: Compiling libsepol with -fPIC instead of -fpic
-Date: Wed, 15 Nov 2006 00:45:25 -0600
-Message-ID: <87d57pqkca.fsf@glaurung.internal.golden-gryphon.com>
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id kAF9nVJB016740
+	for <selinux@tycho.nsa.gov>; Wed, 15 Nov 2006 04:49:31 -0500
+Received: from smtp.sws.net.au (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id kAF9lqcB017096
+	for <selinux@tycho.nsa.gov>; Wed, 15 Nov 2006 09:47:53 GMT
+From: Russell Coker <russell@coker.com.au>
+Reply-To: russell@coker.com.au
+To: Daniel J Walsh <dwalsh@redhat.com>
+Subject: Re: Latest Diffs
+Date: Wed, 15 Nov 2006 20:49:36 +1100
+Cc: "Christopher J. PeBenito" <cpebenito@tresys.com>,
+        SE Linux <selinux@tycho.nsa.gov>
+References: <453E2A8C.4070207@redhat.com> <1162328409.31675.131.camel@sgc.columbia.tresys.com> <455A2304.5090709@redhat.com>
+In-Reply-To: <455A2304.5090709@redhat.com>
 MIME-Version: 1.0
-Content-Type: multipart/mixed; boundary="=-=-="
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Message-Id: <200611152049.38615.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
---=-=-=
+On Wednesday 15 November 2006 07:11, Daniel J Walsh <dwalsh@redhat.com> wrote:
+> >> Redhat's Fedora Extras apd-get and apt-shell run as rpm.
+> >
+> > Can't add this because it causes conflicting file contexts if the dpkg
+> > module is included.
+>
+> I think we need a rewrite of the dpkg te file so on redhat platforms
+> dbkg_t is aliased to rpm_t.
 
-Hi,
+I think it's best if Red Hat compiles just don't include dpkg.te.
 
-        I've had reports of packages filing to compile on SPARC
- hardware when linked with  libsepol1 which was compiled with
- -fpic. We seem to be hitting the global offset table size limit;
-,----[ GCC manual ]
-| `-fpic'
-|      Generate position-independent code (PIC) suitable for use in a
-|      shared library, if supported for the target machine.  Such code
-|      accesses all constant addresses through a global offset table
-|      (GOT).  The dynamic loader resolves the GOT entries when the
-|      program starts (the dynamic loader is not part of GCC; it is part
-|      of the operating system).  If the GOT size for the linked
-|      executable exceeds a machine-specific maximum size, you get an
-|      error message from the linker indicating that `-fpic' does not
-|      work; in that case, recompile with `-fPIC' instead.  (These
-|      maximums are 8k on the SPARC and 32k on the m68k and RS/6000.  The
-|      386 has no such limit.)
-`----
+Have apt-get and yum run in the same context in Fedora.
 
-        Simply recompiling with -fPIC corrects the problem.
+> >> squid wants to rw_tmpfs for diskd mode.
+> >
+> > I'm wondering if this is tmpfs_t because there is no squid_tmpfs_t+type
+> > transition, or if it is because the machine is targeted.
+>
+> Not sure, this was in the old policy as well.  Never used squid.
 
-        manoj
+I believe that it was a mistake in the Squid policy.
 
+> Added boolean to allow daemons to dump core in /.
 
---=-=-=
-Content-Type: text/x-patch
-Content-Disposition: inline
+Some of the fun things this permits include:
 
---- orig/src/Makefile
-+++ mod/src/Makefile
-@@ -24,10 +24,10 @@
- 	ln -sf $@ $(TARGET) 
- 
- %.o:  %.c 
--	$(CC) $(CFLAGS) -fpic -c -o $@ $<
-+	$(CC) $(CFLAGS) -fPIC -c -o $@ $<
- 
- %.lo:  %.c
--	$(CC) $(CFLAGS) -fpic -DSHARED -c -o $@ $<
-+	$(CC) $(CFLAGS) -fPIC -DSHARED -c -o $@ $<
- 
- install: all
- 	test -d $(LIBDIR) || install -m 755 -d $(LIBDIR)
+Creating a file named /fsckoptions with "-r" or "-N" as the contents (system 
+hang on boot or failure to ever do an automatic fsck).
 
+Creating /.unconfigured (could be good for taking over an Internet terminal 
+machine).
+
+Also as daemons don't have separate types for the core files there is the 
+issue of matching the core files up to the domain that generated them.
+
+Can't you use /proc/sys/kernel/core_pattern to put the core files somewhere 
+else?  Preferably somewhere in a mode 700 directory.
+
+Also those files that are generated in the root directory are a bad idea, 
+there should probably be a long term plan to move them elsewhere.
 
 -- 
-You can always pick up your needle and move to another groove. Tim
-Leary
-Manoj Srivastava <manoj.srivastava@stdc.com> <srivasta@acm.org> 
-1024D/BF24424C print 4966 F272 D093 B493 410B  924B 21BA DABB BF24 424C
+russell@coker.com.au
+http://etbe.blogspot.com/          My Blog
 
---=-=-=--
+http://www.coker.com.au/sponsorship.html Sponsoring Free Software development
 
 --
 This message was distributed to subscribers of the selinux mailing list.
