@@ -1,111 +1,33 @@
 From: David Howells <dhowells@redhat.com>
-In-Reply-To: <1163603377.5691.113.camel@lade.trondhjem.org> 
-References: <1163603377.5691.113.camel@lade.trondhjem.org>  <20061114200621.12943.18023.stgit@warthog.cambridge.redhat.com> <20061114200632.12943.72086.stgit@warthog.cambridge.redhat.com> 
-To: Trond Myklebust <trond.myklebust@fys.uio.no>
+In-Reply-To: <20061115155205.GA3911@infradead.org> 
+References: <20061115155205.GA3911@infradead.org>  <20061114200621.12943.18023.stgit@warthog.cambridge.redhat.com> <20061114200702.12943.39624.stgit@warthog.cambridge.redhat.com> 
+To: Christoph Hellwig <hch@infradead.org>
 Cc: David Howells <dhowells@redhat.com>, torvalds@osdl.org, akpm@osdl.org,
-        sds@tycho.nsa.gov, selinux@tycho.nsa.gov, linux-kernel@vger.kernel.org,
-        aviro@redhat.com, steved@redhat.com
-Subject: Re: [PATCH 05/19] NFS: Use local caching 
-Date: Wed, 15 Nov 2006 16:00:24 +0000
-Message-ID: <26454.1163606424@redhat.com>
+        sds@tycho.nsa.gov, trond.myklebust@fys.uio.no, selinux@tycho.nsa.gov,
+        linux-kernel@vger.kernel.org, aviro@redhat.com, steved@redhat.com
+Subject: Re: [PATCH 19/19] CacheFiles: Permit daemon to probe inuseness of a cache file 
+Date: Wed, 15 Nov 2006 16:10:08 +0000
+Message-ID: <26620.1163607008@redhat.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Trond Myklebust <trond.myklebust@fys.uio.no> wrote:
+Christoph Hellwig <hch@infradead.org> wrote:
 
-> Why is fscache being given a vote on whether or not the NFS page can be
-> removed from the mapping? If the file has changed on the server, so that
-> we have to invalidate the mapping, then I don't care about the fact that
-> fscache is busy: the page has to go.
+> Once again a very strong NACK for anything that gets a fd argument as
+> text from userspace.
 
-This is releasepage() not invalidatepage().  It is conditional.
+Why?  Would you rather I passed it in a struct to an ioctl?
 
-At this point you can't get rid of the page if FS-Cache is still using it
-because FS-Cache will call the netfs callback on the page when it has finished.
+> Also a very strong NACK for use of fget/fget_light from non-core code and
+> exports for either of them.
 
-You also can't cancel the I/O because it may involve a BIO which itself can't
-be cancelled.
+Why?
 
-You may not be able to sleep to wait for FS-Cache to finish because gfp might
-not include __GFP_WAIT.
-
-The whole point is to find out whether a page is releasable and recycle it if
-it is, not to force it to be released; for that, invalidatepage() exists.
-
-In my opinion, it is better to tell the VM that this page is not currently
-available, and let it get on with trying to find one that is rather than
-holding up the page allocator until the page becomes available.
-
-> You are missing the NFSv4 change attribute. The latter is supposed to
-> override mtime/ctime/size concerns in NFSv4.
-
-Is that stored in the inode?  I don't recall offhand.  It's easy enough to add
-if it is.
-
-> > @@ -84,6 +84,7 @@ void nfs_clear_inode(struct inode *inode
-> ...
-> What about nfs4_clear_inode?
-
-It calls nfs_clear_inode()...
-
-> > +	nfs_fscache_zap_fh_cookie(inode);
-> 
-> The cache will be zapped upon the next revalidation anyway. and the
-> whole point of nfs_zap_caches is to allow fast invalidation in contexts
-> where we cannot sleep. nfs_fscache_zap_fh_cookie calls
-> fscache_relinquish_cookie(), which sleeps, grabs rw_semaphores, etc.
-
-Okay...  It sounds like I should be able to drop that call there.
-
-Perhaps you should add a comment to that function to note this...
-
-> > @@ -376,6 +383,7 @@ void nfs_setattr_update_inode(struct ino
-> >  	if ((attr->ia_valid & ATTR_SIZE) != 0) {
-> >  		nfs_inc_stats(inode, NFSIOS_SETATTRTRUNC);
-> >  		inode->i_size = attr->ia_size;
-> > +		nfs_fscache_set_size(inode);
-> 
-> Why? Isn't this supposed to be a read-only inode?
-
-I suppose.  This is a holdover from when I supported R/W inodes too.
-
-> > @@ -942,11 +954,13 @@ static int nfs_update_inode(struct inode
-> > ...
-> > +			nfs_fscache_set_size(inode);
-> 
-> Doesn't nfs_fscache_set_size try to grab rw_semaphores? This function is
-> _always_ called with the inode->i_lock spinlock held.
-
-Hmmm...  I wonder if I need to do this in nfs_update_inode() at all.  Won't the
-pages and the cache object attached to an inode be discarded anyway if the file
-attributes returned by the server change?
-
-When can an inode be left with its data attached when modified on the server?
-Is this an NFSv4 thing?
-
-> >  static void nfs_readpage_release(struct nfs_page *req)
-> >  {
-> > +	struct inode *d_inode = req->wb_context->dentry->d_inode;
-> > +
-> > +	if (PageUptodate(req->wb_page))
-> > +		nfs_readpage_to_fscache(d_inode, req->wb_page, 0);
-> > +
-> 
-> Will usually be called from an rpciod context. Should therefore not be
-> grabbing semaphores, doing memory allocation etc.
-
-Is it possible to make an NFS kernel thread that can have completed nfs_page
-structs queued for writing to the cache?
-
-> > +
-> > +	nfs_writepage_to_fscache(inode, page);
-> > +
-> 
-> Why are we doing this, if the cache is turned off whenever the file is
-> open for writes?
-
-Good point again; for the moment, this can be discarded - though we could do it
-for NFS4 under some circumstances, I believe.
+I could possibly pass the pathname as text, except that (a) the path length
+may exceed PAGE_SIZE and MAXPATHLEN, and (b) doing a full path lookup() is a
+complete waste of time as the daemon already has the directory open on a file
+descriptor, and so effectively has a bookmark to the location that I can use,
+if I can but get hold of it.
 
 David
 
