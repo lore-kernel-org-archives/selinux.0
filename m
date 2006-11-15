@@ -5,38 +5,119 @@ To: trond.myklebust@fys.uio.no, torvalds@osdl.org, akpm@osdl.org,
         sds@tycho.nsa.gov
 Cc: dhowells@redhat.com, selinux@tycho.nsa.gov, linux-kernel@vger.kernel.org,
         aviro@redhat.com, steved@redhat.com
-Subject: [PATCH 23/19] FS-Cache: NFS: Don't invoke FS-Cache from nfs_zap_caches()
-Date: Wed, 15 Nov 2006 16:42:56 +0000
-Message-ID: <29409.1163608976@redhat.com>
+Subject: [PATCH 24/19] FS-Cache: NFS: Remove old support for R/W caching
+Date: Wed, 15 Nov 2006 16:51:47 +0000
+Message-ID: <31408.1163609507@redhat.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 
-Don't invoke FS-Cache from nfs_zap_caches() as that is supposed to be quick
-whereas FS-Cache may get semaphores and other sleepy things.
-
-As it happens, the cache will be zapped upon the next revalidation anyway, and
-so this is probably unnecessary.
+Remove old support for caching of files that are opened for writing.  This is
+not currently supported, and so the bits that enabled it are currently useless.
 
 Signed-Off-By: David Howells <dhowells@redhat.com>
 ---
 
- fs/nfs/inode.c |    2 --
- 1 files changed, 0 insertions(+), 2 deletions(-)
+ fs/nfs/fscache.c |   11 -----------
+ fs/nfs/fscache.h |   32 --------------------------------
+ fs/nfs/inode.c   |    1 -
+ fs/nfs/write.c   |    3 ---
+ 4 files changed, 0 insertions(+), 47 deletions(-)
 
-diff --git a/fs/nfs/inode.c b/fs/nfs/inode.c
-index 0d683eb..25376a5 100644
---- a/fs/nfs/inode.c
-+++ b/fs/nfs/inode.c
-@@ -130,8 +130,6 @@ void nfs_zap_caches(struct inode *inode)
- 	spin_lock(&inode->i_lock);
- 	nfs_zap_caches_locked(inode);
- 	spin_unlock(&inode->i_lock);
+diff --git a/fs/nfs/fscache.c b/fs/nfs/fscache.c
+index 81286f6..6bdd1f2 100644
+--- a/fs/nfs/fscache.c
++++ b/fs/nfs/fscache.c
+@@ -334,14 +334,3 @@ void nfs_readpage_from_fscache_complete(
+ 			unlock_page(page);
+ 	}
+ }
 -
--	nfs_fscache_zap_fh_cookie(inode);
+-/*
+- * handle completion of a page being read from the cache
+- * - really need to synchronise the end of writeback, probably using a page
+- *   flag, but for the moment we disable caching on writable files
+- */
+-void nfs_writepage_to_fscache_complete(struct page *page,
+-				       void *data,
+-				       int error)
+-{
+-}
+diff --git a/fs/nfs/fscache.h b/fs/nfs/fscache.h
+index b82b896..92c2dbf 100644
+--- a/fs/nfs/fscache.h
++++ b/fs/nfs/fscache.h
+@@ -425,33 +425,6 @@ static inline int nfs_readpages_from_fsc
+ 	return ret;
  }
  
- void nfs_zap_mapping(struct inode *inode, struct address_space *mapping)
+-/*
+- * store an updated page in fscache
+- */
+-extern void nfs_writepage_to_fscache_complete(struct page *page, void *data, int error);
+-
+-static inline void nfs_writepage_to_fscache(struct inode *inode,
+-					    struct page *page)
+-{
+-	int error;
+-
+-	if (PageNfsCached(page) && NFS_I(inode)->fscache) {
+-		dfprintk(FSCACHE,
+-			 "NFS: writepage_to_fscache (0x%p/0x%p/0x%p)\n",
+-			 NFS_I(inode)->fscache, page, inode);
+-
+-		error = fscache_write_page(NFS_I(inode)->fscache, page,
+-					   nfs_writepage_to_fscache_complete,
+-					   NULL, GFP_KERNEL);
+-		if (error != 0) {
+-			dfprintk(FSCACHE,
+-				 "NFS:    fscache_write_page error %d\n",
+-				 error);
+-			fscache_uncache_page(NFS_I(inode)->fscache, page);
+-		}
+-	}
+-}
+-
+ #else /* CONFIG_NFS_FSCACHE */
+ static inline int nfs_fscache_register(void) { return 0; }
+ static inline void nfs_fscache_unregister(void) {}
+@@ -493,10 +466,5 @@ static inline int nfs_readpages_from_fsc
+ 	return -ENOBUFS;
+ }
+ 
+-static inline void nfs_writepage_to_fscache(struct inode *inode, struct page *page)
+-{
+-	BUG_ON(PageNfsCached(page));
+-}
+-
+ #endif /* CONFIG_NFS_FSCACHE */
+ #endif /* _NFS_FSCACHE_H */
+diff --git a/fs/nfs/inode.c b/fs/nfs/inode.c
+index 25376a5..3409448 100644
+--- a/fs/nfs/inode.c
++++ b/fs/nfs/inode.c
+@@ -381,7 +381,6 @@ void nfs_setattr_update_inode(struct ino
+ 	if ((attr->ia_valid & ATTR_SIZE) != 0) {
+ 		nfs_inc_stats(inode, NFSIOS_SETATTRTRUNC);
+ 		inode->i_size = attr->ia_size;
+-		nfs_fscache_set_size(inode);
+ 		vmtruncate(inode, attr->ia_size);
+ 	}
+ }
+diff --git a/fs/nfs/write.c b/fs/nfs/write.c
+index 77d0d9d..a2e0570 100644
+--- a/fs/nfs/write.c
++++ b/fs/nfs/write.c
+@@ -340,9 +340,6 @@ do_it:
+ 		err = -EBADF;
+ 		goto out;
+ 	}
+-
+-	nfs_writepage_to_fscache(inode, page);
+-
+ 	lock_kernel();
+ 	if (!IS_SYNC(inode) && inode_referenced) {
+ 		err = nfs_writepage_async(ctx, inode, page, 0, offset);
 
 --
 This message was distributed to subscribers of the selinux mailing list.
