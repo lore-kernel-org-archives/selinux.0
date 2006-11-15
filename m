@@ -1,123 +1,68 @@
 From: David Howells <dhowells@redhat.com>
-In-Reply-To: <20061114200621.12943.18023.stgit@warthog.cambridge.redhat.com> 
-References: <20061114200621.12943.18023.stgit@warthog.cambridge.redhat.com> 
-To: trond.myklebust@fys.uio.no, torvalds@osdl.org, akpm@osdl.org,
-        sds@tycho.nsa.gov
-Cc: dhowells@redhat.com, selinux@tycho.nsa.gov, linux-kernel@vger.kernel.org,
+In-Reply-To: <1163609565.5691.167.camel@lade.trondhjem.org> 
+References: <1163609565.5691.167.camel@lade.trondhjem.org>  <1163603377.5691.113.camel@lade.trondhjem.org> <20061114200621.12943.18023.stgit@warthog.cambridge.redhat.com> <20061114200632.12943.72086.stgit@warthog.cambridge.redhat.com> <26454.1163606424@redhat.com> 
+To: Trond Myklebust <trond.myklebust@fys.uio.no>
+Cc: David Howells <dhowells@redhat.com>, torvalds@osdl.org, akpm@osdl.org,
+        sds@tycho.nsa.gov, selinux@tycho.nsa.gov, linux-kernel@vger.kernel.org,
         aviro@redhat.com, steved@redhat.com
-Subject: [PATCH 24/19] FS-Cache: NFS: Remove old support for R/W caching
-Date: Wed, 15 Nov 2006 16:51:47 +0000
-Message-ID: <31408.1163609507@redhat.com>
+Subject: Re: [PATCH 05/19] NFS: Use local caching 
+Date: Wed, 15 Nov 2006 17:07:53 +0000
+Message-ID: <31660.1163610473@redhat.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+Trond Myklebust <trond.myklebust@fys.uio.no> wrote:
 
-Remove old support for caching of files that are opened for writing.  This is
-not currently supported, and so the bits that enabled it are currently useless.
+> > This is releasepage() not invalidatepage().  It is conditional.
+> 
+> ...and invalidate_complete_page2() calls try_to_release_page() which
+> again calls releasepage(). Success or failure of the latter should
+> therefore not depend on the internal fscache state.
 
-Signed-Off-By: David Howells <dhowells@redhat.com>
----
+Okay... invalidate_complete_page2() passes __GFP_WAIT through.  I'll make
+nfs_fscache_release_page() check for that, and if it's set, it'll wait for
+FS-Cache to finish with the page before returning true.
 
- fs/nfs/fscache.c |   11 -----------
- fs/nfs/fscache.h |   32 --------------------------------
- fs/nfs/inode.c   |    1 -
- fs/nfs/write.c   |    3 ---
- 4 files changed, 0 insertions(+), 47 deletions(-)
+This sounds like invalidate_inode_pages2() is doing the wrong thing.  After
+all, releasepage() _is_ conditional.  It sounds like it should be calling
+invalidatepage() instead.  Either that or NFS should be calling something
+else entirely.
 
-diff --git a/fs/nfs/fscache.c b/fs/nfs/fscache.c
-index 81286f6..6bdd1f2 100644
---- a/fs/nfs/fscache.c
-+++ b/fs/nfs/fscache.c
-@@ -334,14 +334,3 @@ void nfs_readpage_from_fscache_complete(
- 			unlock_page(page);
- 	}
- }
--
--/*
-- * handle completion of a page being read from the cache
-- * - really need to synchronise the end of writeback, probably using a page
-- *   flag, but for the moment we disable caching on writable files
-- */
--void nfs_writepage_to_fscache_complete(struct page *page,
--				       void *data,
--				       int error)
--{
--}
-diff --git a/fs/nfs/fscache.h b/fs/nfs/fscache.h
-index b82b896..92c2dbf 100644
---- a/fs/nfs/fscache.h
-+++ b/fs/nfs/fscache.h
-@@ -425,33 +425,6 @@ static inline int nfs_readpages_from_fsc
- 	return ret;
- }
- 
--/*
-- * store an updated page in fscache
-- */
--extern void nfs_writepage_to_fscache_complete(struct page *page, void *data, int error);
--
--static inline void nfs_writepage_to_fscache(struct inode *inode,
--					    struct page *page)
--{
--	int error;
--
--	if (PageNfsCached(page) && NFS_I(inode)->fscache) {
--		dfprintk(FSCACHE,
--			 "NFS: writepage_to_fscache (0x%p/0x%p/0x%p)\n",
--			 NFS_I(inode)->fscache, page, inode);
--
--		error = fscache_write_page(NFS_I(inode)->fscache, page,
--					   nfs_writepage_to_fscache_complete,
--					   NULL, GFP_KERNEL);
--		if (error != 0) {
--			dfprintk(FSCACHE,
--				 "NFS:    fscache_write_page error %d\n",
--				 error);
--			fscache_uncache_page(NFS_I(inode)->fscache, page);
--		}
--	}
--}
--
- #else /* CONFIG_NFS_FSCACHE */
- static inline int nfs_fscache_register(void) { return 0; }
- static inline void nfs_fscache_unregister(void) {}
-@@ -493,10 +466,5 @@ static inline int nfs_readpages_from_fsc
- 	return -ENOBUFS;
- }
- 
--static inline void nfs_writepage_to_fscache(struct inode *inode, struct page *page)
--{
--	BUG_ON(PageNfsCached(page));
--}
--
- #endif /* CONFIG_NFS_FSCACHE */
- #endif /* _NFS_FSCACHE_H */
-diff --git a/fs/nfs/inode.c b/fs/nfs/inode.c
-index 25376a5..3409448 100644
---- a/fs/nfs/inode.c
-+++ b/fs/nfs/inode.c
-@@ -381,7 +381,6 @@ void nfs_setattr_update_inode(struct ino
- 	if ((attr->ia_valid & ATTR_SIZE) != 0) {
- 		nfs_inc_stats(inode, NFSIOS_SETATTRTRUNC);
- 		inode->i_size = attr->ia_size;
--		nfs_fscache_set_size(inode);
- 		vmtruncate(inode, attr->ia_size);
- 	}
- }
-diff --git a/fs/nfs/write.c b/fs/nfs/write.c
-index 77d0d9d..a2e0570 100644
---- a/fs/nfs/write.c
-+++ b/fs/nfs/write.c
-@@ -340,9 +340,6 @@ do_it:
- 		err = -EBADF;
- 		goto out;
- 	}
--
--	nfs_writepage_to_fscache(inode, page);
--
- 	lock_kernel();
- 	if (!IS_SYNC(inode) && inode_referenced) {
- 		err = nfs_writepage_async(ctx, inode, page, 0, offset);
+> > Hmmm...  I wonder if I need to do this in nfs_update_inode() at all.
+> > Won't the pages and the cache object attached to an inode be discarded
+> > anyway if the file attributes returned by the server change?
+> 
+> In the case of a read-only file, yes. That is not true of a read/write
+> file.
+
+So I can assume that, as we're only caching read-only files, I don't need to
+invoke FS-Cache here.
+
+> > > >  static void nfs_readpage_release(struct nfs_page *req)
+> > > >  {
+> > > > +	struct inode *d_inode = req->wb_context->dentry->d_inode;
+> > > > +
+> > > > +	if (PageUptodate(req->wb_page))
+> > > > +		nfs_readpage_to_fscache(d_inode, req->wb_page, 0);
+> > > > +
+> > > 
+> > > Will usually be called from an rpciod context. Should therefore not be
+> > > grabbing semaphores, doing memory allocation etc.
+> > 
+> > Is it possible to make an NFS kernel thread that can have completed nfs_page
+> > structs queued for writing to the cache?
+> 
+> Why should we add extra context switches for the non-fscache case? Just
+> move the call to nfs_readpage_to_fscache into its own kernel thread.
+
+Sorry, I meant can I make use of the nfs_page struct that was handed to
+nfs_readpage_release() by queuing it for an auxiliary thread to call
+nfs_readpage_to_fscache() on?  I didn't intend to call nfs_readpage_release()
+in another thread.
+
+After all, nfs_readpage_release() would ordinarily just clear and release it.
+
+David
 
 --
 This message was distributed to subscribers of the selinux mailing list.
