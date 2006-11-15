@@ -1,196 +1,111 @@
 From: David Howells <dhowells@redhat.com>
-In-Reply-To: <1163599542.5691.84.camel@lade.trondhjem.org> 
-References: <1163599542.5691.84.camel@lade.trondhjem.org>  <1162575034.5629.24.camel@lade.trondhjem.org> <1162561291.5635.64.camel@lade.trondhjem.org> <1162502667.6071.66.camel@lade.trondhjem.org> <1162496968.6071.38.camel@lade.trondhjem.org> <1162402218.32614.230.camel@moss-spartans.epoch.ncsc.mil> <1162387735.32614.184.camel@moss-spartans.epoch.ncsc.mil> <16969.1161771256@redhat.com> <31035.1162330008@redhat.com> <4417.1162395294@redhat.com> <25037.1162487801@redhat.com> <32754.1162499917@redhat.com> <12984.1162549621@redhat.com> <22908.1162567413@redhat.com> <11957.1163532168@redhat.com> 
+In-Reply-To: <1163603377.5691.113.camel@lade.trondhjem.org> 
+References: <1163603377.5691.113.camel@lade.trondhjem.org>  <20061114200621.12943.18023.stgit@warthog.cambridge.redhat.com> <20061114200632.12943.72086.stgit@warthog.cambridge.redhat.com> 
 To: Trond Myklebust <trond.myklebust@fys.uio.no>
-Cc: David Howells <dhowells@redhat.com>, Stephen Smalley <sds@tycho.nsa.gov>,
-        Karl MacMillan <kmacmill@redhat.com>, jmorris@namei.org,
-        chrisw@sous-sol.org, selinux@tycho.nsa.gov,
-        linux-kernel@vger.kernel.org, aviro@redhat.com
-Subject: Re: Security issues with local filesystem caching 
-Date: Wed, 15 Nov 2006 15:28:14 +0000
-Message-ID: <25967.1163604494@redhat.com>
+Cc: David Howells <dhowells@redhat.com>, torvalds@osdl.org, akpm@osdl.org,
+        sds@tycho.nsa.gov, selinux@tycho.nsa.gov, linux-kernel@vger.kernel.org,
+        aviro@redhat.com, steved@redhat.com
+Subject: Re: [PATCH 05/19] NFS: Use local caching 
+Date: Wed, 15 Nov 2006 16:00:24 +0000
+Message-ID: <26454.1163606424@redhat.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 Trond Myklebust <trond.myklebust@fys.uio.no> wrote:
 
-> No. All you should need is the result of the lookup().
+> Why is fscache being given a vote on whether or not the NFS page can be
+> removed from the mapping? If the file has changed on the server, so that
+> we have to invalidate the mapping, then I don't care about the fact that
+> fscache is busy: the page has to go.
 
-Plus the mkdirs, etc., but I'll assume you implied those.
+This is releasepage() not invalidatepage().  It is conditional.
 
-> The coherency data needs to be checked against an eventual existing
-> CacheFiles entry during the call to read(), not before.
+At this point you can't get rid of the page if FS-Cache is still using it
+because FS-Cache will call the netfs callback on the page when it has finished.
 
-Or mmap().
+You also can't cancel the I/O because it may involve a BIO which itself can't
+be cancelled.
 
-But, yes, whilst that's true; the read() is almost certainly going to occur
-very quickly after the open(), and so the likelyhood is that asynchronicity is
-not going to matter.
+You may not be able to sleep to wait for FS-Cache to finish because gfp might
+not include __GFP_WAIT.
 
-> Umm...because the former is a model which actually fits your security
-> requirements (i.e. one privileged daemon gets lookup()+open()+mkdir()...
-> rights on the CacheFiles partition), whereas the latter is not (all
-> tasks need lookup()+open()+mkdir().... privileges)?
+The whole point is to find out whether a page is releasable and recycle it if
+it is, not to force it to be released; for that, invalidatepage() exists.
 
-The former model is much more complex than the latter, and also has perfomance
-issues.
+In my opinion, it is better to tell the VM that this page is not currently
+available, and let it get on with trying to find one that is rather than
+holding up the page allocator until the page becomes available.
 
-Besides, the latter model seems to work for me (as long as I'm allowed to
-change the security ID a process is acting as).
+> You are missing the NFSv4 change attribute. The latter is supposed to
+> override mtime/ctime/size concerns in NFSv4.
 
-> > If so, that'd be nfs_readpage_to_fscache() as called from
-> > nfs_readpage_sync() or nfs_readpage_release().
+Is that stored in the inode?  I don't recall offhand.  It's easy enough to add
+if it is.
+
+> > @@ -84,6 +84,7 @@ void nfs_clear_inode(struct inode *inode
+> ...
+> What about nfs4_clear_inode?
+
+It calls nfs_clear_inode()...
+
+> > +	nfs_fscache_zap_fh_cookie(inode);
 > 
-> nfs_readpage_release() is an rpciod context, _not_ a user thread
-> context.
+> The cache will be zapped upon the next revalidation anyway. and the
+> whole point of nfs_zap_caches is to allow fast invalidation in contexts
+> where we cannot sleep. nfs_fscache_zap_fh_cookie calls
+> fscache_relinquish_cookie(), which sleeps, grabs rw_semaphores, etc.
 
-But it *is* process context...
+Okay...  It sounds like I should be able to drop that call there.
 
-I'm not sure what to do about that.  I could maintain a record of every page
-being serviced by FS-Cache, but that could be an awful lot of pages, and so
-consume an awful lot of memory.
+Perhaps you should add a comment to that function to note this...
 
-I'm hesitant about allocating memory to hold a list of pages in that context as
-it might fail.
-
-> > However, that may do other disk accesses, I suppose, as it calls
-> > prepare_write() and commit_write() on ext3.
+> > @@ -376,6 +383,7 @@ void nfs_setattr_update_inode(struct ino
+> >  	if ((attr->ia_valid & ATTR_SIZE) != 0) {
+> >  		nfs_inc_stats(inode, NFSIOS_SETATTRTRUNC);
+> >  		inode->i_size = attr->ia_size;
+> > +		nfs_fscache_set_size(inode);
 > 
-> Which would generally be forbidden under the rpciod context, BTW, since
-> they imply calls to generic memory allocation (== nasty tricksy deadlock
-> potential, since rpciod may be called upon to help write out NFS pages
-> via shrink_page_list and friends).
+> Why? Isn't this supposed to be a read-only inode?
 
-I wish you'd mentioned that six months or more ago when I first waved these
-patches in front of you.
+I suppose.  This is a holdover from when I supported R/W inodes too.
 
-> > vfs_mkdir() is synchronous.  vfs_create() is synchronous.  vfs_[sg]etxattr
-> > is synchronous.  Lookup is synchronous.
+> > @@ -942,11 +954,13 @@ static int nfs_update_inode(struct inode
+> > ...
+> > +			nfs_fscache_set_size(inode);
 > 
-> All of them are synchronous as far as accessing the remote filesystem is
-> concerned.
+> Doesn't nfs_fscache_set_size try to grab rw_semaphores? This function is
+> _always_ called with the inode->i_lock spinlock held.
 
-What has "accessing the remote filesystem" got to do with it?
+Hmmm...  I wonder if I need to do this in nfs_update_inode() at all.  Won't the
+pages and the cache object attached to an inode be discarded anyway if the file
+attributes returned by the server change?
 
-> Why would the user process care if a privileged daemon has completed the
-> shadow mkdir() or create() on the CacheFiles system or not?
+When can an inode be left with its data attached when modified on the server?
+Is this an NFSv4 thing?
 
-Sigh.
-
-The user process may not do a read() or an mmap() on a read-only file it has
-just opened until we've found the data storage object in the cache associated
-with that file, or it has created one.
-
-However, several user processes may be accessing several different files on
-serveral different mounts of maybe several different netfs's all at the same
-time.  This could mean that on behalf of each of these processes, CacheFiles
-has to create serveral directories and a file.
-
-But it may only have one thread in which to do this, and so each "cache lookup"
-will wind up being serialised around the synchronous ext3 operations that
-create files and directories and set xattrs.  Consider:
-
-	SERVICE	PROC A	PROC B	PROC C	PROC D
-	=======	=======	=======	=======	=======
-		open()	open()	open()	open()
-	A:lookup()
-	A:mkdir()
-	A:setxattr()
-	A:mkdir()
-	A:setxattr()
-	A:mkdir()
-	A:setxattr()
-	A:mkdir()
-	A:setxattr()
-	A:mkdir()
-	A:setxattr()
-	A:create()
-	A:setxattr()
-		read()
-	B:lookup()
-	B:mkdir()
-	B:setxattr()
-	B:mkdir()
-	B:setxattr()
-	B:mkdir()
-	B:setxattr()
-	B:mkdir()
-	B:setxattr()
-	B:mkdir()
-	B:setxattr()
-	B:create()
-	B:setxattr()
-			read()
-	C:lookup()
-	C:mkdir()
-	C:setxattr()
-	C:mkdir()
-	C:setxattr()
-	C:mkdir()
-	C:setxattr()
-	C:mkdir()
-	C:setxattr()
-	C:mkdir()
-	C:setxattr()
-	C:create()
-	C:setxattr()
-				read()
-	D:lookup()
-	D:mkdir()
-	D:setxattr()
-	D:mkdir()
-	D:setxattr()
-	D:mkdir()
-	D:setxattr()
-	D:mkdir()
-	D:setxattr()
-	D:mkdir()
-	D:setxattr()
-	D:create()
-	D:setxattr()
-					read()
-
-Which is what you're suggesting.  Whereas what I have at the moment is this:
-
-	PROC A		PROC B		PROC C		PROC D
-	===============	===============	===============	===============	
-	open()		open()		open()		open()
-	A:lookup()	B:lookup()	C:lookup()	D:lookup()  
-	A:mkdir()	B:mkdir()	C:mkdir()	D:mkdir()   
-	A:setxattr()	B:setxattr()	C:setxattr()	D:setxattr()
-	A:mkdir()	B:mkdir()	C:mkdir()	D:mkdir()   
-	A:setxattr()	B:setxattr()	C:setxattr()	D:setxattr()
-	A:mkdir()	B:mkdir()	C:mkdir()	D:mkdir()   
-	A:setxattr()	B:setxattr()	C:setxattr()	D:setxattr()
-	A:mkdir()	B:mkdir()	C:mkdir()	D:mkdir()   
-	A:setxattr()	B:setxattr()	C:setxattr()	D:setxattr()
-	A:mkdir()	B:mkdir()	C:mkdir()	D:mkdir()   
-	A:setxattr()	B:setxattr()	C:setxattr()	D:setxattr()
-	A:create()	B:create()	C:create()	D:create()  
-	A:setxattr()	B:setxattr()	C:setxattr()	D:setxattr()
-	read()		read()		read()		read()
-
-Even if you replace the mkdir()'s and create()'s with lookup()'s and the
-setxattr()'s with getxattr()'s, it doesn't make much difference: lookup() and
-getxattr() are both reads and both synchronous.
-
-> > Remember: in the common case, open(O_RDONLY) is going to be followed
-> > quickly by a read().  I suppose there may be an intervening stat() and
-> > malloc(), but even so...
+> >  static void nfs_readpage_release(struct nfs_page *req)
+> >  {
+> > +	struct inode *d_inode = req->wb_context->dentry->d_inode;
+> > +
+> > +	if (PageUptodate(req->wb_page))
+> > +		nfs_readpage_to_fscache(d_inode, req->wb_page, 0);
+> > +
 > 
-> Which is why lookup() + open() + read() needs to be fast in the case
-> where you have a CacheFiles hit. It does not justify mkdir, create, etc
-> being fast, nor does it justify the open() + read() part needing to be
-> fast in the case of a CacheFiles miss.
+> Will usually be called from an rpciod context. Should therefore not be
+> grabbing semaphores, doing memory allocation etc.
 
-My point is that if userspace does open() + read() with no or little
-intervening stuff, then asynchronicity is irrelevant as the whole process is
-rendered effectively synchronous because the first read() has to wait on
-completion.
+Is it possible to make an NFS kernel thread that can have completed nfs_page
+structs queued for writing to the cache?
 
-And once an inode has been assayed for cache presence, subsequent open() calls
-don't need to go to the cache as the state is retained in memory until the
-inode is discarded.
+> > +
+> > +	nfs_writepage_to_fscache(inode, page);
+> > +
+> 
+> Why are we doing this, if the cache is turned off whenever the file is
+> open for writes?
+
+Good point again; for the moment, this can be discarded - though we could do it
+for NFS4 under some circumstances, I believe.
 
 David
 
