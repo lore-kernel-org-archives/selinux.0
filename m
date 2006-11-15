@@ -1,161 +1,61 @@
-Message-ID: <455B3C9F.1000800@tresys.com>
-Date: Wed, 15 Nov 2006 11:13:19 -0500
-From: Joshua Brindle <jbrindle@tresys.com>
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id kAFGIqwp026370
+	for <selinux@tycho.nsa.gov>; Wed, 15 Nov 2006 11:18:52 -0500
+Received: from mail1.sea5.speakeasy.net (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id kAFGHDu5001878
+	for <selinux@tycho.nsa.gov>; Wed, 15 Nov 2006 16:17:14 GMT
+Date: Wed, 15 Nov 2006 11:19:00 -0500 (EST)
+From: James Morris <jmorris@namei.org>
+To: David Howells <dhowells@redhat.com>
+cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+        Stephen Smalley <sds@tycho.nsa.gov>, trond.myklebust@fys.uio.no,
+        selinux@tycho.nsa.gov, linux-kernel@vger.kernel.org, aviro@redhat.com,
+        steved@redhat.com
+Subject: Re: [PATCH 12/19] CacheFiles: Permit a process's create SID to be
+ overridden
+In-Reply-To: <15153.1163593562@redhat.com>
+Message-ID: <XMMS.LNX.4.64.0611151115360.8593@d.namei>
+References: <XMMS.LNX.4.64.0611141618300.25022@d.namei>
+ <20061114200621.12943.18023.stgit@warthog.cambridge.redhat.com>
+ <20061114200647.12943.39802.stgit@warthog.cambridge.redhat.com>
+ <15153.1163593562@redhat.com>
 MIME-Version: 1.0
-To: Daniel J Walsh <dwalsh@redhat.com>
-CC: SE Linux <selinux@tycho.nsa.gov>, Stephen Smalley <sds@tycho.nsa.gov>
-Subject: Re: Multiple small fixes to policycoreutils
-References: <4559DB81.7060601@redhat.com>
-In-Reply-To: <4559DB81.7060601@redhat.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Daniel J Walsh wrote:
-> Add newrole audit message on login failure.
->
-> Add -fPIE and -pie to build of restorecond.
->
-> Add /var/log/wtmp to restorecond.conf watch list
->
-> Fix genhomedircon, semanage, semodule_expand man pages.
-> ------------------------------------------------------------------------
->
-> diff --exclude-from=exclude --exclude='*.po' --exclude='*.pot' -N -u -r nsapolicycoreutils/newrole/newrole.c policycoreutils-1.33.1/newrole/newrole.c
-> --- nsapolicycoreutils/newrole/newrole.c	2006-11-14 09:46:12.000000000 -0500
-> +++ policycoreutils-1.33.1/newrole/newrole.c	2006-11-14 09:55:30.000000000 -0500
-> @@ -1028,6 +1028,7 @@
->  	{
->  		fprintf(stderr, _("newrole: incorrect password for %s\n"),
->  			pw.pw_name);
-> +		send_audit_message(0, old_context, new_context, ttyn);
->  		goto err_close_pam;
->  	}
->  
-> diff --exclude-from=exclude --exclude='*.po' --exclude='*.pot' -N -u -r nsapolicycoreutils/restorecond/Makefile policycoreutils-1.33.1/restorecond/Makefile
-> --- nsapolicycoreutils/restorecond/Makefile	2006-08-28 16:58:19.000000000 -0400
-> +++ policycoreutils-1.33.1/restorecond/Makefile	2006-11-14 09:54:05.000000000 -0500
-> @@ -5,8 +5,9 @@
->  INITDIR = $(DESTDIR)/etc/rc.d/init.d
->  SELINUXDIR = $(DESTDIR)/etc/selinux
->  
-> -CFLAGS ?= -g -Werror -Wall -W
-> -override CFLAGS += -I$(PREFIX)/include -D_FILE_OFFSET_BITS=64
-> +LDFLAGS ?= -pie
-> +CFLAGS ?= -g -Werror -Wall -W 
-> +override CFLAGS += -I$(PREFIX)/include -D_FILE_OFFSET_BITS=64 -fPIE
->  LDLIBS += -lselinux -lsepol -L$(PREFIX)/lib
->  
->  all: restorecond
-> diff --exclude-from=exclude --exclude='*.po' --exclude='*.pot' -N -u -r nsapolicycoreutils/restorecond/restorecond.conf policycoreutils-1.33.1/restorecond/restorecond.conf
-> --- nsapolicycoreutils/restorecond/restorecond.conf	2006-08-28 16:58:19.000000000 -0400
-> +++ policycoreutils-1.33.1/restorecond/restorecond.conf	2006-11-14 09:54:05.000000000 -0500
-> @@ -2,5 +2,6 @@
->  /etc/samba/secrets.tdb
->  /etc/mtab
->  /var/run/utmp
-> +/var/log/wtmp
->  ~/public_html
->  ~/.mozilla/plugins/libflashplayer.so
-> diff --exclude-from=exclude --exclude='*.po' --exclude='*.pot' -N -u -r nsapolicycoreutils/scripts/genhomedircon.8 policycoreutils-1.33.1/scripts/genhomedircon.8
-> --- nsapolicycoreutils/scripts/genhomedircon.8	2006-08-28 16:58:19.000000000 -0400
-> +++ policycoreutils-1.33.1/scripts/genhomedircon.8	2006-11-14 09:54:05.000000000 -0500
-> @@ -45,35 +45,30 @@
->  .SH DESCRIPTION
->  .PP
->  This utility is used to generate file context configuration entries for 
-> -user home directories based on their default roles and is run when building 
-> -the policy. It can also be run when ever the 
-> -.I /etc/selinux/<<SELINUXTYPE>>/users/local.users
-> -file is changed 
-> +user home directories based on their 
-> +.B prefix 
-> +entry in the the 
-> +.B semanage user record.  
-> +genhomedircon is run when building 
-> +the policy. It is also run automaticaly when ever the 
-> +.B semanage 
-> +utility modifies 
-> +.B user
-> +or
-> +.B login
-> +records.
->  Specifically, we replace HOME_ROOT, HOME_DIR, and ROLE macros in the 
->  .I /etc/selinux/<<SELINUXTYPE>>/contexts/files/homedir_template 
-> -file with generic and user-specific values.
-> -.I local.users
-> -file. If a user has more than one role in 
-> -.I local.users,
-> -.B genhomedircon
-> -uses the first role in the list. 
-> +file with generic and user-specific values.  HOME_ROOT and HOME_DIR is replaced with each distinct location where login users homedirectories are located.  Defaults to /home. ROLE is replaced based on the prefix entry in the 
-> +.B user
-> +record.
->  .PP 
-> -If a user is not listed in 
-> -.I local.users,
-> -.B genhomedircon
-> -assumes that the user's home dir will be found in one of the
-> -HOME_ROOTs. 
-> -When looking for these users, 
-> -.B genhomedircon
-> -only considers real users. "Real" users (as opposed
-> -to system users) are those whose UID is greater than or equal 
-> +genhomedircon searches through all password entires for all "login" user home directories, (as opposed
-> +to system users).  Login users are those whose UID is greater than or equal 
->  .I STARTING_UID
->  (default 500) and whose login shell is not "/sbin/nologin", or
->  "/bin/false". 
->  .PP 
-> -Users who are explicitly defined in 
-> -.I local.users,
-> -are always "real" (including root, in the default configuration).
->  .SH AUTHOR
->  This manual page was originally written by 
->  .I Manoj Srivastava <srivasta@debian.org>,
-> diff --exclude-from=exclude --exclude='*.po' --exclude='*.pot' -N -u -r nsapolicycoreutils/semanage/semanage.8 policycoreutils-1.33.1/semanage/semanage.8
-> --- nsapolicycoreutils/semanage/semanage.8	2006-09-14 08:07:24.000000000 -0400
-> +++ policycoreutils-1.33.1/semanage/semanage.8	2006-11-14 09:54:05.000000000 -0500
-> @@ -7,7 +7,7 @@
->  .br
->  .B semanage login \-{a|d|m} [\-sr] login_name
->  .br
-> -.B semanage user \-{a|d|m} [\-LrR] selinux_name
-> +.B semanage user \-{a|d|m} [\-LrRP] selinux_name
->  .br
->  .B semanage port \-{a|d|m} [\-tr] [\-p protocol] port | port_range
->  .br
-> @@ -71,6 +71,9 @@
->  .I                \-R, \-\-role
->  SELinux Roles.  You must enclose multiple roles within quotes, separate by spaces. Or specify \-R multiple times.
->  .TP
-> +.I                \-P, \-\-prefix
-> +SELinux Prefix.  Prefix added to home_dir_t and home_t for labeling users home directories.
-> +.TP
->  .I                \-s, \-\-seuser     
->  SELinux user name
->  .TP
-> diff --exclude-from=exclude --exclude='*.po' --exclude='*.pot' -N -u -r nsapolicycoreutils/semodule_expand/semodule_expand.8 policycoreutils-1.33.1/semodule_expand/semodule_expand.8
-> --- nsapolicycoreutils/semodule_expand/semodule_expand.8	2006-08-28 16:58:20.000000000 -0400
-> +++ policycoreutils-1.33.1/semodule_expand/semodule_expand.8	2006-11-14 09:54:05.000000000 -0500
-> @@ -18,7 +18,7 @@
->  .SH "OPTIONS"
->  .TP
->  .B \-V
-> -verbose mode
-> +show version
->  .TP
->  .B \-c [version]
->  policy version to create
->   
-Everything acked except the Makefile changes
+On Wed, 15 Nov 2006, David Howells wrote:
 
-Acked-By: Joshua Brindle <jbrindle@tresys.com>
+> James Morris <jmorris@namei.org> wrote:
+> 
+> > > +static u32 selinux_set_fscreate_secid(u32 secid)
+> > ...
+> > The ability to set this needs to be mediated via MAC policy.
+> 
+> There could a problem with that...  Is it possible for there to be a race?
 
-I think our CFLAGS are inappropriate as is, the default (non-debug) 
-build should not add -g and should likely have -O2, whether not to build 
-with PIE is a distro choice I think.
+Well, the value can be changed at any time, so you could be using a 
+temporary fscreate value, or your new value could be overwritten 
+immediately by writing to /proc/$$/attr/fscreate
 
+I think we need to add a separate field for this purpose, which can only 
+be written to via the in-kernel API and overrides fscreate.
+
+> I have to call the function twice per cache op: once to set the file 
+> creation security ID and once to restore it back to what it was.
+> 
+> However, what happens if I can't restore the original security ID (perhaps the
+> rules changed between the two invocations)?  I can't let the task continue as
+> it's now running with the wrong security...
+
+Kill the task?
+
+
+
+- James
+-- 
+James Morris
+<jmorris@namei.org>
 
 --
 This message was distributed to subscribers of the selinux mailing list.
