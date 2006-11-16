@@ -1,34 +1,52 @@
-Subject: Re: [PATCH] labeled-ipsec-policy: Cleanup
-From: "Christopher J. PeBenito" <cpebenito@tresys.com>
-To: Venkat Yekkirala <vyekkirala@TrustedCS.com>
-Cc: selinux@tycho.nsa.gov, sds@tycho.nsa.gov
-In-Reply-To: <4554FEE5.9060200@trustedcs.com>
-References: <4554FEE5.9060200@trustedcs.com>
-Content-Type: text/plain
-Date: Thu, 16 Nov 2006 08:35:48 -0500
-Message-Id: <1163684148.7374.16.camel@sgc.columbia.tresys.com>
-Mime-Version: 1.0
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id kAGDbgKW024349
+	for <selinux@tycho.nsa.gov>; Thu, 16 Nov 2006 08:37:42 -0500
+Received: from nz-out-0102.google.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id kAGDaxaI003003
+	for <selinux@tycho.nsa.gov>; Thu, 16 Nov 2006 13:36:59 GMT
+Received: by nz-out-0102.google.com with SMTP id z6so275350nzd
+        for <selinux@tycho.nsa.gov>; Thu, 16 Nov 2006 05:37:57 -0800 (PST)
+Message-ID: <e294b46e0611160537p10c3224cmfecac57ac4c1f4bc@mail.gmail.com>
+Date: Thu, 16 Nov 2006 13:37:56 +0000
+From: "Bradley Chapman" <kakadu@gmail.com>
+To: selinux@tycho.nsa.gov
+Subject: Strange file context issues
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2006-11-10 at 16:36 -0600, Venkat Yekkirala wrote:
-> This modifies the mls constraint for polmatch in the association class.
-> Specifically:
-> 
-> - polmatch need no longer make an exception for unlabeled_t
->   since a flow will now always match SPD rules with no contexts (per
->   the IPSec leak fix patch upstreamed a few weeks back), as
->   opposed to needing polmatch access to unlabeled_t.
-> 
-> Signed-off-by: Venkat Yekkirala <vyekkirala@TrustedCS.com>
+After tearing my hair out for the past two weeks trying to understand
+the error messages I've been seeing in my Debian system, I've finally
+twigged onto why I've been getting so many - there appears to be a
+mislabeling of file contexts within my filesystems.
 
-Merged.
+Take for example this error message in the dmesg:
 
+audit(1163682174.716:3): avc:  denied  { read write } for  pid=1
+comm="init" name="console" dev=sda6 ino=77743
+scontext=system_u:system_r:init_t tcontext=system_u:object_r:file_t
+tclass=chr_file
+
+Clearly, the problem would seem to be that the file /dev/console has
+the wrong context, preventing init from reading it.
+
+Yet this is what I get when I do ls -l --context /dev/console:
+
+crw-------  root root system_u:object_r:console_device_t /dev/console
+
+The majority of early errors in dmesg appear to be similar, with
+system_u:object_r:file_t popping up all over the place in /dev instead
+of the correct contexts. I have a feeling that many of the remaining
+errors I'm seeing are linked to this problem as well.
+
+Can anyone offer any advice as to how this may have happened? I've
+already tried a filesystem relabel but it doesn't seem to have had any
+effect.
+
+Brad
 -- 
-Chris PeBenito
-Tresys Technology, LLC
-(410) 290-1411 x150
-
+CONTROL YOUR TABS: https://addons.mozilla.org/extensions/158
 
 --
 This message was distributed to subscribers of the selinux mailing list.
