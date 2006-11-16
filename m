@@ -1,57 +1,44 @@
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Subject: RE: Multiple small fixes to policycoreutils
-Date: Wed, 15 Nov 2006 19:05:27 -0500
-Message-ID: <6FE441CD9F0C0C479F2D88F959B015885C79BC@exchange.columbia.tresys.com>
-In-Reply-To: <455B8E56.4070708@mentalrootkit.com>
-From: "Joshua Brindle" <jbrindle@tresys.com>
-To: "Karl MacMillan" <kmacmillan@mentalrootkit.com>,
-        "Daniel J Walsh" <dwalsh@redhat.com>
-Cc: "Christopher J. PeBenito" <cpebenito@tresys.com>,
-        "SE Linux" <selinux@tycho.nsa.gov>,
-        "Stephen Smalley" <sds@tycho.nsa.gov>
+Subject: [PATCH 0/5] libselinux: labeling API for userspace object managers
+From: Eamon Walsh <ewalsh@tycho.nsa.gov>
+Reply-To: ewalsh@tycho.nsa.gov
+To: selinux@tycho.nsa.gov
+Cc: sds@tycho.nsa.gov
+Content-Type: text/plain
+Date: Wed, 15 Nov 2006 21:25:26 -0500
+Message-Id: <1163643926.15225.55.camel@moss-huskies.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-> From: Karl MacMillan [mailto:kmacmillan@mentalrootkit.com] 
-> 
-> Daniel J Walsh wrote:
-> > Joshua Brindle wrote:
-> >> Karl MacMillan wrote:
-> 
-> <snip>
-> 
-> >>>
-> >>> What about a top-level USE_PIE makefile variable that directs all 
-> >>> sub-Makefiles to set PIE flags if appropriate for that module? By 
-> >>> default it would be off. This gets the behavior you want without 
-> >>> having to carry a patch and keeps the current behavior.
-> >>>
-> >>
-> >> No patch necessary, like Chris said make CFLAGS="-fPIE -02 -Werror 
-> >> -Wall" LDFLAGS="-pie"
-> >>
-> >> done and done.
-> >>
-> > No, because then all compiled apps become -pie.  We only 
-> want this on 
-> > the daemons.
-> > 
-> 
-> What about this instead?
+This is a companion interface to the userspace AVC, for use by userspace
+object managers to look up contexts for use in labeling their objects.
+It also provides an alternate interface to the file contexts
+configuration.
 
-Why doesn't make CFLAGS="-fPIE -02 -Werror -Wall" LDFLAGS="-pie" work? 
-Why does it matter if everything is built pie?
+The need for this interface is discussed in this thread:
+http://marc.theaimsgroup.com/?l=selinux&m=116195833329572&w=2
 
-This is distro specific (gentoo completely overrides the CFLAGS and
-LDFLAGS, I'm not sure what debian does). I don't think whether or not to
-override the user CFLAGS with non-critical things (e.g., things
-necessary to build the app like -I($PREFIX)/include) is appropriate for
-the upstream makefiles.
+The interface provides support for pluggable backends, multithreading,
+and user-provided callbacks for logging, memory allocation, and context
+validation.  It is designed to allow policy separation by package (the
+"prefix" string).  Lookups are done by object class and a string "key".
 
-For that matter, anyone know why -D_FILE_OFFSET_BITS=64 is in the
-override?
+Patch 1: basic interface
+Patch 2: basic implementation
+Patch 3: security_class_to_string() function
+Patch 4: simple, generic backend
+Patch 5: file contexts backend
+
+Patches may trickle out slowly as I am planning some thanksgiving
+vacation time.  But the most important ones are 1 and 2 since they make
+up the front-end.
+
+Comments welcome!
+
+
+-- 
+Eamon Walsh <ewalsh@tycho.nsa.gov>
+National Security Agency
 
 
 --
