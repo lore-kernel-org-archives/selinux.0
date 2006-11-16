@@ -1,51 +1,61 @@
-Message-ID: <455C713D.9050104@tresys.com>
-Date: Thu, 16 Nov 2006 09:10:05 -0500
-From: Joshua Brindle <jbrindle@tresys.com>
-MIME-Version: 1.0
-To: ewalsh@tycho.nsa.gov
-CC: selinux@tycho.nsa.gov, sds@tycho.nsa.gov
-Subject: Re: [PATCH 0/5] libselinux: labeling API for userspace object managers
-References: <1163643926.15225.55.camel@moss-huskies.epoch.ncsc.mil>
-In-Reply-To: <1163643926.15225.55.camel@moss-huskies.epoch.ncsc.mil>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id kAGEC2PJ025319
+	for <selinux@tycho.nsa.gov>; Thu, 16 Nov 2006 09:12:02 -0500
+Received: from exchange.columbia.tresys.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with SMTP id kAGEAOBv005057
+	for <selinux@tycho.nsa.gov>; Thu, 16 Nov 2006 14:10:24 GMT
+Subject: Re: Strange file context issues
+From: "Christopher J. PeBenito" <cpebenito@tresys.com>
+To: Bradley Chapman <kakadu@gmail.com>
+Cc: selinux@tycho.nsa.gov
+In-Reply-To: <e294b46e0611160537p10c3224cmfecac57ac4c1f4bc@mail.gmail.com>
+References: <e294b46e0611160537p10c3224cmfecac57ac4c1f4bc@mail.gmail.com>
+Content-Type: text/plain
+Date: Thu, 16 Nov 2006 09:12:28 -0500
+Message-Id: <1163686348.7374.37.camel@sgc.columbia.tresys.com>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Eamon Walsh wrote:
-> This is a companion interface to the userspace AVC, for use by userspace
-> object managers to look up contexts for use in labeling their objects.
-> It also provides an alternate interface to the file contexts
-> configuration.
->
-> The need for this interface is discussed in this thread:
-> http://marc.theaimsgroup.com/?l=selinux&m=116195833329572&w=2
->
-> The interface provides support for pluggable backends, multithreading,
-> and user-provided callbacks for logging, memory allocation, and context
-> validation.  It is designed to allow policy separation by package (the
-> "prefix" string).  Lookups are done by object class and a string "key".
->
->   
-I didn't think this was a solved problem. I still think labeling is part 
-of the object manager, not part of the policy. What are the advantages 
-of doing it this way over letting the object managers manage their own 
-labels?
+On Thu, 2006-11-16 at 13:37 +0000, Bradley Chapman wrote:
+> After tearing my hair out for the past two weeks trying to understand
+> the error messages I've been seeing in my Debian system, I've finally
+> twigged onto why I've been getting so many - there appears to be a
+> mislabeling of file contexts within my filesystems.
+> 
+> Take for example this error message in the dmesg:
+> 
+> audit(1163682174.716:3): avc:  denied  { read write } for  pid=1
+> comm="init" name="console" dev=sda6 ino=77743
+> scontext=system_u:system_r:init_t tcontext=system_u:object_r:file_t
+> tclass=chr_file
+> 
+> Clearly, the problem would seem to be that the file /dev/console has
+> the wrong context, preventing init from reading it.
+> 
+> Yet this is what I get when I do ls -l --context /dev/console:
+> 
+> crw-------  root root system_u:object_r:console_device_t /dev/console
+> 
+> The majority of early errors in dmesg appear to be similar, with
+> system_u:object_r:file_t popping up all over the place in /dev instead
+> of the correct contexts. I have a feeling that many of the remaining
+> errors I'm seeing are linked to this problem as well.
+> 
+> Can anyone offer any advice as to how this may have happened? I've
+> already tried a filesystem relabel but it doesn't seem to have had any
+> effect.
 
-about this implementation though, how are you planning to get contexts 
-to the policy directory? As part of a package? any libsemanage 
-interface? Will it be part of this patch set?
+Are you using udev?  If you have udev and static device nodes under them
+on the regular fs, those are probably mislabeled.  Anything trying to
+use them early in the boot process before udev is started would hit
+denials like this.  Relabeling wouldn't get them since they're covered
+up by udev's tmpfs.  You'd have to unmount the tmpfs to relabel them.
 
-Did you need a special backend for file_contexts because it has 
-overlapping object class specifications? How do you 'register' an object 
-class or set of object classes to a particular backend? I know with X 
-you are going to have 1 file with many object classes, will it need a 
-special backend? If every single object manager needs a special backend 
-what are we buying with this interface?
-
-I assume this is for RFC and not for merging until the rest of the 
-patches are out, right? If you could make the patches apply from the top 
-of the repository with -p0 or -p1 (don't have a preference which) that 
-would be really helpful.
+-- 
+Chris PeBenito
+Tresys Technology, LLC
+(410) 290-1411 x150
 
 
 --
