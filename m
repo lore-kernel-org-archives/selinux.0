@@ -1,52 +1,72 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id kAGDbgKW024349
-	for <selinux@tycho.nsa.gov>; Thu, 16 Nov 2006 08:37:42 -0500
-Received: from nz-out-0102.google.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id kAGDaxaI003003
-	for <selinux@tycho.nsa.gov>; Thu, 16 Nov 2006 13:36:59 GMT
-Received: by nz-out-0102.google.com with SMTP id z6so275350nzd
-        for <selinux@tycho.nsa.gov>; Thu, 16 Nov 2006 05:37:57 -0800 (PST)
-Message-ID: <e294b46e0611160537p10c3224cmfecac57ac4c1f4bc@mail.gmail.com>
-Date: Thu, 16 Nov 2006 13:37:56 +0000
-From: "Bradley Chapman" <kakadu@gmail.com>
-To: selinux@tycho.nsa.gov
-Subject: Strange file context issues
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id kAGDnE9a024642
+	for <selinux@tycho.nsa.gov>; Thu, 16 Nov 2006 08:49:14 -0500
+Received: from exchange.columbia.tresys.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with SMTP id kAGDlaBv000627
+	for <selinux@tycho.nsa.gov>; Thu, 16 Nov 2006 13:47:37 GMT
+Subject: Re: Latest Diffs
+From: "Christopher J. PeBenito" <cpebenito@tresys.com>
+To: russell@coker.com.au
+Cc: Daniel J Walsh <dwalsh@redhat.com>, SE Linux <selinux@tycho.nsa.gov>
+In-Reply-To: <200611160433.09138.russell@coker.com.au>
+References: <453E2A8C.4070207@redhat.com>
+	 <200611152049.38615.russell@coker.com.au> <455B18AE.6050901@redhat.com>
+	 <200611160433.09138.russell@coker.com.au>
+Content-Type: text/plain
+Date: Thu, 16 Nov 2006 08:49:40 -0500
+Message-Id: <1163684980.7374.26.camel@sgc.columbia.tresys.com>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-After tearing my hair out for the past two weeks trying to understand
-the error messages I've been seeing in my Debian system, I've finally
-twigged onto why I've been getting so many - there appears to be a
-mislabeling of file contexts within my filesystems.
+On Thu, 2006-11-16 at 04:33 +1100, Russell Coker wrote:
+> On Thursday 16 November 2006 00:39, Daniel J Walsh <dwalsh@redhat.com> wrote:
+> > > I think it's best if Red Hat compiles just don't include dpkg.te.
+> > >
+> > > Have apt-get and yum run in the same context in Fedora.
+> >
+> > That is the way it is now, but it is unacceptable to upstream.  Chris
+> > does not like the conflicting
+> > file context.
+> 
+> There is no conflict if rpm.te and dpkg.te are never included in the same 
+> build.
+> 
+> Having a one-line .fc supposed conflict (it's not a conflict if the two .fc 
+> files in question are never used at the same time) is much better than 
+> massively hacking up an entire .te file.
 
-Take for example this error message in the dmesg:
+Any configuration of modules where all dependencies are met should be a
+valid configuration.  Having a file context conflict would make it an
+invalid configuration.
 
-audit(1163682174.716:3): avc:  denied  { read write } for  pid=1
-comm="init" name="console" dev=sda6 ino=77743
-scontext=system_u:system_r:init_t tcontext=system_u:object_r:file_t
-tclass=chr_file
+> > >>>> squid wants to rw_tmpfs for diskd mode.
+> > >>>
+> > >>> I'm wondering if this is tmpfs_t because there is no squid_tmpfs_t+type
+> > >>> transition, or if it is because the machine is targeted.
+> > >>
+> > >> Not sure, this was in the old policy as well.  Never used squid.
+> > >
+> > > I believe that it was a mistake in the Squid policy.
+> >
+> > I have just recently received an AVC requiring it, which is why I put it
+> > back.
+> 
+> Do you have any more information?  If the user is doing something odd like 
+> using tmpfs for squid backing store then it's not something we want to 
+> support in policy in that manner.
 
-Clearly, the problem would seem to be that the file /dev/console has
-the wrong context, preventing init from reading it.
+I don't think I agree with that.  If it can be made to work with a
+squid_tmpfs_t, then why not support it?
 
-Yet this is what I get when I do ls -l --context /dev/console:
+> Maybe we could have restorecon run on the Squid spool directory to
+> cater for the case of using tmpfs for it if people want to do that.
 
-crw-------  root root system_u:object_r:console_device_t /dev/console
-
-The majority of early errors in dmesg appear to be similar, with
-system_u:object_r:file_t popping up all over the place in /dev instead
-of the correct contexts. I have a feeling that many of the remaining
-errors I'm seeing are linked to this problem as well.
-
-Can anyone offer any advice as to how this may have happened? I've
-already tried a filesystem relabel but it doesn't seem to have had any
-effect.
-
-Brad
 -- 
-CONTROL YOUR TABS: https://addons.mozilla.org/extensions/158
+Chris PeBenito
+Tresys Technology, LLC
+(410) 290-1411 x150
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
