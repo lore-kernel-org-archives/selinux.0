@@ -1,37 +1,57 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id kAFM6cPQ006048
-	for <selinux@tycho.nsa.gov>; Wed, 15 Nov 2006 17:06:38 -0500
-Received: from mx1.redhat.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id kAFM5tGt019146
-	for <selinux@tycho.nsa.gov>; Wed, 15 Nov 2006 22:05:56 GMT
-Message-ID: <455B8F79.4020504@mentalrootkit.com>
-Date: Wed, 15 Nov 2006 17:06:49 -0500
-From: Karl MacMillan <kmacmillan@mentalrootkit.com>
 MIME-Version: 1.0
-To: Joy Latten <latten@austin.ibm.com>
-CC: redhat-lspp@redhat.com, selinux@tycho.nsa.gov
-Subject: Re: anyway to reverse a dontaudit rule?
-References: <1163616448.17737.368.camel@faith.austin.ibm.com>
-In-Reply-To: <1163616448.17737.368.camel@faith.austin.ibm.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain;
+	charset="us-ascii"
+Subject: RE: Multiple small fixes to policycoreutils
+Date: Wed, 15 Nov 2006 19:05:27 -0500
+Message-ID: <6FE441CD9F0C0C479F2D88F959B015885C79BC@exchange.columbia.tresys.com>
+In-Reply-To: <455B8E56.4070708@mentalrootkit.com>
+From: "Joshua Brindle" <jbrindle@tresys.com>
+To: "Karl MacMillan" <kmacmillan@mentalrootkit.com>,
+        "Daniel J Walsh" <dwalsh@redhat.com>
+Cc: "Christopher J. PeBenito" <cpebenito@tresys.com>,
+        "SE Linux" <selinux@tycho.nsa.gov>,
+        "Stephen Smalley" <sds@tycho.nsa.gov>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Joy Latten wrote:
-> Is there a way to reverse a dontaudit rule without having to
-> modify and recompile base policy? 
-> I need to see the audit message to help determine what permissions
-> are being denied for a particular application.
+> From: Karl MacMillan [mailto:kmacmillan@mentalrootkit.com] 
 > 
+> Daniel J Walsh wrote:
+> > Joshua Brindle wrote:
+> >> Karl MacMillan wrote:
+> 
+> <snip>
+> 
+> >>>
+> >>> What about a top-level USE_PIE makefile variable that directs all 
+> >>> sub-Makefiles to set PIE flags if appropriate for that module? By 
+> >>> default it would be off. This gets the behavior you want without 
+> >>> having to carry a patch and keeps the current behavior.
+> >>>
+> >>
+> >> No patch necessary, like Chris said make CFLAGS="-fPIE -02 -Werror 
+> >> -Wall" LDFLAGS="-pie"
+> >>
+> >> done and done.
+> >>
+> > No, because then all compiled apps become -pie.  We only 
+> want this on 
+> > the daemons.
+> > 
+> 
+> What about this instead?
 
-No - that is why the enableaudit.pp base policy is provided in 
-/usr/share/selinux/[policyname]/enableaudit.pp. Install that with:
+Why doesn't make CFLAGS="-fPIE -02 -Werror -Wall" LDFLAGS="-pie" work? 
+Why does it matter if everything is built pie?
 
-semodule -b path_to_enableaudit
+This is distro specific (gentoo completely overrides the CFLAGS and
+LDFLAGS, I'm not sure what debian does). I don't think whether or not to
+override the user CFLAGS with non-critical things (e.g., things
+necessary to build the app like -I($PREFIX)/include) is appropriate for
+the upstream makefiles.
 
-and you should see all denials.
-
-Karl
+For that matter, anyone know why -D_FILE_OFFSET_BITS=64 is in the
+override?
 
 
 --
