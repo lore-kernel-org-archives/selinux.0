@@ -1,164 +1,91 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id kAGHT0HV031955
-	for <selinux@tycho.nsa.gov>; Thu, 16 Nov 2006 12:29:00 -0500
-Received: from e1.ny.us.ibm.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id kAGHSFHF005113
-	for <selinux@tycho.nsa.gov>; Thu, 16 Nov 2006 17:28:16 GMT
-Received: from d01relay02.pok.ibm.com (d01relay02.pok.ibm.com [9.56.227.234])
-	by e1.ny.us.ibm.com (8.13.8/8.12.11) with ESMTP id kAGHTDxW030239
-	for <selinux@tycho.nsa.gov>; Thu, 16 Nov 2006 12:29:13 -0500
-Received: from d01av02.pok.ibm.com (d01av02.pok.ibm.com [9.56.224.216])
-	by d01relay02.pok.ibm.com (8.13.6/8.13.6/NCO v8.1.1) with ESMTP id kAGHT7G7238098
-	for <selinux@tycho.nsa.gov>; Thu, 16 Nov 2006 12:29:13 -0500
-Received: from d01av02.pok.ibm.com (loopback [127.0.0.1])
-	by d01av02.pok.ibm.com (8.12.11.20060308/8.13.3) with ESMTP id kAGHT4gL020639
-	for <selinux@tycho.nsa.gov>; Thu, 16 Nov 2006 12:29:04 -0500
-Received: from [127.0.0.1] (pendarric.austin.ibm.com [9.41.46.130])
-	by d01av02.pok.ibm.com (8.12.11.20060308/8.12.11) with ESMTP id kAGHT203020584
-	for <selinux@tycho.nsa.gov>; Thu, 16 Nov 2006 12:29:03 -0500
-Message-ID: <455C9FD9.9010002@us.ibm.com>
-Date: Thu, 16 Nov 2006 11:28:57 -0600
-From: Michael C Thompson <thompsmc@us.ibm.com>
-MIME-Version: 1.0
-To: SE Linux <selinux@tycho.nsa.gov>
-Subject: [Fwd: [redhat-lspp] mqueue filesystem labeling]
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Subject: Re: [PATCH 0/5] libselinux: labeling API for userspace object
+	managers
+From: Eamon Walsh <ewalsh@tycho.nsa.gov>
+Reply-To: ewalsh@tycho.nsa.gov
+To: Joshua Brindle <jbrindle@tresys.com>
+Cc: selinux@tycho.nsa.gov, sds@tycho.nsa.gov
+In-Reply-To: <455C713D.9050104@tresys.com>
+References: <1163643926.15225.55.camel@moss-huskies.epoch.ncsc.mil>
+	 <455C713D.9050104@tresys.com>
+Content-Type: text/plain
+Date: Thu, 16 Nov 2006 13:49:47 -0500
+Message-Id: <1163702987.15225.115.camel@moss-huskies.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Posted to the redhat-lspp list.
+On Thu, 2006-11-16 at 09:10 -0500, Joshua Brindle wrote:
+> I didn't think this was a solved problem. I still think labeling is part 
+> of the object manager, not part of the policy. What are the advantages 
+> of doing it this way over letting the object managers manage their own 
+> labels?
 
-Anyone have any idea why this is labeled by default to SystemHigh?
+I discussed this in an earlier message, the one with the "N different
+things" bullet points, but to recap,
+- Role separation between security admin and app admins
+- Less impact on upstream projects
+- Easier to manage and distribute policy
 
-Thanks,
-Mike
+> 
+> about this implementation though, how are you planning to get contexts 
+> to the policy directory? As part of a package? any libsemanage 
+> interface? Will it be part of this patch set?
 
--------- Original Message --------
-Subject: [redhat-lspp] mqueue filesystem labeling
-Date: Wed, 15 Nov 2006 00:19:03 -0200
-From: Thiago Jung Bauermann <bauerman@br.ibm.com>
-To: redhat-lspp <redhat-lspp@redhat.com>
+As part of the package is my current thought.  I described an example
+file layout in my last message of the previous thread, see:
+http://marc.theaimsgroup.com/?l=selinux&m=116233649828195&w=2
+I won't be submitting any libsemanage interfaces, but that could
+certainly be done in the future.  Or backends could be written that draw
+from some exotic place like LDAP instead of files, who knows.
 
-Hi folks,
+> 
+> Did you need a special backend for file_contexts because it has 
+> overlapping object class specifications? 
 
-I am having some trouble with POSIX message queues in enforcing mode. I
-hope someone can shed some light into this...
+Special backend needed because of the inode tracking done by setfiles,
+the "mode" argument and regexps in the files, the "homedirs" override,
+and other specific behaviors.  
 
-The POSIX message queue implementation uses an internal virtual
-filesystem called mqueue, so processes wanting to perform operations on
-POSIX message queues must have access to that filesystem.
+The "simple" backend at the moment only supports simple string->context
+mappings.
 
-The problem is that for some reason the mqueue filesystem is labeled at
-SystemHigh, so only processes at that level are able to create message
-queues.
+> How do you 'register' an object 
+> class or set of object classes to a particular backend? 
 
-I don't think this is breaking any functionality, so... do we care?
+There's a hardcoded table in label.c, near the top, that maps classes to
+backends.  Look for SECCLASS_XEXTENSION in the second patch.  I'm sure
+this could be done with DSO modules or something in the future.
 
+> I know with X 
+> you are going to have 1 file with many object classes, will it need a 
+> special backend? 
 
+There won't be one file anymore, it will be split up by object class.
+The simple backend may be used, nothing special required.
 
-The only line I could find in the SELinux policy about this is:
+X itself is no longer going to care how it's stored, X is just going to
+call label_lookup().  
 
-fs_use_trans mqueue gen_context(system_u:object_r:tmpfs_t,s0);
+> If every single object manager needs a special backend 
+> what are we buying with this interface?
 
-The above says that the mqueue fs should be at SystemLow.
-This is how the kernel initializes it:
+I believe that most object managers will only need the simple backend,
+maybe with some pattern matching support added in.  But even not
+considering that, you buy the benefits described above.  It's better
+configuration management than storing in the config files of each app.
 
-SELinux: initialized (dev mqueue, type mqueue), uses transition SIDs
+> 
+> I assume this is for RFC and not for merging until the rest of the 
+> patches are out, right? If you could make the patches apply from the top 
+> of the repository with -p0 or -p1 (don't have a preference which) that 
+> would be really helpful.
 
-Even if I explicitly set a SystemLow context for the filesystem when
-mounting it, it is still mounted as SystemHigh:
-
-[root@alex mls]# mount -t mqueue mqueue /mnt
-[root@alex mls]# ls -Zd /mnt
-drwxrwxrwt  root root system_u:object_r:tmpfs_t:SystemHigh /mnt
-[root@alex mls]# umount /mnt
-
-[root@alex mls]# mount -o fscontext=system_u:object_r:tmpfs_t:s0 -t
-mqueue mqueue /mnt
-[root@alex mls]# ls -Zd /mnt
-drwxrwxrwt  root root system_u:object_r:tmpfs_t:SystemHigh /mnt
-[root@alex mls]# umount /mnt
-
-[root@alex mls]# mount -o context=system_u:object_r:tmpfs_t:s0 -t mqueue
-mqueue /mnt
-[root@alex mls]# ls -Zd /mnt
-drwxrwxrwt  root root system_u:object_r:tmpfs_t:SystemHigh /mnt
-
-
-
-And here's the audit record generated when trying to create a message
-queue in enforcing mode:
-
-----
-type=PATH msg=audit(10/31/2006 17:00:00.603:752) : item=0 name=myqueue
-obj=system_u:object_r:root_t:s0
-type=CWD msg=audit(10/31/2006 17:00:00.603:752) : cwd=/tmp/tests
-
-type=MQ_OPEN msg=audit(10/31/2006 17:00:00.603:752) :
-oflag=0xc2 mode=777 mq_flags=0x6d8730 mq_maxmsg=16 mq_msgsize=1
-mq_curmsgs=0
-
-type=SYSCALL msg=audit(10/31/2006 17:00:00.603:752) : arch=x86_64
-syscall=mq_open success=no exit=-13(Permission denied) a0=2aaaaab1f94d
-a1=c2 a2=1ff a3=7fffac4d8550 items=1 ppid=2581 pid=2608 auid=ealuser
-uid=root gid=root euid=root suid=root fsuid=root egid=root sgid=root
-fsgid=root tty=pts0 comm=queuetest exe=/tmp/tests/queuetest
-subj=staff_u:sysadm_r:sysadm_t:s0-s15:c0.c1023 key=(null)
-  ----
-
-I got the above record by adding an audit rule for the mq_open()
-syscall. I find it odd that it doesn't include an AVC message. I thought
-every denial record had one...
-
-And here's an audit record obtained in permissive mode:
-
-----
-type=PATH msg=audit(10/31/2006 17:01:12.307:764) : item=2 name=(null)
-inode=418 dev=00:0d mode=dir,sticky,777 ouid=root ogid=root rdev=00:00
-obj=system_u:object_r:tmpfs_t:s15:c0.c1023
-
-type=PATH msg=audit(10/31/2006 17:01:12.307:764) : item=1 name=(null)
-inode=12076 dev=00:0d mode=file,755 ouid=root ogid=root rdev=00:00
-obj=staff_u:object_r:sysadm_tmpfs_t:s0
-
-type=PATH msg=audit(10/31/2006 17:01:12.307:764) : item=0 name=myqueue
-obj=system_u:object_r:root_t:s0
-
-type=CWD msg=audit(10/31/2006 17:01:12.307:764) :
-cwd=/tmp/tests
-
-type=MQ_OPEN msg=audit(10/31/2006 17:01:12.307:764) : oflag=0xc2
-mode=777 mq_flags=0x6d8730 mq_maxmsg=16 mq_msgsize=1 mq_curmsgs=0
-
-type=SYSCALL msg=audit(10/31/2006 17:01:12.307:764) : arch=x86_64
-syscall=mq_open success=yes exit=4 a0=2aaaaab1f94d a1=c2 a2=1
-ff a3=7fffac4d8550 items=3 ppid=2581 pid=2608 auid=ealuser uid=root
-gid=root euid=root suid=root fsuid=root egid=root sgid=root
-  fsgid=root tty=pts0 comm=queuetest exe=/tmp/tests/queuetest
-subj=staff_u:sysadm_r:sysadm_t:s0-s15:c0.c1023 key=(null)
-
-  type=AVC msg=audit(10/31/2006 17:01:12.307:764) : avc:  denied
-{ add_name } for  pid=2608 comm=queuetest name=myqueue scontext=
-  staff_u:sysadm_r:sysadm_t:s0-s15:c0.c1023
-tcontext=system_u:object_r:tmpfs_t:s15:c0.c1023 tclass=dir
-
-  type=AVC msg=audit(10/31/2006 17:01:12.307:764) : avc:  denied
-{ write } for  pid=2608 comm=queuetest name=/ dev=mqueue ino=418 s
-  context=staff_u:sysadm_r:sysadm_t:s0-s15:c0.c1023
-tcontext=system_u:object_r:tmpfs_t:s15:c0.c1023 tclass=dir
-  ----
-
+Yes, it's just for RFC.  After all the patches are out I'll send one out
+that applies properly from the top.
 
 -- 
-[]'s
-Thiago Jung Bauermann
-Software Engineer
-IBM Linux Technology Center
-
---
-redhat-lspp mailing list
-redhat-lspp@redhat.com
-https://www.redhat.com/mailman/listinfo/redhat-lspp
+Eamon Walsh <ewalsh@tycho.nsa.gov>
+National Security Agency
 
 
 --
