@@ -1,214 +1,404 @@
 Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id kAHMhQ1B013960
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id kAHMhQpI013982
 	for <selinux@tycho.nsa.gov>; Fri, 17 Nov 2006 17:43:26 -0500
 Received: from atlrel9.hp.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id kAHMfkUg029650
-	for <selinux@tycho.nsa.gov>; Fri, 17 Nov 2006 22:41:46 GMT
-Message-Id: <20061117224338.607672000@hp.com>
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id kAHMfjUg029646
+	for <selinux@tycho.nsa.gov>; Fri, 17 Nov 2006 22:41:45 GMT
+Message-Id: <20061117224338.040702000@hp.com>
 References: <20061117223842.399078000@hp.com>
-Date: Fri, 17 Nov 2006 17:38:55 -0500
+Date: Fri, 17 Nov 2006 17:38:54 -0500
 From: paul.moore@hp.com
 To: netdev@vger.kernel.org, selinux@tycho.nsa.gov
 Cc: jmorris@namei.org, Paul Moore <paul.moore@hp.com>
-Subject: [PATCH 13/13] NetLabel: honor the audit_enabled flag
+Subject: [PATCH 12/13] SELinux: peer secid consolidation for external network labeling
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 From: Paul Moore <paul.moore@hp.com>
 
-The audit_enabled flag is used to signal when syscall auditing is to be
-performed.  While NetLabel uses a Netlink interface instead of syscalls, it is
-reasonable to consider the NetLabel Netlink interface as a form of syscall so
-pay attention to the audit_enabled flag when generating audit messages in
-NetLabel.
+Now that labeled IPsec makes use of the peer_sid field in the
+sk_security_struct we can remove a lot of the special cases between labeled
+IPsec and NetLabel.  In addition, create a new function,
+security_skb_extlbl_sid(), which we can use in several places to get the
+security context of the packet's external label which allows us to further
+simplify the code in a few places.
 
 Signed-off-by: Paul Moore <paul.moore@hp.com>
 ---
- net/netlabel/netlabel_cipso_v4.c   |   26 +++++++++++---------
- net/netlabel/netlabel_domainhash.c |   48 ++++++++++++++++---------------------
- net/netlabel/netlabel_unlabeled.c  |    8 ++++--
- net/netlabel/netlabel_user.c       |    7 +++++
- 4 files changed, 50 insertions(+), 39 deletions(-)
+ security/selinux/hooks.c                    |   43 +++----------
+ security/selinux/include/security.h         |    3 
+ security/selinux/include/selinux_netlabel.h |   28 ++------
+ security/selinux/include/xfrm.h             |    5 -
+ security/selinux/ss/services.c              |   90 ++++++++--------------------
+ security/selinux/xfrm.c                     |   33 ----------
+ 6 files changed, 52 insertions(+), 150 deletions(-)
 
-Index: net-2.6.20_netlabel-base-work/net/netlabel/netlabel_cipso_v4.c
+Index: net-2.6.20_netlabel-base-work/security/selinux/hooks.c
 ===================================================================
---- net-2.6.20_netlabel-base-work.orig/net/netlabel/netlabel_cipso_v4.c
-+++ net-2.6.20_netlabel-base-work/net/netlabel/netlabel_cipso_v4.c
-@@ -407,12 +407,14 @@ static int netlbl_cipsov4_add(struct sk_
+--- net-2.6.20_netlabel-base-work.orig/security/selinux/hooks.c
++++ net-2.6.20_netlabel-base-work/security/selinux/hooks.c
+@@ -3573,27 +3573,16 @@ static int selinux_socket_getpeersec_str
+ 	u32 scontext_len;
+ 	struct sk_security_struct *ssec;
+ 	struct inode_security_struct *isec;
+-	u32 peer_sid = 0;
++	u32 peer_sid = SECSID_NULL;
  
- 	audit_buf = netlbl_audit_start_common(AUDIT_MAC_CIPSOV4_ADD,
- 					      &audit_info);
--	audit_log_format(audit_buf,
--			 " cipso_doi=%u cipso_type=%s res=%u",
--			 doi,
--			 type_str,
--			 ret_val == 0 ? 1 : 0);
--	audit_log_end(audit_buf);
-+	if (audit_buf != NULL) {
-+		audit_log_format(audit_buf,
-+				 " cipso_doi=%u cipso_type=%s res=%u",
-+				 doi,
-+				 type_str,
-+				 ret_val == 0 ? 1 : 0);
-+		audit_log_end(audit_buf);
-+	}
+ 	isec = SOCK_INODE(sock)->i_security;
  
- 	return ret_val;
- }
-@@ -680,11 +682,13 @@ static int netlbl_cipsov4_remove(struct 
- 
- 	audit_buf = netlbl_audit_start_common(AUDIT_MAC_CIPSOV4_DEL,
- 					      &audit_info);
--	audit_log_format(audit_buf,
--			 " cipso_doi=%u res=%u",
--			 doi,
--			 ret_val == 0 ? 1 : 0);
--	audit_log_end(audit_buf);
-+	if (audit_buf != NULL) {
-+		audit_log_format(audit_buf,
-+				 " cipso_doi=%u res=%u",
-+				 doi,
-+				 ret_val == 0 ? 1 : 0);
-+		audit_log_end(audit_buf);
-+	}
- 
- 	return ret_val;
- }
-Index: net-2.6.20_netlabel-base-work/net/netlabel/netlabel_domainhash.c
-===================================================================
---- net-2.6.20_netlabel-base-work.orig/net/netlabel/netlabel_domainhash.c
-+++ net-2.6.20_netlabel-base-work/net/netlabel/netlabel_domainhash.c
-@@ -202,7 +202,6 @@ int netlbl_domhsh_add(struct netlbl_dom_
- 	int ret_val;
- 	u32 bkt;
- 	struct audit_buffer *audit_buf;
--	char *audit_domain;
- 
- 	switch (entry->type) {
- 	case NETLBL_NLTYPE_UNLABELED:
-@@ -243,24 +242,24 @@ int netlbl_domhsh_add(struct netlbl_dom_
- 	} else
- 		ret_val = -EINVAL;
- 
--	if (entry->domain != NULL)
--		audit_domain = entry->domain;
--	else
--		audit_domain = "(default)";
- 	audit_buf = netlbl_audit_start_common(AUDIT_MAC_MAP_ADD, audit_info);
--	audit_log_format(audit_buf, " nlbl_domain=%s", audit_domain);
--	switch (entry->type) {
--	case NETLBL_NLTYPE_UNLABELED:
--		audit_log_format(audit_buf, " nlbl_protocol=unlbl");
--		break;
--	case NETLBL_NLTYPE_CIPSOV4:
-+	if (audit_buf != NULL) {
- 		audit_log_format(audit_buf,
--				 " nlbl_protocol=cipsov4 cipso_doi=%u",
--				 entry->type_def.cipsov4->doi);
--		break;
-+				 " nlbl_domain=%s",
-+				 entry->domain ? entry->domain : "(default)");
-+		switch (entry->type) {
-+		case NETLBL_NLTYPE_UNLABELED:
-+			audit_log_format(audit_buf, " nlbl_protocol=unlbl");
-+			break;
-+		case NETLBL_NLTYPE_CIPSOV4:
-+			audit_log_format(audit_buf,
-+					 " nlbl_protocol=cipsov4 cipso_doi=%u",
-+					 entry->type_def.cipsov4->doi);
-+			break;
-+		}
-+		audit_log_format(audit_buf, " res=%u", ret_val == 0 ? 1 : 0);
-+		audit_log_end(audit_buf);
+-	/* if UNIX_STREAM check peer_sid, if TCP check dst for labelled sa */
+-	if (isec->sclass == SECCLASS_UNIX_STREAM_SOCKET) {
++	if (isec->sclass == SECCLASS_UNIX_STREAM_SOCKET ||
++	    isec->sclass == SECCLASS_TCP_SOCKET) {
+ 		ssec = sock->sk->sk_security;
+ 		peer_sid = ssec->peer_sid;
  	}
--	audit_log_format(audit_buf, " res=%u", ret_val == 0 ? 1 : 0);
--	audit_log_end(audit_buf);
+-	else if (isec->sclass == SECCLASS_TCP_SOCKET) {
+-		peer_sid = selinux_netlbl_socket_getpeersec_stream(sock);
+-		if (peer_sid == SECSID_NULL) {
+-			ssec = sock->sk->sk_security;
+-			peer_sid = ssec->peer_sid;
+-		}
+-		if (peer_sid == SECSID_NULL) {
+-			err = -ENOPROTOOPT;
+-			goto out;
+-		}
+-	}
+-	else {
++	if (peer_sid == SECSID_NULL) {
+ 		err = -ENOPROTOOPT;
+ 		goto out;
+ 	}
+@@ -3625,13 +3614,12 @@ static int selinux_socket_getpeersec_dgr
+ 	u32 peer_secid = SECSID_NULL;
+ 	int err = 0;
  
- 	rcu_read_unlock();
+-	if (sock && (sock->sk->sk_family == PF_UNIX))
++	if (sock && sock->sk->sk_family == PF_UNIX)
+ 		selinux_get_inode_sid(SOCK_INODE(sock), &peer_secid);
+-	else if (skb) {
+-		peer_secid = selinux_netlbl_socket_getpeersec_dgram(skb);
+-		if (peer_secid == SECSID_NULL)
+-			peer_secid = selinux_socket_getpeer_dgram(skb);
+-	}
++	else if (skb)
++		security_skb_extlbl_sid(skb,
++					SECINITSID_UNLABELED,
++					&peer_secid);
  
-@@ -310,7 +309,6 @@ int netlbl_domhsh_remove(const char *dom
- 	int ret_val = -ENOENT;
- 	struct netlbl_dom_map *entry;
- 	struct audit_buffer *audit_buf;
--	char *audit_domain;
+ 	if (peer_secid == SECSID_NULL)
+ 		err = -EINVAL;
+@@ -3692,17 +3680,10 @@ static int selinux_inet_conn_request(str
+ 	u32 newsid;
+ 	u32 peersid;
  
- 	rcu_read_lock();
- 	if (domain != NULL)
-@@ -348,16 +346,14 @@ int netlbl_domhsh_remove(const char *dom
- 		spin_unlock(&netlbl_domhsh_def_lock);
+-	newsid = selinux_netlbl_inet_conn_request(skb, sksec->sid);
+-	if (newsid != SECSID_NULL) {
+-		req->secid = newsid;
+-		return 0;
+-	}
+-
+-	selinux_skb_xfrm_sid(skb, &peersid);
+-
++	security_skb_extlbl_sid(skb, SECINITSID_UNLABELED, &peersid);
+ 	if (peersid == SECSID_NULL) {
+ 		req->secid = sksec->sid;
+-		req->peer_secid = 0;
++		req->peer_secid = SECSID_NULL;
+ 		return 0;
  	}
  
--	if (entry->domain != NULL)
--		audit_domain = entry->domain;
--	else
--		audit_domain = "(default)";
- 	audit_buf = netlbl_audit_start_common(AUDIT_MAC_MAP_DEL, audit_info);
--	audit_log_format(audit_buf,
--			 " nlbl_domain=%s res=%u",
--			 audit_domain,
--			 ret_val == 0 ? 1 : 0);
--	audit_log_end(audit_buf);
-+	if (audit_buf != NULL) {
-+		audit_log_format(audit_buf,
-+				 " nlbl_domain=%s res=%u",
-+				 entry->domain ? entry->domain : "(default)",
-+				 ret_val == 0 ? 1 : 0);
-+		audit_log_end(audit_buf);
-+	}
+@@ -3737,7 +3718,7 @@ static void selinux_inet_conn_establishe
+ {
+ 	struct sk_security_struct *sksec = sk->sk_security;
  
- 	if (ret_val == 0)
- 		call_rcu(&entry->rcu, netlbl_domhsh_free_entry);
-Index: net-2.6.20_netlabel-base-work/net/netlabel/netlabel_unlabeled.c
-===================================================================
---- net-2.6.20_netlabel-base-work.orig/net/netlabel/netlabel_unlabeled.c
-+++ net-2.6.20_netlabel-base-work/net/netlabel/netlabel_unlabeled.c
-@@ -35,6 +35,7 @@
- #include <linux/socket.h>
- #include <linux/string.h>
- #include <linux/skbuff.h>
-+#include <linux/audit.h>
- #include <net/sock.h>
- #include <net/netlink.h>
- #include <net/genetlink.h>
-@@ -92,8 +93,11 @@ static void netlbl_unlabel_acceptflg_set
- 
- 	audit_buf = netlbl_audit_start_common(AUDIT_MAC_UNLBL_ALLOW,
- 					      audit_info);
--	audit_log_format(audit_buf, " unlbl_accept=%u old=%u", value, old_val);
--	audit_log_end(audit_buf);
-+	if (audit_buf != NULL) {
-+		audit_log_format(audit_buf,
-+				 " unlbl_accept=%u old=%u", value, old_val);
-+		audit_log_end(audit_buf);
-+	}
+-	selinux_skb_xfrm_sid(skb, &sksec->peer_sid);
++	security_skb_extlbl_sid(skb, SECINITSID_UNLABELED, &sksec->peer_sid);
  }
  
- /*
-Index: net-2.6.20_netlabel-base-work/net/netlabel/netlabel_user.c
+ static void selinux_req_classify_flow(const struct request_sock *req,
+Index: net-2.6.20_netlabel-base-work/security/selinux/include/security.h
 ===================================================================
---- net-2.6.20_netlabel-base-work.orig/net/netlabel/netlabel_user.c
-+++ net-2.6.20_netlabel-base-work/net/netlabel/netlabel_user.c
-@@ -46,6 +46,10 @@
- #include "netlabel_cipso_v4.h"
- #include "netlabel_user.h"
+--- net-2.6.20_netlabel-base-work.orig/security/selinux/include/security.h
++++ net-2.6.20_netlabel-base-work/security/selinux/include/security.h
+@@ -8,6 +8,7 @@
+ #ifndef _SELINUX_SECURITY_H_
+ #define _SELINUX_SECURITY_H_
  
-+/* do not do any auditing if audit_enabled == 0, see kernel/audit.c for
-+ * details */
-+extern int audit_enabled;
++#include <linux/skbuff.h>
+ #include "flask.h"
+ 
+ #define SECSID_NULL			0x00000000 /* unspecified SID */
+@@ -80,6 +81,8 @@ int security_netif_sid(char *name, u32 *
+ int security_node_sid(u16 domain, void *addr, u32 addrlen,
+ 	u32 *out_sid);
+ 
++void security_skb_extlbl_sid(struct sk_buff *skb, u32 base_sid, u32 *sid);
 +
+ int security_validate_transition(u32 oldsid, u32 newsid, u32 tasksid,
+                                  u16 tclass);
+ 
+Index: net-2.6.20_netlabel-base-work/security/selinux/include/selinux_netlabel.h
+===================================================================
+--- net-2.6.20_netlabel-base-work.orig/security/selinux/include/selinux_netlabel.h
++++ net-2.6.20_netlabel-base-work/security/selinux/include/selinux_netlabel.h
+@@ -38,14 +38,12 @@
+ 
+ #ifdef CONFIG_NETLABEL
+ void selinux_netlbl_cache_invalidate(void);
++int selinux_netlbl_skbuff_getsid(struct sk_buff *skb, u32 base_sid, u32 *sid);
+ int selinux_netlbl_socket_post_create(struct socket *sock);
+ void selinux_netlbl_sock_graft(struct sock *sk, struct socket *sock);
+-u32 selinux_netlbl_inet_conn_request(struct sk_buff *skb, u32 sock_sid);
+ int selinux_netlbl_sock_rcv_skb(struct sk_security_struct *sksec,
+ 				struct sk_buff *skb,
+ 				struct avc_audit_data *ad);
+-u32 selinux_netlbl_socket_getpeersec_stream(struct socket *sock);
+-u32 selinux_netlbl_socket_getpeersec_dgram(struct sk_buff *skb);
+ void selinux_netlbl_sk_security_reset(struct sk_security_struct *ssec,
+ 				      int family);
+ void selinux_netlbl_sk_security_init(struct sk_security_struct *ssec,
+@@ -62,6 +60,14 @@ static inline void selinux_netlbl_cache_
+ 	return;
+ }
+ 
++static inline int selinux_netlbl_skbuff_getsid(struct sk_buff *skb,
++					       u32 base_sid,
++					       u32 *sid)
++{
++	*sid = SECSID_NULL;
++	return 0;
++}
++
+ static inline int selinux_netlbl_socket_post_create(struct socket *sock)
+ {
+ 	return 0;
+@@ -73,12 +79,6 @@ static inline void selinux_netlbl_sock_g
+ 	return;
+ }
+ 
+-static inline u32 selinux_netlbl_inet_conn_request(struct sk_buff *skb,
+-						   u32 sock_sid)
+-{
+-	return SECSID_NULL;
+-}
+-
+ static inline int selinux_netlbl_sock_rcv_skb(struct sk_security_struct *sksec,
+ 					      struct sk_buff *skb,
+ 					      struct avc_audit_data *ad)
+@@ -86,16 +86,6 @@ static inline int selinux_netlbl_sock_rc
+ 	return 0;
+ }
+ 
+-static inline u32 selinux_netlbl_socket_getpeersec_stream(struct socket *sock)
+-{
+-	return SECSID_NULL;
+-}
+-
+-static inline u32 selinux_netlbl_socket_getpeersec_dgram(struct sk_buff *skb)
+-{
+-	return SECSID_NULL;
+-}
+-
+ static inline void selinux_netlbl_sk_security_reset(
+ 					       struct sk_security_struct *ssec,
+ 					       int family)
+Index: net-2.6.20_netlabel-base-work/security/selinux/include/xfrm.h
+===================================================================
+--- net-2.6.20_netlabel-base-work.orig/security/selinux/include/xfrm.h
++++ net-2.6.20_netlabel-base-work/security/selinux/include/xfrm.h
+@@ -36,7 +36,6 @@ int selinux_xfrm_sock_rcv_skb(u32 sid, s
+ 			struct avc_audit_data *ad);
+ int selinux_xfrm_postroute_last(u32 isec_sid, struct sk_buff *skb,
+ 			struct avc_audit_data *ad, u8 proto);
+-u32 selinux_socket_getpeer_dgram(struct sk_buff *skb);
+ int selinux_xfrm_decode_session(struct sk_buff *skb, u32 *sid, int ckall);
+ #else
+ static inline int selinux_xfrm_sock_rcv_skb(u32 isec_sid, struct sk_buff *skb,
+@@ -51,10 +50,6 @@ static inline int selinux_xfrm_postroute
+ 	return 0;
+ }
+ 
+-static inline int selinux_socket_getpeer_dgram(struct sk_buff *skb)
+-{
+-	return SECSID_NULL;
+-}
+ static inline int selinux_xfrm_decode_session(struct sk_buff *skb, u32 *sid, int ckall)
+ {
+ 	*sid = SECSID_NULL;
+Index: net-2.6.20_netlabel-base-work/security/selinux/ss/services.c
+===================================================================
+--- net-2.6.20_netlabel-base-work.orig/security/selinux/ss/services.c
++++ net-2.6.20_netlabel-base-work/security/selinux/ss/services.c
+@@ -50,6 +50,7 @@
+ #include "mls.h"
+ #include "objsec.h"
+ #include "selinux_netlabel.h"
++#include "xfrm.h"
+ 
+ extern void selnl_notify_policyload(u32 seqno);
+ unsigned int policydb_loaded_version;
+@@ -2146,6 +2147,32 @@ void selinux_audit_set_callback(int (*ca
+ 	aurule_callback = callback;
+ }
+ 
++/**
++ * security_skb_extlbl_sid - Determine the external label of a packet
++ * @skb: the packet
++ * @base_sid: the SELinux SID to use as a context for MLS only external labels
++ * @sid: the packet's SID
++ *
++ * Description:
++ * Check the various different forms of external packet labeling and determine
++ * the external SID for the packet.
++ *
++ */
++void security_skb_extlbl_sid(struct sk_buff *skb, u32 base_sid, u32 *sid)
++{
++	u32 xfrm_sid;
++	u32 nlbl_sid;
++
++	selinux_skb_xfrm_sid(skb, &xfrm_sid);
++	if (selinux_netlbl_skbuff_getsid(skb,
++					 (xfrm_sid == SECSID_NULL ?
++					  base_sid : xfrm_sid),
++					 &nlbl_sid) != 0)
++		nlbl_sid = SECSID_NULL;
++
++	*sid = (nlbl_sid == SECSID_NULL ? xfrm_sid : nlbl_sid);
++}
++
+ #ifdef CONFIG_NETLABEL
  /*
-  * NetLabel NETLINK Setup Functions
+  * This is the structure we store inside the NetLabel cache block.
+@@ -2363,9 +2390,7 @@ netlbl_secattr_to_sid_return_cleanup:
+  * assign to the packet.  Returns zero on success, negative values on failure.
+  *
   */
-@@ -101,6 +105,9 @@ struct audit_buffer *netlbl_audit_start_
- 	char *secctx;
- 	u32 secctx_len;
+-static int selinux_netlbl_skbuff_getsid(struct sk_buff *skb,
+-					u32 base_sid,
+-					u32 *sid)
++int selinux_netlbl_skbuff_getsid(struct sk_buff *skb, u32 base_sid, u32 *sid)
+ {
+ 	int rc;
+ 	struct netlbl_lsm_secattr secattr;
+@@ -2571,29 +2596,6 @@ void selinux_netlbl_sock_graft(struct so
+ }
  
-+	if (audit_enabled == 0)
-+		return NULL;
-+
- 	audit_buf = audit_log_start(audit_ctx, GFP_ATOMIC, type);
- 	if (audit_buf == NULL)
- 		return NULL;
+ /**
+- * selinux_netlbl_inet_conn_request - Handle a new connection request
+- * @skb: the packet
+- * @sock_sid: the SID of the parent socket
+- *
+- * Description:
+- * If present, use the security attributes of the packet in @skb and the
+- * parent sock's SID to arrive at a SID for the new child sock.  Returns the
+- * SID of the connection or SECSID_NULL on failure.
+- *
+- */
+-u32 selinux_netlbl_inet_conn_request(struct sk_buff *skb, u32 sock_sid)
+-{
+-	int rc;
+-	u32 peer_sid;
+-
+-	rc = selinux_netlbl_skbuff_getsid(skb, sock_sid, &peer_sid);
+-	if (rc != 0)
+-		return SECSID_NULL;
+-
+-	return peer_sid;
+-}
+-
+-/**
+  * selinux_netlbl_inode_permission - Verify the socket is NetLabel labeled
+  * @inode: the file descriptor's inode
+  * @mask: the permission mask
+@@ -2683,42 +2685,6 @@ int selinux_netlbl_sock_rcv_skb(struct s
+ }
+ 
+ /**
+- * selinux_netlbl_socket_getpeersec_stream - Return the connected peer's SID
+- * @sock: the socket
+- *
+- * Description:
+- * Examine @sock to find the connected peer's SID.  Returns the SID on success
+- * or SECSID_NULL on error.
+- *
+- */
+-u32 selinux_netlbl_socket_getpeersec_stream(struct socket *sock)
+-{
+-	struct sk_security_struct *sksec = sock->sk->sk_security;
+-	return sksec->peer_sid;
+-}
+-
+-/**
+- * selinux_netlbl_socket_getpeersec_dgram - Return the SID of a NetLabel packet
+- * @skb: the packet
+- *
+- * Description:
+- * Examine @skb to find the SID assigned to it by NetLabel.  Returns the SID on
+- * success, SECSID_NULL on error.
+- *
+- */
+-u32 selinux_netlbl_socket_getpeersec_dgram(struct sk_buff *skb)
+-{
+-	int peer_sid;
+-
+-	if (selinux_netlbl_skbuff_getsid(skb,
+-					 SECINITSID_UNLABELED,
+-					 &peer_sid) != 0)
+-		return SECSID_NULL;
+-
+-	return peer_sid;
+-}
+-
+-/**
+  * selinux_netlbl_socket_setsockopt - Do not allow users to remove a NetLabel
+  * @sock: the socket
+  * @level: the socket level or protocol
+Index: net-2.6.20_netlabel-base-work/security/selinux/xfrm.c
+===================================================================
+--- net-2.6.20_netlabel-base-work.orig/security/selinux/xfrm.c
++++ net-2.6.20_netlabel-base-work/security/selinux/xfrm.c
+@@ -372,39 +372,6 @@ void selinux_xfrm_state_free(struct xfrm
+ 		kfree(ctx);
+ }
+ 
+-/*
+- * SELinux internal function to retrieve the context of a UDP packet
+- * based on its security association.
+- *
+- * Retrieve via setsockopt IP_PASSSEC and recvmsg with control message
+- * type SCM_SECURITY.
+- */
+-u32 selinux_socket_getpeer_dgram(struct sk_buff *skb)
+-{
+-	struct sec_path *sp;
+-
+-	if (skb == NULL)
+-		return SECSID_NULL;
+-
+-	if (skb->sk->sk_protocol != IPPROTO_UDP)
+-		return SECSID_NULL;
+-
+-	sp = skb->sp;
+-	if (sp) {
+-		int i;
+-
+-		for (i = sp->len-1; i >= 0; i--) {
+-			struct xfrm_state *x = sp->xvec[i];
+-			if (selinux_authorizable_xfrm(x)) {
+-				struct xfrm_sec_ctx *ctx = x->security;
+-				return ctx->ctx_sid;
+-			}
+-		}
+-	}
+-
+-	return SECSID_NULL;
+-}
+-
+  /*
+   * LSM hook implementation that authorizes deletion of labeled SAs.
+   */
 
 --
 paul moore
