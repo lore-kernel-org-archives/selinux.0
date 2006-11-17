@@ -1,62 +1,60 @@
 Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id kAHMhKJ3013830
-	for <selinux@tycho.nsa.gov>; Fri, 17 Nov 2006 17:43:20 -0500
-Received: from atlrel8.hp.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id kAHMgbKG025826
-	for <selinux@tycho.nsa.gov>; Fri, 17 Nov 2006 22:42:37 GMT
-Message-Id: <20061117224333.829365000@hp.com>
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id kAHMhMUJ013868
+	for <selinux@tycho.nsa.gov>; Fri, 17 Nov 2006 17:43:22 -0500
+Received: from atlrel9.hp.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id kAHMgdKG025829
+	for <selinux@tycho.nsa.gov>; Fri, 17 Nov 2006 22:42:39 GMT
+Message-Id: <20061117224334.423545000@hp.com>
 References: <20061117223842.399078000@hp.com>
-Date: Fri, 17 Nov 2006 17:38:47 -0500
+Date: Fri, 17 Nov 2006 17:38:48 -0500
 From: paul.moore@hp.com
 To: netdev@vger.kernel.org, selinux@tycho.nsa.gov
 Cc: jmorris@namei.org, Paul Moore <paul.moore@hp.com>
-Subject: [PATCH 05/13] NetLabel: check for a CIPSOv4 option before we do call into the CIPSOv4 layer
+Subject: [PATCH 06/13] NetLabel: add tag verification when adding new CIPSOv4 DOI definitions
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 From: Paul Moore <paul.moore@hp.com>
 
-Right now the NetLabel code always jumps into the CIPSOv4 layer to determine if
-a CIPSO IP option is present.  However, we can do this check directly in the
-NetLabel code by making use of the CIPSO_V4_OPTEXIST() macro which should save
-us a function call in the common case of not having a CIPSOv4 option present.
+Currently the CIPSOv4 engine does not do any sort of checking when a new DOI
+definition is added.  The tags are still verified but only as a side effect of
+normal NetLabel operation (packet processing, socket labeling, etc.) which
+would cause application errors due to the faulty configuration.  This patch
+adds tag checking when new DOI definition are added allowing us to catch these
+configuration problems when they happen.
 
 Signed-off-by: Paul Moore <paul.moore@hp.com>
 ---
- net/ipv4/cipso_ipv4.c        |    2 --
- net/netlabel/netlabel_kapi.c |    6 ++----
- 2 files changed, 2 insertions(+), 6 deletions(-)
+ net/ipv4/cipso_ipv4.c |   14 ++++++++++++++
+ 1 files changed, 14 insertions(+)
 
 Index: net-2.6.20_netlabel-base-work/net/ipv4/cipso_ipv4.c
 ===================================================================
 --- net-2.6.20_netlabel-base-work.orig/net/ipv4/cipso_ipv4.c
 +++ net-2.6.20_netlabel-base-work/net/ipv4/cipso_ipv4.c
-@@ -1436,8 +1436,6 @@ int cipso_v4_skbuff_getattr(const struct
- 	u32 doi;
- 	struct cipso_v4_doi *doi_def;
- 
--	if (!CIPSO_V4_OPTEXIST(skb))
--		return -ENOMSG;
- 	cipso_ptr = CIPSO_V4_OPTPTR(skb);
- 	if (cipso_v4_cache_check(cipso_ptr, cipso_ptr[1], secattr) == 0)
- 		return 0;
-Index: net-2.6.20_netlabel-base-work/net/netlabel/netlabel_kapi.c
-===================================================================
---- net-2.6.20_netlabel-base-work.orig/net/netlabel/netlabel_kapi.c
-+++ net-2.6.20_netlabel-base-work/net/netlabel/netlabel_kapi.c
-@@ -149,10 +149,8 @@ int netlbl_socket_getattr(const struct s
- int netlbl_skbuff_getattr(const struct sk_buff *skb,
- 			  struct netlbl_lsm_secattr *secattr)
+@@ -448,8 +448,22 @@ static struct cipso_v4_doi *cipso_v4_doi
+  */
+ int cipso_v4_doi_add(struct cipso_v4_doi *doi_def)
  {
--	int ret_val;
--
--	ret_val = cipso_v4_skbuff_getattr(skb, secattr);
--	if (ret_val == 0)
-+	if (CIPSO_V4_OPTEXIST(skb) &&
-+	    cipso_v4_skbuff_getattr(skb, secattr) == 0)
- 		return 0;
++	u32 iter;
++
+ 	if (doi_def == NULL || doi_def->doi == CIPSO_V4_DOI_UNKNOWN)
+ 		return -EINVAL;
++	for (iter = 0; iter < CIPSO_V4_TAG_MAXCNT; iter++) {
++		switch (doi_def->tags[iter]) {
++		case CIPSO_V4_TAG_RBITMAP:
++			break;
++		case CIPSO_V4_TAG_INVALID:
++			if (iter == 0)
++				return -EINVAL;
++			break;
++		default:
++			return -EINVAL;
++		}
++	}
  
- 	return netlbl_unlabel_getattr(secattr);
+ 	doi_def->valid = 1;
+ 	INIT_RCU_HEAD(&doi_def->rcu);
 
 --
 paul moore
