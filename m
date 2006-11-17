@@ -1,48 +1,41 @@
 Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id kAHIXcgL006253
-	for <selinux@tycho.nsa.gov>; Fri, 17 Nov 2006 13:33:38 -0500
-Received: from exchange.columbia.tresys.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with SMTP id kAHIWswh021819
-	for <selinux@tycho.nsa.gov>; Fri, 17 Nov 2006 18:32:54 GMT
-Message-ID: <455E008E.3040707@tresys.com>
-Date: Fri, 17 Nov 2006 13:33:50 -0500
-From: Joshua Brindle <jbrindle@tresys.com>
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id kAHIlGMh006789
+	for <selinux@tycho.nsa.gov>; Fri, 17 Nov 2006 13:47:16 -0500
+Received: from mx1.redhat.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id kAHIkWwh024004
+	for <selinux@tycho.nsa.gov>; Fri, 17 Nov 2006 18:46:33 GMT
+Message-ID: <455E03BD.6020501@redhat.com>
+Date: Fri, 17 Nov 2006 13:47:25 -0500
+From: Daniel J Walsh <dwalsh@redhat.com>
 MIME-Version: 1.0
-To: russell@coker.com.au
-CC: "Christopher J. PeBenito" <cpebenito@tresys.com>,
-        Daniel J Walsh <dwalsh@redhat.com>, SE Linux <selinux@tycho.nsa.gov>
-Subject: Re: Latest Diffs
-References: <453E2A8C.4070207@redhat.com> <200611160433.09138.russell@coker.com.au> <1163684980.7374.26.camel@sgc.columbia.tresys.com> <200611180007.07194.russell@coker.com.au>
-In-Reply-To: <200611180007.07194.russell@coker.com.au>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+To: "Christopher J. PeBenito" <cpebenito@tresys.com>
+CC: Klaus Weidner <klaus@atsec.com>, Chad Hanson <chanson@TrustedCS.com>,
+        Darrel Goeddel <dgoeddel@TrustedCS.com>, selinux@tycho.nsa.gov
+Subject: Re: MLS policy constraints verification
+References: <20061111183721.GA629@w-m-p.com> <1163426567.18181.104.camel@sgc.columbia.tresys.com>
+In-Reply-To: <1163426567.18181.104.camel@sgc.columbia.tresys.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Russell Coker wrote:
-> On Friday 17 November 2006 00:49, "Christopher J. PeBenito" 
-> <cpebenito@tresys.com> wrote:
-> 
-> Any directory on the system that contains application data could be replaced 
-> by a tmpfs filesystem and require a $1_tmpfs_t type for the least intelligent 
-> use.  As an example I once ran a MySQL database with a tmpfs for the database 
-> store.
-> 
-
-Eh? Why? MySQL has a memory backed database type, this is an unnecessary 
-layer of indirection.
-
-It makes sense for some apps but not others, why add lots of completely 
-unnecessary policy?
-
-> The correct solution for such cases is to use either restorecon or a -o 
-> context= mount option to give it the expected type.  It's worked for me every 
-> time I've tried such things.
-> 
->>> Maybe we could have restorecon run on the Squid spool directory to
->>> cater for the case of using tmpfs for it if people want to do that.
-> 
-
-
+Christopher J. PeBenito wrote:
+> On Sat, 2006-11-11 at 12:37 -0600, Klaus Weidner wrote:
+>   
+>> in the ongoing LSPP evaluation project, a review of the constraints
+>> defined in "policy/mls" in the refpolicy turned up some suspicious
+>> entries.
+>>
+>> Could people who wrote the policy or have opinions on what it's supposed
+>> to be please comment?
+>>     
+>
+> The constraints are almost all from the old example policy and were
+> written by TCS since they did the enhanced MLS support.  Since I'm not
+> familiar with the LSPP requirements, I can't speak to whether or not the
+> MLS is strict enough to meet the requirements.  Chad, Darrel?
+>
+>   
+Klous do you have a patch that you want applied to modify the constraints?
 
 --
 This message was distributed to subscribers of the selinux mailing list.
