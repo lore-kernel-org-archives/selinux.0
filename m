@@ -1,100 +1,62 @@
 Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id kAHKuG6J011200
-	for <selinux@tycho.nsa.gov>; Fri, 17 Nov 2006 15:56:16 -0500
-Received: from moss-lions.epoch.ncsc.mil (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id kAHKscaE010090
-	for <selinux@tycho.nsa.gov>; Fri, 17 Nov 2006 20:54:38 GMT
-Received: from moss-lions.epoch.ncsc.mil (localhost.localdomain [127.0.0.1])
-	by moss-lions.epoch.ncsc.mil (8.13.8/8.13.8) with ESMTP id kAHKsNAW025320
-	for <selinux@tycho.nsa.gov>; Fri, 17 Nov 2006 15:54:23 -0500
-Received: (from jwcart2@localhost)
-	by moss-lions.epoch.ncsc.mil (8.13.8/8.13.8/Submit) id kAHKsNJW025319
-	for selinux@tycho.nsa.gov; Fri, 17 Nov 2006 15:54:23 -0500
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id kAHKsGrV011146
-	for <selinux@tycho.nsa.gov>; Fri, 17 Nov 2006 15:54:16 -0500
-Subject: Re: Trouble with gconf and Thunar
-From: James Carter <jwcart2@epoch.ncsc.mil>
-Reply-To: jwcart2@epoch.ncsc.mil
-To: Bradley Chapman <kakadu@gmail.com>
-Cc: selinux@tycho.nsa.gov
-In-Reply-To: <e294b46e0611160916h6ab95fe7p62c8a4637f616624@mail.gmail.com>
-References: <e294b46e0611160916h6ab95fe7p62c8a4637f616624@mail.gmail.com>
-Content-Type: text/plain
-Date: Fri, 17 Nov 2006 15:52:23 -0500
-Message-Id: <1163796743.22589.8.camel@moss-lions.epoch.ncsc.mil>
-Mime-Version: 1.0
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id kAHLRpsm012274
+	for <selinux@tycho.nsa.gov>; Fri, 17 Nov 2006 16:27:51 -0500
+Received: from smtp.sws.net.au (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id kAHLQCaE016378
+	for <selinux@tycho.nsa.gov>; Fri, 17 Nov 2006 21:26:13 GMT
+From: Russell Coker <russell@coker.com.au>
+Reply-To: russell@coker.com.au
+To: Joshua Brindle <jbrindle@tresys.com>
+Subject: Re: Latest Diffs
+Date: Sat, 18 Nov 2006 08:27:55 +1100
+Cc: "Christopher J. PeBenito" <cpebenito@tresys.com>,
+        Daniel J Walsh <dwalsh@redhat.com>, SE Linux <selinux@tycho.nsa.gov>
+References: <453E2A8C.4070207@redhat.com> <200611180007.07194.russell@coker.com.au> <455E008E.3040707@tresys.com>
+In-Reply-To: <455E008E.3040707@tresys.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="utf-8"
+Message-Id: <200611180827.57836.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2006-11-16 at 17:16 +0000, Bradley Chapman wrote:
-> After doing a bit of searching through the mail archive I came across
-> a new gconf policy by james Carter that I wanted to use due to issues
-> with the existing policy on Debian unstable. After installing it
-> though I'm confronted with the same errors as before:
-> 
-> audit(1163697082.507:93): avc:  denied  { read } for  pid=1874
-> comm="gconfd-2" name="path" dev=sda6 ino=28650
-> scontext=staff_u:staff_r:staff_t
-> tcontext=system_u:object_r:gconf_etc_t tclass=file
-> audit(1163697082.559:94): avc:  denied  { write } for  pid=1874
-> comm="gconfd-2" name=".gconf" dev=sda7 ino=16353
-> scontext=staff_u:staff_r:staff_t
-> tcontext=staff_u:object_r:staff_gconf_home_t tclass=dir
-> audit(1163697082.559:95): avc:  denied  { add_name } for  pid=1874
-> comm="gconfd-2" name=".testing.writeability"
-> scontext=staff_u:staff_r:staff_t
-> tcontext=staff_u:object_r:staff_gconf_home_t tclass=dir
-> audit(1163697082.559:96): avc:  denied  { create } for  pid=1874
-> comm="gconfd-2" name=".testing.writeability"
-> scontext=staff_u:staff_r:staff_t
-> tcontext=staff_u:object_r:staff_gconf_home_t tclass=file
-> audit(1163697082.567:97): avc:  denied  { remove_name } for  pid=1874
-> comm="gconfd-2" name=".testing.writeability" dev=sda7 ino=282074
-> scontext=staff_u:staff_r:staff_t
-> tcontext=staff_u:object_r:staff_gconf_home_t tclass=dir
-> audit(1163697082.567:98): avc:  denied  { unlink } for  pid=1874
-> comm="gconfd-2" name=".testing.writeability" dev=sda7 ino=282074
-> scontext=staff_u:staff_r:staff_t
-> tcontext=staff_u:object_r:staff_gconf_home_t tclass=file
-> audit(1163697082.603:99): avc:  denied  { read } for  pid=1874
-> comm="gconfd-2" name="saved_state" dev=sda7 ino=24530
-> scontext=staff_u:staff_r:staff_t
-> tcontext=staff_u:object_r:staff_gconf_home_t tclass=file
-> audit(1163697082.607:100): avc:  denied  { append } for  pid=1874
-> comm="gconfd-2" name="saved_state" dev=sda7 ino=24530
-> scontext=staff_u:staff_r:staff_t
-> tcontext=staff_u:object_r:staff_gconf_home_t tclass=file
-> audit(1163697082.719:101): avc:  denied  { read } for  pid=1874
-> comm="gconfd-2" name="%gconf-tree.xml" dev=sda6 ino=147170
-> scontext=staff_u:staff_r:staff_t tcontext=staff_u:object_r:gconf_etc_t
-> tclass=file
-> 
-> The fact the gconfd-2 is running in the staff_u:staff_r:staff_t domain
-> implies that it isn't labelled correctly:
-> 
-> ls --context /usr/lib/libgconf2-4/gconfd-2
-> -rwxr-xr-x  root root system_u:object_r:lib_t
-> /usr/lib/libgconf2-4/gconfd-2
-> 
-This should be labeled as system_u:object_r:gconfd_exec_t
-The problem is that in Fedora gconfd-2 is at /usr/libexec/gconfd-2.
-Your gconf.fc file needs to have /usr/lib/libgconf2-4/gconfd-2 instead
-of /usr/libexec/gconfd-2.
+On Saturday 18 November 2006 05:33, Joshua Brindle <jbrindle@tresys.com> 
+wrote:
+> Russell Coker wrote:
+> > On Friday 17 November 2006 00:49, "Christopher J. PeBenito"
+> > <cpebenito@tresys.com> wrote:
+> >
+> > Any directory on the system that contains application data could be
+> > replaced by a tmpfs filesystem and require a $1_tmpfs_t type for the
+> > least intelligent use.  As an example I once ran a MySQL database with a
+> > tmpfs for the database store.
+>
+> Eh? Why? MySQL has a memory backed database type, this is an unnecessary
+> layer of indirection.
 
-> So what label do I need to assign to bring the gconf-2 executable in
-> line with Mr. Carter's policy?
-> 
+I wanted to prepare a database image for distribution to other people.  The 
+database load took ages when used on a disk (due to synchronous writes) but 
+was really fast on a tmpfs.  A memory backed database would not have worked 
+as it's not something you can distribute.
 
-It should be labeled as staff_u:staff_r:staff_gconfd_t and it will be if
-the executable is labeled correctly.
+> It makes sense for some apps but not others, why add lots of completely
+> unnecessary policy?
 
-> Also, does anyone have a policy for the Thunar Filesystem Manager?
-> 
-> Brad
+I am opposing the addition of the unnecessary policy, which in this case is 
+tmpfs access for squid.
+
+> > The correct solution for such cases is to use either restorecon or a -o
+> > context= mount option to give it the expected type.  It's worked for me
+> > every time I've tried such things.
+> >
+> >>> Maybe we could have restorecon run on the Squid spool directory to
+> >>> cater for the case of using tmpfs for it if people want to do that.
+
 -- 
-James Carter <jwcart2@epoch.ncsc.mil>
-National Security Agency
+russell@coker.com.au
+http://etbe.blogspot.com/          My Blog
+
+http://www.coker.com.au/sponsorship.html Sponsoring Free Software development
 
 --
 This message was distributed to subscribers of the selinux mailing list.
