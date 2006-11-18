@@ -1,61 +1,34 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id kAI4CPtK020799
-	for <selinux@tycho.nsa.gov>; Fri, 17 Nov 2006 23:12:25 -0500
-Received: from mail5.sea5.speakeasy.net (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id kAI4Aljd017004
-	for <selinux@tycho.nsa.gov>; Sat, 18 Nov 2006 04:10:47 GMT
-Date: Fri, 17 Nov 2006 23:12:38 -0500 (EST)
-From: James Morris <jmorris@namei.org>
-To: Paul Moore <paul.moore@hp.com>
-cc: netdev@vger.kernel.org, selinux@tycho.nsa.gov
-Subject: Re: [PATCH 00/13] NetLabel cleanups for 2.6.20 [GIT]
-In-Reply-To: <20061117223842.399078000@hp.com>
-Message-ID: <XMMS.LNX.4.64.0611172308070.13574@d.namei>
-References: <20061117223842.399078000@hp.com>
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id kAICqOcs031307
+	for <selinux@tycho.nsa.gov>; Sat, 18 Nov 2006 07:52:24 -0500
+Received: from web50405.mail.yahoo.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with SMTP id kAICpfRi027048
+	for <selinux@tycho.nsa.gov>; Sat, 18 Nov 2006 12:51:41 GMT
+Message-ID: <20061118125240.28786.qmail@web50405.mail.yahoo.com>
+Date: Sat, 18 Nov 2006 04:52:40 -0800 (PST)
+From: Mohammad Mahmoudi <mahmoudi1379@yahoo.com>
+Subject: selinux meets lspp requirements
+To: selinux@tycho.nsa.gov
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=iso-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 17 Nov 2006, paul.moore@hp.com wrote:
+Dear
 
-> This patchset consists of a lot of small-ish cleanups for NetLabel and in some
-> cases labeled networking in general.  I've tested these patches for the past
-> few days and I haven't seen any regressions so please consider them for the
-> net-2.6.20 git tree.
+Does SELinux meets LSPP requirements? if doesn't all,
+what requirements SELinux doesn't meet currently?
 
-Thanks, excellent!
-
-There was one minor compilation issue caused by including linux/skbuff.h 
-in an SELinux header, which I fixed (see below).
-
-Applied to
-git://git.kernel.org/pub/scm/linux/kernel/git/jmorris/selinux-net-2.6.20
+Mahmoudi
 
 
----
-
-diff --git a/security/selinux/include/security.h b/security/selinux/include/security.h
-index 015f697..210eec7 100644
---- a/security/selinux/include/security.h
-+++ b/security/selinux/include/security.h
-@@ -8,7 +8,6 @@
- #ifndef _SELINUX_SECURITY_H_
- #define _SELINUX_SECURITY_H_
  
--#include <linux/skbuff.h>
- #include "flask.h"
- 
- #define SECSID_NULL			0x00000000 /* unspecified SID */
-@@ -35,6 +34,8 @@ #else
- #define POLICYDB_VERSION_MAX	POLICYDB_VERSION_RANGETRANS
- #endif
- 
-+struct sk_buff;
-+
- extern int selinux_enabled;
- extern int selinux_mls_enabled;
- 
+____________________________________________________________________________________
+Sponsored Link
+
+Compare mortgage rates for today. 
+Get up to 5 free quotes. 
+Www2.nextag.com
 
 --
 This message was distributed to subscribers of the selinux mailing list.
