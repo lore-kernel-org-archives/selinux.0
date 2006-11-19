@@ -1,51 +1,49 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id kAJ3JTcu014074
-	for <selinux@tycho.nsa.gov>; Sat, 18 Nov 2006 22:19:29 -0500
-Received: from mail7.sea5.speakeasy.net (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id kAJ3HoYJ029857
-	for <selinux@tycho.nsa.gov>; Sun, 19 Nov 2006 03:17:51 GMT
-Date: Sat, 18 Nov 2006 22:19:39 -0500 (EST)
-From: James Morris <jmorris@namei.org>
-To: Paul Moore <paul.moore@hp.com>
-cc: netdev@vger.kernel.org, selinux@tycho.nsa.gov
-Subject: Re: [PATCH 00/13] NetLabel cleanups for 2.6.20 [GIT]
-In-Reply-To: <200611181110.25281.paul.moore@hp.com>
-Message-ID: <XMMS.LNX.4.64.0611182218570.23112@d.namei>
-References: <20061117223842.399078000@hp.com> <XMMS.LNX.4.64.0611172308070.13574@d.namei>
- <200611181110.25281.paul.moore@hp.com>
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id kAJNkuuP011963
+	for <selinux@tycho.nsa.gov>; Sun, 19 Nov 2006 18:46:56 -0500
+Received: from e31.co.us.ibm.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id kAJNkD5T019129
+	for <selinux@tycho.nsa.gov>; Sun, 19 Nov 2006 23:46:13 GMT
+Received: from d03relay04.boulder.ibm.com (d03relay04.boulder.ibm.com [9.17.195.106])
+	by e31.co.us.ibm.com (8.13.8/8.12.11) with ESMTP id kAJNl8EU010326
+	for <selinux@tycho.nsa.gov>; Sun, 19 Nov 2006 18:47:08 -0500
+Received: from d03av02.boulder.ibm.com (d03av02.boulder.ibm.com [9.17.195.168])
+	by d03relay04.boulder.ibm.com (8.13.6/8.13.6/NCO v8.1.1) with ESMTP id kAJNl8de329094
+	for <selinux@tycho.nsa.gov>; Sun, 19 Nov 2006 16:47:08 -0700
+Received: from d03av02.boulder.ibm.com (loopback [127.0.0.1])
+	by d03av02.boulder.ibm.com (8.12.11.20060308/8.13.3) with ESMTP id kAJNl7ct022515
+	for <selinux@tycho.nsa.gov>; Sun, 19 Nov 2006 16:47:07 -0700
+Message-ID: <4560ECEE.5080500@us.ibm.com>
+Date: Sun, 19 Nov 2006 17:46:54 -0600
+From: Michael C Thompson <thompsmc@us.ibm.com>
 MIME-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="537530981-949499154-1163906379=:23112"
+To: Mohammad Mahmoudi <mahmoudi1379@yahoo.com>
+CC: selinux@tycho.nsa.gov
+Subject: Re: selinux meets lspp requirements
+References: <20061118125240.28786.qmail@web50405.mail.yahoo.com>
+In-Reply-To: <20061118125240.28786.qmail@web50405.mail.yahoo.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
-
---537530981-949499154-1163906379=:23112
-Content-Type: TEXT/PLAIN; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
-
-On Sat, 18 Nov 2006, Paul Moore wrote:
-
-> > There was one minor compilation issue caused by including linux/skbuff.h
-> > in an SELinux header, which I fixed (see below).
+Mohammad Mahmoudi wrote:
+> Dear
 > 
-> <scratching head>
-> Huh, sorry about that ... thanks for accepting the patches and making the fix.
-> </scratching head>
+> Does SELinux meets LSPP requirements? if doesn't all,
+> what requirements SELinux doesn't meet currently?
 
-Here's the error:
+There is SELinux policy currently under develop that does meet LSPP 
+requirements. If you are interested, there is an LSPP-specific mailing 
+list hosted by Red Hat.
 
-security/selinux/ss/policydb.c:472: error: conflicting types for 
-â'class_destroy'
-include/linux/device.h:295: error: previous declaration of 
-â'class_destroy' was here
+https://www.redhat.com/mailman/listinfo/redhat-lspp
 
+In terms of SELinux policy, the MLS (Multi-Level Security) policy is 
+aimed at meeting the requirements of LSPP.
 
--- 
-James Morris
-<jmorris@namei.org>
---537530981-949499154-1163906379=:23112--
+Thanks,
+Mike
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
