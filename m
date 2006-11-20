@@ -1,87 +1,50 @@
-Message-ID: <456224F2.6010707@redhat.com>
-Date: Mon, 20 Nov 2006 16:58:10 -0500
-From: Daniel J Walsh <dwalsh@redhat.com>
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id kAKMTBST011432
+	for <selinux@tycho.nsa.gov>; Mon, 20 Nov 2006 17:29:11 -0500
+Received: from mail3.sea5.speakeasy.net (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id kAKMSRZo011294
+	for <selinux@tycho.nsa.gov>; Mon, 20 Nov 2006 22:28:28 GMT
+Date: Mon, 20 Nov 2006 17:29:25 -0500 (EST)
+From: James Morris <jmorris@namei.org>
+To: Stephen Smalley <sds@tycho.nsa.gov>
+cc: David Howells <dhowells@redhat.com>, Linus Torvalds <torvalds@osdl.org>,
+        Andrew Morton <akpm@osdl.org>, trond.myklebust@fys.uio.no,
+        selinux@tycho.nsa.gov, linux-kernel@vger.kernel.org, aviro@redhat.com,
+        steved@redhat.com
+Subject: Re: [PATCH 12/19] CacheFiles: Permit a process's create SID to be
+ overridden
+In-Reply-To: <1164048073.13758.29.camel@moss-spartans.epoch.ncsc.mil>
+Message-ID: <XMMS.LNX.4.64.0611201727470.31270@d.namei>
+References: <20061114200621.12943.18023.stgit@warthog.cambridge.redhat.com>
+  <20061114200647.12943.39802.stgit@warthog.cambridge.redhat.com>
+ <XMMS.LNX.4.64.0611141618300.25022@d.namei> <1164048073.13758.29.camel@moss-spartans.epoch.ncsc.mil>
 MIME-Version: 1.0
-To: Joshua Brindle <jbrindle@tresys.com>
-CC: Stephen Smalley <sds@tycho.nsa.gov>,
-        Karl MacMillan <kmacmillan@mentalrootkit.com>,
-        "Christopher J. PeBenito" <cpebenito@tresys.com>,
-        SE Linux <selinux@tycho.nsa.gov>
-Subject: Re: More  small fixes to policycoreutils
-References: <6FE441CD9F0C0C479F2D88F959B015885C79BC@exchange.columbia.tresys.com> <455CE2F3.3070200@mentalrootkit.com> <455DA4E8.5050600@redhat.com> <4561E1A3.8070306@mentalrootkit.com> <4561E7B2.9030205@redhat.com> <4561F3EA.8020603@tresys.com>
-In-Reply-To: <4561F3EA.8020603@tresys.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Joshua Brindle wrote:
-> Daniel J Walsh wrote:
->> audit2allow was not generating reference policy correctly.  This 
->> patches fixes this and uses /usr/share/sleinux/devel/Makefile to 
->> create policy packages.
->>
->
-> This is distro specific, audit2allow should be using 
-> /etc/selinux/config to find the interface directory to use. Further, 
-> why is this needed at all?
->
-audit2allow -R -M local -i /var/log/audit/audit.log 
+On Mon, 20 Nov 2006, Stephen Smalley wrote:
 
-Attempts to match interfaces against devel package, and build potential 
-policies.  Without this change
-audit2allow blows up.
+> > The ability to set this needs to be mediated via MAC policy.
+> > 
+> > See selinux_setprocattr()
+> 
+> That's different - selinux_set_fscreate_secid() is for internal use by a
+> kernel module that wishes to temporarily assume a particular fscreate
+> SID, whereas selinux_setprocattr() handles userspace writes
+> to /proc/self/attr nodes.  Imposing a permission check here makes no
+> sense.
 
-Not sure what you want to extrace out of /etc/selinux/config?  The type 
-of the policy? And then go to /usr/share/selinux/TYPE/include/Makefile?
-> > run_init needs to call pam_acct_mgmt, so that pam_tally will work
-> > correctly.
-> >
->
-> What is pam_tally and what does the call to pam_acct_mgmt do, and how 
-> does it affect run_init?
->
-I believe pam_tally increments a counter for failed logins in 
-pam_authenticate and decrements it when it gets to pam_account 
-management.  If it never gets there, the counter continues to increment.
-> > Also after modifying translations the mcstrans needs to be signaled.
-> >
-> > (I think it is time we break the mcstrans code out into a separate
-> > script, maybe executed by semanage, which would allow us to write
-> > tighter policy around this object and semanage.)
->
-> Its interesting that semanage manages something that is redhat 
-> specific and not part of the upstream utilities at all.. IMO this 
-> should never have been merged in the first place, semanage manages 
-> libsemanage abstractions, if translations were a part of libsemanage 
-> it'd be a different story.
->
-Agreed, I think we should break it out and maybe allow semanage to have 
-a plugin type interface, so the administrator still uses the same 
-command to manage other parts of "SELinux" that do not come from upstream.
->> Lastly are you going to merge the translations?
->> http://people.redhat.com/dwalsh/SELinux/pocicycoreutils-po.patch
->>
->>
->
-> It can be merged when a revised patchset does.
->
-> p.s. please please inline patches and make them apply from the top of 
-> the tree with -p1 or -p0 :)
->
-We are applying these patches with a -p1? 
->> @@ -204,7 +206,8 @@
->>          os.write(fd, self.out())
->>          os.close(fd)
->>          os.rename(newfilename, self.filename)
->> -
->> +                os.system("/sbin/service mcstrans reload > /dev/null")
->> +                
->
-> This is very distro specific and totally inappropriate IMO.
->
->
->
+Well, the hook is exported generally to the kernel, so we need to 
+ensure that it is documented with a big warning.  The name of the hook 
+should perhaps make it more obvious,  like set_internal_ or so.
 
+
+
+- James
+-- 
+James Morris
+<jmorris@namei.org>
 
 --
 This message was distributed to subscribers of the selinux mailing list.
