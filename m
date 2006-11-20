@@ -1,43 +1,60 @@
 Subject: Re: [PATCH 12/19] CacheFiles: Permit a process's create SID to be
 	overridden
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: James Morris <jmorris@namei.org>
-Cc: David Howells <dhowells@redhat.com>, Linus Torvalds <torvalds@osdl.org>,
+To: David Howells <dhowells@redhat.com>
+Cc: James Morris <jmorris@namei.org>, Linus Torvalds <torvalds@osdl.org>,
         Andrew Morton <akpm@osdl.org>, trond.myklebust@fys.uio.no,
         selinux@tycho.nsa.gov, linux-kernel@vger.kernel.org, aviro@redhat.com,
         steved@redhat.com
-In-Reply-To: <XMMS.LNX.4.64.0611141618300.25022@d.namei>
-References: <20061114200621.12943.18023.stgit@warthog.cambridge.redhat.com>
-	 <20061114200647.12943.39802.stgit@warthog.cambridge.redhat.com>
+In-Reply-To: <26860.1163607813@redhat.com>
+References: <XMMS.LNX.4.64.0611151115360.8593@d.namei>
 	 <XMMS.LNX.4.64.0611141618300.25022@d.namei>
+	 <20061114200621.12943.18023.stgit@warthog.cambridge.redhat.com>
+	 <20061114200647.12943.39802.stgit@warthog.cambridge.redhat.com>
+	 <15153.1163593562@redhat.com>   <26860.1163607813@redhat.com>
 Content-Type: text/plain
-Date: Mon, 20 Nov 2006 13:41:13 -0500
-Message-Id: <1164048073.13758.29.camel@moss-spartans.epoch.ncsc.mil>
+Date: Mon, 20 Nov 2006 13:49:53 -0500
+Message-Id: <1164048593.13758.37.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2006-11-14 at 16:19 -0500, James Morris wrote:
-> On Tue, 14 Nov 2006, David Howells wrote:
+On Wed, 2006-11-15 at 16:23 +0000, David Howells wrote:
+> James Morris <jmorris@namei.org> wrote:
 > 
-> > +static u32 selinux_set_fscreate_secid(u32 secid)
-> > +{
-> > +	struct task_security_struct *tsec = current->security;
-> > +	u32 oldsid = tsec->create_sid;
-> > +
-> > +	tsec->create_sid = secid;
-> > +	return oldsid;
-> > +}
+> > Well, the value can be changed at any time, so you could be using a 
+> > temporary fscreate value, or your new value could be overwritten 
+> > immediately by writing to /proc/$$/attr/fscreate
 > 
-> The ability to set this needs to be mediated via MAC policy.
+> Ah.  Hmmm.  By whom?  In selinux_setprocattr():
 > 
-> See selinux_setprocattr()
+> 	if (current != p) {
+> 		/* SELinux only allows a process to change its own
+> 		   security attributes. */
+> 		return -EACCES;
+> 	}
+> 
+> But current busy inside the cache and can't do this.
 
-That's different - selinux_set_fscreate_secid() is for internal use by a
-kernel module that wishes to temporarily assume a particular fscreate
-SID, whereas selinux_setprocattr() handles userspace writes
-to /proc/self/attr nodes.  Imposing a permission check here makes no
-sense.
+Correct; this is no different than modifying ->fsuid temporarily.
+
+> > I think we need to add a separate field for this purpose, which can only 
+> > be written to via the in-kernel API and overrides fscreate.
+> 
+> So, like my acts-as security ID patch?
+> 
+> Would it still need to be controlled by MAC policy in that case?  Doing so is
+> a bit of a pain as it means I have a whole bunch of extra failures I still
+> need to check for, and the race in which the rules might change is still a
+> possibility I have to deal with.
+
+I don't see any value added by introducing yet another field for the
+create SID (unlike the actor SID, where we need to distinguish it for
+certain checks where the task is the target rather than the actor), so I
+don't advocate this approach.
+
+I still suspect that the task flag approach would have been rather
+simpler...
 
 -- 
 Stephen Smalley
