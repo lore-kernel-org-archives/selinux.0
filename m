@@ -1,69 +1,56 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id kAKH5ECE001762
-	for <selinux@tycho.nsa.gov>; Mon, 20 Nov 2006 12:05:14 -0500
-Received: from mx1.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id kAKH3XEc021185
-	for <selinux@tycho.nsa.gov>; Mon, 20 Nov 2006 17:03:34 GMT
-Message-ID: <4561E044.6050006@mentalrootkit.com>
-Date: Mon, 20 Nov 2006 12:05:08 -0500
+Message-ID: <4561E1A3.8070306@mentalrootkit.com>
+Date: Mon, 20 Nov 2006 12:10:59 -0500
 From: Karl MacMillan <kmacmillan@mentalrootkit.com>
 MIME-Version: 1.0
-To: Manoj Srivastava <manoj.srivastava@stdc.com>
-CC: selinux@tycho.nsa.gov
-Subject: Re: Compiling libsepol with -fPIC instead of -fpic
-References: <87d57pqkca.fsf@glaurung.internal.golden-gryphon.com>
-In-Reply-To: <87d57pqkca.fsf@glaurung.internal.golden-gryphon.com>
+To: Daniel J Walsh <dwalsh@redhat.com>
+CC: Joshua Brindle <jbrindle@tresys.com>,
+        "Christopher J. PeBenito" <cpebenito@tresys.com>,
+        SE Linux <selinux@tycho.nsa.gov>, Stephen Smalley <sds@tycho.nsa.gov>
+Subject: Re: Multiple small fixes to policycoreutils
+References: <6FE441CD9F0C0C479F2D88F959B015885C79BC@exchange.columbia.tresys.com> <455CE2F3.3070200@mentalrootkit.com> <455DA4E8.5050600@redhat.com>
+In-Reply-To: <455DA4E8.5050600@redhat.com>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Manoj Srivastava wrote:
-> Hi,
-> 
->         I've had reports of packages filing to compile on SPARC
->  hardware when linked with  libsepol1 which was compiled with
->  -fpic. We seem to be hitting the global offset table size limit;
-> ,----[ GCC manual ]
-> | `-fpic'
-> |      Generate position-independent code (PIC) suitable for use in a
-> |      shared library, if supported for the target machine.  Such code
-> |      accesses all constant addresses through a global offset table
-> |      (GOT).  The dynamic loader resolves the GOT entries when the
-> |      program starts (the dynamic loader is not part of GCC; it is part
-> |      of the operating system).  If the GOT size for the linked
-> |      executable exceeds a machine-specific maximum size, you get an
-> |      error message from the linker indicating that `-fpic' does not
-> |      work; in that case, recompile with `-fPIC' instead.  (These
-> |      maximums are 8k on the SPARC and 32k on the m68k and RS/6000.  The
-> |      386 has no such limit.)
-> `----
-> 
->         Simply recompiling with -fPIC corrects the problem.
-> 
->         manoj
-> 
-> 
-> 
-> ------------------------------------------------------------------------
-> 
-> --- orig/src/Makefile
-> +++ mod/src/Makefile
-> @@ -24,10 +24,10 @@
->  	ln -sf $@ $(TARGET) 
->  
->  %.o:  %.c 
-> -	$(CC) $(CFLAGS) -fpic -c -o $@ $<
-> +	$(CC) $(CFLAGS) -fPIC -c -o $@ $<
->  
->  %.lo:  %.c
-> -	$(CC) $(CFLAGS) -fpic -DSHARED -c -o $@ $<
-> +	$(CC) $(CFLAGS) -fPIC -DSHARED -c -o $@ $<
->  
->  install: all
->  	test -d $(LIBDIR) || install -m 755 -d $(LIBDIR)
-> 
-> 
-Acked-by: Karl MacMillan <kmacmillan@mentalrootkit.com>
+Daniel J Walsh wrote:
+> Karl MacMillan wrote:
+>> Joshua Brindle wrote:
+>>>> From: Karl MacMillan [mailto:kmacmillan@mentalrootkit.com]
+>>>> Daniel J Walsh wrote:
+>>>>> Joshua Brindle wrote:
+>>>>>> Karl MacMillan wrote:
+>>>> <snip>
+>>>>
+>>>>>>> What about a top-level USE_PIE makefile variable that directs all 
+>>>>>>> sub-Makefiles to set PIE flags if appropriate for that module? By 
+>>>>>>> default it would be off. This gets the behavior you want without 
+>>>>>>> having to carry a patch and keeps the current behavior.
+>>>>>>>
+>>>>>> No patch necessary, like Chris said make CFLAGS="-fPIE -02 -Werror 
+>>>>>> -Wall" LDFLAGS="-pie"
+>>>>>>
+>>>>>> done and done.
+>>>>>>
+>>>>> No, because then all compiled apps become -pie.  We only 
+>>>> want this on
+>>>>> the daemons.
+>>>>>
+>>>> What about this instead?
+>>>
+>>> Why doesn't make CFLAGS="-fPIE -02 -Werror -Wall" LDFLAGS="-pie" 
+>>> work? Why does itmatter if everything is built pie?
+>>>
+>>
+>> There are performance costs associated with pie, particularly at 
+>> startup. Talking to Dan though, he doesn't think it is enough to not 
+>> just build everything as pie.
+>>
+>> Resend below that I will apply unless there are other objections.
+>>
+
+Committed as policycoreutils 1.33.2.
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
