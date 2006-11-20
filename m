@@ -1,49 +1,40 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id kAJNkuuP011963
-	for <selinux@tycho.nsa.gov>; Sun, 19 Nov 2006 18:46:56 -0500
-Received: from e31.co.us.ibm.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id kAJNkD5T019129
-	for <selinux@tycho.nsa.gov>; Sun, 19 Nov 2006 23:46:13 GMT
-Received: from d03relay04.boulder.ibm.com (d03relay04.boulder.ibm.com [9.17.195.106])
-	by e31.co.us.ibm.com (8.13.8/8.12.11) with ESMTP id kAJNl8EU010326
-	for <selinux@tycho.nsa.gov>; Sun, 19 Nov 2006 18:47:08 -0500
-Received: from d03av02.boulder.ibm.com (d03av02.boulder.ibm.com [9.17.195.168])
-	by d03relay04.boulder.ibm.com (8.13.6/8.13.6/NCO v8.1.1) with ESMTP id kAJNl8de329094
-	for <selinux@tycho.nsa.gov>; Sun, 19 Nov 2006 16:47:08 -0700
-Received: from d03av02.boulder.ibm.com (loopback [127.0.0.1])
-	by d03av02.boulder.ibm.com (8.12.11.20060308/8.13.3) with ESMTP id kAJNl7ct022515
-	for <selinux@tycho.nsa.gov>; Sun, 19 Nov 2006 16:47:07 -0700
-Message-ID: <4560ECEE.5080500@us.ibm.com>
-Date: Sun, 19 Nov 2006 17:46:54 -0600
-From: Michael C Thompson <thompsmc@us.ibm.com>
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id kAK91srL020869
+	for <selinux@tycho.nsa.gov>; Mon, 20 Nov 2006 04:01:54 -0500
+Received: from iron3-smtp.tops.gwu.edu (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id kAK90FkX009099
+	for <selinux@tycho.nsa.gov>; Mon, 20 Nov 2006 09:00:16 GMT
+From: Yuichi Nakamura <ynakam@gwu.edu>
+To: selinux@tycho.nsa.gov
+Cc: ynakam@gwu.edu
+Message-ID: <dca487e823b48.4561eda4@gwu.edu>
+Date: Mon, 20 Nov 2006 18:02:12 +0900
 MIME-Version: 1.0
-To: Mohammad Mahmoudi <mahmoudi1379@yahoo.com>
-CC: selinux@tycho.nsa.gov
-Subject: Re: selinux meets lspp requirements
-References: <20061118125240.28786.qmail@web50405.mail.yahoo.com>
-In-Reply-To: <20061118125240.28786.qmail@web50405.mail.yahoo.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Subject: Question about setsebool.c
+Content-Type: text/plain; charset=us-ascii
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Mohammad Mahmoudi wrote:
-> Dear
-> 
-> Does SELinux meets LSPP requirements? if doesn't all,
-> what requirements SELinux doesn't meet currently?
+Hi, I looked at the latest policycoreutils code.
+(policycoreutils-1.33.1-9.fc7.src.rpm)
 
-There is SELinux policy currently under develop that does meet LSPP 
-requirements. If you are interested, there is an LSPP-specific mailing 
-list hosted by Red Hat.
+And found strange code, in setsebool.c.
 
-https://www.redhat.com/mailman/listinfo/redhat-lspp
+    94  /* Apply (permanent) boolean changes to policy via libsemanage */
+    95  static int semanage_set_boolean_list(size_t boolcnt,
+    96                                       SELboolean * boollist, int perm)
+    97  {
+   <snip>
+   117          } else if (managed == 0) {
+   118                  if (selinux_set_boolean_list(boolcnt, boollist, 1) < 0)
+   119                          goto err;
+   120                  goto out;
+   121          }
 
-In terms of SELinux policy, the MLS (Multi-Level Security) policy is 
-aimed at meeting the requirements of LSPP.
+Why 3rd arg for selinux_set_boolean_list is "1"?
+Should it be "perm"?
 
-Thanks,
-Mike
-
+Yuichi Nakamura
 
 --
 This message was distributed to subscribers of the selinux mailing list.
