@@ -1,50 +1,62 @@
-Message-ID: <4562085F.1040900@mentalrootkit.com>
-Date: Mon, 20 Nov 2006 14:56:15 -0500
-From: Karl MacMillan <kmacmillan@mentalrootkit.com>
-MIME-Version: 1.0
-To: Stephen Smalley <sds@tycho.nsa.gov>
-CC: James Morris <jmorris@namei.org>, David Howells <dhowells@redhat.com>,
-        Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-        trond.myklebust@fys.uio.no, selinux@tycho.nsa.gov,
-        linux-kernel@vger.kernel.org, aviro@redhat.com, steved@redhat.com
-Subject: Re: [PATCH 12/19] CacheFiles: Permit a process's create SID to be
- overridden
-References: <20061114200621.12943.18023.stgit@warthog.cambridge.redhat.com>	 <20061114200647.12943.39802.stgit@warthog.cambridge.redhat.com>	 <XMMS.LNX.4.64.0611141618300.25022@d.namei> <1164048073.13758.29.camel@moss-spartans.epoch.ncsc.mil>
-In-Reply-To: <1164048073.13758.29.camel@moss-spartans.epoch.ncsc.mil>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Subject: Re: Question about setsebool.c
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Joshua Brindle <jbrindle@tresys.com>
+Cc: Karl MacMillan <kmacmillan@mentalrootkit.com>,
+        Yuichi Nakamura <ynakam@gwu.edu>, selinux@tycho.nsa.gov
+In-Reply-To: <4561F668.8070207@tresys.com>
+References: <dca487e823b48.4561eda4@gwu.edu>
+	 <4561D175.6050309@mentalrootkit.com>  <4561F668.8070207@tresys.com>
+Content-Type: text/plain
+Date: Mon, 20 Nov 2006 14:59:38 -0500
+Message-Id: <1164052778.13758.49.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Stephen Smalley wrote:
-> On Tue, 2006-11-14 at 16:19 -0500, James Morris wrote:
->> On Tue, 14 Nov 2006, David Howells wrote:
->>
->>> +static u32 selinux_set_fscreate_secid(u32 secid)
->>> +{
->>> +	struct task_security_struct *tsec = current->security;
->>> +	u32 oldsid = tsec->create_sid;
->>> +
->>> +	tsec->create_sid = secid;
->>> +	return oldsid;
->>> +}
->> The ability to set this needs to be mediated via MAC policy.
->>
->> See selinux_setprocattr()
-> 
-> That's different - selinux_set_fscreate_secid() is for internal use by a
-> kernel module that wishes to temporarily assume a particular fscreate
-> SID, whereas selinux_setprocattr() handles userspace writes
-> to /proc/self/attr nodes.  Imposing a permission check here makes no
-> sense.
-> 
+On Mon, 2006-11-20 at 13:39 -0500, Joshua Brindle wrote:
+> Karl MacMillan wrote:
+> > Yuichi Nakamura wrote:
+> >> Hi, I looked at the latest policycoreutils code.
+> >> (policycoreutils-1.33.1-9.fc7.src.rpm)
+> >>
+> >> And found strange code, in setsebool.c.
+> >>
+> >>     94  /* Apply (permanent) boolean changes to policy via 
+> >> libsemanage */
+> >>     95  static int semanage_set_boolean_list(size_t boolcnt,
+> >>     96                                       SELboolean * boollist, 
+> >> int perm)
+> >>     97  {
+> >>    <snip>
+> >>    117          } else if (managed == 0) {
+> >>    118                  if (selinux_set_boolean_list(boolcnt, 
+> >> boollist, 1) < 0)
+> >>    119                          goto err;
+> >>    120                  goto out;
+> >>    121          }
+> >>
+> >> Why 3rd arg for selinux_set_boolean_list is "1"?
+> >> Should it be "perm"?
+> >>
+> >
+> > Looks that way to me. Additionally, is it even possible to make 
+> > non-permanent change to a boolean via semanage? If not, then this code 
+> > path should check for that. Josh?
+> >
+> libsemanage is only responsible for the persistent changes, sesetbool 
+> sets the non-persistent directly, in fact demonstrated by the code 
+> snippet above. This does look like a bug and if someone uses setsebool 
+> to set a non-persistent boolean on an unmanaged system it appears that 
+> it will indeed make it permanent.
 
-Since that discussion last week I have been thinking about this and I 
-have to say I agree with Steve. This should be a kernel only mechanism 
-for impersonating another SID - controlling the setting of process 
-attributes shouldn't be restricted as this will only lead to 
-inconsistencies in those attributes.
+Point of clarification - if policy is managed, libsemanage does handle
+non-persistent booleans as well (the _active interfaces).  But I agree
+that the above appears to be a bug in the unmanaged case.
 
-Karl
+-- 
+Stephen Smalley
+National Security Agency
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
