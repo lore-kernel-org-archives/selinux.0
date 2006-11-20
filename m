@@ -1,60 +1,35 @@
-Subject: Re: [PATCH 12/19] CacheFiles: Permit a process's create SID to be
-	overridden
+Subject: Re: anyway to reverse a dontaudit rule?
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: David Howells <dhowells@redhat.com>
-Cc: James Morris <jmorris@namei.org>, Linus Torvalds <torvalds@osdl.org>,
-        Andrew Morton <akpm@osdl.org>, trond.myklebust@fys.uio.no,
-        selinux@tycho.nsa.gov, linux-kernel@vger.kernel.org, aviro@redhat.com,
-        steved@redhat.com
-In-Reply-To: <26860.1163607813@redhat.com>
-References: <XMMS.LNX.4.64.0611151115360.8593@d.namei>
-	 <XMMS.LNX.4.64.0611141618300.25022@d.namei>
-	 <20061114200621.12943.18023.stgit@warthog.cambridge.redhat.com>
-	 <20061114200647.12943.39802.stgit@warthog.cambridge.redhat.com>
-	 <15153.1163593562@redhat.com>   <26860.1163607813@redhat.com>
+To: Karl MacMillan <kmacmillan@mentalrootkit.com>
+Cc: Joy Latten <latten@austin.ibm.com>, redhat-lspp@redhat.com,
+        selinux@tycho.nsa.gov
+In-Reply-To: <455B8F79.4020504@mentalrootkit.com>
+References: <1163616448.17737.368.camel@faith.austin.ibm.com>
+	 <455B8F79.4020504@mentalrootkit.com>
 Content-Type: text/plain
-Date: Mon, 20 Nov 2006 13:49:53 -0500
-Message-Id: <1164048593.13758.37.camel@moss-spartans.epoch.ncsc.mil>
+Date: Mon, 20 Nov 2006 13:59:09 -0500
+Message-Id: <1164049149.13758.41.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2006-11-15 at 16:23 +0000, David Howells wrote:
-> James Morris <jmorris@namei.org> wrote:
+On Wed, 2006-11-15 at 17:06 -0500, Karl MacMillan wrote:
+> Joy Latten wrote:
+> > Is there a way to reverse a dontaudit rule without having to
+> > modify and recompile base policy? 
+> > I need to see the audit message to help determine what permissions
+> > are being denied for a particular application.
+> > 
 > 
-> > Well, the value can be changed at any time, so you could be using a 
-> > temporary fscreate value, or your new value could be overwritten 
-> > immediately by writing to /proc/$$/attr/fscreate
+> No - that is why the enableaudit.pp base policy is provided in 
+> /usr/share/selinux/[policyname]/enableaudit.pp. Install that with:
 > 
-> Ah.  Hmmm.  By whom?  In selinux_setprocattr():
+> semodule -b path_to_enableaudit
 > 
-> 	if (current != p) {
-> 		/* SELinux only allows a process to change its own
-> 		   security attributes. */
-> 		return -EACCES;
-> 	}
-> 
-> But current busy inside the cache and can't do this.
+> and you should see all denials.
 
-Correct; this is no different than modifying ->fsuid temporarily.
-
-> > I think we need to add a separate field for this purpose, which can only 
-> > be written to via the in-kernel API and overrides fscreate.
-> 
-> So, like my acts-as security ID patch?
-> 
-> Would it still need to be controlled by MAC policy in that case?  Doing so is
-> a bit of a pain as it means I have a whole bunch of extra failures I still
-> need to check for, and the race in which the rules might change is still a
-> possibility I have to deal with.
-
-I don't see any value added by introducing yet another field for the
-create SID (unlike the actor SID, where we need to distinguish it for
-certain checks where the task is the target rather than the actor), so I
-don't advocate this approach.
-
-I still suspect that the task flag approach would have been rather
-simpler...
+...that would have been suppressed by dontaudit rules in the base
+module.  But not dontaudit rules in non-base modules.
 
 -- 
 Stephen Smalley
