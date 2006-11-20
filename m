@@ -1,90 +1,79 @@
-Subject: Re: Question about setsebool.c
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Karl MacMillan <kmacmillan@mentalrootkit.com>
-Cc: Joshua Brindle <jbrindle@tresys.com>, Yuichi Nakamura <ynakam@gwu.edu>,
-        selinux@tycho.nsa.gov
-In-Reply-To: <45620A3A.1060805@mentalrootkit.com>
-References: <dca487e823b48.4561eda4@gwu.edu>
-	 <4561D175.6050309@mentalrootkit.com> <4561F668.8070207@tresys.com>
-	 <45620A3A.1060805@mentalrootkit.com>
-Content-Type: text/plain
-Date: Mon, 20 Nov 2006 15:10:39 -0500
-Message-Id: <1164053439.13758.52.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+Message-ID: <45620C8F.2040002@mentalrootkit.com>
+Date: Mon, 20 Nov 2006 15:14:07 -0500
+From: Karl MacMillan <kmacmillan@mentalrootkit.com>
+MIME-Version: 1.0
+To: Joshua Brindle <jbrindle@tresys.com>
+CC: Daniel J Walsh <dwalsh@redhat.com>, Stephen Smalley <sds@tycho.nsa.gov>,
+        "Christopher J. PeBenito" <cpebenito@tresys.com>,
+        SE Linux <selinux@tycho.nsa.gov>
+Subject: Re: More  small fixes to policycoreutils
+References: <6FE441CD9F0C0C479F2D88F959B015885C79BC@exchange.columbia.tresys.com> <455CE2F3.3070200@mentalrootkit.com> <455DA4E8.5050600@redhat.com> <4561E1A3.8070306@mentalrootkit.com> <4561E7B2.9030205@redhat.com> <4561F3EA.8020603@tresys.com>
+In-Reply-To: <4561F3EA.8020603@tresys.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 2006-11-20 at 15:04 -0500, Karl MacMillan wrote:
-> Joshua Brindle wrote:
-> > Karl MacMillan wrote:
-> >> Yuichi Nakamura wrote:
-> >>> Hi, I looked at the latest policycoreutils code.
-> >>> (policycoreutils-1.33.1-9.fc7.src.rpm)
-> >>>
-> >>> And found strange code, in setsebool.c.
-> >>>
-> >>>     94  /* Apply (permanent) boolean changes to policy via 
-> >>> libsemanage */
-> >>>     95  static int semanage_set_boolean_list(size_t boolcnt,
-> >>>     96                                       SELboolean * boollist, 
-> >>> int perm)
-> >>>     97  {
-> >>>    <snip>
-> >>>    117          } else if (managed == 0) {
-> >>>    118                  if (selinux_set_boolean_list(boolcnt, 
-> >>> boollist, 1) < 0)
-> >>>    119                          goto err;
-> >>>    120                  goto out;
-> >>>    121          }
-> >>>
-> >>> Why 3rd arg for selinux_set_boolean_list is "1"?
-> >>> Should it be "perm"?
-> >>>
-> >>
-> >> Looks that way to me. Additionally, is it even possible to make 
-> >> non-permanent change to a boolean via semanage? If not, then this code 
-> >> path should check for that. Josh?
-> >>
-> > libsemanage is only responsible for the persistent changes,
+Joshua Brindle wrote:
+> Daniel J Walsh wrote:
+>> audit2allow was not generating reference policy correctly.  This 
+>> patches fixes this and uses /usr/share/sleinux/devel/Makefile to 
+>> create policy packages.
+>>
 > 
-> That is not how the current setsebool.c code works - see:
+> This is distro specific, audit2allow should be using /etc/selinux/config 
+> to find the interface directory to use. Further, why is this needed at all?
 > 
-> if (perm
->      && semanage_bool_modify_local(handle, bool_key, boolean) < 0)
-> 	goto err;
-> 
-> Testing confirms that this allows setting non-persistent booleans via 
-> semanage using setsebool.
-> 
->   sesetbool
-> > sets the non-persistent directly, in fact demonstrated by the code 
-> > snippet above. This does look like a bug and if someone uses setsebool 
-> > to set a non-persistent boolean on an unmanaged system it appears that 
-> > it will indeed make it permanent.
-> > 
-> 
-> What about this:
-> 
-> diff -r 130ab1cdcc3a policycoreutils/setsebool/setsebool.c
-> --- a/policycoreutils/setsebool/setsebool.c	Thu Nov 16 17:11:37 2006 -0500
-> +++ b/policycoreutils/setsebool/setsebool.c	Mon Nov 20 15:01:14 2006 -0500
-> @@ -115,7 +115,7 @@ static int semanage_set_boolean_list(siz
->   		goto err;
-> 
->   	} else if (managed == 0) {
-> -		if (selinux_set_boolean_list(boolcnt, boollist, 1) < 0)
-> +		if (selinux_set_boolean_list(boolcnt, boollist, perm) < 0)
->   			goto err;
->   		goto out;
->   	}
-> 
-> Signed-off-by Karl MacMillan <kmacmillan@mentalrootkit.com>
 
-Acked-by:  Stephen Smalley <sds@tycho.nsa.gov>
+Not certain that /usr/share/selinux/targeted/include is any more general 
+in reality. There is nothing stopping a distro from installing headers 
+in different locations.
 
--- 
-Stephen Smalley
-National Security Agency
+>  > run_init needs to call pam_acct_mgmt, so that pam_tally will work
+>  > correctly.
+>  >
+> 
+> What is pam_tally and what does the call to pam_acct_mgmt do, and how 
+> does it affect run_init?
+> 
+>  > Also after modifying translations the mcstrans needs to be signaled.
+>  >
+>  > (I think it is time we break the mcstrans code out into a separate
+>  > script, maybe executed by semanage, which would allow us to write
+>  > tighter policy around this object and semanage.)
+> 
+> Its interesting that semanage manages something that is redhat specific 
+> and not part of the upstream utilities at all.. IMO this should never 
+> have been merged in the first place, semanage manages libsemanage 
+> abstractions, if translations were a part of libsemanage it'd be a 
+> different story.
+> 
+
+Why isn't setrans upstream?
+
+>> Lastly are you going to merge the translations?
+>> http://people.redhat.com/dwalsh/SELinux/pocicycoreutils-po.patch
+>>
+>>
+> 
+> It can be merged when a revised patchset does.
+> 
+> p.s. please please inline patches and make them apply from the top of 
+> the tree with -p1 or -p0 :)
+> 
+>> @@ -204,7 +206,8 @@
+>>          os.write(fd, self.out())
+>>          os.close(fd)
+>>          os.rename(newfilename, self.filename)
+>> -
+>> +                os.system("/sbin/service mcstrans reload > /dev/null")
+>> +                
+> 
+> This is very distro specific and totally inappropriate IMO.
+> 
+
+Agreed - what is the solution, though?
+
+Karl
 
 
 --
