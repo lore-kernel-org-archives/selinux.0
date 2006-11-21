@@ -1,34 +1,54 @@
-Subject: Re: More  small fixes to policycoreutils
+Subject: Re: Task SID 's
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Daniel J Walsh <dwalsh@redhat.com>
-Cc: Joshua Brindle <jbrindle@tresys.com>,
-        Karl MacMillan <kmacmillan@mentalrootkit.com>,
-        "Christopher J. PeBenito" <cpebenito@tresys.com>,
-        SE Linux <selinux@tycho.nsa.gov>
-In-Reply-To: <456224F2.6010707@redhat.com>
-References: 
-	 <6FE441CD9F0C0C479F2D88F959B015885C79BC@exchange.columbia.tresys.com>
-	 <455CE2F3.3070200@mentalrootkit.com> <455DA4E8.5050600@redhat.com>
-	 <4561E1A3.8070306@mentalrootkit.com> <4561E7B2.9030205@redhat.com>
-	 <4561F3EA.8020603@tresys.com>  <456224F2.6010707@redhat.com>
+To: I_am alone <stupid_kid_me@yahoo.com>
+Cc: SELinux@tycho.nsa.gov
+In-Reply-To: <20061121043021.34260.qmail@web58112.mail.re3.yahoo.com>
+References: <20061121043021.34260.qmail@web58112.mail.re3.yahoo.com>
 Content-Type: text/plain
-Date: Tue, 21 Nov 2006 08:53:19 -0500
-Message-Id: <1164117199.13758.88.camel@moss-spartans.epoch.ncsc.mil>
+Date: Tue, 21 Nov 2006 09:00:50 -0500
+Message-Id: <1164117650.13758.96.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 2006-11-20 at 16:58 -0500, Daniel J Walsh wrote:
-> > What is pam_tally and what does the call to pam_acct_mgmt do, and how 
-> > does it affect run_init?
-> >
-> I believe pam_tally increments a counter for failed logins in 
-> pam_authenticate and decrements it when it gets to pam_account 
-> management.  If it never gets there, the counter continues to increment.
+On Mon, 2006-11-20 at 20:30 -0800, I_am alone wrote:
+> 
+> Hi 
+> 
+>   I am new to SELinux. I am planning to learn it by doing a Code
+> Review. Currently I am Confused of Task SID Assignments & Binary
+> Program SID to Task SID Converstions.
 
-I thought I saw that pam_tally was being moved from the generic system
-auth config to specific program configs, and was thus no longer an issue
-for run_init.  No?
+Have you looked at the Implementing SELinux as a Linux Security Module
+technical report?  Not entirely up to date, but still a useful resource:
+http://www.nsa.gov/selinux/papers/module-abs.cfm
+http://www.nsa.gov/selinux/papers/module/t1.html
+
+Document sources included in the selinux-doc tarball,
+http://www.nsa.gov/selinux/archives/selinux-doc-1.26.tgz
+
+> 1. How does SID's are assigned to the init Task in the SELinux Code .
+> Which code part handles that .
+
+selinux_init() in security/selinux/hooks.c.
+Described in:
+http://www.nsa.gov/selinux/papers/module/x300.html
+
+> 2. I found that binary program SID's assigned changes in to the Task
+> SID's when they are loaded. Which code part in SELinux handles this
+> part.
+> 
+> That is when a Binary Program is loaded it is assigned SID's and once
+> it is loaded it becomes as task. How does the bprm_security_structure
+> SID values are transfered in to the  task_security_structure_sid
+> Values ...
+
+selinux_bprm_set_security() and selinux_bprm_apply_creds().
+Described in:
+http://www.nsa.gov/selinux/papers/module/x643.html
+
+> If anyone can guide me on these it would be really helpful for me to
+> learn.
 
 -- 
 Stephen Smalley
