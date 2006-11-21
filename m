@@ -1,58 +1,100 @@
-Subject: Re: Task SID 's
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: I_am alone <stupid_kid_me@yahoo.com>
-Cc: SELinux@tycho.nsa.gov
-In-Reply-To: <20061121043021.34260.qmail@web58112.mail.re3.yahoo.com>
-References: <20061121043021.34260.qmail@web58112.mail.re3.yahoo.com>
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id kALE91sA001902
+	for <selinux@tycho.nsa.gov>; Tue, 21 Nov 2006 09:09:01 -0500
+Received: from exchange.columbia.tresys.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with SMTP id kALE8KKX004436
+	for <selinux@tycho.nsa.gov>; Tue, 21 Nov 2006 14:08:20 GMT
+Subject: Re: labeled ipsec policy
+From: "Christopher J. PeBenito" <cpebenito@tresys.com>
+To: Joy Latten <latten@austin.ibm.com>
+Cc: redhat-lspp@redhat.com, selinux@tycho.nsa.gov, jbrindle@tresys.com
+In-Reply-To: <1163802623.17737.398.camel@faith.austin.ibm.com>
+References: <1163802623.17737.398.camel@faith.austin.ibm.com>
 Content-Type: text/plain
-Date: Tue, 21 Nov 2006 09:00:50 -0500
-Message-Id: <1164117650.13758.96.camel@moss-spartans.epoch.ncsc.mil>
+Date: Tue, 21 Nov 2006 09:10:02 -0500
+Message-Id: <1164118202.12234.24.camel@sgc>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 2006-11-20 at 20:30 -0800, I_am alone wrote:
+On Fri, 2006-11-17 at 16:30 -0600, Joy Latten wrote:
+> The following policy enables labeled ipsec to run
+> in enforcing mode. I configure labeled ipsec in sysadm_r role. 
+> Thus the rules I needed were specific to this role.
+[cut]
+> Included are some interfaces, which I used in an xxxx.if
+> file. Then, there are a bunch of rules which I used in a xxxx.te file
+> These rules were just an example of what I needed
+> to get ping, nc, and ssh to work with labeled ipsec. For my
+> policy, I used the types unlabeled_t, passwd_t, and ipsec_spd_t.
+> When using passwd_t, ipsec_spd_t or any other domain, please be 
+> mindful of mls constraints. 
+[cut]
+
+> interface(`ipsec_set_label',`
+> 	gen_require(`
+> 		type sysadm_t;
+> 	')
+> 	
+> 	allow sysadm_t $1:association setcontext; 
+> ')
+
+Interfaces are written from the perspective of the subject (except for a
+few very specific cases), so the parameter should be the subject, not
+the object.  Neglecting that, is this for sysadm_t instead of
+ipsec_mgmt_t?  I suspect that we want to add an interface to the domain
+module that allows setcontext on the domain attribute.
+
+> interface(`ipsec_label_sa_pol',`	
+> 	allow $1 $2:association polmatch;
+> ')
+
+Generally refpolicy would leave this as a raw rule these types are in
+separate modules, in which case the interface would be in $2's module
+and have a specific type instead of $2.
+
+> interface(`ipsec_labels_send_recv',`		
+> 	allow $1 self:association { recvfrom sendto };
+> ')
+
+This would be raw rule in refpolicy instead of an interface.
+
+> interface(`ipsec_tools_utilities',`
+> 	gen_require(`
+> 		type isakmp_port_t;
+> 		type inaddr_any_node_t;
+> 	')
 > 
-> Hi 
+> 	# allow setkey and racoon to create and use a key socket.
+> 	allow $1 self:key_socket { create read write setopt };
 > 
->   I am new to SELinux. I am planning to learn it by doing a Code
-> Review. Currently I am Confused of Task SID Assignments & Binary
-> Program SID to Task SID Converstions.
-
-Have you looked at the Implementing SELinux as a Linux Security Module
-technical report?  Not entirely up to date, but still a useful resource:
-http://www.nsa.gov/selinux/papers/module-abs.cfm
-http://www.nsa.gov/selinux/papers/module/t1.html
-
-Document sources included in the selinux-doc tarball,
-http://www.nsa.gov/selinux/archives/selinux-doc-1.26.tgz
-
-> 1. How does SID's are assigned to the init Task in the SELinux Code .
-> Which code part handles that .
-
-selinux_init() in security/selinux/hooks.c.
-Described in:
-http://www.nsa.gov/selinux/papers/module/x300.html
-
-> 2. I found that binary program SID's assigned changes in to the Task
-> SID's when they are loaded. Which code part in SELinux handles this
-> part.
+> 	# allow racoon to use ISAKMP port
+> 	allow $1 isakmp_port_t:udp_socket name_bind;
 > 
-> That is when a Binary Program is loaded it is assigned SID's and once
-> it is loaded it becomes as task. How does the bprm_security_structure
-> SID values are transfered in to the  task_security_structure_sid
-> Values ...
+> 	# allow racoon to use avc_has_perm in within_range() 
+> 	# to determine if proposed SA "polmatches" to policy
+> 	allow $1 self:netlink_selinux_socket { bind create read };
+> 
+> 	# I think this is so racoon can listen on an admin port.
+> 	allow $1 inaddr_any_node_t:tcp_socket node_bind;
+> 
+> 	# to create, remove read lock in /var/racoon/
+> 	ipsec_manage_pid($1)
+> 
+> 	# in grabmyaddrs() socket(PF_ROUTE...)
+> 	allow $1 self:netlink_route_socket { create_netlink_socket_perms };
+> ')
 
-selinux_bprm_set_security() and selinux_bprm_apply_creds().
-Described in:
-http://www.nsa.gov/selinux/papers/module/x643.html
+Again, why is this needed, instead of ipsec_mgmt_t?
 
-> If anyone can guide me on these it would be really helpful for me to
-> learn.
+I suspect that the ipsec policy needs to be overhauled because I believe
+it was oriented towards the KAME ipsec implementation (pluto, et al) and
+was augmented to work with racoon afterwards.
 
 -- 
-Stephen Smalley
-National Security Agency
+Chris PeBenito
+Tresys Technology, LLC
+(410) 290-1411 x150
 
 
 --
