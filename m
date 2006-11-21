@@ -1,159 +1,111 @@
 Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id kALLsdpn019176
-	for <selinux@tycho.nsa.gov>; Tue, 21 Nov 2006 16:54:39 -0500
-Received: from mx1.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id kALLqx9d020605
-	for <selinux@tycho.nsa.gov>; Tue, 21 Nov 2006 21:52:59 GMT
-Message-ID: <45637591.2070406@mentalrootkit.com>
-Date: Tue, 21 Nov 2006 16:54:25 -0500
-From: Karl MacMillan <kmacmillan@mentalrootkit.com>
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id kALMR9Me020146
+	for <selinux@tycho.nsa.gov>; Tue, 21 Nov 2006 17:27:09 -0500
+Received: from tcsfw4.tcs-sec.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id kALMPTKb026903
+	for <selinux@tycho.nsa.gov>; Tue, 21 Nov 2006 22:25:29 GMT
+Message-ID: <45637D38.3020601@trustedcs.com>
+Date: Tue, 21 Nov 2006 16:27:04 -0600
+From: Darrel Goeddel <dgoeddel@TrustedCS.com>
 MIME-Version: 1.0
-To: Michael C Thompson <thompsmc@us.ibm.com>
-CC: SE Linux <selinux@tycho.nsa.gov>
-Subject: Re: [PATCH] genhomedircon
-References: <455C9EB3.5050602@us.ibm.com>
-In-Reply-To: <455C9EB3.5050602@us.ibm.com>
+To: Klaus Weidner <klaus@atsec.com>
+CC: selinux@tycho.nsa.gov, Christopher PeBenito <cpebenito@tresys.com>,
+        Chad Hanson <chanson@TrustedCS.com>,
+        Venkat Yekkirala <vyekkirala@TrustedCS.com>
+Subject: Re: MLS policy constraints verification
+References: <20061111183721.GA629@w-m-p.com>
+In-Reply-To: <20061111183721.GA629@w-m-p.com>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Michael C Thompson wrote:
-> I've noticed that genhomedircon does not have the proper return codes on 
-> some error and success paths. This patch addresses these return codes as 
-> follow:
+Klaus Weidner wrote:
+> Hello,
 > 
-> * usage function by default returns 0, and the desired return code can 
-> be specified via a parameter. This facilitates the fix to the current 
-> behaviour that 1 is returned on 'genhomedircon -h'.
+> in the ongoing LSPP evaluation project, a review of the constraints
+> defined in "policy/mls" in the refpolicy turned up some suspicious
+> entries.
 > 
-> * I have noticed that as secadm (this is a bug? will start a separate 
-> thread) fails to successfully call semanage_connect(). The result of 
-> this operation is now checked, and the script will exit on error.
+> Could people who wrote the policy or have opinions on what it's supposed
+> to be please comment?
 > 
-> * If the attempt to write the homedir contexts out fails, a proper error 
-> code will be returned (previously, 1 would be returned).
+> In the following, I'm generally assuming that l1/h1 correspond to the
+> process (subject) and l2/h2 correspond to the object. Apparently the only
+> way to be sure is to look in security/selinux/hooks.c and see how it's
+> used - probably it would be a good idea to add appropriate comments to
+> the policy constraints if that isn't the case.
 > 
-> This also moves the parsing of /etc/shells to after the uid check for a 
-> minimal time savings.
+> % mlsconstrain dir { add_name remove_name reparent rmdir }
+> %	((( l1 dom l2 ) and ( l1 domby h2 )) or [OVERRIDE]
 > 
-> Thanks,
-> Mike
-> 
-> Signed-of-by: Michael Thompson <mcthomps@us.ibm.com>
-> 
-> 
-> ------------------------------------------------------------------------
-> 
-> diff -Naur policycoreutils-1.33.1/scripts/genhomedircon policycoreutils-1.33.1.dev/scripts/genhomedircon
-> --- policycoreutils-1.33.1/scripts/genhomedircon	2006-11-14 08:46:14.000000000 -0600
-> +++ policycoreutils-1.33.1.dev/scripts/genhomedircon	2006-11-16 06:03:50.000000000 -0600
-> @@ -29,17 +29,6 @@
->  import gettext
->  gettext.install('policycoreutils')
->  
-> -try:
-> -	fd = open("/etc/shells", 'r')
-> -	VALID_SHELLS = fd.read().split("\n")
-> -	fd.close()
-> -	if "/sbin/nologin" in VALID_SHELLS:
-> -		VALID_SHELLS.remove("/sbin/nologin")
-> -	if "" in VALID_SHELLS:
-> -		VALID_SHELLS.remove("")
-> -except:
-> -	VALID_SHELLS = ['/bin/sh', '/bin/bash', '/bin/ash', '/bin/bsh', '/bin/ksh', '/usr/bin/ksh', '/usr/bin/pdksh', '/bin/tcsh', '/bin/csh', '/bin/zsh']
-> -
->  def grep(file, var):
->  	ret = ""
->  	fd = open(file, 'r')
-> @@ -114,12 +103,13 @@
->  		return val
->  	return "targeted"
->  
-> -def usage(error = ""):
-> +def usage(rc=0, error = ""):
->  	if error != "":
->  		sys.stderr.write("%s\n" % error)
-> +		rc = 1
->  	sys.stderr.write("Usage: %s [ -d selinuxdir ] [-n | --nopasswd] [-t selinuxtype ]\n" % sys.argv[0])
->  	sys.stderr.flush()
-> -	sys.exit(1)
-> +	sys.exit(rc)
->  
->  def warning(warning = ""):
->  	sys.stderr.write("%s\n" % warning)
-> @@ -136,7 +126,9 @@
->  		self.semanageHandle = semanage_handle_create()
->  		self.semanaged = semanage_is_managed(self.semanageHandle)
->  		if self.semanaged:
-> -			semanage_connect(self.semanageHandle)
-> +			rc = semanage_connect(self.semanageHandle)
-> +			if rc:
-> +				errorExit("Unable to connect to semanage")
->  			(status, self.ulist) = semanage_user_list(self.semanageHandle)
->  		self.type = type
->  		self.selinuxdir = selinuxdir +"/"
-> @@ -336,18 +328,25 @@
->  		print self.genoutput()
->  
->  	def write(self):
-> -		try:
-> -			fd = open(self.getFileContextDir()+"/file_contexts.homedirs", "w")
-> -			fd.write(self.genoutput())
-> -			fd.close()
-> -		except IOError, error:
-> -			sys.stderr.write("%s: %s\n" % ( sys.argv[0], error ))
-> -
-> +		fd = open(self.getFileContextDir()+"/file_contexts.homedirs", "w")
-> +		fd.write(self.genoutput())
-> +		fd.close()
->  
->  if os.getuid() > 0 or os.geteuid() > 0:
->  	print _("You must be root to run %s.") % sys.argv[0]
->  	sys.exit(1)
->  
-> +try:
-> +	fd = open("/etc/shells", 'r')
-> +	VALID_SHELLS = fd.read().split("\n")
-> +	fd.close()
-> +	if "/sbin/nologin" in VALID_SHELLS:
-> +		VALID_SHELLS.remove("/sbin/nologin")
-> +	if "" in VALID_SHELLS:
-> +		VALID_SHELLS.remove("")
-> +except:
-> +	VALID_SHELLS = ['/bin/sh', '/bin/bash', '/bin/ash', '/bin/bsh', '/bin/ksh', '/usr/bin/ksh', '/usr/bin/pdksh', '/bin/tcsh', '/bin/csh', '/bin/zsh']
-> +
->  #
->  # This script will generate home dir file context
->  # based off the homedir_template file, entries in the password file, and
-> @@ -369,15 +368,19 @@
->  			directory = a
->  		if o == '--help'  or o == "-h":
->  			usage()
-> +except getopt.error, error:
-> +	errorExit(_("Options Error %s ") % error)
->  
-> +if type == None:
-> +	type = getSELinuxType(directory)
->  
-> -	if type == None:
-> -		type = getSELinuxType(directory)
-> +if len(cmds) != 0:
-> +	usage(1)
->  
-> -	if len(cmds) != 0:
-> -		usage()
-> -	selconf = selinuxConfig(directory, type, usepwd)
-> +selconf = selinuxConfig(directory, type, usepwd)
-> +try:
->  	selconf.write()
-> +except IOError, error:
-> +	sys.stderr.write("%s: %s\n" % ( sys.argv[0], error ))
-> +	sys.exit(1)
->  
-> -except getopt.error, error:
-> -	errorExit(_("Options Error %s ") % error)
+> This appears to be a "write" operation on the directory, but the
+> constraint looks like a "ranged read" operation. Shouldn't this be "l1
+> eq l2" to enforce "write equal" for subjects without overrides?
 
-Acked-by: Karl MacMillan <kmacmillan@mentalrootkit.com>
+The constraint is for a "ranged write" operation.  IT states that a process
+must be operating at a level that falls within the range of the container in
+order to put information into the container.  IF a dir is ranged from s2 - s4,
+this would allow processes at s2, s3, or s4 to do these things to the directory.
+
+> % # the socket "write" ops
+> % mlsconstrain { socket tcp_socket udp_socket [...] }
+> % { write setattr relabelfrom connect setopt shutdown }
+> %         ((( l1 dom l2 ) and ( l1 domby h2 )) or [OVERRIDE]
+> 
+> The socket "write" check looks like a "ranged read". (Note that "socket
+> read" checks for "( l1 dom l2 )").
+
+Same "ranged write" as above.
+
+> % # the netif/node "read" ops (implicit single level socket doing the read)
+> % #                           (note the check is dominance of the low level)
+> % mlsconstrain { node netif } { tcp_recv udp_recv rawip_recv }
+> %         (( l1 dom l2 ) or ( t1 == mlsnetrecvall ));
+> % 
+> % # the netif/node "write" ops (implicit single level socket doing the write)
+> % mlsconstrain { netif node } { tcp_send udp_send rawip_send }
+> %         (( l1 dom l2 ) and ( l1 domby h2 ));
+> 
+> The "read" and "write" constraints both use "l1 dom l2" which looks
+> wrong.
+
+This seems to be treating netif/nodes as single level objects by only looking
+at the low level of the target.  Using the low level of the socket is (or at
+least used to be) equivalent to using the low level of the process.  The read
+op is a simple read down check as is used everywhere else and the write
+operation is a range write operation as described above.
+
+> % mlsconstrain association { recvfrom }
+> %         ((( l1 dom l2 ) and ( l1 domby h2 )) or [OVERRIDE]
+> % 
+> % mlsconstrain association { sendto }
+> %         ((( l1 dom l2 ) and ( l1 domby h2 )) or [OVERRIDE]
+> 
+> (see previous, the send/recv constraints shouldn't be the same?)
+
+Also checking to see if the process, er... socket, falls within the
+range of the association.  s4 socket can use an s2-s4 association or
+an s3-s6 association, but not an s5-s8 association or an s0-s3 association.
+
+> In general, we had previously talked about how it would be more
+> appropriate to check for MLS level equality for "connect" and "accept"
+> operations. The sockets are generally bidirectional for reading and
+> writing, and the levels would need to dominate each other. It greatly
+> simplifies analysis if the security enforcing check happens at the time
+> you receive the socket descriptor, and you don't need to depend on
+> read/write doing MLS checks.
+> 
+> Does anyone have an explanation or justification why the constraints are
+> the way they currently are? If not, I'll try preparing a patch to make
+> them stricter. (Note that it's fine to have overrides that break the
+> strict constraints such as level equality for accept/connect, but the
+> default for unprivileged users needs to be secure.)
+
+I hope the above at least clears up the intention of a few of the constraints.
+
+-- 
+
+Darrel
 
 --
 This message was distributed to subscribers of the selinux mailing list.
