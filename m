@@ -1,57 +1,56 @@
-Message-ID: <45630F41.2070909@mentalrootkit.com>
-Date: Tue, 21 Nov 2006 09:37:53 -0500
-From: Karl MacMillan <kmacmillan@mentalrootkit.com>
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id kALEpa6d003905
+	for <selinux@tycho.nsa.gov>; Tue, 21 Nov 2006 09:51:36 -0500
+Received: from wx-out-0506.google.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id kALEosKX011144
+	for <selinux@tycho.nsa.gov>; Tue, 21 Nov 2006 14:50:55 GMT
+Received: by wx-out-0506.google.com with SMTP id t10so2304540wxc
+        for <selinux@tycho.nsa.gov>; Tue, 21 Nov 2006 06:51:53 -0800 (PST)
+Message-ID: <45631210.8080405@kaigai.gr.jp>
+Date: Tue, 21 Nov 2006 23:49:52 +0900
+From: KaiGai Kohei <kaigai@kaigai.gr.jp>
 MIME-Version: 1.0
 To: Stephen Smalley <sds@tycho.nsa.gov>
-CC: Joshua Brindle <jbrindle@tresys.com>, Daniel J Walsh <dwalsh@redhat.com>,
-        "Christopher J. PeBenito" <cpebenito@tresys.com>,
-        SE Linux <selinux@tycho.nsa.gov>
-Subject: Re: More  small fixes to policycoreutils
-References: <6FE441CD9F0C0C479F2D88F959B015885C79BC@exchange.columbia.tresys.com>	 <455CE2F3.3070200@mentalrootkit.com> <455DA4E8.5050600@redhat.com>	 <4561E1A3.8070306@mentalrootkit.com> <4561E7B2.9030205@redhat.com>	 <4561F3EA.8020603@tresys.com>  <45620C8F.2040002@mentalrootkit.com> <1164054315.13758.62.camel@moss-spartans.epoch.ncsc.mil>
-In-Reply-To: <1164054315.13758.62.camel@moss-spartans.epoch.ncsc.mil>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+CC: selinux@tycho.nsa.gov, Yoshinori Sato <yo-satoh@sios.com>,
+        Yuichi Nakamura <ynakam@hitachisoft.jp>
+Subject: Re: Question about stat
+References: <4562EFE0.5080807@kaigai.gr.jp> <1164118344.13758.101.camel@moss-spartans.epoch.ncsc.mil>
+In-Reply-To: <1164118344.13758.101.camel@moss-spartans.epoch.ncsc.mil>
+Content-Type: text/plain; charset=ISO-2022-JP
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 Stephen Smalley wrote:
-> On Mon, 2006-11-20 at 15:14 -0500, Karl MacMillan wrote:
->> Joshua Brindle wrote:
->>> Its interesting that semanage manages something that is redhat specific 
->>> and not part of the upstream utilities at all.. IMO this should never 
->>> have been merged in the first place, semanage manages libsemanage 
->>> abstractions, if translations were a part of libsemanage it'd be a 
->>> different story.
->>>
->> Why isn't setrans upstream?
+> On Tue, 2006-11-21 at 21:24 +0900, KaiGai Kohei wrote:
+>> I found a strange behavior of the stat in coreutils-5.97-14.fc7.src.rpm.
+>>
+>> see below,
+>>
+>> [kaigai@masu ~]$ stat -c "%C" mytest.sql
+>> (null)
+>> [kaigai@masu ~]$ stat -Z -c "%C" mytest.sql
+>> user_u:object_r:user_home_t:s0
+>> [kaigai@masu ~]$
+>>
+>> Because stat command without '-Z' option doesn't try to obtain
+>> the security context of the files specified, the format string
+>> which contains "%C" doesn't work correctly.
+>>
+>> Is it expected behavior?
 > 
-> It wasn't clear that there was any demand for it outside of Fedora /
-> RHEL, and it was always optional.  If other distros are going to use it
-> (e.g. Debian?), then I agree it should likely be added (after code
-> review and cleanup, of course).
-> 
->>>> @@ -204,7 +206,8 @@
->>>>          os.write(fd, self.out())
->>>>          os.close(fd)
->>>>          os.rename(newfilename, self.filename)
->>>> -
->>>> +                os.system("/sbin/service mcstrans reload > /dev/null")
->>>> +                
->>> This is very distro specific and totally inappropriate IMO.
->>>
->> Agreed - what is the solution, though?
-> 
-> Configurable pre and post scriptlets, defined externally and optional?
-> 
+> That sounds like a bug to me; the use of '%C' in the format string
+> should implicitly enable the invocation of getfilecon.  I'd suggest
+> filing a bug against coreutils in fedora devel at bugzilla.redhat.com,
+> as there is no "upstream" repository presently for the coreutils selinux
+> patch.
 
-Maybe - though I am already concerned about the amount of work that 
-semanage does that is unnecessarily (e.g., changing a user results in a 
-full link / expand). So I would want to allow these scripts to only run 
-when something they are interested in changes.
+https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=216672
 
-Would these scripts be run by libsemanage or only semanage? I assume the 
-former.
+I filed it at bugzilla.redhat.com.
 
-Karl
+Thanks,
+-- 
+KaiGai Kohei <kaigai@kaigai.gr.jp>
 
 --
 This message was distributed to subscribers of the selinux mailing list.
