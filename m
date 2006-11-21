@@ -1,56 +1,77 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id kALEpa6d003905
-	for <selinux@tycho.nsa.gov>; Tue, 21 Nov 2006 09:51:36 -0500
-Received: from wx-out-0506.google.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id kALEosKX011144
-	for <selinux@tycho.nsa.gov>; Tue, 21 Nov 2006 14:50:55 GMT
-Received: by wx-out-0506.google.com with SMTP id t10so2304540wxc
-        for <selinux@tycho.nsa.gov>; Tue, 21 Nov 2006 06:51:53 -0800 (PST)
-Message-ID: <45631210.8080405@kaigai.gr.jp>
-Date: Tue, 21 Nov 2006 23:49:52 +0900
-From: KaiGai Kohei <kaigai@kaigai.gr.jp>
-MIME-Version: 1.0
-To: Stephen Smalley <sds@tycho.nsa.gov>
-CC: selinux@tycho.nsa.gov, Yoshinori Sato <yo-satoh@sios.com>,
-        Yuichi Nakamura <ynakam@hitachisoft.jp>
-Subject: Re: Question about stat
-References: <4562EFE0.5080807@kaigai.gr.jp> <1164118344.13758.101.camel@moss-spartans.epoch.ncsc.mil>
-In-Reply-To: <1164118344.13758.101.camel@moss-spartans.epoch.ncsc.mil>
-Content-Type: text/plain; charset=ISO-2022-JP
+Subject: Re: Compiling libsepol with -fPIC instead of -fpic
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Karl MacMillan <kmacmillan@mentalrootkit.com>
+Cc: Manoj Srivastava <manoj.srivastava@stdc.com>, selinux@tycho.nsa.gov
+In-Reply-To: <4561E044.6050006@mentalrootkit.com>
+References: <87d57pqkca.fsf@glaurung.internal.golden-gryphon.com>
+	 <4561E044.6050006@mentalrootkit.com>
+Content-Type: text/plain
+Date: Tue, 21 Nov 2006 16:05:56 -0500
+Message-Id: <1164143156.13758.125.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Stephen Smalley wrote:
-> On Tue, 2006-11-21 at 21:24 +0900, KaiGai Kohei wrote:
->> I found a strange behavior of the stat in coreutils-5.97-14.fc7.src.rpm.
->>
->> see below,
->>
->> [kaigai@masu ~]$ stat -c "%C" mytest.sql
->> (null)
->> [kaigai@masu ~]$ stat -Z -c "%C" mytest.sql
->> user_u:object_r:user_home_t:s0
->> [kaigai@masu ~]$
->>
->> Because stat command without '-Z' option doesn't try to obtain
->> the security context of the files specified, the format string
->> which contains "%C" doesn't work correctly.
->>
->> Is it expected behavior?
-> 
-> That sounds like a bug to me; the use of '%C' in the format string
-> should implicitly enable the invocation of getfilecon.  I'd suggest
-> filing a bug against coreutils in fedora devel at bugzilla.redhat.com,
-> as there is no "upstream" repository presently for the coreutils selinux
-> patch.
+On Mon, 2006-11-20 at 12:05 -0500, Karl MacMillan wrote:
+> Manoj Srivastava wrote:
+> > Hi,
+> > 
+> >         I've had reports of packages filing to compile on SPARC
+> >  hardware when linked with  libsepol1 which was compiled with
+> >  -fpic. We seem to be hitting the global offset table size limit;
+> > ,----[ GCC manual ]
+> > | `-fpic'
+> > |      Generate position-independent code (PIC) suitable for use in a
+> > |      shared library, if supported for the target machine.  Such code
+> > |      accesses all constant addresses through a global offset table
+> > |      (GOT).  The dynamic loader resolves the GOT entries when the
+> > |      program starts (the dynamic loader is not part of GCC; it is part
+> > |      of the operating system).  If the GOT size for the linked
+> > |      executable exceeds a machine-specific maximum size, you get an
+> > |      error message from the linker indicating that `-fpic' does not
+> > |      work; in that case, recompile with `-fPIC' instead.  (These
+> > |      maximums are 8k on the SPARC and 32k on the m68k and RS/6000.  The
+> > |      386 has no such limit.)
+> > `----
+> > 
+> >         Simply recompiling with -fPIC corrects the problem.
+> > 
+> >         manoj
+> > 
+> > 
+> > 
+> > ------------------------------------------------------------------------
+> > 
+> > --- orig/src/Makefile
+> > +++ mod/src/Makefile
+> > @@ -24,10 +24,10 @@
+> >  	ln -sf $@ $(TARGET) 
+> >  
+> >  %.o:  %.c 
+> > -	$(CC) $(CFLAGS) -fpic -c -o $@ $<
+> > +	$(CC) $(CFLAGS) -fPIC -c -o $@ $<
+> >  
+> >  %.lo:  %.c
+> > -	$(CC) $(CFLAGS) -fpic -DSHARED -c -o $@ $<
+> > +	$(CC) $(CFLAGS) -fPIC -DSHARED -c -o $@ $<
+> >  
+> >  install: all
+> >  	test -d $(LIBDIR) || install -m 755 -d $(LIBDIR)
+> > 
+> > 
+> Acked-by: Karl MacMillan <kmacmillan@mentalrootkit.com>
 
-https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=216672
+Is the problem truly limited to libsepol, or is it also an issue with
+libsemanage and/or libselinux?
 
-I filed it at bugzilla.redhat.com.
+Possibly we could define it as a variable in the Makefile (e.g. PIC ?=
+-fpic) with a default of -fpic and allow you to build them with make
+PIC=-fPIC on SPARC to avoid any effect on x86.
 
-Thanks,
 -- 
-KaiGai Kohei <kaigai@kaigai.gr.jp>
+Stephen Smalley
+National Security Agency
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
