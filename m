@@ -1,39 +1,34 @@
-Subject: Re: More  small fixes to policycoreutils
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Daniel J Walsh <dwalsh@redhat.com>
-Cc: Karl MacMillan <kmacmillan@mentalrootkit.com>,
-        Joshua Brindle <jbrindle@tresys.com>,
-        "Christopher J. PeBenito" <cpebenito@tresys.com>,
-        SE Linux <selinux@tycho.nsa.gov>
-In-Reply-To: <4561E7B2.9030205@redhat.com>
-References: 
-	 <6FE441CD9F0C0C479F2D88F959B015885C79BC@exchange.columbia.tresys.com>
-	 <455CE2F3.3070200@mentalrootkit.com> <455DA4E8.5050600@redhat.com>
-	 <4561E1A3.8070306@mentalrootkit.com>  <4561E7B2.9030205@redhat.com>
-Content-Type: text/plain
-Date: Tue, 21 Nov 2006 16:13:11 -0500
-Message-Id: <1164143591.13758.128.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+Message-ID: <45636F88.3020608@mentalrootkit.com>
+Date: Tue, 21 Nov 2006 16:28:40 -0500
+From: Karl MacMillan <kmacmillan@mentalrootkit.com>
+MIME-Version: 1.0
+To: Stephen Smalley <sds@tycho.nsa.gov>
+CC: Manoj Srivastava <manoj.srivastava@stdc.com>, selinux@tycho.nsa.gov
+Subject: Re: Compiling libsepol with -fPIC instead of -fpic
+References: <87d57pqkca.fsf@glaurung.internal.golden-gryphon.com>	 <4561E044.6050006@mentalrootkit.com> <1164143156.13758.125.camel@moss-spartans.epoch.ncsc.mil>
+In-Reply-To: <1164143156.13758.125.camel@moss-spartans.epoch.ncsc.mil>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 2006-11-20 at 12:36 -0500, Daniel J Walsh wrote:
-> Lastly are you going to merge the translations? 
+Stephen Smalley wrote:
+> On Mon, 2006-11-20 at 12:05 -0500, Karl MacMillan wrote:
+>> Manoj Srivastava wrote:
+
+>> Acked-by: Karl MacMillan <kmacmillan@mentalrootkit.com>
 > 
-> http://people.redhat.com/dwalsh/SELinux/pocicycoreutils-po.patch
+> Is the problem truly limited to libsepol, or is it also an issue with
+> libsemanage and/or libselinux?
+> 
+> Possibly we could define it as a variable in the Makefile (e.g. PIC ?=
+> -fpic) with a default of -fpic and allow you to build them with make
+> PIC=-fPIC on SPARC to avoid any effect on x86.
+> 
 
-I merged this set of po file updates, but I'm hoping that there is some
-better way to deal with them.  For example, after applying this patch
-and merging it, running make in policycoreutils immediately regenerates
-the files yet again with another round of changes (POT-Creation-Date
-headers and line numbers in the comment annotations).  So should I
-commit that as well?  I don't know how the po files are typically
-maintained in other projects.
+The docs claim an effect only on m68k, PowerPC, and SPARC. So it should 
+be safe to replace this globally for all of our code.
 
--- 
-Stephen Smalley
-National Security Agency
-
+Karl
 
 --
 This message was distributed to subscribers of the selinux mailing list.
