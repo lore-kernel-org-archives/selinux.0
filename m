@@ -1,5 +1,5 @@
-Message-ID: <4564BC26.8040706@redhat.com>
-Date: Wed, 22 Nov 2006 16:07:50 -0500
+Message-ID: <4564BCC5.8080207@redhat.com>
+Date: Wed, 22 Nov 2006 16:10:29 -0500
 From: Daniel J Walsh <dwalsh@redhat.com>
 MIME-Version: 1.0
 To: Joshua Brindle <jbrindle@tresys.com>
@@ -8,47 +8,92 @@ CC: Stephen Smalley <sds@tycho.nsa.gov>,
         "Christopher J. PeBenito" <cpebenito@tresys.com>,
         SE Linux <selinux@tycho.nsa.gov>
 Subject: Re: More  small fixes to policycoreutils
-References: <6FE441CD9F0C0C479F2D88F959B015885C7D9F@exchange.columbia.tresys.com> <4564AEB8.3050902@redhat.com> <4564B4D3.2070901@tresys.com>
-In-Reply-To: <4564B4D3.2070901@tresys.com>
+References: <6FE441CD9F0C0C479F2D88F959B015885C7D9F@exchange.columbia.tresys.com> <4564ADE1.4060202@redhat.com> <4564B460.4080608@tresys.com>
+In-Reply-To: <4564B460.4080608@tresys.com>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 Joshua Brindle wrote:
 > Daniel J Walsh wrote:
->> run_init patch for call pam_acct_mgmt
+>> Fix handling of translations in python correctly.
+>>
+>> Fix rewrite of the translations library not to insert extra lines.
 >>
 >>
 >> ------------------------------------------------------------------------
 >>
 >> diff --exclude-from=exclude --exclude='*.po' --exclude='*.pot' -N -u 
->> -r nsapolicycoreutils/run_init/run_init.c 
->> policycoreutils-1.33.4/run_init/run_init.c
->> --- nsapolicycoreutils/run_init/run_init.c    2006-11-16 
->> 17:14:27.000000000 -0500
->> +++ policycoreutils-1.33.4/run_init/run_init.c    2006-11-22 
+>> -r nsapolicycoreutils/semanage/seobject.py 
+>> policycoreutils-1.33.4/semanage/seobject.py
+>> --- nsapolicycoreutils/semanage/seobject.py    2006-11-16 
+>> 17:14:26.000000000 -0500
+>> +++ policycoreutils-1.33.4/semanage/seobject.py    2006-11-22 
 >> 14:11:25.000000000 -0500
->> @@ -132,6 +132,14 @@
->>          result = 1;    /* user authenticated OK! */
->>      }
+>> @@ -94,23 +94,25 @@
+>>      return re.search("^" + reg +"$",raw)
 >>  
->> +    /* If we were successful, call pam_acct_mgmt() to reset the
->> +         * pam_tally failcount.
->> +         */
->> +    if (result && (PAM_SUCCESS != pam_acct_mgmt(pam_handle, 0)) ) {
->> +        fprintf(stderr, _("failed to get account information\n"));
->> +        exit(-1);
->> +    }   
->> +
->>      /* We're done with PAM.  Free `pam_handle'. */
->>      pam_end(pam_handle, PAM_SUCCESS);
+>>  def translate(raw, prepend = 1):
+>> -    if prepend == 1:
+>> -        context = "a:b:c:%s" % raw
+>> +        filler="a:b:c:"
+>> +        if prepend == 1:
+>> +        context = "%s%s" % (filler,raw)
+>
+> This is not good, why doesn't this python script use libsepol calls to 
+> get the MLS part of the context without manipulating the (opaque) 
+> context directly?
+>
+Huh?  This is used to verify MLS Componants being added to users and 
+levels by semanage.  There is no TYPE componant. so all we have is the 
+MLS s0:15 or so-PatientRecord.
+>>      else:
+>>          context = raw
+>> -    (rc, trans) = selinux.selinux_raw_to_trans_context(context)
+>> +     (rc, trans) = selinux.selinux_raw_to_trans_context(context)
+>
+> ?
+Ignore.
+>
+>>      if rc != 0:
+>>          return raw
+>>      if prepend:
+>> -        trans = trans.strip("a:b:c")
+>> +        trans = trans[len(filler):]
+>>      if trans == "":
+>>          return raw
+>>      else:
+>>          return trans
+>>     
+>>  def untranslate(trans, prepend = 1):
+>> +        filler="a:b:c:"
+>>       if prepend == 1:
+>> -        context = "a:b:c:%s" % trans
+>> +        context = "%s%s" % (filler,trans)
+>>      else:
+>>          context = trans
 >>  
+>> @@ -118,7 +120,7 @@
+>>      if rc != 0:
+>>          return trans
+>>      if prepend:
+>> -        raw = raw.strip("a:b:c")   
+>> +        raw = raw[len(filler):]
+>>      if raw == "":
+>>          return trans
+>>      else:
+>> @@ -157,7 +159,7 @@
+>>      def out(self):
+>>          rec = ""
+>>          for c in self.comments:
+>> -            rec += c +"\n"
+>> +            rec += c
+>>          keys = self.ddict.keys()
+>>          keys.sort()
+>>          for k in keys:
 >
-> I thought the previous thread noted that this was unnecessary, or am I 
-> confused?
 >
-The pam_tally might not be required anymore.  But best practices says 
-put it in there.
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
