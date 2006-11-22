@@ -1,36 +1,33 @@
-Subject: Re: do SELinux write/read permission checks exist?
-From: Stephen Smalley <sds@tycho.nsa.gov>
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id kAMEpn9f010324
+	for <selinux@tycho.nsa.gov>; Wed, 22 Nov 2006 09:51:49 -0500
+Received: from atlrel6.hp.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id kAMEo8Z5028556
+	for <selinux@tycho.nsa.gov>; Wed, 22 Nov 2006 14:50:09 GMT
+Message-ID: <456463FC.803@hp.com>
+Date: Wed, 22 Nov 2006 09:51:40 -0500
+From: Paul Moore <paul.moore@hp.com>
+MIME-Version: 1.0
 To: Michael C Thompson <thompsmc@us.ibm.com>
 Cc: SE Linux <selinux@tycho.nsa.gov>
-In-Reply-To: <4564557F.7030009@us.ibm.com>
+Subject: Re: do SELinux write/read permission checks exist?
 References: <4564557F.7030009@us.ibm.com>
-Content-Type: text/plain
-Date: Wed, 22 Nov 2006 09:36:58 -0500
-Message-Id: <1164206218.13758.154.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+In-Reply-To: <4564557F.7030009@us.ibm.com>
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2006-11-22 at 07:49 -0600, Michael C Thompson wrote:
+Michael C Thompson wrote:
 > So, I've managed to loose track of this in my mind, but does SELinux do 
 > permission checks for sys_read and sys_write?
 
-Yes, they are covered by the security_file_permission ->
-selinux_file_permission hooks.  However, for SELinux, those checks are
-only for revalidation purposes to support revocation upon file relabels
-or policy changes (and such revocation support is incomplete, e.g.
-memory-mapped files, in-progress operations).  
-
-A check should always be applied when a descriptor is obtained by a
-process, e.g. the SELinux checking on open (selinux_inode_permission),
-descriptor inheritance across execve (selinux_bprm_post_apply_creds),
-and descriptor transfer across local IPC (selinux_file_receive), so that
-a process can never obtain a descriptor for which it is not authorized.
+Take a look at vfs_write() and vfs_read() and you will see that they both call
+the LSM security_file_permission() hook which under SELinux is defined by the
+selinux_file_permission in security/selinux/hooks.c.
 
 -- 
-Stephen Smalley
-National Security Agency
-
+paul moore
+linux security @ hp
 
 --
 This message was distributed to subscribers of the selinux mailing list.
