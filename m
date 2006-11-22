@@ -1,36 +1,35 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id kAMDniUi008352
-	for <selinux@tycho.nsa.gov>; Wed, 22 Nov 2006 08:49:44 -0500
-Received: from e31.co.us.ibm.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id kAMDn1QS011051
-	for <selinux@tycho.nsa.gov>; Wed, 22 Nov 2006 13:49:02 GMT
-Received: from d03relay04.boulder.ibm.com (d03relay04.boulder.ibm.com [9.17.195.106])
-	by e31.co.us.ibm.com (8.13.8/8.12.11) with ESMTP id kAMDnxda014487
-	for <selinux@tycho.nsa.gov>; Wed, 22 Nov 2006 08:49:59 -0500
-Received: from d03av03.boulder.ibm.com (d03av03.boulder.ibm.com [9.17.195.169])
-	by d03relay04.boulder.ibm.com (8.13.6/8.13.6/NCO v8.1.1) with ESMTP id kAMDnuUv547642
-	for <selinux@tycho.nsa.gov>; Wed, 22 Nov 2006 06:49:57 -0700
-Received: from d03av03.boulder.ibm.com (loopback [127.0.0.1])
-	by d03av03.boulder.ibm.com (8.12.11.20060308/8.13.3) with ESMTP id kAMDnuAh022815
-	for <selinux@tycho.nsa.gov>; Wed, 22 Nov 2006 06:49:56 -0700
-Received: from [127.0.0.1] (wecm-9-67-39-30.wecm.ibm.com [9.67.39.30])
-	by d03av03.boulder.ibm.com (8.12.11.20060308/8.12.11) with ESMTP id kAMDntRs022796
-	for <selinux@tycho.nsa.gov>; Wed, 22 Nov 2006 06:49:56 -0700
-Message-ID: <4564557F.7030009@us.ibm.com>
-Date: Wed, 22 Nov 2006 07:49:51 -0600
-From: Michael C Thompson <thompsmc@us.ibm.com>
-MIME-Version: 1.0
-To: SE Linux <selinux@tycho.nsa.gov>
-Subject: do SELinux write/read permission checks exist?
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Subject: Re: do SELinux write/read permission checks exist?
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Michael C Thompson <thompsmc@us.ibm.com>
+Cc: SE Linux <selinux@tycho.nsa.gov>
+In-Reply-To: <4564557F.7030009@us.ibm.com>
+References: <4564557F.7030009@us.ibm.com>
+Content-Type: text/plain
+Date: Wed, 22 Nov 2006 09:36:58 -0500
+Message-Id: <1164206218.13758.154.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-So, I've managed to loose track of this in my mind, but does SELinux do 
-permission checks for sys_read and sys_write?
+On Wed, 2006-11-22 at 07:49 -0600, Michael C Thompson wrote:
+> So, I've managed to loose track of this in my mind, but does SELinux do 
+> permission checks for sys_read and sys_write?
 
-Thanks,
-Mike
+Yes, they are covered by the security_file_permission ->
+selinux_file_permission hooks.  However, for SELinux, those checks are
+only for revalidation purposes to support revocation upon file relabels
+or policy changes (and such revocation support is incomplete, e.g.
+memory-mapped files, in-progress operations).  
+
+A check should always be applied when a descriptor is obtained by a
+process, e.g. the SELinux checking on open (selinux_inode_permission),
+descriptor inheritance across execve (selinux_bprm_post_apply_creds),
+and descriptor transfer across local IPC (selinux_file_receive), so that
+a process can never obtain a descriptor for which it is not authorized.
+
+-- 
+Stephen Smalley
+National Security Agency
 
 
 --
