@@ -1,33 +1,162 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id kAMEpn9f010324
-	for <selinux@tycho.nsa.gov>; Wed, 22 Nov 2006 09:51:49 -0500
-Received: from atlrel6.hp.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id kAMEo8Z5028556
-	for <selinux@tycho.nsa.gov>; Wed, 22 Nov 2006 14:50:09 GMT
-Message-ID: <456463FC.803@hp.com>
-Date: Wed, 22 Nov 2006 09:51:40 -0500
-From: Paul Moore <paul.moore@hp.com>
-MIME-Version: 1.0
-To: Michael C Thompson <thompsmc@us.ibm.com>
-Cc: SE Linux <selinux@tycho.nsa.gov>
-Subject: Re: do SELinux write/read permission checks exist?
-References: <4564557F.7030009@us.ibm.com>
-In-Reply-To: <4564557F.7030009@us.ibm.com>
-Content-Type: text/plain; charset=ISO-8859-1
+Subject: Re: [PATCH] genhomedircon
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Karl MacMillan <kmacmillan@mentalrootkit.com>
+Cc: Michael C Thompson <thompsmc@us.ibm.com>, SE Linux <selinux@tycho.nsa.gov>
+In-Reply-To: <45637591.2070406@mentalrootkit.com>
+References: <455C9EB3.5050602@us.ibm.com>
+	 <45637591.2070406@mentalrootkit.com>
+Content-Type: text/plain
+Date: Wed, 22 Nov 2006 10:00:10 -0500
+Message-Id: <1164207610.13758.156.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Michael C Thompson wrote:
-> So, I've managed to loose track of this in my mind, but does SELinux do 
-> permission checks for sys_read and sys_write?
+On Tue, 2006-11-21 at 16:54 -0500, Karl MacMillan wrote:
+> Michael C Thompson wrote:
+> > I've noticed that genhomedircon does not have the proper return codes on 
+> > some error and success paths. This patch addresses these return codes as 
+> > follow:
+> > 
+> > * usage function by default returns 0, and the desired return code can 
+> > be specified via a parameter. This facilitates the fix to the current 
+> > behaviour that 1 is returned on 'genhomedircon -h'.
+> > 
+> > * I have noticed that as secadm (this is a bug? will start a separate 
+> > thread) fails to successfully call semanage_connect(). The result of 
+> > this operation is now checked, and the script will exit on error.
+> > 
+> > * If the attempt to write the homedir contexts out fails, a proper error 
+> > code will be returned (previously, 1 would be returned).
+> > 
+> > This also moves the parsing of /etc/shells to after the uid check for a 
+> > minimal time savings.
+> > 
+> > Thanks,
+> > Mike
+> > 
+> > Signed-of-by: Michael Thompson <mcthomps@us.ibm.com>
+> > 
+> > 
+> > ------------------------------------------------------------------------
+> > 
+> > diff -Naur policycoreutils-1.33.1/scripts/genhomedircon policycoreutils-1.33.1.dev/scripts/genhomedircon
+> > --- policycoreutils-1.33.1/scripts/genhomedircon	2006-11-14 08:46:14.000000000 -0600
+> > +++ policycoreutils-1.33.1.dev/scripts/genhomedircon	2006-11-16 06:03:50.000000000 -0600
+> > @@ -29,17 +29,6 @@
+> >  import gettext
+> >  gettext.install('policycoreutils')
+> >  
+> > -try:
+> > -	fd = open("/etc/shells", 'r')
+> > -	VALID_SHELLS = fd.read().split("\n")
+> > -	fd.close()
+> > -	if "/sbin/nologin" in VALID_SHELLS:
+> > -		VALID_SHELLS.remove("/sbin/nologin")
+> > -	if "" in VALID_SHELLS:
+> > -		VALID_SHELLS.remove("")
+> > -except:
+> > -	VALID_SHELLS = ['/bin/sh', '/bin/bash', '/bin/ash', '/bin/bsh', '/bin/ksh', '/usr/bin/ksh', '/usr/bin/pdksh', '/bin/tcsh', '/bin/csh', '/bin/zsh']
+> > -
+> >  def grep(file, var):
+> >  	ret = ""
+> >  	fd = open(file, 'r')
+> > @@ -114,12 +103,13 @@
+> >  		return val
+> >  	return "targeted"
+> >  
+> > -def usage(error = ""):
+> > +def usage(rc=0, error = ""):
+> >  	if error != "":
+> >  		sys.stderr.write("%s\n" % error)
+> > +		rc = 1
+> >  	sys.stderr.write("Usage: %s [ -d selinuxdir ] [-n | --nopasswd] [-t selinuxtype ]\n" % sys.argv[0])
+> >  	sys.stderr.flush()
+> > -	sys.exit(1)
+> > +	sys.exit(rc)
+> >  
+> >  def warning(warning = ""):
+> >  	sys.stderr.write("%s\n" % warning)
+> > @@ -136,7 +126,9 @@
+> >  		self.semanageHandle = semanage_handle_create()
+> >  		self.semanaged = semanage_is_managed(self.semanageHandle)
+> >  		if self.semanaged:
+> > -			semanage_connect(self.semanageHandle)
+> > +			rc = semanage_connect(self.semanageHandle)
+> > +			if rc:
+> > +				errorExit("Unable to connect to semanage")
+> >  			(status, self.ulist) = semanage_user_list(self.semanageHandle)
+> >  		self.type = type
+> >  		self.selinuxdir = selinuxdir +"/"
+> > @@ -336,18 +328,25 @@
+> >  		print self.genoutput()
+> >  
+> >  	def write(self):
+> > -		try:
+> > -			fd = open(self.getFileContextDir()+"/file_contexts.homedirs", "w")
+> > -			fd.write(self.genoutput())
+> > -			fd.close()
+> > -		except IOError, error:
+> > -			sys.stderr.write("%s: %s\n" % ( sys.argv[0], error ))
+> > -
+> > +		fd = open(self.getFileContextDir()+"/file_contexts.homedirs", "w")
+> > +		fd.write(self.genoutput())
+> > +		fd.close()
+> >  
+> >  if os.getuid() > 0 or os.geteuid() > 0:
+> >  	print _("You must be root to run %s.") % sys.argv[0]
+> >  	sys.exit(1)
+> >  
+> > +try:
+> > +	fd = open("/etc/shells", 'r')
+> > +	VALID_SHELLS = fd.read().split("\n")
+> > +	fd.close()
+> > +	if "/sbin/nologin" in VALID_SHELLS:
+> > +		VALID_SHELLS.remove("/sbin/nologin")
+> > +	if "" in VALID_SHELLS:
+> > +		VALID_SHELLS.remove("")
+> > +except:
+> > +	VALID_SHELLS = ['/bin/sh', '/bin/bash', '/bin/ash', '/bin/bsh', '/bin/ksh', '/usr/bin/ksh', '/usr/bin/pdksh', '/bin/tcsh', '/bin/csh', '/bin/zsh']
+> > +
+> >  #
+> >  # This script will generate home dir file context
+> >  # based off the homedir_template file, entries in the password file, and
+> > @@ -369,15 +368,19 @@
+> >  			directory = a
+> >  		if o == '--help'  or o == "-h":
+> >  			usage()
+> > +except getopt.error, error:
+> > +	errorExit(_("Options Error %s ") % error)
+> >  
+> > +if type == None:
+> > +	type = getSELinuxType(directory)
+> >  
+> > -	if type == None:
+> > -		type = getSELinuxType(directory)
+> > +if len(cmds) != 0:
+> > +	usage(1)
+> >  
+> > -	if len(cmds) != 0:
+> > -		usage()
+> > -	selconf = selinuxConfig(directory, type, usepwd)
+> > +selconf = selinuxConfig(directory, type, usepwd)
+> > +try:
+> >  	selconf.write()
+> > +except IOError, error:
+> > +	sys.stderr.write("%s: %s\n" % ( sys.argv[0], error ))
+> > +	sys.exit(1)
+> >  
+> > -except getopt.error, error:
+> > -	errorExit(_("Options Error %s ") % error)
+> 
+> Acked-by: Karl MacMillan <kmacmillan@mentalrootkit.com>
 
-Take a look at vfs_write() and vfs_read() and you will see that they both call
-the LSM security_file_permission() hook which under SELinux is defined by the
-selinux_file_permission in security/selinux/hooks.c.
+Acked-by:  Stephen Smalley <sds@tycho.nsa.gov>
 
 -- 
-paul moore
-linux security @ hp
+Stephen Smalley
+National Security Agency
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
