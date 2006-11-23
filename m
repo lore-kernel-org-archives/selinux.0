@@ -1,121 +1,71 @@
-Message-ID: <4564BF65.7040900@redhat.com>
-Date: Wed, 22 Nov 2006 16:21:41 -0500
-From: Daniel J Walsh <dwalsh@redhat.com>
-MIME-Version: 1.0
-To: Joshua Brindle <jbrindle@tresys.com>
-CC: Stephen Smalley <sds@tycho.nsa.gov>,
-        Karl MacMillan <kmacmillan@mentalrootkit.com>,
-        "Christopher J. PeBenito" <cpebenito@tresys.com>,
-        SE Linux <selinux@tycho.nsa.gov>
-Subject: Re: More  small fixes to policycoreutils
-References: <6FE441CD9F0C0C479F2D88F959B015885C7D9F@exchange.columbia.tresys.com> <4564AD82.5080300@redhat.com> <4564B3B1.2010509@tresys.com>
-In-Reply-To: <4564B3B1.2010509@tresys.com>
-Content-Type: multipart/mixed;
- boundary="------------080907020802050608040200"
+From: David Howells <dhowells@redhat.com>
+In-Reply-To: <20061114200621.12943.18023.stgit@warthog.cambridge.redhat.com> 
+References: <20061114200621.12943.18023.stgit@warthog.cambridge.redhat.com> 
+To: torvalds@osdl.org, akpm@osdl.org, sds@tycho.nsa.gov,
+        trond.myklebust@fys.uio.no
+Cc: dhowells@redhat.com, selinux@tycho.nsa.gov, linux-kernel@vger.kernel.org,
+        aviro@redhat.com, steved@redhat.com
+Subject: [PATCH 27/19] FS-Cache: Apply the PG_checked -> PG_fs_misc conversion to Ext4
+Date: Thu, 23 Nov 2006 13:10:59 +0000
+Message-ID: <27699.1164287459@redhat.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This is a multi-part message in MIME format.
---------------080907020802050608040200
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
 
-Joshua Brindle wrote:
-> Daniel J Walsh wrote:
->> Fixes to make sure module name is all alphabet charaters.
->>
-Added
->
-> Still non-standard
->
-Fine, I will go with your standard.
+Apply the PG_checked -> PG_fs_misc conversion to Ext4 [patch 02/19].
 
---------------080907020802050608040200
-Content-Type: text/x-patch;
- name="audit2allow.diff"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="audit2allow.diff"
+Signed-Off-By: David Howells <dhowells@redhat.com>
+---
 
-diff --exclude-from=exclude --exclude='*.po' --exclude='*.pot' -N -u -r nsapolicycoreutils/audit2allow/audit2allow policycoreutils-1.33.4/audit2allow/audit2allow
---- nsapolicycoreutils/audit2allow/audit2allow	2006-11-16 17:14:29.000000000 -0500
-+++ policycoreutils-1.33.4/audit2allow/audit2allow	2006-11-22 16:16:37.000000000 -0500
-@@ -29,6 +29,7 @@
- if __name__ == '__main__':
- 	import commands, sys, os, getopt, selinux
-         import gettext
-+	import re
-         try:
-                 gettext.install('policycoreutils')
-         except:
-@@ -59,6 +60,11 @@
- 			print msg
- 		sys.exit(1)
- 		
-+	def verify_module(module):
-+		m = re.findall("[^a-zA-Z0-9]", module)
-+		if len(m) != 0:
-+			usage(_("Alphanumeric Charaters Only"))
-+		
- 	def errorExit(error):
- 		sys.stderr.write("%s: " % sys.argv[0])
- 		sys.stderr.write("%s\n" % error)
-@@ -125,10 +131,12 @@
- 				if module != "" or a[0] == "-":
- 					usage()
- 				module = a
-+				verify_module(module)
- 			if o == "-M":
- 				if module != "" or output_ind  or a[0] == "-":
- 					usage()
- 				module = a
-+				verify_module(module)
- 				outfile = a+".te"
- 				buildPP = 1
- 				if not os.path.exists("/usr/bin/checkmodule"):
-@@ -184,22 +192,27 @@
- 		output.write(serules.out(requires, module))
- 		output.flush()
- 		if buildPP:
--			cmd = "checkmodule %s -m -o %s.mod %s.te" % (get_mls_flag(), module, module)
--			print _("Compiling policy")
--			print cmd
--			rc = commands.getstatusoutput(cmd)
--			if rc[0] == 0:
--				cmd = "semodule_package -o %s.pp -m %s.mod" % (module, module)
--				if fc_file != "":
--					cmd = "%s -f %s" % (cmd, fc_file)
--					
-+			if ref_ind:
-+				rc, type = selinux.selinux_getpolicytype()
-+				cmd = "make -f /usr/share/selinux/%s/include/Makefile %s.pp" % (type, module)
-+				print _("Compiling policy")
-+				print cmd
-+				rc = commands.getstatusoutput(cmd)
-+			else:
-+				cmd = "checkmodule %s -m -o %s.mod %s.te" % (get_mls_flag(), module, module)
-+				print _("Compiling policy")
- 				print cmd
- 				rc = commands.getstatusoutput(cmd)
- 				if rc[0] == 0:
--					print _("\n******************** IMPORTANT ***********************\n")
--					print (_("In order to load this newly created policy package into the kernel,\nyou are required to execute \n\nsemodule -i %s.pp\n\n") % module)
--				else:
--					errorExit(rc[1])
-+					cmd = "semodule_package -o %s.pp -m %s.mod" % (module, module)
-+					if fc_file != "":
-+						cmd = "%s -f %s" % (cmd, fc_file)
-+					
-+					print cmd
-+					rc = commands.getstatusoutput(cmd)
-+			if rc[0] == 0:
-+				print _("\n******************** IMPORTANT ***********************\n")
-+				print (_("In order to load this newly created policy package into the kernel,\nyou are required to execute \n\nsemodule -i %s.pp\n\n") % module)
- 			else:
- 				errorExit(rc[1])
+ fs/ext4/inode.c |   10 +++++-----
+ 1 files changed, 5 insertions(+), 5 deletions(-)
+
+diff --git a/fs/ext4/inode.c b/fs/ext4/inode.c
+index 0a60ec5..4846bb9 100644
+--- a/fs/ext4/inode.c
++++ b/fs/ext4/inode.c
+@@ -1530,12 +1530,12 @@ static int ext4_journalled_writepage(str
+ 		goto no_write;
+ 	}
  
-
---------------080907020802050608040200--
+-	if (!page_has_buffers(page) || PageChecked(page)) {
++	if (!page_has_buffers(page) || PageFsMisc(page)) {
+ 		/*
+ 		 * It's mmapped pagecache.  Add buffers and journal it.  There
+ 		 * doesn't seem much point in redirtying the page here.
+ 		 */
+-		ClearPageChecked(page);
++		ClearPageFsMisc(page);
+ 		ret = block_prepare_write(page, 0, PAGE_CACHE_SIZE,
+ 					ext4_get_block);
+ 		if (ret != 0) {
+@@ -1592,7 +1592,7 @@ static void ext4_invalidatepage(struct p
+ 	 * If it's a full truncate we just forget about the pending dirtying
+ 	 */
+ 	if (offset == 0)
+-		ClearPageChecked(page);
++		ClearPageFsMisc(page);
+ 
+ 	jbd2_journal_invalidatepage(journal, page, offset);
+ }
+@@ -1601,7 +1601,7 @@ static int ext4_releasepage(struct page 
+ {
+ 	journal_t *journal = EXT4_JOURNAL(page->mapping->host);
+ 
+-	WARN_ON(PageChecked(page));
++	WARN_ON(PageFsMisc(page));
+ 	if (!page_has_buffers(page))
+ 		return 0;
+ 	return jbd2_journal_try_to_free_buffers(journal, page, wait);
+@@ -1697,7 +1697,7 @@ out:
+  */
+ static int ext4_journalled_set_page_dirty(struct page *page)
+ {
+-	SetPageChecked(page);
++	SetPageFsMisc(page);
+ 	return __set_page_dirty_nobuffers(page);
+ }
+ 
 
 --
 This message was distributed to subscribers of the selinux mailing list.
