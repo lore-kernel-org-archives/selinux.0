@@ -1,149 +1,49 @@
-From: David Howells <dhowells@redhat.com>
-In-Reply-To: <20061114200621.12943.18023.stgit@warthog.cambridge.redhat.com> 
-References: <20061114200621.12943.18023.stgit@warthog.cambridge.redhat.com> 
-To: torvalds@osdl.org, akpm@osdl.org, sds@tycho.nsa.gov,
-        trond.myklebust@fys.uio.no
-Cc: dhowells@redhat.com, selinux@tycho.nsa.gov, linux-kernel@vger.kernel.org,
-        aviro@redhat.com, steved@redhat.com
-Subject: [PATCH 29/19] CacheFiles: Remove old obsolete cull function
-Date: Thu, 23 Nov 2006 20:13:32 +0000
-Message-ID: <27093.1164312812@redhat.com>
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id kAO1aQ3s019420
+	for <selinux@tycho.nsa.gov>; Thu, 23 Nov 2006 20:36:26 -0500
+Received: from mx1.redhat.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id kAO1ZhwO029843
+	for <selinux@tycho.nsa.gov>; Fri, 24 Nov 2006 01:35:44 GMT
+Subject: Re: [PATCH 10/13] NetLabel: use cipso_v4_doi_search() for local
+	CIPSOv4 functions
+From: Eric Paris <eparis@parisplace.org>
+To: paul.moore@hp.com
+Cc: netdev@vger.kernel.org, selinux@tycho.nsa.gov, jmorris@namei.org,
+        Alexander Viro <aviro@redhat.com>
+In-Reply-To: <20061117224336.711076000@hp.com>
+References: <20061117223842.399078000@hp.com>
+	 <20061117224336.711076000@hp.com>
+Content-Type: text/plain
+Date: Thu, 23 Nov 2006 20:24:34 -0500
+Message-Id: <1164331474.2079.39.camel@localhost.localdomain>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-CacheFiles: Remove old obsolete cull function
+On Fri, 2006-11-17 at 17:38 -0500, paul.moore@hp.com wrote:
 
-From: David Howells <dhowells@redhat.com>
+> Index: net-2.6.20_netlabel-base-work/net/ipv4/cipso_ipv4.c
+> ===================================================================
+> --- net-2.6.20_netlabel-base-work.orig/net/ipv4/cipso_ipv4.c
+> +++ net-2.6.20_netlabel-base-work/net/ipv4/cipso_ipv4.c
+> @@ -1136,7 +1136,7 @@ int cipso_v4_validate(unsigned char **op
+>  	}
+>  
+>  	rcu_read_lock();
+> -	doi_def = cipso_v4_doi_getdef(ntohl(*((__be32 *)&opt[2])));
+> +	doi_def = cipso_v4_doi_search(ntohl(*((u32 *)&opt[2])));
+>  	if (doi_def == NULL) {
+>  		err_offset = 2;
+>  		goto validate_return_locked;
 
-Remove the old cachefiles_cull() function that was obsolete and #if'd out.
 
-Signed-Off-By: David Howells <dhowells@redhat.com>
----
+This appears to reverse the previous endian work by Al Viro, was this
+intended?
 
- fs/cachefiles/cf-namei.c |  110 ----------------------------------------------
- 1 files changed, 0 insertions(+), 110 deletions(-)
+http://www.kernel.org/git/?p=linux/kernel/git/davem/net-2.6.20.git;a=commitdiff;h=8d7d47b647d7bc05443f1a8a5012e6b41be1c827
 
-diff --git a/fs/cachefiles/cf-namei.c b/fs/cachefiles/cf-namei.c
-index d0db9b3..9e6dd9f 100644
---- a/fs/cachefiles/cf-namei.c
-+++ b/fs/cachefiles/cf-namei.c
-@@ -524,116 +524,6 @@ nomem_d_alloc:
- 	return ERR_PTR(-ENOMEM);
- }
- 
--#if 0
--/*
-- * cull an object if it's not in use
-- * - called only by cache manager daemon
-- */
--int cachefiles_cull(struct cachefiles_cache *cache, struct dentry *dir,
--		    char *filename)
--{
--	struct cachefiles_object *object;
--	struct rb_node *_n;
--	struct dentry *victim;
--	int ret;
--
--	_enter(",%*.*s/,%s",
--	       dir->d_name.len, dir->d_name.len, dir->d_name.name, filename);
--
--	/* look up the victim */
--	mutex_lock(&dir->d_inode->i_mutex);
--
--	victim = lookup_one_len(filename, dir, strlen(filename));
--	if (IS_ERR(victim))
--		goto lookup_error;
--
--	_debug("victim -> %p %s",
--	       victim, victim->d_inode ? "positive" : "negative");
--
--	/* if the object is no longer there then we probably retired the object
--	 * at the netfs's request whilst the cull was in progress
--	 */
--	if (!victim->d_inode) {
--		mutex_unlock(&dir->d_inode->i_mutex);
--		dput(victim);
--		_leave(" = -ENOENT [absent]");
--		return -ENOENT;
--	}
--
--	/* check to see if we're using this object */
--	read_lock(&cache->active_lock);
--
--	_n = cache->active_nodes.rb_node;
--
--	while (_n) {
--		object = rb_entry(_n, struct cachefiles_object, active_node);
--
--		if (object->dentry > victim)
--			_n = _n->rb_left;
--		else if (object->dentry < victim)
--			_n = _n->rb_right;
--		else
--			goto object_in_use;
--	}
--
--	read_unlock(&cache->active_lock);
--
--	/* okay... the victim is not being used so we can cull it
--	 * - start by marking it as stale
--	 */
--	_debug("victim is cullable");
--
--	ret = cachefiles_remove_object_xattr(cache, victim);
--	if (ret < 0)
--		goto error_unlock;
--
--	/*  actually remove the victim (drops the dir mutex) */
--	_debug("bury");
--
--	ret = cachefiles_bury_object(cache, dir, victim);
--	if (ret < 0)
--		goto error;
--
--	dput(victim);
--	_leave(" = 0");
--	return 0;
--
--
--object_in_use:
--	read_unlock(&cache->active_lock);
--	mutex_unlock(&dir->d_inode->i_mutex);
--	dput(victim);
--	_leave(" = -EBUSY [in use]");
--	return -EBUSY;
--
--lookup_error:
--	mutex_unlock(&dir->d_inode->i_mutex);
--	ret = PTR_ERR(victim);
--	if (ret == -EIO)
--		cachefiles_io_error(cache, "Lookup failed");
--	goto choose_error;
--
--error_unlock:
--	mutex_unlock(&dir->d_inode->i_mutex);
--error:
--	dput(victim);
--choose_error:
--	if (ret == -ENOENT) {
--		/* file or dir now absent - probably retired by netfs */
--		_leave(" = -ESTALE [absent]");
--		return -ESTALE;
--	}
--
--	if (ret != -ENOMEM) {
--		kerror("Internal error: %d", ret);
--		ret = -EIO;
--	}
--
--	_leave(" = %d", ret);
--	return ret;
--}
--#endif
--
- /*
-  * find out if an object is in use or not
-  * - if finds object and it's not in use:
+-Eric
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
