@@ -1,145 +1,290 @@
 Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id kARL4Q8e012686
-	for <selinux@tycho.nsa.gov>; Mon, 27 Nov 2006 16:04:26 -0500
-Received: from e34.co.us.ibm.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id kARL3iAj004635
-	for <selinux@tycho.nsa.gov>; Mon, 27 Nov 2006 21:03:44 GMT
-Received: from d03relay04.boulder.ibm.com (d03relay04.boulder.ibm.com [9.17.195.106])
-	by e34.co.us.ibm.com (8.13.8/8.12.11) with ESMTP id kARL4lvg017143
-	for <selinux@tycho.nsa.gov>; Mon, 27 Nov 2006 16:04:47 -0500
-Received: from d03av04.boulder.ibm.com (d03av04.boulder.ibm.com [9.17.195.170])
-	by d03relay04.boulder.ibm.com (8.13.6/8.13.6/NCO v8.1.1) with ESMTP id kARL4l6V419026
-	for <selinux@tycho.nsa.gov>; Mon, 27 Nov 2006 14:04:47 -0700
-Received: from d03av04.boulder.ibm.com (loopback [127.0.0.1])
-	by d03av04.boulder.ibm.com (8.12.11.20060308/8.13.3) with ESMTP id kARL4kYb029713
-	for <selinux@tycho.nsa.gov>; Mon, 27 Nov 2006 14:04:47 -0700
-Subject: Re: [redhat-lspp] Re: labeled ipsec policy
-From: Joy Latten <latten@austin.ibm.com>
-To: "Christopher J. PeBenito" <cpebenito@tresys.com>
-Cc: redhat-lspp@redhat.com, jbrindle@tresys.com, selinux@tycho.nsa.gov
-In-Reply-To: <1164118202.12234.24.camel@sgc>
-References: <1163802623.17737.398.camel@faith.austin.ibm.com>
-	 <1164118202.12234.24.camel@sgc>
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id kARMN8OL014767
+	for <selinux@tycho.nsa.gov>; Mon, 27 Nov 2006 17:23:08 -0500
+Subject: Re: [PATCH 1/5] libselinux: labeling API basic front-end interface
+From: Eamon Walsh <ewalsh@tycho.nsa.gov>
+Reply-To: ewalsh@tycho.nsa.gov
+To: Karl MacMillan <kmacmillan@mentalrootkit.com>
+Cc: selinux@tycho.nsa.gov
+In-Reply-To: <4561CB69.3040409@mentalrootkit.com>
+References: <1163643926.15225.55.camel@moss-huskies.epoch.ncsc.mil>
+	 <1163645170.15225.66.camel@moss-huskies.epoch.ncsc.mil>
+	 <4561CB69.3040409@mentalrootkit.com>
 Content-Type: text/plain
-Date: Mon, 27 Nov 2006 14:51:20 -0600
-Message-Id: <1164660680.17737.459.camel@faith.austin.ibm.com>
+Date: Mon, 27 Nov 2006 17:23:07 -0500
+Message-Id: <1164666187.2794.67.camel@moss-huskies.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2006-11-21 at 09:10 -0500, Christopher J. PeBenito wrote:
-> On Fri, 2006-11-17 at 16:30 -0600, Joy Latten wrote:
-> > The following policy enables labeled ipsec to run
-> > in enforcing mode. I configure labeled ipsec in sysadm_r role. 
-> > Thus the rules I needed were specific to this role.
-> [cut]
-> > Included are some interfaces, which I used in an xxxx.if
-> > file. Then, there are a bunch of rules which I used in a xxxx.te file
-> > These rules were just an example of what I needed
-> > to get ping, nc, and ssh to work with labeled ipsec. For my
-> > policy, I used the types unlabeled_t, passwd_t, and ipsec_spd_t.
-> > When using passwd_t, ipsec_spd_t or any other domain, please be 
-> > mindful of mls constraints. 
-> [cut]
-> 
-> > interface(`ipsec_set_label',`
-> > 	gen_require(`
-> > 		type sysadm_t;
-> > 	')
-> > 	
-> > 	allow sysadm_t $1:association setcontext; 
-> > ')
-> 
-> Interfaces are written from the perspective of the subject (except for a
-> few very specific cases), so the parameter should be the subject, not
-> the object.  Neglecting that, is this for sysadm_t instead of
-> ipsec_mgmt_t?  I suspect that we want to add an interface to the domain
-> module that allows setcontext on the domain attribute.
-
-Yes, this was for sysadm_t. I had taken a look at the current ipsec.if,
-ipsec.te, ipsec.fc and userdomain.te files as well and had wondered why
-we were not executing ipsec in the ipsec domain. It seem that the policy
-in those files was more for pluto and its utilities than ipsec-tools'
-utilities. 
-
-So should racoon and setkey, the ipsec-tools' utiltites, be run in the
-ipsec domain? Should the sysadm_r role only be allowed to configure
-ipsec?
- 
-> > interface(`ipsec_label_sa_pol',`	
-> > 	allow $1 $2:association polmatch;
-> > ')
-> 
-> Generally refpolicy would leave this as a raw rule these types are in
-> separate modules, in which case the interface would be in $2's module
-> and have a specific type instead of $2.
-
-Ok, I think I understand what you mean. From what I can tell of the code
-for the "polmatch" permission, $2 will most likely always be the type of
-the security context in the ipsec policy. However, this could be set to
-anything by the sysadm. Should I setup a default? For example, assume
-labeled ipsec policy to have a type of ipsec_spd_t? Thus a sysadm who
-decides to use labels in his ipsec policy, by default could use
-ipsec_spd_t for the type and specify whatever he/she wants for the mls
-level. Then he/she would use the interface to say which domains he wants
-to allow to "polmatch" to this. Does this sound reasonable? If so, I'll
-make the change and also make sure this is documented.
-
-> > interface(`ipsec_labels_send_recv',`		
-> > 	allow $1 self:association { recvfrom sendto };
-> > ')
-> 
-> This would be raw rule in refpolicy instead of an interface.
-
-I am not too sure I understand. We need a rule allowing flow->sid to use
-SA's sid to send. SA's type as well as flow's type will be that of the
-socket. Thus it could be any application or daemon. Do I need to add
-this rule to every daemon/application as a raw rule?  For example, in 
-netutils.te, add this for ping?
-
-> > interface(`ipsec_tools_utilities',`
-> > 	gen_require(`
-> > 		type isakmp_port_t;
-> > 		type inaddr_any_node_t;
-> > 	')
+On Mon, 2006-11-20 at 10:36 -0500, Karl MacMillan wrote:
+> Eamon Walsh wrote:
+> > This is the basic front-end interface.  Note that backends may supply
+> > additional values and flags, which will be seen with the file_contexts
+> > backend.
 > > 
-> > 	# allow setkey and racoon to create and use a key socket.
-> > 	allow $1 self:key_socket { create read write setopt };
-> > 
-> > 	# allow racoon to use ISAKMP port
-> > 	allow $1 isakmp_port_t:udp_socket name_bind;
-> > 
-> > 	# allow racoon to use avc_has_perm in within_range() 
-> > 	# to determine if proposed SA "polmatches" to policy
-> > 	allow $1 self:netlink_selinux_socket { bind create read };
-> > 
-> > 	# I think this is so racoon can listen on an admin port.
-> > 	allow $1 inaddr_any_node_t:tcp_socket node_bind;
-> > 
-> > 	# to create, remove read lock in /var/racoon/
-> > 	ipsec_manage_pid($1)
-> > 
-> > 	# in grabmyaddrs() socket(PF_ROUTE...)
-> > 	allow $1 self:netlink_route_socket { create_netlink_socket_perms };
-> > ')
 > 
-> Again, why is this needed, instead of ipsec_mgmt_t?
+> General comment - I think that providing this infrastructure is a good 
+> idea and the basic approach is sane.
+
+Thanks for the comments.
+
 > 
-> I suspect that the ipsec policy needs to be overhauled because I believe
-> it was oriented towards the KAME ipsec implementation (pluto, et al) and
-> was augmented to work with racoon afterwards.
+> > ---
+> >  include/selinux/label.h         |  181 ++++++++++++++++++++++++
+> >  include/selinux/label_backend.h |   20 ++
+> >  2 files changed, 201 insertions(+)
+> > 
+> > 
+> > 
+> > 
+> > ------------------------------------------------------------------------
+> > 
+> > Index: include/selinux/label.h
+> > ===================================================================
+> > --- include/selinux/label.h	(revision 0)
+> > +++ include/selinux/label.h	(revision 0)
+> > @@ -0,0 +1,181 @@
+> > +/*
+> > + * Labeling interface for userspace object managers and others.
+> > + *
+> > + * Author : Eamon Walsh <ewalsh@tycho.nsa.gov>
+> > + */
+> > +#ifndef _SELINUX_LABEL_H_
+> > +#define _SELINUX_LABEL_H_
+> > +
+> > +#include <sys/types.h>
+> > +#include <selinux/selinux.h>
+> > +
+> > +#ifdef __cplusplus
+> > +extern "C" {
+> > +#endif
+> > +
+> > +/*
+> > + * User-provided callbacks for memory, logging, locking, and extra actions
+> > + */
+> > +
+> > +/* These structures are passed by reference to label_init().  Passing
+> > + * a NULL reference will cause a default to be used.  The default
+> > + * memory callbacks are malloc() and free().  The default logging method
+> > + * is to print on stderr.  The default validation callback is based on
+> > + * selinux_check_context().  If no locking callbacks are passed, no locking
+> > + * will take place.
+> > + */
+> > +	struct label_memory_callback {
+> > +		/* malloc() equivalent. */
+> > +		void *(*func_malloc) (size_t size);
+> > +		/* free() equivalent. */
+> > +		void (*func_free) (void *ptr);
+> > +		/* Note that these functions should set errno on failure.
+> > +		   If not, some routines may return -1 without errno set. */
+> > +	};
+> > +
+> 
+> Do you have an example of when this flexibility would be needed?
 
-I think you are correct. 
+Yes, the X server has an "xalloc" function that is used internally.
+There have been experiments with userspace memory managers to reduce
+fragmentation, although right now xalloc just wraps malloc.  I'd think
+that databases may do the same type of thing - I don't know, however.
 
-Right now racoon and setkey use ipsec_exec_t domain. Is this ok or
-should it be ipsec_mgmt_t? Also, should I go ahead and make the
-modifications for racoon and setkey to run in the ipsec domain (either
-ipsec_exec_t or ipsec_mgmt_t) instead of sysadm_t domain ? I wouldn't
-mind making an attempt at it with your help and as long as I knew you
-would review it for me.
+> 
+> > +	struct label_log_callback {
+> > +		/* log the printf-style format and arguments,
+> > +		   with the type code indicating the type of message */
+> > +		int (*func_log) (int type, const char *fmt, ...);
+> > +	};
+> > +
+> > +	struct label_action_callback {
+> > +		/* validate the supplied context, making changes if necessary,
+> > +		   returning 0 if valid or -1 with errno set otherwise. */
+> > +		int (*func_validate) (security_class_t cls, char **context);
+> > +	};
+> > +
+> > +	struct label_lock_callback {
+> > +		/* create a lock and return an opaque pointer to it. */
+> > +		void *(*func_alloc_lock) (void);
+> > +		/* obtain a given lock, blocking if necessary. */
+> > +		void (*func_get_lock) (void *lock);
+> > +		/* release a given lock. */
+> > +		void (*func_release_lock) (void *lock);
+> > +		/* destroy a given lock (free memory, etc.) */
+> > +		void (*func_free_lock) (void *lock);
+> > +	};
+> > +
+> 
+> I would prefer to let clients to do locking by providing clear 
+> guarantees on the threading properties of the functions. Any reasons why 
+> this would be required.
 
-Regards,
-Joy
+This is a hold-over from the userspace AVC interface.  The userspace AVC
+can start a background thread that listens on netlink for selinux policy
+reload notifications so it can flush its cache.  The locking can't be
+done by the client in this case.
+
+Compatibility with both the userspace AVC and the matchpathcon interface
+played a large part in my thinking.
+
+> 
+> Additionally, if we take this callback approach can we combine this with 
+> the related userspace AVC callbacks? Would a single client need to 
+> provide different callbacks for locking and memory between the labeling 
+> and AVC interfaces?
+
+The callbacks and callback structures are identical, allowing reuse.
+
+> 
+> > +/* Logging type codes, passed to the logging callback */
+> > +#define LABEL_ERROR		0
+> > +#define LABEL_WARNING		1
+> > +#define LABEL_INFO		2
+> > +#define LABEL_INVALIDCON	3
+> > +
+> > +/*
+> > + * Label operations
+> > + */
+> > +
+> > +/**
+> > + * label_init - Initialize the labeling system.
+> > + * @prefix: used by the backend for selecting a configuration or package
+> > + * @mem_callbacks: user-supplied memory callbacks
+> > + * @log_callbacks: user-supplied logging callbacks
+> > + * @action_callbacks: user-supplied validation callbacks
+> > + * @lock_callbacks: user-supplied locking callbacks
+> > + *
+> > + * Initialize the labeling subsystem.  Return %0 on success or -%1 with @errno
+> > + * set on failure.  Argument @name must not be NULL or empty.  If any callback 
+> > + * structure references are NULL, use default methods for those callbacks (see
+> > + * the definition of the callback structures above).
+> > + */
+> > +	int label_init(const char *prefix,
+> > +		       const struct label_memory_callback *mem_callbacks,
+> > +		       const struct label_log_callback *log_callbacks,
+> > +		       const struct label_action_callback *action_callbacks,
+> > +		       const struct label_lock_callback *lock_callbacks);
+> > +
+> 
+> First - my biggest confusion here is how the backend, prefix, and label 
+> action callbacks all relate. To me - this is not immediately clear so at 
+> least some documentation is needed. I think, however, that it might be a 
+> sign that the API needs some work. Can you give some more explanation. 
+> Also, a little code showing how a client would use this API would also 
+> be helpful.
+
+I'll send out a patch to setfiles so you can see how it would be used.
+
+The name "prefix" may not be very descriptive, I couldn't think of a
+better name for it so I just kept the name from the avc_init() prefix
+argument, which serves as the prefix to the AVC messages.
+
+Anyway, this string serves as an argument to the backend's
+initialization routine, which returns a handle that is stored in a
+linked list.  Each time the prefix string is changed with
+label_change_name(), an additional handle is obtained from the backend.
+So you have a mapping of:
+
+(object class, prefix string) -> handle
+
+where the prefix string is set with label_init()/label_change_name(),
+and the object class is provided to label_configure()/label_lookup().
+
+The reason for the prefix string is package separation; think of the
+prefix string as a package name.  It would allow, say, the file contexts
+for each package to be shipped and installed separately, then the
+installer could use the package name as the prefix at install time to
+open the file contexts for just the new package and relabel them.
+
+Another, more immediate reason for it is that there is both a
+file_contexts configuration and a media_contexts configuration (from the
+udev folks) both associated with object class file and I needed a way to
+select between them (as can be seen by the string constants in
+label_backend_file.h).
+
+> 
+> Second - I question the storage of "subsystems" (not certain if that is 
+> the correct term) in a global array in the library. Why not return a 
+> handle that is managed by the client? That could also be used to make 
+> the locking semantics clearer and allow client locking.
+
+The internal handle could be returned all the way out to the client.  My
+thinking in not doing this is that by tracking the handles internally,
+there is less work that has to be done by the client code itself, which
+makes it easier to justify upstream in many of the large, multi-OS
+projects we are targeting such as X, Postgres, etc.
+
+Another reason is that I was thinking of a package manager or relabeler,
+that may be going through all the packages on a system or otherwise
+using many prefixes, which would require keeping track of many handles.
+I thought it would be easier to just track them internally.
+
+As discussed above, the background netlink thread thing in the userspace
+AVC makes it difficult to do client locking without callbacks.
+
+> 
+> > +/**
+> > + * label_change_name - Change system prefix
+> > + * @prefix: used by the backend for selecting a configuration or package
+> > + *
+> > + * Change the prefix string used by the labeling system on future calls.  This
+> > + * function may be called multiple times.  Backend configurations are kept
+> > + * separately by prefix, meaning that after a call to this function, calls to
+> > + * label_configure() may be necessary to re-initialize backends.  However, 
+> > + * switching back to a prefix will preserve any configuration made previously
+> > + * while that prefix was in effect.
+> > + */
+> > +	void label_change_name(const char *prefix);
+> > +
+> 
+> This just becomes more confusing to me - the comment says that prefixes 
+> are "used by the backend" and then says "Backend configurations are kept 
+> separately by prefix". OK - do prefixes refer to backends or are they 
+> used by backends?
+
+Both - see above.  The prefix is passed to the backend's init function
+to get a handle that is then stored in the linked list, with the prefix
+as the key.
+
+> 
+> > +/**
+> > + * label_configure - Configure specific labeling backend.
+> > + * @cls: specifies the backend to configure
+> > + * @flags: global and/or backend-specific configuration flags
+> > + * @arg: additional backend-specific configuration data
+> > + *
+> > + * Configure a specific labeling backend.  This function should be called
+> > + * after a successful call to label_init and is optional; it will be called
+> > + * automatically with default arguments by label_lookup if necessary.  The
+> > + * result of the call depends on the specific flags and the backend, although
+> > + * typically the backend will reset its internal state.  Return %0 on success
+> > + * or -%1 with @errno set on failure.  
+> > + */
+> > +	int label_configure(security_class_t cls,
+> > +			    int flags,
+> > +			    void *arg);
+> > +
+> 
+> I'm not a big fan of these kinds of multiplexing configuration calls. 
+> Again, if you have a labeling handle it would be simple for backends to 
+> provide other configuration functions that simply take that handle, 
+> eliminating this cumbersome interface.
+
+OK, perhaps the void pointer can be removed from this call and instead,
+backends can provide additional configuration functions.  It's a
+tradeoff between the void pointer and more exported functions in the
+library.
+
+> 
+> Karl
+> 
+> 
+> --
+> This message was distributed to subscribers of the selinux mailing list.
+> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
+> the words "unsubscribe selinux" without quotes as the message.
+-- 
+Eamon Walsh <ewalsh@tycho.nsa.gov>
+National Security Agency
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
