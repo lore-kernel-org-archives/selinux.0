@@ -1,62 +1,59 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id kAOJ0I4J006127
-	for <selinux@tycho.nsa.gov>; Fri, 24 Nov 2006 14:00:18 -0500
-Received: from mailhub.hp.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id kAOIxbN7001815
-	for <selinux@tycho.nsa.gov>; Fri, 24 Nov 2006 18:59:37 GMT
-From: "Paul Moore" <paul.moore@hp.com>
-Subject: Re: [PATCH 10/13] NetLabel: use cipso_v4_doi_search() for local CIPSOv4 functions
-Date: 24 Nov 2006 13:59:00 -0500
-To: <viro@ftp.linux.org.uk>
-Message-ID: <3247221600.11766119@mail.hp.com>
-Cc: <eparis@parisplace.org>, <netdev@vger.kernel.org>, <selinux@tycho.nsa.gov>,
-        <jmorris@namei.org>, <aviro@redhat.com>
+Message-ID: <456AEA7B.7090702@tresys.com>
+Date: Mon, 27 Nov 2006 08:39:07 -0500
+From: Joshua Brindle <jbrindle@tresys.com>
+MIME-Version: 1.0
+To: Daniel J Walsh <dwalsh@redhat.com>
+CC: Stephen Smalley <sds@tycho.nsa.gov>,
+        Karl MacMillan <kmacmillan@mentalrootkit.com>,
+        "Christopher J. PeBenito" <cpebenito@tresys.com>,
+        SE Linux <selinux@tycho.nsa.gov>
+Subject: Re: More  small fixes to policycoreutils
+References: <6FE441CD9F0C0C479F2D88F959B015885C7D9F@exchange.columbia.tresys.com> <4564AEB8.3050902@redhat.com> <4564B4D3.2070901@tresys.com> <4564BC26.8040706@redhat.com>
+In-Reply-To: <4564BC26.8040706@redhat.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
------Original Message-----
-From: Al Viro <viro@ftp.linux.org.uk>
-Date: Friday, Nov 24, 2006 2:07 am
-Subject: Re: [PATCH 10/13] NetLabel: use cipso_v4_doi_search() for local CIPSOv4 functions
-
-On Thu, Nov 23, 2006 at 08:24:34PM -0500, Eric Paris wrote:
-> On Fri, 2006-11-17 at 17:38 -0500, paul.moore@hp.com wrote:
+Daniel J Walsh wrote:
+> Joshua Brindle wrote:
+>> Daniel J Walsh wrote:
+>>> run_init patch for call pam_acct_mgmt
+>>>
+>>>
+>>> ------------------------------------------------------------------------
+>>>
+>>> diff --exclude-from=exclude --exclude='*.po' --exclude='*.pot' -N -u 
+>>> -r nsapolicycoreutils/run_init/run_init.c 
+>>> policycoreutils-1.33.4/run_init/run_init.c
+>>> --- nsapolicycoreutils/run_init/run_init.c    2006-11-16 
+>>> 17:14:27.000000000 -0500
+>>> +++ policycoreutils-1.33.4/run_init/run_init.c    2006-11-22 
+>>> 14:11:25.000000000 -0500
+>>> @@ -132,6 +132,14 @@
+>>>          result = 1;    /* user authenticated OK! */
+>>>      }
+>>>  
+>>> +    /* If we were successful, call pam_acct_mgmt() to reset the
+>>> +         * pam_tally failcount.
+>>> +         */
+>>> +    if (result && (PAM_SUCCESS != pam_acct_mgmt(pam_handle, 0)) ) {
+>>> +        fprintf(stderr, _("failed to get account information\n"));
+>>> +        exit(-1);
+>>> +    }   +
+>>>      /* We're done with PAM.  Free `pam_handle'. */
+>>>      pam_end(pam_handle, PAM_SUCCESS);
+>>>  
+>>
+>> I thought the previous thread noted that this was unnecessary, or am I 
+>> confused?
+>>
+> The pam_tally might not be required anymore.  But best practices says 
+> put it in there.
 > 
-> > Index: net-2.6.20_netlabel-base-work/net/ipv4/cipso_ipv4.c
-> > ===================================================================
-> > --- net-2.6.20_netlabel-base-work.orig/net/ipv4/cipso_ipv4.c
-> > +++ net-2.6.20_netlabel-base-work/net/ipv4/cipso_ipv4.c
-> > @@ -1136,7 +1136,7 @@ int cipso_v4_validate(unsigned char **op
-> >  	}
-> >  
-> >  	rcu_read_lock();
-> > -	doi_def = cipso_v4_doi_getdef(ntohl(*((__be32 *)&opt[2])));
-> > +	doi_def = cipso_v4_doi_search(ntohl(*((u32 *)&opt[2])));
-> >  	if (doi_def == NULL) {
-> >  		err_offset = 2;
-> >  		goto validate_return_locked;
-> 
-> 
-> This appears to reverse the previous endian work by Al Viro, was this
-> intended?
->
->Mismerge, most likely.  Fixed in net-2.6.20 since then (
->commit 835ec2525544c744333bf0da00049f323eb75c58
->Author: Al Viro <viro@zeniv.linux.org.uk>
->Date:   Mon Nov 20 18:08:37 2006 -0800
->
->    [CIPSO]: Missing annotation in cipso_ipv4 update.
->) 
->
->Note that there are two changes in that line - u32 -> __be32 and
->..._getdef -> ..._search.  They do not really conflict, but any merge tool would throw a conflict at that point and apparently it got
->resolved the dumb way...
->
 
-Yep, Al is right, I just made a dumb mistake when merging my code with the latest net-2.6.20 tree.  I thought I caught everything but it looks like I missed one.  Sorry.
+Ok,
 
-. paul moore
-. linux security @ hp
+Acked-By: Joshua Brindle <jbrindle@tresys.com>
 
 
 --
