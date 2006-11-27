@@ -1,148 +1,159 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id kARER8YE030355
-	for <selinux@tycho.nsa.gov>; Mon, 27 Nov 2006 09:27:08 -0500
-Received: from exchange.columbia.tresys.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with SMTP id kAREPPXA004609
-	for <selinux@tycho.nsa.gov>; Mon, 27 Nov 2006 14:25:26 GMT
-Subject: Re: [RFC] Thunar filesystem manager policy
-From: "Christopher J. PeBenito" <cpebenito@tresys.com>
-To: Bradley Chapman <kakadu@gmail.com>
-Cc: selinux@tycho.nsa.gov
-In-Reply-To: <e294b46e0611221141v650500f7v72f83ecd3573e356@mail.gmail.com>
-References: <e294b46e0611221141v650500f7v72f83ecd3573e356@mail.gmail.com>
-Content-Type: text/plain
-Date: Mon, 27 Nov 2006 09:27:28 -0500
-Message-Id: <1164637648.7490.18.camel@sgc.columbia.tresys.com>
-Mime-Version: 1.0
+Message-ID: <456B3A39.3090804@mentalrootkit.com>
+Date: Mon, 27 Nov 2006 14:19:21 -0500
+From: Karl MacMillan <kmacmillan@mentalrootkit.com>
+MIME-Version: 1.0
+To: Stephen Smalley <sds@tycho.nsa.gov>
+CC: Michael C Thompson <thompsmc@us.ibm.com>, SE Linux <selinux@tycho.nsa.gov>
+Subject: Re: [PATCH] genhomedircon
+References: <455C9EB3.5050602@us.ibm.com>	 <45637591.2070406@mentalrootkit.com> <1164207610.13758.156.camel@moss-spartans.epoch.ncsc.mil>
+In-Reply-To: <1164207610.13758.156.camel@moss-spartans.epoch.ncsc.mil>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2006-11-22 at 19:41 +0000, Bradley Chapman wrote:
-> I'm currently writing a policy for the Thunar filesystem manager, and
-> at the moment I'm having trouble making the policy work. I feel that
-> it has something to do with the following error message:
-> 
-> audit(1164224019.042:744): security_compute_sid:  invalid context
-> staff_u:sysadm_r:thunar_t for scontext=staff_u:sysadm_r:thunar_t
-> tcontext=system_u:object_r:thunar_exec_t tclass=process
+Merged as part of policycoreutils 1.33.5
 
-Its because of this:
-
-domain_auto_trans($2, thunar_exec_t, thunar_t)
-
-it should be:
-
-domain_auto_trans($2, thunar_exec_t, $1_thunar_t)
-
-Why is there a thunar_t and $1_thunar_t?  
-
-> Also, I'm having trouble getting the D-BUS daemons to transition into
-> my new policy domain when they start Thunar; how does one configure a
-> new policy to allow domain transitions of this type?
+Stephen Smalley wrote:
+> On Tue, 2006-11-21 at 16:54 -0500, Karl MacMillan wrote:
+>> Michael C Thompson wrote:
+>>> I've noticed that genhomedircon does not have the proper return codes on 
+>>> some error and success paths. This patch addresses these return codes as 
+>>> follow:
+>>>
+>>> * usage function by default returns 0, and the desired return code can 
+>>> be specified via a parameter. This facilitates the fix to the current 
+>>> behaviour that 1 is returned on 'genhomedircon -h'.
+>>>
+>>> * I have noticed that as secadm (this is a bug? will start a separate 
+>>> thread) fails to successfully call semanage_connect(). The result of 
+>>> this operation is now checked, and the script will exit on error.
+>>>
+>>> * If the attempt to write the homedir contexts out fails, a proper error 
+>>> code will be returned (previously, 1 would be returned).
+>>>
+>>> This also moves the parsing of /etc/shells to after the uid check for a 
+>>> minimal time savings.
+>>>
+>>> Thanks,
+>>> Mike
+>>>
+>>> Signed-of-by: Michael Thompson <mcthomps@us.ibm.com>
+>>>
+>>>
+>>> ------------------------------------------------------------------------
+>>>
+>>> diff -Naur policycoreutils-1.33.1/scripts/genhomedircon policycoreutils-1.33.1.dev/scripts/genhomedircon
+>>> --- policycoreutils-1.33.1/scripts/genhomedircon	2006-11-14 08:46:14.000000000 -0600
+>>> +++ policycoreutils-1.33.1.dev/scripts/genhomedircon	2006-11-16 06:03:50.000000000 -0600
+>>> @@ -29,17 +29,6 @@
+>>>  import gettext
+>>>  gettext.install('policycoreutils')
+>>>  
+>>> -try:
+>>> -	fd = open("/etc/shells", 'r')
+>>> -	VALID_SHELLS = fd.read().split("\n")
+>>> -	fd.close()
+>>> -	if "/sbin/nologin" in VALID_SHELLS:
+>>> -		VALID_SHELLS.remove("/sbin/nologin")
+>>> -	if "" in VALID_SHELLS:
+>>> -		VALID_SHELLS.remove("")
+>>> -except:
+>>> -	VALID_SHELLS = ['/bin/sh', '/bin/bash', '/bin/ash', '/bin/bsh', '/bin/ksh', '/usr/bin/ksh', '/usr/bin/pdksh', '/bin/tcsh', '/bin/csh', '/bin/zsh']
+>>> -
+>>>  def grep(file, var):
+>>>  	ret = ""
+>>>  	fd = open(file, 'r')
+>>> @@ -114,12 +103,13 @@
+>>>  		return val
+>>>  	return "targeted"
+>>>  
+>>> -def usage(error = ""):
+>>> +def usage(rc=0, error = ""):
+>>>  	if error != "":
+>>>  		sys.stderr.write("%s\n" % error)
+>>> +		rc = 1
+>>>  	sys.stderr.write("Usage: %s [ -d selinuxdir ] [-n | --nopasswd] [-t selinuxtype ]\n" % sys.argv[0])
+>>>  	sys.stderr.flush()
+>>> -	sys.exit(1)
+>>> +	sys.exit(rc)
+>>>  
+>>>  def warning(warning = ""):
+>>>  	sys.stderr.write("%s\n" % warning)
+>>> @@ -136,7 +126,9 @@
+>>>  		self.semanageHandle = semanage_handle_create()
+>>>  		self.semanaged = semanage_is_managed(self.semanageHandle)
+>>>  		if self.semanaged:
+>>> -			semanage_connect(self.semanageHandle)
+>>> +			rc = semanage_connect(self.semanageHandle)
+>>> +			if rc:
+>>> +				errorExit("Unable to connect to semanage")
+>>>  			(status, self.ulist) = semanage_user_list(self.semanageHandle)
+>>>  		self.type = type
+>>>  		self.selinuxdir = selinuxdir +"/"
+>>> @@ -336,18 +328,25 @@
+>>>  		print self.genoutput()
+>>>  
+>>>  	def write(self):
+>>> -		try:
+>>> -			fd = open(self.getFileContextDir()+"/file_contexts.homedirs", "w")
+>>> -			fd.write(self.genoutput())
+>>> -			fd.close()
+>>> -		except IOError, error:
+>>> -			sys.stderr.write("%s: %s\n" % ( sys.argv[0], error ))
+>>> -
+>>> +		fd = open(self.getFileContextDir()+"/file_contexts.homedirs", "w")
+>>> +		fd.write(self.genoutput())
+>>> +		fd.close()
+>>>  
+>>>  if os.getuid() > 0 or os.geteuid() > 0:
+>>>  	print _("You must be root to run %s.") % sys.argv[0]
+>>>  	sys.exit(1)
+>>>  
+>>> +try:
+>>> +	fd = open("/etc/shells", 'r')
+>>> +	VALID_SHELLS = fd.read().split("\n")
+>>> +	fd.close()
+>>> +	if "/sbin/nologin" in VALID_SHELLS:
+>>> +		VALID_SHELLS.remove("/sbin/nologin")
+>>> +	if "" in VALID_SHELLS:
+>>> +		VALID_SHELLS.remove("")
+>>> +except:
+>>> +	VALID_SHELLS = ['/bin/sh', '/bin/bash', '/bin/ash', '/bin/bsh', '/bin/ksh', '/usr/bin/ksh', '/usr/bin/pdksh', '/bin/tcsh', '/bin/csh', '/bin/zsh']
+>>> +
+>>>  #
+>>>  # This script will generate home dir file context
+>>>  # based off the homedir_template file, entries in the password file, and
+>>> @@ -369,15 +368,19 @@
+>>>  			directory = a
+>>>  		if o == '--help'  or o == "-h":
+>>>  			usage()
+>>> +except getopt.error, error:
+>>> +	errorExit(_("Options Error %s ") % error)
+>>>  
+>>> +if type == None:
+>>> +	type = getSELinuxType(directory)
+>>>  
+>>> -	if type == None:
+>>> -		type = getSELinuxType(directory)
+>>> +if len(cmds) != 0:
+>>> +	usage(1)
+>>>  
+>>> -	if len(cmds) != 0:
+>>> -		usage()
+>>> -	selconf = selinuxConfig(directory, type, usepwd)
+>>> +selconf = selinuxConfig(directory, type, usepwd)
+>>> +try:
+>>>  	selconf.write()
+>>> +except IOError, error:
+>>> +	sys.stderr.write("%s: %s\n" % ( sys.argv[0], error ))
+>>> +	sys.exit(1)
+>>>  
+>>> -except getopt.error, error:
+>>> -	errorExit(_("Options Error %s ") % error)
+>> Acked-by: Karl MacMillan <kmacmillan@mentalrootkit.com>
 > 
-> The policy files at the end of this message contain the policy I've
-> managed to create to date. It partially works, but until i fgiure out
-> the above issues I doubt I can make it work correctly. Criticism is
-> VERY welcome!
-
-There are several types that look like they aren't needed, since they
-don't have any rules, especially thunar_lib_t.  Also, I wouldn't think
-the thunar_etc_t would be writable.
-
-What you've done with the policy is good for the most part, but I'm not
-sure the policy itself is actually needed.  It seems to me that a file
-manager should be running in the user domain, rather than a derived
-domain.
-
-> template(`thunar_per_role_template',`
-> 	gen_require(`
-> 		type thunar_t;
-> 	')
+> Acked-by:  Stephen Smalley <sds@tycho.nsa.gov>
 > 
-> 	##############################
-> 	#
-> 	# Declarations
-> 	#
-> 
-> 	# Type for program
-> 	type $1_thunar_t;
-> 	domain_type($1_thunar_t)
-> 	domain_entry_file($1_thunar_t,thunar_exec_t)
-> 	domain_interactive_fd($1_thunar_t)
-> 	role $3 types $1_thunar_t;
-> 
-> 	type $1_thunar_home_t alias $1_thunar_rw_t;
-> 	files_poly_member($1_thunar_home_t)
-> 	userdom_user_home_content($1,$1_thunar_home_t)
-> 
-> 	corecmd_search_bin($1_thunar_t)
->         domain_auto_trans($2, thunar_exec_t, thunar_t)
-> 
-> 	##############################
-> 	#
-> 	# $1_thunar_t local policy
-> 	#
-> 
-> 	allow $1_thunar_t self:fifo_file { read write getattr };
-> 	allow $1_thunar_t self:unix_stream_socket { connectto
-> create_stream_socket_perms };
-> 	allow $1_thunar_t self:shm create_shm_perms;
-> 	allow $1_thunar_t self:sem create_sem_perms;
-> 	allow $1_thunar_t self:process signal_perms;
-> 	allow $1_thunar_t self:netlink_route_socket r_netlink_socket_perms;
-> 	allow $1_thunar_t self:unix_dgram_socket create_socket_perms;
-> 	allow $1_thunar_t self:tcp_socket create_stream_socket_perms;
-> 	allow $1_thunar_t self:udp_socket create_socket_perms;
-> 	allow $1_thunar_t self:socket create_socket_perms;
-> 
-> 	allow thunar_t thunar_etc_t:dir rw_dir_perms;
-> 	allow thunar_t thunar_etc_t:file create_file_perms;
-
-thunar_t vs $1_thunar_t?
-
-> 	auth_dontaudit_read_shadow(thunar_t)
-> 	auth_dontaudit_exec_utempter(thunar_t)
-> 
-> 	can_exec(thunar_t,thunar_exec_t)
-> 
-> 	dev_read_sysfs(thunar_t)
-> 	dev_read_urand(thunar_t)
-> 	dev_read_rand(thunar_t)
-> 
-> 	files_read_all_files(thunar_t)
-> 	files_read_all_symlinks(thunar_t)
-> 	files_getattr_all_pipes(thunar_t)
-> 	files_getattr_all_sockets(thunar_t)
-> 	files_search_tmp(thunar_t)
-> 	files_search_home(thunar_t)
-> 
-> 	fs_getattr_all_fs(thunar_t)
-> 	fs_list_all(thunar_t)
-> 	fs_search_auto_mountpoints(thunar_t)
-> 
-> 	# Write to utmp.
-> 	init_rw_utmp(thunar_t)
-> 
-> 	libs_use_ld_so(thunar_t)
-> 	libs_use_shared_libs(thunar_t)
-> 	libs_exec_lib_files(thunar_t)
-> 
-> 	miscfiles_read_localization(thunar_t)
-> 	miscfiles_read_fonts(thunar_t)
-> ')
-> 
-
-> interface(`thunar_run',`
-> 	gen_require(`
-> 		type loadkeys_t;
-> 	')
-
-Wrong require.
-
--- 
-Chris PeBenito
-Tresys Technology, LLC
-(410) 290-1411 x150
 
 
 --
