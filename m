@@ -1,159 +1,162 @@
-Message-ID: <456B3A39.3090804@mentalrootkit.com>
-Date: Mon, 27 Nov 2006 14:19:21 -0500
+Message-ID: <456B38A9.3090102@mentalrootkit.com>
+Date: Mon, 27 Nov 2006 14:12:41 -0500
 From: Karl MacMillan <kmacmillan@mentalrootkit.com>
 MIME-Version: 1.0
 To: Stephen Smalley <sds@tycho.nsa.gov>
-CC: Michael C Thompson <thompsmc@us.ibm.com>, SE Linux <selinux@tycho.nsa.gov>
-Subject: Re: [PATCH] genhomedircon
-References: <455C9EB3.5050602@us.ibm.com>	 <45637591.2070406@mentalrootkit.com> <1164207610.13758.156.camel@moss-spartans.epoch.ncsc.mil>
-In-Reply-To: <1164207610.13758.156.camel@moss-spartans.epoch.ncsc.mil>
+CC: Manoj Srivastava <manoj.srivastava@stdc.com>, selinux@tycho.nsa.gov
+Subject: Re: Compiling libsepol with -fPIC instead of -fpic
+References: <87d57pqkca.fsf@glaurung.internal.golden-gryphon.com>	 <4561E044.6050006@mentalrootkit.com>	 <1164143156.13758.125.camel@moss-spartans.epoch.ncsc.mil>	 <45636F88.3020608@mentalrootkit.com> <1164211105.13758.171.camel@moss-spartans.epoch.ncsc.mil>
+In-Reply-To: <1164211105.13758.171.camel@moss-spartans.epoch.ncsc.mil>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Merged as part of policycoreutils 1.33.5
-
 Stephen Smalley wrote:
-> On Tue, 2006-11-21 at 16:54 -0500, Karl MacMillan wrote:
->> Michael C Thompson wrote:
->>> I've noticed that genhomedircon does not have the proper return codes on 
->>> some error and success paths. This patch addresses these return codes as 
->>> follow:
+> On Tue, 2006-11-21 at 16:28 -0500, Karl MacMillan wrote:
+>> Stephen Smalley wrote:
+>>> On Mon, 2006-11-20 at 12:05 -0500, Karl MacMillan wrote:
+>>>> Manoj Srivastava wrote:
+>>>> Acked-by: Karl MacMillan <kmacmillan@mentalrootkit.com>
+>>> Is the problem truly limited to libsepol, or is it also an issue with
+>>> libsemanage and/or libselinux?
 >>>
->>> * usage function by default returns 0, and the desired return code can 
->>> be specified via a parameter. This facilitates the fix to the current 
->>> behaviour that 1 is returned on 'genhomedircon -h'.
+>>> Possibly we could define it as a variable in the Makefile (e.g. PIC ?=
+>>> -fpic) with a default of -fpic and allow you to build them with make
+>>> PIC=-fPIC on SPARC to avoid any effect on x86.
 >>>
->>> * I have noticed that as secadm (this is a bug? will start a separate 
->>> thread) fails to successfully call semanage_connect(). The result of 
->>> this operation is now checked, and the script will exit on error.
->>>
->>> * If the attempt to write the homedir contexts out fails, a proper error 
->>> code will be returned (previously, 1 would be returned).
->>>
->>> This also moves the parsing of /etc/shells to after the uid check for a 
->>> minimal time savings.
->>>
->>> Thanks,
->>> Mike
->>>
->>> Signed-of-by: Michael Thompson <mcthomps@us.ibm.com>
->>>
->>>
->>> ------------------------------------------------------------------------
->>>
->>> diff -Naur policycoreutils-1.33.1/scripts/genhomedircon policycoreutils-1.33.1.dev/scripts/genhomedircon
->>> --- policycoreutils-1.33.1/scripts/genhomedircon	2006-11-14 08:46:14.000000000 -0600
->>> +++ policycoreutils-1.33.1.dev/scripts/genhomedircon	2006-11-16 06:03:50.000000000 -0600
->>> @@ -29,17 +29,6 @@
->>>  import gettext
->>>  gettext.install('policycoreutils')
->>>  
->>> -try:
->>> -	fd = open("/etc/shells", 'r')
->>> -	VALID_SHELLS = fd.read().split("\n")
->>> -	fd.close()
->>> -	if "/sbin/nologin" in VALID_SHELLS:
->>> -		VALID_SHELLS.remove("/sbin/nologin")
->>> -	if "" in VALID_SHELLS:
->>> -		VALID_SHELLS.remove("")
->>> -except:
->>> -	VALID_SHELLS = ['/bin/sh', '/bin/bash', '/bin/ash', '/bin/bsh', '/bin/ksh', '/usr/bin/ksh', '/usr/bin/pdksh', '/bin/tcsh', '/bin/csh', '/bin/zsh']
->>> -
->>>  def grep(file, var):
->>>  	ret = ""
->>>  	fd = open(file, 'r')
->>> @@ -114,12 +103,13 @@
->>>  		return val
->>>  	return "targeted"
->>>  
->>> -def usage(error = ""):
->>> +def usage(rc=0, error = ""):
->>>  	if error != "":
->>>  		sys.stderr.write("%s\n" % error)
->>> +		rc = 1
->>>  	sys.stderr.write("Usage: %s [ -d selinuxdir ] [-n | --nopasswd] [-t selinuxtype ]\n" % sys.argv[0])
->>>  	sys.stderr.flush()
->>> -	sys.exit(1)
->>> +	sys.exit(rc)
->>>  
->>>  def warning(warning = ""):
->>>  	sys.stderr.write("%s\n" % warning)
->>> @@ -136,7 +126,9 @@
->>>  		self.semanageHandle = semanage_handle_create()
->>>  		self.semanaged = semanage_is_managed(self.semanageHandle)
->>>  		if self.semanaged:
->>> -			semanage_connect(self.semanageHandle)
->>> +			rc = semanage_connect(self.semanageHandle)
->>> +			if rc:
->>> +				errorExit("Unable to connect to semanage")
->>>  			(status, self.ulist) = semanage_user_list(self.semanageHandle)
->>>  		self.type = type
->>>  		self.selinuxdir = selinuxdir +"/"
->>> @@ -336,18 +328,25 @@
->>>  		print self.genoutput()
->>>  
->>>  	def write(self):
->>> -		try:
->>> -			fd = open(self.getFileContextDir()+"/file_contexts.homedirs", "w")
->>> -			fd.write(self.genoutput())
->>> -			fd.close()
->>> -		except IOError, error:
->>> -			sys.stderr.write("%s: %s\n" % ( sys.argv[0], error ))
->>> -
->>> +		fd = open(self.getFileContextDir()+"/file_contexts.homedirs", "w")
->>> +		fd.write(self.genoutput())
->>> +		fd.close()
->>>  
->>>  if os.getuid() > 0 or os.geteuid() > 0:
->>>  	print _("You must be root to run %s.") % sys.argv[0]
->>>  	sys.exit(1)
->>>  
->>> +try:
->>> +	fd = open("/etc/shells", 'r')
->>> +	VALID_SHELLS = fd.read().split("\n")
->>> +	fd.close()
->>> +	if "/sbin/nologin" in VALID_SHELLS:
->>> +		VALID_SHELLS.remove("/sbin/nologin")
->>> +	if "" in VALID_SHELLS:
->>> +		VALID_SHELLS.remove("")
->>> +except:
->>> +	VALID_SHELLS = ['/bin/sh', '/bin/bash', '/bin/ash', '/bin/bsh', '/bin/ksh', '/usr/bin/ksh', '/usr/bin/pdksh', '/bin/tcsh', '/bin/csh', '/bin/zsh']
->>> +
->>>  #
->>>  # This script will generate home dir file context
->>>  # based off the homedir_template file, entries in the password file, and
->>> @@ -369,15 +368,19 @@
->>>  			directory = a
->>>  		if o == '--help'  or o == "-h":
->>>  			usage()
->>> +except getopt.error, error:
->>> +	errorExit(_("Options Error %s ") % error)
->>>  
->>> +if type == None:
->>> +	type = getSELinuxType(directory)
->>>  
->>> -	if type == None:
->>> -		type = getSELinuxType(directory)
->>> +if len(cmds) != 0:
->>> +	usage(1)
->>>  
->>> -	if len(cmds) != 0:
->>> -		usage()
->>> -	selconf = selinuxConfig(directory, type, usepwd)
->>> +selconf = selinuxConfig(directory, type, usepwd)
->>> +try:
->>>  	selconf.write()
->>> +except IOError, error:
->>> +	sys.stderr.write("%s: %s\n" % ( sys.argv[0], error ))
->>> +	sys.exit(1)
->>>  
->>> -except getopt.error, error:
->>> -	errorExit(_("Options Error %s ") % error)
->> Acked-by: Karl MacMillan <kmacmillan@mentalrootkit.com>
+>> The docs claim an effect only on m68k, PowerPC, and SPARC. So it should 
+>> be safe to replace this globally for all of our code.
+> 
+> Ok.  Particularly given that both libsemanage and libselinux now depend
+> on libsepol.
 > 
 > Acked-by:  Stephen Smalley <sds@tycho.nsa.gov>
 > 
+Committed the following:
+
+Index: libsemanage/src/Makefile
+===================================================================
+--- libsemanage/src/Makefile	(revision 2100)
++++ libsemanage/src/Makefile	(working copy)
+@@ -44,7 +44,7 @@
+  pywrap: all $(SWIGLOBJ) $(SWIGSO)
+
+  $(SWIGLOBJ): $(SWIGCOUT)
+-	$(CC) $(CFLAGS) -I$(PYINC) -fpic -DSHARED -c -o $@ $<
++	$(CC) $(CFLAGS) -I$(PYINC) -fPIC -DSHARED -c -o $@ $<
+
+  $(SWIGSO): $(SWIGLOBJ)
+  	$(CC) $(LDFLAGS) -shared -o $@ $< -L. -lsemanage -l$(PYLIBVER) 
+-L$(LIBDIR) -Wl,-soname,$@,-z,defs
+@@ -69,7 +69,7 @@
+  	$(CC) $(CFLAGS) -c -o $@ $<
+
+  %.lo:  %.c
+-	$(CC) $(CFLAGS) -fpic -DSHARED -c -o $@ $<
++	$(CC) $(CFLAGS) -fPIC -DSHARED -c -o $@ $<
+
+  $(SWIGCOUT): $(SWIGIF)
+  	$(SWIG) $^
+Index: libsemanage/ChangeLog
+===================================================================
+--- libsemanage/ChangeLog	(revision 2100)
++++ libsemanage/ChangeLog	(working copy)
+@@ -1,3 +1,8 @@
++1.8.1 2006-11-27
++	* Merged patch to compile wit -fPIC instead of -fpic from
++	  Manoj Srivastava to prevent hitting the global offest table
++	  limit. Patch changed to include libselinux and libsemanage in
++	  addition to libselinux.
+  1.8 2006-10-17
+  	* Updated version for release.
+
+Index: libsemanage/VERSION
+===================================================================
+--- libsemanage/VERSION	(revision 2100)
++++ libsemanage/VERSION	(working copy)
+@@ -1 +1 @@
+-1.8
++1.8.1
+Index: libsepol/src/Makefile
+===================================================================
+--- libsepol/src/Makefile	(revision 2100)
++++ libsepol/src/Makefile	(working copy)
+@@ -24,10 +24,10 @@
+  	ln -sf $@ $(TARGET)
+
+  %.o:  %.c
+-	$(CC) $(CFLAGS) -fpic -c -o $@ $<
++	$(CC) $(CFLAGS) -fPIC -c -o $@ $<
+
+  %.lo:  %.c
+-	$(CC) $(CFLAGS) -fpic -DSHARED -c -o $@ $<
++	$(CC) $(CFLAGS) -fPIC -DSHARED -c -o $@ $<
+
+  install: all
+  	test -d $(LIBDIR) || install -m 755 -d $(LIBDIR)
+Index: libsepol/ChangeLog
+===================================================================
+--- libsepol/ChangeLog	(revision 2100)
++++ libsepol/ChangeLog	(working copy)
+@@ -1,3 +1,8 @@
++1.15.3 2006-11-27
++	* Merged patch to compile wit -fPIC instead of -fpic from
++	  Manoj Srivastava to prevent hitting the global offest table
++	  limit. Patch changed to include libselinux and libsemanage in
++	  addition to libselinux.
+  1.15.2 2006-10-31
+  	* Merged fix from Karl MacMillan for a segfault when linking
+  	  non-MLS modules with users in them.
+Index: libsepol/VERSION
+===================================================================
+--- libsepol/VERSION	(revision 2100)
++++ libsepol/VERSION	(working copy)
+@@ -1 +1 @@
+-1.15.2
++1.15.3
+Index: libselinux/src/Makefile
+===================================================================
+--- libselinux/src/Makefile	(revision 2100)
++++ libselinux/src/Makefile	(working copy)
+@@ -42,7 +42,7 @@
+  	$(RANLIB) $@
+
+  $(SWIGLOBJ): $(SWIGCOUT)
+-	$(CC) $(CFLAGS) -I$(PYINC) -fpic -DSHARED -c -o $@ $<
++	$(CC) $(CFLAGS) -I$(PYINC) -fPIC -DSHARED -c -o $@ $<
+
+  $(SWIGSO): $(SWIGLOBJ)
+  	$(CC) $(LDFLAGS) -shared -o $@ $< -L. -lselinux -L$(LIBDIR) 
+-Wl,-soname,$@
+@@ -55,7 +55,7 @@
+  	$(CC) $(CFLAGS) $(TLSFLAGS) -c -o $@ $<
+
+  %.lo:  %.c policy.h
+-	$(CC) $(CFLAGS) -fpic -DSHARED -c -o $@ $<
++	$(CC) $(CFLAGS) -fPIC -DSHARED -c -o $@ $<
+
+  $(SWIGCOUT): $(SWIGIF)
+  	$(SWIG) $^
+Index: libselinux/ChangeLog
+===================================================================
+--- libselinux/ChangeLog	(revision 2100)
++++ libselinux/ChangeLog	(working copy)
+@@ -1,3 +1,8 @@
++1.33.2 2006-11-27
++	* Merged patch to compile wit -fPIC instead of -fpic from
++	  Manoj Srivastava to prevent hitting the global offest table
++	  limit. Patch changed to include libselinux and libsemanage in
++	  addition to libselinux.
+  1.33.1 2006-10-19
+  	* Merged updated flask definitions from Darrel Goeddel.
+   	  This adds the context security class, and also adds
+Index: libselinux/VERSION
+===================================================================
+--- libselinux/VERSION	(revision 2100)
++++ libselinux/VERSION	(working copy)
+@@ -1 +1 @@
+-1.33.1
++1.33.2
 
 
 --
