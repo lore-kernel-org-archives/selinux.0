@@ -1,114 +1,136 @@
-Message-ID: <456C9017.1010903@tresys.com>
-Date: Tue, 28 Nov 2006 14:37:59 -0500
-From: Joshua Brindle <jbrindle@tresys.com>
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id kASKMXwl019565
+	for <selinux@tycho.nsa.gov>; Tue, 28 Nov 2006 15:22:33 -0500
+Received: from mx1.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id kASKKont021787
+	for <selinux@tycho.nsa.gov>; Tue, 28 Nov 2006 20:20:51 GMT
+Message-ID: <456C9A9E.3090608@redhat.com>
+Date: Tue, 28 Nov 2006 15:22:54 -0500
+From: Daniel J Walsh <dwalsh@redhat.com>
 MIME-Version: 1.0
-To: Daniel J Walsh <dwalsh@redhat.com>
-CC: Stephen Smalley <sds@tycho.nsa.gov>,
-        Karl MacMillan <kmacmillan@mentalrootkit.com>,
-        "Christopher J. PeBenito" <cpebenito@tresys.com>,
+To: "Christopher J. PeBenito" <cpebenito@tresys.com>,
         SE Linux <selinux@tycho.nsa.gov>
-Subject: Re: More  small fixes to policycoreutils
-References: <6FE441CD9F0C0C479F2D88F959B015885C7D9F@exchange.columbia.tresys.com> <4564AD82.5080300@redhat.com> <4564B3B1.2010509@tresys.com> <4564BF65.7040900@redhat.com>
-In-Reply-To: <4564BF65.7040900@redhat.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Subject: Missing gen_requires for building additional user types in modules
+Content-Type: multipart/mixed;
+ boundary="------------030803040307050408010707"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Daniel J Walsh wrote:
-> Joshua Brindle wrote:
->> Daniel J Walsh wrote:
->>> Fixes to make sure module name is all alphabet charaters.
->>>
-> Added
->>
->> Still non-standard
->>
-> Fine, I will go with your standard.
-> 
-> 
-> ------------------------------------------------------------------------
-> 
-> diff --exclude-from=exclude --exclude='*.po' --exclude='*.pot' -N -u -r nsapolicycoreutils/audit2allow/audit2allow policycoreutils-1.33.4/audit2allow/audit2allow
-> --- nsapolicycoreutils/audit2allow/audit2allow	2006-11-16 17:14:29.000000000 -0500
-> +++ policycoreutils-1.33.4/audit2allow/audit2allow	2006-11-22 16:16:37.000000000 -0500
-> @@ -29,6 +29,7 @@
->  if __name__ == '__main__':
->  	import commands, sys, os, getopt, selinux
->          import gettext
-> +	import re
->          try:
->                  gettext.install('policycoreutils')
->          except:
-> @@ -59,6 +60,11 @@
->  			print msg
->  		sys.exit(1)
->  		
-> +	def verify_module(module):
-> +		m = re.findall("[^a-zA-Z0-9]", module)
-> +		if len(m) != 0:
-> +			usage(_("Alphanumeric Charaters Only"))
-> +		
->  	def errorExit(error):
->  		sys.stderr.write("%s: " % sys.argv[0])
->  		sys.stderr.write("%s\n" % error)
-> @@ -125,10 +131,12 @@
->  				if module != "" or a[0] == "-":
->  					usage()
->  				module = a
-> +				verify_module(module)
->  			if o == "-M":
->  				if module != "" or output_ind  or a[0] == "-":
->  					usage()
->  				module = a
-> +				verify_module(module)
->  				outfile = a+".te"
->  				buildPP = 1
->  				if not os.path.exists("/usr/bin/checkmodule"):
-> @@ -184,22 +192,27 @@
->  		output.write(serules.out(requires, module))
->  		output.flush()
->  		if buildPP:
-> -			cmd = "checkmodule %s -m -o %s.mod %s.te" % (get_mls_flag(), module, module)
-> -			print _("Compiling policy")
-> -			print cmd
-> -			rc = commands.getstatusoutput(cmd)
-> -			if rc[0] == 0:
-> -				cmd = "semodule_package -o %s.pp -m %s.mod" % (module, module)
-> -				if fc_file != "":
-> -					cmd = "%s -f %s" % (cmd, fc_file)
-> -					
-> +			if ref_ind:
-> +				rc, type = selinux.selinux_getpolicytype()
-> +				cmd = "make -f /usr/share/selinux/%s/include/Makefile %s.pp" % (type, module)
-> +				print _("Compiling policy")
-> +				print cmd
-> +				rc = commands.getstatusoutput(cmd)
-> +			else:
-> +				cmd = "checkmodule %s -m -o %s.mod %s.te" % (get_mls_flag(), module, module)
-> +				print _("Compiling policy")
->  				print cmd
->  				rc = commands.getstatusoutput(cmd)
->  				if rc[0] == 0:
-> -					print _("\n******************** IMPORTANT ***********************\n")
-> -					print (_("In order to load this newly created policy package into the kernel,\nyou are required to execute \n\nsemodule -i %s.pp\n\n") % module)
-> -				else:
-> -					errorExit(rc[1])
-> +					cmd = "semodule_package -o %s.pp -m %s.mod" % (module, module)
-> +					if fc_file != "":
-> +						cmd = "%s -f %s" % (cmd, fc_file)
-> +					
-> +					print cmd
-> +					rc = commands.getstatusoutput(cmd)
-> +			if rc[0] == 0:
-> +				print _("\n******************** IMPORTANT ***********************\n")
-> +				print (_("In order to load this newly created policy package into the kernel,\nyou are required to execute \n\nsemodule -i %s.pp\n\n") % module)
->  			else:
->  				errorExit(rc[1])
->  
+This is a multi-part message in MIME format.
+--------------030803040307050408010707
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
 
-Acked-By: Joshua Brindle <jbrindle@tresys.com>
 
+--------------030803040307050408010707
+Content-Type: text/plain;
+ name="diff"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="diff"
+
+--- ./apps/mozilla.if~	2006-11-27 17:27:46.000000000 -0500
++++ ./apps/mozilla.if	2006-11-28 14:45:07.000000000 -0500
+@@ -33,7 +33,11 @@
+ ## </param>
+ #
+ template(`mozilla_per_role_template',`
+-	
++	gen_require(`
++		type mozilla_exec_t;
++		type mozilla_conf_t;
++	')
++
+ 	########################################
+ 	#
+ 	# Declarations
+--- ./apps/loadkeys.if~	2006-11-27 17:27:46.000000000 -0500
++++ ./apps/loadkeys.if	2006-11-28 15:10:28.000000000 -0500
+@@ -50,18 +50,13 @@
+ ## <rolecap/>
+ #
+ interface(`loadkeys_run',`
+-	ifdef(`targeted_policy',`
+-		# $0(): disabled in targeted policy as there
+-		# is no loadkeys domain.
+-	',`
+-		gen_require(`
+-			type loadkeys_t;
+-		')
+-
+-		loadkeys_domtrans($1)
+-		role $2 types loadkeys_t;
+-		allow loadkeys_t $3:chr_file rw_term_perms;
++	gen_require(`
++		type loadkeys_t;
+ 	')
++
++	loadkeys_domtrans($1)
++	role $2 types loadkeys_t;
++	allow loadkeys_t $3:chr_file rw_term_perms;
+ ')
+ 
+ ########################################
+--- ./services/xserver.if~	2006-11-27 17:27:46.000000000 -0500
++++ ./services/xserver.if	2006-11-28 15:19:10.000000000 -0500
+@@ -13,6 +13,9 @@
+ ## </param>
+ #
+ template(`xserver_common_domain_template',`
++	gen_require(`
++		type xserver_exec_t, xkb_var_lib_t, xserver_log_t;
++	')
+ 
+ 	##############################
+ 	#
+@@ -222,6 +225,11 @@
+ #
+ template(`xserver_per_role_template',`
+ 
++	gen_require(`
++		type iceauth_exec_t, xauth_exec_t;
++		attribute fonts_type, fonts_cache_type, fonts_config_type;
++	')
++
+ 	##############################
+ 	#
+ 	# Declarations
+--- ./system/userdomain.if~	2006-11-27 17:27:46.000000000 -0500
++++ ./system/userdomain.if	2006-11-28 15:10:48.000000000 -0500
+@@ -654,6 +654,9 @@
+ ## </param>
+ #
+ template(`userdom_common_user_template',`
++	gen_require(`
++		attribute unpriv_userdomain;
++	')
+ 
+ 	userdom_base_user_template($1)
+ 
+@@ -916,6 +919,11 @@
+ ## </param>
+ #
+ template(`userdom_unpriv_user_template', `
++
++	gen_require(`
++		attribute user_ptynode, user_home_dir_type, user_home_type, user_tmpfile, user_ttynode, privhome;
++	')
++
+ 	##############################
+ 	#
+ 	# Declarations
+@@ -1051,7 +1059,7 @@
+ template(`userdom_admin_user_template',`
+ 	gen_require(`
+ 		class passwd { passwd chfn chsh rootok crontab };
+-		attribute admin_terminal;
++		attribute admin_terminal, privhome;
+ 	')
+ 
+ 	##############################
+
+--------------030803040307050408010707--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
