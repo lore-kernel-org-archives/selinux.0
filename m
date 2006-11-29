@@ -1,53 +1,54 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id kATFEokk018765
-	for <selinux@tycho.nsa.gov>; Wed, 29 Nov 2006 10:14:50 -0500
-Received: from exchange.columbia.tresys.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with SMTP id kATFE8wt019791
-	for <selinux@tycho.nsa.gov>; Wed, 29 Nov 2006 15:14:08 GMT
-Subject: Re: [RFC] Thunar filesystem manager policy
-From: "Christopher J. PeBenito" <cpebenito@tresys.com>
-To: Bradley Chapman <kakadu@gmail.com>
-Cc: selinux@tycho.nsa.gov
-In-Reply-To: <e294b46e0611280826m33aaa2bkdf25270cab035c69@mail.gmail.com>
-References: <e294b46e0611221141v650500f7v72f83ecd3573e356@mail.gmail.com>
-	 <1164637648.7490.18.camel@sgc.columbia.tresys.com>
-	 <e294b46e0611280651w7e9b0f8fp8a321f8c8b40513b@mail.gmail.com>
-	 <1164728200.8768.9.camel@sgc.columbia.tresys.com>
-	 <e294b46e0611280826m33aaa2bkdf25270cab035c69@mail.gmail.com>
+Subject: Re: First argument of matchpathcon_filespec_add
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: KaiGai Kohei <kaigai@kaigai.gr.jp>
+Cc: russell@coker.com.au, Yuichi Nakamura <ynakam@gwu.edu>,
+        selinux@tycho.nsa.gov, Eamon Walsh <ewalsh@tycho.nsa.gov>
+In-Reply-To: <456D799E.40105@kaigai.gr.jp>
+References: <ddeda73453a4.456d4b0b@gwu.edu>
+	 <200611291923.30237.russell@coker.com.au>  <456D799E.40105@kaigai.gr.jp>
 Content-Type: text/plain
-Date: Wed, 29 Nov 2006 10:15:11 -0500
-Message-Id: <1164813311.25344.50.camel@sgc>
+Date: Wed, 29 Nov 2006 10:10:40 -0500
+Message-Id: <1164813040.23019.147.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2006-11-28 at 16:26 +0000, Bradley Chapman wrote:
-> On 11/28/06, Christopher J. PeBenito <cpebenito@tresys.com> wrote:
-> > That explains the $1_thunar_t, but what about thunar_t?  From the
-> > policy, it looks like a daemon.
+On Wed, 2006-11-29 at 21:14 +0900, KaiGai Kohei wrote:
+> Russell Coker wrote:
+> > On Wednesday 29 November 2006 10:55, Yuichi Nakamura <ynakam@gwu.edu> wrote:
+> >> When we do not want to build busybox with -D_FILE_OFFSET_BIT=64,
+> >> we have to rebuild libselinux.
+> >>
+> >> I think it is a problem.
+> >>
+> >> Does anyone have good idea ?
+> > 
+> > What harm does it do to build busybox with 64bit file offsets?  For system 
+> > recovery I think that 64bit offsets are desirable.
+> > 
+> > For embedded systems I guess you could have both the same whichever option you 
+> > choose.
 > 
-> It is - it gets started by dbus-daemon from staff_dbusd_t when logging
-> into the windowing environment, and runs in the background as a
-> daemon.
-
-That daemon should be running in $1_thunar_t.  Thunar_t would be a
-system daemon.
-
-> > >  thunar_etc_t, OTOH, was
-> > > added mainly because I didn't want to give Thunar full access to /etc.
-> >
-> > It seems very odd to me that a user application would be writing to
-> > files in /etc.
+> I think this topic should not be about the configuration of busybox,
+> be about the consistency of the libselinux interfaces.
 > 
-> But it does - /etc/xdg/Thunar/uca.xml is the file in question.
+> Because the length of ino_t which is the first argument of the funciton
+> depends on the definition of _FILE_OFFSET_BIT, we have a possibility to
+> have different views on the interface of libselinux.
+> It is not limited in busybox cases.
+> 
+> Is it appropriate way that the consistency of libselinux's interface
+> depends on whether the application defines _FILE_OFFSET_BIT, or not?
 
-That's unfortunate, it sounds very broken to me that a user program
-writes to a global config file.
+I agree that it is a problem with the interface.  We could attempt to
+address it in a similar manner to stat() handling, but the interface is
+likely to become obsolete once the new label lookup interfaces being
+proposed by Eamon Walsh are adopted and setfiles is converted over to
+using them.
 
 -- 
-Chris PeBenito
-Tresys Technology, LLC
-(410) 290-1411 x150
+Stephen Smalley
+National Security Agency
 
 
 --
