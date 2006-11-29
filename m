@@ -1,53 +1,38 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id kATItQUx027893
-	for <selinux@tycho.nsa.gov>; Wed, 29 Nov 2006 13:55:26 -0500
-Received: from web36607.mail.mud.yahoo.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with SMTP id kATIsga4004363
-	for <selinux@tycho.nsa.gov>; Wed, 29 Nov 2006 18:54:43 GMT
-Date: Wed, 29 Nov 2006 10:55:18 -0800 (PST)
-From: Casey Schaufler <casey@schaufler-ca.com>
-Reply-To: casey@schaufler-ca.com
-Subject: Re: [PATCH 0/3] NetLabel: add the remaining CIPSO tag types from the IETF draft
-To: paul.moore@hp.com, netdev@vger.kernel.org, selinux@tycho.nsa.gov
-In-Reply-To: <20061129181817.505281000@hp.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Message-ID: <889357.90007.qm@web36607.mail.mud.yahoo.com>
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id kATK9Rol030888
+	for <selinux@tycho.nsa.gov>; Wed, 29 Nov 2006 15:09:27 -0500
+Subject: Re: [PATCH] refpolicy: add X object classes to unconfined_t
+From: Eamon Walsh <ewalsh@tycho.nsa.gov>
+Reply-To: ewalsh@tycho.nsa.gov
+To: Xavier Toth <txtoth@gmail.com>
+Cc: selinux@tycho.nsa.gov
+In-Reply-To: <cadfc0e40611290712g7fa802f2oa5b5ebc079e8ead2@mail.gmail.com>
+References: <1158088282.7554.95.camel@moss-huskies.epoch.ncsc.mil>
+	 <450962DB.7050107@tresys.com>
+	 <1158324416.8680.5.camel@twoface.columbia.tresys.com>
+	 <1158355183.7554.268.camel@moss-huskies.epoch.ncsc.mil>
+	 <cadfc0e40611290712g7fa802f2oa5b5ebc079e8ead2@mail.gmail.com>
+Content-Type: text/plain
+Date: Wed, 29 Nov 2006 15:09:26 -0500
+Message-Id: <1164830966.2794.144.camel@moss-huskies.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-
---- paul.moore@hp.com wrote:
-
-> This patchset consists of three patches that add
-> support for the remaining two
-> tag types from the CIPSO draft specification, the
-> enumerated and range tags.
-> The most significant part about adding these two
-> tags is that NetLabel now has
-> the ability to represent more than 240 categories
-> (limitation imposed by the
-> current restricted bitmap tag).
+On Wed, 2006-11-29 at 09:12 -0600, Xavier Toth wrote:
+> I've replaced the XSELinuxConfig file with the attached version but
+> Xorg still fails to start. Any advice would be appreciated.
 > 
-> In addition, the first patch in the set converts
-> NetLabel's contiguous char
-> string category bitmap stored in network friendly
-> bit/byte order into a sparse
-> bitmap stored in host friendly bit/byte order. 
-> While this change was not
-> required to support the new CIPSO tags, it should
-> make life much easier as the
-> old category bitmap would have proven problematic as
-> the number of usable
-> categories increases with the new tag types.  It
-> also has a side effect of
-> making the LSM specific code much less ugly.
 
-Fabulous. Thank you.
+Are you running with targeted policy?  In your message to the X list you
+indicated you were running MLS policy.  
 
+What's in your Xorg log file?
 
-Casey Schaufler
-casey@schaufler-ca.com
+-- 
+Eamon Walsh <ewalsh@tycho.nsa.gov>
+National Security Agency
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
