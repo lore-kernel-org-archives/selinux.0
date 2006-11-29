@@ -1,58 +1,39 @@
-Subject: Re: CentOS and SELinux refpolicy trouble
-From: "Christopher J. PeBenito" <cpebenito@tresys.com>
-To: Stephen Smalley <sds@tycho.nsa.gov>
-Cc: Filip Bartmann <filbar@centrum.cz>, SELinux <selinux@tycho.nsa.gov>
-In-Reply-To: <1164825664.23019.207.camel@moss-spartans.epoch.ncsc.mil>
-References: <1164819458.4109.14.camel@localhost>
-	 <1164820193.23019.181.camel@moss-spartans.epoch.ncsc.mil>
-	 <1164825158.4109.31.camel@localhost>
-	 <1164825664.23019.207.camel@moss-spartans.epoch.ncsc.mil>
-Content-Type: text/plain
-Date: Wed, 29 Nov 2006 15:24:24 -0500
-Message-Id: <1164831864.7459.7.camel@sgc.columbia.tresys.com>
-Mime-Version: 1.0
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id kATKbjpU032206
+	for <selinux@tycho.nsa.gov>; Wed, 29 Nov 2006 15:37:45 -0500
+Received: from mx1.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id kATKa246002342
+	for <selinux@tycho.nsa.gov>; Wed, 29 Nov 2006 20:36:02 GMT
+Received: from int-mx1.corp.redhat.com (int-mx1.corp.redhat.com [172.16.52.254])
+	by mx1.redhat.com (8.12.11.20060308/8.12.11) with ESMTP id kATKc8eG004024
+	for <selinux@tycho.nsa.gov>; Wed, 29 Nov 2006 15:38:08 -0500
+Received: from pobox-2.corp.redhat.com (pobox-2.corp.redhat.com [10.11.255.15])
+	by int-mx1.corp.redhat.com (8.13.1/8.13.1) with ESMTP id kATKc8YX004029
+	for <selinux@tycho.nsa.gov>; Wed, 29 Nov 2006 15:38:08 -0500
+Received: from [10.11.14.98] (vpn-14-98.rdu.redhat.com [10.11.14.98])
+	by pobox-2.corp.redhat.com (8.13.1/8.13.1) with ESMTP id kATKc7Ld028928
+	for <selinux@tycho.nsa.gov>; Wed, 29 Nov 2006 15:38:08 -0500
+Message-ID: <456DEFAD.6040706@mentalrootkit.com>
+Date: Wed, 29 Nov 2006 15:38:05 -0500
+From: Karl MacMillan <kmacmillan@mentalrootkit.com>
+MIME-Version: 1.0
+To: SELinux Mail List <selinux@tycho.nsa.gov>
+Subject: Recovering .te and .fc files from modules
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2006-11-29 at 13:41 -0500, Stephen Smalley wrote:
-> On Wed, 2006-11-29 at 19:32 +0100, Filip Bartmann wrote:
-> > OUTPUT_POLICY = 18
-> > TYPE = targeted
-> > NAME = reftargeted
-> > DISTRO = rhel4
-> > DIRECT_INITRC=y
-> > MONOLITHIC=y
-> > POLY=n
-> > MLS_SENS=16
-> > MLS_CATS=256
-> > MCS_CATS=256
-> > QUIET=n
-> 
-> Looks fine.
-> (aside:  looks like one also has to run make install with
-> SETFILES=/usr/sbin/setfiles on RHEL 4 and derivatives)
+We've been getting requests for a tool to extract the .te and .fc files 
+from modules. Red Hat bugzilla for this at 
+https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=217761.
 
-Yes, thats an unfortunate problem with moving filesystem locations.
+I think this is a good idea and the dismod tool (located in 
+checkpolicy/test in the sources) is a good start at this. I'm mentioning 
+it here in case anyone has time or interest in creating this tool.
 
-> > > Not sure about the booleans errors - what did that booleans file
-> > > contain?
-> > The booleans file contain default this values(it's almost defaults from
-> > tresys refpolicy):
-> 
-> Hmm...looks like it is generating boolean entries for booleans that are
-> only defined in strict policy even though you are building targeted.
+Thanks,
 
-This should get better, we've almost completed a branch of the policy
-that moves booleans back to modules where it makes sense (the boolean is
-only referenced in that module).  It'll be easier to make sure booleans
-are around only when the policy uses them.  Hopefully that will be ready
-to be merged to trunk very soon.
-
--- 
-Chris PeBenito
-Tresys Technology, LLC
-(410) 290-1411 x150
-
+Karl
 
 --
 This message was distributed to subscribers of the selinux mailing list.
