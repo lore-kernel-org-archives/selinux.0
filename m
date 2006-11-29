@@ -1,323 +1,111 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id kATISYGl026737
-	for <selinux@tycho.nsa.gov>; Wed, 29 Nov 2006 13:28:34 -0500
-Received: from atlrel6.hp.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id kATIRpa4028918
-	for <selinux@tycho.nsa.gov>; Wed, 29 Nov 2006 18:27:52 GMT
-Message-Id: <20061129182854.123650000@hp.com>
-References: <20061129181817.505281000@hp.com>
-Date: Wed, 29 Nov 2006 13:18:19 -0500
-From: paul.moore@hp.com
-To: netdev@vger.kernel.org, selinux@tycho.nsa.gov
-Cc: Paul Moore <paul.moore@hp.com>
-Subject: [PATCH 2/3] NetLabel: add the enumerated tag to the CIPSOv4 protocol
+Subject: Re: CentOS and SELinux refpolicy trouble
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Filip Bartmann <filbar@centrum.cz>
+Cc: SELinux <selinux@tycho.nsa.gov>,
+        "Christopher J. PeBenito" <cpebenito@tresys.com>
+In-Reply-To: <1164825158.4109.31.camel@localhost>
+References: <1164819458.4109.14.camel@localhost>
+	 <1164820193.23019.181.camel@moss-spartans.epoch.ncsc.mil>
+	 <1164825158.4109.31.camel@localhost>
+Content-Type: text/plain; charset=UTF-8
+Date: Wed, 29 Nov 2006 13:41:04 -0500
+Message-Id: <1164825664.23019.207.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-From: Paul Moore <paul.moore@hp.com>
+On Wed, 2006-11-29 at 19:32 +0100, Filip Bartmann wrote:
+> Stephen Smalley píše v St 29. 11. 2006 v 12:09 -0500:
+> > Please identify the precise version numbers of any SELinux-related
+> > components that you updated (refpolicy, checkpolicy, anything else like
+> > policycoreutils).
+> I have installed 
+> 
+> refpolicy-20061018, 
+> checkpolicy.i386-			 1.32-1(from tresys), 
+> policycoreutils.i386			 1.18.1-4.9, 
+> libselinux				 1.19.1-7.2, 
+> libsepol.i386                            1.1.1-2
+> setools.i386                             1.5.1-5
 
-Add support for the enumerated tag (tag type #2) to the CIPSOv4 protocol.
+Looks fine.
 
-The enumerated tag allows for 15 categories to be specified in a CIPSO option,
-where each category is an unsigned 16 bit field with a maximum value of 65534.
+> > Aside from setting the TYPE and NAME in build.conf, you also need to set
+> > (or override on the make commandline) several other definitions for a
+> > CentOS 4 system, e.g.:
+> > OUTPUT_POLICY = 18
+> > DISTRO = rhel4
+> > DIRECT_INITRC=y
+> Yes, I have this setting in this file:
+> OUTPUT_POLICY = 18
+> TYPE = targeted
+> NAME = reftargeted
+> DISTRO = rhel4
+> DIRECT_INITRC=y
+> MONOLITHIC=y
+> POLY=n
+> MLS_SENS=16
+> MLS_CATS=256
+> MCS_CATS=256
+> QUIET=n
 
-See Documentation/netlabel/draft-ietf-cipso-ipsecurity-01.txt for more details.
+Looks fine.
+(aside:  looks like one also has to run make install with
+SETFILES=/usr/sbin/setfiles on RHEL 4 and derivatives)
 
-Signed-off-by: Paul Moore <paul.moore@hp.com>
----
- net/ipv4/cipso_ipv4.c |  233 ++++++++++++++++++++++++++++++++++++++++++++++++++
- 1 files changed, 233 insertions(+)
+> > Not sure about the booleans errors - what did that booleans file
+> > contain?
+> The booleans file contain default this values(it's almost defaults from
+> tresys refpolicy):
 
-Index: net-2.6.20_netlabel-cats/net/ipv4/cipso_ipv4.c
-===================================================================
---- net-2.6.20_netlabel-cats.orig/net/ipv4/cipso_ipv4.c
-+++ net-2.6.20_netlabel-cats/net/ipv4/cipso_ipv4.c
-@@ -459,6 +459,10 @@ int cipso_v4_doi_add(struct cipso_v4_doi
- 			if (iter == 0)
- 				return -EINVAL;
- 			break;
-+		case CIPSO_V4_TAG_ENUM:
-+			if (doi_def->type != CIPSO_V4_MAP_PASS)
-+				return -EINVAL;
-+			break;
- 		default:
- 			return -EINVAL;
- 		}
-@@ -940,6 +944,107 @@ static int cipso_v4_map_cat_rbm_ntoh(con
- 	return -EINVAL;
- }
- 
-+/**
-+ * cipso_v4_map_cat_enum_valid - Checks to see if the categories are valid
-+ * @doi_def: the DOI definition
-+ * @enumcat: category list
-+ * @enumcat_len: length of the category list in bytes
-+ *
-+ * Description:
-+ * Checks the given categories against the given DOI definition and returns a
-+ * negative value if any of the categories do not have a valid mapping and a
-+ * zero value if all of the categories are valid.
-+ *
-+ */
-+static int cipso_v4_map_cat_enum_valid(const struct cipso_v4_doi *doi_def,
-+				       const unsigned char *enumcat,
-+				       u32 enumcat_len)
-+{
-+	u16 cat;
-+	int cat_prev = -1;
-+	u32 iter;
-+
-+	if (doi_def->type != CIPSO_V4_MAP_PASS || enumcat_len & 0x01)
-+		return -EFAULT;
-+
-+	for (iter = 0; iter < enumcat_len; iter += 2) {
-+		cat = ntohs(*((__be16 *)&enumcat[iter]));
-+		if (cat <= cat_prev)
-+			return -EFAULT;
-+		cat_prev = cat;
-+	}
-+
-+	return 0;
-+}
-+
-+/**
-+ * cipso_v4_map_cat_enum_hton - Perform a category mapping from host to network
-+ * @doi_def: the DOI definition
-+ * @secattr: the security attributes
-+ * @net_cat: the zero'd out category list in network/CIPSO format
-+ * @net_cat_len: the length of the CIPSO category list in bytes
-+ *
-+ * Description:
-+ * Perform a label mapping to translate a local MLS category bitmap to the
-+ * correct CIPSO category list using the given DOI definition.   Returns the
-+ * size in bytes of the network category bitmap on success, negative values
-+ * otherwise.
-+ *
-+ */
-+static int cipso_v4_map_cat_enum_hton(const struct cipso_v4_doi *doi_def,
-+				      const struct netlbl_lsm_secattr *secattr,
-+				      unsigned char *net_cat,
-+				      u32 net_cat_len)
-+{
-+	int cat = -1;
-+	u32 cat_iter = 0;
-+
-+	for (;;) {
-+		cat = netlbl_secattr_catmap_walk(secattr->mls_cat, cat + 1);
-+		if (cat < 0)
-+			break;
-+		if ((cat_iter + 2) > net_cat_len)
-+			return -ENOSPC;
-+
-+		*((__be16 *)&net_cat[cat_iter]) = htons(cat);
-+		cat_iter += 2;
-+	}
-+
-+	return cat_iter;
-+}
-+
-+/**
-+ * cipso_v4_map_cat_enum_ntoh - Perform a category mapping from network to host
-+ * @doi_def: the DOI definition
-+ * @net_cat: the category list in network/CIPSO format
-+ * @net_cat_len: the length of the CIPSO bitmap in bytes
-+ * @secattr: the security attributes
-+ *
-+ * Description:
-+ * Perform a label mapping to translate a CIPSO category list to the correct
-+ * local MLS category bitmap using the given DOI definition.  Returns zero on
-+ * success, negative values on failure.
-+ *
-+ */
-+static int cipso_v4_map_cat_enum_ntoh(const struct cipso_v4_doi *doi_def,
-+				      const unsigned char *net_cat,
-+				      u32 net_cat_len,
-+				      struct netlbl_lsm_secattr *secattr)
-+{
-+	int ret_val;
-+	u32 iter;
-+
-+	for (iter = 0; iter < net_cat_len; iter += 2) {
-+		ret_val = netlbl_secattr_catmap_setbit(secattr->mls_cat,
-+					    ntohs(*((__be16 *)&net_cat[iter])),
-+					    GFP_ATOMIC);
-+		if (ret_val != 0)
-+			return ret_val;
-+	}
-+
-+	return 0;
-+}
-+
- /*
-  * Protocol Handling Functions
-  */
-@@ -1068,6 +1173,99 @@ static int cipso_v4_parsetag_rbm(const s
- }
- 
- /**
-+ * cipso_v4_gentag_enum - Generate a CIPSO enumerated tag (type #2)
-+ * @doi_def: the DOI definition
-+ * @secattr: the security attributes
-+ * @buffer: the option buffer
-+ * @buffer_len: length of buffer in bytes
-+ *
-+ * Description:
-+ * Generate a CIPSO option using the enumerated tag, tag type #2.  Returns the
-+ * size of the tag on success, negative values on failure.
-+ *
-+ */
-+static int cipso_v4_gentag_enum(const struct cipso_v4_doi *doi_def,
-+				const struct netlbl_lsm_secattr *secattr,
-+				unsigned char *buffer,
-+				u32 buffer_len)
-+{
-+	int ret_val;
-+	u32 tag_len;
-+	u32 level;
-+
-+	if (!(secattr->flags & NETLBL_SECATTR_MLS_LVL))
-+		return -EPERM;
-+
-+	ret_val = cipso_v4_map_lvl_hton(doi_def, secattr->mls_lvl, &level);
-+	if (ret_val != 0)
-+		return ret_val;
-+
-+	if (secattr->flags & NETLBL_SECATTR_MLS_CAT) {
-+		ret_val = cipso_v4_map_cat_enum_hton(doi_def,
-+						     secattr,
-+						     &buffer[4],
-+						     buffer_len - 4);
-+		if (ret_val < 0)
-+			return ret_val;
-+
-+		tag_len = 4 + ret_val;
-+	} else
-+		tag_len = 4;
-+
-+	buffer[0] = 0x02;
-+	buffer[1] = tag_len;
-+	buffer[3] = level;
-+
-+	return tag_len;
-+}
-+
-+/**
-+ * cipso_v4_parsetag_enum - Parse a CIPSO enumerated tag
-+ * @doi_def: the DOI definition
-+ * @tag: the CIPSO tag
-+ * @secattr: the security attributes
-+ *
-+ * Description:
-+ * Parse a CIPSO enumerated tag (tag type #2) and return the security
-+ * attributes in @secattr.  Return zero on success, negatives values on
-+ * failure.
-+ *
-+ */
-+static int cipso_v4_parsetag_enum(const struct cipso_v4_doi *doi_def,
-+				  const unsigned char *tag,
-+				  struct netlbl_lsm_secattr *secattr)
-+{
-+	int ret_val;
-+	u8 tag_len = tag[1];
-+	u32 level;
-+
-+	ret_val = cipso_v4_map_lvl_ntoh(doi_def, tag[3], &level);
-+	if (ret_val != 0)
-+		return ret_val;
-+	secattr->mls_lvl = level;
-+	secattr->flags |= NETLBL_SECATTR_MLS_LVL;
-+
-+	if (tag_len > 4) {
-+		secattr->mls_cat = netlbl_secattr_catmap_alloc(GFP_ATOMIC);
-+		if (secattr->mls_cat == NULL)
-+			return -ENOMEM;
-+
-+		ret_val = cipso_v4_map_cat_enum_ntoh(doi_def,
-+						     &tag[4],
-+						     tag_len - 4,
-+						     secattr);
-+		if (ret_val != 0) {
-+			netlbl_secattr_catmap_free(secattr->mls_cat);
-+			return ret_val;
-+		}
-+
-+		secattr->flags |= NETLBL_SECATTR_MLS_CAT;
-+	}
-+
-+	return 0;
-+}
-+
-+/**
-  * cipso_v4_validate - Validate a CIPSO option
-  * @option: the start of the option, on error it is set to point to the error
-  *
-@@ -1156,6 +1354,25 @@ int cipso_v4_validate(unsigned char **op
- 				}
- 			}
- 			break;
-+		case CIPSO_V4_TAG_ENUM:
-+			if (tag_len < 4) {
-+				err_offset = opt_iter + 1;
-+				goto validate_return_locked;
-+			}
-+
-+			if (cipso_v4_map_lvl_valid(doi_def,
-+						   tag[3]) < 0) {
-+				err_offset = opt_iter + 3;
-+				goto validate_return_locked;
-+			}
-+			if (tag_len > 4 &&
-+			    cipso_v4_map_cat_enum_valid(doi_def,
-+							&tag[4],
-+							tag_len - 4) < 0) {
-+				err_offset = opt_iter + 4;
-+				goto validate_return_locked;
-+			}
-+			break;
- 		default:
- 			err_offset = opt_iter;
- 			goto validate_return_locked;
-@@ -1269,6 +1486,12 @@ int cipso_v4_socket_setattr(const struct
- 						   &buf[CIPSO_V4_HDR_LEN],
- 						   buf_len - CIPSO_V4_HDR_LEN);
- 			break;
-+		case CIPSO_V4_TAG_ENUM:
-+			ret_val = cipso_v4_gentag_enum(doi_def,
-+						   secattr,
-+						   &buf[CIPSO_V4_HDR_LEN],
-+						   buf_len - CIPSO_V4_HDR_LEN);
-+			break;
- 		default:
- 			ret_val = -EPERM;
- 			goto socket_setattr_failure;
-@@ -1365,6 +1588,11 @@ int cipso_v4_sock_getattr(struct sock *s
- 						&cipso_ptr[6],
- 						secattr);
- 		break;
-+	case CIPSO_V4_TAG_ENUM:
-+		ret_val = cipso_v4_parsetag_enum(doi_def,
-+						 &cipso_ptr[6],
-+						 secattr);
-+		break;
- 	}
- 	rcu_read_unlock();
- 
-@@ -1431,6 +1659,11 @@ int cipso_v4_skbuff_getattr(const struct
- 						&cipso_ptr[6],
- 						secattr);
- 		break;
-+	case CIPSO_V4_TAG_ENUM:
-+		ret_val = cipso_v4_parsetag_enum(doi_def,
-+						 &cipso_ptr[6],
-+						 secattr);
-+		break;
- 	}
- 
- skbuff_getattr_return:
+Hmm...looks like it is generating boolean entries for booleans that are
+only defined in strict policy even though you are building targeted.  I
+also reproduced this issue on a RHEL 4 system, so it isn't just you.
+However, these should yield non-fatal warnings, not a fatal error. 
 
---
-paul moore
-linux security @ hp
+Reproducing on a RHEL 4 system, I see the following output:
+unknown boolean allow_gpg_execstack
+unknown boolean allow_mplayer_execstack
+unknown boolean allow_ptrace
+unknown boolean allow_ssh_keysign
+unknown boolean allow_user_mysql_connect
+unknown boolean allow_write_xshm
+unknown boolean cdrecord_read_content
+unknown boolean cron_can_relabel
+unknown boolean disable_evolution_trans
+unknown boolean disable_games_trans
+unknown boolean disable_mozilla_trans
+unknown boolean disable_thunderbird_trans
+unknown boolean mail_read_content
+unknown boolean mozilla_read_content
+unknown boolean pppd_for_user
+unknown boolean read_untrusted_content
+unknown boolean run_ssh_inetd
+unknown boolean secure_mode
+unknown boolean spamassassin_can_network
+unknown boolean ssh_sysadm_login
+unknown boolean staff_read_sysadm_file
+unknown boolean user_direct_mouse
+unknown boolean user_dmesg
+unknown boolean user_net_control
+unknown boolean user_ping
+unknown boolean user_rw_noexattrfile
+unknown boolean user_tcp_server
+unknown boolean user_ttyfile_stat
+unknown boolean write_untrusted_content
+unknown boolean xdm_sysadm_login
+Warning!  Error while reading /etc/selinux/refpolicy/booleans:  Invalid argument
+
+However, it does not kill init or panic the kernel - it just proceeds
+onward after these warnings.  Note:  I initially booted it permissive
+after touching /.autorelabel to force a filesystem relabel, then
+rebooted again in enforcing mode once the filesystem was correctly
+labeled.
+
+-- 
+Stephen Smalley
+National Security Agency
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
