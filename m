@@ -1,69 +1,37 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id kATLWGMP001774
-	for <selinux@tycho.nsa.gov>; Wed, 29 Nov 2006 16:32:16 -0500
-Received: from mail3.sea5.speakeasy.net (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id kATLVXa4004524
-	for <selinux@tycho.nsa.gov>; Wed, 29 Nov 2006 21:31:33 GMT
-Date: Wed, 29 Nov 2006 16:32:36 -0500 (EST)
-From: James Morris <jmorris@namei.org>
-To: Stephen Smalley <sds@tycho.nsa.gov>
-cc: selinux@tycho.nsa.gov
-Subject: [PATCH] Rename class_destroy to prevent namespace conflicts
-Message-ID: <XMMS.LNX.4.64.0611291628410.24574@d.namei>
+Message-ID: <456DFCA7.2090500@mentalrootkit.com>
+Date: Wed, 29 Nov 2006 16:33:27 -0500
+From: Karl MacMillan <kmacmillan@mentalrootkit.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Stephen Smalley <sds@tycho.nsa.gov>
+CC: SELinux Mail List <selinux@tycho.nsa.gov>
+Subject: Re: Recovering .te and .fc files from modules
+References: <456DEFAD.6040706@mentalrootkit.com> <1164834319.23019.268.camel@moss-spartans.epoch.ncsc.mil>
+In-Reply-To: <1164834319.23019.268.camel@moss-spartans.epoch.ncsc.mil>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Stephen,
+Stephen Smalley wrote:
+> On Wed, 2006-11-29 at 15:38 -0500, Karl MacMillan wrote:
+>> We've been getting requests for a tool to extract the .te and .fc files 
+>> from modules. Red Hat bugzilla for this at 
+>> https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=217761.
+>>
+>> I think this is a good idea and the dismod tool (located in 
+>> checkpolicy/test in the sources) is a good start at this. I'm mentioning 
+>> it here in case anyone has time or interest in creating this tool.
+> 
+> You might want to separate the disassembling of a binary module to
+> source policy from unpackaging a policy package, e.g. a
+> semodule_unpackage utility could easily write out the individual
+> components (binary module, file contexts, netfilter contexts), and then
+> a nicer version of dismod could disassemble the binary module to textual
+> representation.
+> 
 
-We keep hitting naming conflicts with class_destroy included via 
-linux/device.h, as networking related headers are increasingly being used 
-on in the core SELinux code.  I've tried using external declarations 
-previously to prevent e.g. skbuff.h being included, but it's not going to 
-work in the general case.  I suggest we simply rename the SELinux function 
-to cls_destroy per the patch below.
+Good point - added a note to the bugzilla.
 
-Please review.
-
-Signed-off-by: James Morris <jmorris@namei.org>
-
----
-
- policydb.c |    6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
-
-diff --git a/security/selinux/ss/policydb.c b/security/selinux/ss/policydb.c
-index ba48961..cd79c63 100644
---- a/security/selinux/ss/policydb.c
-+++ b/security/selinux/ss/policydb.c
-@@ -468,7 +468,7 @@ static int common_destroy(void *key, voi
- 	return 0;
- }
- 
--static int class_destroy(void *key, void *datum, void *p)
-+static int cls_destroy(void *key, void *datum, void *p)
- {
- 	struct class_datum *cladatum;
- 	struct constraint_node *constraint, *ctemp;
-@@ -566,7 +566,7 @@ static int cat_destroy(void *key, void *
- static int (*destroy_f[SYM_NUM]) (void *key, void *datum, void *datap) =
- {
- 	common_destroy,
--	class_destroy,
-+	cls_destroy,
- 	role_destroy,
- 	type_destroy,
- 	user_destroy,
-@@ -1124,7 +1124,7 @@ static int class_read(struct policydb *p
- out:
- 	return rc;
- bad:
--	class_destroy(key, cladatum, NULL);
-+	cls_destroy(key, cladatum, NULL);
- 	goto out;
- }
- 
+Karl
 
 --
 This message was distributed to subscribers of the selinux mailing list.
