@@ -1,43 +1,53 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id kAT8NIAD005488
-	for <selinux@tycho.nsa.gov>; Wed, 29 Nov 2006 03:23:19 -0500
-Received: from smtp.sws.net.au (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id kAT8LXE0025485
-	for <selinux@tycho.nsa.gov>; Wed, 29 Nov 2006 08:21:35 GMT
-From: Russell Coker <russell@coker.com.au>
-Reply-To: russell@coker.com.au
-To: Yuichi Nakamura <ynakam@gwu.edu>
-Subject: Re: First argument of matchpathcon_filespec_add
-Date: Wed, 29 Nov 2006 19:23:28 +1100
-Cc: selinux@tycho.nsa.gov, kaigai@kaigai.gr.jp
-References: <ddeda73453a4.456d4b0b@gwu.edu>
-In-Reply-To: <ddeda73453a4.456d4b0b@gwu.edu>
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id kATCEAbS012056
+	for <selinux@tycho.nsa.gov>; Wed, 29 Nov 2006 07:14:10 -0500
+Received: from wr-out-0506.google.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id kATCDSwt015009
+	for <selinux@tycho.nsa.gov>; Wed, 29 Nov 2006 12:13:28 GMT
+Received: by wr-out-0506.google.com with SMTP id 57so588538wri
+        for <selinux@tycho.nsa.gov>; Wed, 29 Nov 2006 04:14:31 -0800 (PST)
+Message-ID: <456D799E.40105@kaigai.gr.jp>
+Date: Wed, 29 Nov 2006 21:14:22 +0900
+From: KaiGai Kohei <kaigai@kaigai.gr.jp>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Message-Id: <200611291923.30237.russell@coker.com.au>
+To: russell@coker.com.au
+CC: Yuichi Nakamura <ynakam@gwu.edu>, selinux@tycho.nsa.gov
+Subject: Re: First argument of matchpathcon_filespec_add
+References: <ddeda73453a4.456d4b0b@gwu.edu> <200611291923.30237.russell@coker.com.au>
+In-Reply-To: <200611291923.30237.russell@coker.com.au>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wednesday 29 November 2006 10:55, Yuichi Nakamura <ynakam@gwu.edu> wrote:
-> When we do not want to build busybox with -D_FILE_OFFSET_BIT=64,
-> we have to rebuild libselinux.
->
-> I think it is a problem.
->
-> Does anyone have good idea ?
+Russell Coker wrote:
+> On Wednesday 29 November 2006 10:55, Yuichi Nakamura <ynakam@gwu.edu> wrote:
+>> When we do not want to build busybox with -D_FILE_OFFSET_BIT=64,
+>> we have to rebuild libselinux.
+>>
+>> I think it is a problem.
+>>
+>> Does anyone have good idea ?
+> 
+> What harm does it do to build busybox with 64bit file offsets?  For system 
+> recovery I think that 64bit offsets are desirable.
+> 
+> For embedded systems I guess you could have both the same whichever option you 
+> choose.
 
-What harm does it do to build busybox with 64bit file offsets?  For system 
-recovery I think that 64bit offsets are desirable.
+I think this topic should not be about the configuration of busybox,
+be about the consistency of the libselinux interfaces.
 
-For embedded systems I guess you could have both the same whichever option you 
-choose.
+Because the length of ino_t which is the first argument of the funciton
+depends on the definition of _FILE_OFFSET_BIT, we have a possibility to
+have different views on the interface of libselinux.
+It is not limited in busybox cases.
 
+Is it appropriate way that the consistency of libselinux's interface
+depends on whether the application defines _FILE_OFFSET_BIT, or not?
+
+Thanks,
 -- 
-russell@coker.com.au
-http://etbe.blogspot.com/          My Blog
-
-http://www.coker.com.au/sponsorship.html Sponsoring Free Software development
+KaiGai Kohei <kaigai@kaigai.gr.jp>
 
 --
 This message was distributed to subscribers of the selinux mailing list.
