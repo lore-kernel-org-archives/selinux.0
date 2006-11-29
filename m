@@ -1,55 +1,73 @@
-Subject: Re: First argument of matchpathcon_filespec_add
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: KaiGai Kohei <kaigai@kaigai.gr.jp>
-Cc: russell@coker.com.au, Yuichi Nakamura <ynakam@gwu.edu>,
-        selinux@tycho.nsa.gov, Eamon Walsh <ewalsh@tycho.nsa.gov>
-In-Reply-To: <456D799E.40105@kaigai.gr.jp>
-References: <ddeda73453a4.456d4b0b@gwu.edu>
-	 <200611291923.30237.russell@coker.com.au>  <456D799E.40105@kaigai.gr.jp>
-Content-Type: text/plain
-Date: Wed, 29 Nov 2006 10:10:40 -0500
-Message-Id: <1164813040.23019.147.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+From: David Howells <dhowells@redhat.com>
+In-Reply-To: <20061114200621.12943.18023.stgit@warthog.cambridge.redhat.com> 
+References: <20061114200621.12943.18023.stgit@warthog.cambridge.redhat.com> 
+To: torvalds@osdl.org, akpm@osdl.org, sds@tycho.nsa.gov,
+        trond.myklebust@fys.uio.no
+Cc: dhowells@redhat.com, selinux@tycho.nsa.gov, linux-kernel@vger.kernel.org,
+        aviro@redhat.com, steved@redhat.com
+Subject: [PATCH 30/19] CacheFiles: Fix the allocate_page() op
+Date: Wed, 29 Nov 2006 16:47:51 +0000
+Message-ID: <22845.1164818871@redhat.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2006-11-29 at 21:14 +0900, KaiGai Kohei wrote:
-> Russell Coker wrote:
-> > On Wednesday 29 November 2006 10:55, Yuichi Nakamura <ynakam@gwu.edu> wrote:
-> >> When we do not want to build busybox with -D_FILE_OFFSET_BIT=64,
-> >> we have to rebuild libselinux.
-> >>
-> >> I think it is a problem.
-> >>
-> >> Does anyone have good idea ?
-> > 
-> > What harm does it do to build busybox with 64bit file offsets?  For system 
-> > recovery I think that 64bit offsets are desirable.
-> > 
-> > For embedded systems I guess you could have both the same whichever option you 
-> > choose.
-> 
-> I think this topic should not be about the configuration of busybox,
-> be about the consistency of the libselinux interfaces.
-> 
-> Because the length of ino_t which is the first argument of the funciton
-> depends on the definition of _FILE_OFFSET_BIT, we have a possibility to
-> have different views on the interface of libselinux.
-> It is not limited in busybox cases.
-> 
-> Is it appropriate way that the consistency of libselinux's interface
-> depends on whether the application defines _FILE_OFFSET_BIT, or not?
 
-I agree that it is a problem with the interface.  We could attempt to
-address it in a similar manner to stat() handling, but the interface is
-likely to become obsolete once the new label lookup interfaces being
-proposed by Eamon Walsh are adopted and setfiles is converted over to
-using them.
+Fix cachefiles_allocate_page() to mark the specified page as being retained if
+it returns successfully.
 
--- 
-Stephen Smalley
-National Security Agency
+Also fix the header comment on that function (it doesn't read data from the
+disk).
 
+Signed-Off-By: David Howells <dhowells@redhat.com>
+---
+
+ fs/cachefiles/cf-interface.c |   19 +++++++++++++++++--
+ 1 files changed, 17 insertions(+), 2 deletions(-)
+
+diff --git a/fs/cachefiles/cf-interface.c b/fs/cachefiles/cf-interface.c
+index e96e63a..a08831b 100644
+--- a/fs/cachefiles/cf-interface.c
++++ b/fs/cachefiles/cf-interface.c
+@@ -1108,7 +1108,7 @@ static int cachefiles_read_or_alloc_page
+ }
+ 
+ /*
+- * read a page from the cache or allocate a block in which to store it
++ * allocate a block in the cache in which to store a page
+  * - cache withdrawal is prevented by the caller
+  * - returns -EINTR if interrupted
+  * - returns -ENOMEM if ran out of memory
+@@ -1124,6 +1124,9 @@ static int cachefiles_allocate_page(stru
+ {
+ 	struct cachefiles_object *object;
+ 	struct cachefiles_cache *cache;
++	struct fscache_cookie *cookie;
++	struct pagevec pagevec;
++	int ret;
+ 
+ 	object = container_of(_object, struct cachefiles_object, fscache);
+ 	cache = container_of(object->fscache.cache,
+@@ -1131,7 +1134,19 @@ static int cachefiles_allocate_page(stru
+ 
+ 	_enter("%p,{%lx},,,", object, page->index);
+ 
+-	return cachefiles_has_space(cache, 0, 1);
++	ret = cachefiles_has_space(cache, 0, 1);
++	if (ret == 0) {
++		pagevec_init(&pagevec, 0);
++		pagevec_add(&pagevec, page);
++		cookie = object->fscache.cookie;
++		cookie->def->mark_pages_cached(cookie->netfs_data,
++					       page->mapping, &pagevec);
++	} else {
++		ret = -ENOBUFS;
++	}
++
++	_leave(" = %d", ret);
++	return ret;
+ }
+ 
+ /*
 
 --
 This message was distributed to subscribers of the selinux mailing list.
