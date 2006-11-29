@@ -1,39 +1,40 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id kATKbjpU032206
-	for <selinux@tycho.nsa.gov>; Wed, 29 Nov 2006 15:37:45 -0500
-Received: from mx1.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id kATKa246002342
-	for <selinux@tycho.nsa.gov>; Wed, 29 Nov 2006 20:36:02 GMT
-Received: from int-mx1.corp.redhat.com (int-mx1.corp.redhat.com [172.16.52.254])
-	by mx1.redhat.com (8.12.11.20060308/8.12.11) with ESMTP id kATKc8eG004024
-	for <selinux@tycho.nsa.gov>; Wed, 29 Nov 2006 15:38:08 -0500
-Received: from pobox-2.corp.redhat.com (pobox-2.corp.redhat.com [10.11.255.15])
-	by int-mx1.corp.redhat.com (8.13.1/8.13.1) with ESMTP id kATKc8YX004029
-	for <selinux@tycho.nsa.gov>; Wed, 29 Nov 2006 15:38:08 -0500
-Received: from [10.11.14.98] (vpn-14-98.rdu.redhat.com [10.11.14.98])
-	by pobox-2.corp.redhat.com (8.13.1/8.13.1) with ESMTP id kATKc7Ld028928
-	for <selinux@tycho.nsa.gov>; Wed, 29 Nov 2006 15:38:08 -0500
-Message-ID: <456DEFAD.6040706@mentalrootkit.com>
-Date: Wed, 29 Nov 2006 15:38:05 -0500
-From: Karl MacMillan <kmacmillan@mentalrootkit.com>
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id kATKmJbO032730
+	for <selinux@tycho.nsa.gov>; Wed, 29 Nov 2006 15:48:19 -0500
+Received: from tcsfw4.tcs-sec.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id kATKlba4025705
+	for <selinux@tycho.nsa.gov>; Wed, 29 Nov 2006 20:47:37 GMT
+Reply-To: <vyekkirala@TrustedCS.com>
+From: "Venkat Yekkirala" <vyekkirala@TrustedCS.com>
+To: "'Christopher J. PeBenito'" <cpebenito@tresys.com>,
+        "Joy Latten" <latten@austin.ibm.com>
+Cc: <redhat-lspp@redhat.com>, <jbrindle@tresys.com>, <selinux@tycho.nsa.gov>
+Subject: RE: [redhat-lspp] Re: labeled ipsec policy
+Date: Wed, 29 Nov 2006 14:42:23 -0600
+Message-ID: <001701c713f6$e02b11b0$cc0a010a@tcssec.com>
 MIME-Version: 1.0
-To: SELinux Mail List <selinux@tycho.nsa.gov>
-Subject: Recovering .te and .fc files from modules
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain;
+	charset="iso-8859-1"
+In-Reply-To: <1164812372.25344.41.camel@sgc>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-We've been getting requests for a tool to extract the .te and .fc files 
-from modules. Red Hat bugzilla for this at 
-https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=217761.
+> I'm not very sure how users will use the SPD labeling.  I suspect that
+> they will be labeled with probably the other side's domain type.  For
+> example, if httpd_t and mozilla_t are connected, the SPD would be
+> mozilla_t on the http machine and httpd_t on the mozilla machine.
+>
 
-I think this is a good idea and the dismod tool (located in 
-checkpolicy/test in the sources) is a good start at this. I'm mentioning 
-it here in case anyone has time or interest in creating this tool.
+In the simplest case, you would just have a generic "labeled_ipsec_t" Type
+that would be specified for all the spd rules that pertain to labeled-ipsec.
+All the different domains that need to use labeled-ipsec would then polmatch
+to labeled_ipsec_t.
 
-Thanks,
+The SAs will always and automatically be using the originating domain Type.
+So, the SA from the client to server would be auto-labeled mozilla_t,
+rss_aggregator_t, etc. (on both ends), and the SA from the server to client
+would be auto-labeled httpd_t (again on both ends).
 
-Karl
 
 --
 This message was distributed to subscribers of the selinux mailing list.
