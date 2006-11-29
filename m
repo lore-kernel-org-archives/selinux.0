@@ -1,35 +1,36 @@
-Subject: Re: Recovering .te and .fc files from modules
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Karl MacMillan <kmacmillan@mentalrootkit.com>
-Cc: SELinux Mail List <selinux@tycho.nsa.gov>
-In-Reply-To: <456DEFAD.6040706@mentalrootkit.com>
-References: <456DEFAD.6040706@mentalrootkit.com>
-Content-Type: text/plain
-Date: Wed, 29 Nov 2006 16:05:19 -0500
-Message-Id: <1164834319.23019.268.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Subject: RE: More  small fixes to policycoreutils
+Date: Wed, 29 Nov 2006 16:18:19 -0500
+Message-ID: <6FE441CD9F0C0C479F2D88F959B015885C8020@exchange.columbia.tresys.com>
+In-Reply-To: <4564BF65.7040900@redhat.com>
+From: "Joshua Brindle" <jbrindle@tresys.com>
+To: "Daniel J Walsh" <dwalsh@redhat.com>
+Cc: "Stephen Smalley" <sds@tycho.nsa.gov>,
+        "Karl MacMillan" <kmacmillan@mentalrootkit.com>,
+        "Christopher J. PeBenito" <cpebenito@tresys.com>,
+        "SE Linux" <selinux@tycho.nsa.gov>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2006-11-29 at 15:38 -0500, Karl MacMillan wrote:
-> We've been getting requests for a tool to extract the .te and .fc files 
-> from modules. Red Hat bugzilla for this at 
-> https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=217761.
+> From: Daniel J Walsh [mailto:dwalsh@redhat.com] 
 > 
-> I think this is a good idea and the dismod tool (located in 
-> checkpolicy/test in the sources) is a good start at this. I'm mentioning 
-> it here in case anyone has time or interest in creating this tool.
+> Joshua Brindle wrote:
+> > Daniel J Walsh wrote:
+> >> Fixes to make sure module name is all alphabet charaters.
+> >>
+> Added
+> >
+> > Still non-standard
+> >
+> Fine, I will go with your standard.
+> 
 
-You might want to separate the disassembling of a binary module to
-source policy from unpackaging a policy package, e.g. a
-semodule_unpackage utility could easily write out the individual
-components (binary module, file contexts, netfilter contexts), and then
-a nicer version of dismod could disassemble the binary module to textual
-representation.
+Merged this, the error status patch, the verbose man page fix and
+pam_acct_mgmt patches as of policycoreutils 1.33.6
 
--- 
-Stephen Smalley
-National Security Agency
+Thanks.
 
 
 --
