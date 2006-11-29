@@ -1,33 +1,57 @@
-Subject: Re: First argument of matchpathcon_filespec_add
-From: Eamon Walsh <ewalsh@tycho.nsa.gov>
-Reply-To: ewalsh@tycho.nsa.gov
+Subject: Re: CentOS and SELinux refpolicy trouble
+From: "Christopher J. PeBenito" <cpebenito@tresys.com>
 To: Stephen Smalley <sds@tycho.nsa.gov>
-Cc: KaiGai Kohei <kaigai@kaigai.gr.jp>, russell@coker.com.au,
-        Yuichi Nakamura <ynakam@gwu.edu>, selinux@tycho.nsa.gov
-In-Reply-To: <1164813040.23019.147.camel@moss-spartans.epoch.ncsc.mil>
-References: <ddeda73453a4.456d4b0b@gwu.edu>
-	 <200611291923.30237.russell@coker.com.au>  <456D799E.40105@kaigai.gr.jp>
-	 <1164813040.23019.147.camel@moss-spartans.epoch.ncsc.mil>
+Cc: Filip Bartmann <filbar@centrum.cz>, SELinux <selinux@tycho.nsa.gov>
+In-Reply-To: <1164825664.23019.207.camel@moss-spartans.epoch.ncsc.mil>
+References: <1164819458.4109.14.camel@localhost>
+	 <1164820193.23019.181.camel@moss-spartans.epoch.ncsc.mil>
+	 <1164825158.4109.31.camel@localhost>
+	 <1164825664.23019.207.camel@moss-spartans.epoch.ncsc.mil>
 Content-Type: text/plain
-Date: Wed, 29 Nov 2006 15:15:37 -0500
-Message-Id: <1164831337.2794.149.camel@moss-huskies.epoch.ncsc.mil>
+Date: Wed, 29 Nov 2006 15:24:24 -0500
+Message-Id: <1164831864.7459.7.camel@sgc.columbia.tresys.com>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2006-11-29 at 10:10 -0500, Stephen Smalley wrote:
-> I agree that it is a problem with the interface.  We could attempt to
-> address it in a similar manner to stat() handling, but the interface is
-> likely to become obsolete once the new label lookup interfaces being
-> proposed by Eamon Walsh are adopted and setfiles is converted over to
-> using them.
+On Wed, 2006-11-29 at 13:41 -0500, Stephen Smalley wrote:
+> On Wed, 2006-11-29 at 19:32 +0100, Filip Bartmann wrote:
+> > OUTPUT_POLICY = 18
+> > TYPE = targeted
+> > NAME = reftargeted
+> > DISTRO = rhel4
+> > DIRECT_INITRC=y
+> > MONOLITHIC=y
+> > POLY=n
+> > MLS_SENS=16
+> > MLS_CATS=256
+> > MCS_CATS=256
+> > QUIET=n
+> 
+> Looks fine.
+> (aside:  looks like one also has to run make install with
+> SETFILES=/usr/sbin/setfiles on RHEL 4 and derivatives)
 
-That's correct, the new interface will not take the mode but instead a
-security class, such as chr_file, blk_file, etc.
+Yes, thats an unfortunate problem with moving filesystem locations.
+
+> > > Not sure about the booleans errors - what did that booleans file
+> > > contain?
+> > The booleans file contain default this values(it's almost defaults from
+> > tresys refpolicy):
+> 
+> Hmm...looks like it is generating boolean entries for booleans that are
+> only defined in strict policy even though you are building targeted.
+
+This should get better, we've almost completed a branch of the policy
+that moves booleans back to modules where it makes sense (the boolean is
+only referenced in that module).  It'll be easier to make sure booleans
+are around only when the policy uses them.  Hopefully that will be ready
+to be merged to trunk very soon.
 
 -- 
-Eamon Walsh <ewalsh@tycho.nsa.gov>
-National Security Agency
+Chris PeBenito
+Tresys Technology, LLC
+(410) 290-1411 x150
 
 
 --
