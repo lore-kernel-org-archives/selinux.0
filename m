@@ -1,40 +1,40 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id kATKmJbO032730
-	for <selinux@tycho.nsa.gov>; Wed, 29 Nov 2006 15:48:19 -0500
-Received: from tcsfw4.tcs-sec.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id kATKlba4025705
-	for <selinux@tycho.nsa.gov>; Wed, 29 Nov 2006 20:47:37 GMT
-Reply-To: <vyekkirala@TrustedCS.com>
-From: "Venkat Yekkirala" <vyekkirala@TrustedCS.com>
-To: "'Christopher J. PeBenito'" <cpebenito@tresys.com>,
-        "Joy Latten" <latten@austin.ibm.com>
-Cc: <redhat-lspp@redhat.com>, <jbrindle@tresys.com>, <selinux@tycho.nsa.gov>
-Subject: RE: [redhat-lspp] Re: labeled ipsec policy
-Date: Wed, 29 Nov 2006 14:42:23 -0600
-Message-ID: <001701c713f6$e02b11b0$cc0a010a@tcssec.com>
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id kATL1LNX000743
+	for <selinux@tycho.nsa.gov>; Wed, 29 Nov 2006 16:01:21 -0500
+Received: from mail8.sea5.speakeasy.net (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id kATKxc46008049
+	for <selinux@tycho.nsa.gov>; Wed, 29 Nov 2006 20:59:38 GMT
+Date: Wed, 29 Nov 2006 16:01:41 -0500 (EST)
+From: James Morris <jmorris@namei.org>
+To: Paul Moore <paul.moore@hp.com>
+cc: netdev@vger.kernel.org, selinux@tycho.nsa.gov
+Subject: Re: [PATCH 3/3] NetLabel: add the ranged tag to the CIPSOv4 protocol
+In-Reply-To: <20061129182854.816890000@hp.com>
+Message-ID: <XMMS.LNX.4.64.0611291600250.24178@d.namei>
+References: <20061129181817.505281000@hp.com> <20061129182854.816890000@hp.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-In-Reply-To: <1164812372.25344.41.camel@sgc>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-> I'm not very sure how users will use the SPD labeling.  I suspect that
-> they will be labeled with probably the other side's domain type.  For
-> example, if httpd_t and mozilla_t are connected, the SPD would be
-> mozilla_t on the http machine and httpd_t on the mozilla machine.
->
+On Wed, 29 Nov 2006, paul.moore@hp.com wrote:
 
-In the simplest case, you would just have a generic "labeled_ipsec_t" Type
-that would be specified for all the spd rules that pertain to labeled-ipsec.
-All the different domains that need to use labeled-ipsec would then polmatch
-to labeled_ipsec_t.
+> +{
+> +	/* The constant '16' is not random, it is the maximum number of
+> +	 * high/low category range pairs as permitted by the CIPSO draft based
+> +	 * on a maximum IPv4 header length of 60 bytes - the BUG_ON() assertion
+> +	 * does a sanity check to make sure we don't overflow the array. */
+> +	int iter = -1;
+> +	u16 array[16];
 
-The SAs will always and automatically be using the originating domain Type.
-So, the SA from the client to server would be auto-labeled mozilla_t,
-rss_aggregator_t, etc. (on both ends), and the SA from the server to client
-would be auto-labeled httpd_t (again on both ends).
+Perhaps in a future update, make this a value a macro definition and 
+document it in the header.
 
+
+
+-- 
+James Morris
+<jmorris@namei.org>
 
 --
 This message was distributed to subscribers of the selinux mailing list.
