@@ -1,32 +1,44 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id kATGvZ6B023224
-	for <selinux@tycho.nsa.gov>; Wed, 29 Nov 2006 11:57:35 -0500
-Received: from smtp.nextra.cz (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id kATGuoa4011535
-	for <selinux@tycho.nsa.gov>; Wed, 29 Nov 2006 16:56:52 GMT
-Received: from linpro2.corki.info (195.47.80.232.adsl.nextra.cz [195.47.80.232])
-	by smtp.nextra.cz (Postfix) with ESMTP id D28355F04
-	for <selinux@tycho.nsa.gov>; Wed, 29 Nov 2006 17:57:54 +0100 (CET)
-Subject: CentOS and SELinux refpolicy trouble
-From: Filip Bartmann <filbar@centrum.cz>
-To: selinux@tycho.nsa.gov
+Subject: Re: CentOS and SELinux refpolicy trouble
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Filip Bartmann <filbar@centrum.cz>
+Cc: selinux@tycho.nsa.gov
+In-Reply-To: <1164819458.4109.14.camel@localhost>
+References: <1164819458.4109.14.camel@localhost>
 Content-Type: text/plain
-Date: Wed, 29 Nov 2006 17:57:38 +0100
-Message-Id: <1164819458.4109.14.camel@localhost>
+Date: Wed, 29 Nov 2006 12:09:53 -0500
+Message-Id: <1164820193.23019.181.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-I try use SELinux refpolicy from oss.tresys.com with CentOS 4.4.
-Refpolicy I configure as targeted, and name ref-targeted. If I load the
-policy into running system, then all is OK, but if I try to boot system
-with this policy, then I have after "Switching to new root" first
-error's, about some Unkown's booleans, then about "Error while
-reading /etc/selinux/ref-targeted/booleans: Invalid argument"
-Then system hangs up with killing init and : "Kernel panic - not
-syncing. Out of memory and no killablable processes ..."
-What I have wrong?
-Filip Bartmann
+On Wed, 2006-11-29 at 17:57 +0100, Filip Bartmann wrote:
+> I try use SELinux refpolicy from oss.tresys.com with CentOS 4.4.
+> Refpolicy I configure as targeted, and name ref-targeted. If I load the
+> policy into running system, then all is OK, but if I try to boot system
+> with this policy, then I have after "Switching to new root" first
+> error's, about some Unkown's booleans, then about "Error while
+> reading /etc/selinux/ref-targeted/booleans: Invalid argument"
+> Then system hangs up with killing init and : "Kernel panic - not
+> syncing. Out of memory and no killablable processes ..."
+> What I have wrong?
+
+Please identify the precise version numbers of any SELinux-related
+components that you updated (refpolicy, checkpolicy, anything else like
+policycoreutils).
+
+Aside from setting the TYPE and NAME in build.conf, you also need to set
+(or override on the make commandline) several other definitions for a
+CentOS 4 system, e.g.:
+OUTPUT_POLICY = 18
+DISTRO = rhel4
+DIRECT_INITRC=y
+
+Not sure about the booleans errors - what did that booleans file
+contain?
+
+-- 
+Stephen Smalley
+National Security Agency
 
 
 --
