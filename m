@@ -1,248 +1,404 @@
 Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id kAU45UDZ012118
-	for <selinux@tycho.nsa.gov>; Wed, 29 Nov 2006 23:05:30 -0500
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id kAU48b1s012196
+	for <selinux@tycho.nsa.gov>; Wed, 29 Nov 2006 23:08:37 -0500
 Received: from facesaver.epoch.ncsc.mil (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id kAU43lbM019629
-	for <selinux@tycho.nsa.gov>; Thu, 30 Nov 2006 04:03:47 GMT
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id kAU46sbM020479
+	for <selinux@tycho.nsa.gov>; Thu, 30 Nov 2006 04:06:54 GMT
 Received: from moss-huskies.epoch.ncsc.mil (moss-huskies [144.51.25.7])
-	by facesaver.epoch.ncsc.mil (8.13.1/8.13.1) with ESMTP id kAU40Osd014724
-	for <selinux@tycho.nsa.gov>; Wed, 29 Nov 2006 23:00:24 -0500
-Subject: [PATCH 1/5] libselinux: labeling API basic front-end interface
+	by facesaver.epoch.ncsc.mil (8.13.1/8.13.1) with ESMTP id kAU43V9e014832
+	for <selinux@tycho.nsa.gov>; Wed, 29 Nov 2006 23:03:31 -0500
+Subject: [PATCH 2/5] libselinux: labeling API basic front-end implementation
 From: Eamon Walsh <ewalsh@tycho.nsa.gov>
 Reply-To: ewalsh@tycho.nsa.gov
 To: selinux@tycho.nsa.gov
 In-Reply-To: <1164858471.2794.192.camel@moss-huskies.epoch.ncsc.mil>
 References: <1164858471.2794.192.camel@moss-huskies.epoch.ncsc.mil>
-Content-Type: multipart/mixed; boundary="=-cdjFMp0EBDZ4z9x5E9DX"
-Date: Wed, 29 Nov 2006 23:05:29 -0500
-Message-Id: <1164859529.2794.201.camel@moss-huskies.epoch.ncsc.mil>
+Content-Type: multipart/mixed; boundary="=-Lm7N9w5bO3rfqEX+BH6+"
+Date: Wed, 29 Nov 2006 23:08:36 -0500
+Message-Id: <1164859716.2794.204.camel@moss-huskies.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 
---=-cdjFMp0EBDZ4z9x5E9DX
+--=-Lm7N9w5bO3rfqEX+BH6+
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
 
-This is the basic front-end interface.  I will shortly post some
-examples of how it would be used, including a patch for setfiles.
+This is the front-end implementation.
 
 Signed-off-by: Eamon Walsh <ewalsh@tycho.nsa.gov>
 
 ---
- libselinux/include/selinux/label.h         |  165 +++++++++++++
- libselinux/include/selinux/label_backend.h |   20 +
- 2 files changed, 185 insertions(+)
+ libselinux/src/label.c          |  180 ++++++++++++++++++++++++
+ libselinux/src/label_internal.c |   58 +++++++
+ libselinux/src/label_internal.h |   98 +++++++++++++
+ 3 files changed, 336 insertions(+)
 
 
 -- 
 Eamon Walsh <ewalsh@tycho.nsa.gov>
 National Security Agency
 
---=-cdjFMp0EBDZ4z9x5E9DX
+--=-Lm7N9w5bO3rfqEX+BH6+
 Content-Description: 
-Content-Disposition: inline; filename=label1.patch
-Content-Type: text/x-patch; charset=utf-8
+Content-Disposition: inline; filename=label2.patch
+Content-Type: text/x-patch; charset=UTF-8
 Content-Transfer-Encoding: 7bit
 
-Index: libselinux/include/selinux/label.h
+Index: libselinux/src/label_internal.h
 ===================================================================
---- libselinux/include/selinux/label.h	(revision 0)
-+++ libselinux/include/selinux/label.h	(revision 0)
-@@ -0,0 +1,165 @@
+--- libselinux/src/label_internal.h	(revision 0)
++++ libselinux/src/label_internal.h	(revision 0)
+@@ -0,0 +1,98 @@
 +/*
-+ * Labeling interface for userspace object managers and others.
++ * This file describes the internal interface used by the labeler
++ * for calling the user-supplied memory allocation, validation,
++ * and locking routine.
 + *
-+ * Author : Eamon Walsh <ewalsh@tycho.nsa.gov>
++ * Author : Eamon Walsh <ewalsh@epoch.ncsc.mil>
 + */
-+#ifndef _SELINUX_LABEL_H_
-+#define _SELINUX_LABEL_H_
++#ifndef _SELINUX_LABEL_INTERNAL_H_
++#define _SELINUX_LABEL_INTERNAL_H_
++
++#include <stdlib.h>
++#include <selinux/selinux.h>
++#include <selinux/label.h>
++#include "dso.h"
++
++/* backend interface */
++struct label_rec {
++	/* linked list of all open handles */
++	struct label_rec *next;
++
++	/* object class, name, and flags for this instance */
++	security_class_t cls;
++	char *name;
++	int flags;
++
++	/* labeling operations */
++	int (*func_lookup) (struct label_rec *h, const char *key,
++			    security_class_t cls, security_context_t *ctx);
++	void (*func_destroy) (struct label_rec *h);
++	void (*func_cache_stats) (struct label_rec *h);
++	void (*func_op_stats) (struct label_rec *h);
++
++	/* supports backend-specific state information */
++	void *data;
++};
++
++struct label_backend {
++	security_class_t cls;
++	int (*func_init) (struct label_rec *rec, void *arg);
++};
++
++/* installed backends */
++int backend_file_init(struct label_rec *rec, void *arg) hidden;
++int backend_media_init(struct label_rec *rec, void *arg) hidden;
++int backend_generic_init(struct label_rec *rec, void *arg) hidden;
++
++/* callback pointers */
++extern void *(*label_func_malloc) (size_t) hidden;
++extern void (*label_func_free) (void *) hidden;
++
++extern int (*label_func_log) (int type, const char *, ...) hidden;
++extern int (*label_func_validate) (security_class_t cls, char **ctx) hidden;
++
++extern void *(*label_func_alloc_lock) (void) hidden;
++extern void (*label_func_get_lock) (void *) hidden;
++extern void (*label_func_release_lock) (void *) hidden;
++extern void (*label_func_free_lock) (void *) hidden;
++
++/* user-supplied callback interface for avc */
++static inline void *label_malloc(size_t size)
++{
++	return label_func_malloc(size);
++}
++
++static inline void label_free(void *ptr)
++{
++	label_func_free(ptr);
++}
++
++/* this is a macro in order to use the variadic capability. */
++#define label_log(type, format...) label_func_log(type, format)
++
++static inline int label_validate(security_class_t cls, char **ctx)
++{
++	return label_func_validate(cls, ctx);
++}
++
++static inline void *label_alloc_lock(void)
++{
++	return label_func_alloc_lock();
++}
++
++static inline void label_get_lock(void *lock)
++{
++	label_func_get_lock(lock);
++}
++
++static inline void label_release_lock(void *lock)
++{
++	label_func_release_lock(lock);
++}
++
++static inline void label_free_lock(void *lock)
++{
++	label_func_free_lock(lock);
++}
++
++#endif				/* _SELINUX_LABEL_INTERNAL_H_ */
+Index: libselinux/src/label.c
+===================================================================
+--- libselinux/src/label.c	(revision 0)
++++ libselinux/src/label.c	(revision 0)
+@@ -0,0 +1,180 @@
++/*
++ * Generalized labeling frontend for userspace object managers.
++ *
++ * Author : Eamon Walsh <ewalsh@epoch.ncsc.mil>
++ */
 +
 +#include <sys/types.h>
-+#include <selinux/selinux.h>
++#include <errno.h>
++#include <stdio.h>
++#include <stdlib.h>
++#include <string.h>
++#include <selinux/flask.h>
++#include <selinux/label.h>
++#include "label_internal.h"
 +
-+#ifdef __cplusplus
-+extern "C" {
-+#endif
++#define ARRAY_SIZE(x) (sizeof(x) / sizeof((x)[0]))
 +
-+/*
-+ * User-provided callbacks for memory, logging, locking, and extra actions
-+ */
++static struct label_rec *rec_list = NULL;
 +
-+/* These structures are passed by reference to label_init().  Passing
-+ * a NULL reference will cause a default to be used.  The default
-+ * memory callbacks are malloc() and free().  The default logging method
-+ * is to print on stderr.  The default validation callback is based on
-+ * selinux_check_context().  If no locking callbacks are passed, no locking
-+ * will take place.
-+ */
-+	struct label_memory_callback {
-+		/* malloc() equivalent. */
-+		void *(*func_malloc) (size_t size);
-+		/* free() equivalent. */
-+		void (*func_free) (void *ptr);
-+		/* Note that these functions should set errno on failure.
-+		   If not, some routines may return -1 without errno set. */
-+	};
++static void *label_lock = NULL;
++static void *label_log_lock = NULL;
 +
-+	struct label_log_callback {
-+		/* log the printf-style format and arguments,
-+		   with the type code indicating the type of message */
-+		int (*func_log) (int type, const char *fmt, ...);
-+	};
++struct label_backend backends[] = {
++	{SECCLASS_FILE, &backend_file_init},
++	{SECCLASS_XEXTENSION, &backend_generic_init}
++};
 +
-+	struct label_action_callback {
-+		/* validate the supplied context, making changes if necessary,
-+		   returning 0 if valid or -1 with errno set otherwise. */
-+		int (*func_validate) (security_class_t cls, char **context);
-+	};
++static struct label_rec *open_backend(struct label_backend *backend,
++				      const char *name, int flags, void *arg)
++{
++	int rc;
++	struct label_rec *rec = (struct label_rec *)label_malloc(sizeof(*rec));
++	if (!rec)
++		goto err1;
 +
-+	struct label_lock_callback {
-+		/* create a lock and return an opaque pointer to it. */
-+		void *(*func_alloc_lock) (void);
-+		/* obtain a given lock, blocking if necessary. */
-+		void (*func_get_lock) (void *lock);
-+		/* release a given lock. */
-+		void (*func_release_lock) (void *lock);
-+		/* destroy a given lock (free memory, etc.) */
-+		void (*func_free_lock) (void *lock);
-+	};
++	memset(rec, 0, sizeof(*rec));
++	rec->cls = backend->cls;
++	rec->flags = flags;
++	rec->name = strdup(name);
++	if (!rec->name)
++		goto err2;
 +
-+/* Logging type codes, passed to the logging callback */
-+#define LABEL_ERROR		0
-+#define LABEL_WARNING		1
-+#define LABEL_INFO		2
-+#define LABEL_INVALIDCON	3
++	rc = backend->func_init(rec, arg);
++	if (rc) {
++		label_log(LABEL_ERROR,
++			  "failed to open labeling backend for class %d\n",
++			  backend->cls);
++		goto err3;
++	}
 +
-+/*
-+ * Label operations
-+ */
++	rec->next = rec_list;
++	rec_list = rec;
++	return rec;
 +
-+/**
-+ * label_init - Initialize the labeling system.
-+ * @mem_callbacks: user-supplied memory callbacks
-+ * @log_callbacks: user-supplied logging callbacks
-+ * @action_callbacks: user-supplied validation callbacks
-+ * @lock_callbacks: user-supplied locking callbacks
-+ *
-+ * Initialize the labeling subsystem.  Return %0 on success or -%1 with @errno
-+ * set on failure.  If any callback structure references are NULL, use default
-+ * methods for those callbacks (see the definition of the callback structures
-+ * above).
-+ */
-+	int label_init(const struct label_memory_callback *mem_callbacks,
-+		       const struct label_log_callback *log_callbacks,
-+		       const struct label_action_callback *action_callbacks,
-+		       const struct label_lock_callback *lock_callbacks);
-+
-+/**
-+ * label_open - Create a labeling handle.
-+ * @name: used by the backend for selecting a configuration or package
-+ * @cls: specifies the backend to open
-+ * @flags: global and/or backend-specific configuration flags
-+ * @arg: additional backend-specific configuration data if not NULL
-+ *
-+ * Open a labeling backend for use.  The backend is identified by the specified
-+ * object class in conjunction with the name argument, which is typically used
-+ * to select a certain data source or subset, such as a specific package.
-+ * Return value is the created handle on success or NULL with @errno set on
-+ * failure.  See the backend documentation for additional flags and arg value.
-+ */
-+	typedef struct label_rec *label_handle_t;
-+	label_handle_t label_open(const char *name, security_class_t cls,
-+				  int flags, void *arg);
-+
-+/* Global flags available for use on all backends.  Note that the first 16
-+ * bits are reserved for this purpose, while the next 16 are for backend flags.
-+ */
-+#define LABEL_BASEONLY		1 /* Don't use local configuration overrides */
-+#define LABEL_TRANS		2 /* Translate contexts */
-+#define LABEL_VALIDATE		4 /* Validate/canonicalize contexts */ 
-+
-+/**
-+ * label_close - Close a labeling handle.
-+ * @handle: specifies handle to close
-+ *
-+ * Destroy the specified handle, closing files, freeing allocated memory,
-+ * etc.  The handle may not be further used after it has been closed.
-+ */
-+	void label_close(label_handle_t handle);
-+
-+/**
-+ * label_destroy - Close all handles and shut down labeling subsystem.
-+ *
-+ * Destroy all labeling structures, close all backends, and free all allocated
-+ * memory.  Any open handles will be destroyed and may not be further used.
-+ * User must call label_init() if further use of labeling subsystem is desired.
-+ */
-+	void label_destroy(void);
-+
-+/**
-+ * label_lookup - Perform labeling lookup operation.
-+ * @handle: specifies backend instance to query
-+ * @key: backend-specific string representation of object being labeled
-+ * @cls: class of object being labeled; along with prefix, selects backend
-+ * @con: returns the appropriate context with which to label the object
-+ *
-+ * Perform a labeling lookup operation.  Return %0 on success, -%1 with
-+ * @errno set on failure.  Some backends may return additional, positive
-+ * values indicating qualified success.
-+ */
-+	int label_lookup(label_handle_t handle, const char *key,
-+			 security_class_t cls, security_context_t *con);
-+
-+/**
-+ * label_cache_stats - log caching or other internal memory usage statistics.
-+ * @handle: specifies backend instance to query
-+ *
-+ * Log a message with information about internal caching, memory usage,
-+ * table efficiency, or other such statistics.  Message is backend-specific,
-+ * some backends may not output a message.  Intended for debugging purposes.
-+ */
-+	void label_cache_stats(label_handle_t handle);
-+
-+/**
-+ * label_op_stats - log labeling operation statistics.
-+ * @handle: specifies backend instance to query
-+ *
-+ * Log a message with information about the number of queries performed,
-+ * number of unused matching entries, or other operational statistics.
-+ * Message is backend-specific, some backends may not output a message.
-+ */
-+	void label_op_stats(label_handle_t handle);
-+
-+#ifdef __cplusplus
++err3:
++	label_free(rec->name);
++err2:
++	label_free(rec);
++err1:
++	return NULL;
 +}
-+#endif
-+#endif				/* _SELINUX_LABEL_H_ */
-Index: libselinux/include/selinux/label_backend.h
++
++int label_init(const struct label_memory_callback *mem_cb,
++	       const struct label_log_callback *log_cb,
++	       const struct label_action_callback *action_cb,
++	       const struct label_lock_callback *lock_cb)
++{
++	if (mem_cb) {
++		label_func_malloc = mem_cb->func_malloc;
++		label_func_free = mem_cb->func_free;
++	}
++	if (log_cb) {
++		label_func_log = log_cb->func_log;
++	}
++	if (action_cb) {
++		label_func_validate = action_cb->func_validate;
++	}
++	if (lock_cb) {
++		label_func_alloc_lock = lock_cb->func_alloc_lock;
++		label_func_get_lock = lock_cb->func_get_lock;
++		label_func_release_lock = lock_cb->func_release_lock;
++		label_func_free_lock = lock_cb->func_free_lock;
++	}
++
++	label_lock = label_alloc_lock();
++	label_log_lock = label_alloc_lock();
++
++	return 0;
++}
++
++struct label_rec *label_open(const char *name, security_class_t cls,
++			     int flags, void *arg)
++{
++	struct label_rec *rec = NULL;
++	unsigned int i;
++
++	if (name == NULL || name[0] == '\0') {
++		errno = EINVAL;
++		goto out;
++	}
++
++	label_get_lock(label_lock);
++
++	/* need to open backend at this point */
++	for (i = 0; i < ARRAY_SIZE(backends); i++)
++		if (backends[i].cls == cls) {
++			rec = open_backend(backends+i, name, flags, arg);
++			goto out;
++		}
++
++	/* backend not supported! this is highly irregular */
++	errno = ENOENT;
++	label_log(LABEL_ERROR,
++		  "no labeling backend is available for class %d\n",
++		  cls);
++
++out:
++	label_release_lock(label_lock);
++	return rec;
++}
++
++int label_lookup(struct label_rec *rec, const char *key,
++		 security_class_t cls, security_context_t *con)
++{
++	return rec->func_lookup(rec, key, cls, con);
++}
++
++void label_close(struct label_rec *rec)
++{
++	label_get_lock(label_lock);
++
++	if (!rec_list)
++		return; /* list of open handles is empty! */
++
++	if (rec_list == rec)
++		rec_list = rec->next;
++	else {
++		struct label_rec *ptr = rec_list;
++		while (ptr->next && ptr->next != rec)
++			ptr = ptr->next;
++		if (!ptr->next)
++			return; /* handle not in list of open handles! */
++		ptr->next = ptr->next->next;
++	}
++
++	rec->func_destroy(rec);
++	label_free(rec->name);
++	label_free(rec);
++	label_release_lock(label_lock);
++}
++
++void label_destroy(void)
++{
++	struct label_rec *rec = rec_list;
++
++	label_get_lock(label_lock);
++
++	while (rec) {
++		rec->func_destroy(rec);
++		rec = rec->next;
++		label_free(rec->name);
++		label_free(rec);
++	}
++
++	rec_list = NULL;
++	label_release_lock(label_lock);
++
++	label_free_lock(label_lock);
++	label_free_lock(label_log_lock);
++}
++
++void label_cache_stats(struct label_rec *rec)
++{
++	rec->func_cache_stats(rec);
++}
++
++void label_op_stats(struct label_rec *rec)
++{
++	rec->func_op_stats(rec);
++}
+Index: libselinux/src/label_internal.c
 ===================================================================
---- libselinux/include/selinux/label_backend.h	(revision 0)
-+++ libselinux/include/selinux/label_backend.h	(revision 0)
-@@ -0,0 +1,20 @@
+--- libselinux/src/label_internal.c	(revision 0)
++++ libselinux/src/label_internal.c	(revision 0)
+@@ -0,0 +1,58 @@
 +/*
-+ * Labeling interface for userspace object managers and others.
-+ * Backend-specific things are kept here.
++ * Callbacks for user-supplied memory allocation, supplemental
++ * auditing, and locking routines.
 + *
-+ * Author : Eamon Walsh <ewalsh@tycho.nsa.gov>
++ * Author : Eamon Walsh <ewalsh@epoch.ncsc.mil>
 + */
-+#ifndef _SELINUX_LABEL_BACKEND_H_
-+#define _SELINUX_LABEL_BACKEND_H_
 +
-+/*
-+ * Generic labeling backend
-+ */
-+/* no include file for this backend */
++#include <sys/types.h>
++#include <stdlib.h>
++#include <stdio.h>
++#include <stdarg.h>
++#include <selinux/selinux.h>
++#include "label_internal.h"
 +
-+/*
-+ * File contexts backend (includes media contexts)
-+ */
-+#include <selinux/label_backend_file.h>
++/* default callbacks */
++static void def_stub(void *arg __attribute__ ((unused)))
++{
++}
 +
-+#endif				/* _SELINUX_LABEL_BACKEND_H_ */
++static void *def_alloc_lock(void)
++{
++	return NULL;
++}
++
++static int __attribute__ ((format(printf, 2, 3)))
++def_log(int type __attribute__ ((unused)),
++		   const char *format, ...)
++{
++	int rc;
++	va_list ap;
++
++	va_start(ap, format);
++	rc = vfprintf(stderr, format, ap);
++	va_end(ap);
++
++	return rc;
++}
++
++static int def_validate(security_class_t cls __attribute__ ((unused)),
++			char **ctx)
++{
++	return security_check_context(*ctx);
++}
++
++/* callback pointers */
++void *(*label_func_malloc) (size_t) = malloc;
++void (*label_func_free) (void *) = free;
++
++int (*label_func_log) (int, const char *, ...)
++	__attribute__ ((format(printf, 2, 3))) = &def_log;
++
++int (*label_func_validate) (security_class_t cls, char **ctx) = &def_validate;
++
++void *(*label_func_alloc_lock) (void) = &def_alloc_lock;
++void (*label_func_get_lock) (void *) = &def_stub;
++void (*label_func_release_lock) (void *) = &def_stub;
++void (*label_func_free_lock) (void *) = &def_stub;
++
 
---=-cdjFMp0EBDZ4z9x5E9DX--
+--=-Lm7N9w5bO3rfqEX+BH6+--
 
 
 --
