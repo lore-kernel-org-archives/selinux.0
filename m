@@ -1,404 +1,190 @@
 Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id kAU48b1s012196
-	for <selinux@tycho.nsa.gov>; Wed, 29 Nov 2006 23:08:37 -0500
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id kAU4FWih012379
+	for <selinux@tycho.nsa.gov>; Wed, 29 Nov 2006 23:15:32 -0500
 Received: from facesaver.epoch.ncsc.mil (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id kAU46sbM020479
-	for <selinux@tycho.nsa.gov>; Thu, 30 Nov 2006 04:06:54 GMT
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id kAU4DntE021534
+	for <selinux@tycho.nsa.gov>; Thu, 30 Nov 2006 04:13:49 GMT
 Received: from moss-huskies.epoch.ncsc.mil (moss-huskies [144.51.25.7])
-	by facesaver.epoch.ncsc.mil (8.13.1/8.13.1) with ESMTP id kAU43V9e014832
-	for <selinux@tycho.nsa.gov>; Wed, 29 Nov 2006 23:03:31 -0500
-Subject: [PATCH 2/5] libselinux: labeling API basic front-end implementation
+	by facesaver.epoch.ncsc.mil (8.13.1/8.13.1) with ESMTP id kAU4AQnV015081
+	for <selinux@tycho.nsa.gov>; Wed, 29 Nov 2006 23:10:26 -0500
+Subject: [PATCH 3/5] libselinux: class and av_perm to string functions
 From: Eamon Walsh <ewalsh@tycho.nsa.gov>
 Reply-To: ewalsh@tycho.nsa.gov
 To: selinux@tycho.nsa.gov
 In-Reply-To: <1164858471.2794.192.camel@moss-huskies.epoch.ncsc.mil>
 References: <1164858471.2794.192.camel@moss-huskies.epoch.ncsc.mil>
-Content-Type: multipart/mixed; boundary="=-Lm7N9w5bO3rfqEX+BH6+"
-Date: Wed, 29 Nov 2006 23:08:36 -0500
-Message-Id: <1164859716.2794.204.camel@moss-huskies.epoch.ncsc.mil>
+Content-Type: multipart/mixed; boundary="=-tK4ZaXzdRtKkxgWhyGmk"
+Date: Wed, 29 Nov 2006 23:15:31 -0500
+Message-Id: <1164860131.2794.210.camel@moss-huskies.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 
---=-Lm7N9w5bO3rfqEX+BH6+
+--=-tK4ZaXzdRtKkxgWhyGmk
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
 
-This is the front-end implementation.
+New helper functions to convert from class and av_permission values to
+string representations.
 
 Signed-off-by: Eamon Walsh <ewalsh@tycho.nsa.gov>
 
 ---
- libselinux/src/label.c          |  180 ++++++++++++++++++++++++
- libselinux/src/label_internal.c |   58 +++++++
- libselinux/src/label_internal.h |   98 +++++++++++++
- 3 files changed, 336 insertions(+)
+ libselinux/include/selinux/selinux.h |   12 +-
+ libselinux/src/avc.c                 |   99 +++++++++++++++++++
+ 2 files changed, 109 insertions(+), 2 deletions(-)
 
 
 -- 
 Eamon Walsh <ewalsh@tycho.nsa.gov>
 National Security Agency
 
---=-Lm7N9w5bO3rfqEX+BH6+
-Content-Description: 
-Content-Disposition: inline; filename=label2.patch
-Content-Type: text/x-patch; charset=UTF-8
+--=-tK4ZaXzdRtKkxgWhyGmk
+Content-Disposition: attachment; filename=label3.patch
+Content-Type: text/x-patch; name=label3.patch; charset=UTF-8
 Content-Transfer-Encoding: 7bit
 
-Index: libselinux/src/label_internal.h
+Index: libselinux/include/selinux/selinux.h
 ===================================================================
---- libselinux/src/label_internal.h	(revision 0)
-+++ libselinux/src/label_internal.h	(revision 0)
-@@ -0,0 +1,98 @@
-+/*
-+ * This file describes the internal interface used by the labeler
-+ * for calling the user-supplied memory allocation, validation,
-+ * and locking routine.
-+ *
-+ * Author : Eamon Walsh <ewalsh@epoch.ncsc.mil>
-+ */
-+#ifndef _SELINUX_LABEL_INTERNAL_H_
-+#define _SELINUX_LABEL_INTERNAL_H_
+--- libselinux/include/selinux/selinux.h	(revision 2116)
++++ libselinux/include/selinux/selinux.h	(working copy)
+@@ -277,13 +277,21 @@
+ 
+ /* Common helpers */
+ 
+-/* Return the security class value for a given class name. */
++/* Convert between security class values and string names */
+ 	extern security_class_t string_to_security_class(const char *name);
++	extern const char *security_class_to_string(security_class_t cls);
+ 
+-/* Return an access vector for a given class and permission name. */
++/* Convert between individual access vector permissions and string names */
++	extern const char *security_av_perm_to_string(security_class_t tclass,
++						      access_vector_t perm);
+ 	extern access_vector_t string_to_av_perm(security_class_t tclass,
+ 						 const char *name);
+ 
++/* Returns an access vector in a string representation.  User must free the
++ * returned string via free(). */
++	extern int security_av_string(security_class_t tclass,
++				      access_vector_t av, char **result);
 +
-+#include <stdlib.h>
-+#include <selinux/selinux.h>
-+#include <selinux/label.h>
-+#include "dso.h"
-+
-+/* backend interface */
-+struct label_rec {
-+	/* linked list of all open handles */
-+	struct label_rec *next;
-+
-+	/* object class, name, and flags for this instance */
-+	security_class_t cls;
-+	char *name;
-+	int flags;
-+
-+	/* labeling operations */
-+	int (*func_lookup) (struct label_rec *h, const char *key,
-+			    security_class_t cls, security_context_t *ctx);
-+	void (*func_destroy) (struct label_rec *h);
-+	void (*func_cache_stats) (struct label_rec *h);
-+	void (*func_op_stats) (struct label_rec *h);
-+
-+	/* supports backend-specific state information */
-+	void *data;
-+};
-+
-+struct label_backend {
-+	security_class_t cls;
-+	int (*func_init) (struct label_rec *rec, void *arg);
-+};
-+
-+/* installed backends */
-+int backend_file_init(struct label_rec *rec, void *arg) hidden;
-+int backend_media_init(struct label_rec *rec, void *arg) hidden;
-+int backend_generic_init(struct label_rec *rec, void *arg) hidden;
-+
-+/* callback pointers */
-+extern void *(*label_func_malloc) (size_t) hidden;
-+extern void (*label_func_free) (void *) hidden;
-+
-+extern int (*label_func_log) (int type, const char *, ...) hidden;
-+extern int (*label_func_validate) (security_class_t cls, char **ctx) hidden;
-+
-+extern void *(*label_func_alloc_lock) (void) hidden;
-+extern void (*label_func_get_lock) (void *) hidden;
-+extern void (*label_func_release_lock) (void *) hidden;
-+extern void (*label_func_free_lock) (void *) hidden;
-+
-+/* user-supplied callback interface for avc */
-+static inline void *label_malloc(size_t size)
-+{
-+	return label_func_malloc(size);
-+}
-+
-+static inline void label_free(void *ptr)
-+{
-+	label_func_free(ptr);
-+}
-+
-+/* this is a macro in order to use the variadic capability. */
-+#define label_log(type, format...) label_func_log(type, format)
-+
-+static inline int label_validate(security_class_t cls, char **ctx)
-+{
-+	return label_func_validate(cls, ctx);
-+}
-+
-+static inline void *label_alloc_lock(void)
-+{
-+	return label_func_alloc_lock();
-+}
-+
-+static inline void label_get_lock(void *lock)
-+{
-+	label_func_get_lock(lock);
-+}
-+
-+static inline void label_release_lock(void *lock)
-+{
-+	label_func_release_lock(lock);
-+}
-+
-+static inline void label_free_lock(void *lock)
-+{
-+	label_func_free_lock(lock);
-+}
-+
-+#endif				/* _SELINUX_LABEL_INTERNAL_H_ */
-Index: libselinux/src/label.c
+ /* Display an access vector in a string representation. */
+ 	extern void print_access_vector(security_class_t tclass,
+ 					access_vector_t av);
+Index: libselinux/src/avc.c
 ===================================================================
---- libselinux/src/label.c	(revision 0)
-+++ libselinux/src/label.c	(revision 0)
-@@ -0,0 +1,180 @@
-+/*
-+ * Generalized labeling frontend for userspace object managers.
-+ *
-+ * Author : Eamon Walsh <ewalsh@epoch.ncsc.mil>
-+ */
-+
-+#include <sys/types.h>
-+#include <errno.h>
-+#include <stdio.h>
-+#include <stdlib.h>
-+#include <string.h>
-+#include <selinux/flask.h>
-+#include <selinux/label.h>
-+#include "label_internal.h"
-+
-+#define ARRAY_SIZE(x) (sizeof(x) / sizeof((x)[0]))
-+
-+static struct label_rec *rec_list = NULL;
-+
-+static void *label_lock = NULL;
-+static void *label_log_lock = NULL;
-+
-+struct label_backend backends[] = {
-+	{SECCLASS_FILE, &backend_file_init},
-+	{SECCLASS_XEXTENSION, &backend_generic_init}
-+};
-+
-+static struct label_rec *open_backend(struct label_backend *backend,
-+				      const char *name, int flags, void *arg)
+--- libselinux/src/avc.c	(revision 2116)
++++ libselinux/src/avc.c	(working copy)
+@@ -1338,6 +1338,105 @@
+ 	return 0;
+ }
+ 
++const char *security_class_to_string(security_class_t tclass)
 +{
-+	int rc;
-+	struct label_rec *rec = (struct label_rec *)label_malloc(sizeof(*rec));
-+	if (!rec)
-+		goto err1;
++	tclass = (tclass > 0 && tclass < NCLASSES) ? tclass : 0;
++	return class_to_string_data.str + class_to_string[tclass];
++}
 +
-+	memset(rec, 0, sizeof(*rec));
-+	rec->cls = backend->cls;
-+	rec->flags = flags;
-+	rec->name = strdup(name);
-+	if (!rec->name)
-+		goto err2;
++const char *security_av_perm_to_string(security_class_t tclass,
++				       access_vector_t av)
++{
++	const u16 *common_pts_idx = 0;
++	access_vector_t common_base = 0;
++	unsigned int i;
 +
-+	rc = backend->func_init(rec, arg);
-+	if (rc) {
-+		label_log(LABEL_ERROR,
-+			  "failed to open labeling backend for class %d\n",
-+			  backend->cls);
-+		goto err3;
++	if (!av)
++		return NULL;
++
++	for (i = 0; i < ARRAY_SIZE(av_inherit); i++) {
++		if (av_inherit[i].tclass == tclass) {
++			common_pts_idx =
++			    &common_perm_to_string.data[av_inherit[i].
++							common_pts_idx];
++			common_base = av_inherit[i].common_base;
++			break;
++		}
 +	}
 +
-+	rec->next = rec_list;
-+	rec_list = rec;
-+	return rec;
++	if (av < common_base) {
++		i = 0;
++		while (!(av & 1)) {
++			av >>= 1;
++			i++;
++		}
++		return common_perm_to_string_data.str + common_pts_idx[i];
++	}
 +
-+err3:
-+	label_free(rec->name);
-+err2:
-+	label_free(rec);
-+err1:
++	for (i = 0; i < NVECTORS; i++) {
++		if (av_perm_to_string[i].tclass == tclass &&
++		    av_perm_to_string[i].value == av)
++			return av_perm_to_string_data.str
++				+ av_perm_to_string[i].nameidx;
++	}
++
 +	return NULL;
 +}
 +
-+int label_init(const struct label_memory_callback *mem_cb,
-+	       const struct label_log_callback *log_cb,
-+	       const struct label_action_callback *action_cb,
-+	       const struct label_lock_callback *lock_cb)
++int security_av_string(security_class_t tclass, access_vector_t av, char **res)
 +{
-+	if (mem_cb) {
-+		label_func_malloc = mem_cb->func_malloc;
-+		label_func_free = mem_cb->func_free;
-+	}
-+	if (log_cb) {
-+		label_func_log = log_cb->func_log;
-+	}
-+	if (action_cb) {
-+		label_func_validate = action_cb->func_validate;
-+	}
-+	if (lock_cb) {
-+		label_func_alloc_lock = lock_cb->func_alloc_lock;
-+		label_func_get_lock = lock_cb->func_get_lock;
-+		label_func_release_lock = lock_cb->func_release_lock;
-+		label_func_free_lock = lock_cb->func_free_lock;
++	unsigned int i = 0;
++	size_t len = 5;
++	access_vector_t tmp = av;
++	int rc = 0;
++	const char *str;
++	char *ptr;
++
++	/* first pass computes the required length */
++	while (tmp) {
++		if (tmp & 1) {
++			str = security_av_perm_to_string(tclass, av & (1<<i));
++			if (str)
++				len += strlen(str) + 1;
++			else {
++				rc = -1;
++				errno = EINVAL;
++				goto out;
++			}
++		}
++		tmp >>= 1;
++		i++;
 +	}
 +
-+	label_lock = label_alloc_lock();
-+	label_log_lock = label_alloc_lock();
-+
-+	return 0;
-+}
-+
-+struct label_rec *label_open(const char *name, security_class_t cls,
-+			     int flags, void *arg)
-+{
-+	struct label_rec *rec = NULL;
-+	unsigned int i;
-+
-+	if (name == NULL || name[0] == '\0') {
-+		errno = EINVAL;
++	*res = malloc(len);
++	if (!*res) {
++		rc = -1;
 +		goto out;
 +	}
 +
-+	label_get_lock(label_lock);
++	/* second pass constructs the string */
++	i = 0;
++	tmp = av;
++	ptr = *res;
 +
-+	/* need to open backend at this point */
-+	for (i = 0; i < ARRAY_SIZE(backends); i++)
-+		if (backends[i].cls == cls) {
-+			rec = open_backend(backends+i, name, flags, arg);
-+			goto out;
-+		}
++	if (!av) {
++		sprintf(ptr, "null");
++		goto out;
++	}
 +
-+	/* backend not supported! this is highly irregular */
-+	errno = ENOENT;
-+	label_log(LABEL_ERROR,
-+		  "no labeling backend is available for class %d\n",
-+		  cls);
-+
++	ptr += sprintf(ptr, "{ ");
++	while (tmp) {
++		if (tmp & 1)
++			ptr += sprintf(ptr, "%s ", security_av_perm_to_string(
++					       tclass, av & (1<<i)));
++		tmp >>= 1;
++		i++;
++	}
++	sprintf(ptr, "}");
 +out:
-+	label_release_lock(label_lock);
-+	return rec;
-+}
-+
-+int label_lookup(struct label_rec *rec, const char *key,
-+		 security_class_t cls, security_context_t *con)
-+{
-+	return rec->func_lookup(rec, key, cls, con);
-+}
-+
-+void label_close(struct label_rec *rec)
-+{
-+	label_get_lock(label_lock);
-+
-+	if (!rec_list)
-+		return; /* list of open handles is empty! */
-+
-+	if (rec_list == rec)
-+		rec_list = rec->next;
-+	else {
-+		struct label_rec *ptr = rec_list;
-+		while (ptr->next && ptr->next != rec)
-+			ptr = ptr->next;
-+		if (!ptr->next)
-+			return; /* handle not in list of open handles! */
-+		ptr->next = ptr->next->next;
-+	}
-+
-+	rec->func_destroy(rec);
-+	label_free(rec->name);
-+	label_free(rec);
-+	label_release_lock(label_lock);
-+}
-+
-+void label_destroy(void)
-+{
-+	struct label_rec *rec = rec_list;
-+
-+	label_get_lock(label_lock);
-+
-+	while (rec) {
-+		rec->func_destroy(rec);
-+		rec = rec->next;
-+		label_free(rec->name);
-+		label_free(rec);
-+	}
-+
-+	rec_list = NULL;
-+	label_release_lock(label_lock);
-+
-+	label_free_lock(label_lock);
-+	label_free_lock(label_log_lock);
-+}
-+
-+void label_cache_stats(struct label_rec *rec)
-+{
-+	rec->func_cache_stats(rec);
-+}
-+
-+void label_op_stats(struct label_rec *rec)
-+{
-+	rec->func_op_stats(rec);
-+}
-Index: libselinux/src/label_internal.c
-===================================================================
---- libselinux/src/label_internal.c	(revision 0)
-+++ libselinux/src/label_internal.c	(revision 0)
-@@ -0,0 +1,58 @@
-+/*
-+ * Callbacks for user-supplied memory allocation, supplemental
-+ * auditing, and locking routines.
-+ *
-+ * Author : Eamon Walsh <ewalsh@epoch.ncsc.mil>
-+ */
-+
-+#include <sys/types.h>
-+#include <stdlib.h>
-+#include <stdio.h>
-+#include <stdarg.h>
-+#include <selinux/selinux.h>
-+#include "label_internal.h"
-+
-+/* default callbacks */
-+static void def_stub(void *arg __attribute__ ((unused)))
-+{
-+}
-+
-+static void *def_alloc_lock(void)
-+{
-+	return NULL;
-+}
-+
-+static int __attribute__ ((format(printf, 2, 3)))
-+def_log(int type __attribute__ ((unused)),
-+		   const char *format, ...)
-+{
-+	int rc;
-+	va_list ap;
-+
-+	va_start(ap, format);
-+	rc = vfprintf(stderr, format, ap);
-+	va_end(ap);
-+
 +	return rc;
 +}
 +
-+static int def_validate(security_class_t cls __attribute__ ((unused)),
-+			char **ctx)
-+{
-+	return security_check_context(*ctx);
-+}
-+
-+/* callback pointers */
-+void *(*label_func_malloc) (size_t) = malloc;
-+void (*label_func_free) (void *) = free;
-+
-+int (*label_func_log) (int, const char *, ...)
-+	__attribute__ ((format(printf, 2, 3))) = &def_log;
-+
-+int (*label_func_validate) (security_class_t cls, char **ctx) = &def_validate;
-+
-+void *(*label_func_alloc_lock) (void) = &def_alloc_lock;
-+void (*label_func_get_lock) (void *) = &def_stub;
-+void (*label_func_release_lock) (void *) = &def_stub;
-+void (*label_func_free_lock) (void *) = &def_stub;
-+
+ void print_access_vector(security_class_t tclass, access_vector_t av)
+ {
+ 	const u16 *common_pts_idx = 0;
 
---=-Lm7N9w5bO3rfqEX+BH6+--
+--=-tK4ZaXzdRtKkxgWhyGmk--
 
 
 --
