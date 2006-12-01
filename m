@@ -1,53 +1,71 @@
-Subject: Re: [RFC] Ability to allow unknown class and permissions
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Eric Paris <eparis@parisplace.org>
-Cc: selinux@tycho.nsa.gov, James Morris <jmorris@redhat.com>
-In-Reply-To: <1164989217.2079.106.camel@localhost.localdomain>
-References: <1164989217.2079.106.camel@localhost.localdomain>
-Content-Type: text/plain
-Date: Fri, 01 Dec 2006 13:41:09 -0500
-Message-Id: <1164998469.23019.1065.camel@moss-spartans.epoch.ncsc.mil>
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id kB1K7tv3017321
+	for <selinux@tycho.nsa.gov>; Fri, 1 Dec 2006 15:07:55 -0500
+Received: from mail.and.org (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id kB1K6AIW025528
+	for <selinux@tycho.nsa.gov>; Fri, 1 Dec 2006 20:06:11 GMT
+Received: from localhost ([127.0.0.1])
+	by mail.and.org with esmtp (Exim 4.63)
+	(envelope-from <jantill@redhat.com>)
+	id 1GqEg8-0001T7-Dd
+	for selinux@tycho.nsa.gov; Fri, 01 Dec 2006 15:08:12 -0500
+Subject: User home directory creation with useradd (rhbz#217441)
+From: James Antill <jantill@redhat.com>
+To: selinux@tycho.nsa.gov
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-IxQxzmjVspY7pZSfW2Dx"
+Date: Fri, 01 Dec 2006 15:08:11 -0500
+Message-Id: <1165003691.18588.103.camel@code.and.org>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2006-12-01 at 11:06 -0500, Eric Paris wrote:
-> Denials will show up in the logs just as if it were 'permissive' even
-> though we are allowing checks against undefined classes and permissions.
 
-I don't think that this is the desired behavior.   If the policy
-indicates that undefined classes/perms should be allowed (via a flag in
-the policy header), then we want the checks allowed silently as if the
-check was not present at all.  Logging them as if permissive could
-easily flood the logs.
+--=-IxQxzmjVspY7pZSfW2Dx
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-> Decisions about unknown classes are not cached in the avc.
 
-I think that this should be transparent to the AVC.  At policy load
-time, you know which permissions are not defined in the policy, so you
-can immediately set to 1s all such permission bits in the access vectors
-in the avtab if the desired behavior is to allow undefined permissions,
-and you can also generate a table of default access vectors per class
-for the case where this is no avtab entry.  Then security_compute_av
-just needs to handle undefined classes (return allowed vector with all
-1s) and defined class but no avtab entry (return the default access
-vector for the class).
- 
-> I also really really don't like the way the function
-> security_class_defined_perm works, but i couldn't find a better way to
-> figure out if the permission was defined.  At one point I built a really
-> simple u32 perm_array[128] when we loaded policy and got the result I
-> get from security_class_defined_perm simply by doing (requested_perm &
-> perm_array[tclass]) but I didn't like the static array and the waste of
-> memory.  Maybe it's better than the terrible function I came up with to
-> find the information.  I'd love opinions.
+ As some of you know, there's an open BZ about the fact that in a
+strict/MLS environment useradd doesn't create the user's homedir with
+the correct context[1].
+ The problem is that matchpathcon() needs semanage to have run, so we
+know what SELinux user the unix user is associated with, but that runs
+separately and after useradd. The four obvious solutions are:
 
-You don't want to impose any significant extra overhead at permission
-check time.  Precomputing things at policy load time is the way to go.
+1. Have an option for useradd to call semanage to add the selinux user,
+and then do the restorecon.
 
--- 
-Stephen Smalley
-National Security Agency
+2. Have semanage do the equivalent of a restorecon when doing an
+add/modify (or just add) of SELinux user information.
+
+3. Have some kind of wrapper that does:
+	i. useradd
+	ii. semanage
+	iii. restorecon
+
+4. Document that you need to call the list of programs in #3.
+
+ Does anyone have comments on which of the above they like/hate?
+
+
+[1] http://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=3D217441
+
+--=20
+James Antill <jantill@redhat.com>
+
+--=-IxQxzmjVspY7pZSfW2Dx
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.5 (GNU/Linux)
+
+iD8DBQBFcIur11eXTEMrxtQRAt/YAJ9hbXJZ/b/0ZXS4ZbPutbJveCFBKQCfQWja
+GMSt95ntdAXnwjpYMOHqtqk=
+=aeUf
+-----END PGP SIGNATURE-----
+
+--=-IxQxzmjVspY7pZSfW2Dx--
 
 
 --
