@@ -1,84 +1,75 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id kB23K4OW028563
-	for <selinux@tycho.nsa.gov>; Fri, 1 Dec 2006 22:20:04 -0500
-Received: from exchange.columbia.tresys.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with SMTP id kB23JNd3013762
-	for <selinux@tycho.nsa.gov>; Sat, 2 Dec 2006 03:19:23 GMT
-Message-ID: <4570F0F9.7080509@tresys.com>
-Date: Fri, 01 Dec 2006 22:20:25 -0500
+Message-ID: <4570F2F8.2030809@tresys.com>
+Date: Fri, 01 Dec 2006 22:28:56 -0500
 From: Joshua Brindle <jbrindle@tresys.com>
 MIME-Version: 1.0
-To: russell@coker.com.au
-CC: Linda Knippers <linda.knippers@hp.com>, James Antill <jantill@redhat.com>,
-        selinux@tycho.nsa.gov
-Subject: Re: User home directory creation with useradd (rhbz#217441)
-References: <1165003691.18588.103.camel@code.and.org> <457094DA.4080704@hp.com> <200612021121.45703.russell@coker.com.au>
-In-Reply-To: <200612021121.45703.russell@coker.com.au>
+To: Stephen Smalley <sds@tycho.nsa.gov>
+CC: Eric Paris <eparis@parisplace.org>, selinux@tycho.nsa.gov,
+        James Morris <jmorris@redhat.com>
+Subject: Re: [RFC] Ability to allow unknown class and permissions
+References: <1164989217.2079.106.camel@localhost.localdomain> <1164998469.23019.1065.camel@moss-spartans.epoch.ncsc.mil>
+In-Reply-To: <1164998469.23019.1065.camel@moss-spartans.epoch.ncsc.mil>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Russell Coker wrote:
-> On Saturday 02 December 2006 07:47, Linda Knippers <linda.knippers@hp.com> 
-> wrote:
+Stephen Smalley wrote:
+> On Fri, 2006-12-01 at 11:06 -0500, Eric Paris wrote:
 >   
->>> 1. Have an option for useradd to call semanage to add the selinux user,
->>> and then do the restorecon.
->>>       
->> I think useradd should be able to either create the selinux user or map the
->> linux user to an existing selinux user.  Right now you can't create an
->> selinux user without a linux login
+>> Denials will show up in the logs just as if it were 'permissive' even
+>> though we are allowing checks against undefined classes and permissions.
 >>     
 >
-> I think that this is a bug.  You should be able to create SE Linux users 
-> without Linux logins, if only for the case of a NIS/LDAP server being down at 
-> SE Linux user creation time.
+> I don't think that this is the desired behavior.   If the policy
+> indicates that undefined classes/perms should be allowed (via a flag in
+> the policy header), then we want the checks allowed silently as if the
+> check was not present at all.  Logging them as if permissive could
+> easily flood the logs.
 >
 >   
-You can create them all you want, you just can't log in with a user that 
-has a matching selinux user without a login mapping the linux user to 
-the selinux user, this is by design, we don't want the implicit mapping.
+I disagree that this should be in the header. We discussed this at 
+tresys and decided that it would probably be best to make it a kernel 
+option selectable in Kconfig and also switchable via selinuxfs or the 
+command line. Doing it in the policy requires policy rebuilds and extra 
+infrastructure (eg., libsepol needs to know about it to switch it at 
+expand time). Making it switchable via selinuxfs is much easier from a 
+user point of view.
 
->> but I think I ought to be able to create 
->> the selinux users separate and them map one or more linux login to each
->> one, or have useradd create a unique linux user for me if I choose.  And if
->> I don't choose, the linux user should end up with the correct home
->> directory based on the default selinux user.
+I do like the idea of 3 states, we could do that with the config option 
+as well.
+
+>> Decisions about unknown classes are not cached in the avc.
 >>     
 >
-> I think that part of the solution is to have semanage call useradd.
->
+> I think that this should be transparent to the AVC.  At policy load
+> time, you know which permissions are not defined in the policy, so you
+> can immediately set to 1s all such permission bits in the access vectors
+> in the avtab if the desired behavior is to allow undefined permissions,
+> and you can also generate a table of default access vectors per class
+> for the case where this is no avtab entry.  Then security_compute_av
+> just needs to handle undefined classes (return allowed vector with all
+> 1s) and defined class but no avtab entry (return the default access
+> vector for the class).
 >   
-no. semanage is managing selinux and selinux resources, not logins, not 
-system resources.
->>> 2. Have semanage do the equivalent of a restorecon when doing an
->>> add/modify (or just add) of SELinux user information.
->>>       
->> If the semanage is done after the useradd (could be weeks after), the
->> user could have files that live outside the home directory (I think
->> Dan pointed this out to me) so what files and directories would you
->> run restorecon on?
+To do this with a runtime option the avc would have to know about it 
+unfortunately. The avc will need a bitmap of known classes/permissions 
+at load time. Not totally ideal but the end result would be much easier 
+to use IMO
+>  
+>   
+>> I also really really don't like the way the function
+>> security_class_defined_perm works, but i couldn't find a better way to
+>> figure out if the permission was defined.  At one point I built a really
+>> simple u32 perm_array[128] when we loaded policy and got the result I
+>> get from security_class_defined_perm simply by doing (requested_perm &
+>> perm_array[tclass]) but I didn't like the static array and the waste of
+>> memory.  Maybe it's better than the terrible function I came up with to
+>> find the information.  I'd love opinions.
 >>     
 >
-> Also for a MLS environment you can't just relabel the files unless the new 
-> sensitivity label dominates the old.  For a strict policy system it's 
-> generally acceptable for relabel the files, but for MLS that won't work.
+> You don't want to impose any significant extra overhead at permission
+> check time.  Precomputing things at policy load time is the way to go.
 >
 >   
-you can if the thing relabeling is mls privileged, the useradd program 
-or whatever labels the home directory would have that privilege
->>> 3. Have some kind of wrapper that does:
->>> 	i. useradd
->>> 	ii. semanage
->>> 	iii. restorecon
->>>       
->> I don't like the wrapper idea because if we can do it in a wrapper,
->> we can do it in useradd.
->>     
->
-> Or semanage, or do it in both and give the sys-admin a choice.
->   
-semanage does not manage system resources.
 
 
 
