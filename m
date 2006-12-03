@@ -1,42 +1,54 @@
-From: Russell Coker <russell@coker.com.au>
-Reply-To: russell@coker.com.au
-To: Erich Schubert <erich@debian.org>
-Subject: Re: how to test ssh_sysadm_login(tunable)
-Date: Mon, 4 Dec 2006 08:17:34 +1100
-Cc: Jian Liu <gjk.liu@gmail.com>, SELinux@tycho.nsa.gov
-References: <8c2dc7030612010133j5709d6b1k72f44e40ed58dbcd@mail.gmail.com> <8c2dc7030612030114l4da1eff4ma21492aa5a325664@mail.gmail.com> <1165156032.4758.10.camel@hepcat.vitavonni.de>
-In-Reply-To: <1165156032.4758.10.camel@hepcat.vitavonni.de>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
-Message-Id: <200612040817.37685.russell@coker.com.au>
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id kB3M3V5G028498
+	for <selinux@tycho.nsa.gov>; Sun, 3 Dec 2006 17:03:32 -0500
+Received: from legolas.drinsama.de (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id kB3M1lHK011817
+	for <selinux@tycho.nsa.gov>; Sun, 3 Dec 2006 22:01:47 GMT
+Subject: Re: root home directory and system cron jobs
+From: Erich Schubert <erich@debian.org>
+To: russell@coker.com.au
+Cc: selinux@tycho.nsa.gov
+In-Reply-To: <200612040738.04298.russell@coker.com.au>
+References: <1165110951.19409.8.camel@hepcat.vitavonni.de>
+	 <200612031541.27320.russell@coker.com.au>
+	 <1165155806.4758.5.camel@hepcat.vitavonni.de>
+	 <200612040738.04298.russell@coker.com.au>
+Content-Type: text/plain; charset=utf-8
+Date: Sun, 03 Dec 2006 23:03:54 +0100
+Message-Id: <1165183434.5326.12.camel@hepcat.vitavonni.de>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Monday 04 December 2006 01:27, Erich Schubert <erich@debian.org> wrote:
-> > But, after "ssh_sysadm_login" is set to on, there is
-> > not a login menu containing
->
-> I believe the role selection menu on login has been removed some time
-> ago. It will log you into the first role you have access to. I think the
-> file was default_contexts. So if you want to login as sysadm_r by
-> default you need to change this file, otherwise use "newrole" to switch
-> roles (which is not really more effort than the login menu)
->
-> I'm not sure about the rationale, but I could imagine some applications
-> using ssh to login were confused by the extra prompt or so.
+Hi,
+> Do you have some examples of jobs that need to be run in sequence?
 
-The PAM module used for /bin/login gave a prompt (if configured for it) and 
-the sshd patch allowed logins of the form bar/staff_r@host to login to 
-account "bar" with role "staff_r" on the host in question.
+No. It's just that I can imagine it to be nice to have them run in
+sequence on a high-load-system. OTOH, such systems can be adjusted by
+the admin as needed.
 
-I plan to revive this for Debian.
+But it would require lots of changes to packages to
+deprecate /etc/cron.daily /etc/cron.weekly and /etc/cron.monthly
+Apart from the increased amount of work for the admin if he wants to
+reschedule maintainance cronjobs. Having a default time for all of the
+daily cronjobs is useful.
+btw, it makes me wonder how many of the monthly cronjobs actually assume
+they'll be run on the first of each month, and not just once a month.
+Well, maybe it's specified somewhere that /etc/cron.monthly is to be run
+on the first of each month, I didn't check LSB on that.
 
+Upstart, from Ubuntu, is to get some cron-like functionality IIRC. We
+should also talk to them about these problems.
+
+best regards,
+Erich Schubert
 -- 
-russell@coker.com.au
-http://etbe.blogspot.com/          My Blog
+    erich@(vitavonni.de|debian.org)    --    GPG Key ID: 4B3A135C   (o_
+       The best things in life are free: Friendship and Love.       //\
+   Während das Glück dir lacht, wirst Freunde du zählen in Menge;   V_/_
+     wenn sich der Himmel bewölkt, findest du dich bald allein.
 
-http://www.coker.com.au/sponsorship.html Sponsoring Free Software development
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
