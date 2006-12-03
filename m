@@ -1,49 +1,41 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id kB3ENIBV016533
-	for <selinux@tycho.nsa.gov>; Sun, 3 Dec 2006 09:23:18 -0500
-Received: from legolas.drinsama.de (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id kB3ELX2d029477
-	for <selinux@tycho.nsa.gov>; Sun, 3 Dec 2006 14:21:33 GMT
-Subject: Re: root home directory and system cron jobs
+Subject: Re: how to test ssh_sysadm_login(tunable)
 From: Erich Schubert <erich@debian.org>
-To: russell@coker.com.au
-Cc: selinux@tycho.nsa.gov
-In-Reply-To: <200612031541.27320.russell@coker.com.au>
-References: <1165110951.19409.8.camel@hepcat.vitavonni.de>
-	 <200612031541.27320.russell@coker.com.au>
-Content-Type: text/plain; charset=utf-8
-Date: Sun, 03 Dec 2006 15:23:26 +0100
-Message-Id: <1165155806.4758.5.camel@hepcat.vitavonni.de>
+To: Jian Liu <gjk.liu@gmail.com>
+Cc: SELinux@tycho.nsa.gov
+In-Reply-To: <8c2dc7030612030114l4da1eff4ma21492aa5a325664@mail.gmail.com>
+References: <8c2dc7030612010133j5709d6b1k72f44e40ed58dbcd@mail.gmail.com>
+	 <200612012117.52567.russell@coker.com.au>
+	 <8c2dc7030612030114l4da1eff4ma21492aa5a325664@mail.gmail.com>
+Content-Type: text/plain
+Date: Sun, 03 Dec 2006 15:27:12 +0100
+Message-Id: <1165156032.4758.10.camel@hepcat.vitavonni.de>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hello Russel,
+Hello Jian Liu,
+> But, after "ssh_sysadm_login" is set to on, there is
+> not a login menu containing
 
-> > Also some cronjobs will try to use "su" to switch to a different userid.
-> > (e.g. the amavisd-new cronjob to do maintainance on the spamassassin
-> > bayes database); some might be able to be rewritten to use the other
-> > userid directly, but some might not...
-> > (e.g. because they're installed in /etc/cron.daily, which doesn't use
-> > the cronjob syntax but is just a collection of shell scripts; they need
-> > to use su to switch to a different user)
-> 
-> There is no reason why they couldn't be installed in /etc/cron.d instead.
+I believe the role selection menu on login has been removed some time
+ago. It will log you into the first role you have access to. I think the
+file was default_contexts. So if you want to login as sysadm_r by
+default you need to change this file, otherwise use "newrole" to switch
+roles (which is not really more effort than the login menu)
 
-There is: the jobs in /etc/cron.daily are run in sequence once a day.
-If they were installed in /etc/cron.d they would each have to pick a
-time to run (and the admin to eventually change each of them). The
-cron.daily solution will execute them one-by-one (AFAIK) and thus create
-less load on the machine without extra configuration by the maintainers
-or the system administrator.
+I'm not sure about the rationale, but I could imagine some applications
+using ssh to login were confused by the extra prompt or so.
+
+Just my vague memories, it might be completely off.
 
 best regards,
 Erich Schubert
 -- 
-    erich@(vitavonni.de|debian.org)    --    GPG Key ID: 4B3A135C    (o_
-             Reality continues to ruin my life --- Calvin            //\
-   Die kürzeste Verbindung zwischen zwei Menschen ist ein Lächeln.   V_/_
-
+     erich@(vitavonni.de|debian.org)    --    GPG Key ID: 4B3A135C    (o_
+  There is no branch of mathematics, however abstract, which may not  //\
+ some day be applied to phenomena of the real world. --- Lobatchevsky V_/_
+             Es ist besser, geliebt und verloren zu haben,
+                     als niemals geliebt zu haben.
 
 
 --
