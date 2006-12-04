@@ -1,52 +1,40 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id kB3M3V5G028498
-	for <selinux@tycho.nsa.gov>; Sun, 3 Dec 2006 17:03:32 -0500
-Received: from legolas.drinsama.de (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id kB3M1lHK011817
-	for <selinux@tycho.nsa.gov>; Sun, 3 Dec 2006 22:01:47 GMT
-Subject: Re: root home directory and system cron jobs
-From: Erich Schubert <erich@debian.org>
-To: russell@coker.com.au
-Cc: selinux@tycho.nsa.gov
-In-Reply-To: <200612040738.04298.russell@coker.com.au>
-References: <1165110951.19409.8.camel@hepcat.vitavonni.de>
-	 <200612031541.27320.russell@coker.com.au>
-	 <1165155806.4758.5.camel@hepcat.vitavonni.de>
-	 <200612040738.04298.russell@coker.com.au>
-Content-Type: text/plain; charset=utf-8
-Date: Sun, 03 Dec 2006 23:03:54 +0100
-Message-Id: <1165183434.5326.12.camel@hepcat.vitavonni.de>
-Mime-Version: 1.0
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id kB4Dn091017588
+	for <selinux@tycho.nsa.gov>; Mon, 4 Dec 2006 08:49:00 -0500
+Received: from mx1.redhat.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id kB4DmJV8025358
+	for <selinux@tycho.nsa.gov>; Mon, 4 Dec 2006 13:48:20 GMT
+Received: from int-mx1.corp.redhat.com (int-mx1.corp.redhat.com [172.16.52.254])
+	by mx1.redhat.com (8.12.11.20060308/8.12.11) with ESMTP id kB4DnO49009812
+	for <selinux@tycho.nsa.gov>; Mon, 4 Dec 2006 08:49:24 -0500
+Message-ID: <45742770.50001@mentalrootkit.com>
+Date: Mon, 04 Dec 2006 08:49:36 -0500
+From: Karl MacMillan <kmacmillan@mentalrootkit.com>
+MIME-Version: 1.0
+To: "David O'Brien" <david.obrien@redhat.com>
+CC: James Antill <jantill@redhat.com>, selinux@tycho.nsa.gov
+Subject: Re: User home directory creation with useradd (rhbz#217441)
+References: <1165003691.18588.103.camel@code.and.org> <45708F0B.6080405@mentalrootkit.com> <200612041239.21597.david.obrien@redhat.com>
+In-Reply-To: <200612041239.21597.david.obrien@redhat.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hi,
-> Do you have some examples of jobs that need to be run in sequence?
+David O'Brien wrote:
+> On Saturday 02 December 2006 06:22, Karl MacMillan wrote:
+>>> 4. Document that you need to call the list of programs in #3.
+>> Nobody reads documentation - this isn't viable.  <--------  !!
+> 
+> Karl... be nice. Tech writers are sensitive beings  ;-)
+> 
 
-No. It's just that I can imagine it to be nice to have them run in
-sequence on a high-load-system. OTOH, such systems can be adjusted by
-the admin as needed.
+Sorry! What I really should have said is, people don't normally find 
+features through documentation. Rather, they resort to docs once what 
+they have found doesn't work correctly. So in this case, if the features 
+aren't part of useradd it is unlikely they will find semanage or any 
+other SELinux feature.
 
-But it would require lots of changes to packages to
-deprecate /etc/cron.daily /etc/cron.weekly and /etc/cron.monthly
-Apart from the increased amount of work for the admin if he wants to
-reschedule maintainance cronjobs. Having a default time for all of the
-daily cronjobs is useful.
-btw, it makes me wonder how many of the monthly cronjobs actually assume
-they'll be run on the first of each month, and not just once a month.
-Well, maybe it's specified somewhere that /etc/cron.monthly is to be run
-on the first of each month, I didn't check LSB on that.
-
-Upstart, from Ubuntu, is to get some cron-like functionality IIRC. We
-should also talk to them about these problems.
-
-best regards,
-Erich Schubert
--- 
-    erich@(vitavonni.de|debian.org)    --    GPG Key ID: 4B3A135C   (o_
-       The best things in life are free: Friendship and Love.       //\
-   Während das Glück dir lacht, wirst Freunde du zählen in Menge;   V_/_
-     wenn sich der Himmel bewölkt, findest du dich bald allein.
+Karl
 
 
 
