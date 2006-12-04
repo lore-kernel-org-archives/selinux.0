@@ -1,61 +1,61 @@
-Message-ID: <45748601.6020707@mentalrootkit.com>
-Date: Mon, 04 Dec 2006 15:33:05 -0500
+Message-ID: <45748652.4050100@mentalrootkit.com>
+Date: Mon, 04 Dec 2006 15:34:26 -0500
 From: Karl MacMillan <kmacmillan@mentalrootkit.com>
 MIME-Version: 1.0
-To: Joshua Brindle <jbrindle@tresys.com>
-CC: Stephen Smalley <sds@tycho.nsa.gov>, Eric Paris <eparis@parisplace.org>,
+To: Stephen Smalley <sds@tycho.nsa.gov>
+CC: Joshua Brindle <jbrindle@tresys.com>, Eric Paris <eparis@parisplace.org>,
         selinux@tycho.nsa.gov, James Morris <jmorris@redhat.com>
 Subject: Re: [RFC] Ability to allow unknown class and permissions
-References: <6FE441CD9F0C0C479F2D88F959B015885C82D7@exchange.columbia.tresys.com>
-In-Reply-To: <6FE441CD9F0C0C479F2D88F959B015885C82D7@exchange.columbia.tresys.com>
+References: <6FE441CD9F0C0C479F2D88F959B015885C82D7@exchange.columbia.tresys.com> <1165263959.2923.148.camel@moss-spartans.epoch.ncsc.mil>
+In-Reply-To: <1165263959.2923.148.camel@moss-spartans.epoch.ncsc.mil>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Joshua Brindle wrote:
->> From: Karl MacMillan [mailto:kmacmillan@mentalrootkit.com] 
->>
->> Joshua Brindle wrote:
->>>> From: Karl MacMillan [mailto:kmacmillan@mentalrootkit.com]
->> <snip>
->>
->>>>> It doesn't give the interface I don't think, but it does let us 
->>>>> redefine user object classes without worrying about the
->>>> kernel rejecting it.
->>>> Not certain I understand this comment either.
->>>>
->>> Perhaps I misunderstood your points, I didn't see how they 
->> applied to 
->>> this exactly either. How is adding an option to the policy 
->> config to 
->>> ignore unknown permissions resulting in an interface to help with 
->>> dynamic object classes?
->> My understanding of the current suggestion is:
->>
->> 1) A policy flag indicating that unknown object classes and 
->> permissions should be ignored.
->> 2) load_policy / libsemanage changed to optionally generate 
->> avtab entries for unknown object classes or permissions based on 1.
->>
->> In order to accomplish 2, load_policy / libsemanage will have 
->> to be able to compare the object classes and permissions that 
->> the kernel currently knows about to the ones referenced in 
->> the policy. Hence a kernel interface exporting information 
->> about the object classes and permissions of which the kernel is aware.
->>
+Stephen Smalley wrote:
+> On Mon, 2006-12-04 at 15:28 -0500, Joshua Brindle wrote:
+>>> From: Karl MacMillan [mailto:kmacmillan@mentalrootkit.com] 
+>>>
+>>> Joshua Brindle wrote:
+>>>>> From: Karl MacMillan [mailto:kmacmillan@mentalrootkit.com]
+>>> <snip>
+>>>
+>>>>>> It doesn't give the interface I don't think, but it does let us 
+>>>>>> redefine user object classes without worrying about the
+>>>>> kernel rejecting it.
+>>>>> Not certain I understand this comment either.
+>>>>>
+>>>> Perhaps I misunderstood your points, I didn't see how they 
+>>> applied to 
+>>>> this exactly either. How is adding an option to the policy 
+>>> config to 
+>>>> ignore unknown permissions resulting in an interface to help with 
+>>>> dynamic object classes?
+>>> My understanding of the current suggestion is:
+>>>
+>>> 1) A policy flag indicating that unknown object classes and 
+>>> permissions should be ignored.
+>>> 2) load_policy / libsemanage changed to optionally generate 
+>>> avtab entries for unknown object classes or permissions based on 1.
+>>>
+>>> In order to accomplish 2, load_policy / libsemanage will have 
+>>> to be able to compare the object classes and permissions that 
+>>> the kernel currently knows about to the ones referenced in 
+>>> the policy. Hence a kernel interface exporting information 
+>>> about the object classes and permissions of which the kernel is aware.
+>>>
+>> Why do you need #2 if you have #1? Or Why would you need #1 if you have
+>> #2? I thought the config flag was for the kernel..
 > 
-> Why do you need #2 if you have #1?
+> Point of clarification:  I have been discussing a kernel mechanism for
+> the padding/filling of the avtab entries, not something in
+> libsepol/libsemanage.  Just putting the bulk of the work at policy load
+> time (but still in kernel) rather than permission check time.
+> 
 
-Having the kernel change the loaded policy has a number of problems 
-including putting complex code in the kernel and difficulty obtaining 
-the changed policy for analysis / debugging. Assuming that most users 
-don't upgrade to new kernels often it seems preferable to leave this 
-compatibility code in userspace.
-
-  Or Why would you need #1 if you have
-> #2? I thought the config flag was for the kernel..
-
-To allow the policy file to be analyzed without external reference.
+As I mentioned in the other emails, it seems simpler to implement 
+userspace and we want the needed information exported from the kernel 
+anyway.
 
 Karl
 
