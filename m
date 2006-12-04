@@ -1,43 +1,46 @@
-Message-ID: <45749461.7050405@mentalrootkit.com>
-Date: Mon, 04 Dec 2006 16:34:25 -0500
-From: Karl MacMillan <kmacmillan@mentalrootkit.com>
+Message-ID: <4574AD50.5090305@tresys.com>
+Date: Mon, 04 Dec 2006 18:20:48 -0500
+From: Joshua Brindle <jbrindle@tresys.com>
 MIME-Version: 1.0
-To: Joshua Brindle <jbrindle@tresys.com>
+To: Karl MacMillan <kmacmillan@mentalrootkit.com>
 CC: Stephen Smalley <sds@tycho.nsa.gov>, Eric Paris <eparis@parisplace.org>,
         selinux@tycho.nsa.gov, James Morris <jmorris@redhat.com>
 Subject: Re: [RFC] Ability to allow unknown class and permissions
-References: <6FE441CD9F0C0C479F2D88F959B015885C82ED@exchange.columbia.tresys.com>
-In-Reply-To: <6FE441CD9F0C0C479F2D88F959B015885C82ED@exchange.columbia.tresys.com>
+References: <6FE441CD9F0C0C479F2D88F959B015885C82ED@exchange.columbia.tresys.com> <45749461.7050405@mentalrootkit.com>
+In-Reply-To: <45749461.7050405@mentalrootkit.com>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Joshua Brindle wrote:
->> From: Karl MacMillan [mailto:kmacmillan@mentalrootkit.com] 
+Karl MacMillan wrote:
+> Joshua Brindle wrote:
+>>> From: Karl MacMillan [mailto:kmacmillan@mentalrootkit.com]
+>>> Joshua Brindle wrote:
+> 
+> <snip>
+> 
+>>>
+>>>   Or Why would you need #1 if you have
+>>>> #2? I thought the config flag was for the kernel..
+>>> To allow the policy file to be analyzed without external reference.
+>>>
 >>
->> Joshua Brindle wrote:
-
-<snip>
-
->>
->>   Or Why would you need #1 if you have
->>> #2? I thought the config flag was for the kernel..
->> To allow the policy file to be analyzed without external reference.
+>> Second time analysis was mentioned and still wrong (IMO). You can't
+>> analyze unknown permissions since the kernel which the kernel is
+>> inserted into also decides whether the permissions are checked.
 >>
 > 
-> Second time analysis was mentioned and still wrong (IMO). You can't
-> analyze unknown permissions since the kernel which the kernel is
-> inserted into also decides whether the permissions are checked.
+> But you can tell if unknown permissions will be allowed (and even which 
+> object classes and permissions for a specific kernel) without reference 
+> to the _configuration_ of a specific system. You only need to look at 
+> the policy and the version of the kernel / userspace components. That 
+> is, in my opinion, an important difference.
 > 
 
-But you can tell if unknown permissions will be allowed (and even which 
-object classes and permissions for a specific kernel) without reference 
-to the _configuration_ of a specific system. You only need to look at 
-the policy and the version of the kernel / userspace components. That 
-is, in my opinion, an important difference.
-
-Karl
-
+Unless there is a permission associated with setting this option (via 
+semanage or similar) you don't buy anything. And I'm not sure what value 
+you get out of knowing unknown permissions are allowed or denied in an 
+analysis anyway.
 
 
 --
