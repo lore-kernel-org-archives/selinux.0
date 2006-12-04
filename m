@@ -1,36 +1,55 @@
-Message-ID: <45757B34.5050209@mentalrootkit.com>
-Date: Tue, 05 Dec 2006 08:59:16 -0500
-From: Karl MacMillan <kmacmillan@mentalrootkit.com>
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id kB5FrtN0004331
+	for <selinux@tycho.nsa.gov>; Tue, 5 Dec 2006 10:53:55 -0500
+Received: from moss-lions.epoch.ncsc.mil (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id kB5FrE8V001640
+	for <selinux@tycho.nsa.gov>; Tue, 5 Dec 2006 15:53:14 GMT
+Received: from moss-lions.epoch.ncsc.mil (localhost.localdomain [127.0.0.1])
+	by moss-lions.epoch.ncsc.mil (8.13.8/8.13.8) with ESMTP id kB5FpNB5004481
+	for <selinux@tycho.nsa.gov>; Tue, 5 Dec 2006 10:51:23 -0500
+Received: (from jwcart2@localhost)
+	by moss-lions.epoch.ncsc.mil (8.13.8/8.13.8/Submit) id kB5FpNc4004480
+	for selinux@tycho.nsa.gov; Tue, 5 Dec 2006 10:51:23 -0500
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id kB4Nc9dS009856
+	for <selinux@tycho.nsa.gov>; Mon, 4 Dec 2006 18:38:09 -0500
+Received: from mx1.redhat.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id kB4NbTBf023574
+	for <selinux@tycho.nsa.gov>; Mon, 4 Dec 2006 23:37:29 GMT
+From: "David O'Brien" <david.obrien@redhat.com>
+To: Karl MacMillan <kmacmillan@mentalrootkit.com>
+Subject: Re: User home directory creation with useradd (rhbz#217441)
+Date: Tue, 5 Dec 2006 09:38:29 +1000
+Cc: James Antill <jantill@redhat.com>, selinux@tycho.nsa.gov
+References: <1165003691.18588.103.camel@code.and.org> <200612041239.21597.david.obrien@redhat.com> <45742770.50001@mentalrootkit.com>
+In-Reply-To: <45742770.50001@mentalrootkit.com>
 MIME-Version: 1.0
-To: Stephen Smalley <sds@tycho.nsa.gov>
-CC: Joshua Brindle <jbrindle@tresys.com>, Eric Paris <eparis@parisplace.org>,
-        selinux@tycho.nsa.gov, James Morris <jmorris@redhat.com>
-Subject: Re: [RFC] Ability to allow unknown class and permissions
-References: <6FE441CD9F0C0C479F2D88F959B015885C82D7@exchange.columbia.tresys.com>	 <1165263959.2923.148.camel@moss-spartans.epoch.ncsc.mil>	 <45748652.4050100@mentalrootkit.com>	 <1165265045.2923.168.camel@moss-spartans.epoch.ncsc.mil>	 <45748D8D.8040500@mentalrootkit.com> <1165325510.15979.6.camel@moss-spartans.epoch.ncsc.mil>
-In-Reply-To: <1165325510.15979.6.camel@moss-spartans.epoch.ncsc.mil>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Message-Id: <200612050938.29569.david.obrien@redhat.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Stephen Smalley wrote:
-> On Mon, 2006-12-04 at 16:05 -0500, Karl MacMillan wrote:
->> Stephen Smalley wrote:
->> See above.
-> 
-> You still need validation in the kernel, and the policy would still lack
-> kernel classes and/or permissions unless libsemanage/libsepol is also
-> inserting fake entries for the missing ones, so how would the kernel
-> handle missing classes and permissions?  How would it know that
-> userspace had already padded the avtab for them?
-> 
-> I'm unconvinced that this approach is simpler overall compared to direct
-> kernel implementation at load time.
-> 
+On Monday 04 December 2006 23:49, Karl MacMillan wrote:
+> David O'Brien wrote:
+> > On Saturday 02 December 2006 06:22, Karl MacMillan wrote:
+> >>> 4. Document that you need to call the list of programs in #3.
+> >>
+> >> Nobody reads documentation - this isn't viable.  <--------  !!
+> >
+> > Karl... be nice. Tech writers are sensitive beings  ;-)
+>
+> Sorry! What I really should have said is, people don't normally find
+> features through documentation. Rather, they resort to docs once what
+> they have found doesn't work correctly. So in this case, if the features
+> aren't part of useradd it is unlikely they will find semanage or any
+> other SELinux feature.
+>
+> Karl
 
-You may be right and I don't feel that strongly about it. I was really 
-just hoping that the discovery interface would finally get done.
+/me re-emerges from shell...  :-)
 
-Karl
+I'm pretty familiar with it. "When all else fails, read the doc."
 
 --
 This message was distributed to subscribers of the selinux mailing list.
