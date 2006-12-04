@@ -1,47 +1,118 @@
-Message-ID: <45748451.1080005@mentalrootkit.com>
-Date: Mon, 04 Dec 2006 15:25:53 -0500
-From: Karl MacMillan <kmacmillan@mentalrootkit.com>
-MIME-Version: 1.0
-To: Joshua Brindle <jbrindle@tresys.com>
-CC: Stephen Smalley <sds@tycho.nsa.gov>, Eric Paris <eparis@parisplace.org>,
-        selinux@tycho.nsa.gov, James Morris <jmorris@redhat.com>
-Subject: Re: [RFC] Ability to allow unknown class and permissions
-References: <6FE441CD9F0C0C479F2D88F959B015885C82D3@exchange.columbia.tresys.com>
-In-Reply-To: <6FE441CD9F0C0C479F2D88F959B015885C82D3@exchange.columbia.tresys.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id kB4KQMeT002876
+	for <selinux@tycho.nsa.gov>; Mon, 4 Dec 2006 15:26:22 -0500
+Received: from exchange.columbia.tresys.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with SMTP id kB4KPfEC018167
+	for <selinux@tycho.nsa.gov>; Mon, 4 Dec 2006 20:25:42 GMT
+Subject: Re: Latest Diffs 11/29
+From: "Christopher J. PeBenito" <cpebenito@tresys.com>
+To: Daniel J Walsh <dwalsh@redhat.com>
+Cc: SE Linux <selinux@tycho.nsa.gov>
+In-Reply-To: <456E0470.3010500@redhat.com>
+References: <456E0470.3010500@redhat.com>
+Content-Type: text/plain
+Date: Mon, 04 Dec 2006 15:26:46 -0500
+Message-Id: <1165264006.4220.57.camel@sgc>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Joshua Brindle wrote:
->> From: Karl MacMillan [mailto:kmacmillan@mentalrootkit.com] 
+On Wed, 2006-11-29 at 17:06 -0500, Daniel J Walsh wrote:
+> Why does loadkeys built this way.  Trying this interface blew up in 
+> targeted policy.
 
-<snip>
+I cannot reproduce this.
 
->>> It doesn't give the interface I don't think, but it does let us 
->>> redefine user object classes without worrying about the 
->> kernel rejecting it.
->> Not certain I understand this comment either.
->>
-> 
-> Perhaps I misunderstood your points, I didn't see how they applied to
-> this exactly either. How is adding an option to the policy config to
-> ignore unknown permissions resulting in an interface to help with
-> dynamic object classes?
+> I think the hi_reserved_port_t change is good.
 
-My understanding of the current suggestion is:
+Its close, I think we need to think about changing the "rpc ports"
+concept, since it doesn't seem limited to just rpc.
 
-1) A policy flag indicating that unknown object classes and permissions 
-should be ignored.
-2) load_policy / libsemanage changed to optionally generate avtab 
-entries for unknown object classes or permissions based on 1.
+> Fixes for polyinstatiated needs rmdir
 
-In order to accomplish 2, load_policy / libsemanage will have to be able 
-to compare the object classes and permissions that the kernel currently 
-knows about to the ones referenced in the policy. Hence a kernel 
-interface exporting information about the object classes and permissions 
-of which the kernel is aware.
+Need more explanation for login programs adding and removing user home
+directories for polyinstantiation.
 
-Karl
+> Cups changes for MLS
+
+I don't agree with the cupsd file change, the binary itself isn't
+sensitive.  Reordered other changes.
+
+> ypxfr has moved and needs policy fixes
+
+Kept the bin search perms for compat.
+
+> Dont want to dontaudit searches of var_yp_t so setroubleshoot will work 
+> correctly.
+
+> nmbd_t needs to be able to unlink log files
+
+Why?  This would be a bad thing, IMO.
+
+> Fixes for swat
+
+Changing the log access to write?  Also seems like a bad thing, though
+not quite as bad since its an admin tool.
+
+> tftpd uses ypbind
+
+made this optional
+
+> mkswap should not be fsadm_exec_t, it is SELinux aware.
+
+Why is mkswap aware?  Why would it not be fsadm_exec_t, it will still
+have to write to the fixed disk device.
+
+> I have removed some hide_broken_symptoms thinking they are all fixed, 
+> but do you  want these around for RHEL4?
+
+Yes.
+
+> depmod deletes kernel modules
+
+Why?
+
+> Added policy for system-config-selinux, basically a superset of 
+> semanage_t, currently unconfined, but need transition rules to maintain 
+> context in /etc/selinux/TYPE directories.
+
+Need explanation for changes to manage_default_contexts and
+manage_selinux_config.
+
+Why are init scripts running setsebool?
+
+Dropping semanage_gui_t, as its not upstream.  Selinuxutil should only
+be checkpolicy and policycoreutils programs.
+
+I don't think newrole should use the login program interface.
+
+Why do you have setfiles exec'ing init scripts?
+
+> Additional rules for to get load_policy to work with MLS
+
+Need more clarification on this one.
+
+> Fix RealPlayer file specification, additional unconfined_execmem_exec_t 
+> domains.
+
+Just like with mplayer, we want vmware executables labeled in the vmware
+module.
+
+> xen fixes, new images directory
+
+Why is this needed:
++	allow $1 xdm_xserver_t:process siginh;
+
+Can you elaborate as to why multipath (dm/lvm) needs net_admin?  A
+cursory look through the docs doesn't mention the network at all.
+
+Changed printk_device_t to kmsg_device_t.
+
+-- 
+Chris PeBenito
+Tresys Technology, LLC
+(410) 290-1411 x150
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
