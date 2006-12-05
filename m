@@ -1,80 +1,69 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id kB5CgcoI029326
-	for <selinux@tycho.nsa.gov>; Tue, 5 Dec 2006 07:42:39 -0500
-Received: from smtp.sws.net.au (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id kB5Cft8V024249
-	for <selinux@tycho.nsa.gov>; Tue, 5 Dec 2006 12:41:57 GMT
-From: Russell Coker <russell@coker.com.au>
-Reply-To: russell@coker.com.au
-To: "SE-Linux" <selinux@tycho.nsa.gov>
-Subject: targeted policy patch
-Date: Tue, 5 Dec 2006 23:42:13 +1100
-Cc: Manoj Srivastava <srivasta@debian.org>
-MIME-Version: 1.0
-Content-Type: Multipart/Mixed;
-  boundary="Boundary-00=_mkWdFyfd7xPztFo"
-Message-Id: <200612052342.14538.russell@coker.com.au>
+Subject: Re: [RFC] Ability to allow unknown class and permissions
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Karl MacMillan <kmacmillan@mentalrootkit.com>
+Cc: Joshua Brindle <jbrindle@tresys.com>, Eric Paris <eparis@parisplace.org>,
+        selinux@tycho.nsa.gov, James Morris <jmorris@redhat.com>
+In-Reply-To: <45748D8D.8040500@mentalrootkit.com>
+References: 
+	 <6FE441CD9F0C0C479F2D88F959B015885C82D7@exchange.columbia.tresys.com>
+	 <1165263959.2923.148.camel@moss-spartans.epoch.ncsc.mil>
+	 <45748652.4050100@mentalrootkit.com>
+	 <1165265045.2923.168.camel@moss-spartans.epoch.ncsc.mil>
+	 <45748D8D.8040500@mentalrootkit.com>
+Content-Type: text/plain
+Date: Tue, 05 Dec 2006 08:31:50 -0500
+Message-Id: <1165325510.15979.6.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
---Boundary-00=_mkWdFyfd7xPztFo
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+On Mon, 2006-12-04 at 16:05 -0500, Karl MacMillan wrote:
+> Stephen Smalley wrote:
+> > In the approach I described, security_load_policy would:
+> > - continue to check for undefined kernel classes and permissions as it
+> > currently does,
+> > - handle policy rejection if that is the behavior selected by the flag,
+> > - pad any access vectors loaded into the avtab to grant undefined
+> > permissions if the flag says to do so,
+> > - generate a table indexed by class with a default access vector per
+> > kernel class that contains only the undefined permissions if the flag
+> > says to allow.
+> > 
+> 
+> Why not generate avtab entries for the unknown classes? I don't see any 
+> problem with an "invalid" object classes being stored in the avtab. If 
+> we make a fake attribute applied to all types it should be one avtab 
+> entry per object class.
+>
+> > security_compute_av would:
+> > - handle undefined classes based on the flag (silently return an access
+> > vector with all ones if it says to allow, otherwise return error),
+> > - if a matching avtab entry is found, just use it - it is already
+> > padded.
+> > - otherwise, use the default per-class access vector that only contains
+> > the undefined permissions.
+> > 
+> > I'm not sure how one would do that in userspace (e.g. the default
+> > per-class table for holes in the avtab wouldn't have a very compact
+> > representation in userspace), and you'd still need the checking at least
+> > in the kernel.
+> > 
+> 
+> See above.
 
-The attached patch is needed to quiet mdadm (and programs that do similar 
-things) for the case of unlabeled device nodes.  In Debian a typical install 
-of etch with SE Linux will result in /dev/.static/dev containing a lot of 
-unlabeled device nodes from the root filesystem (through a bind mount).
+You still need validation in the kernel, and the policy would still lack
+kernel classes and/or permissions unless libsemanage/libsepol is also
+inserting fake entries for the missing ones, so how would the kernel
+handle missing classes and permissions?  How would it know that
+userspace had already padded the avtab for them?
 
-As for device_t, that's the default type upon creation and the type that new 
-device nodes get before we assign a type to them.
+I'm unconvinced that this approach is simpler overall compared to direct
+kernel implementation at load time.
 
 -- 
-russell@coker.com.au
-http://etbe.blogspot.com/          My Blog
+Stephen Smalley
+National Security Agency
 
-http://www.coker.com.au/sponsorship.html Sponsoring Free Software development
-
---Boundary-00=_mkWdFyfd7xPztFo
-Content-Type: text/x-diff;
-  charset="us-ascii";
-  name="diff"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
-	filename="diff"
-
---- modules/kernel/devices.if.orig	2006-12-05 23:35:28.000000000 +1100
-+++ modules/kernel/devices.if	2006-12-05 23:38:55.000000000 +1100
-@@ -598,9 +598,11 @@
- interface(`dev_dontaudit_getattr_all_blk_files',`
- 	gen_require(`
- 		attribute device_node;
-+		type file_t;
-+		type device_t;
- 	')
- 
--	dontaudit $1 device_node:blk_file getattr;
-+	dontaudit $1 { device_node file_t device_t }:blk_file getattr;
- ')
- 
- ########################################
-@@ -616,9 +618,11 @@
- interface(`dev_getattr_all_chr_files',`
- 	gen_require(`
- 		attribute device_node;
-+		type file_t;
-+		type device_t;
- 	')
- 
--	allow $1 device_node:chr_file getattr;
-+	allow $1 { device_node file_t device_t }:chr_file getattr;
- ')
- 
- ########################################
-
---Boundary-00=_mkWdFyfd7xPztFo--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
