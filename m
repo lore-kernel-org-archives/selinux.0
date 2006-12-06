@@ -1,68 +1,75 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id kB5NbfFk027811
-	for <selinux@tycho.nsa.gov>; Tue, 5 Dec 2006 18:37:41 -0500
-Message-ID: <457602C5.9050504@tycho.nsa.gov>
-Date: Tue, 05 Dec 2006 18:37:41 -0500
-From: Eamon Walsh <ewalsh@tycho.nsa.gov>
-Reply-To: ewalsh@tycho.nsa.gov
+Message-ID: <4576FAFC.90809@mentalrootkit.com>
+Date: Wed, 06 Dec 2006 12:16:44 -0500
+From: Karl MacMillan <kmacmillan@mentalrootkit.com>
 MIME-Version: 1.0
-To: Ted X Toth <txtoth@gmail.com>
-CC: selinux@tycho.nsa.gov
-Subject: Re: XACE and MLS
-References: <1158088282.7554.95.camel@moss-huskies.epoch.ncsc.mil>	 <450962DB.7050107@tresys.com>	 <1158324416.8680.5.camel@twoface.columbia.tresys.com>	 <1158355183.7554.268.camel@moss-huskies.epoch.ncsc.mil>	 <cadfc0e40611290712g7fa802f2oa5b5ebc079e8ead2@mail.gmail.com>	 <1164830966.2794.144.camel@moss-huskies.epoch.ncsc.mil>	 <cadfc0e40611291434w5b1468ffo2eb87b0e982569e2@mail.gmail.com> <1164857243.2794.177.camel@moss-huskies.epoch.ncsc.mil> <4575F6E9.1020600@gmail.com>
-In-Reply-To: <4575F6E9.1020600@gmail.com>
+To: Daniel J Walsh <dwalsh@redhat.com>
+CC: Joshua Brindle <jbrindle@tresys.com>, Stephen Smalley <sds@tycho.nsa.gov>,
+        SE Linux <selinux@tycho.nsa.gov>
+Subject: Re: Patch to load_policy to enforce quiet option
+References: <456E06BE.1030007@redhat.com> <456F0580.7070003@tresys.com> <456F0D94.2030407@redhat.com>
+In-Reply-To: <456F0D94.2030407@redhat.com>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Ted X Toth wrote:
-> We are interested in using X and an associated desktop/window manager 
-> (most likely GNOME/Metacity) in an MLS environment and I'm trying to 
-> figure out what all needs to be addressed to get there. A couple of 
-> areas that I've thought about so far are window labeling and cut and 
-> paste. For window labeling the window manager ought to be able to use 
-> the context of it X server connection to decorate the window with the 
-> level but what happens if for example a user does a newrole and changes 
-> their level? 
+Daniel J Walsh wrote:
+> Joshua Brindle wrote:
+>> Daniel J Walsh wrote:
+>>>
+>>>
+>>> ------------------------------------------------------------------------
+>>>
+>>> diff --exclude-from=exclude --exclude POTFILES.in --exclude='*.po' 
+>>> --exclude='*.pot' -N -u -r 
+>>> nsapolicycoreutils/load_policy/load_policy.c 
+>>> policycoreutils-1.33.5/load_policy/load_policy.c
+>>> --- nsapolicycoreutils/load_policy/load_policy.c    2006-11-16 
+>>> 17:14:31.000000000 -0500
+>>> +++ policycoreutils-1.33.5/load_policy/load_policy.c    2006-11-28 
+>>> 10:44:25.000000000 -0500
+>>> @@ -50,12 +50,12 @@
+>>>      nargs = argc - optind;
+>>>      if (nargs > 2)
+>>>          usage(argv[0]);
+>>> -    if (nargs >= 1) {
+>>> -        fprintf(stderr,
+>>> -            "%s:  Warning!  Policy file argument (%s) is no longer 
+>>> supported, installed policy is always loaded.  Continuing...\n",
+>>> -            argv[0], argv[optind++]);
+>>> +    if (nargs >= 1 && !quiet) {
+>>> +            fprintf(stderr,
+>>> +                "%s:  Warning!  Policy file argument (%s) is no 
+>>> longer supported, installed policy is always loaded.  Continuing...\n",
+>>> +                argv[0], argv[optind++]);
+>>>      }
+>>> -    if (nargs == 2) {
+>>> +    if (nargs == 2 && ! quiet) {
+>>>          fprintf(stderr,
+>>>              "%s:  Warning!  Boolean file argument (%s) is no longer 
+>>> supported, installed booleans file is always used.  Continuing...\n",
+>>>              argv[0], argv[optind++]);
+>>
+>>
+>> Hrm. Should quiet really squelch warnings? Also, it looks like 
+>> load_policy is using a deprecated interface to squelch other output 
+>> from libsepol, this should probably be fixed.
+>>
+> man load_policy
+> ...
+>      -q     suppress warning messages.
+> ...
+> 
+> 
+> I think this was originally added to stop things like boolean is no 
+> longer in this package.  It might not be necessary any longer,  but if 
+> we have it we should be consistant.
+> 
 
-The XSELinux extension provides window properties that can be used by 
-the window manager in the same manner as the usual WM_NAME, WM_COMMAND, 
-etc.  The one currently available is _SELINUX_CLIENT_CONTEXT which 
-contains the domain of the connected process.  Others will be introduced 
-in the future in particular _SELINUX_CONTEXT which will contain the 
-context of the window itself.
+What is the status of this? I'm fine with the patch, but I didn't see it 
+get merged or any resolution.
 
-Here's a screen shot of a hacked twm that displays this property in 
-place of the usual window title:
-http://people.freedesktop.org/~ewalsh/twm-demo.png
+Karl
 
-Note that what's really needed for proper labeling however is a 
-server-controlled, secure area of the screen that clients can't draw 
-into.  There could be spoofing attacks otherwise.
-
-> For cut and paste dominance checks are needed would it be 
-> reasonable to do these as an extension of the XACE and if so where can I 
-> find out more about how to do this and if not where then?
-
-It depends on which cut & paste.  The X server provides two methods: cut 
-buffers, which are implemented as properties on the root window, and 
-selections, which are implemented using a convoluted method of setting 
-properties on client windows and sending notification events.  I believe 
-that both of these methods should be securable using the XSELinux 
-extension although ths work has not been done just yet.
-
-Other cut & paste functionality may be provided by higher-level layers 
-such as toolkits (GTK+) or desktop systems (GNOME, etc).  I have no 
-knowledge of these areas.
-
-A good reference for X cut & paste is the xlib.PS document in the 
-xorg-docs package.  The basic SELinux X classes and permissions are 
-described in the "Securing the X Window System with SELinux" paper on 
-www.nsa.gov/selinux.
-
--- 
-Eamon Walsh <ewalsh@tycho.nsa.gov>
-National Security Agency
 
 --
 This message was distributed to subscribers of the selinux mailing list.
