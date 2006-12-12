@@ -1,32 +1,59 @@
-Reply-To: <vyekkirala@TrustedCS.com>
-From: "Venkat Yekkirala" <vyekkirala@TrustedCS.com>
-To: "'Paul Moore'" <paul.moore@hp.com>
-Cc: <selinux@tycho.nsa.gov>, <jmorris@namei.org>, <sds@tycho.nsa.gov>
-Subject: RE: Labeling traffic over loopback
-Date: Tue, 12 Dec 2006 11:02:37 -0600
-Message-ID: <000c01c71e0f$53c39da0$cc0a010a@tcssec.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-In-Reply-To: <457EDAA1.60003@hp.com>
+Subject: Re: Labeling traffic over loopback
+From: Joy Latten <latten@austin.ibm.com>
+To: vyekkirala@TrustedCS.com
+Cc: redhat-lspp@redhat.com, selinux@tycho.nsa.gov, jmorris@namei.org,
+        sds@tycho.nsa.gov
+In-Reply-To: <000a01c71e06$b6d11020$cc0a010a@tcssec.com>
+References: <000a01c71e06$b6d11020$cc0a010a@tcssec.com>
+Content-Type: text/plain
+Date: Tue, 12 Dec 2006 11:07:16 -0600
+Message-Id: <1165943236.12468.87.camel@faith.austin.ibm.com>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-> > We could use an additional bit (local_label) to denote that
-> > "sp" holds the source label sid (no blob, so no lifecycle mgmt).
-> > 
-> > What do people think?
+On Tue, 2006-12-12 at 10:00 -0600, Venkat Yekkirala wrote:
+> The following describes a proposal to label traffic over loopback
+> by using a bit in the sk_buff structure. We have:
 > 
-> Can you give an example of what the *sp value would look 
-> like?  Are you thinking
-> of adding a new field to 'sec_path' or would you create a 
-> sort of dummy
-> 'xfrm_state' entry?
+> struct sk_buff {
+> ...
+>         struct  sec_path        *sp;
+> ...
+>         __u8                    pkt_type:3,
+>                                 fclone:2,
+>                                 ipvs_property:1;
+> ...
+> }
+> 
+> We could use an additional bit (local_label) to denote that
+> "sp" holds the source label sid (no blob, so no lifecycle mgmt).
+> 
+> What do people think?
 
-Nope. Note "(no blob, so no lifecycle mgmt)".
-More specifically, we could use a union in place of sp and
-when we are looking at a loopback packet and no xfrm in use
-we could use the union to hold the secid.
+I just took a quick look at racoon code... in the samples directory
+where sample configs live, I saw a config with,
+
+sainfo address ::1 icmp6 address ::1 icmp6
+{
+        pfs_group 3;
+        lifetime time 60 sec;
+        encryption_algorithm 3des, blowfish, aes;
+        authentication_algorithm hmac_sha1, hmac_md5;
+        compression_algorithm deflate;
+}
+
+My thinking (and I could be wrong as I am not an ipv6 nor racoon expert)
+is this specifies SA info over loopback for icmp6. 
+If we can specify it for ipv6 then we should be able to specify
+it for ipv4.
+
+I think we should play around with racoon and its config... I'll also
+ask on the ipsec-tools mailing list about racoon working with loopback. 
+ 
+
+Regards,
+Joy
 
 --
 This message was distributed to subscribers of the selinux mailing list.
