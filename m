@@ -1,171 +1,39 @@
-Message-ID: <457EFCD1.2070405@trustedcs.com>
-Date: Tue, 12 Dec 2006 13:02:41 -0600
-From: Venkat Yekkirala <vyekkirala@TrustedCS.com>
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id kBCJLG4a002565
+	for <selinux@tycho.nsa.gov>; Tue, 12 Dec 2006 14:21:17 -0500
+Received: from atlrel6.hp.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id kBCJLlch002422
+	for <selinux@tycho.nsa.gov>; Tue, 12 Dec 2006 19:21:48 GMT
+Received: from taynzmail03.nz-tay.cpqcorp.net (relay.dec.com [16.47.4.103])
+	by atlrel6.hp.com (Postfix) with ESMTP id 6D08536699
+	for <selinux@tycho.nsa.gov>; Tue, 12 Dec 2006 14:21:47 -0500 (EST)
+Received: from kitche.zk3.dec.com (kitche2.zk3.dec.com [16.140.160.162])
+	by taynzmail03.nz-tay.cpqcorp.net (Postfix) with ESMTP id 44DF15562
+	for <selinux@tycho.nsa.gov>; Tue, 12 Dec 2006 14:21:49 -0500 (EST)
+Message-ID: <457F0145.7020305@hp.com>
+Date: Tue, 12 Dec 2006 14:21:41 -0500
+From: Matt Anderson <mra@hp.com>
 MIME-Version: 1.0
 To: selinux@tycho.nsa.gov
-CC: sds@tycho.nsa.gov, paul.moore@hp.com
-Subject: [PATCH 1/1] selinux: Delete mls_copy_context - V.02
+Subject: matchpathcon() for arbitrary subjects
 Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This deletes mls_copy_context() in favor of mls_context_cpy() and
-replaces mls_scopy_context() with mls_context_cpy_low().
+I'm trying to get the CUPS print server to print to a file on the file
+system.  In order to do this in a usable way I want to be able to query
+the SELinux security server as to what the type of a file would be for a
+given directory.  This is essentially what matchpathcon() does, and I
+can get that to work.
 
-Signed-off-by: Venkat Yekkirala <vyekkirala@TrustedCS.com>
----
- security/selinux/ss/context.h  |   23 +++++++++++++++++++++++
- security/selinux/ss/mls.c      |   30 +++++-------------------------
- security/selinux/ss/mls.h      |   20 --------------------
- security/selinux/ss/services.c |    3 +--
- 4 files changed, 29 insertions(+), 47 deletions(-)
+The part I'm having trouble with is I'm making this call from cupsd with
+the context of system_u:system_r:cupsd_t:SystemHigh and getting a
+response for that type.  I'd like to make the call from that context,
+but asking the server what the result would be for a given user's
+context (such as user_u:user_r:user_lpr_t:SystemLow) is this possible
+with some other existing function?
 
-diff --git a/security/selinux/ss/context.h b/security/selinux/ss/context.h
-index 0562bac..2eee0da 100644
---- a/security/selinux/ss/context.h
-+++ b/security/selinux/ss/context.h
-@@ -55,6 +55,29 @@ out:
- 	return rc;
- }
- 
-+/*
-+ * Sets both levels in the MLS range of 'dst' to the low level of 'src'.
-+ */
-+static inline int mls_context_cpy_low(struct context *dst, struct context *src)
-+{
-+	int rc;
-+
-+	if (!selinux_mls_enabled)
-+		return 0;
-+
-+	dst->range.level[0].sens = src->range.level[0].sens;
-+	rc = ebitmap_cpy(&dst->range.level[0].cat, &src->range.level[0].cat);
-+	if (rc)
-+		goto out;
-+
-+	dst->range.level[1].sens = src->range.level[0].sens;
-+	rc = ebitmap_cpy(&dst->range.level[1].cat, &src->range.level[0].cat);
-+	if (rc)
-+		ebitmap_destroy(&dst->range.level[0].cat);
-+out:
-+	return rc;
-+}
-+
- static inline int mls_context_cmp(struct context *c1, struct context *c2)
- {
- 	if (!selinux_mls_enabled)
-diff --git a/security/selinux/ss/mls.c b/security/selinux/ss/mls.c
-index b4f682d..4a8bab2 100644
---- a/security/selinux/ss/mls.c
-+++ b/security/selinux/ss/mls.c
-@@ -270,7 +270,7 @@ int mls_context_to_sid(char oldc,
- 		if (!defcon)
- 			goto out;
- 
--		rc = mls_copy_context(context, defcon);
-+		rc = mls_context_cpy(context, defcon);
- 		goto out;
- 	}
- 
-@@ -401,26 +401,6 @@ int mls_from_string(char *str, struct co
- }
- 
- /*
-- * Copies the effective MLS range from `src' into `dst'.
-- */
--static inline int mls_scopy_context(struct context *dst,
--                                    struct context *src)
--{
--	int l, rc = 0;
--
--	/* Copy the MLS range from the source context */
--	for (l = 0; l < 2; l++) {
--		dst->range.level[l].sens = src->range.level[0].sens;
--		rc = ebitmap_cpy(&dst->range.level[l].cat,
--				 &src->range.level[0].cat);
--		if (rc)
--			break;
--	}
--
--	return rc;
--}
--
--/*
-  * Copies the MLS range `range' into `context'.
-  */
- static inline int mls_range_set(struct context *context,
-@@ -552,19 +532,19 @@ int mls_compute_sid(struct context *scon
- 	case AVTAB_CHANGE:
- 		if (tclass == SECCLASS_PROCESS)
- 			/* Use the process MLS attributes. */
--			return mls_copy_context(newcontext, scontext);
-+			return mls_context_cpy(newcontext, scontext);
- 		else
- 			/* Use the process effective MLS attributes. */
--			return mls_scopy_context(newcontext, scontext);
-+			return mls_context_cpy_low(newcontext, scontext);
- 	case AVTAB_MEMBER:
- 		/* Only polyinstantiate the MLS attributes if
- 		   the type is being polyinstantiated */
- 		if (newcontext->type != tcontext->type) {
- 			/* Use the process effective MLS attributes. */
--			return mls_scopy_context(newcontext, scontext);
-+			return mls_context_cpy_low(newcontext, scontext);
- 		} else {
- 			/* Use the related object MLS attributes. */
--			return mls_copy_context(newcontext, tcontext);
-+			return mls_context_cpy(newcontext, tcontext);
- 		}
- 	default:
- 		return -EINVAL;
-diff --git a/security/selinux/ss/mls.h b/security/selinux/ss/mls.h
-index 661d6fc..096d1b4 100644
---- a/security/selinux/ss/mls.h
-+++ b/security/selinux/ss/mls.h
-@@ -24,26 +24,6 @@ #define _SS_MLS_H_
- #include "context.h"
- #include "policydb.h"
- 
--/*
-- * Copies the MLS range from `src' into `dst'.
-- */
--static inline int mls_copy_context(struct context *dst,
--				   struct context *src)
--{
--	int l, rc = 0;
--
--	/* Copy the MLS range from the source context */
--	for (l = 0; l < 2; l++) {
--		dst->range.level[l].sens = src->range.level[l].sens;
--		rc = ebitmap_cpy(&dst->range.level[l].cat,
--				 &src->range.level[l].cat);
--		if (rc)
--			break;
--	}
--
--	return rc;
--}
--
- int mls_compute_context_len(struct context *context);
- void mls_sid_to_context(struct context *context, char **scontext);
- int mls_context_isvalid(struct policydb *p, struct context *c);
-diff --git a/security/selinux/ss/services.c b/security/selinux/ss/services.c
-index bdb7070..668bc37 100644
---- a/security/selinux/ss/services.c
-+++ b/security/selinux/ss/services.c
-@@ -1916,11 +1916,10 @@ int security_sid_mls_copy(u32 sid, u32 m
- 	newcon.user = context1->user;
- 	newcon.role = context1->role;
- 	newcon.type = context1->type;
--	rc = mls_copy_context(&newcon, context2);
-+	rc = mls_context_cpy(&newcon, context2);
- 	if (rc)
- 		goto out_unlock;
- 
--
- 	/* Check the validity of the new context. */
- 	if (!policydb_context_isvalid(&policydb, &newcon)) {
- 		rc = convert_context_handle_invalid_context(&newcon);
+-matt
 
 --
 This message was distributed to subscribers of the selinux mailing list.
