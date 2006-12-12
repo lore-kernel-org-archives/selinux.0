@@ -1,171 +1,75 @@
-Message-ID: <457EC911.7060006@trustedcs.com>
-Date: Tue, 12 Dec 2006 09:21:53 -0600
-From: Venkat Yekkirala <vyekkirala@TrustedCS.com>
-MIME-Version: 1.0
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id kBCFQbpd025137
+	for <selinux@tycho.nsa.gov>; Tue, 12 Dec 2006 10:26:37 -0500
+Received: from mail.atsec.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id kBCFR7oA004400
+	for <selinux@tycho.nsa.gov>; Tue, 12 Dec 2006 15:27:08 GMT
+Date: Tue, 12 Dec 2006 09:26:59 -0600
+From: Klaus Weidner <klaus@atsec.com>
 To: selinux@tycho.nsa.gov
-CC: sds@tycho.nsa.gov
-Subject: [PATCH 1/1] selinux: Delete mls_copy_context
-Content-Type: text/plain; charset=ISO-8859-1
+Subject: [PATCH RFC 3/2] stricter MLS policy constraints
+Message-ID: <20061212152659.GB3362@w-m-p.com>
+References: <20061212072825.GA3362@w-m-p.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <20061212072825.GA3362@w-m-p.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This deletes mls_copy_context() in favor of mls_context_cpy() and
-replaces mls_scopy_context() with mls_context_scpy().
+On Tue, Dec 12, 2006 at 01:28:26AM -0600, Klaus Weidner wrote:
+> The following patches attempt to get the system closer to the
+> Bell-LaPadula model expressed in the LSPP by permitting only "write
+> equal" for unprivileged subjects.
 
-Signed-off-by: Venkat Yekkirala <vyekkirala@TrustedCS.com>
----
- security/selinux/ss/context.h  |   23 +++++++++++++++++++++++
- security/selinux/ss/mls.c      |   30 +++++-------------------------
- security/selinux/ss/mls.h      |   20 --------------------
- security/selinux/ss/services.c |    3 +--
- 4 files changed, 29 insertions(+), 47 deletions(-)
+A related but separate issue is that the policy treated accept() as a
+read operation, and connect() as a write operation. That's not really
+appropriate since both normally return bidirectional file descriptors,
+equivalent to open(..., O_RDWR). The MLS check should require equal
+levels for unprivileged subjects, or read *and* write overrides.
 
-diff --git a/security/selinux/ss/context.h b/security/selinux/ss/context.h
-index 0562bac..3f57585 100644
---- a/security/selinux/ss/context.h
-+++ b/security/selinux/ss/context.h
-@@ -55,6 +55,29 @@ out:
- 	return rc;
- }
+(Yes, there's a separate constraint for recvfrom, but it simplifies
+analysis if open file descriptors are already sanitized to avoid the need
+for security enforcing checks on read/write.)
+
+Signed-off-by: Klaus Weidner <klaus@atsec.com>
+
+ policy/mls |   16 ++++++++++++++--
+ 1 files changed, 14 insertions(+), 2 deletions(-)
+
+diff -ur serefpolicy-2.4.6.kw2/policy/mls serefpolicy-2.4.6.kw3/policy/mls
+--- serefpolicy-2.4.6.kw2/policy/mls	2006-12-06 07:20:21.000000000 -0600
++++ serefpolicy-2.4.6.kw3/policy/mls	2006-12-06 07:29:35.000000000 -0600
+@@ -167,8 +167,20 @@
+ mlsconstrain { socket tcp_socket udp_socket rawip_socket netlink_socket packet_socket key_socket unix_stream_socket unix_dgram_socket netlink_route_socket netlink_firewall_socket netlink_tcpdiag_socket netlink_nflog_socket netlink_xfrm_socket netlink_selinux_socket netlink_audit_socket netlink_ip6fw_socket netlink_dnrt_socket } relabelto
+ 	( h1 dom h2 );
  
-+/*
-+ * Copies the effective MLS range from `src' into `dst'.
-+ */
-+static inline int mls_context_scpy(struct context *dst, struct context *src)
-+{
-+	int rc;
++# the socket "read+write" ops
++# (Socket FDs are generally bidirectional, equivalent to open(..., O_RDWR),
++# require equal levels for unprivileged subjects, or read *and* write overrides)
++mlsconstrain { socket tcp_socket udp_socket rawip_socket netlink_socket packet_socket key_socket unix_stream_socket unix_dgram_socket netlink_route_socket netlink_firewall_socket netlink_tcpdiag_socket netlink_nflog_socket netlink_xfrm_socket netlink_selinux_socket netlink_audit_socket netlink_ip6fw_socket netlink_dnrt_socket } { accept connect }
++	(( l1 eq l2 ) or
++	 (((( t1 == mlsnetreadtoclr ) and ( h1 dom l2 )) or
++	   ( t1 == mlsnetread )) and
++	  ((( t1 == mlsnetwriteranged ) and ( l1 dom l2 ) and ( l1 domby h2 )) or
++	   (( t1 == mlsnetwritetoclr ) and ( h1 dom l2 ) and ( l1 domby l2 )) or
++	   ( t1 == mlsnetwrite ))));
 +
-+	if (!selinux_mls_enabled)
-+		return 0;
 +
-+	dst->range.level[0].sens = src->range.level[0].sens;
-+	rc = ebitmap_cpy(&dst->range.level[0].cat, &src->range.level[0].cat);
-+	if (rc)
-+		goto out;
-+
-+	dst->range.level[1].sens = src->range.level[0].sens;
-+	rc = ebitmap_cpy(&dst->range.level[1].cat, &src->range.level[0].cat);
-+	if (rc)
-+		ebitmap_destroy(&dst->range.level[0].cat);
-+out:
-+	return rc;
-+}
-+
- static inline int mls_context_cmp(struct context *c1, struct context *c2)
- {
- 	if (!selinux_mls_enabled)
-diff --git a/security/selinux/ss/mls.c b/security/selinux/ss/mls.c
-index b4f682d..6437fcf 100644
---- a/security/selinux/ss/mls.c
-+++ b/security/selinux/ss/mls.c
-@@ -270,7 +270,7 @@ int mls_context_to_sid(char oldc,
- 		if (!defcon)
- 			goto out;
+ # the socket "read" ops (note the check is dominance of the low level)
+-mlsconstrain { socket tcp_socket udp_socket rawip_socket netlink_socket packet_socket key_socket unix_stream_socket unix_dgram_socket netlink_route_socket netlink_firewall_socket netlink_tcpdiag_socket netlink_nflog_socket netlink_xfrm_socket netlink_selinux_socket netlink_audit_socket netlink_ip6fw_socket netlink_dnrt_socket } { read getattr listen accept getopt recv_msg }
++mlsconstrain { socket tcp_socket udp_socket rawip_socket netlink_socket packet_socket key_socket unix_stream_socket unix_dgram_socket netlink_route_socket netlink_firewall_socket netlink_tcpdiag_socket netlink_nflog_socket netlink_xfrm_socket netlink_selinux_socket netlink_audit_socket netlink_ip6fw_socket netlink_dnrt_socket } { read getattr listen getopt recv_msg }
+ 	(( l1 dom l2 ) or
+ 	 (( t1 == mlsnetreadtoclr ) and ( h1 dom l2 )) or
+ 	 ( t1 == mlsnetread ));
+@@ -179,7 +191,7 @@
+ 	 ( t1 == mlsnetread ));
  
--		rc = mls_copy_context(context, defcon);
-+		rc = mls_context_cpy(context, defcon);
- 		goto out;
- 	}
- 
-@@ -401,26 +401,6 @@ int mls_from_string(char *str, struct co
- }
- 
- /*
-- * Copies the effective MLS range from `src' into `dst'.
-- */
--static inline int mls_scopy_context(struct context *dst,
--                                    struct context *src)
--{
--	int l, rc = 0;
--
--	/* Copy the MLS range from the source context */
--	for (l = 0; l < 2; l++) {
--		dst->range.level[l].sens = src->range.level[0].sens;
--		rc = ebitmap_cpy(&dst->range.level[l].cat,
--				 &src->range.level[0].cat);
--		if (rc)
--			break;
--	}
--
--	return rc;
--}
--
--/*
-  * Copies the MLS range `range' into `context'.
-  */
- static inline int mls_range_set(struct context *context,
-@@ -552,19 +532,19 @@ int mls_compute_sid(struct context *scon
- 	case AVTAB_CHANGE:
- 		if (tclass == SECCLASS_PROCESS)
- 			/* Use the process MLS attributes. */
--			return mls_copy_context(newcontext, scontext);
-+			return mls_context_cpy(newcontext, scontext);
- 		else
- 			/* Use the process effective MLS attributes. */
--			return mls_scopy_context(newcontext, scontext);
-+			return mls_context_scpy(newcontext, scontext);
- 	case AVTAB_MEMBER:
- 		/* Only polyinstantiate the MLS attributes if
- 		   the type is being polyinstantiated */
- 		if (newcontext->type != tcontext->type) {
- 			/* Use the process effective MLS attributes. */
--			return mls_scopy_context(newcontext, scontext);
-+			return mls_context_scpy(newcontext, scontext);
- 		} else {
- 			/* Use the related object MLS attributes. */
--			return mls_copy_context(newcontext, tcontext);
-+			return mls_context_cpy(newcontext, tcontext);
- 		}
- 	default:
- 		return -EINVAL;
-diff --git a/security/selinux/ss/mls.h b/security/selinux/ss/mls.h
-index 661d6fc..096d1b4 100644
---- a/security/selinux/ss/mls.h
-+++ b/security/selinux/ss/mls.h
-@@ -24,26 +24,6 @@ #define _SS_MLS_H_
- #include "context.h"
- #include "policydb.h"
- 
--/*
-- * Copies the MLS range from `src' into `dst'.
-- */
--static inline int mls_copy_context(struct context *dst,
--				   struct context *src)
--{
--	int l, rc = 0;
--
--	/* Copy the MLS range from the source context */
--	for (l = 0; l < 2; l++) {
--		dst->range.level[l].sens = src->range.level[l].sens;
--		rc = ebitmap_cpy(&dst->range.level[l].cat,
--				 &src->range.level[l].cat);
--		if (rc)
--			break;
--	}
--
--	return rc;
--}
--
- int mls_compute_context_len(struct context *context);
- void mls_sid_to_context(struct context *context, char **scontext);
- int mls_context_isvalid(struct policydb *p, struct context *c);
-diff --git a/security/selinux/ss/services.c b/security/selinux/ss/services.c
-index bdb7070..668bc37 100644
---- a/security/selinux/ss/services.c
-+++ b/security/selinux/ss/services.c
-@@ -1916,11 +1916,10 @@ int security_sid_mls_copy(u32 sid, u32 m
- 	newcon.user = context1->user;
- 	newcon.role = context1->role;
- 	newcon.type = context1->type;
--	rc = mls_copy_context(&newcon, context2);
-+	rc = mls_context_cpy(&newcon, context2);
- 	if (rc)
- 		goto out_unlock;
- 
--
- 	/* Check the validity of the new context. */
- 	if (!policydb_context_isvalid(&policydb, &newcon)) {
- 		rc = convert_context_handle_invalid_context(&newcon);
+ # the socket "write" ops
+-mlsconstrain { socket tcp_socket udp_socket rawip_socket netlink_socket packet_socket key_socket unix_stream_socket unix_dgram_socket netlink_route_socket netlink_firewall_socket netlink_tcpdiag_socket netlink_nflog_socket netlink_xfrm_socket netlink_selinux_socket netlink_audit_socket netlink_ip6fw_socket netlink_dnrt_socket } { write setattr relabelfrom connect setopt shutdown }
++mlsconstrain { socket tcp_socket udp_socket rawip_socket netlink_socket packet_socket key_socket unix_stream_socket unix_dgram_socket netlink_route_socket netlink_firewall_socket netlink_tcpdiag_socket netlink_nflog_socket netlink_xfrm_socket netlink_selinux_socket netlink_audit_socket netlink_ip6fw_socket netlink_dnrt_socket } { write setattr relabelfrom setopt shutdown }
+ 	(( l1 eq l2 ) or 
+ 	 (( t1 == mlsnetwriteranged ) and ( l1 dom l2 ) and ( l1 domby h2 )) or
+ 	 (( t1 == mlsnetwritetoclr ) and ( h1 dom l2 ) and ( l1 domby l2 )) or
 
 --
 This message was distributed to subscribers of the selinux mailing list.
