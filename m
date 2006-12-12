@@ -1,80 +1,64 @@
-Subject: Re: Patch for restorecond to not report an error if filesystem
-	does not support XATTR
+Subject: Re: [PATCH 1/1] selinux: Delete mls_copy_context
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Karl MacMillan <kmacmillan@mentalrootkit.com>
-Cc: Daniel J Walsh <dwalsh@redhat.com>, Joshua Brindle <jbrindle@tresys.com>,
-        SE Linux <selinux@tycho.nsa.gov>
-In-Reply-To: <4576FB84.9050200@mentalrootkit.com>
-References: <456E073D.8050109@redhat.com>
-	 <4576FB84.9050200@mentalrootkit.com>
+To: Paul Moore <paul.moore@hp.com>
+Cc: Venkat Yekkirala <vyekkirala@TrustedCS.com>, selinux@tycho.nsa.gov
+In-Reply-To: <457ED543.80905@hp.com>
+References: <457EC911.7060006@trustedcs.com>  <457ED543.80905@hp.com>
 Content-Type: text/plain
-Date: Tue, 12 Dec 2006 13:18:02 -0500
-Message-Id: <1165947482.998.75.camel@moss-spartans.epoch.ncsc.mil>
+Date: Tue, 12 Dec 2006 13:31:24 -0500
+Message-Id: <1165948284.998.84.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2006-12-06 at 12:19 -0500, Karl MacMillan wrote:
-> Daniel J Walsh wrote:
-> > Caused by NFS Home directories.
-> > 
-> 
-> In the absence of some mechanism to determine which file systems support 
-> labeling, do we want to merge this patch or something similar? Would it 
-> be better to remove files from the watch list if a fatal error is 
-> encountered?
-
-As Joshua noted, you could test for the same condition when processing
-the configuration before you add the file to the watch list, and issue
-an error or warning at that time rather than waiting until you try to
-restore the file's context.  Just do an open+fgetfilecon followed by a
-fsetfilecon to the same context to check for any errors (not just
-EOPNOTSUPP) before adding to the watch list.  Only corner case is ENOENT
-if you want to allow the watch list to include files that may not yet
-exist; I suppose you could ignore that one at config processing time.
-
-> 
-> Karl
-> 
-> > 
-> > 
-> > ------------------------------------------------------------------------
-> > 
-> > diff --exclude-from=exclude --exclude POTFILES.in --exclude='*.po' --exclude='*.pot' -N -u -r nsapolicycoreutils/restorecond/restorecond.c policycoreutils-1.33.5/restorecond/restorecond.c
-> > --- nsapolicycoreutils/restorecond/restorecond.c	2006-11-16 17:14:28.000000000 -0500
-> > +++ policycoreutils-1.33.5/restorecond/restorecond.c	2006-11-29 12:44:06.000000000 -0500
-> > @@ -210,9 +210,10 @@
-> >  			}
+On Tue, 2006-12-12 at 11:13 -0500, Paul Moore wrote:
+> Venkat Yekkirala wrote:
+> > diff --git a/security/selinux/ss/context.h b/security/selinux/ss/context.h
+> > index 0562bac..3f57585 100644
+> > --- a/security/selinux/ss/context.h
+> > +++ b/security/selinux/ss/context.h
+> > @@ -55,6 +55,29 @@ out:
+> >  	return rc;
+> >  }
 > >  
-> >  			if (fsetfilecon(fd, scontext) < 0) {
-> > -				syslog(LOG_ERR,
-> > -				       "set context %s->%s failed:'%s'\n",
-> > -				       filename, scontext, strerror(errno));
-> > +				if (errno != EOPNOTSUPP) 
-> > +					syslog(LOG_ERR,
-> > +					       "set context %s->%s failed:'%s'\n",
-> > +					       filename, scontext, strerror(errno));
-> >  				if (retcontext >= 0)
-> >  					free(prev_context);
-> >  				free(scontext);
-> > @@ -225,8 +226,9 @@
-> >  		if (retcontext >= 0)
-> >  			free(prev_context);
-> >  	} else {
-> > -		syslog(LOG_ERR, "get context on %s failed: '%s'\n",
-> > -		       filename, strerror(errno));
-> > +		if (errno != EOPNOTSUPP) 
-> > +			syslog(LOG_ERR, "get context on %s failed: '%s'\n",
-> > +			       filename, strerror(errno));
-> >  	}
-> >  	free(scontext);
-> >  	close(fd);
+> > +/*
+> > + * Copies the effective MLS range from `src' into `dst'.
+> > + */
 > 
+> This isn't your fault, the old code used the same comment, but I wonder if it is
+> better to say:
 > 
-> --
-> This message was distributed to subscribers of the selinux mailing list.
-> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
-> the words "unsubscribe selinux" without quotes as the message.
+>  "Copies the low MLS range from 'src' into 'dst'."
+> 
+> As the concept of "effective" and "clearance" are policy constructs and not
+> hardcoded into the kernel.
+
+Possibly "Sets both levels in the MLS range of 'dst' to the low level of
+'src'."   And renaming the function to something that more clearly
+indicates that purpose (neither the old name nor the new one are very
+obvious in their meaning).
+
+> 
+> > +static inline int mls_context_scpy(struct context *dst, struct context *src)
+> > +{
+> > +	int rc;
+> > +
+> > +	if (!selinux_mls_enabled)
+> > +		return 0;
+> > +
+> > +	dst->range.level[0].sens = src->range.level[0].sens;
+> > +	rc = ebitmap_cpy(&dst->range.level[0].cat, &src->range.level[0].cat);
+> > +	if (rc)
+> > +		goto out;
+> > +
+> > +	dst->range.level[1].sens = src->range.level[0].sens;
+> > +	rc = ebitmap_cpy(&dst->range.level[1].cat, &src->range.level[0].cat);
+> > +	if (rc)
+> > +		ebitmap_destroy(&dst->range.level[0].cat);
+> > +out:
+> > +	return rc;
+> > +}
+
 -- 
 Stephen Smalley
 National Security Agency
