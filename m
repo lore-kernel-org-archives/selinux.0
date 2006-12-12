@@ -1,61 +1,171 @@
-Message-ID: <457EC2CE.5040503@mentalrootkit.com>
-Date: Tue, 12 Dec 2006 09:55:10 -0500
-From: Karl MacMillan <kmacmillan@mentalrootkit.com>
+Message-ID: <457EC911.7060006@trustedcs.com>
+Date: Tue, 12 Dec 2006 09:21:53 -0600
+From: Venkat Yekkirala <vyekkirala@TrustedCS.com>
 MIME-Version: 1.0
-To: =?ISO-8859-1?Q?=B2=CC=BC=CE=D3=C2?= <millerfor@gmail.com>
-CC: SELinux@tycho.nsa.gov
-Subject: Re: help: 2 conditional expressions in refpolicy must match?
-References: <d032e8510612120128u7a1aa53ege2d5cdc849b3dad1@mail.gmail.com>
-In-Reply-To: <d032e8510612120128u7a1aa53ege2d5cdc849b3dad1@mail.gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: selinux@tycho.nsa.gov
+CC: sds@tycho.nsa.gov
+Subject: [PATCH 1/1] selinux: Delete mls_copy_context
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-²Ì¼ÎÓÂ wrote:
-> while i am testing refpolicy conditional expression by switching
-> monolic and module compile mode, i found a strange thing. following is
-> the steps i took:
-> 
-> step 1: add a new boolean to policy
->   in policy/global_tunables:
->     gen_tunable(user_ping,false)
->     gen_tunable(test_ping,false)
-> 
-> step 2: modify conditional expression
->    in policy/modules/admin/netutils.if:
-> 
-> interface(`netutils_run_ping_cond',`
->        gen_require(`
->                type ping_t;
->                bool user_ping;
->                bool test_ping;
->        ')
-> 
->        role $2 types ping_t;
-> 
->        if ( test_ping && user_ping ) {
->                netutils_domtrans_ping($1)
->                allow ping_t $3:chr_file rw_term_perms;
->        }
-> ')
-> 
-> then i try to build policy in monolic and module mode, i use apol to
-> check binary policy. monolinc is ok, it shows the conditional rules
-> exactly, while modules building boolean test_ping  is in the policy,
-> but the rules are lost!!!!
-> 
+This deletes mls_copy_context() in favor of mls_context_cpy() and
+replaces mls_scopy_context() with mls_context_scpy().
 
-How are you checking that the rules are lost? Linking and expanding the 
-module and then loading in Apol? Could you use the dismod and dispol 
-programs in the checkpolicy/test directory of the source distribution to 
-verify this? Also, what versions of the checkpolicy/checkmodule, 
-libsepol, are you using? Some very old versions exhibited this sort of 
-behavior, but it is not likely you are using those.
+Signed-off-by: Venkat Yekkirala <vyekkirala@TrustedCS.com>
+---
+ security/selinux/ss/context.h  |   23 +++++++++++++++++++++++
+ security/selinux/ss/mls.c      |   30 +++++-------------------------
+ security/selinux/ss/mls.h      |   20 --------------------
+ security/selinux/ss/services.c |    3 +--
+ 4 files changed, 29 insertions(+), 47 deletions(-)
 
-Thanks - Karl
-
-
-
+diff --git a/security/selinux/ss/context.h b/security/selinux/ss/context.h
+index 0562bac..3f57585 100644
+--- a/security/selinux/ss/context.h
++++ b/security/selinux/ss/context.h
+@@ -55,6 +55,29 @@ out:
+ 	return rc;
+ }
+ 
++/*
++ * Copies the effective MLS range from `src' into `dst'.
++ */
++static inline int mls_context_scpy(struct context *dst, struct context *src)
++{
++	int rc;
++
++	if (!selinux_mls_enabled)
++		return 0;
++
++	dst->range.level[0].sens = src->range.level[0].sens;
++	rc = ebitmap_cpy(&dst->range.level[0].cat, &src->range.level[0].cat);
++	if (rc)
++		goto out;
++
++	dst->range.level[1].sens = src->range.level[0].sens;
++	rc = ebitmap_cpy(&dst->range.level[1].cat, &src->range.level[0].cat);
++	if (rc)
++		ebitmap_destroy(&dst->range.level[0].cat);
++out:
++	return rc;
++}
++
+ static inline int mls_context_cmp(struct context *c1, struct context *c2)
+ {
+ 	if (!selinux_mls_enabled)
+diff --git a/security/selinux/ss/mls.c b/security/selinux/ss/mls.c
+index b4f682d..6437fcf 100644
+--- a/security/selinux/ss/mls.c
++++ b/security/selinux/ss/mls.c
+@@ -270,7 +270,7 @@ int mls_context_to_sid(char oldc,
+ 		if (!defcon)
+ 			goto out;
+ 
+-		rc = mls_copy_context(context, defcon);
++		rc = mls_context_cpy(context, defcon);
+ 		goto out;
+ 	}
+ 
+@@ -401,26 +401,6 @@ int mls_from_string(char *str, struct co
+ }
+ 
+ /*
+- * Copies the effective MLS range from `src' into `dst'.
+- */
+-static inline int mls_scopy_context(struct context *dst,
+-                                    struct context *src)
+-{
+-	int l, rc = 0;
+-
+-	/* Copy the MLS range from the source context */
+-	for (l = 0; l < 2; l++) {
+-		dst->range.level[l].sens = src->range.level[0].sens;
+-		rc = ebitmap_cpy(&dst->range.level[l].cat,
+-				 &src->range.level[0].cat);
+-		if (rc)
+-			break;
+-	}
+-
+-	return rc;
+-}
+-
+-/*
+  * Copies the MLS range `range' into `context'.
+  */
+ static inline int mls_range_set(struct context *context,
+@@ -552,19 +532,19 @@ int mls_compute_sid(struct context *scon
+ 	case AVTAB_CHANGE:
+ 		if (tclass == SECCLASS_PROCESS)
+ 			/* Use the process MLS attributes. */
+-			return mls_copy_context(newcontext, scontext);
++			return mls_context_cpy(newcontext, scontext);
+ 		else
+ 			/* Use the process effective MLS attributes. */
+-			return mls_scopy_context(newcontext, scontext);
++			return mls_context_scpy(newcontext, scontext);
+ 	case AVTAB_MEMBER:
+ 		/* Only polyinstantiate the MLS attributes if
+ 		   the type is being polyinstantiated */
+ 		if (newcontext->type != tcontext->type) {
+ 			/* Use the process effective MLS attributes. */
+-			return mls_scopy_context(newcontext, scontext);
++			return mls_context_scpy(newcontext, scontext);
+ 		} else {
+ 			/* Use the related object MLS attributes. */
+-			return mls_copy_context(newcontext, tcontext);
++			return mls_context_cpy(newcontext, tcontext);
+ 		}
+ 	default:
+ 		return -EINVAL;
+diff --git a/security/selinux/ss/mls.h b/security/selinux/ss/mls.h
+index 661d6fc..096d1b4 100644
+--- a/security/selinux/ss/mls.h
++++ b/security/selinux/ss/mls.h
+@@ -24,26 +24,6 @@ #define _SS_MLS_H_
+ #include "context.h"
+ #include "policydb.h"
+ 
+-/*
+- * Copies the MLS range from `src' into `dst'.
+- */
+-static inline int mls_copy_context(struct context *dst,
+-				   struct context *src)
+-{
+-	int l, rc = 0;
+-
+-	/* Copy the MLS range from the source context */
+-	for (l = 0; l < 2; l++) {
+-		dst->range.level[l].sens = src->range.level[l].sens;
+-		rc = ebitmap_cpy(&dst->range.level[l].cat,
+-				 &src->range.level[l].cat);
+-		if (rc)
+-			break;
+-	}
+-
+-	return rc;
+-}
+-
+ int mls_compute_context_len(struct context *context);
+ void mls_sid_to_context(struct context *context, char **scontext);
+ int mls_context_isvalid(struct policydb *p, struct context *c);
+diff --git a/security/selinux/ss/services.c b/security/selinux/ss/services.c
+index bdb7070..668bc37 100644
+--- a/security/selinux/ss/services.c
++++ b/security/selinux/ss/services.c
+@@ -1916,11 +1916,10 @@ int security_sid_mls_copy(u32 sid, u32 m
+ 	newcon.user = context1->user;
+ 	newcon.role = context1->role;
+ 	newcon.type = context1->type;
+-	rc = mls_copy_context(&newcon, context2);
++	rc = mls_context_cpy(&newcon, context2);
+ 	if (rc)
+ 		goto out_unlock;
+ 
+-
+ 	/* Check the validity of the new context. */
+ 	if (!policydb_context_isvalid(&policydb, &newcon)) {
+ 		rc = convert_context_handle_invalid_context(&newcon);
 
 --
 This message was distributed to subscribers of the selinux mailing list.
