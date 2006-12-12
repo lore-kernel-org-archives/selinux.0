@@ -1,14 +1,14 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id kBC7bahQ010812
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id kBC7baku010816
 	for <selinux@tycho.nsa.gov>; Tue, 12 Dec 2006 02:37:36 -0500
-Received: from mail.atsec.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id kBC7c6PF021850
+Received: from mail.atsec.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id kBC7c7S2011945
 	for <selinux@tycho.nsa.gov>; Tue, 12 Dec 2006 07:38:07 GMT
-Date: Tue, 12 Dec 2006 01:34:54 -0600
+Date: Tue, 12 Dec 2006 01:38:13 -0600
 From: Klaus Weidner <klaus@atsec.com>
 To: selinux@tycho.nsa.gov
-Subject: [PATCH RFC 1/2] stricter MLS policy constraints
-Message-ID: <20061212073454.GA30421@w-m-p.com>
+Subject: Re: [PATCH RFC 0/2] stricter MLS policy constraints
+Message-ID: <20061212073813.GB30421@w-m-p.com>
 References: <20061212072825.GA3362@w-m-p.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -16,96 +16,84 @@ In-Reply-To: <20061212072825.GA3362@w-m-p.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Rename the "mlsfilewriteinrange" attribute with no functional changes.
-The reason for the renaming is that this is an object attribute (like
-"mlstrustedobject"), and it's confusing to use the naming scheme usually
-used for subject attributes for it. It's currently only used for the
-printer device object.
+For untrusted subjects, permit write operations on ranged
+objects only when the subject effective level equals the object low
+level. Introduce new subject attributes "mlsfilewriteranged" and
+"mlsnetwriteranged" that give these privileged subjects the right to use
+the old ranged-write behavior.
 
-See 0/2 message for additional explanations.
+Please see 0/2 message for additional explanations.
 
 Signed-off-by: Klaus Weidner <klaus@atsec.com>
 
- policy/mls                       |    2 +-
- policy/modules/kernel/devices.te |    2 +-
- policy/modules/kernel/mls.if     |    8 ++++----
- policy/modules/kernel/mls.te     |    4 +++-
- 4 files changed, 9 insertions(+), 7 deletions(-)
+ policy/mls                   |   13 +++++++++----
+ policy/modules/kernel/mls.te |    2 ++
+ 2 files changed, 11 insertions(+), 4 deletions(-)
 
-diff -ur serefpolicy-2.4.6.rh/policy/mls serefpolicy-2.4.6.cleanup/policy/mls
---- serefpolicy-2.4.6.rh/policy/mls	2006-11-29 11:04:48.000000000 -0600
-+++ serefpolicy-2.4.6.cleanup/policy/mls	2006-12-06 03:26:47.000000000 -0600
-@@ -89,8 +89,8 @@
- mlsconstrain { file lnk_file fifo_file dir chr_file blk_file sock_file } { write create setattr relabelfrom append unlink link rename mounton }
- 	(( l1 eq l2 ) or
- 	 (( t1 == mlsfilewritetoclr ) and ( h1 dom l2 ) and ( l1 domby l2 )) or
--	 (( t2 == mlsfilewriteinrange ) and ( l1 dom l2 ) and ( h1 domby h2 )) or
- 	 ( t1 == mlsfilewrite ) or
-+	 (( t2 == mlsrangedobject ) and ( l1 dom l2 ) and ( h1 domby h2 )) or
+diff -ur serefpolicy-2.4.6.cleanup/policy/mls serefpolicy-2.4.6.kw/policy/mls
+--- serefpolicy-2.4.6.cleanup/policy/mls	2006-12-06 03:26:47.000000000 -0600
++++ serefpolicy-2.4.6.kw/policy/mls	2006-12-06 03:40:25.000000000 -0600
+@@ -93,8 +93,10 @@
+ 	 (( t2 == mlsrangedobject ) and ( l1 dom l2 ) and ( h1 domby h2 )) or
  	 ( t2 == mlstrustedobject ));
  
++# Directory "write" ops
  mlsconstrain dir { add_name remove_name reparent rmdir }
-diff -ur serefpolicy-2.4.6.rh/policy/modules/kernel/devices.te serefpolicy-2.4.6.cleanup/policy/modules/kernel/devices.te
---- serefpolicy-2.4.6.rh/policy/modules/kernel/devices.te	2006-12-06 03:11:03.000000000 -0600
-+++ serefpolicy-2.4.6.cleanup/policy/modules/kernel/devices.te	2006-12-06 03:28:00.000000000 -0600
-@@ -125,7 +125,7 @@
+-	((( l1 dom l2 ) and ( l1 domby h2 )) or
++	(( l1 eq l2 ) or
++	 (( t1 == mlsfilewriteranged ) and ( l1 dom l2 ) and ( l1 domby h2 )) or
+ 	 (( t1 == mlsfilewritetoclr ) and ( h1 dom l2 ) and ( l1 domby l2 )) or
+ 	 ( t1 == mlsfilewrite ) or
+ 	 ( t2 == mlstrustedobject ));
+@@ -178,7 +180,8 @@
  
- type printer_device_t;
- dev_node(printer_device_t)
--mls_file_write_within_range(printer_device_t)
-+mls_file_writable_within_range(printer_device_t)
+ # the socket "write" ops
+ mlsconstrain { socket tcp_socket udp_socket rawip_socket netlink_socket packet_socket key_socket unix_stream_socket unix_dgram_socket netlink_route_socket netlink_firewall_socket netlink_tcpdiag_socket netlink_nflog_socket netlink_xfrm_socket netlink_selinux_socket netlink_audit_socket netlink_ip6fw_socket netlink_dnrt_socket } { write setattr relabelfrom connect setopt shutdown }
+-	((( l1 dom l2 ) and ( l1 domby h2 )) or
++	(( l1 eq l2 ) or 
++	 (( t1 == mlsnetwriteranged ) and ( l1 dom l2 ) and ( l1 domby h2 )) or
+ 	 (( t1 == mlsnetwritetoclr ) and ( h1 dom l2 ) and ( l1 domby l2 )) or
+ 	 ( t1 == mlsnetwrite ));
  
- #
- # random_device_t is the type of /dev/random
-diff -ur serefpolicy-2.4.6.rh/policy/modules/kernel/mls.if serefpolicy-2.4.6.cleanup/policy/modules/kernel/mls.if
---- serefpolicy-2.4.6.rh/policy/modules/kernel/mls.if	2006-11-29 11:04:51.000000000 -0600
-+++ serefpolicy-2.4.6.cleanup/policy/modules/kernel/mls.if	2006-12-06 03:28:11.000000000 -0600
-@@ -100,16 +100,16 @@
- ## </summary>
- ## <param name="domain">
- ##	<summary>
--##	Domain allowed access.
-+##	Object domain granting ranged access.
- ##	</summary>
- ## </param>
- #
--interface(`mls_file_write_within_range',`
-+interface(`mls_file_writable_within_range',`
- 	gen_require(`
--		attribute mlsfilewriteinrange;
-+		attribute mlsrangedobject;
- 	')
+@@ -274,7 +277,8 @@
  
--	typeattribute $1 mlsfilewriteinrange;
-+	typeattribute $1 mlsrangedobject;
- ')
+ # the netif/node "write" ops (implicit single level socket doing the write)
+ mlsconstrain { netif node } { tcp_send udp_send rawip_send }
+-	(( l1 dom l2 ) and ( l1 domby h2 ));
++	(( l1 eq l2 ) or
++	(( t1 == mlsnetwriteranged ) and ( l1 dom l2 ) and ( l1 domby h2 )));
  
- ########################################
-diff -ur serefpolicy-2.4.6.rh/policy/modules/kernel/mls.te serefpolicy-2.4.6.cleanup/policy/modules/kernel/mls.te
---- serefpolicy-2.4.6.rh/policy/modules/kernel/mls.te	2006-11-29 11:04:51.000000000 -0600
-+++ serefpolicy-2.4.6.cleanup/policy/modules/kernel/mls.te	2006-12-06 03:33:19.000000000 -0600
-@@ -6,11 +6,11 @@
- # Declarations
- #
+ # these access vectors have no MLS restrictions
+ # node enforce_dest
+@@ -581,7 +585,8 @@
+ 	 ( t2 == unlabeled_t ));
  
-+# Subject attributes that give MLS override capabilities
- attribute mlsfileread;
+ mlsconstrain association { sendto }
+-	((( l1 dom l2 ) and ( l1 domby h2 )) or
++	(( l1 eq l2 ) or
++	 (( t1 == mlsnetwriteranged ) and ( l1 dom l2 ) and ( l1 domby h2 )) or
+ 	 ( t2 == unlabeled_t ));
+ 
+ mlsconstrain association { polmatch }
+diff -ur serefpolicy-2.4.6.cleanup/policy/modules/kernel/mls.te serefpolicy-2.4.6.kw/policy/modules/kernel/mls.te
+--- serefpolicy-2.4.6.cleanup/policy/modules/kernel/mls.te	2006-12-06 03:34:04.000000000 -0600
++++ serefpolicy-2.4.6.kw/policy/modules/kernel/mls.te	2006-12-06 03:34:54.000000000 -0600
+@@ -11,6 +11,7 @@
  attribute mlsfilereadtoclr;
  attribute mlsfilewrite;
  attribute mlsfilewritetoclr;
--attribute mlsfilewriteinrange;
++attribute mlsfilewriteranged;
  attribute mlsfileupgrade;
  attribute mlsfiledowngrade;
  
-@@ -43,6 +43,8 @@
- attribute mlsxwinwritecolormap;
- attribute mlsxwinwritexinput;
- 
-+# Object attributes that allow MLS overrides for access by all subjects
-+attribute mlsrangedobject;
- attribute mlstrustedobject;
- 
- attribute privrangetrans;
+@@ -18,6 +19,7 @@
+ attribute mlsnetreadtoclr;
+ attribute mlsnetwrite;
+ attribute mlsnetwritetoclr;
++attribute mlsnetwriteranged;
+ attribute mlsnetupgrade;
+ attribute mlsnetdowngrade;
+ attribute mlsnetrecvall;
 
 --
 This message was distributed to subscribers of the selinux mailing list.
