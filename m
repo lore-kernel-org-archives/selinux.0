@@ -1,50 +1,60 @@
-Reply-To: <vyekkirala@TrustedCS.com>
-From: "Venkat Yekkirala" <vyekkirala@TrustedCS.com>
-To: "Venkat Yekkirala" <vyekkirala@tcsfw4.tcs-sec.com>,
-        <selinux@tycho.nsa.gov>
-Cc: <jmorris@namei.org>, <sds@tycho.nsa.gov>
-Subject: RE: Labeling traffic over loopback
-Date: Tue, 12 Dec 2006 10:03:17 -0600
-Message-ID: <000b01c71e07$0a1c9c40$cc0a010a@tcssec.com>
+Message-ID: <457ED543.80905@hp.com>
+Date: Tue, 12 Dec 2006 11:13:55 -0500
+From: Paul Moore <paul.moore@hp.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-In-Reply-To: 
+To: Venkat Yekkirala <vyekkirala@TrustedCS.com>
+Cc: selinux@tycho.nsa.gov, sds@tycho.nsa.gov
+Subject: Re: [PATCH 1/1] selinux: Delete mls_copy_context
+References: <457EC911.7060006@trustedcs.com>
+In-Reply-To: <457EC911.7060006@trustedcs.com>
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-In thinking more about this, we shouldn't actually need to use
-the single bit in skbuff. We should just be able to use the
-variable that denotes if xfrm over loopback is in use. Any time
-xfrm over loopback isn't in use (the default), we could use sp
-to hold the secid.
+Venkat Yekkirala wrote:
+> diff --git a/security/selinux/ss/context.h b/security/selinux/ss/context.h
+> index 0562bac..3f57585 100644
+> --- a/security/selinux/ss/context.h
+> +++ b/security/selinux/ss/context.h
+> @@ -55,6 +55,29 @@ out:
+>  	return rc;
+>  }
+>  
+> +/*
+> + * Copies the effective MLS range from `src' into `dst'.
+> + */
 
-> -----Original Message-----
-> From: Venkat Yekkirala [mailto:vyekkirala@trustedcs.com]
-> Sent: Tuesday, December 12, 2006 10:01 AM
-> To: 'selinux@tycho.nsa.gov'
-> Cc: 'jmorris@namei.org'; 'sds@tycho.nsa.gov'
-> Subject: Labeling traffic over loopback
-> 
-> 
-> The following describes a proposal to label traffic over loopback
-> by using a bit in the sk_buff structure. We have:
-> 
-> struct sk_buff {
-> ...
->         struct  sec_path        *sp;
-> ...
->         __u8                    pkt_type:3,
->                                 fclone:2,
->                                 ipvs_property:1;
-> ...
-> }
-> 
-> We could use an additional bit (local_label) to denote that
-> "sp" holds the source label sid (no blob, so no lifecycle mgmt).
-> 
-> What do people think?
-> 
+This isn't your fault, the old code used the same comment, but I wonder if it is
+better to say:
+
+ "Copies the low MLS range from 'src' into 'dst'."
+
+As the concept of "effective" and "clearance" are policy constructs and not
+hardcoded into the kernel.
+
+> +static inline int mls_context_scpy(struct context *dst, struct context *src)
+> +{
+> +	int rc;
+> +
+> +	if (!selinux_mls_enabled)
+> +		return 0;
+> +
+> +	dst->range.level[0].sens = src->range.level[0].sens;
+> +	rc = ebitmap_cpy(&dst->range.level[0].cat, &src->range.level[0].cat);
+> +	if (rc)
+> +		goto out;
+> +
+> +	dst->range.level[1].sens = src->range.level[0].sens;
+> +	rc = ebitmap_cpy(&dst->range.level[1].cat, &src->range.level[0].cat);
+> +	if (rc)
+> +		ebitmap_destroy(&dst->range.level[0].cat);
+> +out:
+> +	return rc;
+> +}
+
+-- 
+paul moore
+linux security @ hp
 
 --
 This message was distributed to subscribers of the selinux mailing list.
