@@ -1,64 +1,43 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id kBCHNh1x030173
-	for <selinux@tycho.nsa.gov>; Tue, 12 Dec 2006 12:23:43 -0500
-Received: from web36608.mail.mud.yahoo.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with SMTP id kBCHODdl008460
-	for <selinux@tycho.nsa.gov>; Tue, 12 Dec 2006 17:24:14 GMT
-Message-ID: <20061212172357.93781.qmail@web36608.mail.mud.yahoo.com>
-Date: Tue, 12 Dec 2006 09:23:57 -0800 (PST)
-From: Casey Schaufler <casey@schaufler-ca.com>
-Reply-To: casey@schaufler-ca.com
-Subject: Re: Labeling traffic over loopback
-To: vyekkirala@TrustedCS.com, selinux@tycho.nsa.gov
-Cc: jmorris@namei.org, sds@tycho.nsa.gov
-In-Reply-To: <000a01c71e06$b6d11020$cc0a010a@tcssec.com>
+Message-ID: <457EE659.8050503@hp.com>
+Date: Tue, 12 Dec 2006 12:26:49 -0500
+From: Paul Moore <paul.moore@hp.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+To: vyekkirala@TrustedCS.com
+Cc: selinux@tycho.nsa.gov, jmorris@namei.org, sds@tycho.nsa.gov
+Subject: Re: Labeling traffic over loopback
+References: <000c01c71e0f$53c39da0$cc0a010a@tcssec.com>
+In-Reply-To: <000c01c71e0f$53c39da0$cc0a010a@tcssec.com>
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-
---- Venkat Yekkirala <vyekkirala@TrustedCS.com> wrote:
-
-> The following describes a proposal to label traffic
-> over loopback
-> by using a bit in the sk_buff structure. We have:
+Venkat Yekkirala wrote:
+>>>We could use an additional bit (local_label) to denote that
+>>>"sp" holds the source label sid (no blob, so no lifecycle mgmt).
+>>>
+>>>What do people think?
+>>
+>>Can you give an example of what the *sp value would look 
+>>like?  Are you thinking
+>>of adding a new field to 'sec_path' or would you create a 
+>>sort of dummy
+>>'xfrm_state' entry?
 > 
-> struct sk_buff {
-> ...
->         struct  sec_path        *sp;
-> ...
->         __u8                    pkt_type:3,
->                                 fclone:2,
->                                 ipvs_property:1;
-> ...
-> }
-> 
-> We could use an additional bit (local_label) to
-> denote that
-> "sp" holds the source label sid (no blob, so no
-> lifecycle mgmt).
-> 
-> What do people think?
+> Nope. Note "(no blob, so no lifecycle mgmt)".
 
-I can't speak for other people, but every time
-I've seen the space in a pointer stolen as
-storage for data it's lead to tears.
-It may be expediant for the problem at hand,
-but you'll never be able to share the
-interface* if you break it in this way.
-If you must do this sort of thing use a union
-so that there's some hope of maintaining the
-interface moving forward.
+True *sp is a blob, but it already has all the lifecycle mgmt code in place so I
+don't think adding to it would be an 'evil' thing.  However, I could be wrong.
 
-----
-* I know that it seems unlikely that you'll
-  ever need to, but the network labeling scheme
-  is reasonably attractive.
+> More specifically, we could use a union in place of sp and
+> when we are looking at a loopback packet and no xfrm in use
+> we could use the union to hold the secid.
 
+Do you have some pseudo code for setting this value, i.e. where are you thinking
+of setting it on the outbound packet?
 
-Casey Schaufler
-casey@schaufler-ca.com
+-- 
+paul moore
+linux security @ hp
 
 --
 This message was distributed to subscribers of the selinux mailing list.
