@@ -1,19 +1,27 @@
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id kBCHNh1x030173
+	for <selinux@tycho.nsa.gov>; Tue, 12 Dec 2006 12:23:43 -0500
+Received: from web36608.mail.mud.yahoo.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with SMTP id kBCHODdl008460
+	for <selinux@tycho.nsa.gov>; Tue, 12 Dec 2006 17:24:14 GMT
+Message-ID: <20061212172357.93781.qmail@web36608.mail.mud.yahoo.com>
+Date: Tue, 12 Dec 2006 09:23:57 -0800 (PST)
+From: Casey Schaufler <casey@schaufler-ca.com>
+Reply-To: casey@schaufler-ca.com
 Subject: Re: Labeling traffic over loopback
-From: Joy Latten <latten@austin.ibm.com>
-To: vyekkirala@TrustedCS.com
-Cc: redhat-lspp@redhat.com, selinux@tycho.nsa.gov, jmorris@namei.org,
-        sds@tycho.nsa.gov
+To: vyekkirala@TrustedCS.com, selinux@tycho.nsa.gov
+Cc: jmorris@namei.org, sds@tycho.nsa.gov
 In-Reply-To: <000a01c71e06$b6d11020$cc0a010a@tcssec.com>
-References: <000a01c71e06$b6d11020$cc0a010a@tcssec.com>
-Content-Type: text/plain
-Date: Tue, 12 Dec 2006 11:07:16 -0600
-Message-Id: <1165943236.12468.87.camel@faith.austin.ibm.com>
-Mime-Version: 1.0
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2006-12-12 at 10:00 -0600, Venkat Yekkirala wrote:
-> The following describes a proposal to label traffic over loopback
+
+--- Venkat Yekkirala <vyekkirala@TrustedCS.com> wrote:
+
+> The following describes a proposal to label traffic
+> over loopback
 > by using a bit in the sk_buff structure. We have:
 > 
 > struct sk_buff {
@@ -26,34 +34,31 @@ On Tue, 2006-12-12 at 10:00 -0600, Venkat Yekkirala wrote:
 > ...
 > }
 > 
-> We could use an additional bit (local_label) to denote that
-> "sp" holds the source label sid (no blob, so no lifecycle mgmt).
+> We could use an additional bit (local_label) to
+> denote that
+> "sp" holds the source label sid (no blob, so no
+> lifecycle mgmt).
 > 
 > What do people think?
 
-I just took a quick look at racoon code... in the samples directory
-where sample configs live, I saw a config with,
+I can't speak for other people, but every time
+I've seen the space in a pointer stolen as
+storage for data it's lead to tears.
+It may be expediant for the problem at hand,
+but you'll never be able to share the
+interface* if you break it in this way.
+If you must do this sort of thing use a union
+so that there's some hope of maintaining the
+interface moving forward.
 
-sainfo address ::1 icmp6 address ::1 icmp6
-{
-        pfs_group 3;
-        lifetime time 60 sec;
-        encryption_algorithm 3des, blowfish, aes;
-        authentication_algorithm hmac_sha1, hmac_md5;
-        compression_algorithm deflate;
-}
+----
+* I know that it seems unlikely that you'll
+  ever need to, but the network labeling scheme
+  is reasonably attractive.
 
-My thinking (and I could be wrong as I am not an ipv6 nor racoon expert)
-is this specifies SA info over loopback for icmp6. 
-If we can specify it for ipv6 then we should be able to specify
-it for ipv4.
 
-I think we should play around with racoon and its config... I'll also
-ask on the ipsec-tools mailing list about racoon working with loopback. 
- 
-
-Regards,
-Joy
+Casey Schaufler
+casey@schaufler-ca.com
 
 --
 This message was distributed to subscribers of the selinux mailing list.
