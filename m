@@ -1,56 +1,38 @@
-Message-ID: <457ED543.80905@hp.com>
-Date: Tue, 12 Dec 2006 11:13:55 -0500
+Message-ID: <457EDAA1.60003@hp.com>
+Date: Tue, 12 Dec 2006 11:36:49 -0500
 From: Paul Moore <paul.moore@hp.com>
 MIME-Version: 1.0
-To: Venkat Yekkirala <vyekkirala@TrustedCS.com>
-Cc: selinux@tycho.nsa.gov, sds@tycho.nsa.gov
-Subject: Re: [PATCH 1/1] selinux: Delete mls_copy_context
-References: <457EC911.7060006@trustedcs.com>
-In-Reply-To: <457EC911.7060006@trustedcs.com>
+To: vyekkirala@TrustedCS.com
+Cc: selinux@tycho.nsa.gov, jmorris@namei.org, sds@tycho.nsa.gov
+Subject: Re: Labeling traffic over loopback
+References: <000a01c71e06$b6d11020$cc0a010a@tcssec.com>
+In-Reply-To: <000a01c71e06$b6d11020$cc0a010a@tcssec.com>
 Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 Venkat Yekkirala wrote:
-> diff --git a/security/selinux/ss/context.h b/security/selinux/ss/context.h
-> index 0562bac..3f57585 100644
-> --- a/security/selinux/ss/context.h
-> +++ b/security/selinux/ss/context.h
-> @@ -55,6 +55,29 @@ out:
->  	return rc;
->  }
->  
-> +/*
-> + * Copies the effective MLS range from `src' into `dst'.
-> + */
+> The following describes a proposal to label traffic over loopback
+> by using a bit in the sk_buff structure. We have:
+> 
+> struct sk_buff {
+> ...
+>         struct  sec_path        *sp;
+> ...
+>         __u8                    pkt_type:3,
+>                                 fclone:2,
+>                                 ipvs_property:1;
+> ...
+> }
+> 
+> We could use an additional bit (local_label) to denote that
+> "sp" holds the source label sid (no blob, so no lifecycle mgmt).
+> 
+> What do people think?
 
-This isn't your fault, the old code used the same comment, but I wonder if it is
-better to say:
-
- "Copies the low MLS range from 'src' into 'dst'."
-
-As the concept of "effective" and "clearance" are policy constructs and not
-hardcoded into the kernel.
-
-> +static inline int mls_context_scpy(struct context *dst, struct context *src)
-> +{
-> +	int rc;
-> +
-> +	if (!selinux_mls_enabled)
-> +		return 0;
-> +
-> +	dst->range.level[0].sens = src->range.level[0].sens;
-> +	rc = ebitmap_cpy(&dst->range.level[0].cat, &src->range.level[0].cat);
-> +	if (rc)
-> +		goto out;
-> +
-> +	dst->range.level[1].sens = src->range.level[0].sens;
-> +	rc = ebitmap_cpy(&dst->range.level[1].cat, &src->range.level[0].cat);
-> +	if (rc)
-> +		ebitmap_destroy(&dst->range.level[0].cat);
-> +out:
-> +	return rc;
-> +}
+Can you give an example of what the *sp value would look like?  Are you thinking
+of adding a new field to 'sec_path' or would you create a sort of dummy
+'xfrm_state' entry?  Or is it something else entirely that I am missing?
 
 -- 
 paul moore
