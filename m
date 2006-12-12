@@ -1,20 +1,22 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id kBC7baku010816
-	for <selinux@tycho.nsa.gov>; Tue, 12 Dec 2006 02:37:36 -0500
-Received: from mail.atsec.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id kBC7c7S2011945
-	for <selinux@tycho.nsa.gov>; Tue, 12 Dec 2006 07:38:07 GMT
-Date: Tue, 12 Dec 2006 01:38:13 -0600
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id kBC7dd66010889
+	for <selinux@tycho.nsa.gov>; Tue, 12 Dec 2006 02:39:39 -0500
+Received: from mail.atsec.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id kBC7eAPF022070
+	for <selinux@tycho.nsa.gov>; Tue, 12 Dec 2006 07:40:10 GMT
+Date: Tue, 12 Dec 2006 01:40:07 -0600
 From: Klaus Weidner <klaus@atsec.com>
 To: selinux@tycho.nsa.gov
-Subject: Re: [PATCH RFC 0/2] stricter MLS policy constraints
-Message-ID: <20061212073813.GB30421@w-m-p.com>
+Subject: [PATCH RFC 2/2] stricter MLS policy constraints
+Message-ID: <20061212074007.GA3094@w-m-p.com>
 References: <20061212072825.GA3362@w-m-p.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 In-Reply-To: <20061212072825.GA3362@w-m-p.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
+
+[ repost with correct subject ]
 
 For untrusted subjects, permit write operations on ranged
 objects only when the subject effective level equals the object low
