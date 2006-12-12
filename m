@@ -1,101 +1,77 @@
 Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id kBC7dd66010889
-	for <selinux@tycho.nsa.gov>; Tue, 12 Dec 2006 02:39:39 -0500
-Received: from mail.atsec.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id kBC7eAPF022070
-	for <selinux@tycho.nsa.gov>; Tue, 12 Dec 2006 07:40:10 GMT
-Date: Tue, 12 Dec 2006 01:40:07 -0600
-From: Klaus Weidner <klaus@atsec.com>
-To: selinux@tycho.nsa.gov
-Subject: [PATCH RFC 2/2] stricter MLS policy constraints
-Message-ID: <20061212074007.GA3094@w-m-p.com>
-References: <20061212072825.GA3362@w-m-p.com>
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id kBCDHrV3020682
+	for <selinux@tycho.nsa.gov>; Tue, 12 Dec 2006 08:17:53 -0500
+Received: from moss-lions.epoch.ncsc.mil (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id kBCDINoA029061
+	for <selinux@tycho.nsa.gov>; Tue, 12 Dec 2006 13:18:23 GMT
+Received: from moss-lions.epoch.ncsc.mil (localhost.localdomain [127.0.0.1])
+	by moss-lions.epoch.ncsc.mil (8.13.8/8.13.8) with ESMTP id kBCDEm0e003446
+	for <selinux@tycho.nsa.gov>; Tue, 12 Dec 2006 08:14:48 -0500
+Received: (from jwcart2@localhost)
+	by moss-lions.epoch.ncsc.mil (8.13.8/8.13.8/Submit) id kBCDEmFa003445
+	for selinux@tycho.nsa.gov; Tue, 12 Dec 2006 08:14:48 -0500
+Message-ID: <d032e8510612120128u7a1aa53ege2d5cdc849b3dad1@mail.gmail.com>
+Date: Tue, 12 Dec 2006 09:28:18 +0000
+From: "=?GB2312?B?ssy8ztPC?=" <millerfor@gmail.com>
+To: SELinux@tycho.nsa.gov
+Subject: help: 2 conditional expressions in refpolicy must match?
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20061212072825.GA3362@w-m-p.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-[ repost with correct subject ]
+while i am testing refpolicy conditional expression by switching
+monolic and module compile mode, i found a strange thing. following is
+the steps i took:
 
-For untrusted subjects, permit write operations on ranged
-objects only when the subject effective level equals the object low
-level. Introduce new subject attributes "mlsfilewriteranged" and
-"mlsnetwriteranged" that give these privileged subjects the right to use
-the old ranged-write behavior.
+step 1: add a new boolean to policy
+   in policy/global_tunables:
+     gen_tunable(user_ping,false)
+     gen_tunable(test_ping,false)
 
-Please see 0/2 message for additional explanations.
+step 2: modify conditional expression
+    in policy/modules/admin/netutils.if:
 
-Signed-off-by: Klaus Weidner <klaus@atsec.com>
+interface(`netutils_run_ping_cond',`
+        gen_require(`
+                type ping_t;
+                bool user_ping;
+                bool test_ping;
+        ')
 
- policy/mls                   |   13 +++++++++----
- policy/modules/kernel/mls.te |    2 ++
- 2 files changed, 11 insertions(+), 4 deletions(-)
+        role $2 types ping_t;
 
-diff -ur serefpolicy-2.4.6.cleanup/policy/mls serefpolicy-2.4.6.kw/policy/mls
---- serefpolicy-2.4.6.cleanup/policy/mls	2006-12-06 03:26:47.000000000 -0600
-+++ serefpolicy-2.4.6.kw/policy/mls	2006-12-06 03:40:25.000000000 -0600
-@@ -93,8 +93,10 @@
- 	 (( t2 == mlsrangedobject ) and ( l1 dom l2 ) and ( h1 domby h2 )) or
- 	 ( t2 == mlstrustedobject ));
- 
-+# Directory "write" ops
- mlsconstrain dir { add_name remove_name reparent rmdir }
--	((( l1 dom l2 ) and ( l1 domby h2 )) or
-+	(( l1 eq l2 ) or
-+	 (( t1 == mlsfilewriteranged ) and ( l1 dom l2 ) and ( l1 domby h2 )) or
- 	 (( t1 == mlsfilewritetoclr ) and ( h1 dom l2 ) and ( l1 domby l2 )) or
- 	 ( t1 == mlsfilewrite ) or
- 	 ( t2 == mlstrustedobject ));
-@@ -178,7 +180,8 @@
- 
- # the socket "write" ops
- mlsconstrain { socket tcp_socket udp_socket rawip_socket netlink_socket packet_socket key_socket unix_stream_socket unix_dgram_socket netlink_route_socket netlink_firewall_socket netlink_tcpdiag_socket netlink_nflog_socket netlink_xfrm_socket netlink_selinux_socket netlink_audit_socket netlink_ip6fw_socket netlink_dnrt_socket } { write setattr relabelfrom connect setopt shutdown }
--	((( l1 dom l2 ) and ( l1 domby h2 )) or
-+	(( l1 eq l2 ) or 
-+	 (( t1 == mlsnetwriteranged ) and ( l1 dom l2 ) and ( l1 domby h2 )) or
- 	 (( t1 == mlsnetwritetoclr ) and ( h1 dom l2 ) and ( l1 domby l2 )) or
- 	 ( t1 == mlsnetwrite ));
- 
-@@ -274,7 +277,8 @@
- 
- # the netif/node "write" ops (implicit single level socket doing the write)
- mlsconstrain { netif node } { tcp_send udp_send rawip_send }
--	(( l1 dom l2 ) and ( l1 domby h2 ));
-+	(( l1 eq l2 ) or
-+	(( t1 == mlsnetwriteranged ) and ( l1 dom l2 ) and ( l1 domby h2 )));
- 
- # these access vectors have no MLS restrictions
- # node enforce_dest
-@@ -581,7 +585,8 @@
- 	 ( t2 == unlabeled_t ));
- 
- mlsconstrain association { sendto }
--	((( l1 dom l2 ) and ( l1 domby h2 )) or
-+	(( l1 eq l2 ) or
-+	 (( t1 == mlsnetwriteranged ) and ( l1 dom l2 ) and ( l1 domby h2 )) or
- 	 ( t2 == unlabeled_t ));
- 
- mlsconstrain association { polmatch }
-diff -ur serefpolicy-2.4.6.cleanup/policy/modules/kernel/mls.te serefpolicy-2.4.6.kw/policy/modules/kernel/mls.te
---- serefpolicy-2.4.6.cleanup/policy/modules/kernel/mls.te	2006-12-06 03:34:04.000000000 -0600
-+++ serefpolicy-2.4.6.kw/policy/modules/kernel/mls.te	2006-12-06 03:34:54.000000000 -0600
-@@ -11,6 +11,7 @@
- attribute mlsfilereadtoclr;
- attribute mlsfilewrite;
- attribute mlsfilewritetoclr;
-+attribute mlsfilewriteranged;
- attribute mlsfileupgrade;
- attribute mlsfiledowngrade;
- 
-@@ -18,6 +19,7 @@
- attribute mlsnetreadtoclr;
- attribute mlsnetwrite;
- attribute mlsnetwritetoclr;
-+attribute mlsnetwriteranged;
- attribute mlsnetupgrade;
- attribute mlsnetdowngrade;
- attribute mlsnetrecvall;
+        if ( test_ping && user_ping ) {
+                netutils_domtrans_ping($1)
+                allow ping_t $3:chr_file rw_term_perms;
+        }
+')
+
+then i try to build policy in monolic and module mode, i use apol to
+check binary policy. monolinc is ok, it shows the conditional rules
+exactly, while modules building boolean test_ping  is in the policy,
+but the rules are lost!!!!
+
+furthermore a more strange thing came, that  if I modify the interface
+netutils_run_traceroute_cond in the same file
+policy/modules/admin/netutils.if  like following:
+interface(`netutils_run_traceroute_cond',`
+        gen_require(`
+                type traceroute_t;
+                bool user_ping;
+                bool test_ping;
+        ')
+
+        role $2 types traceroute_t;
+
+        if( user_ping && test_ping ) {
+                netutils_domtrans_traceroute($1)
+                allow traceroute_t $3:chr_file rw_term_perms;
+        }
+')
+
+then rebuild module policy, conditional av rules are ok. if i make 2
+conditional expressions different, conditional av rule still lost!
 
 --
 This message was distributed to subscribers of the selinux mailing list.
