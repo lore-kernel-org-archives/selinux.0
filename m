@@ -1,61 +1,37 @@
-Message-ID: <457F30FD.8060200@hp.com>
-Date: Tue, 12 Dec 2006 17:45:17 -0500
-From: Matt Anderson <mra@hp.com>
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id kBD39x4L018305
+	for <selinux@tycho.nsa.gov>; Tue, 12 Dec 2006 22:09:59 -0500
+Received: from mail4.sea5.speakeasy.net (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id kBD3AVI7028915
+	for <selinux@tycho.nsa.gov>; Wed, 13 Dec 2006 03:10:31 GMT
+Date: Tue, 12 Dec 2006 22:10:26 -0500 (EST)
+From: James Morris <jmorris@namei.org>
+To: Venkat Yekkirala <vyekkirala@TrustedCS.com>
+cc: selinux@tycho.nsa.gov, sds@tycho.nsa.gov, paul.moore@hp.com
+Subject: Re: [PATCH 1/1] selinux: Delete mls_copy_context - V.02
+In-Reply-To: <457EFCD1.2070405@trustedcs.com>
+Message-ID: <XMMS.LNX.4.64.0612122210030.26899@d.namei>
+References: <457EFCD1.2070405@trustedcs.com>
 MIME-Version: 1.0
-To: Stephen Smalley <sds@tycho.nsa.gov>
-Cc: selinux@tycho.nsa.gov
-Subject: Re: matchpathcon() for arbitrary subjects
-References: <457F0145.7020305@hp.com>	 <1165952421.998.100.camel@moss-spartans.epoch.ncsc.mil>	 <457F151F.6030107@hp.com>	 <1165956639.998.114.camel@moss-spartans.epoch.ncsc.mil>	 <1165956816.998.117.camel@moss-spartans.epoch.ncsc.mil>	 <457F1F57.5080204@hp.com> <1165959675.998.135.camel@moss-spartans.epoch.ncsc.mil>
-In-Reply-To: <1165959675.998.135.camel@moss-spartans.epoch.ncsc.mil>
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Stephen Smalley wrote:
-> On Tue, 2006-12-12 at 16:29 -0500, Matt Anderson wrote:
->> Thats true, once there was output it would block other users from using
->> that queue until it was removed.  This is intentional.
+On Tue, 12 Dec 2006, Venkat Yekkirala wrote:
+
+> This deletes mls_copy_context() in favor of mls_context_cpy() and
+> replaces mls_scopy_context() with mls_context_cpy_low().
 > 
-> Ok.  Polyinstantiating the destination file would be nicer from a
-> functional point of view.
-> 
->> The idea is to bring some sort of useful SELinux support to file
->> printers.  In the case of file printers I've taken this to mean that the
->> user who printed the job would be able to access the output directly.
->>
->> Cups has no mechanism to access the file after its been printed.
->>
->> In talking to Dan Walsh about the policy aspect of it we had talked
->> about polyinstantiating the output type, effectively user_lpr_t would
->> generate user_print_output_t.  While that would block secadm_lpr_t from
->> printing it would also stop secadm from reading someone else's output.
-> 
-> In that case, security_compute_create() is what you want.  Passing in
-> the client's context as the first context, the context of the parent
-> directory in which the destination file will be created as the second
-> context, and SECCLASS_FILE for the security class, and returning the
-> context to put on the file.  That context would have the client's level,
-> and it would have either the parent directory's type (if no type
-> transition rule matches) or the type specified by a type transition rule
-> on the client's type and the parent directory type.
+> Signed-off-by: Venkat Yekkirala <vyekkirala@TrustedCS.com>
 
-Yes, thats exactly what I'd like to do.
+Applied to
 
-> I assume you would limit the client to only read and write access to the
-> file, and not give it other permissions (e.g. create, unlink, rename,
-> etc), leaving such manipulations entirely to cupsd.
+ git://git.infradead.org/~jmorris/selinux-2.6#for-akpm
 
->From the perspective of $1_lpr_t I was intending to only allow write
-permission, in order to validate that the user was able to print.  For
-user_t it seemed to me that { read getattr relabelfrom link unlink
-rename } was the correct set of permissions.  That way a user could copy
-the output to another location.
 
-I'm not sure how you would tell cupsd to remove the file.  Some sort of
-admin role such as sysadm might also need the ability to unlink all of
-these types in order to manage the queue.
-
--matt
+-- 
+James Morris
+<jmorris@namei.org>
 
 --
 This message was distributed to subscribers of the selinux mailing list.
