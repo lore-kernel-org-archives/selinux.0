@@ -1,70 +1,123 @@
 Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id kBFI7GUs015383
-	for <selinux@tycho.nsa.gov>; Fri, 15 Dec 2006 13:07:16 -0500
-Received: from e2.ny.us.ibm.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id kBFI7o2A011109
-	for <selinux@tycho.nsa.gov>; Fri, 15 Dec 2006 18:07:50 GMT
-Received: from d01relay02.pok.ibm.com (d01relay02.pok.ibm.com [9.56.227.234])
-	by e2.ny.us.ibm.com (8.13.8/8.12.11) with ESMTP id kBFI7k8U002828
-	for <selinux@tycho.nsa.gov>; Fri, 15 Dec 2006 13:07:46 -0500
-Received: from d01av04.pok.ibm.com (d01av04.pok.ibm.com [9.56.224.64])
-	by d01relay02.pok.ibm.com (8.13.6/8.13.6/NCO v8.1.1) with ESMTP id kBFI7kLY307600
-	for <selinux@tycho.nsa.gov>; Fri, 15 Dec 2006 13:07:46 -0500
-Received: from d01av04.pok.ibm.com (loopback [127.0.0.1])
-	by d01av04.pok.ibm.com (8.12.11.20060308/8.13.3) with ESMTP id kBFI7jWX020076
-	for <selinux@tycho.nsa.gov>; Fri, 15 Dec 2006 13:07:46 -0500
-Subject: RE: [PATCH 0/7] labeled ipsec policy changes
-From: Joy Latten <latten@austin.ibm.com>
-To: vyekkirala@TrustedCS.com
-Cc: selinux@tycho.nsa.gov, cpebenito@tresys.com
-In-Reply-To: <001001c72065$a7cc0560$cc0a010a@tcssec.com>
-References: <001001c72065$a7cc0560$cc0a010a@tcssec.com>
-Content-Type: text/plain
-Date: Fri, 15 Dec 2006 11:53:48 -0600
-Message-Id: <1166205228.12468.164.camel@faith.austin.ibm.com>
-Mime-Version: 1.0
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id kBFLq006024313
+	for <selinux@tycho.nsa.gov>; Fri, 15 Dec 2006 16:52:00 -0500
+Received: from atlrel8.hp.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id kBFLqW2A000820
+	for <selinux@tycho.nsa.gov>; Fri, 15 Dec 2006 21:52:32 GMT
+Message-Id: <20061215215229.014743000@hp.com>
+References: <20061215214926.018950000@hp.com>
+Date: Fri, 15 Dec 2006 16:49:27 -0500
+From: paul.moore@hp.com
+To: netdev@vger.kernel.org, selinux@tycho.nsa.gov
+Cc: Paul Moore <paul.moore@hp.com>
+Subject: [PATCH 1/2] NetLabel: perform input validation earlier on CIPSOv4 DOI add ops
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2006-12-15 at 10:25 -0600, Venkat Yekkirala wrote:
-> Perhaps this can be simplified into the following (aside
-> from policy for setkey, racoon and association.setcontext):
-> 
-> 1. Ability for a site to determine what domains can engage
->    in UNLABELED IPSec communication. This can be ALL domains
->    based on a boolean setting?
-> 	allow domain unlabeled_t:association { sendto recvfrom };
+From: Paul Moore <paul.moore@hp.com>
 
-Yes, I agree. I think Dan Walsh planned to add the boolean. I think he
-also added the rule(s) to allow unlabeled packets. I will check source
-of latest policy and see. 
+There are a couple of cases where the user input for a CIPSOv4 DOI add
+operation was not being done soon enough; the result was unexpected behavior
+which was resulting in oops/panics/lockups on some platforms.  This patch moves
+the existing input validation code earlier in the code path to protect against
+bogus user input.
+
+Signed-off-by: Paul Moore <paul.moore@hp.com>
+---
+ net/netlabel/netlabel_cipso_v4.c |   28 +++++++++++++++++-----------
+ 1 files changed, 17 insertions(+), 11 deletions(-)
+
+Index: net-2.6.20_bugfix/net/netlabel/netlabel_cipso_v4.c
+===================================================================
+--- net-2.6.20_bugfix.orig/net/netlabel/netlabel_cipso_v4.c
++++ net-2.6.20_bugfix/net/netlabel/netlabel_cipso_v4.c
+@@ -185,20 +185,31 @@ static int netlbl_cipsov4_add_std(struct
+ 	ret_val = netlbl_cipsov4_add_common(info, doi_def);
+ 	if (ret_val != 0)
+ 		goto add_std_failure;
++	ret_val = -EINVAL;
  
-> 
-> 2. Perhaps we can have ALL domains that can talk to the network
->    be able to use labeled-ipsec communication by default?
-> 
-> 	allow dom_with_net_access labeled_ipsec_t:association { polmatch };
-> 	allow dom_with_net_access self:association { sendto };
-> 
-Yes, I prefer this. So, for all networking modules, we would add domain
-attribute "dom_with_net_access", right? And they can polmatch to the
-default label for ipsec policy... We also need the "recvfrom" for
-self... I noticed networking apps, like ping, that needed it. 
+ 	nla_for_each_nested(nla_a,
+ 			    info->attrs[NLBL_CIPSOV4_A_MLSLVLLST],
+ 			    nla_a_rem)
+ 		if (nla_a->nla_type == NLBL_CIPSOV4_A_MLSLVL) {
++			if (nla_validate_nested(nla_a,
++					    NLBL_CIPSOV4_A_MAX,
++					    netlbl_cipsov4_genl_policy) != 0)
++					goto add_std_failure;
+ 			nla_for_each_nested(nla_b, nla_a, nla_b_rem)
+ 				switch (nla_b->nla_type) {
+ 				case NLBL_CIPSOV4_A_MLSLVLLOC:
++					if (nla_get_u32(nla_b) >
++					    CIPSO_V4_MAX_LOC_LVLS)
++						goto add_std_failure;
+ 					if (nla_get_u32(nla_b) >=
+ 					    doi_def->map.std->lvl.local_size)
+ 					     doi_def->map.std->lvl.local_size =
+ 						     nla_get_u32(nla_b) + 1;
+ 					break;
+ 				case NLBL_CIPSOV4_A_MLSLVLREM:
++					if (nla_get_u32(nla_b) >
++					    CIPSO_V4_MAX_REM_LVLS)
++						goto add_std_failure;
+ 					if (nla_get_u32(nla_b) >=
+ 					    doi_def->map.std->lvl.cipso_size)
+ 					     doi_def->map.std->lvl.cipso_size =
+@@ -206,9 +217,6 @@ static int netlbl_cipsov4_add_std(struct
+ 					break;
+ 				}
+ 		}
+-	if (doi_def->map.std->lvl.local_size > CIPSO_V4_MAX_LOC_LVLS ||
+-	    doi_def->map.std->lvl.cipso_size > CIPSO_V4_MAX_REM_LVLS)
+-		goto add_std_failure;
+ 	doi_def->map.std->lvl.local = kcalloc(doi_def->map.std->lvl.local_size,
+ 					      sizeof(u32),
+ 					      GFP_KERNEL);
+@@ -230,11 +238,6 @@ static int netlbl_cipsov4_add_std(struct
+ 			struct nlattr *lvl_loc;
+ 			struct nlattr *lvl_rem;
+ 
+-			if (nla_validate_nested(nla_a,
+-					      NLBL_CIPSOV4_A_MAX,
+-					      netlbl_cipsov4_genl_policy) != 0)
+-				goto add_std_failure;
+-
+ 			lvl_loc = nla_find_nested(nla_a,
+ 						  NLBL_CIPSOV4_A_MLSLVLLOC);
+ 			lvl_rem = nla_find_nested(nla_a,
+@@ -264,12 +267,18 @@ static int netlbl_cipsov4_add_std(struct
+ 				nla_for_each_nested(nla_b, nla_a, nla_b_rem)
+ 					switch (nla_b->nla_type) {
+ 					case NLBL_CIPSOV4_A_MLSCATLOC:
++						if (nla_get_u32(nla_b) >
++						    CIPSO_V4_MAX_LOC_CATS)
++							goto add_std_failure;
+ 						if (nla_get_u32(nla_b) >=
+ 					      doi_def->map.std->cat.local_size)
+ 					     doi_def->map.std->cat.local_size =
+ 						     nla_get_u32(nla_b) + 1;
+ 						break;
+ 					case NLBL_CIPSOV4_A_MLSCATREM:
++						if (nla_get_u32(nla_b) >
++						    CIPSO_V4_MAX_REM_CATS)
++							goto add_std_failure;
+ 						if (nla_get_u32(nla_b) >=
+ 					      doi_def->map.std->cat.cipso_size)
+ 					     doi_def->map.std->cat.cipso_size =
+@@ -277,9 +286,6 @@ static int netlbl_cipsov4_add_std(struct
+ 						break;
+ 					}
+ 			}
+-		if (doi_def->map.std->cat.local_size > CIPSO_V4_MAX_LOC_CATS ||
+-		    doi_def->map.std->cat.cipso_size > CIPSO_V4_MAX_REM_CATS)
+-			goto add_std_failure;
+ 		doi_def->map.std->cat.local = kcalloc(
+ 			                      doi_def->map.std->cat.local_size,
+ 					      sizeof(u32),
 
-> 3. The only remaining issue would then be deciding what domains
->    can recv from what. This can perhaps be wrapped in an interface?
-> 
-> 	allow local_dom1 peer_dom1:association { recvfrom }; 
-> 
-
-I am not sure I understand... I am still in learning mode for writing
-policy... Isn't this similar to the interfaces I added to the networking
-modules? For example, 
-	"allow $1 sshd_t:association recvfrom;" 
-
-Regards,
-Joy
-
+--
+paul moore
+linux security @ hp
 
 --
 This message was distributed to subscribers of the selinux mailing list.
