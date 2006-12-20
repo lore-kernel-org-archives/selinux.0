@@ -1,42 +1,32 @@
-Subject: Re: please guide me a way to study selinux in Kernel
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: "Nerazzurri.YANG" <spng.yang@gmail.com>
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id kBKGCgeA018308
+	for <selinux@tycho.nsa.gov>; Wed, 20 Dec 2006 11:12:42 -0500
+Received: from atlrel6.hp.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id kBKGDIVZ022534
+	for <selinux@tycho.nsa.gov>; Wed, 20 Dec 2006 16:13:19 GMT
+Message-ID: <4589611C.9010305@hp.com>
+Date: Wed, 20 Dec 2006 11:13:16 -0500
+From: Paul Moore <paul.moore@hp.com>
+MIME-Version: 1.0
+To: cpebenito@tresys.com
 Cc: selinux@tycho.nsa.gov
-In-Reply-To: <4588DF97.3060703@gmail.com>
-References: <200612150142.kBF1gsHi002790@faith.austin.ibm.com>
-	 <4588DF97.3060703@gmail.com>
-Content-Type: text/plain
-Date: Wed, 20 Dec 2006 10:02:31 -0500
-Message-Id: <1166626951.30579.120.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+Subject: Re: [PATCH 0/4] NetLabel and MLS fixes for Reference Policy
+References: <20061214192414.551708000@hp.com>
+In-Reply-To: <20061214192414.551708000@hp.com>
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2006-12-20 at 15:00 +0800, Nerazzurri.YANG wrote:
-> hi all,
-> 
-> 
-> i am studying SELinux, mainly about kernel part.
-> 
-> but i can not find more informations about that, except
-> the docs in NSA website.
-> 
-> most of docs and websites are about user space and policy,
-> which is not i want now.
-> 
-> please guide me a way to find more informations about selinux
-> in linux kernel, especially in implementations
+paul.moore@hp.com wrote:
+> This patchset addresses a few problems with the reference policy in SVN.
 
-Have you looked at the
-"Implementing SELinux as a Linux Security Module" technical report?
-Available from
-http://www.nsa.gov/selinux/papers/module-abs.cfm
-Not entirely up to date, but still a good resource on the implementation.
+Go ahead and ignore this patchset for now.  I've been working on some related
+issues with policy and I will push out a new patchset when I have those issues
+fixed.
 
 -- 
-Stephen Smalley
-National Security Agency
-
+paul moore
+linux security @ hp
 
 --
 This message was distributed to subscribers of the selinux mailing list.
