@@ -1,39 +1,42 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id kBKEpIRD015144
-	for <selinux@tycho.nsa.gov>; Wed, 20 Dec 2006 09:51:19 -0500
-Received: from mail5.sea5.speakeasy.net (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id kBKEprHx005043
-	for <selinux@tycho.nsa.gov>; Wed, 20 Dec 2006 14:51:54 GMT
-Date: Wed, 20 Dec 2006 09:51:48 -0500 (EST)
-From: James Morris <jmorris@namei.org>
-To: "Nerazzurri.YANG" <spng.yang@gmail.com>
-cc: selinux@tycho.nsa.gov
 Subject: Re: please guide me a way to study selinux in Kernel
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: "Nerazzurri.YANG" <spng.yang@gmail.com>
+Cc: selinux@tycho.nsa.gov
 In-Reply-To: <4588DF97.3060703@gmail.com>
-Message-ID: <XMMS.LNX.4.64.0612200948250.2110@d.namei>
 References: <200612150142.kBF1gsHi002790@faith.austin.ibm.com>
- <4588DF97.3060703@gmail.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	 <4588DF97.3060703@gmail.com>
+Content-Type: text/plain
+Date: Wed, 20 Dec 2006 10:02:31 -0500
+Message-Id: <1166626951.30579.120.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 20 Dec 2006, Nerazzurri.YANG wrote:
-
+On Wed, 2006-12-20 at 15:00 +0800, Nerazzurri.YANG wrote:
+> hi all,
+> 
+> 
+> i am studying SELinux, mainly about kernel part.
+> 
 > but i can not find more informations about that, except
 > the docs in NSA website.
+> 
+> most of docs and websites are about user space and policy,
+> which is not i want now.
+> 
+> please guide me a way to find more informations about selinux
+> in linux kernel, especially in implementations
 
-Here are some slides I made for a talk last year at Foss.in:
-http://people.redhat.com/jmorris/slides/fossin2005_selinux_kernel.pdf
-
-SELinux uses LSM, so also see:
-http://www.usenix.org/event/sec02/wright.html
-
-
+Have you looked at the
+"Implementing SELinux as a Linux Security Module" technical report?
+Available from
+http://www.nsa.gov/selinux/papers/module-abs.cfm
+Not entirely up to date, but still a good resource on the implementation.
 
 -- 
-James Morris
-<jmorris@namei.org>
+Stephen Smalley
+National Security Agency
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
