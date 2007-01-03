@@ -1,230 +1,236 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id l03Gs12B001833
-	for <selinux@tycho.nsa.gov>; Wed, 3 Jan 2007 11:54:02 -0500
-Received: from mx1.redhat.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l03GsiG7021554
-	for <selinux@tycho.nsa.gov>; Wed, 3 Jan 2007 16:54:45 GMT
-Message-ID: <459BDFD4.7080903@redhat.com>
-Date: Wed, 03 Jan 2007 11:54:44 -0500
+Message-ID: <459BF062.4050107@redhat.com>
+Date: Wed, 03 Jan 2007 13:05:22 -0500
 From: Daniel J Walsh <dwalsh@redhat.com>
 MIME-Version: 1.0
-To: "Christopher J. PeBenito" <cpebenito@tresys.com>,
-        SE Linux <selinux@tycho.nsa.gov>
-Subject: Latest diffs
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: Stephen Smalley <sds@tycho.nsa.gov>, SE Linux <selinux@tycho.nsa.gov>
+Subject: Policycoreutils patches
+Content-Type: multipart/mixed;
+ boundary="------------020301000904050900070001"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-After one hell of a merge.  :^(
-
-Spent Christmas vacation week getting Strict policy into shape.
-
-Here are a bunch of changes as well as fixes for targeted and mls policy
-
-http://people.redhat.com/dwalsh/SELinux/policy.diff
-
-----------------------------------------------------------------------------------
-
-Had to add system_u:system_u to seusers to get cron to work correctly.  
-Cron calls getseusers with parameter of "system_u" if this seuser does 
-not exist it fails over to user_u and everything blows up.
-
-Added booleans
-
-allow_ftpd_full_access -  Allows users to use ftp and read any file on 
-the system.  Pretty close to disable_trans, but you still have some 
-network controls.
-
-
-Changes allow_mount_anyfile to only allow files
-added allow_mounton_anydir to allow admin to mount on any directory but 
-not read files
-
-allow_daemons_dump_core - Allow daemons to create corefiles in /
-
-use_lpd_server boolean removes lots of not needed privs from lpr on cups 
-platforms.
-
-allow_unconfined_execmem_dyntrans is only used on ia64 platforms to run 
-32 bit applications.  kernel does some funny stuff and rexecs 
-unconfined_t programs but needs execmem and execstack.  Otherwise ia64 
-has to run all apps with execmem execstack.
-
-
-The MLS constraints are really screwed up.  Need to come to some kind of 
-agreement between you, klaus and tcs.
-
-usedom_executable_file is still in there.  I believe we need to separate 
-out the executables that are expected to be run by a user and those 
-expected to be run by the system.  This helps prevent accidently running 
-of applications under sysadm_t.
-
-mkinitrd should not be confined and should not be labeled 
-bootloader_exec_t.  This just causes too many problems and little benifit.
-
-I do not want consoletype and hostname transitioning to their domains 
-unless they need the privs,  Having them transition from an init script 
-is broken, because you end up with tons of denials when applications 
-redirect stdin/stdout
-
-Hal restarts the network which has a transition to consoletype and thus 
-we get denials.
-
-logwatch looks for files under /var
-
-quota needed major rework to work correctly in MLS environment
-
-Certain tools have rpm libraries built into them and these end up 
-calling the transition rules and getting denials.  I want to allow 
-unconfined_t to transition to rpm_script_t
-
-rpm execs prelink and chats with hal, also needs to kill processes 
-running at different sensitivity levels
-
-
-Added a tzdata domain to allow proper context of /etc/localtime
-
-sudo reads netlink_route_socket,  wants to look at the kernel key ring, 
-stores a token in the pam_pid directory, and needs to getattr on all 
-"user" executables.
-
-Some changes to su in order to handle key rings,  Needs 
-mls_file_write_down.  Need to be able to su from different domains, and 
-pam_rootok causes some selinux_compute_access checks.
-
-
-usermanage was changed to allow useradd to automatically label the 
-homedirs correctly.  useradd now has a -s qualifier that allows it to 
-select the selinux user.  It also then labels the directory correctly.  
-Critical for MLS and Strict policy to work.
-
-Lots of fixes to get evolution, mozilla, thunderbird, gnome, mplayer to 
-work with strict policy.
-
-evolution still needs work.  (I mainly use thunderbird...)
-
-Fixes to get gpg secret created correctly
-
-Added java_domtrans_user_javaplugin to get transition from 
-staff_mozilla_t -> staff_javaplugin_t to work.
-
-java wants to dbus chat with unconfined domains and init domains.
-
-Not sure why you want if targeted_policy in loadkeys_run?
-
-Fixes for slocate on MLS
-
-userhelper role line is wrong
-userhelper_exec so sysadm_t can run userhelper without transitioning.
-
-webalizer wants to getattr fs_t
-
-Label some executables stored in wierd places.
-
-Still want break out of hi_reserved_port_t from reserved_port_t.
-
-genfscon for ntfs-3g
-
-handles for unlabled_t packets
-
-fixes for kernel_unconfined
-
-httpd_t wants to write to snmp_var_lib_t files.  Dontaudit.
-
-Several domains want to run telinit.  Added init_exec.
-
-Remove anacron_exec_t.   Just run in crond_t.
-
-Remove automount_etc_t - Useless.
-
-clamd wants to read kernel sysctl
-
-
-Lots of fixes to get cron to work and to use polyinstantiation.
-
-cups changes to run in MLS
-
-dbus needs to ptrance itself.
-
-Needs new interface to connect to user bus.
-
-ftp needs to write to faillog
-
-Hal transitions to some other domains, but needs to have it's fds and 
-fifo_files dontaudited
-
-fixes to allow inetd to run on mls
-
-irqbalance needs additional privs
-
-kerberos libraries now try to read krb6kdc_conf_t,  Should be dontaudited.
-
-Lots of fixes to get ypxfr/ypserv to work correctly
-
-Dont want dontaudit var_yp_t:dir search line since this prevents 
-setroubleshoot from realizing you are on an NIS box.
-
-nscd needs auth_use_nsswitch
-
-Added policy for pcscd
-
-Lots of fixes to get rhgb to work correctly in a strict enforcing mode.
-
-rlogind needs nsswitch
-
-sendmail wants to read clamav_libs
-
-userspace connects to setroubleshoot unix_stream_socket
-
-fsdaemon needs mls_write_down
-
-spamassisin needs to read /var/lib/spamassisin directory
-
-ssh_agent leaks fds by design.
-
-sshd wants to look at kernel key ring
-
-
-relabel ICE-UNIX to xdm_tmp_t, since we can not get transition to work 
-correcrtly.  Hopefully alot of these other communications paths are 
-being eliminated by gnome.
-
-Lots of fixes to get xserver working with strict policy
-
-
-fixes for authlogin handling of keyrings and mls, as well as pcscd
-
-hwclock wants to read system state.
-
-mkswap should not run as fsadm.  Should be labeled sbin_t.
-
-Fixes for initrc to run in strict
-
-fixes for iptbales to use nscd
-
-local_login needs additional privs
-
-lvm needs privs for multipath
-
-/usr/share/X11/locale needs a label.
-
-initrc replace localization files using cp -A to preserve context.  This 
-causes many avc messages.
-
-modutils fixes for strict policy
-
-Need correct labels for genhomedircon and system-config-selinux to 
-create context correctly.
-
-Lots of fixes for polyinstatiation on MLS
-
-Lots of updates to allow userdomain to work correctly in strict policy
-
-
-
-
-
-
+This is a multi-part message in MIME format.
+--------------020301000904050900070001
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+
+Bunch of patches separated so you can approve/deny them separately.
+
+avc patch Removes optional_policy name from audit2allow
+
+pyver patch removes hardcoding of python version from makefile.  Will 
+use version of installed python version.
+
+newrole patch to use O_RDWR for terminals to fix more problem.
+
+fixfiles patch fixes a problem with fixfiles was writing "not a tty" to 
+the current directory when there was no terminal.
+
+seobject patch is somewhat more controversial, but at least parts of it 
+should be accepted.
+
+- Fixes translation of portions of security context.
+- Get rid of excess "\n"
+- Restart mcstrans to relize file changed.
+- Verify prefix is valid
+- Modify roles correctly, currently role removal does not work without 
+this fix.
+
+--------------020301000904050900070001
+Content-Type: text/x-patch;
+ name="policycoreutils-avc.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="policycoreutils-avc.patch"
+
+--- nsapolicycoreutils/audit2allow/avc.py	2006-11-16 17:14:29.000000000 -0500
++++ policycoreutils-1.33.6/audit2allow/avc.py	2006-12-20 14:59:04.000000000 -0500
+@@ -231,7 +231,7 @@
+ 		else:
+ 			file = m[0][1]
+ 			ret = "\n#%s\n"% self.out()
+-			ret += "optional_policy(`%s', `\n" % m[0][1]
++			ret += "optional_policy(`\n" 
+ 			first = True
+ 			for i in m:
+ 				if file != i[1]:
+
+--------------020301000904050900070001
+Content-Type: text/x-patch;
+ name="policycoreutils-pyver.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="policycoreutils-pyver.patch"
+
+diff --exclude-from=exclude --exclude POTFILES.in --exclude='*.po' --exclude='*.pot' -N -u -r nsapolicycoreutils/audit2allow/Makefile policycoreutils-1.33.6/audit2allow/Makefile
+--- nsapolicycoreutils/audit2allow/Makefile	2006-11-16 17:14:29.000000000 -0500
++++ policycoreutils-1.33.6/audit2allow/Makefile	2006-12-20 14:59:04.000000000 -0500
+@@ -4,7 +4,7 @@
+ LIBDIR ?= $(PREFIX)/lib
+ MANDIR ?= $(PREFIX)/share/man
+ LOCALEDIR ?= /usr/share/locale
+-PYLIBVER ?= python2.4
++PYLIBVER ?= $(shell python -c 'import sys;print "python%d.%d" % sys.version_info[0:2]')
+ PYTHONLIBDIR ?= $(LIBDIR)/$(PYLIBVER)
+ 
+ TARGETS=audit2allow
+diff --exclude-from=exclude --exclude POTFILES.in --exclude='*.po' --exclude='*.pot' -N -u -r nsapolicycoreutils/semanage/Makefile policycoreutils-1.33.6/semanage/Makefile
+--- nsapolicycoreutils/semanage/Makefile	2006-11-16 17:14:26.000000000 -0500
++++ policycoreutils-1.33.6/semanage/Makefile	2006-12-20 14:59:04.000000000 -0500
+@@ -3,7 +3,7 @@
+ LIBDIR ?= $(PREFIX)/lib
+ SBINDIR ?= $(PREFIX)/sbin
+ MANDIR = $(PREFIX)/share/man
+-PYLIBVER ?= python2.4
++PYLIBVER ?= $(shell python -c 'import sys;print "python%d.%d" % sys.version_info[0:2]')
+ PYTHONLIBDIR ?= $(LIBDIR)/$(PYLIBVER)
+ 
+ TARGETS=semanage
+
+--------------020301000904050900070001
+Content-Type: text/x-patch;
+ name="policycoreutils-newrole.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="policycoreutils-newrole.patch"
+
+--- nsapolicycoreutils/newrole/newrole.c	2006-11-29 17:11:18.000000000 -0500
++++ policycoreutils-1.33.6/newrole/newrole.c	2006-12-20 14:59:04.000000000 -0500
+@@ -1120,10 +1120,10 @@
+ 	fd = open(ttyn, O_RDONLY);
+ 	if (fd != 0)
+ 		goto err_close_pam;
+-	fd = open(ttyn, O_WRONLY);
++	fd = open(ttyn, O_RDWR);
+ 	if (fd != 1)
+ 		goto err_close_pam;
+-	fd = open(ttyn, O_WRONLY);
++	fd = open(ttyn, O_RDWR);
+ 	if (fd != 2)
+ 		goto err_close_pam;
+ 
+
+--------------020301000904050900070001
+Content-Type: text/x-patch;
+ name="policycoreutils-fixfiles.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="policycoreutils-fixfiles.patch"
+
+--- nsapolicycoreutils/scripts/fixfiles	2006-11-16 17:14:27.000000000 -0500
++++ policycoreutils-1.33.6/scripts/fixfiles	2007-01-02 10:51:58.000000000 -0500
+@@ -29,6 +29,9 @@
+ RPMILES=""
+ OUTFILES=""
+ LOGFILE=`tty`
++if [ $1 != 0 ]; then
++    LOGFILE="/dev/null"
++fi
+ SYSLOGFLAG="-l"
+ LOGGER=/usr/sbin/logger
+ SETFILES=/sbin/setfiles
+
+--------------020301000904050900070001
+Content-Type: text/x-patch;
+ name="policycoreutils-seobject.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="policycoreutils-seobject.patch"
+
+--- nsapolicycoreutils/semanage/seobject.py	2006-11-16 17:14:26.000000000 -0500
++++ policycoreutils-1.33.6/semanage/seobject.py	2006-12-20 14:59:04.000000000 -0500
+@@ -94,23 +94,25 @@
+ 	return re.search("^" + reg +"$",raw)
+ 
+ def translate(raw, prepend = 1):
+-	if prepend == 1:
+-		context = "a:b:c:%s" % raw
++        filler="a:b:c:"
++        if prepend == 1:
++		context = "%s%s" % (filler,raw)
+ 	else:
+ 		context = raw
+-	(rc, trans) = selinux.selinux_raw_to_trans_context(context)
++ 	(rc, trans) = selinux.selinux_raw_to_trans_context(context)
+ 	if rc != 0:
+ 		return raw
+ 	if prepend:
+-		trans = trans.strip("a:b:c")
++		trans = trans[len(filler):]
+ 	if trans == "":
+ 		return raw
+ 	else:
+ 		return trans
+ 	
+ def untranslate(trans, prepend = 1):
++        filler="a:b:c:"
+  	if prepend == 1:
+-		context = "a:b:c:%s" % trans
++		context = "%s%s" % (filler,trans)
+ 	else:
+ 		context = trans
+ 
+@@ -118,7 +120,7 @@
+ 	if rc != 0:
+ 		return trans
+ 	if prepend:
+-		raw = raw.strip("a:b:c")	
++		raw = raw[len(filler):]
+ 	if raw == "":
+ 		return trans
+ 	else:
+@@ -157,7 +159,7 @@
+ 	def out(self):
+ 		rec = ""
+ 		for c in self.comments:
+-			rec += c +"\n"
++			rec += c
+ 		keys = self.ddict.keys()
+ 		keys.sort()
+ 		for k in keys:
+@@ -204,7 +206,8 @@
+ 		os.write(fd, self.out())
+ 		os.close(fd)
+ 		os.rename(newfilename, self.filename)
+-
++                os.system("/sbin/service mcstrans reload > /dev/null")
++                
+ class semanageRecords:
+ 	def __init__(self):
+ 		self.sh = semanage_handle_create()
+@@ -456,7 +460,8 @@
+ 				rc = semanage_user_set_mlslevel(self.sh, u, selevel)
+ 				if rc < 0:
+ 					raise ValueError(_("Could not set MLS level for %s") % name)
+-
++                        if selinux.security_check_context("system_u:object_r:%s_home_t:s0" % prefix) != 0:
++                               raise ValueError(_("Invalid prefix %s") % prefix)
+ 			rc = semanage_user_set_prefix(self.sh, u, prefix)
+ 			if rc < 0:
+ 				raise ValueError(_("Could not add prefix %s for %s") % (r, prefix))
+@@ -522,11 +527,17 @@
+ 				semanage_user_set_mlslevel(self.sh, u, untranslate(selevel))
+ 
+ 			if prefix != "":
+-				semanage_user_set_prefix(self.sh, u, prefix)
++                               if selinux.security_check_context("system_u:object_r:%s_home_t" % prefix) != 0:
++                                      raise ValueError(_("Invalid prefix %s") % prefix)
++                               semanage_user_set_prefix(self.sh, u, prefix)
+ 
+ 			if len(roles) != 0:
+-				for r in roles:
+-					semanage_user_add_role(self.sh, u, r)
++                               for r in rlist:
++                                      if r not in roles:
++                                             semanage_user_del_role(u, r)
++                               for r in roles:
++                                      if r not in rlist:
++                                             semanage_user_add_role(self.sh, u, r)
+ 
+ 			rc = semanage_begin_transaction(self.sh)
+ 			if rc < 0:
+
+--------------020301000904050900070001--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
