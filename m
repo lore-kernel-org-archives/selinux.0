@@ -1,52 +1,61 @@
 Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id l03Lmt5N012929
-	for <selinux@tycho.nsa.gov>; Wed, 3 Jan 2007 16:48:55 -0500
-Received: from mail.atsec.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id l03LndV2000949
-	for <selinux@tycho.nsa.gov>; Wed, 3 Jan 2007 21:49:40 GMT
-Date: Wed, 3 Jan 2007 15:48:37 -0600
-From: Klaus Weidner <klaus@atsec.com>
-To: Daniel J Walsh <dwalsh@redhat.com>
-Cc: "Christopher J. PeBenito" <cpebenito@tresys.com>,
-        SE Linux <selinux@tycho.nsa.gov>
-Subject: Re: Latest diffs
-Message-ID: <20070103214837.GB21450@w-m-p.com>
-References: <459BDFD4.7080903@redhat.com>
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id l03NZsmx015916
+	for <selinux@tycho.nsa.gov>; Wed, 3 Jan 2007 18:35:54 -0500
+Received: from ug-out-1314.google.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id l03NadTD024481
+	for <selinux@tycho.nsa.gov>; Wed, 3 Jan 2007 23:36:39 GMT
+Received: by ug-out-1314.google.com with SMTP id y2so5999350uge
+        for <selinux@tycho.nsa.gov>; Wed, 03 Jan 2007 15:36:36 -0800 (PST)
+Message-ID: <f71a82820701031536j26d9d4epb84e3fe7ed95feb6@mail.gmail.com>
+Date: Thu, 4 Jan 2007 08:36:35 +0900
+From: "Shintaro Fujiwara" <shintaro.fujiwara@gmail.com>
+To: selinux <selinux@tycho.nsa.gov>
+Subject: cron on strict policy
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <459BDFD4.7080903@redhat.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, Jan 03, 2007 at 11:54:44AM -0500, Daniel J Walsh wrote:
-> sudo reads netlink_route_socket,  wants to look at the kernel key ring, 
-> stores a token in the pam_pid directory, and needs to getattr on all 
-> "user" executables.
-> 
-> Some changes to su in order to handle key rings,  Needs 
-> mls_file_write_down.  Need to be able to su from different domains, and 
-> pam_rootok causes some selinux_compute_access checks.
-[...]
-> sshd wants to look at kernel key ring
-[...]
-> fixes for authlogin handling of keyrings and mls, as well as pcscd
+Hi
+,
+I'm in trouble on cron, again.
+I've installed strict policy 21 on FC6 to my internet server.
+I found cron does not run at all.
+I imagine it's a role problem perhaps ?
+Should I write role statement in cron.te ?
 
-I'm confused about what kernel keyring features are currently available
-in the current policy, and who gets to use them.
+I semodule -r cron ed, and using
+refpolicy's cron.te I used to use on FC5.
 
-For the Common Criteria configuration, we had been assuming that the
-kernel keyring feature would be unavailable for unprivileged users, so
-that we can avoid the need to do MLS testing on keyring objects. Is that
-still the case?
+I edited /etc/crontab and
+#crontab /etc/crontab
+on permissive mode.
 
-If not, an alternative would be to provide a boolean to disable keyring
-access for the evaluated configuration. I had originally proposed that
-(subject "[PATCH] Add boolean controlling user access to kernel keyring"
-on this list back in August) based on a misunderstanding, it wasn't
-actually necessary back then. I just wanted to make sure that the feature
-isn't sneaking in now...
+When permissive mode, it runs leaving messages something like
+"Unauthorized SELinux context but persissive mode continuing"
+Of course I'm now running my server on strict mode, so the cron
+goes like this...
+This is the cron log.
+---------------------------------------
+#less /var/log/cron
 
--Klaus
+STARTUP (V5.0)
+Dec 30 07:17:20 intrajp crond[1637]: (system_u) Unauthorized SELinux
+context (/etc/crontab)
+Dec 30 07:17:20 intrajp crond[1637]: (root) Unauthorized SELinux
+context (cron/root)
+
+Unauthorized SELinux context
+---------------------------------------
+This is the security context.
+[root@intrajp ~]# ls -laZ /etc/crontab
+-rw-r--r-- root root system_u:object_r:system_cron_spool_t:s0 /etc/crontab
+
+Thanks in advance.
+
+
+My homepage
+http://intrajp.no-ip.com/
 
 --
 This message was distributed to subscribers of the selinux mailing list.
