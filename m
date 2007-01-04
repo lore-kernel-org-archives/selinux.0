@@ -1,58 +1,21 @@
-Subject: Re: Policycoreutils patches
+Subject: Re: Patch for libselinux
 From: Stephen Smalley <sds@tycho.nsa.gov>
 To: Daniel J Walsh <dwalsh@redhat.com>
-Cc: SE Linux <selinux@tycho.nsa.gov>,
-        Karl MacMillan <kmacmillan@mentalrootkit.com>
-In-Reply-To: <459BF062.4050107@redhat.com>
-References: <459BF062.4050107@redhat.com>
+Cc: SE Linux <selinux@tycho.nsa.gov>
+In-Reply-To: <459BF0D8.60908@redhat.com>
+References: <459BF0D8.60908@redhat.com>
 Content-Type: text/plain
-Date: Thu, 04 Jan 2007 11:28:38 -0500
-Message-Id: <1167928118.18961.81.camel@moss-spartans.epoch.ncsc.mil>
+Date: Thu, 04 Jan 2007 11:36:53 -0500
+Message-Id: <1167928613.18961.84.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2007-01-03 at 13:05 -0500, Daniel J Walsh wrote:
-> Bunch of patches separated so you can approve/deny them separately.
-> 
-> avc patch Removes optional_policy name from audit2allow
-> 
-> pyver patch removes hardcoding of python version from makefile.  Will 
-> use version of installed python version.
-> 
-> newrole patch to use O_RDWR for terminals to fix more problem.
-> 
-> fixfiles patch fixes a problem with fixfiles was writing "not a tty" to 
-> the current directory when there was no terminal.
-> 
-> seobject patch is somewhat more controversial, but at least parts of it 
-> should be accepted.
-> 
-> - Fixes translation of portions of security context.
-> - Get rid of excess "\n"
-> - Restart mcstrans to relize file changed.
-> - Verify prefix is valid
-> - Modify roles correctly, currently role removal does not work without 
-> this fix.
+On Wed, 2007-01-03 at 13:07 -0500, Daniel J Walsh wrote:
+> Fix for matchpatchon utility to lstat file if it exists to get correct 
+> filecontext.
 
-One patch per message is better for review and processing.
-
-I don't think the fixfiles patch does what you think ($1 is the first
-argument, not the exit status of the prior command).
-
-newrole patch was already acked by Karl, not sure why it hasn't been
-merged.
-
-I had thought that there was some discussion of generalizing the
-mcstrans restart to a generic pre/post scriptlet
-facility.  /sbin/service and mcstrans are fairly distro-specific, right?
-At least wrap it with some script installed as part of policycoreutils,
-with a default one that does nothing, and then Fedora can ship one that
-does /sbin/service mcstrans restart.
-
-prefix validity check would ideally happen in libsemanage using
-libsepol; we'd like to avoid making assumptions in seobject about
-particular context values.
+Acked-by: Stephen Smalley <sds@tycho.nsa.gov>
 
 -- 
 Stephen Smalley
