@@ -1,61 +1,64 @@
 Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id l03NZsmx015916
-	for <selinux@tycho.nsa.gov>; Wed, 3 Jan 2007 18:35:54 -0500
-Received: from ug-out-1314.google.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id l03NadTD024481
-	for <selinux@tycho.nsa.gov>; Wed, 3 Jan 2007 23:36:39 GMT
-Received: by ug-out-1314.google.com with SMTP id y2so5999350uge
-        for <selinux@tycho.nsa.gov>; Wed, 03 Jan 2007 15:36:36 -0800 (PST)
-Message-ID: <f71a82820701031536j26d9d4epb84e3fe7ed95feb6@mail.gmail.com>
-Date: Thu, 4 Jan 2007 08:36:35 +0900
-From: "Shintaro Fujiwara" <shintaro.fujiwara@gmail.com>
-To: selinux <selinux@tycho.nsa.gov>
-Subject: cron on strict policy
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id l04AswoI031910
+	for <selinux@tycho.nsa.gov>; Thu, 4 Jan 2007 05:54:58 -0500
+Received: from smtp-out-0101.amazon.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id l04AthOg000333
+	for <selinux@tycho.nsa.gov>; Thu, 4 Jan 2007 10:55:44 GMT
+Received: from ex-gate-02.ant.amazon.com (ex-gate-02.sea3.amazon.com [172.20.6.102])
+	by smtp-in-5103.iad5.amazon.com (8.12.11/8.12.10) with ESMTP id l04Atfo0012806
+	for <selinux@tycho.nsa.gov>; Thu, 4 Jan 2007 02:55:41 -0800
+Subject: creating a new role/user to administer a service
+From: Ronan Waide <waider@amazon.com>
+To: SE Linux <selinux@tycho.nsa.gov>
+Content-Type: text/plain
+Message-Id: <1167908139.19878.12.camel@waider.desktop.amazon.com>
+Mime-Version: 1.0
+Date: Thu, 04 Jan 2007 10:55:39 +0000
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hi
-,
-I'm in trouble on cron, again.
-I've installed strict policy 21 on FC6 to my internet server.
-I found cron does not run at all.
-I imagine it's a role problem perhaps ?
-Should I write role statement in cron.te ?
+Hi,
 
-I semodule -r cron ed, and using
-refpolicy's cron.te I used to use on FC5.
+I've been digging through SELinux by example, the list archives, Dan
+Walsh's livejournal, and the Fedora strict policy source, but I'm still
+a bit stumped on how to get this working:
 
-I edited /etc/crontab and
-#crontab /etc/crontab
-on permissive mode.
+I'd like to create an administrative role/user for BIND. specifically, I
+do not, if possible, want to use something like sysadm_r; I would rather
+that otherwise unprivileged users are either designated as bindadm_u
+from login, or newrole into bindadm_r in order to manage the daemon. The
+former is preferable, as I was hoping to make use of ssh keys to enable
+remote management without multiple password entry.
 
-When permissive mode, it runs leaving messages something like
-"Unauthorized SELinux context but persissive mode continuing"
-Of course I'm now running my server on strict mode, so the cron
-goes like this...
-This is the cron log.
----------------------------------------
-#less /var/log/cron
+After several false starts I thought I had something with the following
+(requires trimmed):
 
-STARTUP (V5.0)
-Dec 30 07:17:20 intrajp crond[1637]: (system_u) Unauthorized SELinux
-context (/etc/crontab)
-Dec 30 07:17:20 intrajp crond[1637]: (root) Unauthorized SELinux
-context (cron/root)
+------
+type bindadm_t;
+role bindadm_r types { bindadm_t };
+gen_user( bindadm_u, staff, bindadm_r, s0, s0 - s15:c0.c1023, c0.c1024
+);
 
-Unauthorized SELinux context
----------------------------------------
-This is the security context.
-[root@intrajp ~]# ls -laZ /etc/crontab
--rw-r--r-- root root system_u:object_r:system_cron_spool_t:s0 /etc/crontab
+semanage login -a -s bindadm_u -r bindadm_r waider
+------
 
-Thanks in advance.
+I began tracking the AVC violations that logging in with this account
+caused, and got as far as being able to get a shell prompt with the
+context bindadm_u:bindadm_r:user_t. At this point I tried getting
+newrole -t bindadm_t to work, but couldn't get past the password check
+requirement (allow bindadm_r chkpasswd_exec_t) since nothing I did
+seemed to resolve the violation.
 
+At this point I am, as I said, stumped. I feel like I'm missing
+something obvious, but after several weeks of reading I'm still no
+closer to the answer. Perhaps someone could shed some light on this, or
+perhaps point me at a suitable role/user-addition document?
 
-My homepage
-http://intrajp.no-ip.com/
+Cheers,
+Waider.
+-- 
+Ronan Waide / TechOps EU Systems Engineer / waider@amazon.com
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
