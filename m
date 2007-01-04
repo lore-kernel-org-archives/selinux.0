@@ -1,285 +1,111 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id l04LxjTb023742
-	for <selinux@tycho.nsa.gov>; Thu, 4 Jan 2007 16:59:45 -0500
-Received: from exchange.columbia.tresys.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with SMTP id l04M0CDK027816
-	for <selinux@tycho.nsa.gov>; Thu, 4 Jan 2007 22:00:23 GMT
-Message-ID: <459D787B.4060802@tresys.com>
-Date: Thu, 04 Jan 2007 16:58:19 -0500
-From: Joshua Brindle <jbrindle@tresys.com>
+Message-ID: <459D784C.4090806@hp.com>
+Date: Thu, 04 Jan 2007 16:57:32 -0500
+From: Linda Knippers <linda.knippers@hp.com>
 MIME-Version: 1.0
-To: Karl MacMillan <kmacmillan@mentalrootkit.com>
-CC: SELinux Mail List <selinux@tycho.nsa.gov>,
-        Daniel J Walsh <dwalsh@redhat.com>
-Subject: Re: [PATCH] correct return value handling in libsemanage
-References: <458B10CE.6000201@mentalrootkit.com> <459BA16D.8090300@tresys.com> <459BD355.600@mentalrootkit.com>
-In-Reply-To: <459BD355.600@mentalrootkit.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: Daniel J Walsh <dwalsh@redhat.com>
+Cc: Stephen Smalley <sds@tycho.nsa.gov>, James Antill <jantill@redhat.com>,
+        redhat-lspp <redhat-lspp@redhat.com>, SE Linux <selinux@tycho.nsa.gov>
+Subject: Re: [redhat-lspp] Re: [PATCH 2/3] Re: MLS enforcing PTYs, sshd,	and
+ newrole
+References: <20061012153701.75777.qmail@web36603.mail.mud.yahoo.com>	<1161776892.3987.193.camel@moss-spartans.epoch.ncsc.mil>	<1161778937.3987.218.camel@moss-spartans.epoch.ncsc.mil>	<1161784251.667.28.camel@code.and.org>	<1161784759.3987.295.camel@moss-spartans.epoch.ncsc.mil>	<1161803724.29689.57.camel@code.and.org>	<1161804290.3987.388.camel@moss-spartans.epoch.ncsc.mil>	<1161970810.29689.88.camel@code.and.org>	<1161974293.1306.167.camel@moss-spartans.epoch.ncsc.mil>	<1162238632.31104.11.camel@code.and.org>	<1162239394.31104.13.camel@code.and.org>	<1162304610.32614.24.camel@moss-spartans.epoch.ncsc.mil>	<1162304681.32614.26.camel@moss-spartans.epoch.ncsc.mil>	<1162306839.31104.23.camel@code.and.org>	<1162307495.32614.47.camel@moss-spartans.epoch.ncsc.mil>	<1162310652.31104.46.camel@code.and.org>	<1162311675.32614.81.camel@moss-spartans.epoch.ncsc.mil>	<1162319582.23631.1.camel@code.and.org> <1162384603.32614.163.camel@moss-spartans.epoch.ncsc.mil> <459D72EF.3090707@redhat.
+ com>
+In-Reply-To: <459D72EF.3090707@redhat.com>
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Karl MacMillan wrote:
-> Joshua Brindle wrote:
->> Karl MacMillan wrote:
->>> The function semanage_direct_commit in libsemanage:direct_api.c does 
->>> not correctly propagate error codes. This patch fixes that.
->>>
->>> Signed-off-by: Karl MacMillan <kmacmillan@mentalrootkit.com>
->>>
->> Acked-By: Joshua Brindle <jbrindle@tresys.com>
+Daniel J Walsh wrote:
+> We still have a problem on MLS machines, in that newrole can be used to
+> pass data via pseudo terminals.
 > 
-> The patch I sent was against the rawhide CVS - turns out it doesn't 
-> apply cleanly to current upstream. This updated patch applies cleanly 
-> and makes all of the returns in that function consisten.
+> script
+> newrole -l SystemHigh
+> cat TopSecret.doc
+> ^d
+> ^d
+> cat typescript
 > 
+> I propose we add this patch to newrole to check if we are on a pseudo
+> terminal and then fail if user is using -l.
+> 
+> Basically this patch checks the major number of the stdin, stdout,
+> stderr for a number in the pseudo number range,  If yes the pseudo
+> terminal, if not continue.  Not pretty but it solves the problem.  I
+> could not figure out another way to check if you are on a pseudo terminal.
+> Comments?
+> 
+> 
+> diff --exclude-from=exclude --exclude POTFILES.in --exclude='*.po'
+> --exclude='*.pot' -N -u -r nsapolicycoreutils/newrole/newrole.c
+> policycoreutils-1.33.7/newrole/newrole.c
+> --- nsapolicycoreutils/newrole/newrole.c        2006-11-29
+> 17:11:18.000000000 -0500
+> +++ policycoreutils-1.33.7/newrole/newrole.c    2007-01-04
+> 16:24:47.000000000 -0500
+> @@ -67,6 +67,7 @@
+> #include <selinux/get_context_list.h>  /* for SELINUX_DEFAULTUSER */
+> #include <signal.h>
+> #include <unistd.h>            /* for getuid(), exit(), getopt() */
+> +#include <sys/stat.h>
+> #ifdef USE_AUDIT
+> #include <libaudit.h>
+> #endif
+> @@ -93,6 +94,19 @@
+> 
+> extern char **environ;
+> 
+> +static int check_isapty(int fd) {
+> +       struct stat buf;
+> +       if ((isatty(fd)) && (fstat(fd, &buf) == 0)) {
+> +               int dev=major(buf.st_rdev);
+> +               if (dev >  135 && dev < 144) {
 
-Oh good, I was beginning to think I had forgotten how to use patch over 
-my vacation :)
+Where do these numbers come from?  Is UNIX98_PTY_SLAVE_MAJOR in
+/usr/include/linux/major.h useful?  That's what the value is on
+my system.  There's also PTY_SLAVE_MAJOR (value of 3) in that
+file, but on my system that's the major for real ttys.
 
-I'll merge this and the patch to remove linked and backup copies soon if 
-there are no objections.
-
-> Signed-off-by: Karl MacMillan <kmacmillan@mentalrootkit.com>
-> 
-> diff -r 46ccd195a21c libsemanage/src/direct_api.c
-> --- a/libsemanage/src/direct_api.c    Tue Dec 12 22:38:43 2006 -0500
-> +++ b/libsemanage/src/direct_api.c    Wed Jan 03 09:38:47 2007 -0500
-> @@ -467,9 +467,11 @@ static int semanage_direct_commit(semana
-> 
->      /* Before we do anything else, flush the join to its component parts.
->       * This *does not* flush to disk automatically */
-> -    if (users->dtable->is_modified(users->dbase) &&
-> -        users->dtable->flush(sh, users->dbase) < 0)
-> -        goto cleanup;
-> +    if (users->dtable->is_modified(users->dbase)) {
-> +        retval = users->dtable->flush(sh, users->dbase);
-> +        if (retval < 0)
-> +            goto cleanup;
-> +    }
-> 
->      /* Decide if anything was modified */
->      fcontexts_modified = fcontexts->dtable->is_modified(fcontexts->dbase);
-> @@ -497,85 +499,97 @@ static int semanage_direct_commit(semana
->          /* =================== Module expansion =============== */
-> 
->          /* link all modules in the sandbox to the base module */
-> -        if (semanage_get_modules_names
-> -            (sh, &mod_filenames, &num_modfiles) != 0
-> -            || semanage_verify_modules(sh, mod_filenames,
-> -                           num_modfiles) == -1
-> -            || semanage_link_sandbox(sh, &base) < 0) {
-> -            goto cleanup;
-> -        }
-> +        retval = semanage_get_modules_names(sh, &mod_filenames, 
-> &num_modfiles);
-> +        if (retval < 0)
-> +            goto cleanup;
-> +        retval = semanage_verify_modules(sh, mod_filenames, num_modfiles);
-> +        if (retval < 0)
-> +            goto cleanup;
-> +        retval = semanage_link_sandbox(sh, &base);
-> +        if (retval < 0)
-> +            goto cleanup;
-> 
->          /* write the linked base */
-> -        if ((linked_filename =
-> -             semanage_path(SEMANAGE_TMP, SEMANAGE_LINKED)) == NULL
-> -            || semanage_write_module(sh, linked_filename, base) == -1
-> -            || semanage_verify_linked(sh) != 0) {
-> -            goto cleanup;
-> -        }
-> +        linked_filename = semanage_path(SEMANAGE_TMP, SEMANAGE_LINKED);
-> +        if (linked_filename == NULL) {
-> +            retval = -1;
-> +            goto cleanup;
-> +        }
-> +        retval = semanage_write_module(sh, linked_filename, base);
-> +        if (retval < 0)
-> +            goto cleanup;
-> +        retval = semanage_verify_linked(sh);
-> +        if (retval < 0)
-> +            goto cleanup;
-> 
->          /* ==================== File-backed ================== */
-> 
->          /* File Contexts */
->          /* Sort the file contexts. */
-> -        if (semanage_fc_sort
-> -            (sh, sepol_module_package_get_file_contexts(base),
-> -             sepol_module_package_get_file_contexts_len(base),
-> -             &sorted_fc_buffer, &sorted_fc_buffer_len) == -1) {
-> -            goto cleanup;
-> -        }
-> +        retval = semanage_fc_sort(sh, 
-> sepol_module_package_get_file_contexts(base),
-> +                      sepol_module_package_get_file_contexts_len(base),
-> +                      &sorted_fc_buffer, &sorted_fc_buffer_len);
-> +        if (retval < 0)
-> +            goto cleanup;
-> 
->          /* Write the contexts (including template contexts) to a single 
-> file.
->           * The buffer returned by the sort function has a trailing \0 
-> character,
->           * which we do NOT want to write out to disk, so we pass 
-> sorted_fc_buffer_len-1. */
-> -        if ((ofilename =
-> -             semanage_path(SEMANAGE_TMP, SEMANAGE_FC_TMPL)) == NULL
-> -            || write_file(sh, ofilename, sorted_fc_buffer,
-> -                  sorted_fc_buffer_len - 1) == -1) {
-> -            goto cleanup;
-> -        }
-> +        ofilename = semanage_path(SEMANAGE_TMP, SEMANAGE_FC_TMPL);
-> +        if (ofilename == NULL) {
-> +            retval = -1;
-> +            goto cleanup;
-> +        }
-> +        retval = write_file(sh, ofilename, sorted_fc_buffer,
-> +                    sorted_fc_buffer_len - 1);
-> +        if (retval < 0)
-> +            goto cleanup;
-> 
->          /* Split complete and template file contexts into their 
-> separate files. */
-> -        if (semanage_split_fc(sh))
-> +        retval = semanage_split_fc(sh);
-> +        if (retval < 0)
->              goto cleanup;
-> 
->          pfcontexts->dtable->drop_cache(pfcontexts->dbase);
-> 
->          /* Seusers */
->          if (sepol_module_package_get_seusers_len(base)) {
-> -            if ((ofilename =
-> -                 semanage_path(SEMANAGE_TMP,
-> -                       SEMANAGE_SEUSERS)) == NULL
-> -                || write_file(sh, ofilename,
-> -                      sepol_module_package_get_seusers
-> -                      (base),
-> -                      sepol_module_package_get_seusers_len
-> -                      (base)) == -1) {
-> +            ofilename = semanage_path(SEMANAGE_TMP, SEMANAGE_SEUSERS);
-> +            if (ofilename == NULL) {
-> +                retval = -1;
->                  goto cleanup;
->              }
-> +            retval = write_file(sh, ofilename,
-> +                        sepol_module_package_get_seusers(base),
-> +                        sepol_module_package_get_seusers_len(base));
-> +            if (retval < 0)
-> +                goto cleanup;
+> +                       return 1;
+> +               } else {
+> +                       return 0;
+> +               }
+> +       }
+> +       return 0;
+> +}
+> +                                      /**
+>  * Construct from the current range and specified desired level a resulting
+>  * range. If the specified level is a range, return that. If it is not,
+> then
+> @@ -733,6 +747,7 @@
+>                                        security_context_t *new_context,
+>                                        int *preserve_environment)
+> {
+> +       int i;                  /* index for open file descriptors */
+>        int flag_index;         /* flag index in argv[] */
+>        int clflag;             /* holds codes for command line flags */
+>        char *role_s = NULL;    /* role spec'd by user in argv[] */
+> @@ -793,6 +808,13 @@
+>                                        "specified\n"));
+>                                return -1;
+>                        }
+> +                       for (i=0; i < 3; i++) {
+> +                               if (check_isapty(i)) {
+> +                                       fprintf(stderr, "Error: you are
+> not allowed to change levels on pseudo terminals\n");
+> +                                       return -1;
+> +                               }
+> +                       }
 > +
->              pseusers->dtable->drop_cache(pseusers->dbase);
-> 
->          } else {
-> -            if (pseusers->dtable->clear(sh, pseusers->dbase) < 0)
-> +            retval = pseusers->dtable->clear(sh, pseusers->dbase);
-> +            if (retval < 0)
->                  goto cleanup;
->          }
-> 
->          /* Users_extra */
->          if (sepol_module_package_get_user_extra_len(base)) {
-> -            if ((ofilename =
-> -                 semanage_path(SEMANAGE_TMP,
-> -                       SEMANAGE_USERS_EXTRA)) == NULL
-> -                || write_file(sh, ofilename,
-> -                      sepol_module_package_get_user_extra
-> -                      (base),
-> -                      sepol_module_package_get_user_extra_len
-> -                      (base)) == -1) {
-> +            ofilename = semanage_path(SEMANAGE_TMP, SEMANAGE_USERS_EXTRA);
-> +            if (ofilename == NULL) {
-> +                retval = -1;
->                  goto cleanup;
->              }
-> +            retval = write_file(sh, ofilename,
-> +                        sepol_module_package_get_user_extra(base),
-> +                        sepol_module_package_get_user_extra_len(base));
-> +            if (retval < 0)
-> +                goto cleanup;
->              pusers_extra->dtable->drop_cache(pusers_extra->dbase);
-> 
->          } else {
-> -            if (pusers_extra->dtable->
-> -                clear(sh, pusers_extra->dbase) < 0)
-> +            retval = pusers_extra->dtable->clear(sh, pusers_extra->dbase);
-> +            if (retval < 0)
->                  goto cleanup;
->          }
-> 
-> @@ -603,7 +617,8 @@ static int semanage_direct_commit(semana
-> 
->          /* Create new policy object, then attach to policy databases
->           * that work with a policydb */
-> -        if (semanage_expand_sandbox(sh, base, &out) < 0)
-> +        retval = semanage_expand_sandbox(sh, base, &out);
-> +        if (retval < 0)
->              goto cleanup;
-> 
->          dbase_policydb_attach((dbase_policydb_t *) pusers_base->dbase,
-> @@ -615,13 +630,16 @@ static int semanage_direct_commit(semana
-> 
->          /* ============= Apply changes, and verify  =============== */
-> 
-> -        if (semanage_base_merge_components(sh) < 0)
-> -            goto cleanup;
-> -
-> -        if (semanage_write_policydb(sh, out) < 0)
-> -            goto cleanup;
-> -
-> -        if (semanage_verify_kernel(sh) != 0)
-> +        retval = semanage_base_merge_components(sh);
-> +        if (retval < 0)
-> +            goto cleanup;
-> +
-> +        retval = semanage_write_policydb(sh, out);
-> +        if (retval < 0)
-> +            goto cleanup;
-> +
-> +        retval = semanage_verify_kernel(sh);
-> +        if (retval < 0)
->              goto cleanup;
->      }
-> 
-> @@ -635,26 +653,30 @@ static int semanage_direct_commit(semana
->       * merged into the main file_contexts. We won't check the
->       * large file_contexts - checked at compile time */
->      if (sh->do_rebuild || modified || fcontexts_modified) {
-> -        if (semanage_fcontext_validate_local(sh, out) < 0)
-> +        retval = semanage_fcontext_validate_local(sh, out);
-> +        if (retval < 0)
->              goto cleanup;
->      }
-> 
->      /* Validate local seusers against policy */
->      if (sh->do_rebuild || modified || seusers_modified) {
-> -        if (semanage_seuser_validate_local(sh, out) < 0)
-> +        retval = semanage_seuser_validate_local(sh, out);
-> +        if (retval < 0)
->              goto cleanup;
->      }
-> 
->      /* Validate local ports for overlap */
->      if (sh->do_rebuild || ports_modified) {
-> -        if (semanage_port_validate_local(sh) < 0)
-> +        retval = semanage_port_validate_local(sh);
-> +        if (retval < 0)
->              goto cleanup;
->      }
-> 
->      /* ================== Write non-policydb components ========= */
-> 
->      /* Commit changes to components */
-> -    if (semanage_commit_components(sh) < 0)
-> +    retval = semanage_commit_components(sh);
-> +    if (retval < 0)
->          goto cleanup;
-> 
->      retval = semanage_install_sandbox(sh);
+>                        level_s = optarg;
+>                        break;
+>                default:
 > 
 > 
-
+> -- 
+> This message was distributed to subscribers of the selinux mailing list.
+> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov
+> with
+> the words "unsubscribe selinux" without quotes as the message.
 
 
 --
