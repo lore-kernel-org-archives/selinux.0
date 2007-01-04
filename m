@@ -1,56 +1,61 @@
-Message-ID: <459D7ABC.6060902@redhat.com>
-Date: Thu, 04 Jan 2007 17:07:56 -0500
-From: Daniel J Walsh <dwalsh@redhat.com>
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id l04MD93W024306
+	for <selinux@tycho.nsa.gov>; Thu, 4 Jan 2007 17:13:09 -0500
+Received: from web36614.mail.mud.yahoo.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with SMTP id l04MDjeK002035
+	for <selinux@tycho.nsa.gov>; Thu, 4 Jan 2007 22:13:46 GMT
+Date: Thu, 4 Jan 2007 14:13:00 -0800 (PST)
+From: Casey Schaufler <casey@schaufler-ca.com>
+Reply-To: casey@schaufler-ca.com
+Subject: Re: [redhat-lspp] Re: [PATCH 2/3] Re: MLS enforcing PTYs, sshd, and newrole
+To: Daniel J Walsh <dwalsh@redhat.com>, Stephen Smalley <sds@tycho.nsa.gov>
+Cc: James Antill <jantill@redhat.com>, SE Linux <selinux@tycho.nsa.gov>,
+        redhat-lspp <redhat-lspp@redhat.com>
+In-Reply-To: <459D72EF.3090707@redhat.com>
 MIME-Version: 1.0
-To: Stephen Smalley <sds@tycho.nsa.gov>
-CC: SE Linux <selinux@tycho.nsa.gov>,
-        Karl MacMillan <kmacmillan@mentalrootkit.com>
-Subject: Re: Policycoreutils patches
-References: <459BF062.4050107@redhat.com>	 <1167928118.18961.81.camel@moss-spartans.epoch.ncsc.mil> <1167929394.18961.86.camel@moss-spartans.epoch.ncsc.mil>
-In-Reply-To: <1167929394.18961.86.camel@moss-spartans.epoch.ncsc.mil>
-Content-Type: multipart/mixed;
- boundary="------------030601030802050507000804"
+Content-Type: text/plain; charset=iso-8859-1
+Message-ID: <926802.72514.qm@web36614.mail.mud.yahoo.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This is a multi-part message in MIME format.
---------------030601030802050507000804
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
 
-Ok this part of the seobject patch should not be controversial.
+--- Daniel J Walsh <dwalsh@redhat.com> wrote:
 
-This patch fixes modification of roles.
->   
+> We still have a problem on MLS machines, in that
+> newrole can be used to 
+> pass data via pseudo terminals.
+> 
+> script
+> newrole -l SystemHigh
+> cat TopSecret.doc
+> ^d
+> ^d
+> cat typescript
+> 
+> I propose we add this patch to newrole to check if
+> we are on a pseudo 
+> terminal and then fail if user is using -l.
+> 
+> Basically this patch checks the major number of the
+> stdin, stdout, 
+> stderr for a number in the pseudo number range,  If
+> yes the pseudo 
+> terminal, if not continue.  Not pretty but it solves
+> the problem.  I 
+> could not figure out another way to check if you are
+> on a pseudo terminal. 
+> 
+> Comments?
+
+Are you 100% certain that this is only a pty
+issue? Any chance you'll have a similar problem
+with other devices, pipes, fifos, UDS or the like?
+My pair of Lincolns says otherwise, but they've
+been wrong before.
 
 
---------------030601030802050507000804
-Content-Type: text/plain;
- name="diff"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="diff"
-
-diff --exclude-from=exclude --exclude POTFILES.in --exclude='*.po' --exclude='*.pot' -N -u -r nsapolicycoreutils/semanage/seobject.py policycoreutils-1.33.8/semanage/seobject.py
---- nsapolicycoreutils/semanage/seobject.py	2006-11-16 17:14:26.000000000 -0500
-+++ policycoreutils-1.33.8/semanage/seobject.py	2007-01-04 17:06:25.000000000 -0500
-@@ -525,8 +525,12 @@
- 				semanage_user_set_prefix(self.sh, u, prefix)
- 
- 			if len(roles) != 0:
--				for r in roles:
--					semanage_user_add_role(self.sh, u, r)
-+                               for r in rlist:
-+                                      if r not in roles:
-+                                             semanage_user_del_role(u, r)
-+                               for r in roles:
-+                                      if r not in rlist:
-+                                             semanage_user_add_role(self.sh, u, r)
- 
- 			rc = semanage_begin_transaction(self.sh)
- 			if rc < 0:
-
---------------030601030802050507000804--
+Casey Schaufler
+casey@schaufler-ca.com
 
 --
 This message was distributed to subscribers of the selinux mailing list.
