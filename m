@@ -1,61 +1,63 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id l04GMibM010863
-	for <selinux@tycho.nsa.gov>; Thu, 4 Jan 2007 11:22:44 -0500
-Received: from smtp.sws.net.au (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id l04GNOVJ007410
-	for <selinux@tycho.nsa.gov>; Thu, 4 Jan 2007 16:23:27 GMT
-From: Russell Coker <russell@coker.com.au>
-Reply-To: russell@coker.com.au
-To: Steve G <linux_4ever@yahoo.com>
-Subject: Re: Latest diffs
-Date: Fri, 5 Jan 2007 03:23:42 +1100
-Cc: Daniel J Walsh <dwalsh@redhat.com>,
-        "Christopher J. PeBenito" <cpebenito@tresys.com>,
-        SE Linux <selinux@tycho.nsa.gov>
-References: <37187.99487.qm@web51515.mail.yahoo.com>
-In-Reply-To: <37187.99487.qm@web51515.mail.yahoo.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Message-Id: <200701050323.49009.russell@coker.com.au>
+Subject: Re: Policycoreutils patches
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Daniel J Walsh <dwalsh@redhat.com>
+Cc: SE Linux <selinux@tycho.nsa.gov>,
+        Karl MacMillan <kmacmillan@mentalrootkit.com>
+In-Reply-To: <459BF062.4050107@redhat.com>
+References: <459BF062.4050107@redhat.com>
+Content-Type: text/plain
+Date: Thu, 04 Jan 2007 11:28:38 -0500
+Message-Id: <1167928118.18961.81.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Friday 05 January 2007 00:33, Steve G <linux_4ever@yahoo.com> wrote:
-> >> Fixes for slocate on MLS
->
-> Is slocate in anyone's security target? I was thinking that it was not due
-> to needing to be level aware.
+On Wed, 2007-01-03 at 13:05 -0500, Daniel J Walsh wrote:
+> Bunch of patches separated so you can approve/deny them separately.
+> 
+> avc patch Removes optional_policy name from audit2allow
+> 
+> pyver patch removes hardcoding of python version from makefile.  Will 
+> use version of installed python version.
+> 
+> newrole patch to use O_RDWR for terminals to fix more problem.
+> 
+> fixfiles patch fixes a problem with fixfiles was writing "not a tty" to 
+> the current directory when there was no terminal.
+> 
+> seobject patch is somewhat more controversial, but at least parts of it 
+> should be accepted.
+> 
+> - Fixes translation of portions of security context.
+> - Get rid of excess "\n"
+> - Restart mcstrans to relize file changed.
+> - Verify prefix is valid
+> - Modify roles correctly, currently role removal does not work without 
+> this fix.
 
-Before returning a result locate checks whether it can be accessed by the 
-calling user.  As long as you trust locate to do the right thing in this 
-regard it should be OK.  Based on history I'm not going to trust it on my 
-systems.
+One patch per message is better for review and processing.
 
-> >Isn't this just a bad idea?
->
-> Or maybe needless.
+I don't think the fixfiles patch does what you think ($1 is the first
+argument, not the exit status of the prior command).
 
-Machines have become much faster since locate was invented, even when it's 
-installed few people bother to use it.  The machines I run fall into two 
-general categories, machines on which find is fast enough that you would 
-never desire to run locate, and machines on which "find /" might not complete 
-in 24 hours and therefore need to have locate disabled.
+newrole patch was already acked by Karl, not sure why it hasn't been
+merged.
 
-> >desire the integrity protection offered by turning off locate?
->
-> locate offers no integrity protection. It also has dubious confidentiality
-> since it is likely not level aware.
+I had thought that there was some discussion of generalizing the
+mcstrans restart to a generic pre/post scriptlet
+facility.  /sbin/service and mcstrans are fairly distro-specific, right?
+At least wrap it with some script installed as part of policycoreutils,
+with a default one that does nothing, and then Fedora can ship one that
+does /sbin/service mcstrans restart.
 
-You mis-read my message.  I consider running locate to be risking the 
-integrity of the system.  But you are probably correct in considering it to 
-be a confidentiality issue instead.
+prefix validity check would ideally happen in libsemanage using
+libsepol; we'd like to avoid making assumptions in seobject about
+particular context values.
 
 -- 
-russell@coker.com.au
-http://etbe.blogspot.com/          My Blog
+Stephen Smalley
+National Security Agency
 
-http://www.coker.com.au/sponsorship.html Sponsoring Free Software development
 
 --
 This message was distributed to subscribers of the selinux mailing list.
