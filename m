@@ -1,76 +1,56 @@
-Message-ID: <459E74FE.9020508@mentalrootkit.com>
-Date: Fri, 05 Jan 2007 10:55:42 -0500
-From: Karl MacMillan <kmacmillan@mentalrootkit.com>
-MIME-Version: 1.0
-To: Stephen Smalley <sds@tycho.nsa.gov>
-CC: Ronan Waide <waider@amazon.com>, SE Linux <selinux@tycho.nsa.gov>,
-        "Christopher J. PeBenito" <cpebenito@tresys.com>
-Subject: Re: creating a new role/user to administer a service
-References: <1167908139.19878.12.camel@waider.desktop.amazon.com> <1168010769.18961.147.camel@moss-spartans.epoch.ncsc.mil>
-In-Reply-To: <1168010769.18961.147.camel@moss-spartans.epoch.ncsc.mil>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Subject: RE: [redhat-lspp] Re: [PATCH 2/3] Re: MLS enforcing PTYs,
+	sshd,	and newrole
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Joshua Brindle <jbrindle@tresys.com>
+Cc: Klaus Weidner <klaus@atsec.com>, James Antill <jantill@redhat.com>,
+        Linda Knippers <linda.knippers@hp.com>,
+        redhat-lspp <redhat-lspp@redhat.com>,
+        Daniel J Walsh <dwalsh@redhat.com>, SE Linux <selinux@tycho.nsa.gov>
+In-Reply-To: <6FE441CD9F0C0C479F2D88F959B015886CA28F@exchange.columbia.tresys.com>
+References: 
+	 <6FE441CD9F0C0C479F2D88F959B015886CA28F@exchange.columbia.tresys.com>
+Content-Type: text/plain
+Date: Fri, 05 Jan 2007 10:55:27 -0500
+Message-Id: <1168012527.18961.159.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Stephen Smalley wrote:
-> On Thu, 2007-01-04 at 10:55 +0000, Ronan Waide wrote:
->> Hi,
->>
->> I've been digging through SELinux by example, the list archives, Dan
->> Walsh's livejournal, and the Fedora strict policy source, but I'm still
->> a bit stumped on how to get this working:
->>
->> I'd like to create an administrative role/user for BIND. specifically, I
->> do not, if possible, want to use something like sysadm_r; I would rather
->> that otherwise unprivileged users are either designated as bindadm_u
->> from login, or newrole into bindadm_r in order to manage the daemon. The
->> former is preferable, as I was hoping to make use of ssh keys to enable
->> remote management without multiple password entry.
->>
->> After several false starts I thought I had something with the following
->> (requires trimmed):
->>
->> ------
->> type bindadm_t;
->> role bindadm_r types { bindadm_t };
->> gen_user( bindadm_u, staff, bindadm_r, s0, s0 - s15:c0.c1023, c0.c1024
->> );
->>
->> semanage login -a -s bindadm_u -r bindadm_r waider
->> ------
->>
->> I began tracking the AVC violations that logging in with this account
->> caused, and got as far as being able to get a shell prompt with the
->> context bindadm_u:bindadm_r:user_t. At this point I tried getting
->> newrole -t bindadm_t to work, but couldn't get past the password check
->> requirement (allow bindadm_r chkpasswd_exec_t) since nothing I did
->> seemed to resolve the violation.
->>
->> At this point I am, as I said, stumped. I feel like I'm missing
->> something obvious, but after several weeks of reading I'm still no
->> closer to the answer. Perhaps someone could shed some light on this, or
->> perhaps point me at a suitable role/user-addition document?
+On Thu, 2007-01-04 at 22:35 -0500, Joshua Brindle wrote:
+> > From: Klaus Weidner [mailto:klaus@atsec.com] 
+> > 
+> > On Thu, Jan 04, 2007 at 10:05:57PM -0500, Joshua Brindle wrote:
+> > > Hardcoding types into code makes it inflexible to policy 
+> > changes, this 
+> > > is a bad idea IMO, the tty whitelist, however, is probably 
+> > the way to 
+> > > go. I don't know if we should use the existing 
+> > /etc/securetty or  add 
+> > > our own file though.
+> > 
+> > I'm not sure if the existing /etc/securetty is the right one, 
+> > since people may make serial terminals available to users but 
+> > would not want direct root login on those. Well, maybe not 
+> > terribly likely these days.
+> > 
+> > Instead of hardcoded types, how about a configurable type or 
+> > a /etc/securettytypes file that contains the types instead of 
+> > tty names?
 > 
-> At present, I think you need to obtain and modify full policy sources
-> (from the selinux-policy .src.rpm or the upstream refpolicy tar ball) to
-> introduce completely new user roles - it is too pervasive of a change to
-> easily do in a loadable module. Look at
-> policy/modules/system/userdomain.te and policy/rolemap to see how
-> current roles are defined.
-> 
-> Chris (cc'd) has been working on a role infrastructure branch that will
-> improve the situation, but that isn't mainstream yet afaik. 
-> 
+> Sure, the securettycontexts might be the way to go. I'm dubious about
+> just making this happen for level changes though, you shouldn't be able
+> to bypass any part of the security policy using newrole.
 
-And some tools to automate this process with is on my todo list for Madison.
+We don't want to break newrole -r on a pty.  
 
-I'd like to see this in the FC7 time frame (or F7 I guess since Core is 
-no more), but we are going to run out of time quickly. Chris - when are 
-you planning to move the role infrastructure work to mainline? Will it 
-allow the creation of modules that create new roles without full 
-sources? That is, in my opinion, a requirement for useful deployment.
+(issue is that there are two ends for a pty, master and slave, and only
+the slave end is relabeled by newrole.  master end is always /dev/ptmx
+wrt the inode, only the open file is per instance IIUC).
 
-Karl
+-- 
+Stephen Smalley
+National Security Agency
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
