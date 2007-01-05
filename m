@@ -1,81 +1,63 @@
-Subject: Re: [PATCH] semanage: optionally remove previous and linked
-	to	reduce disck usage
+Subject: Re: [redhat-lspp] Re: [PATCH 2/3] Re: MLS enforcing
+	PTYs,	sshd,	and newrole
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Karl MacMillan <kmacmillan@mentalrootkit.com>
-Cc: SELinux Mail List <selinux@tycho.nsa.gov>,
-        Joshua Brindle <jbrindle@tresys.com>
-In-Reply-To: <459E7A96.9070909@mentalrootkit.com>
-References: <459D31C2.2030409@mentalrootkit.com>
-	 <1168009924.18961.131.camel@moss-spartans.epoch.ncsc.mil>
-	 <459E7A96.9070909@mentalrootkit.com>
+To: Daniel J Walsh <dwalsh@redhat.com>
+Cc: James Antill <jantill@redhat.com>, Linda Knippers <linda.knippers@hp.com>,
+        redhat-lspp <redhat-lspp@redhat.com>, Klaus Weidner <klaus@atsec.com>,
+        SE Linux <selinux@tycho.nsa.gov>, Joshua Brindle <jbrindle@tresys.com>
+In-Reply-To: <459E7BA2.1050109@redhat.com>
+References: <20070105033311.GA24315@w-m-p.com>
+	 <6FE441CD9F0C0C479F2D88F959B015886CA28F@exchange.columbia.tresys.com>
+	 <20070105040119.GB24315@w-m-p.com>
+	 <1168012584.18961.161.camel@moss-spartans.epoch.ncsc.mil>
+	 <459E7BA2.1050109@redhat.com>
 Content-Type: text/plain
-Date: Fri, 05 Jan 2007 13:40:12 -0500
-Message-Id: <1168022412.18961.181.camel@moss-spartans.epoch.ncsc.mil>
+Date: Fri, 05 Jan 2007 13:43:06 -0500
+Message-Id: <1168022586.18961.185.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2007-01-05 at 11:19 -0500, Karl MacMillan wrote:
-> New version below:
+On Fri, 2007-01-05 at 11:24 -0500, Daniel J Walsh wrote:
+> newrole patch. for checking securetty.
 > 
-> Signed-off-by: Karl MacMillan <kmacmillan@mentalrootkit.com>
-
-> diff -r 5eec2dbb1b6c libsemanage/src/direct_api.c
-> --- a/libsemanage/src/direct_api.c	Fri Jan 05 11:18:13 2007 -0500
-> +++ b/libsemanage/src/direct_api.c	Fri Jan 05 11:19:01 2007 -0500
-> @@ -509,18 +509,35 @@ static int semanage_direct_commit(semana
->   		if (retval < 0)
->   			goto cleanup;
 > 
-> -		/* write the linked base */
-> +		/* write the linked base if we want to save or we have a
-> +		 * verification program that wants it. */
->   		linked_filename = semanage_path(SEMANAGE_TMP, SEMANAGE_LINKED);
->   		if (linked_filename == NULL) {
->   			retval = -1;
->   			goto cleanup;
->   		}
-> -		retval = semanage_write_module(sh, linked_filename, base);
-> -		if (retval < 0)
-> -			goto cleanup;
-> -		retval = semanage_verify_linked(sh);
-> -		if (retval < 0)
-> -			goto cleanup;
-> +		if (sh->conf->save_linked || sh->conf->linked_prog) {
-> +			retval = semanage_write_module(sh, linked_filename, base);
-> +			if (retval < 0)
-> +				goto cleanup;
-> +			retval = semanage_verify_linked(sh);
-> +			if (retval < 0)
-> +				goto cleanup;
-> +			/* remove the linked policy if we only wrote it for the
-> +			 * verification program. */
-> +			if (!sh->conf->save_linked) {
-> +				retval = unlink(linked_filename);
-> +				if (retval < 0)
-> +					goto cleanup;
-
-Likely need an error message here too.
-
-> diff -r 5eec2dbb1b6c libsemanage/src/semanage_store.c
-> --- a/libsemanage/src/semanage_store.c	Fri Jan 05 11:18:13 2007 -0500
-> +++ b/libsemanage/src/semanage_store.c	Fri Jan 05 11:19:01 2007 -0500
-> @@ -1224,6 +1224,12 @@ static int semanage_commit_sandbox(seman
->   		goto cleanup;
->   	}
-> 
-> +	if (!sh->conf->save_previous) {
-> +		retval = semanage_remove_directory(backup);
-> +		ERR(sh, "Could not delete previous directory %s.", backup);
-
-That will be a little noisy (not conditional on retval) ;)
-
-> +		goto cleanup;
-> +	}
+> diff --exclude-from=exclude --exclude POTFILES.in --exclude='*.po' 
+> --exclude='*.pot' -N -u -r nsapolicycoreutils/newrole/newrole.c 
+> policycoreutils-1.33.8/newrole/newrole.c
+> --- nsapolicycoreutils/newrole/newrole.c        2007-01-04 
+> 17:01:41.000000000 -0500
+> +++ policycoreutils-1.33.8/newrole/newrole.c    2007-01-05 
+> 11:17:36.000000000 -0500
+> @@ -793,6 +797,18 @@
+>                                         "specified\n"));
+>                                 return -1;
+>                         }
+> +                       for (i=0; i < 3; i++) {
+> +                               securetty=0;
+> +                               if (fgetfilecon(i,&tty_con) >= 0) {
+> +                                       securetty = 
+> (selinux_check_securetty_context(tty_con) == 1);
+> +                                       freecon(tty_con);
+> +                               }
+> +                               if (!securetty) {
+> +                                       fprintf(stderr, "Error: you are 
+> not allowed to change levels on a non secure terminal\n");
+> +                                       return -1;
+> +                               }
+> +                       }
 > +
->         cleanup:
->   	semanage_release_active_lock(sh);
->   	return retval;
+>                         level_s = optarg;
+>                         break;
+>                 default:
+> 
+
+Aside from whitespace damage, do we need to check all three descriptors?
+newrole only calls ttyname(0) and then re-opens that on all three
+descriptors, so even if 1 and 2 point to something else, they would be
+ignored (never relabeled, just closed).  So I would think you would only
+need to check descriptor 0.
+
 -- 
 Stephen Smalley
 National Security Agency
