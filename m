@@ -1,47 +1,100 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id l05GQgdb024837
-	for <selinux@tycho.nsa.gov>; Fri, 5 Jan 2007 11:26:42 -0500
-Received: from mx1.redhat.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l05GRRY9005259
-	for <selinux@tycho.nsa.gov>; Fri, 5 Jan 2007 16:27:28 GMT
-Received: from int-mx1.corp.redhat.com (int-mx1.corp.redhat.com [172.16.52.254])
-	by mx1.redhat.com (8.12.11.20060308/8.12.11) with ESMTP id l05GRR4j008397
-	for <selinux@tycho.nsa.gov>; Fri, 5 Jan 2007 11:27:27 -0500
-Received: from pobox-2.corp.redhat.com (pobox-2.corp.redhat.com [10.11.255.15])
-	by int-mx1.corp.redhat.com (8.13.1/8.13.1) with ESMTP id l05GRRlq003644
-	for <selinux@tycho.nsa.gov>; Fri, 5 Jan 2007 11:27:27 -0500
-Received: from [10.11.14.221] (vpn-14-221.rdu.redhat.com [10.11.14.221])
-	by pobox-2.corp.redhat.com (8.13.1/8.13.1) with ESMTP id l05GRQAt011680
-	for <selinux@tycho.nsa.gov>; Fri, 5 Jan 2007 11:27:26 -0500
-Message-ID: <459E7C60.8070308@mentalrootkit.com>
-Date: Fri, 05 Jan 2007 11:27:12 -0500
-From: Karl MacMillan <kmacmillan@mentalrootkit.com>
-MIME-Version: 1.0
-To: SELinux Mail List <selinux@tycho.nsa.gov>
-Subject: [PATCH] check for handle creation failures in seobject
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Subject: Re: creating a new role/user to administer a service
+From: "Christopher J. PeBenito" <cpebenito@tresys.com>
+To: Karl MacMillan <kmacmillan@mentalrootkit.com>
+Cc: Stephen Smalley <sds@tycho.nsa.gov>, Ronan Waide <waider@amazon.com>,
+        SE Linux <selinux@tycho.nsa.gov>
+In-Reply-To: <459E74FE.9020508@mentalrootkit.com>
+References: <1167908139.19878.12.camel@waider.desktop.amazon.com>
+	 <1168010769.18961.147.camel@moss-spartans.epoch.ncsc.mil>
+	 <459E74FE.9020508@mentalrootkit.com>
+Content-Type: text/plain
+Date: Fri, 05 Jan 2007 11:48:09 -0500
+Message-Id: <1168015689.9285.45.camel@sgc.columbia.tresys.com>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-seobject.py assumes that handle creation always succeeds, though this is 
-not always the case. This patch checks for that failure.
+On Fri, 2007-01-05 at 10:55 -0500, Karl MacMillan wrote:
+> Stephen Smalley wrote:
+> > On Thu, 2007-01-04 at 10:55 +0000, Ronan Waide wrote:
+> >> Hi,
+> >>
+> >> I've been digging through SELinux by example, the list archives, Dan
+> >> Walsh's livejournal, and the Fedora strict policy source, but I'm still
+> >> a bit stumped on how to get this working:
+> >>
+> >> I'd like to create an administrative role/user for BIND. specifically, I
+> >> do not, if possible, want to use something like sysadm_r; I would rather
+> >> that otherwise unprivileged users are either designated as bindadm_u
+> >> from login, or newrole into bindadm_r in order to manage the daemon. The
+> >> former is preferable, as I was hoping to make use of ssh keys to enable
+> >> remote management without multiple password entry.
+> >>
+> >> After several false starts I thought I had something with the following
+> >> (requires trimmed):
+> >>
+> >> ------
+> >> type bindadm_t;
+> >> role bindadm_r types { bindadm_t };
+> >> gen_user( bindadm_u, staff, bindadm_r, s0, s0 - s15:c0.c1023, c0.c1024
+> >> );
+> >>
+> >> semanage login -a -s bindadm_u -r bindadm_r waider
+> >> ------
+> >>
+> >> I began tracking the AVC violations that logging in with this account
+> >> caused, and got as far as being able to get a shell prompt with the
+> >> context bindadm_u:bindadm_r:user_t. At this point I tried getting
+> >> newrole -t bindadm_t to work, but couldn't get past the password check
+> >> requirement (allow bindadm_r chkpasswd_exec_t) since nothing I did
+> >> seemed to resolve the violation.
+> >>
+> >> At this point I am, as I said, stumped. I feel like I'm missing
+> >> something obvious, but after several weeks of reading I'm still no
+> >> closer to the answer. Perhaps someone could shed some light on this, or
+> >> perhaps point me at a suitable role/user-addition document?
+> > 
+> > At present, I think you need to obtain and modify full policy sources
+> > (from the selinux-policy .src.rpm or the upstream refpolicy tar ball) to
+> > introduce completely new user roles - it is too pervasive of a change to
+> > easily do in a loadable module. Look at
+> > policy/modules/system/userdomain.te and policy/rolemap to see how
+> > current roles are defined.
+> > 
+> > Chris (cc'd) has been working on a role infrastructure branch that will
+> > improve the situation, but that isn't mainstream yet afaik. 
+> > 
+> 
+> And some tools to automate this process with is on my todo list for Madison.
+> 
+> I'd like to see this in the FC7 time frame (or F7 I guess since Core is 
+> no more), but we are going to run out of time quickly. Chris - when are 
+> you planning to move the role infrastructure work to mainline? Will it 
+> allow the creation of modules that create new roles without full 
+> sources? That is, in my opinion, a requirement for useful deployment.
 
-Signed-off-by: Karl MacMillan <kmacmillan@mentalrootkit.com>
+The backend has been merged for a while.  You should be able to do
+something like:
 
-diff -r 4400130009b8 policycoreutils/semanage/seobject.py
---- a/policycoreutils/semanage/seobject.py	Fri Jan 05 11:19:01 2007 -0500
-+++ b/policycoreutils/semanage/seobject.py	Fri Jan 05 11:24:32 2007 -0500
-@@ -208,6 +208,9 @@ class semanageRecords:
-  class semanageRecords:
-  	def __init__(self):
-  		self.sh = semanage_handle_create()
-+                if not self.sh:
-+                       raise ValueError(_("Could not create semanage 
-handle"))
-+
-  		self.semanaged = semanage_is_managed(self.sh)
+policy_module(binadm,1.0.0)
 
-  		if not self.semanaged:
+userdom_unpriv_user_template(myuser)
+gen_user(myuser_u,myuser,myuser_r,s0,s0 - mls_systemhigh,mcs_systemhigh)
+
+
+The basic role components are marked with <rolebase/> xml tags and
+interfaces that seemed more obvious were marked with <rolecap/> xml tags
+so you can build up roles.  A template equivalent for sysadm and
+user/staff still exist (as evidenced above).  It needs more frontend
+tool support to make all this information more accessible.  A role
+wizard is planned for SLIDE, but I believe the targeted release for that
+feature is undecided.
+
+-- 
+Chris PeBenito
+Tresys Technology, LLC
+(410) 290-1411 x150
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
