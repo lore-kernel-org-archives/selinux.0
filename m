@@ -1,45 +1,51 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id l05H9dJ8027091
-	for <selinux@tycho.nsa.gov>; Fri, 5 Jan 2007 12:09:39 -0500
-Received: from mx1.redhat.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l05HAPY9013269
-	for <selinux@tycho.nsa.gov>; Fri, 5 Jan 2007 17:10:26 GMT
-Message-ID: <459E8672.3060708@mentalrootkit.com>
-Date: Fri, 05 Jan 2007 12:10:10 -0500
-From: Karl MacMillan <kmacmillan@mentalrootkit.com>
-MIME-Version: 1.0
-To: Karl MacMillan <kmacmillan@mentalrootkit.com>
-CC: SELinux Mail List <selinux@tycho.nsa.gov>
-Subject: Re: [PATCH] check for handle creation failures in seobject
-References: <459E7C60.8070308@mentalrootkit.com>
-In-Reply-To: <459E7C60.8070308@mentalrootkit.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Subject: Re: Policycoreutils patches
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Daniel J Walsh <dwalsh@redhat.com>
+Cc: SE Linux <selinux@tycho.nsa.gov>,
+        Karl MacMillan <kmacmillan@mentalrootkit.com>
+In-Reply-To: <459D7ABC.6060902@redhat.com>
+References: <459BF062.4050107@redhat.com>
+	 <1167928118.18961.81.camel@moss-spartans.epoch.ncsc.mil>
+	 <1167929394.18961.86.camel@moss-spartans.epoch.ncsc.mil>
+	 <459D7ABC.6060902@redhat.com>
+Content-Type: text/plain
+Date: Fri, 05 Jan 2007 13:16:24 -0500
+Message-Id: <1168020984.18961.166.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Karl MacMillan wrote:
-> seobject.py assumes that handle creation always succeeds, though this is 
-> not always the case. This patch checks for that failure.
+On Thu, 2007-01-04 at 17:07 -0500, Daniel J Walsh wrote:
+> Ok this part of the seobject patch should not be controversial.
 > 
-> Signed-off-by: Karl MacMillan <kmacmillan@mentalrootkit.com>
+> This patch fixes modification of roles.
+> >   
 > 
+> plain text document attachment (diff)
+> diff --exclude-from=exclude --exclude POTFILES.in --exclude='*.po' --exclude='*.pot' -N -u -r nsapolicycoreutils/semanage/seobject.py policycoreutils-1.33.8/semanage/seobject.py
+> --- nsapolicycoreutils/semanage/seobject.py	2006-11-16 17:14:26.000000000 -0500
+> +++ policycoreutils-1.33.8/semanage/seobject.py	2007-01-04 17:06:25.000000000 -0500
+> @@ -525,8 +525,12 @@
+>  				semanage_user_set_prefix(self.sh, u, prefix)
+>  
+>  			if len(roles) != 0:
+> -				for r in roles:
+> -					semanage_user_add_role(self.sh, u, r)
+> +                               for r in rlist:
+> +                                      if r not in roles:
+> +                                             semanage_user_del_role(u, r)
+> +                               for r in roles:
+> +                                      if r not in rlist:
+> +                                             semanage_user_add_role(self.sh, u, r)
+>  
+>  			rc = semanage_begin_transaction(self.sh)
+>  			if rc < 0:
 
-Another try without line wrapping and with tabs instead of spaces.
+Acked-by:  Stephen Smalley <sds@tycho.nsa.gov>
 
-
-diff -r 5e7683c788a4 policycoreutils/semanage/seobject.py
---- a/policycoreutils/semanage/seobject.py	Fri Jan 05 12:05:19 2007 -0500
-+++ b/policycoreutils/semanage/seobject.py	Fri Jan 05 12:08:34 2007 -0500
-@@ -208,6 +208,9 @@ class semanageRecords:
-  class semanageRecords:
-  	def __init__(self):
-  		self.sh = semanage_handle_create()
-+		if not self.sh:
-+		       raise ValueError(_("Could not create semanage handle"))
-+		
-  		self.semanaged = semanage_is_managed(self.sh)
-
-  		if not self.semanaged:
+-- 
+Stephen Smalley
+National Security Agency
 
 
 --
