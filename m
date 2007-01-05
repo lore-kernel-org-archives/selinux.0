@@ -1,49 +1,39 @@
-Message-ID: <459DC095.5020001@tresys.com>
-Date: Thu, 04 Jan 2007 22:05:57 -0500
-From: Joshua Brindle <jbrindle@tresys.com>
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id l053WOxo001127
+	for <selinux@tycho.nsa.gov>; Thu, 4 Jan 2007 22:32:24 -0500
+Received: from mail.atsec.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l053XAdp018210
+	for <selinux@tycho.nsa.gov>; Fri, 5 Jan 2007 03:33:10 GMT
+Date: Thu, 4 Jan 2007 21:33:11 -0600
+From: Klaus Weidner <klaus@atsec.com>
+To: Joshua Brindle <jbrindle@tresys.com>
+Cc: James Antill <jantill@redhat.com>, Linda Knippers <linda.knippers@hp.com>,
+        redhat-lspp <redhat-lspp@redhat.com>,
+        Daniel J Walsh <dwalsh@redhat.com>, SE Linux <selinux@tycho.nsa.gov>,
+        Stephen Smalley <sds@tycho.nsa.gov>
+Subject: Re: [redhat-lspp] Re: [PATCH 2/3] Re: MLS enforcing PTYs, sshd,	and newrole
+Message-ID: <20070105033311.GA24315@w-m-p.com>
+References: <1162310652.31104.46.camel@code.and.org> <1162311675.32614.81.camel@moss-spartans.epoch.ncsc.mil> <1162319582.23631.1.camel@code.and.org> <1162384603.32614.163.camel@moss-spartans.epoch.ncsc.mil> <459D72EF.3090707@redhat.com> <459D784C.4090806@hp.com> <459D7D56.1070503@redhat.com> <459D8B71.6060306@hp.com> <20070105010706.GA17478@w-m-p.com> <459DC095.5020001@tresys.com>
 MIME-Version: 1.0
-To: Klaus Weidner <klaus@atsec.com>
-CC: Linda Knippers <linda.knippers@hp.com>, Daniel J Walsh <dwalsh@redhat.com>,
-        James Antill <jantill@redhat.com>, Stephen Smalley <sds@tycho.nsa.gov>,
-        SE Linux <selinux@tycho.nsa.gov>, redhat-lspp <redhat-lspp@redhat.com>
-Subject: Re: [redhat-lspp] Re: [PATCH 2/3] Re: MLS enforcing PTYs, sshd,	and
- newrole
-References: <1162306839.31104.23.camel@code.and.org> <1162307495.32614.47.camel@moss-spartans.epoch.ncsc.mil> <1162310652.31104.46.camel@code.and.org> <1162311675.32614.81.camel@moss-spartans.epoch.ncsc.mil> <1162319582.23631.1.camel@code.and.org> <1162384603.32614.163.camel@moss-spartans.epoch.ncsc.mil> <459D72EF.3090707@redhat.com> <459D784C.4090806@hp.com> <459D7D56.1070503@redhat.com> <459D8B71.6060306@hp.com> <20070105010706.GA17478@w-m-p.com>
-In-Reply-To: <20070105010706.GA17478@w-m-p.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <459DC095.5020001@tresys.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Klaus Weidner wrote:
-> On Thu, Jan 04, 2007 at 06:19:13PM -0500, Linda Knippers wrote:
->   
->>> devices.txt in kernel documentation. 
->>> 2176 <http://www.mjmwired.net/kernel/Documentation/devices.txt#2176>    136-143 char    Unix98 PTY slaves 
->>>       
->> Since that document has multiple devices with the same major, I wonder if its
->> safer to fstatfs() the fd and make sure the f_type is the devpts fs magic
->> number.  It only seems to be defined in fs/devpts/inode.c though.
->>
->>     
->>> #define DEVPTS_SUPER_MAGIC 0x1cd1
->>>       
->> devpts is mounted on /dev/pts before single user mode so it seems to always
->> be there unless someone unmounts it.  If you try to ssh in without /dev/pts
->> mounted the ssh hangs.
->>     
->
-> I think blacklists are usually a bad idea for security, for example this
-> breaks if people have a kernel that supports the old-style ptys that
-> don't use devpts. How about turning it around and only allowing use of
-> known good ttys, similar to /etc/securetty, or insisting on type
-> "tty_device_t" which includes the virtual console and serial terminals
-> but not the ptys?
->   
-Hardcoding types into code makes it inflexible to policy changes, this 
-is a bad idea IMO, the tty whitelist, however, is probably the way to 
-go. I don't know if we should use the existing /etc/securetty or  add 
-our own file though.
+On Thu, Jan 04, 2007 at 10:05:57PM -0500, Joshua Brindle wrote:
+> Hardcoding types into code makes it inflexible to policy changes, this 
+> is a bad idea IMO, the tty whitelist, however, is probably the way to 
+> go. I don't know if we should use the existing /etc/securetty or  add 
+> our own file though.
 
+I'm not sure if the existing /etc/securetty is the right one, since
+people may make serial terminals available to users but would not want
+direct root login on those. Well, maybe not terribly likely these days.
+
+Instead of hardcoded types, how about a configurable type or a
+/etc/securettytypes file that contains the types instead of tty names?
+
+-Klaus
 
 --
 This message was distributed to subscribers of the selinux mailing list.
