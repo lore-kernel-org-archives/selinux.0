@@ -1,65 +1,65 @@
-Subject: Re: creating a new role/user to administer a service
+Subject: Re: cron on strict policy
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Ronan Waide <waider@amazon.com>
-Cc: SE Linux <selinux@tycho.nsa.gov>,
-        "Christopher J. PeBenito" <cpebenito@tresys.com>
-In-Reply-To: <1167908139.19878.12.camel@waider.desktop.amazon.com>
-References: <1167908139.19878.12.camel@waider.desktop.amazon.com>
+To: Shintaro Fujiwara <shintaro.fujiwara@gmail.com>
+Cc: selinux <selinux@tycho.nsa.gov>
+In-Reply-To: <f71a82820701031536j26d9d4epb84e3fe7ed95feb6@mail.gmail.com>
+References: <f71a82820701031536j26d9d4epb84e3fe7ed95feb6@mail.gmail.com>
 Content-Type: text/plain
-Date: Fri, 05 Jan 2007 10:26:09 -0500
-Message-Id: <1168010769.18961.147.camel@moss-spartans.epoch.ncsc.mil>
+Date: Fri, 05 Jan 2007 10:38:25 -0500
+Message-Id: <1168011505.18961.155.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2007-01-04 at 10:55 +0000, Ronan Waide wrote:
-> Hi,
-> 
-> I've been digging through SELinux by example, the list archives, Dan
-> Walsh's livejournal, and the Fedora strict policy source, but I'm still
-> a bit stumped on how to get this working:
-> 
-> I'd like to create an administrative role/user for BIND. specifically, I
-> do not, if possible, want to use something like sysadm_r; I would rather
-> that otherwise unprivileged users are either designated as bindadm_u
-> from login, or newrole into bindadm_r in order to manage the daemon. The
-> former is preferable, as I was hoping to make use of ssh keys to enable
-> remote management without multiple password entry.
-> 
-> After several false starts I thought I had something with the following
-> (requires trimmed):
-> 
-> ------
-> type bindadm_t;
-> role bindadm_r types { bindadm_t };
-> gen_user( bindadm_u, staff, bindadm_r, s0, s0 - s15:c0.c1023, c0.c1024
-> );
-> 
-> semanage login -a -s bindadm_u -r bindadm_r waider
-> ------
-> 
-> I began tracking the AVC violations that logging in with this account
-> caused, and got as far as being able to get a shell prompt with the
-> context bindadm_u:bindadm_r:user_t. At this point I tried getting
-> newrole -t bindadm_t to work, but couldn't get past the password check
-> requirement (allow bindadm_r chkpasswd_exec_t) since nothing I did
-> seemed to resolve the violation.
-> 
-> At this point I am, as I said, stumped. I feel like I'm missing
-> something obvious, but after several weeks of reading I'm still no
-> closer to the answer. Perhaps someone could shed some light on this, or
-> perhaps point me at a suitable role/user-addition document?
+On Thu, 2007-01-04 at 08:36 +0900, Shintaro Fujiwara wrote:
+> Hi
+> ,
+> I'm in trouble on cron, again.
+> I've installed strict policy 21 on FC6 to my internet server.
+> I found cron does not run at all.
+> I imagine it's a role problem perhaps ?
+> Should I write role statement in cron.te ?
 
-At present, I think you need to obtain and modify full policy sources
-(from the selinux-policy .src.rpm or the upstream refpolicy tar ball) to
-introduce completely new user roles - it is too pervasive of a change to
-easily do in a loadable module. Look at
-policy/modules/system/userdomain.te and policy/rolemap to see how
-current roles are defined.
+File a bug report against the FC6 cron - it is broken.
 
-Chris (cc'd) has been working on a role infrastructure branch that will
-improve the situation, but that isn't mainstream yet afaik. 
-
+> 
+> I semodule -r cron ed, and using
+> refpolicy's cron.te I used to use on FC5.
+> 
+> I edited /etc/crontab and
+> #crontab /etc/crontab
+> on permissive mode.
+> 
+> When permissive mode, it runs leaving messages something like
+> "Unauthorized SELinux context but persissive mode continuing"
+> Of course I'm now running my server on strict mode, so the cron
+> goes like this...
+> This is the cron log.
+> ---------------------------------------
+> #less /var/log/cron
+> 
+> STARTUP (V5.0)
+> Dec 30 07:17:20 intrajp crond[1637]: (system_u) Unauthorized SELinux
+> context (/etc/crontab)
+> Dec 30 07:17:20 intrajp crond[1637]: (root) Unauthorized SELinux
+> context (cron/root)
+> 
+> Unauthorized SELinux context
+> ---------------------------------------
+> This is the security context.
+> [root@intrajp ~]# ls -laZ /etc/crontab
+> -rw-r--r-- root root system_u:object_r:system_cron_spool_t:s0 /etc/crontab
+> 
+> Thanks in advance.
+> 
+> 
+> My homepage
+> http://intrajp.no-ip.com/
+> 
+> --
+> This message was distributed to subscribers of the selinux mailing list.
+> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
+> the words "unsubscribe selinux" without quotes as the message.
 -- 
 Stephen Smalley
 National Security Agency
