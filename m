@@ -1,50 +1,30 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id l05KGJZa001969
-	for <selinux@tycho.nsa.gov>; Fri, 5 Jan 2007 15:16:19 -0500
-Received: from atlrel6.hp.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l05KH5Y9014710
-	for <selinux@tycho.nsa.gov>; Fri, 5 Jan 2007 20:17:06 GMT
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id l05KFwrj001936
+	for <selinux@tycho.nsa.gov>; Fri, 5 Jan 2007 15:15:58 -0500
+Received: from atlrel9.hp.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id l05KGiBd007586
+	for <selinux@tycho.nsa.gov>; Fri, 5 Jan 2007 20:16:44 GMT
 From: "Paul Moore" <paul.moore@hp.com>
-Message-Id: <20070105201639.625399003@hp.com>
-References: <20070105200820.975960210@hp.com>
-Date: Fri, 05 Jan 2007 15:08:22 -0500
+Message-Id: <20070105200820.975960210@hp.com>
+Date: Fri, 05 Jan 2007 15:08:20 -0500
 To: netdev@vger.kernel.org, selinux@tycho.nsa.gov
-Cc: Paul Moore <paul.moore@hp.com>
-Subject: [PATCH 2/2] NetLabel: correct CIPSO tag handling when adding new DOI definitions
+Subject: [PATCH 0/2] Two pretty trivial NetLabel bugfixes
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-The current netlbl_cipsov4_add_common() function has two problems which are
-fixed with this patch.  The first is an off-by-one bug where it is possibile to
-overflow the doi_def->tags[] array.  The second is a bug where the same 
-doi_def->tags[] array was not always fully initialized, which caused sporadic
-failures.
+This is a small patchset both in the number of patches (two) and the size of
+the patches themselves.  The first patch fixes a potential locking issue with
+a NetLabel state variable and the second patch fixes a couple of problems seen
+when adding new CIPSO DOI definitions.
 
-Signed-off-by: Paul Moore <paul.moore@hp.com>
----
- net/netlabel/netlabel_cipso_v4.c |    6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+In light of the recent NetLabel locking issues I've spent this week going over
+all of the NetLabel related locks and I firmly believe this patchset should
+address the last of the problems.  However, if anyone with a good knowledge of
+socket/sk locking can afford to take a look I would greatly appreciate it.
 
-Index: net-2.6.20_bugfix_3/net/netlabel/netlabel_cipso_v4.c
-===================================================================
---- net-2.6.20_bugfix_3.orig/net/netlabel/netlabel_cipso_v4.c
-+++ net-2.6.20_bugfix_3/net/netlabel/netlabel_cipso_v4.c
-@@ -130,12 +130,12 @@ static int netlbl_cipsov4_add_common(str
- 
- 	nla_for_each_nested(nla, info->attrs[NLBL_CIPSOV4_A_TAGLST], nla_rem)
- 		if (nla->nla_type == NLBL_CIPSOV4_A_TAG) {
--			if (iter > CIPSO_V4_TAG_MAXCNT)
-+			if (iter >= CIPSO_V4_TAG_MAXCNT)
- 				return -EINVAL;
- 			doi_def->tags[iter++] = nla_get_u8(nla);
- 		}
--	if (iter < CIPSO_V4_TAG_MAXCNT)
--		doi_def->tags[iter] = CIPSO_V4_TAG_INVALID;
-+	while (iter < CIPSO_V4_TAG_MAXCNT)
-+		doi_def->tags[iter++] = CIPSO_V4_TAG_INVALID;
- 
- 	return 0;
- }
+I tested both of these patches with what I believe to be pretty much all of
+the kernel debug options enabled and I have not encountered any problems.
+Please consider these for the 2.6.20 release.
 
 --
 paul moore
