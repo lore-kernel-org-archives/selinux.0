@@ -1,69 +1,47 @@
-Message-ID: <459E7BA2.1050109@redhat.com>
-Date: Fri, 05 Jan 2007 11:24:02 -0500
-From: Daniel J Walsh <dwalsh@redhat.com>
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id l05GQgdb024837
+	for <selinux@tycho.nsa.gov>; Fri, 5 Jan 2007 11:26:42 -0500
+Received: from mx1.redhat.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l05GRRY9005259
+	for <selinux@tycho.nsa.gov>; Fri, 5 Jan 2007 16:27:28 GMT
+Received: from int-mx1.corp.redhat.com (int-mx1.corp.redhat.com [172.16.52.254])
+	by mx1.redhat.com (8.12.11.20060308/8.12.11) with ESMTP id l05GRR4j008397
+	for <selinux@tycho.nsa.gov>; Fri, 5 Jan 2007 11:27:27 -0500
+Received: from pobox-2.corp.redhat.com (pobox-2.corp.redhat.com [10.11.255.15])
+	by int-mx1.corp.redhat.com (8.13.1/8.13.1) with ESMTP id l05GRRlq003644
+	for <selinux@tycho.nsa.gov>; Fri, 5 Jan 2007 11:27:27 -0500
+Received: from [10.11.14.221] (vpn-14-221.rdu.redhat.com [10.11.14.221])
+	by pobox-2.corp.redhat.com (8.13.1/8.13.1) with ESMTP id l05GRQAt011680
+	for <selinux@tycho.nsa.gov>; Fri, 5 Jan 2007 11:27:26 -0500
+Message-ID: <459E7C60.8070308@mentalrootkit.com>
+Date: Fri, 05 Jan 2007 11:27:12 -0500
+From: Karl MacMillan <kmacmillan@mentalrootkit.com>
 MIME-Version: 1.0
-To: Stephen Smalley <sds@tycho.nsa.gov>
-CC: Klaus Weidner <klaus@atsec.com>, Joshua Brindle <jbrindle@tresys.com>,
-        James Antill <jantill@redhat.com>,
-        Linda Knippers <linda.knippers@hp.com>,
-        redhat-lspp <redhat-lspp@redhat.com>, SE Linux <selinux@tycho.nsa.gov>
-Subject: Re: [redhat-lspp] Re: [PATCH 2/3] Re: MLS enforcing PTYs,	sshd,	and
- newrole
-References: <20070105033311.GA24315@w-m-p.com>	 <6FE441CD9F0C0C479F2D88F959B015886CA28F@exchange.columbia.tresys.com>	 <20070105040119.GB24315@w-m-p.com> <1168012584.18961.161.camel@moss-spartans.epoch.ncsc.mil>
-In-Reply-To: <1168012584.18961.161.camel@moss-spartans.epoch.ncsc.mil>
+To: SELinux Mail List <selinux@tycho.nsa.gov>
+Subject: [PATCH] check for handle creation failures in seobject
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-newrole patch. for checking securetty.
+seobject.py assumes that handle creation always succeeds, though this is 
+not always the case. This patch checks for that failure.
 
+Signed-off-by: Karl MacMillan <kmacmillan@mentalrootkit.com>
 
-diff --exclude-from=exclude --exclude POTFILES.in --exclude='*.po' 
---exclude='*.pot' -N -u -r nsapolicycoreutils/newrole/newrole.c 
-policycoreutils-1.33.8/newrole/newrole.c
---- nsapolicycoreutils/newrole/newrole.c        2007-01-04 
-17:01:41.000000000 -0500
-+++ policycoreutils-1.33.8/newrole/newrole.c    2007-01-05 
-11:17:36.000000000 -0500
-@@ -733,6 +734,7 @@
-                                        security_context_t *new_context,
-                                        int *preserve_environment)
- {
-+       int i;                  /* index for open file descriptors */
-        int flag_index;         /* flag index in argv[] */
-        int clflag;             /* holds codes for command line flags */
-        char *role_s = NULL;    /* role spec'd by user in argv[] */
-@@ -741,6 +743,8 @@
-        char *level_s = NULL;   /* level spec'd by user in argv[] */
-        char *range_ptr = NULL;
-        security_context_t new_con = NULL;
-+       security_context_t tty_con = NULL;
-+       int securetty=0;
-        context_t context = NULL; /* manipulatable form of new_context */
-        const struct option long_options[] = {
-                {"role", 1, 0, 'r'},
-@@ -793,6 +797,18 @@
-                                        "specified\n"));
-                                return -1;
-                        }
-+                       for (i=0; i < 3; i++) {
-+                               securetty=0;
-+                               if (fgetfilecon(i,&tty_con) >= 0) {
-+                                       securetty = 
-(selinux_check_securetty_context(tty_con) == 1);
-+                                       freecon(tty_con);
-+                               }
-+                               if (!securetty) {
-+                                       fprintf(stderr, "Error: you are 
-not allowed to change levels on a non secure terminal\n");
-+                                       return -1;
-+                               }
-+                       }
+diff -r 4400130009b8 policycoreutils/semanage/seobject.py
+--- a/policycoreutils/semanage/seobject.py	Fri Jan 05 11:19:01 2007 -0500
++++ b/policycoreutils/semanage/seobject.py	Fri Jan 05 11:24:32 2007 -0500
+@@ -208,6 +208,9 @@ class semanageRecords:
+  class semanageRecords:
+  	def __init__(self):
+  		self.sh = semanage_handle_create()
++                if not self.sh:
++                       raise ValueError(_("Could not create semanage 
+handle"))
 +
-                        level_s = optarg;
-                        break;
-                default:
+  		self.semanaged = semanage_is_managed(self.sh)
 
+  		if not self.semanaged:
 
 --
 This message was distributed to subscribers of the selinux mailing list.
