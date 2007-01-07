@@ -1,48 +1,90 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id l05KGBva001952
-	for <selinux@tycho.nsa.gov>; Fri, 5 Jan 2007 15:16:11 -0500
-Received: from atlrel8.hp.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id l05KGuBd007688
-	for <selinux@tycho.nsa.gov>; Fri, 5 Jan 2007 20:16:57 GMT
-From: "Paul Moore" <paul.moore@hp.com>
-Message-Id: <20070105201637.494749925@hp.com>
-References: <20070105200820.975960210@hp.com>
-Date: Fri, 05 Jan 2007 15:08:21 -0500
-To: netdev@vger.kernel.org, selinux@tycho.nsa.gov
-Cc: Paul Moore <paul.moore@hp.com>
-Subject: [PATCH 1/2] NetLabel: correct locking in selinux_netlbl_socket_setsid()
+Subject: Re: cron on strict policy
+From: Shintaro Fujiwara <shin216@xf7.so-net.ne.jp>
+To: Stephen Smalley <sds@tycho.nsa.gov>,
+        SELinux Mail List <selinux@tycho.nsa.gov>
+In-Reply-To: <1168011505.18961.155.camel@moss-spartans.epoch.ncsc.mil>
+References: <f71a82820701031536j26d9d4epb84e3fe7ed95feb6@mail.gmail.com>
+	 <1168011505.18961.155.camel@moss-spartans.epoch.ncsc.mil>
+Content-Type: text/plain; charset=EUC-JP
+Date: Sun, 07 Jan 2007 19:24:05 +0900
+Message-Id: <1168165445.2638.8.camel@mama.intrajp-yokosuka.co.jp>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-The spinlock protecting the update of the "sksec->nlbl_state" variable is not
-currently softirq safe which can lead to problems.  This patch fixes this by
-changing the spin_{un}lock() functions into spin_{un}lock_bh() functions.
+>File a bug report against the FC6 cron - it is broken.
 
-Signed-off-by: Paul Moore <paul.moore@hp.com>
----
- security/selinux/ss/services.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+Thank you very much Mr.Smalley.
 
-Index: net-2.6.20_bugfix_3/security/selinux/ss/services.c
-===================================================================
---- net-2.6.20_bugfix_3.orig/security/selinux/ss/services.c
-+++ net-2.6.20_bugfix_3/security/selinux/ss/services.c
-@@ -2492,9 +2492,9 @@ static int selinux_netlbl_socket_setsid(
- 
- 	rc = netlbl_socket_setattr(sock, &secattr);
- 	if (rc == 0) {
--		spin_lock(&sksec->nlbl_lock);
-+		spin_lock_bh(&sksec->nlbl_lock);
- 		sksec->nlbl_state = NLBL_LABELED;
--		spin_unlock(&sksec->nlbl_lock);
-+		spin_unlock_bh(&sksec->nlbl_lock);
- 	}
- 
- netlbl_socket_setsid_return:
+I cautiously changed my cron.pp to strict-policy's original one.
 
---
-paul moore
-linux security @ hp
+IT WORKED FINE !
+
+I'm sorry, I've been writing bad .te .fc files and messed up.
+
+I used selinux-policy-strict-2.4.6-13.fc6-noarch.rpm.
+
+I understand my problem was that I try to install refpolicy's cron
+to strict policy...
+
+All I need to do is to write policy of my own.
+
+Thank you !
+
+
+
+
+2007-01-05 (金) の 10:38 -0500 に Stephen Smalley さんは書きました:
+> On Thu, 2007-01-04 at 08:36 +0900, Shintaro Fujiwara wrote:
+> > Hi
+> > ,
+> > I'm in trouble on cron, again.
+> > I've installed strict policy 21 on FC6 to my internet server.
+> > I found cron does not run at all.
+> > I imagine it's a role problem perhaps ?
+> > Should I write role statement in cron.te ?
+> 
+> File a bug report against the FC6 cron - it is broken.
+> 
+> > 
+> > I semodule -r cron ed, and using
+> > refpolicy's cron.te I used to use on FC5.
+> > 
+> > I edited /etc/crontab and
+> > #crontab /etc/crontab
+> > on permissive mode.
+> > 
+> > When permissive mode, it runs leaving messages something like
+> > "Unauthorized SELinux context but persissive mode continuing"
+> > Of course I'm now running my server on strict mode, so the cron
+> > goes like this...
+> > This is the cron log.
+> > ---------------------------------------
+> > #less /var/log/cron
+> > 
+> > STARTUP (V5.0)
+> > Dec 30 07:17:20 intrajp crond[1637]: (system_u) Unauthorized SELinux
+> > context (/etc/crontab)
+> > Dec 30 07:17:20 intrajp crond[1637]: (root) Unauthorized SELinux
+> > context (cron/root)
+> > 
+> > Unauthorized SELinux context
+> > ---------------------------------------
+> > This is the security context.
+> > [root@intrajp ~]# ls -laZ /etc/crontab
+> > -rw-r--r-- root root system_u:object_r:system_cron_spool_t:s0 /etc/crontab
+> > 
+> > Thanks in advance.
+> > 
+> > 
+> > My homepage
+> > http://intrajp.no-ip.com/
+> > 
+> > --
+> > This message was distributed to subscribers of the selinux mailing list.
+> > If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
+> > the words "unsubscribe selinux" without quotes as the message.
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
