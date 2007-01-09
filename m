@@ -1,47 +1,51 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id l094kCMw020262
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id l094kCun020261
 	for <selinux@tycho.nsa.gov>; Mon, 8 Jan 2007 23:46:12 -0500
-Received: from mail.atsec.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id l094l0Ml000032
+Received: from mail.atsec.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l094l0mL016137
 	for <selinux@tycho.nsa.gov>; Tue, 9 Jan 2007 04:47:00 GMT
-Date: Mon, 8 Jan 2007 22:47:03 -0600
+Date: Mon, 8 Jan 2007 22:43:25 -0600
 From: Klaus Weidner <klaus@atsec.com>
 To: "Christopher J. PeBenito" <cpebenito@tresys.com>
-Cc: Daniel J Walsh <dwalsh@redhat.com>, SE Linux <selinux@tycho.nsa.gov>
-Subject: Re: Latest diffs
-Message-ID: <20070109044703.GB24321@w-m-p.com>
-References: <459BDFD4.7080903@redhat.com> <20070103214837.GB21450@w-m-p.com> <1168278516.12883.24.camel@sgc.columbia.tresys.com>
+Cc: selinux@tycho.nsa.gov
+Subject: Re: [PATCH RFC 1/2] stricter MLS policy constraints
+Message-ID: <20070109044325.GA24321@w-m-p.com>
+References: <20061212072825.GA3362@w-m-p.com> <20061212073454.GA30421@w-m-p.com> <1168271261.12883.4.camel@sgc.columbia.tresys.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1168278516.12883.24.camel@sgc.columbia.tresys.com>
+In-Reply-To: <1168271261.12883.4.camel@sgc.columbia.tresys.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, Jan 08, 2007 at 12:48:36PM -0500, Christopher J. PeBenito wrote:
-> On Wed, 2007-01-03 at 15:48 -0600, Klaus Weidner wrote:
-> > On Wed, Jan 03, 2007 at 11:54:44AM -0500, Daniel J Walsh wrote:
-> > > sudo reads netlink_route_socket,  wants to look at the kernel key ring, 
-> > > stores a token in the pam_pid directory, and needs to getattr on all 
-> > > "user" executables.
-> > > 
-> > > Some changes to su in order to handle key rings,  Needs 
-> > > mls_file_write_down.  Need to be able to su from different domains, and 
-> > > pam_rootok causes some selinux_compute_access checks.
-> > [...]
-> > > sshd wants to look at kernel key ring
-> > [...]
-> > > fixes for authlogin handling of keyrings and mls, as well as pcscd
+On Mon, Jan 08, 2007 at 10:47:41AM -0500, Christopher J. PeBenito wrote:
+> On Tue, 2006-12-12 at 01:34 -0600, Klaus Weidner wrote: 
+> > Rename the "mlsfilewriteinrange" attribute with no functional changes.
+> > The reason for the renaming is that this is an object attribute (like
+> > "mlstrustedobject"), and it's confusing to use the naming scheme usually
+> > used for subject attributes for it. It's currently only used for the
+> > printer device object.
 > > 
-> > I'm confused about what kernel keyring features are currently available
-> > in the current policy, and who gets to use them.
+> > See 0/2 message for additional explanations.
 > 
-> I haven't had a chance to look at the patch, but what is currently
-> upstream does not allow users to do anything with keys.  Here's the
-> current rules across the entire upstream repo (which includes modules
-> not enabled in the lspp policy):
+> Sorry for the late response, but its taken some time to clear out the
+> backlog while I was out of the office.  This patch cannot be applied
+> upstream because there is no compatibility for renaming the attribute.
+> Since modules are statically compiled, anything that happens to use this
+> attribute will fail to link.  The other patches seemed ok.
+> 
+> > -attribute mlsfilewriteinrange;
+> > +attribute mlsrangedobject;
 
-That sounds harmless for the purposes of the LSPP evaluation, thanks for
-the clarification.
+Is this really a big problem? If I remember correctly the attribute had
+been introduced specifically to support the ranged printer device type
+needed for Matt's labeled Cups extensions, and it's only used in a single
+place in the shipped policy (which the patch updated). 
+
+Of course I don't want to cause trouble for people using the refpolicy
+with out-of-tree modules, is there a way to do the rename using an alias
+interface or deprecation warning to give people time to switch? I think
+it would be bad to be stuck with historically grown interfaces forever,
+especially if the feature was just added recently.
 
 -Klaus
 
