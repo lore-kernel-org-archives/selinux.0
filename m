@@ -1,146 +1,109 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id l09LIEba023249
-	for <selinux@tycho.nsa.gov>; Tue, 9 Jan 2007 16:18:14 -0500
-Received: from mx1.redhat.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l09LJ3PN021884
-	for <selinux@tycho.nsa.gov>; Tue, 9 Jan 2007 21:19:03 GMT
-Received: from int-mx1.corp.redhat.com (int-mx1.corp.redhat.com [172.16.52.254])
-	by mx1.redhat.com (8.12.11.20060308/8.12.11) with ESMTP id l09LJ3DG028335
-	for <selinux@tycho.nsa.gov>; Tue, 9 Jan 2007 16:19:03 -0500
-Subject: Re: [RFC] Support for bzip compressed modules
-From: Karl MacMillan <kmacmillan@mentalrootkit.com>
-To: James Antill <jantill@redhat.com>
-Cc: SELinux Mail List <selinux@tycho.nsa.gov>
-In-Reply-To: <1168361406.13080.12.camel@code.and.org>
-References: <45A2AADC.1090907@mentalrootkit.com>
-	 <1168327098.22423.93.camel@code.and.org>
-	 <45A3BA1B.9000908@mentalrootkit.com>
-	 <1168361406.13080.12.camel@code.and.org>
-Content-Type: text/plain
-Date: Tue, 09 Jan 2007 16:18:22 -0500
-Message-Id: <1168377502.4983.12.camel@localhost.localdomain>
-Mime-Version: 1.0
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Subject: RE: [PATCH] allow semodule -i to accept list of modules
+Date: Tue, 9 Jan 2007 16:53:34 -0500
+Message-ID: <6FE441CD9F0C0C479F2D88F959B015886CA5C6@exchange.columbia.tresys.com>
+In-Reply-To: <1168375433.7993.157.camel@moss-spartans.epoch.ncsc.mil>
+From: "Joshua Brindle" <jbrindle@tresys.com>
+To: "Stephen Smalley" <sds@tycho.nsa.gov>
+Cc: "Karl MacMillan" <kmacmillan@mentalrootkit.com>,
+        "SELinux List" <selinux@tycho.nsa.gov>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2007-01-09 at 11:50 -0500, James Antill wrote:
-> On Tue, 2007-01-09 at 10:51 -0500, Karl MacMillan wrote:
-> > James Antill wrote:
-> > > On Mon, 2007-01-08 at 15:34 -0500, Karl MacMillan wrote:
+> From: Stephen Smalley [mailto:sds@tycho.nsa.gov] 
 > 
-> > >> I didn't want to add additional set functions - I would have preferred 
-> > >> to allow sepol_policy_file_set_[mem,fd] to transparently open compressed 
-> > >> streams with functions to set other behaviors as options stored in 
-> > >> sepol_policy_file_t structs. This was not possible becuase the current 
-> > >> set functions do not return errors.
-> > > 
-> > >  Do we really care about the memory usage, my instinct would be to drop
-> > > the FILE specific code and just dump everything into memory and then
-> > > call the mem_set function and thus. have only one decompression loop
-> > > (adding the fd version is simple then too).
-> > >  Calling fstat(fileno(fp)) to read the policy in is probably easier than
-> > > a loop.
-> > > 
+> On Tue, 2007-01-09 at 15:17 -0500, Stephen Smalley wrote:
+> > On Tue, 2007-01-09 at 11:17 -0500, Joshua Brindle wrote:
+> > > Karl MacMillan wrote:
+> > > > The following patch allows semodule to handle a list of modules 
+> > > > for installation (i.e., semodule -i *.pp now works).
+> > > >
+> > > > Signed-off-by: Karl MacMillan <kmacmillan@mentalrootkit.com>
+> > > >
+> > > >   
+> > > Acked-By: Joshua Brindle <jbrindle@tresys.com>
 > > 
-> > Not certain what you are getting at - both code paths result in an 
-> > uncompressed copy of the compressed data in memory. The only difference 
-> > is whether we are decompressing from an fd or from another memory buffer.
-> 
->  Just that it seems easier to have the set_fp() function load all the
-> data into memory and call the set_mem() function, and have all of the
-> bz2 stuff in just the set_mem() function.
-> 
-
-Ah - I see. I prefer the separate decompression paths because the mem
-case is potentially very inefficient. No strong preference though.
-
-> > > . check is always true in callers, and I'm not sure why you'd have it
-> > > zero.
-> > > 
+> > Acked-by:  Stephen Smalley <sds@tycho.nsa.gov>
 > > 
-> > The magic number checking seems fragile - I'm assuming it might be 
-> > necessary to force the stream as compressed at some point. Since we are 
-> > maintaining ABI for this library (and these functions), seems better to 
-> > be safe.
+> > This means we can also update the semodule man page to remove the 
+> > gross hack we came up with to workaround the absence of 
+> such support,
+> >        # Replace all modules with the ones in the current directory
+> >        $ semodule -b base.pp 'semodule -l | awk '{print "-i " $1 
+> > ".pp"}''
 > 
->  Do policy files not have a magic value, then?
-
-They do, but there is no real restriction that these policy file things
-get used for files containing policy. Currently they are used for a
-variety of file types and I would hate to hard code a list valid file
-types into this function.
-
->  You can also (for bz2)
-> check that the next value is between 1 and 9 (it's the compression
-> ratio).
-
-Ok. Could this be used for sizing the buffer in the memory case? In
-other words, is it a user setting that was passed to bzip or information
-about the result of the compression?
-
->  I assume this means you'd rely on anything ending in ".bz2" being
-> compressed, and not otherwise ... do we always have a filename?
+> BTW, any reason we wouldn't support the same thing for -u or -r?
 > 
 
-No, and in fact we explicitly rename the policy modules in the store to
-whatever name is set within the policy. So if you create a module name
-foo saved in the file bar.pp.bz2, after 'semodule -i bar.pp.bz2' there
-will be a file called foo.pp in the module store. I didn't change that
-behavior, so file extension is not useful here.
+-r wouldn't work well because it wants the name of the module (eg.,
+apache) instead of the filename (apache.pp)
 
-> > > . All code paths have:
-> > > 
-> > >  if (set_foo_bz2() == FAILED)
-> > >   set_foo();
-> > > 
-> > > ...which tells me set_foo_bz2() should do that ... in fact it seems sane
-> > > to just change set_foo() to check of bz2ness and do the right thing,
-> > > without having to alter the callers.
-> > > 
 > > 
-> > Note my comments with the original patch - this isn't possible because 
-> > set_foo() has a void return and we want to maintain binary compatibility.
-> 
->  Right, but as I said the error paths always just try again without
-> compression ... so why not just try the compression at the start of the
-> set_foo() code. You get the same behaviour.
-> 
-
-It is not about returning information about the compression. It is
-because the compression routines have other error paths (failure to load
-libbz2, memory allocation, etc.). There is no good way to indicate those
-errors without changing the prototypes. Even if we didn't change the
-prototypes, it is valid to not check the current functions for error, so
-we can't change them in any way that has potential error paths.
-
-> > >  I assume the only reason you went with bzip2 over gzip is the "have to
-> > > init yourself in the set_mem case"?
+> > > > diff -r e37f9d8d6611 policycoreutils/semodule/semodule.c
+> > > > --- a/policycoreutils/semodule/semodule.c	Mon Jan 
+> 08 15:00:14 2007 -0500
+> > > > +++ b/policycoreutils/semodule/semodule.c	Mon Jan 
+> 08 16:37:23 2007 -0500
+> > > > @@ -225,15 +225,6 @@ static void parse_command_line(int argc,
+> > > >  			}
+> > > >  		}
+> > > >  	}
+> > > > -	if (optind < argc) {
+> > > > -		fprintf(stderr, "Extraneous arguments:  ");
+> > > > -		while (optind < argc)
+> > > > -			fprintf(stderr, "%s", argv[optind++]);
+> > > > -		fprintf(stderr, "\n");
+> > > > -		usage(argv[0]);
+> > > > -		cleanup();
+> > > > -		exit(1);
+> > > > -	}
+> > > >  	if ((build || reload) && num_commands) {
+> > > >  		fprintf(stderr,
+> > > >  			"build or reload should not be 
+> used with other commands\n"); 
+> > > > @@ -244,6 +235,24 @@ static void parse_command_line(int argc,
+> > > >  		fprintf(stderr, "At least one mode must 
+> be specified.\n");
+> > > >  		usage(argv[0]);
+> > > >  		exit(1);
+> > > > +	}
+> > > > +
+> > > > +	if (optind < argc) {
+> > > > +		/* if -i was the last command treat any 
+> remaining
+> > > > +		 * arguments as modules to allow 
+> 'semodule -i *.pp' to
+> > > > +		 * work as expected.
+> > > > +		 */
+> > > > +		if (commands[num_commands - 1].mode == 
+> INSTALL_M) {
+> > > > +			while (optind < argc)
+> > > > +				set_mode(INSTALL_M, 
+> argv[optind++]);
+> > > > +		} else {
+> > > > +			fprintf(stderr, "unknown 
+> additional arguments:\n");
+> > > > +			while (optind < argc)
+> > > > +				fprintf(stderr, " %s", 
+> argv[optind++]);
+> > > > +			fprintf(stderr, "\n\n");
+> > > > +			usage(argv[0]);
+> > > > +			exit(1);
+> > > > +		}
+> > > >  	}
+> > > >  }
+> > > >  
+> > > >
+> > > >
+> > > >
 > > 
-> > No - just better compression.
-> > 
-> > [kmacmill@localhost ~]$ ls -l base.pp.*
-> > -rw-r--r-- 1 kmacmill kmacmill  86379 Jan  9 10:50 base.pp.bz2
-> > -rw-r--r-- 1 kmacmill kmacmill 167382 Jan  9 10:50 base.pp.gz
+> --
+> Stephen Smalley
+> National Security Agency
 > 
->  Wow ... that's better than usual. Do you have the same difference for
-> smaller modules?
 > 
-
-[kmacmill@localhost ~]$ ls -l alsa.pp*
--rw-r--r-- 1 kmacmill kmacmill 41720 Jan  9 16:13 alsa.pp
--rw-r--r-- 1 kmacmill kmacmill  4987 Jan  9 16:13 alsa.pp.bz2
--rw-r--r-- 1 kmacmill kmacmill  5145 Jan  9 16:13 alsa.pp.gz
-
-[kmacmill@localhost ~]$ ls -l apache.pp*
--rw-r--r-- 1 kmacmill kmacmill 416123 Jan  9 16:14 apache.pp
--rw-r--r-- 1 kmacmill kmacmill  15800 Jan  9 16:14 apache.pp.bz2
--rw-r--r-- 1 kmacmill kmacmill  26585 Jan  9 16:14 apache.pp.gz
-
-Not quite as dramatic always, but still a significant difference.
-
-Karl
-
-
 
 
 --
