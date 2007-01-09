@@ -1,79 +1,85 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id l08LhOUo008467
-	for <selinux@tycho.nsa.gov>; Mon, 8 Jan 2007 16:43:24 -0500
-Received: from mx1.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id l08LiCc5016419
-	for <selinux@tycho.nsa.gov>; Mon, 8 Jan 2007 21:44:13 GMT
-Received: from int-mx1.corp.redhat.com (int-mx1.corp.redhat.com [172.16.52.254])
-	by mx1.redhat.com (8.12.11.20060308/8.12.11) with ESMTP id l08LiCcG006946
-	for <selinux@tycho.nsa.gov>; Mon, 8 Jan 2007 16:44:12 -0500
-Received: from pobox-2.corp.redhat.com (pobox-2.corp.redhat.com [10.11.255.15])
-	by int-mx1.corp.redhat.com (8.13.1/8.13.1) with ESMTP id l08LiChk023392
-	for <selinux@tycho.nsa.gov>; Mon, 8 Jan 2007 16:44:12 -0500
-Received: from [10.11.14.28] (vpn-14-28.rdu.redhat.com [10.11.14.28])
-	by pobox-2.corp.redhat.com (8.13.1/8.13.1) with ESMTP id l08LiBP5002717
-	for <selinux@tycho.nsa.gov>; Mon, 8 Jan 2007 16:44:12 -0500
-Subject: [PATCH] allow semodule -i to accept list of modules
-From: Karl MacMillan <kmacmillan@mentalrootkit.com>
-To: SELinux List <selinux@tycho.nsa.gov>
-Content-Type: text/plain
-Date: Mon, 08 Jan 2007 16:43:47 -0500
-Message-Id: <1168292627.14203.2.camel@localhost.localdomain>
-Mime-Version: 1.0
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id l090PEqj013486
+	for <selinux@tycho.nsa.gov>; Mon, 8 Jan 2007 19:25:14 -0500
+Received: from e32.co.us.ibm.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l090Q2bm013315
+	for <selinux@tycho.nsa.gov>; Tue, 9 Jan 2007 00:26:02 GMT
+Received: from westrelay02.boulder.ibm.com (westrelay02.boulder.ibm.com [9.17.195.11])
+	by e32.co.us.ibm.com (8.13.8/8.12.11) with ESMTP id l090Otrs032302
+	for <selinux@tycho.nsa.gov>; Mon, 8 Jan 2007 19:24:55 -0500
+Received: from d03av01.boulder.ibm.com (d03av01.boulder.ibm.com [9.17.195.167])
+	by westrelay02.boulder.ibm.com (8.13.6/8.13.6/NCO v8.1.1) with ESMTP id l090Q0pA455236
+	for <selinux@tycho.nsa.gov>; Mon, 8 Jan 2007 17:26:00 -0700
+Received: from d03av01.boulder.ibm.com (loopback [127.0.0.1])
+	by d03av01.boulder.ibm.com (8.12.11.20060308/8.13.3) with ESMTP id l090PxOP009981
+	for <selinux@tycho.nsa.gov>; Mon, 8 Jan 2007 17:26:00 -0700
+Date: Mon, 8 Jan 2007 18:11:30 -0600
+From: Joy Latten <latten@austin.ibm.com>
+Message-Id: <200701090011.l090BUx8017494@faith.austin.ibm.com>
+To: redhat-lspp@redhat.com
+Subject: [PATCH 0/3]: labeled ipsec policy
+Cc: cpebenito@tresys.com, selinux@tycho.nsa.gov
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-The following patch allows semodule to handle a list of modules for
-installation (i.e., semodule -i *.pp now works).
+The labeled IPSec policy patchset consists
+of 3 patches. 
 
-Signed-off-by: Karl MacMillan <kmacmillan@mentalrootkit.com>
+Patch1:
+Adds the attribute, netapp_type and the interface
+corenet_type() which adds types to this attribute.
+Networking types then call this interface.
 
-diff -r e37f9d8d6611 policycoreutils/semodule/semodule.c
---- a/policycoreutils/semodule/semodule.c	Mon Jan 08 15:00:14 2007 -0500
-+++ b/policycoreutils/semodule/semodule.c	Mon Jan 08 16:37:23 2007 -0500
-@@ -225,15 +225,6 @@ static void parse_command_line(int argc,
- 			}
- 		}
- 	}
--	if (optind < argc) {
--		fprintf(stderr, "Extraneous arguments:  ");
--		while (optind < argc)
--			fprintf(stderr, "%s", argv[optind++]);
--		fprintf(stderr, "\n");
--		usage(argv[0]);
--		cleanup();
--		exit(1);
--	}
- 	if ((build || reload) && num_commands) {
- 		fprintf(stderr,
- 			"build or reload should not be used with other commands\n");
-@@ -244,6 +235,24 @@ static void parse_command_line(int argc,
- 		fprintf(stderr, "At least one mode must be specified.\n");
- 		usage(argv[0]);
- 		exit(1);
-+	}
-+
-+	if (optind < argc) {
-+		/* if -i was the last command treat any remaining
-+		 * arguments as modules to allow 'semodule -i *.pp' to
-+		 * work as expected.
-+		 */
-+		if (commands[num_commands - 1].mode == INSTALL_M) {
-+			while (optind < argc)
-+				set_mode(INSTALL_M, argv[optind++]);
-+		} else {
-+			fprintf(stderr, "unknown additional arguments:\n");
-+			while (optind < argc)
-+				fprintf(stderr, " %s", argv[optind++]);
-+			fprintf(stderr, "\n\n");
-+			usage(argv[0]);
-+			exit(1);
-+		}
- 	}
- }
- 
+Also adds default ipsec policy type, ipsec_spd_t.
+Adds the interface ipsec_labeled() that allows
+a domain to polmatch to ipsec_spd_t as well as
+sendto and recvfrom itself. So, ipsec_labeled(netapp_type) 
+is called in corenework.if.in, to enable networking apps,
+such as ping to work with no policy being required of sysadm.
+(This is because the socket and the SA have same type,
+thus need to only have permissions to receive from "self".)
 
+Patch2:
+Adds interface to some networking modules to allow recvfrom
+permission. I only added this interface to networking types that
+appeared to be daemons or client/server model, where I could not readily
+determine who would need access permissions.
+For example, 
+interface(`evolution_recv_labeledipsec_server_role',`
+       gen_require(`
+               type $1_evolution_server_t;
+       ')
+       allow $2 $1_evolution_server_t:association recvfrom;
+')
 
+A sysadm would have to write policy using these interfaces
+to determine what "localdomain" may recvfrom "$1_evolution_server_t".
+
+To minimize or avoid this, I thought it might be good to have a default.
+I would like to add to each module with an interface
+like this, a rule like the following,
+
+evolution_recv_labeledipsec_server_role(netapp_type)
+OR
+evolution_recv_labeledipsec_server_role(domain)
+
+Thus allowing all domains or all networking domains to 
+be able to recvfrom this particular server domain.
+
+Let me know if this sounds ok, and I will make the changes.
+
+Patch3:
+Modifies ipsec.* files such that setkey and racoon run
+in their own domains. 
+Adds ability for sysadm role to run setkey and execute
+via ipsec_tools_run() in userdomain.te
+
+I have tested setkey and racoon using basic config.
+Not sure if I have all the rules required as I have not
+tested all code paths for racoon and setkey.
+
+Regards,
+Joy Latten
 
 --
 This message was distributed to subscribers of the selinux mailing list.
