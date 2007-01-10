@@ -1,123 +1,62 @@
-Subject: Re: [PATCH] allow semodule -i to accept list of modules
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Karl MacMillan <kmacmillan@mentalrootkit.com>
-Cc: Joshua Brindle <jbrindle@tresys.com>, SELinux List <selinux@tycho.nsa.gov>
-In-Reply-To: <1168379560.4983.19.camel@localhost.localdomain>
-References: <1168292627.14203.2.camel@localhost.localdomain>
-	 <45A3C035.5020203@tresys.com>
-	 <1168373874.7993.152.camel@moss-spartans.epoch.ncsc.mil>
-	 <1168375433.7993.157.camel@moss-spartans.epoch.ncsc.mil>
-	 <1168379560.4983.19.camel@localhost.localdomain>
-Content-Type: text/plain; charset=utf-8
-Date: Wed, 10 Jan 2007 08:46:43 -0500
-Message-Id: <1168436803.7993.183.camel@moss-spartans.epoch.ncsc.mil>
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id l0AGqtsH026154
+	for <selinux@tycho.nsa.gov>; Wed, 10 Jan 2007 11:52:55 -0500
+Received: from mail.and.org (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l0AGrjoR006342
+	for <selinux@tycho.nsa.gov>; Wed, 10 Jan 2007 16:53:45 GMT
+Received: from localhost ([127.0.0.1])
+	by mail.and.org with esmtp (Exim 4.63)
+	(envelope-from <jantill@redhat.com>)
+	id 1H4ghs-0004BV-0n
+	for selinux@tycho.nsa.gov; Wed, 10 Jan 2007 11:53:44 -0500
+Subject: Tar storage of SELinux context, translated or not
+From: James Antill <jantill@redhat.com>
+To: SELinux Mail List <selinux@tycho.nsa.gov>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-smYd5tLpqEbCrcVDFLdx"
+Date: Wed, 10 Jan 2007 11:53:43 -0500
+Message-Id: <1168448023.13080.33.camel@code.and.org>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2007-01-09 at 16:52 -0500, Karl MacMillan wrote:
-> On Tue, 2007-01-09 at 15:43 -0500, Stephen Smalley wrote:
-> > On Tue, 2007-01-09 at 15:17 -0500, Stephen Smalley wrote:
-> > > On Tue, 2007-01-09 at 11:17 -0500, Joshua Brindle wrote:
-> > > > Karl MacMillan wrote:
-> > > > > The following patch allows semodule to handle a list of modules for
-> > > > > installation (i.e., semodule -i *.pp now works).
-> > > > >
-> > > > > Signed-off-by: Karl MacMillan <kmacmillan@mentalrootkit.com>
-> > > > >
-> > > > >   
-> > > > Acked-By: Joshua Brindle <jbrindle@tresys.com>
-> > > 
-> > > Acked-by:  Stephen Smalley <sds@tycho.nsa.gov>
-> > > 
-> > > This means we can also update the semodule man page to remove the gross
-> > > hack we came up with to workaround the absence of such support,
-> > >        # Replace all modules with the ones in the current directory
-> > >        $ semodule -b base.pp ‘semodule -l | awk ’{print "-i " $1
-> > > ".pp"}’‘
-> > 
-> > BTW, any reason we wouldn't support the same thing for -u or -r?
-> > 
-> 
-> Patch below. It is less useful for -r, but still potentially easier. As
-> for the man page, that is updated but the command for updating
-> from /usr/share/selinux/policyname still sucks. I came up with:
-> 
-> ls *.pp | grep -Ev "base.pp|enableaudit.pp" | xargs /usr/sbin/semodule
-> -i
 
-That has a different effect.  The original command replaces the base
-module and any already installed module (semodule -l output) with ones
-from the current directory as a single transaction without installing
-any new modules, while your command would replace any non-base modules
-and install any new ones, without updating the base module (which could
-very well fail due to dependencies on the base).  Both actually seem
-wrong to me - we do want to install all of the non-base modules from the
-directory as per your command but we need to include the base in the
-same transaction.
+--=-smYd5tLpqEbCrcVDFLdx
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-> Gets rid of awk (so it is potentially easier for many), but it is
-> longer. At some point someone should make semodule just do the right
-> thing for a mixed list of modules and base modules. Of course, even that
-> wouldn't work for the /usr/share/selinux directories because of
-> enableaudit, so I give up.
-> 
-> Signed-off-by: Karl MacMillan <kmacmillan@mentalrootkit.com>
-> 
-> diff -r a70fbd24a437 policycoreutils/semodule/semodule.8
-> --- a/policycoreutils/semodule/semodule.8	Tue Jan 09 16:21:10 2007 -0500
-> +++ b/policycoreutils/semodule/semodule.8	Tue Jan 09 16:46:35 2007 -0500
-> @@ -59,7 +59,10 @@ be verbose
->  # List non-base modules.
->  $ semodule -l
->  # Replace all modules with the ones in the current directory
-> -$ semodule -b base.pp `semodule -l | awk '{print "-i " $1 ".pp"}'`
-> +$ semodule -i *.pp
-> +# Replace all modules with the ones in the current directory
-> +# excluding base.pp and enableaudit.pp
-> +$ ls *.pp | grep -Ev "base.pp|enableaudit.pp" | xargs /usr/sbin/semodule -i
->  .fi
->  
->  .SH SEE ALSO
-> diff -r a70fbd24a437 policycoreutils/semodule/semodule.c
-> --- a/policycoreutils/semodule/semodule.c	Tue Jan 09 16:21:10 2007 -0500
-> +++ b/policycoreutils/semodule/semodule.c	Tue Jan 09 16:46:35 2007 -0500
-> @@ -238,13 +238,17 @@ static void parse_command_line(int argc,
->  	}
->  
->  	if (optind < argc) {
-> -		/* if -i was the last command treat any remaining
-> -		 * arguments as modules to allow 'semodule -i *.pp' to
-> +		int mode;
-> +		/* if -i/u/r was the last command treat any remaining
-> +		 * arguments as args. Will allow 'semodule -i *.pp' to
->  		 * work as expected.
->  		 */
->  		if (commands[num_commands - 1].mode == INSTALL_M) {
-> -			while (optind < argc)
-> -				set_mode(INSTALL_M, argv[optind++]);
-> +			mode = INSTALL_M;
-> +		} else if (commands[num_commands - 1].mode == UPGRADE_M) {
-> +			mode = UPGRADE_M;
-> +		} else if (commands[num_commands - 1].mode == REMOVE_M) {
-> +			mode = REMOVE_M;
->  		} else {
->  			fprintf(stderr, "unknown additional arguments:\n");
->  			while (optind < argc)
-> @@ -253,6 +257,8 @@ static void parse_command_line(int argc,
->  			usage(argv[0]);
->  			exit(1);
->  		}
-> +		while (optind < argc)
-> +			set_mode(mode, argv[optind++]);
->  	}
->  }
->  
-> 
-> 
--- 
-Stephen Smalley
-National Security Agency
+
+ As some of you know, I have done patches to make GNUtar able to
+save/restore ACLs, SELinux context and generic user xattrs. I've
+recently had to fixup the ACL support for compatibility with star etc.,
+and for a couple of reasons that got me thinking about the SELinux
+support as well.
+
+ I had originally decided that the SELinux security context should be
+stored in translated form, Ie. getfilecon =3D> tar =3D> setfilecon, my
+thinking was that if you want to store something over a long period this
+is the better format ... but as I think more about it now I'm not 100%
+convinced (for instance, AIUI ipsec etc. uses raw format to distribute
+context between machines).
+ With the current changes, this is a great time to change it (but I
+really, really, don't want to have an option either way) ... if we want
+to. So should I change it to non-translated?
+
+--=20
+James Antill <jantill@redhat.com>
+
+--=-smYd5tLpqEbCrcVDFLdx
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.6 (GNU/Linux)
+
+iD8DBQBFpRoX11eXTEMrxtQRAnNZAJ9bGLL7/0DBdPMIXgTvxPjRCukbbACfUy86
+5JhQjyEtog9mINR0DBxZJ/4=
+=hKIx
+-----END PGP SIGNATURE-----
+
+--=-smYd5tLpqEbCrcVDFLdx--
 
 
 --
