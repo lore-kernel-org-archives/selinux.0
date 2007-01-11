@@ -1,44 +1,46 @@
-Message-ID: <45A644DF.9050005@redhat.com>
-Date: Thu, 11 Jan 2007 09:08:31 -0500
+Message-ID: <45A64526.2050701@redhat.com>
+Date: Thu, 11 Jan 2007 09:09:42 -0500
 From: Daniel J Walsh <dwalsh@redhat.com>
 MIME-Version: 1.0
-To: Stephen Smalley <sds@tycho.nsa.gov>, SE Linux <selinux@tycho.nsa.gov>
-Subject: Translation patch for seobject.py
+To: SE Linux <selinux@tycho.nsa.gov>, Stephen Smalley <sds@tycho.nsa.gov>
+Subject: translation patch for semanage
 Content-Type: multipart/mixed;
- boundary="------------040108080008040009000307"
+ boundary="------------060605080804040109060104"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 This is a multi-part message in MIME format.
---------------040108080008040009000307
+--------------060605080804040109060104
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 
+This patch works around a unicode problem in python.
 
-
---------------040108080008040009000307
+--------------060605080804040109060104
 Content-Type: text/x-patch;
- name="policycoreuitls-seobject.patch"
+ name="policycoreuitls-semanage.patch"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline;
- filename="policycoreuitls-seobject.patch"
+ filename="policycoreuitls-semanage.patch"
 
-diff --exclude-from=exclude --exclude POTFILES.in --exclude='*.po' --exclude='*.pot' -N -u -r nsapolicycoreutils/semanage/seobject.py policycoreutils-1.33.10/semanage/seobject.py
---- nsapolicycoreutils/semanage/seobject.py	2007-01-11 08:56:30.000000000 -0500
-+++ policycoreutils-1.33.10/semanage/seobject.py	2007-01-09 11:56:46.000000000 -0500
-@@ -23,13 +23,16 @@
- 
- import pwd, string, selinux, tempfile, os, re, sys
- from semanage import *;
--import gettext
+--- nsapolicycoreutils/semanage/semanage	2006-11-16 17:14:26.000000000 -0500
++++ policycoreutils-1.33.10/semanage/semanage	2007-01-09 11:55:52.000000000 -0500
+@@ -23,12 +23,21 @@
+ import os, sys, getopt
+ import seobject
+ import selinux
 +PROGNAME="policycoreutils"
- 
-+import gettext
++
+ import gettext
 +gettext.bindtextdomain(PROGNAME, "/usr/share/locale")
 +gettext.textdomain(PROGNAME)
++import codecs
++import locale
++sys.stderr = codecs.getwriter(locale.getpreferredencoding())(sys.__stderr__, 'replace')
++sys.stdout = codecs.getwriter(locale.getpreferredencoding())(sys.__stdout__, 'replace')
+ 
  try:
--       t = gettext.translation('policycoreutils', '/usr/share/locale')
--       _ = t.ugettext
+-       gettext.install('policycoreutils')
 -except:
 -       pass
 +       gettext.install(PROGNAME, localedir="/usr/share/locale", unicode=1)
@@ -46,100 +48,10 @@ diff --exclude-from=exclude --exclude POTFILES.in --exclude='*.po' --exclude='*.
 +       import __builtin__
 +       __builtin__.__dict__['_'] = unicode
  
- is_mls_enabled = selinux.is_selinux_mls_enabled()
+ is_mls_enabled=selinux.is_selinux_mls_enabled()
  
-@@ -168,7 +171,7 @@
- 	
- 	def list(self,heading = 1):
- 		if heading:
--			print "\n%-25s %s\n" % ("Level", "Translation")
-+			print "\n%-25s %s\n" % (_("Level"), _("Translation"))
- 		keys = self.ddict.keys()
- 		keys.sort()
- 		for k in keys:
-@@ -288,10 +289,10 @@
- 				raise ValueError(_("Could not add login mapping for %s") % name)
- 
- 		except ValueError, error:
--			mylog.log(0, "add SELinux user mapping", name, sename, "", serange);
-+			mylog.log(0, _("add SELinux user mapping"), name, sename, "", serange);
- 			raise error
- 		
--		mylog.log(1, "add SELinux user mapping", name, sename, "", serange);
-+		mylog.log(1, _("add SELinux user mapping"), name, sename, "", serange);
- 		semanage_seuser_key_free(k)
- 		semanage_seuser_free(u)
- 
-@@ -403,12 +404,12 @@
- 		keys.sort()
- 		if is_mls_enabled == 1:
- 			if heading:
--				print "\n%-25s %-25s %-25s\n" % ("Login Name", "SELinux User", "MLS/MCS Range")
-+				print "\n%-25s %-25s %-25s\n" % (_("Login Name"), _("SELinux User"), _("MLS/MCS Range"))
- 			for k in keys:
- 				print "%-25s %-25s %-25s" % (k, ddict[k][0], translate(ddict[k][1]))
- 		else:
- 			if heading:
--				print "\n%-25s %-25s\n" % ("Login Name", "SELinux User")
-+				print "\n%-25s %-25s\n" % (_("Login Name"), _("SELinux User"))
- 			for k in keys:
- 				print "%-25s %-25s" % (k, ddict[k][0])
- 
-@@ -617,13 +621,13 @@
- 		keys.sort()
- 		if is_mls_enabled == 1:
- 			if heading:
--				print "\n%-15s %-10s %-10s %-30s" % ("", "Labeling", "MLS/", "MLS/")
--				print "%-15s %-10s %-10s %-30s %s\n" % ("SELinux User", "Prefix", "MCS Level", "MCS Range", "SELinux Roles")
-+				print "\n%-15s %-10s %-10s %-30s" % ("", _("Labeling"), _("MLS/"), _("MLS/"))
-+				print "%-15s %-10s %-10s %-30s %s\n" % (_("SELinux User"), _("Prefix"), _("MCS Level"), _("MCS Range"), _("SELinux Roles"))
- 			for k in keys:
- 				print "%-15s %-10s %-10s %-30s %s" % (k, ddict[k][0], translate(ddict[k][1]), translate(ddict[k][2]), ddict[k][3])
- 		else:
- 			if heading:
--				print "%-15s %s\n" % ("SELinux User", "SELinux Roles")
-+				print "%-15s %s\n" % (_("SELinux User"), _("SELinux Roles"))
- 			for k in keys:
- 				print "%-15s %s" % (k, ddict[k][3])
- 
-@@ -832,7 +836,7 @@
- 
- 	def list(self, heading = 1):
- 		if heading:
--			print "%-30s %-8s %s\n" % ("SELinux Port Type", "Proto", "Port Number")
-+			print "%-30s %-8s %s\n" % (_("SELinux Port Type"), _("Proto"), _("Port Number"))
- 		ddict = self.get_all_by_type()
- 		keys = ddict.keys()
- 		keys.sort()
-@@ -1002,7 +1006,7 @@
- 			
- 	def list(self, heading = 1):
- 		if heading:
--			print "%-30s %s\n" % ("SELinux Interface", "Context")
-+			print "%-30s %s\n" % (_("SELinux Interface"), _("Context"))
- 		ddict = self.get_all()
- 		keys = ddict.keys()
- 		keys.sort()
-@@ -1186,7 +1190,7 @@
- 			
- 	def list(self, heading = 1):
- 		if heading:
--			print "%-50s %-18s %s\n" % ("SELinux fcontext", "type", "Context")
-+			print "%-50s %-18s %s\n" % (_("SELinux fcontext"), _("type"), _("Context"))
- 		fcon_list = self.get_all()
- 		for fcon in fcon_list:
- 			if len(fcon) > 3:
-@@ -1284,7 +1288,7 @@
- 			
- 	def list(self, heading = 1):
- 		if heading:
--			print "%-50s %-18s\n" % ("SELinux boolean", "value")
-+			print "%-50s %-18s\n" % (_("SELinux boolean"), _("value"))
- 		ddict = self.get_all()
- 		keys = ddict.keys()
- 		for k in keys:
 
---------------040108080008040009000307--
+--------------060605080804040109060104--
 
 
 --
