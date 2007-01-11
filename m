@@ -1,57 +1,29 @@
-Message-ID: <45A64526.2050701@redhat.com>
-Date: Thu, 11 Jan 2007 09:09:42 -0500
-From: Daniel J Walsh <dwalsh@redhat.com>
-MIME-Version: 1.0
-To: SE Linux <selinux@tycho.nsa.gov>, Stephen Smalley <sds@tycho.nsa.gov>
-Subject: translation patch for semanage
-Content-Type: multipart/mixed;
- boundary="------------060605080804040109060104"
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id l0BH32rF007050
+	for <selinux@tycho.nsa.gov>; Thu, 11 Jan 2007 12:03:02 -0500
+Received: from exchange.columbia.tresys.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with SMTP id l0BH3rK4004230
+	for <selinux@tycho.nsa.gov>; Thu, 11 Jan 2007 17:03:53 GMT
+Date: Thu, 11 Jan 2007 12:04:04 -0500
+Subject: SELinux Symposium Case Studies, WiPs, and BoFs
+From: Chad Sellers <csellers@tresys.com>
+To: "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>
+Message-ID: <C1CBD834.1BA51%csellers@tresys.com>
+Mime-version: 1.0
+Content-type: text/plain;
+	charset="US-ASCII"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This is a multi-part message in MIME format.
---------------060605080804040109060104
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+This is just a reminder to all of you to submit Case Studies,
+Work-in-Progress Reports (WiPs), and Birds-of-a-Feather Sessions for this
+year's SELinux Symposium by January 22. These are great opportunities for
+talking about what's going on in the SELinux community. See
+http://selinux-symposium.org/2007/callforwipsbofs.php for more information.
+If you have any questions, feel free to drop me a note.
 
-This patch works around a unicode problem in python.
-
---------------060605080804040109060104
-Content-Type: text/x-patch;
- name="policycoreuitls-semanage.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="policycoreuitls-semanage.patch"
-
---- nsapolicycoreutils/semanage/semanage	2006-11-16 17:14:26.000000000 -0500
-+++ policycoreutils-1.33.10/semanage/semanage	2007-01-09 11:55:52.000000000 -0500
-@@ -23,12 +23,21 @@
- import os, sys, getopt
- import seobject
- import selinux
-+PROGNAME="policycoreutils"
-+
- import gettext
-+gettext.bindtextdomain(PROGNAME, "/usr/share/locale")
-+gettext.textdomain(PROGNAME)
-+import codecs
-+import locale
-+sys.stderr = codecs.getwriter(locale.getpreferredencoding())(sys.__stderr__, 'replace')
-+sys.stdout = codecs.getwriter(locale.getpreferredencoding())(sys.__stdout__, 'replace')
- 
- try:
--       gettext.install('policycoreutils')
--except:
--       pass
-+       gettext.install(PROGNAME, localedir="/usr/share/locale", unicode=1)
-+except IOError:
-+       import __builtin__
-+       __builtin__.__dict__['_'] = unicode
- 
- is_mls_enabled=selinux.is_selinux_mls_enabled()
- 
-
---------------060605080804040109060104--
+Thanks,
+Chad Sellers
 
 
 --
