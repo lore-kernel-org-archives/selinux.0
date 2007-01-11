@@ -1,90 +1,57 @@
-Message-ID: <45A6AA01.5070802@redhat.com>
-Date: Thu, 11 Jan 2007 16:20:01 -0500
-From: Daniel J Walsh <dwalsh@redhat.com>
-MIME-Version: 1.0
-To: Karl MacMillan <kmacmillan@mentalrootkit.com>
-CC: SE Linux <selinux@tycho.nsa.gov>, Stephen Smalley <sds@tycho.nsa.gov>
-Subject: Re: translation patch for semanage
-References: <45A64526.2050701@redhat.com> <1168540385.7048.28.camel@localhost.localdomain>
-In-Reply-To: <1168540385.7048.28.camel@localhost.localdomain>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Subject: Re: [RFC] clarifications for -l to newrole.1
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Michael C Thompson <thompsmc@us.ibm.com>
+Cc: SE Linux <selinux@tycho.nsa.gov>, Klaus Weidner <klaus@atsec.com>
+In-Reply-To: <1168549320.7993.458.camel@moss-spartans.epoch.ncsc.mil>
+References: <45A6A064.2040707@us.ibm.com>
+	 <1168549320.7993.458.camel@moss-spartans.epoch.ncsc.mil>
+Content-Type: text/plain
+Date: Thu, 11 Jan 2007 16:24:06 -0500
+Message-Id: <1168550646.7993.460.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Karl MacMillan wrote:
-> On Thu, 2007-01-11 at 09:09 -0500, Daniel J Walsh wrote:
->   
->> This patch works around a unicode problem in python.
->>     
->
-> Can you give a little more detail - perhaps a BZ? It appears that this
-> patch and the seobject patch or to force all translated strings to be
-> unicode and output as unicode, correct? Why is this necessary?
->   
-No this patch forces all output strings to be the locale default.  So it 
-basically does the right thing.  BTW print works correctly.
-
-I can not find any matching bugs on python source forge but trying to 
-login there is causing me no end of head aches.  Asking people in the 
-know around here, I get this response
-
-+import codecs
-> +import locale
-> +sys.stderr =
-> codecs.getwriter(locale.getpreferredencoding())(sys.__stderr__,'replace')
+On Thu, 2007-01-11 at 16:02 -0500, Stephen Smalley wrote:
+> On Thu, 2007-01-11 at 14:39 -0600, Michael C Thompson wrote:
+> > Based on some discussion from irc and some complaints I have received, 
+> > I'm proposing this addition (comments or other suggestions welcome) to 
+> > the newrole manage. This example section would slot in right after the 
+> > DESCRIPTION section. Patch below.
+> > 
+> > EXAMPLE
+> >         Changing sensitivity only:
+> >            # id -Z
+> >            user:role:type:SystemLow-SystemHigh
+> >            # newrole -l Unclassified
+> >            # id -Z
+> >            user:role:type:Unclassified-SystemHigh
 > 
-> I was told by Ray that you knew about this problem in python?  Do you know if this is an open bug?
+> How does SystemLow differ from Unclassified here (in meaning, not just
+> value)?  If SystemLow is supposed to be a special label for system
+> objects, then why have users login at that level at all?
+> 
+> >         Changing sensitivity and clearance:
+> >            # id -Z
+> >            user:role:type:SystemLow-SystemHigh
+> >            # newrole -l Unclassified-Unclassified
+> >            # id -Z
+> >            user:role:type:Unclassified-Unclassified
+> 
+> When would you envision a user doing the above?  Trying to ensure that
+> any process he subsequently starts cannot escalate to higher levels?
+> 
+> If you are going to provide an example, use real output (i.e. not just
+> user:role:type).  Please include an example of changing roles too since
+> that is more common.  Also, fix the SEE ALSO list please (runas ->
+> runcon, and drop su as it is no longer relevant).
 
+More examples for semanage would also be helpful, e.g.
+	semanage login -m -r SystemLow-SystemHigh sds
 
-Don't know if it's an open bug per se; other than python is well known
-to be broken w/ respect to codecs.
-
-Thanks,
--Jonathan
-
-
->   
->> --- nsapolicycoreutils/semanage/semanage        2006-11-16
->> 17:14:26.000000000 -0500
->> +++ policycoreutils-1.33.10/semanage/semanage   2007-01-09
->> 11:55:52.000000000 -0500
->> @@ -23,12 +23,21 @@
->>  import os, sys, getopt
->>  import seobject
->>  import selinux
->> +PROGNAME="policycoreutils"
->> +
->>  import gettext
->> +gettext.bindtextdomain(PROGNAME, "/usr/share/locale")
->>     
->
-> Why is the location of the local files being forced? Is this appropriate
-> for all distros or does it need to be configurable?
->
->   
->> +gettext.textdomain(PROGNAME)
->> +import codecs
->> +import locale
->> +sys.stderr =
->> codecs.getwriter(locale.getpreferredencoding())(sys.__stderr__,
->> 'replace')
->> +sys.stdout =
->> codecs.getwriter(locale.getpreferredencoding())(sys.__stdout__,
->> 'replace')
->>     
->
-> Is this related to
-> http://mail.python.org/pipermail/pythonmac-sig/2004-March/010651.html?
-> I.e., is this to force the encoding rather than relying on the term to
-> correctly communicate that it supports unicode / utf8 / etc.?
->
-> If so, is this the "right" fix or just expedient?
->
-> Karl
->  
->
->
->   
+-- 
+Stephen Smalley
+National Security Agency
 
 
 --
