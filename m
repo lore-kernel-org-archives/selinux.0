@@ -1,66 +1,92 @@
 Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id l0AKEQDN002084
-	for <selinux@tycho.nsa.gov>; Wed, 10 Jan 2007 15:14:26 -0500
-Received: from exchange.columbia.tresys.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with SMTP id l0AKFFoR011577
-	for <selinux@tycho.nsa.gov>; Wed, 10 Jan 2007 20:15:15 GMT
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id l0B8QROB021351
+	for <selinux@tycho.nsa.gov>; Thu, 11 Jan 2007 03:26:28 -0500
+Received: from smtp.sws.net.au (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l0B8RFqX013982
+	for <selinux@tycho.nsa.gov>; Thu, 11 Jan 2007 08:27:16 GMT
+Received: from localhost (localhost [127.0.0.1])
+	by smtp.sws.net.au (Postfix) with ESMTP id BAEE661AFF
+	for <selinux@tycho.nsa.gov>; Thu, 11 Jan 2007 19:25:33 +1100 (EST)
+Received: from smtp.sws.net.au ([127.0.0.1])
+	by localhost (smtp.sws.net.au [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id we0G7UCEJKcC for <selinux@tycho.nsa.gov>;
+	Thu, 11 Jan 2007 19:25:33 +1100 (EST)
+Received: from aeon.coker.com.au (localhost [127.0.0.1])
+	by smtp.sws.net.au (Postfix) with ESMTP id C322F61AF7
+	for <selinux@tycho.nsa.gov>; Thu, 11 Jan 2007 19:25:31 +1100 (EST)
+Received: from localhost (localhost [127.0.0.1])
+	by aeon.coker.com.au (Postfix) with ESMTP id 4190920CC3
+	for <selinux@tycho.nsa.gov>; Thu, 11 Jan 2007 19:26:24 +1100 (EST)
+From: Russell Coker <russell@coker.com.au>
+Reply-To: russell@coker.com.au
+To: "SE-Linux" <selinux@tycho.nsa.gov>
+Subject: patch for semanage.8
+Date: Thu, 11 Jan 2007 17:42:12 +1100
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Subject: SELinux Symposium: Head of IBM Linux Development to be Keynote Speaker
-Date: Wed, 10 Jan 2007 15:12:22 -0500
-Message-ID: <6FE441CD9F0C0C479F2D88F959B015887B997A@exchange.columbia.tresys.com>
-From: "Frank L. Mayer" <mayerf@tresys.com>
-To: <selinux@tycho.nsa.gov>, <fedora-selinux-list@redhat.com>
+Message-Id: <200701111742.14991.russell@coker.com.au>
+Content-Type: Multipart/Mixed;
+  boundary="Boundary-00=_GxdpFA520xxL8ob"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-All, FYI we just announced that Dan Frye, head of Linux development at
-IBM as a keynote speaker at this year's SELinux Symposium. I expect a
-second keynote speaker to be announced later this month. Hope to see you
-all there. Frank
+--Boundary-00=_GxdpFA520xxL8ob
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
--=-=-=-=-=-=-=-=-=-=-=-
-FOR IMMEDIATE RELEASE			
-CONTACT: info@selinux-symposium.org
+The attached patch makes the man page more closely match semanage --help.  
+This is against the latest version in Debian, I haven't checked whether it's 
+needed in rawhide.
 
-Head of IBM Linux Development to be Keynote Speaker at
-Third Security Enhanced Linux Symposium
+-- 
+russell@coker.com.au
+http://etbe.blogspot.com/          My Blog
 
-Baltimore, Maryland-January 10, 2007- Daniel Frye, Vice President, IBM
-Open Systems Development, will be a keynote speaker for the third annual
-Security Enhanced Linux (SELinux) Symposium (www.selinux-symposium.org),
-scheduled for  March 12-16, 2007 in Baltimore, Maryland.
+http://www.coker.com.au/sponsorship.html Sponsoring Free Software development
 
-Dr. Frye is the head of IBM's UNIX development team, principally
-responsible for Linux and AIX development. He is additionally
-responsible for overseeing IBM's Linux technical strategy, IBM's
-participation in the open source Linux development community, and the
-IBM Linux Technology Center (LTC). The goal of Dr. Frye's Linux
-organization is to help the global open source community make Linux
-better, to ensure Enterprise-level Linux support for IBM's hardware,
-software, and services brands, and to help expand the reach of Linux
-into new markets.  
+--Boundary-00=_GxdpFA520xxL8ob
+Content-Type: text/x-diff;
+  charset="us-ascii";
+  name="diff"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+	filename="diff"
 
-Dr. Frye will present a keynote address entitled "Open and Secure: Linux
-Today and Tomorrow." In this address, Dr. Frye will discuss the impact
-of SELinux on Linux, and how open software helps in the proliferation of
-new security technology.
+--- semanage.8.orig	2007-01-09 17:59:28.000000000 +1100
++++ semanage.8	2007-01-11 16:56:27.000000000 +1100
+@@ -7,7 +7,7 @@
+ .br
+ .B semanage login \-{a|d|m} [\-sr] login_name
+ .br
+-.B semanage user \-{a|d|m} [\-LrR] selinux_name
++.B semanage user \-{a|d|m} [\-LrRP] selinux_name
+ .br
+ .B semanage port \-{a|d|m} [\-tr] [\-p protocol] port | port_range
+ .br
+@@ -45,7 +45,7 @@
+ .TP
+ .I                \-f, \-\-ftype
+ File Type.   This is used with fcontext.
+-Requires a file type as shown in the mode field by ls, e.g. use -d to match only directories or -- to match only regular files.
++Requires a file type as shown in the mode field by ls, use -d to match only directories -- for regular files, -c for character devices, -b for block devices, -s for sockets, -l for symbolic links, and -p for pipes.
+ .TP
+ .I                \-h, \-\-help       
+ display this message
+@@ -78,7 +78,10 @@
+ SELinux Type for the object
+ .TP
+ .I                \-T, \-\-trans
+-SELinux Translation
++SELinux level Translation
++.TP
++.I                \-P, \-\-prefix
++Labelling prefix for the user (sysadm, staff, or user)
+ .TP
+ .I                \-v, \-\-verbose    
+ verbose output
 
-
-About the SELinux Symposium
-
-The Security Enhanced Linux (SELinux) Symposium is an annual exchange of
-ideas, technology, and research involving SELinux. SELinux is emerging
-technology that adds flexible, strong mandatory access control security
-to Linux. The third annual symposium is scheduled for March 12-16, 2007
-in Baltimore, Maryland, USA. This year's symposium is sponsored by
-Hewlett-Packard, IBM, Red Hat, and Tresys Technology. The event brings
-together experts from business, government, and academia to share
-research, development, and application experiences using SELinux. For
-information on registration and sponsorship opportunities, see
-www.selinux-symposium.org.  
-
+--Boundary-00=_GxdpFA520xxL8ob--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
