@@ -1,122 +1,81 @@
-Subject: Re: [PATCH] allow semodule -i to accept list of modules
+Subject: Re: libselinux patch to add securetty rewritten with getline and
+	using Lindent
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Karl MacMillan <kmacmillan@mentalrootkit.com>
-Cc: Joshua Brindle <jbrindle@tresys.com>, SELinux List <selinux@tycho.nsa.gov>
-In-Reply-To: <1168436803.7993.183.camel@moss-spartans.epoch.ncsc.mil>
-References: <1168292627.14203.2.camel@localhost.localdomain>
-	 <45A3C035.5020203@tresys.com>
-	 <1168373874.7993.152.camel@moss-spartans.epoch.ncsc.mil>
-	 <1168375433.7993.157.camel@moss-spartans.epoch.ncsc.mil>
-	 <1168379560.4983.19.camel@localhost.localdomain>
-	 <1168436803.7993.183.camel@moss-spartans.epoch.ncsc.mil>
-Content-Type: text/plain; charset=utf-8
-Date: Thu, 11 Jan 2007 12:36:45 -0500
-Message-Id: <1168537005.7993.378.camel@moss-spartans.epoch.ncsc.mil>
+To: Daniel J Walsh <dwalsh@redhat.com>
+Cc: SE Linux <selinux@tycho.nsa.gov>,
+        Karl MacMillan <kmacmillan@mentalrootkit.com>,
+        Joshua Brindle <jbrindle@tresys.com>
+In-Reply-To: <1168373479.7993.144.camel@moss-spartans.epoch.ncsc.mil>
+References: <45A3AE94.40300@redhat.com>
+	 <1168373479.7993.144.camel@moss-spartans.epoch.ncsc.mil>
+Content-Type: text/plain
+Date: Thu, 11 Jan 2007 12:34:47 -0500
+Message-Id: <1168536887.7993.374.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2007-01-10 at 08:46 -0500, Stephen Smalley wrote:
-> On Tue, 2007-01-09 at 16:52 -0500, Karl MacMillan wrote:
-> > On Tue, 2007-01-09 at 15:43 -0500, Stephen Smalley wrote:
-> > > On Tue, 2007-01-09 at 15:17 -0500, Stephen Smalley wrote:
-> > > > On Tue, 2007-01-09 at 11:17 -0500, Joshua Brindle wrote:
-> > > > > Karl MacMillan wrote:
-> > > > > > The following patch allows semodule to handle a list of modules for
-> > > > > > installation (i.e., semodule -i *.pp now works).
-> > > > > >
-> > > > > > Signed-off-by: Karl MacMillan <kmacmillan@mentalrootkit.com>
-> > > > > >
-> > > > > >   
-> > > > > Acked-By: Joshua Brindle <jbrindle@tresys.com>
-> > > > 
-> > > > Acked-by:  Stephen Smalley <sds@tycho.nsa.gov>
-> > > > 
-> > > > This means we can also update the semodule man page to remove the gross
-> > > > hack we came up with to workaround the absence of such support,
-> > > >        # Replace all modules with the ones in the current directory
-> > > >        $ semodule -b base.pp ‘semodule -l | awk ’{print "-i " $1
-> > > > ".pp"}’‘
-> > > 
-> > > BTW, any reason we wouldn't support the same thing for -u or -r?
-> > > 
-> > 
-> > Patch below. It is less useful for -r, but still potentially easier. As
-> > for the man page, that is updated but the command for updating
-> > from /usr/share/selinux/policyname still sucks. I came up with:
-> > 
-> > ls *.pp | grep -Ev "base.pp|enableaudit.pp" | xargs /usr/sbin/semodule
-> > -i
+On Tue, 2007-01-09 at 15:11 -0500, Stephen Smalley wrote:
+> diff --exclude-from=exclude -N -u -r nsalibselinux/include/selinux/selinux.h libselinux-1.33.3/include/selinux/selinux.h
+> --- nsalibselinux/include/selinux/selinux.h	2006-11-16 17:15:18.000000000 -0500
+> +++ libselinux-1.33.3/include/selinux/selinux.h	2007-01-09 09:49:51.000000000 -0500
+> @@ -406,6 +406,7 @@
+>  	extern const char *selinux_homedir_context_path(void);
+>  	extern const char *selinux_media_context_path(void);
+>  	extern const char *selinux_contexts_path(void);
+> +	extern const char *selinux_securetty_context_path(void);
 > 
-> That has a different effect.  The original command replaces the base
-> module and any already installed module (semodule -l output) with ones
-> from the current directory as a single transaction without installing
-> any new modules, while your command would replace any non-base modules
-> and install any new ones, without updating the base module (which could
-> very well fail due to dependencies on the base).  Both actually seem
-> wrong to me - we do want to install all of the non-base modules from the
-> directory as per your command but we need to include the base in the
-> same transaction.
+> (nit) The above function is called "securetty_context" but the file is
+> called "securetty_contexts".  And the file actually contains just type
+> names.  Seems prone to confusion.  Other question is whether we should
+> be re-using the term 'securetty' here since it has a different meaning
+> in /etc/securetty (ttys from which root can login).
 > 
-> > Gets rid of awk (so it is potentially easier for many), but it is
-> > longer. At some point someone should make semodule just do the right
-> > thing for a mixed list of modules and base modules. Of course, even that
-> > wouldn't work for the /usr/share/selinux directories because of
-> > enableaudit, so I give up.
-> > 
-> > Signed-off-by: Karl MacMillan <kmacmillan@mentalrootkit.com>
-> > 
-> > diff -r a70fbd24a437 policycoreutils/semodule/semodule.8
-> > --- a/policycoreutils/semodule/semodule.8	Tue Jan 09 16:21:10 2007 -0500
-> > +++ b/policycoreutils/semodule/semodule.8	Tue Jan 09 16:46:35 2007 -0500
-> > @@ -59,7 +59,10 @@ be verbose
-> >  # List non-base modules.
-> >  $ semodule -l
-> >  # Replace all modules with the ones in the current directory
-> > -$ semodule -b base.pp `semodule -l | awk '{print "-i " $1 ".pp"}'`
-> > +$ semodule -i *.pp
-> > +# Replace all modules with the ones in the current directory
-> > +# excluding base.pp and enableaudit.pp
-> > +$ ls *.pp | grep -Ev "base.pp|enableaudit.pp" | xargs /usr/sbin/semodule -i
-> >  .fi
-> >  
-> >  .SH SEE ALSO
-> > diff -r a70fbd24a437 policycoreutils/semodule/semodule.c
-> > --- a/policycoreutils/semodule/semodule.c	Tue Jan 09 16:21:10 2007 -0500
-> > +++ b/policycoreutils/semodule/semodule.c	Tue Jan 09 16:46:35 2007 -0500
-> > @@ -238,13 +238,17 @@ static void parse_command_line(int argc,
-> >  	}
-> >  
-> >  	if (optind < argc) {
-> > -		/* if -i was the last command treat any remaining
-> > -		 * arguments as modules to allow 'semodule -i *.pp' to
-> > +		int mode;
-> > +		/* if -i/u/r was the last command treat any remaining
-> > +		 * arguments as args. Will allow 'semodule -i *.pp' to
-> >  		 * work as expected.
-> >  		 */
-> >  		if (commands[num_commands - 1].mode == INSTALL_M) {
-> > -			while (optind < argc)
-> > -				set_mode(INSTALL_M, argv[optind++]);
-> > +			mode = INSTALL_M;
-> > +		} else if (commands[num_commands - 1].mode == UPGRADE_M) {
-> > +			mode = UPGRADE_M;
-> > +		} else if (commands[num_commands - 1].mode == REMOVE_M) {
-> > +			mode = REMOVE_M;
-> >  		} else {
-> >  			fprintf(stderr, "unknown additional arguments:\n");
-> >  			while (optind < argc)
-> > @@ -253,6 +257,8 @@ static void parse_command_line(int argc,
-> >  			usage(argv[0]);
-> >  			exit(1);
-> >  		}
-> > +		while (optind < argc)
-> > +			set_mode(mode, argv[optind++]);
-> >  	}
-> >  }
-> >  
+> @@ -413,12 +414,15 @@
+>  	extern const char *selinux_translations_path(void);
+>  	extern const char *selinux_netfilter_context_path(void);
+>  	extern const char *selinux_path(void);
+> -
+>  /* Check a permission in the passwd class.
+>     Return 0 if granted or -1 otherwise. */
+>  	extern int selinux_check_passwd_access(access_vector_t requested);
+>  	extern int checkPasswdAccess(access_vector_t requested);
+>  
+> +/* Check if the tty_context is defined as a securetty
+> +   Return 1 if secure, 0 if not, or -1 if otherwise. */
+> +	extern int selinux_check_securetty_context(security_context_t
+> +						   tty_context);
+> 
+> If it is going to be a boolean function, I think I'd call it
+> selinux_is_securetty_context() or similar.  But note that this requires
+> care in the callers to explicitly check for != 1, versus a simple if
+> (selinux_check_securetty_context(c)) { handle_error(); } that you could
+> do if it followed the convention of returning 0 on secure tty and < 0 on
+> insecure tty or error (ala security_check_context).
+> 
+> diff --exclude-from=exclude -N -u -r nsalibselinux/src/selinux_check_securetty_context.c libselinux-1.33.3/src/selinux_check_securetty_context.c
+> --- nsalibselinux/src/selinux_check_securetty_context.c	1969-12-31 19:00:00.000000000 -0500
+> +++ libselinux-1.33.3/src/selinux_check_securetty_context.c	2007-01-09 10:00:58.000000000 -0500
+> @@ -0,0 +1,54 @@
+> +#include <unistd.h>
+> +#include <stdlib.h>
+> +#include <string.h>
+> +#include <stdio.h>
+> +#include <ctype.h>
+> +#include "selinux_internal.h"
+> +#include "context_internal.h"
+> +
+> +int selinux_check_securetty_context(security_context_t tty_context)
+> +{
+> +	char *line = NULL;
+> +	char *start, *end = NULL;
+> +	size_t line_len = 0;
+> +	size_t len;
+> 
+> Should be ssize_t len;
 
-Merged with some changes to the man page in policycoreutils 1.33.12.
+Corrected version merged into libselinux 1.33.4.  The file in your
+policy package will need to be renamed to securetty_types.
 
 -- 
 Stephen Smalley
