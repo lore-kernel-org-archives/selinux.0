@@ -1,125 +1,116 @@
-Subject: Re: [RFC] clarifications for -l to newrole.1
+Subject: Re: New test program for libselinux/utils that helped with testing
+	MLS/Role/Level coding
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Michael C Thompson <thompsmc@us.ibm.com>
-Cc: SE Linux <selinux@tycho.nsa.gov>, Klaus Weidner <klaus@atsec.com>
-In-Reply-To: <45A6D0A1.6020301@us.ibm.com>
-References: <45A6A064.2040707@us.ibm.com>
-	 <1168549320.7993.458.camel@moss-spartans.epoch.ncsc.mil>
-	 <45A6D0A1.6020301@us.ibm.com>
+To: Daniel J Walsh <dwalsh@redhat.com>
+Cc: SE Linux <selinux@tycho.nsa.gov>,
+        Karl MacMillan <kmacmillan@mentalrootkit.com>,
+        Joshua Brindle <jbrindle@tresys.com>
+In-Reply-To: <45A68F43.3050101@redhat.com>
+References: <45A68F43.3050101@redhat.com>
 Content-Type: text/plain
-Date: Fri, 12 Jan 2007 10:16:25 -0500
-Message-Id: <1168614985.7993.494.camel@moss-spartans.epoch.ncsc.mil>
+Date: Fri, 12 Jan 2007 10:25:18 -0500
+Message-Id: <1168615518.7993.501.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2007-01-11 at 18:04 -0600, Michael C Thompson wrote:
-> Stephen Smalley wrote:
-> > On Thu, 2007-01-11 at 14:39 -0600, Michael C Thompson wrote:
-> >> Based on some discussion from irc and some complaints I have received,
-> >> I'm proposing this addition (comments or other suggestions welcome) to
-> >> the newrole manage. This example section would slot in right after the
-> >> DESCRIPTION section. Patch below.
-> >>
-> >> EXAMPLE
-> >>         Changing sensitivity only:
-> >>            # id -Z
-> >>            user:role:type:SystemLow-SystemHigh
-> >>            # newrole -l Unclassified
-> >>            # id -Z
-> >>            user:role:type:Unclassified-SystemHigh
-> > 
-> > How does SystemLow differ from Unclassified here (in meaning, not just
-> > value)?  If SystemLow is supposed to be a special label for system
-> > objects, then why have users login at that level at all?
-> > 
-> >>         Changing sensitivity and clearance:
-> >>            # id -Z
-> >>            user:role:type:SystemLow-SystemHigh
-> >>            # newrole -l Unclassified-Unclassified
-> >>            # id -Z
-> >>            user:role:type:Unclassified-Unclassified
-> > 
-> > When would you envision a user doing the above?  Trying to ensure that
-> > any process he subsequently starts cannot escalate to higher levels?
-> > 
-> > If you are going to provide an example, use real output (i.e. not just
-> > user:role:type).  Please include an example of changing roles too since
-> > that is more common.  Also, fix the SEE ALSO list please (runas ->
-> > runcon, and drop su as it is no longer relevant).
-> > 
-> > AUTHORS list is also badly out of date there.  Let's see...you, Dan
-> > Walsh, Steve Grubb, and Darrel Goeddel should likely be added, and while
-> > the earlier authors should be retained, their email addresses are
-> > obsolete and should be dropped.
-> 
-> Based on the above comments, this is the patch, rehashed.
-> 
-> Thanks,
-> Mike
-> 
-> ---
-> 
-> --- newrole.1.orig      2007-01-11 14:24:51.000000000 -0600
-> +++ newrole.1   2007-01-11 17:57:06.000000000 -0600
-> @@ -57,16 +57,45 @@
->   .B --version
->   shows the current version of newrole
->   .PP
-> +.SH EXAMPLE
-> +.br
-> +Changing role:
-> +   # id -Z
-> +   staff_u:staff_r:staff_t:SystemLow-SystemHigh
-> +   # newrole -r sysadm_r
-> +   # id -Z
-> +   staff_u:sysadm_r:sysadm_t:SystemLow-SystemHigh
+On Thu, 2007-01-11 at 14:25 -0500, Daniel J Walsh wrote:
+> getdefaultcon.c
+> plain text document attachment (diff)
+> diff --exclude-from=exclude -N -u -r nsalibselinux/utils/getdefaultcon.c libselinux-1.33.4/utils/getdefaultcon.c
+> --- nsalibselinux/utils/getdefaultcon.c	1969-12-31 19:00:00.000000000 -0500
+> +++ libselinux-1.33.4/utils/getdefaultcon.c	2007-01-11 14:24:24.000000000 -0500
+> @@ -0,0 +1,75 @@
+> +#include <unistd.h>
+> +#include <sys/types.h>
+> +#include <fcntl.h>
+> +#include <stdio.h>
+> +#include <stdlib.h>
+> +#include <errno.h>
+> +#include <string.h>
+> +#include <ctype.h>
+> +#include <selinux/selinux.h>
+> +#include <selinux/get_context_list.h>
 > +
-> +Changing sensitivity only:
-> +   # id -Z
-> +   staff_u:sysadm_r:sysadm_t:Unclassified-SystemHigh
-> +   # newrole -l Secret
-> +   # id -Z
-> +   staff_u:sysadm_r:sysadm_t:Secret-SystemHigh
+> +void usage(char *name, char *detail, int rc)
+> +{
+> +	fprintf(stderr, "usage:  %s [-l level] user fromcon\n", name);
+> +	if (detail)
+> +		fprintf(stderr, "%s:  %s\n", name, detail);
+> +	exit(rc);
+> +}
 > +
-> +.PP
-> +Changing sensitivity and clearance:
-> +   # id -Z
-> +   staff_u:sysadm_r:sysadm_t:Unclassified-SystemHigh
-> +   # newrole -l Secret-Secret
-> +   # id -Z
-> +   staff_u:sysadm_r:sysadm_t:Secret
+> +int main(int argc, char **argv)
+> +{
+> +	security_context_t usercon = NULL, cur_context = NULL;
+> +	char *user = NULL, *level = NULL, *role=NULL, *seuser=NULL;
+> +	int ret, opt;
 > +
->   .SH FILES
->   /etc/passwd - user account information
->   .br
->   /etc/shadow - encrypted passwords and age information
-> +.br
-> +/etc/selinux/<policy>/contexts/default_type - default types for roles
-> +.br
->   .SH SEE ALSO
-> -.B su
-> -(1),
-> -.B runas
-> +.B runcon
->   (1)
->   .SH AUTHORS
->   .nf
-> -Tim Fraser (tfraser@tislabs.com)
-> -Anthony Colatrella (amcolat@epoch.ncsc.mil)
-> +Dan Walsh <dwalsh@redhat.com>
-> +Steve Grubb <sgrubb@redhat.com>
-> +Darrel Goeddel <DGoeddel@trustedcs.com>
-> +Michael Thompson <mcthomps@us.ibm.com>
-> +Tim Fraser
-> +Anthony Colatrella
+> +	while ((opt = getopt(argc, argv, "l:r:")) > 0) {
+> +		switch (opt) {
+> +		case 'l':
+> +			level = strdup(optarg);
+> +			break;
+> +		case 'r':
+> +			role = strdup(optarg);
+> +			break;
+> +		default:
+> +			usage(argv[0], "invalid option", 1);
+> +		}
+> +	}
+> +
+> +	if (((argc - optind) < 1) || ((argc - optind) > 2))
+> +		usage(argv[0], "invalid number of arguments", 2);
+> +
+> +	/* If selinux isn't available, bail out. */
+> +	if (!is_selinux_enabled()) {
+> +		fprintf(stderr,
+> +			"%s may be used only on a SELinux kernel.\n", argv[0]);
+> +		return 1;
+> +	}
+> +
+> +	user = argv[optind];
+> +
+> +	/* If a context wasn't passed, use the current context. */
+> +	if (((argc - optind) < 2)) {
+> +		if (getcon(&cur_context) < 0) {
+> +			fprintf(stderr, "Couldn't get current context.\n");
+> +			return 2;
+> +		}
+> +	} else
+> +		cur_context = argv[optind + 1];
+> +
+> +	if (getseuserbyname(user, &seuser, &level)==0) {
 
-Looks sane as far as content is concerned, although I don't understand
-the author ordering (I'd typically expect alphabetically by last name or
-by amount of involvement or by date of involvement).  But it doesn't
-apply (whitespace damage) for me.   Also, please make the patch -p1
-appliable from the top of the tree, e.g. result of svn diff
-policycoreutils. 
+getseuserbyname() sets level to the level contained in the seusers
+record. It will ignore any value already set for level, so that makes
+your -l option useless here.  You would have to save that elsewhere and
+replace level with it after calling getseuserbyname if you wanted that
+functionality.
+
+> +		if (role != NULL && role[0]) 
+> +			ret=get_default_context_with_rolelevel(seuser, role, level,cur_context,&usercon);
+> +		else
+> +			ret=get_default_context_with_level(seuser, level, cur_context,&usercon);
+> +	}
+
+This is very similar to the existing getseuser utility that likewise
+does a getseuserbyname() but then calls
+get_ordered_context_list_with_level() and displays all of the contexts
+in it.  Differences are that you permit specification of the role (and
+level, if fixed) via options and you only get the default value rather
+than the entire list.
+
+> +	if (ret < 0)
+> +		perror(argv[0]);
+> +	else
+> +		printf("%s: %s from %s %s %s %s -> %s\n", argv[0], user, cur_context, seuser, role, level, usercon);
+> +
+> +
+> +	free(usercon);
+> +
+> +	return 0;
+> +}
 
 -- 
 Stephen Smalley
