@@ -1,101 +1,41 @@
-Subject: Re: [RFC] clarifications for -l to newrole.1
+Subject: Re: We currently have a problem with cp -a /media/cdrom  /etc
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Michael C Thompson <thompsmc@us.ibm.com>
-Cc: SE Linux <selinux@tycho.nsa.gov>, Klaus Weidner <klaus@atsec.com>
-In-Reply-To: <45A7B520.5090405@us.ibm.com>
-References: <45A6A064.2040707@us.ibm.com>
-	 <1168549320.7993.458.camel@moss-spartans.epoch.ncsc.mil>
-	 <45A6D0A1.6020301@us.ibm.com>
-	 <1168614985.7993.494.camel@moss-spartans.epoch.ncsc.mil>
-	 <45A7B520.5090405@us.ibm.com>
+To: Jim Meyering <jim@meyering.net>
+Cc: James Antill <james.antill@redhat.com>, Daniel J Walsh <dwalsh@redhat.com>,
+        SE Linux <selinux@tycho.nsa.gov>,
+        Karl MacMillan <kmacmillan@mentalrootkit.com>
+In-Reply-To: <87ejpzgbnm.fsf@rho.meyering.net>
+References: <45A7D773.8040800@redhat.com>
+	 <1168628100.7993.525.camel@moss-spartans.epoch.ncsc.mil>
+	 <1168632626.13080.212.camel@code.and.org> <87ps9keydd.fsf@rho.meyering.net>
+	 <1168636912.7993.594.camel@moss-spartans.epoch.ncsc.mil>
+	 <87ejpzgbnm.fsf@rho.meyering.net>
 Content-Type: text/plain
-Date: Fri, 12 Jan 2007 16:52:48 -0500
-Message-Id: <1168638769.7993.604.camel@moss-spartans.epoch.ncsc.mil>
+Date: Fri, 12 Jan 2007 16:56:46 -0500
+Message-Id: <1168639006.7993.606.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2007-01-12 at 10:19 -0600, Michael C Thompson wrote:
-> Stephen Smalley wrote:
-> <snip>
-> > Looks sane as far as content is concerned, although I don't understand
-> > the author ordering (I'd typically expect alphabetically by last name or
-> > by amount of involvement or by date of involvement).  But it doesn't
-> > apply (whitespace damage) for me.   Also, please make the patch -p1
-> > appliable from the top of the tree, e.g. result of svn diff
-> > policycoreutils.
+On Fri, 2007-01-12 at 22:47 +0100, Jim Meyering wrote:
+> Stephen Smalley <sds@tycho.nsa.gov> wrote:
+> >> [*] I resumed work on my coreutils selinux merge recently, so you should
+> >> hear more about it soon -- on the bug-coreutils and bug-gnulib lists.
+> >
+> > It would be nice to have the actual diffs posted here.
 > 
-> I've reordered the authors in alphabetical order, and re-patched with -p1.
-
-Still whitespace damaged. See:
-http://mbligh.org/linuxdocs/Email/Clients/Thunderbird
-
-Or just attach it.
-
-BTW, newrole.c also has an Authors list in the comments, so either needs
-to be updated or dropped.
-
+> It won't be hard to remember to Cc this list :)
 > 
-> Thanks,
-> Mike
-> 
-> ---
-> 
-> --- policycoreutils-1.33.12.orig/newrole/newrole.1      2007-01-11 
-> 13:01:39.000000000 -0600
-> +++ policycoreutils-1.33.12/newrole/newrole.1   2007-01-12 
-> 10:15:14.000000000 -0600
-> @@ -57,16 +57,45 @@
->   .B --version
->   shows the current version of newrole
->   .PP
-> +.SH EXAMPLE
-> +.br
-> +Changing role:
-> +   # id -Z
-> +   staff_u:staff_r:staff_t:SystemLow-SystemHigh
-> +   # newrole -r sysadm_r
-> +   # id -Z
-> +   staff_u:sysadm_r:sysadm_t:SystemLow-SystemHigh
-> +
-> +Changing sensitivity only:
-> +   # id -Z
-> +   staff_u:sysadm_r:sysadm_t:Unclassified-SystemHigh
-> +   # newrole -l Secret
-> +   # id -Z
-> +   staff_u:sysadm_r:sysadm_t:Secret-SystemHigh
-> +
-> +.PP
-> +Changing sensitivity and clearance:
-> +   # id -Z
-> +   staff_u:sysadm_r:sysadm_t:Unclassified-SystemHigh
-> +   # newrole -l Secret-Secret
-> +   # id -Z
-> +   staff_u:sysadm_r:sysadm_t:Secret
-> +
->   .SH FILES
->   /etc/passwd - user account information
->   .br
->   /etc/shadow - encrypted passwords and age information
-> +.br
-> +/etc/selinux/<policy>/contexts/default_type - default types for roles
-> +.br
->   .SH SEE ALSO
-> -.B su
-> -(1),
-> -.B runas
-> +.B runcon
->   (1)
->   .SH AUTHORS
->   .nf
-> -Tim Fraser (tfraser@tislabs.com)
-> -Anthony Colatrella (amcolat@epoch.ncsc.mil)
-> +Anthony Colatrella
-> +Tim Fraser
-> +Steve Grubb <sgrubb@redhat.com>
-> +Darrel Goeddel <DGoeddel@trustedcs.com>
-> +Michael Thompson <mcthomps@us.ibm.com>
-> +Dan Walsh <dwalsh@redhat.com>
+> BTW, last week I thought of you guys (with a smile :-) when I noticed new
+> test failures and discovered that getfilecon and lgetfilecon now return
+> length upon success -- at least with rawhide, whereas they returned 0
+> a few months ago.  That shook out a few tests that were checking for
+> nonzero rather that negative.
+
+Returning the length was the original (and documented) behavior; the
+returning 0 was a bug introduced by the MLS/MCS context translation
+support in Fedora.
+
 -- 
 Stephen Smalley
 National Security Agency
