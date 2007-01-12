@@ -1,120 +1,47 @@
-Subject: Re: New test program for libselinux/utils that helped with testing
-	MLS/Role/Level coding
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Daniel J Walsh <dwalsh@redhat.com>
-Cc: SE Linux <selinux@tycho.nsa.gov>,
-        Karl MacMillan <kmacmillan@mentalrootkit.com>,
-        Joshua Brindle <jbrindle@tresys.com>
-In-Reply-To: <45A68F43.3050101@redhat.com>
-References: <45A68F43.3050101@redhat.com>
-Content-Type: text/plain
-Date: Fri, 12 Jan 2007 10:25:18 -0500
-Message-Id: <1168615518.7993.501.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+Message-ID: <45A7B31D.6000001@us.ibm.com>
+Date: Fri, 12 Jan 2007 10:11:09 -0600
+From: Michael C Thompson <thompsmc@us.ibm.com>
+MIME-Version: 1.0
+To: Stephen Smalley <sds@tycho.nsa.gov>
+CC: russell@coker.com.au, SE Linux <selinux@tycho.nsa.gov>,
+        Klaus Weidner <klaus@atsec.com>, Daniel J Walsh <dwalsh@redhat.com>
+Subject: Re: [RFC] clarifications for -l to newrole.1
+References: <45A6A064.2040707@us.ibm.com> <1168549320.7993.458.camel@moss-spartans.epoch.ncsc.mil> <200701120907.10944.russell@coker.com.au> <1168612577.7993.477.camel@moss-spartans.epoch.ncsc.mil>
+In-Reply-To: <1168612577.7993.477.camel@moss-spartans.epoch.ncsc.mil>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2007-01-11 at 14:25 -0500, Daniel J Walsh wrote:
-> getdefaultcon.c
-> plain text document attachment (diff)
-> diff --exclude-from=exclude -N -u -r nsalibselinux/utils/getdefaultcon.c libselinux-1.33.4/utils/getdefaultcon.c
-> --- nsalibselinux/utils/getdefaultcon.c	1969-12-31 19:00:00.000000000 -0500
-> +++ libselinux-1.33.4/utils/getdefaultcon.c	2007-01-11 14:24:24.000000000 -0500
-> @@ -0,0 +1,75 @@
-> +#include <unistd.h>
-> +#include <sys/types.h>
-> +#include <fcntl.h>
-> +#include <stdio.h>
-> +#include <stdlib.h>
-> +#include <errno.h>
-> +#include <string.h>
-> +#include <ctype.h>
-> +#include <selinux/selinux.h>
-> +#include <selinux/get_context_list.h>
-> +
-> +void usage(char *name, char *detail, int rc)
-> +{
-> +	fprintf(stderr, "usage:  %s [-l level] user fromcon\n", name);
-> +	if (detail)
-> +		fprintf(stderr, "%s:  %s\n", name, detail);
-> +	exit(rc);
-> +}
-> +
-> +int main(int argc, char **argv)
-> +{
-> +	security_context_t usercon = NULL, cur_context = NULL;
-> +	char *user = NULL, *level = NULL, *role=NULL, *seuser=NULL;
-> +	int ret, opt;
-> +
-> +	while ((opt = getopt(argc, argv, "l:r:")) > 0) {
-> +		switch (opt) {
-> +		case 'l':
-> +			level = strdup(optarg);
-> +			break;
-> +		case 'r':
-> +			role = strdup(optarg);
-> +			break;
-> +		default:
-> +			usage(argv[0], "invalid option", 1);
-> +		}
-> +	}
-> +
-> +	if (((argc - optind) < 1) || ((argc - optind) > 2))
-> +		usage(argv[0], "invalid number of arguments", 2);
-> +
-> +	/* If selinux isn't available, bail out. */
-> +	if (!is_selinux_enabled()) {
-> +		fprintf(stderr,
-> +			"%s may be used only on a SELinux kernel.\n", argv[0]);
-> +		return 1;
-> +	}
-> +
-> +	user = argv[optind];
-> +
-> +	/* If a context wasn't passed, use the current context. */
-> +	if (((argc - optind) < 2)) {
-> +		if (getcon(&cur_context) < 0) {
-> +			fprintf(stderr, "Couldn't get current context.\n");
-> +			return 2;
-> +		}
-> +	} else
-> +		cur_context = argv[optind + 1];
-> +
-> +	if (getseuserbyname(user, &seuser, &level)==0) {
+Stephen Smalley wrote:
+> On Fri, 2007-01-12 at 09:07 +1100, Russell Coker wrote:
+>> On Friday 12 January 2007 08:02, Stephen Smalley <sds@tycho.nsa.gov> wrote:
+>>>> EXAMPLE
+>>>>         Changing sensitivity only:
+>>>>            # id -Z
+>>>>            user:role:type:SystemLow-SystemHigh
+>>>>            # newrole -l Unclassified
+>>>>            # id -Z
+>>>>            user:role:type:Unclassified-SystemHigh
+>>> How does SystemLow differ from Unclassified here (in meaning, not just
+>>> value)?  If SystemLow is supposed to be a special label for system
+>>> objects, then why have users login at that level at all?
+>> In the context of the man page I don't think it matters.  The purpose is to
+>> clarify an interface that confuses many people.
+> 
+> I'm concerned about two things:
+> - the example being meaningful to the user (what does SystemLow mean
+> relative to Unclassified in the user's mind),
+> - the actual policy being correct (is it correct for users to login at
+> SystemLow and then switch to Unclassified manually, or should they be
+> logging in at Unclassified directly and not even allowed to directly
+> login at SystemLow).
 
-getseuserbyname() sets level to the level contained in the seusers
-record. It will ignore any value already set for level, so that makes
-your -l option useless here.  You would have to save that elsewhere and
-replace level with it after calling getseuserbyname if you wanted that
-functionality.
+Currently, in the MLS policy, the default behaviour is to have users 
+login at SystemLow. If this is not what you would expect, then we should 
+probably change the default levels assumed for users on login.
 
-> +		if (role != NULL && role[0]) 
-> +			ret=get_default_context_with_rolelevel(seuser, role, level,cur_context,&usercon);
-> +		else
-> +			ret=get_default_context_with_level(seuser, level, cur_context,&usercon);
-> +	}
 
-This is very similar to the existing getseuser utility that likewise
-does a getseuserbyname() but then calls
-get_ordered_context_list_with_level() and displays all of the contexts
-in it.  Differences are that you permit specification of the role (and
-level, if fixed) via options and you only get the default value rather
-than the entire list.
-
-> +	if (ret < 0)
-> +		perror(argv[0]);
-> +	else
-> +		printf("%s: %s from %s %s %s %s -> %s\n", argv[0], user, cur_context, seuser, role, level, usercon);
-> +
-> +
-> +	free(usercon);
-> +
-> +	return 0;
-> +}
-
--- 
-Stephen Smalley
-National Security Agency
+Mike
 
 
 --
