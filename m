@@ -1,47 +1,87 @@
-Message-ID: <45A7B31D.6000001@us.ibm.com>
-Date: Fri, 12 Jan 2007 10:11:09 -0600
+Message-ID: <45A7B520.5090405@us.ibm.com>
+Date: Fri, 12 Jan 2007 10:19:44 -0600
 From: Michael C Thompson <thompsmc@us.ibm.com>
 MIME-Version: 1.0
 To: Stephen Smalley <sds@tycho.nsa.gov>
-CC: russell@coker.com.au, SE Linux <selinux@tycho.nsa.gov>,
-        Klaus Weidner <klaus@atsec.com>, Daniel J Walsh <dwalsh@redhat.com>
+CC: SE Linux <selinux@tycho.nsa.gov>, Klaus Weidner <klaus@atsec.com>
 Subject: Re: [RFC] clarifications for -l to newrole.1
-References: <45A6A064.2040707@us.ibm.com> <1168549320.7993.458.camel@moss-spartans.epoch.ncsc.mil> <200701120907.10944.russell@coker.com.au> <1168612577.7993.477.camel@moss-spartans.epoch.ncsc.mil>
-In-Reply-To: <1168612577.7993.477.camel@moss-spartans.epoch.ncsc.mil>
+References: <45A6A064.2040707@us.ibm.com> <1168549320.7993.458.camel@moss-spartans.epoch.ncsc.mil> <45A6D0A1.6020301@us.ibm.com> <1168614985.7993.494.camel@moss-spartans.epoch.ncsc.mil>
+In-Reply-To: <1168614985.7993.494.camel@moss-spartans.epoch.ncsc.mil>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 Stephen Smalley wrote:
-> On Fri, 2007-01-12 at 09:07 +1100, Russell Coker wrote:
->> On Friday 12 January 2007 08:02, Stephen Smalley <sds@tycho.nsa.gov> wrote:
->>>> EXAMPLE
->>>>         Changing sensitivity only:
->>>>            # id -Z
->>>>            user:role:type:SystemLow-SystemHigh
->>>>            # newrole -l Unclassified
->>>>            # id -Z
->>>>            user:role:type:Unclassified-SystemHigh
->>> How does SystemLow differ from Unclassified here (in meaning, not just
->>> value)?  If SystemLow is supposed to be a special label for system
->>> objects, then why have users login at that level at all?
->> In the context of the man page I don't think it matters.  The purpose is to
->> clarify an interface that confuses many people.
-> 
-> I'm concerned about two things:
-> - the example being meaningful to the user (what does SystemLow mean
-> relative to Unclassified in the user's mind),
-> - the actual policy being correct (is it correct for users to login at
-> SystemLow and then switch to Unclassified manually, or should they be
-> logging in at Unclassified directly and not even allowed to directly
-> login at SystemLow).
+<snip>
+> Looks sane as far as content is concerned, although I don't understand
+> the author ordering (I'd typically expect alphabetically by last name or
+> by amount of involvement or by date of involvement).  But it doesn't
+> apply (whitespace damage) for me.   Also, please make the patch -p1
+> appliable from the top of the tree, e.g. result of svn diff
+> policycoreutils.
 
-Currently, in the MLS policy, the default behaviour is to have users 
-login at SystemLow. If this is not what you would expect, then we should 
-probably change the default levels assumed for users on login.
+I've reordered the authors in alphabetical order, and re-patched with -p1.
 
-
+Thanks,
 Mike
+
+---
+
+--- policycoreutils-1.33.12.orig/newrole/newrole.1      2007-01-11 
+13:01:39.000000000 -0600
++++ policycoreutils-1.33.12/newrole/newrole.1   2007-01-12 
+10:15:14.000000000 -0600
+@@ -57,16 +57,45 @@
+  .B --version
+  shows the current version of newrole
+  .PP
++.SH EXAMPLE
++.br
++Changing role:
++   # id -Z
++   staff_u:staff_r:staff_t:SystemLow-SystemHigh
++   # newrole -r sysadm_r
++   # id -Z
++   staff_u:sysadm_r:sysadm_t:SystemLow-SystemHigh
++
++Changing sensitivity only:
++   # id -Z
++   staff_u:sysadm_r:sysadm_t:Unclassified-SystemHigh
++   # newrole -l Secret
++   # id -Z
++   staff_u:sysadm_r:sysadm_t:Secret-SystemHigh
++
++.PP
++Changing sensitivity and clearance:
++   # id -Z
++   staff_u:sysadm_r:sysadm_t:Unclassified-SystemHigh
++   # newrole -l Secret-Secret
++   # id -Z
++   staff_u:sysadm_r:sysadm_t:Secret
++
+  .SH FILES
+  /etc/passwd - user account information
+  .br
+  /etc/shadow - encrypted passwords and age information
++.br
++/etc/selinux/<policy>/contexts/default_type - default types for roles
++.br
+  .SH SEE ALSO
+-.B su
+-(1),
+-.B runas
++.B runcon
+  (1)
+  .SH AUTHORS
+  .nf
+-Tim Fraser (tfraser@tislabs.com)
+-Anthony Colatrella (amcolat@epoch.ncsc.mil)
++Anthony Colatrella
++Tim Fraser
++Steve Grubb <sgrubb@redhat.com>
++Darrel Goeddel <DGoeddel@trustedcs.com>
++Michael Thompson <mcthomps@us.ibm.com>
++Dan Walsh <dwalsh@redhat.com>
 
 
 --
