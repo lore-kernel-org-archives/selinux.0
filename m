@@ -1,60 +1,62 @@
-Subject: Re: We currently have a problem with cp -a /media/cdrom  /etc
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Daniel J Walsh <dwalsh@redhat.com>
-Cc: SE Linux <selinux@tycho.nsa.gov>,
-        Karl MacMillan <kmacmillan@mentalrootkit.com>
-In-Reply-To: <45A7D773.8040800@redhat.com>
-References: <45A7D773.8040800@redhat.com>
-Content-Type: text/plain
-Date: Fri, 12 Jan 2007 13:55:00 -0500
-Message-Id: <1168628100.7993.525.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id l0CJlVFL030074
+	for <selinux@tycho.nsa.gov>; Fri, 12 Jan 2007 14:47:31 -0500
+Received: from web36610.mail.mud.yahoo.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with SMTP id l0CJmM8g008801
+	for <selinux@tycho.nsa.gov>; Fri, 12 Jan 2007 19:48:22 GMT
+Date: Fri, 12 Jan 2007 11:48:21 -0800 (PST)
+From: Casey Schaufler <casey@schaufler-ca.com>
+Reply-To: casey@schaufler-ca.com
+Subject: Re: [RFC] clarifications for -l to newrole.1
+To: Joe Nall <joe@nall.com>, casey@schaufler-ca.com
+Cc: Michael C Thompson <thompsmc@us.ibm.com>, SE Linux <selinux@tycho.nsa.gov>
+In-Reply-To: <19B0C9A6-C287-4F86-B3B1-BCD3D5025E13@nall.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Message-ID: <777669.5095.qm@web36610.mail.mud.yahoo.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2007-01-12 at 13:46 -0500, Daniel J Walsh wrote:
-> Currently in policy we do NOT have the following rule
-> 
-> allow iso9660_t fs_t:filesystem associate;
-> 
-> This causes cp -a to blow up when copying a cdrom to ext3.   I notice in 
-> policy we do allow this for nfs_t and dosfs_t to be assicoated with fs_t.
-> 
-> So this causes two problems, if we use cp -a from nfs_t or dosfs_t we 
-> end up with files on local disk labeled as nfs_t/dosfs_t when I believe 
-> we would be better off if they had transitioned.  So I could change 
-> policy to similarly allow iso9660_t files to be created and fix the cp 
-> -a problem.
-> 
-> Or I could remove the nfs_t and dosfs_t association and make the cp -a 
-> problem worse.  Since cp -a gets permission denied it really has no way 
-> of knowing what the correct behavior should be. 
-> 
-> Maybe a fix would be to allow cp to ask the kernel what to do if it can 
-> not setfscreatecon a particular context on a file system.
-> 
-> Thoughts?
 
-First, I seem to recall debates about whether -p (and thus -a) should
-automatically enable preservation of SELinux context or whether that
-should remain a separate option only.  Pros and cons to both sides.
+--- Joe Nall <joe@nall.com> wrote:
 
-I agree that allowing the association isn't the right thing to do.  Part
-of the problem here is that setfscreatecon() doesn't know where you are
-going to put the file, so it cannot report an error at that time, and
-the open/mkdir failure could happen for a variety of reasons, not just
-this one.
 
-cp could fall back to resetting fscreate to NULL and try again in that
-case (as long as the user didn't explicitly request preservation via
---preserve=context).
+> On HP-UX 10.26, normal users can login at syslo,
+> which in our systems  
+> corresponds to unclassified.
 
-What does the coreutils maintainer think?
+Hmm.
 
--- 
-Stephen Smalley
-National Security Agency
+> There is no special effort made to use  
+> MLS to protect the TCB (some files are syshi because
+> of their contents).
 
+Hmm.
+
+> Does Trusted Irix use a distinct level or
+> an implicit bit in the non SystemLow labels?
+
+Trix labels are "sophisticated". They include
+both sensitivity (MSEN) and integrity (MINT)
+components. A sensitivity can be MSEN_LOW
+(SystemLow) MSEN_HIGH (SystemHigh), MSEN_ADMIN
+(/etc/shadow), MSEN_TCSEC (with levels and
+categories), or a couple other special types.
+All TCB data is either MSEN_LOW or MSEN_ADMIN.
+Users get MSEN_TCSEC labels, which can have
+a level 0-255 and a set of categories.
+MSEN_TCSEC labels dominate MSEN_LOW.
+
+MINT is also used, with TCB data getting
+MINT_HIGH labels and users getting MINT_BIBA.
+
+In retrospect Trix labels are more complicated
+than they need to be. I'm looking into a better
+way for my "next" system.
+
+
+Casey Schaufler
+casey@schaufler-ca.com
 
 --
 This message was distributed to subscribers of the selinux mailing list.
