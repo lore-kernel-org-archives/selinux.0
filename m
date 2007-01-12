@@ -1,62 +1,53 @@
-From: Jim Meyering <jim@meyering.net>
-To: Stephen Smalley <sds@tycho.nsa.gov>
+Subject: Re: We currently have a problem with cp -a /media/cdrom  /etc
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Jim Meyering <jim@meyering.net>
 Cc: James Antill <james.antill@redhat.com>, Daniel J Walsh <dwalsh@redhat.com>,
         SE Linux <selinux@tycho.nsa.gov>,
         Karl MacMillan <kmacmillan@mentalrootkit.com>
-Cc: Tim Waugh <twaugh@redhat.com>
-Subject: Re: We currently have a problem with cp -a /media/cdrom  /etc
-In-Reply-To: <1168635692.7993.581.camel@moss-spartans.epoch.ncsc.mil> (Stephen
-	Smalley's message of "Fri, 12 Jan 2007 16:01:32 -0500")
+In-Reply-To: <87ps9keydd.fsf@rho.meyering.net>
 References: <45A7D773.8040800@redhat.com>
-	<1168628100.7993.525.camel@moss-spartans.epoch.ncsc.mil>
-	<1168632626.13080.212.camel@code.and.org>
-	<1168635692.7993.581.camel@moss-spartans.epoch.ncsc.mil>
-Date: Fri, 12 Jan 2007 22:29:46 +0100
-Message-ID: <87k5zsexx1.fsf@rho.meyering.net>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	 <1168628100.7993.525.camel@moss-spartans.epoch.ncsc.mil>
+	 <1168632626.13080.212.camel@code.and.org> <87ps9keydd.fsf@rho.meyering.net>
+Content-Type: text/plain
+Date: Fri, 12 Jan 2007 16:21:52 -0500
+Message-Id: <1168636912.7993.594.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Stephen Smalley <sds@tycho.nsa.gov> wrote:
+On Fri, 2007-01-12 at 22:19 +0100, Jim Meyering wrote:
+> James Antill <james.antill@redhat.com> wrote:
+> > On Fri, 2007-01-12 at 13:55 -0500, Stephen Smalley wrote:
+> >> On Fri, 2007-01-12 at 13:46 -0500, Daniel J Walsh wrote:
+> 
+> Thanks for the Cc.
+> 
+> ...
+> >> First, I seem to recall debates about whether -p (and thus -a) should
+> >> automatically enable preservation of SELinux context or whether that
+> >> should remain a separate option only.  Pros and cons to both sides.
+> >
+> >  I never saw the original discussion, but I'm 99% sure I complained to
+> > Jim and/or Dan that cp -a/-p should do "the right thing" and preserve
+> > everything, when I was adding the xattr support.
+> 
+> If only "the right thing" worked in all cases.
+> FWIW, my cut at this[*] has cp -a still equivalent to cp -dpPR,
+> just like rawhide, below.
+> 
+> Do you know what motivated the "mode = acls[1] no" change below?
+> That introduces a new incompatibility with upstream.
+> Otherwise, upstream matches rawhide.
+> 
+> [*] I resumed work on my coreutils selinux merge recently, so you should
+> hear more about it soon -- on the bug-coreutils and bug-gnulib lists.
 
-> On Fri, 2007-01-12 at 15:10 -0500, James Antill wrote:
->>  I never saw the original discussion, but I'm 99% sure I complained to
->> Jim and/or Dan that cp -a/-p should do "the right thing" and preserve
->> everything, when I was adding the xattr support.
->>  Note that the changes in question are not really consistent:
->>
->>
->>                FC-5           FC-6            rawhide
->>
->> mode = acls[1] yes            yes             no
->> -p             trad.          trad.           trad.+acls+xattrs
->> -a             -dpPR          -dpPRc          -dpPR
->> --preserve=all trad.+context  trad.+context   trad.+context+acls+xattrs
->>
->> ...and in FC-6 -Z also does the open+getfscreatecon+fsetfilecon dance.
->
-> Polite request:  When changes to the selinux functionality in packages
-> like coreutils are being proposed, please bring them to this list for
-> discussion so that we can (hopefully) catch these kinds of issues early.
+It would be nice to have the actual diffs posted here.
 
-Of course.
+-- 
+Stephen Smalley
+National Security Agency
 
-> Would it help to host the current selinux userland patches on the
-> sourceforge selinux project?  Digging a canonical set out of the Fedora
-> CVS might take a fair amount of work as one would need to coalesce the
-> multiple separate selinux-related patches that exist for some packages
-> and re-base them to a clean upstream package if possible.
-
-I've done most of that merge for coreutils (but may lack some recent
-patches) and the result will soon appear on a topic branch of the
-upstream coreutils git repository:
-
-  http://git.sv.gnu.org/gitweb/?p=coreutils.git;a=summary
-
-I've done this work independently of the coreutils-6.7 rawhide merge
-that someone (Tim Waugh?) must have done recently, so it will be a good
-cross-check to compare when I'm done.
 
 --
 This message was distributed to subscribers of the selinux mailing list.
