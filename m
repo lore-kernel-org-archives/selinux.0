@@ -1,134 +1,56 @@
-Message-ID: <45A7BC87.9070804@redhat.com>
-Date: Fri, 12 Jan 2007 11:51:19 -0500
-From: Daniel J Walsh <dwalsh@redhat.com>
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id l0CHLxbq023821
+	for <selinux@tycho.nsa.gov>; Fri, 12 Jan 2007 12:21:59 -0500
+Received: from web36613.mail.mud.yahoo.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with SMTP id l0CHMo8g011138
+	for <selinux@tycho.nsa.gov>; Fri, 12 Jan 2007 17:22:50 GMT
+Date: Fri, 12 Jan 2007 09:22:34 -0800 (PST)
+From: Casey Schaufler <casey@schaufler-ca.com>
+Reply-To: casey@schaufler-ca.com
+Subject: Re: [RFC] clarifications for -l to newrole.1
+To: Michael C Thompson <thompsmc@us.ibm.com>
+Cc: SE Linux <selinux@tycho.nsa.gov>
+In-Reply-To: <45A7B31D.6000001@us.ibm.com>
 MIME-Version: 1.0
-To: Stephen Smalley <sds@tycho.nsa.gov>
-CC: SE Linux <selinux@tycho.nsa.gov>,
-        Karl MacMillan <kmacmillan@mentalrootkit.com>,
-        Joshua Brindle <jbrindle@tresys.com>
-Subject: Re: New test program for libselinux/utils that helped with testing
- MLS/Role/Level coding
-References: <45A68F43.3050101@redhat.com> <1168615518.7993.501.camel@moss-spartans.epoch.ncsc.mil>
-In-Reply-To: <1168615518.7993.501.camel@moss-spartans.epoch.ncsc.mil>
-Content-Type: multipart/mixed;
- boundary="------------030708010103090108020909"
+Content-Type: text/plain; charset=iso-8859-1
+Message-ID: <587927.74563.qm@web36613.mail.mud.yahoo.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This is a multi-part message in MIME format.
---------------030708010103090108020909
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
 
-Fixed level part of patch
+--- Michael C Thompson <thompsmc@us.ibm.com> wrote:
 
-> This is very similar to the existing getseuser utility that likewise
-> does a getseuserbyname() but then calls
-> get_ordered_context_list_with_level() and displays all of the contexts
-> in it.  Differences are that you permit specification of the role (and
-> level, if fixed) via options and you only get the default value rather
-> than the entire list.
-I found this test program much easier to figure out what the application 
-(locallogin, sshd ...) would do when I logged in.
+> Currently, in the MLS policy, the default behaviour
+> is to have users 
+> login at SystemLow. If this is not what you would
+> expect, then we should 
+> probably change the default levels assumed for users
+> on login.
 
-Probably be worth while adding some of the mls constraints tests in 
-also.  IE Make sure mls is working so if I have a process running s0:s0 
-it can't generate a SystemHigh user, as well as a user with s0:s0 can 
-not ask for a level of SystemHigh.
+Allowing users to log in at SystemLow would not
+be consistant with current best practice. I know
+that neither Trusted Solaris nor Trusted Irix
+allows that, and I don't think that HP/UX does
+either. Even allowing for the additional
+protections provided by TE letting users run with
+the same MLS value as system files (unless you
+have something lower than low!) is going to
+set off warning bells in certain circles. Why
+have MLS if you aren't going to use it to
+protect your system data, after all? And yes,
+I understand that there's lots more to SELinux
+policy enforcement than MLS, and that the other
+protections are more than sufficient to protect
+the system files from users. Even with that,
+users should be segregated from the system using
+MLS since MLS is available. Belts, bracers,
+garters, elastic and velcro make for a happy
+and swift evaluation and an end user that
+understands how the system is protected.
 
 
---------------030708010103090108020909
-Content-Type: text/x-patch;
- name="libselinux-getdefaultcon.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="libselinux-getdefaultcon.patch"
-
---- nsalibselinux/utils/getdefaultcon.c	1969-12-31 19:00:00.000000000 -0500
-+++ libselinux-1.33.4/utils/getdefaultcon.c	2007-01-12 11:28:22.000000000 -0500
-@@ -0,0 +1,80 @@
-+#include <unistd.h>
-+#include <sys/types.h>
-+#include <fcntl.h>
-+#include <stdio.h>
-+#include <stdlib.h>
-+#include <errno.h>
-+#include <string.h>
-+#include <ctype.h>
-+#include <selinux/selinux.h>
-+#include <selinux/get_context_list.h>
-+
-+void usage(char *name, char *detail, int rc)
-+{
-+	fprintf(stderr, "usage:  %s [-l level] user fromcon\n", name);
-+	if (detail)
-+		fprintf(stderr, "%s:  %s\n", name, detail);
-+	exit(rc);
-+}
-+
-+int main(int argc, char **argv)
-+{
-+	security_context_t usercon = NULL, cur_context = NULL;
-+	char *user = NULL, *level = NULL, *role=NULL, *seuser=NULL, *dlevel=NULL;
-+	int ret, opt;
-+
-+	while ((opt = getopt(argc, argv, "l:r:")) > 0) {
-+		switch (opt) {
-+		case 'l':
-+			level = strdup(optarg);
-+			break;
-+		case 'r':
-+			role = strdup(optarg);
-+			break;
-+		default:
-+			usage(argv[0], "invalid option", 1);
-+		}
-+	}
-+
-+	if (((argc - optind) < 1) || ((argc - optind) > 2))
-+		usage(argv[0], "invalid number of arguments", 2);
-+
-+	/* If selinux isn't available, bail out. */
-+	if (!is_selinux_enabled()) {
-+		fprintf(stderr,
-+			"%s may be used only on a SELinux kernel.\n", argv[0]);
-+		return 1;
-+	}
-+
-+	user = argv[optind];
-+
-+	/* If a context wasn't passed, use the current context. */
-+	if (((argc - optind) < 2)) {
-+		if (getcon(&cur_context) < 0) {
-+			fprintf(stderr, "Couldn't get current context.\n");
-+			return 2;
-+		}
-+	} else
-+		cur_context = argv[optind + 1];
-+
-+	if (getseuserbyname(user, &seuser, &dlevel)==0) {
-+		if (! level) level=dlevel;
-+		if (role != NULL && role[0]) 
-+			ret=get_default_context_with_rolelevel(seuser, role, level,cur_context,&usercon);
-+		else
-+			ret=get_default_context_with_level(seuser, level, cur_context,&usercon);
-+	}
-+	if (ret < 0)
-+		perror(argv[0]);
-+	else
-+		printf("%s: %s from %s %s %s %s -> %s\n", argv[0], user, cur_context, seuser, role, level, usercon);
-+
-+
-+	free(role);
-+	free(seuser);
-+	if (level != dlevel) free(level);
-+	free(dlevel);
-+	free(usercon);
-+
-+	return 0;
-+}
-
---------------030708010103090108020909--
+Casey Schaufler
+casey@schaufler-ca.com
 
 --
 This message was distributed to subscribers of the selinux mailing list.
