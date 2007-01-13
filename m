@@ -1,49 +1,41 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id l0CMTCl7003655
-	for <selinux@tycho.nsa.gov>; Fri, 12 Jan 2007 17:29:12 -0500
-Received: from web36610.mail.mud.yahoo.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with SMTP id l0CMU2d4003986
-	for <selinux@tycho.nsa.gov>; Fri, 12 Jan 2007 22:30:02 GMT
-Date: Fri, 12 Jan 2007 14:29:52 -0800 (PST)
-From: Casey Schaufler <casey@schaufler-ca.com>
-Reply-To: casey@schaufler-ca.com
-Subject: Re: We currently have a problem with cp -a /media/cdrom  /etc
+From: Russell Coker <russell@coker.com.au>
+Reply-To: russell@coker.com.au
 To: Stephen Smalley <sds@tycho.nsa.gov>
-Cc: SE Linux <selinux@tycho.nsa.gov>
-In-Reply-To: <1168633787.7993.549.camel@moss-spartans.epoch.ncsc.mil>
+Subject: Re: [RFC] clarifications for -l to newrole.1
+Date: Sat, 13 Jan 2007 17:26:27 +1100
+Cc: Michael C Thompson <thompsmc@us.ibm.com>, SE Linux <selinux@tycho.nsa.gov>,
+        Klaus Weidner <klaus@atsec.com>
+References: <45A6A064.2040707@us.ibm.com> <200701120907.10944.russell@coker.com.au> <1168612577.7993.477.camel@moss-spartans.epoch.ncsc.mil>
+In-Reply-To: <1168612577.7993.477.camel@moss-spartans.epoch.ncsc.mil>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Message-ID: <360757.85439.qm@web36610.mail.mud.yahoo.com>
+Content-Type: text/plain;
+  charset="utf-8"
+Message-Id: <200701131726.34089.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+On Saturday 13 January 2007 01:36, Stephen Smalley <sds@tycho.nsa.gov> wrote:
+> > MCS as currently released in Red Hat and Debian only uses the high level.
+> >  MCS will always use the high level as the main access control mechanism.
+> > Therefore this behaviour gets in the way for MCS.
+> >
+> > Maybe we should have newrole determine whether MCS or MLS is being used
+> > and alter it's behaviour accordingly?
+>
+> Under MCS, IIUC, one never switches the level on a process; your
+> sensitivity (low) is always set to SystemLow and your clearance (high)
+> is just set to your authorized category set at login, and you manually
+> use chcat or similar commands to label files with categories.  So you
+> wouldn't use newrole -l at all under MCS.
 
---- Stephen Smalley <sds@tycho.nsa.gov> wrote:
+That's the way it currently works.  I want to change that however, I hope to 
+get such changes in Debian soon.
 
-> An example from the MLS/LSPP world:  a Secret
-> process can read an
-> Unclassified document and copy it to a Secret
-> document, but it cannot
-> copy it to an Unclassified document (no write down).
->  But it may very
-> well wish to preserve DAC information on the copy.
+-- 
+russell@coker.com.au
+http://etbe.blogspot.com/          My Blog
 
-Well, sort of. That's what actually got
-implemented, but if you read the CMW spec
-it's clear that what they really wanted was
-the copy to remain Unclass until the Secret
-user did something to it that would make it
-Secret. Any difference in treatment of the
-MAC attributes from the DAC atributes is an
-artifact of implementation, not an intention
-of design. The traditional rule that mv
-maintains attributes while cp use what the
-current process would do holds with (most)
-MAC systems.
-
-
-Casey Schaufler
-casey@schaufler-ca.com
+http://www.coker.com.au/sponsorship.html Sponsoring Free Software development
 
 --
 This message was distributed to subscribers of the selinux mailing list.
