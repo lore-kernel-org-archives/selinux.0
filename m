@@ -1,73 +1,48 @@
 Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id l0FHjj21010819
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id l0FHjj1x010819
 	for <selinux@tycho.nsa.gov>; Mon, 15 Jan 2007 12:46:42 -0500
 Received: from tarius.tycho.ncsc.mil (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id l0FHOY3b001228
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id l0FHOY3b001234
 	for <selinux@tycho.nsa.gov>; Mon, 15 Jan 2007 17:24:34 GMT
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id l0FHNSdi009167
-	for <selinux@tycho.nsa.gov>; Mon, 15 Jan 2007 12:23:28 -0500
-Received: from tarius.tycho.ncsc.mil (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l0FHOEdE003472
-	for <selinux@tycho.nsa.gov>; Mon, 15 Jan 2007 17:24:14 GMT
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id l0FHNHZA009053
-	for <selinux@tycho.nsa.gov>; Mon, 15 Jan 2007 12:23:17 -0500
-Received: from tarius.tycho.ncsc.mil (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l0FHO2dE003380
-	for <selinux@tycho.nsa.gov>; Mon, 15 Jan 2007 17:24:02 GMT
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id l0FHMLM4008485
-	for <selinux@tycho.nsa.gov>; Mon, 15 Jan 2007 12:22:21 -0500
-Received: from tarius.tycho.ncsc.mil (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l0FHNBdE002739
-	for <selinux@tycho.nsa.gov>; Mon, 15 Jan 2007 17:23:11 GMT
 Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id l0FHMHkd008431
-	for <selinux@tycho.nsa.gov>; Mon, 15 Jan 2007 12:22:17 -0500
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id l0FHNcB0009247
+	for <selinux@tycho.nsa.gov>; Mon, 15 Jan 2007 12:23:38 -0500
 Received: from tarius.tycho.ncsc.mil (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id l0FHN63b000625
-	for <selinux@tycho.nsa.gov>; Mon, 15 Jan 2007 17:23:06 GMT
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id l0FHOR3b001187
+	for <selinux@tycho.nsa.gov>; Mon, 15 Jan 2007 17:24:27 GMT
 Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id l0FHM7Zj008319
-	for <selinux@tycho.nsa.gov>; Mon, 15 Jan 2007 12:22:07 -0500
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id l0FHNKdm009083
+	for <selinux@tycho.nsa.gov>; Mon, 15 Jan 2007 12:23:20 -0500
 Received: from tarius.tycho.ncsc.mil (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l0FHMwdE002653
-	for <selinux@tycho.nsa.gov>; Mon, 15 Jan 2007 17:22:58 GMT
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l0FHO6dE003410
+	for <selinux@tycho.nsa.gov>; Mon, 15 Jan 2007 17:24:06 GMT
 Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id l0FHM4k1008270
-	for <selinux@tycho.nsa.gov>; Mon, 15 Jan 2007 12:22:04 -0500
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id l0FHN1Lo008858
+	for <selinux@tycho.nsa.gov>; Mon, 15 Jan 2007 12:23:01 -0500
 Received: from tarius.tycho.ncsc.mil (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l0FHMrdE002618
-	for <selinux@tycho.nsa.gov>; Mon, 15 Jan 2007 17:22:53 GMT
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l0FHNmdE003241
+	for <selinux@tycho.nsa.gov>; Mon, 15 Jan 2007 17:23:48 GMT
 Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id l0FHLxZR008211
-	for <selinux@tycho.nsa.gov>; Mon, 15 Jan 2007 12:21:59 -0500
-Received: from tarius.tycho.ncsc.mil (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l0FHMndE002589
-	for <selinux@tycho.nsa.gov>; Mon, 15 Jan 2007 17:22:49 GMT
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id l0FHKNPY007281
-	for <selinux@tycho.nsa.gov>; Mon, 15 Jan 2007 12:21:55 -0500
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id l0FHKNQG007281
+	for <selinux@tycho.nsa.gov>; Mon, 15 Jan 2007 12:22:40 -0500
 Received: from mx1.redhat.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l0FGqZdE026889
-	for <selinux@tycho.nsa.gov>; Mon, 15 Jan 2007 16:52:35 GMT
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l0FGiPdE026038
+	for <selinux@tycho.nsa.gov>; Mon, 15 Jan 2007 16:44:25 GMT
 Received: from int-mx1.corp.redhat.com (int-mx1.corp.redhat.com [172.16.52.254])
-	by mx1.redhat.com (8.12.11.20060308/8.12.11) with ESMTP id l0FGqZTF008997
-	for <selinux@tycho.nsa.gov>; Mon, 15 Jan 2007 11:52:35 -0500
-Message-ID: <45ABB122.4010205@redhat.com>
-Date: Mon, 15 Jan 2007 11:51:46 -0500
+	by mx1.redhat.com (8.12.11.20060308/8.12.11) with ESMTP id l0FGiOc1004704
+	for <selinux@tycho.nsa.gov>; Mon, 15 Jan 2007 11:44:24 -0500
+Message-ID: <45ABAF3A.7030905@redhat.com>
+Date: Mon, 15 Jan 2007 11:43:38 -0500
 From: Karl MacMillan <kmacmill@redhat.com>
 MIME-Version: 1.0
-To: "Tom 'spot' Callaway" <tcallawa@redhat.com>,
-        SELinux Mail List <selinux@tycho.nsa.gov>,
-        fedora-selinux-list@redhat.com
-Subject: [Fwd: Re: sparc64 kernel won't boot with selinux enabled]
+To: "Tom 'spot' Callaway" <tcallawa@redhat.com>
+CC: fedora-selinux-list@redhat.com, SELinux Mail List <selinux@tycho.nsa.gov>
+Subject: Re: sparc64 kernel won't boot with selinux enabled
+References: <1168811532.31988.42.camel@localhost.localdomain>
+In-Reply-To: <1168811532.31988.42.camel@localhost.localdomain>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
-
-[Forwarding to the correct list this time]
 
 Tom 'spot' Callaway wrote:
 > I'm working on Aurora, which is a rebuild of Fedora Core for SPARC.
@@ -121,24 +96,20 @@ Seems that there is a mismatch between your policy and the kernel.
 > ...And there it sits, as init is denied. :)
 > 
 
-Init requiring execmem is surprising to say the least - it certainly
-doesn't on i386. Are you seeing a lot of execmem denials in the logs? I
-don't really know what is going on, but there is likely a kernel or
+Init requiring execmem is surprising to say the least - it certainly 
+doesn't on i386. Are you seeing a lot of execmem denials in the logs? I 
+don't really know what is going on, but there is likely a kernel or 
 compiler / toolchain issue causing overly broad execmem requests.
 
 As a work around you can do (after booting into permissive):
 
 setsebool -P allow_execmem=1
 
-The next reboot will allow this globally and you may get farther in
+The next reboot will allow this globally and you may get farther in 
 permissive. You can also change this default in the policy packages.
 
 Karl
 
---
-fedora-selinux-list mailing list
-fedora-selinux-list@redhat.com
-https://www.redhat.com/mailman/listinfo/fedora-selinux-list
 
 --
 This message was distributed to subscribers of the selinux mailing list.
