@@ -1,46 +1,70 @@
 Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id l0GKV7of023526
-	for <selinux@tycho.nsa.gov>; Tue, 16 Jan 2007 15:31:07 -0500
-Received: from web36612.mail.mud.yahoo.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with SMTP id l0GKVwAN017797
-	for <selinux@tycho.nsa.gov>; Tue, 16 Jan 2007 20:31:59 GMT
-Date: Tue, 16 Jan 2007 12:31:58 -0800 (PST)
-From: Casey Schaufler <casey@schaufler-ca.com>
-Reply-To: casey@schaufler-ca.com
-Subject: Re: FW: Current/Future Plans to Support Stacking LSM Modules
-To: Stephen Smalley <sds@tycho.nsa.gov>,
-        Tom Fortmann <tfortmann@xcapesolutions.net>
-Cc: selinux@tycho.nsa.gov, linux-security-module@vger.kernel.org
-In-Reply-To: <1168977133.22731.149.camel@moss-spartans.epoch.ncsc.mil>
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id l0GKUOLb023469
+	for <selinux@tycho.nsa.gov>; Tue, 16 Jan 2007 15:30:24 -0500
+Received: from host496.ipowerweb.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with SMTP id l0GKVGAN017639
+	for <selinux@tycho.nsa.gov>; Tue, 16 Jan 2007 20:31:17 GMT
+From: "Tom Fortmann" <tfortmann@xcapesolutions.net>
+To: "'Stephen Smalley'" <sds@tycho.nsa.gov>
+Cc: <selinux@tycho.nsa.gov>
+References: <003801c739a6$461871f0$030a0a0a@ACER> <1168977133.22731.149.camel@moss-spartans.epoch.ncsc.mil>
+Subject: RE: FW: Current/Future Plans to Support Stacking LSM Modules
+Date: Tue, 16 Jan 2007 14:31:31 -0600
+Message-ID: <003c01c739ad$4ead63a0$030a0a0a@ACER>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Message-ID: <251786.34008.qm@web36612.mail.mud.yahoo.com>
+Content-Type: text/plain;
+	charset="us-ascii"
+In-Reply-To: <1168977133.22731.149.camel@moss-spartans.epoch.ncsc.mil>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+Stephen,
 
---- Stephen Smalley <sds@tycho.nsa.gov> wrote:
+Thank you for the links.  I obviously have a lot more research to do, first
+and foremost is the selinux_register_security function.  I will also dig in
+to the SELinux Type Enforcement capabilities.  We are not averse to doing
+this in either space, but user space does offer some benefits from a
+maintenance point of view.
+
+Thomas Fortmann
+Sr. Software Engineer
+
+-----Original Message-----
+From: Stephen Smalley [mailto:sds@tycho.nsa.gov] 
+Sent: Tuesday, January 16, 2007 1:52 PM
+To: Tom Fortmann
+Cc: selinux@tycho.nsa.gov
+Subject: Re: FW: Current/Future Plans to Support Stacking LSM Modules
+
+On Tue, 2007-01-16 at 13:41 -0600, Tom Fortmann wrote:
+> Can you send me a pointer to the limited stacking that selinux supports?
+
+http://www.nsa.gov/selinux/papers/module/x341.html
+
+> I will join the LSM list.  I started here because LSM already supports a
+> basic stacking method.  However, SELinux does not support the
+> mod_reg_security call necessary to take advantage of this capability.  
+
+No, SELinux does support trivial stacking by implementing a
+register_security hook, which is what mod_reg_security() calls.  That is
+used to combine SELinux with the Linux capabilities module.
+
+> The product we are developing adds additional security at the application
+> data layer.  It is a commercial product so I can't say a lot, other then
+to
+> say that SELinux currently does not provide the additional features we are
+> working on.
+
+If you are adding additional security at the application data layer,
+then you can do that in userspace, and use to
+make it unbypassable and tamperproof.  You don't need to change the
+kernel.
+
+-- 
+Stephen Smalley
+National Security Agency
 
 
-> If you are adding additional security at the
-> application data layer,
-> then you can do that in userspace, and use SELinux
-> Type Enforcement to
-> make it unbypassable and tamperproof.  You don't
-> need to change the
-> kernel.
-
-Stephen, you can't possibly know that kernel
-changes aren't required from the information
-provided. The information provided appears
-to be intentionally imprecise. (not a good
-idea in the community, BTW) You may prove
-correct in the end (you often are) but you're
-jumping the SELinux Uber Alas gun.
-
-
-Casey Schaufler
-casey@schaufler-ca.com
 
 --
 This message was distributed to subscribers of the selinux mailing list.
