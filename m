@@ -1,40 +1,96 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id l0GBd5tV001685
-	for <selinux@tycho.nsa.gov>; Tue, 16 Jan 2007 06:39:05 -0500
-Received: from web51507.mail.yahoo.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with SMTP id l0GBdwVB022071
-	for <selinux@tycho.nsa.gov>; Tue, 16 Jan 2007 11:39:58 GMT
-Date: Tue, 16 Jan 2007 03:39:08 -0800 (PST)
-From: Steve G <linux_4ever@yahoo.com>
-Subject: Re: [PATCH] add central errno.h to libsepol
-To: Joshua Brindle <jbrindle@tresys.com>,
-        Karl MacMillan <kmacmillan@mentalrootkit.com>
-Cc: SELinux Mail List <selinux@tycho.nsa.gov>
-In-Reply-To: <45AC3FE9.3000204@tresys.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Message-ID: <621833.12198.qm@web51507.mail.yahoo.com>
+Subject: Re: sparc64 kernel won't boot with selinux enabled
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Karl MacMillan <kmacmill@redhat.com>
+Cc: "Tom 'spot' Callaway" <tcallawa@redhat.com>,
+        fedora-selinux-list@redhat.com,
+        SELinux Mail List <selinux@tycho.nsa.gov>
+In-Reply-To: <45ABAF3A.7030905@redhat.com>
+References: <1168811532.31988.42.camel@localhost.localdomain>
+	 <45ABAF3A.7030905@redhat.com>
+Content-Type: text/plain
+Date: Tue, 16 Jan 2007 07:22:46 -0500
+Message-Id: <1168950166.22731.22.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+On Mon, 2007-01-15 at 11:43 -0500, Karl MacMillan wrote:
+> Tom 'spot' Callaway wrote:
+> > I'm working on Aurora, which is a rebuild of Fedora Core for SPARC.
+> > Lately, I've been testing with selinux enabled on the targeted policy,
+> > but I haven't gotten very far. When I try to boot on a sparc64, I get
+> > the following (copied by hand, apologies for any typos, I tried to be
+> > accurate):
+> > 
+> 
+> [CC'ing selinux list]
+> 
+> > EXT3-fs: mounted filesystem with ordered data mode.
+> > audit(1168807648.026:2): enforcing=1 old_enforcing=0 auid=4294967295
+> > security:  3 users, 6 roles, 1584 types, 172 bools, 1 sens, 1024 cats
+> > security:  59 classes, 49650 rules
+> > security:  class dccp_socket not defined in policy
+> > security:  permission dccp_recv in class node not defined in policy
+> > security:  permission dccp_send in class node not defined in policy
+> > security:  permission dccp_recv in class netif not defined in policy
+> > security:  permission dccp_send in class netif not defined in policy
+> 
+> Seems that there is a mismatch between your policy and the kernel.
+> 
+> > SELinux:  Completing initialization
+> > SELinux:  Setting up existing superblocks.
+> > SELinux: initialized (dev dm-0, type ext3), uses xattr
+> > SELinux: initialized (dev tmpfs, type tmpfs), uses transition SIDs
+> > SELinux: initialized (dev usbfs, type usbfs), uses genfs_contexts
+> > SELinux: initialized (dev selinuxfs, type selinuxfs), uses
+> > genfs_contexts
+> > SELinux: initialized (dev mqueue, type mqueue), uses transition SIDs
+> > SELinux: initialized (dev hugetlbfs, type hugetlbfs), uses
+> > genfs_contexts
+> > SELinux: initialized (dev devpts, type devpts), uses transition SIDs
+> > SELinux: initialized (dev eventpollfs, type eventpollfs), uses task SIDs
+> > SELinux: initialized (dev inotifyfs, type inotifyfs), uses
+> > genfs_contexts
+> > SELinux: initialized (dev tmpfs, type tmpfs), uses transition SIDs
+> > SELinux: initialized (dev futexfs, type futexfs), uses genfs_contexts
+> > SELinux: initialized (dev pipefs, type pipefs), uses task SIDs
+> > SELinux: initialized (dev sockfs, type sockfs), uses task SIDs
+> > SELinux: initialized (dev proc, type proc), uses genfs_contexts
+> > SELinux: initialized (dev bdev, type bdev), uses genfs_contexts
+> > SELinux: initialized (dev rootfs, type rootfs), uses genfs_contexts
+> > SELinux: initialized (dev sysfs, type sysfs), uses genfs_contexts
+> > audit(1168807652.930:3): policy loaded auid=4294967295
+> > audit(1168807653.174:4): avc:  denied  { execmem } for  pid=1
+> > comm="init" scontext=system_u:system_r:kernel_t:s0
+> > tcontext=system_u:system_r:kernel_t:s0 tclass=process
+> > 
+> > ...And there it sits, as init is denied. :)
+> > 
+> 
+> Init requiring execmem is surprising to say the least - it certainly 
+> doesn't on i386. Are you seeing a lot of execmem denials in the logs? I 
+> don't really know what is going on, but there is likely a kernel or 
+> compiler / toolchain issue causing overly broad execmem requests.
 
->instead of adding license to files where it isn't present can we just 
->remove it everywhere and have a LICENSE file?
+Compiler / toolchain problem; we've seen the same thing in the past on
+ppc32 and ia64, e.g. see
+https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=178747
+Those were ultimately resolved by toolchain changes and rebuilt
+userland, but the temporary fix was to disable the exec* checks in the
+kernel for those architectures.
 
-Then what happens when someone copies a file to their own open source project?
-This has happened to files in samba for example.
+> 
+> As a work around you can do (after booting into permissive):
+> 
+> setsebool -P allow_execmem=1
+> 
+> The next reboot will allow this globally and you may get farther in 
+> permissive. You can also change this default in the policy packages.
 
--Steve
+-- 
+Stephen Smalley
+National Security Agency
 
-
-
-
-
- 
-____________________________________________________________________________________
-We won't tell. Get more on shows you hate to love 
-(and love to hate): Yahoo! TV's Guilty Pleasures list.
-http://tv.yahoo.com/collections/265 
 
 --
 This message was distributed to subscribers of the selinux mailing list.
