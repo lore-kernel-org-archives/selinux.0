@@ -1,151 +1,46 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id l0GI76Hb017119
-	for <selinux@tycho.nsa.gov>; Tue, 16 Jan 2007 13:07:06 -0500
-Received: from host496.ipowerweb.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with SMTP id l0GI7x1E026099
-	for <selinux@tycho.nsa.gov>; Tue, 16 Jan 2007 18:07:59 GMT
-From: "Tom Fortmann" <tfortmann@xcapesolutions.net>
-To: <selinux@tycho.nsa.gov>
-Subject: Current/Future Plans to Support Stacking LSM Modules
-Date: Tue, 16 Jan 2007 12:08:14 -0600
-Message-ID: <002701c73999$4a9fe1c0$030a0a0a@ACER>
-MIME-Version: 1.0
-Content-Type: multipart/alternative;
-	boundary="----=_NextPart_000_0028_01C73967.000571C0"
+Subject: Re: Current/Future Plans to Support Stacking LSM Modules
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Tom Fortmann <tfortmann@xcapesolutions.net>
+Cc: selinux@tycho.nsa.gov
+In-Reply-To: <002701c73999$4a9fe1c0$030a0a0a@ACER>
+References: <002701c73999$4a9fe1c0$030a0a0a@ACER>
+Content-Type: text/plain
+Date: Tue, 16 Jan 2007 13:27:10 -0500
+Message-Id: <1168972030.22731.129.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This is a multi-part message in MIME format.
+On Tue, 2007-01-16 at 12:08 -0600, Tom Fortmann wrote:
+> Are their any current or future plans to support stacking additional
+> security modules on the LSM interface?
 
-------=_NextPart_000_0028_01C73967.000571C0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+That's more of a question for linux-security-module rather than this
+list.  We don't have any plans to introduce such support to LSM, as we
+think it is a bad idea.  Last time it came up (at 2006 kernel summit),
+that seemed to be the consensus view.
 
-Are their any current or future plans to support stacking additional
-security modules on the LSM interface?
+> Alternatively, are there any current or future plans to allow the
+> SELinux framework to be expanded with third party loadable modules?
 
- 
+Not loadable modules, no.  But adding further security models to the
+SELinux security server or extending the ones that are already there is
+certainly open to discussion, if a case can be made for it.  However,
+you may find that the existing models are sufficient to support the
+right set of goals at the kernel level, and then you can build
+additional infrastructure in userspace without needing to modify the
+kernel's model.
 
-Alternatively, are there any current or future plans to allow the SELinux
-framework to be expanded with third party loadable modules?
+> We are working on some enhanced security solutions that require access
+> to the LSM interface, but we do not want to preclude the use of
+> SELinux by our customers.
 
- 
+What do you need that you can't obtain from SELinux or other kernel
+subsystems (e.g. audit) today?
 
-We are working on some enhanced security solutions that require access to
-the LSM interface, but we do not want to preclude the use of SELinux by our
-customers.
-
- 
-
-Thank you in advance for your insight into these plans.
-
- 
-
-Tom Fortmann
-
-Xcape Solutions, Inc.
-
-
-------=_NextPart_000_0028_01C73967.000571C0
-Content-Type: text/html;
-	charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
-
-<html>
-
-<head>
-<meta http-equiv=3DContent-Type content=3D"text/html; =
-charset=3Dus-ascii">
-<meta name=3DGenerator content=3D"Microsoft Word 11 (filtered)">
-<style>
-<!--
- /* Style Definitions */
- p.MsoNormal, li.MsoNormal, div.MsoNormal
-	{margin:0in;
-	margin-bottom:.0001pt;
-	font-size:12.0pt;
-	font-family:"Times New Roman";}
-a:link, span.MsoHyperlink
-	{color:blue;
-	text-decoration:underline;}
-a:visited, span.MsoHyperlinkFollowed
-	{color:purple;
-	text-decoration:underline;}
-span.EmailStyle17
-	{font-family:Arial;
-	color:windowtext;}
-@page Section1
-	{size:8.5in 11.0in;
-	margin:1.0in 1.25in 1.0in 1.25in;}
-div.Section1
-	{page:Section1;}
--->
-</style>
-
-</head>
-
-<body lang=3DEN-US link=3Dblue vlink=3Dpurple>
-
-<div class=3DSection1>
-
-<p class=3DMsoNormal><font size=3D2 face=3DArial><span =
-style=3D'font-size:10.0pt;
-font-family:Arial'>Are their any current or future plans to support =
-stacking
-additional security modules on the LSM interface?</span></font></p>
-
-<p class=3DMsoNormal><font size=3D2 face=3DArial><span =
-style=3D'font-size:10.0pt;
-font-family:Arial'>&nbsp;</span></font></p>
-
-<p class=3DMsoNormal><font size=3D2 face=3DArial><span =
-style=3D'font-size:10.0pt;
-font-family:Arial'>Alternatively, are there any current or future plans =
-to
-allow the SELinux framework to be expanded with third party loadable =
-modules?</span></font></p>
-
-<p class=3DMsoNormal><font size=3D2 face=3DArial><span =
-style=3D'font-size:10.0pt;
-font-family:Arial'>&nbsp;</span></font></p>
-
-<p class=3DMsoNormal><font size=3D2 face=3DArial><span =
-style=3D'font-size:10.0pt;
-font-family:Arial'>We are working on some enhanced security solutions =
-that
-require access to the LSM interface, but we do not want to preclude the =
-use of
-SELinux by our customers.</span></font></p>
-
-<p class=3DMsoNormal><font size=3D2 face=3DArial><span =
-style=3D'font-size:10.0pt;
-font-family:Arial'>&nbsp;</span></font></p>
-
-<p class=3DMsoNormal><font size=3D2 face=3DArial><span =
-style=3D'font-size:10.0pt;
-font-family:Arial'>Thank you in advance for your insight into these =
-plans.</span></font></p>
-
-<p class=3DMsoNormal><font size=3D2 face=3DArial><span =
-style=3D'font-size:10.0pt;
-font-family:Arial'>&nbsp;</span></font></p>
-
-<p class=3DMsoNormal><font size=3D2 face=3DArial><span =
-style=3D'font-size:10.0pt;
-font-family:Arial'>Tom Fortmann</span></font></p>
-
-<p class=3DMsoNormal><font size=3D2 face=3DArial><span =
-style=3D'font-size:10.0pt;
-font-family:Arial'>Xcape Solutions, Inc.</span></font></p>
-
-</div>
-
-</body>
-
-</html>
-
-------=_NextPart_000_0028_01C73967.000571C0--
+-- 
+Stephen Smalley
+National Security Agency
 
 
 --
