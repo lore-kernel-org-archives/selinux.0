@@ -1,392 +1,730 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id l0GMOVHi027620
-	for <selinux@tycho.nsa.gov>; Tue, 16 Jan 2007 17:24:31 -0500
-Received: from mx1.redhat.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l0GMPOE0018560
-	for <selinux@tycho.nsa.gov>; Tue, 16 Jan 2007 22:25:24 GMT
-Message-ID: <45AD50B7.40805@mentalrootkit.com>
-Date: Tue, 16 Jan 2007 17:24:55 -0500
-From: Karl MacMillan <kmacmillan@mentalrootkit.com>
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id l0GMYUGE027953
+	for <selinux@tycho.nsa.gov>; Tue, 16 Jan 2007 17:34:30 -0500
+Received: from mx1.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id l0GMZMsN018081
+	for <selinux@tycho.nsa.gov>; Tue, 16 Jan 2007 22:35:22 GMT
+Received: from int-mx1.corp.redhat.com (int-mx1.corp.redhat.com [172.16.52.254])
+	by mx1.redhat.com (8.12.11.20060308/8.12.11) with ESMTP id l0GMZMV0002747
+	for <selinux@tycho.nsa.gov>; Tue, 16 Jan 2007 17:35:22 -0500
+Received: from mail.boston.redhat.com (mail.boston.redhat.com [172.16.76.12])
+	by int-mx1.corp.redhat.com (8.13.1/8.13.1) with ESMTP id l0GMZM7F027115
+	for <selinux@tycho.nsa.gov>; Tue, 16 Jan 2007 17:35:22 -0500
+Received: from [10.12.32.53] (redsox.boston.devel.redhat.com [10.12.32.53])
+	by mail.boston.redhat.com (8.12.11.20060308/8.12.11) with ESMTP id l0GMZMDq022534
+	for <selinux@tycho.nsa.gov>; Tue, 16 Jan 2007 17:35:22 -0500
+Message-ID: <45AD5328.8000105@redhat.com>
+Date: Tue, 16 Jan 2007 17:35:20 -0500
+From: Daniel J Walsh <dwalsh@redhat.com>
 MIME-Version: 1.0
-To: Karl MacMillan <kmacmillan@mentalrootkit.com>
-CC: SELinux Mail List <selinux@tycho.nsa.gov>
-Subject: Re: [RFC] Add list and iter data types to libsepol
-References: <45AD3F51.9070005@mentalrootkit.com>
-In-Reply-To: <45AD3F51.9070005@mentalrootkit.com>
+To: SE Linux <selinux@tycho.nsa.gov>
+Subject: Patch to make man -k selinux return all man pages.
 Content-Type: multipart/mixed;
- boundary="------------080306040505030508010509"
+ boundary="------------010402090407070000000106"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 This is a multi-part message in MIME format.
---------------080306040505030508010509
+--------------010402090407070000000106
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 
-Karl MacMillan wrote:
-> As part of some work to improve the parser in checkpolicy and module 
-> data structures in libsepol, I have implemented doubly-linked list and 
-> iterator data types. The attached patch adds these to libsepol.
-> 
-> I would appreciate feedback on these before I submit larger patches that 
-> make use of them. In particular:
-> 
-> * Is the iterator concept acceptable (I plan to add iterator support to 
-> other data types including hashtabs)?
-> 
-
-Attached is a patch that implements iterators for hash tables (it also 
-includes some unrelated cleanups).
-
-Karl
 
 
---------------080306040505030508010509
+--------------010402090407070000000106
 Content-Type: text/x-patch;
- name="sepol-hashtab-iter.patch"
+ name="libselinux-man.patch"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline;
- filename="sepol-hashtab-iter.patch"
+ filename="libselinux-man.patch"
 
-diff -r fceafe45b35c libsepol/include/sepol/policydb/hashtab.h
---- a/libsepol/include/sepol/policydb/hashtab.h	Tue Jan 16 17:22:30 2007 -0500
-+++ b/libsepol/include/sepol/policydb/hashtab.h	Tue Jan 16 17:22:40 2007 -0500
-@@ -15,6 +15,7 @@
- #define _SEPOL_POLICYDB_HASHTAB_H_
+diff --exclude-from=exclude -N -u -r nsalibselinux/man/man3/avc_add_callback.3 libselinux-1.33.4/man/man3/avc_add_callback.3
+--- nsalibselinux/man/man3/avc_add_callback.3	2006-11-16 17:15:30.000000000 -0500
++++ libselinux-1.33.4/man/man3/avc_add_callback.3	2007-01-15 16:21:55.000000000 -0500
+@@ -3,7 +3,7 @@
+ .\" Author: Eamon Walsh (ewalsh@epoch.ncsc.mil) 2004
+ .TH "avc_add_callback" "3" "9 June 2004" "" "SE Linux API documentation"
+ .SH "NAME"
+-avc_add_callback \- additional event notification for userspace object managers.
++avc_add_callback \- additional event notification for SELinux userspace object managers.
+ .SH "SYNOPSIS"
+ .B #include <selinux/selinux.h>
+ .br
+@@ -181,3 +181,4 @@
+ .BR avc_context_to_sid (3),
+ .BR avc_cache_stats (3),
+ .BR security_compute_av (3)
++.BR selinux (8)
+diff --exclude-from=exclude -N -u -r nsalibselinux/man/man3/avc_cache_stats.3 libselinux-1.33.4/man/man3/avc_cache_stats.3
+--- nsalibselinux/man/man3/avc_cache_stats.3	2006-11-16 17:15:30.000000000 -0500
++++ libselinux-1.33.4/man/man3/avc_cache_stats.3	2007-01-15 16:21:55.000000000 -0500
+@@ -3,7 +3,7 @@
+ .\" Author: Eamon Walsh (ewalsh@epoch.ncsc.mil) 2004
+ .TH "avc_cache_stats" "3" "27 May 2004" "" "SE Linux API documentation"
+ .SH "NAME"
+-avc_cache_stats, avc_av_stats, avc_sid_stats \- obtain userspace AVC statistics.
++avc_cache_stats, avc_av_stats, avc_sid_stats \- obtain userspace SELinux AVC statistics.
+ .SH "SYNOPSIS"
+ .B #include <selinux/selinux.h>
+ .br
+@@ -96,3 +96,4 @@
+ .BR avc_has_perm (3),
+ .BR avc_context_to_sid (3),
+ .BR avc_add_callback (3)
++.BR selinux (8)
+diff --exclude-from=exclude -N -u -r nsalibselinux/man/man3/avc_context_to_sid.3 libselinux-1.33.4/man/man3/avc_context_to_sid.3
+--- nsalibselinux/man/man3/avc_context_to_sid.3	2006-11-16 17:15:30.000000000 -0500
++++ libselinux-1.33.4/man/man3/avc_context_to_sid.3	2007-01-15 16:21:55.000000000 -0500
+@@ -3,7 +3,7 @@
+ .\" Author: Eamon Walsh (ewalsh@epoch.ncsc.mil) 2004
+ .TH "avc_context_to_sid" "3" "27 May 2004" "" "SE Linux API documentation"
+ .SH "NAME"
+-avc_context_to_sid, avc_sid_to_context, sidput, sidget \- obtain and manipulate security ID's.
++avc_context_to_sid, avc_sid_to_context, sidput, sidget \- obtain and manipulate SELinux security ID's.
+ .SH "SYNOPSIS"
+ .B #include <selinux/selinux.h>
+ .br
+@@ -88,3 +88,4 @@
+ .BR avc_add_callback (3),
+ .BR getcon (3),
+ .BR freecon (3)
++.BR selinux (8)
+diff --exclude-from=exclude -N -u -r nsalibselinux/man/man3/avc_has_perm.3 libselinux-1.33.4/man/man3/avc_has_perm.3
+--- nsalibselinux/man/man3/avc_has_perm.3	2006-11-16 17:15:30.000000000 -0500
++++ libselinux-1.33.4/man/man3/avc_has_perm.3	2007-01-15 16:21:55.000000000 -0500
+@@ -152,3 +152,4 @@
+ .BR avc_cache_stats (3),
+ .BR avc_add_callback (3),
+ .BR security_compute_av (3)
++.BR selinux(8)
+diff --exclude-from=exclude -N -u -r nsalibselinux/man/man3/avc_init.3 libselinux-1.33.4/man/man3/avc_init.3
+--- nsalibselinux/man/man3/avc_init.3	2006-11-16 17:15:30.000000000 -0500
++++ libselinux-1.33.4/man/man3/avc_init.3	2007-01-15 16:21:55.000000000 -0500
+@@ -3,7 +3,7 @@
+ .\" Author: Eamon Walsh (ewalsh@epoch.ncsc.mil) 2004
+ .TH "avc_init" "3" "27 May 2004" "" "SE Linux API documentation"
+ .SH "NAME"
+-avc_init, avc_destroy, avc_reset, avc_cleanup \- userspace AVC setup and teardown.
++avc_init, avc_destroy, avc_reset, avc_cleanup \- userspace SELinux AVC setup and teardown.
+ .SH "SYNOPSIS"
+ .B #include <selinux/selinux.h>
+ .br
+@@ -209,3 +209,5 @@
+ .BR avc_cache_stats (3),
+ .BR avc_add_callback (3),
+ .BR security_compute_av (3)
++.BR selinux (8)
++
+diff --exclude-from=exclude -N -u -r nsalibselinux/man/man3/context_new.3 libselinux-1.33.4/man/man3/context_new.3
+--- nsalibselinux/man/man3/context_new.3	2006-11-16 17:15:30.000000000 -0500
++++ libselinux-1.33.4/man/man3/context_new.3	2007-01-15 16:21:55.000000000 -0500
+@@ -56,3 +56,6 @@
+ On success, zero is returned. On failure, -1 is returned and errno is
+ set appropriately.
  
- #include <sepol/errcodes.h>
-+#include <sepol/policydb/iter.h>
++.SH "SEE ALSO"
++.BR selinux "(8)"
++
+diff --exclude-from=exclude -N -u -r nsalibselinux/man/man3/freecon.3 libselinux-1.33.4/man/man3/freecon.3
+--- nsalibselinux/man/man3/freecon.3	2006-11-16 17:15:30.000000000 -0500
++++ libselinux-1.33.4/man/man3/freecon.3	2007-01-15 16:21:55.000000000 -0500
+@@ -1,6 +1,6 @@
+ .TH "freecon" "3" "1 January 2004" "russell@coker.com.au" "SE Linux API documentation"
+ .SH "NAME"
+-freecon, freeconary \- free memory associated with SE Linux security contexts.
++freecon, freeconary \- free memory associated with SELinux security contexts.
+ .SH "SYNOPSIS"
+ .B #include <selinux/selinux.h>
+ .sp
+@@ -14,3 +14,7 @@
  
- #include <stdint.h>
- #include <stdio.h>
-@@ -40,19 +41,18 @@ typedef struct hashtab_val {
+ .B freeconary
+ frees the memory allocated for a context array.
++
++.SH "SEE ALSO"
++.BR selinux "(8)"
++
+diff --exclude-from=exclude -N -u -r nsalibselinux/man/man3/getcon.3 libselinux-1.33.4/man/man3/getcon.3
+--- nsalibselinux/man/man3/getcon.3	2006-11-16 17:15:30.000000000 -0500
++++ libselinux-1.33.4/man/man3/getcon.3	2007-01-15 16:21:55.000000000 -0500
+@@ -1,6 +1,6 @@
+ .TH "getcon" "3" "1 January 2004" "russell@coker.com.au" "SE Linux API documentation"
+ .SH "NAME"
+-getcon, getprevcon, getpidcon \- get SE Linux security context of a process.
++getcon, getprevcon, getpidcon \- get SELinux security context of a process.
+ .br
+ getpeercon - get security context of a peer socket.
+ .br
+@@ -59,4 +59,4 @@
+ On error -1 is returned.  On success 0 is returned.
  
- typedef hashtab_val_t *hashtab_t;
+ .SH "SEE ALSO"
+-.BR freecon "(3), " setexeccon "(3)"
++.BR selinux "(8), " freecon "(3), " setexeccon "(3)"
+diff --exclude-from=exclude -N -u -r nsalibselinux/man/man3/getexeccon.3 libselinux-1.33.4/man/man3/getexeccon.3
+--- nsalibselinux/man/man3/getexeccon.3	2006-11-16 17:15:30.000000000 -0500
++++ libselinux-1.33.4/man/man3/getexeccon.3	2007-01-15 16:21:55.000000000 -0500
+@@ -1,6 +1,6 @@
+ .TH "getexeccon" "3" "1 January 2004" "russell@coker.com.au" "SE Linux API documentation"
+ .SH "NAME"
+-getexeccon, setexeccon \- get or set the SE Linux security context used for executing a new process.
++getexeccon, setexeccon \- get or set the SELinux security context used for executing a new process.
+ .br
+ rpm_execcon \- run a helper for rpm in an appropriate security context
  
-+typedef unsigned int (*hash_value_fnc_t)(hashtab_t h, const hashtab_key_t key);
-+typedef int (*keycmp_fnc_t)(hashtab_t h, const hashtab_key_t key1,
-+		      const hashtab_key_t key2);
- /*
-    Creates a new hash table with the specified characteristics.
+@@ -55,6 +55,6 @@
+ rpm_execcon only returns upon errors, as it calls execve(2).
  
-    Returns NULL if insufficent space is available or
-    the new hash table otherwise.
-  */
--extern hashtab_t hashtab_create(unsigned int (*hash_value) (hashtab_t h,
--							    const hashtab_key_t
--							    key),
--				int (*keycmp) (hashtab_t h,
--					       const hashtab_key_t key1,
--					       const hashtab_key_t key2),
-+extern hashtab_t hashtab_create(hash_value_fnc_t hash, keycmp_fnc_t keycmp,
- 				unsigned int size);
-+
- /*
-    Inserts the specified (key, datum) pair into the specified hash table.
+ .SH "SEE ALSO"
+-.BR freecon "(3), " getcon "(3)"
++.BR selinux "(8), " freecon "(3), " getcon "(3)"
  
-@@ -61,6 +61,9 @@ extern hashtab_t hashtab_create(unsigned
-    SEPOL_OK otherwise.
-  */
- extern int hashtab_insert(hashtab_t h, hashtab_key_t k, hashtab_datum_t d);
-+extern int hashtab_insert2(hashtab_t h, hashtab_key_t key, hashtab_datum_t datum,
-+			   hashtab_ptr_t *current);
+ 
+diff --exclude-from=exclude -N -u -r nsalibselinux/man/man3/getfilecon.3 libselinux-1.33.4/man/man3/getfilecon.3
+--- nsalibselinux/man/man3/getfilecon.3	2006-11-16 17:15:30.000000000 -0500
++++ libselinux-1.33.4/man/man3/getfilecon.3	2007-01-15 16:21:55.000000000 -0500
+@@ -1,6 +1,6 @@
+ .TH "getfilecon" "3" "1 January 2004" "russell@coker.com.au" "SE Linux API documentation"
+ .SH "NAME"
+-getfilecon, fgetfilecon, lgetfilecon \- get SE Linux security context of a file
++getfilecon, fgetfilecon, lgetfilecon \- get SELinux security context of a file
+ .SH "SYNOPSIS"
+ .B #include <selinux/selinux.h>
+ .sp
+@@ -40,4 +40,4 @@
+ here.
+ 
+ .SH "SEE ALSO"
+-.BR freecon "(3), " setfilecon "(3), " setfscreatecon "(3)"
++.BR selinux "(8), " freecon "(3), " setfilecon "(3), " setfscreatecon "(3)"
+diff --exclude-from=exclude -N -u -r nsalibselinux/man/man3/getfscreatecon.3 libselinux-1.33.4/man/man3/getfscreatecon.3
+--- nsalibselinux/man/man3/getfscreatecon.3	2006-11-16 17:15:30.000000000 -0500
++++ libselinux-1.33.4/man/man3/getfscreatecon.3	2007-01-15 16:21:55.000000000 -0500
+@@ -1,6 +1,6 @@
+ .TH "getfscreatecon" "3" "1 January 2004" "russell@coker.com.au" "SE Linux API documentation"
+ .SH "NAME"
+-getfscreatecon, setfscreatecon \- get or set the SE Linux security context used for creating a new file system object.
++getfscreatecon, setfscreatecon \- get or set the SELinux security context used for creating a new file system object.
+ 
+ .SH "SYNOPSIS"
+ .B #include <selinux/selinux.h>
+@@ -35,4 +35,4 @@
+ On success 0 is returned.
+ 
+ .SH "SEE ALSO"
+-.BR freecon "(3), " getcon "(3), " getexeccon "(3)"
++.BR selinux "(8), " freecon "(3), " getcon "(3), " getexeccon "(3)"
+diff --exclude-from=exclude -N -u -r nsalibselinux/man/man3/get_ordered_context_list.3 libselinux-1.33.4/man/man3/get_ordered_context_list.3
+--- nsalibselinux/man/man3/get_ordered_context_list.3	2006-11-16 17:15:30.000000000 -0500
++++ libselinux-1.33.4/man/man3/get_ordered_context_list.3	2007-01-15 16:21:55.000000000 -0500
+@@ -1,6 +1,6 @@
+ .TH "get_ordered_context_list" "3" "1 January 2004" "russell@coker.com.au" "SE Linux"
+ .SH "NAME"
+-get_ordered_context_list, get_ordered_context_list_with_level, get_default_context, get_default_context_with_level, get_default_context_with_role, get_default_context_with_rolelevel, query_user_context, manual_user_enter_context, get_default_role \- determine context(s) for user sessions
++get_ordered_context_list, get_ordered_context_list_with_level, get_default_context, get_default_context_with_level, get_default_context_with_role, get_default_context_with_rolelevel, query_user_context, manual_user_enter_context, get_default_role \- determine SELinux context(s) for user sessions
+ 
+ .SH "SYNOPSIS"
+ .B #include <selinux/selinux.h>
+@@ -77,4 +77,4 @@
+ The other functions return 0 for success or -1 for errors.
+ 
+ .SH "SEE ALSO"
+-.BR freeconary "(3), " freecon "(3), " security_compute_av "(3)", getseuserbyname"(3)"
++.BR selinux "(8), " freeconary "(3), " freecon "(3), " security_compute_av "(3)", getseuserbyname"(3)"
+diff --exclude-from=exclude -N -u -r nsalibselinux/man/man3/getseuserbyname.3 libselinux-1.33.4/man/man3/getseuserbyname.3
+--- nsalibselinux/man/man3/getseuserbyname.3	2006-11-16 17:15:30.000000000 -0500
++++ libselinux-1.33.4/man/man3/getseuserbyname.3	2007-01-15 16:21:55.000000000 -0500
+@@ -23,3 +23,6 @@
+ The errors documented for the stat(2) system call are also applicable
+ here.
+ 
++.SH "SEE ALSO"
++.BR selinux "(8)"
++
+diff --exclude-from=exclude -N -u -r nsalibselinux/man/man3/is_context_customizable.3 libselinux-1.33.4/man/man3/is_context_customizable.3
+--- nsalibselinux/man/man3/is_context_customizable.3	2006-11-16 17:15:30.000000000 -0500
++++ libselinux-1.33.4/man/man3/is_context_customizable.3	2007-01-15 16:21:55.000000000 -0500
+@@ -1,6 +1,6 @@
+ .TH "is_context_customizable" "3" "10 January 2005" "dwalsh@redhat.com" "SELinux API documentation"
+ .SH "NAME"
+-is_context_customizable \- check whether context type is customizable by the administrator.
++is_context_customizable \- check whether SELinux context type is customizable by the administrator.
+ .SH "SYNOPSIS"
+ .B #include <selinux/selinux.h>
+ .sp
+@@ -20,3 +20,6 @@
+ .SH "FILE"
+ /etc/selinux/SELINUXTYPE/context/customizable_types
+ 
++.SH "SEE ALSO"
++.BR selinux "(8)"
++
+diff --exclude-from=exclude -N -u -r nsalibselinux/man/man3/is_selinux_enabled.3 libselinux-1.33.4/man/man3/is_selinux_enabled.3
+--- nsalibselinux/man/man3/is_selinux_enabled.3	2006-11-16 17:15:30.000000000 -0500
++++ libselinux-1.33.4/man/man3/is_selinux_enabled.3	2007-01-15 16:21:55.000000000 -0500
+@@ -1,6 +1,6 @@
+ .TH "is_selinux_enabled" "3" "1 January 2004" "russell@coker.com.au" "SE Linux API documentation"
+ .SH "NAME"
+-is_selinux_enabled \- check whether SE Linux is enabled
++is_selinux_enabled \- check whether SELinux is enabled
+ .SH "SYNOPSIS"
+ .B #include <selinux/selinux.h>
+ .sp
+@@ -9,3 +9,7 @@
+ .SH "DESCRIPTION"
+ .B is_selinux_enabled
+ returns 1 if SE Linux is running or 0 if it is not.  May change soon.
++
++.SH "SEE ALSO"
++.BR selinux "(8)"
++
+diff --exclude-from=exclude -N -u -r nsalibselinux/man/man3/matchmediacon.3 libselinux-1.33.4/man/man3/matchmediacon.3
+--- nsalibselinux/man/man3/matchmediacon.3	2006-11-16 17:15:30.000000000 -0500
++++ libselinux-1.33.4/man/man3/matchmediacon.3	2007-01-15 16:21:55.000000000 -0500
+@@ -1,6 +1,6 @@
+ .TH "matchmediacon" "3" "15 November 2004" "dwalsh@redhat.com" "SE Linux API documentation"
+ .SH "NAME"
+-matchmediacon \- get the default security context for the specified mediatype from the policy.
++matchmediacon \- get the default SELinux security context for the specified mediatype from the policy.
+ 
+ .SH "SYNOPSIS"
+ .B #include <selinux/selinux.h>
+@@ -23,4 +23,4 @@
+ /etc/selinux/POLICYTYPE/contexts/files/media
+ 
+ .SH "SEE ALSO"
+-.BR freecon "(3)
++.BR selinux "(8), " freecon "(3)
+diff --exclude-from=exclude -N -u -r nsalibselinux/man/man3/matchpathcon.3 libselinux-1.33.4/man/man3/matchpathcon.3
+--- nsalibselinux/man/man3/matchpathcon.3	2006-11-16 17:15:30.000000000 -0500
++++ libselinux-1.33.4/man/man3/matchpathcon.3	2007-01-15 16:21:55.000000000 -0500
+@@ -1,6 +1,6 @@
+ .TH "matchpathcon" "3" "16 March 2005" "sds@tycho.nsa.gov" "SE Linux API documentation"
+ .SH "NAME"
+-matchpathcon \- get the default security context for the specified path from the file contexts configuration.
++matchpathcon \- get the default SELinux security context for the specified path from the file contexts configuration.
+ 
+ .SH "SYNOPSIS"
+ .B #include <selinux/selinux.h>
+@@ -117,4 +117,4 @@
+ Returns 0 on success or -1 otherwise.
+ 
+ .SH "SEE ALSO"
+-.BR freecon "(3), " setfilecon "(3), " setfscreatecon "(3)"
++.BR selinux "(8), " freecon "(3), " setfilecon "(3), " setfscreatecon "(3)"
+diff --exclude-from=exclude -N -u -r nsalibselinux/man/man3/security_check_context.3 libselinux-1.33.4/man/man3/security_check_context.3
+--- nsalibselinux/man/man3/security_check_context.3	2006-11-16 17:15:30.000000000 -0500
++++ libselinux-1.33.4/man/man3/security_check_context.3	2007-01-15 16:21:55.000000000 -0500
+@@ -1,6 +1,6 @@
+ .TH "security_check_context" "3" "1 January 2004" "russell@coker.com.au" "SE Linux API documentation"
+ .SH "NAME"
+-security_check_context \- check the validity of a context
++security_check_context \- check the validity of a SELinux context
+ .SH "SYNOPSIS"
+ .B #include <selinux/selinux.h>
+ .sp
+@@ -10,3 +10,7 @@
+ .B security_check_context
+ returns 0 if SE Linux is running and the context is valid, otherwise it
+ returns -1.
++
++.SH "SEE ALSO"
++.BR selinux "(8)"
++
+diff --exclude-from=exclude -N -u -r nsalibselinux/man/man3/security_compute_av.3 libselinux-1.33.4/man/man3/security_compute_av.3
+--- nsalibselinux/man/man3/security_compute_av.3	2006-11-16 17:15:30.000000000 -0500
++++ libselinux-1.33.4/man/man3/security_compute_av.3	2007-01-15 16:21:55.000000000 -0500
+@@ -1,7 +1,7 @@
+ .TH "security_compute_av" "3" "1 January 2004" "russell@coker.com.au" "SE Linux API documentation"
+ .SH "NAME"
+ security_compute_av, security_compute_create, security_compute_relabel, security_compute_user \- query
+-the SE Linux policy database in the kernel.
++the SELinux policy database in the kernel.
+ 
+ .SH "SYNOPSIS"
+ .B #include <selinux/selinux.h>
+@@ -51,4 +51,4 @@
+ 0 for success and on error -1 is returned.
+ 
+ .SH "SEE ALSO"
+-.BR getcon "(3), " getfilecon "(3), " get_ordered_context_list "(3)"
++.BR selinux "(8), " getcon "(3), " getfilecon "(3), " get_ordered_context_list "(3)"
+diff --exclude-from=exclude -N -u -r nsalibselinux/man/man3/security_getenforce.3 libselinux-1.33.4/man/man3/security_getenforce.3
+--- nsalibselinux/man/man3/security_getenforce.3	2006-11-16 17:15:30.000000000 -0500
++++ libselinux-1.33.4/man/man3/security_getenforce.3	2007-01-15 16:21:55.000000000 -0500
+@@ -1,6 +1,6 @@
+ .TH "security_getenforce" "3" "1 January 2004" "russell@coker.com.au" "SE Linux API documentation"
+ .SH "NAME"
+-security_getenforce, security_setenforce \- get or set the enforcing state of SE Linux
++security_getenforce, security_setenforce \- get or set the enforcing state of SELinux
+ .SH "SYNOPSIS"
+ .B #include <selinux/selinux.h>
+ .sp
+@@ -17,3 +17,7 @@
+ sets SE Linux to enforcing mode if the value 1 is passed in, and sets it to
+ permissive mode if 0 is passed in.  On success 0 is returned, on error -1 is
+ returned.
++
++.SH "SEE ALSO"
++.BR selinux "(8)"
++
+diff --exclude-from=exclude -N -u -r nsalibselinux/man/man3/security_load_booleans.3 libselinux-1.33.4/man/man3/security_load_booleans.3
+--- nsalibselinux/man/man3/security_load_booleans.3	2006-11-16 17:15:30.000000000 -0500
++++ libselinux-1.33.4/man/man3/security_load_booleans.3	2007-01-15 16:21:55.000000000 -0500
+@@ -56,4 +56,4 @@
+ This manual page was written by Dan Walsh <dwalsh@redhat.com>.
+ 
+ .SH "SEE ALSO"
+-getsebool(8), booleans(8), togglesebool(8)
++selinux(8), getsebool(8), booleans(8), togglesebool(8)
+diff --exclude-from=exclude -N -u -r nsalibselinux/man/man3/security_load_policy.3 libselinux-1.33.4/man/man3/security_load_policy.3
+--- nsalibselinux/man/man3/security_load_policy.3	2006-11-16 17:15:30.000000000 -0500
++++ libselinux-1.33.4/man/man3/security_load_policy.3	2007-01-15 16:21:55.000000000 -0500
+@@ -1,6 +1,6 @@
+ .TH "security_load_policy" "3" "1 January 2004" "russell@coker.com.au" "SE Linux API documentation"
+ .SH "NAME"
+-security_load_policy \- load a new policy
++security_load_policy \- load a new SELinux policy
+ .SH "SYNOPSIS"
+ .B #include <selinux/selinux.h>
+ .sp
+@@ -9,3 +9,7 @@
+ .SH "DESCRIPTION"
+ .B security_load_policy
+ loads a new policy, returns 0 for success and -1 for error.
++
++.SH "SEE ALSO"
++.BR selinux "(8)"
++
+diff --exclude-from=exclude -N -u -r nsalibselinux/man/man3/security_policyvers.3 libselinux-1.33.4/man/man3/security_policyvers.3
+--- nsalibselinux/man/man3/security_policyvers.3	2006-11-16 17:15:30.000000000 -0500
++++ libselinux-1.33.4/man/man3/security_policyvers.3	2007-01-15 16:21:55.000000000 -0500
+@@ -1,6 +1,6 @@
+ .TH "security_policyvers" "3" "1 January 2004" "russell@coker.com.au" "SE Linux API documentation"
+ .SH "NAME"
+-security_policyvers \- get the version of the SE Linux policy
++security_policyvers \- get the version of the SELinux policy
+ .SH "SYNOPSIS"
+ .B #include <selinux/selinux.h>
+ .sp
+@@ -10,3 +10,7 @@
+ .B security_policyvers
+ returns the version of the policy (a positive integer) on success, or -1 on
+ error.
++
++.SH "SEE ALSO"
++.BR selinux "(8)"
++
+diff --exclude-from=exclude -N -u -r nsalibselinux/man/man3/selinux_binary_policy_path.3 libselinux-1.33.4/man/man3/selinux_binary_policy_path.3
+--- nsalibselinux/man/man3/selinux_binary_policy_path.3	2007-01-11 14:01:22.000000000 -0500
++++ libselinux-1.33.4/man/man3/selinux_binary_policy_path.3	2007-01-15 16:21:55.000000000 -0500
+@@ -4,7 +4,7 @@
+ selinux_failsafe_context_path, selinux_removable_context_path,
+ selinux_default_context_path, selinux_user_contexts_path,
+ selinux_file_context_path, selinux_media_context_path,
+-selinux_contexts_path, selinux_booleans_path \- These functions return the paths to the active policy configuration
++selinux_contexts_path, selinux_booleans_path \- These functions return the paths to the active SELinux policy configuration
+ directories and files.
+ 
+ .SH "SYNOPSIS"
+@@ -65,3 +65,6 @@
+ .SH AUTHOR	
+ This manual page was written by Dan Walsh <dwalsh@redhat.com>.
+ 
++.SH "SEE ALSO"
++.BR selinux "(8)"
++
+diff --exclude-from=exclude -N -u -r nsalibselinux/man/man3/selinux_check_securetty_context.3 libselinux-1.33.4/man/man3/selinux_check_securetty_context.3
+--- nsalibselinux/man/man3/selinux_check_securetty_context.3	2007-01-11 14:01:22.000000000 -0500
++++ libselinux-1.33.4/man/man3/selinux_check_securetty_context.3	2007-01-15 16:21:55.000000000 -0500
+@@ -1,6 +1,6 @@
+ .TH "selinux_check_securetty_context" "3" "1 January 2007" "dwalsh@redhat.com" "SE Linux API documentation"
+ .SH "NAME"
+-selinux_check_securetty_context \- check whether a tty security context is defined as a securetty context
++selinux_check_securetty_context \- check whether a SELinux tty security context is defined as a securetty context
+ .SH "SYNOPSIS"
+ .B #include <selinux/selinux.h>
+ .sp
+@@ -10,3 +10,7 @@
+ .B selinux_check_securetty_context
+ returns 0 if tty_context is a securetty context
+ returns < 0 otherwise. 
++
++.SH "SEE ALSO"
++.BR selinux "(8)"
++
+diff --exclude-from=exclude -N -u -r nsalibselinux/man/man3/selinux_getenforcemode.3 libselinux-1.33.4/man/man3/selinux_getenforcemode.3
+--- nsalibselinux/man/man3/selinux_getenforcemode.3	2006-11-16 17:15:30.000000000 -0500
++++ libselinux-1.33.4/man/man3/selinux_getenforcemode.3	2007-01-15 16:21:55.000000000 -0500
+@@ -1,6 +1,6 @@
+ .TH "selinux_getenforcemode" "3" "25 May 2004" "dwalsh@redhat.com" "SE Linux API documentation"
+ .SH "NAME"
+-selinux_getenforcemode \- get the enforcing state of SE Linux
++selinux_getenforcemode \- get the enforcing state of SELinux
+ .SH "SYNOPSIS"
+ .B #include <selinux/selinux.h>
+ .sp
+@@ -19,4 +19,7 @@
+ On success, zero is returned.
+ On failure, -1 is returned.
+ 
++.SH "SEE ALSO"
++.BR selinux "(8)"
 +
  
- /*
-    Removes the entry with the specified key from the hash table.
-@@ -103,6 +106,16 @@ extern void hashtab_destroy(hashtab_t h)
- extern void hashtab_destroy(hashtab_t h);
+diff --exclude-from=exclude -N -u -r nsalibselinux/man/man3/selinux_policy_root.3 libselinux-1.33.4/man/man3/selinux_policy_root.3
+--- nsalibselinux/man/man3/selinux_policy_root.3	2006-11-16 17:15:30.000000000 -0500
++++ libselinux-1.33.4/man/man3/selinux_policy_root.3	2007-01-15 16:21:55.000000000 -0500
+@@ -14,4 +14,7 @@
+ On success, returns a directory path containing the SELinux policy files.
+ On failure, NULL is returned.
  
- /*
-+  Initializes an iterator for the hash table (see
-+  sepol/policydb/iter.h).  sepol_iter_get_data will return a
-+  hashtab_ptr_t.
++.SH "SEE ALSO"
++.BR selinux "(8)"
 +
-+  Returns NULL if the iterator cannot be created or the iterator
-+  otherwise.
-+ */
-+extern int hashtab_iter(hashtab_t h, struct sepol_iter *iter);
-+
-+/*
-    Applies the specified apply function to (key,datum,args)
-    for each entry in the specified hash table.
  
-diff -r fceafe45b35c libsepol/src/hashtab.c
---- a/libsepol/src/hashtab.c	Tue Jan 16 17:22:30 2007 -0500
-+++ b/libsepol/src/hashtab.c	Tue Jan 16 17:22:40 2007 -0500
-@@ -28,9 +28,11 @@
-  * Implementation of the hash table type.
-  */
+diff --exclude-from=exclude -N -u -r nsalibselinux/man/man3/setfilecon.3 libselinux-1.33.4/man/man3/setfilecon.3
+--- nsalibselinux/man/man3/setfilecon.3	2006-11-16 17:15:30.000000000 -0500
++++ libselinux-1.33.4/man/man3/setfilecon.3	2007-01-15 16:21:55.000000000 -0500
+@@ -1,6 +1,6 @@
+ .TH "setfilecon" "3" "1 January 2004" "russell@coker.com.au" "SE Linux API documentation"
+ .SH "NAME"
+-setfilecon, fsetfilecon, lsetfilecon \- set SE Linux security context of a file
++setfilecon, fsetfilecon, lsetfilecon \- set SELinux security context of a file
  
-+#include <sepol/policydb/hashtab.h>
-+
- #include <stdlib.h>
- #include <string.h>
--#include <sepol/policydb/hashtab.h>
-+#include <assert.h>
+ .SH "SYNOPSIS"
+ .B #include <selinux/selinux.h>
+@@ -38,4 +38,4 @@
+ here.
  
- hashtab_t hashtab_create(unsigned int (*hash_value) (hashtab_t h,
- 						     const hashtab_key_t key),
-@@ -63,7 +65,8 @@ hashtab_t hashtab_create(unsigned int (*
- 	return p;
- }
+ .SH "SEE ALSO"
+-.BR freecon "(3), " getfilecon "(3), " setfscreatecon "(3)"
++.BR selinux "(3), " freecon "(3), " getfilecon "(3), " setfscreatecon "(3)"
+diff --exclude-from=exclude -N -u -r nsalibselinux/man/man8/avcstat.8 libselinux-1.33.4/man/man8/avcstat.8
+--- nsalibselinux/man/man8/avcstat.8	2006-11-16 17:15:26.000000000 -0500
++++ libselinux-1.33.4/man/man8/avcstat.8	2007-01-15 16:21:55.000000000 -0500
+@@ -22,6 +22,9 @@
+ .B \-f
+ Specifies the location of the AVC statistics file, defaulting to '/selinux/avc/cache_stats'.
  
--int hashtab_insert(hashtab_t h, hashtab_key_t key, hashtab_datum_t datum)
-+int hashtab_insert2(hashtab_t h, hashtab_key_t key, hashtab_datum_t datum,
-+		    hashtab_ptr_t *current)
- {
- 	int hvalue;
- 	hashtab_ptr_t prev, cur, newnode;
-@@ -79,8 +82,11 @@ int hashtab_insert(hashtab_t h, hashtab_
- 		cur = cur->next;
- 	}
++.SH "SEE ALSO"
++selinux(8)
++
+ .SH AUTHOR	
+ This manual page was written by Dan Walsh <dwalsh@redhat.com>.
+ The program was written by James Morris <jmorris@redhat.com>.
+diff --exclude-from=exclude -N -u -r nsalibselinux/man/man8/getenforce.8 libselinux-1.33.4/man/man8/getenforce.8
+--- nsalibselinux/man/man8/getenforce.8	2006-11-16 17:15:26.000000000 -0500
++++ libselinux-1.33.4/man/man8/getenforce.8	2007-01-15 16:21:55.000000000 -0500
+@@ -12,4 +12,4 @@
+ Dan Walsh, <dwalsh@redhat.com>
  
--	if (cur && (h->keycmp(h, key, cur->key) == 0))
-+	if (cur && (h->keycmp(h, key, cur->key) == 0)) {
-+		if (current)
-+			*current = cur;
- 		return SEPOL_EEXIST;
-+	}
+ .SH "SEE ALSO"
+-setenforce(8), selinuxenabled(8)
++selinux(8), setenforce(8), selinuxenabled(8)
+diff --exclude-from=exclude -N -u -r nsalibselinux/man/man8/getsebool.8 libselinux-1.33.4/man/man8/getsebool.8
+--- nsalibselinux/man/man8/getsebool.8	2006-11-16 17:15:26.000000000 -0500
++++ libselinux-1.33.4/man/man8/getsebool.8	2007-01-15 16:21:55.000000000 -0500
+@@ -26,9 +26,10 @@
+ .B \-a
+ Show all SELinux booleans.
  
- 	newnode = (hashtab_ptr_t) malloc(sizeof(hashtab_node_t));
- 	if (newnode == NULL)
-@@ -98,6 +104,11 @@ int hashtab_insert(hashtab_t h, hashtab_
++.SH "SEE ALSO"
++selinux(8), setsebool(8), booleans(8)
++
+ .SH AUTHOR	
+ This manual page was written by Dan Walsh <dwalsh@redhat.com>.
+ The program was written by Tresys Technology.
  
- 	h->nel++;
- 	return SEPOL_OK;
-+}
-+
-+int hashtab_insert(hashtab_t h, hashtab_key_t key, hashtab_datum_t datum)
-+{
-+ 	return hashtab_insert2(h, key, datum, NULL);
- }
+-.SH "SEE ALSO"
+-setsebool(8), booleans(8)
+diff --exclude-from=exclude -N -u -r nsalibselinux/man/man8/matchpathcon.8 libselinux-1.33.4/man/man8/matchpathcon.8
+--- nsalibselinux/man/man8/matchpathcon.8	2006-11-16 17:15:26.000000000 -0500
++++ libselinux-1.33.4/man/man8/matchpathcon.8	2007-01-15 16:21:55.000000000 -0500
+@@ -1,6 +1,6 @@
+ .TH "matchpathcon" "8" "21 April 2005" "dwalsh@redhat.com" "SE Linux Command Line documentation"
+ .SH "NAME"
+-matchpathcon \- get the default security context for the specified path from the file contexts configuration.
++matchpathcon \- get the default SELinux security context for the specified path from the file contexts configuration.
  
- int hashtab_remove(hashtab_t h, hashtab_key_t key,
-@@ -219,6 +230,84 @@ void hashtab_destroy(hashtab_t h)
- 	free(h);
- }
+ .SH "SYNOPSIS"
+ .B matchpathcon [-V] [-N] [-n] [-f file_contexts_file ] [-p prefix ] filepath...
+@@ -27,4 +27,5 @@
+ This manual page was written by Dan Walsh <dwalsh@redhat.com>.
  
-+/* to support removal of items, a prev hashtab_ptr_t will
-+ * need to be added.
-+ */
-+struct hashtab_iter_state
-+{
-+	hashtab_t h;
-+	unsigned int bucket;
-+	hashtab_ptr_t cur;
-+};
-+
-+static void hashtab_iter_destroy(void *data)
-+{
-+	free(data);
-+}
-+
-+
-+static int hashtab_state_next_internal(struct hashtab_iter_state *state)
-+{
-+	if (state->cur == NULL) {
-+		for (state->bucket++;
-+		     state->bucket < state->h->size; state->bucket++) {
-+			state->cur = state->h->htable[state->bucket];
-+			if (state->cur)
-+				break;
-+		}
-+	}
-+	
-+	if (state->cur == NULL) {
-+		return SEPOL_ITERSTOP;
-+	} else {
-+		return SEPOL_OK;
-+	}
-+
-+}
-+
-+static int hashtab_iter_next(struct sepol_iter *iter)
-+{
-+	struct hashtab_iter_state *state = sepol_iter_get_state(iter);
-+
-+	if (state->cur != NULL)
-+		state->cur = state->cur->next;
-+	return hashtab_state_next_internal(state);
-+}
-+
-+static void *hashtab_iter_get_data(struct sepol_iter *iter)
-+{
-+	struct hashtab_iter_state *state = sepol_iter_get_state(iter);
-+	assert(state);
-+	return state->cur;
-+}
-+
-+int hashtab_iter(hashtab_t h, struct sepol_iter *iter)
-+{
-+	struct hashtab_iter_state *state;
-+
-+	assert(iter);
-+
-+	state = sepol_iter_get_state(iter);
-+	if (state)
-+		free(state);
-+
-+	state = malloc(sizeof(struct hashtab_iter_state));
-+	if (state == NULL) {
-+		free(state);
-+		return ENOMEM;
-+	}
-+
-+	state->h = h;
-+	state->bucket = 0;
-+	state->cur = h->htable[0];
-+	sepol_iter_set_state(iter, state);
-+	sepol_iter_set_next(iter, hashtab_iter_next);
-+	sepol_iter_set_free(iter, hashtab_iter_destroy);
-+	sepol_iter_set_get_data(iter, hashtab_iter_get_data);
-+
-+	return hashtab_state_next_internal(state);
-+}
-+
- int hashtab_map(hashtab_t h,
- 		int (*apply) (hashtab_key_t k,
- 			      hashtab_datum_t d, void *args), void *args)
-diff -r fceafe45b35c libsepol/tests/libsepol-tests.c
---- a/libsepol/tests/libsepol-tests.c	Tue Jan 16 17:22:30 2007 -0500
-+++ b/libsepol/tests/libsepol-tests.c	Tue Jan 16 17:22:40 2007 -0500
-@@ -23,6 +23,7 @@
- #include "test-expander.h"
- #include "test-deps.h"
- #include "test-list.h"
-+#include "test-hashtab.h"
+ .SH "SEE ALSO"
++.BR selinux "(8), "
+ .BR mathpathcon "(3), " 
+diff --exclude-from=exclude -N -u -r nsalibselinux/man/man8/selinuxenabled.8 libselinux-1.33.4/man/man8/selinuxenabled.8
+--- nsalibselinux/man/man8/selinuxenabled.8	2006-11-16 17:15:26.000000000 -0500
++++ libselinux-1.33.4/man/man8/selinuxenabled.8	2007-01-15 16:21:55.000000000 -0500
+@@ -13,4 +13,4 @@
+ Dan Walsh, <dwalsh@redhat.com>
  
- #include <CUnit/Basic.h>
- #include <CUnit/Console.h>
-@@ -63,6 +64,7 @@ static int do_tests(int interactive, int
- 	DECLARE_SUITE(expander);
- 	DECLARE_SUITE(deps);
- 	DECLARE_SUITE(list);
-+	DECLARE_SUITE(hashtab);
+ .SH "SEE ALSO"
+-setenforce(8), getenforce(8)
++selinux(8), setenforce(8), getenforce(8)
+diff --exclude-from=exclude -N -u -r nsalibselinux/man/man8/setenforce.8 libselinux-1.33.4/man/man8/setenforce.8
+--- nsalibselinux/man/man8/setenforce.8	2006-11-16 17:15:26.000000000 -0500
++++ libselinux-1.33.4/man/man8/setenforce.8	2007-01-15 16:21:55.000000000 -0500
+@@ -17,7 +17,7 @@
+ Dan Walsh, <dwalsh@redhat.com>
  
- 	if (verbose)
- 		CU_basic_set_mode(CU_BRM_VERBOSE);
-diff -r fceafe45b35c libsepol/tests/test-hashtab.c
---- a/libsepol/tests/test-hashtab.c	Tue Jan 16 17:22:30 2007 -0500
-+++ b/libsepol/tests/test-hashtab.c	Tue Jan 16 17:22:40 2007 -0500
-@@ -0,0 +1,99 @@
-+/*
-+ * Author: Karl MacMillan <kmacmillan@mentalrootkit.com>
-+ *
-+ * Copyright (C) 2007 Red Hat, Inc.
-+ *
-+ *  This library is free software; you can redistribute it and/or
-+ *  modify it under the terms of the GNU Lesser General Public
-+ *  License as published by the Free Software Foundation; either
-+ *  version 2.1 of the License, or (at your option) any later version.
-+ *
-+ *  This library is distributed in the hope that it will be useful,
-+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-+ *  Lesser General Public License for more details.
-+ *
-+ *  You should have received a copy of the GNU Lesser General Public
-+ *  License along with this library; if not, write to the Free Software
-+ *  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
-+ */
-+
-+#include "test-hashtab.h"
-+
-+#include <sepol/policydb/hashtab.h>
-+
-+#include <string.h>
-+
-+int hashtab_test_init(void)
-+{
-+	return 0;
-+}
-+
-+int hashtab_test_cleanup(void)
-+{
-+	return 0;
-+}
-+
-+static unsigned int reqsymhash(hashtab_t h, hashtab_key_t key)
-+{
-+	char *p, *keyp;
-+	size_t size;
-+	unsigned int val;
-+
-+	val = 0;
-+	keyp = (char *)key;
-+	size = strlen(keyp);
-+	for (p = keyp; ((size_t) (p - keyp)) < size; p++)
-+		val =
-+		    (val << 4 | (val >> (8 * sizeof(unsigned int) - 4))) ^ (*p);
-+	return val & (h->size - 1);
-+}
-+
-+static int reqsymcmp(hashtab_t h
-+		     __attribute__ ((unused)), hashtab_key_t key1,
-+		     hashtab_key_t key2)
-+{
-+	char *keyp1, *keyp2;
-+
-+	keyp1 = (char *)key1;
-+	keyp2 = (char *)key2;
-+	return strcmp(keyp1, keyp2);
-+}
-+
-+static void test_hashtab_iter(void)
-+{
-+	hashtab_t h;
-+	hashtab_ptr_t cur;
-+	struct sepol_iter *iter;
-+	int ret, i;
-+	char *strings[] = {"foo", "bar", "baz"};
-+
-+	h = hashtab_create(reqsymhash, reqsymcmp, 64);
-+	CU_ASSERT(h != NULL);
-+	
-+	ret = hashtab_insert(h, strings[0], (void *)0);
-+	ret = hashtab_insert(h, strings[1], (void *)1);
-+	ret = hashtab_insert(h, strings[2], (void *)2);
-+
-+	ret = sepol_iter_create(&iter);
-+	CU_ASSERT(ret == SEPOL_OK);
-+	ret = hashtab_iter(h, iter);
-+	CU_ASSERT(ret == SEPOL_OK);
-+	while (ret == SEPOL_OK) {
-+		cur = sepol_iter_get_data(iter);
-+		i = (int)cur->datum;
-+		CU_ASSERT(i < 3);
-+		CU_ASSERT(strcmp(strings[i], (char *)cur->key) == 0);
-+		ret = sepol_iter_next(iter);
-+	}
-+	CU_ASSERT(ret == SEPOL_ITERSTOP);
-+	sepol_iter_destroy(iter);
-+}
-+
-+int hashtab_add_tests(CU_pSuite suite)
-+{
-+	if (NULL == CU_add_test(suite, "test_hashtab_iter", test_hashtab_iter)) {
-+		return -1;
-+	}
-+	return 0;
-+}
-diff -r fceafe45b35c libsepol/tests/test-hashtab.h
---- a/libsepol/tests/test-hashtab.h	Tue Jan 16 17:22:30 2007 -0500
-+++ b/libsepol/tests/test-hashtab.h	Tue Jan 16 17:22:40 2007 -0500
-@@ -0,0 +1,12 @@
-+/* Author: Karl MacMillan <kmacmillan@mentalrootkit.com> */
-+
-+#ifndef __test_hashtab_h__
-+#define __test_hashtab_h__
-+
-+#include <CUnit/Basic.h>
-+
-+int hashtab_test_init(void);
-+int hashtab_test_cleanup(void);
-+int hashtab_add_tests(CU_pSuite suite);
-+
-+#endif
+ .SH "SEE ALSO"
+-getenforce(8), selinuxenabled(8)
++selinux(8), getenforce(8), selinuxenabled(8)
+ 
+ .SH FILES
+ /etc/grub.conf, /etc/selinux/config
+diff --exclude-from=exclude -N -u -r nsalibselinux/man/man8/togglesebool.8 libselinux-1.33.4/man/man8/togglesebool.8
+--- nsalibselinux/man/man8/togglesebool.8	2006-11-16 17:15:26.000000000 -0500
++++ libselinux-1.33.4/man/man8/togglesebool.8	2007-01-15 16:21:55.000000000 -0500
+@@ -1,6 +1,6 @@
+ .TH "togglesebool" "1" "26 Oct 2004" "sgrubb@redhat.com" "SELinux Command Line documentation"
+ .SH "NAME"
+-togglesebool \- flip the current value of a boolean
++togglesebool \- flip the current value of a SELinux boolean
+ .SH "SYNOPSIS"
+ .B togglesebool boolean...
+ 
+@@ -14,4 +14,4 @@
+ This man page was written by Steve Grubb <sgrubb@redhat.com>
+ 
+ .SH "SEE ALSO"
+-booleans(8), getsebool(8), setsebool(8)
++selinux(8), booleans(8), getsebool(8), setsebool(8)
 
---------------080306040505030508010509--
+--------------010402090407070000000106
+Content-Type: text/x-patch;
+ name="policycoreutils-man.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="policycoreutils-man.patch"
+
+--- nsapolicycoreutils/audit2allow/audit2allow.1	2006-11-16 17:14:29.000000000 -0500
++++ policycoreutils-1.33.14/audit2allow/audit2allow.1	2007-01-16 15:13:02.000000000 -0500
+@@ -24,7 +24,7 @@
+ .\"
+ .TH AUDIT2ALLOW "1" "January 2005" "Security Enhanced Linux" NSA
+ .SH NAME
+-audit2allow \- generate policy allow rules from logs of denied operations
++audit2allow \- generate SELinux policy allow rules from logs of denied operations
+ .SH SYNOPSIS
+ .B audit2allow
+ .RI [ options "] "
+--- nsapolicycoreutils/load_policy/load_policy.8	2006-11-16 17:14:31.000000000 -0500
++++ policycoreutils-1.33.14/load_policy/load_policy.8	2007-01-16 15:13:02.000000000 -0500
+@@ -1,6 +1,6 @@
+ .TH LOAD_POLICY "8" "May 2003" "Security Enhanced Linux" NSA
+ .SH NAME
+-load_policy \- load a new policy into the kernel
++load_policy \- load a new SELinux policy into the kernel
+ 
+ .SH SYNOPSIS
+ .B load_policy 
+--- nsapolicycoreutils/newrole/newrole.1	2007-01-16 15:08:21.000000000 -0500
++++ policycoreutils-1.33.14/newrole/newrole.1	2007-01-16 15:13:02.000000000 -0500
+@@ -1,6 +1,6 @@
+ .TH NEWROLE "1" "October 2000" "Security Enhanced Linux" NSA
+ .SH NAME
+-newrole \- run a shell with a new role
++newrole \- run a shell with a new SELinux role
+ .SH SYNOPSIS
+ .B newrole
+ [\fB-r\fR|\fB--role\fR]
+--- nsapolicycoreutils/restorecon/restorecon.8	2006-11-16 17:14:26.000000000 -0500
++++ policycoreutils-1.33.14/restorecon/restorecon.8	2007-01-16 15:13:02.000000000 -0500
+@@ -1,6 +1,6 @@
+ .TH "restorecon" "8" "2002031409" "" ""
+ .SH "NAME"
+-restorecon \- set file security contexts.
++restorecon \- restore file(s) default SELinux security contexts.
+ 
+ .SH "SYNOPSIS"
+ .B restorecon
+--- nsapolicycoreutils/restorecond/restorecond.8	2006-11-16 17:14:28.000000000 -0500
++++ policycoreutils-1.33.14/restorecond/restorecond.8	2007-01-16 15:13:02.000000000 -0500
+@@ -1,6 +1,6 @@
+ .TH "restorecond" "8" "2002031409" "" ""
+ .SH "NAME"
+-restorecond \- daemon that watches for file creation and then corrects file context
++restorecond \- daemon that watches for file creation and then sets the default SELinux file context
+ 
+ .SH "SYNOPSIS"
+ .B restorecond  [\-d]
+--- nsapolicycoreutils/run_init/run_init.8	2006-11-16 17:14:27.000000000 -0500
++++ policycoreutils-1.33.14/run_init/run_init.8	2007-01-16 15:13:02.000000000 -0500
+@@ -1,6 +1,6 @@
+ .TH RUN_INIT "8" "May 2003" "Security Enhanced Linux" NSA
+ .SH NAME
+-run_init \- run an init script in the proper context
++run_init \- run an init script in the proper SELinux context
+ .SH SYNOPSIS
+ .B run_init 
+ \fISCRIPT\fR [[\fIARGS\fR]...] 
+--- nsapolicycoreutils/scripts/chcat.8	2006-11-16 17:14:27.000000000 -0500
++++ policycoreutils-1.33.14/scripts/chcat.8	2007-01-16 15:13:02.000000000 -0500
+@@ -1,6 +1,6 @@
+ .TH CHCAT "8" "September 2005" "chcat" "User Commands"
+ .SH NAME
+-chcat \- change file security category
++chcat \- change file SELinux security category
+ .SH SYNOPSIS
+ .B chcat
+ \fICATEGORY FILE\fR...
+--- nsapolicycoreutils/scripts/fixfiles.8	2006-11-16 17:14:27.000000000 -0500
++++ policycoreutils-1.33.14/scripts/fixfiles.8	2007-01-16 15:13:02.000000000 -0500
+@@ -1,6 +1,6 @@
+ .TH "fixfiles" "8" "2002031409" "" ""
+ .SH "NAME"
+-fixfiles \- fix file security contexts.
++fixfiles \- fix file SELinux security contexts.
+ 
+ .SH "SYNOPSIS"
+ .B fixfiles [-F] [ -R rpmpackagename[,rpmpackagename...] ] [ -C PREVIOUS_FILECONTEXT ] [-l logfile ] [-o outputfile ] { check | restore | [-F] relabel | verify }"
+--- nsapolicycoreutils/scripts/genhomedircon.8	2006-11-20 12:19:55.000000000 -0500
++++ policycoreutils-1.33.14/scripts/genhomedircon.8	2007-01-16 15:13:02.000000000 -0500
+@@ -24,7 +24,7 @@
+ .\"
+ .TH GENHOMEDIRCON "8" "January 2005" "Security Enhanced Linux" ""
+ .SH NAME
+-genhomedircon \- generate file context configuration entries for user home directories 
++genhomedircon \- generate SELinux file context configuration entries for user home directories 
+ .SH SYNOPSIS
+ .B genhomedircon [ -d selinuxdir ] [-n | --nopasswd] [-t selinuxtype ] [-h]
+ 
+--- nsapolicycoreutils/secon/secon.1	2006-11-16 17:14:31.000000000 -0500
++++ policycoreutils-1.33.14/secon/secon.1	2007-01-16 15:13:02.000000000 -0500
+@@ -1,6 +1,6 @@
+ .TH SECON "1" "April 2006" "Security Enhanced Linux" NSA
+ .SH NAME
+-secon \- See a context, from a file, program or user input.
++secon \- See an SELinux context, from a file, program or user input.
+ .SH SYNOPSIS
+ .B secon
+ [\fB-hVurtscmPRfLp\fR]
+--- nsapolicycoreutils/semodule_deps/semodule_deps.8	2006-11-16 17:14:31.000000000 -0500
++++ policycoreutils-1.33.14/semodule_deps/semodule_deps.8	2007-01-16 15:13:02.000000000 -0500
+@@ -1,6 +1,6 @@
+ .TH SEMODULE_DEPS "8" "June 2006" "Security Enhanced Linux" NSA
+ .SH NAME 
+-semodule_deps \- show the dependencies between policy packages.
++semodule_deps \- show the dependencies between SELinux policy packages.
+ 
+ .SH SYNOPSIS
+ .B semodule_deps [-v -g -b] basemodpkg modpkg1 [modpkg2 ... ]
+--- nsapolicycoreutils/setfiles/setfiles.8	2006-11-16 17:15:00.000000000 -0500
++++ policycoreutils-1.33.14/setfiles/setfiles.8	2007-01-16 15:13:03.000000000 -0500
+@@ -1,6 +1,6 @@
+ .TH "setfiles" "8" "2002031409" "" ""
+ .SH "NAME"
+-setfiles \- set file security contexts.
++setfiles \- set file SELinux security contexts.
+ 
+ .SH "SYNOPSIS"
+ .B setfiles
+
+--------------010402090407070000000106--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
