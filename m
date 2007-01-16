@@ -1,47 +1,66 @@
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id l0GIjfno018678
+	for <selinux@tycho.nsa.gov>; Tue, 16 Jan 2007 13:45:41 -0500
+Received: from web36608.mail.mud.yahoo.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with SMTP id l0GIkVAN016996
+	for <selinux@tycho.nsa.gov>; Tue, 16 Jan 2007 18:46:31 GMT
+Message-ID: <20070116184620.75850.qmail@web36608.mail.mud.yahoo.com>
+Date: Tue, 16 Jan 2007 10:46:20 -0800 (PST)
+From: Casey Schaufler <casey@schaufler-ca.com>
+Reply-To: casey@schaufler-ca.com
 Subject: Re: Current/Future Plans to Support Stacking LSM Modules
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Tom Fortmann <tfortmann@xcapesolutions.net>
-Cc: selinux@tycho.nsa.gov
+To: Tom Fortmann <tfortmann@xcapesolutions.net>, selinux@tycho.nsa.gov
+Cc: linux-security-module@vger.kernel.org
 In-Reply-To: <002701c73999$4a9fe1c0$030a0a0a@ACER>
-References: <002701c73999$4a9fe1c0$030a0a0a@ACER>
-Content-Type: text/plain
-Date: Tue, 16 Jan 2007 13:27:10 -0500
-Message-Id: <1168972030.22731.129.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2007-01-16 at 12:08 -0600, Tom Fortmann wrote:
-> Are their any current or future plans to support stacking additional
+
+--- Tom Fortmann <tfortmann@xcapesolutions.net> wrote:
+
+> Are their any current or future plans to support
+> stacking additional
 > security modules on the LSM interface?
 
-That's more of a question for linux-security-module rather than this
-list.  We don't have any plans to introduce such support to LSM, as we
-think it is a bad idea.  Last time it came up (at 2006 kernel summit),
-that seemed to be the consensus view.
+It has certainly been considered from
+time to time. David Wheeler's early work
+came pretty close.
 
-> Alternatively, are there any current or future plans to allow the
-> SELinux framework to be expanded with third party loadable modules?
+> Alternatively, are there any current or future plans
+> to allow the SELinux
+> framework to be expanded with third party loadable
+> modules?
 
-Not loadable modules, no.  But adding further security models to the
-SELinux security server or extending the ones that are already there is
-certainly open to discussion, if a case can be made for it.  However,
-you may find that the existing models are sufficient to support the
-right set of goals at the kernel level, and then you can build
-additional infrastructure in userspace without needing to modify the
-kernel's model.
+SELinux does currently, although somewhat
+begrudgingly, allow limited stacking in
+support of a particular set of modules. 
 
-> We are working on some enhanced security solutions that require access
-> to the LSM interface, but we do not want to preclude the use of
-> SELinux by our customers.
+It wasn't but a year ago that the SELinux
+community was arguing that LSM ought to be
+dispensed with, as they argued that:
+  - No one else was using LSM
+  - SELinux does everything that a rational
+    being might want done anyway.
 
-What do you need that you can't obtain from SELinux or other kernel
-subsystems (e.g. audit) today?
+> We are working on some enhanced security solutions
+> that require access to
+> the LSM interface, but we do not want to preclude
+> the use of SELinux by our
+> customers.
 
--- 
-Stephen Smalley
-National Security Agency
+You might take this onto the LSM list (I've
+added it to the CC here) as there are a (very)
+few people who follow LSM that do not subscribe
+here.
 
+Just out of curiosity, what's your module
+going to do?
+
+
+Casey Schaufler
+casey@schaufler-ca.com
 
 --
 This message was distributed to subscribers of the selinux mailing list.
