@@ -1,62 +1,151 @@
 Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id l0GGeUZq013579
-	for <selinux@tycho.nsa.gov>; Tue, 16 Jan 2007 11:40:30 -0500
-Received: from mx1.redhat.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l0GGfN1E009760
-	for <selinux@tycho.nsa.gov>; Tue, 16 Jan 2007 16:41:24 GMT
-Subject: Re: [PATCH] add selpolgen
-From: Karl MacMillan <kmacmillan@mentalrootkit.com>
-To: Joshua Brindle <jbrindle@tresys.com>
-Cc: SELinux Mail List <selinux@tycho.nsa.gov>
-In-Reply-To: <45ACFC09.5000002@tresys.com>
-References: <45ACEE9E.7000709@mentalrootkit.com>
-	 <45ACFC09.5000002@tresys.com>
-Content-Type: text/plain
-Date: Tue, 16 Jan 2007 11:40:49 -0500
-Message-Id: <1168965649.10069.11.camel@localhost.localdomain>
-Mime-Version: 1.0
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id l0GI76Hb017119
+	for <selinux@tycho.nsa.gov>; Tue, 16 Jan 2007 13:07:06 -0500
+Received: from host496.ipowerweb.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with SMTP id l0GI7x1E026099
+	for <selinux@tycho.nsa.gov>; Tue, 16 Jan 2007 18:07:59 GMT
+From: "Tom Fortmann" <tfortmann@xcapesolutions.net>
+To: <selinux@tycho.nsa.gov>
+Subject: Current/Future Plans to Support Stacking LSM Modules
+Date: Tue, 16 Jan 2007 12:08:14 -0600
+Message-ID: <002701c73999$4a9fe1c0$030a0a0a@ACER>
+MIME-Version: 1.0
+Content-Type: multipart/alternative;
+	boundary="----=_NextPart_000_0028_01C73967.000571C0"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2007-01-16 at 11:23 -0500, Joshua Brindle wrote:
-> Karl MacMillan wrote:
-> > This is a patch (available for download because of size - see url 
-> > below) to add a python library named selpolgen and a new version of 
-> > audit2allow that uses this library. This is a minimally changed 
-> > version of what I have been calling madison.
-> >
-> > I am submitting this for inclusion as part of the main selinux 
-> > distribution. I believe that inclusion here will help make good policy 
-> > generation tools develop sooner and give a common base for creating 
-> > new tools.
-> >
-> > Questions:
-> > * I have the library at the top-level of the project - like the C 
-> > libraries. Is this the best location? What about the name?
-> This doesn't seem like a good place, and the upstream selinux repo 
-> doesn't seem like a good dumping ground for all-things-selinux either, I 
-> don't know of a better way to spur community support though.
-> 
+This is a multi-part message in MIME format.
 
-This is certainly not dumping a random selinux-related project into the
-upstream repo. If you look at the code there is:
+------=_NextPart_000_0028_01C73967.000571C0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 
-1) A replacement for audit2allow - obviously this was deemed relevant at
-some point so I don't see why an improved version would not still be
-relevant.
+Are their any current or future plans to support stacking additional
+security modules on the LSM interface?
 
-2) A well-structured python library that includes many useful features
-(parsing audit messages, creating / compiling modules, generating
-selinux policy, etc.) with very little overlap to the other libraries
-(the main overlap is parsing - which I am actively working on merging
-with libsepol / checkpolicy).
+ 
 
-I believe that what is added in 2 is truly generally useful for selinux
-related applications. Additionally, by including this code I don't that
-that upstream is automatically obligated to accept any new applications
-based on this.
+Alternatively, are there any current or future plans to allow the SELinux
+framework to be expanded with third party loadable modules?
 
-Karl
+ 
+
+We are working on some enhanced security solutions that require access to
+the LSM interface, but we do not want to preclude the use of SELinux by our
+customers.
+
+ 
+
+Thank you in advance for your insight into these plans.
+
+ 
+
+Tom Fortmann
+
+Xcape Solutions, Inc.
+
+
+------=_NextPart_000_0028_01C73967.000571C0
+Content-Type: text/html;
+	charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
+
+<html>
+
+<head>
+<meta http-equiv=3DContent-Type content=3D"text/html; =
+charset=3Dus-ascii">
+<meta name=3DGenerator content=3D"Microsoft Word 11 (filtered)">
+<style>
+<!--
+ /* Style Definitions */
+ p.MsoNormal, li.MsoNormal, div.MsoNormal
+	{margin:0in;
+	margin-bottom:.0001pt;
+	font-size:12.0pt;
+	font-family:"Times New Roman";}
+a:link, span.MsoHyperlink
+	{color:blue;
+	text-decoration:underline;}
+a:visited, span.MsoHyperlinkFollowed
+	{color:purple;
+	text-decoration:underline;}
+span.EmailStyle17
+	{font-family:Arial;
+	color:windowtext;}
+@page Section1
+	{size:8.5in 11.0in;
+	margin:1.0in 1.25in 1.0in 1.25in;}
+div.Section1
+	{page:Section1;}
+-->
+</style>
+
+</head>
+
+<body lang=3DEN-US link=3Dblue vlink=3Dpurple>
+
+<div class=3DSection1>
+
+<p class=3DMsoNormal><font size=3D2 face=3DArial><span =
+style=3D'font-size:10.0pt;
+font-family:Arial'>Are their any current or future plans to support =
+stacking
+additional security modules on the LSM interface?</span></font></p>
+
+<p class=3DMsoNormal><font size=3D2 face=3DArial><span =
+style=3D'font-size:10.0pt;
+font-family:Arial'>&nbsp;</span></font></p>
+
+<p class=3DMsoNormal><font size=3D2 face=3DArial><span =
+style=3D'font-size:10.0pt;
+font-family:Arial'>Alternatively, are there any current or future plans =
+to
+allow the SELinux framework to be expanded with third party loadable =
+modules?</span></font></p>
+
+<p class=3DMsoNormal><font size=3D2 face=3DArial><span =
+style=3D'font-size:10.0pt;
+font-family:Arial'>&nbsp;</span></font></p>
+
+<p class=3DMsoNormal><font size=3D2 face=3DArial><span =
+style=3D'font-size:10.0pt;
+font-family:Arial'>We are working on some enhanced security solutions =
+that
+require access to the LSM interface, but we do not want to preclude the =
+use of
+SELinux by our customers.</span></font></p>
+
+<p class=3DMsoNormal><font size=3D2 face=3DArial><span =
+style=3D'font-size:10.0pt;
+font-family:Arial'>&nbsp;</span></font></p>
+
+<p class=3DMsoNormal><font size=3D2 face=3DArial><span =
+style=3D'font-size:10.0pt;
+font-family:Arial'>Thank you in advance for your insight into these =
+plans.</span></font></p>
+
+<p class=3DMsoNormal><font size=3D2 face=3DArial><span =
+style=3D'font-size:10.0pt;
+font-family:Arial'>&nbsp;</span></font></p>
+
+<p class=3DMsoNormal><font size=3D2 face=3DArial><span =
+style=3D'font-size:10.0pt;
+font-family:Arial'>Tom Fortmann</span></font></p>
+
+<p class=3DMsoNormal><font size=3D2 face=3DArial><span =
+style=3D'font-size:10.0pt;
+font-family:Arial'>Xcape Solutions, Inc.</span></font></p>
+
+</div>
+
+</body>
+
+</html>
+
+------=_NextPart_000_0028_01C73967.000571C0--
 
 
 --
