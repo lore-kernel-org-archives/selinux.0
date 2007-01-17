@@ -1,149 +1,58 @@
 Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id l0HN0m8t008605
-	for <selinux@tycho.nsa.gov>; Wed, 17 Jan 2007 18:00:48 -0500
-Received: from wx-out-0506.google.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l0HN1g6S029302
-	for <selinux@tycho.nsa.gov>; Wed, 17 Jan 2007 23:01:42 GMT
-Received: by wx-out-0506.google.com with SMTP id s17so16053wxc
-        for <selinux@tycho.nsa.gov>; Wed, 17 Jan 2007 15:01:40 -0800 (PST)
-Message-ID: <cadfc0e40701171501j5ebbc57fn6ea9c652fbcc946b@mail.gmail.com>
-Date: Wed, 17 Jan 2007 17:01:39 -0600
-From: "Xavier Toth" <txtoth@gmail.com>
-To: selinux@tycho.nsa.gov
-Subject: polyinstantiation, what should happen?
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id l0HNoD0N009814
+	for <selinux@tycho.nsa.gov>; Wed, 17 Jan 2007 18:50:13 -0500
+Received: from atlrel8.hp.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l0HNp66S006025
+	for <selinux@tycho.nsa.gov>; Wed, 17 Jan 2007 23:51:07 GMT
+Message-ID: <45AEB5DC.9060105@hp.com>
+Date: Wed, 17 Jan 2007 18:48:44 -0500
+From: Linda Knippers <linda.knippers@hp.com>
 MIME-Version: 1.0
-Content-Type: multipart/mixed;
-	boundary="----=_Part_109433_21957393.1169074899994"
+To: Xavier Toth <txtoth@gmail.com>
+Cc: selinux@tycho.nsa.gov
+Subject: Re: polyinstantiation, what should happen?
+References: <cadfc0e40701171501j5ebbc57fn6ea9c652fbcc946b@mail.gmail.com>
+In-Reply-To: <cadfc0e40701171501j5ebbc57fn6ea9c652fbcc946b@mail.gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-------=_Part_109433_21957393.1169074899994
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Xavier Toth wrote:
+> I'm running the lspp.63 kernel along with the latest pam and newrole
+> off of Dan Walsh' people page.
+> 
+> I've configured polyinstantiation but it doesn't work the way I
+> thought it would so either I don't understand or I've got it
+> configured wrong. In namespace.conf I've specified that I want context
+> to be used for the polyinstantiated instance directories but I only
+> getting the user name. Shouldn't the directory name contain the entire
+> an context?
 
-I'm running the lspp.63 kernel along with the latest pam and newrole
-off of Dan Walsh' people page.
+Perhaps.  I think the method field specifies when you want to polyinstantiate,
+not necessarily what the instance names are, although it makes sense that
+the directories would be named using the context and the user name.
+I use "level" instead of "context" on my system and I get directory names that
+have the full context, including level, plus the user name.  By specifying
+"level" but I only get a new instance when I change levels, not when I change
+roles.
 
-I've configured polyinstantiation but it doesn't work the way I
-thought it would so either I don't understand or I've got it
-configured wrong. In namespace.conf I've specified that I want context
-to be used for the polyinstantiated instance directories but I only
-getting the user name. Shouldn't the directory name contain the entire
-an context?
+My namespace.conf looks like this, if you want to give that a try:
+/tmp     /tmp/tmp-inst/         level      root,adm
+/var/tmp /var/tmp/tmp-inst/     level      root,adm
+$HOME    /home/home.inst/       level      root,adm
 
-Also I'm running X so I followed the instructions on the pam_namespace
-man page but wasn't sure whether /etc/pam.d/gdm needed unmnt_remnt as
-su and newrole do?
+Do you have any interesting messages in /var/log/secure?  Since you have
+the the debug option on your pam_namespace.so lines you should see messages
+when it creates an instance directory.
 
-Ted
+-- ljk
 
-------=_Part_109433_21957393.1169074899994
-Content-Type: application/octet-stream; name=namespace.conf
-Content-Transfer-Encoding: base64
-X-Attachment-Id: f_ex3rzdbq
-Content-Disposition: attachment; filename="namespace.conf"
+> Also I'm running X so I followed the instructions on the pam_namespace
+> man page but wasn't sure whether /etc/pam.d/gdm needed unmnt_remnt as
+> su and newrole do?
+> 
+> Ted
 
-IyAvZXRjL3NlY3VyaXR5L25hbWVzcGFjZS5jb25mCiMKIyBTZWUgL3Vzci9zaGFyZS9kb2MvcGFt
-LSovdHh0cy9SRUFETUUucGFtX25hbWVzcGFjZSBmb3IgbW9yZSBpbmZvcm1hdGlvbi4KIwojIFVu
-Y29tbWVudGluZyB0aGUgZm9sbG93aW5nIHRocmVlIGxpbmVzIHdpbGwgcG9seWluc3RhbnRpYXRl
-CiMgL3RtcCwgL3Zhci90bXAgYW5kIHVzZXIncyBob21lIGRpcmVjdG9yaWVzLiAvdG1wIGFuZCAv
-dmFyL3RtcCB3aWxsCiMgYmUgcG9seWluc3RhbnRpYXRlZCBiYXNlZCBvbiB0aGUgTUxTIGxldmVs
-IHBhcnQgb2YgdGhlIHNlY3VyaXR5IGNvbnRleHQgYXMgd2VsbCBhcyB1c2VyCiMgbmFtZSwgUG9s
-eWluc3RhbnRpb24gd2lsbCBub3QgYmUgcGVyZm9ybWVkIGZvciB1c2VyIHJvb3QgYW5kIGFkbSBm
-b3IgZGlyZWN0b3JpZXMgCiMgL3RtcCBhbmQgL3Zhci90bXAsIHdoZXJlYXMgaG9tZSBkaXJlY3Rv
-cmllcyB3aWxsIGJlIHBvbHlpbnN0YW50aWF0ZWQgZm9yIGFsbCB1c2Vycy4gCiMgVGhlIHVzZXIg
-bmFtZSBhbmQgY29udGV4dCBpcyBhcHBlbmRlZCB0byB0aGUgaW5zdGFuY2UgcHJlZml4LgojCiMg
-Tm90ZSB0aGF0IGluc3RhbmNlIGRpcmVjdG9yaWVzIGRvIG5vdCBoYXZlIHRvIHJlc2lkZSBpbnNp
-ZGUgdGhlCiMgcG9seWluc3RhbnRpYXRlZCBkaXJlY3RvcnkuIEluIHRoZSBleGFtcGxlcyBiZWxv
-dywgaW5zdGFuY2VzIG9mIC90bXAKIyB3aWxsIGJlIGNyZWF0ZWQgaW4gL3RtcC1pbnN0IGRpcmVj
-dG9yeSwgd2hlcmUgYXMgaW5zdGFuY2VzIG9mIC92YXIvdG1wCiMgYW5kIHVzZXJzIGhvbWUgZGly
-ZWN0b3JpZXMgd2lsbCByZXNpZGUgd2l0aGluIHRoZSBkaXJlY3RvcmllcyB0aGF0CiMgYXJlIGJl
-aW5nIHBvbHlpbnN0YW50aWF0ZWQuCiMKIyBJbnN0YW5jZSBwYXJlbnQgZGlyZWN0b3JpZXMgbXVz
-dCBleGlzdCBmb3IgdGhlIHBvbHlpbnN0YW50aWF0aW9uCiMgbWVjaGFuaXNtIHRvIHdvcmsuIEJ5
-IGRlZmF1bHQsIHRoZXkgc2hvdWxkIGJlIGNyZWF0ZWQgd2l0aCB0aGUgbW9kZQojIG9mIDAwMC4g
-cGFtX25hbWVzcGFjZSBtb2R1bGUgd2lsbCBlbmZvcmNlIHRoaXMgbW9kZSB1bmxlc3MgaXQKIyBp
-cyBleHBsaWNpdGx5IGNhbGxlZCB3aXRoIGFuIGFyZ3VtZW50IHRvIGlnbm9yZSB0aGUgbW9kZSBv
-ZiB0aGUKIyBpbnN0YW5jZSBwYXJlbnQuIFN5c3RlbSBhZG1pbmlzdHJhdG9ycyBzaG91bGQgdXNl
-IHRoaXMgYXJndW1lbnQgd2l0aAojIGNhdXRpb24sIGFzIGl0IHdpbGwgcmVkdWNlIHNlY3VyaXR5
-IGFuZCBpc29sYXRpb24gYWNoaWV2ZWQgYnkKIyBwb2x5aW5zdGFudGlhdGlvbi4KIwovdG1wICAg
-ICAvdG1wLWluc3QvICAgICAgIAljb250ZXh0ICAgICAgcm9vdCxhZG0sdGVkeAovdmFyL3RtcCAv
-dmFyL3RtcC90bXAtaW5zdC8gICAJY29udGV4dCAgICAgIHJvb3QsYWRtLHRlZHgKJEhPTUUgICAg
-JEhPTUUvJFVTRVIuaW5zdC8gICAgICBjb250ZXh0CSAgICAgcm9vdCxhZG0sdGVkeAo=
-------=_Part_109433_21957393.1169074899994
-Content-Type: application/octet-stream; name=newrole
-Content-Transfer-Encoding: base64
-X-Attachment-Id: f_ex3rzva8
-Content-Disposition: attachment; filename="newrole"
-
-IyVQQU0tMS4wCmF1dGggICAgICAgaW5jbHVkZQlzeXN0ZW0tYXV0aAphY2NvdW50ICAgIGluY2x1
-ZGUJc3lzdGVtLWF1dGgKcGFzc3dvcmQgICBpbmNsdWRlCXN5c3RlbS1hdXRoCnNlc3Npb24gICAg
-aW5jbHVkZQlzeXN0ZW0tYXV0aApzZXNzaW9uCSAgIG9wdGlvbmFsICAgICBwYW1feGF1dGguc28K
-c2Vzc2lvbiAgICByZXF1aXJlZAlwYW1fbmFtZXNwYWNlLnNvIHVubW50X3JlbW50IG5vX3VubW91
-bnRfb25fY2xvc2UgZGVidWcK
-------=_Part_109433_21957393.1169074899994
-Content-Type: application/octet-stream; name=gdm
-Content-Transfer-Encoding: base64
-X-Attachment-Id: f_ex3s0gie
-Content-Disposition: attachment; filename="gdm"
-
-IyVQQU0tMS4wCmF1dGggICAgICAgcmVxdWlyZWQgICAgcGFtX2Vudi5zbwphdXRoICAgICAgIGlu
-Y2x1ZGUgICAgIHN5c3RlbS1hdXRoCmFjY291bnQgICAgcmVxdWlyZWQgICAgcGFtX25vbG9naW4u
-c28KYWNjb3VudCAgICBpbmNsdWRlICAgICBzeXN0ZW0tYXV0aApwYXNzd29yZCAgIGluY2x1ZGUg
-ICAgIHN5c3RlbS1hdXRoCnNlc3Npb24gICAgb3B0aW9uYWwgICAgcGFtX2tleWluaXQuc28gZm9y
-Y2UgcmV2b2tlCnNlc3Npb24gICAgaW5jbHVkZSAgICAgc3lzdGVtLWF1dGgKc2Vzc2lvbiAgICBy
-ZXF1aXJlZCAgICBwYW1fbG9naW51aWQuc28Kc2Vzc2lvbiAgICBvcHRpb25hbCAgICBwYW1fY29u
-c29sZS5zbwpzZXNzaW9uICAgIHJlcXVpcmVkICAgIHBhbV9uYW1lc3BhY2Uuc28gdW5tbnRfcmVt
-bnQgZGVidWcKCg==
-------=_Part_109433_21957393.1169074899994
-Content-Type: application/octet-stream; name=login
-Content-Transfer-Encoding: base64
-X-Attachment-Id: f_ex3s0nfm
-Content-Disposition: attachment; filename="login"
-
-IyVQQU0tMS4wCmF1dGggW3VzZXJfdW5rbm93bj1pZ25vcmUgc3VjY2Vzcz1vayBpZ25vcmU9aWdu
-b3JlIGRlZmF1bHQ9YmFkXSBwYW1fc2VjdXJldHR5LnNvCmF1dGggICAgICAgaW5jbHVkZSAgICAg
-IHN5c3RlbS1hdXRoCmFjY291bnQgICAgcmVxdWlyZWQgICAgIHBhbV9ub2xvZ2luLnNvCmFjY291
-bnQgICAgaW5jbHVkZSAgICAgIHN5c3RlbS1hdXRoCnBhc3N3b3JkICAgaW5jbHVkZSAgICAgIHN5
-c3RlbS1hdXRoCiMgcGFtX3NlbGludXguc28gY2xvc2Ugc2hvdWxkIGJlIHRoZSBmaXJzdCBzZXNz
-aW9uIHJ1bGUKc2Vzc2lvbiAgICByZXF1aXJlZCAgICAgcGFtX3NlbGludXguc28gY2xvc2UKc2Vz
-c2lvbiAgICBpbmNsdWRlICAgICAgc3lzdGVtLWF1dGgKc2Vzc2lvbiAgICByZXF1aXJlZCAgICAg
-cGFtX2xvZ2ludWlkLnNvCnNlc3Npb24gICAgb3B0aW9uYWwgICAgIHBhbV9jb25zb2xlLnNvCiMg
-cGFtX3NlbGludXguc28gb3BlbiBzaG91bGQgb25seSBiZSBmb2xsb3dlZCBieSBzZXNzaW9ucyB0
-byBiZSBleGVjdXRlZCBpbiB0aGUgdXNlciBjb250ZXh0CnNlc3Npb24gICAgcmVxdWlyZWQgICAg
-IHBhbV9zZWxpbnV4LnNvIG9wZW4Kc2Vzc2lvbiAgICBvcHRpb25hbCAgICAgcGFtX2tleWluaXQu
-c28gZm9yY2UgcmV2b2tlCnNlc3Npb24gICAgcmVxdWlyZWQgICAgIHBhbV9uYW1lc3BhY2Uuc28g
-ZGVidWcK
-------=_Part_109433_21957393.1169074899994
-Content-Type: application/octet-stream; name=su
-Content-Transfer-Encoding: base64
-X-Attachment-Id: f_ex3s0viv
-Content-Disposition: attachment; filename="su"
-
-IyVQQU0tMS4wCmF1dGgJCXN1ZmZpY2llbnQJcGFtX3Jvb3Rvay5zbwojIFVuY29tbWVudCB0aGUg
-Zm9sbG93aW5nIGxpbmUgdG8gaW1wbGljaXRseSB0cnVzdCB1c2VycyBpbiB0aGUgIndoZWVsIiBn
-cm91cC4KI2F1dGgJCXN1ZmZpY2llbnQJcGFtX3doZWVsLnNvIHRydXN0IHVzZV91aWQKIyBVbmNv
-bW1lbnQgdGhlIGZvbGxvd2luZyBsaW5lIHRvIHJlcXVpcmUgYSB1c2VyIHRvIGJlIGluIHRoZSAi
-d2hlZWwiIGdyb3VwLgojYXV0aAkJcmVxdWlyZWQJcGFtX3doZWVsLnNvIHVzZV91aWQKYXV0aAkJ
-aW5jbHVkZQkJc3lzdGVtLWF1dGgKYWNjb3VudAkJc3VmZmljaWVudAlwYW1fc3VjY2VlZF9pZi5z
-byB1aWQgPSAwIHVzZV91aWQgcXVpZXQKYWNjb3VudAkJaW5jbHVkZQkJc3lzdGVtLWF1dGgKcGFz
-c3dvcmQJaW5jbHVkZQkJc3lzdGVtLWF1dGgKc2Vzc2lvbgkJaW5jbHVkZQkJc3lzdGVtLWF1dGgK
-c2Vzc2lvbgkJb3B0aW9uYWwJcGFtX3hhdXRoLnNvCnNlc3Npb24gICAgCXJlcXVpcmVkICAgICAJ
-cGFtX25hbWVzcGFjZS5zbyB1bm1udF9yZW1udCBkZWJ1Zwo=
-------=_Part_109433_21957393.1169074899994
-Content-Type: application/octet-stream; name=sshd
-Content-Transfer-Encoding: base64
-X-Attachment-Id: f_ex3s14br
-Content-Disposition: attachment; filename="sshd"
-
-IyVQQU0tMS4wCmF1dGggICAgICAgaW5jbHVkZSAgICAgIHN5c3RlbS1hdXRoCmFjY291bnQgICAg
-cmVxdWlyZWQgICAgIHBhbV9ub2xvZ2luLnNvCmFjY291bnQgICAgaW5jbHVkZSAgICAgIHN5c3Rl
-bS1hdXRoCnBhc3N3b3JkICAgaW5jbHVkZSAgICAgIHN5c3RlbS1hdXRoCnNlc3Npb24gICAgb3B0
-aW9uYWwgICAgIHBhbV9rZXlpbml0LnNvIGZvcmNlIHJldm9rZQpzZXNzaW9uICAgIGluY2x1ZGUg
-ICAgICBzeXN0ZW0tYXV0aApzZXNzaW9uICAgIHJlcXVpcmVkICAgICBwYW1fbG9naW51aWQuc28K
-c2Vzc2lvbiAgICByZXF1aXJlZCAgICAgcGFtX25hbWVzcGFjZS5zbyB1bm1udF9yZW1udCBkZWJ1
-Zwo=
-------=_Part_109433_21957393.1169074899994--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
