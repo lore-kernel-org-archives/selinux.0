@@ -1,69 +1,55 @@
-Subject: Re: Current/Future Plans to Support Stacking LSM Modules
+Subject: Re: polyinstantiation, what should happen?
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Crispin Cowan <crispin@novell.com>
-Cc: casey@schaufler-ca.com, Tom Fortmann <tfortmann@xcapesolutions.net>,
-        selinux@tycho.nsa.gov, linux-security-module@vger.kernel.org
-In-Reply-To: <45AF7643.3080200@novell.com>
-References: <20070116184620.75850.qmail@web36608.mail.mud.yahoo.com>
-	 <45AF5539.2020608@novell.com>
-	 <1169124606.22731.202.camel@moss-spartans.epoch.ncsc.mil>
-	 <45AF7643.3080200@novell.com>
+To: Linda Knippers <linda.knippers@hp.com>
+Cc: Xavier Toth <txtoth@gmail.com>, selinux@tycho.nsa.gov,
+        Daniel J Walsh <dwalsh@redhat.com>
+In-Reply-To: <45AEB5DC.9060105@hp.com>
+References: <cadfc0e40701171501j5ebbc57fn6ea9c652fbcc946b@mail.gmail.com>
+	 <45AEB5DC.9060105@hp.com>
 Content-Type: text/plain
-Date: Thu, 18 Jan 2007 08:53:45 -0500
-Message-Id: <1169128425.22731.232.camel@moss-spartans.epoch.ncsc.mil>
+Date: Thu, 18 Jan 2007 09:55:56 -0500
+Message-Id: <1169132156.22731.263.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2007-01-19 at 00:29 +1100, Crispin Cowan wrote:
-> Stephen Smalley wrote:
-> > On Thu, 2007-01-18 at 22:08 +1100, Crispin Cowan wrote:
-> >   
-> >> There is a module waiting in the wings called Stacker
-> >> <http://sourceforge.net/projects/lsm-stacker> that is designed to
-> >> automatically stack multiple modules. Considerable design,
-> >> implementation, and measurement has gone into Stacker. The main thing
-> >> stalling the upstreaming of Stacker is for some modules other than
-> >> SELinux to be accepted upstream. With the number of modules vying for
-> >> that, it seems just a matter of time.
-> >>     
-> > Except that at the last kernel summit, the topic came up during the LSM
-> > panel, and everyone on the panel, including the AppArmor person, agreed
-> > that stacking wasn't necessary or desirable.
-> >   
-> Hmmm, that is surprising. I have to assume you meant " ... at this
-> time."
+On Wed, 2007-01-17 at 18:48 -0500, Linda Knippers wrote:
+> Xavier Toth wrote:
+> > I'm running the lspp.63 kernel along with the latest pam and newrole
+> > off of Dan Walsh' people page.
+> > 
+> > I've configured polyinstantiation but it doesn't work the way I
+> > thought it would so either I don't understand or I've got it
+> > configured wrong. In namespace.conf I've specified that I want context
+> > to be used for the polyinstantiated instance directories but I only
+> > getting the user name. Shouldn't the directory name contain the entire
+> > an context?
+> 
+> Perhaps.  I think the method field specifies when you want to polyinstantiate,
+> not necessarily what the instance names are, although it makes sense that
+> the directories would be named using the context and the user name.
+> I use "level" instead of "context" on my system and I get directory names that
+> have the full context, including level, plus the user name.  By specifying
+> "level" but I only get a new instance when I change levels, not when I change
+> roles.
+> 
+> My namespace.conf looks like this, if you want to give that a try:
+> /tmp     /tmp/tmp-inst/         level      root,adm
+> /var/tmp /var/tmp/tmp-inst/     level      root,adm
+> $HOME    /home/home.inst/       level      root,adm
 
-That wasn't my impression - the question raised was along the lines of
-"even if we can't settle the LSM issue once for all, can we at least
-settle the issue of LSM stacking."  And the consensus view seemed to be
-that generic stacking of security modules is not the way to go; security
-modules need to be aware of the composition and its implications, as in
-the existing manual stacking of SELinux with capabilities or AppArmor
-with capabilities.
+Yes, use "level" - see the earlier discussion on redhat-lspp.
+Dan - should "context" trigger a warning or error until such a time as
+it is correctly supported?
 
->  With relatively few modules around, a full blown stacking
-> architecture is excessive. But as the number and variety of modules
-> grows, the need for Stacker will increase. That stacking was given such
-> limited support in the LSM design was precisely because I saw it as a
-> "later" kind of thing, and we could avoid the initial complexity.
+> > Also I'm running X so I followed the instructions on the pam_namespace
+> > man page but wasn't sure whether /etc/pam.d/gdm needed unmnt_remnt as
+> > su and newrole do?
 
-I only know of one other security module that is under consideration for
-upstream, slim.
-
-> Clearly stacking AppArmor and SELinux together is pointless, but if
-> Stacker was upstream, then perhaps the LSPP work going on could be done
-> as a pure LSM module that can stack with something else, so it could
-> compose with SELinux, AppArmor, LIDS, etc. instead of just with SELinux.
-> By now, of course, all sorts of SELinux-specific assumptions are built
-> into the work, but I doubt that they are fundamental.
-
-To the contrary, the LSPP work significantly leverages the work already
-done to integrate SELinux and makes use of the SELinux interfaces for
-applications.  It also leverages SELinux TE to address aspects such as
-MLS overrides.  By doing it within the context of SELinux, it gained the
-benefit of a unified security model and interface.  Which one doesn't
-get from LSM.
+It shouldn't, since there is no prior bind mount to unmount in the gdm
+case.  Not sure how well gdm will play with pam_namespace though; we
+couldn't use pam_selinux with gdm but instead had to patch it directly
+IIRC.  
 
 -- 
 Stephen Smalley
