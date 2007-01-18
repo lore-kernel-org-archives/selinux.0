@@ -1,112 +1,91 @@
-Message-ID: <45AFBF18.3080004@mentalrootkit.com>
-Date: Thu, 18 Jan 2007 13:40:24 -0500
-From: Karl MacMillan <kmacmillan@mentalrootkit.com>
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id l0IIngTC014417
+	for <selinux@tycho.nsa.gov>; Thu, 18 Jan 2007 13:49:42 -0500
+Received: from e4.ny.us.ibm.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id l0IIoaih026369
+	for <selinux@tycho.nsa.gov>; Thu, 18 Jan 2007 18:50:37 GMT
+Received: from d01relay04.pok.ibm.com (d01relay04.pok.ibm.com [9.56.227.236])
+	by e4.ny.us.ibm.com (8.13.8/8.12.11) with ESMTP id l0IIoVCe013477
+	for <selinux@tycho.nsa.gov>; Thu, 18 Jan 2007 13:50:31 -0500
+Received: from d01av02.pok.ibm.com (d01av02.pok.ibm.com [9.56.224.216])
+	by d01relay04.pok.ibm.com (8.13.8/8.13.8/NCO v8.2) with ESMTP id l0IIoVCb268092
+	for <selinux@tycho.nsa.gov>; Thu, 18 Jan 2007 13:50:31 -0500
+Received: from d01av02.pok.ibm.com (loopback [127.0.0.1])
+	by d01av02.pok.ibm.com (8.12.11.20060308/8.13.3) with ESMTP id l0IIoVx7012887
+	for <selinux@tycho.nsa.gov>; Thu, 18 Jan 2007 13:50:31 -0500
+Date: Thu, 18 Jan 2007 12:50:30 -0600
+From: "Serge E. Hallyn" <serue@us.ibm.com>
+To: Casey Schaufler <casey@schaufler-ca.com>
+Cc: Karl MacMillan <kmacmill@redhat.com>, selinux@tycho.nsa.gov,
+        linux-security-module@vger.kernel.org
+Subject: Re: Current/Future Plans to Support Stacking LSM Modules
+Message-ID: <20070118185030.GB10975@sergelap.austin.ibm.com>
+References: <45AFA5F5.2080908@redhat.com> <681036.75164.qm@web36611.mail.mud.yahoo.com>
 MIME-Version: 1.0
-To: Joshua Brindle <jbrindle@tresys.com>
-CC: SE Linux <selinux@tycho.nsa.gov>, Stephen Smalley <sds@tycho.nsa.gov>
-Subject: Re: [RFC] 0/4 - Hierarchal apache policy for reference policy
-References: <45AFA08F.9080602@tresys.com> <45AFABC8.2050101@mentalrootkit.com> <45AFB433.1010309@tresys.com>
-In-Reply-To: <45AFB433.1010309@tresys.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <681036.75164.qm@web36611.mail.mud.yahoo.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Joshua Brindle wrote:
-> Karl MacMillan wrote:
->> Joshua Brindle wrote:
->>> This is an RFC for policy allowing management delegation through 
->>> hierarchical types.
->>>
->>> Policy management often is handled by different administrators, based 
->>> on the application or applications that are being governed. As a 
->>> result, providing a means to delegate access to manage only certain 
->>> aspects of policy is desirable, and can be accomplished using 
->>> hierarchical types.
->>>
->>> The proof of concept apache policy module illustrates policy 
->>> management delegation through hierarchical types. This example apache 
->>> policy works together with an adds metapolicy to the apache module
->>
->> It's good to see progress on this and a real fleshed-out example. I 
->> look forward to seeing the prototype policy server.
->>
->> I think the biggest hurdle to this gaining widespread use is the 
->> length of the meta-policy, especially since it essentially repeats the 
->> policy for the sub-types. Any ideas about how to shorten this policy?
->>
+Quoting Casey Schaufler (casey@schaufler-ca.com):
 > 
-> nit: the meta-policy is short (5 lines). The policy itself is longer due 
-> to the propagation of rules to children types.
+> --- Karl MacMillan <kmacmill@redhat.com> wrote:
 > 
-
-Fine - but that answer the question. Having to define container types 
-with a superset of the rules results in a much longer policy. I think 
-that it is going to be hard to convince people to add that policy.
-
->> The other large issue, of course, is that this demonstrates how 
->> invasive the policy changes are in order to support delegation. This 
->> makes it very difficult for a policy admin to create a separate policy 
->> module that a) places hierarchical restrictions on a set of types and 
->> b) delegates administrative privileges to an admin type to make 
->> changes to those types.
->>
+> > > There are others who would argue that SELinux
+> > > has abandoned the Linux privilege model and
+> > > thus disrupted the unity of the existing
+> > > security model.
+> > >
+> >
+> > No clue what this means.
 > 
-> I'm not sure how desirable ad-hoc delegation is.
-
-It is not ad-hoc, it is just not done by the distribution or upstream.
-
-  Just like normal policy
-> meta policy needs to be well thought out in order to meet specific 
-> security goals (and do so without allowing bypass, etc).
+> Pre-SE Linux has a rational and well
+> established security model that includes
+> DAC and Privilege. The capability scheme
+> is designed to fit that model, adding the
+> logical extention from the POSIX statements
+> of "appropruate privilege" to defining what
+> those privileges would be.
 > 
-
-Sure, but that doesn't mean that an administrator can't do this. The 
-upstream refpolicy and / or distributions cannot meet all of the users 
-needs - I'm just suggesting that we make it possible for people to do 
-customization. It is their responsibility to do a good job at that point.
-
-The alternative (take what is given or leave it) is not very attractive 
-if it doesn't meet your needs.
-
->> My guess is that for real administrative roles to become viable in 
->> SELinux they are going to be largely site-defined in loadable modules 
->> (and the work at RH along those lines is using that as a starting 
->> assumption). So some way to support that seems necessary. At the very 
->> least I think that decoupling the hierarchical restrictions from the 
->> identifier names is needed. This also makes hierarchy work better with 
->> reference policy scoping.
->>
+> SELinux does not use capabilities to identify
+> where "policy" is excepted, rather it defines
+> policy in such a way as to make the notion of
+> exception unnecessary. Many people think this
+> is good. I personally like the traditional
+> scheme, and would be happier with SELinux if
+> it held to it.
 > 
-> I don't know if I believe this, all of our experience with making 
-> administrative roles is that it is difficult, we know, for example, that 
-> the secadm and sysadm roles are hardly separate and there are trivial 
-> bypasses that the sysadm role can use to gain secadm type access.
+> > > I don't understand why the SELinux crew seems
+> > > so intent on making it difficult to implement
+> > > alternatives. Last year it was "let's ditch LSM".
+> > > Now it's "Everyone hates stacking". Give it a
+> > > rest already.
+> > >
+> >
+> > 1) Stacking is possible now, just not arbitrary
+> > stacking by an admin.
 > 
-
-I don't think that secadm and sysadm are representative because they 
-both end up touching files / processes that could potentially allow 
-bypass. Allowing an admin to only run adduser or write to web pages is 
-much simpler.
-
-Just because it is hard doesn't mean that it shouldn't be possible to be 
-done by admins.
-
-Also, this customization might be done with tools that help them get it 
-right. In that case, the customization still to land in a module.
-
-> Decoupling the hierarchy from the identifier seems like it would make 
-> understanding the hierarchy and the resulting metapolicy very difficult.
+> True enough, although I have to say that it
+> isn't a pleasant exercise.
 > 
+> > 2) Not having arbitrary stacking in no way limits
+> > alternatives. It just
+> > forces the use of a single alternative at a time or
+> > explicit development
+> > to make alternatives work together.
+> 
+> Funny thing is that I would agree with you 100%
+> if LSM implemented authoritative hooks. Since
+> LSM implements a scheme that is supposed to
+> provide strictly for additional restrictions
+> it should be simple to stack modules safely.
 
-I'm not certain that determining the hierarchy tree is the limiting 
-factor in terms of understandability.
+An example where that is not the case is if LSM 2 needs to label
+a file as 'toptopsecret noone may touch this', but LSM 1 has
+marked claimed that the user may not write an xattr.  So now
+the user's info can be leaked.
 
-Much more important to me is that it means that customization will 
-almost always require changes to the original policy. I just don't think 
-that is supportable.
-
-Karl
-
+-serge
 
 --
 This message was distributed to subscribers of the selinux mailing list.
