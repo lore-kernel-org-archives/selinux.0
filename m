@@ -1,62 +1,79 @@
-Message-ID: <45AFA5F5.2080908@redhat.com>
-Date: Thu, 18 Jan 2007 11:53:09 -0500
-From: Karl MacMillan <kmacmill@redhat.com>
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id l0IHD1dN009980
+	for <selinux@tycho.nsa.gov>; Thu, 18 Jan 2007 12:13:01 -0500
+Received: from host496.ipowerweb.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with SMTP id l0IHDtih001544
+	for <selinux@tycho.nsa.gov>; Thu, 18 Jan 2007 17:13:56 GMT
+From: "Tom Fortmann" <tfortmann@xcapesolutions.net>
+To: "'Stephen Smalley'" <sds@tycho.nsa.gov>
+Cc: <selinux@tycho.nsa.gov>, "'James Morris'" <jmorris@namei.org>
+References: <003801c739a6$461871f0$030a0a0a@ACER> <1168977133.22731.149.camel@moss-spartans.epoch.ncsc.mil> <006801c73a73$643b81e0$030a0a0a@ACER> <1169124492.22731.199.camel@moss-spartans.epoch.ncsc.mil>
+Subject: RE: FW: Current/Future Plans to Support Stacking LSM Modules
+Date: Thu, 18 Jan 2007 11:13:51 -0600
+Message-ID: <00a101c73b24$069aacd0$030a0a0a@ACER>
 MIME-Version: 1.0
-To: casey@schaufler-ca.com
-CC: Stephen Smalley <sds@tycho.nsa.gov>, Crispin Cowan <crispin@novell.com>,
-        selinux@tycho.nsa.gov, linux-security-module@vger.kernel.org
-Subject: Re: Current/Future Plans to Support Stacking LSM Modules
-References: <14268.46782.qm@web36613.mail.mud.yahoo.com>
-In-Reply-To: <14268.46782.qm@web36613.mail.mud.yahoo.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain;
+	charset="us-ascii"
+In-Reply-To: <1169124492.22731.199.camel@moss-spartans.epoch.ncsc.mil>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Casey Schaufler wrote:
-> --- Stephen Smalley <sds@tycho.nsa.gov> wrote:
+Stephen,
+
+We are currently working at the netfilter level.  We have a working
+netfilter module that examines packets in a NF_IP_LOCAL_IN and
+NF_IP_LOCAL_OUT hook.  The problem with working at this level is the
+additional complexity involved with altering the data.  Any change in the
+application data value or length causes changes in the IP and TCP headers.
+Moving up above layer 3 would eliminate these issues and simplify our
+design.
+
+It looks like the selinux_socket_sock_rcv_skb() hook may give me what I need
+on the receive side - access to received data after the layers 3 processing
+is complete.  Can you point me to more detailed information on how this hook
+works and what can and can't be done to the skb at this time?  Also, is
+there a similar hook on the transmit side?
+
+Thanks again for helping me work through the learning curve of SELinux.
+
+Thomas Fortmann
+Sr. Software Engineer
+Xcape Solutions, Inc.
+
+-----Original Message-----
+From: Stephen Smalley [mailto:sds@tycho.nsa.gov] 
+Sent: Thursday, January 18, 2007 6:48 AM
+To: Tom Fortmann
+Cc: selinux@tycho.nsa.gov; James Morris
+Subject: RE: FW: Current/Future Plans to Support Stacking LSM Modules
+
+On Wed, 2007-01-17 at 14:09 -0600, Tom Fortmann wrote:
+> Stephen,
 > 
+> The security measures we are trying to implement require us to actually
+> inspect, and in some case modify, the application data flowing over a
+socket
+> connection.  Our goal is to secure legacy server applications at the
+socket
+> layer.  We have done some proof of concept work at the netfilter layer,
+but
+> the ultimate solution is better suited above the TCP/IP packet layer.
 > 
->> To the contrary, the LSPP work significantly
->> leverages the work already
->> done to integrate SELinux and makes use of the
->> SELinux interfaces for
->> applications.  It also leverages SELinux TE to
->> address aspects such as
->> MLS overrides.  By doing it within the context of
->> SELinux, it gained the
->> benefit of a unified security model and interface. 
->> Which one doesn't get from LSM.
-> 
-> There are others who would argue that SELinux
-> has abandoned the Linux privilege model and
-> thus disrupted the unity of the existing
-> security model.
-> 
+> Does SELinux provide a mechanism for us to do this, and or does it call
+the
+> secondary LSM hooks that provide this type of access.  Specifically the
+> socket_xxxx hooks?
 
-No clue what this means.
+I'm not clear as to why you can't use a netfilter module.  SELinux
+provides socket and network access controls through a combination of LSM
+hooks and netfilter, and the SELinux SECMARK mechanism lets you label
+packets using iptables and control them using policy.   See
+selinux_socket_sock_rcv_skb() (registered via LSM) and
+selinux_ip_postroute_last() (registered via netfilter).
 
-> I don't understand why the SELinux crew seems
-> so intent on making it difficult to implement
-> alternatives. Last year it was "let's ditch LSM".
-> Now it's "Everyone hates stacking". Give it a
-> rest already.
-> 
-
-1) Stacking is possible now, just not arbitrary stacking by an admin.
-
-2) Not having arbitrary stacking in no way limits alternatives. It just 
-forces the use of a single alternative at a time or explicit development 
-to make alternatives work together.
-
-3) The objections, if you read them, are about whether the correctness 
-of arbitrarily stacked modules can be reasonably expected or verified. 
-It is not an effort to limit alternatives.
-
-There are real disagreements here, but please stop overstating the 
-differences and misconstruing (willfully?) peoples positions.
-
-Karl
-
+-- 
+Stephen Smalley
+National Security Agency
 
 
 
