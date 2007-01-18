@@ -1,57 +1,41 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id l0HNoD0N009814
-	for <selinux@tycho.nsa.gov>; Wed, 17 Jan 2007 18:50:13 -0500
-Received: from atlrel8.hp.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l0HNp66S006025
-	for <selinux@tycho.nsa.gov>; Wed, 17 Jan 2007 23:51:07 GMT
-Message-ID: <45AEB5DC.9060105@hp.com>
-Date: Wed, 17 Jan 2007 18:48:44 -0500
-From: Linda Knippers <linda.knippers@hp.com>
-MIME-Version: 1.0
-To: Xavier Toth <txtoth@gmail.com>
-Cc: selinux@tycho.nsa.gov
-Subject: Re: polyinstantiation, what should happen?
-References: <cadfc0e40701171501j5ebbc57fn6ea9c652fbcc946b@mail.gmail.com>
-In-Reply-To: <cadfc0e40701171501j5ebbc57fn6ea9c652fbcc946b@mail.gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1
+Subject: RE: FW: Current/Future Plans to Support Stacking LSM Modules
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Tom Fortmann <tfortmann@xcapesolutions.net>
+Cc: selinux@tycho.nsa.gov, James Morris <jmorris@namei.org>
+In-Reply-To: <006801c73a73$643b81e0$030a0a0a@ACER>
+References: <003801c739a6$461871f0$030a0a0a@ACER>
+	 <1168977133.22731.149.camel@moss-spartans.epoch.ncsc.mil>
+	 <006801c73a73$643b81e0$030a0a0a@ACER>
+Content-Type: text/plain
+Date: Thu, 18 Jan 2007 07:48:12 -0500
+Message-Id: <1169124492.22731.199.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Xavier Toth wrote:
-> I'm running the lspp.63 kernel along with the latest pam and newrole
-> off of Dan Walsh' people page.
+On Wed, 2007-01-17 at 14:09 -0600, Tom Fortmann wrote:
+> Stephen,
 > 
-> I've configured polyinstantiation but it doesn't work the way I
-> thought it would so either I don't understand or I've got it
-> configured wrong. In namespace.conf I've specified that I want context
-> to be used for the polyinstantiated instance directories but I only
-> getting the user name. Shouldn't the directory name contain the entire
-> an context?
-
-Perhaps.  I think the method field specifies when you want to polyinstantiate,
-not necessarily what the instance names are, although it makes sense that
-the directories would be named using the context and the user name.
-I use "level" instead of "context" on my system and I get directory names that
-have the full context, including level, plus the user name.  By specifying
-"level" but I only get a new instance when I change levels, not when I change
-roles.
-
-My namespace.conf looks like this, if you want to give that a try:
-/tmp     /tmp/tmp-inst/         level      root,adm
-/var/tmp /var/tmp/tmp-inst/     level      root,adm
-$HOME    /home/home.inst/       level      root,adm
-
-Do you have any interesting messages in /var/log/secure?  Since you have
-the the debug option on your pam_namespace.so lines you should see messages
-when it creates an instance directory.
-
--- ljk
-
-> Also I'm running X so I followed the instructions on the pam_namespace
-> man page but wasn't sure whether /etc/pam.d/gdm needed unmnt_remnt as
-> su and newrole do?
+> The security measures we are trying to implement require us to actually
+> inspect, and in some case modify, the application data flowing over a socket
+> connection.  Our goal is to secure legacy server applications at the socket
+> layer.  We have done some proof of concept work at the netfilter layer, but
+> the ultimate solution is better suited above the TCP/IP packet layer.
 > 
-> Ted
+> Does SELinux provide a mechanism for us to do this, and or does it call the
+> secondary LSM hooks that provide this type of access.  Specifically the
+> socket_xxxx hooks?
+
+I'm not clear as to why you can't use a netfilter module.  SELinux
+provides socket and network access controls through a combination of LSM
+hooks and netfilter, and the SELinux SECMARK mechanism lets you label
+packets using iptables and control them using policy.   See
+selinux_socket_sock_rcv_skb() (registered via LSM) and
+selinux_ip_postroute_last() (registered via netfilter).
+
+-- 
+Stephen Smalley
+National Security Agency
 
 
 --
