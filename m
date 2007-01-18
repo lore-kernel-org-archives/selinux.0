@@ -1,55 +1,80 @@
-Subject: Re: polyinstantiation, what should happen?
+Subject: Re: [PATCH] add central errno.h to libsepol
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Linda Knippers <linda.knippers@hp.com>
-Cc: Xavier Toth <txtoth@gmail.com>, selinux@tycho.nsa.gov,
-        Daniel J Walsh <dwalsh@redhat.com>
-In-Reply-To: <45AEB5DC.9060105@hp.com>
-References: <cadfc0e40701171501j5ebbc57fn6ea9c652fbcc946b@mail.gmail.com>
-	 <45AEB5DC.9060105@hp.com>
+To: Karl MacMillan <kmacmillan@mentalrootkit.com>
+Cc: SELinux Mail List <selinux@tycho.nsa.gov>,
+        Joshua Brindle <jbrindle@tresys.com>
+In-Reply-To: <45ACE84C.9000409@mentalrootkit.com>
+References: <45AC06E8.3020708@mentalrootkit.com>
+	 <1168953111.22731.50.camel@moss-spartans.epoch.ncsc.mil>
+	 <45ACE84C.9000409@mentalrootkit.com>
 Content-Type: text/plain
-Date: Thu, 18 Jan 2007 09:55:56 -0500
-Message-Id: <1169132156.22731.263.camel@moss-spartans.epoch.ncsc.mil>
+Date: Thu, 18 Jan 2007 10:31:45 -0500
+Message-Id: <1169134305.22731.272.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2007-01-17 at 18:48 -0500, Linda Knippers wrote:
-> Xavier Toth wrote:
-> > I'm running the lspp.63 kernel along with the latest pam and newrole
-> > off of Dan Walsh' people page.
+On Tue, 2007-01-16 at 09:59 -0500, Karl MacMillan wrote:
+> Stephen Smalley wrote:
+> > On Mon, 2007-01-15 at 17:57 -0500, Karl MacMillan wrote:
+> >> The attached patch adds a central errno.h to libsepol and converts 
+> >> several existing error numbers. This will unify the error numbers, 
+> >> remove duplication, and prevent overlapping error numbers (a source of 
+> >> potential bugs). Existing return values from functions exposed as part 
+> >> of the binary interface are not changed.
 > > 
-> > I've configured polyinstantiation but it doesn't work the way I
-> > thought it would so either I don't understand or I've got it
-> > configured wrong. In namespace.conf I've specified that I want context
-> > to be used for the polyinstantiated instance directories but I only
-> > getting the user name. Shouldn't the directory name contain the entire
-> > an context?
+> > I'm not enthusiastic about diverging the errno values from the system
+> > values for e.g. ENOMEM and friends.  I'd prefer to keep them the same,
+> > and use some other part of the value space for any custom error values
+> > defined by libsepol.
 > 
-> Perhaps.  I think the method field specifies when you want to polyinstantiate,
-> not necessarily what the instance names are, although it makes sense that
-> the directories would be named using the context and the user name.
-> I use "level" instead of "context" on my system and I get directory names that
-> have the full context, including level, plus the user name.  By specifying
-> "level" but I only get a new instance when I change levels, not when I change
-> roles.
+> I think that practically we are going to end up diverging from system 
+> errno values to some extent. For example, -EPERM is -1 and I think that 
+> trying to change every function that returns -1 for general error is 
+> going to be hard.
 > 
-> My namespace.conf looks like this, if you want to give that a try:
-> /tmp     /tmp/tmp-inst/         level      root,adm
-> /var/tmp /var/tmp/tmp-inst/     level      root,adm
-> $HOME    /home/home.inst/       level      root,adm
+> The updated patch aligns them more closely, however.
+> 
+>    Also, I'm not sure about referring to this as
+> > errno.h, as libsepol is _not_ setting errno to these values; it uses
+> > these values as internal return values for conveying error information.
+> 
+> Changed to errcodes.h.
+> 
+> > The functions that do happen to explicitly set errno are using
+> > traditional errno values.
+> 
+> I explicitly did not change those return values.
+> 
+> In addition to the changes noted above, I removed the license statements 
+> from the header files, which I took as the consensus from the other 
+> discussion in this thread. Updated patch attached.
+> 
+> The attached patch adds a central header for error and return codes 
+> (errcodes.h) to libsepol and converts several existing error numbers. 
+> This will unify the error numbers, remove duplication, and prevent 
+> overlapping error numbers (a source of potential bugs). Existing return 
+> values from functions exposed as part of the binary interface are not 
+> changed.
+> 
+> Signed-off-by: Karl MacMillan <kmacmillan@mentalrootkit.com>
+> 
+>   checkpolicy/policy_parse.y                    |   15 ++---
+>   libsepol/include/sepol/errcodes.h             |   25 ++++++++
+>   libsepol/include/sepol/policydb/hashtab.h     |   23 +++-----
+>   libsepol/include/sepol/policydb/link.h        |   29 +---------
+>   libsepol/src/avtab.c                          |   18 +++---
+>   libsepol/src/expand.c                         |    7 +-
+>   libsepol/src/hashtab.c                        |   45 +++++++++++-----
+>   libsepol/src/link.c                           |   33 ++++++-----
+>   libsepol/src/policydb.c                       |    6 +-
+>   libsepol/src/private.h                        |    4 +
+>   policycoreutils/semodule_deps/semodule_deps.c |    9 +--
+>   11 files changed, 122 insertions(+), 92 deletions(-)
 
-Yes, use "level" - see the earlier discussion on redhat-lspp.
-Dan - should "context" trigger a warning or error until such a time as
-it is correctly supported?
+Acked-by:  Stephen Smalley <sds@tycho.nsa.gov>
 
-> > Also I'm running X so I followed the instructions on the pam_namespace
-> > man page but wasn't sure whether /etc/pam.d/gdm needed unmnt_remnt as
-> > su and newrole do?
-
-It shouldn't, since there is no prior bind mount to unmount in the gdm
-case.  Not sure how well gdm will play with pam_namespace though; we
-couldn't use pam_selinux with gdm but instead had to patch it directly
-IIRC.  
+(for trunk only, not stable)
 
 -- 
 Stephen Smalley
