@@ -1,82 +1,74 @@
-Date: Thu, 18 Jan 2007 11:28:11 -0600
-From: "Serge E. Hallyn" <serue@us.ibm.com>
-To: Stephen Smalley <sds@tycho.nsa.gov>
-Cc: Crispin Cowan <crispin@novell.com>, casey@schaufler-ca.com,
-        Tom Fortmann <tfortmann@xcapesolutions.net>, selinux@tycho.nsa.gov,
-        linux-security-module@vger.kernel.org
-Subject: Re: Current/Future Plans to Support Stacking LSM Modules
-Message-ID: <20070118172811.GG16585@sergelap.austin.ibm.com>
-References: <20070116184620.75850.qmail@web36608.mail.mud.yahoo.com> <45AF5539.2020608@novell.com> <1169124606.22731.202.camel@moss-spartans.epoch.ncsc.mil> <45AF7643.3080200@novell.com> <1169128425.22731.232.camel@moss-spartans.epoch.ncsc.mil>
+Message-ID: <45AFB433.1010309@tresys.com>
+Date: Thu, 18 Jan 2007 12:53:55 -0500
+From: Joshua Brindle <jbrindle@tresys.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1169128425.22731.232.camel@moss-spartans.epoch.ncsc.mil>
+To: Karl MacMillan <kmacmillan@mentalrootkit.com>
+CC: SE Linux <selinux@tycho.nsa.gov>, Stephen Smalley <sds@tycho.nsa.gov>
+Subject: Re: [RFC] 0/4 - Hierarchal apache policy for reference policy
+References: <45AFA08F.9080602@tresys.com> <45AFABC8.2050101@mentalrootkit.com>
+In-Reply-To: <45AFABC8.2050101@mentalrootkit.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Quoting Stephen Smalley (sds@tycho.nsa.gov):
-> On Fri, 2007-01-19 at 00:29 +1100, Crispin Cowan wrote:
-> > Stephen Smalley wrote:
-> > > On Thu, 2007-01-18 at 22:08 +1100, Crispin Cowan wrote:
-> > >
-> > >> There is a module waiting in the wings called Stacker
-> > >> <http://sourceforge.net/projects/lsm-stacker> that is designed to
-> > >> automatically stack multiple modules. Considerable design,
-> > >> implementation, and measurement has gone into Stacker. The main thing
-> > >> stalling the upstreaming of Stacker is for some modules other than
-> > >> SELinux to be accepted upstream. With the number of modules vying for
-> > >> that, it seems just a matter of time.
-> > >>
-> > > Except that at the last kernel summit, the topic came up during the LSM
-> > > panel, and everyone on the panel, including the AppArmor person, agreed
-> > > that stacking wasn't necessary or desirable.
-> > >
-> > Hmmm, that is surprising. I have to assume you meant " ... at this
-> > time."
+Karl MacMillan wrote:
+> Joshua Brindle wrote:
+>> This is an RFC for policy allowing management delegation through 
+>> hierarchical types.
+>>
+>> Policy management often is handled by different administrators, based 
+>> on the application or applications that are being governed. As a 
+>> result, providing a means to delegate access to manage only certain 
+>> aspects of policy is desirable, and can be accomplished using 
+>> hierarchical types.
+>>
+>> The proof of concept apache policy module illustrates policy 
+>> management delegation through hierarchical types. This example apache 
+>> policy works together with an adds metapolicy to the apache module
 > 
-> That wasn't my impression - the question raised was along the lines of
-> "even if we can't settle the LSM issue once for all, can we at least
-> settle the issue of LSM stacking."  And the consensus view seemed to be
-> that generic stacking of security modules is not the way to go; security
-
-Yup, that was the conclusion at kernel summit.
-
-> modules need to be aware of the composition and its implications, as in
-> the existing manual stacking of SELinux with capabilities or AppArmor
-> with capabilities.
-
-That's always been one of the cons to stacker, but I think at kernel
-summit the main reason for the decision was simply the lack of users.
-Now it's possible that if we end up with legitimate users, the issue
-will be revisited, but even I understand the meaning of the word
-'futility' and have stopped maintaining stacker.
-
-> >  With relatively few modules around, a full blown stacking
-> > architecture is excessive. But as the number and variety of modules
-> > grows, the need for Stacker will increase. That stacking was given such
-> > limited support in the LSM design was precisely because I saw it as a
-> > "later" kind of thing, and we could avoid the initial complexity.
+> It's good to see progress on this and a real fleshed-out example. I look 
+> forward to seeing the prototype policy server.
 > 
-> I only know of one other security module that is under consideration for
-> upstream, slim.
+> I think the biggest hurdle to this gaining widespread use is the length 
+> of the meta-policy, especially since it essentially repeats the policy 
+> for the sub-types. Any ideas about how to shorten this policy?
 > 
-> > Clearly stacking AppArmor and SELinux together is pointless, but if
-> > Stacker was upstream, then perhaps the LSPP work going on could be done
-> > as a pure LSM module that can stack with something else, so it could
-> > compose with SELinux, AppArmor, LIDS, etc. instead of just with SELinux.
-> > By now, of course, all sorts of SELinux-specific assumptions are built
-> > into the work, but I doubt that they are fundamental.
+
+nit: the meta-policy is short (5 lines). The policy itself is longer due 
+to the propagation of rules to children types.
+
+> The other large issue, of course, is that this demonstrates how invasive 
+> the policy changes are in order to support delegation. This makes it 
+> very difficult for a policy admin to create a separate policy module 
+> that a) places hierarchical restrictions on a set of types and b) 
+> delegates administrative privileges to an admin type to make changes to 
+> those types.
 > 
-> To the contrary, the LSPP work significantly leverages the work already
-> done to integrate SELinux and makes use of the SELinux interfaces for
-> applications.  It also leverages SELinux TE to address aspects such as
-> MLS overrides.  By doing it within the context of SELinux, it gained the
-> benefit of a unified security model and interface.  Which one doesn't
-> get from LSM.
 
-Yup, and in addition to pre-existing userspace and kernel pieces, the
-selinux community was very helpful in development during the lspp work.
+I'm not sure how desirable ad-hoc delegation is. Just like normal policy 
+meta policy needs to be well thought out in order to meet specific 
+security goals (and do so without allowing bypass, etc).
 
--serge
+> My guess is that for real administrative roles to become viable in 
+> SELinux they are going to be largely site-defined in loadable modules 
+> (and the work at RH along those lines is using that as a starting 
+> assumption). So some way to support that seems necessary. At the very 
+> least I think that decoupling the hierarchical restrictions from the 
+> identifier names is needed. This also makes hierarchy work better with 
+> reference policy scoping.
+> 
+
+I don't know if I believe this, all of our experience with making 
+administrative roles is that it is difficult, we know, for example, that 
+the secadm and sysadm roles are hardly separate and there are trivial 
+bypasses that the sysadm role can use to gain secadm type access.
+
+Decoupling the hierarchy from the identifier seems like it would make 
+understanding the hierarchy and the resulting metapolicy very difficult.
+
+I'm open to debate though, that is the purpose of sending this up at 
+this time.
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
