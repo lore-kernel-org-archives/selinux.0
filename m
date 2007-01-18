@@ -1,64 +1,85 @@
-Subject: Re: Current/Future Plans to Support Stacking LSM Modules
+Subject: RE: [RFC] 0/4 - Hierarchal apache policy for reference policy
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: casey@schaufler-ca.com
-Cc: Karl MacMillan <kmacmill@redhat.com>, selinux@tycho.nsa.gov,
-        linux-security-module@vger.kernel.org
-In-Reply-To: <681036.75164.qm@web36611.mail.mud.yahoo.com>
-References: <681036.75164.qm@web36611.mail.mud.yahoo.com>
+To: Joshua Brindle <jbrindle@tresys.com>
+Cc: Karl MacMillan <kmacmillan@mentalrootkit.com>,
+        SE Linux <selinux@tycho.nsa.gov>
+In-Reply-To: <1169151865.22731.390.camel@moss-spartans.epoch.ncsc.mil>
+References: 
+	 <6FE441CD9F0C0C479F2D88F959B015887B9E3E@exchange.columbia.tresys.com>
+	 <1169151865.22731.390.camel@moss-spartans.epoch.ncsc.mil>
 Content-Type: text/plain
-Date: Thu, 18 Jan 2007 15:29:59 -0500
-Message-Id: <1169152199.22731.397.camel@moss-spartans.epoch.ncsc.mil>
+Date: Thu, 18 Jan 2007 15:31:48 -0500
+Message-Id: <1169152308.22731.399.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2007-01-18 at 10:12 -0800, Casey Schaufler wrote:
-> --- Karl MacMillan <kmacmill@redhat.com> wrote:
-> 
-> > > There are others who would argue that SELinux
-> > > has abandoned the Linux privilege model and
-> > > thus disrupted the unity of the existing
-> > > security model.
+On Thu, 2007-01-18 at 15:24 -0500, Stephen Smalley wrote:
+> On Thu, 2007-01-18 at 15:00 -0500, Joshua Brindle wrote:
+> > > From: Karl MacMillan [mailto:kmacmillan@mentalrootkit.com] 
 > > > 
+> > > Stephen Smalley wrote:
+> > > > On Thu, 2007-01-18 at 13:40 -0500, Karl MacMillan wrote:
+> > > >> Joshua Brindle wrote:
+> > > >>> Karl MacMillan wrote:
+> > > >>>> Joshua Brindle wrote:
+> > > 
+> > > <snip>
+> > > 
+> > > >>>> I think the biggest hurdle to this gaining widespread use is the 
+> > > >>>> length of the meta-policy, especially since it 
+> > > essentially repeats 
+> > > >>>> the policy for the sub-types. Any ideas about how to 
+> > > shorten this policy?
+> > > >>>>
+> > > >>> nit: the meta-policy is short (5 lines). The policy 
+> > > itself is longer 
+> > > >>> due to the propagation of rules to children types.
+> > > >>>
+> > > >> Fine - but that answer the question. Having to define 
+> > > container types 
+> > > >> with a superset of the rules results in a much longer 
+> > > policy. I think 
+> > > >> that it is going to be hard to convince people to add that policy.
+> > > > 
+> > > > Policy build could automatically generate the rules for the 
+> > > container 
+> > > > types from the child type rules, as long as they come from the same 
+> > > > source (e.g. all part of the base policy build, or all 
+> > > within the same 
+> > > > module).  Then you only need to explicitly state rules for the 
+> > > > container types for accesses that you wish to permit to externally 
+> > > > defined children.
+> > > > 
+> > > 
+> > > That's probably a good solution. Wouldn't be too hard to make 
+> > > a tool to do this from selgen / sepolgen / madison.
 > > 
-> > No clue what this means.
+> > 
+> > This defeats the purpose of the hierarchy. The container types define
+> > the maximum permissions that can be granted to a child. The intention is
+> > for the security admin to create types with the permissions acceptable
+> > to meet his goals, and allow other admins to securely make finer grained
+> > children types. 
+> > 
+> > The proposed solution gives the opposite effect, it builds container
+> > types from children so the children must meet the requirements of the
+> > parent types without knowing them.
 > 
-> Pre-SE Linux has a rational and well
-> established security model that includes
-> DAC and Privilege. The capability scheme
-> is designed to fit that model, adding the
-> logical extention from the POSIX statements
-> of "appropruate privilege" to defining what
-> those privileges would be.
-> 
-> SELinux does not use capabilities to identify
-> where "policy" is excepted, rather it defines
-> policy in such a way as to make the notion of
-> exception unnecessary. Many people think this
-> is good. I personally like the traditional
-> scheme, and would be happier with SELinux if
-> it held to it.
+> No, notice that I only said that one would automatically propagate
+> accesses from the children to the parent if they come from the same
+> source (base policy build or within the same module).  You wouldn't
+> automatically propagate beyond that scope, so if a type in a module is a
+> child of a parent type in the base (or any other previously added
+> module), it would still be constrained to whatever was explicitly
+> specified by the base (or other module) on the parent type.  It merely
+> avoids the need to duplicate specification within the base policy or
+> within a single module when both the parent and the child types are
+> defined within that base or module.
 
-If the argument is that we should favor the traditional over the good,
-then I think you've lost your case.  Besides, Type Enforcement has quite
-a bit of history behind it, coming from at least the LOCK work in the
-early 80s, with the underlying origins traceable to the Lampson ('71)
-and Linden ('76) papers, so let's compare traditions, shall we?
-
-> Restictive LSM modules ought to be completely
-> stackable if they are in fact strictly
-> restrictive.
-
-Strictly restrictive relative to base Linux DAC, but not necessarily to
-one another.  See the issues noted in the next-to-last para of:
-http://www.nsa.gov/selinux/papers/module/x341.html
-
-Also, getting the stacker module correct even for the "simple"
-combination of capabilities and SELinux was surprisingly difficult - see
-the lsm list archives for the history of that.  Serge made a valiant
-effort of fixing each issue as I discovered them, but the history shows
-that it isn't as trivial as one might think.
-
+Note btw that the value of such automatic propagation may be minimal for
+a highly modularized, highly parameterized policy (ala apache).
+ 
 -- 
 Stephen Smalley
 National Security Agency
