@@ -1,74 +1,112 @@
-Message-ID: <45AFB433.1010309@tresys.com>
-Date: Thu, 18 Jan 2007 12:53:55 -0500
-From: Joshua Brindle <jbrindle@tresys.com>
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id l0IIC0aH012853
+	for <selinux@tycho.nsa.gov>; Thu, 18 Jan 2007 13:12:00 -0500
+Received: from web36611.mail.mud.yahoo.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with SMTP id l0IICtL4014315
+	for <selinux@tycho.nsa.gov>; Thu, 18 Jan 2007 18:12:55 GMT
+Date: Thu, 18 Jan 2007 10:12:54 -0800 (PST)
+From: Casey Schaufler <casey@schaufler-ca.com>
+Reply-To: casey@schaufler-ca.com
+Subject: Re: Current/Future Plans to Support Stacking LSM Modules
+To: Karl MacMillan <kmacmill@redhat.com>
+Cc: selinux@tycho.nsa.gov, linux-security-module@vger.kernel.org
+In-Reply-To: <45AFA5F5.2080908@redhat.com>
 MIME-Version: 1.0
-To: Karl MacMillan <kmacmillan@mentalrootkit.com>
-CC: SE Linux <selinux@tycho.nsa.gov>, Stephen Smalley <sds@tycho.nsa.gov>
-Subject: Re: [RFC] 0/4 - Hierarchal apache policy for reference policy
-References: <45AFA08F.9080602@tresys.com> <45AFABC8.2050101@mentalrootkit.com>
-In-Reply-To: <45AFABC8.2050101@mentalrootkit.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain; charset=iso-8859-1
+Message-ID: <681036.75164.qm@web36611.mail.mud.yahoo.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Karl MacMillan wrote:
-> Joshua Brindle wrote:
->> This is an RFC for policy allowing management delegation through 
->> hierarchical types.
->>
->> Policy management often is handled by different administrators, based 
->> on the application or applications that are being governed. As a 
->> result, providing a means to delegate access to manage only certain 
->> aspects of policy is desirable, and can be accomplished using 
->> hierarchical types.
->>
->> The proof of concept apache policy module illustrates policy 
->> management delegation through hierarchical types. This example apache 
->> policy works together with an adds metapolicy to the apache module
+
+--- Karl MacMillan <kmacmill@redhat.com> wrote:
+
+> > There are others who would argue that SELinux
+> > has abandoned the Linux privilege model and
+> > thus disrupted the unity of the existing
+> > security model.
+> > 
 > 
-> It's good to see progress on this and a real fleshed-out example. I look 
-> forward to seeing the prototype policy server.
+> No clue what this means.
+
+Pre-SE Linux has a rational and well
+established security model that includes
+DAC and Privilege. The capability scheme
+is designed to fit that model, adding the
+logical extention from the POSIX statements
+of "appropruate privilege" to defining what
+those privileges would be.
+
+SELinux does not use capabilities to identify
+where "policy" is excepted, rather it defines
+policy in such a way as to make the notion of
+exception unnecessary. Many people think this
+is good. I personally like the traditional
+scheme, and would be happier with SELinux if
+it held to it.
+
+> > I don't understand why the SELinux crew seems
+> > so intent on making it difficult to implement
+> > alternatives. Last year it was "let's ditch LSM".
+> > Now it's "Everyone hates stacking". Give it a
+> > rest already.
+> > 
 > 
-> I think the biggest hurdle to this gaining widespread use is the length 
-> of the meta-policy, especially since it essentially repeats the policy 
-> for the sub-types. Any ideas about how to shorten this policy?
-> 
+> 1) Stacking is possible now, just not arbitrary
+> stacking by an admin.
 
-nit: the meta-policy is short (5 lines). The policy itself is longer due 
-to the propagation of rules to children types.
+True enough, although I have to say that it
+isn't a pleasant exercise.
 
-> The other large issue, of course, is that this demonstrates how invasive 
-> the policy changes are in order to support delegation. This makes it 
-> very difficult for a policy admin to create a separate policy module 
-> that a) places hierarchical restrictions on a set of types and b) 
-> delegates administrative privileges to an admin type to make changes to 
-> those types.
-> 
+> 2) Not having arbitrary stacking in no way limits
+> alternatives. It just 
+> forces the use of a single alternative at a time or
+> explicit development 
+> to make alternatives work together.
 
-I'm not sure how desirable ad-hoc delegation is. Just like normal policy 
-meta policy needs to be well thought out in order to meet specific 
-security goals (and do so without allowing bypass, etc).
+Funny thing is that I would agree with you 100%
+if LSM implemented authoritative hooks. Since
+LSM implements a scheme that is supposed to
+provide strictly for additional restrictions
+it should be simple to stack modules safely.
+ 
+> 3) The objections, if you read them, are about
+> whether the correctness 
+> of arbitrarily stacked modules can be reasonably
+> expected or verified. 
+> It is not an effort to limit alternatives.
 
-> My guess is that for real administrative roles to become viable in 
-> SELinux they are going to be largely site-defined in loadable modules 
-> (and the work at RH along those lines is using that as a starting 
-> assumption). So some way to support that seems necessary. At the very 
-> least I think that decoupling the hierarchical restrictions from the 
-> identifier names is needed. This also makes hierarchy work better with 
-> reference policy scoping.
-> 
+Restictive LSM modules ought to be completely
+stackable if they are in fact strictly
+restrictive. That there are issues says that
+the scheme may not be being used correctly.
+I honestly don't know if that's worth the
+trouble of fixing.
 
-I don't know if I believe this, all of our experience with making 
-administrative roles is that it is difficult, we know, for example, that 
-the secadm and sysadm roles are hardly separate and there are trivial 
-bypasses that the sysadm role can use to gain secadm type access.
+> There are real disagreements here, but please stop
+> overstating the 
+> differences and misconstruing (willfully?) peoples
+> positions.
 
-Decoupling the hierarchy from the identifier seems like it would make 
-understanding the hierarchy and the resulting metapolicy very difficult.
+SELinux is a Good Thing for any number of
+reasons. There are also other schemes that
+have merit. Just as I encouraged the NSA to
+adopt Linux and do their own security work
+back in the late 20th century I hope to
+encourage newcomers to LSM to follow through
+with their ideas and come up with the next
+great thing. Assimilation into SELinux can
+come later if it's of value. Maybe you can
+do a bunch of this stuff using SELinux as
+a framework instead of LSM, but I think
+that if someone wants to use LSM as a base
+that is their call, and I personally would
+like to see what they do because I don't
+believe for a minute that the "problem"
+of system security is solved.
 
-I'm open to debate though, that is the purpose of sending this up at 
-this time.
 
+Casey Schaufler
+casey@schaufler-ca.com
 
 --
 This message was distributed to subscribers of the selinux mailing list.
