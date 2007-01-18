@@ -1,40 +1,74 @@
-Message-ID: <45AFA08F.9080602@tresys.com>
-Date: Thu, 18 Jan 2007 11:30:07 -0500
+Message-ID: <45AFA11B.4090407@tresys.com>
+Date: Thu, 18 Jan 2007 11:32:27 -0500
 From: Joshua Brindle <jbrindle@tresys.com>
 MIME-Version: 1.0
 To: SE Linux <selinux@tycho.nsa.gov>
 CC: Stephen Smalley <sds@tycho.nsa.gov>
-Subject: [RFC] 0/4 - Hierarchal apache policy for reference policy
-Content-Type: text/plain; charset=windows-1252; format=flowed
+Subject: [RFC] 4/4 - Hierarchal apache policy for reference policy (policy
+ contexts)
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This is an RFC for policy allowing management delegation through 
-hierarchical types.
+Below is the policy contexts for labeling apache policy types.
 
-Policy management often is handled by different administrators, based on 
-the application or applications that are being governed. As a result, 
-providing a means to delegate access to manage only certain aspects of 
-policy is desirable, and can be accomplished using hierarchical types.
+Note that roles are essentially hardcoded here. We need a 
+genhomedircon-like application to generate per-role contexts for more 
+than just home directories. I can envision more user object managers 
+having the need for per-role contexts (DBUS, for example, does) so we 
+should probably come up with a general way of generating these. We 
+haven't thought it through fully though, comments are welcome.
 
-The proof of concept apache policy module illustrates policy management 
-delegation through hierarchical types. This example apache policy works 
-together with an adds metapolicy to the apache module and adds a policy 
-server labeling file (apache.pc) that must be appended to the policy 
-context file (the default for policy server is 
-/etc/selinux/policy_contexts) to split apache’s policy management 
-between different users.
+-------------------------------------------------------
 
-In this policy, for example, management access to apache content is 
-broken down hierarchically based on the content owner. Then 
-apache_t.user_content is labeled user_apache_policy_t to only allow 
-user_t to add new rules for apache_t.user_content type. Similar rules 
-prevent user_t from using types like apache_t.staff_content. See the end 
-of apache_per_role_template() in apache.if for the rules that govern how 
-users change policy.
 
-The enforcement of the metapolicy requires the policy management server, 
-which will be released for preview soon.
+type apache_t                
+gen_context(system_u:object_r:apache_policy_t,s0)
+
+type apache_t.staff_script        
+gen_context(system_u:object_r:staff_apache_policy_t,s0)
+type apache_t.staff_script_exec        
+gen_context(system_u:object_r:staff_apache_policy_t,s0)
+type apache_t.staff_content        
+gen_context(system_u:object_r:staff_apache_policy_t,s0)
+type apache_t.staff_htaccess        
+gen_context(system_u:object_r:staff_apache_policy_t,s0)
+type apache_t.staff_content.ro        
+gen_context(system_u:object_r:staff_apache_policy_t,s0)
+type apache_t.staff_content.rw        
+gen_context(system_u:object_r:staff_apache_policy_t,s0)
+type apache_t.staff_content.ra        
+gen_context(system_u:object_r:staff_apache_policy_t,s0)
+
+type apache_t.sysadm_script        
+gen_context(system_u:object_r:sysadm_apache_policy_t,s0)
+type apache_t.sysadm_script_exec    
+gen_context(system_u:object_r:sysadm_apache_policy_t,s0)
+type apache_t.sysadm_content        
+gen_context(system_u:object_r:sysadm_apache_policy_t,s0)
+type apache_t.sysadm_htaccess        
+gen_context(system_u:object_r:sysadm_apache_policy_t,s0)
+type apache_t.sysadm_content.ro        
+gen_context(system_u:object_r:sysadm_apache_policy_t,s0)
+type apache_t.sysadm_content.rw        
+gen_context(system_u:object_r:sysadm_apache_policy_t,s0)
+type apache_t.sysadm_content.ra        
+gen_context(system_u:object_r:sysadm_apache_policy_t,s0)
+
+type apache_t.user_script        
+gen_context(system_u:object_r:user_apache_policy_t,s0)
+type apache_t.user_script_exec        
+gen_context(system_u:object_r:user_apache_policy_t,s0)
+type apache_t.user_content        
+gen_context(system_u:object_r:user_apache_policy_t,s0)
+type apache_t.user_htaccess        
+gen_context(system_u:object_r:user_apache_policy_t,s0)
+type apache_t.user_content.ro        
+gen_context(system_u:object_r:user_apache_policy_t,s0)
+type apache_t.user_content.rw        
+gen_context(system_u:object_r:user_apache_policy_t,s0)
+type apache_t.user_content.ra        
+gen_context(system_u:object_r:user_apache_policy_t,s0)
 
 
 
