@@ -1,89 +1,64 @@
-Subject: RE: [RFC] 0/4 - Hierarchal apache policy for reference policy
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Joshua Brindle <jbrindle@tresys.com>
-Cc: Karl MacMillan <kmacmillan@mentalrootkit.com>,
-        SE Linux <selinux@tycho.nsa.gov>
-In-Reply-To: <1169151865.22731.390.camel@moss-spartans.epoch.ncsc.mil>
-References: 
-	 <6FE441CD9F0C0C479F2D88F959B015887B9E3E@exchange.columbia.tresys.com>
-	 <1169151865.22731.390.camel@moss-spartans.epoch.ncsc.mil>
-Content-Type: text/plain
-Date: Thu, 18 Jan 2007 15:31:48 -0500
-Message-Id: <1169152308.22731.399.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id l0IKxYL5019981
+	for <selinux@tycho.nsa.gov>; Thu, 18 Jan 2007 15:59:34 -0500
+Received: from mx1.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id l0IL0Sih029065
+	for <selinux@tycho.nsa.gov>; Thu, 18 Jan 2007 21:00:29 GMT
+Message-ID: <45AFDFC2.2080000@mentalrootkit.com>
+Date: Thu, 18 Jan 2007 15:59:46 -0500
+From: Karl MacMillan <kmacmillan@mentalrootkit.com>
+MIME-Version: 1.0
+To: SELinux Mail List <selinux@tycho.nsa.gov>,
+        "Christopher J. PeBenito" <cpebenito@tresys.com>
+Subject: New policy patterns and policy generation
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2007-01-18 at 15:24 -0500, Stephen Smalley wrote:
-> On Thu, 2007-01-18 at 15:00 -0500, Joshua Brindle wrote:
-> > > From: Karl MacMillan [mailto:kmacmillan@mentalrootkit.com] 
-> > > 
-> > > Stephen Smalley wrote:
-> > > > On Thu, 2007-01-18 at 13:40 -0500, Karl MacMillan wrote:
-> > > >> Joshua Brindle wrote:
-> > > >>> Karl MacMillan wrote:
-> > > >>>> Joshua Brindle wrote:
-> > > 
-> > > <snip>
-> > > 
-> > > >>>> I think the biggest hurdle to this gaining widespread use is the 
-> > > >>>> length of the meta-policy, especially since it 
-> > > essentially repeats 
-> > > >>>> the policy for the sub-types. Any ideas about how to 
-> > > shorten this policy?
-> > > >>>>
-> > > >>> nit: the meta-policy is short (5 lines). The policy 
-> > > itself is longer 
-> > > >>> due to the propagation of rules to children types.
-> > > >>>
-> > > >> Fine - but that answer the question. Having to define 
-> > > container types 
-> > > >> with a superset of the rules results in a much longer 
-> > > policy. I think 
-> > > >> that it is going to be hard to convince people to add that policy.
-> > > > 
-> > > > Policy build could automatically generate the rules for the 
-> > > container 
-> > > > types from the child type rules, as long as they come from the same 
-> > > > source (e.g. all part of the base policy build, or all 
-> > > within the same 
-> > > > module).  Then you only need to explicitly state rules for the 
-> > > > container types for accesses that you wish to permit to externally 
-> > > > defined children.
-> > > > 
-> > > 
-> > > That's probably a good solution. Wouldn't be too hard to make 
-> > > a tool to do this from selgen / sepolgen / madison.
-> > 
-> > 
-> > This defeats the purpose of the hierarchy. The container types define
-> > the maximum permissions that can be granted to a child. The intention is
-> > for the security admin to create types with the permissions acceptable
-> > to meet his goals, and allow other admins to securely make finer grained
-> > children types. 
-> > 
-> > The proposed solution gives the opposite effect, it builds container
-> > types from children so the children must meet the requirements of the
-> > parent types without knowing them.
-> 
-> No, notice that I only said that one would automatically propagate
-> accesses from the children to the parent if they come from the same
-> source (base policy build or within the same module).  You wouldn't
-> automatically propagate beyond that scope, so if a type in a module is a
-> child of a parent type in the base (or any other previously added
-> module), it would still be constrained to whatever was explicitly
-> specified by the base (or other module) on the parent type.  It merely
-> avoids the need to duplicate specification within the base policy or
-> within a single module when both the parent and the child types are
-> defined within that base or module.
+I was looking into supporting the new policy patterns refpolicy work for 
+policy generation. Looking at many of the patterns, they include a 
+container type, e.g.,
 
-Note btw that the value of such automatic propagation may be minimal for
-a highly modularized, highly parameterized policy (ala apache).
- 
--- 
-Stephen Smalley
-National Security Agency
+create_files_pattern(foo_t, var_log_t, foo_log_t)
 
+This is going to be difficult to generate based on audit logs because 
+there is no way to correlate the directory access with files. An audit 
+log might show the following access denied:
+
+allow foo_t foo_log_t : file create_file_perms;
+allow foo_t var_log_t : dir rw_dir_perms;
+allow foo_t etc_t : dir rw_dir_perms;
+
+There is no real way to determine which of the directory permissions 
+should be paired with the file creation (path is too unreliable to use I 
+think).
+
+Not being able to generate these is not a huge deal, but I think that it 
+exposes a deeper problem. I suggest that these permissions should remain 
+decoupled, as the current patterns imply access that is different from 
+what is actually allowed. For example,
+
+create_files_pattern(foo_t, var_log_t, foo_log_t)
+create_files_pattern(foo_t, etc_t, foo_etc_t)
+
+This - to me - implies that foo_t can create files of type foo_log_t in 
+directories of type var_log_t and files of type foo_etc_t in directories 
+of type etc_t. Of course, that is not what is allowed - foo_t can create 
+either file type in either directory type.
+
+I think that policy writers - even fairly experienced policy writers - 
+are going to be surprised at the "additional" permissions allowed. The 
+old permissions, for example
+
+allow foo_t { var_log_t foo_etc_t } : file create_file_perms;
+allow foo_t { etc_t var_log_t } : dir rw_dir_perms;
+
+much more correctly convey the access that is granted (at least to me) 
+and are easy to generate from audit data.
+
+Comments?
+
+Karl
 
 --
 This message was distributed to subscribers of the selinux mailing list.
