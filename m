@@ -1,49 +1,50 @@
-Message-ID: <45B0F088.2030104@mentalrootkit.com>
-Date: Fri, 19 Jan 2007 11:23:36 -0500
+Message-ID: <45B0F7FA.1000506@mentalrootkit.com>
+Date: Fri, 19 Jan 2007 11:55:22 -0500
 From: Karl MacMillan <kmacmillan@mentalrootkit.com>
 MIME-Version: 1.0
-To: Stephen Smalley <sds@tycho.nsa.gov>
-CC: SELinux Mail List <selinux@tycho.nsa.gov>,
-        Joshua Brindle <jbrindle@tresys.com>
-Subject: Re: [PATCH] add selpolgen
-References: <45ACEE9E.7000709@mentalrootkit.com>	 <1169135113.22731.285.camel@moss-spartans.epoch.ncsc.mil>	 <45AFD027.9070007@mentalrootkit.com>	 <1169214598.22731.508.camel@moss-spartans.epoch.ncsc.mil> <1169222979.22731.567.camel@moss-spartans.epoch.ncsc.mil>
-In-Reply-To: <1169222979.22731.567.camel@moss-spartans.epoch.ncsc.mil>
+To: Joshua Brindle <jbrindle@tresys.com>
+CC: Stephen Smalley <sds@tycho.nsa.gov>, SE Linux <selinux@tycho.nsa.gov>
+Subject: Re: [RFC] 0/4 - Hierarchal apache policy for reference policy
+References: <6FE441CD9F0C0C479F2D88F959B015887B9E64@exchange.columbia.tresys.com>
+In-Reply-To: <6FE441CD9F0C0C479F2D88F959B015887B9E64@exchange.columbia.tresys.com>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Stephen Smalley wrote:
-> On Fri, 2007-01-19 at 08:49 -0500, Stephen Smalley wrote:
->> On Thu, 2007-01-18 at 14:53 -0500, Karl MacMillan wrote:
->>> Stephen Smalley wrote:
->> We can follow whatever practice is normal for python modules.  However,
->> how are those usually packaged?  Separate from the application that uses
->> them?  Or together?  As it stands, this module would become a dependency
->> of audit2allow and thus of policycoreutils; is there any benefit to
->> packaging it separately?
+Joshua Brindle wrote:
+>> From: Karl MacMillan [mailto:kmacmillan@mentalrootkit.com] 
+>>
+>> Joshua Brindle wrote:
+>>> If one added the same rule to another module they'd get a hierarchy 
+>>> violation error, however. So the user would experience different 
+>>> errors depending on how they added the rule to the policy.
+>> I don't follow - I thought that the typing meant that it 
+>> didn't matter where the rule came from, only what the source 
+>> and destination types were. If you added additional rules via 
+>> the module, the target types should have the same type as 
+>> they do in the original module.
+>>
 > 
-> Or conversely, we could remove audit2allow from policycoreutils and put
-> it and this new python module into a single package.  It isn't as though
-> audit2allow is fundamental to system operation anyway.
-> 
+> What I was saying was how it would behave differently if you generated
+> rules for all the parents of a child at build time within a single
+> module. If you automatically did that then adding a rule to a child
+> would get propagated to the parent which would result in an access
+> violation at insert time. If you added the rule from another module it
+> would show up as a hierarchy violation instead.
 
-I think that the separation is desirable and matches current python 
-practice. The sepolgen module is meant to be generic and available to 
-many python programs (which is why it gets installed in python 
-site-packages).
+Ah - I see what you are saying. I was assuming that this would be a 
+development tool manually invoked to aid policy developers. Not 
+something that would always happen as part of the build.
 
-I would rather break policycoreutils into multiple packages to remove 
-the dependency on this for minimal installations. There is a natural 
-division between system / policy management tools (e.g., restorecon, 
-semanage, newrole) and policy debugging / development (audit2allow, 
-audit2why, semodule_link, semodule_expand, and semodule_package).
-
-Maybe selcoreutils (which can eventually be bundled under a single 'sel' 
-command like git / svn) and policydevtools. Distros may want to further 
-divide those packages into graphical and non-graphical.
+Also, I assume that for the most part the container types will be given 
+very broad privileges rather than the fine-grained approach taken with 
+the apache policy. Otherwise chances are that most updates will fail 
+from hierarchy violations because you forgot one small access. In other 
+words, the closer the container type policy to the subtypes the less 
+useful it actually is (because you would just not delegate access to 
+someone else to update it).
 
 Karl
-
 
 --
 This message was distributed to subscribers of the selinux mailing list.
