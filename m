@@ -1,82 +1,135 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id l0JAQFk9009122
-	for <selinux@tycho.nsa.gov>; Fri, 19 Jan 2007 05:26:15 -0500
-Received: from mail.nagafix.co.uk (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l0JAR9TB000564
-	for <selinux@tycho.nsa.gov>; Fri, 19 Jan 2007 10:27:10 GMT
-Received: from [192.168.0.6] (82-45-188-29.cable.ubr02.camd.blueyonder.co.uk [82.45.188.29])
-	(using TLSv1 with cipher DHE-RSA-AES256-SHA (256/256 bits))
-	(No client certificate requested)
-	by mail.nagafix.co.uk (Postfix) with ESMTP id C180943B25
-	for <selinux@tycho.nsa.gov>; Fri, 19 Jan 2007 10:27:06 +0000 (GMT)
-Message-ID: <45B09CFA.5070805@nagafix.co.uk>
-Date: Fri, 19 Jan 2007 10:27:06 +0000
-From: Antoine Martin <antoine@nagafix.co.uk>
-MIME-Version: 1.0
-To: selinux@tycho.nsa.gov
-Subject: 2.6.19.2 Oops
-Content-Type: text/plain; charset=ISO-8859-15; format=flowed
+Subject: installation from scratch problems
+From: Vincenzo Ciaglia <vin@netwosix.org>
+Reply-To: vin@netwosix.org
+To: SELinux@tycho.nsa.gov
+Content-Type: text/plain
+Date: Fri, 19 Jan 2007 12:59:20 +0100
+Message-Id: <1169207960.8700.19.camel@zeroKnowledge>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hi,
+Hello, i'm Vincenzo Ciaglia. 
 
-I tried to upgrade a system which had been running very smoothly for 
-quite some time (enforcing=1), but it just Oopsed with 2.6.19.2, even in 
-non-enforcing mode, I had to use selinux=0 to get anywhere (otherwise 
-the Oops below just scrolled on the console)
+I'm the main developer of Linux Netwosix, a server and security oriented
+GNU/Linux LFS distribution. I was really impressed to the power of
+SELinux so I'd like to give to the next releases the complete support to
+SELinux, for this reason i'm already working on that. I have a good
+knowledge in selinux policy writing but no experiences with "from
+scratch installation".
 
-CONFIG_SECURITY_SELINUX=y
-CONFIG_SECURITY_SELINUX_BOOTPARAM=y
-CONFIG_SECURITY_SELINUX_BOOTPARAM_VALUE=1
-# CONFIG_SECURITY_SELINUX_DISABLE is not set
-CONFIG_SECURITY_SELINUX_DEVELOP=y
-CONFIG_SECURITY_SELINUX_AVC_STATS=y
-CONFIG_SECURITY_SELINUX_CHECKREQPROT_VALUE=1
-# CONFIG_SECURITY_SELINUX_ENABLE_SECMARK_DEFAULT is not set
-# CONFIG_SECURITY_SELINUX_POLICYDB_VERSION_MAX is not set
+So, i have compiled the latest kernel with "Socket and Networking
+Security Hooks" and other "Security Models". Of course with the Ext[3]
+extended attributes and Ext[3] Security Labels options. 
+Everything is ok.
 
-Any help much appreciated.
-Antoine
+After that, i have downloaded the userland packages from the NSA
+website.
 
-[   80.782761] Adding 3911736k swap on /dev/md1.  Priority:-1 extents:1 
-across:3911736k
-[   86.188350] BUG: unable to handle kernel NULL pointer dereference at 
-virtual address 00000000
-[   86.188359]  printing eip:
-[   86.188361] c114e1f3
-[   86.188362] *pde = 00000000
-[   86.188367] Oops: 0002 [#1]
-[   86.221736] CPU:    0
-[   86.221737] EIP:    0060:[<c114e1f3>]    Not tainted VLI
-[   86.221738] EFLAGS: 00010246   (2.6.19.2-skas3-v8.2 #3)
-[   86.375023] EIP is at mls_export_cat+0x33/0xf0
-[   86.428188] eax: 00000000   ebx: c1e78f1c   ecx: c1e78f20   edx: c1e78f1c
-[   86.509404] esi: c1e78f20   edi: 00000000   ebp: f79ffe24   esp: c1e78ef0
-[   86.590617] ds: 007b   es: 007b   ss: 0068
-[   86.639632] Process ip (pid: 1543, ti=c1e78000 task=c1f0a030 
-task.ti=c1e78000)
-[   86.723962] Stack: fffffffe c1e78f10 f79ffe24 f793cd20 c114ac67 
-00000000 00000000 f7c9ac00
-[   86.825204]        f78d1fc0 00000000 00000001 00000000 00000000 
-00000000 c14b0c20 00000002
-[   86.926564]        00000001 00000000 c12f9598 00000000 00000000 
-f793cd20 c1e78f70 0000000c
-[   87.027820] Call Trace:
-[   87.059298]  [<c114ac67>] selinux_netlbl_socket_setsid+0xb7/0x120
-[   87.132410]  [<c12f9598>] __sock_create+0xd8/0x160
-[   87.189944]  [<c12f9658>] sock_create+0x18/0x20
-[   87.244361]  [<c12f998c>] sys_socket+0x1c/0x50
-[   87.297741]  [<c12fa63a>] sys_socketcall+0x9a/0x2b0
-[   87.356315]  [<c1002e35>] sysenter_past_esp+0x56/0x79
-[   87.416966]  =======================
-[   87.459754] Code: c5 a1 04 e0 59 c1 89 1c 24 89 74 24 04 89 d3 89 7c 
-24 08 89 ce 85 c0 75 37 c7 02 00 00 00 00 c7 01 00 00 00 00 31 ff 8b 44 
-24 14 <c7> 00 00 00 00 00 8b 54 24 18 c7 02 00 00 00 00 89 f8 8b 1c 24
-[   87.692380] EIP: [<c114e1f3>] mls_export_cat+0x33/0xf0 SS:ESP 
-0068:c1e78ef0
-[   87.776087]  <1>BUG: unable to handle kernel NULL pointer dereference 
-at virtual address 00000000
+I succesfully compiled the "libsepol-1.14". 
+
+So i tried to compile the "libselinux-1.32" but i get these errors:
+
+--------------
+matchpathcon.lo: In function `set_matchpathcon_flags':
+matchpathcon.c:(.text+0x187): undefined reference to `___tls_get_addr'
+matchpathcon.lo: In function `.L183':
+matchpathcon.c:(.text+0x13c1): undefined reference to `___tls_get_addr'
+matchpathcon.lo: In function `matchpathcon_init_prefix':
+matchpathcon.c:(.text+0x15f3): undefined reference to `___tls_get_addr'
+matchpathcon.lo: In function `matchpathcon':
+matchpathcon.c:(.text+0x2005): undefined reference to `___tls_get_addr'
+matchpathcon.lo: In function `selinux_file_context_verify':
+matchpathcon.c:(.text+0x2417): undefined reference to `___tls_get_addr'
+matchpathcon.lo:matchpathcon.c:(.text+0x246e): more undefined references
+to `___tls_get_addr' follow
+collect2: ld returned 1 exit status
+make[1]: *** [libselinux.so.1] Error 1
+make[1]: Leaving directory `/root/selinux/libselinux-1.32/src'
+make: *** [all] Error 2
+--------------
+
+Of course i can't go ahead because "checkpolicy" needs the libselinux:
+
+--------------
+/usr/bin/ld: cannot find -lselinux
+collect2: ld returned 1 exit status
+make[1]: *** [dispol] Error 1
+make[1]: Leaving directory `/root/selinux/checkpolicy-1.32/test'
+make: *** [all] Error 2
+--------------
+
+And these are the errors of "libsemanage".
+
+--------------
+booleans_activedb.c: In function 'bool_commit_list':
+booleans_activedb.c:94: error: 'SELboolean' undeclared (first use in
+this function)
+booleans_activedb.c:94: error: (Each undeclared identifier is reported
+only once
+booleans_activedb.c:94: error: for each function it appears in.)
+booleans_activedb.c:94: error: 'blist' undeclared (first use in this
+function)
+booleans_activedb.c:113: warning: implicit declaration of function
+'security_set_boolean_list'
+make[1]: *** [booleans_activedb.o] Error 1
+make[1]: Leaving directory `/root/selinux/libsemanage-1.8/src'
+make: *** [all] Error 2
+--------------
+
+These are the "policycoreutils" ones:
+
+--------------
+setfiles.c:516: error: 'MATCHPATHCON_VALIDATE' undeclared (first use in
+this function)
+setfiles.c:516: error: 'MATCHPATHCON_NOTRANS' undeclared (first use in
+this function)
+setfiles.c:549: error: 'MATCHPATHCON_BASEONLY' undeclared (first use in
+this function)
+setfiles.c:643: warning: implicit declaration of function
+'set_matchpathcon_canoncon'
+setfiles.c:656: warning: implicit declaration of function
+'matchpathcon_init'
+setfiles.c:740: warning: implicit declaration of function
+'set_matchpathcon_printf'
+setfiles.c:741: warning: implicit declaration of function
+'matchpathcon_filespec_eval'
+setfiles.c:745: warning: implicit declaration of function
+'matchpathcon_filespec_destroy'
+setfiles.c:751: warning: implicit declaration of function
+'matchpathcon_checkmatches'
+make[1]: *** [setfiles.o] Error 1
+make[1]: Leaving directory `/root/selinux/policycoreutils-1.32/setfiles'
+make: *** [all] Error 1
+--------------
+
+Additional informations:
+
+# gcc -v
+Using built-in specs.
+Target: i686-pc-linux-gnu
+Configured with: ../gcc-4.0.3/configure --prefix=/usr
+--libexecdir=/usr/lib --enable-languages=c,c++,objc
+--enable-threads=posix --enable-__cxa_atexit --enable-clocale=gnu
+--enable-shared --disable-nls --with-x=no
+Thread model: posix
+gcc version 4.0.3
+
+# uname -a
+Linux netwosix 2.6.19.2 #2 SMP Fri Jan 19 13:05:53 UTC 2007 i686
+athlon-4 i386 GNU/Linux
+
+Of course i can't go ahead and start working on relabeling the system. 
+Someone can tell me what i'm missing?
+
+That's all. Excuse me for the long mail.
+Thank you so much! Looking forward to discuss with you.
+
+-- 
+Vincenzo Ciaglia, <vin(at)netwosix(dot)org>
+Linux Netwosix - <www.netwosix.org>
+
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
