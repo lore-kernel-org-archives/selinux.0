@@ -1,49 +1,34 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id l0JDNSYf015226
-	for <selinux@tycho.nsa.gov>; Fri, 19 Jan 2007 08:23:28 -0500
-Received: from mail.nagafix.co.uk (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l0JDONTB025973
-	for <selinux@tycho.nsa.gov>; Fri, 19 Jan 2007 13:24:24 GMT
-Message-ID: <45B0C687.4010707@nagafix.co.uk>
-Date: Fri, 19 Jan 2007 13:24:23 +0000
+Message-ID: <45B0C712.3090802@nagafix.co.uk>
+Date: Fri, 19 Jan 2007 13:26:42 +0000
 From: Antoine Martin <antoine@nagafix.co.uk>
 MIME-Version: 1.0
-To: Paul Moore <paul.moore@hp.com>
-CC: selinux@tycho.nsa.gov
+To: Stephen Smalley <sds@tycho.nsa.gov>
+CC: selinux@tycho.nsa.gov, Paul Moore <paul.moore@hp.com>,
+        James Morris <jmorris@namei.org>
 Subject: Re: 2.6.19.2 Oops
-References: <45B09CFA.5070805@nagafix.co.uk> <200701190818.27289.paul.moore@hp.com>
-In-Reply-To: <200701190818.27289.paul.moore@hp.com>
+References: <45B09CFA.5070805@nagafix.co.uk> <1169212684.22731.488.camel@moss-spartans.epoch.ncsc.mil>
+In-Reply-To: <1169212684.22731.488.camel@moss-spartans.epoch.ncsc.mil>
 Content-Type: text/plain; charset=ISO-8859-15; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Paul Moore wrote:
-> On Friday 19 January 2007 5:27 am, Antoine Martin wrote:
->> I tried to upgrade a system which had been running very smoothly for
->> quite some time (enforcing=1), but it just Oopsed with 2.6.19.2, even in
->> non-enforcing mode, I had to use selinux=0 to get anywhere (otherwise
->> the Oops below just scrolled on the console)
+> Looks like the patch below introduced a bug in the !mls_enabled case for
+> mls_export_cat(), where it unconditionally sets *high and *high_len but
+> selinux_netlbl_socket_setsid() calls it with NULL arguments there:
+> http://marc.theaimsgroup.com/?l=git-commits-head&m=116101502503654&w=2
 > 
-> This looks to be related to NetLabel as the Oops is happening in 
-> mls_export_cat().  Could you do the following in gdb and report the results 
-> so that we can get a better idea of what instruction is causing the NULL 
-> dereference:
+> Seems to be obsoleted by:
+> http://marc.theaimsgroup.com/?l=git-commits-head&m=116516927321105&w=2
 > 
->  (gdb) list *mls_export_cat+0x33
-Not sure how to do this on a running kernel, where do I get the symbols 
-from? assuming they were compiled in (also the running kernel's cmdline 
-has selinux=0)
+> Unless you need NetLabel (i.e. CIPSO labeling of packets, MLS only), you
+> can workaround it by disabling CONFIG_NETLABEL (under Networking
+> options) in your kernel config.
+I don't use Netlabel atm, so I'll disable it and report back.
+(it will take a while as the reboot needs to be scheduled)
 
-> Also, can you tell us what distribution and SELinux policy you are using?
-Gentoo 2005.1/x86:
-libselinux 1.30
-libsemanage 1.6
-libsepol 1.12-r1
-
-> Thanks for reporting this.
-np.
-
+Thanks!
 Antoine
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
