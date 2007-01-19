@@ -1,66 +1,48 @@
-Subject: RE: FW: Current/Future Plans to Support Stacking LSM Modules
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Tom Fortmann <tfortmann@xcapesolutions.net>
-Cc: selinux@tycho.nsa.gov, "'James Morris'" <jmorris@namei.org>
-In-Reply-To: <00a101c73b24$069aacd0$030a0a0a@ACER>
-References: <003801c739a6$461871f0$030a0a0a@ACER>
-	 <1168977133.22731.149.camel@moss-spartans.epoch.ncsc.mil>
-	 <006801c73a73$643b81e0$030a0a0a@ACER>
-	 <1169124492.22731.199.camel@moss-spartans.epoch.ncsc.mil>
-	 <00a101c73b24$069aacd0$030a0a0a@ACER>
-Content-Type: text/plain
-Date: Fri, 19 Jan 2007 10:31:02 -0500
-Message-Id: <1169220662.22731.548.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+Message-ID: <45B0E782.9070102@nagafix.co.uk>
+Date: Fri, 19 Jan 2007 15:45:06 +0000
+From: Antoine Martin <antoine@nagafix.co.uk>
+MIME-Version: 1.0
+To: Antoine Martin <antoine@nagafix.co.uk>
+CC: Stephen Smalley <sds@tycho.nsa.gov>, selinux@tycho.nsa.gov,
+        Paul Moore <paul.moore@hp.com>, James Morris <jmorris@namei.org>
+Subject: Re: 2.6.19.2 Oops
+References: <45B09CFA.5070805@nagafix.co.uk> <1169212684.22731.488.camel@moss-spartans.epoch.ncsc.mil> <45B0C712.3090802@nagafix.co.uk>
+In-Reply-To: <45B0C712.3090802@nagafix.co.uk>
+Content-Type: text/plain; charset=ISO-8859-15; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2007-01-18 at 11:13 -0600, Tom Fortmann wrote:
-> Stephen,
+Disabling Netlabel did the trick.
+Shouldn't that be sent to stable for 2.6.19.3? (it is a oops after all)
+
+Thanks
+Antoine
+
+Antoine Martin wrote:
+>> Looks like the patch below introduced a bug in the !mls_enabled case for
+>> mls_export_cat(), where it unconditionally sets *high and *high_len but
+>> selinux_netlbl_socket_setsid() calls it with NULL arguments there:
+>> http://marc.theaimsgroup.com/?l=git-commits-head&m=116101502503654&w=2
+>>
+>> Seems to be obsoleted by:
+>> http://marc.theaimsgroup.com/?l=git-commits-head&m=116516927321105&w=2
+>>
+>> Unless you need NetLabel (i.e. CIPSO labeling of packets, MLS only), you
+>> can workaround it by disabling CONFIG_NETLABEL (under Networking
+>> options) in your kernel config.
+> I don't use Netlabel atm, so I'll disable it and report back.
+> (it will take a while as the reboot needs to be scheduled)
 > 
-> We are currently working at the netfilter level.  We have a working
-> netfilter module that examines packets in a NF_IP_LOCAL_IN and
-> NF_IP_LOCAL_OUT hook.  The problem with working at this level is the
-> additional complexity involved with altering the data.  Any change in the
-> application data value or length causes changes in the IP and TCP headers.
-> Moving up above layer 3 would eliminate these issues and simplify our
-> design.
-
-Possible options to consider:
-- socket filters (Documentation/networking/filter.txt),
-- application proxies, or
-- LD_PRELOAD of a library that overrides the socket calls.
-
-The first option requires action by the application to set up the filter
-on the socket, so you'd have to modify or wrap the application (e.g.
-using LD_PRELOAD as in the last option), and only filters incoming data.
-Both the first and last options naturally assume that the application is
-benign and well-behaved, vs. mandatory enforcement by something like an
-application proxy or netfilter.
-
-> It looks like the selinux_socket_sock_rcv_skb() hook may give me what I need
-> on the receive side - access to received data after the layers 3 processing
-> is complete.  Can you point me to more detailed information on how this hook
-> works and what can and can't be done to the skb at this time?  Also, is
-> there a similar hook on the transmit side?
-
-The hook was added to check permissions on incoming packets before they
-are queued on the receiving socket.  It was needed because netfilter
-didn't include a hook at the point where the skb is associated with the
-receiving socket, and we needed both to perform a permission check.  It
-is called by sk_filter(), which is also where socket filters are
-applied; see include/net/sock.h.  I suppose one could mutate the data
-there as with socket filters, although that is not the intent of the LSM
-hook.  On the transmit side, we just use netfilter for permission
-checking, as we have all the necessary information available there.
-
-You may want to ask on a mailing list that is more suited to general
-network filtering questions, like netdev or netfilter, as what you are
-trying to do isn't really a good fit for LSM or SELinux.
-
--- 
-Stephen Smalley
-National Security Agency
+> Thanks!
+> Antoine
+> 
+> 
+> -- 
+> This message was distributed to subscribers of the selinux mailing list.
+> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov 
+> with
+> the words "unsubscribe selinux" without quotes as the message.
+> 
 
 
 --
