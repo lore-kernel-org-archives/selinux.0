@@ -1,33 +1,62 @@
-Message-ID: <45B0C712.3090802@nagafix.co.uk>
-Date: Fri, 19 Jan 2007 13:26:42 +0000
-From: Antoine Martin <antoine@nagafix.co.uk>
-MIME-Version: 1.0
-To: Stephen Smalley <sds@tycho.nsa.gov>
-CC: selinux@tycho.nsa.gov, Paul Moore <paul.moore@hp.com>,
-        James Morris <jmorris@namei.org>
-Subject: Re: 2.6.19.2 Oops
-References: <45B09CFA.5070805@nagafix.co.uk> <1169212684.22731.488.camel@moss-spartans.epoch.ncsc.mil>
-In-Reply-To: <1169212684.22731.488.camel@moss-spartans.epoch.ncsc.mil>
-Content-Type: text/plain; charset=ISO-8859-15; format=flowed
+Subject: Re: [PATCH] add selpolgen
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Karl MacMillan <kmacmillan@mentalrootkit.com>
+Cc: SELinux Mail List <selinux@tycho.nsa.gov>,
+        Joshua Brindle <jbrindle@tresys.com>
+In-Reply-To: <45AFD027.9070007@mentalrootkit.com>
+References: <45ACEE9E.7000709@mentalrootkit.com>
+	 <1169135113.22731.285.camel@moss-spartans.epoch.ncsc.mil>
+	 <45AFD027.9070007@mentalrootkit.com>
+Content-Type: text/plain
+Date: Fri, 19 Jan 2007 08:49:58 -0500
+Message-Id: <1169214598.22731.508.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-> Looks like the patch below introduced a bug in the !mls_enabled case for
-> mls_export_cat(), where it unconditionally sets *high and *high_len but
-> selinux_netlbl_socket_setsid() calls it with NULL arguments there:
-> http://marc.theaimsgroup.com/?l=git-commits-head&m=116101502503654&w=2
+On Thu, 2007-01-18 at 14:53 -0500, Karl MacMillan wrote:
+> Stephen Smalley wrote:
+> > On Tue, 2007-01-16 at 10:26 -0500, Karl MacMillan wrote:
+> >> This is a patch (available for download because of size - see url below) 
+> >> to add a python library named selpolgen and a new version of audit2allow 
+> >> that uses this library. This is a minimally changed version of what I 
+> >> have been calling madison.
+> >>
+> >> I am submitting this for inclusion as part of the main selinux 
+> >> distribution. I believe that inclusion here will help make good policy 
+> >> generation tools develop sooner and give a common base for creating new 
+> >> tools.
+> >>
+> >> Questions:
+> >> * I have the library at the top-level of the project - like the C 
+> >> libraries. Is this the best location? What about the name?
+> > 
+> > The top-level location seems sane, but the naming and structure diverges
+> > from the C libraries (e.g. one might expect a libsepolgen with man,
+> > include, src, and tests subdirectories and ChangeLog, COPYING, Makefile,
+> > and VERSION files).
 > 
-> Seems to be obsoleted by:
-> http://marc.theaimsgroup.com/?l=git-commits-head&m=116516927321105&w=2
-> 
-> Unless you need NetLabel (i.e. CIPSO labeling of packets, MLS only), you
-> can workaround it by disabling CONFIG_NETLABEL (under Networking
-> options) in your kernel config.
-I don't use Netlabel atm, so I'll disable it and report back.
-(it will take a while as the reboot needs to be scheduled)
+> * libsepolgen would not match python practice (this is a module not a 
+> library in python terms). I don't feel strongly either way, though, and 
+> the new patch changes this libselgen (see below).
 
-Thanks!
-Antoine
+We can follow whatever practice is normal for python modules.  However,
+how are those usually packaged?  Separate from the application that uses
+them?  Or together?  As it stands, this module would become a dependency
+of audit2allow and thus of policycoreutils; is there any benefit to
+packaging it separately?
+
+> I was trying to use a name that described its use without confusing it 
+> with polgen. What about 'selgen'? Any other ideas (I'd really prefer a 
+> meaningful name).
+
+Not sure that is any less prone to confusion than selpolgen, and it
+conveys less information about the purpose.  So I suppose selpolgen is
+acceptable. 
+
+-- 
+Stephen Smalley
+National Security Agency
 
 
 --
