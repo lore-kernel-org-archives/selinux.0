@@ -1,34 +1,41 @@
-Message-ID: <45B1433F.4030605@mentalrootkit.com>
-Date: Fri, 19 Jan 2007 17:16:31 -0500
-From: Karl MacMillan <kmacmillan@mentalrootkit.com>
-MIME-Version: 1.0
-To: vin@netwosix.org
-CC: Stephen Smalley <sds@tycho.nsa.gov>, SELinux@tycho.nsa.gov
 Subject: Re: installation from scratch problems
-References: <1169207960.8700.19.camel@zeroKnowledge>	 <1169210930.22731.478.camel@moss-spartans.epoch.ncsc.mil>	 <1169243300.26086.5.camel@zeroKnowledge>	 <45B1400F.2010908@mentalrootkit.com> <1169244939.26086.12.camel@zeroKnowledge>
-In-Reply-To: <1169244939.26086.12.camel@zeroKnowledge>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+From: Vincenzo Ciaglia <vin@netwosix.org>
+Reply-To: vin@netwosix.org
+To: Karl MacMillan <kmacmillan@mentalrootkit.com>
+Cc: SELinux@tycho.nsa.gov
+In-Reply-To: <45B1433F.4030605@mentalrootkit.com>
+References: <1169207960.8700.19.camel@zeroKnowledge>
+	 <1169210930.22731.478.camel@moss-spartans.epoch.ncsc.mil>
+	 <1169243300.26086.5.camel@zeroKnowledge>
+	 <45B1400F.2010908@mentalrootkit.com>
+	 <1169244939.26086.12.camel@zeroKnowledge>
+	 <45B1433F.4030605@mentalrootkit.com>
+Content-Type: text/plain
+Date: Fri, 19 Jan 2007 23:23:31 +0100
+Message-Id: <1169245411.26086.18.camel@zeroKnowledge>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Vincenzo Ciaglia wrote:
-> Il giorno ven, 19/01/2007 alle 17.02 -0500, Karl MacMillan ha scritto:
-> 
->> Just a warning. Upstream selinux doesn't treat warnings as errors so 
->> occasionally they creep in. You should back out whatever caused -Werror 
->> to be added to your compile flags.
-> 
-> I used the cvs repo package. So, just for trying, i download the same
-> package (policycoreutils-1.32) from the NSA's pages and it does the
-> trick. No warning and no errors. 
-> 
-> Is it the same package and can i use it without problems ?
-> 
+Il giorno ven, 19/01/2007 alle 17.16 -0500, Karl MacMillan ha scritto:
 
-Depends on which cvs repo you mean. If it is from a distro there are 
-likely to be a few extra patches.
+> Depends on which cvs repo you mean. If it is from a distro there are 
+> likely to be a few extra patches.
 
-Karl
+As suggested from Stephen Smalley i used this:
+
+https://selinux.svn.sourceforge.net/svnroot/selinux/branches/stable/1_0
+selinux-stable
+
+Anyway, everything works fine now. Another question: where can i get the
+latest refpolicy? The Tresys's OSS repository seems to be down just now.
+
+Thank you,
+
+-- 
+Vincenzo Ciaglia, <vin(at)netwosix(dot)org>
+Linux Netwosix - <www.netwosix.org>
+
 
 
 --
