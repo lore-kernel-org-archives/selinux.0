@@ -1,152 +1,134 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id l0JJoqSM002717
-	for <selinux@tycho.nsa.gov>; Fri, 19 Jan 2007 14:50:52 -0500
-Received: from moss-lions.epoch.ncsc.mil (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l0JJpl33004985
-	for <selinux@tycho.nsa.gov>; Fri, 19 Jan 2007 19:51:47 GMT
-Received: from moss-lions.epoch.ncsc.mil (localhost.localdomain [127.0.0.1])
-	by moss-lions.epoch.ncsc.mil (8.13.8/8.13.8) with ESMTP id l0JJl07x018105
-	for <selinux@tycho.nsa.gov>; Fri, 19 Jan 2007 14:47:00 -0500
-Received: (from jwcart2@localhost)
-	by moss-lions.epoch.ncsc.mil (8.13.8/8.13.8/Submit) id l0JJl0fK018104
-	for selinux@tycho.nsa.gov; Fri, 19 Jan 2007 14:47:00 -0500
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id l0IJjCmG016705
-	for <selinux@tycho.nsa.gov>; Thu, 18 Jan 2007 14:45:12 -0500
-Received: from an-out-0708.google.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l0IJk7L4001268
-	for <selinux@tycho.nsa.gov>; Thu, 18 Jan 2007 19:46:07 GMT
-Received: by an-out-0708.google.com with SMTP id d33so152300and
-        for <selinux@tycho.nsa.gov>; Thu, 18 Jan 2007 11:46:06 -0800 (PST)
-Message-ID: <cadfc0e40701181146w56e7df81s1cb4476bde74bcee@mail.gmail.com>
-Date: Thu, 18 Jan 2007 13:46:05 -0600
-From: "Xavier Toth" <txtoth@gmail.com>
-To: "Linda Knippers" <linda.knippers@hp.com>
-Subject: Re: polyinstantiation, what should happen?
-Cc: selinux@tycho.nsa.gov
-In-Reply-To: <45AEB5DC.9060105@hp.com>
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id l0JKoZuV004908
+	for <selinux@tycho.nsa.gov>; Fri, 19 Jan 2007 15:50:35 -0500
+Received: from e32.co.us.ibm.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id l0JKpTU1008570
+	for <selinux@tycho.nsa.gov>; Fri, 19 Jan 2007 20:51:29 GMT
+Received: from d03relay04.boulder.ibm.com (d03relay04.boulder.ibm.com [9.17.195.106])
+	by e32.co.us.ibm.com (8.12.11.20060308/8.12.11) with ESMTP id l0JAo1xq003074
+	for <selinux@tycho.nsa.gov>; Fri, 19 Jan 2007 05:50:01 -0500
+Received: from d03av02.boulder.ibm.com (d03av02.boulder.ibm.com [9.17.195.168])
+	by d03relay04.boulder.ibm.com (8.13.8/8.13.8/NCO v8.2) with ESMTP id l0JKpRHa510836
+	for <selinux@tycho.nsa.gov>; Fri, 19 Jan 2007 13:51:28 -0700
+Received: from d03av02.boulder.ibm.com (loopback [127.0.0.1])
+	by d03av02.boulder.ibm.com (8.12.11.20060308/8.13.3) with ESMTP id l0JKpRdp011267
+	for <selinux@tycho.nsa.gov>; Fri, 19 Jan 2007 13:51:27 -0700
+Received: from [127.0.0.1] (pendarric.austin.ibm.com [9.41.46.140])
+	by d03av02.boulder.ibm.com (8.12.11.20060308/8.12.11) with ESMTP id l0JKpNw9010986
+	for <selinux@tycho.nsa.gov>; Fri, 19 Jan 2007 13:51:27 -0700
+Message-ID: <45B086A1.30008@us.ibm.com>
+Date: Fri, 19 Jan 2007 02:51:45 -0600
+From: Michael C Thompson <thompsmc@us.ibm.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-References: <cadfc0e40701171501j5ebbc57fn6ea9c652fbcc946b@mail.gmail.com>
-	 <45AEB5DC.9060105@hp.com>
+To: SE Linux <selinux@tycho.nsa.gov>
+Subject: [PATCH] Update newrole authors and provide use examples in manpage
+Content-Type: multipart/mixed;
+ boundary="------------090702000608080005020102"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-I changed namespace.conf to use 'level' and created a new user and
-them su'd to that new user 'test' but as you'll see below the
-directory that gets created is simply named 'test'.
+This is a multi-part message in MIME format.
+--------------090702000608080005020102
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
-Jan 18 13:14:55 localhost su: pam_unix(su:session): session opened for
-user test by root(uid=0)
-Jan 18 13:14:55 localhost su: pam_namespace(su:session): open_session - start
-Jan 18 13:14:55 localhost su: pam_namespace(su:session): Parsing
-config file /etc/security/namespace.conf
-Jan 18 13:14:55 localhost su: pam_namespace(su:session): Configured poly dirs:
-Jan 18 13:14:55 localhost su: pam_namespace(su:session): dir='/tmp'
-iprefix='/tmp-inst/' meth=1
-Jan 18 13:14:55 localhost su: pam_namespace(su:session): override user 0
-Jan 18 13:14:55 localhost su: pam_namespace(su:session): override user 3
-Jan 18 13:14:55 localhost su: pam_namespace(su:session): override user 500
-Jan 18 13:14:55 localhost su: pam_namespace(su:session):
-dir='/var/tmp' iprefix='/var/tmp/tmp-inst/' meth=1
-Jan 18 13:14:55 localhost su: pam_namespace(su:session): override user 0
-Jan 18 13:14:55 localhost su: pam_namespace(su:session): override user 3
-Jan 18 13:14:55 localhost su: pam_namespace(su:session): override user 500
-Jan 18 13:14:55 localhost su: pam_namespace(su:session):
-dir='/home/test' iprefix='/home/test/test.inst/' meth=1
-Jan 18 13:14:55 localhost su: pam_namespace(su:session): override user 0
-Jan 18 13:14:55 localhost su: pam_namespace(su:session): override user 3
-Jan 18 13:14:55 localhost su: pam_namespace(su:session): override user 500
-Jan 18 13:14:55 localhost su: pam_namespace(su:session): Set up
-namespace for pid 5761
-Jan 18 13:14:55 localhost su: pam_namespace(su:session): Checking for
-ns override in dir /tmp for uid 503
-Jan 18 13:14:55 localhost su: pam_namespace(su:session): Need poly ns
-for user 503 for dir /tmp
-Jan 18 13:14:55 localhost su: pam_namespace(su:session): Checking for
-ns override in dir /tmp for uid 503
-Jan 18 13:14:55 localhost su: pam_namespace(su:session): Setting poly
-ns for user 503 for dir /tmp
-Jan 18 13:14:55 localhost su: pam_namespace(su:session): cwd is outside /tmp
-Jan 18 13:14:55 localhost su: pam_namespace(su:session): Unmount of
-/tmp failed, Invalid argument
-Jan 18 13:14:55 localhost su: pam_namespace(su:session): Set namespace
-for directory /tmp
-Jan 18 13:14:55 localhost su: pam_namespace(su:session): poly_name test
-Jan 18 13:14:55 localhost su: pam_namespace(su:session): Inst ctxt
-(null) Orig ctxt system_u:object_r:tmp_t:SystemLow-SystemHigh
-Jan 18 13:14:55 localhost su: pam_namespace(su:session): instance_dir
-/tmp-inst/test
-Jan 18 13:14:55 localhost su: pam_namespace(su:session): Checking for
-ns override in dir /var/tmp for uid 503
-Jan 18 13:14:55 localhost su: pam_namespace(su:session): Setting poly
-ns for user 503 for dir /var/tmp
-Jan 18 13:14:55 localhost su: pam_namespace(su:session): cwd is outside /var/tmp
-Jan 18 13:14:55 localhost su: pam_namespace(su:session): Unmount of
-/var/tmp failed, Invalid argument
-Jan 18 13:14:55 localhost su: pam_namespace(su:session): Set namespace
-for directory /var/tmp
-Jan 18 13:14:55 localhost su: pam_namespace(su:session): poly_name test
-Jan 18 13:14:55 localhost su: pam_namespace(su:session): Inst ctxt
-(null) Orig ctxt system_u:object_r:tmp_t:SystemLow-SystemHigh
-Jan 18 13:14:55 localhost su: pam_namespace(su:session): instance_dir
-/var/tmp/tmp-inst/test
-Jan 18 13:14:55 localhost su: pam_namespace(su:session): Checking for
-ns override in dir /home/test for uid 503
-Jan 18 13:14:56 localhost su: pam_namespace(su:session): Setting poly
-ns for user 503 for dir /home/test
-Jan 18 13:14:56 localhost su: pam_namespace(su:session): cwd is
-outside /home/test
-Jan 18 13:14:56 localhost su: pam_namespace(su:session): Unmount of
-/home/test failed, Invalid argument
-Jan 18 13:14:56 localhost su: pam_namespace(su:session): Set namespace
-for directory /home/test
-Jan 18 13:14:56 localhost su: pam_namespace(su:session): poly_name test
-Jan 18 13:14:56 localhost su: pam_namespace(su:session): Inst ctxt
-(null) Orig ctxt root:object_r:user_home_dir_t:SystemLow
-Jan 18 13:14:56 localhost su: pam_namespace(su:session): instance_dir
-/home/test/test.inst/test
-Jan 18 13:14:56 localhost su: pam_namespace(su:session): namespace
-setup ok for pid 5761
+Due to lack of clear documentation, the below patch adds an examples 
+section to the newrole.1 manpage. These examples include changing role, 
+and level (sensitivty only, and both sensitivity and clearance).
 
-On 1/17/07, Linda Knippers <linda.knippers@hp.com> wrote:
-> Xavier Toth wrote:
-> > I'm running the lspp.63 kernel along with the latest pam and newrole
-> > off of Dan Walsh' people page.
-> >
-> > I've configured polyinstantiation but it doesn't work the way I
-> > thought it would so either I don't understand or I've got it
-> > configured wrong. In namespace.conf I've specified that I want context
-> > to be used for the polyinstantiated instance directories but I only
-> > getting the user name. Shouldn't the directory name contain the entire
-> > an context?
->
-> Perhaps.  I think the method field specifies when you want to polyinstantiate,
-> not necessarily what the instance names are, although it makes sense that
-> the directories would be named using the context and the user name.
-> I use "level" instead of "context" on my system and I get directory names that
-> have the full context, including level, plus the user name.  By specifying
-> "level" but I only get a new instance when I change levels, not when I change
-> roles.
->
-> My namespace.conf looks like this, if you want to give that a try:
-> /tmp     /tmp/tmp-inst/         level      root,adm
-> /var/tmp /var/tmp/tmp-inst/     level      root,adm
-> $HOME    /home/home.inst/       level      root,adm
->
-> Do you have any interesting messages in /var/log/secure?  Since you have
-> the the debug option on your pam_namespace.so lines you should see messages
-> when it creates an instance directory.
->
-> -- ljk
->
-> > Also I'm running X so I followed the instructions on the pam_namespace
-> > man page but wasn't sure whether /etc/pam.d/gdm needed unmnt_remnt as
-> > su and newrole do?
-> >
-> > Ted
->
->
+This patch also updates the authors sections of the newrole.1 manpage 
+and the newrole.c source file, listing them in alphabetical order by 
+last name.
+
+Signed-off-by: Michael Thompson <thompsmc@us.ibm.com>
+
+---
+
+
+--------------090702000608080005020102
+Content-Type: text/x-diff;
+ name="newrole-man_author.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="newrole-man_author.patch"
+
+diff -Naur policycoreutils-1.33.12.orig/newrole/newrole.1 policycoreutils-1.33.12/newrole/newrole.1
+--- policycoreutils-1.33.12.orig/newrole/newrole.1	2007-01-11 13:01:39.000000000 -0600
++++ policycoreutils-1.33.12/newrole/newrole.1	2007-01-12 10:15:14.000000000 -0600
+@@ -57,16 +57,45 @@
+ .B --version
+ shows the current version of newrole
+ .PP
++.SH EXAMPLE
++.br
++Changing role:
++   # id -Z
++   staff_u:staff_r:staff_t:SystemLow-SystemHigh
++   # newrole -r sysadm_r
++   # id -Z
++   staff_u:sysadm_r:sysadm_t:SystemLow-SystemHigh
++
++Changing sensitivity only:
++   # id -Z
++   staff_u:sysadm_r:sysadm_t:Unclassified-SystemHigh
++   # newrole -l Secret
++   # id -Z
++   staff_u:sysadm_r:sysadm_t:Secret-SystemHigh
++
++.PP
++Changing sensitivity and clearance:
++   # id -Z
++   staff_u:sysadm_r:sysadm_t:Unclassified-SystemHigh
++   # newrole -l Secret-Secret
++   # id -Z
++   staff_u:sysadm_r:sysadm_t:Secret
++
+ .SH FILES
+ /etc/passwd - user account information
+ .br
+ /etc/shadow - encrypted passwords and age information
++.br
++/etc/selinux/<policy>/contexts/default_type - default types for roles
++.br
+ .SH SEE ALSO
+-.B su
+-(1),
+-.B runas
++.B runcon
+ (1)
+ .SH AUTHORS
+ .nf
+-Tim Fraser (tfraser@tislabs.com) 
+-Anthony Colatrella (amcolat@epoch.ncsc.mil)
++Anthony Colatrella
++Tim Fraser
++Steve Grubb <sgrubb@redhat.com>
++Darrel Goeddel <DGoeddel@trustedcs.com>
++Michael Thompson <mcthomps@us.ibm.com>
++Dan Walsh <dwalsh@redhat.com>
+diff -Naur policycoreutils-1.33.12.orig/newrole/newrole.c policycoreutils-1.33.12/newrole/newrole.c
+--- policycoreutils-1.33.12.orig/newrole/newrole.c	2007-01-11 13:01:39.000000000 -0600
++++ policycoreutils-1.33.12/newrole/newrole.c	2007-01-14 13:56:41.000000000 -0600
+@@ -36,8 +36,14 @@
+  * setuid root, so that it can read the shadow passwd file.
+  * 
+  *
+- * Authors:  Tim Fraser , 
+- *           Anthony Colatrella <amcolat@epoch.ncsc.mil>
++ * Authors:
++ *      Anthony Colatrella <amcolat@epoch.ncsc.mil>
++ *	Tim Fraser
++ *	Steve Grubb <sgrubb@redhat.com>
++ *	Darrel Goeddel <DGoeddel@trustedcs.com>
++ *	Michael Thompson <mcthomps@us.ibm.com>
++ *	Dan Walsh <dwalsh@redhat.com>
++ *
+  * Various bug fixes by Stephen Smalley <sds@epoch.ncsc.mil>
+  *
+  *************************************************************************/
+
+--------------090702000608080005020102--
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
