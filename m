@@ -1,36 +1,47 @@
-Subject: Re: installation from scratch problems
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id l0K9dxvO022946
+	for <selinux@tycho.nsa.gov>; Sat, 20 Jan 2007 04:39:59 -0500
+Received: from vsmtp3.tin.it (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l0K9eset012170
+	for <selinux@tycho.nsa.gov>; Sat, 20 Jan 2007 09:40:55 GMT
+Received: from [192.168.0.3] (87.11.84.53) by vsmtp3.tin.it (7.2.072.1)
+        id 4589478000C1427C for selinux@tycho.nsa.gov; Sat, 20 Jan 2007 10:40:49 +0100
+Subject: SELinux and kernel 2.6.19.2
 From: Vincenzo Ciaglia <vin@netwosix.org>
 Reply-To: vin@netwosix.org
-To: Karl MacMillan <kmacmillan@mentalrootkit.com>
-Cc: SELinux@tycho.nsa.gov
-In-Reply-To: <45B1433F.4030605@mentalrootkit.com>
-References: <1169207960.8700.19.camel@zeroKnowledge>
-	 <1169210930.22731.478.camel@moss-spartans.epoch.ncsc.mil>
-	 <1169243300.26086.5.camel@zeroKnowledge>
-	 <45B1400F.2010908@mentalrootkit.com>
-	 <1169244939.26086.12.camel@zeroKnowledge>
-	 <45B1433F.4030605@mentalrootkit.com>
+To: selinux@tycho.nsa.gov
 Content-Type: text/plain
-Date: Fri, 19 Jan 2007 23:23:31 +0100
-Message-Id: <1169245411.26086.18.camel@zeroKnowledge>
+Date: Sat, 20 Jan 2007 10:40:48 +0100
+Message-Id: <1169286048.7552.14.camel@zeroKnowledge>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Il giorno ven, 19/01/2007 alle 17.16 -0500, Karl MacMillan ha scritto:
+Hello, like i said i had no problems to load SeLinux with a 2.6.14.5
+kernel. 
 
-> Depends on which cvs repo you mean. If it is from a distro there are 
-> likely to be a few extra patches.
+So today i decided to upgrade to the latest 2.6.19.2. I built the kernel
+succesfully but under "Security Options" i can't see the old "NSA
+SELinux Support". Where is it ? How can i give to my system full support
+with this kernel? I added Security Hooks support and security labels
+too.
 
-As suggested from Stephen Smalley i used this:
+So i tried to add in my .config the following lines:
 
-https://selinux.svn.sourceforge.net/svnroot/selinux/branches/stable/1_0
-selinux-stable
+CONFIG_SECURITY_SELINUX=y
+CONFIG_SECURITY_SELINUX_BOOTPARAM=y
+CONFIG_SECURITY_SELINUX_BOOTPARAM_VALUE=1
+CONFIG_SECURITY_SELINUX_DEVELOP=y
+CONFIG_SECURITY_SELINUX_AVC_STATS=y
+CONFIG_SECURITY_SELINUX_CHECKREQPROT_VALUE=1
 
-Anyway, everything works fine now. Another question: where can i get the
-latest refpolicy? The Tresys's OSS repository seems to be down just now.
+But nothing happened. I still have no SELinux support.
 
-Thank you,
+Maybe this is a dumb question, sorry, but i never tried to add the
+SELinux support to one of the latest kernels. And i think there's
+something that i still don't know about this.
+
+Any help would be appreciated. Thank you!
 
 -- 
 Vincenzo Ciaglia, <vin(at)netwosix(dot)org>
