@@ -1,35 +1,49 @@
-Subject: Re: installation from scratch problems
+Subject: Re: SELinux and kernel 2.6.19.2
 From: Stephen Smalley <sds@tycho.nsa.gov>
 To: vin@netwosix.org
-Cc: Karl MacMillan <kmacmillan@mentalrootkit.com>, SELinux@tycho.nsa.gov
-In-Reply-To: <1169244939.26086.12.camel@zeroKnowledge>
-References: <1169207960.8700.19.camel@zeroKnowledge>
-	 <1169210930.22731.478.camel@moss-spartans.epoch.ncsc.mil>
-	 <1169243300.26086.5.camel@zeroKnowledge>
-	 <45B1400F.2010908@mentalrootkit.com>
-	 <1169244939.26086.12.camel@zeroKnowledge>
+Cc: selinux@tycho.nsa.gov, James Morris <jmorris@namei.org>
+In-Reply-To: <1169286048.7552.14.camel@zeroKnowledge>
+References: <1169286048.7552.14.camel@zeroKnowledge>
 Content-Type: text/plain
-Date: Mon, 22 Jan 2007 08:39:44 -0500
-Message-Id: <1169473184.8180.15.camel@moss-spartans.epoch.ncsc.mil>
+Date: Mon, 22 Jan 2007 08:56:33 -0500
+Message-Id: <1169474193.8180.32.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2007-01-19 at 23:15 +0100, Vincenzo Ciaglia wrote:
-> Il giorno ven, 19/01/2007 alle 17.02 -0500, Karl MacMillan ha scritto:
+On Sat, 2007-01-20 at 10:40 +0100, Vincenzo Ciaglia wrote:
+> Hello, like i said i had no problems to load SeLinux with a 2.6.14.5
+> kernel. 
 > 
-> > Just a warning. Upstream selinux doesn't treat warnings as errors so 
-> > occasionally they creep in. You should back out whatever caused -Werror 
-> > to be added to your compile flags.
+> So today i decided to upgrade to the latest 2.6.19.2. I built the kernel
+> succesfully but under "Security Options" i can't see the old "NSA
+> SELinux Support". Where is it ? How can i give to my system full support
+> with this kernel? I added Security Hooks support and security labels
+> too.
 > 
-> I used the cvs repo package. So, just for trying, i download the same
-> package (policycoreutils-1.32) from the NSA's pages and it does the
-> trick. No warning and no errors. 
+> So i tried to add in my .config the following lines:
 > 
-> Is it the same package and can i use it without problems ?
+> CONFIG_SECURITY_SELINUX=y
+> CONFIG_SECURITY_SELINUX_BOOTPARAM=y
+> CONFIG_SECURITY_SELINUX_BOOTPARAM_VALUE=1
+> CONFIG_SECURITY_SELINUX_DEVELOP=y
+> CONFIG_SECURITY_SELINUX_AVC_STATS=y
+> CONFIG_SECURITY_SELINUX_CHECKREQPROT_VALUE=1
+> 
+> But nothing happened. I still have no SELinux support.
+> 
+> Maybe this is a dumb question, sorry, but i never tried to add the
+> SELinux support to one of the latest kernels. And i think there's
+> something that i still don't know about this.
+> 
+> Any help would be appreciated. Thank you!
 
-No, use the svn stable branch as I recommended.  It will be the basis
-for the next nsa.gov release.
+SELinux depends on the following options:  SECURITY_NETWORK (network
+security hooks), AUDIT (basic audit support), NET && INET (network
+support).  It also now selects NETWORK_SECMARK (new security marking
+scheme for per-packet access control, obsoletes old netif/node/port
+per-packet controls).  SECURITY_NETWORK_XFRM (xfrm/IPSEC hooks for
+labeled IPSEC) is optional, as is NETLABEL (CIPSO labeling).
 
 -- 
 Stephen Smalley
