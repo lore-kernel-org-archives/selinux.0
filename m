@@ -1,24 +1,35 @@
-Subject: selinux support on kernel 2.6.19.2 pt.2
-From: Vincenzo Ciaglia <vin@netwosix.org>
-Reply-To: vin@netwosix.org
-To: SELinux@tycho.nsa.gov
+Subject: Re: [PATCH] Update newrole authors and provide use examples in
+	manpage
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Michael C Thompson <thompsmc@us.ibm.com>
+Cc: SE Linux <selinux@tycho.nsa.gov>
+In-Reply-To: <45B086A1.30008@us.ibm.com>
+References: <45B086A1.30008@us.ibm.com>
 Content-Type: text/plain
-Date: Sun, 21 Jan 2007 16:51:12 +0100
-Message-Id: <1169394672.10741.2.camel@zeroKnowledge>
+Date: Mon, 22 Jan 2007 08:28:29 -0500
+Message-Id: <1169472509.8180.5.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Regarding to my previous problem about SeLinux support on Linux Kernel
-2.6.19.2, i wanna say that i solved by patching it with the latest
-2.6.20-rc5 prepatch.
+On Fri, 2007-01-19 at 02:51 -0600, Michael C Thompson wrote:
+> Due to lack of clear documentation, the below patch adds an examples 
+> section to the newrole.1 manpage. These examples include changing role, 
+> and level (sensitivty only, and both sensitivity and clearance).
+> 
+> This patch also updates the authors sections of the newrole.1 manpage 
+> and the newrole.c source file, listing them in alphabetical order by 
+> last name.
+> 
+> Signed-off-by: Michael Thompson <thompsmc@us.ibm.com>
+> 
+> ---
 
-Thank you!
+Your patch was merged earlier upstream, in policycoreutils 1.33.14.
 
 -- 
-Vincenzo Ciaglia, <vin(at)netwosix(dot)org>
-Linux Netwosix - <www.netwosix.org>
-
+Stephen Smalley
+National Security Agency
 
 
 --
