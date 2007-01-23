@@ -1,44 +1,68 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id l0NJl9pG013957
-	for <selinux@tycho.nsa.gov>; Tue, 23 Jan 2007 14:47:09 -0500
-Received: from exchange.columbia.tresys.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with SMTP id l0NJm6ji024889
-	for <selinux@tycho.nsa.gov>; Tue, 23 Jan 2007 19:48:07 GMT
-Date: Tue, 23 Jan 2007 14:48:02 -0500
-Subject: Re: SELinux Symposium Case Studies, WiPs, and BoFs
-From: Chad Sellers <csellers@tresys.com>
-To: "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>
-Message-ID: <C1DBD0A2.1C22F%csellers@tresys.com>
-In-Reply-To: <C1CBD834.1BA51%csellers@tresys.com>
-Mime-version: 1.0
-Content-type: text/plain;
-	charset="US-ASCII"
+Subject: Re: SELinux and LSM chaining.
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Martin_Stoilov@mcafee.com
+Cc: selinux@tycho.nsa.gov
+In-Reply-To: <2069DE2C1E4BD64CABAB75F191A2B993A62730@beaexmb1.corp.nai.org>
+References: <2069DE2C1E4BD64CABAB75F191A2B993A62730@beaexmb1.corp.nai.org>
+Content-Type: text/plain; charset=utf-8
+Date: Tue, 23 Jan 2007 15:38:28 -0500
+Message-Id: <1169584708.15390.68.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-These were due yesterday. If there is anyone out there still considering
-submitting one of these, please let me know ASAP, as we're going to be
-finalizing the list over the next couple of days. There is still space for
-another couple of submissions, but I need to know if you're interested ASAP.
-
-
-On 1/11/07 12:04 PM, "Chad Sellers" <csellers@tresys.com> wrote:
-
-> This is just a reminder to all of you to submit Case Studies,
-> Work-in-Progress Reports (WiPs), and Birds-of-a-Feather Sessions for this
-> year's SELinux Symposium by January 22. These are great opportunities for
-> talking about what's going on in the SELinux community. See
-> http://selinux-symposium.org/2007/callforwipsbofs.php for more information.
-> If you have any questions, feel free to drop me a note.
+On Tue, 2007-01-23 at 12:35 -0800, Martin_Stoilov@McAfee.com wrote:
+> Hello,
 > 
-> Thanks,
-> Chad Sellers
+>  
 > 
+> I have a question about SELinux and LSM chaining. It looks like
+> SELinux hooks support module chaining, but unfortunately not all hooks
+> pass the security requests to the chained module. For example the
+> inode_create hook is implemented like this:
 > 
-> --
-> This message was distributed to subscribers of the selinux mailing list.
-> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
-> the words "unsubscribe selinux" without quotes as the message.
+> static int selinux_inode_create(struct inode *dir, struct dentry
+> *dentry, int mask)
+> 
+> {
+> 
+>     return may_create(dir, dentry, SECCLASS_FILE);
+> 
+> }
+> 
+>  
+> 
+> Instead of:
+> 
+> static int selinux_inode_create(struct inode *dir, struct dentry
+> *dentry, int mask)
+> 
+> {
+> 
+>     Int rc;
+> 
+>     rc = secondary_ops->inode_lcreate(dir, dentry, mask);
+> 
+>     if (rc)
+> 
+>         return rc;
+> 
+>     return may_create(dir, dentry, SECCLASS_FILE);
+> 
+> }
+> 
+>  
+> 
+> Is there any particular reason to implement security module chaining
+> for some operations only? What is the preferred way to hook operations
+> that SELinux don’t pass to the chained module?
+
+You may wish to read the following thread:
+http://marc.theaimsgroup.com/?l=selinux&m=116897135223285&w=2
+
+-- 
+Stephen Smalley
+National Security Agency
 
 
 --
