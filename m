@@ -1,69 +1,34 @@
-Subject: Re: SELinux and LSM chaining.
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Martin_Stoilov@mcafee.com
-Cc: selinux@tycho.nsa.gov
-In-Reply-To: <2069DE2C1E4BD64CABAB75F191A2B993A62730@beaexmb1.corp.nai.org>
-References: <2069DE2C1E4BD64CABAB75F191A2B993A62730@beaexmb1.corp.nai.org>
-Content-Type: text/plain; charset=utf-8
-Date: Tue, 23 Jan 2007 15:38:28 -0500
-Message-Id: <1169584708.15390.68.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+From: Russell Coker <russell@coker.com.au>
+Reply-To: russell@coker.com.au
+To: casey@schaufler-ca.com
+Subject: Re: Current/Future Plans to Support Stacking LSM Modules
+Date: Wed, 24 Jan 2007 10:24:26 +1100
+Cc: Stephen Smalley <sds@tycho.nsa.gov>, selinux@tycho.nsa.gov
+References: <20070118213244.20020.qmail@web36609.mail.mud.yahoo.com>
+In-Reply-To: <20070118213244.20020.qmail@web36609.mail.mud.yahoo.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Message-Id: <200701241024.28721.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2007-01-23 at 12:35 -0800, Martin_Stoilov@McAfee.com wrote:
-> Hello,
-> 
->  
-> 
-> I have a question about SELinux and LSM chaining. It looks like
-> SELinux hooks support module chaining, but unfortunately not all hooks
-> pass the security requests to the chained module. For example the
-> inode_create hook is implemented like this:
-> 
-> static int selinux_inode_create(struct inode *dir, struct dentry
-> *dentry, int mask)
-> 
-> {
-> 
->     return may_create(dir, dentry, SECCLASS_FILE);
-> 
-> }
-> 
->  
-> 
-> Instead of:
-> 
-> static int selinux_inode_create(struct inode *dir, struct dentry
-> *dentry, int mask)
-> 
-> {
-> 
->     Int rc;
-> 
->     rc = secondary_ops->inode_lcreate(dir, dentry, mask);
-> 
->     if (rc)
-> 
->         return rc;
-> 
->     return may_create(dir, dentry, SECCLASS_FILE);
-> 
-> }
-> 
->  
-> 
-> Is there any particular reason to implement security module chaining
-> for some operations only? What is the preferred way to hook operations
-> that SELinux don’t pass to the chained module?
+On Friday 19 January 2007 08:32, Casey Schaufler <casey@schaufler-ca.com> 
+wrote:
+> > and Linden ('76) papers, so let's compare
+> > traditions, shall we?
+>
+> If you like, although we really should have
+> a couple beers and an audience for that.
 
-You may wish to read the following thread:
-http://marc.theaimsgroup.com/?l=selinux&m=116897135223285&w=2
+Casey vs sds at the next SE Linux Symposium dinner?  Should be more exciting 
+than Casey vs Joshua at the first SE Linux Symposium dinner!
 
 -- 
-Stephen Smalley
-National Security Agency
+russell@coker.com.au
+http://etbe.blogspot.com/          My Blog
 
+http://www.coker.com.au/sponsorship.html Sponsoring Free Software development
 
 --
 This message was distributed to subscribers of the selinux mailing list.
