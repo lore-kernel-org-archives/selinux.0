@@ -1,47 +1,91 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id l0OG8iKx017676
-	for <selinux@tycho.nsa.gov>; Wed, 24 Jan 2007 11:08:44 -0500
-Received: from atlrel6.hp.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id l0OG9ZBX011040
-	for <selinux@tycho.nsa.gov>; Wed, 24 Jan 2007 16:09:35 GMT
-Received: from smtp1.fc.hp.com (smtp1.fc.hp.com [15.15.136.127])
-	by atlrel6.hp.com (Postfix) with ESMTP id 9594035476
-	for <selinux@tycho.nsa.gov>; Wed, 24 Jan 2007 11:09:34 -0500 (EST)
-Received: from ldl.fc.hp.com (ldl.fc.hp.com [15.11.146.30])
-	by smtp1.fc.hp.com (Postfix) with ESMTP id 5912912E792
-	for <selinux@tycho.nsa.gov>; Wed, 24 Jan 2007 16:09:34 +0000 (UTC)
-Received: from localhost (ldl.lart [127.0.0.1])
-	by ldl.fc.hp.com (Postfix) with ESMTP id 06EAF13415B
-	for <selinux@tycho.nsa.gov>; Wed, 24 Jan 2007 09:09:34 -0700 (MST)
-Received: from ldl.fc.hp.com ([127.0.0.1])
-	by localhost (ldl [127.0.0.1]) (amavisd-new, port 10024) with ESMTP
-	id 07816-10 for <selinux@tycho.nsa.gov>;
-	Wed, 24 Jan 2007 09:09:29 -0700 (MST)
-Received: from flek.zko.hp.com (flek.zko.hp.com [16.116.113.207])
-	by ldl.fc.hp.com (Postfix) with ESMTP id A1975134143
-	for <selinux@tycho.nsa.gov>; Wed, 24 Jan 2007 09:09:25 -0700 (MST)
-From: Paul Moore <paul.moore@hp.com>
-To: selinux@tycho.nsa.gov
-Subject: Re: Current/Future Plans to Support Stacking LSM Modules
-Date: Wed, 24 Jan 2007 11:09:24 -0500
-References: <20070118213244.20020.qmail@web36609.mail.mud.yahoo.com> <200701241024.28721.russell@coker.com.au>
-In-Reply-To: <200701241024.28721.russell@coker.com.au>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Message-Id: <200701241109.24596.paul.moore@hp.com>
+Subject: Re: SELinux and LSM chaining.
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Martin_Stoilov@mcafee.com
+Cc: selinux@tycho.nsa.gov, James Morris <jmorris@namei.org>,
+        Valdis Kletnieks <Valdis.Kletnieks@vt.edu>,
+        Joshua Brindle <jbrindle@tresys.com>,
+        Eric Paris <eparis@parisplace.org>
+In-Reply-To: <1169584708.15390.68.camel@moss-spartans.epoch.ncsc.mil>
+References: <2069DE2C1E4BD64CABAB75F191A2B993A62730@beaexmb1.corp.nai.org>
+	 <1169584708.15390.68.camel@moss-spartans.epoch.ncsc.mil>
+Content-Type: text/plain; charset=UTF-8
+Date: Wed, 24 Jan 2007 12:11:53 -0500
+Message-Id: <1169658713.15390.114.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tuesday, January 23 2007 6:24 pm, Russell Coker wrote:
-> Casey vs sds at the next SE Linux Symposium dinner?  Should be more
-> exciting than Casey vs Joshua at the first SE Linux Symposium dinner!
+On Tue, 2007-01-23 at 15:38 -0500, Stephen Smalley wrote:
+> On Tue, 2007-01-23 at 12:35 -0800, Martin_Stoilov@McAfee.com wrote:
+> > Hello,
+> > 
+> >  
+> > 
+> > I have a question about SELinux and LSM chaining. It looks like
+> > SELinux hooks support module chaining, but unfortunately not all hooks
+> > pass the security requests to the chained module. For example the
+> > inode_create hook is implemented like this:
+> > 
+> > static int selinux_inode_create(struct inode *dir, struct dentry
+> > *dentry, int mask)
+> > 
+> > {
+> > 
+> >     return may_create(dir, dentry, SECCLASS_FILE);
+> > 
+> > }
+> > 
+> >  
+> > 
+> > Instead of:
+> > 
+> > static int selinux_inode_create(struct inode *dir, struct dentry
+> > *dentry, int mask)
+> > 
+> > {
+> > 
+> >     Int rc;
+> > 
+> >     rc = secondary_ops->inode_lcreate(dir, dentry, mask);
+> > 
+> >     if (rc)
+> > 
+> >         return rc;
+> > 
+> >     return may_create(dir, dentry, SECCLASS_FILE);
+> > 
+> > }
+> > 
+> >  
+> > 
+> > Is there any particular reason to implement security module chaining
+> > for some operations only? What is the preferred way to hook operations
+> > that SELinux don’t pass to the chained module?
+> 
+> You may wish to read the following thread:
+> http://marc.theaimsgroup.com/?l=selinux&m=116897135223285&w=2
 
-Where is Don King when you need him ;)
+Also, with regard to your specific question, we originally only made
+calls to the secondary module where necessary to support trivial
+stacking with the capabilities module.  We later added a few more
+secondary calls upon request to support some other trivial security
+modules, but I'm not clear that they are still being used, and am
+inclined to remove those if I don't hear otherwise.
+
+We may also want to remove the use of secondary_ops altogether from
+SELinux and just hard code direct calls to the cap_ functions, since we
+don't gain any real benefit there (but we would need to take care that
+we still fall back cleanly to capabilities only when selinux is disabled
+at runtime).
+
+And there has been some consideration of replacing LSM's dynamic
+registration with compile-time selection of security module to avoid
+misuse.
 
 -- 
-paul moore
-linux security @ hp
+Stephen Smalley
+National Security Agency
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
