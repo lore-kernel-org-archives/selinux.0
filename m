@@ -1,19 +1,26 @@
-Received: from [144.51.25.121] (moss-spartans [144.51.25.121])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id l0OHVr81021179
-	for <selinux@tycho.nsa.gov>; Wed, 24 Jan 2007 12:31:53 -0500
-Subject: ANN:  Updated SELinux Release
+Subject: Re: libselinux python binding segfault patch
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: selinux@tycho.nsa.gov
+To: Daniel J Walsh <dwalsh@redhat.com>
+Cc: SE Linux <selinux@tycho.nsa.gov>,
+        Karl MacMillan <kmacmillan@mentalrootkit.com>,
+        Joshua Brindle <jbrindle@tresys.com>
+In-Reply-To: <45B7968E.8040106@redhat.com>
+References: <45B7968E.8040106@redhat.com>
 Content-Type: text/plain
-Date: Wed, 24 Jan 2007 12:30:19 -0500
-Message-Id: <1169659820.15390.119.camel@moss-spartans.epoch.ncsc.mil>
+Date: Wed, 24 Jan 2007 12:31:20 -0500
+Message-Id: <1169659880.15390.121.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-An updated SELinux release is available from the NSA web site, see:
-http://www.nsa.gov/selinux/news.cfm#R070123
-http://www.nsa.gov/selinux/code/download5.cfm
+On Wed, 2007-01-24 at 12:25 -0500, Daniel J Walsh wrote:
+> This patch fixes a segfault in the python binding when getfilecon is 
+> called with a non existant file.
+
+Is the bug actually in the python binding or just in the callers?  The
+actual bug report on fedora-selinux-list was for chcat, and chcat wasn't
+checking the return code from selinux.getfilecon and just dereferencing
+the string.
 
 -- 
 Stephen Smalley
