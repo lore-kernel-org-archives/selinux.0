@@ -1,98 +1,104 @@
-Message-ID: <45B7BE11.8050705@redhat.com>
-Date: Wed, 24 Jan 2007 15:14:09 -0500
-From: Daniel J Walsh <dwalsh@redhat.com>
 MIME-Version: 1.0
-To: Stephen Smalley <sds@tycho.nsa.gov>, SE Linux <selinux@tycho.nsa.gov>
-Subject: Fixes for chcat to work better in Large category environment.
-Content-Type: multipart/mixed;
- boundary="------------060104070501060104030307"
+Content-Type: text/plain;
+	charset="us-ascii"
+Subject: RE: SELinux and LSM chaining.
+Date: Wed, 24 Jan 2007 23:58:58 -0500
+Message-ID: <6FE441CD9F0C0C479F2D88F959B015887BA15F@exchange.columbia.tresys.com>
+In-Reply-To: <1169658713.15390.114.camel@moss-spartans.epoch.ncsc.mil>
+From: "Joshua Brindle" <jbrindle@tresys.com>
+To: "Stephen Smalley" <sds@tycho.nsa.gov>, <Martin_Stoilov@mcafee.com>
+Cc: <selinux@tycho.nsa.gov>, "James Morris" <jmorris@namei.org>,
+        "Valdis Kletnieks" <Valdis.Kletnieks@vt.edu>,
+        "Eric Paris" <eparis@parisplace.org>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This is a multi-part message in MIME format.
---------------060104070501060104030307
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+> From: Stephen Smalley [mailto:sds@tycho.nsa.gov] 
+> 
+> On Tue, 2007-01-23 at 15:38 -0500, Stephen Smalley wrote:
+> > On Tue, 2007-01-23 at 12:35 -0800, Martin_Stoilov@McAfee.com wrote:
+> > > Hello,
+> > > 
+> > >  
+> > > 
+> > > I have a question about SELinux and LSM chaining. It looks like 
+> > > SELinux hooks support module chaining, but unfortunately not all 
+> > > hooks pass the security requests to the chained module. 
+> For example 
+> > > the inode_create hook is implemented like this:
+> > > 
+> > > static int selinux_inode_create(struct inode *dir, struct dentry 
+> > > *dentry, int mask)
+> > > 
+> > > {
+> > > 
+> > >     return may_create(dir, dentry, SECCLASS_FILE);
+> > > 
+> > > }
+> > > 
+> > >  
+> > > 
+> > > Instead of:
+> > > 
+> > > static int selinux_inode_create(struct inode *dir, struct dentry 
+> > > *dentry, int mask)
+> > > 
+> > > {
+> > > 
+> > >     Int rc;
+> > > 
+> > >     rc = secondary_ops->inode_lcreate(dir, dentry, mask);
+> > > 
+> > >     if (rc)
+> > > 
+> > >         return rc;
+> > > 
+> > >     return may_create(dir, dentry, SECCLASS_FILE);
+> > > 
+> > > }
+> > > 
+> > >  
+> > > 
+> > > Is there any particular reason to implement security 
+> module chaining 
+> > > for some operations only? What is the preferred way to hook 
+> > > operations that SELinux don't pass to the chained module?
+> > 
+> > You may wish to read the following thread:
+> > http://marc.theaimsgroup.com/?l=selinux&m=116897135223285&w=2
+> 
+> Also, with regard to your specific question, we originally 
+> only made calls to the secondary module where necessary to 
+> support trivial stacking with the capabilities module.  We 
+> later added a few more secondary calls upon request to 
+> support some other trivial security modules, but I'm not 
+> clear that they are still being used, and am inclined to 
+> remove those if I don't hear otherwise.
+> 
 
-Also fixes problem with creating wrong context, by execing semanage 
-rather then using python bindings.
+A least a couple of those are my fault.
 
---------------060104070501060104030307
-Content-Type: text/x-patch;
- name="policycoreutils-chcat.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="policycoreutils-chcat.patch"
+http://marc.theaimsgroup.com/?l=selinux&m=108203498809822&w=2
 
---- nsapolicycoreutils/scripts/chcat	2006-11-16 17:14:27.000000000 -0500
-+++ policycoreutils-1.34.1/scripts/chcat	2007-01-24 14:42:19.000000000 -0500
-@@ -62,12 +62,20 @@
-         for i in newcat[1:]:
-             if i not in cats:
-                 cats.append(i)
-+
-         new_serange = "%s-%s:%s" % (serange[0], top[0], string.join(cats, ","))
--        
-+        if new_serange[-1:] == ":":
-+            new_serange = new_serange[:-1]
-+            
-         if add_ind:
--            logins.add(u, user[0], new_serange)
-+            cmd = "semanage login -a -r %s -s %s %s" % (new_serange, user[0], u)
-         else:
--            logins.modify(u, user[0], new_serange)
-+            cmd = "semanage login -m -r %s -s %s %s" % (new_serange, user[0], u)
-+        rc = commands.getstatusoutput(cmd)
-+        if rc[0] != 0:
-+            print rc[1]
-+            errors += 1
-+
-     return errors
-         
- def chcat_add(orig, newcat, objects,login_ind):
-@@ -133,11 +141,17 @@
-                 cats.remove(i)
- 
-         new_serange = "%s-%s:%s" % (serange[0], top[0], string.join(cats, ","))
-+        if new_serange[-1:] == ":":
-+            new_serange = new_serange[:-1]
-         
-         if add_ind:
--            logins.add(u, user[0], new_serange)
-+            cmd = "semanage login -a -r %s -s %s %s" % (new_serange, user[0], u)
-         else:
--            logins.modify(u, user[0], new_serange)
-+            cmd = "semanage login -m -r %s -s %s %s" % (new_serange, user[0], u)
-+        rc = commands.getstatusoutput(cmd)
-+        if rc[0] != 0:
-+            print rc[1]
-+            errors += 1
-     return errors
-         
- def chcat_remove(orig, newcat, objects, login_ind):
-@@ -198,11 +212,17 @@
-             user = seusers["__default__"]
-         serange = user[1].split("-")
-         new_serange = "%s-%s:%s" % (serange[0],newcat[0], string.join(newcat[1:], ","))
--        
-+        if new_serange[-1:] == ":":
-+            new_serange = new_serange[:-1]
-+
-         if add_ind:
--            logins.add(u, user[0], new_serange)
-+            cmd = "semanage login -a -r %s -s %s %s" % (new_serange, user[0], u)
-         else:
--            logins.modify(u, user[0], new_serange)
-+            cmd = "semanage login -m -r %s -s %s %s" % (new_serange, user[0], u)
-+        rc = commands.getstatusoutput(cmd)
-+        if rc[0] != 0:
-+            print rc[1]
-+            errors += 1
-     return errors
-     
- def chcat_replace(newcat, objects, login_ind):
+I have no seen those used or used them myself in quite some time so I'd
+be fine with them being removed.
 
---------------060104070501060104030307--
+> We may also want to remove the use of secondary_ops 
+> altogether from SELinux and just hard code direct calls to 
+> the cap_ functions, since we don't gain any real benefit 
+> there (but we would need to take care that we still fall back 
+> cleanly to capabilities only when selinux is disabled at runtime).
+> 
+> And there has been some consideration of replacing LSM's 
+> dynamic registration with compile-time selection of security 
+> module to avoid misuse.
+> 
+> --
+> Stephen Smalley
+> National Security Agency
+> 
+> 
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
