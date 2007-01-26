@@ -1,54 +1,66 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id l0QKlWDn021824
-	for <selinux@tycho.nsa.gov>; Fri, 26 Jan 2007 15:47:32 -0500
-Received: from macii.ads-oh.atg.titan.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l0QKmW0N012676
-	for <selinux@tycho.nsa.gov>; Fri, 26 Jan 2007 20:48:32 GMT
-Received: from [192.168.50.32] (macii.ads-oh.atg.titan.com [66.218.141.147])
-	by macii.ads-oh.atg.titan.com (Postfix) with ESMTP id 9E33E146E07
-	for <selinux@tycho.nsa.gov>; Fri, 26 Jan 2007 20:38:14 +0000 (GMT)
+Subject: Re: libselinux python binding segfault patch
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Daniel J Walsh <dwalsh@redhat.com>
+Cc: SE Linux <selinux@tycho.nsa.gov>,
+        Karl MacMillan <kmacmillan@mentalrootkit.com>,
+        Joshua Brindle <jbrindle@tresys.com>
+In-Reply-To: <45B7A80F.9080001@redhat.com>
+References: <45B7968E.8040106@redhat.com>
+	 <1169659880.15390.121.camel@moss-spartans.epoch.ncsc.mil>
+	 <45B79D42.9030103@redhat.com>
+	 <1169661735.15390.131.camel@moss-spartans.epoch.ncsc.mil>
+	 <45B7A80F.9080001@redhat.com>
+Content-Type: text/plain
+Date: Fri, 26 Jan 2007 16:03:36 -0500
+Message-Id: <1169845416.15390.391.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
-Message-Id: <p0600202ac1e0148a87d6@[192.168.50.32]>
-In-Reply-To: <45BA65FC.60705@tresys.com>
-References: <p06002029c1e0096aebf1@[192.168.50.32]>
- <45BA65FC.60705@tresys.com>
-Date: Fri, 26 Jan 2007 15:33:23 -0500
-To: selinux@tycho.nsa.gov
-From: Rosalie Hiebel <rosalie.hiebel@L-3Com.com>
-Subject: Re: semodule problem
-Content-Type: text/plain; charset="us-ascii" ; format="flowed"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
->Rosalie Hiebel wrote:
->>I was able to successfully modify, load, and test policy rules 
->>(using audit2allow to add rules) until I ran into a problem with 
->>one particular rule I tried to add.   After adding this rule
->>
->>    allow testserver_t self:process { setcurrent };
->>
->>then semodule gave me the following error:
->>
->>   libsepol.check_assertion_helper: assertion on line 0 violated by
->>             allow testserver_t testserver_t:process{ setcurrent };
->>   libsepol.check_assertions: 1 assertion violations occurred
->>   libsermanage.semanage_expand_ssandbox:Expand module failed
->>
->>Any clues what caused this?
->>
->>Thanks
-># enabling setcurrent breaks process tranquility.  If you do not
-># know what this means or do not understand the implications of a
-># dynamic transition, you should not be using it!!!
->neverallow { domain -set_curr_context } self:process setcurrent;
->
->This neverallow doesn't let anything use setcurrent unless it has 
->the set_curr_context attribute (assigned using the 
->domain_dyntrans_type interface). You typically shouldn't be using 
->setcurrent anyway, is there something specific you are trying to do?
+On Wed, 2007-01-24 at 13:40 -0500, Daniel J Walsh wrote:
+> Stephen Smalley wrote:
+> > On Wed, 2007-01-24 at 12:54 -0500, Daniel J Walsh wrote:
+> >   
+> >> Stephen Smalley wrote:
+> >>     
+> >>> On Wed, 2007-01-24 at 12:25 -0500, Daniel J Walsh wrote:
+> >>>   
+> >>>       
+> >>>> This patch fixes a segfault in the python binding when getfilecon is 
+> >>>> called with a non existant file.
+> >>>>     
+> >>>>         
+> >>> Is the bug actually in the python binding or just in the callers?  The
+> >>> actual bug report on fedora-selinux-list was for chcat, and chcat wasn't
+> >>> checking the return code from selinux.getfilecon and just dereferencing
+> >>> the string.
+> >>>
+> >>>   
+> >>>       
+> >> It is in the binding.  Basically we we not setting the security context 
+> >> to NULL before calling setfilecon, and then checking if it was null, to 
+> >> figure out success.  The real change is in selinuxswig.i
+> >>
+> >> #python
+> >>  >import selinux
+> >>  >selinux.getfilecon("/notafile")
+> >> Segmentation Fault
+> >>     
+> >
+> > In that case, I think the same issue may apply to other typemaps, e.g.
+> > in semanage.
+> >
+> >   
+> 
+> Better safe then sorry.
+> 
+> Additional initializations in libselinux and libsemanage.
 
-We are trying to have a process change the MLS portion of its context 
-to match that of a socket connection.
+Thanks, merged.
+
+-- 
+Stephen Smalley
+National Security Agency
 
 
 --
