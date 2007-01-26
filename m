@@ -1,38 +1,48 @@
 Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id l0QK8Iij020386
-	for <selinux@tycho.nsa.gov>; Fri, 26 Jan 2007 15:08:18 -0500
-Received: from macii.ads-oh.atg.titan.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id l0QK9IaF005711
-	for <selinux@tycho.nsa.gov>; Fri, 26 Jan 2007 20:09:18 GMT
-Received: from [192.168.50.32] (macii.ads-oh.atg.titan.com [66.218.141.147])
-	by macii.ads-oh.atg.titan.com (Postfix) with ESMTP id A5C74146DFF
-	for <selinux@tycho.nsa.gov>; Fri, 26 Jan 2007 19:59:02 +0000 (GMT)
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id l0QKR0q8020983
+	for <selinux@tycho.nsa.gov>; Fri, 26 Jan 2007 15:27:00 -0500
+Received: from mx1.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id l0QKRxaF009596
+	for <selinux@tycho.nsa.gov>; Fri, 26 Jan 2007 20:27:59 GMT
+Subject: Re: [redhat-lspp] Problem SSH-ing into LSPP system with multiple
+	categories
+From: Tomas Mraz <tmraz@redhat.com>
+To: Kylene Jo Hall <kjhall@us.ibm.com>
+Cc: dwalsh@redhat.com, redhat-lspp@redhat.com, selinux@tycho.nsa.gov
+In-Reply-To: <1169842300.6956.129.camel@localhost.localdomain>
+References: <1169842300.6956.129.camel@localhost.localdomain>
+Content-Type: text/plain
+Date: Fri, 26 Jan 2007 21:27:54 +0100
+Message-Id: <1169843274.3194.10.camel@perun.kabelta.loc>
 Mime-Version: 1.0
-Message-Id: <p06002029c1e0096aebf1@[192.168.50.32]>
-Date: Fri, 26 Jan 2007 14:54:12 -0500
-To: selinux@tycho.nsa.gov
-From: Rosalie Hiebel <rosalie.hiebel@L-3Com.com>
-Subject: semodule problem
-Content-Type: text/plain; charset="us-ascii" ; format="flowed"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-I was able to successfully modify, load, and test policy rules (using 
-audit2allow to add rules) until I ran into a problem with one 
-particular rule I tried to add.   After adding this rule
+On Fri, 2007-01-26 at 12:11 -0800, Kylene Jo Hall wrote:
+> I have been unable to ssh into an LSPP system with multiple categories.
+> 
+> For example the following work:
+> ssh testuser/user_r/s2@localhost
+> ssh testuser/user_r/s2:c0@localhost
+> ssh testuser/user_r/s2:c1@localhost
+> 
+> But these do not:
+> ssh testuser/user_r/s2:c0.c1@localhost
+> ssh testuser/user_r/s2:c0,c1@localhost
+> 
+> Policy version: selinux-policy-mls-2.4.6-28.el5
+> Kernel version: kernel-2.6.18-1.3015.2.1.el5.lspp.63
+> 
+> We have tested this on multiple architectures to no avail.  Any
+> suggestions?
+Could you modify LogLevel in /etc/ssh/sshd_config to DEBUG3 and look
+into the /var/log/secure what messages are there when the login fails?
 
-    allow testserver_t self:process { setcurrent };
+-- 
+Tomas Mraz
+No matter how far down the wrong road you've gone, turn back.
+                                              Turkish proverb
 
-then semodule gave me the following error:
-
-   libsepol.check_assertion_helper: assertion on line 0 violated by
-             allow testserver_t testserver_t:process{ setcurrent };
-   libsepol.check_assertions: 1 assertion violations occurred
-   libsermanage.semanage_expand_ssandbox:Expand module failed
-
-Any clues what caused this?
-
-Thanks
 
 --
 This message was distributed to subscribers of the selinux mailing list.
