@@ -1,31 +1,32 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id l0QJXxoh018878
-	for <selinux@tycho.nsa.gov>; Fri, 26 Jan 2007 14:33:59 -0500
-Received: from exchange.columbia.tresys.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with SMTP id l0QJYwaF026956
-	for <selinux@tycho.nsa.gov>; Fri, 26 Jan 2007 19:34:58 GMT
-Subject: Re: [PATCH 0/8] busybox -- libselinux utilities applets
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id l0QK7nZH020368
+	for <selinux@tycho.nsa.gov>; Fri, 26 Jan 2007 15:07:49 -0500
+Received: from exchange.columbia.tresys.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with SMTP id l0QK8n0N006648
+	for <selinux@tycho.nsa.gov>; Fri, 26 Jan 2007 20:08:49 GMT
+Subject: Re: [PATCH 5/8] busybox -- libselinux utilities applets
 From: "Christopher J. PeBenito" <cpebenito@tresys.com>
 To: KaiGai Kohei <kaigai@kaigai.gr.jp>
 Cc: busybox@busybox.net, selinux@tycho.nsa.gov, rob@landley.net,
         dwalsh@redhat.com, russell@coker.com.au, busybox@kaigai.gr.jp
-In-Reply-To: <45B8C039.10907@kaigai.gr.jp>
-References: <45B8C039.10907@kaigai.gr.jp>
+In-Reply-To: <45B8C25C.6090705@kaigai.gr.jp>
+References: <45B8C039.10907@kaigai.gr.jp>  <45B8C25C.6090705@kaigai.gr.jp>
 Content-Type: text/plain
-Date: Fri, 26 Jan 2007 19:36:33 +0000
-Message-Id: <1169840193.25290.1.camel@sgc.columbia.tresys.com>
+Date: Fri, 26 Jan 2007 20:10:27 +0000
+Message-Id: <1169842227.25290.8.camel@sgc.columbia.tresys.com>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2007-01-25 at 23:35 +0900, KaiGai Kohei wrote:
-> [1/8] busybox-libselinux-01-common.patch
->   The common part of libselinux package
->   - modification of Makefile
->   - add '-lselinux', if CONFIG_SELINUX enabled
+On Thu, 2007-01-25 at 23:44 +0900, KaiGai Kohei wrote:
+> [5/8] busybox-libselinux-05-avcstat.patch
+>   avcstat reports SELinux AVC(Access Vector Cache) statistics.
+>   AVC is a in-kernel data structure to accelerate SELinux's
+>   decision making.
 
-Also need -lsepol, otherwise you'll get missing symbols if you compile
-it static.
+Are you sure this should be added?  It doesn't seem like it would be
+used much.  I don't think most people are even aware that you can get
+stats on the AVC, much less know what to do with them.
 
 -- 
 Chris PeBenito
