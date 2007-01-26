@@ -1,52 +1,54 @@
-Subject: Re: semodule problem
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Joshua Brindle <jbrindle@tresys.com>
-Cc: Rosalie Hiebel <rosalie.hiebel@L-3Com.com>, selinux@tycho.nsa.gov
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id l0QKlWDn021824
+	for <selinux@tycho.nsa.gov>; Fri, 26 Jan 2007 15:47:32 -0500
+Received: from macii.ads-oh.atg.titan.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l0QKmW0N012676
+	for <selinux@tycho.nsa.gov>; Fri, 26 Jan 2007 20:48:32 GMT
+Received: from [192.168.50.32] (macii.ads-oh.atg.titan.com [66.218.141.147])
+	by macii.ads-oh.atg.titan.com (Postfix) with ESMTP id 9E33E146E07
+	for <selinux@tycho.nsa.gov>; Fri, 26 Jan 2007 20:38:14 +0000 (GMT)
+Mime-Version: 1.0
+Message-Id: <p0600202ac1e0148a87d6@[192.168.50.32]>
 In-Reply-To: <45BA65FC.60705@tresys.com>
 References: <p06002029c1e0096aebf1@[192.168.50.32]>
-	 <45BA65FC.60705@tresys.com>
-Content-Type: text/plain
-Date: Fri, 26 Jan 2007 15:40:33 -0500
-Message-Id: <1169844033.15390.389.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+ <45BA65FC.60705@tresys.com>
+Date: Fri, 26 Jan 2007 15:33:23 -0500
+To: selinux@tycho.nsa.gov
+From: Rosalie Hiebel <rosalie.hiebel@L-3Com.com>
+Subject: Re: semodule problem
+Content-Type: text/plain; charset="us-ascii" ; format="flowed"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2007-01-26 at 15:35 -0500, Joshua Brindle wrote:
-> Rosalie Hiebel wrote:
-> > I was able to successfully modify, load, and test policy rules (using 
-> > audit2allow to add rules) until I ran into a problem with one 
-> > particular rule I tried to add.   After adding this rule
-> >
-> >    allow testserver_t self:process { setcurrent };
-> >
-> > then semodule gave me the following error:
-> >
-> >   libsepol.check_assertion_helper: assertion on line 0 violated by
-> >             allow testserver_t testserver_t:process{ setcurrent };
-> >   libsepol.check_assertions: 1 assertion violations occurred
-> >   libsermanage.semanage_expand_ssandbox:Expand module failed
-> >
-> > Any clues what caused this?
-> >
-> > Thanks
-> # enabling setcurrent breaks process tranquility.  If you do not
-> # know what this means or do not understand the implications of a
-> # dynamic transition, you should not be using it!!!
-> neverallow { domain -set_curr_context } self:process setcurrent;
-> 
-> This neverallow doesn't let anything use setcurrent unless it has the 
-> set_curr_context attribute (assigned using the domain_dyntrans_type 
-> interface). You typically shouldn't be using setcurrent anyway, is there 
-> something specific you are trying to do?
+>Rosalie Hiebel wrote:
+>>I was able to successfully modify, load, and test policy rules 
+>>(using audit2allow to add rules) until I ran into a problem with 
+>>one particular rule I tried to add.   After adding this rule
+>>
+>>    allow testserver_t self:process { setcurrent };
+>>
+>>then semodule gave me the following error:
+>>
+>>   libsepol.check_assertion_helper: assertion on line 0 violated by
+>>             allow testserver_t testserver_t:process{ setcurrent };
+>>   libsepol.check_assertions: 1 assertion violations occurred
+>>   libsermanage.semanage_expand_ssandbox:Expand module failed
+>>
+>>Any clues what caused this?
+>>
+>>Thanks
+># enabling setcurrent breaks process tranquility.  If you do not
+># know what this means or do not understand the implications of a
+># dynamic transition, you should not be using it!!!
+>neverallow { domain -set_curr_context } self:process setcurrent;
+>
+>This neverallow doesn't let anything use setcurrent unless it has 
+>the set_curr_context attribute (assigned using the 
+>domain_dyntrans_type interface). You typically shouldn't be using 
+>setcurrent anyway, is there something specific you are trying to do?
 
-And, to clarify, neverallow statements are assertions in the policy that
-are checked whenever it is built, including when modules are added.
-They are helpful in catching errors or unsafe rules.
-
--- 
-Stephen Smalley
-National Security Agency
+We are trying to have a process change the MLS portion of its context 
+to match that of a socket connection.
 
 
 --
