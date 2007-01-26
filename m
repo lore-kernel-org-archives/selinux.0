@@ -1,56 +1,53 @@
-Subject: Re: new postfix-script errors idr_remove
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Antoine Martin <antoine@nagafix.co.uk>
-Cc: Daniel J Walsh <dwalsh@redhat.com>, selinux@tycho.nsa.gov
-In-Reply-To: <45B91E81.6010106@nagafix.co.uk>
-References: <45B8E456.5090501@nagafix.co.uk> <45B9189C.1080807@redhat.com>
-	 <45B91E81.6010106@nagafix.co.uk>
-Content-Type: text/plain
-Date: Fri, 26 Jan 2007 07:24:53 -0500
-Message-Id: <1169814293.15390.269.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id l0QER3QU006024
+	for <selinux@tycho.nsa.gov>; Fri, 26 Jan 2007 09:27:04 -0500
+Received: from smtp.sws.net.au (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id l0QERwb7012900
+	for <selinux@tycho.nsa.gov>; Fri, 26 Jan 2007 14:28:01 GMT
+Received: from localhost (localhost [127.0.0.1])
+	by smtp.sws.net.au (Postfix) with ESMTP id 038CD620DC
+	for <selinux@tycho.nsa.gov>; Sat, 27 Jan 2007 01:27:53 +1100 (EST)
+Received: from smtp.sws.net.au ([127.0.0.1])
+	by localhost (smtp.sws.net.au [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id UUZTovLJvOpa for <selinux@tycho.nsa.gov>;
+	Sat, 27 Jan 2007 01:27:52 +1100 (EST)
+Received: from aeon.coker.com.au (localhost [127.0.0.1])
+	by smtp.sws.net.au (Postfix) with ESMTP id C0906620A8
+	for <selinux@tycho.nsa.gov>; Sat, 27 Jan 2007 01:27:52 +1100 (EST)
+Received: from localhost (localhost [127.0.0.1])
+	by aeon.coker.com.au (Postfix) with ESMTP id 2B5402109E
+	for <selinux@tycho.nsa.gov>; Sat, 27 Jan 2007 01:29:33 +1100 (EST)
+From: Russell Coker <russell@coker.com.au>
+Reply-To: russell@coker.com.au
+To: "SE-Linux" <selinux@tycho.nsa.gov>
+Subject: contributors list
+Date: Sat, 27 Jan 2007 01:29:31 +1100
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
+Message-Id: <200701270129.32894.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2007-01-25 at 21:17 +0000, Antoine Martin wrote:
-> Daniel J Walsh wrote:
-> > Antoine Martin wrote:
-> >> This message just started appearing on one of my servers. Any idea 
-> >> what this means?
-> >>
-> >> [ 1766.037624] audit(1169838474.626:79): avc:  denied  { search } for 
-> >> pid=13983 comm="postfix-script" name="/" dev=devpts ino=1 
-> >> scontext=system_u:system_r:postfix_master_t 
-> >> tcontext=system_u:object_r:devpts_t tclass=dir
-> >> [ 1766.037694] idr_remove called for id=4 which is not allocated.
-> >> [ 1766.037698]  [<c0266075>] sub_remove+0xe5/0xf0
-> >> [ 1766.037710]  [<c0266098>] idr_remove+0x18/0x80
-> >> [ 1766.037715]  [<c02a5b90>] release_dev+0x490/0x6d0
-> >> [ 1766.037727]  [<c02a4186>] tty_ldisc_enable+0x26/0x30
-> >> [ 1766.037731]  [<c02a5297>] init_dev+0x237/0x4e0
-> >> [ 1766.037736]  [<c02a5f0f>] tty_open+0x13f/0x2b0
-> >> [ 1766.037740]  [<c015f692>] chrdev_open+0x52/0x120
-> >> [ 1766.037746]  [<c015f640>] chrdev_open+0x0/0x120
-> >> [ 1766.037750]  [<c015643a>] __dentry_open+0x9a/0x170
-> >> [ 1766.037755]  [<c0156625>] nameidata_to_filp+0x35/0x40
-> >> [ 1766.037759]  [<c015654b>] filp_open+0x3b/0x50
-> >> [ 1766.037762]  [<c01566f5>] get_unused_fd+0x45/0xb0
-> >> [ 1766.037766]  [<c015680d>] do_sys_open+0x3d/0xd0
-> >> [ 1766.037770]  [<c0102ebb>] sysenter_past_esp+0x54/0x75
-> >> [ 1766.038778] audit(1169838474.626:80): avc:  denied  { search } for 
-> (...)
-> > Indicates postfix-script is not able to search /dev/ for pseudo terminals.
-> I was going to just allow that (although I am not too sure why this only 
-> just started now).
-> Why does it come with a stack trace?
+http://www.nsa.gov/selinux/info/contrib.cfm
 
-See:
-http://marc.theaimsgroup.com/?l=selinux&m=112419712132326&w=2
+Is there anyone who is not mentioned in the above list but who deserves a 
+mention?  Don't be shy, feel free to nominate yourself if no-one else does.
+
+I'm not interested in the listing of what each person and organisation 
+contributed (although this is useful for the NSA guys when they next update 
+that page).  I am going to be publishing a list of contributors (just names) 
+in the near future and don't want to miss anyone out.
+
+If you wish to be given credit for your work but don't want to publicly say so 
+on the list then please send a private message to me.  I'll send a summary of 
+all such messages to the NSA guys for the next time they update that page.
 
 -- 
-Stephen Smalley
-National Security Agency
+russell@coker.com.au
+http://etbe.blogspot.com/          My Blog
 
+http://www.coker.com.au/sponsorship.html Sponsoring Free Software development
 
 --
 This message was distributed to subscribers of the selinux mailing list.
