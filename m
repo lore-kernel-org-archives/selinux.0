@@ -1,84 +1,37 @@
-Message-ID: <45BA331B.9090701@trustedcs.com>
-Date: Fri, 26 Jan 2007 10:58:03 -0600
-From: Venkat Yekkirala <vyekkirala@TrustedCS.com>
-MIME-Version: 1.0
-To: davem@davemloft.net, netdev@vger.kernel.org
-CC: selinux@tycho.nsa.gov, eparis@redhat.com, sgrubb@redhat.com,
-        sds@tycho.nsa.gov, jmorris@namei.org, chanson@TrustedCS.com,
-        michal.k.k.piotrowski@gmail.com
-Subject: [PATCH 1/1] selinux: fix 2.6.20-rc6 build when no xfrm
-Content-Type: text/plain; charset=ISO-8859-1
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id l0QJXxoh018878
+	for <selinux@tycho.nsa.gov>; Fri, 26 Jan 2007 14:33:59 -0500
+Received: from exchange.columbia.tresys.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with SMTP id l0QJYwaF026956
+	for <selinux@tycho.nsa.gov>; Fri, 26 Jan 2007 19:34:58 GMT
+Subject: Re: [PATCH 0/8] busybox -- libselinux utilities applets
+From: "Christopher J. PeBenito" <cpebenito@tresys.com>
+To: KaiGai Kohei <kaigai@kaigai.gr.jp>
+Cc: busybox@busybox.net, selinux@tycho.nsa.gov, rob@landley.net,
+        dwalsh@redhat.com, russell@coker.com.au, busybox@kaigai.gr.jp
+In-Reply-To: <45B8C039.10907@kaigai.gr.jp>
+References: <45B8C039.10907@kaigai.gr.jp>
+Content-Type: text/plain
+Date: Fri, 26 Jan 2007 19:36:33 +0000
+Message-Id: <1169840193.25290.1.camel@sgc.columbia.tresys.com>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This patch is an incremental fix to the flow_cache_genid
-patch for selinux that breaks the build of 2.6.20-rc6 when
-xfrm is not configured.
+On Thu, 2007-01-25 at 23:35 +0900, KaiGai Kohei wrote:
+> [1/8] busybox-libselinux-01-common.patch
+>   The common part of libselinux package
+>   - modification of Makefile
+>   - add '-lselinux', if CONFIG_SELINUX enabled
 
-Signed-off-by: Venkat Yekkirala <vyekkirala@TrustedCS.com>
----
- security/selinux/include/xfrm.h |    9 +++++++++
- security/selinux/ss/services.c  |    6 +++---
- 2 files changed, 12 insertions(+), 3 deletions(-)
+Also need -lsepol, otherwise you'll get missing symbols if you compile
+it static.
 
-diff --git a/security/selinux/include/xfrm.h b/security/selinux/include/xfrm.h
-index 161eb57..31929e3 100644
---- a/security/selinux/include/xfrm.h
-+++ b/security/selinux/include/xfrm.h
-@@ -37,6 +37,11 @@ int selinux_xfrm_sock_rcv_skb(u32 sid, s
- int selinux_xfrm_postroute_last(u32 isec_sid, struct sk_buff *skb,
- 			struct avc_audit_data *ad, u8 proto);
- int selinux_xfrm_decode_session(struct sk_buff *skb, u32 *sid, int ckall);
-+
-+static inline void selinux_xfrm_notify_policyload(void)
-+{
-+	atomic_inc(&flow_cache_genid);
-+}
- #else
- static inline int selinux_xfrm_sock_rcv_skb(u32 isec_sid, struct sk_buff *skb,
- 			struct avc_audit_data *ad)
-@@ -55,6 +60,10 @@ static inline int selinux_xfrm_decode_se
- 	*sid = SECSID_NULL;
- 	return 0;
- }
-+
-+static inline void selinux_xfrm_notify_policyload(void)
-+{
-+}
- #endif
- 
- static inline void selinux_skb_xfrm_sid(struct sk_buff *skb, u32 *sid)
-diff --git a/security/selinux/ss/services.c b/security/selinux/ss/services.c
-index ff03933..ca9154d 100644
---- a/security/selinux/ss/services.c
-+++ b/security/selinux/ss/services.c
-@@ -1299,7 +1299,7 @@ int security_load_policy(void *data, siz
- 		avc_ss_reset(seqno);
- 		selnl_notify_policyload(seqno);
- 		selinux_netlbl_cache_invalidate();
--		atomic_inc(&flow_cache_genid);
-+		selinux_xfrm_notify_policyload();
- 		return 0;
- 	}
- 
-@@ -1355,7 +1355,7 @@ #endif
- 	avc_ss_reset(seqno);
- 	selnl_notify_policyload(seqno);
- 	selinux_netlbl_cache_invalidate();
--	atomic_inc(&flow_cache_genid);
-+	selinux_xfrm_notify_policyload();
- 
- 	return 0;
- 
-@@ -1855,7 +1855,7 @@ out:
- 	if (!rc) {
- 		avc_ss_reset(seqno);
- 		selnl_notify_policyload(seqno);
--		atomic_inc(&flow_cache_genid);
-+		selinux_xfrm_notify_policyload();
- 	}
- 	return rc;
- }
+-- 
+Chris PeBenito
+Tresys Technology, LLC
+(410) 290-1411 x150
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
