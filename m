@@ -1,64 +1,39 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id l0TL95Sh032164
-	for <selinux@tycho.nsa.gov>; Mon, 29 Jan 2007 16:09:05 -0500
-Received: from ultra1.univ-paris12.fr (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id l0TLA5F5002134
-	for <selinux@tycho.nsa.gov>; Mon, 29 Jan 2007 21:10:06 GMT
-Message-ID: <45BE6262.5080902@univ-paris12.fr>
-Date: Mon, 29 Jan 2007 22:08:50 +0100
-From: Catalin DIMA <dima@univ-paris12.fr>
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id l0TLEHuN032349
+	for <selinux@tycho.nsa.gov>; Mon, 29 Jan 2007 16:14:17 -0500
+Received: from web51513.mail.yahoo.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with SMTP id l0TLFJUJ002039
+	for <selinux@tycho.nsa.gov>; Mon, 29 Jan 2007 21:15:19 GMT
+Message-ID: <20070129211454.29184.qmail@web51513.mail.yahoo.com>
+Date: Mon, 29 Jan 2007 13:14:54 -0800 (PST)
+From: Steve G <linux_4ever@yahoo.com>
+Subject: Re: missing avc message field names
+To: Stephen Smalley <sds@tycho.nsa.gov>
+Cc: Karl MacMillan <kmacmillan@mentalrootkit.com>, selinux@tycho.nsa.gov,
+        James Morris <jmorris@namei.org>, Eric Paris <eparis@parisplace.org>
+In-Reply-To: <1170099442.8720.145.camel@moss-spartans.epoch.ncsc.mil>
 MIME-Version: 1.0
-To: Karl MacMillan <kmacmillan@mentalrootkit.com>
-CC: selinux@tycho.nsa.gov
-Subject: Re: Problems installing current version of refpolicy with FC6
-References: <45BE44FC.8080303@univ-paris12.fr> <45BE4FC6.4090502@mentalrootkit.com>
-In-Reply-To: <45BE4FC6.4090502@mentalrootkit.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain; charset=iso-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Karl MacMillan wrote:
 
-> Just to check - are you certain that you want the full policy? You may 
-> be able to do the teaching you need with policy modules only.
-
-Do you mean I should compile&load the modular policy ? I certainly would 
-like to do this, as it's supposed to be easily configurable & suitable 
-for experimenting small modules.
-
-> Did you enable mcs? The standard FC6 policy is targeted-mcs and the 
-> presence of the mcs components in the file system labels may be the 
-> cause of your problems.
-
-I tried again this build.conf format :
-
-TYPE = targeted-mcs
-NAME = refpolicy
-DISTRO = redhat
-DIRECT_INITRC=n
-MONOLITHIC=n
-MLS-SENS=16
-MLS_CATS=256
-
-Done make conf, make install and make load, then configured for 
-refpolicy & asked for relabeling, and the system gets stuck...
-
-Btw, forgot to mention the libsepol.sepol_genbools: error while reading 
-/etc/selinx/refpolicy/booleans error...
-
-In permissive refpolicy mode, the only selinux message talks about 
-NetworkManager.
-
-> The unknown boolean messages should be harmless I believe.
+>> But back to the original question, any preference for non-conflicting names?
 >
-> You can extract the build.conf from the policy source rpm as well, 
-> which is likely a good starting point.
+>seresult=
+>seperms=
 
-The problem is the same with the rpm and the bz2...
+OK, consider it done from my end.
 
 Thanks,
-Catalin.
+-Steve
 
+
+ 
+____________________________________________________________________________________
+Now that's room service!  Choose from over 150,000 hotels
+in 45,000 destinations on Yahoo! Travel to find your fit.
+http://farechase.yahoo.com/promo-generic-14795097
 
 --
 This message was distributed to subscribers of the selinux mailing list.
