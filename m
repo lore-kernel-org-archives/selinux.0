@@ -1,32 +1,46 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id l0THgStM021095
-	for <selinux@tycho.nsa.gov>; Mon, 29 Jan 2007 12:42:28 -0500
-Subject: Re: [PATCH 0/8] busybox -- libselinux utilities applets
-From: James Carter <jwcart2@epoch.ncsc.mil>
-Reply-To: jwcart2@epoch.ncsc.mil
-To: KaiGai Kohei <kaigai@kaigai.gr.jp>
-Cc: selinux@tycho.nsa.gov
-In-Reply-To: <45BA1E6A.7090703@kaigai.gr.jp>
-References: <45B8C039.10907@kaigai.gr.jp>  <45BA1E6A.7090703@kaigai.gr.jp>
-Content-Type: text/plain
-Date: Mon, 29 Jan 2007 12:38:11 -0500
-Message-Id: <1170092291.2899.5.camel@moss-lions.epoch.ncsc.mil>
-Mime-Version: 1.0
+Message-ID: <45BE3DDA.4050909@mentalrootkit.com>
+Date: Mon, 29 Jan 2007 13:32:58 -0500
+From: Karl MacMillan <kmacmillan@mentalrootkit.com>
+MIME-Version: 1.0
+To: Steve G <linux_4ever@yahoo.com>
+CC: Stephen Smalley <sds@tycho.nsa.gov>, selinux@tycho.nsa.gov,
+        James Morris <jmorris@namei.org>, Eric Paris <eparis@parisplace.org>
+Subject: Re: missing avc message field names
+References: <49081.83290.qm@web51511.mail.yahoo.com>
+In-Reply-To: <49081.83290.qm@web51511.mail.yahoo.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Sat, 2007-01-27 at 00:29 +0900, KaiGai Kohei wrote:
-> It seems to me that the patch [1/8] was not delivered via SELinux-ML
-> yet, so I try to resend it.
+Steve G wrote:
+>>>> The 4th field could be called "result=".  It has two possible values,
+>>>> "denied" or "granted".
+>>> That could possibly conflict with syscall auditing which has the same
+>>> field. You could be in permissive mode and have denied by syscall
+>>> reports success. Maybe "ares", "avcres", "decision", "dec"? Any
+>>> other suggestions?
+>>>
+>>>> The 6th field could be called "perms=".
+>>> That name is already taken also. "aperms=" ?
+>> Why do you need to de-conflict the field names when they occur in
+>> different types of records (AVC vs. SYSCALL)?
 > 
-> Was it filtered ?
-> I believe this patch is not a spam. :-)
+> I am creating a data dictionary of field names so that when people see a field
+> name, they know exactly what it is, what type of data is in it, and what kinds of
+> messages its likely to show up in. This is also needed for the interpretation of
+> fields so that each type can be interpretted correctly.
+> 
+> In this case, both of the avc fields we are discussing are text, so its not quite
+> as important from the interpretation perspective. But I am trying to be
+> consistent across all message types in order to have a dictionary describing
+> audit fields.
+> 
 
-It doesn't seem to have ever reached majordomo.
+I think that it is easier to have unambiguous names across all message 
+types, particularly if people are trying to correlate data from multiple 
+messages.
 
--- 
-James Carter <jwcart2@epoch.ncsc.mil>
-National Security Agency
+Karl
 
 
 --
