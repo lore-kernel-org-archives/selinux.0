@@ -1,51 +1,33 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id l0THfPaN021035
-	for <selinux@tycho.nsa.gov>; Mon, 29 Jan 2007 12:41:25 -0500
-Received: from mail.atsec.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l0THgQUJ022623
-	for <selinux@tycho.nsa.gov>; Mon, 29 Jan 2007 17:42:27 GMT
-Date: Mon, 29 Jan 2007 11:42:15 -0600
-From: Klaus Weidner <klaus@atsec.com>
-To: Kylene Jo Hall <kjhall@us.ibm.com>
-Cc: Tomas Mraz <tmraz@redhat.com>, redhat-lspp@redhat.com, dwalsh@redhat.com,
-        selinux@tycho.nsa.gov
-Subject: Re: [redhat-lspp] Problem SSH-ing into LSPP system with multiple categories
-Message-ID: <20070129174214.GA9224@w-m-p.com>
-References: <1169842300.6956.129.camel@localhost.localdomain> <1169843274.3194.10.camel@perun.kabelta.loc> <1169844884.6956.132.camel@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1169844884.6956.132.camel@localhost.localdomain>
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id l0THgStM021095
+	for <selinux@tycho.nsa.gov>; Mon, 29 Jan 2007 12:42:28 -0500
+Subject: Re: [PATCH 0/8] busybox -- libselinux utilities applets
+From: James Carter <jwcart2@epoch.ncsc.mil>
+Reply-To: jwcart2@epoch.ncsc.mil
+To: KaiGai Kohei <kaigai@kaigai.gr.jp>
+Cc: selinux@tycho.nsa.gov
+In-Reply-To: <45BA1E6A.7090703@kaigai.gr.jp>
+References: <45B8C039.10907@kaigai.gr.jp>  <45BA1E6A.7090703@kaigai.gr.jp>
+Content-Type: text/plain
+Date: Mon, 29 Jan 2007 12:38:11 -0500
+Message-Id: <1170092291.2899.5.camel@moss-lions.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, Jan 26, 2007 at 12:54:44PM -0800, Kylene Jo Hall wrote:
-> More test data:
+On Sat, 2007-01-27 at 00:29 +0900, KaiGai Kohei wrote:
+> It seems to me that the patch [1/8] was not delivered via SELinux-ML
+> yet, so I try to resend it.
 > 
-> ssh testuer/user_r/s#:c0,c1@localhost works for every value of # between
-> 0 and 15 except 2.
+> Was it filtered ?
+> I believe this patch is not a spam. :-)
 
-I can reproduce this, and it appears to be related to label translations.
+It doesn't seem to have ever reached majordomo.
 
-This is in the /etc/selinux/mls/setrans.conf file:
+-- 
+James Carter <jwcart2@epoch.ncsc.mil>
+National Security Agency
 
-	# Secret level with compartments
-	s2=Secret
-	s2:c0=A
-	s2:c1=B
-
-Commenting out these entries makes login work again.
-
-Failed login:
-
-type=USER_ROLE_CHANGE msg=audit(1170092360.977:951): user pid=2498 uid=0 auid=4294967295 subj=system_u:system_r:sshd_t:s0-s15:c0.c1023 msg='sshd: default-context=staff_u:staff_r:staff_t:s0-s15:c0.c1023 selected-context=staff_u:staff_r:staff_t:Secret:A,B: exe="/usr/sbin/sshd" (hostname=?, addr=?, terminal=? res=failed)'
-
-Successful login (translation commented out):
-
-type=USER_ROLE_CHANGE msg=audit(1170092403.742:991): user pid=2553 uid=0 auid=4294967295 subj=system_u:system_r:sshd_t:s0-s15:c0.c1023 msg='sshd: default-context=staff_u:staff_r:staff_t:s0-s15:c0.c1023 selected-context=staff_u:staff_r:staff_t:s2:c0,c1: exe="/usr/sbin/sshd" (hostname=?, addr=?, terminal=? res=success)'
-
-Is "Secret:A,B" correct syntax?
-
--Klaus
 
 --
 This message was distributed to subscribers of the selinux mailing list.
