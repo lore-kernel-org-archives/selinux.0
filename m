@@ -1,78 +1,64 @@
-Subject: Re: [PATCH] sysctl selinux: Don't look at table->de
+Subject: Re: semodule problem
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-Cc: Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@elte.hu>,
-        tglx@linutronix.de, linux-kernel@vger.kernel.org,
-        selinux@tycho.nsa.gov, jmorris@namei.org,
-        Eric Paris <eparis@parisplace.org>
-In-Reply-To: <m1r6tfq7nv.fsf_-_@ebiederm.dsl.xmission.com>
-References: <200701280106.l0S16CG3019873@shell0.pdx.osdl.net>
-	 <20070127172410.2b041952.akpm@osdl.org>
-	 <1169972718.17469.164.camel@localhost.localdomain>
-	 <20070128003549.2ca38dc8.akpm@osdl.org> <20070128093358.GA2071@elte.hu>
-	 <20070128095712.GA6485@elte.hu> <20070128100627.GA8416@elte.hu>
-	 <20070128104548.a835d859.akpm@osdl.org>
-	 <m1r6tfq7nv.fsf_-_@ebiederm.dsl.xmission.com>
+To: Rosalie Hiebel <rosalie.hiebel@L-3Com.com>
+Cc: selinux@tycho.nsa.gov, Karl MacMillan <kmacmillan@mentalrootkit.com>,
+        Joshua Brindle <jbrindle@tresys.com>
+In-Reply-To: <p0600202ac1e0148a87d6@[192.168.50.32]>
+References: <p06002029c1e0096aebf1@[192.168.50.32]>
+	 <45BA65FC.60705@tresys.com>  <p0600202ac1e0148a87d6@[192.168.50.32]>
 Content-Type: text/plain
-Date: Mon, 29 Jan 2007 08:04:26 -0500
-Message-Id: <1170075866.8720.15.camel@moss-spartans.epoch.ncsc.mil>
+Date: Mon, 29 Jan 2007 08:12:10 -0500
+Message-Id: <1170076330.8720.24.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Sun, 2007-01-28 at 12:21 -0700, Eric W. Biederman wrote:
-> With the sysctl cleanups sysctl is not really a part of proc
-> it just shows up there, and any path based approach will not
-> adequately describe the data as sysctl is essentially a
-> union mount underneath the covers.  As designed this mechanism
-> is viewer dependent so trying to be path based gets even worse.
+On Fri, 2007-01-26 at 15:33 -0500, Rosalie Hiebel wrote:
+> >Rosalie Hiebel wrote:
+> >>I was able to successfully modify, load, and test policy rules 
+> >>(using audit2allow to add rules) until I ran into a problem with 
+> >>one particular rule I tried to add.   After adding this rule
+> >>
+> >>    allow testserver_t self:process { setcurrent };
+> >>
+> >>then semodule gave me the following error:
+> >>
+> >>   libsepol.check_assertion_helper: assertion on line 0 violated by
+> >>             allow testserver_t testserver_t:process{ setcurrent };
+> >>   libsepol.check_assertions: 1 assertion violations occurred
+> >>   libsermanage.semanage_expand_ssandbox:Expand module failed
+> >>
+> >>Any clues what caused this?
+> >>
+> >>Thanks
+> ># enabling setcurrent breaks process tranquility.  If you do not
+> ># know what this means or do not understand the implications of a
+> ># dynamic transition, you should not be using it!!!
+> >neverallow { domain -set_curr_context } self:process setcurrent;
+> >
+> >This neverallow doesn't let anything use setcurrent unless it has 
+> >the set_curr_context attribute (assigned using the 
+> >domain_dyntrans_type interface). You typically shouldn't be using 
+> >setcurrent anyway, is there something specific you are trying to do?
 > 
-> However the permissions in sys_sysctl are currently immutable
-> and going through proc does not change the permission checks
-> when accessing sysctl.  So we might as well stick with the well
-> defined sysctl sid, as that is what selinux uses when proc is
-> not compiled in.
-> 
-> I.e.  I see no hope for salvaging the selinux_proc_get_sid call
-> in selinux_sysctl so I'm removing it.
-> 
-> Signed-off-by: Eric W. Biederman <ebiederm@xmission.com>
-> ---
->  security/selinux/hooks.c |    8 ++------
->  1 files changed, 2 insertions(+), 6 deletions(-)
-> 
-> diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-> index 7b38372..3a36057 100644
-> --- a/security/selinux/hooks.c
-> +++ b/security/selinux/hooks.c
-> @@ -1438,12 +1438,8 @@ static int selinux_sysctl(ctl_table *table, int op)
->  
->  	tsec = current->security;
->  
-> -	rc = selinux_proc_get_sid(table->de, (op == 001) ?
-> -	                          SECCLASS_DIR : SECCLASS_FILE, &tsid);
-> -	if (rc) {
-> -		/* Default to the well-defined sysctl SID. */
-> -		tsid = SECINITSID_SYSCTL;
-> -	}
-> +	/* Use the well-defined sysctl SID. */
-> +	tsid = SECINITSID_SYSCTL;
->  
->  	/* The op values are "defined" in sysctl.c, thereby creating
->  	 * a bad coupling between this module and sysctl.c */
+> We are trying to have a process change the MLS portion of its context 
+> to match that of a socket connection.
 
-NAK.  Mapping all sysctls to a single security label prevents any kind
-of fine-grained security on sysctls, and current policies already make
-use of the current distinctions to limit access to particular sets of
-sysctls to particular processes.  As is, I'd expect breakage of current
-systems running SELinux from this patch, because (confined) processes
-that formerly only required access to specific sysctl labels will
-suddenly run into denials on the generic fallback label.
+Hi,
 
-If the ctl_table supplied more information about the functional purpose
-and the security sensitivity of the sysctl, then we could leverage that
-information instead, as long as we can at least derive the current
-labelings from that information for compatibility.
+It would be preferable if you used an exec-based transition instead, as
+noted in the setcon(3) man page:
+"Note  that use of this function requires that the entire application be
+trusted to maintain any desired separation  between  the  old  and  new
+security contexts, unlike exec-based transitions performed via
+setexeccon(3).  When possible, decompose your applicaiton and use
+setexeccon() and execve() instead."
+
+Could you use xinetd with its labeled networking support to launch your
+application in the right level based on the client?  Then you don't need
+to trust your application to maintain multi-level separation; that can
+be ensured by the operating system's confinement of each process at its
+level.
 
 -- 
 Stephen Smalley
