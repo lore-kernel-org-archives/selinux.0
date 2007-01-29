@@ -1,63 +1,75 @@
-Message-ID: <45BE0B8D.4080401@mentalrootkit.com>
-Date: Mon, 29 Jan 2007 09:58:21 -0500
-From: Karl MacMillan <kmacmillan@mentalrootkit.com>
-MIME-Version: 1.0
-To: Stephen Smalley <sds@tycho.nsa.gov>
-CC: Steve G <linux_4ever@yahoo.com>, selinux@tycho.nsa.gov,
-        James Morris <jmorris@namei.org>, Eric Paris <eparis@parisplace.org>
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id l0TF8dtr013546
+	for <selinux@tycho.nsa.gov>; Mon, 29 Jan 2007 10:08:39 -0500
+Received: from web51505.mail.yahoo.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with SMTP id l0TF9fxX027653
+	for <selinux@tycho.nsa.gov>; Mon, 29 Jan 2007 15:09:41 GMT
+Message-ID: <20070129150941.41400.qmail@web51505.mail.yahoo.com>
+Date: Mon, 29 Jan 2007 07:09:41 -0800 (PST)
+From: Steve G <linux_4ever@yahoo.com>
 Subject: Re: missing avc message field names
-References: <20070129141019.98242.qmail@web51502.mail.yahoo.com> <1170081328.8720.63.camel@moss-spartans.epoch.ncsc.mil>
+To: Stephen Smalley <sds@tycho.nsa.gov>
+Cc: selinux@tycho.nsa.gov, James Morris <jmorris@namei.org>,
+        Eric Paris <eparis@parisplace.org>,
+        Karl MacMillan <kmacmillan@mentalrootkit.com>
 In-Reply-To: <1170081328.8720.63.camel@moss-spartans.epoch.ncsc.mil>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Stephen Smalley wrote:
-> On Mon, 2007-01-29 at 06:10 -0800, Steve G wrote:
->> Hi,
->>
->> I am in the process of working on the audit parsing library. The specifications
->> for the parser have been posted for about a year:
->>
->> http://people.redhat.com/sgrubb/audit/audit-parse.txt
->>
->> In order to allow bindings in many programming languages, it was decided to
->> abstract much of the audit format and just present an opaque API that presents
->> the data as name/value pairs that can be iterated through. So far, everything is
->> working fine for all audit messages except AVCs. The reason being is that there
->> are fields in the record that do not have a name. For example:
->>
->> type=AVC msg=audit(1169743468.302:3604): avc:  denied  { sys_resource } for 
->> pid=4002 comm="semodule" capability=24 scontext=system_u:system_r:semanage_t:s0
->> tcontext=system_u:system_r:semanage_t:s0 tclass=capability
->>
->> The parser uses ' ' as the separator. So the 4th field is denied al by itself.
->> The 6th field is sys_resource all by itself. Currently the parser throws those
->> fields away because they do not follow the name=value convention. But I think
->> they are fields that we really want to keep.
->>
->> Would anybody object to making these follow the name=value format?
->>
->> If this is impossible, I can special-case AVCs and pick out the 4th and 6th
->> fields. But the API will follow name/value convention. So, what would everyone
->> want to call the 4th & 6th field's names?
-> 
-> I don't think it is "impossible", but it would require updating of e.g.
-> audit2allow, audit2why, madison/sepolgen, setroubleshoot and seaudit
-> (setools).
-> 
+>I don't think it is "impossible", but it would require updating of e.g.
+>audit2allow, audit2why, madison/sepolgen, setroubleshoot and seaudit
+>(setools).
 
-And if the library doesn't handle old format it makes it hard to choose 
-it for a project. In madison I wrote a small parsing library that 
-handles syslog and auditd logs - I can't imagine dropping that for the 
-audit library if it would mean losing compatibility for everything 
-before this format change (i.e., all currently shipping selinux systems).
+At some point, I'm hoping all those tools can migrate to this new API. This is to
+insulate them from other changes that are coming like zlib compression and/or
+binary formats.
 
-I'd rather the audit parsing library make it easier to preserve 
-backwards compatibility with old log formats rather than harder 
-(including audit messages that show up in syslog).
+>Are you proposing changing the raw kernel output format as well, or just
+>the auditd-generated output format?
 
-Karl
+The audit daemon shouldn't really do any changing. It really should just log
+exactly what it gets. If we agree that this can be changed, what we could do is
+wait until the next kernel development cycle and then make this change (this
+allows for some migration time). I can special case the avc message for a while
+so there is some backwards compatibility.
+
+>The 4th field could be called "result=".  It has two possible values,
+>"denied" or "granted".
+
+That could possibly conflict with syscall auditing which has the same field. You
+could be in permissive mode and have denied by syscall reports success. Maybe
+"ares", "avcres", "decision", "dec"? Any other suggestions?
+
+>The 6th field could be called "perms=".
+
+That name is already taken also. "aperms=" ?
+
+>Its value is a space separated list, presently delimited by { } brackets.  I
+>suppose it could be comma separated and space delimited instead if that matters.
+
+Yes that would be nice.
+
+>"for" could likely be dropped from the message altogether.
+>
+>"avc:" is redundant with type=AVC, but we don't get the latter in the
+>raw kernel output,
+
+No intention to change those. They get dropped by virtue of not having a '='.
+
+>so it is useful for messages emitted when auditd is not running (either before 
+>auditd starts, after it exits, or when not using auditd at all).
+
+Thanks,
+-Steve
+
+
+ 
+____________________________________________________________________________________
+Expecting? Get great news right away with email Auto-Check. 
+Try the Yahoo! Mail Beta.
+http://advision.webevents.yahoo.com/mailbeta/newmail_tools.html 
 
 --
 This message was distributed to subscribers of the selinux mailing list.
