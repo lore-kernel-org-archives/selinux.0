@@ -1,95 +1,84 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id l0TNNcJp004184
-	for <selinux@tycho.nsa.gov>; Mon, 29 Jan 2007 18:23:38 -0500
-Received: from ultra1.univ-paris12.fr (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id l0TNObME001184
-	for <selinux@tycho.nsa.gov>; Mon, 29 Jan 2007 23:24:38 GMT
-From: "Catalin DIMA" <dima@univ-paris12.fr>
-To: Karl MacMillan <kmacmillan@mentalrootkit.com>,
-        Catalin DIMA <dima@univ-paris12.fr>
-Cc: selinux@tycho.nsa.gov, Daniel J Walsh <dwalsh@redhat.com>
-Subject: Re: Problems installing current version of refpolicy with FC6
-Date: Tue, 30 Jan 2007 00:24:27 +0100
-Message-Id: <20070129225708.M77854@ssl.univ-paris12.fr>
-In-Reply-To: <45BE68BF.3030607@mentalrootkit.com>
-References: <45BE44FC.8080303@univ-paris12.fr> <45BE4FC6.4090502@mentalrootkit.com> <45BE6262.5080902@univ-paris12.fr> <45BE68BF.3030607@mentalrootkit.com>
+Message-ID: <45BE87E0.5090109@tycho.nsa.gov>
+Date: Mon, 29 Jan 2007 18:48:48 -0500
+From: Eamon Walsh <ewalsh@tycho.nsa.gov>
+Reply-To: ewalsh@tycho.nsa.gov
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset=iso-8859-1
+To: Steve Grubb <sgrubb@redhat.com>
+CC: Karl MacMillan <kmacmill@redhat.com>, linux-audit@redhat.com,
+        Steve G <linux_4ever@yahoo.com>, selinux@tycho.nsa.gov
+Subject: Re: missing avc message field names
+References: <20070129185542.32977.qmail@web51502.mail.yahoo.com> <200701291556.37235.sgrubb@redhat.com> <45BE6410.9050604@redhat.com> <200701291749.21897.sgrubb@redhat.com>
+In-Reply-To: <200701291749.21897.sgrubb@redhat.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 29 Jan 2007 16:35:59 -0500, Karl MacMillan wrote
-> Could you elaborate on where it gets stuck. Does the labeling 
-> happen? 
 
-No, it crashes before labeling, just after starting udev and the 2nd service
-(don't remember the name, I just left home...).
+>>>> Steve G wrote:
+>>>>         
+> I'd also like to make sure that all AVCs really are AVCs. I think there are 
+> some error messages that come out as AVCs when they should be SE_ERR or 
+> USER_SE_ERR.
+>
+>   
+This is a separate issue, this results from the userspace AVC's logging 
+callback not having a type field.  I'm aware of this problem and willing 
+to fix it but I'd like to get a clear picture of what the final auditing 
+format will be first, so I'm glad this discussion is taking place.
+> You already have them split out...or did you totally skip AUDIT_USER_AVC? So, 
+> you already have to solve the problem so why not generalize the solution? The 
+> parsing API should be able to help with this. If you tell it to get all the 
+> different types and they don't exist, you don't get a hit except the ones 
+> that do exist.
+>
+>   
+My point here was simply to warn in advance that userspace object 
+managers will in general introduce widely varying fields to their AVC 
+messages and that the auditing record format should be equipped to deal 
+with that.  Who knows what types of objects will appear in these 
+messages in the future: there might be SELinux-enhanced e-mail clients, 
+office applications, file managers in the future.  Making the dictionary 
+easily extensible now will likely pay off later and the prefix idea is a 
+way to do that.
 
-> You might try relabeling in permissive.
+As far as binary records go, if that is the future direction then I 
+don't see why the disk space argument is being made for not having a 
+prefix.  Presumably in binary form the keywords will  be assigned 
+numbers that are fixed size, so that the length of the string 
+representation shouldn't matter.  And even in text form if the logs are 
+compressed then the length issue will be mediated.
+>>     
+> I doubt there very many security related pieces of information that is not 
+> already in the dictionary. There are a finite number of security objects and 
+> their attributes.
+>
+>   
+Again I think that the audit system should support future expansion if 
+it's going to be the new way for handling AVC's and other security events.
+>> And what about third-party tools that are security critical?
+>>     
+>
+> They have the TRUSTED_APP message type and they can put anything in that they 
+> want. I consider that one completely freestyle.
+>
+>   
+How does this work with binary records?  How will these messages be 
+searched?
+> Nearly all names are unique (and the problem should be solved when I code up 
+> seperm and seresults). Adding more letters to the name eats the diskspace. We 
+> only do it when necessary. That is what drives the choice of "res" instead 
+> of "results" for the audit system.
+>   
 
-I suspect it's not the relabeling process, though I have to check it back
-(tomorrow...)
+I do think it should be selinux.perms, selinux.result and the other AVC 
+stuff should be selinux.foo.  These are long names I concede but they 
+are clearer and log size is already an issue anyway, moving to 
+compressed or binary will solve the problem.
+>   
 
-> > Btw, forgot to mention the libsepol.sepol_genbools: error while reading 
-> > /etc/selinx/refpolicy/booleans error...
-> >
-> 
-> In permissive or enforcing?
-
-Enforcing.
-
-> > In permissive refpolicy mode, the only selinux message talks about 
-> > NetworkManager.
-> >
-> 
-> Just to clarify, things work fine in permissive mode and you are 
-> only getting a single AVC message, correct? 
-
-Yes, at least during the booting process. I think I also did a setfiles check
-in permissive, and everything was ok (to be checked tomorrow again).
-
-> Could you check 
-> /var/log/messages and /var/log/audit/audit.log for avc messages 
-> after a permissive boot. Also check the selinux messages in dmesg 
-> for errors.
-
-The machine on which I noticed the avc:denied message about the NetworkManager
-does not have setools installed -- I then only looked at /var/log/messages.
-Hope I did not forget what machine I was working on...
-
-> >> The unknown boolean messages should be harmless I believe.
-> >>
-> >> You can extract the build.conf from the policy source rpm as well, 
-> >> which is likely a good starting point.
-> > 
-> > The problem is the same with the rpm and the bz2...
-> >
-> 
-> Not certain what you mean here - the source rpm or the binary rpm? I 
-> was suggesting that you rebuild refpolicy using the configuration 
-> from the source rpm - which means extracting the correct build.conf, 
-> modules.conf, and booleans.conf, seusers, and users_extra files and 
-> installing the in the source tree. You can read the spec file to see 
-> how this is done during the build process.
-
-I meant the source rpm. Tried to install both from source rpm and bz2 and both
-lead to the same problem. It does not seem to be a problem with
-missing/misplaced source files, no problem occurs at compile time.
-
-I'll try to do a neat reinstallation of FC6 and then a reinstallation of
-refpolicy sources, the machines are used for many other teaching purposes by
-different people and God only knows what bazaar is inside... though nobody
-else tried to install/do anything about/against selinux...
-
-Btw, during setools installation on one of the machines, I also encountered a
-problem : the need to enable text relocation for libqpol. Is this normal ? The
-problem seems to recur every time I do a relabel to targeted (in order to put
-back the system in a "stable state") -- that means, after relabeling,
-launching apol issues again an avc:denied about text relocation.
-
-Catalin.
-
+-- 
+Eamon Walsh <ewalsh@tycho.nsa.gov>
+National Security Agency
 
 
 --
