@@ -1,223 +1,59 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id l0TE5fGd010933
-	for <selinux@tycho.nsa.gov>; Mon, 29 Jan 2007 09:05:41 -0500
-Received: from an-out-0708.google.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l0TE6hfV013078
-	for <selinux@tycho.nsa.gov>; Mon, 29 Jan 2007 14:06:43 GMT
-Received: by an-out-0708.google.com with SMTP id d33so470603and
-        for <selinux@tycho.nsa.gov>; Mon, 29 Jan 2007 06:06:43 -0800 (PST)
-Message-ID: <45BDFF61.3050604@kaigai.gr.jp>
-Date: Mon, 29 Jan 2007 23:06:25 +0900
-From: KaiGai Kohei <kaigai@kaigai.gr.jp>
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id l0TEAA7d011112
+	for <selinux@tycho.nsa.gov>; Mon, 29 Jan 2007 09:10:10 -0500
+Received: from web51502.mail.yahoo.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with SMTP id l0TEBCxX013162
+	for <selinux@tycho.nsa.gov>; Mon, 29 Jan 2007 14:11:12 GMT
+Message-ID: <20070129141019.98242.qmail@web51502.mail.yahoo.com>
+Date: Mon, 29 Jan 2007 06:10:18 -0800 (PST)
+From: Steve G <linux_4ever@yahoo.com>
+Subject: missing avc message field names
+To: selinux@tycho.nsa.gov
 MIME-Version: 1.0
-To: Denis Vlasenko <vda.linux@googlemail.com>
-CC: busybox@busybox.net, selinux@tycho.nsa.gov, russell@coker.com.au,
-        rob@landley.net, busybox@kaigai.gr.jp
-Subject: Re: [PATCH 4/8] busybox -- libselinux utilities applets
-References: <45B8C039.10907@kaigai.gr.jp> <45B8C244.7040609@kaigai.gr.jp> <200701270059.34996.vda.linux@googlemail.com>
-In-Reply-To: <200701270059.34996.vda.linux@googlemail.com>
-Content-Type: multipart/mixed;
- boundary="------------070500050207080806010709"
+Content-Type: text/plain; charset=iso-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This is a multi-part message in MIME format.
---------------070500050207080806010709
-Content-Type: text/plain; charset=KOI8-R; format=flowed
-Content-Transfer-Encoding: 7bit
+Hi,
 
-Denis, Thanks for your comments.
+I am in the process of working on the audit parsing library. The specifications
+for the parser have been posted for about a year:
 
-Denis Vlasenko wrote:
-> On Thursday 25 January 2007 15:44, KaiGai Kohei wrote:
->> [4/8] busybox-libselinux-04-getsebool.patch
->>   getsebool reports the a particular or all SELinux
->>   boolean variable.
->>   SELinux boolean variable is a interface to configure
->>   the condition of security policy. We can enable or
->>   disable the part of the security policy via boolean
->>   variable.
->>
->> Signed-off-by: Hiroshi Shinji <shiroshi@my.email.ne.jp>
->> Signed-off-by: KaiGai Kohei <kaigai@kaigai.gr.jp>
->>
->> --
->> KaiGai Kohei <kaigai@kaigai.gr.jp>
-> 
-> --- selinux/getsebool.c (revision 0)
-> +++ selinux/getsebool.c (revision 0)
-> @@ -0,0 +1,98 @@
-> +/*
-> + * getsebool
-> + *
-> + * Based on libselinux 1.33.1
-> + * Port to BusyBox  Hiroshi Shinji <shiroshi@my.email.ne.jp>
-> + *
-> + */
-> +
-> +#include "busybox.h"
-> +#include <unistd.h>
-> +#include <stdlib.h>
-> +#include <stdio.h>
-> +#include <getopt.h>
-> +#include <errno.h>
-> +#include <string.h>
-> +#include <selinux/selinux.h>
+http://people.redhat.com/sgrubb/audit/audit-parse.txt
 
-I removed above redundant headers.
+In order to allow bindings in many programming languages, it was decided to
+abstract much of the audit format and just present an opaque API that presents
+the data as name/value pairs that can be iterated through. So far, everything is
+working fine for all audit messages except AVCs. The reason being is that there
+are fields in the record that do not have a name. For example:
 
-> +#define GETSEBOOL_OPT_ALL      1
-> +
-> +int getsebool_main(int argc, char **argv)
-> +{
-> +       int i, rc = 0, active, pending, len = 0;
-> +       char **names;
-> +       unsigned long opt;
-> +
-> +       opt = getopt32(argc, argv, "a");
-> +
-> +       if(opt & BB_GETOPT_ERROR) {
-> +               bb_show_usage();
-> +       }
-> 
-> Is it needed? I mean, can you give an example where it is needed?
+type=AVC msg=audit(1169743468.302:3604): avc:  denied  { sys_resource } for 
+pid=4002 comm="semodule" capability=24 scontext=system_u:system_r:semanage_t:s0
+tcontext=system_u:system_r:semanage_t:s0 tclass=capability
 
-No. The above block is unnecessary.
+The parser uses ' ' as the separator. So the 4th field is denied al by itself.
+The 6th field is sys_resource all by itself. Currently the parser throws those
+fields away because they do not follow the name=value convention. But I think
+they are fields that we really want to keep.
 
-> +
-> +       if (!len) {
-> +               if (argc < 2)
-> +                       bb_show_usage();
-> +               len = argc - 1;
-> +               names = malloc(sizeof(char *) * len);
-> +               if (!names) {
-> +                       bb_error_msg_and_die("out of memory");
-> +               }
-> 
-> xmalloc will do dying for you! :)
-> 
-> +               for (i = 0; i < len; i++) {
-> +                       names[i] = strdup(argv[i + 1]);
-> 
-> xstrdup. Gotta love busybox. We love to die, and love to get rid
-> of useless error paths.
+Would anybody object to making these follow the name=value format?
 
-Thanks for the useful information.
-I replaced them with xmalloc() and xstrdup().
+If this is impossible, I can special-case AVCs and pick out the 4th and 6th
+fields. But the API will follow name/value convention. So, what would everyone
+want to call the 4th & 6th field's names?
 
-> +      out:
-> +       for (i = 0; i < len; i++)
-> +               free(names[i]);
-> +       free(names);
-> 
-> 	Add if (ENABLE_FEATURE_CLEAN_UP) in front of for().
-
-OK, I appended if (ENABLE_FEATURE_CLEAN_UP) { ... } block.
-
-BTW, I found both '#if ENABLE_FEATURE_CLEAN_UP' and 'if (ENABLE_FEATURE_CLEAN_UP)'
-in the source tree. Which manner is preferable?
+Just an FYI, I am hoping to release the initial libauparse later this week. It
+should have python bindings, too.
 
 Thanks,
--- 
-KaiGai Kohei <kaigai@kaigai.gr.jp>
+-Steve
 
---------------070500050207080806010709
-Content-Type: text/x-patch;
- name="busybox-libselinux-04-getsebool.v2.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="busybox-libselinux-04-getsebool.v2.patch"
 
-Index: selinux/getsebool.c
-===================================================================
---- selinux/getsebool.c	(revision 0)
-+++ selinux/getsebool.c	(revision 0)
-@@ -0,0 +1,83 @@
-+/*
-+ * getsebool
-+ *
-+ * Based on libselinux 1.33.1
-+ * Port to BusyBox  Hiroshi Shinji <shiroshi@my.email.ne.jp>
-+ *
-+ */
-+
-+#include "busybox.h"
-+#include <selinux/selinux.h>
-+
-+#define GETSEBOOL_OPT_ALL	1
-+
-+int getsebool_main(int argc, char **argv)
-+{
-+	int i, rc = 0, active, pending, len = 0;
-+	char **names;
-+	unsigned long opt;
-+
-+	opt = getopt32(argc, argv, "a");
-+
-+	if(opt & GETSEBOOL_OPT_ALL) {
-+		if (argc > 2)
-+			bb_show_usage();
-+		if (is_selinux_enabled() <= 0) {
-+			bb_error_msg_and_die("SELinux is disabled");
-+		}
-+		errno = 0;
-+		rc = security_get_boolean_names(&names, &len);
-+		if (rc) {
-+			bb_error_msg_and_die("cannot get boolean names:  %s",
-+					     strerror(errno));
-+		}
-+		if (!len) {
-+			printf("No booleans\n");
-+			return 0;
-+		}
-+	}
-+
-+	if (is_selinux_enabled() <= 0)
-+		bb_error_msg_and_die("SELinux is disabled");
-+
-+	if (!len) {
-+		if (argc < 2)
-+			bb_show_usage();
-+		len = argc - 1;
-+		names = xmalloc(sizeof(char *) * len);
-+		for (i = 0; i < len; i++)
-+			names[i] = xstrdup(argv[i + 1]);
-+	}
-+
-+	for (i = 0; i < len; i++) {
-+		active = security_get_boolean_active(names[i]);
-+		if (active < 0) {
-+			bb_error_msg("error getting active value for %s", names[i]);
-+			rc = -1;
-+			goto out;
-+		}
-+		pending = security_get_boolean_pending(names[i]);
-+		if (pending < 0) {
-+			bb_error_msg("error getting pending value for %s", names[i]);
-+			rc = -1;
-+			goto out;
-+		}
-+		if (pending != active) {
-+			printf("%s --> %s pending: %s\n", names[i],
-+			       (active ? "on" : "off"),
-+			       (pending ? "on" : "off"));
-+		} else {
-+			printf("%s --> %s\n", names[i],
-+			       (active ? "on" : "off"));
-+		}
-+	}
-+
-+      out:
-+	if (ENABLE_FEATURE_CLEAN_UP) {
-+		for (i = 0; i < len; i++)
-+			free(names[i]);
-+		free(names);
-+	}
-+
-+	return rc;
-+}
-
---------------070500050207080806010709--
+ 
+____________________________________________________________________________________
+It's here! Your new message!  
+Get new email alerts with the free Yahoo! Toolbar.
+http://tools.search.yahoo.com/toolbar/features/mail/
 
 --
 This message was distributed to subscribers of the selinux mailing list.
