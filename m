@@ -1,128 +1,56 @@
 Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id l0QMUCaN025079
-	for <selinux@tycho.nsa.gov>; Fri, 26 Jan 2007 17:30:12 -0500
-Received: from mx1.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id l0QMVBbm004649
-	for <selinux@tycho.nsa.gov>; Fri, 26 Jan 2007 22:31:11 GMT
-Message-ID: <45BA8130.6060408@redhat.com>
-Date: Fri, 26 Jan 2007 17:31:12 -0500
-From: Daniel J Walsh <dwalsh@redhat.com>
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id l0TCQSU3007203
+	for <selinux@tycho.nsa.gov>; Mon, 29 Jan 2007 07:26:29 -0500
+Received: from smtp.sws.net.au (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id l0TCRHxX018955
+	for <selinux@tycho.nsa.gov>; Mon, 29 Jan 2007 12:27:23 GMT
+From: Russell Coker <russell@coker.com.au>
+Reply-To: russell@coker.com.au
+To: "Christopher J. PeBenito" <cpebenito@tresys.com>
+Subject: Re: [PATCH 5/8] busybox -- libselinux utilities applets
+Date: Mon, 29 Jan 2007 23:28:33 +1100
+Cc: KaiGai Kohei <kaigai@kaigai.gr.jp>, busybox@busybox.net,
+        selinux@tycho.nsa.gov, rob@landley.net, dwalsh@redhat.com,
+        busybox@kaigai.gr.jp
+References: <45B8C039.10907@kaigai.gr.jp> <45B8C25C.6090705@kaigai.gr.jp> <1169842227.25290.8.camel@sgc.columbia.tresys.com>
+In-Reply-To: <1169842227.25290.8.camel@sgc.columbia.tresys.com>
 MIME-Version: 1.0
-To: Kylene Jo Hall <kjhall@us.ibm.com>
-CC: Tomas Mraz <tmraz@redhat.com>, redhat-lspp@redhat.com,
-        selinux@tycho.nsa.gov
-Subject: Re: [redhat-lspp] Problem SSH-ing into LSPP system with multiple
- categories
-References: <1169842300.6956.129.camel@localhost.localdomain>	 <1169843274.3194.10.camel@perun.kabelta.loc>	 <1169844884.6956.132.camel@localhost.localdomain> <1169845275.6956.134.camel@localhost.localdomain>
-In-Reply-To: <1169845275.6956.134.camel@localhost.localdomain>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain;
+  charset="utf-8"
+Message-Id: <200701292328.37290.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Kylene Jo Hall wrote:
-> More test data:
+On Saturday 27 January 2007 07:10, "Christopher J. PeBenito" 
+<cpebenito@tresys.com> wrote:
+> On Thu, 2007-01-25 at 23:44 +0900, KaiGai Kohei wrote:
+> > [5/8] busybox-libselinux-05-avcstat.patch
+> >   avcstat reports SELinux AVC(Access Vector Cache) statistics.
+> >   AVC is a in-kernel data structure to accelerate SELinux's
+> >   decision making.
 >
->
-> [root@rheal3a ~]# ssh testuser/user_r/s2:c0@localhost
-> Password:
-> Last login: Fri Jan 26 14:55:13 2007 from rheal3a.endicott.ibm.com
-> -bash-3.1$ id
-> uid=501(testuser) gid=501(testuser) groups=501(testuser)
-> context=testuser_u:user_r:user_t:A
-> -bash-3.1$ exit
-> logout
-> Connection to localhost closed.
-> [root@rheal3a ~]# ssh testuser/user_r/s2:c1@localhost
-> Password:
-> Last login: Fri Jan 26 14:55:29 2007 from rheal3a.endicott.ibm.com
-> -bash-3.1$ id
-> uid=501(testuser) gid=501(testuser) groups=501(testuser)
-> context=testuser_u:user_r:user_t:B
-> -bash-3.1$ exit
-> logout
-> Connection to localhost closed.
-> [root@rheal3a ~]# ssh testuser/user_r/s2:c3@localhost
-> Password:
-> Last login: Fri Jan 26 14:55:40 2007 from rheal3a.endicott.ibm.com
-> -bash-3.1$ id
-> uid=501(testuser) gid=501(testuser) groups=501(testuser)
-> context=testuser_u:user_r:user_t:s2:c3
-> -bash-3.1$ quit
-> -bash: quit: command not found
-> -bash-3.1$ exit
-> logout
-> Connection to localhost closed.
-> [root@rheal3a ~]# ssh testuser/user_r/s2:c2@localhost
-> Password:
-> Last login: Fri Jan 26 14:56:05 2007 from rheal3a.endicott.ibm.com
-> -bash-3.1$ ls
-> -bash-3.1$ id
-> uid=501(testuser) gid=501(testuser) groups=501(testuser)
-> context=testuser_u:user_r:user_t:s2:c2
-> -bash-3.1$ quit
-> -bash: quit: command not found
-> -bash-3.1$ exit
-> logout
-> Connection to localhost closed.
-> [root@rheal3a ~]# ssh testuser/user_r/s2:c2,c3@localhost
-> Password:
-> Last login: Fri Jan 26 14:56:22 2007 from rheal3a.endicott.ibm.com
-> -bash-3.1$ id
-> uid=501(testuser) gid=501(testuser) groups=501(testuser)
-> context=testuser_u:user_r:user_t:s2:c2,c3
-> -bash-3.1$ exit
-> logout
-> Connection to localhost closed.
-> [root@rheal3a ~]#
->
->
->
-> On Fri, 2007-01-26 at 12:54 -0800, Kylene Jo Hall wrote:
->   
->> More test data:
->>
->> ssh testuer/user_r/s#:c0,c1@localhost works for every value of # between
->> 0 and 15 except 2.
->>
->> Thanks,
->> Kylie
->>
->> On Fri, 2007-01-26 at 21:27 +0100, Tomas Mraz wrote:
->>     
->>> On Fri, 2007-01-26 at 12:11 -0800, Kylene Jo Hall wrote:
->>>       
->>>> I have been unable to ssh into an LSPP system with multiple categories.
->>>>
->>>> For example the following work:
->>>> ssh testuser/user_r/s2@localhost
->>>> ssh testuser/user_r/s2:c0@localhost
->>>> ssh testuser/user_r/s2:c1@localhost
->>>>
->>>> But these do not:
->>>> ssh testuser/user_r/s2:c0.c1@localhost
->>>> ssh testuser/user_r/s2:c0,c1@localhost
->>>>
->>>> Policy version: selinux-policy-mls-2.4.6-28.el5
->>>> Kernel version: kernel-2.6.18-1.3015.2.1.el5.lspp.63
->>>>
->>>> We have tested this on multiple architectures to no avail.  Any
->>>> suggestions?
->>>>         
->>> Could you modify LogLevel in /etc/ssh/sshd_config to DEBUG3 and look
->>> into the /var/log/secure what messages are there when the login fails?
->>>
->>>       
->
->   
+> Are you sure this should be added?  It doesn't seem like it would be
+> used much.  I don't think most people are even aware that you can get
+> stats on the AVC, much less know what to do with them.
 
+I agree.  avcstat is used only rarely and only in development.  I don't think 
+that it's something we need in production on an iPaQ, for system recovery, or 
+in an initramfs - therefore I think it's something that isn't needed in 
+busybox.
 
+As for togglesebool, should such a thing even exist?  Before we had setenforce 
+we had avc_toggle which was very similar to togglesebool - and it was 
+generally regarded that avc_toggle should not exist.
 
-I am not able to recreate this here.
+Good work on the busybox development KaiGai, it's something that needed to be 
+done for a while.  But I think you were a little over-enthusiastic in regard 
+to those two commands.
 
-semanage user -l
-semanage login -l
-ps -eZ | grep ssh
+-- 
+russell@coker.com.au
+http://etbe.blogspot.com/          My Blog
 
+http://www.coker.com.au/sponsorship.html Sponsoring Free Software development
 
 --
 This message was distributed to subscribers of the selinux mailing list.
