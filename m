@@ -1,37 +1,50 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id l0U2kSbJ009542
-	for <selinux@tycho.nsa.gov>; Mon, 29 Jan 2007 21:46:28 -0500
-Received: from mail.atsec.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id l0U2lTME003397
-	for <selinux@tycho.nsa.gov>; Tue, 30 Jan 2007 02:47:30 GMT
-Date: Mon, 29 Jan 2007 20:47:21 -0600
-From: Klaus Weidner <klaus@atsec.com>
-To: Kylene Jo Hall <kjhall@us.ibm.com>
-Cc: redhat-lspp@redhat.com, dwalsh@redhat.com, Tomas Mraz <tmraz@redhat.com>,
-        selinux@tycho.nsa.gov
-Subject: Re: [redhat-lspp] Problem SSH-ing into LSPP system with multiple categories
-Message-ID: <20070130024721.GA6671@w-m-p.com>
-References: <1169842300.6956.129.camel@localhost.localdomain> <1169843274.3194.10.camel@perun.kabelta.loc> <1169844884.6956.132.camel@localhost.localdomain> <20070129174214.GA9224@w-m-p.com>
+From: Russell Coker <russell@coker.com.au>
+Reply-To: russell@coker.com.au
+To: Stephen Smalley <sds@tycho.nsa.gov>
+Subject: Re: [PATCH] sysctl selinux: Don't look at table->de
+Date: Tue, 30 Jan 2007 10:28:51 +1100
+Cc: "Eric W. Biederman" <ebiederm@xmission.com>, Andrew Morton <akpm@osdl.org>,
+        Ingo Molnar <mingo@elte.hu>, tglx@linutronix.de,
+        linux-kernel@vger.kernel.org, selinux@tycho.nsa.gov, jmorris@namei.org
+References: <200701280106.l0S16CG3019873@shell0.pdx.osdl.net> <m18xflloes.fsf@ebiederm.dsl.xmission.com> <1170096231.8720.102.camel@moss-spartans.epoch.ncsc.mil>
+In-Reply-To: <1170096231.8720.102.camel@moss-spartans.epoch.ncsc.mil>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20070129174214.GA9224@w-m-p.com>
+Content-Type: text/plain;
+  charset="utf-8"
+Message-Id: <200701301028.56693.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, Jan 29, 2007 at 11:42:15AM -0600, Klaus Weidner wrote:
-> On Fri, Jan 26, 2007 at 12:54:44PM -0800, Kylene Jo Hall wrote:
-> > More test data:
-> > 
-> > ssh testuer/user_r/s#:c0,c1@localhost works for every value of # between
-> > 0 and 15 except 2.
-> 
-> I can reproduce this, and it appears to be related to label translations.
+On Tuesday 30 January 2007 05:43, Stephen Smalley <sds@tycho.nsa.gov> wrote:
+> True, but a system that disables proc is likely a system with a custom
+> policy anyway,
 
-I've posted a bug:
+In practice we have to extensively customise policy long before getting to the 
+non-proc stage of optimising for small hardware.  The Familiar distribution 
+(used on the iPaQ) has /proc but needs significant policy changes when 
+compared to a typical Fedora workstation.  Not only is there the issue that 
+embedded distributions have different daemons and path names to workstations, 
+but the memory constraints mean that even a modular targeted policy is not as 
+small as you desire.
 
-	https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=225355
+> and dependency on proc is fairly basic to selinux these 
+> days (due to reliance on /proc/self/attr for process attribute
+> manipulation in place of the old selinux syscalls).  Possibly we should
+> just make selinux depend on proc and drop the #ifdef there.
 
--Klaus
+I think that is the correct thing to do.  Someone who is prepared to do all 
+the work needed to get a recent SE Linux system operating without /proc will 
+have no problem changing the kernel config scripts and everyone else would be 
+better off not being confused by being offered sets of options that are not 
+viable.
+
+-- 
+russell@coker.com.au
+http://etbe.blogspot.com/          My Blog
+
+http://www.coker.com.au/sponsorship.html Sponsoring Free Software development
+
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
