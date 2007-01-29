@@ -1,317 +1,283 @@
 Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id l0TDVHfM009399
-	for <selinux@tycho.nsa.gov>; Mon, 29 Jan 2007 08:31:17 -0500
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id l0TDh0Lo009940
+	for <selinux@tycho.nsa.gov>; Mon, 29 Jan 2007 08:43:00 -0500
 Received: from wx-out-0506.google.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l0TDWIfV007020
-	for <selinux@tycho.nsa.gov>; Mon, 29 Jan 2007 13:32:18 GMT
-Received: by wx-out-0506.google.com with SMTP id s17so1783220wxc
-        for <selinux@tycho.nsa.gov>; Mon, 29 Jan 2007 05:32:18 -0800 (PST)
-Message-ID: <45BDF74F.9050201@kaigai.gr.jp>
-Date: Mon, 29 Jan 2007 22:31:59 +0900
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l0TDi2fV009047
+	for <selinux@tycho.nsa.gov>; Mon, 29 Jan 2007 13:44:02 GMT
+Received: by wx-out-0506.google.com with SMTP id s17so1786041wxc
+        for <selinux@tycho.nsa.gov>; Mon, 29 Jan 2007 05:44:02 -0800 (PST)
+Message-ID: <45BDFA0F.7020706@kaigai.gr.jp>
+Date: Mon, 29 Jan 2007 22:43:43 +0900
 From: KaiGai Kohei <kaigai@kaigai.gr.jp>
 MIME-Version: 1.0
-To: "Christopher J. PeBenito" <cpebenito@tresys.com>
-CC: busybox@busybox.net, selinux@tycho.nsa.gov, rob@landley.net,
-        dwalsh@redhat.com, russell@coker.com.au, busybox@kaigai.gr.jp,
-        vda.linux@googlemail.com
-Subject: Re: [PATCH 0/8] busybox -- libselinux utilities applets
-References: <45B8C039.10907@kaigai.gr.jp> <1169840193.25290.1.camel@sgc.columbia.tresys.com>
-In-Reply-To: <1169840193.25290.1.camel@sgc.columbia.tresys.com>
+To: Denis Vlasenko <vda.linux@googlemail.com>
+CC: busybox@busybox.net, selinux@tycho.nsa.gov, russell@coker.com.au,
+        rob@landley.net, busybox@kaigai.gr.jp
+Subject: Re: [PATCH 7/8] busybox -- libselinux utilities applets
+References: <45B8C039.10907@kaigai.gr.jp> <45B8C283.1020708@kaigai.gr.jp> <200701270050.27149.vda.linux@googlemail.com>
+In-Reply-To: <200701270050.27149.vda.linux@googlemail.com>
 Content-Type: multipart/mixed;
- boundary="------------000708080108040000030802"
+ boundary="------------030301010000060204070504"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 This is a multi-part message in MIME format.
---------------000708080108040000030802
-Content-Type: text/plain; charset=ISO-2022-JP
+--------------030301010000060204070504
+Content-Type: text/plain; charset=KOI8-R; format=flowed
 Content-Transfer-Encoding: 7bit
 
-Christopher J. PeBenito wrote:
-> On Thu, 2007-01-25 at 23:35 +0900, KaiGai Kohei wrote:
->> [1/8] busybox-libselinux-01-common.patch
->>   The common part of libselinux package
->>   - modification of Makefile
->>   - add '-lselinux', if CONFIG_SELINUX enabled
+Denis,
+
+Thanks for your comments.
+
+Denis Vlasenko wrote:
+> On Thursday 25 January 2007 15:45, KaiGai Kohei wrote:
+>> [7/8] busybox-libselinux-07-matchpathcon.patch
+>>   matchpathcon - get the default security context for
+>>   the specified path from the file contexts configuration.
+>>   Security context is a identifier for SELinux.
+>>   Any files has a own security context, and SELinux use it
+>>   to evaluate the attribute of the file.
+>>   When we are setting up a system, we have to attach a security
+>>   context for each files. so, we can obtain the most appropriate
+>>   security context by using matchpathcon.
+>>
+>> Signed-off-by: KaiGai Kohei <kaigai@kaigai.gr.jp>
+>>
+>> --
+>> KaiGai Kohei <kaigai@kaigai.gr.jp>
 > 
-> Also need -lsepol, otherwise you'll get missing symbols if you compile
-> it static.
+> 
+> --- selinux/matchpathcon.c      (revision 0)
+> +++ selinux/matchpathcon.c      (revision 0)
+> @@ -0,0 +1,108 @@
+> +/* matchpathcon  -  get the default security context for the specified
+> + *                  path from the file contexts configuration.
+> + *                  based on libselinux-1.32
+> + * Port to busybox: KaiGai Kohei <kaigai@kaigai.gr.jp>
+> + *
+> + */
+> +#include <unistd.h>
+> +#include <stdio.h>
+> +#include <stdlib.h>
+> +#include <getopt.h>
+> +#include <errno.h>
+> +#include <string.h>
+> +#include <selinux/selinux.h>
+> +#include "busybox.h"
 
-Thanks for your notification.
-The fixed patch enables to link libsepol when CONFIG_SELINUX is enabled.
+I removed above redundant headers.
 
+> +
+> +static int printmatchpathcon(char *path, int header)
+> +{
+> +       char *buf;
+> +       int rc = matchpathcon(path, 0, &buf);
+> +       if (rc < 0) {
+> +               fprintf(stderr, "matchpathcon(%s) failed: %s\n", path,
+> +                       strerror(errno));
+> +               return 1;
+> +       }
+> +       if (header)
+> +               printf("%s\t%s\n", path, buf);
+> +       else
+> +               printf("%s\n", buf);
+> +
+> +       freecon(buf);
+> +       return 0;
+> +}
+> +
+> +#define MATCHPATHCON_OPT_NOT_PRINT     (1<<0)  /* -n */
+> +#define MATCHPATHCON_OPT_NOT_TRANS     (1<<1)  /* -N */
+> +#define MATCHPATHCON_OPT_FCONTEXT      (1<<2)  /* -f */
+> +#define MATCHPATHCON_OPT_PREFIX                (1<<3)  /* -p */
+> +#define MATCHPATHCON_OPT_VERIFY                (1<<4)  /* -V */
+> +
+> +int matchpathcon_main(int argc, char **argv)
+> +{
+> +       int i;
+> +       int header = 1;
+> +       int verify = 0;
+> +       int notrans = 0;
+> +       int error = 0;
+> +       unsigned long opts;
+> +       char *fcontext, *prefix;
+> +
+> +       if (argc < 2)
+> +               bb_show_usage();
+> +
+> +       opts = getopt32(argc, argv, "nNf:p:V", &fcontext, &prefix);
+> +       if (opts & BB_GETOPT_ERROR)
+> +               bb_show_usage();
+> +       if (opts & MATCHPATHCON_OPT_NOT_PRINT)
+> +               header = 0;
+> +       if (opts & MATCHPATHCON_OPT_NOT_TRANS) {
+> +               notrans = 1;
+> +               set_matchpathcon_flags(MATCHPATHCON_NOTRANS);
+> +       }
+> +       if ((opts & MATCHPATHCON_OPT_FCONTEXT) && (opts & MATCHPATHCON_OPT_PREFIX))
+> +               bb_error_msg_and_die("-f and -p are exclusive");
+> 
+> This can be forced by just setting opt_complementary.
+> There are a lot of examples in the tree.
+
+The fixed patch uses opt_complementary and omit unnecessary as follows:
+          :
+     opt_complementary = "?:f--p:p--f";
+     opts = getopt32(argc, argv, "nNf:p:V", &fcontext, &prefix);
+          :
+
+> +       if (opts & MATCHPATHCON_OPT_FCONTEXT) {
+> +               if (matchpathcon_init(fcontext))
+> +                       bb_error_msg_and_die("Error while processing %s: %s",
+> 
+> "<applet>: Error while...."  -- 'E' shpould be 'e' (small letter) here
+> (and everywhere in bb_[ph]errorXXX)
+
+OK, fixed.
+
+- <snip> -
+
+> Typically I avoid excessive indentation:
+> 
+>                if (!verify) {
+>                        error += printmatchpathcon(argv[i], header);
+>                        continue;
+>                }
+>                ...here entire old "if(verify)" block needs no indent now:
+>                if (selinux_file_context_verify(argv[i], 0)) {
+>                        printf("%s verified.\n", argv[i]);
+>                } else {
+>                ....
+
+OK, I changed the code path as follows:
+
+     if (!verify) {
+         error += printmatchpathcon(argv[i], header);
+         continue;
+     }
+     if (selinux_file_context_verify(argv[i], 0)) {
+         printf("%s verified.\n", argv[i]);
+         continue;
+     }
+         :
+
+Thanks,
 -- 
 KaiGai Kohei <kaigai@kaigai.gr.jp>
 
---------------000708080108040000030802
+--------------030301010000060204070504
 Content-Type: text/x-patch;
- name="busybox-libselinux-01-common.v2.patch"
+ name="busybox-libselinux-07-matchpathcon.v2.patch"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline;
- filename="busybox-libselinux-01-common.v2.patch"
+ filename="busybox-libselinux-07-matchpathcon.v2.patch"
 
-Index: Makefile
+Index: selinux/matchpathcon.c
 ===================================================================
---- Makefile	(revision 17485)
-+++ Makefile	(working copy)
-@@ -442,6 +442,7 @@
- 		networking/udhcp/ \
- 		procps/ \
- 		runit/ \
-+		selinux/ \
- 		shell/ \
- 		sysklogd/ \
- 		util-linux/ \
-Index: Makefile.flags
-===================================================================
---- Makefile.flags	(revision 17485)
-+++ Makefile.flags	(working copy)
-@@ -34,4 +34,8 @@
- ifeq ($(CONFIG_STATIC),y)
- LDFLAGS += -static
- endif
+--- selinux/matchpathcon.c	(revision 0)
++++ selinux/matchpathcon.c	(revision 0)
+@@ -0,0 +1,98 @@
++/* matchpathcon  -  get the default security context for the specified
++ *                  path from the file contexts configuration.
++ *                  based on libselinux-1.32
++ * Port to busybox: KaiGai Kohei <kaigai@kaigai.gr.jp>
++ *
++ */
++#include "busybox.h"
++#include <selinux/selinux.h>
 +
-+ifeq ($(CONFIG_SELINUX),y)
-+LDFLAGS += -lselinux -lsepol
-+endif
- #LDFLAGS += -nostdlib
-Index: Config.in
-===================================================================
---- Config.in	(revision 17485)
-+++ Config.in	(working copy)
-@@ -485,3 +485,4 @@
- source shell/Config.in
- source sysklogd/Config.in
- source runit/Config.in
-+source selinux/Config.in
-Index: selinux/Kbuild
-===================================================================
---- selinux/Kbuild	(revision 0)
-+++ selinux/Kbuild	(revision 0)
-@@ -0,0 +1,15 @@
-+# Makefile for busybox
-+#
-+# Copyright (C) 1999-2005 by Erik Andersen <andersen@codepoet.org>
-+# Copyright (C) 2007 by KaiGai Kohei <kaigai@kaigai.gr.jp>
-+#
-+# Licensed under the GPL v2, see the file LICENSE in this tarball.
++static int printmatchpathcon(char *path, int header)
++{
++	char *buf;
++	int rc = matchpathcon(path, 0, &buf);
++	if (rc < 0) {
++		fprintf(stderr, "matchpathcon(%s) failed: %s\n",
++			path, strerror(errno));
++		return 1;
++	}
++	if (header)
++		printf("%s\t%s\n", path, buf);
++	else
++		printf("%s\n", buf);
 +
-+lib-y:=
-+lib-$(CONFIG_AVCSTAT)		+= avcstat.o
-+lib-$(CONFIG_GETENFORCE)	+= getenforce.o
-+lib-$(CONFIG_GETSEBOOL)		+= getsebool.o
-+lib-$(CONFIG_MATCHPATHCON)	+= matchpathcon.o
-+lib-$(CONFIG_SELINUXENABLED)	+= selinuxenabled.o
-+lib-$(CONFIG_SETENFORCE)	+= setenforce.o
-+lib-$(CONFIG_TOGGLESEBOOL)	+= togglesebool.o
-Index: selinux/Config.in
-===================================================================
---- selinux/Config.in	(revision 0)
-+++ selinux/Config.in	(revision 0)
-@@ -0,0 +1,60 @@
-+#
-+# For a description of the syntax of this configuration file,
-+# see scripts/kbuild/config-language.txt.
-+#
++	freecon(buf);
++	return 0;
++}
 +
-+menu "Selinux Utilities"
++#define MATCHPATHCON_OPT_NOT_PRINT	(1<<0)	/* -n */
++#define MATCHPATHCON_OPT_NOT_TRANS	(1<<1)	/* -N */
++#define MATCHPATHCON_OPT_FCONTEXT	(1<<2)	/* -f */
++#define MATCHPATHCON_OPT_PREFIX		(1<<3)	/* -p */
++#define MATCHPATHCON_OPT_VERIFY		(1<<4)	/* -V */
 +
-+config AVCSTAT
-+	bool "avcstat"
-+	default n
-+	depends on SELINUX
-+	help
-+	  Enable support for avcstat command as a SELinux utility.
++int matchpathcon_main(int argc, char **argv)
++{
++	int i;
++	int header = 1;
++	int verify = 0;
++	int notrans = 0;
++	int error = 0;
++	unsigned long opts;
++	char *fcontext, *prefix;
 +
-+config GETENFORCE
-+	bool "getenforce"
-+	default n
-+	depends on SELINUX
-+	help
-+	  Enable support to get the current mode of SELinux.
++	if (argc < 2)
++		bb_show_usage();
 +
-+config GETSEBOOL
-+	bool "getsebool"
-+	default n
-+	depends on SELINUX
-+	help
-+	  Enable support to get SELinux boolean values.
++	opt_complementary = "?:f--p:p--f";
++	opts = getopt32(argc, argv, "nNf:p:V", &fcontext, &prefix);
++	if (opts & MATCHPATHCON_OPT_NOT_PRINT)
++		header = 0;
++	if (opts & MATCHPATHCON_OPT_NOT_TRANS) {
++		notrans = 1;
++		set_matchpathcon_flags(MATCHPATHCON_NOTRANS);
++	}
++	if (opts & MATCHPATHCON_OPT_FCONTEXT) {
++		if (matchpathcon_init(fcontext))
++			bb_error_msg_and_die("error while processing %s: %s",
++					     fcontext, errno ? strerror(errno) : "invalid");
++	}
++	if (opts & MATCHPATHCON_OPT_PREFIX) {
++		if (matchpathcon_init_prefix(NULL, prefix))
++			bb_error_msg_and_die("error while processing %s:  %s",
++					     prefix, errno ? strerror(errno) : "invalid");
++	}
++	if (opts & MATCHPATHCON_OPT_VERIFY)
++		verify = 1;
 +
-+config MATCHPATHCON
-+	bool "matchpathcon"
-+	default n
-+	depends on SELINUX
-+	help
-+	  Enable support to get default security context of the
-+	  specified path from the file contexts configuration.
++	for (i = optind; i < argc; i++) {
++		security_context_t con;
++		int rc;
 +
-+config SELINUXENABLED
-+	bool "selinuxenabled"
-+	default n
-+	depends on SELINUX
-+	help
-+	  Enable support for this command to be used within shell scripts
-+	  to determine if selinux is enabled.
++		if (!verify) {
++			error += printmatchpathcon(argv[i], header);
++			continue;
++		}
 +
-+config SETENFORCE
-+	bool "setenforce"
-+	default n
-+	depends on SELINUX
-+	help
-+	  Enable support to modify the mode SELinux is running in.
++		if (selinux_file_context_verify(argv[i], 0)) {
++			printf("%s verified.\n", argv[i]);
++			continue;
++		}
 +
-+config TOGGLESEBOOL
-+	bool "togglesebool"
-+	default n
-+	depends on SELINUX
-+	help
-+	  Enable support to flip the current value of a boolean.
++		if (notrans)
++			rc = lgetfilecon_raw(argv[i], &con);
++		else
++			rc = lgetfilecon(argv[i], &con);
 +
-+endmenu
-+
-Index: include/usage.h
-===================================================================
---- include/usage.h	(revision 17485)
-+++ include/usage.h	(working copy)
-@@ -98,6 +98,15 @@
- #define ash_full_usage \
-        "The ash shell (command interpreter)"
- 
-+#define avcstat_trivial_usage \
-+	"[-c] [-f status_file] [interval]"
-+#define avcstat_full_usage \
-+	"Display SELinux AVC statistics.  If the interval parameter is specified, the\n" \
-+	"program will loop, displaying updated statistics every 'interval' seconds.\n" \
-+	"Relative values are displayed by default. Use the -c option to specify the\n" \
-+	"display of cumulative values.  The -f option specifies the location of the\n" \
-+	"AVC statistics file, defaulting to '/selinux/avc/cache_stats'."
-+
- #define awk_trivial_usage \
-        "[OPTION]... [program-text] [FILE ...]"
- #define awk_full_usage \
-@@ -1013,6 +1022,9 @@
-        "	-6	When using port/proto only search IPv6 space\n" \
-        "	-SIGNAL	When used with -k, this signal will be used to kill"
- 
-+#define getenforce_trivial_usage
-+#define getenforce_full_usage
-+
- #define getopt_trivial_usage \
-        "[OPTIONS]..."
- #define getopt_full_usage \
-@@ -1047,6 +1059,11 @@
-        " esac\n" \
-        "done\n"
- 
-+#define getsebool_trivial_usage \
-+	"-a or getsebool boolean..."
-+#define getsebool_full_usage \
-+	"-a     Show all SELinux booleans."
-+
- #define getty_trivial_usage \
-        "[OPTIONS]... baud_rate,... line [termtype]"
- #define getty_full_usage \
-@@ -1896,6 +1913,15 @@
-        "/dev/hda[0-15]\n"
- #endif
- 
-+#define matchpathcon_trivial_usage \
-+	"[-n] [-N] [-f file_contexts_file] [-p prefix] [-V]"
-+#define matchpathcon_full_usage \
-+	"\t-n Do not display path.\n" \
-+	"\t-N Do not use translations.\n" \
-+	"\t-f file_context_file Use alternate file_context file\n" \
-+	"\t-p prefix Use prefix to speed translations\n" \
-+	"\t-V Verify file context on disk matches defaults"
-+
- #define md5sum_trivial_usage \
-        "[OPTION] [FILEs...]" \
- 	USE_FEATURE_MD5_SHA1_SUM_CHECK("\n   or: md5sum [OPTION] -c [FILE]")
-@@ -2718,6 +2744,9 @@
-        "$ echo \"foo\" | sed -e 's/f[a-zA-Z]o/bar/g'\n" \
-        "bar\n"
- 
-+#define selinuxenabled_trivial_usage
-+#define selinuxenabled_full_usage
-+
- #define seq_trivial_usage \
-        "[first [increment]] last"
- #define seq_full_usage \
-@@ -2735,6 +2764,10 @@
-        "\n\nOptions:\n" \
-        "	-r	Reset output to /dev/console"
- 
-+#define setenforce_trivial_usage \
-+	"[ Enforcing | Permissive | 1 | 0 ]"
-+#define setenforce_full_usage
-+
- #define setkeycodes_trivial_usage \
-        "SCANCODE KEYCODE ..."
- #define setkeycodes_full_usage \
-@@ -3213,6 +3246,10 @@
-        "\n\nOptions:\n" \
-        "	-v	Display verbose resource usage information"
- 
-+#define togglesebool_trivial_usage \
-+	"boolname1 [boolname2 ...]"
-+#define togglesebool_full_usage
-+
- #define top_trivial_usage \
-        "[-b] [-n count] [-d seconds]"
- #define top_full_usage \
-Index: include/applets.h
-===================================================================
---- include/applets.h	(revision 17485)
-+++ include/applets.h	(working copy)
-@@ -59,6 +59,7 @@
- USE_ARP(APPLET(arp, _BB_DIR_SBIN, _BB_SUID_NEVER))
- USE_ARPING(APPLET(arping, _BB_DIR_USR_BIN, _BB_SUID_NEVER))
- USE_ASH(APPLET_NOUSAGE(ash, ash, _BB_DIR_BIN, _BB_SUID_NEVER))
-+USE_AVCSTAT(APPLET(avcstat, _BB_DIR_USR_SBIN, _BB_SUID_NEVER))
- USE_AWK(APPLET(awk, _BB_DIR_USR_BIN, _BB_SUID_NEVER))
- USE_BASENAME(APPLET(basename, _BB_DIR_USR_BIN, _BB_SUID_NEVER))
- USE_BBCONFIG(APPLET(bbconfig, _BB_DIR_BIN, _BB_SUID_NEVER))
-@@ -133,7 +134,9 @@
- USE_FTPGET(APPLET_ODDNAME(ftpget, ftpgetput, _BB_DIR_USR_BIN, _BB_SUID_NEVER,ftpget))
- USE_FTPPUT(APPLET_ODDNAME(ftpput, ftpgetput, _BB_DIR_USR_BIN, _BB_SUID_NEVER,ftpput))
- USE_FUSER(APPLET(fuser, _BB_DIR_USR_BIN, _BB_SUID_NEVER))
-+USE_GETENFORCE(APPLET(getenforce, _BB_DIR_USR_SBIN, _BB_SUID_NEVER))
- USE_GETOPT(APPLET(getopt, _BB_DIR_BIN, _BB_SUID_NEVER))
-+USE_GETSEBOOL(APPLET(getsebool, _BB_DIR_USR_SBIN, _BB_SUID_NEVER))
- USE_GETTY(APPLET(getty, _BB_DIR_SBIN, _BB_SUID_NEVER))
- USE_GREP(APPLET(grep, _BB_DIR_BIN, _BB_SUID_NEVER))
- USE_GUNZIP(APPLET(gunzip, _BB_DIR_BIN, _BB_SUID_NEVER))
-@@ -187,6 +190,7 @@
- USE_LSATTR(APPLET(lsattr, _BB_DIR_BIN, _BB_SUID_NEVER))
- USE_LSMOD(APPLET(lsmod, _BB_DIR_SBIN, _BB_SUID_NEVER))
- USE_UNLZMA(APPLET_ODDNAME(lzmacat, unlzma, _BB_DIR_USR_BIN, _BB_SUID_NEVER, lzmacat))
-+USE_MATCHPATHCON(APPLET(matchpathcon, _BB_DIR_USR_SBIN, _BB_SUID_NEVER))
- USE_MAKEDEVS(APPLET(makedevs, _BB_DIR_SBIN, _BB_SUID_NEVER))
- USE_MD5SUM(APPLET_ODDNAME(md5sum, md5_sha1_sum, _BB_DIR_USR_BIN, _BB_SUID_NEVER, md5sum))
- USE_MDEV(APPLET(mdev, _BB_DIR_SBIN, _BB_SUID_NEVER))
-@@ -249,10 +253,12 @@
- USE_RUNSV(APPLET(runsv, _BB_DIR_USR_BIN, _BB_SUID_NEVER))
- USE_RUNSVDIR(APPLET(runsvdir, _BB_DIR_USR_BIN, _BB_SUID_NEVER))
- USE_RX(APPLET(rx, _BB_DIR_USR_BIN, _BB_SUID_NEVER))
-+USE_SELINUXENABLED(APPLET(selinuxenabled, _BB_DIR_USR_SBIN, _BB_SUID_NEVER))
- USE_SED(APPLET(sed, _BB_DIR_BIN, _BB_SUID_NEVER))
- USE_SEQ(APPLET(seq, _BB_DIR_USR_BIN, _BB_SUID_NEVER))
- USE_SETARCH(APPLET(setarch, _BB_DIR_BIN, _BB_SUID_NEVER))
- USE_SETCONSOLE(APPLET(setconsole, _BB_DIR_SBIN, _BB_SUID_NEVER))
-+USE_SETENFORCE(APPLET(setenforce, _BB_DIR_USR_SBIN, _BB_SUID_NEVER))
- USE_SETKEYCODES(APPLET(setkeycodes, _BB_DIR_USR_BIN, _BB_SUID_NEVER))
- USE_SETLOGCONS(APPLET(setlogcons, _BB_DIR_USR_SBIN, _BB_SUID_NEVER))
- USE_SETSID(APPLET(setsid, _BB_DIR_USR_BIN, _BB_SUID_NEVER))
-@@ -291,6 +297,7 @@
- USE_TFTP(APPLET(tftp, _BB_DIR_USR_BIN, _BB_SUID_NEVER))
- #endif
- USE_TIME(APPLET(time, _BB_DIR_USR_BIN, _BB_SUID_NEVER))
-+USE_TOGGLESEBOOL(APPLET(togglesebool, _BB_DIR_USR_SBIN, _BB_SUID_NEVER))
- USE_TOP(APPLET(top, _BB_DIR_USR_BIN, _BB_SUID_NEVER))
- USE_TOUCH(APPLET(touch, _BB_DIR_BIN, _BB_SUID_NEVER))
- USE_TR(APPLET(tr, _BB_DIR_USR_BIN, _BB_SUID_NEVER))
++		if (rc >= 0) {
++			printf("%s has context %s, should be ", argv[i], con);
++			error += printmatchpathcon(argv[i], 0);
++			freecon(con);
++		} else {
++			printf("actual context unknown: %s, should be ", strerror(errno));
++			error += printmatchpathcon(argv[i], 0);
++		}
++	}
++	matchpathcon_fini();
++	return error;
++}
 
---------------000708080108040000030802--
+--------------030301010000060204070504--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
