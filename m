@@ -1,115 +1,87 @@
-Message-ID: <45BE6410.9050604@redhat.com>
-Date: Mon, 29 Jan 2007 16:16:00 -0500
-From: Karl MacMillan <kmacmill@redhat.com>
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id l0TLZ0rv000738
+	for <selinux@tycho.nsa.gov>; Mon, 29 Jan 2007 16:35:00 -0500
+Received: from mx1.redhat.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l0TLa1UJ005726
+	for <selinux@tycho.nsa.gov>; Mon, 29 Jan 2007 21:36:02 GMT
+Message-ID: <45BE68BF.3030607@mentalrootkit.com>
+Date: Mon, 29 Jan 2007 16:35:59 -0500
+From: Karl MacMillan <kmacmillan@mentalrootkit.com>
 MIME-Version: 1.0
-To: Steve Grubb <sgrubb@redhat.com>
-CC: linux-audit@redhat.com, ewalsh@tycho.nsa.gov,
-        Steve G <linux_4ever@yahoo.com>, selinux@tycho.nsa.gov
-Subject: Re: missing avc message field names
-References: <20070129185542.32977.qmail@web51502.mail.yahoo.com> <45BE4971.6090601@tycho.nsa.gov> <200701291556.37235.sgrubb@redhat.com>
-In-Reply-To: <200701291556.37235.sgrubb@redhat.com>
+To: Catalin DIMA <dima@univ-paris12.fr>
+CC: selinux@tycho.nsa.gov, Daniel J Walsh <dwalsh@redhat.com>
+Subject: Re: Problems installing current version of refpolicy with FC6
+References: <45BE44FC.8080303@univ-paris12.fr> <45BE4FC6.4090502@mentalrootkit.com> <45BE6262.5080902@univ-paris12.fr>
+In-Reply-To: <45BE6262.5080902@univ-paris12.fr>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Steve Grubb wrote:
-> On Monday 29 January 2007 14:22, Eamon Walsh wrote:
->> Steve G wrote:
->>> But back to the original question, any preference for non-conflicting
->>> names? :)
->> CC'ing linux-audit.
+Catalin DIMA wrote:
+> Karl MacMillan wrote:
+> 
+>> Just to check - are you certain that you want the full policy? You may 
+>> be able to do the teaching you need with policy modules only.
+> 
+> Do you mean I should compile&load the modular policy ? I certainly would 
+> like to do this, as it's supposed to be easily configurable & suitable 
+> for experimenting small modules.
+> 
+>> Did you enable mcs? The standard FC6 policy is targeted-mcs and the 
+>> presence of the mcs components in the file system labels may be the 
+>> cause of your problems.
+> 
+> I tried again this build.conf format :
+> 
+> TYPE = targeted-mcs
+> NAME = refpolicy
+> DISTRO = redhat
+> DIRECT_INITRC=n
+> MONOLITHIC=n
+> MLS-SENS=16
+> MLS_CATS=256
+> 
+> Done make conf, make install and make load, then configured for 
+> refpolicy & asked for relabeling, and the system gets stuck...
+> 
+
+Could you elaborate on where it gets stuck. Does the labeling happen? 
+You might try relabeling in permissive.
+
+> Btw, forgot to mention the libsepol.sepol_genbools: error while reading 
+> /etc/selinx/refpolicy/booleans error...
+> 
+
+In permissive or enforcing?
+
+> In permissive refpolicy mode, the only selinux message talks about 
+> NetworkManager.
+> 
+
+Just to clarify, things work fine in permissive mode and you are only 
+getting a single AVC message, correct? Could you check /var/log/messages 
+and /var/log/audit/audit.log for avc messages after a permissive boot. 
+Also check the selinux messages in dmesg for errors.
+
+>> The unknown boolean messages should be harmless I believe.
 >>
->> Some comments regarding userspace object managers and the userspace AVC:
->> in general userspace object managers will introduce new fields to the
->> AVC messages.  
+>> You can extract the build.conf from the policy source rpm as well, 
+>> which is likely a good starting point.
 > 
-> Which brings up the question of does everything have to be an AVC message 
-> type?
-
-I don't know that it is necessary, but it is certainly preferable. All 
-of these messages serve exactly the same purpose - splitting them would 
-be a pain for any app that wants to process them (not to mention dealing 
-with backwards compatibility).
-
-For example, the policy generation tools that I am working on could 
-process these X messages because they are AVC messages and I only 
-require the core fields to be present (i.e., source / target types, 
-granted / denied, class, and permissions). If they were split out I 
-would a) have to process more message types and b) track which versions 
-of the audit subsystem contain which message types.
-
-  If we ever want to have binary audit records, we need to think of these
-> audit messages as if they were database tables - each type normalized. This 
-> is, I think, where we are ultimately heading.
+> The problem is the same with the rpm and the bz2...
 > 
 
-What problems do binary audit records solve? I think that binary records 
-introduce significant problems and would need to have significant benefits.
+Not certain what you mean here - the source rpm or the binary rpm? I was 
+suggesting that you rebuild refpolicy using the configuration from the 
+source rpm - which means extracting the correct build.conf, 
+modules.conf, and booleans.conf, seusers, and users_extra files and 
+installing the in the source tree. You can read the spec file to see how 
+this is done during the build process.
 
-The biggest issue, of course, is that it would prevent the use of any 
-tools that process the files as text (grep, tail, awk, seaudit, 
-setroubleshoot, etc., etc.). Some can be moved over to the audit 
-library, but it is still useful to use grep, tail, and other shell tools 
-to search logs. I know that you discourage that practice, but I believe 
-that it is (and will remain) useful.
-
-A related problem is that rigidly enforcing the formatting forces 
-updates to the audit system for any slight change to the output. 
-Tracking those changes is going to be incredibly difficult for tools 
-that process audit data. The audit library will help, but won't 
-alleviate all problems (like the introduction of new record types). 
-Regular breakage of tools is just going to discourage adoption of the 
-audit system.
-
->> For example the AVC's generated by the X server have fields such as window=,
->> property=, and extension= for X-specific things which do not appear in the
->> kernel AVC's.  So it should be relatively easy to add new keywords to the
->> dictionary, or even have the audit system gracefully accept keywords that
->> are not in its dictionary.
-> 
-> The parsing API has a iterator approach and makes no assumptions about what is 
-> supposed to be there or not. So, it would accept new name/value pairs without 
-> any problem.
-> 
-
-Great.
-
->> If all of these keywords in the data dictionary have to be unique, I'm
->> wondering if it might be useful to use a 3-tuple instead of a
->> (name,value) pair. 
-> 
-> I just don't see audit growing that much bigger. Of course, I may be wrong.
-> 
-
-Why? I hope there will be a growing list of selinux object managers. And 
-what about third-party tools that are security critical?
-
->> The 3-tuple would consist of (namespace,name,value) with namespace coming
->> from a defined list of subsystems.  So for example there would be
->> an "SELinux" namespace encompassing all of the selinux keywords, so that
->> the "result" and "perms" keywords from the previous example would not
->> conflict with the "other" ones which would presumably be in a different
->> namespace.  Or just prefix the names with "selinux-", "syscall-", etc.
-> 
-> That would add a lot to disk space consumption in the current logging format. 
-> The real problem that we will have if there is a common name share among 
-> different records but with different meaning, is when people do a search. You 
-> should be able to say "I want all audit records with the perm field" and get 
-> records that are of the right type. Or another example, "I want records with 
-> perm == 0". The perm field in AVC's with get run through strtol which will 
-> yield 0 and then you have a match for an AVC when it should have been file 
-> related. We need unambiguous names to make searching work as expected.
-> 
-
-I don't understand - Eamon is suggesting creating unique names across 
-all message types by introducing a prefix, which seems like what you are 
-saying is necessary. And prefixes don't have to take much room (e.g., 
-sel instead of selinux-). The advantage to me is that it would be 
-natural when there are conflicts (e.g., the sel prefix on selperms would 
-let me know it would work for the selinux related message types).
+Dan - do you have better directions on how to get a patched and 
+configured refpolicy tree out of the source rpm?
 
 Karl
-
 
 --
 This message was distributed to subscribers of the selinux mailing list.
