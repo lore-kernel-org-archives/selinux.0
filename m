@@ -1,47 +1,69 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id l0TJ7j3r026233
-	for <selinux@tycho.nsa.gov>; Mon, 29 Jan 2007 14:07:45 -0500
-Received: from web36606.mail.mud.yahoo.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with SMTP id l0TJ8kF5002620
-	for <selinux@tycho.nsa.gov>; Mon, 29 Jan 2007 19:08:47 GMT
-Date: Mon, 29 Jan 2007 11:08:39 -0800 (PST)
-From: Casey Schaufler <casey@schaufler-ca.com>
-Reply-To: casey@schaufler-ca.com
-Subject: Re: [PATCH] sysctl selinux: Don't look at table->de
-To: Stephen Smalley <sds@tycho.nsa.gov>,
-        "Eric W. Biederman" <ebiederm@xmission.com>
+From: ebiederm@xmission.com (Eric W. Biederman)
+To: Stephen Smalley <sds@tycho.nsa.gov>
 Cc: Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@elte.hu>,
         tglx@linutronix.de, linux-kernel@vger.kernel.org,
         selinux@tycho.nsa.gov, jmorris@namei.org
-In-Reply-To: <1170096231.8720.102.camel@moss-spartans.epoch.ncsc.mil>
+Subject: Re: [PATCH] sysctl selinux: Don't look at table->de
+References: <200701280106.l0S16CG3019873@shell0.pdx.osdl.net>
+	<20070127172410.2b041952.akpm@osdl.org>
+	<1169972718.17469.164.camel@localhost.localdomain>
+	<20070128003549.2ca38dc8.akpm@osdl.org>
+	<20070128093358.GA2071@elte.hu> <20070128095712.GA6485@elte.hu>
+	<20070128100627.GA8416@elte.hu>
+	<20070128104548.a835d859.akpm@osdl.org>
+	<m1r6tfq7nv.fsf_-_@ebiederm.dsl.xmission.com>
+	<1170075866.8720.15.camel@moss-spartans.epoch.ncsc.mil>
+	<m18xflloes.fsf@ebiederm.dsl.xmission.com>
+	<1170096231.8720.102.camel@moss-spartans.epoch.ncsc.mil>
+Date: Mon, 29 Jan 2007 12:16:54 -0700
+In-Reply-To: <1170096231.8720.102.camel@moss-spartans.epoch.ncsc.mil> (Stephen
+	Smalley's message of "Mon, 29 Jan 2007 13:43:51 -0500")
+Message-ID: <m1d54xk5i1.fsf@ebiederm.dsl.xmission.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Message-ID: <493253.19989.qm@web36606.mail.mud.yahoo.com>
+Content-Type: text/plain; charset=us-ascii
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-
---- Stephen Smalley <sds@tycho.nsa.gov> wrote:
-
-> True, but a system that disables proc is likely a
-> system with a custom
-> policy anyway, and dependency on proc is fairly
-> basic to selinux these
-> days (due to reliance on /proc/self/attr for process
-> attribute
-> manipulation in place of the old selinux syscalls). 
-> Possibly we should
-> just make selinux depend on proc and drop the #ifdef
-> there.
-
-Alternativly you could move the SELinux specific
-bits out of /proc/self/attr into an equivalent
-/selinux/self/attr and avoid that /proc dependency.
+Stephen Smalley <sds@tycho.nsa.gov> writes:
 
 
+>> > If the ctl_table supplied more information about the functional purpose
+>> > and the security sensitivity of the sysctl, then we could leverage that
+>> > information instead, as long as we can at least derive the current
+>> > labelings from that information for compatibility.
+>> 
+>> What do information do you need to do need?  Do you need extra fields in
+> sysctl?
+>> I am more than willing to help but I am not familiar enough with selinux
+>> to do a reasonable job on my own.
+>
+> At present, we map the sysctls into functional groups (e.g. net, vm,
+> fs, ...) that parallel the sysctl hierarchy so that we can limit access
+> to only those programs/processes that need access for their purpose, and
+> further partition where it makes sense to do so.  We also separate out
+> particularly security sensitive ones like modprobe and hotplug.  So if
+> the ctl_table carried some indication of functional grouping and
+> security relevance (for some relatively small number of equivalence
+> classes), then we could map those to labels instead of the current
+> scheme.  And if we could have the ctl_table inherit the information from
+> its logical "parent" in the hierarchy by default, then it shouldn't
+> require too invasive a patch.
 
-Casey Schaufler
-casey@schaufler-ca.com
+Ok.  So basically what you need is a parent pointer or some other way
+of getting the full sysctl_path.   All of the names that show up in /proc
+are still present in the ctl_table.
+
+Hmm.  In parse_table we actually call sysctl_perm at each path component,
+I'm not doing that in proc_sysctl.c at the moment but that would be easy to
+add.
+
+I think I will look at adding the back pointers.  Adding the security
+check during lookup is nice but it won't really give you the context
+you could use.  There may be a point in adding a security check during
+lookup as well, but I think the way the VFS works there are weird implications
+there.
+
+Eric
 
 --
 This message was distributed to subscribers of the selinux mailing list.
