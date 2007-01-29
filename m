@@ -1,75 +1,44 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id l0TF8dtr013546
-	for <selinux@tycho.nsa.gov>; Mon, 29 Jan 2007 10:08:39 -0500
-Received: from web51505.mail.yahoo.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with SMTP id l0TF9fxX027653
-	for <selinux@tycho.nsa.gov>; Mon, 29 Jan 2007 15:09:41 GMT
-Message-ID: <20070129150941.41400.qmail@web51505.mail.yahoo.com>
-Date: Mon, 29 Jan 2007 07:09:41 -0800 (PST)
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id l0TFCRja013732
+	for <selinux@tycho.nsa.gov>; Mon, 29 Jan 2007 10:12:27 -0500
+Received: from web51501.mail.yahoo.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with SMTP id l0TFDSfV024473
+	for <selinux@tycho.nsa.gov>; Mon, 29 Jan 2007 15:13:28 GMT
+Date: Mon, 29 Jan 2007 07:13:27 -0800 (PST)
 From: Steve G <linux_4ever@yahoo.com>
 Subject: Re: missing avc message field names
-To: Stephen Smalley <sds@tycho.nsa.gov>
-Cc: selinux@tycho.nsa.gov, James Morris <jmorris@namei.org>,
-        Eric Paris <eparis@parisplace.org>,
-        Karl MacMillan <kmacmillan@mentalrootkit.com>
-In-Reply-To: <1170081328.8720.63.camel@moss-spartans.epoch.ncsc.mil>
+To: Karl MacMillan <kmacmillan@mentalrootkit.com>,
+        Stephen Smalley <sds@tycho.nsa.gov>
+Cc: Steve G <linux_4ever@yahoo.com>, selinux@tycho.nsa.gov,
+        James Morris <jmorris@namei.org>, Eric Paris <eparis@parisplace.org>
+In-Reply-To: <45BE0B8D.4080401@mentalrootkit.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=iso-8859-1
+Message-ID: <602284.30232.qm@web51501.mail.yahoo.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
->I don't think it is "impossible", but it would require updating of e.g.
->audit2allow, audit2why, madison/sepolgen, setroubleshoot and seaudit
->(setools).
 
-At some point, I'm hoping all those tools can migrate to this new API. This is to
-insulate them from other changes that are coming like zlib compression and/or
-binary formats.
+>And if the library doesn't handle old format it makes it hard to choose 
+>it for a project. 
 
->Are you proposing changing the raw kernel output format as well, or just
->the auditd-generated output format?
+True, hence the question about special-casing it. But to do that, we have to
+agree on a name that the API will use to present it.
 
-The audit daemon shouldn't really do any changing. It really should just log
-exactly what it gets. If we agree that this can be changed, what we could do is
-wait until the next kernel development cycle and then make this change (this
-allows for some migration time). I can special case the avc message for a while
-so there is some backwards compatibility.
+>I can't imagine dropping that for the audit library if it would mean losing
+>compatibility for everything before this format change (i.e., all currently
+>shipping selinux systems).
 
->The 4th field could be called "result=".  It has two possible values,
->"denied" or "granted".
+Agreed. I don't want to lose backwards compatibility either.
 
-That could possibly conflict with syscall auditing which has the same field. You
-could be in permissive mode and have denied by syscall reports success. Maybe
-"ares", "avcres", "decision", "dec"? Any other suggestions?
-
->The 6th field could be called "perms=".
-
-That name is already taken also. "aperms=" ?
-
->Its value is a space separated list, presently delimited by { } brackets.  I
->suppose it could be comma separated and space delimited instead if that matters.
-
-Yes that would be nice.
-
->"for" could likely be dropped from the message altogether.
->
->"avc:" is redundant with type=AVC, but we don't get the latter in the
->raw kernel output,
-
-No intention to change those. They get dropped by virtue of not having a '='.
-
->so it is useful for messages emitted when auditd is not running (either before 
->auditd starts, after it exits, or when not using auditd at all).
-
-Thanks,
 -Steve
 
 
  
 ____________________________________________________________________________________
-Expecting? Get great news right away with email Auto-Check. 
-Try the Yahoo! Mail Beta.
-http://advision.webevents.yahoo.com/mailbeta/newmail_tools.html 
+Now that's room service!  Choose from over 150,000 hotels
+in 45,000 destinations on Yahoo! Travel to find your fit.
+http://farechase.yahoo.com/promo-generic-14795097
 
 --
 This message was distributed to subscribers of the selinux mailing list.
