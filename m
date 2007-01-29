@@ -1,75 +1,70 @@
-Subject: Re: missing avc message field names
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Steve G <linux_4ever@yahoo.com>
-Cc: selinux@tycho.nsa.gov, James Morris <jmorris@namei.org>,
-        Eric Paris <eparis@parisplace.org>,
-        Karl MacMillan <kmacmillan@mentalrootkit.com>
-In-Reply-To: <20070129141019.98242.qmail@web51502.mail.yahoo.com>
-References: <20070129141019.98242.qmail@web51502.mail.yahoo.com>
-Content-Type: text/plain
-Date: Mon, 29 Jan 2007 09:35:28 -0500
-Message-Id: <1170081328.8720.63.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id l0TEhZXB012440
+	for <selinux@tycho.nsa.gov>; Mon, 29 Jan 2007 09:43:35 -0500
+Received: from wx-out-0506.google.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l0TEibfV019462
+	for <selinux@tycho.nsa.gov>; Mon, 29 Jan 2007 14:44:37 GMT
+Received: by wx-out-0506.google.com with SMTP id s17so1802454wxc
+        for <selinux@tycho.nsa.gov>; Mon, 29 Jan 2007 06:44:37 -0800 (PST)
+Message-ID: <45BE0843.2040204@kaigai.gr.jp>
+Date: Mon, 29 Jan 2007 23:44:19 +0900
+From: KaiGai Kohei <kaigai@kaigai.gr.jp>
+MIME-Version: 1.0
+To: russell@coker.com.au
+CC: "Christopher J. PeBenito" <cpebenito@tresys.com>, busybox@busybox.net,
+        selinux@tycho.nsa.gov, rob@landley.net, dwalsh@redhat.com,
+        busybox@kaigai.gr.jp, vda.linux@googlemail.com
+Subject: Re: [PATCH 5/8] busybox -- libselinux utilities applets
+References: <45B8C039.10907@kaigai.gr.jp> <45B8C25C.6090705@kaigai.gr.jp> <1169842227.25290.8.camel@sgc.columbia.tresys.com> <200701292328.37290.russell@coker.com.au>
+In-Reply-To: <200701292328.37290.russell@coker.com.au>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 2007-01-29 at 06:10 -0800, Steve G wrote:
-> Hi,
+Hi, Thanks for your comments.
+
+Russell Coker wrote:
+> On Saturday 27 January 2007 07:10, "Christopher J. PeBenito" 
+> <cpebenito@tresys.com> wrote:
+>> On Thu, 2007-01-25 at 23:44 +0900, KaiGai Kohei wrote:
+>>> [5/8] busybox-libselinux-05-avcstat.patch
+>>>   avcstat reports SELinux AVC(Access Vector Cache) statistics.
+>>>   AVC is a in-kernel data structure to accelerate SELinux's
+>>>   decision making.
+>> Are you sure this should be added?  It doesn't seem like it would be
+>> used much.  I don't think most people are even aware that you can get
+>> stats on the AVC, much less know what to do with them.
 > 
-> I am in the process of working on the audit parsing library. The specifications
-> for the parser have been posted for about a year:
+> I agree.  avcstat is used only rarely and only in development.  I don't think 
+> that it's something we need in production on an iPaQ, for system recovery, or 
+> in an initramfs - therefore I think it's something that isn't needed in 
+> busybox.
 > 
-> http://people.redhat.com/sgrubb/audit/audit-parse.txt
-> 
-> In order to allow bindings in many programming languages, it was decided to
-> abstract much of the audit format and just present an opaque API that presents
-> the data as name/value pairs that can be iterated through. So far, everything is
-> working fine for all audit messages except AVCs. The reason being is that there
-> are fields in the record that do not have a name. For example:
-> 
-> type=AVC msg=audit(1169743468.302:3604): avc:  denied  { sys_resource } for 
-> pid=4002 comm="semodule" capability=24 scontext=system_u:system_r:semanage_t:s0
-> tcontext=system_u:system_r:semanage_t:s0 tclass=capability
-> 
-> The parser uses ' ' as the separator. So the 4th field is denied al by itself.
-> The 6th field is sys_resource all by itself. Currently the parser throws those
-> fields away because they do not follow the name=value convention. But I think
-> they are fields that we really want to keep.
-> 
-> Would anybody object to making these follow the name=value format?
->
-> If this is impossible, I can special-case AVCs and pick out the 4th and 6th
-> fields. But the API will follow name/value convention. So, what would everyone
-> want to call the 4th & 6th field's names?
+> As for togglesebool, should such a thing even exist?  Before we had setenforce 
+> we had avc_toggle which was very similar to togglesebool - and it was 
+> generally regarded that avc_toggle should not exist.
 
-I don't think it is "impossible", but it would require updating of e.g.
-audit2allow, audit2why, madison/sepolgen, setroubleshoot and seaudit
-(setools).
+Our primary motivation is that porting some of significant SELinux utilities
+without any unexpected incompatibility.
+Therefore, the serious of patches implements all of liblisenux utilities.
 
-Are you proposing changing the raw kernel output format as well, or just
-the auditd-generated output format?  
+But your opinions are persuasive, I can agree to suspend the patches of
+avcstat and togglesebool.
 
-The 4th field could be called "result=".  It has two possible values,
-"denied" or "granted".
+Denis, I would like to suspend the 5th and 6th patches by above reason.
 
-The 6th field could be called "perms=".  Its value is a space separated
-list, presently delimited by { } brackets.  I suppose it could be comma
-separated and space delimited instead if that matters.
+> Good work on the busybox development KaiGai, it's something that needed to be 
+> done for a while.  But I think you were a little over-enthusiastic in regard 
+> to those two commands.
 
-"for" could likely be dropped from the message altogether.
+The list of our works (which include unsubmitted ones) are here:
+   http://code.google.com/p/sebusybox/
 
-"avc:" is redundant with type=AVC, but we don't get the latter in the
-raw kernel output, so it is useful for messages emitted when auditd is
-not running (either before auditd starts, after it exits, or when not
-using auditd at all).
+We want any comments about its necessity and so on.
 
-> Just an FYI, I am hoping to release the initial libauparse later this week. It
-> should have python bindings, too.
-
+Thanks,
 -- 
-Stephen Smalley
-National Security Agency
-
+KaiGai Kohei <kaigai@kaigai.gr.jp>
 
 --
 This message was distributed to subscribers of the selinux mailing list.
