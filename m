@@ -1,44 +1,46 @@
-Message-ID: <45BE3DDA.4050909@mentalrootkit.com>
-Date: Mon, 29 Jan 2007 13:32:58 -0500
+Message-ID: <45BE3F69.1000508@mentalrootkit.com>
+Date: Mon, 29 Jan 2007 13:39:37 -0500
 From: Karl MacMillan <kmacmillan@mentalrootkit.com>
 MIME-Version: 1.0
 To: Steve G <linux_4ever@yahoo.com>
 CC: Stephen Smalley <sds@tycho.nsa.gov>, selinux@tycho.nsa.gov,
         James Morris <jmorris@namei.org>, Eric Paris <eparis@parisplace.org>
 Subject: Re: missing avc message field names
-References: <49081.83290.qm@web51511.mail.yahoo.com>
-In-Reply-To: <49081.83290.qm@web51511.mail.yahoo.com>
+References: <20070129150941.41400.qmail@web51505.mail.yahoo.com>
+In-Reply-To: <20070129150941.41400.qmail@web51505.mail.yahoo.com>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 Steve G wrote:
->>>> The 4th field could be called "result=".  It has two possible values,
->>>> "denied" or "granted".
->>> That could possibly conflict with syscall auditing which has the same
->>> field. You could be in permissive mode and have denied by syscall
->>> reports success. Maybe "ares", "avcres", "decision", "dec"? Any
->>> other suggestions?
->>>
->>>> The 6th field could be called "perms=".
->>> That name is already taken also. "aperms=" ?
->> Why do you need to de-conflict the field names when they occur in
->> different types of records (AVC vs. SYSCALL)?
+>> I don't think it is "impossible", but it would require updating of e.g.
+>> audit2allow, audit2why, madison/sepolgen, setroubleshoot and seaudit
+>> (setools).
 > 
-> I am creating a data dictionary of field names so that when people see a field
-> name, they know exactly what it is, what type of data is in it, and what kinds of
-> messages its likely to show up in. This is also needed for the interpretation of
-> fields so that each type can be interpretted correctly.
+> At some point, I'm hoping all those tools can migrate to this new API. This is to
+> insulate them from other changes that are coming like zlib compression and/or
+> binary formats.
 > 
-> In this case, both of the avc fields we are discussing are text, so its not quite
-> as important from the interpretation perspective. But I am trying to be
-> consistent across all message types in order to have a dictionary describing
-> audit fields.
+>> Are you proposing changing the raw kernel output format as well, or just
+>> the auditd-generated output format?
+> 
+> The audit daemon shouldn't really do any changing. It really should just log
+> exactly what it gets. If we agree that this can be changed, what we could do is
+> wait until the next kernel development cycle and then make this change (this
+> allows for some migration time). I can special case the avc message for a while
+> so there is some backwards compatibility.
 > 
 
-I think that it is easier to have unambiguous names across all message 
-types, particularly if people are trying to correlate data from multiple 
-messages.
+I think that having the audit library available is a good idea to make 
+it easier to make changes to the audit data. However, there is no way 
+that all tools will migrate by the time the next kernel cycle comes 
+around. I actually wouldn't count on everyone moving *ever* and would 
+assume that any format change will cause breakage.
+
+If you have to include code for parsing the current format, why the rush 
+to change the kernel output? Why not just wait until there is a more 
+pressing reason to make the change? That will give the library time to 
+gain acceptance and will make any changes less painful.
 
 Karl
 
