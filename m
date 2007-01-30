@@ -1,79 +1,74 @@
-From: Steve Grubb <sgrubb@redhat.com>
-To: Karl MacMillan <kmacmillan@mentalrootkit.com>
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id l0UIiJqW010782
+	for <selinux@tycho.nsa.gov>; Tue, 30 Jan 2007 13:44:19 -0500
+Received: from web36607.mail.mud.yahoo.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with SMTP id l0UIjLph005937
+	for <selinux@tycho.nsa.gov>; Tue, 30 Jan 2007 18:45:21 GMT
+Date: Tue, 30 Jan 2007 10:45:20 -0800 (PST)
+From: Casey Schaufler <casey@schaufler-ca.com>
+Reply-To: casey@schaufler-ca.com
 Subject: Re: missing avc message field names
-Date: Tue, 30 Jan 2007 12:42:31 -0500
-Cc: Karl MacMillan <kmacmill@redhat.com>, linux-audit@redhat.com,
-        ewalsh@tycho.nsa.gov, Steve G <linux_4ever@yahoo.com>,
-        selinux@tycho.nsa.gov
-References: <20070129185542.32977.qmail@web51502.mail.yahoo.com> <200701291749.21897.sgrubb@redhat.com> <45BF5AE3.6030602@mentalrootkit.com>
-In-Reply-To: <45BF5AE3.6030602@mentalrootkit.com>
+To: Joshua Brindle <jbrindle@tresys.com>
+Cc: linux-audit@redhat.com, selinux@tycho.nsa.gov
+In-Reply-To: <45BF7AFE.1000701@tresys.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Message-Id: <200701301242.31909.sgrubb@redhat.com>
+Content-Type: text/plain; charset=iso-8859-1
+Message-ID: <490935.83298.qm@web36607.mail.mud.yahoo.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tuesday 30 January 2007 09:49, Karl MacMillan wrote:
-> > You already have that problem. AUDIT_AVC and AUDIT_USER_AVC.
->
-> Yes, but adding even more message types makes the problem worse. More
-> importantly, what does splitting AVC messages even more accomplish?
 
-It allows users to tune the audit system to the kinds of messages they want to 
-keep in their logs, makes analysis of the kinds of problems being reported 
-easier, and allows normalization of records for binary use.
+--- Joshua Brindle <jbrindle@tresys.com> wrote:
 
-> In fact, I would rather that AUDIT_AVC and AUDIT_USER_AVC were not split.
 
-They have to be, ironically, because of SE Linux.  :)
+> This is fairly off topic here (selinux list) but I
+> agree with Karl. As a 
+> recovering admin I think I can say that admins
+> expect to be able to use 
+> various unix utilities to inspect log files,
+> particularly tail -f. While 
+> I'm all for applications putting their data in
+> private data formats and 
+> using tools and libraries to inspect them I think it
+> is generally 
+> considered that everything in /var/log is fair game
+> to inspect with 
+> anything available on systems (including perl,
+> python, sed, awk, tail, 
+> grep, etc).
+> 
+> You will certainly be rubbing most admins the wrong
+> way by forcing them 
+> through a different interface that won't support
+> some common commands 
+> like tail -f.
+> 
+> There are probably hundreds of utilities that look
+> through these files 
+> as well, what is going to happen when people try to
+> add audit.log to a 
+> log watcher that emails logs to them? Huge binary
+> dumps in email are 
+> going to make people turn off the audit daemon, not
+> modify their apps to 
+> use different tools/libraries.
 
-> > Speed and compression. People doing serious auditing have very large
-> > files. Compression is extremely important. Also when dealing with large
-> > files, any performance trick you can find helps immensely.
->
-> gzip or bzip2 compression is not sufficient?
+Based on the Unix experience I find myself
+agreeing with this assessment. Binary (or
+compressed) audit logs don't get read very
+often. A mechanism like audit_filters(5) from
+Irix makes the problem more manageable, but
+the truth is that humans like their information
+human readable. Disk space used to be a major
+problem, and I/O bandwidth still is (you can
+overwhelm any system with too much audit no
+matter how optimal your audit data) but the
+cost of translation-on-read is going to stop
+most humans from ever doing it.
 
-No, its an intermediate solution on the way to a better more difficult 
-solution.
 
-> Is audit searching performance the most important consideration?
-
-Storage size is the more important followed by speed. As soon as you allow 
-more records, they will have more to search.
-
-> Look, I'm not against binary logs, I'm just trying to point out that I
-> think that the transition will not be as easy as you seem to suggest.
-
-No, I'm sure it will be time consuming and done in phases. The first step is 
-providing the insulating layer so that apps do not have to care.
-
-> >> The biggest issue, of course, is that it would prevent the use of any
-> >> tools that process the files as text (grep, tail, awk, seaudit,
-> >> setroubleshoot, etc., etc.).
-> >
-> > ausearch -m all --raw | grep anything you want
->
-> tail -f happens to be my favorite counter example, but I am certain
-> there are other useful tricks for monitoring logs that will break.
-
-You can still use this on your system. What will be happening in the audit 
-system is that there will be choices as to how the information will be 
-stored. Text will still be an option. However, the portable way will be 
-ausearch based.
-
-> >> And what about third-party tools that are security critical?
-> >
-> > They have the TRUSTED_APP message type and they can put anything in that
-> > they want. I consider that one completely freestyle.
->
-> Why is it acceptable to have arbitrary name/value pairs in that message
-> type and not in others?
-
-Because by definition third party means we don't have the source to review or 
-fix.
-
--Steve
+Casey Schaufler
+casey@schaufler-ca.com
 
 --
 This message was distributed to subscribers of the selinux mailing list.
