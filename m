@@ -1,32 +1,36 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id l0UJX2xe012800
-	for <selinux@tycho.nsa.gov>; Tue, 30 Jan 2007 14:33:02 -0500
-Received: from mx.meyering.net (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l0UJY0G1008604
-	for <selinux@tycho.nsa.gov>; Tue, 30 Jan 2007 19:34:01 GMT
-From: Jim Meyering <jim@meyering.net>
-To: selinux@tycho.nsa.gov
-Subject: provoking fsetfilecon failure in a test case
-Date: Tue, 30 Jan 2007 20:33:29 +0100
-Message-ID: <87y7nk8g3a.fsf@rho.meyering.net>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Subject: Re: missing avc message field names
+From: James Antill <jantill@redhat.com>
+To: Karl MacMillan <kmacmillan@mentalrootkit.com>
+Cc: Steve Grubb <sgrubb@redhat.com>, linux-audit@redhat.com,
+        ewalsh@tycho.nsa.gov, selinux@tycho.nsa.gov
+In-Reply-To: <45BF5AE3.6030602@mentalrootkit.com>
+References: <20070129185542.32977.qmail@web51502.mail.yahoo.com>
+	 <200701291556.37235.sgrubb@redhat.com> <45BE6410.9050604@redhat.com>
+	 <200701291749.21897.sgrubb@redhat.com> <45BF5AE3.6030602@mentalrootkit.com>
+Content-Type: text/plain
+Date: Tue, 30 Jan 2007 17:53:08 -0500
+Message-Id: <1170197588.3373.28.camel@laptop.and.org>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-I'm adding a test case for the 'cp -a' failure reported here:
+On Tue, 2007-01-30 at 09:49 -0500, Karl MacMillan wrote: 
+> Steve Grubb wrote:
+> > ausearch -m all --raw | grep anything you want
+> 
+> tail -f happens to be my favorite counter example, but I am certain 
+> there are other useful tricks for monitoring logs that will break. Not 
+> to mention the number of log monitoring and aggregation tools that 
+> assume text logs.
 
-  http://bugzilla.redhat.com/219900
+ To be fair the new audit dispatcher already has a plugin that does the
+same thing as "tail -f" without needing to call stat(), and that'll be
+released before auditd has binary logs ... although one could certainly
+argue that it's not as obvious, it seems like a small price.
 
-In my comment there, I asked this:
+-- 
+James Antill <jantill@redhat.com>
 
-  I'd like to add a test script to exercise this fix, but depending on
-  the existence of a writable, NFS-mounted partition is not a recipe for
-  good coverage. Can anyone suggest an easier way to provoke fsetfilecon
-  failure on a file we've just opened (but not created -- it already
-  existed) for writing?
-
-Any ideas?
 
 --
 This message was distributed to subscribers of the selinux mailing list.
