@@ -1,50 +1,60 @@
 From: Russell Coker <russell@coker.com.au>
 Reply-To: russell@coker.com.au
-To: Stephen Smalley <sds@tycho.nsa.gov>
-Subject: Re: [PATCH] sysctl selinux: Don't look at table->de
-Date: Tue, 30 Jan 2007 10:28:51 +1100
-Cc: "Eric W. Biederman" <ebiederm@xmission.com>, Andrew Morton <akpm@osdl.org>,
-        Ingo Molnar <mingo@elte.hu>, tglx@linutronix.de,
-        linux-kernel@vger.kernel.org, selinux@tycho.nsa.gov, jmorris@namei.org
-References: <200701280106.l0S16CG3019873@shell0.pdx.osdl.net> <m18xflloes.fsf@ebiederm.dsl.xmission.com> <1170096231.8720.102.camel@moss-spartans.epoch.ncsc.mil>
-In-Reply-To: <1170096231.8720.102.camel@moss-spartans.epoch.ncsc.mil>
+To: ewalsh@tycho.nsa.gov
+Subject: Re: missing avc message field names
+Date: Tue, 30 Jan 2007 23:25:09 +1100
+Cc: Steve Grubb <sgrubb@redhat.com>, Karl MacMillan <kmacmill@redhat.com>,
+        linux-audit@redhat.com, Steve G <linux_4ever@yahoo.com>,
+        selinux@tycho.nsa.gov
+References: <20070129185542.32977.qmail@web51502.mail.yahoo.com> <200701291749.21897.sgrubb@redhat.com> <45BE87E0.5090109@tycho.nsa.gov>
+In-Reply-To: <45BE87E0.5090109@tycho.nsa.gov>
 MIME-Version: 1.0
 Content-Type: text/plain;
-  charset="utf-8"
-Message-Id: <200701301028.56693.russell@coker.com.au>
+  charset="iso-8859-1"
+Message-Id: <200701302325.12726.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tuesday 30 January 2007 05:43, Stephen Smalley <sds@tycho.nsa.gov> wrote:
-> True, but a system that disables proc is likely a system with a custom
-> policy anyway,
+On Tuesday 30 January 2007 10:48, Eamon Walsh <ewalsh@tycho.nsa.gov> wrote:
+> there might be SELinux-enhanced e-mail clients,
+> office applications, file managers in the future
 
-In practice we have to extensively customise policy long before getting to the 
-non-proc stage of optimising for small hardware.  The Familiar distribution 
-(used on the iPaQ) has /proc but needs significant policy changes when 
-compared to a typical Fedora workstation.  Not only is there the issue that 
-embedded distributions have different daemons and path names to workstations, 
-but the memory constraints mean that even a modular targeted policy is not as 
-small as you desire.
+Yes, we need all that.
 
-> and dependency on proc is fairly basic to selinux these 
-> days (due to reliance on /proc/self/attr for process attribute
-> manipulation in place of the old selinux syscalls).  Possibly we should
-> just make selinux depend on proc and drop the #ifdef there.
+There are some people interested in SE enhanced MUAs.
 
-I think that is the correct thing to do.  Someone who is prepared to do all 
-the work needed to get a recent SE Linux system operating without /proc will 
-have no problem changing the kernel config scripts and everyone else would be 
-better off not being confused by being offered sets of options that are not 
-viable.
+One issue is that SE-X is required for full functionality in this regard 
+(let's assume for the sake of discussion that almost everyone who matters 
+uses a GUI MUA).  Another issue is that the design of MUAs is tending towards 
+greater integration with the desktop environment and larger more complex code 
+bases.
+
+I'm thinking of starting to attack this by developing a password sequestration 
+system for MUAs.  The idea being that the MUA would run a SETGID program and 
+request a POP connection, it would be returned a file handle for an 
+authenticated connection but have no way of obtaining the password that was 
+used.  This will offer significant security benefits in a non-SE environment 
+and even better protection with SE Linux.  A compromised MUA would not be 
+able to obtain a password list and send it to a hostile party (it would be 
+able to proxy access to the POP server and to send copies of all stored 
+messages).  Given the incidence of passwords being used for multiple 
+functions this would significantly mitigate the risks of MUA based attacks.
+
+The current situation is tending towards having an ever increasing amount of 
+the practical system integrity dependant on the integrity of a single user 
+account (in which all programs run with the same security context).
+
+Getting upstream support for labelled email is going to be very difficult with 
+the current client side security situation.
+
+Now if we could just get web browsers to have their functionality split into 
+multiple programs with different security contexts...
 
 -- 
 russell@coker.com.au
 http://etbe.blogspot.com/          My Blog
 
 http://www.coker.com.au/sponsorship.html Sponsoring Free Software development
-
-
 
 --
 This message was distributed to subscribers of the selinux mailing list.
