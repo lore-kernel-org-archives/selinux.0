@@ -1,51 +1,99 @@
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id l119w2eA023509
+	for <selinux@tycho.nsa.gov>; Thu, 1 Feb 2007 04:58:02 -0500
+Received: from smtp.sws.net.au (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id l119x1sV011929
+	for <selinux@tycho.nsa.gov>; Thu, 1 Feb 2007 09:59:03 GMT
+Received: from localhost (localhost [127.0.0.1])
+	by smtp.sws.net.au (Postfix) with ESMTP id 5718F620E1
+	for <selinux@tycho.nsa.gov>; Thu,  1 Feb 2007 20:58:35 +1100 (EST)
+Received: from smtp.sws.net.au ([127.0.0.1])
+	by localhost (smtp.sws.net.au [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id z+GoY1n8GJxu for <selinux@tycho.nsa.gov>;
+	Thu,  1 Feb 2007 20:58:35 +1100 (EST)
+Received: from aeon.coker.com.au (localhost [127.0.0.1])
+	by smtp.sws.net.au (Postfix) with ESMTP id 0B47C620DE
+	for <selinux@tycho.nsa.gov>; Thu,  1 Feb 2007 20:58:35 +1100 (EST)
+Received: from localhost (localhost [127.0.0.1])
+	by aeon.coker.com.au (Postfix) with ESMTP id B1CD320B05
+	for <selinux@tycho.nsa.gov>; Thu,  1 Feb 2007 21:00:38 +1100 (EST)
 From: Russell Coker <russell@coker.com.au>
 Reply-To: russell@coker.com.au
-To: Joshua Brindle <jbrindle@tresys.com>
-Subject: Re: missing avc message field names
-Date: Thu, 1 Feb 2007 09:59:37 +1100
-Cc: Karl MacMillan <kmacmillan@mentalrootkit.com>,
-        James Antill <jantill@redhat.com>, Steve Grubb <sgrubb@redhat.com>,
-        linux-audit@redhat.com, ewalsh@tycho.nsa.gov, selinux@tycho.nsa.gov
-References: <20070129185542.32977.qmail@web51502.mail.yahoo.com> <45BFE7EC.8050609@mentalrootkit.com> <45C02948.9090607@tresys.com>
-In-Reply-To: <45C02948.9090607@tresys.com>
+To: "SE-Linux" <selinux@tycho.nsa.gov>
+Subject: Fwd: Bug#409173: ITP: incron -- cron like daemon which handles filesystem events
+Date: Thu, 1 Feb 2007 09:19:01 +1100
 MIME-Version: 1.0
-Content-Type: text/plain;
+Content-Type: Text/Plain;
   charset="iso-8859-1"
-Message-Id: <200702010959.41511.russell@coker.com.au>
+Message-Id: <200702010919.02668.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wednesday 31 January 2007 16:29, Joshua Brindle <jbrindle@tresys.com> 
-wrote:
-> Even with a tail replacement there has to be thousands of internally
-> written and maintained log monitoring and reporting apps that will
-> break, this is a fundamental change in how logging works on linux, not
-> something that can or should be changed on a whim (or otherwise).
+This program (which Emmanuel Intends to Package for Debian) has an interesting 
+concept.  It should be able to do everything that the restorecond does and a 
+lot more.
 
-Most such programs assume that log files keep the same name until a cron job 
-renames them.  The current practice of auditd rotating it's log files has 
-probably broken the majority of such programs already.
+I haven't looked at the source.  If the code sucks then maybe writing a new 
+program to implement the same concept would be a better solution to the 
+restorecond problem.
 
-Also Steve Grubb suggested having a configuration option for plain-text files 
-which will avoid the problems with binary files.
+----------  Forwarded Message  ----------
 
-If we work with the assumption that indexed log files are required for sites 
-with significant audit requirements due to the volume of logs and the need to 
-get responses in a reasonable amount of time then we have two options.  One 
-is a binary format, the other is to have index files along-side the text 
-files.
+Subject: Bug#409173: ITP: incron -- cron like daemon which handles filesystem 
+events
+Date: Wednesday 31 January 2007 23:13
+From: Emmanuel Bouthenot <kolter@openics.org>
+To: Debian Bug Tracking System <submit@bugs.debian.org>
 
-Having separate index files introduces complications for renaming and other 
-file management (complexity is bad for reliability), even without the issue 
-of the sys-admin wanting to rename their own log files.
+Package: wnpp
+Severity: wishlist
+Owner: Emmanuel Bouthenot <kolter@openics.org>
 
-So it seems that the option of a binary log file is required.
+* Package name    : incron
+  Version         : O.5.1
+  Upstream Author : Lukas Jelinek <lukas@aiken.cz>
+* URL             : http://inotify.aiken.cz/
+* License         : tri-licenced : GPLv2, LGPLv2.1, X11 like
+  Programming Lang: C++
+  Description     : cron like daemon which handles filesystem events
 
-Maybe there should be an option to have auditd write a binary log file as well 
-as either a text log file or logging via syslog?  That way the admin could 
-have the index benefits of a binary log as well as having text files.  If 
-there were two log files then the second copy wouldn't need to be written 
-synchronously so the IO load would not double.
+ incron is an "inotify cron" system. It works like the regular
+ cron but is driven by filesystem events instead of time periods.
+ It contains two programs, a daemon called "incrond" (analogous
+ to crond) and a table manipulator "incrontab" (like "crontab").
+ .
+ incron use Linux Kernel inotify syscalls.
+ .
+ like cron, each user can edit its own incron tables.
+ .
+ incron can be use to :
+  - notifying programs (e.g. server daemons) about changes in configuration
+  - guarding changes in critical files (with their eventual recovery)
+  - file usage monitoring, statistics
+  - automatic on-crash cleanup
+  - automatic on-change backup or versioning
+  - new mail notification (for maildir)
+  - server upload notification
+  - installation management (outside packaging systems)
+  - ..and many others
+ .
+ HomePage: http://inotify.aiken.cz/
+
+-- System Information:
+Debian Release: 4.0
+  APT prefers unstable
+  APT policy: (500, 'unstable')
+Architecture: i386 (i686)
+Shell:  /bin/sh linked to /bin/bash
+Kernel: Linux 2.6.18-4-k7
+Locale: LANG=fr_FR.UTF-8, LC_CTYPE=fr_FR.UTF-8 (charmap=UTF-8)
+
+
+--
+To UNSUBSCRIBE, email to debian-devel-REQUEST@lists.debian.org
+with a subject of "unsubscribe". Trouble? Contact listmaster@lists.debian.org
+
+-------------------------------------------------------
 
 -- 
 russell@coker.com.au
