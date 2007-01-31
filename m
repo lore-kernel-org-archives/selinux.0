@@ -1,52 +1,58 @@
-From: Jim Meyering <jim@meyering.net>
-To: Stephen Smalley <sds@tycho.nsa.gov>
-Cc: selinux@tycho.nsa.gov, James Morris <jmorris@namei.org>,
-        Eric Paris <eparis@redhat.com>
-Subject: Re: provoking fsetfilecon failure in a test case
-In-Reply-To: <1170267927.12293.89.camel@moss-spartans.epoch.ncsc.mil> (Stephen
-	Smalley's message of "Wed, 31 Jan 2007 13:25:27 -0500")
-References: <87y7nk8g3a.fsf@rho.meyering.net>
-	<1170261007.12293.64.camel@moss-spartans.epoch.ncsc.mil>
-	<87iren6rag.fsf@rho.meyering.net>
-	<1170267927.12293.89.camel@moss-spartans.epoch.ncsc.mil>
-Date: Wed, 31 Jan 2007 22:32:01 +0100
-Message-ID: <873b5q7ui6.fsf@rho.meyering.net>
+From: Russell Coker <russell@coker.com.au>
+Reply-To: russell@coker.com.au
+To: Joshua Brindle <jbrindle@tresys.com>
+Subject: Re: missing avc message field names
+Date: Thu, 1 Feb 2007 09:59:37 +1100
+Cc: Karl MacMillan <kmacmillan@mentalrootkit.com>,
+        James Antill <jantill@redhat.com>, Steve Grubb <sgrubb@redhat.com>,
+        linux-audit@redhat.com, ewalsh@tycho.nsa.gov, selinux@tycho.nsa.gov
+References: <20070129185542.32977.qmail@web51502.mail.yahoo.com> <45BFE7EC.8050609@mentalrootkit.com> <45C02948.9090607@tresys.com>
+In-Reply-To: <45C02948.9090607@tresys.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Message-Id: <200702010959.41511.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Stephen Smalley <sds@tycho.nsa.gov> wrote:
-> On Wed, 2007-01-31 at 18:26 +0100, Jim Meyering wrote:
-...
->> In the interest of reproducing the conditions of the "cp -a" failure
->> for my test script, I'd prefer to run as non-root: far fewer users run
->> coreutils' root-requiring tests.  But so far, even with your list above,
->> unless the test can find a writable NFS partition, it looks like having
->> a non-root test is not feasible.  Can you see a way?
->
-> Only by running the test in a confined domain that lacks the necessary
-> permissions to the file type.  Which would either require finding a
-> suitable domain to which you can transition in the existing policy or
-> creating a small test policy module (which would have to be preloaded by
-> a root process, of course).
+On Wednesday 31 January 2007 16:29, Joshua Brindle <jbrindle@tresys.com> 
+wrote:
+> Even with a tail replacement there has to be thousands of internally
+> written and maintained log monitoring and reporting apps that will
+> break, this is a fundamental change in how logging works on linux, not
+> something that can or should be changed on a whim (or otherwise).
 
-Thanks for the continued (quick!) feedback.
+Most such programs assume that log files keep the same name until a cron job 
+renames them.  The current practice of auditd rotating it's log files has 
+probably broken the majority of such programs already.
 
-This sounds like it could be less invasive than mounting a temporary
-file system.  Especially if I can find an existing confined domain
-that works.  What do you think?  If you're running coreutils'
-"make check-root" rule, which would you prefer it to use:
-  - a temporary loopback file system, or
-  - create/load a test policy module, assuming I can unload it,
-      leaving no trace, when done, or
-  - (maybe best?) use some commonly-available confined domain
-    that's suitable.  Then I don't have to worry about
-    creating/loading one.
+Also Steve Grubb suggested having a configuration option for plain-text files 
+which will avoid the problems with binary files.
 
-If the test-policy route sounds better, can you give a small demo?
-Like how to find a suitable confined domain and, if needed,
-how to create and preload a small test policy.
+If we work with the assumption that indexed log files are required for sites 
+with significant audit requirements due to the volume of logs and the need to 
+get responses in a reasonable amount of time then we have two options.  One 
+is a binary format, the other is to have index files along-side the text 
+files.
+
+Having separate index files introduces complications for renaming and other 
+file management (complexity is bad for reliability), even without the issue 
+of the sys-admin wanting to rename their own log files.
+
+So it seems that the option of a binary log file is required.
+
+Maybe there should be an option to have auditd write a binary log file as well 
+as either a text log file or logging via syslog?  That way the admin could 
+have the index benefits of a binary log as well as having text files.  If 
+there were two log files then the second copy wouldn't need to be written 
+synchronously so the IO load would not double.
+
+-- 
+russell@coker.com.au
+http://etbe.blogspot.com/          My Blog
+
+http://www.coker.com.au/sponsorship.html Sponsoring Free Software development
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
