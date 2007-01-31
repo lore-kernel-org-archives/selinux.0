@@ -1,57 +1,82 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id l0VGgFPh020764
-	for <selinux@tycho.nsa.gov>; Wed, 31 Jan 2007 11:42:15 -0500
-Received: from mx1.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id l0VGhHc1010263
-	for <selinux@tycho.nsa.gov>; Wed, 31 Jan 2007 16:43:18 GMT
-Received: from int-mx1.corp.redhat.com (int-mx1.corp.redhat.com [172.16.52.254])
-	by mx1.redhat.com (8.13.1/8.13.1) with ESMTP id l0VGhGXx012221
-	for <selinux@tycho.nsa.gov>; Wed, 31 Jan 2007 11:43:16 -0500
-Received: from pobox-2.corp.redhat.com (pobox-2.corp.redhat.com [10.11.255.15])
-	by int-mx1.corp.redhat.com (8.13.1/8.13.1) with ESMTP id l0VGhGXx027227
-	for <selinux@tycho.nsa.gov>; Wed, 31 Jan 2007 11:43:16 -0500
-Received: from [10.11.14.132] (vpn-14-132.rdu.redhat.com [10.11.14.132])
-	by pobox-2.corp.redhat.com (8.13.1/8.13.1) with ESMTP id l0VGhFV7005693
-	for <selinux@tycho.nsa.gov>; Wed, 31 Jan 2007 11:43:16 -0500
-Message-ID: <45C0C722.4030604@mentalrootkit.com>
-Date: Wed, 31 Jan 2007 11:43:14 -0500
-From: Karl MacMillan <kmacmillan@mentalrootkit.com>
+From: Jim Meyering <jim@meyering.net>
+To: Stephen Smalley <sds@tycho.nsa.gov>
+Cc: selinux@tycho.nsa.gov
+Subject: Re: provoking fsetfilecon failure in a test case
+In-Reply-To: <1170261007.12293.64.camel@moss-spartans.epoch.ncsc.mil> (Stephen
+	Smalley's message of "Wed, 31 Jan 2007 11:30:07 -0500")
+References: <87y7nk8g3a.fsf@rho.meyering.net>
+	<1170261007.12293.64.camel@moss-spartans.epoch.ncsc.mil>
+Date: Wed, 31 Jan 2007 18:26:47 +0100
+Message-ID: <87iren6rag.fsf@rho.meyering.net>
 MIME-Version: 1.0
-To: SELinux Mail List <selinux@tycho.nsa.gov>
-Subject: [PATCH] add sepolgen
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-The patch at [1] adds the sepolgen python library for policy generation 
-and a new implementation of audit2allow based on this library. The 
-library has facilities for:
+Stephen Smalley <sds@tycho.nsa.gov> wrote:
 
-* parsing audit messages
-* parsing and representing policy (including refpolicy interfaces)
-* manipulating / transforming policy (e.g., adding require statements)
-* generating policy from access requests / audit messages (including 
-calls to refpolicy interfaces)
-* outputting policy as text
-* compiling policy modules
+> On Tue, 2007-01-30 at 20:33 +0100, Jim Meyering wrote:
+>> I'm adding a test case for the 'cp -a' failure reported here:
+>>
+>>   http://bugzilla.redhat.com/219900
+>>
+>> In my comment there, I asked this:
+>>
+>>   I'd like to add a test script to exercise this fix, but depending on
+>>   the existence of a writable, NFS-mounted partition is not a recipe for
+>>   good coverage. Can anyone suggest an easier way to provoke fsetfilecon
+>>   failure on a file we've just opened (but not created -- it already
+>>   existed) for writing?
+>>
+>> Any ideas?
+>
+> fsetfilecon will fail if any of the following apply:
+> - the filesystem was mounted with a context= option or the filesystem
+> doesn't support setxattr for the security namespace (EOPNOTSUPP),
+> - the process fsuid doesn't match the file's uid and the process lacks
+> CAP_FOWNER (EPERM),
+> - the process lacks relabelfrom permission to the old file context,
+> - the new context isn't valid (EINVAL),
+> - the process lacks relabelto permission to the new file context,
+> - the relationship between the old and new file contexts violates a
+> validatetrans constraint,
+> - the new file context is not allowed to be associated with the
+> filesystem context.
 
-All of the requested updates from the previous review have been made.
+Thank you for the reply.
+In the interest of reproducing the conditions of the "cp -a" failure
+for my test script, I'd prefer to run as non-root: far fewer users run
+coreutils' root-requiring tests.  But so far, even with your list above,
+unless the test can find a writable NFS partition, it looks like having
+a non-root test is not feasible.  Can you see a way?
 
-Notes for packaging:
+However, I've just confirmed that I can reproduce the conditions
+(as root, of course) by creating a temporary partition mounted via
+"mount -oloop,context=system_u:object_r:removable_t".  So at least
+a root-only test won't also require NFS.
 
-* This adds a new dependency between policycoreutils and sepolgen
-* The tool sepolgen-ifgen needs to be run to extract information from 
-the reference policy headers for audit2allow to generate refpolicy. The 
-rpm spec file at 
-http://hg.et.redhat.com/selinux/madison?f=b26375c7641a;file=madison.spec 
-shows how I did this.
-* Audit2allow currently has a few regressions from the old version. This 
-will be fixed soon.
+Interestingly, when trying to copy one file from that
+partition to another location on the same partition, fsetxattr
+failed to set the context of the destination file, even though
+the desired context is the default one (specified by context=... above).
+Would it make sense to allow fsetxattr to succeed in that special case?
+Probably not, just as it's probably not right for cp to detect
+the condition and skip the fsetxattr call.
 
-[1] 
-http://people.redhat.com/kmacmill/patches/selinux/sepolgen-initial-submission.patch.gz
-
-Signed-off-by: Karl MacMillan <kmacmillan@mentalrootkit.com>
+    $ echo foo > f; cp f ff; /bin/cp -a f ff; ls -ng f ff
+    -rw-r--r-- 1 4 Jan 31 18:03 f
+    -rw-r--r-- 1 0 Jan 31 18:03 ff
+    $ echo foo > f; cp f ff; $cp --preserve=context f ff; ls -l f ff
+    /t/coreutils-6.7-dirty/src/cp: failed to set the security context of `ff' \
+        to `user_u:object_r:removable_t': Operation not supported
+    -rw-r--r-- 1 4 Jan 31 18:08 f
+    -rw-r--r-- 1 0 Jan 31 18:08 ff
+    $ echo foo > f; cp f ff; $cp -a f ff; ls -ng f ff
+    -rw-r--r-- 1 4 Jan 31 18:08 f
+    -rw-r--r-- 1 4 Jan 31 18:08 ff
+    $ /t/coreutils-6.7-dirty/src/ls -1Z f ff
+    user_u:object_r:removable_t f
+    user_u:object_r:removable_t ff
 
 --
 This message was distributed to subscribers of the selinux mailing list.
