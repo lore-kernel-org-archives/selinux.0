@@ -1,35 +1,52 @@
 Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id l11CGSbD028531
-	for <selinux@tycho.nsa.gov>; Thu, 1 Feb 2007 07:16:28 -0500
-Received: from vsmtp2.tin.it (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id l11CHUWe013679
-	for <selinux@tycho.nsa.gov>; Thu, 1 Feb 2007 12:17:31 GMT
-Subject: Re: selinux and UML integration problem
-From: Vincenzo Ciaglia <vin@netwosix.org>
-Reply-To: vin@netwosix.org
-To: Pravin <shindepravin@gmail.com>
-Cc: SE-Linux <selinux@tycho.nsa.gov>
-In-Reply-To: <9d1b82480702010355h24b25c03q854fed515cdd453a@mail.gmail.com>
-References: <9d1b82480702010355h24b25c03q854fed515cdd453a@mail.gmail.com>
-Content-Type: text/plain
-Date: Thu, 01 Feb 2007 13:17:34 +0100
-Message-Id: <1170332254.9978.0.camel@desk.netwosix.org>
-Mime-Version: 1.0
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id l11I00xP012017
+	for <selinux@tycho.nsa.gov>; Thu, 1 Feb 2007 13:00:00 -0500
+Received: from mx.meyering.net (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id l11I13TB021549
+	for <selinux@tycho.nsa.gov>; Thu, 1 Feb 2007 18:01:03 GMT
+From: Jim Meyering <jim@meyering.net>
+To: bug-coreutils@gnu.org
+Cc: selinux@tycho.nsa.gov
+Subject: coreutils: selinux is nearly ready: status
+Date: Thu, 01 Feb 2007 19:00:30 +0100
+Message-ID: <87y7nh4v29.fsf@rho.meyering.net>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Il giorno gio, 01/02/2007 alle 17.25 +0530, Pravin ha scritto:
+I've been spending little bits of time over the last few months getting
+coreutils' SELinux into shape.  These changes started off based on Red
+Hat patches from six months ago.  Initially it was all in a mercurial
+repository based on a snapshot of coreutils CVS.  Then coreutils
+development switched to git, and only recently have I merged most of
+the hg-based deltas into the new repository.  It's on a branch named
+"selinux".
 
-> Can I know the minimum configuration options that I need to set in
-> order to make SELinux enabled?
+Here is the current state:
 
-Take a look here:
-http://marc.theaimsgroup.com/?l=selinux&m=116947747203114&w=2
+  http://git.sv.gnu.org/gitweb/?p=coreutils.git;a=shortlog;h=selinux
 
--- 
-Vincenzo Ciaglia, <vin(at)netwosix(dot)org>
-Linux Netwosix, <http://www.netwosix.org>
+Here are some of the remaining tasks:
 
+  - add runcon (should be quick)
+  - add many more SELinux-specific tests
+  - fix at least one test (tests/cp/cp-a-selinux is in-progress
+      and known to fail -- but I know a couple ways to fix it)
+  - documentation
+  - make sure that any newer selinux-related changes from Red Hat
+      (or any other distribution) are included
+
+To checkout a copy, do this: (checked out repo size: 54MB)
+
+  $ git-clone git://git.sv.gnu.org/coreutils
+  $ cd coreutils
+  $ git-fetch git://git.sv.gnu.org/coreutils selinux:my-selinux
+  $ git-checkout my-selinux
+
+Comments welcome.
+
+Jim
 
 --
 This message was distributed to subscribers of the selinux mailing list.
