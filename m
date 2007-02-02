@@ -1,80 +1,47 @@
-Message-ID: <45C25C03.7000501@mentalrootkit.com>
-Date: Thu, 01 Feb 2007 16:30:43 -0500
-From: Karl MacMillan <kmacmillan@mentalrootkit.com>
+From: Paul Moore <paul.moore@hp.com>
+To: Eric Paris <eparis@redhat.com>
+Subject: Re: Kernel oops on fc6 with non-mls policy
+Date: Thu, 1 Feb 2007 19:22:02 -0500
+Cc: Joshua Brindle <jbrindle@tresys.com>, selinux@tycho.nsa.gov,
+        Stephen Smalley <sds@tycho.nsa.gov>,
+        Karl MacMillan <kmacmillan@mentalrootkit.com>,
+        James Morris <jmorris@namei.org>
+References: <6FE441CD9F0C0C479F2D88F959B015887BA64D@exchange.columbia.tresys.com> <1170361225.6447.23.camel@localhost.localdomain>
+In-Reply-To: <1170361225.6447.23.camel@localhost.localdomain>
 MIME-Version: 1.0
-To: Stephen Smalley <sds@tycho.nsa.gov>
-CC: SELinux Mail List <selinux@tycho.nsa.gov>,
-        Joshua Brindle <jbrindle@tresys.com>
-Subject: Re: [PATCH] add central errno.h to libsepol
-References: <45AC06E8.3020708@mentalrootkit.com>	 <1168953111.22731.50.camel@moss-spartans.epoch.ncsc.mil>	 <45ACE84C.9000409@mentalrootkit.com> <1169134305.22731.272.camel@moss-spartans.epoch.ncsc.mil>
-In-Reply-To: <1169134305.22731.272.camel@moss-spartans.epoch.ncsc.mil>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain;
+  charset="us-ascii"
+Message-Id: <200702011922.02826.paul.moore@hp.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Stephen Smalley wrote:
-> On Tue, 2007-01-16 at 09:59 -0500, Karl MacMillan wrote:
->> Stephen Smalley wrote:
->>> On Mon, 2007-01-15 at 17:57 -0500, Karl MacMillan wrote:
->>>> The attached patch adds a central errno.h to libsepol and converts 
->>>> several existing error numbers. This will unify the error numbers, 
->>>> remove duplication, and prevent overlapping error numbers (a source of 
->>>> potential bugs). Existing return values from functions exposed as part 
->>>> of the binary interface are not changed.
->>> I'm not enthusiastic about diverging the errno values from the system
->>> values for e.g. ENOMEM and friends.  I'd prefer to keep them the same,
->>> and use some other part of the value space for any custom error values
->>> defined by libsepol.
->> I think that practically we are going to end up diverging from system 
->> errno values to some extent. For example, -EPERM is -1 and I think that 
->> trying to change every function that returns -1 for general error is 
->> going to be hard.
->>
->> The updated patch aligns them more closely, however.
->>
->>    Also, I'm not sure about referring to this as
->>> errno.h, as libsepol is _not_ setting errno to these values; it uses
->>> these values as internal return values for conveying error information.
->> Changed to errcodes.h.
->>
->>> The functions that do happen to explicitly set errno are using
->>> traditional errno values.
->> I explicitly did not change those return values.
->>
->> In addition to the changes noted above, I removed the license statements 
->> from the header files, which I took as the consensus from the other 
->> discussion in this thread. Updated patch attached.
->>
->> The attached patch adds a central header for error and return codes 
->> (errcodes.h) to libsepol and converts several existing error numbers. 
->> This will unify the error numbers, remove duplication, and prevent 
->> overlapping error numbers (a source of potential bugs). Existing return 
->> values from functions exposed as part of the binary interface are not 
->> changed.
->>
->> Signed-off-by: Karl MacMillan <kmacmillan@mentalrootkit.com>
->>
->>   checkpolicy/policy_parse.y                    |   15 ++---
->>   libsepol/include/sepol/errcodes.h             |   25 ++++++++
->>   libsepol/include/sepol/policydb/hashtab.h     |   23 +++-----
->>   libsepol/include/sepol/policydb/link.h        |   29 +---------
->>   libsepol/src/avtab.c                          |   18 +++---
->>   libsepol/src/expand.c                         |    7 +-
->>   libsepol/src/hashtab.c                        |   45 +++++++++++-----
->>   libsepol/src/link.c                           |   33 ++++++-----
->>   libsepol/src/policydb.c                       |    6 +-
->>   libsepol/src/private.h                        |    4 +
->>   policycoreutils/semodule_deps/semodule_deps.c |    9 +--
->>   11 files changed, 122 insertions(+), 92 deletions(-)
-> 
-> Acked-by:  Stephen Smalley <sds@tycho.nsa.gov>
-> 
-> (for trunk only, not stable)
-> 
+On Thursday 01 February 2007 3:20 pm, Eric Paris wrote:
+> On Thu, 2007-02-01 at 14:58 -0500, Joshua Brindle wrote:
+> > There seems to be a kernel oops on non-mls policies with the fc6 kernel.
+> > It appears that netlabel is the culprit but I couldn't immediately track
+> > down the issue, the mls functions all seem to be returning if mls is
+> > disabled. The oops and ksymoops output is available at
+> > http://pastebin.com/872996.
+> >
+> > I have seen another that isn't there that happens on unix_stream_connect
+> > and oopses in security_sid_mls_copy->ebitmap_cpy.
+> >
+> > Is this a known issue?
+>
+> http://marc2.theaimsgroup.com/?l=selinux&m=116920292206962&w=2
+>
+> I believe.
+>
+> Will get fixed in FC7 when the kernel gets new enough to pick it up from
+> upstream.  Will not get fixed in RHEL5 until U1.
 
-Merged into trunk as libsepol 2.0.0.
+I think Eric is correct.  Josh, any chance you can grab a 2.6.20-rc7 and 
+verify that is does indeed fix the problem (or perhaps a recent Rawhide 
+kernel as I believe those are based off the 2.6.20-rc stream)?
 
-Karl
+-- 
+paul moore
+linux security @ hp
 
 --
 This message was distributed to subscribers of the selinux mailing list.
