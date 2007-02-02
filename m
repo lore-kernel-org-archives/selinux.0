@@ -1,85 +1,33 @@
-Message-ID: <45C35E38.6070906@yahoo.co.uk>
-Date: Fri, 02 Feb 2007 15:52:24 +0000
-From: Richard Stock <richardbs2000@yahoo.co.uk>
-Reply-To: richardbs2000@yahoo.co.uk
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id l12GG7ow028386
+	for <selinux@tycho.nsa.gov>; Fri, 2 Feb 2007 11:16:07 -0500
+Received: from ultra1.univ-paris12.fr (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id l12GH4x3028773
+	for <selinux@tycho.nsa.gov>; Fri, 2 Feb 2007 16:17:05 GMT
+Message-ID: <45C363A6.8000703@univ-paris12.fr>
+Date: Fri, 02 Feb 2007 17:15:34 +0100
+From: Catalin DIMA <dima@univ-paris12.fr>
 MIME-Version: 1.0
-To: SELinux@tycho.nsa.gov
-Subject: Error thrown during binary policy compilation
+To: Karl MacMillan <kmacmillan@mentalrootkit.com>
+CC: selinux@tycho.nsa.gov, Daniel J Walsh <dwalsh@redhat.com>
+Subject: Re: DWARF2 [was : Problems installing refpolicy with FC6]
+References: <45BE44FC.8080303@univ-paris12.fr> <45BE4FC6.4090502@mentalrootkit.com> <45BE6262.5080902@univ-paris12.fr> <45BE68BF.3030607@mentalrootkit.com> <20070129225708.M77854@ssl.univ-paris12.fr> <45BF5BB1.1010603@mentalrootkit.com>
+In-Reply-To: <45BF5BB1.1010603@mentalrootkit.com>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hi,
-I'd be grateful for some help or at least a pointers in the right direction
-as to why I get policy compilation errors on what seems like valid policy.
-I'm pretty new to selinux policy so apologies if I'm missing something
-totally obvious.
+Having a little more time to try to solve the problem, I checked again 
+several solutions, especially the following :
+- relabeled file system
+- rebooted without X in refpolicy, _permissive_ mode
+and got a pretty looking DWARF2 unwinding... >:-(
+As I never encountered such debugging problems, can someone tell me how 
+could I "catch it" in some logfile, at least to post it  ? there's no 
+trace of the debugging information in either dmesg or messages.
 
-I'm developing a very small form-factor battery powered device. My
-version of Linux is based around a Linux from Scratch 6.2 system with
-quite a number of modifications to incorporate the selinux framework, 
-tools, libs etc.  A work within a chrooted environment to develop the 
-system but I have one problem that is causing me grief.
-I'm using refpolicy20061212 to help in learning policy but for some 
-reason every time I try to compile the refpolicy it throws syntax errors.
+Catalin.
 
-My system has the following selinux components:
-libsepol-1.16.0
-checkpolicy-1.34.0
-libselinux-1.34.0
-libsemanage-1.10.0
-polycoreutils-1.34.1
-refpolicy-20061212
-
-By the look of things my error is throw during the compilation of 
-policy.conf into the binary policy. I have executed:
-checkpolicy policy.conf -o policy.21 through "gdb" and the error seems 
-to occur at the call to "read_source_policy" in checkpolicy.c.
-
-I realise that due to the custom nature of my OS this may be a tough
-nut to crack but I'm reasonably new to selinux policy and I'm also not
-a parser type of person so any help would be warmly received.
-
-I follow the instructions from the tresys website and the command
-"make install" fails with the following:
-
------snip
-Creating refpolicy policy.conf
-cat tmp/pre_te_files.conf tmp/all_attrs_types.conf tmp/global_bools.conf 
-tmp/only_te_rules.conf tmp/all_post.conf > policy.conf
-Compiling and installing refpolicy /etc/selinux/refpolicy/policy/policy.21
-/usr/bin/checkpolicy policy.conf -o /etc/selinux/refpolicy/policy/policy.21
-/usr/bin/checkpolicy:  loading policy configuration from policy.conf
-policy/modules/kernel/corenetwork.te:1409:ERROR 'syntax error' at token 
-':' on line 7947:
-
-allow corenet_unconfined_type node_type:node *;
-checkpolicy:  error(s) encountered while parsing configuration
-make: *** [/etc/selinux/refpolicy/policy/policy.21] Error 1
-root:/etc/selinux/refpolicy/src/policy#
-
--------snip end
-
-I thought it may be something to do with yacc or lex so I update my 
-system to use the same versions of yacc and lex as my FC6 host where the 
-policy builds fine. Before I start drilling
-into more detail with gdb can anyone provide some pointers.
-
-FWIW. The system I'm developing is bootable, stable and seems happy to 
-load a policy that
-is compiled elsewhere.  For development purposes it would be easier to 
-to compile the policy within my build image, which is where I hit the 
-problem.
-
-Many thanks
-Richard
-
-
-
-
-		
-___________________________________________________________ 
-Now you can scan emails quickly with a reading pane. Get the new Yahoo! Mail. http://uk.docs.yahoo.com/nowyoucan.html
 
 --
 This message was distributed to subscribers of the selinux mailing list.
