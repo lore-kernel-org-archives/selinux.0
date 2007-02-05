@@ -1,41 +1,50 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id l15HWxoP021319
-	for <selinux@tycho.nsa.gov>; Mon, 5 Feb 2007 12:32:59 -0500
-Received: from ppp1-100.the.forthnet.gr (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l15HY4Bc012070
-	for <selinux@tycho.nsa.gov>; Mon, 5 Feb 2007 17:34:05 GMT
-Received: from ppp1-100.the.forthnet.gr (localhost [127.0.0.1])
-	by ppp1-100.the.forthnet.gr (8.13.8/8.13.8/Debian-3) with ESMTP id l15HY3xK023318
-	for <selinux@tycho.nsa.gov>; Mon, 5 Feb 2007 19:34:03 +0200
-Received: from localhost (localhost [[UNIX: localhost]])
-	by ppp1-100.the.forthnet.gr (8.13.8/8.13.8/Submit) id l15HXxWf023317
-	for selinux@tycho.nsa.gov; Mon, 5 Feb 2007 19:33:59 +0200
-From: Stefanos Harhalakis <v13@priest.com>
-To: selinux <selinux@tycho.nsa.gov>
-Subject: question
-Date: Mon, 5 Feb 2007 19:33:59 +0200
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-7"
-Message-Id: <200702051933.59532.v13@priest.com>
+Subject: Re: question
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Stefanos Harhalakis <v13@priest.com>
+Cc: selinux <selinux@tycho.nsa.gov>
+In-Reply-To: <200702051933.59532.v13@priest.com>
+References: <200702051933.59532.v13@priest.com>
+Content-Type: text/plain
+Date: Mon, 05 Feb 2007 13:09:29 -0500
+Message-Id: <1170698969.12293.313.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hi there,
+On Mon, 2007-02-05 at 19:33 +0200, Stefanos Harhalakis wrote:
+> Hi there,
+> 
+>   Recently I started reading of selinux and I find it very useful. I'm planing 
+> to use it for a multiuser server installation during the next 6 months. I've 
+> read most of the documents I could find and a large portion of the 'SELinux 
+> by Example' book.
+> 
+>   No matter where I looked I did not find an answer to the following question:
+> 
+>   When using the refpolicy, is it possible to adjust permissions without 
+> changing the existing modules? As far as I understand, the proper way to 
+> perform changes to existing modules is to change the appropriate .te file and 
+> recompile it, but this presumes that there is only one kind of policy, one 
+> policy tree and no future upgrades. Should I create my own supplementary 
+> modules without defining any interfaces and load them?
 
-  Recently I started reading of selinux and I find it very useful. I'm planing 
-to use it for a multiuser server installation during the next 6 months. I've 
-read most of the documents I could find and a large portion of the 'SELinux 
-by Example' book.
+You can perform certain forms of customization without disturbing the
+existing policy by manipulating policy booleans (setsebool), context
+mappings (semanage), or generating local policy modules (but those can
+only allow further permissions, not take them away).  More significant
+changes do require replacing portions of the existing policy, which is a
+problem for continued updates from the original policy at present.
+Common practice at present in e.g. Fedora is to have users generate
+local policy modules for their needs, but encourage them to report
+issues with the existing policy so that their changes can be fed back
+into future updates of it.  I think you can expect improved support for
+local customization and reconciling local customizations with updates in
+the future.
 
-  No matter where I looked I did not find an answer to the following question:
+-- 
+Stephen Smalley
+National Security Agency
 
-  When using the refpolicy, is it possible to adjust permissions without 
-changing the existing modules? As far as I understand, the proper way to 
-perform changes to existing modules is to change the appropriate .te file and 
-recompile it, but this presumes that there is only one kind of policy, one 
-policy tree and no future upgrades. Should I create my own supplementary 
-modules without defining any interfaces and load them?
 
 --
 This message was distributed to subscribers of the selinux mailing list.
