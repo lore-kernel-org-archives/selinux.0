@@ -1,38 +1,52 @@
-Subject: Re: selinux branch: new program: runcon
+Subject: Re: [RFC] new libsepol policy representation
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: russell@coker.com.au
-Cc: Jim Meyering <jim@meyering.net>, selinux@tycho.nsa.gov
-In-Reply-To: <200702031233.14605.russell@coker.com.au>
-References: <8764akxwqs.fsf@rho.meyering.net>
-	 <200702031233.14605.russell@coker.com.au>
+To: Karl MacMillan <kmacmillan@mentalrootkit.com>
+Cc: SELinux Mail List <selinux@tycho.nsa.gov>
+In-Reply-To: <1170688132.12293.245.camel@moss-spartans.epoch.ncsc.mil>
+References: <45C23E5F.5050503@mentalrootkit.com>
+	 <1170688132.12293.245.camel@moss-spartans.epoch.ncsc.mil>
 Content-Type: text/plain
-Date: Mon, 05 Feb 2007 10:21:53 -0500
-Message-Id: <1170688913.12293.262.camel@moss-spartans.epoch.ncsc.mil>
+Date: Mon, 05 Feb 2007 10:23:59 -0500
+Message-Id: <1170689039.12293.263.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Sat, 2007-02-03 at 12:33 +1100, Russell Coker wrote:
-> On Saturday 03 February 2007 05:03, Jim Meyering <jim@meyering.net> wrote:
-> > +runcon: Russell Coker
+On Mon, 2007-02-05 at 10:08 -0500, Stephen Smalley wrote:
+> I'm not fundamentally opposed; we have in the past called for an
+> appropriate IR for policy as a common basis for tools and
+> infrastructure.
 > 
-> I didn't write runcon, probably one of the NSA guys deserves credit for that.  
-> But it's been hacked on by enough people that correct and detailed 
-> attribution may be difficult.
+> In skimming through the patch set, I'm unclear as to which aspects are
+> intended to be part of the shared library interface vs. the static
+> library interface.  In the current libsepol, include/sepol/policydb/
+> contains private state that is only made available to shared library
+
+s/shared/static/
+
+> users, while the top-level header files in include/sepol define the
+> shared library interface.  Of course, libsepol.map is the authoritative
+> definition of the shared library interface.  If you intend to export
+> things like hashtabs to shared library users, then we naturally need
+> proper encapsulation and namespacing of them.
 > 
-> It might be best to just have a section for attributing people who worked on 
-> the SE Linux utilities and patches.  It'll save the effort of tracking 
-> exactly who wrote what - and I doubt that anyone will be fighting about which 
-> little patch should have their name on it.
-
-IIRC, runcon was originally called "runas", and was first written by
-someone from SCC, originally as a patch against the old sh-utils.
-Russell ported the old fileutils and sh-utils patches over to coreutils
-for Debian.  Dan Walsh ported runas (and most of the other selinux
-userland patches) to use the new SELinux API in Linux 2.6, renaming it
-to runcon at that time at my suggestion to make its purpose clearer.
-TCS patched it to support the -c option (compute transition).
-
+> As a nit, there is a name collision between the existing sepol_node
+> struct (for node aka host records) and your new sepol_node struct for
+> the tree. 
+> 
+> Similarly, you would need to reconcile your sepol_security_context*
+> functions with the existing sepol_context* record functions.  There may
+> be other points of duplication/overlap; I haven't yet looked thoroughly.
+> 
+> -- 
+> Stephen Smalley
+> National Security Agency
+> 
+> 
+> --
+> This message was distributed to subscribers of the selinux mailing list.
+> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
+> the words "unsubscribe selinux" without quotes as the message.
 -- 
 Stephen Smalley
 National Security Agency
