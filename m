@@ -1,32 +1,41 @@
-Subject: Re: audit2allow and mls
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Rosalie Hiebel <rosalie.hiebel@L-3Com.com>
-Cc: selinux@tycho.nsa.gov, Karl MacMillan <kmacmillan@mentalrootkit.com>
-In-Reply-To: <p0600202dc1e90d941990@[192.168.50.32]>
-References: <p0600202dc1e90d941990@[192.168.50.32]>
-Content-Type: text/plain
-Date: Mon, 05 Feb 2007 10:48:58 -0500
-Message-Id: <1170690538.12293.281.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id l15HWxoP021319
+	for <selinux@tycho.nsa.gov>; Mon, 5 Feb 2007 12:32:59 -0500
+Received: from ppp1-100.the.forthnet.gr (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l15HY4Bc012070
+	for <selinux@tycho.nsa.gov>; Mon, 5 Feb 2007 17:34:05 GMT
+Received: from ppp1-100.the.forthnet.gr (localhost [127.0.0.1])
+	by ppp1-100.the.forthnet.gr (8.13.8/8.13.8/Debian-3) with ESMTP id l15HY3xK023318
+	for <selinux@tycho.nsa.gov>; Mon, 5 Feb 2007 19:34:03 +0200
+Received: from localhost (localhost [[UNIX: localhost]])
+	by ppp1-100.the.forthnet.gr (8.13.8/8.13.8/Submit) id l15HXxWf023317
+	for selinux@tycho.nsa.gov; Mon, 5 Feb 2007 19:33:59 +0200
+From: Stefanos Harhalakis <v13@priest.com>
+To: selinux <selinux@tycho.nsa.gov>
+Subject: question
+Date: Mon, 5 Feb 2007 19:33:59 +0200
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-7"
+Message-Id: <200702051933.59532.v13@priest.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2007-02-02 at 11:25 -0500, Rosalie Hiebel wrote:
-> Is there version of audit2allow which is capable of generating rules specific
-> to the mls policy?  I see that audit2allow's tests for mls  (calling 
-> get_mls_flag),
-> but this is after the rules in the .te file have been generated.
+Hi there,
 
-Not presently.  Ideally, audit2allow could check whether the denial was
-caused by a constraint (as done by audit2why via libsepol) and then try
-to determine a type attribute that could be used as an override, and
-then call the appropriate refpolicy interface to add that attribute to
-the domain. 
+  Recently I started reading of selinux and I find it very useful. I'm planing 
+to use it for a multiuser server installation during the next 6 months. I've 
+read most of the documents I could find and a large portion of the 'SELinux 
+by Example' book.
 
--- 
-Stephen Smalley
-National Security Agency
+  No matter where I looked I did not find an answer to the following question:
 
+  When using the refpolicy, is it possible to adjust permissions without 
+changing the existing modules? As far as I understand, the proper way to 
+perform changes to existing modules is to change the appropriate .te file and 
+recompile it, but this presumes that there is only one kind of policy, one 
+policy tree and no future upgrades. Should I create my own supplementary 
+modules without defining any interfaces and load them?
 
 --
 This message was distributed to subscribers of the selinux mailing list.
