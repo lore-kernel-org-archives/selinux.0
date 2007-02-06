@@ -1,28 +1,33 @@
-Date: Tue, 6 Feb 2007 11:28:39 -0500
+Date: Tue, 6 Feb 2007 11:31:20 -0500
 From: Caleb Case <ccase@tresys.com>
-Message-Id: <200702061628.l16GSdCU018039@localhost.localdomain>
+Message-Id: <200702061631.l16GVKav018375@localhost.localdomain>
 To: ccase@tresys.com, sds@tycho.nsa.gov, kmacmillan@mentalrootkit.com,
         jbrindle@tresys.com, selinux@tycho.nsa.gov
-Subject: libsemanage/Makefile: test target
+Subject: checkpolicy/policy_parse.y:define_class: allow class identifiers to contain dots
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-The test target now invokes the Makefile in the tests dir.
+Class identifiers are now allowed to contain dots.  This facilitates the new dot notation for class names used in metapolicy.
 ---
- libsemanage/Makefile |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ checkpolicy/policy_parse.y |    5 -----
+ 1 file changed, 5 deletions(-)
 
-Index: selinux-pms-support/libsemanage/Makefile
+Index: selinux-pms-support/checkpolicy/policy_parse.y
 ===================================================================
---- selinux-pms-support.orig/libsemanage/Makefile
-+++ selinux-pms-support/libsemanage/Makefile
-@@ -23,4 +23,5 @@ indent:
- 	$(MAKE) -C src $@
- 	$(MAKE) -C include $@
- 
--test:
-+test: all
-+	$(MAKE) -C tests test
+--- selinux-pms-support.orig/checkpolicy/policy_parse.y
++++ selinux-pms-support/checkpolicy/policy_parse.y
+@@ -929,11 +929,6 @@ static int define_class(void)
+ 		yyerror("no class name for class definition?");
+ 		return -1;
+ 	}
+-	if (id_has_dot(id)) {
+-		free(id);
+-		yyerror("class identifiers may not contain periods");
+-		return -1;
+-	}
+ 	datum = (class_datum_t *) malloc(sizeof(class_datum_t));
+ 	if (!datum) {
+ 		yyerror("out of memory");
 
 -- 
 Caleb Case
