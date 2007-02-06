@@ -1,39 +1,55 @@
-Date: Tue, 6 Feb 2007 11:31:20 -0500
-From: Caleb Case <ccase@tresys.com>
-Message-Id: <200702061631.l16GVKav018375@localhost.localdomain>
-To: ccase@tresys.com, sds@tycho.nsa.gov, kmacmillan@mentalrootkit.com,
-        jbrindle@tresys.com, selinux@tycho.nsa.gov
-Subject: checkpolicy/policy_parse.y:define_class: allow class identifiers to contain dots
+Message-ID: <45C8E7A2.4070604@mentalrootkit.com>
+Date: Tue, 06 Feb 2007 15:40:02 -0500
+From: Karl MacMillan <kmacmillan@mentalrootkit.com>
+MIME-Version: 1.0
+To: Stephen Smalley <sds@tycho.nsa.gov>
+CC: SELinux Mail List <selinux@tycho.nsa.gov>
+Subject: Re: [PATCH] add sepolgen
+References: <45C0C722.4030604@mentalrootkit.com> <1170701985.12293.317.camel@moss-spartans.epoch.ncsc.mil>
+In-Reply-To: <1170701985.12293.317.camel@moss-spartans.epoch.ncsc.mil>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Class identifiers are now allowed to contain dots.  This facilitates the new dot notation for class names used in metapolicy.
----
- checkpolicy/policy_parse.y |    5 -----
- 1 file changed, 5 deletions(-)
+Stephen Smalley wrote:
+> On Wed, 2007-01-31 at 11:43 -0500, Karl MacMillan wrote:
+>> The patch at [1] adds the sepolgen python library for policy generation 
+>> and a new implementation of audit2allow based on this library. The 
+>> library has facilities for:
+>>
+>> * parsing audit messages
+>> * parsing and representing policy (including refpolicy interfaces)
+>> * manipulating / transforming policy (e.g., adding require statements)
+>> * generating policy from access requests / audit messages (including 
+>> calls to refpolicy interfaces)
+>> * outputting policy as text
+>> * compiling policy modules
+>>
+>> All of the requested updates from the previous review have been made.
+>>
+>> Notes for packaging:
+>>
+>> * This adds a new dependency between policycoreutils and sepolgen
+>> * The tool sepolgen-ifgen needs to be run to extract information from 
+>> the reference policy headers for audit2allow to generate refpolicy. The 
+>> rpm spec file at 
+>> http://hg.et.redhat.com/selinux/madison?f=b26375c7641a;file=madison.spec 
+>> shows how I did this.
+>> * Audit2allow currently has a few regressions from the old version. This 
+>> will be fixed soon.
+>>
+>> [1] 
+>> http://people.redhat.com/kmacmill/patches/selinux/sepolgen-initial-submission.patch.gz
+>>
+>> Signed-off-by: Karl MacMillan <kmacmillan@mentalrootkit.com>
+> 
+> Thanks, merged on the trunk.  Please check that it is complete and
+> up-to-date with your own tree.
+> 
 
-Index: selinux-pms-support/checkpolicy/policy_parse.y
-===================================================================
---- selinux-pms-support.orig/checkpolicy/policy_parse.y
-+++ selinux-pms-support/checkpolicy/policy_parse.y
-@@ -929,11 +929,6 @@ static int define_class(void)
- 		yyerror("no class name for class definition?");
- 		return -1;
- 	}
--	if (id_has_dot(id)) {
--		free(id);
--		yyerror("class identifiers may not contain periods");
--		return -1;
--	}
- 	datum = (class_datum_t *) malloc(sizeof(class_datum_t));
- 	if (!datum) {
- 		yyerror("out of memory");
+Looks correct and up-to-date with all of the completed patches.
 
--- 
-Caleb Case
-Tresys Technology
-410.290.1411 x144
-
+Karl
 
 --
 This message was distributed to subscribers of the selinux mailing list.
