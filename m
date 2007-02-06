@@ -1,95 +1,83 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id l16L1aH2016053
-	for <selinux@tycho.nsa.gov>; Tue, 6 Feb 2007 16:01:36 -0500
-Received: from py-out-1112.google.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l16L2hVX008598
-	for <selinux@tycho.nsa.gov>; Tue, 6 Feb 2007 21:02:43 GMT
-Received: by py-out-1112.google.com with SMTP id a78so676pyh
-        for <selinux@tycho.nsa.gov>; Tue, 06 Feb 2007 13:02:43 -0800 (PST)
-Message-ID: <45C8ED5A.30907@kaigai.gr.jp>
-Date: Wed, 07 Feb 2007 06:04:26 +0900
-From: KaiGai Kohei <kaigai@kaigai.gr.jp>
+From: ebiederm@xmission.com (Eric W. Biederman)
+To: Andrew Morton <akpm@osdl.org>
+Cc: Ingo Molnar <mingo@elte.hu>, tglx@linutronix.de,
+        linux-kernel@vger.kernel.org, selinux@tycho.nsa.gov, jmorris@namei.org,
+        Stephen Smalley <sds@tycho.nsa.gov>
+Subject: [PATCH 1/2] sysctl: Add a parent entry to ctl_table and set the parent entry.
+References: <200701280106.l0S16CG3019873@shell0.pdx.osdl.net>
+	<20070127172410.2b041952.akpm@osdl.org>
+	<1169972718.17469.164.camel@localhost.localdomain>
+	<20070128003549.2ca38dc8.akpm@osdl.org>
+	<20070128093358.GA2071@elte.hu> <20070128095712.GA6485@elte.hu>
+	<20070128100627.GA8416@elte.hu>
+	<20070128104548.a835d859.akpm@osdl.org>
+	<m1r6tfq7nv.fsf_-_@ebiederm.dsl.xmission.com>
+	<1170075866.8720.15.camel@moss-spartans.epoch.ncsc.mil>
+Date: Tue, 06 Feb 2007 14:16:39 -0700
+In-Reply-To: <1170075866.8720.15.camel@moss-spartans.epoch.ncsc.mil> (Stephen
+	Smalley's message of "Mon, 29 Jan 2007 08:04:26 -0500")
+Message-ID: <m17iuvrnpk.fsf_-_@ebiederm.dsl.xmission.com>
 MIME-Version: 1.0
-To: selinux@tycho.nsa.gov
-Subject: Re: libselinux utilities applets - please test
-References: <200702062029.33013.vda.linux@googlemail.com>
-In-Reply-To: <200702062029.33013.vda.linux@googlemail.com>
-Content-Type: text/plain; charset=ISO-2022-JP
+Content-Type: text/plain; charset=us-ascii
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-FYI,
 
-The first serious of SELinux'ed-busybox patches (libselinux utilities)
-are merged. It enables the following facilities:
+Add a parent entry into the ctl_table so you can walk the list of
+parents and find the entire path to a ctl_table entry.
 
- - When ENABLE_SELINUX=1, '-lselinux -lsepol' was added as a LDFLAGS
- - "Selinux Utilities" group was added onto menuconfig list.
- - 'getenforce' new applet was added.
- - 'getsebool' new applet was added.
- - 'matchpathcon' new applet was added.
- - 'selinuxenabled' new applet was added.
- - 'setenforce' new applet was added.
+Signed-off-by: Eric W. Biederman <ebiederm@xmission.com>
+---
 
-Now, we are preparing to submit next serious of patches.
-see, http://code.google.com/p/sebusybox/
+This is an incremental patch on top of my previous sysctl work.
 
-Thanks,
+ include/linux/sysctl.h |    1 +
+ kernel/sysctl.c        |   10 ++++++++++
+ 2 files changed, 11 insertions(+), 0 deletions(-)
 
-Denis Vlasenko wrote:
-> int getsebool_main(int argc, char **argv)
-> {
-> ...
->         if (!len) {
->                 if (argc < 2)
->                         bb_show_usage();
->                 len = argc - 1;
->                 names = xmalloc(sizeof(char *) * len);
->                 for (i = 0; i < len; i++)
->                         names[i] = xstrdup(argv[i + 1]);
->         }
-> 
-> Is it necessary to allocate names and xstrdup argv[i]?
-> Maybe just do "names = argv + 1"?
-> 
-> 
-> bb_perror_msg_and_die("error while processing %s: ", prefix);
-> 
-> bb_perror prints: "<applet>: message: <strerror>" - that thrailing
-> ": " in your code is not needed.
-> 
-> 
-> +#define matchpathcon_trivial_usage \
-> +       "[-n] [-N] [-f file_contexts_file] [-p prefix] [-V]"
-> +#define matchpathcon_full_usage \
-> +       "\t-n\tDo not display path.\n" \
-> +       "\t-N\tDo not use translations.\n" \
-> +       "\t-f\tfile_context_file Use alternate file_context file\n" \
-> +       "\t-p\tprefix Use prefix to speed translations\n" \
-> +       "\t-V\tVerify file context on disk matches defaults"
-> 
-> Ehhh.... usage.h has such a nice comment at the top:
-> 
-> /*
->  * This file suffers from chronically incorrect tabification
->  * of messages. Before editing this file:
->  * 1. Switch you editor to 8-space tab mode.
->  * 2. Do not use \t in messages, use real tab character.
->  * 3. Start each source line with message as follows:
->  *    |<7 spaces>"text with tabs"....
->  */
-> 
-> 
-> Okay. I applied your patch to svn and did some changes.
-> Please review & test - I can't run-test it at the moment
-> (my kernel and userspace is not selinux-enabled).
-> 
-> Patch is attached for easy review. Thanks.
-> --
-> vda
-
+diff --git a/include/linux/sysctl.h b/include/linux/sysctl.h
+index 286e723..24f36f1 100644
+--- a/include/linux/sysctl.h
++++ b/include/linux/sysctl.h
+@@ -1024,6 +1024,7 @@ struct ctl_table
+ 	int maxlen;
+ 	mode_t mode;
+ 	ctl_table *child;
++	ctl_table *parent;		/* Automatically set */
+ 	proc_handler *proc_handler;	/* Callback for text formatting */
+ 	ctl_handler *strategy;		/* Callback function for all r/w */
+ 	void *extra1;
+diff --git a/kernel/sysctl.c b/kernel/sysctl.c
+index ae6a424..0a5499f 100644
+--- a/kernel/sysctl.c
++++ b/kernel/sysctl.c
+@@ -1232,6 +1232,15 @@ int do_sysctl_strategy (ctl_table *table,
+ }
+ #endif /* CONFIG_SYSCTL_SYSCALL */
+ 
++static void sysctl_set_parent(struct ctl_table *parent, struct ctl_table *table)
++{
++	for (; table->ctl_name || table->procname; table++) {
++		table->parent = parent;
++		if (table->child)
++			sysctl_set_parent(table, table->child);
++	}
++}
++
+ /**
+  * register_sysctl_table - register a sysctl hierarchy
+  * @table: the top-level table structure
+@@ -1311,6 +1320,7 @@ static struct ctl_table_header *__register_sysctl_table(
+ 	INIT_LIST_HEAD(&tmp->ctl_entry);
+ 	tmp->used = 0;
+ 	tmp->unregistering = NULL;
++	sysctl_set_parent(NULL, table);
+ 	spin_lock(&sysctl_lock);
+ 	list_add_tail(&tmp->ctl_entry, &root->ctl_entry);
+ 	spin_unlock(&sysctl_lock);
 -- 
-KaiGai Kohei <kaigai@kaigai.gr.jp>
+1.4.4.1.g278f
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
