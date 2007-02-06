@@ -1,78 +1,102 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id l162CFXk009365
-	for <selinux@tycho.nsa.gov>; Mon, 5 Feb 2007 21:12:15 -0500
-Received: from ppp1-100.the.forthnet.gr (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id l162DKd7003678
-	for <selinux@tycho.nsa.gov>; Tue, 6 Feb 2007 02:13:21 GMT
-Received: from ppp1-100.the.forthnet.gr (localhost [127.0.0.1])
-	by ppp1-100.the.forthnet.gr (8.13.8/8.13.8/Debian-3) with ESMTP id l162CY0s029000
-	for <selinux@tycho.nsa.gov>; Tue, 6 Feb 2007 04:12:34 +0200
-Received: from localhost (localhost [[UNIX: localhost]])
-	by ppp1-100.the.forthnet.gr (8.13.8/8.13.8/Submit) id l162CXF2028999
-	for selinux@tycho.nsa.gov; Tue, 6 Feb 2007 04:12:33 +0200
-From: Stefanos Harhalakis <v13@priest.com>
-To: selinux <selinux@tycho.nsa.gov>
-Subject: core dump
-Date: Tue, 6 Feb 2007 04:12:32 +0200
+Message-ID: <45C86286.8040602@yahoo.co.uk>
+Date: Tue, 06 Feb 2007 11:12:06 +0000
+From: Richard Stock <richardbs2000@yahoo.co.uk>
+Reply-To: richardbs2000@yahoo.co.uk
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-7"
-Message-Id: <200702060412.33276.v13@priest.com>
+CC: SELinux@tycho.nsa.gov
+Subject: Re: Error thrown during binary policy compilation
+References: <45C35E38.6070906@yahoo.co.uk> <1170690176.12293.275.camel@moss-spartans.epoch.ncsc.mil>
+In-Reply-To: <1170690176.12293.275.camel@moss-spartans.epoch.ncsc.mil>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-I had this issue today:
+Stephen Smalley wrote:
+> On Fri, 2007-02-02 at 15:52 +0000, Richard Stock wrote:
+>   
+>> Hi,
+>> I'd be grateful for some help or at least a pointers in the right direction
+>> as to why I get policy compilation errors on what seems like valid policy.
+>> I'm pretty new to selinux policy so apologies if I'm missing something
+>> totally obvious.
+>>
+>> I'm developing a very small form-factor battery powered device. My
+>> version of Linux is based around a Linux from Scratch 6.2 system with
+>> quite a number of modifications to incorporate the selinux framework, 
+>> tools, libs etc.  A work within a chrooted environment to develop the 
+>> system but I have one problem that is causing me grief.
+>> I'm using refpolicy20061212 to help in learning policy but for some 
+>> reason every time I try to compile the refpolicy it throws syntax errors.
+>>
+>> My system has the following selinux components:
+>> libsepol-1.16.0
+>> checkpolicy-1.34.0
+>> libselinux-1.34.0
+>> libsemanage-1.10.0
+>> polycoreutils-1.34.1
+>> refpolicy-20061212
+>>
+>> By the look of things my error is throw during the compilation of 
+>> policy.conf into the binary policy. I have executed:
+>> checkpolicy policy.conf -o policy.21 through "gdb" and the error seems 
+>> to occur at the call to "read_source_policy" in checkpolicy.c.
+>>
+>> I realise that due to the custom nature of my OS this may be a tough
+>> nut to crack but I'm reasonably new to selinux policy and I'm also not
+>> a parser type of person so any help would be warmly received.
+>>
+>> I follow the instructions from the tresys website and the command
+>> "make install" fails with the following:
+>>
+>> -----snip
+>> Creating refpolicy policy.conf
+>> cat tmp/pre_te_files.conf tmp/all_attrs_types.conf tmp/global_bools.conf 
+>> tmp/only_te_rules.conf tmp/all_post.conf > policy.conf
+>> Compiling and installing refpolicy /etc/selinux/refpolicy/policy/policy.21
+>> /usr/bin/checkpolicy policy.conf -o /etc/selinux/refpolicy/policy/policy.21
+>> /usr/bin/checkpolicy:  loading policy configuration from policy.conf
+>> policy/modules/kernel/corenetwork.te:1409:ERROR 'syntax error' at token 
+>> ':' on line 7947:
+>>
+>> allow corenet_unconfined_type node_type:node *;
+>> checkpolicy:  error(s) encountered while parsing configuration
+>> make: *** [/etc/selinux/refpolicy/policy/policy.21] Error 1
+>> root:/etc/selinux/refpolicy/src/policy#
+>>
+>> -------snip end
+>>
+>> I thought it may be something to do with yacc or lex so I update my 
+>> system to use the same versions of yacc and lex as my FC6 host where the 
+>> policy builds fine. Before I start drilling
+>> into more detail with gdb can anyone provide some pointers.
+>>
+>> FWIW. The system I'm developing is bootable, stable and seems happy to 
+>> load a policy that
+>> is compiled elsewhere.  For development purposes it would be easier to 
+>> to compile the policy within my build image, which is where I hit the 
+>> problem.
+>>     
+>
+> Sounds similar to:
+> http://marc.theaimsgroup.com/?t=111211555600002&r=1&w=2
+>
+>   
+Stephen,
+Many thanks. Well remembered! Flex was the cause of my woes.
 
-# semodule -i logging.pp 
-Segmentation fault (core dumped)
+For reference:
+The problematic version of flex was 2.5.33 direct from sourceforge.
+To fix I took the Fedora 6 flex src rpm (flex-2.5.4a-41.fc6)  extracted
+the sources, applied all the patches that came with the source rpm,
+built it, installed it and the problem appears to be gone.
 
-I traced this a bit and it seems that this is because of libsepol. 
-The core dump is the result of lines 602:603 of link.c:
+Many Thanks
+Richard
 
-(gdb) bt
-#0  0xb7f732fd in sens_copy_callback (key=0x848c2a0 "s15", datum=0x848c290, data=0xbfde3854) at link.c:602
-#1  0xb7f6f8a1 in hashtab_map (h=0x846cbf0, apply=0xb7f731d1 <sens_copy_callback>, args=0xbfde3854) at hashtab.c:214
-#2  0xb7f75528 in copy_identifiers (state=0xbfde3854, src_symtab=0x843cc74, dest_decl=0x0) at link.c:1323
-#3  0xb7f77c72 in link_modules (handle=0x804c710, b=0x80525b8, mods=0x863ce18, len=19, verbose=0) at link.c:2178
-#4  0xb7f7a2c9 in sepol_link_packages (handle=0x804c710, base=0x8053060, modules=0x80543c8, num_modules=19, verbose=0) at module.c:302
-
-Where:
-
-(gdb) l
-597                                 state->cur_mod_name);
-598                             return -SEPOL_LINK_NOTSUP;
-599                     }
-600             }
-601     
-602             state->cur->map[SYM_LEVELS][level->level->sens - 1] =
-603                 base_level->level->sens;
-604     
-605             return 0;
-606     }
-
-Because of:
-
-(gdb) p base_level
-$1 = (level_datum_t *) 0x0
-
-The last 'if' checks for !base_level, but inside the 'if' block, only 
-!scope and scope->scope==SCOPE_DECL are checked.
-
-This core dump is caused by:
-
-(gdb) p scope->scope
-$2 = 1
-
-Which is noted as:
-
-/* Required for this decl */
-#define SCOPE_REQ  1
-
-in libsepol/include/sepol/policydb/policydb.h
-
-Hope this helps...
-
-<<V13>>
+		
+___________________________________________________________ 
+Try the all-new Yahoo! Mail. "The New Version is radically easier to use" – The Wall Street Journal 
+http://uk.docs.yahoo.com/nowyoucan.html
 
 --
 This message was distributed to subscribers of the selinux mailing list.
