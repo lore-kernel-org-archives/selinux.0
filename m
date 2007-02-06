@@ -1,53 +1,52 @@
-Message-ID: <45C8E7A2.4070604@mentalrootkit.com>
-Date: Tue, 06 Feb 2007 15:40:02 -0500
+Message-ID: <45C8E749.4000606@mentalrootkit.com>
+Date: Tue, 06 Feb 2007 15:38:33 -0500
 From: Karl MacMillan <kmacmillan@mentalrootkit.com>
 MIME-Version: 1.0
 To: Stephen Smalley <sds@tycho.nsa.gov>
 CC: SELinux Mail List <selinux@tycho.nsa.gov>
-Subject: Re: [PATCH] add sepolgen
-References: <45C0C722.4030604@mentalrootkit.com> <1170701985.12293.317.camel@moss-spartans.epoch.ncsc.mil>
-In-Reply-To: <1170701985.12293.317.camel@moss-spartans.epoch.ncsc.mil>
+Subject: Re: [RFC] new libsepol policy representation
+References: <45C23E5F.5050503@mentalrootkit.com> <1170688132.12293.245.camel@moss-spartans.epoch.ncsc.mil>
+In-Reply-To: <1170688132.12293.245.camel@moss-spartans.epoch.ncsc.mil>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 Stephen Smalley wrote:
-> On Wed, 2007-01-31 at 11:43 -0500, Karl MacMillan wrote:
->> The patch at [1] adds the sepolgen python library for policy generation 
->> and a new implementation of audit2allow based on this library. The 
->> library has facilities for:
->>
->> * parsing audit messages
->> * parsing and representing policy (including refpolicy interfaces)
->> * manipulating / transforming policy (e.g., adding require statements)
->> * generating policy from access requests / audit messages (including 
->> calls to refpolicy interfaces)
->> * outputting policy as text
->> * compiling policy modules
->>
->> All of the requested updates from the previous review have been made.
->>
->> Notes for packaging:
->>
->> * This adds a new dependency between policycoreutils and sepolgen
->> * The tool sepolgen-ifgen needs to be run to extract information from 
->> the reference policy headers for audit2allow to generate refpolicy. The 
->> rpm spec file at 
->> http://hg.et.redhat.com/selinux/madison?f=b26375c7641a;file=madison.spec 
->> shows how I did this.
->> * Audit2allow currently has a few regressions from the old version. This 
->> will be fixed soon.
->>
->> [1] 
->> http://people.redhat.com/kmacmill/patches/selinux/sepolgen-initial-submission.patch.gz
->>
->> Signed-off-by: Karl MacMillan <kmacmillan@mentalrootkit.com>
 > 
-> Thanks, merged on the trunk.  Please check that it is complete and
-> up-to-date with your own tree.
+> I'm not fundamentally opposed; we have in the past called for an
+> appropriate IR for policy as a common basis for tools and
+> infrastructure.
+> 
+> In skimming through the patch set, I'm unclear as to which aspects are
+> intended to be part of the shared library interface vs. the static
+> library interface.  In the current libsepol, include/sepol/policydb/
+> contains private state that is only made available to shared library
+> users, while the top-level header files in include/sepol define the
+> shared library interface.
+
+I'm currently undecided about this, so I'm creating APIs that are 
+appropriate for export and not planning on exporting them intially.
+
+   Of course, libsepol.map is the authoritative
+> definition of the shared library interface.  If you intend to export
+> things like hashtabs to shared library users, then we naturally need
+> proper encapsulation and namespacing of them.
+> 
+> As a nit, there is a name collision between the existing sepol_node
+> struct (for node aka host records) and your new sepol_node struct for
+> the tree. 
 > 
 
-Looks correct and up-to-date with all of the completed patches.
+Good catch - thanks.
+
+> Similarly, you would need to reconcile your sepol_security_context*
+> functions with the existing sepol_context* record functions.  There may
+> be other points of duplication/overlap; I haven't yet looked thoroughly.
+> 
+
+I'm planning to reconcile these at a future point - my plan is that the 
+records and the new policy structures will be fully merged at the end of 
+this.
 
 Karl
 
