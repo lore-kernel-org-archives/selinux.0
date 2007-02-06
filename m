@@ -1,58 +1,74 @@
-Subject: Re: audit2allow and mls
+Subject: Re: core dump
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Rosalie Hiebel <rosalie.hiebel@L-3Com.com>
-Cc: selinux@tycho.nsa.gov, Karl MacMillan <kmacmillan@mentalrootkit.com>,
-        Joshua Brindle <jbrindle@tresys.com>
-In-Reply-To: <p06002042c1ed38b34ce4@[192.168.50.32]>
-References: <p0600202dc1e90d941990@[192.168.50.32]>
-	 <1170690538.12293.281.camel@moss-spartans.epoch.ncsc.mil>
-	 <p06002042c1ed38b34ce4@[192.168.50.32]>
+To: Stefanos Harhalakis <v13@priest.com>
+Cc: selinux <selinux@tycho.nsa.gov>, Joshua Brindle <jbrindle@tresys.com>,
+        Karl MacMillan <kmacmillan@mentalrootkit.com>,
+        Darrel Goeddel <dgoeddel@TrustedCS.com>,
+        "Christopher J. PeBenito" <cpebenito@tresys.com>
+In-Reply-To: <200702060412.33276.v13@priest.com>
+References: <200702060412.33276.v13@priest.com>
 Content-Type: text/plain
-Date: Tue, 06 Feb 2007 07:31:19 -0500
-Message-Id: <1170765079.12293.355.camel@moss-spartans.epoch.ncsc.mil>
+Date: Tue, 06 Feb 2007 07:40:38 -0500
+Message-Id: <1170765638.12293.362.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 2007-02-05 at 14:44 -0500, Rosalie Hiebel wrote:
-> >On Fri, 2007-02-02 at 11:25 -0500, Rosalie Hiebel wrote:
-> >>  Is there version of audit2allow which is capable of generating 
-> >>rules specific
-> >>  to the mls policy?  I see that audit2allow's tests for mls  (calling
-> >>  get_mls_flag),
-> >>  but this is after the rules in the .te file have been generated.
-> >
-> >Not presently.  Ideally, audit2allow could check whether the denial was
-> >caused by a constraint (as done by audit2why via libsepol) and then try
-> >to determine a type attribute that could be used as an override, and
-> >then call the appropriate refpolicy interface to add that attribute to
-> >the domain.
+On Tue, 2007-02-06 at 04:12 +0200, Stefanos Harhalakis wrote:
+> I had this issue today:
 > 
-> Do you mean that audit2why does check the constrain rules in mls policy ?
+> # semodule -i logging.pp 
+> Segmentation fault (core dumped)
+> 
+> I traced this a bit and it seems that this is because of libsepol. 
+> The core dump is the result of lines 602:603 of link.c:
+> 
+> (gdb) bt
+> #0  0xb7f732fd in sens_copy_callback (key=0x848c2a0 "s15", datum=0x848c290, data=0xbfde3854) at link.c:602
+> #1  0xb7f6f8a1 in hashtab_map (h=0x846cbf0, apply=0xb7f731d1 <sens_copy_callback>, args=0xbfde3854) at hashtab.c:214
+> #2  0xb7f75528 in copy_identifiers (state=0xbfde3854, src_symtab=0x843cc74, dest_decl=0x0) at link.c:1323
+> #3  0xb7f77c72 in link_modules (handle=0x804c710, b=0x80525b8, mods=0x863ce18, len=19, verbose=0) at link.c:2178
+> #4  0xb7f7a2c9 in sepol_link_packages (handle=0x804c710, base=0x8053060, modules=0x80543c8, num_modules=19, verbose=0) at module.c:302
+> 
+> Where:
+> 
+> (gdb) l
+> 597                                 state->cur_mod_name);
+> 598                             return -SEPOL_LINK_NOTSUP;
+> 599                     }
+> 600             }
+> 601     
+> 602             state->cur->map[SYM_LEVELS][level->level->sens - 1] =
+> 603                 base_level->level->sens;
+> 604     
+> 605             return 0;
+> 606     }
+> 
+> Because of:
+> 
+> (gdb) p base_level
+> $1 = (level_datum_t *) 0x0
+> 
+> The last 'if' checks for !base_level, but inside the 'if' block, only 
+> !scope and scope->scope==SCOPE_DECL are checked.
+> 
+> This core dump is caused by:
+> 
+> (gdb) p scope->scope
+> $2 = 1
+> 
+> Which is noted as:
+> 
+> /* Required for this decl */
+> #define SCOPE_REQ  1
+> 
+> in libsepol/include/sepol/policydb/policydb.h
+> 
+> Hope this helps...
 
-audit2why effectively re-plays the permission check (via libsepol) to
-determine the underlying cause for the permission denial, whether it is
-due to a missing or disabled TE rule, a constraint violation (which
-could be any constraint, MLS or otherwise), or a missing role allow
-rule.  It doesn't generate policy but just tries to diagnose the cause.
-It was a quick hack in response to frequent complaints from Dan Walsh
-that he wanted a way to quickly see whether a denial was caused by
-something other than missing TE rules.
-
-A smarter audit2why would go further in its diagnosis, e.g.:
-- if the cause is a missing or disable TE rule, check whether the
-necessary TE rule is present in a disabled conditional block and
-identify the boolean required to activate it,
-- if the cause is a constraint violation, display the actual constraint,
-and identify the type attribute that can be used to override it
-(heuristic, as there is no guarantee of such an override)
-
-And it would be linked into policy generation such that once the cause
-was determined, it could immediately generate suitable policy.
-
-These sorts of improvements may become more feasible with the ongoing
-work by Karl on a sepolgen python library for policy generation and his
-reworking of the libsepol policy representation.
+Looks like your logging.pp policy module has a requires on sensitivity
+s15 but your base module doesn't declare it.  Naturally, that should
+show up as an unfulfilled requirement rather than a seg fault.
 
 -- 
 Stephen Smalley
