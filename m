@@ -3,7 +3,7 @@ To: Andrew Morton <akpm@osdl.org>
 Cc: Ingo Molnar <mingo@elte.hu>, tglx@linutronix.de,
         linux-kernel@vger.kernel.org, selinux@tycho.nsa.gov, jmorris@namei.org,
         Stephen Smalley <sds@tycho.nsa.gov>
-Subject: [PATCH 1/2] sysctl: Add a parent entry to ctl_table and set the parent entry.
+Subject: [PATCH 2/2] sysctl: Restore the selinux path based label lookup for sysctls.
 References: <200701280106.l0S16CG3019873@shell0.pdx.osdl.net>
 	<20070127172410.2b041952.akpm@osdl.org>
 	<1169972718.17469.164.camel@localhost.localdomain>
@@ -13,68 +13,92 @@ References: <200701280106.l0S16CG3019873@shell0.pdx.osdl.net>
 	<20070128104548.a835d859.akpm@osdl.org>
 	<m1r6tfq7nv.fsf_-_@ebiederm.dsl.xmission.com>
 	<1170075866.8720.15.camel@moss-spartans.epoch.ncsc.mil>
-Date: Tue, 06 Feb 2007 14:16:39 -0700
-In-Reply-To: <1170075866.8720.15.camel@moss-spartans.epoch.ncsc.mil> (Stephen
-	Smalley's message of "Mon, 29 Jan 2007 08:04:26 -0500")
-Message-ID: <m17iuvrnpk.fsf_-_@ebiederm.dsl.xmission.com>
+	<m17iuvrnpk.fsf_-_@ebiederm.dsl.xmission.com>
+Date: Tue, 06 Feb 2007 14:21:54 -0700
+In-Reply-To: <m17iuvrnpk.fsf_-_@ebiederm.dsl.xmission.com> (Eric
+	W. Biederman's message of "Tue, 06 Feb 2007 14:16:39 -0700")
+Message-ID: <m13b5jrngt.fsf_-_@ebiederm.dsl.xmission.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 
-Add a parent entry into the ctl_table so you can walk the list of
-parents and find the entire path to a ctl_table entry.
+This time instead of generating the generating the paths from proc_dir_entries
+generate the labels from the names in the sysctl ctl_tables themselves.  This
+removes an unnecessary layer of indirection, allows this to work even when
+procfs support is not compiled into the kernel, and especially allows it
+to work now that ctl_tables no longer have a proc_dir_entry field.
+
+I continue passing "proc" into genfs sid although that is complete nonsense
+to allow existing selinux policies to work without modification.
 
 Signed-off-by: Eric W. Biederman <ebiederm@xmission.com>
 ---
+ security/selinux/hooks.c |   43 +++++++++++++++++++++++++++++++++++++++++--
+ 1 files changed, 41 insertions(+), 2 deletions(-)
 
-This is an incremental patch on top of my previous sysctl work.
-
- include/linux/sysctl.h |    1 +
- kernel/sysctl.c        |   10 ++++++++++
- 2 files changed, 11 insertions(+), 0 deletions(-)
-
-diff --git a/include/linux/sysctl.h b/include/linux/sysctl.h
-index 286e723..24f36f1 100644
---- a/include/linux/sysctl.h
-+++ b/include/linux/sysctl.h
-@@ -1024,6 +1024,7 @@ struct ctl_table
- 	int maxlen;
- 	mode_t mode;
- 	ctl_table *child;
-+	ctl_table *parent;		/* Automatically set */
- 	proc_handler *proc_handler;	/* Callback for text formatting */
- 	ctl_handler *strategy;		/* Callback function for all r/w */
- 	void *extra1;
-diff --git a/kernel/sysctl.c b/kernel/sysctl.c
-index ae6a424..0a5499f 100644
---- a/kernel/sysctl.c
-+++ b/kernel/sysctl.c
-@@ -1232,6 +1232,15 @@ int do_sysctl_strategy (ctl_table *table,
+diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+index 3a36057..c17a8dd 100644
+--- a/security/selinux/hooks.c
++++ b/security/selinux/hooks.c
+@@ -1424,6 +1424,41 @@ static int selinux_capable(struct task_struct *tsk, int cap)
+ 	return task_has_capability(tsk,cap);
  }
- #endif /* CONFIG_SYSCTL_SYSCALL */
  
-+static void sysctl_set_parent(struct ctl_table *parent, struct ctl_table *table)
++static int selinux_sysctl_get_sid(ctl_table *table, u16 tclass, u32 *sid)
 +{
-+	for (; table->ctl_name || table->procname; table++) {
-+		table->parent = parent;
-+		if (table->child)
-+			sysctl_set_parent(table, table->child);
++	int buflen, rc;
++	char *buffer, *path, *end;
++
++	rc = -ENOMEM;
++	buffer = (char*)__get_free_page(GFP_KERNEL);
++	if (!buffer)
++		goto out;
++
++	buflen = PAGE_SIZE;
++	end = buffer+buflen;
++	*--end = '\0';
++	buflen--;
++	path = end-1;
++	*path = '/';
++	while (table) {
++		const char *name = table->procname;
++		size_t namelen = strlen(name);
++		buflen -= namelen + 1;
++		if (buflen < 0)
++			goto out_free;
++		end -= namelen;
++		memcpy(end, name, namelen);
++		*--end = '/';
++		path = end;
++		table = table->parent;
 +	}
++	rc = security_genfs_sid("proc", path, tclass, sid);
++out_free:
++	free_page((unsigned long)buffer);
++out:
++	return rc;
 +}
 +
- /**
-  * register_sysctl_table - register a sysctl hierarchy
-  * @table: the top-level table structure
-@@ -1311,6 +1320,7 @@ static struct ctl_table_header *__register_sysctl_table(
- 	INIT_LIST_HEAD(&tmp->ctl_entry);
- 	tmp->used = 0;
- 	tmp->unregistering = NULL;
-+	sysctl_set_parent(NULL, table);
- 	spin_lock(&sysctl_lock);
- 	list_add_tail(&tmp->ctl_entry, &root->ctl_entry);
- 	spin_unlock(&sysctl_lock);
+ static int selinux_sysctl(ctl_table *table, int op)
+ {
+ 	int error = 0;
+@@ -1438,8 +1473,12 @@ static int selinux_sysctl(ctl_table *table, int op)
+ 
+ 	tsec = current->security;
+ 
+-	/* Use the well-defined sysctl SID. */
+-	tsid = SECINITSID_SYSCTL;
++	rc = selinux_sysctl_get_sid(table, (op == 0001) ?
++				    SECCLASS_DIR : SECCLASS_FILE, &tsid);
++	if (rc) {
++		/* Default to the well-defined sysctl SID. */
++		tsid = SECINITSID_SYSCTL;
++	}
+ 
+ 	/* The op values are "defined" in sysctl.c, thereby creating
+ 	 * a bad coupling between this module and sysctl.c */
 -- 
 1.4.4.1.g278f
 
