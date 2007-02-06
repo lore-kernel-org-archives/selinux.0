@@ -1,54 +1,95 @@
-Message-ID: <45C8E749.4000606@mentalrootkit.com>
-Date: Tue, 06 Feb 2007 15:38:33 -0500
-From: Karl MacMillan <kmacmillan@mentalrootkit.com>
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id l16L1aH2016053
+	for <selinux@tycho.nsa.gov>; Tue, 6 Feb 2007 16:01:36 -0500
+Received: from py-out-1112.google.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l16L2hVX008598
+	for <selinux@tycho.nsa.gov>; Tue, 6 Feb 2007 21:02:43 GMT
+Received: by py-out-1112.google.com with SMTP id a78so676pyh
+        for <selinux@tycho.nsa.gov>; Tue, 06 Feb 2007 13:02:43 -0800 (PST)
+Message-ID: <45C8ED5A.30907@kaigai.gr.jp>
+Date: Wed, 07 Feb 2007 06:04:26 +0900
+From: KaiGai Kohei <kaigai@kaigai.gr.jp>
 MIME-Version: 1.0
-To: Stephen Smalley <sds@tycho.nsa.gov>
-CC: SELinux Mail List <selinux@tycho.nsa.gov>
-Subject: Re: [RFC] new libsepol policy representation
-References: <45C23E5F.5050503@mentalrootkit.com> <1170688132.12293.245.camel@moss-spartans.epoch.ncsc.mil>
-In-Reply-To: <1170688132.12293.245.camel@moss-spartans.epoch.ncsc.mil>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: selinux@tycho.nsa.gov
+Subject: Re: libselinux utilities applets - please test
+References: <200702062029.33013.vda.linux@googlemail.com>
+In-Reply-To: <200702062029.33013.vda.linux@googlemail.com>
+Content-Type: text/plain; charset=ISO-2022-JP
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Stephen Smalley wrote:
+FYI,
+
+The first serious of SELinux'ed-busybox patches (libselinux utilities)
+are merged. It enables the following facilities:
+
+ - When ENABLE_SELINUX=1, '-lselinux -lsepol' was added as a LDFLAGS
+ - "Selinux Utilities" group was added onto menuconfig list.
+ - 'getenforce' new applet was added.
+ - 'getsebool' new applet was added.
+ - 'matchpathcon' new applet was added.
+ - 'selinuxenabled' new applet was added.
+ - 'setenforce' new applet was added.
+
+Now, we are preparing to submit next serious of patches.
+see, http://code.google.com/p/sebusybox/
+
+Thanks,
+
+Denis Vlasenko wrote:
+> int getsebool_main(int argc, char **argv)
+> {
+> ...
+>         if (!len) {
+>                 if (argc < 2)
+>                         bb_show_usage();
+>                 len = argc - 1;
+>                 names = xmalloc(sizeof(char *) * len);
+>                 for (i = 0; i < len; i++)
+>                         names[i] = xstrdup(argv[i + 1]);
+>         }
 > 
-> I'm not fundamentally opposed; we have in the past called for an
-> appropriate IR for policy as a common basis for tools and
-> infrastructure.
+> Is it necessary to allocate names and xstrdup argv[i]?
+> Maybe just do "names = argv + 1"?
 > 
-> In skimming through the patch set, I'm unclear as to which aspects are
-> intended to be part of the shared library interface vs. the static
-> library interface.  In the current libsepol, include/sepol/policydb/
-> contains private state that is only made available to shared library
-> users, while the top-level header files in include/sepol define the
-> shared library interface.
-
-I'm currently undecided about this, so I'm creating APIs that are 
-appropriate for export and not planning on exporting them intially.
-
-   Of course, libsepol.map is the authoritative
-> definition of the shared library interface.  If you intend to export
-> things like hashtabs to shared library users, then we naturally need
-> proper encapsulation and namespacing of them.
 > 
-> As a nit, there is a name collision between the existing sepol_node
-> struct (for node aka host records) and your new sepol_node struct for
-> the tree. 
+> bb_perror_msg_and_die("error while processing %s: ", prefix);
 > 
-
-Good catch - thanks.
-
-> Similarly, you would need to reconcile your sepol_security_context*
-> functions with the existing sepol_context* record functions.  There may
-> be other points of duplication/overlap; I haven't yet looked thoroughly.
+> bb_perror prints: "<applet>: message: <strerror>" - that thrailing
+> ": " in your code is not needed.
 > 
+> 
+> +#define matchpathcon_trivial_usage \
+> +       "[-n] [-N] [-f file_contexts_file] [-p prefix] [-V]"
+> +#define matchpathcon_full_usage \
+> +       "\t-n\tDo not display path.\n" \
+> +       "\t-N\tDo not use translations.\n" \
+> +       "\t-f\tfile_context_file Use alternate file_context file\n" \
+> +       "\t-p\tprefix Use prefix to speed translations\n" \
+> +       "\t-V\tVerify file context on disk matches defaults"
+> 
+> Ehhh.... usage.h has such a nice comment at the top:
+> 
+> /*
+>  * This file suffers from chronically incorrect tabification
+>  * of messages. Before editing this file:
+>  * 1. Switch you editor to 8-space tab mode.
+>  * 2. Do not use \t in messages, use real tab character.
+>  * 3. Start each source line with message as follows:
+>  *    |<7 spaces>"text with tabs"....
+>  */
+> 
+> 
+> Okay. I applied your patch to svn and did some changes.
+> Please review & test - I can't run-test it at the moment
+> (my kernel and userspace is not selinux-enabled).
+> 
+> Patch is attached for easy review. Thanks.
+> --
+> vda
 
-I'm planning to reconcile these at a future point - my plan is that the 
-records and the new policy structures will be fully merged at the end of 
-this.
-
-Karl
+-- 
+KaiGai Kohei <kaigai@kaigai.gr.jp>
 
 --
 This message was distributed to subscribers of the selinux mailing list.
