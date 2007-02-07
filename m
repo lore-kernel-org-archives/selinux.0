@@ -1,36 +1,87 @@
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id l17LTnUV003669
+	for <selinux@tycho.nsa.gov>; Wed, 7 Feb 2007 16:29:49 -0500
+Received: from e34.co.us.ibm.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l17LUso6005733
+	for <selinux@tycho.nsa.gov>; Wed, 7 Feb 2007 21:30:54 GMT
+Received: from d03relay04.boulder.ibm.com (d03relay04.boulder.ibm.com [9.17.195.106])
+	by e34.co.us.ibm.com (8.13.8/8.13.8) with ESMTP id l17LU9sQ022135
+	for <selinux@tycho.nsa.gov>; Wed, 7 Feb 2007 16:30:09 -0500
+Received: from d03av02.boulder.ibm.com (d03av02.boulder.ibm.com [9.17.195.168])
+	by d03relay04.boulder.ibm.com (8.13.8/8.13.8/NCO v8.2) with ESMTP id l17LU9a7436310
+	for <selinux@tycho.nsa.gov>; Wed, 7 Feb 2007 14:30:09 -0700
+Received: from d03av02.boulder.ibm.com (loopback [127.0.0.1])
+	by d03av02.boulder.ibm.com (8.12.11.20060308/8.13.3) with ESMTP id l17LU8Jx020889
+	for <selinux@tycho.nsa.gov>; Wed, 7 Feb 2007 14:30:09 -0700
+Message-ID: <45CA44DE.3060700@us.ibm.com>
+Date: Wed, 07 Feb 2007 15:30:06 -0600
+From: Michael C Thompson <thompsmc@us.ibm.com>
+MIME-Version: 1.0
+To: casey@schaufler-ca.com
+CC: SE Linux <selinux@tycho.nsa.gov>
 Subject: Re: MLS concepts, relational question
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Joe Nall <joe@nall.com>
-Cc: Michael C Thompson <thompsmc@us.ibm.com>, SE Linux <selinux@tycho.nsa.gov>
-In-Reply-To: <B4E50D01-92C0-4AC2-BDF6-542A5FE1B810@nall.com>
-References: <45CA366B.1070801@us.ibm.com>
-	 <B4E50D01-92C0-4AC2-BDF6-542A5FE1B810@nall.com>
-Content-Type: text/plain
-Date: Wed, 07 Feb 2007 16:26:32 -0500
-Message-Id: <1170883592.11912.152.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+References: <20070207211438.8683.qmail@web36605.mail.mud.yahoo.com>
+In-Reply-To: <20070207211438.8683.qmail@web36605.mail.mud.yahoo.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2007-02-07 at 15:07 -0600, Joe Nall wrote:
-> On Feb 7, 2007, at 2:28 PM, Michael C Thompson wrote:
+Casey Schaufler wrote:
+> --- Michael C Thompson <thompsmc@us.ibm.com> wrote:
 > 
-> > OK, so assume there are two labels:
-> > Label A -- s2:c1 - s15:c0.c1023
-> > Label B -- s0:c1,c3,c5,...,c1021,c1023 (odd repeating)
+>> OK, so assume there are two labels:
+>> Label A -- s2:c1 - s15:c0.c1023
 > 
-> 'Label' A is a range of two labels
-> 'Label' B is what I think of as a label.
+> This is an SELinux MLS range label. It
+> will not fit in the definitions you have
+> below because the definitions you have
+> are for discrete value labels. 
 
-Yes.  Dominance is a function of two levels, not two ranges.
-Note that you only express relationships between levels in the
-constraint language used to express the MLS policy.  You can also see
-the definitions of mls_level_eq, _dom, and _incomp in the SELinux code
-and their use in constraint_expr_eval().
+>> Label B -- s0:c1,c3,c5,...,c1021,c1023 (odd
+>> repeating)
+>>
+>> What is the relationship between A and B?
+>>
+>> As my understanding goes, and from a definition I
+>> found:
+>>
+>> A dom B, iff:
+>> level(A) >= level(B) and cat(A) <super set of>
+>> cat(B)
+>>
+>> A domby B, iff:
+>> level(A) <= level(B) and cat(A) <subset of> cat(B)
+>>
+>> A eq B, iff:
+>> level(A) == level(B) and cat(A) == cat(b)
+>>
+>> A incomp B, iff:
+>> cat(A) not <subset of> cat(B) AND
+>> cat(B) not <subset of> cat(A)
+> 
+> 
+> The definition I always used for incomp was
+> A incomp B if not (A dom B) and not (B dom A)
 
--- 
-Stephen Smalley
-National Security Agency
+That makes sense, the source I was getting my definition from only 
+included categories... is the above definition widely used?
+
+>> Assuming all of those are accurate, label A does not
+>> DOM, DOMBY, or EQ 
+>> B, yet they are not INCOMP...
+>>
+>> Assuming all of the above is true, what do we call
+>> this relationship?
+> 
+> Illegal, except in Sweden?
+
+So then, using Joe's notation:
+A(LOW) incomp B
+A(HIGH) dom B
+A illegal B ? :)
+
+Guess I need to explain what I'm looking for better next time...
+Mike
 
 
 --
