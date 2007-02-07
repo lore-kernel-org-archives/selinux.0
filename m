@@ -1,45 +1,113 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id l17H99cH024071
-	for <selinux@tycho.nsa.gov>; Wed, 7 Feb 2007 12:09:09 -0500
-Received: from tex.courtesan.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l17HAGo6021294
-	for <selinux@tycho.nsa.gov>; Wed, 7 Feb 2007 17:10:16 GMT
-Received: from tex.courtesan.com (smmsp@localhost [127.0.0.1])
-	by tex.courtesan.com (8.14.0/8.13.8) with ESMTP id l17H9rAt018325
-	(version=TLSv1/SSLv3 cipher=DHE-DSS-AES256-SHA bits=256 verify=NO)
-	for <selinux@tycho.nsa.gov>; Wed, 7 Feb 2007 12:09:54 -0500 (EST)
-Date: Wed, 7 Feb 2007 12:09:53 -0500 (EST)
-Message-Id: <200702071709.l17H9rqk000601@tex.courtesan.com>
-To: "SE Linux" <selinux@tycho.nsa.gov>
-From: Todd.Miller@sparta.com
-Subject: PATCH: libsemanage-1.10.0
+Subject: Re: [PATCH 2/2] sysctl: Restore the selinux path based label
+	lookup for sysctls.
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+Cc: Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@elte.hu>,
+        tglx@linutronix.de, linux-kernel@vger.kernel.org,
+        selinux@tycho.nsa.gov, jmorris@namei.org
+In-Reply-To: <m13b5jrngt.fsf_-_@ebiederm.dsl.xmission.com>
+References: <200701280106.l0S16CG3019873@shell0.pdx.osdl.net>
+	 <20070127172410.2b041952.akpm@osdl.org>
+	 <1169972718.17469.164.camel@localhost.localdomain>
+	 <20070128003549.2ca38dc8.akpm@osdl.org> <20070128093358.GA2071@elte.hu>
+	 <20070128095712.GA6485@elte.hu> <20070128100627.GA8416@elte.hu>
+	 <20070128104548.a835d859.akpm@osdl.org>
+	 <m1r6tfq7nv.fsf_-_@ebiederm.dsl.xmission.com>
+	 <1170075866.8720.15.camel@moss-spartans.epoch.ncsc.mil>
+	 <m17iuvrnpk.fsf_-_@ebiederm.dsl.xmission.com>
+	 <m13b5jrngt.fsf_-_@ebiederm.dsl.xmission.com>
+Content-Type: text/plain
+Date: Wed, 07 Feb 2007 13:24:14 -0500
+Message-Id: <1170872654.11912.87.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-There is no advantage to using strnlen() over strlen() since buf is
-guaranteed to be a NUL-terminated string.
+On Tue, 2007-02-06 at 14:21 -0700, Eric W. Biederman wrote:
+> This time instead of generating the generating the paths from proc_dir_entries
+> generate the labels from the names in the sysctl ctl_tables themselves.  This
+> removes an unnecessary layer of indirection, allows this to work even when
+> procfs support is not compiled into the kernel, and especially allows it
+> to work now that ctl_tables no longer have a proc_dir_entry field.
 
- - todd
+Thanks, looks sane.
 
---- libsemanage-1.10.0/src/semanage_store.c	2007-01-08 16:20:17.000000000 -0500
-+++ libsemanage-1.10.0/src/semanage_store.c	2007-02-06 17:04:41.000000000 -0500
-@@ -968,14 +968,14 @@
- 		if (!strncmp(buf, "HOME_DIR", 8) ||
- 		    !strncmp(buf, "HOME_ROOT", 9) || strstr(buf, "ROLE")) {
- 			/* This contains one of the template variables, write it to homedir.template */
--			if (write(hd, buf, strnlen(buf, PATH_MAX)) == 0) {
-+			if (write(hd, buf, strlen(buf)) == 0) {
- 				ERR(sh, "Write to %s failed.",
- 				    semanage_path(SEMANAGE_TMP,
- 						  SEMANAGE_HOMEDIR_TMPL));
- 				goto cleanup;
- 			}
- 		} else {
--			if (write(fc, buf, strnlen(buf, PATH_MAX)) == 0) {
-+			if (write(fc, buf, strlen(buf)) == 0) {
- 				ERR(sh, "Write to %s failed.",
- 				    semanage_path(SEMANAGE_TMP, SEMANAGE_FC));
- 				goto cleanup;
+> I continue passing "proc" into genfs sid although that is complete nonsense
+> to allow existing selinux policies to work without modification.
+> 
+> Signed-off-by: Eric W. Biederman <ebiederm@xmission.com>
+
+Acked-by:  Stephen Smalley <sds@tycho.nsa.gov>
+
+> ---
+>  security/selinux/hooks.c |   43 +++++++++++++++++++++++++++++++++++++++++--
+>  1 files changed, 41 insertions(+), 2 deletions(-)
+> 
+> diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+> index 3a36057..c17a8dd 100644
+> --- a/security/selinux/hooks.c
+> +++ b/security/selinux/hooks.c
+> @@ -1424,6 +1424,41 @@ static int selinux_capable(struct task_struct *tsk, int cap)
+>  	return task_has_capability(tsk,cap);
+>  }
+>  
+> +static int selinux_sysctl_get_sid(ctl_table *table, u16 tclass, u32 *sid)
+> +{
+> +	int buflen, rc;
+> +	char *buffer, *path, *end;
+> +
+> +	rc = -ENOMEM;
+> +	buffer = (char*)__get_free_page(GFP_KERNEL);
+> +	if (!buffer)
+> +		goto out;
+> +
+> +	buflen = PAGE_SIZE;
+> +	end = buffer+buflen;
+> +	*--end = '\0';
+> +	buflen--;
+> +	path = end-1;
+> +	*path = '/';
+> +	while (table) {
+> +		const char *name = table->procname;
+> +		size_t namelen = strlen(name);
+> +		buflen -= namelen + 1;
+> +		if (buflen < 0)
+> +			goto out_free;
+> +		end -= namelen;
+> +		memcpy(end, name, namelen);
+> +		*--end = '/';
+> +		path = end;
+> +		table = table->parent;
+> +	}
+> +	rc = security_genfs_sid("proc", path, tclass, sid);
+> +out_free:
+> +	free_page((unsigned long)buffer);
+> +out:
+> +	return rc;
+> +}
+> +
+>  static int selinux_sysctl(ctl_table *table, int op)
+>  {
+>  	int error = 0;
+> @@ -1438,8 +1473,12 @@ static int selinux_sysctl(ctl_table *table, int op)
+>  
+>  	tsec = current->security;
+>  
+> -	/* Use the well-defined sysctl SID. */
+> -	tsid = SECINITSID_SYSCTL;
+> +	rc = selinux_sysctl_get_sid(table, (op == 0001) ?
+> +				    SECCLASS_DIR : SECCLASS_FILE, &tsid);
+> +	if (rc) {
+> +		/* Default to the well-defined sysctl SID. */
+> +		tsid = SECINITSID_SYSCTL;
+> +	}
+>  
+>  	/* The op values are "defined" in sysctl.c, thereby creating
+>  	 * a bad coupling between this module and sysctl.c */
+-- 
+Stephen Smalley
+National Security Agency
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
