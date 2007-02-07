@@ -1,74 +1,132 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id l17LDkLu002959
-	for <selinux@tycho.nsa.gov>; Wed, 7 Feb 2007 16:13:46 -0500
-Received: from web36605.mail.mud.yahoo.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with SMTP id l17LErf5006385
-	for <selinux@tycho.nsa.gov>; Wed, 7 Feb 2007 21:14:53 GMT
-Message-ID: <20070207211438.8683.qmail@web36605.mail.mud.yahoo.com>
-Date: Wed, 7 Feb 2007 13:14:38 -0800 (PST)
-From: Casey Schaufler <casey@schaufler-ca.com>
-Reply-To: casey@schaufler-ca.com
-Subject: Re: MLS concepts, relational question
-To: Michael C Thompson <thompsmc@us.ibm.com>, SE Linux <selinux@tycho.nsa.gov>
-In-Reply-To: <45CA366B.1070801@us.ibm.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Subject: Re: [PATCH 2/2] sysctl: Restore the selinux path based label
+	lookup for sysctls.
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+Cc: Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@elte.hu>,
+        tglx@linutronix.de, linux-kernel@vger.kernel.org,
+        selinux@tycho.nsa.gov, jmorris@namei.org
+In-Reply-To: <1170872654.11912.87.camel@moss-spartans.epoch.ncsc.mil>
+References: <200701280106.l0S16CG3019873@shell0.pdx.osdl.net>
+	 <20070127172410.2b041952.akpm@osdl.org>
+	 <1169972718.17469.164.camel@localhost.localdomain>
+	 <20070128003549.2ca38dc8.akpm@osdl.org> <20070128093358.GA2071@elte.hu>
+	 <20070128095712.GA6485@elte.hu> <20070128100627.GA8416@elte.hu>
+	 <20070128104548.a835d859.akpm@osdl.org>
+	 <m1r6tfq7nv.fsf_-_@ebiederm.dsl.xmission.com>
+	 <1170075866.8720.15.camel@moss-spartans.epoch.ncsc.mil>
+	 <m17iuvrnpk.fsf_-_@ebiederm.dsl.xmission.com>
+	 <m13b5jrngt.fsf_-_@ebiederm.dsl.xmission.com>
+	 <1170872654.11912.87.camel@moss-spartans.epoch.ncsc.mil>
+Content-Type: text/plain
+Date: Wed, 07 Feb 2007 16:12:18 -0500
+Message-Id: <1170882738.11912.144.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-
---- Michael C Thompson <thompsmc@us.ibm.com> wrote:
-
-> OK, so assume there are two labels:
-> Label A -- s2:c1 - s15:c0.c1023
-
-This is an SELinux MLS range label. It
-will not fit in the definitions you have
-below because the definitions you have
-are for discrete value labels. 
-
-> Label B -- s0:c1,c3,c5,...,c1021,c1023 (odd
-> repeating)
+On Wed, 2007-02-07 at 13:24 -0500, Stephen Smalley wrote:
+> On Tue, 2007-02-06 at 14:21 -0700, Eric W. Biederman wrote:
+> > This time instead of generating the generating the paths from proc_dir_entries
+> > generate the labels from the names in the sysctl ctl_tables themselves.  This
+> > removes an unnecessary layer of indirection, allows this to work even when
+> > procfs support is not compiled into the kernel, and especially allows it
+> > to work now that ctl_tables no longer have a proc_dir_entry field.
 > 
-> What is the relationship between A and B?
+> Thanks, looks sane.
 > 
-> As my understanding goes, and from a definition I
-> found:
+> > I continue passing "proc" into genfs sid although that is complete nonsense
+> > to allow existing selinux policies to work without modification.
+> > 
+> > Signed-off-by: Eric W. Biederman <ebiederm@xmission.com>
 > 
-> A dom B, iff:
-> level(A) >= level(B) and cat(A) <super set of>
-> cat(B)
+> Acked-by:  Stephen Smalley <sds@tycho.nsa.gov>
+
+Hmmm...but in testing the patch, I don't seem to (consistently) reach
+these checks when accessing via /proc/sys.  I see that you are caching
+the mode information and using it in some cases rather than calling the
+sysctl_perm function.
+
+One related but separate issue is that the /proc/sys inode labeling is
+also affected by the sysctl patch series.  Those inodes used to be
+labeled by selinux_proc_get_sid (from selinux_d_instantiate), but that
+no longer works, so they now fall back to the superblock SID (generic
+proc label).  That changes the inode permission checks on an attempt to
+access a /proc/sys node and will likely cause denials under current
+policy for confined domains since one wouldn't generally be writing to
+the generic proc label. If you always called sysctl_perm from the proc
+sysctl code, we could possibly dispense with inode permission checking
+on those inodes, e.g. marking them private.
+  
 > 
-> A domby B, iff:
-> level(A) <= level(B) and cat(A) <subset of> cat(B)
-> 
-> A eq B, iff:
-> level(A) == level(B) and cat(A) == cat(b)
-> 
-> A incomp B, iff:
-> cat(A) not <subset of> cat(B) AND
-> cat(B) not <subset of> cat(A)
+> > ---
+> >  security/selinux/hooks.c |   43 +++++++++++++++++++++++++++++++++++++++++--
+> >  1 files changed, 41 insertions(+), 2 deletions(-)
+> > 
+> > diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+> > index 3a36057..c17a8dd 100644
+> > --- a/security/selinux/hooks.c
+> > +++ b/security/selinux/hooks.c
+> > @@ -1424,6 +1424,41 @@ static int selinux_capable(struct task_struct *tsk, int cap)
+> >  	return task_has_capability(tsk,cap);
+> >  }
+> >  
+> > +static int selinux_sysctl_get_sid(ctl_table *table, u16 tclass, u32 *sid)
+> > +{
+> > +	int buflen, rc;
+> > +	char *buffer, *path, *end;
+> > +
+> > +	rc = -ENOMEM;
+> > +	buffer = (char*)__get_free_page(GFP_KERNEL);
+> > +	if (!buffer)
+> > +		goto out;
+> > +
+> > +	buflen = PAGE_SIZE;
+> > +	end = buffer+buflen;
+> > +	*--end = '\0';
+> > +	buflen--;
+> > +	path = end-1;
+> > +	*path = '/';
+> > +	while (table) {
+> > +		const char *name = table->procname;
+> > +		size_t namelen = strlen(name);
+> > +		buflen -= namelen + 1;
+> > +		if (buflen < 0)
+> > +			goto out_free;
+> > +		end -= namelen;
+> > +		memcpy(end, name, namelen);
+> > +		*--end = '/';
+> > +		path = end;
+> > +		table = table->parent;
+> > +	}
+> > +	rc = security_genfs_sid("proc", path, tclass, sid);
+> > +out_free:
+> > +	free_page((unsigned long)buffer);
+> > +out:
+> > +	return rc;
+> > +}
+> > +
+> >  static int selinux_sysctl(ctl_table *table, int op)
+> >  {
+> >  	int error = 0;
+> > @@ -1438,8 +1473,12 @@ static int selinux_sysctl(ctl_table *table, int op)
+> >  
+> >  	tsec = current->security;
+> >  
+> > -	/* Use the well-defined sysctl SID. */
+> > -	tsid = SECINITSID_SYSCTL;
+> > +	rc = selinux_sysctl_get_sid(table, (op == 0001) ?
+> > +				    SECCLASS_DIR : SECCLASS_FILE, &tsid);
+> > +	if (rc) {
+> > +		/* Default to the well-defined sysctl SID. */
+> > +		tsid = SECINITSID_SYSCTL;
+> > +	}
+> >  
+> >  	/* The op values are "defined" in sysctl.c, thereby creating
+> >  	 * a bad coupling between this module and sysctl.c */
+-- 
+Stephen Smalley
+National Security Agency
 
-
-The definition I always used for incomp was
-A incomp B if not (A dom B) and not (B dom A)
-
-> Assuming all of those are accurate, label A does not
-> DOM, DOMBY, or EQ 
-> B, yet they are not INCOMP...
-> 
-> Assuming all of the above is true, what do we call
-> this relationship?
-
-Illegal, except in Sweden?
-
-I don't know that it makes sense to apply
-descrete label terminology to vector label
-values.
-
-
-Casey Schaufler
-casey@schaufler-ca.com
 
 --
 This message was distributed to subscribers of the selinux mailing list.
