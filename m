@@ -1,75 +1,104 @@
-Subject: Re: [PATCH 2/2] sysctl: Restore the selinux path based label
-	lookup for sysctls.
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: "Eric W. Biederman" <ebiederm@xmission.com>
+From: ebiederm@xmission.com (Eric W. Biederman)
+To: Stephen Smalley <sds@tycho.nsa.gov>
 Cc: Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@elte.hu>,
         tglx@linutronix.de, linux-kernel@vger.kernel.org,
         selinux@tycho.nsa.gov, jmorris@namei.org
-In-Reply-To: <1170882738.11912.144.camel@moss-spartans.epoch.ncsc.mil>
+Subject: Re: [PATCH 2/2] sysctl: Restore the selinux path based label lookup for sysctls.
 References: <200701280106.l0S16CG3019873@shell0.pdx.osdl.net>
-	 <20070127172410.2b041952.akpm@osdl.org>
-	 <1169972718.17469.164.camel@localhost.localdomain>
-	 <20070128003549.2ca38dc8.akpm@osdl.org> <20070128093358.GA2071@elte.hu>
-	 <20070128095712.GA6485@elte.hu> <20070128100627.GA8416@elte.hu>
-	 <20070128104548.a835d859.akpm@osdl.org>
-	 <m1r6tfq7nv.fsf_-_@ebiederm.dsl.xmission.com>
-	 <1170075866.8720.15.camel@moss-spartans.epoch.ncsc.mil>
-	 <m17iuvrnpk.fsf_-_@ebiederm.dsl.xmission.com>
-	 <m13b5jrngt.fsf_-_@ebiederm.dsl.xmission.com>
-	 <1170872654.11912.87.camel@moss-spartans.epoch.ncsc.mil>
-	 <1170882738.11912.144.camel@moss-spartans.epoch.ncsc.mil>
-Content-Type: text/plain
-Date: Wed, 07 Feb 2007 16:54:04 -0500
-Message-Id: <1170885244.11912.168.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+	<20070127172410.2b041952.akpm@osdl.org>
+	<1169972718.17469.164.camel@localhost.localdomain>
+	<20070128003549.2ca38dc8.akpm@osdl.org>
+	<20070128093358.GA2071@elte.hu> <20070128095712.GA6485@elte.hu>
+	<20070128100627.GA8416@elte.hu>
+	<20070128104548.a835d859.akpm@osdl.org>
+	<m1r6tfq7nv.fsf_-_@ebiederm.dsl.xmission.com>
+	<1170075866.8720.15.camel@moss-spartans.epoch.ncsc.mil>
+	<m17iuvrnpk.fsf_-_@ebiederm.dsl.xmission.com>
+	<m13b5jrngt.fsf_-_@ebiederm.dsl.xmission.com>
+	<1170872654.11912.87.camel@moss-spartans.epoch.ncsc.mil>
+	<1170882738.11912.144.camel@moss-spartans.epoch.ncsc.mil>
+	<1170885244.11912.168.camel@moss-spartans.epoch.ncsc.mil>
+Date: Wed, 07 Feb 2007 15:21:02 -0700
+In-Reply-To: <1170885244.11912.168.camel@moss-spartans.epoch.ncsc.mil>
+	(Stephen Smalley's message of "Wed, 07 Feb 2007 16:54:04 -0500")
+Message-ID: <m17iutobht.fsf@ebiederm.dsl.xmission.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2007-02-07 at 16:12 -0500, Stephen Smalley wrote:
-> On Wed, 2007-02-07 at 13:24 -0500, Stephen Smalley wrote:
-> > On Tue, 2007-02-06 at 14:21 -0700, Eric W. Biederman wrote:
-> > > This time instead of generating the generating the paths from proc_dir_entries
-> > > generate the labels from the names in the sysctl ctl_tables themselves.  This
-> > > removes an unnecessary layer of indirection, allows this to work even when
-> > > procfs support is not compiled into the kernel, and especially allows it
-> > > to work now that ctl_tables no longer have a proc_dir_entry field.
-> > 
-> > Thanks, looks sane.
-> > 
-> > > I continue passing "proc" into genfs sid although that is complete nonsense
-> > > to allow existing selinux policies to work without modification.
-> > > 
-> > > Signed-off-by: Eric W. Biederman <ebiederm@xmission.com>
-> > 
-> > Acked-by:  Stephen Smalley <sds@tycho.nsa.gov>
-> 
-> Hmmm...but in testing the patch, I don't seem to (consistently) reach
-> these checks when accessing via /proc/sys.  I see that you are caching
-> the mode information and using it in some cases rather than calling the
-> sysctl_perm function.
+Stephen Smalley <sds@tycho.nsa.gov> writes:
 
-Actually, on further inspection, it looks like the real issue is the
-"path" name generation; "cat /proc/sys/kernel/modprobe" yields a call to
-security_genfs_sid() with just "/modprobe" rather than the expected
-"/sys/kernel/modprobe".  Which likewise leaves us with the generic proc
-label, just as with the inode permission check, so I end up seeing
-checks against it only.
+> Actually, on further inspection, it looks like the real issue is the
+> "path" name generation; "cat /proc/sys/kernel/modprobe" yields a call to
+> security_genfs_sid() with just "/modprobe" rather than the expected
+> "/sys/kernel/modprobe".  Which likewise leaves us with the generic proc
+> label, just as with the inode permission check, so I end up seeing
+> checks against it only.
 
-> One related but separate issue is that the /proc/sys inode labeling is
-> also affected by the sysctl patch series.  Those inodes used to be
-> labeled by selinux_proc_get_sid (from selinux_d_instantiate), but that
-> no longer works, so they now fall back to the superblock SID (generic
-> proc label).  That changes the inode permission checks on an attempt to
-> access a /proc/sys node and will likely cause denials under current
-> policy for confined domains since one wouldn't generally be writing to
-> the generic proc label. If you always called sysctl_perm from the proc
-> sysctl code, we could possibly dispense with inode permission checking
-> on those inodes, e.g. marking them private.
+Ok.  It looks like two silly thing are going on here.
+I failed to register the root sysctl table, so none of the parent
+pointers got set.
 
--- 
-Stephen Smalley
-National Security Agency
+I didn't prepend /sys in the compatibility code, so for something with
+the parent pointers set you would have gotten "/kernel/modprobe" instead
+of /sys/kernel/modprobe"
 
+Sorry about that.
+
+I think the patch below will fix it.
+
+Eric
+
+diff --git a/include/linux/sysctl.h b/include/linux/sysctl.h
+index 24f36f1..f316854 100644
+--- a/include/linux/sysctl.h
++++ b/include/linux/sysctl.h
+@@ -929,8 +929,6 @@ extern struct ctl_table_header *sysctl_head_next(struct ctl_table_header *prev);
+ extern void sysctl_head_finish(struct ctl_table_header *prev);
+ extern int sysctl_perm(struct ctl_table *table, int op);
+ 
+-extern void sysctl_init(void);
+-
+ typedef struct ctl_table ctl_table;
+ 
+ typedef int ctl_handler (ctl_table *table, int __user *name, int nlen,
+diff --git a/kernel/sysctl.c b/kernel/sysctl.c
+index 0a5499f..0bb2c5f 100644
+--- a/kernel/sysctl.c
++++ b/kernel/sysctl.c
+@@ -1241,6 +1241,14 @@ static void sysctl_set_parent(struct ctl_table *parent, struct ctl_table *table)
+ 	}
+ }
+ 
++static __init int sysctl_init(void)
++{
++	sysctl_set_parent(NULL, root_table);
++	return 0;
++}
++
++core_initcall(sysctl_init);
++
+ /**
+  * register_sysctl_table - register a sysctl hierarchy
+  * @table: the top-level table structure
+diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+index c17a8dd..aad2697 100644
+--- a/security/selinux/hooks.c
++++ b/security/selinux/hooks.c
+@@ -1452,6 +1452,12 @@ static int selinux_sysctl_get_sid(ctl_table *table, u16 tclass, u32 *sid)
+ 		path = end;
+ 		table = table->parent;
+ 	}
++	buflen -= 4;
++	if (buflen < 0)
++		goto out_free;
++	end -= 4;
++	memcpy(end, "/sys", 4);
++	path = end;
+ 	rc = security_genfs_sid("proc", path, tclass, sid);
+ out_free:
+ 	free_page((unsigned long)buffer);
 
 --
 This message was distributed to subscribers of the selinux mailing list.
