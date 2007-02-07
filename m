@@ -1,104 +1,51 @@
-From: ebiederm@xmission.com (Eric W. Biederman)
-To: Stephen Smalley <sds@tycho.nsa.gov>
-Cc: Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@elte.hu>,
-        tglx@linutronix.de, linux-kernel@vger.kernel.org,
-        selinux@tycho.nsa.gov, jmorris@namei.org
-Subject: Re: [PATCH 2/2] sysctl: Restore the selinux path based label lookup for sysctls.
-References: <200701280106.l0S16CG3019873@shell0.pdx.osdl.net>
-	<20070127172410.2b041952.akpm@osdl.org>
-	<1169972718.17469.164.camel@localhost.localdomain>
-	<20070128003549.2ca38dc8.akpm@osdl.org>
-	<20070128093358.GA2071@elte.hu> <20070128095712.GA6485@elte.hu>
-	<20070128100627.GA8416@elte.hu>
-	<20070128104548.a835d859.akpm@osdl.org>
-	<m1r6tfq7nv.fsf_-_@ebiederm.dsl.xmission.com>
-	<1170075866.8720.15.camel@moss-spartans.epoch.ncsc.mil>
-	<m17iuvrnpk.fsf_-_@ebiederm.dsl.xmission.com>
-	<m13b5jrngt.fsf_-_@ebiederm.dsl.xmission.com>
-	<1170872654.11912.87.camel@moss-spartans.epoch.ncsc.mil>
-	<1170882738.11912.144.camel@moss-spartans.epoch.ncsc.mil>
-	<1170885244.11912.168.camel@moss-spartans.epoch.ncsc.mil>
-Date: Wed, 07 Feb 2007 15:21:02 -0700
-In-Reply-To: <1170885244.11912.168.camel@moss-spartans.epoch.ncsc.mil>
-	(Stephen Smalley's message of "Wed, 07 Feb 2007 16:54:04 -0500")
-Message-ID: <m17iutobht.fsf@ebiederm.dsl.xmission.com>
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id l17NXxvA008886
+	for <selinux@tycho.nsa.gov>; Wed, 7 Feb 2007 18:33:59 -0500
+Received: from mail8.sea5.speakeasy.net (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l17NZ6vX025757
+	for <selinux@tycho.nsa.gov>; Wed, 7 Feb 2007 23:35:07 GMT
+Date: Wed, 7 Feb 2007 18:35:02 -0500 (EST)
+From: James Morris <jmorris@namei.org>
+To: Eric Paris <eparis@parisplace.org>
+cc: Stephen Smalley <sds@tycho.nsa.gov>, selinux@tycho.nsa.gov
+Subject: Re: [PATCH] SELinux: change Kconfig to use select instead of depends
+In-Reply-To: <1170873659.19578.33.camel@localhost.localdomain>
+Message-ID: <Pine.LNX.4.64.0702071834050.24127@d.namei>
+References: <1170868063.19578.31.camel@localhost.localdomain>
+ <1170868047.11912.69.camel@moss-spartans.epoch.ncsc.mil>
+ <1170873659.19578.33.camel@localhost.localdomain>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Stephen Smalley <sds@tycho.nsa.gov> writes:
+On Wed, 7 Feb 2007, Eric Paris wrote:
 
-> Actually, on further inspection, it looks like the real issue is the
-> "path" name generation; "cat /proc/sys/kernel/modprobe" yields a call to
-> security_genfs_sid() with just "/modprobe" rather than the expected
-> "/sys/kernel/modprobe".  Which likewise leaves us with the generic proc
-> label, just as with the inode permission check, so I end up seeing
-> checks against it only.
+> On Wed, 2007-02-07 at 12:07 -0500, Stephen Smalley wrote:
+> > On Wed, 2007-02-07 at 12:07 -0500, Eric Paris wrote:
+> > > Changes the security/selinux/Kconfig to use select instead of depends
+> > > for most of the SELinux requirements.  This allows the SELinux option to
+> > > show up when people do a make config without already knowing they had to
+> > > enable audit and other non-obvious choices.  Added a depends on SECURITY
+> > > (which previously existed through SECURITY_NETWORK) so that SELinux
+> > > would not always show up, but would be easy and intuitive to find.
+> > 
+> > Looks sane; only question I have is whether the NET and INET selection
+> > should happen from SECURITY_NETWORK or NETWORK_SECMARK rather than from
+> > SECURITY_SELINUX (and then selinux would pick it up from there).
+> 
+> It does appear that NETWORK_SECMARK is already inside an "if NET" so
+> that one should be able to be dropped entirely.  James, do you have
+> feelings on the proper placement of the INET depends/select?
 
-Ok.  It looks like two silly thing are going on here.
-I failed to register the root sysctl table, so none of the parent
-pointers got set.
+If it's all going to be selected, perhaps it's simpler to keep all the 
+selects in one place.
 
-I didn't prepend /sys in the compatibility code, so for something with
-the parent pointers set you would have gotten "/kernel/modprobe" instead
-of /sys/kernel/modprobe"
 
-Sorry about that.
 
-I think the patch below will fix it.
-
-Eric
-
-diff --git a/include/linux/sysctl.h b/include/linux/sysctl.h
-index 24f36f1..f316854 100644
---- a/include/linux/sysctl.h
-+++ b/include/linux/sysctl.h
-@@ -929,8 +929,6 @@ extern struct ctl_table_header *sysctl_head_next(struct ctl_table_header *prev);
- extern void sysctl_head_finish(struct ctl_table_header *prev);
- extern int sysctl_perm(struct ctl_table *table, int op);
- 
--extern void sysctl_init(void);
--
- typedef struct ctl_table ctl_table;
- 
- typedef int ctl_handler (ctl_table *table, int __user *name, int nlen,
-diff --git a/kernel/sysctl.c b/kernel/sysctl.c
-index 0a5499f..0bb2c5f 100644
---- a/kernel/sysctl.c
-+++ b/kernel/sysctl.c
-@@ -1241,6 +1241,14 @@ static void sysctl_set_parent(struct ctl_table *parent, struct ctl_table *table)
- 	}
- }
- 
-+static __init int sysctl_init(void)
-+{
-+	sysctl_set_parent(NULL, root_table);
-+	return 0;
-+}
-+
-+core_initcall(sysctl_init);
-+
- /**
-  * register_sysctl_table - register a sysctl hierarchy
-  * @table: the top-level table structure
-diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-index c17a8dd..aad2697 100644
---- a/security/selinux/hooks.c
-+++ b/security/selinux/hooks.c
-@@ -1452,6 +1452,12 @@ static int selinux_sysctl_get_sid(ctl_table *table, u16 tclass, u32 *sid)
- 		path = end;
- 		table = table->parent;
- 	}
-+	buflen -= 4;
-+	if (buflen < 0)
-+		goto out_free;
-+	end -= 4;
-+	memcpy(end, "/sys", 4);
-+	path = end;
- 	rc = security_genfs_sid("proc", path, tclass, sid);
- out_free:
- 	free_page((unsigned long)buffer);
+-- 
+James Morris
+<jmorris@namei.org>
 
 --
 This message was distributed to subscribers of the selinux mailing list.
