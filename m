@@ -1,14 +1,14 @@
 Subject: Re: [PATCH] SELinux: change Kconfig to use select instead of
 	depends
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Eric Paris <eparis@parisplace.org>
+From: Eric Paris <eparis@parisplace.org>
+To: Stephen Smalley <sds@tycho.nsa.gov>
 Cc: selinux@tycho.nsa.gov, jmorris@namei.org
 In-Reply-To: <1170868047.11912.69.camel@moss-spartans.epoch.ncsc.mil>
 References: <1170868063.19578.31.camel@localhost.localdomain>
 	 <1170868047.11912.69.camel@moss-spartans.epoch.ncsc.mil>
 Content-Type: text/plain
-Date: Wed, 07 Feb 2007 13:35:22 -0500
-Message-Id: <1170873322.11912.96.camel@moss-spartans.epoch.ncsc.mil>
+Date: Wed, 07 Feb 2007 13:40:59 -0500
+Message-Id: <1170873659.19578.33.camel@localhost.localdomain>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
@@ -26,17 +26,11 @@ On Wed, 2007-02-07 at 12:07 -0500, Stephen Smalley wrote:
 > should happen from SECURITY_NETWORK or NETWORK_SECMARK rather than from
 > SECURITY_SELINUX (and then selinux would pick it up from there).
 
-Also, we had talked about selecting PROC_FS and dropping the #ifdef on
-it during the earlier sysctl discussion, given the fundamental need for
-proc to support the process security attribute API.
+It does appear that NETWORK_SECMARK is already inside an "if NET" so
+that one should be able to be dropped entirely.  James, do you have
+feelings on the proper placement of the INET depends/select?
 
-Naturally, we also have an effective dependency on the filesystem
-security attribute options (e.g. EXT3_FS_SECURITY), but we can't really
-"select" those since they are per-filesystem.
-
--- 
-Stephen Smalley
-National Security Agency
+-Eric
 
 
 --
