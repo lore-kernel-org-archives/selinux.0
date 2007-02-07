@@ -1,51 +1,21 @@
-From: Jim Meyering <jim@meyering.net>
-To: Stephen Smalley <sds@tycho.nsa.gov>
-Cc: russell@coker.com.au, selinux@tycho.nsa.gov, Dan Walsh <dwalsh@redhat.com>
+Date: Wed, 7 Feb 2007 00:38:24 -0500
+From: Dale Amon <amon@vnl.com>
+To: Jim Meyering <jim@meyering.net>
+Cc: Stephen Smalley <sds@tycho.nsa.gov>, russell@coker.com.au,
+        selinux@tycho.nsa.gov, Dan Walsh <dwalsh@redhat.com>
 Subject: Re: selinux branch: new program: runcon
-In-Reply-To: <1170688913.12293.262.camel@moss-spartans.epoch.ncsc.mil>
-	(Stephen Smalley's message of "Mon, 05 Feb 2007 10:21:53 -0500")
-References: <8764akxwqs.fsf@rho.meyering.net>
-	<200702031233.14605.russell@coker.com.au>
-	<1170688913.12293.262.camel@moss-spartans.epoch.ncsc.mil>
-Date: Wed, 07 Feb 2007 04:57:31 +0100
-Message-ID: <87lkjabowk.fsf@rho.meyering.net>
+Message-ID: <20070207053824.GE6134@vnl.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Stephen Smalley <sds@tycho.nsa.gov> wrote:
-> On Sat, 2007-02-03 at 12:33 +1100, Russell Coker wrote:
->> On Saturday 03 February 2007 05:03, Jim Meyering <jim@meyering.net> wrote:
->> > +runcon: Russell Coker
->>
->> I didn't write runcon, probably one of the NSA guys deserves credit for that.
->> But it's been hacked on by enough people that correct and detailed
->> attribution may be difficult.
+I doubt my attempt several years go to make xargs 
+for selinux work in reiserfs count... since the
+effort was a failure in the end... selinux ran
+but the file system ate itself after a period
+of time...
 
-We can certainly list a few more.
-
->> It might be best to just have a section for attributing people who worked on
->> the SE Linux utilities and patches.  It'll save the effort of tracking
->> exactly who wrote what - and I doubt that anyone will be fighting about which
->> little patch should have their name on it.
-
-Good idea.
-Can you give me a list of names?
-I'll be happy to add that to the ChangeLog.
-
-> IIRC, runcon was originally called "runas", and was first written by
-> someone from SCC, originally as a patch against the old sh-utils.
-> Russell ported the old fileutils and sh-utils patches over to coreutils
-> for Debian.  Dan Walsh ported runas (and most of the other selinux
-> userland patches) to use the new SELinux API in Linux 2.6, renaming it
-> to runcon at that time at my suggestion to make its purpose clearer.
-> TCS patched it to support the -c option (compute transition).
-
-Thanks to both of you for the clarification.
-Does anyone know the name of the original "runas" author?
-For now, I'll adjust the runcon authorship to say Russell Coker and
-Dan Walsh.  Additions welcome.
 
 --
 This message was distributed to subscribers of the selinux mailing list.
