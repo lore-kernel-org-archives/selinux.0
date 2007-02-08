@@ -1,115 +1,37 @@
-Subject: Re: [PATCH 2/2] sysctl: Restore the selinux path based label
-	lookup for sysctls.
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-Cc: Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@elte.hu>,
-        tglx@linutronix.de, linux-kernel@vger.kernel.org,
-        selinux@tycho.nsa.gov, jmorris@namei.org
-In-Reply-To: <m17iutobht.fsf@ebiederm.dsl.xmission.com>
-References: <200701280106.l0S16CG3019873@shell0.pdx.osdl.net>
-	 <20070127172410.2b041952.akpm@osdl.org>
-	 <1169972718.17469.164.camel@localhost.localdomain>
-	 <20070128003549.2ca38dc8.akpm@osdl.org> <20070128093358.GA2071@elte.hu>
-	 <20070128095712.GA6485@elte.hu> <20070128100627.GA8416@elte.hu>
-	 <20070128104548.a835d859.akpm@osdl.org>
-	 <m1r6tfq7nv.fsf_-_@ebiederm.dsl.xmission.com>
-	 <1170075866.8720.15.camel@moss-spartans.epoch.ncsc.mil>
-	 <m17iuvrnpk.fsf_-_@ebiederm.dsl.xmission.com>
-	 <m13b5jrngt.fsf_-_@ebiederm.dsl.xmission.com>
-	 <1170872654.11912.87.camel@moss-spartans.epoch.ncsc.mil>
-	 <1170882738.11912.144.camel@moss-spartans.epoch.ncsc.mil>
-	 <1170885244.11912.168.camel@moss-spartans.epoch.ncsc.mil>
-	 <m17iutobht.fsf@ebiederm.dsl.xmission.com>
-Content-Type: text/plain
-Date: Thu, 08 Feb 2007 10:07:50 -0500
-Message-Id: <1170947270.11912.254.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+Message-ID: <45CB3EC4.7000103@mentalrootkit.com>
+Date: Thu, 08 Feb 2007 10:16:20 -0500
+From: Karl MacMillan <kmacmillan@mentalrootkit.com>
+MIME-Version: 1.0
+To: Daniel J Walsh <dwalsh@redhat.com>
+CC: Stephen Smalley <sds@tycho.nsa.gov>, SE Linux <selinux@tycho.nsa.gov>
+Subject: Re: Small patch to allow semodule_deps to build
+References: <45CA4A0E.7000500@redhat.com>
+In-Reply-To: <45CA4A0E.7000500@redhat.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2007-02-07 at 15:21 -0700, Eric W. Biederman wrote:
-> Stephen Smalley <sds@tycho.nsa.gov> writes:
+Daniel J Walsh wrote:
 > 
-> > Actually, on further inspection, it looks like the real issue is the
-> > "path" name generation; "cat /proc/sys/kernel/modprobe" yields a call to
-> > security_genfs_sid() with just "/modprobe" rather than the expected
-> > "/sys/kernel/modprobe".  Which likewise leaves us with the generic proc
-> > label, just as with the inode permission check, so I end up seeing
-> > checks against it only.
 > 
-> Ok.  It looks like two silly thing are going on here.
-> I failed to register the root sysctl table, so none of the parent
-> pointers got set.
+> ------------------------------------------------------------------------
 > 
-> I didn't prepend /sys in the compatibility code, so for something with
-> the parent pointers set you would have gotten "/kernel/modprobe" instead
-> of /sys/kernel/modprobe"
-> 
-> Sorry about that.
-> 
-> I think the patch below will fix it.
-
-Yes, thanks - this appears to correct the name generation and thus the
-resulting SID computation for the selinux sysctl checks.  
-
-> Eric
-> 
-> diff --git a/include/linux/sysctl.h b/include/linux/sysctl.h
-> index 24f36f1..f316854 100644
-> --- a/include/linux/sysctl.h
-> +++ b/include/linux/sysctl.h
-> @@ -929,8 +929,6 @@ extern struct ctl_table_header *sysctl_head_next(struct ctl_table_header *prev);
->  extern void sysctl_head_finish(struct ctl_table_header *prev);
->  extern int sysctl_perm(struct ctl_table *table, int op);
+> --- nsapolicycoreutils/semodule_deps/semodule_deps.c	2007-02-07 12:11:49.000000000 -0500
+> +++ policycoreutils-2.0.0/semodule_deps/semodule_deps.c	2007-02-07 16:46:18.000000000 -0500
+> @@ -16,7 +16,7 @@
+>   * of avrule_blocks - even in an ABI safe way - seems undesirable.
+>   */
+>  #include <sepol/module.h>
+> -#include <sepol/errno.h>
+> +#include <sepol/errcodes.h>
+>  #include <sepol/policydb/policydb.h>
 >  
-> -extern void sysctl_init(void);
-> -
->  typedef struct ctl_table ctl_table;
->  
->  typedef int ctl_handler (ctl_table *table, int __user *name, int nlen,
-> diff --git a/kernel/sysctl.c b/kernel/sysctl.c
-> index 0a5499f..0bb2c5f 100644
-> --- a/kernel/sysctl.c
-> +++ b/kernel/sysctl.c
-> @@ -1241,6 +1241,14 @@ static void sysctl_set_parent(struct ctl_table *parent, struct ctl_table *table)
->  	}
->  }
->  
-> +static __init int sysctl_init(void)
-> +{
-> +	sysctl_set_parent(NULL, root_table);
-> +	return 0;
-> +}
-> +
-> +core_initcall(sysctl_init);
-> +
->  /**
->   * register_sysctl_table - register a sysctl hierarchy
->   * @table: the top-level table structure
-> diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-> index c17a8dd..aad2697 100644
-> --- a/security/selinux/hooks.c
-> +++ b/security/selinux/hooks.c
-> @@ -1452,6 +1452,12 @@ static int selinux_sysctl_get_sid(ctl_table *table, u16 tclass, u32 *sid)
->  		path = end;
->  		table = table->parent;
->  	}
-> +	buflen -= 4;
-> +	if (buflen < 0)
-> +		goto out_free;
-> +	end -= 4;
-> +	memcpy(end, "/sys", 4);
-> +	path = end;
->  	rc = security_genfs_sid("proc", path, tclass, sid);
->  out_free:
->  	free_page((unsigned long)buffer);
-> 
+>  #include <getopt.h>
 
+This shouldn't be necessary - errcodes.h should be included via 
+policydb.h -> symtab.h -> hashtab.h. Also, I can't reproduce this locally.
 
--- 
-Stephen Smalley
-National Security Agency
-
+Karl
 
 --
 This message was distributed to subscribers of the selinux mailing list.
