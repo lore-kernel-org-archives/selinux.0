@@ -1,95 +1,72 @@
 Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id l186rfZ4021190
-	for <selinux@tycho.nsa.gov>; Thu, 8 Feb 2007 01:53:41 -0500
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id l186rCWm021113
+	for <selinux@tycho.nsa.gov>; Thu, 8 Feb 2007 01:53:12 -0500
 Received: from msp1.hitachi-sk.co.jp (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l186smX2023276
-	for <selinux@tycho.nsa.gov>; Thu, 8 Feb 2007 06:54:49 GMT
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l186sJX2023156
+	for <selinux@tycho.nsa.gov>; Thu, 8 Feb 2007 06:54:20 GMT
 Received: from vs2.hitachi-sk.co.jp ([133.108.252.215])
-	by msp1.hitachi-sk.co.jp (unknown) with ESMTP id l186slvA005596
-	for <selinux@tycho.nsa.gov>; Thu, 8 Feb 2007 15:54:47 +0900
-Date: Thu, 8 Feb 2007 15:54:56 +0900
+	by msp1.hitachi-sk.co.jp (unknown) with ESMTP id l186s8DZ005429
+	for <selinux@tycho.nsa.gov>; Thu, 8 Feb 2007 15:54:08 +0900
+Date: Thu, 8 Feb 2007 15:54:17 +0900
 From: Yuichi Nakamura <ynakam@hitachisoft.jp>
 To: busybox@busybox.net, selinux@tycho.nsa.gov
 Cc: russell@coker.com.au, rob@landley.net, busybox@kaigai.gr.jp,
         vda.linux@googlemail.com, ynakam@hitachisoft.jp
-Subject: [PATCH 6/6] busybox -- SELinux option support for coreutils
-Message-Id: <20070208155456.2d016051.ynakam@hitachisoft.jp>
+Subject: [PATCH 0/6] busybox -- SELinux option support for coreutils
+Message-Id: <20070208155417.8d62937f.ynakam@hitachisoft.jp>
 Mime-Version: 1.0
-Content-Type: multipart/mixed;
- boundary="Multipart=_Thu__8_Feb_2007_15_54_56_+0900_3uiASt51u/z8HDix"
+Content-Type: text/plain; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This is a multi-part message in MIME format.
+Hi.
 
---Multipart=_Thu__8_Feb_2007_15_54_56_+0900_3uiASt51u/z8HDix
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+The following patches provide SELinux options(like -Z) to coreutils 
+We imported SELinux options from coreutils 5.97(included in Fedora Core6).
+You have to enable CONFIG_SELINUX to use following feature.
+Any of them are fundamental one to use SELinux.
+We are welcoming any comment, and hope to merge it into busybox.
+
+
+[1/6] busybox-coreutils-common-01.patch
+ - usage.h for SELinux options
+
+[2/6] busybox-coreutils-02-copy.patch
+  - cp: -Z,-c option support. 
+      -c option: security context is preserved during file copy.
+      -Z option: security context can be set during file copy.
+  - mv 
+    In SELinux, it is recommended to preserve security context 
+    when file is moved. By this patch, file context is preserved 
+    during file move.
+  - install
+    When file is copied by install, security context of installed file 
+    becomes different from value configured in file_contexts file.
+    By this patch, security context is set according to file_contexts file.
+
+[3/6] busybox-coreutils-03-mk.patch
+ - -Z option support for mkdir, mkfifo, mknod. 
+    By -Z, security context for created file can be set.
+
+[4/6] busybox-coreutils-04-stat.patch
+ - -Z option support for stat. Security context of file is shown by -Z option.
+
+[5/6]  busybox-coreutils-05-ls.patch
+ - -Z option support for ls. Security context of file is shown by -Z option.
+   In current busybox, -k/-K shows security context. However, they are replaced by -Z option in recent coreutils, so -Z have to be added by this patch.
 
 [6/6] busybox-coreutils-06-id.patch
  - -Z option support for id. Security context of process is shown by -Z option.
 
-Signed-off-by: Yuichi Nakamura <ynakam@hitachisoft.jp>
 
+This project is originated from some of JPSEUG(Japan SELinux User Group). 
+Now, we are preparing to submit more patches to support SELinux commands/options.
 
+Regards,
 
-
---Multipart=_Thu__8_Feb_2007_15_54_56_+0900_3uiASt51u/z8HDix
-Content-Type: application/octet-stream;
- name="busybox-coreutils-id-06.patch"
-Content-Disposition: attachment;
- filename="busybox-coreutils-id-06.patch"
-Content-Transfer-Encoding: base64
-
-SW5kZXg6IGNvcmV1dGlscy9pZC5jCj09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09
-PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT0KLS0tIGNvcmV1dGlscy9pZC5jCShyZXZp
-c2lvbiAxNzgwMykKKysrIGNvcmV1dGlscy9pZC5jCSh3b3JraW5nIGNvcHkpCkBAIC0xMCw2ICsx
-MCw3IEBACiAvKiBCQl9BVURJVCBTVVN2MyBfTk9UXyBjb21wbGlhbnQgLS0gb3B0aW9uIC1HIGlz
-IG5vdCBjdXJyZW50bHkgc3VwcG9ydGVkLiAqLwogLyogSGFja2VkIGJ5IFRpdG8gUmFndXNhIChD
-KSAyMDA0IHRvIGhhbmRsZSB1c2VybmFtZXMgb2Ygd2hhdGV2ZXIgbGVuZ3RoIGFuZCB0bwogICog
-YmUgbW9yZSBzaW1pbGFyIHRvIEdOVSBpZC4KKyAqIC1aIG9wdGlvbiBzdXBwb3J0OiBieSBZdWlj
-aGkgTmFrYW11cmEgPHluYWthbUBoaXRhY2hpc29mdC5qcD4KICAqLwogCiAjaW5jbHVkZSAiYnVz
-eWJveC5oIgpAQCAtMTcsMTQgKzE4LDEzIEBACiAjaW5jbHVkZSA8dW5pc3RkLmg+CiAjaW5jbHVk
-ZSA8c3lzL3R5cGVzLmg+CiAKLSNpZmRlZiBDT05GSUdfU0VMSU5VWAotI2luY2x1ZGUgPHNlbGlu
-dXgvc2VsaW51eC5oPiAgICAgICAgICAvKiBmb3IgaXNfc2VsaW51eF9lbmFibGVkKCkgKi8KLSNl
-bmRpZgotCiAjZGVmaW5lIFBSSU5UX1JFQUwgICAgICAgIDEKICNkZWZpbmUgTkFNRV9OT1RfTlVN
-QkVSICAgMgogI2RlZmluZSBKVVNUX1VTRVIgICAgICAgICA0CiAjZGVmaW5lIEpVU1RfR1JPVVAg
-ICAgICAgIDgKKyNpZiBFTkFCTEVfU0VMSU5VWAorI2RlZmluZSBKVVNUX0NPTlRFWFQgICAgMTYK
-KyNlbmRpZgogCiBzdGF0aWMgc2hvcnQgcHJpbnRmX2Z1bGwodW5zaWduZWQgaW50IGlkLCBjb25z
-dCBjaGFyICphcmcsIGNvbnN0IGNoYXIgcHJlZml4KQogewpAQCAtNDcsMTEgKzQ3LDEzIEBACiAJ
-Z2lkX3QgZ2lkOwogCXVuc2lnbmVkIGxvbmcgZmxhZ3M7CiAJc2hvcnQgc3RhdHVzOwotCisjaWYg
-RU5BQkxFX1NFTElOVVgKKyAJc2VjdXJpdHlfY29udGV4dF90IHNjb250ZXh0OworI2VuZGlmCiAJ
-LyogRG9uJ3QgYWxsb3cgLW4gLXIgLW5yIC11ZyAtcnVnIC1udWcgLXJudWcgKi8KIAkvKiBEb24n
-dCBhbGxvdyBtb3JlIHRoYW4gb25lIHVzZXJuYW1lICovCiAJb3B0X2NvbXBsZW1lbnRhcnkgPSAi
-PzE6Pzp1LS1nOmctLXU6cj91ZzpuP3VnIjsKLQlmbGFncyA9IGdldG9wdDMyKGFyZ2MsIGFyZ3Ys
-ICJybnVnIik7CisJZmxhZ3MgPSBnZXRvcHQzMihhcmdjLCBhcmd2LCAicm51ZyIgVVNFX1NFTElO
-VVgoIloiKSk7CiAKIAkvKiBUaGlzIHZhbHVlcyBjb3VsZCBiZSBvdmVyd3JpdHRlbiBsYXRlciAq
-LwogCXVpZCA9IGdldGV1aWQoKTsKQEAgLTY5LDE0ICs3MSwzMyBAQAogCQkvKiBpbiB0aGlzIGNh
-c2UgUFJJTlRfUkVBTCBpcyB0aGUgc2FtZSAqLwogCX0KIAotCWlmIChmbGFncyAmIChKVVNUX0dS
-T1VQIHwgSlVTVF9VU0VSKSkgeworCWlmIChmbGFncyAmIChKVVNUX0dST1VQIHwgSlVTVF9VU0VS
-IFVTRV9TRUxJTlVYKHwgSlVTVF9DT05URVhUKSkpIHsKIAkJLyogSlVTVF9HUk9VUCBhbmQgSlVT
-VF9VU0VSIGFyZSBtdXR1YWxseSBleGNsdXNpdmUgKi8KIAkJaWYgKGZsYWdzICYgTkFNRV9OT1Rf
-TlVNQkVSKSB7CiAJCQkvKiBiYl9nZXRwd3VpZCBhbmQgYmJfZ2V0Z3JnaWQgZXhpdCBvbiBmYWls
-dXJlIHNvIHB1dHMgY2Fubm90IHNlZ2ZhdWx0ICovCiAJCQlwdXRzKChmbGFncyAmIEpVU1RfVVNF
-UikgPyBiYl9nZXRwd3VpZChOVUxMLCB1aWQsIC0xICkgOiBiYl9nZXRncmdpZChOVUxMLCBnaWQs
-IC0xICkpOwogCQl9IGVsc2UgewotCQkJcHJpbnRmKCIldVxuIiwgKGZsYWdzICYgSlVTVF9VU0VS
-KSA/IHVpZCA6IGdpZCk7Ci0JCX0KKwkJCWlmIChmbGFncyAmIEpVU1RfVVNFUil7CisgCQkJCXBy
-aW50ZigiJXVcbiIsdWlkKTsKKyAJCQl9CisgCQkJaWYgKGZsYWdzICYgSlVTVF9HUk9VUCl7Cisg
-CQkJCXByaW50ZigiJXVcbiIsZ2lkKTsKKyAJCQl9CisgIAkJfQorCQkKKyNpZiBFTkFCTEVfU0VM
-SU5VWAorIAkJaWYoZmxhZ3MgJiBKVVNUX0NPTlRFWFQpeyAgICAgICAgCisJCQlzZWxpbnV4X29y
-X2RpZSgpOworIAkJCWlmIChhcmdjIC0gb3B0aW5kID09IDEpeworIAkJCQliYl9lcnJvcl9tc2df
-YW5kX2RpZSgiY2Fubm90IHByaW50IHNlY3VyaXR5IGNvbnRleHQgd2hlbiB1c2VyIHNwZWNpZmll
-ZCIpOworIAkJCX0KKwkJCQorIAkJCWlmIChnZXRjb24oJnNjb250ZXh0KSl7CisgCQkJCWJiX2Vy
-cm9yX21zZ19hbmRfZGllKCJjYW4ndCBnZXQgcHJvY2VzcyBjb250ZXh0Iik7CQkKKyAJCQl9Cisg
-CQkJcHJpbnRmKCIlc1xuIiwgc2NvbnRleHQpOworIAkJfQorI2VuZGlmCQogCQkvKiBleGl0ICov
-CiAJCWZmbHVzaF9zdGRvdXRfYW5kX2V4aXQoRVhJVF9TVUNDRVNTKTsKIAl9CkBAIC04OCw3ICsx
-MDksNyBAQAogCS8qIGJiX2dldGdyZ2lkIGRvZXNuJ3QgZXhpdCBvbiBmYWlsdXJlIGhlcmUgKi8K
-IAlzdGF0dXMgfD0gcHJpbnRmX2Z1bGwoZ2lkLCBiYl9nZXRncmdpZChOVUxMLCBnaWQsIDApLCAn
-ZycpOwogCi0jaWZkZWYgQ09ORklHX1NFTElOVVgKKyNpZiBFTkFCTEVfU0VMSU5VWAogCWlmIChp
-c19zZWxpbnV4X2VuYWJsZWQoKSkgewogCQlzZWN1cml0eV9jb250ZXh0X3QgbXlzaWQ7CiAJCWNv
-bnN0IGNoYXIgKmNvbnRleHQ7Cg==
-
---Multipart=_Thu__8_Feb_2007_15_54_56_+0900_3uiASt51u/z8HDix--
+Yuichi Nakamura
+Hitachi Software
+SELinux Policy Editor: http://seedit.sourceforge.net/
 
 --
 This message was distributed to subscribers of the selinux mailing list.
