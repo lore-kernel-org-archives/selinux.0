@@ -1,50 +1,67 @@
-Message-ID: <45CB903B.9050109@mentalrootkit.com>
-Date: Thu, 08 Feb 2007 16:03:55 -0500
-From: Karl MacMillan <kmacmillan@mentalrootkit.com>
-MIME-Version: 1.0
+From: ebiederm@xmission.com (Eric W. Biederman)
 To: Stephen Smalley <sds@tycho.nsa.gov>
-CC: Daniel J Walsh <dwalsh@redhat.com>, SE Linux <selinux@tycho.nsa.gov>
-Subject: Re: Small patch to allow semodule_deps to build
-References: <45CA4A0E.7000500@redhat.com>	 <45CB3EC4.7000103@mentalrootkit.com> <1170950373.11912.276.camel@moss-spartans.epoch.ncsc.mil>
-In-Reply-To: <1170950373.11912.276.camel@moss-spartans.epoch.ncsc.mil>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Cc: Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@elte.hu>,
+        tglx@linutronix.de, linux-kernel@vger.kernel.org,
+        selinux@tycho.nsa.gov, James Morris <jmorris@namei.org>
+Subject: Re: [PATCH 2/2] sysctl: Restore the selinux path based label lookup for sysctls.
+References: <200701280106.l0S16CG3019873@shell0.pdx.osdl.net>
+	<20070127172410.2b041952.akpm@osdl.org>
+	<1169972718.17469.164.camel@localhost.localdomain>
+	<20070128003549.2ca38dc8.akpm@osdl.org>
+	<20070128093358.GA2071@elte.hu> <20070128095712.GA6485@elte.hu>
+	<20070128100627.GA8416@elte.hu>
+	<20070128104548.a835d859.akpm@osdl.org>
+	<m1r6tfq7nv.fsf_-_@ebiederm.dsl.xmission.com>
+	<1170075866.8720.15.camel@moss-spartans.epoch.ncsc.mil>
+	<m17iuvrnpk.fsf_-_@ebiederm.dsl.xmission.com>
+	<m13b5jrngt.fsf_-_@ebiederm.dsl.xmission.com>
+	<1170872654.11912.87.camel@moss-spartans.epoch.ncsc.mil>
+	<1170882738.11912.144.camel@moss-spartans.epoch.ncsc.mil>
+	<m17iutmmwh.fsf@ebiederm.dsl.xmission.com>
+	<1170946871.11912.250.camel@moss-spartans.epoch.ncsc.mil>
+	<m14ppwa64j.fsf@ebiederm.dsl.xmission.com>
+	<1170958404.11912.313.camel@moss-spartans.epoch.ncsc.mil>
+Date: Thu, 08 Feb 2007 15:17:24 -0700
+In-Reply-To: <1170958404.11912.313.camel@moss-spartans.epoch.ncsc.mil>
+	(Stephen Smalley's message of "Thu, 08 Feb 2007 13:13:24 -0500")
+Message-ID: <m1mz3o8fbf.fsf@ebiederm.dsl.xmission.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Stephen Smalley wrote:
-> On Thu, 2007-02-08 at 10:16 -0500, Karl MacMillan wrote:
->> Daniel J Walsh wrote:
->>>
->>> ------------------------------------------------------------------------
->>>
->>> --- nsapolicycoreutils/semodule_deps/semodule_deps.c	2007-02-07 12:11:49.000000000 -0500
->>> +++ policycoreutils-2.0.0/semodule_deps/semodule_deps.c	2007-02-07 16:46:18.000000000 -0500
->>> @@ -16,7 +16,7 @@
->>>   * of avrule_blocks - even in an ABI safe way - seems undesirable.
->>>   */
->>>  #include <sepol/module.h>
->>> -#include <sepol/errno.h>
->>> +#include <sepol/errcodes.h>
->>>  #include <sepol/policydb/policydb.h>
->>>  
->>>  #include <getopt.h>
->> This shouldn't be necessary - errcodes.h should be included via 
->> policydb.h -> symtab.h -> hashtab.h. Also, I can't reproduce this locally.
-> 
-> Actually, Dan is correct at least in removing #include <sepol/errno.h> -
-> that was what you had originally called the header, but renamed to
-> errcodes.h in response to my comments.  So you (and I) had a lingering
-> errno.h left around from previous builds that obscured the broken build.
-> cd trunk/
-> rm -rf ~/obj
-> make DESTDIR=~/obj install
-> to reproduce.
-> 
+Stephen Smalley <sds@tycho.nsa.gov> writes:
 
-Yep - guess my process needs a little fixing.
+> Possibly, during setup upon initial policy load (initiated by /sbin/init
+> these days) from selinux_complete_init, as early userspace may have
+> already been accessing them.
 
-Acked-by: Karl MacMillan <kmacmillan@mentalrootkit.com> and merged as 
-policycoreutils 2.0.1.
+I believe if we chose we could walk the dentry tree under the root inode
+and find all of these.
+
+>>   If all of the accesses
+>> that we care about go through inode_doinit_with_dentry we can just
+>> walk the dcache to get the names, and that should work for the normal
+>> proc case as well.
+>
+> Walking the proc_dir_entry tree (or the ctl_table tree) is preferable as
+> it is a stable, user-immutable representation.  Also avoids taking the
+> dcache lock.
+
+The dcache lock is valid.  Since the per filesystem dentry tree is just
+a mirror of the filesystem data there is no advantage over using
+the proc_dir_entry or ctl_table tree.  (If you start messing with mounts
+that is another matter.
+
+>> If it doesn't look easy to solve this another way I will certainly
+>> go with marking the inodes private.
+
+I hereby conclude this doesn't look easy enough to solve another way,
+to get it solved in a timely manner.  Since the cost is only 2 lines
+of code to use private inodes if we want to fix this later it should
+not be difficult.
+
+Eric
 
 --
 This message was distributed to subscribers of the selinux mailing list.
