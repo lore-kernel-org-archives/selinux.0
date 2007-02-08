@@ -3,9 +3,8 @@ To: Andrew Morton <akpm@osdl.org>
 Cc: Stephen Smalley <sds@tycho.nsa.gov>, Ingo Molnar <mingo@elte.hu>,
         tglx@linutronix.de, linux-kernel@vger.kernel.org,
         selinux@tycho.nsa.gov, James Morris <jmorris@namei.org>
-Subject: [PATCH 4/5] selinux: Enhance selinux to always ignore private inodes.
+Subject: [PATCH 5/5] sysctl:  Hide the sysctl proc inodes from selinux.
 References: <200701280106.l0S16CG3019873@shell0.pdx.osdl.net>
-	<20070128003549.2ca38dc8.akpm@osdl.org>
 	<20070128093358.GA2071@elte.hu> <20070128095712.GA6485@elte.hu>
 	<20070128100627.GA8416@elte.hu>
 	<20070128104548.a835d859.akpm@osdl.org>
@@ -24,52 +23,43 @@ References: <200701280106.l0S16CG3019873@shell0.pdx.osdl.net>
 	<m164ac8dnv.fsf_-_@ebiederm.dsl.xmission.com>
 	<m11wl08dlg.fsf_-_@ebiederm.dsl.xmission.com>
 	<m1wt2s6yz6.fsf_-_@ebiederm.dsl.xmission.com>
-Date: Thu, 08 Feb 2007 16:02:58 -0700
-In-Reply-To: <m1wt2s6yz6.fsf_-_@ebiederm.dsl.xmission.com> (Eric
-	W. Biederman's message of "Thu, 08 Feb 2007 15:55:41 -0700")
-Message-ID: <m1ps8k6yn1.fsf_-_@ebiederm.dsl.xmission.com>
+	<m1ps8k6yn1.fsf_-_@ebiederm.dsl.xmission.com>
+Date: Thu, 08 Feb 2007 16:04:20 -0700
+In-Reply-To: <m1ps8k6yn1.fsf_-_@ebiederm.dsl.xmission.com> (Eric
+	W. Biederman's message of "Thu, 08 Feb 2007 16:02:58 -0700")
+Message-ID: <m1lkj86ykr.fsf_-_@ebiederm.dsl.xmission.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 
-From: Stephen Smalley <sds@tycho.nsa.gov>
-
-Hmmm...turns out to not be quite enough, as the /proc/sys inodes aren't
-truly private to the fs, so we can run into them in a variety of
-security hooks beyond just the inode hooks, such as
-security_file_permission (when reading and writing them via the vfs
-helpers), security_sb_mount (when mounting other filesystems on
-directories in proc like binfmt_misc), and deeper within the security
-module itself (as in flush_unauthorized_files upon inheritance across
-execve).  So I think we have to add an IS_PRIVATE() guard within
-SELinux, as below.  Note however that the use of the private flag here
-could be confusing, as these inodes are _not_ private to the fs, are
-exposed to userspace, and security modules must implement the sysctl
-hook to get any access control over them.
+Since the security checks are applied on each read and write of a
+sysctl file, just like they are applied when calling sys_sysctl, they
+are redundant on the standard VFS constructs.  Since it is difficult
+to compute the security labels on the standard VFS constructs we just
+mark the sysctl inodes in proc private so selinux won't even bother
+with them.
 
 Signed-off-by: Eric W. Biederman <ebiederm@xmission.com>
-
 ---
- security/selinux/hooks.c |    3 +++
- 1 files changed, 3 insertions(+), 0 deletions(-)
+ fs/proc/proc_sysctl.c |    1 +
+ 1 files changed, 1 insertions(+), 0 deletions(-)
 
-diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-index de16b9f..ff9fccc 100644
---- a/security/selinux/hooks.c
-+++ b/security/selinux/hooks.c
-@@ -1077,6 +1077,9 @@ static int inode_has_perm(struct task_struct *tsk,
- 	struct inode_security_struct *isec;
- 	struct avc_audit_data ad;
- 
-+	if (unlikely (IS_PRIVATE (inode)))
-+		return 0;
-+
- 	tsec = tsk->security;
- 	isec = inode->i_security;
- 
+diff --git a/fs/proc/proc_sysctl.c b/fs/proc/proc_sysctl.c
+index bb16a1e..20e8cbb 100644
+--- a/fs/proc/proc_sysctl.c
++++ b/fs/proc/proc_sysctl.c
+@@ -47,6 +47,7 @@ static struct inode *proc_sys_make_inode(struct inode *dir, struct ctl_table *ta
+ 	inode->i_mtime = inode->i_atime = inode->i_ctime = CURRENT_TIME;
+ 	inode->i_op = &proc_sys_inode_operations;
+ 	inode->i_fop = &proc_sys_file_operations;
++	inode->i_flags |= S_PRIVATE; /* tell selinux to ignore this inode */
+ 	proc_sys_refresh_inode(inode, table);
+ out:
+ 	return inode;
 -- 
+1.4.4.1.g278f
 
 
 --
