@@ -3,9 +3,8 @@ To: Andrew Morton <akpm@osdl.org>
 Cc: Stephen Smalley <sds@tycho.nsa.gov>, Ingo Molnar <mingo@elte.hu>,
         tglx@linutronix.de, linux-kernel@vger.kernel.org,
         selinux@tycho.nsa.gov, James Morris <jmorris@namei.org>
-Subject: [PATCH 3/5] sysctl:  Fix the selinux_sysctl_get_sid
+Subject: [PATCH 4/5] selinux: Enhance selinux to always ignore private inodes.
 References: <200701280106.l0S16CG3019873@shell0.pdx.osdl.net>
-	<1169972718.17469.164.camel@localhost.localdomain>
 	<20070128003549.2ca38dc8.akpm@osdl.org>
 	<20070128093358.GA2071@elte.hu> <20070128095712.GA6485@elte.hu>
 	<20070128100627.GA8416@elte.hu>
@@ -24,46 +23,53 @@ References: <200701280106.l0S16CG3019873@shell0.pdx.osdl.net>
 	<m1abzo8dr0.fsf_-_@ebiederm.dsl.xmission.com>
 	<m164ac8dnv.fsf_-_@ebiederm.dsl.xmission.com>
 	<m11wl08dlg.fsf_-_@ebiederm.dsl.xmission.com>
-Date: Thu, 08 Feb 2007 15:55:41 -0700
-In-Reply-To: <m11wl08dlg.fsf_-_@ebiederm.dsl.xmission.com> (Eric
-	W. Biederman's message of "Thu, 08 Feb 2007 15:54:35 -0700")
-Message-ID: <m1wt2s6yz6.fsf_-_@ebiederm.dsl.xmission.com>
+	<m1wt2s6yz6.fsf_-_@ebiederm.dsl.xmission.com>
+Date: Thu, 08 Feb 2007 16:02:58 -0700
+In-Reply-To: <m1wt2s6yz6.fsf_-_@ebiederm.dsl.xmission.com> (Eric
+	W. Biederman's message of "Thu, 08 Feb 2007 15:55:41 -0700")
+Message-ID: <m1ps8k6yn1.fsf_-_@ebiederm.dsl.xmission.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 
-I goofed and when reenabling the fine grained selinux labels for
-sysctls and forgot to add the "/sys" prefix before consulting
-the policy database.  When computing the same path using
-proc_dir_entries we got the "/sys" for free as it was part
-of the tree, but it isn't true for clt_table trees.
+From: Stephen Smalley <sds@tycho.nsa.gov>
+
+Hmmm...turns out to not be quite enough, as the /proc/sys inodes aren't
+truly private to the fs, so we can run into them in a variety of
+security hooks beyond just the inode hooks, such as
+security_file_permission (when reading and writing them via the vfs
+helpers), security_sb_mount (when mounting other filesystems on
+directories in proc like binfmt_misc), and deeper within the security
+module itself (as in flush_unauthorized_files upon inheritance across
+execve).  So I think we have to add an IS_PRIVATE() guard within
+SELinux, as below.  Note however that the use of the private flag here
+could be confusing, as these inodes are _not_ private to the fs, are
+exposed to userspace, and security modules must implement the sysctl
+hook to get any access control over them.
 
 Signed-off-by: Eric W. Biederman <ebiederm@xmission.com>
+
 ---
- security/selinux/hooks.c |    6 ++++++
- 1 files changed, 6 insertions(+), 0 deletions(-)
+ security/selinux/hooks.c |    3 +++
+ 1 files changed, 3 insertions(+), 0 deletions(-)
 
 diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-index 47fb937..de16b9f 100644
+index de16b9f..ff9fccc 100644
 --- a/security/selinux/hooks.c
 +++ b/security/selinux/hooks.c
-@@ -1445,6 +1445,12 @@ static int selinux_sysctl_get_sid(ctl_table *table, u16 tclass, u32 *sid)
- 		path = end;
- 		table = table->parent;
- 	}
-+	buflen -= 4;
-+	if (buflen < 0)
-+		goto out_free;
-+	end -= 4;
-+	memcpy(end, "/sys", 4);
-+	path = end;
- 	rc = security_genfs_sid("proc", path, tclass, sid);
- out_free:
- 	free_page((unsigned long)buffer);
+@@ -1077,6 +1077,9 @@ static int inode_has_perm(struct task_struct *tsk,
+ 	struct inode_security_struct *isec;
+ 	struct avc_audit_data ad;
+ 
++	if (unlikely (IS_PRIVATE (inode)))
++		return 0;
++
+ 	tsec = tsk->security;
+ 	isec = inode->i_security;
+ 
 -- 
-1.4.4.1.g278f
 
 
 --
