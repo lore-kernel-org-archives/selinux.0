@@ -1,77 +1,94 @@
-Subject: Re: [PATCH 0/6] busybox -- SELinux option support for coreutils
+Subject: Re: [PATCH 2/2] sysctl: Restore the selinux path based label
+	lookup for sysctls.
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Yuichi Nakamura <ynakam@hitachisoft.jp>
-Cc: busybox@busybox.net, selinux@tycho.nsa.gov, russell@coker.com.au,
-        rob@landley.net, busybox@kaigai.gr.jp, vda.linux@googlemail.com
-In-Reply-To: <20070208155417.8d62937f.ynakam@hitachisoft.jp>
-References: <20070208155417.8d62937f.ynakam@hitachisoft.jp>
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+Cc: Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@elte.hu>,
+        tglx@linutronix.de, linux-kernel@vger.kernel.org,
+        selinux@tycho.nsa.gov, James Morris <jmorris@namei.org>
+In-Reply-To: <m17iutmmwh.fsf@ebiederm.dsl.xmission.com>
+References: <200701280106.l0S16CG3019873@shell0.pdx.osdl.net>
+	 <20070127172410.2b041952.akpm@osdl.org>
+	 <1169972718.17469.164.camel@localhost.localdomain>
+	 <20070128003549.2ca38dc8.akpm@osdl.org> <20070128093358.GA2071@elte.hu>
+	 <20070128095712.GA6485@elte.hu> <20070128100627.GA8416@elte.hu>
+	 <20070128104548.a835d859.akpm@osdl.org>
+	 <m1r6tfq7nv.fsf_-_@ebiederm.dsl.xmission.com>
+	 <1170075866.8720.15.camel@moss-spartans.epoch.ncsc.mil>
+	 <m17iuvrnpk.fsf_-_@ebiederm.dsl.xmission.com>
+	 <m13b5jrngt.fsf_-_@ebiederm.dsl.xmission.com>
+	 <1170872654.11912.87.camel@moss-spartans.epoch.ncsc.mil>
+	 <1170882738.11912.144.camel@moss-spartans.epoch.ncsc.mil>
+	 <m17iutmmwh.fsf@ebiederm.dsl.xmission.com>
 Content-Type: text/plain
-Date: Thu, 08 Feb 2007 08:26:04 -0500
-Message-Id: <1170941165.11912.208.camel@moss-spartans.epoch.ncsc.mil>
+Date: Thu, 08 Feb 2007 10:01:11 -0500
+Message-Id: <1170946871.11912.250.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2007-02-08 at 15:54 +0900, Yuichi Nakamura wrote:
-> Hi.
+On Wed, 2007-02-07 at 18:57 -0700, Eric W. Biederman wrote:
+> Stephen Smalley <sds@tycho.nsa.gov> writes:
 > 
-> The following patches provide SELinux options(like -Z) to coreutils 
-> We imported SELinux options from coreutils 5.97(included in Fedora Core6).
-> You have to enable CONFIG_SELINUX to use following feature.
-> Any of them are fundamental one to use SELinux.
-> We are welcoming any comment, and hope to merge it into busybox.
+> >
+> > One related but separate issue is that the /proc/sys inode labeling is
+> > also affected by the sysctl patch series.  Those inodes used to be
+> > labeled by selinux_proc_get_sid (from selinux_d_instantiate), but that
+> > no longer works, so they now fall back to the superblock SID (generic
+> > proc label).  That changes the inode permission checks on an attempt to
+> > access a /proc/sys node and will likely cause denials under current
+> > policy for confined domains since one wouldn't generally be writing to
+> > the generic proc label. If you always called sysctl_perm from the proc
+> > sysctl code, we could possibly dispense with inode permission checking
+> > on those inodes, e.g. marking them private.
+> 
+> Like this?
+> 
+> It seems a little weird but I'm happy with it if you are.
+> 
+> Eric
+> 
+> diff --git a/fs/proc/proc_sysctl.c b/fs/proc/proc_sysctl.c
+> index b9d59c0..7d6f7c7 100644
+> --- a/fs/proc/proc_sysctl.c
+> +++ b/fs/proc/proc_sysctl.c
+> @@ -47,6 +47,7 @@ static struct inode *proc_sys_make_inode(struct inode *dir, struct ctl_table *ta
+>  	inode->i_mtime = inode->i_atime = inode->i_ctime = CURRENT_TIME;
+>  	inode->i_op = &proc_sys_inode_operations;
+>  	inode->i_fop = &proc_sys_file_operations;
+> +	inode->i_flags |= S_PRIVATE; /* tell selinux to ignore this inode */
+>  	proc_sys_refresh_inode(inode, table);
+>  out:
+>  	return inode;
 
-I'd suggest looking at the upstream coreutils selinux branch (see Jim
-Meyering's prior announcement of it on selinux list) and make sure you
-are consistent with it rather than Fedora Core 6, as I believe some
-aspects have changed (e.g. cp -a handling).
+Hmmm...turns out to not be quite enough, as the /proc/sys inodes aren't
+truly private to the fs, so we can run into them in a variety of
+security hooks beyond just the inode hooks, such as
+security_file_permission (when reading and writing them via the vfs
+helpers), security_sb_mount (when mounting other filesystems on
+directories in proc like binfmt_misc), and deeper within the security
+module itself (as in flush_unauthorized_files upon inheritance across
+execve).  So I think we have to add an IS_PRIVATE() guard within
+SELinux, as below.  Note however that the use of the private flag here
+could be confusing, as these inodes are _not_ private to the fs, are
+exposed to userspace, and security modules must implement the sysctl
+hook to get any access control over them.
 
-> 
-> 
-> [1/6] busybox-coreutils-common-01.patch
->  - usage.h for SELinux options
-> 
-> [2/6] busybox-coreutils-02-copy.patch
->   - cp: -Z,-c option support. 
->       -c option: security context is preserved during file copy.
->       -Z option: security context can be set during file copy.
->   - mv 
->     In SELinux, it is recommended to preserve security context 
->     when file is moved. By this patch, file context is preserved 
->     during file move.
->   - install
->     When file is copied by install, security context of installed file 
->     becomes different from value configured in file_contexts file.
->     By this patch, security context is set according to file_contexts file.
-> 
-> [3/6] busybox-coreutils-03-mk.patch
->  - -Z option support for mkdir, mkfifo, mknod. 
->     By -Z, security context for created file can be set.
-> 
-> [4/6] busybox-coreutils-04-stat.patch
->  - -Z option support for stat. Security context of file is shown by -Z option.
-> 
-> [5/6]  busybox-coreutils-05-ls.patch
->  - -Z option support for ls. Security context of file is shown by -Z option.
->    In current busybox, -k/-K shows security context. However, they are replaced by -Z option in recent coreutils, so -Z have to be added by this patch.
-> 
-> [6/6] busybox-coreutils-06-id.patch
->  - -Z option support for id. Security context of process is shown by -Z option.
-> 
-> 
-> This project is originated from some of JPSEUG(Japan SELinux User Group). 
-> Now, we are preparing to submit more patches to support SELinux commands/options.
-> 
-> Regards,
-> 
-> Yuichi Nakamura
-> Hitachi Software
-> SELinux Policy Editor: http://seedit.sourceforge.net/
-> 
-> --
-> This message was distributed to subscribers of the selinux mailing list.
-> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
-> the words "unsubscribe selinux" without quotes as the message.
+diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+index 65fb5e8..21bf2f0 100644
+--- a/security/selinux/hooks.c
++++ b/security/selinux/hooks.c
+@@ -1078,6 +1077,9 @@ static int inode_has_perm(struct task_st
+ 	struct inode_security_struct *isec;
+ 	struct avc_audit_data ad;
+ 
++	if (unlikely (IS_PRIVATE (inode)))
++		return 0;
++
+ 	tsec = tsk->security;
+ 	isec = inode->i_security;
+ 
+
+
 -- 
 Stephen Smalley
 National Security Agency
