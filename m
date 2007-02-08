@@ -1,86 +1,78 @@
-Subject: Re: [PATCH 2/2] sysctl: Restore the selinux path based label
-	lookup for sysctls.
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-Cc: Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@elte.hu>,
-        tglx@linutronix.de, linux-kernel@vger.kernel.org,
-        selinux@tycho.nsa.gov, James Morris <jmorris@namei.org>,
-        Eric Paris <eparis@parisplace.org>
-In-Reply-To: <m14ppwa64j.fsf@ebiederm.dsl.xmission.com>
-References: <200701280106.l0S16CG3019873@shell0.pdx.osdl.net>
-	 <20070127172410.2b041952.akpm@osdl.org>
-	 <1169972718.17469.164.camel@localhost.localdomain>
-	 <20070128003549.2ca38dc8.akpm@osdl.org> <20070128093358.GA2071@elte.hu>
-	 <20070128095712.GA6485@elte.hu> <20070128100627.GA8416@elte.hu>
-	 <20070128104548.a835d859.akpm@osdl.org>
-	 <m1r6tfq7nv.fsf_-_@ebiederm.dsl.xmission.com>
-	 <1170075866.8720.15.camel@moss-spartans.epoch.ncsc.mil>
-	 <m17iuvrnpk.fsf_-_@ebiederm.dsl.xmission.com>
-	 <m13b5jrngt.fsf_-_@ebiederm.dsl.xmission.com>
-	 <1170872654.11912.87.camel@moss-spartans.epoch.ncsc.mil>
-	 <1170882738.11912.144.camel@moss-spartans.epoch.ncsc.mil>
-	 <m17iutmmwh.fsf@ebiederm.dsl.xmission.com>
-	 <1170946871.11912.250.camel@moss-spartans.epoch.ncsc.mil>
-	 <m14ppwa64j.fsf@ebiederm.dsl.xmission.com>
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id l18IKksk015343
+	for <selinux@tycho.nsa.gov>; Thu, 8 Feb 2007 13:20:46 -0500
+Received: from exchange.columbia.tresys.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with SMTP id l18ILsgM013838
+	for <selinux@tycho.nsa.gov>; Thu, 8 Feb 2007 18:21:54 GMT
+Subject: ANN: SETools Release
+From: "Christopher J. PeBenito" <cpebenito@tresys.com>
+To: SELinux Mail List <selinux@tycho.nsa.gov>
+Cc: fedora-selinux-list@redhat.com
 Content-Type: text/plain
-Date: Thu, 08 Feb 2007 13:13:24 -0500
-Message-Id: <1170958404.11912.313.camel@moss-spartans.epoch.ncsc.mil>
+Date: Thu, 08 Feb 2007 18:21:55 +0000
+Message-Id: <1170958915.31164.45.camel@sgc.columbia.tresys.com>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2007-02-08 at 10:53 -0700, Eric W. Biederman wrote:
-> Stephen Smalley <sds@tycho.nsa.gov> writes:
-> 
-> >
-> > Hmmm...turns out to not be quite enough, as the /proc/sys inodes aren't
-> > truly private to the fs, so we can run into them in a variety of
-> > security hooks beyond just the inode hooks, such as
-> > security_file_permission (when reading and writing them via the vfs
-> > helpers), security_sb_mount (when mounting other filesystems on
-> > directories in proc like binfmt_misc), and deeper within the security
-> > module itself (as in flush_unauthorized_files upon inheritance across
-> > execve).  So I think we have to add an IS_PRIVATE() guard within
-> > SELinux, as below.  Note however that the use of the private flag here
-> > could be confusing, as these inodes are _not_ private to the fs, are
-> > exposed to userspace, and security modules must implement the sysctl
-> > hook to get any access control over them.
-> 
-> Agreed, the naming is confusing, and using private here doesn't quite
-> feel right.
-> 
-> A practical question is: Will we ever encounter these inodes
-> in the inode_init() path from superblock_init?
+A new release of SETools is now available on the Tresys OSS site, from
+http://oss.tresys.com.  The primary change in this release is the
+addition of support for loading sets of policy modules in all of the
+tools.  This enables analysis of the policy with nearly all of the
+information available from the original source policy, such as original
+attribute names.  The complete change log for this release follows.
 
-Possibly, during setup upon initial policy load (initiated by /sbin/init
-these days) from selinux_complete_init, as early userspace may have
-already been accessing them.
+SETools 3.1:
 
->   If all of the accesses
-> that we care about go through inode_doinit_with_dentry we can just
-> walk the dcache to get the names, and that should work for the normal
-> proc case as well.
+SETools:
 
-Walking the proc_dir_entry tree (or the ctl_table tree) is preferable as
-it is a stable, user-immutable representation.  Also avoids taking the
-dcache lock.
+  * All tools that open a policy now support loadable policy modules.
+    Command line tools expect the first module to be a base module
+    followed optionally by any other modules.  Graphical tools have
+    a new open policy dialog to select a base module and any number of
+    additional modules.
 
-> A somewhat related question: How do you handle security labels for
-> sysfs?  No fine grained security yet.
+  * Release of RPM packages that are compatible with Fedora Core 5 and
+    6.  The spec and support files are in packages/rpm.
 
-Right, they are all mapped to a single label presently.  I was thinking
-of handling that from userspace after introducing a setxattr handler for
-sysfs and a way to preserve the SID on the entry (likely caching it in
-the sysfs_dirent and propagating that to the inode when the inode is
-populated from the sysfs_dirent).  Then early userspace could walk sysfs
-and apply finer-grained labeling from a configuration.
+libapol:
 
-> If it doesn't look easy to solve this another way I will certainly
-> go with marking the inodes private.
+  * New class apol_policy_path_t to represent a base policy and any
+    number of modules.  Use this whenever referring to the file or
+    files constituting a policy.
+  
+libqpol:
+
+  * Policy features such as attribute names or MLS can now be queried
+    individally via qpol_policy_has_capability() rather than inferred
+    by policy type and version.
+
+  * New class qpol_module_t to represent a particular policy module
+    prior to it being linked into a base policy (qpol_policy_t).
+
+libseaudit:
+
+  * Rewrite of library to have proper namespaces.  libseaudit is now
+    fully documented and suitable for third-party users.
+
+seaudit:
+
+  * Rewrite to use new libseaudit.
+
+  * Numerous tweaks to the interface to be more user friendly.
+
+seaudit-report:
+
+  * Rewrite to use new libseaudit.
+
+sediffx:
+
+  * Numerous tweaks to the interface to be more user friendly.
 
 -- 
-Stephen Smalley
-National Security Agency
+Chris PeBenito
+Tresys Technology, LLC
+(410) 290-1411 x150
 
 
 --
