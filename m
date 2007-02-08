@@ -1,51 +1,65 @@
-Subject: Re: Small patch to allow semodule_deps to build
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Karl MacMillan <kmacmillan@mentalrootkit.com>
-Cc: Daniel J Walsh <dwalsh@redhat.com>, SE Linux <selinux@tycho.nsa.gov>
-In-Reply-To: <45CB3EC4.7000103@mentalrootkit.com>
-References: <45CA4A0E.7000500@redhat.com>
-	 <45CB3EC4.7000103@mentalrootkit.com>
-Content-Type: text/plain
-Date: Thu, 08 Feb 2007 10:59:33 -0500
-Message-Id: <1170950373.11912.276.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+From: ebiederm@xmission.com (Eric W. Biederman)
+To: Stephen Smalley <sds@tycho.nsa.gov>
+Cc: Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@elte.hu>,
+        tglx@linutronix.de, linux-kernel@vger.kernel.org,
+        selinux@tycho.nsa.gov, James Morris <jmorris@namei.org>
+Subject: Re: [PATCH 2/2] sysctl: Restore the selinux path based label lookup for sysctls.
+References: <200701280106.l0S16CG3019873@shell0.pdx.osdl.net>
+	<20070127172410.2b041952.akpm@osdl.org>
+	<1169972718.17469.164.camel@localhost.localdomain>
+	<20070128003549.2ca38dc8.akpm@osdl.org>
+	<20070128093358.GA2071@elte.hu> <20070128095712.GA6485@elte.hu>
+	<20070128100627.GA8416@elte.hu>
+	<20070128104548.a835d859.akpm@osdl.org>
+	<m1r6tfq7nv.fsf_-_@ebiederm.dsl.xmission.com>
+	<1170075866.8720.15.camel@moss-spartans.epoch.ncsc.mil>
+	<m17iuvrnpk.fsf_-_@ebiederm.dsl.xmission.com>
+	<m13b5jrngt.fsf_-_@ebiederm.dsl.xmission.com>
+	<1170872654.11912.87.camel@moss-spartans.epoch.ncsc.mil>
+	<1170882738.11912.144.camel@moss-spartans.epoch.ncsc.mil>
+	<m17iutmmwh.fsf@ebiederm.dsl.xmission.com>
+	<1170946871.11912.250.camel@moss-spartans.epoch.ncsc.mil>
+Date: Thu, 08 Feb 2007 10:53:00 -0700
+In-Reply-To: <1170946871.11912.250.camel@moss-spartans.epoch.ncsc.mil>
+	(Stephen Smalley's message of "Thu, 08 Feb 2007 10:01:11 -0500")
+Message-ID: <m14ppwa64j.fsf@ebiederm.dsl.xmission.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2007-02-08 at 10:16 -0500, Karl MacMillan wrote:
-> Daniel J Walsh wrote:
-> > 
-> > 
-> > ------------------------------------------------------------------------
-> > 
-> > --- nsapolicycoreutils/semodule_deps/semodule_deps.c	2007-02-07 12:11:49.000000000 -0500
-> > +++ policycoreutils-2.0.0/semodule_deps/semodule_deps.c	2007-02-07 16:46:18.000000000 -0500
-> > @@ -16,7 +16,7 @@
-> >   * of avrule_blocks - even in an ABI safe way - seems undesirable.
-> >   */
-> >  #include <sepol/module.h>
-> > -#include <sepol/errno.h>
-> > +#include <sepol/errcodes.h>
-> >  #include <sepol/policydb/policydb.h>
-> >  
-> >  #include <getopt.h>
-> 
-> This shouldn't be necessary - errcodes.h should be included via 
-> policydb.h -> symtab.h -> hashtab.h. Also, I can't reproduce this locally.
+Stephen Smalley <sds@tycho.nsa.gov> writes:
 
-Actually, Dan is correct at least in removing #include <sepol/errno.h> -
-that was what you had originally called the header, but renamed to
-errcodes.h in response to my comments.  So you (and I) had a lingering
-errno.h left around from previous builds that obscured the broken build.
-cd trunk/
-rm -rf ~/obj
-make DESTDIR=~/obj install
-to reproduce.
+>
+> Hmmm...turns out to not be quite enough, as the /proc/sys inodes aren't
+> truly private to the fs, so we can run into them in a variety of
+> security hooks beyond just the inode hooks, such as
+> security_file_permission (when reading and writing them via the vfs
+> helpers), security_sb_mount (when mounting other filesystems on
+> directories in proc like binfmt_misc), and deeper within the security
+> module itself (as in flush_unauthorized_files upon inheritance across
+> execve).  So I think we have to add an IS_PRIVATE() guard within
+> SELinux, as below.  Note however that the use of the private flag here
+> could be confusing, as these inodes are _not_ private to the fs, are
+> exposed to userspace, and security modules must implement the sysctl
+> hook to get any access control over them.
 
--- 
-Stephen Smalley
-National Security Agency
+Agreed, the naming is confusing, and using private here doesn't quite
+feel right.
 
+A practical question is: Will we ever encounter these inodes
+in the inode_init() path from superblock_init?  If all of the accesses
+that we care about go through inode_doinit_with_dentry we can just
+walk the dcache to get the names, and that should work for the normal
+proc case as well.
+
+A somewhat related question: How do you handle security labels for
+sysfs?  No fine grained security yet.
+
+If it doesn't look easy to solve this another way I will certainly
+go with marking the inodes private.
+
+Eric
 
 --
 This message was distributed to subscribers of the selinux mailing list.
