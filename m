@@ -1,51 +1,63 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id l17NXxvA008886
-	for <selinux@tycho.nsa.gov>; Wed, 7 Feb 2007 18:33:59 -0500
-Received: from mail8.sea5.speakeasy.net (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l17NZ6vX025757
-	for <selinux@tycho.nsa.gov>; Wed, 7 Feb 2007 23:35:07 GMT
-Date: Wed, 7 Feb 2007 18:35:02 -0500 (EST)
-From: James Morris <jmorris@namei.org>
-To: Eric Paris <eparis@parisplace.org>
-cc: Stephen Smalley <sds@tycho.nsa.gov>, selinux@tycho.nsa.gov
-Subject: Re: [PATCH] SELinux: change Kconfig to use select instead of depends
-In-Reply-To: <1170873659.19578.33.camel@localhost.localdomain>
-Message-ID: <Pine.LNX.4.64.0702071834050.24127@d.namei>
-References: <1170868063.19578.31.camel@localhost.localdomain>
- <1170868047.11912.69.camel@moss-spartans.epoch.ncsc.mil>
- <1170873659.19578.33.camel@localhost.localdomain>
+From: ebiederm@xmission.com (Eric W. Biederman)
+To: Stephen Smalley <sds@tycho.nsa.gov>
+Cc: Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@elte.hu>,
+        tglx@linutronix.de, linux-kernel@vger.kernel.org,
+        selinux@tycho.nsa.gov, jmorris@namei.org
+Subject: Re: [PATCH 2/2] sysctl: Restore the selinux path based label lookup for sysctls.
+References: <200701280106.l0S16CG3019873@shell0.pdx.osdl.net>
+	<20070127172410.2b041952.akpm@osdl.org>
+	<1169972718.17469.164.camel@localhost.localdomain>
+	<20070128003549.2ca38dc8.akpm@osdl.org>
+	<20070128093358.GA2071@elte.hu> <20070128095712.GA6485@elte.hu>
+	<20070128100627.GA8416@elte.hu>
+	<20070128104548.a835d859.akpm@osdl.org>
+	<m1r6tfq7nv.fsf_-_@ebiederm.dsl.xmission.com>
+	<1170075866.8720.15.camel@moss-spartans.epoch.ncsc.mil>
+	<m17iuvrnpk.fsf_-_@ebiederm.dsl.xmission.com>
+	<m13b5jrngt.fsf_-_@ebiederm.dsl.xmission.com>
+	<1170872654.11912.87.camel@moss-spartans.epoch.ncsc.mil>
+	<1170882738.11912.144.camel@moss-spartans.epoch.ncsc.mil>
+Date: Wed, 07 Feb 2007 18:57:34 -0700
+In-Reply-To: <1170882738.11912.144.camel@moss-spartans.epoch.ncsc.mil>
+	(Stephen Smalley's message of "Wed, 07 Feb 2007 16:12:18 -0500")
+Message-ID: <m17iutmmwh.fsf@ebiederm.dsl.xmission.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 7 Feb 2007, Eric Paris wrote:
+Stephen Smalley <sds@tycho.nsa.gov> writes:
 
-> On Wed, 2007-02-07 at 12:07 -0500, Stephen Smalley wrote:
-> > On Wed, 2007-02-07 at 12:07 -0500, Eric Paris wrote:
-> > > Changes the security/selinux/Kconfig to use select instead of depends
-> > > for most of the SELinux requirements.  This allows the SELinux option to
-> > > show up when people do a make config without already knowing they had to
-> > > enable audit and other non-obvious choices.  Added a depends on SECURITY
-> > > (which previously existed through SECURITY_NETWORK) so that SELinux
-> > > would not always show up, but would be easy and intuitive to find.
-> > 
-> > Looks sane; only question I have is whether the NET and INET selection
-> > should happen from SECURITY_NETWORK or NETWORK_SECMARK rather than from
-> > SECURITY_SELINUX (and then selinux would pick it up from there).
-> 
-> It does appear that NETWORK_SECMARK is already inside an "if NET" so
-> that one should be able to be dropped entirely.  James, do you have
-> feelings on the proper placement of the INET depends/select?
+>
+> One related but separate issue is that the /proc/sys inode labeling is
+> also affected by the sysctl patch series.  Those inodes used to be
+> labeled by selinux_proc_get_sid (from selinux_d_instantiate), but that
+> no longer works, so they now fall back to the superblock SID (generic
+> proc label).  That changes the inode permission checks on an attempt to
+> access a /proc/sys node and will likely cause denials under current
+> policy for confined domains since one wouldn't generally be writing to
+> the generic proc label. If you always called sysctl_perm from the proc
+> sysctl code, we could possibly dispense with inode permission checking
+> on those inodes, e.g. marking them private.
 
-If it's all going to be selected, perhaps it's simpler to keep all the 
-selects in one place.
+Like this?
 
+It seems a little weird but I'm happy with it if you are.
 
+Eric
 
--- 
-James Morris
-<jmorris@namei.org>
+diff --git a/fs/proc/proc_sysctl.c b/fs/proc/proc_sysctl.c
+index b9d59c0..7d6f7c7 100644
+--- a/fs/proc/proc_sysctl.c
++++ b/fs/proc/proc_sysctl.c
+@@ -47,6 +47,7 @@ static struct inode *proc_sys_make_inode(struct inode *dir, struct ctl_table *ta
+ 	inode->i_mtime = inode->i_atime = inode->i_ctime = CURRENT_TIME;
+ 	inode->i_op = &proc_sys_inode_operations;
+ 	inode->i_fop = &proc_sys_file_operations;
++	inode->i_flags |= S_PRIVATE; /* tell selinux to ignore this inode */
+ 	proc_sys_refresh_inode(inode, table);
+ out:
+ 	return inode;
 
 --
 This message was distributed to subscribers of the selinux mailing list.
