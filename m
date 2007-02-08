@@ -3,7 +3,7 @@ To: Andrew Morton <akpm@osdl.org>
 Cc: Stephen Smalley <sds@tycho.nsa.gov>, Ingo Molnar <mingo@elte.hu>,
         tglx@linutronix.de, linux-kernel@vger.kernel.org,
         selinux@tycho.nsa.gov, James Morris <jmorris@namei.org>
-Subject: [PATCH 0/5] sysctl cleanup selinux fixes
+Subject: [PATCH 1/5] sysctl:  Remove declaration of nonexistent sysctl_init()
 References: <200701280106.l0S16CG3019873@shell0.pdx.osdl.net>
 	<20070127172410.2b041952.akpm@osdl.org>
 	<1169972718.17469.164.camel@localhost.localdomain>
@@ -22,43 +22,38 @@ References: <200701280106.l0S16CG3019873@shell0.pdx.osdl.net>
 	<m14ppwa64j.fsf@ebiederm.dsl.xmission.com>
 	<1170958404.11912.313.camel@moss-spartans.epoch.ncsc.mil>
 	<m1mz3o8fbf.fsf@ebiederm.dsl.xmission.com>
-Date: Thu, 08 Feb 2007 15:51:15 -0700
-In-Reply-To: <m1mz3o8fbf.fsf@ebiederm.dsl.xmission.com> (Eric W. Biederman's
-	message of "Thu, 08 Feb 2007 15:17:24 -0700")
-Message-ID: <m1abzo8dr0.fsf_-_@ebiederm.dsl.xmission.com>
+	<m1abzo8dr0.fsf_-_@ebiederm.dsl.xmission.com>
+Date: Thu, 08 Feb 2007 15:53:08 -0700
+In-Reply-To: <m1abzo8dr0.fsf_-_@ebiederm.dsl.xmission.com> (Eric
+	W. Biederman's message of "Thu, 08 Feb 2007 15:51:15 -0700")
+Message-ID: <m164ac8dnv.fsf_-_@ebiederm.dsl.xmission.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 
-Andrew these are a set up simple fixes against the rollup you
-sent me last night that should leave selinux working and should
-close out the last of the outstanding issue with my sysctl cleanup.
+Signed-off-by: Eric W. Biederman <ebiederm@xmission.com>
+---
+ include/linux/sysctl.h |    2 --
+ 1 files changed, 0 insertions(+), 2 deletions(-)
 
-Knowing how you organize I expect you will want to file most of
-these as fix patches.
+diff --git a/include/linux/sysctl.h b/include/linux/sysctl.h
+index 538f6d2..b5c2b3e 100644
+--- a/include/linux/sysctl.h
++++ b/include/linux/sysctl.h
+@@ -929,8 +929,6 @@ extern struct ctl_table_header *sysctl_head_next(struct ctl_table_header *prev);
+ extern void sysctl_head_finish(struct ctl_table_header *prev);
+ extern int sysctl_perm(struct ctl_table *table, int op);
+ 
+-extern void sysctl_init(void);
+-
+ typedef struct ctl_table ctl_table;
+ 
+ typedef int ctl_handler (ctl_table *table, int __user *name, int nlen,
+-- 
+1.4.4.1.g278f
 
-Patch 1 sysctl: Remove declaration of nonexistent sysctl_init
-This is a small fix against "sysctl: Reimplement the sysctl proc support"
-where I remove sysctl_init() but forgot to remove it's prototype in
-sysctl.h
-
-
-Patch 2 sysctl: Set the parent field in the root sysctl table
-This is a small fix against 
-"sysctl: Add a parent entry to ctl_table and set the parent entry."
-where I forgot to call sysctl_set_parent on the root sysctl table.
-
-
-Patch 3: sysctl: Fix selinux_sysctl_getsid
-This is a small fix against
-"sysctl: Restore the old selinux sysctl handling."
-
-Patch 4: selinux: Enhance selinux to always ignore private inodes
-Patch 5: sysctl: Hide the sysctl proc inodes from selinux
-
-Eric
 
 --
 This message was distributed to subscribers of the selinux mailing list.
