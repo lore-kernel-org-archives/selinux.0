@@ -1,53 +1,50 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id l18L0A9k023410
-	for <selinux@tycho.nsa.gov>; Thu, 8 Feb 2007 16:00:10 -0500
-Received: from moss-lions.epoch.ncsc.mil (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id l18L1FqP008403
-	for <selinux@tycho.nsa.gov>; Thu, 8 Feb 2007 21:01:16 GMT
-Received: from moss-lions.epoch.ncsc.mil (localhost.localdomain [127.0.0.1])
-	by moss-lions.epoch.ncsc.mil (8.13.8/8.13.8) with ESMTP id l18L0Mq9016133
-	for <selinux@tycho.nsa.gov>; Thu, 8 Feb 2007 16:00:22 -0500
-Received: (from jwcart2@localhost)
-	by moss-lions.epoch.ncsc.mil (8.13.8/8.13.8/Submit) id l18L0MuZ016132
-	for selinux@tycho.nsa.gov; Thu, 8 Feb 2007 16:00:22 -0500
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id l17LvlDZ005006
-	for <selinux@tycho.nsa.gov>; Wed, 7 Feb 2007 16:57:47 -0500
-Received: from an-out-0708.google.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l17Lwto6010628
-	for <selinux@tycho.nsa.gov>; Wed, 7 Feb 2007 21:58:56 GMT
-Received: by an-out-0708.google.com with SMTP id d33so289426and
-        for <selinux@tycho.nsa.gov>; Wed, 07 Feb 2007 13:58:55 -0800 (PST)
-Message-ID: <f888952b0702071358p74576f3by6641c1a0df4893e6@mail.gmail.com>
-Date: Wed, 7 Feb 2007 16:58:55 -0500
-From: "Dave Quigley" <dquigley@gmail.com>
-To: selinux@tycho.nsa.gov
-Subject: Questions regarding loadable policy modules
+Message-ID: <45CB903B.9050109@mentalrootkit.com>
+Date: Thu, 08 Feb 2007 16:03:55 -0500
+From: Karl MacMillan <kmacmillan@mentalrootkit.com>
 MIME-Version: 1.0
+To: Stephen Smalley <sds@tycho.nsa.gov>
+CC: Daniel J Walsh <dwalsh@redhat.com>, SE Linux <selinux@tycho.nsa.gov>
+Subject: Re: Small patch to allow semodule_deps to build
+References: <45CA4A0E.7000500@redhat.com>	 <45CB3EC4.7000103@mentalrootkit.com> <1170950373.11912.276.camel@moss-spartans.epoch.ncsc.mil>
+In-Reply-To: <1170950373.11912.276.camel@moss-spartans.epoch.ncsc.mil>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hello,
-    I have a few questions about loadable policy modules in SELinux.
-It has been mentioned before that certain policy language constructs
-can't be used within a loadable policy module. Is there a list
-somewhere for what these are? Also, I am looking through the reference
-policy and I am trying to understand how the build process treats
-policy marked with module in modules.conf. I have read through the
-section on the reference policy in SELinux by Example and it mainly
-describes a Monolithic policy build. The main question I have about
-using a modular policy is what in the system is responsible for making
-sure the proper modules are loaded if you use this method? My final
-question is what exactly are the semantics and implementation details
-of the policy_module keyword and what ramifications are there for
-having your policy consist of many policy modules. I know each file in
-the reference policy has a policy_module macro at the beginning but I
-am talking about on a much finer granularity that currently exists.
-Does the policy_module keyword provide some sort of isolation for a
-module?
+Stephen Smalley wrote:
+> On Thu, 2007-02-08 at 10:16 -0500, Karl MacMillan wrote:
+>> Daniel J Walsh wrote:
+>>>
+>>> ------------------------------------------------------------------------
+>>>
+>>> --- nsapolicycoreutils/semodule_deps/semodule_deps.c	2007-02-07 12:11:49.000000000 -0500
+>>> +++ policycoreutils-2.0.0/semodule_deps/semodule_deps.c	2007-02-07 16:46:18.000000000 -0500
+>>> @@ -16,7 +16,7 @@
+>>>   * of avrule_blocks - even in an ABI safe way - seems undesirable.
+>>>   */
+>>>  #include <sepol/module.h>
+>>> -#include <sepol/errno.h>
+>>> +#include <sepol/errcodes.h>
+>>>  #include <sepol/policydb/policydb.h>
+>>>  
+>>>  #include <getopt.h>
+>> This shouldn't be necessary - errcodes.h should be included via 
+>> policydb.h -> symtab.h -> hashtab.h. Also, I can't reproduce this locally.
+> 
+> Actually, Dan is correct at least in removing #include <sepol/errno.h> -
+> that was what you had originally called the header, but renamed to
+> errcodes.h in response to my comments.  So you (and I) had a lingering
+> errno.h left around from previous builds that obscured the broken build.
+> cd trunk/
+> rm -rf ~/obj
+> make DESTDIR=~/obj install
+> to reproduce.
+> 
 
-Dave Quigley
+Yep - guess my process needs a little fixing.
+
+Acked-by: Karl MacMillan <kmacmillan@mentalrootkit.com> and merged as 
+policycoreutils 2.0.1.
 
 --
 This message was distributed to subscribers of the selinux mailing list.
