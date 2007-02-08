@@ -1,78 +1,88 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id l18IKksk015343
-	for <selinux@tycho.nsa.gov>; Thu, 8 Feb 2007 13:20:46 -0500
-Received: from exchange.columbia.tresys.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with SMTP id l18ILsgM013838
-	for <selinux@tycho.nsa.gov>; Thu, 8 Feb 2007 18:21:54 GMT
-Subject: ANN: SETools Release
-From: "Christopher J. PeBenito" <cpebenito@tresys.com>
-To: SELinux Mail List <selinux@tycho.nsa.gov>
-Cc: fedora-selinux-list@redhat.com
-Content-Type: text/plain
-Date: Thu, 08 Feb 2007 18:21:55 +0000
-Message-Id: <1170958915.31164.45.camel@sgc.columbia.tresys.com>
-Mime-Version: 1.0
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id l18K7WNP021139
+	for <selinux@tycho.nsa.gov>; Thu, 8 Feb 2007 15:07:32 -0500
+Received: from exchange.columbia.tresys.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with SMTP id l18K8eV0023927
+	for <selinux@tycho.nsa.gov>; Thu, 8 Feb 2007 20:08:41 GMT
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Subject: [ANN] Certifiable Linux Integration Platform (CLIP)
+Date: Thu, 8 Feb 2007 15:07:12 -0500
+Message-ID: <6FE441CD9F0C0C479F2D88F959B015888B9FA4@exchange.columbia.tresys.com>
+References: <C1EFB0A4.161B9%mayerf@tresys.com> 
+From: "Art Wilson" <awilson@tresys.com>
+To: "NSA Mailinglist" <selinux@tycho.nsa.gov>,
+        "Fedora-Selinux-List" <fedora-selinux-list@redhat.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-A new release of SETools is now available on the Tresys OSS site, from
-http://oss.tresys.com.  The primary change in this release is the
-addition of support for loading sets of policy modules in all of the
-tools.  This enables analysis of the policy with nearly all of the
-information available from the original source policy, such as original
-attribute names.  The complete change log for this release follows.
+We just announced the Certifiable Linux Integration Platform (CLIP)
+project which aims to provide an operating system platform to host
+secure applications. The inital release uses strict reference policy to
+configure a RHEL 4 installation to support developers in meeting the
+Director of Central Intelligence Directive 6/3 "Protecting Sensitive
+Compartmented Information within Information Systems" (DCID 6/3)
+Protection Level 4 (PL4) requirements. The platform itself is not
+certified, but addresses certification requirements that can be met by
+the operating system.	
 
-SETools 3.1:
+The project is hosted at http://oss.tresys.com/.
 
-SETools:
+Regards,
 
-  * All tools that open a policy now support loadable policy modules.
-    Command line tools expect the first module to be a base module
-    followed optionally by any other modules.  Graphical tools have
-    a new open policy dialog to select a base module and any number of
-    additional modules.
+Art Wilson
+Tresys Technology
+443-539-0704
 
-  * Release of RPM packages that are compatible with Fedora Core 5 and
-    6.  The spec and support files are in packages/rpm.
+-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-libapol:
+FOR IMMEDIATE RELEASE 
 
-  * New class apol_policy_path_t to represent a base policy and any
-    number of modules.  Use this whenever referring to the file or
-    files constituting a policy.
-  
-libqpol:
+CONTACT: info@tresys.com
 
-  * Policy features such as attribute names or MLS can now be queried
-    individally via qpol_policy_has_capability() rather than inferred
-    by policy type and version.
+Tresys Technology Announces a New Project for a Secure Certifiable Linux
+Integration Platform (CLIP)
 
-  * New class qpol_module_t to represent a particular policy module
-    prior to it being linked into a base policy (qpol_policy_t).
+Columbia, Maryland-February 7, 2007 - Tresys Technology released the
+initial beta version of the Certifiable Linux Integration Platform
+(CLIP) toolkit for secure solution developments based on Security
+Enhanced Linux (SELinux). The toolkit is an open source project that
+provides an installation to support developers in meeting security
+certification requirements, in particular the Director of Central
+Intelligence Directive 6/3 (DCID 6/3) "Protecting Sensitive
+Compartmented Information within Information Systems" Protection Level 4
+(PL4) requirements.
 
-libseaudit:
+The initial version of the CLIP toolkit augments a standard SELinux
+installation with a Reference Policy-based SELinux configuration and
+additional tools to provide the confidentiality, integrity,
+availability, and accountability needed to support secure application
+deployment. Developers benefit from having the operating system security
+relevant configuration provided in a standard package. For additional
+security configuration, developers can use other open source projects by
+Tresys, the SELinux Integrated Development Environment (SLIDE) or cross
+domain solution (CDS) Framework toolkit, to write custom SELinux
+policies.
 
-  * Rewrite of library to have proper namespaces.  libseaudit is now
-    fully documented and suitable for third-party users.
+The CLIP toolkit is freely available for download from the Tresys open
+source server (oss.tresys.com). It is just one of several
+Tresys-developed open source technologies for SELinux. For more
+information on CLIP, SLIDE, CDS Framework, and other SELinux
+technologies, visit www.tresys.com.
 
-seaudit:
+About Tresys Technology
 
-  * Rewrite to use new libseaudit.
-
-  * Numerous tweaks to the interface to be more user friendly.
-
-seaudit-report:
-
-  * Rewrite to use new libseaudit.
-
-sediffx:
-
-  * Numerous tweaks to the interface to be more user friendly.
-
--- 
-Chris PeBenito
-Tresys Technology, LLC
-(410) 290-1411 x150
+Tresys Technology is a principal open source contributor to Security
+Enhanced Linux (SELinux), with an emphasis on making SELinux easier to
+use and manage. In addition to its extensive Secure Linux technology
+development, services, and training experience, Tresys is developing the
+Tresys Brickwall(tm) and Tresys Razor(tm) suite of products to allow
+Linux users and administrators to easily leverage the power of SELinux.
+Tresys also provides business and government organizations with expert
+security engineering services, including security testing, evaluation
+and certification support, cryptographic solutions, and security
+technology innovation. For more information, visit www.tresys.com.
 
 
 --
