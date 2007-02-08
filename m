@@ -1,66 +1,61 @@
-From: ebiederm@xmission.com (Eric W. Biederman)
-To: Andrew Morton <akpm@osdl.org>
-Cc: Stephen Smalley <sds@tycho.nsa.gov>, Ingo Molnar <mingo@elte.hu>,
-        tglx@linutronix.de, linux-kernel@vger.kernel.org,
-        selinux@tycho.nsa.gov, James Morris <jmorris@namei.org>
-Subject: [PATCH 5/5] sysctl:  Hide the sysctl proc inodes from selinux.
-References: <200701280106.l0S16CG3019873@shell0.pdx.osdl.net>
-	<20070128093358.GA2071@elte.hu> <20070128095712.GA6485@elte.hu>
-	<20070128100627.GA8416@elte.hu>
-	<20070128104548.a835d859.akpm@osdl.org>
-	<m1r6tfq7nv.fsf_-_@ebiederm.dsl.xmission.com>
-	<1170075866.8720.15.camel@moss-spartans.epoch.ncsc.mil>
-	<m17iuvrnpk.fsf_-_@ebiederm.dsl.xmission.com>
-	<m13b5jrngt.fsf_-_@ebiederm.dsl.xmission.com>
-	<1170872654.11912.87.camel@moss-spartans.epoch.ncsc.mil>
-	<1170882738.11912.144.camel@moss-spartans.epoch.ncsc.mil>
-	<m17iutmmwh.fsf@ebiederm.dsl.xmission.com>
-	<1170946871.11912.250.camel@moss-spartans.epoch.ncsc.mil>
-	<m14ppwa64j.fsf@ebiederm.dsl.xmission.com>
-	<1170958404.11912.313.camel@moss-spartans.epoch.ncsc.mil>
-	<m1mz3o8fbf.fsf@ebiederm.dsl.xmission.com>
-	<m1abzo8dr0.fsf_-_@ebiederm.dsl.xmission.com>
-	<m164ac8dnv.fsf_-_@ebiederm.dsl.xmission.com>
-	<m11wl08dlg.fsf_-_@ebiederm.dsl.xmission.com>
-	<m1wt2s6yz6.fsf_-_@ebiederm.dsl.xmission.com>
-	<m1ps8k6yn1.fsf_-_@ebiederm.dsl.xmission.com>
-Date: Thu, 08 Feb 2007 16:04:20 -0700
-In-Reply-To: <m1ps8k6yn1.fsf_-_@ebiederm.dsl.xmission.com> (Eric
-	W. Biederman's message of "Thu, 08 Feb 2007 16:02:58 -0700")
-Message-ID: <m1lkj86ykr.fsf_-_@ebiederm.dsl.xmission.com>
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id l18Nm19N030733
+	for <selinux@tycho.nsa.gov>; Thu, 8 Feb 2007 18:48:01 -0500
+Received: from smtp-bedford.mitre.org (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l18NnAa8006814
+	for <selinux@tycho.nsa.gov>; Thu, 8 Feb 2007 23:49:10 GMT
+Received: from smtp-bedford.mitre.org (localhost.localdomain [127.0.0.1])
+	by smtp-bedford.mitre.org (8.12.11.20060308/8.12.11) with SMTP id l18NnAQk024607
+	for <selinux@tycho.nsa.gov>; Thu, 8 Feb 2007 18:49:10 -0500
+Received: from smtp-bedford.mitre.org (localhost.localdomain [127.0.0.1])
+	by smtp-bedford.mitre.org (Postfix) with ESMTP id 3FAEBBF01
+	for <selinux@tycho.nsa.gov>; Thu,  8 Feb 2007 18:49:10 -0500 (EST)
+Received: from dreaming.mitre.org (dreaming.mitre.org [129.83.160.72])
+	by smtp-bedford.mitre.org (8.12.11.20060308/8.12.11) with ESMTP id l18Nn8Q7024590
+	for <selinux@tycho.nsa.gov>; Thu, 8 Feb 2007 18:49:08 -0500
+From: bsniffen@mitre.org (Brian T. Sniffen)
+To: selinux@tycho.nsa.gov
+Subject: MITRE releases Polgen 1.4
+References: <1169394672.10741.2.camel@zeroKnowledge>
+Date: Thu, 08 Feb 2007 18:48:01 -0500
+In-Reply-To: <1169394672.10741.2.camel@zeroKnowledge> (Vincenzo Ciaglia's
+	message of "Sun\, 21 Jan 2007 16\:51\:12 +0100")
+Message-ID: <m2lkj8tdn2.fsf@dreaming.mitre.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+Polgen is a collection of scripts and tools developed by the MITRE
+corporation to automate the SELinux policy generation process.  You
+can download the latest release from <http://polgen.sourceforge.net/>.
 
-Since the security checks are applied on each read and write of a
-sysctl file, just like they are applied when calling sys_sysctl, they
-are redundant on the standard VFS constructs.  Since it is difficult
-to compute the security labels on the standard VFS constructs we just
-mark the sysctl inodes in proc private so selinux won't even bother
-with them.
+This release incorporates two major changes to polgen. First, polgen
+now supports generation of reference policy.  Second, polgen uses
+Polgen Specification Language (PSL) files to bootstrap analysis.
 
-Signed-off-by: Eric W. Biederman <ebiederm@xmission.com>
----
- fs/proc/proc_sysctl.c |    1 +
- 1 files changed, 1 insertions(+), 0 deletions(-)
+Polgen handles the modularity of reference policy by searching through
+.if files to find interfaces that will handle access requirements of
+the program under analysis.  The technique used appears complementary
+to Karl MacMillan's Madison library.  There are several polgen user
+interface changes that we have made in support of generating
+reference policy.  The menu-style interface asks users to fill in
+information about known capabilities of program entry points and about
+expectations for how the program module might be used by other
+to-be-written modules.
 
-diff --git a/fs/proc/proc_sysctl.c b/fs/proc/proc_sysctl.c
-index bb16a1e..20e8cbb 100644
---- a/fs/proc/proc_sysctl.c
-+++ b/fs/proc/proc_sysctl.c
-@@ -47,6 +47,7 @@ static struct inode *proc_sys_make_inode(struct inode *dir, struct ctl_table *ta
- 	inode->i_mtime = inode->i_atime = inode->i_ctime = CURRENT_TIME;
- 	inode->i_op = &proc_sys_inode_operations;
- 	inode->i_fop = &proc_sys_file_operations;
-+	inode->i_flags |= S_PRIVATE; /* tell selinux to ignore this inode */
- 	proc_sys_refresh_inode(inode, table);
- out:
- 	return inode;
--- 
-1.4.4.1.g278f
+PSL allows users to declare those directories and program entry points
+that will need to be given special types. For example if configuration
+files are used, the psl writer will indicate that a program component
+reads from a particular directory and/or reads specific files. PSL can
+also be used in a mode where program developers know the behavior of
+the program and can offer advice that will statically complement
+polgen's dynamic analysis strategy.
 
+
+--
+Brian T. Sniffen                                      bsniffen@mitre.org
+The MITRE Corporation                                       781-271-2904
 
 --
 This message was distributed to subscribers of the selinux mailing list.
