@@ -1,61 +1,90 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id l18Nm19N030733
-	for <selinux@tycho.nsa.gov>; Thu, 8 Feb 2007 18:48:01 -0500
-Received: from smtp-bedford.mitre.org (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l18NnAa8006814
-	for <selinux@tycho.nsa.gov>; Thu, 8 Feb 2007 23:49:10 GMT
-Received: from smtp-bedford.mitre.org (localhost.localdomain [127.0.0.1])
-	by smtp-bedford.mitre.org (8.12.11.20060308/8.12.11) with SMTP id l18NnAQk024607
-	for <selinux@tycho.nsa.gov>; Thu, 8 Feb 2007 18:49:10 -0500
-Received: from smtp-bedford.mitre.org (localhost.localdomain [127.0.0.1])
-	by smtp-bedford.mitre.org (Postfix) with ESMTP id 3FAEBBF01
-	for <selinux@tycho.nsa.gov>; Thu,  8 Feb 2007 18:49:10 -0500 (EST)
-Received: from dreaming.mitre.org (dreaming.mitre.org [129.83.160.72])
-	by smtp-bedford.mitre.org (8.12.11.20060308/8.12.11) with ESMTP id l18Nn8Q7024590
-	for <selinux@tycho.nsa.gov>; Thu, 8 Feb 2007 18:49:08 -0500
-From: bsniffen@mitre.org (Brian T. Sniffen)
-To: selinux@tycho.nsa.gov
-Subject: MITRE releases Polgen 1.4
-References: <1169394672.10741.2.camel@zeroKnowledge>
-Date: Thu, 08 Feb 2007 18:48:01 -0500
-In-Reply-To: <1169394672.10741.2.camel@zeroKnowledge> (Vincenzo Ciaglia's
-	message of "Sun\, 21 Jan 2007 16\:51\:12 +0100")
-Message-ID: <m2lkj8tdn2.fsf@dreaming.mitre.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Date: Fri, 9 Feb 2007 16:44:09 +0900
+From: Yuichi Nakamura <ynakam@hitachisoft.jp>
+To: Stephen Smalley <sds@tycho.nsa.gov>
+Cc: ynakam@hitachisoft.jp, busybox@busybox.net, selinux@tycho.nsa.gov,
+        russell@coker.com.au, rob@landley.net, busybox@kaigai.gr.jp,
+        vda.linux@googlemail.com
+Subject: Re: [PATCH 0/6] busybox -- SELinux option support for coreutils
+Message-Id: <20070209164409.3b302e35.ynakam@hitachisoft.jp>
+In-Reply-To: <1170941165.11912.208.camel@moss-spartans.epoch.ncsc.mil>
+References: <20070208155417.8d62937f.ynakam@hitachisoft.jp>
+	<1170941165.11912.208.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Polgen is a collection of scripts and tools developed by the MITRE
-corporation to automate the SELinux policy generation process.  You
-can download the latest release from <http://polgen.sourceforge.net/>.
 
-This release incorporates two major changes to polgen. First, polgen
-now supports generation of reference policy.  Second, polgen uses
-Polgen Specification Language (PSL) files to bootstrap analysis.
+On Thu, 08 Feb 2007 08:26:04 -0500
+Stephen Smalley wrote:
+> On Thu, 2007-02-08 at 15:54 +0900, Yuichi Nakamura wrote:
+> > Hi.
+> > 
+> > The following patches provide SELinux options(like -Z) to coreutils 
+> > We imported SELinux options from coreutils 5.97(included in Fedora Core6).
+> > You have to enable CONFIG_SELINUX to use following feature.
+> > Any of them are fundamental one to use SELinux.
+> > We are welcoming any comment, and hope to merge it into busybox.
+> 
+> I'd suggest looking at the upstream coreutils selinux branch (see Jim
+> Meyering's prior announcement of it on selinux list) and make sure you
+> are consistent with it rather than Fedora Core 6, as I believe some
+> aspects have changed (e.g. cp -a handling).
+Thanks for information.
+I've looked at upstream coreutils, and found some changes in cp and install.
+I will fix them later.
 
-Polgen handles the modularity of reference policy by searching through
-.if files to find interfaces that will handle access requirements of
-the program under analysis.  The technique used appears complementary
-to Karl MacMillan's Madison library.  There are several polgen user
-interface changes that we have made in support of generating
-reference policy.  The menu-style interface asks users to fill in
-information about known capabilities of program entry points and about
-expectations for how the program module might be used by other
-to-be-written modules.
-
-PSL allows users to declare those directories and program entry points
-that will need to be given special types. For example if configuration
-files are used, the psl writer will indicate that a program component
-reads from a particular directory and/or reads specific files. PSL can
-also be used in a mode where program developers know the behavior of
-the program and can offer advice that will statically complement
-polgen's dynamic analysis strategy.
-
-
---
-Brian T. Sniffen                                      bsniffen@mitre.org
-The MITRE Corporation                                       781-271-2904
+> 
+> > 
+> > 
+> > [1/6] busybox-coreutils-common-01.patch
+> >  - usage.h for SELinux options
+> > 
+> > [2/6] busybox-coreutils-02-copy.patch
+> >   - cp: -Z,-c option support. 
+> >       -c option: security context is preserved during file copy.
+> >       -Z option: security context can be set during file copy.
+> >   - mv 
+> >     In SELinux, it is recommended to preserve security context 
+> >     when file is moved. By this patch, file context is preserved 
+> >     during file move.
+> >   - install
+> >     When file is copied by install, security context of installed file 
+> >     becomes different from value configured in file_contexts file.
+> >     By this patch, security context is set according to file_contexts file.
+> > 
+> > [3/6] busybox-coreutils-03-mk.patch
+> >  - -Z option support for mkdir, mkfifo, mknod. 
+> >     By -Z, security context for created file can be set.
+> > 
+> > [4/6] busybox-coreutils-04-stat.patch
+> >  - -Z option support for stat. Security context of file is shown by -Z option.
+> > 
+> > [5/6]  busybox-coreutils-05-ls.patch
+> >  - -Z option support for ls. Security context of file is shown by -Z option.
+> >    In current busybox, -k/-K shows security context. However, they are replaced by -Z option in recent coreutils, so -Z have to be added by this patch.
+> > 
+> > [6/6] busybox-coreutils-06-id.patch
+> >  - -Z option support for id. Security context of process is shown by -Z option.
+> > 
+> > 
+> > This project is originated from some of JPSEUG(Japan SELinux User Group). 
+> > Now, we are preparing to submit more patches to support SELinux commands/options.
+> > 
+> > Regards,
+> > 
+> > Yuichi Nakamura
+> > Hitachi Software
+> > SELinux Policy Editor: http://seedit.sourceforge.net/
+> > 
+> > --
+> > This message was distributed to subscribers of the selinux mailing list.
+> > If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
+> > the words "unsubscribe selinux" without quotes as the message.
+> -- 
+> Stephen Smalley
+> National Security Agency
+> 
 
 --
 This message was distributed to subscribers of the selinux mailing list.
