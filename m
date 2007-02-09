@@ -1,264 +1,80 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id l199l2F6013104
-	for <selinux@tycho.nsa.gov>; Fri, 9 Feb 2007 04:47:02 -0500
-Received: from msp1.hitachi-sk.co.jp (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l199m9vH016685
-	for <selinux@tycho.nsa.gov>; Fri, 9 Feb 2007 09:48:10 GMT
-Received: from vs1.hitachi-sk.co.jp ([133.108.252.215])
-	by msp1.hitachi-sk.co.jp (unknown) with ESMTP id l199m8ur006091
-	for <selinux@tycho.nsa.gov>; Fri, 9 Feb 2007 18:48:08 +0900
-Date: Fri, 9 Feb 2007 18:48:17 +0900
-From: Yuichi Nakamura <ynakam@hitachisoft.jp>
-To: busybox@busybox.net, busybox@kaigai.gr.jp
-Cc: ynakam@hitachisoft.jp, Denis Vlasenko <vda.linux@googlemail.com>,
-        selinux@tycho.nsa.gov, russell@coker.com.au, rob@landley.net
-Subject: Re: [busybox:00366] Re: [PATCH 2/6] busybox -- SELinux option
- support for coreutils
-Message-Id: <20070209184817.3384ed07.ynakam@hitachisoft.jp>
-In-Reply-To: <200702082349.08804.vda.linux@googlemail.com>
-References: <20070208155432.e8234d84.ynakam@hitachisoft.jp>
-	<200702082349.08804.vda.linux@googlemail.com>
+Subject: Re: [PATCH 4/5] selinux: Enhance selinux to always ignore private
+	inodes.
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+Cc: Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@elte.hu>,
+        tglx@linutronix.de, linux-kernel@vger.kernel.org,
+        selinux@tycho.nsa.gov, James Morris <jmorris@namei.org>
+In-Reply-To: <m1ps8k6yn1.fsf_-_@ebiederm.dsl.xmission.com>
+References: <200701280106.l0S16CG3019873@shell0.pdx.osdl.net>
+	 <20070128003549.2ca38dc8.akpm@osdl.org> <20070128093358.GA2071@elte.hu>
+	 <20070128095712.GA6485@elte.hu> <20070128100627.GA8416@elte.hu>
+	 <20070128104548.a835d859.akpm@osdl.org>
+	 <m1r6tfq7nv.fsf_-_@ebiederm.dsl.xmission.com>
+	 <1170075866.8720.15.camel@moss-spartans.epoch.ncsc.mil>
+	 <m17iuvrnpk.fsf_-_@ebiederm.dsl.xmission.com>
+	 <m13b5jrngt.fsf_-_@ebiederm.dsl.xmission.com>
+	 <1170872654.11912.87.camel@moss-spartans.epoch.ncsc.mil>
+	 <1170882738.11912.144.camel@moss-spartans.epoch.ncsc.mil>
+	 <m17iutmmwh.fsf@ebiederm.dsl.xmission.com>
+	 <1170946871.11912.250.camel@moss-spartans.epoch.ncsc.mil>
+	 <m14ppwa64j.fsf@ebiederm.dsl.xmission.com>
+	 <1170958404.11912.313.camel@moss-spartans.epoch.ncsc.mil>
+	 <m1mz3o8fbf.fsf@ebiederm.dsl.xmission.com>
+	 <m1abzo8dr0.fsf_-_@ebiederm.dsl.xmission.com>
+	 <m164ac8dnv.fsf_-_@ebiederm.dsl.xmission.com>
+	 <m11wl08dlg.fsf_-_@ebiederm.dsl.xmission.com>
+	 <m1wt2s6yz6.fsf_-_@ebiederm.dsl.xmission.com>
+	 <m1ps8k6yn1.fsf_-_@ebiederm.dsl.xmission.com>
+Content-Type: text/plain
+Date: Fri, 09 Feb 2007 07:26:17 -0500
+Message-Id: <1171023977.11912.350.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
-Content-Type: multipart/mixed;
- boundary="Multipart=_Fri__9_Feb_2007_18_48_17_+0900_feXk.xtbN5pyHm/x"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This is a multi-part message in MIME format.
-
---Multipart=_Fri__9_Feb_2007_18_48_17_+0900_feXk.xtbN5pyHm/x
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-
-On Thu, 8 Feb 2007 23:49:08 +0100
-Denis Vlasenko wrote:
-> On Thursday 08 February 2007 07:54, Yuichi Nakamura wrote:
-> > [2/6] busybox-coreutils-02-copy.patch
-> >   - cp: -Z,-c option support. 
-> >       -c option: security context is preserved during file copy.
-> >       -Z option: security context can be set during file copy.
-> >   - mv 
-> >     In SELinux, it is recommended to preserve security context 
-> >     when file is moved. By this patch, file context is preserved 
-> >     during file move.
-> >   - install
-> >     When file is copied by install, security context of installed file 
-> >     becomes different from value configured in file_contexts file.
-> >     By this patch, security context is set according to file_contexts file.
-> > 
-> > Signed-off-by: Yuichi Nakamura <ynakam@hitachisoft.jp>
+On Thu, 2007-02-08 at 16:02 -0700, Eric W. Biederman wrote:
+> From: Stephen Smalley <sds@tycho.nsa.gov>
 > 
+> Hmmm...turns out to not be quite enough, as the /proc/sys inodes aren't
+> truly private to the fs, so we can run into them in a variety of
+> security hooks beyond just the inode hooks, such as
+> security_file_permission (when reading and writing them via the vfs
+> helpers), security_sb_mount (when mounting other filesystems on
+> directories in proc like binfmt_misc), and deeper within the security
+> module itself (as in flush_unauthorized_files upon inheritance across
+> execve).  So I think we have to add an IS_PRIVATE() guard within
+> SELinux, as below.  Note however that the use of the private flag here
+> could be confusing, as these inodes are _not_ private to the fs, are
+> exposed to userspace, and security modules must implement the sysctl
+> hook to get any access control over them.
+
+Signed-off-by:  Stephen Smalley <sds@tycho.nsa.gov>
+
+> Signed-off-by: Eric W. Biederman <ebiederm@xmission.com>
 > 
-> Index: include/libbb.h
-> ===================================================================
-> --- include/libbb.h	(revision 17803)
-> +++ include/libbb.h	(working copy)
-> @@ -743,9 +743,15 @@
->  	FILEUTILS_INTERACTIVE = 0x10,
->  	FILEUTILS_MAKE_HARDLINK = 0x20,
->  	FILEUTILS_MAKE_SOFTLINK = 0x40,
-> +#if ENABLE_SELINUX
-> +	FILEUTILS_PRESERVE_SECURITY_CONTEXT = 0x80,
-> +	FILEUTILS_SET_SECURITY_CONTEXT = 0x100
-> +#endif
+> ---
+>  security/selinux/hooks.c |    3 +++
+>  1 files changed, 3 insertions(+), 0 deletions(-)
+> 
+> diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+> index de16b9f..ff9fccc 100644
+> --- a/security/selinux/hooks.c
+> +++ b/security/selinux/hooks.c
+> @@ -1077,6 +1077,9 @@ static int inode_has_perm(struct task_struct *tsk,
+>  	struct inode_security_struct *isec;
+>  	struct avc_audit_data ad;
+>  
+> +	if (unlikely (IS_PRIVATE (inode)))
+> +		return 0;
 > +
->  };
-> 
-> This empty line after #endif - why?
-
-removed this empty line.
-
-> 
-> +#if ENABLE_SELINUX 
-> +	if (flags & FILEUTILS_SET_SECURITY_CONTEXT) {
-> +		if(is_selinux_enabled() == 0) {
-> +			fprintf( stderr, "Warning:  ignoring --context (-Z). "
-> +					 "It requires a SELinux enabled kernel.\n" );
-> +		}else{
-> +			if ( setfscreatecon(context_str) < 0 ) {
-> +				bb_error_msg_and_die("cannot set default security context %s\n", context_str);
-> +			}
-> +		}
-> +	}
-> +#endif
-This part is removed because upstream coreutils does not have -Z option for cp.
-
-> 
-> The style is not consistent. Should be "if ()", "} else {".
-> "Warning:  ignoring" has extra space for no reason.
-> fprintf(stderr) can be probably replaced by bb_error_msg:
-> bb_error_msg("warning: ignoring --context (-Z), it requires a SELinux enabled kernel");
-fixed.
-
-> 
-> 
-> +static int use_default_selinux_context = 1;
-> 
-> You never change it, it is always 1.  - ?!
-It is used in current patch.
-
-> --
-> vda
-> 
-
-Other changes are following:
-* Removed -Z option from cp
-* Added --preserve-context, -Z options to install
-
-
+>  	tsec = tsk->security;
+>  	isec = inode->i_security;
+>  
 -- 
-Yuichi Nakamura
-Hitachi Software Engineering Co., Ltd.
-SELinux Policy Editor: http://seedit.sourceforge.net/
+Stephen Smalley
+National Security Agency
 
-
-
---Multipart=_Fri__9_Feb_2007_18_48_17_+0900_feXk.xtbN5pyHm/x
-Content-Type: application/octet-stream;
- name="busybox-coreutils-copy-02.v2.patch"
-Content-Disposition: attachment;
- filename="busybox-coreutils-copy-02.v2.patch"
-Content-Transfer-Encoding: base64
-
-SW5kZXg6IGluY2x1ZGUvbGliYmIuaAo9PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09
-PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09Ci0tLSBpbmNsdWRlL2xpYmJiLmgJKHJl
-dmlzaW9uIDE3ODAzKQorKysgaW5jbHVkZS9saWJiYi5oCSh3b3JraW5nIGNvcHkpCkBAIC03MzUs
-NyArNzM1LDcgQEAKIHVpbnQzMl90ICpjcmMzMl9maWxsdGFibGUoaW50IGVuZGlhbik7CiAKIAot
-ZW51bSB7CS8qIERPIE5PVCBDSEFOR0UgVEhFU0UgVkFMVUVTISAgY3AuYyBkZXBlbmRzIG9uIHRo
-ZW0uICovCitlbnVtIHsJLyogRE8gTk9UIENIQU5HRSBUSEVTRSBWQUxVRVMhICBjcC5jLCBtdi5j
-LCBpbnN0YWxsLmMgZGVwZW5kcyBvbiB0aGVtLiAqLwogCUZJTEVVVElMU19QUkVTRVJWRV9TVEFU
-VVMgPSAxLAogCUZJTEVVVElMU19ERVJFRkVSRU5DRSA9IDIsCiAJRklMRVVUSUxTX1JFQ1VSID0g
-NCwKQEAgLTc0Myw5ICs3NDMsMTQgQEAKIAlGSUxFVVRJTFNfSU5URVJBQ1RJVkUgPSAweDEwLAog
-CUZJTEVVVElMU19NQUtFX0hBUkRMSU5LID0gMHgyMCwKIAlGSUxFVVRJTFNfTUFLRV9TT0ZUTElO
-SyA9IDB4NDAsCisjaWYgRU5BQkxFX1NFTElOVVgKKwlGSUxFVVRJTFNfUFJFU0VSVkVfU0VDVVJJ
-VFlfQ09OVEVYVCA9IDB4ODAsCisJRklMRVVUSUxTX1NFVF9TRUNVUklUWV9DT05URVhUID0gMHgx
-MDAKKyNlbmRpZgogfTsKLSNkZWZpbmUgRklMRVVUSUxTX0NQX09QVFNUUiAicGRSZmlscyIKIAor
-I2RlZmluZSBGSUxFVVRJTFNfQ1BfT1BUU1RSICJwZFJmaWxzIiBVU0VfU0VMSU5VWCgiY1xiIikK
-KwogZXh0ZXJuIGNvbnN0IGNoYXIgKmFwcGxldF9uYW1lOwogZXh0ZXJuIGNvbnN0IGNoYXIgQkJf
-QkFOTkVSW107CiAKSW5kZXg6IGNvcmV1dGlscy9jcC5jCj09PT09PT09PT09PT09PT09PT09PT09
-PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT0KLS0tIGNvcmV1dGls
-cy9jcC5jCShyZXZpc2lvbiAxNzgwMykKKysrIGNvcmV1dGlscy9jcC5jCSh3b3JraW5nIGNvcHkp
-CkBAIC0zLDYgKzMsNyBAQAogICogTWluaSBjcCBpbXBsZW1lbnRhdGlvbiBmb3IgYnVzeWJveAog
-ICoKICAqIENvcHlyaWdodCAoQykgMjAwMCBieSBNYXR0IEtyYWFpIDxrcmFhaUBhbHVtbmkuY2Fy
-bmVnaWVtZWxsb24uZWR1PgorICogU0VMaW51eCBzdXBwb3J0IGJ5IFl1aWNoaSBOYWthbXVyYSA8
-eW5ha2FtQGhpdGFjaGlzb2Z0LmpwPgogICoKICAqIExpY2Vuc2VkIHVuZGVyIEdQTCB2MiBvciBs
-YXRlciwgc2VlIGZpbGUgTElDRU5TRSBpbiB0aGlzIHRhcmJhbGwgZm9yIGRldGFpbHMuCiAgKi8K
-QEAgLTUwLDYgKzUxLDEyIEBACiAJaWYgKGZsYWdzICYgT1BUX0gpIC4uLiAvLyBkZXJlZiBjb21t
-YW5kLWxpbmUgcGFyYW1zIG9ubHkKIAkqLwogCisjaWYgRU5BQkxFX1NFTElOVVggCisJaWYgKGZs
-YWdzICYgRklMRVVUSUxTX1BSRVNFUlZFX1NFQ1VSSVRZX0NPTlRFWFQpIHsKKwkJc2VsaW51eF9v
-cl9kaWUoKTsKKwl9CisjZW5kaWYKKwogCWZsYWdzIF49IEZJTEVVVElMU19ERVJFRkVSRU5DRTsJ
-CS8qIFRoZSBzZW5zZSBvZiB0aGlzIGZsYWcgd2FzIHJldmVyc2VkLiAqLwogCiAJaWYgKG9wdGlu
-ZCArIDIgPiBhcmdjKSB7CkluZGV4OiBjb3JldXRpbHMvbXYuYwo9PT09PT09PT09PT09PT09PT09
-PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09Ci0tLSBjb3Jl
-dXRpbHMvbXYuYwkocmV2aXNpb24gMTc4MDMpCisrKyBjb3JldXRpbHMvbXYuYwkod29ya2luZyBj
-b3B5KQpAQCAtMyw2ICszLDcgQEAKICAqIE1pbmkgbXYgaW1wbGVtZW50YXRpb24gZm9yIGJ1c3li
-b3gKICAqCiAgKiBDb3B5cmlnaHQgKEMpIDIwMDAgYnkgTWF0dCBLcmFhaSA8a3JhYWlAYWx1bW5p
-LmNhcm5lZ2llbWVsbG9uLmVkdT4KKyAqIFNFTGludXggc3VwcG9ydCBieSBZdWljaGkgTmFrYW11
-cmEgPHluYWthbUBoaXRhY2hpc29mdC5qcD4KICAqCiAgKiBMaWNlbnNlZCB1bmRlciBHUEx2MiBv
-ciBsYXRlciwgc2VlIGZpbGUgTElDRU5TRSBpbiB0aGlzIHRhcmJhbGwgZm9yIGRldGFpbHMuCiAg
-Ki8KQEAgLTQ0LDYgKzQ1LDcgQEAKIAl1bnNpZ25lZCBsb25nIGZsYWdzOwogCWludCBkZXN0X2V4
-aXN0czsKIAlpbnQgc3RhdHVzID0gMDsKKwlpbnQgY29weV9mbGFnID0gMDsKIAogI2lmIEVOQUJM
-RV9GRUFUVVJFX01WX0xPTkdfT1BUSU9OUwogCWFwcGxldF9sb25nX29wdGlvbnMgPSBtdl9sb25n
-X29wdGlvbnM7CkBAIC0xMTMsOCArMTE1LDExIEBACiAJCQkJCQlnb3RvIFJFVF8xOwogCQkJCQl9
-CiAJCQkJfQotCQkJCWlmICgoY29weV9maWxlKCphcmd2LCBkZXN0LAotCQkJCQlGSUxFVVRJTFNf
-UkVDVVIgfCBGSUxFVVRJTFNfUFJFU0VSVkVfU1RBVFVTKSA+PSAwKSAmJgorCQkJCWNvcHlfZmxh
-ZyA9IEZJTEVVVElMU19SRUNVUiB8IEZJTEVVVElMU19QUkVTRVJWRV9TVEFUVVM7CisjaWYgRU5B
-QkxFX1NFTElOVVgKKwkJCQljb3B5X2ZsYWcgfD0gRklMRVVUSUxTX1BSRVNFUlZFX1NFQ1VSSVRZ
-X0NPTlRFWFQ7CisjZW5kaWYJCQkJCisJCQkJaWYgKChjb3B5X2ZpbGUoKmFyZ3YsIGRlc3QsCWNv
-cHlfZmxhZykgPj0gMCkgJiYKIAkJCQkJKHJlbW92ZV9maWxlKCphcmd2LCBGSUxFVVRJTFNfUkVD
-VVIgfCBGSUxFVVRJTFNfRk9SQ0UpID49IDApKSB7CiAJCQkJCWdvdG8gUkVUXzA7CiAJCQkJfQpJ
-bmRleDogY29yZXV0aWxzL2luc3RhbGwuYwo9PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09
-PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09Ci0tLSBjb3JldXRpbHMvaW5zdGFs
-bC5jCShyZXZpc2lvbiAxNzgwMykKKysrIGNvcmV1dGlscy9pbnN0YWxsLmMJKHdvcmtpbmcgY29w
-eSkKQEAgLTIxLDEwICsyMSw1MSBAQAogCXsgImdyb3VwIiwgICAgICAgICAgICAgICAwLCBOVUxM
-LCAnZycgfSwKIAl7ICJtb2RlIiwgICAgICAgICAgICAgICAgMCwgTlVMTCwgJ20nIH0sCiAJeyAi
-b3duZXIiLCAgICAgICAgICAgICAgIDAsIE5VTEwsICdvJyB9LAorI2lmIEVOQUJMRV9TRUxJTlVY
-CisJeyAiY29udGV4dCIsICAgICAgICAgICAgIDEsIE5VTEwsICdaJyB9LAorCXsgInByZXNlcnZl
-X2NvbnRleHQiLCAgICAwLCBOVUxMLCAnXGInfSwKKwl7ICJwcmVzZXJ2ZS1jb250ZXh0IiwgICAg
-MCwgTlVMTCwgJ1xiJ30sCisKKyNlbmRpZgogCXsgMCwgMCwgMCwgMCB9CiB9OwogI2VuZGlmCiAK
-KworI2lmIEVOQUJMRV9TRUxJTlVYCitzdGF0aWMgaW50IHVzZV9kZWZhdWx0X3NlbGludXhfY29u
-dGV4dCA9IDE7CisKK3N0YXRpYyB2b2lkIHNldGRlZmF1bHRmaWxlY29uKGNvbnN0IGNoYXIgKnBh
-dGgpIHsKKwlzdHJ1Y3Qgc3RhdCBzOworCXNlY3VyaXR5X2NvbnRleHRfdCBzY29udGV4dCA9IE5V
-TEw7CisKKwlpZiAoIWlzX3NlbGludXhfZW5hYmxlZCgpKXsKKwkJcmV0dXJuOworCX0JCisJaWYg
-KGxzdGF0KHBhdGgsICZzKSAhPSAwKXsKKwkJcmV0dXJuOworCX0KKworCWlmIChtYXRjaHBhdGhj
-b24ocGF0aCwgcy5zdF9tb2RlLCAmc2NvbnRleHQpIDwgMCl7CisJCXJldHVybjsKKwl9CisJaWYg
-KHN0cmNtcChzY29udGV4dCwgIjw8bm9uZT4+IikgPT0gMCl7CisJCWZyZWVjb24oc2NvbnRleHQp
-OworCQlyZXR1cm47CisJfQorCisJaWYgKGxzZXRmaWxlY29uKHBhdGgsIHNjb250ZXh0KSA8IDAp
-IHsKKwkJaWYgKGVycm5vICE9IEVOT1RTVVApIHsKKwkJCWJiX3BlcnJvcl9tc2coIndhcm5pbmc6
-IGZhaWxlZCB0byBjaGFuZ2UgY29udGV4dCBvZiAlcyB0byAlcyIsIHBhdGgsIHNjb250ZXh0KTsK
-KwkJfQorCX0KKworCWZyZWVjb24oc2NvbnRleHQpOworCXJldHVybjsKK30KKworI2VuZGlmCisK
-IGludCBpbnN0YWxsX21haW4oaW50IGFyZ2MsIGNoYXIgKiphcmd2KTsKIGludCBpbnN0YWxsX21h
-aW4oaW50IGFyZ2MsIGNoYXIgKiphcmd2KQogewpAQCAtMzcsNyArNzgsOSBAQAogCWNvbnN0IGNo
-YXIgKm1vZGVfc3RyOwogCWludCBjb3B5X2ZsYWdzID0gRklMRVVUSUxTX0RFUkVGRVJFTkNFIHwg
-RklMRVVUSUxTX0ZPUkNFOwogCWludCByZXQgPSBFWElUX1NVQ0NFU1MsIGZsYWdzLCBpLCBpc2Rp
-cjsKLQorI2lmIEVOQUJMRV9TRUxJTlVYCisJc2VjdXJpdHlfY29udGV4dF90IHNjb250ZXh0Owor
-I2VuZGlmCiAJZW51bSB7CiAJCU9QVF9DTUQgICAgICAgICAgID0gIDB4MSwKIAkJT1BUX0RJUkVD
-VE9SWSAgICAgPSAgMHgyLApAQCAtNDYsMTUgKzg5LDQyIEBACiAJCU9QVF9HUk9VUCAgICAgICAg
-ID0gMHgxMCwKIAkJT1BUX01PREUgICAgICAgICAgPSAweDIwLAogCQlPUFRfT1dORVIgICAgICAg
-ICA9IDB4NDAsCisjaWYgRU5BQkxFX1NFTElOVVgKKwkJT1BUX1NFVF9TRUNVUklUWV9DT05URVhU
-ID0gMHg4MCwKKwkJT1BUX1BSRVNFUlZFX1NFQ1VSSVRZX0NPTlRFWFQgPSAweDEwMCwKKyNlbmRp
-ZgogCX07CiAKICNpZiBFTkFCTEVfRkVBVFVSRV9JTlNUQUxMX0xPTkdfT1BUSU9OUwogCWFwcGxl
-dF9sb25nX29wdGlvbnMgPSBpbnN0YWxsX2xvbmdfb3B0aW9uczsKICNlbmRpZgotCW9wdF9jb21w
-bGVtZW50YXJ5ID0gIj86cy0tZDpkLS1zIjsKKwlvcHRfY29tcGxlbWVudGFyeSA9ICI/OnMtLWQ6
-ZC0tcyIgVVNFX1NFTElOVVgoIjpaLS1cYjpcYi0tWiIpOwogCS8qIC1jIGV4aXN0cyBmb3IgYmFj
-a3dhcmRzIGNvbXBhdGliaWxpdHksIGl0cyBuZWVkZWQgKi8KLQlmbGFncyA9IGdldG9wdDMyKGFy
-Z2MsIGFyZ3YsICJjZHBzZzptOm86IiwgJmdpZF9zdHIsICZtb2RlX3N0ciwgJnVpZF9zdHIpOwor
-CWZsYWdzID0gZ2V0b3B0MzIoYXJnYywgYXJndiwgImNkcHNnOm06bzoiIFVTRV9TRUxJTlVYKCJa
-OlxiIiksICZnaWRfc3RyLCAmbW9kZV9zdHIsICZ1aWRfc3RyIFVTRV9TRUxJTlVYKCwgJnNjb250
-ZXh0KSk7CiAKKyNpZiBFTkFCTEVfU0VMSU5VWAorCWlmIChmbGFncyAmIE9QVF9QUkVTRVJWRV9T
-RUNVUklUWV9DT05URVhUKSB7CisJCXVzZV9kZWZhdWx0X3NlbGludXhfY29udGV4dCA9IDA7CisJ
-CWNvcHlfZmxhZ3MgfD0gRklMRVVUSUxTX1BSRVNFUlZFX1NFQ1VSSVRZX0NPTlRFWFQ7CisJCWlm
-KCFpc19zZWxpbnV4X2VuYWJsZWQoKSkgeworCQkJYmJfZXJyb3JfbXNnKCJ3YXJuaW5nOiBpZ25v
-cmluZyAtLXByZXNlcnZlLWNvbnRleHQuICIKKwkJCQkJICJUaGUga2VybmVsIGlzIG5vdCBTRUxp
-bnV4LWVuYWJsZWQuXG4iICk7CisJCX0KKwl9CisJaWYgKGZsYWdzICYgT1BUX1NFVF9TRUNVUklU
-WV9DT05URVhUKSB7CisJCWlmKCFpc19zZWxpbnV4X2VuYWJsZWQoKSkgeworCQkJYmJfZXJyb3Jf
-bXNnKCJ3YXJuaW5nOiBpZ25vcmluZyAtLWNvbnRleHQgKC1aKS4gIgorCQkJCQkgIlRoZSBrZXJu
-ZWwgaXMgbm90IFNFTGludXgtZW5hYmxlZC5cbiIgKTsKKwkJfSBlbHNlIHsKKwkJCWlmIChzZXRm
-c2NyZWF0ZWNvbihzY29udGV4dCkgPCAwKSB7CisJCQkJYmJfZXJyb3JfbXNnX2FuZF9kaWUoImNh
-bm5vdCBzZXQgZGVmYXVsdCBzZWN1cml0eSBjb250ZXh0ICVzXG4iLCBzY29udGV4dCk7CisJCQl9
-CisJCX0KKwkJdXNlX2RlZmF1bHRfc2VsaW51eF9jb250ZXh0ID0gMDsKKwkJY29weV9mbGFncyB8
-PSBGSUxFVVRJTFNfU0VUX1NFQ1VSSVRZX0NPTlRFWFQ7CisJfQorI2VuZGlmCisKIAkvKiBwcmVz
-ZXJ2ZSBhY2Nlc3MgYW5kIG1vZGlmaWNhdGlvbiB0aW1lLCB0aGlzIGlzIEdOVSBiZWhhdmlvdXIs
-IEJTRCBvbmx5IHByZXNlcnZlcyBtb2RpZmljYXRpb24gdGltZSAqLwogCWlmIChmbGFncyAmIE9Q
-VF9QUkVTRVJWRV9USU1FKSB7CiAJCWNvcHlfZmxhZ3MgfD0gRklMRVVUSUxTX1BSRVNFUlZFX1NU
-QVRVUzsKQEAgLTExNyw3ICsxODcsMTAgQEAKIAkJCWJiX3BlcnJvcl9tc2coImNhbm5vdCBjaGFu
-Z2UgcGVybWlzc2lvbnMgb2YgJXMiLCBkZXN0KTsKIAkJCXJldCA9IEVYSVRfRkFJTFVSRTsKIAkJ
-fQotCisjaWYgRU5BQkxFX1NFTElOVVgKKwkJaWYgKHVzZV9kZWZhdWx0X3NlbGludXhfY29udGV4
-dCkKKwkJCXNldGRlZmF1bHRmaWxlY29uKGRlc3QpOworI2VuZGlmCiAJCS8qIFNldCB0aGUgdXNl
-ciBhbmQgZ3JvdXAgaWQgKi8KIAkJaWYgKChmbGFncyAmIChPUFRfT1dORVJ8T1BUX0dST1VQKSkK
-IAkJICYmIGxjaG93bihkZXN0LCB1aWQsIGdpZCkgPT0gLTEKSW5kZXg6IGxpYmJiL2NvcHlfZmls
-ZS5jCj09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09
-PT09PT09PT09PT09PT0KLS0tIGxpYmJiL2NvcHlfZmlsZS5jCShyZXZpc2lvbiAxNzgwMykKKysr
-IGxpYmJiL2NvcHlfZmlsZS5jCSh3b3JraW5nIGNvcHkpCkBAIC0zLDYgKzMsNyBAQAogICogTWlu
-aSBjb3B5X2ZpbGUgaW1wbGVtZW50YXRpb24gZm9yIGJ1c3lib3gKICAqCiAgKiBDb3B5cmlnaHQg
-KEMpIDIwMDEgYnkgTWF0dCBLcmFhaSA8a3JhYWlAYWx1bW5pLmNhcm5lZ2llbWVsbG9uLmVkdT4K
-KyAqIFNFTGludXggc3VwcG9ydCBieSBZdWljaGkgTmFrYW11cmEgPHluYWthbUBoaXRhY2hpc29m
-dC5qcD4KICAqCiAgKiBMaWNlbnNlZCB1bmRlciBHUEx2MiBvciBsYXRlciwgc2VlIGZpbGUgTElD
-RU5TRSBpbiB0aGlzIHRhcmJhbGwgZm9yIGRldGFpbHMuCiAgKgpAQCAtNjIsNiArNjMsMjYgQEAK
-IAkJZGVzdF9leGlzdHMgPSAxOwogCX0KIAorI2lmIEVOQUJMRV9TRUxJTlVYCisJaWYgKChmbGFn
-cyAmIEZJTEVVVElMU19QUkVTRVJWRV9TRUNVUklUWV9DT05URVhUKSAmJiBpc19zZWxpbnV4X2Vu
-YWJsZWQoKSA+IDApeworCQlzZWN1cml0eV9jb250ZXh0X3QgY29uOworCQlpZiAobGdldGZpbGVj
-b24gKHNvdXJjZSwgJmNvbikgPj0gMCl7CisJCQlpZiAoc2V0ZnNjcmVhdGVjb24oY29uKSA8IDAp
-IHsKKwkJCQliYl9wZXJyb3JfbXNnICgiY2Fubm90IHNldCBzZXRmc2NyZWF0ZWNvbiAlcyIsIGNv
-bik7CisJCQkJZnJlZWNvbihjb24pOworCQkJCXJldHVybiAtMTsKKwkJCX0JCisJCX1lbHNlewor
-CQkJaWYoIGVycm5vID09IEVOT1RTVVAgfHwgZXJybm8gPT0gRU5PREFUQSApIHsKKwkJCQlzZXRm
-c2NyZWF0ZWNvbihOVUxMKTsKKwkJCX0gZWxzZSB7CisJCQkJYmJfcGVycm9yX21zZyAoImNhbm5v
-dCAgbGdldGZpbGVjb24gJXMiLCBzb3VyY2UpOworCQkJCXJldHVybiAtMTsKKwkJCX0KKwkJfQor
-CX0KKyNlbmRpZgorCiAJaWYgKFNfSVNESVIoc291cmNlX3N0YXQuc3RfbW9kZSkpIHsKIAkJRElS
-ICpkcDsKIAkJc3RydWN0IGRpcmVudCAqZDsKQEAgLTIwMiw4ICsyMjMsMjcgQEAKIAkJCQljbG9z
-ZShzcmNfZmQpOwogCQkJCXJldHVybiAtMTsKIAkJCX0KKwkJfQkJCQkKKworI2lmIEVOQUJMRV9T
-RUxJTlVYCisJCWlmICggKChmbGFncyAmIEZJTEVVVElMU19QUkVTRVJWRV9TRUNVUklUWV9DT05U
-RVhUKQorCQkJICB8fChmbGFncyAmIEZJTEVVVElMU19TRVRfU0VDVVJJVFlfQ09OVEVYVCkpCisJ
-CQkgJiYgaXNfc2VsaW51eF9lbmFibGVkKCkgPiAwICl7CisJCQlzZWN1cml0eV9jb250ZXh0X3Qg
-Y29uOyAgCisJCQlpZihnZXRmc2NyZWF0ZWNvbigmY29uKSA9PSAtMSl7CisJCQkJYmJfcGVycm9y
-X21zZyAoImNhbm5vdCBnZXRmc2NyZWF0ZWNvbiIpOworCQkJCXJldHVybiAtMTsKKwkJCX0JCQkJ
-CisJCQlpZiAoY29uKXsKKwkJCQlpZihzZXRmaWxlY29uKGRlc3QsIGNvbikgPT0gLTEpeworCQkJ
-CQliYl9wZXJyb3JfbXNnICgiY2Fubm90IHNldGZpbGVjb246JXMsJXMiLGRlc3QsY29uKTsKKwkJ
-CQkJZnJlZWNvbihjb24pOworCQkJCQlyZXR1cm4gLTE7CisJCQkJfQorCQkJCWZyZWVjb24oY29u
-KTsKKwkJCX0KIAkJfQotCisjZW5kaWYKIAkJaWYgKGJiX2NvcHlmZF9lb2Yoc3JjX2ZkLCBkc3Rf
-ZmQpID09IC0xKQogCQkJc3RhdHVzID0gLTE7CiAJCWlmIChjbG9zZShkc3RfZmQpIDwgMCkgewo=
-
---Multipart=_Fri__9_Feb_2007_18_48_17_+0900_feXk.xtbN5pyHm/x--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
