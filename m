@@ -1,22 +1,65 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id l1AG792f004126
-	for <selinux@tycho.nsa.gov>; Sat, 10 Feb 2007 11:07:09 -0500
-Received: from py-out-1112.google.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l1AG8Jgc006893
-	for <selinux@tycho.nsa.gov>; Sat, 10 Feb 2007 16:08:19 GMT
-Received: by py-out-1112.google.com with SMTP id a78so635294pyh
-        for <selinux@tycho.nsa.gov>; Sat, 10 Feb 2007 08:08:16 -0800 (PST)
-Message-ID: <45CDEDEE.4050205@gmail.com>
-Date: Sat, 10 Feb 2007 10:08:14 -0600
-From: Ted X Toth <txtoth@gmail.com>
+Message-ID: <45D084AF.8020405@redhat.com>
+Date: Mon, 12 Feb 2007 10:15:59 -0500
+From: Daniel J Walsh <dwalsh@redhat.com>
 MIME-Version: 1.0
-To: selinux@tycho.nsa.gov
-Subject: su and context
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: Stephen Smalley <sds@tycho.nsa.gov>, SE Linux <selinux@tycho.nsa.gov>
+Subject: get_default_context_with_level seems to be broken in libselinux.
+Content-Type: multipart/mixed;
+ boundary="------------040402050702000207040704"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Why doesn't my context change when I 'su' to a different user?
+This is a multi-part message in MIME format.
+--------------040402050702000207040704
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+
+Bugzilla's 211827 224637 
+<https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=224637>
+
+Show that the values after the comma are being dropped.
+
+Adding the attached patch fixes the problem.
+
+But I am not sure of the intended use of this code.  The current code 
+does not work and looks like it never worked.  Was there an intention 
+that this would work differently?
+
+
+Dan
+
+
+
+--------------040402050702000207040704
+Content-Type: text/x-patch;
+ name="default_level.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="default_level.patch"
+
+--- libselinux-1.33.4/src/get_context_list.c~	2007-01-11 14:01:23.000000000 -0500
++++ libselinux-1.33.4/src/get_context_list.c	2007-02-09 15:43:31.000000000 -0500
+@@ -381,12 +381,16 @@
+ {
+ 	security_context_t *conary;
+ 	int rc;
+-
++	context_t con;
+ 	rc = get_ordered_context_list_with_level(user, level, fromcon, &conary);
+ 	if (rc <= 0)
+ 		return -1;
+ 
+-	*newcon = strdup(conary[0]);
++	con = context_new(conary[0]);
++	context_range_set(con, level);
++	*newcon = strdup(context_str(con));
++	context_free(con);
++
+ 	freeconary(conary);
+ 	if (!(*newcon))
+ 		return -1;
+
+--------------040402050702000207040704--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
