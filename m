@@ -1,49 +1,53 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id l1CHbCsx024262
-	for <selinux@tycho.nsa.gov>; Mon, 12 Feb 2007 12:37:12 -0500
-Received: from smtp-out-0101.amazon.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id l1CHcMWk016059
-	for <selinux@tycho.nsa.gov>; Mon, 12 Feb 2007 17:38:23 GMT
-Received: from ex-gate-sea5-02.ant.amazon.com (sea5-dhcp-248-136-254.sea5.amazon.com [10.248.136.254])
-	by smtp-in-4103.sea5.amazon.com (8.12.11/8.12.10) with ESMTP id l1CHcLMZ026097
-	for <selinux@tycho.nsa.gov>; Mon, 12 Feb 2007 09:38:21 -0800
-Subject: Re: su and context
-From: Ronan Waide <waider@amazon.com>
-To: selinux@tycho.nsa.gov
-In-Reply-To: <1171299200.5265.34.camel@moss-spartans.epoch.ncsc.mil>
-References: <45CDEDEE.4050205@gmail.com>  <45D09836.5060007@us.ibm.com>
-	 <1171299200.5265.34.camel@moss-spartans.epoch.ncsc.mil>
+Subject: Re: get_default_context_with_level seems to be broken in
+	libselinux.
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Daniel J Walsh <dwalsh@redhat.com>
+Cc: SE Linux <selinux@tycho.nsa.gov>
+In-Reply-To: <1171296969.5265.2.camel@moss-spartans.epoch.ncsc.mil>
+References: <45D084AF.8020405@redhat.com>
+	 <1171296969.5265.2.camel@moss-spartans.epoch.ncsc.mil>
 Content-Type: text/plain
-Message-Id: <1171301899.20328.29.camel@waider.desktop.amazon.com>
+Date: Mon, 12 Feb 2007 12:51:53 -0500
+Message-Id: <1171302713.24318.5.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
-Date: Mon, 12 Feb 2007 17:38:19 +0000
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 2007-02-12 at 16:53, Stephen Smalley wrote:
-> The behavior has actually changed over time; you'll find discussions
-> about it in the mailing list archives.  The original SELinux kept su
-> separate from security context changes.  Earlier versions of Fedora (and
-> RHEL 4) integrated them (via pam_selinux) in an effort to provide
-> greater transparency, but this caused its own set of problems (e.g. use
-> of su from init scripts, losing continuity of context across su when you
-> want it for roles and levels).  More recent versions of Fedora (and RHEL
-> 5) split them back out again.  One might add an option to su to support
-> simultaneous newrole, but you don't want it by default.
+On Mon, 2007-02-12 at 11:16 -0500, Stephen Smalley wrote:
+> On Mon, 2007-02-12 at 10:15 -0500, Daniel J Walsh wrote:
+> > Bugzilla's 211827 224637 
+> > <https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=224637>
+> > 
+> > Show that the values after the comma are being dropped.
+> > 
+> > Adding the attached patch fixes the problem.
+> > 
+> > But I am not sure of the intended use of this code.  The current code 
+> > does not work and looks like it never worked.  Was there an intention 
+> > that this would work differently?
+> 
+> If there is a bug, it needs to be fixed within
+> get_ordered_context_list_with_level, not here.
 
-On the subject of interaction between "old" and "new" security, I was
-briefly stumped in my quest to create a bind role account by the fact
-that the rndc binary (on FC6) is not actually executable by anyone other
-than root, so granting rndc_exec_t doesn't help unless you also change
-the binary's permissions. Is this intentional? I had hoped that SELinux
-rather than the filesystem would be taken as authoritative on who gets
-access, but I can see reasons why this maybe shouldn't be the case, and
-perhaps the 'bug' is with the installed permissions?
+Can you provide a test case to demonstrate the bug that doesn't involve
+sshd, e.g. simple use of getdefaultcon from libselinux appears to work
+as expected without your patch.
+$ ./getdefaultcon -l s2:c0,c1 sds system_u:system_r:sshd_t:SystemLow-SystemHigh
+./getdefaultcon: sds from system_u:system_r:sshd_t:SystemLow-SystemHigh
+staff_u (null) s2:c0,c1 -> staff_u:staff_r:staff_t:Secret:A,B
 
-Cheers,
-Waider.
+Applying the patch and re-trying, the only visible difference is that
+you end up with the untranslated level.  Is the problem in libselinux or
+sshd (or mcstransd)?
+
+Note that the current libselinux logic takes the provided level and puts
+it into the fromcon before computing the set of reachable contexts so
+that the levels are bounded by that level.  Rather than mutating the
+level afterward.
+
 -- 
-Ronan Waide / TechOps EU Systems Engineer / waider@amazon.com
+Stephen Smalley
+National Security Agency
 
 
 --
