@@ -1,50 +1,57 @@
-Subject: Re: su and context
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Ronan Waide <waider@amazon.com>
-Cc: selinux@tycho.nsa.gov
-In-Reply-To: <1171301899.20328.29.camel@waider.desktop.amazon.com>
-References: <45CDEDEE.4050205@gmail.com>  <45D09836.5060007@us.ibm.com>
-	 <1171299200.5265.34.camel@moss-spartans.epoch.ncsc.mil>
-	 <1171301899.20328.29.camel@waider.desktop.amazon.com>
-Content-Type: text/plain
-Date: Mon, 12 Feb 2007 12:59:15 -0500
-Message-Id: <1171303155.24318.12.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+Message-ID: <45D0B540.6070803@redhat.com>
+Date: Mon, 12 Feb 2007 13:43:12 -0500
+From: Daniel J Walsh <dwalsh@redhat.com>
+MIME-Version: 1.0
+To: Stephen Smalley <sds@tycho.nsa.gov>
+CC: SE Linux <selinux@tycho.nsa.gov>
+Subject: Re: get_default_context_with_level seems to be broken in	libselinux.
+References: <45D084AF.8020405@redhat.com>	 <1171296969.5265.2.camel@moss-spartans.epoch.ncsc.mil> <1171302713.24318.5.camel@moss-spartans.epoch.ncsc.mil>
+In-Reply-To: <1171302713.24318.5.camel@moss-spartans.epoch.ncsc.mil>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 2007-02-12 at 17:38 +0000, Ronan Waide wrote:
-> On Mon, 2007-02-12 at 16:53, Stephen Smalley wrote:
-> > The behavior has actually changed over time; you'll find discussions
-> > about it in the mailing list archives.  The original SELinux kept su
-> > separate from security context changes.  Earlier versions of Fedora (and
-> > RHEL 4) integrated them (via pam_selinux) in an effort to provide
-> > greater transparency, but this caused its own set of problems (e.g. use
-> > of su from init scripts, losing continuity of context across su when you
-> > want it for roles and levels).  More recent versions of Fedora (and RHEL
-> > 5) split them back out again.  One might add an option to su to support
-> > simultaneous newrole, but you don't want it by default.
-> 
-> On the subject of interaction between "old" and "new" security, I was
-> briefly stumped in my quest to create a bind role account by the fact
-> that the rndc binary (on FC6) is not actually executable by anyone other
-> than root, so granting rndc_exec_t doesn't help unless you also change
-> the binary's permissions. Is this intentional? I had hoped that SELinux
-> rather than the filesystem would be taken as authoritative on who gets
-> access, but I can see reasons why this maybe shouldn't be the case, and
-> perhaps the 'bug' is with the installed permissions?
+Stephen Smalley wrote:
+> On Mon, 2007-02-12 at 11:16 -0500, Stephen Smalley wrote:
+>   
+>> On Mon, 2007-02-12 at 10:15 -0500, Daniel J Walsh wrote:
+>>     
+>>> Bugzilla's 211827 224637 
+>>> <https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=224637>
+>>>
+>>> Show that the values after the comma are being dropped.
+>>>
+>>> Adding the attached patch fixes the problem.
+>>>
+>>> But I am not sure of the intended use of this code.  The current code 
+>>> does not work and looks like it never worked.  Was there an intention 
+>>> that this would work differently?
+>>>       
+>> If there is a bug, it needs to be fixed within
+>> get_ordered_context_list_with_level, not here.
+>>     
+>
+> Can you provide a test case to demonstrate the bug that doesn't involve
+> sshd, e.g. simple use of getdefaultcon from libselinux appears to work
+> as expected without your patch.
+> $ ./getdefaultcon -l s2:c0,c1 sds system_u:system_r:sshd_t:SystemLow-SystemHigh
+> ./getdefaultcon: sds from system_u:system_r:sshd_t:SystemLow-SystemHigh
+> staff_u (null) s2:c0,c1 -> staff_u:staff_r:staff_t:Secret:A,B
+>
+> Applying the patch and re-trying, the only visible difference is that
+> you end up with the untranslated level.  Is the problem in libselinux or
+> sshd (or mcstransd)?
+>
+> Note that the current libselinux logic takes the provided level and puts
+> it into the fromcon before computing the set of reachable contexts so
+> that the levels are bounded by that level.  Rather than mutating the
+> level afterward.
+>
+>   
+Ok, it looks like the problem is somewhere in the translation daemon, 
+not in libselinux.
 
-It is intentional; we didn't want SELinux to expose the system to
-greater risk, so it only further restricts access (and that is
-conventional for MAC).  Some people have experimented with modified
-forms of SELinux where it is authoritative or selectively authoritative,
-but you have to be careful there about your policy configuration and
-userland assumptions.
-
--- 
-Stephen Smalley
-National Security Agency
-
+ssh works when mcstrans is stopped, fails when it is running.
 
 --
 This message was distributed to subscribers of the selinux mailing list.
