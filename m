@@ -1,322 +1,769 @@
-Subject: Re: [RFC] Ability to allow undefined permissions and classes -v2
-From: Eric Paris <eparis@redhat.com>
-To: Stephen Smalley <sds@tycho.nsa.gov>
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id l1DKPicn020817
+	for <selinux@tycho.nsa.gov>; Tue, 13 Feb 2007 15:25:44 -0500
+Received: from ug-out-1314.google.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l1DKQq8n006888
+	for <selinux@tycho.nsa.gov>; Tue, 13 Feb 2007 20:26:53 GMT
+Received: by ug-out-1314.google.com with SMTP id y2so1802uge
+        for <selinux@tycho.nsa.gov>; Tue, 13 Feb 2007 12:26:51 -0800 (PST)
+Message-ID: <cadfc0e40702131226y3cef4a81h626bcdb264c563ee@mail.gmail.com>
+Date: Tue, 13 Feb 2007 14:26:49 -0600
+From: "Xavier Toth" <txtoth@gmail.com>
+To: ewalsh@tycho.nsa.gov
+Subject: Re: [PATCH] refpolicy: experimental X policy
 Cc: selinux@tycho.nsa.gov
-In-Reply-To: <1171388407.3242.87.camel@moss-spartans.epoch.ncsc.mil>
-References: <1171309430.10871.2.camel@localhost.localdomain>
-	 <1171369673.3242.16.camel@moss-spartans.epoch.ncsc.mil>
-	 <1171387714.10871.22.camel@localhost.localdomain>
-	 <1171388407.3242.87.camel@moss-spartans.epoch.ncsc.mil>
-Content-Type: text/plain
-Date: Tue, 13 Feb 2007 14:36:56 -0500
-Message-Id: <1171395416.10871.37.camel@localhost.localdomain>
-Mime-Version: 1.0
+In-Reply-To: <45B938EE.8010303@tycho.nsa.gov>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+References: <45B938EE.8010303@tycho.nsa.gov>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2007-02-13 at 12:40 -0500, Stephen Smalley wrote:
-> On Tue, 2007-02-13 at 12:28 -0500, Eric Paris wrote:
-[snip snip]
-> > This is a vestige of the original av padding where I had to be concerned
-> > that p->p_classes.nprim was larger than kdefs->cts_len.  Since now I
-> > only use the array when making permission checks I can assume that I
-> > will never get a class from the check greater than the number of kernel
-> > classes defined.  So all that can be simplified to just
-> > p->undefined_perms = kzalloc(sizeof(u32)*kdefs->cts_len, GFP_KERNEL);
-> 
-> No - security_compute_av can also be called via selinuxfs to check
-> userland security classes (from libselinux for userspace object
-> managers).
+I think there is an extra ') at the end of the xwindows.fc patch.
 
-I'm starting to wonder if the entire way I am constructing and using
-using my table might be wrong.  Right now I am finding the permissions
-which are defined in the kernel but are not defined in the policy,
-storing just those select permissions, and then adding those to the
-allow rules.  This works very well when I only consider the kernel and
-don't think about things in userspace.
-
-But now I ask the question, do we/I want to extend this methodology to
-userspace classes and permissions?  Obviously I wouldn't be able to
-build the 'unknown perms' table for userspace since they are completely
-unknown!  Would it be better if I changed my approach to
-
-Now:
-avd.allowed |= p->undefined_perms[tclass-1]
-
-Possible
-avd.allowed |= (p->defined_perms[tclass-1]  ^ 0xffffffff)
-
-It's not quite as directed.  Instead of only allowing the select
-permissions which we know are missing from policy we instead shotgun
-approach and allow everything not explicitly defined.  Maybe this allows
-buggy code to get allows which would have been caught and things like
-that, but at least it could work for userspace classes and perms.  Seems
-to me like this undefined perms problem will be worse in userspace than
-it is in the kernel.
-
-Thoughts?  Or should I just stick with the ideas behind the patch below?
-
--Eric
-
-diff --git a/security/selinux/ss/policydb.c b/security/selinux/ss/policydb.c
-index cd79c63..364d872 100644
---- a/security/selinux/ss/policydb.c
-+++ b/security/selinux/ss/policydb.c
-@@ -670,6 +670,8 @@ void policydb_destroy(struct policydb *p)
- 	}
- 	kfree(p->type_attr_map);
- 
-+	kfree(p->undefined_perms);
-+
- 	return;
- }
- 
-diff --git a/security/selinux/ss/policydb.h b/security/selinux/ss/policydb.h
-index 8319d5f..257b836 100644
---- a/security/selinux/ss/policydb.h
-+++ b/security/selinux/ss/policydb.h
-@@ -242,6 +242,8 @@ struct policydb {
- 	struct ebitmap *type_attr_map;
- 
- 	unsigned int policyvers;
-+
-+	u32 *undefined_perms;
- };
- 
- extern void policydb_destroy(struct policydb *p);
-diff --git a/security/selinux/ss/services.c b/security/selinux/ss/services.c
-index ca9154d..a511d75 100644
---- a/security/selinux/ss/services.c
-+++ b/security/selinux/ss/services.c
-@@ -306,22 +306,26 @@ static int context_struct_compute_av(struct context *scontext,
- 		    tclass <= SECCLASS_NETLINK_DNRT_SOCKET)
- 			tclass = SECCLASS_NETLINK_SOCKET;
- 
--	if (!tclass || tclass > policydb.p_classes.nprim) {
--		printk(KERN_ERR "security_compute_av:  unrecognized class %d\n",
--		       tclass);
--		return -EINVAL;
--	}
--	tclass_datum = policydb.class_val_to_struct[tclass - 1];
--
- 	/*
- 	 * Initialize the access vectors to the default values.
-+	 * This will pad the allow for undefined perms if appropriete.
- 	 */
--	avd->allowed = 0;
- 	avd->decided = 0xffffffff;
- 	avd->auditallow = 0;
- 	avd->auditdeny = 0xffffffff;
- 	avd->seqno = latest_granting;
- 
-+	if (tclass > policydb.p_classes.nprim && selinux_allow_unknwon) {
-+		avd->allowed = 0xffffffff;
-+		return 0;
-+	} else if (!tclass || tclass > policydb.p_classes.nprim)
-+		return -EINVAL;
-+	else if (selinux_allow_unknown)
-+		avd->allowed = policydb.undefined_perms[tclass - 1];
-+	else
-+		avd->allowed = 0;
-+	tclass_datum = policydb.class_val_to_struct[tclass - 1];
-+
- 	/*
- 	 * If a specific type enforcement rule was defined for
- 	 * this permission check, then use it.
-@@ -1045,6 +1049,17 @@ static int validate_classes(struct policydb *p)
- 	const char *def_class, *def_perm, *pol_class;
- 	struct symtab *perms;
- 
-+	if (selinux_allow_unknown) {
-+		u32 num_classes;
-+		if (kdefs->cts_len > p->p_classes.nprim)
-+			num_classes = kdefs->cts_len;
-+		else
-+			num_classes = p->p_classes.nprim;
-+		p->undefined_perms = kzalloc(sizeof(u32)*num_classes, GFP_KERNEL);
-+		if (!p->undefined_perms)
-+			return -ENOMEM;
-+	}
-+
- 	for (i = 1; i < kdefs->cts_len; i++) {
- 		def_class = kdefs->class_to_string[i];
- 		if (i > p->p_classes.nprim) {
-@@ -1076,14 +1091,18 @@ static int validate_classes(struct policydb *p)
- 			printk(KERN_INFO
- 			       "security:  permission %s in class %s not defined in policy\n",
- 			       def_perm, pol_class);
-+			if (selinux_allow_unknown)
-+				p->undefined_perms[class_val-1] |= perm_val;
- 			continue;
- 		}
- 		perdatum = hashtab_search(perms->table, def_perm);
- 		if (perdatum == NULL) {
--			printk(KERN_ERR
-+			printk(KERN_INFO
- 			       "security:  permission %s in class %s not found in policy\n",
- 			       def_perm, pol_class);
--			return -EINVAL;
-+			if (selinux_allow_unknown)
-+				p->undefined_perms[class_val-1] |= perm_val;
-+			continue;
- 		}
- 		pol_val = 1 << (perdatum->value - 1);
- 		if (pol_val != perm_val) {
-@@ -1119,14 +1138,18 @@ static int validate_classes(struct policydb *p)
- 				printk(KERN_INFO
- 				       "security:  permission %s in class %s not defined in policy\n",
- 				       def_perm, pol_class);
-+				if (selinux_allow_unknown)
-+					p->undefined_perms[class_val-1] |= (1 << j);
- 				continue;
- 			}
- 			perdatum = hashtab_search(perms->table, def_perm);
- 			if (perdatum == NULL) {
--				printk(KERN_ERR
-+				printk(KERN_INFO
- 				       "security:  permission %s in class %s not found in policy\n",
- 				       def_perm, pol_class);
--				return -EINVAL;
-+				if (selinux_allow_unknown)
-+					p->undefined_perms[class_val-1] |= (1 << j);
-+				continue;
- 			}
- 			if (perdatum->value != j + 1) {
- 				printk(KERN_ERR
-@@ -1268,6 +1291,9 @@ int security_load_policy(void *data, size_t len)
- 
- 	LOAD_LOCK;
- 
-+	/* pay not attention to me as I am part of the /selinux madness!! */
-+	selinux_allow_unknown = selinux_allow_unknown_sysctl_value;
-+
- 	if (!ss_initialized) {
- 		avtab_cache_init();
- 		if (policydb_read(&policydb, fp)) {
-diff --git a/security/selinux/avc.c b/security/selinux/avc.c
-diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-index 65fb5e8..10af3d0 100644
---- a/security/selinux/hooks.c
-+++ b/security/selinux/hooks.c
-@@ -86,6 +86,9 @@ extern unsigned int policydb_loaded_version;
- extern int selinux_nlmsg_lookup(u16 sclass, u16 nlmsg_type, u32 *perm);
- extern int selinux_compat_net;
- 
-+int selinux_allow_unknown = 0;
-+int selinux_allow_unknown_sysctl_value = 0;
-+
- #ifdef CONFIG_SECURITY_SELINUX_DEVELOP
- int selinux_enforcing = 0;
- 
-diff --git a/security/selinux/include/avc.h b/security/selinux/include/avc.h
-index 6ed10c3..1b02289 100644
---- a/security/selinux/include/avc.h
-+++ b/security/selinux/include/avc.h
-@@ -18,6 +18,9 @@
- #include "av_permissions.h"
- #include "security.h"
- 
-+extern int selinux_allow_unknown;
-+extern int selinux_allow_unknown_sysctl_value;
-+
- #ifdef CONFIG_SECURITY_SELINUX_DEVELOP
- extern int selinux_enforcing;
- #else
-diff --git a/security/selinux/selinuxfs.c b/security/selinux/selinuxfs.c
-index c8bf6e1..67c7810 100644
---- a/security/selinux/selinuxfs.c
-+++ b/security/selinux/selinuxfs.c
-@@ -100,6 +100,7 @@ enum sel_inos {
- 	SEL_MEMBER,	/* compute polyinstantiation membership decision */
- 	SEL_CHECKREQPROT, /* check requested protection, not kernel-applied one */
- 	SEL_COMPAT_NET,	/* whether to use old compat network packet controls */
-+	SEL_UNKNOWN,	/* allows unknown perms and classes */
- };
- 
- #define TMPBUFLEN	12
-@@ -113,6 +114,16 @@ static ssize_t sel_read_enforce(struct file *filp, char __user *buf,
- 	return simple_read_from_buffer(buf, count, ppos, tmpbuf, length);
- }
- 
-+static ssize_t sel_read_unknown(struct file *filp, char __user *buf,
-+				size_t count, loff_t *ppos)
-+{
-+	char tmpbuf[TMPBUFLEN];
-+	ssize_t length;
-+
-+	length = scnprintf(tmpbuf, TMPBUFLEN, "%d", selinux_allow_unknown_sysctl_value);
-+	return simple_read_from_buffer(buf, count, ppos, tmpbuf, length);
-+}
-+
- #ifdef CONFIG_SECURITY_SELINUX_DEVELOP
- static ssize_t sel_write_enforce(struct file * file, const char __user * buf,
- 				 size_t count, loff_t *ppos)
-@@ -161,11 +172,55 @@ out:
- #define sel_write_enforce NULL
- #endif
- 
-+static ssize_t sel_write_unknown(struct file * file, const char __user * buf,
-+				 size_t count, loff_t *ppos)
-+
-+{
-+	char *page;
-+	ssize_t length;
-+	int new_value;
-+
-+	if (count >= PAGE_SIZE)
-+		return -ENOMEM;
-+	if (*ppos != 0) {
-+		/* No partial writes. */
-+		return -EINVAL;
-+	}
-+	page = (char*)get_zeroed_page(GFP_KERNEL);
-+	if (!page)
-+		return -ENOMEM;
-+	length = -EFAULT;
-+	if (copy_from_user(page, buf, count))
-+		goto out;
-+
-+	length = -EINVAL;
-+	if (sscanf(page, "%d", &new_value) != 1)
-+		goto out;
-+
-+	if (new_value != selinux_allow_unknown_sysctl_value) {
-+		length = 0;
-+		audit_log(current->audit_context, GFP_KERNEL, AUDIT_MAC_STATUS,
-+			"allow_unknown=%d old_allow_unknown%d auid=%u", new_value, 
-+			selinux_allow_unknown_sysctl_value,
-+			audit_get_loginuid(current->audit_context));
-+		selinux_allow_unknown_sysctl_value = new_value;
-+	}
-+	length = count;
-+out:
-+	free_page((unsigned long) page);
-+	return length;
-+}
-+
- static struct file_operations sel_enforce_ops = {
- 	.read		= sel_read_enforce,
- 	.write		= sel_write_enforce,
- };
- 
-+static struct file_operations sel_unknown_ops = {
-+	.read		= sel_read_unknown,
-+	.write		= sel_write_unknown,
-+};
-+
- #ifdef CONFIG_SECURITY_SELINUX_DISABLE
- static ssize_t sel_write_disable(struct file * file, const char __user * buf,
- 				 size_t count, loff_t *ppos)
-@@ -1283,6 +1338,7 @@ static int sel_fill_super(struct super_block * sb, void * data, int silent)
- 		[SEL_MEMBER] = {"member", &transaction_ops, S_IRUGO|S_IWUGO},
- 		[SEL_CHECKREQPROT] = {"checkreqprot", &sel_checkreqprot_ops, S_IRUGO|S_IWUSR},
- 		[SEL_COMPAT_NET] = {"compat_net", &sel_compat_net_ops, S_IRUGO|S_IWUSR},
-+		[SEL_UNKNOWN] = {"allow_unknown", &sel_unknown_ops, S_IRUGO|S_IWUSR},
- 		/* last one */ {""}
- 	};
- 	ret = simple_fill_super(sb, SELINUX_MAGIC, selinux_files);
-
-
+On 1/25/07, Eamon Walsh <ewalsh@tycho.nsa.gov> wrote:
+> This is an experimental policy for use with the X userspace object
+> manager.  It includes both unconfined and strict policy and is
+> controlled by a tunable, xwindows_object_manager.  The labeling conf
+> file in the X.org xserver git (XACE-SELINUX branch) assumes that this
+> policy is loaded, i.e. the types listed in that file are defined in this
+> policy.
+>
+> The target audience for this is people experimenting with the X object
+> manager.
+>
+> Signed-off-by: Eamon Walsh <ewalsh@tycho.nsa.gov>
+>
+> ---
+>
+>  policy/global_tunables              |    7
+>  policy/modules/services/xserver.if  |   14
+>  policy/modules/services/xwindows.fc |   13
+>  policy/modules/services/xwindows.if |  522 ++++++++++++++++++++++++++++++++++++
+>  policy/modules/services/xwindows.te |   65 ++++
+>  policy/modules/system/unconfined.if |   24 +
+>  6 files changed, 645 insertions(+)
+>
+> ---
+> Index: policy/modules/services/xwindows.te
+> ===================================================================
+> --- policy/modules/services/xwindows.te (revision 0)
+> +++ policy/modules/services/xwindows.te (revision 0)
+> @@ -0,0 +1,65 @@
+> +
+> +policy_module(xwindows,1.0.0)
+> +
+> +########################################
+> +#
+> +# Declarations
+> +#
+> +
+> +# X Window System userspace-managed objects
+> +attribute xclient_type;
+> +attribute xwindow_type;
+> +attribute xproperty_type;
+> +attribute xextension_type;
+> +
+> +# Default type for remotely connected clients
+> +type remote_xclient_t, xclient_type;
+> +
+> +# X Property types and attributes
+> +attribute client_xproperty_type;
+> +attribute info_xproperty_type;
+> +attribute seclabel_xproperty_type;
+> +attribute rm_xproperty_type;
+> +attribute wm_xproperty_type;
+> +attribute clipboard_xproperty_type;
+> +attribute unknown_xproperty_type;
+> +
+> +type client_xproperty_t, client_xproperty_type, xproperty_type;
+> +type info_xproperty_t, info_xproperty_type, xproperty_type;
+> +type seclabel_xproperty_t, seclabel_xproperty_type, xproperty_type;
+> +type rm_xproperty_t, rm_xproperty_type, xproperty_type;
+> +type wm_xproperty_t, wm_xproperty_type, xproperty_type;
+> +type clipboard_xproperty_t, clipboard_xproperty_type, xproperty_type;
+> +type unknown_xproperty_t, unknown_xproperty_type, xproperty_type;
+> +
+> +# X Extension types
+> +type accelgraphics_xext_t, xextension_type;
+> +type debug_xext_t, xextension_type;
+> +type font_xext_t, xextension_type;
+> +type input_xext_t, xextension_type;
+> +type output_xext_t, xextension_type;
+> +type screensaver_xext_t, xextension_type;
+> +type security_xext_t, xextension_type;
+> +type shmem_xext_t, xextension_type;
+> +type std_xext_t, xextension_type;
+> +type video_xext_t, xextension_type;
+> +type unknown_xext_t, xextension_type;
+> +type windowmgr_xext_t, xextension_type;
+> +
+> +
+> +# X client domains
+> +
+> +# Display Manager
+> +# defined in services/xserver.te
+> +
+> +# Window Manager
+> +type xwm_exec_t;
+> +corecmd_executable_file(xwm_exec_t)
+> +
+> +# Resource Manager
+> +type xrdb_exec_t;
+> +corecmd_executable_file(xrdb_exec_t)
+> +
+> +# Protected test client
+> +type xprotected_exec_t;
+> +corecmd_executable_file(xprotected_exec_t)
+> Index: policy/modules/services/xwindows.fc
+> ===================================================================
+> --- policy/modules/services/xwindows.fc (revision 0)
+> +++ policy/modules/services/xwindows.fc (revision 0)
+> @@ -0,0 +1,13 @@
+> +#
+> +# /usr
+> +#
+> +
+> +/usr/bin/(t|m|fv)wm    --      gen_context(system_u:object_r:xwm_exec_t,s0)
+> +/usr/bin/metacity      --      gen_context(system_u:object_r:xwm_exec_t,s0)
+> +/usr/bin/xrdb          --      gen_context(system_u:object_r:xrdb_exec_t,s0)
+> +/usr/bin/xeyes         --      gen_context(system_u:object_r:xprotected_exec_t,s0)
+> +
+> +/usr/X11R6/bin/(t|m|fv)wm      --      gen_context(system_u:object_r:xwm_exec_t,s0)
+> +/usr/X11R6/bin/metacity                --      gen_context(system_u:object_r:xwm_exec_t,s0)
+> +/usr/X11R6/bin/xrdb            --      gen_context(system_u:object_r:xrdb_exec_t,s0)
+> +/usr/X11R6/bin/xeyes           --      gen_context(system_u:object_r:xprotected_exec_t,s0)
+> Index: policy/modules/services/xwindows.if
+> ===================================================================
+> --- policy/modules/services/xwindows.if (revision 0)
+> +++ policy/modules/services/xwindows.if (revision 0)
+> @@ -0,0 +1,522 @@
+> +## <summary>X Window System Userspace Object Manager</summary>
+> +
+> +#######################################
+> +## <summary>
+> +##     Declares a single X property type using a user prefix
+> +##     and base type, along with appropriate transition rules.
+> +## </summary>
+> +## <param name="prefix">
+> +##     <summary>
+> +##     The prefix of the domain (e.g., user
+> +##     is the prefix for user_t).
+> +##     </summary>
+> +## </param>
+> +## <param name="type">
+> +##     <summary>
+> +##     Base X property type
+> +##     </summary>
+> +## </param>
+> +#
+> +template(`xwindows_property',`
+> +       gen_require(`
+> +               type $1_t;
+> +               type $2;
+> +               attribute xproperty_type;
+> +               attribute $1_xproperty_type;
+> +               attribute $2ype;
+> +               class property all_property_perms;
+> +       ')
+> +
+> +       ##############################
+> +       #
+> +       # Declarations
+> +       #
+> +
+> +       type $1_$2, $1_xproperty_type, $2ype, xproperty_type;
+> +       type_transition $1_t $2:property $1_$2;
+> +')
+> +
+> +#######################################
+> +## <summary>
+> +##     Declares a set of X property types for use with an X
+> +##     client domain.
+> +## </summary>
+> +## <param name="prefix">
+> +##     <summary>
+> +##     The prefix of the domain (e.g., user
+> +##     is the prefix for user_t).
+> +##     </summary>
+> +## </param>
+> +#
+> +template(`xwindows_property_set',`
+> +
+> +       ##############################
+> +       #
+> +       # Declarations
+> +       #
+> +
+> +       attribute $1_xproperty_type;
+> +       xwindows_property($1,client_xproperty_t)
+> +       xwindows_property($1,info_xproperty_t)
+> +       xwindows_property($1,seclabel_xproperty_t)
+> +       xwindows_property($1,rm_xproperty_t)
+> +       xwindows_property($1,wm_xproperty_t)
+> +       xwindows_property($1,clipboard_xproperty_t)
+> +       xwindows_property($1,unknown_xproperty_t)
+> +')
+> +
+> +#######################################
+> +## <summary>
+> +##     Template to provide X object permissions on a given X server to
+> +##     an X client domain.  Provides the minimal set required by a basic
+> +##     X client application.
+> +## </summary>
+> +## <param name="server_prefix">
+> +##     <summary>
+> +##     The prefix of the server domain (e.g., user
+> +##     is the prefix for user_t).
+> +##     </summary>
+> +## </param>
+> +## <param name="prefix">
+> +##     <summary>
+> +##     The prefix of the client domain (e.g., user
+> +##     is the prefix for user_t).
+> +##     </summary>
+> +## </param>
+> +## <param name="domain">
+> +##     <summary>
+> +##     Client domain allowed access.
+> +##     </summary>
+> +## </param>
+> +## <param name="role">
+> +##     <summary>
+> +##     The role associated with the client domain.
+> +##     </summary>
+> +## </param>
+> +#
+> +template(`xwindows_basic_client',`
+> +       gen_require(`
+> +               type $1_xserver_t;
+> +               type $1_root_window_t;
+> +               type $1_xserver_rm_xproperty_t;
+> +               type $2_info_xproperty_t;
+> +               type $1_xserver_info_xproperty_t;
+> +               type $1_xserver_clipboard_xproperty_t;
+> +               type $2_client_xproperty_t;
+> +               attribute $2_xproperty_type;
+> +               class drawable all_drawable_perms;
+> +               class window all_window_perms;
+> +               class gc all_gc_perms;
+> +               class font all_font_perms;
+> +               class colormap all_colormap_perms;
+> +               class property all_property_perms;
+> +               class cursor all_cursor_perms;
+> +               class xclient all_xclient_perms;
+> +               class xserver all_xserver_perms;
+> +               class xinput all_xinput_perms;
+> +               class xextension all_xextension_perms;
+> +       ')
+> +
+> +       ##############################
+> +       #
+> +       # Local Policy
+> +       #
+> +
+> +               tunable_policy(`xwindows_object_manager',`
+> +               # X Protocol Extensions
+> +               allow $3 xextension_type:xextension query;
+> +               allow $3 std_xext_t:xextension use;
+> +               allow $3 input_xext_t:xextension use;
+> +               allow $3 font_xext_t:xextension use;
+> +               allow $3 shmem_xext_t:xextension use;
+> +
+> +               # X Properties
+> +               # can read resource manager settings on the root window
+> +               allow $3 $1_xserver_rm_xproperty_t:property read;
+> +               # can read info properties
+> +               allow $3 $2_info_xproperty_t:property read;
+> +               allow $3 $1_xserver_info_xproperty_t:property read;
+> +               # can read and write client properties
+> +               allow $3 $2_client_xproperty_t:property { read write free };
+> +               # can read and write cut buffers on the root window
+> +               allow $3 $1_xserver_clipboard_xproperty_t:property { read write free };
+> +
+> +               # X Windows
+> +               # can get attributes of root window
+> +               allow $3 $1_root_window_t:window getattr;
+> +               # can add children to root window
+> +               allow $3 $1_root_window_t:window { addchild chstack };
+> +               # can change properties of root window
+> +               allow $3 $1_root_window_t:window { listprop chprop chproplist };
+> +
+> +               # can query window manager windows (GTK2 thing?)
+> +       #       allow $3 $1_xwm_t:window { enumerate getattr };
+> +       #       allow $3 $1_xwm_t:drawable getattr;
+> +
+> +               # X Fonts
+> +               allow $3 self:font { use free };
+> +
+> +               # X Input
+> +               # can set focus on own windows
+> +               allow $3 self:window setfocus;
+> +               allow $3 $1_xserver_t:xinput { setfocus getattr };
+> +               # can track mouse motions on own windows
+> +               allow $3 self:window mousemotion;
+> +               # can create and use cursors
+> +               allow $3 self:cursor { createglyph setattr free };
+> +               # can set selections on own windows
+> +               allow $3 self:window chselection;
+> +
+> +               # X Drawing
+> +               # can query root window attributes
+> +               allow $3 $1_root_window_t:drawable getattr;
+> +               allow $3 $1_xserver_t:colormap { read store };
+> +               allow $3 $1_xserver_t:font { load use free };
+> +               allow $3 self:drawable { create getattr draw copy destroy };
+> +               allow $3 self:gc { create setattr free };
+> +               allow $3 self:window { addchild chprop chproplist chstack create destroy enumerate getattr listprop map move setattr unmap };
+> +       ')
+> +')
+> +
+> +#######################################
+> +## <summary>
+> +##     Template to provide X object permissions to an X window manager.
+> +## </summary>
+> +## <param name="server_prefix">
+> +##     <summary>
+> +##     The prefix of the server domain (e.g., user
+> +##     is the prefix for user_t).
+> +##     </summary>
+> +## </param>
+> +## <param name="prefix">
+> +##     <summary>
+> +##     The prefix of the client domain (e.g., user
+> +##     is the prefix for user_t).
+> +##     </summary>
+> +## </param>
+> +## <param name="domain">
+> +##     <summary>
+> +##     Client domain allowed access.
+> +##     </summary>
+> +## </param>
+> +## <param name="role">
+> +##     <summary>
+> +##     The role associated with the client domain.
+> +##     </summary>
+> +## </param>
+> +#
+> +template(`xwindows_windowmgr_client',`
+> +       gen_require(`
+> +               class xextension use;
+> +       ')
+> +
+> +       ##############################
+> +       #
+> +       # Declarations
+> +       #
+> +
+> +       xwindows_basic_client($1,$2,$3,$4)
+> +
+> +       ##############################
+> +       #
+> +       # Local Policy
+> +       #
+> +
+> +       tunable_policy(`xwindows_object_manager',`
+> +               # X Protocol Extensions
+> +               allow $3 windowmgr_xext_t:xextension use;
+> +
+> +               # X Properties
+> +               # can read all security labels
+> +               allow $3 seclabel_xproperty_type:property read;
+> +               # can read and write all wm-specific properties
+> +               allow $3 wm_xproperty_type:property { read write };
+> +               # can set properties on all windows
+> +               allow $3 domain:window { chprop chproplist };
+> +
+> +               # can install colormaps
+> +               allow $3 $1_xserver_t:colormap install;
+> +
+> +               # X Windows - extensive control over all windows
+> +               # can query windows for visual information
+> +               allow $3 domain:drawable getattr;
+> +               # can enumerate and change attributes of root window
+> +               allow $3 $1_root_window_t:window { enumerate setattr };
+> +               # can enumerate, set, and change attributes of all non-root windows
+> +               allow $3 domain:window { enumerate getattr setattr };
+> +               # can map and unmap all non-root windows
+> +               allow $3 domain:window { map unmap move ctrllife };
+> +               # can send various events to all non-root windows
+> +               allow $3 domain:window { windowchangeevent clientcomevent };
+> +               # can reparent all non-root windows
+> +               allow $3 domain:window { chparent chstack };
+> +               # can list properties of all non-root windows
+> +               allow $3 domain:window listprop;
+> +
+> +               # X Input
+> +               # can change input focus on all windows
+> +               allow $3 domain:window setfocus;
+> +               allow $3 $1_root_window_t:window setfocus;
+> +               allow $3 $1_xserver_t:xinput setfocus;
+> +               # can move the mouse cursor
+> +               allow $3 $1_xserver_t:xinput warppointer;
+> +               # can grab server
+> +               allow $3 $1_xserver_t:xserver { grab ungrab };
+> +               allow $3 $1_xserver_t:xinput { activegrab passivegrab ungrab };
+> +
+> +               # X Drawing
+> +               # can draw on the root window
+> +               allow $3 $1_root_window_t:drawable draw;
+> +       ')
+> +')
+> +
+> +#######################################
+> +## <summary>
+> +##     Template to provide X object permissions to an X display manager.
+> +## </summary>
+> +## <param name="server_prefix">
+> +##     <summary>
+> +##     The prefix of the server domain (e.g., user
+> +##     is the prefix for user_t).
+> +##     </summary>
+> +## </param>
+> +## <param name="prefix">
+> +##     <summary>
+> +##     The prefix of the client domain (e.g., user
+> +##     is the prefix for user_t).
+> +##     </summary>
+> +## </param>
+> +## <param name="domain">
+> +##     <summary>
+> +##     Client domain allowed access.
+> +##     </summary>
+> +## </param>
+> +## <param name="role">
+> +##     <summary>
+> +##     The role associated with the client domain.
+> +##     </summary>
+> +## </param>
+> +#
+> +template(`xwindows_displaymgr_client',`
+> +       gen_require(`
+> +               class xextension use;
+> +       ')
+> +
+> +       ##############################
+> +       #
+> +       # Declarations
+> +       #
+> +
+> +       xwindows_basic_client($1,$2,$3,$4)
+> +
+> +       ##############################
+> +       #
+> +       # Local Policy
+> +       #
+> +
+> +       tunable_policy(`xwindows_object_manager',`
+> +               # X Protocol Extensions
+> +               allow $3 output_xext_t:xextension use;
+> +
+> +               # allow server grabs
+> +               allow $3 $1_xserver_t:xserver { grab ungrab };
+> +               allow $3 $1_xserver_t:xinput { getattr activegrab };
+> +
+> +               # can move the mouse cursor
+> +               allow $3 $1_xserver_t:xinput warppointer;
+> +
+> +               # can set resource manager properties
+> +               allow $3 $2_rm_xproperty_t:property { write free };
+> +
+> +               # can enumerate windows
+> +               allow $3 $1_root_window_t:window enumerate;
+> +       ')
+> +')
+> +
+> +#######################################
+> +## <summary>
+> +##     Template to provide X object permissions to an X resource manager.
+> +## </summary>
+> +## <param name="server_prefix">
+> +##     <summary>
+> +##     The prefix of the server domain (e.g., user
+> +##     is the prefix for user_t).
+> +##     </summary>
+> +## </param>
+> +## <param name="prefix">
+> +##     <summary>
+> +##     The prefix of the client domain (e.g., user
+> +##     is the prefix for user_t).
+> +##     </summary>
+> +## </param>
+> +## <param name="domain">
+> +##     <summary>
+> +##     Client domain allowed access.
+> +##     </summary>
+> +## </param>
+> +## <param name="role">
+> +##     <summary>
+> +##     The role associated with the client domain.
+> +##     </summary>
+> +## </param>
+> +#
+> +template(`xwindows_resourcemgr_client',`
+> +       gen_require(`
+> +               class property all_property_perms;
+> +       ')
+> +
+> +       ##############################
+> +       #
+> +       # Local Policy
+> +       #
+> +
+> +       tunable_policy(`xwindows_object_manager',`
+> +               # X Properties
+> +               # can read and write resource manager settings
+> +               allow $3 $2_rm_xproperty_t:property { read write };
+> +       ')
+> +')
+> +
+> +#######################################
+> +## <summary>
+> +##     Template to provide X object permissions to an X server domain.
+> +## </summary>
+> +## <param name="prefix">
+> +##     <summary>
+> +##     The prefix of the domain (e.g., user
+> +##     is the prefix for user_t).
+> +##     </summary>
+> +## </param>
+> +## <param name="domain">
+> +##     <summary>
+> +##     Domain allowed access.
+> +##     </summary>
+> +## </param>
+> +## <param name="role">
+> +##     <summary>
+> +##     The role associated with the domain.
+> +##     </summary>
+> +## </param>
+> +#
+> +template(`xwindows_server',`
+> +       gen_require(`
+> +               attribute xwindow_type;
+> +               class window map;
+> +               class drawable draw;
+> +       ')
+> +
+> +       ##############################
+> +       #
+> +       # Declarations
+> +       #
+> +
+> +       # Type for the root window
+> +       type $1_root_window_t, xwindow_type;
+> +       role $3 types $1_root_window_t;
+> +
+> +       # Types for properties
+> +       xwindows_property_set($1_xserver)
+> +       role $3 types $1_xserver_xproperty_type;
+> +
+> +       ##############################
+> +       #
+> +       # Local Policy
+> +       #
+> +
+> +       tunable_policy(`xwindows_object_manager',`
+> +               # Labeling rules for root windows
+> +               type_transition $2 $2:window $1_root_window_t;
+> +               type_transition $2 $2:drawable $1_root_window_t;
+> +
+> +               # Allow server to map the root window
+> +               allow $2 $1_root_window_t:window map;
+> +       ')
+> +')
+> +
+> +#######################################
+> +## <summary>
+> +##     The per role template for the xwindows module.
+> +## </summary>
+> +## <desc>
+> +##     <p>
+> +##     This template creates a derived domains which are used
+> +##     for X userspace object manager related programs.
+> +##     </p>
+> +##     <p>
+> +##     This template is invoked automatically for each user, and
+> +##     generally does not need to be invoked directly
+> +##     by policy writers.
+> +##     </p>
+> +## </desc>
+> +## <param name="userdomain_prefix">
+> +##     <summary>
+> +##     The prefix of the user domain (e.g., user
+> +##     is the prefix for user_t).
+> +##     </summary>
+> +## </param>
+> +## <param name="user_domain">
+> +##     <summary>
+> +##     The type of the user domain.
+> +##     </summary>
+> +## </param>
+> +## <param name="user_role">
+> +##     <summary>
+> +##     The role associated with the user domain.
+> +##     </summary>
+> +## </param>
+> +#
+> +template(`xwindows_per_role_template',`
+> +
+> +       ##############################
+> +       #
+> +       # Declarations
+> +       #
+> +
+> +       # Types for window managers
+> +       type $1_xwm_t;
+> +       domain_type($1_xwm_t)
+> +       domain_entry_file($1_xwm_t,xwm_exec_t)
+> +       role $3 types $1_xwm_t;
+> +
+> +       # Types for resource managers
+> +       type $1_xrdb_t;
+> +       domain_type($1_xrdb_t)
+> +       domain_entry_file($1_xrdb_t,xrdb_exec_t)
+> +       role $3 types $1_xrdb_t;
+> +
+> +       # Protected test type
+> +       type $1_xprotected_t;
+> +       domain_type($1_xprotected_t)
+> +       domain_entry_file($1_xprotected_t,xprotected_exec_t)
+> +       role $3 types $1_xprotected_t;
+> +
+> +       # Types for properties
+> +       xwindows_property_set($1)
+> +       role $3 types $1_xproperty_type;
+> +       xwindows_property_set($1_xwm)
+> +       role $3 types $1_xwm_xproperty_type;
+> +       xwindows_property_set($1_xrdb)
+> +       role $3 types $1_xrdb_xproperty_type;
+> +       xwindows_property_set($1_xprotected)
+> +       role $3 types $1_xprotected_xproperty_type;
+> +
+> +       # Basic default client
+> +       xwindows_basic_client($1,$1,$1_t,$3)
+> +
+> +       # Other clients
+> +       xwindows_basic_client($1,$1_xprotected,$1_xprotected_t,$3)
+> +       xwindows_windowmgr_client($1,$1_xwm,$1_xwm_t,$3)
+> +       xwindows_resourcemgr_client($1,$1_xrdb,$1_xrdb_t,$3)
+> +
+> +       ##############################
+> +       #
+> +       # Local Policy
+> +       #
+> +
+> +       tunable_policy(`xwindows_object_manager',`
+> +               domain_auto_trans($2,xwm_exec_t,$1_xwm_t)
+> +               domain_auto_trans($2, xrdb_exec_t, $1_xrdb_t)
+> +               domain_auto_trans($2, xprotected_exec_t, $1_xprotected_t)
+> +       ')
+> +')
+> +')
+> Index: policy/modules/services/xserver.if
+> ===================================================================
+> --- policy/modules/services/xserver.if  (revision 2178)
+> +++ policy/modules/services/xserver.if  (working copy)
+> @@ -90,6 +90,13 @@
+>         kernel_read_kernel_sysctls($1_xserver_t)
+>         kernel_write_proc_files($1_xserver_t)
+>
+> +       # X server userspace object manager
+> +       tunable_policy(`xwindows_object_manager',`
+> +               allow $1_xserver_t self:netlink_audit_socket create;
+> +               allow $1_xserver_t self:netlink_selinux_socket { bind create read };
+> +               allow $1_xserver_t security_t:security { check_context compute_av compute_create };
+> +       ')
+> +
+>         # Run helper programs in $1_xserver_t.
+>         corecmd_search_sbin($1_xserver_t)
+>         corecmd_exec_bin($1_xserver_t)
+> @@ -267,6 +274,13 @@
+>
+>         ##############################
+>         #
+> +       # $1_xserver_t X Userspace Object Manager
+> +       #
+> +
+> +       xwindows_server($1,$1_xserver_t,$3)
+> +
+> +       ##############################
+> +       #
+>         # $1_xserver_t Local policy
+>         #
+>
+> Index: policy/modules/system/unconfined.if
+> ===================================================================
+> --- policy/modules/system/unconfined.if (revision 2178)
+> +++ policy/modules/system/unconfined.if (working copy)
+> @@ -15,6 +15,17 @@
+>                 class dbus all_dbus_perms;
+>                 class nscd all_nscd_perms;
+>                 class passwd all_passwd_perms;
+> +               class drawable all_drawable_perms;
+> +               class window all_window_perms;
+> +               class gc all_gc_perms;
+> +               class font all_font_perms;
+> +               class colormap all_colormap_perms;
+> +               class property all_property_perms;
+> +               class cursor all_cursor_perms;
+> +               class xclient all_xclient_perms;
+> +               class xserver all_xserver_perms;
+> +               class xinput all_xinput_perms;
+> +               class xextension all_xextension_perms;
+>         ')
+>
+>         # Use any Linux capability.
+> @@ -31,6 +42,19 @@
+>         allow $1 self:nscd *;
+>         allow $1 self:dbus *;
+>         allow $1 self:passwd *;
+> +       tunable_policy(`xwindows_object_manager',`
+> +               allow $1 self:drawable *;
+> +               allow $1 self:window *;
+> +               allow $1 self:gc *;
+> +               allow $1 self:font *;
+> +               allow $1 self:colormap *;
+> +               allow $1 self:property *;
+> +               allow $1 self:cursor *;
+> +               allow $1 self:xclient *;
+> +               allow $1 self:xserver *;
+> +               allow $1 self:xinput *;
+> +               allow $1 self:xextension *;
+> +       ')
+>
+>         kernel_unconfined($1)
+>         corenet_unconfined($1)
+> Index: policy/global_tunables
+> ===================================================================
+> --- policy/global_tunables      (revision 2178)
+> +++ policy/global_tunables      (working copy)
+> @@ -348,6 +348,13 @@
+>  ## </desc>
+>  gen_tunable(use_samba_home_dirs,false)
+>
+> +## <desc>
+> +## <p>
+> +## Support X userspace object manager
+> +## </p>
+> +## </desc>
+> +gen_tunable(xwindows_object_manager,false)
+> +
+>  ########################################
+>  #
+>  # Strict policy specific
+>
+>
+> --
+> Eamon Walsh <ewalsh@tycho.nsa.gov>
+> National Security Agency
+>
+>
+> --
+> This message was distributed to subscribers of the selinux mailing list.
+> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
+> the words "unsubscribe selinux" without quotes as the message.
+>
 
 --
 This message was distributed to subscribers of the selinux mailing list.
