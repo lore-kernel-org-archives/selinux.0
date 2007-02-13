@@ -1,64 +1,39 @@
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id l1DGbGUY010252
+	for <selinux@tycho.nsa.gov>; Tue, 13 Feb 2007 11:37:16 -0500
+Received: from web36614.mail.mud.yahoo.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with SMTP id l1DGcLUI003959
+	for <selinux@tycho.nsa.gov>; Tue, 13 Feb 2007 16:38:22 GMT
+Message-ID: <20070213163811.55225.qmail@web36614.mail.mud.yahoo.com>
+Date: Tue, 13 Feb 2007 08:38:11 -0800 (PST)
+From: Casey Schaufler <casey@schaufler-ca.com>
+Reply-To: casey@schaufler-ca.com
 Subject: Re: [RFC] security_getprocattr() API idiocy
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Al Viro <viro@ftp.linux.org.uk>
-Cc: linux-kernel@ftp.linux.org.uk, selinux@tycho.nsa.gov,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        linux-security-module@vger.kernel.org, linux-audit@redhat.com
+To: Al Viro <viro@ftp.linux.org.uk>, linux-kernel@ftp.linux.org.uk
+Cc: selinux@tycho.nsa.gov, Linus Torvalds <torvalds@linux-foundation.org>,
+        linux-security-module@vger.kernel.org
 In-Reply-To: <20070213134555.GG4095@ftp.linux.org.uk>
-References: <20070213134555.GG4095@ftp.linux.org.uk>
-Content-Type: text/plain
-Date: Tue, 13 Feb 2007 08:52:46 -0500
-Message-Id: <1171374766.3242.36.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2007-02-13 at 13:45 +0000, Al Viro wrote:
-> 	security_getprocattr() takes a buffer + length, copies data
-> to it and return the actual length.  If buffer is NULL, it just returns
-> the right length, a-la snprintf().  Observations:
-> 	* at least selinux ends up actually allocating the buffer of the
-> right size, filling it, then copying its contents to buffer and freeing
-> what had been allocating.
-> 	* all users allocate buffer, then call security_getprocattr() to
-> fill just allocated one.
-> 	* one place does even worse - it calls security_getprocattr() passing
-> it NULL and uses obtained length to allocate buffer and call
-> security_getprocattr() _again_.
+
+--- Al Viro <viro@ftp.linux.org.uk> wrote:
+
+> 	security_getprocattr() ...
 > 
-> It's bloody bogus.  In all cases we would be just as happy if it returned
-> the buffer it'd allocated itself.  In the best case we end up with two
-> allocations; in the worst it's _three_, not to mention recalculating the
-> contents and size.  We end up doing
-> 	* calculate size
-> 	* allocate buffer of that size with GFP_ATOMIC
-> 	* fill it
-> 	* free it
-> 	* allocate buffer of that size with GFP_KERNEL
-> 	* caluclate the same size
-> 	* allocate buffer of that size with GFP_ATOMIC
-> 	* fill it with the same string
-> 	* copy it to buffer we's allocated with GFP_KERNEL
-> 	* free the buffer we'd allocated with GFP_ATOMIC
-> I'm sorry, but could we please not mix the kernel with Vogon poetry contest?
-> 
-> AFAICS, the sane solution is to make security_getprocattr() return the
-> allocated buffer instead.  All callers would be only happy with that.
-> Alternatively, we can introduce a new LSM hook (security_getprocattr_sane())
-> and leave the original as-is.
-> 
-> So, do we want to keep the original variant and add a saner one in parallel
+> So, do we want to keep the original variant and add
+> a saner one in parallel
 > to it or should we just switch to saner API?
 
-Just switch to the saner API.
+The current API lacks sufficient merit to
+warrent retention. I agree with Stephen,
+replace the current API with the saner.
 
-audit_log_task_context) could be using selinux_get_task_sid() +
-selinux_sid_to_string() instead of security_getprocattr.
 
--- 
-Stephen Smalley
-National Security Agency
-
+Casey Schaufler
+casey@schaufler-ca.com
 
 --
 This message was distributed to subscribers of the selinux mailing list.
