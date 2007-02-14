@@ -1,85 +1,52 @@
-Subject: SELinux and LFS
-From: Vincenzo Ciaglia <vin@netwosix.org>
-Reply-To: vin@netwosix.org
-To: SELinux@tycho.nsa.gov
-Content-Type: text/plain
-Date: Wed, 14 Feb 2007 18:38:59 +0100
-Message-Id: <1171474739.27788.17.camel@desk.netwosix.org>
-Mime-Version: 1.0
+Date: Wed, 14 Feb 2007 12:38:16 -0500
+Subject: Re: [RFC] Ability to allow undefined permissions and classes -v2
+From: Chad Sellers <csellers@tresys.com>
+To: Eric Paris <eparis@redhat.com>, Stephen Smalley <sds@tycho.nsa.gov>
+CC: <selinux@tycho.nsa.gov>
+Message-ID: <C1F8B338.1D171%csellers@tresys.com>
+In-Reply-To: <1171387714.10871.22.camel@localhost.localdomain>
+Mime-version: 1.0
+Content-type: text/plain;
+	charset="US-ASCII"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hi, after some weeks i decided to come back at work on SELinux. 
-I'm still writing you about SELinux support problem on an LFS-based
-distribution.
+On 2/13/07 12:28 PM, "Eric Paris" <eparis@redhat.com> wrote:
 
-So, here is what i have done so far:
+> On Tue, 2007-02-13 at 07:27 -0500, Stephen Smalley wrote:
+>> On Mon, 2007-02-12 at 14:43 -0500, Eric Paris wrote:
+>>> I do still have a problem.  I don't really understand the 'inherits'
+>>> ideas and so I'm not sure how to pad my p->undefined_perms[tclass] with
+>>> permissions which are missing in policy due to an incorrect or missing
+>>> inherits statement.  If this approach seems good and reasonable I will
+>>> try to better understand how I can glean those bits from
+>>> validate_classes() and I will also move this to use config flags and
+>>> have multiple options on how to handle policies.
+>> 
+>> Missing or incorrect inherits clause should remain fatal, I'd say - it
+>> is too substantive a change to the class definition to expect a running
+>> kernel to adapt.  Classes that inherit a common definition pick up their
+>> initial set of permission bits from that common definition, such that
+>> those bits are uniform across those classes and can be checked by a
+>> single permission check (e.g. for common file or socket checks).  But as
+>> soon as you remove or change them, in addition to removing all of those
+>> inherited permissions, you will have disturbed the values of any
+>> subsequent class-specific permissions.
+> 
+> ATM one of the inherits checking paths is non-fatal in validate_classes
+> I'll spend some time to understand it and either make it fatal or figure
+> out how to fill my table correctly
+>
+This non-fatal path covers the simple case where there is an extra
+permission in the kernel defined common that is not in the policy defined
+common inherited by class foo. Note that the policy will still fail to load
+if the class has any additional defined permissions, as those additional
+permission values will be disturbed so the check on those permissions will
+fail. So, the only corner case policy that could pass this non-fatal path
+would be one in which all classes inheriting the common in question did not
+add any additional permissions of their own.
 
-1) Kernel Configuration
-
-I built the kernel with these options:
-
-# CONFIG_KEYS is not set
-CONFIG_SECURITY=y
-CONFIG_SECURITY_NETWORK=y
-# CONFIG_SECURITY_NETWORK_XFRM is not set
-CONFIG_SECURITY_CAPABILITIES=y
-# CONFIG_SECURITY_ROOTPLUG is not set
-CONFIG_SECURITY_SELINUX=y
-CONFIG_SECURITY_SELINUX_BOOTPARAM=y
-CONFIG_SECURITY_SELINUX_BOOTPARAM_VALUE=1
-CONFIG_SECURITY_SELINUX_DISABLE=y
-CONFIG_SECURITY_SELINUX_DEVELOP=y
-CONFIG_SECURITY_SELINUX_AVC_STATS=y
-CONFIG_SECURITY_SELINUX_CHECKREQPROT_VALUE=1
-# CONFIG_SECURITY_SELINUX_ENABLE_SECMARK_DEFAULT is not set
-# CONFIG_SECURITY_SELINUX_POLICYDB_VERSION_MAX is not set
-
-Of course with Ext[23] extended attributes, NET && INET, NETWORK_SECMARK
-and AUDIT support.
-
-2) I have built and installed the SELinux userland packages
-(checkpolicy,libselinux, policycoreutils, policy) from:
-
-svn co
-https://selinux.svn.sourceforge.net/svnroot/selinux/branches/stable/1_0/
-
-3) I unpacked the latest refpolicy according to:
-http://oss.tresys.com/projects/refpolicy/wiki/UseRefpolicy
-
-4) I still haven't patched packages like coreutils and sons.
-
-5) I have created the /selinux mountpoint directory and added the
-following lines in fstab:
-
-none                   /selinux  selinuxfs defaults         0    0
-
-6) So i added this line to my "lilo.conf":
-
-        append="enforcing=0"
-
-7) Finally i tried to boot with the new kernel (2.6.20) and after the
-reboot the result is:
-
-# sestatus 
-SELinux status:                 disabled
-# 
-#############################
-
-Of course i can't go ahead from the point 5 to 11 of the official README
-in "selinux-doc".
-
-I don't know if i really forgot something or if i skip something while
-i'm configuring SELinux because this is my really first experience with
-selinux configuration. What am i missing? 
-
-Any help would be appreciated.
-
-Thanks in advance for your help!
-
--- 
-Vincenzo Ciaglia, <vin(at)netwosix(dot)org>
-Linux Netwosix, <http://www.netwosix.org>
+Chad Sellers
 
 
 --
