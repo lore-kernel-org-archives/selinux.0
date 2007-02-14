@@ -1,35 +1,30 @@
-Message-ID: <45D33114.5030801@tresys.com>
-Date: Wed, 14 Feb 2007 10:56:04 -0500
-From: Joshua Brindle <jbrindle@tresys.com>
-MIME-Version: 1.0
-To: Michael C Thompson <thompsmc@us.ibm.com>
-CC: vin@netwosix.org, SELinux@tycho.nsa.gov
 Subject: Re: selinux patches
-References: <1171461277.4382.3.camel@desk.netwosix.org> <45D32C7F.4040602@us.ibm.com>
-In-Reply-To: <45D32C7F.4040602@us.ibm.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+From: Vincenzo Ciaglia <vin@netwosix.org>
+Reply-To: vin@netwosix.org
+To: Joshua Brindle <jbrindle@tresys.com>
+Cc: Michael C Thompson <thompsmc@us.ibm.com>, SELinux@tycho.nsa.gov
+In-Reply-To: <45D33114.5030801@tresys.com>
+References: <1171461277.4382.3.camel@desk.netwosix.org>
+	 <45D32C7F.4040602@us.ibm.com>  <45D33114.5030801@tresys.com>
+Content-Type: text/plain
+Date: Wed, 14 Feb 2007 16:58:38 +0100
+Message-Id: <1171468718.4711.1.camel@desk.netwosix.org>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Michael C Thompson wrote:
-> Vincenzo Ciaglia wrote:
->> Hello, is there any place where i can find more informations about
->> patched daemons and utilities for selinux ?
->>
->> Of course i need them to fully integrate the selinux support in
->> Netwosix.
->>
->> Is there any support for not ubuntu/fedora/gentoo-based distributions ?
->
+Il giorno mer, 14/02/2007 alle 10.56 -0500, Joshua Brindle ha scritto:
 
-  We are trying to get some pan-distribution support in place, this is a 
-proposed topic for the selinux developers summit which is scheduled 
-after the selinux symposium this year.
+>   We are trying to get some pan-distribution support in place, this is a 
+> proposed topic for the selinux developers summit which is scheduled 
+> after the selinux symposium this year.
 
-> I'm not sure about an official list, but you could always see which 
-> ebuilds under gentoo take the "selinux" use flag, that'd would be a 
-> good starting point if nothing else.
+Umh...so i have to wait many months or use something from other
+distributions ? :/
 
+-- 
+Vincenzo Ciaglia, <vin(at)netwosix(dot)org>
+Linux Netwosix, <http://www.netwosix.org>
 
 
 --
