@@ -1,81 +1,79 @@
-Subject: Re: SELinux and LFS
-From: Vincenzo Ciaglia <vin@netwosix.org>
-Reply-To: vin@netwosix.org
-To: Stephen Smalley <sds@tycho.nsa.gov>
-Cc: SELinux@tycho.nsa.gov
-In-Reply-To: <1171566731.32574.55.camel@moss-spartans.epoch.ncsc.mil>
-References: <1171474739.27788.17.camel@desk.netwosix.org>
-	 <1171566731.32574.55.camel@moss-spartans.epoch.ncsc.mil>
+Subject: Re: [RFC] Ability to allow undefined permissions and classes -v2
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Karl MacMillan <kmacmillan@mentalrootkit.com>
+Cc: Joshua Brindle <jbrindle@tresys.com>, Eric Paris <eparis@redhat.com>,
+        Chad Sellers <csellers@tresys.com>, selinux@tycho.nsa.gov
+In-Reply-To: <45D4AE8B.1080902@mentalrootkit.com>
+References: 
+	 <6FE441CD9F0C0C479F2D88F959B015888BA220@exchange.columbia.tresys.com>
+	 <1171564421.32574.36.camel@moss-spartans.epoch.ncsc.mil>
+	 <45D4AE8B.1080902@mentalrootkit.com>
 Content-Type: text/plain
-Date: Thu, 15 Feb 2007 20:23:16 +0100
-Message-Id: <1171567396.3579.4.camel@desk.netwosix.org>
+Date: Thu, 15 Feb 2007 14:19:53 -0500
+Message-Id: <1171567193.32574.62.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Il giorno gio, 15/02/2007 alle 14.12 -0500, Stephen Smalley ha scritto:
-
-> > Of course with Ext[23] extended attributes,
+On Thu, 2007-02-15 at 14:03 -0500, Karl MacMillan wrote:
+> Stephen Smalley wrote:
+> > On Wed, 2007-02-14 at 14:22 -0500, Joshua Brindle wrote:
+> >>> From: Eric Paris [mailto:eparis@redhat.com] 
+> >>> That is my point of question and lack of understanding.  Will 
+> >>> the policy which is passed to the kernel have all of the 
+> >>> policy for all of the system or only that for the kernel?  
+> >>> The way I see both cases:
+> >>>
+> >> Only for the kernel.
+> > 
+> > Actually, I thought you had found that the userspace security server
+> > isn't much of a win (and a definite cost) for current usage by e.g. the
+> > X server.  Which would suggest that we aren't likely to evict userspace
+> > policy from the kernel any time soon.
+> > 
 > 
-> And CONFIG_EXT3_FS_SECURITY=y too, I assume (i.e. not just the base
-> xattr support, but also the security xattr handler).
-
-Done, of course.
-
-#
-# File systems
-#
-CONFIG_EXT2_FS=y
-CONFIG_EXT2_FS_XATTR=y
-CONFIG_EXT2_FS_POSIX_ACL=y
-CONFIG_EXT2_FS_SECURITY=y
-CONFIG_EXT2_FS_XIP=y
-CONFIG_FS_XIP=y
-CONFIG_EXT3_FS=y
-CONFIG_EXT3_FS_XATTR=y
-CONFIG_EXT3_FS_POSIX_ACL=y
-CONFIG_EXT3_FS_SECURITY=y
-
-> > 3) I unpacked the latest refpolicy according to:
-> > http://oss.tresys.com/projects/refpolicy/wiki/UseRefpolicy
+> And the cost is not just performance (which is a large cost - the number 
+> of context switches will always make it lose). There are:
 > 
-> And built it and installed it?  
+> - Problems synchronizing policy change (which is particularly bad when 
+> contexts are invalidated). This includes boolean changes.
+> 
+> - Increased user-visible complexity in libselinux (including a new 
+> configuration file for routing).
+> 
+> - Potentially overlapping object classes (e.g., for something like 
+> samba, should answers about "file" come from the kernel or the userspace 
+> security server).
+> 
+> - Potential for the death of the userspace security server (including 
+> things like the OOM killer) or extreme performance problems under heavy 
+> swapping.
+> 
+> The only potential win is reduced kernel memory usage for policy, but 
+> the total memory footprint for kernel + userspace security server is 
+> likely much higher and it is not clear that the ability to swap portions 
+> of the userspace security server is desirable. I think we will get 
+> further by reducing the kernel policy memory footprint.
+> 
+> Even when you want to disable kernel enforcement for some object classes 
+> I think that the userspace security server loses (this is something I 
+> have suggested to allow userspace apps like DBUS to rely entirely on 
+> SELinux policy instead of SELinux + custom security policy). In those 
+> scenarios you are likely still going to want labeling to happen for 
+> processes, files, etc. even if many of the access checks are disabled. 
+> That means there will still need to be a policy loaded into the kernel.
+> 
+> I don't see any compelling use for the userspace security server and 
+> don't think we should make kernel changes with the assumption that it 
+> will be present in the future.
 
-Yes, like it said in that page.
-
-> And created an /etc/selinux/config file?
-
-Yes.
-
-> With what contents?
-
-# cat /etc/selinux/config
-# This file controls the state of SELinux on the system.
-# SELINUX= can take one of these three values:
-#       enforcing - SELinux security policy is enforced.
-#       permissive - SELinux prints warnings instead of enforcing.
-#       disabled - SELinux is fully disabled.
-SELINUX=permissive
-# SELINUXTYPE= type of policy in use. Possible values are:
-#       targeted - Only targeted network daemons are protected.
-#       strict - Full SELinux protection.
-SELINUXTYPE=targeted
-# SETLOCALDEFS= Check local definition changes
-SETLOCALDEFS=0
-# 
-
-> With what kernel messages from SELinux?  
-
-# dmesg | grep SELinux
-SELinux:  Initializing.
-SELinux:  Starting in permissive mode
-# 
-
-Thank you!
+The userspace security server still has potential utility for higher
+level application policies that are orthogonal to the local kernel's
+policy, like the RAdAC work.
 
 -- 
-Vincenzo Ciaglia, <vin(at)netwosix(dot)org>
-Linux Netwosix, <http://www.netwosix.org>
+Stephen Smalley
+National Security Agency
 
 
 --
