@@ -1,78 +1,112 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id l1F1lZ5J008837
-	for <selinux@tycho.nsa.gov>; Wed, 14 Feb 2007 20:47:35 -0500
-Received: from exchange.columbia.tresys.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with SMTP id l1F1mmEY003181
-	for <selinux@tycho.nsa.gov>; Thu, 15 Feb 2007 01:48:48 GMT
-Message-ID: <45D3BBF0.3030901@tresys.com>
-Date: Wed, 14 Feb 2007 20:48:32 -0500
-From: Joshua Brindle <jbrindle@tresys.com>
-MIME-Version: 1.0
-To: Joy Latten <latten@austin.ibm.com>
-CC: vyekkirala@TrustedCS.com, redhat-lspp@redhat.com, selinux@tycho.nsa.gov
-Subject: Re: ssh/xinetd/getpeercon???
-References: <1171495601.2603.488.camel@faith.austin.ibm.com>
-In-Reply-To: <1171495601.2603.488.camel@faith.austin.ibm.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id l1F7Zna3016296
+	for <selinux@tycho.nsa.gov>; Thu, 15 Feb 2007 02:35:49 -0500
+Received: from msp1.hitachi-sk.co.jp (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l1F7b1kr021134
+	for <selinux@tycho.nsa.gov>; Thu, 15 Feb 2007 07:37:02 GMT
+Received: from vs2.hitachi-sk.co.jp ([133.108.252.215])
+	by msp1.hitachi-sk.co.jp (unknown) with ESMTP id l1F7ar1x017140
+	for <selinux@tycho.nsa.gov>; Thu, 15 Feb 2007 16:36:54 +0900
+Date: Thu, 15 Feb 2007 16:37:01 +0900
+From: Yuichi Nakamura <ynakam@hitachisoft.jp>
+To: busybox@busybox.net, selinux@tycho.nsa.gov
+Cc: ynakam@hitachisoft.jp, russell@coker.com.au, rob@landley.net,
+        vda.linux@googlemail.com, busybox@kaigai.gr.jp
+Subject: Re: [PATCH 6/6] busybox -- SELinux option support for coreutils
+Message-Id: <20070215163701.21d93627.ynakam@hitachisoft.jp>
+In-Reply-To: <20070208155456.2d016051.ynakam@hitachisoft.jp>
+References: <20070208155456.2d016051.ynakam@hitachisoft.jp>
+Mime-Version: 1.0
+Content-Type: multipart/mixed;
+ boundary="Multipart=_Thu__15_Feb_2007_16_37_01_+0900_wx+_XwGpo05l4QFx"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Joy Latten wrote:
-> I have been playing with the ssh-mls which gets called through xinetd
-> when labeled networking is in use and am confused about what I am
-> seeing. :-)
->
-> My assumption is that when using this feature, the resulting ssh
-> connection will have single mls level, which is the effective level of
-> the issuer. 
->
-> For example, if I am
-> uid=500(ealuser) gid=500(ealuser) groups=10(wheel),500(ealuser)
-> context=staff_u:staff_r:staff_t:s3-s9
->
-> When I issue ssh -p 222 -l <user> <host>, I expect to see "s3" as my new
-> mls level in the new ssh connection when I do an "id".
->
-> With CIPSO, this happens.
-> With labeled ipsec, I get "s3-s9".
->
-> Debugging xinetd, I noticed that when using CIPSO, getpeercon() returns 
-> "system_u:object_r:unlabeled_t:s3".
->
-> When using labeled ipsec, getpeercon() returns
-> "root:sysadm_r:sysadm_ssh_t:s3-s9".
->
-> I always wondered if getpeercon() would someday lift its head and bite,
-> I just wish it had not been on Valentine's Day. :-)
-> I am concerned about the mls label being returned.
->
-> So, my question is, how is this suppose to work?
-> Does CIPSO, when given an mls range, like s3-s9, only pass
-> the effective level through in ip options? If so, is this 
-> what labeled ipsec should be doing? Should we be setting only the 
-> effective level in the SA? If so, that could potentially create 
-> even more SAs. Or should xinetd, when given a range, should only
-> set the effective level for the new process? I kinda like this 
-> solution best, that is, xinetd setting single effective level. But
-> I don't know if that is correct resolution? 
->
->   
-IMO the entire context should be passed, in CIPSO's case that should be 
-the range, if your clearance is s9 on one machine why wouldn't it be on 
-another that uses the same levels? I'd hate to see userland interpreting 
-ranges like this, it will cause assumptions about the mls policy to be 
-made in userspace. While CIPSO is done entirely in the kernel (i think?) 
-the decision should still not be made outside the security server which 
-is the only part of the system that understands what s2-s9 even means 
-(consider a modified mls policy where the second part of the range is 
-something other than clearance.
+This is a multi-part message in MIME format.
 
-It is (again, IMO) entirely inappropriate for racoon or xinetd or the 
-CIPSO code to interpret contexts, this issue keeps coming up and the 
-answer should always be that the context is interpreted by the security 
-server exclusively.
+--Multipart=_Thu__15_Feb_2007_16_37_01_+0900_wx+_XwGpo05l4QFx
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+
+On Thu, 8 Feb 2007 15:54:56 +0900
+Yuichi Nakamura  wrote:
+
+> [6/6] busybox-coreutils-06-id.patch
+>  - -Z option support for id. Security context of process is shown by -Z option.
+> 
+> Signed-off-by: Yuichi Nakamura <ynakam@hitachisoft.jp>
+> 
+> 
+> 
+> 
+
+We found that -Z,-u,-g are exclusive, and modified previous patch.
+Please review attached patch.
+
+-- 
+Yuichi Nakamura
+Hitachi Software Engineering Co., Ltd.
+SELinux Policy Editor: http://seedit.sourceforge.net/
 
 
+
+--Multipart=_Thu__15_Feb_2007_16_37_01_+0900_wx+_XwGpo05l4QFx
+Content-Type: application/octet-stream;
+ name="busybox-coreutils-id-06.v2.patch"
+Content-Disposition: attachment;
+ filename="busybox-coreutils-id-06.v2.patch"
+Content-Transfer-Encoding: base64
+
+SW5kZXg6IGNvcmV1dGlscy9pZC5jCj09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09
+PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT0KLS0tIGNvcmV1dGlscy9pZC5jCShyZXZp
+c2lvbiAxNzgwMykKKysrIGNvcmV1dGlscy9pZC5jCSh3b3JraW5nIGNvcHkpCkBAIC0xMCw2ICsx
+MCw3IEBACiAvKiBCQl9BVURJVCBTVVN2MyBfTk9UXyBjb21wbGlhbnQgLS0gb3B0aW9uIC1HIGlz
+IG5vdCBjdXJyZW50bHkgc3VwcG9ydGVkLiAqLwogLyogSGFja2VkIGJ5IFRpdG8gUmFndXNhIChD
+KSAyMDA0IHRvIGhhbmRsZSB1c2VybmFtZXMgb2Ygd2hhdGV2ZXIgbGVuZ3RoIGFuZCB0bwogICog
+YmUgbW9yZSBzaW1pbGFyIHRvIEdOVSBpZC4KKyAqIC1aIG9wdGlvbiBzdXBwb3J0OiBieSBZdWlj
+aGkgTmFrYW11cmEgPHluYWthbUBoaXRhY2hpc29mdC5qcD4KICAqLwogCiAjaW5jbHVkZSAiYnVz
+eWJveC5oIgpAQCAtMTcsMTQgKzE4LDEzIEBACiAjaW5jbHVkZSA8dW5pc3RkLmg+CiAjaW5jbHVk
+ZSA8c3lzL3R5cGVzLmg+CiAKLSNpZmRlZiBDT05GSUdfU0VMSU5VWAotI2luY2x1ZGUgPHNlbGlu
+dXgvc2VsaW51eC5oPiAgICAgICAgICAvKiBmb3IgaXNfc2VsaW51eF9lbmFibGVkKCkgKi8KLSNl
+bmRpZgotCiAjZGVmaW5lIFBSSU5UX1JFQUwgICAgICAgIDEKICNkZWZpbmUgTkFNRV9OT1RfTlVN
+QkVSICAgMgogI2RlZmluZSBKVVNUX1VTRVIgICAgICAgICA0CiAjZGVmaW5lIEpVU1RfR1JPVVAg
+ICAgICAgIDgKKyNpZiBFTkFCTEVfU0VMSU5VWAorI2RlZmluZSBKVVNUX0NPTlRFWFQgICAgMTYK
+KyNlbmRpZgogCiBzdGF0aWMgc2hvcnQgcHJpbnRmX2Z1bGwodW5zaWduZWQgaW50IGlkLCBjb25z
+dCBjaGFyICphcmcsIGNvbnN0IGNoYXIgcHJlZml4KQogewpAQCAtNDcsMTEgKzQ3LDEzIEBACiAJ
+Z2lkX3QgZ2lkOwogCXVuc2lnbmVkIGxvbmcgZmxhZ3M7CiAJc2hvcnQgc3RhdHVzOwotCisjaWYg
+RU5BQkxFX1NFTElOVVgKKyAJc2VjdXJpdHlfY29udGV4dF90IHNjb250ZXh0OworI2VuZGlmCiAJ
+LyogRG9uJ3QgYWxsb3cgLW4gLXIgLW5yIC11ZyAtcnVnIC1udWcgLXJudWcgKi8KIAkvKiBEb24n
+dCBhbGxvdyBtb3JlIHRoYW4gb25lIHVzZXJuYW1lICovCi0Jb3B0X2NvbXBsZW1lbnRhcnkgPSAi
+PzE6Pzp1LS1nOmctLXU6cj91ZzpuP3VnIjsKLQlmbGFncyA9IGdldG9wdDMyKGFyZ2MsIGFyZ3Ys
+ICJybnVnIik7CisJb3B0X2NvbXBsZW1lbnRhcnkgPSAiPzE6Pzp1LS1nOmctLXU6cj91ZzpuP3Vn
+IiBVU0VfU0VMSU5VWCgiOnUtLVo6Wi0tdTpnLS1aOlotLWciKTsKKwlmbGFncyA9IGdldG9wdDMy
+KGFyZ2MsIGFyZ3YsICJybnVnIiBVU0VfU0VMSU5VWCgiWiIpKTsKIAogCS8qIFRoaXMgdmFsdWVz
+IGNvdWxkIGJlIG92ZXJ3cml0dGVuIGxhdGVyICovCiAJdWlkID0gZ2V0ZXVpZCgpOwpAQCAtNjks
+MTQgKzcxLDMzIEBACiAJCS8qIGluIHRoaXMgY2FzZSBQUklOVF9SRUFMIGlzIHRoZSBzYW1lICov
+CiAJfQogCi0JaWYgKGZsYWdzICYgKEpVU1RfR1JPVVAgfCBKVVNUX1VTRVIpKSB7CisJaWYgKGZs
+YWdzICYgKEpVU1RfR1JPVVAgfCBKVVNUX1VTRVIgVVNFX1NFTElOVVgofCBKVVNUX0NPTlRFWFQp
+KSkgewogCQkvKiBKVVNUX0dST1VQIGFuZCBKVVNUX1VTRVIgYXJlIG11dHVhbGx5IGV4Y2x1c2l2
+ZSAqLwogCQlpZiAoZmxhZ3MgJiBOQU1FX05PVF9OVU1CRVIpIHsKIAkJCS8qIGJiX2dldHB3dWlk
+IGFuZCBiYl9nZXRncmdpZCBleGl0IG9uIGZhaWx1cmUgc28gcHV0cyBjYW5ub3Qgc2VnZmF1bHQg
+Ki8KIAkJCXB1dHMoKGZsYWdzICYgSlVTVF9VU0VSKSA/IGJiX2dldHB3dWlkKE5VTEwsIHVpZCwg
+LTEgKSA6IGJiX2dldGdyZ2lkKE5VTEwsIGdpZCwgLTEgKSk7CiAJCX0gZWxzZSB7Ci0JCQlwcmlu
+dGYoIiV1XG4iLCAoZmxhZ3MgJiBKVVNUX1VTRVIpID8gdWlkIDogZ2lkKTsKLQkJfQorCQkJaWYg
+KGZsYWdzICYgSlVTVF9VU0VSKXsKKyAJCQkJcHJpbnRmKCIldVxuIix1aWQpOworIAkJCX0KKyAJ
+CQlpZiAoZmxhZ3MgJiBKVVNUX0dST1VQKXsKKyAJCQkJcHJpbnRmKCIldVxuIixnaWQpOworIAkJ
+CX0KKyAgCQl9CisJCQorI2lmIEVOQUJMRV9TRUxJTlVYCisgCQlpZihmbGFncyAmIEpVU1RfQ09O
+VEVYVCl7ICAgICAgICAKKwkJCXNlbGludXhfb3JfZGllKCk7CisgCQkJaWYgKGFyZ2MgLSBvcHRp
+bmQgPT0gMSl7CisgCQkJCWJiX2Vycm9yX21zZ19hbmRfZGllKCJjYW5ub3QgcHJpbnQgc2VjdXJp
+dHkgY29udGV4dCB3aGVuIHVzZXIgc3BlY2lmaWVkIik7CisgCQkJfQorCQkJCisgCQkJaWYgKGdl
+dGNvbigmc2NvbnRleHQpKXsKKyAJCQkJYmJfZXJyb3JfbXNnX2FuZF9kaWUoImNhbid0IGdldCBw
+cm9jZXNzIGNvbnRleHQiKTsJCQorIAkJCX0KKyAJCQlwcmludGYoIiVzXG4iLCBzY29udGV4dCk7
+CisgCQl9CisjZW5kaWYJCiAJCS8qIGV4aXQgKi8KIAkJZmZsdXNoX3N0ZG91dF9hbmRfZXhpdChF
+WElUX1NVQ0NFU1MpOwogCX0KQEAgLTg4LDcgKzEwOSw3IEBACiAJLyogYmJfZ2V0Z3JnaWQgZG9l
+c24ndCBleGl0IG9uIGZhaWx1cmUgaGVyZSAqLwogCXN0YXR1cyB8PSBwcmludGZfZnVsbChnaWQs
+IGJiX2dldGdyZ2lkKE5VTEwsIGdpZCwgMCksICdnJyk7CiAKLSNpZmRlZiBDT05GSUdfU0VMSU5V
+WAorI2lmIEVOQUJMRV9TRUxJTlVYCiAJaWYgKGlzX3NlbGludXhfZW5hYmxlZCgpKSB7CiAJCXNl
+Y3VyaXR5X2NvbnRleHRfdCBteXNpZDsKIAkJY29uc3QgY2hhciAqY29udGV4dDsK
+
+--Multipart=_Thu__15_Feb_2007_16_37_01_+0900_wx+_XwGpo05l4QFx--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
