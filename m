@@ -1,9 +1,9 @@
 Subject: Re: SELinux and LFS
 From: Vincenzo Ciaglia <vin@netwosix.org>
 Reply-To: vin@netwosix.org
-To: Eric Paris <eparis@parisplace.org>
-Cc: Stephen Smalley <sds@tycho.nsa.gov>, SELinux@tycho.nsa.gov
-In-Reply-To: <1171572980.18488.30.camel@localhost.localdomain>
+To: Stephen Smalley <sds@tycho.nsa.gov>
+Cc: Eric Paris <eparis@parisplace.org>, SELinux@tycho.nsa.gov
+In-Reply-To: <1171573160.32574.138.camel@moss-spartans.epoch.ncsc.mil>
 References: <1171474739.27788.17.camel@desk.netwosix.org>
 	 <1171566731.32574.55.camel@moss-spartans.epoch.ncsc.mil>
 	 <1171567396.3579.4.camel@desk.netwosix.org>
@@ -14,72 +14,76 @@ References: <1171474739.27788.17.camel@desk.netwosix.org>
 	 <1171571692.32574.119.camel@moss-spartans.epoch.ncsc.mil>
 	 <1171572168.5239.0.camel@desk.netwosix.org>
 	 <1171572980.18488.30.camel@localhost.localdomain>
-Content-Type: text/plain
-Date: Thu, 15 Feb 2007 22:47:39 +0100
-Message-Id: <1171576059.5239.13.camel@desk.netwosix.org>
+	 <1171573160.32574.138.camel@moss-spartans.epoch.ncsc.mil>
+Content-Type: multipart/mixed; boundary="=-htSJSwsPfDsJDO6muMy7"
+Date: Thu, 15 Feb 2007 22:53:32 +0100
+Message-Id: <1171576412.5239.15.camel@desk.netwosix.org>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Il giorno gio, 15/02/2007 alle 15.56 -0500, Eric Paris ha scritto:
 
-> Maybe someone else can chime in with the best way to try this again
-> since it doesn't look to me like the make relabel really got everything
-> you needed (and I have no idea if you rc.sysinit is patched to pay
-> attention to /.autorelabel)
+--=-htSJSwsPfDsJDO6muMy7
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
 
-Ok, fixed!
-In the attach the SELINUX portion of my /etc/rc. I think it's ok but
-actually it's just working.
+Il giorno gio, 15/02/2007 alle 15.59 -0500, Stephen Smalley ha scritto:
 
-Here the result:
-# ls -Z
--rw-r--r--  root root system_u:object_r:default_t      System.map
-drwxr-xr-x  root root system_u:object_r:bin_t          bin
-drwxr-xr-x  root root system_u:object_r:boot_t         boot
-drwxr-xr-x  root root system_u:object_r:default_t      cdrom
-drwxr-xr-x  root root system_u:object_r:device_t       dev
-drwxr-xr-x  root root system_u:object_r:etc_t          etc
-drwxr-xr-x  root root system_u:object_r:home_root_t    home
-drwxr-xr-x  root root system_u:object_r:default_t      include
-drwxr-xr-x  root root system_u:object_r:default_t      info
-drwxr-xr-x  root root system_u:object_r:lib_t          lib
-drwxr-xr-x  root root system_u:object_r:default_t      libexec
-drwx------  root root system_u:object_r:lost_found_t   lost+found
-drwxr-xr-x  root root system_u:object_r:default_t      man
-drwxr-xr-x  root root system_u:object_r:mnt_t          mnt
-drwxr-xr-x  root root system_u:object_r:usr_t          opt
-dr-xr-xr-x  root root system_u:object_r:proc_t         proc
-drwxr-x---  root root root:object_r:user_home_dir_t    root
-drwxr-xr-x  root root system_u:object_r:sbin_t         sbin
-drwxr-xr-x  root root system_u:object_r:security_t     selinux
-drwxr-xr-x  root root system_u:object_r:default_t      share
-drwxr-xr-x  root root system_u:object_r:sysfs_t        sys
-drwxrwxrwt  root root system_u:object_r:tmp_t          tmp
-drwxr-xr-x  root root system_u:object_r:usr_t          usr
-drwxr-xr-x  root root system_u:object_r:var_t          var
--rw-r--r--  root root system_u:object_r:default_t      vmlinuz
+> Don't know about the /bin and /boot issues, but for /dev, I'd suggest
+> checking that your udev is built with selinux support enabled.  And also
+> you should do a restorecon -R /dev from rc.sysinit or similar, as there
+> will be some nodes created before selinux policy gets loaded.
 
-However i rebuilt the refpolicy with "strict" options and now i get
-this:
-
-# newrole -r sysadm_r
-Authenticating root.
-newrole: incorrect password for root
-#
-
-I'm working no stop from almost 9 hours, so i'm in crash and
-unfortunately i have to stop.
-
-Tomorrow i'll restart working on and maybe i'll fix this. 
-
-Of course if you want to save my time any help would be appreciated.
-
-Thank you.
+Ops. In the attach the /etc/rc. It's really late here guys.
 
 -- 
 Vincenzo Ciaglia, <vin(at)netwosix(dot)org>
 Linux Netwosix, <http://www.netwosix.org>
+
+--=-htSJSwsPfDsJDO6muMy7
+Content-Disposition: attachment; filename=selinux-netwosix.txt
+Content-Type: text/plain; name=selinux-netwosix.txt; charset=utf-8
+Content-Transfer-Encoding: 7bit
+
+ELinux on Netwosix
+
+/sbin/restorecon -R /dev
+
+SELINUX=
+if [ -r /selinux/enforce ] ; then
+                SELINUX= 'cat /selinux/enforce'
+else
+        SELINUX=1
+fi
+
+# Other SELINUX stuff
+
+        disable_selinux() {
+                echo $"*** Warning -- SELinux is active"
+                echo $"*** Disabling security enforcement for system recovery."
+                echo $"*** Run 'setenforce 1' to reenable."
+
+                echo "0" > /selinux/enforce
+
+                }
+
+
+   relabel_selinux() {
+                echo
+                echo $"*** Warning -- SELinux policy relabel is required. "
+                echo $"*** Disabling security enforcement."
+                echo $"*** Relabeling could take a very long time,"
+                echo $"*** depending on file system size."
+
+                echo "0" > /selinux/enforce
+                /sbin/fixfiles -f -F relabel > /dev/null 2>&1
+                rm -f /.autorelabel
+                echo "*** Enabling security enforcement.        ***"
+                echo $SELINUX > /selinux/enforce
+}
+
+
+--=-htSJSwsPfDsJDO6muMy7--
 
 
 --
