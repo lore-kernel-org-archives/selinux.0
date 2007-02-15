@@ -1,73 +1,69 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id l1FIv3dj007198
-	for <selinux@tycho.nsa.gov>; Thu, 15 Feb 2007 13:57:03 -0500
-Received: from atlrel7.hp.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id l1FIwHvK013741
-	for <selinux@tycho.nsa.gov>; Thu, 15 Feb 2007 18:58:17 GMT
-From: Paul Moore <paul.moore@hp.com>
-To: redhat-lspp@redhat.com
-Subject: Re: [redhat-lspp] Re: ssh/xinetd/getpeercon???
-Date: Thu, 15 Feb 2007 13:58:10 -0500
-Cc: Joshua Brindle <jbrindle@tresys.com>, Joy Latten <latten@austin.ibm.com>,
-        vyekkirala@TrustedCS.com, selinux@tycho.nsa.gov
-References: <1171495601.2603.488.camel@faith.austin.ibm.com> <45D3BBF0.3030901@tresys.com>
-In-Reply-To: <45D3BBF0.3030901@tresys.com>
+Message-ID: <45D4AE8B.1080902@mentalrootkit.com>
+Date: Thu, 15 Feb 2007 14:03:39 -0500
+From: Karl MacMillan <kmacmillan@mentalrootkit.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Message-Id: <200702151358.10230.paul.moore@hp.com>
+To: Stephen Smalley <sds@tycho.nsa.gov>
+CC: Joshua Brindle <jbrindle@tresys.com>, Eric Paris <eparis@redhat.com>,
+        Chad Sellers <csellers@tresys.com>, selinux@tycho.nsa.gov
+Subject: Re: [RFC] Ability to allow undefined permissions and classes -v2
+References: <6FE441CD9F0C0C479F2D88F959B015888BA220@exchange.columbia.tresys.com> <1171564421.32574.36.camel@moss-spartans.epoch.ncsc.mil>
+In-Reply-To: <1171564421.32574.36.camel@moss-spartans.epoch.ncsc.mil>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wednesday, February 14 2007 8:48:32 pm Joshua Brindle wrote:
-> Joy Latten wrote:
-> > I always wondered if getpeercon() would someday lift its head and bite,
-> > I just wish it had not been on Valentine's Day. :-)
-> > I am concerned about the mls label being returned.
-> >
-> > So, my question is, how is this suppose to work?
-> > Does CIPSO, when given an mls range, like s3-s9, only pass
-> > the effective level through in ip options? If so, is this
-> > what labeled ipsec should be doing? Should we be setting only the
-> > effective level in the SA? If so, that could potentially create
-> > even more SAs. Or should xinetd, when given a range, should only
-> > set the effective level for the new process? I kinda like this
-> > solution best, that is, xinetd setting single effective level. But
-> > I don't know if that is correct resolution?
->
-> IMO the entire context should be passed, in CIPSO's case that should be
-> the range, if your clearance is s9 on one machine why wouldn't it be on
-> another that uses the same levels? I'd hate to see userland interpreting
-> ranges like this, it will cause assumptions about the mls policy to be
-> made in userspace. While CIPSO is done entirely in the kernel (i think?)
-> the decision should still not be made outside the security server which
-> is the only part of the system that understands what s2-s9 even means
-> (consider a modified mls policy where the second part of the range is
-> something other than clearance.
->
-> It is (again, IMO) entirely inappropriate for racoon or xinetd or the
-> CIPSO code to interpret contexts, this issue keeps coming up and the
-> answer should always be that the context is interpreted by the security
-> server exclusively.
+Stephen Smalley wrote:
+> On Wed, 2007-02-14 at 14:22 -0500, Joshua Brindle wrote:
+>>> From: Eric Paris [mailto:eparis@redhat.com] 
+>>> That is my point of question and lack of understanding.  Will 
+>>> the policy which is passed to the kernel have all of the 
+>>> policy for all of the system or only that for the kernel?  
+>>> The way I see both cases:
+>>>
+>> Only for the kernel.
+> 
+> Actually, I thought you had found that the userspace security server
+> isn't much of a win (and a definite cost) for current usage by e.g. the
+> X server.  Which would suggest that we aren't likely to evict userspace
+> policy from the kernel any time soon.
+> 
 
-The CIPSO protocol does not have any concept of a MLS "range", it only allows 
-for packets to be labeled with a single sensitivity level and category set.
+And the cost is not just performance (which is a large cost - the number 
+of context switches will always make it lose). There are:
 
-Currently the NetLabel code only supports a single MLS level.  There are two 
-reasons for this:
+- Problems synchronizing policy change (which is particularly bad when 
+contexts are invalidated). This includes boolean changes.
 
-1. I tend to think packets are objects and as we have seen through numerous 
-discussions, "ranged" objects don't make much sense.
-2. NetLabel doesn't currently support any protocols which provide a "ranged" 
-packet label.
+- Increased user-visible complexity in libselinux (including a new 
+configuration file for routing).
 
-The decision to use the lower/effective/zero-element-in-the-range-array when 
-setting the security attributes of a socket using NetLabel is done in the 
-SELinux code, not the general NetLabel code and not userspace.
+- Potentially overlapping object classes (e.g., for something like 
+samba, should answers about "file" come from the kernel or the userspace 
+security server).
 
--- 
-paul moore
-linux security @ hp
+- Potential for the death of the userspace security server (including 
+things like the OOM killer) or extreme performance problems under heavy 
+swapping.
+
+The only potential win is reduced kernel memory usage for policy, but 
+the total memory footprint for kernel + userspace security server is 
+likely much higher and it is not clear that the ability to swap portions 
+of the userspace security server is desirable. I think we will get 
+further by reducing the kernel policy memory footprint.
+
+Even when you want to disable kernel enforcement for some object classes 
+I think that the userspace security server loses (this is something I 
+have suggested to allow userspace apps like DBUS to rely entirely on 
+SELinux policy instead of SELinux + custom security policy). In those 
+scenarios you are likely still going to want labeling to happen for 
+processes, files, etc. even if many of the access checks are disabled. 
+That means there will still need to be a policy loaded into the kernel.
+
+I don't see any compelling use for the userspace security server and 
+don't think we should make kernel changes with the assumption that it 
+will be present in the future.
+
+Karl
 
 --
 This message was distributed to subscribers of the selinux mailing list.
