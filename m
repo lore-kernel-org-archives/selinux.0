@@ -1,41 +1,43 @@
-Subject: Re: SELinux and LFS
-From: Vincenzo Ciaglia <vin@netwosix.org>
-Reply-To: vin@netwosix.org
+Subject: RE: [RFC] Ability to allow undefined permissions and classes -v2
+From: Eric Paris <eparis@redhat.com>
 To: Stephen Smalley <sds@tycho.nsa.gov>
-Cc: "Christopher J. PeBenito" <cpebenito@tresys.com>, SELinux@tycho.nsa.gov
-In-Reply-To: <1171564867.32574.45.camel@moss-spartans.epoch.ncsc.mil>
-References: <1171474739.27788.17.camel@desk.netwosix.org>
-	 <1171476502.20576.35.camel@sgc.columbia.tresys.com>
-	 <1171547734.2891.16.camel@desk.netwosix.org>
-	 <1171564867.32574.45.camel@moss-spartans.epoch.ncsc.mil>
+Cc: Joshua Brindle <jbrindle@tresys.com>, Chad Sellers <csellers@tresys.com>,
+        selinux@tycho.nsa.gov
+In-Reply-To: <1171567664.32574.70.camel@moss-spartans.epoch.ncsc.mil>
+References: 
+	 <6FE441CD9F0C0C479F2D88F959B015888BA220@exchange.columbia.tresys.com>
+	 <1171564421.32574.36.camel@moss-spartans.epoch.ncsc.mil>
+	 <1171565182.32574.50.camel@moss-spartans.epoch.ncsc.mil>
+	 <1171566336.18488.22.camel@localhost.localdomain>
+	 <1171567664.32574.70.camel@moss-spartans.epoch.ncsc.mil>
 Content-Type: text/plain
-Date: Thu, 15 Feb 2007 20:35:11 +0100
-Message-Id: <1171568111.4569.7.camel@desk.netwosix.org>
+Date: Thu, 15 Feb 2007 14:44:33 -0500
+Message-Id: <1171568673.18488.25.camel@localhost.localdomain>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Il giorno gio, 15/02/2007 alle 13.41 -0500, Stephen Smalley ha scritto:
+On Thu, 2007-02-15 at 14:27 -0500, Stephen Smalley wrote:
+> On Thu, 2007-02-15 at 14:05 -0500, Eric Paris wrote:
 
-> If you boot your kernel with init=/bin/bash and try to manually mount
-> selinuxfs on /selinux, does it work?
+>   
+> > Basically, should I walk the policy and find out everything it knows
+> > nothing about or should I continue to just walk the kernel headers and
+> > and only allow 'unknown' things that aren't quite the same between the
+> > kernel headers and the policy?
+> 
+> I'd stay with using the kernel headers as the basis.  And I think you'll
+> want to disable this allow_unknown behavior when called from selinuxfs,
+> so create a separate security_compute_av_user() function to be called by
+> selinuxfs, and pass a flag down to the internal helper.
+> 
 
-I don't know i still haven't tried but i think isn't a good idea to
-manually mount the selinuxfs. Like i said it will be a public-use
-gnu/linux distribution for networking and security related works. Even
-if could be used from expert and skilled users i think that this
-solution is really too uncomfortable, don't you?
+Sounds good, will do.  I'll admit though i'm surprised the selinuxfs
+access interface uses security_compute_av rather than
+avc_has_perm_noaudit.  Out of curiosity what is the reason for not
+wanting to cache those decisions?
 
-However i also tried to add this line to my "/etc/rc" script:
-
-/bin/mount -t selinuxfs /selinux
-
-But nothing happened.
-
-
--- 
-Vincenzo Ciaglia, <vin(at)netwosix(dot)org>
-Linux Netwosix, <http://www.netwosix.org>
+-Eric
 
 
 --
