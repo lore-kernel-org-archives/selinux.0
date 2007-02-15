@@ -1,73 +1,81 @@
 Subject: Re: SELinux and LFS
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: vin@netwosix.org
+From: Vincenzo Ciaglia <vin@netwosix.org>
+Reply-To: vin@netwosix.org
+To: Stephen Smalley <sds@tycho.nsa.gov>
 Cc: SELinux@tycho.nsa.gov
-In-Reply-To: <1171474739.27788.17.camel@desk.netwosix.org>
+In-Reply-To: <1171566731.32574.55.camel@moss-spartans.epoch.ncsc.mil>
 References: <1171474739.27788.17.camel@desk.netwosix.org>
+	 <1171566731.32574.55.camel@moss-spartans.epoch.ncsc.mil>
 Content-Type: text/plain
-Date: Thu, 15 Feb 2007 14:12:11 -0500
-Message-Id: <1171566731.32574.55.camel@moss-spartans.epoch.ncsc.mil>
+Date: Thu, 15 Feb 2007 20:23:16 +0100
+Message-Id: <1171567396.3579.4.camel@desk.netwosix.org>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2007-02-14 at 18:38 +0100, Vincenzo Ciaglia wrote:
-> Hi, after some weeks i decided to come back at work on SELinux. 
-> I'm still writing you about SELinux support problem on an LFS-based
-> distribution.
-> 
-> So, here is what i have done so far:
-> 
-> 1) Kernel Configuration
-> 
-> I built the kernel with these options:
-> 
-> # CONFIG_KEYS is not set
-> CONFIG_SECURITY=y
-> CONFIG_SECURITY_NETWORK=y
-> # CONFIG_SECURITY_NETWORK_XFRM is not set
-> CONFIG_SECURITY_CAPABILITIES=y
-> # CONFIG_SECURITY_ROOTPLUG is not set
-> CONFIG_SECURITY_SELINUX=y
-> CONFIG_SECURITY_SELINUX_BOOTPARAM=y
-> CONFIG_SECURITY_SELINUX_BOOTPARAM_VALUE=1
-> CONFIG_SECURITY_SELINUX_DISABLE=y
-> CONFIG_SECURITY_SELINUX_DEVELOP=y
-> CONFIG_SECURITY_SELINUX_AVC_STATS=y
-> CONFIG_SECURITY_SELINUX_CHECKREQPROT_VALUE=1
-> # CONFIG_SECURITY_SELINUX_ENABLE_SECMARK_DEFAULT is not set
-> # CONFIG_SECURITY_SELINUX_POLICYDB_VERSION_MAX is not set
-> 
-> Of course with Ext[23] extended attributes,
+Il giorno gio, 15/02/2007 alle 14.12 -0500, Stephen Smalley ha scritto:
 
-And CONFIG_EXT3_FS_SECURITY=y too, I assume (i.e. not just the base
-xattr support, but also the security xattr handler).
-
-> 3) I unpacked the latest refpolicy according to:
-> http://oss.tresys.com/projects/refpolicy/wiki/UseRefpolicy
-
-And built it and installed it?  And created an /etc/selinux/config file?
-With what contents?
-
-> 7) Finally i tried to boot with the new kernel (2.6.20) and after the
-> reboot the result is:
+> > Of course with Ext[23] extended attributes,
 > 
-> # sestatus 
-> SELinux status:                 disabled
+> And CONFIG_EXT3_FS_SECURITY=y too, I assume (i.e. not just the base
+> xattr support, but also the security xattr handler).
 
-With what kernel messages from SELinux?  e.g.
-$ dmesg | grep SELinux
+Done, of course.
+
+#
+# File systems
+#
+CONFIG_EXT2_FS=y
+CONFIG_EXT2_FS_XATTR=y
+CONFIG_EXT2_FS_POSIX_ACL=y
+CONFIG_EXT2_FS_SECURITY=y
+CONFIG_EXT2_FS_XIP=y
+CONFIG_FS_XIP=y
+CONFIG_EXT3_FS=y
+CONFIG_EXT3_FS_XATTR=y
+CONFIG_EXT3_FS_POSIX_ACL=y
+CONFIG_EXT3_FS_SECURITY=y
+
+> > 3) I unpacked the latest refpolicy according to:
+> > http://oss.tresys.com/projects/refpolicy/wiki/UseRefpolicy
+> 
+> And built it and installed it?  
+
+Yes, like it said in that page.
+
+> And created an /etc/selinux/config file?
+
+Yes.
+
+> With what contents?
+
+# cat /etc/selinux/config
+# This file controls the state of SELinux on the system.
+# SELINUX= can take one of these three values:
+#       enforcing - SELinux security policy is enforced.
+#       permissive - SELinux prints warnings instead of enforcing.
+#       disabled - SELinux is fully disabled.
+SELINUX=permissive
+# SELINUXTYPE= type of policy in use. Possible values are:
+#       targeted - Only targeted network daemons are protected.
+#       strict - Full SELinux protection.
+SELINUXTYPE=targeted
+# SETLOCALDEFS= Check local definition changes
+SETLOCALDEFS=0
+# 
+
+> With what kernel messages from SELinux?  
+
+# dmesg | grep SELinux
 SELinux:  Initializing.
 SELinux:  Starting in permissive mode
-SELinux:  Registering netfilter hooks
-SELinux:  Completing initialization.
-SELinux:  Setting up existing superblocks.
-SELinux: initialized (dev dm-0, type ext3), uses xattr
-...
+# 
+
+Thank you!
 
 -- 
-Stephen Smalley
-National Security Agency
+Vincenzo Ciaglia, <vin(at)netwosix(dot)org>
+Linux Netwosix, <http://www.netwosix.org>
 
 
 --
