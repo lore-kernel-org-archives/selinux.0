@@ -1,68 +1,73 @@
-Date: Thu, 15 Feb 2007 14:12:50 -0500
-Subject: Re: [RFC] Ability to allow undefined permissions and classes -v2
-From: Chad Sellers <csellers@tresys.com>
-To: Eric Paris <eparis@redhat.com>, Stephen Smalley <sds@tycho.nsa.gov>
-CC: Joshua Brindle <jbrindle@tresys.com>, <selinux@tycho.nsa.gov>
-Message-ID: <C1FA1AE2.1D29B%csellers@tresys.com>
-In-Reply-To: <1171566336.18488.22.camel@localhost.localdomain>
-Mime-version: 1.0
-Content-type: text/plain;
-	charset="US-ASCII"
+Subject: Re: SELinux and LFS
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: vin@netwosix.org
+Cc: SELinux@tycho.nsa.gov
+In-Reply-To: <1171474739.27788.17.camel@desk.netwosix.org>
+References: <1171474739.27788.17.camel@desk.netwosix.org>
+Content-Type: text/plain
+Date: Thu, 15 Feb 2007 14:12:11 -0500
+Message-Id: <1171566731.32574.55.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On 2/15/07 2:05 PM, "Eric Paris" <eparis@redhat.com> wrote:
+On Wed, 2007-02-14 at 18:38 +0100, Vincenzo Ciaglia wrote:
+> Hi, after some weeks i decided to come back at work on SELinux. 
+> I'm still writing you about SELinux support problem on an LFS-based
+> distribution.
+> 
+> So, here is what i have done so far:
+> 
+> 1) Kernel Configuration
+> 
+> I built the kernel with these options:
+> 
+> # CONFIG_KEYS is not set
+> CONFIG_SECURITY=y
+> CONFIG_SECURITY_NETWORK=y
+> # CONFIG_SECURITY_NETWORK_XFRM is not set
+> CONFIG_SECURITY_CAPABILITIES=y
+> # CONFIG_SECURITY_ROOTPLUG is not set
+> CONFIG_SECURITY_SELINUX=y
+> CONFIG_SECURITY_SELINUX_BOOTPARAM=y
+> CONFIG_SECURITY_SELINUX_BOOTPARAM_VALUE=1
+> CONFIG_SECURITY_SELINUX_DISABLE=y
+> CONFIG_SECURITY_SELINUX_DEVELOP=y
+> CONFIG_SECURITY_SELINUX_AVC_STATS=y
+> CONFIG_SECURITY_SELINUX_CHECKREQPROT_VALUE=1
+> # CONFIG_SECURITY_SELINUX_ENABLE_SECMARK_DEFAULT is not set
+> # CONFIG_SECURITY_SELINUX_POLICYDB_VERSION_MAX is not set
+> 
+> Of course with Ext[23] extended attributes,
 
-> On Thu, 2007-02-15 at 13:46 -0500, Stephen Smalley wrote:
->> On Thu, 2007-02-15 at 13:33 -0500, Stephen Smalley wrote:
->>> On Wed, 2007-02-14 at 14:22 -0500, Joshua Brindle wrote:
->>>>> From: Eric Paris [mailto:eparis@redhat.com]
-> 
->>>>> That is my point of question and lack of understanding.  Will
->>>>> the policy which is passed to the kernel have all of the
->>>>> policy for all of the system or only that for the kernel?
->>>>> The way I see both cases:
->>>>> 
->>>> 
->>>> Only for the kernel.
->>> 
->>> Actually, I thought you had found that the userspace security server
->>> isn't much of a win (and a definite cost) for current usage by e.g. the
->>> X server.  Which would suggest that we aren't likely to evict userspace
->>> policy from the kernel any time soon.
->> 
->> Just to clarify, I only mean the policy itself - the symbol definitions
->> for userspace classes and permissions should be removed from the kernel
->> headers ASAP, as it never needs to refer to them and we don't want to
->> impose validity checks on them within the kernel.
-> 
-> Ok so then I'm a little confused about the best way to proceed.  My
-> current method determines 'unknown' by walking the kernel header
-> definitions and then finding the differences in the policy definitions.
-> If I continue to use that method all kernel security decisions will be
-> affected by the new allow unknown stuff and that makes me happy.  But
-> all userspace decisions won't be affected at all.  A security decision
-> based on a class not defined in policy and not defined in the kernel
-> headers will be 'denied.'  Same goes for a permission check not defined
-> in policy or in the kernel headers.  Is this the desired behavior?  Or
-> should unknown be 'everything the policy doesn't know irregardless of
-> the kernel headers?'
-> 
-> Basically, should I walk the policy and find out everything it knows
-> nothing about or should I continue to just walk the kernel headers and
-> and only allow 'unknown' things that aren't quite the same between the
-> kernel headers and the policy?
-> 
-Continue to walk the kernel headers. This way you'll allow permission checks
-for things the kernel thinks should be there but aren't. Userspace will get
-denials for missing things, as the kernel headers won't have userspace
-permissions any more.
+And CONFIG_EXT3_FS_SECURITY=y too, I assume (i.e. not just the base
+xattr support, but also the security xattr handler).
 
-Plus I'm not sure how you would "walk the policy and find out everything it
-knows nothing about," given that you have no way of knowing what it should
-know about other than the kernel headers.
+> 3) I unpacked the latest refpolicy according to:
+> http://oss.tresys.com/projects/refpolicy/wiki/UseRefpolicy
 
-Chad Sellers 
+And built it and installed it?  And created an /etc/selinux/config file?
+With what contents?
+
+> 7) Finally i tried to boot with the new kernel (2.6.20) and after the
+> reboot the result is:
+> 
+> # sestatus 
+> SELinux status:                 disabled
+
+With what kernel messages from SELinux?  e.g.
+$ dmesg | grep SELinux
+SELinux:  Initializing.
+SELinux:  Starting in permissive mode
+SELinux:  Registering netfilter hooks
+SELinux:  Completing initialization.
+SELinux:  Setting up existing superblocks.
+SELinux: initialized (dev dm-0, type ext3), uses xattr
+...
+
+-- 
+Stephen Smalley
+National Security Agency
 
 
 --
