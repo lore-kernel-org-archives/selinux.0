@@ -1,69 +1,47 @@
-Subject: RE: [RFC] Ability to allow undefined permissions and classes -v2
+Subject: Re: SELinux and LFS
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Eric Paris <eparis@redhat.com>
-Cc: Joshua Brindle <jbrindle@tresys.com>, Chad Sellers <csellers@tresys.com>,
-        selinux@tycho.nsa.gov
-In-Reply-To: <1171567664.32574.70.camel@moss-spartans.epoch.ncsc.mil>
-References: 
-	 <6FE441CD9F0C0C479F2D88F959B015888BA220@exchange.columbia.tresys.com>
-	 <1171564421.32574.36.camel@moss-spartans.epoch.ncsc.mil>
-	 <1171565182.32574.50.camel@moss-spartans.epoch.ncsc.mil>
-	 <1171566336.18488.22.camel@localhost.localdomain>
-	 <1171567664.32574.70.camel@moss-spartans.epoch.ncsc.mil>
+To: vin@netwosix.org
+Cc: "Christopher J. PeBenito" <cpebenito@tresys.com>, SELinux@tycho.nsa.gov
+In-Reply-To: <1171568111.4569.7.camel@desk.netwosix.org>
+References: <1171474739.27788.17.camel@desk.netwosix.org>
+	 <1171476502.20576.35.camel@sgc.columbia.tresys.com>
+	 <1171547734.2891.16.camel@desk.netwosix.org>
+	 <1171564867.32574.45.camel@moss-spartans.epoch.ncsc.mil>
+	 <1171568111.4569.7.camel@desk.netwosix.org>
 Content-Type: text/plain
-Date: Thu, 15 Feb 2007 14:42:18 -0500
-Message-Id: <1171568538.32574.80.camel@moss-spartans.epoch.ncsc.mil>
+Date: Thu, 15 Feb 2007 14:48:53 -0500
+Message-Id: <1171568933.32574.85.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2007-02-15 at 14:27 -0500, Stephen Smalley wrote:
-> On Thu, 2007-02-15 at 14:05 -0500, Eric Paris wrote:
-> > On Thu, 2007-02-15 at 13:46 -0500, Stephen Smalley wrote:
-> > > On Thu, 2007-02-15 at 13:33 -0500, Stephen Smalley wrote:
-> > > > On Wed, 2007-02-14 at 14:22 -0500, Joshua Brindle wrote:
-> > > > > > From: Eric Paris [mailto:eparis@redhat.com] 
-> > 
-> > > > > > That is my point of question and lack of understanding.  Will 
-> > > > > > the policy which is passed to the kernel have all of the 
-> > > > > > policy for all of the system or only that for the kernel?  
-> > > > > > The way I see both cases:
-> > > > > > 
-> > > > > 
-> > > > > Only for the kernel.
-> > > > 
-> > > > Actually, I thought you had found that the userspace security server
-> > > > isn't much of a win (and a definite cost) for current usage by e.g. the
-> > > > X server.  Which would suggest that we aren't likely to evict userspace
-> > > > policy from the kernel any time soon.
-> > > 
-> > > Just to clarify, I only mean the policy itself - the symbol definitions
-> > > for userspace classes and permissions should be removed from the kernel
-> > > headers ASAP, as it never needs to refer to them and we don't want to
-> > > impose validity checks on them within the kernel.
-> > 
-> > Ok so then I'm a little confused about the best way to proceed.  My
-> > current method determines 'unknown' by walking the kernel header
-> > definitions and then finding the differences in the policy definitions.
-> > If I continue to use that method all kernel security decisions will be
-> > affected by the new allow unknown stuff and that makes me happy.  But
-> > all userspace decisions won't be affected at all.  A security decision
-> > based on a class not defined in policy and not defined in the kernel
-> > headers will be 'denied.'  Same goes for a permission check not defined
-> > in policy or in the kernel headers.  Is this the desired behavior?  Or
-> > should unknown be 'everything the policy doesn't know irregardless of
-> > the kernel headers?'
+On Thu, 2007-02-15 at 20:35 +0100, Vincenzo Ciaglia wrote:
+> Il giorno gio, 15/02/2007 alle 13.41 -0500, Stephen Smalley ha scritto:
 > 
-> I think we'd need to provide some similar logic in the userspace object
-> managers for handling unknown userspace classes and permissions that
-> they use.  Only problem there of course is that presently they don't
-> ever see the full policy, so they can't build the table in the same way.
+> > If you boot your kernel with init=/bin/bash and try to manually mount
+> > selinuxfs on /selinux, does it work?
+> 
+> I don't know i still haven't tried but i think isn't a good idea to
+> manually mount the selinuxfs. Like i said it will be a public-use
+> gnu/linux distribution for networking and security related works. Even
+> if could be used from expert and skilled users i think that this
+> solution is really too uncomfortable, don't you?
 
-But that isn't too different than the dynamic discovery of object
-classes problem, previously discussed, so if we solve that one (either
-via exporting class/perm info via selinuxfs or via an auxiliary file
-generated from policy that is readable by all object managers), then
-that should be sufficient.
+I'm not suggesting it for production use, just to independently check on
+your ability to mount selinuxfs, since you said that init seems to be
+failing at that point.
+
+> However i also tried to add this line to my "/etc/rc" script:
+> 
+> /bin/mount -t selinuxfs /selinux
+> 
+> But nothing happened.
+
+Should be:
+	mount -t selinuxfs none /selinux
+
+But doing it from init=/bin/bash will be closer to what init experiences
+than from your rc scripts.
 
 -- 
 Stephen Smalley
