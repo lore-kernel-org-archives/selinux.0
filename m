@@ -1,100 +1,73 @@
-Subject: RE: [RFC] Ability to allow undefined permissions and classes -v2
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Joshua Brindle <jbrindle@tresys.com>
-Cc: Eric Paris <eparis@redhat.com>, Chad Sellers <csellers@tresys.com>,
-        selinux@tycho.nsa.gov
-In-Reply-To: <1171564421.32574.36.camel@moss-spartans.epoch.ncsc.mil>
-References: 
-	 <6FE441CD9F0C0C479F2D88F959B015888BA220@exchange.columbia.tresys.com>
-	 <1171564421.32574.36.camel@moss-spartans.epoch.ncsc.mil>
-Content-Type: text/plain
-Date: Thu, 15 Feb 2007 13:46:22 -0500
-Message-Id: <1171565182.32574.50.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id l1FIv3dj007198
+	for <selinux@tycho.nsa.gov>; Thu, 15 Feb 2007 13:57:03 -0500
+Received: from atlrel7.hp.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id l1FIwHvK013741
+	for <selinux@tycho.nsa.gov>; Thu, 15 Feb 2007 18:58:17 GMT
+From: Paul Moore <paul.moore@hp.com>
+To: redhat-lspp@redhat.com
+Subject: Re: [redhat-lspp] Re: ssh/xinetd/getpeercon???
+Date: Thu, 15 Feb 2007 13:58:10 -0500
+Cc: Joshua Brindle <jbrindle@tresys.com>, Joy Latten <latten@austin.ibm.com>,
+        vyekkirala@TrustedCS.com, selinux@tycho.nsa.gov
+References: <1171495601.2603.488.camel@faith.austin.ibm.com> <45D3BBF0.3030901@tresys.com>
+In-Reply-To: <45D3BBF0.3030901@tresys.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Message-Id: <200702151358.10230.paul.moore@hp.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2007-02-15 at 13:33 -0500, Stephen Smalley wrote:
-> On Wed, 2007-02-14 at 14:22 -0500, Joshua Brindle wrote:
-> > > From: Eric Paris [mailto:eparis@redhat.com] 
-> > > 
-> > > On Wed, 2007-02-14 at 13:10 -0500, Chad Sellers wrote:
-> > > > On 2/13/07 2:36 PM, "Eric Paris" <eparis@redhat.com> wrote:
-> > > > 
-> > > > > On Tue, 2007-02-13 at 12:40 -0500, Stephen Smalley wrote:
-> > > > >> On Tue, 2007-02-13 at 12:28 -0500, Eric Paris wrote:
-> > > > > [snip snip]
-> > > > >>> This is a vestige of the original av padding where I had to be 
-> > > > >>> concerned that p->p_classes.nprim was larger than 
-> > > kdefs->cts_len.  
-> > > > >>> Since now I only use the array when making permission 
-> > > checks I can 
-> > > > >>> assume that I will never get a class from the check 
-> > > greater than 
-> > > > >>> the number of kernel classes defined.  So all that can be 
-> > > > >>> simplified to just
-> > > > >>> p->undefined_perms = kzalloc(sizeof(u32)*kdefs->cts_len, 
-> > > > >>> p->GFP_KERNEL);
-> > > > >> 
-> > > > >> No - security_compute_av can also be called via 
-> > > selinuxfs to check 
-> > > > >> userland security classes (from libselinux for userspace object 
-> > > > >> managers).
-> > > > > 
-> > > > > I'm starting to wonder if the entire way I am 
-> > > constructing and using 
-> > > > > using my table might be wrong.  Right now I am finding the 
-> > > > > permissions which are defined in the kernel but are not 
-> > > defined in 
-> > > > > the policy, storing just those select permissions, and 
-> > > then adding 
-> > > > > those to the allow rules.  This works very well when I 
-> > > only consider 
-> > > > > the kernel and don't think about things in userspace.
-> > > > > 
-> > > > > But now I ask the question, do we/I want to extend this 
-> > > methodology 
-> > > > > to userspace classes and permissions?  Obviously I 
-> > > wouldn't be able 
-> > > > > to build the 'unknown perms' table for userspace since they are 
-> > > > > completely unknown!  Would it be better if I changed my 
-> > > approach to
-> > > > > 
-> > > > > Now:
-> > > > > avd.allowed |= p->undefined_perms[tclass-1]
-> > > > > 
-> > > > > Possible
-> > > > > avd.allowed |= (p->defined_perms[tclass-1]  ^ 0xffffffff)
-> > > > > 
-> > > > Don't you still have the same problem of needing to know 
-> > > what classes 
-> > > > and permissions are defined in the userspace object 
-> > > manager? You still 
-> > > > have to fill out defined_perms for these classes (or you'll just 
-> > > > return 0xffffffff for all userspace classes).
-> > > 
-> > > That is my point of question and lack of understanding.  Will 
-> > > the policy which is passed to the kernel have all of the 
-> > > policy for all of the system or only that for the kernel?  
-> > > The way I see both cases:
-> > > 
-> > 
-> > Only for the kernel.
-> 
-> Actually, I thought you had found that the userspace security server
-> isn't much of a win (and a definite cost) for current usage by e.g. the
-> X server.  Which would suggest that we aren't likely to evict userspace
-> policy from the kernel any time soon.
+On Wednesday, February 14 2007 8:48:32 pm Joshua Brindle wrote:
+> Joy Latten wrote:
+> > I always wondered if getpeercon() would someday lift its head and bite,
+> > I just wish it had not been on Valentine's Day. :-)
+> > I am concerned about the mls label being returned.
+> >
+> > So, my question is, how is this suppose to work?
+> > Does CIPSO, when given an mls range, like s3-s9, only pass
+> > the effective level through in ip options? If so, is this
+> > what labeled ipsec should be doing? Should we be setting only the
+> > effective level in the SA? If so, that could potentially create
+> > even more SAs. Or should xinetd, when given a range, should only
+> > set the effective level for the new process? I kinda like this
+> > solution best, that is, xinetd setting single effective level. But
+> > I don't know if that is correct resolution?
+>
+> IMO the entire context should be passed, in CIPSO's case that should be
+> the range, if your clearance is s9 on one machine why wouldn't it be on
+> another that uses the same levels? I'd hate to see userland interpreting
+> ranges like this, it will cause assumptions about the mls policy to be
+> made in userspace. While CIPSO is done entirely in the kernel (i think?)
+> the decision should still not be made outside the security server which
+> is the only part of the system that understands what s2-s9 even means
+> (consider a modified mls policy where the second part of the range is
+> something other than clearance.
+>
+> It is (again, IMO) entirely inappropriate for racoon or xinetd or the
+> CIPSO code to interpret contexts, this issue keeps coming up and the
+> answer should always be that the context is interpreted by the security
+> server exclusively.
 
-Just to clarify, I only mean the policy itself - the symbol definitions
-for userspace classes and permissions should be removed from the kernel
-headers ASAP, as it never needs to refer to them and we don't want to
-impose validity checks on them within the kernel.
+The CIPSO protocol does not have any concept of a MLS "range", it only allows 
+for packets to be labeled with a single sensitivity level and category set.
+
+Currently the NetLabel code only supports a single MLS level.  There are two 
+reasons for this:
+
+1. I tend to think packets are objects and as we have seen through numerous 
+discussions, "ranged" objects don't make much sense.
+2. NetLabel doesn't currently support any protocols which provide a "ranged" 
+packet label.
+
+The decision to use the lower/effective/zero-element-in-the-range-array when 
+setting the security attributes of a socket using NetLabel is done in the 
+SELinux code, not the general NetLabel code and not userspace.
 
 -- 
-Stephen Smalley
-National Security Agency
-
+paul moore
+linux security @ hp
 
 --
 This message was distributed to subscribers of the selinux mailing list.
