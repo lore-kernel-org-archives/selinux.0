@@ -1,42 +1,43 @@
-Subject: Re: SELinux and LFS
-From: Vincenzo Ciaglia <vin@netwosix.org>
-Reply-To: vin@netwosix.org
-To: Stephen Smalley <sds@tycho.nsa.gov>
-Cc: SELinux@tycho.nsa.gov
-In-Reply-To: <1171571692.32574.119.camel@moss-spartans.epoch.ncsc.mil>
-References: <1171474739.27788.17.camel@desk.netwosix.org>
-	 <1171566731.32574.55.camel@moss-spartans.epoch.ncsc.mil>
-	 <1171567396.3579.4.camel@desk.netwosix.org>
-	 <1171567885.32574.72.camel@moss-spartans.epoch.ncsc.mil>
-	 <1171569528.4569.9.camel@desk.netwosix.org>
-	 <1171569824.32574.91.camel@moss-spartans.epoch.ncsc.mil>
-	 <1171571029.4569.18.camel@desk.netwosix.org>
-	 <1171571692.32574.119.camel@moss-spartans.epoch.ncsc.mil>
+Subject: Re: [RFC] Ability to allow undefined permissions and classes -v2
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Eamon Walsh <ewalsh@tycho.nsa.gov>
+Cc: Joshua Brindle <jbrindle@tresys.com>, Eric Paris <eparis@redhat.com>,
+        selinux@tycho.nsa.gov
+In-Reply-To: <45D4A6BD.2090006@tycho.nsa.gov>
+References: <1171309430.10871.2.camel@localhost.localdomain>
+	 <1171369673.3242.16.camel@moss-spartans.epoch.ncsc.mil>
+	 <1171387714.10871.22.camel@localhost.localdomain>
+	 <1171388407.3242.87.camel@moss-spartans.epoch.ncsc.mil>
+	 <1171395416.10871.37.camel@localhost.localdomain>
+	 <45D35110.10608@tresys.com>  <45D4A6BD.2090006@tycho.nsa.gov>
 Content-Type: text/plain
-Date: Thu, 15 Feb 2007 21:42:48 +0100
-Message-Id: <1171572168.5239.0.camel@desk.netwosix.org>
+Date: Thu, 15 Feb 2007 15:51:58 -0500
+Message-Id: <1171572718.32574.135.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Il giorno gio, 15/02/2007 alle 15.34 -0500, Stephen Smalley ha scritto:
+On Thu, 2007-02-15 at 13:30 -0500, Eamon Walsh wrote:
+> Joshua Brindle wrote:
+> > What happens when we start using a userspace security server and the 
+> > kernel policy doesn't have any userspace object classes? If the avc 
+> > routing gets changed the policy suddenly turns to default allow, not 
+> > good. We have to be careful here, chances are we'll remove user object 
+> > classes from kernel headers and that would make the result acceptable 
+> > but in the mean time this puts the policy in a bad state.
+> 
+> It would be nice if there were string-to-number or number-to-number 
+> lookup functions for the class and permission values so that userspace 
+> object managers didn't have to hardcode the values from the header files.
 
-> Targeted policy doesn't support user roles; it only confines specific
-> programs, primarily focused on system services.  Strict policy is what
-> you want if you need user roles.  In the future, we hope to reduce the
-> divergence between them so that you can have a targeted system with some
-> limited user roles.
-
-Of course Netwosix will use "strict" policies. So i'm going to start
-working on it.
-
-I'll keep you updated.
-
-Thank you,
+That was supposed to be done by now (c.f. dynamic discovery of object
+classes).  Look up of userspace class and permission names via a
+selinuxfs node or an auxiliary policy file that contained just those
+mappings from the generated policy.
 
 -- 
-Vincenzo Ciaglia, <vin(at)netwosix(dot)org>
-Linux Netwosix, <http://www.netwosix.org>
+Stephen Smalley
+National Security Agency
 
 
 --
