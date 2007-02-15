@@ -1,52 +1,50 @@
-Subject: RE: [RFC] Ability to allow undefined permissions and classes -v2
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Eric Paris <eparis@redhat.com>
-Cc: Joshua Brindle <jbrindle@tresys.com>, Chad Sellers <csellers@tresys.com>,
-        selinux@tycho.nsa.gov
-In-Reply-To: <1171568673.18488.25.camel@localhost.localdomain>
-References: 
-	 <6FE441CD9F0C0C479F2D88F959B015888BA220@exchange.columbia.tresys.com>
-	 <1171564421.32574.36.camel@moss-spartans.epoch.ncsc.mil>
-	 <1171565182.32574.50.camel@moss-spartans.epoch.ncsc.mil>
-	 <1171566336.18488.22.camel@localhost.localdomain>
-	 <1171567664.32574.70.camel@moss-spartans.epoch.ncsc.mil>
-	 <1171568673.18488.25.camel@localhost.localdomain>
+Subject: Re: SELinux and LFS
+From: Vincenzo Ciaglia <vin@netwosix.org>
+Reply-To: vin@netwosix.org
+To: Stephen Smalley <sds@tycho.nsa.gov>
+Cc: SELinux@tycho.nsa.gov
+In-Reply-To: <1171567885.32574.72.camel@moss-spartans.epoch.ncsc.mil>
+References: <1171474739.27788.17.camel@desk.netwosix.org>
+	 <1171566731.32574.55.camel@moss-spartans.epoch.ncsc.mil>
+	 <1171567396.3579.4.camel@desk.netwosix.org>
+	 <1171567885.32574.72.camel@moss-spartans.epoch.ncsc.mil>
 Content-Type: text/plain
-Date: Thu, 15 Feb 2007 14:49:51 -0500
-Message-Id: <1171568991.32574.87.camel@moss-spartans.epoch.ncsc.mil>
+Date: Thu, 15 Feb 2007 20:58:48 +0100
+Message-Id: <1171569528.4569.9.camel@desk.netwosix.org>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2007-02-15 at 14:44 -0500, Eric Paris wrote:
-> On Thu, 2007-02-15 at 14:27 -0500, Stephen Smalley wrote:
-> > On Thu, 2007-02-15 at 14:05 -0500, Eric Paris wrote:
+Il giorno gio, 15/02/2007 alle 14.31 -0500, Stephen Smalley ha scritto:
+> SELINUXTYPE=targeted
 > 
-> >   
-> > > Basically, should I walk the policy and find out everything it knows
-> > > nothing about or should I continue to just walk the kernel headers and
-> > > and only allow 'unknown' things that aren't quite the same between the
-> > > kernel headers and the policy?
-> > 
-> > I'd stay with using the kernel headers as the basis.  And I think you'll
-> > want to disable this allow_unknown behavior when called from selinuxfs,
-> > so create a separate security_compute_av_user() function to be called by
-> > selinuxfs, and pass a flag down to the internal helper.
-> > 
-> 
-> Sounds good, will do.  I'll admit though i'm surprised the selinuxfs
-> access interface uses security_compute_av rather than
-> avc_has_perm_noaudit.  Out of curiosity what is the reason for not
-> wanting to cache those decisions?
+> And your policy is installed
+> under /etc/selinux/targeted/policy/policy.xx?
 
-It doesn't make any sense to cache them in the kernel, as 1) you have
-already paid the cost of calling the kernel, and 2) the kernel itself
-won't use them so you are polluting its cache.  They are cached by the
-userspace AVC in libselinux.
+Ops...hh no. Here my error. My policy is under
+/etc/selinux/netwosix/policy/policy.21
+
+So i rebooted and:
+
+# dmesg | grep selinux
+selinux_register_security:  Registering secondary module capability
+SELinux: initialized (dev selinuxfs, type selinuxfs), uses
+genfs_contexts
+# sestatus 
+SELinux status:                 enabled
+SELinuxfs mount:                /selinux
+Current mode:                   permissive
+Mode from config file:          permissive
+Policy version:                 21
+Policy from config file:        netwosix
+
+Finally it works! Thank you very much! :)
+
+Now i can start working on policies.
 
 -- 
-Stephen Smalley
-National Security Agency
+Vincenzo Ciaglia, <vin(at)netwosix(dot)org>
+Linux Netwosix, <http://www.netwosix.org>
 
 
 --
