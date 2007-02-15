@@ -1,60 +1,63 @@
-Subject: Re: ssh/xinetd/getpeercon???
+Subject: Re: SELinux and LFS
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Joy Latten <latten@austin.ibm.com>
-Cc: vyekkirala@TrustedCS.com, redhat-lspp@redhat.com, selinux@tycho.nsa.gov
-In-Reply-To: <1171495601.2603.488.camel@faith.austin.ibm.com>
-References: <1171495601.2603.488.camel@faith.austin.ibm.com>
+To: vin@netwosix.org
+Cc: "Christopher J. PeBenito" <cpebenito@tresys.com>, SELinux@tycho.nsa.gov
+In-Reply-To: <1171547734.2891.16.camel@desk.netwosix.org>
+References: <1171474739.27788.17.camel@desk.netwosix.org>
+	 <1171476502.20576.35.camel@sgc.columbia.tresys.com>
+	 <1171547734.2891.16.camel@desk.netwosix.org>
 Content-Type: text/plain
-Date: Thu, 15 Feb 2007 13:43:20 -0500
-Message-Id: <1171565000.32574.48.camel@moss-spartans.epoch.ncsc.mil>
+Date: Thu, 15 Feb 2007 13:41:07 -0500
+Message-Id: <1171564867.32574.45.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2007-02-14 at 17:26 -0600, Joy Latten wrote:
-> I have been playing with the ssh-mls which gets called through xinetd
-> when labeled networking is in use and am confused about what I am
-> seeing. :-)
+On Thu, 2007-02-15 at 14:55 +0100, Vincenzo Ciaglia wrote:
+> Il giorno mer, 14/02/2007 alle 18.08 +0000, Christopher J. PeBenito ha
+> scritto:
 > 
-> My assumption is that when using this feature, the resulting ssh
-> connection will have single mls level, which is the effective level of
-> the issuer. 
+> > You need a patched init to load the policy.  If no policy is loaded,
+> > SELinux is disabled:
 > 
-> For example, if I am
-> uid=500(ealuser) gid=500(ealuser) groups=10(wheel),500(ealuser)
-> context=staff_u:staff_r:staff_t:s3-s9
+> I finally patched everything with fedora's patch
+> (pam,coreutils,sysvinit,openssh) for selinux-support and everything
+> seems to be ok. 
 > 
-> When I issue ssh -p 222 -l <user> <host>, I expect to see "s3" as my new
-> mls level in the new ssh connection when I do an "id".
+> Coreutils-6.7 now are selinux-ready:
+> # ls -Z
+> -rw-r--r--  root root unlabeled                        System.map
+> drwxr-xr-x  root root unlabeled                        bin
 > 
-> With CIPSO, this happens.
-> With labeled ipsec, I get "s3-s9".
+> So i tried to reboot my kernel.
 > 
-> Debugging xinetd, I noticed that when using CIPSO, getpeercon() returns 
-> "system_u:object_r:unlabeled_t:s3".
+> I still can't get selinux enabled. I think that is still a sysvinit
+> problem. Init still can't perform the /selinux mount.
 > 
-> When using labeled ipsec, getpeercon() returns
-> "root:sysadm_r:sysadm_ssh_t:s3-s9".
+> Here the package patched and selinux-ready that i built:
+> http://www.netwosix.org/selinux/sysvinit-2.85-selinux.tar.gz
 > 
-> I always wondered if getpeercon() would someday lift its head and bite,
-> I just wish it had not been on Valentine's Day. :-)
-> I am concerned about the mls label being returned.
+> I compiled it with the standard options: 
 > 
-> So, my question is, how is this suppose to work?
-> Does CIPSO, when given an mls range, like s3-s9, only pass
-> the effective level through in ip options? If so, is this 
-> what labeled ipsec should be doing? Should we be setting only the 
-> effective level in the SA? If so, that could potentially create 
-> even more SAs. Or should xinetd, when given a range, should only
-> set the effective level for the new process? I kinda like this 
-> solution best, that is, xinetd setting single effective level. But
-> I don't know if that is correct resolution? 
+> #  make -C src        
+> #  make -C src install
+> 
+> I also created a script in the /etc/rc but nothing happened. Until init
+> can't mount /selinux i can't use /selinux/enforce.
+> 
+> So i still have problems. Any suggestions? Am i missing something ?
 
-The labeled networking mechanism should convey the full context when
-possible (naturally, with a legacy mechanism like CIPSO, we may not have
-that option except by using something like James Morris' Selopt
-approach, which naturally won't be compatible with legacy trusted OSes).
-  
+If you boot your kernel with init=/bin/bash and try to manually mount
+selinuxfs on /selinux, does it work?
+
+Also, be warned that it is presently very difficult to find all of the
+selinux-related bits in Fedora and apply them elsewhere; there may be
+multiple patches in a single package that are selinux-related, they can
+be relative to non-selinux patches in the same package, and they have
+become increasingly intertwined with audit patches.  Which is why people
+familiar with that code need to do some work to extract them, unify
+them, clean them up, and re-base them to an upstream (if one exists).
+
 -- 
 Stephen Smalley
 National Security Agency
