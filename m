@@ -1,89 +1,60 @@
-Subject: RE: [RFC] Ability to allow undefined permissions and classes -v2
+Subject: Re: ssh/xinetd/getpeercon???
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Joshua Brindle <jbrindle@tresys.com>
-Cc: Eric Paris <eparis@redhat.com>, Chad Sellers <csellers@tresys.com>,
-        selinux@tycho.nsa.gov
-In-Reply-To: <6FE441CD9F0C0C479F2D88F959B015888BA220@exchange.columbia.tresys.com>
-References: 
-	 <6FE441CD9F0C0C479F2D88F959B015888BA220@exchange.columbia.tresys.com>
+To: Joy Latten <latten@austin.ibm.com>
+Cc: vyekkirala@TrustedCS.com, redhat-lspp@redhat.com, selinux@tycho.nsa.gov
+In-Reply-To: <1171495601.2603.488.camel@faith.austin.ibm.com>
+References: <1171495601.2603.488.camel@faith.austin.ibm.com>
 Content-Type: text/plain
-Date: Thu, 15 Feb 2007 13:33:41 -0500
-Message-Id: <1171564421.32574.36.camel@moss-spartans.epoch.ncsc.mil>
+Date: Thu, 15 Feb 2007 13:43:20 -0500
+Message-Id: <1171565000.32574.48.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2007-02-14 at 14:22 -0500, Joshua Brindle wrote:
-> > From: Eric Paris [mailto:eparis@redhat.com] 
-> > 
-> > On Wed, 2007-02-14 at 13:10 -0500, Chad Sellers wrote:
-> > > On 2/13/07 2:36 PM, "Eric Paris" <eparis@redhat.com> wrote:
-> > > 
-> > > > On Tue, 2007-02-13 at 12:40 -0500, Stephen Smalley wrote:
-> > > >> On Tue, 2007-02-13 at 12:28 -0500, Eric Paris wrote:
-> > > > [snip snip]
-> > > >>> This is a vestige of the original av padding where I had to be 
-> > > >>> concerned that p->p_classes.nprim was larger than 
-> > kdefs->cts_len.  
-> > > >>> Since now I only use the array when making permission 
-> > checks I can 
-> > > >>> assume that I will never get a class from the check 
-> > greater than 
-> > > >>> the number of kernel classes defined.  So all that can be 
-> > > >>> simplified to just
-> > > >>> p->undefined_perms = kzalloc(sizeof(u32)*kdefs->cts_len, 
-> > > >>> p->GFP_KERNEL);
-> > > >> 
-> > > >> No - security_compute_av can also be called via 
-> > selinuxfs to check 
-> > > >> userland security classes (from libselinux for userspace object 
-> > > >> managers).
-> > > > 
-> > > > I'm starting to wonder if the entire way I am 
-> > constructing and using 
-> > > > using my table might be wrong.  Right now I am finding the 
-> > > > permissions which are defined in the kernel but are not 
-> > defined in 
-> > > > the policy, storing just those select permissions, and 
-> > then adding 
-> > > > those to the allow rules.  This works very well when I 
-> > only consider 
-> > > > the kernel and don't think about things in userspace.
-> > > > 
-> > > > But now I ask the question, do we/I want to extend this 
-> > methodology 
-> > > > to userspace classes and permissions?  Obviously I 
-> > wouldn't be able 
-> > > > to build the 'unknown perms' table for userspace since they are 
-> > > > completely unknown!  Would it be better if I changed my 
-> > approach to
-> > > > 
-> > > > Now:
-> > > > avd.allowed |= p->undefined_perms[tclass-1]
-> > > > 
-> > > > Possible
-> > > > avd.allowed |= (p->defined_perms[tclass-1]  ^ 0xffffffff)
-> > > > 
-> > > Don't you still have the same problem of needing to know 
-> > what classes 
-> > > and permissions are defined in the userspace object 
-> > manager? You still 
-> > > have to fill out defined_perms for these classes (or you'll just 
-> > > return 0xffffffff for all userspace classes).
-> > 
-> > That is my point of question and lack of understanding.  Will 
-> > the policy which is passed to the kernel have all of the 
-> > policy for all of the system or only that for the kernel?  
-> > The way I see both cases:
-> > 
+On Wed, 2007-02-14 at 17:26 -0600, Joy Latten wrote:
+> I have been playing with the ssh-mls which gets called through xinetd
+> when labeled networking is in use and am confused about what I am
+> seeing. :-)
 > 
-> Only for the kernel.
+> My assumption is that when using this feature, the resulting ssh
+> connection will have single mls level, which is the effective level of
+> the issuer. 
+> 
+> For example, if I am
+> uid=500(ealuser) gid=500(ealuser) groups=10(wheel),500(ealuser)
+> context=staff_u:staff_r:staff_t:s3-s9
+> 
+> When I issue ssh -p 222 -l <user> <host>, I expect to see "s3" as my new
+> mls level in the new ssh connection when I do an "id".
+> 
+> With CIPSO, this happens.
+> With labeled ipsec, I get "s3-s9".
+> 
+> Debugging xinetd, I noticed that when using CIPSO, getpeercon() returns 
+> "system_u:object_r:unlabeled_t:s3".
+> 
+> When using labeled ipsec, getpeercon() returns
+> "root:sysadm_r:sysadm_ssh_t:s3-s9".
+> 
+> I always wondered if getpeercon() would someday lift its head and bite,
+> I just wish it had not been on Valentine's Day. :-)
+> I am concerned about the mls label being returned.
+> 
+> So, my question is, how is this suppose to work?
+> Does CIPSO, when given an mls range, like s3-s9, only pass
+> the effective level through in ip options? If so, is this 
+> what labeled ipsec should be doing? Should we be setting only the 
+> effective level in the SA? If so, that could potentially create 
+> even more SAs. Or should xinetd, when given a range, should only
+> set the effective level for the new process? I kinda like this 
+> solution best, that is, xinetd setting single effective level. But
+> I don't know if that is correct resolution? 
 
-Actually, I thought you had found that the userspace security server
-isn't much of a win (and a definite cost) for current usage by e.g. the
-X server.  Which would suggest that we aren't likely to evict userspace
-policy from the kernel any time soon.
-
+The labeled networking mechanism should convey the full context when
+possible (naturally, with a legacy mechanism like CIPSO, we may not have
+that option except by using something like James Morris' Selopt
+approach, which naturally won't be compatible with legacy trusted OSes).
+  
 -- 
 Stephen Smalley
 National Security Agency
