@@ -1,62 +1,95 @@
-Subject: Re: SELinux and LFS
+Subject: RE: [RFC] Ability to allow undefined permissions and classes -v2
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: vin@netwosix.org
-Cc: "Christopher J. PeBenito" <cpebenito@tresys.com>, SELinux@tycho.nsa.gov
-In-Reply-To: <1171547734.2891.16.camel@desk.netwosix.org>
-References: <1171474739.27788.17.camel@desk.netwosix.org>
-	 <1171476502.20576.35.camel@sgc.columbia.tresys.com>
-	 <1171547734.2891.16.camel@desk.netwosix.org>
+To: Joshua Brindle <jbrindle@tresys.com>
+Cc: Eric Paris <eparis@redhat.com>, Chad Sellers <csellers@tresys.com>,
+        selinux@tycho.nsa.gov
+In-Reply-To: <1171564421.32574.36.camel@moss-spartans.epoch.ncsc.mil>
+References: 
+	 <6FE441CD9F0C0C479F2D88F959B015888BA220@exchange.columbia.tresys.com>
+	 <1171564421.32574.36.camel@moss-spartans.epoch.ncsc.mil>
 Content-Type: text/plain
-Date: Thu, 15 Feb 2007 13:41:07 -0500
-Message-Id: <1171564867.32574.45.camel@moss-spartans.epoch.ncsc.mil>
+Date: Thu, 15 Feb 2007 13:46:22 -0500
+Message-Id: <1171565182.32574.50.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2007-02-15 at 14:55 +0100, Vincenzo Ciaglia wrote:
-> Il giorno mer, 14/02/2007 alle 18.08 +0000, Christopher J. PeBenito ha
-> scritto:
+On Thu, 2007-02-15 at 13:33 -0500, Stephen Smalley wrote:
+> On Wed, 2007-02-14 at 14:22 -0500, Joshua Brindle wrote:
+> > > From: Eric Paris [mailto:eparis@redhat.com] 
+> > > 
+> > > On Wed, 2007-02-14 at 13:10 -0500, Chad Sellers wrote:
+> > > > On 2/13/07 2:36 PM, "Eric Paris" <eparis@redhat.com> wrote:
+> > > > 
+> > > > > On Tue, 2007-02-13 at 12:40 -0500, Stephen Smalley wrote:
+> > > > >> On Tue, 2007-02-13 at 12:28 -0500, Eric Paris wrote:
+> > > > > [snip snip]
+> > > > >>> This is a vestige of the original av padding where I had to be 
+> > > > >>> concerned that p->p_classes.nprim was larger than 
+> > > kdefs->cts_len.  
+> > > > >>> Since now I only use the array when making permission 
+> > > checks I can 
+> > > > >>> assume that I will never get a class from the check 
+> > > greater than 
+> > > > >>> the number of kernel classes defined.  So all that can be 
+> > > > >>> simplified to just
+> > > > >>> p->undefined_perms = kzalloc(sizeof(u32)*kdefs->cts_len, 
+> > > > >>> p->GFP_KERNEL);
+> > > > >> 
+> > > > >> No - security_compute_av can also be called via 
+> > > selinuxfs to check 
+> > > > >> userland security classes (from libselinux for userspace object 
+> > > > >> managers).
+> > > > > 
+> > > > > I'm starting to wonder if the entire way I am 
+> > > constructing and using 
+> > > > > using my table might be wrong.  Right now I am finding the 
+> > > > > permissions which are defined in the kernel but are not 
+> > > defined in 
+> > > > > the policy, storing just those select permissions, and 
+> > > then adding 
+> > > > > those to the allow rules.  This works very well when I 
+> > > only consider 
+> > > > > the kernel and don't think about things in userspace.
+> > > > > 
+> > > > > But now I ask the question, do we/I want to extend this 
+> > > methodology 
+> > > > > to userspace classes and permissions?  Obviously I 
+> > > wouldn't be able 
+> > > > > to build the 'unknown perms' table for userspace since they are 
+> > > > > completely unknown!  Would it be better if I changed my 
+> > > approach to
+> > > > > 
+> > > > > Now:
+> > > > > avd.allowed |= p->undefined_perms[tclass-1]
+> > > > > 
+> > > > > Possible
+> > > > > avd.allowed |= (p->defined_perms[tclass-1]  ^ 0xffffffff)
+> > > > > 
+> > > > Don't you still have the same problem of needing to know 
+> > > what classes 
+> > > > and permissions are defined in the userspace object 
+> > > manager? You still 
+> > > > have to fill out defined_perms for these classes (or you'll just 
+> > > > return 0xffffffff for all userspace classes).
+> > > 
+> > > That is my point of question and lack of understanding.  Will 
+> > > the policy which is passed to the kernel have all of the 
+> > > policy for all of the system or only that for the kernel?  
+> > > The way I see both cases:
+> > > 
+> > 
+> > Only for the kernel.
 > 
-> > You need a patched init to load the policy.  If no policy is loaded,
-> > SELinux is disabled:
-> 
-> I finally patched everything with fedora's patch
-> (pam,coreutils,sysvinit,openssh) for selinux-support and everything
-> seems to be ok. 
-> 
-> Coreutils-6.7 now are selinux-ready:
-> # ls -Z
-> -rw-r--r--  root root unlabeled                        System.map
-> drwxr-xr-x  root root unlabeled                        bin
-> 
-> So i tried to reboot my kernel.
-> 
-> I still can't get selinux enabled. I think that is still a sysvinit
-> problem. Init still can't perform the /selinux mount.
-> 
-> Here the package patched and selinux-ready that i built:
-> http://www.netwosix.org/selinux/sysvinit-2.85-selinux.tar.gz
-> 
-> I compiled it with the standard options: 
-> 
-> #  make -C src        
-> #  make -C src install
-> 
-> I also created a script in the /etc/rc but nothing happened. Until init
-> can't mount /selinux i can't use /selinux/enforce.
-> 
-> So i still have problems. Any suggestions? Am i missing something ?
+> Actually, I thought you had found that the userspace security server
+> isn't much of a win (and a definite cost) for current usage by e.g. the
+> X server.  Which would suggest that we aren't likely to evict userspace
+> policy from the kernel any time soon.
 
-If you boot your kernel with init=/bin/bash and try to manually mount
-selinuxfs on /selinux, does it work?
-
-Also, be warned that it is presently very difficult to find all of the
-selinux-related bits in Fedora and apply them elsewhere; there may be
-multiple patches in a single package that are selinux-related, they can
-be relative to non-selinux patches in the same package, and they have
-become increasingly intertwined with audit patches.  Which is why people
-familiar with that code need to do some work to extract them, unify
-them, clean them up, and re-base them to an upstream (if one exists).
+Just to clarify, I only mean the policy itself - the symbol definitions
+for userspace classes and permissions should be removed from the kernel
+headers ASAP, as it never needs to refer to them and we don't want to
+impose validity checks on them within the kernel.
 
 -- 
 Stephen Smalley
