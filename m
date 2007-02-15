@@ -1,43 +1,57 @@
-From: Russell Coker <russell@coker.com.au>
-Reply-To: russell@coker.com.au
-To: Stephen Smalley <sds@tycho.nsa.gov>
-Subject: Re: su and context
-Date: Thu, 15 Feb 2007 18:43:48 +1100
-Cc: Ronan Waide <waider@amazon.com>, selinux@tycho.nsa.gov
-References: <45CDEDEE.4050205@gmail.com> <1171301899.20328.29.camel@waider.desktop.amazon.com> <1171303155.24318.12.camel@moss-spartans.epoch.ncsc.mil>
-In-Reply-To: <1171303155.24318.12.camel@moss-spartans.epoch.ncsc.mil>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
-Message-Id: <200702151843.50749.russell@coker.com.au>
+Subject: Re: SELinux and LFS
+From: Vincenzo Ciaglia <vin@netwosix.org>
+Reply-To: vin@netwosix.org
+To: "Christopher J. PeBenito" <cpebenito@tresys.com>
+Cc: SELinux@tycho.nsa.gov
+In-Reply-To: <1171476502.20576.35.camel@sgc.columbia.tresys.com>
+References: <1171474739.27788.17.camel@desk.netwosix.org>
+	 <1171476502.20576.35.camel@sgc.columbia.tresys.com>
+Content-Type: text/plain
+Date: Thu, 15 Feb 2007 14:55:34 +0100
+Message-Id: <1171547734.2891.16.camel@desk.netwosix.org>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tuesday 13 February 2007 04:59, Stephen Smalley <sds@tycho.nsa.gov> wrote:
-> > On the subject of interaction between "old" and "new" security, I was
-> > briefly stumped in my quest to create a bind role account by the fact
-> > that the rndc binary (on FC6) is not actually executable by anyone other
-> > than root, so granting rndc_exec_t doesn't help unless you also change
-> > the binary's permissions. Is this intentional? I had hoped that SELinux
-> > rather than the filesystem would be taken as authoritative on who gets
-> > access, but I can see reasons why this maybe shouldn't be the case, and
-> > perhaps the 'bug' is with the installed permissions?
->
-> It is intentional; we didn't want SELinux to expose the system to
-> greater risk, so it only further restricts access (and that is
+Il giorno mer, 14/02/2007 alle 18.08 +0000, Christopher J. PeBenito ha
+scritto:
 
-As a tangent to this, you should be able to just use chown and chmod to make 
-rndc usable by non-root.  rndc in recent versions of bind just seems to need 
-to read the key file - which could be made readable by non-root.
+> You need a patched init to load the policy.  If no policy is loaded,
+> SELinux is disabled:
 
-Also with the strict policy you can have root as a non-privileged account 
-(although this is not recommended in most situations).
+I finally patched everything with fedora's patch
+(pam,coreutils,sysvinit,openssh) for selinux-support and everything
+seems to be ok. 
+
+Coreutils-6.7 now are selinux-ready:
+# ls -Z
+-rw-r--r--  root root unlabeled                        System.map
+drwxr-xr-x  root root unlabeled                        bin
+
+So i tried to reboot my kernel.
+
+I still can't get selinux enabled. I think that is still a sysvinit
+problem. Init still can't perform the /selinux mount.
+
+Here the package patched and selinux-ready that i built:
+http://www.netwosix.org/selinux/sysvinit-2.85-selinux.tar.gz
+
+I compiled it with the standard options: 
+
+#  make -C src        
+#  make -C src install
+
+I also created a script in the /etc/rc but nothing happened. Until init
+can't mount /selinux i can't use /selinux/enforce.
+
+So i still have problems. Any suggestions? Am i missing something ?
+
+Thank you in advance!
 
 -- 
-russell@coker.com.au
-http://etbe.blogspot.com/          My Blog
+Vincenzo Ciaglia, <vin(at)netwosix(dot)org>
+Linux Netwosix, <http://www.netwosix.org>
 
-http://www.coker.com.au/sponsorship.html Sponsoring Free Software development
 
 --
 This message was distributed to subscribers of the selinux mailing list.
