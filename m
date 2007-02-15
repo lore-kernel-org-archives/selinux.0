@@ -1,112 +1,43 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id l1F7Zna3016296
-	for <selinux@tycho.nsa.gov>; Thu, 15 Feb 2007 02:35:49 -0500
-Received: from msp1.hitachi-sk.co.jp (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l1F7b1kr021134
-	for <selinux@tycho.nsa.gov>; Thu, 15 Feb 2007 07:37:02 GMT
-Received: from vs2.hitachi-sk.co.jp ([133.108.252.215])
-	by msp1.hitachi-sk.co.jp (unknown) with ESMTP id l1F7ar1x017140
-	for <selinux@tycho.nsa.gov>; Thu, 15 Feb 2007 16:36:54 +0900
-Date: Thu, 15 Feb 2007 16:37:01 +0900
-From: Yuichi Nakamura <ynakam@hitachisoft.jp>
-To: busybox@busybox.net, selinux@tycho.nsa.gov
-Cc: ynakam@hitachisoft.jp, russell@coker.com.au, rob@landley.net,
-        vda.linux@googlemail.com, busybox@kaigai.gr.jp
-Subject: Re: [PATCH 6/6] busybox -- SELinux option support for coreutils
-Message-Id: <20070215163701.21d93627.ynakam@hitachisoft.jp>
-In-Reply-To: <20070208155456.2d016051.ynakam@hitachisoft.jp>
-References: <20070208155456.2d016051.ynakam@hitachisoft.jp>
-Mime-Version: 1.0
-Content-Type: multipart/mixed;
- boundary="Multipart=_Thu__15_Feb_2007_16_37_01_+0900_wx+_XwGpo05l4QFx"
+From: Russell Coker <russell@coker.com.au>
+Reply-To: russell@coker.com.au
+To: Stephen Smalley <sds@tycho.nsa.gov>
+Subject: Re: su and context
+Date: Thu, 15 Feb 2007 18:43:48 +1100
+Cc: Ronan Waide <waider@amazon.com>, selinux@tycho.nsa.gov
+References: <45CDEDEE.4050205@gmail.com> <1171301899.20328.29.camel@waider.desktop.amazon.com> <1171303155.24318.12.camel@moss-spartans.epoch.ncsc.mil>
+In-Reply-To: <1171303155.24318.12.camel@moss-spartans.epoch.ncsc.mil>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="utf-8"
+Message-Id: <200702151843.50749.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This is a multi-part message in MIME format.
+On Tuesday 13 February 2007 04:59, Stephen Smalley <sds@tycho.nsa.gov> wrote:
+> > On the subject of interaction between "old" and "new" security, I was
+> > briefly stumped in my quest to create a bind role account by the fact
+> > that the rndc binary (on FC6) is not actually executable by anyone other
+> > than root, so granting rndc_exec_t doesn't help unless you also change
+> > the binary's permissions. Is this intentional? I had hoped that SELinux
+> > rather than the filesystem would be taken as authoritative on who gets
+> > access, but I can see reasons why this maybe shouldn't be the case, and
+> > perhaps the 'bug' is with the installed permissions?
+>
+> It is intentional; we didn't want SELinux to expose the system to
+> greater risk, so it only further restricts access (and that is
 
---Multipart=_Thu__15_Feb_2007_16_37_01_+0900_wx+_XwGpo05l4QFx
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+As a tangent to this, you should be able to just use chown and chmod to make 
+rndc usable by non-root.  rndc in recent versions of bind just seems to need 
+to read the key file - which could be made readable by non-root.
 
-On Thu, 8 Feb 2007 15:54:56 +0900
-Yuichi Nakamura  wrote:
-
-> [6/6] busybox-coreutils-06-id.patch
->  - -Z option support for id. Security context of process is shown by -Z option.
-> 
-> Signed-off-by: Yuichi Nakamura <ynakam@hitachisoft.jp>
-> 
-> 
-> 
-> 
-
-We found that -Z,-u,-g are exclusive, and modified previous patch.
-Please review attached patch.
+Also with the strict policy you can have root as a non-privileged account 
+(although this is not recommended in most situations).
 
 -- 
-Yuichi Nakamura
-Hitachi Software Engineering Co., Ltd.
-SELinux Policy Editor: http://seedit.sourceforge.net/
+russell@coker.com.au
+http://etbe.blogspot.com/          My Blog
 
-
-
---Multipart=_Thu__15_Feb_2007_16_37_01_+0900_wx+_XwGpo05l4QFx
-Content-Type: application/octet-stream;
- name="busybox-coreutils-id-06.v2.patch"
-Content-Disposition: attachment;
- filename="busybox-coreutils-id-06.v2.patch"
-Content-Transfer-Encoding: base64
-
-SW5kZXg6IGNvcmV1dGlscy9pZC5jCj09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09
-PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT0KLS0tIGNvcmV1dGlscy9pZC5jCShyZXZp
-c2lvbiAxNzgwMykKKysrIGNvcmV1dGlscy9pZC5jCSh3b3JraW5nIGNvcHkpCkBAIC0xMCw2ICsx
-MCw3IEBACiAvKiBCQl9BVURJVCBTVVN2MyBfTk9UXyBjb21wbGlhbnQgLS0gb3B0aW9uIC1HIGlz
-IG5vdCBjdXJyZW50bHkgc3VwcG9ydGVkLiAqLwogLyogSGFja2VkIGJ5IFRpdG8gUmFndXNhIChD
-KSAyMDA0IHRvIGhhbmRsZSB1c2VybmFtZXMgb2Ygd2hhdGV2ZXIgbGVuZ3RoIGFuZCB0bwogICog
-YmUgbW9yZSBzaW1pbGFyIHRvIEdOVSBpZC4KKyAqIC1aIG9wdGlvbiBzdXBwb3J0OiBieSBZdWlj
-aGkgTmFrYW11cmEgPHluYWthbUBoaXRhY2hpc29mdC5qcD4KICAqLwogCiAjaW5jbHVkZSAiYnVz
-eWJveC5oIgpAQCAtMTcsMTQgKzE4LDEzIEBACiAjaW5jbHVkZSA8dW5pc3RkLmg+CiAjaW5jbHVk
-ZSA8c3lzL3R5cGVzLmg+CiAKLSNpZmRlZiBDT05GSUdfU0VMSU5VWAotI2luY2x1ZGUgPHNlbGlu
-dXgvc2VsaW51eC5oPiAgICAgICAgICAvKiBmb3IgaXNfc2VsaW51eF9lbmFibGVkKCkgKi8KLSNl
-bmRpZgotCiAjZGVmaW5lIFBSSU5UX1JFQUwgICAgICAgIDEKICNkZWZpbmUgTkFNRV9OT1RfTlVN
-QkVSICAgMgogI2RlZmluZSBKVVNUX1VTRVIgICAgICAgICA0CiAjZGVmaW5lIEpVU1RfR1JPVVAg
-ICAgICAgIDgKKyNpZiBFTkFCTEVfU0VMSU5VWAorI2RlZmluZSBKVVNUX0NPTlRFWFQgICAgMTYK
-KyNlbmRpZgogCiBzdGF0aWMgc2hvcnQgcHJpbnRmX2Z1bGwodW5zaWduZWQgaW50IGlkLCBjb25z
-dCBjaGFyICphcmcsIGNvbnN0IGNoYXIgcHJlZml4KQogewpAQCAtNDcsMTEgKzQ3LDEzIEBACiAJ
-Z2lkX3QgZ2lkOwogCXVuc2lnbmVkIGxvbmcgZmxhZ3M7CiAJc2hvcnQgc3RhdHVzOwotCisjaWYg
-RU5BQkxFX1NFTElOVVgKKyAJc2VjdXJpdHlfY29udGV4dF90IHNjb250ZXh0OworI2VuZGlmCiAJ
-LyogRG9uJ3QgYWxsb3cgLW4gLXIgLW5yIC11ZyAtcnVnIC1udWcgLXJudWcgKi8KIAkvKiBEb24n
-dCBhbGxvdyBtb3JlIHRoYW4gb25lIHVzZXJuYW1lICovCi0Jb3B0X2NvbXBsZW1lbnRhcnkgPSAi
-PzE6Pzp1LS1nOmctLXU6cj91ZzpuP3VnIjsKLQlmbGFncyA9IGdldG9wdDMyKGFyZ2MsIGFyZ3Ys
-ICJybnVnIik7CisJb3B0X2NvbXBsZW1lbnRhcnkgPSAiPzE6Pzp1LS1nOmctLXU6cj91ZzpuP3Vn
-IiBVU0VfU0VMSU5VWCgiOnUtLVo6Wi0tdTpnLS1aOlotLWciKTsKKwlmbGFncyA9IGdldG9wdDMy
-KGFyZ2MsIGFyZ3YsICJybnVnIiBVU0VfU0VMSU5VWCgiWiIpKTsKIAogCS8qIFRoaXMgdmFsdWVz
-IGNvdWxkIGJlIG92ZXJ3cml0dGVuIGxhdGVyICovCiAJdWlkID0gZ2V0ZXVpZCgpOwpAQCAtNjks
-MTQgKzcxLDMzIEBACiAJCS8qIGluIHRoaXMgY2FzZSBQUklOVF9SRUFMIGlzIHRoZSBzYW1lICov
-CiAJfQogCi0JaWYgKGZsYWdzICYgKEpVU1RfR1JPVVAgfCBKVVNUX1VTRVIpKSB7CisJaWYgKGZs
-YWdzICYgKEpVU1RfR1JPVVAgfCBKVVNUX1VTRVIgVVNFX1NFTElOVVgofCBKVVNUX0NPTlRFWFQp
-KSkgewogCQkvKiBKVVNUX0dST1VQIGFuZCBKVVNUX1VTRVIgYXJlIG11dHVhbGx5IGV4Y2x1c2l2
-ZSAqLwogCQlpZiAoZmxhZ3MgJiBOQU1FX05PVF9OVU1CRVIpIHsKIAkJCS8qIGJiX2dldHB3dWlk
-IGFuZCBiYl9nZXRncmdpZCBleGl0IG9uIGZhaWx1cmUgc28gcHV0cyBjYW5ub3Qgc2VnZmF1bHQg
-Ki8KIAkJCXB1dHMoKGZsYWdzICYgSlVTVF9VU0VSKSA/IGJiX2dldHB3dWlkKE5VTEwsIHVpZCwg
-LTEgKSA6IGJiX2dldGdyZ2lkKE5VTEwsIGdpZCwgLTEgKSk7CiAJCX0gZWxzZSB7Ci0JCQlwcmlu
-dGYoIiV1XG4iLCAoZmxhZ3MgJiBKVVNUX1VTRVIpID8gdWlkIDogZ2lkKTsKLQkJfQorCQkJaWYg
-KGZsYWdzICYgSlVTVF9VU0VSKXsKKyAJCQkJcHJpbnRmKCIldVxuIix1aWQpOworIAkJCX0KKyAJ
-CQlpZiAoZmxhZ3MgJiBKVVNUX0dST1VQKXsKKyAJCQkJcHJpbnRmKCIldVxuIixnaWQpOworIAkJ
-CX0KKyAgCQl9CisJCQorI2lmIEVOQUJMRV9TRUxJTlVYCisgCQlpZihmbGFncyAmIEpVU1RfQ09O
-VEVYVCl7ICAgICAgICAKKwkJCXNlbGludXhfb3JfZGllKCk7CisgCQkJaWYgKGFyZ2MgLSBvcHRp
-bmQgPT0gMSl7CisgCQkJCWJiX2Vycm9yX21zZ19hbmRfZGllKCJjYW5ub3QgcHJpbnQgc2VjdXJp
-dHkgY29udGV4dCB3aGVuIHVzZXIgc3BlY2lmaWVkIik7CisgCQkJfQorCQkJCisgCQkJaWYgKGdl
-dGNvbigmc2NvbnRleHQpKXsKKyAJCQkJYmJfZXJyb3JfbXNnX2FuZF9kaWUoImNhbid0IGdldCBw
-cm9jZXNzIGNvbnRleHQiKTsJCQorIAkJCX0KKyAJCQlwcmludGYoIiVzXG4iLCBzY29udGV4dCk7
-CisgCQl9CisjZW5kaWYJCiAJCS8qIGV4aXQgKi8KIAkJZmZsdXNoX3N0ZG91dF9hbmRfZXhpdChF
-WElUX1NVQ0NFU1MpOwogCX0KQEAgLTg4LDcgKzEwOSw3IEBACiAJLyogYmJfZ2V0Z3JnaWQgZG9l
-c24ndCBleGl0IG9uIGZhaWx1cmUgaGVyZSAqLwogCXN0YXR1cyB8PSBwcmludGZfZnVsbChnaWQs
-IGJiX2dldGdyZ2lkKE5VTEwsIGdpZCwgMCksICdnJyk7CiAKLSNpZmRlZiBDT05GSUdfU0VMSU5V
-WAorI2lmIEVOQUJMRV9TRUxJTlVYCiAJaWYgKGlzX3NlbGludXhfZW5hYmxlZCgpKSB7CiAJCXNl
-Y3VyaXR5X2NvbnRleHRfdCBteXNpZDsKIAkJY29uc3QgY2hhciAqY29udGV4dDsK
-
---Multipart=_Thu__15_Feb_2007_16_37_01_+0900_wx+_XwGpo05l4QFx--
+http://www.coker.com.au/sponsorship.html Sponsoring Free Software development
 
 --
 This message was distributed to subscribers of the selinux mailing list.
