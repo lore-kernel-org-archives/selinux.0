@@ -1,9 +1,8 @@
 Subject: Re: SELinux and LFS
-From: Vincenzo Ciaglia <vin@netwosix.org>
-Reply-To: vin@netwosix.org
-To: Stephen Smalley <sds@tycho.nsa.gov>
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: vin@netwosix.org
 Cc: Eric Paris <eparis@parisplace.org>, SELinux@tycho.nsa.gov
-In-Reply-To: <1171638783.32574.164.camel@moss-spartans.epoch.ncsc.mil>
+In-Reply-To: <1171644283.9290.16.camel@desk.netwosix.org>
 References: <1171474739.27788.17.camel@desk.netwosix.org>
 	 <1171566731.32574.55.camel@moss-spartans.epoch.ncsc.mil>
 	 <1171567396.3579.4.camel@desk.netwosix.org>
@@ -17,23 +16,36 @@ References: <1171474739.27788.17.camel@desk.netwosix.org>
 	 <1171576059.5239.13.camel@desk.netwosix.org>
 	 <1171628178.7911.5.camel@desk.netwosix.org>
 	 <1171638783.32574.164.camel@moss-spartans.epoch.ncsc.mil>
+	 <1171644283.9290.16.camel@desk.netwosix.org>
 Content-Type: text/plain
-Date: Fri, 16 Feb 2007 17:44:43 +0100
-Message-Id: <1171644283.9290.16.camel@desk.netwosix.org>
+Date: Fri, 16 Feb 2007 12:04:25 -0500
+Message-Id: <1171645465.32574.206.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Il giorno ven, 16/02/2007 alle 10.13 -0500, Stephen Smalley ha scritto:
+On Fri, 2007-02-16 at 17:44 +0100, Vincenzo Ciaglia wrote:
+> Il giorno ven, 16/02/2007 alle 10.13 -0500, Stephen Smalley ha scritto:
+> 
+> > Likely an issue with your pam, but I haven't looked at your packages
+> > yet.
+> 
+> Could be a policycoreutils problem too?
 
-> Likely an issue with your pam, but I haven't looked at your packages
-> yet.
+If it were only newrole failing, then yes.  But you showed useradd
+failing too, which isn't provided or affected by policycoreutils.
 
-Could be a policycoreutils problem too?
+Note however that you do need to build newrole on a system with
+pam-devel or equivalent installed, as the Makefile looks
+for /usr/include/security/pam_appl.h and disables PAM support if it
+isn't present.
+
+And if you want audit and/or namespace support, you need to build
+newrole with the appropriate options.
 
 -- 
-Vincenzo Ciaglia, <vin(at)netwosix(dot)org>
-Linux Netwosix, <http://www.netwosix.org>
+Stephen Smalley
+National Security Agency
 
 
 --
