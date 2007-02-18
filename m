@@ -1,73 +1,54 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id l1H6IikK007278
-	for <selinux@tycho.nsa.gov>; Sat, 17 Feb 2007 01:18:44 -0500
-Received: from wx-out-0506.google.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l1H6Jx5x018528
-	for <selinux@tycho.nsa.gov>; Sat, 17 Feb 2007 06:19:59 GMT
-Received: by wx-out-0506.google.com with SMTP id s17so1121835wxc
-        for <selinux@tycho.nsa.gov>; Fri, 16 Feb 2007 22:19:57 -0800 (PST)
-Message-ID: <e739902b0702162219o45a8ccc9v5e5092c9e310c4bb@mail.gmail.com>
-Date: Fri, 16 Feb 2007 22:19:57 -0800
-From: "Ryan Bradetich" <rbradetich@gmail.com>
-To: selinux@tycho.nsa.gov
-Subject: Compile error with the SVN version of the refpolicy.
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id l1IB3Ibx011774
+	for <selinux@tycho.nsa.gov>; Sun, 18 Feb 2007 06:03:20 -0500
+Received: from smtp.sws.net.au (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id l1IB4VXX012552
+	for <selinux@tycho.nsa.gov>; Sun, 18 Feb 2007 11:04:32 GMT
+From: Russell Coker <russell@coker.com.au>
+Reply-To: russell@coker.com.au
+To: KaiGai Kohei <kaigai@kaigai.gr.jp>
+Subject: Re: [RFC] Security design of SE-PostgreSQL (2/3)
+Date: Sun, 18 Feb 2007 22:04:19 +1100
+Cc: selinux@tycho.nsa.gov, jbrindle@tresys.com
+References: <45D542AF.1030108@kaigai.gr.jp>
+In-Reply-To: <45D542AF.1030108@kaigai.gr.jp>
 MIME-Version: 1.0
-Content-Type: multipart/mixed;
-	boundary="----=_Part_17099_26330625.1171693197024"
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Message-Id: <200702182204.21346.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-------=_Part_17099_26330625.1171693197024
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+On Friday 16 February 2007 16:35, KaiGai Kohei <kaigai@kaigai.gr.jp> wrote:
+> 2. about Loadable module
+>
+> PostgreSQL allowed to load dynamic link library.
+> It has a possibility to mess up the access control of SE-PostgreSQL no need
+> to say, so we have to restrict loading them by the security policy.
+>
+> I have an idea to add the following access vector for the purpose.
+>   1. allow (context of client)   (context of database)  
+> database:load_module;
+> 2. allow (context of database) (context of shlib 
+> file) database:associate;
 
-Hello all,
+Who will be loading such modules?  Only the DBA or regular users too?
 
-I am having a compile problem with the latest SVN check out of the
-refpolicy.  Here is the error message:
+In the above access control design you control which databases a user may load 
+modules for and which modules may be associated with a given database.  But 
+you don't control which modules a user may load.  Is it possible that modules 
+A and B may be loaded into a database but only user C will be permitted to 
+load module A?
 
-/usr/bin/checkpolicy policy.conf -o
-/etc/selinux/refpolicy/policy/policy.21
-/usr/bin/checkpolicy:  loading policy configuration from policy.conf
-policy/modules/services/zebra.te:1136:ERROR 'syntax error' at token
-'ntfs-3g' on line 1523915:
-genfscon msdos / system_u:object_r:dosfs_t
-genfscon ntfs-3g / system_u:object_r:dosfs_t
-checkpolicy:  error(s) encountered while parsing configuration
-make: *** [/etc/selinux/refpolicy/policy/policy.21] Error 1
+Do modules have parameters?  Or is there only one way that a module can be 
+used?
 
+-- 
+russell@coker.com.au
+http://etbe.blogspot.com/          My Blog
 
-The problem is that checkpolicy does not appear to like the '-'
-character.  I changed the '-' to a '_' in the
-policy/modules/kernel/filesystem.te file to fix the compile problem.
+http://www.coker.com.au/sponsorship.html Sponsoring Free Software development
 
-
-If this change is correct, I have provided a patch to someone can apply.
-
-Thanks!
-
-- Ryan
-
-------=_Part_17099_26330625.1171693197024
-Content-Type: text/x-patch; name=filesystem.te.patch; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: base64
-X-Attachment-Id: f_ey9n2l1i
-Content-Disposition: attachment; filename="filesystem.te.patch"
-
-SW5kZXg6IHBvbGljeS9tb2R1bGVzL2tlcm5lbC9maWxlc3lzdGVtLnRlCj09PT09PT09PT09PT09
-PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT0KLS0t
-IHBvbGljeS9tb2R1bGVzL2tlcm5lbC9maWxlc3lzdGVtLnRlCShyZXZpc2lvbiAyMTgxKQorKysg
-cG9saWN5L21vZHVsZXMva2VybmVsL2ZpbGVzeXN0ZW0udGUJKHdvcmtpbmcgY29weSkKQEAgLTE1
-Myw3ICsxNTMsNyBAQAogYWxsb3cgZG9zZnNfdCBmc190OmZpbGVzeXN0ZW0gYXNzb2NpYXRlOwog
-Z2VuZnNjb24gZmF0IC8gZ2VuX2NvbnRleHQoc3lzdGVtX3U6b2JqZWN0X3I6ZG9zZnNfdCxzMCkK
-IGdlbmZzY29uIG1zZG9zIC8gZ2VuX2NvbnRleHQoc3lzdGVtX3U6b2JqZWN0X3I6ZG9zZnNfdCxz
-MCkKLWdlbmZzY29uIG50ZnMtM2cgLyBnZW5fY29udGV4dChzeXN0ZW1fdTpvYmplY3Rfcjpkb3Nm
-c190LHMwKQorZ2VuZnNjb24gbnRmc18zZyAvIGdlbl9jb250ZXh0KHN5c3RlbV91Om9iamVjdF9y
-OmRvc2ZzX3QsczApCiBnZW5mc2NvbiBudGZzIC8gZ2VuX2NvbnRleHQoc3lzdGVtX3U6b2JqZWN0
-X3I6ZG9zZnNfdCxzMCkKIGdlbmZzY29uIHZmYXQgLyBnZW5fY29udGV4dChzeXN0ZW1fdTpvYmpl
-Y3Rfcjpkb3Nmc190LHMwKQogCg==
-------=_Part_17099_26330625.1171693197024--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
