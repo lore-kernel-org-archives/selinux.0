@@ -1,47 +1,74 @@
 Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id l1JCdDB2013800
-	for <selinux@tycho.nsa.gov>; Mon, 19 Feb 2007 07:39:13 -0500
-Received: from moutng.kundenserver.de (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l1JCeSnS013066
-	for <selinux@tycho.nsa.gov>; Mon, 19 Feb 2007 12:40:29 GMT
-Mime-Version: 1.0 (Apple Message framework v752.2)
-Message-Id: <92F5A105-2A19-4AA0-956B-C9E963A762CC@sf-net.com>
-Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
-To: SELinux List <selinux@tycho.nsa.gov>
-From: Stefan Schulze Frielinghaus <stefan@sf-net.com>
-Subject: Samba policy patch
-Date: Mon, 19 Feb 2007 13:40:08 +0100
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id l1JHds04022627
+	for <selinux@tycho.nsa.gov>; Mon, 19 Feb 2007 12:39:54 -0500
+Received: from tcsfw4.tcs-sec.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l1JHfAHC029814
+	for <selinux@tycho.nsa.gov>; Mon, 19 Feb 2007 17:41:10 GMT
+Reply-To: <vyekkirala@TrustedCS.com>
+From: "Venkat Yekkirala" <vyekkirala@TrustedCS.com>
+To: "'Joy Latten'" <latten@austin.ibm.com>
+Cc: <selinux@tycho.nsa.gov>, <redhat-lspp@redhat.com>, <jmorris@namei.org>
+Subject: RE: Deleting xfrms
+Date: Mon, 19 Feb 2007 11:37:40 -0600
+Message-ID: <000c01c7544c$a87906a0$cc0a010a@tcssec.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+In-Reply-To: <1171323597.2603.445.camel@faith.austin.ibm.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-While using samba and SELinux with Debian GNU/Linux (etch) the  
-following files need to be labeled correctly:
-/var/run/samba/gencache.tdb
-/var/run/samba/share_info.tdb
+I see this bug crept in here:
 
-Should also concern other distributions than Debian.
+http://marc.theaimsgroup.com/?l=linux-netdev&m=114956850915839&w=2
 
--Stefan
+Are you planning to fix this or did you want me to?
 
---- policy/modules/services/samba.fc  2007-02-17 11:40:46.000000000  
-+0100
-+++ /policy/modules/services/samba.fc      2007-02-19  
-13:26:01.000000000 +0100
-@@ -39,6 +39,8 @@
-/var/run/samba/sessionid\.tdb  --      gen_context 
-(system_u:object_r:smbd_var_run_t,s0)
-/var/run/samba/smbd\.pid       --      gen_context 
-(system_u:object_r:smbd_var_run_t,s0)
-/var/run/samba/unexpected\.tdb --      gen_context 
-(system_u:object_r:nmbd_var_run_t,s0)
-+/var/run/samba/gencache\.tdb    --      gen_context 
-(system_u:object_r:smbd_var_run_t,s0)
-+/var/run/samba/share_info\.tdb  --      gen_context 
-(system_u:object_r:smbd_var_run_t,s0)
-
-/var/run/winbindd(/.*)?                        gen_context 
-(system_u:object_r:winbind_var_run_t,s0)
-
+> -----Original Message-----
+> From: Joy Latten [mailto:latten@austin.ibm.com]
+> Sent: Monday, February 12, 2007 5:40 PM
+> To: jmorris@namei.org; vyekkirala@TrustedCS.com
+> Cc: selinux@tycho.nsa.gov; redhat-lspp@redhat.com
+> Subject: Deleting xfrms
+> 
+> 
+> I was looking at a patch D.Miller posted for xfrm_audit_log()
+> and could not help but notice that in pfkey_spddelete() and
+> xfrm_get_policy() we delete policy first and then check to see if we
+> have permissions to.  Am I missing the original intentions or 
+> is this incorrect?  Shouldn't it be check the permissions 
+> first and then
+> call xfrm_policy_bysel_ctx()? 
+> 
+> pfkey_spddelete() in af_key.c:
+> 
+>         xp = xfrm_policy_bysel_ctx(XFRM_POLICY_TYPE_MAIN,
+> pol->sadb_x_policy_dir-1,
+>                                    &sel, tmp.security, 1);
+>         security_xfrm_policy_free(&tmp);
+> 
+>         xfrm_audit_log(audit_get_loginuid(current->audit_context), 0,
+>                        AUDIT_MAC_IPSEC_DELSPD, (xp) ? 1 : 0, 
+> xp, NULL);
+> 
+>         if (xp == NULL)
+>                 return -ENOENT;
+> 
+>         err = 0;
+> 
+>         if ((err = security_xfrm_policy_delete(xp)))
+>                 goto out;
+>         c.seq = hdr->sadb_msg_seq;
+>         c.pid = hdr->sadb_msg_pid;
+>         c.event = XFRM_MSG_DELPOLICY;
+>         km_policy_notify(xp, pol->sadb_x_policy_dir-1, &c);
+> 
+> 
+> xfrm_get_policy() in xfrm_user.c is very similar.
+> 
+> Regards,
+> Joy
+> 
 
 --
 This message was distributed to subscribers of the selinux mailing list.
