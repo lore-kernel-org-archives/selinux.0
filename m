@@ -1,80 +1,302 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id l1KCbPAd019385
-	for <selinux@tycho.nsa.gov>; Tue, 20 Feb 2007 07:37:25 -0500
-Received: from www346.sakura.ne.jp (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id l1KCceOC026801
-	for <selinux@tycho.nsa.gov>; Tue, 20 Feb 2007 12:38:41 GMT
-Message-ID: <45DAEBB8.40208@ak.jp.nec.com>
-Date: Tue, 20 Feb 2007 21:38:16 +0900
-From: KaiGai Kohei <kaigai@ak.jp.nec.com>
+Message-ID: <45DB0624.5060907@redhat.com>
+Date: Tue, 20 Feb 2007 09:31:00 -0500
+From: Daniel J Walsh <dwalsh@redhat.com>
 MIME-Version: 1.0
-To: russell@coker.com.au
-CC: KaiGai Kohei <kaigai@kaigai.gr.jp>, selinux@tycho.nsa.gov
-Subject: Re: [RFC] Security design of SE-PostgreSQL (2/3)
-References: <45D542AF.1030108@kaigai.gr.jp> <200702191750.31301.russell@coker.com.au> <45DA5829.7060800@ak.jp.nec.com> <200702202045.24263.russell@coker.com.au>
-In-Reply-To: <200702202045.24263.russell@coker.com.au>
-Content-Type: text/plain; charset=windows-1252; format=flowed
+To: Stephen Smalley <sds@tycho.nsa.gov>, SE Linux <selinux@tycho.nsa.gov>
+Subject: libselinux patch
+Content-Type: multipart/mixed;
+ boundary="------------070208010609060603020507"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Russell Coker wrote:
-> On Tuesday 20 February 2007 13:08, KaiGai Kohei <kaigai@ak.jp.nec.com> wrote:
->>> What Unix access controls are applied?  I guess that as PostgreSQL users
->>> don't have a direct relationship with Unix users it can't check the UID
->>> so it's just a matter of what files the database server has read and
->>> execute to which are in that directory.
->>>
->>> Does it just check to make sure that the file isn't a sym-link and isn't
->>> world-writable.
->> UNIX access controls are applied between the PostgreSQL server process UID
->> and shared library files, independent from client process's UID.
-> 
-> Do you mean that it just opens the file and relies on Unix permissions to 
-> determine whether the open succeeds?
+This is a multi-part message in MIME format.
+--------------070208010609060603020507
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
-Yes,
-The only limitation is that shared library files loaded by non-privileged
-database user must be deployed under "$libdir/plugins/".
+This patch initializes all swig parameters to prevent possible crashes 
+in python.
 
->> A sym-link checking is done, but its purpose is to avoid to load a same
->> shared library file twice or more.
-> 
-> That's not going to work very well.  Checking st_ino and st_dev is the only 
-> reliable way of doing it.  But I guess if they are only dealing with mistakes 
-> and not malicious actions then it's OK (of course it's easier to check two 
-> integers than multiple sym-links).
+Also changes is_selinux_enabled to work even if  signaled and not have 
+short reads.
 
-Ahh, I'm sorry for misunderstanding.
-I wanted to say that PostgreSQL allows to deploy a symlink-file under the plugins
-directory. It uses st_ino and st_dev from star() to check duplication.
 
->>> Other programs might need such triples in the policy, I wonder if it
->>> would be possible to make this a generic language feature.  Some sort of
->>> policy class which instead of actions takes another type as the third
->>> parameter.
->> I think it should be resolved by macros in the reference policy period.
->>
->> e.g)
->>    sepgsql_enable_load_shlib(db_client_t, sepgsql_t, shlib_t)
->>      =>  allow db_client_t sepgsql_db_t : database { load_module };
->>          allow sepgsql_db_t shlib_file_t : database { associate };
->>          allow db_client_t shlib_file_t : database { load_module };
-> 
-> Yes, that will work.  However there might be benefits in other situations as 
-> well for extending the policy language...
 
-It might give us benefits, but I like to focus SE-PostgreSQL works now...
+--------------070208010609060603020507
+Content-Type: text/x-patch;
+ name="libselinux-rhat.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="libselinux-rhat.patch"
 
-So, I like to make it progress with the following design:
-     client  <--> database   requires 'database:install_module'
-     client  <--> shlib file requires 'database:install_module'
-    database <--> shlib file requires 'database:load_module'
+--- libselinux-2.0.1/src/selinuxswig_wrap.c.rhat	2007-02-20 09:25:03.000000000 -0500
++++ libselinux-2.0.1/src/selinuxswig_wrap.c	2007-02-20 09:25:14.000000000 -0500
+@@ -2832,7 +2832,7 @@
+   security_context_t *arg1 = (security_context_t *) 0 ;
+   int result;
+   security_context_t temp1 = NULL ;
+-  char *temp10 ;
++  char *temp10 = NULL ;
+   
+   {
+     arg1 = &temp1;
+@@ -2879,7 +2879,7 @@
+   int val1 ;
+   int ecode1 = 0 ;
+   security_context_t temp2 = NULL ;
+-  char *temp20 ;
++  char *temp20 = NULL ;
+   PyObject * obj0 = 0 ;
+   
+   {
+@@ -2911,7 +2911,7 @@
+   security_context_t *arg1 = (security_context_t *) 0 ;
+   int result;
+   security_context_t temp1 = NULL ;
+-  char *temp10 ;
++  char *temp10 = NULL ;
+   
+   {
+     arg1 = &temp1;
+@@ -2937,7 +2937,7 @@
+   security_context_t *arg1 = (security_context_t *) 0 ;
+   int result;
+   security_context_t temp1 = NULL ;
+-  char *temp10 ;
++  char *temp10 = NULL ;
+   
+   {
+     arg1 = &temp1;
+@@ -2981,7 +2981,7 @@
+   security_context_t *arg1 = (security_context_t *) 0 ;
+   int result;
+   security_context_t temp1 = NULL ;
+-  char *temp10 ;
++  char *temp10 = NULL ;
+   
+   {
+     arg1 = &temp1;
+@@ -3025,7 +3025,7 @@
+   security_context_t *arg1 = (security_context_t *) 0 ;
+   int result;
+   security_context_t temp1 = NULL ;
+-  char *temp10 ;
++  char *temp10 = NULL ;
+   
+   {
+     arg1 = &temp1;
+@@ -3069,7 +3069,7 @@
+   security_context_t *arg1 = (security_context_t *) 0 ;
+   int result;
+   security_context_t temp1 = NULL ;
+-  char *temp10 ;
++  char *temp10 = NULL ;
+   
+   {
+     arg1 = &temp1;
+@@ -3117,7 +3117,7 @@
+   char *buf1 = 0 ;
+   int alloc1 = 0 ;
+   security_context_t temp2 = NULL ;
+-  char *temp20 ;
++  char *temp20 = NULL ;
+   PyObject * obj0 = 0 ;
+   
+   {
+@@ -3155,7 +3155,7 @@
+   char *buf1 = 0 ;
+   int alloc1 = 0 ;
+   security_context_t temp2 = NULL ;
+-  char *temp20 ;
++  char *temp20 = NULL ;
+   PyObject * obj0 = 0 ;
+   
+   {
+@@ -3192,7 +3192,7 @@
+   int val1 ;
+   int ecode1 = 0 ;
+   security_context_t temp2 = NULL ;
+-  char *temp20 ;
++  char *temp20 = NULL ;
+   PyObject * obj0 = 0 ;
+   
+   {
+@@ -3314,7 +3314,7 @@
+   int val1 ;
+   int ecode1 = 0 ;
+   security_context_t temp2 = NULL ;
+-  char *temp20 ;
++  char *temp20 = NULL ;
+   PyObject * obj0 = 0 ;
+   
+   {
+@@ -3475,7 +3475,7 @@
+   security_context_t *arg2 = (security_context_t *) 0 ;
+   int result;
+   security_context_t temp2 = NULL ;
+-  char *temp20 ;
++  char *temp20 = NULL ;
+   PyObject * obj0 = 0 ;
+   
+   {
+@@ -3735,7 +3735,7 @@
+   unsigned int val2 ;
+   int ecode2 = 0 ;
+   security_context_t temp3 = NULL ;
+-  char *temp30 ;
++  char *temp30 = NULL ;
+   PyObject * obj0 = 0 ;
+   PyObject * obj1 = 0 ;
+   
+@@ -3779,7 +3779,7 @@
+   char *buf1 = 0 ;
+   int alloc1 = 0 ;
+   security_context_t temp2 = NULL ;
+-  char *temp20 ;
++  char *temp20 = NULL ;
+   PyObject * obj0 = 0 ;
+   
+   {
+@@ -4213,7 +4213,7 @@
+   char *buf1 = 0 ;
+   int alloc1 = 0 ;
+   security_context_t temp2 = NULL ;
+-  char *temp20 ;
++  char *temp20 = NULL ;
+   PyObject * obj0 = 0 ;
+   
+   {
+@@ -4251,7 +4251,7 @@
+   char *buf1 = 0 ;
+   int alloc1 = 0 ;
+   security_context_t temp2 = NULL ;
+-  char *temp20 ;
++  char *temp20 = NULL ;
+   PyObject * obj0 = 0 ;
+   
+   {
+@@ -4284,7 +4284,7 @@
+   PyObject *resultobj = 0;
+   char **arg1 = (char **) 0 ;
+   int result;
+-  char *temp1 ;
++  char *temp1 = NULL ;
+   
+   {
+     arg1 = &temp1;
+@@ -4310,8 +4310,8 @@
+   int res1 ;
+   char *buf1 = 0 ;
+   int alloc1 = 0 ;
+-  char *temp2 ;
+-  char *temp3 ;
++  char *temp2 = NULL ;
++  char *temp3 = NULL ;
+   PyObject * obj0 = 0 ;
+   
+   {
+--- libselinux-2.0.1/src/enabled.c.rhat	2007-02-20 09:25:03.000000000 -0500
++++ libselinux-2.0.1/src/enabled.c	2007-02-20 09:27:53.000000000 -0500
+@@ -8,10 +8,44 @@
+ #include <stdio.h>
+ #include "policy.h"
+ 
++static int readFD (int fd, char **buf)
++{
++    char *p;
++    size_t size = 16384;
++    int s, filesize;
++
++    *buf = calloc (16384, sizeof (char));
++    if (*buf == 0)
++        return -1;
++
++    filesize = 0;
++    do {
++        p = &(*buf) [filesize];
++	do {
++		s = read (fd, p, 16384);
++	} while (s < 0 && errno == EINTR);
++        if (s < 0)
++            break;
++        filesize += s;
++        /* only exit for empty reads */
++        if (s == 0)
++            break;
++        size += s;
++        *buf = realloc (*buf, size);
++    } while (1);
++
++    if (filesize == 0 && s < 0) {
++        free (*buf);
++        *buf = NULL;
++        return -1;
++    }
++
++    return filesize;
++}
++
+ int is_selinux_enabled(void)
+ {
+-	char *buf;
+-	size_t size;
++	char *buf = NULL;
+ 	int fd;
+ 	ssize_t ret;
+ 	int enabled = 0;
+@@ -21,19 +55,11 @@
+ 	if (fd < 0)
+ 		return -1;
+ 
+-	size = selinux_page_size;
+-	buf = malloc(size);
+-	if (!buf) {
+-		enabled = -1;
+-		goto out;
+-	}
+-
+-	memset(buf, 0, size);
+-
+-	ret = read(fd, buf, size - 1);
++        ret = readFD(fd, &buf);
++        close(fd);
+ 	if (ret < 0) {
+ 		enabled = -1;
+-		goto out2;
++		goto out;
+ 	}
+ 
+ 	if (!strstr(buf, "selinuxfs"))
+@@ -49,7 +75,6 @@
+       out2:
+ 	free(buf);
+       out:
+-	close(fd);
+ 	return enabled;
+ }
+ 
+--- libselinux-2.0.1/src/selinuxswig.i.rhat	2007-02-20 09:25:03.000000000 -0500
++++ libselinux-2.0.1/src/selinuxswig.i	2007-02-20 09:25:14.000000000 -0500
+@@ -28,7 +28,7 @@
+ %typemap(in, numinputs=0) security_context_t *(security_context_t temp=NULL) {
+ 	$1 = &temp;
+ }
+-%typemap(argout) security_context_t * (char *temp) {
++%typemap(argout) security_context_t * (char *temp=NULL) {
+ 	if (*$1)
+ 		temp = *$1;
+ 	else
+@@ -126,7 +126,7 @@
+ extern int selinux_raw_to_trans_context(char *raw, 
+ 					security_context_t *transp);
+ 
+-%typemap(in, numinputs=0) char **(char *temp) {
++%typemap(in, numinputs=0) char **(char *temp=NULL) {
+ 	$1 = &temp;
+ }
+ 
 
-The name of access vector was changed. Maybe, the aboves are more suitable.
-
-Thanks,
---
-KaiGai Kohei <kaigai@kaigai.gr.jp>
+--------------070208010609060603020507--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
