@@ -1,43 +1,24 @@
-Subject: Re: checkpolicy/policy_parse.y:define_class: allow class
-	identifiers to contain dots
+Subject: Re: PATCH: libselinux-1.34.0 bit type usage
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Caleb Case <ccase@tresys.com>
-Cc: kmacmillan@mentalrootkit.com, jbrindle@tresys.com, selinux@tycho.nsa.gov
-In-Reply-To: <200702061631.l16GVKav018375@localhost.localdomain>
-References: <200702061631.l16GVKav018375@localhost.localdomain>
+To: Todd.Miller@sparta.com
+Cc: SE Linux <selinux@tycho.nsa.gov>
+In-Reply-To: <200702071710.l17HA1WA014028@tex.courtesan.com>
+References: <200702071710.l17HA1WA014028@tex.courtesan.com>
 Content-Type: text/plain
-Date: Tue, 20 Feb 2007 10:25:30 -0500
-Message-Id: <1171985130.14363.54.camel@moss-spartans.epoch.ncsc.mil>
+Date: Tue, 20 Feb 2007 10:28:22 -0500
+Message-Id: <1171985302.14363.58.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2007-02-06 at 11:31 -0500, Caleb Case wrote:
-> Class identifiers are now allowed to contain dots.  This facilitates the new dot notation for class names used in metapolicy.
-> ---
->  checkpolicy/policy_parse.y |    5 -----
->  1 file changed, 5 deletions(-)
-> 
-> Index: selinux-pms-support/checkpolicy/policy_parse.y
-> ===================================================================
-> --- selinux-pms-support.orig/checkpolicy/policy_parse.y
-> +++ selinux-pms-support/checkpolicy/policy_parse.y
-> @@ -929,11 +929,6 @@ static int define_class(void)
->  		yyerror("no class name for class definition?");
->  		return -1;
->  	}
-> -	if (id_has_dot(id)) {
-> -		free(id);
-> -		yyerror("class identifiers may not contain periods");
-> -		return -1;
-> -	}
->  	datum = (class_datum_t *) malloc(sizeof(class_datum_t));
->  	if (!datum) {
->  		yyerror("out of memory");
+On Wed, 2007-02-07 at 12:10 -0500, Todd.Miller@sparta.com wrote:
+> libselinux uses a mix of bit type styles: BSD-style (u_XXint_t), Linux
+> kernel style (uXX), and C99 (uintXX_t).  The following patch makes
+> things consistent by replacing use of BSD and Linux kernel styles with
+> the standard C99 bit types from stdint.h.  Most files included stdint.h
+> already.
 
-I merged this patch to -stable and -trunk, but am now having second
-thoughts.  Class identifiers with dots in them would pose a problem for
-symbol definition generation, no?
+Merged to -stable and to -trunk.
 
 -- 
 Stephen Smalley
