@@ -1,35 +1,51 @@
-Subject: Re: Compile error with the SVN version of the refpolicy.
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Ryan Bradetich <rbradetich@gmail.com>
-Cc: selinux@tycho.nsa.gov
-In-Reply-To: <e739902b0702200737g692dde82j10b75cfe20cb2f6@mail.gmail.com>
-References: <e739902b0702162219o45a8ccc9v5e5092c9e310c4bb@mail.gmail.com>
-	 <1171981486.14363.13.camel@moss-spartans.epoch.ncsc.mil>
-	 <e739902b0702200737g692dde82j10b75cfe20cb2f6@mail.gmail.com>
-Content-Type: text/plain
-Date: Tue, 20 Feb 2007 10:42:08 -0500
-Message-Id: <1171986128.14363.73.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Subject: RE: checkpolicy/policy_parse.y:define_class: allow classidentifiers to contain dots
+Date: Tue, 20 Feb 2007 10:49:27 -0500
+Message-ID: <6FE441CD9F0C0C479F2D88F959B015888BA437@exchange.columbia.tresys.com>
+In-Reply-To: <1171985130.14363.54.camel@moss-spartans.epoch.ncsc.mil>
+From: "Joshua Brindle" <jbrindle@tresys.com>
+To: "Stephen Smalley" <sds@tycho.nsa.gov>, "Caleb Case" <ccase@tresys.com>
+Cc: <kmacmillan@mentalrootkit.com>, <selinux@tycho.nsa.gov>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2007-02-20 at 07:37 -0800, Ryan Bradetich wrote:
-> Hello Stephen,
+> From: Stephen Smalley [mailto:sds@tycho.nsa.gov] 
 > 
-> I had used the package from the Ubuntu Feisty repository which is
-> version 1.32-1.  I will revert my patch in my local tree and use the
-> source from the SVN  checkpolicy from sourceforge.
+> On Tue, 2007-02-06 at 11:31 -0500, Caleb Case wrote:
+> > Class identifiers are now allowed to contain dots.  This 
+> facilitates the new dot notation for class names used in metapolicy.
+> > ---
+> >  checkpolicy/policy_parse.y |    5 -----
+> >  1 file changed, 5 deletions(-)
+> > 
+> > Index: selinux-pms-support/checkpolicy/policy_parse.y
+> > ===================================================================
+> > --- selinux-pms-support.orig/checkpolicy/policy_parse.y
+> > +++ selinux-pms-support/checkpolicy/policy_parse.y
+> > @@ -929,11 +929,6 @@ static int define_class(void)
+> >  		yyerror("no class name for class definition?");
+> >  		return -1;
+> >  	}
+> > -	if (id_has_dot(id)) {
+> > -		free(id);
+> > -		yyerror("class identifiers may not contain periods");
+> > -		return -1;
+> > -	}
+> >  	datum = (class_datum_t *) malloc(sizeof(class_datum_t));
+> >  	if (!datum) {
+> >  		yyerror("out of memory");
 > 
-> Thanks for your response!
+> I merged this patch to -stable and -trunk, but am now having 
+> second thoughts.  Class identifiers with dots in them would 
+> pose a problem for symbol definition generation, no?
+> 
 
-Yes, 1.32 wouldn't have that change.  1.34 is available from the last
-nsa.gov/selinux release, so you could use that one, or you can use the
-sourceforge svn tree.  Note that there is a stable branch in the
-sourceforge svn tree that you may want to track rather than the trunk.
-
--- 
-Stephen Smalley
-National Security Agency
+Yes, we have patches to refpolicy that replace dots with something else
+for symbol definitions. Hopefully this is just a workaround until class
+discovery is done and integrated with upstream and the existing object
+managers.
 
 
 --
