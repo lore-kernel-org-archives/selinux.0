@@ -1,35 +1,42 @@
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id l1KJfQUv009662
+	for <selinux@tycho.nsa.gov>; Tue, 20 Feb 2007 14:41:26 -0500
+Received: from tcsfw4.tcs-sec.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l1KJgfQc018198
+	for <selinux@tycho.nsa.gov>; Tue, 20 Feb 2007 19:42:42 GMT
+Message-ID: <45DB4F07.9040607@trustedcs.com>
+Date: Tue, 20 Feb 2007 13:41:59 -0600
+From: Darrel Goeddel <dgoeddel@TrustedCS.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Subject: RE: restorecond matchpathcon patch
-Date: Tue, 20 Feb 2007 13:13:41 -0500
-Message-ID: <6FE441CD9F0C0C479F2D88F959B0158805267E@exchange.columbia.tresys.com>
-References: <20070220165727.62975.qmail@web51509.mail.yahoo.com> <1171990762.14363.141.camel@moss-spartans.epoch.ncsc.mil>
-From: "James Athey" <jathey@tresys.com>
-To: "Stephen Smalley" <sds@tycho.nsa.gov>, "Steve G" <linux_4ever@yahoo.com>
-Cc: <selinux@tycho.nsa.gov>
+To: Klaus Weidner <klaus@atsec.com>
+CC: "Christopher J. PeBenito" <cpebenito@tresys.com>,
+        Daniel J Walsh <dwalsh@redhat.com>,
+        Karl MacMillan <kmacmillan@mentalrootkit.com>,
+        SE Linux <selinux@tycho.nsa.gov>
+Subject: Re: Latest diffs - Resent with additional changes.
+References: <45B8ACBF.8090201@redhat.com> <1171663101.20576.147.camel@sgc.columbia.tresys.com> <20070219031951.GA9827@w-m-p.com>
+In-Reply-To: <20070219031951.GA9827@w-m-p.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-> Possibly the FCGlob work will help address that problem.
-> http://selinux-symposium.org/2007/abstracts.php#fcglob
-> James Athey (cc'd) - what is the implementation status and prospects for
-> code submission?
+Klaus Weidner wrote:
+> On Fri, Feb 16, 2007 at 04:58:21PM -0500, Christopher J. PeBenito wrote:
+>> On Thu, 2007-01-25 at 08:12 -0500, Daniel J Walsh wrote: 
+>>> The MLS constraints are really screwed up.  Need to come to some kind of
+>>> agreement between you, klaus and tcs.
+>> I'm not familiar with the LSPP requirements, so its mainly up to Klaus
+>> and the TCS guys to iron out what makes sense.
+> 
+> I haven't heard back from TCS about their opinion on this. I would
+> suggest using the constraints as in Dan's policy (and as used in the
+> RHEL5 rc) since those are designed to meet LSPP requirements.
 
-Here are the tasks we're working on, in order:
+We (TCS) are checking out the changes now.
 
-1. FCGlob reader and analyzer, written in Python.
-2. Translate Reference Policy's fc files into FCGlob, using the results of step 1 to read and compile them.  After compilation, offer to convert the FCGlob specifications back to regular expressions, so that the resulting policy will work on systems with pre-FCGlob toolchains.
-3. Update the toolchain to support FCGlob, incorporating the lessons learned from steps 1 and 2.
+-- 
 
-We're currently working on step 1.  Hence, the toolchain patches will take a little while to appear.  It's great to see that we've gotten the community's attention with our proposal, and we'll be eager to get everyone's thoughts on the work as it's completed.  We'll also be presenting our paper on the subject at this year's SELinux Symposium.
-
-For those of you who haven't heard of FCGlob, it's a replacement syntax for file specifications that looks a lot like shell globbing.  It's a lot easier to write FCGlob specifications, because the syntax is much cleaner than regular expressions, as well as more familiar to most people.  It includes some common-sense rules that make it possible to treat file contexts as sets (in a computer science sense), so it becomes easy to matchpathcon files, find conflicts between specifications, and even display the file system as specified by the file contexts in the policy.
-
-~James Athey
-
-
-
+Darrel
 
 --
 This message was distributed to subscribers of the selinux mailing list.
