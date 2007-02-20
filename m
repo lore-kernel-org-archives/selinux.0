@@ -1,31 +1,35 @@
-Message-ID: <45DB36BE.5080905@hp.com>
-Date: Tue, 20 Feb 2007 12:58:22 -0500
-From: Linda Knippers <linda.knippers@hp.com>
 MIME-Version: 1.0
-To: Stephen Smalley <sds@tycho.nsa.gov>
-Cc: Daniel J Walsh <dwalsh@redhat.com>, SE Linux <selinux@tycho.nsa.gov>
-Subject: Re: newrole O_NONBLOCK change (Was:  Re: policycoreutils patch)
-References: <45DB0AB8.3070803@redhat.com> <1171988261.14363.106.camel@moss-spartans.epoch.ncsc.mil>
-In-Reply-To: <1171988261.14363.106.camel@moss-spartans.epoch.ncsc.mil>
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Subject: RE: restorecond matchpathcon patch
+Date: Tue, 20 Feb 2007 13:13:41 -0500
+Message-ID: <6FE441CD9F0C0C479F2D88F959B0158805267E@exchange.columbia.tresys.com>
+References: <20070220165727.62975.qmail@web51509.mail.yahoo.com> <1171990762.14363.141.camel@moss-spartans.epoch.ncsc.mil>
+From: "James Athey" <jathey@tresys.com>
+To: "Stephen Smalley" <sds@tycho.nsa.gov>, "Steve G" <linux_4ever@yahoo.com>
+Cc: <selinux@tycho.nsa.gov>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Stephen Smalley wrote:
-> On Tue, 2007-02-20 at 09:50 -0500, Daniel J Walsh wrote:
-> 
->>newrole hangs on a attached terminal device.  Nonblocking allows it to 
->>proceed.
-> 
-> 
-> Won't this have side effects on programs run from the newrole'd shell?
-> Should newrole open them with O_NONBLOCK and then clear it via fcntl
-> before exec'ing the child shell?
+> Possibly the FCGlob work will help address that problem.
+> http://selinux-symposium.org/2007/abstracts.php#fcglob
+> James Athey (cc'd) - what is the implementation status and prospects for
+> code submission?
 
-Yep, it causes 'more' to not work, for example, so this is no good.
-I'd like to understand why the open is hanging in the first place.
+Here are the tasks we're working on, in order:
 
--- ljk
+1. FCGlob reader and analyzer, written in Python.
+2. Translate Reference Policy's fc files into FCGlob, using the results of step 1 to read and compile them.  After compilation, offer to convert the FCGlob specifications back to regular expressions, so that the resulting policy will work on systems with pre-FCGlob toolchains.
+3. Update the toolchain to support FCGlob, incorporating the lessons learned from steps 1 and 2.
+
+We're currently working on step 1.  Hence, the toolchain patches will take a little while to appear.  It's great to see that we've gotten the community's attention with our proposal, and we'll be eager to get everyone's thoughts on the work as it's completed.  We'll also be presenting our paper on the subject at this year's SELinux Symposium.
+
+For those of you who haven't heard of FCGlob, it's a replacement syntax for file specifications that looks a lot like shell globbing.  It's a lot easier to write FCGlob specifications, because the syntax is much cleaner than regular expressions, as well as more familiar to most people.  It includes some common-sense rules that make it possible to treat file contexts as sets (in a computer science sense), so it becomes easy to matchpathcon files, find conflicts between specifications, and even display the file system as specified by the file contexts in the policy.
+
+~James Athey
+
+
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
