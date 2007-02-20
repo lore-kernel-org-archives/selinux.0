@@ -1,190 +1,86 @@
-Message-ID: <45DB3637.7080400@redhat.com>
-Date: Tue, 20 Feb 2007 12:56:07 -0500
-From: Daniel J Walsh <dwalsh@redhat.com>
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id l1KHuVFn004552
+	for <selinux@tycho.nsa.gov>; Tue, 20 Feb 2007 12:56:31 -0500
+Received: from web51504.mail.yahoo.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with SMTP id l1KHvmlw023893
+	for <selinux@tycho.nsa.gov>; Tue, 20 Feb 2007 17:57:48 GMT
+Message-ID: <20070220175747.16810.qmail@web51504.mail.yahoo.com>
+Date: Tue, 20 Feb 2007 09:57:47 -0800 (PST)
+From: Steve G <linux_4ever@yahoo.com>
+Subject: [PATCH] restorecond memory leaks
+To: selinux@tycho.nsa.gov
 MIME-Version: 1.0
-To: Stephen Smalley <sds@tycho.nsa.gov>
-CC: SE Linux <selinux@tycho.nsa.gov>,
-        Karl MacMillan <kmacmillan@mentalrootkit.com>
-Subject: Re: chcat changes (Was:  Re: policycoreutils patch)
-References: <45DB0AB8.3070803@redhat.com> <1171988571.14363.111.camel@moss-spartans.epoch.ncsc.mil>
-In-Reply-To: <1171988571.14363.111.camel@moss-spartans.epoch.ncsc.mil>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: multipart/mixed; boundary="0-1498274122-1171994267=:16398"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Stephen Smalley wrote:
-> On Tue, 2007-02-20 at 09:50 -0500, Daniel J Walsh wrote:
->   
->> chcat fixes:
->>     * Broken stderr handling fix
->>     * if serange ends in a ":" chop it off.
->>     * Switch chcat to exec semanage rather than use builtin so that 
->> proper transitions happen, otherwise I would have to run chcat under an 
->> semanage context.
->>     
->
-> Why would a range end in a ":"?  Context translation issue?
->
->   
-No.
-      new_serange = "%s-%s:%s" % (serange[0], top[0], string.join(cats, 
-","))
-        if new_serange[-1:] == ":":
-            new_serange = new_serange[:-1]
-If you did not have cats you would end up with s0-s0:
+--0-1498274122-1171994267=:16398
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
+Content-Id: 
+Content-Disposition: inline
 
->> diff --exclude-from=exclude --exclude=sepolgen-1.0.0 --exclude=gui --exclude=po -N -u -r nsapolicycoreutils/scripts/chcat policycoreutils-2.0.1/scripts/chcat
->> --- nsapolicycoreutils/scripts/chcat	2006-11-16 17:14:27.000000000 -0500
->> +++ policycoreutils-2.0.1/scripts/chcat	2007-02-15 15:16:09.000000000 -0500
->> @@ -25,11 +25,22 @@
->>  import commands, sys, os, pwd, string, getopt, selinux
->>  import seobject
->>  import gettext
->> +import codecs
->> +import locale
->> +sys.stderr = codecs.getwriter(locale.getpreferredencoding())(sys.__stderr__, 'replace')
->> +sys.stdout = codecs.getwriter(locale.getpreferredencoding())(sys.__stdout__, 'replace')
->>  
->>  try:
->>      gettext.install('policycoreutils')
->> -except:
->> -    pass
->> +except IOError:
->> +       import __builtin__
->> +       __builtin__.__dict__['_'] = unicode
->> +
->> +def errorExit(error):
->> +    sys.stderr.write("%s: " % sys.argv[0])
->> +    sys.stderr.write("%s\n" % error)
->> +    sys.stderr.flush()
->> +    sys.exit(1)
->>  
->>  def verify_users(users):
->>      for u in users:
->> @@ -62,12 +73,20 @@
->>          for i in newcat[1:]:
->>              if i not in cats:
->>                  cats.append(i)
->> +
->>          new_serange = "%s-%s:%s" % (serange[0], top[0], string.join(cats, ","))
->> -        
->> +        if new_serange[-1:] == ":":
->> +            new_serange = new_serange[:-1]
->> +            
->>          if add_ind:
->> -            logins.add(u, user[0], new_serange)
->> +            cmd = "semanage login -a -r %s -s %s %s" % (new_serange, user[0], u)
->>          else:
->> -            logins.modify(u, user[0], new_serange)
->> +            cmd = "semanage login -m -r %s -s %s %s" % (new_serange, user[0], u)
->> +        rc = commands.getstatusoutput(cmd)
->> +        if rc[0] != 0:
->> +            print rc[1]
->> +            errors += 1
->> +
->>      return errors
->>          
->>  def chcat_add(orig, newcat, objects,login_ind):
->> @@ -133,11 +152,17 @@
->>                  cats.remove(i)
->>  
->>          new_serange = "%s-%s:%s" % (serange[0], top[0], string.join(cats, ","))
->> +        if new_serange[-1:] == ":":
->> +            new_serange = new_serange[:-1]
->>          
->>          if add_ind:
->> -            logins.add(u, user[0], new_serange)
->> +            cmd = "semanage login -a -r %s -s %s %s" % (new_serange, user[0], u)
->>          else:
->> -            logins.modify(u, user[0], new_serange)
->> +            cmd = "semanage login -m -r %s -s %s %s" % (new_serange, user[0], u)
->> +        rc = commands.getstatusoutput(cmd)
->> +        if rc[0] != 0:
->> +            print rc[1]
->> +            errors += 1
->>      return errors
->>          
->>  def chcat_remove(orig, newcat, objects, login_ind):
->> @@ -198,11 +223,17 @@
->>              user = seusers["__default__"]
->>          serange = user[1].split("-")
->>          new_serange = "%s-%s:%s" % (serange[0],newcat[0], string.join(newcat[1:], ","))
->> -        
->> +        if new_serange[-1:] == ":":
->> +            new_serange = new_serange[:-1]
->> +
->>          if add_ind:
->> -            logins.add(u, user[0], new_serange)
->> +            cmd = "semanage login -a -r %s -s %s %s" % (new_serange, user[0], u)
->>          else:
->> -            logins.modify(u, user[0], new_serange)
->> +            cmd = "semanage login -m -r %s -s %s %s" % (new_serange, user[0], u)
->> +        rc = commands.getstatusoutput(cmd)
->> +        if rc[0] != 0:
->> +            print rc[1]
->> +            errors += 1
->>      return errors
->>      
->>  def chcat_replace(newcat, objects, login_ind):
->> @@ -362,6 +393,10 @@
->>  
->>          if list_ind == 0 and len(cmds) < 1:
->>              usage()
->> +
->> +    except getopt.error, error:
->> +        errorExit(_("Options Error %s ") % error.msg)
->> +
->>      except ValueError, e:
->>          usage()
->>  
->> diff --exclude-from=exclude --exclude=sepolgen-1.0.0 --exclude=gui --exclude=po -N -u -r nsapolicycoreutils/scripts/chcat.8 policycoreutils-2.0.1/scripts/chcat.8
->> --- nsapolicycoreutils/scripts/chcat.8	2007-01-17 11:11:34.000000000 -0500
->> +++ policycoreutils-2.0.1/scripts/chcat.8	2007-02-15 15:16:09.000000000 -0500
->> @@ -3,30 +3,31 @@
->>  chcat \- change file SELinux security category
->>  .SH SYNOPSIS
->>  .B chcat
->> -\fICATEGORY FILE\fR...
->> +\fIcategory file\fR...
->>  .br
->>  .B chcat -l 
->> -\fICATEGORY USER\fR...
->> +\fIcategory user\fR...
->>  .br
->>  .B chcat
->> -\fI[[+|-]CATEGORY],...]  FILE\fR...
->> +\fI[[+|-]category...]  file\fR...
->>  .br
->>  .B chcat -l 
->> -\fI[[+|-]CATEGORY],...]  USER\fR...
->> +\fI[[+|-]category...]  user\fR...
->>  .br
->>  .B chcat
->> -[\fI-d\fR] \fIFILE\fR...
->> +[\fI-d\fR] \fIfile\fR...
->>  .br
->>  .B chcat -l 
->> -[\fI-d\fR] \fIUSER\fR...
->> +[\fI-d\fR] \fIuser\fR...
->>  .br
->>  .B chcat
->> -\fI-L\fR [-l] [ USER ... ] 
->> +\fI-L\fR [ -l ] [ user ... ] 
->>  .br
->> +.SH DESCRIPTION
->>  .PP
->> -Change/Remove the security CATEGORY for each FILE/USER.
->> +Change/Remove the security \fIcategory\fR for each \fIfile\fR or \fIuser\fR.
->>  .PP
->> -Use +/- to add/remove categories from a FILE/USER.
->> +Use +/- to add/remove categories from a \fIfile\fR or \fIuser\fR.
->>  .PP
->>  .B
->>  Note:
->>     
->
->   
+Hi,
 
+Attached is a patch addressing memory leaks in restorecond. It still consumes way
+too much memory, but this fixes all know leaks and valgrind now reports all
+memory freed at exit.
+
+Signed-off-by: Steve Grubb <linux_4ever@yahoo.com>
+
+
+
+
+ 
+____________________________________________________________________________________
+No need to miss a message. Get email on-the-go 
+with Yahoo! Mail for Mobile. Get started.
+http://mobile.yahoo.com/mail 
+--0-1498274122-1171994267=:16398
+Content-Type: text/x-patch; name="policycoreutils-2.0.1-memleak.patch"
+Content-Description: 2292891528-policycoreutils-2.0.1-memleak.patch
+Content-Disposition: inline; filename="policycoreutils-2.0.1-memleak.patch"
+
+diff -urp policycoreutils-2.0.1.orig/restorecond/restorecond.c policycoreutils-2.0.1/restorecond/restorecond.c
+--- policycoreutils-2.0.1.orig/restorecond/restorecond.c	2007-02-19 21:25:54.000000000 -0500
++++ policycoreutils-2.0.1/restorecond/restorecond.c	2007-02-20 12:50:29.000000000 -0500
+@@ -483,6 +483,8 @@ int main(int argc, char **argv)
+ 
+ 	watch_list_free(master_fd);
+ 	close(master_fd);
++	matchpathcon_fini();
++	utmpwatcher_free();
+ 	if (pidfile)
+ 		unlink(pidfile);
+ 
+diff -urp policycoreutils-2.0.1.orig/restorecond/utmpwatcher.c policycoreutils-2.0.1/restorecond/utmpwatcher.c
+--- policycoreutils-2.0.1.orig/restorecond/utmpwatcher.c	2007-02-19 21:25:54.000000000 -0500
++++ policycoreutils-2.0.1/restorecond/utmpwatcher.c	2007-02-20 12:51:27.000000000 -0500
+@@ -101,6 +101,12 @@ void utmpwatcher_add(int inotify_fd, con
+ 	watch_file(inotify_fd, path);
+ }
+ 
++void utmpwatcher_free(void)
++{
++	if (utmp_ptr)
++		strings_list_free(utmp_ptr);
++}
++
+ #ifdef TEST
+ int main(int argc, char **argv)
+ {
+diff -urp policycoreutils-2.0.1.orig/restorecond/utmpwatcher.h policycoreutils-2.0.1/restorecond/utmpwatcher.h
+--- policycoreutils-2.0.1.orig/restorecond/utmpwatcher.h	2007-02-19 21:25:54.000000000 -0500
++++ policycoreutils-2.0.1/restorecond/utmpwatcher.h	2007-02-20 12:50:09.000000000 -0500
+@@ -25,5 +25,6 @@
+ 
+ unsigned int utmpwatcher_handle(int inotify_fd, int wd);
+ void utmpwatcher_add(int inotify_fd, const char *path);
++void utmpwatcher_free(void);
+ 
+ #endif
+
+--0-1498274122-1171994267=:16398--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
