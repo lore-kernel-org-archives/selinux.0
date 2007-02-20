@@ -1,44 +1,62 @@
-Subject: Re: Lets try this again: Advantages and Disadvantages of
-	Overtyping a policy
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id l1KKhN3D012574
+	for <selinux@tycho.nsa.gov>; Tue, 20 Feb 2007 15:43:23 -0500
+Received: from exchange.columbia.tresys.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with SMTP id l1KKielw004319
+	for <selinux@tycho.nsa.gov>; Tue, 20 Feb 2007 20:44:41 GMT
+Subject: Re: Is the usercanread attribute still needed?
 From: "Christopher J. PeBenito" <cpebenito@tresys.com>
-To: Dave Quigley <dquigley@gmail.com>
-Cc: SELinux@tycho.nsa.gov
-In-Reply-To: <f888952b0702161308y4a373559n581ea8a61de355ee@mail.gmail.com>
-References: <f888952b0702161308y4a373559n581ea8a61de355ee@mail.gmail.com>
+To: Ryan Bradetich <rbradetich@gmail.com>
+Cc: selinux@tycho.nsa.gov
+In-Reply-To: <e739902b0702181633md9e8fa9y55e74a5520cf7a60@mail.gmail.com>
+References: <e739902b0702181633md9e8fa9y55e74a5520cf7a60@mail.gmail.com>
 Content-Type: text/plain
-Date: Tue, 20 Feb 2007 20:37:49 +0000
-Message-Id: <1172003869.20576.230.camel@sgc.columbia.tresys.com>
+Date: Tue, 20 Feb 2007 20:44:54 +0000
+Message-Id: <1172004294.20576.236.camel@sgc.columbia.tresys.com>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2007-02-16 at 16:08 -0500, Dave Quigley wrote:
-> OK onto my actual question. I was wondering what advantages and
-> disadvantages there are to having too many types in a policy. I can
-> see if you have too many the allow rules to allow interaction within
-> the application itself can be excessive. However it also seems to me
-> that by having more types for the application you can have more
-> control over restriction the application. You see this in come
-> policies where they have separate types for their files in /var /etc
-> and /log however you don't see it for that many applications. I would
-> just like to hear people's thoughts on this.
+On Sun, 2007-02-18 at 16:33 -0800, Ryan Bradetich wrote:
+> Hello all,
+> 
+> I noticed the apache.te file used the file_types() macro instead of
+> the file_config_file() macro for the configuration files, so I looked
+> into the differences between the macros.
+> 
+> The files_config_file macro is listed below:
+> 
+> interface(`files_config_file',`
+>         gen_require(`
+>                 attribute usercanread;
+>         ')
+> 
+>         files_type($1)
+> 
+>         # this is a hack and should be removed.
+>         typeattribute $1 usercanread;
+> ')
+> 
+> 
+> After reading the comment above the typeattribute, I was curious to
+> figure out what the usercanread attribute was used for. Looking
+> through the SVN tree I found the following uses.
+> 
+> $ find . -type f | xargs grep  usercanread | grep -v '.svn'
+> ./modules/kernel/files.if:              attribute usercanread;
+> ./modules/kernel/files.if:      typeattribute $1 usercanread;
+> ./modules/kernel/files.te:attribute usercanread;
+> 
+> 
+> I used the attached patched to remove the attribute from the files.te
+> and files.if file and the policy still compiled.  Is it safe to assume
+> we can remove the attribute now?  Or is the hack still needed for
+> something I am not seeing?
 
-It depends on your security goals.  The question is: does the extra
-granularity help you better attain your security goals?
-
-Take bin_t for example.  We could have a type for every single program,
-but we don't because these are all system binaries that execute in the
-caller's domain.  So even if the domain can execute any of the programs,
-it is still limited by the access the domain has.
-
-Something like foo_tmp_t vs. foo_log_t vs. foo_conf_t usually is
-straightforward since the app will tend to have create, read, write, and
-delete access for foo_tmp_t, create and append for foo_log_t, and just
-read for foo_conf_t.  The objects clearly have different security
-attributes, thus get different types.  Adding multiple types for each of
-foo's logs would gain granularity but wouldn't gain anything
-security-wise since foo still needs the same access for each type (they
-have the same security attributes).
+Since modules are statically compiled, we can't completely remove the
+attribute yet, otherwise it might cause some policies to fail to link if
+it is still required.  However, the typeattribute could be removed from
+files_config_file().
 
 -- 
 Chris PeBenito
