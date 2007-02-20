@@ -1,79 +1,94 @@
-Subject: Re: libselinux patch
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Steve G <linux_4ever@yahoo.com>
-Cc: Daniel J Walsh <dwalsh@redhat.com>, SE Linux <selinux@tycho.nsa.gov>
-In-Reply-To: <20070220150528.49241.qmail@web51504.mail.yahoo.com>
-References: <20070220150528.49241.qmail@web51504.mail.yahoo.com>
-Content-Type: text/plain
-Date: Tue, 20 Feb 2007 10:06:09 -0500
-Message-Id: <1171983969.14363.35.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id l1KFC6q2028459
+	for <selinux@tycho.nsa.gov>; Tue, 20 Feb 2007 10:12:06 -0500
+Received: from web51512.mail.yahoo.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with SMTP id l1KFDM3f008207
+	for <selinux@tycho.nsa.gov>; Tue, 20 Feb 2007 15:13:22 GMT
+Date: Tue, 20 Feb 2007 07:13:01 -0800 (PST)
+From: Steve G <linux_4ever@yahoo.com>
+Subject: Another libselinux patch fixing memory leaks
+To: selinux@tycho.nsa.gov
+MIME-Version: 1.0
+Content-Type: multipart/mixed; boundary="0-775929536-1171984381=:80462"
+Message-ID: <475744.80462.qm@web51512.mail.yahoo.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2007-02-20 at 07:05 -0800, Steve G wrote:
-> >+static int readFD (int fd, char **buf)
-> >+{
-> >+    char *p;
-> >+    size_t size = 16384;
-> 
-> Why this number? Should it be a define somewhere or based off a kernel parameter?
-> 
-> +    int s, filesize;
-> +
-> +    *buf = calloc (16384, sizeof (char));
-> 
-> Why calloc? Its not as efficient as plain old malloc.
-> 
-> +    if (*buf == 0)
-> +        return -1;
-> 
-> 0 or NULL? There's a difference on 64 bit machines.
-> 
-> +
-> +    filesize = 0;
-> +    do {
-> +        p = &(*buf) [filesize];
-> +	do {
-> +		s = read (fd, p, 16384);
-> +	} while (s < 0 && errno == EINTR);
-> +        if (s < 0)
-> +            break;
-> +        filesize += s;
-> +        /* only exit for empty reads */
-> +        if (s == 0)
-> +            break;
-> +        size += s;
-> +        *buf = realloc (*buf, size);
-> 
-> So, if you get a short read, why are we playing with memory? This is inefficiant
-> for the _normal_ case. The normal case is that you get about 400 bytes for a
-> succesful read. I'd say you are better off adjusting the read size on the fly and
-> only realloc when you have less that 512 bytes left in the buffer so that there
-> is some hysteresis.
-> 
-> +    } while (1);
-> +
-> +    if (filesize == 0 && s < 0) {
-> +        free (*buf);
-> +        *buf = NULL;
-> +        return -1;
-> +    }
-> +
-> +    return filesize;
-> +}
-> +
+--0-775929536-1171984381=:80462
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
+Content-Id: 
+Content-Disposition: inline
 
-I also have to wonder whether we'd be better off just switching from
-direct open+read of /proc/filesystems to just using fopen+getline,
-thereby automatically picking up glibc's internal support of dynamic
-buffer allocation and EINTR handling.  Just read the file line-by-line
-and bail out if we find selinuxfs or hit the end of file.
+Hi,
 
--- 
-Stephen Smalley
-National Security Agency
+I was running restorecond through valgrind to figure out why it consumes so much
+memory. It seemed to point to matchpathcon as a possible leak. I looked at the
+functions and saw that there are some potentially uninitialized pointers that
+could get freed when jumping to finish and a couple allocations that appear to be
+leaked.
 
+Patch is attached.
+
+-Steve
+
+
+ 
+____________________________________________________________________________________
+Never Miss an Email
+Stay connected with Yahoo! Mail on your mobile.  Get started!
+http://mobile.yahoo.com/services?promote=mail
+--0-775929536-1171984381=:80462
+Content-Type: text/x-patch; name="libselinux-2.0.0-leaks.patch"
+Content-Description: 3536998516-libselinux-2.0.0-leaks.patch
+Content-Disposition: inline; filename="libselinux-2.0.0-leaks.patch"
+
+diff -urp libselinux-2.0.0.orig/src/matchpathcon.c libselinux-2.0.0/src/matchpathcon.c
+--- libselinux-2.0.0.orig/src/matchpathcon.c	2007-02-19 20:57:53.000000000 -0500
++++ libselinux-2.0.0/src/matchpathcon.c	2007-02-19 21:11:11.000000000 -0500
+@@ -445,9 +445,9 @@ static int process_line(const char *path
+ {
+ 	int items, len, regerr, ret;
+ 	char *buf_p, *ptr;
+-	char *regex, *type, *context;
++	char *regex=NULL, *type=NULL, *context=NULL;
+ 	const char *reg_buf;
+-	char *anchored_regex;
++	char *anchored_regex = NULL;
+ 
+ 	ret = 0;
+ 	len = strlen(line_buf);
+@@ -543,9 +543,12 @@ static int process_line(const char *path
+ 				 path, lineno, anchored_regex,
+ 				 (errbuf ? errbuf : "out of memory"));
+ 			free(anchored_regex);
++			anchored_regex = NULL;
++			free(errbuf);
+ 			goto finish;
+ 		}
+ 		free(anchored_regex);
++		anchored_regex = NULL;
+ 
+ 		/* Convert the type string to a mode format */
+ 		spec_arr[nspec].type_str = type;
+@@ -718,6 +721,7 @@ int matchpathcon_init_prefix(const char 
+ 		}
+ 	}
+ 	free(line_buf);
++	line_buf = NULL;
+ 
+ 	/* Move exact pathname specifications to the end. */
+ 	spec_copy = malloc(sizeof(spec_t) * nspec);
+@@ -740,6 +744,7 @@ int matchpathcon_init_prefix(const char 
+ 	status = 0;
+       finish:
+ 	fclose(fp);
++	free(line_buf);
+ 	if (spec_arr != spec_copy)
+ 		free(spec_arr);
+ 	if (homedirfp)
+
+--0-775929536-1171984381=:80462--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
