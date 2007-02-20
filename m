@@ -1,22 +1,31 @@
-Subject: Re: PATCH: libselinux-1.34.0 bit type usage
+Subject: Re: PATCH: setfiles memory leak
 From: Stephen Smalley <sds@tycho.nsa.gov>
 To: Todd.Miller@sparta.com
 Cc: SE Linux <selinux@tycho.nsa.gov>
-In-Reply-To: <200702071710.l17HA1WA014028@tex.courtesan.com>
-References: <200702071710.l17HA1WA014028@tex.courtesan.com>
+In-Reply-To: <200702071709.l17H9ute004872@tex.courtesan.com>
+References: <200702071709.l17H9ute004872@tex.courtesan.com>
 Content-Type: text/plain
-Date: Tue, 20 Feb 2007 10:28:22 -0500
-Message-Id: <1171985302.14363.58.camel@moss-spartans.epoch.ncsc.mil>
+Date: Tue, 20 Feb 2007 10:28:38 -0500
+Message-Id: <1171985318.14363.60.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2007-02-07 at 12:10 -0500, Todd.Miller@sparta.com wrote:
-> libselinux uses a mix of bit type styles: BSD-style (u_XXint_t), Linux
-> kernel style (uXX), and C99 (uintXX_t).  The following patch makes
-> things consistent by replacing use of BSD and Linux kernel styles with
-> the standard C99 bit types from stdint.h.  Most files included stdint.h
-> already.
+On Wed, 2007-02-07 at 12:09 -0500, Todd.Miller@sparta.com wrote:
+> This patch fixes a memory leak on an error path.
+> 
+>  - todd
+> 
+> --- policycoreutils-1.34.1/setfiles/setfiles.c	2006-06-29 14:21:16.000000000 -0400
+> +++ policycoreutils-1.34.1/setfiles/setfiles.c	2007-02-06 17:00:19.000000000 -0500
+> @@ -357,6 +357,7 @@
+>  				"%s: %s not reset customized by admin to %s\n",
+>  				progname, my_file, context);
+>  		}
+> +		freecon(context);
+>  		goto out;
+>  	}
+>  
 
 Merged to -stable and to -trunk.
 
