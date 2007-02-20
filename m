@@ -1,63 +1,82 @@
-Subject: Re: restorecond matchpathcon patch
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Steve G <linux_4ever@yahoo.com>
-Cc: selinux@tycho.nsa.gov, James Athey <jathey@tresys.com>,
-        Joshua Brindle <jbrindle@tresys.com>,
-        Karl MacMillan <kmacmillan@mentalrootkit.com>
-In-Reply-To: <20070220165727.62975.qmail@web51509.mail.yahoo.com>
-References: <20070220165727.62975.qmail@web51509.mail.yahoo.com>
-Content-Type: text/plain
-Date: Tue, 20 Feb 2007 11:59:22 -0500
-Message-Id: <1171990762.14363.141.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id l1KHEpqn002673
+	for <selinux@tycho.nsa.gov>; Tue, 20 Feb 2007 12:14:51 -0500
+Received: from mx1.redhat.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l1KHG7Qc022876
+	for <selinux@tycho.nsa.gov>; Tue, 20 Feb 2007 17:16:08 GMT
+Message-ID: <45DB2CCF.8020205@redhat.com>
+Date: Tue, 20 Feb 2007 12:15:59 -0500
+From: Daniel J Walsh <dwalsh@redhat.com>
+MIME-Version: 1.0
+To: "Christopher J. PeBenito" <cpebenito@tresys.com>,
+        SE Linux <selinux@tycho.nsa.gov>
+Subject: nis changes for policy
+Content-Type: multipart/mixed;
+ boundary="------------080005030403010606010306"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2007-02-20 at 08:57 -0800, Steve G wrote:
-> >> IOW, this patch cleans up one problem, but I wonder if the underlying
-> >> algorithm should be changed to be less of a memory hog.
-> >
-> >Possibly the FCGlob work will help address that problem.
-> 
-> Is that restorecond work or libselinux work? The change in algorithm I was
-> thinking about was in restorecond. IOW, it could cache the correct context for
-> the handful of files it cares about and use matchpathcon only for the paths that
-> contain metacharacters. It could monitor for policy reloads and correct its cache
-> in that event. For what its doing, it consumes a lot of memory as is.
+This is a multi-part message in MIME format.
+--------------080005030403010606010306
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
-libselinux work - replacing the use of pathname regexes in the file
-contexts configuration with a simpler globbing syntax.  It doesn't
-matter how many times restorecond calls matchpathcon (and restorecond is
-just passing full pathnames to it, which matchpathcon then matches
-against the table of pathname regexes to find the right context); the
-issue is the memory consumed by the precompiled regexes loaded from the
-file contexts configuration on the very first matchpathcon call.
+Lots of additional rules for ypxfr
 
-> >Calling matchpathcon_fini each time will require re-creation of the
-> >entire in-memory table from the file contexts configuration on each
-> >matchpathcon call, so you are trading off runtime performance for memory
-> >here.
-> 
-> If you want to leave it alone, we should have something like this added to
-> restorecond.c:
-> 
-> @@ -483,6 +483,7 @@ int main(int argc, char **argv)
-> 
->         watch_list_free(master_fd);
->         close(master_fd);
-> +       matchpathcon_fini();
->         if (pidfile)
->                 unlink(pidfile);
-> 
-> so that valgrind can spot real memory leaks. Besides matchpathcon, valgrind is
-> reporting other memory issues.
+--------------080005030403010606010306
+Content-Type: text/x-patch;
+ name="nis.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="nis.patch"
 
-Yes, that would be fine.
+--- nsaserefpolicy/policy/modules/services/nis.te	2007-02-19 11:32:53.000000000 -0500
++++ serefpolicy-2.5.4/policy/modules/services/nis.te	2007-02-20 12:12:48.000000000 -0500
+@@ -323,17 +323,18 @@
+ #
+ # ypxfr local policy
+ #
+-
++allow ypxfr_t self:unix_dgram_socket create_stream_socket_perms;
+ allow ypxfr_t self:unix_stream_socket create_stream_socket_perms;
+-allow ypxfr_t self:tcp_socket connected_socket_perms;
++allow ypxfr_t self:tcp_socket create_stream_socket_perms;
+ allow ypxfr_t self:udp_socket create_socket_perms;
+-
+-manage_files_pattern(ypxfr_t, var_yp_t, var_yp_t)
++allow ypxfr_t self:netlink_route_socket r_netlink_socket_perms;
+ 
+ allow ypxfr_t ypserv_t:tcp_socket { read write };
+ allow ypxfr_t ypserv_t:udp_socket { read write };
+ 
+-read_files_pattern(ypxfr_t,var_yp_t,var_yp_t)
++allow ypxfr_t ypserv_conf_t:file { getattr read };
++
++manage_files_pattern(ypxfr_t, var_yp_t, var_yp_t)
+ 
+ corenet_non_ipsec_sendrecv(ypxfr_t)
+ corenet_tcp_sendrecv_all_if(ypxfr_t)
+@@ -355,7 +356,18 @@
+ files_read_etc_files(ypxfr_t)
+ files_search_usr(ypxfr_t)
+ 
++init_use_fds(ypxfr_t)
++
+ libs_use_shared_libs(ypxfr_t)
+ libs_use_ld_so(ypxfr_t)
+ 
++logging_send_syslog_msg(ypxfr_t)
++
++miscfiles_read_localization(ypxfr_t)
++
+ sysnet_read_config(ypxfr_t)
++
++ifdef(`targeted_policy', `
++	term_dontaudit_use_unallocated_ttys(ypxfr_t)
++	term_dontaudit_use_generic_ptys(ypxfr_t)
++')
 
--- 
-Stephen Smalley
-National Security Agency
-
+--------------080005030403010606010306--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
