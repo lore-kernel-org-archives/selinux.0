@@ -1,63 +1,80 @@
-Message-ID: <45DB0BED.5050205@redhat.com>
-Date: Tue, 20 Feb 2007 09:55:41 -0500
-From: Daniel J Walsh <dwalsh@redhat.com>
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id l1KF8bNW028267
+	for <selinux@tycho.nsa.gov>; Tue, 20 Feb 2007 10:08:37 -0500
+Received: from web51504.mail.yahoo.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with SMTP id l1KF6sox028635
+	for <selinux@tycho.nsa.gov>; Tue, 20 Feb 2007 15:06:54 GMT
+Message-ID: <20070220150528.49241.qmail@web51504.mail.yahoo.com>
+Date: Tue, 20 Feb 2007 07:05:27 -0800 (PST)
+From: Steve G <linux_4ever@yahoo.com>
+Subject: Re: libselinux patch
+To: Daniel J Walsh <dwalsh@redhat.com>, Stephen Smalley <sds@tycho.nsa.gov>,
+        SE Linux <selinux@tycho.nsa.gov>
+In-Reply-To: <45DB0624.5060907@redhat.com>
 MIME-Version: 1.0
-To: Stephen Smalley <sds@tycho.nsa.gov>, SE Linux <selinux@tycho.nsa.gov>,
-        Karl MacMillan <kmacmill@redhat.com>
-Subject: sepolgen fixes.
-Content-Type: multipart/mixed;
- boundary="------------050104010700050407000306"
+Content-Type: text/plain; charset=iso-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This is a multi-part message in MIME format.
---------------050104010700050407000306
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+>+static int readFD (int fd, char **buf)
+>+{
+>+    char *p;
+>+    size_t size = 16384;
 
-    Change to Makefile to get proper python library path even on 64 bit 
-platforms.
-    Empty or poorly formated interface files cause sepol-ifgen to crash. 
+Why this number? Should it be a define somewhere or based off a kernel parameter?
+
++    int s, filesize;
++
++    *buf = calloc (16384, sizeof (char));
+
+Why calloc? Its not as efficient as plain old malloc.
+
++    if (*buf == 0)
++        return -1;
+
+0 or NULL? There's a difference on 64 bit machines.
+
++
++    filesize = 0;
++    do {
++        p = &(*buf) [filesize];
++	do {
++		s = read (fd, p, 16384);
++	} while (s < 0 && errno == EINTR);
++        if (s < 0)
++            break;
++        filesize += s;
++        /* only exit for empty reads */
++        if (s == 0)
++            break;
++        size += s;
++        *buf = realloc (*buf, size);
+
+So, if you get a short read, why are we playing with memory? This is inefficiant
+for the _normal_ case. The normal case is that you get about 400 bytes for a
+succesful read. I'd say you are better off adjusting the read size on the fly and
+only realloc when you have less that 512 bytes left in the buffer so that there
+is some hysteresis.
+
++    } while (1);
++
++    if (filesize == 0 && s < 0) {
++        free (*buf);
++        *buf = NULL;
++        return -1;
++    }
++
++    return filesize;
++}
++
 
 
---------------050104010700050407000306
-Content-Type: text/x-patch;
- name="policycoreutils-sepolgen.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="policycoreutils-sepolgen.patch"
 
-diff --exclude-from=exclude -N -u -r nsasepolgen/src/sepolgen/Makefile policycoreutils-2.0.1/sepolgen-1.0.0/src/sepolgen/Makefile
---- nsasepolgen/src/sepolgen/Makefile	2007-02-07 12:12:15.000000000 -0500
-+++ policycoreutils-2.0.1/sepolgen-1.0.0/src/sepolgen/Makefile	2007-02-15 15:56:05.000000000 -0500
-@@ -1,4 +1,4 @@
--PYTHONLIBDIR ?= `python -c "from distutils.sysconfig import *; print get_python_lib()"`
-+PYTHONLIBDIR ?= $(shell  python -c "from distutils.sysconfig import *; print get_python_lib(1)")
- PACKAGEDIR ?= $(DESTDIR)/$(PYTHONLIBDIR)/sepolgen
  
- install:
-diff --exclude-from=exclude -N -u -r nsasepolgen/src/sepolgen/refparser.py policycoreutils-2.0.1/sepolgen-1.0.0/src/sepolgen/refparser.py
---- nsasepolgen/src/sepolgen/refparser.py	2007-02-07 12:12:15.000000000 -0500
-+++ policycoreutils-2.0.1/sepolgen-1.0.0/src/sepolgen/refparser.py	2007-02-15 15:16:09.000000000 -0500
-@@ -691,11 +691,13 @@
-             output.write(msg)
- 
-     def parse_file(f, module, spt=None):
--        fd = open(f)
--        txt = fd.read()
--        fd.close()
-         try:
-+            fd = open(f)
-+            txt = fd.read()
-+            fd.close()
-             parse(txt, module, spt)
-+        except IOError, e:
-+            return
-         except ValueError, e:
-             raise ValueError("error parsing file %s: %s" % (f, str(e)))
- 
-
---------------050104010700050407000306--
+____________________________________________________________________________________
+Don't pick lemons.
+See all the new 2007 cars at Yahoo! Autos.
+http://autos.yahoo.com/new_cars.html 
 
 --
 This message was distributed to subscribers of the selinux mailing list.
