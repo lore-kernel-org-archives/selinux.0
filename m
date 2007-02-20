@@ -1,49 +1,63 @@
-Subject: Re: Compile error with the SVN version of the refpolicy.
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Ryan Bradetich <rbradetich@gmail.com>
-Cc: selinux@tycho.nsa.gov
-In-Reply-To: <e739902b0702162219o45a8ccc9v5e5092c9e310c4bb@mail.gmail.com>
-References: <e739902b0702162219o45a8ccc9v5e5092c9e310c4bb@mail.gmail.com>
-Content-Type: text/plain
-Date: Tue, 20 Feb 2007 09:24:46 -0500
-Message-Id: <1171981486.14363.13.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+Message-ID: <45DB0BED.5050205@redhat.com>
+Date: Tue, 20 Feb 2007 09:55:41 -0500
+From: Daniel J Walsh <dwalsh@redhat.com>
+MIME-Version: 1.0
+To: Stephen Smalley <sds@tycho.nsa.gov>, SE Linux <selinux@tycho.nsa.gov>,
+        Karl MacMillan <kmacmill@redhat.com>
+Subject: sepolgen fixes.
+Content-Type: multipart/mixed;
+ boundary="------------050104010700050407000306"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2007-02-16 at 22:19 -0800, Ryan Bradetich wrote:
-> Hello all,
-> 
-> I am having a compile problem with the latest SVN check out of the
-> refpolicy.  Here is the error message:
-> 
-> /usr/bin/checkpolicy policy.conf -o
-> /etc/selinux/refpolicy/policy/policy.21
-> /usr/bin/checkpolicy:  loading policy configuration from policy.conf
-> policy/modules/services/zebra.te:1136:ERROR 'syntax error' at token
-> 'ntfs-3g' on line 1523915:
-> genfscon msdos / system_u:object_r:dosfs_t
-> genfscon ntfs-3g / system_u:object_r:dosfs_t
-> checkpolicy:  error(s) encountered while parsing configuration
-> make: *** [/etc/selinux/refpolicy/policy/policy.21] Error 1
-> 
-> 
-> The problem is that checkpolicy does not appear to like the '-'
-> character.  I changed the '-' to a '_' in the
-> policy/modules/kernel/filesystem.te file to fix the compile problem.
-> 
-> 
-> If this change is correct, I have provided a patch to someone can apply.
+This is a multi-part message in MIME format.
+--------------050104010700050407000306
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
-No, the filesystem type string must match what the kernel module defines
-it to be, and in this case, it truly is "ntfs-3g".  You need a newer
-checkpolicy (1.33.1 or later).  When building refpolicy from the tresys
-svn, use the latest checkpolicy from the sourceforge svn.
+    Change to Makefile to get proper python library path even on 64 bit 
+platforms.
+    Empty or poorly formated interface files cause sepol-ifgen to crash. 
 
--- 
-Stephen Smalley
-National Security Agency
 
+--------------050104010700050407000306
+Content-Type: text/x-patch;
+ name="policycoreutils-sepolgen.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="policycoreutils-sepolgen.patch"
+
+diff --exclude-from=exclude -N -u -r nsasepolgen/src/sepolgen/Makefile policycoreutils-2.0.1/sepolgen-1.0.0/src/sepolgen/Makefile
+--- nsasepolgen/src/sepolgen/Makefile	2007-02-07 12:12:15.000000000 -0500
++++ policycoreutils-2.0.1/sepolgen-1.0.0/src/sepolgen/Makefile	2007-02-15 15:56:05.000000000 -0500
+@@ -1,4 +1,4 @@
+-PYTHONLIBDIR ?= `python -c "from distutils.sysconfig import *; print get_python_lib()"`
++PYTHONLIBDIR ?= $(shell  python -c "from distutils.sysconfig import *; print get_python_lib(1)")
+ PACKAGEDIR ?= $(DESTDIR)/$(PYTHONLIBDIR)/sepolgen
+ 
+ install:
+diff --exclude-from=exclude -N -u -r nsasepolgen/src/sepolgen/refparser.py policycoreutils-2.0.1/sepolgen-1.0.0/src/sepolgen/refparser.py
+--- nsasepolgen/src/sepolgen/refparser.py	2007-02-07 12:12:15.000000000 -0500
++++ policycoreutils-2.0.1/sepolgen-1.0.0/src/sepolgen/refparser.py	2007-02-15 15:16:09.000000000 -0500
+@@ -691,11 +691,13 @@
+             output.write(msg)
+ 
+     def parse_file(f, module, spt=None):
+-        fd = open(f)
+-        txt = fd.read()
+-        fd.close()
+         try:
++            fd = open(f)
++            txt = fd.read()
++            fd.close()
+             parse(txt, module, spt)
++        except IOError, e:
++            return
+         except ValueError, e:
+             raise ValueError("error parsing file %s: %s" % (f, str(e)))
+ 
+
+--------------050104010700050407000306--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
