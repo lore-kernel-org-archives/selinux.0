@@ -1,35 +1,53 @@
-From: Stefanos Harhalakis <v13@it.teithe.gr>
-To: Steve G <linux_4ever@yahoo.com>
-Subject: Re: libselinux patch
-Date: Wed, 21 Feb 2007 16:47:46 +0200
-Cc: Stephen Smalley <sds@tycho.nsa.gov>, Daniel J Walsh <dwalsh@redhat.com>,
-        SE Linux <selinux@tycho.nsa.gov>
-References: <20070221133743.85727.qmail@web51506.mail.yahoo.com>
-In-Reply-To: <20070221133743.85727.qmail@web51506.mail.yahoo.com>
+Message-ID: <45DC7551.9090200@mentalrootkit.com>
+Date: Wed, 21 Feb 2007 11:37:37 -0500
+From: Karl MacMillan <kmacmillan@mentalrootkit.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-7"
-Message-Id: <200702211647.46457.v13@it.teithe.gr>
+To: Daniel J Walsh <dwalsh@redhat.com>
+CC: Stephen Smalley <sds@tycho.nsa.gov>, SE Linux <selinux@tycho.nsa.gov>
+Subject: Re: chcat changes (Was:  Re: policycoreutils patch)
+References: <45DB0AB8.3070803@redhat.com> <1171988571.14363.111.camel@moss-spartans.epoch.ncsc.mil> <45DB3637.7080400@redhat.com>
+In-Reply-To: <45DB3637.7080400@redhat.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wednesday 21 February 2007 15:37, Steve G wrote:
-> >At present, libselinux dynamically determines where selinuxfs is mounted
-> >via /proc/mounts in init_selinuxmnt() and uses that path for all calls
-> >that operate on selinuxfs.
->
-> I guess that path could be used for statfs?
->
-> >Also, statfs'ing /selinux requires selinuxfs to already be mounted before
-> >you can call is_selinux_enabled(),
->
-> Is selinux really enabled if its not available for use (mounted)?
+Daniel J Walsh wrote:
+> Stephen Smalley wrote:
+>> On Tue, 2007-02-20 at 09:50 -0500, Daniel J Walsh wrote:
+>>  
+>>> chcat fixes:
+>>>     * Broken stderr handling fix
+>>>     * if serange ends in a ":" chop it off.
+>>>     * Switch chcat to exec semanage rather than use builtin so that 
+>>> proper transitions happen, otherwise I would have to run chcat under 
+>>> an semanage context.
+>>>     
+>>
+>> Why would a range end in a ":"?  Context translation issue?
+>>
+>>   
+> No.
+>      new_serange = "%s-%s:%s" % (serange[0], top[0], string.join(cats, 
+> ","))
+>        if new_serange[-1:] == ":":
+>            new_serange = new_serange[:-1]
+> If you did not have cats you would end up with s0-s0:
+> 
 
-  When working under chroot(), /proc may be available but /selinux may not be. 
-In that case /proc/mounts will list /selinux but you will not be able to 
-stat() it.
+Then why not something more direct (completely untested):
 
-<<V13>>
+new_serange = "%s-%s" % (searange[0], top[0])
+new_cats = ",".join(cats)
+if new_cats != '':
+	new_serange = new_serange + ":" + new_cats
+
+I think that the list subscripting with -1 and : is confusing to 
+non-python programmers. Also, I think that use of string.join is 
+discouraged in favor of using the join method on strings - though that 
+likely looks as odd as a -1 index to a non-python programmer.
+
+Karl
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
