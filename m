@@ -1,52 +1,57 @@
-Message-ID: <45DC7551.9090200@mentalrootkit.com>
-Date: Wed, 21 Feb 2007 11:37:37 -0500
+Message-ID: <45DC7DE3.7090903@mentalrootkit.com>
+Date: Wed, 21 Feb 2007 12:14:11 -0500
 From: Karl MacMillan <kmacmillan@mentalrootkit.com>
 MIME-Version: 1.0
 To: Daniel J Walsh <dwalsh@redhat.com>
-CC: Stephen Smalley <sds@tycho.nsa.gov>, SE Linux <selinux@tycho.nsa.gov>
-Subject: Re: chcat changes (Was:  Re: policycoreutils patch)
-References: <45DB0AB8.3070803@redhat.com> <1171988571.14363.111.camel@moss-spartans.epoch.ncsc.mil> <45DB3637.7080400@redhat.com>
-In-Reply-To: <45DB3637.7080400@redhat.com>
+CC: Stephen Smalley <sds@tycho.nsa.gov>, SE Linux <selinux@tycho.nsa.gov>,
+        Karl MacMillan <kmacmill@redhat.com>
+Subject: Re: sepolgen fixes.
+References: <45DB0BED.5050205@redhat.com>
+In-Reply-To: <45DB0BED.5050205@redhat.com>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 Daniel J Walsh wrote:
-> Stephen Smalley wrote:
->> On Tue, 2007-02-20 at 09:50 -0500, Daniel J Walsh wrote:
->>  
->>> chcat fixes:
->>>     * Broken stderr handling fix
->>>     * if serange ends in a ":" chop it off.
->>>     * Switch chcat to exec semanage rather than use builtin so that 
->>> proper transitions happen, otherwise I would have to run chcat under 
->>> an semanage context.
->>>     
->>
->> Why would a range end in a ":"?  Context translation issue?
->>
->>   
-> No.
->      new_serange = "%s-%s:%s" % (serange[0], top[0], string.join(cats, 
-> ","))
->        if new_serange[-1:] == ":":
->            new_serange = new_serange[:-1]
-> If you did not have cats you would end up with s0-s0:
+>    Change to Makefile to get proper python library path even on 64 bit 
+> platforms.
+>    Empty or poorly formated interface files cause sepol-ifgen to crash.
+> 
 > 
 
-Then why not something more direct (completely untested):
+Acked-by: Karl MacMillan <kmacmillan@mentalrootkit.com>
 
-new_serange = "%s-%s" % (searange[0], top[0])
-new_cats = ",".join(cats)
-if new_cats != '':
-	new_serange = new_serange + ":" + new_cats
-
-I think that the list subscripting with -1 and : is confusing to 
-non-python programmers. Also, I think that use of string.join is 
-discouraged in favor of using the join method on strings - though that 
-likely looks as odd as a -1 index to a non-python programmer.
-
-Karl
+> ------------------------------------------------------------------------
+> 
+> diff --exclude-from=exclude -N -u -r nsasepolgen/src/sepolgen/Makefile policycoreutils-2.0.1/sepolgen-1.0.0/src/sepolgen/Makefile
+> --- nsasepolgen/src/sepolgen/Makefile	2007-02-07 12:12:15.000000000 -0500
+> +++ policycoreutils-2.0.1/sepolgen-1.0.0/src/sepolgen/Makefile	2007-02-15 15:56:05.000000000 -0500
+> @@ -1,4 +1,4 @@
+> -PYTHONLIBDIR ?= `python -c "from distutils.sysconfig import *; print get_python_lib()"`
+> +PYTHONLIBDIR ?= $(shell  python -c "from distutils.sysconfig import *; print get_python_lib(1)")
+>  PACKAGEDIR ?= $(DESTDIR)/$(PYTHONLIBDIR)/sepolgen
+>  
+>  install:
+> diff --exclude-from=exclude -N -u -r nsasepolgen/src/sepolgen/refparser.py policycoreutils-2.0.1/sepolgen-1.0.0/src/sepolgen/refparser.py
+> --- nsasepolgen/src/sepolgen/refparser.py	2007-02-07 12:12:15.000000000 -0500
+> +++ policycoreutils-2.0.1/sepolgen-1.0.0/src/sepolgen/refparser.py	2007-02-15 15:16:09.000000000 -0500
+> @@ -691,11 +691,13 @@
+>              output.write(msg)
+>  
+>      def parse_file(f, module, spt=None):
+> -        fd = open(f)
+> -        txt = fd.read()
+> -        fd.close()
+>          try:
+> +            fd = open(f)
+> +            txt = fd.read()
+> +            fd.close()
+>              parse(txt, module, spt)
+> +        except IOError, e:
+> +            return
+>          except ValueError, e:
+>              raise ValueError("error parsing file %s: %s" % (f, str(e)))
+>  
 
 
 --
