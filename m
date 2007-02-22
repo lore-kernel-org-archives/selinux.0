@@ -1,69 +1,81 @@
-Subject: Re: I think this is equivalent to what we have now and
-	more	efficient.
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Daniel J Walsh <dwalsh@redhat.com>
-Cc: Steve Grubb <sgrubb@redhat.com>, SE Linux <selinux@tycho.nsa.gov>
-In-Reply-To: <45DDB102.6080309@redhat.com>
-References: <45DDAA80.80603@redhat.com>
-	 <1172155540.14363.372.camel@moss-spartans.epoch.ncsc.mil>
-	 <45DDB102.6080309@redhat.com>
-Content-Type: text/plain
-Date: Thu, 22 Feb 2007 10:10:49 -0500
-Message-Id: <1172157049.14363.381.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id l1MFM9al030916
+	for <selinux@tycho.nsa.gov>; Thu, 22 Feb 2007 10:22:09 -0500
+Received: from atlrel6.hp.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l1MFNRTj016502
+	for <selinux@tycho.nsa.gov>; Thu, 22 Feb 2007 15:23:28 GMT
+Received: from smtp2.fc.hp.com (smtp.fc.hp.com [15.11.136.114])
+	by atlrel6.hp.com (Postfix) with ESMTP id 50BDF343DC
+	for <selinux@tycho.nsa.gov>; Thu, 22 Feb 2007 10:23:27 -0500 (EST)
+Message-ID: <45DDB4CD.7040308@hp.com>
+Date: Thu, 22 Feb 2007 10:20:45 -0500
+From: Linda Knippers <linda.knippers@hp.com>
+MIME-Version: 1.0
+To: selinux@tycho.nsa.gov
+Subject: Re: [PATCH] newrole: fix for newrole hanging on some serial consoles
+References: <45DDACEE.20205@hp.com>
+In-Reply-To: <45DDACEE.20205@hp.com>
+Content-Type: multipart/mixed;
+ boundary="------------010904080606030409020809"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2007-02-22 at 10:04 -0500, Daniel J Walsh wrote:
-> Stephen Smalley wrote:
-> > On Thu, 2007-02-22 at 09:36 -0500, Daniel J Walsh wrote:
-> >   
-> >> int is_selinux_enabled(void)
-> >> {
-> >>     security_context_t con;
-> >>
-> >>     if (getcon_raw(&con) == 0) {
-> >>         int enabled = 1;
-> >>         if (!strcmp(con, "kernel"))
-> >>             enabled = 0;
-> >>         freecon(con);
-> >>         return enabled;
-> >>     
-> >
-> > IOW, if I can read /proc/self/attr/current successfully (will fail if
-> > SELinux disabled or under certain unrelated conditions) and its value
-> > indicates a policy has been loaded, then SELinux is enabled.
-> >
-> >   
-> >>     } else {
-> >>         struct stat buf;
-> >>         return (stat("/proc/filesystems", &buf));
-> >>     
-> >
-> > That won't test for selinux at all - you have to check the contents
-> > of /proc/filesystems for selinuxfs or stat /selinux and check for the
-> > selinux magic number as per Steve's patch.
-> >
-> >   
-> Ok I will look at Steve's patch, but our existing code is
-> Returning 1 if I can get con and it is not equil kernel
-> else
-> returning 0 whether or not selinuxfs was in the list. 
-> Only returning -1 if it failed to be able to detect, IE /proc was not 
-> mounted. Also return -1 if out of memory.
+This is a multi-part message in MIME format.
+--------------010904080606030409020809
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 
-I prefer an explicit test like checking for selinuxfs
-in /proc/filesystems or statfs'ing /selinux and checking for
-SELINUX_MAGIC rather than a heuristic like the getcon check; I'd
-actually favor dropping the getcon check altogether.  As I said, the
-only case where you can have no-policy-loaded and SELinux enabled is if
-SELINUX=permissive and there was no policy or a corrupted policy file.
-(of course, the old check was based on our own syscall when we had one).
+Reposting to fix a whitespace problem and adjust the patch location.
 
--- 
-Stephen Smalley
-National Security Agency
+Signed-off-by: Linda Knippers <linda.knippers@hp.com>
 
+--------------010904080606030409020809
+Content-Type: text/plain;
+ name="newrole.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="newrole.patch"
+
+--- policycoreutils-1.33.12/newrole/newrole.c	2007-02-20 13:32:46.000000000 -0500
++++ policycoreutils-1.33.12.ljk/newrole/newrole.c	2007-02-22 10:20:39.000000000 -0500
+@@ -636,11 +636,12 @@ static int relabel_tty(const char *ttyn,
+ 	}
+ 
+ 	/* Re-open TTY descriptor */
+-	fd = open(ttyn, O_RDWR);
++	fd = open(ttyn, O_RDWR|O_NONBLOCK);
+ 	if (fd < 0) {
+ 		fprintf(stderr, _("Error!  Could not open %s.\n"), ttyn);
+ 		return fd;
+ 	}
++	fcntl(fd, F_SETFL, fcntl(fd, F_GETFL, 0) & ~O_NONBLOCK);
+ 
+ 	if (fgetfilecon(fd, &tty_con) < 0) {
+ 		fprintf(stderr, _("%s!  Could not get current context "
+@@ -1127,15 +1128,18 @@ int main(int argc, char *argv[])
+ 		fprintf(stderr, _("Could not close descriptors.\n"));
+ 		goto err_close_pam;
+ 	}
+-	fd = open(ttyn, O_RDONLY);
++	fd = open(ttyn, O_RDONLY|O_NONBLOCK);
+ 	if (fd != 0)
+ 		goto err_close_pam;
+-	fd = open(ttyn, O_RDWR);
++	fcntl(fd, F_SETFL, fcntl(fd, F_GETFL, 0) & ~O_NONBLOCK);
++	fd = open(ttyn, O_RDWR|O_NONBLOCK);
+ 	if (fd != 1)
+ 		goto err_close_pam;
+-	fd = open(ttyn, O_RDWR);
++	fcntl(fd, F_SETFL, fcntl(fd, F_GETFL, 0) & ~O_NONBLOCK);
++	fd = open(ttyn, O_RDWR|O_NONBLOCK);
+ 	if (fd != 2)
+ 		goto err_close_pam;
++	fcntl(fd, F_SETFL, fcntl(fd, F_GETFL, 0) & ~O_NONBLOCK);
+ 
+ 	/*
+ 	 * Step 5:  Execute a new shell with the new context in `new_context'. 
+
+--------------010904080606030409020809--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
