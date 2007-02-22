@@ -1,33 +1,42 @@
-Message-ID: <45DDCAA4.1070103@trustedcs.com>
-Date: Thu, 22 Feb 2007 10:53:56 -0600
-From: Darrel Goeddel <dgoeddel@TrustedCS.com>
-MIME-Version: 1.0
+From: Steve Grubb <sgrubb@redhat.com>
 To: Daniel J Walsh <dwalsh@redhat.com>
-CC: Stephen Smalley <sds@tycho.nsa.gov>, selinux@tycho.nsa.gov
-Subject: Re: [RFC] Remove init_context_translations() from libselinux
-References: <1172078429.14363.279.camel@moss-spartans.epoch.ncsc.mil> <45DDBFB0.9040401@redhat.com>
-In-Reply-To: <45DDBFB0.9040401@redhat.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Subject: Re: I think this is equivalent to what we have =?iso-8859-1?q?now=09and=09more=09efficient=2E?=
+Date: Thu, 22 Feb 2007 11:56:48 -0500
+Cc: Stephen Smalley <sds@tycho.nsa.gov>, SE Linux <selinux@tycho.nsa.gov>
+References: <45DDAA80.80603@redhat.com> <1172159012.14363.404.camel@moss-spartans.epoch.ncsc.mil> <45DDBEFA.3050901@redhat.com>
+In-Reply-To: <45DDBEFA.3050901@redhat.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Message-Id: <200702221156.49050.sgrubb@redhat.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Daniel J Walsh wrote:
-> Stephen Smalley wrote:
->> I think we've talked about this before, but never followed through.
->> Is there any reason to retain the init_context_translations() function
->> in libselinux, which sends a SETRANS_INIT message to mcstransd, gets a
->> response, and discards it?  Can we drop it and the call to it from the
->> library constructor/initializer?
->>
->>   
-> Ok with me.
+On Thursday 22 February 2007 11:04:10 Daniel J Walsh wrote:
+>     fp = fopen("/proc/filesystems", "r");
+>     if (fp == NULL)
+>         return -1;
 
-Removal looks OK to me.  It used to be that a failure would cause
-translations to be disabled, but it is now vestigial.
+This avoids speedups if selinux_mnt already determined that selinux file 
+system is mounted.
 
--- 
+>     while ((read = getline(&line, &len, fp)) != -1) {
 
-Darrel
+calls malloc/realloc sometimes. Do we want to use this or just use 
+fgets_unlocked?
+
+>         if (strstr(line, "selinuxfs")) {
+>             enabled=1;
+>             break;
+>         }
+>     }
+
+check for policy loaded ?
+
+>     free(line);
+>     fclose(fp);
+>     return enabled;
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
