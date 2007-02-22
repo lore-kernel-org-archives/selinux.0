@@ -1,126 +1,171 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id l1MMMR8D018037
-	for <selinux@tycho.nsa.gov>; Thu, 22 Feb 2007 17:22:27 -0500
-Received: from mx1.redhat.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l1MMNiWA004459
-	for <selinux@tycho.nsa.gov>; Thu, 22 Feb 2007 22:23:44 GMT
-Received: from int-mx1.corp.redhat.com (int-mx1.corp.redhat.com [172.16.52.254])
-	by mx1.redhat.com (8.13.1/8.13.1) with ESMTP id l1MMNiuW025996
-	for <selinux@tycho.nsa.gov>; Thu, 22 Feb 2007 17:23:44 -0500
-Received: from pobox-2.corp.redhat.com (pobox-2.corp.redhat.com [10.11.255.15])
-	by int-mx1.corp.redhat.com (8.13.1/8.13.1) with ESMTP id l1MMNhgB009516
-	for <selinux@tycho.nsa.gov>; Thu, 22 Feb 2007 17:23:44 -0500
-Received: from [10.11.14.28] (vpn-14-28.rdu.redhat.com [10.11.14.28])
-	by pobox-2.corp.redhat.com (8.13.1/8.13.1) with ESMTP id l1MMNhTj000422
-	for <selinux@tycho.nsa.gov>; Thu, 22 Feb 2007 17:23:43 -0500
-Message-ID: <45DE17E7.1070000@mentalrootkit.com>
-Date: Thu, 22 Feb 2007 17:23:35 -0500
-From: Karl MacMillan <kmacmillan@mentalrootkit.com>
-MIME-Version: 1.0
-To: SELinux Mail List <selinux@tycho.nsa.gov>
-Subject: [PATCH] sepolgen: optionally generate debugging information during
- parsing
-Content-Type: multipart/mixed;
- boundary="------------090102070400050703040808"
+Subject: [PATCH] Reassign printk levels in selinux kernel code
+From: Eric Paris <eparis@parisplace.org>
+To: selinux@tycho.nsa.gov
+Cc: sds@tycho.nsa.gov, jmorris@namei.org
+Content-Type: text/plain
+Date: Thu, 22 Feb 2007 18:11:31 -0500
+Message-Id: <1172185891.3142.48.camel@localhost.localdomain>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This is a multi-part message in MIME format.
---------------090102070400050703040808
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Below is a patch which demotes many printk lines to KERN_DEBUG from
+KERN_INFO.  It should help stop the spamming of logs with messages in
+which users are not interested nor is there any action that users should
+take.  It also promotes some KERN_INFO to KERN_ERR such as when there
+are improper attempts to register/unregister security modules.
 
-This patch allows a caller to request the output of debugging 
-information from the parser. This is mainly useful for development / 
-debugging of the parser.
+A similar patch was discussed a while back on list:
+http://marc.theaimsgroup.com/?t=116656343500003&r=1&w=2
+This patch addresses almost all of the issues raised.  I believe the
+only advice not taken was in the demoting of messages related to
+undefined permissions and classes.
 
-Signed-off-by: Karl MacMillan <kmacmillan@mentalrootkit.com>
+Signed-off-by: Eric Paris <eparis@redhat.com>
 
---------------090102070400050703040808
-Content-Type: text/x-patch;
- name="sepolgen-parser-debug.diff"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="sepolgen-parser-debug.diff"
+ security/selinux/hooks.c       |   20 ++++++++++----------
+ security/selinux/ss/avtab.c    |    2 +-
+ security/selinux/ss/policydb.c |    6 +++---
+ security/selinux/ss/sidtab.c   |    2 +-
+ 4 files changed, 15 insertions(+), 15 deletions(-)
 
-diff -r af054201710a sepolgen/src/sepolgen/refparser.py
---- a/sepolgen/src/sepolgen/refparser.py	Thu Feb 22 15:42:47 2007 -0500
-+++ b/sepolgen/src/sepolgen/refparser.py	Thu Feb 22 17:07:44 2007 -0500
-@@ -611,11 +611,11 @@ def prep_spt(spt):
+diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+index b1ac22d..afb82fd 100644
+--- a/security/selinux/hooks.c
++++ b/security/selinux/hooks.c
+@@ -653,11 +653,11 @@ static int superblock_doinit(struct super_block *sb, void *data)
+ 	sbsec->initialized = 1;
  
- parser = None
- lexer = None
--def create_globals(module, support):
-+def create_globals(module, support, debug):
-     global parser, lexer, m, spt
-     if not parser:
-         lexer = lex.lex()
--        parser = yacc.yacc(method="LALR", debug=0, write_tables=0)
-+        parser = yacc.yacc(method="LALR", debug=debug, write_tables=0)
+ 	if (sbsec->behavior > ARRAY_SIZE(labeling_behaviors)) {
+-		printk(KERN_INFO "SELinux: initialized (dev %s, type %s), unknown behavior\n",
++		printk(KERN_ERR "SELinux: initialized (dev %s, type %s), unknown behavior\n",
+ 		       sb->s_id, sb->s_type->name);
+ 	}
+ 	else {
+-		printk(KERN_INFO "SELinux: initialized (dev %s, type %s), %s\n",
++		printk(KERN_DEBUG "SELinux: initialized (dev %s, type %s), %s\n",
+ 		       sb->s_id, sb->s_type->name,
+ 		       labeling_behaviors[sbsec->behavior-1]);
+ 	}
+@@ -4434,7 +4434,7 @@ static int selinux_ipc_permission(struct kern_ipc_perm *ipcp, short flag)
+ static int selinux_register_security (const char *name, struct security_operations *ops)
+ {
+ 	if (secondary_ops != original_ops) {
+-		printk(KERN_INFO "%s:  There is already a secondary security "
++		printk(KERN_ERR "%s:  There is already a secondary security "
+ 		       "module registered.\n", __FUNCTION__);
+ 		return -EINVAL;
+  	}
+@@ -4451,7 +4451,7 @@ static int selinux_register_security (const char *name, struct security_operatio
+ static int selinux_unregister_security (const char *name, struct security_operations *ops)
+ {
+ 	if (ops != secondary_ops) {
+-		printk (KERN_INFO "%s:  trying to unregister a security module "
++		printk(KERN_ERR "%s:  trying to unregister a security module "
+ 		        "that is not registered.\n", __FUNCTION__);
+ 		return -EINVAL;
+ 	}
+@@ -4889,9 +4889,9 @@ static __init int selinux_init(void)
+ 		panic("SELinux: Unable to register with kernel.\n");
  
-     if module is not None:
-         m = module
-@@ -627,13 +627,13 @@ def create_globals(module, support):
-     else:
-         spt = support
+ 	if (selinux_enforcing) {
+-		printk(KERN_INFO "SELinux:  Starting in enforcing mode\n");
++		printk(KERN_DEBUG "SELinux:  Starting in enforcing mode\n");
+ 	} else {
+-		printk(KERN_INFO "SELinux:  Starting in permissive mode\n");
++		printk(KERN_DEBUG "SELinux:  Starting in permissive mode\n");
+ 	}
  
--def parse(text, module=None, support=None):
--    create_globals(module, support)
-+def parse(text, module=None, support=None, debug=False):
-+    create_globals(module, support, debug)
-     lexer.lexdata = []
-     lexer.lexpos = 0
+ #ifdef CONFIG_KEYS
+@@ -4907,10 +4907,10 @@ static __init int selinux_init(void)
  
-     try:
--        parser.parse(text, debug=0)
-+        parser.parse(text, debug=debug)
-     except Exception, e:
-         global error
-         error = "internal parser error: %s" % str(e)
-@@ -670,7 +670,7 @@ def list_headers(root):
-     return (modules, support_macros)
+ void selinux_complete_init(void)
+ {
+-	printk(KERN_INFO "SELinux:  Completing initialization.\n");
++	printk(KERN_DEBUG "SELinux:  Completing initialization.\n");
  
+ 	/* Set up any superblocks initialized prior to the policy load. */
+-	printk(KERN_INFO "SELinux:  Setting up existing superblocks.\n");
++	printk(KERN_DEBUG "SELinux:  Setting up existing superblocks.\n");
+ 	spin_lock(&sb_lock);
+ 	spin_lock(&sb_security_lock);
+ next_sb:
+@@ -4969,7 +4969,7 @@ static int __init selinux_nf_ip_init(void)
+ 	if (!selinux_enabled)
+ 		goto out;
+ 		
+-	printk(KERN_INFO "SELinux:  Registering netfilter hooks\n");
++	printk(KERN_DEBUG "SELinux:  Registering netfilter hooks\n");
+ 	
+ 	err = nf_register_hook(&selinux_ipv4_op);
+ 	if (err)
+@@ -4992,7 +4992,7 @@ __initcall(selinux_nf_ip_init);
+ #ifdef CONFIG_SECURITY_SELINUX_DISABLE
+ static void selinux_nf_ip_exit(void)
+ {
+-	printk(KERN_INFO "SELinux:  Unregistering netfilter hooks\n");
++	printk(KERN_DEBUG "SELinux:  Unregistering netfilter hooks\n");
  
--def parse_headers(root, output=None, expand=True):
-+def parse_headers(root, output=None, expand=True, debug=False):
-     import util
+ 	nf_unregister_hook(&selinux_ipv4_op);
+ #if defined(CONFIG_IPV6) || defined(CONFIG_IPV6_MODULE)
+diff --git a/security/selinux/ss/avtab.c b/security/selinux/ss/avtab.c
+index 9142073..3122908 100644
+--- a/security/selinux/ss/avtab.c
++++ b/security/selinux/ss/avtab.c
+@@ -277,7 +277,7 @@ void avtab_hash_eval(struct avtab *h, char *tag)
+ 		}
+ 	}
  
-     headers = refpolicy.Headers()
-@@ -696,11 +696,13 @@ def parse_headers(root, output=None, exp
-             output.write(msg)
+-	printk(KERN_INFO "%s:  %d entries and %d/%d buckets used, longest "
++	printk(KERN_DEBUG "%s:  %d entries and %d/%d buckets used, longest "
+ 	       "chain length %d\n", tag, h->nel, slots_used, AVTAB_SIZE,
+ 	       max_chain_len);
+ }
+diff --git a/security/selinux/ss/policydb.c b/security/selinux/ss/policydb.c
+index cd79c63..0ac1021 100644
+--- a/security/selinux/ss/policydb.c
++++ b/security/selinux/ss/policydb.c
+@@ -374,7 +374,7 @@ static void symtab_hash_eval(struct symtab *s)
+ 		struct hashtab_info info;
  
-     def parse_file(f, module, spt=None):
-+        if debug:
-+            o("parsing file %s\n" % f)
-         try:
-             fd = open(f)
-             txt = fd.read()
-             fd.close()
--            parse(txt, module, spt)
-+            parse(txt, module, spt, debug)
-         except IOError, e:
-             return
-         except ValueError, e:
-@@ -726,7 +728,7 @@ def parse_headers(root, output=None, exp
+ 		hashtab_stat(h, &info);
+-		printk(KERN_INFO "%s:  %d entries and %d/%d buckets used, "
++		printk(KERN_DEBUG "%s:  %d entries and %d/%d buckets used, "
+ 		       "longest chain length %d\n", symtab_name[i], h->nel,
+ 		       info.slots_used, h->size, info.max_chain_len);
+ 	}
+@@ -391,14 +391,14 @@ static int policydb_index_others(struct policydb *p)
+ {
+ 	int i, rc = 0;
  
-         o("done.\n")
+-	printk(KERN_INFO "security:  %d users, %d roles, %d types, %d bools",
++	printk(KERN_DEBUG "security:  %d users, %d roles, %d types, %d bools",
+ 	       p->p_users.nprim, p->p_roles.nprim, p->p_types.nprim, p->p_bools.nprim);
+ 	if (selinux_mls_enabled)
+ 		printk(", %d sens, %d cats", p->p_levels.nprim,
+ 		       p->p_cats.nprim);
+ 	printk("\n");
  
--    if output:
-+    if output and not debug:
-         status = util.ConsoleProgressBar(sys.stdout, steps=len(modules))
-         status.start("Parsing interface files")
+-	printk(KERN_INFO "security:  %d classes, %d rules\n",
++	printk(KERN_DEBUG "security:  %d classes, %d rules\n",
+ 	       p->p_classes.nprim, p->te_avtab.nel);
  
-@@ -744,7 +746,7 @@ def parse_headers(root, output=None, exp
-             continue
+ #ifdef DEBUG_HASHES
+diff --git a/security/selinux/ss/sidtab.c b/security/selinux/ss/sidtab.c
+index d78f9ff..53a54a7 100644
+--- a/security/selinux/ss/sidtab.c
++++ b/security/selinux/ss/sidtab.c
+@@ -253,7 +253,7 @@ void sidtab_hash_eval(struct sidtab *h, char *tag)
+ 		}
+ 	}
  
-         headers.children.append(m)
--        if output:
-+        if output and not debug:
-             status.step()
- 
-     if len(failures):
+-	printk(KERN_INFO "%s:  %d entries and %d/%d buckets used, longest "
++	printk(KERN_DEBUG "%s:  %d entries and %d/%d buckets used, longest "
+ 	       "chain length %d\n", tag, h->nel, slots_used, SIDTAB_SIZE,
+ 	       max_chain_len);
+ }
 
---------------090102070400050703040808--
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
