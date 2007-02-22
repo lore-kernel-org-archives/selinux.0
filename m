@@ -1,63 +1,147 @@
-Subject: Re: [PATCH] newrole: fix for newrole hanging on some serial
-	consoles
+Subject: Re: I think this is equivalent to what we have
+	now	and	more	efficient.
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Linda Knippers <linda.knippers@hp.com>
-Cc: selinux@tycho.nsa.gov
-In-Reply-To: <45DDB4CD.7040308@hp.com>
-References: <45DDACEE.20205@hp.com>  <45DDB4CD.7040308@hp.com>
+To: Daniel J Walsh <dwalsh@redhat.com>
+Cc: Steve Grubb <sgrubb@redhat.com>, SE Linux <selinux@tycho.nsa.gov>
+In-Reply-To: <45DDBEFA.3050901@redhat.com>
+References: <45DDAA80.80603@redhat.com>
+	 <1172155540.14363.372.camel@moss-spartans.epoch.ncsc.mil>
+	 <45DDB102.6080309@redhat.com>
+	 <1172157049.14363.381.camel@moss-spartans.epoch.ncsc.mil>
+	 <45DDB878.2030505@redhat.com>
+	 <1172158714.14363.399.camel@moss-spartans.epoch.ncsc.mil>
+	 <1172159012.14363.404.camel@moss-spartans.epoch.ncsc.mil>
+	 <45DDBEFA.3050901@redhat.com>
 Content-Type: text/plain
-Date: Thu, 22 Feb 2007 11:07:47 -0500
-Message-Id: <1172160467.14363.416.camel@moss-spartans.epoch.ncsc.mil>
+Date: Thu, 22 Feb 2007 11:10:44 -0500
+Message-Id: <1172160644.14363.418.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2007-02-22 at 10:20 -0500, Linda Knippers wrote:
-> Reposting to fix a whitespace problem and adjust the patch location.
+On Thu, 2007-02-22 at 11:04 -0500, Daniel J Walsh wrote:
+> Stephen Smalley wrote:
+> > On Thu, 2007-02-22 at 10:38 -0500, Stephen Smalley wrote:
+> >   
+> >> On Thu, 2007-02-22 at 10:36 -0500, Daniel J Walsh wrote:
+> >>     
+> >>> Stephen Smalley wrote:
+> >>>       
+> >>>> On Thu, 2007-02-22 at 10:04 -0500, Daniel J Walsh wrote:
+> >>>>   
+> >>>>         
+> >>>>> Stephen Smalley wrote:
+> >>>>>     
+> >>>>>           
+> >>>>>> On Thu, 2007-02-22 at 09:36 -0500, Daniel J Walsh wrote:
+> >>>>>>   
+> >>>>>>       
+> >>>>>>             
+> >>>>>>> int is_selinux_enabled(void)
+> >>>>>>> {
+> >>>>>>>     security_context_t con;
+> >>>>>>>
+> >>>>>>>     if (getcon_raw(&con) == 0) {
+> >>>>>>>         int enabled = 1;
+> >>>>>>>         if (!strcmp(con, "kernel"))
+> >>>>>>>             enabled = 0;
+> >>>>>>>         freecon(con);
+> >>>>>>>         return enabled;
+> >>>>>>>     
+> >>>>>>>         
+> >>>>>>>               
+> >>>>>> IOW, if I can read /proc/self/attr/current successfully (will fail if
+> >>>>>> SELinux disabled or under certain unrelated conditions) and its value
+> >>>>>> indicates a policy has been loaded, then SELinux is enabled.
+> >>>>>>
+> >>>>>>   
+> >>>>>>       
+> >>>>>>             
+> >>>>>>>     } else {
+> >>>>>>>         struct stat buf;
+> >>>>>>>         return (stat("/proc/filesystems", &buf));
+> >>>>>>>     
+> >>>>>>>         
+> >>>>>>>               
+> >>>>>> That won't test for selinux at all - you have to check the contents
+> >>>>>> of /proc/filesystems for selinuxfs or stat /selinux and check for the
+> >>>>>> selinux magic number as per Steve's patch.
+> >>>>>>
+> >>>>>>   
+> >>>>>>       
+> >>>>>>             
+> >>>>> Ok I will look at Steve's patch, but our existing code is
+> >>>>> Returning 1 if I can get con and it is not equil kernel
+> >>>>> else
+> >>>>> returning 0 whether or not selinuxfs was in the list. 
+> >>>>> Only returning -1 if it failed to be able to detect, IE /proc was not 
+> >>>>> mounted. Also return -1 if out of memory.
+> >>>>>     
+> >>>>>           
+> >>>> I prefer an explicit test like checking for selinuxfs
+> >>>> in /proc/filesystems or statfs'ing /selinux and checking for
+> >>>> SELINUX_MAGIC rather than a heuristic like the getcon check; I'd
+> >>>> actually favor dropping the getcon check altogether.  As I said, the
+> >>>> only case where you can have no-policy-loaded and SELinux enabled is if
+> >>>> SELINUX=permissive and there was no policy or a corrupted policy file.
+> >>>> (of course, the old check was based on our own syscall when we had one).
+> >>>>
+> >>>>   
+> >>>>         
+> >>> What happens if the user disables selinux in the /etc/selinux/config file.
+> >>>
+> >>> Doesn't the selinuxfs file system still exist in this case?
+> >>>       
+> >> No, not since we introduced the /selinux/disable support and
+> >> modified /sbin/init to use it (via security_disable() in libselinux)
+> >> when SELINUX=disabled.  That unregisters selinuxfs, so it goes away
+> >> from /proc/filesystems altogether.  This is mostly a legacy of systems
+> >> predating that mechanism for disabling SELinux after boot.
+> >>     
+> >
+> > In selinux_init_load_policy() in libselinux, called by /sbin/init, it
+> > does the following:
+> > - get the desired mode from /etc/selinux/config
+> > - mount proc
+> > - read any kernel command line overrides from /proc/cmdline
+> > - umount proc
+> > - make a final determination on how we want to startup (command line
+> > takes precedence over /etc/selinux/config)
+> > - mount selinuxfs
+> > - if we are disabling selinux, then call security_disable()
+> > => /selinux/disable => disables SELinux kernel code and unregisters
+> > selinuxfs from /proc/filesystems, and then umount /selinux.
+> > - ...
+> >
+> >   
+> So the following should be sufficient, if getline handles EINTR correctl?
 > 
-> Signed-off-by: Linda Knippers <linda.knippers@hp.com>
-
-Thanks, merged into -stable and -trunk.
-
+> int is_selinux_enabled(void)
+> {
+>     char *line=NULL;
+>     size_t len;
+>     FILE *fp;
+>     ssize_t read;
+>     int enabled = 0;
 > 
-> --- policycoreutils-1.33.12/newrole/newrole.c	2007-02-20 13:32:46.000000000 -0500
-> +++ policycoreutils-1.33.12.ljk/newrole/newrole.c	2007-02-22 10:20:39.000000000 -0500
-> @@ -636,11 +636,12 @@ static int relabel_tty(const char *ttyn,
->  	}
->  
->  	/* Re-open TTY descriptor */
-> -	fd = open(ttyn, O_RDWR);
-> +	fd = open(ttyn, O_RDWR|O_NONBLOCK);
->  	if (fd < 0) {
->  		fprintf(stderr, _("Error!  Could not open %s.\n"), ttyn);
->  		return fd;
->  	}
-> +	fcntl(fd, F_SETFL, fcntl(fd, F_GETFL, 0) & ~O_NONBLOCK);
->  
->  	if (fgetfilecon(fd, &tty_con) < 0) {
->  		fprintf(stderr, _("%s!  Could not get current context "
-> @@ -1127,15 +1128,18 @@ int main(int argc, char *argv[])
->  		fprintf(stderr, _("Could not close descriptors.\n"));
->  		goto err_close_pam;
->  	}
-> -	fd = open(ttyn, O_RDONLY);
-> +	fd = open(ttyn, O_RDONLY|O_NONBLOCK);
->  	if (fd != 0)
->  		goto err_close_pam;
-> -	fd = open(ttyn, O_RDWR);
-> +	fcntl(fd, F_SETFL, fcntl(fd, F_GETFL, 0) & ~O_NONBLOCK);
-> +	fd = open(ttyn, O_RDWR|O_NONBLOCK);
->  	if (fd != 1)
->  		goto err_close_pam;
-> -	fd = open(ttyn, O_RDWR);
-> +	fcntl(fd, F_SETFL, fcntl(fd, F_GETFL, 0) & ~O_NONBLOCK);
-> +	fd = open(ttyn, O_RDWR|O_NONBLOCK);
->  	if (fd != 2)
->  		goto err_close_pam;
-> +	fcntl(fd, F_SETFL, fcntl(fd, F_GETFL, 0) & ~O_NONBLOCK);
->  
->  	/*
->  	 * Step 5:  Execute a new shell with the new context in `new_context'. 
+>     fp = fopen("/proc/filesystems", "r");
+>     if (fp == NULL)
+>         return -1;
+> 
+>     while ((read = getline(&line, &len, fp)) != -1) {
+>         if (strstr(line, "selinuxfs")) {
+>             enabled=1;
+>             break;
+>         }
+>     }
+>     free(line);
+>     fclose(fp);
+>     return enabled;
+> }
+
+Yes, something like that.  But I think you need to merge with Steve's
+patch.
+
 -- 
 Stephen Smalley
 National Security Agency
