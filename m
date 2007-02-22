@@ -1,48 +1,49 @@
-Subject: Re: I think this is equivalent to what we have now and more
-	efficient.
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id l1MElsNe028911
+	for <selinux@tycho.nsa.gov>; Thu, 22 Feb 2007 09:47:54 -0500
+Received: from moss-lions.epoch.ncsc.mil (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id l1MEnC8g013832
+	for <selinux@tycho.nsa.gov>; Thu, 22 Feb 2007 14:49:12 GMT
+Received: from moss-lions.epoch.ncsc.mil (localhost.localdomain [127.0.0.1])
+	by moss-lions.epoch.ncsc.mil (8.13.8/8.13.8) with ESMTP id l1MElrT9028183
+	for <selinux@tycho.nsa.gov>; Thu, 22 Feb 2007 09:47:53 -0500
+Received: (from jwcart2@localhost)
+	by moss-lions.epoch.ncsc.mil (8.13.8/8.13.8/Submit) id l1MElrli028182
+	for selinux@tycho.nsa.gov; Thu, 22 Feb 2007 09:47:53 -0500
+Subject: Re: [PATCH] sepolgen: leave generated files in current directory
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Daniel J Walsh <dwalsh@redhat.com>
-Cc: Steve Grubb <sgrubb@redhat.com>, SE Linux <selinux@tycho.nsa.gov>
-In-Reply-To: <45DDAA80.80603@redhat.com>
-References: <45DDAA80.80603@redhat.com>
+To: Karl MacMillan <kmacmillan@mentalrootkit.com>
+Cc: SELinux Mail List <selinux@tycho.nsa.gov>
+In-Reply-To: <45DC891C.50701@mentalrootkit.com>
+References: <45DC891C.50701@mentalrootkit.com>
 Content-Type: text/plain
-Date: Thu, 22 Feb 2007 09:45:40 -0500
-Message-Id: <1172155540.14363.372.camel@moss-spartans.epoch.ncsc.mil>
+Date: Thu, 22 Feb 2007 09:20:36 -0500
+Message-Id: <1172154036.14363.364.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2007-02-22 at 09:36 -0500, Daniel J Walsh wrote:
-> int is_selinux_enabled(void)
-> {
->     security_context_t con;
+On Wed, 2007-02-21 at 13:02 -0500, Karl MacMillan wrote:
+> This patch changes sepolgen so that the generated te files are left in 
+> the current directory when generating policy modules (with -M). This 
+> matches the behavior of the old audit2allow and allows review of the te 
+> file before inserting the module.
 > 
->     if (getcon_raw(&con) == 0) {
->         int enabled = 1;
->         if (!strcmp(con, "kernel"))
->             enabled = 0;
->         freecon(con);
->         return enabled;
+> This patch also brings up the question of API stability for the sepolgen 
+> library (as it makes a minor change to the API). I suggest that it 
+> remain unstable for at least 1 release (i.e., the API can change in 
+> arbitrary ways). That should give sufficient time for it to stabilize 
+> and, hopefully, become general enough. Thoughts?
 
-IOW, if I can read /proc/self/attr/current successfully (will fail if
-SELinux disabled or under certain unrelated conditions) and its value
-indicates a policy has been loaded, then SELinux is enabled.
+Yes, I don't think we need to treat the sepolgen API as stable yet,
+particularly given that the only user at present is audit2allow (and
+they are packaged together at least in Fedora presently).
 
->     } else {
->         struct stat buf;
->         return (stat("/proc/filesystems", &buf));
-
-That won't test for selinux at all - you have to check the contents
-of /proc/filesystems for selinuxfs or stat /selinux and check for the
-selinux magic number as per Steve's patch.
-
->     }
 > 
-> }
+> Signed-off-by: Karl MacMillan <kmacmillan@mentalrootkit.com>
 -- 
 Stephen Smalley
 National Security Agency
-
 
 --
 This message was distributed to subscribers of the selinux mailing list.
