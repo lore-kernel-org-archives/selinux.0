@@ -1,31 +1,53 @@
-Subject: Re: [PATCH 2/2] sepolgen: handle the latest reference policy
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Karl MacMillan <kmacmillan@mentalrootkit.com>
-Cc: SELinux Mail List <selinux@tycho.nsa.gov>,
-        Daniel J Walsh <dwalsh@redhat.com>
-In-Reply-To: <45DC8C04.5060909@mentalrootkit.com>
-References: <45DC8C04.5060909@mentalrootkit.com>
-Content-Type: text/plain
-Date: Thu, 22 Feb 2007 09:40:50 -0500
-Message-Id: <1172155250.14363.367.camel@moss-spartans.epoch.ncsc.mil>
+Subject: Re: libselinux patch
+From: James Antill <james.antill@redhat.com>
+To: Steve G <linux_4ever@yahoo.com>
+Cc: Stephen Smalley <sds@tycho.nsa.gov>, SE Linux <selinux@tycho.nsa.gov>
+In-Reply-To: <305125.10227.qm@web51504.mail.yahoo.com>
+References: <305125.10227.qm@web51504.mail.yahoo.com>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-jPn6K3GgmSB51M+0nl0b"
+Date: Thu, 22 Feb 2007 09:45:04 -0500
+Message-Id: <1172155504.23774.84.camel@code.and.org>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2007-02-21 at 13:14 -0500, Karl MacMillan wrote:
-> Update the sepolgen parser (refparser.py) to handle the latest reference 
-> policy. Includes some other parser cleanups.
-> 
-> Signed-off-by: Karl MacMillan <kmacmillan@mentalrootkit.com>
 
-Running sepolgen-ifgen on up-to-date fc6 after applying these patches
-yields numerous errors of the form:
-could not parse text: "Syntax error on line 1 gnome_file_dialog
-[type=IDENTIFIER]"
+--=-jPn6K3GgmSB51M+0nl0b
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
--- 
-Stephen Smalley
-National Security Agency
+On Thu, 2007-02-22 at 05:46 -0800, Steve G wrote:
+> >
+> >- Why u_int32_t instead of just long (per the statfs man page)?
+>=20
+> SELINUX_MAGIC is 0xf97cff8c and the upper bit is 1, so it gets sign exten=
+ded in
+> 64 bit kernels. Then the direct comparison fails.
+
+ Why not just have the define as:
+
+#define SELINUX_MAGIC 0xf97cff8cU
+
+--=20
+James Antill - <james.antill@redhat.com>
+setsockopt(fd, IPPROTO_TCP, TCP_CONGESTION, ...);
+setsockopt(fd, IPPROTO_TCP, TCP_DEFER_ACCEPT, ...);
+setsockopt(fd, SOL_SOCKET,  SO_ATTACH_FILTER, ...);
+
+
+--=-jPn6K3GgmSB51M+0nl0b
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.6 (GNU/Linux)
+
+iD8DBQBF3axw11eXTEMrxtQRAsWHAKC1y6B8rizkefbsOPKPhPpx+rsBTgCeLsFr
+VkI3zdxh+tUhXnp98cmlQZk=
+=Mft6
+-----END PGP SIGNATURE-----
+
+--=-jPn6K3GgmSB51M+0nl0b--
 
 
 --
