@@ -1,30 +1,32 @@
-Message-ID: <45DDAA80.80603@redhat.com>
-Date: Thu, 22 Feb 2007 09:36:48 -0500
-From: Daniel J Walsh <dwalsh@redhat.com>
-MIME-Version: 1.0
-To: Stephen Smalley <sds@tycho.nsa.gov>, Steve Grubb <sgrubb@redhat.com>,
-        SE Linux <selinux@tycho.nsa.gov>
-Subject: I think this is equivalent to what we have now and more efficient.
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Subject: Re: [PATCH 2/2] sepolgen: handle the latest reference policy
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Karl MacMillan <kmacmillan@mentalrootkit.com>
+Cc: SELinux Mail List <selinux@tycho.nsa.gov>,
+        Daniel J Walsh <dwalsh@redhat.com>
+In-Reply-To: <45DC8C04.5060909@mentalrootkit.com>
+References: <45DC8C04.5060909@mentalrootkit.com>
+Content-Type: text/plain
+Date: Thu, 22 Feb 2007 09:40:50 -0500
+Message-Id: <1172155250.14363.367.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-int is_selinux_enabled(void)
-{
-    security_context_t con;
+On Wed, 2007-02-21 at 13:14 -0500, Karl MacMillan wrote:
+> Update the sepolgen parser (refparser.py) to handle the latest reference 
+> policy. Includes some other parser cleanups.
+> 
+> Signed-off-by: Karl MacMillan <kmacmillan@mentalrootkit.com>
 
-    if (getcon_raw(&con) == 0) {
-        int enabled = 1;
-        if (!strcmp(con, "kernel"))
-            enabled = 0;
-        freecon(con);
-        return enabled;
-    } else {
-        struct stat buf;
-        return (stat("/proc/filesystems", &buf));
-    }
+Running sepolgen-ifgen on up-to-date fc6 after applying these patches
+yields numerous errors of the form:
+could not parse text: "Syntax error on line 1 gnome_file_dialog
+[type=IDENTIFIER]"
 
-}
+-- 
+Stephen Smalley
+National Security Agency
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
