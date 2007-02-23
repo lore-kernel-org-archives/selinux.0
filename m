@@ -1,176 +1,84 @@
-Subject: Re: [PATCH] Reassign printk levels in selinux kernel code
+Subject: Re: [RFC] Drop setlocaldefs support from trunk (2.x series)
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Eric Paris <eparis@parisplace.org>
-Cc: selinux@tycho.nsa.gov, jmorris@namei.org
-In-Reply-To: <1172185891.3142.48.camel@localhost.localdomain>
-References: <1172185891.3142.48.camel@localhost.localdomain>
+To: Karl MacMillan <kmacmillan@mentalrootkit.com>
+Cc: selinux@tycho.nsa.gov
+In-Reply-To: <45DE10D4.3030107@mentalrootkit.com>
+References: <1172162502.14363.446.camel@moss-spartans.epoch.ncsc.mil>
+	 <45DE10D4.3030107@mentalrootkit.com>
 Content-Type: text/plain
-Date: Fri, 23 Feb 2007 08:15:52 -0500
-Message-Id: <1172236552.19041.10.camel@moss-spartans.epoch.ncsc.mil>
+Date: Fri, 23 Feb 2007 08:28:55 -0500
+Message-Id: <1172237335.19041.17.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2007-02-22 at 18:11 -0500, Eric Paris wrote:
-> Below is a patch which demotes many printk lines to KERN_DEBUG from
-> KERN_INFO.  It should help stop the spamming of logs with messages in
-> which users are not interested nor is there any action that users should
-> take.  It also promotes some KERN_INFO to KERN_ERR such as when there
-> are improper attempts to register/unregister security modules.
+On Thu, 2007-02-22 at 16:53 -0500, Karl MacMillan wrote:
+> Stephen Smalley wrote:
+> > Hi,
+> > 
+> > With the migration to libsemanage and managed policy, the setlocaldefs
+> > support in libselinux and underlying support in libsepol for parsing
+> > local booleans and users files is obsolete in modern SELinux
+> > distributions.  Ideally, I'd like to drop it out entirely from the trunk
+> > (2.x series), while preserving it on the stable branch (1.x series).
+> > Specifically, this would mean:
+> > - Removing setlocaldefs support from libselinux,
+> > - Removing sepol_genusers and sepol_genbools and their internal logic
+> > from libsepol, including the legacy config file parsers there.
+> > sepol_genbools_array() would remain due to its use for preserving
+> > actives booleans upon policy reload, but it doesn't require the config
+> > file parser.
+> > 
 > 
-> A similar patch was discussed a while back on list:
-> http://marc.theaimsgroup.com/?t=116656343500003&r=1&w=2
-> This patch addresses almost all of the issues raised.  I believe the
-> only advice not taken was in the demoting of messages related to
-> undefined permissions and classes.
-> 
-> Signed-off-by: Eric Paris <eparis@redhat.com>
+> That's fine with me, though I question whether the config parsers might 
+> not be better in libsepol than in libsemanage.
 
-Acked-by:  Stephen Smalley <sds@tycho.nsa.gov>
+Here we are talking about config parsers for the local booleans file and
+local user definitions, all of which now live in libsemanage and are
+private to it.  Not config parsers for the base policy per se.
 
+Also, in addition to libsepol interfaces, this would also affect the
+following libselinux interfaces:
+- security_set_boolean_list() - the interface would remain, but the
+permanent=1 flag would no longer be supported since the only correct way
+to set permanent booleans going forward would be via managed policy,
+- security_load_booleans() - AFAICS, this interface hasn't been used for
+a long time, ever since we introduced support for patching the boolean
+values into the binary policy image at load time, so I think it can be
+removed altogether.
+Thus, the local booleans file manipulation in libselinux would also go
+away, and it would only deal with the /selinux/booleans manipulation.
+
+> > We have different options for handling the libsepol changes, e.g.:
+> > - We could retain stub functions for the interfaces that call WARN() and
+> > return an error immediately, and possibly version the map file so that
+> > they are only exported to legacy binaries.  In this case, legacy
+> > binaries should already have logic to fall back to the original policy
+> > image as these calls can fail for other reasons, so you'd just end up
+> > with the base policy without any local boolean or user definitions
+> > applied.
+> > - We could remove the interfaces altogether, requiring a change to the
+> > shared library version.
+> > 
+> > This would affect e.g. the ability to install the trunk versions on an
+> > older distribution like RHEL 4, which predates libsemanage and managed
+> > policy support.
+> > 
 > 
->  security/selinux/hooks.c       |   20 ++++++++++----------
->  security/selinux/ss/avtab.c    |    2 +-
->  security/selinux/ss/policydb.c |    6 +++---
->  security/selinux/ss/sidtab.c   |    2 +-
->  4 files changed, 15 insertions(+), 15 deletions(-)
+> Either way we are breaking binary compatibility in a way. Even though 
+> the stubs allow the existing binaries to work, the behavior is certainly 
+> changed.
 > 
-> diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-> index b1ac22d..afb82fd 100644
-> --- a/security/selinux/hooks.c
-> +++ b/security/selinux/hooks.c
-> @@ -653,11 +653,11 @@ static int superblock_doinit(struct super_block *sb, void *data)
->  	sbsec->initialized = 1;
->  
->  	if (sbsec->behavior > ARRAY_SIZE(labeling_behaviors)) {
-> -		printk(KERN_INFO "SELinux: initialized (dev %s, type %s), unknown behavior\n",
-> +		printk(KERN_ERR "SELinux: initialized (dev %s, type %s), unknown behavior\n",
->  		       sb->s_id, sb->s_type->name);
->  	}
->  	else {
-> -		printk(KERN_INFO "SELinux: initialized (dev %s, type %s), %s\n",
-> +		printk(KERN_DEBUG "SELinux: initialized (dev %s, type %s), %s\n",
->  		       sb->s_id, sb->s_type->name,
->  		       labeling_behaviors[sbsec->behavior-1]);
->  	}
-> @@ -4434,7 +4434,7 @@ static int selinux_ipc_permission(struct kern_ipc_perm *ipcp, short flag)
->  static int selinux_register_security (const char *name, struct security_operations *ops)
->  {
->  	if (secondary_ops != original_ops) {
-> -		printk(KERN_INFO "%s:  There is already a secondary security "
-> +		printk(KERN_ERR "%s:  There is already a secondary security "
->  		       "module registered.\n", __FUNCTION__);
->  		return -EINVAL;
->   	}
-> @@ -4451,7 +4451,7 @@ static int selinux_register_security (const char *name, struct security_operatio
->  static int selinux_unregister_security (const char *name, struct security_operations *ops)
->  {
->  	if (ops != secondary_ops) {
-> -		printk (KERN_INFO "%s:  trying to unregister a security module "
-> +		printk(KERN_ERR "%s:  trying to unregister a security module "
->  		        "that is not registered.\n", __FUNCTION__);
->  		return -EINVAL;
->  	}
-> @@ -4889,9 +4889,9 @@ static __init int selinux_init(void)
->  		panic("SELinux: Unable to register with kernel.\n");
->  
->  	if (selinux_enforcing) {
-> -		printk(KERN_INFO "SELinux:  Starting in enforcing mode\n");
-> +		printk(KERN_DEBUG "SELinux:  Starting in enforcing mode\n");
->  	} else {
-> -		printk(KERN_INFO "SELinux:  Starting in permissive mode\n");
-> +		printk(KERN_DEBUG "SELinux:  Starting in permissive mode\n");
->  	}
->  
->  #ifdef CONFIG_KEYS
-> @@ -4907,10 +4907,10 @@ static __init int selinux_init(void)
->  
->  void selinux_complete_init(void)
->  {
-> -	printk(KERN_INFO "SELinux:  Completing initialization.\n");
-> +	printk(KERN_DEBUG "SELinux:  Completing initialization.\n");
->  
->  	/* Set up any superblocks initialized prior to the policy load. */
-> -	printk(KERN_INFO "SELinux:  Setting up existing superblocks.\n");
-> +	printk(KERN_DEBUG "SELinux:  Setting up existing superblocks.\n");
->  	spin_lock(&sb_lock);
->  	spin_lock(&sb_security_lock);
->  next_sb:
-> @@ -4969,7 +4969,7 @@ static int __init selinux_nf_ip_init(void)
->  	if (!selinux_enabled)
->  		goto out;
->  		
-> -	printk(KERN_INFO "SELinux:  Registering netfilter hooks\n");
-> +	printk(KERN_DEBUG "SELinux:  Registering netfilter hooks\n");
->  	
->  	err = nf_register_hook(&selinux_ipv4_op);
->  	if (err)
-> @@ -4992,7 +4992,7 @@ __initcall(selinux_nf_ip_init);
->  #ifdef CONFIG_SECURITY_SELINUX_DISABLE
->  static void selinux_nf_ip_exit(void)
->  {
-> -	printk(KERN_INFO "SELinux:  Unregistering netfilter hooks\n");
-> +	printk(KERN_DEBUG "SELinux:  Unregistering netfilter hooks\n");
->  
->  	nf_unregister_hook(&selinux_ipv4_op);
->  #if defined(CONFIG_IPV6) || defined(CONFIG_IPV6_MODULE)
-> diff --git a/security/selinux/ss/avtab.c b/security/selinux/ss/avtab.c
-> index 9142073..3122908 100644
-> --- a/security/selinux/ss/avtab.c
-> +++ b/security/selinux/ss/avtab.c
-> @@ -277,7 +277,7 @@ void avtab_hash_eval(struct avtab *h, char *tag)
->  		}
->  	}
->  
-> -	printk(KERN_INFO "%s:  %d entries and %d/%d buckets used, longest "
-> +	printk(KERN_DEBUG "%s:  %d entries and %d/%d buckets used, longest "
->  	       "chain length %d\n", tag, h->nel, slots_used, AVTAB_SIZE,
->  	       max_chain_len);
->  }
-> diff --git a/security/selinux/ss/policydb.c b/security/selinux/ss/policydb.c
-> index cd79c63..0ac1021 100644
-> --- a/security/selinux/ss/policydb.c
-> +++ b/security/selinux/ss/policydb.c
-> @@ -374,7 +374,7 @@ static void symtab_hash_eval(struct symtab *s)
->  		struct hashtab_info info;
->  
->  		hashtab_stat(h, &info);
-> -		printk(KERN_INFO "%s:  %d entries and %d/%d buckets used, "
-> +		printk(KERN_DEBUG "%s:  %d entries and %d/%d buckets used, "
->  		       "longest chain length %d\n", symtab_name[i], h->nel,
->  		       info.slots_used, h->size, info.max_chain_len);
->  	}
-> @@ -391,14 +391,14 @@ static int policydb_index_others(struct policydb *p)
->  {
->  	int i, rc = 0;
->  
-> -	printk(KERN_INFO "security:  %d users, %d roles, %d types, %d bools",
-> +	printk(KERN_DEBUG "security:  %d users, %d roles, %d types, %d bools",
->  	       p->p_users.nprim, p->p_roles.nprim, p->p_types.nprim, p->p_bools.nprim);
->  	if (selinux_mls_enabled)
->  		printk(", %d sens, %d cats", p->p_levels.nprim,
->  		       p->p_cats.nprim);
->  	printk("\n");
->  
-> -	printk(KERN_INFO "security:  %d classes, %d rules\n",
-> +	printk(KERN_DEBUG "security:  %d classes, %d rules\n",
->  	       p->p_classes.nprim, p->te_avtab.nel);
->  
->  #ifdef DEBUG_HASHES
-> diff --git a/security/selinux/ss/sidtab.c b/security/selinux/ss/sidtab.c
-> index d78f9ff..53a54a7 100644
-> --- a/security/selinux/ss/sidtab.c
-> +++ b/security/selinux/ss/sidtab.c
-> @@ -253,7 +253,7 @@ void sidtab_hash_eval(struct sidtab *h, char *tag)
->  		}
->  	}
->  
-> -	printk(KERN_INFO "%s:  %d entries and %d/%d buckets used, longest "
-> +	printk(KERN_DEBUG "%s:  %d entries and %d/%d buckets used, longest "
->  	       "chain length %d\n", tag, h->nel, slots_used, SIDTAB_SIZE,
->  	       max_chain_len);
->  }
-> 
+> I understood that we were going to try to maintain binary compatibility, 
+> but that seems like it is going to be difficult to do while making 
+> needed cleanups. I'm not opposed to bumping the library version, but I 
+> think that we should think about how to do this cleanly. If nothing 
+> else, we should have a plan so that we get all of the symbol removals / 
+> renames done in a single user visible version update.
+
+Yes, this is just the first of many RFCs.  The actual patches can wait a
+bit.
+
 -- 
 Stephen Smalley
 National Security Agency
