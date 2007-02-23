@@ -1,31 +1,36 @@
 Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id l1NIOXtK024206
-	for <selinux@tycho.nsa.gov>; Fri, 23 Feb 2007 13:24:33 -0500
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id l1NIcjqi024901
+	for <selinux@tycho.nsa.gov>; Fri, 23 Feb 2007 13:38:45 -0500
 Received: from exchange.columbia.tresys.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with SMTP id l1NIPq0Z016496
-	for <selinux@tycho.nsa.gov>; Fri, 23 Feb 2007 18:25:52 GMT
-Subject: Re: Samba policy patch
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with SMTP id l1NIe40Z020315
+	for <selinux@tycho.nsa.gov>; Fri, 23 Feb 2007 18:40:04 GMT
+Subject: Re: Policy patch apmd needs to call telinit to change runlevel.
 From: "Christopher J. PeBenito" <cpebenito@tresys.com>
-To: Stefan Schulze Frielinghaus <stefan@sf-net.com>
-Cc: SELinux List <selinux@tycho.nsa.gov>
-In-Reply-To: <92F5A105-2A19-4AA0-956B-C9E963A762CC@sf-net.com>
-References: <92F5A105-2A19-4AA0-956B-C9E963A762CC@sf-net.com>
+To: Daniel J Walsh <dwalsh@redhat.com>
+Cc: SE Linux <selinux@tycho.nsa.gov>
+In-Reply-To: <45DB2729.9000201@redhat.com>
+References: <45DB2729.9000201@redhat.com>
 Content-Type: text/plain
-Date: Fri, 23 Feb 2007 13:26:07 -0500
-Message-Id: <1172255167.15371.71.camel@sgc.columbia.tresys.com>
+Date: Fri, 23 Feb 2007 18:40:19 +0000
+Message-Id: <1172256019.15371.72.camel@sgc.columbia.tresys.com>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 2007-02-19 at 13:40 +0100, Stefan Schulze Frielinghaus wrote:
-> While using samba and SELinux with Debian GNU/Linux (etch) the  
-> following files need to be labeled correctly:
-> /var/run/samba/gencache.tdb
-> /var/run/samba/share_info.tdb
-> 
-> Should also concern other distributions than Debian.
+On Tue, 2007-02-20 at 11:51 -0500, Daniel J Walsh wrote:
+> --- nsaserefpolicy/policy/modules/services/apm.te       2007-02-19 11:32:53.000000000 -0500
+> +++ serefpolicy-2.5.4/policy/modules/services/apm.te    2007-02-20 10:25:41.000000000 -0500
+> @@ -126,7 +126,7 @@
+>  init_use_fds(apmd_t)
+>  init_use_script_ptys(apmd_t)
+>  init_rw_utmp(apmd_t)
+> -init_write_initctl(apmd_t)
+> +init_telinit(apmd_t)
+>  
+>  libs_exec_ld_so(apmd_t)
+>  libs_use_ld_so(apmd_t)
 
-The patch is malformed because the lines wrapped.  Merged by hand.
+Merged.
 
 -- 
 Chris PeBenito
