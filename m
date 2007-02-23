@@ -1,34 +1,32 @@
 Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id l1NI3IxK023313
-	for <selinux@tycho.nsa.gov>; Fri, 23 Feb 2007 13:03:18 -0500
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id l1NIOXtK024206
+	for <selinux@tycho.nsa.gov>; Fri, 23 Feb 2007 13:24:33 -0500
 Received: from exchange.columbia.tresys.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with SMTP id l1NI4b0Z011522
-	for <selinux@tycho.nsa.gov>; Fri, 23 Feb 2007 18:04:37 GMT
-Subject: Re: apache.fc references undefined user_cron_spool_t when using
-	the strict policy.
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with SMTP id l1NIPq0Z016496
+	for <selinux@tycho.nsa.gov>; Fri, 23 Feb 2007 18:25:52 GMT
+Subject: Re: Samba policy patch
 From: "Christopher J. PeBenito" <cpebenito@tresys.com>
-To: Ryan Bradetich <rbradetich@gmail.com>
-Cc: selinux@tycho.nsa.gov
-In-Reply-To: <e739902b0702201948k5d7d998enc2f2ca1c794a4d68@mail.gmail.com>
-References: <e739902b0702181646u72b958cei7ada50920711f9ea@mail.gmail.com>
-	 <1172004617.20576.241.camel@sgc.columbia.tresys.com>
-	 <e739902b0702201948k5d7d998enc2f2ca1c794a4d68@mail.gmail.com>
+To: Stefan Schulze Frielinghaus <stefan@sf-net.com>
+Cc: SELinux List <selinux@tycho.nsa.gov>
+In-Reply-To: <92F5A105-2A19-4AA0-956B-C9E963A762CC@sf-net.com>
+References: <92F5A105-2A19-4AA0-956B-C9E963A762CC@sf-net.com>
 Content-Type: text/plain
-Date: Fri, 23 Feb 2007 13:04:52 -0500
-Message-Id: <1172253892.15371.67.camel@sgc.columbia.tresys.com>
+Date: Fri, 23 Feb 2007 13:26:07 -0500
+Message-Id: <1172255167.15371.71.camel@sgc.columbia.tresys.com>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2007-02-20 at 19:48 -0800, Ryan Bradetich wrote:
-> I have updated my patch to remove the entry from the apache.fc file.
+On Mon, 2007-02-19 at 13:40 +0100, Stefan Schulze Frielinghaus wrote:
+> While using samba and SELinux with Debian GNU/Linux (etch) the  
+> following files need to be labeled correctly:
+> /var/run/samba/gencache.tdb
+> /var/run/samba/share_info.tdb
+> 
+> Should also concern other distributions than Debian.
 
-Thanks, merged.
+The patch is malformed because the lines wrapped.  Merged by hand.
 
-> On 2/20/07, Christopher J. PeBenito <cpebenito@tresys.com> wrote:
-> > Its a bug, that line should have been in cron.fc.  I question if that
-> > was the right way to label that file anyway.  So it might be better to
-> > remove it altogether.
 -- 
 Chris PeBenito
 Tresys Technology, LLC
