@@ -1,44 +1,46 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id l1NGMVw6018770
-	for <selinux@tycho.nsa.gov>; Fri, 23 Feb 2007 11:22:31 -0500
-Received: from exchange.columbia.tresys.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with SMTP id l1NGNoPU002719
-	for <selinux@tycho.nsa.gov>; Fri, 23 Feb 2007 16:23:50 GMT
-Subject: Re: PATCH: Remove redundant role statement from the apache.te file.
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id l1NGVXaB019227
+	for <selinux@tycho.nsa.gov>; Fri, 23 Feb 2007 11:31:33 -0500
+Received: from exchange.columbia.tresys.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with SMTP id l1NGWq0Z019266
+	for <selinux@tycho.nsa.gov>; Fri, 23 Feb 2007 16:32:52 GMT
+Subject: Re: Is the usercanread attribute still needed?
 From: "Christopher J. PeBenito" <cpebenito@tresys.com>
 To: Ryan Bradetich <rbradetich@gmail.com>
 Cc: selinux@tycho.nsa.gov
-In-Reply-To: <e739902b0702181540r3734cb6bh7c68ed1f9f323d1e@mail.gmail.com>
-References: <e739902b0702181540r3734cb6bh7c68ed1f9f323d1e@mail.gmail.com>
+In-Reply-To: <e739902b0702201951p813ad71vefb0dd0069448a07@mail.gmail.com>
+References: <e739902b0702181633md9e8fa9y55e74a5520cf7a60@mail.gmail.com>
+	 <1172004294.20576.236.camel@sgc.columbia.tresys.com>
+	 <e739902b0702201944t104d6915raff5949c8e579885@mail.gmail.com>
+	 <e739902b0702201951p813ad71vefb0dd0069448a07@mail.gmail.com>
 Content-Type: text/plain
-Date: Fri, 23 Feb 2007 16:24:05 +0000
-Message-Id: <1172247845.15371.58.camel@sgc.columbia.tresys.com>
+Date: Fri, 23 Feb 2007 16:33:07 +0000
+Message-Id: <1172248387.15371.66.camel@sgc.columbia.tresys.com>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Sun, 2007-02-18 at 15:40 -0800, Ryan Bradetich wrote:
-> I am working on writing a policy for the Boa web server.  I am using
-> the SELinux by example book and the apache modules for guidance.
-> Going through the apache.te file I noticed the following entry is
-> redundant:
-> 
->     role system_r types httpd_t;
-> 
-> This statement is provided as part of the init_daemon_domain interface
-> in the modules/system/init.if interface file.  Here is the line in the
-> init_daemon_domain interface function:
-> 
->    role system_r types $1;
-> 
-> I have attached a patch to remove role entry from the apache.te file.
+> On 2/20/07, Ryan Bradetich <rbradetich@gmail.com> wrote:
+> > Hello Chris,
+> >
+> > Thanks much for your reply!
+> > I have attached an updated patch that leaves the attribute definition
+> > in the files.te file.
+> >
+> > Just out of curiosity, what is the policy for obsoleting these attributes?
+> > At next policy file rev?
 
-Since this doesn't hurt anything, I'd rather just leave it since its all
-over the policy right now.  The issue is that if you rely on the
-interface to allow the role the daemon type, you still have to allow the
-role to any subdomains of the daemon (like httpd_sys_script_t)
-explicitly.  This makes the handling of the primary domain and sub
-domains of a daemon slightly inconsistent.
+It has to stay around for "a reasonable transition time".  Since this is
+a fairly widely used interface, it'll probably have to stay for a few
+releases.
+
+Please resend the patch to the list.
+
+> > On 2/20/07, Christopher J. PeBenito <cpebenito@tresys.com> wrote:
+> > > Since modules are statically compiled, we can't completely remove the
+> > > attribute yet, otherwise it might cause some policies to fail to link if
+> > > it is still required.  However, the typeattribute could be removed from
+> > > files_config_file().
 
 -- 
 Chris PeBenito
