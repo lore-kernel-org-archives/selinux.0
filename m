@@ -1,30 +1,36 @@
 Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id l1NJDxsk026502
-	for <selinux@tycho.nsa.gov>; Fri, 23 Feb 2007 14:13:59 -0500
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id l1NJIx4a026854
+	for <selinux@tycho.nsa.gov>; Fri, 23 Feb 2007 14:18:59 -0500
 Received: from exchange.columbia.tresys.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with SMTP id l1NJFJ0Z028704
-	for <selinux@tycho.nsa.gov>; Fri, 23 Feb 2007 19:15:19 GMT
-Subject: Re: audit/logging changes
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with SMTP id l1NJKI0Z000101
+	for <selinux@tycho.nsa.gov>; Fri, 23 Feb 2007 19:20:18 GMT
+Subject: Re: clamd wants to read kernerl sysctls.
 From: "Christopher J. PeBenito" <cpebenito@tresys.com>
 To: Daniel J Walsh <dwalsh@redhat.com>
 Cc: SE Linux <selinux@tycho.nsa.gov>
-In-Reply-To: <45DB2FD3.80005@redhat.com>
-References: <45DB2FD3.80005@redhat.com>
+In-Reply-To: <45DB2EC4.7080507@redhat.com>
+References: <45DB2EC4.7080507@redhat.com>
 Content-Type: text/plain
-Date: Fri, 23 Feb 2007 19:15:34 +0000
-Message-Id: <1172258134.15371.86.camel@sgc.columbia.tresys.com>
+Date: Fri, 23 Feb 2007 19:20:34 +0000
+Message-Id: <1172258434.15371.87.camel@sgc.columbia.tresys.com>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2007-02-20 at 12:28 -0500, Daniel J Walsh wrote:
-> audit needs fsetid
-> 
-> syslog needs to be able to create a tcp_socket for off machine logging.
-> 
-> ssh transitioning dirrectly to auditctl needs additional privs.
+On Tue, 2007-02-20 at 12:24 -0500, Daniel J Walsh wrote:
+> --- nsaserefpolicy/policy/modules/services/clamav.te    2007-01-02 12:57:43.000000000 -0500
+> +++ serefpolicy-2.5.4/policy/modules/services/clamav.te 2007-02-19 16:01:52.000000000 -0500
+> @@ -86,6 +86,8 @@
+>  kernel_dontaudit_list_proc(clamd_t)
+>  kernel_read_sysctl(clamd_t)
+>  
+> +kernel_read_sysctl(clamd_t)
+> +
+>  corenet_non_ipsec_sendrecv(clamd_t)
+>  corenet_tcp_sendrecv_all_if(clamd_t)
+>  corenet_tcp_sendrecv_all_nodes(clamd_t) 
 
-Merged the first two parts.  We want the general solution for last one.
+Its there already.
 
 -- 
 Chris PeBenito
