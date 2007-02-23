@@ -1,97 +1,76 @@
-Subject: Re: [RFC] Drop setlocaldefs support from trunk (2.x series)
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Karl MacMillan <kmacmillan@mentalrootkit.com>
-Cc: selinux@tycho.nsa.gov
-In-Reply-To: <1172237335.19041.17.camel@moss-spartans.epoch.ncsc.mil>
-References: <1172162502.14363.446.camel@moss-spartans.epoch.ncsc.mil>
-	 <45DE10D4.3030107@mentalrootkit.com>
-	 <1172237335.19041.17.camel@moss-spartans.epoch.ncsc.mil>
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id l1NGAXGk018168
+	for <selinux@tycho.nsa.gov>; Fri, 23 Feb 2007 11:10:33 -0500
+Received: from exchange.columbia.tresys.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with SMTP id l1NGBpPU000595
+	for <selinux@tycho.nsa.gov>; Fri, 23 Feb 2007 16:11:52 GMT
+Subject: Re: Latest diffs - Resent with additional changes.
+From: "Christopher J. PeBenito" <cpebenito@tresys.com>
+To: Klaus Weidner <klaus@atsec.com>
+Cc: Darrel Goeddel <dgoeddel@TrustedCS.com>,
+        Daniel J Walsh <dwalsh@redhat.com>,
+        Karl MacMillan <kmacmillan@mentalrootkit.com>,
+        SE Linux <selinux@tycho.nsa.gov>
+In-Reply-To: <20070221002727.GB9827@w-m-p.com>
+References: <45B8ACBF.8090201@redhat.com>
+	 <1171663101.20576.147.camel@sgc.columbia.tresys.com>
+	 <20070219031951.GA9827@w-m-p.com> <45DB4F07.9040607@trustedcs.com>
+	 <45DB79DB.3080209@trustedcs.com>  <20070221002727.GB9827@w-m-p.com>
 Content-Type: text/plain
-Date: Fri, 23 Feb 2007 10:49:01 -0500
-Message-Id: <1172245741.19041.62.camel@moss-spartans.epoch.ncsc.mil>
+Date: Fri, 23 Feb 2007 16:12:05 +0000
+Message-Id: <1172247125.15371.48.camel@sgc.columbia.tresys.com>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2007-02-23 at 08:28 -0500, Stephen Smalley wrote:
-> On Thu, 2007-02-22 at 16:53 -0500, Karl MacMillan wrote:
-> > Stephen Smalley wrote:
-> > > Hi,
-> > > 
-> > > With the migration to libsemanage and managed policy, the setlocaldefs
-> > > support in libselinux and underlying support in libsepol for parsing
-> > > local booleans and users files is obsolete in modern SELinux
-> > > distributions.  Ideally, I'd like to drop it out entirely from the trunk
-> > > (2.x series), while preserving it on the stable branch (1.x series).
-> > > Specifically, this would mean:
-> > > - Removing setlocaldefs support from libselinux,
-> > > - Removing sepol_genusers and sepol_genbools and their internal logic
-> > > from libsepol, including the legacy config file parsers there.
-> > > sepol_genbools_array() would remain due to its use for preserving
-> > > actives booleans upon policy reload, but it doesn't require the config
-> > > file parser.
-> > > 
-> > 
-> > That's fine with me, though I question whether the config parsers might 
-> > not be better in libsepol than in libsemanage.
+On Tue, 2007-02-20 at 18:27 -0600, Klaus Weidner wrote:
+> On Tue, Feb 20, 2007 at 04:44:43PM -0600, Darrel Goeddel wrote:
+> > Darrel Goeddel wrote:
+> > The mlsrangedobject and mlswfilewriteinrange seem to be providing about
+> > the same functionality (unless I'm missing something regarding the
+> > comment above).  Why have a subject based override a few dir ops and an
+> > object based override for most other file (in the general sense) ops?
+> > I would think that these two constraint block should be identical, as
+> > they used to be.  The only reason they were ever separated is due to
+> > the fact that directories had operations other file classes did not
+> > have.  Maybe have both overrides (subject and object) available and
+> > make these two block match up?
 > 
-> Here we are talking about config parsers for the local booleans file and
-> local user definitions, all of which now live in libsemanage and are
-> private to it.  Not config parsers for the base policy per se.
-> 
-> Also, in addition to libsepol interfaces, this would also affect the
-> following libselinux interfaces:
-> - security_set_boolean_list() - the interface would remain, but the
-> permanent=1 flag would no longer be supported since the only correct way
-> to set permanent booleans going forward would be via managed policy,
-> - security_load_booleans() - AFAICS, this interface hasn't been used for
-> a long time, ever since we introduced support for patching the boolean
-> values into the binary policy image at load time, so I think it can be
-> removed altogether.
-> Thus, the local booleans file manipulation in libselinux would also go
-> away, and it would only deal with the /selinux/booleans manipulation.
-> 
-> > > We have different options for handling the libsepol changes, e.g.:
-> > > - We could retain stub functions for the interfaces that call WARN() and
-> > > return an error immediately, and possibly version the map file so that
-> > > they are only exported to legacy binaries.  In this case, legacy
-> > > binaries should already have logic to fall back to the original policy
-> > > image as these calls can fail for other reasons, so you'd just end up
-> > > with the base policy without any local boolean or user definitions
-> > > applied.
-> > > - We could remove the interfaces altogether, requiring a change to the
-> > > shared library version.
-> > > 
-> > > This would affect e.g. the ability to install the trunk versions on an
-> > > older distribution like RHEL 4, which predates libsemanage and managed
-> > > policy support.
-> > > 
-> > 
-> > Either way we are breaking binary compatibility in a way. Even though 
-> > the stubs allow the existing binaries to work, the behavior is certainly 
-> > changed.
-> > 
-> > I understood that we were going to try to maintain binary compatibility, 
-> > but that seems like it is going to be difficult to do while making 
-> > needed cleanups. I'm not opposed to bumping the library version, but I 
-> > think that we should think about how to do this cleanly. If nothing 
-> > else, we should have a plan so that we get all of the symbol removals / 
-> > renames done in a single user visible version update.
-> 
-> Yes, this is just the first of many RFCs.  The actual patches can wait a
-> bit.
+> The first patch I had sent renamed the existing "mlsfilewriteinrange"
+> object based override to "mlsrangedobject" to match the naming
+> conventions used for other object overrides, they are supposed to be the
+> same thing. Apparently that patch was rejected upstream, which
+> contributed to the confusion. They are supposed to be the same thing.
 
-BTW, while I think we could remove the APIs without removing the ABI
-(i.e. prevent future builds from using those interfaces while leaving
-them intact for existing binaries), that would prevent us from removing
-the code, making it fairly pointless.  So in this case, I think we'd
-actually want/need to bump the library version.  Versus changing or
-extending the API, which we can do via interface versioning without
-changing the library version.
-  
+The only reason I had to reject renaming attributes is because it causes
+a compatibility problem (the attribute you want to rename has been in a
+refpolicy release).  In the (unlikely) case that a third party is
+already using the interface that provides this attribute, their module
+will break if you try to link it to a policy that has this change (if it
+was compiled with the current interfaces).  This is all due to the fact
+that interfaces modules are statically expanded, so mlsfilewriteinrange
+will be required for their module.
+
+Currently the only way that I can think of for renaming this but keeping
+compatibility would be to:
+
+1. add mlsrangedobject attribute
+2. add the mlsconstraint expression for mlsrangedobject
+3. add mls_ranged_object() interface
+4. change mls_file_write_within_range() to call mls_ranged_object() and
+throw a warning telling the user to use the mls_ranged_object()
+interface using the refpolwarn() support macro
+
+then after an appropriate transition time:
+
+5. remove mlsfilewriteinrange attribute
+6. remove mlsfilewriteinrange mlsconstraint expression
+7. remove mls_file_write_within_range() interface
+
 -- 
-Stephen Smalley
-National Security Agency
+Chris PeBenito
+Tresys Technology, LLC
+(410) 290-1411 x150
 
 
 --
