@@ -1,65 +1,38 @@
-Subject: Re: init_t and sshd
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: vin@netwosix.org
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id l1NI3IxK023313
+	for <selinux@tycho.nsa.gov>; Fri, 23 Feb 2007 13:03:18 -0500
+Received: from exchange.columbia.tresys.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with SMTP id l1NI4b0Z011522
+	for <selinux@tycho.nsa.gov>; Fri, 23 Feb 2007 18:04:37 GMT
+Subject: Re: apache.fc references undefined user_cron_spool_t when using
+	the strict policy.
+From: "Christopher J. PeBenito" <cpebenito@tresys.com>
+To: Ryan Bradetich <rbradetich@gmail.com>
 Cc: selinux@tycho.nsa.gov
-In-Reply-To: <1172252188.10636.9.camel@localhost>
-References: <1172252188.10636.9.camel@localhost>
+In-Reply-To: <e739902b0702201948k5d7d998enc2f2ca1c794a4d68@mail.gmail.com>
+References: <e739902b0702181646u72b958cei7ada50920711f9ea@mail.gmail.com>
+	 <1172004617.20576.241.camel@sgc.columbia.tresys.com>
+	 <e739902b0702201948k5d7d998enc2f2ca1c794a4d68@mail.gmail.com>
 Content-Type: text/plain
-Date: Fri, 23 Feb 2007 12:43:58 -0500
-Message-Id: <1172252638.19041.68.camel@moss-spartans.epoch.ncsc.mil>
+Date: Fri, 23 Feb 2007 13:04:52 -0500
+Message-Id: <1172253892.15371.67.camel@sgc.columbia.tresys.com>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2007-02-23 at 18:36 +0100, Vincenzo Ciaglia wrote:
-> Hello, once i solved every problems related to SELinux installation from
-> scratch i started working on policies for Netwosix.
-> 
-> Here the problem:
-> 
-> vciaglia@vciaglia-desktop:~$ ssh -l vciaglia 192.168.0.4
-> vciaglia@192.168.0.4's password:
-> Read from remote host 192.168.0.4: Connection reset by peer
-> Connection to 192.168.0.4 closed.
-> 
-> In few words i can ssh into my machine only as "root" when i'm in
-> enforcing mode. So i took a look to the avc denials and audit2allow says
-> me to add this line to my "init.te":
-> 
-> allow init_t shadow_t:file { getattr read };
+On Tue, 2007-02-20 at 19:48 -0800, Ryan Bradetich wrote:
+> I have updated my patch to remove the entry from the apache.fc file.
 
-sshd should be running in sshd_t, not init_t, so this indicates a
-problem with getting sshd into the right domain.  Run 'sestatus -v'.
-BTW, when you built your policy, what build.conf settings did you use?
+Thanks, merged.
 
-> So i tried to add the line and rebuild the policy but i get this result:
-> 
-> grep ^portcon tmp/policy.conf.tmp >> policy.conf || true
-> grep ^netifcon tmp/policy.conf.tmp >> policy.conf || true
-> grep ^nodecon tmp/policy.conf.tmp >> policy.conf || true
-> Compiling netwosix policy.21
-> /usr/bin/checkpolicy policy.conf -o policy.21
-> /usr/bin/checkpolicy:  loading policy configuration from policy.conf
-> libsepol.check_assertion_helper: assertion on line 147384 violated by
-> allow init_t shadow_t:file { read };
-> libsepol.check_assertions: 1 assertion violations occured
-> Error while expanding policy
-> make: *** [policy.21] Error 1
-> 
-> I have read that this means that my init.te file includes a rule that
-> allows sshd, in this case, to read my /etc/shadow file, and this
-> violates an assertion in the base policy.
-> 
-> How can i solve the problem?
-
-In this case, by getting sshd into the right domain.  More generally, if
-it was in the right domain and you needed to allow this, you would need
-to add a typeattribute to that domain so that the existing neverallow
-rule would not be violated, typically via a refpolicy interface.
-
+> On 2/20/07, Christopher J. PeBenito <cpebenito@tresys.com> wrote:
+> > Its a bug, that line should have been in cron.fc.  I question if that
+> > was the right way to label that file anyway.  So it might be better to
+> > remove it altogether.
 -- 
-Stephen Smalley
-National Security Agency
+Chris PeBenito
+Tresys Technology, LLC
+(410) 290-1411 x150
 
 
 --
