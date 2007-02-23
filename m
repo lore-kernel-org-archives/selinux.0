@@ -1,46 +1,60 @@
-Subject: Re: libselinux patch
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Steve G <linux_4ever@yahoo.com>
-Cc: Daniel J Walsh <dwalsh@redhat.com>, SE Linux <selinux@tycho.nsa.gov>,
-        "Christopher J. PeBenito" <cpebenito@tresys.com>
-In-Reply-To: <451748.5368.qm@web51503.mail.yahoo.com>
-References: <451748.5368.qm@web51503.mail.yahoo.com>
-Content-Type: text/plain
-Date: Fri, 23 Feb 2007 15:45:02 -0500
-Message-Id: <1172263502.19041.136.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id l1NLkGMk032335
+	for <selinux@tycho.nsa.gov>; Fri, 23 Feb 2007 16:46:16 -0500
+Received: from mx1.redhat.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l1NLlZPU027161
+	for <selinux@tycho.nsa.gov>; Fri, 23 Feb 2007 21:47:35 GMT
+Message-ID: <45DF60F2.7040507@redhat.com>
+Date: Fri, 23 Feb 2007 16:47:30 -0500
+From: Daniel J Walsh <dwalsh@redhat.com>
+MIME-Version: 1.0
+To: "Christopher J. PeBenito" <cpebenito@tresys.com>
+CC: SE Linux <selinux@tycho.nsa.gov>
+Subject: Re: Latest bluetooth requires net_bind_service
+References: <45DB3124.6050905@redhat.com> <1172256975.15371.80.camel@sgc.columbia.tresys.com>
+In-Reply-To: <1172256975.15371.80.camel@sgc.columbia.tresys.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2007-02-22 at 07:48 -0800, Steve G wrote:
-> Hi,
-> 
-> OK, I think the attached patch does _everything _ we discussed. It:
-> 
-> - removes 8 syscalls for the normal path
-> - ensures /selinux is trully an selinuxfs
-> - drops back to detecting the old way when /selinux is missing
-> - changes the old way in is_enabled to use fopen for glibc internal retries
-> - adds retry for EINTR in mls_enabled
-> - keeps SELINUX_MAGIC private
-> 
-> Signed-off-by: Steve Grubb <linux_4ever@yahoo.com>
-
-- Can drop the no-longer-used ret and rc local vars.
-- Booting with the patched libselinux reveals some permission denials
-due to the new attempts to statfs /selinux, e.g. audit2allow after boot
-generates:
-	allow mount_t security_t : filesystem getattr;
-	allow restorecon_t security_t : filesystem getattr;
-	allow setrans_t security_t : filesystem getattr;
-Hence, we'd need to add that permission to selinux_get_fs_mount() in
-refpolicy.  Fortunately, since it just falls back to the old logic if
-the statfs fails, it doesn't change behavior so we don't need to
-coordinate closely with the policy update.
-
--- 
-Stephen Smalley
-National Security Agency
+Christopher J. PeBenito wrote:
+> On Tue, 2007-02-20 at 12:34 -0500, Daniel J Walsh wrote:
+>   
+>> Also search inotify
+>>     
+>
+> I don't see any corenet tcp or udp binding rules, so the capability
+> seems out of place.
+>   
+This was a kernel change.  It has nothing to do with UDP/TCP networking, 
+but net_bind_service is now required for hidd to listen.
+>   
+>> --- nsaserefpolicy/policy/modules/services/bluetooth.te 2007-01-02
+>> 12:57:43.000000000 -0500
+>> +++
+>> serefpolicy-2.5.4/policy/modules/services/bluetooth.te      2007-02-19
+>> 16:01:52.000000000 -0500
+>> @@ -41,7 +41,7 @@
+>>  # Bluetooth services local policy
+>>  #
+>>  
+>> -allow bluetooth_t self:capability { net_admin net_raw sys_tty_config
+>> ipc_lock };
+>> +allow bluetooth_t self:capability { net_bind_service net_admin
+>> net_raw sys_tty_config ipc_lock };
+>>  dontaudit bluetooth_t self:capability sys_tty_config;
+>>  allow bluetooth_t self:process { getsched signal_perms };
+>>  allow bluetooth_t self:fifo_file rw_fifo_file_perms;
+>> @@ -98,6 +98,7 @@
+>>  
+>>  fs_getattr_all_fs(bluetooth_t)
+>>  fs_search_auto_mountpoints(bluetooth_t)
+>> +fs_search_inotifyfs(bluetooth_t)
+>>  
+>>  term_dontaudit_use_console(bluetooth_t)
+>>  #Handle bluetooth serial devices
+>>
+>>     
 
 
 --
