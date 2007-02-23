@@ -1,29 +1,83 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id l1N8m3V0001553
-	for <selinux@tycho.nsa.gov>; Fri, 23 Feb 2007 03:48:03 -0500
-Received: from msp1.hitachi-sk.co.jp (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id l1N8nLZb009563
-	for <selinux@tycho.nsa.gov>; Fri, 23 Feb 2007 08:49:21 GMT
-Received: from vs2.hitachi-sk.co.jp ([133.108.252.215])
-	by msp1.hitachi-sk.co.jp (unknown) with ESMTP id l1N8nKWY032721
-	for <selinux@tycho.nsa.gov>; Fri, 23 Feb 2007 17:49:20 +0900
-Date: Fri, 23 Feb 2007 17:49:29 +0900
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id l1N8kFxs001443
+	for <selinux@tycho.nsa.gov>; Fri, 23 Feb 2007 03:46:15 -0500
+Received: from msp1.hitachi-sk.co.jp (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l1N8lXKK021848
+	for <selinux@tycho.nsa.gov>; Fri, 23 Feb 2007 08:47:34 GMT
+Received: from vs1.hitachi-sk.co.jp ([133.108.252.215])
+	by msp1.hitachi-sk.co.jp (unknown) with ESMTP id l1N8lO3P032340
+	for <selinux@tycho.nsa.gov>; Fri, 23 Feb 2007 17:47:24 +0900
+Date: Fri, 23 Feb 2007 17:47:33 +0900
 From: Yuichi Nakamura <ynakam@hitachisoft.jp>
 To: busybox@busybox.net
 Cc: busybox@kaigai.gr.jp, vda.linux@googlemail.com, selinux@tycho.nsa.gov
-Subject: [PATCH 8/8] busybox -- SELinux option support for coreutils: ver3
-Message-Id: <20070223174929.18e547ea.ynakam@hitachisoft.jp>
+Subject: [PATCH 0/8] busybox -- SELinux option support for coreutils: ver3
+Message-Id: <20070223174733.e67e5fc6.ynakam@hitachisoft.jp>
 Mime-Version: 1.0
-Content-Type: multipart/mixed;
- boundary="Multipart=_Fri__23_Feb_2007_17_49_29_+0900_YOq_WCYYDVRGpbas"
+Content-Type: text/plain; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This is a multi-part message in MIME format.
+Hi.
 
---Multipart=_Fri__23_Feb_2007_17_49_29_+0900_YOq_WCYYDVRGpbas
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+The following patches provide SELinux options(like -Z) and applets to coreutils.
+To maintain SELinux system, some commands must be extended to be able to handle 
+attribute in SELinux(such as security context).
+
+Current patch is version 3. 
+We submitted previous patches some weeks ago, and some reviews were done.
+chcon and runcon applets are added, since last patch.
+I think that's all for coreutils.
+
+We hope the patches are merged into busybox svn tree.
+
+[1/8] busybox-coreutils-common-01.v3.patch
+ - common component for SELinux options, applets
+   like usage messages, the definition of applets and Kbuild/Config.in.
+
+[2/8] busybox-coreutils-02-copy.v3.patch
+  - cp: -c option support. 
+      -c option: security context is preserved during file copy.
+  - mv 
+    In SELinux, it is recommended to preserve security context 
+    when file is moved. By this patch, file context is preserved 
+    during file move.
+  - install
+    When file is copied by install, security context of installed file 
+    becomes different from value configured in file_contexts file.
+    By this patch, security context is set according to file_contexts file.
+   -Z option is also supported, security context can be set during file copy.
+(annotation) The reason why the above options are required:
+  SELinux stores secutiry context of files/directories in its
+  xattr area, but most of commands don't pay attention for xattr.
+  Thus, it's not preserved during file copy includes a case when mv
+  falled back into read/write copy.
+  We have to preserve them to keep consistency of the secure system.
+
+[3/8] busybox-coreutils-03-mk.v3.patch
+ - -Z option support for mkdir, mkfifo, mknod. 
+    By -Z, security context for created file can be set.
+ This improves compatibility with up-streamed coreutils.
+
+
+[4/8] busybox-coreutils-04-stat.v3.patch
+ - -Z option support for stat. Security context of file is shown by -Z option.
+ Security context of file is very important attribute for SELinux, 
+ so it should be shown in stat.
+
+[5/8]  busybox-coreutils-05-ls.v3.patch
+ - -Z option support for ls. Security context of file is shown by -Z option.
+   In current busybox, -k/-K shows security context. However, they are replaced
+ by -Z option in recent coreutils, so -Z have to be added by this patch.
+
+[6/8] busybox-coreutils-06-id.v3.patch
+ - -Z option support for id. Security context of process is shown by -Z option.
+
+[7/8] busybox-coreutils-07-chcon.v3.patch
+ - chcon - change security context of file. 
+  chcon provides one of the core facilities to associate a correct security
+  context within files. It enables to change whole or specific parts of the
+  security context within them.
 
 [8/8] busybox-coreutils-08-runcon.v3.patch
  - runcon - run application with specified security context.
@@ -31,102 +85,14 @@ Content-Transfer-Encoding: 7bit
   specified security context. It enables users to run their application under
   the least privilege set explicitly.
 
-Signed-off-by: KaiGai Kohei <kaigai@kaigai.gr.jp>
 
+This project is originated from some of JPSEUG(Japan SELinux User Group). 
+We have more patches to support SELinux commands/options.
+For list of our work, please visit following site.
+http://code.google.com/p/sebusybox/
 
-
-
-
-
-
---Multipart=_Fri__23_Feb_2007_17_49_29_+0900_YOq_WCYYDVRGpbas
-Content-Type: application/octet-stream;
- name="busybox-coreutils-runcon-08.v3.patch"
-Content-Disposition: attachment;
- filename="busybox-coreutils-runcon-08.v3.patch"
-Content-Transfer-Encoding: base64
-
-SW5kZXg6IHNlbGludXgvcnVuY29uLmMKPT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09
-PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PQotLS0gc2VsaW51eC9ydW5jb24uYwko
-cmV2aXNpb24gMCkKKysrIHNlbGludXgvcnVuY29uLmMJKHJldmlzaW9uIDApCkBAIC0wLDAgKzEs
-MTQxIEBACisvKgorICogcnVuY29uIFsgY29udGV4dCB8CisgKiAgICAgICAgICggWyAtYyBdIFsg
-LXIgcm9sZSBdIFstdCB0eXBlXSBbIC11IHVzZXIgXSBbIC1sIGxldmVscmFuZ2UgXSApCisgKiAg
-ICAgICAgIGNvbW1hbmQgW2FyZzEgW2FyZzIgLi4uXSBdCisgKgorICogYXR0ZW1wdCB0byBydW4g
-dGhlIHNwZWNpZmllZCBjb21tYW5kIHdpdGggdGhlIHNwZWNpZmllZCBjb250ZXh0LgorICoKKyAq
-IC1yIHJvbGUgIDogdXNlIHRoZSBjdXJyZW50IGNvbnRleHQgd2l0aCB0aGUgc3BlY2lmaWVkIHJv
-bGUKKyAqIC10IHR5cGUgIDogdXNlIHRoZSBjdXJyZW50IGNvbnRleHQgd2l0aCB0aGUgc3BlY2lm
-aWVkIHR5cGUKKyAqIC11IHVzZXIgIDogdXNlIHRoZSBjdXJyZW50IGNvbnRleHQgd2l0aCB0aGUg
-c3BlY2lmaWVkIHVzZXIKKyAqIC1sIGxldmVsIDogdXNlIHRoZSBjdXJyZW50IGNvbnRleHQgd2l0
-aCB0aGUgc3BlY2lmaWVkIGxldmVsIHJhbmdlCisgKiAtYyAgICAgICA6IGNvbXB1dGUgcHJvY2Vz
-cyB0cmFuc2l0aW9uIGNvbnRleHQgYmVmb3JlIG1vZGlmeWluZworICoKKyAqIENvbnRleHRzIGFy
-ZSBpbnRlcnByZXRlZCBhcyBmb2xsb3dzOgorICoKKyAqIE51bWJlciBvZiAgICAgICBNTFMKKyAq
-IGNvbXBvbmVudHMgICAgc3lzdGVtPworICoKKyAqICAgICAxICAgICAgICAgICAgLSAgICAgICAg
-IHR5cGUKKyAqICAgICAyICAgICAgICAgICAgLSAgICAgICAgIHJvbGU6dHlwZQorICogICAgIDMg
-ICAgICAgICAgICBZICAgICAgICAgcm9sZTp0eXBlOnJhbmdlCisgKiAgICAgMyAgICAgICAgICAg
-IE4gICAgICAgICB1c2VyOnJvbGU6dHlwZQorICogICAgIDQgICAgICAgICAgICBZICAgICAgICAg
-dXNlcjpyb2xlOnR5cGU6cmFuZ2UKKyAqICAgICA0ICAgICAgICAgICAgTiAgICAgICAgIGVycm9y
-CisgKgorICogUG9ydCB0byBidXN5Ym94OiBLYWlHYWkgS29oZWkgPGthaWdhaUBrYWlnYWkuZ3Iu
-anA+CisgKiAgICAgICAgICAgICAgICAgIC0gYmFzZWQgb24gY29yZXV0aWxzLTUuOTcgKGluIEZl
-ZG9yYSBDb3JlIDYpCisgKi8KKyNpbmNsdWRlICJidXN5Ym94LmgiCisjaW5jbHVkZSA8Z2V0b3B0
-Lmg+CisjaW5jbHVkZSA8c2VsaW51eC9jb250ZXh0Lmg+CisjaW5jbHVkZSA8c2VsaW51eC9mbGFz
-ay5oPgorCitzdGF0aWMgY29udGV4dF90IHJ1bmNvbl9jb21wdXRlX25ld19jb250ZXh0KGNoYXIg
-KnVzZXIsIGNoYXIgKnJvbGUsIGNoYXIgKnR5cGUsIGNoYXIgKnJhbmdlLAorCQkJCQkgICAgY2hh
-ciAqY29tbWFuZCwgaW50IGNvbXB1dGVfdHJhbnMpCit7CisJY29udGV4dF90IGNvbjsKKwlzZWN1
-cml0eV9jb250ZXh0X3QgY3VyX2NvbnRleHQ7CisKKwlpZiAoZ2V0Y29uKCZjdXJfY29udGV4dCkp
-CisJCWJiX2Vycm9yX21zZ19hbmRfZGllKCJjb3VsZCBub3QgZ2V0IGN1cnJlbnQgY29udGV4dC4i
-KTsKKworCWlmIChjb21wdXRlX3RyYW5zKSB7CisJCXNlY3VyaXR5X2NvbnRleHRfdCBmaWxlX2Nv
-bnRleHQsIG5ld19jb250ZXh0OworCisJCWlmIChnZXRmaWxlY29uKGNvbW1hbmQsICZmaWxlX2Nv
-bnRleHQpIDwgMCkKKwkJCWJiX2Vycm9yX21zZ19hbmRfZGllKCJ1bmFibGUgdG8gcmV0cmlldmUg
-YXR0cmlidXRlcyBvZiAnJXMnLiIsCisJCQkJCSAgICAgY29tbWFuZCk7CisJCWlmIChzZWN1cml0
-eV9jb21wdXRlX2NyZWF0ZShjdXJfY29udGV4dCwgZmlsZV9jb250ZXh0LAorCQkJCQkgICAgU0VD
-Q0xBU1NfUFJPQ0VTUywgJm5ld19jb250ZXh0KSkKKwkJCWJiX2Vycm9yX21zZ19hbmRfZGllKCJ1
-bmFibGUgdG8gY29tcHV0ZSBhIG5ldyBjb250ZXh0LiIpOworCQljdXJfY29udGV4dCA9IG5ld19j
-b250ZXh0OworCX0KKworCWNvbiA9IGNvbnRleHRfbmV3KGN1cl9jb250ZXh0KTsKKwlpZiAoIWNv
-bikKKwkJYmJfZXJyb3JfbXNnX2FuZF9kaWUoIiclcycgaXMgbm90IGEgdmFsaWQgY29udGV4dC4i
-LCBjdXJfY29udGV4dCk7CisJaWYgKHVzZXIgJiYgY29udGV4dF91c2VyX3NldChjb24sIHVzZXIp
-KQorCQliYl9lcnJvcl9tc2dfYW5kX2RpZSgiZmFpbGVkIHRvIHNldCBuZXcgdXNlciAnJXMnIiwg
-dXNlcik7CisJaWYgKHR5cGUgJiYgY29udGV4dF90eXBlX3NldChjb24sIHR5cGUpKQorCQliYl9l
-cnJvcl9tc2dfYW5kX2RpZSgiZmFpbGVkIHRvIHNldCBuZXcgdHlwZSAnJXMnIiwgdHlwZSk7CisJ
-aWYgKHJhbmdlICYmIGNvbnRleHRfcmFuZ2Vfc2V0KGNvbiwgcmFuZ2UpKQorCQliYl9lcnJvcl9t
-c2dfYW5kX2RpZSgiZmFpbGVkIHRvIHNldCBuZXcgcmFuZ2UgJyVzJyIsIHJhbmdlKTsKKwlpZiAo
-cm9sZSAmJiBjb250ZXh0X3JvbGVfc2V0KGNvbiwgcm9sZSkpCisJCWJiX2Vycm9yX21zZ19hbmRf
-ZGllKCJmYWlsZWQgdG8gc2V0IG5ldyByb2xlICclcyciLCByb2xlKTsKKworCXJldHVybiBjb247
-Cit9CisKKyNpZmRlZiBDT05GSUdfRkVBVFVSRV9SVU5DT05fTE9OR19PUFRJT05TCitzdGF0aWMg
-Y29uc3Qgc3RydWN0IG9wdGlvbiBydW5jb25fb3B0aW9uc1tdID0geworCXsidXNlciIsCTEsIE5V
-TEwsICd1JyB9LAorCXsicm9sZSIsCTEsIE5VTEwsICdyJyB9LAorCXsidHlwZSIsCTEsIE5VTEws
-ICd0JyB9LAorCXsicmFuZ2UiLAkxLCBOVUxMLCAnbCcgfSwKKwl7ImNvbXB1dGUiLAkwLCBOVUxM
-LCAnYycgfSwKKwl7ImhlbHAiLAkwLCBOVUxMLCAnaCcgfSwKKwl7TlVMTCwJCTAsIE5VTEwsIDAg
-fSwKK307CisjZW5kaWYKKworI2RlZmluZSBPUFRTX1JPTEUJKDE8PDApCS8qIHIgKi8KKyNkZWZp
-bmUgT1BUU19UWVBFCSgxPDwxKQkvKiB0ICovCisjZGVmaW5lIE9QVFNfVVNFUgkoMTw8MikJLyog
-dSAqLworI2RlZmluZSBPUFRTX1JBTkdFCSgxPDwzKQkvKiBsICovCisjZGVmaW5lIE9QVFNfQ09N
-UFVURQkoMTw8NCkJLyogYyAqLworI2RlZmluZSBPUFRTX0hFTFAJKDE8PDUpCS8qIGggKi8KKwor
-aW50IHJ1bmNvbl9tYWluKGludCBhcmdjLCBjaGFyICphcmd2W10pOworaW50IHJ1bmNvbl9tYWlu
-KGludCBhcmdjLCBjaGFyICphcmd2W10pCit7CisJY2hhciAqcm9sZSA9IE5VTEw7CisJY2hhciAq
-cmFuZ2UgPSBOVUxMOworCWNoYXIgKnVzZXIgPSBOVUxMOworCWNoYXIgKnR5cGUgPSBOVUxMOwor
-CWNoYXIgKmNvbnRleHQgPSBOVUxMOworCWNoYXIgKmNvbW1hbmQ7CisJY2hhciAqKmNvbW1hbmRf
-YXJnczsKKwl1bnNpZ25lZCBpbnQgb3B0czsKKwljb250ZXh0X3QgY29uOworCisJc2VsaW51eF9v
-cl9kaWUoKTsKKworI2lmZGVmIENPTkZJR19GRUFUVVJFX1JVTkNPTl9MT05HX09QVElPTlMKKwlh
-cHBsZXRfbG9uZ19vcHRpb25zID0gcnVuY29uX29wdGlvbnM7CisjZW5kaWYKKwlvcHRzID0gZ2V0
-b3B0MzIoYXJnYywgYXJndiwgInI6dDp1Omw6Y2giLCAmcm9sZSwgJnR5cGUsICZ1c2VyLCAmcmFu
-Z2UpOworCisJaWYgKCFyb2xlICYmICF0eXBlICYmICF1c2VyICYmICFyYW5nZSkgeworCQlpZiAo
-b3B0aW5kID49IGFyZ2MpCisJCQliYl9lcnJvcl9tc2dfYW5kX2RpZSgibXVzdCBzcGVjaWZ5IC1j
-LCAtdCwgLXUsIC1sLCAtciwgb3IgY29udGV4dCIpOworCQljb250ZXh0ID0gYXJndltvcHRpbmQr
-K107CisJfQorCisJaWYgKG9wdGluZCA+PSBhcmdjKQorCQliYl9lcnJvcl9tc2dfYW5kX2RpZSgi
-bm8gY29tbWFuZCBmb3VuZCIpOworCWNvbW1hbmQgPSBhcmd2W29wdGluZF07CisJY29tbWFuZF9h
-cmdzID0gYXJndiArIG9wdGluZDsKKworCWlmIChjb250ZXh0KSB7CisJCWNvbiA9IGNvbnRleHRf
-bmV3KGNvbnRleHQpOworCQlpZiAoIWNvbikKKwkJCWJiX2Vycm9yX21zZ19hbmRfZGllKCInJXMn
-IGlzIG5vdCBhIHZhbGlkIGNvbnRleHQiLCBjb250ZXh0KTsKKwl9IGVsc2UgeworCQljb24gPSBy
-dW5jb25fY29tcHV0ZV9uZXdfY29udGV4dCh1c2VyLCByb2xlLCB0eXBlLCByYW5nZSwKKwkJCQkJ
-CSBjb21tYW5kLCBvcHRzICYgT1BUU19DT01QVVRFKTsKKwl9CisKKwlpZiAoc2VjdXJpdHlfY2hl
-Y2tfY29udGV4dChjb250ZXh0X3N0cihjb24pKSkKKwkJYmJfZXJyb3JfbXNnX2FuZF9kaWUoIicl
-cycgaXMgbm90IGEgdmFsaWQgY29udGV4dCIsCisJCQkJICAgICBjb250ZXh0X3N0cihjb24pKTsK
-KworCWlmIChzZXRleGVjY29uKGNvbnRleHRfc3RyKGNvbikpKQorCQliYl9lcnJvcl9tc2dfYW5k
-X2RpZSgidW5hYmxlIHRvIHNldCB1cCBzZWN1cml0eSBjb250ZXh0ICclcyciLAorCQkJCSAgICAg
-Y29udGV4dF9zdHIoY29uKSk7CisKKwlleGVjdnAoY29tbWFuZCwgY29tbWFuZF9hcmdzKTsKKwor
-CWJiX3BlcnJvcl9tc2dfYW5kX2RpZSgidW5hYmxlIHRvIGV4ZWN1dGUgJyVzJyIsIGNvbW1hbmQp
-OworCXJldHVybiAxOworfQo=
-
---Multipart=_Fri__23_Feb_2007_17_49_29_+0900_YOq_WCYYDVRGpbas--
+Regards,
+Yuichi Nakamura
 
 --
 This message was distributed to subscribers of the selinux mailing list.
