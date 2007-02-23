@@ -1,83 +1,81 @@
-Subject: Re: [RFC] Drop setlocaldefs support from trunk (2.x series)
+Subject: Re: Several SELinux questions
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Karl MacMillan <kmacmillan@mentalrootkit.com>
-Cc: selinux@tycho.nsa.gov
-In-Reply-To: <45DE10D4.3030107@mentalrootkit.com>
-References: <1172162502.14363.446.camel@moss-spartans.epoch.ncsc.mil>
-	 <45DE10D4.3030107@mentalrootkit.com>
+To: Dave Quigley <dquigley+selinux@gmail.com>
+Cc: selinux@tycho.nsa.gov, Karl MacMillan <kmacmillan@mentalrootkit.com>
+In-Reply-To: <f888952b0702221634h3a673ee5v1cc92722f60ced56@mail.gmail.com>
+References: <f888952b0702221634h3a673ee5v1cc92722f60ced56@mail.gmail.com>
 Content-Type: text/plain
-Date: Fri, 23 Feb 2007 08:28:55 -0500
-Message-Id: <1172237335.19041.17.camel@moss-spartans.epoch.ncsc.mil>
+Date: Fri, 23 Feb 2007 09:38:09 -0500
+Message-Id: <1172241489.19041.41.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2007-02-22 at 16:53 -0500, Karl MacMillan wrote:
-> Stephen Smalley wrote:
-> > Hi,
-> > 
-> > With the migration to libsemanage and managed policy, the setlocaldefs
-> > support in libselinux and underlying support in libsepol for parsing
-> > local booleans and users files is obsolete in modern SELinux
-> > distributions.  Ideally, I'd like to drop it out entirely from the trunk
-> > (2.x series), while preserving it on the stable branch (1.x series).
-> > Specifically, this would mean:
-> > - Removing setlocaldefs support from libselinux,
-> > - Removing sepol_genusers and sepol_genbools and their internal logic
-> > from libsepol, including the legacy config file parsers there.
-> > sepol_genbools_array() would remain due to its use for preserving
-> > actives booleans upon policy reload, but it doesn't require the config
-> > file parser.
-> > 
-> 
-> That's fine with me, though I question whether the config parsers might 
-> not be better in libsepol than in libsemanage.
+On Thu, 2007-02-22 at 19:34 -0500, Dave Quigley wrote:
+>     My first question is if it is possible to query what the relabel
+> context for a path should be using one of the selinux libraries and a
+> policy module?
 
-Here we are talking about config parsers for the local booleans file and
-local user definitions, all of which now live in libsemanage and are
-private to it.  Not config parsers for the base policy per se.
+We've previously talked about a variant of matchpathcon(3) that would
+act on a policy module (in the context of how to handle rpm selinux
+integration for per-package policy).  It wouldn't be difficult to write
+a program that splits out a .pp file into its components
+(semodule_unpackage, see list archives for a start at one), takes
+the .fc file and combines with it the base system policy (as you need
+fallbacks for when the file doesn't match something specifically in the
+per-module .fc file), and then applies matchpathcon to that result (you
+can already tell matchpathcon to take input from a particular file via
+matchpathcon_init).
 
-Also, in addition to libsepol interfaces, this would also affect the
-following libselinux interfaces:
-- security_set_boolean_list() - the interface would remain, but the
-permanent=1 flag would no longer be supported since the only correct way
-to set permanent booleans going forward would be via managed policy,
-- security_load_booleans() - AFAICS, this interface hasn't been used for
-a long time, ever since we introduced support for patching the boolean
-values into the binary policy image at load time, so I think it can be
-removed altogether.
-Thus, the local booleans file manipulation in libselinux would also go
-away, and it would only deal with the /selinux/booleans manipulation.
+But the preferred approach is to install the policy module first, then
+use matchpathcon(3) as it exists today, so that you get the full file
+contexts configuration for the entire set of policy modules.
 
-> > We have different options for handling the libsepol changes, e.g.:
-> > - We could retain stub functions for the interfaces that call WARN() and
-> > return an error immediately, and possibly version the map file so that
-> > they are only exported to legacy binaries.  In this case, legacy
-> > binaries should already have logic to fall back to the original policy
-> > image as these calls can fail for other reasons, so you'd just end up
-> > with the base policy without any local boolean or user definitions
-> > applied.
-> > - We could remove the interfaces altogether, requiring a change to the
-> > shared library version.
-> > 
-> > This would affect e.g. the ability to install the trunk versions on an
-> > older distribution like RHEL 4, which predates libsemanage and managed
-> > policy support.
-> > 
-> 
-> Either way we are breaking binary compatibility in a way. Even though 
-> the stubs allow the existing binaries to work, the behavior is certainly 
-> changed.
-> 
-> I understood that we were going to try to maintain binary compatibility, 
-> but that seems like it is going to be difficult to do while making 
-> needed cleanups. I'm not opposed to bumping the library version, but I 
-> think that we should think about how to do this cleanly. If nothing 
-> else, we should have a plan so that we get all of the symbol removals / 
-> renames done in a single user visible version update.
+>  I am working on a high level language for selinux that
+> uses the reference policy as a base to work on top of. Because of this
+> I need to make use of the types that already exist. For instance I
+> don't want to rely on the current state of the system to determine
+> that the type for /tmp should be tmp_t. An example I have for this is
+> the ability for a policy writer to say that he wants a set of isolated
+> tmp files. This means it can't use the default type tmp_t however by
+> placing the constraint on the developer that he will be placing his
+> files in a directory labeled with tmp_t I can generate the policy code
+> to do several things. First we can generate a type without the policy
+> developer having to be too conscious of it. Second we can generate the
+> transition rules that are needed to make sure the files created in a
+> tmp_t directory are labeled properly. Finally the developer specifies
+> what kinds of objects he will want to act upon and in what manner and
+> we generate the appropriate AV rules.
 
-Yes, this is just the first of many RFCs.  The actual patches can wait a
-bit.
+I'm not sure how this relates to your question, because the context for
+a newly created file is computed from the context of the creator and the
+context of the parent directory based on type transition rules, vs. a
+pathname-based install-time relabeling that uses matchpathcon.  You can
+query for information about such transitions via
+security_compute_create(3), which internally maps to the kernel's
+security_transition_sid() function.
+
+>     My second question is how do we handle things such as shell
+> scripts and interpreted languages inside policy? I remember hearing
+> somewhere that we just run programs such as the java and python
+> interpreters as unconfined. I am not really sure if it is possible to
+> have java programs and other interpreted programs constricted under
+> SELinux since we do need to grant the interpreter privileges to do
+> quite a few things without making the interpreters aware of selinux
+> security contexts in addition to normal security controls.
+
+Not sure what you are asking here.  By default, a program runs in the
+caller's domain unless a domain transition from the calling domain to a
+new domain on the executable type, so that applies to both interpreted
+scripts/programs and native binaries.  Many programs (both interpreted
+and otherwise) run in the user's own domain since they don't require
+distinct permissions, whether the user's domain is unconfined (as in
+targeted) or user_t/staff_t/sysadm_t (as in strict).   Unlike suid/sgid
+execution, we do support domain transitions on interpreted
+scripts/programs, but with the understanding that you must trust the
+caller's domain more than the script/program's domain since there is a
+fundamental race there and since scripts are so susceptible to caller
+influence.  Wrapper binaries are a possible countermeasure.
 
 -- 
 Stephen Smalley
