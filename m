@@ -1,71 +1,86 @@
-Subject: Re: I think this is equivalent to what we have
-	now	and	more	efficient.
+Subject: Re: [RFC] Remove init_context_translations() from libselinux
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Steve Grubb <sgrubb@redhat.com>
-Cc: Daniel J Walsh <dwalsh@redhat.com>, SE Linux <selinux@tycho.nsa.gov>
-In-Reply-To: <200702221156.49050.sgrubb@redhat.com>
-References: <45DDAA80.80603@redhat.com>
-	 <1172159012.14363.404.camel@moss-spartans.epoch.ncsc.mil>
-	 <45DDBEFA.3050901@redhat.com>  <200702221156.49050.sgrubb@redhat.com>
+To: Darrel Goeddel <dgoeddel@TrustedCS.com>
+Cc: Daniel J Walsh <dwalsh@redhat.com>, selinux@tycho.nsa.gov
+In-Reply-To: <45DDCAA4.1070103@trustedcs.com>
+References: <1172078429.14363.279.camel@moss-spartans.epoch.ncsc.mil>
+	 <45DDBFB0.9040401@redhat.com>  <45DDCAA4.1070103@trustedcs.com>
 Content-Type: text/plain
-Date: Fri, 23 Feb 2007 07:34:52 -0500
-Message-Id: <1172234092.14363.468.camel@moss-spartans.epoch.ncsc.mil>
+Date: Fri, 23 Feb 2007 07:43:49 -0500
+Message-Id: <1172234630.14363.475.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2007-02-22 at 11:56 -0500, Steve Grubb wrote:
-> On Thursday 22 February 2007 11:04:10 Daniel J Walsh wrote:
-> >     fp = fopen("/proc/filesystems", "r");
-> >     if (fp == NULL)
-> >         return -1;
+On Thu, 2007-02-22 at 10:53 -0600, Darrel Goeddel wrote:
+> Daniel J Walsh wrote:
+> > Stephen Smalley wrote:
+> >> I think we've talked about this before, but never followed through.
+> >> Is there any reason to retain the init_context_translations() function
+> >> in libselinux, which sends a SETRANS_INIT message to mcstransd, gets a
+> >> response, and discards it?  Can we drop it and the call to it from the
+> >> library constructor/initializer?
+> >>
+> >>   
+> > Ok with me.
 > 
-> This avoids speedups if selinux_mnt already determined that selinux file 
-> system is mounted.
+> Removal looks OK to me.  It used to be that a failure would cause
+> translations to be disabled, but it is now vestigial.
 
-I don't think he was incorporating your optimizations yet, just trying
-to address the original concern about short reads.
+On second look, we need to retain the function to set mls_enabled for
+later use, but we can drop the part that communicates with mcstransd.
+Patch below.
 
-> >     while ((read = getline(&line, &len, fp)) != -1) {
-> 
-> calls malloc/realloc sometimes. Do we want to use this or just use 
-> fgets_unlocked?
+Signed-off-by:  Stephen Smalley <sds@tycho.nsa.gov>
 
-I'd prefer to convert all uses of fgets* to getline and let glibc handle
-the allocations; we are already performing allocation on that code path
-(just prior to the loop), and getline can handle it more intelligently
-and dynamically based on the actual sizes.  Ulrich originally introduced
-use of getline into libselinux and converted some functions, so
-remaining cases of fgets* are legacy.
+Index: libselinux/src/setrans_client.c
+===================================================================
+--- libselinux/src/setrans_client.c	(revision 2263)
++++ libselinux/src/setrans_client.c	(working copy)
+@@ -213,29 +213,8 @@
+ 
+ hidden int init_context_translations(void)
+ {
+-	int ret, fd;
+-	int32_t ret_val;
+-	char *out = NULL;
+-
+ 	mls_enabled = is_selinux_mls_enabled();
+-	if (!mls_enabled)
+-		return 0;
+-
+-	fd = setransd_open();
+-	if (fd < 0)
+-		return fd;
+-
+-	ret = send_request(fd, SETRANS_INIT, NULL, NULL);
+-	if (ret)
+-		goto out;
+-
+-	ret = receive_response(fd, SETRANS_INIT, &out, &ret_val);
+-	free(out);
+-	if (!ret)
+-		ret = ret_val;
+-      out:
+-	close(fd);
+-	return ret;
++	return 0;
+ }
+ 
+ int selinux_trans_to_raw_context(security_context_t trans,
+Index: libselinux/src/setrans_internal.h
+===================================================================
+--- libselinux/src/setrans_internal.h	(revision 2263)
++++ libselinux/src/setrans_internal.h	(working copy)
+@@ -2,7 +2,6 @@
+ 
+ #define SETRANS_UNIX_SOCKET "/var/run/setrans/.setrans-unix"
+ 
+-#define SETRANS_INIT		1
+ #define RAW_TO_TRANS_CONTEXT		2
+ #define TRANS_TO_RAW_CONTEXT		3
+ #define MAX_DATA_BUF			8192
 
-> >         if (strstr(line, "selinuxfs")) {
-> >             enabled=1;
-> >             break;
-> >         }
-> >     }
-> 
-> check for policy loaded ?
-
-He dropped that per our discussion on list on the view that it was just
-a legacy predating the runtime disable support for SELinux, which does
-unregister selinuxfs too.  However, on second thought, this is likely
-not a good idea (sorry Dan), as it could lead to application misbehavior
-if a system is booted in permissive mode with missing or corrupted
-policy, which might be necessary for recovery.  At that point, with no
-policy loaded and thus no contexts defined, any calls to e.g.
-setexeccon() will fail, which could break login, and applications that
-try to preserve contexts on files could end up mislabeling them due to
-the lack of defined contexts.
-
-So I suppose we need to retain the getcon() test.  Or institute a more
-direct test of whether policy is loaded, e.g. new selinuxfs node that is
-accessible to all so that it can always be read to see whether policy
-has been loaded.
-
-> 
-> >     free(line);
-> >     fclose(fp);
-> >     return enabled;
 -- 
 Stephen Smalley
 National Security Agency
