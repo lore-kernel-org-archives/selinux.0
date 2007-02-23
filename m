@@ -1,51 +1,63 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id l1NGVXaB019227
-	for <selinux@tycho.nsa.gov>; Fri, 23 Feb 2007 11:31:33 -0500
-Received: from exchange.columbia.tresys.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with SMTP id l1NGWq0Z019266
-	for <selinux@tycho.nsa.gov>; Fri, 23 Feb 2007 16:32:52 GMT
-Subject: Re: Is the usercanread attribute still needed?
-From: "Christopher J. PeBenito" <cpebenito@tresys.com>
-To: Ryan Bradetich <rbradetich@gmail.com>
-Cc: selinux@tycho.nsa.gov
-In-Reply-To: <e739902b0702201951p813ad71vefb0dd0069448a07@mail.gmail.com>
-References: <e739902b0702181633md9e8fa9y55e74a5520cf7a60@mail.gmail.com>
-	 <1172004294.20576.236.camel@sgc.columbia.tresys.com>
-	 <e739902b0702201944t104d6915raff5949c8e579885@mail.gmail.com>
-	 <e739902b0702201951p813ad71vefb0dd0069448a07@mail.gmail.com>
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id l1NHZCNG022062
+	for <selinux@tycho.nsa.gov>; Fri, 23 Feb 2007 12:35:12 -0500
+Received: from vsmtp1.tin.it (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l1NHaUPU016533
+	for <selinux@tycho.nsa.gov>; Fri, 23 Feb 2007 17:36:31 GMT
+Received: from [192.168.0.3] (87.4.127.7) by vsmtp1.tin.it (7.2.072.1)
+        id 45DC4ED2002E9961 for selinux@tycho.nsa.gov; Fri, 23 Feb 2007 18:36:23 +0100
+Subject: init_t and sshd
+From: Vincenzo Ciaglia <vin@netwosix.org>
+Reply-To: vin@netwosix.org
+To: selinux@tycho.nsa.gov
 Content-Type: text/plain
-Date: Fri, 23 Feb 2007 16:33:07 +0000
-Message-Id: <1172248387.15371.66.camel@sgc.columbia.tresys.com>
+Date: Fri, 23 Feb 2007 18:36:27 +0100
+Message-Id: <1172252188.10636.9.camel@localhost>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-> On 2/20/07, Ryan Bradetich <rbradetich@gmail.com> wrote:
-> > Hello Chris,
-> >
-> > Thanks much for your reply!
-> > I have attached an updated patch that leaves the attribute definition
-> > in the files.te file.
-> >
-> > Just out of curiosity, what is the policy for obsoleting these attributes?
-> > At next policy file rev?
+Hello, once i solved every problems related to SELinux installation from
+scratch i started working on policies for Netwosix.
 
-It has to stay around for "a reasonable transition time".  Since this is
-a fairly widely used interface, it'll probably have to stay for a few
-releases.
+Here the problem:
 
-Please resend the patch to the list.
+vciaglia@vciaglia-desktop:~$ ssh -l vciaglia 192.168.0.4
+vciaglia@192.168.0.4's password:
+Read from remote host 192.168.0.4: Connection reset by peer
+Connection to 192.168.0.4 closed.
 
-> > On 2/20/07, Christopher J. PeBenito <cpebenito@tresys.com> wrote:
-> > > Since modules are statically compiled, we can't completely remove the
-> > > attribute yet, otherwise it might cause some policies to fail to link if
-> > > it is still required.  However, the typeattribute could be removed from
-> > > files_config_file().
+In few words i can ssh into my machine only as "root" when i'm in
+enforcing mode. So i took a look to the avc denials and audit2allow says
+me to add this line to my "init.te":
+
+allow init_t shadow_t:file { getattr read };
+
+So i tried to add the line and rebuild the policy but i get this result:
+
+grep ^portcon tmp/policy.conf.tmp >> policy.conf || true
+grep ^netifcon tmp/policy.conf.tmp >> policy.conf || true
+grep ^nodecon tmp/policy.conf.tmp >> policy.conf || true
+Compiling netwosix policy.21
+/usr/bin/checkpolicy policy.conf -o policy.21
+/usr/bin/checkpolicy:  loading policy configuration from policy.conf
+libsepol.check_assertion_helper: assertion on line 147384 violated by
+allow init_t shadow_t:file { read };
+libsepol.check_assertions: 1 assertion violations occured
+Error while expanding policy
+make: *** [policy.21] Error 1
+
+I have read that this means that my init.te file includes a rule that
+allows sshd, in this case, to read my /etc/shadow file, and this
+violates an assertion in the base policy.
+
+How can i solve the problem?
+
+Thank you!
 
 -- 
-Chris PeBenito
-Tresys Technology, LLC
-(410) 290-1411 x150
+Vincenzo Ciaglia - <vin(at)netwosix(dot)org>
+Linux Netwosix - <http://www.netwosix.org>
 
 
 --
