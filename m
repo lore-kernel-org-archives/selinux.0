@@ -1,64 +1,54 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id l1OFxCxQ023507
-	for <selinux@tycho.nsa.gov>; Sat, 24 Feb 2007 10:59:12 -0500
-Received: from wr-out-0506.google.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id l1OG0VOS004830
-	for <selinux@tycho.nsa.gov>; Sat, 24 Feb 2007 16:00:32 GMT
-Received: by wr-out-0506.google.com with SMTP id i21so1054155wra
-        for <selinux@tycho.nsa.gov>; Sat, 24 Feb 2007 08:00:31 -0800 (PST)
-Message-ID: <e739902b0702240800i31d0eff3xa50540dfa1e952c2@mail.gmail.com>
-Date: Sat, 24 Feb 2007 08:00:30 -0800
-From: "Ryan Bradetich" <rbradetich@gmail.com>
-To: "Christopher J. PeBenito" <cpebenito@tresys.com>
-Subject: Re: PATCH: Remove redundant role statement from the apache.te file.
-Cc: selinux@tycho.nsa.gov
-In-Reply-To: <1172247845.15371.58.camel@sgc.columbia.tresys.com>
+From: Steve Grubb <sgrubb@redhat.com>
+To: Stephen Smalley <sds@tycho.nsa.gov>
+Subject: Re: I think this is equivalent to what we have =?utf-8?q?now=09and=09more=09efficient=2E?=
+Date: Sun, 25 Feb 2007 14:36:38 -0500
+Cc: Daniel J Walsh <dwalsh@redhat.com>, SE Linux <selinux@tycho.nsa.gov>
+References: <45DDAA80.80603@redhat.com> <200702221156.49050.sgrubb@redhat.com> <1172234092.14363.468.camel@moss-spartans.epoch.ncsc.mil>
+In-Reply-To: <1172234092.14363.468.camel@moss-spartans.epoch.ncsc.mil>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-References: <e739902b0702181540r3734cb6bh7c68ed1f9f323d1e@mail.gmail.com>
-	 <1172247845.15371.58.camel@sgc.columbia.tresys.com>
+Content-Type: text/plain;
+  charset="utf-8"
+Message-Id: <200702251436.38681.sgrubb@redhat.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hello Chris,
-
-Fair enough.  I will reverse this patch from my local tree as well.
-
-Thanks!
-
-- Ryan
-
-
-On 2/23/07, Christopher J. PeBenito <cpebenito@tresys.com> wrote:
-> On Sun, 2007-02-18 at 15:40 -0800, Ryan Bradetich wrote:
-> > I am working on writing a policy for the Boa web server.  I am using
-> > the SELinux by example book and the apache modules for guidance.
-> > Going through the apache.te file I noticed the following entry is
-> > redundant:
-> >
-> >     role system_r types httpd_t;
-> >
-> > This statement is provided as part of the init_daemon_domain interface
-> > in the modules/system/init.if interface file.  Here is the line in the
-> > init_daemon_domain interface function:
-> >
-> >    role system_r types $1;
-> >
-> > I have attached a patch to remove role entry from the apache.te file.
+On Friday 23 February 2007 07:34:52 Stephen Smalley wrote:
+> Do we want to use this or just use fgets_unlocked?
 >
-> Since this doesn't hurt anything, I'd rather just leave it since its all
-> over the policy right now.  The issue is that if you rely on the
-> interface to allow the role the daemon type, you still have to allow the
-> role to any subdomains of the daemon (like httpd_sys_script_t)
-> explicitly.  This makes the handling of the primary domain and sub
-> domains of a daemon slightly inconsistent.
->
-> --
-> Chris PeBenito
-> Tresys Technology, LLC
-> (410) 290-1411 x150
->
->
+> I'd prefer to convert all uses of fgets* to getline and let glibc handle
+> the allocations; we are already performing allocation on that code path
+> (just prior to the loop),
+
+I had already created a patch assuming we wanted to go with fgets where it 
+used a stack variable to avoid the overhead of malloc/free. In the case of 
+scanning /proc/filesystems, you can expect it to be well behaved since its 
+controlled by the kernel. However, in the case of scanning /proc/mounts, you 
+have to be very careful. Someone could create a path that is close to 
+PATH_MAX in size.
+
+> and getline can handle it more intelligently and dynamically based
+> on the actual sizes.
+
+I think the underlying mechanism is about the same for these two cases.
+
+> Ulrich originally introduced  use of getline into libselinux and converted
+> some functions, so remaining cases of fgets* are legacy.
+
+That was to avoid having to do strlen after receiving the buffer more than 
+anything else. Getline saves us in that respect. I'll re-code the patch with 
+getline so its consistent.
+
+> So I suppose we need to retain the getcon() test.  Or institute a more
+> direct test of whether policy is loaded, e.g. new selinuxfs node that is
+> accessible to all so that it can always be read to see whether policy
+> has been loaded.
+
+What about /selinux/policyvers ? When selinux is disabled, it does not exist. 
+When its enabled, should it tell you the version of policy that was 
+successfully loaded?
+
+-Steve
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
