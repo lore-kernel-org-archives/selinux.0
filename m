@@ -1,37 +1,46 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id l1QKucBR022055
-	for <selinux@tycho.nsa.gov>; Mon, 26 Feb 2007 15:56:38 -0500
-Received: from web51510.mail.yahoo.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with SMTP id l1QKvwW2017224
-	for <selinux@tycho.nsa.gov>; Mon, 26 Feb 2007 20:57:58 GMT
-Date: Mon, 26 Feb 2007 12:57:43 -0800 (PST)
-From: Steve G <linux_4ever@yahoo.com>
-Subject: Re: [PATCH] Lazy config init in libselinux
-To: Stephen Smalley <sds@tycho.nsa.gov>
-Cc: SE Linux <selinux@tycho.nsa.gov>, Daniel J Walsh <dwalsh@redhat.com>
-In-Reply-To: <1172517022.19041.280.camel@moss-spartans.epoch.ncsc.mil>
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id l1QKtCFX022004
+	for <selinux@tycho.nsa.gov>; Mon, 26 Feb 2007 15:55:13 -0500
+Received: from mx1.redhat.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l1QKuXPM021987
+	for <selinux@tycho.nsa.gov>; Mon, 26 Feb 2007 20:56:34 GMT
+Message-ID: <45E3496E.8080605@redhat.com>
+Date: Mon, 26 Feb 2007 15:56:14 -0500
+From: Daniel J Walsh <dwalsh@redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Message-ID: <388819.82266.qm@web51510.mail.yahoo.com>
+To: "Christopher J. PeBenito" <cpebenito@tresys.com>
+CC: SE Linux <selinux@tycho.nsa.gov>
+Subject: Re: Policy patch for hal
+References: <45DB27D7.7090604@redhat.com> <1172518334.22224.16.camel@sgc>
+In-Reply-To: <1172518334.22224.16.camel@sgc>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+Christopher J. PeBenito wrote:
+> On Tue, 2007-02-20 at 11:54 -0500, Daniel J Walsh wrote:
+>   
+>> Hal now is changing the attributes of sound device and video devices so 
+>> userswitching can happen.
+>>
+>> It reads and writes raw memory.
+>>     
+>
+> This is disappointing.  With this and raw disk access, hal is basically
+> unconfined.  Is there any chance we can figure out what these perms are
+> tied to so they could potentially be made conditional?
+>   
+We are beginning to break it up, so some sub packages of hal (hal_acl) 
+have different powers,  but the nature of the tool is going to give it 
+lots of power.
+>   
+>> It has a new cache directory where it wants to store stuff.
+>>
+>> Needs to telinit to change runlevel.
+>>
+>>
+>>     
 
->The problem with doing it on first use is it isn't thread-safe; the code
->is initializing globals for the library's subsequent use.  And making
->those variables per-thread would be wasteful as they truly are global
->state to the library.  So initializing them in the library constructor
->is the right thing to do.
-
-How do you feel about __libc_once  ?
-
--Steve
-
-
- 
-____________________________________________________________________________________
-Need a quick answer? Get one in minutes from people who know.
-Ask your question on www.Answers.yahoo.com
 
 --
 This message was distributed to subscribers of the selinux mailing list.
