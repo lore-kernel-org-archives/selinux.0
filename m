@@ -1,323 +1,229 @@
 Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id l1QHbJX9012556
-	for <selinux@tycho.nsa.gov>; Mon, 26 Feb 2007 12:37:19 -0500
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id l1QHbaM0012576
+	for <selinux@tycho.nsa.gov>; Mon, 26 Feb 2007 12:37:36 -0500
 Received: from py-out-1112.google.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l1QHcePM012073
-	for <selinux@tycho.nsa.gov>; Mon, 26 Feb 2007 17:38:40 GMT
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l1QHcePN012073
+	for <selinux@tycho.nsa.gov>; Mon, 26 Feb 2007 17:38:55 GMT
 Received: by py-out-1112.google.com with SMTP id a78so778138pyh
-        for <selinux@tycho.nsa.gov>; Mon, 26 Feb 2007 09:38:40 -0800 (PST)
-Message-ID: <45E31B86.8080200@kaigai.gr.jp>
-Date: Tue, 27 Feb 2007 02:40:22 +0900
+        for <selinux@tycho.nsa.gov>; Mon, 26 Feb 2007 09:38:55 -0800 (PST)
+Message-ID: <45E31B96.3060406@kaigai.gr.jp>
+Date: Tue, 27 Feb 2007 02:40:38 +0900
 From: KaiGai Kohei <kaigai@kaigai.gr.jp>
 MIME-Version: 1.0
 To: Denis Vlasenko <vda.linux@googlemail.com>
 CC: Yuichi Nakamura <ynakam@hitachisoft.jp>, busybox@busybox.net,
         selinux@tycho.nsa.gov, busybox@kaigai.gr.jp
-Subject: Re: [PATCH 7/8] busybox -- SELinux option support for coreutils:
+Subject: Re: [PATCH 8/8] busybox -- SELinux option support for coreutils:
  ver3
-References: <20070223174823.8109ef4c.ynakam@hitachisoft.jp> <200702241601.12758.vda.linux@googlemail.com>
-In-Reply-To: <200702241601.12758.vda.linux@googlemail.com>
+References: <20070223174929.18e547ea.ynakam@hitachisoft.jp> <200702241601.13536.vda.linux@googlemail.com>
+In-Reply-To: <200702241601.13536.vda.linux@googlemail.com>
 Content-Type: multipart/mixed;
- boundary="------------060407060300080406080807"
+ boundary="------------060703070304060604000502"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 This is a multi-part message in MIME format.
---------------060407060300080406080807
+--------------060703070304060604000502
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 
-Hi, Denis.
+Hi, Denis
 
 Thanks for your reviews.
 
 Denis Vlasenko wrote:
-> On Friday 23 February 2007 09:48, Yuichi Nakamura wrote:
->> [7/8] busybox-coreutils-07-chcon.v3.patch
->>  - chcon - change security context of file. 
+> On Friday 23 February 2007 09:49, Yuichi Nakamura wrote:
+>> [8/8] busybox-coreutils-08-runcon.v3.patch
+>>  - runcon - run application with specified security context.
+>>   runcon provides one of the core facilities to run application with explicitly
+>>   specified security context. It enables users to run their application under
+>>   the least privilege set explicitly.
 >>
 >> Signed-off-by: KaiGai Kohei <kaigai@kaigai.gr.jp>
 > 
-> +#define OPT_QUIET              (1<<3)  /* 'f' */
-> +#define OPT_REFERENCE          (1<<4)  /* '\n' */
-> +#define OPT_USER               (1<<5)  /* 'u' */
-> 
-> ...
-> 
-> 
-> +       {"quiet",       0,      NULL,   'f'},
-> +       {"reference",   1,      NULL,   '\n' }, /* no short option */
-> +       {"user",        1,      NULL,   'u' },
-> +       {"role",        1,      NULL,   'r' },
-> +       {"type",        1,      NULL,   't' },
-> +       {"range",       1,      NULL,   'l' },
-> +       {"verbose",     0,      NULL,   'v' },
-> +       {NULL,          0,      NULL,   0 },
-> +};
-> +#endif
+> +       char *role = NULL;
+> +       char *range = NULL;
+> +       char *user = NULL;
+> +       char *type = NULL;
+> +       char *context = NULL;
+> +       unsigned int opts;
 > +
-> +int chcon_main(int argc, char *argv[]);
-> +int chcon_main(int argc, char *argv[])
-> +{
-> +       char *reference_file;
-> +       char **target_files;
-> +       int i, opts, errors = 0;
+> +       selinux_or_die();
 > +
-> +#ifdef CONFIG_FEATURE_CHCON_LONG_OPTIONS
-> +       applet_long_options = chcon_options;
-> +#endif
-> +       opt_complementary = "-1"  /* at least 1 param */
-> +               ":q--v:v--q";     /* 'verbose' and 'quiet' are exclusive */
-> +       opts = getopt32(argc, argv, "Rchf\n:u:r:t:l:v",
-> +                       &reference_file, &user, &role, &type, &range);
-> +       if (opts & OPT_REFERENCE) {
-> +               if (opts & OPT_COMPONENT_SPECIFIED)
-> +                       bb_error_msg_and_die("conflicting security context specifiers given");
+> +       opts = getopt32(argc, argv, "r:t:u:l:ch", &role, &type, &user, &range);
+> +
+> +       if (!role && !type && !user && !range) {
+> +               if (optind >= argc)
+> +                       bb_error_msg_and_die("must specify -c, -t, -u, -l, -r, or context");
+> +               context = argv[optind++];
+> +       }
 > 
-> 
-> Again see wget.c how to not pass '\n' to getopt32.
-> 
-> You can make OPT_REFERENCE and OPT_COMPONENT_SPECIFIED
-> exclusive by using suitable opt_complementary.
+> Testing if(!(opt & MASK_role_type_user_range)) will result in smaller code.
 
-OK, fixed.
-
-* '\n' was replaced by '0xff'
-* Checks for exclusive options were added. chcon applet will will abort
-   if --reference and '-u','-r','-t','-l' are appeared concurrently,
+I'm sorry, it was overlooked.
+The attached patch replace the above if-conditions by a single logical
+operation as you suggested.
 
 Thanks,
 -- 
 KaiGai Kohei <kaigai@kaigai.gr.jp>
 
---------------060407060300080406080807
+--------------060703070304060604000502
 Content-Type: text/x-patch;
- name="busybox-coreutils-chcon-07.v4.patch"
+ name="busybox-coreutils-runcon-08.v4.patch"
 Content-Transfer-Encoding: 8bit
 Content-Disposition: inline;
- filename="busybox-coreutils-chcon-07.v4.patch"
+ filename="busybox-coreutils-runcon-08.v4.patch"
 
-Index: selinux/chcon.c
+Index: selinux/runcon.c
 ===================================================================
---- selinux/chcon.c	(リビジョン 0)
-+++ selinux/chcon.c	(リビジョン 0)
-@@ -0,0 +1,214 @@
+--- selinux/runcon.c	(リビジョン 0)
++++ selinux/runcon.c	(リビジョン 0)
+@@ -0,0 +1,142 @@
 +/*
-+ * chcon -- change security context, based on coreutils-5.97-13
++ * runcon [ context |
++ *         ( [ -c ] [ -r role ] [-t type] [ -u user ] [ -l levelrange ] )
++ *         command [arg1 [arg2 ...] ]
++ *
++ * attempt to run the specified command with the specified context.
++ *
++ * -r role  : use the current context with the specified role
++ * -t type  : use the current context with the specified type
++ * -u user  : use the current context with the specified user
++ * -l level : use the current context with the specified level range
++ * -c       : compute process transition context before modifying
++ *
++ * Contexts are interpreted as follows:
++ *
++ * Number of       MLS
++ * components    system?
++ *
++ *     1            -         type
++ *     2            -         role:type
++ *     3            Y         role:type:range
++ *     3            N         user:role:type
++ *     4            Y         user:role:type:range
++ *     4            N         error
 + *
 + * Port to busybox: KaiGai Kohei <kaigai@kaigai.gr.jp>
-+ * 
-+ * Copyright (C) 2006 - 2007 KaiGai Kohei <kaigai@kaigai.gr.jp>
++ *                  - based on coreutils-5.97 (in Fedora Core 6)
 + */
 +#include "busybox.h"
 +#include <getopt.h>
 +#include <selinux/context.h>
++#include <selinux/flask.h>
 +
-+#define OPT_RECURSIVE		(1<<0)	/* 'R' */
-+#define OPT_CHANHES		(1<<1)	/* 'c' */
-+#define OPT_NODEREFERENCE	(1<<2)	/* 'h' */
-+#define OPT_QUIET		(1<<3)	/* 'f' */
-+#define OPT_REFERENCE		(1<<4)	/* 0xff */
-+#define OPT_USER		(1<<5)	/* 'u' */
-+#define OPT_ROLE		(1<<6)	/* 'r' */
-+#define OPT_TYPE		(1<<7)	/* 't' */
-+#define OPT_RANGE		(1<<8)	/* 'l' */
-+#define OPT_VERBOSE		(1<<9)	/* 'v' */
-+#define OPT_COMPONENT_SPECIFIED	(OPT_USER | OPT_ROLE | OPT_TYPE | OPT_RANGE)
-+
-+static char *user = NULL;
-+static char *role = NULL;
-+static char *type = NULL;
-+static char *range = NULL;
-+static char *specified_context = NULL;
-+
-+static int change_dir_context(const char *dir_name, unsigned int opts);
-+
-+static context_t compute_context_from_mask(security_context_t context, unsigned int opts)
++static context_t runcon_compute_new_context(char *user, char *role, char *type, char *range,
++					    char *command, int compute_trans)
 +{
-+	context_t new_context = context_new(context);
-+	if (!new_context)
-+		return NULL;
++	context_t con;
++	security_context_t cur_context;
 +
-+	if ((opts & OPT_USER)  && context_user_set(new_context, user))
-+		goto error;
-+	if ((opts & OPT_RANGE) && context_range_set(new_context, range))
-+		goto error;
-+	if ((opts & OPT_ROLE)  && context_role_set(new_context, role))
-+		goto error;
-+	if ((opts & OPT_TYPE)  && context_type_set(new_context, type))
-+		goto error;
++	if (getcon(&cur_context))
++		bb_error_msg_and_die("could not get current context.");
 +
-+	return new_context;
-+error:
-+	context_free (new_context);
-+	return NULL;
++	if (compute_trans) {
++		security_context_t file_context, new_context;
++
++		if (getfilecon(command, &file_context) < 0)
++			bb_error_msg_and_die("unable to retrieve attributes of '%s'.",
++					     command);
++		if (security_compute_create(cur_context, file_context,
++					    SECCLASS_PROCESS, &new_context))
++			bb_error_msg_and_die("unable to compute a new context.");
++		cur_context = new_context;
++	}
++
++	con = context_new(cur_context);
++	if (!con)
++		bb_error_msg_and_die("'%s' is not a valid context.", cur_context);
++	if (user && context_user_set(con, user))
++		bb_error_msg_and_die("failed to set new user '%s'", user);
++	if (type && context_type_set(con, type))
++		bb_error_msg_and_die("failed to set new type '%s'", type);
++	if (range && context_range_set(con, range))
++		bb_error_msg_and_die("failed to set new range '%s'", range);
++	if (role && context_role_set(con, role))
++		bb_error_msg_and_die("failed to set new role '%s'", role);
++
++	return con;
 +}
 +
-+static int change_file_context(const char *fname, unsigned long opts)
-+{
-+	security_context_t file_context = NULL;
-+	security_context_t context_string;
-+	context_t context;
-+	int errors = 0;
-+	int status = 0;
-+
-+	if (opts & OPT_NODEREFERENCE) {
-+		status = lgetfilecon(fname, &file_context);
-+	} else {
-+		status = getfilecon(fname, &file_context);
-+	}
-+	if (status < 0 && errno != ENODATA) {
-+		if (!(opts & OPT_QUIET) == 0)
-+			bb_error_msg("could not obtain security context: %s", fname);
-+		return 1;
-+	}
-+
-+	if (file_context == NULL && specified_context == NULL) {
-+		bb_error_msg("could not apply partial context to unlabeled file %s", fname);
-+		return 1;
-+	}
-+
-+	if (specified_context == NULL) {
-+		context = compute_context_from_mask(file_context, opts);
-+		if (!context) {
-+			bb_error_msg("couldn't compute security context from %s", file_context);
-+			return 1;
-+		}
-+	} else {
-+		context = context_new(specified_context);
-+		if (!context) {
-+			bb_error_msg("invalid context: %s", specified_context);
-+			return 1;
-+		}
-+	}
-+
-+	context_string = context_str(context);
-+	if (file_context == NULL || strcmp(context_string, file_context) != 0) {
-+		int fail = 0;
-+
-+		if (opts & OPT_NODEREFERENCE) {
-+			fail = lsetfilecon (fname, context_string);
-+		} else {
-+			fail = setfilecon (fname, context_string);
-+		}
-+		if ((opts & OPT_VERBOSE)
-+		    || ((opts & OPT_CHANHES) && !fail)) {
-+			printf(!fail
-+			       ? "context of %s changed to %s\n"
-+			       : "failed to change context of %s to %s\n",
-+			       fname, context_string);
-+		}
-+		if (fail) {
-+			errors = 1;
-+			if ((opts & OPT_QUIET) == 0)
-+				bb_error_msg("failed to change context of %s to %s",
-+					     fname, context_string);
-+		}
-+	} else if (opts & OPT_VERBOSE) {
-+		printf("context of %s retained as %s\n", fname, context_string);
-+	}
-+	context_free(context);
-+	freecon(file_context);
-+
-+	if (opts & OPT_RECURSIVE) {
-+		struct stat file_stats;
-+		if (lstat(fname, &file_stats) == 0
-+		    && S_ISDIR(file_stats.st_mode))
-+			errors |= change_dir_context(fname, opts);
-+	}
-+	return errors;
-+}
-+
-+static int change_dir_context(const char *dir_name, unsigned int opts)
-+{
-+	DIR *dir;
-+	struct dirent *dent;
-+	char buffer[PATH_MAX];
-+	int len, rc = 0;
-+
-+	dir = opendir(dir_name);
-+	if (!dir) {
-+		if (!(opts & OPT_QUIET))
-+			bb_error_msg("failed to open directory '%s'", dir_name);
-+		return 1;
-+	}
-+
-+	while ((dent = readdir(dir))) {
-+		if (!strcmp(dent->d_name, ".") || !strcmp(dent->d_name, ".."))
-+			continue;
-+		len = snprintf(buffer, sizeof(buffer), "%s/%s", dir_name, dent->d_name);
-+		if (len > sizeof(buffer)) {
-+			bb_error_msg("name too long: %s/%s", dir_name, dent->d_name);
-+			continue;
-+		}
-+		rc |= change_file_context(buffer, opts);
-+	}
-+
-+	closedir(dir);
-+
-+	return rc;
-+}
-+
-+#ifdef CONFIG_FEATURE_CHCON_LONG_OPTIONS
-+static struct option chcon_options[] = {
-+	{"recursive",	0,	NULL,	'R'},
-+	{"changes",	0,	NULL,	'c'},
-+	{"no-dereference",	0,	NULL,	'h'},
-+	{"silent",	0,	NULL,	'f'},
-+	{"quiet",	0,	NULL,	'f'},
-+	{"reference",	1,	NULL,	0xff },	/* no short option */
-+	{"user",	1,	NULL,	'u' },
-+	{"role",	1,	NULL,	'r' },
-+	{"type",	1,	NULL,	't' },
-+	{"range",	1,	NULL,	'l' },
-+	{"verbose",	0,	NULL,	'v' },
-+	{NULL,		0,	NULL,	0 },
++#ifdef CONFIG_FEATURE_RUNCON_LONG_OPTIONS
++static const struct option runcon_options[] = {
++	{"user",	1, NULL, 'u' },
++	{"role",	1, NULL, 'r' },
++	{"type",	1, NULL, 't' },
++	{"range",	1, NULL, 'l' },
++	{"compute",	0, NULL, 'c' },
++	{"help",	0, NULL, 'h' },
++	{NULL,		0, NULL, 0 },
 +};
 +#endif
 +
-+int chcon_main(int argc, char *argv[]);
-+int chcon_main(int argc, char *argv[])
++#define OPTS_ROLE	(1<<0)	/* r */
++#define OPTS_TYPE	(1<<1)	/* t */
++#define OPTS_USER	(1<<2)	/* u */
++#define OPTS_RANGE	(1<<3)	/* l */
++#define OPTS_COMPUTE	(1<<4)	/* c */
++#define OPTS_HELP	(1<<5)	/* h */
++#define OPTS_CONTEXT_COMPONENT		(OPTS_ROLE | OPTS_TYPE | OPTS_USER | OPTS_RANGE)
++
++int runcon_main(int argc, char *argv[]);
++int runcon_main(int argc, char *argv[])
 +{
-+	char *reference_file;
-+	char **target_files;
-+	int i, opts, errors = 0;
++	char *role = NULL;
++	char *range = NULL;
++	char *user = NULL;
++	char *type = NULL;
++	char *context = NULL;
++	char *command;
++	char **command_args;
++	unsigned int opts;
++	context_t con;
 +
-+#ifdef CONFIG_FEATURE_CHCON_LONG_OPTIONS
-+	applet_long_options = chcon_options;
++	selinux_or_die();
++
++#ifdef CONFIG_FEATURE_RUNCON_LONG_OPTIONS
++	applet_long_options = runcon_options;
 +#endif
-+	opt_complementary = "-1"    /* at least 1 param */
-+		":?:f--v:v--f"      /* 'verbose' and 'quiet' are exclusive */
-+		":\xff--urtl:u--\xff:r--\xff:t--\xff:l--\xff";
-+	opts = getopt32(argc, argv, "Rchf\xff:u:r:t:l:v",
-+			&reference_file, &user, &role, &type, &range);
-+	if (opts & OPT_REFERENCE) {
-+		/* FIXME: lgetfilecon() should be used when '-h' is specified.
-+		          But current implementation follows the original one. */
-+		if (getfilecon(reference_file, &specified_context) < 0)
-+			bb_perror_msg_and_die("getfilecon('%s') failed", reference_file);
-+	} else if ((opts & OPT_COMPONENT_SPECIFIED) == 0) {
-+		specified_context = argv[optind++];
-+		if (!specified_context)
-+			bb_error_msg_and_die("too few arguments");
-+	}
-+	target_files = argv + optind;
-+	if (!target_files[0])
-+		bb_error_msg_and_die("too few arguments");
++	opts = getopt32(argc, argv, "r:t:u:l:ch", &role, &type, &user, &range);
 +
-+	for (i=0; target_files[i]; i++) {
-+		char *fname = target_files[i];
-+		int fname_len = strlen(fname);
-+		while (fname_len > 1 && fname[fname_len - 1] == '/')
-+			fname_len--;
-+		fname[fname_len] = '\0';
-+		errors |= change_file_context(fname, opts);
-+
++	if (!(opts & OPTS_CONTEXT_COMPONENT)) {
++		if (optind >= argc)
++			bb_error_msg_and_die("must specify -c, -t, -u, -l, -r, or context");
++		context = argv[optind++];
 +	}
-+	return errors;
++
++	if (optind >= argc)
++		bb_error_msg_and_die("no command found");
++	command = argv[optind];
++	command_args = argv + optind;
++
++	if (context) {
++		con = context_new(context);
++		if (!con)
++			bb_error_msg_and_die("'%s' is not a valid context", context);
++	} else {
++		con = runcon_compute_new_context(user, role, type, range,
++						 command, opts & OPTS_COMPUTE);
++	}
++
++	if (security_check_context(context_str(con)))
++		bb_error_msg_and_die("'%s' is not a valid context",
++				     context_str(con));
++
++	if (setexeccon(context_str(con)))
++		bb_error_msg_and_die("unable to set up security context '%s'",
++				     context_str(con));
++
++	execvp(command, command_args);
++
++	bb_perror_msg_and_die("unable to execute '%s'", command);
++	return 1;
 +}
 
---------------060407060300080406080807--
+--------------060703070304060604000502--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
