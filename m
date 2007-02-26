@@ -1,53 +1,45 @@
-From: Steve Grubb <sgrubb@redhat.com>
-To: Stephen Smalley <sds@tycho.nsa.gov>
-Subject: Re: I think this is equivalent to what we have =?utf-8?q?now=09and=09more=09efficient=2E?=
-Date: Sun, 25 Feb 2007 14:36:38 -0500
-Cc: Daniel J Walsh <dwalsh@redhat.com>, SE Linux <selinux@tycho.nsa.gov>
-References: <45DDAA80.80603@redhat.com> <200702221156.49050.sgrubb@redhat.com> <1172234092.14363.468.camel@moss-spartans.epoch.ncsc.mil>
-In-Reply-To: <1172234092.14363.468.camel@moss-spartans.epoch.ncsc.mil>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
-Message-Id: <200702251436.38681.sgrubb@redhat.com>
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id l1Q0fw1T000436
+	for <selinux@tycho.nsa.gov>; Sun, 25 Feb 2007 19:41:58 -0500
+Received: from msp1.hitachi-sk.co.jp (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l1Q0hFFa017329
+	for <selinux@tycho.nsa.gov>; Mon, 26 Feb 2007 00:43:16 GMT
+Received: from vs1.hitachi-sk.co.jp ([133.108.252.215])
+	by msp1.hitachi-sk.co.jp (unknown) with ESMTP id l1Q0h3Mo006830
+	for <selinux@tycho.nsa.gov>; Mon, 26 Feb 2007 09:43:03 +0900
+Date: Mon, 26 Feb 2007 09:43:12 +0900
+From: Yuichi Nakamura <ynakam@hitachisoft.jp>
+To: selinux@tycho.nsa.gov
+Cc: ynakam@hitachisoft.jp, seedit-devel-owner@opendawn.com,
+        fedora-selinux-list@redhat.com
+Subject: [ANN] SELinux Policy Editor 2.1.0
+Message-Id: <20070226094312.b1e4067a.ynakam@hitachisoft.jp>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Friday 23 February 2007 07:34:52 Stephen Smalley wrote:
-> Do we want to use this or just use fgets_unlocked?
->
-> I'd prefer to convert all uses of fgets* to getline and let glibc handle
-> the allocations; we are already performing allocation on that code path
-> (just prior to the loop),
+Hi,
 
-I had already created a patch assuming we wanted to go with fgets where it 
-used a stack variable to avoid the overhead of malloc/free. In the case of 
-scanning /proc/filesystems, you can expect it to be well behaved since its 
-controlled by the kernel. However, in the case of scanning /proc/mounts, you 
-have to be very careful. Someone could create a path that is close to 
-PATH_MAX in size.
+I would like to announce SELinux Policy Editor(SEEdit) 2.1.0 is released.
+SEEdit is a tool that makes SELinux easy.
+It supports Fedora Core 6 and Cent OS4.
 
-> and getline can handle it more intelligently and dynamically based
-> on the actual sizes.
+* Changes from 2.0:
+ - Merged to Fedora Extras CVS
+   You can get seedit more easily for Fedora!
+ - Improved rpm package
+  - Thanks to reviewers in Fedora bugzilla
+ - New icons
+ - Improved performance of policy generation tool
+ - Created new button "guess policy"
 
-I think the underlying mechanism is about the same for these two cases.
+For detail please visit http://seedit.sourceforge.net/
 
-> Ulrich originally introduced  use of getline into libselinux and converted
-> some functions, so remaining cases of fgets* are legacy.
-
-That was to avoid having to do strlen after receiving the buffer more than 
-anything else. Getline saves us in that respect. I'll re-code the patch with 
-getline so its consistent.
-
-> So I suppose we need to retain the getcon() test.  Or institute a more
-> direct test of whether policy is loaded, e.g. new selinuxfs node that is
-> accessible to all so that it can always be read to see whether policy
-> has been loaded.
-
-What about /selinux/policyvers ? When selinux is disabled, it does not exist. 
-When its enabled, should it tell you the version of policy that was 
-successfully loaded?
-
--Steve
+-- 
+Yuichi Nakamura
+Hitachi Software Engineering Co., Ltd.
+SELinux Policy Editor: http://seedit.sourceforge.net/
 
 
 --
