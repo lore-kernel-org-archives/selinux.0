@@ -1,38 +1,47 @@
-Subject: Re: [PATCH] Lazy config init in libselinux
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Steve G <linux_4ever@yahoo.com>
-Cc: SE Linux <selinux@tycho.nsa.gov>, Daniel J Walsh <dwalsh@redhat.com>
-In-Reply-To: <824347.57110.qm@web51509.mail.yahoo.com>
-References: <824347.57110.qm@web51509.mail.yahoo.com>
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id l1QJEul4017174
+	for <selinux@tycho.nsa.gov>; Mon, 26 Feb 2007 14:14:56 -0500
+Received: from exchange.columbia.tresys.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with SMTP id l1QJGGPM001948
+	for <selinux@tycho.nsa.gov>; Mon, 26 Feb 2007 19:16:17 GMT
+Subject: Re: Changes to init for policy
+From: "Christopher J. PeBenito" <cpebenito@tresys.com>
+To: Daniel J Walsh <dwalsh@redhat.com>
+Cc: SE Linux <selinux@tycho.nsa.gov>
+In-Reply-To: <45DB2920.6000709@redhat.com>
+References: <45DB2920.6000709@redhat.com>
 Content-Type: text/plain
-Date: Mon, 26 Feb 2007 14:10:22 -0500
-Message-Id: <1172517022.19041.280.camel@moss-spartans.epoch.ncsc.mil>
+Date: Mon, 26 Feb 2007 14:16:30 -0500
+Message-Id: <1172517390.22224.12.camel@sgc>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 2007-02-26 at 11:08 -0800, Steve G wrote:
-> Hi,
-> 
-> After running strace a number of times in the other performance patch, I realized
-> that we are reading a config file in a lot of cases where we don't even use the
-> results. Example, "ls" opens, reads, and parses /etc/selinux/config and it
-> doesn't care unless you pass the -Z flag. So...this patch does 2 things. It does
-> a lazy read of the config file and it moves the check for /etc/security to be a
-> second class citizen instead of something checked for first. This patch should
-> make shell scripts run faster.
-> 
-> Signed-off-by: Steve Grubb <linux_4ever@yahoo.com>
+On Tue, 2007-02-20 at 12:00 -0500, Daniel J Walsh wrote:
+> Added init_exec to init_telinit interface
 
-The problem with doing it on first use is it isn't thread-safe; the code
-is initializing globals for the library's subsequent use.  And making
-those variables per-thread would be wasteful as they truly are global
-state to the library.  So initializing them in the library constructor
-is the right thing to do.
+I added init_exec(); the patch had can_exec($1,init_exec_t).
+
+> Added daemon attribute so we can add general rules around daemons.  Like 
+> allowing/disallowing
+> daemons to talk to terminals.
+
+I think we want a slightly broader one that can cover services from
+inetd too.  I suspect this and the application concept could potentially
+be put in the same module.
+
+> ricci_modservice needs to be able to manipulate initrc_exec_t scripts.
+
+These interfaces should be grouped with that change.
+
+> Remove strict policy ifdef.
+
+Not sure what this refers to.
 
 -- 
-Stephen Smalley
-National Security Agency
+Chris PeBenito
+Tresys Technology, LLC
+(410) 290-1411 x150
 
 
 --
