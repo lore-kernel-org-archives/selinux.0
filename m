@@ -1,48 +1,48 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id l1QJEul4017174
-	for <selinux@tycho.nsa.gov>; Mon, 26 Feb 2007 14:14:56 -0500
-Received: from exchange.columbia.tresys.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with SMTP id l1QJGGPM001948
-	for <selinux@tycho.nsa.gov>; Mon, 26 Feb 2007 19:16:17 GMT
-Subject: Re: Changes to init for policy
-From: "Christopher J. PeBenito" <cpebenito@tresys.com>
-To: Daniel J Walsh <dwalsh@redhat.com>
-Cc: SE Linux <selinux@tycho.nsa.gov>
-In-Reply-To: <45DB2920.6000709@redhat.com>
-References: <45DB2920.6000709@redhat.com>
-Content-Type: text/plain
-Date: Mon, 26 Feb 2007 14:16:30 -0500
-Message-Id: <1172517390.22224.12.camel@sgc>
-Mime-Version: 1.0
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id l1QJGEI7017269
+	for <selinux@tycho.nsa.gov>; Mon, 26 Feb 2007 14:16:14 -0500
+Received: from mx1.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id l1QJHYW2019606
+	for <selinux@tycho.nsa.gov>; Mon, 26 Feb 2007 19:17:34 GMT
+Message-ID: <45E33224.7000304@redhat.com>
+Date: Mon, 26 Feb 2007 14:16:52 -0500
+From: Daniel J Walsh <dwalsh@redhat.com>
+MIME-Version: 1.0
+To: "Christopher J. PeBenito" <cpebenito@tresys.com>,
+        SE Linux <selinux@tycho.nsa.gov>
+Subject: Certain domains also require ioctl
+Content-Type: multipart/mixed;
+ boundary="------------030100050301040107030106"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2007-02-20 at 12:00 -0500, Daniel J Walsh wrote:
-> Added init_exec to init_telinit interface
+This is a multi-part message in MIME format.
+--------------030100050301040107030106
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
-I added init_exec(); the patch had can_exec($1,init_exec_t).
+Add ioctl to mmap_file_perms
 
-> Added daemon attribute so we can add general rules around daemons.  Like 
-> allowing/disallowing
-> daemons to talk to terminals.
+--------------030100050301040107030106
+Content-Type: text/plain;
+ name="nsaserefpolicy_policy_support_obj_perm_sets.spt"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="nsaserefpolicy_policy_support_obj_perm_sets.spt"
 
-I think we want a slightly broader one that can cover services from
-inetd too.  I suspect this and the application concept could potentially
-be put in the same module.
+--- nsaserefpolicy/policy/support/obj_perm_sets.spt	2007-01-02 12:57:51.000000000 -0500
++++ serefpolicy-2.5.5/policy/support/obj_perm_sets.spt	2007-02-26 11:04:23.000000000 -0500
+@@ -215,7 +215,7 @@
+ define(`getattr_file_perms',`{ getattr }')
+ define(`setattr_file_perms',`{ setattr }')
+ define(`read_file_perms',`{ getattr read lock ioctl }')
+-define(`mmap_file_perms',`{ getattr read execute }')
++define(`mmap_file_perms',`{ getattr read execute ioctl }')
+ define(`exec_file_perms',`{ getattr read execute execute_no_trans }')
+ define(`append_file_perms',`{ getattr append lock ioctl }')
+ define(`write_file_perms',`{ getattr write append lock ioctl }')
 
-> ricci_modservice needs to be able to manipulate initrc_exec_t scripts.
-
-These interfaces should be grouped with that change.
-
-> Remove strict policy ifdef.
-
-Not sure what this refers to.
-
--- 
-Chris PeBenito
-Tresys Technology, LLC
-(410) 290-1411 x150
-
+--------------030100050301040107030106--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
