@@ -1,263 +1,65 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id l1QNfZDg028398
-	for <selinux@tycho.nsa.gov>; Mon, 26 Feb 2007 18:41:35 -0500
-Received: from msp1.hitachi-sk.co.jp (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id l1QNgtl4019912
-	for <selinux@tycho.nsa.gov>; Mon, 26 Feb 2007 23:42:56 GMT
-Received: from vs2.hitachi-sk.co.jp ([133.108.252.215])
-	by msp1.hitachi-sk.co.jp (unknown) with ESMTP id l1QNgnCs002320
-	for <selinux@tycho.nsa.gov>; Tue, 27 Feb 2007 08:42:49 +0900
-Date: Tue, 27 Feb 2007 08:42:58 +0900
-From: Yuichi Nakamura <ynakam@hitachisoft.jp>
-To: busybox@busybox.net
-Cc: Denis Vlasenko <vda.linux@googlemail.com>, selinux@tycho.nsa.gov,
-        busybox@kaigai.gr.jp
-Subject: Re: [PATCH 1/8] busybox -- SELinux option support for coreutils:
- ver3
-Message-Id: <20070227084258.93dc26e2.ynakam@hitachisoft.jp>
-In-Reply-To: <20070226103114.71efbc26.ynakam@hitachisoft.jp>
-References: <20070223174739.300d673a.ynakam@hitachisoft.jp>
-	<200702241601.14808.vda.linux@googlemail.com>
-	<20070226103114.71efbc26.ynakam@hitachisoft.jp>
-Mime-Version: 1.0
-Content-Type: multipart/mixed;
- boundary="Multipart=_Tue__27_Feb_2007_08_42_58_+0900_eRpDMd=+EIpXaGHX"
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id l1R6Yt3A005822
+	for <selinux@tycho.nsa.gov>; Tue, 27 Feb 2007 01:34:55 -0500
+Received: from nf-out-0910.google.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l1R6aGIU007157
+	for <selinux@tycho.nsa.gov>; Tue, 27 Feb 2007 06:36:17 GMT
+Received: by nf-out-0910.google.com with SMTP id n15so73973nfc
+        for <selinux@tycho.nsa.gov>; Mon, 26 Feb 2007 22:36:14 -0800 (PST)
+Message-ID: <9d1b82480702262236r6cab8167qcf73a68f0fcd7c1@mail.gmail.com>
+Date: Tue, 27 Feb 2007 12:06:13 +0530
+From: Pravin <shindepravin@gmail.com>
+To: selinux@tycho.nsa.gov
+Subject: CKRM and SELinux
+In-Reply-To: <9d1b82480702262223o37921e5cubc8506efaa225e2d@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: multipart/alternative;
+	boundary="----=_Part_513_17308306.1172558173328"
+References: <9d1b82480702262223o37921e5cubc8506efaa225e2d@mail.gmail.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This is a multi-part message in MIME format.
-
---Multipart=_Tue__27_Feb_2007_08_42_58_+0900_eRpDMd=+EIpXaGHX
-Content-Type: text/plain; charset=US-ASCII
+------=_Part_513_17308306.1172558173328
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-In previous patch, 
-definitions about another SELinux-related applet was included.
-I am sorry, and I've removed that one.
-Please use attached patch instead of busybox-coreutils-common-01.v4.patch.
+Hi,
+I was working on possibility resource management using SELinux, but I feel
+that using SELinux hooks only, it won't be possible to do resource
+management effectively.
 
+After studying CKRM from resource management point of view, possibility of
+integrating SELinux framework with CKRM came over.
+We can use SELinux contexts and domains to be used as classes in CKRM.
+Enforcing the division of resources will be done by CKRM only.
+In this way, we can reuse the context's of SELinux in CKRM.
 
-On Mon, 26 Feb 2007 10:31:14 +0900
-Yuichi Nakamura  wrote:
+There was a mail dating back to 2005 regarding this possibility
+http://www.nsa.gov/selinux/list-archive/0506/12047.cfm
+But it seems the idea was not followed afterwards.
 
-> Thank you for review!
-> 
-> On Sat, 24 Feb 2007 16:01:14 +0100
-> Denis Vlasenko wrote:
-> > On Friday 23 February 2007 09:47, Yuichi Nakamura wrote:
-> > > [1/8] busybox-coreutils-common-01.v3.patch
-> > >  - common component for SELinux options, applets
-> > > 
-> > > Signed-off-by: Yuichi Nakamura <ynakam@hitachisoft.jp>
-> > > Signed-off-by: KaiGai Kohei <kaigai@kaigai.gr.jp>
-> > 
-> >         "       -i      Interactive, prompt before overwrite\n" \
-> >         "       -R,-r   Copy directories recursively\n" \
-> > -       "       -l,-s   Create (sym)links"
-> > +       "       -l,-s   Create (sym)links\n"
-> > 
-> >  #define cpio_trivial_usage \
-> > 
-> > Why?
-> Removed this one.
-> 
-> >  USE_RPM2CPIO(APPLET(rpm2cpio, _BB_DIR_USR_BIN, _BB_SUID_NEVER))
-> > +USE_RUNCON(APPLET(runcon, _BB_DIR_USR_BIN, _BB_SUID_NEVER))
-> >  USE_RUN_PARTS(APPLET_ODDNAME(run-parts, run_parts, _BB_DIR_BIN, _BB_SUID_NEVER, run_parts))
-> >  USE_RUNLEVEL(APPLET(runlevel, _BB_DIR_SBIN, _BB_SUID_NEVER))
-> > 
-> > *Must* be in ASCII order.
-> Fixed.
-> 
-> 
-> > 
-> > 
-> > --
-> > vda
-> 
-> Attached is reviesed patch.
-> 
-> 
-> -- 
-> Yuichi Nakamura
-> Hitachi Software Engineering Co., Ltd.
-> SELinux Policy Editor: http://seedit.sourceforge.net/
-> 
-> 
+May I know if such integration of SELinux and CKRM is feasible or not, and
+how useful will it be?
+Please let me know your views and comments on this possibility.
 
-
+Thank you.
 -- 
-Yuichi Nakamura
-Hitachi Software Engineering Co., Ltd.
-SELinux Policy Editor: http://seedit.sourceforge.net/
+Pravin Shinde
 
+------=_Part_513_17308306.1172558173328
+Content-Type: text/html; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
---Multipart=_Tue__27_Feb_2007_08_42_58_+0900_eRpDMd=+EIpXaGHX
-Content-Type: application/octet-stream;
- name="busybox-coreutils-common-01.v5.patch"
-Content-Disposition: attachment;
- filename="busybox-coreutils-common-01.v5.patch"
-Content-Transfer-Encoding: base64
+Hi,<br>I was working on possibility resource management using SELinux, but I feel that using SELinux hooks only, it won&#39;t be possible to do resource management effectively. <br><br>After studying CKRM from resource management point of view, possibility of integrating SELinux framework with CKRM came over.
+<br>We can use SELinux contexts and domains to be used as classes in CKRM. Enforcing the division of resources will be done by CKRM only.<br>In this way, we can reuse the context&#39;s of SELinux in CKRM.<br><br>There was a mail dating back to 2005 regarding this possibility
+<br><a href="http://www.nsa.gov/selinux/list-archive/0506/12047.cfm" target="_blank" onclick="return top.js.OpenExtLink(window,event,this)">http://www.nsa.gov/selinux/list-archive/0506/12047.cfm
+</a><br>But it seems the idea was not followed afterwards.<br><br>May I know if such integration of SELinux and CKRM is feasible or not, and how useful will it be?<br>Please let me know your views and comments on this possibility.
+<br><br>Thank you.<br><span class="sg">-- <br>   Pravin Shinde<br>
+</span><br>
 
-SW5kZXg6IGluY2x1ZGUvdXNhZ2UuaAo9PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09
-PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09Ci0tLSBpbmNsdWRlL3VzYWdlLmgJKHJl
-dmlzaW9uIDE3OTYxKQorKysgaW5jbHVkZS91c2FnZS5oCSh3b3JraW5nIGNvcHkpCkBAIC0xOTgs
-NiArMTk4LDI2IEBACiAgICAgICAgIgktUglSZWN1cnNpdmVseSBsaXN0IHN1YmRpcmVjdG9yaWVz
-XG4iIFwKICAgICAgICAiCS12CVNldCB0aGUgZmlsZSdzIHZlcnNpb24vZ2VuZXJhdGlvbiBudW1i
-ZXIiCiAKKyNkZWZpbmUgY2hjb25fdHJpdmlhbF91c2FnZSBcCisgICAgICAgIltPUFRJT05TXSBD
-T05URVhUIEZJTEUuLi5cbiIgXAorICAgICAgICIJY2hjb24gW09QVElPTlNdIFstdSBVU0VSXSBb
-LXIgUk9MRV0gWy1sIFJBTkdFXSBbLXQgVFlQRV0gRklMRS4uLlxuIiBcCisgICAgICAgIgljaGNv
-biBbT1BUSU9OU10gLS1yZWZlcmVuY2U9UkZJTEUgRklMRS4uLlxuIgorI2RlZmluZSBjaGNvbl9m
-dWxsX3VzYWdlIFwKKyAgICAgICAiQ2hhbmdlIHRoZSBzZWN1cml0eSBjb250ZXh0IG9mIGVhY2gg
-RklMRSB0byBDT05URVhULlxuXG4iIFwKKyAgICAgICAiCS1jLCAtLWNoYW5nZXMJbGlrZSB2ZXJi
-b3NlIGJ1dCByZXBvcnQgb25seSB3aGVuIGEgY2hhbmdlIGlzIG1hZGVcbiIgXAorICAgICAgICIJ
-LWgsIC0tbm8tZGVyZWZlcmVuY2UJYWZmZWN0IHN5bWJvbGljIGxpbmtzIGluc3RlYWQgb2YgYW55
-IHJlZmVyZW5jZWQgZmlsZVxuIiBcCisgICAgICAgIgkJCQkoYXZhaWxhYmxlIG9ubHkgb24gc3lz
-dGVtcyB3aXRoIGxjaG93biBzeXN0ZW0gY2FsbClcbiIgXAorICAgICAgICIJLWYsIC0tc2lsZW50
-LCAtLXF1aWV0CXN1cHByZXNzIG1vc3QgZXJyb3IgbWVzc2FnZXNcbiIgXAorICAgICAgICIJLS1y
-ZWZlcmVuY2U9UkZJTEUJdXNlIFJGSUxFJ3MgZ3JvdXAgaW5zdGVhZCBvZiB1c2luZyBhIENPTlRF
-WFQgdmFsdWVcbiIgXAorICAgICAgICIJLXUsIC0tdXNlcj1VU0VSCXNldCB1c2VyIFVTRVIgaW4g
-dGhlIHRhcmdldCBzZWN1cml0eSBjb250ZXh0XG4iIFwKKyAgICAgICAiCS1yLCAtLXJvbGU9Uk9M
-RQlzZXQgcm9sZSBST0xFIGluIHRoZSB0YXJnZXQgc2VjdXJpdHkgY29udGV4dFxuIiBcCisgICAg
-ICAgIgktdCwgLS10eXBlPVRZUEUJc2V0IHR5cGUgVFlQRSBpbiB0aGUgdGFyZ2V0IHNlY3VyaXR5
-IGNvbnRleHRcbiIgXAorICAgICAgICIJLWwsIC0tcmFuZ2U9UkFOR0UJc2V0IHJhbmdlIFJBTkdF
-IGluIHRoZSB0YXJnZXQgc2VjdXJpdHkgY29udGV4dFxuIiBcCisgICAgICAgIgktUiwgLS1yZWN1
-cnNpdmUJY2hhbmdlIGZpbGVzIGFuZCBkaXJlY3RvcmllcyByZWN1cnNpdmVseVxuIiBcCisgICAg
-ICAgIgktdiwgLS12ZXJib3NlCW91dHB1dCBhIGRpYWdub3N0aWMgZm9yIGV2ZXJ5IGZpbGUgcHJv
-Y2Vzc2VkXG4iIFwKKyAgICAgICAiCS0taGVscAlkaXNwbGF5IHRoaXMgaGVscCBhbmQgZXhpdFxu
-IiBcCisgICAgICAgIgktLXZlcnNpb24Jb3V0cHV0IHZlcnNpb24gaW5mb3JtYXRpb24gYW5kIGV4
-aXQiCisKICNkZWZpbmUgY2hncnBfdHJpdmlhbF91c2FnZSBcCiAgICAgICAgIlstUmgiVVNFX0RF
-U0tUT1AoImN2ZiIpIl0uLi4gR1JPVVAgRklMRS4uLiIKICNkZWZpbmUgY2hncnBfZnVsbF91c2Fn
-ZSBcCkBAIC0zODgsNiArNDA4LDkgQEAKICAgICAgICAiQ29weSBTT1VSQ0UgdG8gREVTVCwgb3Ig
-bXVsdGlwbGUgU09VUkNFKHMpIHRvIERJUkVDVE9SWSIgXAogICAgICAgICJcblxuT3B0aW9uczpc
-biIgXAogICAgICAgICIJLWEJU2FtZSBhcyAtZHBSXG4iIFwKKwlVU0FHRV9TRUxJTlVYKCBcCisg
-ICAgICAgIgktYwlQcmVzZXJ2ZXMgc2VjdXJpdHkgY29udGV4dFxuIiBcCisJKSBcCiAgICAgICAg
-IgktZCwtUAlQcmVzZXJ2ZSBsaW5rc1xuIiBcCiAgICAgICAgIgktSCwtTAlEZXJlZmVyZW5jZSBh
-bGwgc3ltbGlua3MgKGltcGxpZWQgYnkgZGVmYXVsdClcbiIgXAogICAgICAgICIJLXAJUHJlc2Vy
-dmUgZmlsZSBhdHRyaWJ1dGVzIGlmIHBvc3NpYmxlXG4iIFwKQEAgLTEyOTksOCArMTMyMiw5IEBA
-CiAjZGVmaW5lIGlkX2Z1bGxfdXNhZ2UgXAogICAgICAgICJQcmludCBpbmZvcm1hdGlvbiBmb3Ig
-VVNFUk5BTUUgb3IgdGhlIGN1cnJlbnQgdXNlciIgXAogICAgICAgICJcblxuT3B0aW9uczpcbiIg
-XAotCVVTRV9TRUxJTlVYKCBcCi0gICAgICAgIgktYwlQcmludHMgb25seSB0aGUgc2VjdXJpdHkg
-Y29udGV4dFxuIikgXAorCVVTQUdFX1NFTElOVVgoIFwKKyAgICAgICAiCS1aCXByaW50cyBvbmx5
-IHRoZSBzZWN1cml0eSBjb250ZXh0XG4iIFwKKwkpIFwKICAgICAgICAiCS1nCVByaW50cyBvbmx5
-IHRoZSBncm91cCBJRFxuIiBcCiAgICAgICAgIgktdQlQcmludHMgb25seSB0aGUgdXNlciBJRFxu
-IiBcCiAgICAgICAgIgktbglQcmludCBhIG5hbWUgaW5zdGVhZCBvZiBhIG51bWJlclxuIiBcCkBA
-IC0xNTE5LDcgKzE1NDMsMTAgQEAKICAgICAgICAiCS1tCVNldCBwZXJtaXNzaW9uIG1vZGVzXG4i
-IFwKICAgICAgICAiCS1vCVNldCBvd25lcnNoaXBcbiIgXAogICAgICAgICIJLXAJUHJlc2VydmUg
-ZGF0ZVxuIiBcCi0gICAgICAgIgktcwlTdHJpcCBzeW1ib2wgdGFibGVzIgorICAgICAgICIJLXMJ
-U3RyaXAgc3ltYm9sIHRhYmxlc1xuIiBcCisJVVNBR0VfU0VMSU5VWCggXAorICAgICAgICIJLVoJ
-U2V0IHNlY3VyaXR5IGNvbnRleHQgb2YgY29weSIgXAorCSkKIAogI2RlZmluZSBpcF90cml2aWFs
-X3VzYWdlIFwKICAgICAgICAiW09QVElPTlNdIHthZGRyZXNzIHwgbGluayB8IHJvdXRlIHwgdHVu
-bmVsIHwgcnVsZX0ge0NPTU1BTkR9IgpAQCAtMTgyOSw3ICsxODU2LDkgQEAKIAlVU0VfU0VMSU5V
-WCggXAogICAgICAgICJcbgktawlQcmludCBzZWN1cml0eSBjb250ZXh0IikgXAogCVVTRV9TRUxJ
-TlVYKCBcCi0gICAgICAgIlxuCS1LCVByaW50IHNlY3VyaXR5IGNvbnRleHQgaW4gbG9uZyBmb3Jt
-YXQiKQorICAgICAgICJcbgktSwlQcmludCBzZWN1cml0eSBjb250ZXh0IGluIGxvbmcgZm9ybWF0
-IikgXAorCVVTRV9TRUxJTlVYKCBcCisgICAgICAgIlxuCS1aCVByaW50IHNlY3VyaXR5IGNvbnRl
-eHQgYW5kIHBlcm1pc3Npb24iKQogCiAjZGVmaW5lIGxzYXR0cl90cml2aWFsX3VzYWdlIFwKICAg
-ICAgICAiWy1SYWRsdl0gW2ZpbGVzLi4uXSIKQEAgLTE5NzQsNyArMjAwMywxMSBAQAogICAgICAg
-ICJDcmVhdGUgdGhlIERJUkVDVE9SWShpZXMpIGlmIHRoZXkgZG8gbm90IGFscmVhZHkgZXhpc3Qi
-IFwKICAgICAgICAiXG5cbk9wdGlvbnM6XG4iIFwKICAgICAgICAiCS1tCVNldCBwZXJtaXNzaW9u
-IG1vZGUgKGFzIGluIGNobW9kKSwgbm90IHJ3eHJ3eHJ3eCAtIHVtYXNrXG4iIFwKLSAgICAgICAi
-CS1wCU5vIGVycm9yIGlmIGV4aXN0aW5nLCBtYWtlIHBhcmVudCBkaXJlY3RvcmllcyBhcyBuZWVk
-ZWQiCisgICAgICAgIgktcAlObyBlcnJvciBpZiBleGlzdGluZywgbWFrZSBwYXJlbnQgZGlyZWN0
-b3JpZXMgYXMgbmVlZGVkXG4iIFwKKwlVU0FHRV9TRUxJTlVYKCBcCisgICAgICAgIgktWglzZXQg
-c2VjdXJpdHkgY29udGV4dCIgXAorCSkKKwogI2RlZmluZSBta2Rpcl9leGFtcGxlX3VzYWdlIFwK
-ICAgICAgICAiJCBta2RpciAvdG1wL2Zvb1xuIiBcCiAgICAgICAgIiQgbWtkaXIgL3RtcC9mb29c
-biIgXApAQCAtMjAxOSw3ICsyMDUyLDEwIEBACiAjZGVmaW5lIG1rZmlmb19mdWxsX3VzYWdlIFwK
-ICAgICAgICAiQ3JlYXRlIGEgbmFtZWQgcGlwZSAoaWRlbnRpY2FsIHRvICdta25vZCBuYW1lIHAn
-KSIgXAogICAgICAgICJcblxuT3B0aW9uczpcbiIgXAotICAgICAgICIJLW0JQ3JlYXRlIHRoZSBw
-aXBlIHVzaW5nIHRoZSBzcGVjaWZpZWQgbW9kZSAoZGVmYXVsdCBhPXJ3KSIKKyAgICAgICAiCS1t
-CUNyZWF0ZSB0aGUgcGlwZSB1c2luZyB0aGUgc3BlY2lmaWVkIG1vZGUgKGRlZmF1bHQgYT1ydylc
-biIgXAorCVVTQUdFX1NFTElOVVgoIFwKKyAgICAgICAiCS1aCXNldCBzZWN1cml0eSBjb250ZXh0
-IiBcCisJKQogCiAjZGVmaW5lIG1rZnNfbWluaXhfdHJpdmlhbF91c2FnZSBcCiAgICAgICAgIlst
-YyB8IC1sIGZpbGVuYW1lXSBbLW5YWF0gWy1pWFhdIC9kZXYvbmFtZSBbYmxvY2tzXSIKQEAgLTIw
-NDEsNyArMjA3NywxMSBAQAogICAgICAgICJcblxuVFlQRXMgaW5jbHVkZTpcbiIgXAogICAgICAg
-ICIJYjoJTWFrZSBhIGJsb2NrIChidWZmZXJlZCkgZGV2aWNlXG4iIFwKICAgICAgICAiCWMgb3Ig
-dToJTWFrZSBhIGNoYXJhY3RlciAodW4tYnVmZmVyZWQpIGRldmljZVxuIiBcCi0gICAgICAgIglw
-OglNYWtlIGEgbmFtZWQgcGlwZS4gTUFKT1IgYW5kIE1JTk9SIGFyZSBpZ25vcmVkIGZvciBuYW1l
-ZCBwaXBlcyIKKyAgICAgICAiCXA6CU1ha2UgYSBuYW1lZCBwaXBlLiBNQUpPUiBhbmQgTUlOT1Ig
-YXJlIGlnbm9yZWQgZm9yIG5hbWVkIHBpcGVzXG4iIFwKKwlVU0FHRV9TRUxJTlVYKCBcCisgICAg
-ICAgIgktWglzZXQgc2VjdXJpdHkgY29udGV4dCIgXAorCSkKKwogI2RlZmluZSBta25vZF9leGFt
-cGxlX3VzYWdlIFwKICAgICAgICAiJCBta25vZCAvZGV2L2ZkMCBiIDIgMFxuIiBcCiAgICAgICAg
-IiQgbWtub2QgLW0gNjQ0IC90bXAvcGlwZSBwXG4iCkBAIC0yNjc3LDYgKzI3MTcsMjEgQEAKICNk
-ZWZpbmUgcnBtMmNwaW9fZnVsbF91c2FnZSBcCiAgICAgICAgIk91dHB1dCBhIGNwaW8gYXJjaGl2
-ZSBvZiB0aGUgcnBtIGZpbGUiCiAKKyNkZWZpbmUgcnVuY29uX3RyaXZpYWxfdXNhZ2UgXAorCSJb
-LWNdIFstdSBVU0VSXSBbLXIgUk9MRV0gWy10IFRZUEVdIFstbCBSQU5HRV0gQ09NTUFORCBbYXJn
-c11cbiIgXAorCSIgICAgICAgcnVuY29uIENPTlRFWFQgQ09NTUFORCBbYXJnc10iCisjZGVmaW5l
-IHJ1bmNvbl9mdWxsX3VzYWdlIFwKKyAgICAgICAicnVuY29uIFstY10gWy11IFVTRVJdIFstciBS
-T0xFXSBbLXQgVFlQRV0gWy1sIFJBTkdFXSBDT01NQU5EIFthcmdzXVxuIiBcCisgICAgICAgInJ1
-bmNvbiBDT05URVhUIENPTU1BTkQgW2FyZ3NdXG4iIFwKKyAgICAgICAiUnVuIGEgcHJvZ3JhbSBp
-biBhIGRpZmZlcmVudCBzZWN1cml0eSBjb250ZXh0LlxuXG4iIFwKKyAgICAgICAiCUNPTlRFWFQJ
-Q29tcGxldGUgc2VjdXJpdHkgY29udGV4dFxuIiBcCisgICAgICAgIgktYywgLS1jb21wdXRlCWNv
-bXB1dGUgcHJvY2VzcyB0cmFuc2l0aW9uIGNvbnRleHQgYmVmb3JlIG1vZGlmeWluZ1xuIiBcCisg
-ICAgICAgIgktdCwgLS10eXBlPVRZUEUJdHlwZSAoZm9yIHNhbWUgcm9sZSBhcyBwYXJlbnQpXG4i
-IFwKKyAgICAgICAiCS11LCAtLXVzZXI9VVNFUgl1c2VyIGlkZW50aXR5XG4iIFwKKyAgICAgICAi
-CS1yLCAtLXJvbGU9Uk9MRQlyb2xlXG4iIFwKKyAgICAgICAiCS1sLCAtLXJhbmdlPVJBTkdFCWxl
-dmVscmFuZ2VcbiIgXAorICAgICAgICIJLWgsIC0taGVscAlkaXNwbGF5IHRoaXMgaGVscCBhbmQg
-ZXhpdCIKKwogI2RlZmluZSBydW5fcGFydHNfdHJpdmlhbF91c2FnZSBcCiAgICAgICAgIlstdF0g
-Wy1hIEFSR10gWy11IE1BU0tdIERJUkVDVE9SWSIKICNkZWZpbmUgcnVuX3BhcnRzX2Z1bGxfdXNh
-Z2UgXApAQCAtMjkwMyw2ICsyOTU4LDkgQEAKICAgICAgICAiCS1mCURpc3BsYXkgZmlsZXN5c3Rl
-bSBzdGF0dXNcbiIgXAogICAgICAgICIJLUwsLWwJRGVyZWZlcmVuY2UgbGlua3NcbiIgXAogICAg
-ICAgICIJLXQJRGlzcGxheSBpbmZvIGluIHRlcnNlIGZvcm0iIFwKKwlVU0FHRV9TRUxJTlVYKCBc
-CisgICAgICAgIgktWglwcmludCBzZWN1cml0eSBjb250ZXh0XG4iIFwKKwkpIFwKIAlVU0VfRkVB
-VFVSRV9TVEFUX0ZPUk1BVCggXAogICAgICAgICJcblxuVmFsaWQgZm9ybWF0IHNlcXVlbmNlcyBm
-b3IgZmlsZXM6XG4iIFwKICAgICAgICAiICVhCUFjY2VzcyByaWdodHMgaW4gb2N0YWxcbiIgXApA
-QCAtMjkzNyw2ICsyOTk1LDkgQEAKICAgICAgICAiICVjCVRvdGFsIGZpbGUgbm9kZXMgaW4gZmls
-ZSBzeXN0ZW1cbiIgXAogICAgICAgICIgJWQJRnJlZSBmaWxlIG5vZGVzIGluIGZpbGUgc3lzdGVt
-XG4iIFwKICAgICAgICAiICVmCUZyZWUgYmxvY2tzIGluIGZpbGUgc3lzdGVtXG4iIFwKKwlVU0FH
-RV9TRUxJTlVYKCBcCisgICAgICAgIgklQwlTZWN1cml0eSBjb250ZXh0IGluIFNFTGludXhcbiIg
-XAorCSkgXAogICAgICAgICIgJWkJRmlsZSBTeXN0ZW0gSUQgaW4gaGV4XG4iIFwKICAgICAgICAi
-ICVsCU1heGltdW0gbGVuZ3RoIG9mIGZpbGVuYW1lc1xuIiBcCiAgICAgICAgIiAlbglGaWxlIG5h
-bWVcbiIgXApJbmRleDogaW5jbHVkZS9hcHBsZXRzLmgKPT09PT09PT09PT09PT09PT09PT09PT09
-PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PQotLS0gaW5jbHVkZS9h
-cHBsZXRzLmgJKHJldmlzaW9uIDE3OTYxKQorKysgaW5jbHVkZS9hcHBsZXRzLmgJKHdvcmtpbmcg
-Y29weSkKQEAgLTY5LDYgKzY5LDcgQEAKIFVTRV9DQVQoQVBQTEVUKGNhdCwgX0JCX0RJUl9CSU4s
-IF9CQl9TVUlEX05FVkVSKSkKIFVTRV9DQVRWKEFQUExFVChjYXR2LCBfQkJfRElSX0JJTiwgX0JC
-X1NVSURfTkVWRVIpKQogVVNFX0NIQVRUUihBUFBMRVQoY2hhdHRyLCBfQkJfRElSX0JJTiwgX0JC
-X1NVSURfTkVWRVIpKQorVVNFX0NIQ09OKEFQUExFVChjaGNvbiwgX0JCX0RJUl9VU1JfQklOLCBf
-QkJfU1VJRF9ORVZFUikpCiBVU0VfQ0hHUlAoQVBQTEVUKGNoZ3JwLCBfQkJfRElSX0JJTiwgX0JC
-X1NVSURfTkVWRVIpKQogVVNFX0NITU9EKEFQUExFVChjaG1vZCwgX0JCX0RJUl9CSU4sIF9CQl9T
-VUlEX05FVkVSKSkKIFVTRV9DSE9XTihBUFBMRVQoY2hvd24sIF9CQl9ESVJfQklOLCBfQkJfU1VJ
-RF9ORVZFUikpCkBAIC0yNDgsNiArMjQ5LDcgQEAKIFVTRV9SUE0oQVBQTEVUKHJwbSwgX0JCX0RJ
-Ul9CSU4sIF9CQl9TVUlEX05FVkVSKSkKIFVTRV9SUE0yQ1BJTyhBUFBMRVQocnBtMmNwaW8sIF9C
-Ql9ESVJfVVNSX0JJTiwgX0JCX1NVSURfTkVWRVIpKQogVVNFX1JVTl9QQVJUUyhBUFBMRVRfT0RE
-TkFNRShydW4tcGFydHMsIHJ1bl9wYXJ0cywgX0JCX0RJUl9CSU4sIF9CQl9TVUlEX05FVkVSLCBy
-dW5fcGFydHMpKQorVVNFX1JVTkNPTihBUFBMRVQocnVuY29uLCBfQkJfRElSX1VTUl9CSU4sIF9C
-Ql9TVUlEX05FVkVSKSkKIFVTRV9SVU5MRVZFTChBUFBMRVQocnVubGV2ZWwsIF9CQl9ESVJfU0JJ
-TiwgX0JCX1NVSURfTkVWRVIpKQogVVNFX1JVTlNWKEFQUExFVChydW5zdiwgX0JCX0RJUl9VU1Jf
-QklOLCBfQkJfU1VJRF9ORVZFUikpCiBVU0VfUlVOU1ZESVIoQVBQTEVUKHJ1bnN2ZGlyLCBfQkJf
-RElSX1VTUl9CSU4sIF9CQl9TVUlEX05FVkVSKSkKSW5kZXg6IHNlbGludXgvS2J1aWxkCj09PT09
-PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09
-PT09PT0KLS0tIHNlbGludXgvS2J1aWxkCShyZXZpc2lvbiAxNzk2MSkKKysrIHNlbGludXgvS2J1
-aWxkCSh3b3JraW5nIGNvcHkpCkBAIC02LDggKzYsMTAgQEAKICMgTGljZW5zZWQgdW5kZXIgdGhl
-IEdQTCB2Miwgc2VlIHRoZSBmaWxlIExJQ0VOU0UgaW4gdGhpcyB0YXJiYWxsLgogCiBsaWIteTo9
-CitsaWItJChDT05GSUdfQ0hDT04pCQkrPSBjaGNvbi5vCiBsaWItJChDT05GSUdfR0VURU5GT1JD
-RSkJKz0gZ2V0ZW5mb3JjZS5vCiBsaWItJChDT05GSUdfR0VUU0VCT09MKQkJKz0gZ2V0c2Vib29s
-Lm8KIGxpYi0kKENPTkZJR19NQVRDSFBBVEhDT04pCSs9IG1hdGNocGF0aGNvbi5vCitsaWItJChD
-T05GSUdfUlVOQ09OKQkJKz0gcnVuY29uLm8KIGxpYi0kKENPTkZJR19TRUxJTlVYRU5BQkxFRCkJ
-Kz0gc2VsaW51eGVuYWJsZWQubwogbGliLSQoQ09ORklHX1NFVEVORk9SQ0UpCSs9IHNldGVuZm9y
-Y2UubwpJbmRleDogc2VsaW51eC9Db25maWcuaW4KPT09PT09PT09PT09PT09PT09PT09PT09PT09
-PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PQotLS0gc2VsaW51eC9Db25m
-aWcuaW4JKHJldmlzaW9uIDE3OTYxKQorKysgc2VsaW51eC9Db25maWcuaW4JKHdvcmtpbmcgY29w
-eSkKQEAgLTYsNiArNiwyMCBAQAogbWVudSAiU2VsaW51eCBVdGlsaXRpZXMiCiAJZGVwZW5kcyBv
-biBTRUxJTlVYCiAKK2NvbmZpZyBDSENPTgorCWJvb2wgImNoY29uIgorCWRlZmF1bHQgbgorCWRl
-cGVuZHMgb24gU0VMSU5VWAorCWhlbHAKKwkgIEVuYWJsZSBzdXBwb3J0IGZvciBjaGNvbiBjb21t
-YW5kIGFzIGEgU0VMaW51eCB1dGlsaXR5LgorCitjb25maWcgRkVBVFVSRV9DSENPTl9MT05HX09Q
-VElPTlMKKwlib29sICJFbmFibGUgbG9uZyBvcHRpb25zIgorCWRlZmF1bHQgeQorCWRlcGVuZHMg
-b24gQ0hDT04gJiYgR0VUT1BUX0xPTkcKKwloZWxwCisJICBTdXBwb3J0IGxvbmcgb3B0aW9ucyBm
-b3IgdGhlIGNoY29uIGFwcGxldC4KKwogY29uZmlnIEdFVEVORk9SQ0UKIAlib29sICJnZXRlbmZv
-cmNlIgogCWRlZmF1bHQgbgpAQCAtMjgsNiArNDIsMjAgQEAKIAkgIEVuYWJsZSBzdXBwb3J0IHRv
-IGdldCBkZWZhdWx0IHNlY3VyaXR5IGNvbnRleHQgb2YgdGhlCiAJICBzcGVjaWZpZWQgcGF0aCBm
-cm9tIHRoZSBmaWxlIGNvbnRleHRzIGNvbmZpZ3VyYXRpb24uCiAKK2NvbmZpZyBSVU5DT04KKwli
-b29sICJydW5jb24iCisJZGVmYXVsdCBuCisJZGVwZW5kcyBvbiBTRUxJTlVYCisJaGVscAorCSAg
-RW5hYmxlIHN1cHBvcnQgZm9yIHJ1bmNvbiBjb21tYW5kIGFzIGEgU0VMaW51eCB1dGlsaXR5Lgor
-Citjb25maWcgRkVBVFVSRV9SVU5DT05fTE9OR19PUFRJT05TCisJYm9vbCAiRW5hYmxlIGxvbmcg
-b3B0aW9ucyIKKwlkZWZhdWx0IHkKKwlkZXBlbmRzIG9uIFJVTkNPTiAmJiBHRVRPUFRfTE9ORwor
-CWhlbHAKKwkgIFN1cHBvcnQgbG9uZyBvcHRpb25zIGZvciB0aGUgcnVuY29uIGFwcGxldC4KKwog
-Y29uZmlnIFNFTElOVVhFTkFCTEVECiAJYm9vbCAic2VsaW51eGVuYWJsZWQiCiAJZGVmYXVsdCBu
-Cg==
-
---Multipart=_Tue__27_Feb_2007_08_42_58_+0900_eRpDMd=+EIpXaGHX--
+------=_Part_513_17308306.1172558173328--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
