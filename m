@@ -1,208 +1,91 @@
-Subject: Re: [PATCH] refpolicy: experimental X policy -v2
-From: "Christopher J. PeBenito" <cpebenito@tresys.com>
-To: Eamon Walsh <ewalsh@tycho.nsa.gov>
-Cc: selinux@tycho.nsa.gov
-In-Reply-To: <45D2498C.3090902@tycho.nsa.gov>
-References: <45B938EE.8010303@tycho.nsa.gov>
-	 <cadfc0e40702131226y3cef4a81h626bcdb264c563ee@mail.gmail.com>
-	 <45D2498C.3090902@tycho.nsa.gov>
-Content-Type: text/plain
-Date: Tue, 27 Feb 2007 13:53:49 -0500
-Message-Id: <1172602429.11157.48.camel@sgc>
-Mime-Version: 1.0
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id l1RKjlqv009117
+	for <selinux@tycho.nsa.gov>; Tue, 27 Feb 2007 15:45:47 -0500
+Received: from web51510.mail.yahoo.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with SMTP id l1RKl87G016439
+	for <selinux@tycho.nsa.gov>; Tue, 27 Feb 2007 20:47:08 GMT
+Date: Tue, 27 Feb 2007 12:47:07 -0800 (PST)
+From: Steve G <linux_4ever@yahoo.com>
+Subject: Re: [PATCH] Lazy config init in libselinux
+To: Stephen Smalley <sds@tycho.nsa.gov>
+Cc: SE Linux <selinux@tycho.nsa.gov>, Daniel J Walsh <dwalsh@redhat.com>,
+        Karl MacMillan <kmacmillan@mentalrootkit.com>
+In-Reply-To: <1172599888.19041.382.camel@moss-spartans.epoch.ncsc.mil>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Message-ID: <678979.3102.qm@web51510.mail.yahoo.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2007-02-13 at 18:28 -0500, Eamon Walsh wrote:
-> This is an experimental policy for use with the X userspace object 
-> manager.  It includes both unconfined and strict policy and is 
-> controlled by a tunable, xwindows_object_manager.  The labeling conf 
-> file in the X.org xserver git (XACE-SELINUX branch) assumes that this 
-> policy is loaded, i.e. the types listed in that file are defined in this 
-> policy.
 
-Unfortunately I didn't get a chance to look at this until today.  It'll
-take some time to fully understand all this, but I have some notes from
-my initial review inline:
+>I'm a bit confused then - why doesn't that introduce a dependency on
+>libpthread?
 
->  modules/services/xwindows.fc |   13 +
->  modules/services/xwindows.if |  521 +++++++++++++++++++++++++++++++++++++++++++
->  modules/services/xwindows.te |   65 +++++
+I think I figured it out. First you have this:
 
-Eventually this should probably be merged into the xserver module.
-Potentially in a tunable, when that support becomes available.  However,
-for the purposes of vetting the design, a separate module is fine.
+# pragma weak __pthread_once
 
-> Index: policy/modules/services/xwindows.if
-> ===================================================================
-> --- policy/modules/services/xwindows.if	(revision 0)
-> +++ policy/modules/services/xwindows.if	(revision 0)
-> @@ -0,0 +1,521 @@
+Which will make the linker ignore the function if its not found at runtime. Then
+we have this:
 
-> +template(`xwindows_property',`
-> +	gen_require(`
-> +		type $1_t;
-> +		type $2;
-> +		attribute xproperty_type;
-> +		attribute $1_xproperty_type;
-> +		attribute $2ype;
-> +		class property all_property_perms;
-> +	')
-> +
-> +	type $1_$2, $1_xproperty_type, $2ype, xproperty_type;
-> +	type_transition $1_t $2:property $1_$2;
-> +')
+/* Call handler iff the first call.  */
+#define __libc_once(ONCE_CONTROL, INIT_FUNCTION) \
+  do {                                                                        \
+    if (__pthread_once != NULL)                                               \
+      __pthread_once (&(ONCE_CONTROL), (INIT_FUNCTION));                      \
+    else if ((ONCE_CONTROL) == PTHREAD_ONCE_INIT) {                           \
+      INIT_FUNCTION ();                                                       \
+      (ONCE_CONTROL) = 2;                                                     \
+    }                                                                         \
+  } while (0)
 
-> +template(`xwindows_property_set',`
-> +
+So, in single thread mode the "else if" is executed. When pthreads exists it
+calls the function.
 
-> +	attribute $1_xproperty_type;
-> +	xwindows_property($1,client_xproperty_t)
-> +	xwindows_property($1,info_xproperty_t)
-> +	xwindows_property($1,seclabel_xproperty_t)
-> +	xwindows_property($1,rm_xproperty_t)
-> +	xwindows_property($1,wm_xproperty_t)
-> +	xwindows_property($1,clipboard_xproperty_t)
-> +	xwindows_property($1,unknown_xproperty_t)
-> +')
+>But I think we need to assess whether that is the case - I don't think
+>we know yet what the overall impact is.
 
-Is there be a situation where one wouldn't want a full set of
-properties?  If not, I'd rather eliminate xwindows_property(), because
-the name mangling being done with the base property type names (e.g.,
-$2ype) is a little ugly.
+In the non-threaded mode, it doesn't look like a big hit. If __pthread_once is
+not defined, there's nothing that can race. If it is defined, which is rare, it
+will be a call to that function which Uli says is fast.
 
+>> I did the audit yesterday to make sure everything was covered. Please double
+>> check me since this is important. 
+>
+>init_selinux_config() also sets several flags based on /etc/selinux/config
+>that are used by other functions, and you don't appear to have explicitly
+>added guards for them, 
 
-> +template(`xwindows_windowmgr_client',`
-[cut]
-> +		# can set properties on all windows
-> +		allow $3 domain:window { chprop chproplist };
+OK, I see 3 new variables...however, they are not used in any selinux config file
+I've ever seen. Are they brand new and never used? Is there a reason they are not
+in /etc/selinux/config by default?
 
-> +		# X Windows - extensive control over all windows
-> +		# can query windows for visual information
-> +		allow $3 domain:drawable getattr;
-> +		# can enumerate and change attributes of root window
-> +		allow $3 $1_root_window_t:window { enumerate setattr };
-> +		# can enumerate, set, and change attributes of all non-root windows
-> +		allow $3 domain:window { enumerate getattr setattr };
-> +		# can map and unmap all non-root windows
-> +		allow $3 domain:window { map unmap move ctrllife };
-> +		# can send various events to all non-root windows
-> +		allow $3 domain:window { windowchangeevent clientcomevent };
-> +		# can reparent all non-root windows
-> +		allow $3 domain:window { chparent chstack };
-> +		# can list properties of all non-root windows
-> +		allow $3 domain:window listprop;
+>although some end up hitting a guard due to prior call to a path function. The
+>one that looks particularly worrisome is the cache_trans flag, used by the
+>context translation functions, which in turn are called pervasively to
+>translate contexts when they are passed into or out of libselinux.  If
+>we add a guard to those functions, we'll essentially hit the guard on
+>almost every libselinux function call, just not is_selinux_enabled().
 
-> +		# X Input
-> +		# can change input focus on all windows
-> +		allow $3 domain:window setfocus;
+But so far no config file defines it. Is it really used? Right now everyone is
+getting the default value.
 
-domain attribute can't be used here, since its not owned by this module.
-Its overly broad too.  One thing to investigate would be adding an
-attribute, something like xserver_xclient_type for all X clients, and
-then use that here.  Then that attribute would be added to a domain,
-perhaps via xserver_user_client_template().
+>I'm not trying to block performance improvement, but we do need to first
+>understand the implications of the change, in terms of overall
+>performance impact, correctness, and maintainability.
+
+Sure.
+
+What about /etc/security...is that still used? Should that go away?
+
+-Steve
 
 
-> +template(`xwindows_displaymgr_client',`
-> +	gen_require(`
-> +		class xextension use;
-> +	')
-
-> +	xwindows_basic_client($1,$2,$3,$4)
-
-> +	tunable_policy(`xwindows_object_manager',`
-> +		# X Protocol Extensions
-> +		allow $3 output_xext_t:xextension use;
-> +
-> +		# allow server grabs
-> +		allow $3 $1_xserver_t:xserver { grab ungrab };
-> +		allow $3 $1_xserver_t:xinput { getattr activegrab };
-> +
-> +		# can move the mouse cursor
-> +		allow $3 $1_xserver_t:xinput warppointer;
-> +
-> +		# can set resource manager properties
-> +		allow $3 $2_rm_xproperty_t:property { write free };
-> +
-> +		# can enumerate windows
-> +		allow $3 $1_root_window_t:window enumerate;
-> +	')
-> +')
-
-I suspect this might work as part of xserver_user_client_template(), but
-the derived type for the property is going to be a problem.
-
-
-> +template(`xwindows_resourcemgr_client',`
-> +	gen_require(`
-> +		class property all_property_perms;
-> +	')
-
-> +	tunable_policy(`xwindows_object_manager',`
-> +		# X Properties
-> +		# can read and write resource manager settings
-> +		allow $3 $2_rm_xproperty_t:property { read write };
-> +	')
-> +')
-
-Not sure why there is no $1.  Do you anticipate this being used outside
-of the one use in the patch?  If not, the rule might as well go in the
-caller.
-
-
-> Index: policy/modules/services/xserver.if
-> ===================================================================
-> --- policy/modules/services/xserver.if	(revision 2180)
-> +++ policy/modules/services/xserver.if	(working copy)
-> @@ -90,6 +90,13 @@
->  	kernel_read_kernel_sysctls($1_xserver_t)
->  	kernel_write_proc_files($1_xserver_t)
->  
-> +	# X server userspace object manager
-> +	tunable_policy(`xwindows_object_manager',`
-> +		allow $1_xserver_t self:netlink_audit_socket create;
-> +		allow $1_xserver_t self:netlink_selinux_socket { bind create read };
-> +		allow $1_xserver_t security_t:security { check_context compute_av compute_create };
-
-This should be:
-
-send_audit_msgs_pattern($1_xserver_t)
-selinux_validate_context($1_xserver_t)
-selinux_compute_access_vector($1_xserver_t)
-selinux_compute_create_context($1_xserver_t)
-
-> Index: policy/modules/system/unconfined.if
-> ===================================================================
-> --- policy/modules/system/unconfined.if	(revision 2180)
-> +++ policy/modules/system/unconfined.if	(working copy)
-> @@ -31,6 +42,19 @@
->  	allow $1 self:nscd *;
->  	allow $1 self:dbus *;
->  	allow $1 self:passwd *;
-> +	tunable_policy(`xwindows_object_manager',`
-> +		allow $1 self:drawable *;
-> +		allow $1 self:window *;
-> +		allow $1 self:gc *;
-> +		allow $1 self:font *;
-> +		allow $1 self:colormap *;
-> +		allow $1 self:property *;
-> +		allow $1 self:cursor *;
-> +		allow $1 self:xclient *;
-> +		allow $1 self:xserver *;
-> +		allow $1 self:xinput *;
-> +		allow $1 self:xextension *;
-> +	')
-
-I don't think this needs to be tunable.  It probably should go in an
-xserver_unconfined() too (as should the classes for the other userland
-object managers for that matter).
-
--- 
-Chris PeBenito
-Tresys Technology, LLC
-(410) 290-1411 x150
-
+ 
+____________________________________________________________________________________
+Expecting? Get great news right away with email Auto-Check. 
+Try the Yahoo! Mail Beta.
+http://advision.webevents.yahoo.com/mailbeta/newmail_tools.html 
 
 --
 This message was distributed to subscribers of the selinux mailing list.
