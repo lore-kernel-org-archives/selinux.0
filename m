@@ -1,74 +1,79 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id l1SFdQnN015626
-	for <selinux@tycho.nsa.gov>; Wed, 28 Feb 2007 10:39:26 -0500
-Received: from exchange.columbia.tresys.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with SMTP id l1SFem2u016200
-	for <selinux@tycho.nsa.gov>; Wed, 28 Feb 2007 15:40:48 GMT
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Subject: Re: Kerberos changes for policy
-Date: Wed, 28 Feb 2007 10:41:06 -0500
-Message-ID: <1172677266.11157.64.camel@sgc>
-In-Reply-To: <200702261726.l1QHQlsd030617@localhost.localdomain>
-References: <200702261726.l1QHQlsd030617@localhost.localdomain>
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id l1SFtq7X016435
+	for <selinux@tycho.nsa.gov>; Wed, 28 Feb 2007 10:55:52 -0500
+Received: from exchange.columbia.tresys.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with SMTP id l1SFvF2d003924
+	for <selinux@tycho.nsa.gov>; Wed, 28 Feb 2007 15:57:15 GMT
+Subject: Re: Changes to ftp policy
 From: "Christopher J. PeBenito" <cpebenito@tresys.com>
-To: <dwalsh@localhost.localdomain>
-Cc: <selinux@tycho.nsa.gov>
+To: dwalsh@localhost.localdomain
+Cc: selinux@tycho.nsa.gov
+In-Reply-To: <200702261716.l1QHGrqw030567@localhost.localdomain>
+References: <200702261716.l1QHGrqw030567@localhost.localdomain>
+Content-Type: text/plain
+Date: Wed, 28 Feb 2007 10:57:33 -0500
+Message-Id: <1172678253.11157.68.camel@sgc>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 2007-02-26 at 12:26 -0500, dwalsh@localhost.localdomain wrote:
-> Dontaudit additional library checks on files
-> kdc requires setsched
-> Needs to communicate with itself over fifo files
-> Wants to look at the network
-
-This one is a dupe (already upstreamed).
-
-> ===File /tmp/patches/done/nsaserefpolicy_policy_modules_services_kerberos.patch===
-> --- nsaserefpolicy/policy/modules/services/kerberos.if	2007-02-19 11:32:53.000000000 -0500
-> +++ serefpolicy-2.5.5/policy/modules/services/kerberos.if	2007-02-26 11:02:34.000000000 -0500
-> @@ -40,8 +40,8 @@
->  	files_search_etc($1)
->  	allow $1 krb5_conf_t:file { getattr read };
->  	dontaudit $1 krb5_conf_t:file write;
-> -	dontaudit $1 krb5kdc_conf_t:dir list_dir_perms;
-> -	dontaudit $1 krb5kdc_conf_t:file read_file_perms;
-> +	dontaudit $1 krb5kdc_conf_t:dir r_dir_perms;
-> +	dontaudit $1 krb5kdc_conf_t:file rw_file_perms;
+On Mon, 2007-02-26 at 12:16 -0500, dwalsh@localhost.localdomain wrote:
+> kerberized ftp needs to read keytab file
+> 
+> Needs to be able to rw_faillog,
+> 
+> If you allow ftp to login to homedirs, you would expect to be able to ftp off the entire the system.  Perhaps this should be a boolean or only targeted policy.
+> 
+> 
+> ===File /tmp/patches/done/nsaserefpolicy_policy_modules_services_ftp.patch===
+> --- nsaserefpolicy/policy/modules/services/ftp.te	2007-02-19 11:32:53.000000000 -0500
+> +++ serefpolicy-2.5.5/policy/modules/services/ftp.te	2007-02-26 11:02:34.000000000 -0500
+> @@ -125,7 +125,7 @@
+>  auth_append_login_records(ftpd_t)
+>  #kerberized ftp requires the following
+>  auth_write_login_records(ftpd_t)
+> -auth_append_faillog(ftpd_t)
+> +auth_rw_faillog(ftpd_t)
 >  
->  	tunable_policy(`allow_kerberos',`
->  		allow $1 self:tcp_socket create_socket_perms;
-> --- nsaserefpolicy/policy/modules/services/kerberos.te	2007-02-19 11:32:53.000000000 -0500
-> +++ serefpolicy-2.5.5/policy/modules/services/kerberos.te	2007-02-26 11:02:34.000000000 -0500
-> @@ -154,10 +154,11 @@
->  # Use capabilities. Surplus capabilities may be allowed.
->  allow krb5kdc_t self:capability { setuid setgid net_admin chown fowner dac_override sys_nice };
->  dontaudit krb5kdc_t self:capability sys_tty_config;
-> -allow krb5kdc_t self:process { getsched signal_perms };
-> +allow krb5kdc_t self:process { setsched getsched signal_perms };
->  allow krb5kdc_t self:netlink_route_socket r_netlink_socket_perms;
->  allow krb5kdc_t self:tcp_socket create_stream_socket_perms;
->  allow krb5kdc_t self:udp_socket create_socket_perms;
-> +allow krb5kdc_t self:fifo_file rw_fifo_file_perms;
+>  init_use_fds(ftpd_t)
+>  init_use_script_ptys(ftpd_t)
+> @@ -190,10 +190,15 @@
+>  	userdom_manage_all_users_home_content_dirs(ftpd_t)
+>  	userdom_manage_all_users_home_content_files(ftpd_t)
+>  	userdom_manage_all_users_home_content_symlinks(ftpd_t)
+> +	auth_manage_all_files_except_shadow(ftpd_t)
 >  
->  allow krb5kdc_t krb5_conf_t:file read_file_perms;
->  dontaudit krb5kdc_t krb5_conf_t:file write;
-> @@ -185,6 +186,7 @@
->  kernel_list_proc(krb5kdc_t)
->  kernel_read_proc_symlinks(krb5kdc_t)
->  kernel_read_network_state(krb5kdc_t)
-> +kernel_search_network_sysctl(krb5kdc_t)
+>  	ifdef(`targeted_policy',`
+>  		userdom_generic_user_home_dir_filetrans_generic_user_home_content(ftpd_t,{ dir file lnk_file sock_file fifo_file })
+> +		files_manage_generic_tmp_files(ftpd_t)
+>  	')
+> +	auth_read_all_dirs_except_shadow(ftpd_t)
+> +	auth_read_all_files_except_shadow(ftpd_t)
+> +	auth_read_all_symlinks_except_shadow(ftpd_t)
+>  ')
 >  
->  corecmd_exec_sbin(krb5kdc_t)
->  corecmd_exec_bin(krb5kdc_t)
+>  tunable_policy(`ftp_home_dir && use_nfs_home_dirs',`
+> @@ -214,6 +219,10 @@
+>  ')
+>  
+>  optional_policy(`
+> +	kerberos_read_keytab(ftpd_t)
+> +')
+> +
+> +optional_policy(`
+>  	tunable_policy(`ftp_home_dir',`
+>  		apache_search_sys_content(ftpd_t)
+>  	')
 > ============================================================
+
+Merged the first and last hunks (last one moved down).  I don't
+understand the logic behind logging into a home dir as implying access
+to other files on the system.
+
 -- 
 Chris PeBenito
 Tresys Technology, LLC
 (410) 290-1411 x150
-
 
 
 --
