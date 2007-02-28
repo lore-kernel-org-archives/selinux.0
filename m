@@ -1,41 +1,40 @@
-From: Paul Moore <paul.moore@hp.com>
-To: James Morris <jmorris@namei.org>
-Subject: Re: [RFC 0/4] NetLabel fixups/cleanups
-Date: Wed, 28 Feb 2007 16:36:06 -0500
-Cc: selinux@tycho.nsa.gov, sds@tycho.nsa.gov
-References: <20070228201419.115784233@hp.com> <Line.LNX.4.64.0702281607020.10200@d.namei>
-In-Reply-To: <Line.LNX.4.64.0702281607020.10200@d.namei>
+From: Russell Coker <russell@coker.com.au>
+Reply-To: russell@coker.com.au
+To: "Joshua Brindle" <jbrindle@tresys.com>
+Subject: Re: [RFC] Dropping compat support for /etc/security policy file paths
+Date: Thu, 1 Mar 2007 08:44:24 +1100
+Cc: "Stephen Smalley" <sds@tycho.nsa.gov>, selinux@tycho.nsa.gov,
+        "Steve G" <linux_4ever@yahoo.com>,
+        "Karl MacMillan" <kmacmillan@mentalrootkit.com>,
+        "Darrel Goeddel" <dgoeddel@TrustedCS.com>,
+        "Daniel J Walsh" <dwalsh@redhat.com>,
+        "Manoj Srivastava" <manoj.srivastava@stdc.com>,
+        "Christopher J. PeBenito" <cpebenito@tresys.com>
+References: <6FE441CD9F0C0C479F2D88F959B015888BA98E@exchange.columbia.tresys.com>
+In-Reply-To: <6FE441CD9F0C0C479F2D88F959B015888BA98E@exchange.columbia.tresys.com>
 MIME-Version: 1.0
 Content-Type: text/plain;
   charset="iso-8859-1"
-Message-Id: <200702281636.06388.paul.moore@hp.com>
+Message-Id: <200703010844.29059.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wednesday, February 28 2007 4:09:19 pm James Morris wrote:
-> On Wed, 28 Feb 2007, Paul Moore wrote:
-> > to live dangerously.  This patchset most likely needs a little more work
-> > and testing before I feel comfortable submitting it for inclusion, but a
-> > little birdie suggested I post them as an RFC patchset.
+On Thursday 01 March 2007 00:11, "Joshua Brindle" <jbrindle@tresys.com> wrote:
+> > Are any active distributions still using the old
+> > /etc/security/ location and layout for SELinux policy files?
+> > If not, we could drop the compat file path support from
+> > libselinux on the trunk.
 >
-> These look ok to me, and I've applied them to
-> git://git.infradead.org/~jmorris/selinux-2.6#for-next-kernel
+> Gentoo has switched to refpolicy with standard paths since this is
+> required for modular policy and semanage. I'm fine with its removal.
 
-Thanks.
-
-> It's probably too late to get non-bugfixes into 2.6.21, so they'll
-> probably queue there until the next merge window opens, and also go into
-> -mm.
-
-I wouldn't want them to go into 2.6.21 even if it were possible.  I just 
-haven't done enough testing yet to really feel comfortable with the patches.    
-However, having them sit in -mm for a while will go a long way towards giving 
-me that warm, fuzzy feeling.  I also continue to bang on them and if anything 
-pops up I'll send more patches.
+Same with Debian, I agree.
 
 -- 
-paul moore
-linux security @ hp
+russell@coker.com.au
+http://etbe.blogspot.com/          My Blog
+
+http://www.coker.com.au/sponsorship.html Sponsoring Free Software development
 
 --
 This message was distributed to subscribers of the selinux mailing list.
