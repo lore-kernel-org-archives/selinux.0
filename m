@@ -1,25 +1,33 @@
-Subject: [RFC] Dropping compat support for /etc/security policy file paths
+Subject: Re: refpolicy modules
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: selinux@tycho.nsa.gov
-Cc: Steve G <linux_4ever@yahoo.com>, Joshua Brindle <jbrindle@tresys.com>,
-        Karl MacMillan <kmacmillan@mentalrootkit.com>,
-        Darrel Goeddel <dgoeddel@TrustedCS.com>,
-        Daniel J Walsh <dwalsh@redhat.com>,
-        Manoj Srivastava <manoj.srivastava@stdc.com>,
-        Russell Coker <russell@coker.com.au>,
-        "Christopher J. PeBenito" <cpebenito@tresys.com>
+To: vin@netwosix.org
+Cc: selinux@tycho.nsa.gov, "Christopher J. PeBenito" <cpebenito@tresys.com>
+In-Reply-To: <1172654815.7570.7.camel@localhost>
+References: <1172654815.7570.7.camel@localhost>
 Content-Type: text/plain
-Date: Wed, 28 Feb 2007 08:01:52 -0500
-Message-Id: <1172667712.19041.455.camel@moss-spartans.epoch.ncsc.mil>
+Date: Wed, 28 Feb 2007 08:05:37 -0500
+Message-Id: <1172667937.19041.458.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hi,
+On Wed, 2007-02-28 at 10:26 +0100, Vincenzo Ciaglia wrote:
+> Hello, another question.
+> 
+> Is there any way to get SELinux refpolicy working without not useful
+> modules for my system without re-editing the most part of the policies
+> once i have done this ?
+> 
+> It's really and hard work to modify each policy with not-useful lines.
+> 
+> Excuse me for the dumby question but maybe there's a way that i still
+> don't know.
 
-Are any active distributions still using the old /etc/security/ location
-and layout for SELinux policy files?  If not, we could drop the compat
-file path support from libselinux on the trunk.
+What are you asking?  You should be able to turn off modules that you
+don't need and have the rest build, although there likely is a
+fundamental core set of modules that are presumed to be present.  If you
+have specific cases where you disabled a module and couldn't build the
+rest of the policy, then report those.
 
 -- 
 Stephen Smalley
