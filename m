@@ -1,37 +1,27 @@
 From: "Paul Moore" <paul.moore@hp.com>
-Message-Id: <20070228202031.473078320@hp.com>
-References: <20070228201419.115784233@hp.com>
-Date: Wed, 28 Feb 2007 15:14:21 -0500
+Message-Id: <20070228201419.115784233@hp.com>
+Date: Wed, 28 Feb 2007 15:14:19 -0500
 To: selinux@tycho.nsa.gov
-Cc: sds@tycho.nsa.gov, jmorris@namei.org, Paul Moore <paul.moore@hp.com>
-Subject: [RFC 2/4] NetLabel: convert a BUG_ON in the CIPSO code to a runtime check
+Cc: sds@tycho.nsa.gov, jmorris@namei.org
+Subject: [RFC 0/4] NetLabel fixups/cleanups
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This patch changes a BUG_ON in the CIPSO code to a runtime check.  It should
-also increase the readability of the code as it replaces an unexplained
-constant with a well defined macro.
+This is a collection of various fixups/cleanups (mostly the latter) that
+various people have requested over the past few months.  The most noteworthy
+change in this patchset is an effort to get the NetLabel support out of the
+SELinux security server and into the general SELinux code.
 
-Signed-off-by: Paul Moore <paul.moore@hp.com>
----
- net/ipv4/cipso_ipv4.c |    4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+The patch is based off the current net-2.6 git tree, although I suspect with a
+little bit of fuzz it should apply to 2.6.20 and 2.6.21-rc1 for those who like
+to live dangerously.  This patchset most likely needs a little more work and
+testing before I feel comfortable submitting it for inclusion, but a little
+birdie suggested I post them as an RFC patchset.
 
-Index: net-2.6_future/net/ipv4/cipso_ipv4.c
-===================================================================
---- net-2.6_future.orig/net/ipv4/cipso_ipv4.c
-+++ net-2.6_future/net/ipv4/cipso_ipv4.c
-@@ -1141,7 +1141,9 @@ static int cipso_v4_map_cat_rng_hton(con
- 	u32 cat_size = 0;
- 
- 	/* make sure we don't overflow the 'array[]' variable */
--	BUG_ON(net_cat_len > 30);
-+	if (net_cat_len >
-+	    (CIPSO_V4_OPT_LEN_MAX - CIPSO_V4_HDR_LEN - CIPSO_V4_TAG_RNG_BLEN))
-+		return -ENOSPC;
- 
- 	for (;;) {
- 		iter = netlbl_secattr_catmap_walk(secattr->mls_cat, iter + 1);
+So without further ado, here they are ... please take a look at the patches and
+send me any comments you may have.  I know you're not a bashful bunch ;)
+
+Thanks.
 
 --
 paul moore
