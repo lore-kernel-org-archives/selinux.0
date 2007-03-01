@@ -1,34 +1,47 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id l21EbxXH001080
-	for <selinux@tycho.nsa.gov>; Thu, 1 Mar 2007 09:37:59 -0500
-Received: from exchange.columbia.tresys.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with SMTP id l21EdEPB022510
-	for <selinux@tycho.nsa.gov>; Thu, 1 Mar 2007 14:39:22 GMT
-Subject: Re: Additional localtime files
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id l21FguD3004736
+	for <selinux@tycho.nsa.gov>; Thu, 1 Mar 2007 10:42:56 -0500
+Received: from exchange.columbia.tresys.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with SMTP id l21FiKOE002586
+	for <selinux@tycho.nsa.gov>; Thu, 1 Mar 2007 15:44:20 GMT
+Subject: Re: Added application_exec_type patch
 From: "Christopher J. PeBenito" <cpebenito@tresys.com>
-To: dwalsh@localhost.localdomain
-Cc: selinux@tycho.nsa.gov
-In-Reply-To: <200702261956.l1QJuMpl031919@localhost.localdomain>
-References: <200702261956.l1QJuMpl031919@localhost.localdomain>
+To: Daniel J Walsh <dwalsh@redhat.com>
+Cc: SE Linux <selinux@tycho.nsa.gov>
+In-Reply-To: <45E5E54F.1@redhat.com>
+References: <45E5E54F.1@redhat.com>
 Content-Type: text/plain
-Date: Thu, 01 Mar 2007 09:39:40 -0500
-Message-Id: <1172759980.11157.88.camel@sgc.columbia.tresys.com>
+Date: Thu, 01 Mar 2007 10:44:38 -0500
+Message-Id: <1172763878.11157.104.camel@sgc.columbia.tresys.com>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 2007-02-26 at 14:56 -0500, dwalsh@localhost.localdomain wrote:
-> ===File /tmp/patches/nsaserefpolicy_policy_modules_system_miscfiles.fc===
-> --- nsaserefpolicy/policy/modules/system/miscfiles.fc	2007-01-02 12:57:49.000000000 -0500
-> +++ serefpolicy-2.5.5/policy/modules/system/miscfiles.fc	2007-02-26 11:04:23.000000000 -0500
-> @@ -74,3 +74,5 @@
->  /var/lib/msttcorefonts(/.*)?	gen_context(system_u:object_r:fonts_t,s0)
->  /var/lib/usbutils(/.*)?		gen_context(system_u:object_r:hwdata_t,s0)
->  ')
-> +/var/spool/postfix/etc/localtime -- gen_context(system_u:object_r:locale_t,s0)
-> +/var/empty/sshd/etc/localtime  -- gen_context(system_u:object_r:locale_t,s0)
+On Wed, 2007-02-28 at 15:25 -0500, Daniel J Walsh wrote:
+> This patch  an attribute  of application_exec_type to any executable 
+> that can be executed by a user. 
 
-Merged with some reorg.
+The domains also need to be collected (minus the ones that we discussed
+on IRC, like cvs and rsync) into an attribute.  Then we should be able
+to apply that towards fixing the ssh command line/sockets problem (where
+the incoming client has done something like "ssh
+myserver /usr/bin/passwd").
+
+> I have only patched the executables that currently transition to a 
+> domain if run under inetd or init, but do not transition if run by a user.
+
+The stuff in the apps layer will have to be covered too.  They may have
+policies, but they're still applications.  Their domain transitions will
+still happen.
+
+> Also changed corecommand_exec_any to only execute executables that a 
+> user is supposed to run.  So if sysadm_t tries to execute a dameon 
+> directly it will get a permission denied.
+
+This interface has to remain the same.  "All executables" actually has
+to mean all executables for the semantics of the interface to be
+maintained.  If we want sysadm's behavior to be the above, it is the one
+that needs to change.
 
 -- 
 Chris PeBenito
