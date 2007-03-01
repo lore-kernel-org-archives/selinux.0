@@ -1,46 +1,58 @@
-From: Paul Moore <paul.moore@hp.com>
-To: Stephen Smalley <sds@tycho.nsa.gov>
-Subject: Re: [RFC 3/4] SELinux: extract the NetLabel SELinux support from the security server
-Date: Thu, 1 Mar 2007 08:27:12 -0500
-Cc: selinux@tycho.nsa.gov, jmorris@namei.org
-References: <20070228201419.115784233@hp.com> <1172752853.19041.558.camel@moss-spartans.epoch.ncsc.mil> <1172753556.19041.560.camel@moss-spartans.epoch.ncsc.mil>
-In-Reply-To: <1172753556.19041.560.camel@moss-spartans.epoch.ncsc.mil>
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id l21EbqQ6001036
+	for <selinux@tycho.nsa.gov>; Thu, 1 Mar 2007 09:37:53 -0500
+Received: from exchange.columbia.tresys.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with SMTP id l21EdEP3022510
+	for <selinux@tycho.nsa.gov>; Thu, 1 Mar 2007 14:39:15 GMT
 MIME-Version: 1.0
 Content-Type: text/plain;
-  charset="us-ascii"
-Message-Id: <200703010827.13528.paul.moore@hp.com>
+	charset="iso-8859-1"
+Subject: Re: Additional Device definitions.
+Date: Thu, 1 Mar 2007 09:39:32 -0500
+Message-ID: <1172759972.11157.84.camel@sgc.columbia.tresys.com>
+In-Reply-To: <200702261952.l1QJqsq1031888@localhost.localdomain>
+References: <200702261952.l1QJqsq1031888@localhost.localdomain>
+From: "Christopher J. PeBenito" <cpebenito@tresys.com>
+To: <dwalsh@localhost.localdomain>
+Cc: <selinux@tycho.nsa.gov>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thursday 01 March 2007 7:52:36 am Stephen Smalley wrote:
-> On Thu, 2007-03-01 at 07:40 -0500, Stephen Smalley wrote:
-> > On Wed, 2007-02-28 at 15:14 -0500, Paul Moore wrote:
-> > > plain text document attachment (selinux-isolate_netlabel)
-> > > Up until this patch the functions which have provided NetLabel support
-> > > to SELinux have been integrated into the SELinux security server, which
-> > > for various reasons is not really ideal.  This patch makes an effort to
-> > > extract as much of the NetLabel support from the security server as
-> > > possibile and move it into it's own file within the SELinux directory
-> > > structure.
-> >
-> > Thanks, this looks much better, and helps keep the security server
-> > interface as an abstract security interface.  Is there any reason you
-> > didn't also move security_skb_extlbl_sid() out from the security server?
-> > It seems to be a lingering case where the security server directly acts
-> > on a kernel object rather than a security abstraction.
->
-> It isn't NetLabel-specific, but appears that it could easily just be a
-> helper function in hooks.c itself.
+On Mon, 2007-02-26 at 14:52 -0500, dwalsh@localhost.localdomain wrote:
+> 
+> ===File /tmp/patches/nsaserefpolicy_policy_modules_kernel_devices.fc===
+> --- nsaserefpolicy/policy/modules/kernel/devices.fc	2007-01-02 12:57:13.000000000 -0500
+> +++ serefpolicy-2.5.5/policy/modules/kernel/devices.fc	2007-02-26 11:04:23.000000000 -0500
+> @@ -28,9 +28,11 @@
+>  /dev/js.*		-c	gen_context(system_u:object_r:mouse_device_t,s0)
+>  /dev/kmem		-c	gen_context(system_u:object_r:memory_device_t,mls_systemhigh)
+>  /dev/kmsg		-c	gen_context(system_u:object_r:kmsg_device_t,mls_systemhigh)
+> +/dev/mcelog		-c	gen_context(system_u:object_r:kmsg_device_t,mls_systemhigh)
+>  /dev/logibm		-c	gen_context(system_u:object_r:mouse_device_t,s0)
+>  /dev/lp.*		-c	gen_context(system_u:object_r:printer_device_t,s0)
+>  /dev/mem		-c	gen_context(system_u:object_r:memory_device_t,mls_systemhigh)
+> +/dev/oldmem		-c	gen_context(system_u:object_r:memory_device_t,mls_systemhigh)
+>  /dev/mice		-c	gen_context(system_u:object_r:mouse_device_t,s0)
+>  /dev/microcode		-c	gen_context(system_u:object_r:cpu_device_t,s0)
+>  /dev/midi.*		-c	gen_context(system_u:object_r:sound_device_t,s0)
+> @@ -58,6 +60,7 @@
+>  /dev/srnd[0-7]		-c	gen_context(system_u:object_r:sound_device_t,s0)
+>  /dev/snapshot		-c	gen_context(system_u:object_r:apm_bios_t,s0)
+>  /dev/sndstat		-c	gen_context(system_u:object_r:sound_device_t,s0)
+> +/dev/sonypi		-c	gen_context(system_u:object_r:v4l_device_t,s0)
+>  /dev/tlk[0-3]		-c	gen_context(system_u:object_r:v4l_device_t,s0)
+>  /dev/urandom		-c	gen_context(system_u:object_r:urandom_device_t,s0)
+>  /dev/usbdev.*		-c	gen_context(system_u:object_r:usb_device_t,s0)
+> ============================================================
 
-That is why I didn't move it, I was focusing on the NetLabel specific bits.  
-However, I agree, it probably would make more sense to move that out to 
-hooks.c.
-
-I'll throw together another patch and send it out later today.
+Merged with some reorganization.
 
 -- 
-paul moore
-linux security @ hp
+Chris PeBenito
+Tresys Technology, LLC
+(410) 290-1411 x150
+
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
