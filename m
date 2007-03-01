@@ -1,57 +1,53 @@
 Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id l21EbqQ6001036
-	for <selinux@tycho.nsa.gov>; Thu, 1 Mar 2007 09:37:53 -0500
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id l21Ec0wo001090
+	for <selinux@tycho.nsa.gov>; Thu, 1 Mar 2007 09:38:00 -0500
 Received: from exchange.columbia.tresys.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with SMTP id l21EdEP3022510
-	for <selinux@tycho.nsa.gov>; Thu, 1 Mar 2007 14:39:15 GMT
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Subject: Re: Additional Device definitions.
-Date: Thu, 1 Mar 2007 09:39:32 -0500
-Message-ID: <1172759972.11157.84.camel@sgc.columbia.tresys.com>
-In-Reply-To: <200702261952.l1QJqsq1031888@localhost.localdomain>
-References: <200702261952.l1QJqsq1031888@localhost.localdomain>
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with SMTP id l21EdEPD022510
+	for <selinux@tycho.nsa.gov>; Thu, 1 Mar 2007 14:39:23 GMT
+Subject: Re: More textrel_shlib_t libraries
 From: "Christopher J. PeBenito" <cpebenito@tresys.com>
-To: <dwalsh@localhost.localdomain>
-Cc: <selinux@tycho.nsa.gov>
+To: dwalsh@localhost.localdomain
+Cc: selinux@tycho.nsa.gov
+In-Reply-To: <200702261955.l1QJthJm031913@localhost.localdomain>
+References: <200702261955.l1QJthJm031913@localhost.localdomain>
+Content-Type: text/plain
+Date: Thu, 01 Mar 2007 09:39:41 -0500
+Message-Id: <1172759982.11157.89.camel@sgc.columbia.tresys.com>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 2007-02-26 at 14:52 -0500, dwalsh@localhost.localdomain wrote:
-> 
-> ===File /tmp/patches/nsaserefpolicy_policy_modules_kernel_devices.fc===
-> --- nsaserefpolicy/policy/modules/kernel/devices.fc	2007-01-02 12:57:13.000000000 -0500
-> +++ serefpolicy-2.5.5/policy/modules/kernel/devices.fc	2007-02-26 11:04:23.000000000 -0500
-> @@ -28,9 +28,11 @@
->  /dev/js.*		-c	gen_context(system_u:object_r:mouse_device_t,s0)
->  /dev/kmem		-c	gen_context(system_u:object_r:memory_device_t,mls_systemhigh)
->  /dev/kmsg		-c	gen_context(system_u:object_r:kmsg_device_t,mls_systemhigh)
-> +/dev/mcelog		-c	gen_context(system_u:object_r:kmsg_device_t,mls_systemhigh)
->  /dev/logibm		-c	gen_context(system_u:object_r:mouse_device_t,s0)
->  /dev/lp.*		-c	gen_context(system_u:object_r:printer_device_t,s0)
->  /dev/mem		-c	gen_context(system_u:object_r:memory_device_t,mls_systemhigh)
-> +/dev/oldmem		-c	gen_context(system_u:object_r:memory_device_t,mls_systemhigh)
->  /dev/mice		-c	gen_context(system_u:object_r:mouse_device_t,s0)
->  /dev/microcode		-c	gen_context(system_u:object_r:cpu_device_t,s0)
->  /dev/midi.*		-c	gen_context(system_u:object_r:sound_device_t,s0)
-> @@ -58,6 +60,7 @@
->  /dev/srnd[0-7]		-c	gen_context(system_u:object_r:sound_device_t,s0)
->  /dev/snapshot		-c	gen_context(system_u:object_r:apm_bios_t,s0)
->  /dev/sndstat		-c	gen_context(system_u:object_r:sound_device_t,s0)
-> +/dev/sonypi		-c	gen_context(system_u:object_r:v4l_device_t,s0)
->  /dev/tlk[0-3]		-c	gen_context(system_u:object_r:v4l_device_t,s0)
->  /dev/urandom		-c	gen_context(system_u:object_r:urandom_device_t,s0)
->  /dev/usbdev.*		-c	gen_context(system_u:object_r:usb_device_t,s0)
-> ============================================================
+On Mon, 2007-02-26 at 14:55 -0500, dwalsh@localhost.localdomain wrote:
+> ===File /tmp/patches/nsaserefpolicy_policy_modules_system_libraries.fc===
+> --- nsaserefpolicy/policy/modules/system/libraries.fc	2007-02-19 11:32:53.000000000 -0500
+> +++ serefpolicy-2.5.5/policy/modules/system/libraries.fc	2007-02-26 11:04:23.000000000 -0500
+> @@ -80,6 +80,7 @@
+>  /opt/(.*/)?java/.+\.jar			--	gen_context(system_u:object_r:shlib_t,s0)
+>  /opt/(.*/)?jre/.+\.jar			--	gen_context(system_u:object_r:shlib_t,s0)
+>  /opt/ibm/java2-ppc64-50/jre/bin/.+\.so(\.[^/]*)* -- gen_context(system_u:object_r:textrel_shlib_t,s0)
+> +/opt/cxoffice/lib/wine/.+\.so      -- gen_context(system_u:object_r:textrel_shlib_t,s0)
+>  
+>  ifdef(`distro_gentoo',`
+>  # despite the extensions, they are actually libs
+> @@ -276,7 +277,10 @@
+>  /usr/(local/)?acroread/(.*/)?lib/[^/]*\.so(\.[^/]*)* -- gen_context(system_u:object_r:textrel_shlib_t,s0)
+>  /usr/(local/)?Adobe/.*\.api		--	gen_context(system_u:object_r:textrel_shlib_t,s0)
+>  /usr/(local/)?lib/xchat/plugins/systray.so --	gen_context(system_u:object_r:textrel_shlib_t,s0)
+> -/usr/local/matlab.*/bin/glnx86/libmwlapack\.so -- gen_context(system_u:object_r:textrel_shlib_t,s0)
+> +/usr/(local/)?matlab.*/bin/glnx86/libmwlapack\.so -- gen_context(system_u:object_r:textrel_shlib_t,s0)
+> +/usr/(local/)?matlab.*/sys/os/glnx86/libtermcap.so    -- gen_context(system_u:object_r:textrel_shlib_t,s0)
+> +/usr/(local/)?matlab.*/bin/glnx86/(libmw(lapack|mathutil|services)|lapack|libmkl).so -- gen_context(system_u:object_r:textrel_shlib_t,s0)
+> +
+>  /usr/(.*/)?intellinux/SPPlugins/ADMPlugin\.apl -- gen_context(system_u:object_r:textrel_shlib_t,s0)
+>  
+>  /usr/lib/acroread/(.*/)?sidecars/*	--	gen_context(system_u:object_r:textrel_shlib_t,s0)
 
-Merged with some reorganization.
+Merged with some reorg.
 
 -- 
 Chris PeBenito
 Tresys Technology, LLC
 (410) 290-1411 x150
-
 
 
 --
