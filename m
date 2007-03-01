@@ -1,105 +1,148 @@
-Subject: [RFC] policy diffing of MLS levels/ranges
-From: "Christopher J. PeBenito" <cpebenito@tresys.com>
-To: Stephen Smalley <sds@tycho.nsa.gov>,
-        Karl MacMillan <kmacmillan@mentalrootkit.com>,
-        Darrel Goeddel <dgoeddel@TrustedCS.com>,
-        Klaus Weidner <klaus@atsec.com>
-Cc: SELinux Mail List <selinux@tycho.nsa.gov>
+Subject: Re: [RFC] SELinux: move security_skb_extlbl_sid() out of the
+	security server
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Paul Moore <paul.moore@hp.com>
+Cc: selinux@tycho.nsa.gov, jmorris@namei.org
+In-Reply-To: <20070301173459.128882191@hp.com>
+References: <20070301173459.128882191@hp.com>
 Content-Type: text/plain
-Date: Thu, 01 Mar 2007 18:42:23 +0000
-Message-Id: <1172774544.19169.61.camel@sgc.columbia.tresys.com>
+Date: Thu, 01 Mar 2007 13:44:09 -0500
+Message-Id: <1172774649.19041.582.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-For the next release of SETools, we are working on diffing MLS
-components of the policy in the sediff/sediffx tools.  We're looking for
-some feedback on how a diff for a range should be done.
+On Thu, 2007-03-01 at 12:34 -0500, Paul Moore wrote:
+> plain text document attachment (selinux-skbextlbl_move)
+> As suggested, move the security_skb_extlbl_sid() function out of the security
+> server and into the SELinux hooks file.
 
-Say for example we have the range: s0:c1,c2 - s2:c0.c10
+Thanks, but one minor change suggested - rename the function, as
+security_ prefix in selinux means security server (which in turn is
+confusing since LSM also uses that prefix, but we had it first!).  Since
+it is static, you don't even need distinct namespace for it, so even
+skb_extlbl_sid() is fine.
 
-The policy has:
-* sensitivities s0 to s2, dominance in increasing numerical order
-* categories c0 to c10
-* each level allowed all categories
-
-Then the policy is changed:
-* remove category c5
-* add sensitivity s1a between s1 and s2
-* level s1a allowed category set is c1,c2
-
-How should the difference in the above range be represented?
-
-Our current idea is to present a diff of each level in the range.  The
-diff for a level would show a level addition/removal if a sensitivity is
-added/removed (dominance changes would be shown in a difference
-section).  The level would be considered modified if categories are
-added/removed by changing the category set allowed for the level (via
-changing the level statement and/or adding/removing categories).  So the
-first question would be, what should the category set be for each level
-of a range?
-
-We think it basically takes the top level's category set and uses it for
-each level, dropping categories if they're not allowed for a particular
-level.  However this doesn't really show that the minimal category set
-is c1 and c2.  One way might be to specially mark the minimal category
-set.  Another way might be to change setools' view of levels to instead
-be the sensitivity and all combinations of categories.  However this
-would quickly become overwhelming in a diff.  Other options would be to
-report a level diff if the endpoints in a grouping change (s0:c0.c10 in
-both the original and modified policy would not be reported as a change
-since c5 is inside c0.c10).  Taking that further we could not report the
-above as a diff since the endpoints of the range aren't different.
-
-To make the above options clearer, here's how the outputs might look
-like:
-
-1) independent categories:
-
-s0:c1,c2 - s2:c0.c10
-added levels:
- + s1a: c1,c2
-modified levels:
- * s0: c0,c1,c2,c3,c4,c6,c7,c8,c9,c10, -c5
- * s1: c0,c1,c2,c3,c4,c6,c7,c8,c9,c10, -c5
- * s2: c0,c1,c2,c3,c4,c6,c7,c8,c9,c10, -c5
-
-1a) independent categories with min category set indicated
-
-s0:c1,c2 - s2:c0.c10
-added levels:
- + s1a: (c1,c2)
-modified levels:
- * s0: (c1,c2) c0,c3,c4,c6,c7,c8,c9,c10,-c5
- * s1: (c1,c2) c0,c3,c4,c6,c7,c8,c9,c10,-c5
- * s2: (c1,c2) c0,c3,c4,c6,c7,c8,c9,c10,-c5
-
-2) category combinations:
-
-s0:c1,c2 - s2:c0.c10
-added levels:
- + s1a: {c1,c2}
-modified levels:
- * s0: -{c1,c2,c5}, -{c1,c2,c3,c5}, -{c1,c2,c3,c4,c5}, ....
- * s1: -{c1,c2,c5}, -{c1,c2,c3,c5}, -{c1,c2,c3,c4,c5}, ....
- * s2: -{c1,c2,c5}, -{c1,c2,c3,c5}, -{c1,c2,c3,c4,c5}, ....
-
-3) diff only for changes in each level's category endpoints, and
-added/removed levels:
-
-s0:c1,c2 - s2:c0.c10
-added levels:
- + s1a: c1,c2
-
-4) diff only for changes in the range's endpoints
-[no diff]
-
-Suggestions?
-
+> 
+> Signed-off-by: Paul Moore <paul.moore@hp.com>
+> ---
+>  security/selinux/hooks.c            |   28 ++++++++++++++++++++++++++++
+>  security/selinux/include/security.h |    3 ---
+>  security/selinux/ss/services.c      |   27 ---------------------------
+>  3 files changed, 28 insertions(+), 30 deletions(-)
+> 
+> Index: net-2.6_future_2/security/selinux/hooks.c
+> ===================================================================
+> --- net-2.6_future_2.orig/security/selinux/hooks.c
+> +++ net-2.6_future_2/security/selinux/hooks.c
+> @@ -3123,6 +3123,34 @@ static int selinux_parse_skb(struct sk_b
+>  	return ret;
+>  }
+>  
+> +/**
+> + * security_skb_extlbl_sid - Determine the external label of a packet
+> + * @skb: the packet
+> + * @base_sid: the SELinux SID to use as a context for MLS only external labels
+> + * @sid: the packet's SID
+> + *
+> + * Description:
+> + * Check the various different forms of external packet labeling and determine
+> + * the external SID for the packet.
+> + *
+> + */
+> +static void security_skb_extlbl_sid(struct sk_buff *skb,
+> +				    u32 base_sid,
+> +				    u32 *sid)
+> +{
+> +	u32 xfrm_sid;
+> +	u32 nlbl_sid;
+> +
+> +	selinux_skb_xfrm_sid(skb, &xfrm_sid);
+> +	if (selinux_netlbl_skbuff_getsid(skb,
+> +					 (xfrm_sid == SECSID_NULL ?
+> +					  base_sid : xfrm_sid),
+> +					 &nlbl_sid) != 0)
+> +		nlbl_sid = SECSID_NULL;
+> +
+> +	*sid = (nlbl_sid == SECSID_NULL ? xfrm_sid : nlbl_sid);
+> +}
+> +
+>  /* socket security operations */
+>  static int socket_has_perm(struct task_struct *task, struct socket *sock,
+>  			   u32 perms)
+> Index: net-2.6_future_2/security/selinux/include/security.h
+> ===================================================================
+> --- net-2.6_future_2.orig/security/selinux/include/security.h
+> +++ net-2.6_future_2/security/selinux/include/security.h
+> @@ -34,7 +34,6 @@
+>  #define POLICYDB_VERSION_MAX	POLICYDB_VERSION_RANGETRANS
+>  #endif
+>  
+> -struct sk_buff;
+>  struct netlbl_lsm_secattr;
+>  
+>  extern int selinux_enabled;
+> @@ -83,8 +82,6 @@ int security_netif_sid(char *name, u32 *
+>  int security_node_sid(u16 domain, void *addr, u32 addrlen,
+>  	u32 *out_sid);
+>  
+> -void security_skb_extlbl_sid(struct sk_buff *skb, u32 base_sid, u32 *sid);
+> -
+>  int security_validate_transition(u32 oldsid, u32 newsid, u32 tasksid,
+>                                   u16 tclass);
+>  
+> Index: net-2.6_future_2/security/selinux/ss/services.c
+> ===================================================================
+> --- net-2.6_future_2.orig/security/selinux/ss/services.c
+> +++ net-2.6_future_2/security/selinux/ss/services.c
+> @@ -39,7 +39,6 @@
+>  #include <linux/sched.h>
+>  #include <linux/audit.h>
+>  #include <linux/mutex.h>
+> -#include <net/sock.h>
+>  #include <net/netlabel.h>
+>  
+>  #include "flask.h"
+> @@ -2198,32 +2197,6 @@ void selinux_audit_set_callback(int (*ca
+>  	aurule_callback = callback;
+>  }
+>  
+> -/**
+> - * security_skb_extlbl_sid - Determine the external label of a packet
+> - * @skb: the packet
+> - * @base_sid: the SELinux SID to use as a context for MLS only external labels
+> - * @sid: the packet's SID
+> - *
+> - * Description:
+> - * Check the various different forms of external packet labeling and determine
+> - * the external SID for the packet.
+> - *
+> - */
+> -void security_skb_extlbl_sid(struct sk_buff *skb, u32 base_sid, u32 *sid)
+> -{
+> -	u32 xfrm_sid;
+> -	u32 nlbl_sid;
+> -
+> -	selinux_skb_xfrm_sid(skb, &xfrm_sid);
+> -	if (selinux_netlbl_skbuff_getsid(skb,
+> -					 (xfrm_sid == SECSID_NULL ?
+> -					  base_sid : xfrm_sid),
+> -					 &nlbl_sid) != 0)
+> -		nlbl_sid = SECSID_NULL;
+> -
+> -	*sid = (nlbl_sid == SECSID_NULL ? xfrm_sid : nlbl_sid);
+> -}
+> -
+>  #ifdef CONFIG_NETLABEL
+>  /*
+>   * NetLabel cache structure
+> 
+> --
+> paul moore
+> linux security @ hp
 -- 
-Chris PeBenito
-Tresys Technology, LLC
-(410) 290-1411 x150
+Stephen Smalley
+National Security Agency
 
 
 --
