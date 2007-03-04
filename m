@@ -1,89 +1,57 @@
 Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l257CaRX030947
-	for <selinux@tycho.nsa.gov>; Mon, 5 Mar 2007 02:12:36 -0500
-Received: from wr-out-0506.google.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l257E1ce011622
-	for <selinux@tycho.nsa.gov>; Mon, 5 Mar 2007 07:14:01 GMT
-Received: by wr-out-0506.google.com with SMTP id 37so1268040wra
-        for <selinux@tycho.nsa.gov>; Sun, 04 Mar 2007 23:14:01 -0800 (PST)
-Message-ID: <e739902b0703042314k3195fba9x56eb91ed92ad75f5@mail.gmail.com>
-Date: Sun, 4 Mar 2007 23:14:00 -0800
-From: "Ryan Bradetich" <rbradetich@gmail.com>
-To: russell@coker.com.au
-Subject: Re: Failed write to /selinux/context in selinux_trans_to_raw_contex()
-Cc: "Stephen Smalley" <sds@tycho.nsa.gov>, selinux@tycho.nsa.gov,
-        "Christopher J. PeBenito" <cpebenito@tresys.com>
-In-Reply-To: <200703032140.32482.russell@coker.com.au>
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l258AaTu032339
+	for <selinux@tycho.nsa.gov>; Mon, 5 Mar 2007 03:10:36 -0500
+Received: from smtp.sws.net.au (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l258Buce017935
+	for <selinux@tycho.nsa.gov>; Mon, 5 Mar 2007 08:11:57 GMT
+From: Russell Coker <russell@coker.com.au>
+Reply-To: russell@coker.com.au
+To: Stefan Schulze Frielinghaus <stefan@sf-net.com>
+Subject: Re: Changes to apt policy
+Date: Mon, 5 Mar 2007 08:58:28 +1100
+Cc: SELinux List <selinux@tycho.nsa.gov>
+References: <44406275-10D4-4C48-A050-D8ECA4127216@sf-net.com>
+In-Reply-To: <44406275-10D4-4C48-A050-D8ECA4127216@sf-net.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-References: <e739902b0702282357i2f5645bbmab4c04a0bdb1d3f3@mail.gmail.com>
-	 <1172836471.19041.611.camel@moss-spartans.epoch.ncsc.mil>
-	 <e739902b0703020821y5d880932re07b74cca44e0b9c@mail.gmail.com>
-	 <200703032140.32482.russell@coker.com.au>
+Content-Type: text/plain;
+  charset="utf-8"
+Message-Id: <200703050858.29982.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hello Russell,
+On Sunday 04 March 2007 10:08, Stefan Schulze Frielinghaus <stefan@sf-net.com> 
+wrote:
+> to get aptitude working quite nice a logfile and a lockfile have to
+> be created. The patches attached should allow this. Also aptitude
+> writes to the home directory $HOME/.aptitude where configfiles etc.
+> are in. I tried to learn from the gpg and screen policy files how to
+> handle such a situation (per_role_template) but please look at it and
+> correct any mistakes ;-)
 
-I read through your OLS-2003 paper Stephen pointed me at.  It was a
-very interesting read and confirmed many of the suspicions I was
-having about busybox while digging deeper into SELinux.  I am also
-interested in reading the proposal Nakamura-san and the Japan SELinux
-User Group has for integrating SELinux into busybox at the applet
-level.
+The apt.te patch seems OK.
 
-I believe I have a short-term solution for my busybox problem by
-putting the majority of the system into a common system_t domain
-(users will not have access to a shell on my embedded device).   My
-long term goal is to see a better solution for embedded systems using
-SELinux and Busybox.
+Regarding apt.if and apt.fc, why would you want to run apt in a role other 
+than sysadm_r for serious use?
 
-Thanks!
+Obviously there's "apt-get source" which can be run as any user - this can be 
+enabled by making the data that apt-get needs for such operations readable by 
+the users in question (I think it's almost always OK to have such data 
+world-readable as it's generally just a mirror of web sites).  Therefore for 
+the "apt-get source" operation (the only apt operation performed by a 
+non-sysadm_r user) apt does not need any special domain or any special 
+labelling for files it creates.
 
--  Ryan
+For the serious operations (installing packages etc) any role which has such 
+access will have the ability to take over the system (Debian packages have 
+lots of questions in postinst that should only be answered by the sys-admin).  
+This means that the user who can run apt in such a manner should be granted 
+the sysadm_r role.
 
+-- 
+russell@coker.com.au
+http://etbe.blogspot.com/          My Blog
 
-On 3/3/07, Russell Coker <russell@coker.com.au> wrote:
-> On Saturday 03 March 2007 03:21, "Ryan Bradetich" <rbradetich@gmail.com>
-> wrote:
-> > 2. Busybox provides the init functionality,  So I am going to start
-> > evaluating and reviewing the init module and figure out what is needed
-> > to successfully allow the kernel_t domain to transition to the init_t
-> > domain and do the work init busybox init needs to do.
->
-> domain_auto_trans(kernel_t, bin_t, init_t)
->
-> Not something we want for general-purpose desktop and server machines but
-> should be fine for embedded systems.
->
-> > [NOTE: I will be asking the communities advice on shortly is how to
-> > handle busybox.  The problem is that busybox is a single binary that
-> > provides the functionality of many binaries (init, login, coreutils,
-> > etc).  I am not quite far enough to fully understand the problem, but
-> > I am pretty sure it will be a problem.  I will start a different
-> > thread on this problem soon.]
->
-> My conclusion after trying some of the other options is that the best thing to
-> do is to divide busybox into several programs for different tasks.  So have
-> one executable for programs that don't have domain transitions (ls, cp,
-> etc) - you could include init in this as the kernel shouldn't be executing
-> bin_t for anything else.
->
-> Then have one executable for login and getty (which will require a minor
-> change to policy), one for klogd and syslogd (the policy option for syslog-ng
-> should make that work), one for ifconfig and related sys-admin tools, one for
-> ping and related privileged programs that users may run, etc.
->
-> Having 3-4 busybox executables that each have subsets of the busybox
-> functionality should not cause a significant overhead if you are dynamically
-> linking busybox (as is done on Familiar).
->
-> --
-> russell@coker.com.au
-> http://etbe.blogspot.com/          My Blog
->
-> http://www.coker.com.au/sponsorship.html Sponsoring Free Software development
->
+http://www.coker.com.au/sponsorship.html Sponsoring Free Software development
 
 --
 This message was distributed to subscribers of the selinux mailing list.
