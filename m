@@ -1,195 +1,84 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l23N7G7p020184
-	for <selinux@tycho.nsa.gov>; Sat, 3 Mar 2007 18:07:16 -0500
-Received: from moutng.kundenserver.de (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l23N8eVa008726
-	for <selinux@tycho.nsa.gov>; Sat, 3 Mar 2007 23:08:41 GMT
-Mime-Version: 1.0 (Apple Message framework v752.2)
-To: SELinux List <selinux@tycho.nsa.gov>
-Message-Id: <44406275-10D4-4C48-A050-D8ECA4127216@sf-net.com>
-Content-Type: multipart/mixed; boundary=Apple-Mail-2--764903415
-From: Stefan Schulze Frielinghaus <stefan@sf-net.com>
-Subject: Changes to apt policy
-Date: Sun, 4 Mar 2007 00:08:28 +0100
+Date: Mon, 5 Mar 2007 09:24:21 +0900
+From: Yuichi Nakamura <ynakam@hitachisoft.jp>
+To: "Ryan Bradetich" <rbradetich@gmail.com>
+Cc: ynakam@hitachisoft.jp, "Stephen Smalley" <sds@tycho.nsa.gov>,
+        selinux@tycho.nsa.gov,
+        "Christopher J. PeBenito" <cpebenito@tresys.com>, busybox@kaigai.gr.jp
+Subject: Assgin domain to busybox applet(Re: Failed write to
+ /selinux/context in selinux_trans_to_raw_contex()
+Message-Id: <20070305092421.c5121997.ynakam@hitachisoft.jp>
+In-Reply-To: <e739902b0703020821y5d880932re07b74cca44e0b9c@mail.gmail.com>
+References: <e739902b0702282357i2f5645bbmab4c04a0bdb1d3f3@mail.gmail.com>
+	<1172751150.19041.536.camel@moss-spartans.epoch.ncsc.mil>
+	<e739902b0703010810g64146e59h184dfe13365e16ce@mail.gmail.com>
+	<1172765760.19041.578.camel@moss-spartans.epoch.ncsc.mil>
+	<e739902b0703011324y561503a0v49ded6db4b700b8c@mail.gmail.com>
+	<e739902b0703012254j5b078fckd364da8b8ccfb4ab@mail.gmail.com>
+	<1172836471.19041.611.camel@moss-spartans.epoch.ncsc.mil>
+	<e739902b0703020821y5d880932re07b74cca44e0b9c@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+On Fri, 2 Mar 2007 08:21:03 -0800
+"Ryan Bradetich" wrote:
+> [NOTE: I will be asking the communities advice on shortly is how to
+> handle busybox.  The problem is that busybox is a single binary that
+> provides the functionality of many binaries (init, login, coreutils,
+> etc).  I am not quite far enough to fully understand the problem, but
+> I am pretty sure it will be a problem.  I will start a different
+> thread on this problem soon.]
+We(people in JSELUG(Japan SELinux Users Group) 
+are extending busybox to assign domain to busybox applets.
+It might be useful for you.
+You can obtain it from
+http://code.google.com/p/sebusybox/source
 
---Apple-Mail-2--764903415
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain;
-	charset=US-ASCII;
-	delsp=yes;
-	format=flowed
+By preparing wrapper program or separting executable,
+you can assign domain to applet,
+but it is not useful.
+We decided to extend busybox to support dynamic domain transition.
 
-Hi,
+In this, "CONFIG_SELINUX_DYNTRANSITION" is prepared.
+It is under "Support NSA Security Enhanced Linux" in menu.
+By enabling this, you can assign domain to applet by dynamic domain transition.
 
-to get aptitude working quite nice a logfile and a lockfile have to  
-be created. The patches attached should allow this. Also aptitude  
-writes to the home directory $HOME/.aptitude where configfiles etc.  
-are in. I tried to learn from the gpg and screen policy files how to  
-handle such a situation (per_role_template) but please look at it and  
-correct any mistakes ;-)
+It can assign entrypoint label to applet, by following syntax.
+In file_contexts file:
+<path to busybox>/<name of applet>  system_u:object_r:<entry point label>
+For example, assume following situation
+* busybox executable is: /usr/bin/busybox
+* applet name is httpd
+* entrypoint label you want to assign is httpd_exec_t
+Then you have to write following in file_contexts
+/usr/bin/busybox/httpd  system_u:object_r:httpd_exec_t
 
-cheers,
-Stefan
+You also need to write domain_auto_trans rule
+and allow some permissions(setcontext, dyntransition) for dynamic domain transition.
+Sample policy is under construction, sorry..
 
+Extended Busybox obtain
+applet's entrypoint label by matchpathcon,  
+decides domain transition by compute_av, and set new domain by setcon.
 
---Apple-Mail-2--764903415
-Content-Transfer-Encoding: 7bit
-Content-Type: application/octet-stream;
-	x-unix-mode=0644;
-	name=apt.fc.patch
-Content-Disposition: attachment;
-	filename=apt.fc.patch
+We are using file_contexts file to label entrypoint.
+However, it has to use /proc/self/exe,
+so before mounting /proc ,it does not work.
 
---- /usr/src/refpolicy-20061212/policy/modules/admin/apt.fc	2006-07-12 22:32:27.000000000 +0200
-+++ policy/modules/admin/apt.fc	2007-03-03 23:59:41.000000000 +0100
-@@ -11,3 +11,11 @@
- # package list repository
- /var/lib/apt(/.*)?			gen_context(system_u:object_r:apt_var_lib_t,s0)
- /var/lib/aptitude(/.*)?		gen_context(system_u:object_r:apt_var_lib_t,s0)
-+
-+# aptitude logfile
-+/var/log/aptitude		--	gen_context(system_u:object_r:apt_log_t,s0)
-+
-+# /home
-+ifdef(`strict_policy',`
-+HOME_DIR/\.aptitude(/.*)?		gen_context(system_u:object_r:ROLE_home_apt_t,s0)
-+')
+We are preparing another patch that does not use file_contexts 
+and uses "busybox_contexts file" to assign entrypoint label.
+I hope we can announce it in near future..
 
---Apple-Mail-2--764903415
-Content-Transfer-Encoding: 7bit
-Content-Type: application/octet-stream;
-	x-unix-mode=0644;
-	name=apt.if.patch
-Content-Disposition: attachment;
-	filename=apt.if.patch
+Documentation is under construction, 
+so please ask us if you have questions.
 
---- /usr/src/refpolicy-20061212/policy/modules/admin/apt.if	2006-12-12 21:08:08.000000000 +0100
-+++ policy/modules/admin/apt.if	2007-03-03 23:39:11.000000000 +0100
-@@ -1,5 +1,67 @@
- ## <summary>APT advanced package toll.</summary>
- 
-+#######################################
-+## <summary>
-+##      The per role template for aptitude.
-+## </summary>
-+## <desc>
-+##      <p>
-+##      This template creates the types and rules for
-+##	aptitude. This protects the configuration files
-+##	for aptitude.
-+##      </p>
-+##      <p>
-+##      This is invoked automatically for each user and
-+##      generally does not need to be invoked directly
-+##      by policy writers.
-+##      </p>
-+## </desc>
-+## <param name="userdomain_prefix">
-+##      <summary>
-+##      The prefix of the user domain (e.g., user
-+##      is the prefix for user_t).
-+##      </summary>
-+## </param>
-+## <param name="userdomain">
-+##      <summary>
-+##      The user domain.
-+##      </summary>
-+## </param>
-+## <param name="role">
-+##      <summary>
-+##      The role associated with the user.
-+##      </summary>
-+## </param>
-+#
-+template(`apt_per_role_template',`
-+        gen_require(`
-+                type apt_t, apt_exec_t, $1_home_dir_t;
-+        ')
-+
-+	########################################
-+	#
-+	# Declarations
-+	#
-+
-+        type $1_apt_t;
-+        domain_type($1_apt_t)
-+        domain_entry_file($1_apt_t,apt_exec_t)
-+	role $3 types $1_apt_t;
-+
-+	type $1_home_apt_t;
-+	files_type($1_home_apt_t)
-+
-+	########################################
-+	#
-+	# APT local policy
-+	#
-+
-+	manage_dirs_pattern(apt_t,$1_home_apt_t,$1_home_apt_t)
-+	manage_files_pattern(apt_t,$1_home_apt_t,$1_home_apt_t)
-+
-+	allow apt_t $1_home_dir_t:dir search;
-+')
-+
- ########################################
- ## <summary>
- ##	Execute apt programs in the apt domain.
+Regards,
+-- 
+Yuichi Nakamura
+Hitachi Software Engineering Co., Ltd.
+SELinux Policy Editor: http://seedit.sourceforge.net/
 
---Apple-Mail-2--764903415
-Content-Transfer-Encoding: 7bit
-Content-Type: application/octet-stream;
-	x-unix-mode=0644;
-	name=apt.te.patch
-Content-Disposition: attachment;
-	filename=apt.te.patch
-
---- /usr/src/refpolicy-20061212/policy/modules/admin/apt.te	2006-12-12 21:08:08.000000000 +0100
-+++ policy/modules/admin/apt.te	2007-02-24 21:26:25.000000000 +0100
-@@ -1,6 +1,10 @@
- 
- policy_module(apt,1.1.0)
- 
-+gen_require(`
-+	type var_log_t;
-+')
-+
- ########################################
- #
- # Declarations
-@@ -26,6 +30,14 @@
- type apt_var_cache_t alias var_cache_apt_t;
- files_type(apt_var_cache_t)
- 
-+# lock file
-+type apt_lock_t;
-+files_lock_file(apt_lock_t)
-+
-+# logfile
-+type apt_log_t;
-+logging_log_file(apt_log_t)
-+
- ########################################
- #
- # apt Local policy
-@@ -46,6 +58,14 @@
- allow apt_t self:msgq create_msgq_perms;
- allow apt_t self:msg { send receive };
- 
-+# lock file access
-+allow apt_t apt_lock_t:file { create_file_perms lock rw_file_perms };
-+files_lock_filetrans(apt_t,apt_lock_t,file)
-+
-+# append to logfile
-+allow apt_t var_log_t:dir search;
-+append_files_pattern(apt_t,apt_log_t,apt_log_t)
-+
- # Access /var/cache/apt files
- manage_files_pattern(apt_t,apt_var_cache_t,apt_var_cache_t)
- files_var_filetrans(apt_t,apt_var_cache_t,dir)
-
---Apple-Mail-2--764903415--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
