@@ -1,102 +1,88 @@
 Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l256UiCe029890
-	for <selinux@tycho.nsa.gov>; Mon, 5 Mar 2007 01:30:44 -0500
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l257CaRX030947
+	for <selinux@tycho.nsa.gov>; Mon, 5 Mar 2007 02:12:36 -0500
 Received: from wr-out-0506.google.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l256W9ce007217
-	for <selinux@tycho.nsa.gov>; Mon, 5 Mar 2007 06:32:10 GMT
-Received: by wr-out-0506.google.com with SMTP id 37so1257907wra
-        for <selinux@tycho.nsa.gov>; Sun, 04 Mar 2007 22:32:07 -0800 (PST)
-Message-ID: <e739902b0703042232n7eccb84esbed5c7c386d59f2b@mail.gmail.com>
-Date: Sun, 4 Mar 2007 22:32:07 -0800
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l257E1ce011622
+	for <selinux@tycho.nsa.gov>; Mon, 5 Mar 2007 07:14:01 GMT
+Received: by wr-out-0506.google.com with SMTP id 37so1268040wra
+        for <selinux@tycho.nsa.gov>; Sun, 04 Mar 2007 23:14:01 -0800 (PST)
+Message-ID: <e739902b0703042314k3195fba9x56eb91ed92ad75f5@mail.gmail.com>
+Date: Sun, 4 Mar 2007 23:14:00 -0800
 From: "Ryan Bradetich" <rbradetich@gmail.com>
-To: "Yuichi Nakamura" <ynakam@hitachisoft.jp>
-Subject: Re: Assgin domain to busybox applet(Re: Failed write to /selinux/context in selinux_trans_to_raw_contex()
+To: russell@coker.com.au
+Subject: Re: Failed write to /selinux/context in selinux_trans_to_raw_contex()
 Cc: "Stephen Smalley" <sds@tycho.nsa.gov>, selinux@tycho.nsa.gov,
-        "Christopher J. PeBenito" <cpebenito@tresys.com>, busybox@kaigai.gr.jp
-In-Reply-To: <20070305092421.c5121997.ynakam@hitachisoft.jp>
+        "Christopher J. PeBenito" <cpebenito@tresys.com>
+In-Reply-To: <200703032140.32482.russell@coker.com.au>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 References: <e739902b0702282357i2f5645bbmab4c04a0bdb1d3f3@mail.gmail.com>
-	 <1172751150.19041.536.camel@moss-spartans.epoch.ncsc.mil>
-	 <e739902b0703010810g64146e59h184dfe13365e16ce@mail.gmail.com>
-	 <1172765760.19041.578.camel@moss-spartans.epoch.ncsc.mil>
-	 <e739902b0703011324y561503a0v49ded6db4b700b8c@mail.gmail.com>
-	 <e739902b0703012254j5b078fckd364da8b8ccfb4ab@mail.gmail.com>
 	 <1172836471.19041.611.camel@moss-spartans.epoch.ncsc.mil>
 	 <e739902b0703020821y5d880932re07b74cca44e0b9c@mail.gmail.com>
-	 <20070305092421.c5121997.ynakam@hitachisoft.jp>
+	 <200703032140.32482.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hello Nakamura-san,
+Hello Russell,
 
-On 3/4/07, Yuichi Nakamura <ynakam@hitachisoft.jp> wrote:
-> On Fri, 2 Mar 2007 08:21:03 -0800
-> We(people in JSELUG(Japan SELinux Users Group)
-> are extending busybox to assign domain to busybox applets.
-> It might be useful for you.
-> You can obtain it from
-> http://code.google.com/p/sebusybox/source
+I read through your OLS-2003 paper Stephen pointed me at.  It was a
+very interesting read and confirmed many of the suspicions I was
+having about busybox while digging deeper into SELinux.  I am also
+interested in reading the proposal Nakamura-san and the Japan SELinux
+User Group has for integrating SELinux into busybox at the applet
+level.
 
-Excellent!  I will grab a copy of this code later this week so I can
-look at it in more detail.   Thanks for the link!
+I believe I have a short-term solution for my busybox problem by
+putting the majority of the system into a common system_t domain
+(users will not have access to a shell on my embedded device).   My
+long term goal is to see a better solution for embedded systems using
+SELinux and Busybox.
 
-> By preparing wrapper program or separting executable,
-> you can assign domain to applet,
-> but it is not useful.
-> We decided to extend busybox to support dynamic domain transition.
+Thanks!
+
+-  Ryan
+
+
+On 3/3/07, Russell Coker <russell@coker.com.au> wrote:
+> On Saturday 03 March 2007 03:21, "Ryan Bradetich" <rbradetich@gmail.com>
+> wrote:
+> > 2. Busybox provides the init functionality,  So I am going to start
+> > evaluating and reviewing the init module and figure out what is needed
+> > to successfully allow the kernel_t domain to transition to the init_t
+> > domain and do the work init busybox init needs to do.
 >
-> In this, "CONFIG_SELINUX_DYNTRANSITION" is prepared.
-> It is under "Support NSA Security Enhanced Linux" in menu.
-> By enabling this, you can assign domain to applet by dynamic domain transition.
+> domain_auto_trans(kernel_t, bin_t, init_t)
 >
-> It can assign entrypoint label to applet, by following syntax.
-> In file_contexts file:
-> <path to busybox>/<name of applet>  system_u:object_r:<entry point label>
-> For example, assume following situation
-> * busybox executable is: /usr/bin/busybox
-> * applet name is httpd
-> * entrypoint label you want to assign is httpd_exec_t
-> Then you have to write following in file_contexts
-> /usr/bin/busybox/httpd  system_u:object_r:httpd_exec_t
+> Not something we want for general-purpose desktop and server machines but
+> should be fine for embedded systems.
 >
-> You also need to write domain_auto_trans rule
-> and allow some permissions(setcontext, dyntransition) for dynamic domain transition.
-> Sample policy is under construction, sorry..
+> > [NOTE: I will be asking the communities advice on shortly is how to
+> > handle busybox.  The problem is that busybox is a single binary that
+> > provides the functionality of many binaries (init, login, coreutils,
+> > etc).  I am not quite far enough to fully understand the problem, but
+> > I am pretty sure it will be a problem.  I will start a different
+> > thread on this problem soon.]
 >
-> Extended Busybox obtain
-> applet's entrypoint label by matchpathcon,
-> decides domain transition by compute_av, and set new domain by setcon.
+> My conclusion after trying some of the other options is that the best thing to
+> do is to divide busybox into several programs for different tasks.  So have
+> one executable for programs that don't have domain transitions (ls, cp,
+> etc) - you could include init in this as the kernel shouldn't be executing
+> bin_t for anything else.
 >
-> We are using file_contexts file to label entrypoint.
-> However, it has to use /proc/self/exe,
-> so before mounting /proc ,it does not work.
+> Then have one executable for login and getty (which will require a minor
+> change to policy), one for klogd and syslogd (the policy option for syslog-ng
+> should make that work), one for ifconfig and related sys-admin tools, one for
+> ping and related privileged programs that users may run, etc.
 >
-> We are preparing another patch that does not use file_contexts
-> and uses "busybox_contexts file" to assign entrypoint label.
-> I hope we can announce it in near future..
-
-Sounds interesting, Looking forward to your announcement!
-
-> Documentation is under construction,
-> so please ask us if you have questions.
-
-Will do.  Thanks for the pointers to your work!
-
-- Ryan
-
-
-> Regards,
-> --
-> Yuichi Nakamura
-> Hitachi Software Engineering Co., Ltd.
-> SELinux Policy Editor: http://seedit.sourceforge.net/
->
+> Having 3-4 busybox executables that each have subsets of the busybox
+> functionality should not cause a significant overhead if you are dynamically
+> linking busybox (as is done on Familiar).
 >
 > --
-> This message was distributed to subscribers of the selinux mailing list.
-> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
-> the words "unsubscribe selinux" without quotes as the message.
+> russell@coker.com.au
+> http://etbe.blogspot.com/          My Blog
+>
+> http://www.coker.com.au/sponsorship.html Sponsoring Free Software development
 >
 
 --
