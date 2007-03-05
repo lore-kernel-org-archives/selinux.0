@@ -1,250 +1,227 @@
 Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l25CUJM0007168
-	for <selinux@tycho.nsa.gov>; Mon, 5 Mar 2007 07:30:19 -0500
-Received: from py-out-1112.google.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l25CViFQ018769
-	for <selinux@tycho.nsa.gov>; Mon, 5 Mar 2007 12:31:44 GMT
-Received: by py-out-1112.google.com with SMTP id a78so938233pyh
-        for <selinux@tycho.nsa.gov>; Mon, 05 Mar 2007 04:31:42 -0800 (PST)
-Message-ID: <45EC0D21.2070706@kaigai.gr.jp>
-Date: Mon, 05 Mar 2007 21:29:21 +0900
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l25EgGPi011875
+	for <selinux@tycho.nsa.gov>; Mon, 5 Mar 2007 09:42:16 -0500
+Received: from wx-out-0506.google.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l25EhfFQ009384
+	for <selinux@tycho.nsa.gov>; Mon, 5 Mar 2007 14:43:41 GMT
+Received: by wx-out-0506.google.com with SMTP id s17so1822715wxc
+        for <selinux@tycho.nsa.gov>; Mon, 05 Mar 2007 06:43:41 -0800 (PST)
+Message-ID: <45EC2C10.6050603@kaigai.gr.jp>
+Date: Mon, 05 Mar 2007 23:41:20 +0900
 From: KaiGai Kohei <kaigai@kaigai.gr.jp>
 MIME-Version: 1.0
 To: selinux@tycho.nsa.gov
-Subject: [ANN] SE-PostgreSQL 8.2.3-1.0 alpha release
-Content-Type: text/plain; charset=ISO-2022-JP
+CC: cpebenito@tresys.com
+Subject: Re: [ANN] SE-PostgreSQL 8.2.3-1.0 alpha release
+References: <45EC0D21.2070706@kaigai.gr.jp>
+In-Reply-To: <45EC0D21.2070706@kaigai.gr.jp>
+Content-Type: multipart/mixed;
+ boundary="------------010509040709020800040501"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-SE-PostgreSQL 8.2.3-1.0 alpha was released as follows.
+This is a multi-part message in MIME format.
+--------------010509040709020800040501
+Content-Type: text/plain; charset=ISO-2022-JP
+Content-Transfer-Encoding: 7bit
 
-The purpose of this version is to get any feedback from the open source
-community like requirements, your opinion, bug reports and so on.
-The developer welcomes anything to improve.
+Hello,
 
-======================================================================
-Security Enhanced PostgreSQL 8.2.3-1.0 alpha release
-======================================================================
+The attached patch adds new object classes, access vectors and
+booleans related to database.
+SE-PostgreSQL uses them to manage the various kinds of database
+objects such as tables, columns, tuples and so on.
 
-Security Enhanced PostgreSQL (SE-PostgreSQL) is an extension of PostgreSQL,
-provides fine grained mandatory access control based on the interaction
-with SELinux and its security policy.
-Those facilities of SE-PostgreSQL enables to build RDBMS into information
-flow control scheme integrated with operating system, and protects your
-information asset from threats like leaking, defacing and so on.
+The most of security policies are provided as a binary security
+policy within RPM package. But it requires the definition of new
+object classes, access vectors and booleans in the base policy.
 
-* Fine grained access control
-SE-PostgreSQL enables access control onto row and column level.
-The native PostgreSQL access control list does not provide any access
-control onto database objects less than table, so SE-PostgreSQL enables
-DBA to setup finer-grained and flexible access control.
+Please apply it.
 
-* Mandatory access control
-An access control mechanism provided by SE-PostgreSQL is applied to any
-SQL queries including the ones come from privileged database users.
-So, SE-PostgreSQL works as a userspace reference monitor.
-
-* Interaction between SELinux and SE-PostgreSQL
-An access control mechanism provided by SE-PostgreSQL makes its decision
-based on the security policy of SELinux. The database client's authority
-is determined by the security context of the peer process.
-
-(*) The purpose of this version of SE-PostgreSQL is to get any feedback
-    from the open source community like requirements and bug-reports.
-    Thus, you should pay attention about what we have not verified enough
-    quality of the code yet.
-
-(*) The development of this software is under the assist of Exploratory
-    Software Project (second half of 2006), IPA Japan.
-
-
-======================================================================
-[Installation]
-You can set up SE-PostgreSQL on Fedora Core 6 system, SELinux installed.
-Get RPM packages from the following URL:
-  http://code.google.com/p/sepgsql/downloads/list
-    selinux-policy-2.4.6-40.sepgsql.noarch.rpm
-    selinux-policy-targeted-2.4.6-40.sepgsql.noarch.rpm
-    sepostgresql-8.2.3-0.206a.i386.rpm
-
-Install the selinux-policy and the selinux-policy-targeted package at first,
-and the sepostgresql package next.
-The default security policy of SE-PostgreSQL is also installed when
-the sepostgresql package is installed.
-(*) If you use 'psql' as a front-end, postgresql and postgresql-libs packages
-    are necessary.
-
-Run the following script to initialize the database cluster:
-
-  # /etc/init.d/sepostgresql initdb
-
-The database cluster is generated under /var/lib/sepgsql/data .
-
-Run the following script to start up SE-PostgreSQL server, after you
-confirm the native PostgreSQL server is stopping.
-
-  # /etc/init.d/sepostgresql start
-
-The database cluster is initialized by 'sepgsql' user.
-You can translate 'sepgsql' user via 'su' command to create database,
-database role and so on.
-  [example]
-  # su - sepgsql
-  $ createuser kaigai
-  Shall the new role be a superuser? (y/n) y
-  CREATE ROLE
-  $ createdb kaigaidb
-  CREATE DATABASE
-  $
-
-======================================================================
-[A sample database for playing]
-
-CREATE TABLE drink (
-    did     integer primary key,
-    dname   text,
-    dprice  integer,
-    dsoft   bool,
-    dstock  integer
-);
-
-ALTER TABLE drink ALTER dstock
-    context = 'user_u:object_r:sepgsql_secret_table_t';
-
-INSERT INTO drink VALUES (1, 'juice', 110, true,  35);
-INSERT INTO drink VALUES (2, 'coke',  110, true,  20);
-INSERT INTO drink VALUES (3, 'milk',  130, true,   5);
-INSERT INTO drink VALUES (4, 'water', 100, true,  10);
-INSERT INTO drink VALUES (5, 'beer',  240, false, 15);
-INSERT INTO drink VALUES (6, 'wine',  380, false,  0);
-
-UPDATE drink SET security_context = 'user_u:object_r:sepgsql_table_t:SystemHigh'
-    where dsoft = false;
-
-create or replace function drink_stock_exist (integer)
-    returns bool
-    language 'sql'
-    as 'select dstock > 0 from drink where did = $1';
-
-ALTER FUNCTION drink_stock_exist(integer)
-    context = 'user_u:object_r:sepgsql_trusted_proc_t';
-
-
-======================================================================
-[A example of SQL execution]
-
-$ id -Z
-root:system_r:unconfined_t:SystemLow-SystemHigh
-$ psql -q
-kaigai=# select sepgsql_getcon();
-                 sepgsql_getcon
--------------------------------------------------
- root:system_r:unconfined_t:SystemLow-SystemHigh
-(1 row)
-
-kaigai=# select * from drink;
- did | dname | dprice | dsoft | dstock
------+-------+--------+-------+--------
-   1 | juice |    110 | t     |     35
-   2 | coke  |    110 | t     |     20
-   3 | milk  |    130 | t     |      5
-   4 | water |    100 | t     |     10
-   5 | beer  |    240 | f     |     15
-   6 | wine  |    380 | f     |      0
-(6 rows)
-
-## The security context of each tuples are stored in 'security_context'
-## system column.
-kaigai=# select security_context,* from drink;
-        security_context         | did | dname | dprice | dsoft | dstock
----------------------------------+-----+-------+--------+-------+--------
- user_u:object_r:sepgsql_table_t |   1 | juice |    110 | t     |     35
- user_u:object_r:sepgsql_table_t |   2 | coke  |    110 | t     |     20
- user_u:object_r:sepgsql_table_t |   3 | milk  |    130 | t     |      5
- user_u:object_r:sepgsql_table_t |   4 | water |    100 | t     |     10
- user_u:object_r:sepgsql_table_t |   5 | beer  |    240 | f     |     15
- user_u:object_r:sepgsql_table_t |   6 | wine  |    380 | f     |      0
-(6 rows)
-
-kaigai=#
-
-## A example of execution under lower authority:
-## The two tuples which have 'SystemHigh' were filtered.
-
-$ runcon -l s0 -- bash
-$ id -Z
-root:system_r:unconfined_t
-$ psql -q
-kaigai=# select sepgsql_getcon();
-       sepgsql_getcon
-----------------------------
- root:system_r:unconfined_t
-(1 row)
-
-kaigai=# select * from drink;
-NOTICE:  SELinux: denied { select } scontext=root:system_r:unconfined_t tcontext=user_u:object_r:sepgsql_table_t:SystemHigh tclass=tuple
-NOTICE:  SELinux: denied { select } scontext=root:system_r:unconfined_t tcontext=user_u:object_r:sepgsql_table_t:SystemHigh tclass=tuple
- did | dname | dprice | dsoft | dstock
------+-------+--------+-------+--------
-   1 | juice |    110 | t     |     35
-   2 | coke  |    110 | t     |     20
-   3 | milk  |    130 | t     |      5
-   4 | water |    100 | t     |     10
-(4 rows)
-
-kaigai=#
-$ exit
-
-## We tried to connect from a domain which cannot access 'sepgsql_secret_table_t'
-
-$ runcon -t initrc_t -- bash
-$ id -Z
-root:system_r:initrc_t:SystemLow-SystemHigh
-$ psql -q
-kaigai=# select * from drink;
-ERROR:  SELinux: denied { select } scontext=root:system_r:initrc_t:SystemLow-SystemHigh tcontext=user_u:object_r:sepgsql_secret_table_t tclass=column name=dstock
-
-## The client in initrc_t domain cannot access dstock column which has
-## sepgsql_table_t type, but we cann access the column via trusted
-## procedure only.
-
-kaigai=# select did, dname, dprice, drink_stock_exist(did) from drink;
- did | dname | dprice | drink_stock_exist
------+-------+--------+-------------------
-   1 | juice |    110 | t
-   2 | coke  |    110 | t
-   3 | milk  |    130 | t
-   4 | water |    100 | t
-   5 | beer  |    240 | t
-   6 | wine  |    380 | f
-(6 rows)
-
-kaigai=#
-
-======================================================================
-[Hint]
-* There is no compatibility between SE-PostgreSQL and PostgreSQL.
-  You have to pay attention not to destroy your database files
-  for native PostgreSQL.
-
-* You can enable/disable access allowed/denied messages by using
-  boolean stuff of SELinux. Set the following booleans by setsebool
-  command.
-      sepgsql_enable_auditallow
-      sepgsql_enable_auditdeny
-      sepgsql_enable_audittuple
-
-* initrc_t is defined as a less power domain for test purpose.
-  We cannot use DDL statement from initrc_t domain, and cannot
-  access tables, columns and tuples with sepgsql_secret_table_t
-  type.
-
-* The security policy for SE-PostgreSQL under the strict policy is now
-  under development. You have to switch to the targeted policy, if you
-  try to use this version.
-
+BTW, SE-PostgreSQL does 'semodule -i' in the %post section of RPM
+installation script after a verification whether an older version
+of sepostgresql.pp has been already installed, or not.
+I think the description of script can become easier, if semodule
+has 'install or upgrade if older version was installed' option.
+How is the idea?
 -- 
 KaiGai Kohei <kaigai@kaigai.gr.jp>
+
+--------------010509040709020800040501
+Content-Type: text/x-patch;
+ name="policy-sepgsql.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="policy-sepgsql.patch"
+
+Index: refpolicy/policy/flask/security_classes
+===================================================================
+--- refpolicy/policy/flask/security_classes	(revision 2204)
++++ refpolicy/policy/flask/security_classes	(working copy)
+@@ -97,4 +97,12 @@
+ 
+ class dccp_socket
+ 
++# SE-PostgreSQL relation
++class database			# userspace
++class table			# userspace
++class procedure			# userspace
++class column			# userspace
++class tuple			# userspace
++class blob			# userspace
++
+ # FLASK
+Index: refpolicy/policy/flask/access_vectors
+===================================================================
+--- refpolicy/policy/flask/access_vectors	(revision 2204)
++++ refpolicy/policy/flask/access_vectors	(working copy)
+@@ -80,6 +80,20 @@
+ }
+ 
+ #
++#  Define a common prefix for userspace database object access vectors.
++#
++
++common database
++{
++	create
++	drop
++	getattr
++	setattr
++	relabelfrom
++	relabelto
++}
++
++#
+ # Define the access vectors.
+ #
+ # class class_name [ inherits common_name ] { permission_name ... }
+@@ -648,3 +662,58 @@
+ 	node_bind
+ 	name_connect
+ }
++
++# definition for SE-PostgreSQL
++class database
++inherits database
++{
++	access
++	install_module
++	load_module
++	get_param
++	set_param
++}
++
++class table
++inherits database
++{
++	select
++	update
++	insert
++	delete
++	lock
++}
++
++class procedure
++inherits database
++{
++	execute
++	entrypoint
++}
++
++class column
++inherits database
++{
++	select
++	update
++	insert
++}
++
++class tuple
++{
++	relabelfrom
++	relabelto
++	select
++	update
++	insert
++	delete
++}
++
++class blob
++inherits database
++{
++	read
++	write
++	import
++	export
++}
+Index: refpolicy/policy/mcs
+===================================================================
+--- refpolicy/policy/mcs	(revision 2204)
++++ refpolicy/policy/mcs	(working copy)
+@@ -98,4 +98,28 @@
+ mlsconstrain process { sigkill sigstop }
+ 	(( h1 dom h2 ) or ( t1 == mcskillall ));
+ 
++# MCS policy for SE-PostgreSQL
++#-------------------------------
++
++# Any database object must be dominated by the relabeling subject
++# clearance, also the objects are single-level.
++mlsconstrain { database table procedure column blob } { create relabelto }
++	((h1 dom h2) and ( l1 domby h2 ) and ( l2 eq h2 ));
++mlsconstrain tuple { insert relabelto }
++	(( h1 dom h2 ) and ( l1 domby h2 ) and ( l2 eq h2 ));
++
++# Access control for any database objects based on MCS rules.
++mlsconstrain database { drop setattr relabelfrom access install_module load_module get_param set_param }
++	( h1 dom h2 );
++mlsconstrain table { drop setattr relabelfrom select update insert delete }
++	( h1 dom h2 );
++mlsconstrain column { drop setattr relabelfrom select update insert }
++	( h1 dom h2 );
++mlsconstrain tuple { relabelfrom select update delete }
++	( h1 dom h2 );
++mlsconstrain procedure { execute }
++	( h1 dom h2 );
++mlsconstrain blob { drop setattr relabelfrom read write }
++	( h1 dom h2 );
++
+ ') dnl end enable_mcs
+Index: refpolicy/policy/global_tunables
+===================================================================
+--- refpolicy/policy/global_tunables	(revision 2204)
++++ refpolicy/policy/global_tunables	(working copy)
+@@ -11,6 +11,27 @@
+ 
+ ## <desc>
+ ## <p>
++## Enable to output SE-PostgreSQL allowed audit message
++## </p>
++## </desc>
++gen_tunable(sepgsql_enable_auditallow, false)
++
++## <desc>
++## <p>
++## Disable to output SE-PostgreSQL denied audit messages
++## </p>
++## </desc>
++gen_tunable(sepgsql_enable_auditdeny, true)
++
++## <desc>
++## <p>
++## Disable to output SE-PostgreSQL audit message per tuple
++## </p>
++## </desc>
++gen_tunable(sepgsql_enable_audittuple, false)
++
++## <desc>
++## <p>
+ ## Allow cvs daemon to read shadow
+ ## </p>
+ ## </desc>
+
+--------------010509040709020800040501--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
