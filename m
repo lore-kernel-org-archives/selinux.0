@@ -1,45 +1,44 @@
-Subject: Re: Question about the process : share permission.
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Ryan Bradetich <rbradetich@gmail.com>
-Cc: selinux@tycho.nsa.gov
-In-Reply-To: <e739902b0703060815m5bbe83bdsed886eafe6dac00d@mail.gmail.com>
-References: <e739902b0703060815m5bbe83bdsed886eafe6dac00d@mail.gmail.com>
-Content-Type: text/plain
-Date: Tue, 06 Mar 2007 11:34:33 -0500
-Message-Id: <1173198873.15967.142.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l26GcV5d005682
+	for <selinux@tycho.nsa.gov>; Tue, 6 Mar 2007 11:38:31 -0500
+Received: from exchange.columbia.tresys.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with SMTP id l26Gdvxq018148
+	for <selinux@tycho.nsa.gov>; Tue, 6 Mar 2007 16:39:57 GMT
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Subject: Re: ccs attempts to ptrace itself (Probably killall)
+Date: Tue, 6 Mar 2007 11:40:19 -0500
+Message-ID: <1173199219.917.4.camel@sgc>
+In-Reply-To: <200702261713.l1QHDG17030544@localhost.localdomain>
+References: <200702261713.l1QHDG17030544@localhost.localdomain>
+From: "Christopher J. PeBenito" <cpebenito@tresys.com>
+To: <dwalsh@localhost.localdomain>
+Cc: <selinux@tycho.nsa.gov>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2007-03-06 at 08:15 -0800, Ryan Bradetich wrote:
-> Hello all,
-> 
-> I am trying to understand what the process : share permission does.
-> In the SELinux by example book, it says the process : share permission
-> allows state sharing with cloned or forked processes.
-> 
-> I looked looked through the refpolicy tree and only found one instance
-> of the process : share permission, it is in the kernel_share_state
-> interface.   This interface is only called by the system/init module.
-> 
-> At first I thought this permission had to do with shared libraries
-> and/or forking processes, but I see there is also a process : fork
-> permission and there is a libs_use_shared_libs interface function to
-> allow the loading and execution of shared libraries.
-> 
-> I am just curious to understand what the process : share permission
-> allows/prevents.
+On Mon, 2007-02-26 at 12:13 -0500, dwalsh@localhost.localdomain wrote:
+> ===File /tmp/patches/nsaserefpolicy_policy_modules_services_ccs.te===
+> --- nsaserefpolicy/policy/modules/services/ccs.te	2007-02-19 11:32:53.000000000 -0500
+> +++ serefpolicy-2.5.5/policy/modules/services/ccs.te	2007-02-26 11:02:34.000000000 -0500
+> @@ -33,6 +33,7 @@
+>  
+>  allow ccs_t self:capability { ipc_lock sys_nice sys_resource sys_admin };
+>  allow ccs_t self:process { signal setrlimit setsched };
+> +dontaudit ccs_t self:process ptrace;
+>  allow ccs_t self:fifo_file { read write };
+>  allow ccs_t self:unix_stream_socket { connectto create_stream_socket_perms };
+>  allow ccs_t self:unix_dgram_socket create_socket_perms;
+> ============================================================
 
-If you call clone() with certain flags (e.g. CLONE_FS, CLONE_FILES) to
-cause sharing of certain portions of the task state and then perform a
-context-changing execve, then the process share permission is checked
-between the old and new contexts.  This is generally unsafe, as it
-allows the caller to influence/control the callee.  It happens naturally
-when the kernel starts init, which is why it is allowed there.
+Merged.
 
 -- 
-Stephen Smalley
-National Security Agency
+Chris PeBenito
+Tresys Technology, LLC
+(410) 290-1411 x150
+
 
 
 --
