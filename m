@@ -1,112 +1,76 @@
 Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l26IgEHH012367
-	for <selinux@tycho.nsa.gov>; Tue, 6 Mar 2007 13:42:14 -0500
-Received: from mx1.redhat.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l26Ihexq012886
-	for <selinux@tycho.nsa.gov>; Tue, 6 Mar 2007 18:43:40 GMT
-Message-ID: <45EDB652.90306@redhat.com>
-Date: Tue, 06 Mar 2007 13:43:30 -0500
-From: Daniel J Walsh <dwalsh@redhat.com>
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l26J6ul7013522
+	for <selinux@tycho.nsa.gov>; Tue, 6 Mar 2007 14:06:56 -0500
+Received: from wx-out-0506.google.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l26J8Mxq017695
+	for <selinux@tycho.nsa.gov>; Tue, 6 Mar 2007 19:08:23 GMT
+Received: by wx-out-0506.google.com with SMTP id s17so2401409wxc
+        for <selinux@tycho.nsa.gov>; Tue, 06 Mar 2007 11:08:22 -0800 (PST)
+Message-ID: <45EDBB95.50703@kaigai.gr.jp>
+Date: Wed, 07 Mar 2007 04:05:57 +0900
+From: KaiGai Kohei <kaigai@kaigai.gr.jp>
 MIME-Version: 1.0
-To: "Christopher J. PeBenito" <cpebenito@tresys.com>
+To: russell@coker.com.au
 CC: selinux@tycho.nsa.gov
-Subject: Re: Don't audit restart of nscd daemon in strict policy
-References: <200702261729.l1QHTPdT030641@localhost.localdomain> <1173196621.917.0.camel@sgc>
-In-Reply-To: <1173196621.917.0.camel@sgc>
-Content-Type: multipart/mixed;
- boundary="------------080501080205070607030503"
+Subject: Re: [ANN] SE-PostgreSQL 8.2.3-1.0 alpha release
+References: <45EC0D21.2070706@kaigai.gr.jp> <200703062034.24993.russell@coker.com.au>
+In-Reply-To: <200703062034.24993.russell@coker.com.au>
+Content-Type: text/plain; charset=ISO-2022-JP
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This is a multi-part message in MIME format.
---------------080501080205070607030503
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+>> Run the following script to initialize the database cluster:
+>>
+>>   # /etc/init.d/sepostgresql initdb
+>>
+>> The database cluster is generated under /var/lib/sepgsql/data .
+> 
+> Why do you have a different name and different database location?  Why not 
+> just call it postgresql and have the same locations and script names?
+> 
+> When I make such releases I just use a newer package version.
 
-Christopher J. PeBenito wrote:
-> On Mon, 2007-02-26 at 12:29 -0500, dwalsh@localhost.localdomain wrote:
->   
->> ===File /tmp/patches/done/nsaserefpolicy_policy_modules_services_nscd.patch===
->> --- nsaserefpolicy/policy/modules/services/nscd.te	2007-02-19 11:32:53.000000000 -0500
->> +++ serefpolicy-2.5.5/policy/modules/services/nscd.te	2007-02-26 11:02:34.000000000 -0500
->> @@ -117,6 +117,9 @@
->>  	term_dontaudit_use_unallocated_ttys(nscd_t)
->>  	term_dontaudit_use_generic_ptys(nscd_t)
->>  	files_dontaudit_read_root_files(nscd_t)
->> +',`
->> +	userdom_dontaudit_use_sysadm_ttys(nscd_t)
->> +	userdom_dontaudit_use_sysadm_ptys(nscd_t)
->>  ')
->>  
->>  optional_policy(`
->>     
+The same package name or the same database location means that users have
+to uninstall the native PostgreSQL. I thought that users can avoid conflict
+is better.
+
+>> Run the following script to start up SE-PostgreSQL server, after you
+>> confirm the native PostgreSQL server is stopping.
+>>
+>>   # /etc/init.d/sepostgresql start
+> 
+> Why must you confirm that the native postgresql server is stopped?  Is it a 
+> matter of ports and named pipes for communication with clients?  If you can 
+> have both packages installed at the same time then some people will want to 
+> run them both at once.
+
+The purpose is to avoid conflict of tcp/5432 port in the most simple way.
+If you want to use both package at same time, alternative tcp port should be
+written at /etc/sysconfig/sepostgresql .
+
+>> * There is no compatibility between SE-PostgreSQL and PostgreSQL.
+>>   You have to pay attention not to destroy your database files
+>>   for native PostgreSQL.
+> 
+> Have you considered enabling "permissive mode" for the database server such 
+> that it can run with unlabeled databases?
 >
-> This should go with a run interface, then you get the transition, the
-> role and these dontaudits.
->
->   
-Ok how about this one.
+> Why can't "native PostgreSQL" just ignore the labelling?
 
---------------080501080205070607030503
-Content-Type: text/x-patch;
- name="nscd.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="nscd.patch"
+We have to store a security context of tuple in anywhere, so modifying the file
+format was not avoidable. The storage manager of PostgreSQL cannot handle different
+file formats, so SE-PostgreSQL cannot run over the unlabeled databased generated
+by native PostgreSQL.
 
---- nsaserefpolicy/policy/modules/services/nscd.if	2007-01-02 12:57:43.000000000 -0500
-+++ serefpolicy-2.5.8/policy/modules/services/nscd.if	2007-03-06 13:33:06.000000000 -0500
-@@ -173,3 +173,35 @@
- 
- 	allow $1 nscd_t:nscd *;
- ')
-+
-+########################################
-+## <summary>
-+##	Execute nscd in the nscd domain, and
-+##	allow the specified role the nscd domain.
-+## </summary>
-+## <param name="domain">
-+##	<summary>
-+##	The type of the process performing this action.
-+##	</summary>
-+## </param>
-+## <param name="role">
-+##	<summary>
-+##	The role to be allowed the nscd domain.
-+##	</summary>
-+## </param>
-+## <param name="terminal">
-+##	<summary>
-+##	The type of the terminal allow the nscd domain to use.
-+##	</summary>
-+## </param>
-+#
-+interface(`nscd_run',`
-+	gen_require(`
-+		type nscd_t;
-+	')
-+
-+	nscd_domtrans($1)
-+	role $2 types nscd_t;
-+	dontaudit nscd_t $3:chr_file rw_term_perms;
-+')
-+
---- nsaserefpolicy/policy/modules/system/userdomain.te	2007-02-19 11:32:53.000000000 -0500
-+++ serefpolicy-2.5.8/policy/modules/system/userdomain.te	2007-03-06 13:33:25.000000000 -0500
-@@ -423,6 +438,10 @@
- 	')
- 
- 	optional_policy(`
-+		nscd_run(sysadm_t,sysadm_r,admin_terminal)
-+	')
-+
-+	optional_policy(`
- 		usermanage_run_admin_passwd(sysadm_t,sysadm_r,admin_terminal)
- 		usermanage_run_groupadd(sysadm_t,sysadm_r,admin_terminal)
- 		usermanage_run_useradd(sysadm_t,sysadm_r,admin_terminal)
+It might be possible, but I expect more hooks to the PostgreSQL is necessary.
+It will prevent to follow the version-up of native one.
 
---------------080501080205070607030503--
+Thanks,
+
+> I think it would be good if all the compatibility options that are available 
+> for ext2/3 were available for databases.
+-- 
+KaiGai Kohei <kaigai@kaigai.gr.jp>
 
 --
 This message was distributed to subscribers of the selinux mailing list.
