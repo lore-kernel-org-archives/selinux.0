@@ -1,19 +1,20 @@
 Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l26FtqfK003664
-	for <selinux@tycho.nsa.gov>; Tue, 6 Mar 2007 10:55:52 -0500
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l26Ftp8l003643
+	for <selinux@tycho.nsa.gov>; Tue, 6 Mar 2007 10:55:51 -0500
 Received: from exchange.columbia.tresys.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with SMTP id l26FvHFA009719
-	for <selinux@tycho.nsa.gov>; Tue, 6 Mar 2007 15:57:19 GMT
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with SMTP id l26FvHF8009719
+	for <selinux@tycho.nsa.gov>; Tue, 6 Mar 2007 15:57:17 GMT
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Subject: Re: Don't audit restart of nscd daemon in strict policy
-From: "Christopher J. PeBenito" <cpebenito@tresys.com>
-To: dwalsh@localhost.localdomain
-Cc: selinux@tycho.nsa.gov
+Date: Tue, 6 Mar 2007 10:56:56 -0500
+Message-ID: <1173195747.31976.0.camel@sgc>
 In-Reply-To: <200702261729.l1QHTPdT030641@localhost.localdomain>
 References: <200702261729.l1QHTPdT030641@localhost.localdomain>
-Content-Type: text/plain
-Date: Tue, 06 Mar 2007 10:57:01 -0500
-Message-Id: <1173196621.917.0.camel@sgc>
-Mime-Version: 1.0
+From: "Christopher J. PeBenito" <cpebenito@tresys.com>
+To: <dwalsh@localhost.localdomain>
+Cc: <selinux@tycho.nsa.gov>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
@@ -32,13 +33,14 @@ On Mon, 2007-02-26 at 12:29 -0500, dwalsh@localhost.localdomain wrote:
 >  
 >  optional_policy(`
 
-This should go with a run interface, then you get the transition, the
-role and these dontaudits.
+This should go with a run interface.  Then you can get the transition,
+the role, and dontaudit the terminals.
 
 -- 
 Chris PeBenito
 Tresys Technology, LLC
 (410) 290-1411 x150
+
 
 
 --
