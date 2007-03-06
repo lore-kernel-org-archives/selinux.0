@@ -1,54 +1,74 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l269Vl8U019913
-	for <selinux@tycho.nsa.gov>; Tue, 6 Mar 2007 04:31:47 -0500
-Received: from moutng.kundenserver.de (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l269XC5I003291
-	for <selinux@tycho.nsa.gov>; Tue, 6 Mar 2007 09:33:13 GMT
-Mime-Version: 1.0 (Apple Message framework v752.2)
-Message-Id: <D043357D-5AD2-4C8E-8282-63E4045EF0F4@sf-net.com>
-Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
-To: SELinux List <selinux@tycho.nsa.gov>
-From: Stefan Schulze Frielinghaus <stefan@sf-net.com>
-Subject: AVC denials debug
-Date: Tue, 6 Mar 2007 10:33:00 +0100
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l26AoB3Y022669
+	for <selinux@tycho.nsa.gov>; Tue, 6 Mar 2007 05:50:11 -0500
+Received: from smtp.sws.net.au (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id l26ApYOM025824
+	for <selinux@tycho.nsa.gov>; Tue, 6 Mar 2007 10:51:35 GMT
+From: Russell Coker <russell@coker.com.au>
+Reply-To: russell@coker.com.au
+To: KaiGai Kohei <kaigai@kaigai.gr.jp>
+Subject: Re: [ANN] SE-PostgreSQL 8.2.3-1.0 alpha release
+Date: Tue, 6 Mar 2007 20:34:23 +1100
+Cc: selinux@tycho.nsa.gov
+References: <45EC0D21.2070706@kaigai.gr.jp>
+In-Reply-To: <45EC0D21.2070706@kaigai.gr.jp>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-2022-jp"
+Message-Id: <200703062034.24993.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hi,
+On Monday 05 March 2007 23:29, KaiGai Kohei <kaigai@kaigai.gr.jp> wrote:
+> SE-PostgreSQL 8.2.3-1.0 alpha was released as follows.
 
-often when I try to create a new policy I have to execute the program  
-a thousand times and examine the avc denials. There is one nasty  
-problem if you execute the command three times behind the other you  
-will only get avc denials for running the program the second time. I  
-believe this is the wanted behaviour of the avc chache, isn't it?
+Congratulations on making this release, this is great work and a significant 
+milestone in SE Linux development!
 
-A quote from "SELinux by example":
-"The AVC chaches decisions made by the security server for subsequent  
-access checks ...."
-.....
-"The AVC is invalidated when a policy is loaded,...."
+> Get RPM packages from the following URL:
+>   http://code.google.com/p/sepgsql/downloads/list
+>     selinux-policy-2.4.6-40.sepgsql.noarch.rpm
+>     selinux-policy-targeted-2.4.6-40.sepgsql.noarch.rpm
+>     sepostgresql-8.2.3-0.206a.i386.rpm
+>
+> Run the following script to initialize the database cluster:
+>
+>   # /etc/init.d/sepostgresql initdb
+>
+> The database cluster is generated under /var/lib/sepgsql/data .
 
-This is exactly the behaviour I recognized everytime when I loaded  
-the policy again and run the command I received "new" AVC denial.
+Why do you have a different name and different database location?  Why not 
+just call it postgresql and have the same locations and script names?
 
-So my question is how can I clean the AVC cache manually not only by  
-loading a new policy?
+When I make such releases I just use a newer package version.
 
+> Run the following script to start up SE-PostgreSQL server, after you
+> confirm the native PostgreSQL server is stopping.
+>
+>   # /etc/init.d/sepostgresql start
 
+Why must you confirm that the native postgresql server is stopped?  Is it a 
+matter of ports and named pipes for communication with clients?  If you can 
+have both packages installed at the same time then some people will want to 
+run them both at once.
 
-Another question is there something out to suppress the dontaudit  
-statements? I tried to run a CGI script in the httpd_$1_script_t  
-domain type. The script is rejected with a "Internal Server Error"  
-when SELinux is enforcing. There are no avc denials created!
-So I believe there are some dontaudit statements I didn't cache. At  
-the Tresys webside there is already a bug filled (#34) which  
-addresses this issue (enableaudit). At the moment is there a dirty  
-hack or something similar which could help me to find out the rules  
-my policy still needs?
+> * There is no compatibility between SE-PostgreSQL and PostgreSQL.
+>   You have to pay attention not to destroy your database files
+>   for native PostgreSQL.
 
+Have you considered enabling "permissive mode" for the database server such 
+that it can run with unlabeled databases?
 
-Regards,
-Stefan
+Why can't "native PostgreSQL" just ignore the labelling?
+
+I think it would be good if all the compatibility options that are available 
+for ext2/3 were available for databases.
+
+-- 
+russell@coker.com.au
+http://etbe.blogspot.com/          My Blog
+
+http://www.coker.com.au/sponsorship.html Sponsoring Free Software development
 
 --
 This message was distributed to subscribers of the selinux mailing list.
