@@ -1,50 +1,46 @@
 Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l26EKxw8030840
-	for <selinux@tycho.nsa.gov>; Tue, 6 Mar 2007 09:20:59 -0500
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l26ELeMY030873
+	for <selinux@tycho.nsa.gov>; Tue, 6 Mar 2007 09:21:40 -0500
 Received: from exchange.columbia.tresys.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with SMTP id l26EMQF8019040
-	for <selinux@tycho.nsa.gov>; Tue, 6 Mar 2007 14:22:26 GMT
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Subject: Re: lvm changes to policy
-Date: Tue, 6 Mar 2007 09:22:45 -0500
-Message-ID: <1173190965.15853.10.camel@sgc>
-In-Reply-To: <200702261803.l1QI3Zbe030851@localhost.localdomain>
-References: <200702261803.l1QI3Zbe030851@localhost.localdomain>
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with SMTP id l26EN6F8019156
+	for <selinux@tycho.nsa.gov>; Tue, 6 Mar 2007 14:23:06 GMT
+Subject: Re: ricci changes in policy
 From: "Christopher J. PeBenito" <cpebenito@tresys.com>
-To: <dwalsh@localhost.localdomain>
-Cc: <selinux@tycho.nsa.gov>
+To: dwalsh@localhost.localdomain
+Cc: selinux@tycho.nsa.gov
+In-Reply-To: <200702261738.l1QHcBUu030687@localhost.localdomain>
+References: <200702261738.l1QHcBUu030687@localhost.localdomain>
+Content-Type: text/plain
+Date: Tue, 06 Mar 2007 09:23:28 -0500
+Message-Id: <1173191008.15853.12.camel@sgc>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 2007-02-26 at 13:03 -0500, dwalsh@localhost.localdomain wrote:
-> Fix bugs in interface, add lvm_manage_config for ricci_modstorage
-> lvm needs to be able to create and delete device files
+On Mon, 2007-02-26 at 12:38 -0500, dwalsh@localhost.localdomain wrote:
+> ricci modstorage needs to be able to configure lvm and work with ccs
 
-Merged except for one question:
+Merged except for one bit:
 
-> --- nsaserefpolicy/policy/modules/system/lvm.te	2007-02-19 11:32:53.000000000 -0500
-> +++ serefpolicy-2.5.5/policy/modules/system/lvm.te	2007-02-26 11:02:34.000000000 -0500
-
-> @@ -46,7 +46,7 @@
+> ===File /tmp/patches/done/nsaserefpolicy_policy_modules_services_ricci.patch===
+> --- nsaserefpolicy/policy/modules/services/ricci.te	2007-02-19 11:32:53.000000000 -0500
+> +++ serefpolicy-2.5.5/policy/modules/services/ricci.te	2007-02-26 11:02:34.000000000 -0500
+> @@ -448,7 +449,7 @@
+>  # ricci_modstorage local policy
+>  #
 >  
->  allow clvmd_t self:capability { sys_admin mknod };
->  dontaudit clvmd_t self:capability sys_tty_config;
-> -allow clvmd_t self:process signal_perms;
-> +allow clvmd_t self:process { ptrace signal_perms };
->  allow clvmd_t self:socket create_socket_perms;
->  allow clvmd_t self:fifo_file rw_fifo_file_perms;
->  allow clvmd_t self:unix_stream_socket { connectto create_stream_socket_perms };
+> -allow ricci_modstorage_t self:process { setsched signal };
+> +allow ricci_modstorage_t self:process { setsched signal ptrace };
+>  allow ricci_modstorage_t self:capability { mknod sys_nice };
+>  allow ricci_modstorage_t self:fifo_file rw_fifo_file_perms;
+>  allow ricci_modstorage_t self:unix_dgram_socket create_socket_perms;
 
-Are you sure this isn't one that should be dontaudited?
-
+Sure this shouldn't be dontaudited instead?
 
 -- 
 Chris PeBenito
 Tresys Technology, LLC
 (410) 290-1411 x150
-
 
 
 --
