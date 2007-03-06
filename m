@@ -1,50 +1,63 @@
-Subject: Re: [ANN] SE-PostgreSQL 8.2.3-1.0 alpha release
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: KaiGai Kohei <kaigai@kaigai.gr.jp>
-Cc: russell@coker.com.au, selinux@tycho.nsa.gov
-In-Reply-To: <45EDBB95.50703@kaigai.gr.jp>
-References: <45EC0D21.2070706@kaigai.gr.jp>
-	 <200703062034.24993.russell@coker.com.au>  <45EDBB95.50703@kaigai.gr.jp>
-Content-Type: text/plain
-Date: Tue, 06 Mar 2007 14:17:05 -0500
-Message-Id: <1173208625.1230.6.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l26KNX2t016907
+	for <selinux@tycho.nsa.gov>; Tue, 6 Mar 2007 15:23:33 -0500
+Received: from ug-out-1314.google.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l26KOxxq001034
+	for <selinux@tycho.nsa.gov>; Tue, 6 Mar 2007 20:24:59 GMT
+Received: by ug-out-1314.google.com with SMTP id y2so361682uge
+        for <selinux@tycho.nsa.gov>; Tue, 06 Mar 2007 12:24:58 -0800 (PST)
+Message-ID: <e739902b0703061224r1ec0e9b2kd937e84ba01edd0d@mail.gmail.com>
+Date: Tue, 6 Mar 2007 12:24:57 -0800
+From: "Ryan Bradetich" <rbradetich@gmail.com>
+To: "Stephen Smalley" <sds@tycho.nsa.gov>
+Subject: Re: Question about the process : share permission.
+Cc: selinux@tycho.nsa.gov
+In-Reply-To: <1173198873.15967.142.camel@moss-spartans.epoch.ncsc.mil>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+References: <e739902b0703060815m5bbe83bdsed886eafe6dac00d@mail.gmail.com>
+	 <1173198873.15967.142.camel@moss-spartans.epoch.ncsc.mil>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2007-03-07 at 04:05 +0900, KaiGai Kohei wrote:
-> >> * There is no compatibility between SE-PostgreSQL and PostgreSQL.
-> >>   You have to pay attention not to destroy your database files
-> >>   for native PostgreSQL.
-> > 
-> > Have you considered enabling "permissive mode" for the database server such 
-> > that it can run with unlabeled databases?
+Ah, that make sense.
+Thanks for the explanation!
+
+- Ryan
+
+
+On 3/6/07, Stephen Smalley <sds@tycho.nsa.gov> wrote:
+> On Tue, 2007-03-06 at 08:15 -0800, Ryan Bradetich wrote:
+> > Hello all,
 > >
-> > Why can't "native PostgreSQL" just ignore the labelling?
-> 
-> We have to store a security context of tuple in anywhere, so modifying the file
-> format was not avoidable. The storage manager of PostgreSQL cannot handle different
-> file formats, so SE-PostgreSQL cannot run over the unlabeled databased generated
-> by native PostgreSQL.
-> 
-> It might be possible, but I expect more hooks to the PostgreSQL is necessary.
-> It will prevent to follow the version-up of native one.
-
-Do they provide any kind of attribute / metadata support at that
-granularity?  Along the lines of filesystem xattrs?
-
-Could you store the labels in a separate table?  Along the lines of the
-old persistent label mapping in SELinux (issues for consistency and
-performance, of course).
-
-Could you split the storage from the presentation such that you only
-store data of one context in a given underlying table and then compose a
-set of single context tables to present a multi-context virtual table?
-
--- 
-Stephen Smalley
-National Security Agency
-
+> > I am trying to understand what the process : share permission does.
+> > In the SELinux by example book, it says the process : share permission
+> > allows state sharing with cloned or forked processes.
+> >
+> > I looked looked through the refpolicy tree and only found one instance
+> > of the process : share permission, it is in the kernel_share_state
+> > interface.   This interface is only called by the system/init module.
+> >
+> > At first I thought this permission had to do with shared libraries
+> > and/or forking processes, but I see there is also a process : fork
+> > permission and there is a libs_use_shared_libs interface function to
+> > allow the loading and execution of shared libraries.
+> >
+> > I am just curious to understand what the process : share permission
+> > allows/prevents.
+>
+> If you call clone() with certain flags (e.g. CLONE_FS, CLONE_FILES) to
+> cause sharing of certain portions of the task state and then perform a
+> context-changing execve, then the process share permission is checked
+> between the old and new contexts.  This is generally unsafe, as it
+> allows the caller to influence/control the callee.  It happens naturally
+> when the kernel starts init, which is why it is allowed there.
+>
+> --
+> Stephen Smalley
+> National Security Agency
+>
+>
 
 --
 This message was distributed to subscribers of the selinux mailing list.
