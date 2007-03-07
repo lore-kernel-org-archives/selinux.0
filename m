@@ -1,53 +1,68 @@
-In-Reply-To: <1173185188.15967.25.camel@moss-spartans.epoch.ncsc.mil>
-References: <D043357D-5AD2-4C8E-8282-63E4045EF0F4@sf-net.com> <1173185188.15967.25.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0 (Apple Message framework v752.2)
-Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
-Message-Id: <4A5A2930-96CD-485E-AD4C-A0D251E582F0@sf-net.com>
-Cc: SELinux List <selinux@tycho.nsa.gov>,
-        "Christopher J. PeBenito" <cpebenito@tresys.com>,
-        Eric Paris <eparis@parisplace.org>,
-        Karl MacMillan <kmacmillan@mentalrootkit.com>
-From: Stefan Schulze Frielinghaus <stefan@sf-net.com>
-Subject: Re: AVC denials debug
-Date: Wed, 7 Mar 2007 11:43:03 +0100
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l27DIwvd016361
+	for <selinux@tycho.nsa.gov>; Wed, 7 Mar 2007 08:18:58 -0500
+Received: from wx-out-0506.google.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l27DKPPG017093
+	for <selinux@tycho.nsa.gov>; Wed, 7 Mar 2007 13:20:25 GMT
+Received: by wx-out-0506.google.com with SMTP id s17so194334wxc
+        for <selinux@tycho.nsa.gov>; Wed, 07 Mar 2007 05:20:25 -0800 (PST)
+Message-ID: <45EEBB86.4050408@kaigai.gr.jp>
+Date: Wed, 07 Mar 2007 22:17:58 +0900
+From: KaiGai Kohei <kaigai@kaigai.gr.jp>
+MIME-Version: 1.0
 To: Stephen Smalley <sds@tycho.nsa.gov>
+CC: russell@coker.com.au, selinux@tycho.nsa.gov
+Subject: Re: [ANN] SE-PostgreSQL 8.2.3-1.0 alpha release
+References: <45EC0D21.2070706@kaigai.gr.jp>	 <200703062034.24993.russell@coker.com.au>  <45EDBB95.50703@kaigai.gr.jp> <1173208625.1230.6.camel@moss-spartans.epoch.ncsc.mil>
+In-Reply-To: <1173208625.1230.6.camel@moss-spartans.epoch.ncsc.mil>
+Content-Type: text/plain; charset=ISO-2022-JP
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-> There are presently only indirect ways of flushing the AVC:
-> - reload policy (just run load_policy even w/o a new policy),
-> - switch from permissive to enforcing (setenforce 1),
-> - set a boolean value (setsebool <someboolean>=<somevalue>, even the
-> same as it is presently)
->
-> Each of these three operations will flush the AVC in order to ensure
-> that it remains consistent with the current policy state.  I  
-> suppose we
-> could add another selinuxfs node under /selinux/avc to allow manual
-> flushes, but since you can indirectly do it just by reloading your
-> existing policy or setting a boolean to the value it already has, it
-> isn't really necessary.
+Stephen Smalley wrote:
+> On Wed, 2007-03-07 at 04:05 +0900, KaiGai Kohei wrote:
+>>>> * There is no compatibility between SE-PostgreSQL and PostgreSQL.
+>>>>   You have to pay attention not to destroy your database files
+>>>>   for native PostgreSQL.
+>>> Have you considered enabling "permissive mode" for the database server such 
+>>> that it can run with unlabeled databases?
+>>>
+>>> Why can't "native PostgreSQL" just ignore the labelling?
+>> We have to store a security context of tuple in anywhere, so modifying the file
+>> format was not avoidable. The storage manager of PostgreSQL cannot handle different
+>> file formats, so SE-PostgreSQL cannot run over the unlabeled databased generated
+>> by native PostgreSQL.
+>>
+>> It might be possible, but I expect more hooks to the PostgreSQL is necessary.
+>> It will prevent to follow the version-up of native one.
+> 
+> Do they provide any kind of attribute / metadata support at that
+> granularity?  Along the lines of filesystem xattrs?
 
+Any kind of database objects (like tables, columns) are stored as tuples within
+special tables called as system catalog, so I think that associating a security
+context with a tuple provides enough granularity.
+# The meaning of your question was a bit unclear for me.
+# If my response is miss the point, please tell me.
 
-Yeah, I think load_policy is enough. It's fast and convenient.
+> Could you store the labels in a separate table?  Along the lines of the
+> old persistent label mapping in SELinux (issues for consistency and
+> performance, of course).
 
+I think unique identification for all tuples are difficult, because we can
+create a table without Oid (object id) or primary key to identify a tuple
+from outside of the table...
 
-> You can build policy with the 'enableaudit' target (make  
-> enableaudit) to
-> build a base module that has all dontaudit rules removed from it and
-> then install that base module; in Fedora, that base module is built  
-> and
-> installed as /usr/share/selinux/$SELINUXTYPE/enableaudit.pp for use by
-> users.  However, that only addresses the base module presently, not
-> non-base modules.
+BTW, the string representations of security contexts are stored in a separate
+table named as 'pg_selinux', defined with Oid (which have 4-byte length).
+In SE-PostgreSQL, any tuples have Oid of pg_selinux as a security context.
+Thus, storage consumption is limited.
 
-Ok, I will have a look at the dontaudit-base-only-module. Maybe this  
-will be enough.
-
-Thanks for all the detailed explanations!
-
-Best regards,
-Stefan
+> Could you split the storage from the presentation such that you only
+> store data of one context in a given underlying table and then compose a
+> set of single context tables to present a multi-context virtual table?
+--
+KaiGai Kohei <kaigai@kaigai.gr.jp>
 
 --
 This message was distributed to subscribers of the selinux mailing list.
