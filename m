@@ -1,82 +1,153 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l27KRmIa004167
-	for <selinux@tycho.nsa.gov>; Wed, 7 Mar 2007 15:27:48 -0500
-Received: from exchange.columbia.tresys.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with SMTP id l27KTD7i013801
-	for <selinux@tycho.nsa.gov>; Wed, 7 Mar 2007 20:29:15 GMT
-Subject: Re: procmail changes for policy
-From: "Christopher J. PeBenito" <cpebenito@tresys.com>
-To: dwalsh@localhost.localdomain
-Cc: selinux@tycho.nsa.gov
-In-Reply-To: <200702261734.l1QHY06i030665@localhost.localdomain>
-References: <200702261734.l1QHY06i030665@localhost.localdomain>
-Content-Type: text/plain
-Date: Wed, 07 Mar 2007 15:29:19 -0500
-Message-Id: <1173299359.10747.26.camel@sgc.columbia.tresys.com>
-Mime-Version: 1.0
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l27MPph4008901
+	for <selinux@tycho.nsa.gov>; Wed, 7 Mar 2007 17:25:51 -0500
+Received: from web51509.mail.yahoo.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with SMTP id l27MRImj010312
+	for <selinux@tycho.nsa.gov>; Wed, 7 Mar 2007 22:27:18 GMT
+Date: Wed, 7 Mar 2007 14:27:07 -0800 (PST)
+From: Steve G <linux_4ever@yahoo.com>
+Subject: [PATCH] Dropping compat support for /etc/security policy file paths
+To: selinux@tycho.nsa.gov
+In-Reply-To: <1172667712.19041.455.camel@moss-spartans.epoch.ncsc.mil>
+MIME-Version: 1.0
+Content-Type: multipart/mixed; boundary="0-742860888-1173306427=:41505"
+Message-ID: <946736.41505.qm@web51509.mail.yahoo.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 2007-02-26 at 12:34 -0500, dwalsh@localhost.localdomain wrote:
-> procmail uses /tmp files
-> 	 Wants to send signull to itself
-> 	 Can exec ls
-> 	 Read spamassinn_lib_dirs
+--0-742860888-1173306427=:41505
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
+Content-Id: 
+Content-Disposition: inline
 
-Merged, with a little reorg.
+>Are any active distributions still using the old /etc/security/ location
+>and layout for SELinux policy files?  If not, we could drop the compat
+>file path support from libselinux on the trunk.
 
-> ===File /tmp/patches/done/nsaserefpolicy_policy_modules_services_procmail.patch===
-> --- nsaserefpolicy/policy/modules/services/procmail.te	2007-01-02 12:57:43.000000000 -0500
-> +++ serefpolicy-2.5.5/policy/modules/services/procmail.te	2007-02-26 11:02:34.000000000 -0500
-> @@ -10,15 +10,19 @@
->  type procmail_exec_t;
->  domain_type(procmail_t)
->  domain_entry_file(procmail_t,procmail_exec_t)
-> +userdom_executable_file(procmail_exec_t)
->  role system_r types procmail_t;
->  
-> +type procmail_tmp_t;
-> +files_tmp_file(procmail_tmp_t)
-> +
->  ########################################
->  #
->  # Local policy
->  #
->  
->  allow procmail_t self:capability { sys_nice chown setuid setgid dac_override };
-> -allow procmail_t self:process { setsched signal };
-> +allow procmail_t self:process { setsched signal signull };
->  allow procmail_t self:fifo_file rw_fifo_file_perms;
->  allow procmail_t self:unix_stream_socket create_socket_perms;
->  allow procmail_t self:unix_dgram_socket create_socket_perms;
-> @@ -50,6 +54,10 @@
->  corecmd_exec_bin(procmail_t)
->  corecmd_exec_shell(procmail_t)
->  corecmd_dontaudit_search_sbin(procmail_t)
-> +corecmd_exec_ls(procmail_t)
-> +
-> +allow procmail_t procmail_tmp_t:file create_file_perms;
-> +files_tmp_filetrans(procmail_t, procmail_tmp_t, file)
->  
->  files_read_etc_files(procmail_t)
->  files_read_etc_runtime_files(procmail_t)
-> @@ -115,8 +123,7 @@
->  optional_policy(`
->  	corenet_udp_bind_generic_port(procmail_t)
->  
-> -	files_getattr_tmp_dirs(procmail_t)
-> -
->  	spamassassin_exec(procmail_t)
->  	spamassassin_exec_client(procmail_t)
-> +	spamassassin_read_lib_files(procmail_t)
->  ')
-> ============================================================
-> 
--- 
-Chris PeBenito
-Tresys Technology, LLC
-(410) 290-1411 x150
+Here's a patch dropping support.
 
+-Steve
+
+
+ 
+____________________________________________________________________________________
+Now that's room service!  Choose from over 150,000 hotels
+in 45,000 destinations on Yahoo! Travel to find your fit.
+http://farechase.yahoo.com/promo-generic-14795097
+--0-742860888-1173306427=:41505
+Content-Type: text/x-patch; name="libselinux-2.0.4-compat.patch"
+Content-Description: 566132708-libselinux-2.0.4-compat.patch
+Content-Disposition: inline; filename="libselinux-2.0.4-compat.patch"
+
+diff -urpN libselinux-2.0.4.orig/src/compat_file_path.h libselinux-2.0.4/src/compat_file_path.h
+--- libselinux-2.0.4.orig/src/compat_file_path.h	2007-02-25 14:52:16.000000000 -0500
++++ libselinux-2.0.4/src/compat_file_path.h	1969-12-31 19:00:00.000000000 -0500
+@@ -1,12 +0,0 @@
+-/* Compatibility file name suffixes.  */
+-S_(BINPOLICY, SECURITYDIR "/selinux/policy")
+-    S_(CONTEXTS_DIR, SECURITYDIR)
+-    S_(FILE_CONTEXTS, SECURITYDIR "/selinux/file_contexts")
+-    S_(HOMEDIR_CONTEXTS, SECURITYDIR "/homedir_template")
+-    S_(DEFAULT_CONTEXTS, SECURITYDIR "/default_contexts")
+-    S_(USER_CONTEXTS, SECURITYDIR "/default_contexts.user/")
+-    S_(FAILSAFE_CONTEXT, SECURITYDIR "/failsafe_context")
+-    S_(DEFAULT_TYPE, SECURITYDIR "/default_type")
+-    S_(BOOLEANS, SECURITYDIR "/booleans")
+-    S_(MEDIA_CONTEXTS, SECURITYDIR "/default_media")
+-    S_(REMOVABLE_CONTEXT, SECURITYDIR "/removable_context")
+diff -urpN libselinux-2.0.4.orig/src/selinux_config.c libselinux-2.0.4/src/selinux_config.c
+--- libselinux-2.0.4.orig/src/selinux_config.c	2007-02-25 14:52:16.000000000 -0500
++++ libselinux-2.0.4/src/selinux_config.c	2007-03-07 15:15:50.000000000 -0500
+@@ -10,6 +10,7 @@
+ #include "selinux_internal.h"
+ #include "get_default_type_internal.h"
+ 
++#define SECURITYCONFIG "/etc/sysconfig/selinux"
+ #define SELINUXDIR "/etc/selinux/"
+ #define SELINUXCONFIG SELINUXDIR "config"
+ #define SELINUXDEFAULT "targeted"
+@@ -65,34 +66,9 @@ static const uint16_t file_path_suffixes
+ #undef S_
+ };
+ 
+-/* Old layout had fixed locations. */
+-#define SECURITYCONFIG "/etc/sysconfig/selinux"
+-#define SECURITYDIR "/etc/security"
+-static const union compat_file_path_data {
+-	struct {
+-#define S_(n, s) char L1(__LINE__)[sizeof(s)];
+-#include "compat_file_path.h"
+-#undef S_
+-	};
+-	char str[0];
+-} compat_file_path_data = {
+-	{
+-#define S_(n, s) s,
+-#include "compat_file_path.h"
+-#undef S_
+-	}
+-};
+-static const uint16_t compat_file_path_idx[NEL] = {
+-#define S_(n, s) [n] = offsetof(union compat_file_path_data, L1(__LINE__)),
+-#include "compat_file_path.h"
+-#undef S_
+-};
+-
+ #undef L1
+ #undef L2
+ 
+-static int use_compat_file_path;
+-
+ int selinux_getenforcemode(int *enforce)
+ {
+ 	int ret = -1;
+@@ -167,12 +143,6 @@ static void init_selinux_config(void)
+ 
+ 	if (selinux_policyroot)
+ 		return;
+-	if (access(SELINUXDIR, F_OK) != 0) {
+-		selinux_policyroot = SECURITYDIR;
+-		selinux_rootpath = SECURITYDIR;
+-		use_compat_file_path = 1;
+-		return;
+-	}
+ 
+ 	selinux_rootpath = SELINUXDIR;
+ 	fp = fopen(SELINUXCONFIG, "r");
+@@ -244,7 +214,6 @@ static void init_selinux_config(void)
+ 			     file_path_suffixes_idx[i])
+ 		    == -1)
+ 			return;
+-	use_compat_file_path = 0;
+ }
+ 
+ static void fini_selinux_policyroot(void) __attribute__ ((destructor));
+@@ -252,10 +221,6 @@ static void fini_selinux_policyroot(void
+ static void fini_selinux_policyroot(void)
+ {
+ 	int i;
+-	if (use_compat_file_path) {
+-		selinux_policyroot = NULL;
+-		return;
+-	}
+ 	free(selinux_policyroot);
+ 	selinux_policyroot = NULL;
+ 	for (i = 0; i < NEL; i++) {
+@@ -268,10 +233,7 @@ static void fini_selinux_policyroot(void
+ 
+ static const char *get_path(int idx)
+ {
+-	if (!use_compat_file_path)
+-		return file_paths[idx];
+-
+-	return compat_file_path_data.str + compat_file_path_idx[idx];
++	return file_paths[idx];
+ }
+ 
+ const char *selinux_default_type_path()
+
+--0-742860888-1173306427=:41505--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
