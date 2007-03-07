@@ -1,39 +1,48 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l27FdouD021968
-	for <selinux@tycho.nsa.gov>; Wed, 7 Mar 2007 10:39:50 -0500
-Received: from moutng.kundenserver.de (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id l27FfGDR000889
-	for <selinux@tycho.nsa.gov>; Wed, 7 Mar 2007 15:41:17 GMT
-Mime-Version: 1.0 (Apple Message framework v752.2)
-Message-Id: <48DF9C2F-73CF-4657-91AD-A6E1F3BD4A2E@sf-net.com>
-Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
-To: SELinux List <selinux@tycho.nsa.gov>
-From: Stefan Schulze Frielinghaus <stefan@sf-net.com>
-Subject: radvd policy changes
-Date: Wed, 7 Mar 2007 16:41:06 +0100
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l27FwDVN022818
+	for <selinux@tycho.nsa.gov>; Wed, 7 Mar 2007 10:58:13 -0500
+Received: from mail2.atl.registeredsite.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l27FxdxR018561
+	for <selinux@tycho.nsa.gov>; Wed, 7 Mar 2007 15:59:40 GMT
+Message-ID: <45EEE11B.3080901@MagitekLtd.com>
+Date: Wed, 07 Mar 2007 07:58:19 -0800
+From: "James W. Hoeft" <Jim@MagitekLtd.com>
+MIME-Version: 1.0
+To: casey@schaufler-ca.com
+CC: KaiGai Kohei <kaigai@kaigai.gr.jp>, selinux@tycho.nsa.gov
+Subject: Re: [ANN] SE-PostgreSQL 8.2.3-1.0 alpha release
+References: <989281.84407.qm@web36612.mail.mud.yahoo.com>
+In-Reply-To: <989281.84407.qm@web36612.mail.mud.yahoo.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-radvd needs ioctl perms for the configfile (/etc/radvd.conf)
+Casey Schaufler wrote:
+> --- KaiGai Kohei <kaigai@kaigai.gr.jp> wrote:
+> 
+>  
+>> I think unique identification for all tuples are
+>> difficult, because we can
+>> create a table without Oid (object id) or primary
+>> key to identify a tuple
+>> from outside of the table...
+>>
+>> BTW, the string representations of security contexts
+>> are stored in a separate
+>> table named as 'pg_selinux', defined with Oid (which
+>> have 4-byte length).
+>> In SE-PostgreSQL, any tuples have Oid of pg_selinux
+>> as a security context.
+>> Thus, storage consumption is limited.
+> 
+> How does this method compare to the schemes
+> used in the Oracle evaluated MLS DBMS?
 
-< allow radvd_t radvd_etc_t:file { getattr read };
----
- > read_files_pattern(radvd_t,etc_t,radvd_etc_t)
+MLS ("Trusted Oracle", rev 9 was last one produced and is no longer 
+supported) or current OLS? The mechanisms and level of certification are 
+different.
 
-
-Another problem may only concern to Debian distributions. The init- 
-script for radvd cleans a file (/var/run/radvd/saved-settings) and  
-needs special privileges to do the work. audit2allow output:
-
-allow initrc_t radvd_var_run_t:dir add_name;
-allow initrc_t radvd_var_run_t:file { append create };
-
-What is the suggested SELinux way to handle such a situation? Deny  
-and don't care? A "ifdef(`distro_debian'" and allow init to do the job?
-
-
-Regards,
-Stefan
+Jim
 
 --
 This message was distributed to subscribers of the selinux mailing list.
