@@ -1,15 +1,10 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l27FwDVN022818
-	for <selinux@tycho.nsa.gov>; Wed, 7 Mar 2007 10:58:13 -0500
-Received: from mail2.atl.registeredsite.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l27FxdxR018561
-	for <selinux@tycho.nsa.gov>; Wed, 7 Mar 2007 15:59:40 GMT
-Message-ID: <45EEE11B.3080901@MagitekLtd.com>
-Date: Wed, 07 Mar 2007 07:58:19 -0800
-From: "James W. Hoeft" <Jim@MagitekLtd.com>
+Message-ID: <45EEE1C1.4070804@tresys.com>
+Date: Wed, 07 Mar 2007 11:01:05 -0500
+From: Joshua Brindle <jbrindle@tresys.com>
 MIME-Version: 1.0
 To: casey@schaufler-ca.com
-CC: KaiGai Kohei <kaigai@kaigai.gr.jp>, selinux@tycho.nsa.gov
+CC: KaiGai Kohei <kaigai@kaigai.gr.jp>, Stephen Smalley <sds@tycho.nsa.gov>,
+        russell@coker.com.au, selinux@tycho.nsa.gov
 Subject: Re: [ANN] SE-PostgreSQL 8.2.3-1.0 alpha release
 References: <989281.84407.qm@web36612.mail.mud.yahoo.com>
 In-Reply-To: <989281.84407.qm@web36612.mail.mud.yahoo.com>
@@ -19,8 +14,9 @@ List-Id: selinux@tycho.nsa.gov
 
 Casey Schaufler wrote:
 > --- KaiGai Kohei <kaigai@kaigai.gr.jp> wrote:
-> 
+>
 >  
+>   
 >> I think unique identification for all tuples are
 >> difficult, because we can
 >> create a table without Oid (object id) or primary
@@ -34,15 +30,19 @@ Casey Schaufler wrote:
 >> In SE-PostgreSQL, any tuples have Oid of pg_selinux
 >> as a security context.
 >> Thus, storage consumption is limited.
-> 
+>>     
+>
 > How does this method compare to the schemes
 > used in the Oracle evaluated MLS DBMS?
+>
+>   
+IIRC Oracle basically has polyinstanciated tables (using views) to 
+implement MLS, which gives far less granularity and doesn't allow for 
+labeled rows or columns. KaiGai's work leverages all the security models 
+SELinux can use to allow for flexible policies. The technical decision 
+to use another table to store the oid of the context seems appropriate, 
+since that is how rdbms's operate in general.
 
-MLS ("Trusted Oracle", rev 9 was last one produced and is no longer 
-supported) or current OLS? The mechanisms and level of certification are 
-different.
-
-Jim
 
 --
 This message was distributed to subscribers of the selinux mailing list.
