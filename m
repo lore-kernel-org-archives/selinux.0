@@ -1,83 +1,91 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l28EYGf2004199
-	for <selinux@tycho.nsa.gov>; Thu, 8 Mar 2007 09:34:16 -0500
-Received: from nz-out-0506.google.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id l28EYFHa004660
-	for <selinux@tycho.nsa.gov>; Thu, 8 Mar 2007 14:34:15 GMT
-Received: by nz-out-0506.google.com with SMTP id z3so325990nzf
-        for <selinux@tycho.nsa.gov>; Thu, 08 Mar 2007 06:34:13 -0800 (PST)
-Message-ID: <45F01EDB.6050507@kaigai.gr.jp>
-Date: Thu, 08 Mar 2007 23:34:03 +0900
-From: KaiGai Kohei <kaigai@kaigai.gr.jp>
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l28EiFBT004575
+	for <selinux@tycho.nsa.gov>; Thu, 8 Mar 2007 09:44:15 -0500
+Received: from mx1.redhat.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l28EiEko004619
+	for <selinux@tycho.nsa.gov>; Thu, 8 Mar 2007 14:44:14 GMT
+Message-ID: <45F0213C.8020800@redhat.com>
+Date: Thu, 08 Mar 2007 09:44:12 -0500
+From: Daniel J Walsh <dwalsh@redhat.com>
 MIME-Version: 1.0
-To: Stephen Smalley <sds@tycho.nsa.gov>
-CC: Joshua Brindle <jbrindle@tresys.com>, casey@schaufler-ca.com,
-        russell@coker.com.au, selinux@tycho.nsa.gov,
-        "Christopher J. PeBenito" <cpebenito@tresys.com>
-Subject: Re: [ANN] SE-PostgreSQL 8.2.3-1.0 alpha release
-References: <989281.84407.qm@web36612.mail.mud.yahoo.com>	 <45EEE1C1.4070804@tresys.com>  <45F00BA8.6090107@kaigai.gr.jp> <1173360342.10467.25.camel@moss-spartans.epoch.ncsc.mil>
-In-Reply-To: <1173360342.10467.25.camel@moss-spartans.epoch.ncsc.mil>
-Content-Type: text/plain; charset=ISO-2022-JP
+To: "Christopher J. PeBenito" <cpebenito@tresys.com>,
+        SE Linux <selinux@tycho.nsa.gov>
+Subject: syslogd-ng defines tcp ports to connect to.
+Content-Type: multipart/mixed;
+ boundary="------------060304000705010907090409"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Stephen Smalley wrote:
-> On Thu, 2007-03-08 at 22:12 +0900, KaiGai Kohei wrote:
->> Joshua Brindle wrote:
->>> Casey Schaufler wrote:
->>>> --- KaiGai Kohei <kaigai@kaigai.gr.jp> wrote:
->>>>
->>>>  
->>>>  
->>>>> I think unique identification for all tuples are
->>>>> difficult, because we can
->>>>> create a table without Oid (object id) or primary
->>>>> key to identify a tuple
->>>>> from outside of the table...
->>>>>
->>>>> BTW, the string representations of security contexts
->>>>> are stored in a separate
->>>>> table named as 'pg_selinux', defined with Oid (which
->>>>> have 4-byte length).
->>>>> In SE-PostgreSQL, any tuples have Oid of pg_selinux
->>>>> as a security context.
->>>>> Thus, storage consumption is limited.
->>>>>     
->>>> How does this method compare to the schemes
->>>> used in the Oracle evaluated MLS DBMS?
->>>>
->>>>   
->>> IIRC Oracle basically has polyinstanciated tables (using views) to 
->>> implement MLS, which gives far less granularity and doesn't allow for 
->>> labeled rows or columns. KaiGai's work leverages all the security models 
->>> SELinux can use to allow for flexible policies. The technical decision 
->>> to use another table to store the oid of the context seems appropriate, 
->>> since that is how rdbms's operate in general.
->> I think the biggest difference is whether RDBMS utilizes the security
->> functionalities of operating system, or not.
->>
->> For example, SE-PostgreSQL obtains the security context of the client via
->> getpeercon(), and makes a decision with the security policy.
->> It enables to ensure a process with lower clearance cannot access secret
->> data, even if it is stored in database.
-> 
-> You also should be leveraging the OS in protecting SE-PostgreSQL from
-> interference by the client and ensuring that it is unbypassable for
-> accessing the database.  Are you just using the stock postgresql domain
-> in the refpolicy at present?  Any analysis of that domain and whether it
-> meets your needs adequately?  (side bar:  it seems to have a lot of
-> capabilities presently)
+This is a multi-part message in MIME format.
+--------------060304000705010907090409
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
-The security policy included in sepostgresql rpm package uses stock
-postgresql_t domin in the refpolicy, almost as is.
+With this change they can use semanage to define additional ports.
 
-I have not analyzed them yet.
-Indeed, we should pay more attention for accessing the database
-files directly.
+--------------060304000705010907090409
+Content-Type: text/x-patch;
+ name="syslog.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="syslog.patch"
 
-Thanks,
--- 
-KaiGai Kohei <kaigai@kaigai.gr.jp>
+--- nsaserefpolicy/policy/modules/system/logging.te	2007-02-23 16:50:01.000000000 -0500
++++ serefpolicy-2.5.8/policy/modules/system/logging.te	2007-03-08 08:42:37.000000000 -0500
+@@ -328,6 +329,9 @@
+ corenet_tcp_bind_all_nodes(syslogd_t)
+ corenet_tcp_bind_rsh_port(syslogd_t)
+ corenet_tcp_connect_rsh_port(syslogd_t)
++# Allow users to define additional syslog ports to connect to
++corenet_tcp_bind_syslogd_port(syslogd_t)
++corenet_tcp_connect_syslogd_port(syslogd_t)
+ 
+ # syslog-ng can send or receive logs
+ corenet_sendrecv_syslogd_client_packets(syslogd_t)
+--- nsaserefpolicy/policy/modules/kernel/corenetwork.te.in	2007-02-19 11:32:51.000000000 -0500
++++ serefpolicy-2.5.8/policy/modules/kernel/corenetwork.te.in	2007-03-08 08:42:36.000000000 -0500
+@@ -43,11 +43,16 @@
+ sid port gen_context(system_u:object_r:port_t,s0)
+ 
+ #
+-# reserved_port_t is the type of INET port numbers below 1024.
++# reserved_port_t is the type of INET port numbers below 599.
+ #
+ type reserved_port_t, port_type, reserved_port_type;
+ 
+ #
++# hi_reserved_port_t is the type of INET port numbers between 600-1023.
++#
++type hi_reserved_port_t, port_type, reserved_port_type, rpc_port_type;
++
++#
+ # server_packet_t is the default type of IPv4 and IPv6 server packets.
+ #
+ type server_packet_t, packet_type, server_packet_type;
+@@ -140,6 +145,7 @@
+ network_port(soundd, tcp,8000,s0, tcp,9433,s0)
+ type socks_port_t, port_type; dnl network_port(socks) # no defined portcon
+ type stunnel_port_t, port_type; dnl network_port(stunnel) # no defined portcon in current strict
++network_port(squid, udp,3401,s0, tcp,3401,s0, udp,4827,s0, tcp,4827,s0, )
+ network_port(swat, tcp,901,s0)
+ network_port(syslogd, udp,514,s0)
+ network_port(telnetd, tcp,23,s0)
+@@ -157,8 +163,11 @@
+ 
+ # Defaults for reserved ports.  Earlier portcon entries take precedence;
+ # these entries just cover any remaining reserved ports not otherwise declared.
+-portcon tcp 1-1023 gen_context(system_u:object_r:reserved_port_t, s0)
+-portcon udp 1-1023 gen_context(system_u:object_r:reserved_port_t, s0)
++
++portcon tcp 600-1023 gen_context(system_u:object_r:hi_reserved_port_t, s0)
++portcon udp 600-1023 gen_context(system_u:object_r:hi_reserved_port_t, s0)
++portcon tcp 1-599 gen_context(system_u:object_r:reserved_port_t, s0)
++portcon udp 1-599 gen_context(system_u:object_r:reserved_port_t, s0)
+ 
+ ########################################
+ #
+
+--------------060304000705010907090409--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
