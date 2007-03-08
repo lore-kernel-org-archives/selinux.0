@@ -1,74 +1,47 @@
 Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l28FigCE008058
-	for <selinux@tycho.nsa.gov>; Thu, 8 Mar 2007 10:44:42 -0500
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l28FkER7008126
+	for <selinux@tycho.nsa.gov>; Thu, 8 Mar 2007 10:46:14 -0500
 Received: from mx1.redhat.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l28FifY3016061
-	for <selinux@tycho.nsa.gov>; Thu, 8 Mar 2007 15:44:42 GMT
-Message-ID: <45F02F63.9050704@redhat.com>
-Date: Thu, 08 Mar 2007 10:44:35 -0500
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l28FkDY3016362
+	for <selinux@tycho.nsa.gov>; Thu, 8 Mar 2007 15:46:13 GMT
+Message-ID: <45F02FC3.8010501@redhat.com>
+Date: Thu, 08 Mar 2007 10:46:11 -0500
 From: Daniel J Walsh <dwalsh@redhat.com>
 MIME-Version: 1.0
 To: "Christopher J. PeBenito" <cpebenito@tresys.com>,
         SE Linux <selinux@tycho.nsa.gov>
-Subject: Resend of cpuspeed.patch
+Subject: gpg needs to be able to create its keys dir
 Content-Type: multipart/mixed;
- boundary="------------000500050306080003060806"
+ boundary="------------010802010204000806000602"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 This is a multi-part message in MIME format.
---------------000500050306080003060806
+--------------010802010204000806000602
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 
-Included interface definition also.
 
---------------000500050306080003060806
-Content-Type: text/x-patch;
- name="cpuspeed.patch"
+
+--------------010802010204000806000602
+Content-Type: text/plain;
+ name="nsaserefpolicy_policy_modules_apps_gpg.if"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline;
- filename="cpuspeed.patch"
+ filename="nsaserefpolicy_policy_modules_apps_gpg.if"
 
---- nsaserefpolicy/policy/modules/kernel/devices.if	2007-01-02 12:57:13.000000000 -0500
-+++ serefpolicy-2.5.8/policy/modules/kernel/devices.if	2007-03-08 08:42:36.000000000 -0500
-@@ -2449,6 +2449,24 @@
+--- nsaserefpolicy/policy/modules/apps/gpg.if	2007-01-02 12:57:22.000000000 -0500
++++ serefpolicy-2.5.8/policy/modules/apps/gpg.if	2007-03-08 08:42:36.000000000 -0500
+@@ -89,6 +89,7 @@
  
- ########################################
- ## <summary>
-+##	Write in a sysfs directories.
-+## </summary>
-+## <param name="domain">
-+##	<summary>
-+##	The type of the process performing this action.
-+##	</summary>
-+## </param>
-+#
-+interface(`dev_write_sysfs_dirs',`
-+	gen_require(`
-+		type sysfs_t;
-+	')
-+
-+	allow $1 sysfs_t:dir write;
-+')
-+
-+########################################
-+## <summary>
- ##	Search the sysfs directories.
- ## </summary>
- ## <param name="domain">
---- nsaserefpolicy/policy/modules/services/cpucontrol.te	2007-01-02 12:57:43.000000000 -0500
-+++ serefpolicy-2.5.8/policy/modules/services/cpucontrol.te	2007-03-08 08:42:37.000000000 -0500
-@@ -91,6 +91,7 @@
- kernel_read_system_state(cpuspeed_t)
- kernel_read_kernel_sysctls(cpuspeed_t)
+ 	manage_files_pattern($1_gpg_t,$1_gpg_secret_t,$1_gpg_secret_t)
+ 	manage_lnk_files_pattern($1_gpg_t,$1_gpg_secret_t,$1_gpg_secret_t)
++ 	userdom_user_home_dir_filetrans($1, $1_gpg_t, $1_gpg_secret_t, dir)
  
-+dev_write_sysfs_dirs(cpuspeed_t)
- dev_rw_sysfs(cpuspeed_t)
- 
- domain_use_interactive_fds(cpuspeed_t)
+ 	# transition from the userdomain to the derived domain
+ 	domtrans_pattern($2,gpg_exec_t,$1_gpg_t)
 
---------------000500050306080003060806--
+--------------010802010204000806000602--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
