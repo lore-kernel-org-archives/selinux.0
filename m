@@ -1,24 +1,40 @@
-Message-ID: <45F035D2.9030307@redhat.com>
-Date: Thu, 08 Mar 2007 11:12:02 -0500
-From: Daniel J Walsh <dwalsh@redhat.com>
-MIME-Version: 1.0
-To: Stephen Smalley <sds@tycho.nsa.gov>, SE Linux <selinux@tycho.nsa.gov>
-Subject: Minor change to getsebool.
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Subject: Re: Minor change to getsebool.
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Daniel J Walsh <dwalsh@redhat.com>
+Cc: SE Linux <selinux@tycho.nsa.gov>,
+        Karl MacMillan <kmacmillan@mentalrootkit.com>,
+        Joshua Brindle <jbrindle@tresys.com>
+In-Reply-To: <45F035D2.9030307@redhat.com>
+References: <45F035D2.9030307@redhat.com>
+Content-Type: text/plain
+Date: Thu, 08 Mar 2007 11:19:14 -0500
+Message-Id: <1173370754.10467.86.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Should be non fatail when executing getsebool -a.  I am starting to 
-label the booleans and
-different user roles will only be able to manipulate certain booleans.
+On Thu, 2007-03-08 at 11:12 -0500, Daniel J Walsh wrote:
+> Should be non fatail when executing getsebool -a.  I am starting to 
+> label the booleans and
+> different user roles will only be able to manipulate certain booleans.
+> 
+> So we need to change
+> 
+> getsebool -a will only show booleans that domain can manipulate.
+> Currenly it will report the errrors that it can not read.  We can either 
+> add a qualifier to silence these or a new option to get only the list of 
+> the ones I can manipulate.
 
-So we need to change
+Actually, I'd tend to think we could just silence them by default if
+errno is EACCES.
 
-getsebool -a will only show booleans that domain can manipulate.
-Currenly it will report the errrors that it can not read.  We can either 
-add a qualifier to silence these or a new option to get only the list of 
-the ones I can manipulate.
+One other possible change to getsebool would be to make it fully
+equivalent to setsebool, i.e. add a -P option and have it query
+libsemanage to get persistent boolean settings in that case.
 
+-- 
+Stephen Smalley
+National Security Agency
 
 
 --
