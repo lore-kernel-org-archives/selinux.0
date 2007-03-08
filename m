@@ -1,206 +1,76 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l28F6c75005843
-	for <selinux@tycho.nsa.gov>; Thu, 8 Mar 2007 10:06:38 -0500
-Received: from mx1.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id l28F6bwk012406
-	for <selinux@tycho.nsa.gov>; Thu, 8 Mar 2007 15:06:38 GMT
-Message-ID: <45F0267B.9040508@redhat.com>
-Date: Thu, 08 Mar 2007 10:06:35 -0500
-From: Daniel J Walsh <dwalsh@redhat.com>
-MIME-Version: 1.0
-To: "Christopher J. PeBenito" <cpebenito@tresys.com>,
-        SE Linux <selinux@tycho.nsa.gov>
-Subject: Hal changes.
-Content-Type: multipart/mixed;
- boundary="------------070606090204060804090303"
+Subject: Re: [ANN] SE-PostgreSQL 8.2.3-1.0 alpha release
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: KaiGai Kohei <kaigai@kaigai.gr.jp>
+Cc: "Christopher J. PeBenito" <cpebenito@tresys.com>, selinux@tycho.nsa.gov,
+        Chad Sellers <csellers@tresys.com>
+In-Reply-To: <45F022A0.3020105@kaigai.gr.jp>
+References: <45EC0D21.2070706@kaigai.gr.jp>  <45EC2C10.6050603@kaigai.gr.jp>
+	 <1173284267.10747.9.camel@sgc>  <45F010A4.4020201@kaigai.gr.jp>
+	 <1173360830.10467.29.camel@moss-spartans.epoch.ncsc.mil>
+	 <45F022A0.3020105@kaigai.gr.jp>
+Content-Type: text/plain
+Date: Thu, 08 Mar 2007 10:00:58 -0500
+Message-Id: <1173366058.10467.67.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This is a multi-part message in MIME format.
---------------070606090204060804090303
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+On Thu, 2007-03-08 at 23:50 +0900, KaiGai Kohei wrote:
+> Stephen Smalley wrote:
+> > On Thu, 2007-03-08 at 22:33 +0900, KaiGai Kohei wrote:
+> >> Christopher J. PeBenito wrote:
+> >>> On Mon, 2007-03-05 at 23:41 +0900, KaiGai Kohei wrote:
+> >>>> The attached patch adds new object classes, access vectors and
+> >>>> booleans related to database.
+> >>>> SE-PostgreSQL uses them to manage the various kinds of database
+> >>>> objects such as tables, columns, tuples and so on.
+> >>>>
+> >>>> The most of security policies are provided as a binary security
+> >>>> policy within RPM package. But it requires the definition of new
+> >>>> object classes, access vectors and booleans in the base policy.
+> >>>>
+> >>>> Please apply it.
+> >>> Is the code on a path to being merged upstream?  I'm hesitant to apply
+> >>> class changes until the code is on a plan to be merged.
+> >> Pushing to the upstreamed PostgreSQL is one of the next activities.
+> >> No need to say, I'm targeting it to be merged as a part of PostgreSQL.
+> >>
+> >> I'll submit a patch to add new object classes again after discussion
+> >> in the pgsql-hackers list. But I'm desiring the object class numbers
+> >> are fixed earlier. (currently, I uses 60 - 65 to represent them)
+> > 
+> > Where do things stand wrt dynamic userspace object class and permission
+> > discovery?  It would be nice to avoid further spread of hardcoded
+> > classes and permissions in applications if we can avoid it.
+> 
+> See, http://sepgsql.googlecode.com/svn/trunk/src/include/security/sepgsql_internal.h
+> When I started to develop, 'context' class has the maximum number of object
+> class, so I defined 'SECCLASS_DATABASE' next to it.
+> # But it will conflict with 'dccp_socket' class now... :-(
 
-Beginning to break out hal policy into it's helper apps.  So hald_mac is 
-the only  domain that needs to write to  /dev/shm and hald_acl  needs 
-dac overrides.
+Yes, you'll have to re-base.  Of course, you should be using the
+libselinux headers instead of your own private definitions, i.e.
+	cd refpolicy/policy/flask
+	(update security_classes and access_vectors to add your defs)
+	make
+	make LIBSEL=/path/to/libselinux tolib
+	cd /path/to/libselinux
+	make install relabel
 
---------------070606090204060804090303
-Content-Type: text/x-patch;
- name="nsaserefpolicy_policy_modules_services_hal.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="nsaserefpolicy_policy_modules_services_hal.patch"
+Then just #include <selinux/flask.h> and #include
+<selinux/av_permissions.h> in your SE-PostgreSQL code.  Don't duplicate
+the definitions there - that makes it even worse.
 
---- nsaserefpolicy/policy/modules/services/hal.fc	2007-01-02 12:57:43.000000000 -0500
-+++ serefpolicy-2.5.8/policy/modules/services/hal.fc	2007-03-08 08:42:37.000000000 -0500
-@@ -8,4 +8,10 @@
- 
- /var/lib/hal(/.*)?				gen_context(system_u:object_r:hald_var_lib_t,s0)
- 
-+/var/cache/hald(/.*)?				gen_context(system_u:object_r:hald_cache_t,s0)
-+
- /var/run/haldaemon.pid	--	 		gen_context(system_u:object_r:hald_var_run_t,s0)
-+
-+/usr/libexec/hal-acl-tool		--	gen_context(system_u:object_r:hald_acl_exec_t,s0)
-+
-+/usr/libexec/hald-addon-macbookpro-backlight --	gen_context(system_u:object_r:hald_mac_exec_t,s0)
---- nsaserefpolicy/policy/modules/services/hal.te	2007-02-19 11:32:53.000000000 -0500
-+++ serefpolicy-2.5.8/policy/modules/services/hal.te	2007-03-08 08:42:37.000000000 -0500
-@@ -16,9 +16,24 @@
- type hald_var_run_t;
- files_pid_file(hald_var_run_t)
- 
-+type hald_cache_t;
-+files_pid_file(hald_cache_t)
-+
- type hald_var_lib_t;
- files_type(hald_var_lib_t)
- 
-+type hald_acl_t;
-+type hald_acl_exec_t;
-+domain_type(hald_acl_t)
-+domain_entry_file(hald_acl_t,hald_acl_exec_t)
-+role system_r types hald_acl_t;
-+
-+type hald_mac_t;
-+type hald_mac_exec_t;
-+domain_type(hald_mac_t)
-+domain_entry_file(hald_mac_t,hald_mac_exec_t)
-+role system_r types hald_mac_t;
-+
- ########################################
- #
- # Local policy
-@@ -26,7 +41,7 @@
- 
- # execute openvt which needs setuid
- allow hald_t self:capability { chown setuid setgid kill net_admin sys_admin sys_nice dac_override dac_read_search mknod sys_rawio sys_tty_config };
--dontaudit hald_t self:capability sys_tty_config;
-+dontaudit hald_t self:capability {sys_ptrace sys_tty_config };
- allow hald_t self:process signal_perms;
- allow hald_t self:fifo_file rw_fifo_file_perms;
- allow hald_t self:unix_stream_socket { create_stream_socket_perms connectto };
-@@ -51,11 +66,13 @@
- manage_files_pattern(hald_t,hald_var_run_t,hald_var_run_t)
- files_pid_filetrans(hald_t,hald_var_run_t,file)
- 
-+manage_files_pattern(hald_t,hald_cache_t,hald_cache_t)
-+
- kernel_read_system_state(hald_t)
- kernel_read_network_state(hald_t)
- kernel_read_kernel_sysctls(hald_t)
- kernel_read_fs_sysctls(hald_t)
--kernel_read_irq_sysctls(hald_t)
-+kernel_rw_irq_sysctls(hald_t)
- kernel_rw_vm_sysctls(hald_t)
- kernel_write_proc_files(hald_t)
- 
-@@ -85,9 +102,13 @@
- dev_rw_power_management(hald_t)
- # hal is now execing pm-suspend
- dev_rw_sysfs(hald_t)
-+dev_read_sound(hald_t)
-+dev_write_sound(hald_t)
-+dev_read_raw_memory(hald_t)
- 
- domain_use_interactive_fds(hald_t)
- domain_read_all_domains_state(hald_t)
-+domain_dontaudit_ptrace_all_domains(hald_t)
- 
- files_exec_etc_files(hald_t)
- files_read_etc_files(hald_t)
-@@ -101,6 +122,7 @@
- files_create_boot_flag(hald_t)
- files_getattr_all_dirs(hald_t)
- files_read_kernel_img(hald_t)
-+files_rw_lock_dirs(hald_t)
- 
- fs_getattr_all_fs(hald_t)
- fs_search_all(hald_t)
-@@ -130,10 +152,10 @@
- init_use_fds(hald_t)
- init_use_script_ptys(hald_t)
- init_domtrans_script(hald_t)
--init_write_initctl(hald_t)
- init_read_utmp(hald_t)
- #hal runs shutdown, probably need a shutdown domain
- init_rw_utmp(hald_t)
-+init_telinit(hald_t)
- 
- libs_use_ld_so(hald_t)
- libs_use_shared_libs(hald_t)
-@@ -248,3 +270,68 @@
- optional_policy(`
- 	vbetool_domtrans(hald_t)
- ')
-+
-+########################################
-+#
-+# Local hald acl policy
-+#
-+
-+allow hald_acl_t self:capability { dac_override fowner };
-+allow hald_acl_t self : fifo_file read_fifo_file_perms;
-+
-+domtrans_pattern(hald_t, hald_acl_exec_t, hald_acl_t)
-+allow hald_t hald_acl_t : process signal;
-+allow hald_acl_t hald_t : unix_stream_socket connectto;
-+manage_dirs_pattern(hald_acl_t,hald_var_lib_t,hald_var_lib_t)
-+manage_files_pattern(hald_acl_t,hald_var_lib_t,hald_var_lib_t)
-+
-+corecmd_exec_bin(hald_acl_t)
-+corecmd_search_sbin(hald_acl_t)
-+
-+dev_setattr_video_dev(hald_acl_t)
-+dev_getattr_sound_dev(hald_acl_t)
-+dev_setattr_sound_dev(hald_acl_t)
-+
-+libs_use_ld_so(hald_acl_t)
-+libs_use_shared_libs(hald_acl_t)
-+
-+files_search_var_lib(hald_acl_t)
-+files_read_usr_files(hald_acl_t)
-+files_read_etc_files(hald_acl_t)
-+
-+storage_getattr_removable_dev(hald_acl_t)
-+storage_setattr_removable_dev(hald_acl_t)
-+
-+miscfiles_read_localization(hald_acl_t)
-+
-+ifdef(`targeted_policy',`
-+	term_dontaudit_use_console(hald_acl_t)
-+	term_dontaudit_use_generic_ptys(hald_acl_t)
-+')
-+
-+########################################
-+#
-+# Local hald mac policy
-+#
-+
-+domtrans_pattern(hald_t, hald_mac_exec_t, hald_mac_t)
-+allow hald_t hald_mac_t : process signal;
-+allow hald_mac_t hald_t : unix_stream_socket connectto;
-+
-+files_search_var_lib(hald_mac_t)
-+manage_dirs_pattern(hald_mac_t,hald_var_lib_t,hald_var_lib_t)
-+manage_files_pattern(hald_mac_t,hald_var_lib_t,hald_var_lib_t)
-+
-+libs_use_ld_so(hald_mac_t)
-+libs_use_shared_libs(hald_mac_t)
-+
-+files_read_usr_files(hald_mac_t)
-+
-+dev_write_raw_memory(hald_mac_t)
-+
-+miscfiles_read_localization(hald_mac_t)
-+
-+ifdef(`targeted_policy',`
-+	term_dontaudit_use_console(hald_mac_t)
-+	term_dontaudit_use_generic_ptys(hald_mac_t)
-+')
+But in the long term, we want to move away from using #define's
+altogether and have the object managers dynamically map the class and
+permission string names during startup to values via libselinux
+functions (which in turn can use a selinuxfs node or an auxiliary policy
+file to get the information).
 
---------------070606090204060804090303--
+-- 
+Stephen Smalley
+National Security Agency
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
