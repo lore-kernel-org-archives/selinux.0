@@ -1,216 +1,158 @@
 Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l28ESq9W003980
-	for <selinux@tycho.nsa.gov>; Thu, 8 Mar 2007 09:28:52 -0500
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l28EUmIw004065
+	for <selinux@tycho.nsa.gov>; Thu, 8 Mar 2007 09:30:48 -0500
 Received: from mx1.redhat.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l28ESmko002166
-	for <selinux@tycho.nsa.gov>; Thu, 8 Mar 2007 14:28:49 GMT
-Message-ID: <45F01D96.1010806@redhat.com>
-Date: Thu, 08 Mar 2007 09:28:38 -0500
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l28EUlko002402
+	for <selinux@tycho.nsa.gov>; Thu, 8 Mar 2007 14:30:47 GMT
+Message-ID: <45F01E16.5070002@redhat.com>
+Date: Thu, 08 Mar 2007 09:30:46 -0500
 From: Daniel J Walsh <dwalsh@redhat.com>
 MIME-Version: 1.0
 To: "Christopher J. PeBenito" <cpebenito@tresys.com>,
         SE Linux <selinux@tycho.nsa.gov>
-Subject: New fail2ban policy
+Subject: amtu policy
 Content-Type: multipart/mixed;
- boundary="------------080500040402010802090605"
+ boundary="------------010802060002050903000501"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 This is a multi-part message in MIME format.
---------------080500040402010802090605
+--------------010802060002050903000501
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 
-Resend to list.
+Mostly written by Emily Ratliff <ratliff@ratliff.net>
 
-
---------------080500040402010802090605
+--------------010802060002050903000501
 Content-Type: text/x-patch;
- name="nsaserefpolicy_policy_modules_services_fail2ban.patch"
+ name="nsaserefpolicy_policy_modules_admin_amtu.patch"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline;
- filename*0="nsaserefpolicy_policy_modules_services_fail2ban.patch"
+ filename="nsaserefpolicy_policy_modules_admin_amtu.patch"
 
---- nsaserefpolicy/policy/modules/services/fail2ban.fc	1969-12-31 19:00:00.000000000 -0500
-+++ serefpolicy-2.5.8/policy/modules/services/fail2ban.fc	2007-03-08 08:42:37.000000000 -0500
-@@ -0,0 +1,4 @@
+--- nsaserefpolicy/policy/modules/admin/amtu.fc	1969-12-31 19:00:00.000000000 -0500
++++ serefpolicy-2.5.8/policy/modules/admin/amtu.fc	2007-03-08 08:42:36.000000000 -0500
+@@ -0,0 +1,3 @@
 +
-+/usr/bin/fail2ban		--	gen_context(system_u:object_r:fail2ban_exec_t,s0)
-+/var/log/fail2ban.log		--	gen_context(system_u:object_r:fail2ban_log_t,s0)
-+/var/run/fail2ban.pid		--	gen_context(system_u:object_r:fail2ban_var_run_t,s0)
---- nsaserefpolicy/policy/modules/services/fail2ban.if	1969-12-31 19:00:00.000000000 -0500
-+++ serefpolicy-2.5.8/policy/modules/services/fail2ban.if	2007-03-08 08:42:37.000000000 -0500
-@@ -0,0 +1,87 @@
++/usr/bin/amtu    --    gen_context(system_u:object_r:amtu_exec_t,s0)
 +
-+## <summary>policy for fail2ban</summary>
+--- nsaserefpolicy/policy/modules/admin/amtu.if	1969-12-31 19:00:00.000000000 -0500
++++ serefpolicy-2.5.8/policy/modules/admin/amtu.if	2007-03-08 08:42:36.000000000 -0500
+@@ -0,0 +1,53 @@
++## <summary>
++##	abstract Machine Test Utility 
++## </summary>
 +
 +########################################
 +## <summary>
-+##	Execute a domain transition to run fail2ban.
-+## </summary>
-+## <param name="domain">
-+## <summary>
-+##	Domain allowed to transition.
-+## </summary>
-+## </param>
-+#
-+interface(`fail2ban_domtrans',`
-+	gen_require(`
-+		type fail2ban_t, fail2ban_exec_t;
-+	')
-+
-+	domain_auto_trans($1,fail2ban_exec_t,fail2ban_t)
-+
-+	allow fail2ban_t $1:fd use;
-+	allow fail2ban_t $1:fifo_file rw_file_perms;
-+	allow fail2ban_t $1:process sigchld;
-+')
-+
-+########################################
-+## <summary>
-+##	Allow the specified domain to read fail2ban's log files.
++##	Execute amtu in the amtu domain.
 +## </summary>
 +## <param name="domain">
 +##	<summary>
-+##	Domain allowed access.
++##	The type of the process performing this action.
 +##	</summary>
 +## </param>
-+## <rolecap/>
 +#
-+interface(`fail2ban_read_log',`
++interface(`amtu_domtrans',`
 +	gen_require(`
-+		type fail2ban_log_t;
++		type amtu_t, amtu_exec_t;
 +	')
 +
-+	logging_search_logs($1)
-+	allow $1 fail2ban_log_t:dir list_dir_perms;
-+	allow $1 fail2ban_log_t:file { read getattr lock };
++	corecmd_search_sbin($1)
++	domtrans_pattern($1,amtu_exec_t,amtu_t)
 +')
 +
 +########################################
 +## <summary>
-+##	Allow the specified domain to append
-+##	fail2ban log files.
-+## </summary>
-+## <param name="domain">
-+## 	<summary>
-+##	Domain allowed to transition.
-+## 	</summary>
-+## </param>
-+#
-+interface(`fail2ban_append_log',`
-+	gen_require(`
-+		type var_log_t, fail2ban_log_t;
-+	')
-+
-+	logging_search_logs($1)
-+	allow $1 fail2ban_log_t:dir list_dir_perms;
-+	allow $1 fail2ban_log_t:file { getattr append };
-+')
-+
-+
-+########################################
-+## <summary>
-+##	Read fail2ban PID files.
++##	Execute amtu in the amtu domain, and
++##	allow the specified role the amtu domain.
 +## </summary>
 +## <param name="domain">
 +##	<summary>
-+##	Domain allowed access.
++##	The type of the process performing this action.
++##	</summary>
++## </param>
++## <param name="role">
++##	<summary>
++##	The role to be allowed the amtu domain.
++##	</summary>
++## </param>
++## <param name="terminal">
++##	<summary>
++##	The type of the terminal allow the amtu domain to use.
 +##	</summary>
 +## </param>
 +#
-+interface(`fail2ban_read_pid_files',`
++interface(`amtu_run',`
 +	gen_require(`
-+		type fail2ban_var_run_t;
++		type amtu_t;
 +	')
 +
-+	files_search_pids($1)
-+	allow $1 fail2ban_var_run_t:file r_file_perms;
++	amtu_domtrans($1)
++	role $2 types amtu_t;
++	allow amtu_t $3:chr_file rw_term_perms;
 +')
-+
---- nsaserefpolicy/policy/modules/services/fail2ban.te	1969-12-31 19:00:00.000000000 -0500
-+++ serefpolicy-2.5.8/policy/modules/services/fail2ban.te	2007-03-08 08:42:37.000000000 -0500
-@@ -0,0 +1,77 @@
-+policy_module(fail2ban,1.0.0)
+--- nsaserefpolicy/policy/modules/admin/amtu.te	1969-12-31 19:00:00.000000000 -0500
++++ serefpolicy-2.5.8/policy/modules/admin/amtu.te	2007-03-08 08:42:36.000000000 -0500
+@@ -0,0 +1,56 @@
++policy_module(amtu,1.0.23)
 +
 +########################################
 +#
 +# Declarations
 +#
 +
-+type fail2ban_t;
-+type fail2ban_exec_t;
-+domain_type(fail2ban_t)
-+init_daemon_domain(fail2ban_t, fail2ban_exec_t)
-+
-+# log files
-+type fail2ban_log_t;
-+logging_log_file(fail2ban_log_t)
-+
-+# pid files
-+type fail2ban_var_run_t;
-+files_pid_file(fail2ban_var_run_t)
++type amtu_t;
++type amtu_exec_t;
++domain_type(amtu_t)
++domain_entry_file(amtu_t, amtu_exec_t)
 +
 +########################################
 +#
-+# fail2ban local policy
++# amtu local policy
 +#
 +
-+allow fail2ban_t self : capability { net_admin net_raw };
-+allow fail2ban_t self : process signal;
-+allow fail2ban_t self : rawip_socket { getopt create setopt };
++# Specific allow rules required for amtu
++allow amtu_t self:capability { audit_write net_raw };
++allow amtu_t self:netlink_audit_socket { create nlmsg_relay read write };
++allow amtu_t self:packet_socket { bind create read write };
++allow amtu_t self:udp_socket { create ioctl };
 +
-+# Init script handling
-+init_use_fds(fail2ban_t)
-+init_use_script_ptys(fail2ban_t)
-+domain_use_interactive_fds(fail2ban_t)
++files_manage_boot_files(amtu_t)
++files_read_etc_runtime_files(amtu_t)
++files_read_etc_files(amtu_t)
 +
-+## internal communication is often done using fifo and unix sockets.
-+allow fail2ban_t self:fifo_file rw_file_perms;
-+allow fail2ban_t self:unix_stream_socket create_stream_socket_perms;
++kernel_read_system_state(amtu_t)
 +
-+# Some common macros (you might be able to remove some)
-+files_read_etc_files(fail2ban_t)
-+
-+libs_use_ld_so(fail2ban_t)
-+libs_use_shared_libs(fail2ban_t)
-+
-+miscfiles_read_localization(fail2ban_t)
-+
-+# log files
-+allow fail2ban_t fail2ban_log_t:file manage_file_perms;
-+allow fail2ban_t fail2ban_log_t:dir { rw_dir_perms setattr };
-+logging_log_filetrans(fail2ban_t,fail2ban_log_t,{ file dir })
-+
-+# pid file
-+allow fail2ban_t fail2ban_var_run_t:file manage_file_perms;
-+allow fail2ban_t fail2ban_var_run_t:dir rw_dir_perms;
-+files_pid_filetrans(fail2ban_t,fail2ban_var_run_t, file)
-+
-+corecmd_search_sbin(fail2ban_t)
-+corecmd_exec_bin(fail2ban_t)
-+corecmd_exec_shell(fail2ban_t)
-+
-+dev_read_urand(fail2ban_t)
-+
-+files_read_usr_files(fail2ban_t)
-+
-+logging_read_generic_logs(fail2ban_t)
-+
-+selinux_get_fs_mount(fail2ban_t)
++libs_use_ld_so(amtu_t)
++libs_use_shared_libs(amtu_t)
 +
 +optional_policy(`
-+	iptables_domtrans(fail2ban_t)
-+')
++    seutil_use_newrole_fds(amtu_t)
++');
 +
-+ifdef(`targeted_policy',`
-+	term_dontaudit_use_unallocated_ttys(fail2ban_t)
-+	term_dontaudit_use_generic_ptys(fail2ban_t)
-+')
++optional_policy(`
++    userdom_use_sysadm_fds(amtu_t)
++');
++
++optional_policy(`
++    userdom_sigchld_sysadm(amtu_t)
++');
++
++optional_policy(`
++    nscd_dontaudit_search_pid(amtu_t)
++');
++
++optional_policy(`
++    kernel_dontaudit_read_system_state(amtu_t)
++');
++
++optional_policy(`
++    term_dontaudit_search_ptys(amtu_t)
++');
 +
 
-
---------------080500040402010802090605--
+--------------010802060002050903000501--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
