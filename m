@@ -1,66 +1,200 @@
-Subject: Re: [ANN] SE-PostgreSQL 8.2.3-1.0 alpha release
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Eamon Walsh <ewalsh@tycho.nsa.gov>
-Cc: Joshua Brindle <jbrindle@tresys.com>, KaiGai Kohei <kaigai@kaigai.gr.jp>,
-        "Christopher J. PeBenito" <cpebenito@tresys.com>,
-        selinux@tycho.nsa.gov, Chad Sellers <csellers@tresys.com>,
-        Karl MacMillan <kmacmillan@mentalrootkit.com>
-In-Reply-To: <45F038C5.4070003@tycho.nsa.gov>
-References: <45EC0D21.2070706@kaigai.gr.jp>  <45EC2C10.6050603@kaigai.gr.jp>
-	 <1173284267.10747.9.camel@sgc>  <45F010A4.4020201@kaigai.gr.jp>
-	 <1173360830.10467.29.camel@moss-spartans.epoch.ncsc.mil>
-	 <45F022A0.3020105@kaigai.gr.jp>
-	 <1173366058.10467.67.camel@moss-spartans.epoch.ncsc.mil>
-	 <45F02A09.5060301@tresys.com>  <45F02A80.5050708@tresys.com>
-	 <1173367847.10467.72.camel@moss-spartans.epoch.ncsc.mil>
-	 <45F038C5.4070003@tycho.nsa.gov>
-Content-Type: text/plain
-Date: Thu, 08 Mar 2007 15:23:56 -0500
-Message-Id: <1173385436.3241.54.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l28LWrNc024104
+	for <selinux@tycho.nsa.gov>; Thu, 8 Mar 2007 16:32:53 -0500
+Received: from web51502.mail.yahoo.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with SMTP id l28LWq5G019903
+	for <selinux@tycho.nsa.gov>; Thu, 8 Mar 2007 21:32:52 GMT
+Date: Thu, 8 Mar 2007 13:32:35 -0800 (PST)
+From: Steve G <linux_4ever@yahoo.com>
+Subject: [PATCH] Dropping support for disabling caching of context translations (CACHETRANS=0)
+To: selinux@tycho.nsa.gov
+MIME-Version: 1.0
+Content-Type: multipart/mixed; boundary="0-213594420-1173389555=:18523"
+Message-ID: <936094.18523.qm@web51502.mail.yahoo.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2007-03-08 at 11:24 -0500, Eamon Walsh wrote:
-> Stephen Smalley wrote:
-> 
-> > There are already string_to_security_class() and string_to_av_perm()
-> > functions provided by libselinux, although they should likely have
-> > properly namespaced versions (selinux_ prefix).
-> 
-> If we're talking about the API in this area: I had a request for 
-> security_class_to_string and av_perm_to_string functions, I believe from 
-> KaiGai.  The patch in the below e-mail adds them; this could be applied 
-> as an independent patch.
-> 
-> http://marc.theaimsgroup.com/?l=selinux&m=116486019626891&w=2
+--0-213594420-1173389555=:18523
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
+Content-Id: 
+Content-Disposition: inline
 
-Ok, so we could:
-- introduce new versions of the existing string_to_* functions with a
-security_ or selinux_ prefix for namespace cleanliness,
-- merge that patch, using the same convention for naming (either as is
-with security_ or replacing with selinux_,
-- have KaiGai rewrite his code to use these functions to map class and
-permission strings to policy values during startup of SEPostgreSQL,
-generating lookup tables for later use by the actual permission checks
-(where the lookup tables would map internal indices private to
-SEPostgreSQL to the policy-defined values obtained from libselinux).
-The tables would need to be revalidated and potentially refreshed upon a
-policy reload, which could be done from an AVC callback.
+>So, is anyone using CACHETRANS=0?  Do we need to retain it going forward
+>in the trunk?
 
-Then SEPostgreSQL no longer needs to be compile-time bound to specific
-policy values for its classes and permissions.
+Attaching a patch dropping this config option.
 
-Same could be done for XSELinux, right?
+-Steve
 
-Then when we have the dynamic discovery mechanism implemented, it can
-just be used by those libselinux functions internally, with no further
-change to the object managers.
-  
--- 
-Stephen Smalley
-National Security Agency
 
+ 
+____________________________________________________________________________________
+Looking for earth-friendly autos? 
+Browse Top Cars by "Green Rating" at Yahoo! Autos' Green Center.
+http://autos.yahoo.com/green_center/
+--0-213594420-1173389555=:18523
+Content-Type: text/x-patch; name="libselinux-2.0.4-cache.patch"
+Content-Description: 3713336035-libselinux-2.0.4-cache.patch
+Content-Disposition: inline; filename="libselinux-2.0.4-cache.patch"
+
+diff -urp libselinux-2.0.4.orig/src/selinux_config.c libselinux-2.0.4/src/selinux_config.c
+--- libselinux-2.0.4.orig/src/selinux_config.c	2007-03-08 09:42:08.000000000 -0500
++++ libselinux-2.0.4/src/selinux_config.c	2007-03-08 09:43:25.000000000 -0500
+@@ -17,7 +17,6 @@
+ #define SELINUXTAG "SELINUX="
+ #define SETLOCALDEFS "SETLOCALDEFS="
+ #define REQUIRESEUSERS "REQUIRESEUSERS="
+-#define CACHETRANSTAG "CACHETRANS="
+ 
+ /* Indices for file paths arrays. */
+ #define BINPOLICY         0
+@@ -174,10 +173,6 @@ static void init_selinux_config(void)
+ 					    sizeof(REQUIRESEUSERS) - 1)) {
+ 				value = buf_p + sizeof(REQUIRESEUSERS) - 1;
+ 				intptr = &require_seusers;
+-			} else if (!strncmp(buf_p, CACHETRANSTAG,
+-					    sizeof(CACHETRANSTAG) - 1)) {
+-				value = buf_p + sizeof(CACHETRANSTAG) - 1;
+-				intptr = &cache_trans;
+ 			} else {
+ 				continue;
+ 			}
+diff -urp libselinux-2.0.4.orig/src/selinux_internal.h libselinux-2.0.4/src/selinux_internal.h
+--- libselinux-2.0.4.orig/src/selinux_internal.h	2007-02-25 14:52:16.000000000 -0500
++++ libselinux-2.0.4/src/selinux_internal.h	2007-03-08 09:46:45.000000000 -0500
+@@ -80,4 +80,3 @@ hidden_proto(selinux_trans_to_raw_contex
+ extern int load_setlocaldefs hidden;
+ extern int require_seusers hidden;
+ extern int selinux_page_size hidden;
+-extern int cache_trans hidden;
+diff -urp libselinux-2.0.4.orig/src/setrans_client.c libselinux-2.0.4/src/setrans_client.c
+--- libselinux-2.0.4.orig/src/setrans_client.c	2007-02-25 14:52:16.000000000 -0500
++++ libselinux-2.0.4/src/setrans_client.c	2007-03-08 09:46:23.000000000 -0500
+@@ -24,8 +24,6 @@ static __thread security_context_t prev_
+ static __thread security_context_t prev_r2t_trans = NULL;
+ static __thread security_context_t prev_r2t_raw = NULL;
+ 
+-int cache_trans hidden = 1;
+-
+ /*
+  * setransd_open
+  *
+@@ -203,12 +201,10 @@ static int trans_to_raw_context(char *tr
+ 
+ hidden void fini_context_translations(void)
+ {
+-	if (cache_trans) {
+-		free(prev_r2t_trans);
+-		free(prev_r2t_raw);
+-		free(prev_t2r_trans);
+-		free(prev_t2r_raw);
+-	}
++	free(prev_r2t_trans);
++	free(prev_r2t_raw);
++	free(prev_t2r_trans);
++	free(prev_t2r_raw);
+ }
+ 
+ hidden int init_context_translations(void)
+@@ -230,29 +226,26 @@ int selinux_trans_to_raw_context(securit
+ 		goto out;
+ 	}
+ 
+-	if (cache_trans) {
+-		if (prev_t2r_trans && strcmp(prev_t2r_trans, trans) == 0) {
+-			*rawp = strdup(prev_t2r_raw);
+-		} else {
+-			free(prev_t2r_trans);
+-			prev_t2r_trans = NULL;
+-			free(prev_t2r_raw);
+-			prev_t2r_raw = NULL;
+-			if (trans_to_raw_context(trans, rawp))
+-				*rawp = strdup(trans);
+-			if (*rawp) {
+-				prev_t2r_trans = strdup(trans);
+-				if (!prev_t2r_trans)
+-					goto out;
+-				prev_t2r_raw = strdup(*rawp);
+-				if (!prev_t2r_raw) {
+-					free(prev_t2r_trans);
+-					prev_t2r_trans = NULL;
+-				}
++	if (prev_t2r_trans && strcmp(prev_t2r_trans, trans) == 0) {
++		*rawp = strdup(prev_t2r_raw);
++	} else {
++		free(prev_t2r_trans);
++		prev_t2r_trans = NULL;
++		free(prev_t2r_raw);
++		prev_t2r_raw = NULL;
++		if (trans_to_raw_context(trans, rawp))
++			*rawp = strdup(trans);
++		if (*rawp) {
++			prev_t2r_trans = strdup(trans);
++			if (!prev_t2r_trans)
++				goto out;
++			prev_t2r_raw = strdup(*rawp);
++			if (!prev_t2r_raw) {
++				free(prev_t2r_trans);
++				prev_t2r_trans = NULL;
+ 			}
+ 		}
+-	} else if (trans_to_raw_context(trans, rawp))
+-		*rawp = strdup(trans);
++	}
+       out:
+ 	return *rawp ? 0 : -1;
+ }
+@@ -272,29 +265,26 @@ int selinux_raw_to_trans_context(securit
+ 		goto out;
+ 	}
+ 
+-	if (cache_trans) {
+-		if (prev_r2t_raw && strcmp(prev_r2t_raw, raw) == 0) {
+-			*transp = strdup(prev_r2t_trans);
+-		} else {
+-			free(prev_r2t_raw);
+-			prev_r2t_raw = NULL;
+-			free(prev_r2t_trans);
+-			prev_r2t_trans = NULL;
+-			if (raw_to_trans_context(raw, transp))
+-				*transp = strdup(raw);
+-			if (*transp) {
+-				prev_r2t_raw = strdup(raw);
+-				if (!prev_r2t_raw)
+-					goto out;
+-				prev_r2t_trans = strdup(*transp);
+-				if (!prev_r2t_trans) {
+-					free(prev_r2t_raw);
+-					prev_r2t_raw = NULL;
+-				}
++	if (prev_r2t_raw && strcmp(prev_r2t_raw, raw) == 0) {
++		*transp = strdup(prev_r2t_trans);
++	} else {
++		free(prev_r2t_raw);
++		prev_r2t_raw = NULL;
++		free(prev_r2t_trans);
++		prev_r2t_trans = NULL;
++		if (raw_to_trans_context(raw, transp))
++			*transp = strdup(raw);
++		if (*transp) {
++			prev_r2t_raw = strdup(raw);
++			if (!prev_r2t_raw)
++				goto out;
++			prev_r2t_trans = strdup(*transp);
++			if (!prev_r2t_trans) {
++				free(prev_r2t_raw);
++				prev_r2t_raw = NULL;
+ 			}
+ 		}
+-	} else if (raw_to_trans_context(raw, transp))
+-		*transp = strdup(raw);
++	}
+       out:
+ 	return *transp ? 0 : -1;
+ }
+
+--0-213594420-1173389555=:18523--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
