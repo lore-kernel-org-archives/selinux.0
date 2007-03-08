@@ -1,178 +1,103 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l28FZH0o007494
-	for <selinux@tycho.nsa.gov>; Thu, 8 Mar 2007 10:35:17 -0500
-Received: from mx1.redhat.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l28FZHY3014292
-	for <selinux@tycho.nsa.gov>; Thu, 8 Mar 2007 15:35:17 GMT
-Message-ID: <45F02D32.2040508@redhat.com>
-Date: Thu, 08 Mar 2007 10:35:14 -0500
-From: Daniel J Walsh <dwalsh@redhat.com>
-MIME-Version: 1.0
-To: "Christopher J. PeBenito" <cpebenito@tresys.com>,
-        SE Linux <selinux@tycho.nsa.gov>
-Subject: ipsec tools domtrans patch
-Content-Type: multipart/mixed;
- boundary="------------090006020901050600010800"
+Subject: Re: [ANN] SE-PostgreSQL 8.2.3-1.0 alpha release
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Joshua Brindle <jbrindle@tresys.com>
+Cc: KaiGai Kohei <kaigai@kaigai.gr.jp>,
+        "Christopher J. PeBenito" <cpebenito@tresys.com>,
+        selinux@tycho.nsa.gov, Chad Sellers <csellers@tresys.com>,
+        Karl MacMillan <kmacmillan@mentalrootkit.com>
+In-Reply-To: <45F02A80.5050708@tresys.com>
+References: <45EC0D21.2070706@kaigai.gr.jp>  <45EC2C10.6050603@kaigai.gr.jp>
+	 <1173284267.10747.9.camel@sgc>  <45F010A4.4020201@kaigai.gr.jp>
+	 <1173360830.10467.29.camel@moss-spartans.epoch.ncsc.mil>
+	 <45F022A0.3020105@kaigai.gr.jp>
+	 <1173366058.10467.67.camel@moss-spartans.epoch.ncsc.mil>
+	 <45F02A09.5060301@tresys.com>  <45F02A80.5050708@tresys.com>
+Content-Type: text/plain
+Date: Thu, 08 Mar 2007 10:30:46 -0500
+Message-Id: <1173367847.10467.72.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This is a multi-part message in MIME format.
---------------090006020901050600010800
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+On Thu, 2007-03-08 at 10:23 -0500, Joshua Brindle wrote:
+> Joshua Brindle wrote:
+> > Stephen Smalley wrote:
+> >> On Thu, 2007-03-08 at 23:50 +0900, KaiGai Kohei wrote:
+> >>> Stephen Smalley wrote:
+> >>>> On Thu, 2007-03-08 at 22:33 +0900, KaiGai Kohei wrote:
+> >>>>> Christopher J. PeBenito wrote:
+> >>>>>> On Mon, 2007-03-05 at 23:41 +0900, KaiGai Kohei wrote:
+> >>>>>>> The attached patch adds new object classes, access vectors and
+> >>>>>>> booleans related to database.
+> >>>>>>> SE-PostgreSQL uses them to manage the various kinds of database
+> >>>>>>> objects such as tables, columns, tuples and so on.
+> >>>>>>>
+> >>>>>>> The most of security policies are provided as a binary security
+> >>>>>>> policy within RPM package. But it requires the definition of new
+> >>>>>>> object classes, access vectors and booleans in the base policy.
+> >>>>>>>
+> >>>>>>> Please apply it.
+> >>>>>> Is the code on a path to being merged upstream?  I'm hesitant to 
+> >>>>>> apply
+> >>>>>> class changes until the code is on a plan to be merged.
+> >>>>> Pushing to the upstreamed PostgreSQL is one of the next activities.
+> >>>>> No need to say, I'm targeting it to be merged as a part of PostgreSQL.
+> >>>>>
+> >>>>> I'll submit a patch to add new object classes again after discussion
+> >>>>> in the pgsql-hackers list. But I'm desiring the object class numbers
+> >>>>> are fixed earlier. (currently, I uses 60 - 65 to represent them)
+> >>>> Where do things stand wrt dynamic userspace object class and permission
+> >>>> discovery?  It would be nice to avoid further spread of hardcoded
+> >>>> classes and permissions in applications if we can avoid it.
+> >>> See, 
+> >>> http://sepgsql.googlecode.com/svn/trunk/src/include/security/sepgsql_internal.h 
+> >>>
+> >>> When I started to develop, 'context' class has the maximum number of 
+> >>> object
+> >>> class, so I defined 'SECCLASS_DATABASE' next to it.
+> >>> # But it will conflict with 'dccp_socket' class now... :-(
+> >>
+> >> Yes, you'll have to re-base.  Of course, you should be using the
+> >> libselinux headers instead of your own private definitions, i.e.
+> >>     cd refpolicy/policy/flask
+> >>     (update security_classes and access_vectors to add your defs)
+> >>     make
+> >>     make LIBSEL=/path/to/libselinux tolib
+> >>     cd /path/to/libselinux
+> >>     make install relabel
+> >>
+> >> Then just #include <selinux/flask.h> and #include
+> >> <selinux/av_permissions.h> in your SE-PostgreSQL code.  Don't duplicate
+> >> the definitions there - that makes it even worse.
+> >>
+> >> But in the long term, we want to move away from using #define's
+> >> altogether and have the object managers dynamically map the class and
+> >> permission string names during startup to values via libselinux
+> >> functions (which in turn can use a selinuxfs node or an auxiliary policy
+> >> file to get the information).
+> >>
+> > 
+> > We'll be resuming work on dynamic object class discovery soon, 
+> > unfortunately the SELinux Symposium interferes with real work. IIRC the 
+> > current decision was to use an selinuxfs node to get values to avoid 
+> > desynchronization of class numbers in the kernel and on disk.
+> > 
+> 
+> It might be nice to get an API nailed down and put it in immediately so 
+> that sepostgres can start using it and put in functions that use the 
+> static numbers.
 
+There are already string_to_security_class() and string_to_av_perm()
+functions provided by libselinux, although they should likely have
+properly namespaced versions (selinux_ prefix).
 
+We'd also likely want a callback of some sort for revalidating any
+cached mappings upon a policy reload.
 
---------------090006020901050600010800
-Content-Type: text/x-patch;
- name="ipsec.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="ipsec.patch"
+-- 
+Stephen Smalley
+National Security Agency
 
---- nsaserefpolicy/policy/modules/system/ipsec.if	2007-01-02 12:57:49.000000000 -0500
-+++ serefpolicy-2.5.8/policy/modules/system/ipsec.if	2007-03-08 10:31:24.000000000 -0500
-@@ -111,3 +111,103 @@
- 	files_search_pids($1)
- 	manage_files_pattern($1,ipsec_var_run_t,ipsec_var_run_t)
- ')
-+
-+########################################
-+## <summary>
-+##	Allow an IPsec SA to be used by an IPsec Policy.
-+## </summary>
-+## <param name="domain">
-+##	<summary>
-+##	The type of the process performing this action.
-+##	</summary>
-+## </param>
-+#
-+interface(`ipsec_labeled',`
-+	gen_require(`
-+		type ipsec_spd_t;
-+	')
-+
-+	allow $1 ipsec_spd_t:association polmatch;
-+	domain_ipsec_labels($1)
-+')
-+
-+
-+########################################
-+## <summary>
-+##	Execute racoon in the racoon domain.
-+## </summary>
-+## <param name="domain">
-+##	<summary>
-+##	The type of the process performing this action.
-+##	</summary>
-+## </param>
-+#
-+interface(`ipsec_domtrans_racoon',`
-+	gen_require(`
-+		type racoon_t, racoon_exec_t;
-+	')
-+
-+	domain_auto_trans($1,racoon_exec_t,racoon_t)
-+
-+	allow $1 racoon_t:fd use;
-+	allow racoon_t $1:fd use;
-+	allow racoon_t $1:fifo_file rw_file_perms;
-+	allow racoon_t $1:process sigchld;
-+')
-+
-+########################################
-+## <summary>
-+##	Execute setkey in the setkey domain.
-+## </summary>
-+## <param name="domain">
-+##	<summary>
-+##	The type of the process performing this action.
-+##	</summary>
-+## </param>
-+#
-+interface(`ipsec_domtrans_setkey',`
-+	gen_require(`
-+		type setkey_t, setkey_exec_t;
-+	')
-+	domain_auto_trans($1,setkey_exec_t,setkey_t)
-+
-+	allow $1 setkey_t:fd use;
-+	allow setkey_t $1:fd use;
-+	allow setkey_t $1:fifo_file rw_file_perms;
-+	allow setkey_t $1:process sigchld;
-+')
-+
-+########################################
-+## <summary>
-+##	Execute ipsec-tools in the setkey and racoon domains
-+##	and allow the specified role the domains.
-+## </summary>
-+## <param name="domain">
-+##	<summary>
-+##	Domain allowed access.
-+##	</summary>
-+## </param>
-+## <param name="role">
-+##	<summary>
-+##	The role to be allowed the racoon and setkey domains.
-+##	</summary>
-+## </param>
-+## <param name="terminal">
-+##	<summary>
-+##	The type of the terminal allow the racoon and setkey domains to use.
-+##	</summary>
-+## </param>
-+## <rolecap/>
-+#
-+interface(`ipsec_run_tools',`
-+	gen_require(`
-+		type racoon_t, setkey_t;
-+	')
-+	ipsec_domtrans_racoon($1)
-+	role $2 types racoon_t;
-+	allow racoon_t $3:chr_file rw_term_perms;
-+	
-+	ipsec_domtrans_setkey($1)
-+	role $2 types setkey_t;
-+	allow setkey_t $3:chr_file rw_term_perms;
-+')
---- nsaserefpolicy/policy/modules/kernel/domain.if	2007-02-19 11:32:51.000000000 -0500
-+++ serefpolicy-2.5.8/policy/modules/kernel/domain.if	2007-03-08 08:42:36.000000000 -0500
-@@ -1254,3 +1254,21 @@
- 	typeattribute $1 can_change_object_identity;
- 	typeattribute $1 set_curr_context;
- ')
-+
-+########################################
-+## <summary>
-+##	Allow specified type to associate ipsec packets from any domain
-+## </summary>
-+## <param name="type">
-+##	<summary>
-+##	Type of subject to be allowed this.
-+##	</summary>
-+## </param>
-+#
-+interface(`domain_ipsec_labels',`
-+	gen_require(`
-+		attribute domain;
-+ 	')
-+ 
-+	allow $1 domain:association { sendto recvfrom };
-+')
---- nsaserefpolicy/policy/modules/system/userdomain.if	2007-02-19 11:32:53.000000000 -0500
-+++ serefpolicy-2.5.8/policy/modules/system/userdomain.if	2007-03-08 10:30:10.000000000 -0500
-@@ -1313,6 +1318,8 @@
- 
- 	init_exec($1)
- 
-+	ipsec_run_tools($1,$2,$3)
-+
- 	logging_send_syslog_msg($1)
- 	logging_read_audit_log($1)
- 	logging_read_generic_logs($1)
-
---------------090006020901050600010800--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
