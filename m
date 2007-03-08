@@ -1,186 +1,206 @@
 Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l28F4Qx5005730
-	for <selinux@tycho.nsa.gov>; Thu, 8 Mar 2007 10:04:26 -0500
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l28F6c75005843
+	for <selinux@tycho.nsa.gov>; Thu, 8 Mar 2007 10:06:38 -0500
 Received: from mx1.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id l28F4Pwk012026
-	for <selinux@tycho.nsa.gov>; Thu, 8 Mar 2007 15:04:26 GMT
-Message-ID: <45F025F7.7060609@redhat.com>
-Date: Thu, 08 Mar 2007 10:04:23 -0500
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id l28F6bwk012406
+	for <selinux@tycho.nsa.gov>; Thu, 8 Mar 2007 15:06:38 GMT
+Message-ID: <45F0267B.9040508@redhat.com>
+Date: Thu, 08 Mar 2007 10:06:35 -0500
 From: Daniel J Walsh <dwalsh@redhat.com>
 MIME-Version: 1.0
 To: "Christopher J. PeBenito" <cpebenito@tresys.com>,
         SE Linux <selinux@tycho.nsa.gov>
-Subject: mls changes to get xinetd to work with labeled networking 
+Subject: Hal changes.
 Content-Type: multipart/mixed;
- boundary="------------000009010108090802060402"
+ boundary="------------070606090204060804090303"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 This is a multi-part message in MIME format.
---------------000009010108090802060402
+--------------070606090204060804090303
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 
+Beginning to break out hal policy into it's helper apps.  So hald_mac is 
+the only  domain that needs to write to  /dev/shm and hald_acl  needs 
+dac overrides.
 
-
---------------000009010108090802060402
+--------------070606090204060804090303
 Content-Type: text/x-patch;
- name="mls.patch"
+ name="nsaserefpolicy_policy_modules_services_hal.patch"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline;
- filename="mls.patch"
+ filename="nsaserefpolicy_policy_modules_services_hal.patch"
 
---- nsaserefpolicy/policy/modules/kernel/mls.if	2006-11-16 17:15:04.000000000 -0500
-+++ serefpolicy-2.5.8/policy/modules/kernel/mls.if	2007-03-08 08:42:37.000000000 -0500
-@@ -154,6 +154,26 @@
- ########################################
- ## <summary>
- ##	Make specified domain MLS trusted
-+##	for writing to sockets at any level
-+##	that is dominated by the process clearance.
-+## </summary>
-+## <param name="domain">
-+##	<summary>
-+##	Domain allowed access.
-+##	</summary>
-+## </param>
-+#
-+interface(`mls_socket_write_to_clearance',`
-+	gen_require(`
-+		attribute mlsnetwritetoclr;
-+	')
+--- nsaserefpolicy/policy/modules/services/hal.fc	2007-01-02 12:57:43.000000000 -0500
++++ serefpolicy-2.5.8/policy/modules/services/hal.fc	2007-03-08 08:42:37.000000000 -0500
+@@ -8,4 +8,10 @@
+ 
+ /var/lib/hal(/.*)?				gen_context(system_u:object_r:hald_var_lib_t,s0)
+ 
++/var/cache/hald(/.*)?				gen_context(system_u:object_r:hald_cache_t,s0)
 +
-+	typeattribute $1 mlsnetwritetoclr;
+ /var/run/haldaemon.pid	--	 		gen_context(system_u:object_r:hald_var_run_t,s0)
++
++/usr/libexec/hal-acl-tool		--	gen_context(system_u:object_r:hald_acl_exec_t,s0)
++
++/usr/libexec/hald-addon-macbookpro-backlight --	gen_context(system_u:object_r:hald_mac_exec_t,s0)
+--- nsaserefpolicy/policy/modules/services/hal.te	2007-02-19 11:32:53.000000000 -0500
++++ serefpolicy-2.5.8/policy/modules/services/hal.te	2007-03-08 08:42:37.000000000 -0500
+@@ -16,9 +16,24 @@
+ type hald_var_run_t;
+ files_pid_file(hald_var_run_t)
+ 
++type hald_cache_t;
++files_pid_file(hald_cache_t)
++
+ type hald_var_lib_t;
+ files_type(hald_var_lib_t)
+ 
++type hald_acl_t;
++type hald_acl_exec_t;
++domain_type(hald_acl_t)
++domain_entry_file(hald_acl_t,hald_acl_exec_t)
++role system_r types hald_acl_t;
++
++type hald_mac_t;
++type hald_mac_exec_t;
++domain_type(hald_mac_t)
++domain_entry_file(hald_mac_t,hald_mac_exec_t)
++role system_r types hald_mac_t;
++
+ ########################################
+ #
+ # Local policy
+@@ -26,7 +41,7 @@
+ 
+ # execute openvt which needs setuid
+ allow hald_t self:capability { chown setuid setgid kill net_admin sys_admin sys_nice dac_override dac_read_search mknod sys_rawio sys_tty_config };
+-dontaudit hald_t self:capability sys_tty_config;
++dontaudit hald_t self:capability {sys_ptrace sys_tty_config };
+ allow hald_t self:process signal_perms;
+ allow hald_t self:fifo_file rw_fifo_file_perms;
+ allow hald_t self:unix_stream_socket { create_stream_socket_perms connectto };
+@@ -51,11 +66,13 @@
+ manage_files_pattern(hald_t,hald_var_run_t,hald_var_run_t)
+ files_pid_filetrans(hald_t,hald_var_run_t,file)
+ 
++manage_files_pattern(hald_t,hald_cache_t,hald_cache_t)
++
+ kernel_read_system_state(hald_t)
+ kernel_read_network_state(hald_t)
+ kernel_read_kernel_sysctls(hald_t)
+ kernel_read_fs_sysctls(hald_t)
+-kernel_read_irq_sysctls(hald_t)
++kernel_rw_irq_sysctls(hald_t)
+ kernel_rw_vm_sysctls(hald_t)
+ kernel_write_proc_files(hald_t)
+ 
+@@ -85,9 +102,13 @@
+ dev_rw_power_management(hald_t)
+ # hal is now execing pm-suspend
+ dev_rw_sysfs(hald_t)
++dev_read_sound(hald_t)
++dev_write_sound(hald_t)
++dev_read_raw_memory(hald_t)
+ 
+ domain_use_interactive_fds(hald_t)
+ domain_read_all_domains_state(hald_t)
++domain_dontaudit_ptrace_all_domains(hald_t)
+ 
+ files_exec_etc_files(hald_t)
+ files_read_etc_files(hald_t)
+@@ -101,6 +122,7 @@
+ files_create_boot_flag(hald_t)
+ files_getattr_all_dirs(hald_t)
+ files_read_kernel_img(hald_t)
++files_rw_lock_dirs(hald_t)
+ 
+ fs_getattr_all_fs(hald_t)
+ fs_search_all(hald_t)
+@@ -130,10 +152,10 @@
+ init_use_fds(hald_t)
+ init_use_script_ptys(hald_t)
+ init_domtrans_script(hald_t)
+-init_write_initctl(hald_t)
+ init_read_utmp(hald_t)
+ #hal runs shutdown, probably need a shutdown domain
+ init_rw_utmp(hald_t)
++init_telinit(hald_t)
+ 
+ libs_use_ld_so(hald_t)
+ libs_use_shared_libs(hald_t)
+@@ -248,3 +270,68 @@
+ optional_policy(`
+ 	vbetool_domtrans(hald_t)
+ ')
++
++########################################
++#
++# Local hald acl policy
++#
++
++allow hald_acl_t self:capability { dac_override fowner };
++allow hald_acl_t self : fifo_file read_fifo_file_perms;
++
++domtrans_pattern(hald_t, hald_acl_exec_t, hald_acl_t)
++allow hald_t hald_acl_t : process signal;
++allow hald_acl_t hald_t : unix_stream_socket connectto;
++manage_dirs_pattern(hald_acl_t,hald_var_lib_t,hald_var_lib_t)
++manage_files_pattern(hald_acl_t,hald_var_lib_t,hald_var_lib_t)
++
++corecmd_exec_bin(hald_acl_t)
++corecmd_search_sbin(hald_acl_t)
++
++dev_setattr_video_dev(hald_acl_t)
++dev_getattr_sound_dev(hald_acl_t)
++dev_setattr_sound_dev(hald_acl_t)
++
++libs_use_ld_so(hald_acl_t)
++libs_use_shared_libs(hald_acl_t)
++
++files_search_var_lib(hald_acl_t)
++files_read_usr_files(hald_acl_t)
++files_read_etc_files(hald_acl_t)
++
++storage_getattr_removable_dev(hald_acl_t)
++storage_setattr_removable_dev(hald_acl_t)
++
++miscfiles_read_localization(hald_acl_t)
++
++ifdef(`targeted_policy',`
++	term_dontaudit_use_console(hald_acl_t)
++	term_dontaudit_use_generic_ptys(hald_acl_t)
 +')
 +
 +########################################
-+## <summary>
-+##	Make specified domain MLS trusted
- ##	for writing to sockets at any level.
- ## </summary>
- ## <param name="domain">
---- nsaserefpolicy/policy/modules/kernel/mls.te	2007-01-02 12:57:13.000000000 -0500
-+++ serefpolicy-2.5.8/policy/modules/kernel/mls.te	2007-03-08 08:42:37.000000000 -0500
-@@ -18,6 +18,7 @@
- attribute mlsnetreadtoclr;
- attribute mlsnetwrite;
- attribute mlsnetwritetoclr;
-+attribute mlsnetwriteranged;
- attribute mlsnetupgrade;
- attribute mlsnetdowngrade;
- attribute mlsnetrecvall;
-@@ -43,6 +44,8 @@
- attribute mlsxwinwritecolormap;
- attribute mlsxwinwritexinput;
- 
-+# Object attributes that allow MLS overrides for access by all subjects
-+attribute mlsrangedobject;
- attribute mlstrustedobject;
- 
- attribute privrangetrans;
---- nsaserefpolicy/policy/modules/services/inetd.te	2007-02-19 11:32:53.000000000 -0500
-+++ serefpolicy-2.5.8/policy/modules/services/inetd.te	2007-03-08 08:42:37.000000000 -0500
-@@ -140,8 +140,8 @@
- mls_fd_use_all_levels(inetd_t)
- mls_fd_share_all_levels(inetd_t)
- mls_socket_read_to_clearance(inetd_t)
-+mls_socket_write_to_clearance(inetd_t)
- mls_process_set_level(inetd_t)
--mls_socket_read_to_clearance(inetd_t)
- 
- sysnet_read_config(inetd_t)
- 
-@@ -192,6 +192,9 @@
- # for identd
- allow inetd_child_t self:netlink_tcpdiag_socket r_netlink_socket_perms;
- allow inetd_child_t self:capability { setuid setgid };
-+allow inetd_child_t self:dir search;
-+allow inetd_child_t self:{ lnk_file file } { getattr read };
++#
++# Local hald mac policy
++#
 +
- files_search_home(inetd_child_t)
- 
- manage_dirs_pattern(inetd_child_t,inetd_child_tmp_t,inetd_child_tmp_t)
---- nsaserefpolicy/policy/mls	2006-11-16 17:15:26.000000000 -0500
-+++ serefpolicy-2.5.8/policy/mls	2007-03-08 08:42:36.000000000 -0500
-@@ -89,12 +89,14 @@
- mlsconstrain { file lnk_file fifo_file dir chr_file blk_file sock_file } { write create setattr relabelfrom append unlink link rename mounton }
- 	(( l1 eq l2 ) or
- 	 (( t1 == mlsfilewritetoclr ) and ( h1 dom l2 ) and ( l1 domby l2 )) or
--	 (( t2 == mlsfilewriteinrange ) and ( l1 dom l2 ) and ( h1 domby h2 )) or
- 	 ( t1 == mlsfilewrite ) or
-+	 (( t2 == mlsrangedobject ) and ( l1 dom l2 ) and ( h1 domby h2 )) or
- 	 ( t2 == mlstrustedobject ));
- 
-+# Directory "write" ops
- mlsconstrain dir { add_name remove_name reparent rmdir }
--	((( l1 dom l2 ) and ( l1 domby h2 )) or
-+	(( l1 eq l2 ) or
-+	 (( t1 == mlsfilewriteinrange ) and ( l1 dom l2 ) and ( l1 domby h2 )) or
- 	 (( t1 == mlsfilewritetoclr ) and ( h1 dom l2 ) and ( l1 domby l2 )) or
- 	 ( t1 == mlsfilewrite ) or
- 	 ( t2 == mlstrustedobject ));
-@@ -165,8 +167,20 @@
- mlsconstrain { socket tcp_socket udp_socket rawip_socket netlink_socket packet_socket key_socket unix_stream_socket unix_dgram_socket netlink_route_socket netlink_firewall_socket netlink_tcpdiag_socket netlink_nflog_socket netlink_xfrm_socket netlink_selinux_socket netlink_audit_socket netlink_ip6fw_socket netlink_dnrt_socket } relabelto
- 	( h1 dom h2 );
- 
-+# the socket "read+write" ops
-+# (Socket FDs are generally bidirectional, equivalent to open(..., O_RDWR),
-+# require equal levels for unprivileged subjects, or read *and* write overrides)
-+mlsconstrain { socket tcp_socket udp_socket rawip_socket netlink_socket packet_socket key_socket unix_stream_socket unix_dgram_socket netlink_route_socket netlink_firewall_socket netlink_tcpdiag_socket netlink_nflog_socket netlink_xfrm_socket netlink_selinux_socket netlink_audit_socket netlink_ip6fw_socket netlink_dnrt_socket } { accept connect }
-+	(( l1 eq l2 ) or
-+	 (((( t1 == mlsnetreadtoclr ) and ( h1 dom l2 )) or
-+	   ( t1 == mlsnetread )) and
-+	  ((( t1 == mlsnetwriteranged ) and ( l1 dom l2 ) and ( l1 domby h2 )) or
-+	   (( t1 == mlsnetwritetoclr ) and ( h1 dom l2 ) and ( l1 domby l2 )) or
-+	   ( t1 == mlsnetwrite ))));
++domtrans_pattern(hald_t, hald_mac_exec_t, hald_mac_t)
++allow hald_t hald_mac_t : process signal;
++allow hald_mac_t hald_t : unix_stream_socket connectto;
 +
++files_search_var_lib(hald_mac_t)
++manage_dirs_pattern(hald_mac_t,hald_var_lib_t,hald_var_lib_t)
++manage_files_pattern(hald_mac_t,hald_var_lib_t,hald_var_lib_t)
 +
- # the socket "read" ops (note the check is dominance of the low level)
--mlsconstrain { socket tcp_socket udp_socket rawip_socket netlink_socket packet_socket key_socket unix_stream_socket unix_dgram_socket netlink_route_socket netlink_firewall_socket netlink_tcpdiag_socket netlink_nflog_socket netlink_xfrm_socket netlink_selinux_socket netlink_audit_socket netlink_ip6fw_socket netlink_dnrt_socket } { read getattr listen accept getopt recv_msg }
-+mlsconstrain { socket tcp_socket udp_socket rawip_socket netlink_socket packet_socket key_socket unix_stream_socket unix_dgram_socket netlink_route_socket netlink_firewall_socket netlink_tcpdiag_socket netlink_nflog_socket netlink_xfrm_socket netlink_selinux_socket netlink_audit_socket netlink_ip6fw_socket netlink_dnrt_socket } { read getattr listen getopt recv_msg }
- 	(( l1 dom l2 ) or
- 	 (( t1 == mlsnetreadtoclr ) and ( h1 dom l2 )) or
- 	 ( t1 == mlsnetread ));
-@@ -177,13 +191,14 @@
- 	 ( t1 == mlsnetread ));
- 
- # the socket "write" ops
--mlsconstrain { socket tcp_socket udp_socket rawip_socket netlink_socket packet_socket key_socket unix_stream_socket unix_dgram_socket netlink_route_socket netlink_firewall_socket netlink_tcpdiag_socket netlink_nflog_socket netlink_xfrm_socket netlink_selinux_socket netlink_audit_socket netlink_ip6fw_socket netlink_dnrt_socket } { write setattr relabelfrom connect setopt shutdown }
--	((( l1 dom l2 ) and ( l1 domby h2 )) or
-+mlsconstrain { socket tcp_socket udp_socket rawip_socket netlink_socket packet_socket key_socket unix_stream_socket unix_dgram_socket netlink_route_socket netlink_firewall_socket netlink_tcpdiag_socket netlink_nflog_socket netlink_xfrm_socket netlink_selinux_socket netlink_audit_socket netlink_ip6fw_socket netlink_dnrt_socket } { write setattr relabelfrom setopt shutdown }
-+	(( l1 eq l2 ) or 
-+	 (( t1 == mlsnetwriteranged ) and ( l1 dom l2 ) and ( l1 domby h2 )) or
- 	 (( t1 == mlsnetwritetoclr ) and ( h1 dom l2 ) and ( l1 domby l2 )) or
- 	 ( t1 == mlsnetwrite ));
- 
- # used by netlabel to restrict normal domains to same level connections
--mlsconstrain { tcp_socket udp_socket } recvfrom
-+mlsconstrain { tcp_socket udp_socket rawip_socket } recvfrom
- 	(( l1 eq l2 ) or
- 	 (( t1 == mlsnetreadtoclr ) and ( h1 dom l2 )) or
- 	 ( t1 == mlsnetread ));
-@@ -274,7 +289,8 @@
- 
- # the netif/node "write" ops (implicit single level socket doing the write)
- mlsconstrain { netif node } { tcp_send udp_send rawip_send }
--	(( l1 dom l2 ) and ( l1 domby h2 ));
-+	(( l1 eq l2 ) or
-+	(( t1 == mlsnetwriteranged ) and ( l1 dom l2 ) and ( l1 domby h2 )));
- 
- # these access vectors have no MLS restrictions
- # node enforce_dest
-@@ -581,7 +597,8 @@
- 	 ( t2 == unlabeled_t ));
- 
- mlsconstrain association { sendto }
--	((( l1 dom l2 ) and ( l1 domby h2 )) or
-+	(( l1 eq l2 ) or
-+	 (( t1 == mlsnetwriteranged ) and ( l1 dom l2 ) and ( l1 domby h2 )) or
- 	 ( t2 == unlabeled_t ));
- 
- mlsconstrain association { polmatch }
++libs_use_ld_so(hald_mac_t)
++libs_use_shared_libs(hald_mac_t)
++
++files_read_usr_files(hald_mac_t)
++
++dev_write_raw_memory(hald_mac_t)
++
++miscfiles_read_localization(hald_mac_t)
++
++ifdef(`targeted_policy',`
++	term_dontaudit_use_console(hald_mac_t)
++	term_dontaudit_use_generic_ptys(hald_mac_t)
++')
 
---------------000009010108090802060402--
+--------------070606090204060804090303--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
