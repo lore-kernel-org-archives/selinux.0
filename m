@@ -1,158 +1,83 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l28EUmIw004065
-	for <selinux@tycho.nsa.gov>; Thu, 8 Mar 2007 09:30:48 -0500
-Received: from mx1.redhat.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l28EUlko002402
-	for <selinux@tycho.nsa.gov>; Thu, 8 Mar 2007 14:30:47 GMT
-Message-ID: <45F01E16.5070002@redhat.com>
-Date: Thu, 08 Mar 2007 09:30:46 -0500
-From: Daniel J Walsh <dwalsh@redhat.com>
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l28EYGf2004199
+	for <selinux@tycho.nsa.gov>; Thu, 8 Mar 2007 09:34:16 -0500
+Received: from nz-out-0506.google.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id l28EYFHa004660
+	for <selinux@tycho.nsa.gov>; Thu, 8 Mar 2007 14:34:15 GMT
+Received: by nz-out-0506.google.com with SMTP id z3so325990nzf
+        for <selinux@tycho.nsa.gov>; Thu, 08 Mar 2007 06:34:13 -0800 (PST)
+Message-ID: <45F01EDB.6050507@kaigai.gr.jp>
+Date: Thu, 08 Mar 2007 23:34:03 +0900
+From: KaiGai Kohei <kaigai@kaigai.gr.jp>
 MIME-Version: 1.0
-To: "Christopher J. PeBenito" <cpebenito@tresys.com>,
-        SE Linux <selinux@tycho.nsa.gov>
-Subject: amtu policy
-Content-Type: multipart/mixed;
- boundary="------------010802060002050903000501"
+To: Stephen Smalley <sds@tycho.nsa.gov>
+CC: Joshua Brindle <jbrindle@tresys.com>, casey@schaufler-ca.com,
+        russell@coker.com.au, selinux@tycho.nsa.gov,
+        "Christopher J. PeBenito" <cpebenito@tresys.com>
+Subject: Re: [ANN] SE-PostgreSQL 8.2.3-1.0 alpha release
+References: <989281.84407.qm@web36612.mail.mud.yahoo.com>	 <45EEE1C1.4070804@tresys.com>  <45F00BA8.6090107@kaigai.gr.jp> <1173360342.10467.25.camel@moss-spartans.epoch.ncsc.mil>
+In-Reply-To: <1173360342.10467.25.camel@moss-spartans.epoch.ncsc.mil>
+Content-Type: text/plain; charset=ISO-2022-JP
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This is a multi-part message in MIME format.
---------------010802060002050903000501
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Stephen Smalley wrote:
+> On Thu, 2007-03-08 at 22:12 +0900, KaiGai Kohei wrote:
+>> Joshua Brindle wrote:
+>>> Casey Schaufler wrote:
+>>>> --- KaiGai Kohei <kaigai@kaigai.gr.jp> wrote:
+>>>>
+>>>>  
+>>>>  
+>>>>> I think unique identification for all tuples are
+>>>>> difficult, because we can
+>>>>> create a table without Oid (object id) or primary
+>>>>> key to identify a tuple
+>>>>> from outside of the table...
+>>>>>
+>>>>> BTW, the string representations of security contexts
+>>>>> are stored in a separate
+>>>>> table named as 'pg_selinux', defined with Oid (which
+>>>>> have 4-byte length).
+>>>>> In SE-PostgreSQL, any tuples have Oid of pg_selinux
+>>>>> as a security context.
+>>>>> Thus, storage consumption is limited.
+>>>>>     
+>>>> How does this method compare to the schemes
+>>>> used in the Oracle evaluated MLS DBMS?
+>>>>
+>>>>   
+>>> IIRC Oracle basically has polyinstanciated tables (using views) to 
+>>> implement MLS, which gives far less granularity and doesn't allow for 
+>>> labeled rows or columns. KaiGai's work leverages all the security models 
+>>> SELinux can use to allow for flexible policies. The technical decision 
+>>> to use another table to store the oid of the context seems appropriate, 
+>>> since that is how rdbms's operate in general.
+>> I think the biggest difference is whether RDBMS utilizes the security
+>> functionalities of operating system, or not.
+>>
+>> For example, SE-PostgreSQL obtains the security context of the client via
+>> getpeercon(), and makes a decision with the security policy.
+>> It enables to ensure a process with lower clearance cannot access secret
+>> data, even if it is stored in database.
+> 
+> You also should be leveraging the OS in protecting SE-PostgreSQL from
+> interference by the client and ensuring that it is unbypassable for
+> accessing the database.  Are you just using the stock postgresql domain
+> in the refpolicy at present?  Any analysis of that domain and whether it
+> meets your needs adequately?  (side bar:  it seems to have a lot of
+> capabilities presently)
 
-Mostly written by Emily Ratliff <ratliff@ratliff.net>
+The security policy included in sepostgresql rpm package uses stock
+postgresql_t domin in the refpolicy, almost as is.
 
---------------010802060002050903000501
-Content-Type: text/x-patch;
- name="nsaserefpolicy_policy_modules_admin_amtu.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="nsaserefpolicy_policy_modules_admin_amtu.patch"
+I have not analyzed them yet.
+Indeed, we should pay more attention for accessing the database
+files directly.
 
---- nsaserefpolicy/policy/modules/admin/amtu.fc	1969-12-31 19:00:00.000000000 -0500
-+++ serefpolicy-2.5.8/policy/modules/admin/amtu.fc	2007-03-08 08:42:36.000000000 -0500
-@@ -0,0 +1,3 @@
-+
-+/usr/bin/amtu    --    gen_context(system_u:object_r:amtu_exec_t,s0)
-+
---- nsaserefpolicy/policy/modules/admin/amtu.if	1969-12-31 19:00:00.000000000 -0500
-+++ serefpolicy-2.5.8/policy/modules/admin/amtu.if	2007-03-08 08:42:36.000000000 -0500
-@@ -0,0 +1,53 @@
-+## <summary>
-+##	abstract Machine Test Utility 
-+## </summary>
-+
-+########################################
-+## <summary>
-+##	Execute amtu in the amtu domain.
-+## </summary>
-+## <param name="domain">
-+##	<summary>
-+##	The type of the process performing this action.
-+##	</summary>
-+## </param>
-+#
-+interface(`amtu_domtrans',`
-+	gen_require(`
-+		type amtu_t, amtu_exec_t;
-+	')
-+
-+	corecmd_search_sbin($1)
-+	domtrans_pattern($1,amtu_exec_t,amtu_t)
-+')
-+
-+########################################
-+## <summary>
-+##	Execute amtu in the amtu domain, and
-+##	allow the specified role the amtu domain.
-+## </summary>
-+## <param name="domain">
-+##	<summary>
-+##	The type of the process performing this action.
-+##	</summary>
-+## </param>
-+## <param name="role">
-+##	<summary>
-+##	The role to be allowed the amtu domain.
-+##	</summary>
-+## </param>
-+## <param name="terminal">
-+##	<summary>
-+##	The type of the terminal allow the amtu domain to use.
-+##	</summary>
-+## </param>
-+#
-+interface(`amtu_run',`
-+	gen_require(`
-+		type amtu_t;
-+	')
-+
-+	amtu_domtrans($1)
-+	role $2 types amtu_t;
-+	allow amtu_t $3:chr_file rw_term_perms;
-+')
---- nsaserefpolicy/policy/modules/admin/amtu.te	1969-12-31 19:00:00.000000000 -0500
-+++ serefpolicy-2.5.8/policy/modules/admin/amtu.te	2007-03-08 08:42:36.000000000 -0500
-@@ -0,0 +1,56 @@
-+policy_module(amtu,1.0.23)
-+
-+########################################
-+#
-+# Declarations
-+#
-+
-+type amtu_t;
-+type amtu_exec_t;
-+domain_type(amtu_t)
-+domain_entry_file(amtu_t, amtu_exec_t)
-+
-+########################################
-+#
-+# amtu local policy
-+#
-+
-+# Specific allow rules required for amtu
-+allow amtu_t self:capability { audit_write net_raw };
-+allow amtu_t self:netlink_audit_socket { create nlmsg_relay read write };
-+allow amtu_t self:packet_socket { bind create read write };
-+allow amtu_t self:udp_socket { create ioctl };
-+
-+files_manage_boot_files(amtu_t)
-+files_read_etc_runtime_files(amtu_t)
-+files_read_etc_files(amtu_t)
-+
-+kernel_read_system_state(amtu_t)
-+
-+libs_use_ld_so(amtu_t)
-+libs_use_shared_libs(amtu_t)
-+
-+optional_policy(`
-+    seutil_use_newrole_fds(amtu_t)
-+');
-+
-+optional_policy(`
-+    userdom_use_sysadm_fds(amtu_t)
-+');
-+
-+optional_policy(`
-+    userdom_sigchld_sysadm(amtu_t)
-+');
-+
-+optional_policy(`
-+    nscd_dontaudit_search_pid(amtu_t)
-+');
-+
-+optional_policy(`
-+    kernel_dontaudit_read_system_state(amtu_t)
-+');
-+
-+optional_policy(`
-+    term_dontaudit_search_ptys(amtu_t)
-+');
-+
-
---------------010802060002050903000501--
+Thanks,
+-- 
+KaiGai Kohei <kaigai@kaigai.gr.jp>
 
 --
 This message was distributed to subscribers of the selinux mailing list.
