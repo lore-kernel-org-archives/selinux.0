@@ -1,58 +1,50 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l28Eu76n005318
-	for <selinux@tycho.nsa.gov>; Thu, 8 Mar 2007 09:56:07 -0500
-Received: from mx1.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id l28Eu6Ha009496
-	for <selinux@tycho.nsa.gov>; Thu, 8 Mar 2007 14:56:06 GMT
-Message-ID: <45F02404.4060407@redhat.com>
-Date: Thu, 08 Mar 2007 09:56:04 -0500
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l28Evn3W005398
+	for <selinux@tycho.nsa.gov>; Thu, 8 Mar 2007 09:57:49 -0500
+Received: from mx1.redhat.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l28EvljV007580
+	for <selinux@tycho.nsa.gov>; Thu, 8 Mar 2007 14:57:48 GMT
+Message-ID: <45F02455.3030907@redhat.com>
+Date: Thu, 08 Mar 2007 09:57:25 -0500
 From: Daniel J Walsh <dwalsh@redhat.com>
 MIME-Version: 1.0
 To: "Christopher J. PeBenito" <cpebenito@tresys.com>,
         SE Linux <selinux@tycho.nsa.gov>
-Subject: ricci_modstorage needs to transition to lvm and dontaudit ptrace
+Subject: radius needs to read netlink_route and fix r_dir_perms->list_dir_perms
 Content-Type: multipart/mixed;
- boundary="------------090607020802000801090006"
+ boundary="------------080402020009070607020604"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 This is a multi-part message in MIME format.
---------------090607020802000801090006
+--------------080402020009070607020604
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 
 
 
---------------090607020802000801090006
+--------------080402020009070607020604
 Content-Type: text/x-patch;
- name="nsaserefpolicy_policy_modules_services_ricci.patch"
+ name="nsaserefpolicy_policy_modules_services_radius.patch"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline;
- filename="nsaserefpolicy_policy_modules_services_ricci.patch"
+ filename="nsaserefpolicy_policy_modules_services_radius.patch"
 
---- nsaserefpolicy/policy/modules/services/ricci.te	2007-03-06 09:53:20.000000000 -0500
-+++ serefpolicy-2.5.8/policy/modules/services/ricci.te	2007-03-08 09:16:00.000000000 -0500
-@@ -449,6 +448,7 @@
- #
+--- nsaserefpolicy/policy/modules/services/radius.te	2007-01-02 12:57:43.000000000 -0500
++++ serefpolicy-2.5.8/policy/modules/services/radius.te	2007-03-08 08:42:37.000000000 -0500
+@@ -36,8 +36,9 @@
+ allow radiusd_t self:unix_stream_socket create_stream_socket_perms;
+ allow radiusd_t self:tcp_socket create_stream_socket_perms;
+ allow radiusd_t self:udp_socket create_socket_perms;
++allow radiusd_t self:netlink_route_socket r_netlink_socket_perms;
  
- allow ricci_modstorage_t self:process { setsched signal };
-+dontaudit ricci_modstorage_t self:process ptrace;
- allow ricci_modstorage_t self:capability { mknod sys_nice };
- allow ricci_modstorage_t self:fifo_file rw_fifo_file_perms;
- allow ricci_modstorage_t self:unix_dgram_socket create_socket_perms;
-@@ -498,6 +498,10 @@
- ')
- 
- optional_policy(`
-+	lvm_domtrans(ricci_modstorage_t)
-+')
-+
-+optional_policy(`
- 	nscd_socket_use(ricci_modstorage_t)
- ')
- 
+-allow radiusd_t radiusd_etc_t:dir r_dir_perms;
++allow radiusd_t radiusd_etc_t:dir list_dir_perms;
+ read_files_pattern(radiusd_t,radiusd_etc_t,radiusd_etc_t)
+ read_lnk_files_pattern(radiusd_t,radiusd_etc_t,radiusd_etc_t)
+ files_search_etc(radiusd_t)
 
---------------090607020802000801090006--
+--------------080402020009070607020604--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
