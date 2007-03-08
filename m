@@ -1,50 +1,151 @@
-Subject: Re: [ANN] SE-PostgreSQL 8.2.3-1.0 alpha release
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: KaiGai Kohei <kaigai@kaigai.gr.jp>
-Cc: "Christopher J. PeBenito" <cpebenito@tresys.com>, selinux@tycho.nsa.gov,
-        Chad Sellers <csellers@tresys.com>
-In-Reply-To: <45F010A4.4020201@kaigai.gr.jp>
-References: <45EC0D21.2070706@kaigai.gr.jp>  <45EC2C10.6050603@kaigai.gr.jp>
-	 <1173284267.10747.9.camel@sgc>  <45F010A4.4020201@kaigai.gr.jp>
-Content-Type: text/plain
-Date: Thu, 08 Mar 2007 08:33:50 -0500
-Message-Id: <1173360830.10467.29.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l28E1GWn003092
+	for <selinux@tycho.nsa.gov>; Thu, 8 Mar 2007 09:01:16 -0500
+Received: from mx1.redhat.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l28E2iko027998
+	for <selinux@tycho.nsa.gov>; Thu, 8 Mar 2007 14:02:44 GMT
+Message-ID: <45F01782.4030903@redhat.com>
+Date: Thu, 08 Mar 2007 09:02:42 -0500
+From: Daniel J Walsh <dwalsh@redhat.com>
+MIME-Version: 1.0
+To: "Christopher J. PeBenito" <cpebenito@tresys.com>,
+        SE Linux <selinux@tycho.nsa.gov>
+Subject: Re: pyzor/spam changes in policy
+References: <200702261735.l1QHZrjX030675@localhost.localdomain> <1173299356.10747.25.camel@sgc.columbia.tresys.com>
+In-Reply-To: <1173299356.10747.25.camel@sgc.columbia.tresys.com>
+Content-Type: multipart/mixed;
+ boundary="------------020905060606030603060602"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2007-03-08 at 22:33 +0900, KaiGai Kohei wrote:
-> Christopher J. PeBenito wrote:
-> > On Mon, 2007-03-05 at 23:41 +0900, KaiGai Kohei wrote:
-> >> The attached patch adds new object classes, access vectors and
-> >> booleans related to database.
-> >> SE-PostgreSQL uses them to manage the various kinds of database
-> >> objects such as tables, columns, tuples and so on.
-> >>
-> >> The most of security policies are provided as a binary security
-> >> policy within RPM package. But it requires the definition of new
-> >> object classes, access vectors and booleans in the base policy.
-> >>
-> >> Please apply it.
-> > 
-> > Is the code on a path to being merged upstream?  I'm hesitant to apply
-> > class changes until the code is on a plan to be merged.
-> 
-> Pushing to the upstreamed PostgreSQL is one of the next activities.
-> No need to say, I'm targeting it to be merged as a part of PostgreSQL.
-> 
-> I'll submit a patch to add new object classes again after discussion
-> in the pgsql-hackers list. But I'm desiring the object class numbers
-> are fixed earlier. (currently, I uses 60 - 65 to represent them)
+This is a multi-part message in MIME format.
+--------------020905060606030603060602
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
-Where do things stand wrt dynamic userspace object class and permission
-discovery?  It would be nice to avoid further spread of hardcoded
-classes and permissions in applications if we can avoid it.
+Christopher J. PeBenito wrote:
+> On Mon, 2007-02-26 at 12:35 -0500, dwalsh@localhost.localdomain wrote:
+>   
+>> New directory for spamassin /var/lib/
+>> spam needs to send signals to pyzor
+>> pyzor uses tmp files
+>>     
+>
+> Merged most,  exceptions:
+>
+>   
+>> +interface(`spamassassin_manage_lib_files',`
+>> +	gen_require(`
+>> +		type spamd_var_lib_t;
+>> +	')
+>> +
+>> +	files_search_var_lib($1)
+>> +	manage_dirs_pattern($1,spamd_var_lib_t,spamd_var_lib_t)
+>> +	manage_files_pattern($1,spamd_var_lib_t,spamd_var_lib_t)
+>> +')
+>>     
+>
+> Removed the dirs part.  If there is an interface needed that has both,
+> then there should be a more abstract interface.
+>
+>   
+>> @@ -139,6 +148,7 @@
+>>  
+>>  	tunable_policy(`spamd_enable_home_dirs',`
+>>  		userdom_home_filetrans_generic_user_home_dir(spamd_t)
+>> +		userdom_manage_generic_user_home_dirs(spamd_t)
+>>  		userdom_manage_generic_user_home_content_dirs(spamd_t)
+>>  		userdom_manage_generic_user_home_content_files(spamd_t)
+>>  		userdom_manage_generic_user_home_content_symlinks(spamd_t)
+>>     
+>
+> I don't understand why spamd_t would be creating new top level home
+> diretories, for example the /home/myuser dir.
+>
+>   
+https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=203290
+>> @@ -184,6 +194,7 @@
+>>  
+>>  optional_policy(`
+>>  	pyzor_domtrans(spamd_t)
+>> +	pyzor_signal(spamd_t)
+>>  ')
+>>     
+>
+> Dropped this and the following, because the interface looks wrong ($1 is
+> the object).
+>
+>   
+>> +########################################
+>> +## <summary>
+>> +##	Send generic signals to pyzor
+>> +## </summary>
+>> +## <param name="domain">
+>> +##	<summary>
+>> +##	Domain allowed access.
+>> +##	</summary>
+>> +## </param>
+>> +#
+>> +interface(`pyzor_signal',`
+>> +	gen_require(`
+>> +		type pyzor_t;
+>> +	')
+>> +
+>> +	allow pyzor_t $1:process signal;
+>> +')
+>>     
+>
+>   
 
--- 
-Stephen Smalley
-National Security Agency
+This should be reversed,  New patch
 
+
+--------------020905060606030603060602
+Content-Type: text/x-patch;
+ name="spam.diff"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="spam.diff"
+
+--- nsaserefpolicy/policy/modules/services/spamassassin.te	2007-03-08 08:26:59.000000000 -0500
++++ serefpolicy-2.5.8/policy/modules/services/spamassassin.te	2007-03-08 09:00:04.000000000 -0500
+@@ -85,6 +85,7 @@
+ corenet_tcp_bind_all_nodes(spamd_t)
+ corenet_tcp_bind_spamd_port(spamd_t)
+ corenet_tcp_connect_razor_port(spamd_t)
++corenet_tcp_connect_smtp_port(spamd_t)
+ corenet_sendrecv_razor_client_packets(spamd_t)
+ corenet_sendrecv_spamd_server_packets(spamd_t)
+ # spamassassin 3.1 needs this for its
+@@ -147,6 +148,7 @@
+ 
+ 	tunable_policy(`spamd_enable_home_dirs',`
+ 		userdom_home_filetrans_generic_user_home_dir(spamd_t)
++		userdom_manage_generic_user_home_dirs(spamd_t)
+ 		userdom_manage_generic_user_home_content_dirs(spamd_t)
+ 		userdom_manage_generic_user_home_content_files(spamd_t)
+ 		userdom_manage_generic_user_home_content_symlinks(spamd_t)
+--- nsaserefpolicy/policy/modules/services/pyzor.te	2007-03-08 08:26:59.000000000 -0500
++++ serefpolicy-2.5.8/policy/modules/services/pyzor.te	2007-03-08 08:59:23.000000000 -0500
+@@ -44,6 +44,8 @@
+ manage_dirs_pattern(pyzor_t,pyzor_tmp_t,pyzor_tmp_t)
+ files_tmp_filetrans(pyzor_t, pyzor_tmp_t, { file dir })
+ 
++fs_search_auto_mountpoints(pyzor_t)
++
+ kernel_read_kernel_sysctls(pyzor_t)  
+ kernel_read_system_state(pyzor_t)
+ 
+@@ -77,6 +79,7 @@
+ ')
+ 
+ optional_policy(`
++	spamassassin_signal_spamd(pyzor_t)
+ 	spamassassin_read_spamd_tmp_files(pyzor_t)
+ ')
+ 
+
+--------------020905060606030603060602--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
