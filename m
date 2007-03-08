@@ -1,62 +1,60 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l28Ekqx2004815
-	for <selinux@tycho.nsa.gov>; Thu, 8 Mar 2007 09:46:52 -0500
-Received: from mx1.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id l28EkoHa007332
-	for <selinux@tycho.nsa.gov>; Thu, 8 Mar 2007 14:46:51 GMT
-Message-ID: <45F021D7.4060401@redhat.com>
-Date: Thu, 08 Mar 2007 09:46:47 -0500
-From: Daniel J Walsh <dwalsh@redhat.com>
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l28EoHVj005005
+	for <selinux@tycho.nsa.gov>; Thu, 8 Mar 2007 09:50:17 -0500
+Received: from nz-out-0506.google.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l28EoGko005898
+	for <selinux@tycho.nsa.gov>; Thu, 8 Mar 2007 14:50:16 GMT
+Received: by nz-out-0506.google.com with SMTP id z3so329516nzf
+        for <selinux@tycho.nsa.gov>; Thu, 08 Mar 2007 06:50:15 -0800 (PST)
+Message-ID: <45F022A0.3020105@kaigai.gr.jp>
+Date: Thu, 08 Mar 2007 23:50:08 +0900
+From: KaiGai Kohei <kaigai@kaigai.gr.jp>
 MIME-Version: 1.0
-To: "Christopher J. PeBenito" <cpebenito@tresys.com>,
-        SE Linux <selinux@tycho.nsa.gov>
-Subject: system-config-service of iptables needs this patch to work in targeted
- policy
-Content-Type: multipart/mixed;
- boundary="------------020800030305040608010700"
+To: Stephen Smalley <sds@tycho.nsa.gov>
+CC: "Christopher J. PeBenito" <cpebenito@tresys.com>, selinux@tycho.nsa.gov,
+        Chad Sellers <csellers@tresys.com>
+Subject: Re: [ANN] SE-PostgreSQL 8.2.3-1.0 alpha release
+References: <45EC0D21.2070706@kaigai.gr.jp>  <45EC2C10.6050603@kaigai.gr.jp>	 <1173284267.10747.9.camel@sgc>  <45F010A4.4020201@kaigai.gr.jp> <1173360830.10467.29.camel@moss-spartans.epoch.ncsc.mil>
+In-Reply-To: <1173360830.10467.29.camel@moss-spartans.epoch.ncsc.mil>
+Content-Type: text/plain; charset=ISO-2022-JP
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This is a multi-part message in MIME format.
---------------020800030305040608010700
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Stephen Smalley wrote:
+> On Thu, 2007-03-08 at 22:33 +0900, KaiGai Kohei wrote:
+>> Christopher J. PeBenito wrote:
+>>> On Mon, 2007-03-05 at 23:41 +0900, KaiGai Kohei wrote:
+>>>> The attached patch adds new object classes, access vectors and
+>>>> booleans related to database.
+>>>> SE-PostgreSQL uses them to manage the various kinds of database
+>>>> objects such as tables, columns, tuples and so on.
+>>>>
+>>>> The most of security policies are provided as a binary security
+>>>> policy within RPM package. But it requires the definition of new
+>>>> object classes, access vectors and booleans in the base policy.
+>>>>
+>>>> Please apply it.
+>>> Is the code on a path to being merged upstream?  I'm hesitant to apply
+>>> class changes until the code is on a plan to be merged.
+>> Pushing to the upstreamed PostgreSQL is one of the next activities.
+>> No need to say, I'm targeting it to be merged as a part of PostgreSQL.
+>>
+>> I'll submit a patch to add new object classes again after discussion
+>> in the pgsql-hackers list. But I'm desiring the object class numbers
+>> are fixed earlier. (currently, I uses 60 - 65 to represent them)
+> 
+> Where do things stand wrt dynamic userspace object class and permission
+> discovery?  It would be nice to avoid further spread of hardcoded
+> classes and permissions in applications if we can avoid it.
 
-Basically iptables needs to be able to output to the terminal and talk 
-to unconfined_pipes from the tool.
+See, http://sepgsql.googlecode.com/svn/trunk/src/include/security/sepgsql_internal.h
+When I started to develop, 'context' class has the maximum number of object
+class, so I defined 'SECCLASS_DATABASE' next to it.
+# But it will conflict with 'dccp_socket' class now... :-(
 
---------------020800030305040608010700
-Content-Type: text/x-patch;
- name="nsaserefpolicy_policy_modules_system_iptables.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="nsaserefpolicy_policy_modules_system_iptables.patch"
-
---- nsaserefpolicy/policy/modules/system/iptables.te	2007-02-19 11:32:53.000000000 -0500
-+++ serefpolicy-2.5.8/policy/modules/system/iptables.te	2007-03-08 08:42:37.000000000 -0500
-@@ -77,9 +77,10 @@
- userdom_use_all_users_fds(iptables_t)
- 
- ifdef(`targeted_policy', `
--	term_dontaudit_use_unallocated_ttys(iptables_t)
--	term_dontaudit_use_generic_ptys(iptables_t)
-+	term_use_unallocated_ttys(iptables_t)
-+	term_use_generic_ptys(iptables_t)
- 	files_dontaudit_read_root_files(iptables_t)
-+ 	unconfined_rw_pipes(iptables_t)
- ')
- 
- optional_policy(`
-@@ -111,3 +112,7 @@
- optional_policy(`
- 	udev_read_db(iptables_t)
- ')
-+
-+optional_policy(`
-+	fail2ban_append_log(iptables_t)
-+')
-
---------------020800030305040608010700--
+Thanks,
+-- 
+KaiGai Kohei <kaigai@kaigai.gr.jp>
 
 --
 This message was distributed to subscribers of the selinux mailing list.
