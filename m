@@ -1,200 +1,40 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l28LWrNc024104
-	for <selinux@tycho.nsa.gov>; Thu, 8 Mar 2007 16:32:53 -0500
-Received: from web51502.mail.yahoo.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with SMTP id l28LWq5G019903
-	for <selinux@tycho.nsa.gov>; Thu, 8 Mar 2007 21:32:52 GMT
-Date: Thu, 8 Mar 2007 13:32:35 -0800 (PST)
-From: Steve G <linux_4ever@yahoo.com>
-Subject: [PATCH] Dropping support for disabling caching of context translations (CACHETRANS=0)
-To: selinux@tycho.nsa.gov
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l28MEj3b025759
+	for <selinux@tycho.nsa.gov>; Thu, 8 Mar 2007 17:14:45 -0500
+Received: from mx1.redhat.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l28MEitt028761
+	for <selinux@tycho.nsa.gov>; Thu, 8 Mar 2007 22:14:44 GMT
+Received: from int-mx1.corp.redhat.com (int-mx1.corp.redhat.com [172.16.52.254])
+	by mx1.redhat.com (8.13.1/8.13.1) with ESMTP id l28MEh1h025930
+	for <selinux@tycho.nsa.gov>; Thu, 8 Mar 2007 17:14:43 -0500
+Received: from mail.boston.redhat.com (mail.boston.redhat.com [172.16.76.12])
+	by int-mx1.corp.redhat.com (8.13.1/8.13.1) with ESMTP id l28MEhYp001404
+	for <selinux@tycho.nsa.gov>; Thu, 8 Mar 2007 17:14:43 -0500
+Received: from [10.12.32.53] (redsox.boston.devel.redhat.com [10.12.32.53])
+	by mail.boston.redhat.com (8.12.11.20060308/8.12.11) with ESMTP id l28MEheP029799
+	for <selinux@tycho.nsa.gov>; Thu, 8 Mar 2007 17:14:43 -0500
+Message-ID: <45F08AD3.6090800@redhat.com>
+Date: Thu, 08 Mar 2007 17:14:43 -0500
+From: Daniel J Walsh <dwalsh@redhat.com>
 MIME-Version: 1.0
-Content-Type: multipart/mixed; boundary="0-213594420-1173389555=:18523"
-Message-ID: <936094.18523.qm@web51502.mail.yahoo.com>
+To: SE Linux <selinux@tycho.nsa.gov>
+Subject: I would like to propose dropping the disable_trans boolean.
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
---0-213594420-1173389555=:18523
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
-Content-Id: 
-Content-Disposition: inline
+Several reasons for this.
 
->So, is anyone using CACHETRANS=0?  Do we need to retain it going forward
->in the trunk?
+1.  We have gotten the policy to such a state where most stuff just works.
+2.  Problems are easily worked around using audit2allow and loadable 
+policy modules
+grep badtype /var/log/audit/audit.log | audit2allow -m myfix
+3.  Disabling trans often causes more problems then it is worth, because 
+of screwed up file context.
+4.  You can get the same behavior by changing the file context of a file 
+to bin_t.
 
-Attaching a patch dropping this config option.
-
--Steve
-
-
- 
-____________________________________________________________________________________
-Looking for earth-friendly autos? 
-Browse Top Cars by "Green Rating" at Yahoo! Autos' Green Center.
-http://autos.yahoo.com/green_center/
---0-213594420-1173389555=:18523
-Content-Type: text/x-patch; name="libselinux-2.0.4-cache.patch"
-Content-Description: 3713336035-libselinux-2.0.4-cache.patch
-Content-Disposition: inline; filename="libselinux-2.0.4-cache.patch"
-
-diff -urp libselinux-2.0.4.orig/src/selinux_config.c libselinux-2.0.4/src/selinux_config.c
---- libselinux-2.0.4.orig/src/selinux_config.c	2007-03-08 09:42:08.000000000 -0500
-+++ libselinux-2.0.4/src/selinux_config.c	2007-03-08 09:43:25.000000000 -0500
-@@ -17,7 +17,6 @@
- #define SELINUXTAG "SELINUX="
- #define SETLOCALDEFS "SETLOCALDEFS="
- #define REQUIRESEUSERS "REQUIRESEUSERS="
--#define CACHETRANSTAG "CACHETRANS="
- 
- /* Indices for file paths arrays. */
- #define BINPOLICY         0
-@@ -174,10 +173,6 @@ static void init_selinux_config(void)
- 					    sizeof(REQUIRESEUSERS) - 1)) {
- 				value = buf_p + sizeof(REQUIRESEUSERS) - 1;
- 				intptr = &require_seusers;
--			} else if (!strncmp(buf_p, CACHETRANSTAG,
--					    sizeof(CACHETRANSTAG) - 1)) {
--				value = buf_p + sizeof(CACHETRANSTAG) - 1;
--				intptr = &cache_trans;
- 			} else {
- 				continue;
- 			}
-diff -urp libselinux-2.0.4.orig/src/selinux_internal.h libselinux-2.0.4/src/selinux_internal.h
---- libselinux-2.0.4.orig/src/selinux_internal.h	2007-02-25 14:52:16.000000000 -0500
-+++ libselinux-2.0.4/src/selinux_internal.h	2007-03-08 09:46:45.000000000 -0500
-@@ -80,4 +80,3 @@ hidden_proto(selinux_trans_to_raw_contex
- extern int load_setlocaldefs hidden;
- extern int require_seusers hidden;
- extern int selinux_page_size hidden;
--extern int cache_trans hidden;
-diff -urp libselinux-2.0.4.orig/src/setrans_client.c libselinux-2.0.4/src/setrans_client.c
---- libselinux-2.0.4.orig/src/setrans_client.c	2007-02-25 14:52:16.000000000 -0500
-+++ libselinux-2.0.4/src/setrans_client.c	2007-03-08 09:46:23.000000000 -0500
-@@ -24,8 +24,6 @@ static __thread security_context_t prev_
- static __thread security_context_t prev_r2t_trans = NULL;
- static __thread security_context_t prev_r2t_raw = NULL;
- 
--int cache_trans hidden = 1;
--
- /*
-  * setransd_open
-  *
-@@ -203,12 +201,10 @@ static int trans_to_raw_context(char *tr
- 
- hidden void fini_context_translations(void)
- {
--	if (cache_trans) {
--		free(prev_r2t_trans);
--		free(prev_r2t_raw);
--		free(prev_t2r_trans);
--		free(prev_t2r_raw);
--	}
-+	free(prev_r2t_trans);
-+	free(prev_r2t_raw);
-+	free(prev_t2r_trans);
-+	free(prev_t2r_raw);
- }
- 
- hidden int init_context_translations(void)
-@@ -230,29 +226,26 @@ int selinux_trans_to_raw_context(securit
- 		goto out;
- 	}
- 
--	if (cache_trans) {
--		if (prev_t2r_trans && strcmp(prev_t2r_trans, trans) == 0) {
--			*rawp = strdup(prev_t2r_raw);
--		} else {
--			free(prev_t2r_trans);
--			prev_t2r_trans = NULL;
--			free(prev_t2r_raw);
--			prev_t2r_raw = NULL;
--			if (trans_to_raw_context(trans, rawp))
--				*rawp = strdup(trans);
--			if (*rawp) {
--				prev_t2r_trans = strdup(trans);
--				if (!prev_t2r_trans)
--					goto out;
--				prev_t2r_raw = strdup(*rawp);
--				if (!prev_t2r_raw) {
--					free(prev_t2r_trans);
--					prev_t2r_trans = NULL;
--				}
-+	if (prev_t2r_trans && strcmp(prev_t2r_trans, trans) == 0) {
-+		*rawp = strdup(prev_t2r_raw);
-+	} else {
-+		free(prev_t2r_trans);
-+		prev_t2r_trans = NULL;
-+		free(prev_t2r_raw);
-+		prev_t2r_raw = NULL;
-+		if (trans_to_raw_context(trans, rawp))
-+			*rawp = strdup(trans);
-+		if (*rawp) {
-+			prev_t2r_trans = strdup(trans);
-+			if (!prev_t2r_trans)
-+				goto out;
-+			prev_t2r_raw = strdup(*rawp);
-+			if (!prev_t2r_raw) {
-+				free(prev_t2r_trans);
-+				prev_t2r_trans = NULL;
- 			}
- 		}
--	} else if (trans_to_raw_context(trans, rawp))
--		*rawp = strdup(trans);
-+	}
-       out:
- 	return *rawp ? 0 : -1;
- }
-@@ -272,29 +265,26 @@ int selinux_raw_to_trans_context(securit
- 		goto out;
- 	}
- 
--	if (cache_trans) {
--		if (prev_r2t_raw && strcmp(prev_r2t_raw, raw) == 0) {
--			*transp = strdup(prev_r2t_trans);
--		} else {
--			free(prev_r2t_raw);
--			prev_r2t_raw = NULL;
--			free(prev_r2t_trans);
--			prev_r2t_trans = NULL;
--			if (raw_to_trans_context(raw, transp))
--				*transp = strdup(raw);
--			if (*transp) {
--				prev_r2t_raw = strdup(raw);
--				if (!prev_r2t_raw)
--					goto out;
--				prev_r2t_trans = strdup(*transp);
--				if (!prev_r2t_trans) {
--					free(prev_r2t_raw);
--					prev_r2t_raw = NULL;
--				}
-+	if (prev_r2t_raw && strcmp(prev_r2t_raw, raw) == 0) {
-+		*transp = strdup(prev_r2t_trans);
-+	} else {
-+		free(prev_r2t_raw);
-+		prev_r2t_raw = NULL;
-+		free(prev_r2t_trans);
-+		prev_r2t_trans = NULL;
-+		if (raw_to_trans_context(raw, transp))
-+			*transp = strdup(raw);
-+		if (*transp) {
-+			prev_r2t_raw = strdup(raw);
-+			if (!prev_r2t_raw)
-+				goto out;
-+			prev_r2t_trans = strdup(*transp);
-+			if (!prev_r2t_trans) {
-+				free(prev_r2t_raw);
-+				prev_r2t_raw = NULL;
- 			}
- 		}
--	} else if (raw_to_trans_context(raw, transp))
--		*transp = strdup(raw);
-+	}
-       out:
- 	return *transp ? 0 : -1;
- }
-
---0-213594420-1173389555=:18523--
+Thoughts?
 
 --
 This message was distributed to subscribers of the selinux mailing list.
