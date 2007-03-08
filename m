@@ -1,41 +1,35 @@
-Subject: Re: Minor change to getsebool.
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Daniel J Walsh <dwalsh@redhat.com>
-Cc: SE Linux <selinux@tycho.nsa.gov>,
-        Karl MacMillan <kmacmillan@mentalrootkit.com>,
-        Joshua Brindle <jbrindle@tresys.com>
-In-Reply-To: <45F035D2.9030307@redhat.com>
-References: <45F035D2.9030307@redhat.com>
-Content-Type: text/plain
-Date: Thu, 08 Mar 2007 11:19:14 -0500
-Message-Id: <1173370754.10467.86.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+Message-ID: <45F038C5.4070003@tycho.nsa.gov>
+Date: Thu, 08 Mar 2007 11:24:37 -0500
+From: Eamon Walsh <ewalsh@tycho.nsa.gov>
+MIME-Version: 1.0
+To: Stephen Smalley <sds@tycho.nsa.gov>
+CC: Joshua Brindle <jbrindle@tresys.com>, KaiGai Kohei <kaigai@kaigai.gr.jp>,
+        "Christopher J. PeBenito" <cpebenito@tresys.com>,
+        selinux@tycho.nsa.gov, Chad Sellers <csellers@tresys.com>,
+        Karl MacMillan <kmacmillan@mentalrootkit.com>
+Subject: Re: [ANN] SE-PostgreSQL 8.2.3-1.0 alpha release
+References: <45EC0D21.2070706@kaigai.gr.jp>  <45EC2C10.6050603@kaigai.gr.jp>	 <1173284267.10747.9.camel@sgc>  <45F010A4.4020201@kaigai.gr.jp>	 <1173360830.10467.29.camel@moss-spartans.epoch.ncsc.mil>	 <45F022A0.3020105@kaigai.gr.jp>	 <1173366058.10467.67.camel@moss-spartans.epoch.ncsc.mil>	 <45F02A09.5060301@tresys.com>  <45F02A80.5050708@tresys.com> <1173367847.10467.72.camel@moss-spartans.epoch.ncsc.mil>
+In-Reply-To: <1173367847.10467.72.camel@moss-spartans.epoch.ncsc.mil>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2007-03-08 at 11:12 -0500, Daniel J Walsh wrote:
-> Should be non fatail when executing getsebool -a.  I am starting to 
-> label the booleans and
-> different user roles will only be able to manipulate certain booleans.
-> 
-> So we need to change
-> 
-> getsebool -a will only show booleans that domain can manipulate.
-> Currenly it will report the errrors that it can not read.  We can either 
-> add a qualifier to silence these or a new option to get only the list of 
-> the ones I can manipulate.
+Stephen Smalley wrote:
 
-Actually, I'd tend to think we could just silence them by default if
-errno is EACCES.
+> There are already string_to_security_class() and string_to_av_perm()
+> functions provided by libselinux, although they should likely have
+> properly namespaced versions (selinux_ prefix).
 
-One other possible change to getsebool would be to make it fully
-equivalent to setsebool, i.e. add a -P option and have it query
-libsemanage to get persistent boolean settings in that case.
+If we're talking about the API in this area: I had a request for 
+security_class_to_string and av_perm_to_string functions, I believe from 
+KaiGai.  The patch in the below e-mail adds them; this could be applied 
+as an independent patch.
+
+http://marc.theaimsgroup.com/?l=selinux&m=116486019626891&w=2
 
 -- 
-Stephen Smalley
+Eamon Walsh <ewalsh@tycho.nsa.gov>
 National Security Agency
-
 
 --
 This message was distributed to subscribers of the selinux mailing list.
