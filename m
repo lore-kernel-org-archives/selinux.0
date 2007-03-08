@@ -1,85 +1,74 @@
 Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l28FdoVC007795
-	for <selinux@tycho.nsa.gov>; Thu, 8 Mar 2007 10:39:50 -0500
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l28FigCE008058
+	for <selinux@tycho.nsa.gov>; Thu, 8 Mar 2007 10:44:42 -0500
 Received: from mx1.redhat.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l28FdnY3015308
-	for <selinux@tycho.nsa.gov>; Thu, 8 Mar 2007 15:39:49 GMT
-Message-ID: <45F02E3D.2070503@redhat.com>
-Date: Thu, 08 Mar 2007 10:39:41 -0500
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l28FifY3016061
+	for <selinux@tycho.nsa.gov>; Thu, 8 Mar 2007 15:44:42 GMT
+Message-ID: <45F02F63.9050704@redhat.com>
+Date: Thu, 08 Mar 2007 10:44:35 -0500
 From: Daniel J Walsh <dwalsh@redhat.com>
 MIME-Version: 1.0
 To: "Christopher J. PeBenito" <cpebenito@tresys.com>,
         SE Linux <selinux@tycho.nsa.gov>
-Subject: Fix dosfs handling in the interface
+Subject: Resend of cpuspeed.patch
 Content-Type: multipart/mixed;
- boundary="------------050407040702020704000708"
+ boundary="------------000500050306080003060806"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 This is a multi-part message in MIME format.
---------------050407040702020704000708
+--------------000500050306080003060806
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 
-Allow xend to use dosfs for ia64 boot.
+Included interface definition also.
 
---------------050407040702020704000708
+--------------000500050306080003060806
 Content-Type: text/x-patch;
- name="dosfs.patch"
+ name="cpuspeed.patch"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline;
- filename="dosfs.patch"
+ filename="cpuspeed.patch"
 
---- nsaserefpolicy/policy/modules/kernel/filesystem.if	2007-02-19 11:32:51.000000000 -0500
-+++ serefpolicy-2.5.8/policy/modules/kernel/filesystem.if	2007-03-08 08:42:37.000000000 -0500
-@@ -1110,11 +1110,31 @@
- 		type dosfs_t;
- 	')
- 
-+	manage_dirs_pattern($1,dosfs_t,dosfs_t)
- 	manage_files_pattern($1,dosfs_t,dosfs_t)
- ')
+--- nsaserefpolicy/policy/modules/kernel/devices.if	2007-01-02 12:57:13.000000000 -0500
++++ serefpolicy-2.5.8/policy/modules/kernel/devices.if	2007-03-08 08:42:36.000000000 -0500
+@@ -2449,6 +2449,24 @@
  
  ########################################
  ## <summary>
-+##	read files
-+##	on a DOS filesystem.
++##	Write in a sysfs directories.
 +## </summary>
 +## <param name="domain">
 +##	<summary>
-+##	Domain allowed access.
++##	The type of the process performing this action.
 +##	</summary>
 +## </param>
 +#
-+interface(`fs_read_dos_files',`
++interface(`dev_write_sysfs_dirs',`
 +	gen_require(`
-+		type dosfs_t;
++		type sysfs_t;
 +	')
 +
-+	read_files_pattern($1,dosfs_t,dosfs_t)
++	allow $1 sysfs_t:dir write;
 +')
 +
 +########################################
 +## <summary>
- ##	Read eventpollfs files.
+ ##	Search the sysfs directories.
  ## </summary>
- ## <desc>
---- nsaserefpolicy/policy/modules/system/xen.te	2007-01-02 12:57:49.000000000 -0500
-+++ serefpolicy-2.5.8/policy/modules/system/xen.te	2007-03-08 08:42:37.000000000 -0500
-@@ -357,3 +373,11 @@
- xen_append_log(xm_t)
- xen_stream_connect(xm_t)
- xen_stream_connect_xenstore(xm_t)
-+
-+#Should have a boolean wrapping these
-+fs_list_auto_mountpoints(xend_t)
-+files_search_mnt(xend_t)
-+fs_write_nfs_files(xend_t)
-+fs_read_nfs_files(xend_t)
-+fs_getattr_all_fs(xend_t)
-+fs_read_dos_files(xend_t)
+ ## <param name="domain">
+--- nsaserefpolicy/policy/modules/services/cpucontrol.te	2007-01-02 12:57:43.000000000 -0500
++++ serefpolicy-2.5.8/policy/modules/services/cpucontrol.te	2007-03-08 08:42:37.000000000 -0500
+@@ -91,6 +91,7 @@
+ kernel_read_system_state(cpuspeed_t)
+ kernel_read_kernel_sysctls(cpuspeed_t)
+ 
++dev_write_sysfs_dirs(cpuspeed_t)
+ dev_rw_sysfs(cpuspeed_t)
+ 
+ domain_use_interactive_fds(cpuspeed_t)
 
---------------050407040702020704000708--
+--------------000500050306080003060806--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
