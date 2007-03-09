@@ -1,68 +1,69 @@
-Subject: Re: mmap_file_perms needs ioctl also
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: casey@schaufler-ca.com
-Cc: SE-Linux <selinux@tycho.nsa.gov>
-In-Reply-To: <760182.67627.qm@web36602.mail.mud.yahoo.com>
-References: <760182.67627.qm@web36602.mail.mud.yahoo.com>
-Content-Type: text/plain
-Date: Fri, 09 Mar 2007 12:14:43 -0500
-Message-Id: <1173460483.3241.125.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l29HIuSd030114
+	for <selinux@tycho.nsa.gov>; Fri, 9 Mar 2007 12:18:56 -0500
+Received: from atlrel8.hp.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id l29HIsI5018231
+	for <selinux@tycho.nsa.gov>; Fri, 9 Mar 2007 17:18:54 GMT
+From: Paul Moore <paul.moore@hp.com>
+To: SE Linux <selinux@tycho.nsa.gov>
+Subject: Recommended location of setkey configuration file?
+Date: Fri, 9 Mar 2007 12:05:31 -0500
+Cc: Daniel J Walsh <dwalsh@redhat.com>,
+        "Christopher J.PeBenito" <cpebenito@tresys.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
+Message-Id: <200703091205.32460.paul.moore@hp.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2007-03-09 at 09:06 -0800, Casey Schaufler wrote:
-> --- Stephen Smalley <sds@tycho.nsa.gov> wrote:
-> 
->  
-> > ioctl permission is effectively useless as it
-> > doesn't distinguish
-> > read-flow vs. write-flow vs. control-op, so it ends
-> > up being allowed
-> > pervasively whenever you allow read or write.  We
-> > really need to just
-> > replace it (ala the attempts by Lorenzo in the
-> > past), but doing so
-> > compatibly won't be easy.
-> 
-> That is a significant understatement. Ioctl is
-> used, misused, and abused so many different ways
-> in so many places that doing a granular enforcement
-> may be beyond the current state of the art and is
-> certainly a maintenance burden that exceeds the
-> scope of the existing SELinux implementation.
-> An investigation into the networking drivers alone
-> ought to send the rational programmer running in
-> blind terror. Then there are the graphics
-> implementations.
-> 
-> I suggest that an approach that would add more
-> value to the kernel overall and make someone a
-> minor kernel diety would be to replace the ioctl
-> mechanism completely. I also think that it would
-> be less work than trying to do a proper job of
-> granualizing the existing smoldering pile of
-> technology.
+All of the following is in regards to RHEL5 and the MLS policy.
 
-The trend seems to be to replace such things with pseudo filesystem
-interfaces, but in doing so, they usually aren't thinking through the
-security aspects (e.g. see the CKRM discussion and my comments on the
-kernel cpuset filesystem), so the file-level controls are often
-inadequate and we are back to adding hooks into the underlying
-implementation...
+I'm trying to use a configuration file with setkey to setup the IPsec SPD in 
+the kernel at boot.  Initially I created the configuration file 
+as /etc/racoon/setkey.conf and put a line in my rc.local to run setkey like 
+so:
 
-> We did look into the granular ioctl security
-> policy issue in Unix in the 20th centuty. If
-> you restrict your system to a very limited set
-> of devices it still stretches an evaluation
-> budget beyond the breaking point. It's very
-> hard to justify the value of the granularity
-> in terms of the cost.
+ /sbin/setkey -f /etc/racoon/setkey.conf
+
+I ran into two problems with this approach (AVCs posted below):
+
+***
+type=AVC msg=audit(1173457995.695:303): avc:  denied  { use } for  pid=2102 
+comm="setkey" name="console" dev=tmpfs ino=725 
+scontext=system_u:system_r:setkey_t:s0-s15:c0.c1023 
+tcontext=system_u:system_r:init_t:s0-s15:c0.c1023 tclass=fd
+type=AVC msg=audit(1173457995.695:303): avc:  denied  { use } for  pid=2102 
+comm="setkey" name="console" dev=tmpfs ino=725 
+scontext=system_u:system_r:setkey_t:s0-s15:c0.c1023 
+tcontext=system_u:system_r:init_t:s0-s15:c0.c1023 tclass=fd
+type=AVC msg=audit(1173457995.695:303): avc:  denied  { use } for  pid=2102 
+comm="setkey" name="console" dev=tmpfs ino=725 
+scontext=system_u:system_r:setkey_t:s0-s15:c0.c1023 
+tcontext=system_u:system_r:init_t:s0-s15:c0.c1023 tclass=fd
+type=AVC msg=audit(1173457995.721:304): avc:  denied  { search } for  pid=2102 
+comm="setkey" name="racoon" dev=dm-0 ino=491816 
+scontext=system_u:system_r:setkey_t:s0-s15:c0.c1023 
+tcontext=system_u:object_r:ipsec_conf_file_t:s0 tclass=dir
+***
+
+The first problem involving fd use seems to have a rather simple fix, which I 
+don't imagine should cause any adverse affects:
+
+ init_use_fds(setkey_t)
+
+However, the second problem of setkey not being allowed to search 
+the /etc/racoon directory makes me believe I'm not placing my setkey.conf in 
+the right location, or I simply have it named incorrectly.  Yet a quick 
+search through the Reference Policy doesn't show an obvious name or location.  
+My hunch is that any location under /etc should work, i.e. /etc/setkey.conf, 
+but I was curious to see what the "recommended" solution is ...
+
+Thanks.
 
 -- 
-Stephen Smalley
-National Security Agency
-
+paul moore
+linux security @ hp
 
 --
 This message was distributed to subscribers of the selinux mailing list.
