@@ -1,61 +1,72 @@
-From: "Paul Moore" <paul.moore@hp.com>
-Message-Id: <20070309203506.981881820@hp.com>
-References: <20070309203327.709750017@hp.com>
-Date: Fri, 09 Mar 2007 15:33:28 -0500
-To: selinux@tycho.nsa.gov
-Cc: dwalsh@redhat.com, cpebenito@tresys.com, sds@tycho.nsa.gov,
-        Paul Moore <paul.moore@hp.com>
-Subject: [PATCH 1/3] Refpolicy: allow the IPsec management tools to start at boot
+Subject: Re: Running racoon from init_t?
+From: "Christopher J. PeBenito" <cpebenito@tresys.com>
+To: Stephen Smalley <sds@tycho.nsa.gov>
+Cc: Paul Moore <paul.moore@hp.com>, SE Linux <selinux@tycho.nsa.gov>,
+        Daniel J Walsh <dwalsh@redhat.com>
+In-Reply-To: <1173462020.3241.131.camel@moss-spartans.epoch.ncsc.mil>
+References: <200703091209.24393.paul.moore@hp.com>
+	 <1173461816.3241.129.camel@moss-spartans.epoch.ncsc.mil>
+	 <1173462020.3241.131.camel@moss-spartans.epoch.ncsc.mil>
+Content-Type: text/plain
+Date: Fri, 09 Mar 2007 21:30:09 +0000
+Message-Id: <1173475809.29664.14.camel@sgc>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Currently the IPsec tools are rather noisy at startup, in terms of AVC denials,
-if they start at all.  This patch attempts to cleanup some of the AVC denials
-caused by "fd use" as well as allowing the setkey_t domain to read the required
-configuration files.
+On Fri, 2007-03-09 at 12:40 -0500, Stephen Smalley wrote:
+> On Fri, 2007-03-09 at 12:36 -0500, Stephen Smalley wrote:
+> > On Fri, 2007-03-09 at 12:09 -0500, Paul Moore wrote:
+> > > This is in regards to RHEL5 and the MLS policy.
+> > > 
+> > > I'm trying to run racoon at startup, from within the rc.local script, which 
+> > > means it is being run from init/init_t.  Whenever I try to do this I see the 
+> > > following AVC denials:
+> > 
+> > Should be run from initrc_t (rc.local should have initrc_exec_t on it).
+> > Although the inherited fds may still have init_t on them due to being
+> > created by /sbin/init and then just inherited by the descendants.
+> > 
+> > > 
+> > > ***
+> > > type=AVC msg=audit(1173457995.784:305): avc:  denied  { use } for  pid=2105 
+> > > comm="racoon" name="console" dev=tmpfs ino=725 
+> > > scontext=system_u:system_r:racoon_t:s0-s15:c0.c1023 
+> > > tcontext=system_u:system_r:init_t:s0-s15:c0.c1023 tclass=fd
+> > > type=AVC msg=audit(1173457995.784:305): avc:  denied  { use } for  pid=2105 
+> > > comm="racoon" name="console" dev=tmpfs ino=725 
+> > > scontext=system_u:system_r:racoon_t:s0-s15:c0.c1023 
+> > > tcontext=system_u:system_r:init_t:s0-s15:c0.c1023 tclass=fd
+> > > type=AVC msg=audit(1173457995.784:305): avc:  denied  { use } for  pid=2105 
+> > > comm="racoon" name="console" dev=tmpfs ino=725 
+> > > scontext=system_u:system_r:racoon_t:s0-s15:c0.c1023 
+> > > tcontext=system_u:system_r:init_t:s0-s15:c0.c1023 tclass=fd
+> > > ***
+> > > 
+> > > I suspect this can fixed by adding the following to the policy, suggestions?
+> > > 
+> > >  init_use_fds(racoon_t)
+> > 
+> > I'd have expected it to pick up the right rules from being an
+> > init_daemon_domain().
+> 
+> Actually, I'd tend to think that should be dontaudit'd - it doesn't have
+> a legitimate need to access the console, right?  Then SELinux will just
+> close the descriptor silently and replace it with a ref to the null
+> device.
 
-Signed-off-by: Paul Moore <paul.moore@hp.com>
----
- policy/modules/system/ipsec.te |    8 ++++++++
- 1 file changed, 8 insertions(+)
+I agree.  Actually there's a noticeable amount of services that allow
+this already.  If the service has rules that allow the console access,
+we can leave the init fd inheritance for now (making note to revisit
+it).  But if it doesn't use the console, we can remove the
+init_use_fds() and have the fds be dontaudited through the
+init_daemon_domain() interface.  Make sense?
 
-Index: refpolicy/policy/modules/system/ipsec.te
-===================================================================
---- refpolicy.orig/policy/modules/system/ipsec.te
-+++ refpolicy/policy/modules/system/ipsec.te
-@@ -325,6 +325,8 @@ selinux_compute_access_vector(racoon_t)
- libs_use_ld_so(racoon_t)
- libs_use_shared_libs(racoon_t)
- 
-+init_dontaudit_use_fds(racoon_t)
-+
- locallogin_use_fds(racoon_t)
- 
- logging_send_syslog_msg(racoon_t)
-@@ -348,6 +350,10 @@ allow setkey_t ipsec_spd_t:association s
- # allow setkey utility to set contexts on SA's and policy
- domain_ipsec_setcontext_all_domains(setkey_t)
- 
-+allow setkey_t ipsec_conf_file_t:dir list_dir_perms;
-+read_files_pattern(setkey_t,ipsec_conf_file_t,ipsec_conf_file_t)
-+read_lnk_files_pattern(setkey_t,ipsec_conf_file_t,ipsec_conf_file_t)
-+
- files_read_etc_files(setkey_t)
- 
- locallogin_use_fds(setkey_t)
-@@ -355,6 +361,8 @@ locallogin_use_fds(setkey_t)
- libs_use_ld_so(setkey_t)
- libs_use_shared_libs(setkey_t)
- 
-+init_dontaudit_use_fds(setkey_t)
-+
- miscfiles_read_localization(setkey_t)
- 
- seutil_read_config(setkey_t)
+-- 
+Chris PeBenito
+Tresys Technology, LLC
+(410) 290-1411 x150
 
---
-paul moore
-linux security @ hp
 
 --
 This message was distributed to subscribers of the selinux mailing list.
