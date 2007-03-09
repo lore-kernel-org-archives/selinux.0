@@ -1,35 +1,36 @@
 From: "Paul Moore" <paul.moore@hp.com>
-Message-Id: <20070309203513.357373998@hp.com>
+Message-Id: <20070309203511.778297290@hp.com>
 References: <20070309203327.709750017@hp.com>
-Date: Fri, 09 Mar 2007 15:33:30 -0500
+Date: Fri, 09 Mar 2007 15:33:29 -0500
 To: selinux@tycho.nsa.gov
 Cc: dwalsh@redhat.com, cpebenito@tresys.com, sds@tycho.nsa.gov,
         Paul Moore <paul.moore@hp.com>
-Subject: [PATCH 3/3] Refpolicy: allow netlabelctl to be run at boot
+Subject: [PATCH 2/3] Refpolicy: remove a duplicate rule in the ipsec.te file
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Allow the NetLabel management tools to be run at boot from the init scripts.
+The "seutil_read_config(setkey_t)" rule is duplicated in the IPsec policy file,
+it is possibile that the first occurrence is intended to be for the racoon_t
+domain but we'll just remove for now.
 
 Signed-off-by: Paul Moore <paul.moore@hp.com>
 ---
- policy/modules/system/netlabel.te |    3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ policy/modules/system/ipsec.te |    2 --
+ 1 file changed, 2 deletions(-)
 
-Index: refpolicy/policy/modules/system/netlabel.te
+Index: refpolicy/policy/modules/system/ipsec.te
 ===================================================================
---- refpolicy.orig/policy/modules/system/netlabel.te
-+++ refpolicy/policy/modules/system/netlabel.te
-@@ -8,8 +8,7 @@ policy_module(netlabel,1.0.0)
+--- refpolicy.orig/policy/modules/system/ipsec.te
++++ refpolicy/policy/modules/system/ipsec.te
+@@ -333,8 +333,6 @@ logging_send_syslog_msg(racoon_t)
  
- type netlabel_mgmt_t;
- type netlabel_mgmt_exec_t;
--domain_type(netlabel_mgmt_t)
--domain_entry_file(netlabel_mgmt_t,netlabel_mgmt_exec_t)
-+init_daemon_domain(netlabel_mgmt_t,netlabel_mgmt_exec_t)
+ miscfiles_read_localization(racoon_t)
  
+-seutil_read_config(setkey_t)
+-
  ########################################
  #
+ # Setkey local policy
 
 --
 paul moore
