@@ -1,36 +1,15 @@
 From: "Paul Moore" <paul.moore@hp.com>
-Message-Id: <20070309203511.778297290@hp.com>
-References: <20070309203327.709750017@hp.com>
-Date: Fri, 09 Mar 2007 15:33:29 -0500
+Message-Id: <20070309203327.709750017@hp.com>
+Date: Fri, 09 Mar 2007 15:33:27 -0500
 To: selinux@tycho.nsa.gov
-Cc: dwalsh@redhat.com, cpebenito@tresys.com, sds@tycho.nsa.gov,
-        Paul Moore <paul.moore@hp.com>
-Subject: [PATCH 2/3] Refpolicy: remove a duplicate rule in the ipsec.te file
+Cc: dwalsh@redhat.com, cpebenito@tresys.com, sds@tycho.nsa.gov
+Subject: [PATCH 0/3] Some quick policy patches based on the problems from earlier today
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-The "seutil_read_config(setkey_t)" rule is duplicated in the IPsec policy file,
-it is possibile that the first occurrence is intended to be for the racoon_t
-domain but we'll just remove for now.
-
-Signed-off-by: Paul Moore <paul.moore@hp.com>
----
- policy/modules/system/ipsec.te |    2 --
- 1 file changed, 2 deletions(-)
-
-Index: refpolicy/policy/modules/system/ipsec.te
-===================================================================
---- refpolicy.orig/policy/modules/system/ipsec.te
-+++ refpolicy/policy/modules/system/ipsec.te
-@@ -333,8 +333,6 @@ logging_send_syslog_msg(racoon_t)
- 
- miscfiles_read_localization(racoon_t)
- 
--seutil_read_config(setkey_t)
--
- ########################################
- #
- # Setkey local policy
+This patch set addresses some issues seen when trying to configure/start both
+the IPsec and NetLabel management tools at boot from the init scripts.  These
+patches have only been lightly tested, but they are pretty trivial.
 
 --
 paul moore
