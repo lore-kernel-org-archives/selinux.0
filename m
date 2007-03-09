@@ -1,33 +1,40 @@
-Subject: Re: mmap_file_perms needs ioctl also
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: russell@coker.com.au
-Cc: Daniel J Walsh <dwalsh@redhat.com>, SE-Linux <selinux@tycho.nsa.gov>
-In-Reply-To: <200703091838.26634.russell@coker.com.au>
-References: <45F02B61.7040008@redhat.com>
-	 <200703091838.26634.russell@coker.com.au>
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l29DA6EJ018040
+	for <selinux@tycho.nsa.gov>; Fri, 9 Mar 2007 08:10:06 -0500
+Received: from exchange.columbia.tresys.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with SMTP id l29DA6ms026217
+	for <selinux@tycho.nsa.gov>; Fri, 9 Mar 2007 13:10:06 GMT
+Subject: Re: modutils needs to talk to terminal
+From: "Christopher J. PeBenito" <cpebenito@tresys.com>
+To: dwalsh@redhat.com
+Cc: SE Linux <selinux@tycho.nsa.gov>
+In-Reply-To: <200703081438.l28EcJTr008890@localhost.localdomain>
+References: <200703081438.l28EcJTr008890@localhost.localdomain>
 Content-Type: text/plain
-Date: Fri, 09 Mar 2007 07:51:29 -0500
-Message-Id: <1173444689.3241.82.camel@moss-spartans.epoch.ncsc.mil>
+Date: Fri, 09 Mar 2007 13:10:30 +0000
+Message-Id: <1173445831.23674.10.camel@sgc.columbia.tresys.com>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2007-03-09 at 18:38 +1100, Russell Coker wrote:
-> Why?
-> 
-> Many programs that mmap files will also make ioctl() calls on them.  But AFAIK 
-> there is nothing forcing the application programmer to do so.  Expanding the 
-> permissions in this regard seems unnecessary.
+On Thu, 2007-03-08 at 09:38 -0500, dwalsh@redhat.com wrote:
+> --- nsaserefpolicy/policy/modules/system/modutils.te	2007-02-19 11:32:53.000000000 -0500
+> +++ serefpolicy-2.5.8/policy/modules/system/modutils.te	2007-03-08 09:34:35.000000000 -0500
+> @@ -118,7 +118,8 @@
+>  }
+>  
+>  ifdef(`targeted_policy',`
+> +	term_use_unallocated_ttys(insmod_t)
+>  	unconfined_domain(insmod_t)
+>  ')
 
-ioctl permission is effectively useless as it doesn't distinguish
-read-flow vs. write-flow vs. control-op, so it ends up being allowed
-pervasively whenever you allow read or write.  We really need to just
-replace it (ala the attempts by Lorenzo in the past), but doing so
-compatibly won't be easy.
+With the recent fixes to the terminal module, making ttys and ptys
+device nodes, this shouldn't be needed.
 
 -- 
-Stephen Smalley
-National Security Agency
+Chris PeBenito
+Tresys Technology, LLC
+(410) 290-1411 x150
 
 
 --
