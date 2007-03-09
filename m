@@ -1,36 +1,46 @@
-Subject: Re: Some good reference for stacking SELinux LSM
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: JanuGerman <doublemalam@yahoo.co.uk>
-Cc: SELinux List <selinux@tycho.nsa.gov>
-In-Reply-To: <979409.77942.qm@web86902.mail.ukl.yahoo.com>
-References: <979409.77942.qm@web86902.mail.ukl.yahoo.com>
-Content-Type: text/plain
-Date: Mon, 12 Mar 2007 09:36:14 -0400
-Message-Id: <1173706574.2738.54.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l2CFMnRi006535
+	for <selinux@tycho.nsa.gov>; Mon, 12 Mar 2007 11:22:49 -0400
+Received: from moss-lions.epoch.ncsc.mil (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l2CFMle2019867
+	for <selinux@tycho.nsa.gov>; Mon, 12 Mar 2007 15:22:47 GMT
+Received: from moss-lions.epoch.ncsc.mil (localhost.localdomain [127.0.0.1])
+	by moss-lions.epoch.ncsc.mil (8.13.8/8.13.8) with ESMTP id l2CFKaf0030604
+	for <selinux@tycho.nsa.gov>; Mon, 12 Mar 2007 11:20:36 -0400
+Received: (from jwcart2@localhost)
+	by moss-lions.epoch.ncsc.mil (8.13.8/8.13.8/Submit) id l2CFKaJe030603
+	for selinux@tycho.nsa.gov; Mon, 12 Mar 2007 11:20:36 -0400
+Date: Fri, 9 Mar 2007 16:07:07 -0600
+From: Joy Latten <latten@austin.ibm.com>
+Message-Id: <200703092207.l29M77Bn023464@faith.austin.ibm.com>
+To: selinux@tycho.nsa.gov
+Subject: additional change to ipsec policy
+Cc: cpebenito@tresys.com, dwalsh@redhat.com, paul.moore@hp.com,
+        sds@tycho.nsa.gov
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 2007-03-12 at 13:29 +0000, JanuGerman wrote:
-> Hi All,
-> 
-> I am new bie in SELinux and need some good reference
-> for stacking a security module upon SELinux LSM.
-> Currently i have the document "Implementing SELinux as
-> a LInux Security Module". Any pointer to some other
-> document will be highly appreciated.
 
-We don't recommend stacking of security modules, and SELinux only
-supports such stacking for the trivial case where only it uses the
-security fields (as with capabilities).  Some prior discussions of this
-topic:
-http://marc.info/?l=selinux&m=116897135223285&w=2
-http://marc.info/?l=selinux&m=116964869224041&w=2
+One more ipsec policy change.
+I don't think setkey, a trusted and sysadm utility should read it's 
+config files from regular user's home directories.
+ 
 
--- 
-Stephen Smalley
-National Security Agency
+Joy
 
+
+~~
+diff -urpN serefpolicy-2.4.6.orig/policy/modules/system/ipsec.te serefpolicy-2.4.6/policy/modules/system/ipsec.te
+--- serefpolicy-2.4.6.orig/policy/modules/system/ipsec.te	2007-03-09 16:14:30.000000000 -0600
++++ serefpolicy-2.4.6/policy/modules/system/ipsec.te	2007-03-09 16:15:26.000000000 -0600
+@@ -309,7 +309,6 @@ domain_setcontext(setkey_t)
+ 
+ # allow setkey to read a config files in any directory.
+ userdom_read_sysadm_home_content_files(setkey_t)
+-userdom_read_all_users_home_content_files(setkey_t)
+ 
+ # setkey will be run by sysadm, thus setkey needs access to sysadm ttys.
+ userdom_use_sysadm_ttys(setkey_t)
 
 --
 This message was distributed to subscribers of the selinux mailing list.
