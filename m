@@ -1,57 +1,43 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l299JwnX011393
-	for <selinux@tycho.nsa.gov>; Fri, 9 Mar 2007 04:19:58 -0500
-Received: from smtp.sws.net.au (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id l299JsRB009211
-	for <selinux@tycho.nsa.gov>; Fri, 9 Mar 2007 09:19:56 GMT
 From: Russell Coker <russell@coker.com.au>
 Reply-To: russell@coker.com.au
-To: Stefan Schulze Frielinghaus <stefan@sf-net.com>
-Subject: Re: radvd policy changes
-Date: Fri, 9 Mar 2007 09:50:10 +1100
-Cc: SELinux List <selinux@tycho.nsa.gov>
-References: <48DF9C2F-73CF-4657-91AD-A6E1F3BD4A2E@sf-net.com>
-In-Reply-To: <48DF9C2F-73CF-4657-91AD-A6E1F3BD4A2E@sf-net.com>
+To: Stephen Smalley <sds@tycho.nsa.gov>
+Subject: Re: Minor change to getsebool.
+Date: Fri, 9 Mar 2007 18:42:34 +1100
+Cc: Daniel J Walsh <dwalsh@redhat.com>, SE Linux <selinux@tycho.nsa.gov>,
+        Karl MacMillan <kmacmillan@mentalrootkit.com>,
+        Joshua Brindle <jbrindle@tresys.com>
+References: <45F035D2.9030307@redhat.com> <1173370754.10467.86.camel@moss-spartans.epoch.ncsc.mil>
+In-Reply-To: <1173370754.10467.86.camel@moss-spartans.epoch.ncsc.mil>
 MIME-Version: 1.0
 Content-Type: text/plain;
-  charset="iso-8859-1"
-Message-Id: <200703090950.11945.russell@coker.com.au>
+  charset="utf-8"
+Message-Id: <200703091842.36887.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thursday 08 March 2007 02:41, Stefan Schulze Frielinghaus 
-<stefan@sf-net.com> wrote:
-> radvd needs ioctl perms for the configfile (/etc/radvd.conf)
+On Friday 09 March 2007 03:19, Stephen Smalley <sds@tycho.nsa.gov> wrote:
+> > getsebool -a will only show booleans that domain can manipulate.
+> > Currenly it will report the errrors that it can not read.  We can either
+> > add a qualifier to silence these or a new option to get only the list of
+> > the ones I can manipulate.
 >
-> < allow radvd_t radvd_etc_t:file { getattr read };
-> ---
->
->  > read_files_pattern(radvd_t,etc_t,radvd_etc_t)
+> Actually, I'd tend to think we could just silence them by default if
+> errno is EACCES.
 
-It probably doesn't actually need ioctl permissions, in most such cases the 
-program uses a library that does an ioctl to determine whether it's talking 
-to a terminal device (which could be achieved just as easily through 
-fstat()).  But it doesn't do any harm to add it.
+I think it's good for "getsebool -a" to silently ignore such things.  
+But "getsebool foo" should display an error if it can't read foo.
 
-> Another problem may only concern to Debian distributions. The init-
-> script for radvd cleans a file (/var/run/radvd/saved-settings) and
-> needs special privileges to do the work. audit2allow output:
->
-> allow initrc_t radvd_var_run_t:dir add_name;
-> allow initrc_t radvd_var_run_t:file { append create };
->
-> What is the suggested SELinux way to handle such a situation? Deny
-> and don't care? A "ifdef(`distro_debian'" and allow init to do the job?
+> One other possible change to getsebool would be to make it fully
+> equivalent to setsebool, i.e. add a -P option and have it query
+> libsemanage to get persistent boolean settings in that case.
 
-It doesn't do any harm to add this for all distributions.  In Fedora initrc_t 
-is given all this and more through unconfined_domain()...
+Makes sense.
 
 -- 
 russell@coker.com.au
 http://etbe.blogspot.com/          My Blog
 
 http://www.coker.com.au/sponsorship.html Sponsoring Free Software development
-
 
 --
 This message was distributed to subscribers of the selinux mailing list.
