@@ -1,50 +1,55 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l29HN1AA030336
-	for <selinux@tycho.nsa.gov>; Fri, 9 Mar 2007 12:23:01 -0500
-Received: from atlrel7.hp.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id l29HN0I5019342
-	for <selinux@tycho.nsa.gov>; Fri, 9 Mar 2007 17:23:00 GMT
-From: Paul Moore <paul.moore@hp.com>
-To: SE Linux <selinux@tycho.nsa.gov>
-Subject: Running racoon from init_t?
-Date: Fri, 9 Mar 2007 12:09:24 -0500
-Cc: Daniel J Walsh <dwalsh@redhat.com>,
+Subject: Re: Running racoon from init_t?
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Paul Moore <paul.moore@hp.com>
+Cc: SE Linux <selinux@tycho.nsa.gov>, Daniel J Walsh <dwalsh@redhat.com>,
         "Christopher J.PeBenito" <cpebenito@tresys.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Message-Id: <200703091209.24393.paul.moore@hp.com>
+In-Reply-To: <200703091209.24393.paul.moore@hp.com>
+References: <200703091209.24393.paul.moore@hp.com>
+Content-Type: text/plain
+Date: Fri, 09 Mar 2007 12:36:56 -0500
+Message-Id: <1173461816.3241.129.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This is in regards to RHEL5 and the MLS policy.
+On Fri, 2007-03-09 at 12:09 -0500, Paul Moore wrote:
+> This is in regards to RHEL5 and the MLS policy.
+> 
+> I'm trying to run racoon at startup, from within the rc.local script, which 
+> means it is being run from init/init_t.  Whenever I try to do this I see the 
+> following AVC denials:
 
-I'm trying to run racoon at startup, from within the rc.local script, which 
-means it is being run from init/init_t.  Whenever I try to do this I see the 
-following AVC denials:
+Should be run from initrc_t (rc.local should have initrc_exec_t on it).
+Although the inherited fds may still have init_t on them due to being
+created by /sbin/init and then just inherited by the descendants.
 
-***
-type=AVC msg=audit(1173457995.784:305): avc:  denied  { use } for  pid=2105 
-comm="racoon" name="console" dev=tmpfs ino=725 
-scontext=system_u:system_r:racoon_t:s0-s15:c0.c1023 
-tcontext=system_u:system_r:init_t:s0-s15:c0.c1023 tclass=fd
-type=AVC msg=audit(1173457995.784:305): avc:  denied  { use } for  pid=2105 
-comm="racoon" name="console" dev=tmpfs ino=725 
-scontext=system_u:system_r:racoon_t:s0-s15:c0.c1023 
-tcontext=system_u:system_r:init_t:s0-s15:c0.c1023 tclass=fd
-type=AVC msg=audit(1173457995.784:305): avc:  denied  { use } for  pid=2105 
-comm="racoon" name="console" dev=tmpfs ino=725 
-scontext=system_u:system_r:racoon_t:s0-s15:c0.c1023 
-tcontext=system_u:system_r:init_t:s0-s15:c0.c1023 tclass=fd
-***
+> 
+> ***
+> type=AVC msg=audit(1173457995.784:305): avc:  denied  { use } for  pid=2105 
+> comm="racoon" name="console" dev=tmpfs ino=725 
+> scontext=system_u:system_r:racoon_t:s0-s15:c0.c1023 
+> tcontext=system_u:system_r:init_t:s0-s15:c0.c1023 tclass=fd
+> type=AVC msg=audit(1173457995.784:305): avc:  denied  { use } for  pid=2105 
+> comm="racoon" name="console" dev=tmpfs ino=725 
+> scontext=system_u:system_r:racoon_t:s0-s15:c0.c1023 
+> tcontext=system_u:system_r:init_t:s0-s15:c0.c1023 tclass=fd
+> type=AVC msg=audit(1173457995.784:305): avc:  denied  { use } for  pid=2105 
+> comm="racoon" name="console" dev=tmpfs ino=725 
+> scontext=system_u:system_r:racoon_t:s0-s15:c0.c1023 
+> tcontext=system_u:system_r:init_t:s0-s15:c0.c1023 tclass=fd
+> ***
+> 
+> I suspect this can fixed by adding the following to the policy, suggestions?
+> 
+>  init_use_fds(racoon_t)
 
-I suspect this can fixed by adding the following to the policy, suggestions?
-
- init_use_fds(racoon_t)
+I'd have expected it to pick up the right rules from being an
+init_daemon_domain().
 
 -- 
-paul moore
-linux security @ hp
+Stephen Smalley
+National Security Agency
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
