@@ -1,93 +1,116 @@
 Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l2B5PhLa022042
-	for <selinux@tycho.nsa.gov>; Sun, 11 Mar 2007 00:25:43 -0500
-Received: from ug-out-1314.google.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l2B5PgQZ005489
-	for <selinux@tycho.nsa.gov>; Sun, 11 Mar 2007 05:25:43 GMT
-Received: by ug-out-1314.google.com with SMTP id y2so2145293uge
-        for <selinux@tycho.nsa.gov>; Sat, 10 Mar 2007 21:25:42 -0800 (PST)
-Message-ID: <e739902b0703102125r205f725bs89242fdf00480662@mail.gmail.com>
-Date: Sat, 10 Mar 2007 21:25:41 -0800
-From: "Ryan Bradetich" <rbradetich@gmail.com>
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l2BF0rtC000795
+	for <selinux@tycho.nsa.gov>; Sun, 11 Mar 2007 11:00:54 -0400
+Received: from mo11.iijmio.jp (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l2BF0oTT008609
+	for <selinux@tycho.nsa.gov>; Sun, 11 Mar 2007 15:00:52 GMT
+Date: Mon, 12 Mar 2007 00:00:46 +0900
+From: Yuichi Nakamura <himainu-ynakam@miomio.jp>
 To: selinux@tycho.nsa.gov
-Subject: Problems with login from serial port.
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Cc: himainu-ynakam@miomio.jp
+Subject: Re: [PATCH 0/8] busybox -- SELinux option support for coreutils:
+ ver3
+Message-Id: <20070312000046.9500d724.himainu-ynakam@miomio.jp>
+In-Reply-To: <20070223174733.e67e5fc6.ynakam@hitachisoft.jp>
+References: <20070223174733.e67e5fc6.ynakam@hitachisoft.jp>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hello all,
+SELinux support is merged to BusyBox's svn tree for following commands:
+cp, mv, install, mkdir, mkfifo,  mknod, stat, ls, id.
 
-I have been making good progress on my customized policy, but I ran
-into a problem that I do not understand.   I changed the type on the
-/dev/ttyS0 device file because my larger security goal is to require
-user access to the system_t domain to come from the ttyS0 serial port.
- Ignoring the larger security goal for now, I am just trying to
-address the avc messages when I login to the system on the ttyS0
-serial port.
+runcon and chcon are under review.
 
-Here are the relevant parts of my policy:
+We will push more SELinux command to BusyBox's svn tree.
 
-# ls -lZ /bin/busybox
--r-xr-xr-x    1 system_u:object_r:system_exec_t     259664 Feb 27
-00:29 /bin/busybox
+Regards,
+Yuichi Nakamura
 
-# ls -lZ /bin/login
-lrwxrwxrwx    1 system_u:object_r:system_t           7 Feb 27 00:43
-/bin/login -> busybox
+On Fri, 23 Feb 2007 17:47:33 +0900
+Yuichi Nakamura  wrote:
 
-# ls -lZ /dev/ttyS0
-crw-------    1 root:object_r:sysadm_tty_device_t    4,  64 Mar 11
-04:39 /dev/ttyS0
-
-
-Here are the avc message I get when I login in permissive mode:
-
-audit(1173587017.702:3): avc:  denied  { relabelfrom } for  pid=199
-comm="login" name="ttyS0" dev=hda1 ino=31387
-scontext=system_u:system_r:system_t
-tcontext=root:object_r:sysadm_tty_device_t tclass=chr_file
-
-audit(1173587017.702:3): avc:  denied  { relabelto } for  pid=199
-comm="login" name="ttyS0" dev=hda1 ino=31387
-scontext=system_u:system_r:system_t
-tcontext=root:object_r:sysadm_tty_device_t tclass=chr_file
-
-audit(1173587017.702:3): arch=40000003 syscall=226 success=yes exit=0
-a0=808b040 a1=b7f9f2c7 a2=8090638 a3=22 items=0 ppid=1 pid=199
-auid=4294967295 uid=0 gid=0 euid=0 suid=0 fsuid=0 egid=0 sg
-id=0 fsgid=0 tty=ttyS0 comm="login" exe="/bin/busybox"
-subj=system_u:system_r:system_t key=(null)
-
-
-
-I have the following rule in my policy file (I thought this rule will
-have addressed the avc  message):
-
-allow system_t sysadm_tty_device_t:chr_file { read write ioctl getattr
-setattr relabelto relabelfrom };
-
-
-Running the avc messages through audit2allow does not produce anything
-I do not already have:
-
-# audit2allow < /root/dmesg
-allow system_t sysadm_tty_device_t:chr_file { relabelfrom relabelto };
-
-
-It seems that I am missing an avc message, but I can not figure out
-what it would be.  I have reviewed my policy and removed all the
-dontaudit messages.   I am also in the process of reviewing the
-standard refpolicy modules that deal with login and serial ports.
-
-I just really curious what I am missing and why when I apply the
-suggested fixes to allow the action, I am still receiving the avc
-messages.   Any thoughts or ideas on how to solve this would be
-greatly appreciated!
-
-Thanks,
-
-- Ryan
+> Hi.
+> 
+> The following patches provide SELinux options(like -Z) and applets to coreutils.
+> To maintain SELinux system, some commands must be extended to be able to handle 
+> attribute in SELinux(such as security context).
+> 
+> Current patch is version 3. 
+> We submitted previous patches some weeks ago, and some reviews were done.
+> chcon and runcon applets are added, since last patch.
+> I think that's all for coreutils.
+> 
+> We hope the patches are merged into busybox svn tree.
+> 
+> [1/8] busybox-coreutils-common-01.v3.patch
+>  - common component for SELinux options, applets
+>    like usage messages, the definition of applets and Kbuild/Config.in.
+> 
+> [2/8] busybox-coreutils-02-copy.v3.patch
+>   - cp: -c option support. 
+>       -c option: security context is preserved during file copy.
+>   - mv 
+>     In SELinux, it is recommended to preserve security context 
+>     when file is moved. By this patch, file context is preserved 
+>     during file move.
+>   - install
+>     When file is copied by install, security context of installed file 
+>     becomes different from value configured in file_contexts file.
+>     By this patch, security context is set according to file_contexts file.
+>    -Z option is also supported, security context can be set during file copy.
+> (annotation) The reason why the above options are required:
+>   SELinux stores secutiry context of files/directories in its
+>   xattr area, but most of commands don't pay attention for xattr.
+>   Thus, it's not preserved during file copy includes a case when mv
+>   falled back into read/write copy.
+>   We have to preserve them to keep consistency of the secure system.
+> 
+> [3/8] busybox-coreutils-03-mk.v3.patch
+>  - -Z option support for mkdir, mkfifo, mknod. 
+>     By -Z, security context for created file can be set.
+>  This improves compatibility with up-streamed coreutils.
+> 
+> 
+> [4/8] busybox-coreutils-04-stat.v3.patch
+>  - -Z option support for stat. Security context of file is shown by -Z option.
+>  Security context of file is very important attribute for SELinux, 
+>  so it should be shown in stat.
+> 
+> [5/8]  busybox-coreutils-05-ls.v3.patch
+>  - -Z option support for ls. Security context of file is shown by -Z option.
+>    In current busybox, -k/-K shows security context. However, they are replaced
+>  by -Z option in recent coreutils, so -Z have to be added by this patch.
+> 
+> [6/8] busybox-coreutils-06-id.v3.patch
+>  - -Z option support for id. Security context of process is shown by -Z option.
+> 
+> [7/8] busybox-coreutils-07-chcon.v3.patch
+>  - chcon - change security context of file. 
+>   chcon provides one of the core facilities to associate a correct security
+>   context within files. It enables to change whole or specific parts of the
+>   security context within them.
+> 
+> [8/8] busybox-coreutils-08-runcon.v3.patch
+>  - runcon - run application with specified security context.
+>   runcon provides one of the core facilities to run application with explicitly
+>   specified security context. It enables users to run their application under
+>   the least privilege set explicitly.
+> 
+> 
+> This project is originated from some of JPSEUG(Japan SELinux User Group). 
+> We have more patches to support SELinux commands/options.
+> For list of our work, please visit following site.
+> http://code.google.com/p/sebusybox/
+> 
+> Regards,
+> Yuichi Nakamura
+> 
+> --
+> This message was distributed to subscribers of the selinux mailing list.
+> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
+> the words "unsubscribe selinux" without quotes as the message.
 
 --
 This message was distributed to subscribers of the selinux mailing list.
