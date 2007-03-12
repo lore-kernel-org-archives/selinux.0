@@ -1,29 +1,22 @@
-Subject: Re: [PATCH] Dropping compat support for /etc/security policy file
-	paths
+Subject: Re: [PATCH] Dropping support for disabling caching of context
+	translations (CACHETRANS=0)
 From: Stephen Smalley <sds@tycho.nsa.gov>
 To: Steve G <linux_4ever@yahoo.com>
 Cc: selinux@tycho.nsa.gov
-In-Reply-To: <204313.8281.qm@web51511.mail.yahoo.com>
-References: <204313.8281.qm@web51511.mail.yahoo.com>
+In-Reply-To: <751432.17898.qm@web51508.mail.yahoo.com>
+References: <751432.17898.qm@web51508.mail.yahoo.com>
 Content-Type: text/plain
-Date: Mon, 12 Mar 2007 14:04:53 -0400
-Message-Id: <1173722693.2738.123.camel@moss-spartans.epoch.ncsc.mil>
+Date: Mon, 12 Mar 2007 14:05:09 -0400
+Message-Id: <1173722709.2738.125.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2007-03-08 at 05:31 -0800, Steve G wrote:
-> >> >Are any active distributions still using the old /etc/security/ location
-> >> >and layout for SELinux policy files?  If not, we could drop the compat
-> >> >file path support from libselinux on the trunk.
-> >> 
-> >> Here's a patch dropping support.
-> >
-> >+#define SECURITYCONFIG "/etc/sysconfig/selinux"
-> >
-> >I think we can drop this altogether, along with the use of it
+On Thu, 2007-03-08 at 06:53 -0800, Steve G wrote:
+> >So, is anyone using CACHETRANS=0?  Do we need to retain it going forward
+> >in the trunk?
 > 
-> Sure. New patch attached.
+> Attaching a patch dropping this config option.
 
 Thanks, merged on the trunk.
 
