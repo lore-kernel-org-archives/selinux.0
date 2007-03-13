@@ -1,80 +1,66 @@
-Subject: Re: Confirmation about task_has_security in selinuxfs.c
+Subject: Re: Getting Security Identifier (SID) for newly created process
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: JanuGerman <doublemalam@yahoo.co.uk>
-Cc: SELinux List <selinux@tycho.nsa.gov>
-In-Reply-To: <288183.63596.qm@web86910.mail.ukl.yahoo.com>
-References: <288183.63596.qm@web86910.mail.ukl.yahoo.com>
+To: Pravin <shindepravin@gmail.com>
+Cc: SE-Linux <selinux@tycho.nsa.gov>
+In-Reply-To: <9d1b82480703131015y38a40d97k148b00e525f85cc2@mail.gmail.com>
+References: <9d1b82480703130901s767720eex709936ac66485cfb@mail.gmail.com>
+	 <1173804916.2068.69.camel@moss-spartans.epoch.ncsc.mil>
+	 <9d1b82480703131015y38a40d97k148b00e525f85cc2@mail.gmail.com>
 Content-Type: text/plain
-Date: Tue, 13 Mar 2007 13:26:58 -0400
-Message-Id: <1173806818.2068.96.camel@moss-spartans.epoch.ncsc.mil>
+Date: Tue, 13 Mar 2007 13:35:52 -0400
+Message-Id: <1173807352.2068.104.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2007-03-13 at 17:08 +0000, JanuGerman wrote:
-> >From the discussion on this list and on the
-> linux-security-module, i deduce (kindly correct me, if
-> i am wrong) that the best option is not to have
-> another security LSM stacked to SELinux.
+On Tue, 2007-03-13 at 22:45 +0530, Pravin wrote:
+> I dont know if u remember, But I was working on CKRM and SELinux integration.
+> I also sent u a mail regarding my plans of adding hooks inside
+> configfs, so that
+> we can get better access control by using SELinux ACL's.
+> 
+> Please refer that mail with "SELinux and CKRM integration" for details
+> of my plan about where in CKRM i am planning to add these hooks. If u
+> want, I can resend it again.
 
-Correct.
+I remember, but I wasn't clear on the connection here, as I wouldn't
+expect you to have to compute the SID for a newly created process in
+that code.  I can see you defining and implementing new LSM/SELinux
+hooks called by CKRM to allocate, set up, and free security structures
+for your resource group objects, just as already exist for tasks,
+inodes, sockets, etc, and those hooks might call
+security_transition_sid() to compute a SID for the resource group
+objects.
 
-> The remaining option with me, is that to include my
-> own module call within the fs/namei.c:permission(),
-> after the selinux_inode_permission() and/or
-> security_inode_permission() call.
+> As part of those hooks, I also need to add security context to
+> "res_group" data structure  (struct res_group) used by CKRM.
+> This is required because SELinux need's to take decision like
+> "Can process A create resource group B" and for that SELinux should be
+> able to addrss "resource group B". This is why I need that security
+> context in "struct res_group".
 
-The first question to ask is what are you trying to do with your module,
-and could it be done through configuration of the existing SELinux
-mechanism?  If so, you get to leverage all of the work that has gone
-into SELinux to date and all the work that will continue to go into it
-in the future.  Not only kernel work, but also userland integration,
-policy development, policy tools, policy management infrastructure, etc.
+You wouldn't put it directly there, just like we didn't directly put a
+security context on task_struct or inode.  LSM provides a layer of
+indirection via the void* security fields, and you make hook calls from
+your code to allocate, set up, and free the actual security structures.
 
-Then, if SELinux truly can't provide what you need as is, the next
-logical question is whether you could implement your extension as part
-of the SELinux security server (interface defined by
-security/selinux/include/security.h, code under security/selinux/ss/)
-without requiring any changes to that interface, as the interface was
-designed to support many different security models.  If so, you don't
-need to modify anything outside of the ss/ subdirectory and you get to
-leverage all of the rest of the SELinux kernel and userland support
-unmodified.  Even if you do have to modify the security server interface
-somewhat, if you can limit yourself to a small extension to that
-interface and keep the bulk of your changes localized to the security
-server, you reduce your divergence from mainline SELinux and thus
-maximize your ability to leverage its existing facilities.
+> Here I am stuck about how to give initial SID's to these initial "res_group",
+> and how to give SID's to any newly created res_group.
+> 
+> It will be great, If I can get some help here.
 
-Only if neither of those avenues suffice should you consider modifying
-the SELinux hook functions, the LSM hooks, or the core kernel.  And
-naturally you would seek to do it in the least invasive manner possible,
-so if you can do it within the SELinux hook functions, that would be
-least invasive.
+In the CKRM code, you would just make appropriate calls to LSM hooks and
+then define SELinux hook function implementations that would handle the
+actual setting of SIDs.  For initial objects, you can do it from
+selinux_init(), just as we do for the initial task and keyrings, or you
+can hook your initializer function to call a LSM hook for that purpose
+(as is done e.g. for kernel sockets).
 
-> For this, does i need some special procedure to follow
-> to register my own module with Linux kernel, or a
-> simple call to some module will be sufficed, followed
-> by the kernel re-compilation. This way, there will be
-> no conflict between the LSM of SELinux and a custom
-> security module in my opinion.
-
-Depends on your approach above and whether you are creating a general
-facility for all such "modules" or just adding your own code.  We
-wouldn't encourage arbitrary hooking of SELinux.
-
-> Further, within the security folder in the kernel
-> tree, the 2.6.20 linux kernel distribution is shipped
-> with a file root_plug.c (written by Greg
-> Kroah-Hartman), which is a classic introduction to
-> Linux Security Modules (LSM). The folder also contains
-> the folder of SELinux. In this context, whether
-> root_plug.c security module is stacked with the
-> SELinux security module or not.
-
-We don't use root_plug, and it was only written as a toy example of a
-LSM by Greg, not intended for production use.  You might be able to
-stack it by virtue of the fact that it doesn't use the security fields,
-but I don't why you would do so.
+However, in terms of making sure that your approach is correct, I think
+you also need to engage the CKRM developers to see if they think you are
+controlling the right objects and operations based on their knowledge of
+CKRM internals.  I can give general guidance, but I'm no expert on CKRM
+internals.
 
 -- 
 Stephen Smalley
