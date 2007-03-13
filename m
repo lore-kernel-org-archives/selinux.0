@@ -1,67 +1,85 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l2DHFv1o028651
-	for <selinux@tycho.nsa.gov>; Tue, 13 Mar 2007 13:15:57 -0400
-Received: from nf-out-0910.google.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l2DHFt4b024427
-	for <selinux@tycho.nsa.gov>; Tue, 13 Mar 2007 17:15:55 GMT
-Received: by nf-out-0910.google.com with SMTP id n15so2654739nfc
-        for <selinux@tycho.nsa.gov>; Tue, 13 Mar 2007 10:15:54 -0700 (PDT)
-Message-ID: <9d1b82480703131015y38a40d97k148b00e525f85cc2@mail.gmail.com>
-Date: Tue, 13 Mar 2007 22:45:53 +0530
-From: Pravin <shindepravin@gmail.com>
-To: "Stephen Smalley" <sds@tycho.nsa.gov>
-Subject: Re: Getting Security Identifier (SID) for newly created process
-Cc: SE-Linux <selinux@tycho.nsa.gov>
-In-Reply-To: <1173804916.2068.69.camel@moss-spartans.epoch.ncsc.mil>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-References: <9d1b82480703130901s767720eex709936ac66485cfb@mail.gmail.com>
-	 <1173804916.2068.69.camel@moss-spartans.epoch.ncsc.mil>
+Subject: Re: Confirmation about task_has_security in selinuxfs.c
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: JanuGerman <doublemalam@yahoo.co.uk>
+Cc: SELinux List <selinux@tycho.nsa.gov>
+In-Reply-To: <288183.63596.qm@web86910.mail.ukl.yahoo.com>
+References: <288183.63596.qm@web86910.mail.ukl.yahoo.com>
+Content-Type: text/plain
+Date: Tue, 13 Mar 2007 13:26:58 -0400
+Message-Id: <1173806818.2068.96.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hi Stephen,
+On Tue, 2007-03-13 at 17:08 +0000, JanuGerman wrote:
+> >From the discussion on this list and on the
+> linux-security-module, i deduce (kindly correct me, if
+> i am wrong) that the best option is not to have
+> another security LSM stacked to SELinux.
 
-> But this is all internal to SELinux; you should not be calling any of
-> those functions from outside of SELinux directly.  Some SELinux
-> functions are exported to the rest of the kernel via
-> include/linux/selinux.h.  Some SELinux functions are exported to
-> userspace via selinuxfs.
->
-> Why do you ask?
->
+Correct.
 
-I dont know if u remember, But I was working on CKRM and SELinux integration.
-I also sent u a mail regarding my plans of adding hooks inside
-configfs, so that
-we can get better access control by using SELinux ACL's.
+> The remaining option with me, is that to include my
+> own module call within the fs/namei.c:permission(),
+> after the selinux_inode_permission() and/or
+> security_inode_permission() call.
 
-Please refer that mail with "SELinux and CKRM integration" for details
-of my plan about where in CKRM i am planning to add these hooks. If u
-want, I can resend it again.
+The first question to ask is what are you trying to do with your module,
+and could it be done through configuration of the existing SELinux
+mechanism?  If so, you get to leverage all of the work that has gone
+into SELinux to date and all the work that will continue to go into it
+in the future.  Not only kernel work, but also userland integration,
+policy development, policy tools, policy management infrastructure, etc.
 
-As part of those hooks, I also need to add security context to
-"res_group" data structure  (struct res_group) used by CKRM.
-This is required because SELinux need's to take decision like
-"Can process A create resource group B" and for that SELinux should be
-able to addrss "resource group B". This is why I need that security
-context in "struct res_group".
+Then, if SELinux truly can't provide what you need as is, the next
+logical question is whether you could implement your extension as part
+of the SELinux security server (interface defined by
+security/selinux/include/security.h, code under security/selinux/ss/)
+without requiring any changes to that interface, as the interface was
+designed to support many different security models.  If so, you don't
+need to modify anything outside of the ss/ subdirectory and you get to
+leverage all of the rest of the SELinux kernel and userland support
+unmodified.  Even if you do have to modify the security server interface
+somewhat, if you can limit yourself to a small extension to that
+interface and keep the bulk of your changes localized to the security
+server, you reduce your divergence from mainline SELinux and thus
+maximize your ability to leverage its existing facilities.
 
+Only if neither of those avenues suffice should you consider modifying
+the SELinux hook functions, the LSM hooks, or the core kernel.  And
+naturally you would seek to do it in the least invasive manner possible,
+so if you can do it within the SELinux hook functions, that would be
+least invasive.
 
-Here I am stuck about how to give initial SID's to these initial "res_group",
-and how to give SID's to any newly created res_group.
+> For this, does i need some special procedure to follow
+> to register my own module with Linux kernel, or a
+> simple call to some module will be sufficed, followed
+> by the kernel re-compilation. This way, there will be
+> no conflict between the LSM of SELinux and a custom
+> security module in my opinion.
 
-It will be great, If I can get some help here.
+Depends on your approach above and whether you are creating a general
+facility for all such "modules" or just adding your own code.  We
+wouldn't encourage arbitrary hooking of SELinux.
 
-> --
-> Stephen Smalley
-> National Security Agency
->
->
+> Further, within the security folder in the kernel
+> tree, the 2.6.20 linux kernel distribution is shipped
+> with a file root_plug.c (written by Greg
+> Kroah-Hartman), which is a classic introduction to
+> Linux Security Modules (LSM). The folder also contains
+> the folder of SELinux. In this context, whether
+> root_plug.c security module is stacked with the
+> SELinux security module or not.
 
-Thanx for reply.
+We don't use root_plug, and it was only written as a toy example of a
+LSM by Greg, not intended for production use.  You might be able to
+stack it by virtue of the fact that it doesn't use the security fields,
+but I don't why you would do so.
+
 -- 
- Pravin Shinde
+Stephen Smalley
+National Security Agency
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
