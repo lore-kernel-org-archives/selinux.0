@@ -1,65 +1,39 @@
-Subject: Re: Confirmation about task_has_security in selinuxfs.c
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: JanuGerman <doublemalam@yahoo.co.uk>
-Cc: SELinux List <selinux@tycho.nsa.gov>
-In-Reply-To: <537052.29906.qm@web86902.mail.ukl.yahoo.com>
-References: <537052.29906.qm@web86902.mail.ukl.yahoo.com>
-Content-Type: text/plain
-Date: Tue, 13 Mar 2007 11:08:00 -0400
-Message-Id: <1173798480.2068.51.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l2DG2X2k024629
+	for <selinux@tycho.nsa.gov>; Tue, 13 Mar 2007 12:02:33 -0400
+Received: from nf-out-0910.google.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id l2DG2SW5002336
+	for <selinux@tycho.nsa.gov>; Tue, 13 Mar 2007 16:02:30 GMT
+Received: by nf-out-0910.google.com with SMTP id n15so2620896nfc
+        for <selinux@tycho.nsa.gov>; Tue, 13 Mar 2007 09:01:54 -0700 (PDT)
+Message-ID: <9d1b82480703130901s767720eex709936ac66485cfb@mail.gmail.com>
+Date: Tue, 13 Mar 2007 21:31:53 +0530
+From: Pravin <shindepravin@gmail.com>
+To: SE-Linux <selinux@tycho.nsa.gov>
+Subject: Getting Security Identifier (SID) for newly created process
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2007-03-13 at 15:01 +0000, JanuGerman wrote:
-> Hi Stephen,
-> 
-> Is the following lines in the selinuxfs.c that gets
-> the final decision from the security server:
-> 
-> length = security_compute_av(ssid, tsid, tclass, req,
-> &avd);
->         if (length < 0)
->                goto out2;
-> ...
+Hi,
+I have some doubts in how the security context of newly created
+process is decided.
+I think that there are some policies written by user, which will
+decides the security context of new process depending on the security
+context of the parent process and the executable from which process
+has been created.
 
-For that particular call, yes.
+If this is the case, Can I know which is the interface function
+provided by selinux, that will tell the SID of new process created.
 
-> Actually, i am intrested in locating the last point at
-> which the selinuxfs.c communicates with the security
-> server for an access decision (no matter cached or
-> not) and then conveys back the decision to the LSM
-> hook.
+This also raises the question that How first process is getting its
+security context?
+is it from selinux policy or is it being constant?
 
-You seem to misunderstand the purpose of selinuxfs.  selinuxfs is a
-pseudo filesystem interface between applications and the SELinux kernel
-module.  It isn't used by the LSM hooks called by the kernel.  The hook
-functions are implemented in security/selinux/hooks.c.
-
-> Alternatively, the point, at which the DAC checks are
-> again checked by the LSM hook, which query the SElinux
-> LSM. I have checked the "security.c", which contains
-> the SELinux LSM hook registration but did not succeed
-> to locate the point, where all these calls are taking
-> place.
-
-Perhaps an example would make things clearer.  During open(2)
-processing, the fs/namei.c:permission() function is called to check
-permissions.  That function first applies the usual Linux checks,
-including DAC checks, and, if they pass, the function then calls the LSM
-security_inode_permission() hook, which is defined by
-include/linux/security.h.  If using SELinux, this hook will call
-selinux_inode_permission() in security/selinux/hooks.c, which calls
-inode_has_perm(), which calls avc_has_perm() in security/selinux/avc.c.
-That is the access vector cache.  If there is a cache miss, then
-avc_has_perm_noaudit() in avc.c will call security_compute_av() to get
-the decision from the security server.  selinuxfs is not involved in
-that code path.
-
+Thanx,
 -- 
-Stephen Smalley
-National Security Agency
-
+Pravin Shinde
 
 --
 This message was distributed to subscribers of the selinux mailing list.
