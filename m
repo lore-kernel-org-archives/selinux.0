@@ -1,60 +1,65 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l2DF2Dje021788
-	for <selinux@tycho.nsa.gov>; Tue, 13 Mar 2007 11:02:13 -0400
-Received: from web86902.mail.ukl.yahoo.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with SMTP id l2DF2BSH026315
-	for <selinux@tycho.nsa.gov>; Tue, 13 Mar 2007 15:02:12 GMT
-Date: Tue, 13 Mar 2007 15:01:55 +0000 (GMT)
-From: JanuGerman <doublemalam@yahoo.co.uk>
 Subject: Re: Confirmation about task_has_security in selinuxfs.c
-To: Stephen Smalley <sds@tycho.nsa.gov>
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: JanuGerman <doublemalam@yahoo.co.uk>
 Cc: SELinux List <selinux@tycho.nsa.gov>
-In-Reply-To: <1173786888.2738.173.camel@moss-spartans.epoch.ncsc.mil>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Message-ID: <537052.29906.qm@web86902.mail.ukl.yahoo.com>
+In-Reply-To: <537052.29906.qm@web86902.mail.ukl.yahoo.com>
+References: <537052.29906.qm@web86902.mail.ukl.yahoo.com>
+Content-Type: text/plain
+Date: Tue, 13 Mar 2007 11:08:00 -0400
+Message-Id: <1173798480.2068.51.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hi Stephen,
+On Tue, 2007-03-13 at 15:01 +0000, JanuGerman wrote:
+> Hi Stephen,
+> 
+> Is the following lines in the selinuxfs.c that gets
+> the final decision from the security server:
+> 
+> length = security_compute_av(ssid, tsid, tclass, req,
+> &avd);
+>         if (length < 0)
+>                goto out2;
+> ...
 
-Is the following lines in the selinuxfs.c that gets
-the final decision from the security server:
+For that particular call, yes.
 
-length = security_compute_av(ssid, tsid, tclass, req,
-&avd);
-        if (length < 0)
-               goto out2;
-...
+> Actually, i am intrested in locating the last point at
+> which the selinuxfs.c communicates with the security
+> server for an access decision (no matter cached or
+> not) and then conveys back the decision to the LSM
+> hook.
 
+You seem to misunderstand the purpose of selinuxfs.  selinuxfs is a
+pseudo filesystem interface between applications and the SELinux kernel
+module.  It isn't used by the LSM hooks called by the kernel.  The hook
+functions are implemented in security/selinux/hooks.c.
 
-Actually, i am intrested in locating the last point at
-which the selinuxfs.c communicates with the security
-server for an access decision (no matter cached or
-not) and then conveys back the decision to the LSM
-hook. 
+> Alternatively, the point, at which the DAC checks are
+> again checked by the LSM hook, which query the SElinux
+> LSM. I have checked the "security.c", which contains
+> the SELinux LSM hook registration but did not succeed
+> to locate the point, where all these calls are taking
+> place.
 
-Alternatively, the point, at which the DAC checks are
-again checked by the LSM hook, which query the SElinux
-LSM. I have checked the "security.c", which contains
-the SELinux LSM hook registration but did not succeed
-to locate the point, where all these calls are taking
-place.
+Perhaps an example would make things clearer.  During open(2)
+processing, the fs/namei.c:permission() function is called to check
+permissions.  That function first applies the usual Linux checks,
+including DAC checks, and, if they pass, the function then calls the LSM
+security_inode_permission() hook, which is defined by
+include/linux/security.h.  If using SELinux, this hook will call
+selinux_inode_permission() in security/selinux/hooks.c, which calls
+inode_has_perm(), which calls avc_has_perm() in security/selinux/avc.c.
+That is the access vector cache.  If there is a cache miss, then
+avc_has_perm_noaudit() in avc.c will call security_compute_av() to get
+the decision from the security server.  selinuxfs is not involved in
+that code path.
 
-Thank You,
-MA
+-- 
+Stephen Smalley
+National Security Agency
 
-
-
-
-
-
-
-
-		
-___________________________________________________________ 
-What kind of emailer are you? Find out today - get a free analysis of your email personality. Take the quiz at the Yahoo! Mail Championship. 
-http://uk.rd.yahoo.com/evt=44106/*http://mail.yahoo.net/uk 
 
 --
 This message was distributed to subscribers of the selinux mailing list.
