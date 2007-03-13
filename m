@@ -1,49 +1,50 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l2DATpxj010766
-	for <selinux@tycho.nsa.gov>; Tue, 13 Mar 2007 06:29:51 -0400
-Received: from web86905.mail.ukl.yahoo.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with SMTP id l2DATon3007494
-	for <selinux@tycho.nsa.gov>; Tue, 13 Mar 2007 10:29:50 GMT
-Message-ID: <20070313102950.92335.qmail@web86905.mail.ukl.yahoo.com>
-Date: Tue, 13 Mar 2007 10:29:46 +0000 (GMT)
-From: JanuGerman <doublemalam@yahoo.co.uk>
-Subject: Confirmation about task_has_security in selinuxfs.c
-To: Stephen Smalley <sds@tycho.nsa.gov>
+Subject: Re: Confirmation about task_has_security in selinuxfs.c
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: JanuGerman <doublemalam@yahoo.co.uk>
 Cc: SELinux List <selinux@tycho.nsa.gov>
-In-Reply-To: <1173702959.2738.10.camel@moss-spartans.epoch.ncsc.mil>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+In-Reply-To: <20070313102950.92335.qmail@web86905.mail.ukl.yahoo.com>
+References: <20070313102950.92335.qmail@web86905.mail.ukl.yahoo.com>
+Content-Type: text/plain
+Date: Tue, 13 Mar 2007 07:54:48 -0400
+Message-Id: <1173786888.2738.173.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hi All,
+On Tue, 2007-03-13 at 10:29 +0000, JanuGerman wrote:
+> Hi All,
+> 
+> I wanted to confirm that the function
+> "task_has_security" is the one which interacts with
+> the Security Server for access decisions? and the
+> variable "tsec" is the one which stores and conveys
+> the ultimate access decision by the SELinux Security
+> Server.
+> 
+> According to documentation, the SELinux FileSystem
+> interacts with the Security Server, which further
+> checks the possiblity of a decision stored in the
+> Access Vector Cache.
+> 
+> 
+> If Not, kindly guide me for the location responsible
+> for the interaction with the security server. 
 
-I wanted to confirm that the function
-"task_has_security" is the one which interacts with
-the Security Server for access decisions? and the
-variable "tsec" is the one which stores and conveys
-the ultimate access decision by the SELinux Security
-Server.
+The security server interface is defined in
+security/selinux/include/security.h, and implemented in
+security/selinux/ss/services.c (the ss/ subdirectory contains all of the
+security server code).  The selinuxfs implementation in
+security/selinux/selinuxfs.c uses those interfaces to get security
+decisions.  Also, the selinuxfs implementation performs permission
+checks to control what processes can use its interfaces, and those
+checks are performed using task_has_security, which calls the AVC, which
+uses a cached decision if present or calls the security server on a
+cache miss.  tsec is just a pointer to the task's security state; it
+isn't an access decision.
 
-According to documentation, the SELinux FileSystem
-interacts with the Security Server, which further
-checks the possiblity of a decision stored in the
-Access Vector Cache.
-
-
-If Not, kindly guide me for the location responsible
-for the interaction with the security server. 
-
-Thank You,
-MA
-
-
-
-
-
-		
-___________________________________________________________ 
-All New Yahoo! Mail – Tired of unwanted email come-ons? Let our SpamGuard protect you. http://uk.docs.yahoo.com/nowyoucan.html
+-- 
+Stephen Smalley
+National Security Agency
 
 
 --
