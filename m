@@ -1,54 +1,45 @@
-MIME-Version: 1.0
-Content-Type: multipart/alternative;
-	boundary="----_=_NextPart_001_01C76569.E77FA099"
-Subject: Fedora core 6 policy
-Date: Tue, 13 Mar 2007 20:19:52 +0800
-Message-ID: <0A01463223B8164194908CAC85B66A1201A6321D@ZMY16EXM67.ds.mot.com>
-From: "Nayak Debabrata-a22788" <debabratanayak@motorola.com>
-To: "Stephen Smalley" <sds@tycho.nsa.gov>
-Cc: "SELinux List" <selinux@tycho.nsa.gov>,
-        "Nayak Debabrata-a22788" <debabratanayak@motorola.com>
+Subject: Re: Fedora core 6 policy
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Nayak Debabrata-a22788 <debabratanayak@motorola.com>
+Cc: SELinux List <selinux@tycho.nsa.gov>
+In-Reply-To: <0A01463223B8164194908CAC85B66A1201A6321D@ZMY16EXM67.ds.mot.com>
+References: <0A01463223B8164194908CAC85B66A1201A6321D@ZMY16EXM67.ds.mot.com>
+Content-Type: text/plain
+Date: Tue, 13 Mar 2007 08:30:34 -0400
+Message-Id: <1173789034.2738.206.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This is a multi-part message in MIME format.
+On Tue, 2007-03-13 at 20:19 +0800, Nayak Debabrata-a22788 wrote:
+> Hi
+> how I can modify and re-build the default *strict* or *targeted*
+> Fedora Core 6 policies?...
 
-------_=_NextPart_001_01C76569.E77FA099
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
+Please disable HTML mail in your mail client when sending to public
+mailing lists (or me).
 
-Hi
-how I can modify and re-build the default *strict* or *targeted* Fedora
-Core 6 policies?...
-with regards
-debu=20
+The first question is do you truly need to modify and rebuild the base
+policy, or can you use the loadable policy module support and/or local
+customization support to customize your policy without disturbing the
+base policy?  The latter was introduced starting in Fedora Core 5 (and
+further enhanced in Fedora Core 6) to avoid the need to modify and
+rebuild base policy sources in the common case.
 
-------_=_NextPart_001_01C76569.E77FA099
-Content-Type: text/html;
-	charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
+If the former, then you can download the policy .src.rpm and use it, or
+download an upstream refpolicy tarball and use it.
 
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
-<HTML><HEAD>
-<META http-equiv=3DContent-Type content=3D"text/html; =
-charset=3Dus-ascii">
-<META content=3D"MSHTML 6.00.2900.3059" name=3DGENERATOR></HEAD>
-<BODY>
-<DIV><FONT face=3DArial color=3D#0000ff size=3D2><SPAN=20
-class=3D584501712-13032007>Hi</SPAN></FONT></DIV>
-<DIV><FONT face=3DArial color=3D#0000ff size=3D2>how I can modify and=20
-re-build&nbsp;the default *strict* or *targeted* Fedora Core 6=20
-policies?...</FONT></DIV>
-<DIV><SPAN class=3D584501712-13032007><FONT face=3DArial color=3D#0000ff =
-size=3D2>with=20
-regards</FONT></SPAN></DIV>
-<DIV><SPAN class=3D584501712-13032007></SPAN><SPAN =
-class=3D584501712-13032007><FONT=20
-face=3DArial color=3D#0000ff =
-size=3D2>debu</FONT></SPAN>&nbsp;</DIV></BODY></HTML>
+If the latter, then you can use tools like audit2allow, semodule,
+semanage, and system-config-selinux to customize your policy without
+needing to obtain, modify, or rebuild base policy sources.
 
-------_=_NextPart_001_01C76569.E77FA099--
+Some helpful references for Fedora SELinux support are available from:
+  http://fedoraproject.org/wiki/SELinux/
+
+-- 
+Stephen Smalley
+National Security Agency
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
