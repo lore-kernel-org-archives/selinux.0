@@ -1,47 +1,43 @@
 Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l2E6Pl37020460
-	for <selinux@tycho.nsa.gov>; Wed, 14 Mar 2007 02:25:47 -0400
-Received: from web86909.mail.ukl.yahoo.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with SMTP id l2E6PkK1012506
-	for <selinux@tycho.nsa.gov>; Wed, 14 Mar 2007 06:25:46 GMT
-Date: Wed, 14 Mar 2007 06:25:32 +0000 (GMT)
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l2FF59Pf030134
+	for <selinux@tycho.nsa.gov>; Thu, 15 Mar 2007 11:05:09 -0400
+Received: from web86915.mail.ukl.yahoo.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with SMTP id l2FF57lZ016028
+	for <selinux@tycho.nsa.gov>; Thu, 15 Mar 2007 15:05:08 GMT
+Message-ID: <20070315150506.99935.qmail@web86915.mail.ukl.yahoo.com>
+Date: Thu, 15 Mar 2007 15:05:06 +0000 (GMT)
 From: JanuGerman <doublemalam@yahoo.co.uk>
-Subject: Re: Confirmation about task_has_security in selinuxfs.c
+Subject: SELinux configuration problems on Fedora Core 6
 To: Stephen Smalley <sds@tycho.nsa.gov>
 Cc: SELinux List <selinux@tycho.nsa.gov>
 In-Reply-To: <1173806818.2068.96.camel@moss-spartans.epoch.ncsc.mil>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=iso-8859-1
-Message-ID: <574941.32780.qm@web86909.mail.ukl.yahoo.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-> The first question to ask is what are you trying to
-> do with your module,
+Hi Every body,
 
-I was intrested in LSM Stacking for my project. On
-this line, i found that SELinux is also built using
-LSM, and some kind of stacking mechanism is possible
-with SELinux, though, this assumption proved it self
-wrong.
+ I am not able to configure the SELinux policy on the
+Fedora Core 6 (2.6.20.1). There is no folder called
+/etc/selinux/src/policy. Where as, in the all internet
+documentation, this folder is referenced. Plus, there
+is no sample policy shipped with the SELinux on
+Fedora.
 
-Is this possible, to compile the SELinux LSM without
-Kernel re-compilation (may be a stupid question).
-Because it takes too much time to recompile the kernel
-each time, a change is made.
+The refPolicy tool from tresys, tries to referece a
+command called  /usr/bin/checkpolicy, which is also
+not lodable. Is there is some problem with this kernel
+version, or my installation did not went successful of
+SELinux.
 
-Thank You,
+THanks.
 JG
 
 
-
-
-
-	
-	
 		
 ___________________________________________________________ 
-New Yahoo! Mail is the ultimate force in competitive emailing. Find out more at the Yahoo! Mail Championships. Plus: play games and win prizes. 
+What kind of emailer are you? Find out today - get a free analysis of your email personality. Take the quiz at the Yahoo! Mail Championship. 
 http://uk.rd.yahoo.com/evt=44106/*http://mail.yahoo.net/uk 
 
 --
