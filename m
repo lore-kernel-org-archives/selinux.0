@@ -1,47 +1,52 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l2JHiXXh004291
-	for <selinux@tycho.nsa.gov>; Mon, 19 Mar 2007 13:44:33 -0400
-Received: from exchange.columbia.tresys.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with SMTP id l2JHiWRc020573
-	for <selinux@tycho.nsa.gov>; Mon, 19 Mar 2007 17:44:32 GMT
-Subject: Re: Add kvmfs support
-From: "Christopher J. PeBenito" <cpebenito@tresys.com>
-To: Daniel J Walsh <dwalsh@redhat.com>
-Cc: SE Linux <selinux@tycho.nsa.gov>
-In-Reply-To: <45F0292A.3000301@redhat.com>
-References: <45F0292A.3000301@redhat.com>
+Subject: Re: [PATCH] libselinux lazy init
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Steve G <linux_4ever@yahoo.com>
+Cc: SELinux List <selinux@tycho.nsa.gov>
+In-Reply-To: <134076.39235.qm@web51511.mail.re2.yahoo.com>
+References: <134076.39235.qm@web51511.mail.re2.yahoo.com>
 Content-Type: text/plain
-Date: Mon, 19 Mar 2007 17:45:00 +0000
-Message-Id: <1174326300.16707.7.camel@sgc>
+Date: Mon, 19 Mar 2007 13:57:18 -0400
+Message-Id: <1174327038.22565.151.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2007-03-08 at 10:18 -0500, Daniel J Walsh wrote:
-> --- nsaserefpolicy/policy/modules/kernel/kernel.te      2007-02-19 11:32:51.000000000 -0500
-> +++ serefpolicy-2.5.8/policy/modules/kernel/kernel.te   2007-03-08 08:42:45.000000000 -0500
-> @@ -51,6 +51,15 @@
->  genfscon debugfs / gen_context(system_u:object_r:debugfs_t,s0)
->  
->  #
-> +# kvmFS
-> +#
-> +
-> +type kvmfs_t;
-> +fs_type(kvmfs_t)
-> +allow kvmfs_t self:filesystem associate;
-> +genfscon kvmfs / gen_context(system_u:object_r:kvmfs_t,s0)
-> +
-> +#
->  # Procfs types
->  #
+On Mon, 2007-03-19 at 10:41 -0700, Steve G wrote:
+> >Looking back at Roland's advice, I notice that his sample code
+> >introduced an explicit bool flag rather than overloading the
+> >pthread_once_t variable.
+> 
+> It doesn't look like overloading to me. The man page says:
+> 
+> pthread_once_t once_control = PTHREAD_ONCE_INIT;
 
-Merged, except for the associate line, which is redundant.
+...which could be a struct.
+> 
+> The Single Unix Specification says its a constant:
+> 
+> The constant PTHREAD_ONCE_INIT is defined by the header <pthread.h>.
+
+Constant-valued struct would meet that spec.
+
+> The header file says:
+> 
+> #define PTHREAD_ONCE_INIT 0
+> 
+> So, it is a constant integer. I would imagine there is breakage for commercial
+> binary apps if that ever changed.
+
+Looking around with google, I found:
+http://publib.boulder.ibm.com/infocenter/pseries/v5r3/index.jsp?topic=/com.ibm.aix.genprogc/doc/genprogc/1time_initializations.htm
+which says that it is a structure in many systems.
+
+So possibly it is always an integer in Linux, but the spec and the API
+don't guarantee that, and I did notice that Roland avoided that
+assumption in his code snippet.  I can't see why we would make that
+assumption.
 
 -- 
-Chris PeBenito
-Tresys Technology, LLC
-(410) 290-1411 x150
+Stephen Smalley
+National Security Agency
 
 
 --
