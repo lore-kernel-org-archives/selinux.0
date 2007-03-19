@@ -1,62 +1,56 @@
-Subject: Re: [PATCH] libselinux lazy init
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Steve G <linux_4ever@yahoo.com>
-Cc: SELinux List <selinux@tycho.nsa.gov>
-In-Reply-To: <183389.69237.qm@web51509.mail.re2.yahoo.com>
-References: <183389.69237.qm@web51509.mail.re2.yahoo.com>
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l2JHVsSH003409
+	for <selinux@tycho.nsa.gov>; Mon, 19 Mar 2007 13:31:54 -0400
+Received: from exchange.columbia.tresys.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with SMTP id l2JHVr2o006265
+	for <selinux@tycho.nsa.gov>; Mon, 19 Mar 2007 17:31:53 GMT
+Subject: Re: using the xdm_t:fifo_file sometimes requires ioctl
+From: "Christopher J. PeBenito" <cpebenito@tresys.com>
+To: Daniel J Walsh <dwalsh@redhat.com>
+Cc: SE Linux <selinux@tycho.nsa.gov>
+In-Reply-To: <45F0229E.6090100@redhat.com>
+References: <45F0229E.6090100@redhat.com>
 Content-Type: text/plain
-Date: Mon, 19 Mar 2007 13:26:15 -0400
-Message-Id: <1174325175.22565.143.camel@moss-spartans.epoch.ncsc.mil>
+Date: Mon, 19 Mar 2007 13:32:24 -0400
+Message-Id: <1174325544.16707.1.camel@sgc>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Sun, 2007-03-18 at 06:28 -0700, Steve G wrote:
-> Hi,
-> 
-> Attached is the re-worked (and tested) patch that changes libselinux's startup
-> behavior of reading /etc/selinux/config to be on-demand. This improves
-> performance measurably for small programs that do not need to know the details of
-> policy. (Examples are cp, ls, id, install, ...) Please apply.
-> 
-> Signed-off-by: Steve Grubb <linux_4ever@yahoo.com>
+On Thu, 2007-03-08 at 09:50 -0500, Daniel J Walsh wrote:
+> Also needs to communicate with consolekit via dbus.
 
-diff -urp libselinux-2.0.7.orig/src/selinux_config.c libselinux-2.0.7/src/selinux_config.c
---- libselinux-2.0.7.orig/src/selinux_config.c	2007-03-17 21:09:48.000000000 -0400
-+++ libselinux-2.0.7/src/selinux_config.c	2007-03-18 09:03:05.000000000 -0400
-@@ -40,6 +41,24 @@
- #define SECURETTY_TYPES   18
- #define NEL               19
- 
-+/* Make pthread_once optional */
-+#pragma weak pthread_once
-+
-+/* Part of one-time lazy init */
-+static pthread_once_t once = PTHREAD_ONCE_INIT;
-+static void init_selinux_config(void);
-+
-+/* Call handler iff the first call.  */
-+#define __selinux_once(ONCE_CONTROL, INIT_FUNCTION)	\
-+	do {						\
-+		if (pthread_once != NULL)		\
-+			pthread_once (&(ONCE_CONTROL), (INIT_FUNCTION));  \
-+		else if ((ONCE_CONTROL) == PTHREAD_ONCE_INIT) {		  \
-+			INIT_FUNCTION ();		\
-+			(ONCE_CONTROL) = 2;		\
-+		}					\
-+	} while (0)
-+
+Merged.  Moved the TE change up in the file.
 
-
-Looking back at Roland's advice, I notice that his sample code
-introduced an explicit bool flag rather than overloading the
-pthread_once_t variable.  To me, that suggested that he thought that we
-shouldn't make assumptions about the pthread_once_t variable being an
-integer, which the above code does assume.
+> --- nsaserefpolicy/policy/modules/services/xserver.if   2007-02-19 11:32:53.000000000 -0500
+> +++ serefpolicy-2.5.8/policy/modules/services/xserver.if        2007-03-08 08:42:37.000000000 -0500
+> @@ -826,7 +826,7 @@
+>                 type xdm_t;
+>         ')
+>  
+> -       dontaudit $1 xdm_t:fifo_file { getattr read write }; 
+> +       dontaudit $1 xdm_t:fifo_file rw_fifo_file_perms; 
+>  ')
+>  
+>  ########################################
+> --- nsaserefpolicy/policy/modules/services/xserver.te   2007-02-19 11:32:53.000000000 -0500
+> +++ serefpolicy-2.5.8/policy/modules/services/xserver.te        2007-03-08 08:42:37.000000000 -0500
+> @@ -345,6 +345,10 @@
+>  ')
+>  
+>  optional_policy(`
+> +       consolekit_dbus_chat(xdm_t)
+> +')
+> +
+> +optional_policy(`
+>         userhelper_dontaudit_search_config(xdm_t)
+>  ')
+>  
 
 -- 
-Stephen Smalley
-National Security Agency
+Chris PeBenito
+Tresys Technology, LLC
+(410) 290-1411 x150
 
 
 --
