@@ -1,49 +1,48 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l2JHf40u003998
-	for <selinux@tycho.nsa.gov>; Mon, 19 Mar 2007 13:41:04 -0400
-Received: from web51511.mail.re2.yahoo.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with SMTP id l2JHf12o008306
-	for <selinux@tycho.nsa.gov>; Mon, 19 Mar 2007 17:41:02 GMT
-Date: Mon, 19 Mar 2007 10:41:00 -0700 (PDT)
-From: Steve G <linux_4ever@yahoo.com>
-Subject: Re: [PATCH] libselinux lazy init
-To: Stephen Smalley <sds@tycho.nsa.gov>
-Cc: SELinux List <selinux@tycho.nsa.gov>
-In-Reply-To: <1174325175.22565.143.camel@moss-spartans.epoch.ncsc.mil>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Message-ID: <134076.39235.qm@web51511.mail.re2.yahoo.com>
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l2JHiXXh004291
+	for <selinux@tycho.nsa.gov>; Mon, 19 Mar 2007 13:44:33 -0400
+Received: from exchange.columbia.tresys.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with SMTP id l2JHiWRc020573
+	for <selinux@tycho.nsa.gov>; Mon, 19 Mar 2007 17:44:32 GMT
+Subject: Re: Add kvmfs support
+From: "Christopher J. PeBenito" <cpebenito@tresys.com>
+To: Daniel J Walsh <dwalsh@redhat.com>
+Cc: SE Linux <selinux@tycho.nsa.gov>
+In-Reply-To: <45F0292A.3000301@redhat.com>
+References: <45F0292A.3000301@redhat.com>
+Content-Type: text/plain
+Date: Mon, 19 Mar 2007 17:45:00 +0000
+Message-Id: <1174326300.16707.7.camel@sgc>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+On Thu, 2007-03-08 at 10:18 -0500, Daniel J Walsh wrote:
+> --- nsaserefpolicy/policy/modules/kernel/kernel.te      2007-02-19 11:32:51.000000000 -0500
+> +++ serefpolicy-2.5.8/policy/modules/kernel/kernel.te   2007-03-08 08:42:45.000000000 -0500
+> @@ -51,6 +51,15 @@
+>  genfscon debugfs / gen_context(system_u:object_r:debugfs_t,s0)
+>  
+>  #
+> +# kvmFS
+> +#
+> +
+> +type kvmfs_t;
+> +fs_type(kvmfs_t)
+> +allow kvmfs_t self:filesystem associate;
+> +genfscon kvmfs / gen_context(system_u:object_r:kvmfs_t,s0)
+> +
+> +#
+>  # Procfs types
+>  #
 
->Looking back at Roland's advice, I notice that his sample code
->introduced an explicit bool flag rather than overloading the
->pthread_once_t variable.
+Merged, except for the associate line, which is redundant.
 
-It doesn't look like overloading to me. The man page says:
+-- 
+Chris PeBenito
+Tresys Technology, LLC
+(410) 290-1411 x150
 
-pthread_once_t once_control = PTHREAD_ONCE_INIT;
-
-The Single Unix Specification says its a constant:
-
-The constant PTHREAD_ONCE_INIT is defined by the header <pthread.h>.
-
-The header file says:
-
-#define PTHREAD_ONCE_INIT 0
-
-So, it is a constant integer. I would imagine there is breakage for commercial
-binary apps if that ever changed.
-
--Steve
-
-
- 
-____________________________________________________________________________________
-We won't tell. Get more on shows you hate to love 
-(and love to hate): Yahoo! TV's Guilty Pleasures list.
-http://tv.yahoo.com/collections/265 
 
 --
 This message was distributed to subscribers of the selinux mailing list.
