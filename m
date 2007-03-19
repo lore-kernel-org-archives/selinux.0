@@ -1,38 +1,35 @@
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l2JHHEfZ002597
+	for <selinux@tycho.nsa.gov>; Mon, 19 Mar 2007 13:17:14 -0400
+Received: from web51512.mail.re2.yahoo.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with SMTP id l2JHHC2o003309
+	for <selinux@tycho.nsa.gov>; Mon, 19 Mar 2007 17:17:13 GMT
+Date: Mon, 19 Mar 2007 10:16:40 -0700 (PDT)
+From: Steve G <linux_4ever@yahoo.com>
 Subject: Re: [PATCH] libselinux lazy init
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Steve G <linux_4ever@yahoo.com>
+To: Stephen Smalley <sds@tycho.nsa.gov>
 Cc: SELinux List <selinux@tycho.nsa.gov>
 In-Reply-To: <1174317406.22565.112.camel@moss-spartans.epoch.ncsc.mil>
-References: <183389.69237.qm@web51509.mail.re2.yahoo.com>
-	 <1174317406.22565.112.camel@moss-spartans.epoch.ncsc.mil>
-Content-Type: text/plain
-Date: Mon, 19 Mar 2007 13:13:17 -0400
-Message-Id: <1174324397.22565.133.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Message-ID: <583517.43237.qm@web51512.mail.re2.yahoo.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 2007-03-19 at 11:16 -0400, Stephen Smalley wrote:
-> On Sun, 2007-03-18 at 06:28 -0700, Steve G wrote:
-> > Hi,
-> > 
-> > Attached is the re-worked (and tested) patch that changes libselinux's startup
-> > behavior of reading /etc/selinux/config to be on-demand. This improves
-> > performance measurably for small programs that do not need to know the details of
-> > policy. (Examples are cp, ls, id, install, ...) Please apply.
-> > 
-> > Signed-off-by: Steve Grubb <linux_4ever@yahoo.com>
-> 
-> Did you test the impact on a multi-threaded user of libselinux, like
-> dbusd?
 
-Also, can you comment on why you chose not to pursue Ulrich's suggested
-approach?  Just lack of time or was there a technical reason?
+>Did you test the impact on a multi-threaded user of libselinux, like
+>dbusd?
 
--- 
-Stephen Smalley
-National Security Agency
+Yes, I have run an X desktop and didn't notice anything different.
 
+-Steve
+
+
+ 
+____________________________________________________________________________________
+No need to miss a message. Get email on-the-go 
+with Yahoo! Mail for Mobile. Get started.
+http://mobile.yahoo.com/mail 
 
 --
 This message was distributed to subscribers of the selinux mailing list.
