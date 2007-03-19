@@ -1,35 +1,37 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l2JHHEfZ002597
-	for <selinux@tycho.nsa.gov>; Mon, 19 Mar 2007 13:17:14 -0400
-Received: from web51512.mail.re2.yahoo.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with SMTP id l2JHHC2o003309
-	for <selinux@tycho.nsa.gov>; Mon, 19 Mar 2007 17:17:13 GMT
-Date: Mon, 19 Mar 2007 10:16:40 -0700 (PDT)
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l2JHVCs3003359
+	for <selinux@tycho.nsa.gov>; Mon, 19 Mar 2007 13:31:12 -0400
+Received: from web51509.mail.re2.yahoo.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with SMTP id l2JHV9Rc016915
+	for <selinux@tycho.nsa.gov>; Mon, 19 Mar 2007 17:31:10 GMT
+Date: Mon, 19 Mar 2007 10:31:09 -0700 (PDT)
 From: Steve G <linux_4ever@yahoo.com>
 Subject: Re: [PATCH] libselinux lazy init
 To: Stephen Smalley <sds@tycho.nsa.gov>
 Cc: SELinux List <selinux@tycho.nsa.gov>
-In-Reply-To: <1174317406.22565.112.camel@moss-spartans.epoch.ncsc.mil>
+In-Reply-To: <1174324397.22565.133.camel@moss-spartans.epoch.ncsc.mil>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=iso-8859-1
-Message-ID: <583517.43237.qm@web51512.mail.re2.yahoo.com>
+Message-ID: <448688.66055.qm@web51509.mail.re2.yahoo.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 
->Did you test the impact on a multi-threaded user of libselinux, like
->dbusd?
+>Also, can you comment on why you chose not to pursue Ulrich's suggested
+>approach?  Just lack of time or was there a technical reason?
 
-Yes, I have run an X desktop and didn't notice anything different.
+There is allocation of multiple strings in the init function. From that point of
+view, I thought the safest thing is to just use pthread_once. I also wasn't sure
+about putting atomic compare and exchange code into libselinux.
 
 -Steve
 
 
  
 ____________________________________________________________________________________
-No need to miss a message. Get email on-the-go 
-with Yahoo! Mail for Mobile. Get started.
-http://mobile.yahoo.com/mail 
+Don't pick lemons.
+See all the new 2007 cars at Yahoo! Autos.
+http://autos.yahoo.com/new_cars.html 
 
 --
 This message was distributed to subscribers of the selinux mailing list.
