@@ -1,46 +1,55 @@
-Subject: Re: Incorrect comment or toolchain problem in refpolicy
-	policy/modules/kernel/kernel.te?
+Subject: Re: errors in debugging "services.c"
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Ryan Bradetich <rbradetich@gmail.com>
-Cc: selinux@tycho.nsa.gov
-In-Reply-To: <e739902b0703171534x795e8802jeec1427f63043df7@mail.gmail.com>
-References: <e739902b0703171534x795e8802jeec1427f63043df7@mail.gmail.com>
+To: JanuGerman <doublemalam@yahoo.co.uk>
+Cc: SELinux List <selinux@tycho.nsa.gov>
+In-Reply-To: <20070318095444.98257.qmail@web86913.mail.ukl.yahoo.com>
+References: <20070318095444.98257.qmail@web86913.mail.ukl.yahoo.com>
 Content-Type: text/plain
-Date: Mon, 19 Mar 2007 09:28:50 -0400
-Message-Id: <1174310930.22565.39.camel@moss-spartans.epoch.ncsc.mil>
+Date: Mon, 19 Mar 2007 09:51:04 -0400
+Message-Id: <1174312264.22565.58.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Sat, 2007-03-17 at 15:34 -0700, Ryan Bradetich wrote:
-> Hello All,
+On Sun, 2007-03-18 at 09:54 +0000, JanuGerman wrote:
+> Hi Every body,
 > 
-> I found the following comment in the kernel.te refpolicy module:
+>   I have included some "print" and some "manipulation"
+> statements with the ss/services.c file, in order to
+> get some of output, at various places during kernel
+> compilation.
 > 
-> # These initial sids are no longer used, and can be removed:
+>  Unfortunately, i was not successful, in doing so, and
+> got a long list of errors, for missing standard
+> libraries e.g: 
 > 
-> So naturally, I attempted to remove the sids ... but I got the
-> following error when compiling the policy:
+> security/selinux/ss/services.c:44:19: error: stdio.h:
+> No such file or directory
+> error: string.h: No such file or directory
+> error: stdlib.h: No such file or directory
+> error: stdint.h: No such file or directory
+> error: stderr undeclared (first use in this function)
 > 
-> Compiling refpolicy policy.21
-> /usr/bin/checkpolicy policy.conf -o policy.21
-> /usr/bin/checkpolicy:  loading policy configuration from policy.conf
-> libsepol.policydb_load_isids: SID (null) was never defined
-> make: *** [policy.21] Error 1
+> (i have truncated the errors, because they were too
+> much verbose)
 > 
-> I do go through all the sids and commented each one out individually
-> to see if there was a subset that could be removed.   What I found is
-> that if any of the sids were removed, it caused a compile error.
 > 
-> Is the comment in the module incorrect?  Or is this a toolchain problem?
+> The difficulty is that, when i execute these print and
+> manipulation statements as a sepeate file within the
+> kerncel source tree i.e. within ss/, no problem at
+> all, and all went well. I think so, i am making some
+> path problems. If some body, can suggest me some thing
+> in this regard.
 
-The initial SIDs are declared in the flask/ files, then mapped to
-contexts by the definitions in refpolicy.  Removing them would require
-removing them from both places _and_ regenerating the kernel headers
-_and_ rebuilding the kernel if the removal affected the values of any
-other initial SIDs (which it would if there are any other initial SIDs
-that follow the removed ones in the declaration list).  Tight coupling
-to the kernel, as with the class and permission definitions.
+Dropping a new .c file into the ss/ subdirectory doesn't cause it to be
+built as part of the kernel build unless you also update ss/Makefile, so
+likely your separate file isn't being built at all.
+
+And you can't use stdio from the kernel naturally.  New to kernel
+development?  You might want to go to:
+http://kernelnewbies.org/
+and get yourself a good book on Linux kernel development.  Please don't
+ask basic questions about kernel development here.
 
 -- 
 Stephen Smalley
