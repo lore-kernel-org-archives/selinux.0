@@ -1,39 +1,37 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l2JFvJL2031625
-	for <selinux@tycho.nsa.gov>; Mon, 19 Mar 2007 11:57:19 -0400
-Received: from exchange.columbia.tresys.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with SMTP id l2JFvI3K019306
-	for <selinux@tycho.nsa.gov>; Mon, 19 Mar 2007 15:57:18 GMT
-Subject: Re: New policy for consolekit.
-From: "Christopher J. PeBenito" <cpebenito@tresys.com>
-To: Daniel J Walsh <dwalsh@redhat.com>
-Cc: SE Linux <selinux@tycho.nsa.gov>
-In-Reply-To: <45E5A6C9.40107@redhat.com>
-References: <45E5A6C9.40107@redhat.com>
+Subject: Re: [PATCH] libselinux lazy init
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Steve G <linux_4ever@yahoo.com>
+Cc: SELinux List <selinux@tycho.nsa.gov>
+In-Reply-To: <1174317406.22565.112.camel@moss-spartans.epoch.ncsc.mil>
+References: <183389.69237.qm@web51509.mail.re2.yahoo.com>
+	 <1174317406.22565.112.camel@moss-spartans.epoch.ncsc.mil>
 Content-Type: text/plain
-Date: Mon, 19 Mar 2007 15:57:49 +0000
-Message-Id: <1174319870.29664.60.camel@sgc>
+Date: Mon, 19 Mar 2007 13:13:17 -0400
+Message-Id: <1174324397.22565.133.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2007-02-28 at 10:59 -0500, Daniel J Walsh wrote:
-> This is a new policy for the User Switching capability coming in gnome.
+On Mon, 2007-03-19 at 11:16 -0400, Stephen Smalley wrote:
+> On Sun, 2007-03-18 at 06:28 -0700, Steve G wrote:
+> > Hi,
+> > 
+> > Attached is the re-worked (and tested) patch that changes libselinux's startup
+> > behavior of reading /etc/selinux/config to be on-demand. This improves
+> > performance measurably for small programs that do not need to know the details of
+> > policy. (Examples are cp, ls, id, install, ...) Please apply.
+> > 
+> > Signed-off-by: Steve Grubb <linux_4ever@yahoo.com>
 > 
-> consolekit is a daemon that communicates with xdm_t and hal through dbus 
-> to change the
-> ownership/access on certain devices when the login session changes from 
-> one user to another.
+> Did you test the impact on a multi-threaded user of libselinux, like
+> dbusd?
 
-I'm going to merge this with some organization fixes, but can you
-doublecheck to see if this works with term_dontaudit_use_console()
-instead of allowing the console access?  This goes back to if it will
-work with denying init_t:fd use.
+Also, can you comment on why you chose not to pursue Ulrich's suggested
+approach?  Just lack of time or was there a technical reason?
 
 -- 
-Chris PeBenito
-Tresys Technology, LLC
-(410) 290-1411 x150
+Stephen Smalley
+National Security Agency
 
 
 --
