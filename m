@@ -1,38 +1,72 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l2JJTID8010357
-	for <selinux@tycho.nsa.gov>; Mon, 19 Mar 2007 15:29:18 -0400
-Received: from web51509.mail.re2.yahoo.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with SMTP id l2JJTHRc018056
-	for <selinux@tycho.nsa.gov>; Mon, 19 Mar 2007 19:29:17 GMT
-Date: Mon, 19 Mar 2007 12:29:17 -0700 (PDT)
-From: Steve G <linux_4ever@yahoo.com>
-Subject: Re: [PATCH] libselinux lazy init
-To: Stephen Smalley <sds@tycho.nsa.gov>
-Cc: SELinux List <selinux@tycho.nsa.gov>
-In-Reply-To: <1174327038.22565.151.camel@moss-spartans.epoch.ncsc.mil>
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l2K5gAPl031140
+	for <selinux@tycho.nsa.gov>; Tue, 20 Mar 2007 01:42:10 -0400
+Received: from ug-out-1314.google.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l2K5g97o008885
+	for <selinux@tycho.nsa.gov>; Tue, 20 Mar 2007 05:42:09 GMT
+Received: by ug-out-1314.google.com with SMTP id y2so1713708uge
+        for <selinux@tycho.nsa.gov>; Mon, 19 Mar 2007 22:42:08 -0700 (PDT)
+Message-ID: <e739902b0703192242u464c1331jbbfa94ef1e206713@mail.gmail.com>
+Date: Mon, 19 Mar 2007 22:42:07 -0700
+From: "Ryan Bradetich" <rbradetich@gmail.com>
+To: "Stephen Smalley" <sds@tycho.nsa.gov>
+Subject: Re: Incorrect comment or toolchain problem in refpolicy policy/modules/kernel/kernel.te?
+Cc: selinux@tycho.nsa.gov
+In-Reply-To: <1174310930.22565.39.camel@moss-spartans.epoch.ncsc.mil>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Message-ID: <166300.17002.qm@web51509.mail.re2.yahoo.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+References: <e739902b0703171534x795e8802jeec1427f63043df7@mail.gmail.com>
+	 <1174310930.22565.39.camel@moss-spartans.epoch.ncsc.mil>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+Hello Stephen,
 
->So possibly it is always an integer in Linux, but the spec and the API
->don't guarantee that, and I did notice that Roland avoided that
->assumption in his code snip
+Is this something the community wants to pursue?
+i.e. should I submit patches to do this?
 
-Nor does it guarantee stdbool.h is on every platform. I also wanted to avoid the
-overhead of making it into a function rather than a macro. I can code it up like
-Roland's code if that's what you want.
+Thanks!
 
--Steve
+- Ryan
 
 
- 
-____________________________________________________________________________________
-Be a PS3 game guru.
-Get your game face on with the latest PS3 news and previews at Yahoo! Games.
-http://videogames.yahoo.com/platform?platform=120121
+
+On 3/19/07, Stephen Smalley <sds@tycho.nsa.gov> wrote:
+> On Sat, 2007-03-17 at 15:34 -0700, Ryan Bradetich wrote:
+> > Hello All,
+> >
+> > I found the following comment in the kernel.te refpolicy module:
+> >
+> > # These initial sids are no longer used, and can be removed:
+> >
+> > So naturally, I attempted to remove the sids ... but I got the
+> > following error when compiling the policy:
+> >
+> > Compiling refpolicy policy.21
+> > /usr/bin/checkpolicy policy.conf -o policy.21
+> > /usr/bin/checkpolicy:  loading policy configuration from policy.conf
+> > libsepol.policydb_load_isids: SID (null) was never defined
+> > make: *** [policy.21] Error 1
+> >
+> > I do go through all the sids and commented each one out individually
+> > to see if there was a subset that could be removed.   What I found is
+> > that if any of the sids were removed, it caused a compile error.
+> >
+> > Is the comment in the module incorrect?  Or is this a toolchain problem?
+>
+> The initial SIDs are declared in the flask/ files, then mapped to
+> contexts by the definitions in refpolicy.  Removing them would require
+> removing them from both places _and_ regenerating the kernel headers
+> _and_ rebuilding the kernel if the removal affected the values of any
+> other initial SIDs (which it would if there are any other initial SIDs
+> that follow the removed ones in the declaration list).  Tight coupling
+> to the kernel, as with the class and permission definitions.
+>
+> --
+> Stephen Smalley
+> National Security Agency
+>
+>
 
 --
 This message was distributed to subscribers of the selinux mailing list.
