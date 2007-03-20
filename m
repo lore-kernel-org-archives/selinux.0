@@ -1,204 +1,96 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l2KGqIBt023697
-	for <selinux@tycho.nsa.gov>; Tue, 20 Mar 2007 12:52:18 -0400
-Received: from moss-lions.epoch.ncsc.mil (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l2KGqHuG004243
-	for <selinux@tycho.nsa.gov>; Tue, 20 Mar 2007 16:52:17 GMT
-Received: from moss-lions.epoch.ncsc.mil (localhost.localdomain [127.0.0.1])
-	by moss-lions.epoch.ncsc.mil (8.13.8/8.13.8) with ESMTP id l2KGnxjg008517
-	for <selinux@tycho.nsa.gov>; Tue, 20 Mar 2007 12:49:59 -0400
-Received: (from jwcart2@localhost)
-	by moss-lions.epoch.ncsc.mil (8.13.8/8.13.8/Submit) id l2KGnx4K008516
-	for selinux@tycho.nsa.gov; Tue, 20 Mar 2007 12:49:59 -0400
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l2FIpWJ3009090
-	for <selinux@tycho.nsa.gov>; Thu, 15 Mar 2007 14:51:33 -0400
-Received: from sceptre.pobox.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l2FIpV0m000180
-	for <selinux@tycho.nsa.gov>; Thu, 15 Mar 2007 18:51:31 GMT
-Received: from sceptre (localhost.localdomain [127.0.0.1])
-	by sceptre.pobox.com (Postfix) with ESMTP id 117DE2EF
-	for <selinux@tycho.nsa.gov>; Thu, 15 Mar 2007 14:51:49 -0400 (EDT)
-Received: from [192.168.1.103] (65-37-35-168.nrp4.roc.ny.frontiernet.net [65.37.35.168])
-	(using TLSv1 with cipher DHE-RSA-AES256-SHA (256/256 bits))
-	(No client certificate requested)
-	by sceptre.sasl.smtp.pobox.com (Postfix) with ESMTP id A3DC0351D8
-	for <selinux@tycho.nsa.gov>; Thu, 15 Mar 2007 14:51:48 -0400 (EDT)
-Message-ID: <45F995AD.6040204@pobox.com>
-Date: Thu, 15 Mar 2007 14:51:25 -0400
-From: david x callaway <dxc@pobox.com>
-Reply-To: dxc@pobox.com
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l2KGvO0a024071
+	for <selinux@tycho.nsa.gov>; Tue, 20 Mar 2007 12:57:24 -0400
+Received: from web86902.mail.ukl.yahoo.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with SMTP id l2KGvMuO015358
+	for <selinux@tycho.nsa.gov>; Tue, 20 Mar 2007 16:57:23 GMT
+Date: Tue, 20 Mar 2007 16:57:01 +0000 (GMT)
+From: JanuGerman <doublemalam@yahoo.co.uk>
+Subject: Re: Confirmation about task_has_security in selinuxfs.c
+To: Stephen Smalley <sds@tycho.nsa.gov>
+Cc: SELinux List <selinux@tycho.nsa.gov>
+In-Reply-To: <1173798480.2068.51.camel@moss-spartans.epoch.ncsc.mil>
 MIME-Version: 1.0
-To: selinux@tycho.nsa.gov
-Subject: policy for subversion post-commit hook on fc6 targeted
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain; charset=iso-8859-1
+Message-ID: <613217.17683.qm@web86902.mail.ukl.yahoo.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-problem:  allow the subversion post-commit hook to dump svn after each 
-commit. due to a recent disk death I wanted this to produce two dumps, 
-one on each of two physical disks.  I'm accessing subversion through 
-apache, and I didn't want to turn selinux off.
+Hi Stephen,
+> Perhaps an example would make things clearer. 
+> During open(2)
+> processing, the fs/namei.c:permission() function is
+> called to check
+> permissions.  That function first applies the usual
+> Linux checks,
+> including DAC checks, and, if they pass, the
+> function then calls the LSM
+> security_inode_permission() hook, which is defined
+> by
+> include/linux/security.h.  
 
-note:  some of the paths below are specific to my setup, e.g. my repos 
-are in /usr/local/svn/<repo> directories, but YMMV depending upon how 
-you set up svn and apache.  obviously my backup dirs will probably not 
-match yours either, and their exact location has some bearing on other 
-parts of the policy.
+Within the fs/namei.c, there are two functions defined
+for calling fs/namei.c:permission(), one is int
+vfs_permission(struct nameidata *nd, int mask) and the
+other is int file_permission(struct file *file, int
+mask).
 
-note: the regex for the hook itself *should* mean a new repository will 
-just work with no further intervention, but I didn't test this.
+My question is that, which of the above two functions
+is used to call fs/namei.c:permission() function in
+the Linux 2.6 kernel, and which way is followed by
+SELinux.
 
-the dump script is simple, basically it does an svnadmin dump into a 
-directory under /tmp and then copies the dump elsewhere. it takes 
-advantage of the standard hook script arguments, the repos and the rev, 
-to produce a file named ${REPONAME}.dump.${REV}, where REPONAME is the 
-basename of the path to the repo.  the copies end up under 
-/data/svn-bkup and /opt/data/svn-bkup.
+Best,
+MA
 
-to make a long story short, dan walsh helped me out here 
-http://danwalsh.livejournal.com/8707.html, and asked me to post the 
-result, which follows. my email client is providing some line breaks 
-that should be removed.
 
-dan said most of the policy was generated by a new tool, and I went 
-through a few of the usual audit2allow/add rules cycles before getting 
-it to work, but thanks to dan it was pretty simple.
 
-dxc
 
----------- svnpostcommit.fc ----------
 
-/usr/local/svn/[^/]+/hooks/post-commit -- 
-gen_context(system_u:object_r:httpd_svnpostcommit_script_exec_t,s0)
 
-/opt/data/svn-bkup(/.*)? 
-gen_context(system_u:object_r:httpd_svnpostcommit_script_rw_t,s0)
 
-/data/svn-bkup(/.*)? 
-gen_context(system_u:object_r:httpd_svnpostcommit_script_rw_t,s0)
 
----------- svnpostcommit.if ----------
 
-## policy for httpd_svnpostcommit_script
 
-########################################
-##
-## Execute a domain transition to run httpd_svnpostcommit_script.
-##
-##
-##
-## Domain allowed to transition.
-##
-##
-#
-interface(`httpd_svnpostcommit_script_domtrans',`
-gen_require(`
-type httpd_svnpostcommit_script_t, httpd_svnpostcommit_script_exec_t;
-')
 
-domain_auto_trans($1,httpd_svnpostcommit_script_exec_t,httpd_svnpostcommit_script_t)
 
-allow httpd_svnpostcommit_script_t $1:fd use;
-allow httpd_svnpostcommit_script_t $1:fifo_file rw_file_perms;
-allow httpd_svnpostcommit_script_t $1:process sigchld;
-')
 
-########################################
-##
-## Search httpd_svnpostcommit_script rw directories.
-##
-##
-##
-## Domain allowed access.
-##
-##
-#
-interface(`httpd_svnpostcommit_script_search_rw_dir',`
-gen_require(`
-type httpd_svnpostcommit_script_rw_t;
-')
 
-allow $1 httpd_svnpostcommit_script_rw_t:dir search_dir_perms;
-files_search_rw($1)
-')
 
-########################################
-##
-## Read httpd_svnpostcommit_script rw files.
-##
-##
-##
-## Domain allowed access.
-##
-##
-#
-interface(`httpd_svnpostcommit_script_read_rw_files',`
-gen_require(`
-type httpd_svnpostcommit_script_rw_t;
-')
 
-allow $1 httpd_svnpostcommit_script_rw_t:file r_file_perms;
-allow $1 httpd_svnpostcommit_script_rw_t:dir list_dir_perms;
-files_search_rw($1)
-')
+If using SELinux, this
+> hook will call
+> selinux_inode_permission() in
+> security/selinux/hooks.c, which calls
+> inode_has_perm(), which calls avc_has_perm() in
+> security/selinux/avc.c.
+> That is the access vector cache.  If there is a
+> cache miss, then
+> avc_has_perm_noaudit() in avc.c will call
+> security_compute_av() to get
+> the decision from the security server.  selinuxfs is
+> not involved in
+> that code path.
+> 
+> -- 
+> Stephen Smalley
+> National Security Agency
+> 
+> 
+> --
+> This message was distributed to subscribers of the
+> selinux mailing list.
+> If you no longer wish to subscribe, send mail to
+> majordomo@tycho.nsa.gov with
+> the words "unsubscribe selinux" without quotes as
+> the message.
+> 
 
-########################################
-##
-## Create, read, write, and delete
-## httpd_svnpostcommit_script rw files.
-##
-##
-##
-## Domain allowed access.
-##
-##
-#
-interface(`httpd_svnpostcommit_script_manage_rw_files',`
-gen_require(`
-type httpd_svnpostcommit_script_rw_t;
-')
 
-allow $1 httpd_svnpostcommit_script_rw_t:file manage_file_perms;
-allow $1 httpd_svnpostcommit_script_rw_t:dir rw_dir_perms;
-')
 
----------- svnpostcommit.te ----------
-
-policy_module(svnpostcommit,1.0.0)
-
-########################################
-#
-# Declarations
-#
-require {
-type httpd_t;
-# dxc adds
-type httpd_tmp_t;
-type default_t;
-}
-
-apache_content_template(svnpostcommit)
-
-# tmp files
-allow httpd_svnpostcommit_script_t httpd_svnpostcommit_script_rw_t:file 
-manage_file_perms;
-allow httpd_svnpostcommit_script_t httpd_svnpostcommit_script_rw_t:dir 
-create_dir_perms;
-files_pid_filetrans(httpd_svnpostcommit_script_t,httpd_svnpostcommit_script_rw_t, 
-{ file dir })
-
-allow httpd_t httpd_svnpostcommit_script_rw_t:dir create_dir_perms;
-allow httpd_t httpd_svnpostcommit_script_rw_t:file manage_file_perms;
-
-# dxc adds
-allow httpd_svnpostcommit_script_t default_t:dir { search };
-allow httpd_svnpostcommit_script_t httpd_tmp_t:dir {
-      add_name getattr search write
-};
-allow httpd_svnpostcommit_script_t httpd_tmp_t:file {
-      create getattr read write
-};
+		
+___________________________________________________________ 
+Now you can scan emails quickly with a reading pane. Get the new Yahoo! Mail. http://uk.docs.yahoo.com/nowyoucan.html
 
 --
 This message was distributed to subscribers of the selinux mailing list.
