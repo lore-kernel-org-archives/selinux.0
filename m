@@ -1,61 +1,52 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l2M0Tehl011222
-	for <selinux@tycho.nsa.gov>; Wed, 21 Mar 2007 20:29:40 -0400
-Message-ID: <4601CDF3.7040905@tycho.nsa.gov>
-Date: Wed, 21 Mar 2007 20:29:39 -0400
-From: Eamon Walsh <ewalsh@tycho.nsa.gov>
-MIME-Version: 1.0
-To: "Christopher J. PeBenito" <cpebenito@tresys.com>
-CC: selinux@tycho.nsa.gov
-Subject: Re: [PATCH] refpolicy: experimental X policy -v2
-References: <45B938EE.8010303@tycho.nsa.gov>	 <cadfc0e40702131226y3cef4a81h626bcdb264c563ee@mail.gmail.com>	 <45D2498C.3090902@tycho.nsa.gov> <1172602429.11157.48.camel@sgc>	 <46005FD3.8020203@tycho.nsa.gov> <1174496088.30666.11.camel@sgc>	 <46018E64.2080704@tycho.nsa.gov> <1174510410.19924.23.camel@sgc.columbia.tresys.com>
-In-Reply-To: <1174510410.19924.23.camel@sgc.columbia.tresys.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Subject: Re: Kernel Panics, when start with amendments in SELInux Source
+	Code
+From: Karl MacMillan <kmacmillan@mentalrootkit.com>
+To: JanuGerman <doublemalam@yahoo.co.uk>
+Cc: Stephen Smalley <sds@tycho.nsa.gov>, selinux@tycho.nsa.gov
+In-Reply-To: <20070321194738.6924.qmail@web86913.mail.ukl.yahoo.com>
+References: <20070321194738.6924.qmail@web86913.mail.ukl.yahoo.com>
+Content-Type: text/plain
+Date: Wed, 21 Mar 2007 16:13:15 -0400
+Message-Id: <1174507995.5556.4.camel@localhost.localdomain>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Christopher J. PeBenito wrote:
-> On Wed, 2007-03-21 at 15:58 -0400, Eamon Walsh wrote:
->> Look at the example of the /dev/mem access denial.  This issue was 
->> reported to me even though it's an X server issue, not an X application 
->> issue.  If I were in charge of managing X application policy on some 
->> installation, I wouldn't want the kernel policy for the X server jumbled 
->> in with it.
->>
->> Just like how we're separating userspace object manager Flask 
->> definitions from the kernel ones.  In fact, I had originally created an 
->> entire separate directory "userspace" to use instead of services/. 
->> Reconsidered that, but still like the idea of separate modules.
+On Wed, 2007-03-21 at 19:47 +0000, JanuGerman wrote:
+> Thanks for the reply.
+
+> > What is count used for?
 > 
-> I'm not saying that all the X object class rules are supposed to go in
-> xserver, just the common ones.  Consider dbus, it has a template that
-> other modules use for being client to a dbus, but the rules for sending
-> dbus messages to other domains follows the same refpolicy conventions as
-> kernel object classes, and thus are put in the relevant interface, eg
-> hal_dbus_send().  I think the distinction between server and
-> applications here is clear, and also I think its an analogue to the X
-> server (there is a system dbus and also user dbuses).
-
-OK, this makes sense.
-
->> Maybe gdm should restart the X server after the user has logged in, or 
->> the xserver should change its own context.  Both programs already have 
->> SELinux patches, adding this functionality could be done.
+> The actuall thing which i am doing at the moment is
+> that, whenever a specific "file object" comes in the
+> security server for permission decision, say a file
+> which contains sensitive data, I want to read that
+> file fully, within the security server. The purpose of
+> the count variable is two fold. It is actually used in
+> memcpy() for copying the file name into a dummy file
+> object. Secondly, it is used for reading from the data
+> from the file using:
 > 
-> Yes, though I don't know the pros and cons, other than the latter option
-> would be a dyntransition.
+>  count (testfile ->f_op -> read) (testfile, (char
+> _user *) bufp, PAGE_SIZE, &offset)
+> ....
+> 
 
-The fast user switching support in rawhide runs multiple xservers on 
-virtual consoles; having them all be xdm_xserver_t is problematic.
+>From this description it sounds like you want to intercept access to
+certain files and present a processed version of that file to processes
+accessing it. You may want to explore doing this from userspace.
 
-Other ideas: have the display manager always running on the first 
-virtual console, and launch the user servers on other consoles.  Or 
-maybe we should go back to a text-based login only running X through startx.
+You can create a file type accessible only by a single domain and run a
+process in that domain that provides access to the files through IPC. If
+the access needs to be provided without modifying applications you could
+LD_PRELOAD a library to intercept the relevant libc calls.
 
+This will likely be more maintainable and simpler to achieve. Looking
+for references to assured pipelines can give you some ideas about this
+general approach.
 
--- 
-Eamon Walsh <ewalsh@tycho.nsa.gov>
-National Security Agency
+Karl
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
