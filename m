@@ -1,11 +1,10 @@
 Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l2LJlnZZ032033
-	for <selinux@tycho.nsa.gov>; Wed, 21 Mar 2007 15:47:49 -0400
-Received: from web86913.mail.ukl.yahoo.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with SMTP id l2LJljRY005307
-	for <selinux@tycho.nsa.gov>; Wed, 21 Mar 2007 19:47:46 GMT
-Message-ID: <20070321194738.6924.qmail@web86913.mail.ukl.yahoo.com>
-Date: Wed, 21 Mar 2007 19:47:38 +0000 (GMT)
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l2LJn4xC032098
+	for <selinux@tycho.nsa.gov>; Wed, 21 Mar 2007 15:49:04 -0400
+Received: from web86907.mail.ukl.yahoo.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with SMTP id l2LJmxRY005842
+	for <selinux@tycho.nsa.gov>; Wed, 21 Mar 2007 19:49:00 GMT
+Date: Wed, 21 Mar 2007 19:48:40 +0000 (GMT)
 From: JanuGerman <doublemalam@yahoo.co.uk>
 Subject: Re: Kernel Panics, when start with amendments in SELInux Source Code
 To: Stephen Smalley <sds@tycho.nsa.gov>
@@ -13,6 +12,7 @@ Cc: selinux@tycho.nsa.gov
 In-Reply-To: <1174502296.22565.426.camel@moss-spartans.epoch.ncsc.mil>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=iso-8859-1
+Message-ID: <498809.46803.qm@web86907.mail.ukl.yahoo.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
@@ -124,9 +124,12 @@ MA
 
 
 
+	
+	
 		
 ___________________________________________________________ 
-The all-new Yahoo! Mail goes wherever you go - free your email address from your Internet provider. http://uk.docs.yahoo.com/nowyoucan.html
+New Yahoo! Mail is the ultimate force in competitive emailing. Find out more at the Yahoo! Mail Championships. Plus: play games and win prizes. 
+http://uk.rd.yahoo.com/evt=44106/*http://mail.yahoo.net/uk 
 
 --
 This message was distributed to subscribers of the selinux mailing list.
