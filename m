@@ -1,271 +1,103 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l2KMwUeG009970
-	for <selinux@tycho.nsa.gov>; Tue, 20 Mar 2007 18:58:30 -0400
-Received: from ug-out-1314.google.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id l2KMwPtl015334
-	for <selinux@tycho.nsa.gov>; Tue, 20 Mar 2007 22:58:26 GMT
-Received: by ug-out-1314.google.com with SMTP id y2so48522uge
-        for <selinux@tycho.nsa.gov>; Tue, 20 Mar 2007 15:58:25 -0700 (PDT)
-Message-ID: <cadfc0e40703201558i5bfc57cct837df2de41de9539@mail.gmail.com>
-Date: Tue, 20 Mar 2007 16:58:24 -0600
-From: "Xavier Toth" <txtoth@gmail.com>
-To: "Eamon Walsh" <ewalsh@tycho.nsa.gov>
-Subject: Re: [PATCH] refpolicy: experimental X policy -v2
-Cc: "Christopher J. PeBenito" <cpebenito@tresys.com>, selinux@tycho.nsa.gov
-In-Reply-To: <46005FD3.8020203@tycho.nsa.gov>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-References: <45B938EE.8010303@tycho.nsa.gov>
-	 <cadfc0e40702131226y3cef4a81h626bcdb264c563ee@mail.gmail.com>
-	 <45D2498C.3090902@tycho.nsa.gov> <1172602429.11157.48.camel@sgc>
-	 <46005FD3.8020203@tycho.nsa.gov>
+Subject: Re: [RFC] SELinux: use SECINITSID_NETMSG instead of
+	SECINITSID_UNLABELED for NetLabel
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Paul Moore <paul.moore@hp.com>
+Cc: selinux@tycho.nsa.gov, James Morris <jmorris@namei.org>,
+        Joshua Brindle <method@manicmethod.com>, dwalsh@redhat.com
+In-Reply-To: <200703201734.18351.paul.moore@hp.com>
+References: <20070314025023.115872483@hp.com>
+	 <200703201358.05890.paul.moore@hp.com>
+	 <1174416211.22565.286.camel@moss-spartans.epoch.ncsc.mil>
+	 <200703201734.18351.paul.moore@hp.com>
+Content-Type: text/plain
+Date: Wed, 21 Mar 2007 08:20:35 -0400
+Message-Id: <1174479635.22565.353.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Also I had tried to run in enforcing and gotten avcs related to
-/dev/mem access. And I'm way out of my league here but maybe we need
-something like:
+On Tue, 2007-03-20 at 17:34 -0400, Paul Moore wrote:
+> On Tuesday 20 March 2007 2:43:31 pm Stephen Smalley wrote:
+> > On Tue, 2007-03-20 at 13:58 -0400, Paul Moore wrote:
+> > > Yes, while it is both simple and tempting I don't see that solution as
+> > > viable since it requires encoding meaning into the MLS sensitivity
+> > > labels.  I understand that in certain other MLS implementations specific
+> > > sensitivity labels have been given "special" meaning but I think doing so
+> > > in an implementation as flexible as SELinux is a mistake.
+> >
+> > I wasn't actually suggesting any special or fixed meaning for a
+> > particular label value in the code, just assigning the unlabeled SID a
+> > level that dominates all of the levels that are legitimate for the
+> > system in policy (which is actually what current policy does - unlabeled
+> > sid is mapped to mls_systemhigh definition in refpolicy), and then using
+> > the ordinary MLS logic to ensure that packets with such a level cannot
+> > be received without network MLS overrides.  Then any non-MLS-privileged
+> > application would be denied access to such "unlabeled" packets, vs. the
+> > netlabel'd packets that would have a MLS value < systemhigh.
+> 
+> I think by creating a sensitivity label that dominates every other label on 
+> the system, i.e. SystemHigh, and then restricting that label from being used 
+> by the network does in fact grant some special meaning to that label.  
+> Perhaps I'm using the wrong terminology but the point I am trying to make is 
+> that I would prefer to see NetLabel have the ability to support every 
+> sensitivity label on the system (granted some protocols may impose their own 
+> restrictions but others do not).
 
-dev_rx_raw_memory(xdm_xserver_t)
-dev_wx_raw_memory(xdm_xserver_t)
+Same issue arises for unlabeled filesystems or any other unlabeled
+object, and that is why the unlabeled initial SID has the systemhigh
+level - to prevent reading by untrusted processes since it may contain
+data at any level.  Although in the unlabeled filesystem case, you can
+use a context mount to map the entire filesystem to a given level.
 
-in xserver.te
+> > So what is your goal?  Do you want to allow
+> > non-netlabel'd packets under MLS (problematic then to use unlabeled SID
+> > as the basis) or deny it?
+> 
+> My goal is to have the ability to specify, in SELinux policy on a per-domain 
+> basis, access controls for both NetLabel'd and non-NetLabel'd traffic.  Right 
+> now you can only specify access for NetLabel'd traffic using SELinux policy, 
+> restricting non-NetLabel'd traffic must be done outside of the SELinux policy 
+> on a system wide scale:
+> 
+>  # netlabelctl unlbl allow on|off
 
-Ted
+Always applying the permission check would allow such control, but the
+the issue is that if you use the unlabeled initial SID for the
+non-netlabel'd traffic, then the only way to allow a process to receive
+the packets would be to give its domain MLS networking overrides, and at
+that point, it could receive not only non-netlabel'd traffic but also
+netlabel'd traffic with a higher level if you allow it to receive any
+netlabel'd traffic at all.  Which limits you to one of (receive all
+non-netlabel'd traffic, receive netlabel'd traffic that I dominate, or
+receive all traffic even if it dominates my level) as your per-domain
+options.  Is that sufficient?
 
+It also seems that you might want the ability to distinguish among
+different kinds of non-netlabel'd traffic based on receiving network
+interface, so you could map some of that traffic to one level and some
+of it to another level (which is actually closer in concept to the
+netmsg sids, as they can be configured per netif in policy, although
+nothing is using that support currently - legacy of when we were using
+it as the default packet label for incoming traffic on a network
+interface).
 
-On 3/20/07, Eamon Walsh <ewalsh@tycho.nsa.gov> wrote:
-> Christopher J. PeBenito wrote:
-> > On Tue, 2007-02-13 at 18:28 -0500, Eamon Walsh wrote:
-> >> This is an experimental policy for use with the X userspace object
-> >> manager.  It includes both unconfined and strict policy and is
-> >> controlled by a tunable, xwindows_object_manager.  The labeling conf
-> >> file in the X.org xserver git (XACE-SELINUX branch) assumes that this
-> >> policy is loaded, i.e. the types listed in that file are defined in this
-> >> policy.
-> >
-> > Unfortunately I didn't get a chance to look at this until today.  It'll
-> > take some time to fully understand all this, but I have some notes from
-> > my initial review inline:
-> >
-> >>  modules/services/xwindows.fc |   13 +
-> >>  modules/services/xwindows.if |  521 +++++++++++++++++++++++++++++++++++++++++++
-> >>  modules/services/xwindows.te |   65 +++++
-> >
-> > Eventually this should probably be merged into the xserver module.
-> > Potentially in a tunable, when that support becomes available.  However,
-> > for the purposes of vetting the design, a separate module is fine.
->
-> I think it's important to distinguish between the policy that governs
-> the operation of the X server itself and the policy that governs X
-> applications.  Putting everything into xserver may blur that distinction.
->
-> >
-> >> Index: policy/modules/services/xwindows.if
-> >> ===================================================================
-> >> --- policy/modules/services/xwindows.if      (revision 0)
-> >> +++ policy/modules/services/xwindows.if      (revision 0)
-> >> @@ -0,0 +1,521 @@
-> >
-> >> +template(`xwindows_property',`
-> >> +    gen_require(`
-> >> +            type $1_t;
-> >> +            type $2;
-> >> +            attribute xproperty_type;
-> >> +            attribute $1_xproperty_type;
-> >> +            attribute $2ype;
-> >> +            class property all_property_perms;
-> >> +    ')
-> >> +
-> >> +    type $1_$2, $1_xproperty_type, $2ype, xproperty_type;
-> >> +    type_transition $1_t $2:property $1_$2;
-> >> +')
-> >
-> >> +template(`xwindows_property_set',`
-> >> +
-> >
-> >> +    attribute $1_xproperty_type;
-> >> +    xwindows_property($1,client_xproperty_t)
-> >> +    xwindows_property($1,info_xproperty_t)
-> >> +    xwindows_property($1,seclabel_xproperty_t)
-> >> +    xwindows_property($1,rm_xproperty_t)
-> >> +    xwindows_property($1,wm_xproperty_t)
-> >> +    xwindows_property($1,clipboard_xproperty_t)
-> >> +    xwindows_property($1,unknown_xproperty_t)
-> >> +')
-> >
-> > Is there be a situation where one wouldn't want a full set of
-> > properties?  If not, I'd rather eliminate xwindows_property(), because
-> > the name mangling being done with the base property type names (e.g.,
-> > $2ype) is a little ugly.
->
-> Yeah I'll work on cleaning this up.  You're right, the full property set
-> should be OK in all cases.
->
-> >
-> >
-> >> +template(`xwindows_windowmgr_client',`
-> > [cut]
-> >> +            # can set properties on all windows
-> >> +            allow $3 domain:window { chprop chproplist };
-> >
-> >> +            # X Windows - extensive control over all windows
-> >> +            # can query windows for visual information
-> >> +            allow $3 domain:drawable getattr;
-> >> +            # can enumerate and change attributes of root window
-> >> +            allow $3 $1_root_window_t:window { enumerate setattr };
-> >> +            # can enumerate, set, and change attributes of all non-root windows
-> >> +            allow $3 domain:window { enumerate getattr setattr };
-> >> +            # can map and unmap all non-root windows
-> >> +            allow $3 domain:window { map unmap move ctrllife };
-> >> +            # can send various events to all non-root windows
-> >> +            allow $3 domain:window { windowchangeevent clientcomevent };
-> >> +            # can reparent all non-root windows
-> >> +            allow $3 domain:window { chparent chstack };
-> >> +            # can list properties of all non-root windows
-> >> +            allow $3 domain:window listprop;
-> >
-> >> +            # X Input
-> >> +            # can change input focus on all windows
-> >> +            allow $3 domain:window setfocus;
-> >
-> > domain attribute can't be used here, since its not owned by this module.
-> > Its overly broad too.  One thing to investigate would be adding an
-> > attribute, something like xserver_xclient_type for all X clients, and
-> > then use that here.  Then that attribute would be added to a domain,
-> > perhaps via xserver_user_client_template().
->
-> Yes, that's fine.
->
-> >
-> >
-> >> +template(`xwindows_displaymgr_client',`
-> >> +    gen_require(`
-> >> +            class xextension use;
-> >> +    ')
-> >
-> >> +    xwindows_basic_client($1,$2,$3,$4)
-> >
-> >> +    tunable_policy(`xwindows_object_manager',`
-> >> +            # X Protocol Extensions
-> >> +            allow $3 output_xext_t:xextension use;
-> >> +
-> >> +            # allow server grabs
-> >> +            allow $3 $1_xserver_t:xserver { grab ungrab };
-> >> +            allow $3 $1_xserver_t:xinput { getattr activegrab };
-> >> +
-> >> +            # can move the mouse cursor
-> >> +            allow $3 $1_xserver_t:xinput warppointer;
-> >> +
-> >> +            # can set resource manager properties
-> >> +            allow $3 $2_rm_xproperty_t:property { write free };
-> >> +
-> >> +            # can enumerate windows
-> >> +            allow $3 $1_root_window_t:window enumerate;
-> >> +    ')
-> >> +')
-> >
-> > I suspect this might work as part of xserver_user_client_template(), but
-> > the derived type for the property is going to be a problem.
->
-> Why is that?  The derived property types should all be defined in the
-> same module.
->
-> In this particular case though it's probably safe to say that $1 and $2
-> will both be "xdm".
->
-> I think a deeper question somewhat related to this is what the prefix on
-> the X server's domain should be.  In the policy as written I'm assuming
-> that the user domain prefix $2 and X server domain prefix $1 are
-> independent.  This is because 1) the xserver runs as xdm_xserver_t when
-> started from gdm but user_xserver_t when started by user with startx,
-> and 2) because you might want to allow things like sysadm_xdomain_t
-> programs to work on user_xserver_t X servers.
->
-> It would be useful to standardize on either always running the X server
-> under a single domain, or always running it with the user prefixed domain.
->
-> >
-> >
-> >> +template(`xwindows_resourcemgr_client',`
-> >> +    gen_require(`
-> >> +            class property all_property_perms;
-> >> +    ')
-> >
-> >> +    tunable_policy(`xwindows_object_manager',`
-> >> +            # X Properties
-> >> +            # can read and write resource manager settings
-> >> +            allow $3 $2_rm_xproperty_t:property { read write };
-> >> +    ')
-> >> +')
-> >
-> > Not sure why there is no $1.  Do you anticipate this being used outside
-> > of the one use in the patch?  If not, the rule might as well go in the
-> > caller.
-> >
-> >
-> >> Index: policy/modules/services/xserver.if
-> >> ===================================================================
-> >> --- policy/modules/services/xserver.if       (revision 2180)
-> >> +++ policy/modules/services/xserver.if       (working copy)
-> >> @@ -90,6 +90,13 @@
-> >>      kernel_read_kernel_sysctls($1_xserver_t)
-> >>      kernel_write_proc_files($1_xserver_t)
-> >>
-> >> +    # X server userspace object manager
-> >> +    tunable_policy(`xwindows_object_manager',`
-> >> +            allow $1_xserver_t self:netlink_audit_socket create;
-> >> +            allow $1_xserver_t self:netlink_selinux_socket { bind create read };
-> >> +            allow $1_xserver_t security_t:security { check_context compute_av compute_create };
-> >
-> > This should be:
-> >
-> > send_audit_msgs_pattern($1_xserver_t)
-> > selinux_validate_context($1_xserver_t)
-> > selinux_compute_access_vector($1_xserver_t)
-> > selinux_compute_create_context($1_xserver_t)
->
-> Thx, used audit2allow and forgot to go back and look up interfaces.
->
-> >
-> >> Index: policy/modules/system/unconfined.if
-> >> ===================================================================
-> >> --- policy/modules/system/unconfined.if      (revision 2180)
-> >> +++ policy/modules/system/unconfined.if      (working copy)
-> >> @@ -31,6 +42,19 @@
-> >>      allow $1 self:nscd *;
-> >>      allow $1 self:dbus *;
-> >>      allow $1 self:passwd *;
-> >> +    tunable_policy(`xwindows_object_manager',`
-> >> +            allow $1 self:drawable *;
-> >> +            allow $1 self:window *;
-> >> +            allow $1 self:gc *;
-> >> +            allow $1 self:font *;
-> >> +            allow $1 self:colormap *;
-> >> +            allow $1 self:property *;
-> >> +            allow $1 self:cursor *;
-> >> +            allow $1 self:xclient *;
-> >> +            allow $1 self:xserver *;
-> >> +            allow $1 self:xinput *;
-> >> +            allow $1 self:xextension *;
-> >> +    ')
-> >
-> > I don't think this needs to be tunable.  It probably should go in an
-> > xserver_unconfined() too (as should the classes for the other userland
-> > object managers for that matter).
-> >
->
-> OK.  Will repost.
->
-> --
-> Eamon Walsh <ewalsh@tycho.nsa.gov>
-> National Security Agency
->
-> --
-> This message was distributed to subscribers of the selinux mailing list.
-> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
-> the words "unsubscribe selinux" without quotes as the message.
->
+So an alternative would be to use the netmsg SID (or even the per-netif
+netmsg SIDs obtained via sel_netif_sids(), specified in netifcon
+statements in policy, should be supported by libsemanage/libsepol but
+not in the current semanage interface) for the non-netlabel'd traffic
+rather than the other way around.  Then you aren't forced to having
+SystemHigh on that traffic, and can even support per-NIC levels in the
+future.  Although that will yield the amusing situation that your
+netlabel'd traffic will still have unlabeled_t and your non-netlabel'd
+traffic will have some other type.
+
+> [I'm not ignoring you compatibility comments, I'm just trying to focus the 
+> discussion a bit until we resolve the core issue]
+
+-- 
+Stephen Smalley
+National Security Agency
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
