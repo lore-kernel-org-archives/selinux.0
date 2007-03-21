@@ -1,110 +1,64 @@
-Subject: Re: The reason why SEPostgreSQL use original userspace AVC
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: KaiGai Kohei <kaigai@kaigai.gr.jp>
-Cc: selinux@tycho.nsa.gov, Eamon Walsh <ewalsh@tycho.nsa.gov>
-In-Reply-To: <1174480707.22565.367.camel@moss-spartans.epoch.ncsc.mil>
-References: <45FE9A2F.40200@kaigai.gr.jp>
-	 <1174480707.22565.367.camel@moss-spartans.epoch.ncsc.mil>
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l2LEl7Zw016697
+	for <selinux@tycho.nsa.gov>; Wed, 21 Mar 2007 10:47:07 -0400
+Received: from exchange.columbia.tresys.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with SMTP id l2LEl53n020826
+	for <selinux@tycho.nsa.gov>; Wed, 21 Mar 2007 14:47:05 GMT
+Subject: Re: New fail2ban policy
+From: "Christopher J. PeBenito" <cpebenito@tresys.com>
+To: Daniel J Walsh <dwalsh@redhat.com>
+Cc: SE Linux <selinux@tycho.nsa.gov>
+In-Reply-To: <460043CD.1060700@redhat.com>
+References: <45F01D96.1010806@redhat.com> <1174420865.16552.3.camel@sgc>
+	 <460043CD.1060700@redhat.com>
 Content-Type: text/plain
-Date: Wed, 21 Mar 2007 10:35:32 -0400
-Message-Id: <1174487732.22565.384.camel@moss-spartans.epoch.ncsc.mil>
+Date: Wed, 21 Mar 2007 14:47:37 +0000
+Message-Id: <1174488457.16552.57.camel@sgc>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2007-03-21 at 08:38 -0400, Stephen Smalley wrote:
-> On Mon, 2007-03-19 at 23:11 +0900, KaiGai Kohei wrote:
-> > Hi,
-> > 
-> > This was one of the topics discussed on SELinux developer summit held on
-> > last Friday.
-> > I like to send the reason why I made a decision to implement SE-PostgreSQL
-> > with original userspace AVC, for wider discussion.
-> > (SE-PostgreSQL didn't use the userspace AVC provided by libselinux.)
-> > 
-> > There are two major reasons. The one is a performance gain. The other is
-> > concurrency of invalidation.
-> > 
-> > Any comment and suggestion please.
-> > 
-> > [ performance gain ]
-> > 
-> > The biggest reason is originated from the way to associate a security context
-> > for each tuple. As I mentioned, I modified the internal data structure of
-> > tuples to add its security context. The field is a 4-byte length integer
-> > variable (same as object id data type), not a string expression.
-> > This value is associated with the contains of 'pg_selinux'.
-> > 
-> > 'pg_selinux' is one of the system catalogs. System catalogs are special tables
-> > which contains database meta information like definition of table, view, stored
-> > procedure and so on.
-> > 'pg_selinux' has two column. One is 'oid' defined as object id type. It hold
-> > a unique number within the table. The other is 'selcontext' defined as variable
-> > length text type. It hold a security context in text expression.
-> > So, we can refer the pg_selinux system catalog, when a text expression of security
-> > context is required.
-> > (e.g A case when 'security_context' is specified in SQL queries.)
-> > 
-> > The object id enables to identify a security context in text expression, so we
-> > can also apply them as a key of userspace avc. I named it as psid (persistent
-> > security id).
-> > 
-> > Using psid enables to be unnecessary to handle a text represented security context
-> > in the most frequently path. When we have to make a decision whether the fetched
-> > tuple is allowed or not, we can search the userspace avc with psid held by the tuple
-> > as is.
-> > 
-> > In the userspace avc provided by libselinux. Its avc_has_perm() requires security_id_t
-> > as arguments, but it means we have to translate security context from psid to text
-> > representation in a decision making process.
-> > No need to say, it make a bad effect to the performance of SE-PostgreSQL.
+On Tue, 2007-03-20 at 16:27 -0400, Daniel J Walsh wrote:
+> Christopher J. PeBenito wrote:
+> > On Thu, 2007-03-08 at 09:28 -0500, Daniel J Walsh wrote:
+> >
+> > This seems to have rules similar to iptables:
+> >
+> >   
+> >> +allow fail2ban_t self : capability { net_admin net_raw };
+> >> +allow fail2ban_t self : rawip_socket { getopt create setopt };
+> >>     
+> >
+> >   
+> > But also transitions to iptables?
+> >
+> >   
+> Yes remove these
+> >> +optional_policy(`
+> >> +       iptables_domtrans(fail2ban_t)
+> >> +')
+> >>     
+> >
+> > This also seems out of place:
+> >
+> >   
+> >> +selinux_get_fs_mount(fail2ban_t)
+> >>     
+> >
+> >   
+> Not sure, but retesting now it did not complain so remove.
 > 
-> So I understand correctly, the underlying issue here is that you want
-> your userspace object manager to be able to generate its own SID mapping
-> (in your case, using these psids or object ids) rather than have the SID
-> mapping handled entirely within libselinux, so that you can have the ids
-> also represent something meaningful to the object manager for efficient
-> lookup.  It seems possible to have the libselinux userspace AVC export
-> interfaces to allow an object manager to optionally populate the
-> SID->context mapping itself using identifiers it selects.  Would that
-> address your concern?
+> Also seems to need
 > 
-> > [ concurrency of invalidation ]
-> > 
-> > SE-PostgreSQL deploys its userspace avc on the shared memory region, and generates
-> > a single policy state monitoring process to poll netlink socket at bootup time.
-> > It enables to invalidate the userspace avc referred by all SE-PostgreSQL instances
-> > concurrently.
-> > 
-> > If the userspace avc is deployed on the process local memory for each instance,
-> > we need policy state monitoring threads for each instances and the invalidation
-> > of userspace avc is not done concurrently.
-> > At a moment, different policies may be applied between SE-PostgreSQL instances.
-> > 
-> > In addition, we will get a little performance improvement on startup time of instances.
-> > If the userspace avc deployed on the shared memory region, it may contains several
-> > access control rules before it is referred at first. It enables to reduce the number
-> > of calling system-call.
-> > And, it is not necessary to generate a policy state monitoring thread for each
-> > SE-PostgreSQL instance.
-> 
-> I'd be interested in seeing your userspace AVC implementation - is it
-> short enough that you can post it, or if not, point us to the specific
-> files in your repository?  I would tend to think that any gains you
-> might get from sharing a single AVC among multiple processes would tend
-> to be negated by 1) the locking required to make that safe (similar to
-> the locking support in the AVC for multi-threaded applications), and 2)
-> the affect on the cache of having multiple processes using it for
-> different access checks.  Also, IIUC, you don't need to have a separate
-> thread monitoring the netlink socket per se; the libselinux AVC can
-> check just its state on each avc_has_perm call in the non-threaded case.
+> kernel_read_system_state(fail2ban_t)
 
-Did you measure performance using both your own AVC vs. using the
-libselinux one to see what the real impact was of these changes?
+Merged.  I also added an optional log reading for apache and ftp since
+the project's page says it can read these logs too.
 
 -- 
-Stephen Smalley
-National Security Agency
+Chris PeBenito
+Tresys Technology, LLC
+(410) 290-1411 x150
 
 
 --
