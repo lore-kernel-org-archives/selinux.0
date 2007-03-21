@@ -1,126 +1,71 @@
-Subject: Re: [PATCH] refpolicy: experimental X policy -v2
-From: "Christopher J. PeBenito" <cpebenito@tresys.com>
-To: Eamon Walsh <ewalsh@tycho.nsa.gov>
-Cc: selinux@tycho.nsa.gov
-In-Reply-To: <46005FD3.8020203@tycho.nsa.gov>
-References: <45B938EE.8010303@tycho.nsa.gov>
-	 <cadfc0e40702131226y3cef4a81h626bcdb264c563ee@mail.gmail.com>
-	 <45D2498C.3090902@tycho.nsa.gov> <1172602429.11157.48.camel@sgc>
-	 <46005FD3.8020203@tycho.nsa.gov>
-Content-Type: text/plain
-Date: Wed, 21 Mar 2007 12:54:48 -0400
-Message-Id: <1174496088.30666.11.camel@sgc>
-Mime-Version: 1.0
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l2LHsGec026533
+	for <selinux@tycho.nsa.gov>; Wed, 21 Mar 2007 13:54:16 -0400
+Received: from web86912.mail.ukl.yahoo.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with SMTP id l2LHsCRY024294
+	for <selinux@tycho.nsa.gov>; Wed, 21 Mar 2007 17:54:13 GMT
+Message-ID: <20070321175402.60015.qmail@web86912.mail.ukl.yahoo.com>
+Date: Wed, 21 Mar 2007 17:54:02 +0000 (GMT)
+From: JanuGerman <doublemalam@yahoo.co.uk>
+Subject: Kernel Panics, when start with amendments in SELInux Source Code
+To: selinux@tycho.nsa.gov
+In-Reply-To: <1174480707.22565.367.camel@moss-spartans.epoch.ncsc.mil>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2007-03-20 at 18:27 -0400, Eamon Walsh wrote: 
-> Christopher J. PeBenito wrote:
-> > On Tue, 2007-02-13 at 18:28 -0500, Eamon Walsh wrote:
-> >> This is an experimental policy for use with the X userspace object 
-> >> manager.  It includes both unconfined and strict policy and is 
-> >> controlled by a tunable, xwindows_object_manager.  The labeling conf 
-> >> file in the X.org xserver git (XACE-SELINUX branch) assumes that this 
-> >> policy is loaded, i.e. the types listed in that file are defined in this 
-> >> policy.
-> > 
-> > Unfortunately I didn't get a chance to look at this until today.  It'll
-> > take some time to fully understand all this, but I have some notes from
-> > my initial review inline:
-> > 
-> >>  modules/services/xwindows.fc |   13 +
-> >>  modules/services/xwindows.if |  521 +++++++++++++++++++++++++++++++++++++++++++
-> >>  modules/services/xwindows.te |   65 +++++
-> > 
-> > Eventually this should probably be merged into the xserver module.
-> > Potentially in a tunable, when that support becomes available.  However,
-> > for the purposes of vetting the design, a separate module is fine.
-> 
-> I think it's important to distinguish between the policy that governs 
-> the operation of the X server itself and the policy that governs X 
-> applications.  Putting everything into xserver may blur that distinction.
-
-These are common rules among X client programs that are tied to how the
-enforcement of the X server works, which is why I think it belongs in
-the xserver module.
-
-> >> +template(`xwindows_displaymgr_client',`
-> >> +	gen_require(`
-> >> +		class xextension use;
-> >> +	')
-> > 
-> >> +	xwindows_basic_client($1,$2,$3,$4)
-> > 
-> >> +	tunable_policy(`xwindows_object_manager',`
-> >> +		# X Protocol Extensions
-> >> +		allow $3 output_xext_t:xextension use;
-> >> +
-> >> +		# allow server grabs
-> >> +		allow $3 $1_xserver_t:xserver { grab ungrab };
-> >> +		allow $3 $1_xserver_t:xinput { getattr activegrab };
-> >> +
-> >> +		# can move the mouse cursor
-> >> +		allow $3 $1_xserver_t:xinput warppointer;
-> >> +
-> >> +		# can set resource manager properties
-> >> +		allow $3 $2_rm_xproperty_t:property { write free };
-> >> +
-> >> +		# can enumerate windows
-> >> +		allow $3 $1_root_window_t:window enumerate;
-> >> +	')
-> >> +')
-> > 
-> > I suspect this might work as part of xserver_user_client_template(), but
-> > the derived type for the property is going to be a problem.
-> 
-> Why is that?  The derived property types should all be defined in the 
-> same module.
-> 
-> In this particular case though it's probably safe to say that $1 and $2 
-> will both be "xdm".
-
-Ok, we'll leave it for now, though I'm not yet 100% convinced.
-
-> I think a deeper question somewhat related to this is what the prefix on 
-> the X server's domain should be.  In the policy as written I'm assuming 
-> that the user domain prefix $2 and X server domain prefix $1 are 
-> independent.  This is because 1) the xserver runs as xdm_xserver_t when 
-> started from gdm but user_xserver_t when started by user with startx, 
-> and
-
-Well thats because with startx the user itself is starting up the
-xserver, whereas with a display manager, you don't know the user until
-after the xserver is already running.
-
->  2) because you might want to allow things like sysadm_xdomain_t
-> programs to work on user_xserver_t X servers.  It would be useful to
-> standardize on either always running the X server under a single
-> domain, or always running it with the user prefixed domain.
+hi Every one,
 
 
-> >> +template(`xwindows_resourcemgr_client',`
-> >> +	gen_require(`
-> >> +		class property all_property_perms;
-> >> +	')
-> > 
-> >> +	tunable_policy(`xwindows_object_manager',`
-> >> +		# X Properties
-> >> +		# can read and write resource manager settings
-> >> +		allow $3 $2_rm_xproperty_t:property { read write };
-> >> +	')
-> >> +')
-> > 
-> > Not sure why there is no $1.  Do you anticipate this being used outside
-> > of the one use in the patch?  If not, the rule might as well go in the
-> > caller.
+I have made a change to the security server of the
+SELinux to see the files, that it accesses and print
+their names. But when the kernel re-boots after
+compilation, it panics and says that "some thing is
+accessing directly the hardware" and keep on saying
+this, until, i disable the selinux at boot time.
 
-You missed responding on this.
+The code is as follows added to the
+security_compute_av
 
--- 
-Chris PeBenito
-Tresys Technology, LLC
-(410) 290-1411 x150
+const unsigned char *filepathp;
+	char filepathbuf[512];	
+	unsigned long count;
+	filepathp = (const unsigned char *)
+	    d_path(testfile->f_dentry, testfile->f_vfsmnt,
+filepathbuf, 512);
+	if (filepathp < 0) {
+		filepathp = testfile->f_dentry->d_name.name;
+		count = testfile->f_dentry->d_name.len + 1;
+		if (count > 512)
+			count = 512;
+	} else {
+		count = strlen(filepathp);
+	}
+	printk("Hi, this is the name of the file being
+accessed %s \n",filepathp);
+	return 0;
 
+
+The testfile object is set within the
+fs/nami.c:file_permission() into to a global variable,
+which is then accessed by the services.c via
+linux/fs.h.
+
+
+
+The intention is to get the file information
+associated with particular inodes. If some body can
+help me in sorting out this, i will be very thankful.
+
+Best,
+MA
+
+
+
+		
+___________________________________________________________ 
+The all-new Yahoo! Mail goes wherever you go - free your email address from your Internet provider. http://uk.docs.yahoo.com/nowyoucan.html
 
 --
 This message was distributed to subscribers of the selinux mailing list.
