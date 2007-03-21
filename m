@@ -1,35 +1,56 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l2LEt7Gt017211
-	for <selinux@tycho.nsa.gov>; Wed, 21 Mar 2007 10:55:07 -0400
-Received: from py-out-1112.google.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l2LEt44b023588
-	for <selinux@tycho.nsa.gov>; Wed, 21 Mar 2007 14:55:05 GMT
-Received: by py-out-1112.google.com with SMTP id a78so97129pyh
-        for <selinux@tycho.nsa.gov>; Wed, 21 Mar 2007 07:55:04 -0700 (PDT)
-Message-ID: <46014742.8060208@kaigai.gr.jp>
-Date: Wed, 21 Mar 2007 23:54:58 +0900
-From: KaiGai Kohei <kaigai@kaigai.gr.jp>
-MIME-Version: 1.0
-To: Stephen Smalley <sds@tycho.nsa.gov>
-CC: selinux@tycho.nsa.gov, Eamon Walsh <ewalsh@tycho.nsa.gov>
-Subject: Re: The reason why SEPostgreSQL use original userspace AVC
-References: <45FE9A2F.40200@kaigai.gr.jp>	 <1174480707.22565.367.camel@moss-spartans.epoch.ncsc.mil> <1174487732.22565.384.camel@moss-spartans.epoch.ncsc.mil>
-In-Reply-To: <1174487732.22565.384.camel@moss-spartans.epoch.ncsc.mil>
-Content-Type: text/plain; charset=ISO-2022-JP
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l2LGHf5R022190
+	for <selinux@tycho.nsa.gov>; Wed, 21 Mar 2007 12:17:42 -0400
+Received: from mx1.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id l2LGHZRY018675
+	for <selinux@tycho.nsa.gov>; Wed, 21 Mar 2007 16:17:35 GMT
+Received: from int-mx1.corp.redhat.com (int-mx1.corp.redhat.com [172.16.52.254])
+	by mx1.redhat.com (8.13.1/8.13.1) with ESMTP id l2LGGnsE025300
+	for <selinux@tycho.nsa.gov>; Wed, 21 Mar 2007 12:17:24 -0400
+Received: from pobox-2.corp.redhat.com (pobox-2.corp.redhat.com [10.11.255.15])
+	by int-mx1.corp.redhat.com (8.13.1/8.13.1) with ESMTP id l2LFts7J015421
+	for <selinux@tycho.nsa.gov>; Wed, 21 Mar 2007 11:55:54 -0400
+Received: from [10.11.14.108] (vpn-14-108.rdu.redhat.com [10.11.14.108])
+	by pobox-2.corp.redhat.com (8.13.1/8.13.1) with ESMTP id l2LFts5J003963
+	for <selinux@tycho.nsa.gov>; Wed, 21 Mar 2007 11:55:54 -0400
+Subject: [PATCH] sepolgen: move interface info to var
+From: Karl MacMillan <kmacmillan@mentalrootkit.com>
+To: SELinux List <selinux@tycho.nsa.gov>
+Content-Type: text/plain
+Date: Wed, 21 Mar 2007 11:54:35 -0400
+Message-Id: <1174492475.3116.8.camel@localhost.localdomain>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-> Did you measure performance using both your own AVC vs. using the
-> libselinux one to see what the real impact was of these changes?
+This patch moves the sepolgen runtime data from /usr/share to /var/lib
+to facilitate a read-only /usr.
 
-No.
-I considered that it was a obvious case.
-At least, two psid_to_context() and two avc_context_to_sid() per
-a avc_has_perm() will be necessary additionally.
+Signed-off-by: Karl MacMillan <kmacmillan@mentalrootkit.com>
 
-Thanks,
--- 
-KaiGai Kohei <kaigai@kaigai.gr.jp>
+diff -r 8e23d0938bd8 sepolgen/src/sepolgen/defaults.py
+--- a/sepolgen/src/sepolgen/defaults.py	Wed Mar 21 11:42:54 2007 -0400
++++ b/sepolgen/src/sepolgen/defaults.py	Wed Mar 21 11:52:19 2007 -0400
+@@ -22,7 +22,7 @@ Various default settings, including file
+ """
+ 
+ def data_dir():
+-    return "/usr/share/sepolgen"
++    return "/var/lib/sepolgen"
+ 
+ def perm_map():
+     return data_dir() + "/perm_map"
+diff -r 8e23d0938bd8 sepolgen/src/share/Makefile
+--- a/sepolgen/src/share/Makefile	Wed Mar 21 11:42:54 2007 -0400
++++ b/sepolgen/src/share/Makefile	Wed Mar 21 11:52:20 2007 -0400
+@@ -1,4 +1,4 @@ SHAREDIR ?= $(DESTDIR)/usr/share/sepolge
+-SHAREDIR ?= $(DESTDIR)/usr/share/sepolgen
++SHAREDIR ?= $(DESTDIR)/var/lib/sepolgen
+ 
+ install:
+ 	-mkdir -p $(SHAREDIR)
+
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
