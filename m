@@ -1,71 +1,80 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l2LHsGec026533
-	for <selinux@tycho.nsa.gov>; Wed, 21 Mar 2007 13:54:16 -0400
-Received: from web86912.mail.ukl.yahoo.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with SMTP id l2LHsCRY024294
-	for <selinux@tycho.nsa.gov>; Wed, 21 Mar 2007 17:54:13 GMT
-Message-ID: <20070321175402.60015.qmail@web86912.mail.ukl.yahoo.com>
-Date: Wed, 21 Mar 2007 17:54:02 +0000 (GMT)
-From: JanuGerman <doublemalam@yahoo.co.uk>
-Subject: Kernel Panics, when start with amendments in SELInux Source Code
-To: selinux@tycho.nsa.gov
-In-Reply-To: <1174480707.22565.367.camel@moss-spartans.epoch.ncsc.mil>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Subject: Re: Kernel Panics, when start with amendments in SELInux Source
+	Code
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: JanuGerman <doublemalam@yahoo.co.uk>
+Cc: selinux@tycho.nsa.gov
+In-Reply-To: <20070321175402.60015.qmail@web86912.mail.ukl.yahoo.com>
+References: <20070321175402.60015.qmail@web86912.mail.ukl.yahoo.com>
+Content-Type: text/plain
+Date: Wed, 21 Mar 2007 14:38:16 -0400
+Message-Id: <1174502296.22565.426.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-hi Every one,
+On Wed, 2007-03-21 at 17:54 +0000, JanuGerman wrote:
+> I have made a change to the security server of the
+> SELinux to see the files, that it accesses and print
+> their names. But when the kernel re-boots after
+> compilation, it panics and says that "some thing is
+> accessing directly the hardware" and keep on saying
+> this, until, i disable the selinux at boot time.
+> 
+> The code is as follows added to the
+> security_compute_av
+> 
+> const unsigned char *filepathp;
+> 	char filepathbuf[512];	
+> 	unsigned long count;
+> 	filepathp = (const unsigned char *)
+> 	    d_path(testfile->f_dentry, testfile->f_vfsmnt,
+> filepathbuf, 512);
 
+What makes you think there is any file at all on every permission check?
+Many permission checks are on non-file objects altogether.
 
-I have made a change to the security server of the
-SELinux to see the files, that it accesses and print
-their names. But when the kernel re-boots after
-compilation, it panics and says that "some thing is
-accessing directly the hardware" and keep on saying
-this, until, i disable the selinux at boot time.
+> 	if (filepathp < 0) {
 
-The code is as follows added to the
-security_compute_av
+if (IS_ERR(filepathp)) {
 
-const unsigned char *filepathp;
-	char filepathbuf[512];	
-	unsigned long count;
-	filepathp = (const unsigned char *)
-	    d_path(testfile->f_dentry, testfile->f_vfsmnt,
-filepathbuf, 512);
-	if (filepathp < 0) {
-		filepathp = testfile->f_dentry->d_name.name;
-		count = testfile->f_dentry->d_name.len + 1;
-		if (count > 512)
-			count = 512;
-	} else {
-		count = strlen(filepathp);
-	}
-	printk("Hi, this is the name of the file being
-accessed %s \n",filepathp);
-	return 0;
+> 		filepathp = testfile->f_dentry->d_name.name;
+> 		count = testfile->f_dentry->d_name.len + 1;
+> 		if (count > 512)
+> 			count = 512;
 
+What is count used for?
 
-The testfile object is set within the
-fs/nami.c:file_permission() into to a global variable,
-which is then accessed by the services.c via
-linux/fs.h.
+> 	} else {
+> 		count = strlen(filepathp);
+> 	}
+> 	printk("Hi, this is the name of the file being
+> accessed %s \n",filepathp);
+> 	return 0;
+> 
+> 
+> The testfile object is set within the
+> fs/nami.c:file_permission() into to a global variable,
+> which is then accessed by the services.c via
+> linux/fs.h.
 
+That's nice, except that:
+a) file_permission() in fs/namei.c doesn't get called at all for
+non-file checks,
+b) file_permisison() in fs/namei.c doesn't even get called at all for
+many file checks.
+c) you need to provide locking on that global variable.
 
+> The intention is to get the file information
+> associated with particular inodes. If some body can
+> help me in sorting out this, i will be very thankful.
 
-The intention is to get the file information
-associated with particular inodes. If some body can
-help me in sorting out this, i will be very thankful.
+SELinux avc auditing or the syscall auditing will happily provide you
+with such information.  No need to add printk's to SELinux for it.
 
-Best,
-MA
+-- 
+Stephen Smalley
+National Security Agency
 
-
-
-		
-___________________________________________________________ 
-The all-new Yahoo! Mail goes wherever you go - free your email address from your Internet provider. http://uk.docs.yahoo.com/nowyoucan.html
 
 --
 This message was distributed to subscribers of the selinux mailing list.
