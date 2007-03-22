@@ -1,80 +1,267 @@
 Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l2MDW2EQ007757
-	for <selinux@tycho.nsa.gov>; Thu, 22 Mar 2007 09:32:02 -0400
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l2MDfD57008228
+	for <selinux@tycho.nsa.gov>; Thu, 22 Mar 2007 09:41:14 -0400
 Received: from exchange.columbia.tresys.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with SMTP id l2MDW1cm029796
-	for <selinux@tycho.nsa.gov>; Thu, 22 Mar 2007 13:32:01 GMT
-Subject: Re: syslogd-ng defines tcp ports to connect to.
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with SMTP id l2MDfCcm001577
+	for <selinux@tycho.nsa.gov>; Thu, 22 Mar 2007 13:41:12 GMT
+Subject: Re: Added application_exec_type patch
 From: "Christopher J. PeBenito" <cpebenito@tresys.com>
 To: Daniel J Walsh <dwalsh@redhat.com>
 Cc: SE Linux <selinux@tycho.nsa.gov>
-In-Reply-To: <45F0213C.8020800@redhat.com>
-References: <45F0213C.8020800@redhat.com>
+In-Reply-To: <45E8554B.2080903@redhat.com>
+References: <45E5E54F.1@redhat.com>
+	 <1172763878.11157.104.camel@sgc.columbia.tresys.com>
+	 <45E70963.601@redhat.com>
+	 <1172851610.19169.89.camel@sgc.columbia.tresys.com>
+	 <45E8554B.2080903@redhat.com>
 Content-Type: text/plain
-Date: Thu, 22 Mar 2007 13:32:33 +0000
-Message-Id: <1174570354.19924.27.camel@sgc.columbia.tresys.com>
+Date: Thu, 22 Mar 2007 13:41:45 +0000
+Message-Id: <1174570905.19924.32.camel@sgc.columbia.tresys.com>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2007-03-08 at 09:44 -0500, Daniel J Walsh wrote:
-> --- nsaserefpolicy/policy/modules/system/logging.te     2007-02-23 16:50:01.000000000 -0500
-> +++ serefpolicy-2.5.8/policy/modules/system/logging.te  2007-03-08 08:42:37.000000000 -0500
-> @@ -328,6 +329,9 @@
->  corenet_tcp_bind_all_nodes(syslogd_t)
->  corenet_tcp_bind_rsh_port(syslogd_t)
->  corenet_tcp_connect_rsh_port(syslogd_t)
-> +# Allow users to define additional syslog ports to connect to
-> +corenet_tcp_bind_syslogd_port(syslogd_t)
-> +corenet_tcp_connect_syslogd_port(syslogd_t)
->  
->  # syslog-ng can send or receive logs
->  corenet_sendrecv_syslogd_client_packets(syslogd_t)
+I think this is fine, it can move forward as is.
 
-Merged this part, the later parts are not related.
-
-> --- nsaserefpolicy/policy/modules/kernel/corenetwork.te.in      2007-02-19 11:32:51.000000000 -0500
-> +++ serefpolicy-2.5.8/policy/modules/kernel/corenetwork.te.in   2007-03-08 08:42:36.000000000 -0500
-> @@ -43,11 +43,16 @@
->  sid port gen_context(system_u:object_r:port_t,s0)
->  
->  #
-> -# reserved_port_t is the type of INET port numbers below 1024.
-> +# reserved_port_t is the type of INET port numbers below 599.
->  #
->  type reserved_port_t, port_type, reserved_port_type;
->  
->  #
-> +# hi_reserved_port_t is the type of INET port numbers between 600-1023.
-> +#
-> +type hi_reserved_port_t, port_type, reserved_port_type, rpc_port_type;
+On Fri, 2007-03-02 at 11:48 -0500, Daniel J Walsh wrote:
+> --- nsaserefpolicy/policy/modules/system/application.fc 1969-12-31 19:00:00.000000000 -0500
+> +++ serefpolicy-2.5.7/policy/modules/system/application.fc      2007-03-01 18:10:08.000000000 -0500
+> @@ -0,0 +1 @@
+> +# No application file contexts.
+> --- nsaserefpolicy/policy/modules/system/application.if 1969-12-31 19:00:00.000000000 -0500
+> +++ serefpolicy-2.5.7/policy/modules/system/application.if      2007-03-02 11:44:19.000000000 -0500
+> @@ -0,0 +1,106 @@
+> +## <summary>Policy for application domains</summary>
 > +
+> +########################################
+> +## <summary>
+> +##     Make the specified type usable as an application domain.
+> +## </summary>
+> +## <param name="type">
+> +##     <summary>
+> +##     Type to be used as a domain type.
+> +##     </summary>
+> +## </param>
 > +#
->  # server_packet_t is the default type of IPv4 and IPv6 server packets.
->  #
->  type server_packet_t, packet_type, server_packet_type;
-> @@ -140,6 +145,7 @@
->  network_port(soundd, tcp,8000,s0, tcp,9433,s0)
->  type socks_port_t, port_type; dnl network_port(socks) # no defined portcon
->  type stunnel_port_t, port_type; dnl network_port(stunnel) # no defined portcon in current strict
-> +network_port(squid, udp,3401,s0, tcp,3401,s0, udp,4827,s0, tcp,4827,s0, )
->  network_port(swat, tcp,901,s0)
->  network_port(syslogd, udp,514,s0)
->  network_port(telnetd, tcp,23,s0)
-> @@ -157,8 +163,11 @@
->  
->  # Defaults for reserved ports.  Earlier portcon entries take precedence;
->  # these entries just cover any remaining reserved ports not otherwise declared.
-> -portcon tcp 1-1023 gen_context(system_u:object_r:reserved_port_t, s0)
-> -portcon udp 1-1023 gen_context(system_u:object_r:reserved_port_t, s0)
+> +interface(`application_type',`
+> +       gen_require(`
+> +               attribute application_domain_type;
+> +       ')
 > +
-> +portcon tcp 600-1023 gen_context(system_u:object_r:hi_reserved_port_t, s0)
-> +portcon udp 600-1023 gen_context(system_u:object_r:hi_reserved_port_t, s0)
-> +portcon tcp 1-599 gen_context(system_u:object_r:reserved_port_t, s0)
-> +portcon udp 1-599 gen_context(system_u:object_r:reserved_port_t, s0)
+> +       typeattribute $1 application_domain_type;
+> +
+> +       # start with basic domain
+> +       domain_type($1)
+> +')
+> +
+> +########################################
+> +## <summary>
+> +##     Make the specified type usable for files
+> +##     that are exectuables, such as binary programs.
+> +##     This does not include shared libraries.
+> +## </summary>
+> +## <param name="type">
+> +##     <summary>
+> +##     Type to be used for files.
+> +##     </summary>
+> +## </param>
+> +#
+> +interface(`application_executable_file',`
+> +       gen_require(`
+> +               attribute application_exec_type;
+> +       ')
+> +
+> +       typeattribute $1 application_exec_type;
+> +
+> +       corecmd_executable_file($1)
+> +')
+> +
+> +########################################
+> +## <summary>
+> +## Execute application executables in the caller domain.
+> +## </summary>
+> +## <param name="type">
+> +##     <summary>
+> +##     Domain allowed access.
+> +##     </summary>
+> +## </param>
+> +#
+> +interface(`application_exec',`
+> +       gen_require(`
+> +               attribute application_exec_type;
+> +       ')
+> +
+> +       can_exec($1, application_exec_type)
+> +')
+> +
+> +########################################
+> +## <summary>
+> +##     Execute all executable files.
+> +## </summary>
+> +## <param name="domain">
+> +##     <summary>
+> +##     Domain allowed access.
+> +##     </summary>
+> +## </param>
+> +## <rolecap/>
+> +#
+> +interface(`application_exec_all',`
+> +       # Need this dontaudit or command completion fires hundreds of avcs
+> +       corecmd_dontaudit_exec_all_executables($1)
+> +       corecmd_exec_bin($1)
+> +       corecmd_exec_sbin($1)
+> +       corecmd_exec_shell($1)
+> +       corecmd_exec_ls($1)
+> +       corecmd_exec_chroot($1)
+> +       application_exec($1)
+> +')
+> +
+> +########################################
+> +## <summary>
+> +##     Create a domain which can be started by users
+> +## </summary>
+> +## <param name="domain">
+> +##     <summary>
+> +##     Type to be used as a domain.
+> +##     </summary>
+> +## </param>
+> +## <param name="entry_point">
+> +##     <summary>
+> +##     Type of the program to be used as an entry point to this domain.
+> +##     </summary>
+> +## </param>
+> +#
+> +interface(`application_domain',`
+> +
+> +       application_type($1)
+> +       application_executable_file($2)
+> +       domain_entry_file($1,$2)
+> +')
+> --- nsaserefpolicy/policy/modules/system/application.te 1969-12-31 19:00:00.000000000 -0500
+> +++ serefpolicy-2.5.7/policy/modules/system/application.te      2007-03-02 11:39:09.000000000 -0500
+> @@ -0,0 +1,14 @@
+> +
+> +policy_module(application,1.0.0)
+> +
+> +# Attribute of user applications
+> +attribute application_domain_type;
+> +
+> +# Executables to be run by user
+> +attribute application_exec_type;
+> +
+> +optional_policy(`
+> +       ssh_sigchld(application_doman_type)
+> +       ssh_rw_stream_sockets(application_domain_type)
+> +')
+> +
+> --- nsaserefpolicy/policy/modules/system/selinuxutil.te 2007-02-19 11:32:53.000000000 -0500
+> +++ serefpolicy-2.5.7/policy/modules/system/selinuxutil.te      2007-03-02 11:45:02.000000000 -0500
+> @@ -26,11 +24,9 @@
+>  files_type(selinux_config_t)
 >  
->  ########################################
->  # 
+>  type checkpolicy_t, can_write_binary_policy;
+> -domain_type(checkpolicy_t)
+> -role system_r types checkpolicy_t;
+> -
+>  type checkpolicy_exec_t;
+> -domain_entry_file(checkpolicy_t,checkpolicy_exec_t)
+> +application_domain(checkpolicy_t, checkpolicy_exec_t)
+> +role system_r types checkpolicy_t;
+>  
+>  #
+>  # default_context_t is the type applied to
+> @@ -47,21 +43,18 @@
+>  files_type(file_context_t)
+>  
+>  type load_policy_t;
+> -domain_type(load_policy_t)
+> -role system_r types load_policy_t;
+> -
+>  type load_policy_exec_t;
+> -domain_entry_file(load_policy_t,load_policy_exec_t)
+> +application_domain(load_policy_t,load_policy_exec_t)
+> +role system_r types load_policy_t;
+>  
+>  type newrole_t;
+> +type newrole_exec_t;
+> +application_domain(newrole_t,newrole_exec_t)
+> +role system_r types newrole_t;
+>  domain_role_change_exemption(newrole_t)
+>  domain_obj_id_change_exemption(newrole_t)
+> -domain_type(newrole_t)
+>  domain_interactive_fd(newrole_t)
+>  
+> -type newrole_exec_t;
+> -domain_entry_file(newrole_t,newrole_exec_t)
+> -
+>  #
+>  # policy_config_t is the type of /etc/security/selinux/*
+>  # the security server policy configuration.
+> @@ -83,31 +76,39 @@
+>  type restorecon_exec_t;
+>  domain_obj_id_change_exemption(restorecon_t)
+>  init_system_domain(restorecon_t,restorecon_exec_t)
+> +application_domain(restorecon_t,restorecon_exec_t)
+>  role system_r types restorecon_t;
+>  
+>  type restorecond_t;
+>  type restorecond_exec_t;
+>  init_daemon_domain(restorecond_t,restorecond_exec_t)
+>  domain_obj_id_change_exemption(restorecond_t)
+> -role system_r types restorecond_t;
+>  
+>  type restorecond_var_run_t;
+>  files_pid_file(restorecond_var_run_t)
+>  
+>  type run_init_t;
+>  type run_init_exec_t;
+> -domain_type(run_init_t)
+> -domain_entry_file(run_init_t,run_init_exec_t)
+> +application_domain(run_init_t, run_init_exec_t)
+>  domain_system_change_exemption(run_init_t)
+> +role system_r types run_init_t;
+>  
+>  type semanage_t;
+> -domain_type(semanage_t)
+> -domain_interactive_fd(semanage_t)
+> -
+>  type semanage_exec_t;
+> -domain_entry_file(semanage_t, semanage_exec_t)
+> +application_domain(semanage_t, semanage_exec_t)
+> +domain_interactive_fd(semanage_t)
+>  role system_r types semanage_t;
+>  
+> +type semanage_gui_t;
+> +type semanage_gui_exec_t;
+> +application_domain(semanage_gui_t, semanage_gui_exec_t)
+> +domain_interactive_fd(semanage_gui_t)
+> +role system_r types semanage_gui_t;
+> +
+> +ifdef(`targeted_policy',`
+> +init_system_domain(semanage_t, semanage_exec_t)
+> +')
+> +
+>  type semanage_store_t;
+>  files_type(semanage_store_t)
+>  
+> @@ -121,12 +122,10 @@
+>  files_type(semanage_trans_lock_t)
+>  
+>  type setfiles_t, can_relabelto_binary_policy;
+> -domain_obj_id_change_exemption(setfiles_t)
+> -domain_type(setfiles_t)
+> -role system_r types setfiles_t;
+> -
+>  type setfiles_exec_t;
+> -domain_entry_file(setfiles_t,setfiles_exec_t)
+> +application_domain(setfiles_t,setfiles_exec_t)
+> +role system_r types setfiles_t;
+> +domain_obj_id_change_exemption(setfiles_t)
+>  
+>  ifdef(`distro_redhat',`
+>         init_system_domain(setfiles_t,setfiles_exec_t)
+>  
+> 
 -- 
 Chris PeBenito
 Tresys Technology, LLC
