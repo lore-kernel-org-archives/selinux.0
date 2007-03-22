@@ -1,52 +1,46 @@
-Subject: Re: Kernel Panics, when start with amendments in SELInux Source
-	Code
-From: Karl MacMillan <kmacmillan@mentalrootkit.com>
-To: JanuGerman <doublemalam@yahoo.co.uk>
-Cc: Stephen Smalley <sds@tycho.nsa.gov>, selinux@tycho.nsa.gov
-In-Reply-To: <20070321194738.6924.qmail@web86913.mail.ukl.yahoo.com>
-References: <20070321194738.6924.qmail@web86913.mail.ukl.yahoo.com>
-Content-Type: text/plain
-Date: Wed, 21 Mar 2007 16:13:15 -0400
-Message-Id: <1174507995.5556.4.camel@localhost.localdomain>
-Mime-Version: 1.0
+From: Russell Coker <russell@coker.com.au>
+Reply-To: russell@coker.com.au
+To: Eamon Walsh <ewalsh@tycho.nsa.gov>
+Subject: Re: [PATCH] refpolicy: experimental X policy -v2
+Date: Thu, 22 Mar 2007 21:53:02 +1100
+Cc: "Christopher J. PeBenito" <cpebenito@tresys.com>, selinux@tycho.nsa.gov
+References: <45B938EE.8010303@tycho.nsa.gov> <1174510410.19924.23.camel@sgc.columbia.tresys.com> <4601CDF3.7040905@tycho.nsa.gov>
+In-Reply-To: <4601CDF3.7040905@tycho.nsa.gov>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Message-Id: <200703222153.07131.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2007-03-21 at 19:47 +0000, JanuGerman wrote:
-> Thanks for the reply.
+On Thursday 22 March 2007 11:29, Eamon Walsh <ewalsh@tycho.nsa.gov> wrote:
+> The fast user switching support in rawhide runs multiple xservers on
+> virtual consoles; having them all be xdm_xserver_t is problematic.
 
-> > What is count used for?
-> 
-> The actuall thing which i am doing at the moment is
-> that, whenever a specific "file object" comes in the
-> security server for permission decision, say a file
-> which contains sensitive data, I want to read that
-> file fully, within the security server. The purpose of
-> the count variable is two fold. It is actually used in
-> memcpy() for copying the file name into a dummy file
-> object. Secondly, it is used for reading from the data
-> from the file using:
-> 
->  count (testfile ->f_op -> read) (testfile, (char
-> _user *) bufp, PAGE_SIZE, &offset)
-> ....
-> 
+Why is it more of a problem when multiple xservers run at the same time?
 
->From this description it sounds like you want to intercept access to
-certain files and present a processed version of that file to processes
-accessing it. You may want to explore doing this from userspace.
+I agree that the current situation is far from ideal, but don't understand how 
+fast user switching has made it any worse.
 
-You can create a file type accessible only by a single domain and run a
-process in that domain that provides access to the files through IPC. If
-the access needs to be provided without modifying applications you could
-LD_PRELOAD a library to intercept the relevant libc calls.
+> Other ideas: have the display manager always running on the first
+> virtual console, and launch the user servers on other consoles.
 
-This will likely be more maintainable and simpler to achieve. Looking
-for references to assured pipelines can give you some ideas about this
-general approach.
+In that case why not have multiple XDM programs running, one per VC.  Then the 
+login process could be to graphically ask the user for their user-name and 
+password, then kill the X server and start a new one for the user's context.
 
-Karl
+> Or 
+> maybe we should go back to a text-based login only running X through
+> startx.
 
+No.  But I think that it would be viable to have a modified text-mode login 
+program start X automatically on the same VC.
+
+-- 
+russell@coker.com.au
+http://etbe.blogspot.com/          My Blog
+
+http://www.coker.com.au/sponsorship.html Sponsoring Free Software development
 
 --
 This message was distributed to subscribers of the selinux mailing list.
