@@ -1,78 +1,55 @@
 Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l2MLeIg1001281
-	for <selinux@tycho.nsa.gov>; Thu, 22 Mar 2007 17:40:28 -0400
-Received: from e1.ny.us.ibm.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l2MLeHKE012595
-	for <selinux@tycho.nsa.gov>; Thu, 22 Mar 2007 21:40:17 GMT
-Received: from d01relay02.pok.ibm.com (d01relay02.pok.ibm.com [9.56.227.234])
-	by e1.ny.us.ibm.com (8.13.8/8.13.8) with ESMTP id l2MLeFLX027875
-	for <selinux@tycho.nsa.gov>; Thu, 22 Mar 2007 17:40:15 -0400
-Received: from d01av04.pok.ibm.com (d01av04.pok.ibm.com [9.56.224.64])
-	by d01relay02.pok.ibm.com (8.13.8/8.13.8/NCO v8.3) with ESMTP id l2MLeF5B317680
-	for <selinux@tycho.nsa.gov>; Thu, 22 Mar 2007 17:40:15 -0400
-Received: from d01av04.pok.ibm.com (loopback [127.0.0.1])
-	by d01av04.pok.ibm.com (8.12.11.20060308/8.13.3) with ESMTP id l2MLeFqo006121
-	for <selinux@tycho.nsa.gov>; Thu, 22 Mar 2007 17:40:15 -0400
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l2MNna3E006060
+	for <selinux@tycho.nsa.gov>; Thu, 22 Mar 2007 19:49:36 -0400
+Received: from mail4.sea5.speakeasy.net (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l2MNnZEE004652
+	for <selinux@tycho.nsa.gov>; Thu, 22 Mar 2007 23:49:35 GMT
+Date: Thu, 22 Mar 2007 19:49:30 -0400 (EDT)
+From: James Morris <jmorris@namei.org>
+To: Joy Latten <latten@austin.ibm.com>
+cc: David Miller <davem@davemloft.net>, selinux@tycho.nsa.gov,
+        netdev@vger.kernel.org, vyekkirala@TrustedCS.com
 Subject: Re: [PATCH]: Add security check before flushing SAD/SPD
-From: Joy Latten <latten@austin.ibm.com>
-To: David Miller <davem@davemloft.net>
-Cc: selinux@tycho.nsa.gov, netdev@vger.kernel.org, jmorris@namei.org,
-        vyekkirala@TrustedCS.com
-In-Reply-To: <20070322.120139.74735307.davem@davemloft.net>
+In-Reply-To: <1174598630.3085.285.camel@faith.austin.ibm.com>
+Message-ID: <Line.LNX.4.64.0703221943110.24461@d.namei>
 References: <200703221835.l2MIZdDw007850@faith.austin.ibm.com>
-	 <20070322.120139.74735307.davem@davemloft.net>
-Content-Type: text/plain
-Date: Thu, 22 Mar 2007 15:23:50 -0600
-Message-Id: <1174598630.3085.285.camel@faith.austin.ibm.com>
-Mime-Version: 1.0
+ <20070322.120139.74735307.davem@davemloft.net> <1174598630.3085.285.camel@faith.austin.ibm.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2007-03-22 at 12:01 -0700, David Miller wrote:
-> From: Joy Latten <latten@austin.ibm.com>
-> Date: Thu, 22 Mar 2007 12:35:39 -0600
+On Thu, 22 Mar 2007, Joy Latten wrote:
+
+> > I would look at this patch differently if there were some
+> > security level key being checked for a match here, which is
+> > an input key to the flush, but that is not what is happening
+> > here as the object is being looked at by itself.
 > 
-> > Within selinux we check for authorization before deleting entries from
-> > SAD and SPD. 
-> > 
-> > We are not checking for authorization when flushing the SPD and
-> > the SAD. It was perhaps missed in original patch.
-> > 
-> > This patch adds security check when flushing entries from SAD and SPD.
-> > 
-> > Please let me know if this patch is ok.
-> > It was built against linux-2.6.21-rc4-git5. I have also tested it.
-> > 
-> > Signed-off-by: Joy Latten<latten@austin.ibm.com>
+> Yes, I understand what you are saying.
+> I was concerned about having to check each entry
+> to flush database.
 > 
-> I don't understand this and it does not sit well with me.
-> 
-> If we are flushing the policy database, we are flushing it
-> regardless of what the security layer might or might not say.
-> 
-> I would look at this patch differently if there were some
-> security level key being checked for a match here, which is
-> an input key to the flush, but that is not what is happening
-> here as the object is being looked at by itself.
+> I did this patch because we check for authorization
+> when deleting single specified entries from the SAD/SPD. It
+> seem like a hole to me that we check for this, but that same
+> user/process can delete the entire database with no checks.
 
-Yes, I understand what you are saying.
-I was concerned about having to check each entry
-to flush database.
+Indeed.  Removing an entry is modifying MAC policy, which requires 
+appropriate authorization.
 
-I did this patch because we check for authorization
-when deleting single specified entries from the SAD/SPD. It
-seem like a hole to me that we check for this, but that same
-user/process can delete the entire database with no checks.
+The security label is encapsulated with the object, which is why it's 
+passed to the security layer.
 
-Unfortunately, each policy entry or SA can have a different security
-label. And that is why I would have to check each entry's
-security label before deleting. To see if the user/process has
-authorization to delete an entry with that security label.
+Perhaps a better semantic would be to fail the entire flush operation if 
+one of the security checks failed.  e.g. loop through for permissions 
+first, then if all ok, loop through for deletion.
 
-Including selinux list for suggestions.
 
-Joy
-
+- James
+-- 
+James Morris
+<jmorris@namei.org>
 
 --
 This message was distributed to subscribers of the selinux mailing list.
