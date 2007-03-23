@@ -1,77 +1,110 @@
 Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l2N5fFH5017049
-	for <selinux@tycho.nsa.gov>; Fri, 23 Mar 2007 01:41:15 -0400
-Received: from mx1.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id l2N5fEGF021874
-	for <selinux@tycho.nsa.gov>; Fri, 23 Mar 2007 05:41:15 GMT
-Subject: Re: [PATCH]: Add security check before flushing SAD/SPD
-From: Eric Paris <eparis@parisplace.org>
-To: James Morris <jmorris@namei.org>
-Cc: Joy Latten <latten@austin.ibm.com>, David Miller <davem@davemloft.net>,
-        selinux@tycho.nsa.gov, netdev@vger.kernel.org,
-        vyekkirala@TrustedCS.com
-In-Reply-To: <Line.LNX.4.64.0703221943110.24461@d.namei>
-References: <200703221835.l2MIZdDw007850@faith.austin.ibm.com>
-	 <20070322.120139.74735307.davem@davemloft.net>
-	 <1174598630.3085.285.camel@faith.austin.ibm.com>
-	 <Line.LNX.4.64.0703221943110.24461@d.namei>
-Content-Type: text/plain
-Date: Fri, 23 Mar 2007 01:39:47 -0400
-Message-Id: <1174628387.10788.53.camel@localhost.localdomain>
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l2N6FKmj018092
+	for <selinux@tycho.nsa.gov>; Fri, 23 Mar 2007 02:15:20 -0400
+Received: from msp1.hitachi-sk.co.jp (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id l2N6FIGF028079
+	for <selinux@tycho.nsa.gov>; Fri, 23 Mar 2007 06:15:19 GMT
+Received: from vs1.hitachi-sk.co.jp ([133.108.252.215])
+	by msp1.hitachi-sk.co.jp (unknown) with ESMTP id l2N6F71r014693
+	for <selinux@tycho.nsa.gov>; Fri, 23 Mar 2007 15:15:08 +0900
+Date: Fri, 23 Mar 2007 15:15:13 +0900
+From: Yuichi Nakamura <ynakam@hitachisoft.jp>
+To: busybox@busybox.net
+Cc: busybox@kaigai.gr.jp, vda.linux@googlemail.com, selinux@tycho.nsa.gov
+Subject: BusyBox: load_policy applet
+Message-Id: <20070323151513.395798cf.ynakam@hitachisoft.jp>
 Mime-Version: 1.0
+Content-Type: multipart/mixed;
+ boundary="Multipart=_Fri__23_Mar_2007_15_15_13_+0900_UqBG/ozF/PlI50dr"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2007-03-22 at 19:49 -0400, James Morris wrote:
-> On Thu, 22 Mar 2007, Joy Latten wrote:
-> 
-> > > I would look at this patch differently if there were some
-> > > security level key being checked for a match here, which is
-> > > an input key to the flush, but that is not what is happening
-> > > here as the object is being looked at by itself.
-> > 
-> > Yes, I understand what you are saying.
-> > I was concerned about having to check each entry
-> > to flush database.
-> > 
-> > I did this patch because we check for authorization
-> > when deleting single specified entries from the SAD/SPD. It
-> > seem like a hole to me that we check for this, but that same
-> > user/process can delete the entire database with no checks.
-> 
-> Indeed.  Removing an entry is modifying MAC policy, which requires 
-> appropriate authorization.
-> 
-> The security label is encapsulated with the object, which is why it's 
-> passed to the security layer.
-> 
-> Perhaps a better semantic would be to fail the entire flush operation if 
-> one of the security checks failed.  e.g. loop through for permissions 
-> first, then if all ok, loop through for deletion.
+This is a multi-part message in MIME format.
 
-Maybe I'm way out on a limb here but if I am a regular user and I say
-rm /tmp/* and I only have permissions to delete some of the files I
-expect just those couple to be delete, not the whole operation denied.
+--Multipart=_Fri__23_Mar_2007_15_15_13_+0900_UqBG/ozF/PlI50dr
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 
-It seems reasonable to me that the check for every policy (which is
-between current->security->sid and xp->security->ctx_sid) makes sense.
-There doesn't appear to me right offhand to be anything intrinsic in the
-code which says that a flush request must flush everything or nothing.
 
-In either case though proper auditing needs to be addressed.  I see that
-the first patch from Joy wouldn't audit deletion failures.  It appears
-to me if the check is done per policy then the security hook return code
-needs to be recorded and passed to xfrm_audit_log instead of the hard
-coded 1 result used now.
+Attached patch is to support load_policy for BusyBox.
+load_policy is a program to load SELinux policy to kernel.
+This applet is very important for SELinux, 
+because SELinux is not activated until policy is loaded.
 
-Assuming we go with James's double loop what should we be auditing for a
-security hook denial?  Just audit the first policy entry which we tried
-to remove but couldn't and then leave the rest of the auditing in those
-functions the way it is now in case there was no denial, calling
-xfrm_audit_log with a hard coded 1 for the result?
+And this applet is _not_ based on latest load_policy, 
+is based on old load_policy.
+This is because the size of latest load_policy is bigger than old one,
+and old load_policy has enough feature for embedded device.
 
--Eric
+Please review and consider merging.
+Regards,
+-- 
+Yuichi Nakamura
+Hitachi Software Engineering Co., Ltd.
+SELinux Policy Editor: http://seedit.sourceforge.net/
 
+--Multipart=_Fri__23_Mar_2007_15_15_13_+0900_UqBG/ozF/PlI50dr
+Content-Type: application/octet-stream;
+ name="busybox-load_policy.v1.patch"
+Content-Disposition: attachment;
+ filename="busybox-load_policy.v1.patch"
+Content-Transfer-Encoding: base64
+
+SW5kZXg6IGluY2x1ZGUvdXNhZ2UuaAo9PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09
+PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09Ci0tLSBpbmNsdWRlL3VzYWdlLmgJKHJl
+dmlzaW9uIDE4MjEyKQorKysgaW5jbHVkZS91c2FnZS5oCSh3b3JraW5nIGNvcHkpCkBAIC0xNzU4
+LDYgKzE3NTgsMTAgQEAKICAgICAgICAiJCBscyAtbCAvdG1wL2xzXG4iIFwKICAgICAgICAibHJ3
+eHJ3eHJ3eCAgICAxIHJvb3QgICAgIHJvb3QgICAgICAgICAgICA3IEFwciAxMiAxODozOSBscyAt
+PiBCdXN5Qm94KlxuIgogCisjZGVmaW5lIGxvYWRfcG9saWN5X3RyaXZpYWxfdXNhZ2UgXAorICAg
+ICAgICJbRklMRV0iCisjZGVmaW5lIGxvYWRfcG9saWN5X2Z1bGxfdXNhZ2UKKwogI2RlZmluZSBs
+b2FkZm9udF90cml2aWFsX3VzYWdlIFwKICAgICAgICAiPCBmb250IgogI2RlZmluZSBsb2FkZm9u
+dF9mdWxsX3VzYWdlIFwKSW5kZXg6IGluY2x1ZGUvYXBwbGV0cy5oCj09PT09PT09PT09PT09PT09
+PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT0KLS0tIGlu
+Y2x1ZGUvYXBwbGV0cy5oCShyZXZpc2lvbiAxODIxMikKKysrIGluY2x1ZGUvYXBwbGV0cy5oCSh3
+b3JraW5nIGNvcHkpCkBAIC0xODAsNiArMTgwLDcgQEAgVVNFX1NFVEFSQ0goQVBQTEVUX05PVVNB
+R0UobGludXgzMiwgc2V0YQogVVNFX1NFVEFSQ0goQVBQTEVUX05PVVNBR0UobGludXg2NCwgc2V0
+YXJjaCwgX0JCX0RJUl9CSU4sIF9CQl9TVUlEX05FVkVSKSkKIFVTRV9GRUFUVVJFX0lOSVRSRChB
+UFBMRVRfTk9VU0FHRShsaW51eHJjLCBpbml0LCBfQkJfRElSX1JPT1QsIF9CQl9TVUlEX05FVkVS
+KSkKIFVTRV9MTihBUFBMRVQobG4sIF9CQl9ESVJfQklOLCBfQkJfU1VJRF9ORVZFUikpCitVU0Vf
+TE9BRF9QT0xJQ1koQVBQTEVUKGxvYWRfcG9saWN5LCBfQkJfRElSX1VTUl9TQklOLCBfQkJfU1VJ
+RF9ORVZFUikpCiBVU0VfTE9BREZPTlQoQVBQTEVUKGxvYWRmb250LCBfQkJfRElSX1VTUl9CSU4s
+IF9CQl9TVUlEX05FVkVSKSkKIFVTRV9MT0FES01BUChBUFBMRVQobG9hZGttYXAsIF9CQl9ESVJf
+U0JJTiwgX0JCX1NVSURfTkVWRVIpKQogVVNFX0xPR0dFUihBUFBMRVQobG9nZ2VyLCBfQkJfRElS
+X1VTUl9CSU4sIF9CQl9TVUlEX05FVkVSKSkKSW5kZXg6IHNlbGludXgvbG9hZF9wb2xpY3kuYwo9
+PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09
+PT09PT09PT09Ci0tLSBzZWxpbnV4L2xvYWRfcG9saWN5LmMJKHJldmlzaW9uIDApCisrKyBzZWxp
+bnV4L2xvYWRfcG9saWN5LmMJKHJldmlzaW9uIDApCkBAIC0wLDAgKzEsMzEgQEAKKy8qCisgKiBs
+b2FkX3BvbGljeQorICogVGhpcyBpbXBsZW1lbnRhdGlvbiBpcyBiYXNlZCBvbiBvbGQgbG9hZF9w
+b2xpY3kgdG8gYmUgc21hbGwuCisgKiBBdXRob3I6IFl1aWNoaSBOYWthbXVyYSA8eW5ha2FtQGhp
+dGFjaGlzb2Z0LmpwPgorICovCisjaW5jbHVkZSAiYnVzeWJveC5oIgorCitpbnQgbG9hZF9wb2xp
+Y3lfbWFpbihpbnQgYXJnYywgY2hhciAqYXJndltdKTsKK2ludCBsb2FkX3BvbGljeV9tYWluKGlu
+dCBhcmdjLCBjaGFyICphcmd2W10pCit7CisJaW50IGZkOworCXN0cnVjdCBzdGF0IHN0OworCXZv
+aWQgKmRhdGE7CisJaWYoYXJnYyAhPSAyKSB7CisJCWJiX3Nob3dfdXNhZ2UoKTsKKwl9CisJCisJ
+ZmQgPSB4b3Blbihhcmd2WzFdLCBPX1JET05MWSk7CisJaWYgKGZzdGF0KGZkLCAmc3QpIDwgMCAp
+IHsKKwkJYmJfcGVycm9yX21zZ19hbmRfZGllKCJjYW4ndCBmc3RhdCIpOworCX0KKwlkYXRhID0g
+bW1hcChOVUxMLCBzdC5zdF9zaXplLCBQUk9UX1JFQUQsIE1BUF9TSEFSRUQsIGZkLCAwKTsKKwlp
+ZiAoZGF0YSA9PSBNQVBfRkFJTEVEKSB7CisJCWJiX3BlcnJvcl9tc2dfYW5kX2RpZSgiY2FuJ3Qg
+bW1hcCIpOworCX0KKwlpZiAoc2VjdXJpdHlfbG9hZF9wb2xpY3koZGF0YSwgc3Quc3Rfc2l6ZSkg
+PCAwKSB7CisJCWJiX3BlcnJvcl9tc2dfYW5kX2RpZSgiY2FuJ3Qgc2VjdXJpdHlfbG9hZF9wb2xp
+Y3kiKTsKKwl9CisJCQorCXJldHVybiAwOworfQpJbmRleDogc2VsaW51eC9Db25maWcuaW4KPT09
+PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09
+PT09PT09PQotLS0gc2VsaW51eC9Db25maWcuaW4JKHJldmlzaW9uIDE4MjEyKQorKysgc2VsaW51
+eC9Db25maWcuaW4JKHdvcmtpbmcgY29weSkKQEAgLTM0LDYgKzM0LDEzIEBAIGNvbmZpZyBHRVRT
+RUJPT0wKIAloZWxwCiAJICBFbmFibGUgc3VwcG9ydCB0byBnZXQgU0VMaW51eCBib29sZWFuIHZh
+bHVlcy4KIAorY29uZmlnIExPQURfUE9MSUNZCisJYm9vbCAibG9hZF9wb2xpY3kiCisJZGVmYXVs
+dCBuCisJZGVwZW5kcyBvbiBTRUxJTlVYCisJaGVscAorCSAgRW5hYmxlIHN1cHBvcnQgdG8gbG9h
+ZCBTRUxpbnV4IHBvbGljeS4KKwogY29uZmlnIE1BVENIUEFUSENPTgogCWJvb2wgIm1hdGNocGF0
+aGNvbiIKIAlkZWZhdWx0IG4KSW5kZXg6IHNlbGludXgvS2J1aWxkCj09PT09PT09PT09PT09PT09
+PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT0KLS0tIHNl
+bGludXgvS2J1aWxkCShyZXZpc2lvbiAxODIxMikKKysrIHNlbGludXgvS2J1aWxkCSh3b3JraW5n
+IGNvcHkpCkBAIC05LDYgKzksNyBAQCBsaWIteTo9CiBsaWItJChDT05GSUdfQ0hDT04pCQkrPSBj
+aGNvbi5vCiBsaWItJChDT05GSUdfR0VURU5GT1JDRSkJKz0gZ2V0ZW5mb3JjZS5vCiBsaWItJChD
+T05GSUdfR0VUU0VCT09MKQkJKz0gZ2V0c2Vib29sLm8KK2xpYi0kKENPTkZJR19MT0FEX1BPTElD
+WSkJKz0gbG9hZF9wb2xpY3kubwogbGliLSQoQ09ORklHX01BVENIUEFUSENPTikJKz0gbWF0Y2hw
+YXRoY29uLm8KIGxpYi0kKENPTkZJR19SVU5DT04pCQkrPSBydW5jb24ubwogbGliLSQoQ09ORklH
+X1NFTElOVVhFTkFCTEVEKQkrPSBzZWxpbnV4ZW5hYmxlZC5vCg==
+
+--Multipart=_Fri__23_Mar_2007_15_15_13_+0900_UqBG/ozF/PlI50dr--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
