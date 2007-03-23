@@ -1,54 +1,80 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l2NH3gXw030780
-	for <selinux@tycho.nsa.gov>; Fri, 23 Mar 2007 13:03:42 -0400
-Received: from mx1.redhat.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l2NH3cU1001796
-	for <selinux@tycho.nsa.gov>; Fri, 23 Mar 2007 17:03:39 GMT
-Subject: Re: [PATCH]: Add security check before flushing SAD/SPD
-From: Eric Paris <eparis@parisplace.org>
-To: Joy Latten <latten@austin.ibm.com>
-Cc: James Morris <jmorris@namei.org>, David Miller <davem@davemloft.net>,
-        selinux@tycho.nsa.gov, netdev@vger.kernel.org,
-        vyekkirala@TrustedCS.com
-In-Reply-To: <1174667591.3085.308.camel@faith.austin.ibm.com>
-References: <200703221835.l2MIZdDw007850@faith.austin.ibm.com>
-	 <20070322.120139.74735307.davem@davemloft.net>
-	 <1174598630.3085.285.camel@faith.austin.ibm.com>
-	 <Line.LNX.4.64.0703221943110.24461@d.namei>
-	 <1174628387.10788.53.camel@localhost.localdomain>
-	 <1174667591.3085.308.camel@faith.austin.ibm.com>
-Content-Type: text/plain
-Date: Fri, 23 Mar 2007 12:59:15 -0400
-Message-Id: <1174669155.10788.60.camel@localhost.localdomain>
-Mime-Version: 1.0
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l2NHg6Ml032718
+	for <selinux@tycho.nsa.gov>; Fri, 23 Mar 2007 13:42:06 -0400
+Received: from mx1.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id l2NHg4sr009239
+	for <selinux@tycho.nsa.gov>; Fri, 23 Mar 2007 17:42:05 GMT
+Received: from int-mx1.corp.redhat.com (int-mx1.corp.redhat.com [172.16.52.254])
+	by mx1.redhat.com (8.13.1/8.13.1) with ESMTP id l2NHg3dH013667
+	for <selinux@tycho.nsa.gov>; Fri, 23 Mar 2007 13:42:03 -0400
+Received: from mail.boston.redhat.com (mail.boston.redhat.com [172.16.76.12])
+	by int-mx1.corp.redhat.com (8.13.1/8.13.1) with ESMTP id l2NHg2l0016509
+	for <selinux@tycho.nsa.gov>; Fri, 23 Mar 2007 13:42:02 -0400
+Received: from [10.12.32.53] (redsox.boston.devel.redhat.com [10.12.32.53])
+	by mail.boston.redhat.com (8.12.11.20060308/8.12.11) with ESMTP id l2NHg27w012474
+	for <selinux@tycho.nsa.gov>; Fri, 23 Mar 2007 13:42:02 -0400
+Message-ID: <46041166.8010102@redhat.com>
+Date: Fri, 23 Mar 2007 13:41:58 -0400
+From: Daniel J Walsh <dwalsh@redhat.com>
+MIME-Version: 1.0
+To: SE Linux <selinux@tycho.nsa.gov>
+Subject: Elimination of disable_trans boolean ramifications
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2007-03-23 at 10:33 -0600, Joy Latten wrote:
-> On Fri, 2007-03-23 at 01:39 -0400, Eric Paris wrote:
-> 
-> > 
-> > In either case though proper auditing needs to be addressed.  I see that
-> > the first patch from Joy wouldn't audit deletion failures.  It appears
-> > to me if the check is done per policy then the security hook return code
-> > needs to be recorded and passed to xfrm_audit_log instead of the hard
-> > coded 1 result used now.
-> > 
-> > Assuming we go with James's double loop what should we be auditing for a
-> > security hook denial?  Just audit the first policy entry which we tried
-> > to remove but couldn't and then leave the rest of the auditing in those
-> > functions the way it is now in case there was no denial, calling
-> > xfrm_audit_log with a hard coded 1 for the result?
-> > 
-> Actually, I thought the original intent of the ipsec auditing was to
-> just audit changes made to the SAD/SPD databases, not securiy hook
-> denials, right? 
+I have removed the disable_trans booleans from Rawhide, and FC7 Test3.  
+I wanted to remove these booleans because they cause as many problems as 
+they solve.    If you turn off certain domains, it can change the 
+labeling on the system and cause other confined domains to blow up.
 
-Then what is the point of the 'result' field that we capture and log in
-xfrm_audit_log if the only things you care to audit are successful
-changes to the databases?
+If you syslog_disable_trans, the devlog_t context is wrong and any 
+confined app that tries to syslog will no longer work.
 
--Eric
+The best thing to do when confronted with an AVC would be to figure out 
+if this is expected behavior, if yes then report it as a bug to upstream 
+or to the distribution and create a loadable policy module that handles 
+the problem.
+
+If there are so many problems or a user just does not want to deal with 
+it I figured we could just load a policy that sets the domain as an 
+unconfined_domain.
+
+If you wanted to run samba as an unconfined domain  you would build a 
+policy module
+
+policy_module(mysamba, 1.0)
+
+require {
+        type smbd_t;
+}
+
+unconfined_domain(smbd_t)
+
+
+Compile it
+
+make -f /usr/share/selinux/devel/Makefile
+
+And load it
+
+semodule -i mysamba.pp
+
+Only problem...
+
+semodule -i mysamba.pp
+libsepol.permission_copy_callback: Module mysamba depends on permission 
+* in class capability, not satisfied
+libsemanage.semanage_link_sandbox: Link packages failed
+semodule:  Failed!
+
+But once we fix the interface this should work.
+
+I think this is a better solution, we could even instrument 
+system-config-selinux or audit2allow to  generate this policy module on 
+the fly.  I think this is better than disable_trans or setting up a 
+boolean for all confined domains to go to unconfined.
+
 
 
 --
