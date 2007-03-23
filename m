@@ -1,39 +1,33 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l2NIYO2j002567
-	for <selinux@tycho.nsa.gov>; Fri, 23 Mar 2007 14:34:26 -0400
-Received: from mail6.sea5.speakeasy.net (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l2NIYNU1020757
-	for <selinux@tycho.nsa.gov>; Fri, 23 Mar 2007 18:34:23 GMT
-Date: Fri, 23 Mar 2007 14:34:18 -0400 (EDT)
-From: James Morris <jmorris@namei.org>
-To: Stephen Smalley <sds@tycho.nsa.gov>
-cc: "Christopher J. PeBenito" <cpebenito@tresys.com>, selinux@tycho.nsa.gov,
-        Eamon Walsh <ewalsh@tycho.nsa.gov>, Eric Paris <eparis@parisplace.org>,
-        Chad Sellers <csellers@tresys.com>
 Subject: Re: Expunging userspace classes and permissions from kernel headers
+From: Eric Paris <eparis@parisplace.org>
+To: Stephen Smalley <sds@tycho.nsa.gov>
+Cc: "Christopher J. PeBenito" <cpebenito@tresys.com>, selinux@tycho.nsa.gov,
+        Eamon Walsh <ewalsh@tycho.nsa.gov>, James Morris <jmorris@namei.org>,
+        Chad Sellers <csellers@tresys.com>
 In-Reply-To: <1174667120.31436.232.camel@moss-spartans.epoch.ncsc.mil>
-Message-ID: <Line.LNX.4.64.0703231434090.30602@d.namei>
 References: <1174569868.31436.22.camel@moss-spartans.epoch.ncsc.mil>
- <1174571162.19924.36.camel@sgc.columbia.tresys.com>
- <1174571459.31436.31.camel@moss-spartans.epoch.ncsc.mil>
- <1174584303.19924.43.camel@sgc.columbia.tresys.com>
- <1174585916.31436.94.camel@moss-spartans.epoch.ncsc.mil>
- <1174666169.19924.47.camel@sgc.columbia.tresys.com>
- <1174667120.31436.232.camel@moss-spartans.epoch.ncsc.mil>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	 <1174571162.19924.36.camel@sgc.columbia.tresys.com>
+	 <1174571459.31436.31.camel@moss-spartans.epoch.ncsc.mil>
+	 <1174584303.19924.43.camel@sgc.columbia.tresys.com>
+	 <1174585916.31436.94.camel@moss-spartans.epoch.ncsc.mil>
+	 <1174666169.19924.47.camel@sgc.columbia.tresys.com>
+	 <1174667120.31436.232.camel@moss-spartans.epoch.ncsc.mil>
+Content-Type: text/plain
+Date: Fri, 23 Mar 2007 14:41:05 -0400
+Message-Id: <1174675265.10788.72.camel@localhost.localdomain>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 23 Mar 2007, Stephen Smalley wrote:
-
+On Fri, 2007-03-23 at 12:25 -0400, Stephen Smalley wrote:
+> On Fri, 2007-03-23 at 16:09 +0000, Christopher J. PeBenito wrote: 
+> > I reverted the comment change and changed "null" to NULL.  Is this what
+> > you had in mind (it doesn't have the PAX change yet)?
+> 
 > Yes, looks sane.  We would then apply that diff (re-based to the kernel
 > tree) along with a patch like the following untested one (added a guard
 > to both avc_dump_query and validate_classes despite my earlier comment).
 > Look reasonable to others?
-
-Yep.
-
 > 
 > diff --git a/security/selinux/avc.c b/security/selinux/avc.c
 > index da8caf1..b25cf18 100644
@@ -48,6 +42,20 @@ Yep.
 > +	if (tclass && tclass < ARRAY_SIZE(class_to_string))
 > +		audit_log_format(ab, " tclass=%s", class_to_string[tclass]);
 >  }
+
+I don't see how this causes any harm.  Can we count on audit_log_format
+handleing a null pointer for the %s correctly?  If we are going to work
+under the assumption that bad tclass values might get in here we don't
+know if we are going to hit a hole in the class table.  Maybe we'd
+rather have
+
+if (tclass)  && tclass < ARRAY_SIZE && class_to_string[tclass]
+   audit_log_format......
+else
+   printk(KERN_ERR "attempting to log a non-kernel class definition %d\n", tclass);
+
+so we at least know when something is getting through....
+
 >  
 >  /**
 > diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
@@ -66,11 +74,7 @@ Yep.
 >  			       "security:  class %s not defined in policy\n",
 > 
 > 
-> 
 
--- 
-James Morris
-<jmorris@namei.org>
 
 --
 This message was distributed to subscribers of the selinux mailing list.
