@@ -1,39 +1,40 @@
-Message-ID: <46031ABB.2060006@tycho.nsa.gov>
-Date: Thu, 22 Mar 2007 20:09:31 -0400
-From: Eamon Walsh <ewalsh@tycho.nsa.gov>
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l2N0usK0008294
+	for <selinux@tycho.nsa.gov>; Thu, 22 Mar 2007 20:56:54 -0400
+Received: from mail3.sea5.speakeasy.net (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id l2N0uqtM000348
+	for <selinux@tycho.nsa.gov>; Fri, 23 Mar 2007 00:56:53 GMT
+Date: Thu, 22 Mar 2007 20:56:50 -0400 (EDT)
+From: James Morris <jmorris@namei.org>
+To: Joy Latten <latten@austin.ibm.com>
+cc: David Miller <davem@davemloft.net>, selinux@tycho.nsa.gov,
+        netdev@vger.kernel.org, vyekkirala@TrustedCS.com
+Subject: Re: [PATCH]: Add security check before flushing SAD/SPD
+In-Reply-To: <1174607451.3085.290.camel@faith.austin.ibm.com>
+Message-ID: <Line.LNX.4.64.0703222056080.25271@d.namei>
+References: <200703221835.l2MIZdDw007850@faith.austin.ibm.com>
+ <20070322.120139.74735307.davem@davemloft.net>  <1174598630.3085.285.camel@faith.austin.ibm.com>
+  <Line.LNX.4.64.0703221943110.24461@d.namei> <1174607451.3085.290.camel@faith.austin.ibm.com>
 MIME-Version: 1.0
-To: Daniel J Walsh <dwalsh@redhat.com>
-CC: Stephen Smalley <sds@tycho.nsa.gov>, SE Linux <selinux@tycho.nsa.gov>
-Subject: Re: stdint.h required in avc.h in order for other package builds
- to work.  (uint32_t definition)
-References: <4602EC58.2030603@redhat.com>
-In-Reply-To: <4602EC58.2030603@redhat.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Daniel J Walsh wrote:
-> ff --exclude-from=exclude -N -u -r nsalibselinux/include/selinux/avc.h 
-> libselinux-2.0.7/include/selinux/avc.h
-> --- nsalibselinux/include/selinux/avc.h    2007-02-20 08:43:13.000000000 
-> -0500
-> +++ libselinux-2.0.7/include/selinux/avc.h    2007-03-22 
-> 16:48:42.000000000 -0400
-> @@ -6,6 +6,7 @@
->  #ifndef _SELINUX_AVC_H_
->  #define _SELINUX_AVC_H_
->  
-> +#include <stdint.h>
->  #include <sys/types.h>
->  #include <errno.h>
->  #include <stdlib.h>
+On Thu, 22 Mar 2007, Joy Latten wrote:
 
-This should be fixed already in SVN, commit 2291.
+> > Perhaps a better semantic would be to fail the entire flush operation if 
+> > one of the security checks failed.  e.g. loop through for permissions 
+> > first, then if all ok, loop through for deletion.
+> > 
+> Ok, will code this up and test it if there are no objections.
+
+I'd suggest making the permission loop a noop if CONFIG_SECURITY=n, via a 
+static inline function.
 
 
 -- 
-Eamon Walsh <ewalsh@tycho.nsa.gov>
-National Security Agency
+James Morris
+<jmorris@namei.org>
 
 --
 This message was distributed to subscribers of the selinux mailing list.
