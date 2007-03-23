@@ -1,79 +1,76 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l2NIws6q004297
-	for <selinux@tycho.nsa.gov>; Fri, 23 Mar 2007 14:58:54 -0400
-Received: from mx1.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id l2NIwqsr029314
-	for <selinux@tycho.nsa.gov>; Fri, 23 Mar 2007 18:58:52 GMT
-Message-ID: <46042362.4010803@redhat.com>
-Date: Fri, 23 Mar 2007 14:58:42 -0400
-From: Daniel J Walsh <dwalsh@redhat.com>
-MIME-Version: 1.0
-To: "Christopher J. PeBenito" <cpebenito@tresys.com>,
-        SE Linux <selinux@tycho.nsa.gov>
-Subject: Random file context diffs
-Content-Type: multipart/mixed;
- boundary="------------060807020405060603090801"
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l2NJ6bRc004946
+	for <selinux@tycho.nsa.gov>; Fri, 23 Mar 2007 15:06:47 -0400
+Received: from e34.co.us.ibm.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l2NJ6YU1028248
+	for <selinux@tycho.nsa.gov>; Fri, 23 Mar 2007 19:06:34 GMT
+Received: from d03relay04.boulder.ibm.com (d03relay04.boulder.ibm.com [9.17.195.106])
+	by e34.co.us.ibm.com (8.13.8/8.13.8) with ESMTP id l2NJ6YFt015844
+	for <selinux@tycho.nsa.gov>; Fri, 23 Mar 2007 15:06:34 -0400
+Received: from d03av04.boulder.ibm.com (d03av04.boulder.ibm.com [9.17.195.170])
+	by d03relay04.boulder.ibm.com (8.13.8/8.13.8/NCO v8.3) with ESMTP id l2NJ6YvU058950
+	for <selinux@tycho.nsa.gov>; Fri, 23 Mar 2007 13:06:34 -0600
+Received: from d03av04.boulder.ibm.com (loopback [127.0.0.1])
+	by d03av04.boulder.ibm.com (8.12.11.20060308/8.13.3) with ESMTP id l2NJ6X3a007255
+	for <selinux@tycho.nsa.gov>; Fri, 23 Mar 2007 13:06:34 -0600
+Subject: Re: [PATCH]: Add security check before flushing SAD/SPD
+From: Joy Latten <latten@austin.ibm.com>
+To: Eric Paris <eparis@parisplace.org>
+Cc: James Morris <jmorris@namei.org>, David Miller <davem@davemloft.net>,
+        selinux@tycho.nsa.gov, netdev@vger.kernel.org,
+        vyekkirala@TrustedCS.com
+In-Reply-To: <1174669155.10788.60.camel@localhost.localdomain>
+References: <200703221835.l2MIZdDw007850@faith.austin.ibm.com>
+	 <20070322.120139.74735307.davem@davemloft.net>
+	 <1174598630.3085.285.camel@faith.austin.ibm.com>
+	 <Line.LNX.4.64.0703221943110.24461@d.namei>
+	 <1174628387.10788.53.camel@localhost.localdomain>
+	 <1174667591.3085.308.camel@faith.austin.ibm.com>
+	 <1174669155.10788.60.camel@localhost.localdomain>
+Content-Type: text/plain
+Date: Fri, 23 Mar 2007 12:50:09 -0600
+Message-Id: <1174675809.3085.334.camel@faith.austin.ibm.com>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This is a multi-part message in MIME format.
---------------060807020405060603090801
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+On Fri, 2007-03-23 at 12:59 -0400, Eric Paris wrote:
+> On Fri, 2007-03-23 at 10:33 -0600, Joy Latten wrote:
+> > On Fri, 2007-03-23 at 01:39 -0400, Eric Paris wrote:
+> > 
+> > > 
+> > > In either case though proper auditing needs to be addressed.  I see that
+> > > the first patch from Joy wouldn't audit deletion failures.  It appears
+> > > to me if the check is done per policy then the security hook return code
+> > > needs to be recorded and passed to xfrm_audit_log instead of the hard
+> > > coded 1 result used now.
+> > > 
+> > > Assuming we go with James's double loop what should we be auditing for a
+> > > security hook denial?  Just audit the first policy entry which we tried
+> > > to remove but couldn't and then leave the rest of the auditing in those
+> > > functions the way it is now in case there was no denial, calling
+> > > xfrm_audit_log with a hard coded 1 for the result?
+> > > 
+> > Actually, I thought the original intent of the ipsec auditing was to
+> > just audit changes made to the SAD/SPD databases, not securiy hook
+> > denials, right? 
+> 
+> Then what is the point of the 'result' field that we capture and log in
+> xfrm_audit_log if the only things you care to audit are successful
+> changes to the databases?
+> 
+Yes, I think we do want to audit the security denial since it is the
+reason we could not change the policy. In the flush case it seem it will
+be the only reason. As you suggested, I will audit the first denial
+since this is the reason the flush will fail.
 
-Pretty self explanatory
+But sometimes, in other cases, the delete or add could fail for other
+reasons too such as not being able to allocate memory, not finding the
+entry, etc... which is passed in the result field. 
 
 
-
---------------060807020405060603090801
-Content-Type: text/x-patch;
- name="fc.diff"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="fc.diff"
-
---- nsaserefpolicy/policy/modules/apps/games.fc	2007-02-28 10:12:23.000000000 -0500
-+++ serefpolicy-2.5.10/policy/modules/apps/games.fc	2007-03-22 15:06:58.000000000 -0400
-@@ -4,6 +4,7 @@
- /usr/games/powermanga	--	gen_context(system_u:object_r:games_exec_t,s0)
- /usr/games/nethack-3.4.3/nethack -- gen_context(system_u:object_r:games_exec_t,s0)
- /usr/games/vulturesclaw/vulturesclaw -- gen_context(system_u:object_r:games_exec_t,s0)
-+/usr/games/vultureseye/vultureseye -- gen_context(system_u:object_r:games_exec_t,s0)
- 
- /usr/lib/games(/.*)? 		gen_context(system_u:object_r:games_exec_t,s0)
- 
---- nsaserefpolicy/policy/modules/kernel/corecommands.fc	2007-03-01 10:01:48.000000000 -0500
-+++ serefpolicy-2.5.10/policy/modules/kernel/corecommands.fc	2007-03-22 15:06:58.000000000 -0400
-@@ -190,6 +190,7 @@
- ifdef(`distro_redhat', `
- /usr/lib/.*/program(/.*)?		gen_context(system_u:object_r:bin_t,s0)
- /usr/lib/bluetooth(/.*)?	--      gen_context(system_u:object_r:bin_t,s0)
-+/usr/lib64/bluetooth(/.*)?	--      gen_context(system_u:object_r:bin_t,s0)
- /usr/share/authconfig/authconfig-gtk\.py -- gen_context(system_u:object_r:bin_t,s0)
- /usr/share/authconfig/authconfig-tui\.py -- gen_context(system_u:object_r:bin_t,s0)
- /usr/share/authconfig/authconfig.py --	gen_context(system_u:object_r:bin_t,s0)
-@@ -206,6 +207,7 @@
- /usr/share/ssl/misc(/.*)?		gen_context(system_u:object_r:bin_t,s0)
- /usr/share/switchdesk/switchdesk-gui\.py -- gen_context(system_u:object_r:bin_t,s0)
- /usr/share/system-config-date/system-config-date\.py -- gen_context(system_u:object_r:bin_t,s0)
-+/usr/share/system-config-selinux/system-config-selinux\.py -- gen_context(system_u:object_r:bin_t,s0)
- /usr/share/system-config-display/system-config-display -- gen_context(system_u:object_r:bin_t,s0)
- /usr/share/system-config-httpd/system-config-httpd -- gen_context(system_u:object_r:bin_t,s0)
- /usr/share/system-config-keyboard/system-config-keyboard -- gen_context(system_u:object_r:bin_t,s0)
---- nsaserefpolicy/policy/modules/kernel/storage.fc	2006-11-16 17:15:04.000000000 -0500
-+++ serefpolicy-2.5.10/policy/modules/kernel/storage.fc	2007-03-22 15:06:58.000000000 -0400
-@@ -42,7 +42,8 @@
- /dev/sjcd		-b	gen_context(system_u:object_r:removable_device_t,s0)
- /dev/sonycd		-b	gen_context(system_u:object_r:removable_device_t,s0)
- /dev/tape.*		-c	gen_context(system_u:object_r:tape_device_t,s0)
--/dev/ub[a-z]		-b	gen_context(system_u:object_r:removable_device_t,mls_systemhigh)
-+/dev/tw[a-z][^/]+	-c	gen_context(system_u:object_r:fixed_disk_device_t,mls_systemhigh)
-+/dev/ub[a-z][^/]+	-b	gen_context(system_u:object_r:removable_device_t,mls_systemhigh)
- /dev/ubd[^/]*		-b	gen_context(system_u:object_r:fixed_disk_device_t,mls_systemhigh)
- /dev/xvd[^/]*		-b	gen_context(system_u:object_r:fixed_disk_device_t,mls_systemhigh)
- 
-
---------------060807020405060603090801--
+Regards,
+Joy 
 
 --
 This message was distributed to subscribers of the selinux mailing list.
