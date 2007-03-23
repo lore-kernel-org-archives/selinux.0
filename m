@@ -1,53 +1,52 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l2NJWHSD006515
-	for <selinux@tycho.nsa.gov>; Fri, 23 Mar 2007 15:32:17 -0400
-Received: from mx1.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id l2NJWFsr008384
-	for <selinux@tycho.nsa.gov>; Fri, 23 Mar 2007 19:32:15 GMT
-Message-ID: <46042B39.8040208@redhat.com>
-Date: Fri, 23 Mar 2007 15:32:09 -0400
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l2NJYctT006623
+	for <selinux@tycho.nsa.gov>; Fri, 23 Mar 2007 15:34:38 -0400
+Received: from mx1.redhat.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l2NJYaU1004007
+	for <selinux@tycho.nsa.gov>; Fri, 23 Mar 2007 19:34:36 GMT
+Message-ID: <46042BC6.8060705@redhat.com>
+Date: Fri, 23 Mar 2007 15:34:30 -0400
 From: Daniel J Walsh <dwalsh@redhat.com>
 MIME-Version: 1.0
 To: "Christopher J. PeBenito" <cpebenito@tresys.com>,
         SE Linux <selinux@tycho.nsa.gov>
-Subject: mount_ntfs policy
+Subject: fusermount policy
 Content-Type: multipart/mixed;
- boundary="------------090802000305030502050208"
+ boundary="------------030106020803070406060304"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 This is a multi-part message in MIME format.
---------------090802000305030502050208
+--------------030106020803070406060304
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 
+This is also used to add support for ntfs-3g from previous patch.
 
-
---------------090802000305030502050208
+--------------030106020803070406060304
 Content-Type: text/x-patch;
- name="mount_ntfs.patch"
+ name="fusermount.patch"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline;
- filename="mount_ntfs.patch"
+ filename="fusermount.patch"
 
---- nsaserefpolicy/policy/modules/system/mount.fc	2006-11-16 17:15:24.000000000 -0500
-+++ serefpolicy-2.5.10/policy/modules/system/mount.fc	2007-03-22 15:06:59.000000000 -0400
-@@ -1,4 +1,3 @@
- /bin/mount.*			--	gen_context(system_u:object_r:mount_exec_t,s0)
- /bin/umount.*			--	gen_context(system_u:object_r:mount_exec_t,s0)
--
--/usr/bin/fusermount		--	gen_context(system_u:object_r:mount_exec_t,s0)
-+/sbin/mount.ntfs-3g		--	gen_context(system_u:object_r:mount_ntfs_exec_t,s0)
---- nsaserefpolicy/policy/modules/system/mount.if	2007-01-02 12:57:49.000000000 -0500
-+++ serefpolicy-2.5.10/policy/modules/system/mount.if	2007-03-22 15:06:59.000000000 -0400
-@@ -143,3 +143,40 @@
- 		mount_domtrans($1)
- 	')
- ')
+--- nsaserefpolicy/policy/modules/system/fusermount.fc	1969-12-31 19:00:00.000000000 -0500
++++ serefpolicy-2.5.10/policy/modules/system/fusermount.fc	2007-03-22 15:06:59.000000000 -0400
+@@ -0,0 +1,6 @@
++# fusermount executable will have:
++# label: system_u:object_r:fusermount_exec_t
++# MLS sensitivity: s0
++# MCS categories: <none>
++
++/usr/bin/fusermount		--	gen_context(system_u:object_r:fusermount_exec_t,s0)
+--- nsaserefpolicy/policy/modules/system/fusermount.if	1969-12-31 19:00:00.000000000 -0500
++++ serefpolicy-2.5.10/policy/modules/system/fusermount.if	2007-03-22 15:06:59.000000000 -0400
+@@ -0,0 +1,41 @@
++## <summary>policy for fusermount</summary>
 +
 +########################################
 +## <summary>
-+##	Execute a domain transition to run mount_ntfs.
++##	Execute a domain transition to run fusermount.
 +## </summary>
 +## <param name="domain">
 +## <summary>
@@ -55,18 +54,21 @@ Content-Disposition: inline;
 +## </summary>
 +## </param>
 +#
-+interface(`mount_ntfs_domtrans',`
++interface(`fusermount_domtrans',`
 +	gen_require(`
-+		type mount_ntfs_t, mount_ntfs_exec_t;
++		type fusermount_t, fusermount_exec_t;
 +	')
 +
-+	domtrans_pattern($1,mount_ntfs_exec_t,mount_ntfs_t)
++	domain_auto_trans($1,fusermount_exec_t,fusermount_t)
++
++	allow fusermount_t $1:fd use;
++	allow fusermount_t $1:fifo_file rw_file_perms;
++	allow fusermount_t $1:process sigchld;
 +')
 +
 +########################################
 +## <summary>
-+##	Allow the specified domain to read/write to
-+##	init scripts with a unix domain stream sockets.
++##	Inherit and use file descriptors from fusermount.
 +## </summary>
 +## <param name="domain">
 +##	<summary>
@@ -74,81 +76,134 @@ Content-Disposition: inline;
 +##	</summary>
 +## </param>
 +#
-+interface(`mount_ntfs_rw_stream_sockets',`
++interface(`fusermount_use_fds',`
 +	gen_require(`
-+		type mount_ntfs_t;
++		type fusermount_t;
 +	')
 +
-+	allow $1 mount_ntfs_t:unix_stream_socket { read write };
++	allow $1 fusermount_t:fd use;
 +')
---- nsaserefpolicy/policy/modules/system/mount.te	2007-01-02 12:57:49.000000000 -0500
-+++ serefpolicy-2.5.10/policy/modules/system/mount.te	2007-03-22 15:06:59.000000000 -0400
-@@ -9,8 +9,13 @@
- type mount_t;
- type mount_exec_t;
- init_system_domain(mount_t,mount_exec_t)
-+application_executable_file(mount_exec_t)
- role system_r types mount_t;
- 
-+type mount_ntfs_t;
-+type mount_ntfs_exec_t;
-+init_daemon_domain(mount_ntfs_t, mount_ntfs_exec_t)
-+
- type mount_loopback_t; # customizable
- files_type(mount_loopback_t)
- 
-@@ -29,7 +34,7 @@
- #
- 
- # setuid/setgid needed to mount cifs 
--allow mount_t self:capability { ipc_lock sys_rawio sys_admin dac_override chown sys_tty_config setuid setgid };
-+allow mount_t self:capability { ipc_lock sys_rawio sys_resource sys_admin dac_override chown sys_tty_config setuid setgid };
- 
- allow mount_t mount_loopback_t:file read_file_perms;
- allow mount_t self:netlink_route_socket r_netlink_socket_perms;
-@@ -197,3 +207,40 @@
- 	files_etc_filetrans_etc_runtime(unconfined_mount_t,file)
- 	unconfined_domain(unconfined_mount_t)
- ')
+\ No newline at end of file
+--- nsaserefpolicy/policy/modules/system/fusermount.te	1969-12-31 19:00:00.000000000 -0500
++++ serefpolicy-2.5.10/policy/modules/system/fusermount.te	2007-03-22 15:06:59.000000000 -0400
+@@ -0,0 +1,44 @@
++policy_module(fusermount,1.0.0)
 +
 +########################################
 +#
-+# mount_ntfs local policy
++# Declarations
 +#
-+allow mount_ntfs_t self:capability { setuid sys_admin };
-+allow mount_ntfs_t self:fifo_file { read write };
-+allow mount_ntfs_t self:unix_stream_socket create_stream_socket_perms;
-+allow mount_ntfs_t self:unix_dgram_socket { connect create };
 +
-+corecmd_read_bin_symlinks(mount_ntfs_t)
-+corecmd_exec_shell(mount_ntfs_t)
++type fusermount_t;
++type fusermount_exec_t;
++application_domain(fusermount_t, fusermount_exec_t)
++role system_r types fusermount_t;
 +
-+files_read_etc_files(mount_ntfs_t)
++########################################
++#
++# fusermount local policy
++#
++allow fusermount_t self:capability sys_admin;
++allow fusermount_t self:fifo_file { read write };
++allow fusermount_t self:unix_stream_socket create_stream_socket_perms;
 +
-+libs_use_ld_so(mount_ntfs_t)
-+libs_use_shared_libs(mount_ntfs_t)
++files_read_etc_files(fusermount_t)
 +
-+fusermount_domtrans(mount_ntfs_t)
-+fusermount_use_fds(mount_ntfs_t)
++libs_use_ld_so(fusermount_t)
++libs_use_shared_libs(fusermount_t)
 +
-+kernel_read_system_state(mount_ntfs_t)
++miscfiles_read_localization(fusermount_t)
 +
-+logging_send_syslog_msg(mount_ntfs_t)
++files_manage_etc_runtime_files(fusermount_t)
++files_etc_filetrans_etc_runtime(fusermount_t,file)
++files_mounton_all_mountpoints(fusermount_t)
 +
-+miscfiles_read_localization(mount_ntfs_t)
++fs_mount_fusefs(fusermount_t)
 +
-+modutils_domtrans_insmod(mount_ntfs_t)
++storage_raw_read_fixed_disk(fusermount_t)
++storage_raw_write_fixed_disk(fusermount_t)
 +
-+mount_ntfs_domtrans(mount_t)
-+
-+storage_raw_read_fixed_disk(mount_ntfs_t)
-+storage_raw_write_fixed_disk(mount_ntfs_t)
++optional_policy(`
++	mount_ntfs_rw_stream_sockets(fusermount_t)
++')
 +
 +ifdef(`targeted_policy',`
-+	term_use_generic_ptys(mount_ntfs_t)
++	term_use_generic_ptys(fusermount_t)
 +')
++
+--- nsaserefpolicy/policy/modules/kernel/filesystem.if	2007-02-19 11:32:51.000000000 -0500
++++ serefpolicy-2.5.10/policy/modules/kernel/filesystem.if	2007-03-22 15:06:58.000000000 -0400
+@@ -1110,11 +1110,31 @@
+ 		type dosfs_t;
+ 	')
+ 
++	manage_dirs_pattern($1,dosfs_t,dosfs_t)
+ 	manage_files_pattern($1,dosfs_t,dosfs_t)
+ ')
+ 
+ ########################################
+ ## <summary>
++##	read files
++##	on a DOS filesystem.
++## </summary>
++## <param name="domain">
++##	<summary>
++##	Domain allowed access.
++##	</summary>
++## </param>
++#
++interface(`fs_read_dos_files',`
++	gen_require(`
++		type dosfs_t;
++	')
++
++	read_files_pattern($1,dosfs_t,dosfs_t)
++')
++
++########################################
++## <summary>
+ ##	Read eventpollfs files.
+ ## </summary>
+ ## <desc>
+@@ -3402,3 +3422,22 @@
+ 	relabelfrom_blk_files_pattern($1,noxattrfs,noxattrfs)
+ 	relabelfrom_chr_files_pattern($1,noxattrfs,noxattrfs)
+ ')
++
++
++########################################
++## <summary>
++##      Mount an fuse filesystem.
++## </summary>
++## <param name="domain">
++##      <summary>
++##      Domain allowed access.
++##      </summary>
++## </param>
++#
++interface(`fs_mount_fusefs',`
++        gen_require(`
++                type fusefs_t;
++        ')
++
++        allow $1 fusefs_t:filesystem mount;
++')
+--- nsaserefpolicy/policy/modules/kernel/filesystem.te	2007-02-19 11:32:51.000000000 -0500
++++ serefpolicy-2.5.10/policy/modules/kernel/filesystem.te	2007-03-22 15:06:58.000000000 -0400
+@@ -65,6 +65,11 @@
+ # change to task SID 20060628
+ #genfscon eventpollfs / gen_context(system_u:object_r:eventpollfs_t,s0)
+ 
++type fusefs_t;
++fs_type(fusefs_t)
++allow fusefs_t self:filesystem associate;
++genfscon fuse / gen_context(system_u:object_r:fusefs_t,s0)
++
+ type futexfs_t;
+ fs_type(futexfs_t)
+ genfscon futexfs / gen_context(system_u:object_r:futexfs_t,s0)
 
---------------090802000305030502050208--
+--------------030106020803070406060304--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
