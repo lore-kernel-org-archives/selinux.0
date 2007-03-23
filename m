@@ -1,81 +1,76 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l2NHg6Ml032718
-	for <selinux@tycho.nsa.gov>; Fri, 23 Mar 2007 13:42:06 -0400
-Received: from mx1.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id l2NHg4sr009239
-	for <selinux@tycho.nsa.gov>; Fri, 23 Mar 2007 17:42:05 GMT
-Received: from int-mx1.corp.redhat.com (int-mx1.corp.redhat.com [172.16.52.254])
-	by mx1.redhat.com (8.13.1/8.13.1) with ESMTP id l2NHg3dH013667
-	for <selinux@tycho.nsa.gov>; Fri, 23 Mar 2007 13:42:03 -0400
-Received: from mail.boston.redhat.com (mail.boston.redhat.com [172.16.76.12])
-	by int-mx1.corp.redhat.com (8.13.1/8.13.1) with ESMTP id l2NHg2l0016509
-	for <selinux@tycho.nsa.gov>; Fri, 23 Mar 2007 13:42:02 -0400
-Received: from [10.12.32.53] (redsox.boston.devel.redhat.com [10.12.32.53])
-	by mail.boston.redhat.com (8.12.11.20060308/8.12.11) with ESMTP id l2NHg27w012474
-	for <selinux@tycho.nsa.gov>; Fri, 23 Mar 2007 13:42:02 -0400
-Message-ID: <46041166.8010102@redhat.com>
-Date: Fri, 23 Mar 2007 13:41:58 -0400
-From: Daniel J Walsh <dwalsh@redhat.com>
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l2NIYO2j002567
+	for <selinux@tycho.nsa.gov>; Fri, 23 Mar 2007 14:34:26 -0400
+Received: from mail6.sea5.speakeasy.net (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l2NIYNU1020757
+	for <selinux@tycho.nsa.gov>; Fri, 23 Mar 2007 18:34:23 GMT
+Date: Fri, 23 Mar 2007 14:34:18 -0400 (EDT)
+From: James Morris <jmorris@namei.org>
+To: Stephen Smalley <sds@tycho.nsa.gov>
+cc: "Christopher J. PeBenito" <cpebenito@tresys.com>, selinux@tycho.nsa.gov,
+        Eamon Walsh <ewalsh@tycho.nsa.gov>, Eric Paris <eparis@parisplace.org>,
+        Chad Sellers <csellers@tresys.com>
+Subject: Re: Expunging userspace classes and permissions from kernel headers
+In-Reply-To: <1174667120.31436.232.camel@moss-spartans.epoch.ncsc.mil>
+Message-ID: <Line.LNX.4.64.0703231434090.30602@d.namei>
+References: <1174569868.31436.22.camel@moss-spartans.epoch.ncsc.mil>
+ <1174571162.19924.36.camel@sgc.columbia.tresys.com>
+ <1174571459.31436.31.camel@moss-spartans.epoch.ncsc.mil>
+ <1174584303.19924.43.camel@sgc.columbia.tresys.com>
+ <1174585916.31436.94.camel@moss-spartans.epoch.ncsc.mil>
+ <1174666169.19924.47.camel@sgc.columbia.tresys.com>
+ <1174667120.31436.232.camel@moss-spartans.epoch.ncsc.mil>
 MIME-Version: 1.0
-To: SE Linux <selinux@tycho.nsa.gov>
-Subject: Elimination of disable_trans boolean ramifications
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-I have removed the disable_trans booleans from Rawhide, and FC7 Test3.  
-I wanted to remove these booleans because they cause as many problems as 
-they solve.    If you turn off certain domains, it can change the 
-labeling on the system and cause other confined domains to blow up.
+On Fri, 23 Mar 2007, Stephen Smalley wrote:
 
-If you syslog_disable_trans, the devlog_t context is wrong and any 
-confined app that tries to syslog will no longer work.
+> Yes, looks sane.  We would then apply that diff (re-based to the kernel
+> tree) along with a patch like the following untested one (added a guard
+> to both avc_dump_query and validate_classes despite my earlier comment).
+> Look reasonable to others?
 
-The best thing to do when confronted with an AVC would be to figure out 
-if this is expected behavior, if yes then report it as a bug to upstream 
-or to the distribution and create a loadable policy module that handles 
-the problem.
+Yep.
 
-If there are so many problems or a user just does not want to deal with 
-it I figured we could just load a policy that sets the domain as an 
-unconfined_domain.
+> 
+> diff --git a/security/selinux/avc.c b/security/selinux/avc.c
+> index da8caf1..b25cf18 100644
+> --- a/security/selinux/avc.c
+> +++ b/security/selinux/avc.c
+> @@ -217,7 +217,9 @@ static void avc_dump_query(struct audit_buffer *ab, u32 ssid, u32 tsid, u16 tcla
+>  		audit_log_format(ab, " tcontext=%s", scontext);
+>  		kfree(scontext);
+>  	}
+> -	audit_log_format(ab, " tclass=%s", class_to_string[tclass]);
+> +
+> +	if (tclass && tclass < ARRAY_SIZE(class_to_string))
+> +		audit_log_format(ab, " tclass=%s", class_to_string[tclass]);
+>  }
+>  
+>  /**
+> diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+> diff --git a/security/selinux/ss/services.c b/security/selinux/ss/services.c
+> index 1e52356..3668f18 100644
+> --- a/security/selinux/ss/services.c
+> +++ b/security/selinux/ss/services.c
+> @@ -1050,6 +1050,8 @@ static int validate_classes(struct policydb *p)
+>  
+>  	for (i = 1; i < kdefs->cts_len; i++) {
+>  		def_class = kdefs->class_to_string[i];
+> +		if (!def_class)
+> +			continue;
+>  		if (i > p->p_classes.nprim) {
+>  			printk(KERN_INFO
+>  			       "security:  class %s not defined in policy\n",
+> 
+> 
+> 
 
-If you wanted to run samba as an unconfined domain  you would build a 
-policy module
-
-policy_module(mysamba, 1.0)
-
-require {
-        type smbd_t;
-}
-
-unconfined_domain(smbd_t)
-
-
-Compile it
-
-make -f /usr/share/selinux/devel/Makefile
-
-And load it
-
-semodule -i mysamba.pp
-
-Only problem...
-
-semodule -i mysamba.pp
-libsepol.permission_copy_callback: Module mysamba depends on permission 
-* in class capability, not satisfied
-libsemanage.semanage_link_sandbox: Link packages failed
-semodule:  Failed!
-
-But once we fix the interface this should work.
-
-I think this is a better solution, we could even instrument 
-system-config-selinux or audit2allow to  generate this policy module on 
-the fly.  I think this is better than disable_trans or setting up a 
-boolean for all confined domains to go to unconfined.
-
-
+-- 
+James Morris
+<jmorris@namei.org>
 
 --
 This message was distributed to subscribers of the selinux mailing list.
