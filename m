@@ -1,37 +1,44 @@
 Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l2NLja13012183
-	for <selinux@tycho.nsa.gov>; Fri, 23 Mar 2007 17:45:36 -0400
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l2NMKsqb013220
+	for <selinux@tycho.nsa.gov>; Fri, 23 Mar 2007 18:20:54 -0400
 Received: from exchange.columbia.tresys.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with SMTP id l2NLjYsr006097
-	for <selinux@tycho.nsa.gov>; Fri, 23 Mar 2007 21:45:34 GMT
-Subject: Re: netlabel can be run in init scripts I think?
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with SMTP id l2NMKqWH013487
+	for <selinux@tycho.nsa.gov>; Fri, 23 Mar 2007 22:20:52 GMT
+Subject: Re: Last call for objections to 2 significant policy changes
 From: "Christopher J. PeBenito" <cpebenito@tresys.com>
-To: Paul Moore <paul.moore@hp.com>
-Cc: Daniel J Walsh <dwalsh@redhat.com>, SE Linux <selinux@tycho.nsa.gov>
-In-Reply-To: <200703231623.40160.paul.moore@hp.com>
-References: <46042AC3.6050006@redhat.com>
-	 <200703231623.40160.paul.moore@hp.com>
+To: SELinux Mail List <selinux@tycho.nsa.gov>
+In-Reply-To: <1174313877.29664.54.camel@sgc>
+References: <1174313877.29664.54.camel@sgc>
 Content-Type: text/plain
-Date: Fri, 23 Mar 2007 17:46:10 -0400
-Message-Id: <1174686370.28830.12.camel@sgc>
+Date: Fri, 23 Mar 2007 18:21:28 -0400
+Message-Id: <1174688488.28830.14.camel@sgc>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2007-03-23 at 16:23 -0400, Paul Moore wrote:
-> On Friday, March 23 2007 3:30:11 pm Daniel J Walsh wrote:
-> > I believe this patch came from netlabel guys.
+On Mon, 2007-03-19 at 14:17 +0000, Christopher J. PeBenito wrote:
+> This is the last chance for objections to these policy changes:
 > 
-> Yes it did, I believe it was posted to this list too, although I could be 
-> mistaken.
+> 1.  Removal of the disable transition booleans in the targeted policy.
+> See this email for the reasons:
+> http://marc.info/?l=selinux&m=117339324826278&w=2.
+> 
+> 2.  Merge sbin_t and ls_exec_t into bin_t.  This comes up from time to
+> time on the list.  The difference between bin_t and sbin_t was never
+> really clear, and the set of programs that go in
+> the /sbin, /bin, /usr/sbin, and /usr/bin directories has never been very
+> consistent, especially between distributions.
+> 
+> >From what I understand, ls_exec_t's original purpose was to
+> differentiate it from other binaries so you could only allow ftpd to
+> exec ls but not the others.  The containment ftpd already has is a
+> stronger protection than denying ftp from exec'ing misc programs on the
+> system.  At this time ftp can exec bin_t and sbin_t too.
+> 
+> If there are no objections, I plan on making these changes on Friday
+> (March 23rd).
 
-Yes you sent it on March 9th; its still in my patch queue.
-
-> That being said, I wonder if instead of init_daemon_domain() 
-> init_system_domain() should be used - thoughts?
-
-If this is actually a daemon, then the former init_daemon_domain() be
-used, otherwise init_system_domain() should be used.
+These changes have been made to refpolicy trunk.
 
 -- 
 Chris PeBenito
