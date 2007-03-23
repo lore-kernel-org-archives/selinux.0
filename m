@@ -1,54 +1,133 @@
-Subject: Re: BusyBox: load_policy applet
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Yuichi Nakamura <ynakam@hitachisoft.jp>
-Cc: busybox@busybox.net, busybox@kaigai.gr.jp, vda.linux@googlemail.com,
-        selinux@tycho.nsa.gov, Karl MacMillan <kmacmillan@mentalrootkit.com>
-In-Reply-To: <20070323151513.395798cf.ynakam@hitachisoft.jp>
-References: <20070323151513.395798cf.ynakam@hitachisoft.jp>
-Content-Type: text/plain
-Date: Fri, 23 Mar 2007 08:49:37 -0400
-Message-Id: <1174654177.31436.188.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l2NDWHA5019783
+	for <selinux@tycho.nsa.gov>; Fri, 23 Mar 2007 09:32:17 -0400
+Received: from mx1.redhat.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l2NDWFnB017473
+	for <selinux@tycho.nsa.gov>; Fri, 23 Mar 2007 13:32:16 GMT
+Message-ID: <4603D6DA.5060906@redhat.com>
+Date: Fri, 23 Mar 2007 09:32:10 -0400
+From: Daniel J Walsh <dwalsh@redhat.com>
+MIME-Version: 1.0
+To: SE Linux <selinux@tycho.nsa.gov>,
+        "Christopher J. PeBenito" <cpebenito@tresys.com>
+Subject: [Fwd: target policy 2.5.9-2 in fc7 prevent mono]
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2007-03-23 at 15:15 +0900, Yuichi Nakamura wrote:
-> Attached patch is to support load_policy for BusyBox.
-> load_policy is a program to load SELinux policy to kernel.
-> This applet is very important for SELinux, 
-> because SELinux is not activated until policy is loaded.
-> 
-> And this applet is _not_ based on latest load_policy, 
-> is based on old load_policy.
-> This is because the size of latest load_policy is bigger than old one,
-> and old load_policy has enough feature for embedded device.
+Here is an example of an AVC caused by trying to extend the capabilities 
+of the user. 
 
-Hmm...are you sure?  Functionality that you are losing from the new load
-policy logic that lives in libselinux these days:
-- automatic discovery of the right policy file,
-- automatic downgrading of the policy file format to the kernel
-supported format if necessary (e.g. new policy, old kernel),
-- loading of local user and/or boolean definitions (obsolete if you
-choose to use libsemanage and managed policy, but not clear you are
-doing that in embedded),
-- preservation of boolean settings across a policy reload so they aren't
-reset to the policy defaults.
+The goal is to lock down users to not allow execmem, execstack ...
 
-Boolean management seems the greatest concern, and using policy booleans
-on an embedded device to change policy states based on events /
-environmental factors is quite reasonable.
+But certain apps (java, mono) require these access.  So what we really 
+want to happen when a user runs a mono or java app, to have all the same 
+access that he has when running bin_t.  But also allow execmem, and 
+execstack.  But by transitioning we end up with a policy headache.
 
-I know that you have a concern about libsepol size, but we may be able
-to reduce that to a minimal subset for your purposes without dropping it
-altogether on embedded (and it is expected to get smaller anyway as as
-result of the proposed new policy representation).
+This bug below shows that we have this problem even with two unconfined 
+domains.  Since mono_t is not allowed to write to unconfined_t proc file.
 
-As a minor point on your applet, shouldn't you munmap and close before
-returning?
+mono_t Should equal unconfined_t + execmem + exectack
+user_mono_t should equal user_t + execmem + execstack
+staff_java_t should equal user_t + execmem + execstack
 
--- 
-Stephen Smalley
-National Security Agency
+I think we need to change the way we handle different usertypes to use 
+attributes rather then the type so we could just extend the users 
+capabilities.
+
+Dan
+
+-------- Original Message --------
+Subject: 	target policy 2.5.9-2 in fc7 prevent mono
+Date: 	Thu, 22 Mar 2007 16:01:17 +0800
+From: 	Nerazzurri.YANG <spng.yang@gmail.com>
+To: 	fedora-selinux-list@redhat.com
+
+
+
+hi all,
+
+in fc7 rawhide, with target policy 2.5.9-2, will prevent mono
+from doing something.
+
+avc: denied { write } for comm="beagled" cwd="/home/yangshao" dev=00:03 
+egid=500 euid=500 exe="/usr/bin/mono" exit=-13 fsgid=500 fsuid=500 
+gid=500 inode=55866 item=0 items=1 mode=0100644 name="make-it-fail" 
+obj=user_u:system_r:unconfined_t:s0 ogid=500 ouid=500 
+path="/proc/3185/make-it-fail" pid=3091 rdev=00:00 
+scontext=user_u:system_r:mono_t:s0 sgid=500 
+subj=user_u:system_r:mono_t:s0 suid=500 tclass=file 
+tcontext=user_u:system_r:unconfined_t:s0 tty=(none) uid=500
+avc: denied { write } for comm="beagled" cwd="/home/yangshao" dev=00:03 
+egid=500 euid=500 exe="/usr/bin/mono" exit=-13 fsgid=500 fsuid=500 
+gid=500 inode=55852 item=0 items=1 mode=0100600 name="mem" 
+obj=user_u:system_r:unconfined_t:s0 ogid=500 ouid=500 
+path="/proc/3185/mem" pid=3091 rdev=00:00 
+scontext=user_u:system_r:mono_t:s0 sgid=500 
+subj=user_u:system_r:mono_t:s0 suid=500 tclass=file 
+tcontext=user_u:system_r:unconfined_t:s0 tty=(none) uid=500
+avc: denied { write } for comm="beagled" cwd="/home/yangshao" dev=00:03 
+egid=500 euid=500 exe="/usr/bin/mono" exit=-13 fsgid=500 fsuid=500 
+gid=500 inode=55864 item=0 items=1 mode=0100644 name="oom_adj" 
+obj=user_u:system_r:unconfined_t:s0 ogid=500 ouid=500 
+path="/proc/3185/oom_adj" pid=3091 rdev=00:00 
+scontext=user_u:system_r:mono_t:s0 sgid=500 
+subj=user_u:system_r:mono_t:s0 suid=500 tclass=file 
+tcontext=user_u:system_r:unconfined_t:s0 tty=(none) uid=500
+avc: denied { write } for comm="beagled" cwd="/home/yangshao" dev=00:03 
+egid=500 euid=500 exe="/usr/bin/mono" exit=-13 fsgid=500 fsuid=500 
+gid=500 inode=55865 item=0 items=1 mode=0100644 name="loginuid" 
+obj=user_u:system_r:unconfined_t:s0 ogid=500 ouid=500 
+path="/proc/3185/loginuid" pid=3091 rdev=00:00 
+scontext=user_u:system_r:mono_t:s0 sgid=500 
+subj=user_u:system_r:mono_t:s0 suid=500 tclass=file 
+tcontext=user_u:system_r:unconfined_t:s0 tty=(none) uid=500
+avc: denied { setattr } for comm="beagled" cwd="/home/yangshao" 
+dev=00:03 egid=500 euid=500 exe="/usr/bin/mono" exit=-13 fsgid=500 
+fsuid=500 gid=500 inode=160224 item=0 items=1 mode=0100644 
+name="oom_adj" obj=user_u:system_r:unconfined_t:s0 ogid=500 ouid=500 
+path="/proc/3117/oom_adj" pid=3091 rdev=00:00 
+scontext=user_u:system_r:mono_t:s0 sgid=500 
+subj=user_u:system_r:mono_t:s0 suid=500 tclass=file 
+tcontext=user_u:system_r:unconfined_t:s0 tty=(none) uid=500
+......
+
+
+as i know, this problem happens from target policy 2.5.8-8.
+
+i wrote a loadable module, after installing, such problems had not
+happened again until now.
+
+there is only a ".te" file in this module:
+
+"
+module mymono 1.0;
+
+require {
+        type unconfined_t;
+        type mono_t;
+        class file { write setattr };
+}
+
+#============= mono_t ==============
+allow mono_t unconfined_t:file { write setattr };
+
+
+"
+
+can anyone can guide me if the '.te' file has something wrong.
+
+i know, in reference policy, we should use interface, but i am
+a newbie for selinux policy, i don't know how to begin writing
+policy using interface?
+
+
+
+--
+fedora-selinux-list mailing list
+fedora-selinux-list@redhat.com
+https://www.redhat.com/mailman/listinfo/fedora-selinux-list
 
 
 --
