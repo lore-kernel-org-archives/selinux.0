@@ -1,110 +1,133 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l2N6FKmj018092
-	for <selinux@tycho.nsa.gov>; Fri, 23 Mar 2007 02:15:20 -0400
-Received: from msp1.hitachi-sk.co.jp (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id l2N6FIGF028079
-	for <selinux@tycho.nsa.gov>; Fri, 23 Mar 2007 06:15:19 GMT
-Received: from vs1.hitachi-sk.co.jp ([133.108.252.215])
-	by msp1.hitachi-sk.co.jp (unknown) with ESMTP id l2N6F71r014693
-	for <selinux@tycho.nsa.gov>; Fri, 23 Mar 2007 15:15:08 +0900
-Date: Fri, 23 Mar 2007 15:15:13 +0900
-From: Yuichi Nakamura <ynakam@hitachisoft.jp>
-To: busybox@busybox.net
-Cc: busybox@kaigai.gr.jp, vda.linux@googlemail.com, selinux@tycho.nsa.gov
-Subject: BusyBox: load_policy applet
-Message-Id: <20070323151513.395798cf.ynakam@hitachisoft.jp>
-Mime-Version: 1.0
-Content-Type: multipart/mixed;
- boundary="Multipart=_Fri__23_Mar_2007_15_15_13_+0900_UqBG/ozF/PlI50dr"
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l2N6b7sW018778
+	for <selinux@tycho.nsa.gov>; Fri, 23 Mar 2007 02:37:07 -0400
+Received: from nz-out-0506.google.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l2N6b76W008248
+	for <selinux@tycho.nsa.gov>; Fri, 23 Mar 2007 06:37:07 GMT
+Received: by nz-out-0506.google.com with SMTP id z3so671465nzf
+        for <selinux@tycho.nsa.gov>; Thu, 22 Mar 2007 23:37:06 -0700 (PDT)
+Message-ID: <4603749D.2020106@gmail.com>
+Date: Fri, 23 Mar 2007 14:33:01 +0800
+From: "Nerazzurri.YANG" <spng.yang@gmail.com>
+MIME-Version: 1.0
+To: selinux@tycho.nsa.gov
+Subject: some errors in installing pp
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This is a multi-part message in MIME format.
 
---Multipart=_Fri__23_Mar_2007_15_15_13_+0900_UqBG/ozF/PlI50dr
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+hi all,
+
+i install a local pp in fc7 rawhide, but there are
+some errors, i do not understand:
+
+libsepol.print_missing_requirements: mymono's global requirements were 
+not met: type/attribute self
+libsemanage.semanage_link_sandbox: Link packages failed
+semodule:  Failed!
 
 
-Attached patch is to support load_policy for BusyBox.
-load_policy is a program to load SELinux policy to kernel.
-This applet is very important for SELinux, 
-because SELinux is not activated until policy is loaded.
+my ".te" file is as:
 
-And this applet is _not_ based on latest load_policy, 
-is based on old load_policy.
-This is because the size of latest load_policy is bigger than old one,
-and old load_policy has enough feature for embedded device.
 
-Please review and consider merging.
-Regards,
--- 
-Yuichi Nakamura
-Hitachi Software Engineering Co., Ltd.
-SELinux Policy Editor: http://seedit.sourceforge.net/
+module mymono 1.0;
 
---Multipart=_Fri__23_Mar_2007_15_15_13_+0900_UqBG/ozF/PlI50dr
-Content-Type: application/octet-stream;
- name="busybox-load_policy.v1.patch"
-Content-Disposition: attachment;
- filename="busybox-load_policy.v1.patch"
-Content-Transfer-Encoding: base64
+require {
+	type unconfined_t;
+	type automount_t;
+	type init_t;
+	type pcscd_t;
+	type default_t;
+	type sysfs_t;
+	type semanage_t;
+	type setroubleshootd_t;
+	type xdm_t;
+	type initrc_t;
+	type bluetooth_t;
+	type insmod_t;
+	type gpm_t;
+	type var_lib_t;
+	type hplip_t;
+	type unlabeled_t;
+	type var_run_t;
+	type kernel_t;
+	type locate_t;
+	type consolekit_t;
+	type klogd_t;
+	type xdm_xserver_t;
+	type httpd_t;
+	type hald_acl_t;
+	type cupsd_t;
+	type nscd_var_run_t;
+	type udev_t;
+	type rpcd_t;
+	type hald_t;
+	type rpm_t;
+	type getty_t;
+	type mono_t;
+	type crond_t;
+	type random_device_t;
+	type self;
+	class sock_file write;
+	class file { write setattr };
+	class dir { search getattr };
+	class chr_file read;
+}
 
-SW5kZXg6IGluY2x1ZGUvdXNhZ2UuaAo9PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09
-PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09Ci0tLSBpbmNsdWRlL3VzYWdlLmgJKHJl
-dmlzaW9uIDE4MjEyKQorKysgaW5jbHVkZS91c2FnZS5oCSh3b3JraW5nIGNvcHkpCkBAIC0xNzU4
-LDYgKzE3NTgsMTAgQEAKICAgICAgICAiJCBscyAtbCAvdG1wL2xzXG4iIFwKICAgICAgICAibHJ3
-eHJ3eHJ3eCAgICAxIHJvb3QgICAgIHJvb3QgICAgICAgICAgICA3IEFwciAxMiAxODozOSBscyAt
-PiBCdXN5Qm94KlxuIgogCisjZGVmaW5lIGxvYWRfcG9saWN5X3RyaXZpYWxfdXNhZ2UgXAorICAg
-ICAgICJbRklMRV0iCisjZGVmaW5lIGxvYWRfcG9saWN5X2Z1bGxfdXNhZ2UKKwogI2RlZmluZSBs
-b2FkZm9udF90cml2aWFsX3VzYWdlIFwKICAgICAgICAiPCBmb250IgogI2RlZmluZSBsb2FkZm9u
-dF9mdWxsX3VzYWdlIFwKSW5kZXg6IGluY2x1ZGUvYXBwbGV0cy5oCj09PT09PT09PT09PT09PT09
-PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT0KLS0tIGlu
-Y2x1ZGUvYXBwbGV0cy5oCShyZXZpc2lvbiAxODIxMikKKysrIGluY2x1ZGUvYXBwbGV0cy5oCSh3
-b3JraW5nIGNvcHkpCkBAIC0xODAsNiArMTgwLDcgQEAgVVNFX1NFVEFSQ0goQVBQTEVUX05PVVNB
-R0UobGludXgzMiwgc2V0YQogVVNFX1NFVEFSQ0goQVBQTEVUX05PVVNBR0UobGludXg2NCwgc2V0
-YXJjaCwgX0JCX0RJUl9CSU4sIF9CQl9TVUlEX05FVkVSKSkKIFVTRV9GRUFUVVJFX0lOSVRSRChB
-UFBMRVRfTk9VU0FHRShsaW51eHJjLCBpbml0LCBfQkJfRElSX1JPT1QsIF9CQl9TVUlEX05FVkVS
-KSkKIFVTRV9MTihBUFBMRVQobG4sIF9CQl9ESVJfQklOLCBfQkJfU1VJRF9ORVZFUikpCitVU0Vf
-TE9BRF9QT0xJQ1koQVBQTEVUKGxvYWRfcG9saWN5LCBfQkJfRElSX1VTUl9TQklOLCBfQkJfU1VJ
-RF9ORVZFUikpCiBVU0VfTE9BREZPTlQoQVBQTEVUKGxvYWRmb250LCBfQkJfRElSX1VTUl9CSU4s
-IF9CQl9TVUlEX05FVkVSKSkKIFVTRV9MT0FES01BUChBUFBMRVQobG9hZGttYXAsIF9CQl9ESVJf
-U0JJTiwgX0JCX1NVSURfTkVWRVIpKQogVVNFX0xPR0dFUihBUFBMRVQobG9nZ2VyLCBfQkJfRElS
-X1VTUl9CSU4sIF9CQl9TVUlEX05FVkVSKSkKSW5kZXg6IHNlbGludXgvbG9hZF9wb2xpY3kuYwo9
-PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09
-PT09PT09PT09Ci0tLSBzZWxpbnV4L2xvYWRfcG9saWN5LmMJKHJldmlzaW9uIDApCisrKyBzZWxp
-bnV4L2xvYWRfcG9saWN5LmMJKHJldmlzaW9uIDApCkBAIC0wLDAgKzEsMzEgQEAKKy8qCisgKiBs
-b2FkX3BvbGljeQorICogVGhpcyBpbXBsZW1lbnRhdGlvbiBpcyBiYXNlZCBvbiBvbGQgbG9hZF9w
-b2xpY3kgdG8gYmUgc21hbGwuCisgKiBBdXRob3I6IFl1aWNoaSBOYWthbXVyYSA8eW5ha2FtQGhp
-dGFjaGlzb2Z0LmpwPgorICovCisjaW5jbHVkZSAiYnVzeWJveC5oIgorCitpbnQgbG9hZF9wb2xp
-Y3lfbWFpbihpbnQgYXJnYywgY2hhciAqYXJndltdKTsKK2ludCBsb2FkX3BvbGljeV9tYWluKGlu
-dCBhcmdjLCBjaGFyICphcmd2W10pCit7CisJaW50IGZkOworCXN0cnVjdCBzdGF0IHN0OworCXZv
-aWQgKmRhdGE7CisJaWYoYXJnYyAhPSAyKSB7CisJCWJiX3Nob3dfdXNhZ2UoKTsKKwl9CisJCisJ
-ZmQgPSB4b3Blbihhcmd2WzFdLCBPX1JET05MWSk7CisJaWYgKGZzdGF0KGZkLCAmc3QpIDwgMCAp
-IHsKKwkJYmJfcGVycm9yX21zZ19hbmRfZGllKCJjYW4ndCBmc3RhdCIpOworCX0KKwlkYXRhID0g
-bW1hcChOVUxMLCBzdC5zdF9zaXplLCBQUk9UX1JFQUQsIE1BUF9TSEFSRUQsIGZkLCAwKTsKKwlp
-ZiAoZGF0YSA9PSBNQVBfRkFJTEVEKSB7CisJCWJiX3BlcnJvcl9tc2dfYW5kX2RpZSgiY2FuJ3Qg
-bW1hcCIpOworCX0KKwlpZiAoc2VjdXJpdHlfbG9hZF9wb2xpY3koZGF0YSwgc3Quc3Rfc2l6ZSkg
-PCAwKSB7CisJCWJiX3BlcnJvcl9tc2dfYW5kX2RpZSgiY2FuJ3Qgc2VjdXJpdHlfbG9hZF9wb2xp
-Y3kiKTsKKwl9CisJCQorCXJldHVybiAwOworfQpJbmRleDogc2VsaW51eC9Db25maWcuaW4KPT09
-PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09
-PT09PT09PQotLS0gc2VsaW51eC9Db25maWcuaW4JKHJldmlzaW9uIDE4MjEyKQorKysgc2VsaW51
-eC9Db25maWcuaW4JKHdvcmtpbmcgY29weSkKQEAgLTM0LDYgKzM0LDEzIEBAIGNvbmZpZyBHRVRT
-RUJPT0wKIAloZWxwCiAJICBFbmFibGUgc3VwcG9ydCB0byBnZXQgU0VMaW51eCBib29sZWFuIHZh
-bHVlcy4KIAorY29uZmlnIExPQURfUE9MSUNZCisJYm9vbCAibG9hZF9wb2xpY3kiCisJZGVmYXVs
-dCBuCisJZGVwZW5kcyBvbiBTRUxJTlVYCisJaGVscAorCSAgRW5hYmxlIHN1cHBvcnQgdG8gbG9h
-ZCBTRUxpbnV4IHBvbGljeS4KKwogY29uZmlnIE1BVENIUEFUSENPTgogCWJvb2wgIm1hdGNocGF0
-aGNvbiIKIAlkZWZhdWx0IG4KSW5kZXg6IHNlbGludXgvS2J1aWxkCj09PT09PT09PT09PT09PT09
-PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT0KLS0tIHNl
-bGludXgvS2J1aWxkCShyZXZpc2lvbiAxODIxMikKKysrIHNlbGludXgvS2J1aWxkCSh3b3JraW5n
-IGNvcHkpCkBAIC05LDYgKzksNyBAQCBsaWIteTo9CiBsaWItJChDT05GSUdfQ0hDT04pCQkrPSBj
-aGNvbi5vCiBsaWItJChDT05GSUdfR0VURU5GT1JDRSkJKz0gZ2V0ZW5mb3JjZS5vCiBsaWItJChD
-T05GSUdfR0VUU0VCT09MKQkJKz0gZ2V0c2Vib29sLm8KK2xpYi0kKENPTkZJR19MT0FEX1BPTElD
-WSkJKz0gbG9hZF9wb2xpY3kubwogbGliLSQoQ09ORklHX01BVENIUEFUSENPTikJKz0gbWF0Y2hw
-YXRoY29uLm8KIGxpYi0kKENPTkZJR19SVU5DT04pCQkrPSBydW5jb24ubwogbGliLSQoQ09ORklH
-X1NFTElOVVhFTkFCTEVEKQkrPSBzZWxpbnV4ZW5hYmxlZC5vCg==
+#============= automount_t ==============
+allow automount_t random_device_t:chr_file read;
 
---Multipart=_Fri__23_Mar_2007_15_15_13_+0900_UqBG/ozF/PlI50dr--
+#============= consolekit_t ==============
+allow consolekit_t var_lib_t:dir search;
+
+#============= hald_acl_t ==============
+allow hald_acl_t nscd_var_run_t:dir search;
+
+#============= insmod_t ==============
+allow insmod_t sysfs_t:file write;
+
+#============= locate_t ==============
+allow locate_t unlabeled_t:dir getattr;
+
+#============= mono_t ==============
+allow mono_t bluetooth_t:file write;
+allow mono_t crond_t:file write;
+allow mono_t cupsd_t:file write;
+allow mono_t getty_t:file write;
+allow mono_t gpm_t:file write;
+allow mono_t hald_t:file write;
+allow mono_t hplip_t:file write;
+allow mono_t httpd_t:file write;
+allow mono_t init_t:file write;
+allow mono_t initrc_t:file write;
+allow mono_t kernel_t:file write;
+allow mono_t klogd_t:file write;
+allow mono_t pcscd_t:file write;
+allow mono_t rpcd_t:file write;
+allow mono_t rpm_t:file write;
+allow mono_t self:file setattr;
+allow mono_t udev_t:file write;
+allow mono_t unconfined_t:file { write setattr };
+allow mono_t xdm_t:file write;
+allow mono_t xdm_xserver_t:file write;
+
+#============= semanage_t ==============
+allow semanage_t default_t:dir search;
+
+#============= setroubleshootd_t ==============
+allow setroubleshootd_t var_run_t:sock_file write;
+
+
+the '.te' file is generated by audit2allow:
+
+"cat /var/log/audit/audit.log | audit2allow -M test"
+
+can any guide me the way to understand above errors generated
+by semodule.
+
+thanks in advance.
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
