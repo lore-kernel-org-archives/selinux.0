@@ -1,76 +1,108 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l2NJ6bRc004946
-	for <selinux@tycho.nsa.gov>; Fri, 23 Mar 2007 15:06:47 -0400
-Received: from e34.co.us.ibm.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l2NJ6YU1028248
-	for <selinux@tycho.nsa.gov>; Fri, 23 Mar 2007 19:06:34 GMT
-Received: from d03relay04.boulder.ibm.com (d03relay04.boulder.ibm.com [9.17.195.106])
-	by e34.co.us.ibm.com (8.13.8/8.13.8) with ESMTP id l2NJ6YFt015844
-	for <selinux@tycho.nsa.gov>; Fri, 23 Mar 2007 15:06:34 -0400
-Received: from d03av04.boulder.ibm.com (d03av04.boulder.ibm.com [9.17.195.170])
-	by d03relay04.boulder.ibm.com (8.13.8/8.13.8/NCO v8.3) with ESMTP id l2NJ6YvU058950
-	for <selinux@tycho.nsa.gov>; Fri, 23 Mar 2007 13:06:34 -0600
-Received: from d03av04.boulder.ibm.com (loopback [127.0.0.1])
-	by d03av04.boulder.ibm.com (8.12.11.20060308/8.13.3) with ESMTP id l2NJ6X3a007255
-	for <selinux@tycho.nsa.gov>; Fri, 23 Mar 2007 13:06:34 -0600
-Subject: Re: [PATCH]: Add security check before flushing SAD/SPD
-From: Joy Latten <latten@austin.ibm.com>
-To: Eric Paris <eparis@parisplace.org>
-Cc: James Morris <jmorris@namei.org>, David Miller <davem@davemloft.net>,
-        selinux@tycho.nsa.gov, netdev@vger.kernel.org,
-        vyekkirala@TrustedCS.com
-In-Reply-To: <1174669155.10788.60.camel@localhost.localdomain>
-References: <200703221835.l2MIZdDw007850@faith.austin.ibm.com>
-	 <20070322.120139.74735307.davem@davemloft.net>
-	 <1174598630.3085.285.camel@faith.austin.ibm.com>
-	 <Line.LNX.4.64.0703221943110.24461@d.namei>
-	 <1174628387.10788.53.camel@localhost.localdomain>
-	 <1174667591.3085.308.camel@faith.austin.ibm.com>
-	 <1174669155.10788.60.camel@localhost.localdomain>
-Content-Type: text/plain
-Date: Fri, 23 Mar 2007 12:50:09 -0600
-Message-Id: <1174675809.3085.334.camel@faith.austin.ibm.com>
-Mime-Version: 1.0
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l2NJDr9E005460
+	for <selinux@tycho.nsa.gov>; Fri, 23 Mar 2007 15:13:53 -0400
+Received: from mx1.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id l2NJDpsr003771
+	for <selinux@tycho.nsa.gov>; Fri, 23 Mar 2007 19:13:52 GMT
+Message-ID: <460426EA.6050801@redhat.com>
+Date: Fri, 23 Mar 2007 15:13:46 -0400
+From: Daniel J Walsh <dwalsh@redhat.com>
+MIME-Version: 1.0
+To: "Christopher J. PeBenito" <cpebenito@tresys.com>,
+        SE Linux <selinux@tycho.nsa.gov>
+Subject: selinux_getattr patch
+Content-Type: multipart/mixed;
+ boundary="------------030505000109090101080605"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2007-03-23 at 12:59 -0400, Eric Paris wrote:
-> On Fri, 2007-03-23 at 10:33 -0600, Joy Latten wrote:
-> > On Fri, 2007-03-23 at 01:39 -0400, Eric Paris wrote:
-> > 
-> > > 
-> > > In either case though proper auditing needs to be addressed.  I see that
-> > > the first patch from Joy wouldn't audit deletion failures.  It appears
-> > > to me if the check is done per policy then the security hook return code
-> > > needs to be recorded and passed to xfrm_audit_log instead of the hard
-> > > coded 1 result used now.
-> > > 
-> > > Assuming we go with James's double loop what should we be auditing for a
-> > > security hook denial?  Just audit the first policy entry which we tried
-> > > to remove but couldn't and then leave the rest of the auditing in those
-> > > functions the way it is now in case there was no denial, calling
-> > > xfrm_audit_log with a hard coded 1 for the result?
-> > > 
-> > Actually, I thought the original intent of the ipsec auditing was to
-> > just audit changes made to the SAD/SPD databases, not securiy hook
-> > denials, right? 
-> 
-> Then what is the point of the 'result' field that we capture and log in
-> xfrm_audit_log if the only things you care to audit are successful
-> changes to the databases?
-> 
-Yes, I think we do want to audit the security denial since it is the
-reason we could not change the policy. In the flush case it seem it will
-be the only reason. As you suggested, I will audit the first denial
-since this is the reason the flush will fail.
+This is a multi-part message in MIME format.
+--------------030505000109090101080605
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
-But sometimes, in other cases, the delete or add could fail for other
-reasons too such as not being able to allocate memory, not finding the
-entry, etc... which is passed in the result field. 
+Some apps doing a getattr of all files in / generate avc messages on 
+/selinux
+
+This patch removes those avc's.
 
 
-Regards,
-Joy 
+--------------030505000109090101080605
+Content-Type: text/x-patch;
+ name="selinux_getattr.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="selinux_getattr.patch"
+
+--- nsaserefpolicy/policy/modules/kernel/selinux.if	2007-02-27 14:37:10.000000000 -0500
++++ serefpolicy-2.5.10/policy/modules/kernel/selinux.if	2007-03-22 15:06:58.000000000 -0400
+@@ -51,6 +51,44 @@
+ 
+ ########################################
+ ## <summary>
++##	Do not audit attempts to get the
++##	attributes of the selinuxfs filesystem
++## </summary>
++## <param name="domain">
++##	<summary>
++##	Domain to not audit.
++##	</summary>
++## </param>
++#
++interface(`selinux_dontaudit_getattr_fs',`
++	gen_require(`
++		type security_t;
++	')
++
++	dontaudit $1 security_t:filesystem getattr;
++')
++
++########################################
++## <summary>
++##	Allow domain to get the
++##	attributes of the selinuxfs filesystem
++## </summary>
++## <param name="domain">
++##	<summary>
++##	Domain to not audit.
++##	</summary>
++## </param>
++#
++interface(`selinux_getattr_fs',`
++	gen_require(`
++		type security_t;
++	')
++
++	allow $1 security_t:filesystem getattr;
++')
++
++########################################
++## <summary>
+ ##	Search selinuxfs.
+ ## </summary>
+ ## <param name="domain">
+--- nsaserefpolicy/policy/modules/system/selinuxutil.if	2007-01-02 12:57:49.000000000 -0500
++++ serefpolicy-2.5.10/policy/modules/system/selinuxutil.if	2007-03-22 15:06:59.000000000 -0400
+@@ -616,7 +616,7 @@
+ 	gen_require(`
+ 		type selinux_config_t;
+ 	')
+-
++	selinux_dontaudit_getattr_fs($1)
+ 	dontaudit $1 selinux_config_t:dir search;
+ 	dontaudit $1 selinux_config_t:file { getattr read };
+ ')
+@@ -637,6 +637,8 @@
+ 		type selinux_config_t;
+ 	')
+ 
++	selinux_getattr_fs($1)
++
+ 	files_search_etc($1)
+ 	allow $1 selinux_config_t:dir list_dir_perms;
+ 	read_files_pattern($1,selinux_config_t,selinux_config_t)
+
+--------------030505000109090101080605--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
