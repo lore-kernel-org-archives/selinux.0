@@ -1,108 +1,68 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l2NK4uTl008424
-	for <selinux@tycho.nsa.gov>; Fri, 23 Mar 2007 16:04:56 -0400
-Received: from mx1.redhat.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l2NK4tU1009704
-	for <selinux@tycho.nsa.gov>; Fri, 23 Mar 2007 20:04:55 GMT
-Message-ID: <460432E1.5000503@redhat.com>
-Date: Fri, 23 Mar 2007 16:04:49 -0400
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l2NK5jb4008473
+	for <selinux@tycho.nsa.gov>; Fri, 23 Mar 2007 16:05:45 -0400
+Received: from mx1.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id l2NK5hsr016567
+	for <selinux@tycho.nsa.gov>; Fri, 23 Mar 2007 20:05:44 GMT
+Message-ID: <46043312.7050105@redhat.com>
+Date: Fri, 23 Mar 2007 16:05:38 -0400
 From: Daniel J Walsh <dwalsh@redhat.com>
 MIME-Version: 1.0
 To: "Christopher J. PeBenito" <cpebenito@tresys.com>,
         SE Linux <selinux@tycho.nsa.gov>
-Subject: consolekit needs additional privs.
+Subject: ccs uses tmp files.
 Content-Type: multipart/mixed;
- boundary="------------020808060307000403030209"
+ boundary="------------040807030500040702020307"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 This is a multi-part message in MIME format.
---------------020808060307000403030209
+--------------040807030500040702020307
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 
-consolekit uses a pidfile
 
-sends itself signals
 
-reads /var/lib/dbus/machine-id
-
-Needs to search and read users environments
-
-Uses dbus to communicate with unconfined processes.
-
---------------020808060307000403030209
+--------------040807030500040702020307
 Content-Type: text/x-patch;
- name="consolekit.patch"
+ name="ccs.patch"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline;
- filename="consolekit.patch"
+ filename="ccs.patch"
 
---- nsaserefpolicy/policy/modules/services/consolekit.fc	2007-03-20 09:23:13.000000000 -0400
-+++ serefpolicy-2.5.10/policy/modules/services/consolekit.fc	2007-03-22 15:06:59.000000000 -0400
-@@ -1 +1,2 @@
- /usr/sbin/console-kit-daemon	--	gen_context(system_u:object_r:consolekit_exec_t,s0)
-+/var/run/consolekit.pid		--	gen_context(system_u:object_r:consolekit_var_run_t,s0)
---- nsaserefpolicy/policy/modules/services/consolekit.te	2007-03-20 23:38:12.000000000 -0400
-+++ serefpolicy-2.5.10/policy/modules/services/consolekit.te	2007-03-22 15:06:59.000000000 -0400
-@@ -10,13 +10,16 @@
- type consolekit_exec_t;
- init_daemon_domain(consolekit_t, consolekit_exec_t)
+--- nsaserefpolicy/policy/modules/services/ccs.te	2007-03-20 23:38:06.000000000 -0400
++++ serefpolicy-2.5.10/policy/modules/services/ccs.te	2007-03-22 15:06:59.000000000 -0400
+@@ -10,10 +10,14 @@
+ type ccs_exec_t;
+ init_daemon_domain(ccs_t, ccs_exec_t)
  
-+# pid files
-+type consolekit_var_run_t;
-+files_pid_file(consolekit_var_run_t)
-+
- ########################################
- #
- # consolekit local policy
- #
--
- allow consolekit_t self:capability { sys_tty_config dac_override sys_nice sys_ptrace };
--allow consolekit_t self:process getsched;
-+allow consolekit_t self:process { getsched signal };
- allow consolekit_t self:fifo_file rw_fifo_file_perms;
- allow consolekit_t self:unix_stream_socket create_stream_socket_perms;
+-# pid files
++# conf files
+ type cluster_conf_t;
+ files_type(cluster_conf_t)
  
-@@ -27,6 +30,10 @@
- domain_use_interactive_fds(consolekit_t)
++# tmp files
++type ccs_tmp_t;
++files_tmp_file(ccs_tmp_t)
++
+ # log files
+ type ccs_var_log_t;
+ logging_log_file(ccs_var_log_t)
+@@ -45,6 +49,12 @@
  
- files_read_etc_files(consolekit_t)
-+# needs to read /var/lib/dbus/machine-id
-+files_read_var_lib_files(consolekit_t)
-+
-+
+ manage_files_pattern(ccs_t,cluster_conf_t,cluster_conf_t)
  
- libs_use_ld_so(consolekit_t)
- libs_use_shared_libs(consolekit_t)
-@@ -38,10 +45,25 @@
- 	term_dontaudit_use_generic_ptys(consolekit_t)
- ')
- 
-+# pid file
-+allow consolekit_t consolekit_var_run_t:file manage_file_perms;
-+allow consolekit_t consolekit_var_run_t:dir rw_dir_perms;
-+files_pid_filetrans(consolekit_t,consolekit_var_run_t, file)
++# tmp file
++allow ccs_t ccs_tmp_t:dir manage_dir_perms;
++manage_dirs_pattern(ccs_t,ccs_tmp_t,ccs_tmp_t)
++manage_files_pattern(ccs_t,ccs_tmp_t,ccs_tmp_t)
++files_tmp_filetrans(ccs_t, ccs_tmp_t, { file dir })
 +
-+# Init script handling
-+
-+
-+domain_ptrace_all_domains(consolekit_t)
-+mcs_ptrace_all(consolekit_t)
-+
- optional_policy(`
- 	dbus_system_bus_client_template(consolekit, consolekit_t)
- 	dbus_send_system_bus(consolekit_t)
- 	dbus_connect_system_bus(consolekit_t)
- 
- 	hal_dbus_chat(consolekit_t)
-+	unconfined_dbus_chat(consolekit_t)
- ')
-+
-+term_use_console(consolekit_t)
-+
+ # log files
+ manage_files_pattern(ccs_t,ccs_var_log_t,ccs_var_log_t)
+ manage_sock_files_pattern(ccs_t,ccs_var_log_t,ccs_var_log_t)
 
---------------020808060307000403030209--
+--------------040807030500040702020307--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
