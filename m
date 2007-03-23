@@ -1,101 +1,79 @@
-Subject: Re: Expunging userspace classes and permissions from kernel headers
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Eric Paris <eparis@parisplace.org>
-Cc: "Christopher J. PeBenito" <cpebenito@tresys.com>, selinux@tycho.nsa.gov,
-        Eamon Walsh <ewalsh@tycho.nsa.gov>, James Morris <jmorris@namei.org>,
-        Chad Sellers <csellers@tresys.com>
-In-Reply-To: <1174675265.10788.72.camel@localhost.localdomain>
-References: <1174569868.31436.22.camel@moss-spartans.epoch.ncsc.mil>
-	 <1174571162.19924.36.camel@sgc.columbia.tresys.com>
-	 <1174571459.31436.31.camel@moss-spartans.epoch.ncsc.mil>
-	 <1174584303.19924.43.camel@sgc.columbia.tresys.com>
-	 <1174585916.31436.94.camel@moss-spartans.epoch.ncsc.mil>
-	 <1174666169.19924.47.camel@sgc.columbia.tresys.com>
-	 <1174667120.31436.232.camel@moss-spartans.epoch.ncsc.mil>
-	 <1174675265.10788.72.camel@localhost.localdomain>
-Content-Type: text/plain
-Date: Fri, 23 Mar 2007 14:50:07 -0400
-Message-Id: <1174675807.31436.296.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l2NIws6q004297
+	for <selinux@tycho.nsa.gov>; Fri, 23 Mar 2007 14:58:54 -0400
+Received: from mx1.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id l2NIwqsr029314
+	for <selinux@tycho.nsa.gov>; Fri, 23 Mar 2007 18:58:52 GMT
+Message-ID: <46042362.4010803@redhat.com>
+Date: Fri, 23 Mar 2007 14:58:42 -0400
+From: Daniel J Walsh <dwalsh@redhat.com>
+MIME-Version: 1.0
+To: "Christopher J. PeBenito" <cpebenito@tresys.com>,
+        SE Linux <selinux@tycho.nsa.gov>
+Subject: Random file context diffs
+Content-Type: multipart/mixed;
+ boundary="------------060807020405060603090801"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2007-03-23 at 14:41 -0400, Eric Paris wrote:
-> On Fri, 2007-03-23 at 12:25 -0400, Stephen Smalley wrote:
-> > On Fri, 2007-03-23 at 16:09 +0000, Christopher J. PeBenito wrote: 
-> > > I reverted the comment change and changed "null" to NULL.  Is this what
-> > > you had in mind (it doesn't have the PAX change yet)?
-> > 
-> > Yes, looks sane.  We would then apply that diff (re-based to the kernel
-> > tree) along with a patch like the following untested one (added a guard
-> > to both avc_dump_query and validate_classes despite my earlier comment).
-> > Look reasonable to others?
-> > 
-> > diff --git a/security/selinux/avc.c b/security/selinux/avc.c
-> > index da8caf1..b25cf18 100644
-> > --- a/security/selinux/avc.c
-> > +++ b/security/selinux/avc.c
-> > @@ -217,7 +217,9 @@ static void avc_dump_query(struct audit_buffer *ab, u32 ssid, u32 tsid, u16 tcla
-> >  		audit_log_format(ab, " tcontext=%s", scontext);
-> >  		kfree(scontext);
-> >  	}
-> > -	audit_log_format(ab, " tclass=%s", class_to_string[tclass]);
-> > +
-> > +	if (tclass && tclass < ARRAY_SIZE(class_to_string))
-> > +		audit_log_format(ab, " tclass=%s", class_to_string[tclass]);
-> >  }
-> 
-> I don't see how this causes any harm.  Can we count on audit_log_format
-> handleing a null pointer for the %s correctly?  If we are going to work
-> under the assumption that bad tclass values might get in here we don't
-> know if we are going to hit a hole in the class table.  Maybe we'd
-> rather have
-> 
-> if (tclass)  && tclass < ARRAY_SIZE && class_to_string[tclass]
->    audit_log_format......
-> else
->    printk(KERN_ERR "attempting to log a non-kernel class definition %d\n", tclass);
-> 
-> so we at least know when something is getting through....
+This is a multi-part message in MIME format.
+--------------060807020405060603090801
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
-Testing class_to_string[tclass] will also catch the tclass == 0 case, so
-we could drop the first test then, and further, as avc_dump_query should
-only ever be passed a kernel class, we can make it a BUG_ON, as below.
-Inserting a printk there would be a bit confusing when auditd is
-disabled - it would interleave with the avc message.
+Pretty self explanatory
 
-diff --git a/security/selinux/avc.c b/security/selinux/avc.c
-index da8caf1..e4396a8 100644
---- a/security/selinux/avc.c
-+++ b/security/selinux/avc.c
-@@ -217,6 +217,8 @@ static void avc_dump_query(struct audit_buffer *ab, u32 ssid, u32 tsid, u16 tcla
- 		audit_log_format(ab, " tcontext=%s", scontext);
- 		kfree(scontext);
- 	}
-+
-+	BUG_ON(tclass >= ARRAY_SIZE(class_to_string) || !class_to_string[tclass]);
- 	audit_log_format(ab, " tclass=%s", class_to_string[tclass]);
- }
+
+
+--------------060807020405060603090801
+Content-Type: text/x-patch;
+ name="fc.diff"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="fc.diff"
+
+--- nsaserefpolicy/policy/modules/apps/games.fc	2007-02-28 10:12:23.000000000 -0500
++++ serefpolicy-2.5.10/policy/modules/apps/games.fc	2007-03-22 15:06:58.000000000 -0400
+@@ -4,6 +4,7 @@
+ /usr/games/powermanga	--	gen_context(system_u:object_r:games_exec_t,s0)
+ /usr/games/nethack-3.4.3/nethack -- gen_context(system_u:object_r:games_exec_t,s0)
+ /usr/games/vulturesclaw/vulturesclaw -- gen_context(system_u:object_r:games_exec_t,s0)
++/usr/games/vultureseye/vultureseye -- gen_context(system_u:object_r:games_exec_t,s0)
  
-diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-diff --git a/security/selinux/ss/services.c b/security/selinux/ss/services.c
-index 1e52356..3668f18 100644
---- a/security/selinux/ss/services.c
-+++ b/security/selinux/ss/services.c
-@@ -1050,6 +1050,8 @@ static int validate_classes(struct policydb *p)
+ /usr/lib/games(/.*)? 		gen_context(system_u:object_r:games_exec_t,s0)
  
- 	for (i = 1; i < kdefs->cts_len; i++) {
- 		def_class = kdefs->class_to_string[i];
-+		if (!def_class)
-+			continue;
- 		if (i > p->p_classes.nprim) {
- 			printk(KERN_INFO
- 			       "security:  class %s not defined in policy\n",
+--- nsaserefpolicy/policy/modules/kernel/corecommands.fc	2007-03-01 10:01:48.000000000 -0500
++++ serefpolicy-2.5.10/policy/modules/kernel/corecommands.fc	2007-03-22 15:06:58.000000000 -0400
+@@ -190,6 +190,7 @@
+ ifdef(`distro_redhat', `
+ /usr/lib/.*/program(/.*)?		gen_context(system_u:object_r:bin_t,s0)
+ /usr/lib/bluetooth(/.*)?	--      gen_context(system_u:object_r:bin_t,s0)
++/usr/lib64/bluetooth(/.*)?	--      gen_context(system_u:object_r:bin_t,s0)
+ /usr/share/authconfig/authconfig-gtk\.py -- gen_context(system_u:object_r:bin_t,s0)
+ /usr/share/authconfig/authconfig-tui\.py -- gen_context(system_u:object_r:bin_t,s0)
+ /usr/share/authconfig/authconfig.py --	gen_context(system_u:object_r:bin_t,s0)
+@@ -206,6 +207,7 @@
+ /usr/share/ssl/misc(/.*)?		gen_context(system_u:object_r:bin_t,s0)
+ /usr/share/switchdesk/switchdesk-gui\.py -- gen_context(system_u:object_r:bin_t,s0)
+ /usr/share/system-config-date/system-config-date\.py -- gen_context(system_u:object_r:bin_t,s0)
++/usr/share/system-config-selinux/system-config-selinux\.py -- gen_context(system_u:object_r:bin_t,s0)
+ /usr/share/system-config-display/system-config-display -- gen_context(system_u:object_r:bin_t,s0)
+ /usr/share/system-config-httpd/system-config-httpd -- gen_context(system_u:object_r:bin_t,s0)
+ /usr/share/system-config-keyboard/system-config-keyboard -- gen_context(system_u:object_r:bin_t,s0)
+--- nsaserefpolicy/policy/modules/kernel/storage.fc	2006-11-16 17:15:04.000000000 -0500
++++ serefpolicy-2.5.10/policy/modules/kernel/storage.fc	2007-03-22 15:06:58.000000000 -0400
+@@ -42,7 +42,8 @@
+ /dev/sjcd		-b	gen_context(system_u:object_r:removable_device_t,s0)
+ /dev/sonycd		-b	gen_context(system_u:object_r:removable_device_t,s0)
+ /dev/tape.*		-c	gen_context(system_u:object_r:tape_device_t,s0)
+-/dev/ub[a-z]		-b	gen_context(system_u:object_r:removable_device_t,mls_systemhigh)
++/dev/tw[a-z][^/]+	-c	gen_context(system_u:object_r:fixed_disk_device_t,mls_systemhigh)
++/dev/ub[a-z][^/]+	-b	gen_context(system_u:object_r:removable_device_t,mls_systemhigh)
+ /dev/ubd[^/]*		-b	gen_context(system_u:object_r:fixed_disk_device_t,mls_systemhigh)
+ /dev/xvd[^/]*		-b	gen_context(system_u:object_r:fixed_disk_device_t,mls_systemhigh)
+ 
 
--- 
-Stephen Smalley
-National Security Agency
-
+--------------060807020405060603090801--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
