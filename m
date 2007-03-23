@@ -1,41 +1,100 @@
-Subject: Re: Expunging userspace classes and permissions from kernel headers
-From: "Christopher J. PeBenito" <cpebenito@tresys.com>
-To: Stephen Smalley <sds@tycho.nsa.gov>
-Cc: selinux@tycho.nsa.gov, Eamon Walsh <ewalsh@tycho.nsa.gov>,
-        Eric Paris <eparis@parisplace.org>, James Morris <jmorris@namei.org>,
-        Chad Sellers <csellers@tresys.com>
-In-Reply-To: <1174667120.31436.232.camel@moss-spartans.epoch.ncsc.mil>
-References: <1174569868.31436.22.camel@moss-spartans.epoch.ncsc.mil>
-	 <1174571162.19924.36.camel@sgc.columbia.tresys.com>
-	 <1174571459.31436.31.camel@moss-spartans.epoch.ncsc.mil>
-	 <1174584303.19924.43.camel@sgc.columbia.tresys.com>
-	 <1174585916.31436.94.camel@moss-spartans.epoch.ncsc.mil>
-	 <1174666169.19924.47.camel@sgc.columbia.tresys.com>
-	 <1174667120.31436.232.camel@moss-spartans.epoch.ncsc.mil>
-Content-Type: text/plain
-Date: Fri, 23 Mar 2007 15:37:32 -0400
-Message-Id: <1174678652.28830.6.camel@sgc.columbia.tresys.com>
-Mime-Version: 1.0
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l2NJdiVV006877
+	for <selinux@tycho.nsa.gov>; Fri, 23 Mar 2007 15:39:44 -0400
+Received: from mx1.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id l2NJdgsr010097
+	for <selinux@tycho.nsa.gov>; Fri, 23 Mar 2007 19:39:43 GMT
+Message-ID: <46042CF3.2070906@redhat.com>
+Date: Fri, 23 Mar 2007 15:39:31 -0400
+From: Daniel J Walsh <dwalsh@redhat.com>
+MIME-Version: 1.0
+To: "Christopher J. PeBenito" <cpebenito@tresys.com>,
+        SE Linux <selinux@tycho.nsa.gov>
+Subject: Remove unconfined_domain from ldconfig
+Content-Type: multipart/mixed;
+ boundary="------------010306090905050501080209"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2007-03-23 at 12:25 -0400, Stephen Smalley wrote:
-> On Fri, 2007-03-23 at 16:09 +0000, Christopher J. PeBenito wrote:
-> > I reverted the comment change and changed "null" to NULL.  Is this what
-> > you had in mind (it doesn't have the PAX change yet)?
-> 
-> Yes, looks sane.  We would then apply that diff (re-based to the kernel
-> tree) along with a patch like the following untested one (added a guard
-> to both avc_dump_query and validate_classes despite my earlier comment).
+This is a multi-part message in MIME format.
+--------------010306090905050501080209
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
-I have merged this into trunk and marked pax as userland so it can be
-reclaimed.
+Removed textrel_shlib_t from all mozilla libraries.
 
--- 
-Chris PeBenito
-Tresys Technology, LLC
-(410) 290-1411 x150
 
+
+--------------010306090905050501080209
+Content-Type: text/x-patch;
+ name="libraries.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="libraries.patch"
+
+--- nsaserefpolicy/policy/modules/system/libraries.fc	2007-03-01 10:01:49.000000000 -0500
++++ serefpolicy-2.5.10/policy/modules/system/libraries.fc	2007-03-22 15:06:59.000000000 -0400
+@@ -202,12 +202,6 @@
+ /usr/lib(64)?/.*/program/libsoffice\.so  --	gen_context(system_u:object_r:textrel_shlib_t,s0)
+ /usr/(.*/)?pcsc/drivers(/.*)?/lib(cm2020|cm4000|SCR24x)\.so(\.[^/]*)* -- gen_context(system_u:object_r:textrel_shlib_t,s0)
+ 
+-/usr/lib(64)?/firefox.*\.so		--	gen_context(system_u:object_r:textrel_shlib_t,s0)
+-/usr/lib(64)?/mozilla.*\.so		--	gen_context(system_u:object_r:textrel_shlib_t,s0)
+-/usr/lib(64)?/seamonkey.*\.so		--	gen_context(system_u:object_r:textrel_shlib_t,s0)
+-/usr/lib(64)?/sunbird.*\.so		--	gen_context(system_u:object_r:textrel_shlib_t,s0)
+-/usr/lib(64)?/thunderbird.*\.so		--	gen_context(system_u:object_r:textrel_shlib_t,s0)
+-
+ # Fedora Extras packages: ladspa, imlib2, ocaml
+ /usr/lib(64)?/ladspa/analogue_osc_1416\.so --	gen_context(system_u:object_r:textrel_shlib_t,s0)
+ /usr/lib(64)?/ladspa/bandpass_a_iir_1893\.so --	gen_context(system_u:object_r:textrel_shlib_t,s0)
+--- nsaserefpolicy/policy/modules/system/libraries.te	2007-03-01 10:01:49.000000000 -0500
++++ serefpolicy-2.5.10/policy/modules/system/libraries.te	2007-03-22 15:08:18.000000000 -0400
+@@ -51,6 +51,11 @@
+ init_system_domain(ldconfig_t,ldconfig_exec_t)
+ role system_r types ldconfig_t;
+ 
++type ldconfig_tmp_t;
++files_tmp_file(ldconfig_tmp_t)
++
++allow ldconfig_t self:capability sys_chroot;
++
+ allow ldconfig_t ld_so_cache_t:file manage_file_perms;
+ files_etc_filetrans(ldconfig_t,ld_so_cache_t,file)
+ 
+@@ -74,6 +79,13 @@
+ libs_use_ld_so(ldconfig_t)
+ libs_use_shared_libs(ldconfig_t)
+ 
++manage_dirs_pattern(ldconfig_t,ldconfig_tmp_t,ldconfig_tmp_t)
++manage_files_pattern(ldconfig_t,ldconfig_tmp_t,ldconfig_tmp_t)
++files_tmp_filetrans(ldconfig_t, ldconfig_tmp_t, { file dir })
++files_read_generic_tmp_symlinks(ldconfig_t)
++
++miscfiles_read_localization(ldconfig_t)
++
+ logging_send_syslog_msg(ldconfig_t)
+ 
+ userdom_use_all_users_fds(ldconfig_t)
+@@ -86,10 +98,16 @@
+ 
+ ifdef(`targeted_policy',`
+ 	allow ldconfig_t lib_t:file read_file_perms;
+-	unconfined_domain(ldconfig_t) 
++	term_dontaudit_use_generic_ptys(ldconfig_t)
++	term_dontaudit_use_unallocated_ttys(ldconfig_t)
+ ')
+ 
+ optional_policy(`
+ 	# dontaudit access to /usr/lib/apache, normal programs cannot read these libs anyway
+ 	apache_dontaudit_search_modules(ldconfig_t)
+ ')
++
++optional_policy(`
++	rpm_manage_script_tmp_files(ldconfig_t)
++')
++
+
+--------------010306090905050501080209--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
