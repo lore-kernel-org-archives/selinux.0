@@ -1,93 +1,92 @@
 Subject: Re: Separating libselinux/libsepol (Was:  Re: BusyBox: load_policy
 	applet)
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Yuichi Nakamura <ynakam@hitachisoft.jp>
-Cc: "Christopher J. PeBenito" <cpebenito@tresys.com>, busybox@kaigai.gr.jp,
-        selinux@tycho.nsa.gov, Karl MacMillan <kmacmillan@mentalrootkit.com>,
-        Chad Sellers <csellers@tresys.com>
-In-Reply-To: <20070327095945.1c4245ec.ynakam@hitachisoft.jp>
+From: "Christopher J. PeBenito" <cpebenito@tresys.com>
+To: Karl MacMillan <kmacmillan@mentalrootkit.com>
+Cc: Stephen Smalley <sds@tycho.nsa.gov>,
+        Yuichi Nakamura <ynakam@hitachisoft.jp>, busybox@kaigai.gr.jp,
+        selinux@tycho.nsa.gov, Chad Sellers <csellers@tresys.com>
+In-Reply-To: <1174927054.12204.45.camel@localhost.localdomain>
 References: <20070323151513.395798cf.ynakam@hitachisoft.jp>
 	 <1174654177.31436.188.camel@moss-spartans.epoch.ncsc.mil>
 	 <20070326102809.e4f80126.ynakam@hitachisoft.jp>
 	 <1174918097.3864.83.camel@moss-spartans.epoch.ncsc.mil>
 	 <1174925566.28830.61.camel@sgc>
-	 <1174926929.3864.149.camel@moss-spartans.epoch.ncsc.mil>
-	 <20070327095945.1c4245ec.ynakam@hitachisoft.jp>
+	 <1174927054.12204.45.camel@localhost.localdomain>
 Content-Type: text/plain
-Date: Tue, 27 Mar 2007 08:15:07 -0400
-Message-Id: <1174997707.3864.261.camel@moss-spartans.epoch.ncsc.mil>
+Date: Mon, 26 Mar 2007 20:13:01 +0000
+Message-Id: <1174939981.28830.84.camel@sgc>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2007-03-27 at 09:59 +0900, Yuichi Nakamura wrote:
-> Hi.
-> Thank you for opinion and information > Stephen, Christopher
+On Mon, 2007-03-26 at 12:37 -0400, Karl MacMillan wrote:
+> On Mon, 2007-03-26 at 12:12 -0400, Christopher J. PeBenito wrote:
+> > On Mon, 2007-03-26 at 10:08 -0400, Stephen Smalley wrote:
+> > > On Mon, 2007-03-26 at 10:28 +0900, Yuichi Nakamura wrote:
+> > > > On Fri, 23 Mar 2007 08:49:37 -0400
+> > > > Stephen Smalley  wrote:
+> > > > > On Fri, 2007-03-23 at 15:15 +0900, Yuichi Nakamura wrote:
+> > > > > > Attached patch is to support load_policy for BusyBox.
+> > > > > > load_policy is a program to load SELinux policy to kernel.
+> > > > > > This applet is very important for SELinux, 
+> > > > > > because SELinux is not activated until policy is loaded.
+> > > > > > 
+> > > > > > And this applet is _not_ based on latest load_policy, 
+> > > > > > is based on old load_policy.
+> > > > > > This is because the size of latest load_policy is bigger than old one,
+> > > > > > and old load_policy has enough feature for embedded device.
+> > 
+> > > I wanted to discuss further your proposal to "separate" libsepol from
+> > > libselinux (i.e. provide a build option for libselinux to allow building
+> > > it without selinux_mkload_policy() and thus without a dependency on
+> > > libsepol, IIUC).
+> > > 
+> > > I have a couple of concerns with that proposal:
+> > [...]
+> > > I'd also like to find out what you think about libsemanage and
+> > > managed/modular policy in embedded environments, as mainstream selinux
+> > > has migrated to using them entirely and we are considering dropping
+> > > support for the old way of dealing with booleans and local users from
+> > > libsepol and libselinux (see my prior [RFC] Drop setlocaldefs support
+> > > from trunk posting on Feb 22).  That would require use of libsemanage
+> > > and managed policy going forward for boolean manipulation, so if that is
+> > > a problem for embedded, we need to know now.  And even if you think they
+> > > are too heavy presently, we want to work toward enabling use of managed
+> > > policy in those environments, so it would make sense to work on
+> > > optimizing the size of libsemanage (or providing a build option for a
+> > > cut-down version of it) and the size of the policy module store further
+> > > (some improvements like removing the previous copy and linked policy
+> > > file were already made, but others like bzip2 support and removing files
+> > > from the module store after installation haven't yet been done, at least
+> > > not completely - there are some RFC patches floating around). 
+> > 
+> > I'm not involved in what Yuichi and KaiGai are doing, so I can't speak
+> > to their goals, but I figured I'd put in my $0.02.  The setup that I
+> > have originated pre selinux-enabled busybox and pre managed policy
+> > (example policy based).  I basically took busybox, libselinux (including
+> > the util programs), policycoreutils (the C code pieces) and my
+> > application, and jammed it into a little more than 8MB including the
+> > kernel.
+> > 
+> > In my personal opinion, if you are really going tiny, that means its a
+> > customized system, which includes customized policy.  That means you
+> > should be setting the correct initial boolean values when you build the
+> > policy, which also means monolithic instead of modular.
 > 
-> My personal opinion is following:
-> # I think it is easier to explain my opinion by that than by commenting your posts.
-> 
-> I want to make SELinux easy to customize for various embedded devices.
-> The requirement for embedded SELinux will be various.
-> Someone may want to write strict policy for all processes, 
-> and some may want to write policy only for one or two applications.
-> Customize is neccesary.
-> 
-> If device is rich enough, 
-> full-featured SELinux can be used. 
-> Mobile PDA may be example of such devices.
-> It includes boolean, modular policy, semanage etc.
-> Size optimization for libsemanage,libsepol, semanage will be necessarty as you say.
-> 
-> However, what if devices are poor or there are small room for SELinux?
-> Example of such devices are electrical appliances conneceted to network.
-> In such environment, people want to make SELinux as small as possible.
-> They may remove modular support, libsepol and booleans, uses only monolitic poilcy.
-> I think even some hooks may be removed to improve performance.
-> Some of such people are now being attracted to other light-weight Secure OSes,
-> such as TOMOYO Linux(http://tomoyo.sourceforge.jp/en/1.3/) and AppArmor.
->  
-> I want to make them to be interested in SELinux.
-> 
-> The SELinux for embedded in my brain(future SEDiet work) for now is following.
-> * Embedded SELinux development kit is prepared and it has following features.
-> * BusyBox includes SELinux commands
-> * Developers can choose required features(boolean, module, semanage etc)
-> * To implement it following will be necessary.
-> * libselinux/libsepol/libsemanage is separated
-> * Something like ENABLE_BOOLEAN, ENABLE_MODULE, ENABLE_SEMANAGE is embedded in source codes of libse*, BusyBox.
-> * Least set of refpolicy is prepared: 
->   - only core policy(kernel policy module?) and macros are enabled by default
->   - supports both modular and monolitic
->   - To write new policy, SEEdit or other tools can be used
->   - has a compiler that has feature for size optimization
+> What if the booleans are used to represent runtime state, for example
+> different security settings when a PDA is docked as opposed to undocked?
+> In that case there is no reasonable default and not preserving the
+> current values could cause serious problems.
 
-For the most part, this approach sounds fine, and I suspect that you
-could even introduce a build option for creating a minimal subset of
-libselinux as well as the other libraries.  Note that the loadable
-policy module support depends on libsemanage, so I doubt you would
-support separate ENABLE_MODULE vs. ENABLE_SEMANAGE options unless you
-just mean the set of utility programs.
-
-Some specific questions and comments:
-1) Do you think you will need the legacy support for setting local
-persistent booleans without using libsemanage?  We were planning on
-dropping that support out of libselinux and libsepol in the 2.x/devel
-series.
-2) How do you plan to support initial policy load in the embedded
-environment?  From an initramfs, as proposed for Ubuntu, or via modified
-init functionality in busybox, as in current distributions that support
-SELinux?  Do you intend to replicate the logic that currently lives in
-selinux_init_load_policy() for selecting the initial state of SELinux
-(disabled/enforcing/permissive) based on /etc/selinux/config and the
-kernel parameters somewhere else?
-3) I'd much prefer to see your policy optimization work go into
-refpolicy and any "optimizing" policy compiler work go into checkpolicy
-rather than keeping it in your own SEEdit-specific policy and tool.
+I disagree.  The correct answer is whichever state the device assumes
+when it powers up.  PDAs already have to determine that type of state
+when they power up after the initial setup, so at that time when it
+determines the state, it can also set the boolean.
 
 -- 
-Stephen Smalley
-National Security Agency
+Chris PeBenito
+Tresys Technology, LLC
+(410) 290-1411 x150
 
 
 --
