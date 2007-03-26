@@ -1,28 +1,26 @@
 Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l2QJgiuS023235
-	for <selinux@tycho.nsa.gov>; Mon, 26 Mar 2007 15:42:44 -0400
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l2QJhkPx023305
+	for <selinux@tycho.nsa.gov>; Mon, 26 Mar 2007 15:43:46 -0400
 Received: from exchange.columbia.tresys.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with SMTP id l2QJggRM022417
-	for <selinux@tycho.nsa.gov>; Mon, 26 Mar 2007 19:42:43 GMT
-Subject: Re: system-config-service of iptables needs this patch to work in
-	targeted policy
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with SMTP id l2QJhfRM022668
+	for <selinux@tycho.nsa.gov>; Mon, 26 Mar 2007 19:43:42 GMT
+Subject: Re: Resend of cpuspeed.patch
 From: "Christopher J. PeBenito" <cpebenito@tresys.com>
 To: Daniel J Walsh <dwalsh@redhat.com>
 Cc: SE Linux <selinux@tycho.nsa.gov>
-In-Reply-To: <45F021D7.4060401@redhat.com>
-References: <45F021D7.4060401@redhat.com>
+In-Reply-To: <45F02F63.9050704@redhat.com>
+References: <45F02F63.9050704@redhat.com>
 Content-Type: text/plain
-Date: Mon, 26 Mar 2007 19:43:18 +0000
-Message-Id: <1174938199.28830.72.camel@sgc>
+Date: Mon, 26 Mar 2007 15:44:18 -0400
+Message-Id: <1174938258.28830.77.camel@sgc>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2007-03-08 at 09:46 -0500, Daniel J Walsh wrote:
-> Basically iptables needs to be able to output to the terminal and
-> talk 
-> to unconfined_pipes from the tool.
-> 
+On Thu, 2007-03-08 at 10:44 -0500, Daniel J Walsh wrote:
+> Included interface definition also.
+
+Merged.  Moved the interface down in the file.
 > 
 > 
 > 
@@ -32,40 +30,51 @@ On Thu, 2007-03-08 at 09:46 -0500, Daniel J Walsh wrote:
 > differences
 > between files
 > attachment
-> (nsaserefpolicy_policy_modules_system_iptables.patch)
+> (cpuspeed.patch)
 > 
-> --- nsaserefpolicy/policy/modules/system/iptables.te    2007-02-19
-> 11:32:53.000000000 -0500
-> +++ serefpolicy-2.5.8/policy/modules/system/iptables.te 2007-03-08
-> 08:42:37.000000000 -0500
-> @@ -77,9 +77,10 @@
->  userdom_use_all_users_fds(iptables_t)
+> --- nsaserefpolicy/policy/modules/kernel/devices.if     2007-01-02
+> 12:57:13.000000000 -0500
+> +++ serefpolicy-2.5.8/policy/modules/kernel/devices.if  2007-03-08
+> 08:42:36.000000000 -0500
+> @@ -2449,6 +2449,24 @@
 >  
->  ifdef(`targeted_policy', `
-> -       term_dontaudit_use_unallocated_ttys(iptables_t)
-> -       term_dontaudit_use_generic_ptys(iptables_t)
-> +       term_use_unallocated_ttys(iptables_t)
-> +       term_use_generic_ptys(iptables_t)
->         files_dontaudit_read_root_files(iptables_t)
-> +       unconfined_rw_pipes(iptables_t)
->  ')
->  
->  optional_policy(`
-
-Merged this part.
-
-> @@ -111,3 +112,7 @@
->  optional_policy(`
->         udev_read_db(iptables_t)
->  ')
+>  ########################################
+>  ## <summary>
+> +##     Write in a sysfs directories.
+> +## </summary>
+> +## <param name="domain">
+> +##     <summary>
+> +##     The type of the process performing this action.
+> +##     </summary>
+> +## </param>
+> +#
+> +interface(`dev_write_sysfs_dirs',`
+> +       gen_require(`
+> +               type sysfs_t;
+> +       ')
 > +
-> +optional_policy(`
-> +       fail2ban_append_log(iptables_t)
+> +       allow $1 sysfs_t:dir write;
 > +')
-> 
-
-But not this one since it doesn't seem relevant.
-
+> +
+> +########################################
+> +## <summary>
+>  ##     Search the sysfs directories.
+>  ## </summary>
+>  ## <param name="domain">
+> ---
+> nsaserefpolicy/policy/modules/services/cpucontrol.te        2007-01-02
+> 12:57:43.000000000 -0500
+> +++
+> serefpolicy-2.5.8/policy/modules/services/cpucontrol.te     2007-03-08
+> 08:42:37.000000000 -0500
+> @@ -91,6 +91,7 @@
+>  kernel_read_system_state(cpuspeed_t)
+>  kernel_read_kernel_sysctls(cpuspeed_t)
+>  
+> +dev_write_sysfs_dirs(cpuspeed_t)
+>  dev_rw_sysfs(cpuspeed_t)
+>  
+>  domain_use_interactive_fds(cpuspeed_t) 
 -- 
 Chris PeBenito
 Tresys Technology, LLC
