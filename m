@@ -1,50 +1,79 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l2QK5O9E024504
-	for <selinux@tycho.nsa.gov>; Mon, 26 Mar 2007 16:05:24 -0400
-Received: from mail1.sea5.speakeasy.net (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id l2QK5MYx001154
-	for <selinux@tycho.nsa.gov>; Mon, 26 Mar 2007 20:05:23 GMT
-Date: Mon, 26 Mar 2007 16:05:17 -0400 (EDT)
-From: James Morris <jmorris@namei.org>
-To: Joy Latten <latten@austin.ibm.com>
-cc: netdev@vger.kernel.org, davem@davemloft.net, eparis@redhat.com,
-        selinux@tycho.nsa.gov
-Subject: Re: [PATCH]: Add security check before flushing SAD/SPD
-In-Reply-To: <200703261939.l2QJd7X7012809@faith.austin.ibm.com>
-Message-ID: <Line.LNX.4.64.0703261600210.14555@d.namei>
-References: <200703261939.l2QJd7X7012809@faith.austin.ibm.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l2QKEGWs024951
+	for <selinux@tycho.nsa.gov>; Mon, 26 Mar 2007 16:14:16 -0400
+Received: from mx1.redhat.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l2QKEFRM029058
+	for <selinux@tycho.nsa.gov>; Mon, 26 Mar 2007 20:14:15 GMT
+Received: from int-mx1.corp.redhat.com (int-mx1.corp.redhat.com [172.16.52.254])
+	by mx1.redhat.com (8.13.1/8.13.1) with ESMTP id l2QKEE7r003312
+	for <selinux@tycho.nsa.gov>; Mon, 26 Mar 2007 16:14:14 -0400
+Subject: Re: Elimination of disable_trans boolean ramifications
+From: Karl MacMillan <kmacmillan@mentalrootkit.com>
+To: Daniel J Walsh <dwalsh@redhat.com>
+Cc: SE Linux <selinux@tycho.nsa.gov>
+In-Reply-To: <46081AE0.5070703@redhat.com>
+References: <46041166.8010102@redhat.com>
+	 <1174927405.12204.51.camel@localhost.localdomain>
+	 <46081AE0.5070703@redhat.com>
+Content-Type: text/plain
+Date: Mon, 26 Mar 2007 16:12:13 -0400
+Message-Id: <1174939933.15046.3.camel@localhost.localdomain>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 26 Mar 2007, Joy Latten wrote:
+On Mon, 2007-03-26 at 15:11 -0400, Daniel J Walsh wrote:
+> Karl MacMillan wrote:
 
-> Signed-off-by: Joy Latten<latten@austin.ibm.com>
+<snip>
 
-This looks ok to me, although I have a couple of minor issues (which 
-should probably not stop it being merged):
+> >
+> > So - I like this idea from a technical point-of-view. The only concern
+> > is that users are used to looking for a booleans for this type of thing.
+> > There is some hope that they would discover the changed booleans poking
+> > around a gui tool or using g/setsebool. I don't think most users would
+> > never think to create a module to make a domain unconfined. Plus, the
+> > directions on how to do this go from a single command to several.
+> >
+> > I've heard concern that the number of booleans is growing too large. I
+> > would suggest that if that is your motivation for avoiding booleans that
+> > we find a way to organize them instead.
+> >
+> > Karl
+> >   
+> I think turning a domain unconfined_domain should be the last resort.  
+> (Or I guess better then chcon -t bin_t EXEC)
+> 
+> I think adding a boolean makes it too easy for them.
+> 
 
-> +			if ((err = security_xfrm_policy_delete(pol)) != 0) {
+I'm afraid that turning off selinux will be easier. I would rather a
+user have a few unconfined domains than no selinux at all. 
 
-The value of 'err' is implicitly inverted several times in this function 
-(and similarly in the state flush one).  Something like
+> The response to an AVC would be best if it involved the following:
+> 
+> 1. Ignore AVC if the app works. Reporting a bugzilla against the package 
+> that created it.  Leaked file descriptor or daemons trying to talk to 
+> terminals are classic examples of this.
+> 2. If setroubleshoot suggests a boolean or file_context to set then set 
+> it and see if the app works.
+> 3. audit2allow -M myEXEC -i /var/log/audit/audit.log  to "fix" the 
+> policy for the app  (BUGZILLA)
+> 4. New tool to create unconfined_domain policy package for running 
+> daemon unconfined (BUGZILLA)
+> 5. chcon -t bin_t EXEC (BUGZILLA)
+> 6. setenforce 0 (BUGZILLA)
+> 7. selinux=0 (BUGZILLA)
+> 
 
-	ret = (fn() != 0);
+I agree up until 4, which I'm afraid will become goto 6 instead. Both 4
+and 5 require that the user have some idea of what to do and there are
+no "bread crumbs" for them to follow to get there. Considering how long
+we have been pushing the disable_trans booleans I hesitate to change
+that process radically.
 
-might be better.
+Karl
 
-
-> +                }
-> +		for (i = xfrm_policy_bydst[dir].hmask; i >= 0; i--) {
-
-Tab damage?
-
-
-- James
--- 
-James Morris
-<jmorris@namei.org>
 
 --
 This message was distributed to subscribers of the selinux mailing list.
