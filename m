@@ -1,10 +1,10 @@
 Subject: Re: Separating libselinux/libsepol (Was:  Re: BusyBox: load_policy
 	applet)
-From: Karl MacMillan <kmacmillan@mentalrootkit.com>
+From: Stephen Smalley <sds@tycho.nsa.gov>
 To: "Christopher J. PeBenito" <cpebenito@tresys.com>
-Cc: Stephen Smalley <sds@tycho.nsa.gov>,
-        Yuichi Nakamura <ynakam@hitachisoft.jp>, busybox@kaigai.gr.jp,
-        selinux@tycho.nsa.gov, Chad Sellers <csellers@tresys.com>
+Cc: Yuichi Nakamura <ynakam@hitachisoft.jp>, busybox@kaigai.gr.jp,
+        selinux@tycho.nsa.gov, Karl MacMillan <kmacmillan@mentalrootkit.com>,
+        Chad Sellers <csellers@tresys.com>
 In-Reply-To: <1174925566.28830.61.camel@sgc>
 References: <20070323151513.395798cf.ynakam@hitachisoft.jp>
 	 <1174654177.31436.188.camel@moss-spartans.epoch.ncsc.mil>
@@ -12,8 +12,8 @@ References: <20070323151513.395798cf.ynakam@hitachisoft.jp>
 	 <1174918097.3864.83.camel@moss-spartans.epoch.ncsc.mil>
 	 <1174925566.28830.61.camel@sgc>
 Content-Type: text/plain
-Date: Mon, 26 Mar 2007 12:37:34 -0400
-Message-Id: <1174927054.12204.45.camel@localhost.localdomain>
+Date: Mon, 26 Mar 2007 12:35:29 -0400
+Message-Id: <1174926929.3864.149.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
@@ -69,14 +69,42 @@ On Mon, 2007-03-26 at 12:12 -0400, Christopher J. PeBenito wrote:
 > In my personal opinion, if you are really going tiny, that means its a
 > customized system, which includes customized policy.  That means you
 > should be setting the correct initial boolean values when you build the
-> policy, which also means monolithic instead of modular.
+> policy, which also means monolithic instead of modular.  I took the
+> example policy,  removed a great deal of it and got a policy with less
+> than 8000 rules (actual rules since it was pre v20 policy), and sysadm
+> could still log in, and do a few admin tasks like toggle booleans,
+> restart the services and shutdown.  If you take refpolicy's kernel
+> layer, you get a little over 200 rules (v21 policy) and get a ~60k
+> binary policy, so its easy to get a tiny policy base to start on today.
+> 
+> So to summarize my rambling, my personal opinion is, embedded systems do
+> not use managed policy, therefore do not require libsemanage.  They do
+> not use a distro policy, but rather compile their own, therefore do not
+> use the setlocaldefs support.
 
-What if the booleans are used to represent runtime state, for example
-different security settings when a PDA is docked as opposed to undocked?
-In that case there is no reasonable default and not preserving the
-current values could cause serious problems.
+IIRC, the conditional policy support and loadable module support grew
+out of some work investigating the use of SELinux on small mobile
+devices, with an eye toward allowing things like:
+- a daemon on the device to make controlled changes to policy via policy
+booleans in response to events / environmental factors (some of which
+should be preserved even if the device is rebooted),
+- new applications for the device to come with their own policies w/o
+requiring full policy sources or rebuild on the end systems (in
+particular thinking of third party apps).  Further, being able to limit
+what those application policies could allow was of interest, which also
+brings into play something like policy management server (possibly a
+very cut-down version).
 
-Karl
+So I'd be concerned about not supporting such things ever in the
+embedded space, and would like to have a strategy for working toward
+such support even it isn't going to be in the initial version.  And I
+think that the mainline selinux would benefit from such work as well, as
+some optimizations may be applicable in general w/o sacrificing much in
+the way of real functionality.
+
+-- 
+Stephen Smalley
+National Security Agency
 
 
 --
