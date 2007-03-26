@@ -1,47 +1,40 @@
-Subject: Re: [PATCH 3/3] Refpolicy: allow netlabelctl to be run at boot
+Subject: Re: additional change to ipsec policy
 From: "Christopher J. PeBenito" <cpebenito@tresys.com>
-To: Paul Moore <paul.moore@hp.com>
-Cc: selinux@tycho.nsa.gov, dwalsh@redhat.com, sds@tycho.nsa.gov
-In-Reply-To: <20070309203513.357373998@hp.com>
-References: <20070309203327.709750017@hp.com>
-	 <20070309203513.357373998@hp.com>
+To: Joy Latten <latten@austin.ibm.com>
+Cc: selinux@tycho.nsa.gov, dwalsh@redhat.com, paul.moore@hp.com,
+        sds@tycho.nsa.gov
+In-Reply-To: <200703092207.l29M77Bn023464@faith.austin.ibm.com>
+References: <200703092207.l29M77Bn023464@faith.austin.ibm.com>
 Content-Type: text/plain
-Date: Mon, 26 Mar 2007 11:18:23 -0400
-Message-Id: <1174922303.28830.24.camel@sgc>
+Date: Mon, 26 Mar 2007 11:21:47 -0400
+Message-Id: <1174922507.28830.25.camel@sgc>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2007-03-09 at 16:33 -0400, Paul Moore wrote:
-> Allow the NetLabel management tools to be run at boot from the init
-> scripts.
+On Fri, 2007-03-09 at 18:07 -0400, Joy Latten wrote:
+> 
+> One more ipsec policy change.
+> I don't think setkey, a trusted and sysadm utility should read it's
+> config files from regular user's home directories.
 
-Is this actually a daemon or just a regular application?  If its not a
-daemon it should be using init_system_domain() instead.
+Agreed; though this rule is not in upstream refpolicy.
 
-> Signed-off-by: Paul Moore <paul.moore@hp.com>
-> ---
->  policy/modules/system/netlabel.te |    3 +--
->  1 file changed, 1 insertion(+), 2 deletions(-)
+> diff -urpN serefpolicy-2.4.6.orig/policy/modules/system/ipsec.te
+> serefpolicy-2.4.6/policy/modules/system/ipsec.te
+> --- serefpolicy-2.4.6.orig/policy/modules/system/ipsec.te
+> 2007-03-09 16:14:30.000000000 -0600
+> +++ serefpolicy-2.4.6/policy/modules/system/ipsec.te    2007-03-09
+> 16:15:26.000000000 -0600
+> @@ -309,7 +309,6 @@ domain_setcontext(setkey_t)
 > 
-> Index: refpolicy/policy/modules/system/netlabel.te
-> ===================================================================
-> --- refpolicy.orig/policy/modules/system/netlabel.te
-> +++ refpolicy/policy/modules/system/netlabel.te
-> @@ -8,8 +8,7 @@ policy_module(netlabel,1.0.0)
+>  # allow setkey to read a config files in any directory.
+>  userdom_read_sysadm_home_content_files(setkey_t)
+> -userdom_read_all_users_home_content_files(setkey_t)
 > 
->  type netlabel_mgmt_t;
->  type netlabel_mgmt_exec_t;
-> -domain_type(netlabel_mgmt_t)
-> -domain_entry_file(netlabel_mgmt_t,netlabel_mgmt_exec_t)
-> +init_daemon_domain(netlabel_mgmt_t,netlabel_mgmt_exec_t)
-> 
->  ########################################
->  #
-> 
-> --
-> paul moore
-> linux security @ hp
+>  # setkey will be run by sysadm, thus setkey needs access to sysadm
+> ttys.
+>  userdom_use_sysadm_ttys(setkey_t)
 > 
 > 
 -- 
