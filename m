@@ -1,75 +1,88 @@
-Message-ID: <4608183F.4020005@redhat.com>
-Date: Mon, 26 Mar 2007 15:00:15 -0400
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l2QJBe7A021984
+	for <selinux@tycho.nsa.gov>; Mon, 26 Mar 2007 15:11:40 -0400
+Received: from mx1.redhat.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l2QJBdRM016392
+	for <selinux@tycho.nsa.gov>; Mon, 26 Mar 2007 19:11:39 GMT
+Message-ID: <46081AE0.5070703@redhat.com>
+Date: Mon, 26 Mar 2007 15:11:28 -0400
 From: Daniel J Walsh <dwalsh@redhat.com>
 MIME-Version: 1.0
-To: Stephen Smalley <sds@tycho.nsa.gov>
-CC: Paul Moore <paul.moore@hp.com>,
-        "Christopher J. PeBenito" <cpebenito@tresys.com>,
-        selinux@tycho.nsa.gov
-Subject: Re: [PATCH 3/3] Refpolicy: allow netlabelctl to be run at boot
-References: <20070309203327.709750017@hp.com>	 <20070309203513.357373998@hp.com> <1174922303.28830.24.camel@sgc>	 <200703261129.51045.paul.moore@hp.com>  <4607E9AC.80408@redhat.com> <1174923786.3864.124.camel@moss-spartans.epoch.ncsc.mil>
-In-Reply-To: <1174923786.3864.124.camel@moss-spartans.epoch.ncsc.mil>
+To: Karl MacMillan <kmacmillan@mentalrootkit.com>
+CC: SE Linux <selinux@tycho.nsa.gov>
+Subject: Re: Elimination of disable_trans boolean ramifications
+References: <46041166.8010102@redhat.com> <1174927405.12204.51.camel@localhost.localdomain>
+In-Reply-To: <1174927405.12204.51.camel@localhost.localdomain>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Stephen Smalley wrote:
-> On Mon, 2007-03-26 at 11:41 -0400, Daniel J Walsh wrote:
+Karl MacMillan wrote:
+> On Fri, 2007-03-23 at 13:41 -0400, Daniel J Walsh wrote:
 >   
->> Paul Moore wrote:
->>     
->>> On Monday, March 26 2007 11:18:23 am Christopher J. PeBenito wrote:
->>>   
->>>       
->>>> On Fri, 2007-03-09 at 16:33 -0400, Paul Moore wrote:
->>>>     
->>>>         
->>>>> Allow the NetLabel management tools to be run at boot from the init
->>>>> scripts.
->>>>>       
->>>>>           
->>>> Is this actually a daemon or just a regular application?  If its not a
->>>> daemon it should be using init_system_domain() instead.
->>>>     
->>>>         
->>> Check our email from last Friday (3/23).  It's okay, it's Monday morning ;)
->>>
->>> I agree, knowing what I know now it should be init_system_domain(), there is 
->>> probably another change needed as this patch seemed to introduce a bug (or 
->>> flush out an old one) which Dan fixed in selinux-policy-2.4.6-47 for RHEL5.  
->>> Unfortunately, I can't get at the RPM right now (got a pointer Dan?) so I 
->>> can't do a diff and see what changed ...
->>>
->>> It is probably best to hold on this for now, sorry for the confusion, but I 
->>> was hoping to have the fix for this by now.
->>>
->>>   
->>>       
->> RHEL5 and Rawhide policy are identical.  I have no problem changing to 
->> init_system_domain.
+>> I have removed the disable_trans booleans from Rawhide, and FC7 Test3.  
+>> I wanted to remove these booleans because they cause as many problems as 
+>> they solve.    If you turn off certain domains, it can change the 
+>> labeling on the system and cause other confined domains to blow up.
+>>
+>> If you syslog_disable_trans, the devlog_t context is wrong and any 
+>> confined app that tries to syslog will no longer work.
+>>
+>> The best thing to do when confronted with an AVC would be to figure out 
+>> if this is expected behavior, if yes then report it as a bug to upstream 
+>> or to the distribution and create a loadable policy module that handles 
+>> the problem.
+>>
+>> If there are so many problems or a user just does not want to deal with 
+>> it I figured we could just load a policy that sets the domain as an 
+>> unconfined_domain.
+>>
+>> If you wanted to run samba as an unconfined domain  you would build a 
+>> policy module
+>>
+>> policy_module(mysamba, 1.0)
+>>
+>> require {
+>>         type smbd_t;
+>> }
+>>
+>> unconfined_domain(smbd_t)
+>>
+>>
 >>     
 >
-> IIRC, using init_daemon_domain() was causing problems (over on
-> redhat-lspp list) because it was causing netlabelctl to trigger a role
-> transition to system_r when run by the admin, and the admin wasn't
-> necessarily authorized for system_r directly.  Not sure whether that is
-> just a misconfiguration of users there (i.e. you must authorize admins
-> for system_r if you are going to use automatic role transitions to
-> system_r rather than run_init, but I don't think run_init really works
-> for Fedora or RHEL today since it won't be invoked when rpm %post
-> scriptlets restart services).
+> So - I like this idea from a technical point-of-view. The only concern
+> is that users are used to looking for a booleans for this type of thing.
+> There is some hope that they would discover the changed booleans poking
+> around a gui tool or using g/setsebool. I don't think most users would
+> never think to create a module to make a domain unconfined. Plus, the
+> directions on how to do this go from a single command to several.
 >
-> But in any event, netlabelctl is not a daemon, so init_system_domain is
-> more appropriate anyway (along with whatever is needed to also
-> transition when run by an admin).
+> I've heard concern that the number of booleans is growing too large. I
+> would suggest that if that is your motivation for avoiding booleans that
+> we find a way to organize them instead.
 >
+> Karl
 >   
+I think turning a domain unconfined_domain should be the last resort.  
+(Or I guess better then chcon -t bin_t EXEC)
 
-The problem in LSPP was that sysadm_r was not allowed to transition to 
-netlabel_t  Which is fixed in the latest policy.
+I think adding a boolean makes it too easy for them.
 
-IE netlabelctl_run(sysadm_t, sysadm_r, admin_terminals)
+The response to an AVC would be best if it involved the following:
 
+1. Ignore AVC if the app works. Reporting a bugzilla against the package 
+that created it.  Leaked file descriptor or daemons trying to talk to 
+terminals are classic examples of this.
+2. If setroubleshoot suggests a boolean or file_context to set then set 
+it and see if the app works.
+3. audit2allow -M myEXEC -i /var/log/audit/audit.log  to "fix" the 
+policy for the app  (BUGZILLA)
+4. New tool to create unconfined_domain policy package for running 
+daemon unconfined (BUGZILLA)
+5. chcon -t bin_t EXEC (BUGZILLA)
+6. setenforce 0 (BUGZILLA)
+7. selinux=0 (BUGZILLA)
 
 
 --
