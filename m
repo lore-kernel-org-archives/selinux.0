@@ -1,53 +1,75 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l2RCabSv023131
-	for <selinux@tycho.nsa.gov>; Tue, 27 Mar 2007 08:36:37 -0400
-Received: from exchange.columbia.tresys.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with SMTP id l2RCaZFi025559
-	for <selinux@tycho.nsa.gov>; Tue, 27 Mar 2007 12:36:35 GMT
-Subject: Re: system-config-service of iptables needs this patch to work in
-	targeted policy
-From: "Christopher J. PeBenito" <cpebenito@tresys.com>
-To: Daniel J Walsh <dwalsh@redhat.com>
-Cc: SE Linux <selinux@tycho.nsa.gov>
-In-Reply-To: <46082B69.8070705@redhat.com>
-References: <45F021D7.4060401@redhat.com> <1174938199.28830.72.camel@sgc>
-	 <46082B69.8070705@redhat.com>
+Subject: Re: SELinux cache.
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: JanuGerman <doublemalam@yahoo.co.uk>
+Cc: SELinux List <selinux@tycho.nsa.gov>
+In-Reply-To: <800112.19807.qm@web86906.mail.ukl.yahoo.com>
+References: <800112.19807.qm@web86906.mail.ukl.yahoo.com>
 Content-Type: text/plain
-Date: Tue, 27 Mar 2007 08:37:13 -0400
-Message-Id: <1174999033.29300.19.camel@sgc>
+Date: Tue, 27 Mar 2007 08:38:16 -0400
+Message-Id: <1174999097.3864.271.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 2007-03-26 at 16:22 -0400, Daniel J Walsh wrote:
-> Christopher J. PeBenito wrote:
-> > On Thu, 2007-03-08 at 09:46 -0500, Daniel J Walsh wrote:
-> >   
-> >> Basically iptables needs to be able to output to the terminal and
-> >> talk 
-> >> to unconfined_pipes from the tool.
-> >>
+On Tue, 2007-03-27 at 10:31 +0100, JanuGerman wrote:
+> Hi Every one,
+> 
+>   SELinux maintains a cache called "access vector
+> cache (avc)" for caching the security server
+> decisions. Beside the avc, is there is any other cache
+> as well, which is maintained outside the domain of
+> Linux kernel or SElinux?.
+> 
+> The book "SELinux by example" have mentioned a cache
+> in the userspace (library libselinux), but
+> unfortunately, i was not able to locate this library.
+> 
+> Currently, my selinux is running in "Enforcing" mode,
+> with "targeted" policy. Some times, it executes the
+> functions within the selinux/hooks.c such as
+> "may_create", "may_link", "file_has_perm" and some
+> times not. The avc calls are normally executed within
+> these methods. So, logically, these methods should be
+> consulted, before examining the avc for a cache
+> miss/hit. 
+> 
+> Am, i running SELInux in the wrong mode, i mean, at
+> the moment it is "targeted", shall it be "strict" in
+> order to execute these "hooks.c" functions each time a
+> permission check is made, or there is another cache
+> maintained outside the SELInux domain bounderies.
 
-> >> +
-> >> +optional_policy(`
-> >> +       fail2ban_append_log(iptables_t)
-> >> +')
-> >>
-> >>     
-> >
-> > But not this one since it doesn't seem relevant.
-> >
-> >   
-> fail2ban is redirecting output from iptables to it's log files.  Would 
-> you prefer dontaudit?
+The hook functions are always called.  What makes you think they aren't?
+Easiest way to see the calls is to add auditallow rules to your policy,
+although this will generate a lot of audit messages.  Example:
+$ cat test.te
+policy_module(test, 1.0)
 
-I just didn't know what it was about since you didn't mention it in the
-description.
+require {
+        attribute domain;
+        attribute file_type;
+}
+
+auditallow domain file_type:dir_file_class_set *;
+$ make -f /usr/share/selinux/devel/Makefile
+$ su -
+# semodule -i test.pp
+# tail -f /var/log/audit/audit.log
+
+But be warned that this will generate a lot of audit.
+To remove, use:
+# semodule -r test
+
+There is a userspace AVC in libselinux for use by userspace object
+managers (applications that enforce policy over their own objects and
+operations not directly visible to the kernel), but it isn't relevant to
+the kernel.  If you have SELinux on your system, you have libselinux
+already, e.g. /lib/libselinux.so.1.  The sources can be found in the
+usual places.
 
 -- 
-Chris PeBenito
-Tresys Technology, LLC
-(410) 290-1411 x150
+Stephen Smalley
+National Security Agency
 
 
 --
