@@ -1,70 +1,93 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l2RBiaYt021185
-	for <selinux@tycho.nsa.gov>; Tue, 27 Mar 2007 07:44:36 -0400
-Received: from smtp.sws.net.au (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l2RBiVDQ011433
-	for <selinux@tycho.nsa.gov>; Tue, 27 Mar 2007 11:44:33 GMT
-Received: from localhost (localhost [127.0.0.1])
-	by smtp.sws.net.au (Postfix) with ESMTP id 51230620ED
-	for <selinux@tycho.nsa.gov>; Tue, 27 Mar 2007 21:44:27 +1000 (EST)
-Received: from smtp.sws.net.au ([127.0.0.1])
-	by localhost (smtp.sws.net.au [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id MQDHkBWLgJdA for <selinux@tycho.nsa.gov>;
-	Tue, 27 Mar 2007 21:44:27 +1000 (EST)
-Received: from nospam.sws.net.au (nospam.sws.net.au [61.95.69.195])
-	by smtp.sws.net.au (Postfix) with ESMTP id 21858620E8
-	for <selinux@tycho.nsa.gov>; Tue, 27 Mar 2007 21:44:27 +1000 (EST)
-Received: from localhost (localhost [127.0.0.1])
-	by nospam.sws.net.au (Postfix) with ESMTP id D7F1B182EC
-	for <selinux@tycho.nsa.gov>; Tue, 27 Mar 2007 21:44:26 +1000 (EST)
-Received: from nospam.sws.net.au ([127.0.0.1])
-	by localhost (nospam.sws.net.au [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id YGiktUjOqMPQ for <selinux@tycho.nsa.gov>;
-	Tue, 27 Mar 2007 21:44:26 +1000 (EST)
-Received: from aeon.coker.com.au (localhost [127.0.0.1])
-	by nospam.sws.net.au (Postfix) with ESMTP id 96675182D9
-	for <selinux@tycho.nsa.gov>; Tue, 27 Mar 2007 21:44:26 +1000 (EST)
-Received: from localhost (localhost [127.0.0.1])
-	by aeon.coker.com.au (Postfix) with ESMTP id 6B13E2090F
-	for <selinux@tycho.nsa.gov>; Tue, 27 Mar 2007 21:44:32 +1000 (EST)
-From: Russell Coker <russell@coker.com.au>
-Reply-To: russell@coker.com.au
-To: selinux@tycho.nsa.gov
-Subject: Re: Developer summit minutes
-Date: Tue, 27 Mar 2007 10:01:36 +1100
-References: <1174931743.3864.204.camel@moss-spartans.epoch.ncsc.mil>
-In-Reply-To: <1174931743.3864.204.camel@moss-spartans.epoch.ncsc.mil>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
-Message-Id: <200703270901.40540.russell@coker.com.au>
+Subject: Re: Separating libselinux/libsepol (Was:  Re: BusyBox: load_policy
+	applet)
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Yuichi Nakamura <ynakam@hitachisoft.jp>
+Cc: "Christopher J. PeBenito" <cpebenito@tresys.com>, busybox@kaigai.gr.jp,
+        selinux@tycho.nsa.gov, Karl MacMillan <kmacmillan@mentalrootkit.com>,
+        Chad Sellers <csellers@tresys.com>
+In-Reply-To: <20070327095945.1c4245ec.ynakam@hitachisoft.jp>
+References: <20070323151513.395798cf.ynakam@hitachisoft.jp>
+	 <1174654177.31436.188.camel@moss-spartans.epoch.ncsc.mil>
+	 <20070326102809.e4f80126.ynakam@hitachisoft.jp>
+	 <1174918097.3864.83.camel@moss-spartans.epoch.ncsc.mil>
+	 <1174925566.28830.61.camel@sgc>
+	 <1174926929.3864.149.camel@moss-spartans.epoch.ncsc.mil>
+	 <20070327095945.1c4245ec.ynakam@hitachisoft.jp>
+Content-Type: text/plain
+Date: Tue, 27 Mar 2007 08:15:07 -0400
+Message-Id: <1174997707.3864.261.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tuesday 27 March 2007 03:55, Stephen Smalley <sds@tycho.nsa.gov> wrote:
-> On the package management front, the plan in Fedora is still to
-> install policy packages from %post and restorecon afterward.  The view
-> is that restorecon is needed after install regardless due to files
-> created from %post scriptlets.
+On Tue, 2007-03-27 at 09:59 +0900, Yuichi Nakamura wrote:
+> Hi.
+> Thank you for opinion and information > Stephen, Christopher
+> 
+> My personal opinion is following:
+> # I think it is easier to explain my opinion by that than by commenting your posts.
+> 
+> I want to make SELinux easy to customize for various embedded devices.
+> The requirement for embedded SELinux will be various.
+> Someone may want to write strict policy for all processes, 
+> and some may want to write policy only for one or two applications.
+> Customize is neccesary.
+> 
+> If device is rich enough, 
+> full-featured SELinux can be used. 
+> Mobile PDA may be example of such devices.
+> It includes boolean, modular policy, semanage etc.
+> Size optimization for libsemanage,libsepol, semanage will be necessarty as you say.
+> 
+> However, what if devices are poor or there are small room for SELinux?
+> Example of such devices are electrical appliances conneceted to network.
+> In such environment, people want to make SELinux as small as possible.
+> They may remove modular support, libsepol and booleans, uses only monolitic poilcy.
+> I think even some hooks may be removed to improve performance.
+> Some of such people are now being attracted to other light-weight Secure OSes,
+> such as TOMOYO Linux(http://tomoyo.sourceforge.jp/en/1.3/) and AppArmor.
+>  
+> I want to make them to be interested in SELinux.
+> 
+> The SELinux for embedded in my brain(future SEDiet work) for now is following.
+> * Embedded SELinux development kit is prepared and it has following features.
+> * BusyBox includes SELinux commands
+> * Developers can choose required features(boolean, module, semanage etc)
+> * To implement it following will be necessary.
+> * libselinux/libsepol/libsemanage is separated
+> * Something like ENABLE_BOOLEAN, ENABLE_MODULE, ENABLE_SEMANAGE is embedded in source codes of libse*, BusyBox.
+> * Least set of refpolicy is prepared: 
+>   - only core policy(kernel policy module?) and macros are enabled by default
+>   - supports both modular and monolitic
+>   - To write new policy, SEEdit or other tools can be used
+>   - has a compiler that has feature for size optimization
 
-Of course the %post script would also have to explicitly set the contexts of 
-files it creates as no-one else would know what the names might be.  But that 
-should work well if the package maintainers keep their lists up to date.
+For the most part, this approach sounds fine, and I suspect that you
+could even introduce a build option for creating a minimal subset of
+libselinux as well as the other libraries.  Note that the loadable
+policy module support depends on libsemanage, so I doubt you would
+support separate ENABLE_MODULE vs. ENABLE_SEMANAGE options unless you
+just mean the set of utility programs.
 
-In Debian we currently have PPs selected when the policy is installed based on 
-the list of packages that are installed and no automatic changes are made 
-afterwards.  Probably the best change we can make is to have tools such as 
-apt load PPs before installing packages.  After installing packages apt could 
-have a system-wide list of files to relabel that are created by package 
-postinst scripts, as well as unconditionally relabelling /etc (which takes 
-1.8s on my laptop and probably a lot less time on most machines that are in 
-service nowadays).
+Some specific questions and comments:
+1) Do you think you will need the legacy support for setting local
+persistent booleans without using libsemanage?  We were planning on
+dropping that support out of libselinux and libsepol in the 2.x/devel
+series.
+2) How do you plan to support initial policy load in the embedded
+environment?  From an initramfs, as proposed for Ubuntu, or via modified
+init functionality in busybox, as in current distributions that support
+SELinux?  Do you intend to replicate the logic that currently lives in
+selinux_init_load_policy() for selecting the initial state of SELinux
+(disabled/enforcing/permissive) based on /etc/selinux/config and the
+kernel parameters somewhere else?
+3) I'd much prefer to see your policy optimization work go into
+refpolicy and any "optimizing" policy compiler work go into checkpolicy
+rather than keeping it in your own SEEdit-specific policy and tool.
 
 -- 
-russell@coker.com.au
-http://etbe.blogspot.com/          My Blog
-
-http://www.coker.com.au/sponsorship.html Sponsoring Free Software development
+Stephen Smalley
+National Security Agency
 
 
 --
