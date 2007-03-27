@@ -1,11 +1,11 @@
 Subject: Re: Separating libselinux/libsepol (Was:  Re: BusyBox: load_policy
 	applet)
-From: Karl MacMillan <kmacmillan@mentalrootkit.com>
-To: Stephen Smalley <sds@tycho.nsa.gov>
-Cc: "Christopher J. PeBenito" <cpebenito@tresys.com>,
+From: "Christopher J. PeBenito" <cpebenito@tresys.com>
+To: Karl MacMillan <kmacmillan@mentalrootkit.com>
+Cc: Stephen Smalley <sds@tycho.nsa.gov>,
         Yuichi Nakamura <ynakam@hitachisoft.jp>, busybox@kaigai.gr.jp,
         selinux@tycho.nsa.gov, Chad Sellers <csellers@tresys.com>
-In-Reply-To: <1175021274.3864.403.camel@moss-spartans.epoch.ncsc.mil>
+In-Reply-To: <1175022558.19343.63.camel@localhost.localdomain>
 References: <20070323151513.395798cf.ynakam@hitachisoft.jp>
 	 <1174654177.31436.188.camel@moss-spartans.epoch.ncsc.mil>
 	 <20070326102809.e4f80126.ynakam@hitachisoft.jp>
@@ -19,36 +19,43 @@ References: <20070323151513.395798cf.ynakam@hitachisoft.jp>
 	 <1175011333.19343.33.camel@localhost.localdomain>
 	 <1175021034.29300.67.camel@sgc>
 	 <1175021274.3864.403.camel@moss-spartans.epoch.ncsc.mil>
+	 <1175022558.19343.63.camel@localhost.localdomain>
 Content-Type: text/plain
-Date: Tue, 27 Mar 2007 15:09:18 -0400
-Message-Id: <1175022558.19343.63.camel@localhost.localdomain>
+Date: Tue, 27 Mar 2007 15:32:31 -0400
+Message-Id: <1175023951.29300.70.camel@sgc>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2007-03-27 at 14:47 -0400, Stephen Smalley wrote:
-> On Tue, 2007-03-27 at 14:43 -0400, Christopher J. PeBenito wrote:
-> > On Tue, 2007-03-27 at 12:02 -0400, Karl MacMillan wrote:
-> > > * We are not just talking about reboots, we are also talking about
-> > > policy updates. I wouldn't expect installing an app to turn off a
-> > > lockdown mode, but that would happen if it installed policy.
+On Tue, 2007-03-27 at 15:09 -0400, Karl MacMillan wrote:
+> On Tue, 2007-03-27 at 14:47 -0400, Stephen Smalley wrote:
+> > On Tue, 2007-03-27 at 14:43 -0400, Christopher J. PeBenito wrote:
+> > > On Tue, 2007-03-27 at 12:02 -0400, Karl MacMillan wrote:
+> > > > * We are not just talking about reboots, we are also talking about
+> > > > policy updates. I wouldn't expect installing an app to turn off a
+> > > > lockdown mode, but that would happen if it installed policy.
+> > > 
+> > > Removing setlocaldefs will not change this behavior.  Current Boolean
+> > > states will still be kept if you reload or update the policy on a
+> > > running system.
 > > 
-> > Removing setlocaldefs will not change this behavior.  Current Boolean
-> > states will still be kept if you reload or update the policy on a
-> > running system.
+> > That's true as long as at least that part of the policy loading logic is
+> > preserved, i.e. the if (preservebools) block in selinux_mkload_policy()
+> > in libselinux.  Which calls sepol_genbools_array() and thus requires
+> > libsepol (or a cut-down version of it).  But the present load_policy
+> > applet for busybox just calls security_load_policy() directly and won't
+> > preserve booleans across reloads.
+> > 
 > 
-> That's true as long as at least that part of the policy loading logic is
-> preserved, i.e. the if (preservebools) block in selinux_mkload_policy()
-> in libselinux.  Which calls sepol_genbools_array() and thus requires
-> libsepol (or a cut-down version of it).  But the present load_policy
-> applet for busybox just calls security_load_policy() directly and won't
-> preserve booleans across reloads.
-> 
+> I think that the boolean preservation is more important that the
+> setlocaldefs portion. So I'm not against removing that I guess.
 
-I think that the boolean preservation is more important that the
-setlocaldefs portion. So I'm not against removing that I guess.
+I definitely agree on this.  Not having that would be a regression.
 
-Karl
+-- 
+Chris PeBenito
+Tresys Technology, LLC
+(410) 290-1411 x150
 
 
 --
