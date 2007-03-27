@@ -1,44 +1,65 @@
-Subject: Re: Error in installing RefPolicy possibly some conflict?
+Subject: Re: Separating libselinux/libsepol (Was:  Re: BusyBox: load_policy
+	applet)
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: JanuGerman <doublemalam@yahoo.co.uk>
-Cc: SELinux List <selinux@tycho.nsa.gov>
-In-Reply-To: <20070327140452.56698.qmail@web86904.mail.ukl.yahoo.com>
-References: <20070327140452.56698.qmail@web86904.mail.ukl.yahoo.com>
+To: "Christopher J. PeBenito" <cpebenito@tresys.com>
+Cc: Karl MacMillan <kmacmillan@mentalrootkit.com>,
+        Yuichi Nakamura <ynakam@hitachisoft.jp>, busybox@kaigai.gr.jp,
+        selinux@tycho.nsa.gov, Chad Sellers <csellers@tresys.com>
+In-Reply-To: <1175010151.29300.39.camel@sgc>
+References: <20070323151513.395798cf.ynakam@hitachisoft.jp>
+	 <1174654177.31436.188.camel@moss-spartans.epoch.ncsc.mil>
+	 <20070326102809.e4f80126.ynakam@hitachisoft.jp>
+	 <1174918097.3864.83.camel@moss-spartans.epoch.ncsc.mil>
+	 <1174925566.28830.61.camel@sgc>
+	 <1174927054.12204.45.camel@localhost.localdomain>
+	 <1174939981.28830.84.camel@sgc>
+	 <1174999512.3864.278.camel@moss-spartans.epoch.ncsc.mil>
+	 <1175010151.29300.39.camel@sgc>
 Content-Type: text/plain
-Date: Tue, 27 Mar 2007 10:09:26 -0400
-Message-Id: <1175004566.3864.327.camel@moss-spartans.epoch.ncsc.mil>
+Date: Tue, 27 Mar 2007 11:48:18 -0400
+Message-Id: <1175010498.3864.370.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2007-03-27 at 15:04 +0100, JanuGerman wrote:
-> Thanks for the reply.
+On Tue, 2007-03-27 at 11:42 -0400, Christopher J. PeBenito wrote:
+> On Tue, 2007-03-27 at 08:45 -0400, Stephen Smalley wrote:
+> > On Mon, 2007-03-26 at 20:13 +0000, Christopher J. PeBenito wrote:
+> > > On Mon, 2007-03-26 at 12:37 -0400, Karl MacMillan wrote:
+> > > > On Mon, 2007-03-26 at 12:12 -0400, Christopher J. PeBenito wrote:
+> > > > > In my personal opinion, if you are really going tiny, that means its a
+> > > > > customized system, which includes customized policy.  That means you
+> > > > > should be setting the correct initial boolean values when you build the
+> > > > > policy, which also means monolithic instead of modular.
+> > > > 
+> > > > What if the booleans are used to represent runtime state, for example
+> > > > different security settings when a PDA is docked as opposed to undocked?
+> > > > In that case there is no reasonable default and not preserving the
+> > > > current values could cause serious problems.
+> > > 
+> > > I disagree.  The correct answer is whichever state the device assumes
+> > > when it powers up.  PDAs already have to determine that type of state
+> > > when they power up after the initial setup, so at that time when it
+> > > determines the state, it can also set the boolean.
+> > 
+> > The state might be set by the user, e.g. knowing that I am about to take
+> > my PDA out of the building, I set or clear a boolean to lock it down,
+> > and I don't want that to be unlocked until I take explicit action to do
+> > so - reboot shouldn't reset it.
 > 
-> I am using Fedora core 6. Prior to installing
-> refpolicy, there was no source code avialable in the
-> /etc/selinux/... for SELinux policy, making it hard
-> for me to experiment with refpolicy modules.
+> Using the power button on a PDA doesn't shut it down, it does something
+> more like putting it into standby mode so it can still pop up calendar
+> reminders.  Thus, when it "turns on" it still has the same boolean
+> states.  The only time it boots is because the battery was just dead, or
+> you force it because the system is locked up (or some similar reason).
+> Both reset the device state too, and then falling back to the defaults
+> would be the anticipated behavior.  If a lock down is supposed to
+> survive even that, I would argue that its not a state, its a
+> configuration and that the tunables are the way to go.
 
-Yes, as I think I already explained (and as is discussed in the Fedora
-SELinux wiki pages, http://fedoraproject.org/wiki/SELinux/, and FAQ,
-http://docs.fedoraproject.org/selinux-faq-fc5/), Fedora Core 5 and later
-use reference policy and loadable policy modules, eliminating the need
-for the base policy sources to perform local customizations.
-
-But this doesn't prevent you from creating your own modules.  yum
-install selinux-policy-devel and follow the instructions in the FAQ.
-
-If you do need the full policy sources, you can grab the .src.rpm like
-you would for any other package.  No different than any other Fedora
-package.
-
-You can build an upstream tarball from oss.tresys.com, but if you follow
-that route, you need to know what you are doing.
-
-Please read the available resources before asking questions.
-
-Fedora-specific questions can be posted to
-fedora-selinux-list@redhat.com after subscribing there.
+Ok, so what I'm hearing is that we don't need to preserve support for
+local boolean and user definitions apart from managed policy.  If anyone
+disagrees, speak up please.
 
 -- 
 Stephen Smalley
