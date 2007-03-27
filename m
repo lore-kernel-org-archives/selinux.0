@@ -1,49 +1,44 @@
-Subject: Re: nscd errors
+Subject: Re: Error in installing RefPolicy possibly some conflict?
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Sylviane Molinet <Sylviane.Molinet@IReS.in2p3.fr>
+To: JanuGerman <doublemalam@yahoo.co.uk>
 Cc: SELinux List <selinux@tycho.nsa.gov>
-In-Reply-To: <4608E744.20405@IReS.in2p3.fr>
-References: <4608E744.20405@IReS.in2p3.fr>
+In-Reply-To: <20070327140452.56698.qmail@web86904.mail.ukl.yahoo.com>
+References: <20070327140452.56698.qmail@web86904.mail.ukl.yahoo.com>
 Content-Type: text/plain
-Date: Tue, 27 Mar 2007 10:03:09 -0400
-Message-Id: <1175004189.3864.319.camel@moss-spartans.epoch.ncsc.mil>
+Date: Tue, 27 Mar 2007 10:09:26 -0400
+Message-Id: <1175004566.3864.327.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2007-03-27 at 11:43 +0200, Sylviane Molinet wrote:
-> Hello,
+On Tue, 2007-03-27 at 15:04 +0100, JanuGerman wrote:
+> Thanks for the reply.
 > 
-> I've installed redhat ES 4 server with nis authentification. But I have 
-> following errors in /var/log/messages :
-> nscd:
-> 
-> Mar 27 09:36:52 nscd: Can't send to audit system: USER_AVC pid=25562 
-> uid=28 loginuid=-1 message=avc:  denied  { getgrp } for  
-> scontext=root:system_r:unconfined_t tcontext=root:system_r:initrc_t 
-> tclass=nscd
-> Mar 27 09:36:52  nscd: Can't send to audit system: USER_AVC pid=25562 
-> uid=28 loginuid=-1 message=avc:  denied  { shmempwd } for  
-> scontext=root:system_r:unconfined_t tcontext=root:system_r:initrc_t 
-> tclass=nscd
-> Mar 27 09:36:52 nscd: Can't send to audit system: USER_AVC pid=25562 
-> uid=28 loginuid=-1 message=avc:  denied  { getpwd } for  
-> scontext=root:system_r:unconfined_t tcontext=root:system_r:initrc_t 
-> tclass=nscd
+> I am using Fedora core 6. Prior to installing
+> refpolicy, there was no source code avialable in the
+> /etc/selinux/... for SELinux policy, making it hard
+> for me to experiment with refpolicy modules.
 
-Not sure that nscd is supposed to be running in initrc_t in RHEL4, but
-you can workaround the issue by allowing the above permissions.  You'd
-need to install the selinux-policy-targeted-sources and checkpolicy
-packages, and then you can use audit2allow.  Some resources that may
-help you:
-http://fedoraproject.org/wiki/SELinux/
-http://www.redhat.com/docs/manuals/enterprise/RHEL-4-Manual/selinux-guide/index.html
+Yes, as I think I already explained (and as is discussed in the Fedora
+SELinux wiki pages, http://fedoraproject.org/wiki/SELinux/, and FAQ,
+http://docs.fedoraproject.org/selinux-faq-fc5/), Fedora Core 5 and later
+use reference policy and loadable policy modules, eliminating the need
+for the base policy sources to perform local customizations.
 
-Be aware however that SELinux has changed a lot since RHEL4, so you
-can't use newer features like loadable policy modules and semanage there
-(they are included in RHEL5).  The Fedora Core 3 SELinux FAQ and the
-RHEL4 SELinux guide are likely the most suitable resources for RHEL4
-SELinux.
+But this doesn't prevent you from creating your own modules.  yum
+install selinux-policy-devel and follow the instructions in the FAQ.
+
+If you do need the full policy sources, you can grab the .src.rpm like
+you would for any other package.  No different than any other Fedora
+package.
+
+You can build an upstream tarball from oss.tresys.com, but if you follow
+that route, you need to know what you are doing.
+
+Please read the available resources before asking questions.
+
+Fedora-specific questions can be posted to
+fedora-selinux-list@redhat.com after subscribing there.
 
 -- 
 Stephen Smalley
