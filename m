@@ -1,80 +1,73 @@
-Subject: Re: promoting printk for FS mounting back from KERN_DEBUG
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Eric Paris <eparis@parisplace.org>
-Cc: selinux@tycho.nsa.gov, jmorris@namei.org
-In-Reply-To: <1175027419.13618.45.camel@localhost.localdomain>
-References: <1175025162.13618.32.camel@localhost.localdomain>
-	 <1175026064.3864.407.camel@moss-spartans.epoch.ncsc.mil>
-	 <1175027419.13618.45.camel@localhost.localdomain>
-Content-Type: text/plain
-Date: Wed, 28 Mar 2007 07:27:20 -0400
-Message-Id: <1175081240.3864.412.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+From: Russell Coker <russell@coker.com.au>
+Reply-To: russell@coker.com.au
+To: "Christopher J. PeBenito" <cpebenito@tresys.com>
+Subject: Re: Separating libselinux/libsepol (Was:  Re: BusyBox: load_policy applet)
+Date: Wed, 28 Mar 2007 21:26:30 +1100
+Cc: Karl MacMillan <kmacmillan@mentalrootkit.com>,
+        Stephen Smalley <sds@tycho.nsa.gov>,
+        Yuichi Nakamura <ynakam@hitachisoft.jp>, busybox@kaigai.gr.jp,
+        selinux@tycho.nsa.gov, Chad Sellers <csellers@tresys.com>
+References: <20070323151513.395798cf.ynakam@hitachisoft.jp> <1175011333.19343.33.camel@localhost.localdomain> <1175021034.29300.67.camel@sgc>
+In-Reply-To: <1175021034.29300.67.camel@sgc>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="utf-8"
+Message-Id: <200703282026.41228.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2007-03-27 at 16:30 -0400, Eric Paris wrote:
-> On Tue, 2007-03-27 at 16:07 -0400, Stephen Smalley wrote:
-> > On Tue, 2007-03-27 at 15:52 -0400, Eric Paris wrote:
-> > > So with my recent printk demotions lots of thing were made KERN_DEBUG
-> > > from INFO.  The whole reason for the patch was the messages in hooks.c
-> > > were spamming people's logs when they had lots of auto fs mounts coming
-> > > and going.  Relevant code to the discussion below:
-> > > 
-> > >  303 static char *labeling_behaviors[6] = {
-> > >  304         "uses xattr",
-> > >  305         "uses transition SIDs",
-> > >  306         "uses task SIDs",
-> > >  307         "uses genfs_contexts",
-> > >  308         "not configured for labeling",
-> > >  309         "uses mountpoint labeling",
-> > >  310 };
-> > > 
-> > >  655         if (sbsec->behavior > ARRAY_SIZE(labeling_behaviors)) {
-> > >  656                 printk(KERN_ERR "SELinux: initialized (dev %s, type %s), unknown behavior\n",
-> > >  657                        sb->s_id, sb->s_type->name);
-> > >  658         }
-> > >  659         else {
-> > >  660                 printk(KERN_DEBUG "SELinux: initialized (dev %s, type %s), %s\n",
-> > >  661                        sb->s_id, sb->s_type->name,
-> > >  662                        labeling_behaviors[sbsec->behavior-1]);
-> > >  663         }
-> > > 
-> > > I think that marking all of these behaviors as KERN_DEBUG is right
-> > > except maybe when sbsec->behavior == 5 ("not configured for labeling").
-> > > Do we want to warn users that they are mounting a FS we know nothing
-> > > about?  If we do want to promote that message do we want to give more
-> > > descriptive output so the user knows what to do?  Possibly suggest to
-> > > them to include the FS in their policy or use a context mount?  If so
-> > > any suggestions on wording that message?  Maybe we want to still print
-> > > the same debug but att a new printk just for the behavior == 5 case?
-> > > 
-> > > This comes about because as more and more fuse FS's get used we hit more
-> > > and more FS's which don't have defined labeling behavior in policy.
-> > 
-> > Won't such cases show up indirectly anyway through avc messages on
-> > unlabeled_t files?
-> 
-> Yes they will, which is when we finally hear about them.  But since we
-> know up front something is wrong wouldn't it be a good idea to point
-> them in the right direction?  Very few people are going to see the
-> unlabeled_t denial and know right away what needs to be done to fix it.
-> If we don't think a printk is the right way maybe I could make the one
-> case in question an audit message and get the setroubleshoot gui to make
-> a semi-intelligent comment about it...
+On Wednesday 28 March 2007 04:43, "Christopher J. PeBenito" 
+<cpebenito@tresys.com> wrote:
+> > > > same boolean states.  The only time it boots is because the battery
+> > > > was just dead, or you force it because the system is locked up (or
+> > > > some similar reason). Both reset the device state too, and then
+> > > > falling back to the defaults would be the anticipated behavior.  If a
 
-More people are likely to see the unlabeled_t denial due to
-setroubleshoot, right?  We can't rely on users to even think of checking
-their system logs (at least that seemed to be part of the rationale for
-setroubleshoot).  And we can write a plugin for setroubleshoot that
-catches such denials, extracts the filesystem information, and proposes
-a solution.  Versus introducing an entirely new message that users won't
-see and nothing will automatically process.
+Except of course if it's not desired.
+
+> > > > lock down is supposed to survive even that, I would argue that its
+> > > > not a state, its a configuration and that the tunables are the way to
+> > > > go.
+
+I can imagine a situation where a wireless PDA device has booleans set when 
+leaving a secure area.  When returning to a secure area an RSA based 
+authentication mechanism could be used to inform a management program to 
+change the boolean values.
+
+> A PDA is going to have more backed storage than RAM.
+
+This is wrong.  I have two iPaQ's that have 32M of flash and 64M of RAM.  I am 
+not running out of either and expect that which you find limiting would 
+depend greatly on application.
+
+Incidentally rumor has it that when manufacturing such devices RAM is cheaper 
+than flash, I'm not sure whether the rumor is true.  But the incidence of 
+small devices using ram-disks for data that could be better stored on flash 
+seems to indicate that it might be.
+
+> I would argue that 
+> the tunables solution is the better solution from a memory optimization
+> perspective.  Why waste precious RAM on unused configuration rules in
+> conditionals, when you have roomier flash-backed storage for tunables?
+
+I think that it would be good to have the option to disable each of these 
+facilities at compile time and let the embedded developer choose the minimal 
+set of features that meet their requirements.
+
+> More specialized systems that have tighter constraints aren't going to
+> have these configuration options since they're much more static than a
+> general purpose device like a PDA.
+
+For such things TOMOYO might be a good option.  SE Linux is designed for 
+general purpose computers.  When you get down to an embedded device with 4M 
+of RAM and 8M of flash that only runs three or four programs then TOMOYO may 
+have an advantage.
 
 -- 
-Stephen Smalley
-National Security Agency
+russell@coker.com.au
+http://etbe.blogspot.com/          My Blog
 
+http://www.coker.com.au/sponsorship.html Sponsoring Free Software development
 
 --
 This message was distributed to subscribers of the selinux mailing list.
