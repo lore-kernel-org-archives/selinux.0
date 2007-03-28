@@ -1,57 +1,79 @@
-Subject: Re: Separating libselinux/libsepol (Was:  Re: BusyBox: load_policy
-	applet)
-From: "Christopher J. PeBenito" <cpebenito@tresys.com>
-To: russell@coker.com.au
-Cc: Karl MacMillan <kmacmillan@mentalrootkit.com>,
-        Stephen Smalley <sds@tycho.nsa.gov>,
-        Yuichi Nakamura <ynakam@hitachisoft.jp>, busybox@kaigai.gr.jp,
-        selinux@tycho.nsa.gov, Chad Sellers <csellers@tresys.com>
-In-Reply-To: <200703282026.41228.russell@coker.com.au>
-References: <20070323151513.395798cf.ynakam@hitachisoft.jp>
-	 <1175011333.19343.33.camel@localhost.localdomain>
-	 <1175021034.29300.67.camel@sgc>  <200703282026.41228.russell@coker.com.au>
-Content-Type: text/plain
-Date: Wed, 28 Mar 2007 08:17:01 -0400
-Message-Id: <1175084221.29300.79.camel@sgc>
-Mime-Version: 1.0
+Message-ID: <460A60D1.5030502@manicmethod.com>
+Date: Wed, 28 Mar 2007 08:34:25 -0400
+From: Joshua Brindle <method@manicmethod.com>
+MIME-Version: 1.0
+To: Stephen Smalley <sds@tycho.nsa.gov>
+CC: KaiGai Kohei <kaigai@ak.jp.nec.com>, ynakam@hitachisoft.jp,
+        busybox@kaigai.gr.jp, "Christopher J. PeBenito" <cpebenito@tresys.com>,
+        selinux@tycho.nsa.gov, Karl MacMillan <kmacmillan@mentalrootkit.com>,
+        Chad Sellers <csellers@tresys.com>
+Subject: Re: [busybox:00575] Re: Separating libselinux/libsepol (Was:  Re:
+ BusyBox: load_policy applet)
+References: <20070323151513.395798cf.ynakam@hitachisoft.jp>	 <1174654177.31436.188.camel@moss-spartans.epoch.ncsc.mil>	 <20070326102809.e4f80126.ynakam@hitachisoft.jp>	 <1174918097.3864.83.camel@moss-spartans.epoch.ncsc.mil>	 <1174925566.28830.61.camel@sgc>	 <1174926929.3864.149.camel@moss-spartans.epoch.ncsc.mil>	 <20070327095945.1c4245ec.ynakam@hitachisoft.jp>	 <1174997707.3864.261.camel@moss-spartans.epoch.ncsc.mil>	 <4609CB85.1060401@ak.jp.nec.com>	 <20070328174046.bb463392.ynakam@hitachisoft.jp>	 <460A3199.5030302@ak.jp.nec.com> <1175083457.3864.443.camel@moss-spartans.epoch.ncsc.mil>
+In-Reply-To: <1175083457.3864.443.camel@moss-spartans.epoch.ncsc.mil>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2007-03-28 at 21:26 +1100, Russell Coker wrote:
-> On Wednesday 28 March 2007 04:43, "Christopher J. PeBenito" 
-> <cpebenito@tresys.com> wrote:
-> > > > > same boolean states.  The only time it boots is because the battery
-> > > > > was just dead, or you force it because the system is locked up (or
-> > > > > some similar reason). Both reset the device state too, and then
-> > > > > falling back to the defaults would be the anticipated behavior.  If a
+Stephen Smalley wrote:
+> On Wed, 2007-03-28 at 18:12 +0900, KaiGai Kohei wrote:
+>> Yuichi Nakamura wrote:
+>>> On Wed, 28 Mar 2007 10:57:25 +0900
+>>> KaiGai Kohei  wrote:
+>>>> Currently, I don't have actual measurement of the minimum binary size of
+>>>> libsepol needed to handle preserving boolean variables and so on.
+>>>> Who can estimate it?
+>>> It seems that "sepol_genbools_array" libsepol function 
+>>> is necessary to preserve boolean.
+>>>
+>>> And sepol_genbools_array uses following:
+>>> -From policydb.o
+>>>  policydb_init
+>>>  policydb_destroy
+>>> - From policydb_convert.o
+>>>  policydb_from_image
+>>> - From policydb_public.o
+>>>  policydb_write
+>>> -From conditional.o
+>>>  evaluate_conds
+>>> -From  hashtab.o
+>>>  hashtab_search
+>>>
+>>> Then:
+>>> $ ls -l policydb.o hashtab.o conditional.o  policydb_convert.o policydb_public.o
+>>> -rw-rw-r-- 1 ynakam ynakam  6856 Mar 27 05:10 conditional.o
+>>> -rw-rw-r-- 1 ynakam ynakam  2540 Mar 27 05:10 hashtab.o
+>>> -rw-rw-r-- 1 ynakam ynakam 29284 Mar 27 05:10 policydb.o
+>>> -rw-rw-r-- 1 ynakam ynakam  2576 Mar 27 05:10 policydb_convert.o
+>>> -rw-rw-r-- 1 ynakam ynakam  2396 Mar 27 05:10 policydb_public.o
+>>> Above are compiled with -Os option.
+>>>
+>>> So, to preserve bool at least 43.6 k is necessary.
+>> Nakamura, Isn't it a bit rough-grained measurement?
+>>
+>> For example, policydb_init() calls the following functions internally:
+>>   - symtab_init() defined at symtab.c
+>>   - avrule_block_create() defined at avrule_block.c
+>>   - avrule_decl_create() defined at avrule_block.c
+>>   - avtab_init() defined at avtab.c
+>>   - roles_init() defined at policydb.c
+>>   - cond_policydb_init() defined at conditional.c
+>>   - avtab_destroy() defined at avtab.c
+>>   - hashtab_destroy() defined at hashtab.c
+>>   - avrule_block_list_destroy() defined at avrule_block.c
+>>
+>> So, we also have to include symtab.c, avrule_block.c, avtab.c, conditional.c,
+>> hashtab.c and avrule_block.c additionally for only policydb_init().
 > 
-> Except of course if it's not desired.
+> You don't actually need any of the code for the policy module format
+> (which is presently interwoven with the rest, since the policydb
+> structure supports both module and kernel formats).  A lot of that will
+> boil away from the new policy representation.
 > 
-> > > > > lock down is supposed to survive even that, I would argue that its
-> > > > > not a state, its a configuration and that the tunables are the way to
-> > > > > go.
-> 
-> I can imagine a situation where a wireless PDA device has booleans set when 
-> leaving a secure area.  When returning to a secure area an RSA based 
-> authentication mechanism could be used to inform a management program to 
-> change the boolean values.
 
-I've already stated my position on this.  I don't think this is any
-different than Karl's docked/undocked example.
-
-> > A PDA is going to have more backed storage than RAM.
-> 
-> This is wrong.  I have two iPaQ's that have 32M of flash and 64M of RAM.  I am 
-> not running out of either and expect that which you find limiting would 
-> depend greatly on application.
-
-I disagree, I think this is the past.  Especially now that PDAs have
-memory card slots so you can put 2GB+ into them.
-
--- 
-Chris PeBenito
-Tresys Technology, LLC
-(410) 290-1411 x150
+Presumably all of the policy management will operate on the new 
+representation rather than the kernel format so bringing in any 
+management at all brings in all of the module format code.
 
 
 --
