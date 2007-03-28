@@ -1,9 +1,9 @@
 Subject: Re: Separating libselinux/libsepol (Was:  Re: BusyBox: load_policy
 	applet)
-From: Stephen Smalley <sds@tycho.nsa.gov>
+From: "Christopher J. PeBenito" <cpebenito@tresys.com>
 To: russell@coker.com.au
-Cc: "Christopher J. PeBenito" <cpebenito@tresys.com>,
-        Karl MacMillan <kmacmillan@mentalrootkit.com>,
+Cc: Karl MacMillan <kmacmillan@mentalrootkit.com>,
+        Stephen Smalley <sds@tycho.nsa.gov>,
         Yuichi Nakamura <ynakam@hitachisoft.jp>, busybox@kaigai.gr.jp,
         selinux@tycho.nsa.gov, Chad Sellers <csellers@tresys.com>
 In-Reply-To: <200703282026.41228.russell@coker.com.au>
@@ -11,8 +11,8 @@ References: <20070323151513.395798cf.ynakam@hitachisoft.jp>
 	 <1175011333.19343.33.camel@localhost.localdomain>
 	 <1175021034.29300.67.camel@sgc>  <200703282026.41228.russell@coker.com.au>
 Content-Type: text/plain
-Date: Wed, 28 Mar 2007 08:06:22 -0400
-Message-Id: <1175083582.3864.446.camel@moss-spartans.epoch.ncsc.mil>
+Date: Wed, 28 Mar 2007 08:17:01 -0400
+Message-Id: <1175084221.29300.79.camel@sgc>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
@@ -35,44 +35,23 @@ On Wed, 2007-03-28 at 21:26 +1100, Russell Coker wrote:
 > leaving a secure area.  When returning to a secure area an RSA based 
 > authentication mechanism could be used to inform a management program to 
 > change the boolean values.
-> 
+
+I've already stated my position on this.  I don't think this is any
+different than Karl's docked/undocked example.
+
 > > A PDA is going to have more backed storage than RAM.
 > 
 > This is wrong.  I have two iPaQ's that have 32M of flash and 64M of RAM.  I am 
 > not running out of either and expect that which you find limiting would 
 > depend greatly on application.
-> 
-> Incidentally rumor has it that when manufacturing such devices RAM is cheaper 
-> than flash, I'm not sure whether the rumor is true.  But the incidence of 
-> small devices using ram-disks for data that could be better stored on flash 
-> seems to indicate that it might be.
-> 
-> > I would argue that 
-> > the tunables solution is the better solution from a memory optimization
-> > perspective.  Why waste precious RAM on unused configuration rules in
-> > conditionals, when you have roomier flash-backed storage for tunables?
-> 
-> I think that it would be good to have the option to disable each of these 
-> facilities at compile time and let the embedded developer choose the minimal 
-> set of features that meet their requirements.
-> 
-> > More specialized systems that have tighter constraints aren't going to
-> > have these configuration options since they're much more static than a
-> > general purpose device like a PDA.
-> 
-> For such things TOMOYO might be a good option.  SE Linux is designed for 
-> general purpose computers.  When you get down to an embedded device with 4M 
-> of RAM and 8M of flash that only runs three or four programs then TOMOYO may 
-> have an advantage.
 
-SELinux (like Linux) should scale across the full range.  If it doesn't
-presently, we should work to make it so.
-
-(And I doubt you'd recommend TOMOYO if you read the code)
+I disagree, I think this is the past.  Especially now that PDAs have
+memory card slots so you can put 2GB+ into them.
 
 -- 
-Stephen Smalley
-National Security Agency
+Chris PeBenito
+Tresys Technology, LLC
+(410) 290-1411 x150
 
 
 --
