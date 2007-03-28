@@ -1,73 +1,85 @@
-From: Russell Coker <russell@coker.com.au>
-Reply-To: russell@coker.com.au
-To: "Christopher J. PeBenito" <cpebenito@tresys.com>
-Subject: Re: Separating libselinux/libsepol (Was:  Re: BusyBox: load_policy applet)
-Date: Wed, 28 Mar 2007 21:26:30 +1100
-Cc: Karl MacMillan <kmacmillan@mentalrootkit.com>,
-        Stephen Smalley <sds@tycho.nsa.gov>,
-        Yuichi Nakamura <ynakam@hitachisoft.jp>, busybox@kaigai.gr.jp,
-        selinux@tycho.nsa.gov, Chad Sellers <csellers@tresys.com>
-References: <20070323151513.395798cf.ynakam@hitachisoft.jp> <1175011333.19343.33.camel@localhost.localdomain> <1175021034.29300.67.camel@sgc>
-In-Reply-To: <1175021034.29300.67.camel@sgc>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
-Message-Id: <200703282026.41228.russell@coker.com.au>
+Subject: Re: Separating libselinux/libsepol (Was:  Re: BusyBox: load_policy
+	applet)
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: KaiGai Kohei <kaigai@ak.jp.nec.com>
+Cc: Yuichi Nakamura <ynakam@hitachisoft.jp>,
+        "Christopher J. PeBenito" <cpebenito@tresys.com>, busybox@kaigai.gr.jp,
+        selinux@tycho.nsa.gov, Karl MacMillan <kmacmillan@mentalrootkit.com>,
+        Chad Sellers <csellers@tresys.com>
+In-Reply-To: <4609CB85.1060401@ak.jp.nec.com>
+References: <20070323151513.395798cf.ynakam@hitachisoft.jp>
+	 <1174654177.31436.188.camel@moss-spartans.epoch.ncsc.mil>
+	 <20070326102809.e4f80126.ynakam@hitachisoft.jp>
+	 <1174918097.3864.83.camel@moss-spartans.epoch.ncsc.mil>
+	 <1174925566.28830.61.camel@sgc>
+	 <1174926929.3864.149.camel@moss-spartans.epoch.ncsc.mil>
+	 <20070327095945.1c4245ec.ynakam@hitachisoft.jp>
+	 <1174997707.3864.261.camel@moss-spartans.epoch.ncsc.mil>
+	 <4609CB85.1060401@ak.jp.nec.com>
+Content-Type: text/plain
+Date: Wed, 28 Mar 2007 08:00:59 -0400
+Message-Id: <1175083259.3864.442.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wednesday 28 March 2007 04:43, "Christopher J. PeBenito" 
-<cpebenito@tresys.com> wrote:
-> > > > same boolean states.  The only time it boots is because the battery
-> > > > was just dead, or you force it because the system is locked up (or
-> > > > some similar reason). Both reset the device state too, and then
-> > > > falling back to the defaults would be the anticipated behavior.  If a
+On Wed, 2007-03-28 at 10:57 +0900, KaiGai Kohei wrote:
+> >> The SELinux for embedded in my brain(future SEDiet work) for now is following.
+> >> * Embedded SELinux development kit is prepared and it has following features.
+> >> * BusyBox includes SELinux commands
+> >> * Developers can choose required features(boolean, module, semanage etc)
+> >> * To implement it following will be necessary.
+> >> * libselinux/libsepol/libsemanage is separated
+> >> * Something like ENABLE_BOOLEAN, ENABLE_MODULE, ENABLE_SEMANAGE is embedded in source codes of libse*, BusyBox.
+> >> * Least set of refpolicy is prepared: 
+> >>   - only core policy(kernel policy module?) and macros are enabled by default
+> >>   - supports both modular and monolitic
+> >>   - To write new policy, SEEdit or other tools can be used
+> >>   - has a compiler that has feature for size optimization
+> > 
+> > For the most part, this approach sounds fine, and I suspect that you
+> > could even introduce a build option for creating a minimal subset of
+> > libselinux as well as the other libraries.  Note that the loadable
+> > policy module support depends on libsemanage, so I doubt you would
+> > support separate ENABLE_MODULE vs. ENABLE_SEMANAGE options unless you
+> > just mean the set of utility programs.
+> > 
+> > Some specific questions and comments:
+> > 1) Do you think you will need the legacy support for setting local
+> > persistent booleans without using libsemanage?  We were planning on
+> > dropping that support out of libselinux and libsepol in the 2.x/devel
+> > series.
+> 
+> I want to mention that separating libselinux/libsepol is not the only way
+> to reduce binary size.
+> Is it possible to replace some functions rare needed in the target system
+> by empty implemented functions, isn't it? I think this approach enables
+> more flexible selection of functionalities than the simple separation.
 
-Except of course if it's not desired.
+You don't even necessarily have to provide function stubs; that's what I
+meant by a cut-down version of the libraries - we could provide build
+options to create minimal subsets of each library.
 
-> > > > lock down is supposed to survive even that, I would argue that its
-> > > > not a state, its a configuration and that the tunables are the way to
-> > > > go.
+> The typical example is userspace avc. I think seldom people use userspace
+> object managers like XACE/SELinux on embedded systems.
+> The sum of avc.o, avc_internal.o and avc_sidtab.o is about 32kb (on i386).
+> Because the size of libselinux.a is about 146kb, we will be able to reduce
+> about 20% of binary size.
 
-I can imagine a situation where a wireless PDA device has booleans set when 
-leaving a secure area.  When returning to a secure area an RSA based 
-authentication mechanism could be used to inform a management program to 
-change the boolean values.
+Yes, that makes sense.
+> 
+> Currently, I don't have actual measurement of the minimum binary size of
+> libsepol needed to handle preserving boolean variables and so on.
+> Who can estimate it?
 
-> A PDA is going to have more backed storage than RAM.
-
-This is wrong.  I have two iPaQ's that have 32M of flash and 64M of RAM.  I am 
-not running out of either and expect that which you find limiting would 
-depend greatly on application.
-
-Incidentally rumor has it that when manufacturing such devices RAM is cheaper 
-than flash, I'm not sure whether the rumor is true.  But the incidence of 
-small devices using ram-disks for data that could be better stored on flash 
-seems to indicate that it might be.
-
-> I would argue that 
-> the tunables solution is the better solution from a memory optimization
-> perspective.  Why waste precious RAM on unused configuration rules in
-> conditionals, when you have roomier flash-backed storage for tunables?
-
-I think that it would be good to have the option to disable each of these 
-facilities at compile time and let the embedded developer choose the minimal 
-set of features that meet their requirements.
-
-> More specialized systems that have tighter constraints aren't going to
-> have these configuration options since they're much more static than a
-> general purpose device like a PDA.
-
-For such things TOMOYO might be a good option.  SE Linux is designed for 
-general purpose computers.  When you get down to an embedded device with 4M 
-of RAM and 8M of flash that only runs three or four programs then TOMOYO may 
-have an advantage.
+You'd start from sepol_genbools_array() and work through the
+dependencies.  But you don't need the rest of the genbools
+functionality, including the parser.
 
 -- 
-russell@coker.com.au
-http://etbe.blogspot.com/          My Blog
+Stephen Smalley
+National Security Agency
 
-http://www.coker.com.au/sponsorship.html Sponsoring Free Software development
 
 --
 This message was distributed to subscribers of the selinux mailing list.
