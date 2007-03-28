@@ -1,68 +1,87 @@
 Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l2SIJEgA024967
-	for <selinux@tycho.nsa.gov>; Wed, 28 Mar 2007 14:19:14 -0400
-Received: from exchange.columbia.tresys.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with SMTP id l2SIJCLB001562
-	for <selinux@tycho.nsa.gov>; Wed, 28 Mar 2007 18:19:13 GMT
-Subject: Re: cpuspeed wants to write to sysfs_dirs
-From: "Christopher J. PeBenito" <cpebenito@tresys.com>
-To: Daniel J Walsh <dwalsh@redhat.com>
-Cc: SE Linux <selinux@tycho.nsa.gov>
-In-Reply-To: <46042830.2090807@redhat.com>
-References: <46042830.2090807@redhat.com>
-Content-Type: text/plain
-Date: Wed, 28 Mar 2007 18:19:50 +0000
-Message-Id: <1175105990.29300.109.camel@sgc.columbia.tresys.com>
-Mime-Version: 1.0
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l2SIX0SP025677
+	for <selinux@tycho.nsa.gov>; Wed, 28 Mar 2007 14:33:00 -0400
+Received: from mx1.redhat.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l2SIWxLB004124
+	for <selinux@tycho.nsa.gov>; Wed, 28 Mar 2007 18:32:59 GMT
+Message-ID: <460AB4CF.4040404@redhat.com>
+Date: Wed, 28 Mar 2007 14:32:47 -0400
+From: Daniel J Walsh <dwalsh@redhat.com>
+MIME-Version: 1.0
+To: "Christopher J. PeBenito" <cpebenito@tresys.com>
+CC: SE Linux <selinux@tycho.nsa.gov>
+Subject: Re: Samba guys reviewed samba policy and fixed some of the ports
+ used by samba
+References: <46042767.8050508@redhat.com> <1175105856.29300.107.camel@sgc.columbia.tresys.com>
+In-Reply-To: <1175105856.29300.107.camel@sgc.columbia.tresys.com>
+Content-Type: multipart/mixed;
+ boundary="------------060106010806070308070901"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Dupe.  Already merged.
+This is a multi-part message in MIME format.
+--------------060106010806070308070901
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
-On Fri, 2007-03-23 at 15:19 -0400, Daniel J Walsh wrote:
-> --- nsaserefpolicy/policy/modules/kernel/devices.if     2007-01-02 12:57:13.000000000 -0500
-> +++ serefpolicy-2.5.10/policy/modules/kernel/devices.if 2007-03-22 15:06:58.000000000 -0400
-> @@ -2449,6 +2449,24 @@
->  
->  ########################################
->  ## <summary>
-> +##     Write in a sysfs directories.
-> +## </summary>
-> +## <param name="domain">
-> +##     <summary>
-> +##     The type of the process performing this action.
-> +##     </summary>
-> +## </param>
-> +#
-> +interface(`dev_write_sysfs_dirs',`
-> +       gen_require(`
-> +               type sysfs_t;
-> +       ')
-> +
-> +       allow $1 sysfs_t:dir write;
-> +')
-> +
-> +########################################
-> +## <summary>
->  ##     Search the sysfs directories.
->  ## </summary>
->  ## <param name="domain">
-> --- nsaserefpolicy/policy/modules/services/cpucontrol.te        2007-01-02 12:57:43.000000000 -0500
-> +++ serefpolicy-2.5.10/policy/modules/services/cpucontrol.te    2007-03-22 15:06:59.000000000 -0400
-> @@ -91,6 +91,7 @@
->  kernel_read_system_state(cpuspeed_t)
->  kernel_read_kernel_sysctls(cpuspeed_t)
->  
-> +dev_write_sysfs_dirs(cpuspeed_t)
->  dev_rw_sysfs(cpuspeed_t)
->  
->  domain_use_interactive_fds(cpuspeed_t)
-> 
--- 
-Chris PeBenito
-Tresys Technology, LLC
-(410) 290-1411 x150
+Christopher J. PeBenito wrote:
+> On Fri, 2007-03-23 at 15:15 -0400, Daniel J Walsh wrote:
+>   
+>> Also added new ports for squid.
+>>     
+>
+> Looks like the wrong patch.
+>
+>   
+Sorry try this one.
 
+
+--------------060106010806070308070901
+Content-Type: text/x-patch;
+ name="corenetwork.te.in.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="corenetwork.te.in.patch"
+
+--- nsaserefpolicy/policy/modules/kernel/corenetwork.te.in	2007-02-19 11:32:51.000000000 -0500
++++ serefpolicy-2.5.11/policy/modules/kernel/corenetwork.te.in	2007-03-27 15:45:12.000000000 -0400
+@@ -100,7 +105,7 @@
+ network_port(kerberos_master, tcp,4444,s0, udp,4444,s0)
+ network_port(kerberos, tcp,88,s0, udp,88,s0, tcp,750,s0, udp,750,s0)
+ network_port(ktalkd, udp,517,s0, udp,518,s0)
+-network_port(ldap, tcp,389,s0, udp,389,s0, tcp,636,s0, udp,636,s0)
++network_port(ldap, tcp,3268,s0, tcp,389,s0, udp,389,s0, tcp,636,s0, udp,636,s0)
+ type lrrd_port_t, port_type; dnl network_port(lrrd_port_t) # no defined portcon
+ network_port(lmtp, tcp,24,s0, udp,24,s0)
+ network_port(mail, tcp,2000,s0)
+@@ -108,7 +113,7 @@
+ network_port(mysqld, tcp,3306,s0)
+ network_port(nessus, tcp,1241,s0)
+ network_port(netsupport, tcp,5405,s0, udp,5405,s0)
+-network_port(nmbd, udp,137,s0, udp,138,s0, udp,139,s0)
++network_port(nmbd, udp,137,s0, udp,138,s0)
+ network_port(ntp, udp,123,s0)
+ network_port(ocsp, tcp,9080,s0)
+ network_port(openvpn, tcp,1194,s0, udp,1194,s0)
+@@ -132,7 +137,7 @@
+ network_port(router, udp,520,s0)
+ network_port(rsh, tcp,514,s0)
+ network_port(rsync, tcp,873,s0, udp,873,s0)
+-network_port(smbd, tcp,137-139,s0, tcp,445,s0)
++network_port(smbd, tcp,139,s0, tcp,445,s0)
+ network_port(smtp, tcp,25,s0, tcp,465,s0, tcp,587,s0)
+ network_port(snmp, udp,161,s0, udp,162,s0, tcp,199,s0)
+ network_port(spamd, tcp,783,s0)
+@@ -140,6 +145,7 @@
+ network_port(soundd, tcp,8000,s0, tcp,9433,s0)
+ type socks_port_t, port_type; dnl network_port(socks) # no defined portcon
+ type stunnel_port_t, port_type; dnl network_port(stunnel) # no defined portcon in current strict
++network_port(squid, udp,3401,s0, tcp,3401,s0, udp,4827,s0, tcp,4827,s0, )
+ network_port(swat, tcp,901,s0)
+ network_port(syslogd, udp,514,s0)
+ network_port(telnetd, tcp,23,s0)
+
+--------------060106010806070308070901--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
