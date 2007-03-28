@@ -1,100 +1,80 @@
-Message-ID: <460A3199.5030302@ak.jp.nec.com>
-Date: Wed, 28 Mar 2007 18:12:57 +0900
-From: KaiGai Kohei <kaigai@ak.jp.nec.com>
-MIME-Version: 1.0
-To: ynakam@hitachisoft.jp
-CC: busybox@kaigai.gr.jp, Stephen Smalley <sds@tycho.nsa.gov>,
-        "Christopher J. PeBenito" <cpebenito@tresys.com>,
-        selinux@tycho.nsa.gov, Karl MacMillan <kmacmillan@mentalrootkit.com>,
-        Chad Sellers <csellers@tresys.com>
-Subject: Re: [busybox:00575] Re: Separating libselinux/libsepol (Was:  Re:
- BusyBox: load_policy applet)
-References: <20070323151513.395798cf.ynakam@hitachisoft.jp>	<1174654177.31436.188.camel@moss-spartans.epoch.ncsc.mil>	<20070326102809.e4f80126.ynakam@hitachisoft.jp>	<1174918097.3864.83.camel@moss-spartans.epoch.ncsc.mil>	<1174925566.28830.61.camel@sgc>	<1174926929.3864.149.camel@moss-spartans.epoch.ncsc.mil>	<20070327095945.1c4245ec.ynakam@hitachisoft.jp>	<1174997707.3864.261.camel@moss-spartans.epoch.ncsc.mil>	<4609CB85.1060401@ak.jp.nec.com> <20070328174046.bb463392.ynakam@hitachisoft.jp>
-In-Reply-To: <20070328174046.bb463392.ynakam@hitachisoft.jp>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Subject: Re: promoting printk for FS mounting back from KERN_DEBUG
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Eric Paris <eparis@parisplace.org>
+Cc: selinux@tycho.nsa.gov, jmorris@namei.org
+In-Reply-To: <1175027419.13618.45.camel@localhost.localdomain>
+References: <1175025162.13618.32.camel@localhost.localdomain>
+	 <1175026064.3864.407.camel@moss-spartans.epoch.ncsc.mil>
+	 <1175027419.13618.45.camel@localhost.localdomain>
+Content-Type: text/plain
+Date: Wed, 28 Mar 2007 07:27:20 -0400
+Message-Id: <1175081240.3864.412.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Yuichi Nakamura wrote:
-> On Wed, 28 Mar 2007 10:57:25 +0900
-> KaiGai Kohei  wrote:
->> Currently, I don't have actual measurement of the minimum binary size of
->> libsepol needed to handle preserving boolean variables and so on.
->> Who can estimate it?
+On Tue, 2007-03-27 at 16:30 -0400, Eric Paris wrote:
+> On Tue, 2007-03-27 at 16:07 -0400, Stephen Smalley wrote:
+> > On Tue, 2007-03-27 at 15:52 -0400, Eric Paris wrote:
+> > > So with my recent printk demotions lots of thing were made KERN_DEBUG
+> > > from INFO.  The whole reason for the patch was the messages in hooks.c
+> > > were spamming people's logs when they had lots of auto fs mounts coming
+> > > and going.  Relevant code to the discussion below:
+> > > 
+> > >  303 static char *labeling_behaviors[6] = {
+> > >  304         "uses xattr",
+> > >  305         "uses transition SIDs",
+> > >  306         "uses task SIDs",
+> > >  307         "uses genfs_contexts",
+> > >  308         "not configured for labeling",
+> > >  309         "uses mountpoint labeling",
+> > >  310 };
+> > > 
+> > >  655         if (sbsec->behavior > ARRAY_SIZE(labeling_behaviors)) {
+> > >  656                 printk(KERN_ERR "SELinux: initialized (dev %s, type %s), unknown behavior\n",
+> > >  657                        sb->s_id, sb->s_type->name);
+> > >  658         }
+> > >  659         else {
+> > >  660                 printk(KERN_DEBUG "SELinux: initialized (dev %s, type %s), %s\n",
+> > >  661                        sb->s_id, sb->s_type->name,
+> > >  662                        labeling_behaviors[sbsec->behavior-1]);
+> > >  663         }
+> > > 
+> > > I think that marking all of these behaviors as KERN_DEBUG is right
+> > > except maybe when sbsec->behavior == 5 ("not configured for labeling").
+> > > Do we want to warn users that they are mounting a FS we know nothing
+> > > about?  If we do want to promote that message do we want to give more
+> > > descriptive output so the user knows what to do?  Possibly suggest to
+> > > them to include the FS in their policy or use a context mount?  If so
+> > > any suggestions on wording that message?  Maybe we want to still print
+> > > the same debug but att a new printk just for the behavior == 5 case?
+> > > 
+> > > This comes about because as more and more fuse FS's get used we hit more
+> > > and more FS's which don't have defined labeling behavior in policy.
+> > 
+> > Won't such cases show up indirectly anyway through avc messages on
+> > unlabeled_t files?
 > 
-> It seems that "sepol_genbools_array" libsepol function 
-> is necessary to preserve boolean.
-> 
-> And sepol_genbools_array uses following:
-> -From policydb.o
->  policydb_init
->  policydb_destroy
-> - From policydb_convert.o
->  policydb_from_image
-> - From policydb_public.o
->  policydb_write
-> -From conditional.o
->  evaluate_conds
-> -From  hashtab.o
->  hashtab_search
-> 
-> Then:
-> $ ls -l policydb.o hashtab.o conditional.o  policydb_convert.o policydb_public.o
-> -rw-rw-r-- 1 ynakam ynakam  6856 Mar 27 05:10 conditional.o
-> -rw-rw-r-- 1 ynakam ynakam  2540 Mar 27 05:10 hashtab.o
-> -rw-rw-r-- 1 ynakam ynakam 29284 Mar 27 05:10 policydb.o
-> -rw-rw-r-- 1 ynakam ynakam  2576 Mar 27 05:10 policydb_convert.o
-> -rw-rw-r-- 1 ynakam ynakam  2396 Mar 27 05:10 policydb_public.o
-> Above are compiled with -Os option.
-> 
-> So, to preserve bool at least 43.6 k is necessary.
+> Yes they will, which is when we finally hear about them.  But since we
+> know up front something is wrong wouldn't it be a good idea to point
+> them in the right direction?  Very few people are going to see the
+> unlabeled_t denial and know right away what needs to be done to fix it.
+> If we don't think a printk is the right way maybe I could make the one
+> case in question an audit message and get the setroubleshoot gui to make
+> a semi-intelligent comment about it...
 
-Nakamura, Isn't it a bit rough-grained measurement?
-
-For example, policydb_init() calls the following functions internally:
-  - symtab_init() defined at symtab.c
-  - avrule_block_create() defined at avrule_block.c
-  - avrule_decl_create() defined at avrule_block.c
-  - avtab_init() defined at avtab.c
-  - roles_init() defined at policydb.c
-  - cond_policydb_init() defined at conditional.c
-  - avtab_destroy() defined at avtab.c
-  - hashtab_destroy() defined at hashtab.c
-  - avrule_block_list_destroy() defined at avrule_block.c
-
-So, we also have to include symtab.c, avrule_block.c, avtab.c, conditional.c,
-hashtab.c and avrule_block.c additionally for only policydb_init().
-
-It is not so easy work as we can end up quickly, I think.
-
-Thanks,
-
-> I want boolean to be enabled/disabled by build option of libselinux/sepol and BusyBox.
-> 
->> I want to mention that separating libselinux/libsepol is not the only way
->> to reduce binary size.
->> Is it possible to replace some functions rare needed in the target system
->> by empty implemented functions, isn't it? I think this approach enables
->> more flexible selection of functionalities than the simple separation.
-> Yes, this implementation is one possibility. 
-> This may be better than only separating libselinux/sepol.
-> 
-> BTW, in Japanese chat, 
-> you and Shinji said too fine-grained selection will not be understood by 
-> embedded developers.
-> 
-> I've come up with three selections.
-> 1) Full-featured SELinux
-> 2) Tiny-SELinux for embedded device with poor resource
-> = 1) - semanage - boolean - user space object manager etc
-> 3) Tiny-SELinux for mobile PDA(richer embedded device)
->  2) + boolean
-> 
-> Regards,
+More people are likely to see the unlabeled_t denial due to
+setroubleshoot, right?  We can't rely on users to even think of checking
+their system logs (at least that seemed to be part of the rationale for
+setroubleshoot).  And we can write a plugin for setroubleshoot that
+catches such denials, extracts the filesystem information, and proposes
+a solution.  Versus introducing an entirely new message that users won't
+see and nothing will automatically process.
 
 -- 
-Open Source Software Promotion Center, NEC
-KaiGai Kohei <kaigai@ak.jp.nec.com>
+Stephen Smalley
+National Security Agency
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
