@@ -1,114 +1,75 @@
-Subject: Re: [busybox:00575] Re: Separating libselinux/libsepol (Was:  Re:
-	BusyBox: load_policy applet)
+Subject: Re: Separating libselinux/libsepol (Was:  Re: BusyBox: load_policy
+	applet)
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: KaiGai Kohei <kaigai@ak.jp.nec.com>
-Cc: ynakam@hitachisoft.jp, busybox@kaigai.gr.jp,
-        "Christopher J. PeBenito" <cpebenito@tresys.com>,
-        selinux@tycho.nsa.gov, Karl MacMillan <kmacmillan@mentalrootkit.com>,
-        Chad Sellers <csellers@tresys.com>
-In-Reply-To: <460A3199.5030302@ak.jp.nec.com>
+To: russell@coker.com.au
+Cc: "Christopher J. PeBenito" <cpebenito@tresys.com>,
+        Karl MacMillan <kmacmillan@mentalrootkit.com>,
+        Yuichi Nakamura <ynakam@hitachisoft.jp>, busybox@kaigai.gr.jp,
+        selinux@tycho.nsa.gov, Chad Sellers <csellers@tresys.com>
+In-Reply-To: <200703282026.41228.russell@coker.com.au>
 References: <20070323151513.395798cf.ynakam@hitachisoft.jp>
-	 <1174654177.31436.188.camel@moss-spartans.epoch.ncsc.mil>
-	 <20070326102809.e4f80126.ynakam@hitachisoft.jp>
-	 <1174918097.3864.83.camel@moss-spartans.epoch.ncsc.mil>
-	 <1174925566.28830.61.camel@sgc>
-	 <1174926929.3864.149.camel@moss-spartans.epoch.ncsc.mil>
-	 <20070327095945.1c4245ec.ynakam@hitachisoft.jp>
-	 <1174997707.3864.261.camel@moss-spartans.epoch.ncsc.mil>
-	 <4609CB85.1060401@ak.jp.nec.com>
-	 <20070328174046.bb463392.ynakam@hitachisoft.jp>
-	 <460A3199.5030302@ak.jp.nec.com>
+	 <1175011333.19343.33.camel@localhost.localdomain>
+	 <1175021034.29300.67.camel@sgc>  <200703282026.41228.russell@coker.com.au>
 Content-Type: text/plain
-Date: Wed, 28 Mar 2007 08:04:17 -0400
-Message-Id: <1175083457.3864.443.camel@moss-spartans.epoch.ncsc.mil>
+Date: Wed, 28 Mar 2007 08:06:22 -0400
+Message-Id: <1175083582.3864.446.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2007-03-28 at 18:12 +0900, KaiGai Kohei wrote:
-> Yuichi Nakamura wrote:
-> > On Wed, 28 Mar 2007 10:57:25 +0900
-> > KaiGai Kohei  wrote:
-> >> Currently, I don't have actual measurement of the minimum binary size of
-> >> libsepol needed to handle preserving boolean variables and so on.
-> >> Who can estimate it?
-> > 
-> > It seems that "sepol_genbools_array" libsepol function 
-> > is necessary to preserve boolean.
-> > 
-> > And sepol_genbools_array uses following:
-> > -From policydb.o
-> >  policydb_init
-> >  policydb_destroy
-> > - From policydb_convert.o
-> >  policydb_from_image
-> > - From policydb_public.o
-> >  policydb_write
-> > -From conditional.o
-> >  evaluate_conds
-> > -From  hashtab.o
-> >  hashtab_search
-> > 
-> > Then:
-> > $ ls -l policydb.o hashtab.o conditional.o  policydb_convert.o policydb_public.o
-> > -rw-rw-r-- 1 ynakam ynakam  6856 Mar 27 05:10 conditional.o
-> > -rw-rw-r-- 1 ynakam ynakam  2540 Mar 27 05:10 hashtab.o
-> > -rw-rw-r-- 1 ynakam ynakam 29284 Mar 27 05:10 policydb.o
-> > -rw-rw-r-- 1 ynakam ynakam  2576 Mar 27 05:10 policydb_convert.o
-> > -rw-rw-r-- 1 ynakam ynakam  2396 Mar 27 05:10 policydb_public.o
-> > Above are compiled with -Os option.
-> > 
-> > So, to preserve bool at least 43.6 k is necessary.
+On Wed, 2007-03-28 at 21:26 +1100, Russell Coker wrote:
+> On Wednesday 28 March 2007 04:43, "Christopher J. PeBenito" 
+> <cpebenito@tresys.com> wrote:
+> > > > > same boolean states.  The only time it boots is because the battery
+> > > > > was just dead, or you force it because the system is locked up (or
+> > > > > some similar reason). Both reset the device state too, and then
+> > > > > falling back to the defaults would be the anticipated behavior.  If a
 > 
-> Nakamura, Isn't it a bit rough-grained measurement?
+> Except of course if it's not desired.
 > 
-> For example, policydb_init() calls the following functions internally:
->   - symtab_init() defined at symtab.c
->   - avrule_block_create() defined at avrule_block.c
->   - avrule_decl_create() defined at avrule_block.c
->   - avtab_init() defined at avtab.c
->   - roles_init() defined at policydb.c
->   - cond_policydb_init() defined at conditional.c
->   - avtab_destroy() defined at avtab.c
->   - hashtab_destroy() defined at hashtab.c
->   - avrule_block_list_destroy() defined at avrule_block.c
+> > > > > lock down is supposed to survive even that, I would argue that its
+> > > > > not a state, its a configuration and that the tunables are the way to
+> > > > > go.
 > 
-> So, we also have to include symtab.c, avrule_block.c, avtab.c, conditional.c,
-> hashtab.c and avrule_block.c additionally for only policydb_init().
+> I can imagine a situation where a wireless PDA device has booleans set when 
+> leaving a secure area.  When returning to a secure area an RSA based 
+> authentication mechanism could be used to inform a management program to 
+> change the boolean values.
+> 
+> > A PDA is going to have more backed storage than RAM.
+> 
+> This is wrong.  I have two iPaQ's that have 32M of flash and 64M of RAM.  I am 
+> not running out of either and expect that which you find limiting would 
+> depend greatly on application.
+> 
+> Incidentally rumor has it that when manufacturing such devices RAM is cheaper 
+> than flash, I'm not sure whether the rumor is true.  But the incidence of 
+> small devices using ram-disks for data that could be better stored on flash 
+> seems to indicate that it might be.
+> 
+> > I would argue that 
+> > the tunables solution is the better solution from a memory optimization
+> > perspective.  Why waste precious RAM on unused configuration rules in
+> > conditionals, when you have roomier flash-backed storage for tunables?
+> 
+> I think that it would be good to have the option to disable each of these 
+> facilities at compile time and let the embedded developer choose the minimal 
+> set of features that meet their requirements.
+> 
+> > More specialized systems that have tighter constraints aren't going to
+> > have these configuration options since they're much more static than a
+> > general purpose device like a PDA.
+> 
+> For such things TOMOYO might be a good option.  SE Linux is designed for 
+> general purpose computers.  When you get down to an embedded device with 4M 
+> of RAM and 8M of flash that only runs three or four programs then TOMOYO may 
+> have an advantage.
 
-You don't actually need any of the code for the policy module format
-(which is presently interwoven with the rest, since the policydb
-structure supports both module and kernel formats).  A lot of that will
-boil away from the new policy representation.
+SELinux (like Linux) should scale across the full range.  If it doesn't
+presently, we should work to make it so.
 
-> 
-> It is not so easy work as we can end up quickly, I think.
-> 
-> Thanks,
-> 
-> > I want boolean to be enabled/disabled by build option of libselinux/sepol and BusyBox.
-> > 
-> >> I want to mention that separating libselinux/libsepol is not the only way
-> >> to reduce binary size.
-> >> Is it possible to replace some functions rare needed in the target system
-> >> by empty implemented functions, isn't it? I think this approach enables
-> >> more flexible selection of functionalities than the simple separation.
-> > Yes, this implementation is one possibility. 
-> > This may be better than only separating libselinux/sepol.
-> > 
-> > BTW, in Japanese chat, 
-> > you and Shinji said too fine-grained selection will not be understood by 
-> > embedded developers.
-> > 
-> > I've come up with three selections.
-> > 1) Full-featured SELinux
-> > 2) Tiny-SELinux for embedded device with poor resource
-> > = 1) - semanage - boolean - user space object manager etc
-> > 3) Tiny-SELinux for mobile PDA(richer embedded device)
-> >  2) + boolean
-> > 
-> > Regards,
-> 
+(And I doubt you'd recommend TOMOYO if you read the code)
+
 -- 
 Stephen Smalley
 National Security Agency
