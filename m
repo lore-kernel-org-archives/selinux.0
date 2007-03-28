@@ -1,12 +1,12 @@
-Subject: Re: Separating libselinux/libsepol (Was:  Re: BusyBox: load_policy
-	applet)
+Subject: Re: [busybox:00575] Re: Separating libselinux/libsepol (Was:  Re:
+	BusyBox: load_policy applet)
 From: Stephen Smalley <sds@tycho.nsa.gov>
 To: KaiGai Kohei <kaigai@ak.jp.nec.com>
-Cc: Yuichi Nakamura <ynakam@hitachisoft.jp>,
-        "Christopher J. PeBenito" <cpebenito@tresys.com>, busybox@kaigai.gr.jp,
+Cc: ynakam@hitachisoft.jp, busybox@kaigai.gr.jp,
+        "Christopher J. PeBenito" <cpebenito@tresys.com>,
         selinux@tycho.nsa.gov, Karl MacMillan <kmacmillan@mentalrootkit.com>,
         Chad Sellers <csellers@tresys.com>
-In-Reply-To: <4609CB85.1060401@ak.jp.nec.com>
+In-Reply-To: <460A3199.5030302@ak.jp.nec.com>
 References: <20070323151513.395798cf.ynakam@hitachisoft.jp>
 	 <1174654177.31436.188.camel@moss-spartans.epoch.ncsc.mil>
 	 <20070326102809.e4f80126.ynakam@hitachisoft.jp>
@@ -16,66 +16,99 @@ References: <20070323151513.395798cf.ynakam@hitachisoft.jp>
 	 <20070327095945.1c4245ec.ynakam@hitachisoft.jp>
 	 <1174997707.3864.261.camel@moss-spartans.epoch.ncsc.mil>
 	 <4609CB85.1060401@ak.jp.nec.com>
+	 <20070328174046.bb463392.ynakam@hitachisoft.jp>
+	 <460A3199.5030302@ak.jp.nec.com>
 Content-Type: text/plain
-Date: Wed, 28 Mar 2007 08:00:59 -0400
-Message-Id: <1175083259.3864.442.camel@moss-spartans.epoch.ncsc.mil>
+Date: Wed, 28 Mar 2007 08:04:17 -0400
+Message-Id: <1175083457.3864.443.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2007-03-28 at 10:57 +0900, KaiGai Kohei wrote:
-> >> The SELinux for embedded in my brain(future SEDiet work) for now is following.
-> >> * Embedded SELinux development kit is prepared and it has following features.
-> >> * BusyBox includes SELinux commands
-> >> * Developers can choose required features(boolean, module, semanage etc)
-> >> * To implement it following will be necessary.
-> >> * libselinux/libsepol/libsemanage is separated
-> >> * Something like ENABLE_BOOLEAN, ENABLE_MODULE, ENABLE_SEMANAGE is embedded in source codes of libse*, BusyBox.
-> >> * Least set of refpolicy is prepared: 
-> >>   - only core policy(kernel policy module?) and macros are enabled by default
-> >>   - supports both modular and monolitic
-> >>   - To write new policy, SEEdit or other tools can be used
-> >>   - has a compiler that has feature for size optimization
+On Wed, 2007-03-28 at 18:12 +0900, KaiGai Kohei wrote:
+> Yuichi Nakamura wrote:
+> > On Wed, 28 Mar 2007 10:57:25 +0900
+> > KaiGai Kohei  wrote:
+> >> Currently, I don't have actual measurement of the minimum binary size of
+> >> libsepol needed to handle preserving boolean variables and so on.
+> >> Who can estimate it?
 > > 
-> > For the most part, this approach sounds fine, and I suspect that you
-> > could even introduce a build option for creating a minimal subset of
-> > libselinux as well as the other libraries.  Note that the loadable
-> > policy module support depends on libsemanage, so I doubt you would
-> > support separate ENABLE_MODULE vs. ENABLE_SEMANAGE options unless you
-> > just mean the set of utility programs.
+> > It seems that "sepol_genbools_array" libsepol function 
+> > is necessary to preserve boolean.
 > > 
-> > Some specific questions and comments:
-> > 1) Do you think you will need the legacy support for setting local
-> > persistent booleans without using libsemanage?  We were planning on
-> > dropping that support out of libselinux and libsepol in the 2.x/devel
-> > series.
+> > And sepol_genbools_array uses following:
+> > -From policydb.o
+> >  policydb_init
+> >  policydb_destroy
+> > - From policydb_convert.o
+> >  policydb_from_image
+> > - From policydb_public.o
+> >  policydb_write
+> > -From conditional.o
+> >  evaluate_conds
+> > -From  hashtab.o
+> >  hashtab_search
+> > 
+> > Then:
+> > $ ls -l policydb.o hashtab.o conditional.o  policydb_convert.o policydb_public.o
+> > -rw-rw-r-- 1 ynakam ynakam  6856 Mar 27 05:10 conditional.o
+> > -rw-rw-r-- 1 ynakam ynakam  2540 Mar 27 05:10 hashtab.o
+> > -rw-rw-r-- 1 ynakam ynakam 29284 Mar 27 05:10 policydb.o
+> > -rw-rw-r-- 1 ynakam ynakam  2576 Mar 27 05:10 policydb_convert.o
+> > -rw-rw-r-- 1 ynakam ynakam  2396 Mar 27 05:10 policydb_public.o
+> > Above are compiled with -Os option.
+> > 
+> > So, to preserve bool at least 43.6 k is necessary.
 > 
-> I want to mention that separating libselinux/libsepol is not the only way
-> to reduce binary size.
-> Is it possible to replace some functions rare needed in the target system
-> by empty implemented functions, isn't it? I think this approach enables
-> more flexible selection of functionalities than the simple separation.
-
-You don't even necessarily have to provide function stubs; that's what I
-meant by a cut-down version of the libraries - we could provide build
-options to create minimal subsets of each library.
-
-> The typical example is userspace avc. I think seldom people use userspace
-> object managers like XACE/SELinux on embedded systems.
-> The sum of avc.o, avc_internal.o and avc_sidtab.o is about 32kb (on i386).
-> Because the size of libselinux.a is about 146kb, we will be able to reduce
-> about 20% of binary size.
-
-Yes, that makes sense.
+> Nakamura, Isn't it a bit rough-grained measurement?
 > 
-> Currently, I don't have actual measurement of the minimum binary size of
-> libsepol needed to handle preserving boolean variables and so on.
-> Who can estimate it?
+> For example, policydb_init() calls the following functions internally:
+>   - symtab_init() defined at symtab.c
+>   - avrule_block_create() defined at avrule_block.c
+>   - avrule_decl_create() defined at avrule_block.c
+>   - avtab_init() defined at avtab.c
+>   - roles_init() defined at policydb.c
+>   - cond_policydb_init() defined at conditional.c
+>   - avtab_destroy() defined at avtab.c
+>   - hashtab_destroy() defined at hashtab.c
+>   - avrule_block_list_destroy() defined at avrule_block.c
+> 
+> So, we also have to include symtab.c, avrule_block.c, avtab.c, conditional.c,
+> hashtab.c and avrule_block.c additionally for only policydb_init().
 
-You'd start from sepol_genbools_array() and work through the
-dependencies.  But you don't need the rest of the genbools
-functionality, including the parser.
+You don't actually need any of the code for the policy module format
+(which is presently interwoven with the rest, since the policydb
+structure supports both module and kernel formats).  A lot of that will
+boil away from the new policy representation.
 
+> 
+> It is not so easy work as we can end up quickly, I think.
+> 
+> Thanks,
+> 
+> > I want boolean to be enabled/disabled by build option of libselinux/sepol and BusyBox.
+> > 
+> >> I want to mention that separating libselinux/libsepol is not the only way
+> >> to reduce binary size.
+> >> Is it possible to replace some functions rare needed in the target system
+> >> by empty implemented functions, isn't it? I think this approach enables
+> >> more flexible selection of functionalities than the simple separation.
+> > Yes, this implementation is one possibility. 
+> > This may be better than only separating libselinux/sepol.
+> > 
+> > BTW, in Japanese chat, 
+> > you and Shinji said too fine-grained selection will not be understood by 
+> > embedded developers.
+> > 
+> > I've come up with three selections.
+> > 1) Full-featured SELinux
+> > 2) Tiny-SELinux for embedded device with poor resource
+> > = 1) - semanage - boolean - user space object manager etc
+> > 3) Tiny-SELinux for mobile PDA(richer embedded device)
+> >  2) + boolean
+> > 
+> > Regards,
+> 
 -- 
 Stephen Smalley
 National Security Agency
