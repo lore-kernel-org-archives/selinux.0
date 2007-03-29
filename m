@@ -1,38 +1,34 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l2TBn2DA025595
-	for <selinux@tycho.nsa.gov>; Thu, 29 Mar 2007 07:49:02 -0400
-Received: from wx-out-0506.google.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l2TBn1HY021445
-	for <selinux@tycho.nsa.gov>; Thu, 29 Mar 2007 11:49:01 GMT
-Received: by wx-out-0506.google.com with SMTP id s17so138055wxc
-        for <selinux@tycho.nsa.gov>; Thu, 29 Mar 2007 04:49:01 -0700 (PDT)
-Message-ID: <460BA67D.40807@gmail.com>
-Date: Thu, 29 Mar 2007 19:43:57 +0800
-From: Ken YANG <spng.yang@gmail.com>
+Message-ID: <460BAA90.5060703@redhat.com>
+Date: Thu, 29 Mar 2007 08:01:20 -0400
+From: Daniel J Walsh <dwalsh@redhat.com>
 MIME-Version: 1.0
 To: Stephen Smalley <sds@tycho.nsa.gov>
-CC: Daniel J Walsh <dwalsh@redhat.com>,
-        "Christopher J. PeBenito" <cpebenito@tresys.com>,
-        fedora-selinux-list@redhat.com, selinux@tycho.nsa.gov
+CC: Ken YANG <spng.yang@gmail.com>, selinux@tycho.nsa.gov,
+        "Christopher J. PeBenito" <cpebenito@tresys.com>
 Subject: Re: "HASHTAB_OVERFLOW" undeclared
 References: <460B2925.1080403@gmail.com> <1175166411.3864.504.camel@moss-spartans.epoch.ncsc.mil>
 In-Reply-To: <1175166411.3864.504.camel@moss-spartans.epoch.ncsc.mil>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 Stephen Smalley wrote:
 > On Thu, 2007-03-29 at 10:49 +0800, Ken YANG wrote:
+>   
 >> i want to use findcon to find a type "tmpfs_t".
 >> but in FC, there is setools* package contaning findcon.
 >> i find that secmds(findcon) is in setools-console subpackage
 >> why fc has not this subpackage?
-> 
+>>     
+>
+>   
+Because the same functionality is available in find.
+
+# find / -context "*tmpfs_t*"
+ 
 > That's a question for Dan Walsh (cc'd above) or fedora-selinux-list.
-
-ok, i have cc to fedora-selinux-list
-
-> 
+>
+>   
 >> i down a setools-3.1-1.src.rpm from tresys site, and encounter
 >> a build error:
 >>
@@ -52,46 +48,21 @@ ok, i have cc to fedora-selinux-list
 >>
 >> i have not find "HASHTAB_OVERFLOW" in selinux trunk, especially in
 >> libsepol. where is this symbol defined?
-> 
+>>     
+>
 > Those error codes were replaced by standard ones
 > (include/sepol/errcodes.h) in the trunk version of libsepol, so you
 > would need to build setools against the stable branch version of
 > libsepol until they update setools.
-
-thank you.
-
-i play some tricks on the setools :-)
-
-in the spec file of setools-3.1-3.fc7, i find "findcon" and other cmds
-had been removed:
-
-rm -f ${RPM_BUILD_ROOT}/usr/bin/findcon
-rm -f ${RPM_BUILD_ROOT}/usr/bin/replcon
-rm -f ${RPM_BUILD_ROOT}/usr/bin/searchcon
-rm -f ${RPM_BUILD_ROOT}/usr/bin/indexcon
-rm -f ${RPM_BUILD_ROOT}/usr/share/man/man1/searchcon.1
-rm -f ${RPM_BUILD_ROOT}/usr/share/man/man1/indexcon.1
-rm -f ${RPM_BUILD_ROOT}/usr/share/man/man1/replcon.1
-rm -f ${RPM_BUILD_ROOT}/usr/share/man/man1/findcon.1
-rm -rf ${RPM_BUILD_ROOT}%{_includedir}/libsefs/sqlite
-
-
-so i comment "findcon relative" items, and add corresponding items
-in "files" list.
-
-it seems that this kind of "findcon" works.
-
-this is a temporary method, i just want to use findcon to search
-certain context
-
-
-
-> 
+>
+>   
 >> by the way, i want checkout setools and try again, but tresys "open
 >> source project" site can not access, maybe is temporary :-)
-> 
+>>     
+>
 > Appears to be up now.
-> 
+>
+>   
 
 
 --
