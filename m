@@ -1,83 +1,70 @@
-Subject: Re: Conditional Policy using Reference Policy
-From: "Christopher J. PeBenito" <cpebenito@tresys.com>
-To: JanuGerman <doublemalam@yahoo.co.uk>
-Cc: Stephen Smalley <sds@tycho.nsa.gov>, SELinux List <selinux@tycho.nsa.gov>
-In-Reply-To: <321794.33448.qm@web86908.mail.ukl.yahoo.com>
-References: <321794.33448.qm@web86908.mail.ukl.yahoo.com>
-Content-Type: text/plain
-Date: Thu, 29 Mar 2007 08:46:33 -0400
-Message-Id: <1175172393.13607.2.camel@sgc.columbia.tresys.com>
-Mime-Version: 1.0
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l2TDXpM8029139
+	for <selinux@tycho.nsa.gov>; Thu, 29 Mar 2007 09:33:51 -0400
+Received: from web86909.mail.ukl.yahoo.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with SMTP id l2TDXmHY008079
+	for <selinux@tycho.nsa.gov>; Thu, 29 Mar 2007 13:33:49 GMT
+Date: Thu, 29 Mar 2007 14:33:45 +0100 (BST)
+From: JanuGerman <doublemalam@yahoo.co.uk>
+Subject: Re: SELinux cache.
+To: Stephen Smalley <sds@tycho.nsa.gov>
+Cc: SELinux List <selinux@tycho.nsa.gov>
+In-Reply-To: <1174999097.3864.271.camel@moss-spartans.epoch.ncsc.mil>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Message-ID: <25193.15470.qm@web86909.mail.ukl.yahoo.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2007-03-29 at 06:50 +0100, JanuGerman wrote: 
-> I am trying to configure SELinux conditional policy
-> using the Reference policy mechanism. Unfortunately,
-> it does not take effect but, the module compiled
-> successfuly. 
-
-You haven't declared the boolean.  Also, the policy is in an interface,
-so if nothing calls it, then you won't get a compile failure if the
-Boolean does not exist.
-
-> Which means that there was no boolean
-> variable in the /selinux/booleans/. Plus, i wanted to
-> ask, is this the correct way to enforce a conditional
-> policy. The objective of this simple policy is that
-> "any application can read/write but cannot delete this
-> file, provided the boolean variable is set"
-
-With the current policy it means that any domain that calls this
-interface will be able to read and write the file if the Boolean is
-true.
-
-> Secondly, there are some commands given in the
-> litrature for committing the values of the booleans to
-> make them effective like change_bool variable 1, and
-> echo 1 > /selinux/commit_pending_bools. The question
-> is that whether these commands are not avialable any
-> more?
-
-change_bool and show_bool were renamed to setsebool and getsebool,
-respectively.  You can still echo 0 and 1 to the entries
-in /selinux/booleans/* and /selinux/commit_pending_bools.
+Hi Stephen,
 
 
-> myapp.te:
+> $ cat test.te
+> policy_module(test, 1.0)
 > 
-> policy_module(myapp,1.0)
-> type myapp_t;
-> domain_type(myapp_t)
-
-Since you are trying to make a type for a file, you would want
-file_type() instead of domain_type().
-
+> require {
+>         attribute domain;
+>         attribute file_type;
+> }
 > 
-> myapp.if:
-> interface(`myapp_open_cond',`
-> 	gen_requires(`
-
-This should be gen_require (no s at the end).
-
-> 		type myapp_t; bool test;
-> 	')
+> auditallow domain file_type:dir_file_class_set *;
+> $ make -f /usr/share/selinux/devel/Makefile
+> $ su -
+> # semodule -i test.pp
+> # tail -f /var/log/audit/audit.log
 > 
-> 	
->         if (test) {
-> 	allow $1 myapp_t:file rw_file_perms;
-> 	}
-> ')
+> But be warned that this will generate a lot of
+> audit.
+> To remove, use:
+> # semodule -r test
 > 
-> myapp.fc:
-> 
-> /root/testfile   -- gen_context(system_u:object_r:myapp_t,s0)
 
--- 
-Chris PeBenito
-Tresys Technology, LLC
-(410) 290-1411 x150
+I am having some problems now with this module. I
+added this module, after restart, there were alot of
+messages, saying "audit ... maximum size=256 size
+exceeded". The messages were not stopping so, I
+rebooted the system with selinux disabled and tried to
+remove this module.
 
+But now, when i reboot, the system hangs at starting
+"udev" service MAKEDEV: mkdir: FILE exists ...saying
+an error occured during file system check, dropping
+you to shell, ... give root password for maintaine....
+
+My system have e compiled kernels, but non of them is
+rebooting with SElinux.
+
+Can i recover the SELinux again while rebooted without
+SElinux? or this means, the system is not usable any
+more.
+
+Thanks,
+JG
+
+
+		
+___________________________________________________________ 
+The all-new Yahoo! Mail goes wherever you go - free your email address from your Internet provider. http://uk.docs.yahoo.com/nowyoucan.html
 
 --
 This message was distributed to subscribers of the selinux mailing list.
