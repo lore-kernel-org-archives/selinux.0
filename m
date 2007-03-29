@@ -1,71 +1,60 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l2T5oqPs012801
-	for <selinux@tycho.nsa.gov>; Thu, 29 Mar 2007 01:50:52 -0400
-Received: from web86908.mail.ukl.yahoo.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with SMTP id l2T5oo5B007395
-	for <selinux@tycho.nsa.gov>; Thu, 29 Mar 2007 05:50:51 GMT
-Date: Thu, 29 Mar 2007 06:50:35 +0100 (BST)
-From: JanuGerman <doublemalam@yahoo.co.uk>
-Subject: Conditional Policy using Reference Policy
-To: Stephen Smalley <sds@tycho.nsa.gov>
-Cc: SELinux List <selinux@tycho.nsa.gov>
-In-Reply-To: <20070327140452.56698.qmail@web86904.mail.ukl.yahoo.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Message-ID: <321794.33448.qm@web86908.mail.ukl.yahoo.com>
+Subject: Re: "HASHTAB_OVERFLOW" undeclared
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Ken YANG <spng.yang@gmail.com>
+Cc: selinux@tycho.nsa.gov, Daniel J Walsh <dwalsh@redhat.com>,
+        "Christopher J. PeBenito" <cpebenito@tresys.com>
+In-Reply-To: <460B2925.1080403@gmail.com>
+References: <460B2925.1080403@gmail.com>
+Content-Type: text/plain
+Date: Thu, 29 Mar 2007 07:06:51 -0400
+Message-Id: <1175166411.3864.504.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hi every one,
+On Thu, 2007-03-29 at 10:49 +0800, Ken YANG wrote:
+> 
+> i want to use findcon to find a type "tmpfs_t".
+> but in FC, there is setools* package contaning findcon.
+> i find that secmds(findcon) is in setools-console subpackage
+> why fc has not this subpackage?
 
-I am trying to configure SELinux conditional policy
-using the Reference policy mechanism. Unfortunately,
-it does not take effect but, the module compiled
-successfuly. Which means that there was no boolean
-variable in the /selinux/booleans/. Plus, i wanted to
-ask, is this the correct way to enforce a conditional
-policy. The objective of this simple policy is that
-"any application can read/write but cannot delete this
-file, provided the boolean variable is set"
+That's a question for Dan Walsh (cc'd above) or fedora-selinux-list.
 
-Secondly, there are some commands given in the
-litrature for committing the values of the booleans to
-make them effective like change_bool variable 1, and
-echo 1 > /selinux/commit_pending_bools. The question
-is that whether these commands are not avialable any
-more?
+> i down a setools-3.1-1.src.rpm from tresys site, and encounter
+> a build error:
+> 
+> policy_extend.c: In function 'qpol_policy_build_attrs_from_map':
+> policy_extend.c:170: error: 'HASHTAB_OVERFLOW' undeclared (first use in 
+> this function)
+> policy_extend.c:170: error: (Each undeclared identifier is reported only 
+> once
+> policy_extend.c:170: error: for each function it appears in.)
+> policy_extend.c: In function 'qpol_policy_fill_attr_holes':
+> policy_extend.c:246: error: 'HASHTAB_OVERFLOW' undeclared (first use in 
+> this function)
+> make[4]: *** [policy_extend.o] Error 1
+> make[4]: Leaving directory 
+> `/workbench/rpmbuild/BUILD/setools-3.1/libqpol/src'
+> 
+> 
+> i have not find "HASHTAB_OVERFLOW" in selinux trunk, especially in
+> libsepol. where is this symbol defined?
 
-The module files are as follows:
-Thanks,
-JG
+Those error codes were replaced by standard ones
+(include/sepol/errcodes.h) in the trunk version of libsepol, so you
+would need to build setools against the stable branch version of
+libsepol until they update setools.
 
-myapp.te:
+> by the way, i want checkout setools and try again, but tresys "open
+> source project" site can not access, maybe is temporary :-)
 
-policy_module(myapp,1.0)
-type myapp_t;
-domain_type(myapp_t)
+Appears to be up now.
 
+-- 
+Stephen Smalley
+National Security Agency
 
-myapp.if:
-interface(`myapp_open_cond',`
-	gen_requires(`
-		type myapp_t; bool test;
-	')
-
-	
-        if (test) {
-	allow $1 myapp_t:file rw_file_perms;
-	}
-')
-
-myapp.fc:
-
-/root/testfile   -- gen_context(system_u:object_r:myapp_t,s0)
-
-
-		
-___________________________________________________________ 
-The all-new Yahoo! Mail goes wherever you go - free your email address from your Internet provider. http://uk.docs.yahoo.com/nowyoucan.html
 
 --
 This message was distributed to subscribers of the selinux mailing list.
