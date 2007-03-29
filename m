@@ -1,77 +1,51 @@
-Subject: Re: SELinux cache.
+Subject: Re: [PATCH] map booleans during expansion
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: JanuGerman <doublemalam@yahoo.co.uk>
-Cc: SELinux List <selinux@tycho.nsa.gov>
-In-Reply-To: <25193.15470.qm@web86909.mail.ukl.yahoo.com>
-References: <25193.15470.qm@web86909.mail.ukl.yahoo.com>
+To: Joshua Brindle <method@manicmethod.com>
+Cc: Karl MacMillan <kmacmillan@mentalrootkit.com>,
+        SELinux List <selinux@tycho.nsa.gov>,
+        Daniel J Walsh <dwalsh@redhat.com>
+In-Reply-To: <460BB32F.8070801@manicmethod.com>
+References: <1175098597.2062.11.camel@localhost.localdomain>
+	 <1175114632.10390.1.camel@localhost.localdomain>
+	 <460BB32F.8070801@manicmethod.com>
 Content-Type: text/plain
-Date: Thu, 29 Mar 2007 09:38:25 -0400
-Message-Id: <1175175505.3864.548.camel@moss-spartans.epoch.ncsc.mil>
+Date: Thu, 29 Mar 2007 09:42:38 -0400
+Message-Id: <1175175758.3864.551.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2007-03-29 at 14:33 +0100, JanuGerman wrote:
-> Hi Stephen,
-> 
-> 
-> > $ cat test.te
-> > policy_module(test, 1.0)
-> > 
-> > require {
-> >         attribute domain;
-> >         attribute file_type;
-> > }
-> > 
-> > auditallow domain file_type:dir_file_class_set *;
-> > $ make -f /usr/share/selinux/devel/Makefile
-> > $ su -
-> > # semodule -i test.pp
-> > # tail -f /var/log/audit/audit.log
-> > 
-> > But be warned that this will generate a lot of
-> > audit.
-> > To remove, use:
-> > # semodule -r test
-> > 
-> 
-> I am having some problems now with this module. I
-> added this module, after restart, there were alot of
-> messages, saying "audit ... maximum size=256 size
-> exceeded".
+On Thu, 2007-03-29 at 08:38 -0400, Joshua Brindle wrote:
+> Karl MacMillan wrote:
+> > [below is a response to an accidentally off-list discussion]
+> >
+> > On Wed, 2007-03-28 at 12:29 -0400, Stephen Smalley wrote:
+> >   
+> >> On Wed, 2007-03-28 at 12:16 -0400, Karl MacMillan wrote:
+> >>     
+> >>> Currently, the expander does not map booleans during expansion.
+> >>>       
+> > However,
+> >   
+> >>> it is possible that booleans can be declared in an optional block
+> >>> resulting in the need to map the booleans. This patch adds boolean
+> >>> mappings to the expander. The same thing likely needs to be done for
+> >>> roles and users - Josh, can you confirm
+> >>>       
+> This is correct, only types are being remapped by the expander. I guess 
+> someone didn't think all the extra code to remap all of them was worth 
+> it since they are very small namespaces anyway.
 
-Curious - I was able to insert it on a FC6 system, generating some audit
-data, and then removed it.  But I wouldn't recommend trying to boot up
-with it enabled - as I said, it will generate a ton of audit data since
-it would trigger an audit message on every allowed file access.  Not
-sure what limitations auditd imposes - I haven't seen that maximum size
-message before.
+So do they need to be remapped or not?
 
->  The messages were not stopping so, I
-> rebooted the system with selinux disabled and tried to
-> remove this module.
-
-You said "tried to remove this module."  Does that mean you did or did
-not successfully run "semodule -r test"?  Should have been possible to
-do without disabling SELinux; you could have booted single user.
-
-> But now, when i reboot, the system hangs at starting
-> "udev" service MAKEDEV: mkdir: FILE exists ...saying
-> an error occured during file system check, dropping
-> you to shell, ... give root password for maintaine....
-> 
-> My system have e compiled kernels, but non of them is
-> rebooting with SElinux.
-> 
-> Can i recover the SELinux again while rebooted without
-> SElinux? or this means, the system is not usable any
-> more.
-
-Boot with 'enforcing=0 single', then run 'fixfiles relabel' if it
-doesn't automatically relabel, then reboot normally.
-
-Disabling SELinux will leave you with unlabeled files that need to be
-relabeled.
+BTW, valgrind shows that the patched code is leaking memory, e.g.
+ ==5249== 30,576 bytes in 546 blocks are definitely lost in loss record 8 of 9
+==5249==    at 0x4005400: malloc (vg_replace_malloc.c:149)
+==5249==    by 0x80570CF: cond_node_create (in /home/sds/obj/usr/bin/checkpolicy)
+==5249==    by 0x80607EF: cond_node_copy (in /home/sds/obj/usr/bin/checkpolicy)
+==5249==    by 0x80623E6: copy_and_expand_avrule_block (in /home/sds/obj/usr/bin/checkpolicy)
+==5249==    by 0x8062B9B: expand_module (in /home/sds/obj/usr/bin/checkpolicy)
+==5249==    by 0x804A262: main (checkpolicy.c:538)
 
 -- 
 Stephen Smalley
