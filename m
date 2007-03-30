@@ -1,43 +1,61 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l2UD6J2L014057
-	for <selinux@tycho.nsa.gov>; Fri, 30 Mar 2007 09:06:19 -0400
-Received: from wx-out-0506.google.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l2UD6HkK018816
-	for <selinux@tycho.nsa.gov>; Fri, 30 Mar 2007 13:06:18 GMT
-Received: by wx-out-0506.google.com with SMTP id s17so491489wxc
-        for <selinux@tycho.nsa.gov>; Fri, 30 Mar 2007 06:06:15 -0700 (PDT)
-Message-ID: <460D0B45.2060002@gmail.com>
-Date: Fri, 30 Mar 2007 08:06:13 -0500
-From: Ted X Toth <txtoth@gmail.com>
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l2UDDanU014409
+	for <selinux@tycho.nsa.gov>; Fri, 30 Mar 2007 09:13:36 -0400
+Received: from mx.meyering.net (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id l2UDDYiN012641
+	for <selinux@tycho.nsa.gov>; Fri, 30 Mar 2007 13:13:35 GMT
+To: russell@coker.com.au
+Cc: bug-coreutils@gnu.org, selinux@tycho.nsa.gov
+Subject: Re: SELinux for upstream coreutils, finally (RFC: does mkdir need -Z?)
+From: Jim Meyering <jim@meyering.net>
+In-Reply-To: <200703302237.35950.russell@coker.com.au> (Russell Coker's message of "Fri\, 30 Mar 2007 23\:37\:30 +1100")
+References: <87tzw3x9mo.fsf@rho.meyering.net>
+	<200703302237.35950.russell@coker.com.au>
+Date: Fri, 30 Mar 2007 15:13:03 +0200
+Message-ID: <87odmayiw0.fsf@rho.meyering.net>
 MIME-Version: 1.0
-To: Stephen Smalley <sds@tycho.nsa.gov>
-CC: Daniel J Walsh <dwalsh@redhat.com>, selinux@tycho.nsa.gov
-Subject: Re: api for getting setrans information
-References: <460C3195.1020505@gmail.com> <1175255207.5479.97.camel@moss-spartans.epoch.ncsc.mil>
-In-Reply-To: <1175255207.5479.97.camel@moss-spartans.epoch.ncsc.mil>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Stephen Smalley wrote:
-> On Thu, 2007-03-29 at 16:37 -0500, Ted X Toth wrote:
->   
->> Are there apis to retrieve all of the categories and sensitivity levels 
->> and to convert them into a human readable form?
->>     
+Russell Coker <russell@coker.com.au> wrote:
+> On Friday 30 March 2007 21:18, Jim Meyering <jim@meyering.net> wrote:
+>> Regarding the --context=C (-Z C) option that is now accepted by
+>> mkdir, mknod, mkfifo, and install, I am inclined to
 >
-> Can you give more information on how you would use it, or what kind of
-> api you have used in the past for the same functionality?  IOW, help
-> propose an api that meets your requirements, and we can work through how
-> to make it fit with SELinux.
+> Currently mkdir, mknod, and mkfifo support a -m option to set the mode.
+> Install has options to also set the owner and group.
+
+Hi Russell,
+
+Thanks for the quick feedback.
+As implied here,
+
+    http://www.redhat.com/archives/fedora-list/2006-August/msg02264.html
+
+I agree that one should be able to get the effect you want.  However,
+adding a -Z option to each and every affected program is not the only way.
+
+What did you think of the proposal (in the link above) for
+
+    fscon CTX mkdir /new/directory
+
+IMHO, it's not so much less "user friendly" than this equivalent:
+
+    mkdir -C CTX /new/directory
+
+I would prefer not to add new options in so many programs when a
+less-invasive approach is possible.
+
+> I think that all programs which set the uid and gid of a file should also be
+> able to set the SE Linux context.
 >
->   
-I was thinking about the newrole gui that we talked about at the SELinux 
-Symposium. The gui might have a dropdown list of categories and a 
-password entry field and it would exec a new window at level. I found 
-seobject.py and the setransRecords class which will probably work for my 
-purposes right now. I'm not sure if exposing all of the categories is an 
-issue.
+> It also seems reasonable that a program which can create a file with
+> particular permissions should also be permitted to create it with a
+> particular context.
+
+I was hoping for feedback on whether the proposed alternative (using
+fscon and maybe runcon proxies) looked viable from a usability standpoint.
 
 --
 This message was distributed to subscribers of the selinux mailing list.
