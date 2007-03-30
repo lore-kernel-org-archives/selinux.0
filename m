@@ -1,58 +1,147 @@
-Subject: Re: Expunging userspace classes and permissions from kernel headers
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: "Christopher J. PeBenito" <cpebenito@tresys.com>
-Cc: selinux@tycho.nsa.gov, Eamon Walsh <ewalsh@tycho.nsa.gov>,
-        Eric Paris <eparis@parisplace.org>, James Morris <jmorris@namei.org>,
-        Chad Sellers <csellers@tresys.com>
-In-Reply-To: <1174930832.3864.194.camel@moss-spartans.epoch.ncsc.mil>
-References: <1174569868.31436.22.camel@moss-spartans.epoch.ncsc.mil>
-	 <1174571162.19924.36.camel@sgc.columbia.tresys.com>
-	 <1174571459.31436.31.camel@moss-spartans.epoch.ncsc.mil>
-	 <1174584303.19924.43.camel@sgc.columbia.tresys.com>
-	 <1174585916.31436.94.camel@moss-spartans.epoch.ncsc.mil>
-	 <1174666169.19924.47.camel@sgc.columbia.tresys.com>
-	 <1174667120.31436.232.camel@moss-spartans.epoch.ncsc.mil>
-	 <1174678652.28830.6.camel@sgc.columbia.tresys.com>
-	 <1174922629.3864.113.camel@moss-spartans.epoch.ncsc.mil>
-	 <1174930832.3864.194.camel@moss-spartans.epoch.ncsc.mil>
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l2UJnQCv001048
+	for <selinux@tycho.nsa.gov>; Fri, 30 Mar 2007 15:49:26 -0400
+Received: from mx1.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id l2UJnOQO018188
+	for <selinux@tycho.nsa.gov>; Fri, 30 Mar 2007 19:49:25 GMT
+Subject: Re: secmark integration
+From: Karl MacMillan <kmacmillan@mentalrootkit.com>
+To: James Morris <jmorris@namei.org>
+Cc: selinux@tycho.nsa.gov, Joshua Brindle <method@manicmethod.com>,
+        Daniel J Walsh <dwalsh@redhat.com>
+In-Reply-To: <Line.LNX.4.64.0703191021480.22828@d.namei>
+References: <Line.LNX.4.64.0703191021480.22828@d.namei>
 Content-Type: text/plain
-Date: Fri, 30 Mar 2007 15:44:10 -0400
-Message-Id: <1175283850.5479.238.camel@moss-spartans.epoch.ncsc.mil>
+Date: Fri, 30 Mar 2007 15:47:11 -0400
+Message-Id: <1175284031.3602.24.camel@localhost.localdomain>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 2007-03-26 at 13:40 -0400, Stephen Smalley wrote:
-> On Mon, 2007-03-26 at 11:23 -0400, Stephen Smalley wrote:
-> > On Fri, 2007-03-23 at 15:37 -0400, Christopher J. PeBenito wrote:
-> > > On Fri, 2007-03-23 at 12:25 -0400, Stephen Smalley wrote:
-> > > > On Fri, 2007-03-23 at 16:09 +0000, Christopher J. PeBenito wrote:
-> > > > > I reverted the comment change and changed "null" to NULL.  Is this what
-> > > > > you had in mind (it doesn't have the PAX change yet)?
-> > > > 
-> > > > Yes, looks sane.  We would then apply that diff (re-based to the kernel
-> > > > tree) along with a patch like the following untested one (added a guard
-> > > > to both avc_dump_query and validate_classes despite my earlier comment).
-> > > 
-> > > I have merged this into trunk and marked pax as userland so it can be
-> > > reclaimed.
-> > 
-> > Thanks.  Combining the resulting diff of the generated headers and my
-> > patch to add guards for the NULL values, the overall patch is as follows
-> > (still building, not yet tested).
+On Mon, 2007-03-19 at 10:57 -0400, James Morris wrote:
+> Following some discussion of secmark integration at the developer summit, 
+> one of the ideas proposed by Joshua (IIRC) was that it would be desirable 
+> to have a separate table for managing the secmark rules.
 > 
-> Ok, the patched kernel behaves as expected, and was able to load a
-> policy with changed X-related class definitions whereas an unpatched
-> kernel rejected such a policy at load time.  Re-sent the patch with
-> signed-off-by line to James separately for -mm.
+> This is technically possible (and we could also look at adding hooks for 
+> the load_policy permission to be called for manipulating rules in this 
+> table), but probably difficult to justify upstream: you should only do 
+> something in the kernel if it can't be done in userspace.
+> 
+> I think we can make a good argument, though, based on it being for MAC 
+> rules rather than DAC, in that the _type_ of security being managed is 
+> fundamentally different, and that the table is likely being managed in 
+> conjunction with SELinux policy.
+> 
+> Is there a consensus, particularly from distro folk, that having a 
+> separate table would be of great benefit ?  I can post a rudimentary patch 
+> soon, if needed.
+> 
 
-On the userspace header side for libselinux, I think we still want
-"null" rather than NULL due to the manner in which it is used (won't
-compile presently with the new headers).  
+Is this really needed as long as the distro provides a way to customize
+the iptables rules?
 
--- 
-Stephen Smalley
-National Security Agency
+> Further issues that I heard mentioned:
+> 
+> a) Flush behavior is inverted: flush the iptables rules, and networking 
+>    stops, as the packets are not labeled anymore.
+>     - This can be managed if the security table is managed via some tool,
+>       e.g. flip compat_net on with no compat rules, or implement a single 
+>       rule to label all packets with some special bypass label.
+> 
+
+I think that updating the iptables scripts to flip a boolean that allows
+unlabeled network traffic would work here.
+
+> b) Confusing interactions with manual table management and various 3rd 
+>    party tools.
+>     - Firstly, we either use obvious chain names (e.g. 
+>       '__SELINUX_AUTOGENERATED') to indicate to the admin that they 
+>       shouldn't mess with them manually, or as suggested, use an entirely
+>       separate table.
+>     - How many distros have standard or blessed tools for managing the 
+>       firewall?  Can we get secmark support integrated into these 
+>       upstream?  I think if we architect this so that the heavy lifting is 
+>       done via a library, the firewall tools can just call the 
+>       appropriate API hooks as needed.
+
+None?
+
+>     - I think we need SELinux callouts in the iptables init script, as
+>       save/restore/start/stop actions are now manipulating MAC security.  
+>       Perhaps we completely separate SELinux control of tables so that the 
+>       standard script doesn't touch them ?
+> 
+> c) User-customization of policy.
+>     - I think we need to abstract this with a high level tool, starting 
+>       with a common default, some common recipes and then increasingly 
+>       low-level means to maintain modifications.
+> 
+
+At least initially, I think that it is fine for users to use whatever
+means they would normally use to modify the secmark rules. Essentially
+the workflow would be:
+
+1) Disable default unlabeled_t network traffic for the daemon or in
+general (presumably through a boolean).
+
+2) Create a module with the types and rules that you need. Assuming a
+global boolean, something like (Dan / Chris - comments about this are
+needed):
+
+type http_packet_t;
+
+# Allow all daemons except apache to use unlabeled packets. We
+# need a networkdaemon attribute or some type interface here.
+allow { daemon -httpd_t } unlabeled_t : packet { send recv };
+
+allow httpd_t http_packet_t : packet { send recv };
+
+3) Create some secmark rules to mark http packets as http_packet_t.
+
+With some documentation, I really don't think this is that hard. After
+we experiment with this higher-level tools can be created.
+
+> d) Some users do not want the iptables module loaded ?  (for how many 
+>    people is this an issue ?) I wonder if they know that SELinux is 
+>    already hooked into the netfilter framework.  We could try and convince 
+>    them to allow it, and as a worst case, provide a switch to enable 
+>    compat_net with no rules.
+> 
+
+Or presumably if they don't use iptables they won't care about secmark
+either.
+
+> e) Management and bundling of secmark rules with policy.
+>     - Well, we already have separate policy with file_contexts, and
+>       separate filesystem labeling and management mechanisms, integrated
+>       widely into the system.
+> 
+
+Which is now turned off. I think that for many people the port binding
+controls are enough. For the rest I think we should start with custom
+secmark rules. The generated rules from policy are too restrictive and
+too hard to customize. The whole goal was to allow people to use
+iptables to classify their network traffic - forcing that labeling into
+the policy destroys that flexibility. So keeping them separate is, I
+think, the right answer.
+
+> As far as management of the rules goes, the vast majority of packets will 
+> be 'related' to an existing connection, and this should be the first rule, 
+> which causes an immediate jump out of the table.  The next most common 
+> will be SYN packets for the most common services on the system (e.g. to 
+> port 80), and rules for these services should be ordered appropriately to 
+> minimize the amount of table traversal.  This could even be monitored by 
+> the admin tool and allow the admin to order the rules based on how often 
+> they're hit.
+> 
+> We can also follow the targeted policy model, where only targeted domains 
+> have rules requiring packets with specific labels.
+> 
+
+See above - I think that custom rules are sufficient.
+
+Karl
 
 
 --
