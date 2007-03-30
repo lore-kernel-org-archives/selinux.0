@@ -1,63 +1,76 @@
-Subject: Re: Expunging userspace classes and permissions from kernel headers
-From: "Christopher J. PeBenito" <cpebenito@tresys.com>
-To: Stephen Smalley <sds@tycho.nsa.gov>
-Cc: selinux@tycho.nsa.gov, Eamon Walsh <ewalsh@tycho.nsa.gov>,
-        Eric Paris <eparis@parisplace.org>, James Morris <jmorris@namei.org>,
-        Chad Sellers <csellers@tresys.com>
-In-Reply-To: <1175283850.5479.238.camel@moss-spartans.epoch.ncsc.mil>
-References: <1174569868.31436.22.camel@moss-spartans.epoch.ncsc.mil>
-	 <1174571162.19924.36.camel@sgc.columbia.tresys.com>
-	 <1174571459.31436.31.camel@moss-spartans.epoch.ncsc.mil>
-	 <1174584303.19924.43.camel@sgc.columbia.tresys.com>
-	 <1174585916.31436.94.camel@moss-spartans.epoch.ncsc.mil>
-	 <1174666169.19924.47.camel@sgc.columbia.tresys.com>
-	 <1174667120.31436.232.camel@moss-spartans.epoch.ncsc.mil>
-	 <1174678652.28830.6.camel@sgc.columbia.tresys.com>
-	 <1174922629.3864.113.camel@moss-spartans.epoch.ncsc.mil>
-	 <1174930832.3864.194.camel@moss-spartans.epoch.ncsc.mil>
-	 <1175283850.5479.238.camel@moss-spartans.epoch.ncsc.mil>
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l2UKcRnC002780
+	for <selinux@tycho.nsa.gov>; Fri, 30 Mar 2007 16:38:27 -0400
+Received: from mx1.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id l2UKcQQO027189
+	for <selinux@tycho.nsa.gov>; Fri, 30 Mar 2007 20:38:26 GMT
+Subject: Re: secmark integration
+From: Karl MacMillan <kmacmillan@mentalrootkit.com>
+To: Eric Paris <eparis@parisplace.org>
+Cc: James Morris <jmorris@namei.org>, selinux@tycho.nsa.gov,
+        Joshua Brindle <method@manicmethod.com>,
+        Daniel J Walsh <dwalsh@redhat.com>
+In-Reply-To: <1175286309.20396.13.camel@localhost.localdomain>
+References: <Line.LNX.4.64.0703191021480.22828@d.namei>
+	 <1175284031.3602.24.camel@localhost.localdomain>
+	 <1175286309.20396.13.camel@localhost.localdomain>
 Content-Type: text/plain
-Date: Fri, 30 Mar 2007 16:30:17 -0400
-Message-Id: <1175286617.14681.30.camel@sgc.columbia.tresys.com>
+Date: Fri, 30 Mar 2007 16:36:07 -0400
+Message-Id: <1175286967.3602.31.camel@localhost.localdomain>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2007-03-30 at 15:44 -0400, Stephen Smalley wrote:
-> On Mon, 2007-03-26 at 13:40 -0400, Stephen Smalley wrote:
-> > On Mon, 2007-03-26 at 11:23 -0400, Stephen Smalley wrote:
-> > > On Fri, 2007-03-23 at 15:37 -0400, Christopher J. PeBenito wrote:
-> > > > On Fri, 2007-03-23 at 12:25 -0400, Stephen Smalley wrote:
-> > > > > On Fri, 2007-03-23 at 16:09 +0000, Christopher J. PeBenito wrote:
-> > > > > > I reverted the comment change and changed "null" to NULL.  Is this what
-> > > > > > you had in mind (it doesn't have the PAX change yet)?
-> > > > > 
-> > > > > Yes, looks sane.  We would then apply that diff (re-based to the kernel
-> > > > > tree) along with a patch like the following untested one (added a guard
-> > > > > to both avc_dump_query and validate_classes despite my earlier comment).
-> > > > 
-> > > > I have merged this into trunk and marked pax as userland so it can be
-> > > > reclaimed.
+On Fri, 2007-03-30 at 16:25 -0400, Eric Paris wrote:
+> On Fri, 2007-03-30 at 15:47 -0400, Karl MacMillan wrote:
+> > On Mon, 2007-03-19 at 10:57 -0400, James Morris wrote:
+> > > Following some discussion of secmark integration at the developer summit, 
+> > > one of the ideas proposed by Joshua (IIRC) was that it would be desirable 
+> > > to have a separate table for managing the secmark rules.
 > > > 
-> > > Thanks.  Combining the resulting diff of the generated headers and my
-> > > patch to add guards for the NULL values, the overall patch is as follows
-> > > (still building, not yet tested).
+> > > This is technically possible (and we could also look at adding hooks for 
+> > > the load_policy permission to be called for manipulating rules in this 
+> > > table), but probably difficult to justify upstream: you should only do 
+> > > something in the kernel if it can't be done in userspace.
+> > > 
+> > > I think we can make a good argument, though, based on it being for MAC 
+> > > rules rather than DAC, in that the _type_ of security being managed is 
+> > > fundamentally different, and that the table is likely being managed in 
+> > > conjunction with SELinux policy.
+> > > 
+> > > Is there a consensus, particularly from distro folk, that having a 
+> > > separate table would be of great benefit ?  I can post a rudimentary patch 
+> > > soon, if needed.
+> > > 
 > > 
-> > Ok, the patched kernel behaves as expected, and was able to load a
-> > policy with changed X-related class definitions whereas an unpatched
-> > kernel rejected such a policy at load time.  Re-sent the patch with
-> > signed-off-by line to James separately for -mm.
+> > Is this really needed as long as the distro provides a way to customize
+> > the iptables rules?
 > 
-> On the userspace header side for libselinux, I think we still want
-> "null" rather than NULL due to the manner in which it is used (won't
-> compile presently with the new headers).  
+> It's not just that.  The reason a new table was proposed was because
+> people may want to iptables -F and flush their rules.  If the secmark
+> stuff is on the main tables (filter and nat) that people use it will get
+> blown away and there will be no automation of a boolean setting you talk
+> about later.
+> 
 
-Fixed in refpolicy trunk.
+If we add the custom table won't we need a way to flush that? If so,
+would we add an iptables --no-really-flush command? If we want to
+preserve the iptables with no rules means all traffic is allowed
+semantic we need to somehow coordinate rule removal with the policy.
+Options I see:
 
--- 
-Chris PeBenito
-Tresys Technology, LLC
-(410) 290-1411 x150
+1) Change iptables to flip a boolean. This sucks because we need some
+way for iptables to know which boolean to flip.
+
+2) Have the kernel mechanism stop enforcement of rules that rely on
+secmark when the tables are empty / flushed.
+
+3) Tell people to not do this - instead use distro scripts with
+integration. This seems unlikely to work.
+
+So, what about 2?
+
+Karl
 
 
 --
