@@ -1,214 +1,55 @@
-Subject: Re: [PATCH 3/3] libselinux: string and compute_create functions
+Subject: Re: Expunging userspace classes and permissions from kernel headers
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Eamon Walsh <ewalsh@tycho.nsa.gov>
-Cc: selinux@tycho.nsa.gov
-In-Reply-To: <460D4F23.2020202@tycho.nsa.gov>
-References: <460D495B.3060000@tycho.nsa.gov>
-	 <460D4F23.2020202@tycho.nsa.gov>
+To: "Christopher J. PeBenito" <cpebenito@tresys.com>
+Cc: selinux@tycho.nsa.gov, Eamon Walsh <ewalsh@tycho.nsa.gov>,
+        Eric Paris <eparis@parisplace.org>, James Morris <jmorris@namei.org>,
+        Chad Sellers <csellers@tresys.com>
+In-Reply-To: <1174930832.3864.194.camel@moss-spartans.epoch.ncsc.mil>
+References: <1174569868.31436.22.camel@moss-spartans.epoch.ncsc.mil>
+	 <1174571162.19924.36.camel@sgc.columbia.tresys.com>
+	 <1174571459.31436.31.camel@moss-spartans.epoch.ncsc.mil>
+	 <1174584303.19924.43.camel@sgc.columbia.tresys.com>
+	 <1174585916.31436.94.camel@moss-spartans.epoch.ncsc.mil>
+	 <1174666169.19924.47.camel@sgc.columbia.tresys.com>
+	 <1174667120.31436.232.camel@moss-spartans.epoch.ncsc.mil>
+	 <1174678652.28830.6.camel@sgc.columbia.tresys.com>
+	 <1174922629.3864.113.camel@moss-spartans.epoch.ncsc.mil>
+	 <1174930832.3864.194.camel@moss-spartans.epoch.ncsc.mil>
 Content-Type: text/plain
-Date: Fri, 30 Mar 2007 15:31:34 -0400
-Message-Id: <1175283094.5479.227.camel@moss-spartans.epoch.ncsc.mil>
+Date: Fri, 30 Mar 2007 15:44:10 -0400
+Message-Id: <1175283850.5479.238.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2007-03-30 at 13:55 -0400, Eamon Walsh wrote:
-> Man pages for new (and old string) functions.
+On Mon, 2007-03-26 at 13:40 -0400, Stephen Smalley wrote:
+> On Mon, 2007-03-26 at 11:23 -0400, Stephen Smalley wrote:
+> > On Fri, 2007-03-23 at 15:37 -0400, Christopher J. PeBenito wrote:
+> > > On Fri, 2007-03-23 at 12:25 -0400, Stephen Smalley wrote:
+> > > > On Fri, 2007-03-23 at 16:09 +0000, Christopher J. PeBenito wrote:
+> > > > > I reverted the comment change and changed "null" to NULL.  Is this what
+> > > > > you had in mind (it doesn't have the PAX change yet)?
+> > > > 
+> > > > Yes, looks sane.  We would then apply that diff (re-based to the kernel
+> > > > tree) along with a patch like the following untested one (added a guard
+> > > > to both avc_dump_query and validate_classes despite my earlier comment).
+> > > 
+> > > I have merged this into trunk and marked pax as userland so it can be
+> > > reclaimed.
+> > 
+> > Thanks.  Combining the resulting diff of the generated headers and my
+> > patch to add guards for the NULL values, the overall patch is as follows
+> > (still building, not yet tested).
 > 
-> --
->  avc_compute_create.3         |   58 +++++++++++++++++++++++++++++++
->  security_av_perm_to_string.3 |    1 
->  security_av_string.3         |    1 
->  security_class_to_string.3   |   80 +++++++++++++++++++++++++++++++++++++++++++
->  string_to_av_perm.3          |    1 
->  string_to_security_class.3   |    1 
->  6 files changed, 142 insertions(+)
+> Ok, the patched kernel behaves as expected, and was able to load a
+> policy with changed X-related class definitions whereas an unpatched
+> kernel rejected such a policy at load time.  Re-sent the patch with
+> signed-off-by line to James separately for -mm.
 
-For future reference, patches should be -p1 or -p0 appliable from top of
-the tree.
+On the userspace header side for libselinux, I think we still want
+"null" rather than NULL due to the manner in which it is used (won't
+compile presently with the new headers).  
 
-Merged.
-
-> --
-> Index: security_av_string.3
-> ===================================================================
-> --- security_av_string.3	(revision 0)
-> +++ security_av_string.3	(revision 0)
-> @@ -0,0 +1 @@
-> +.so man3/security_class_to_string.3
-> Index: avc_compute_create.3
-> ===================================================================
-> --- avc_compute_create.3	(revision 0)
-> +++ avc_compute_create.3	(revision 0)
-> @@ -0,0 +1,58 @@
-> +.\" Hey Emacs! This file is -*- nroff -*- source.
-> +.\"
-> +.\" Author: Eamon Walsh (ewalsh@tycho.nsa.gov) 2007
-> +.TH "avc_compute_create" "3" "30 Mar 2007" "" "SE Linux API documentation"
-> +.SH "NAME"
-> +avc_compute_create \- obtain SELinux label for new object.
-> +.SH "SYNOPSIS"
-> +.B #include <selinux/selinux.h>
-> +.br
-> +.B #include <selinux/avc.h>
-> +.sp
-> +.BI "int avc_compute_create(security_id_t " ssid ", security_id_t " tsid ,
-> +.in +\w'int avc_compute_create('u
-> +.BI "security_class_t " tclass ", security_id_t *" newsid ");"
-> +.in
-> +.SH "DESCRIPTION"
-> +.B avc_compute_create
-> +is used to compute a SID to use for labeling a new object in a particular class based on a SID pair.  This call is identical to
-> +.BR security_compute_create ,
-> +but does not require converting from userspace SID's to contexts and back again.
-> +
-> +.B avc_compute_create
-> +returns a SID for the computed context in the memory referenced by
-> +.IR sid ,
-> +incrementing its reference count by 1.
-> +
-> +.SH "RETURN VALUE"
-> +On success, zero is returned.  On error, \-1 is returned and
-> +.I errno
-> +is set appropriately.
-> +
-> +.SH "ERRORS"
-> +.TP
-> +.B EINVAL
-> +The
-> +.I tclass
-> +and/or the security contexts referenced by
-> +.I ssid
-> +and
-> +.I tsid
-> +are not recognized by the currently loaded policy, or 
-> +.I tsid
-> +or
-> +.I ssid
-> +has a zero reference count and is invalid.
-> +
-> +.TP
-> +.B ENOMEM
-> +An attempt to allocate memory failed.
-> +
-> +.SH "AUTHOR"
-> +Eamon Walsh <ewalsh@tycho.nsa.gov>
-> +
-> +.SH "SEE ALSO"
-> +.BR avc_init (3),
-> +.BR avc_context_to_sid (3),
-> +.BR security_compute_create (3),
-> +.BR selinux (8)
-> Index: security_av_perm_to_string.3
-> ===================================================================
-> --- security_av_perm_to_string.3	(revision 0)
-> +++ security_av_perm_to_string.3	(revision 0)
-> @@ -0,0 +1 @@
-> +.so man3/security_class_to_string.3
-> Index: string_to_av_perm.3
-> ===================================================================
-> --- string_to_av_perm.3	(revision 0)
-> +++ string_to_av_perm.3	(revision 0)
-> @@ -0,0 +1 @@
-> +.so man3/security_class_to_string.3
-> Index: security_class_to_string.3
-> ===================================================================
-> --- security_class_to_string.3	(revision 0)
-> +++ security_class_to_string.3	(revision 0)
-> @@ -0,0 +1,80 @@
-> +.\" Hey Emacs! This file is -*- nroff -*- source.
-> +.\"
-> +.\" Author: Eamon Walsh (ewalsh@tycho.nsa.gov) 2007
-> +.TH "security_class_to_string" "3" "30 Mar 2007" "" "SE Linux API documentation"
-> +.SH "NAME"
-> +security_class_to_string, security_av_perm_to_string, string_to_security_class, string_to_av_perm, security_av_string \- convert
-> +between SELinux class and permission values and string names.
-> +
-> +.SH "SYNOPSIS"
-> +.B #include <selinux/selinux.h>
-> +.br
-> +.B #include <selinux/flask.h>
-> +.sp
-> +.BI "const char * security_class_to_string(security_class_t " tclass ");"
-> +.sp
-> +.BI "const char * security_av_perm_to_string(security_class_t " tclass ", access_vector_t " av ");"
-> +.sp
-> +.BI "int security_av_string(security_class_t " tclass ", access_vector_t " av ", char **" result ");"
-> +.sp
-> +.BI "security_class_t string_to_security_class(const char *" name ");"
-> +.sp
-> +.BI "access_vector_t string_to_av_perm(security_class_t " tclass ", const char *" name ");"
-> +
-> +.SH "DESCRIPTION"
-> +.B security_class_to_string
-> +returns a string name for class
-> +.IR tclass ,
-> +or NULL if the class is invalid.  The returned string must not be modified or freed.
-> +
-> +.B security_av_perm_to_string
-> +returns a string name for the access vector bit
-> +.I av
-> +of class
-> +.IR tclass ,
-> +or NULL if either argument is invalid.  The returned string must not be modified or freed.
-> +
-> +.B security_av_string
-> +computes a full access vector string representation using
-> +.I tclass
-> +and
-> +.IR av ,
-> +which may have multiple bits set.  The string is returned in the memory pointed to by
-> +.IR result ,
-> +and should be freed by the caller using
-> +.BR free (3).
-> +
-> +.B string_to_security_class
-> +returns the class value corresponding to the string name
-> +.IR name ,
-> +or zero if no such class exists.
-> +
-> +.B string_to_av_perm
-> +returns the access vector bit corresponding to the string name
-> +.I name
-> +and security class
-> +.IR tclass ,
-> +or zero if no such value exists.
-> +
-> +.SH "RETURN VALUE"
-> +.B security_av_string
-> +returns returns zero on success or \-1 on error with
-> +.I errno
-> +set appropriately.  All other functions return zero or NULL on error.
-> +
-> +.SH "ERRORS"
-> +.TP
-> +.B EINVAL
-> +A class or access vector argument is not recognized by the currently loaded policy.
-> +
-> +.TP
-> +.B ENOMEM
-> +An attempt to allocate memory failed.
-> +
-> +.SH "AUTHOR"
-> +Eamon Walsh <ewalsh@tycho.nsa.gov>
-> +
-> +.SH "SEE ALSO"
-> +.BR selinux (8),
-> +.BR getcon (3),
-> +.BR getfilecon (3)
-> Index: string_to_security_class.3
-> ===================================================================
-> --- string_to_security_class.3	(revision 0)
-> +++ string_to_security_class.3	(revision 0)
-> @@ -0,0 +1 @@
-> +.so man3/security_class_to_string.3
-> 
-> 
-> 
-> --
-> This message was distributed to subscribers of the selinux mailing list.
-> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
-> the words "unsubscribe selinux" without quotes as the message.
 -- 
 Stephen Smalley
 National Security Agency
