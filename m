@@ -1,66 +1,68 @@
-Subject: Re: [PATCH 1/3] libselinux: string and compute_create functions
-	(resend)
+Subject: Re: [PATCH 2/3] libselinux: string and compute_create functions
 From: Stephen Smalley <sds@tycho.nsa.gov>
 To: Eamon Walsh <ewalsh@tycho.nsa.gov>
 Cc: selinux@tycho.nsa.gov
-In-Reply-To: <460D5829.4010405@tycho.nsa.gov>
+In-Reply-To: <460D4D84.6040307@tycho.nsa.gov>
 References: <460D495B.3060000@tycho.nsa.gov>
-	 <460D5829.4010405@tycho.nsa.gov>
+	 <460D4D84.6040307@tycho.nsa.gov>
 Content-Type: text/plain
-Date: Fri, 30 Mar 2007 15:28:53 -0400
-Message-Id: <1175282933.5479.222.camel@moss-spartans.epoch.ncsc.mil>
+Date: Fri, 30 Mar 2007 15:30:46 -0400
+Message-Id: <1175283046.5479.225.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2007-03-30 at 14:34 -0400, Eamon Walsh wrote:
-> Resending patch 1, was whitespace damaged.
+On Fri, 2007-03-30 at 13:48 -0400, Eamon Walsh wrote:
+> avc_compute_create function, same as security_compute_create but
+> takes userspace AVC SID's.
 
-for future reference:
-http://www.zip.com.au/~akpm/linux/patches/stuff/tpp.txt
-
-Merged, with a couple comments below to follow up on.
+Merged with fix described below.
 
 > --
->  include/selinux/selinux.h |   12 ++++-
->  src/avc.c                 |   99 ++++++++++++++++++++++++++++++++++++++++++++++
->  2 files changed, 109 insertions(+), 2 deletions(-)
+>  include/selinux/avc.h |   19 +++++++++++++++++++
+>  src/avc.c             |   25 +++++++++++++++++++++++++
+>  2 files changed, 44 insertions(+)
 > 
 > --
-> Index: libselinux/src/avc.c
+> Index: src/avc.c
 > ===================================================================
-> --- libselinux/src/avc.c	(revision 2307)
-> +++ libselinux/src/avc.c	(working copy)
-
-> +int security_av_string(security_class_t tclass, access_vector_t av, char **res)
+> --- src/avc.c	(revision 2307)
+> +++ src/avc.c	(working copy)
+> @@ -1006,6 +1006,31 @@
+>  	return rc;
+>  }
+>  
+> +int avc_compute_create(security_id_t ssid,  security_id_t tsid,
+> +		       security_class_t tclass, security_id_t *newsid)
 > +{
-> +	unsigned int i = 0;
-> +	size_t len = 5;
-> +	access_vector_t tmp = av;
-> +	int rc = 0;
-> +	const char *str;
-> +	char *ptr;
+> +	int rc;
+> +	*ctx = NULL;
+
+s/ctx/newsid/
+
+> +	avc_get_lock(avc_lock);
+> +	if (ssid->refcnt > 0 && tsid->refcnt > 0) {
+> +		security_context_t ctx;
+> +		rc = security_compute_create_raw(ssid->ctx, tsid->ctx, tclass,
+> +						 &ctx);
+> +		if (rc)
+> +			goto out;
+> +		rc = sidtab_context_to_sid(&avc_sidtab, ctx, newsid);
+> +		if (!rc)
+> +			(*newsid)->refcnt++;
+> +		freecon(ctx);
+> +	} else {
+> +		errno = EINVAL;	/* bad reference count */
+> +		rc = -1;
+> +	}
+> +out:
+> +	avc_release_lock(avc_lock);
+> +	return rc;
+> +}
 > +
-> +	/* first pass computes the required length */
-> +	while (tmp) {
-> +		if (tmp & 1) {
-> +			str = security_av_perm_to_string(tclass, av & (1<<i));
-> +			if (str)
-> +				len += strlen(str) + 1;
-> +			else {
-> +				rc = -1;
-> +				errno = EINVAL;
-> +				goto out;
-> +			}
-
-This fails if the av contains any permissions not defined in the
-headers, which can occur for e.g. allow a b:c *; (as with unconfined
-domains).  avc_dump_av() will instead display any remaining permission
-bits as a hex value after the string list.
-
-We should also consolidate this with avc_dump_av() and
-print_access_vector(), and deprecate print_access_vector(), converting
-over any users to using the new function instead.
+>  int avc_add_callback(int (*callback) (uint32_t event, security_id_t ssid,
+>  				      security_id_t tsid,
+>  				      security_class_t tclass,
 
 -- 
 Stephen Smalley
