@@ -1,69 +1,214 @@
-Subject: Re: [PATCH 2/3] libselinux: string and compute_create functions
+Subject: Re: [PATCH 3/3] libselinux: string and compute_create functions
 From: Stephen Smalley <sds@tycho.nsa.gov>
 To: Eamon Walsh <ewalsh@tycho.nsa.gov>
 Cc: selinux@tycho.nsa.gov
-In-Reply-To: <460D4D84.6040307@tycho.nsa.gov>
+In-Reply-To: <460D4F23.2020202@tycho.nsa.gov>
 References: <460D495B.3060000@tycho.nsa.gov>
-	 <460D4D84.6040307@tycho.nsa.gov>
+	 <460D4F23.2020202@tycho.nsa.gov>
 Content-Type: text/plain
-Date: Fri, 30 Mar 2007 15:30:46 -0400
-Message-Id: <1175283046.5479.225.camel@moss-spartans.epoch.ncsc.mil>
+Date: Fri, 30 Mar 2007 15:31:34 -0400
+Message-Id: <1175283094.5479.227.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2007-03-30 at 13:48 -0400, Eamon Walsh wrote:
-> avc_compute_create function, same as security_compute_create but
-> takes userspace AVC SID's.
-
-Merged with fix described below.
-
-> --
->  include/selinux/avc.h |   19 +++++++++++++++++++
->  src/avc.c             |   25 +++++++++++++++++++++++++
->  2 files changed, 44 insertions(+)
+On Fri, 2007-03-30 at 13:55 -0400, Eamon Walsh wrote:
+> Man pages for new (and old string) functions.
 > 
 > --
-> Index: src/avc.c
+>  avc_compute_create.3         |   58 +++++++++++++++++++++++++++++++
+>  security_av_perm_to_string.3 |    1 
+>  security_av_string.3         |    1 
+>  security_class_to_string.3   |   80 +++++++++++++++++++++++++++++++++++++++++++
+>  string_to_av_perm.3          |    1 
+>  string_to_security_class.3   |    1 
+>  6 files changed, 142 insertions(+)
+
+For future reference, patches should be -p1 or -p0 appliable from top of
+the tree.
+
+Merged.
+
+> --
+> Index: security_av_string.3
 > ===================================================================
-> --- src/avc.c	(revision 2307)
-> +++ src/avc.c	(working copy)
-> @@ -1006,6 +1006,31 @@
->  	return rc;
->  }
->  
-> +int avc_compute_create(security_id_t ssid,  security_id_t tsid,
-> +		       security_class_t tclass, security_id_t *newsid)
-> +{
-> +	int rc;
-> +	*ctx = NULL;
-
-s/ctx/newsid/
-
-> +	avc_get_lock(avc_lock);
-> +	if (ssid->refcnt > 0 && tsid->refcnt > 0) {
-> +		security_context_t ctx;
-> +		rc = security_compute_create_raw(ssid->ctx, tsid->ctx, tclass,
-> +						 &ctx);
-> +		if (rc)
-> +			goto out;
-> +		rc = sidtab_context_to_sid(&avc_sidtab, ctx, newsid);
-> +		if (!rc)
-> +			(*newsid)->refcnt++;
-> +		freecon(ctx);
-> +	} else {
-> +		errno = EINVAL;	/* bad reference count */
-> +		rc = -1;
-> +	}
-> +out:
-> +	avc_release_lock(avc_lock);
-> +	return rc;
-> +}
+> --- security_av_string.3	(revision 0)
+> +++ security_av_string.3	(revision 0)
+> @@ -0,0 +1 @@
+> +.so man3/security_class_to_string.3
+> Index: avc_compute_create.3
+> ===================================================================
+> --- avc_compute_create.3	(revision 0)
+> +++ avc_compute_create.3	(revision 0)
+> @@ -0,0 +1,58 @@
+> +.\" Hey Emacs! This file is -*- nroff -*- source.
+> +.\"
+> +.\" Author: Eamon Walsh (ewalsh@tycho.nsa.gov) 2007
+> +.TH "avc_compute_create" "3" "30 Mar 2007" "" "SE Linux API documentation"
+> +.SH "NAME"
+> +avc_compute_create \- obtain SELinux label for new object.
+> +.SH "SYNOPSIS"
+> +.B #include <selinux/selinux.h>
+> +.br
+> +.B #include <selinux/avc.h>
+> +.sp
+> +.BI "int avc_compute_create(security_id_t " ssid ", security_id_t " tsid ,
+> +.in +\w'int avc_compute_create('u
+> +.BI "security_class_t " tclass ", security_id_t *" newsid ");"
+> +.in
+> +.SH "DESCRIPTION"
+> +.B avc_compute_create
+> +is used to compute a SID to use for labeling a new object in a particular class based on a SID pair.  This call is identical to
+> +.BR security_compute_create ,
+> +but does not require converting from userspace SID's to contexts and back again.
 > +
->  int avc_add_callback(int (*callback) (uint32_t event, security_id_t ssid,
->  				      security_id_t tsid,
->  				      security_class_t tclass,
-
+> +.B avc_compute_create
+> +returns a SID for the computed context in the memory referenced by
+> +.IR sid ,
+> +incrementing its reference count by 1.
+> +
+> +.SH "RETURN VALUE"
+> +On success, zero is returned.  On error, \-1 is returned and
+> +.I errno
+> +is set appropriately.
+> +
+> +.SH "ERRORS"
+> +.TP
+> +.B EINVAL
+> +The
+> +.I tclass
+> +and/or the security contexts referenced by
+> +.I ssid
+> +and
+> +.I tsid
+> +are not recognized by the currently loaded policy, or 
+> +.I tsid
+> +or
+> +.I ssid
+> +has a zero reference count and is invalid.
+> +
+> +.TP
+> +.B ENOMEM
+> +An attempt to allocate memory failed.
+> +
+> +.SH "AUTHOR"
+> +Eamon Walsh <ewalsh@tycho.nsa.gov>
+> +
+> +.SH "SEE ALSO"
+> +.BR avc_init (3),
+> +.BR avc_context_to_sid (3),
+> +.BR security_compute_create (3),
+> +.BR selinux (8)
+> Index: security_av_perm_to_string.3
+> ===================================================================
+> --- security_av_perm_to_string.3	(revision 0)
+> +++ security_av_perm_to_string.3	(revision 0)
+> @@ -0,0 +1 @@
+> +.so man3/security_class_to_string.3
+> Index: string_to_av_perm.3
+> ===================================================================
+> --- string_to_av_perm.3	(revision 0)
+> +++ string_to_av_perm.3	(revision 0)
+> @@ -0,0 +1 @@
+> +.so man3/security_class_to_string.3
+> Index: security_class_to_string.3
+> ===================================================================
+> --- security_class_to_string.3	(revision 0)
+> +++ security_class_to_string.3	(revision 0)
+> @@ -0,0 +1,80 @@
+> +.\" Hey Emacs! This file is -*- nroff -*- source.
+> +.\"
+> +.\" Author: Eamon Walsh (ewalsh@tycho.nsa.gov) 2007
+> +.TH "security_class_to_string" "3" "30 Mar 2007" "" "SE Linux API documentation"
+> +.SH "NAME"
+> +security_class_to_string, security_av_perm_to_string, string_to_security_class, string_to_av_perm, security_av_string \- convert
+> +between SELinux class and permission values and string names.
+> +
+> +.SH "SYNOPSIS"
+> +.B #include <selinux/selinux.h>
+> +.br
+> +.B #include <selinux/flask.h>
+> +.sp
+> +.BI "const char * security_class_to_string(security_class_t " tclass ");"
+> +.sp
+> +.BI "const char * security_av_perm_to_string(security_class_t " tclass ", access_vector_t " av ");"
+> +.sp
+> +.BI "int security_av_string(security_class_t " tclass ", access_vector_t " av ", char **" result ");"
+> +.sp
+> +.BI "security_class_t string_to_security_class(const char *" name ");"
+> +.sp
+> +.BI "access_vector_t string_to_av_perm(security_class_t " tclass ", const char *" name ");"
+> +
+> +.SH "DESCRIPTION"
+> +.B security_class_to_string
+> +returns a string name for class
+> +.IR tclass ,
+> +or NULL if the class is invalid.  The returned string must not be modified or freed.
+> +
+> +.B security_av_perm_to_string
+> +returns a string name for the access vector bit
+> +.I av
+> +of class
+> +.IR tclass ,
+> +or NULL if either argument is invalid.  The returned string must not be modified or freed.
+> +
+> +.B security_av_string
+> +computes a full access vector string representation using
+> +.I tclass
+> +and
+> +.IR av ,
+> +which may have multiple bits set.  The string is returned in the memory pointed to by
+> +.IR result ,
+> +and should be freed by the caller using
+> +.BR free (3).
+> +
+> +.B string_to_security_class
+> +returns the class value corresponding to the string name
+> +.IR name ,
+> +or zero if no such class exists.
+> +
+> +.B string_to_av_perm
+> +returns the access vector bit corresponding to the string name
+> +.I name
+> +and security class
+> +.IR tclass ,
+> +or zero if no such value exists.
+> +
+> +.SH "RETURN VALUE"
+> +.B security_av_string
+> +returns returns zero on success or \-1 on error with
+> +.I errno
+> +set appropriately.  All other functions return zero or NULL on error.
+> +
+> +.SH "ERRORS"
+> +.TP
+> +.B EINVAL
+> +A class or access vector argument is not recognized by the currently loaded policy.
+> +
+> +.TP
+> +.B ENOMEM
+> +An attempt to allocate memory failed.
+> +
+> +.SH "AUTHOR"
+> +Eamon Walsh <ewalsh@tycho.nsa.gov>
+> +
+> +.SH "SEE ALSO"
+> +.BR selinux (8),
+> +.BR getcon (3),
+> +.BR getfilecon (3)
+> Index: string_to_security_class.3
+> ===================================================================
+> --- string_to_security_class.3	(revision 0)
+> +++ string_to_security_class.3	(revision 0)
+> @@ -0,0 +1 @@
+> +.so man3/security_class_to_string.3
+> 
+> 
+> 
+> --
+> This message was distributed to subscribers of the selinux mailing list.
+> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
+> the words "unsubscribe selinux" without quotes as the message.
 -- 
 Stephen Smalley
 National Security Agency
