@@ -1,39 +1,42 @@
-Subject: Re: [Fwd: restorecon single fs patch]
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Daniel J Walsh <dwalsh@redhat.com>
-Cc: SE Linux <selinux@tycho.nsa.gov>,
-        Karl MacMillan <kmacmillan@mentalrootkit.com>
-In-Reply-To: <46115278.4020401@redhat.com>
-References: <46115278.4020401@redhat.com>
-Content-Type: text/plain
-Date: Mon, 02 Apr 2007 15:15:24 -0400
-Message-Id: <1175541324.5889.84.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+Message-ID: <46115A84.1090205@tycho.nsa.gov>
+Date: Mon, 02 Apr 2007 15:33:24 -0400
+From: Eamon Walsh <ewalsh@tycho.nsa.gov>
+MIME-Version: 1.0
+To: Eamon Walsh <ewalsh@tycho.nsa.gov>
+CC: selinux@tycho.nsa.gov, Stephen Smalley <sds@tycho.nsa.gov>
+Subject: [PATCH] libselinux: handle null SID's in sidput (revised)
+References: <461154EB.5080804@tycho.nsa.gov>
+In-Reply-To: <461154EB.5080804@tycho.nsa.gov>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 2007-04-02 at 14:59 -0400, Daniel J Walsh wrote:
-> Patch to tell restorecon to only do one file system.
+This patch makes it possible to sidput a userspace AVC SID in cleanup code
+when the SID may never have been initialized.
 
-Observations:
-- This is yet another reason to coalesce setfiles and restorecon, as
-setfiles already stops on filesystem boundaries.
-- Here you introduce -l as meaning "limit to one filesystem" for
-restorecon, but -l means log to setfiles and to the fixfiles script
-front-end.  Seems prone to user confusion/conflict (think of what
-happens if I want to pass this option through fixfiles to restorecon)
-and it will get worse when/if we merge setfiles and restorecon together
-if we don't fix it now.
+This version drops the check in sidget and avoids taking the AVC lock on a
+null SID (and fixes a null-pointer dereference).
 
-How hard would it be to just fold restorecon and setfiles into a single
-binary, and have them only differ in the default interfaces and
-behaviors they provide (based on their argv[0] value), and try to use a
-single standard set of options to the degree we can without breaking
-widely used ones?
+Signed-off-by: Eamon Walsh <ewalsh@tycho.nsa.gov>
+---
 
--- 
-Stephen Smalley
-National Security Agency
+ avc.c |    2 ++
+ 1 file changed, 2 insertions(+)
+
+Index: libselinux/src/avc.c
+===================================================================
+--- libselinux/src/avc.c	(revision 2318)
++++ libselinux/src/avc.c	(working copy)
+@@ -272,6 +272,8 @@
+ int sidput(security_id_t sid)
+ {
+ 	int rc;
++	if (!sid)
++	    return 0;
+ 	avc_get_lock(avc_lock);
+ 	rc = sid_dec_refcnt(sid);
+ 	avc_release_lock(avc_lock);
+
 
 
 --
