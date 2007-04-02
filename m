@@ -1,68 +1,63 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l32HUI9d016058
-	for <selinux@tycho.nsa.gov>; Mon, 2 Apr 2007 13:30:18 -0400
-Received: from mx1.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id l32HUGss024748
-	for <selinux@tycho.nsa.gov>; Mon, 2 Apr 2007 17:30:17 GMT
-Subject: Re: secmark integration
-From: Karl MacMillan <kmacmillan@mentalrootkit.com>
-To: Joshua Brindle <method@manicmethod.com>
-Cc: James Morris <jmorris@namei.org>, Eric Paris <eparis@parisplace.org>,
-        Daniel J Walsh <dwalsh@redhat.com>, selinux@tycho.nsa.gov
-In-Reply-To: <46113A09.4040607@manicmethod.com>
-References: <Line.LNX.4.64.0703191021480.22828@d.namei>
-	 <1175284031.3602.24.camel@localhost.localdomain>
-	 <1175286309.20396.13.camel@localhost.localdomain>
-	 <Line.LNX.4.64.0703302201520.29742@d.namei>  <46111709.9060402@redhat.com>
-	 <1175525718.20396.46.camel@localhost.localdomain>
-	 <Line.LNX.4.64.0704021215020.8213@d.namei>
-	 <46113A09.4040607@manicmethod.com>
+Subject: Re: Compatibility between binary policy file and kernel version
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Pravin <shindepravin@gmail.com>
+Cc: SELinux List <selinux@tycho.nsa.gov>
+In-Reply-To: <1175526715.5889.55.camel@moss-spartans.epoch.ncsc.mil>
+References: <9d1b82480704020747v1f05b267j874c4bb2d3f1f941@mail.gmail.com>
+	 <1175526715.5889.55.camel@moss-spartans.epoch.ncsc.mil>
 Content-Type: text/plain
-Date: Mon, 02 Apr 2007 13:28:02 -0400
-Message-Id: <1175534882.5433.17.camel@localhost.localdomain>
+Date: Mon, 02 Apr 2007 13:35:36 -0400
+Message-Id: <1175535336.5889.72.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 2007-04-02 at 13:14 -0400, Joshua Brindle wrote:
-> James Morris wrote:
-> > On Mon, 2 Apr 2007, Eric Paris wrote:
-> >
-> >   
-> >> Seems to me that port number is the only thing we can label based on for
-> >> everyone out of the box.  Any more complex labeling scheme is going to
-> >> require network specific information, right?
-> >>     
-> >
-> > For gateways & externally facing systems, we could use types for the 
-> > interfaces, e.g. external_netif, internal_netif and have a loadable module 
-> > or something which differentiates between internal and external traffic.
-> >
-> >   
-> Unfortunately it isn't nearly this easy. If your security goal was just 
-> to differentiate internal and external traffic it would work fine but 
-> you'd be losing all granularity of port based access control. To do this 
-> with the refpolicy model of labeling based on service ports you'd have 
-> to replicate the entire corenetwork module with internal and external 
-> types and then fix all the service domains to be able to use the 
-> appropriate ones. I just don't think this scales.
+On Mon, 2007-04-02 at 11:11 -0400, Stephen Smalley wrote:
+> On Mon, 2007-04-02 at 20:17 +0530, Pravin wrote:
+> > Hi,
+> > I am facing some problems with compatibility between binary policy
+> > file and kernel version.
+> > 
+> > I have properly working selinux with kernel 2.6.19.
+> > But When I use kernel 2.6.18 or 2.6.20, the filesystem labels r not recognized.
+> > These kernels shows the default labels like
+> > "system_u:object_r:unlabeled_t:s0" but same object shows proper label
+> > in kernel 2.6.19.
 > 
+> Can you give a specific example of such a label?
+> 
+> > I am using FC6 filesystem with selinux policies compiled by SEEdit.
+> > The binary policy file created is "/etc/selinux/seedit/policy/policy.21"
+> 
+> Are there any other binary policy files in that directory, and is
+> your /etc/selinux/config specifying "seeedit" as the SELINUXTYPE?
+> 
+> > Do I need to re-create compiled binary policies for kernel 2.6.18 ?
+> 
+> You shouldn't need to do so; load_policy should handle downgrading of
+> the binary policy file to the kernel version automatically (as of FC5
+> and later).
+> 
+> > One more doubt that I have is kernel that I am using are not
+> > Fedora-core kernel but plain vanilla kernels.
+> > Can this create problems, as may be FC kernels are having different
+> > binary policy format?
+> 
+> Shouldn't be different.
+> 
+> Might be useful to capture strace load_policy output and see what policy
+> file(s) it opens.
 
-I think that controlling port binding plus separating the traffic with
-secmark will be sufficient in most cases. There is no advantage to
-replicating the port binding rules with secmark (except perhaps with
-protocols that connect to random ports like nis or ftp).
+Also, are there any differences in the kernel configs between those
+kernels, particularly for security-related options?
+grep SECURITY .config
 
-I'd also suggest that corenetwork should be used primarily for the
-name_[bind/connect] checks and push the rest of the network controls
-into secmark rules and custom modules. That reduces the number of
-iptables rules by default and reduces the customization needed in
-corenetwork.
+Do you have SECURITY_SELINUX_POLICYDB_VERSION_MAX enabled or disabled?
+(should be disabled on FC5 and later).
 
-Again, pushing secmark labeling into the selinux policy destroys the
-flexibility we gain with secmark and becomes a management nightmare.
-
-Karl
+-- 
+Stephen Smalley
+National Security Agency
 
 
 --
