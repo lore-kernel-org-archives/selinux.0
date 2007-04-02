@@ -1,109 +1,66 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l32HPsYK015873
-	for <selinux@tycho.nsa.gov>; Mon, 2 Apr 2007 13:25:54 -0400
-Received: from mx1.redhat.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l32HPoft001794
-	for <selinux@tycho.nsa.gov>; Mon, 2 Apr 2007 17:25:51 GMT
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l32HUI9d016058
+	for <selinux@tycho.nsa.gov>; Mon, 2 Apr 2007 13:30:18 -0400
+Received: from mx1.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id l32HUGss024748
+	for <selinux@tycho.nsa.gov>; Mon, 2 Apr 2007 17:30:17 GMT
 Subject: Re: secmark integration
 From: Karl MacMillan <kmacmillan@mentalrootkit.com>
-To: Eric Paris <eparis@parisplace.org>
-Cc: James Morris <jmorris@namei.org>, selinux@tycho.nsa.gov,
-        Joshua Brindle <method@manicmethod.com>,
-        Daniel J Walsh <dwalsh@redhat.com>
-In-Reply-To: <1175291240.20396.36.camel@localhost.localdomain>
+To: Joshua Brindle <method@manicmethod.com>
+Cc: James Morris <jmorris@namei.org>, Eric Paris <eparis@parisplace.org>,
+        Daniel J Walsh <dwalsh@redhat.com>, selinux@tycho.nsa.gov
+In-Reply-To: <46113A09.4040607@manicmethod.com>
 References: <Line.LNX.4.64.0703191021480.22828@d.namei>
 	 <1175284031.3602.24.camel@localhost.localdomain>
 	 <1175286309.20396.13.camel@localhost.localdomain>
-	 <1175286967.3602.31.camel@localhost.localdomain>
-	 <1175291240.20396.36.camel@localhost.localdomain>
+	 <Line.LNX.4.64.0703302201520.29742@d.namei>  <46111709.9060402@redhat.com>
+	 <1175525718.20396.46.camel@localhost.localdomain>
+	 <Line.LNX.4.64.0704021215020.8213@d.namei>
+	 <46113A09.4040607@manicmethod.com>
 Content-Type: text/plain
-Date: Mon, 02 Apr 2007 13:23:07 -0400
-Message-Id: <1175534587.5433.11.camel@localhost.localdomain>
+Date: Mon, 02 Apr 2007 13:28:02 -0400
+Message-Id: <1175534882.5433.17.camel@localhost.localdomain>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2007-03-30 at 17:47 -0400, Eric Paris wrote:
-> On Fri, 2007-03-30 at 16:36 -0400, Karl MacMillan wrote:
-> > On Fri, 2007-03-30 at 16:25 -0400, Eric Paris wrote:
-> > > On Fri, 2007-03-30 at 15:47 -0400, Karl MacMillan wrote:
-> > > > On Mon, 2007-03-19 at 10:57 -0400, James Morris wrote:
-> > > > > Following some discussion of secmark integration at the developer summit, 
-> > > > > one of the ideas proposed by Joshua (IIRC) was that it would be desirable 
-> > > > > to have a separate table for managing the secmark rules.
-> > > > > 
-> [snip]
-> > > > > Is there a consensus, particularly from distro folk, that having a 
-> > > > > separate table would be of great benefit ?  I can post a rudimentary patch 
-> > > > > soon, if needed.
-> > > > > 
-> > > > 
-> > > > Is this really needed as long as the distro provides a way to customize
-> > > > the iptables rules?
-> > > 
-> > > It's not just that.  The reason a new table was proposed was because
-> > > people may want to iptables -F and flush their rules.  If the secmark
-> > > stuff is on the main tables (filter and nat) that people use it will get
-> > > blown away and there will be no automation of a boolean setting you talk
-> > > about later.
-> > > 
-> > 
-> > If we add the custom table won't we need a way to flush that? 
-> 
-> Sure it would still be flushable, just not how people normally go about
-> turning off iptables rules.  Now to flush rules users would
-> 
-> iptables -F
-> iptables -F -t nat
-> 
-> to get the secmark stuff they would also have to do
-> iptables -F -t secmark
+On Mon, 2007-04-02 at 13:14 -0400, Joshua Brindle wrote:
+> James Morris wrote:
+> > On Mon, 2 Apr 2007, Eric Paris wrote:
+> >
+> >   
+> >> Seems to me that port number is the only thing we can label based on for
+> >> everyone out of the box.  Any more complex labeling scheme is going to
+> >> require network specific information, right?
+> >>     
+> >
+> > For gateways & externally facing systems, we could use types for the 
+> > interfaces, e.g. external_netif, internal_netif and have a loadable module 
+> > or something which differentiates between internal and external traffic.
+> >
+> >   
+> Unfortunately it isn't nearly this easy. If your security goal was just 
+> to differentiate internal and external traffic it would work fine but 
+> you'd be losing all granularity of port based access control. To do this 
+> with the refpolicy model of labeling based on service ports you'd have 
+> to replicate the entire corenetwork module with internal and external 
+> types and then fix all the service domains to be able to use the 
+> appropriate ones. I just don't think this scales.
 > 
 
-That sounds fine to me, but James mentioned that the upstream acceptance
-might be hard. So how do we experiment in the short term? Just don't
-worry about rules getting flushed?
+I think that controlling port binding plus separating the traffic with
+secmark will be sufficient in most cases. There is no advantage to
+replicating the port binding rules with secmark (except perhaps with
+protocols that connect to random ports like nis or ftp).
 
+I'd also suggest that corenetwork should be used primarily for the
+name_[bind/connect] checks and push the rest of the network controls
+into secmark rules and custom modules. That reduces the number of
+iptables rules by default and reduces the customization needed in
+corenetwork.
 
-<snip>
-
-> 
-> 4) Find some guy who works in userspace and get him to write a tool that
-> will allow you to fill in some blanks and it will create the policy,
-> iptables labeling rule, and boolean settings for you.
-
-I don't think this is a good idea for the initial rollout of secmark.
-Again, the whole idea is to use the power of iptables for labeling. If
-you hide that behind higher-level abstractions I think that people will
-just be frustrated because they won't be able to accomplish what they
-want.
-
-Writing iptables rules is *not* the problem for acceptance. Just having
-a clear way to use secmark is enough initially.
-After that, we can get a good idea of what types of things people want
-out of secmark and can put some tools on top.
-
-<snip>
-
-> 
-> Maybe at some point we can ship labeling rules by default (and i don't
-> know if these belong with the other 'normal' firewall rules as opposed
-> to a seperate init script which just sets the secmark rules) which match
-> little other than we already match in the name_{bind,connect} checks and
-> can eliminate the boolean step.
-
-Why would we? The name_* checks are effective at what they do and are
-easily managed by semanage. I would rather push secmark towards things
-that are currently hard to enforce (like separating traffic from two
-nics).
-
->   But for now it seems that making it so
-> that a user won't accidentally shoot themselves in the foot and products
-> like 'webmin' can't hurt anything would be a good step....
-
-Not certain that I agree. Let's make it usable for knowledgeable
-sysadmins first and then try to wrap higher-level tools around this. If
-it solves peoples problems they will use it with or without a gui.
+Again, pushing secmark labeling into the selinux policy destroys the
+flexibility we gain with secmark and becomes a management nightmare.
 
 Karl
 
