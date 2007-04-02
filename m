@@ -1,43 +1,51 @@
 Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l32ElXhA006421
-	for <selinux@tycho.nsa.gov>; Mon, 2 Apr 2007 10:47:33 -0400
-Received: from ug-out-1314.google.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l32ElUd2001199
-	for <selinux@tycho.nsa.gov>; Mon, 2 Apr 2007 14:47:32 GMT
-Received: by ug-out-1314.google.com with SMTP id y2so1870023uge
-        for <selinux@tycho.nsa.gov>; Mon, 02 Apr 2007 07:47:29 -0700 (PDT)
-Message-ID: <9d1b82480704020747v1f05b267j874c4bb2d3f1f941@mail.gmail.com>
-Date: Mon, 2 Apr 2007 20:17:26 +0530
-From: Pravin <shindepravin@gmail.com>
-To: "SELinux List" <selinux@tycho.nsa.gov>
-Subject: Compatibility between binary policy file and kernel version
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l32Eqtp5006810
+	for <selinux@tycho.nsa.gov>; Mon, 2 Apr 2007 10:52:55 -0400
+Received: from atlrel6.hp.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l32Eqqd2002349
+	for <selinux@tycho.nsa.gov>; Mon, 2 Apr 2007 14:52:52 GMT
+From: Paul Moore <paul.moore@hp.com>
+To: James Morris <jmorris@namei.org>, Eric Paris <eparis@parisplace.org>
+Subject: Re: secmark integration
+Date: Mon, 2 Apr 2007 10:52:13 -0400
+Cc: Karl MacMillan <kmacmillan@mentalrootkit.com>, selinux@tycho.nsa.gov,
+        Joshua Brindle <method@manicmethod.com>,
+        Daniel J Walsh <dwalsh@redhat.com>
+References: <Line.LNX.4.64.0703191021480.22828@d.namei> <1175286309.20396.13.camel@localhost.localdomain> <Line.LNX.4.64.0703302201520.29742@d.namei>
+In-Reply-To: <Line.LNX.4.64.0703302201520.29742@d.namei>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Message-Id: <200704021052.13406.paul.moore@hp.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hi,
-I am facing some problems with compatibility between binary policy
-file and kernel version.
+On Friday, March 30 2007 10:09:45 pm James Morris wrote:
+> On Fri, 30 Mar 2007, Eric Paris wrote:
+> > > Is this really needed as long as the distro provides a way to customize
+> > > the iptables rules?
+> >
+> > It's not just that.  The reason a new table was proposed was because
+> > people may want to iptables -F and flush their rules.  If the secmark
+> > stuff is on the main tables (filter and nat) that people use it will get
+> > blown away and there will be no automation of a boolean setting you talk
+> > about later.
+>
+> I think there's also a good case for a separate table on the basis that
+> the rules are part of a separate administrative realm (e.g. MAC, rather
+> than DAC) and should be maintained separately.  We could also look at
+> adding an LSM hook for rules being manipulated in this table (perhaps
+> called 'security' to be more general).
 
-I have properly working selinux with kernel 2.6.19.
-But When I use kernel 2.6.18 or 2.6.20, the filesystem labels r not recognized.
-These kernels shows the default labels like
-"system_u:object_r:unlabeled_t:s0" but same object shows proper label
-in kernel 2.6.19.
+I agree that if we add a new table it should be a generic security/lsm table.  
+While presently only secmark would make use of it; the iptables in/out/fwd 
+checks for externally labeled packets discussed most recently at the 
+developer's summit could also make use of the same table for the same reasons 
+as secmark.
 
-I am using FC6 filesystem with selinux policies compiled by SEEdit.
-The binary policy file created is "/etc/selinux/seedit/policy/policy.21"
-
-Do I need to re-create compiled binary policies for kernel 2.6.18 ?
-
-One more doubt that I have is kernel that I am using are not
-Fedora-core kernel but plain vanilla kernels.
-Can this create problems, as may be FC kernels are having different
-binary policy format?
-
-Regards,
-Pravin Shinde
+-- 
+paul moore
+linux security @ hp
 
 --
 This message was distributed to subscribers of the selinux mailing list.
