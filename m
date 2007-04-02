@@ -1,47 +1,38 @@
-Message-ID: <461154EB.5080804@tycho.nsa.gov>
-Date: Mon, 02 Apr 2007 15:09:31 -0400
-From: Eamon Walsh <ewalsh@tycho.nsa.gov>
-MIME-Version: 1.0
-To: selinux@tycho.nsa.gov
-CC: Stephen Smalley <sds@tycho.nsa.gov>
-Subject: [PATCH] libselinux: handle null SID's in sidput / sidget
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Subject: Re: [Fwd: restorecon single fs patch]
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Daniel J Walsh <dwalsh@redhat.com>
+Cc: SE Linux <selinux@tycho.nsa.gov>,
+        Karl MacMillan <kmacmillan@mentalrootkit.com>
+In-Reply-To: <46115278.4020401@redhat.com>
+References: <46115278.4020401@redhat.com>
+Content-Type: text/plain
+Date: Mon, 02 Apr 2007 15:15:24 -0400
+Message-Id: <1175541324.5889.84.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This patch makes it possible to sidput a userspace AVC SID in cleanup code
-when the SID may never have been initialized.
+On Mon, 2007-04-02 at 14:59 -0400, Daniel J Walsh wrote:
+> Patch to tell restorecon to only do one file system.
 
-Signed-off-by: Eamon Walsh <ewalsh@tycho.nsa.gov>
----
+Observations:
+- This is yet another reason to coalesce setfiles and restorecon, as
+setfiles already stops on filesystem boundaries.
+- Here you introduce -l as meaning "limit to one filesystem" for
+restorecon, but -l means log to setfiles and to the fixfiles script
+front-end.  Seems prone to user confusion/conflict (think of what
+happens if I want to pass this option through fixfiles to restorecon)
+and it will get worse when/if we merge setfiles and restorecon together
+if we don't fix it now.
 
- avc_internal.h |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
-
-
-Index: libselinux/src/avc_internal.h
-===================================================================
---- libselinux/src/avc_internal.h	(revision 2318)
-+++ libselinux/src/avc_internal.h	(working copy)
-@@ -18,12 +18,12 @@
- /* SID reference counter manipulation */
- static inline int sid_inc_refcnt(security_id_t sid)
- {
--	return sid->refcnt = (sid->refcnt > 0) ? sid->refcnt + 1 : 0;
-+	return sid->refcnt = (sid && sid->refcnt > 0) ? sid->refcnt + 1 : 0;
- }
- 
- static inline int sid_dec_refcnt(security_id_t sid)
- {
--	return sid->refcnt = (sid->refcnt > 0) ? sid->refcnt - 1 : 0;
-+	return sid->refcnt = (sid && sid->refcnt > 0) ? sid->refcnt - 1 : 0;
- }
- 
- /* callback pointers */
-
+How hard would it be to just fold restorecon and setfiles into a single
+binary, and have them only differ in the default interfaces and
+behaviors they provide (based on their argv[0] value), and try to use a
+single standard set of options to the degree we can without breaking
+widely used ones?
 
 -- 
-Eamon Walsh <ewalsh@tycho.nsa.gov>
+Stephen Smalley
 National Security Agency
 
 
