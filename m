@@ -1,156 +1,86 @@
-Subject: [patch] selinux:  export initial SID contexts via selinuxfs
-From: James Carter <jwcart2@tycho.nsa.gov>
-Reply-To: jwcart2@tycho.nsa.gov
-To: SELinux <selinux@tycho.nsa.gov>
-Cc: Steve Smalley <sds@epoch.ncsc.mil>, Eamon Walsh <ewalsh@tycho.nsa.gov>
-Content-Type: text/plain
-Date: Tue, 03 Apr 2007 16:32:47 -0400
-Message-Id: <1175632367.9109.22.camel@moss-lions.epoch.ncsc.mil>
-Mime-Version: 1.0
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l33KixFo012411
+	for <selinux@tycho.nsa.gov>; Tue, 3 Apr 2007 16:44:59 -0400
+Received: from exchange.columbia.tresys.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with SMTP id l33KiwPe015316
+	for <selinux@tycho.nsa.gov>; Tue, 3 Apr 2007 20:44:58 GMT
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Subject: [PATCH] refpolicy: include LOCAL_ROOT modules in make conf
+Date: Tue, 3 Apr 2007 16:44:58 -0400
+Message-ID: <6FE441CD9F0C0C479F2D88F959B0158805269C@exchange.columbia.tresys.com>
+From: "James Athey" <jathey@tresys.com>
+To: <selinux@tycho.nsa.gov>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Make the initial SID contexts accessible to userspace via selinuxfs.
-An initial use of this support will be to make the unlabeled context
-available to libselinux for use for invalidated userspace SIDs.
+This patch fixes two problems:
 
-Signed-off-by: James Carter <jwcart2@tycho.nsa.gov>
+1. When a LOCAL_ROOT is specified, make conf includes layers found in both the main tree and the LOCAL_ROOT twice in modules.conf.
 
----
+2. make conf did not actually include generated XML from modules in the LOCAL_ROOT in the layer XMLs, and therefore they would not appear in modules.conf.
 
- security/selinux/include/security.h |    2 +
- security/selinux/selinuxfs.c        |   67 ++++++++++++++++++++++++++++++++++++
- security/selinux/ss/services.c      |    7 +++
- 3 files changed, 76 insertions(+)
-
-diff --git a/security/selinux/include/initial_sid_to_string.h b/security/selinux/include/initial_sid_to_string.h
-diff --git a/security/selinux/include/security.h b/security/selinux/include/security.h
-index 210eec7..505e558 100644
---- a/security/selinux/include/security.h
-+++ b/security/selinux/include/security.h
-@@ -102,5 +102,7 @@ int security_fs_use(const char *fstype, unsigned int *behavior,
- int security_genfs_sid(const char *fstype, char *name, u16 sclass,
- 	u32 *sid);
+Index: Makefile
+===================================================================
+--- Makefile	(revision 2253)
++++ Makefile	(working copy)
+@@ -113,17 +113,16 @@
+ docfiles = $(docs)/Makefile.example $(addprefix $(docs)/,example.te example.if example.fc)
  
-+const char* security_get_initial_sid_context(u32 sid);
-+
- #endif /* _SELINUX_SECURITY_H_ */
+ ifndef LOCAL_ROOT
+-polxml = $(docs)/policy.xml
+-tunxml = $(docs)/global_tunables.xml
+-boolxml = $(docs)/global_booleans.xml
+-htmldir = $(docs)/html
++xmls = $(docs)
+ else
+-polxml = $(LOCAL_ROOT)/doc/policy.xml
+-tunxml = $(LOCAL_ROOT)/doc/global_tunables.xml
+-boolxml = $(LOCAL_ROOT)/doc/global_booleans.xml
+-htmldir = $(LOCAL_ROOT)/doc/html
++xmls = $(LOCAL_ROOT)/doc
+ endif
  
-diff --git a/security/selinux/selinuxfs.c b/security/selinux/selinuxfs.c
-index 93b3177..89d246f 100644
---- a/security/selinux/selinuxfs.c
-+++ b/security/selinux/selinuxfs.c
-@@ -102,6 +102,9 @@ enum sel_inos {
- 	SEL_COMPAT_NET,	/* whether to use old compat network packet controls */
- };
++polxml = $(xmls)/policy.xml
++tunxml = $(xmls)/global_tunables.xml
++boolxml = $(xmls)/global_booleans.xml
++htmldir = $(xmls)/html
++
+ # config file paths
+ globaltun = $(poldir)/global_tunables
+ globalbool = $(poldir)/global_booleans
+@@ -255,7 +254,7 @@
+ detected_mods := $(sort $(foreach dir,$(all_layers),$(wildcard $(dir)/*.te)) $(generated_te))
  
-+#define SEL_INITCON_INO_OFFSET 	0x01000000
-+#define SEL_INO_MASK		0x00ffffff
-+
- #define TMPBUFLEN	12
- static ssize_t sel_read_enforce(struct file *filp, char __user *buf,
- 				size_t count, loff_t *ppos)
-@@ -1240,6 +1243,55 @@ out:
- 	return ret;
- }
+ modxml := $(detected_mods:.te=.xml)
+-layerxml := $(addprefix $(tmpdir)/, $(notdir $(addsuffix .xml,$(all_layers))))
++layerxml := $(sort $(addprefix $(tmpdir)/, $(notdir $(addsuffix .xml,$(all_layers)))))
+ all_metaxml := $(addsuffix /$(metaxml), $(all_layers))
  
-+static ssize_t sel_read_initcon(struct file * file, char __user *buf, 
-+				size_t count, loff_t *ppos)
-+{
-+	struct inode *inode;
-+	char *con;
-+	u32 sid, len;
-+	ssize_t ret;
-+
-+	inode = file->f_path.dentry->d_inode;
-+	sid = inode->i_ino&SEL_INO_MASK;
-+	ret = security_sid_to_context(sid, &con, &len);
-+	if (ret < 0)
-+		return ret;
-+	
-+	ret = simple_read_from_buffer(buf, count, ppos, con, len);
-+	kfree(con);
-+	return ret;
-+}
-+
-+static const struct file_operations sel_initcon_ops = {
-+	.read		= sel_read_initcon,
-+};
-+
-+static int sel_make_initcon_files(struct dentry *dir)
-+{
-+	int i, ret = 0;
-+
-+	for (i = 0; i <= SECINITSID_NUM; i++) {
-+		struct inode *inode;
-+		struct dentry *dentry;
-+		dentry = d_alloc_name(dir, security_get_initial_sid_context(i));
-+		if (!dentry) {
-+			ret = -ENOMEM;
-+			goto out;
-+		}
-+
-+		inode = sel_make_inode(dir->d_sb, S_IFREG|S_IRUGO);
-+		if (!inode) {
-+			ret = -ENOMEM;
-+			goto out;
-+		}
-+		inode->i_fop = &sel_initcon_ops;
-+		inode->i_ino = i|SEL_INITCON_INO_OFFSET;
-+		d_add(dentry, inode);
-+	}
-+out:
-+	return ret;
-+}
-+
- static int sel_make_dir(struct inode *dir, struct dentry *dentry)
- {
- 	int ret = 0;
-@@ -1336,6 +1388,21 @@ static int sel_fill_super(struct super_block * sb, void * data, int silent)
- 	ret = sel_make_avc_files(dentry);
- 	if (ret)
- 		goto err;
-+
-+	dentry = d_alloc_name(sb->s_root, "initial_contexts");
-+	if (!dentry) {
-+		ret = -ENOMEM;
-+		goto err;
-+	}
-+
-+	ret = sel_make_dir(root_inode, dentry);
-+	if (ret)
-+		goto err;
-+
-+	ret = sel_make_initcon_files(dentry);
-+	if (ret)
-+		goto err;
-+
- out:
- 	return ret;
- err:
-diff --git a/security/selinux/ss/services.c b/security/selinux/ss/services.c
-index 1e52356..ef6affd 100644
---- a/security/selinux/ss/services.c
-+++ b/security/selinux/ss/services.c
-@@ -594,6 +594,13 @@ static int context_struct_to_string(struct context *context, char **scontext, u3
+ # modules.conf setting for base module
+@@ -419,7 +418,11 @@
+ 	@test -d $(tmpdir) || mkdir -p $(tmpdir)
+ 	$(verbose) echo '<layer name="$(*F)">' > $@
+ 	$(verbose) cat $(addprefix $(moddir)/, $(notdir $*))/$(metaxml) >> $@
++ifndef LOCAL_ROOT
+ 	$(verbose) cat $(filter-out $(addprefix $(moddir)/, $(notdir $*))/$(metaxml), $(filter $(addprefix $(moddir)/, $(notdir $*))/%, $(modxml))) >> $@
++else
++	$(verbose) cat $(filter-out $(addprefix $(moddir)/, $(notdir $*))/$(metaxml), $(filter $(addprefix $(moddir)/, $(notdir $*))/%, $(modxml))) $(filter-out $(addprefix $(local_moddir)/, $(notdir $*))/$(metaxml), $(filter $(addprefix $(local_moddir)/, $(notdir $*))/%, $(modxml))) >> $@
++endif
+ 	$(verbose) echo '</layer>' >> $@
  
- #include "initial_sid_to_string.h"
- 
-+const char* security_get_initial_sid_context(u32 sid)
-+{
-+	if (sid <= SECINITSID_NUM)
-+		return initial_sid_to_string[sid];
-+	return NULL;
-+}
+ $(tunxml): $(globaltun)
+@@ -548,6 +551,9 @@
+ 			$(moddir)/$$i/*.xml \
+ 			$(headerdir)/$$i ;\
+ 	done
 +
- /**
-  * security_sid_to_context - Obtain a context for a given SID.
-  * @sid: security identifier, SID
-
-
--- 
-James Carter <jwcart2@tycho.nsa.gov>
-National Security Agency
++	$(verbose) install -m 644 $(moddir)/kernel/corenetwork.te.in $(headerdir)/kernel
++
+ 	$(verbose) echo "TYPE ?= $(TYPE)" > $(headerdir)/build.conf
+ 	$(verbose) echo "NAME ?= $(NAME)" >> $(headerdir)/build.conf
+ ifneq "$(DISTRO)" ""
 
 
 --
