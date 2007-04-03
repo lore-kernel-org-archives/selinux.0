@@ -1,70 +1,60 @@
-Subject: Re: Compatibility between binary policy file and kernel version
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Pravin <shindepravin@gmail.com>
-Cc: SELinux List <selinux@tycho.nsa.gov>
-In-Reply-To: <9d1b82480704030444n6dcc45c2t574e100c98b41816@mail.gmail.com>
-References: <9d1b82480704020747v1f05b267j874c4bb2d3f1f941@mail.gmail.com>
-	 <1175526715.5889.55.camel@moss-spartans.epoch.ncsc.mil>
-	 <1175535336.5889.72.camel@moss-spartans.epoch.ncsc.mil>
-	 <9d1b82480704030444n6dcc45c2t574e100c98b41816@mail.gmail.com>
-Content-Type: text/plain
-Date: Tue, 03 Apr 2007 08:48:06 -0400
-Message-Id: <1175604486.5889.92.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l33DhQOl025486
+	for <selinux@tycho.nsa.gov>; Tue, 3 Apr 2007 09:43:26 -0400
+Received: from web86909.mail.ukl.yahoo.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with SMTP id l33DhN4M005552
+	for <selinux@tycho.nsa.gov>; Tue, 3 Apr 2007 13:43:24 GMT
+Date: Tue, 3 Apr 2007 13:43:07 +0000 (GMT)
+From: JanuGerman <doublemalam@yahoo.co.uk>
+Subject: Identification of Attribute values within the Security Server
+To: SELinux List <selinux@tycho.nsa.gov>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ascii
+Message-ID: <498157.12184.qm@web86909.mail.ukl.yahoo.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2007-04-03 at 17:14 +0530, Pravin wrote:
-> >
-> > Also, are there any differences in the kernel configs between those
-> > kernels, particularly for security-related options?
-> 
-> well, there was difference in kernel config files.
-> After some trial and error, i found out following three config
-> options, after setting them filesystem labels were recognized :-).
-> 
-> {{{
-> CONFIG_EXT2_FS_XATTR=y
-> CONFIG_EXT2_FS_POSIX_ACL=y
-> CONFIG_EXT2_FS_SECURITY=y
-> }}}
+Hi Every one,
 
-Yes, you need xattr and security label support in the filesystem,
-naturally.  You shouldn't need POSIX ACL support, although there is no
-harm in having it.
 
-> > grep SECURITY .config
-> >
-> This is output of grep SECURITY .config
-> after above modifications
-> {{{
-> CONFIG_EXT2_FS_SECURITY=y
-> CONFIG_SECURITY=y
-> CONFIG_SECURITY_NETWORK=y
-> # CONFIG_SECURITY_NETWORK_XFRM is not set
-> CONFIG_SECURITY_CAPABILITIES=y
-> # CONFIG_SECURITY_SECLVL is not set
-> CONFIG_SECURITY_SELINUX=y
-> CONFIG_SECURITY_SELINUX_BOOTPARAM=y
-> CONFIG_SECURITY_SELINUX_BOOTPARAM_VALUE=1
-> # CONFIG_SECURITY_SELINUX_DISABLE is not set
-> CONFIG_SECURITY_SELINUX_DEVELOP=y
-> CONFIG_SECURITY_SELINUX_AVC_STATS=y
-> CONFIG_SECURITY_SELINUX_CHECKREQPROT_VALUE=1
-> # CONFIG_SECURITY_SELINUX_ENABLE_SECMARK_DEFAULT is not set
-> }}}
-> 
-> I dont know if I have to do any other modifications also.
+1) Can constraint(s) be specified in the "RefPolicy" e.g. is this Refpolicy is correct:
 
-You want CONFIG_SECURITY_SELINUX_DISABLE=1 if you want SELINUX=disabled
-to work in your /etc/selinux/config as an alternative way of disabling
-SELinux (vs. specifying selinux=0 on the kernel command line).  Or if
-selinux=0 is sufficient for you, you don't need it.
+policy_module(local, 1.0)  
 
--- 
-Stephen Smalley
-National Security Agency
+ require {
+         type unconfined_t;
+         type fs_t priv_type;
+ }
+ 
+ type x_t;
+ bool test true;
+ 
+ allow x_t fs_t:filesystem associate;
+ if (test) {
+         # allow unconfined_t all access to x_t
+         allow unconfined_t x_t:dir *;
+         allow unconfined_t x_t:file *;
+ } else {
+         # allow unconfined_t only ls access
+         allow unconfined_t x_t:dir { getattr read search };
+         allow unconfined_t x_t:file {getattr }; 
+}
+constrain filesystem associate (t1=priv_type)
 
+The intended semantics of this policy is to associate an attribute with the fs_t typeand then further constrain the permissions. But the above semantics can be achieved by (t1=t2) may be?.
+ 
+
+2) SELinux policy may contain attributes, which can be associated with types and can be checked within the constrain(t) expressions in a further step. Within the security server i.e. ss/services.c however, the function "constraint_expr_eval" checks the types only and there is no check for delcared attribute seperately i think so. It seems that attributes are internally mapped to types and within the "constraint_expr_eval" function, only types are checked? Secondly, integers are associated with these types. Whether these types are mapped to integers seperately some where else?. Actually, my intension is to identify a particular type within the "constraint_expr_eval" but i found that, types are first mapped to integers first, and not directly machted based on their names. Is this a correct approach for the identification of particular types or a better approach can be taken before entering into the security server?
+
+
+Thanks,
+Best
+JG
+
+
+		
+___________________________________________________________ 
+Yahoo! Messenger - with free PC-PC calling and photo sharing. http://uk.messenger.yahoo.com
 
 --
 This message was distributed to subscribers of the selinux mailing list.
