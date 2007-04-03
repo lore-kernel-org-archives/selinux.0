@@ -1,33 +1,157 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l33KDJDF010926
-	for <selinux@tycho.nsa.gov>; Tue, 3 Apr 2007 16:13:19 -0400
-Received: from ug-out-1314.google.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l33KDGoc012745
-	for <selinux@tycho.nsa.gov>; Tue, 3 Apr 2007 20:13:18 GMT
-Received: by ug-out-1314.google.com with SMTP id y2so516716uge
-        for <selinux@tycho.nsa.gov>; Tue, 03 Apr 2007 13:13:07 -0700 (PDT)
-Message-ID: <f888952b0704031313s4281e106tfcb9a47667a1319f@mail.gmail.com>
-Date: Tue, 3 Apr 2007 16:13:06 -0400
-From: "Dave Quigley" <dquigley+selinux@gmail.com>
-To: selinux@tycho.nsa.gov
-Subject: Applications without SELinux policies
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Subject: [patch] selinux:  export initial SID contexts via selinuxfs
+From: James Carter <jwcart2@tycho.nsa.gov>
+Reply-To: jwcart2@tycho.nsa.gov
+To: SELinux <selinux@tycho.nsa.gov>
+Cc: Steve Smalley <sds@epoch.ncsc.mil>, Eamon Walsh <ewalsh@tycho.nsa.gov>
+Content-Type: text/plain
+Date: Tue, 03 Apr 2007 16:32:47 -0400
+Message-Id: <1175632367.9109.22.camel@moss-lions.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hello,
-    I am working on a high level language for SELinux for my master's
-thesis and I am at the point where I am trying to do code comparisons
-of my language vs other languages such as the reference policy and
-base SELinux policy.  I was wondering if anyone had any applications
-in mind for me to attempt this with that aren't overly complex. I can
-try to take some of the existing refpolicy applications and do this
-but I think it would be interesting to try writing something for an
-application from scratch since this would allow me to give a better
-account of experiences in developing the policy.
+Make the initial SID contexts accessible to userspace via selinuxfs.
+An initial use of this support will be to make the unlabeled context
+available to libselinux for use for invalidated userspace SIDs.
 
-Dave Quigley
+Signed-off-by: James Carter <jwcart2@tycho.nsa.gov>
+
+---
+
+ security/selinux/include/security.h |    2 +
+ security/selinux/selinuxfs.c        |   67 ++++++++++++++++++++++++++++++++++++
+ security/selinux/ss/services.c      |    7 +++
+ 3 files changed, 76 insertions(+)
+
+diff --git a/security/selinux/include/initial_sid_to_string.h b/security/selinux/include/initial_sid_to_string.h
+diff --git a/security/selinux/include/security.h b/security/selinux/include/security.h
+index 210eec7..505e558 100644
+--- a/security/selinux/include/security.h
++++ b/security/selinux/include/security.h
+@@ -102,5 +102,7 @@ int security_fs_use(const char *fstype, unsigned int *behavior,
+ int security_genfs_sid(const char *fstype, char *name, u16 sclass,
+ 	u32 *sid);
+ 
++const char* security_get_initial_sid_context(u32 sid);
++
+ #endif /* _SELINUX_SECURITY_H_ */
+ 
+diff --git a/security/selinux/selinuxfs.c b/security/selinux/selinuxfs.c
+index 93b3177..89d246f 100644
+--- a/security/selinux/selinuxfs.c
++++ b/security/selinux/selinuxfs.c
+@@ -102,6 +102,9 @@ enum sel_inos {
+ 	SEL_COMPAT_NET,	/* whether to use old compat network packet controls */
+ };
+ 
++#define SEL_INITCON_INO_OFFSET 	0x01000000
++#define SEL_INO_MASK		0x00ffffff
++
+ #define TMPBUFLEN	12
+ static ssize_t sel_read_enforce(struct file *filp, char __user *buf,
+ 				size_t count, loff_t *ppos)
+@@ -1240,6 +1243,55 @@ out:
+ 	return ret;
+ }
+ 
++static ssize_t sel_read_initcon(struct file * file, char __user *buf, 
++				size_t count, loff_t *ppos)
++{
++	struct inode *inode;
++	char *con;
++	u32 sid, len;
++	ssize_t ret;
++
++	inode = file->f_path.dentry->d_inode;
++	sid = inode->i_ino&SEL_INO_MASK;
++	ret = security_sid_to_context(sid, &con, &len);
++	if (ret < 0)
++		return ret;
++	
++	ret = simple_read_from_buffer(buf, count, ppos, con, len);
++	kfree(con);
++	return ret;
++}
++
++static const struct file_operations sel_initcon_ops = {
++	.read		= sel_read_initcon,
++};
++
++static int sel_make_initcon_files(struct dentry *dir)
++{
++	int i, ret = 0;
++
++	for (i = 0; i <= SECINITSID_NUM; i++) {
++		struct inode *inode;
++		struct dentry *dentry;
++		dentry = d_alloc_name(dir, security_get_initial_sid_context(i));
++		if (!dentry) {
++			ret = -ENOMEM;
++			goto out;
++		}
++
++		inode = sel_make_inode(dir->d_sb, S_IFREG|S_IRUGO);
++		if (!inode) {
++			ret = -ENOMEM;
++			goto out;
++		}
++		inode->i_fop = &sel_initcon_ops;
++		inode->i_ino = i|SEL_INITCON_INO_OFFSET;
++		d_add(dentry, inode);
++	}
++out:
++	return ret;
++}
++
+ static int sel_make_dir(struct inode *dir, struct dentry *dentry)
+ {
+ 	int ret = 0;
+@@ -1336,6 +1388,21 @@ static int sel_fill_super(struct super_block * sb, void * data, int silent)
+ 	ret = sel_make_avc_files(dentry);
+ 	if (ret)
+ 		goto err;
++
++	dentry = d_alloc_name(sb->s_root, "initial_contexts");
++	if (!dentry) {
++		ret = -ENOMEM;
++		goto err;
++	}
++
++	ret = sel_make_dir(root_inode, dentry);
++	if (ret)
++		goto err;
++
++	ret = sel_make_initcon_files(dentry);
++	if (ret)
++		goto err;
++
+ out:
+ 	return ret;
+ err:
+diff --git a/security/selinux/ss/services.c b/security/selinux/ss/services.c
+index 1e52356..ef6affd 100644
+--- a/security/selinux/ss/services.c
++++ b/security/selinux/ss/services.c
+@@ -594,6 +594,13 @@ static int context_struct_to_string(struct context *context, char **scontext, u3
+ 
+ #include "initial_sid_to_string.h"
+ 
++const char* security_get_initial_sid_context(u32 sid)
++{
++	if (sid <= SECINITSID_NUM)
++		return initial_sid_to_string[sid];
++	return NULL;
++}
++
+ /**
+  * security_sid_to_context - Obtain a context for a given SID.
+  * @sid: security identifier, SID
+
+
+-- 
+James Carter <jwcart2@tycho.nsa.gov>
+National Security Agency
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
