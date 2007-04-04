@@ -1,169 +1,59 @@
-Subject: Re: [patch] selinux:  export initial SID contexts via selinuxfs
-From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: jwcart2@tycho.nsa.gov
-Cc: SELinux <selinux@tycho.nsa.gov>, Eamon Walsh <ewalsh@tycho.nsa.gov>,
-        James Morris <jmorris@namei.org>, Eric Paris <eparis@parisplace.org>
-In-Reply-To: <1175632367.9109.22.camel@moss-lions.epoch.ncsc.mil>
-References: <1175632367.9109.22.camel@moss-lions.epoch.ncsc.mil>
-Content-Type: text/plain
-Date: Wed, 04 Apr 2007 08:42:59 -0400
-Message-Id: <1175690579.23072.1.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l34E4uuI009293
+	for <selinux@tycho.nsa.gov>; Wed, 4 Apr 2007 10:04:56 -0400
+Received: from web86911.mail.ukl.yahoo.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with SMTP id l34E4rkm003157
+	for <selinux@tycho.nsa.gov>; Wed, 4 Apr 2007 14:04:54 GMT
+Date: Wed, 4 Apr 2007 14:04:42 +0000 (GMT)
+From: JanuGerman <doublemalam@yahoo.co.uk>
+Subject: Re: Identification of Attribute values within the Security Server
+To: Stephen Smalley <sds@tycho.nsa.gov>
+Cc: SELinux List <selinux@tycho.nsa.gov>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=windows-1252
+Message-ID: <648688.56539.qm@web86911.mail.ukl.yahoo.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2007-04-03 at 16:32 -0400, James Carter wrote:
-> Make the initial SID contexts accessible to userspace via selinuxfs.
-> An initial use of this support will be to make the unlabeled context
-> available to libselinux for use for invalidated userspace SIDs.
-> 
-> Signed-off-by: James Carter <jwcart2@tycho.nsa.gov>
-> 
-> ---
-> 
->  security/selinux/include/security.h |    2 +
->  security/selinux/selinuxfs.c        |   67 ++++++++++++++++++++++++++++++++++++
->  security/selinux/ss/services.c      |    7 +++
->  3 files changed, 76 insertions(+)
-> 
-> diff --git a/security/selinux/include/initial_sid_to_string.h b/security/selinux/include/initial_sid_to_string.h
-> diff --git a/security/selinux/include/security.h b/security/selinux/include/security.h
-> index 210eec7..505e558 100644
-> --- a/security/selinux/include/security.h
-> +++ b/security/selinux/include/security.h
-> @@ -102,5 +102,7 @@ int security_fs_use(const char *fstype, unsigned int *behavior,
->  int security_genfs_sid(const char *fstype, char *name, u16 sclass,
->  	u32 *sid);
->  
-> +const char* security_get_initial_sid_context(u32 sid);
-> +
->  #endif /* _SELINUX_SECURITY_H_ */
->  
-> diff --git a/security/selinux/selinuxfs.c b/security/selinux/selinuxfs.c
-> index 93b3177..89d246f 100644
-> --- a/security/selinux/selinuxfs.c
-> +++ b/security/selinux/selinuxfs.c
-> @@ -102,6 +102,9 @@ enum sel_inos {
->  	SEL_COMPAT_NET,	/* whether to use old compat network packet controls */
->  };
->  
-> +#define SEL_INITCON_INO_OFFSET 	0x01000000
-> +#define SEL_INO_MASK		0x00ffffff
-> +
->  #define TMPBUFLEN	12
->  static ssize_t sel_read_enforce(struct file *filp, char __user *buf,
->  				size_t count, loff_t *ppos)
-> @@ -1240,6 +1243,55 @@ out:
->  	return ret;
->  }
->  
-> +static ssize_t sel_read_initcon(struct file * file, char __user *buf, 
-> +				size_t count, loff_t *ppos)
-> +{
-> +	struct inode *inode;
-> +	char *con;
-> +	u32 sid, len;
-> +	ssize_t ret;
-> +
-> +	inode = file->f_path.dentry->d_inode;
-> +	sid = inode->i_ino&SEL_INO_MASK;
-> +	ret = security_sid_to_context(sid, &con, &len);
-> +	if (ret < 0)
-> +		return ret;
-> +	
-> +	ret = simple_read_from_buffer(buf, count, ppos, con, len);
-> +	kfree(con);
-> +	return ret;
-> +}
-> +
-> +static const struct file_operations sel_initcon_ops = {
-> +	.read		= sel_read_initcon,
-> +};
-> +
-> +static int sel_make_initcon_files(struct dentry *dir)
-> +{
-> +	int i, ret = 0;
-> +
-> +	for (i = 0; i <= SECINITSID_NUM; i++) {
+Hi,
 
-This should be:
-	for (i = 1; i <= SECINITSID_NUM; i++) {
 
-because SID 0 (SECSID_NULL) is not an initial SID and has no definition
-in policy (would map to unlabeled by default like any other undefined
-SID, but has no real separate definition).
 
-Otherwise, looks sane.
+>Correct; attributes are expanded to their type sets when the policy is
+>generated (at expand time for modular policy).  Originally this was
+>always done and attributes were completely discarded from the policy at
+>that time; later support was added for preserving allow rules based on
+>attributes as a more compact representation, which is why there is now a
+>type_attr_map in the policydb, but this is only used for avtab lookups
+>by compute_av, not by the constraint evaluator.
 
-> +		struct inode *inode;
-> +		struct dentry *dentry;
-> +		dentry = d_alloc_name(dir, security_get_initial_sid_context(i));
-> +		if (!dentry) {
-> +			ret = -ENOMEM;
-> +			goto out;
-> +		}
-> +
-> +		inode = sel_make_inode(dir->d_sb, S_IFREG|S_IRUGO);
-> +		if (!inode) {
-> +			ret = -ENOMEM;
-> +			goto out;
-> +		}
-> +		inode->i_fop = &sel_initcon_ops;
-> +		inode->i_ino = i|SEL_INITCON_INO_OFFSET;
-> +		d_add(dentry, inode);
-> +	}
-> +out:
-> +	return ret;
-> +}
-> +
->  static int sel_make_dir(struct inode *dir, struct dentry *dentry)
->  {
->  	int ret = 0;
-> @@ -1336,6 +1388,21 @@ static int sel_fill_super(struct super_block * sb, void * data, int silent)
->  	ret = sel_make_avc_files(dentry);
->  	if (ret)
->  		goto err;
-> +
-> +	dentry = d_alloc_name(sb->s_root, "initial_contexts");
-> +	if (!dentry) {
-> +		ret = -ENOMEM;
-> +		goto err;
-> +	}
-> +
-> +	ret = sel_make_dir(root_inode, dentry);
-> +	if (ret)
-> +		goto err;
-> +
-> +	ret = sel_make_initcon_files(dentry);
-> +	if (ret)
-> +		goto err;
-> +
->  out:
->  	return ret;
->  err:
-> diff --git a/security/selinux/ss/services.c b/security/selinux/ss/services.c
-> index 1e52356..ef6affd 100644
-> --- a/security/selinux/ss/services.c
-> +++ b/security/selinux/ss/services.c
-> @@ -594,6 +594,13 @@ static int context_struct_to_string(struct context *context, char **scontext, u3
->  
->  #include "initial_sid_to_string.h"
->  
-> +const char* security_get_initial_sid_context(u32 sid)
-> +{
-> +	if (sid <= SECINITSID_NUM)
-> +		return initial_sid_to_string[sid];
-> +	return NULL;
-> +}
-> +
->  /**
->   * security_sid_to_context - Obtain a context for a given SID.
->   * @sid: security identifier, SID
-> 
-> 
--- 
-Stephen Smalley
-National Security Agency
+Thanks,
+
+Regarding the "security_compute_av", this function is only called if there is a cache miss i.e. (within the avc_perm_noaudit)
+
+           if (!node) {
+               rcu_read_unlock();
+                     rc = security_compute_av(ssid,tsid,tclass,requested,&entry.avd);
+                     if (rc)
+                             goto out;
+                     rcu_read_lock();
+                     node = avc_insert(ssid,tsid,tclass,&entry);
+         }
+
+am i right?, but i had one question regarding the "struct av_decision *avd" that why avd->allowed is > 1 and avd -> seqno = 1 or 2 or 3 or .., Does avd->allowed mean that the access is allowed, but then what does avd->seqno mean? Is it a sequence number of type of thing.
+
+the type of avd->allowed is u32, and it continues to grow, does this mean that how many access allowed decisions, the security server have already taken?. And further, does the negative values for all other variables mean simply, not active.
+
+Usually, the avd is a pointer variable, in almost all the function calls, whose value is populated in appropriate methods. But final deciding point was not clear to me, that where SELinux hands, its decision to Linux DAC about its security policy. Does fs/namei.c/permission(), where SELinux is handing over its decision, or there are other points as well.
+
+
+Thank You,
+JG
+
+
+		
+___________________________________________________________ 
+All New Yahoo! Mail – Tired of unwanted email come-ons? Let our SpamGuard protect you. http://uk.docs.yahoo.com/nowyoucan.html
 
 
 --
