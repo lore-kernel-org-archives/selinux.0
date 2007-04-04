@@ -1,44 +1,170 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l34AceeZ002320
-	for <selinux@tycho.nsa.gov>; Wed, 4 Apr 2007 06:38:41 -0400
-Received: from smtp.sws.net.au (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id l34AcYkm003299
-	for <selinux@tycho.nsa.gov>; Wed, 4 Apr 2007 10:38:38 GMT
-From: Russell Coker <russell@coker.com.au>
-Reply-To: russell@coker.com.au
-To: Daniel J Walsh <dwalsh@redhat.com>
-Subject: Re: runcon problems
-Date: Wed, 4 Apr 2007 11:38:41 +1100
-Cc: Yong Lee <ylee@eqo.com>, selinux@tycho.nsa.gov
-References: <012201c77006$615c44a0$aa5a0a0a@yonglaptop> <46126A3E.2080909@redhat.com>
-In-Reply-To: <46126A3E.2080909@redhat.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="windows-1252"
-Message-Id: <200704041038.46253.russell@coker.com.au>
+Subject: Re: [patch] selinux:  export initial SID contexts via selinuxfs
+From: Stephen Smalley <sds@epoch.ncsc.mil>
+To: jwcart2@tycho.nsa.gov
+Cc: SELinux <selinux@tycho.nsa.gov>, Eamon Walsh <ewalsh@tycho.nsa.gov>,
+        James Morris <jmorris@namei.org>, Eric Paris <eparis@parisplace.org>
+In-Reply-To: <1175632367.9109.22.camel@moss-lions.epoch.ncsc.mil>
+References: <1175632367.9109.22.camel@moss-lions.epoch.ncsc.mil>
+Content-Type: text/plain
+Date: Wed, 04 Apr 2007 08:42:59 -0400
+Message-Id: <1175690579.23072.1.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wednesday 04 April 2007 00:52, Daniel J Walsh <dwalsh@redhat.com> wrote:
-> Confined apps can not use the runcon process. You have two choices.
+On Tue, 2007-04-03 at 16:32 -0400, James Carter wrote:
+> Make the initial SID contexts accessible to userspace via selinuxfs.
+> An initial use of this support will be to make the unlabeled context
+> available to libselinux for use for invalidated userspace SIDs.
+> 
+> Signed-off-by: James Carter <jwcart2@tycho.nsa.gov>
+> 
+> ---
+> 
+>  security/selinux/include/security.h |    2 +
+>  security/selinux/selinuxfs.c        |   67 ++++++++++++++++++++++++++++++++++++
+>  security/selinux/ss/services.c      |    7 +++
+>  3 files changed, 76 insertions(+)
+> 
+> diff --git a/security/selinux/include/initial_sid_to_string.h b/security/selinux/include/initial_sid_to_string.h
+> diff --git a/security/selinux/include/security.h b/security/selinux/include/security.h
+> index 210eec7..505e558 100644
+> --- a/security/selinux/include/security.h
+> +++ b/security/selinux/include/security.h
+> @@ -102,5 +102,7 @@ int security_fs_use(const char *fstype, unsigned int *behavior,
+>  int security_genfs_sid(const char *fstype, char *name, u16 sclass,
+>  	u32 *sid);
+>  
+> +const char* security_get_initial_sid_context(u32 sid);
+> +
+>  #endif /* _SELINUX_SECURITY_H_ */
+>  
+> diff --git a/security/selinux/selinuxfs.c b/security/selinux/selinuxfs.c
+> index 93b3177..89d246f 100644
+> --- a/security/selinux/selinuxfs.c
+> +++ b/security/selinux/selinuxfs.c
+> @@ -102,6 +102,9 @@ enum sel_inos {
+>  	SEL_COMPAT_NET,	/* whether to use old compat network packet controls */
+>  };
+>  
+> +#define SEL_INITCON_INO_OFFSET 	0x01000000
+> +#define SEL_INO_MASK		0x00ffffff
+> +
+>  #define TMPBUFLEN	12
+>  static ssize_t sel_read_enforce(struct file *filp, char __user *buf,
+>  				size_t count, loff_t *ppos)
+> @@ -1240,6 +1243,55 @@ out:
+>  	return ret;
+>  }
+>  
+> +static ssize_t sel_read_initcon(struct file * file, char __user *buf, 
+> +				size_t count, loff_t *ppos)
+> +{
+> +	struct inode *inode;
+> +	char *con;
+> +	u32 sid, len;
+> +	ssize_t ret;
+> +
+> +	inode = file->f_path.dentry->d_inode;
+> +	sid = inode->i_ino&SEL_INO_MASK;
+> +	ret = security_sid_to_context(sid, &con, &len);
+> +	if (ret < 0)
+> +		return ret;
+> +	
+> +	ret = simple_read_from_buffer(buf, count, ppos, con, len);
+> +	kfree(con);
+> +	return ret;
+> +}
+> +
+> +static const struct file_operations sel_initcon_ops = {
+> +	.read		= sel_read_initcon,
+> +};
+> +
+> +static int sel_make_initcon_files(struct dentry *dir)
+> +{
+> +	int i, ret = 0;
+> +
+> +	for (i = 0; i <= SECINITSID_NUM; i++) {
 
-I have to be pedantic here.
+This should be:
+	for (i = 1; i <= SECINITSID_NUM; i++) {
 
-Confined apps can use runcon if their policy permits them to do so.  An 
-example of an application that is permitted to spawn children in a different 
-context is crond.  Currently it's not supported for cgi-bin scripts, but a 
-policy module could allow this.
+because SID 0 (SECSID_NULL) is not an initial SID and has no definition
+in policy (would map to unlabeled by default like any other undefined
+SID, but has no real separate definition).
 
-Writing policy to allow a cgi-bin script to run another program in a different 
-domain may be useful on occasion.  It's easier to have an automatic 
-transition as you suggest, but calling runcon from a cgi-bin script is not 
-necessarily a bad idea.
+Otherwise, looks sane.
 
+> +		struct inode *inode;
+> +		struct dentry *dentry;
+> +		dentry = d_alloc_name(dir, security_get_initial_sid_context(i));
+> +		if (!dentry) {
+> +			ret = -ENOMEM;
+> +			goto out;
+> +		}
+> +
+> +		inode = sel_make_inode(dir->d_sb, S_IFREG|S_IRUGO);
+> +		if (!inode) {
+> +			ret = -ENOMEM;
+> +			goto out;
+> +		}
+> +		inode->i_fop = &sel_initcon_ops;
+> +		inode->i_ino = i|SEL_INITCON_INO_OFFSET;
+> +		d_add(dentry, inode);
+> +	}
+> +out:
+> +	return ret;
+> +}
+> +
+>  static int sel_make_dir(struct inode *dir, struct dentry *dentry)
+>  {
+>  	int ret = 0;
+> @@ -1336,6 +1388,21 @@ static int sel_fill_super(struct super_block * sb, void * data, int silent)
+>  	ret = sel_make_avc_files(dentry);
+>  	if (ret)
+>  		goto err;
+> +
+> +	dentry = d_alloc_name(sb->s_root, "initial_contexts");
+> +	if (!dentry) {
+> +		ret = -ENOMEM;
+> +		goto err;
+> +	}
+> +
+> +	ret = sel_make_dir(root_inode, dentry);
+> +	if (ret)
+> +		goto err;
+> +
+> +	ret = sel_make_initcon_files(dentry);
+> +	if (ret)
+> +		goto err;
+> +
+>  out:
+>  	return ret;
+>  err:
+> diff --git a/security/selinux/ss/services.c b/security/selinux/ss/services.c
+> index 1e52356..ef6affd 100644
+> --- a/security/selinux/ss/services.c
+> +++ b/security/selinux/ss/services.c
+> @@ -594,6 +594,13 @@ static int context_struct_to_string(struct context *context, char **scontext, u3
+>  
+>  #include "initial_sid_to_string.h"
+>  
+> +const char* security_get_initial_sid_context(u32 sid)
+> +{
+> +	if (sid <= SECINITSID_NUM)
+> +		return initial_sid_to_string[sid];
+> +	return NULL;
+> +}
+> +
+>  /**
+>   * security_sid_to_context - Obtain a context for a given SID.
+>   * @sid: security identifier, SID
+> 
+> 
 -- 
-russell@coker.com.au
-http://etbe.blogspot.com/          My Blog
+Stephen Smalley
+National Security Agency
 
-http://www.coker.com.au/sponsorship.html Sponsoring Free Software development
 
 --
 This message was distributed to subscribers of the selinux mailing list.
