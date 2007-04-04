@@ -1,86 +1,67 @@
-Subject: [patch 3/3] selinux: change numbering of boolean directory inodes
-	in selinuxfs
+Subject: [patch 1/3] selinux: explicitly number all selinuxfs inodes
 From: James Carter <jwcart2@tycho.nsa.gov>
 Reply-To: jwcart2@tycho.nsa.gov
 To: SELinux <selinux@tycho.nsa.gov>
 Cc: Steve Smalley <sds@epoch.ncsc.mil>, James Morris <jmorris@namei.org>,
         Eric Paris <eparis@parisplace.org>
 Content-Type: text/plain
-Date: Wed, 04 Apr 2007 16:18:50 -0400
-Message-Id: <1175717930.14463.72.camel@moss-lions.epoch.ncsc.mil>
+Date: Wed, 04 Apr 2007 16:18:39 -0400
+Message-Id: <1175717919.14463.70.camel@moss-lions.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Change the numbering of the booleans directory inodes in selinuxfs to
-provide more room for new inodes without a conflict in inode numbers and
-to be consistent with how inode numbering is done in the
-initial_contexts directory.
+Explicitly number all selinuxfs inodes to prevent a conflict between
+inodes numbered using last_ino when created with new_inode() and those
+labeled explicitly.
 
 Signed-off-by: James Carter <jwcart2@tycho.nsa.gov>
 
 ---
 
- selinuxfs.c |   11 +++++------
- 1 file changed, 5 insertions(+), 6 deletions(-)
+ security/selinux/selinuxfs.c |    6 ++++++
+ 1 file changed, 6 insertions(+)
 
 diff --git a/security/selinux/selinuxfs.c b/security/selinux/selinuxfs.c
-index 62cd248..0efb9e1 100644
+index 60d18a7..e0b6cfe 100644
 --- a/security/selinux/selinuxfs.c
 +++ b/security/selinux/selinuxfs.c
-@@ -105,6 +105,7 @@ enum sel_inos {
- static unsigned long sel_last_ino = SEL_INO_NEXT - 1;
+@@ -100,8 +100,11 @@ enum sel_inos {
+ 	SEL_MEMBER,	/* compute polyinstantiation membership decision */
+ 	SEL_CHECKREQPROT, /* check requested protection, not kernel-applied one */
+ 	SEL_COMPAT_NET,	/* whether to use old compat network packet controls */
++	SEL_INO_NEXT,	/* The next inode number to use */
+ };
  
++static unsigned long sel_last_ino = SEL_INO_NEXT - 1;
++
  #define SEL_INITCON_INO_OFFSET 	0x01000000
-+#define SEL_BOOL_INO_OFFSET	0x02000000
  #define SEL_INO_MASK		0x00ffffff
  
- #define TMPBUFLEN	12
-@@ -782,8 +783,6 @@ static struct inode *sel_make_inode(struct super_block *sb, int mode)
- 	return ret;
- }
- 
--#define BOOL_INO_OFFSET 30
--
- static ssize_t sel_read_bool(struct file *filep, char __user *buf,
- 			     size_t count, loff_t *ppos)
- {
-@@ -811,14 +810,14 @@ static ssize_t sel_read_bool(struct file *filep, char __user *buf,
- 	}
- 
- 	inode = filep->f_path.dentry->d_inode;
--	cur_enforcing = security_get_bool_value(inode->i_ino - BOOL_INO_OFFSET);
-+	cur_enforcing = security_get_bool_value(inode->i_ino&SEL_INO_MASK);
- 	if (cur_enforcing < 0) {
- 		ret = cur_enforcing;
- 		goto out;
- 	}
- 
- 	length = scnprintf(page, PAGE_SIZE, "%d %d", cur_enforcing,
--			  bool_pending_values[inode->i_ino - BOOL_INO_OFFSET]);
-+			  bool_pending_values[inode->i_ino&SEL_INO_MASK]);
- 	ret = simple_read_from_buffer(buf, count, ppos, page, length);
- out:
- 	mutex_unlock(&sel_mutex);
-@@ -870,7 +869,7 @@ static ssize_t sel_write_bool(struct file *filep, const char __user *buf,
- 		new_value = 1;
- 
- 	inode = filep->f_path.dentry->d_inode;
--	bool_pending_values[inode->i_ino - BOOL_INO_OFFSET] = new_value;
-+	bool_pending_values[inode->i_ino&SEL_INO_MASK] = new_value;
- 	length = count;
- 
- out:
-@@ -1034,7 +1033,7 @@ static int sel_make_bools(void)
- 		isec->sid = sid;
- 		isec->initialized = 1;
- 		inode->i_fop = &sel_bool_ops;
--		inode->i_ino = i + BOOL_INO_OFFSET;
-+		inode->i_ino = i|SEL_BOOL_INO_OFFSET;
+@@ -1237,6 +1240,7 @@ static int sel_make_avc_files(struct dentry *dir)
+ 			goto out;
+ 		}
+ 		inode->i_fop = files[i].ops;
++		inode->i_ino = ++sel_last_ino;
  		d_add(dentry, inode);
  	}
- 	bool_num = num;
-
+ out:
+@@ -1304,6 +1308,7 @@ static int sel_make_dir(struct inode *dir, struct dentry *dentry)
+ 	}
+ 	inode->i_op = &simple_dir_inode_operations;
+ 	inode->i_fop = &simple_dir_operations;
++	inode->i_ino = ++sel_last_ino;
+ 	/* directory inodes start off with i_nlink == 2 (for "." entry) */
+ 	inc_nlink(inode);
+ 	d_add(dentry, inode);
+@@ -1366,6 +1371,7 @@ static int sel_fill_super(struct super_block * sb, void * data, int silent)
+ 		ret = -ENOMEM;
+ 		goto err;
+ 	}
++	inode->i_ino = ++sel_last_ino;
+ 	isec = (struct inode_security_struct*)inode->i_security;
+ 	isec->sid = SECINITSID_DEVNULL;
+ 	isec->sclass = SECCLASS_CHR_FILE;
 
 -- 
 James Carter <jwcart2@tycho.nsa.gov>
