@@ -1,43 +1,36 @@
 Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l33LgiGP014555
-	for <selinux@tycho.nsa.gov>; Tue, 3 Apr 2007 17:42:44 -0400
-Received: from mx1.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id l33LghPe022633
-	for <selinux@tycho.nsa.gov>; Tue, 3 Apr 2007 21:42:43 GMT
-Message-ID: <4612CA4F.8090507@redhat.com>
-Date: Tue, 03 Apr 2007 17:42:39 -0400
-From: Daniel J Walsh <dwalsh@redhat.com>
-MIME-Version: 1.0
-To: Dave Quigley <dquigley+selinux@gmail.com>
-CC: selinux@tycho.nsa.gov
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l34AcfCQ002321
+	for <selinux@tycho.nsa.gov>; Wed, 4 Apr 2007 06:38:41 -0400
+Received: from smtp.sws.net.au (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id l34AcZkm003300
+	for <selinux@tycho.nsa.gov>; Wed, 4 Apr 2007 10:38:38 GMT
+From: Russell Coker <russell@coker.com.au>
+Reply-To: russell@coker.com.au
+To: Daniel J Walsh <dwalsh@redhat.com>
 Subject: Re: Applications without SELinux policies
-References: <f888952b0704031313s4281e106tfcb9a47667a1319f@mail.gmail.com>
-In-Reply-To: <f888952b0704031313s4281e106tfcb9a47667a1319f@mail.gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Date: Wed, 4 Apr 2007 11:22:51 +1100
+Cc: Dave Quigley <dquigley+selinux@gmail.com>, selinux@tycho.nsa.gov
+References: <f888952b0704031313s4281e106tfcb9a47667a1319f@mail.gmail.com> <4612CA4F.8090507@redhat.com>
+In-Reply-To: <4612CA4F.8090507@redhat.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Message-Id: <200704041022.56980.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Dave Quigley wrote:
-> Hello,
->    I am working on a high level language for SELinux for my master's
-> thesis and I am at the point where I am trying to do code comparisons
-> of my language vs other languages such as the reference policy and
-> base SELinux policy.  I was wondering if anyone had any applications
-> in mind for me to attempt this with that aren't overly complex. I can
-> try to take some of the existing refpolicy applications and do this
-> but I think it would be interesting to try writing something for an
-> application from scratch since this would allow me to give a better
-> account of experiences in developing the policy.
->
-> Dave Quigley
->
-> -- 
-> This message was distributed to subscribers of the selinux mailing list.
-> If you no longer wish to subscribe, send mail to 
-> majordomo@tycho.nsa.gov with
-> the words "unsubscribe selinux" without quotes as the message.
-How about exim.  We used to have policy for it, but it never made it 
-from example to reference.
+On Wednesday 04 April 2007 07:42, Daniel J Walsh <dwalsh@redhat.com> wrote:
+> How about exim.  We used to have policy for it, but it never made it
+> from example to reference.
+
+To do Exim properly requires code patches.  I've been meaning to get back to 
+that...
+
+-- 
+russell@coker.com.au
+http://etbe.blogspot.com/          My Blog
+
+http://www.coker.com.au/sponsorship.html Sponsoring Free Software development
 
 --
 This message was distributed to subscribers of the selinux mailing list.
