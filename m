@@ -1,65 +1,70 @@
-Subject: Re: Identification of Attribute values within the Security Server
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: JanuGerman <doublemalam@yahoo.co.uk>
-Cc: SELinux List <selinux@tycho.nsa.gov>
-In-Reply-To: <557930.89616.qm@web86902.mail.ukl.yahoo.com>
-References: <557930.89616.qm@web86902.mail.ukl.yahoo.com>
+Subject: Re: [patch] selinux:  export initial SID contexts via selinuxfs
+	(v2)
+From: Eric Paris <eparis@parisplace.org>
+To: jwcart2@tycho.nsa.gov
+Cc: SELinux <selinux@tycho.nsa.gov>, Steve Smalley <sds@epoch.ncsc.mil>,
+        James Morris <jmorris@namei.org>, Eamon Walsh <ewalsh@tycho.nsa.gov>
+In-Reply-To: <1175695889.14463.13.camel@moss-lions.epoch.ncsc.mil>
+References: <1175695889.14463.13.camel@moss-lions.epoch.ncsc.mil>
 Content-Type: text/plain
-Date: Wed, 04 Apr 2007 11:52:51 -0400
-Message-Id: <1175701971.30692.73.camel@moss-spartans.epoch.ncsc.mil>
+Date: Wed, 04 Apr 2007 12:17:11 -0400
+Message-Id: <1175703431.20396.131.camel@localhost.localdomain>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2007-04-04 at 15:39 +0000, JanuGerman wrote:
-> >avd->allowed is an "access vector", as described by our papers and
-> >reports (please read the available documentation before asking
-> >questions).  It is a bitmap of permissions that are allowed for the
-> >(ssid, tsid, tclass) triple.  The security server can at its discretion
-> >compute more than just the "requested" permissions and provide further
-> >decisions, as indicated by the avd->decided vector (which is also a
-> >bitmap).  Not sure what you mean by negative values - they are unsigned
-> >integers representing bitmaps.
+On Wed, 2007-04-04 at 10:11 -0400, James Carter wrote:
+> Make the initial SID contexts accessible to userspace via selinuxfs.
+> An initial use of this support will be to make the unlabeled context
+> available to libselinux for use for invalidated userspace SIDs.
 > 
+> This version fixes the problem with the for loop that Steve pointed out,
+> and changes the flow of security_get_initial_sid_context so that the if
+> clause checks for the error condition and uses unlikely().
 > 
-> Thanks.
-> 
-> 
-> >Possibly you should seek out and read the papers on LSM, e.g.
-> >http://www.usenix.org/event/sec02/wright.html
-> >http://www.kroah.com/linux/talks/ols_2002_lsm_paper/lsm.pdf
-> 
-> Unfortunately, there is not much information about the composition of
-> the access vector "bitmap" in the above papers, not even in the
-> document "Configuring an SELinux policy" i think so. Can one deduce
-> that if the value avd->allowed is greater than 1, it is always
-> allowed? Because, i have noticed that when the avd->allowed is greater
-> than one, no matter any value, all other values are -1, may be i am
-> wrong.
+> Signed-off-by: James Carter <jwcart2@tycho.nsa.gov>
 
-The papers I cited were about LSM and related to your question about how
-the core Linux kernel ultimately invokes SELinux to get decisions.
+I'm just wondering why we have such arbitrary static i_ino for most
+inodes in /seliunx but it looks to me like we let avc, booleans, and all
+inodes inside avc pick up their i_ino from new_inode() as:
 
-Access vectors are described in the papers about Flask and about
-SELinux, such as:
-http://www.nsa.gov/selinux/papers/flask-abs.cfm
-http://www.nsa.gov/selinux/papers/slinux-abs.cfm
+inode->i_ino = ++last_ino;
 
-But the short answer is that an access vector is a bitmap of permissions
-for a given security class, where each bit indicates whether the
-permission at that position is in the permission set.  For class file,
-an avd->allowed value of 0x6 would mean that FILE__READ and FILE__WRITE
-was allowed (see security/selinux/include/av_permissions.h).  An
-avd->allowed value of 0xffffffff (which you incorrectly call -1, as it
-is an unsigned integer) would mean that all permissions are allowed for
-that class.  An avd->decided value of 0xffffffff indicates that all bits
-in avd->allowed were computed by the security server and may be safely
-used by the AVC.  Again, please read the documentation and the code
-before asking questions.
+(now initial_sids is going to get it's i_ino from last_ino)  If /selinux
+were created at the wrong time such that last_ino was the same as one of
+the static i_ino ranges we use for /selinux we could have a collision.
+Talking with a FS guy he seemed to think the worst case a collision
+would cause userspace to mess up hard link detection (which we shouldn't
+really have in /selinux) but this seems like something we want to fix.
+I guess that is actually not something that needs to be fixed for this
+patch so I'm happy enough with this patch.
 
--- 
-Stephen Smalley
-National Security Agency
+But, if you do have to redo the patch though there are 2 very very minor
+nits below about * placement.  Maybe James can just clean those up when
+he puts it into GIT.
+
+-Eric
+
+> --- a/security/selinux/include/security.h
+> +++ b/security/selinux/include/security.h
+> @@ -102,5 +102,7 @@ int security_fs_use(const char *fstype, unsigned int *behavior,
+>  int security_genfs_sid(const char *fstype, char *name, u16 sclass,
+>  	u32 *sid);
+>  
+> +const char* security_get_initial_sid_context(u32 sid);
+
+char *security_get_initial_sid_context
+
+
+> --- a/security/selinux/ss/services.c
+> +++ b/security/selinux/ss/services.c
+> @@ -594,6 +594,13 @@ static int context_struct_to_string(struct context *context, char **scontext, u3
+>  
+>  #include "initial_sid_to_string.h"
+>  
+> +const char* security_get_initial_sid_context(u32 sid)
+
+char *security_get_initial_sid_context
 
 
 --
