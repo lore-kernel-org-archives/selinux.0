@@ -1,78 +1,85 @@
-Subject: Re: [patch] selinux:  export initial SID contexts via selinuxfs
-	(v2)
-From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: Eric Paris <eparis@parisplace.org>
-Cc: jwcart2@tycho.nsa.gov, SELinux <selinux@tycho.nsa.gov>,
-        James Morris <jmorris@namei.org>, Eamon Walsh <ewalsh@tycho.nsa.gov>
-In-Reply-To: <1175707361.20396.141.camel@localhost.localdomain>
-References: <1175695889.14463.13.camel@moss-lions.epoch.ncsc.mil>
-	 <1175703431.20396.131.camel@localhost.localdomain>
-	 <1175706011.30692.104.camel@moss-spartans.epoch.ncsc.mil>
-	 <1175707361.20396.141.camel@localhost.localdomain>
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l34KAWKh028001
+	for <selinux@tycho.nsa.gov>; Wed, 4 Apr 2007 16:10:32 -0400
+Received: from mx1.redhat.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l34KAV60005030
+	for <selinux@tycho.nsa.gov>; Wed, 4 Apr 2007 20:10:31 GMT
+Subject: Re: secmark integration
+From: Karl MacMillan <kmacmillan@mentalrootkit.com>
+To: "Christopher J. PeBenito" <cpebenito@tresys.com>
+Cc: Eric Paris <eparis@parisplace.org>, Daniel J Walsh <dwalsh@redhat.com>,
+        James Morris <jmorris@namei.org>, selinux@tycho.nsa.gov,
+        Joshua Brindle <method@manicmethod.com>
+In-Reply-To: <1175707323.11382.25.camel@sgc.columbia.tresys.com>
+References: <Line.LNX.4.64.0703191021480.22828@d.namei>
+	 <1175284031.3602.24.camel@localhost.localdomain>
+	 <1175286309.20396.13.camel@localhost.localdomain>
+	 <Line.LNX.4.64.0703302201520.29742@d.namei>  <46111709.9060402@redhat.com>
+	 <1175525718.20396.46.camel@localhost.localdomain>
+	 <1175526952.14681.44.camel@sgc>
+	 <1175534120.5433.2.camel@localhost.localdomain>
+	 <1175707323.11382.25.camel@sgc.columbia.tresys.com>
 Content-Type: text/plain
-Date: Wed, 04 Apr 2007 13:27:43 -0400
-Message-Id: <1175707663.30692.111.camel@moss-spartans.epoch.ncsc.mil>
+Date: Wed, 04 Apr 2007 16:08:14 -0400
+Message-Id: <1175717294.3191.2.camel@localhost.localdomain>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2007-04-04 at 13:22 -0400, Eric Paris wrote:
-> On Wed, 2007-04-04 at 13:00 -0400, Stephen Smalley wrote:
-> > On Wed, 2007-04-04 at 12:17 -0400, Eric Paris wrote:
-> > > On Wed, 2007-04-04 at 10:11 -0400, James Carter wrote:
-> > > > Make the initial SID contexts accessible to userspace via selinuxfs.
-> > > > An initial use of this support will be to make the unlabeled context
-> > > > available to libselinux for use for invalidated userspace SIDs.
+On Wed, 2007-04-04 at 17:22 +0000, Christopher J. PeBenito wrote:
+> On Mon, 2007-04-02 at 13:15 -0400, Karl MacMillan wrote:
+> > On Mon, 2007-04-02 at 15:15 +0000, Christopher J. PeBenito wrote:
+> > > On Mon, 2007-04-02 at 10:55 -0400, Eric Paris wrote:
 > > > > 
-> > > > This version fixes the problem with the for loop that Steve pointed out,
-> > > > and changes the flow of security_get_initial_sid_context so that the if
-> > > > clause checks for the error condition and uses unlikely().
+> > > > Good idea.  Can anyone help me come up with any way in which we can use
+> > > > secmark 'by default' and gain any greater protections than we already
+> > > > have with name_{bind,connect}
 > > > > 
-> > > > Signed-off-by: James Carter <jwcart2@tycho.nsa.gov>
+> > > > Seems to me that port number is the only thing we can label based on for
+> > > > everyone out of the box.  Any more complex labeling scheme is going to
+> > > > require network specific information, right?
 > > > 
-> > > I'm just wondering why we have such arbitrary static i_ino for most
-> > > inodes in /seliunx but it looks to me like we let avc, booleans, and all
-> > > inodes inside avc pick up their i_ino from new_inode() as:
+> > > Right.  Refpolicy already can create a set of iptables rules based on
+> > > the ports defined in the policy, but its not currently shipped (which
+> > > was decided at the summit).
 > > > 
-> > > inode->i_ino = ++last_ino;
-> > > 
-> > > (now initial_sids is going to get it's i_ino from last_ino)  If /selinux
-> > > were created at the wrong time such that last_ino was the same as one of
-> > > the static i_ino ranges we use for /selinux we could have a collision.
-> > > Talking with a FS guy he seemed to think the worst case a collision
-> > > would cause userspace to mess up hard link detection (which we shouldn't
-> > > really have in /selinux) but this seems like something we want to fix.
-> > > I guess that is actually not something that needs to be fixed for this
-> > > patch so I'm happy enough with this patch.
 > > 
-> > simple_fill_super() also calls new_inode() for each of the inodes in the
-> > tree_descr (and then goes on to overwrite inode->i_ino with the index
-> > value), so last_ino should be guaranteed to be above the range of the
-> > fixed inodes before we proceed to create the rest of the inodes.  Right?
+> > I don't think that there are particularly good restrictions that we can
+> > do out of the box. I think that we should instead focus on making it
+> > fairly easy to do customization with some documentation / recipes that
+> > people can follow.
 > 
-> Correct, the inodes not explicitly numbered will never conflict with
-> those created by simple_fill_super.  But notice that last_ino is global
-> (not per SB) and so there is no garantee that last_ino is not going to
-> be of a size (thanks to other FS's that are mounted and used new_inode
-> before selinuxfs) that it starts to bump into the space used by other
-> things.  If very very few inodes were created by other FS's we could
-> land in the range used by the booleans (30+boolean number) or if lots
-> and lots of inodes were created we could land in the range used by
-> initial sids (0x01000000 + sid).  While I agree there is a whole lot of
-> space in the middle to land in I still think collision is possible.
+> I still think the set that refpolicy can generate is fine.  It provides
+> the default ports for services on all interfaces.  This is better than
+> almost unconfined as it is now.  The incoming connections rules mirror
+> the name_bind rules, and the outgoing connections mirrors the
+> name_connect rules.  Since UDP doesn't have a connect we can cover that
+> reasonably too.  Then we get the connection tracking on all these too.
 > 
-> Note that on my system this range of free assignment lies between about
-> 322 and 328 but since it is dictated by inodes created in FS's outside
-> of selinux FS we have no way to guarantee that it can't fall into one of
-> those static zones of inodes.
 
-Ok, so explicitly setting i_ino in all cases would make sense to prevent
-such collisions, as well as moving up the base for the booleans.
-jwcart2 already has a patch in the works for the latter.
+The problem is moving from this default to a customized version. How
+will a packet type be redefined? Additive rules are fine, but changing
+or removing rules is problematic.
 
--- 
-Stephen Smalley
-National Security Agency
+Anyway - I thought that this decision was already made. Are people
+wanting to discuss this again?
+
+> > To that end, Chris / Dan, can you comment on my policy example? What I
+> > posted doesn't exactly work now and I would like to know what the
+> > suggested method for allowing almost all network facing daemons to
+> > receive unlabeled_t packets is going to be.
+> 
+> Actually, my current idea is to make a tunable for each domain that
+> networks.  If we were to go the negation route, it would be something
+> like this in corenetwork:
+> 
+> corenet_sendrecv_unlabeled_packets({ networking_domain -confined_networking_domain })
+> 
+> Then corenetwork would provide interfaces to gain these attributes.
+
+Is this actively being worked on?
+
+Karl
 
 
 --
