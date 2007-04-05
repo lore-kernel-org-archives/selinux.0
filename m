@@ -1,38 +1,116 @@
 Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l35E7AYK029886
-	for <selinux@tycho.nsa.gov>; Thu, 5 Apr 2007 10:07:10 -0400
-Received: from mail4.sea5.speakeasy.net (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l35E78v5014282
-	for <selinux@tycho.nsa.gov>; Thu, 5 Apr 2007 14:07:08 GMT
-Date: Thu, 5 Apr 2007 10:07:05 -0400 (EDT)
-From: James Morris <jmorris@namei.org>
-To: James Carter <jwcart2@tycho.nsa.gov>
-cc: SELinux <selinux@tycho.nsa.gov>, Steve Smalley <sds@epoch.ncsc.mil>,
-        Eric Paris <eparis@parisplace.org>
-Subject: Re: [patch 0/3] selinux: fix of selinuxfs inode number assigning
- and cleanup of selinuxfs
-In-Reply-To: <1175717910.14463.69.camel@moss-lions.epoch.ncsc.mil>
-Message-ID: <Line.LNX.4.64.0704051006570.32651@d.namei>
-References: <1175717910.14463.69.camel@moss-lions.epoch.ncsc.mil>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l35FpC5j002008
+	for <selinux@tycho.nsa.gov>; Thu, 5 Apr 2007 11:51:12 -0400
+Received: from mx1.redhat.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l35FpApT029792
+	for <selinux@tycho.nsa.gov>; Thu, 5 Apr 2007 15:51:11 GMT
+Subject: Re: secmark integration
+From: Karl MacMillan <kmacmillan@mentalrootkit.com>
+To: Daniel J Walsh <dwalsh@redhat.com>
+Cc: "Christopher J. PeBenito" <cpebenito@tresys.com>,
+        Eric Paris <eparis@parisplace.org>, James Morris <jmorris@namei.org>,
+        selinux@tycho.nsa.gov, Joshua Brindle <method@manicmethod.com>
+In-Reply-To: <46140FCA.5020901@redhat.com>
+References: <Line.LNX.4.64.0703191021480.22828@d.namei>
+	 <1175284031.3602.24.camel@localhost.localdomain>
+	 <1175286309.20396.13.camel@localhost.localdomain>
+	 <Line.LNX.4.64.0703302201520.29742@d.namei>  <46111709.9060402@redhat.com>
+	 <1175525718.20396.46.camel@localhost.localdomain>
+	 <1175526952.14681.44.camel@sgc>
+	 <1175534120.5433.2.camel@localhost.localdomain>
+	 <1175707323.11382.25.camel@sgc.columbia.tresys.com>
+	 <1175717294.3191.2.camel@localhost.localdomain>
+	 <46140FCA.5020901@redhat.com>
+Content-Type: text/plain
+Date: Thu, 05 Apr 2007 11:48:50 -0400
+Message-Id: <1175788131.3174.4.camel@localhost.localdomain>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 4 Apr 2007, James Carter wrote:
+On Wed, 2007-04-04 at 16:51 -0400, Daniel J Walsh wrote:
+> Karl MacMillan wrote:
+> > On Wed, 2007-04-04 at 17:22 +0000, Christopher J. PeBenito wrote:
+> >   
+> >> On Mon, 2007-04-02 at 13:15 -0400, Karl MacMillan wrote:
+> >>     
+> >>> On Mon, 2007-04-02 at 15:15 +0000, Christopher J. PeBenito wrote:
+> >>>       
+> >>>> On Mon, 2007-04-02 at 10:55 -0400, Eric Paris wrote:
+> >>>>         
+> >>>>> Good idea.  Can anyone help me come up with any way in which we can use
+> >>>>> secmark 'by default' and gain any greater protections than we already
+> >>>>> have with name_{bind,connect}
+> >>>>>
+> >>>>> Seems to me that port number is the only thing we can label based on for
+> >>>>> everyone out of the box.  Any more complex labeling scheme is going to
+> >>>>> require network specific information, right?
+> >>>>>           
+> >>>> Right.  Refpolicy already can create a set of iptables rules based on
+> >>>> the ports defined in the policy, but its not currently shipped (which
+> >>>> was decided at the summit).
+> >>>>
+> >>>>         
+> >>> I don't think that there are particularly good restrictions that we can
+> >>> do out of the box. I think that we should instead focus on making it
+> >>> fairly easy to do customization with some documentation / recipes that
+> >>> people can follow.
+> >>>       
+> >> I still think the set that refpolicy can generate is fine.  It provides
+> >> the default ports for services on all interfaces.  This is better than
+> >> almost unconfined as it is now.  The incoming connections rules mirror
+> >> the name_bind rules, and the outgoing connections mirrors the
+> >> name_connect rules.  Since UDP doesn't have a connect we can cover that
+> >> reasonably too.  Then we get the connection tracking on all these too.
+> >>
+> >>     
+> >
+> > The problem is moving from this default to a customized version. How
+> > will a packet type be redefined? Additive rules are fine, but changing
+> > or removing rules is problematic.
+> >
+> > Anyway - I thought that this decision was already made. Are people
+> > wanting to discuss this again?
+> >
+> >   
+> >>> To that end, Chris / Dan, can you comment on my policy example? What I
+> >>> posted doesn't exactly work now and I would like to know what the
+> >>> suggested method for allowing almost all network facing daemons to
+> >>> receive unlabeled_t packets is going to be.
+> >>>       
+> >> Actually, my current idea is to make a tunable for each domain that
+> >> networks.  If we were to go the negation route, it would be something
+> >> like this in corenetwork:
+> >>
+> >> corenet_sendrecv_unlabeled_packets({ networking_domain -confined_networking_domain })
+> >>
+> >> Then corenetwork would provide interfaces to gain these attributes.
+> >>     
+> >
+> > Is this actively being worked on?
+> >
+> > Karl
+> >
+> >   
+> 
+> The other problem here is that it is not so clear what it means to be a 
+> networking domain.
+> 
 
-> This patch set fixes a potential problem of inode number conflicts in
-> selinuxfs, makes numbering the inodes in the booleans directory
-> consistent with what is done for the initial_contexts directory, and
-> removes an unused enumeration constant.
+Yep.
 
-All applied.
+> Any application that does dns is a networking domain?  Any app that 
+> resolves a uid?
+> 
 
+I think it is going to have to be all of these - basically any app that,
+by default, can receive unlabeled packets. BTW, we are going to need the
+interface that grants access to unlabeled packets but has a boolean and
+an interface that unconditionally allows that access (for use during
+customizations).
 
-- James
--- 
-James Morris
-<jmorris@namei.org>
+Karl
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
