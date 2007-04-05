@@ -1,108 +1,206 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l35H6SpQ005413
-	for <selinux@tycho.nsa.gov>; Thu, 5 Apr 2007 13:06:28 -0400
-Received: from exchange.columbia.tresys.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with SMTP id l35H6QCd010030
-	for <selinux@tycho.nsa.gov>; Thu, 5 Apr 2007 17:06:27 GMT
-Subject: Re: secmark integration
-From: "Christopher J. PeBenito" <cpebenito@tresys.com>
-To: Karl MacMillan <kmacmillan@mentalrootkit.com>
-Cc: Daniel J Walsh <dwalsh@redhat.com>, Eric Paris <eparis@parisplace.org>,
-        James Morris <jmorris@namei.org>, selinux@tycho.nsa.gov,
-        Joshua Brindle <method@manicmethod.com>
-In-Reply-To: <1175788131.3174.4.camel@localhost.localdomain>
-References: <Line.LNX.4.64.0703191021480.22828@d.namei>
-	 <1175284031.3602.24.camel@localhost.localdomain>
-	 <1175286309.20396.13.camel@localhost.localdomain>
-	 <Line.LNX.4.64.0703302201520.29742@d.namei>  <46111709.9060402@redhat.com>
-	 <1175525718.20396.46.camel@localhost.localdomain>
-	 <1175526952.14681.44.camel@sgc>
-	 <1175534120.5433.2.camel@localhost.localdomain>
-	 <1175707323.11382.25.camel@sgc.columbia.tresys.com>
-	 <1175717294.3191.2.camel@localhost.localdomain>
-	 <46140FCA.5020901@redhat.com>
-	 <1175788131.3174.4.camel@localhost.localdomain>
-Content-Type: text/plain
-Date: Thu, 05 Apr 2007 13:06:39 -0400
-Message-Id: <1175792799.17676.10.camel@sgc>
-Mime-Version: 1.0
+Message-ID: <461530F6.3030407@redhat.com>
+Date: Thu, 05 Apr 2007 13:25:10 -0400
+From: Daniel J Walsh <dwalsh@redhat.com>
+MIME-Version: 1.0
+To: Stephen Smalley <sds@tycho.nsa.gov>, SE Linux <selinux@tycho.nsa.gov>
+Subject: libselinux patch
+Content-Type: multipart/mixed;
+ boundary="------------070500030705080206070100"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2007-04-05 at 11:48 -0400, Karl MacMillan wrote:
-> On Wed, 2007-04-04 at 16:51 -0400, Daniel J Walsh wrote:
-> > Karl MacMillan wrote:
-> > > On Wed, 2007-04-04 at 17:22 +0000, Christopher J. PeBenito wrote:
-> > >> On Mon, 2007-04-02 at 13:15 -0400, Karl MacMillan wrote:
-> > >>> I don't think that there are particularly good restrictions that we can
-> > >>> do out of the box. I think that we should instead focus on making it
-> > >>> fairly easy to do customization with some documentation / recipes that
-> > >>> people can follow.
-> > >>>       
-> > >> I still think the set that refpolicy can generate is fine.  It provides
-> > >> the default ports for services on all interfaces.  This is better than
-> > >> almost unconfined as it is now.  The incoming connections rules mirror
-> > >> the name_bind rules, and the outgoing connections mirrors the
-> > >> name_connect rules.  Since UDP doesn't have a connect we can cover that
-> > >> reasonably too.  Then we get the connection tracking on all these too.
-> > >
-> > > The problem is moving from this default to a customized version. How
-> > > will a packet type be redefined? Additive rules are fine, but changing
-> > > or removing rules is problematic.
+This is a multi-part message in MIME format.
+--------------070500030705080206070100
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
-These are two separate issues.  My argument was about the quality of the
-default rules, not about how well they could be managed.
+Fixes for rpm_execcon python binding
 
-> > >>> To that end, Chris / Dan, can you comment on my policy example? What I
-> > >>> posted doesn't exactly work now and I would like to know what the
-> > >>> suggested method for allowing almost all network facing daemons to
-> > >>> receive unlabeled_t packets is going to be.
-> > >>>       
-> > >> Actually, my current idea is to make a tunable for each domain that
-> > >> networks.  If we were to go the negation route, it would be something
-> > >> like this in corenetwork:
-> > >>
-> > >> corenet_sendrecv_unlabeled_packets({ networking_domain -confined_networking_domain })
-> > >>
-> > >> Then corenetwork would provide interfaces to gain these attributes.
-> > >>     
-> > >
-> > > Is this actively being worked on?
-> > >
-> > > Karl
-> > >
-> > >   
-> > 
-> > The other problem here is that it is not so clear what it means to be a 
-> > networking domain.
-> > 
-> 
-> Yep.
-> 
-> > Any application that does dns is a networking domain?  Any app that 
-> > resolves a uid?
-> > 
-> 
-> I think it is going to have to be all of these - basically any app that,
-> by default, can receive unlabeled packets. BTW, we are going to need the
-> interface that grants access to unlabeled packets but has a boolean and
-> an interface that unconditionally allows that access (for use during
-> customizations).
+Manpage fix
 
-No, two interfaces aren't going to be needed.  If you go the negation
-route, then users will be putting the interface call that gets the
-confined_networking_domain attribute in their local.te when they want to
-confine it.  If you go with my original idea, then the tunable will be
-in the module itself.  The closest thing I can think of to what you're
-saying would be to make a template that declares a tunable and then
-encases a call to corenet_sendrecv_unlabeled_packets() inside of it,
-which would be useful for my idea.
+Fix for erperm on getsebool.
 
--- 
-Chris PeBenito
-Tresys Technology, LLC
-(410) 290-1411 x150
 
+
+--------------070500030705080206070100
+Content-Type: text/plain;
+ name="diff"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="diff"
+
+diff --exclude-from=exclude -N -u -r nsalibselinux/man/man8/matchpathcon.8 libselinux-2.0.9/man/man8/matchpathcon.8
+--- nsalibselinux/man/man8/matchpathcon.8	2007-01-17 11:11:35.000000000 -0500
++++ libselinux-2.0.9/man/man8/matchpathcon.8	2007-04-05 13:19:29.000000000 -0400
+@@ -28,4 +28,4 @@
+ 
+ .SH "SEE ALSO"
+ .BR selinux "(8), "
+-.BR mathpathcon "(3), " 
++.BR matchpathcon "(3), " 
+diff --exclude-from=exclude -N -u -r nsalibselinux/src/selinuxswig.i libselinux-2.0.9/src/selinuxswig.i
+--- nsalibselinux/src/selinuxswig.i	2007-02-22 08:53:23.000000000 -0500
++++ libselinux-2.0.9/src/selinuxswig.i	2007-04-05 11:53:17.000000000 -0400
+@@ -115,9 +115,34 @@
+ extern const char *selinux_path(void);
+ extern int selinux_check_passwd_access(access_vector_t requested);
+ extern int checkPasswdAccess(access_vector_t requested);
++
++// This tells SWIG to treat char ** as a special case
++%typemap(python,in) char ** {
++  /* Check if is a list */
++  if (PyList_Check($input)) {
++    int size = PyList_Size($input);
++    int i = 0;
++    $1 = (char **) malloc((size+1)*sizeof(char *));
++    for (i = 0; i < size; i++) {
++      PyObject *o = PyList_GetItem($input,i);
++      if (PyString_Check(o))
++	$1[i] = PyString_AsString(PyList_GetItem($input,i));
++      else {
++	PyErr_SetString(PyExc_TypeError,"list must contain strings");
++	free($1);
++	return NULL;
++      }
++    }
++    $1[i] = 0;
++  } else {
++    PyErr_SetString(PyExc_TypeError,"not a list");
++    return NULL;
++  }
++}
++
+ extern int rpm_execcon(unsigned int verified, 
+ 		       const char *filename, 
+-		       char *const argv[], char *const envp[]);
++		       char **, char **);
+ 
+ extern int is_context_customizable (security_context_t scontext);
+ 
+diff --exclude-from=exclude -N -u -r nsalibselinux/src/selinuxswig_wrap.c libselinux-2.0.9/src/selinuxswig_wrap.c
+--- nsalibselinux/src/selinuxswig_wrap.c	2007-02-22 08:53:23.000000000 -0500
++++ libselinux-2.0.9/src/selinuxswig_wrap.c	2007-04-05 11:45:04.000000000 -0400
+@@ -4145,18 +4145,14 @@
+   PyObject *resultobj = 0;
+   unsigned int arg1 ;
+   char *arg2 = (char *) 0 ;
+-  char **arg3 ;
+-  char **arg4 ;
++  char **arg3 = (char **) 0 ;
++  char **arg4 = (char **) 0 ;
+   int result;
+   unsigned int val1 ;
+   int ecode1 = 0 ;
+   int res2 ;
+   char *buf2 = 0 ;
+   int alloc2 = 0 ;
+-  void *argp3 = 0 ;
+-  int res3 = 0 ;
+-  void *argp4 = 0 ;
+-  int res4 = 0 ;
+   PyObject * obj0 = 0 ;
+   PyObject * obj1 = 0 ;
+   PyObject * obj2 = 0 ;
+@@ -4173,17 +4169,51 @@
+     SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "rpm_execcon" "', argument " "2"" of type '" "char const *""'");
+   }
+   arg2 = (char *)(buf2);
+-  res3 = SWIG_ConvertPtr(obj2, &argp3,SWIGTYPE_p_p_char, 0 |  0 );
+-  if (!SWIG_IsOK(res3)) {
+-    SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "rpm_execcon" "', argument " "3"" of type '" "char *const []""'"); 
+-  } 
+-  arg3 = (char **)(argp3);
+-  res4 = SWIG_ConvertPtr(obj3, &argp4,SWIGTYPE_p_p_char, 0 |  0 );
+-  if (!SWIG_IsOK(res4)) {
+-    SWIG_exception_fail(SWIG_ArgError(res4), "in method '" "rpm_execcon" "', argument " "4"" of type '" "char *const []""'"); 
+-  } 
+-  arg4 = (char **)(argp4);
+-  result = (int)rpm_execcon(arg1,(char const *)arg2,(char *const (*))arg3,(char *const (*))arg4);
++  {
++    /* Check if is a list */
++    if (PyList_Check(obj2)) {
++      int size = PyList_Size(obj2);
++      int i = 0;
++      arg3 = (char **) malloc((size+1)*sizeof(char *));
++      for (i = 0; i < size; i++) {
++        PyObject *o = PyList_GetItem(obj2,i);
++        if (PyString_Check(o))
++        arg3[i] = PyString_AsString(PyList_GetItem(obj2,i));
++        else {
++          PyErr_SetString(PyExc_TypeError,"list must contain strings");
++          free(arg3);
++          return NULL;
++        }
++      }
++      arg3[i] = 0;
++    } else {
++      PyErr_SetString(PyExc_TypeError,"not a list");
++      return NULL;
++    }
++  }
++  {
++    /* Check if is a list */
++    if (PyList_Check(obj3)) {
++      int size = PyList_Size(obj3);
++      int i = 0;
++      arg4 = (char **) malloc((size+1)*sizeof(char *));
++      for (i = 0; i < size; i++) {
++        PyObject *o = PyList_GetItem(obj3,i);
++        if (PyString_Check(o))
++        arg4[i] = PyString_AsString(PyList_GetItem(obj3,i));
++        else {
++          PyErr_SetString(PyExc_TypeError,"list must contain strings");
++          free(arg4);
++          return NULL;
++        }
++      }
++      arg4[i] = 0;
++    } else {
++      PyErr_SetString(PyExc_TypeError,"not a list");
++      return NULL;
++    }
++  }
++  result = (int)rpm_execcon(arg1,(char const *)arg2,arg3,arg4);
+   resultobj = SWIG_From_int((int)(result));
+   if (alloc2 == SWIG_NEWOBJ) free((char*)buf2);
+   return resultobj;
+diff --exclude-from=exclude -N -u -r nsalibselinux/utils/getsebool.c libselinux-2.0.9/utils/getsebool.c
+--- nsalibselinux/utils/getsebool.c	2006-11-16 17:15:17.000000000 -0500
++++ libselinux-2.0.9/utils/getsebool.c	2007-04-05 10:53:29.000000000 -0400
+@@ -72,17 +72,23 @@
+ 	for (i = 0; i < len; i++) {
+ 		active = security_get_boolean_active(names[i]);
+ 		if (active < 0) {
+-			fprintf(stderr, "Error getting active value for %s\n",
+-				names[i]);
+-			rc = -1;
+-			goto out;
++			if (errno != EACCES) { 
++				fprintf(stderr, "Error getting active value for %s\n",
++					names[i]);
++				rc = -1;
++				goto out;
++			}
++			continue;
+ 		}
+ 		pending = security_get_boolean_pending(names[i]);
+ 		if (pending < 0) {
+-			fprintf(stderr, "Error getting pending value for %s\n",
+-				names[i]);
+-			rc = -1;
+-			goto out;
++			if (errno != EACCES) { 
++				fprintf(stderr, "Error getting pending value for %s\n",
++					names[i]);
++				rc = -1;
++				goto out;
++			}
++			continue;
+ 		}
+ 		if (pending != active) {
+ 			printf("%s --> %s pending: %s\n", names[i],
+
+--------------070500030705080206070100--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
