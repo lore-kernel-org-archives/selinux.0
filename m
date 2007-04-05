@@ -5,7 +5,7 @@ Cc: Karl MacMillan <kmacmillan@mentalrootkit.com>,
         Daniel J Walsh <dwalsh@redhat.com>, Eric Paris <eparis@parisplace.org>,
         James Morris <jmorris@namei.org>, selinux@tycho.nsa.gov,
         Joshua Brindle <method@manicmethod.com>
-In-Reply-To: <1175795963.5711.99.camel@moss-spartans.epoch.ncsc.mil>
+In-Reply-To: <1175798799.17676.19.camel@sgc>
 References: <Line.LNX.4.64.0703191021480.22828@d.namei>
 	 <1175284031.3602.24.camel@localhost.localdomain>
 	 <1175286309.20396.13.camel@localhost.localdomain>
@@ -22,44 +22,47 @@ References: <Line.LNX.4.64.0703191021480.22828@d.namei>
 	 <1175795226.5711.92.camel@moss-spartans.epoch.ncsc.mil>
 	 <1175796134.17676.17.camel@sgc>
 	 <1175795963.5711.99.camel@moss-spartans.epoch.ncsc.mil>
+	 <1175798799.17676.19.camel@sgc>
 Content-Type: text/plain
-Date: Thu, 05 Apr 2007 14:49:29 -0400
-Message-Id: <1175798969.5711.109.camel@moss-spartans.epoch.ncsc.mil>
+Date: Thu, 05 Apr 2007 15:22:22 -0400
+Message-Id: <1175800942.5711.141.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2007-04-05 at 13:59 -0400, Stephen Smalley wrote:
-> On Thu, 2007-04-05 at 14:02 -0400, Christopher J. PeBenito wrote:
-> > On Thu, 2007-04-05 at 13:47 -0400, Stephen Smalley wrote:
-> > > On Thu, 2007-04-05 at 13:40 -0400, Karl MacMillan wrote:
-> > > > That sounds fine to me (assuming I understand), but I thought people
-> > > > were concerned about the number of booleans.
+On Thu, 2007-04-05 at 14:46 -0400, Christopher J. PeBenito wrote:
+> On Thu, 2007-04-05 at 13:59 -0400, Stephen Smalley wrote:
+> > On Thu, 2007-04-05 at 14:02 -0400, Christopher J. PeBenito wrote:
+> > > On Thu, 2007-04-05 at 13:47 -0400, Stephen Smalley wrote:
+> > > > On Thu, 2007-04-05 at 13:40 -0400, Karl MacMillan wrote:
+> > > > > That sounds fine to me (assuming I understand), but I thought people
+> > > > > were concerned about the number of booleans.
+> > > > 
+> > > > We just need a per-domain subtree of booleans under /selinux/booleans ;)
+> > > > /selinux/booleans/httpd_t/enable_cgi 
+> > > > 
+> > > > Speaking of which, we do want to try to go with a one file per value
+> > > > approach in selinuxfs, so on the dynamic class/perm discovery work,
+> > > > let's try to provide a nice directory tree form of it.
 > > > 
-> > > We just need a per-domain subtree of booleans under /selinux/booleans ;)
-> > > /selinux/booleans/httpd_t/enable_cgi 
+> > > Ok, that means I get to start over. :)  I was doing some final debugging
+> > > on a single /selinux/class node that uses a simple transaction
+> > > like /selinux/access.
 > > > 
-> > > Speaking of which, we do want to try to go with a one file per value
-> > > approach in selinuxfs, so on the dynamic class/perm discovery work,
-> > > let's try to provide a nice directory tree form of it.
+> > > Just to be certain, you're asking for
+> > > 
+> > > /selinux/class/[classname]/index
+> > > /selinux/class/[classname]/[permname]
+> > > 
+> > > where each of those just return the values?
 > > 
-> > Ok, that means I get to start over. :)  I was doing some final debugging
-> > on a single /selinux/class node that uses a simple transaction
-> > like /selinux/access.
-> > 
-> > Just to be certain, you're asking for
-> > 
-> > /selinux/class/[classname]/index
-> > /selinux/class/[classname]/[permname]
-> > 
-> > where each of those just return the values?
+> > Yes, doesn't that sound nicer?
 > 
-> Yes, doesn't that sound nicer?
+> Its fine with me, though it was just mentioned to me that we'll have
+> problems if there is a future perm named index.  Suggestions on what to
+> call that node?
 
-The transaction ops make sense when we are computing a policy decision
-based on variable inputs, but for the class/perm info, it is just
-exporting fixed state about the policy (only changing when the policy is
-reloaded).
+00index ;)
 
 -- 
 Stephen Smalley
