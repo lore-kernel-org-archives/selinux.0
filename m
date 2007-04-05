@@ -1,96 +1,98 @@
-Subject: Re: libselinux patch
+Subject: Re: secmark integration
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Daniel J Walsh <dwalsh@redhat.com>
-Cc: SE Linux <selinux@tycho.nsa.gov>,
-        Karl MacMillan <kmacmillan@mentalrootkit.com>
-In-Reply-To: <461530F6.3030407@redhat.com>
-References: <461530F6.3030407@redhat.com>
+To: Karl MacMillan <kmacmillan@mentalrootkit.com>
+Cc: "Christopher J. PeBenito" <cpebenito@tresys.com>,
+        Daniel J Walsh <dwalsh@redhat.com>, Eric Paris <eparis@parisplace.org>,
+        James Morris <jmorris@namei.org>, selinux@tycho.nsa.gov,
+        Joshua Brindle <method@manicmethod.com>
+In-Reply-To: <1175794800.2902.6.camel@localhost.localdomain>
+References: <Line.LNX.4.64.0703191021480.22828@d.namei>
+	 <1175284031.3602.24.camel@localhost.localdomain>
+	 <1175286309.20396.13.camel@localhost.localdomain>
+	 <Line.LNX.4.64.0703302201520.29742@d.namei>  <46111709.9060402@redhat.com>
+	 <1175525718.20396.46.camel@localhost.localdomain>
+	 <1175526952.14681.44.camel@sgc>
+	 <1175534120.5433.2.camel@localhost.localdomain>
+	 <1175707323.11382.25.camel@sgc.columbia.tresys.com>
+	 <1175717294.3191.2.camel@localhost.localdomain>
+	 <46140FCA.5020901@redhat.com>
+	 <1175788131.3174.4.camel@localhost.localdomain>
+	 <1175792799.17676.10.camel@sgc>
+	 <1175794800.2902.6.camel@localhost.localdomain>
 Content-Type: text/plain
-Date: Thu, 05 Apr 2007 13:44:58 -0400
-Message-Id: <1175795098.5711.90.camel@moss-spartans.epoch.ncsc.mil>
+Date: Thu, 05 Apr 2007 13:47:06 -0400
+Message-Id: <1175795226.5711.92.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2007-04-05 at 13:25 -0400, Daniel J Walsh wrote:
-> Fixes for rpm_execcon python binding
+On Thu, 2007-04-05 at 13:40 -0400, Karl MacMillan wrote:
+> On Thu, 2007-04-05 at 13:06 -0400, Christopher J. PeBenito wrote:
+> > On Thu, 2007-04-05 at 11:48 -0400, Karl MacMillan wrote:
+> > > On Wed, 2007-04-04 at 16:51 -0400, Daniel J Walsh wrote:
+> > > > Karl MacMillan wrote:
+> > > > > On Wed, 2007-04-04 at 17:22 +0000, Christopher J. PeBenito wrote:
+> > > > >> On Mon, 2007-04-02 at 13:15 -0400, Karl MacMillan wrote:
+> > > > >>> I don't think that there are particularly good restrictions that we can
+> > > > >>> do out of the box. I think that we should instead focus on making it
+> > > > >>> fairly easy to do customization with some documentation / recipes that
+> > > > >>> people can follow.
+> > > > >>>       
+> > > > >> I still think the set that refpolicy can generate is fine.  It provides
+> > > > >> the default ports for services on all interfaces.  This is better than
+> > > > >> almost unconfined as it is now.  The incoming connections rules mirror
+> > > > >> the name_bind rules, and the outgoing connections mirrors the
+> > > > >> name_connect rules.  Since UDP doesn't have a connect we can cover that
+> > > > >> reasonably too.  Then we get the connection tracking on all these too.
+> > > > >
+> > > > > The problem is moving from this default to a customized version. How
+> > > > > will a packet type be redefined? Additive rules are fine, but changing
+> > > > > or removing rules is problematic.
+> > 
+> > These are two separate issues.  My argument was about the quality of the
+> > default rules, not about how well they could be managed.
+> > 
 > 
-> Manpage fix
+> Ok - but you still seem to be suggesting generating defaults from
+> reference policy, which is what I think is basically unworkable.
 > 
-> Fix for erperm on getsebool.
+> As for the defaults themselves - there seems to be a decent chance that
+> adding restrictions will cause breakage. I'm ok with that as long as
+> there is a clear mechanism for users to relax the restrictions or go
+> back to the same restrictions that we have today (i.e., just name_bind
+> and name_connect).
 > 
-<snip>
-> diff --exclude-from=exclude -N -u -r nsalibselinux/src/selinuxswig.i libselinux-2.0.9/src/selinuxswig.i
-> --- nsalibselinux/src/selinuxswig.i	2007-02-22 08:53:23.000000000 -0500
-> +++ libselinux-2.0.9/src/selinuxswig.i	2007-04-05 11:53:17.000000000 -0400
-> @@ -115,9 +115,34 @@
->  extern const char *selinux_path(void);
->  extern int selinux_check_passwd_access(access_vector_t requested);
->  extern int checkPasswdAccess(access_vector_t requested);
-> +
-> +// This tells SWIG to treat char ** as a special case
-> +%typemap(python,in) char ** {
-> +  /* Check if is a list */
-> +  if (PyList_Check($input)) {
-> +    int size = PyList_Size($input);
-> +    int i = 0;
-> +    $1 = (char **) malloc((size+1)*sizeof(char *));
+> That's why I keep talking about these issues together - our ability to
+> have tighter defaults depends, I think, on our ability to manage the
+> rules.
+> 
+> > > 
+> > > I think it is going to have to be all of these - basically any app that,
+> > > by default, can receive unlabeled packets. BTW, we are going to need the
+> > > interface that grants access to unlabeled packets but has a boolean and
+> > > an interface that unconditionally allows that access (for use during
+> > > customizations).
+> > 
+> > No, two interfaces aren't going to be needed.  If you go the negation
+> > route, then users will be putting the interface call that gets the
+> > confined_networking_domain attribute in their local.te when they want to
+> > confine it.  If you go with my original idea, then the tunable will be
+> > in the module itself.  The closest thing I can think of to what you're
+> > saying would be to make a template that declares a tunable and then
+> > encases a call to corenet_sendrecv_unlabeled_packets() inside of it,
+> > which would be useful for my idea.
+> > 
+> 
+> That sounds fine to me (assuming I understand), but I thought people
+> were concerned about the number of booleans.
 
-What happens if the malloc fails?
+We just need a per-domain subtree of booleans under /selinux/booleans ;)
+/selinux/booleans/httpd_t/enable_cgi 
 
-<snip>
-> diff --exclude-from=exclude -N -u -r nsalibselinux/src/selinuxswig_wrap.c libselinux-2.0.9/src/selinuxswig_wrap.c
-> --- nsalibselinux/src/selinuxswig_wrap.c	2007-02-22 08:53:23.000000000 -0500
-> +++ libselinux-2.0.9/src/selinuxswig_wrap.c	2007-04-05 11:45:04.000000000 -0400
+Speaking of which, we do want to try to go with a one file per value
+approach in selinuxfs, so on the dynamic class/perm discovery work,
+let's try to provide a nice directory tree form of it.
 
-Don't need to send diffs on this file; will regenerate upstream upon
-changes to the .i file.
-
-> diff --exclude-from=exclude -N -u -r nsalibselinux/utils/getsebool.c libselinux-2.0.9/utils/getsebool.c
-> --- nsalibselinux/utils/getsebool.c	2006-11-16 17:15:17.000000000 -0500
-> +++ libselinux-2.0.9/utils/getsebool.c	2007-04-05 10:53:29.000000000 -0400
-> @@ -72,17 +72,23 @@
->  	for (i = 0; i < len; i++) {
->  		active = security_get_boolean_active(names[i]);
->  		if (active < 0) {
-> -			fprintf(stderr, "Error getting active value for %s\n",
-> -				names[i]);
-> -			rc = -1;
-> -			goto out;
-> +			if (errno != EACCES) { 
-> +				fprintf(stderr, "Error getting active value for %s\n",
-> +					names[i]);
-> +				rc = -1;
-> +				goto out;
-> +			}
-> +			continue;
-
-I think we had discussed only suppressing the errors if using getsebool
--a; if the user explicitly specified a boolean name and it isn't
-accessible, they would presumably want to see an error message in that
-case.
-
- 		}
->  		pending = security_get_boolean_pending(names[i]);
->  		if (pending < 0) {
-> -			fprintf(stderr, "Error getting pending value for %s\n",
-> -				names[i]);
-> -			rc = -1;
-> -			goto out;
-> +			if (errno != EACCES) { 
-> +				fprintf(stderr, "Error getting pending value for %s\n",
-> +					names[i]);
-> +				rc = -1;
-> +				goto out;
-> +			}
-> +			continue;
->  		}
-
-Not sure we need this one, because a permission denial should't happen
-on pending if it didn't already happen on active.
-
->  		if (pending != active) {
->  			printf("%s --> %s pending: %s\n", names[i],
 -- 
 Stephen Smalley
 National Security Agency
