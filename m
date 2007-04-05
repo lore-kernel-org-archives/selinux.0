@@ -1,16 +1,16 @@
 Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l35FpC5j002008
-	for <selinux@tycho.nsa.gov>; Thu, 5 Apr 2007 11:51:12 -0400
-Received: from mx1.redhat.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l35FpApT029792
-	for <selinux@tycho.nsa.gov>; Thu, 5 Apr 2007 15:51:11 GMT
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l35H6SpQ005413
+	for <selinux@tycho.nsa.gov>; Thu, 5 Apr 2007 13:06:28 -0400
+Received: from exchange.columbia.tresys.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with SMTP id l35H6QCd010030
+	for <selinux@tycho.nsa.gov>; Thu, 5 Apr 2007 17:06:27 GMT
 Subject: Re: secmark integration
-From: Karl MacMillan <kmacmillan@mentalrootkit.com>
-To: Daniel J Walsh <dwalsh@redhat.com>
-Cc: "Christopher J. PeBenito" <cpebenito@tresys.com>,
-        Eric Paris <eparis@parisplace.org>, James Morris <jmorris@namei.org>,
-        selinux@tycho.nsa.gov, Joshua Brindle <method@manicmethod.com>
-In-Reply-To: <46140FCA.5020901@redhat.com>
+From: "Christopher J. PeBenito" <cpebenito@tresys.com>
+To: Karl MacMillan <kmacmillan@mentalrootkit.com>
+Cc: Daniel J Walsh <dwalsh@redhat.com>, Eric Paris <eparis@parisplace.org>,
+        James Morris <jmorris@namei.org>, selinux@tycho.nsa.gov,
+        Joshua Brindle <method@manicmethod.com>
+In-Reply-To: <1175788131.3174.4.camel@localhost.localdomain>
 References: <Line.LNX.4.64.0703191021480.22828@d.namei>
 	 <1175284031.3602.24.camel@localhost.localdomain>
 	 <1175286309.20396.13.camel@localhost.localdomain>
@@ -21,95 +21,87 @@ References: <Line.LNX.4.64.0703191021480.22828@d.namei>
 	 <1175707323.11382.25.camel@sgc.columbia.tresys.com>
 	 <1175717294.3191.2.camel@localhost.localdomain>
 	 <46140FCA.5020901@redhat.com>
+	 <1175788131.3174.4.camel@localhost.localdomain>
 Content-Type: text/plain
-Date: Thu, 05 Apr 2007 11:48:50 -0400
-Message-Id: <1175788131.3174.4.camel@localhost.localdomain>
+Date: Thu, 05 Apr 2007 13:06:39 -0400
+Message-Id: <1175792799.17676.10.camel@sgc>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2007-04-04 at 16:51 -0400, Daniel J Walsh wrote:
-> Karl MacMillan wrote:
-> > On Wed, 2007-04-04 at 17:22 +0000, Christopher J. PeBenito wrote:
-> >   
-> >> On Mon, 2007-04-02 at 13:15 -0400, Karl MacMillan wrote:
-> >>     
-> >>> On Mon, 2007-04-02 at 15:15 +0000, Christopher J. PeBenito wrote:
-> >>>       
-> >>>> On Mon, 2007-04-02 at 10:55 -0400, Eric Paris wrote:
-> >>>>         
-> >>>>> Good idea.  Can anyone help me come up with any way in which we can use
-> >>>>> secmark 'by default' and gain any greater protections than we already
-> >>>>> have with name_{bind,connect}
-> >>>>>
-> >>>>> Seems to me that port number is the only thing we can label based on for
-> >>>>> everyone out of the box.  Any more complex labeling scheme is going to
-> >>>>> require network specific information, right?
-> >>>>>           
-> >>>> Right.  Refpolicy already can create a set of iptables rules based on
-> >>>> the ports defined in the policy, but its not currently shipped (which
-> >>>> was decided at the summit).
-> >>>>
-> >>>>         
-> >>> I don't think that there are particularly good restrictions that we can
-> >>> do out of the box. I think that we should instead focus on making it
-> >>> fairly easy to do customization with some documentation / recipes that
-> >>> people can follow.
-> >>>       
-> >> I still think the set that refpolicy can generate is fine.  It provides
-> >> the default ports for services on all interfaces.  This is better than
-> >> almost unconfined as it is now.  The incoming connections rules mirror
-> >> the name_bind rules, and the outgoing connections mirrors the
-> >> name_connect rules.  Since UDP doesn't have a connect we can cover that
-> >> reasonably too.  Then we get the connection tracking on all these too.
-> >>
-> >>     
-> >
-> > The problem is moving from this default to a customized version. How
-> > will a packet type be redefined? Additive rules are fine, but changing
-> > or removing rules is problematic.
-> >
-> > Anyway - I thought that this decision was already made. Are people
-> > wanting to discuss this again?
-> >
-> >   
-> >>> To that end, Chris / Dan, can you comment on my policy example? What I
-> >>> posted doesn't exactly work now and I would like to know what the
-> >>> suggested method for allowing almost all network facing daemons to
-> >>> receive unlabeled_t packets is going to be.
-> >>>       
-> >> Actually, my current idea is to make a tunable for each domain that
-> >> networks.  If we were to go the negation route, it would be something
-> >> like this in corenetwork:
-> >>
-> >> corenet_sendrecv_unlabeled_packets({ networking_domain -confined_networking_domain })
-> >>
-> >> Then corenetwork would provide interfaces to gain these attributes.
-> >>     
-> >
-> > Is this actively being worked on?
-> >
-> > Karl
-> >
-> >   
+On Thu, 2007-04-05 at 11:48 -0400, Karl MacMillan wrote:
+> On Wed, 2007-04-04 at 16:51 -0400, Daniel J Walsh wrote:
+> > Karl MacMillan wrote:
+> > > On Wed, 2007-04-04 at 17:22 +0000, Christopher J. PeBenito wrote:
+> > >> On Mon, 2007-04-02 at 13:15 -0400, Karl MacMillan wrote:
+> > >>> I don't think that there are particularly good restrictions that we can
+> > >>> do out of the box. I think that we should instead focus on making it
+> > >>> fairly easy to do customization with some documentation / recipes that
+> > >>> people can follow.
+> > >>>       
+> > >> I still think the set that refpolicy can generate is fine.  It provides
+> > >> the default ports for services on all interfaces.  This is better than
+> > >> almost unconfined as it is now.  The incoming connections rules mirror
+> > >> the name_bind rules, and the outgoing connections mirrors the
+> > >> name_connect rules.  Since UDP doesn't have a connect we can cover that
+> > >> reasonably too.  Then we get the connection tracking on all these too.
+> > >
+> > > The problem is moving from this default to a customized version. How
+> > > will a packet type be redefined? Additive rules are fine, but changing
+> > > or removing rules is problematic.
+
+These are two separate issues.  My argument was about the quality of the
+default rules, not about how well they could be managed.
+
+> > >>> To that end, Chris / Dan, can you comment on my policy example? What I
+> > >>> posted doesn't exactly work now and I would like to know what the
+> > >>> suggested method for allowing almost all network facing daemons to
+> > >>> receive unlabeled_t packets is going to be.
+> > >>>       
+> > >> Actually, my current idea is to make a tunable for each domain that
+> > >> networks.  If we were to go the negation route, it would be something
+> > >> like this in corenetwork:
+> > >>
+> > >> corenet_sendrecv_unlabeled_packets({ networking_domain -confined_networking_domain })
+> > >>
+> > >> Then corenetwork would provide interfaces to gain these attributes.
+> > >>     
+> > >
+> > > Is this actively being worked on?
+> > >
+> > > Karl
+> > >
+> > >   
+> > 
+> > The other problem here is that it is not so clear what it means to be a 
+> > networking domain.
+> > 
 > 
-> The other problem here is that it is not so clear what it means to be a 
-> networking domain.
+> Yep.
 > 
-
-Yep.
-
-> Any application that does dns is a networking domain?  Any app that 
-> resolves a uid?
+> > Any application that does dns is a networking domain?  Any app that 
+> > resolves a uid?
+> > 
 > 
+> I think it is going to have to be all of these - basically any app that,
+> by default, can receive unlabeled packets. BTW, we are going to need the
+> interface that grants access to unlabeled packets but has a boolean and
+> an interface that unconditionally allows that access (for use during
+> customizations).
 
-I think it is going to have to be all of these - basically any app that,
-by default, can receive unlabeled packets. BTW, we are going to need the
-interface that grants access to unlabeled packets but has a boolean and
-an interface that unconditionally allows that access (for use during
-customizations).
+No, two interfaces aren't going to be needed.  If you go the negation
+route, then users will be putting the interface call that gets the
+confined_networking_domain attribute in their local.te when they want to
+confine it.  If you go with my original idea, then the tunable will be
+in the module itself.  The closest thing I can think of to what you're
+saying would be to make a template that declares a tunable and then
+encases a call to corenet_sendrecv_unlabeled_packets() inside of it,
+which would be useful for my idea.
 
-Karl
+-- 
+Chris PeBenito
+Tresys Technology, LLC
+(410) 290-1411 x150
 
 
 --
