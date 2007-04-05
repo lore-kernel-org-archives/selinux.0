@@ -1,153 +1,95 @@
-Subject: Re: [PATCH] libselinux: grant permissions on deny in permissive
-	mode
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Eamon Walsh <ewalsh@tycho.nsa.gov>
-Cc: selinux@tycho.nsa.gov
-In-Reply-To: <4615339A.1060700@tycho.nsa.gov>
-References: <4615339A.1060700@tycho.nsa.gov>
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l35HgQft007004
+	for <selinux@tycho.nsa.gov>; Thu, 5 Apr 2007 13:42:26 -0400
+Received: from mx1.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id l35HgOAI021770
+	for <selinux@tycho.nsa.gov>; Thu, 5 Apr 2007 17:42:24 GMT
+Subject: Re: secmark integration
+From: Karl MacMillan <kmacmillan@mentalrootkit.com>
+To: "Christopher J. PeBenito" <cpebenito@tresys.com>
+Cc: Daniel J Walsh <dwalsh@redhat.com>, Eric Paris <eparis@parisplace.org>,
+        James Morris <jmorris@namei.org>, selinux@tycho.nsa.gov,
+        Joshua Brindle <method@manicmethod.com>
+In-Reply-To: <1175792799.17676.10.camel@sgc>
+References: <Line.LNX.4.64.0703191021480.22828@d.namei>
+	 <1175284031.3602.24.camel@localhost.localdomain>
+	 <1175286309.20396.13.camel@localhost.localdomain>
+	 <Line.LNX.4.64.0703302201520.29742@d.namei>  <46111709.9060402@redhat.com>
+	 <1175525718.20396.46.camel@localhost.localdomain>
+	 <1175526952.14681.44.camel@sgc>
+	 <1175534120.5433.2.camel@localhost.localdomain>
+	 <1175707323.11382.25.camel@sgc.columbia.tresys.com>
+	 <1175717294.3191.2.camel@localhost.localdomain>
+	 <46140FCA.5020901@redhat.com>
+	 <1175788131.3174.4.camel@localhost.localdomain>
+	 <1175792799.17676.10.camel@sgc>
 Content-Type: text/plain
-Date: Thu, 05 Apr 2007 13:35:55 -0400
-Message-Id: <1175794555.5711.78.camel@moss-spartans.epoch.ncsc.mil>
+Date: Thu, 05 Apr 2007 13:40:00 -0400
+Message-Id: <1175794800.2902.6.camel@localhost.localdomain>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2007-04-05 at 13:36 -0400, Eamon Walsh wrote:
-> This patch duplicates the kernel behavior of granting permissions
-> after a denial to avoid repeated AVC's.
+On Thu, 2007-04-05 at 13:06 -0400, Christopher J. PeBenito wrote:
+> On Thu, 2007-04-05 at 11:48 -0400, Karl MacMillan wrote:
+> > On Wed, 2007-04-04 at 16:51 -0400, Daniel J Walsh wrote:
+> > > Karl MacMillan wrote:
+> > > > On Wed, 2007-04-04 at 17:22 +0000, Christopher J. PeBenito wrote:
+> > > >> On Mon, 2007-04-02 at 13:15 -0400, Karl MacMillan wrote:
+> > > >>> I don't think that there are particularly good restrictions that we can
+> > > >>> do out of the box. I think that we should instead focus on making it
+> > > >>> fairly easy to do customization with some documentation / recipes that
+> > > >>> people can follow.
+> > > >>>       
+> > > >> I still think the set that refpolicy can generate is fine.  It provides
+> > > >> the default ports for services on all interfaces.  This is better than
+> > > >> almost unconfined as it is now.  The incoming connections rules mirror
+> > > >> the name_bind rules, and the outgoing connections mirrors the
+> > > >> name_connect rules.  Since UDP doesn't have a connect we can cover that
+> > > >> reasonably too.  Then we get the connection tracking on all these too.
+> > > >
+> > > > The problem is moving from this default to a customized version. How
+> > > > will a packet type be redefined? Additive rules are fine, but changing
+> > > > or removing rules is problematic.
 > 
-> It required moving the avc_update_node static inline function further
-> up in the file and changing its prototype.
+> These are two separate issues.  My argument was about the quality of the
+> default rules, not about how well they could be managed.
+> 
 
-Alternatively, in the userspace AVC case, you could just directly mutate
-ae->avd.allowed in avc_has_perm_noaudit(), as:
-	ae->avd.allowed |= requested;
+Ok - but you still seem to be suggesting generating defaults from
+reference policy, which is what I think is basically unworkable.
 
-That is what the kernel AVC used to do before it was converted to RCU
-(at which point we could no longer mutate entries in-place).  Much
-simpler to do it the above way since you aren't likely to be using RCU
-in the userspace AVC ;)
+As for the defaults themselves - there seems to be a decent chance that
+adding restrictions will cause breakage. I'm ok with that as long as
+there is a clear mechanism for users to relax the restrictions or go
+back to the same restrictions that we have today (i.e., just name_bind
+and name_connect).
 
-You also need to reset the cache upon a setenforce 1 in this case just
-like the kernel does so that you flush any cached permissions from
-permissive mode when you enter enforcing mode.
+That's why I keep talking about these issues together - our ability to
+have tighter defaults depends, I think, on our ability to manage the
+rules.
 
+> > 
+> > I think it is going to have to be all of these - basically any app that,
+> > by default, can receive unlabeled packets. BTW, we are going to need the
+> > interface that grants access to unlabeled packets but has a boolean and
+> > an interface that unconditionally allows that access (for use during
+> > customizations).
 > 
-> Signed-off-by: Eamon Walsh <ewalsh@tycho.nsa.gov>
+> No, two interfaces aren't going to be needed.  If you go the negation
+> route, then users will be putting the interface call that gets the
+> confined_networking_domain attribute in their local.te when they want to
+> confine it.  If you go with my original idea, then the tunable will be
+> in the module itself.  The closest thing I can think of to what you're
+> saying would be to make a template that declares a tunable and then
+> encases a call to corenet_sendrecv_unlabeled_packets() inside of it,
+> which would be useful for my idea.
 > 
-> ---
->  avc.c |   65 ++++++++++++++++++++++++++++++++++-------------------------------
->  1 file changed, 34 insertions(+), 31 deletions(-)
-> 
-> Index: libselinux/src/avc.c
-> ===================================================================
-> --- libselinux/src/avc.c	(revision 2318)
-> +++ libselinux/src/avc.c	(working copy)
-> @@ -203,6 +203,32 @@
->  	    & (AVC_CACHE_SLOTS - 1);
->  }
->  
-> +static inline void avc_update_node(uint32_t event, struct avc_entry *ae,
-> +				   access_vector_t perms)
-> +{
-> +	switch (event) {
-> +	case AVC_CALLBACK_GRANT:
-> +		ae->avd.allowed |= perms;
-> +		break;
-> +	case AVC_CALLBACK_TRY_REVOKE:
-> +	case AVC_CALLBACK_REVOKE:
-> +		ae->avd.allowed &= ~perms;
-> +		break;
-> +	case AVC_CALLBACK_AUDITALLOW_ENABLE:
-> +		ae->avd.auditallow |= perms;
-> +		break;
-> +	case AVC_CALLBACK_AUDITALLOW_DISABLE:
-> +		ae->avd.auditallow &= ~perms;
-> +		break;
-> +	case AVC_CALLBACK_AUDITDENY_ENABLE:
-> +		ae->avd.auditdeny |= perms;
-> +		break;
-> +	case AVC_CALLBACK_AUDITDENY_DISABLE:
-> +		ae->avd.auditdeny &= ~perms;
-> +		break;
-> +	}
-> +}
-> +
->  int avc_context_to_sid_raw(security_context_t ctx, security_id_t * sid)
->  {
->  	int rc;
-> @@ -982,9 +1008,12 @@
->  
->  	denied = requested & ~(ae->avd.allowed);
->  
-> -	if ((!requested || denied) && avc_enforcing) {
-> -		errno = EACCES;
-> -		rc = -1;
-> +	if (!requested || denied) {
-> +		if (avc_enforcing) {
-> +			errno = EACCES;
-> +			rc = -1;
-> +		} else
-> +			avc_update_node(AVC_CALLBACK_GRANT, ae, requested);
->  	}
->  
->        out:
-> @@ -1066,32 +1095,6 @@
->  	return (x == y || x == SECSID_WILD || y == SECSID_WILD);
->  }
->  
-> -static inline void avc_update_node(uint32_t event, struct avc_node *node,
-> -				   access_vector_t perms)
-> -{
-> -	switch (event) {
-> -	case AVC_CALLBACK_GRANT:
-> -		node->ae.avd.allowed |= perms;
-> -		break;
-> -	case AVC_CALLBACK_TRY_REVOKE:
-> -	case AVC_CALLBACK_REVOKE:
-> -		node->ae.avd.allowed &= ~perms;
-> -		break;
-> -	case AVC_CALLBACK_AUDITALLOW_ENABLE:
-> -		node->ae.avd.auditallow |= perms;
-> -		break;
-> -	case AVC_CALLBACK_AUDITALLOW_DISABLE:
-> -		node->ae.avd.auditallow &= ~perms;
-> -		break;
-> -	case AVC_CALLBACK_AUDITDENY_ENABLE:
-> -		node->ae.avd.auditdeny |= perms;
-> -		break;
-> -	case AVC_CALLBACK_AUDITDENY_DISABLE:
-> -		node->ae.avd.auditdeny &= ~perms;
-> -		break;
-> -	}
-> -}
-> -
->  static int avc_update_cache(uint32_t event, security_id_t ssid,
->  			    security_id_t tsid, security_class_t tclass,
->  			    access_vector_t perms)
-> @@ -1108,7 +1111,7 @@
->  				if (avc_sidcmp(ssid, node->ae.ssid) &&
->  				    avc_sidcmp(tsid, node->ae.tsid) &&
->  				    tclass == node->ae.tclass) {
-> -					avc_update_node(event, node, perms);
-> +					avc_update_node(event, &node->ae, perms);
->  				}
->  			}
->  		}
-> @@ -1116,7 +1119,7 @@
->  		/* apply to one node */
->  		node = avc_search_node(ssid, tsid, tclass, 0);
->  		if (node) {
-> -			avc_update_node(event, node, perms);
-> +			avc_update_node(event, &node->ae, perms);
->  		}
->  	}
->  
-> 
-> 
--- 
-Stephen Smalley
-National Security Agency
+
+That sounds fine to me (assuming I understand), but I thought people
+were concerned about the number of booleans.
+
+Karl
 
 
 --
