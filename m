@@ -1,59 +1,58 @@
-Subject: Re: secmark integration
-From: "Christopher J. PeBenito" <cpebenito@tresys.com>
-To: Stephen Smalley <sds@tycho.nsa.gov>
-Cc: Karl MacMillan <kmacmillan@mentalrootkit.com>,
-        Daniel J Walsh <dwalsh@redhat.com>, Eric Paris <eparis@parisplace.org>,
-        James Morris <jmorris@namei.org>, selinux@tycho.nsa.gov,
-        Joshua Brindle <method@manicmethod.com>
-In-Reply-To: <1175795226.5711.92.camel@moss-spartans.epoch.ncsc.mil>
-References: <Line.LNX.4.64.0703191021480.22828@d.namei>
-	 <1175284031.3602.24.camel@localhost.localdomain>
-	 <1175286309.20396.13.camel@localhost.localdomain>
-	 <Line.LNX.4.64.0703302201520.29742@d.namei>  <46111709.9060402@redhat.com>
-	 <1175525718.20396.46.camel@localhost.localdomain>
-	 <1175526952.14681.44.camel@sgc>
-	 <1175534120.5433.2.camel@localhost.localdomain>
-	 <1175707323.11382.25.camel@sgc.columbia.tresys.com>
-	 <1175717294.3191.2.camel@localhost.localdomain>
-	 <46140FCA.5020901@redhat.com>
-	 <1175788131.3174.4.camel@localhost.localdomain>
-	 <1175792799.17676.10.camel@sgc>
-	 <1175794800.2902.6.camel@localhost.localdomain>
-	 <1175795226.5711.92.camel@moss-spartans.epoch.ncsc.mil>
+Subject: Re: [PATCH] libselinux: grant permissions on deny in
+	permissive	mode
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Eamon Walsh <ewalsh@tycho.nsa.gov>
+Cc: selinux@tycho.nsa.gov
+In-Reply-To: <461538F3.1000905@tycho.nsa.gov>
+References: <4615339A.1060700@tycho.nsa.gov>
+	 <1175794555.5711.78.camel@moss-spartans.epoch.ncsc.mil>
+	 <461538F3.1000905@tycho.nsa.gov>
 Content-Type: text/plain
-Date: Thu, 05 Apr 2007 14:02:14 -0400
-Message-Id: <1175796134.17676.17.camel@sgc>
+Date: Thu, 05 Apr 2007 13:58:37 -0400
+Message-Id: <1175795917.5711.97.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2007-04-05 at 13:47 -0400, Stephen Smalley wrote:
-> On Thu, 2007-04-05 at 13:40 -0400, Karl MacMillan wrote:
-> > That sounds fine to me (assuming I understand), but I thought people
-> > were concerned about the number of booleans.
+On Thu, 2007-04-05 at 13:59 -0400, Eamon Walsh wrote:
+> Stephen Smalley wrote:
+> > On Thu, 2007-04-05 at 13:36 -0400, Eamon Walsh wrote:
+> >> This patch duplicates the kernel behavior of granting permissions
+> >> after a denial to avoid repeated AVC's.
+> >>
+> >> It required moving the avc_update_node static inline function further
+> >> up in the file and changing its prototype.
+> > 
+> > Alternatively, in the userspace AVC case, you could just directly mutate
+> > ae->avd.allowed in avc_has_perm_noaudit(), as:
+> > 	ae->avd.allowed |= requested;
+> > 
+> > That is what the kernel AVC used to do before it was converted to RCU
+> > (at which point we could no longer mutate entries in-place).  Much
+> > simpler to do it the above way since you aren't likely to be using RCU
+> > in the userspace AVC ;)
 > 
-> We just need a per-domain subtree of booleans under /selinux/booleans ;)
-> /selinux/booleans/httpd_t/enable_cgi 
+> OK, will resubmit using that approach.
 > 
-> Speaking of which, we do want to try to go with a one file per value
-> approach in selinuxfs, so on the dynamic class/perm discovery work,
-> let's try to provide a nice directory tree form of it.
+> > 
+> > You also need to reset the cache upon a setenforce 1 in this case just
+> > like the kernel does so that you flush any cached permissions from
+> > permissive mode when you enter enforcing mode.
+> 
+> Adding James to the cc list:
+> 
+> I'm having trouble with this because avc_ss_reset() takes a "seqno" 
+> argument and the selnl_msg_policyload netlink structure provides a seqno 
+> field, but the selnl_msg_setenforce does not, it just has the new mode.
+> 
+> Does this field need to be added to the message structure?
 
-Ok, that means I get to start over. :)  I was doing some final debugging
-on a single /selinux/class node that uses a simple transaction
-like /selinux/access.
-
-Just to be certain, you're asking for
-
-/selinux/class/[classname]/index
-/selinux/class/[classname]/[permname]
-
-where each of those just return the values?
+No.  Just call avc_ss_reset(0); just like the kernel does.  Hacky, but
+it works ;)
 
 -- 
-Chris PeBenito
-Tresys Technology, LLC
-(410) 290-1411 x150
+Stephen Smalley
+National Security Agency
 
 
 --
