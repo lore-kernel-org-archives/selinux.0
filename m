@@ -1,38 +1,38 @@
-Subject: Re: [patch 1/3] selinux: explicitly number all selinuxfs inodes
-From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: Eric Paris <eparis@parisplace.org>
-Cc: jwcart2@tycho.nsa.gov, SELinux <selinux@tycho.nsa.gov>,
-        James Morris <jmorris@namei.org>
-In-Reply-To: <1175722577.20396.159.camel@localhost.localdomain>
-References: <1175717919.14463.70.camel@moss-lions.epoch.ncsc.mil>
-	 <1175722577.20396.159.camel@localhost.localdomain>
-Content-Type: text/plain
-Date: Thu, 05 Apr 2007 08:43:22 -0400
-Message-Id: <1175777002.30692.137.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l35E7AYK029886
+	for <selinux@tycho.nsa.gov>; Thu, 5 Apr 2007 10:07:10 -0400
+Received: from mail4.sea5.speakeasy.net (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l35E78v5014282
+	for <selinux@tycho.nsa.gov>; Thu, 5 Apr 2007 14:07:08 GMT
+Date: Thu, 5 Apr 2007 10:07:05 -0400 (EDT)
+From: James Morris <jmorris@namei.org>
+To: James Carter <jwcart2@tycho.nsa.gov>
+cc: SELinux <selinux@tycho.nsa.gov>, Steve Smalley <sds@epoch.ncsc.mil>,
+        Eric Paris <eparis@parisplace.org>
+Subject: Re: [patch 0/3] selinux: fix of selinuxfs inode number assigning
+ and cleanup of selinuxfs
+In-Reply-To: <1175717910.14463.69.camel@moss-lions.epoch.ncsc.mil>
+Message-ID: <Line.LNX.4.64.0704051006570.32651@d.namei>
+References: <1175717910.14463.69.camel@moss-lions.epoch.ncsc.mil>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2007-04-04 at 17:36 -0400, Eric Paris wrote:
-> On Wed, 2007-04-04 at 16:18 -0400, James Carter wrote:
-> > Explicitly number all selinuxfs inodes to prevent a conflict between
-> > inodes numbered using last_ino when created with new_inode() and those
-> > labeled explicitly.
-> > 
-> > Signed-off-by: James Carter <jwcart2@tycho.nsa.gov>
-> 
-> All 3 patches look good to me
-> 
-> Acked-by: Eric Paris <eparis@parisplace.org>
+On Wed, 4 Apr 2007, James Carter wrote:
 
-Likewise.
+> This patch set fixes a potential problem of inode number conflicts in
+> selinuxfs, makes numbering the inodes in the booleans directory
+> consistent with what is done for the initial_contexts directory, and
+> removes an unused enumeration constant.
 
-Acked-by:  Stephen Smalley <sds@tycho.nsa.gov>
+All applied.
 
+
+- James
 -- 
-Stephen Smalley
-National Security Agency
-
+James Morris
+<jmorris@namei.org>
 
 --
 This message was distributed to subscribers of the selinux mailing list.
