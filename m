@@ -1,207 +1,70 @@
-Message-ID: <4615EC45.1080408@ak.jp.nec.com>
-Date: Fri, 06 Apr 2007 15:44:21 +0900
-From: KaiGai Kohei <kaigai@ak.jp.nec.com>
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l369YNp5009846
+	for <selinux@tycho.nsa.gov>; Fri, 6 Apr 2007 05:34:23 -0400
+Received: from web86903.mail.ukl.yahoo.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with SMTP id l369YM0s027827
+	for <selinux@tycho.nsa.gov>; Fri, 6 Apr 2007 09:34:22 GMT
+Date: Fri, 6 Apr 2007 09:34:07 +0000 (GMT)
+From: JanuGerman <doublemalam@yahoo.co.uk>
+Subject: conditional. policy does not take effect.
+To: Stephen Smalley <sds@tycho.nsa.gov>
+Cc: SELinux List <selinux@tycho.nsa.gov>
 MIME-Version: 1.0
-To: jwcart2@tycho.nsa.gov
-CC: SELinux <selinux@tycho.nsa.gov>, Steve Smalley <sds@epoch.ncsc.mil>,
-        James Morris <jmorris@namei.org>, Eric Paris <eparis@parisplace.org>,
-        Eamon Walsh <ewalsh@tycho.nsa.gov>
-Subject: Re: [patch] selinux:  export initial SID contexts via selinuxfs (v2)
-References: <1175695889.14463.13.camel@moss-lions.epoch.ncsc.mil>
-In-Reply-To: <1175695889.14463.13.camel@moss-lions.epoch.ncsc.mil>
-Content-Type: multipart/mixed;
- boundary="------------030500020506030805000405"
+Content-Type: text/plain; charset=ascii
+Message-ID: <164692.56209.qm@web86903.mail.ukl.yahoo.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This is a multi-part message in MIME format.
---------------030500020506030805000405
-Content-Type: text/plain; charset=ISO-2022-JP
-Content-Transfer-Encoding: 7bit
+Hi every one,
 
-James Carter wrote:
-> Make the initial SID contexts accessible to userspace via selinuxfs.
-> An initial use of this support will be to make the unlabeled context
-> available to libselinux for use for invalidated userspace SIDs.
-> 
-> This version fixes the problem with the for loop that Steve pointed out,
-> and changes the flow of security_get_initial_sid_context so that the if
-> clause checks for the error condition and uses unlikely().
-> 
-> Signed-off-by: James Carter <jwcart2@tycho.nsa.gov>
+  My cond. policies are not taking effect. Following are the contents of my lodable policy module.
 
-The attached patch enables to access /selinux/initial_contexts/*
-entries via libselinux.
-It add the following two functions:
-  int getinitsidcon(int init_sid, security_context_t * con);
-  int getinitsidcon_raw(int init_sid, security_context_t * con);
+policy_module(myapp,1.0)  
+require {
+        type unconfined_t;
+        type fs_t;
+}
+type x_t;
+bool test true;
+auditallow x_t fs_t:filesystem associate;
+if (test) {
+    auditallow unconfined_t x_t:dir *;
+    auditallow unconfined_t x_t:file *;
+} else {
+      auditallow unconfined_t x_t:dir { getattr read search };
+      auditallow unconfined_t x_t:file {getattr };
+}
 
-You have to specify init_sid with one of SECINITSID_* in selinux/flask.h
+and
+
+/root/medicalpolicy  -- gen_context(root:object_r:x_t)
+
+After compiling the module and adding it to the base policy using "semodule -i myapp.pp",
+when i execute the command: "chcon -u root -r object_r -t x_t /root/medicalpolicy"
+
+I get the following error message:
+chcon: failed to change context of /root/medicalpolicy to root:object_r:x_t: Permission denied
+
+when i unload the module, the same command says:
+chcon: failed to change context of /root/medicalpolicy to root:object_r:x_t: Invalid argument
+
+Previously, the module was working, I just changed the allow to audit, in order to see its effect in the /var/log/audit/audit.log.
+
+The boolean variable test, is set or not, it has no effect on the file, possibly due to  labelling problem, i think so.  Further, i can see the messages in the audit, particularly, when chcon command gives denied message.
+
 
 Thanks,
--- 
-Open Source Software Promotion Center, NEC
-KaiGai Kohei <kaigai@ak.jp.nec.com>
+JG
 
---------------030500020506030805000405
-Content-Type: text/x-patch;
- name="getinitsidcon.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="getinitsidcon.patch"
 
-Index: libselinux/include/selinux/selinux.h
-===================================================================
---- libselinux/include/selinux/selinux.h	(revision 2324)
-+++ libselinux/include/selinux/selinux.h	(working copy)
-@@ -119,6 +119,11 @@
- 	extern int getpeercon(int fd, security_context_t * con);
- 	extern int getpeercon_raw(int fd, security_context_t * con);
- 
-+/* Get context of initial SID, and set *con to refer to it.
-+   Caller must free via freecon. */
-+	extern int getinitsidcon(int init_sid, security_context_t * con);
-+	extern int getinitsidcon_raw(int init_sid, security_context_t * con);
-+
- /* Wrappers for the selinuxfs (policy) API. */
- 
- 	typedef unsigned int access_vector_t;
-Index: libselinux/src/initial_sid_to_string.h
-===================================================================
---- libselinux/src/initial_sid_to_string.h	(revision 0)
-+++ libselinux/src/initial_sid_to_string.h	(revision 0)
-@@ -0,0 +1,33 @@
-+/* This file is automatically generated.  Do not edit. */
-+static char *initial_sid_to_string[] =
-+{
-+    "null",
-+    "kernel",
-+    "security",
-+    "unlabeled",
-+    "fs",
-+    "file",
-+    "file_labels",
-+    "init",
-+    "any_socket",
-+    "port",
-+    "netif",
-+    "netmsg",
-+    "node",
-+    "igmp_packet",
-+    "icmp_socket",
-+    "tcp_socket",
-+    "sysctl_modprobe",
-+    "sysctl",
-+    "sysctl_fs",
-+    "sysctl_kernel",
-+    "sysctl_net",
-+    "sysctl_net_unix",
-+    "sysctl_vm",
-+    "sysctl_dev",
-+    "kmod",
-+    "policy",
-+    "scmp_packet",
-+    "devnull",
-+};
-+
-Index: libselinux/src/getinitsidcon.c
-===================================================================
---- libselinux/src/getinitsidcon.c	(revision 0)
-+++ libselinux/src/getinitsidcon.c	(revision 0)
-@@ -0,0 +1,62 @@
-+#include <unistd.h>
-+#include <fcntl.h>
-+#include <stdio.h>
-+#include <string.h>
-+#include <stdlib.h>
-+#include <errno.h>
-+#include <selinux/flask.h>
-+#include <limits.h>
-+#include "selinux_internal.h"
-+#include "policy.h"
-+#include "initial_sid_to_string.h"
-+
-+int getinitsidcon_raw(int init_sid, security_context_t * con)
-+{
-+	security_context_t initcon;
-+	char path[PATH_MAX];
-+	int fd, n;
-+
-+	if (init_sid < 1 || init_sid > SECINITSID_NUM) {
-+		errno = EINVAL;
-+		return -1;
-+	}
-+
-+	if (!selinux_mnt) {
-+		errno = ENOENT;
-+		return -1;
-+	}
-+
-+	snprintf(path, sizeof(path), "%s/initial_contexts/%s",
-+		 selinux_mnt, initial_sid_to_string[init_sid]);
-+	fd = open(path, O_RDONLY);
-+	if (fd < 0)
-+		return -1;
-+
-+	n = read(fd, path, sizeof(path));
-+	close(fd);
-+	if (n < 0)
-+		return -1;
-+
-+	initcon = strdup(path);
-+	if (!initcon)
-+		return -1;
-+
-+	*con = initcon;
-+
-+	return 0;
-+}
-+
-+int getinitsidcon(int init_sid, security_context_t * con)
-+{
-+	int rc;
-+	security_context_t rcontext;
-+
-+	rc = getinitsidcon_raw(init_sid, &rcontext);
-+
-+	if (!rc) {
-+		rc = selinux_raw_to_trans_context(rcontext, con);
-+		freecon(rcontext);
-+	}
-+
-+	return rc;
-+}
-Index: libselinux/man/man3/getcon.3
-===================================================================
---- libselinux/man/man3/getcon.3	(revision 2324)
-+++ libselinux/man/man3/getcon.3	(working copy)
-@@ -16,6 +16,8 @@
- .br
- .BI "int getpeercon(int " fd ", security_context_t *" context);
- .br
-+.BI "int getinitsidcon(int " init_sid ", security_context_t *" context);
-+.br
- .BI "int setcon(security_context_t " context);
- 
- .SH "DESCRIPTION"
-@@ -32,6 +34,9 @@
- .B getpeercon
- retrieves context of peer socket, and set *context to refer to it, which must be free'd with freecon.
- 
-+.B getinitsidcon
-+retrieves context of initial SID, and set *context to refer to it, which must be free'd with freecon.
-+
- .B setcon
- sets the current security context of the process to a new value.  Note
- that use of this function requires that the entire application be
-Index: libselinux/man/man3/getinitsidcon.3
-===================================================================
---- libselinux/man/man3/getinitsidcon.3	(revision 0)
-+++ libselinux/man/man3/getinitsidcon.3	(revision 0)
-@@ -0,0 +1 @@
-+.so man3/getcon.3
 
---------------030500020506030805000405--
+
+
+
+
+		
+___________________________________________________________ 
+Copy addresses and emails from any email account to Yahoo! Mail - quick, easy and free. http://uk.docs.yahoo.com/trueswitch2.html
 
 --
 This message was distributed to subscribers of the selinux mailing list.
