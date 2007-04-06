@@ -1,62 +1,63 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l36E5GNg019112
-	for <selinux@tycho.nsa.gov>; Fri, 6 Apr 2007 10:05:16 -0400
-Received: from smtp.sws.net.au (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id l36E5D6u009647
-	for <selinux@tycho.nsa.gov>; Fri, 6 Apr 2007 14:05:14 GMT
-Received: from localhost (localhost [127.0.0.1])
-	by smtp.sws.net.au (Postfix) with ESMTP id 222EC620ED
-	for <selinux@tycho.nsa.gov>; Sat,  7 Apr 2007 00:04:37 +1000 (EST)
-Received: from smtp.sws.net.au ([127.0.0.1])
-	by localhost (smtp.sws.net.au [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id XNKF-JxThiXt for <selinux@tycho.nsa.gov>;
-	Sat,  7 Apr 2007 00:04:37 +1000 (EST)
-Received: from nospam.sws.net.au (nospam.sws.net.au [61.95.69.195])
-	by smtp.sws.net.au (Postfix) with ESMTP id EA24E620EA
-	for <selinux@tycho.nsa.gov>; Sat,  7 Apr 2007 00:04:36 +1000 (EST)
-Received: from localhost (localhost [127.0.0.1])
-	by nospam.sws.net.au (Postfix) with ESMTP id ADD7818714
-	for <selinux@tycho.nsa.gov>; Sat,  7 Apr 2007 00:04:36 +1000 (EST)
-Received: from nospam.sws.net.au ([127.0.0.1])
-	by localhost (nospam.sws.net.au [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id citjcbgx52JK for <selinux@tycho.nsa.gov>;
-	Sat,  7 Apr 2007 00:04:36 +1000 (EST)
-Received: from aeon.coker.com.au (localhost [127.0.0.1])
-	by nospam.sws.net.au (Postfix) with ESMTP id 6D01F1870F
-	for <selinux@tycho.nsa.gov>; Sat,  7 Apr 2007 00:04:36 +1000 (EST)
-Received: from localhost (localhost [127.0.0.1])
-	by aeon.coker.com.au (Postfix) with ESMTP id 80D3A201C2
-	for <selinux@tycho.nsa.gov>; Sat,  7 Apr 2007 00:04:51 +1000 (EST)
-From: Russell Coker <russell@coker.com.au>
-Reply-To: russell@coker.com.au
-To: "SE-Linux" <selinux@tycho.nsa.gov>
-Subject: syscall-proxy
-Date: Sat, 7 Apr 2007 01:04:47 +1100
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Message-Id: <200704070004.50617.russell@coker.com.au>
+Subject: Re: [patch] selinux:  export initial SID contexts via selinuxfs
+	(v2)
+From: James Carter <jwcart2@tycho.nsa.gov>
+Reply-To: jwcart2@tycho.nsa.gov
+To: KaiGai Kohei <kaigai@ak.jp.nec.com>
+Cc: SELinux <selinux@tycho.nsa.gov>, Steve Smalley <sds@epoch.ncsc.mil>,
+        James Morris <jmorris@namei.org>, Eric Paris <eparis@parisplace.org>,
+        Eamon Walsh <ewalsh@tycho.nsa.gov>
+In-Reply-To: <4615EC45.1080408@ak.jp.nec.com>
+References: <1175695889.14463.13.camel@moss-lions.epoch.ncsc.mil>
+	 <4615EC45.1080408@ak.jp.nec.com>
+Content-Type: text/plain
+Date: Fri, 06 Apr 2007 11:07:40 -0400
+Message-Id: <1175872060.25329.35.camel@moss-lions.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Does anyone have sample code for a syscall proxy that they can send me?
+On Fri, 2007-04-06 at 15:44 +0900, KaiGai Kohei wrote:
+> James Carter wrote:
+> > Make the initial SID contexts accessible to userspace via selinuxfs.
+> > An initial use of this support will be to make the unlabeled context
+> > available to libselinux for use for invalidated userspace SIDs.
+> > 
+> > This version fixes the problem with the for loop that Steve pointed out,
+> > and changes the flow of security_get_initial_sid_context so that the if
+> > clause checks for the error condition and uses unlikely().
+> > 
+> > Signed-off-by: James Carter <jwcart2@tycho.nsa.gov>
+> 
+> The attached patch enables to access /selinux/initial_contexts/*
+> entries via libselinux.
+> It add the following two functions:
+>   int getinitsidcon(int init_sid, security_context_t * con);
+>   int getinitsidcon_raw(int init_sid, security_context_t * con);
+> 
+> You have to specify init_sid with one of SECINITSID_* in selinux/flask.h
+> 
+I have been working on a patch to libselinux that would add the
+functions security_get_initial_context(),
+security_get_initial_context_raw() and avc_get_initial_sid() functions.
+I was just planning on passing a string, like "unlabeled", to the
+functions rather than a kernel initial SID, because I wanted to avoid
+confusion between kernel's SIDs, which are u32, and userspace SIDs,
+which are reference-counted structs.
 
-In discussions of SE Linux and other technologies we keep coming up against 
-the issue of people thinking that the only necessary thing is to control 
-execution of programs not the actions that programs may perform.  The 
-examples of Perl and other interpreters don't seem adequate to convince them 
-(why not just prevent executing Perl?).
+I know that SEPostgreSQL uses its object id type as the SID.  If
+userspace used unsigned integers for SIDs, then only a sid_to_context
+function would be needed; it would do the right thing if the SID was in
+the range of the kernel initial SIDs.
 
-I know that there is code to demonstrate taking over an application by a 
-stack-smashing attack and then making it perform arbitrary syscalls under 
-instruction of a program over the net.  Does anyone have a sample of such 
-code?
+Do we need to revisit how userspace SIDs are managed?  Are there other
+places were it would be better to have the object manager determine the
+SID, so that it can be meaningful, rather than the userspace AVC?
+What do you think Eamon?
 
 -- 
-russell@coker.com.au
-http://etbe.blogspot.com/          My Blog
+James Carter <jwcart2@tycho.nsa.gov>
+National Security Agency
 
-http://www.coker.com.au/sponsorship.html Sponsoring Free Software development
 
 --
 This message was distributed to subscribers of the selinux mailing list.
