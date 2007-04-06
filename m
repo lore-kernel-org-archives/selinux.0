@@ -1,62 +1,77 @@
-Subject: Re: [patch] selinux:  export initial SID contexts via selinuxfs
-	(v2)
-From: James Carter <jwcart2@tycho.nsa.gov>
-Reply-To: jwcart2@tycho.nsa.gov
-To: KaiGai Kohei <kaigai@ak.jp.nec.com>
-Cc: SELinux <selinux@tycho.nsa.gov>, Steve Smalley <sds@epoch.ncsc.mil>,
-        James Morris <jmorris@namei.org>, Eric Paris <eparis@parisplace.org>,
-        Eamon Walsh <ewalsh@tycho.nsa.gov>
-In-Reply-To: <4615EC45.1080408@ak.jp.nec.com>
-References: <1175695889.14463.13.camel@moss-lions.epoch.ncsc.mil>
-	 <4615EC45.1080408@ak.jp.nec.com>
-Content-Type: text/plain
-Date: Fri, 06 Apr 2007 11:07:40 -0400
-Message-Id: <1175872060.25329.35.camel@moss-lions.epoch.ncsc.mil>
-Mime-Version: 1.0
+Message-ID: <46163D94.6060209@redhat.com>
+Date: Fri, 06 Apr 2007 08:31:16 -0400
+From: Daniel J Walsh <dwalsh@redhat.com>
+MIME-Version: 1.0
+To: JanuGerman <doublemalam@yahoo.co.uk>
+CC: Stephen Smalley <sds@tycho.nsa.gov>, SELinux List <selinux@tycho.nsa.gov>
+Subject: Re: conditional. policy does not take effect.
+References: <164692.56209.qm@web86903.mail.ukl.yahoo.com>
+In-Reply-To: <164692.56209.qm@web86903.mail.ukl.yahoo.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2007-04-06 at 15:44 +0900, KaiGai Kohei wrote:
-> James Carter wrote:
-> > Make the initial SID contexts accessible to userspace via selinuxfs.
-> > An initial use of this support will be to make the unlabeled context
-> > available to libselinux for use for invalidated userspace SIDs.
-> > 
-> > This version fixes the problem with the for loop that Steve pointed out,
-> > and changes the flow of security_get_initial_sid_context so that the if
-> > clause checks for the error condition and uses unlikely().
-> > 
-> > Signed-off-by: James Carter <jwcart2@tycho.nsa.gov>
-> 
-> The attached patch enables to access /selinux/initial_contexts/*
-> entries via libselinux.
-> It add the following two functions:
->   int getinitsidcon(int init_sid, security_context_t * con);
->   int getinitsidcon_raw(int init_sid, security_context_t * con);
-> 
-> You have to specify init_sid with one of SECINITSID_* in selinux/flask.h
-> 
-I have been working on a patch to libselinux that would add the
-functions security_get_initial_context(),
-security_get_initial_context_raw() and avc_get_initial_sid() functions.
-I was just planning on passing a string, like "unlabeled", to the
-functions rather than a kernel initial SID, because I wanted to avoid
-confusion between kernel's SIDs, which are u32, and userspace SIDs,
-which are reference-counted structs.
+JanuGerman wrote:
+> Hi every one,
+>
+>   My cond. policies are not taking effect. Following are the contents of my lodable policy module.
+>
+> policy_module(myapp,1.0)  
+> require {
+>         type unconfined_t;
+>         type fs_t;
+> }
+> type x_t;
+> bool test true;
+> auditallow x_t fs_t:filesystem associate;
+> if (test) {
+>     auditallow unconfined_t x_t:dir *;
+>     auditallow unconfined_t x_t:file *;
+> } else {
+>       auditallow unconfined_t x_t:dir { getattr read search };
+>       auditallow unconfined_t x_t:file {getattr };
+> }
+>
+> and
+>
+> /root/medicalpolicy  -- gen_context(root:object_r:x_t)
+>
+> After compiling the module and adding it to the base policy using "semodule -i myapp.pp",
+> when i execute the command: "chcon -u root -r object_r -t x_t /root/medicalpolicy"
+>
+> I get the following error message:
+> chcon: failed to change context of /root/medicalpolicy to root:object_r:x_t: Permission denied
+>
+> when i unload the module, the same command says:
+> chcon: failed to change context of /root/medicalpolicy to root:object_r:x_t: Invalid argument
+>
+> Previously, the module was working, I just changed the allow to audit, in order to see its effect in the /var/log/audit/audit.log.
+>
+> The boolean variable test, is set or not, it has no effect on the file, possibly due to  labelling problem, i think so.  Further, i can see the messages in the audit, particularly, when chcon command gives denied message.
+>
+>
+> Thanks,
+> JG
+>
+>
+>
+>
+>   
+Try to add
 
-I know that SEPostgreSQL uses its object id type as the SID.  If
-userspace used unsigned integers for SIDs, then only a sid_to_context
-function would be needed; it would do the right thing if the SID was in
-the range of the kernel initial SIDs.
+files_type(x_t)
+>
+>
+> 		
+> ___________________________________________________________ 
+> Copy addresses and emails from any email account to Yahoo! Mail - quick, easy and free. http://uk.docs.yahoo.com/trueswitch2.html
+>
+> --
+> This message was distributed to subscribers of the selinux mailing list.
+> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
+> the words "unsubscribe selinux" without quotes as the message.
+>   
 
-Do we need to revisit how userspace SIDs are managed?  Are there other
-places were it would be better to have the object manager determine the
-SID, so that it can be meaningful, rather than the userspace AVC?
-What do you think Eamon?
-
--- 
-James Carter <jwcart2@tycho.nsa.gov>
-National Security Agency
 
 
 --
