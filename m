@@ -1,117 +1,207 @@
-Message-ID: <46156363.7010007@redhat.com>
-Date: Thu, 05 Apr 2007 17:00:19 -0400
-From: Daniel J Walsh <dwalsh@redhat.com>
+Message-ID: <4615EC45.1080408@ak.jp.nec.com>
+Date: Fri, 06 Apr 2007 15:44:21 +0900
+From: KaiGai Kohei <kaigai@ak.jp.nec.com>
 MIME-Version: 1.0
-To: Stephen Smalley <sds@tycho.nsa.gov>
-CC: SE Linux <selinux@tycho.nsa.gov>,
-        Karl MacMillan <kmacmillan@mentalrootkit.com>
-Subject: Re: libselinux patch
-References: <461530F6.3030407@redhat.com> <1175795098.5711.90.camel@moss-spartans.epoch.ncsc.mil>
-In-Reply-To: <1175795098.5711.90.camel@moss-spartans.epoch.ncsc.mil>
+To: jwcart2@tycho.nsa.gov
+CC: SELinux <selinux@tycho.nsa.gov>, Steve Smalley <sds@epoch.ncsc.mil>,
+        James Morris <jmorris@namei.org>, Eric Paris <eparis@parisplace.org>,
+        Eamon Walsh <ewalsh@tycho.nsa.gov>
+Subject: Re: [patch] selinux:  export initial SID contexts via selinuxfs (v2)
+References: <1175695889.14463.13.camel@moss-lions.epoch.ncsc.mil>
+In-Reply-To: <1175695889.14463.13.camel@moss-lions.epoch.ncsc.mil>
 Content-Type: multipart/mixed;
- boundary="------------030005040303010603040900"
+ boundary="------------030500020506030805000405"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 This is a multi-part message in MIME format.
---------------030005040303010603040900
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+--------------030500020506030805000405
+Content-Type: text/plain; charset=ISO-2022-JP
 Content-Transfer-Encoding: 7bit
 
-Second pass.
+James Carter wrote:
+> Make the initial SID contexts accessible to userspace via selinuxfs.
+> An initial use of this support will be to make the unlabeled context
+> available to libselinux for use for invalidated userspace SIDs.
+> 
+> This version fixes the problem with the for loop that Steve pointed out,
+> and changes the flow of security_get_initial_sid_context so that the if
+> clause checks for the error condition and uses unlikely().
+> 
+> Signed-off-by: James Carter <jwcart2@tycho.nsa.gov>
 
+The attached patch enables to access /selinux/initial_contexts/*
+entries via libselinux.
+It add the following two functions:
+  int getinitsidcon(int init_sid, security_context_t * con);
+  int getinitsidcon_raw(int init_sid, security_context_t * con);
 
+You have to specify init_sid with one of SECINITSID_* in selinux/flask.h
 
---------------030005040303010603040900
-Content-Type: text/plain;
- name="diff"
+Thanks,
+-- 
+Open Source Software Promotion Center, NEC
+KaiGai Kohei <kaigai@ak.jp.nec.com>
+
+--------------030500020506030805000405
+Content-Type: text/x-patch;
+ name="getinitsidcon.patch"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline;
- filename="diff"
+ filename="getinitsidcon.patch"
 
-diff --exclude-from=exclude -N -u -r nsalibselinux/man/man8/matchpathcon.8 libselinux-2.0.9/man/man8/matchpathcon.8
---- nsalibselinux/man/man8/matchpathcon.8	2007-01-17 11:11:35.000000000 -0500
-+++ libselinux-2.0.9/man/man8/matchpathcon.8	2007-04-05 13:20:43.000000000 -0400
-@@ -28,4 +28,4 @@
+Index: libselinux/include/selinux/selinux.h
+===================================================================
+--- libselinux/include/selinux/selinux.h	(revision 2324)
++++ libselinux/include/selinux/selinux.h	(working copy)
+@@ -119,6 +119,11 @@
+ 	extern int getpeercon(int fd, security_context_t * con);
+ 	extern int getpeercon_raw(int fd, security_context_t * con);
  
- .SH "SEE ALSO"
- .BR selinux "(8), "
--.BR mathpathcon "(3), " 
-+.BR matchpathcon "(3), " 
-diff --exclude-from=exclude -N -u -r nsalibselinux/src/selinuxswig.i libselinux-2.0.9/src/selinuxswig.i
---- nsalibselinux/src/selinuxswig.i	2007-02-22 08:53:23.000000000 -0500
-+++ libselinux-2.0.9/src/selinuxswig.i	2007-04-05 16:47:42.000000000 -0400
-@@ -115,9 +115,38 @@
- extern const char *selinux_path(void);
- extern int selinux_check_passwd_access(access_vector_t requested);
- extern int checkPasswdAccess(access_vector_t requested);
++/* Get context of initial SID, and set *con to refer to it.
++   Caller must free via freecon. */
++	extern int getinitsidcon(int init_sid, security_context_t * con);
++	extern int getinitsidcon_raw(int init_sid, security_context_t * con);
 +
-+// This tells SWIG to treat char ** as a special case
-+%typemap(python,in) char ** {
-+  /* Check if is a list */
-+  if (PyList_Check($input)) {
-+    int size = PyList_Size($input);
-+    int i = 0;
-+    $1 = (char **) malloc((size+1)*sizeof(char *));
-+    if ($1 == NULL) {
-+	PyErr_SetString(PyExc_MemoryError,"Out of memory");
-+	return NULL;
-+    }
-+    for (i = 0; i < size; i++) {
-+      PyObject *o = PyList_GetItem($input,i);
-+      if (PyString_Check(o))
-+	$1[i] = PyString_AsString(PyList_GetItem($input,i));
-+      else {
-+	PyErr_SetString(PyExc_TypeError,"list must contain strings");
-+	free($1);
-+	return NULL;
-+      }
-+    }
-+    $1[i] = 0;
-+  } else {
-+    PyErr_SetString(PyExc_TypeError,"not a list");
-+    return NULL;
-+  }
+ /* Wrappers for the selinuxfs (policy) API. */
+ 
+ 	typedef unsigned int access_vector_t;
+Index: libselinux/src/initial_sid_to_string.h
+===================================================================
+--- libselinux/src/initial_sid_to_string.h	(revision 0)
++++ libselinux/src/initial_sid_to_string.h	(revision 0)
+@@ -0,0 +1,33 @@
++/* This file is automatically generated.  Do not edit. */
++static char *initial_sid_to_string[] =
++{
++    "null",
++    "kernel",
++    "security",
++    "unlabeled",
++    "fs",
++    "file",
++    "file_labels",
++    "init",
++    "any_socket",
++    "port",
++    "netif",
++    "netmsg",
++    "node",
++    "igmp_packet",
++    "icmp_socket",
++    "tcp_socket",
++    "sysctl_modprobe",
++    "sysctl",
++    "sysctl_fs",
++    "sysctl_kernel",
++    "sysctl_net",
++    "sysctl_net_unix",
++    "sysctl_vm",
++    "sysctl_dev",
++    "kmod",
++    "policy",
++    "scmp_packet",
++    "devnull",
++};
++
+Index: libselinux/src/getinitsidcon.c
+===================================================================
+--- libselinux/src/getinitsidcon.c	(revision 0)
++++ libselinux/src/getinitsidcon.c	(revision 0)
+@@ -0,0 +1,62 @@
++#include <unistd.h>
++#include <fcntl.h>
++#include <stdio.h>
++#include <string.h>
++#include <stdlib.h>
++#include <errno.h>
++#include <selinux/flask.h>
++#include <limits.h>
++#include "selinux_internal.h"
++#include "policy.h"
++#include "initial_sid_to_string.h"
++
++int getinitsidcon_raw(int init_sid, security_context_t * con)
++{
++	security_context_t initcon;
++	char path[PATH_MAX];
++	int fd, n;
++
++	if (init_sid < 1 || init_sid > SECINITSID_NUM) {
++		errno = EINVAL;
++		return -1;
++	}
++
++	if (!selinux_mnt) {
++		errno = ENOENT;
++		return -1;
++	}
++
++	snprintf(path, sizeof(path), "%s/initial_contexts/%s",
++		 selinux_mnt, initial_sid_to_string[init_sid]);
++	fd = open(path, O_RDONLY);
++	if (fd < 0)
++		return -1;
++
++	n = read(fd, path, sizeof(path));
++	close(fd);
++	if (n < 0)
++		return -1;
++
++	initcon = strdup(path);
++	if (!initcon)
++		return -1;
++
++	*con = initcon;
++
++	return 0;
 +}
 +
- extern int rpm_execcon(unsigned int verified, 
- 		       const char *filename, 
--		       char *const argv[], char *const envp[]);
-+		       char **, char **);
++int getinitsidcon(int init_sid, security_context_t * con)
++{
++	int rc;
++	security_context_t rcontext;
++
++	rc = getinitsidcon_raw(init_sid, &rcontext);
++
++	if (!rc) {
++		rc = selinux_raw_to_trans_context(rcontext, con);
++		freecon(rcontext);
++	}
++
++	return rc;
++}
+Index: libselinux/man/man3/getcon.3
+===================================================================
+--- libselinux/man/man3/getcon.3	(revision 2324)
++++ libselinux/man/man3/getcon.3	(working copy)
+@@ -16,6 +16,8 @@
+ .br
+ .BI "int getpeercon(int " fd ", security_context_t *" context);
+ .br
++.BI "int getinitsidcon(int " init_sid ", security_context_t *" context);
++.br
+ .BI "int setcon(security_context_t " context);
  
- extern int is_context_customizable (security_context_t scontext);
+ .SH "DESCRIPTION"
+@@ -32,6 +34,9 @@
+ .B getpeercon
+ retrieves context of peer socket, and set *context to refer to it, which must be free'd with freecon.
  
-diff --exclude-from=exclude -N -u -r nsalibselinux/utils/getsebool.c libselinux-2.0.9/utils/getsebool.c
---- nsalibselinux/utils/getsebool.c	2006-11-16 17:15:17.000000000 -0500
-+++ libselinux-2.0.9/utils/getsebool.c	2007-04-05 16:57:51.000000000 -0400
-@@ -14,7 +14,7 @@
- 
- int main(int argc, char **argv)
- {
--	int i, rc = 0, active, pending, len = 0, opt;
-+	int i, get_all = 0, rc = 0, active, pending, len = 0, opt;
- 	char **names;
- 
- 	while ((opt = getopt(argc, argv, "a")) > 0) {
-@@ -39,6 +39,7 @@
- 				printf("No booleans\n");
- 				return 0;
- 			}
-+			get_all = 1;
- 			break;
- 		default:
- 			usage(argv[0]);
-@@ -72,6 +73,8 @@
- 	for (i = 0; i < len; i++) {
- 		active = security_get_boolean_active(names[i]);
- 		if (active < 0) {
-+			if (! get_all && errno == EACCES) 
-+				continue;
- 			fprintf(stderr, "Error getting active value for %s\n",
- 				names[i]);
- 			rc = -1;
++.B getinitsidcon
++retrieves context of initial SID, and set *context to refer to it, which must be free'd with freecon.
++
+ .B setcon
+ sets the current security context of the process to a new value.  Note
+ that use of this function requires that the entire application be
+Index: libselinux/man/man3/getinitsidcon.3
+===================================================================
+--- libselinux/man/man3/getinitsidcon.3	(revision 0)
++++ libselinux/man/man3/getinitsidcon.3	(revision 0)
+@@ -0,0 +1 @@
++.so man3/getcon.3
 
---------------030005040303010603040900--
+--------------030500020506030805000405--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
