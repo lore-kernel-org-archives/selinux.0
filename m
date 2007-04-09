@@ -1,66 +1,29 @@
-Message-ID: <461A57D7.3040704@redhat.com>
-Date: Mon, 09 Apr 2007 11:12:23 -0400
-From: Daniel J Walsh <dwalsh@redhat.com>
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l39J8viE024517
+	for <selinux@tycho.nsa.gov>; Mon, 9 Apr 2007 15:08:57 -0400
+Received: from an-out-0708.google.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l39J8qgm009672
+	for <selinux@tycho.nsa.gov>; Mon, 9 Apr 2007 19:08:53 GMT
+Received: by an-out-0708.google.com with SMTP id d33so1687721and
+        for <selinux@tycho.nsa.gov>; Mon, 09 Apr 2007 12:08:33 -0700 (PDT)
+Message-ID: <461A8F2E.5070701@gmail.com>
+Date: Mon, 09 Apr 2007 14:08:30 -0500
+From: Ted X Toth <txtoth@gmail.com>
 MIME-Version: 1.0
-To: Stephen Smalley <sds@tycho.nsa.gov>
-CC: SE Linux <selinux@tycho.nsa.gov>,
-        Karl MacMillan <kmacmillan@mentalrootkit.com>
-Subject: Re: libselinux patch
-References: <461530F6.3030407@redhat.com>	 <1175795098.5711.90.camel@moss-spartans.epoch.ncsc.mil>	 <46156363.7010007@redhat.com> <1176128256.15415.71.camel@moss-spartans.epoch.ncsc.mil>
-In-Reply-To: <1176128256.15415.71.camel@moss-spartans.epoch.ncsc.mil>
+To: selinux@tycho.nsa.gov
+Subject: seobject.py setransRecords.get_all method return values 
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Stephen Smalley wrote:
-> On Thu, 2007-04-05 at 17:00 -0400, Daniel J Walsh wrote:
->   
->> Second pass.
->>
->>
->> plain text document attachment (diff)
->>     
->
->   
->> diff --exclude-from=exclude -N -u -r nsalibselinux/utils/getsebool.c libselinux-2.0.9/utils/getsebool.c
->> --- nsalibselinux/utils/getsebool.c	2006-11-16 17:15:17.000000000 -0500
->> +++ libselinux-2.0.9/utils/getsebool.c	2007-04-05 16:57:51.000000000 -0400
->> @@ -14,7 +14,7 @@
->>  
->>  int main(int argc, char **argv)
->>  {
->> -	int i, rc = 0, active, pending, len = 0, opt;
->> +	int i, get_all = 0, rc = 0, active, pending, len = 0, opt;
->>  	char **names;
->>  
->>  	while ((opt = getopt(argc, argv, "a")) > 0) {
->> @@ -39,6 +39,7 @@
->>  				printf("No booleans\n");
->>  				return 0;
->>  			}
->> +			get_all = 1;
->>  			break;
->>  		default:
->>  			usage(argv[0]);
->> @@ -72,6 +73,8 @@
->>  	for (i = 0; i < len; i++) {
->>  		active = security_get_boolean_active(names[i]);
->>  		if (active < 0) {
->> +			if (! get_all && errno == EACCES) 
->> +				continue;
->>     
->
-> Shouldn't that be if (get_all && errno == EACCES)?
-> The goal is to only suppress the warnings upon getsebool -a, not the
-> other way around.
->
->   
-Yes. 
->>  			fprintf(stderr, "Error getting active value for %s\n",
->>  				names[i]);
->>  			rc = -1;
->>     
+When you have aliases in your setrans.conf 
+seobject.setransRecords().get_all returns a dictionary containing values 
+with the last alias whereas the first alias  is what I'd like (this is 
+also what the os uses). Alternatively it could return an ordered list of 
+all of the aliases as the dictionary values or maybe this would be a 
+different method.
 
+Ted
 
 --
 This message was distributed to subscribers of the selinux mailing list.
