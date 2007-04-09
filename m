@@ -1,184 +1,88 @@
-Date: Mon, 9 Apr 2007 13:50:30 +0900
-From: Yuichi Nakamura <ynakam@hitachisoft.jp>
-To: selinux@tycho.nsa.gov
-Cc: ynakam@hitachisoft.jp, sds@tycho.nsa.gov, busybox@kaigai.gr.jp
-Subject: [patch] reducing size of libselnux/libsepol for embedded
-Message-Id: <20070409135030.d27a3177.ynakam@hitachisoft.jp>
-Mime-Version: 1.0
-Content-Type: multipart/mixed;
- boundary="Multipart=_Mon__9_Apr_2007_13_50_30_+0900_BZt+3Q.pXEQkp3N4"
+Message-ID: <461A32E0.6020102@manicmethod.com>
+Date: Mon, 09 Apr 2007 08:34:40 -0400
+From: Joshua Brindle <method@manicmethod.com>
+MIME-Version: 1.0
+To: Yuichi Nakamura <ynakam@hitachisoft.jp>
+CC: selinux@tycho.nsa.gov, sds@tycho.nsa.gov, busybox@kaigai.gr.jp
+Subject: Re: [patch] reducing size of libselnux/libsepol for embedded
+References: <20070409135030.d27a3177.ynakam@hitachisoft.jp>
+In-Reply-To: <20070409135030.d27a3177.ynakam@hitachisoft.jp>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This is a multi-part message in MIME format.
+Yuichi Nakamura wrote:
+> <snip>
+In the future could you please inline the patch?
+> 2. About patch
+> We prepare 2 build options in libselinux/libsepol.
+> 1) make EMBEDDED=1
+> This is for people who want to use only monolitic policy with boolean support.
+> * libselinux
+>   Files related to userland avc is not compiled
+> * libsepol
+>   libselinux uses sepol functions(such as sepol_genusers, sepol_genboolean). 
+>   If people do not need modular policy, we need only to compile such functions.
+>
+> 2) make DISABLE_SEPOL=1
+> This can be combined with "EMBEDDED=1".
+> This is for people who uses poor resource devices.
+> libsepol functions are removed from libselinux 
+> so libsepol can be removed.
+> By that, size of libse*  can be reduced more, 
+> but some features(such as boolean) can not be used.
+>
+>   
+I think the defines should be more descriptive, perhaps NO_AVC, NO_BOOL, 
+etc.
 
---Multipart=_Mon__9_Apr_2007_13_50_30_+0900_BZt+3Q.pXEQkp3N4
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Is there ever a reason to use DISABLE_SEPOL without EMBEDDED? it seems 
+like you leave the option open but never describe why it would be used 
+or what the side effects would be.
 
-Hello.
+> More detail:
+> * libselinux 
+>   - selinux_mk_loadpolicy is replaced with limited version:
+>      - policy filename is assumed as /etc/selinux/<policy type>/policy/policy.<version in selinuxfs>
+>   
+This won't reduce the code much, is there a reason that you don't try to 
+search for the policy file at all? Granted this shouldn't be an issue in 
+embedded environments since you should have control of the kernel and 
+policy at all times but it could be useful to load a policy of differing 
+version than the kernel supports.
 
-As we discussed before, 
-we would like to propose patch that reduces size of libselinux/libsepol.
-
-1. Background
-Current libselinux+libsepol size is big for embedded devices.
-libselinux.so.1: 115420 byte
-libsepol.so.1:302085
-Total: 417505 byte
-It uses more than 400kbyte.
-
-Needs for embedded device is various, because hardware resource is various.
-If device is rich enough, people may want full-featured SELinux.
-If device is not rich, people want to reduce binary size by removing 
-some features. They may not want modular policy, even may not want boolean.
-
-We thought size of libselinux+libsepol can be reduced by removing functions .
-
-2. About patch
-We prepare 2 build options in libselinux/libsepol.
-1) make EMBEDDED=1
-This is for people who want to use only monolitic policy with boolean support.
-* libselinux
-  Files related to userland avc is not compiled
-* libsepol
-  libselinux uses sepol functions(such as sepol_genusers, sepol_genboolean). 
-  If people do not need modular policy, we need only to compile such functions.
-
-2) make DISABLE_SEPOL=1
-This can be combined with "EMBEDDED=1".
-This is for people who uses poor resource devices.
-libsepol functions are removed from libselinux 
-so libsepol can be removed.
-By that, size of libse*  can be reduced more, 
-but some features(such as boolean) can not be used.
-
-More detail:
-* libselinux 
-  - selinux_mk_loadpolicy is replaced with limited version:
-     - policy filename is assumed as /etc/selinux/<policy type>/policy/policy.<version in selinuxfs>
-     - preserve boolean is not supported
-         -- so it is not recommended to use boolean for such system
-     - system.users, local.users are not supported
-   - -lsepol is removed
-* libsepol
-  - It is not required by libselinux, so you do not have to compile this.
-
-3. Size measurement
-Compiled by gcc(x86)
-
-* Before:
-libselinux.so.1: 115420
-libsepol.so.1:302085
-Total: 417505
-
-* make EMBEDDED=1
-libselinux:87024
-libsepol:201301
-Total: 288325
-
-* make EMBEDDED=1 DISABLE_BOOLEAN=1
-libselinux: 77187
-libsepol: 0 
-Total: 77187 -> Diet about 80%!
-
-And, this work is intended to be applied to BusyBox.
-We will fix load_policy applet for BusyBox to support boolean option.
-
-Regards,
--- 
-Yuichi Nakamura
-Hitachi Software Engineering Co., Ltd.
-Japan SELinux Users Group(JSELUG)
-SELinux Policy Editor: http://seedit.sourceforge.net/
-
-
---Multipart=_Mon__9_Apr_2007_13_50_30_+0900_BZt+3Q.pXEQkp3N4
-Content-Type: application/octet-stream;
- name="libse_diet.v1.patch"
-Content-Disposition: attachment;
- filename="libse_diet.v1.patch"
-Content-Transfer-Encoding: base64
-
-SW5kZXg6IGxpYnNlcG9sL3NyYy9NYWtlZmlsZQo9PT09PT09PT09PT09PT09PT09PT09PT09PT09
-PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09Ci0tLSBsaWJzZXBvbC9zcmMv
-TWFrZWZpbGUJKHJldmlzaW9uIDIzMTgpCisrKyBsaWJzZXBvbC9zcmMvTWFrZWZpbGUJKHdvcmtp
-bmcgY29weSkKQEAgLTgsMTEgKzgsMTggQEAKIExJQkE9bGlic2Vwb2wuYSAKIFRBUkdFVD1saWJz
-ZXBvbC5zbwogTElCU089JChUQVJHRVQpLiQoTElCVkVSU0lPTikKLU9CSlM9ICQocGF0c3Vic3Qg
-JS5jLCUubywkKHdpbGRjYXJkICouYykpCi1MT0JKUz0gJChwYXRzdWJzdCAlLmMsJS5sbywkKHdp
-bGRjYXJkICouYykpCisKK1NSQ1M9JCh3aWxkY2FyZCAqLmMpCitpZmVxICgkKEVNQkVEREVEKSwx
-KQorVU5VU0VEX1NSQ1M9bGluay5jIG5vZGVzLmMgcm9sZXMuYyBpZmFjZV9yZWNvcmQuYyBtb2R1
-bGUuYyBwb3J0X3JlY29yZC5jIHVzZXJfcmVjb3JkLmMgaW50ZXJmYWNlcy5jICBub2RlX3JlY29y
-ZC5jIHBvcnRzLmMgdXNlcnMuYworU1JDUz0gJChmaWx0ZXItb3V0ICQoVU5VU0VEX1NSQ1MpLCAk
-KHdpbGRjYXJkICouYykpCitlbmRpZgorT0JKUz0gJChwYXRzdWJzdCAlLmMsJS5vLCQoU1JDUykp
-CitMT0JKUz0gJChwYXRzdWJzdCAlLmMsJS5sbywkKFNSQ1MpKQogQ0ZMQUdTID89IC1XYWxsIC1X
-IC1XdW5kZWYgLVdtaXNzaW5nLW5vcmV0dXJuIC1XbWlzc2luZy1mb3JtYXQtYXR0cmlidXRlCiBv
-dmVycmlkZSBDRkxBR1MgKz0gLUkuIC1JLi4vaW5jbHVkZSAtRF9HTlVfU09VUkNFCiAKKwogYWxs
-OiAkKExJQkEpICQoTElCU08pCiAKICQoTElCQSk6ICAkKE9CSlMpCkluZGV4OiBsaWJzZWxpbnV4
-L3NyYy9NYWtlZmlsZQo9PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09
-PT09PT09PT09PT09PT09PT09PT09PT09Ci0tLSBsaWJzZWxpbnV4L3NyYy9NYWtlZmlsZQkocmV2
-aXNpb24gMjMxOCkKKysrIGxpYnNlbGludXgvc3JjL01ha2VmaWxlCSh3b3JraW5nIGNvcHkpCkBA
-IC0xOCwxMCArMTgsMjcgQEAKIFNXSUdTTz1fc2VsaW51eC5zbwogU1dJR0ZJTEVTPSQoU1dJR1NP
-KSBzZWxpbnV4LnB5IAogTElCU089JChUQVJHRVQpLiQoTElCVkVSU0lPTikKLU9CSlM9ICQocGF0
-c3Vic3QgJS5jLCUubywkKGZpbHRlci1vdXQgJChTV0lHQ09VVCksJCh3aWxkY2FyZCAqLmMpKSkg
-Ci1MT0JKUz0gJChwYXRzdWJzdCAlLmMsJS5sbywkKGZpbHRlci1vdXQgJChTV0lHQ09VVCksJCh3
-aWxkY2FyZCAqLmMpKSkKKworTFNFUE9MPS1sc2Vwb2wKK1NSQ1M9JChmaWx0ZXItb3V0ICQoU1dJ
-R0NPVVQpLCQod2lsZGNhcmQgKi5jKSkKK2lmZXEgKCQoRU1CRURERUQpLDEpCitVTlVTRURfU1JD
-Uz1hdmMuYyBhdmNfaW50ZXJuYWwuYyBhdmNfc2lkdGFiLmMKK1NSQ1M9ICQoZmlsdGVyLW91dCAk
-KFVOVVNFRF9TUkNTKSwgJChmaWx0ZXItb3V0ICQoU1dJR0NPVVQpLCQod2lsZGNhcmQgKi5jKSkp
-CitlbmRpZgoraWZlcSAoJChESVNBQkxFX1NFUE9MKSwxKQorVU5VU0VEX1NSQ1MrPWJvb2xlYW5z
-LmMKK0xTRVBPTD0KK1NSQ1M9ICQoZmlsdGVyLW91dCAkKFVOVVNFRF9TUkNTKSwgJChmaWx0ZXIt
-b3V0ICQoU1dJR0NPVVQpLCQod2lsZGNhcmQgKi5jKSkpCitlbmRpZgorCitPQkpTPSAkKHBhdHN1
-YnN0ICUuYywlLm8sJChTUkNTKSkKK0xPQkpTPSAkKHBhdHN1YnN0ICUuYywlLmxvLCQoU1JDUykp
-CiBDRkxBR1MgPz0gLVdhbGwgLVcgLVd1bmRlZiAtV21pc3Npbmctbm9yZXR1cm4gLVdtaXNzaW5n
-LWZvcm1hdC1hdHRyaWJ1dGUKIG92ZXJyaWRlIENGTEFHUyArPSAtSS4uL2luY2x1ZGUgLUkkKElO
-Q0xVREVESVIpIC1EX0dOVV9TT1VSQ0UgLURfRklMRV9PRkZTRVRfQklUUz02NAoraWZlcSAoJChE
-SVNBQkxFX1NFUE9MKSwxKQorb3ZlcnJpZGUgQ0ZMQUdTICs9IC1ERElTQUJMRV9TRVBPTAorZW5k
-aWYKKwogUkFOTElCPXJhbmxpYgogCiBBUkNIIDo9ICQocGF0c3Vic3QgaSU4NixpMzg2LCQoc2hl
-bGwgdW5hbWUgLW0pKQpAQCAtNDgsNyArNjUsNyBAQAogCSQoQ0MpICQoTERGTEFHUykgLXNoYXJl
-ZCAtbyAkQCAkPCAtTC4gLWxzZWxpbnV4IC1MJChMSUJESVIpIC1XbCwtc29uYW1lLCRACiAKICQo
-TElCU08pOiAkKExPQkpTKQotCSQoQ0MpICQoTERGTEFHUykgLXNoYXJlZCAtbyAkQCAkXiAtbGRs
-IC1sc2Vwb2wgLUwkKExJQkRJUikgLVdsLC1zb25hbWUsJChMSUJTTyksLXosZGVmcywteixyZWxy
-bworCSQoQ0MpICQoTERGTEFHUykgLXNoYXJlZCAtbyAkQCAkXiAtbGRsICQoTFNFUE9MKSAtTCQo
-TElCRElSKSAtV2wsLXNvbmFtZSwkKExJQlNPKSwteixkZWZzLC16LHJlbHJvCiAJbG4gLXNmICRA
-ICQoVEFSR0VUKSAKIAogJS5vOiAgJS5jIHBvbGljeS5oCkluZGV4OiBsaWJzZWxpbnV4L3NyYy9s
-b2FkX3BvbGljeS5jCj09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09
-PT09PT09PT09PT09PT09PT09PT09PT0KLS0tIGxpYnNlbGludXgvc3JjL2xvYWRfcG9saWN5LmMJ
-KHJldmlzaW9uIDIzMTgpCisrKyBsaWJzZWxpbnV4L3NyYy9sb2FkX3BvbGljeS5jCSh3b3JraW5n
-IGNvcHkpCkBAIC00MSw3ICs0MSw1NiBAQAogCiBpbnQgbG9hZF9zZXRsb2NhbGRlZnMgaGlkZGVu
-ID0gMTsKIAotaW50IHNlbGludXhfbWtsb2FkX3BvbGljeShpbnQgcHJlc2VydmVib29scykKKy8q
-IAorICBUaGlzIGZ1bmN0aW9uIGlzIHVzZWQgb25seSBpZiBESVNBQkxFX1NFUE9MIGlzIGRlZmlu
-ZWQuCisgIFNpemUgb2YgbGlic2Vwb2wgaXMgYmlnLCBzbyB5b3UgbWF5IHdhbnQgdG8gZGlzYWJs
-ZSBsaWJzZXBvbCBmb3IgZW1iZWRkZWQgZGV2aWNlcy4KKyAgVGhpcyBmdW5jdGlvbiBpcyBzZWxp
-bnV4X21rbG9hZF9wb2xpY3kgd2l0aCBsaW1pdGF0aW9ucy4KKyAgTGltaXRhdGlvbnM6CisgIC0g
-QmluYXJ5IHBvbGljeSBmaWxlIG5hbWUgaXMgYXNzdW1lZCBhcyAicG9saWN5Ljx2YWx1ZSBpbiAv
-c2VsaW51eC9wb2xpY3l2ZXJzPiIuCisgIC0gUHJlc2VydmUgYm9vbGVhbiBpcyBub3Qgc3VwcG9y
-dGVkLCBzbyBpdCBpcyByZWNvbW1lbmRlZCBub3QgdG8gdXNlIGJvb2xlYW4sCisgICAgaWYgeW91
-IHdhbnQgdG8gZGlzYWJsZSBzZXBvbC4KKyAgLSBzeXN0ZW0udXNlcnMgYW5kIGxvY2FsLnVzZXJz
-IGFyZSBub3Qgc3VwcG9ydGVkLgorKi8KK3N0YXRpYyBpbnQgc2VsaW51eF9ta2xvYWRfcG9saWN5
-X25vc2Vwb2woaW50IHByZXNlcnZlYm9vbHMpIHsKKwlpbnQgcmMgPSAtMTsKKwljaGFyIHBhdGhb
-UEFUSF9NQVhdOworCXNpemVfdCBzaXplOworCXZvaWQgKmRhdGE7CisJaW50IGZkOwkKKwlzdHJ1
-Y3Qgc3RhdCBzYjsKKworCWlmIChwcmVzZXJ2ZWJvb2xzKSB7CisJCXJldHVybiAtMTsKKwl9CisK
-KwlzbnByaW50ZihwYXRoLCBzaXplb2YocGF0aCksICIlcyIsIHNlbGludXhfYmluYXJ5X3BvbGlj
-eV9wYXRoKCkpOworCisJZmQgPSBvcGVuKHBhdGgsIE9fUkRPTkxZKTsKKwlpZiAoZmQgPCAwKQor
-CQlyZXR1cm4gLTE7CisJCisJaWYgKGZzdGF0KGZkLCAmc2IpIDwgMCkKKwkJZ290byBjbG9zZTsK
-KworCXNpemUgPSBzYi5zdF9zaXplOworCWRhdGEgPSBtbWFwKE5VTEwsIHNpemUsIFBST1RfUkVB
-RCwgTUFQX1BSSVZBVEUsIGZkLCAwKTsKKwlpZiAoZGF0YSA9PSBNQVBfRkFJTEVEKQorCQlnb3Rv
-IGNsb3NlOworCisJcmMgPSBzZWN1cml0eV9sb2FkX3BvbGljeShkYXRhLCBzaXplKTsKKworIGNs
-b3NlOgorCWNsb3NlKGZkKTsKKwlyZXR1cm4gcmM7CisJCit9CisKKyNpZm5kZWYgRElTQUJMRV9T
-RVBPTAorLyoKKyAgc2VsaW51eF9ta2xvYWRfcG9saWN5IHdpdGggZnVsbCBmZWF0dXJlcy4KKyAg
-VGhpcyBpcyB1c2VkIHVzdWFsbHkod2hlbiBESVNBQkxFX1NFUE9MIGlzIG5vdCBkZWZpbmVkKS4K
-KyovCitzdGF0aWMgaW50IHNlbGludXhfbWtsb2FkX3BvbGljeV9zZXBvbChpbnQgcHJlc2VydmVi
-b29scykKIHsKIAlpbnQgdmVycyA9IHNlcG9sX3BvbGljeV9rZXJuX3ZlcnNfbWF4KCk7CiAJaW50
-IGtlcm52ZXJzID0gc2VjdXJpdHlfcG9saWN5dmVycygpOwpAQCAtMTU0LDcgKzIwMywxNiBAQAog
-CWNsb3NlKGZkKTsKIAlyZXR1cm4gcmM7CiB9CisjZW5kaWYgLyppZm5kZWYgRElTQUJMRV9TRVBP
-TCovCiAKK2ludCBzZWxpbnV4X21rbG9hZF9wb2xpY3koaW50IHByZXNlcnZlYm9vbHMpIHsKKyNp
-ZmRlZiBESVNBQkxFX1NFUE9MCisJcmV0dXJuIHNlbGludXhfbWtsb2FkX3BvbGljeV9ub3NlcG9s
-KHByZXNlcnZlYm9vbHMpOworI2Vsc2UKKwlyZXR1cm4gc2VsaW51eF9ta2xvYWRfcG9saWN5X3Nl
-cG9sKHByZXNlcnZlYm9vbHMpOworI2VuZGlmCit9CisKIGhpZGRlbl9kZWYoc2VsaW51eF9ta2xv
-YWRfcG9saWN5KQogCiAvKgo=
-
---Multipart=_Mon__9_Apr_2007_13_50_30_+0900_BZt+3Q.pXEQkp3N4--
+OTOH this could be a good time to get rid of the .version convention 
+anyway, there is little reason for it anymore and it causes stale 
+policies to be left around when libsepol is upgraded.
+>      - preserve boolean is not supported
+>          -- so it is not recommended to use boolean for such system
+>      - system.users, local.users are not supported
+>    - -lsepol is removed
+> * libsepol
+>   - It is not required by libselinux, so you do not have to compile this.
+>
+> 3. Size measurement
+> Compiled by gcc(x86)
+>
+> * Before:
+> libselinux.so.1: 115420
+> libsepol.so.1:302085
+> Total: 417505
+>
+> * make EMBEDDED=1
+> libselinux:87024
+> libsepol:201301
+> Total: 288325
+>
+> * make EMBEDDED=1 DISABLE_BOOLEAN=1
+> libselinux: 77187
+> libsepol: 0 
+> Total: 77187 -> Diet about 80%!
+>
+> And, this work is intended to be applied to BusyBox.
+> We will fix load_policy applet for BusyBox to support boolean option.
+>
+>   
 
 --
 This message was distributed to subscribers of the selinux mailing list.
