@@ -1,116 +1,91 @@
-Date: Tue, 10 Apr 2007 10:05:39 +0900
-From: Yuichi Nakamura <ynakam@hitachisoft.jp>
-To: Joshua Brindle <method@manicmethod.com>
-Cc: ynakam@hitachisoft.jp, selinux@tycho.nsa.gov, sds@tycho.nsa.gov,
-        busybox@kaigai.gr.jp
-Subject: Re: [patch] reducing size of libselnux/libsepol for embedded
-Message-Id: <20070410100539.9690319c.ynakam@hitachisoft.jp>
-In-Reply-To: <461A32E0.6020102@manicmethod.com>
-References: <20070409135030.d27a3177.ynakam@hitachisoft.jp>
-	<461A32E0.6020102@manicmethod.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l3ABUUNZ027002
+	for <selinux@tycho.nsa.gov>; Tue, 10 Apr 2007 07:30:31 -0400
+Received: from car-mbus-sw2.mbs.edu (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l3ABURIR012289
+	for <selinux@tycho.nsa.gov>; Tue, 10 Apr 2007 11:30:29 GMT
+Received: from mail.mbs.edu (car-mbus-cn2 [10.2.2.9])
+	by car-mbus-sw2.mbs.edu (Postfix) with ESMTP id 7210215EA04
+	for <selinux@tycho.nsa.gov>; Tue, 10 Apr 2007 21:30:24 +1000 (EST)
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Subject: Would the SELinux  act as a TippingPoint IPS to block the nasty Trojan traffic?
+Date: Tue, 10 Apr 2007 21:30:23 +1000
+Message-ID: <11C75E9645FB0F428EFA37F5BEADFEA10419916A@CAR-MBUS-MX1.mbus.local>
+From: "John Wan" <J.Wan@mbs.edu>
+To: <selinux@tycho.nsa.gov>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 09 Apr 2007 08:34:40 -0400
-Joshua Brindle  wrote:
-> Yuichi Nakamura wrote:
-> > <snip>
-> In the future could you please inline the patch?
-> > 2. About patch
-> > We prepare 2 build options in libselinux/libsepol.
-> > 1) make EMBEDDED=1
-> > This is for people who want to use only monolitic policy with boolean support.
-> > * libselinux
-> >   Files related to userland avc is not compiled
-> > * libsepol
-> >   libselinux uses sepol functions(such as sepol_genusers, sepol_genboolean). 
-> >   If people do not need modular policy, we need only to compile such functions.
-> >
-> > 2) make DISABLE_SEPOL=1
-> > This can be combined with "EMBEDDED=1".
-> > This is for people who uses poor resource devices.
-> > libsepol functions are removed from libselinux 
-> > so libsepol can be removed.
-> > By that, size of libse*  can be reduced more, 
-> > but some features(such as boolean) can not be used.
-> >
-> >   
-> I think the defines should be more descriptive, perhaps NO_AVC, NO_BOOL, 
-> etc.
-> 
-> Is there ever a reason to use DISABLE_SEPOL without EMBEDDED? it seems 
-> like you leave the option open but never describe why it would be used 
-> or what the side effects would be.
-Thanks for comments.
-I agree, I will fix in future patch.
+Hi,
 
-> > More detail:
-> > * libselinux 
-> >   - selinux_mk_loadpolicy is replaced with limited version:
-> >      - policy filename is assumed as /etc/selinux/<policy type>/policy/policy.<version in selinuxfs>
-> >   
-> This won't reduce the code much, is there a reason that you don't try to 
-> search for the policy file at all? Granted this shouldn't be an issue in 
-> embedded environments since you should have control of the kernel and 
-> policy at all times but it could be useful to load a policy of differing 
-> version than the kernel supports.
-It is because I wanted to remove sepol functions.
-In selinux_mkload_policy, to search policy, 
-policy version is searched from sepol_policy_kern_vers_max() to sepol_policy_kern_vers_min().
+I am new to SELinux, I would like to configure the SELinux (on a Linux
+box running RH EL AS4 ) to work as a Proactive IPS device (such as
+TippingPoint Intrusion Prevention Systems--- Proactive Network Security,
+it would cost about $20K, which is way beyond my budget). I wish the
+SELinux would work as an IPS device to protect our staff network from
+our wireless network (the Linux RH EL AS4 box with Chillispots & SELinux
+connects the staff network and the wireless network).  For example, a
+student wireless laptop with a Trojan virus would not be able to go
+through the Linux box (with Chillispots &SELinux) from the wireless
+network to the staff network. This is because of the SELinux would act
+as a TippingPoint IPS to block the nasty Trojan traffic. 
 
-Another way to remove sepol_policy_kern_vers* is, 
-- #include <sepol/policydb/policydb.h> (but no -lsepol)
-- search version from POLICYDB_VERSION_MAX to POLICYDB_VERSION_MIN.
-Do you think it is reasonable ? 
+ My question is: Is this possible? 
 
-> 
-> OTOH this could be a good time to get rid of the .version convention 
-> anyway, there is little reason for it anymore and it causes stale 
-> policies to be left around when libsepol is upgraded.
-> >      - preserve boolean is not supported
-> >          -- so it is not recommended to use boolean for such system
-> >      - system.users, local.users are not supported
-> >    - -lsepol is removed
-> > * libsepol
-> >   - It is not required by libselinux, so you do not have to compile this.
-> >
-> > 3. Size measurement
-> > Compiled by gcc(x86)
-> >
-> > * Before:
-> > libselinux.so.1: 115420
-> > libsepol.so.1:302085
-> > Total: 417505
-> >
-> > * make EMBEDDED=1
-> > libselinux:87024
-> > libsepol:201301
-> > Total: 288325
-> >
-> > * make EMBEDDED=1 DISABLE_BOOLEAN=1
-> > libselinux: 77187
-> > libsepol: 0 
-> > Total: 77187 -> Diet about 80%!
-> >
-> > And, this work is intended to be applied to BusyBox.
-> > We will fix load_policy applet for BusyBox to support boolean option.
-> >
-> >   
-> 
-> --
-> This message was distributed to subscribers of the selinux mailing list.
-> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
-> the words "unsubscribe selinux" without quotes as the message.
+I also realise the SELinux approach is totally different from the most
+security products in the anti-virus and intrusion prevention and
+detection markets. 
+
+Anti-virus and IDS/IPS systems based on signatures are reactive,
+operating only on known threats, which is why zero-day exploits are so
+prized by malware authors.
+
+SELinux, on the other hand, can be compared to a firewall with a default
+"deny any" rule, and a set of "allow" rules to only permit actions that
+are necessary for proper system operation.
+
+My ultimate goal is to use the SELinux policy to block the abnormal
+network traffic (such as a Trojan virus) from one network to another
+network. Or the Linux box would be able to stop the contagious network
+traffic in the wireless network by using the SELinux policy. 
+
+Is that possible? Or am I terribly wrong here?
+
+Any information and help would be much appreciated.
+
+Many thanks in advance,
+
+John Wan
 
 
--- 
-Yuichi Nakamura
-Hitachi Software Engineering Co., Ltd.
-Japan SELinux Users Group(JSELUG)
-SELinux Policy Editor: http://seedit.sourceforge.net/
 
+--
+_______________________________________________________________________________
+
+ 
+
+Notice from Melbourne Business School Ltd 
+
+
+The information contained in this e-mail is confidential, and is intended for
+the named person's use only.  It may contain proprietary or legally privileged
+information. If you have received this email in error, please notify the
+sender and delete it immediately.  You must not, directly or indirectly, use,
+disclose, distribute, print, or copy any part of this message if you are not
+the intended recipient
+
+Internet communications are not secure. You should scan this message and any
+attachments for viruses. Melbourne Business School does not accept any
+liability for loss or damage which may result from receipt of this message or
+any attachments.
+
+______________________________________________________________________________ 
+
+
+
+ 
 
 
 
