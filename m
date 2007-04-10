@@ -1,64 +1,123 @@
-Subject: Re: [patch] reducing size of libselnux/libsepol for embedded
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Joshua Brindle <method@manicmethod.com>
-Cc: Yuichi Nakamura <ynakam@hitachisoft.jp>, selinux@tycho.nsa.gov,
-        busybox@kaigai.gr.jp, Karl MacMillan <kmacmillan@mentalrootkit.com>,
-        Eric Paris <eparis@parisplace.org>
-In-Reply-To: <1176223845.15415.204.camel@moss-spartans.epoch.ncsc.mil>
-References: <20070409135030.d27a3177.ynakam@hitachisoft.jp>
-	 <461A32E0.6020102@manicmethod.com>
-	 <1176129881.15415.95.camel@moss-spartans.epoch.ncsc.mil>
-	 <20070410100921.2c4400a6.ynakam@hitachisoft.jp>
-	 <461BACF8.7000407@manicmethod.com>
-	 <1176223845.15415.204.camel@moss-spartans.epoch.ncsc.mil>
-Content-Type: text/plain
-Date: Tue, 10 Apr 2007 15:31:34 -0400
-Message-Id: <1176233494.15415.213.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l3AJinT7019685
+	for <selinux@tycho.nsa.gov>; Tue, 10 Apr 2007 15:44:49 -0400
+Received: from mx1.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id l3AJiljD023014
+	for <selinux@tycho.nsa.gov>; Tue, 10 Apr 2007 19:44:48 GMT
+Message-ID: <461BE8B7.5040903@redhat.com>
+Date: Tue, 10 Apr 2007 15:42:47 -0400
+From: Daniel J Walsh <dwalsh@redhat.com>
+MIME-Version: 1.0
+To: "Christopher J. PeBenito" <cpebenito@tresys.com>
+CC: SE Linux <selinux@tycho.nsa.gov>
+Subject: Re: Remove unconfined_domain from ldconfig
+References: <46042CF3.2070906@redhat.com> <1176233700.9840.27.camel@sgc.columbia.tresys.com>
+In-Reply-To: <1176233700.9840.27.camel@sgc.columbia.tresys.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2007-04-10 at 12:50 -0400, Stephen Smalley wrote:
-> On Tue, 2007-04-10 at 11:27 -0400, Joshua Brindle wrote:
-> > Looking in the patch the libsepol unused sources has this:
-> > 
-> > +UNUSED_SRCS=link.c nodes.c roles.c iface_record.c module.c 
-> > port_record.c user_record.c interfaces.c  node_record.c
-> >  ports.c users.c
-> > 
-> > Why is link.c unused but not expand.c? Note that this will build a 
-> > libsepol that checkpolicy cannot link against which is fine for an 
-> > embedded environment but it needs to be explicitly stated I think. The 
-> > options are basically going to be to turn off module support, boolean 
-> > support, compiler support. The security server (services.c) can be 
-> > removed also. If compiler and persistent boolean support isn't necessary 
-> > anymore then write.c and read.c won't be necessary either.
-> > 
-> > After all that is removed I feel like libsepol won't actually exist, I'm 
-> > not sure what the use case is right now, what are you trying to get out 
-> > of libsepol and how fine grained can we get on taking out support.
-> 
-> Possibly the patch should selectively filter out objects from LOBJS
-> (i.e. the shared library) while leaving them all in OBJS (i.e. the
-> static library).  Then you could build a smaller shared libsepol.so
-> library for installation on the embedded device that would only be used
-> for e.g. boolean preservation, while still having the full static
-> libsepol.a library on the build host for compiling checkpolicy and other
-> users of the static library.  I think they are just trying to allow for
-> boolean preservation without pulling in all of libsepol.
+Christopher J. PeBenito wrote:
+> On Fri, 2007-03-23 at 15:39 -0400, Daniel J Walsh wrote:
+>   
+>> Removed textrel_shlib_t from all mozilla libraries.
+>>     
+>
+> Merged, except for the last part with managing rpm script temp files,
+> which seems odd.
+>
+>   
+>>
+>>
+>>
+>> differences
+>> between files
+>> attachment
+>> (libraries.patch), "libraries.patch"
+>>
+>> --- nsaserefpolicy/policy/modules/system/libraries.fc   2007-03-01
+>> 10:01:49.000000000 -0500
+>> +++
+>> serefpolicy-2.5.10/policy/modules/system/libraries.fc       2007-03-22
+>> 15:06:59.000000000 -0400
+>> @@ -202,12 +202,6 @@
+>>  /usr/lib(64)?/.*/program/libsoffice\.so
+>> --    gen_context(system_u:object_r:textrel_shlib_t,s0)
+>>  /usr/(.*/)?pcsc/drivers(/.*)?/lib(cm2020|cm4000|SCR24x)\.so(\.[^/]*)*
+>> -- gen_context(system_u:object_r:textrel_shlib_t,s0)
+>>  
+>> -/usr/lib(64)?/firefox.*
+>> \.so            --      gen_context(system_u:object_r:textrel_shlib_t,s0)
+>> -/usr/lib(64)?/mozilla.*
+>> \.so            --      gen_context(system_u:object_r:textrel_shlib_t,s0)
+>> -/usr/lib(64)?/seamonkey.*
+>> \.so          --      gen_context(system_u:object_r:textrel_shlib_t,s0)
+>> -/usr/lib(64)?/sunbird.*
+>> \.so            --      gen_context(system_u:object_r:textrel_shlib_t,s0)
+>> -/usr/lib(64)?/thunderbird.*
+>> \.so                --      gen_context(system_u:object_r:textrel_shlib_t,s0)
+>> -
+>>  # Fedora Extras packages: ladspa, imlib2, ocaml
+>>  /usr/lib(64)?/ladspa/analogue_osc_1416\.so
+>> --  gen_context(system_u:object_r:textrel_shlib_t,s0)
+>>  /usr/lib(64)?/ladspa/bandpass_a_iir_1893\.so
+>> --        gen_context(system_u:object_r:textrel_shlib_t,s0)
+>> --- nsaserefpolicy/policy/modules/system/libraries.te   2007-03-01
+>> 10:01:49.000000000 -0500
+>> +++
+>> serefpolicy-2.5.10/policy/modules/system/libraries.te       2007-03-22
+>> 15:08:18.000000000 -0400
+>> @@ -51,6 +51,11 @@
+>>  init_system_domain(ldconfig_t,ldconfig_exec_t)
+>>  role system_r types ldconfig_t;
+>>  
+>> +type ldconfig_tmp_t;
+>> +files_tmp_file(ldconfig_tmp_t)
+>> +
+>> +allow ldconfig_t self:capability sys_chroot;
+>> +
+>>  allow ldconfig_t ld_so_cache_t:file manage_file_perms;
+>>  files_etc_filetrans(ldconfig_t,ld_so_cache_t,file)
+>>  
+>> @@ -74,6 +79,13 @@
+>>  libs_use_ld_so(ldconfig_t)
+>>  libs_use_shared_libs(ldconfig_t)
+>>  
+>> +manage_dirs_pattern(ldconfig_t,ldconfig_tmp_t,ldconfig_tmp_t)
+>> +manage_files_pattern(ldconfig_t,ldconfig_tmp_t,ldconfig_tmp_t)
+>> +files_tmp_filetrans(ldconfig_t, ldconfig_tmp_t, { file dir })
+>> +files_read_generic_tmp_symlinks(ldconfig_t)
+>> +
+>> +miscfiles_read_localization(ldconfig_t)
+>> +
+>>  logging_send_syslog_msg(ldconfig_t)
+>>  
+>>  userdom_use_all_users_fds(ldconfig_t)
+>> @@ -86,10 +98,16 @@
+>>  
+>>  ifdef(`targeted_policy',`
+>>         allow ldconfig_t lib_t:file read_file_perms;
+>> -       unconfined_domain(ldconfig_t) 
+>> +       term_dontaudit_use_generic_ptys(ldconfig_t)
+>> +       term_dontaudit_use_unallocated_ttys(ldconfig_t)
+>>  ')
+>>  
+>>  optional_policy(`
+>>         # dontaudit access to /usr/lib/apache, normal programs cannot
+>> read these libs anyway
+>>         apache_dontaudit_search_modules(ldconfig_t)
+>>  ')
+>> +
+>> +optional_policy(`
+>> +       rpm_manage_script_tmp_files(ldconfig_t)
+>> +')
+>> +
+>>
+>>     
 
-Another option would be to "fix" the kernel to preserve booleans
-atomically across policy reloads.  Which would eliminate the need for
-sepol_genbools_array altogether at policy load, and solve some other
-problems, e.g. try running load_policy in a loop and then start another
-loop that also runs load_policy, and they'll collide pretty fast (one of
-them will end up trying to read an invalidated /selinux/booleans node
-from the other's reload).
-
--- 
-Stephen Smalley
-National Security Agency
-
+When you install a kernel the postinstall builds a initrd image in tmp 
+and executes ldconfig on it.  If you don't allow this kernel installs 
+blow up.
 
 --
 This message was distributed to subscribers of the selinux mailing list.
