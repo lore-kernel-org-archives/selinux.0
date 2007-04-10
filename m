@@ -1,78 +1,43 @@
 Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l3AD65Pa031035
-	for <selinux@tycho.nsa.gov>; Tue, 10 Apr 2007 09:06:05 -0400
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l3AD67ev031045
+	for <selinux@tycho.nsa.gov>; Tue, 10 Apr 2007 09:06:07 -0400
 Received: from exchange.columbia.tresys.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with SMTP id l3AD5vgv027854
-	for <selinux@tycho.nsa.gov>; Tue, 10 Apr 2007 13:06:04 GMT
-Subject: Re: dontaudit using firstboot fifo_file
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with SMTP id l3AD5vgx027854
+	for <selinux@tycho.nsa.gov>; Tue, 10 Apr 2007 13:06:05 GMT
+Subject: Re: logwatch sends syslog messages and reads netlink_route_socket.
 From: "Christopher J. PeBenito" <cpebenito@tresys.com>
-To: Daniel J Walsh <Dan-Walsh@comcast.net>
+To: Daniel J Walsh <dwalsh@redhat.com>
 Cc: SE Linux <selinux@tycho.nsa.gov>
-In-Reply-To: <46042428.6080007@comcast.net>
-References: <46042428.6080007@comcast.net>
+In-Reply-To: <46043469.3010909@redhat.com>
+References: <46043469.3010909@redhat.com>
 Content-Type: text/plain
-Date: Tue, 10 Apr 2007 09:06:45 -0400
-Message-Id: <1176210405.9840.19.camel@sgc.columbia.tresys.com>
+Date: Tue, 10 Apr 2007 09:06:46 -0400
+Message-Id: <1176210406.9840.20.camel@sgc.columbia.tresys.com>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2007-03-23 at 15:02 -0400, Daniel J Walsh wrote:
-> firstboot starts certain daemons (ntp) which attempt to access its
-> fifo_file
+On Fri, 2007-03-23 at 16:11 -0400, Daniel J Walsh wrote:
+> --- nsaserefpolicy/policy/modules/admin/logwatch.te     2007-02-19 11:32:54.000000000 -0500
+> +++ serefpolicy-2.5.10/policy/modules/admin/logwatch.te 2007-03-22 15:06:58.000000000 -0400
+> @@ -30,6 +30,7 @@
+>  allow logwatch_t self:process signal;
+>  allow logwatch_t self:fifo_file rw_file_perms;
+>  allow logwatch_t self:unix_stream_socket create_stream_socket_perms;
+> +allow logwatch_t self:netlink_route_socket r_netlink_socket_perms; 
+>  
+>  manage_dirs_pattern(logwatch_t,logwatch_cache_t,logwatch_cache_t)
+>  manage_files_pattern(logwatch_t,logwatch_cache_t,logwatch_cache_t)
+> @@ -80,6 +81,7 @@
+>  libs_read_lib_files(logwatch_t)
+>  
+>  logging_read_all_logs(logwatch_t)
+> +logging_send_syslog_msg(logwatch_t) 
+>  
+>  miscfiles_read_localization(logwatch_t)
 
 Merged.
-> 
-> 
-> 
-> 
-> 
-> 
-> differences
-> between files
-> attachment
-> (firstboot.patch), "firstboot.patch"
-> 
-> --- nsaserefpolicy/policy/modules/admin/firstboot.if    2007-01-02
-> 12:57:51.000000000 -0500
-> +++
-> serefpolicy-2.5.10/policy/modules/admin/firstboot.if        2007-03-22
-> 15:06:58.000000000 -0400
-> @@ -124,3 +124,21 @@
->  
->         allow $1 firstboot_t:fifo_file { read write };
->  ')
-> +
-> +########################################
-> +## <summary>
-> +##     dontaudit Read and Write to a firstboot unnamed pipe.
-> +## </summary>
-> +## <param name="domain">
-> +##     <summary>
-> +##     The type of the process performing this action.
-> +##     </summary>
-> +## </param>
-> +#
-> +interface(`firstboot_dontaudit_rw_pipes',`
-> +       gen_require(`
-> +               type firstboot_t;
-> +       ')
-> +
-> +       dontaudit $1 firstboot_t:fifo_file { read write };
-> +')
-> --- nsaserefpolicy/policy/modules/services/ntp.te       2007-03-20
-> 23:38:08.000000000 -0400
-> +++ serefpolicy-2.5.10/policy/modules/services/ntp.te   2007-03-22
-> 15:06:59.000000000 -0400
-> @@ -131,6 +131,7 @@
->  
->  optional_policy(`
->         firstboot_dontaudit_use_fds(ntpd_t)
-> +       firstboot_dontaudit_rw_pipes(ntpd_t)
->  ')
->  
->  optional_policy(`
-> 
+
 -- 
 Chris PeBenito
 Tresys Technology, LLC
