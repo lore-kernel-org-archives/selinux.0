@@ -1,52 +1,105 @@
-Subject: Re: [patch] reducing size of libselnux/libsepol for embedded
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Joshua Brindle <method@manicmethod.com>
-Cc: Yuichi Nakamura <ynakam@hitachisoft.jp>, selinux@tycho.nsa.gov,
-        busybox@kaigai.gr.jp
-In-Reply-To: <461BACF8.7000407@manicmethod.com>
-References: <20070409135030.d27a3177.ynakam@hitachisoft.jp>
-	 <461A32E0.6020102@manicmethod.com>
-	 <1176129881.15415.95.camel@moss-spartans.epoch.ncsc.mil>
-	 <20070410100921.2c4400a6.ynakam@hitachisoft.jp>
-	 <461BACF8.7000407@manicmethod.com>
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l3AHFSQr011550
+	for <selinux@tycho.nsa.gov>; Tue, 10 Apr 2007 13:15:28 -0400
+Received: from exchange.columbia.tresys.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with SMTP id l3AHFPjD022360
+	for <selinux@tycho.nsa.gov>; Tue, 10 Apr 2007 17:15:26 GMT
+Subject: Re: Apache wants to read krb5kdc.conf file
+From: "Christopher J. PeBenito" <cpebenito@tresys.com>
+To: Daniel J Walsh <dwalsh@redhat.com>
+Cc: SE Linux <selinux@tycho.nsa.gov>
+In-Reply-To: <4604310E.70906@redhat.com>
+References: <4604310E.70906@redhat.com>
 Content-Type: text/plain
-Date: Tue, 10 Apr 2007 12:50:45 -0400
-Message-Id: <1176223845.15415.204.camel@moss-spartans.epoch.ncsc.mil>
+Date: Tue, 10 Apr 2007 17:16:07 +0000
+Message-Id: <1176225367.9840.23.camel@sgc.columbia.tresys.com>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2007-04-10 at 11:27 -0400, Joshua Brindle wrote:
-> Looking in the patch the libsepol unused sources has this:
-> 
-> +UNUSED_SRCS=link.c nodes.c roles.c iface_record.c module.c 
-> port_record.c user_record.c interfaces.c  node_record.c
->  ports.c users.c
-> 
-> Why is link.c unused but not expand.c? Note that this will build a 
-> libsepol that checkpolicy cannot link against which is fine for an 
-> embedded environment but it needs to be explicitly stated I think. The 
-> options are basically going to be to turn off module support, boolean 
-> support, compiler support. The security server (services.c) can be 
-> removed also. If compiler and persistent boolean support isn't necessary 
-> anymore then write.c and read.c won't be necessary either.
-> 
-> After all that is removed I feel like libsepol won't actually exist, I'm 
-> not sure what the use case is right now, what are you trying to get out 
-> of libsepol and how fine grained can we get on taking out support.
+On Fri, 2007-03-23 at 15:57 -0400, Daniel J Walsh wrote:
+> kadmind trys to setattr on krb5kdc file.  Just a library checking
+> access.
 
-Possibly the patch should selectively filter out objects from LOBJS
-(i.e. the shared library) while leaving them all in OBJS (i.e. the
-static library).  Then you could build a smaller shared libsepol.so
-library for installation on the embedded device that would only be used
-for e.g. boolean preservation, while still having the full static
-libsepol.a library on the build host for compiling checkpolicy and other
-users of the static library.  I think they are just trying to allow for
-boolean preservation without pulling in all of libsepol.
-
+Merged.
+> 
+> 
+> 
+> 
+> 
+> 
+> differences
+> between files
+> attachment
+> (kerberos.patch),
+> "kerberos.patch"
+> 
+> --- nsaserefpolicy/policy/modules/services/kerberos.if  2007-02-26
+> 14:17:21.000000000 -0500
+> +++
+> serefpolicy-2.5.10/policy/modules/services/kerberos.if      2007-03-22
+> 15:06:59.000000000 -0400
+> @@ -94,6 +94,27 @@
+>  
+>  ########################################
+>  ## <summary>
+> +##     Read the kerberos kdc configuration file (/etc/krb5kdc.conf).
+> +## </summary>
+> +## <param name="domain">
+> +##     <summary>
+> +##     Domain allowed access.
+> +##     </summary>
+> +## </param>
+> +## <rolecap/>
+> +#
+> +interface(`kerberos_read_kdc_config',`
+> +       gen_require(`
+> +               type krb5kdc_conf_t;
+> +       ')
+> +
+> +       files_search_etc($1)
+> +       allow $1 krb5kdc_conf_t:file read_file_perms;
+> +
+> +')
+> +
+> +########################################
+> +## <summary>
+>  ##     Do not audit attempts to write the kerberos
+>  ##     configuration file (/etc/krb5.conf).
+>  ## </summary>
+> --- nsaserefpolicy/policy/modules/services/kerberos.te  2007-03-20
+> 23:38:09.000000000 -0400
+> +++
+> serefpolicy-2.5.10/policy/modules/services/kerberos.te      2007-03-22
+> 15:06:59.000000000 -0400
+> @@ -68,7 +68,7 @@
+>  dontaudit kadmind_t krb5_conf_t:file write;
+>  
+>  read_files_pattern(kadmind_t,krb5kdc_conf_t,krb5kdc_conf_t)
+> -dontaudit kadmind_t krb5kdc_conf_t:file write;
+> +dontaudit kadmind_t krb5kdc_conf_t:file { write setattr };
+>  
+>  allow kadmind_t krb5kdc_principal_t:file { getattr lock read write
+> setattr };
+>  
+> --- nsaserefpolicy/policy/modules/services/apache.te    2007-03-20
+> 23:38:06.000000000 -0400
+> +++
+> serefpolicy-2.5.10/policy/modules/services/apache.te        2007-03-22
+> 15:06:59.000000000 -0400
+> @@ -383,6 +400,7 @@
+>  
+>  optional_policy(`
+>         kerberos_use(httpd_t)
+> +       kerberos_read_kdc_config(httpd_t)
+>  ')
+>  
+>  optional_policy(`
+> 
 -- 
-Stephen Smalley
-National Security Agency
+Chris PeBenito
+Tresys Technology, LLC
+(410) 290-1411 x150
 
 
 --
