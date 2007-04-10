@@ -1,101 +1,87 @@
 Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l3AHFSQr011550
-	for <selinux@tycho.nsa.gov>; Tue, 10 Apr 2007 13:15:28 -0400
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l3AHdTE5012814
+	for <selinux@tycho.nsa.gov>; Tue, 10 Apr 2007 13:39:30 -0400
 Received: from exchange.columbia.tresys.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with SMTP id l3AHFPjD022360
-	for <selinux@tycho.nsa.gov>; Tue, 10 Apr 2007 17:15:26 GMT
-Subject: Re: Apache wants to read krb5kdc.conf file
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with SMTP id l3AHdRjD027642
+	for <selinux@tycho.nsa.gov>; Tue, 10 Apr 2007 17:39:28 GMT
+Subject: Re: Added a patch so third party policy makers can identify ports
+	as port_types
 From: "Christopher J. PeBenito" <cpebenito@tresys.com>
-To: Daniel J Walsh <dwalsh@redhat.com>
+To: Daniel J Walsh <Dan-Walsh@comcast.net>
 Cc: SE Linux <selinux@tycho.nsa.gov>
-In-Reply-To: <4604310E.70906@redhat.com>
-References: <4604310E.70906@redhat.com>
+In-Reply-To: <460425D1.8090002@comcast.net>
+References: <460425D1.8090002@comcast.net>
 Content-Type: text/plain
-Date: Tue, 10 Apr 2007 17:16:07 +0000
-Message-Id: <1176225367.9840.23.camel@sgc.columbia.tresys.com>
+Date: Tue, 10 Apr 2007 13:40:06 -0400
+Message-Id: <1176226807.9840.25.camel@sgc.columbia.tresys.com>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2007-03-23 at 15:57 -0400, Daniel J Walsh wrote:
-> kadmind trys to setattr on krb5kdc file.  Just a library checking
-> access.
-
-Merged.
-> 
-> 
-> 
-> 
-> 
-> 
-> differences
-> between files
-> attachment
-> (kerberos.patch),
-> "kerberos.patch"
-> 
-> --- nsaserefpolicy/policy/modules/services/kerberos.if  2007-02-26
-> 14:17:21.000000000 -0500
-> +++
-> serefpolicy-2.5.10/policy/modules/services/kerberos.if      2007-03-22
-> 15:06:59.000000000 -0400
-> @@ -94,6 +94,27 @@
+On Fri, 2007-03-23 at 15:09 -0400, Daniel J Walsh wrote:
+> --- nsaserefpolicy/policy/modules/kernel/corenetwork.if.in      2007-02-19 11:32:51.000000000 -0500
+> +++ serefpolicy-2.5.10/policy/modules/kernel/corenetwork.if.in  2007-03-22 15:06:58.000000000 -0400
+> @@ -1977,3 +1977,57 @@
 >  
->  ########################################
->  ## <summary>
-> +##     Read the kerberos kdc configuration file (/etc/krb5kdc.conf).
+>         typeattribute $1 corenet_unconfined_type;
+>  ')
+> +
+> +########################################
+> +## <summary>
+> +##     Define type to be a network port type
 > +## </summary>
 > +## <param name="domain">
 > +##     <summary>
-> +##     Domain allowed access.
+> +##     Type to be used for network ports.
 > +##     </summary>
 > +## </param>
-> +## <rolecap/>
 > +#
-> +interface(`kerberos_read_kdc_config',`
+> +interface(`corenet_port_type',`
 > +       gen_require(`
-> +               type krb5kdc_conf_t;
+> +               attribute port_type;
 > +       ')
 > +
-> +       files_search_etc($1)
-> +       allow $1 krb5kdc_conf_t:file read_file_perms;
-> +
+> +       typeattribute $1 port_type;
 > +')
 > +
 > +########################################
 > +## <summary>
->  ##     Do not audit attempts to write the kerberos
->  ##     configuration file (/etc/krb5.conf).
->  ## </summary>
-> --- nsaserefpolicy/policy/modules/services/kerberos.te  2007-03-20
-> 23:38:09.000000000 -0400
-> +++
-> serefpolicy-2.5.10/policy/modules/services/kerberos.te      2007-03-22
-> 15:06:59.000000000 -0400
-> @@ -68,7 +68,7 @@
->  dontaudit kadmind_t krb5_conf_t:file write;
->  
->  read_files_pattern(kadmind_t,krb5kdc_conf_t,krb5kdc_conf_t)
-> -dontaudit kadmind_t krb5kdc_conf_t:file write;
-> +dontaudit kadmind_t krb5kdc_conf_t:file { write setattr };
->  
->  allow kadmind_t krb5kdc_principal_t:file { getattr lock read write
-> setattr };
->  
-> --- nsaserefpolicy/policy/modules/services/apache.te    2007-03-20
-> 23:38:06.000000000 -0400
-> +++
-> serefpolicy-2.5.10/policy/modules/services/apache.te        2007-03-22
-> 15:06:59.000000000 -0400
-> @@ -383,6 +400,7 @@
->  
->  optional_policy(`
->         kerberos_use(httpd_t)
-> +       kerberos_read_kdc_config(httpd_t)
->  ')
->  
->  optional_policy(`
-> 
+> +##     Define network type to be a reserved port (lt 1024) 
+> +## </summary>
+> +## <param name="domain">
+> +##     <summary>
+> +##     Type to be used for network ports.
+> +##     </summary>
+> +## </param>
+> +#
+> +interface(`corenet_reserved_port_type',`
+> +       gen_require(`
+> +               attribute reserved_port_type;
+> +       ')
+> +
+> +       typeattribute $1 reserved_port_type;
+> +')
+> +
+> +########################################
+> +## <summary>
+> +##     Define network type to be a rpc port ( 512 lt PORT lt 1024) 
+> +## </summary>
+> +## <param name="domain">
+> +##     <summary>
+> +##     Type to be used for network ports.
+> +##     </summary>
+> +## </param>
+> +#
+> +interface(`corenet_rpc_port_type',`
+> +       gen_require(`
+> +               attribute rpc_port_type;
+> +       ')
+> +
+> +       typeattribute $1 rpc_port_type;
+> +')
+
+Merged, but dropped _type out of the interface names.
+
 -- 
 Chris PeBenito
 Tresys Technology, LLC
