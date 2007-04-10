@@ -1,29 +1,97 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l39J8viE024517
-	for <selinux@tycho.nsa.gov>; Mon, 9 Apr 2007 15:08:57 -0400
-Received: from an-out-0708.google.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l39J8qgm009672
-	for <selinux@tycho.nsa.gov>; Mon, 9 Apr 2007 19:08:53 GMT
-Received: by an-out-0708.google.com with SMTP id d33so1687721and
-        for <selinux@tycho.nsa.gov>; Mon, 09 Apr 2007 12:08:33 -0700 (PDT)
-Message-ID: <461A8F2E.5070701@gmail.com>
-Date: Mon, 09 Apr 2007 14:08:30 -0500
-From: Ted X Toth <txtoth@gmail.com>
-MIME-Version: 1.0
-To: selinux@tycho.nsa.gov
-Subject: seobject.py setransRecords.get_all method return values 
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Date: Tue, 10 Apr 2007 10:09:21 +0900
+From: Yuichi Nakamura <ynakam@hitachisoft.jp>
+To: Stephen Smalley <sds@tycho.nsa.gov>
+Cc: ynakam@hitachisoft.jp, Joshua Brindle <method@manicmethod.com>,
+        selinux@tycho.nsa.gov, busybox@kaigai.gr.jp
+Subject: Re: [patch] reducing size of libselnux/libsepol for embedded
+Message-Id: <20070410100921.2c4400a6.ynakam@hitachisoft.jp>
+In-Reply-To: <1176129881.15415.95.camel@moss-spartans.epoch.ncsc.mil>
+References: <20070409135030.d27a3177.ynakam@hitachisoft.jp>
+	<461A32E0.6020102@manicmethod.com>
+	<1176129881.15415.95.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-When you have aliases in your setrans.conf 
-seobject.setransRecords().get_all returns a dictionary containing values 
-with the last alias whereas the first alias  is what I'd like (this is 
-also what the os uses). Alternatively it could return an ordered list of 
-all of the aliases as the dictionary values or maybe this would be a 
-different method.
+On Mon, 09 Apr 2007 10:44:41 -0400
+Stephen Smalley  wrote:
+> On Mon, 2007-04-09 at 08:34 -0400, Joshua Brindle wrote:
+> > Yuichi Nakamura wrote:
+> > > <snip>
+> > In the future could you please inline the patch?
+> > > 2. About patch
+> > > We prepare 2 build options in libselinux/libsepol.
+> > > 1) make EMBEDDED=1
+> > > This is for people who want to use only monolitic policy with boolean support.
+> > > * libselinux
+> > >   Files related to userland avc is not compiled
+> > > * libsepol
+> > >   libselinux uses sepol functions(such as sepol_genusers, sepol_genboolean). 
+> > >   If people do not need modular policy, we need only to compile such functions.
+> > >
+> > > 2) make DISABLE_SEPOL=1
+> > > This can be combined with "EMBEDDED=1".
+> > > This is for people who uses poor resource devices.
+> > > libsepol functions are removed from libselinux 
+> > > so libsepol can be removed.
+> > > By that, size of libse*  can be reduced more, 
+> > > but some features(such as boolean) can not be used.
+> > >
+> > >   
+> > I think the defines should be more descriptive, perhaps NO_AVC, NO_BOOL, 
+> > etc.
+> 
+> Agreed.  Look to the newrole Makefile for an example, where they defined
+> AUDIT_LOG_PRIV and NAMESPACE_PRIV flags for enabling/disabling specific
+> features, and then defined a LSPP_PRIV flag that turned them both on.
+> Thus, you can create AVC=y/n, BOOLEAN=y/n flags for individual feature
+> selection, and then define EMBEDDED as turning them all off.
+> 
+> This also avoids confusion, as your DISABLE_SEPOL flag turns off
+> booleans.c presently, but booleans.c doesn't appear to depend on
+> libsepol.
+Thanks for advice, I will fix like above.
+ 
+> Other comments:
+> - I think you can simplify your src/load_policy.c changes, as you only
+> ever need to define one version of the function (we don't need the
+> _nosepol static function around at all when using libsepol).  So it just
+> becomes something like:
+> #ifdef USE_SEPOL
+> int selinux_mkload_policy(int preservebools)
+> {
+> <your logic>
+> }
+> #else
+> int selinux_mkload_policy(int preservebools)
+> {
+> <original logic>
+> }
+> #endif
+> - Your logic for the nosepol case doesn't actually include the policy
+> version in the pathname at all.  An oversight?
+Oops, it was only mistake.
 
-Ted
+> - You don't munmap the policy file on the exit path.
+> - Coding Style for functions puts the opening bracket on its own line.
+> - Avoid #ifdefs within function bodies.  Obsoleted if you take the
+> approach above.
+I see, I will fix them in next version.
+
+> 
+> -- 
+> Stephen Smalley
+> National Security Agency
+> 
+
+
+-- 
+Yuichi Nakamura
+Hitachi Software Engineering Co., Ltd.
+Japan SELinux Users Group(JSELUG)
+SELinux Policy Editor: http://seedit.sourceforge.net/
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
