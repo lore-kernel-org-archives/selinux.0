@@ -1,50 +1,37 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l3ACjwSn030108
-	for <selinux@tycho.nsa.gov>; Tue, 10 Apr 2007 08:45:58 -0400
-Received: from exchange.columbia.tresys.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with SMTP id l3ACjvIR020388
-	for <selinux@tycho.nsa.gov>; Tue, 10 Apr 2007 12:45:58 GMT
-Subject: Re: djbdns patch
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l3AD61I7031004
+	for <selinux@tycho.nsa.gov>; Tue, 10 Apr 2007 09:06:01 -0400
+Received: from exchange.columbia.tresys.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with SMTP id l3AD5vgp027854
+	for <selinux@tycho.nsa.gov>; Tue, 10 Apr 2007 13:05:59 GMT
+Subject: Re: networkmanager now setpgid
 From: "Christopher J. PeBenito" <cpebenito@tresys.com>
-To: Daniel J Walsh <dwalsh@redhat.com>, kaiowas@gentoo.org
+To: Daniel J Walsh <dwalsh@redhat.com>
 Cc: SE Linux <selinux@tycho.nsa.gov>
-In-Reply-To: <460431FA.6050101@redhat.com>
-References: <460431FA.6050101@redhat.com>
+In-Reply-To: <46042F76.4010909@redhat.com>
+References: <46042F76.4010909@redhat.com>
 Content-Type: text/plain
-Date: Tue, 10 Apr 2007 08:46:39 -0400
-Message-Id: <1176209199.9840.13.camel@sgc.columbia.tresys.com>
+Date: Tue, 10 Apr 2007 09:06:40 -0400
+Message-Id: <1176210400.9840.16.camel@sgc.columbia.tresys.com>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2007-03-23 at 16:00 -0400, Daniel J Walsh wrote:
-> Make     ucspitcp_service_domain optional
+On Fri, 2007-03-23 at 15:50 -0400, Daniel J Walsh wrote:
+> --- nsaserefpolicy/policy/modules/services/networkmanager.te    2007-03-20 23:38:16.000000000 -0400
+> +++ serefpolicy-2.5.10/policy/modules/services/networkmanager.te        2007-03-22 15:06:59.000000000 -0400
+> @@ -22,7 +22,7 @@
+>  # and it receives a unexpected signal (rh bug #204161) 
+>  allow NetworkManager_t self:capability { kill setgid setuid sys_nice dac_override net_admin net_raw net_bind_service ipc_lock };
+>  dontaudit NetworkManager_t self:capability { sys_tty_config sys_ptrace };
+> -allow NetworkManager_t self:process { ptrace setcap getsched signal_perms };
+> +allow NetworkManager_t self:process { ptrace setcap setpgid getsched signal_perms };
+>  allow NetworkManager_t self:fifo_file rw_fifo_file_perms;
+>  allow NetworkManager_t self:unix_dgram_socket { sendto create_socket_perms };
+>  allow NetworkManager_t self:unix_stream_socket create_stream_socket_perms;
 
-Perhaps this should be made an init_daemon_domain() too?
+Merged.
 
-> 
-> 
-> 
-> 
-> 
-> differences
-> between files
-> attachment
-> (djbdns.patch),
-> "djbdns.patch"
-> 
-> --- nsaserefpolicy/policy/modules/services/djbdns.te    2007-01-02 12:57:43.000000000 -0500
-> +++ serefpolicy-2.5.10/policy/modules/services/djbdns.te        2007-03-22 15:06:59.000000000 -0400
-> @@ -44,4 +44,7 @@
->  libs_use_ld_so(djbdns_axfrdns_t)
->  libs_use_shared_libs(djbdns_axfrdns_t)
->  
-> -ucspitcp_service_domain(djbdns_axfrdns_t, djbdns_axfrdns_exec_t)
-> +optional_policy(`
-> +       ucspitcp_service_domain(djbdns_axfrdns_t, djbdns_axfrdns_exec_t)
-> +')
-> +
-> 
 -- 
 Chris PeBenito
 Tresys Technology, LLC
