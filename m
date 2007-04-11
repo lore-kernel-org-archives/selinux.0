@@ -1,50 +1,66 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l3BFIbYR027331
-	for <selinux@tycho.nsa.gov>; Wed, 11 Apr 2007 11:18:37 -0400
-Received: from atlrel8.hp.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id l3BFIZp1009353
-	for <selinux@tycho.nsa.gov>; Wed, 11 Apr 2007 15:18:36 GMT
-From: Paul Moore <paul.moore@hp.com>
-To: vyekkirala@TrustedCS.com
-Subject: Re: Would the SELinux  act as a TippingPoint IPS to block the nasty Trojan traffic?
-Date: Wed, 11 Apr 2007 11:17:42 -0400
-Cc: "Joshua Brindle" <method@manicmethod.com>, "John Wan" <J.Wan@mbs.edu>,
-        selinux@tycho.nsa.gov
-References: <000301c77c4b$83b18870$cc0a010a@tcssec.com>
-In-Reply-To: <000301c77c4b$83b18870$cc0a010a@tcssec.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Message-Id: <200704111117.42747.paul.moore@hp.com>
+Date: Thu, 12 Apr 2007 00:29:11 +0900
+From: Yuichi Nakamura <himainu-ynakam@miomio.jp>
+To: Joshua Brindle <method@manicmethod.com>
+Cc: himainu-ynakam@miomio.jp, kmacmillan@mentalrootkit.com, sds@tycho.nsa.gov,
+        ynakam@hitachisoft.jp, selinux@tycho.nsa.gov, busybox@kaigai.gr.jp,
+        eparis@parisplace.org
+Subject: Re: [patch] reducing size of libselnux/libsepol for embedded
+Message-Id: <20070412002911.cebe101a.himainu-ynakam@miomio.jp>
+In-Reply-To: <461C2A33.6060707@manicmethod.com>
+References: <20070409135030.d27a3177.ynakam@hitachisoft.jp>
+	<461A32E0.6020102@manicmethod.com>
+	<1176129881.15415.95.camel@moss-spartans.epoch.ncsc.mil>
+	<20070410100921.2c4400a6.ynakam@hitachisoft.jp>
+	<461BACF8.7000407@manicmethod.com>
+	<1176223845.15415.204.camel@moss-spartans.epoch.ncsc.mil>
+	<1176233494.15415.213.camel@moss-spartans.epoch.ncsc.mil>
+	<1176234465.32661.1.camel@localhost.localdomain>
+	<461C2A33.6060707@manicmethod.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wednesday, April 11 2007 11:10:16 am Venkat Yekkirala wrote:
-> Just FYI-I did propose filtering in the filter table in the past,
-> and this has been on my todo list.
->
-> "Implementation issues aside, lately I have been wondering about doing
-> something in the filter table using something we could call secfilter
-> or so.
->
-> You would still use secmark to label the packets, but they (along with
-> any external labels) could get filtered in the secfilter module. This
-> way we could control what external labels could come thru from what peers.
-> For internal labels it would be more of an assurance thing. This would also
-> automatically take care of forwarding controls."
+On Tue, 10 Apr 2007 20:22:11 -0400
+Joshua Brindle  wrote:
+> For example, even on a managed device there may be no need for the 
+> security server code. One thing that worries me about having so many 
+> configurations of the library is that when bug reports come in it may be 
+> difficult to find out how the library was built. Perhaps we should add 
+> build information into the library that can be printed out with sestatus?
+I see, new function such as libselinux_buildinfo will be prepared in libselinux, 
+and sestatus will use that.
+I will try to add that one in next patch.
 
-This is what I was talking about, although I called it "secpoint" (too many 
-names <g>).  The approach seemed to have promise in that it seemed to be 
-easily understood be everyone and I brought it up again because I didn't want 
-it to get lost; the discussion trailed off after initial idea was proposed 
-and you hadn't posted anyting regarding it since then.
+> >> Another option would be to "fix" the kernel to preserve booleans
+> >> atomically across policy reloads.  Which would eliminate the need for
+> >> sepol_genbools_array altogether at policy load, and solve some other
+> >> problems, e.g. try running load_policy in a loop and then start another
+> >> loop that also runs load_policy, and they'll collide pretty fast (one of
+> >> them will end up trying to read an invalidated /selinux/booleans node
+> >> from the other's reload).
+> > I like this idea. Of course, it would mean that permanent boolean
+> > changes would either require managed policy or a policy recompile, which
+> > is likely acceptable.
+> I like it too. Permanent boolean changes already require managed policy 
+> or a policy recompile in trunk (due to removal of setlocaldefs support) 
+> so there is a good chance that noone will notice :)
+Me too.
 
-Do you have an estimate of when you are planning to work on it?  I want to try 
-and avoid duplicating our efforts.
+I wanted only sepol_genbools_array in libsepol, 
+but it was hard to pick up least set of functions, 
+so many files were remaining.
 
--- 
-paul moore
-linux security @ hp
+> Also, AFAIK libselinux only depends on libsepol for the boolean stuff so 
+> libsepol will no longer be necessary on unmanaged machines with no 
+> policy compiler, this is good.
+Sounds fine.
+I will prepare patch for only libselinux next time.
+#Please wait for updated patch..
+
+Regards,
+Yuichi Nakamura
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
