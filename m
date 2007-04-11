@@ -1,50 +1,66 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l3B0Bpp4031373
-	for <selinux@tycho.nsa.gov>; Tue, 10 Apr 2007 20:11:52 -0400
-Received: from exchange.columbia.tresys.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with SMTP id l3B0BoSl002423
-	for <selinux@tycho.nsa.gov>; Wed, 11 Apr 2007 00:11:50 GMT
-Message-ID: <461C27C0.6030805@manicmethod.com>
-Date: Tue, 10 Apr 2007 20:11:44 -0400
+Message-ID: <461C2A33.6060707@manicmethod.com>
+Date: Tue, 10 Apr 2007 20:22:11 -0400
 From: Joshua Brindle <method@manicmethod.com>
 MIME-Version: 1.0
-To: Paul Moore <paul.moore@hp.com>
-CC: John Wan <J.Wan@mbs.edu>, selinux@tycho.nsa.gov
-Subject: Re: Would the SELinux  act as a TippingPoint IPS to block the nasty
- Trojan traffic?
-References: <11C75E9645FB0F428EFA37F5BEADFEA10419916A@CAR-MBUS-MX1.mbus.local> <200704101118.58830.paul.moore@hp.com>
-In-Reply-To: <200704101118.58830.paul.moore@hp.com>
+To: Karl MacMillan <kmacmillan@mentalrootkit.com>
+CC: Stephen Smalley <sds@tycho.nsa.gov>,
+        Yuichi Nakamura <ynakam@hitachisoft.jp>, selinux@tycho.nsa.gov,
+        busybox@kaigai.gr.jp, Eric Paris <eparis@parisplace.org>
+Subject: Re: [patch] reducing size of libselnux/libsepol for embedded
+References: <20070409135030.d27a3177.ynakam@hitachisoft.jp>	 <461A32E0.6020102@manicmethod.com>	 <1176129881.15415.95.camel@moss-spartans.epoch.ncsc.mil>	 <20070410100921.2c4400a6.ynakam@hitachisoft.jp>	 <461BACF8.7000407@manicmethod.com>	 <1176223845.15415.204.camel@moss-spartans.epoch.ncsc.mil>	 <1176233494.15415.213.camel@moss-spartans.epoch.ncsc.mil> <1176234465.32661.1.camel@localhost.localdomain>
+In-Reply-To: <1176234465.32661.1.camel@localhost.localdomain>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Paul Moore wrote:
-> On Tuesday, April 10 2007 7:30:23 am John Wan wrote:
+Karl MacMillan wrote:
+> On Tue, 2007-04-10 at 15:31 -0400, Stephen Smalley wrote:
 >   
-> There are two things which immediately spring to mind:
+>> On Tue, 2007-04-10 at 12:50 -0400, Stephen Smalley wrote:
+>>     
 >
-> 1. SELinux as a general rule does not do packet inspection like some IDS/IPS 
-> solutions
 >   
-SELinux doesn't need to do the packet inspection. The packet inspection 
-should be done in userspace and the userspace daemon can take the 
-appropriate action. One such action would be flipping some booleans when 
-an attack is detected which would close down some network access. The 
-obvious disadvantage here (aside from the raciness which doesn't seem to 
-phase IPS advocates) is that there is no way of isolating a single 
-session and shutting off that access, once an attack is detected and 
-reacted to all traffic labeled the same as the session being attacked 
-would be killed (eg., if using iptables based controls any attack 
-detected on an http port would kill all http traffic).
+>>> Possibly the patch should selectively filter out objects from LOBJS
+>>> (i.e. the shared library) while leaving them all in OBJS (i.e. the
+>>> static library).  Then you could build a smaller shared libsepol.so
+>>> library for installation on the embedded device that would only be used
+>>> for e.g. boolean preservation, while still having the full static
+>>> libsepol.a library on the build host for compiling checkpolicy and other
+>>> users of the static library.  I think they are just trying to allow for
+>>> boolean preservation without pulling in all of libsepol.
+>>>       
+Even given the below fix I like this idea, since the static lib need not 
+be present on any production device this should solve the embedded size. 
+For example, even on a managed device there may be no need for the 
+security server code. One thing that worries me about having so many 
+configurations of the library is that when bug reports come in it may be 
+difficult to find out how the library was built. Perhaps we should add 
+build information into the library that can be printed out with sestatus?
 
-OTOH it might be possible to use userspace queuing of packets in 
-conjunction with secmark to label bad packets something else but that is 
-barely different from just using the DROP target. Ofcourse this all 
-depends on something local receiving the traffic due to lack of 
-forwarding controls...
+>> Another option would be to "fix" the kernel to preserve booleans
+>> atomically across policy reloads.  Which would eliminate the need for
+>> sepol_genbools_array altogether at policy load, and solve some other
+>> problems, e.g. try running load_policy in a loop and then start another
+>> loop that also runs load_policy, and they'll collide pretty fast (one of
+>> them will end up trying to read an invalidated /selinux/booleans node
+>> from the other's reload).
+>>
+>>     
+>
+> I like this idea. Of course, it would mean that permanent boolean
+> changes would either require managed policy or a policy recompile, which
+> is likely acceptable.
+>
+>   
 
-I'd love to see your suggestions on solving the forwarding problem, I 
-suppose those are forthcoming? :)
+I like it too. Permanent boolean changes already require managed policy 
+or a policy recompile in trunk (due to removal of setlocaldefs support) 
+so there is a good chance that noone will notice :)
+
+Also, AFAIK libselinux only depends on libsepol for the boolean stuff so 
+libsepol will no longer be necessary on unmanaged machines with no 
+policy compiler, this is good.
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
