@@ -1,208 +1,45 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l3BIpuXG008755
-	for <selinux@tycho.nsa.gov>; Wed, 11 Apr 2007 14:51:56 -0400
-Received: from exchange.columbia.tresys.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with SMTP id l3BIpsGQ024044
-	for <selinux@tycho.nsa.gov>; Wed, 11 Apr 2007 18:51:55 GMT
-Subject: Re: Zabbix policy
-From: "Christopher J. PeBenito" <cpebenito@tresys.com>
-To: Daniel J Walsh <dwalsh@redhat.com>
-Cc: SE Linux <selinux@tycho.nsa.gov>
-In-Reply-To: <46042A0D.5050309@redhat.com>
-References: <46042A0D.5050309@redhat.com>
+Subject: Re: X server won't start using MLS policy
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Mark Webb <elihusmails@gmail.com>
+Cc: selinux@tycho.nsa.gov
+In-Reply-To: <9f066ee90704111136w5e98b87bxf2463754621cf6fb@mail.gmail.com>
+References: <9f066ee90704111136w5e98b87bxf2463754621cf6fb@mail.gmail.com>
 Content-Type: text/plain
-Date: Wed, 11 Apr 2007 14:52:28 -0400
-Message-Id: <1176317548.9840.53.camel@sgc>
+Date: Wed, 11 Apr 2007 14:49:51 -0400
+Message-Id: <1176317391.3986.44.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2007-03-23 at 15:27 -0400, Daniel J Walsh wrote:
-> New pocicy for zabbix.
+On Wed, 2007-04-11 at 14:36 -0400, Mark Webb wrote:
+> I have followed the instructions at
+> http://fedoraproject.org/wiki/SELinux/FedoraMLSHowto on how to install
+> the MLS policy.  I have it working under Fedora Core 6, but when I
+> boot to runlevel 5, I get an error saying that the X server cannot be
+> started. 
+> 
+> Does anyone know how to fix this problem?
 
-Merged.  Added a postgreqsql stream connect, as their webpage says it
-can store its data in postgres, in addition to mysql.
-> 
-> 
-> 
-> 
-> 
-> 
-> differences
-> between files
-> attachment
-> (zabbix.patch),
-> "zabbix.patch"
-> 
-> --- nsaserefpolicy/policy/modules/services/zabbix.fc    1969-12-31 19:00:00.000000000 -0500
-> +++ serefpolicy-2.5.10/policy/modules/services/zabbix.fc        2007-03-22 15:06:59.000000000 -0400
-> @@ -0,0 +1,4 @@
-> +
-> +/usr/bin/zabbix_server         --      gen_context(system_u:object_r:zabbix_exec_t,s0)
-> +/var/run/zabbix(/.*)?                  gen_context(system_u:object_r:zabbix_var_run_t,s0)
-> +/var/log/zabbix(/.*)?                  gen_context(system_u:object_r:zabbix_log_t,s0)
-> --- nsaserefpolicy/policy/modules/services/zabbix.if    1969-12-31 19:00:00.000000000 -0500
-> +++ serefpolicy-2.5.10/policy/modules/services/zabbix.if        2007-03-22 15:06:59.000000000 -0400
-> @@ -0,0 +1,87 @@
-> +
-> +## <summary>policy for zabbix</summary>
-> +
-> +########################################
-> +## <summary>
-> +##     Execute a domain transition to run zabbix.
-> +## </summary>
-> +## <param name="domain">
-> +## <summary>
-> +##     Domain allowed to transition.
-> +## </summary>
-> +## </param>
-> +#
-> +interface(`zabbix_domtrans',`
-> +       gen_require(`
-> +               type zabbix_t, zabbix_exec_t;
-> +       ')
-> +
-> +       domain_auto_trans($1,zabbix_exec_t,zabbix_t)
-> +
-> +       allow zabbix_t $1:fd use;
-> +       allow zabbix_t $1:fifo_file rw_file_perms;
-> +       allow zabbix_t $1:process sigchld;
-> +')
-> +
-> +########################################
-> +## <summary>
-> +##     Read zabbix PID files.
-> +## </summary>
-> +## <param name="domain">
-> +##     <summary>
-> +##     Domain allowed access.
-> +##     </summary>
-> +## </param>
-> +#
-> +interface(`zabbix_read_pid_files',`
-> +       gen_require(`
-> +               type zabbix_var_run_t;
-> +       ')
-> +
-> +       files_search_pids($1)
-> +       allow $1 zabbix_var_run_t:file r_file_perms;
-> +')
-> +
-> +
-> +########################################
-> +## <summary>
-> +##     Allow the specified domain to read zabbix's log files.
-> +## </summary>
-> +## <param name="domain">
-> +##     <summary>
-> +##     Domain allowed access.
-> +##     </summary>
-> +## </param>
-> +## <rolecap/>
-> +#
-> +interface(`zabbix_read_log',`
-> +       gen_require(`
-> +               type zabbix_log_t;
-> +       ')
-> +
-> +       logging_search_logs($1)
-> +       allow $1 zabbix_log_t:dir r_dir_perms;
-> +       allow $1 zabbix_log_t:file { read getattr lock };
-> +')
-> +
-> +########################################
-> +## <summary>
-> +##     Allow the specified domain to append
-> +##     zabbix log files.
-> +## </summary>
-> +## <param name="domain">
-> +##     <summary>
-> +##     Domain allowed to transition.
-> +##     </summary>
-> +## </param>
-> +#
-> +interface(`zabbix_append_log',`
-> +       gen_require(`
-> +               type var_log_t, zabbix_log_t;
-> +       ')
-> +
-> +       logging_search_logs($1)
-> +       allow $1 zabbix_log_t:dir r_dir_perms;
-> +       allow $1 zabbix_log_t:file { getattr append };
-> +')
-> +
-> --- nsaserefpolicy/policy/modules/services/zabbix.te    1969-12-31 19:00:00.000000000 -0500
-> +++ serefpolicy-2.5.10/policy/modules/services/zabbix.te        2007-03-22 15:06:59.000000000 -0400
-> @@ -0,0 +1,64 @@
-> +policy_module(zabbix,1.0.0)
-> +
-> +########################################
-> +#
-> +# Declarations
-> +#
-> +
-> +type zabbix_t;
-> +type zabbix_exec_t;
-> +domain_type(zabbix_t)
-> +init_daemon_domain(zabbix_t, zabbix_exec_t)
-> +
-> +# pid files
-> +type zabbix_var_run_t;
-> +files_pid_file(zabbix_var_run_t)
-> +
-> +# log files
-> +type zabbix_log_t;
-> +logging_log_file(zabbix_log_t)
-> +
-> +########################################
-> +#
-> +# zabbix local policy
-> +#
-> +# Check in /usr/share/selinux/devel/include for macros to use instead of allow rules.
-> +
-> +# Init script handling
-> +
-> +
-> +domain_use_interactive_fds(zabbix_t)
-> +
-> +allow zabbix_t self:capability { setuid setgid };
-> +
-> +## internal communication is often done using fifo and unix sockets.
-> +allow zabbix_t self:fifo_file rw_file_perms;
-> +allow zabbix_t self:unix_stream_socket create_stream_socket_perms;
-> +
-> +# Some common macros (you might be able to remove some)
-> +files_read_etc_files(zabbix_t)
-> +
-> +libs_use_ld_so(zabbix_t)
-> +libs_use_shared_libs(zabbix_t)
-> +
-> +miscfiles_read_localization(zabbix_t)
-> +
-> +ifdef(`targeted_policy',`
-> +       term_dontaudit_use_unallocated_ttys(zabbix_t)
-> +       term_dontaudit_use_generic_ptys(zabbix_t)
-> +')
-> +
-> +
-> +# pid file
-> +allow zabbix_t zabbix_var_run_t:file manage_file_perms;
-> +allow zabbix_t zabbix_var_run_t:dir rw_dir_perms;
-> +files_pid_filetrans(zabbix_t,zabbix_var_run_t, file)
-> +
-> +# log files
-> +allow zabbix_t zabbix_log_t:file manage_file_perms;
-> +allow zabbix_t zabbix_log_t:dir { rw_dir_perms setattr };
-> +logging_log_filetrans(zabbix_t,zabbix_log_t,{ file dir })
-> +
-> +optional_policy(`
-> +       mysql_stream_connect(zabbix_t)
-> +')
-> 
+The MLS work has focused on servers to date since we need XACE/XSELinux
+fully mainstreamed before we can provide proper support on the desktop.
+So it isn't surprising that the MLS policy doesn't work with X at
+present.
+
+Do you get avc denials in your /var/log/audit/audit.log
+or /var/log/messages?
+
+If not, try installing enableaudit.pp and retrying to collect audit
+messages.
+
+I thiink there was also a post to fedora-selinux-list circa 28 Dec 2006
+by a user with a copy of changes he found necessary to the strict policy
+to get X working fully, so that might be helpful.  Not sure how many of
+those were legitimate or how many found their way into the upstream
+policy.
+
 -- 
-Chris PeBenito
-Tresys Technology, LLC
-(410) 290-1411 x150
+Stephen Smalley
+National Security Agency
 
 
 --
