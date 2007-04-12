@@ -1,95 +1,84 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l3CJ2Pjk006684
-	for <selinux@tycho.nsa.gov>; Thu, 12 Apr 2007 15:02:25 -0400
-Received: from exchange.columbia.tresys.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with SMTP id l3CJ2Oh9026961
-	for <selinux@tycho.nsa.gov>; Thu, 12 Apr 2007 19:02:24 GMT
-Subject: [PATCH]: add boolmap argument to expand_module_avrules()
-From: "Christopher J. PeBenito" <cpebenito@tresys.com>
-To: SELinux Mail List <selinux@tycho.nsa.gov>
-Content-Type: text/plain
-Date: Thu, 12 Apr 2007 19:03:17 +0000
-Message-Id: <1176404597.9840.65.camel@sgc>
-Mime-Version: 1.0
+Message-ID: <461E91D0.8010107@redhat.com>
+Date: Thu, 12 Apr 2007 16:08:48 -0400
+From: Daniel J Walsh <dwalsh@redhat.com>
+MIME-Version: 1.0
+To: Stephen Smalley <sds@tycho.nsa.gov>, SE Linux <selinux@tycho.nsa.gov>
+Subject: Additional swig interfaces for selinux
+Content-Type: multipart/mixed;
+ boundary="------------050001060400050406020201"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-A recent change to libsepol's expander introduced the boolmap structure
-so that boolean values may be remapped properly.  In the special
-function expand_module_avrules(), which at the moment only SETools uses,
-this boolmap structure is never initialized.  As a result, the expander
-will segfault when remapping conditional expressions.  The following
-patch adds a paramater to expand_module_avrules() that allows users to
-specify that boolmap.  This function is never exported out of the
-library, so doesn't result in an ABI change to the library.
+This is a multi-part message in MIME format.
+--------------050001060400050406020201
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
+Also removed access checks since they don't currently work.
 
- include/sepol/policydb/expand.h |   20 +++++++++++---------
- src/expand.c                    |    4 +++-
- 2 files changed, 14 insertions(+), 10 deletions(-)
+--------------050001060400050406020201
+Content-Type: text/plain;
+ name="diff"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="diff"
 
-Index: libsepol/include/sepol/policydb/expand.h
-===================================================================
---- libsepol/include/sepol/policydb/expand.h	(revision 224)
-+++ libsepol/include/sepol/policydb/expand.h	(working copy)
-@@ -30,17 +30,19 @@
- #include <sepol/policydb/conditional.h>
+diff --exclude-from=exclude -N -u -r nsalibselinux/src/selinuxswig.i libselinux-2.0.12/src/selinuxswig.i
+--- nsalibselinux/src/selinuxswig.i	2007-04-12 16:02:48.000000000 -0400
++++ libselinux-2.0.12/src/selinuxswig.i	2007-04-12 12:39:51.000000000 -0400
+@@ -44,6 +44,8 @@
  
- /*
-- * Expand only the avrules for a module. It is valid for this function to
-- * expand base into itself (i.e.  base == out); the typemap for this special
-- * case should map type[i] to i+1.  This function optionally expands neverallow
-- * rules. If neverallow rules are expanded, there is no need to copy them and
-- * doing so could cause duplicate entries when base == out. If the neverallow
-- * rules are not expanded, they are just copied to the destination policy so
-- * that assertion checking can be performed after expand. No assertion or
-- * hierarchy checking is performed by this function.
-+ * Expand only the avrules for a module. It is valid for this function
-+ * to expand base into itself (i.e.  base == out); the typemap for
-+ * this special case should map type[i] to i+1.  Likewise the boolmap
-+ * should map bool[i] to i + 1.  This function optionally expands
-+ * neverallow rules. If neverallow rules are expanded, there is no
-+ * need to copy them and doing so could cause duplicate entries when
-+ * base == out.  If the neverallow rules are not expanded, they are
-+ * just copied to the destination policy so that assertion checking
-+ * can be performed after expand.  No assertion or hierarchy checking
-+ * is performed by this function.
-  */
- extern int expand_module_avrules(sepol_handle_t * handle, policydb_t * base,
--				 policydb_t * out, uint32_t * typemap,
-+				 policydb_t * out, uint32_t * typemap, uint32_t * boolmap,
- 				 int verbose, int expand_neverallow);
- /*
-  * Expand all parts of a module. Neverallow rules are not expanded (only
-Index: libsepol/src/expand.c
-===================================================================
---- libsepol/src/expand.c	(revision 224)
-+++ libsepol/src/expand.c	(working copy)
-@@ -2198,7 +2198,8 @@
-  * or expand into the same policy for analysis purposes.
-  */
- int expand_module_avrules(sepol_handle_t * handle, policydb_t * base,
--			  policydb_t * out, uint32_t * typemap, int verbose,
-+			  policydb_t * out, uint32_t * typemap,
-+			  uint32_t * boolmap, int verbose,
- 			  int expand_neverallow)
- {
- 	expand_state_t state;
-@@ -2208,6 +2209,7 @@
- 	state.base = base;
- 	state.out = out;
- 	state.typemap = typemap;
-+	state.boolmap = boolmap;
- 	state.handle = handle;
- 	state.verbose = verbose;
- 	state.expand_neverallow = expand_neverallow;
+ extern int is_selinux_enabled(void);
+ extern int is_selinux_mls_enabled(void);
++extern void freecon(security_context_t con);
++extern void freeconary(security_context_t * con);
+ extern int getcon(security_context_t *con);
+ extern int setcon(security_context_t con);
+ extern int getpidcon(int pid, security_context_t *con);
+@@ -90,6 +92,11 @@
+ 			mode_t mode,
+ 			security_context_t *con);
+ 
++extern int matchpathcon_init_prefix(const char *path,
++				    const char *prefix);
++extern void matchpathcon_fini(void);
++
++
+ extern int matchmediacon(const char *media,
+ 		 security_context_t *con);
+ 
+@@ -106,6 +113,7 @@
+ extern const char *selinux_homedir_context_path(void);
+ extern const char *selinux_media_context_path(void);
+ extern const char *selinux_contexts_path(void);
++extern const char *selinux_securetty_types_path(void);
+ extern const char *selinux_booleans_path(void);
+ extern const char *selinux_customizable_types_path(void);
+ extern const char *selinux_users_path(void);
+@@ -113,8 +121,11 @@
+ extern const char *selinux_translations_path(void);
+ extern const char *selinux_netfilter_context_path(void);
+ extern const char *selinux_path(void);
+-extern int selinux_check_passwd_access(access_vector_t requested);
+-extern int checkPasswdAccess(access_vector_t requested);
++#extern int selinux_check_passwd_access(access_vector_t requested);
++#extern int checkPasswdAccess(access_vector_t requested);
++
++extern int selinux_check_securetty_context(security_context_t tty_context);
++void set_selinuxmnt(char *mnt);
+ 
+ // This tells SWIG to treat char ** as a special case
+ %typemap(python,in) char ** {
+@@ -164,3 +175,7 @@
+ }
+ extern int selinux_getpolicytype(char **enforce);
+ extern int getseuserbyname(const char *linuxuser, char **seuser, char **level);
++
++int selinux_file_context_cmp(const security_context_t a, const security_context_t b);
++int selinux_file_context_verify(const char *path, mode_t mode);
++int selinux_lsetfilecon_default(const char *path);
 
-
--- 
-Chris PeBenito
-Tresys Technology, LLC
-(410) 290-1411 x150
-
+--------------050001060400050406020201--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
