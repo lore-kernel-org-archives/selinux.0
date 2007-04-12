@@ -1,71 +1,22 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l3CHrFkF002235
-	for <selinux@tycho.nsa.gov>; Thu, 12 Apr 2007 13:53:15 -0400
-Received: from tcsfw4.tcs-sec.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l3CHrCh9014999
-	for <selinux@tycho.nsa.gov>; Thu, 12 Apr 2007 17:53:13 GMT
-Reply-To: <vyekkirala@TrustedCS.com>
-From: "Venkat Yekkirala" <vyekkirala@TrustedCS.com>
-To: "Venkat Yekkirala" <vyekkirala@tcsfw4.tcs-sec.com>,
-        "'Paul Moore'" <paul.moore@hp.com>,
-        "'Joshua Brindle'" <method@manicmethod.com>
-Cc: "'John Wan'" <J.Wan@mbs.edu>, <selinux@tycho.nsa.gov>, <jmorris@namei.org>
-Subject: RE: Would the SELinux  act as a TippingPoint IPS to block the nasty Trojan traffic?
-Date: Thu, 12 Apr 2007 12:52:44 -0500
-Message-ID: <000201c77d2b$60b07030$cc0a010a@tcssec.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-In-Reply-To: 
+Subject: Re: libselinux patch with corrected call to get_all
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Daniel J Walsh <dwalsh@redhat.com>
+Cc: SE Linux <selinux@tycho.nsa.gov>
+In-Reply-To: <461D2A8D.5050902@redhat.com>
+References: <461D2A8D.5050902@redhat.com>
+Content-Type: text/plain
+Date: Thu, 12 Apr 2007 14:30:56 -0400
+Message-Id: <1176402656.3986.173.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-A minor correction below.
+Thanks, merged into libselinux 2.0.13.
 
-> -----Original Message-----
-> From: Venkat Yekkirala [mailto:vyekkirala@trustedcs.com]On Behalf Of
-> Venkat Yekkirala
-> Sent: Thursday, April 12, 2007 12:51 PM
-> To: 'Paul Moore'; Joshua Brindle
-> Cc: Venkat Yekkirala; John Wan; selinux@tycho.nsa.gov;
-> 'jmorris@namei.org'
-> Subject: RE: Would the SELinux act as a TippingPoint IPS to block the
-> nasty Trojan traffic?
-> 
-> 
-> > > How does this work into the idea we had during the summit 
-> > about SELinux
-> > > having its own table? The table would presumably be a 
-> > mangle table for
-> > > labeling but could it also be a filter table? I'm not clear 
-> > on what is
-> > > possible in netfilter.
-> > 
-> > I'm not a netfilter expert myself, although I'm learning more 
-> > and more about 
-> > it each day.  I don't see how this couldn't fit into the proposed 
-> > LSM/SELinux/security table in fact I think I mentioned 
-> > something like this at 
-> > one point (although, maybe it was just to myself).
-> 
-> To share some preliminary thoughts on this, we might be able to have
-> the security table have 2 built-in chains, say, secmark and secfilter,
-> and have these chains traversed at the appropriate points as in the
-> following example for the INPUT case:
-> 
-> ...
-> mangle PREROUTE
+-- 
+Stephen Smalley
+National Security Agency
 
-s/PREROUTE/INPUT/
-
-> security SECMARK
-> filter INPUT
-> security SECFILTER
-> ...
-> 
-> It's also conceivable that we might, in fact, have two tables (secmark
-> and secfilter), all things considered.
-> 
 
 --
 This message was distributed to subscribers of the selinux mailing list.
