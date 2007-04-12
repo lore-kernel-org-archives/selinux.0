@@ -1,55 +1,94 @@
-Subject: Re: Fixes for checkmodule man page.
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Daniel J Walsh <dwalsh@redhat.com>
-Cc: SE Linux <selinux@tycho.nsa.gov>
-In-Reply-To: <461D2A3D.5040908@redhat.com>
-References: <461D2A3D.5040908@redhat.com>
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l3CJ2Pjk006684
+	for <selinux@tycho.nsa.gov>; Thu, 12 Apr 2007 15:02:25 -0400
+Received: from exchange.columbia.tresys.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with SMTP id l3CJ2Oh9026961
+	for <selinux@tycho.nsa.gov>; Thu, 12 Apr 2007 19:02:24 GMT
+Subject: [PATCH]: add boolmap argument to expand_module_avrules()
+From: "Christopher J. PeBenito" <cpebenito@tresys.com>
+To: SELinux Mail List <selinux@tycho.nsa.gov>
 Content-Type: text/plain
-Date: Thu, 12 Apr 2007 14:34:37 -0400
-Message-Id: <1176402877.3986.175.camel@moss-spartans.epoch.ncsc.mil>
+Date: Thu, 12 Apr 2007 19:03:17 +0000
+Message-Id: <1176404597.9840.65.camel@sgc>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2007-04-11 at 14:34 -0400, Daniel J Walsh wrote:
-> plain text document attachment (diff)
-> --- checkpolicy-2.0.1/checkmodule.8~	2007-02-20 09:20:51.000000000 -0500
-> +++ checkpolicy-2.0.1/checkmodule.8	2007-04-11 14:32:40.000000000 -0400
-> @@ -3,7 +3,7 @@
->  checkmodule \- SELinux policy module compiler
->  .SH SYNOPSIS
->  .B checkmodule
-> -.I "[-b] [-d] [-m] [-M] [-o output_file] [input_file]"
-> +.I "[-b] [-m] [-M] [-V] [-o output_file] [input_file]"
->  .SH "DESCRIPTION"
->  This manual page describes the
->  .BR checkmodule
-> @@ -25,16 +25,15 @@
->  Read an existing binary policy module file rather than a source policy
->  module file.  This option is a development/debugging aid.
->  .TP
-> -.B \-d
-> -Enter debug mode after loading the policy.  This option is a 
-> -development/debugging aid.
-> -.TP
->  .B \-m
->  Generate a non-base policy module.
->  .TP
->  .B \-M
->  Enable the MLS/MCS support when checking and compiling the policy module.
->  .TP
-> +.B \-V
-> + Show policy versions created by this program
-> +.TP
->  .B \-o filename
->  Write a binary policy module file to the specified filename.
->  Otherwise, checkmodule will only check the syntax of the module source file
+A recent change to libsepol's expander introduced the boolmap structure
+so that boolean values may be remapped properly.  In the special
+function expand_module_avrules(), which at the moment only SETools uses,
+this boolmap structure is never initialized.  As a result, the expander
+will segfault when remapping conditional expressions.  The following
+patch adds a paramater to expand_module_avrules() that allows users to
+specify that boolmap.  This function is never exported out of the
+library, so doesn't result in an ABI change to the library.
 
-Thanks, merged.
+
+ include/sepol/policydb/expand.h |   20 +++++++++++---------
+ src/expand.c                    |    4 +++-
+ 2 files changed, 14 insertions(+), 10 deletions(-)
+
+Index: libsepol/include/sepol/policydb/expand.h
+===================================================================
+--- libsepol/include/sepol/policydb/expand.h	(revision 224)
++++ libsepol/include/sepol/policydb/expand.h	(working copy)
+@@ -30,17 +30,19 @@
+ #include <sepol/policydb/conditional.h>
+ 
+ /*
+- * Expand only the avrules for a module. It is valid for this function to
+- * expand base into itself (i.e.  base == out); the typemap for this special
+- * case should map type[i] to i+1.  This function optionally expands neverallow
+- * rules. If neverallow rules are expanded, there is no need to copy them and
+- * doing so could cause duplicate entries when base == out. If the neverallow
+- * rules are not expanded, they are just copied to the destination policy so
+- * that assertion checking can be performed after expand. No assertion or
+- * hierarchy checking is performed by this function.
++ * Expand only the avrules for a module. It is valid for this function
++ * to expand base into itself (i.e.  base == out); the typemap for
++ * this special case should map type[i] to i+1.  Likewise the boolmap
++ * should map bool[i] to i + 1.  This function optionally expands
++ * neverallow rules. If neverallow rules are expanded, there is no
++ * need to copy them and doing so could cause duplicate entries when
++ * base == out.  If the neverallow rules are not expanded, they are
++ * just copied to the destination policy so that assertion checking
++ * can be performed after expand.  No assertion or hierarchy checking
++ * is performed by this function.
+  */
+ extern int expand_module_avrules(sepol_handle_t * handle, policydb_t * base,
+-				 policydb_t * out, uint32_t * typemap,
++				 policydb_t * out, uint32_t * typemap, uint32_t * boolmap,
+ 				 int verbose, int expand_neverallow);
+ /*
+  * Expand all parts of a module. Neverallow rules are not expanded (only
+Index: libsepol/src/expand.c
+===================================================================
+--- libsepol/src/expand.c	(revision 224)
++++ libsepol/src/expand.c	(working copy)
+@@ -2198,7 +2198,8 @@
+  * or expand into the same policy for analysis purposes.
+  */
+ int expand_module_avrules(sepol_handle_t * handle, policydb_t * base,
+-			  policydb_t * out, uint32_t * typemap, int verbose,
++			  policydb_t * out, uint32_t * typemap,
++			  uint32_t * boolmap, int verbose,
+ 			  int expand_neverallow)
+ {
+ 	expand_state_t state;
+@@ -2208,6 +2209,7 @@
+ 	state.base = base;
+ 	state.out = out;
+ 	state.typemap = typemap;
++	state.boolmap = boolmap;
+ 	state.handle = handle;
+ 	state.verbose = verbose;
+ 	state.expand_neverallow = expand_neverallow;
+
 
 -- 
-Stephen Smalley
-National Security Agency
+Chris PeBenito
+Tresys Technology, LLC
+(410) 290-1411 x150
 
 
 --
