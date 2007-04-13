@@ -1,189 +1,93 @@
-Message-ID: <461F7D36.2070602@redhat.com>
-Date: Fri, 13 Apr 2007 08:53:10 -0400
-From: Daniel J Walsh <dwalsh@redhat.com>
-MIME-Version: 1.0
-To: Stephen Smalley <sds@tycho.nsa.gov>, SE Linux <selinux@tycho.nsa.gov>
-Subject: [Fwd: policycoreutils patches]
-Content-Type: multipart/mixed;
- boundary="------------030303040608080502070809"
+Subject: Re: [PATCH]: add boolmap argument to expand_module_avrules()
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: "Christopher J. PeBenito" <cpebenito@tresys.com>
+Cc: SELinux Mail List <selinux@tycho.nsa.gov>
+In-Reply-To: <1176404597.9840.65.camel@sgc>
+References: <1176404597.9840.65.camel@sgc>
+Content-Type: text/plain
+Date: Fri, 13 Apr 2007 10:11:59 -0400
+Message-Id: <1176473519.3986.221.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This is a multi-part message in MIME format.
---------------030303040608080502070809
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+On Thu, 2007-04-12 at 19:03 +0000, Christopher J. PeBenito wrote:
+> A recent change to libsepol's expander introduced the boolmap structure
+> so that boolean values may be remapped properly.  In the special
+> function expand_module_avrules(), which at the moment only SETools uses,
+> this boolmap structure is never initialized.  As a result, the expander
+> will segfault when remapping conditional expressions.  The following
+> patch adds a paramater to expand_module_avrules() that allows users to
+> specify that boolmap.  This function is never exported out of the
+> library, so doesn't result in an ABI change to the library.
+> 
+> 
+>  include/sepol/policydb/expand.h |   20 +++++++++++---------
+>  src/expand.c                    |    4 +++-
+>  2 files changed, 14 insertions(+), 10 deletions(-)
+> 
+> Index: libsepol/include/sepol/policydb/expand.h
+> ===================================================================
+> --- libsepol/include/sepol/policydb/expand.h	(revision 224)
+> +++ libsepol/include/sepol/policydb/expand.h	(working copy)
+> @@ -30,17 +30,19 @@
+>  #include <sepol/policydb/conditional.h>
+>  
+>  /*
+> - * Expand only the avrules for a module. It is valid for this function to
+> - * expand base into itself (i.e.  base == out); the typemap for this special
+> - * case should map type[i] to i+1.  This function optionally expands neverallow
+> - * rules. If neverallow rules are expanded, there is no need to copy them and
+> - * doing so could cause duplicate entries when base == out. If the neverallow
+> - * rules are not expanded, they are just copied to the destination policy so
+> - * that assertion checking can be performed after expand. No assertion or
+> - * hierarchy checking is performed by this function.
+> + * Expand only the avrules for a module. It is valid for this function
+> + * to expand base into itself (i.e.  base == out); the typemap for
+> + * this special case should map type[i] to i+1.  Likewise the boolmap
+> + * should map bool[i] to i + 1.  This function optionally expands
+> + * neverallow rules. If neverallow rules are expanded, there is no
+> + * need to copy them and doing so could cause duplicate entries when
+> + * base == out.  If the neverallow rules are not expanded, they are
+> + * just copied to the destination policy so that assertion checking
+> + * can be performed after expand.  No assertion or hierarchy checking
+> + * is performed by this function.
+>   */
+>  extern int expand_module_avrules(sepol_handle_t * handle, policydb_t * base,
+> -				 policydb_t * out, uint32_t * typemap,
+> +				 policydb_t * out, uint32_t * typemap, uint32_t * boolmap,
+>  				 int verbose, int expand_neverallow);
+>  /*
+>   * Expand all parts of a module. Neverallow rules are not expanded (only
+> Index: libsepol/src/expand.c
+> ===================================================================
+> --- libsepol/src/expand.c	(revision 224)
+> +++ libsepol/src/expand.c	(working copy)
+> @@ -2198,7 +2198,8 @@
+>   * or expand into the same policy for analysis purposes.
+>   */
+>  int expand_module_avrules(sepol_handle_t * handle, policydb_t * base,
+> -			  policydb_t * out, uint32_t * typemap, int verbose,
+> +			  policydb_t * out, uint32_t * typemap,
+> +			  uint32_t * boolmap, int verbose,
+>  			  int expand_neverallow)
+>  {
+>  	expand_state_t state;
+> @@ -2208,6 +2209,7 @@
+>  	state.base = base;
+>  	state.out = out;
+>  	state.typemap = typemap;
+> +	state.boolmap = boolmap;
+>  	state.handle = handle;
+>  	state.verbose = verbose;
+>  	state.expand_neverallow = expand_neverallow;
 
-Moved audit2allow to sbin to match audit2why.
+Thanks, applied on trunk and stable branch.
 
-Fix chcat to handle case where there are no categories.
+-- 
+Stephen Smalley
+National Security Agency
 
-Change fixfiles to run setfiles in quiet mode
-
-Change genhomedircon to verify context before setting homedir file
-context. This can happen if you have different user types, where one
-type has a homedir file context while another one does not.
-
-restorecond init script does not return status properly
-
-Fix output of restorecon.c errors to show correct error message.
-
-
-
-
---------------030303040608080502070809
-Content-Type: text/x-patch;
- name="audit2allow.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="audit2allow.patch"
-
---- nsapolicycoreutils/audit2allow/Makefile	2007-02-07 12:11:49.000000000 -0500
-+++ policycoreutils-2.0.7/audit2allow/Makefile	2007-03-23 09:03:56.000000000 -0400
-@@ -1,6 +1,6 @@
- # Installation directories.
- PREFIX ?= ${DESTDIR}/usr
--BINDIR ?= $(PREFIX)/bin
-+BINDIR ?= $(PREFIX)/sbin
- LIBDIR ?= $(PREFIX)/lib
- MANDIR ?= $(PREFIX)/share/man
- LOCALEDIR ?= /usr/share/locale
-
-
---------------030303040608080502070809
-Content-Type: text/x-patch;
- name="chcat.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="chcat.patch"
-
---- nsapolicycoreutils/scripts/chcat	2007-02-22 08:53:22.000000000 -0500
-+++ policycoreutils-2.0.7/scripts/chcat	2007-03-23 09:03:56.000000000 -0400
-@@ -74,9 +74,11 @@
-             if i not in cats:
-                 cats.append(i)
- 
--        new_serange = "%s-%s:%s" % (serange[0], top[0], string.join(cats, ","))
--        if new_serange[-1:] == ":":
--            new_serange = new_serange[:-1]
-+            
-+        if len(cats) > 0:
-+            new_serange = "%s-%s:%s" % (serange[0], top[0], ",".join(cats))
-+        else
-+            new_serange = "%s-%s" % (serange[0], top[0])
-             
-         if add_ind:
-             cmd = "semanage login -a -r %s -s %s %s" % (new_serange, user[0], u)
-@@ -151,10 +153,11 @@
-             if i in cats:
-                 cats.remove(i)
- 
--        new_serange = "%s-%s:%s" % (serange[0], top[0], string.join(cats, ","))
--        if new_serange[-1:] == ":":
--            new_serange = new_serange[:-1]
--        
-+        if len(cats) > 0:
-+            new_serange = "%s-%s:%s" % (serange[0], top[0], ",".join(cats))
-+        else
-+            new_serange = "%s-%s" % (serange[0], top[0])
-+            
-         if add_ind:
-             cmd = "semanage login -a -r %s -s %s %s" % (new_serange, user[0], u)
-         else:
-
-
---------------030303040608080502070809
-Content-Type: text/x-patch;
- name="fixfiles.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="fixfiles.patch"
-
---- nsapolicycoreutils/scripts/fixfiles	2007-01-11 08:56:30.000000000 -0500
-+++ policycoreutils-2.0.7/scripts/fixfiles	2007-03-23 14:24:15.000000000 -0400
-@@ -138,7 +138,7 @@
-     exit $?
- fi
- LogReadOnly
--${SETFILES} ${OUTFILES} ${SYSLOGFLAG} ${FORCEFLAG} $* ${FC} ${FILESYSTEMSRW} 2>&1 >> $LOGFILE
-+${SETFILES} -q ${OUTFILES} ${SYSLOGFLAG} ${FORCEFLAG} $* ${FC} ${FILESYSTEMSRW} 2>&1 >> $LOGFILE
- exit $?
- }
- 
-
-
---------------030303040608080502070809
-Content-Type: text/x-patch;
- name="genhomedircon.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="genhomedircon.patch"
-
---- nsapolicycoreutils/scripts/genhomedircon	2006-11-28 09:24:33.000000000 -0500
-+++ policycoreutils-2.0.7/scripts/genhomedircon	2007-04-09 15:44:47.000000000 -0400
-@@ -26,6 +26,7 @@
- 
- import sys, os, pwd, string, getopt, re
- from semanage import *;
-+import selinux
- import gettext
- gettext.install('policycoreutils')
- 
-@@ -249,7 +250,10 @@
- 				i = i.replace("HOME_DIR", home)
- 				i = i.replace("ROLE", prefix)
- 				i = i.replace("system_u", seuser)
--				ret = ret+i
-+				# Validate if the generated context exists.  Some user types may not exist
-+				scon = i.split()[-1]
-+				if selinux.security_check_context(scon) == 0:
-+					ret = ret+i
- 		fd.close()
- 		return ret
-
-
---------------030303040608080502070809
-Content-Type: text/x-patch;
- name="restorecon.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="restorecon.patch"
-
---- nsapolicycoreutils/restorecon/restorecon.c	2006-11-16 17:14:26.000000000 -0500
-+++ policycoreutils-2.0.7/restorecon/restorecon.c	2007-03-23 09:03:56.000000000 -0400
-@@ -336,8 +336,8 @@
- 				if (!file_exist && errno == ENOENT)
- 					return;
- 				fprintf(stderr,
--					"%s:  error while labeling files under %s\n",
--					progname, buf);
-+					"%s: %s: %s\n",
-+					progname, buf, strerror(errno));
- 				errors++;
- 			}
- 		}
-
-
---------------030303040608080502070809
-Content-Type: text/x-patch;
- name="restorecond.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="restorecond.patch"
-
---- nsapolicycoreutils/restorecond/restorecond.init	2007-03-01 17:23:40.000000000 -0500
-+++ policycoreutils-2.0.7/restorecond/restorecond.init	2007-03-23 09:03:56.000000000 -0400
-@@ -73,6 +73,7 @@
-         ;;
-   status)
- 	status restorecond
-+	RETVAL=$?
- 	;;
-   restart|reload)
- 	restart
-
-
---------------030303040608080502070809--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
