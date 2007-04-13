@@ -1,84 +1,189 @@
-Message-ID: <461E91D0.8010107@redhat.com>
-Date: Thu, 12 Apr 2007 16:08:48 -0400
+Message-ID: <461F7D36.2070602@redhat.com>
+Date: Fri, 13 Apr 2007 08:53:10 -0400
 From: Daniel J Walsh <dwalsh@redhat.com>
 MIME-Version: 1.0
 To: Stephen Smalley <sds@tycho.nsa.gov>, SE Linux <selinux@tycho.nsa.gov>
-Subject: Additional swig interfaces for selinux
+Subject: [Fwd: policycoreutils patches]
 Content-Type: multipart/mixed;
- boundary="------------050001060400050406020201"
+ boundary="------------030303040608080502070809"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 This is a multi-part message in MIME format.
---------------050001060400050406020201
+--------------030303040608080502070809
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 
-Also removed access checks since they don't currently work.
+Moved audit2allow to sbin to match audit2why.
 
---------------050001060400050406020201
-Content-Type: text/plain;
- name="diff"
+Fix chcat to handle case where there are no categories.
+
+Change fixfiles to run setfiles in quiet mode
+
+Change genhomedircon to verify context before setting homedir file
+context. This can happen if you have different user types, where one
+type has a homedir file context while another one does not.
+
+restorecond init script does not return status properly
+
+Fix output of restorecon.c errors to show correct error message.
+
+
+
+
+--------------030303040608080502070809
+Content-Type: text/x-patch;
+ name="audit2allow.patch"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline;
- filename="diff"
+ filename="audit2allow.patch"
 
-diff --exclude-from=exclude -N -u -r nsalibselinux/src/selinuxswig.i libselinux-2.0.12/src/selinuxswig.i
---- nsalibselinux/src/selinuxswig.i	2007-04-12 16:02:48.000000000 -0400
-+++ libselinux-2.0.12/src/selinuxswig.i	2007-04-12 12:39:51.000000000 -0400
-@@ -44,6 +44,8 @@
+--- nsapolicycoreutils/audit2allow/Makefile	2007-02-07 12:11:49.000000000 -0500
++++ policycoreutils-2.0.7/audit2allow/Makefile	2007-03-23 09:03:56.000000000 -0400
+@@ -1,6 +1,6 @@
+ # Installation directories.
+ PREFIX ?= ${DESTDIR}/usr
+-BINDIR ?= $(PREFIX)/bin
++BINDIR ?= $(PREFIX)/sbin
+ LIBDIR ?= $(PREFIX)/lib
+ MANDIR ?= $(PREFIX)/share/man
+ LOCALEDIR ?= /usr/share/locale
+
+
+--------------030303040608080502070809
+Content-Type: text/x-patch;
+ name="chcat.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="chcat.patch"
+
+--- nsapolicycoreutils/scripts/chcat	2007-02-22 08:53:22.000000000 -0500
++++ policycoreutils-2.0.7/scripts/chcat	2007-03-23 09:03:56.000000000 -0400
+@@ -74,9 +74,11 @@
+             if i not in cats:
+                 cats.append(i)
  
- extern int is_selinux_enabled(void);
- extern int is_selinux_mls_enabled(void);
-+extern void freecon(security_context_t con);
-+extern void freeconary(security_context_t * con);
- extern int getcon(security_context_t *con);
- extern int setcon(security_context_t con);
- extern int getpidcon(int pid, security_context_t *con);
-@@ -90,6 +92,11 @@
- 			mode_t mode,
- 			security_context_t *con);
+-        new_serange = "%s-%s:%s" % (serange[0], top[0], string.join(cats, ","))
+-        if new_serange[-1:] == ":":
+-            new_serange = new_serange[:-1]
++            
++        if len(cats) > 0:
++            new_serange = "%s-%s:%s" % (serange[0], top[0], ",".join(cats))
++        else
++            new_serange = "%s-%s" % (serange[0], top[0])
+             
+         if add_ind:
+             cmd = "semanage login -a -r %s -s %s %s" % (new_serange, user[0], u)
+@@ -151,10 +153,11 @@
+             if i in cats:
+                 cats.remove(i)
  
-+extern int matchpathcon_init_prefix(const char *path,
-+				    const char *prefix);
-+extern void matchpathcon_fini(void);
-+
-+
- extern int matchmediacon(const char *media,
- 		 security_context_t *con);
- 
-@@ -106,6 +113,7 @@
- extern const char *selinux_homedir_context_path(void);
- extern const char *selinux_media_context_path(void);
- extern const char *selinux_contexts_path(void);
-+extern const char *selinux_securetty_types_path(void);
- extern const char *selinux_booleans_path(void);
- extern const char *selinux_customizable_types_path(void);
- extern const char *selinux_users_path(void);
-@@ -113,8 +121,11 @@
- extern const char *selinux_translations_path(void);
- extern const char *selinux_netfilter_context_path(void);
- extern const char *selinux_path(void);
--extern int selinux_check_passwd_access(access_vector_t requested);
--extern int checkPasswdAccess(access_vector_t requested);
-+#extern int selinux_check_passwd_access(access_vector_t requested);
-+#extern int checkPasswdAccess(access_vector_t requested);
-+
-+extern int selinux_check_securetty_context(security_context_t tty_context);
-+void set_selinuxmnt(char *mnt);
- 
- // This tells SWIG to treat char ** as a special case
- %typemap(python,in) char ** {
-@@ -164,3 +175,7 @@
+-        new_serange = "%s-%s:%s" % (serange[0], top[0], string.join(cats, ","))
+-        if new_serange[-1:] == ":":
+-            new_serange = new_serange[:-1]
+-        
++        if len(cats) > 0:
++            new_serange = "%s-%s:%s" % (serange[0], top[0], ",".join(cats))
++        else
++            new_serange = "%s-%s" % (serange[0], top[0])
++            
+         if add_ind:
+             cmd = "semanage login -a -r %s -s %s %s" % (new_serange, user[0], u)
+         else:
+
+
+--------------030303040608080502070809
+Content-Type: text/x-patch;
+ name="fixfiles.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="fixfiles.patch"
+
+--- nsapolicycoreutils/scripts/fixfiles	2007-01-11 08:56:30.000000000 -0500
++++ policycoreutils-2.0.7/scripts/fixfiles	2007-03-23 14:24:15.000000000 -0400
+@@ -138,7 +138,7 @@
+     exit $?
+ fi
+ LogReadOnly
+-${SETFILES} ${OUTFILES} ${SYSLOGFLAG} ${FORCEFLAG} $* ${FC} ${FILESYSTEMSRW} 2>&1 >> $LOGFILE
++${SETFILES} -q ${OUTFILES} ${SYSLOGFLAG} ${FORCEFLAG} $* ${FC} ${FILESYSTEMSRW} 2>&1 >> $LOGFILE
+ exit $?
  }
- extern int selinux_getpolicytype(char **enforce);
- extern int getseuserbyname(const char *linuxuser, char **seuser, char **level);
-+
-+int selinux_file_context_cmp(const security_context_t a, const security_context_t b);
-+int selinux_file_context_verify(const char *path, mode_t mode);
-+int selinux_lsetfilecon_default(const char *path);
+ 
 
---------------050001060400050406020201--
+
+--------------030303040608080502070809
+Content-Type: text/x-patch;
+ name="genhomedircon.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="genhomedircon.patch"
+
+--- nsapolicycoreutils/scripts/genhomedircon	2006-11-28 09:24:33.000000000 -0500
++++ policycoreutils-2.0.7/scripts/genhomedircon	2007-04-09 15:44:47.000000000 -0400
+@@ -26,6 +26,7 @@
+ 
+ import sys, os, pwd, string, getopt, re
+ from semanage import *;
++import selinux
+ import gettext
+ gettext.install('policycoreutils')
+ 
+@@ -249,7 +250,10 @@
+ 				i = i.replace("HOME_DIR", home)
+ 				i = i.replace("ROLE", prefix)
+ 				i = i.replace("system_u", seuser)
+-				ret = ret+i
++				# Validate if the generated context exists.  Some user types may not exist
++				scon = i.split()[-1]
++				if selinux.security_check_context(scon) == 0:
++					ret = ret+i
+ 		fd.close()
+ 		return ret
+
+
+--------------030303040608080502070809
+Content-Type: text/x-patch;
+ name="restorecon.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="restorecon.patch"
+
+--- nsapolicycoreutils/restorecon/restorecon.c	2006-11-16 17:14:26.000000000 -0500
++++ policycoreutils-2.0.7/restorecon/restorecon.c	2007-03-23 09:03:56.000000000 -0400
+@@ -336,8 +336,8 @@
+ 				if (!file_exist && errno == ENOENT)
+ 					return;
+ 				fprintf(stderr,
+-					"%s:  error while labeling files under %s\n",
+-					progname, buf);
++					"%s: %s: %s\n",
++					progname, buf, strerror(errno));
+ 				errors++;
+ 			}
+ 		}
+
+
+--------------030303040608080502070809
+Content-Type: text/x-patch;
+ name="restorecond.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="restorecond.patch"
+
+--- nsapolicycoreutils/restorecond/restorecond.init	2007-03-01 17:23:40.000000000 -0500
++++ policycoreutils-2.0.7/restorecond/restorecond.init	2007-03-23 09:03:56.000000000 -0400
+@@ -73,6 +73,7 @@
+         ;;
+   status)
+ 	status restorecond
++	RETVAL=$?
+ 	;;
+   restart|reload)
+ 	restart
+
+
+--------------030303040608080502070809--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
