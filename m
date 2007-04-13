@@ -1,31 +1,26 @@
-Subject: Re: Porting to solaris, *bsd?
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Dean Anderson <dean@av8.com>
-Cc: SE Linux <selinux@tycho.nsa.gov>
-In-Reply-To: <Pine.LNX.4.44.0704131253320.16569-100000@citation2.av8.net>
-References: <Pine.LNX.4.44.0704131253320.16569-100000@citation2.av8.net>
+Subject: Re: [Fwd: policycoreutils patches]
+From: Karl MacMillan <kmacmillan@mentalrootkit.com>
+To: Daniel J Walsh <dwalsh@redhat.com>
+Cc: Stephen Smalley <sds@tycho.nsa.gov>, SE Linux <selinux@tycho.nsa.gov>
+In-Reply-To: <461F7D36.2070602@redhat.com>
+References: <461F7D36.2070602@redhat.com>
 Content-Type: text/plain
-Date: Fri, 13 Apr 2007 13:09:29 -0400
-Message-Id: <1176484169.3986.273.camel@moss-spartans.epoch.ncsc.mil>
+Date: Fri, 13 Apr 2007 14:33:01 -0400
+Message-Id: <1176489181.8230.38.camel@localhost.localdomain>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2007-04-13 at 12:55 -0400, Dean Anderson wrote:
-> Is there any group porting selinux to solaris or *bsd?
+On Fri, 2007-04-13 at 08:53 -0400, Daniel J Walsh wrote:
+> Moved audit2allow to sbin to match audit2why.
+> 
 
-SE-BSD and SE-Darwin have been previously announced and discussed on the
-list.  There is no SE-Solaris effort to my knowledge; Sun has their
-"trusted extensions" for Solaris 10, but that is a very different
-approach.
+I think I would rather move audit2why to bin. Both tools can run and are
+useful without any privilege.
 
-http://www.sedarwin.org/
-http://www.trustedbsd.org/sebsd.html
-http://www.osnews.com/story.php/17584/SELinux-and-Solaris-Trusted-Extensions
+Karl
 
--- 
-Stephen Smalley
-National Security Agency
+
 
 
 --
