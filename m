@@ -1,77 +1,234 @@
-Subject: Re: [Fwd: policycoreutils patches]
-From: Karl MacMillan <kmacmillan@mentalrootkit.com>
-To: Stephen Smalley <sds@tycho.nsa.gov>
-Cc: Daniel J Walsh <dwalsh@redhat.com>, SE Linux <selinux@tycho.nsa.gov>,
-        Joshua Brindle <method@manicmethod.com>,
-        John Dennis <jdennis@redhat.com>
-In-Reply-To: <1176489804.3986.291.camel@moss-spartans.epoch.ncsc.mil>
-References: <461F7D36.2070602@redhat.com>
-	 <1176474662.3986.239.camel@moss-spartans.epoch.ncsc.mil>
-	 <461F9611.9050204@redhat.com>
-	 <1176475763.3986.248.camel@moss-spartans.epoch.ncsc.mil>
-	 <1176477448.8230.21.camel@localhost.localdomain>
-	 <1176489804.3986.291.camel@moss-spartans.epoch.ncsc.mil>
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l3GFs5bt010142
+	for <selinux@tycho.nsa.gov>; Mon, 16 Apr 2007 11:54:06 -0400
+Received: from exchange.columbia.tresys.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with SMTP id l3GFs4cJ011932
+	for <selinux@tycho.nsa.gov>; Mon, 16 Apr 2007 15:54:05 GMT
+Subject: Re: fusermount policy
+From: "Christopher J. PeBenito" <cpebenito@tresys.com>
+To: Daniel J Walsh <dwalsh@redhat.com>
+Cc: SE Linux <selinux@tycho.nsa.gov>
+In-Reply-To: <46042BC6.8060705@redhat.com>
+References: <46042BC6.8060705@redhat.com>
 Content-Type: text/plain
-Date: Fri, 13 Apr 2007 14:50:37 -0400
-Message-Id: <1176490237.8230.48.camel@localhost.localdomain>
+Date: Mon, 16 Apr 2007 11:55:16 -0400
+Message-Id: <1176738916.6844.6.camel@sgc>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2007-04-13 at 14:43 -0400, Stephen Smalley wrote:
-> On Fri, 2007-04-13 at 11:17 -0400, Karl MacMillan wrote:
-> > On Fri, 2007-04-13 at 10:49 -0400, Stephen Smalley wrote:
-> > > On Fri, 2007-04-13 at 10:39 -0400, Daniel J Walsh wrote:
-> > > > Stephen Smalley wrote:
-> > > > > On Fri, 2007-04-13 at 08:53 -0400, Daniel J Walsh wrote:
-> > > > >   
-> > > > >> Moved audit2allow to sbin to match audit2why.
-> > > > >>     
-> > > > >
-> > > > > (one patch per message would be nicer)
-> > > > >
-> > > > > I actually don't like having so many of the programs in /sbin
-> > > > > or /usr/sbin, as they aren't in normal user paths and make it more
-> > > > > painful to find the commands.  And moving them can cause user confusion
-> > > > > and/or script breakage.  
-> > > > >
-> > > > >   
-> > > > Then for consistency we should move audit2why to the same directory as 
-> > > > audit2allow.
-> > > 
-> > > My real preference would be that the audit2why functionality would be
-> > > replicated (and improved) in sepolgen, and audit2allow would directly
-> > > use that functionality to identify the cause of the denial as part of
-> > > generating policy.  Then audit2allow could directly generate refpolicy
-> > > interface calls to e.g. add an attribute to a domain so that it passes
-> > > some constraint, or generate a role allow rule.  auditwhy in its current
-> > > form is really only to help you; it isn't very useful for end users
-> > > (doesn't provide enough information).
-> > > 
-> > 
-> > I would like to see that as well. We have also discussed moving the
-> > setroubleshoot plugins into sepolgen to gain broader review and improved
-> > maintenance. The current audit2why only provides part of the picture (as
-> > you say), we really want to start telling users when they should relabel
-> > a file, flib a boolean, or take some action _other_ than allowing the
-> > access via allow rules of refpolicy interfaces.
+On Fri, 2007-03-23 at 15:34 -0400, Daniel J Walsh wrote:
+> This is also used to add support for ntfs-3g from previous patch.
+
+Do these two (mount_nfs and fusermount) really need to be separated?
+They're both for FUSE filesystems, and the rules aren't really different
+since they're both local filesystems.  It would make more sense if one
+was a network fs, like how we have smbmount in its own domain.
+
 > 
-> Yes, although I'm not sure the heuristic/plugin model is the right one.
-> Given the right support in libsepol, audit2allow/sepolgen should be able
-> to search the conditional avtab for conditional rules that would have
-> allowed the access and discover the right boolean directly from policy.
-> For file labeling, it might be able to probe what types are accessible
-> to the domain in question, and try to propose one.
 > 
-
-That's certainly true and I plan to explore those approaches. There are
-times, however, when the heuristics might give better explanations. So I
-think that we should plan to work on this functionality and import
-setroubleshoot plugins as needed. I'll work with John (the
-setroubleshoot author) to move over to using sepolgen at the right time.
-
-Karl
-
+> 
+> 
+> 
+> 
+> differences
+> between files
+> attachment
+> (fusermount.patch), "fusermount.patch"
+> 
+> --- nsaserefpolicy/policy/modules/system/fusermount.fc  1969-12-31
+> 19:00:00.000000000 -0500
+> +++
+> serefpolicy-2.5.10/policy/modules/system/fusermount.fc      2007-03-22
+> 15:06:59.000000000 -0400
+> @@ -0,0 +1,6 @@
+> +# fusermount executable will have:
+> +# label: system_u:object_r:fusermount_exec_t
+> +# MLS sensitivity: s0
+> +# MCS categories: <none>
+> +
+> +/usr/bin/fusermount            --      gen_context(system_u:object_r:fusermount_exec_t,s0)
+> --- nsaserefpolicy/policy/modules/system/fusermount.if  1969-12-31
+> 19:00:00.000000000 -0500
+> +++
+> serefpolicy-2.5.10/policy/modules/system/fusermount.if      2007-03-22
+> 15:06:59.000000000 -0400
+> @@ -0,0 +1,41 @@
+> +## <summary>policy for fusermount</summary>
+> +
+> +########################################
+> +## <summary>
+> +##     Execute a domain transition to run fusermount.
+> +## </summary>
+> +## <param name="domain">
+> +## <summary>
+> +##     Domain allowed to transition.
+> +## </summary>
+> +## </param>
+> +#
+> +interface(`fusermount_domtrans',`
+> +       gen_require(`
+> +               type fusermount_t, fusermount_exec_t;
+> +       ')
+> +
+> +       domain_auto_trans($1,fusermount_exec_t,fusermount_t)
+> +
+> +       allow fusermount_t $1:fd use;
+> +       allow fusermount_t $1:fifo_file rw_file_perms;
+> +       allow fusermount_t $1:process sigchld;
+> +')
+> +
+> +########################################
+> +## <summary>
+> +##     Inherit and use file descriptors from fusermount.
+> +## </summary>
+> +## <param name="domain">
+> +##     <summary>
+> +##     Domain allowed access.
+> +##     </summary>
+> +## </param>
+> +#
+> +interface(`fusermount_use_fds',`
+> +       gen_require(`
+> +               type fusermount_t;
+> +       ')
+> +
+> +       allow $1 fusermount_t:fd use;
+> +')
+> \ No newline at end of file
+> --- nsaserefpolicy/policy/modules/system/fusermount.te  1969-12-31
+> 19:00:00.000000000 -0500
+> +++
+> serefpolicy-2.5.10/policy/modules/system/fusermount.te      2007-03-22
+> 15:06:59.000000000 -0400
+> @@ -0,0 +1,44 @@
+> +policy_module(fusermount,1.0.0)
+> +
+> +########################################
+> +#
+> +# Declarations
+> +#
+> +
+> +type fusermount_t;
+> +type fusermount_exec_t;
+> +application_domain(fusermount_t, fusermount_exec_t)
+> +role system_r types fusermount_t;
+> +
+> +########################################
+> +#
+> +# fusermount local policy
+> +#
+> +allow fusermount_t self:capability sys_admin;
+> +allow fusermount_t self:fifo_file { read write };
+> +allow fusermount_t self:unix_stream_socket
+> create_stream_socket_perms;
+> +
+> +files_read_etc_files(fusermount_t)
+> +
+> +libs_use_ld_so(fusermount_t)
+> +libs_use_shared_libs(fusermount_t)
+> +
+> +miscfiles_read_localization(fusermount_t)
+> +
+> +files_manage_etc_runtime_files(fusermount_t)
+> +files_etc_filetrans_etc_runtime(fusermount_t,file)
+> +files_mounton_all_mountpoints(fusermount_t)
+> +
+> +fs_mount_fusefs(fusermount_t)
+> +
+> +storage_raw_read_fixed_disk(fusermount_t)
+> +storage_raw_write_fixed_disk(fusermount_t)
+> +
+> +optional_policy(`
+> +       mount_ntfs_rw_stream_sockets(fusermount_t)
+> +')
+> +
+> +ifdef(`targeted_policy',`
+> +       term_use_generic_ptys(fusermount_t)
+> +')
+> +
+> --- nsaserefpolicy/policy/modules/kernel/filesystem.if  2007-02-19
+> 11:32:51.000000000 -0500
+> +++
+> serefpolicy-2.5.10/policy/modules/kernel/filesystem.if      2007-03-22
+> 15:06:58.000000000 -0400
+> @@ -1110,11 +1110,31 @@
+>                 type dosfs_t;
+>         ')
+>  
+> +       manage_dirs_pattern($1,dosfs_t,dosfs_t)
+>         manage_files_pattern($1,dosfs_t,dosfs_t)
+>  ')
+>  
+>  ########################################
+>  ## <summary>
+> +##     read files
+> +##     on a DOS filesystem.
+> +## </summary>
+> +## <param name="domain">
+> +##     <summary>
+> +##     Domain allowed access.
+> +##     </summary>
+> +## </param>
+> +#
+> +interface(`fs_read_dos_files',`
+> +       gen_require(`
+> +               type dosfs_t;
+> +       ')
+> +
+> +       read_files_pattern($1,dosfs_t,dosfs_t)
+> +')
+> +
+> +########################################
+> +## <summary>
+>  ##     Read eventpollfs files.
+>  ## </summary>
+>  ## <desc>
+> @@ -3402,3 +3422,22 @@
+>         relabelfrom_blk_files_pattern($1,noxattrfs,noxattrfs)
+>         relabelfrom_chr_files_pattern($1,noxattrfs,noxattrfs)
+>  ')
+> +
+> +
+> +########################################
+> +## <summary>
+> +##      Mount an fuse filesystem.
+> +## </summary>
+> +## <param name="domain">
+> +##      <summary>
+> +##      Domain allowed access.
+> +##      </summary>
+> +## </param>
+> +#
+> +interface(`fs_mount_fusefs',`
+> +        gen_require(`
+> +                type fusefs_t;
+> +        ')
+> +
+> +        allow $1 fusefs_t:filesystem mount;
+> +')
+> --- nsaserefpolicy/policy/modules/kernel/filesystem.te  2007-02-19
+> 11:32:51.000000000 -0500
+> +++
+> serefpolicy-2.5.10/policy/modules/kernel/filesystem.te      2007-03-22
+> 15:06:58.000000000 -0400
+> @@ -65,6 +65,11 @@
+>  # change to task SID 20060628
+>  #genfscon eventpollfs /
+> gen_context(system_u:object_r:eventpollfs_t,s0)
+>  
+> +type fusefs_t;
+> +fs_type(fusefs_t)
+> +allow fusefs_t self:filesystem associate;
+> +genfscon fuse / gen_context(system_u:object_r:fusefs_t,s0)
+> +
+>  type futexfs_t;
+>  fs_type(futexfs_t)
+>  genfscon futexfs / gen_context(system_u:object_r:futexfs_t,s0) 
+-- 
+Chris PeBenito
+Tresys Technology, LLC
+(410) 290-1411 x150
 
 
 --
