@@ -1,81 +1,41 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l3HIhDOV022054
-	for <selinux@tycho.nsa.gov>; Tue, 17 Apr 2007 14:43:13 -0400
-Received: from mail.and.org (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l3HIhAC3028248
-	for <selinux@tycho.nsa.gov>; Tue, 17 Apr 2007 18:43:12 GMT
-Subject: Re: FCGlob
-From: James Antill <jantill@redhat.com>
-To: "John D. Ramsdell" <ramsdell@mitre.org>
-Cc: Christopher Ashworth <cashworth@tresys.com>, selinux@tycho.nsa.gov
-In-Reply-To: <ogtzm56khxx.fsf@oolong.mitre.org>
-References: 
-	 <6FE441CD9F0C0C479F2D88F959B01588A7153E@exchange.columbia.tresys.com>
-	 <ogtzm56khxx.fsf@oolong.mitre.org>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-vDpRB5CbxX8I5gwPFHC+"
-Date: Tue, 17 Apr 2007 14:42:54 -0400
-Message-Id: <1176835374.19144.14.camel@code.and.org>
-Mime-Version: 1.0
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l3HImJRW022768
+	for <selinux@tycho.nsa.gov>; Tue, 17 Apr 2007 14:48:19 -0400
+Received: from e35.co.us.ibm.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id l3HImGW2010916
+	for <selinux@tycho.nsa.gov>; Tue, 17 Apr 2007 18:48:17 GMT
+Received: from d03relay02.boulder.ibm.com (d03relay02.boulder.ibm.com [9.17.195.227])
+	by e35.co.us.ibm.com (8.13.8/8.13.8) with ESMTP id l3HImFb2019780
+	for <selinux@tycho.nsa.gov>; Tue, 17 Apr 2007 14:48:16 -0400
+Received: from d03av04.boulder.ibm.com (d03av04.boulder.ibm.com [9.17.195.170])
+	by d03relay02.boulder.ibm.com (8.13.8/8.13.8/NCO v8.3) with ESMTP id l3HImFFN156424
+	for <selinux@tycho.nsa.gov>; Tue, 17 Apr 2007 12:48:15 -0600
+Received: from d03av04.boulder.ibm.com (loopback [127.0.0.1])
+	by d03av04.boulder.ibm.com (8.12.11.20060308/8.13.3) with ESMTP id l3HIlxL5028324
+	for <selinux@tycho.nsa.gov>; Tue, 17 Apr 2007 12:47:59 -0600
+Message-ID: <46251650.7000509@us.ibm.com>
+Date: Tue, 17 Apr 2007 13:47:44 -0500
+From: Michael C Thompson <thompsmc@us.ibm.com>
+MIME-Version: 1.0
+To: Xavier Toth <txtoth@gmail.com>
+CC: selinux@tycho.nsa.gov
+Subject: Re: directory polyinstantiation failure
+References: <cadfc0e40704171107l770c48cak16f504b6b0a0dcc0@mail.gmail.com>
+In-Reply-To: <cadfc0e40704171107l770c48cak16f504b6b0a0dcc0@mail.gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+Xavier Toth wrote:
+> pam_namespace complains that "Pathnames must start with '/'" when I
+> try and polyinstantiate "$HOME/$USER/.mozilla". Is there a particular
+> reason that I shouldn't be able to polyinstantiate a dot directory or
+> is this a bug?
 
---=-vDpRB5CbxX8I5gwPFHC+
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+AFAIK, there is no reason that polyinstantiating shouldn't work for dot 
+directories.
 
-On Tue, 2007-04-17 at 13:51 -0400, John D. Ramsdell wrote:
-
-> The paper states that an FCGlob prototype would require creating:
->=20
->    A comparison function that receives two patterns as parameters and
->    returns the set relationship. Possible set relationships between
->    the set of paths pattern A matches and the set of paths pattern B
->    matches are: subset, superset, disjoint and ambiguous.
->=20
-> I speculated that finite automata is required to implement the
-> comparison function as specified.  Do you have an alternative
-> algorithm that meets the above specification?  I don't recall seeing
-> one in the paper.
-
- Sections two and three (and figure 3 within section three) explains
-this, AIUI. The idea is that you can split the "patterns" into a list of
-nodes and the easily compare nodes, so:
-
-cmp("/x/y/a*/**/b", "/x/**/b")
-
-  =3D=3D
-
-cmp(["x", "y", "a*", "**", "b"], ["x", "**", "b"])
-
-  =3D=3D
-
-cmp(["x", "y", "a*", "b"], ["x", "*", "*", "*", "b"])
-
-...and the comparison function for the last part should "be easy",
-although AIUI they hadn't written it.
-
---=20
-James Antill - <james.antill@redhat.com>
-setsockopt(fd, IPPROTO_TCP, TCP_CONGESTION, ...);
-setsockopt(fd, IPPROTO_TCP, TCP_DEFER_ACCEPT, ...);
-setsockopt(fd, SOL_SOCKET,  SO_ATTACH_FILTER, ...);
-
-
---=-vDpRB5CbxX8I5gwPFHC+
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.7 (GNU/Linux)
-
-iD8DBQBGJRUu11eXTEMrxtQRAvUNAJ4uanBB0x5TD1OdTNSroBGFTSjfmgCcDM39
-STe/PMtj1+K/9BRvPPgVJN4=
-=NqiW
------END PGP SIGNATURE-----
-
---=-vDpRB5CbxX8I5gwPFHC+--
-
+Mike
 
 --
 This message was distributed to subscribers of the selinux mailing list.
