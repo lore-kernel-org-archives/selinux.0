@@ -1,63 +1,25 @@
 Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l3HHpf5v018709
-	for <selinux@tycho.nsa.gov>; Tue, 17 Apr 2007 13:51:41 -0400
-Received: from smtp-mclean.mitre.org (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l3HHpdC3020164
-	for <selinux@tycho.nsa.gov>; Tue, 17 Apr 2007 17:51:40 GMT
-Received: from smtp-mclean.mitre.org (localhost.localdomain [127.0.0.1])
-	by smtp-mclean.mitre.org (8.12.11.20060308/8.12.11) with SMTP id l3HHpc4p031903
-	for <selinux@tycho.nsa.gov>; Tue, 17 Apr 2007 13:51:38 -0400
-Received: from smtp-mclean.mitre.org (localhost.localdomain [127.0.0.1])
-	by smtp-mclean.mitre.org (Postfix) with ESMTP id A820F1BE39
-	for <selinux@tycho.nsa.gov>; Tue, 17 Apr 2007 13:51:38 -0400 (EDT)
-To: "Christopher Ashworth" <cashworth@tresys.com>
-Cc: <selinux@tycho.nsa.gov>
-Subject: Re: FCGlob
-References: <6FE441CD9F0C0C479F2D88F959B01588A7153E@exchange.columbia.tresys.com>
-From: ramsdell@mitre.org (John D. Ramsdell)
-Date: 17 Apr 2007 13:51:38 -0400
-In-Reply-To: <6FE441CD9F0C0C479F2D88F959B01588A7153E@exchange.columbia.tresys.com>
-Message-ID: <ogtzm56khxx.fsf@oolong.mitre.org>
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l3HI7uxk019731
+	for <selinux@tycho.nsa.gov>; Tue, 17 Apr 2007 14:07:56 -0400
+Received: from wx-out-0506.google.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l3HI7sC3022578
+	for <selinux@tycho.nsa.gov>; Tue, 17 Apr 2007 18:07:55 GMT
+Received: by wx-out-0506.google.com with SMTP id s17so2202229wxc
+        for <selinux@tycho.nsa.gov>; Tue, 17 Apr 2007 11:07:51 -0700 (PDT)
+Message-ID: <cadfc0e40704171107l770c48cak16f504b6b0a0dcc0@mail.gmail.com>
+Date: Tue, 17 Apr 2007 13:07:51 -0500
+From: "Xavier Toth" <txtoth@gmail.com>
+To: selinux@tycho.nsa.gov
+Subject: directory polyinstantiation failure
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-"Christopher Ashworth" <cashworth@tresys.com> writes:
-
-> Ack!  Wait!  Danger!  Will Robinson!  :)
-
-I'm laughing.  I watched first runs of that show.  I hope your arms
-were flailing as you wrote that text.
-
-> Since in a subsequent email you said "I have no experience
-> implementing finite state machines" I assume that what you mean
-> above by all the "it is easy" bits is that it is easy in theory.
-
-This is correct.  It could be easy in practice, I just don't know.
-
-> That's why the current file context system uses heuristics instead
-> of a real sorting algorithm.
-
-The paper states that an FCGlob prototype would require creating:
-
-   A comparison function that receives two patterns as parameters and
-   returns the set relationship. Possible set relationships between
-   the set of paths pattern A matches and the set of paths pattern B
-   matches are: subset, superset, disjoint and ambiguous.
-
-I speculated that finite automata is required to implement the
-comparison function as specified.  Do you have an alternative
-algorithm that meets the above specification?  I don't recall seeing
-one in the paper.
-
-> But the observation at hand is that replacing regular expressions in
-> the file context specs would buy us a lot of improvements.
-
-As I said at the meeting, I like the idea of using file globbing
-syntax as I agree with your assertion they are less error prone.
-
-John
+pam_namespace complains that "Pathnames must start with '/'" when I
+try and polyinstantiate "$HOME/$USER/.mozilla". Is there a particular
+reason that I shouldn't be able to polyinstantiate a dot directory or
+is this a bug?
 
 --
 This message was distributed to subscribers of the selinux mailing list.
