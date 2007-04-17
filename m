@@ -1,44 +1,65 @@
 Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l3H8nkqo017208
-	for <selinux@tycho.nsa.gov>; Tue, 17 Apr 2007 04:49:46 -0400
-Received: from wr-out-0506.google.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l3H8nkM3002048
-	for <selinux@tycho.nsa.gov>; Tue, 17 Apr 2007 08:49:46 GMT
-Received: by wr-out-0506.google.com with SMTP id q50so1987060wrq
-        for <selinux@tycho.nsa.gov>; Tue, 17 Apr 2007 01:49:46 -0700 (PDT)
-Message-ID: <4624897D.5030205@gmail.com>
-Date: Tue, 17 Apr 2007 16:46:53 +0800
-From: Ken YANG <spng.yang@gmail.com>
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l3HA7YNg020329
+	for <selinux@tycho.nsa.gov>; Tue, 17 Apr 2007 06:07:34 -0400
+Received: from nospam.sws.net.au (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l3HA7VRT009941
+	for <selinux@tycho.nsa.gov>; Tue, 17 Apr 2007 10:07:32 GMT
+Received: from localhost (localhost [127.0.0.1])
+	by nospam.sws.net.au (Postfix) with ESMTP id 9B2E61886B
+	for <selinux@tycho.nsa.gov>; Tue, 17 Apr 2007 20:07:27 +1000 (EST)
+Received: from nospam.sws.net.au ([127.0.0.1])
+	by localhost (nospam.sws.net.au [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id YnUOV8bjFkBI for <selinux@tycho.nsa.gov>;
+	Tue, 17 Apr 2007 20:07:27 +1000 (EST)
+Received: from aeon.coker.com.au (localhost [127.0.0.1])
+	by nospam.sws.net.au (Postfix) with ESMTP id CAB1818863
+	for <selinux@tycho.nsa.gov>; Tue, 17 Apr 2007 20:07:26 +1000 (EST)
+Received: from localhost (localhost [127.0.0.1])
+	by aeon.coker.com.au (Postfix) with ESMTP id 50C0D21507
+	for <selinux@tycho.nsa.gov>; Tue, 17 Apr 2007 20:07:57 +1000 (EST)
+From: Russell Coker <russell@coker.com.au>
+Reply-To: russell@coker.com.au
+To: "SE-Linux" <selinux@tycho.nsa.gov>
+Subject: FCGlob
+Date: Tue, 17 Apr 2007 21:07:51 +1100
 MIME-Version: 1.0
-To: selinux@tycho.nsa.gov
-Subject: autoreconf fails in setools of revision 4290
-Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Type: text/plain;
+  charset="us-ascii"
+Message-Id: <200704172007.54844.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+http://selinux-symposium.org/2007/papers/06-fcglob.pdf
 
-hi all,
+I've just read the above paper.  It seems apparent that this is generally the 
+right approach.
 
-i use autoconf-2.61-8.fc7 in fc7 rawhide
+Page 3 states that a down-side is "the tree would be a binary file and not 
+human readable any more".  Why would this be so?  Currently we compile a set 
+of plain text .fc files into a plain text file that is not directly 
+accessible to the sys-admin (everyone on this list knows how to get it - but 
+it's not a documented interface) and there is also a semanage option to 
+display the same data.
 
-autoreconf of this version fails in building setools of
-revision 4290.
+It seems to me that having .fc files with FCGlob data which are human readable 
+and then compiling them into a binary form will not be any different.  
+The .fc files shipped as part of policy modules will still need to be 
+plain-text (the tree structure depends on nodes from other .fc files), and 
+the semanage command can still do much the same tasks.
 
-i also test setools 3.1 tags, it fails with the same errors:
+Why would it be desirable to compile FCGlob to regular expressions?  Once the 
+performance benefits are proven we might as well go full-speed ahead.
 
-......
-sediff/Makefile.am:45: notdir $@: non-POSIX variable name
-sediff/Makefile.am:45: (probably a GNU make extension)
-sediff/Makefile.am:48: notdir $@: non-POSIX variable name
-sediff/Makefile.am:48: (probably a GNU make extension)
-sediff/Makefile.am:51: notdir $@: non-POSIX variable name
-sediff/Makefile.am:51: (probably a GNU make extension)
-autoreconf: automake failed with exit status: 1
+As for regex's that have no clear meaning, the only thing to do is to remove 
+them and wait for the original policy author to complain.  There are many 
+regular expressions that never matched anything and probably many more that 
+match old versions of software.
 
-thanks in advance
+-- 
+russell@coker.com.au
+http://etbe.blogspot.com/          My Blog
 
-Ken YANG
-
+http://www.coker.com.au/sponsorship.html Sponsoring Free Software development
 
 --
 This message was distributed to subscribers of the selinux mailing list.
