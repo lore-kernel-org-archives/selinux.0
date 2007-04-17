@@ -1,50 +1,40 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l3HJDCUr024199
-	for <selinux@tycho.nsa.gov>; Tue, 17 Apr 2007 15:13:12 -0400
-Received: from exchange.columbia.tresys.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with SMTP id l3HJDBW2016773
-	for <selinux@tycho.nsa.gov>; Tue, 17 Apr 2007 19:13:11 GMT
-Subject: Re: FCGlob
-From: James Athey <jathey@tresys.com>
-To: SE-Linux <selinux@tycho.nsa.gov>
-In-Reply-To: <200704172007.54844.russell@coker.com.au>
-References: <200704172007.54844.russell@coker.com.au>
-Content-Type: text/plain
-Date: Tue, 17 Apr 2007 15:07:39 -0400
-Message-Id: <1176836859.8847.15.camel@exodus.columbia.tresys.com>
-Mime-Version: 1.0
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l3HJN2HN024723
+	for <selinux@tycho.nsa.gov>; Tue, 17 Apr 2007 15:23:02 -0400
+Received: from wx-out-0506.google.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l3HJN1C3005721
+	for <selinux@tycho.nsa.gov>; Tue, 17 Apr 2007 19:23:01 GMT
+Received: by wx-out-0506.google.com with SMTP id s17so2230462wxc
+        for <selinux@tycho.nsa.gov>; Tue, 17 Apr 2007 12:23:01 -0700 (PDT)
+Message-ID: <cadfc0e40704171223r5b566441p276426561ec21290@mail.gmail.com>
+Date: Tue, 17 Apr 2007 14:23:01 -0500
+From: "Xavier Toth" <txtoth@gmail.com>
+To: "Michael C Thompson" <thompsmc@us.ibm.com>
+Subject: Re: directory polyinstantiation failure
+Cc: selinux@tycho.nsa.gov
+In-Reply-To: <46251650.7000509@us.ibm.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+References: <cadfc0e40704171107l770c48cak16f504b6b0a0dcc0@mail.gmail.com>
+	 <46251650.7000509@us.ibm.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2007-04-17 at 21:07 +1100, Russell Coker wrote:
-> Page 3 states that a down-side is "the tree would be a binary file and not 
-> human readable any more".  Why would this be so?
-Perhaps this part of the paper could have been clearer.  The only reason
-to leave the file_contexts in a binary format would be to save time when
-parsing them into the tree for use by matchpathcon and semanage.  In
-retrospect, this suggestion was premature; code first, optimize later,
-right?
-> Why would it be desirable to compile FCGlob to regular expressions?  Once the 
-> performance benefits are proven we might as well go full-speed ahead.
-It's not desirable, but it is necessary for backwards compatibility with old
-toolchains.  Newer toolchains would use FCGlob directly.
-> As for regex's that have no clear meaning, the only thing to do is to remove 
-> them and wait for the original policy author to complain.  There are many 
-> regular expressions that never matched anything and probably many more that 
-> match old versions of software.
-Old versions of software matter.  For example, RHEL 4 is a supported
-platform for reference policy, and any file contexts that are specific
-to RHEL4 need to stay in the policy, marked off with an
-ifdef(`distro_rhel4' if necessary.
+If you try and use $HOME in the directory name for instance
+$HOME/.mozilla the $HOME is not expanded. I'll submit a patch.
 
-There also seems to be some confusion about how FCGlob contexts can be
-compared and sorted.  There's a handwaving explanation of the comparison
-algorithm in the presentation on FCGlob from the 2007 SELinux Symposium:
-http://selinux-symposium.org/2007/slides/03-fcglob.pdf .  Look at pages
-8 and 9.
-
-James
-
+On 4/17/07, Michael C Thompson <thompsmc@us.ibm.com> wrote:
+> Xavier Toth wrote:
+> > pam_namespace complains that "Pathnames must start with '/'" when I
+> > try and polyinstantiate "$HOME/$USER/.mozilla". Is there a particular
+> > reason that I shouldn't be able to polyinstantiate a dot directory or
+> > is this a bug?
+>
+> AFAIK, there is no reason that polyinstantiating shouldn't work for dot
+> directories.
+>
+> Mike
+>
 
 --
 This message was distributed to subscribers of the selinux mailing list.
