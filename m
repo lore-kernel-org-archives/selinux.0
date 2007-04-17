@@ -1,95 +1,81 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l3HIARuB019911
-	for <selinux@tycho.nsa.gov>; Tue, 17 Apr 2007 14:10:27 -0400
-Received: from smtp-mclean.mitre.org (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id l3HIAOW2002142
-	for <selinux@tycho.nsa.gov>; Tue, 17 Apr 2007 18:10:25 GMT
-Received: from smtp-mclean.mitre.org (localhost.localdomain [127.0.0.1])
-	by smtp-mclean.mitre.org (8.12.11.20060308/8.12.11) with SMTP id l3HIA2XM018509
-	for <selinux@tycho.nsa.gov>; Tue, 17 Apr 2007 14:10:02 -0400
-Received: from smtp-mclean.mitre.org (localhost.localdomain [127.0.0.1])
-	by smtp-mclean.mitre.org (Postfix) with ESMTP id BC1CC1BDE9
-	for <selinux@tycho.nsa.gov>; Tue, 17 Apr 2007 14:10:02 -0400 (EDT)
-To: "Christopher Ashworth" <cashworth@tresys.com>
-Cc: <selinux@tycho.nsa.gov>
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l3HIhDOV022054
+	for <selinux@tycho.nsa.gov>; Tue, 17 Apr 2007 14:43:13 -0400
+Received: from mail.and.org (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l3HIhAC3028248
+	for <selinux@tycho.nsa.gov>; Tue, 17 Apr 2007 18:43:12 GMT
 Subject: Re: FCGlob
-References: <6FE441CD9F0C0C479F2D88F959B01588A7153E@exchange.columbia.tresys.com>
-From: ramsdell@mitre.org (John D. Ramsdell)
-Date: 17 Apr 2007 14:10:02 -0400
-In-Reply-To: <6FE441CD9F0C0C479F2D88F959B01588A7153E@exchange.columbia.tresys.com>
-Message-ID: <ogtslaykh39.fsf@oolong.mitre.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+From: James Antill <jantill@redhat.com>
+To: "John D. Ramsdell" <ramsdell@mitre.org>
+Cc: Christopher Ashworth <cashworth@tresys.com>, selinux@tycho.nsa.gov
+In-Reply-To: <ogtzm56khxx.fsf@oolong.mitre.org>
+References: 
+	 <6FE441CD9F0C0C479F2D88F959B01588A7153E@exchange.columbia.tresys.com>
+	 <ogtzm56khxx.fsf@oolong.mitre.org>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-vDpRB5CbxX8I5gwPFHC+"
+Date: Tue, 17 Apr 2007 14:42:54 -0400
+Message-Id: <1176835374.19144.14.camel@code.and.org>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-I think I understand now.  When you say ambiguous, you mean your
-heuristic is unable to determine if two patterns are related by
-subset, superset, or being disjoint.  In short, it always gives the
-correct answer when two patterns are related by subset, superset, or
-is disjoint, so the heuristic is safe.
 
-John
+--=-vDpRB5CbxX8I5gwPFHC+
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-"Christopher Ashworth" <cashworth@tresys.com> writes:
+On Tue, 2007-04-17 at 13:51 -0400, John D. Ramsdell wrote:
 
-> Hullo John,
-> 
-> > -----Original Message-----
-> > From: owner-selinux@tycho.nsa.gov 
-> > [mailto:owner-selinux@tycho.nsa.gov] On Behalf Of John D. Ramsdell
-> > Sent: Tuesday, April 17, 2007 7:24 AM
-> > To: russell@coker.com.au
-> > Cc: SE-Linux
-> > Subject: Re: FCGlob
-> > 
-> > Russell Coker <russell@coker.com.au> writes:
-> > 
-> > > Why would it be desirable to compile FCGlob to regular expressions?
-> > > Once the performance benefits are proven we might as well go 
-> > > full-speed ahead.
-> > 
-> > I too spent some time thinking about the FCGlob paper.  I 
-> > believe the reason one wants to be able to translate FCGlob 
-> > patterns into regular expressions is so that one can 
-> > implement the comparison function described in the paper as follows:
-> 
-> [...snip...]
->  
-> > It seems to me that finite automata theory is called for. 
-> > The FCGlob pattern language as described can easily be 
-> > translated into a regular expression.  A regular expression 
-> > can be translated into a deterministic finite automata 
-> > without epsilon transitions.  It is easy to convert this 
-> > machine into one that recognizes the complement of its 
-> > language by complementing the set of final states of the 
-> > machine.  A machine that computes the intersection of two 
-> > languages can be produced by taking the cross product of the 
-> > states of the machine for each language.  Finally, it is easy 
-> > to test if a machine accepts no strings.  These primitives 
-> > can be used to implement the comparison function as specified.
-> 
-> Ack!  Wait!  Danger!  Will Robinson!  :)
-> 
-> One of the goals for using FCGlob is to avoid everything you just
-> described.
-> 
-> Since in a subsequent email you said "I have no experience implementing
-> finite state machines" I assume that what you mean above by all the "it
-> is easy" bits is that it is easy in theory.  No arguments there.  I
-> think one of the main points of FCGlob is that it is NOT easy in
-> practice.  That's why the current file context system uses heuristics
-> instead of a real sorting algorithm. 
-> 
-> I'm not trying to bash on the idea of using FAs in theory, because a lot
-> of the points you make are interesting.  But the observation at hand is
-> that replacing regular expressions in the file context specs would buy
-> us a lot of improvements--not the least of which is that we wouldn't
-> have to sort the darn things with a complicated finite automata
-> mechanism to get proper sorting.
-> 
-> Cheers,
-> Christopher
+> The paper states that an FCGlob prototype would require creating:
+>=20
+>    A comparison function that receives two patterns as parameters and
+>    returns the set relationship. Possible set relationships between
+>    the set of paths pattern A matches and the set of paths pattern B
+>    matches are: subset, superset, disjoint and ambiguous.
+>=20
+> I speculated that finite automata is required to implement the
+> comparison function as specified.  Do you have an alternative
+> algorithm that meets the above specification?  I don't recall seeing
+> one in the paper.
+
+ Sections two and three (and figure 3 within section three) explains
+this, AIUI. The idea is that you can split the "patterns" into a list of
+nodes and the easily compare nodes, so:
+
+cmp("/x/y/a*/**/b", "/x/**/b")
+
+  =3D=3D
+
+cmp(["x", "y", "a*", "**", "b"], ["x", "**", "b"])
+
+  =3D=3D
+
+cmp(["x", "y", "a*", "b"], ["x", "*", "*", "*", "b"])
+
+...and the comparison function for the last part should "be easy",
+although AIUI they hadn't written it.
+
+--=20
+James Antill - <james.antill@redhat.com>
+setsockopt(fd, IPPROTO_TCP, TCP_CONGESTION, ...);
+setsockopt(fd, IPPROTO_TCP, TCP_DEFER_ACCEPT, ...);
+setsockopt(fd, SOL_SOCKET,  SO_ATTACH_FILTER, ...);
+
+
+--=-vDpRB5CbxX8I5gwPFHC+
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.7 (GNU/Linux)
+
+iD8DBQBGJRUu11eXTEMrxtQRAvUNAJ4uanBB0x5TD1OdTNSroBGFTSjfmgCcDM39
+STe/PMtj1+K/9BRvPPgVJN4=
+=NqiW
+-----END PGP SIGNATURE-----
+
+--=-vDpRB5CbxX8I5gwPFHC+--
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
