@@ -1,1300 +1,1553 @@
 Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l3IKkk6O007625
-	for <selinux@tycho.nsa.gov>; Wed, 18 Apr 2007 16:46:46 -0400
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l3IKn0tl007730
+	for <selinux@tycho.nsa.gov>; Wed, 18 Apr 2007 16:49:00 -0400
 Received: from mx1.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id l3IKkiOP024586
-	for <selinux@tycho.nsa.gov>; Wed, 18 Apr 2007 20:46:44 GMT
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id l3IKmvOP024882
+	for <selinux@tycho.nsa.gov>; Wed, 18 Apr 2007 20:48:58 GMT
 Received: from int-mx1.corp.redhat.com (int-mx1.corp.redhat.com [172.16.52.254])
-	by mx1.redhat.com (8.13.1/8.13.1) with ESMTP id l3IKkiBI015349
-	for <selinux@tycho.nsa.gov>; Wed, 18 Apr 2007 16:46:44 -0400
+	by mx1.redhat.com (8.13.1/8.13.1) with ESMTP id l3IKmvdO016482
+	for <selinux@tycho.nsa.gov>; Wed, 18 Apr 2007 16:48:57 -0400
 Received: from pobox-2.corp.redhat.com (pobox-2.corp.redhat.com [10.11.255.15])
-	by int-mx1.corp.redhat.com (8.13.1/8.13.1) with ESMTP id l3IKki3Y029322
-	for <selinux@tycho.nsa.gov>; Wed, 18 Apr 2007 16:46:44 -0400
+	by int-mx1.corp.redhat.com (8.13.1/8.13.1) with ESMTP id l3IKmvw0029925
+	for <selinux@tycho.nsa.gov>; Wed, 18 Apr 2007 16:48:57 -0400
 Received: from [10.11.14.21] (vpn-14-21.rdu.redhat.com [10.11.14.21])
-	by pobox-2.corp.redhat.com (8.13.1/8.13.1) with ESMTP id l3IKkgwJ024794
-	for <selinux@tycho.nsa.gov>; Wed, 18 Apr 2007 16:46:42 -0400
-Subject: [PATCH - policyrep] Add support for doxygen documentation in
-	libsepol
+	by pobox-2.corp.redhat.com (8.13.1/8.13.1) with ESMTP id l3IKmuUn025211
+	for <selinux@tycho.nsa.gov>; Wed, 18 Apr 2007 16:48:56 -0400
+Subject: [PATCH - policyrep] Add generic iterators and a linked-list data
+	structure to libsepol
 From: Karl MacMillan <kmacmillan@mentalrootkit.com>
 To: SELinux List <selinux@tycho.nsa.gov>
 Content-Type: text/plain
-Date: Wed, 18 Apr 2007 16:43:20 -0400
-Message-Id: <1176929000.11469.39.camel@localhost.localdomain>
+Date: Wed, 18 Apr 2007 16:45:34 -0400
+Message-Id: <1176929134.11469.43.camel@localhost.localdomain>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Add support for doxygen documentation in libsepol. Add a make target
-('make doxygen') and a default configuration.
+Add a generic iterator data structure and a linked-list implementation
+based that uses the iterators to libsepol. Includes test cases for the
+linked-list implementation.
 
 Signed-off-by: Karl MacMillan <kmacmillan@mentalrootkit.com>
 
-diff -r 8d60cb3cda6d libsepol/Makefile
---- a/libsepol/Makefile	Mon Feb 26 14:50:13 2007 -0500
-+++ b/libsepol/Makefile	Mon Feb 26 14:50:15 2007 -0500
-@@ -24,3 +24,6 @@ test:
- test:
- 	$(MAKE) -C tests test
+diff -r c0ca24c3e136 libsepol/include/sepol/errcodes.h
+--- a/libsepol/include/sepol/errcodes.h	Wed Apr 18 11:32:21 2007 -0400
++++ b/libsepol/include/sepol/errcodes.h	Wed Apr 18 16:30:08 2007 -0400
+@@ -22,4 +22,7 @@
+ #define SEPOL_EEXIST         -EEXIST
+ #define SEPOL_ENOENT         -ENOENT
  
-+doxygen:
-+	doxygen doxygen.config
-+
-diff -r 8d60cb3cda6d libsepol/doxygen.config
---- a/libsepol/doxygen.config	Mon Feb 26 14:50:13 2007 -0500
-+++ b/libsepol/doxygen.config	Mon Feb 26 14:59:17 2007 -0500
-@@ -0,0 +1,1252 @@
-+# Doxyfile 1.5.1
-+
-+# This file describes the settings to be used by the documentation system
-+# doxygen (www.doxygen.org) for a project
-+#
-+# All text after a hash (#) is considered a comment and will be ignored
-+# The format is:
-+#       TAG = value [value, ...]
-+# For lists items can also be appended using:
-+#       TAG += value [value, ...]
-+# Values that contain spaces should be placed between quotes (" ")
-+
-+#---------------------------------------------------------------------------
-+# Project related configuration options
-+#---------------------------------------------------------------------------
-+
-+# The PROJECT_NAME tag is a single word (or a sequence of words surrounded 
-+# by quotes) that should identify the project.
-+
-+PROJECT_NAME           = libsepol
-+
-+# The PROJECT_NUMBER tag can be used to enter a project or revision number. 
-+# This could be handy for archiving the generated documentation or 
-+# if some version control system is used.
-+
-+PROJECT_NUMBER         = 2.x
-+
-+# The OUTPUT_DIRECTORY tag is used to specify the (relative or absolute) 
-+# base path where the generated documentation will be put. 
-+# If a relative path is entered, it will be relative to the location 
-+# where doxygen was started. If left blank the current directory will be used.
-+
-+OUTPUT_DIRECTORY       = doc
-+
-+# If the CREATE_SUBDIRS tag is set to YES, then doxygen will create 
-+# 4096 sub-directories (in 2 levels) under the output directory of each output 
-+# format and will distribute the generated files over these directories. 
-+# Enabling this option can be useful when feeding doxygen a huge amount of 
-+# source files, where putting all generated files in the same directory would 
-+# otherwise cause performance problems for the file system.
-+
-+CREATE_SUBDIRS         = NO
-+
-+# The OUTPUT_LANGUAGE tag is used to specify the language in which all 
-+# documentation generated by doxygen is written. Doxygen will use this 
-+# information to generate all constant output in the proper language. 
-+# The default language is English, other supported languages are: 
-+# Afrikaans, Arabic, Brazilian, Catalan, Chinese, Chinese-Traditional, 
-+# Croatian, Czech, Danish, Dutch, Finnish, French, German, Greek, Hungarian, 
-+# Italian, Japanese, Japanese-en (Japanese with English messages), Korean, 
-+# Korean-en, Lithuanian, Norwegian, Polish, Portuguese, Romanian, Russian, 
-+# Serbian, Slovak, Slovene, Spanish, Swedish, and Ukrainian.
-+
-+OUTPUT_LANGUAGE        = English
-+
-+# This tag can be used to specify the encoding used in the generated output. 
-+# The encoding is not always determined by the language that is chosen, 
-+# but also whether or not the output is meant for Windows or non-Windows users. 
-+# In case there is a difference, setting the USE_WINDOWS_ENCODING tag to YES 
-+# forces the Windows encoding (this is the default for the Windows binary), 
-+# whereas setting the tag to NO uses a Unix-style encoding (the default for 
-+# all platforms other than Windows).
-+
-+USE_WINDOWS_ENCODING   = NO
-+
-+# If the BRIEF_MEMBER_DESC tag is set to YES (the default) Doxygen will 
-+# include brief member descriptions after the members that are listed in 
-+# the file and class documentation (similar to JavaDoc). 
-+# Set to NO to disable this.
-+
-+BRIEF_MEMBER_DESC      = YES
-+
-+# If the REPEAT_BRIEF tag is set to YES (the default) Doxygen will prepend 
-+# the brief description of a member or function before the detailed description. 
-+# Note: if both HIDE_UNDOC_MEMBERS and BRIEF_MEMBER_DESC are set to NO, the 
-+# brief descriptions will be completely suppressed.
-+
-+REPEAT_BRIEF           = YES
-+
-+# This tag implements a quasi-intelligent brief description abbreviator 
-+# that is used to form the text in various listings. Each string 
-+# in this list, if found as the leading text of the brief description, will be 
-+# stripped from the text and the result after processing the whole list, is 
-+# used as the annotated text. Otherwise, the brief description is used as-is. 
-+# If left blank, the following values are used ("$name" is automatically 
-+# replaced with the name of the entity): "The $name class" "The $name widget" 
-+# "The $name file" "is" "provides" "specifies" "contains" 
-+# "represents" "a" "an" "the"
-+
-+ABBREVIATE_BRIEF       = 
-+
-+# If the ALWAYS_DETAILED_SEC and REPEAT_BRIEF tags are both set to YES then 
-+# Doxygen will generate a detailed section even if there is only a brief 
-+# description.
-+
-+ALWAYS_DETAILED_SEC    = NO
-+
-+# If the INLINE_INHERITED_MEMB tag is set to YES, doxygen will show all 
-+# inherited members of a class in the documentation of that class as if those 
-+# members were ordinary class members. Constructors, destructors and assignment 
-+# operators of the base classes will not be shown.
-+
-+INLINE_INHERITED_MEMB  = NO
-+
-+# If the FULL_PATH_NAMES tag is set to YES then Doxygen will prepend the full 
-+# path before files name in the file list and in the header files. If set 
-+# to NO the shortest path that makes the file name unique will be used.
-+
-+FULL_PATH_NAMES        = YES
-+
-+# If the FULL_PATH_NAMES tag is set to YES then the STRIP_FROM_PATH tag 
-+# can be used to strip a user-defined part of the path. Stripping is 
-+# only done if one of the specified strings matches the left-hand part of 
-+# the path. The tag can be used to show relative paths in the file list. 
-+# If left blank the directory from which doxygen is run is used as the 
-+# path to strip.
-+
-+STRIP_FROM_PATH        = 
-+
-+# The STRIP_FROM_INC_PATH tag can be used to strip a user-defined part of 
-+# the path mentioned in the documentation of a class, which tells 
-+# the reader which header file to include in order to use a class. 
-+# If left blank only the name of the header file containing the class 
-+# definition is used. Otherwise one should specify the include paths that 
-+# are normally passed to the compiler using the -I flag.
-+
-+STRIP_FROM_INC_PATH    = 
-+
-+# If the SHORT_NAMES tag is set to YES, doxygen will generate much shorter 
-+# (but less readable) file names. This can be useful is your file systems 
-+# doesn't support long names like on DOS, Mac, or CD-ROM.
-+
-+SHORT_NAMES            = NO
-+
-+# If the JAVADOC_AUTOBRIEF tag is set to YES then Doxygen 
-+# will interpret the first line (until the first dot) of a JavaDoc-style 
-+# comment as the brief description. If set to NO, the JavaDoc 
-+# comments will behave just like the Qt-style comments (thus requiring an 
-+# explicit @brief command for a brief description.
-+
-+JAVADOC_AUTOBRIEF      = YES
-+
-+# The MULTILINE_CPP_IS_BRIEF tag can be set to YES to make Doxygen 
-+# treat a multi-line C++ special comment block (i.e. a block of //! or /// 
-+# comments) as a brief description. This used to be the default behaviour. 
-+# The new default is to treat a multi-line C++ comment block as a detailed 
-+# description. Set this tag to YES if you prefer the old behaviour instead.
-+
-+MULTILINE_CPP_IS_BRIEF = NO
-+
-+# If the DETAILS_AT_TOP tag is set to YES then Doxygen 
-+# will output the detailed description near the top, like JavaDoc.
-+# If set to NO, the detailed description appears after the member 
-+# documentation.
-+
-+DETAILS_AT_TOP         = YES
-+
-+# If the INHERIT_DOCS tag is set to YES (the default) then an undocumented 
-+# member inherits the documentation from any documented member that it 
-+# re-implements.
-+
-+INHERIT_DOCS           = YES
-+
-+# If the SEPARATE_MEMBER_PAGES tag is set to YES, then doxygen will produce 
-+# a new page for each member. If set to NO, the documentation of a member will 
-+# be part of the file/class/namespace that contains it.
-+
-+SEPARATE_MEMBER_PAGES  = NO
-+
-+# The TAB_SIZE tag can be used to set the number of spaces in a tab. 
-+# Doxygen uses this value to replace tabs by spaces in code fragments.
-+
-+TAB_SIZE               = 8
-+
-+# This tag can be used to specify a number of aliases that acts 
-+# as commands in the documentation. An alias has the form "name=value". 
-+# For example adding "sideeffect=\par Side Effects:\n" will allow you to 
-+# put the command \sideeffect (or @sideeffect) in the documentation, which 
-+# will result in a user-defined paragraph with heading "Side Effects:". 
-+# You can put \n's in the value part of an alias to insert newlines.
-+
-+ALIASES                = 
-+
-+# Set the OPTIMIZE_OUTPUT_FOR_C tag to YES if your project consists of C 
-+# sources only. Doxygen will then generate output that is more tailored for C. 
-+# For instance, some of the names that are used will be different. The list 
-+# of all members will be omitted, etc.
-+
-+OPTIMIZE_OUTPUT_FOR_C  = YES
-+
-+# Set the OPTIMIZE_OUTPUT_JAVA tag to YES if your project consists of Java 
-+# sources only. Doxygen will then generate output that is more tailored for Java. 
-+# For instance, namespaces will be presented as packages, qualified scopes 
-+# will look different, etc.
-+
-+OPTIMIZE_OUTPUT_JAVA   = NO
-+
-+# If you use STL classes (i.e. std::string, std::vector, etc.) but do not want to 
-+# include (a tag file for) the STL sources as input, then you should 
-+# set this tag to YES in order to let doxygen match functions declarations and 
-+# definitions whose arguments contain STL classes (e.g. func(std::string); v.s. 
-+# func(std::string) {}). This also make the inheritance and collaboration 
-+# diagrams that involve STL classes more complete and accurate.
-+
-+BUILTIN_STL_SUPPORT    = NO
-+
-+# If member grouping is used in the documentation and the DISTRIBUTE_GROUP_DOC 
-+# tag is set to YES, then doxygen will reuse the documentation of the first 
-+# member in the group (if any) for the other members of the group. By default 
-+# all members of a group must be documented explicitly.
-+
-+DISTRIBUTE_GROUP_DOC   = NO
-+
-+# Set the SUBGROUPING tag to YES (the default) to allow class member groups of 
-+# the same type (for instance a group of public functions) to be put as a 
-+# subgroup of that type (e.g. under the Public Functions section). Set it to 
-+# NO to prevent subgrouping. Alternatively, this can be done per class using 
-+# the \nosubgrouping command.
-+
-+SUBGROUPING            = YES
-+
-+#---------------------------------------------------------------------------
-+# Build related configuration options
-+#---------------------------------------------------------------------------
-+
-+# If the EXTRACT_ALL tag is set to YES doxygen will assume all entities in 
-+# documentation are documented, even if no documentation was available. 
-+# Private class members and static file members will be hidden unless 
-+# the EXTRACT_PRIVATE and EXTRACT_STATIC tags are set to YES
-+
-+EXTRACT_ALL            = NO
-+
-+# If the EXTRACT_PRIVATE tag is set to YES all private members of a class 
-+# will be included in the documentation.
-+
-+EXTRACT_PRIVATE        = NO
-+
-+# If the EXTRACT_STATIC tag is set to YES all static members of a file 
-+# will be included in the documentation.
-+
-+EXTRACT_STATIC         = NO
-+
-+# If the EXTRACT_LOCAL_CLASSES tag is set to YES classes (and structs) 
-+# defined locally in source files will be included in the documentation. 
-+# If set to NO only classes defined in header files are included.
-+
-+EXTRACT_LOCAL_CLASSES  = YES
-+
-+# This flag is only useful for Objective-C code. When set to YES local 
-+# methods, which are defined in the implementation section but not in 
-+# the interface are included in the documentation. 
-+# If set to NO (the default) only methods in the interface are included.
-+
-+EXTRACT_LOCAL_METHODS  = NO
-+
-+# If the HIDE_UNDOC_MEMBERS tag is set to YES, Doxygen will hide all 
-+# undocumented members of documented classes, files or namespaces. 
-+# If set to NO (the default) these members will be included in the 
-+# various overviews, but no documentation section is generated. 
-+# This option has no effect if EXTRACT_ALL is enabled.
-+
-+HIDE_UNDOC_MEMBERS     = YES
-+
-+# If the HIDE_UNDOC_CLASSES tag is set to YES, Doxygen will hide all 
-+# undocumented classes that are normally visible in the class hierarchy. 
-+# If set to NO (the default) these classes will be included in the various 
-+# overviews. This option has no effect if EXTRACT_ALL is enabled.
-+
-+HIDE_UNDOC_CLASSES     = YES
-+
-+# If the HIDE_FRIEND_COMPOUNDS tag is set to YES, Doxygen will hide all 
-+# friend (class|struct|union) declarations. 
-+# If set to NO (the default) these declarations will be included in the 
-+# documentation.
-+
-+HIDE_FRIEND_COMPOUNDS  = NO
-+
-+# If the HIDE_IN_BODY_DOCS tag is set to YES, Doxygen will hide any 
-+# documentation blocks found inside the body of a function. 
-+# If set to NO (the default) these blocks will be appended to the 
-+# function's detailed documentation block.
-+
-+HIDE_IN_BODY_DOCS      = NO
-+
-+# The INTERNAL_DOCS tag determines if documentation 
-+# that is typed after a \internal command is included. If the tag is set 
-+# to NO (the default) then the documentation will be excluded. 
-+# Set it to YES to include the internal documentation.
-+
-+INTERNAL_DOCS          = NO
-+
-+# If the CASE_SENSE_NAMES tag is set to NO then Doxygen will only generate 
-+# file names in lower-case letters. If set to YES upper-case letters are also 
-+# allowed. This is useful if you have classes or files whose names only differ 
-+# in case and if your file system supports case sensitive file names. Windows 
-+# and Mac users are advised to set this option to NO.
-+
-+CASE_SENSE_NAMES       = YES
-+
-+# If the HIDE_SCOPE_NAMES tag is set to NO (the default) then Doxygen 
-+# will show members with their full class and namespace scopes in the 
-+# documentation. If set to YES the scope will be hidden.
-+
-+HIDE_SCOPE_NAMES       = YES
-+
-+# If the SHOW_INCLUDE_FILES tag is set to YES (the default) then Doxygen 
-+# will put a list of the files that are included by a file in the documentation 
-+# of that file.
-+
-+SHOW_INCLUDE_FILES     = NO
-+
-+# If the INLINE_INFO tag is set to YES (the default) then a tag [inline] 
-+# is inserted in the documentation for inline members.
-+
-+INLINE_INFO            = YES
-+
-+# If the SORT_MEMBER_DOCS tag is set to YES (the default) then doxygen 
-+# will sort the (detailed) documentation of file and class members 
-+# alphabetically by member name. If set to NO the members will appear in 
-+# declaration order.
-+
-+SORT_MEMBER_DOCS       = YES
-+
-+# If the SORT_BRIEF_DOCS tag is set to YES then doxygen will sort the 
-+# brief documentation of file, namespace and class members alphabetically 
-+# by member name. If set to NO (the default) the members will appear in 
-+# declaration order.
-+
-+SORT_BRIEF_DOCS        = NO
-+
-+# If the SORT_BY_SCOPE_NAME tag is set to YES, the class list will be 
-+# sorted by fully-qualified names, including namespaces. If set to 
-+# NO (the default), the class list will be sorted only by class name, 
-+# not including the namespace part. 
-+# Note: This option is not very useful if HIDE_SCOPE_NAMES is set to YES.
-+# Note: This option applies only to the class list, not to the 
-+# alphabetical list.
-+
-+SORT_BY_SCOPE_NAME     = NO
-+
-+# The GENERATE_TODOLIST tag can be used to enable (YES) or 
-+# disable (NO) the todo list. This list is created by putting \todo 
-+# commands in the documentation.
-+
-+GENERATE_TODOLIST      = YES
-+
-+# The GENERATE_TESTLIST tag can be used to enable (YES) or 
-+# disable (NO) the test list. This list is created by putting \test 
-+# commands in the documentation.
-+
-+GENERATE_TESTLIST      = YES
-+
-+# The GENERATE_BUGLIST tag can be used to enable (YES) or 
-+# disable (NO) the bug list. This list is created by putting \bug 
-+# commands in the documentation.
-+
-+GENERATE_BUGLIST       = YES
-+
-+# The GENERATE_DEPRECATEDLIST tag can be used to enable (YES) or 
-+# disable (NO) the deprecated list. This list is created by putting 
-+# \deprecated commands in the documentation.
-+
-+GENERATE_DEPRECATEDLIST= YES
-+
-+# The ENABLED_SECTIONS tag can be used to enable conditional 
-+# documentation sections, marked by \if sectionname ... \endif.
-+
-+ENABLED_SECTIONS       = 
-+
-+# The MAX_INITIALIZER_LINES tag determines the maximum number of lines 
-+# the initial value of a variable or define consists of for it to appear in 
-+# the documentation. If the initializer consists of more lines than specified 
-+# here it will be hidden. Use a value of 0 to hide initializers completely. 
-+# The appearance of the initializer of individual variables and defines in the 
-+# documentation can be controlled using \showinitializer or \hideinitializer 
-+# command in the documentation regardless of this setting.
-+
-+MAX_INITIALIZER_LINES  = 30
-+
-+# Set the SHOW_USED_FILES tag to NO to disable the list of files generated 
-+# at the bottom of the documentation of classes and structs. If set to YES the 
-+# list will mention the files that were used to generate the documentation.
-+
-+SHOW_USED_FILES        = NO
-+
-+# If the sources in your project are distributed over multiple directories 
-+# then setting the SHOW_DIRECTORIES tag to YES will show the directory hierarchy 
-+# in the documentation. The default is NO.
-+
-+SHOW_DIRECTORIES       = NO
-+
-+# The FILE_VERSION_FILTER tag can be used to specify a program or script that 
-+# doxygen should invoke to get the current version for each file (typically from the 
-+# version control system). Doxygen will invoke the program by executing (via 
-+# popen()) the command <command> <input-file>, where <command> is the value of 
-+# the FILE_VERSION_FILTER tag, and <input-file> is the name of an input file 
-+# provided by doxygen. Whatever the program writes to standard output 
-+# is used as the file version. See the manual for examples.
-+
-+FILE_VERSION_FILTER    = 
-+
-+#---------------------------------------------------------------------------
-+# configuration options related to warning and progress messages
-+#---------------------------------------------------------------------------
-+
-+# The QUIET tag can be used to turn on/off the messages that are generated 
-+# by doxygen. Possible values are YES and NO. If left blank NO is used.
-+
-+QUIET                  = YES
-+
-+# The WARNINGS tag can be used to turn on/off the warning messages that are 
-+# generated by doxygen. Possible values are YES and NO. If left blank 
-+# NO is used.
-+
-+WARNINGS               = YES
-+
-+# If WARN_IF_UNDOCUMENTED is set to YES, then doxygen will generate warnings 
-+# for undocumented members. If EXTRACT_ALL is set to YES then this flag will 
-+# automatically be disabled.
-+
-+WARN_IF_UNDOCUMENTED   = YES
-+
-+# If WARN_IF_DOC_ERROR is set to YES, doxygen will generate warnings for 
-+# potential errors in the documentation, such as not documenting some 
-+# parameters in a documented function, or documenting parameters that 
-+# don't exist or using markup commands wrongly.
-+
-+WARN_IF_DOC_ERROR      = YES
-+
-+# This WARN_NO_PARAMDOC option can be abled to get warnings for 
-+# functions that are documented, but have no documentation for their parameters 
-+# or return value. If set to NO (the default) doxygen will only warn about 
-+# wrong or incomplete parameter documentation, but not about the absence of 
-+# documentation.
-+
-+WARN_NO_PARAMDOC       = NO
-+
-+# The WARN_FORMAT tag determines the format of the warning messages that 
-+# doxygen can produce. The string should contain the $file, $line, and $text 
-+# tags, which will be replaced by the file and line number from which the 
-+# warning originated and the warning text. Optionally the format may contain 
-+# $version, which will be replaced by the version of the file (if it could 
-+# be obtained via FILE_VERSION_FILTER)
-+
-+WARN_FORMAT            = "$file:$line: $text"
-+
-+# The WARN_LOGFILE tag can be used to specify a file to which warning 
-+# and error messages should be written. If left blank the output is written 
-+# to stderr.
-+
-+WARN_LOGFILE           = 
-+
-+#---------------------------------------------------------------------------
-+# configuration options related to the input files
-+#---------------------------------------------------------------------------
-+
-+# The INPUT tag can be used to specify the files and/or directories that contain 
-+# documented source files. You may enter file names like "myfile.cpp" or 
-+# directories like "/usr/src/myproject". Separate the files or directories 
-+# with spaces.
-+
-+INPUT                  = include/sepol
-+
-+# If the value of the INPUT tag contains directories, you can use the 
-+# FILE_PATTERNS tag to specify one or more wildcard pattern (like *.cpp 
-+# and *.h) to filter out the source-files in the directories. If left 
-+# blank the following patterns are tested: 
-+# *.c *.cc *.cxx *.cpp *.c++ *.java *.ii *.ixx *.ipp *.i++ *.inl *.h *.hh *.hxx 
-+# *.hpp *.h++ *.idl *.odl *.cs *.php *.php3 *.inc *.m *.mm *.py
-+
-+FILE_PATTERNS          = *.h
-+
-+# The RECURSIVE tag can be used to turn specify whether or not subdirectories 
-+# should be searched for input files as well. Possible values are YES and NO. 
-+# If left blank NO is used.
-+
-+RECURSIVE              = YES
-+
-+# The EXCLUDE tag can be used to specify files and/or directories that should 
-+# excluded from the INPUT source files. This way you can easily exclude a 
-+# subdirectory from a directory tree whose root is specified with the INPUT tag.
-+
-+EXCLUDE                = 
-+
-+# The EXCLUDE_SYMLINKS tag can be used select whether or not files or 
-+# directories that are symbolic links (a Unix filesystem feature) are excluded 
-+# from the input.
-+
-+EXCLUDE_SYMLINKS       = NO
-+
-+# If the value of the INPUT tag contains directories, you can use the 
-+# EXCLUDE_PATTERNS tag to specify one or more wildcard patterns to exclude 
-+# certain files from those directories. Note that the wildcards are matched 
-+# against the file with absolute path, so to exclude all test directories 
-+# for example use the pattern */test/*
-+
-+EXCLUDE_PATTERNS       = 
-+
-+# The EXAMPLE_PATH tag can be used to specify one or more files or 
-+# directories that contain example code fragments that are included (see 
-+# the \include command).
-+
-+EXAMPLE_PATH           = 
-+
-+# If the value of the EXAMPLE_PATH tag contains directories, you can use the 
-+# EXAMPLE_PATTERNS tag to specify one or more wildcard pattern (like *.cpp 
-+# and *.h) to filter out the source-files in the directories. If left 
-+# blank all files are included.
-+
-+EXAMPLE_PATTERNS       = 
-+
-+# If the EXAMPLE_RECURSIVE tag is set to YES then subdirectories will be 
-+# searched for input files to be used with the \include or \dontinclude 
-+# commands irrespective of the value of the RECURSIVE tag. 
-+# Possible values are YES and NO. If left blank NO is used.
-+
-+EXAMPLE_RECURSIVE      = NO
-+
-+# The IMAGE_PATH tag can be used to specify one or more files or 
-+# directories that contain image that are included in the documentation (see 
-+# the \image command).
-+
-+IMAGE_PATH             = 
-+
-+# The INPUT_FILTER tag can be used to specify a program that doxygen should 
-+# invoke to filter for each input file. Doxygen will invoke the filter program 
-+# by executing (via popen()) the command <filter> <input-file>, where <filter> 
-+# is the value of the INPUT_FILTER tag, and <input-file> is the name of an 
-+# input file. Doxygen will then use the output that the filter program writes 
-+# to standard output.  If FILTER_PATTERNS is specified, this tag will be 
-+# ignored.
-+
-+INPUT_FILTER           = 
-+
-+# The FILTER_PATTERNS tag can be used to specify filters on a per file pattern 
-+# basis.  Doxygen will compare the file name with each pattern and apply the 
-+# filter if there is a match.  The filters are a list of the form: 
-+# pattern=filter (like *.cpp=my_cpp_filter). See INPUT_FILTER for further 
-+# info on how filters are used. If FILTER_PATTERNS is empty, INPUT_FILTER 
-+# is applied to all files.
-+
-+FILTER_PATTERNS        = 
-+
-+# If the FILTER_SOURCE_FILES tag is set to YES, the input filter (if set using 
-+# INPUT_FILTER) will be used to filter the input files when producing source 
-+# files to browse (i.e. when SOURCE_BROWSER is set to YES).
-+
-+FILTER_SOURCE_FILES    = NO
-+
-+#---------------------------------------------------------------------------
-+# configuration options related to source browsing
-+#---------------------------------------------------------------------------
-+
-+# If the SOURCE_BROWSER tag is set to YES then a list of source files will 
-+# be generated. Documented entities will be cross-referenced with these sources. 
-+# Note: To get rid of all source code in the generated output, make sure also 
-+# VERBATIM_HEADERS is set to NO.
-+
-+SOURCE_BROWSER         = NO
-+
-+# Setting the INLINE_SOURCES tag to YES will include the body 
-+# of functions and classes directly in the documentation.
-+
-+INLINE_SOURCES         = NO
-+
-+# Setting the STRIP_CODE_COMMENTS tag to YES (the default) will instruct 
-+# doxygen to hide any special comment blocks from generated source code 
-+# fragments. Normal C and C++ comments will always remain visible.
-+
-+STRIP_CODE_COMMENTS    = YES
-+
-+# If the REFERENCED_BY_RELATION tag is set to YES (the default) 
-+# then for each documented function all documented 
-+# functions referencing it will be listed.
-+
-+REFERENCED_BY_RELATION = YES
-+
-+# If the REFERENCES_RELATION tag is set to YES (the default) 
-+# then for each documented function all documented entities 
-+# called/used by that function will be listed.
-+
-+REFERENCES_RELATION    = YES
-+
-+# If the REFERENCES_LINK_SOURCE tag is set to YES (the default)
-+# and SOURCE_BROWSER tag is set to YES, then the hyperlinks from
-+# functions in REFERENCES_RELATION and REFERENCED_BY_RELATION lists will
-+# link to the source code.  Otherwise they will link to the documentstion.
-+
-+REFERENCES_LINK_SOURCE = YES
-+
-+# If the USE_HTAGS tag is set to YES then the references to source code 
-+# will point to the HTML generated by the htags(1) tool instead of doxygen 
-+# built-in source browser. The htags tool is part of GNU's global source 
-+# tagging system (see http://www.gnu.org/software/global/global.html). You 
-+# will need version 4.8.6 or higher.
-+
-+USE_HTAGS              = NO
-+
-+# If the VERBATIM_HEADERS tag is set to YES (the default) then Doxygen 
-+# will generate a verbatim copy of the header file for each class for 
-+# which an include is specified. Set to NO to disable this.
-+
-+VERBATIM_HEADERS       = YES
-+
-+#---------------------------------------------------------------------------
-+# configuration options related to the alphabetical class index
-+#---------------------------------------------------------------------------
-+
-+# If the ALPHABETICAL_INDEX tag is set to YES, an alphabetical index 
-+# of all compounds will be generated. Enable this if the project 
-+# contains a lot of classes, structs, unions or interfaces.
-+
-+ALPHABETICAL_INDEX     = NO
-+
-+# If the alphabetical index is enabled (see ALPHABETICAL_INDEX) then 
-+# the COLS_IN_ALPHA_INDEX tag can be used to specify the number of columns 
-+# in which this list will be split (can be a number in the range [1..20])
-+
-+COLS_IN_ALPHA_INDEX    = 5
-+
-+# In case all classes in a project start with a common prefix, all 
-+# classes will be put under the same header in the alphabetical index. 
-+# The IGNORE_PREFIX tag can be used to specify one or more prefixes that 
-+# should be ignored while generating the index headers.
-+
-+IGNORE_PREFIX          = 
-+
-+#---------------------------------------------------------------------------
-+# configuration options related to the HTML output
-+#---------------------------------------------------------------------------
-+
-+# If the GENERATE_HTML tag is set to YES (the default) Doxygen will 
-+# generate HTML output.
-+
-+GENERATE_HTML          = YES
-+
-+# The HTML_OUTPUT tag is used to specify where the HTML docs will be put. 
-+# If a relative path is entered the value of OUTPUT_DIRECTORY will be 
-+# put in front of it. If left blank `html' will be used as the default path.
-+
-+HTML_OUTPUT            = html
-+
-+# The HTML_FILE_EXTENSION tag can be used to specify the file extension for 
-+# each generated HTML page (for example: .htm,.php,.asp). If it is left blank 
-+# doxygen will generate files with .html extension.
-+
-+HTML_FILE_EXTENSION    = .html
-+
-+# The HTML_HEADER tag can be used to specify a personal HTML header for 
-+# each generated HTML page. If it is left blank doxygen will generate a 
-+# standard header.
-+
-+HTML_HEADER            = 
-+
-+# The HTML_FOOTER tag can be used to specify a personal HTML footer for 
-+# each generated HTML page. If it is left blank doxygen will generate a 
-+# standard footer.
-+
-+HTML_FOOTER            = 
-+
-+# The HTML_STYLESHEET tag can be used to specify a user-defined cascading 
-+# style sheet that is used by each HTML page. It can be used to 
-+# fine-tune the look of the HTML output. If the tag is left blank doxygen 
-+# will generate a default style sheet. Note that doxygen will try to copy 
-+# the style sheet file to the HTML output directory, so don't put your own 
-+# stylesheet in the HTML output directory as well, or it will be erased!
-+
-+HTML_STYLESHEET        = 
-+
-+# If the HTML_ALIGN_MEMBERS tag is set to YES, the members of classes, 
-+# files or namespaces will be aligned in HTML using tables. If set to 
-+# NO a bullet list will be used.
-+
-+HTML_ALIGN_MEMBERS     = YES
-+
-+# If the GENERATE_HTMLHELP tag is set to YES, additional index files 
-+# will be generated that can be used as input for tools like the 
-+# Microsoft HTML help workshop to generate a compressed HTML help file (.chm) 
-+# of the generated HTML documentation.
-+
-+GENERATE_HTMLHELP      = NO
-+
-+# If the GENERATE_HTMLHELP tag is set to YES, the CHM_FILE tag can 
-+# be used to specify the file name of the resulting .chm file. You 
-+# can add a path in front of the file if the result should not be 
-+# written to the html output directory.
-+
-+CHM_FILE               = 
-+
-+# If the GENERATE_HTMLHELP tag is set to YES, the HHC_LOCATION tag can 
-+# be used to specify the location (absolute path including file name) of 
-+# the HTML help compiler (hhc.exe). If non-empty doxygen will try to run 
-+# the HTML help compiler on the generated index.hhp.
-+
-+HHC_LOCATION           = 
-+
-+# If the GENERATE_HTMLHELP tag is set to YES, the GENERATE_CHI flag 
-+# controls if a separate .chi index file is generated (YES) or that 
-+# it should be included in the master .chm file (NO).
-+
-+GENERATE_CHI           = NO
-+
-+# If the GENERATE_HTMLHELP tag is set to YES, the BINARY_TOC flag 
-+# controls whether a binary table of contents is generated (YES) or a 
-+# normal table of contents (NO) in the .chm file.
-+
-+BINARY_TOC             = NO
-+
-+# The TOC_EXPAND flag can be set to YES to add extra items for group members 
-+# to the contents of the HTML help documentation and to the tree view.
-+
-+TOC_EXPAND             = NO
-+
-+# The DISABLE_INDEX tag can be used to turn on/off the condensed index at 
-+# top of each HTML page. The value NO (the default) enables the index and 
-+# the value YES disables it.
-+
-+DISABLE_INDEX          = NO
-+
-+# This tag can be used to set the number of enum values (range [1..20]) 
-+# that doxygen will group on one line in the generated HTML documentation.
-+
-+ENUM_VALUES_PER_LINE   = 4
-+
-+# If the GENERATE_TREEVIEW tag is set to YES, a side panel will be
-+# generated containing a tree-like index structure (just like the one that 
-+# is generated for HTML Help). For this to work a browser that supports 
-+# JavaScript, DHTML, CSS and frames is required (for instance Mozilla 1.0+, 
-+# Netscape 6.0+, Internet explorer 5.0+, or Konqueror). Windows users are 
-+# probably better off using the HTML help feature.
-+
-+GENERATE_TREEVIEW      = NO
-+
-+# If the treeview is enabled (see GENERATE_TREEVIEW) then this tag can be 
-+# used to set the initial width (in pixels) of the frame in which the tree 
-+# is shown.
-+
-+TREEVIEW_WIDTH         = 250
-+
-+#---------------------------------------------------------------------------
-+# configuration options related to the LaTeX output
-+#---------------------------------------------------------------------------
-+
-+# If the GENERATE_LATEX tag is set to YES (the default) Doxygen will 
-+# generate Latex output.
-+
-+GENERATE_LATEX         = NO
-+
-+# The LATEX_OUTPUT tag is used to specify where the LaTeX docs will be put. 
-+# If a relative path is entered the value of OUTPUT_DIRECTORY will be 
-+# put in front of it. If left blank `latex' will be used as the default path.
-+
-+LATEX_OUTPUT           = latex
-+
-+# The LATEX_CMD_NAME tag can be used to specify the LaTeX command name to be 
-+# invoked. If left blank `latex' will be used as the default command name.
-+
-+LATEX_CMD_NAME         = latex
-+
-+# The MAKEINDEX_CMD_NAME tag can be used to specify the command name to 
-+# generate index for LaTeX. If left blank `makeindex' will be used as the 
-+# default command name.
-+
-+MAKEINDEX_CMD_NAME     = makeindex
-+
-+# If the COMPACT_LATEX tag is set to YES Doxygen generates more compact 
-+# LaTeX documents. This may be useful for small projects and may help to 
-+# save some trees in general.
-+
-+COMPACT_LATEX          = NO
-+
-+# The PAPER_TYPE tag can be used to set the paper type that is used 
-+# by the printer. Possible values are: a4, a4wide, letter, legal and 
-+# executive. If left blank a4wide will be used.
-+
-+PAPER_TYPE             = a4wide
-+
-+# The EXTRA_PACKAGES tag can be to specify one or more names of LaTeX 
-+# packages that should be included in the LaTeX output.
-+
-+EXTRA_PACKAGES         = 
-+
-+# The LATEX_HEADER tag can be used to specify a personal LaTeX header for 
-+# the generated latex document. The header should contain everything until 
-+# the first chapter. If it is left blank doxygen will generate a 
-+# standard header. Notice: only use this tag if you know what you are doing!
-+
-+LATEX_HEADER           = 
-+
-+# If the PDF_HYPERLINKS tag is set to YES, the LaTeX that is generated 
-+# is prepared for conversion to pdf (using ps2pdf). The pdf file will 
-+# contain links (just like the HTML output) instead of page references 
-+# This makes the output suitable for online browsing using a pdf viewer.
-+
-+PDF_HYPERLINKS         = NO
-+
-+# If the USE_PDFLATEX tag is set to YES, pdflatex will be used instead of 
-+# plain latex in the generated Makefile. Set this option to YES to get a 
-+# higher quality PDF documentation.
-+
-+USE_PDFLATEX           = NO
-+
-+# If the LATEX_BATCHMODE tag is set to YES, doxygen will add the \\batchmode. 
-+# command to the generated LaTeX files. This will instruct LaTeX to keep 
-+# running if errors occur, instead of asking the user for help. 
-+# This option is also used when generating formulas in HTML.
-+
-+LATEX_BATCHMODE        = NO
-+
-+# If LATEX_HIDE_INDICES is set to YES then doxygen will not 
-+# include the index chapters (such as File Index, Compound Index, etc.) 
-+# in the output.
-+
-+LATEX_HIDE_INDICES     = NO
-+
-+#---------------------------------------------------------------------------
-+# configuration options related to the RTF output
-+#---------------------------------------------------------------------------
-+
-+# If the GENERATE_RTF tag is set to YES Doxygen will generate RTF output 
-+# The RTF output is optimized for Word 97 and may not look very pretty with 
-+# other RTF readers or editors.
-+
-+GENERATE_RTF           = NO
-+
-+# The RTF_OUTPUT tag is used to specify where the RTF docs will be put. 
-+# If a relative path is entered the value of OUTPUT_DIRECTORY will be 
-+# put in front of it. If left blank `rtf' will be used as the default path.
-+
-+RTF_OUTPUT             = rtf
-+
-+# If the COMPACT_RTF tag is set to YES Doxygen generates more compact 
-+# RTF documents. This may be useful for small projects and may help to 
-+# save some trees in general.
-+
-+COMPACT_RTF            = NO
-+
-+# If the RTF_HYPERLINKS tag is set to YES, the RTF that is generated 
-+# will contain hyperlink fields. The RTF file will 
-+# contain links (just like the HTML output) instead of page references. 
-+# This makes the output suitable for online browsing using WORD or other 
-+# programs which support those fields. 
-+# Note: wordpad (write) and others do not support links.
-+
-+RTF_HYPERLINKS         = NO
-+
-+# Load stylesheet definitions from file. Syntax is similar to doxygen's 
-+# config file, i.e. a series of assignments. You only have to provide 
-+# replacements, missing definitions are set to their default value.
-+
-+RTF_STYLESHEET_FILE    = 
-+
-+# Set optional variables used in the generation of an rtf document. 
-+# Syntax is similar to doxygen's config file.
-+
-+RTF_EXTENSIONS_FILE    = 
-+
-+#---------------------------------------------------------------------------
-+# configuration options related to the man page output
-+#---------------------------------------------------------------------------
-+
-+# If the GENERATE_MAN tag is set to YES (the default) Doxygen will 
-+# generate man pages
-+
-+GENERATE_MAN           = YES
-+
-+# The MAN_OUTPUT tag is used to specify where the man pages will be put. 
-+# If a relative path is entered the value of OUTPUT_DIRECTORY will be 
-+# put in front of it. If left blank `man' will be used as the default path.
-+
-+MAN_OUTPUT             = man
-+
-+# The MAN_EXTENSION tag determines the extension that is added to 
-+# the generated man pages (default is the subroutine's section .3)
-+
-+MAN_EXTENSION          = .3
-+
-+# If the MAN_LINKS tag is set to YES and Doxygen generates man output, 
-+# then it will generate one additional man file for each entity 
-+# documented in the real man page(s). These additional files 
-+# only source the real man page, but without them the man command 
-+# would be unable to find the correct page. The default is NO.
-+
-+MAN_LINKS              = NO
-+
-+#---------------------------------------------------------------------------
-+# configuration options related to the XML output
-+#---------------------------------------------------------------------------
-+
-+# If the GENERATE_XML tag is set to YES Doxygen will 
-+# generate an XML file that captures the structure of 
-+# the code including all documentation.
-+
-+GENERATE_XML           = NO
-+
-+# The XML_OUTPUT tag is used to specify where the XML pages will be put. 
-+# If a relative path is entered the value of OUTPUT_DIRECTORY will be 
-+# put in front of it. If left blank `xml' will be used as the default path.
-+
-+XML_OUTPUT             = xml
-+
-+# The XML_SCHEMA tag can be used to specify an XML schema, 
-+# which can be used by a validating XML parser to check the 
-+# syntax of the XML files.
-+
-+XML_SCHEMA             = 
-+
-+# The XML_DTD tag can be used to specify an XML DTD, 
-+# which can be used by a validating XML parser to check the 
-+# syntax of the XML files.
-+
-+XML_DTD                = 
-+
-+# If the XML_PROGRAMLISTING tag is set to YES Doxygen will 
-+# dump the program listings (including syntax highlighting 
-+# and cross-referencing information) to the XML output. Note that 
-+# enabling this will significantly increase the size of the XML output.
-+
-+XML_PROGRAMLISTING     = YES
-+
-+#---------------------------------------------------------------------------
-+# configuration options for the AutoGen Definitions output
-+#---------------------------------------------------------------------------
-+
-+# If the GENERATE_AUTOGEN_DEF tag is set to YES Doxygen will 
-+# generate an AutoGen Definitions (see autogen.sf.net) file 
-+# that captures the structure of the code including all 
-+# documentation. Note that this feature is still experimental 
-+# and incomplete at the moment.
-+
-+GENERATE_AUTOGEN_DEF   = NO
-+
-+#---------------------------------------------------------------------------
-+# configuration options related to the Perl module output
-+#---------------------------------------------------------------------------
-+
-+# If the GENERATE_PERLMOD tag is set to YES Doxygen will 
-+# generate a Perl module file that captures the structure of 
-+# the code including all documentation. Note that this 
-+# feature is still experimental and incomplete at the 
-+# moment.
-+
-+GENERATE_PERLMOD       = NO
-+
-+# If the PERLMOD_LATEX tag is set to YES Doxygen will generate 
-+# the necessary Makefile rules, Perl scripts and LaTeX code to be able 
-+# to generate PDF and DVI output from the Perl module output.
-+
-+PERLMOD_LATEX          = NO
-+
-+# If the PERLMOD_PRETTY tag is set to YES the Perl module output will be 
-+# nicely formatted so it can be parsed by a human reader.  This is useful 
-+# if you want to understand what is going on.  On the other hand, if this 
-+# tag is set to NO the size of the Perl module output will be much smaller 
-+# and Perl will parse it just the same.
-+
-+PERLMOD_PRETTY         = YES
-+
-+# The names of the make variables in the generated doxyrules.make file 
-+# are prefixed with the string contained in PERLMOD_MAKEVAR_PREFIX. 
-+# This is useful so different doxyrules.make files included by the same 
-+# Makefile don't overwrite each other's variables.
-+
-+PERLMOD_MAKEVAR_PREFIX = 
-+
-+#---------------------------------------------------------------------------
-+# Configuration options related to the preprocessor   
-+#---------------------------------------------------------------------------
-+
-+# If the ENABLE_PREPROCESSING tag is set to YES (the default) Doxygen will 
-+# evaluate all C-preprocessor directives found in the sources and include 
-+# files.
-+
-+ENABLE_PREPROCESSING   = YES
-+
-+# If the MACRO_EXPANSION tag is set to YES Doxygen will expand all macro 
-+# names in the source code. If set to NO (the default) only conditional 
-+# compilation will be performed. Macro expansion can be done in a controlled 
-+# way by setting EXPAND_ONLY_PREDEF to YES.
-+
-+MACRO_EXPANSION        = NO
-+
-+# If the EXPAND_ONLY_PREDEF and MACRO_EXPANSION tags are both set to YES 
-+# then the macro expansion is limited to the macros specified with the 
-+# PREDEFINED and EXPAND_AS_DEFINED tags.
-+
-+EXPAND_ONLY_PREDEF     = NO
-+
-+# If the SEARCH_INCLUDES tag is set to YES (the default) the includes files 
-+# in the INCLUDE_PATH (see below) will be search if a #include is found.
-+
-+SEARCH_INCLUDES        = YES
-+
-+# The INCLUDE_PATH tag can be used to specify one or more directories that 
-+# contain include files that are not input files but should be processed by 
-+# the preprocessor.
-+
-+INCLUDE_PATH           = 
-+
-+# You can use the INCLUDE_FILE_PATTERNS tag to specify one or more wildcard 
-+# patterns (like *.h and *.hpp) to filter out the header-files in the 
-+# directories. If left blank, the patterns specified with FILE_PATTERNS will 
-+# be used.
-+
-+INCLUDE_FILE_PATTERNS  = 
-+
-+# The PREDEFINED tag can be used to specify one or more macro names that 
-+# are defined before the preprocessor is started (similar to the -D option of 
-+# gcc). The argument of the tag is a list of macros of the form: name 
-+# or name=definition (no spaces). If the definition and the = are 
-+# omitted =1 is assumed. To prevent a macro definition from being 
-+# undefined via #undef or recursively expanded use the := operator 
-+# instead of the = operator.
-+
-+PREDEFINED             = 
-+
-+# If the MACRO_EXPANSION and EXPAND_ONLY_PREDEF tags are set to YES then 
-+# this tag can be used to specify a list of macro names that should be expanded. 
-+# The macro definition that is found in the sources will be used. 
-+# Use the PREDEFINED tag if you want to use a different macro definition.
-+
-+EXPAND_AS_DEFINED      = 
-+
-+# If the SKIP_FUNCTION_MACROS tag is set to YES (the default) then 
-+# doxygen's preprocessor will remove all function-like macros that are alone 
-+# on a line, have an all uppercase name, and do not end with a semicolon. Such 
-+# function macros are typically used for boiler-plate code, and will confuse 
-+# the parser if not removed.
-+
-+SKIP_FUNCTION_MACROS   = YES
-+
-+#---------------------------------------------------------------------------
-+# Configuration::additions related to external references   
-+#---------------------------------------------------------------------------
-+
-+# The TAGFILES option can be used to specify one or more tagfiles. 
-+# Optionally an initial location of the external documentation 
-+# can be added for each tagfile. The format of a tag file without 
-+# this location is as follows: 
-+#   TAGFILES = file1 file2 ... 
-+# Adding location for the tag files is done as follows: 
-+#   TAGFILES = file1=loc1 "file2 = loc2" ... 
-+# where "loc1" and "loc2" can be relative or absolute paths or 
-+# URLs. If a location is present for each tag, the installdox tool 
-+# does not have to be run to correct the links.
-+# Note that each tag file must have a unique name
-+# (where the name does NOT include the path)
-+# If a tag file is not located in the directory in which doxygen 
-+# is run, you must also specify the path to the tagfile here.
-+
-+TAGFILES               = 
-+
-+# When a file name is specified after GENERATE_TAGFILE, doxygen will create 
-+# a tag file that is based on the input files it reads.
-+
-+GENERATE_TAGFILE       = 
-+
-+# If the ALLEXTERNALS tag is set to YES all external classes will be listed 
-+# in the class index. If set to NO only the inherited external classes 
-+# will be listed.
-+
-+ALLEXTERNALS           = NO
-+
-+# If the EXTERNAL_GROUPS tag is set to YES all external groups will be listed 
-+# in the modules index. If set to NO, only the current project's groups will 
-+# be listed.
-+
-+EXTERNAL_GROUPS        = YES
-+
-+# The PERL_PATH should be the absolute path and name of the perl script 
-+# interpreter (i.e. the result of `which perl').
-+
-+PERL_PATH              = /usr/bin/perl
-+
-+#---------------------------------------------------------------------------
-+# Configuration options related to the dot tool   
-+#---------------------------------------------------------------------------
-+
-+# If the CLASS_DIAGRAMS tag is set to YES (the default) Doxygen will 
-+# generate a inheritance diagram (in HTML, RTF and LaTeX) for classes with base 
-+# or super classes. Setting the tag to NO turns the diagrams off. Note that 
-+# this option is superseded by the HAVE_DOT option below. This is only a 
-+# fallback. It is recommended to install and use dot, since it yields more 
-+# powerful graphs.
-+
-+CLASS_DIAGRAMS         = YES
-+
-+# If set to YES, the inheritance and collaboration graphs will hide 
-+# inheritance and usage relations if the target is undocumented 
-+# or is not a class.
-+
-+HIDE_UNDOC_RELATIONS   = YES
-+
-+# If you set the HAVE_DOT tag to YES then doxygen will assume the dot tool is 
-+# available from the path. This tool is part of Graphviz, a graph visualization 
-+# toolkit from AT&T and Lucent Bell Labs. The other options in this section 
-+# have no effect if this option is set to NO (the default)
-+
-+HAVE_DOT               = NO
-+
-+# If the CLASS_GRAPH and HAVE_DOT tags are set to YES then doxygen 
-+# will generate a graph for each documented class showing the direct and 
-+# indirect inheritance relations. Setting this tag to YES will force the 
-+# the CLASS_DIAGRAMS tag to NO.
-+
-+CLASS_GRAPH            = YES
-+
-+# If the COLLABORATION_GRAPH and HAVE_DOT tags are set to YES then doxygen 
-+# will generate a graph for each documented class showing the direct and 
-+# indirect implementation dependencies (inheritance, containment, and 
-+# class references variables) of the class with other documented classes.
-+
-+COLLABORATION_GRAPH    = YES
-+
-+# If the GROUP_GRAPHS and HAVE_DOT tags are set to YES then doxygen 
-+# will generate a graph for groups, showing the direct groups dependencies
-+
-+GROUP_GRAPHS           = YES
-+
-+# If the UML_LOOK tag is set to YES doxygen will generate inheritance and 
-+# collaboration diagrams in a style similar to the OMG's Unified Modeling 
-+# Language.
-+
-+UML_LOOK               = NO
-+
-+# If set to YES, the inheritance and collaboration graphs will show the 
-+# relations between templates and their instances.
-+
-+TEMPLATE_RELATIONS     = NO
-+
-+# If the ENABLE_PREPROCESSING, SEARCH_INCLUDES, INCLUDE_GRAPH, and HAVE_DOT 
-+# tags are set to YES then doxygen will generate a graph for each documented 
-+# file showing the direct and indirect include dependencies of the file with 
-+# other documented files.
-+
-+INCLUDE_GRAPH          = YES
-+
-+# If the ENABLE_PREPROCESSING, SEARCH_INCLUDES, INCLUDED_BY_GRAPH, and 
-+# HAVE_DOT tags are set to YES then doxygen will generate a graph for each 
-+# documented header file showing the documented files that directly or 
-+# indirectly include this file.
-+
-+INCLUDED_BY_GRAPH      = YES
-+
-+# If the CALL_GRAPH and HAVE_DOT tags are set to YES then doxygen will 
-+# generate a call dependency graph for every global function or class method. 
-+# Note that enabling this option will significantly increase the time of a run. 
-+# So in most cases it will be better to enable call graphs for selected 
-+# functions only using the \callgraph command.
-+
-+CALL_GRAPH             = NO
-+
-+# If the CALLER_GRAPH and HAVE_DOT tags are set to YES then doxygen will 
-+# generate a caller dependency graph for every global function or class method. 
-+# Note that enabling this option will significantly increase the time of a run. 
-+# So in most cases it will be better to enable caller graphs for selected 
-+# functions only using the \callergraph command.
-+
-+CALLER_GRAPH           = NO
-+
-+# If the GRAPHICAL_HIERARCHY and HAVE_DOT tags are set to YES then doxygen 
-+# will graphical hierarchy of all classes instead of a textual one.
-+
-+GRAPHICAL_HIERARCHY    = YES
-+
-+# If the DIRECTORY_GRAPH, SHOW_DIRECTORIES and HAVE_DOT tags are set to YES 
-+# then doxygen will show the dependencies a directory has on other directories 
-+# in a graphical way. The dependency relations are determined by the #include
-+# relations between the files in the directories.
-+
-+DIRECTORY_GRAPH        = YES
-+
-+# The DOT_IMAGE_FORMAT tag can be used to set the image format of the images 
-+# generated by dot. Possible values are png, jpg, or gif
-+# If left blank png will be used.
-+
-+DOT_IMAGE_FORMAT       = png
-+
-+# The tag DOT_PATH can be used to specify the path where the dot tool can be 
-+# found. If left blank, it is assumed the dot tool can be found in the path.
-+
-+DOT_PATH               = 
-+
-+# The DOTFILE_DIRS tag can be used to specify one or more directories that 
-+# contain dot files that are included in the documentation (see the 
-+# \dotfile command).
-+
-+DOTFILE_DIRS           = 
-+
-+# The MAX_DOT_GRAPH_WIDTH tag can be used to set the maximum allowed width 
-+# (in pixels) of the graphs generated by dot. If a graph becomes larger than 
-+# this value, doxygen will try to truncate the graph, so that it fits within 
-+# the specified constraint. Beware that most browsers cannot cope with very 
-+# large images.
-+
-+MAX_DOT_GRAPH_WIDTH    = 1024
-+
-+# The MAX_DOT_GRAPH_HEIGHT tag can be used to set the maximum allows height 
-+# (in pixels) of the graphs generated by dot. If a graph becomes larger than 
-+# this value, doxygen will try to truncate the graph, so that it fits within 
-+# the specified constraint. Beware that most browsers cannot cope with very 
-+# large images.
-+
-+MAX_DOT_GRAPH_HEIGHT   = 1024
-+
-+# The MAX_DOT_GRAPH_DEPTH tag can be used to set the maximum depth of the 
-+# graphs generated by dot. A depth value of 3 means that only nodes reachable 
-+# from the root by following a path via at most 3 edges will be shown. Nodes 
-+# that lay further from the root node will be omitted. Note that setting this 
-+# option to 1 or 2 may greatly reduce the computation time needed for large 
-+# code bases. Also note that a graph may be further truncated if the graph's 
-+# image dimensions are not sufficient to fit the graph (see MAX_DOT_GRAPH_WIDTH 
-+# and MAX_DOT_GRAPH_HEIGHT). If 0 is used for the depth value (the default), 
-+# the graph is not depth-constrained.
-+
-+MAX_DOT_GRAPH_DEPTH    = 0
-+
-+# Set the DOT_TRANSPARENT tag to YES to generate images with a transparent 
-+# background. This is disabled by default, which results in a white background. 
-+# Warning: Depending on the platform used, enabling this option may lead to 
-+# badly anti-aliased labels on the edges of a graph (i.e. they become hard to 
-+# read).
-+
-+DOT_TRANSPARENT        = NO
-+
-+# Set the DOT_MULTI_TARGETS tag to YES allow dot to generate multiple output 
-+# files in one run (i.e. multiple -o and -T options on the command line). This 
-+# makes dot run faster, but since only newer versions of dot (>1.8.10) 
-+# support this, this feature is disabled by default.
-+
-+DOT_MULTI_TARGETS      = NO
-+
-+# If the GENERATE_LEGEND tag is set to YES (the default) Doxygen will 
-+# generate a legend page explaining the meaning of the various boxes and 
-+# arrows in the dot generated graphs.
-+
-+GENERATE_LEGEND        = YES
-+
-+# If the DOT_CLEANUP tag is set to YES (the default) Doxygen will 
-+# remove the intermediate dot files that are used to generate 
-+# the various graphs.
-+
-+DOT_CLEANUP            = YES
-+
-+#---------------------------------------------------------------------------
-+# Configuration::additions related to the search engine   
-+#---------------------------------------------------------------------------
-+
-+# The SEARCHENGINE tag specifies whether or not a search engine should be 
-+# used. If set to NO the values of all tags below this one will be ignored.
-+
-+SEARCHENGINE           = NO
++/* Custom error codes */
++#define SEPOL_ITERSTOP       -500
++
+ #endif
+diff -r c0ca24c3e136 libsepol/include/sepol/iter.h
+--- /dev/null	Thu Jan 01 00:00:00 1970 +0000
++++ b/libsepol/include/sepol/iter.h	Wed Apr 18 16:30:08 2007 -0400
+@@ -0,0 +1,239 @@
++/* Author : Karl MacMillan <kmacmillan@mentalrootkit.com> */
++
++#ifndef __sepol_iter_h__
++#define __sepol_iter_h__
++
++#include <sepol/handle.h>
++
++/**
++ * \defgroup libsepol_iter sepol_iter: generic iterators
++ * Iterators represent a position within a data structure. They are a
++ * generalization of the concept of pointers. Using iterators allows
++ * algorithms to be cleanly separated from data structures by
++ * abstracting the concept of position and movement. Once an iterator
++ * is created and its position initialized in a data structure
++ * specific way, looping and other control flow can be implemented
++ * only using the generic iterator functions.
++ *
++ * For example, consider the code below which loops through a list
++ * (the error handling and some initialization is ommitted for brevity):
++ * \code
++ *   int ret;
++ *   struct sepol_iter *iter;
++ *   struct sepol_handle *h;
++ *
++ *   sepol_iter_create(h, &iter);
++ *   ret = sepol_list_begin(h, iter);
++ *
++ *   while (ret == SEPOL_OK) {
++ *      // process the data
++ *      data = sepol_iter_get_data(h, iter);
++ *      ret = sepol_iter_next(h, iter);
++ *   }
++ *   if (ret != SEPOL_ITERSTOP)
++ *      // handle errors
++ * \endcode
++ */
++
++/**
++ * \ingroup libsepol_iter
++ * \struct sepol_iter
++ *
++ * Iterator data structuer.
++ *
++ * @see libsepol_iter
++ */
++struct sepol_iter;
++
++/**
++ * \ingroup libsepol_iter
++ * Create an iterator. The iterator is not valid
++ * until a data structure specific call has been
++ * made to initiliaze its position (e.g., sepol_list_begin).
++ *
++ * @param h sepol handle (can be NULL)
++ * @param iter pointer to allocated iterator
++ *
++ * \retval SEPOL_OK success
++ * \retval SEPOL_ENOMEM out of memory
++ */
++extern int sepol_iter_create(struct sepol_handle *h, struct sepol_iter **iter);
++
++/**
++ * \ingroup libsepol_iter
++ * Free an iterator. This has no effect on the data structure or items
++ * that the iterator may represent - only the iterator is destroyed.
++ *
++ * @param h sepol handle (can be NULL)
++ * @param iter iterator to destroy
++ *
++ * \retval SEPOL_OK success
++ * \retval  <0 other errors specific to the underlying data structure
++ */
++extern int sepol_iter_free(struct sepol_handle *h, struct sepol_iter *iter);
++
++/**
++ * \ingroup libsepol_iter
++ * Make a copy of an iterator. The new iterator will be at the
++ * same position as the old iterator.
++ *
++ * Warning: Not all iterators support copying. See the data structure
++ * documentation for details on whether iterators to a specific
++ * data structure support copying.
++ *
++ * @param h sepol handle (can be NULL)
++ * @param iter iterator to copy
++ * @param new_iter newly created iterator which is a copy of iter
++ *
++ * \retval SEPOL_OK success
++ * \retval SEPOL_ENOMEM out of memory
++ * \retval SEPOL_ENOTSUP iterator copying not supported
++ */
++extern int sepol_iter_clone(struct sepol_handle *h, const struct sepol_iter *iter,
++			    struct sepol_iter **new_iter);
++
++/**
++ * \ingroup libsepol_iter
++ * Return the data at this iterator location. The type
++ * of the returned data is data structure specific.
++ *
++ * @param h sepol handle (can be NULL)
++ * @param iter iterator from which to return data
++ * @param data pointer to data returned by iterator
++ *
++ * \retval SEPOL_OK success
++ * \retval  <0 other errors specific to the underlying data structure
++ */
++extern int sepol_iter_get_data(struct sepol_handle *h, struct sepol_iter *iter,
++			       void **data);
++
++/**
++ * \ingroup libsepol_iter
++ *
++ * Move the iterator to the next position. If SEPOL_ITERSTOP is
++ * returned, one past the end of the data structure has been reached.
++ * After SEPOL_ITERSTOP has been returned No other calls using this
++ * iterator are valid until a data structure specific call has been
++ * made to reset it to a valid position (e.g., sepol_list_begin).
++ *
++ * @param h sepol handle (can be NULL)
++ * @param iter iterator to advance
++ * 
++ * \retval SEPOL_OK iterator successfully moved
++ * \retval SEPOL_ITERSTOP iteration should stop
++ * \retval  <0 other errors specific to the underlying data structure
++ */
++int sepol_iter_next(struct sepol_handle *h, struct sepol_iter *iter);
++
++/**
++ * \ingroup libsepol_iter
++ * Move the iterator to the prev position. If SEPOL_ITERSTOP is
++ * returned, one before the beginning of the data structure has been
++ * reached. No other calls using this iterator are valid until a data
++ * structure specific call has been made to reset it to a valid
++ * position (e.g., sepol_list_end).
++ *
++ * Not all iterators support prev - the data structure specific
++ * iterator documentation should indicate whether prev is supported.
++ *
++ * @param h sepol handle (can be NULL)
++ * @param iter iterator to move to the previous position
++ *
++ * \retval SEPOL_OK iterator successfully moved
++ * \retval SEPOL_ITERSTOP iteration should stop
++ * \retval SEPOL_ENOTSUP previous iterator not supported for this
++ *  data structure.
++ * \retval  <0: other errors specific to the underlying data structure
++ */
++int sepol_iter_prev(struct sepol_handle *h, struct sepol_iter *iter);
++
++/**
++ * \ingroup libsepol_iter
++ * Move the iterator forward by distance. This does _not_ set the
++ * absolute position of the iterator. Rather, it moves in by distance
++ * from the current position. For example, moving an iterator at
++ * position 2 by 3 would put the iterator at position 5.
++ *
++ * @param h sepol handle (can be NULL)
++ * @param iter iterator to move forward
++ * @param distance distance to move iterator forward
++ *
++ * \retval SEPOL_OK iterator successfully moved
++ * \retval SEPOL_ITERSTOP iteration should stop
++ * \retval SEPOL_ENOTSUP previous iterator not supported for this
++ *  data structure.
++ * \retval  <0: other errors specific to the underlying data structure
++ */
++int sepol_iter_forward(struct sepol_handle *h, struct sepol_iter *iter,
++		       unsigned int distance);
++
++/**
++ * \ingroup libsepol_iter
++ * Move the iterator backward by distance. This does _not_ set the
++ * absolute position of the iterator. Rather, it moves in by distance
++ * from the current position. For example, moving an iterator at
++ * position 2 by 1 would put the iterator at position 1.
++ *
++ * Iterator must support sepol_iter_prev.
++ *
++ * @param h sepol handle (can be NULL)
++ * @param iter iterator to move backward
++ * @param distance distance to move iterator
++ *
++ * \retval SEPOL_OK iterator successfully moved
++ * \retval SEPOL_ITERSTOP iteration should stop
++ * \retval SEPOL_ENOTSUP previous iterator not supported for this
++ *  data structure.
++ * \retval  <0: other errors specific to the underlying data structure
++ */
++int sepol_iter_backward(struct sepol_handle *h, struct sepol_iter *iter,
++			unsigned int distance);
++
++/**
++ * \ingroup libsepol_iter
++ * \def sepol_foreach
++ * Iterate over a sequence in a for-loop-like manner. This
++ * macro is a convenience wrapper around sepol_iter_next
++ * and sepol_iter_get_state. For example:
++ *
++ * \code
++ * int ret;
++ * struct sepol_iter *iter;
++ * char *name;
++ * // initialization omitted
++ * ret = sepol_list_begin(h, list, iter);
++ * sepol_foreach(h, ret, name, iter) {
++ *         printf("%s\n", name);
++ * }
++ * if (ret != SEPOL_ITERSTOP)
++ *         // handle error
++ * \endcode
++ *
++ * @param h sepol handle (can be NULL)
++ * @param ret int variable used to hold the return value
++ *  of functions called by the macro.
++ * @param cur variable used to hold the results of sepol_iter_get_data.
++ *  The type of the variable must be appropriate for the data stored
++ *  in the data structure.
++ * @param iter iterator initialized to a valid position (e.g., after
++ *  a call to sepol_list_begin).
++ */
++#define sepol_foreach(h, ret, cur, iter)				\
++	for (; ret == SEPOL_OK && (sepol_iter_get_data(h, iter, (void**)&cur) == SEPOL_OK); \
++	     ret = sepol_iter_next(h, iter)) \
++		
++
++/* used by implementations of iterators */
++void sepol_iter_set_state(struct sepol_iter *iter, void *state);
++void *sepol_iter_get_state(const struct sepol_iter *iter);
++void sepol_iter_set_next(struct sepol_iter *iter,
++			 int (*next)(struct sepol_handle *, struct sepol_iter *));
++void sepol_iter_set_prev(struct sepol_iter *iter,
++			 int (*prev)(struct sepol_handle *, struct sepol_iter *));
++void sepol_iter_set_get_data(struct sepol_iter *iter,
++			     int (*get)(struct sepol_handle *, struct sepol_iter *, void **));
++void sepol_iter_set_free(struct sepol_iter *iter, int (*state_free)(struct sepol_handle *, void *data));
++void sepol_iter_set_clone(struct sepol_iter *iter,
++			  int (*clone)(struct sepol_handle *, const struct sepol_iter *old, struct sepol_iter *new_iter));
++
++#endif
+diff -r c0ca24c3e136 libsepol/include/sepol/list.h
+--- /dev/null	Thu Jan 01 00:00:00 1970 +0000
++++ b/libsepol/include/sepol/list.h	Wed Apr 18 16:30:08 2007 -0400
+@@ -0,0 +1,232 @@
++/* Author : Karl MacMillan <kmacmillan@mentalrootkit.com> */
++
++
++#ifndef __sepol_list_h__
++#define __sepol_list_h__
++
++#include <sepol/iter.h>
++
++/**
++ * \defgroup libsepol_list sepol_list: doubly-linked lists
++ * Doubly-linked list data type.
++ *
++ * The sepol_list data type represents a doubly-linked list.
++ * It supports:
++ *   - forward and backward iteration using sepol_iter.
++ *   - prepending and appending in constant time.
++ *   - getting the length in constant time.
++ *   - insertion and deletion.
++ *   - stack / queue like usage (via sepol_list_pop_front and
++ *     sepol_list_pop_back).
++ *
++ * This list implementation is designed to be generic by storing
++ * void pointers as the objects. These pointers are not interpreted
++ * or manipulated in any way. This means that the memory for the
++ * objects is *not* managed with the rest of the list (e.g.,
++ * sepol_list_free only destroys the memory for the list not the
++ * items stored in the list). This also means that the list is not
++ * ideal for storing simple types (like ints) because they need to
++ * be allocated.
++ *
++ * @see sepol_iter
++ */
++
++/**
++ * \ingroup libsepol_list
++ * \struct sepol_list
++ * Doubly-linked list struct type.
++ *
++ * @see libsepol_list
++ */
++struct sepol_list;
++
++/**
++ * \ingroup libsepol_list
++ * Create an sepol_list. On success, SEPOL_OK is returned
++ * and the list pointer passed in is set to an allocated
++ * sepol_list struct that has been initialized.
++ *
++ * @param h sepol handle (may be NULL)
++ * @param list pointer to a list pointer for returning the
++ *  newly created list.
++ *
++ * \retval SEPOL_OK list successfully created
++ * \retval SEPOL_ENOMEM out of memory
++ */
++int sepol_list_create(struct sepol_handle *h, struct sepol_list **list);
++
++/**
++ * \ingroup libsepol_list
++ * Destroy an sepol_list. This will _not_ free the memory
++ * for the list items, only for the internal list structures.
++ * The list items memory should be freed by the caller.
++ *
++ * @param list list to destroy
++ */
++void sepol_list_free(struct sepol_list *list);
++
++/**
++ * \ingroup libsepol_list
++ * Return the lenght of the list. This is a constant time
++ * operation.
++ *
++ * @param list list object
++ *
++ * \returns length of the list
++ */
++unsigned int sepol_list_length(struct sepol_list *list);
++
++/**
++ * \ingroup libsepol_list
++ * Append an item to the list. If successful, the item will
++ * become the last item in the list.
++ *
++ * @param h sepol handle (may be NULL)
++ * @param list list to which to append
++ * @param item to append
++ *
++ * \retval SEPOL_OK success
++ * \retval SEPOL_ENOMEM out of memory
++ */
++int sepol_list_append(struct sepol_handle *h, struct sepol_list *list, void *item);
++
++/**
++ * \ingroup libsepol_list
++ * Prepend an item to the list. If successful, the item will
++ * become the first item in the list.
++ *
++ * @param h sepol handle (may be NULL)
++ * @param list list to which to prepend
++ * @param item to prepend
++ *
++ * \retval SEPOL_OK success
++ * \retval SEPOL_ENOMEM out of memory
++ */
++int sepol_list_prepend(struct sepol_handle *h, struct sepol_list *list, void *item);
++
++/**
++ * \ingroup libsepol_list
++ * Insert an item before the iterator position. The existing item is
++ * shifted to the next position in the list. The iterator continues to
++ * point at the same item, though the position of that item will have
++ * moved forward by one.
++ *
++ * @param h sepol handle (may be NULL)
++ * @param list list to which to insert
++ * @param iter iter representing the insertion position
++ * @param item item to insert
++ *
++ * \retval SEPOL_OK success
++ * \retval SEPOL_ENOMEM out of memory
++ */
++int sepol_list_insert(struct sepol_handle *h, struct sepol_list *list,
++		      struct sepol_iter *iter, void *item);
++
++/**
++ * \ingroup libsepol_list
++ * Insert into the list all of the items returned by the iter. This method
++ * is useful for inserting all of the items from another data structure
++ * into the list (because a standard iterator is used any data structure that
++ * supports iteratoration can be used).
++ *
++ * @param h sepol handle (may be NULL)
++ * @param list list to extend
++ * @param iter iterator for data to extend
++ *
++ * \retval SEPOL_OK success
++ * \retval SEPOL_ENOMEM out of memory
++ */
++int sepol_list_extend(struct sepol_handle *h, struct sepol_list *list,
++		      struct sepol_iter *iter);
++
++/**
++ * \ingroup libsepol_list
++ * Convenience function to extend a list with another list. Internally, simply
++ * creates a an iter pointing to the beginning of the list and calls
++ * sepol_list_extend.
++ *
++ * @param h sepol handle (may be NULL)
++ * @param list list to extend
++ * @param other source list
++ *
++ * \retval SEPOL_OK success
++ * \retval SEPOL_ENOMEM out of memory
++ */
++int sepol_list_extend_list(struct sepol_handle *h, struct sepol_list *list,
++			   struct sepol_list *other);
++
++/**
++ * \ingroup libsepol_list
++ * Remove and return the first item in the list. Item will be set
++ * to the item if the operation was successful.
++ *
++ * @param h sepol handle (may be NULL)
++ * @param list list from which to pop item
++ * @param item pointer that will be set to the popped item
++ *
++ * \retval SEPOL_OK succss
++ * \retval SEPOL_ERANGE empty list
++ */
++int sepol_list_pop_front(struct sepol_handle *h, struct sepol_list *list,
++			 void **item);
++
++/**
++ * \ingroup libsepol_list
++ * Remove and return the last item in the list. Item will be set
++ * to the item if the operation was successful.
++ *
++ * @param h sepol handle (may be NULL)
++ * @param list list from which to pop item
++ * @param item that will be set to the popped item
++ * 
++ * \retval SEPOL_OK succss
++ * \retval SEPOL_ERANGE: empty list
++ */
++int sepol_list_pop_back(struct sepol_handle *h, struct sepol_list *list,
++			void **item);
++
++/**
++ * \ingroup libsepol_list
++ * Delete an item at the iterator position. The iterator is no longer
++ * valid after deletion (if continued iteration is needed, the iterator
++ * should be copied and the copy advanced prior to deletion).
++ *
++ * @param h sepol handle (may be NULL)
++ * @param list list from which to delete item
++ * @param iter representing the position of the item to delete
++ *
++ * \retval SEPOL_OK success
++ */
++int sepol_list_del(struct sepol_handle *h, struct sepol_list *list,
++		   struct sepol_iter *iter);
++
++/**
++ * \ingroup libsepol_list
++ * Position the iterator at the beginning of the list. If the list
++ * is empty SEPOL_ITERSTOP will be returned and the iterator will not
++ * be valid.
++ *
++ * @param h sepol handle (may be NULL)
++ * @param list list to iterate over
++ * @param iter iterator to set to list beginning
++ *
++ * \retval SEPOL_OK success
++ * \retval SEPOL_ITERSTOP empty list
++ */
++int sepol_list_begin(struct sepol_handle *h, struct sepol_list *list,
++		     struct sepol_iter *iter);
++
++/**
++ * \ingroup libsepol_list
++ * Position the iterator at the end of the list. If the list
++ * is empty SEPOL_ITERSTOP will be returned and the iterator will not
++ * be valid.
++ *
++ * @param h sepol handle (may be NULL)
++ * \retval SEPOL_OK success
++ * \retval SEPOL_ITERSTOP empty list
++ */
++int sepol_list_end(struct sepol_handle *h, struct sepol_list *list,
++		   struct sepol_iter *iter);
++
++#endif
+diff -r c0ca24c3e136 libsepol/src/iter.c
+--- /dev/null	Thu Jan 01 00:00:00 1970 +0000
++++ b/libsepol/src/iter.c	Wed Apr 18 16:30:08 2007 -0400
+@@ -0,0 +1,186 @@
++/*
++ * Author : Karl MacMillan <kmacmillan@mentalrootkit.com>
++ *
++ * Copyright (C) 2006-2007 Red Hat, Inc.
++ *
++ * This library is free software; you can redistribute it and/or
++ * modify it under the terms of the GNU Lesser General Public
++ * License as published by the Free Software Foundation; either
++ * version 2.1 of the License, or (at your option) any later version.
++ *
++ * This library is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
++ * Lesser General Public License for more details.
++ *
++ * You should have received a copy of the GNU Lesser General Public
++ * License along with this library; if not, write to the Free Software
++ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
++ */
++
++#include <sepol/iter.h>
++#include <sepol/errcodes.h>
++
++#include "debug.h"
++
++#include <stdlib.h>
++#include <string.h>
++#include <assert.h>
++
++struct sepol_iter
++{
++	void *state;
++	int (*next)(struct sepol_handle *, struct sepol_iter *);
++	int (*prev)(struct sepol_handle *, struct sepol_iter *);
++	int (*get)(struct sepol_handle *, struct sepol_iter *, void **);
++	int (*clone)(struct sepol_handle *, const struct sepol_iter *, struct sepol_iter *);
++	int (*free_fn)(struct sepol_handle *, void *);
++};
++
++int sepol_iter_create(struct sepol_handle *h, struct sepol_iter **iter)
++{
++	*iter = (struct sepol_iter*)calloc(1, sizeof(struct sepol_iter));
++	if (*iter == NULL) {
++		ERR(h, "out of memory");
++		return SEPOL_ENOMEM;
++	}
++
++	return SEPOL_OK;
++}
++
++int sepol_iter_free(struct sepol_handle *h, struct sepol_iter *iter)
++{
++	int ret;
++	if (iter->free_fn != NULL) {
++		ret = iter->free_fn(h, iter->state);
++	}
++	free(iter);
++
++	return ret;
++}
++
++int sepol_iter_clone(struct sepol_handle *h, const struct sepol_iter *iter,
++		    struct sepol_iter **new_iter)
++{
++	int ret;
++	
++	if (iter->clone == NULL) {
++		ERR(h, "iterator copying not supported");
++		return SEPOL_ENOTSUP;
++	}
++
++	ret = sepol_iter_create(h, new_iter);
++	if (ret < 0)
++		return ret;
++
++	return iter->clone(h, iter, *new_iter);
++}
++
++int sepol_iter_get_data(struct sepol_handle *h, struct sepol_iter *iter, void **data)
++{
++	assert(iter);
++	assert(iter->get);
++
++	return iter->get(h, iter, data);
++}
++
++int sepol_iter_next(struct sepol_handle *h, struct sepol_iter *iter)
++{
++	assert(iter);
++	assert(iter->next);
++
++	return iter->next(h, iter);
++}
++
++int sepol_iter_prev(struct sepol_handle *h, struct sepol_iter *iter)
++{
++	assert(iter);
++
++	if (iter->prev == NULL) {
++		ERR(h, "iterator previous not supported");
++		return SEPOL_ENOTSUP;
++	}
++
++	return iter->prev(h, iter);
++}
++
++/* At some point forward and backward should be overridable by
++ * the data structures. Depending on the data structure there
++ * could be significant performance improvements by directly
++ * implementing forward and backward.
++ */
++int sepol_iter_forward(struct sepol_handle *h, struct sepol_iter *iter,
++		       unsigned int distance)
++{
++	unsigned int i = 0;
++	int ret = SEPOL_OK;
++	
++	while (i < distance && ret == SEPOL_OK) {
++		ret = sepol_iter_next(h, iter);
++		i++;
++	}
++
++	return ret;
++}
++
++int sepol_iter_backward(struct sepol_handle *h, struct sepol_iter *iter,
++			unsigned int distance)
++{
++	unsigned int i = 0;
++	int ret = SEPOL_OK;
++	
++	while (i < distance && ret == SEPOL_OK) {
++		ret = sepol_iter_prev(h, iter);
++		i++;
++	}
++
++	return ret;
++}
++
++void sepol_iter_set_state(struct sepol_iter *iter, void *state)
++{
++	assert(iter);
++	if (iter->state && iter->free_fn)
++		iter->free_fn(NULL, iter->state);
++	iter->state = state;
++}
++
++void *sepol_iter_get_state(const struct sepol_iter *iter)
++{
++	assert(iter);
++	return iter->state;
++}
++
++void sepol_iter_set_next(struct sepol_iter *iter,
++			 int (*next)(struct sepol_handle *, struct sepol_iter *))
++{
++	assert(iter);
++	iter->next = next;
++}
++
++void sepol_iter_set_prev(struct sepol_iter *iter,
++			 int (*prev)(struct sepol_handle *, struct sepol_iter *))
++{
++	assert(iter);
++	iter->prev = prev;
++}
++
++void sepol_iter_set_get_data(struct sepol_iter *iter,
++			     int (*get)(struct sepol_handle *, struct sepol_iter *, void **))
++{
++	assert(iter);
++	iter->get = get;
++}
++
++void sepol_iter_set_free(struct sepol_iter *iter, int (*state_free)(struct sepol_handle *, void *))
++{
++	assert(iter);
++	iter->free_fn = state_free;
++}
++
++void sepol_iter_set_clone(struct sepol_iter *iter,
++			 int (*clone)(struct sepol_handle *, const struct sepol_iter *old, struct sepol_iter *new_iter))
++{
++	assert(iter);
++	iter->clone = clone;
++}
+diff -r c0ca24c3e136 libsepol/src/list.c
+--- /dev/null	Thu Jan 01 00:00:00 1970 +0000
++++ b/libsepol/src/list.c	Wed Apr 18 16:30:08 2007 -0400
+@@ -0,0 +1,422 @@
++/*
++ * Author : Karl MacMillan <kmacmillan@mentalrootkit.com>
++ *
++ * Copyright (C) 2006-2007 Red Hat, Inc.
++ *
++ * This library is free software; you can redistribute it and/or
++ * modify it under the terms of the GNU Lesser General Public
++ * License as published by the Free Software Foundation; either
++ * version 2.1 of the License, or (at your option) any later version.
++ *
++ * This library is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
++ * Lesser General Public License for more details.
++ *
++ * You should have received a copy of the GNU Lesser General Public
++ * License along with this library; if not, write to the Free Software
++ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
++ */
++
++#include <sepol/errcodes.h>
++
++#include <sepol/list.h>
++#include <sepol/iter.h>
++
++#include "debug.h"
++
++#include <assert.h>
++#include <stdlib.h>
++#include <string.h>
++
++struct sepol_list_item
++{
++	struct sepol_list_item *next;
++	struct sepol_list_item *prev;
++	void *item;
++};
++
++struct sepol_list
++{
++	struct sepol_list_item *head;
++	struct sepol_list_item *tail;
++	unsigned int len;
++};
++
++int sepol_list_create(struct sepol_handle *h, struct sepol_list **list)
++{
++	assert(list);
++
++	*list = (struct sepol_list *)calloc(1, sizeof(struct sepol_list));
++	if (*list == NULL) {
++		ERR(h, "out of memory");
++		return SEPOL_ENOMEM;
++	}
++
++	return SEPOL_OK;
++}
++
++void sepol_list_free(struct sepol_list *list)
++{
++	struct sepol_list_item *cur, *next;
++
++	if (list == NULL)
++		return;
++
++	cur = list->head;
++	while (cur != NULL) {
++		next = cur->next;
++		free(cur);
++		cur = next;
++	}
++
++	free(list);
++}
++
++unsigned int sepol_list_length(struct sepol_list *list)
++{
++	assert(list);
++	return list->len;
++}
++
++static int sepol_list_item_create(struct sepol_handle *h,
++				  struct sepol_list_item **x)
++{
++	*x = calloc(1, sizeof(struct sepol_list_item));
++	if (*x == NULL) {
++		ERR(h, "out of memory");
++		return SEPOL_ENOMEM;
++	} else {
++		return SEPOL_OK;
++	}
++}
++
++int sepol_list_append(struct sepol_handle *h, struct sepol_list *list, void *item)
++{
++	int ret;
++	struct sepol_list_item *x;
++
++	assert(list);
++
++	ret = sepol_list_item_create(h, &x);
++	if (ret < 0)
++		return ret;
++	x->item = item;
++
++	/* empty list */
++	if (list->tail == NULL) {
++		list->tail = x;
++		list->head = x;
++		x->prev = NULL;
++		x->next = NULL;
++	} else {
++		/* non-empty list */
++		list->tail->next = x;
++		x->prev = list->tail;
++		x->next = NULL;
++		list->tail = x;
++	}
++
++	list->len++;
++	return SEPOL_OK;
++}
++
++int sepol_list_prepend(struct sepol_handle *h, struct sepol_list *list, void *item)
++{
++	int ret;
++	struct sepol_list_item *x;
++
++	assert(list);
++
++	ret = sepol_list_item_create(h, &x);
++	if (ret < 0)
++		return ret;
++	x->item = item;
++
++	/* empty list */
++	if (list->tail == NULL) {
++		list->tail = x;
++		list->head = x;
++		x->prev = NULL;
++		x->next = NULL;
++	} else {
++		x->next = list->head;
++		list->head->prev = x;
++		x->prev = NULL;
++		list->head = x;
++	}
++
++	list->len++;
++	return SEPOL_OK;
++}
++
++int sepol_list_insert(struct sepol_handle *h, struct sepol_list *list,
++		      struct sepol_iter *iter, void *item)
++{
++	int ret;
++	struct sepol_list_item *x, *cur;
++
++	assert(list);
++
++	cur = (struct sepol_list_item*)sepol_iter_get_state(iter);
++	assert(cur);
++
++	/* Short circuit for prepend and append. */
++	if (list->head == cur) {
++		return sepol_list_prepend(h, list, item);
++	} else if (list->tail == cur) {
++		return sepol_list_append(h, list, item);
++	}
++
++	ret = sepol_list_item_create(h, &x);
++	if (ret < 0)
++		return ret;
++	x->item = item;
++
++	x->prev = cur->prev;
++	x->prev->next = x;
++	x->next = cur;
++	cur->prev = x;
++	
++	list->len++;
++	return SEPOL_OK;
++}
++
++int sepol_list_extend(struct sepol_handle *h, struct sepol_list *list,
++		      struct sepol_iter *iter)
++{
++	int ret = SEPOL_OK;
++	void *data;
++
++	while (ret == SEPOL_OK) {
++		ret = sepol_iter_get_data(h, iter, &data);
++		if (ret < 0)
++			return ret;	
++		ret = sepol_list_append(h, list, data);
++		if (ret < 0)
++			return ret;
++
++		ret = sepol_iter_next(h, iter);
++	}
++	if (ret != SEPOL_ITERSTOP)
++		return ret;
++	else
++		return SEPOL_OK;
++}
++
++int sepol_list_extend_list(struct sepol_handle *h, struct sepol_list *list,
++			   struct sepol_list *other)
++{
++	int ret;
++	struct sepol_iter *iter;
++
++	if (!other->len)
++		return SEPOL_OK;
++
++	ret = sepol_iter_create(h, &iter);
++	if (ret < 0)
++		return ret;
++
++	ret = sepol_list_begin(h, other, iter);
++	if (ret < 0)
++		goto out;
++	ret = sepol_list_extend(h, list, iter);
++
++out:
++	sepol_iter_free(h, iter);
++	return ret;
++}
++
++
++int sepol_list_pop_front(struct sepol_handle *h, struct sepol_list *list,
++			 void **item)
++{
++	struct sepol_list_item *cur;
++
++	if (list->head == NULL)
++		return SEPOL_ERANGE;
++
++	cur = list->head;
++	if (list->head == list->tail) {
++		list->head = NULL;
++		list->tail = NULL;
++	} else {
++		list->head = list->head->next;
++		if (list->head)
++			list->head->prev = NULL;
++	}
++
++	*item = cur->item;
++	free(cur);
++
++	return SEPOL_OK;
++}
++
++int sepol_list_pop_back(struct sepol_handle *h, struct sepol_list *list,
++			void **item)
++{
++	struct sepol_list_item *cur;
++
++	if (list->tail == NULL)
++		return SEPOL_ERANGE;
++
++	cur = list->tail;
++
++	if (list->head == list->tail) {
++		list->head = NULL;
++		list->tail = NULL;
++	} else {
++		list->tail = list->tail->prev;
++		if (list->tail)
++			list->tail->next = NULL;
++	}
++
++	*item = cur->item;
++	free(cur);
++
++	return SEPOL_OK;
++}
++
++
++int sepol_list_del(struct sepol_handle *h, struct sepol_list *list,
++		   struct sepol_iter *iter)
++{
++	struct sepol_list_item *cur;
++
++	cur = sepol_iter_get_state(iter);
++	assert(cur);
++
++	if (list->head == cur && list->tail == cur) {
++		list->head = NULL;
++		list->tail = NULL;
++		goto out;
++	}
++
++	if (cur->prev)
++		cur->prev->next = cur->next;
++	else
++		list->head = cur->next;
++
++	if (cur->next)
++		cur->next->prev = cur->prev;
++	else
++		list->tail = cur->prev;
++
++out:	
++	free(cur);
++	list->len--;
++	sepol_iter_set_state(iter, NULL);
++	return SEPOL_OK;
++}
++
++static int sepol_list_next(struct sepol_handle *h, struct sepol_iter *iter)
++{
++	struct sepol_list_item *cur;
++
++	assert(iter);
++
++	cur = (struct sepol_list_item*)sepol_iter_get_state(iter);
++	assert(cur);
++
++	if (cur->next == NULL) {
++		/* set the state to NULL to catch using this iterator
++		 * after ITERSTOP is returned (which is a bug). */
++		sepol_iter_set_state(iter, NULL);
++		return SEPOL_ITERSTOP;
++	} else {
++		sepol_iter_set_state(iter, cur->next);
++		return SEPOL_OK;
++	}
++}
++
++static int sepol_list_prev(struct sepol_handle *h, struct sepol_iter *iter)
++{
++	struct sepol_list_item *cur;
++
++	assert(iter);
++
++	cur = (struct sepol_list_item*)sepol_iter_get_state(iter);
++	assert(cur);
++
++	if (cur->prev == NULL) {
++		/* set the state to NULL to catch using this iterator
++		 * after ITERSTOP is returned (which is a bug). */
++		sepol_iter_set_state(iter, NULL);
++		return SEPOL_ITERSTOP;
++	} else {
++		sepol_iter_set_state(iter, cur->prev);
++		return SEPOL_OK;
++	}	
++}
++
++static int sepol_list_iter_get_data(struct sepol_handle *h,
++				    struct sepol_iter *iter, void **data)
++{
++	struct sepol_list_item *cur;
++
++	assert(iter);
++
++	cur = (struct sepol_list_item*)sepol_iter_get_state(iter);
++	if (!cur) {
++		return SEPOL_ENOENT;
++	}
++
++	*data = cur->item;
++
++	return SEPOL_OK;
++}
++
++
++static int sepol_list_iter_clone(struct sepol_handle *h, const struct sepol_iter *o,
++				 struct sepol_iter *n);
++
++#define ITERSETUP(iter) { sepol_iter_set_next(iter, sepol_list_next); \
++                          sepol_iter_set_prev(iter, sepol_list_prev); \
++			  sepol_iter_set_clone(iter, sepol_list_iter_clone); \
++                          sepol_iter_set_get_data(iter, sepol_list_iter_get_data); }
++
++static int sepol_list_iter_clone(struct sepol_handle *h, const struct sepol_iter *o,
++				 struct sepol_iter *n)
++{
++	void *state = sepol_iter_get_state(o);
++	sepol_iter_set_state(n, state);
++
++	ITERSETUP(n);
++
++	return SEPOL_OK;
++}
++
++
++int sepol_list_begin(struct sepol_handle *h, struct sepol_list *list,
++		     struct sepol_iter *iter)
++{
++	assert(list);
++	assert(iter);
++
++	if (list->head == NULL)
++		return SEPOL_ITERSTOP;
++
++	sepol_iter_set_state(iter, list->head);
++
++	ITERSETUP(iter);
++
++	return SEPOL_OK;
++}
++
++int sepol_list_end(struct sepol_handle *h, struct sepol_list *list,
++		   struct sepol_iter *iter)
++{
++	assert(list);
++	assert(iter);
++
++	if (list->tail == NULL)
++		return SEPOL_ITERSTOP;
++
++	sepol_iter_set_state(iter, list->tail);
++
++	ITERSETUP(iter);
++
++	return SEPOL_OK;
++}
++
++
+diff -r c0ca24c3e136 libsepol/tests/libsepol-tests.c
+--- a/libsepol/tests/libsepol-tests.c	Wed Apr 18 11:32:21 2007 -0400
++++ b/libsepol/tests/libsepol-tests.c	Wed Apr 18 16:30:08 2007 -0400
+@@ -22,6 +22,7 @@
+ #include "test-linker.h"
+ #include "test-expander.h"
+ #include "test-deps.h"
++#include "test-list.h"
+ 
+ #include <CUnit/Basic.h>
+ #include <CUnit/Console.h>
+@@ -61,6 +62,7 @@ static int do_tests(int interactive, int
+ 	DECLARE_SUITE(linker);
+ 	DECLARE_SUITE(expander);
+ 	DECLARE_SUITE(deps);
++	DECLARE_SUITE(list);
+ 
+ 	if (verbose)
+ 		CU_basic_set_mode(CU_BRM_VERBOSE);
+diff -r c0ca24c3e136 libsepol/tests/test-list.c
+--- /dev/null	Thu Jan 01 00:00:00 1970 +0000
++++ b/libsepol/tests/test-list.c	Wed Apr 18 16:30:08 2007 -0400
+@@ -0,0 +1,373 @@
++/*
++ * Author : Karl MacMillan <kmacmillan@mentalrootkit.com>
++ *
++ * Copyright (C) 2006 Red Hat, Inc.
++ *
++ * This library is free software; you can redistribute it and/or
++ * modify it under the terms of the GNU Lesser General Public
++ * License as published by the Free Software Foundation; either
++ * version 2.1 of the License, or (at your option) any later version.
++ *
++ * This library is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
++ * Lesser General Public License for more details.
++ *
++ * You should have received a copy of the GNU Lesser General Public
++ * License along with this library; if not, write to the Free Software
++ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
++ */
++
++#include "test-list.h"
++
++#include <sepol/list.h>
++#include <sepol/iter.h>
++#include <sepol/errcodes.h>
++
++#include <stdlib.h>
++#include <stdio.h>
++
++int list_test_init(void)
++{
++	return 0;
++}
++
++int list_test_cleanup(void)
++{
++	return 0;
++}
++
++static void test_list_create(void)
++{
++	struct sepol_list *list;
++	int ret;
++	
++	ret = sepol_list_create(NULL, &list);
++	CU_ASSERT(ret == 0);
++
++	sepol_list_free(list);
++}
++
++static void test_list(void)
++{
++	struct sepol_list *list;
++	struct sepol_iter *iter, *iter2;
++	struct sepol_handle *h;
++	int ret;
++	int i, *num, nums[6];
++
++	for (i = 0; i < 6; i++)
++		nums[i] = i;
++
++	h = sepol_handle_create();
++	CU_ASSERT(h != NULL);
++	
++	ret = sepol_iter_create(h, &iter);
++	CU_ASSERT(ret == 0);
++
++	ret = sepol_list_create(h, &list);
++	CU_ASSERT(ret == 0);
++
++	ret = sepol_list_append(h, list, &nums[4]);
++	CU_ASSERT(ret == 0);
++
++	ret = sepol_list_append(h, list, &nums[5]);
++	CU_ASSERT(ret == 0);
++
++	ret = sepol_list_prepend(h, list, &nums[1]);
++	CU_ASSERT(ret == 0);
++
++	ret = sepol_list_begin(h, list, iter);
++	CU_ASSERT(ret == 0);
++	ret = sepol_iter_forward(h, iter, 1);
++	CU_ASSERT(ret == 0);
++
++	ret = sepol_list_insert(h, list, iter, &nums[2]);
++	CU_ASSERT(ret == 0);
++
++	ret = sepol_list_begin(h, list, iter);
++	CU_ASSERT(ret == 0);
++	ret = sepol_list_insert(h, list, iter, &nums[0]);
++	CU_ASSERT(ret == 0);
++
++	ret = sepol_list_begin(h, list, iter);
++	CU_ASSERT(ret == 0);
++	ret = sepol_iter_forward(h, iter, 3);
++	CU_ASSERT(ret == 0);
++
++	ret = sepol_list_insert(h, list, iter, &nums[3]);
++	CU_ASSERT(ret == 0);
++
++	CU_ASSERT(sepol_list_length(list) == 6);
++
++	ret = sepol_list_begin(h, list, iter);
++	CU_ASSERT(ret == 0);
++	i = 0;
++
++	sepol_foreach(h, ret, num, iter) {
++		CU_ASSERT(*num == i);
++		i++;
++	}
++
++	CU_ASSERT(i == 6);
++	CU_ASSERT(ret == SEPOL_ITERSTOP);
++
++	ret = sepol_list_end(h, list, iter);
++	CU_ASSERT(ret == 0);
++	i = 5;
++	while (ret == SEPOL_OK) {
++		ret = sepol_iter_get_data(h, iter, (void**)&num);
++		CU_ASSERT(ret == SEPOL_OK);
++		CU_ASSERT(*num == i);
++		i--;
++		ret = sepol_iter_prev(h, iter);		
++	}
++	CU_ASSERT(i == -1);
++	CU_ASSERT(ret == SEPOL_ITERSTOP);
++
++	ret = sepol_list_end(h, list, iter);
++	CU_ASSERT(ret == 0);
++	ret = sepol_iter_prev(h, iter);
++	CU_ASSERT(ret == 0);
++	ret = sepol_iter_get_data(h, iter, (void**)&num);
++	CU_ASSERT(ret == SEPOL_OK);
++	CU_ASSERT(*num == 4);
++	
++
++	ret = sepol_list_begin(h, list, iter);
++	CU_ASSERT(ret == 0);
++	i = 0;
++	while (ret == SEPOL_OK) {
++		if (i == 2) {
++			ret = sepol_iter_clone(h, iter, &iter2);
++			CU_ASSERT(ret == SEPOL_OK);
++			ret = sepol_iter_next(h, iter);
++			CU_ASSERT(ret == SEPOL_OK);
++			ret = sepol_list_del(h, list, iter2);
++			CU_ASSERT(ret == SEPOL_OK);
++			i++;
++			continue;
++		}
++		i++;
++		ret = sepol_iter_next(h, iter);
++	}
++	CU_ASSERT(ret == SEPOL_ITERSTOP);
++	CU_ASSERT(i == 6);
++	CU_ASSERT(sepol_list_length(list) == 5);
++
++	sepol_iter_free(h, iter);
++	sepol_iter_free(h, iter2);
++	sepol_list_free(list);
++	sepol_handle_destroy(h);
++}
++
++static void test_list_pop(void)
++{
++	int ret;
++	struct sepol_list *list;
++	struct sepol_handle *h;
++	void *item;
++
++	h = sepol_handle_create();
++	CU_ASSERT(h != NULL);
++
++	ret = sepol_list_create(h, &list);
++	CU_ASSERT(ret == SEPOL_OK);
++
++	ret = sepol_list_append(h, list, "webern");
++	CU_ASSERT(ret == SEPOL_OK);
++
++	ret = sepol_list_append(h, list, "berg");
++	CU_ASSERT(ret == SEPOL_OK);
++
++	ret = sepol_list_append(h, list, "schoenberg");
++	CU_ASSERT(ret == SEPOL_OK);
++
++	ret = sepol_list_append(h, list, "sessions");
++	CU_ASSERT(ret == SEPOL_OK);
++
++	ret = sepol_list_pop_back(h, list, &item);
++	CU_ASSERT(ret == SEPOL_OK);
++	CU_ASSERT(strcmp((char*)item, "sessions") == 0);
++
++	ret = sepol_list_pop_back(h, list, &item);
++	CU_ASSERT(ret == SEPOL_OK);
++	CU_ASSERT(strcmp((char*)item, "schoenberg") == 0);
++
++	ret = sepol_list_pop_front(h, list, &item);
++	CU_ASSERT(ret == SEPOL_OK);
++	CU_ASSERT(strcmp((char*)item, "webern") == 0);
++
++	ret = sepol_list_pop_back(h, list, &item);
++	CU_ASSERT(ret == SEPOL_OK);
++	CU_ASSERT(strcmp((char*)item, "berg") == 0);
++
++
++	ret = sepol_list_pop_back(h, list, &item);
++	CU_ASSERT(ret == SEPOL_ERANGE);
++
++	sepol_list_free(list);
++	sepol_handle_destroy(h);
++}
++
++static void test_list_extend(void)
++{
++	int ret, i;
++	struct sepol_list *serialism, *minimalism;
++	struct sepol_iter *iter;
++	struct sepol_handle *h;
++	char *composers[] = {"webern", "berg",
++			     "schoenberg", "sessions",
++			     "adams", "glass", "reich" };
++	char *composer;
++
++	h = sepol_handle_create();
++	CU_ASSERT(h != NULL);
++
++	ret = sepol_list_create(h, &serialism);
++	CU_ASSERT(ret == SEPOL_OK);
++
++
++	ret = sepol_list_create(h, &minimalism);
++	CU_ASSERT(ret == SEPOL_OK);
++
++	ret = sepol_list_append(h, serialism, composers[0]);
++	CU_ASSERT(ret == SEPOL_OK);
++
++	ret = sepol_list_append(h, serialism, composers[1]);
++	CU_ASSERT(ret == SEPOL_OK);
++
++	ret = sepol_list_append(h, serialism, composers[2]);
++	CU_ASSERT(ret == SEPOL_OK);
++
++	ret = sepol_list_append(h, serialism, composers[3]);
++	CU_ASSERT(ret == SEPOL_OK);
++
++	ret = sepol_list_append(h, minimalism, composers[4]);
++	CU_ASSERT(ret == SEPOL_OK);
++
++	ret = sepol_list_append(h, minimalism, composers[5]);
++	CU_ASSERT(ret == SEPOL_OK);
++
++	ret = sepol_list_append(h, minimalism, composers[6]);
++	CU_ASSERT(ret == SEPOL_OK);
++
++	ret = sepol_iter_create(h, &iter);
++	CU_ASSERT(ret == SEPOL_OK);
++	ret = sepol_list_begin(h, minimalism, iter);
++	CU_ASSERT(ret == SEPOL_OK);
++
++	ret = sepol_list_extend(h, serialism, iter);
++	CU_ASSERT(ret == SEPOL_OK);
++
++	ret = sepol_list_begin(h, serialism, iter);
++	CU_ASSERT(ret == SEPOL_OK);
++	i = 0;
++	while (ret == SEPOL_OK) {
++		ret = sepol_iter_get_data(h, iter, (void**)&composer);
++		CU_ASSERT(ret == SEPOL_OK);
++		CU_ASSERT(strcmp(composers[i], composer) == 0);
++		ret = sepol_iter_next(h, iter);
++		i++;
++	}
++	CU_ASSERT(ret == SEPOL_ITERSTOP);
++
++	sepol_iter_free(h, iter);
++	sepol_list_free(serialism);
++	sepol_list_free(minimalism);
++	sepol_handle_destroy(h);
++}
++
++static void test_list_extend_list(void)
++{
++	int ret, i;
++	struct sepol_list *serialism, *minimalism;
++	struct sepol_iter *iter;
++	struct sepol_handle *h;
++	char *composers[] = {"webern", "berg",
++			     "schoenberg", "sessions",
++			     "adams", "glass", "reich" };
++	char *composer;
++
++
++	h = sepol_handle_create();
++	CU_ASSERT(h != NULL);
++
++	ret = sepol_list_create(h, &serialism);
++	CU_ASSERT(ret == SEPOL_OK);
++
++
++	ret = sepol_list_create(h, &minimalism);
++	CU_ASSERT(ret == SEPOL_OK);
++
++	ret = sepol_list_append(h, serialism, composers[0]);
++	CU_ASSERT(ret == SEPOL_OK);
++
++	ret = sepol_list_append(h, serialism, composers[1]);
++	CU_ASSERT(ret == SEPOL_OK);
++
++	ret = sepol_list_append(h, serialism, composers[2]);
++	CU_ASSERT(ret == SEPOL_OK);
++
++	ret = sepol_list_append(h, serialism, composers[3]);
++	CU_ASSERT(ret == SEPOL_OK);
++
++	ret = sepol_list_append(h, minimalism, composers[4]);
++	CU_ASSERT(ret == SEPOL_OK);
++
++	ret = sepol_list_append(h, minimalism, composers[5]);
++	CU_ASSERT(ret == SEPOL_OK);
++
++	ret = sepol_list_append(h, minimalism, composers[6]);
++	CU_ASSERT(ret == SEPOL_OK);
++
++	ret = sepol_list_extend_list(h, serialism, minimalism);
++	CU_ASSERT(ret == SEPOL_OK);
++
++	ret = sepol_iter_create(h, &iter);
++	CU_ASSERT(ret == SEPOL_OK);
++	
++
++	ret = sepol_list_begin(h, serialism, iter);
++	CU_ASSERT(ret == SEPOL_OK);
++	i = 0;
++	while (ret == SEPOL_OK) {
++		ret = sepol_iter_get_data(h, iter, (void**)&composer);
++		CU_ASSERT(ret == SEPOL_OK);
++		CU_ASSERT(strcmp(composers[i], composer) == 0);
++		ret = sepol_iter_next(h, iter);
++		i++;
++	}
++	CU_ASSERT(ret == SEPOL_ITERSTOP);
++
++	sepol_iter_free(h, iter);
++	sepol_list_free(serialism);
++	sepol_list_free(minimalism);
++	sepol_handle_destroy(h);
++}
++
++int list_add_tests(CU_pSuite suite)
++{
++	if (NULL == CU_add_test(suite, "test_list_create", test_list_create)) {
++		return -1;
++	}
++
++	if (NULL == CU_add_test(suite, "test_list",
++				test_list)) {
++		return -1;
++	}
++
++	if (NULL == CU_add_test(suite, "test_list_pop", test_list_pop)) {
++		return -1;
++	}
++
++	if (NULL == CU_add_test(suite, "test_list_extend", test_list_extend)) {
++		return -1;
++	}
++
++	if (NULL == CU_add_test(suite, "test_list_extend_list", test_list_extend_list)) {
++		return -1;
++	}
++
++	return 0;
++}
+diff -r c0ca24c3e136 libsepol/tests/test-list.h
+--- /dev/null	Thu Jan 01 00:00:00 1970 +0000
++++ b/libsepol/tests/test-list.h	Wed Apr 18 16:30:08 2007 -0400
+@@ -0,0 +1,12 @@
++/* Author : Karl MacMillan <kmacmillan@mentalrootkit.com> */
++
++#ifndef __test_list_h__
++#define __test_list_h__
++
++#include <CUnit/Basic.h>
++
++int list_test_init(void);
++int list_test_cleanup(void);
++int list_add_tests(CU_pSuite suite);
++
++#endif
 
 
 
