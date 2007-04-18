@@ -1,85 +1,64 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l3HL1rXR030059
-	for <selinux@tycho.nsa.gov>; Tue, 17 Apr 2007 17:01:53 -0400
-Received: from soda.ext.ti.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l3HL1qC3022217
-	for <selinux@tycho.nsa.gov>; Tue, 17 Apr 2007 21:01:52 GMT
-Received: from dlep95.itg.ti.com ([157.170.170.107])
-	by soda.ext.ti.com (8.13.7/8.13.7) with ESMTP id l3HL1Q4I030395
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-SHA bits=256 verify=NO)
-	for <selinux@tycho.nsa.gov>; Tue, 17 Apr 2007 16:01:41 -0500
-Received: from dlee70.ent.ti.com (localhost [127.0.0.1])
-	by dlep95.itg.ti.com (8.13.7/8.13.7) with ESMTP id l3HL1Li4010910
-	for <selinux@tycho.nsa.gov>; Tue, 17 Apr 2007 16:01:21 -0500 (CDT)
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l3I9ZSI7024286
+	for <selinux@tycho.nsa.gov>; Wed, 18 Apr 2007 05:35:29 -0400
+Received: from nospam.sws.net.au (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id l3I9ZPKX024077
+	for <selinux@tycho.nsa.gov>; Wed, 18 Apr 2007 09:35:26 GMT
+From: Russell Coker <russell@coker.com.au>
+Reply-To: russell@coker.com.au
+To: James Athey <jathey@tresys.com>
+Subject: Re: FCGlob
+Date: Wed, 18 Apr 2007 11:35:34 +1100
+Cc: SE-Linux <selinux@tycho.nsa.gov>
+References: <200704172007.54844.russell@coker.com.au> <1176836859.8847.15.camel@exodus.columbia.tresys.com>
+In-Reply-To: <1176836859.8847.15.camel@exodus.columbia.tresys.com>
 MIME-Version: 1.0
 Content-Type: text/plain;
-	charset="us-ascii"
-Subject: SELinux vs MVFS (via IBM's Rational ClearCase)
-Date: Tue, 17 Apr 2007 16:01:15 -0500
-Message-ID: <9E8AB4F8CD83E542A3EF3F7DD3E7C55F014A49CA@dlee11.ent.ti.com>
-From: "James, Jay" <jay.james@ti.com>
-To: <selinux@tycho.nsa.gov>
+  charset="utf-8"
+Message-Id: <200704181035.38290.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Is anyone here familiar with the work that IBM is doing on ticket
-RATLC00762574 in their Rational ClearCase issue queue? 
+On Wednesday 18 April 2007 05:07, James Athey <jathey@tresys.com> wrote:
+> On Tue, 2007-04-17 at 21:07 +1100, Russell Coker wrote:
+> > Page 3 states that a down-side is "the tree would be a binary file and
+> > not human readable any more".  Why would this be so?
+>
+> Perhaps this part of the paper could have been clearer.  The only reason
+> to leave the file_contexts in a binary format would be to save time when
+> parsing them into the tree for use by matchpathcon and semanage.  In
+> retrospect, this suggestion was premature; code first, optimize later,
+> right?
 
-See item 9 here:
-http://www-1.ibm.com/support/docview.wss?rs=984&uid=swg21159882
+That depends.  If one of the major aims of the code is to improve performance 
+then a certain degree of optimisation should be done to prove it's worth.
 
-"Secure Linux (SELinux) and ClearCase
-If the security feature of Linux known as SELinux is enabled on a
-ClearCase host, normal operations can fail. ClearCase is currently not
-supported on Secure Linux (SELinux). Change request RATLC00762574 has
-been submitted requesting support for ClearCase on SELinux."
+> > As for regex's that have no clear meaning, the only thing to do is to
+> > remove them and wait for the original policy author to complain.  There
+> > are many regular expressions that never matched anything and probably
+> > many more that match old versions of software.
+>
+> Old versions of software matter.  For example, RHEL 4 is a supported
+> platform for reference policy, and any file contexts that are specific
+> to RHEL4 need to stay in the policy, marked off with an
+> ifdef(`distro_rhel4' if necessary.
 
+Why do you want to do that?  The Red Hat support agreement was always that if 
+you use any policy other than the one that they ship then you must reproduce 
+bugs on either the Red Hat policy or a machine with SE Linux disabled (often 
+permissive-mode would do).  Given this situation why would there be demand 
+for a newer policy on RHEL4?  Red Hat is still providing policy updates for 
+RHEL4 as needed.
 
-There is a request for more information from IBM on this but I figured I
-would try to get some input from this list as well.
+There is also nothing stopping anyone from maintaining a separate policy tree 
+for RHEL4.  Why compromise development of the new tree when we can have 
+separate trees and avoid the effort?
 
+-- 
+russell@coker.com.au
+http://etbe.blogspot.com/          My Blog
 
-Apparently there are some inconsistencies in the way MVFS filesystems
-interact with SELinux filesystems (or at the very least when in the
-config file, "SELINUX=enabled") and so I can foresee an organization
-hitting the wall with RHEL4 rollouts, finding out late in the game.
-
-Basically to sum up my own specific experience:
-A /bin/mv operation fails from an ext3 partition on an SELinux enabled
-RHEL4 box ("mv: cannot create regular file", "Permission denied") to an
-MVFS filesystem -but- a copying (/bin/cp) operation from ext3 to MVFS
-works fine, no problems whatsoever (given requisite perms, of course).
-
-So, disable SELinux, and the move operation is back to normal.
-
-Note:
-Previous versions of mv (from RHEL3) still work while in
-"SELinux=enabled" mode, but negates the RHEL4 baseline integrity, so
-while that may be a workaround for some, its obviously not a real fix
-for all.
-
-Would anyone care to lend some extra info either via the list or perhaps
-offline with me?
-
-
-
-Jay C. James
-Unix Administration
-TISD
-
-
-
-"no extra charge applied for typos or formatting annoyances"
-
-
-
-
-
-
-
-
-
-
+http://www.coker.com.au/sponsorship.html Sponsoring Free Software development
 
 --
 This message was distributed to subscribers of the selinux mailing list.
