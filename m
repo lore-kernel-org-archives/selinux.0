@@ -1,460 +1,340 @@
 Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l3JFLg8R028330
-	for <selinux@tycho.nsa.gov>; Thu, 19 Apr 2007 11:21:42 -0400
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l3JFQMpO028607
+	for <selinux@tycho.nsa.gov>; Thu, 19 Apr 2007 11:26:22 -0400
 Received: from mx1.redhat.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l3JFLfUG023579
-	for <selinux@tycho.nsa.gov>; Thu, 19 Apr 2007 15:21:41 GMT
-Message-ID: <462788FC.4020105@redhat.com>
-Date: Thu, 19 Apr 2007 11:21:32 -0400
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l3JFQMUG024216
+	for <selinux@tycho.nsa.gov>; Thu, 19 Apr 2007 15:26:22 GMT
+Message-ID: <46278A15.60706@redhat.com>
+Date: Thu, 19 Apr 2007 11:26:13 -0400
 From: Daniel J Walsh <dwalsh@redhat.com>
 MIME-Version: 1.0
 To: "Christopher J. PeBenito" <cpebenito@tresys.com>,
         SE Linux <selinux@tycho.nsa.gov>
-Subject: Apache patch
+Subject: Hal fixes 
 Content-Type: multipart/mixed;
- boundary="------------080809020305050306070402"
+ boundary="------------030203080603000906090704"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 This is a multi-part message in MIME format.
---------------080809020305050306070402
+--------------030203080603000906090704
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 
-Added bugzilla policy.
+Break hal apart by adding three new domains.
 
-Added interfaces to allow for a webadm_r/webadm_t.
-
-Added booleans to allow the use of cifs and nfs files
-
-Removed the creation of booleans from the interface file and put it in 
-the te file.
-
---------------080809020305050306070402
+--------------030203080603000906090704
 Content-Type: text/x-patch;
- name="apache.patch"
+ name="hal.patch"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline;
- filename="apache.patch"
+ filename="hal.patch"
 
---- nsaserefpolicy/policy/modules/services/apache.fc	2007-02-23 16:50:01.000000000 -0500
-+++ serefpolicy-2.5.12/policy/modules/services/apache.fc	2007-04-11 17:07:34.000000000 -0400
-@@ -78,3 +72,11 @@
- /var/www/cgi-bin(/.*)?			gen_context(system_u:object_r:httpd_sys_script_exec_t,s0)
- /var/www/icons(/.*)?			gen_context(system_u:object_r:httpd_sys_content_t,s0)
- /var/www/perl(/.*)?			gen_context(system_u:object_r:httpd_sys_script_exec_t,s0)
+--- nsaserefpolicy/policy/modules/services/hal.fc	2007-01-02 12:57:43.000000000 -0500
++++ serefpolicy-2.5.12/policy/modules/services/hal.fc	2007-04-11 17:07:34.000000000 -0400
+@@ -8,4 +8,12 @@
+ 
+ /var/lib/hal(/.*)?				gen_context(system_u:object_r:hald_var_lib_t,s0)
+ 
++/var/cache/hald(/.*)?				gen_context(system_u:object_r:hald_cache_t,s0)
 +
-+#Bugzilla file context
-+/usr/share/bugzilla(/.*)?	-d	gen_context(system_u:object_r:httpd_bugzilla_content_t,s0)
-+/usr/share/bugzilla(/.*)?	--	gen_context(system_u:object_r:httpd_bugzilla_script_exec_t,s0)
-+/var/lib/bugzilla(/.*)?			gen_context(system_u:object_r:httpd_bugzilla_script_rw_t,s0)
-+#viewvc file context
-+/var/spool/viewvc(/.*)?  		gen_context(system_u:object_r:httpd_sys_script_rw_t, s0)
+ /var/run/haldaemon.pid	--	 		gen_context(system_u:object_r:hald_var_run_t,s0)
 +
---- nsaserefpolicy/policy/modules/services/apache.if	2007-04-02 10:58:34.000000000 -0400
-+++ serefpolicy-2.5.12/policy/modules/services/apache.if	2007-04-11 17:07:34.000000000 -0400
-@@ -18,10 +18,6 @@
- 		attribute httpd_script_exec_type;
- 		type httpd_t, httpd_suexec_t, httpd_log_t;
- 	')
--	# allow write access to public file transfer
--	# services files.
--	gen_tunable(allow_httpd_$1_script_anon_write,false)
--
- 	#This type is for webpages
- 	type httpd_$1_content_t, httpdcontent; # customizable
- 	files_type(httpd_$1_content_t)
-@@ -120,10 +116,6 @@
- 		can_exec(httpd_$1_script_t, httpdcontent)
- 	')
++/usr/libexec/hal-acl-tool		--	gen_context(system_u:object_r:hald_acl_exec_t,s0)
++/usr/libexec/hald-addon-macbookpro-backlight --	gen_context(system_u:object_r:hald_mac_exec_t,s0)
++/usr/libexec/hal-system-sonypic	 --	gen_context(system_u:object_r:hald_sonypic_exec_t,s0)
++
++/var/log/pm-suspend.log				gen_context(system_u:object_r:hald_log_t,s0)
+--- nsaserefpolicy/policy/modules/services/hal.if	2007-02-19 11:32:53.000000000 -0500
++++ serefpolicy-2.5.12/policy/modules/services/hal.if	2007-04-16 11:36:25.000000000 -0400
+@@ -208,3 +208,42 @@
+ 	files_search_pids($1)
+ 	allow $1 hald_var_run_t:file rw_file_perms;
+ ')
++
++########################################
++## <summary>
++##	Do not audit attempts to write the hal
++##	log files.
++## </summary>
++## <param name="domain">
++##	<summary>
++##	Domain to not audit
++##	</summary>
++## </param>
++#
++interface(`hal_dontaudit_write_log',`
++	gen_require(`
++		type hald_log_t;
++	')
++
++	dontaudit $1 hald_log_t:file { append write };
++')
++
++########################################
++## <summary>
++##	Allow attempts to write the hal
++##	log files.
++## </summary>
++## <param name="domain">
++##	<summary>
++##	Domain to not audit
++##	</summary>
++## </param>
++#
++interface(`hal_write_log',`
++	gen_require(`
++		type hald_log_t;
++	')
++
++	logging_search_logs($1)
++	allow $1 hald_log_t:file rw_file_perms;
++')
+--- nsaserefpolicy/policy/modules/services/hal.te	2007-03-20 23:38:00.000000000 -0400
++++ serefpolicy-2.5.12/policy/modules/services/hal.te	2007-04-19 09:51:36.000000000 -0400
+@@ -16,9 +16,33 @@
+ type hald_var_run_t;
+ files_pid_file(hald_var_run_t)
  
--	tunable_policy(`allow_httpd_$1_script_anon_write',`
--		miscfiles_manage_public_files(httpd_$1_script_t)
--	') 
--
- 	# Allow the web server to run scripts and serve pages
- 	tunable_policy(`httpd_builtin_scripting',`
- 		manage_dirs_pattern(httpd_t,httpd_$1_script_rw_t,httpd_$1_script_rw_t)
-@@ -268,8 +260,11 @@
- 	')
++type hald_cache_t;
++files_pid_file(hald_cache_t)
++
+ type hald_var_lib_t;
+ files_type(hald_var_lib_t)
  
- 	apache_content_template($1)
-+	manage_dirs_pattern($1_t,httpd_$1_content_t,httpd_$1_content_t)
-+	manage_files_pattern($1_t,httpd_$1_content_t,httpd_$1_content_t)
-+	manage_lnk_files_pattern($1_t,httpd_$1_content_t,httpd_$1_content_t)
- 
--	typeattribute httpd_$1_script_t httpd_script_domains;
-+	typeattribute httpd_$1_content_t httpd_script_domains;
- 	userdom_user_home_content($1,httpd_$1_content_t)
- 
- 	role $3 types httpd_$1_script_t;
-@@ -434,6 +429,24 @@
- 
++type hald_log_t;
++files_type(hald_log_t)
++
++type hald_acl_t;
++type hald_acl_exec_t;
++domain_type(hald_acl_t)
++domain_entry_file(hald_acl_t,hald_acl_exec_t)
++role system_r types hald_acl_t;
++
++type hald_mac_t;
++type hald_mac_exec_t;
++domain_type(hald_mac_t)
++domain_entry_file(hald_mac_t,hald_mac_exec_t)
++role system_r types hald_mac_t;
++
++type hald_sonypic_t;
++type hald_sonypic_exec_t;
++domain_type(hald_sonypic_t)
++domain_entry_file(hald_sonypic_t,hald_sonypic_exec_t)
++role system_r types hald_sonypic_t;
++
  ########################################
- ## <summary>
-+##	getattr apache.process
-+## </summary>
-+## <param name="domain">
-+##	<summary>
-+##	Domain allowed access.
-+##	</summary>
-+## </param>
-+#
-+interface(`apache_getattr',`
-+	gen_require(`
-+		type httpd_t;
-+	')
-+
-+	allow $1 httpd_t:process getattr;
-+')
-+
-+########################################
-+## <summary>
- ##	Inherit and use file descriptors from Apache.
- ## </summary>
- ## <param name="domain">
-@@ -752,6 +765,7 @@
- 	')
+ #
+ # Local policy
+@@ -26,7 +50,7 @@
  
- 	allow $1 httpd_modules_t:dir list_dir_perms;
-+	read_lnk_files_pattern($1,httpd_modules_t,httpd_modules_t)
+ # execute openvt which needs setuid
+ allow hald_t self:capability { chown setuid setgid kill net_admin sys_admin sys_nice dac_override dac_read_search mknod sys_rawio sys_tty_config };
+-dontaudit hald_t self:capability sys_tty_config;
++dontaudit hald_t self:capability {sys_ptrace sys_tty_config };
+ allow hald_t self:process signal_perms;
+ allow hald_t self:fifo_file rw_fifo_file_perms;
+ allow hald_t self:unix_stream_socket { create_stream_socket_perms connectto };
+@@ -48,14 +72,20 @@
+ manage_files_pattern(hald_t,hald_var_lib_t,hald_var_lib_t)
+ manage_sock_files_pattern(hald_t,hald_var_lib_t,hald_var_lib_t)
+ 
++# var/log files for hald
++allow hald_t hald_log_t:file manage_file_perms;
++logging_log_filetrans(hald_t,hald_log_t,file)
++
+ manage_files_pattern(hald_t,hald_var_run_t,hald_var_run_t)
+ files_pid_filetrans(hald_t,hald_var_run_t,file)
+ 
++manage_files_pattern(hald_t,hald_cache_t,hald_cache_t)
++
+ kernel_read_system_state(hald_t)
+ kernel_read_network_state(hald_t)
+-kernel_read_kernel_sysctls(hald_t)
++kernel_rw_kernel_sysctl(hald_t)
+ kernel_read_fs_sysctls(hald_t)
+-kernel_read_irq_sysctls(hald_t)
++kernel_rw_irq_sysctls(hald_t)
+ kernel_rw_vm_sysctls(hald_t)
+ kernel_write_proc_files(hald_t)
+ 
+@@ -85,9 +115,13 @@
+ dev_rw_power_management(hald_t)
+ # hal is now execing pm-suspend
+ dev_rw_sysfs(hald_t)
++dev_read_sound(hald_t)
++dev_write_sound(hald_t)
++dev_read_raw_memory(hald_t)
+ 
+ domain_use_interactive_fds(hald_t)
+ domain_read_all_domains_state(hald_t)
++domain_dontaudit_ptrace_all_domains(hald_t)
+ 
+ files_exec_etc_files(hald_t)
+ files_read_etc_files(hald_t)
+@@ -101,9 +135,11 @@
+ files_create_boot_flag(hald_t)
+ files_getattr_all_dirs(hald_t)
+ files_read_kernel_img(hald_t)
++files_rw_lock_dirs(hald_t)
+ 
+ fs_getattr_all_fs(hald_t)
+ fs_search_all(hald_t)
++fs_list_inotifyfs(hald_t)
+ fs_list_auto_mountpoints(hald_t)
+ files_getattr_all_mountpoints(hald_t)
+ 
+@@ -128,10 +164,10 @@
+ auth_use_nsswitch(hald_t)
+ 
+ init_domtrans_script(hald_t)
+-init_write_initctl(hald_t)
+ init_read_utmp(hald_t)
+ #hal runs shutdown, probably need a shutdown domain
+ init_rw_utmp(hald_t)
++init_telinit(hald_t)
+ 
+ libs_use_ld_so(hald_t)
+ libs_use_shared_libs(hald_t)
+@@ -160,6 +196,10 @@
  ')
  
- ########################################
-@@ -923,7 +937,7 @@
- 		type httpd_squirrelmail_t;
- 	')
- 
--	allow $1 httpd_squirrelmail_t:file { getattr read };
-+	read_files_pattern($1,httpd_squirrelmail_t,httpd_squirrelmail_t)
- ')
- 
- ########################################
-@@ -1000,3 +1014,140 @@
- 
- 	allow $1 httpd_sys_script_t:dir search_dir_perms;
- ')
-+
-+########################################
-+## <summary>
-+##	Allow the specified domain to manage
-+##	apache modules.
-+## </summary>
-+## <param name="domain">
-+##	<summary>
-+##	Domain allowed access.
-+##	</summary>
-+## </param>
-+#
-+interface(`apache_manage_modules',`
-+	gen_require(`
-+		type httpd_modules_t;
-+	')
-+
-+	manage_dirs_pattern($1,httpd_modules_t,httpd_modules_t)
-+	manage_files_pattern($1,httpd_modules_t,httpd_modules_t)
-+	manage_lnk_files_pattern($1,httpd_modules_t,httpd_modules_t)
-+')
-+
-+########################################
-+## <summary>
-+##	Allow the specified domain to create 
-+##	apache lock file
-+## </summary>
-+## <param name="domain">
-+##	<summary>
-+##	Domain allowed access.
-+##	</summary>
-+## </param>
-+#
-+interface(`apache_manage_lock',`
-+	gen_require(`
-+		type httpd_lock_t;
-+	')
-+	allow $1 httpd_lock_t:file manage_file_perms;
-+	files_lock_filetrans($1, httpd_lock_t, file)
-+')
-+
-+########################################
-+## <summary>
-+##	Allow the specified domain to manage
-+##	apache pid file
-+## </summary>
-+## <param name="domain">
-+##	<summary>
-+##	Domain allowed access.
-+##	</summary>
-+## </param>
-+#
-+interface(`apache_manage_pid',`
-+	gen_require(`
-+		type httpd_var_run_t;
-+	')
-+	manage_files_pattern($1,httpd_var_run_t,httpd_var_run_t)
-+	files_pid_filetrans($1,httpd_var_run_t, file)
-+')
-+
-+########################################
-+## <summary>
-+##f	Read apache system state
-+## </summary>
-+## <param name="domain">
-+##	<summary>
-+##	Domain to not audit.
-+##	</summary>
-+## </param>
-+#
-+interface(`apache_read_state',`
-+	gen_require(`
-+		type httpd_t;
-+	')
-+	kernel_search_proc($1)
-+	allow $1 httpd_t:dir list_dir_perms;
-+	read_files_pattern($1,httpd_t,httpd_t)
-+	read_lnk_files_pattern($1,httpd_t,httpd_t)
-+	dontaudit $1 httpd_t:process ptrace;
-+')
-+
-+########################################
-+## <summary>
-+##f	allow domain to signal apache
-+## </summary>
-+## <param name="domain">
-+##	<summary>
-+##	Domain to not audit.
-+##	</summary>
-+## </param>
-+#
-+interface(`apache_signal',`
-+	gen_require(`
-+		type httpd_t;
-+	')
-+	allow $1 httpd_t:process signal;
-+')
-+
-+########################################
-+## <summary>
-+##	allow domain to relabel apache content
-+## </summary>
-+## <param name="domain">
-+##	<summary>
-+##	Domain to not audit.
-+##	</summary>
-+## </param>
-+#
-+interface(`apache_relabel',`
-+	gen_require(`
-+		attribute httpdcontent;
-+		attribute httpd_script_exec_type;
-+	')
-+
-+	allow $1 { httpd_script_exec_type httpdcontent}:dir { relabelto relabelfrom };
-+	allow $1 { httpd_script_exec_type httpdcontent}:file { relabelto relabelfrom };
-+')
-+
-+########################################
-+## <summary>
-+##	Allow the specified domain to search 
-+##	apache bugzilla directories.
-+## </summary>
-+## <param name="domain">
-+##	<summary>
-+##	Domain allowed access.
-+##	</summary>
-+## </param>
-+#
-+interface(`apache_search_bugzilla_dirs',`
-+	gen_require(`
-+		type httpd_bugzilla_content_t;
-+	')
-+
-+	allow $1 httpd_bugzilla_content_t:dir search_dir_perms;
-+')
-+
---- nsaserefpolicy/policy/modules/services/apache.te	2007-04-10 13:21:52.000000000 -0400
-+++ serefpolicy-2.5.12/policy/modules/services/apache.te	2007-04-11 17:07:34.000000000 -0400
-@@ -106,6 +106,27 @@
- ## </desc>
- gen_tunable(httpd_unified,false)
- 
-+## <desc>
-+## <p>
-+## Allow httpd to read nfs files
-+## </p>
-+## </desc>
-+gen_tunable(httpd_use_nfs,false)
-+
-+## <desc>
-+## <p>
-+## Allow httpd to read cifs files
-+## </p>
-+## </desc>
-+gen_tunable(httpd_use_cifs,false)
-+
-+## <desc>
-+## <p>
-+## Allow apache scripts to write to public content 
-+## </p>
-+## </desc>
-+gen_tunable(allow_httpd_sys_script_anon_write,false)
-+
- attribute httpdcontent;
- 
- # domains that can exec all users scripts
-@@ -257,6 +278,7 @@
- allow httpd_t httpd_modules_t:dir list_dir_perms;
- mmap_files_pattern(httpd_t,httpd_modules_t,httpd_modules_t)
- read_files_pattern(httpd_t,httpd_modules_t,httpd_modules_t)
-+read_lnk_files_pattern(httpd_t,httpd_modules_t,httpd_modules_t)
- 
- apache_domtrans_rotatelogs(httpd_t)
- # Apache-httpd needs to be able to send signals to the log rotate procs.
-@@ -297,6 +319,7 @@
- kernel_read_kernel_sysctls(httpd_t)
- # for modules that want to access /proc/meminfo
- kernel_read_system_state(httpd_t)
-+kernel_search_network_sysctl(httpd_t)
- 
- corenet_non_ipsec_sendrecv(httpd_t)
- corenet_tcp_sendrecv_all_if(httpd_t)
-@@ -416,6 +439,10 @@
- 	allow httpd_t httpd_unconfined_script_exec_t:dir list_dir_perms;
- ')
- 
-+tunable_policy(`allow_httpd_sys_script_anon_write',`
-+	miscfiles_manage_public_files(httpd_sys_script_t)
-+') 
-+
- tunable_policy(`httpd_enable_cgi && httpd_unified && httpd_builtin_scripting',`
- 	domtrans_pattern(httpd_t, httpdcontent, httpd_sys_script_t)
- 
-@@ -433,11 +460,21 @@
- 	fs_read_nfs_symlinks(httpd_t)
- ')
- 
-+tunable_policy(`httpd_use_nfs',`
-+	fs_read_nfs_files(httpd_t)
-+	fs_read_nfs_symlinks(httpd_t)
-+')
-+
- tunable_policy(`httpd_enable_homedirs && use_samba_home_dirs',`
- 	fs_read_cifs_files(httpd_t)
- 	fs_read_cifs_symlinks(httpd_t)
- ')
- 
-+tunable_policy(`httpd_use_cifs',`
-+	fs_read_cifs_files(httpd_t)
-+	fs_read_cifs_symlinks(httpd_t)
-+')
-+
- tunable_policy(`httpd_ssi_exec',`
- 	corecmd_shell_domtrans(httpd_t,httpd_sys_script_t)
- 	allow httpd_sys_script_t httpd_t:fd use;
-@@ -668,6 +705,12 @@
- 	fs_exec_nfs_files(httpd_suexec_t)
- ')
- 
-+tunable_policy(`httpd_use_cifs',`
-+	fs_read_cifs_files(httpd_suexec_t)
-+	fs_read_cifs_symlinks(httpd_suexec_t)
-+	fs_exec_cifs_files(httpd_suexec_t)
-+')
-+
- tunable_policy(`httpd_enable_homedirs && use_samba_home_dirs',`
- 	fs_read_cifs_files(httpd_suexec_t)
- 	fs_read_cifs_symlinks(httpd_suexec_t)
-@@ -706,7 +749,8 @@
- 
- dontaudit httpd_sys_script_t httpd_config_t:dir search;
- 
--allow httpd_sys_script_t httpd_squirrelmail_t:file { append read };
-+apache_read_squirrelmail_data(httpd_sys_script_t)
-+apache_append_squirrelmail_data(httpd_sys_script_t)
- 
- allow httpd_sys_script_t squirrelmail_spool_t:dir list_dir_perms;
- read_files_pattern(httpd_sys_script_t,squirrelmail_spool_t,squirrelmail_spool_t)
-@@ -730,11 +774,21 @@
- 	')
- ')
- 
-+tunable_policy(`httpd_use_nfs', `
-+	fs_read_nfs_files(httpd_sys_script_t)
-+	fs_read_nfs_symlinks(httpd_sys_script_t)
-+')
-+
- tunable_policy(`httpd_enable_homedirs && use_nfs_home_dirs',`
- 	fs_read_nfs_files(httpd_sys_script_t)
- 	fs_read_nfs_symlinks(httpd_sys_script_t)
- ')
- 
-+tunable_policy(`httpd_use_cifs', `
-+	fs_read_cifs_files(httpd_sys_script_t)
-+	fs_read_cifs_symlinks(httpd_sys_script_t)
-+')
-+
- tunable_policy(`httpd_enable_homedirs && use_samba_home_dirs',`
- 	fs_read_cifs_files(httpd_sys_script_t)
- 	fs_read_cifs_symlinks(httpd_sys_script_t)
-@@ -788,3 +842,19 @@
- 	term_dontaudit_use_generic_ptys(httpd_rotatelogs_t)
- 	term_dontaudit_use_unallocated_ttys(httpd_rotatelogs_t)
- ')
-+
-+#============= bugzilla policy ==============
-+apache_content_template(bugzilla)
-+allow httpd_bugzilla_script_t self:netlink_route_socket r_netlink_socket_perms;
-+
-+files_search_var_lib(httpd_bugzilla_script_t)
-+
-+optional_policy(`
-+	mysql_search_db(httpd_bugzilla_script_t)
-+	mysql_stream_connect(httpd_bugzilla_script_t)
-+')
-+
-+optional_policy(`
-+	postgresql_stream_connect(httpd_bugzilla_script_t)
-+')
-+
---- nsaserefpolicy/policy/modules/services/mta.if	2007-03-26 10:39:04.000000000 -0400
-+++ serefpolicy-2.5.12/policy/modules/services/mta.if	2007-04-11 17:07:34.000000000 -0400
-@@ -847,6 +847,25 @@
- 	manage_files_pattern($1,mqueue_spool_t,mqueue_spool_t)
- ')
- 
-+########################################
-+## <summary>
-+##	search	mail queue dirs.
-+## </summary>
-+## <param name="domain">
-+##	<summary>
-+##	Domain allowed access.
-+##	</summary>
-+## </param>
-+#
-+interface(`mta_search_queue',`
-+	gen_require(`
-+		type mqueue_spool_t;
-+	')
-+
-+	files_search_spool($1)
-+	allow $1 mqueue_spool_t:dir search_dir_perms;
-+')
-+
- #######################################
- ## <summary>
- ##	Read sendmail binary.
---- nsaserefpolicy/policy/modules/services/mta.te	2007-02-19 11:32:53.000000000 -0500
-+++ serefpolicy-2.5.12/policy/modules/services/mta.te	2007-04-11 17:07:34.000000000 -0400
-@@ -91,6 +92,7 @@
  optional_policy(`
- 	apache_read_squirrelmail_data(system_mail_t)
- 	apache_append_squirrelmail_data(system_mail_t)
-+	apache_search_bugzilla_dirs(system_mail_t)
++	alsa_read_rw_config(hald_t)
++')
++
++optional_policy(`
+ 	bootloader_domtrans(hald_t)
+ ')
  
- 	# apache should set close-on-exec
- 	apache_dontaudit_append_log(system_mail_t)
+@@ -245,3 +285,102 @@
+ optional_policy(`
+ 	vbetool_domtrans(hald_t)
+ ')
++
++########################################
++#
++# Local hald acl policy
++#
++
++allow hald_acl_t self:capability { dac_override fowner };
++allow hald_acl_t self : fifo_file read_fifo_file_perms;
++
++domtrans_pattern(hald_t, hald_acl_exec_t, hald_acl_t)
++allow hald_t hald_acl_t : process signal;
++allow hald_acl_t hald_t : unix_stream_socket connectto;
++manage_dirs_pattern(hald_acl_t,hald_var_lib_t,hald_var_lib_t)
++manage_files_pattern(hald_acl_t,hald_var_lib_t,hald_var_lib_t)
++
++corecmd_exec_bin(hald_acl_t)
++
++dev_getattr_all_chr_files(hald_acl_t)
++dev_getattr_generic_usb_dev(hald_acl_t)
++dev_getattr_video_dev(hald_acl_t)
++dev_setattr_video_dev(hald_acl_t)
++dev_getattr_sound_dev(hald_acl_t)
++dev_setattr_sound_dev(hald_acl_t)
++dev_setattr_generic_usb_dev(hald_acl_t)
++dev_setattr_usbfs_files(hald_acl_t)
++
++libs_use_ld_so(hald_acl_t)
++libs_use_shared_libs(hald_acl_t)
++
++files_search_var_lib(hald_acl_t)
++files_read_usr_files(hald_acl_t)
++files_read_etc_files(hald_acl_t)
++
++storage_getattr_removable_dev(hald_acl_t)
++storage_setattr_removable_dev(hald_acl_t)
++
++miscfiles_read_localization(hald_acl_t)
++
++auth_use_nsswitch(hald_acl_t)
++
++ifdef(`targeted_policy',`
++	term_dontaudit_use_console(hald_acl_t)
++	term_dontaudit_use_generic_ptys(hald_acl_t)
++')
++
++########################################
++#
++# Local hald mac policy
++#
++
++domtrans_pattern(hald_t, hald_mac_exec_t, hald_mac_t)
++allow hald_t hald_mac_t : process signal;
++allow hald_mac_t hald_t : unix_stream_socket connectto;
++
++files_search_var_lib(hald_mac_t)
++manage_dirs_pattern(hald_mac_t,hald_var_lib_t,hald_var_lib_t)
++manage_files_pattern(hald_mac_t,hald_var_lib_t,hald_var_lib_t)
++
++libs_use_ld_so(hald_mac_t)
++libs_use_shared_libs(hald_mac_t)
++
++files_read_usr_files(hald_mac_t)
++
++dev_write_raw_memory(hald_mac_t)
++
++miscfiles_read_localization(hald_mac_t)
++
++ifdef(`targeted_policy',`
++	term_dontaudit_use_console(hald_mac_t)
++	term_dontaudit_use_generic_ptys(hald_mac_t)
++')
++
++########################################
++#
++# Local hald sonypic policy
++#
++
++domtrans_pattern(hald_t, hald_sonypic_exec_t, hald_sonypic_t)
++allow hald_t hald_sonypic_t : process signal;
++allow hald_sonypic_t hald_t : unix_stream_socket connectto;
++
++dev_read_video_dev(hald_sonypic_t)
++dev_write_video_dev(hald_sonypic_t)
++
++files_search_var_lib(hald_sonypic_t)
++manage_dirs_pattern(hald_sonypic_t,hald_var_lib_t,hald_var_lib_t)
++manage_files_pattern(hald_sonypic_t,hald_var_lib_t,hald_var_lib_t)
++
++libs_use_ld_so(hald_sonypic_t)
++libs_use_shared_libs(hald_sonypic_t)
++
++files_read_usr_files(hald_sonypic_t)
++
++miscfiles_read_localization(hald_sonypic_t)
++
++ifdef(`targeted_policy',`
++	term_dontaudit_use_console(hald_sonypic_t)
++	term_dontaudit_use_generic_ptys(hald_sonypic_t)
++')
+--- nsaserefpolicy/policy/modules/admin/bootloader.te	2007-02-19 11:32:54.000000000 -0500
++++ serefpolicy-2.5.12/policy/modules/admin/bootloader.te	2007-04-16 11:36:34.000000000 -0400
+@@ -187,6 +189,7 @@
+ 
+ optional_policy(`
+ 	hal_dontaudit_append_lib_files(bootloader_t)
++	hal_dontaudit_write_log(bootloader_t)
+ ')
+ 
+ optional_policy(`
+--- nsaserefpolicy/policy/modules/services/ntp.te	2007-04-10 12:52:58.000000000 -0400
++++ serefpolicy-2.5.12/policy/modules/services/ntp.te	2007-04-11 17:07:34.000000000 -0400
+@@ -137,6 +137,10 @@
+ ')
+ 
+ optional_policy(`
++	hal_dontaudit_write_log(ntpd_t)
++')
++
++optional_policy(`
+ 	seutil_sigchld_newrole(ntpd_t)
+ ')
+ 
 
---------------080809020305050306070402--
+--------------030203080603000906090704--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
