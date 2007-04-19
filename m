@@ -1,163 +1,75 @@
-Message-ID: <4627B57A.7080507@manicmethod.com>
-Date: Thu, 19 Apr 2007 14:31:22 -0400
-From: Joshua Brindle <method@manicmethod.com>
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l3JIWZOj009815
+	for <selinux@tycho.nsa.gov>; Thu, 19 Apr 2007 14:32:35 -0400
+Received: from e34.co.us.ibm.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l3JIWYuv024537
+	for <selinux@tycho.nsa.gov>; Thu, 19 Apr 2007 18:32:34 GMT
+Received: from d03relay02.boulder.ibm.com (d03relay02.boulder.ibm.com [9.17.195.227])
+	by e34.co.us.ibm.com (8.13.8/8.13.8) with ESMTP id l3JIWYmt008320
+	for <selinux@tycho.nsa.gov>; Thu, 19 Apr 2007 14:32:34 -0400
+Received: from d03av02.boulder.ibm.com (d03av02.boulder.ibm.com [9.17.195.168])
+	by d03relay02.boulder.ibm.com (8.13.8/8.13.8/NCO v8.3) with ESMTP id l3JIWXFT173910
+	for <selinux@tycho.nsa.gov>; Thu, 19 Apr 2007 12:32:33 -0600
+Received: from d03av02.boulder.ibm.com (loopback [127.0.0.1])
+	by d03av02.boulder.ibm.com (8.12.11.20060308/8.13.3) with ESMTP id l3JIWXRW007589
+	for <selinux@tycho.nsa.gov>; Thu, 19 Apr 2007 12:32:33 -0600
+Message-ID: <4627B5C0.7070305@us.ibm.com>
+Date: Thu, 19 Apr 2007 13:32:32 -0500
+From: Michael C Thompson <thompsmc@us.ibm.com>
 MIME-Version: 1.0
-To: Stephen Smalley <sds@tycho.nsa.gov>
-CC: selinux@tycho.nsa.gov, Karl MacMillan <kmacmillan@mentalrootkit.com>,
-        Darrel Goeddel <dgoeddel@TrustedCS.com>
-Subject: Re: [PATCH -trunk][RFC] libselinux: drop setlocaldefs and	preservebools
- support
-References: <1177006819.27654.174.camel@moss-spartans.epoch.ncsc.mil>
-In-Reply-To: <1177006819.27654.174.camel@moss-spartans.epoch.ncsc.mil>
+To: Daniel J Walsh <dwalsh@redhat.com>
+CC: "Christopher J. PeBenito" <cpebenito@tresys.com>,
+        SE Linux <selinux@tycho.nsa.gov>
+Subject: Re: Samba fixes
+References: <46277C78.8090200@redhat.com> <46278792.90602@us.ibm.com> <4627AC90.2050502@redhat.com>
+In-Reply-To: <4627AC90.2050502@redhat.com>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Stephen Smalley wrote:
-> This an RFC only, not for merging yet.  It naturally depends on the kernel patch
-> for preserving booleans atomically, and it also likely requires a bump in the .so version.
-> But you need it to test the kernel support without interference from libselinux.
->
-> ---
->
-> Drop setlocaldefs and preservebools support from the policy loading
-> code in libselinux on the trunk.
->
-> setlocaldefs (patching local user definitions and boolean settings
-> into the in-memory policy at load time) is obsoleted by libsemanage and
-> managed policy.
->
-> preservebools (preserving boolean values across a policy reload rather
-> than resetting to the policy defaults) will be handled by the kernel
-> going forward.
->
->   
-you should also remove the -b option from load_policy
+Daniel J Walsh wrote:
+> Michael C Thompson wrote:
+>> Daniel J Walsh wrote:
+>>> I have been working heavily with the samba team here to get selinux 
+>>> policy working well with samba.
+>>>
+>>>
+>>> Most controversial part is
+>>> samba_unconfined_script_exec_t
+>>>
+>>> Which is a directory that administrators can put random scripts into 
+>>> and allow samba to execute.
+>>
+>> So, three questions:
+>> 1) What user would be executing these scripts? The 'samba' user?
+> Samba Developers say:
+> 
+> Either the authenticated user or root, it really depends on the script.
+> 
+> For example, a "preexec" script is run before the share is accessed as
+> the user that authenticated to samba (or the forced user as per "force
+> user" parameter), while a "root preexec" script would always be run as
+> root. Other scripts always run as root or always as auth user depending
+> on the action to be performed (ie add user scripts always run as root,
+> while print related stuff should always run as user).
+> 
+>>
+>> 2) What is the intention of such functionality? To have samba be able 
+>> to run file management tools or something?
+>> 3) Is supporting this functionality even a good idea?
+> As opposed to setenforce 0/or samba_disable_trans?
 
-> ---
->
->  libselinux/src/load_policy.c      |   47 +-------------------------------------
->  libselinux/src/selinux_config.c   |    5 ----
->  libselinux/src/selinux_internal.h |    1 
->  3 files changed, 2 insertions(+), 51 deletions(-)
->
-> Index: policyrep/libselinux/src/selinux_config.c
-> ===================================================================
-> --- policyrep/libselinux/src/selinux_config.c	(revision 2357)
-> +++ policyrep/libselinux/src/selinux_config.c	(working copy)
-> @@ -15,7 +15,6 @@
->  #define SELINUXDEFAULT "targeted"
->  #define SELINUXTYPETAG "SELINUXTYPE="
->  #define SELINUXTAG "SELINUX="
-> -#define SETLOCALDEFS "SETLOCALDEFS="
->  #define REQUIRESEUSERS "REQUIRESEUSERS="
->  
->  /* Indices for file paths arrays. */
-> @@ -165,10 +164,6 @@
->  					end--;
->  				}
->  				continue;
-> -			} else if (!strncmp(buf_p, SETLOCALDEFS,
-> -					    sizeof(SETLOCALDEFS) - 1)) {
-> -				value = buf_p + sizeof(SETLOCALDEFS) - 1;
-> -				intptr = &load_setlocaldefs;
->  			} else if (!strncmp(buf_p, REQUIRESEUSERS,
->  					    sizeof(REQUIRESEUSERS) - 1)) {
->  				value = buf_p + sizeof(REQUIRESEUSERS) - 1;
-> Index: policyrep/libselinux/src/load_policy.c
-> ===================================================================
-> --- policyrep/libselinux/src/load_policy.c	(revision 2357)
-> +++ policyrep/libselinux/src/load_policy.c	(working copy)
-> @@ -39,8 +39,6 @@
->  
->  hidden_def(security_load_policy)
->  
-> -int load_setlocaldefs hidden = 1;
-> -
->  int selinux_mkload_policy(int preservebools)
->  {
->  	int vers = sepol_policy_kern_vers_max();
-> @@ -49,7 +47,7 @@
->  	struct stat sb;
->  	size_t size;
->  	void *map, *data;
-> -	int fd, rc = -1, *values, len, i, prot;
-> +	int fd, rc = -1, *values, len, i;
->  	sepol_policydb_t *policydb;
->  	sepol_policy_file_t *pf;
->  
-> @@ -70,12 +68,8 @@
->  	if (fstat(fd, &sb) < 0)
->  		goto close;
->  
-> -	prot = PROT_READ;
-> -	if (load_setlocaldefs || preservebools)
-> -		prot |= PROT_WRITE;
-> -
->  	size = sb.st_size;
-> -	data = map = mmap(NULL, size, prot, MAP_PRIVATE, fd, 0);
-> +	data = map = mmap(NULL, size, PROT_READ, MAP_PRIVATE, fd, 0);
->  	if (map == MAP_FAILED)
->  		goto close;
->  
-> @@ -107,43 +101,6 @@
->  		sepol_policydb_free(policydb);
->  	}
->  
-> -	if (load_setlocaldefs) {
-> -		void *olddata = data;
-> -		size_t oldsize = size;
-> -		rc = sepol_genusers(olddata, oldsize, selinux_users_path(),
-> -				    &data, &size);
-> -		if (rc < 0) {
-> -			/* Fall back to the prior image if genusers failed. */
-> -			data = olddata;
-> -			size = oldsize;
-> -			rc = 0;
-> -		} else {
-> -			if (olddata != map)
-> -				free(olddata);
-> -		}
-> -	}
-> -
-> -	if (preservebools) {
-> -		rc = security_get_boolean_names(&names, &len);
-> -		if (!rc) {
-> -			values = malloc(sizeof(int) * len);
-> -			if (!values)
-> -				goto unmap;
-> -			for (i = 0; i < len; i++)
-> -				values[i] =
-> -				    security_get_boolean_active(names[i]);
-> -			(void)sepol_genbools_array(data, size, names, values,
-> -						   len);
-> -			free(values);
-> -			for (i = 0; i < len; i++)
-> -				free(names[i]);
-> -			free(names);
-> -		}
-> -	} else if (load_setlocaldefs) {
-> -		(void)sepol_genbools(data, size,
-> -				     (char *)selinux_booleans_path());
-> -	}
-> -
->  	rc = security_load_policy(data, size);
->  
->        unmap:
-> Index: policyrep/libselinux/src/selinux_internal.h
-> ===================================================================
-> --- policyrep/libselinux/src/selinux_internal.h	(revision 2357)
-> +++ policyrep/libselinux/src/selinux_internal.h	(working copy)
-> @@ -79,6 +79,5 @@
->  hidden_proto(security_get_initial_context);
->  hidden_proto(security_get_initial_context_raw);
->  
-> -extern int load_setlocaldefs hidden;
->  extern int require_seusers hidden;
->  extern int selinux_page_size hidden;
->
->   
+That might be better than running with a false sense of security :) Even 
+though this is an "administrative restricted" set of scripts, if an 
+attacker could place malicious scripts in the directory, then permitting 
+samba to exec them as root could be an avenue of attack.
 
+
+My original point was simply that if its so controversial, that might 
+beg the question "is offering this functionality a good idea, in the 
+first place?".
+
+Mike
 
 --
 This message was distributed to subscribers of the selinux mailing list.
