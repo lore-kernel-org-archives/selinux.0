@@ -1,55 +1,56 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l3JHHecL004539
-	for <selinux@tycho.nsa.gov>; Thu, 19 Apr 2007 13:17:40 -0400
-Received: from mx1.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id l3JHHdrk006178
-	for <selinux@tycho.nsa.gov>; Thu, 19 Apr 2007 17:17:39 GMT
-Message-ID: <4627A425.7030800@redhat.com>
-Date: Thu, 19 Apr 2007 13:17:25 -0400
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l3JHrWRR006828
+	for <selinux@tycho.nsa.gov>; Thu, 19 Apr 2007 13:53:32 -0400
+Received: from mx1.redhat.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l3JHrVuv018065
+	for <selinux@tycho.nsa.gov>; Thu, 19 Apr 2007 17:53:31 GMT
+Message-ID: <4627AC90.2050502@redhat.com>
+Date: Thu, 19 Apr 2007 13:53:20 -0400
 From: Daniel J Walsh <dwalsh@redhat.com>
 MIME-Version: 1.0
-To: "Christopher J. PeBenito" <cpebenito@tresys.com>,
+To: Michael C Thompson <thompsmc@us.ibm.com>
+CC: "Christopher J. PeBenito" <cpebenito@tresys.com>,
         SE Linux <selinux@tycho.nsa.gov>
-Subject: Additional textrel_shlib_t
-Content-Type: multipart/mixed;
- boundary="------------040703040306070601050404"
+Subject: Re: Samba fixes
+References: <46277C78.8090200@redhat.com> <46278792.90602@us.ibm.com>
+In-Reply-To: <46278792.90602@us.ibm.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This is a multi-part message in MIME format.
---------------040703040306070601050404
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Michael C Thompson wrote:
+> Daniel J Walsh wrote:
+>> I have been working heavily with the samba team here to get selinux 
+>> policy working well with samba.
+>>
+>>
+>> Most controversial part is
+>> samba_unconfined_script_exec_t
+>>
+>> Which is a directory that administrators can put random scripts into 
+>> and allow samba to execute.
+>
+> So, three questions:
+> 1) What user would be executing these scripts? The 'samba' user?
+Samba Developers say:
 
+Either the authenticated user or root, it really depends on the script.
 
+For example, a "preexec" script is run before the share is accessed as
+the user that authenticated to samba (or the forced user as per "force
+user" parameter), while a "root preexec" script would always be run as
+root. Other scripts always run as root or always as auth user depending
+on the action to be performed (ie add user scripts always run as root,
+while print related stuff should always run as user).
 
---------------040703040306070601050404
-Content-Type: text/x-patch;
- name="libraries.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="libraries.patch"
+>
+> 2) What is the intention of such functionality? To have samba be able 
+> to run file management tools or something?
+> 3) Is supporting this functionality even a good idea?
+As opposed to setenforce 0/or samba_disable_trans?
+>
+> Mike
 
---- nsaserefpolicy/policy/modules/system/libraries.fc	2007-04-10 16:13:39.000000000 -0400
-+++ serefpolicy-2.5.12/policy/modules/system/libraries.fc	2007-04-17 10:00:22.000000000 -0400
-@@ -82,6 +81,7 @@
- /opt/netbeans(.*/)?jdk.*/linux/.+\.so(\.[^/]*)* -- gen_context(system_u:object_r:textrel_shlib_t,s0)
- /opt/cxoffice/lib/wine/.+\.so		--	gen_context(system_u:object_r:textrel_shlib_t,s0)
- /opt/ibm/java2-ppc64-50/jre/bin/.+\.so(\.[^/]*)* -- gen_context(system_u:object_r:textrel_shlib_t,s0)
-+/opt/f-secure/fspms/libexec/librapi.so(\.[^/]*)* -- gen_context(system_u:object_r:textrel_shlib_t,s0)
- 
- ifdef(`distro_gentoo',`
- # despite the extensions, they are actually libs
-@@ -132,6 +132,7 @@
- /usr/(.*/)?nvidia/.+\.so(\..*)?		--	gen_context(system_u:object_r:textrel_shlib_t,s0)
- 
- /usr/lib/win32/.*			--	gen_context(system_u:object_r:shlib_t,s0)
-+/usr/lib/transgaming_cedega/gddb_parser.so --	gen_context(system_u:object_r:shlib_t,s0)
- 
- /usr/(.*/)?lib(64)?(/.*)?/nvidia/.+\.so(\..*)? -- gen_context(system_u:object_r:textrel_shlib_t,s0)
- /usr/lib(64)?(/.*)?/nvidia/.+\.so(\..*)? --	gen_context(system_u:object_r:textrel_shlib_t,s0)
-
---------------040703040306070601050404--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
