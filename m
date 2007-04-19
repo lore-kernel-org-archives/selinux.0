@@ -1,90 +1,101 @@
-Subject: Re: [PATCH][RFC] selinux: preserve boolean values
-	across	policy	reloads
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Joshua Brindle <method@manicmethod.com>
-Cc: selinux@tycho.nsa.gov, James Morris <jmorris@namei.org>,
-        Eric Paris <eparis@parisplace.org>,
-        Karl MacMillan <kmacmillan@mentalrootkit.com>
-In-Reply-To: <4627B8C6.7070902@manicmethod.com>
-References: <1177006579.27654.169.camel@moss-spartans.epoch.ncsc.mil>
-	 <4627B314.8050103@manicmethod.com>
-	 <1177007462.27654.187.camel@moss-spartans.epoch.ncsc.mil>
-	 <4627B5DE.2030907@manicmethod.com>
-	 <1177008135.27654.198.camel@moss-spartans.epoch.ncsc.mil>
-	 <4627B8C6.7070902@manicmethod.com>
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l3JJHRRg012918
+	for <selinux@tycho.nsa.gov>; Thu, 19 Apr 2007 15:17:27 -0400
+Received: from mx1.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id l3JJHQrk002500
+	for <selinux@tycho.nsa.gov>; Thu, 19 Apr 2007 19:17:26 GMT
+Subject: Re: Samba fixes
+From: Karl MacMillan <kmacmillan@mentalrootkit.com>
+To: Michael C Thompson <thompsmc@us.ibm.com>
+Cc: Daniel J Walsh <dwalsh@redhat.com>,
+        "Christopher J. PeBenito" <cpebenito@tresys.com>,
+        SE Linux <selinux@tycho.nsa.gov>
+In-Reply-To: <4627B5C0.7070305@us.ibm.com>
+References: <46277C78.8090200@redhat.com> <46278792.90602@us.ibm.com>
+	 <4627AC90.2050502@redhat.com>  <4627B5C0.7070305@us.ibm.com>
 Content-Type: text/plain
-Date: Thu, 19 Apr 2007 14:54:31 -0400
-Message-Id: <1177008871.27654.205.camel@moss-spartans.epoch.ncsc.mil>
+Date: Thu, 19 Apr 2007 15:11:42 -0400
+Message-Id: <1177009902.21732.54.camel@localhost.localdomain>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2007-04-19 at 14:45 -0400, Joshua Brindle wrote:
-> Stephen Smalley wrote:
-> > On Thu, 2007-04-19 at 14:33 -0400, Joshua Brindle wrote:
-> >   
-> >> Stephen Smalley wrote:
-> >>     
-> >>> On Thu, 2007-04-19 at 14:21 -0400, Joshua Brindle wrote:
-> >>>   
-> >>>       
-> >>>> Stephen Smalley wrote:
-> >>>>     
-> >>>>         
-> >>>>> At present, the userland policy loading code has to go through contortions to preserve
-> >>>>> boolean values across policy reloads, and cannot do so atomically.  
-> >>>>> As this is what we always want to do for reloads, let the kernel preserve them instead.
-> >>>>>
-> >>>>>   
-> >>>>>       
-> >>>>>           
-> >>>> Are there situation where you may want to reset the boolean state to 
-> >>>> policy defaults? I can't think of realistic scenarios but if one ever 
-> >>>> comes up do we want to provide that facility?
-> >>>>     
-> >>>>         
-> >>> You can always set them after the load if you want to force them back to
-> >>> those defaults.  But I don't think anything is presently using
-> >>> load_policy -b.
+On Thu, 2007-04-19 at 13:32 -0500, Michael C Thompson wrote:
+> Daniel J Walsh wrote:
+> > Michael C Thompson wrote:
+> >> Daniel J Walsh wrote:
+> >>> I have been working heavily with the samba team here to get selinux 
+> >>> policy working well with samba.
 > >>>
-> >>> Alternative model is to make it a policy config flag (which I also
-> >>> played with), but then you don't gain anything in libselinux wrt
-> >>> removing/reducing the libsepol dependency - you still need sepol
-> >>> interfaces to set/clear that flag.
-> >>>   
-> >>>       
-> >> Thats what I was thinking. We could always have an selinuxfs node but 
-> >> that is racy. It seems like we need some sort of options struct we can 
-> >> send the kernel that is generated at load time and sent before the 
-> >> policy so thats its atomic. Would anything else use this? compat_net for 
-> >> example?
-> >>     
-> >
-> > It seems like a lot of complication just to allow for a rare (and
-> > presently unknown) case.  Policy config flags are easy enough to define
-> > and we still have plenty of space for them in the existing header, but
-> > then you have to resolve initial setting, preservation, and allowed
-> > forms of mutation, and as I said, you'd still be requiring libselinux to
-> > call libsepol to map to a policydb, mutate the flag, and map it back to
-> > a policy image at load time, so you don't gain a whole lot over the
-> > current genbools call (except for the atomicity of the preservation).
-> >   
-> Well, thats why i suggested an options struct that is independant from 
-> the policydb.
+> >>>
+> >>> Most controversial part is
+> >>> samba_unconfined_script_exec_t
+> >>>
+> >>> Which is a directory that administrators can put random scripts into 
+> >>> and allow samba to execute.
+> >>
+> >> So, three questions:
+> >> 1) What user would be executing these scripts? The 'samba' user?
+> > Samba Developers say:
+> > 
+> > Either the authenticated user or root, it really depends on the script.
+> > 
+> > For example, a "preexec" script is run before the share is accessed as
+> > the user that authenticated to samba (or the forced user as per "force
+> > user" parameter), while a "root preexec" script would always be run as
+> > root. Other scripts always run as root or always as auth user depending
+> > on the action to be performed (ie add user scripts always run as root,
+> > while print related stuff should always run as user).
+> > 
+> >>
+> >> 2) What is the intention of such functionality? To have samba be able 
+> >> to run file management tools or something?
+> >> 3) Is supporting this functionality even a good idea?
+> > As opposed to setenforce 0/or samba_disable_trans?
+> 
+> That might be better than running with a false sense of security :) Even 
+> though this is an "administrative restricted" set of scripts, if an 
+> attacker could place malicious scripts in the directory, then permitting 
+> samba to exec them as root could be an avenue of attack.
+> 
 
-That would require a new interface or new policy version.
+Well, setenforce 0 means that SELinux is definitely not improving
+security while allowing this is just a potential problem.
 
->  But since we have no known users its fine, I just wonder 
-> if we'll need something like this in the future (and we already know 
-> that we have issues with eg., compat_net being set after the policy that 
-> needs it is loaded)
+> 
+> My original point was simply that if its so controversial, that might 
+> beg the question "is offering this functionality a good idea, in the 
+> first place?".
+> 
 
-Yep, although we reverted that later, so compat_net is only manually set
-today.
+Trying to make security decisions for people makes them just disable
+SELinux. I don't mean to aim this directly at you, but we should treat
+the users of SELinux as intelligent and capable of making their own risk
+decisions.
 
--- 
-Stephen Smalley
-National Security Agency
+As long as it is possible to use this feature in at least one way that
+isn't false security then it should be available (e.g., by tightly
+controlling how the scripts could be added). Clueless users will allow
+this one way or another and I think it is preferable to have them leave
+SELinux on than disable it.
+
+Along those lines:
+
+* Can samba write to this directory (making it essentially unconfined)?
+* Is the directory separately typed so that other domains can be
+controlled?
+* Is there a fairly easy way to create a confined script type (like with
+Apache)? That would offer a more secure alternative?
+* Can the running of the scripts be disabled with a boolean?
+
+Karl
+
+> Mike
+> 
+> --
+> This message was distributed to subscribers of the selinux mailing list.
+> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
+> the words "unsubscribe selinux" without quotes as the message.
 
 
 --
