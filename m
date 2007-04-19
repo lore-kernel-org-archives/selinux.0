@@ -1,37 +1,41 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l3JK05vm015231
-	for <selinux@tycho.nsa.gov>; Thu, 19 Apr 2007 16:00:05 -0400
-Subject: Re: [PATCH] avc_internal.c needs #include <linux/types.h> for rhel4
-From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: Joshua Brindle <jbrindle@tresys.com>
-Cc: SE Linux <selinux@tycho.nsa.gov>, Karl MacMillan <kmacmill@redhat.com>
-In-Reply-To: <6FE441CD9F0C0C479F2D88F959B01588A71731@exchange.columbia.tresys.com>
-References: 
-	 <6FE441CD9F0C0C479F2D88F959B01588A71731@exchange.columbia.tresys.com>
+Subject: Re: [PATCH -trunk][RFC] setsebool: only use libsemanage for
+	persistent boolean changes
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Karl MacMillan <kmacmillan@mentalrootkit.com>
+Cc: selinux@tycho.nsa.gov, Joshua Brindle <method@manicmethod.com>,
+        Darrel Goeddel <dgoeddel@TrustedCS.com>
+In-Reply-To: <1177007815.21732.22.camel@localhost.localdomain>
+References: <1177007764.27654.193.camel@moss-spartans.epoch.ncsc.mil>
+	 <1177007815.21732.22.camel@localhost.localdomain>
 Content-Type: text/plain
-Date: Thu, 19 Apr 2007 16:00:04 -0400
-Message-Id: <1177012804.27654.254.camel@moss-spartans.epoch.ncsc.mil>
+Date: Thu, 19 Apr 2007 16:05:43 -0400
+Message-Id: <1177013143.27654.257.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2007-04-19 at 13:56 -0400, Joshua Brindle wrote:
-> Apparently RHEL4 needs #include <linux/types.h> in avc_internal.c in
-> order to compile. This should be applied to trunk and stable.
+On Thu, 2007-04-19 at 14:36 -0400, Karl MacMillan wrote:
+> On Thu, 2007-04-19 at 14:36 -0400, Stephen Smalley wrote:
+> > While the optimizations I introduced for libsemanage helped somewhat in reducing the
+> > extraneous work done by setsebool for transient boolean changes, there were still a lot
+> > of files that were unnecessarily created or modified due to the entire transactional model of
+> > libsemanage, and I couldn't see a clean way of fixing that.  In retrospect, while libsemanage
+> > needs to understand active booleans in order to affect persistent changes (due to boolean
+> > preservation on reloads), setsebool should just apply active boolean changes directly via libselinux.
+> > And with the dropped setlocaldefs support, we can require managed policy for persistent boolean
+> > changes.
+> > 
 > 
-> ===================================================================
-> --- libselinux/src/avc_internal.c       (revision 2357)
-> +++ libselinux/src/avc_internal.c       (working copy)
-> @@ -17,6 +17,7 @@
->  #include <string.h>
->  #include <sys/types.h>
->  #include <sys/socket.h>
-> +#include <linux/types.h>
->  #include <linux/netlink.h>
->  #include "selinux_netlink.h"
->  #include "avc_internal.h"
+> The only problem is if semanage starts enforcing access control on the
+> booleans in a different way than the selinuxfs nodes. In that case we
+> want the change to go through libsemanage.
+> 
+> Personally, I think that libsemanage should just fake file access
+> decisions for persistent changes, but Josh never liked that idea.
 
-Acked-by:  Stephen Smalley <sds@tycho.nsa.gov>
+I think they need to be consistent, so emulating file access checks
+works for me.  And that will simplify life when we switch over to
+path-based access control ;)
 
 -- 
 Stephen Smalley
