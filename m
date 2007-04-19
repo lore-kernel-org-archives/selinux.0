@@ -1,112 +1,99 @@
-Subject: [PATCH -trunk][RFC] setsebool: only use libsemanage for persistent
-	boolean changes
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: selinux@tycho.nsa.gov
-Cc: Joshua Brindle <method@manicmethod.com>,
-        Karl MacMillan <kmacmillan@mentalrootkit.com>,
-        Darrel Goeddel <dgoeddel@TrustedCS.com>
+Subject: Re: [PATCH][RFC] selinux: preserve boolean values across policy
+	reloads
+From: Karl MacMillan <kmacmillan@mentalrootkit.com>
+To: Stephen Smalley <sds@tycho.nsa.gov>
+Cc: selinux@tycho.nsa.gov, James Morris <jmorris@namei.org>,
+        Eric Paris <eparis@parisplace.org>,
+        Joshua Brindle <method@manicmethod.com>
+In-Reply-To: <1177006579.27654.169.camel@moss-spartans.epoch.ncsc.mil>
+References: <1177006579.27654.169.camel@moss-spartans.epoch.ncsc.mil>
 Content-Type: text/plain
-Date: Thu, 19 Apr 2007 14:36:04 -0400
-Message-Id: <1177007764.27654.193.camel@moss-spartans.epoch.ncsc.mil>
+Date: Thu, 19 Apr 2007 14:34:10 -0400
+Message-Id: <1177007650.21732.18.camel@localhost.localdomain>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-While the optimizations I introduced for libsemanage helped somewhat in reducing the
-extraneous work done by setsebool for transient boolean changes, there were still a lot
-of files that were unnecessarily created or modified due to the entire transactional model of
-libsemanage, and I couldn't see a clean way of fixing that.  In retrospect, while libsemanage
-needs to understand active booleans in order to affect persistent changes (due to boolean
-preservation on reloads), setsebool should just apply active boolean changes directly via libselinux.
-And with the dropped setlocaldefs support, we can require managed policy for persistent boolean
-changes.
+On Thu, 2007-04-19 at 14:16 -0400, Stephen Smalley wrote:
+> At present, the userland policy loading code has to go through contortions to preserve
+> boolean values across policy reloads, and cannot do so atomically.  
+> As this is what we always want to do for reloads, let the kernel preserve them instead.
+> 
+> Signed-off-by: Stephen Smalley <sds@tycho.nsa.gov>
+> 
 
-Change setsebool to only use libsemanage for persistent boolean changes.
-Temporal/transient boolean changes are directly performed via libselinux.
-Persistent boolean changes for unmanaged policy are no longer supported
-due to the dropped setlocaldefs support.
+Looks good to me.
 
----
+Karl
 
- policycoreutils/setsebool/setsebool.c |   28 ++++++++++++++++------------
- 1 file changed, 16 insertions(+), 12 deletions(-)
-
-
-Index: trunk/policycoreutils/setsebool/setsebool.c
-===================================================================
---- trunk/policycoreutils/setsebool/setsebool.c	(revision 2356)
-+++ trunk/policycoreutils/setsebool/setsebool.c	(working copy)
-@@ -73,12 +73,12 @@
- 	return rc;
- }
- 
--/* Apply boolean changes to policy via libselinux */
-+/* Apply temporal boolean changes to policy via libselinux */
- static int selinux_set_boolean_list(size_t boolcnt,
--				    SELboolean * boollist, int perm)
-+				    SELboolean * boollist)
- {
- 
--	if (security_set_boolean_list(boolcnt, boollist, perm)) {
-+	if (security_set_boolean_list(boolcnt, boollist, 0)) {
- 		if (errno == ENOENT)
- 			fprintf(stderr, "Could not change active booleans: "
- 				"Invalid boolean\n");
-@@ -91,9 +91,9 @@
- 	return 0;
- }
- 
--/* Apply (permanent) boolean changes to policy via libsemanage */
-+/* Apply permanent boolean changes to policy via libsemanage */
- static int semanage_set_boolean_list(size_t boolcnt,
--				     SELboolean * boollist, int perm)
-+				     SELboolean * boollist)
- {
- 
- 	size_t j;
-@@ -115,9 +115,9 @@
- 		goto err;
- 
- 	} else if (managed == 0) {
--		if (selinux_set_boolean_list(boolcnt, boollist, perm) < 0)
--			goto err;
--		goto out;
-+		fprintf(stderr,
-+			"Cannot set persistent booleans without managed policy.\n");
-+		goto err;
- 	}
- 
- 	if (semanage_connect(handle) < 0)
-@@ -140,8 +140,7 @@
- 		if (semanage_bool_key_extract(handle, boolean, &bool_key) < 0)
- 			goto err;
- 
--		if (perm
--		    && semanage_bool_modify_local(handle, bool_key,
-+		if (semanage_bool_modify_local(handle, bool_key,
- 						  boolean) < 0)
- 			goto err;
- 
-@@ -224,8 +223,13 @@
- 		*value_ptr = '=';
- 	}
- 
--	if (semanage_set_boolean_list(boolcnt, vallist, permanent) < 0)
--		goto err;
-+	if (permanent) {
-+		if (semanage_set_boolean_list(boolcnt, vallist) < 0)
-+			goto err;
-+	} else {
-+		if (selinux_set_boolean_list(boolcnt, vallist) < 0)
-+			goto err;
-+	}
- 
- 	/* Now log what was done */
- 	pwd = getpwuid(getuid());
-
--- 
-Stephen Smalley
-National Security Agency
+> ---
+> 
+>  security/selinux/ss/services.c |   38 ++++++++++++++++++++++++++++++++++++++
+>  1 file changed, 38 insertions(+)
+> 
+> --- a/security/selinux/ss/services.c
+> +++ b/security/selinux/ss/services.c
+> @@ -1249,6 +1249,7 @@ bad:
+>  }
+>  
+>  extern void selinux_complete_init(void);
+> +static int security_preserve_bools(struct policydb *p);
+>  
+>  /**
+>   * security_load_policy - Load a security policy configuration.
+> @@ -1325,6 +1326,12 @@ int security_load_policy(void *data, size_t len)
+>  		goto err;
+>  	}
+>  
+> +	rc = security_preserve_bools(&newpolicydb);
+> +	if (rc) {
+> +		printk(KERN_ERR "security:  unable to preserve booleans\n");
+> +		goto err;
+> +	}
+> +
+>  	/* Clone the SID table. */
+>  	sidtab_shutdown(&sidtab);
+>  	if (sidtab_map(&sidtab, clone_sid, &newsidtab)) {
+> @@ -1882,6 +1889,37 @@ out:
+>  	return rc;
+>  }
+>  
+> +static int security_preserve_bools(struct policydb *p)
+> +{
+> +	int rc, nbools = 0, *bvalues = NULL, i;
+> +	char **bnames = NULL;
+> +	struct cond_bool_datum *booldatum;
+> +	struct cond_node *cur;
+> +
+> +	rc = security_get_bools(&nbools, &bnames, &bvalues);
+> +	if (rc)
+> +		goto out;
+> +	for (i = 0; i < nbools; i++) {
+> +		booldatum = hashtab_search(p->p_bools.table, bnames[i]);
+> +		if (booldatum)
+> +			booldatum->state = bvalues[i];
+> +	}
+> +	for (cur = p->cond_list; cur != NULL; cur = cur->next) {
+> +		rc = evaluate_cond_node(p, cur);
+> +		if (rc)
+> +			goto out;
+> +	}
+> +
+> +out:
+> +	if (bnames) {
+> +		for (i = 0; i < nbools; i++)
+> +			kfree(bnames[i]);
+> +	}
+> +	kfree(bnames);
+> +	kfree(bvalues);
+> +	return rc;
+> +}
+> +
+>  /*
+>   * security_sid_mls_copy() - computes a new sid based on the given
+>   * sid and the mls portion of mls_sid.
+> 
+> 
 
 
 --
