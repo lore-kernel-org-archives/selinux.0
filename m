@@ -1,349 +1,471 @@
 Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l3IL9kAp008986
-	for <selinux@tycho.nsa.gov>; Wed, 18 Apr 2007 17:09:46 -0400
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l3J237bt021106
+	for <selinux@tycho.nsa.gov>; Wed, 18 Apr 2007 22:03:07 -0400
 Received: from mx1.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id l3IL9jOP028882
-	for <selinux@tycho.nsa.gov>; Wed, 18 Apr 2007 21:09:45 GMT
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id l3J235sQ005112
+	for <selinux@tycho.nsa.gov>; Thu, 19 Apr 2007 02:03:05 GMT
 Received: from int-mx1.corp.redhat.com (int-mx1.corp.redhat.com [172.16.52.254])
-	by mx1.redhat.com (8.13.1/8.13.1) with ESMTP id l3IL9jhA030482
-	for <selinux@tycho.nsa.gov>; Wed, 18 Apr 2007 17:09:45 -0400
+	by mx1.redhat.com (8.13.1/8.13.1) with ESMTP id l3J235bx027702
+	for <selinux@tycho.nsa.gov>; Wed, 18 Apr 2007 22:03:05 -0400
 Received: from pobox-2.corp.redhat.com (pobox-2.corp.redhat.com [10.11.255.15])
-	by int-mx1.corp.redhat.com (8.13.1/8.13.1) with ESMTP id l3IL9dLL006018
-	for <selinux@tycho.nsa.gov>; Wed, 18 Apr 2007 17:09:40 -0400
-Received: from [10.11.14.21] (vpn-14-21.rdu.redhat.com [10.11.14.21])
-	by pobox-2.corp.redhat.com (8.13.1/8.13.1) with ESMTP id l3IL9d6S030188
-	for <selinux@tycho.nsa.gov>; Wed, 18 Apr 2007 17:09:39 -0400
-Subject: [PATCH - policyrep] hashtab iterator support
+	by int-mx1.corp.redhat.com (8.13.1/8.13.1) with ESMTP id l3J230cs021808
+	for <selinux@tycho.nsa.gov>; Wed, 18 Apr 2007 22:03:00 -0400
+Received: from [10.11.14.78] (vpn-14-78.rdu.redhat.com [10.11.14.78])
+	by pobox-2.corp.redhat.com (8.13.1/8.13.1) with ESMTP id l3J22xGk011184
+	for <selinux@tycho.nsa.gov>; Wed, 18 Apr 2007 22:02:59 -0400
+Subject: [PATCH - policyrep] add objpool to libsepol
 From: Karl MacMillan <kmacmillan@mentalrootkit.com>
-To: SELinux List <selinux@tycho.nsa.gov>
+To: selinux@tycho.nsa.gov
 Content-Type: text/plain
-Date: Wed, 18 Apr 2007 17:06:17 -0400
-Message-Id: <1176930377.11469.55.camel@localhost.localdomain>
+Date: Wed, 18 Apr 2007 21:57:18 -0400
+Message-Id: <1176947838.20763.4.camel@localhost.localdomain>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Add support for iterators to the hashtab data structure.
+Add a reference counted object pool data structure to libsepol. Object
+pools allow the storage of reference counted pools of objects. This
+allows, for example, for many data structures to reference a single copy
+of an object (e.g., a string).
 
 Signed-off-by: Karl MacMillan <kmacmillan@mentalrootkit.com>
 
-diff -r 6e4df8877c3c libsepol/include/sepol/policydb/hashtab.h
---- a/libsepol/include/sepol/policydb/hashtab.h	Wed Apr 18 17:00:23 2007 -0400
-+++ b/libsepol/include/sepol/policydb/hashtab.h	Wed Apr 18 17:05:06 2007 -0400
-@@ -15,6 +15,7 @@
- #define _SEPOL_POLICYDB_HASHTAB_H_
- 
- #include <sepol/errcodes.h>
-+#include <sepol/iter.h>
- 
- #include <stdint.h>
- #include <stdio.h>
-@@ -40,19 +41,18 @@ typedef struct hashtab_val {
- 
- typedef hashtab_val_t *hashtab_t;
- 
-+typedef unsigned int (*hash_value_fnc_t)(hashtab_t h, const hashtab_key_t key);
-+typedef int (*keycmp_fnc_t)(hashtab_t h, const hashtab_key_t key1,
-+		      const hashtab_key_t key2);
- /*
-    Creates a new hash table with the specified characteristics.
- 
-    Returns NULL if insufficent space is available or
-    the new hash table otherwise.
-  */
--extern hashtab_t hashtab_create(unsigned int (*hash_value) (hashtab_t h,
--							    const hashtab_key_t
--							    key),
--				int (*keycmp) (hashtab_t h,
--					       const hashtab_key_t key1,
--					       const hashtab_key_t key2),
-+extern hashtab_t hashtab_create(hash_value_fnc_t hash, keycmp_fnc_t keycmp,
- 				unsigned int size);
-+
- /*
-    Inserts the specified (key, datum) pair into the specified hash table.
- 
-@@ -61,6 +61,9 @@ extern hashtab_t hashtab_create(unsigned
-    SEPOL_OK otherwise.
-  */
- extern int hashtab_insert(hashtab_t h, hashtab_key_t k, hashtab_datum_t d);
-+extern int hashtab_insert2(hashtab_t h, hashtab_key_t key, hashtab_datum_t datum,
-+			   hashtab_ptr_t *current);
-+
- 
- /*
-    Removes the entry with the specified key from the hash table.
-@@ -103,6 +106,17 @@ extern void hashtab_destroy(hashtab_t h)
- extern void hashtab_destroy(hashtab_t h);
- 
- /*
-+  Initializes an iterator for the hash table (see
-+  sepol/policydb/iter.h).  sepol_iter_get_data will return a
-+  hashtab_ptr_t.
-+
-+  Returns NULL if the iterator cannot be created or the iterator
-+  otherwise.
-+ */
-+extern int hashtab_iter(struct sepol_handle *h, hashtab_t ht,
-+			struct sepol_iter *iter);
-+
-+/*
-    Applies the specified apply function to (key,datum,args)
-    for each entry in the specified hash table.
- 
-diff -r 6e4df8877c3c libsepol/src/hashtab.c
---- a/libsepol/src/hashtab.c	Wed Apr 18 17:00:23 2007 -0400
-+++ b/libsepol/src/hashtab.c	Wed Apr 18 17:05:06 2007 -0400
-@@ -28,9 +28,13 @@
-  * Implementation of the hash table type.
-  */
- 
-+#include <sepol/policydb/hashtab.h>
-+
-+#include "debug.h"
-+
- #include <stdlib.h>
- #include <string.h>
--#include <sepol/policydb/hashtab.h>
-+#include <assert.h>
- 
- hashtab_t hashtab_create(unsigned int (*hash_value) (hashtab_t h,
- 						     const hashtab_key_t key),
-@@ -63,7 +67,8 @@ hashtab_t hashtab_create(unsigned int (*
- 	return p;
- }
- 
--int hashtab_insert(hashtab_t h, hashtab_key_t key, hashtab_datum_t datum)
-+int hashtab_insert2(hashtab_t h, hashtab_key_t key, hashtab_datum_t datum,
-+		    hashtab_ptr_t *current)
- {
- 	int hvalue;
- 	hashtab_ptr_t prev, cur, newnode;
-@@ -79,8 +84,11 @@ int hashtab_insert(hashtab_t h, hashtab_
- 		cur = cur->next;
- 	}
- 
--	if (cur && (h->keycmp(h, key, cur->key) == 0))
-+	if (cur && (h->keycmp(h, key, cur->key) == 0)) {
-+		if (current)
-+			*current = cur;
- 		return SEPOL_EEXIST;
-+	}
- 
- 	newnode = (hashtab_ptr_t) malloc(sizeof(hashtab_node_t));
- 	if (newnode == NULL)
-@@ -98,6 +106,11 @@ int hashtab_insert(hashtab_t h, hashtab_
- 
- 	h->nel++;
- 	return SEPOL_OK;
-+}
-+
-+int hashtab_insert(hashtab_t h, hashtab_key_t key, hashtab_datum_t datum)
-+{
-+ 	return hashtab_insert2(h, key, datum, NULL);
- }
- 
- int hashtab_remove(hashtab_t h, hashtab_key_t key,
-@@ -219,6 +232,86 @@ void hashtab_destroy(hashtab_t h)
- 	free(h);
- }
- 
-+/* to support removal of items, a prev hashtab_ptr_t will
-+ * need to be added.
-+ */
-+struct hashtab_iter_state
-+{
-+	hashtab_t h;
-+	unsigned int bucket;
-+	hashtab_ptr_t cur;
-+};
-+
-+static int hashtab_iter_free(struct sepol_handle *h, void *data)
-+{
-+	free(data);
-+
-+	return SEPOL_OK;
-+}
-+
-+
-+static int hashtab_state_next_internal(struct hashtab_iter_state *state)
-+{
-+	if (state->cur == NULL) {
-+		for (state->bucket++;
-+		     state->bucket < state->h->size; state->bucket++) {
-+			state->cur = state->h->htable[state->bucket];
-+			if (state->cur)
-+				break;
-+		}
-+	}
-+	
-+	if (state->cur == NULL) {
-+		return SEPOL_ITERSTOP;
-+	} else {
-+		return SEPOL_OK;
-+	}
-+
-+}
-+
-+static int hashtab_iter_next(struct sepol_handle *h,
-+			     struct sepol_iter *iter)
-+{
-+	struct hashtab_iter_state *state = sepol_iter_get_state(iter);
-+
-+	if (state->cur != NULL)
-+		state->cur = state->cur->next;
-+	return hashtab_state_next_internal(state);
-+}
-+
-+static int hashtab_iter_get_data(struct sepol_handle *h, struct sepol_iter *iter,
-+				 void **data)
-+{
-+	struct hashtab_iter_state *state = sepol_iter_get_state(iter);
-+	assert(state);
-+	*data = state->cur;
-+	
-+	return SEPOL_OK;
-+}
-+
-+int hashtab_iter(struct sepol_handle *h, hashtab_t ht, struct sepol_iter *iter)
-+{
-+	struct hashtab_iter_state *state;
-+
-+	assert(iter);
-+
-+	state = calloc(1, sizeof(struct hashtab_iter_state));
-+	if (state == NULL) {
-+		ERR(h, "out of memory");
-+		return ENOMEM;
-+	}
-+
-+	state->h = ht;
-+	state->bucket = 0;
-+	state->cur = ht->htable[0];
-+	sepol_iter_set_state(iter, state);
-+	sepol_iter_set_next(iter, hashtab_iter_next);
-+	sepol_iter_set_free(iter, hashtab_iter_free);
-+	sepol_iter_set_get_data(iter, hashtab_iter_get_data);
-+
-+	return hashtab_state_next_internal(state);
-+}
-+
- int hashtab_map(hashtab_t h,
- 		int (*apply) (hashtab_key_t k,
- 			      hashtab_datum_t d, void *args), void *args)
-diff -r 6e4df8877c3c libsepol/tests/libsepol-tests.c
---- a/libsepol/tests/libsepol-tests.c	Wed Apr 18 17:00:23 2007 -0400
-+++ b/libsepol/tests/libsepol-tests.c	Wed Apr 18 17:05:06 2007 -0400
-@@ -23,6 +23,7 @@
- #include "test-expander.h"
- #include "test-deps.h"
- #include "test-list.h"
-+#include "test-hashtab.h"
- 
- #include <CUnit/Basic.h>
- #include <CUnit/Console.h>
-@@ -63,6 +64,7 @@ static int do_tests(int interactive, int
- 	DECLARE_SUITE(expander);
- 	DECLARE_SUITE(deps);
- 	DECLARE_SUITE(list);
-+	DECLARE_SUITE(hashtab);
- 
- 	if (verbose)
- 		CU_basic_set_mode(CU_BRM_VERBOSE);
-diff -r 6e4df8877c3c libsepol/tests/test-hashtab.c
+diff -r 7e5ed01cd8ad libsepol/include/sepol/objpool.h
 --- /dev/null	Thu Jan 01 00:00:00 1970 +0000
-+++ b/libsepol/tests/test-hashtab.c	Wed Apr 18 17:05:06 2007 -0400
-@@ -0,0 +1,76 @@
++++ b/libsepol/include/sepol/objpool.h	Wed Apr 18 21:46:28 2007 -0400
+@@ -0,0 +1,139 @@
++/* Author : Karl MacMillan <kmacmillan@mentalrootkit.com> */
++
++#ifndef __objpool_h__
++#define __objpool_h__
++
++#include <sepol/handle.h>
++
++/**
++ * \defgroup libsepol_objpool sepol_objpool: reference counted object pooling
++ * Object pools allow the storage of reference counted pools of objects. This
++ * allows, for example, for many data structures to reference a single
++ * copy of an object (e.g., a string).
++ *
++ * Each object pool stores a single type of object. Hashing, comparison,
++ * and freeing functions must be provided by the user for the object
++ * to be stored. The objects are treated as generic void pointers by
++ * the object pool, and are not manipulated or interpreted in any way.
++ *
++ * The object pool manages the memory for objects. For example, consider
++ * the following example (error handling omitted for brevity):
++ *
++ * \code
++ * struct sepol_objpool *p;
++ * char *a = strdup("foo");
++ * char *b = strdup("foo");
++ * char *c = strdup("bar");
++ *
++ * // creation of object pool ommitted
++ * sepol_object_add(p, &a);
++ * sepol_object_add(p, &b);
++ * assert(a == b);
++ * // a and b now point to a single copy for the string "foo".
++ * // The copy originally pointed to by b has been destroyed.
++ * sepol_object_add(p, &c);
++ * sepol_object_del(p, c);
++ * // The object pool has destroyed its copy of the string "bar"
++ * // because the reference count became 0. The pointer c is no
++ * // longer valid.
++ * sepol_object_del(p, "foo");
++ * sepol_object_del(p, a);
++ * // deletion can use objects that compare as equal in addition
++ * // to pointers. The object pool is now empty.
++ * \endcode
++ */
++
++/* FIXME: These are the same as the hashing and key compare functions
++ * in policydb/hashtab.h - when hashtab.h is properly encapsulated and
++ * exported these should be merged.
++ */
++typedef unsigned int (*sepol_objpool_hash_t)(void *h, const void *key);
++typedef int (*sepol_objpool_cmp_t)(void *h, const void *key1, const void *key2);
++typedef void (*sepol_objpool_free_t)(void *obj);
++
++/**
++ * \ingroup libsepol_objpool
++ * \struct sepol_objpool
++ * The object pool data structure.
++ */
++struct sepol_objpool;
++
++/**
++ * \ingroup libsepol_objpool
++ * Create an object pool.
++ *
++ * Create an object pool with the appropriate functions for hashing,
++ * comparing, and freeing of the object type to be stored in the pool.
++ *
++ * @param h sepol handle (may be NULL)
++ * @param s pointer that will be set to the newly created object pool.
++ * @param hash pointer to a function to hash objects that will be managed
++ *  by the object pool. See sepol_symhash defined policydb/symtab.h for
++ *  an example hashing function.
++ * @param cmp pointer to a function to compare object that will be managed
++ *  by the object pool.
++ * @param obj_free pointer to a function to free the memory for objects
++ *  managed by the object pool.
++ * @param size size of the underlying hash table used to hold the objects.
++ *
++ * \retval SEPOL_OK success
++ * \retval SEPOL_ENOMEM out of memory
++ */
++extern int sepol_objpool_create(struct sepol_handle * h, struct sepol_objpool **s,
++				sepol_objpool_hash_t hash, sepol_objpool_cmp_t cmp,
++				sepol_objpool_free_t obj_free, unsigned int size);
++
++/**
++ * \ingroup libsepol_objpool
++ * Destroy an object pool. All of the memory associated with the object
++ * pool and all of the objects that it is managing is freed.
++ *
++ * @param h sepol handle (may be NULL)
++ * @param s object pool to destroy
++ *
++ * \retval SEPOL_OK success
++ * \retval SEPOL_ENOMEM out of memory
++ */
++extern int sepol_objpool_free(struct sepol_handle *h, struct sepol_objpool *s);
++
++/**
++ * \ingroup libsepol_objpool
++ * Add an object to the object pool. The pointer passed in
++ * will be set to point to the object pool copy of the object
++ * (the pointer may or may not change depending upon whether
++ * the object pool already contains a copy of the object). If
++ * the object pool already contains a copy of the passed in object
++ * the passed in copy will be freed and the reference count of
++ * the existing object will be incremented.
++ *
++ * @param h sepol handle (may be NULL)
++ * @param s object pool to which to add the object
++ * @param obj object to be added
++ *
++ * \retval SEPOL_OK success
++ * \retval SEPOL_ENOMEM out of memory
++ */
++extern int sepol_objpool_add(struct sepol_handle *h, struct sepol_objpool *s, void **obj);
++
++/**
++ * \ingroup libsepol_objpool
++ *
++ * Delete an object from the object pool. If other references to the
++ * object remain (from calls to sepol_objpool_add) the object will not
++ * be destroyed. However, the caller should *never* depend upon the
++ * object persisting beyond a call sepol_objpool_del. The object
++ * passed in does is not required to be a pointer returned by
++ * sepol_objpool_add; however, it is required to compare as equal to
++ * an existing object.
++ *
++ * @param h sepol handle (may be NULL)
++ * @param s object pool from which to delete object
++ * @param obj object to delete
++ *
++ * \retval SEPOL_OK success
++ * \retval SEPOL_ENOENT object does not exist in pool
++ * \retval SEPOL_ENOMEM out of memory
++ */
++extern int sepol_objpool_del(struct sepol_handle *h, struct sepol_objpool *s, void *obj);
++
++#endif
+diff -r 7e5ed01cd8ad libsepol/src/objpool.c
+--- /dev/null	Thu Jan 01 00:00:00 1970 +0000
++++ b/libsepol/src/objpool.c	Wed Apr 18 21:46:45 2007 -0400
+@@ -0,0 +1,135 @@
 +/*
-+ * Author: Karl MacMillan <kmacmillan@mentalrootkit.com>
++ * Author : Karl MacMillan <kmacmillan@mentalrootkit.com>
 + *
 + * Copyright (C) 2007 Red Hat, Inc.
 + *
-+ *  This library is free software; you can redistribute it and/or
-+ *  modify it under the terms of the GNU Lesser General Public
-+ *  License as published by the Free Software Foundation; either
-+ *  version 2.1 of the License, or (at your option) any later version.
++ * This library is free software; you can redistribute it and/or
++ * modify it under the terms of the GNU Lesser General Public
++ * License as published by the Free Software Foundation; either
++ * version 2.1 of the License, or (at your option) any later version.
 + *
-+ *  This library is distributed in the hope that it will be useful,
-+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-+ *  Lesser General Public License for more details.
++ * This library is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
++ * Lesser General Public License for more details.
 + *
-+ *  You should have received a copy of the GNU Lesser General Public
-+ *  License along with this library; if not, write to the Free Software
-+ *  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
++ * You should have received a copy of the GNU Lesser General Public
++ * License along with this library; if not, write to the Free Software
++ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 + */
 +
-+#include "test-hashtab.h"
-+
++#include <sepol/objpool.h>
 +#include <sepol/policydb/hashtab.h>
-+#include <sepol/policydb/symtab.h>
 +
-+#include <string.h>
++#include <stdlib.h>
 +
-+int hashtab_test_init(void)
++struct sepol_objpool
 +{
-+	return 0;
-+}
++	hashtab_t objs;
++	sepol_objpool_free_t obj_free;
++};
 +
-+int hashtab_test_cleanup(void)
++int sepol_objpool_create(struct sepol_handle *h, struct sepol_objpool **s,
++			 sepol_objpool_hash_t hash, sepol_objpool_cmp_t cmp,
++			 sepol_objpool_free_t obj_free, unsigned int size)
 +{
-+	return 0;
-+}
-+
-+static void test_hashtab_iter(void)
-+{
-+	hashtab_t h;
-+	hashtab_ptr_t cur;
-+	struct sepol_iter *iter;
-+	int ret, i;
-+	char *strings[] = {"foo", "bar", "baz"};
-+
-+	h = hashtab_create(sepol_symhash, sepol_symcmp, 64);
-+	CU_ASSERT(h != NULL);
-+	
-+	ret = hashtab_insert(h, strings[0], (void *)0);
-+	ret = hashtab_insert(h, strings[1], (void *)1);
-+	ret = hashtab_insert(h, strings[2], (void *)2);
-+
-+	ret = sepol_iter_create(NULL, &iter);
-+	CU_ASSERT(ret == SEPOL_OK);
-+	ret = hashtab_iter(NULL, h, iter);
-+	CU_ASSERT(ret == SEPOL_OK);
-+	while (ret == SEPOL_OK) {
-+		ret = sepol_iter_get_data(NULL, iter, (void **)&cur);
-+		CU_ASSERT(ret == SEPOL_OK);
-+		i = (int)cur->datum;
-+		CU_ASSERT(i < 3);
-+		CU_ASSERT(strcmp(strings[i], (char *)cur->key) == 0);
-+		ret = sepol_iter_next(NULL, iter);
++	*s = calloc(1, sizeof(struct sepol_objpool));
++	if (*s == NULL) {
++		return SEPOL_ENOMEM;
 +	}
-+	CU_ASSERT(ret == SEPOL_ITERSTOP);
-+	sepol_iter_free(NULL, iter);
-+	hashtab_destroy(h);
++
++	(*s)->obj_free = obj_free;
++
++	(*s)->objs = hashtab_create((hash_value_fnc_t)hash, (keycmp_fnc_t)cmp, size);
++	if ((*s)->objs == NULL) {
++		free(*s);
++		return SEPOL_ENOMEM;
++	}
++
++
++	return SEPOL_OK;
 +}
 +
-+int hashtab_add_tests(CU_pSuite suite)
++int sepol_objpool_free(struct sepol_handle *h, struct sepol_objpool *s)
 +{
-+	if (NULL == CU_add_test(suite, "test_hashtab_iter", test_hashtab_iter)) {
++	int ret;
++	struct sepol_iter *iter;
++	hashtab_ptr_t cur;
++
++	if (s == NULL)
++		return SEPOL_OK;
++
++	ret = sepol_iter_create(h, &iter);
++	if (ret < 0)
++		return ret;
++
++	ret = hashtab_iter(h, s->objs, iter);
++	sepol_foreach(h, ret, cur, iter) {
++		s->obj_free(cur->key);
++		free(cur->datum);
++	}
++	sepol_iter_free(h, iter);
++	if (ret != SEPOL_ITERSTOP) {
++		return ret;
++	}
++
++	hashtab_destroy(s->objs);
++	free(s);
++	
++	return SEPOL_OK;
++}
++
++
++int sepol_objpool_add(struct sepol_handle *h, struct sepol_objpool *s, void **obj)
++{
++	int ret;
++	hashtab_ptr_t cur;
++	unsigned int *refcount;
++
++	refcount = malloc(sizeof(unsigned int));
++	if (refcount == NULL)
++		return SEPOL_ENOMEM;
++	*refcount = 1;
++
++	ret = hashtab_insert2(s->objs, *obj, refcount, &cur);
++	if (ret == SEPOL_OK) {
++		return 0;
++	} else if (ret == SEPOL_EEXIST) {
++		free(refcount);
++		s->obj_free(*obj);
++		*obj = cur->key;
++		refcount = cur->datum;
++		*refcount += 1;
++		return 0;
++	} else {
++		free(refcount);
++		return ret;
++	}
++}
++
++static void sepol_objpool_hashtab_free(hashtab_key_t k, hashtab_datum_t d, void *args)
++{
++	struct sepol_objpool *s = args;
++
++	s->obj_free(k);
++	free(d);
++}
++
++int sepol_objpool_del(struct sepol_handle *h, struct sepol_objpool *s, void *obj)
++{
++	int ret;
++	unsigned int *refcount;
++	
++	refcount = hashtab_search(s->objs, obj);
++	if (refcount == NULL)
++		return SEPOL_ENOENT;
++	
++	(*refcount)--;
++	if (*refcount == 0) {
++		ret = hashtab_remove(s->objs, obj,
++				     sepol_objpool_hashtab_free, s);
++		if (ret != SEPOL_OK)
++			return ret;
++	}
++	return 0;
++}
+diff -r 7e5ed01cd8ad libsepol/tests/libsepol-tests.c
+--- a/libsepol/tests/libsepol-tests.c	Wed Apr 18 21:32:38 2007 -0400
++++ b/libsepol/tests/libsepol-tests.c	Wed Apr 18 21:32:41 2007 -0400
+@@ -24,6 +24,7 @@
+ #include "test-deps.h"
+ #include "test-list.h"
+ #include "test-hashtab.h"
++#include "test-objpool.h"
+ 
+ #include <CUnit/Basic.h>
+ #include <CUnit/Console.h>
+@@ -65,6 +66,7 @@ static int do_tests(int interactive, int
+ 	DECLARE_SUITE(deps);
+ 	DECLARE_SUITE(list);
+ 	DECLARE_SUITE(hashtab);
++	DECLARE_SUITE(objpool);
+ 
+ 	if (verbose)
+ 		CU_basic_set_mode(CU_BRM_VERBOSE);
+diff -r 7e5ed01cd8ad libsepol/tests/test-objpool.c
+--- /dev/null	Thu Jan 01 00:00:00 1970 +0000
++++ b/libsepol/tests/test-objpool.c	Wed Apr 18 21:49:51 2007 -0400
+@@ -0,0 +1,117 @@
++/*
++ * Author : Karl MacMillan <kmacmillan@mentalrootkit.com>
++ *
++ * Copyright (C) 2007 Red Hat, Inc.
++ *
++ * This library is free software; you can redistribute it and/or
++ * modify it under the terms of the GNU Lesser General Public
++ * License as published by the Free Software Foundation; either
++ * version 2.1 of the License, or (at your option) any later version.
++ *
++ * This library is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
++ * Lesser General Public License for more details.
++ *
++ * You should have received a copy of the GNU Lesser General Public
++ * License along with this library; if not, write to the Free Software
++ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
++ */
++
++#include "test-objpool.h"
++
++#include <sepol/objpool.h>
++#include <sepol/policydb/symtab.h>
++#include <sepol/iter.h>
++#include <sepol/errcodes.h>
++
++#include <stdlib.h>
++#include <stdio.h>
++
++int objpool_test_init(void)
++{
++	return 0;
++}
++
++int objpool_test_cleanup(void)
++{
++	return 0;
++}
++
++static void test_objpool(void)
++{
++	int ret;
++	struct sepol_objpool *objpool;
++	struct sepol_handle *h;
++	char *strs[3];
++	char *str;
++
++	h = sepol_handle_create();
++	CU_ASSERT(h != NULL);
++
++	strs[0] = strdup("foo");
++	CU_ASSERT(strs[0] != NULL);
++	strs[1] = strdup("foo");
++	CU_ASSERT(strs[1] != NULL);
++	strs[2] = strdup("bar");
++	CU_ASSERT(strs[2] != NULL);
++
++	ret = sepol_objpool_create(h, &objpool, (sepol_objpool_hash_t)sepol_symhash,
++				   (sepol_objpool_cmp_t)sepol_symcmp,
++				   free, 64);
++	CU_ASSERT(ret == SEPOL_OK);
++
++	str = strs[0];
++	ret = sepol_objpool_add(h, objpool, (void**)&str);
++	CU_ASSERT(ret == SEPOL_OK);
++	CU_ASSERT(str == strs[0]);
++
++	str = strs[1];
++	ret = sepol_objpool_add(h, objpool,(void**) &str);
++	CU_ASSERT(ret == SEPOL_OK);
++	CU_ASSERT(str == strs[0]);
++
++	str = strs[2];
++	ret = sepol_objpool_add(h, objpool, (void**)&str);
++	CU_ASSERT(ret == SEPOL_OK);
++	CU_ASSERT(str == strs[2]);
++
++	ret = sepol_objpool_del(h, objpool, "foo");
++	CU_ASSERT(ret == SEPOL_OK);
++
++
++	ret = sepol_objpool_del(h, objpool, "foo");
++	CU_ASSERT(ret == SEPOL_OK);
++
++	ret = sepol_objpool_del(h,objpool, "foo");
++	CU_ASSERT(ret == SEPOL_ENOENT);
++
++
++	ret = sepol_objpool_del(h, objpool, "bar");
++	CU_ASSERT(ret == SEPOL_OK);
++
++	ret = sepol_objpool_del(h, objpool, "bar");
++	CU_ASSERT(ret == SEPOL_ENOENT);
++
++	strs[2] = strdup("bar");
++	CU_ASSERT(strs[2] != NULL);
++	str = strs[2];
++	ret = sepol_objpool_add(h, objpool, (void**)&str);
++	CU_ASSERT(ret == SEPOL_OK);
++	CU_ASSERT(str == strs[2]);
++
++	ret = sepol_objpool_free(h, objpool);
++	CU_ASSERT(ret == SEPOL_OK);
++
++	sepol_handle_destroy(h);
++}
++
++int objpool_add_tests(CU_pSuite suite)
++{
++	if (NULL == CU_add_test(suite, "test_objpool",
++				test_objpool)) {
 +		return -1;
 +	}
++
 +	return 0;
 +}
-diff -r 6e4df8877c3c libsepol/tests/test-hashtab.h
+diff -r 7e5ed01cd8ad libsepol/tests/test-objpool.h
 --- /dev/null	Thu Jan 01 00:00:00 1970 +0000
-+++ b/libsepol/tests/test-hashtab.h	Wed Apr 18 17:05:06 2007 -0400
++++ b/libsepol/tests/test-objpool.h	Wed Apr 18 21:32:41 2007 -0400
 @@ -0,0 +1,12 @@
-+/* Author: Karl MacMillan <kmacmillan@mentalrootkit.com> */
++/* Author : Karl MacMillan <kmacmillan@mentalrootkit.com> */
 +
-+#ifndef __test_hashtab_h__
-+#define __test_hashtab_h__
++#ifndef __test_objpool_h__
++#define __test_objpool_h__
 +
 +#include <CUnit/Basic.h>
 +
-+int hashtab_test_init(void);
-+int hashtab_test_cleanup(void);
-+int hashtab_add_tests(CU_pSuite suite);
++int objpool_test_init(void);
++int objpool_test_cleanup(void);
++int objpool_add_tests(CU_pSuite suite);
 +
 +#endif
 
