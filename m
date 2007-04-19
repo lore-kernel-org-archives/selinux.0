@@ -1,36 +1,93 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l3JHuQiV007109
-	for <selinux@tycho.nsa.gov>; Thu, 19 Apr 2007 13:56:27 -0400
-Received: from exchange.columbia.tresys.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with SMTP id l3JHuPuv018471
-	for <selinux@tycho.nsa.gov>; Thu, 19 Apr 2007 17:56:25 GMT
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Subject: [PATCH] avc_internal.c needs #include <linux/types.h> for rhel4
-Date: Thu, 19 Apr 2007 13:56:23 -0400
-Message-ID: <6FE441CD9F0C0C479F2D88F959B01588A71731@exchange.columbia.tresys.com>
-From: "Joshua Brindle" <jbrindle@tresys.com>
-To: "SE Linux" <selinux@tycho.nsa.gov>
-Cc: "Stephen Smalley" <sds@epoch.ncsc.mil>,
-        "Karl MacMillan" <kmacmill@redhat.com>
+Subject: [PATCH][RFC] selinux: preserve boolean values across policy reloads
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: selinux@tycho.nsa.gov
+Cc: James Morris <jmorris@namei.org>, Eric Paris <eparis@parisplace.org>,
+        Karl MacMillan <kmacmillan@mentalrootkit.com>,
+        Joshua Brindle <method@manicmethod.com>
+Content-Type: text/plain
+Date: Thu, 19 Apr 2007 14:16:19 -0400
+Message-Id: <1177006579.27654.169.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Apparently RHEL4 needs #include <linux/types.h> in avc_internal.c in
-order to compile. This should be applied to trunk and stable.
+At present, the userland policy loading code has to go through contortions to preserve
+boolean values across policy reloads, and cannot do so atomically.  
+As this is what we always want to do for reloads, let the kernel preserve them instead.
 
-===================================================================
---- libselinux/src/avc_internal.c       (revision 2357)
-+++ libselinux/src/avc_internal.c       (working copy)
-@@ -17,6 +17,7 @@
- #include <string.h>
- #include <sys/types.h>
- #include <sys/socket.h>
-+#include <linux/types.h>
- #include <linux/netlink.h>
- #include "selinux_netlink.h"
- #include "avc_internal.h"
+Signed-off-by: Stephen Smalley <sds@tycho.nsa.gov>
+
+---
+
+ security/selinux/ss/services.c |   38 ++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 38 insertions(+)
+
+--- a/security/selinux/ss/services.c
++++ b/security/selinux/ss/services.c
+@@ -1249,6 +1249,7 @@ bad:
+ }
+ 
+ extern void selinux_complete_init(void);
++static int security_preserve_bools(struct policydb *p);
+ 
+ /**
+  * security_load_policy - Load a security policy configuration.
+@@ -1325,6 +1326,12 @@ int security_load_policy(void *data, size_t len)
+ 		goto err;
+ 	}
+ 
++	rc = security_preserve_bools(&newpolicydb);
++	if (rc) {
++		printk(KERN_ERR "security:  unable to preserve booleans\n");
++		goto err;
++	}
++
+ 	/* Clone the SID table. */
+ 	sidtab_shutdown(&sidtab);
+ 	if (sidtab_map(&sidtab, clone_sid, &newsidtab)) {
+@@ -1882,6 +1889,37 @@ out:
+ 	return rc;
+ }
+ 
++static int security_preserve_bools(struct policydb *p)
++{
++	int rc, nbools = 0, *bvalues = NULL, i;
++	char **bnames = NULL;
++	struct cond_bool_datum *booldatum;
++	struct cond_node *cur;
++
++	rc = security_get_bools(&nbools, &bnames, &bvalues);
++	if (rc)
++		goto out;
++	for (i = 0; i < nbools; i++) {
++		booldatum = hashtab_search(p->p_bools.table, bnames[i]);
++		if (booldatum)
++			booldatum->state = bvalues[i];
++	}
++	for (cur = p->cond_list; cur != NULL; cur = cur->next) {
++		rc = evaluate_cond_node(p, cur);
++		if (rc)
++			goto out;
++	}
++
++out:
++	if (bnames) {
++		for (i = 0; i < nbools; i++)
++			kfree(bnames[i]);
++	}
++	kfree(bnames);
++	kfree(bvalues);
++	return rc;
++}
++
+ /*
+  * security_sid_mls_copy() - computes a new sid based on the given
+  * sid and the mls portion of mls_sid.
+
+
+-- 
+Stephen Smalley
+National Security Agency
 
 
 --
