@@ -1,149 +1,87 @@
 Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l3JGF6Dc032516
-	for <selinux@tycho.nsa.gov>; Thu, 19 Apr 2007 12:15:06 -0400
-Received: from mx1.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id l3JGF4rk022230
-	for <selinux@tycho.nsa.gov>; Thu, 19 Apr 2007 16:15:05 GMT
-Received: from int-mx1.corp.redhat.com (int-mx1.corp.redhat.com [172.16.52.254])
-	by mx1.redhat.com (8.13.1/8.13.1) with ESMTP id l3JGF3fE026905
-	for <selinux@tycho.nsa.gov>; Thu, 19 Apr 2007 12:15:03 -0400
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l3JGwHwm003252
+	for <selinux@tycho.nsa.gov>; Thu, 19 Apr 2007 12:58:17 -0400
+Received: from mail.and.org (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id l3JGwCrk001807
+	for <selinux@tycho.nsa.gov>; Thu, 19 Apr 2007 16:58:13 GMT
 Subject: Re: [PATCH - policyrep] add objpool to libsepol
-From: Karl MacMillan <kmacmillan@mentalrootkit.com>
-To: James Antill <jantill@redhat.com>
+From: James Antill <jantill@redhat.com>
+To: Karl MacMillan <kmacmillan@mentalrootkit.com>
 Cc: selinux@tycho.nsa.gov
-In-Reply-To: <1176998244.19144.87.camel@code.and.org>
+In-Reply-To: <1176999086.13683.46.camel@localhost.localdomain>
 References: <1176947838.20763.4.camel@localhost.localdomain>
 	 <1176958040.19144.70.camel@code.and.org>
 	 <1176996925.13683.29.camel@localhost.localdomain>
 	 <1176998244.19144.87.camel@code.and.org>
-Content-Type: text/plain
-Date: Thu, 19 Apr 2007 12:11:26 -0400
-Message-Id: <1176999086.13683.46.camel@localhost.localdomain>
+	 <1176999086.13683.46.camel@localhost.localdomain>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-IpaVpq5Yw3BK1XxSU4HT"
+Date: Thu, 19 Apr 2007 12:58:01 -0400
+Message-Id: <1177001881.19144.103.camel@code.and.org>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2007-04-19 at 11:57 -0400, James Antill wrote:
-> On Thu, 2007-04-19 at 11:35 -0400, Karl MacMillan wrote:
-> > On Thu, 2007-04-19 at 00:47 -0400, James Antill wrote:
-> > > On Wed, 2007-04-18 at 21:57 -0400, Karl MacMillan wrote:
-> > > > +int sepol_objpool_free(struct sepol_handle *h, struct sepol_objpool *s)
-> > > 
-> > >  If this is going to be used a lot having only a single "destroy"
-> > > function that also silently unref's everything it's managing seems
-> > > "bad".
-> > 
-> > I'm only intending to use this in the new policyrep where the lifetime
-> > of the object pool will be tied to the lifetime of the policy tree. I
-> > could add a destroy function that just destroys the pool though. I'd
-> > likely need to add a way to iterate over all of the objects in the pool
-> > to make this generally useful.
-> 
->  So, sepol_objpool_del() will never be called?
 
-It is - as you make changes to the policy tree strings can be removed as
-objects are. Actually, as you delete the policy tree the object pool
-should empty. It is probably an error if there is anything left in the
-pool when the root node in the tree is destroyed. Hmm - maybe I should
-change this to add / remove and let the caller allocated and deallocate
-all of the objects (see below for why that is inconvenient though).
+--=-IpaVpq5Yw3BK1XxSU4HT
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
->  If so it seems better to
-> have it work like an APR memory pool or obstack etc. where you allocate
-> a bunch of small objects but only remove the entire thing once.
-> 
+On Thu, 2007-04-19 at 12:11 -0400, Karl MacMillan wrote:
+> On Thu, 2007-04-19 at 11:57 -0400, James Antill wrote:
 
-No - that is not quite the intended use.
+> >  I guess I just wonder why have the s->obj_free member at all, esp.
+> > given the examples used with strdup() ... I kind of assumed you expecte=
+d
+> > input from strdup(), given the examples, and so was confused about the
+> > non-useage of free().
+>=20
+> Ahh - but the objects can be arbitrary, so they might be structs that
+> need something more than free.
+>=20
+> >  It also just seems wrong to have the member free function used for
+> > input ... but if you have a use case feel free to ignore me :).
+>=20
+> Well, the model I was thinking was that the caller was giving ownership
+> of the object to the pool. The advantage is that the caller simply calls
+> add and doesn't have to check return codes to see if their copy of the
+> object should be freed.
 
-> > > > +	if (ret == SEPOL_OK) {
-> > > 
-> > >  This doesn't copy "*obj" and so assumes s->obj_free is used to free the
-> > > input.
-> > 
-> > Yes.
-> > 
-> > > > +		return 0;
-> > > > +	} else if (ret == SEPOL_EEXIST) {
-> > > > +		free(refcount);
-> > > > +		s->obj_free(*obj);
-> > > > +		*obj = cur->key;
-> > > > +		refcount = cur->datum;
-> > > > +		*refcount += 1;
-> > > > +		return 0;
-> > > 
-> > >  This also assumes s->obj_free is the correct thing to use for the
-> > > input.
-> > 
-> > Yes - that is intentional to avoid additional copying. Are you pointing
-> > out a problem, or just suggesting the constraint needs documentation?
-> 
->  I guess I just wonder why have the s->obj_free member at all, esp.
-> given the examples used with strdup() ... I kind of assumed you expected
-> input from strdup(), given the examples, and so was confused about the
-> non-useage of free().
+ Well it needs to check for errors, and do something different then.
 
-Ahh - but the objects can be arbitrary, so they might be structs that
-need something more than free.
+>  Otherwise the caller would conditionally free
+> the object depending on whether another copy already existed. Object
+> deletion would have the same problem.
 
->  It also just seems wrong to have the member free function used for
-> input ... but if you have a use case feel free to ignore me :).
-> 
+ Yeh, I understand ... it feels kind of wrong to be mixing layers. Ie.
+conceptually you seem to have:
 
-Well, the model I was thinking was that the caller was giving ownership
-of the object to the pool. The advantage is that the caller simply calls
-add and doesn't have to check return codes to see if their copy of the
-object should be freed. Otherwise the caller would conditionally free
-the object depending on whether another copy already existed. Object
-deletion would have the same problem.
+struct higher_layer {
+  void *(*make)(void); /* allocate */
+  struct lower_layer {
+    void (*free)(void *); /* deallocate */
+  } lower;
+};
 
-> > > > +	} else {
-> > > > +		free(refcount);
-> > > > +		return ret;
-> > > > +	}
-> > > > +}
-> > > [...]
-> > > > +int sepol_objpool_del(struct sepol_handle *h, struct sepol_objpool *s, void *obj)
-> > > > +{
-> > > > +	int ret;
-> > > > +	unsigned int *refcount;
-> > > > +	
-> > > > +	refcount = hashtab_search(s->objs, obj);
-> > > > +	if (refcount == NULL)
-> > > > +		return SEPOL_ENOENT;
-> > > > +	
-> > > > +	(*refcount)--;
-> > > > +	if (*refcount == 0) {
-> > > > +		ret = hashtab_remove(s->objs, obj,
-> > > > +				     sepol_objpool_hashtab_free, s);
-> > > > +		if (ret != SEPOL_OK)
-> > > > +			return ret;
-> > > > +	}
-> > > 
-> > >  The only thing hashtab_remove() returns, apart from _OK, is _ENOENT ...
-> > > which would mean it could be unref'd or not ... if hashtab_remove()
-> > > could return it in this codepath.
-> > 
-> > Not certain what you mean. Generally, these APIs aren't thread safe so I
-> > assume that the remove will succeed here. The error checking is for
-> > future changes in the hashtab implementation.
-> 
->  Sorry, bad English on my part. My point was that I don't see how
-> hashtab_remove() could ever return in error here (as you've already made
-> sure it is there)
+...which I don't see often, and so assumed was wrong ... but it works,
+you obviously meant to do it, and I can't see a quick way to split the
+layers without downsides.
 
-It shouldn't.
+--=20
+James Antill <jantill@redhat.com>
 
->  ... and even if it ever did return in error at some
-> future point, you are leaking a reference count (*refcount == 0, but
-> there is still one reference in the hashtab).
-> 
+--=-IpaVpq5Yw3BK1XxSU4HT
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
 
-If it did return an error you don't know whether you are leaking or not
-- likely things are just screwed, which is why I punt and return the
-error for the caller to figure out how to handle :) Eventually the
-hashtab API can be fixed so that this is not an issue.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.7 (GNU/Linux)
 
-Karl
+iD8DBQBGJ5+Z11eXTEMrxtQRAvmJAJ0fspGrKm6LSt/lmSiiPIpGQiNudgCgqYgG
+J12JFCNWuemzfajwMsEbvUk=
+=NYmX
+-----END PGP SIGNATURE-----
+
+--=-IpaVpq5Yw3BK1XxSU4HT--
 
 
 --
