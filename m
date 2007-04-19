@@ -1,99 +1,66 @@
-Subject: Re: [PATCH][RFC] selinux: preserve boolean values across policy
-	reloads
-From: Karl MacMillan <kmacmillan@mentalrootkit.com>
-To: Stephen Smalley <sds@tycho.nsa.gov>
+Subject: Re: [PATCH][RFC] selinux: preserve boolean values across
+	policy	reloads
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Joshua Brindle <method@manicmethod.com>
 Cc: selinux@tycho.nsa.gov, James Morris <jmorris@namei.org>,
         Eric Paris <eparis@parisplace.org>,
-        Joshua Brindle <method@manicmethod.com>
-In-Reply-To: <1177006579.27654.169.camel@moss-spartans.epoch.ncsc.mil>
+        Karl MacMillan <kmacmillan@mentalrootkit.com>
+In-Reply-To: <4627B5DE.2030907@manicmethod.com>
 References: <1177006579.27654.169.camel@moss-spartans.epoch.ncsc.mil>
+	 <4627B314.8050103@manicmethod.com>
+	 <1177007462.27654.187.camel@moss-spartans.epoch.ncsc.mil>
+	 <4627B5DE.2030907@manicmethod.com>
 Content-Type: text/plain
-Date: Thu, 19 Apr 2007 14:34:10 -0400
-Message-Id: <1177007650.21732.18.camel@localhost.localdomain>
+Date: Thu, 19 Apr 2007 14:42:15 -0400
+Message-Id: <1177008135.27654.198.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2007-04-19 at 14:16 -0400, Stephen Smalley wrote:
-> At present, the userland policy loading code has to go through contortions to preserve
-> boolean values across policy reloads, and cannot do so atomically.  
-> As this is what we always want to do for reloads, let the kernel preserve them instead.
-> 
-> Signed-off-by: Stephen Smalley <sds@tycho.nsa.gov>
-> 
+On Thu, 2007-04-19 at 14:33 -0400, Joshua Brindle wrote:
+> Stephen Smalley wrote:
+> > On Thu, 2007-04-19 at 14:21 -0400, Joshua Brindle wrote:
+> >   
+> >> Stephen Smalley wrote:
+> >>     
+> >>> At present, the userland policy loading code has to go through contortions to preserve
+> >>> boolean values across policy reloads, and cannot do so atomically.  
+> >>> As this is what we always want to do for reloads, let the kernel preserve them instead.
+> >>>
+> >>>   
+> >>>       
+> >> Are there situation where you may want to reset the boolean state to 
+> >> policy defaults? I can't think of realistic scenarios but if one ever 
+> >> comes up do we want to provide that facility?
+> >>     
+> >
+> > You can always set them after the load if you want to force them back to
+> > those defaults.  But I don't think anything is presently using
+> > load_policy -b.
+> >
+> > Alternative model is to make it a policy config flag (which I also
+> > played with), but then you don't gain anything in libselinux wrt
+> > removing/reducing the libsepol dependency - you still need sepol
+> > interfaces to set/clear that flag.
+> >   
+> Thats what I was thinking. We could always have an selinuxfs node but 
+> that is racy. It seems like we need some sort of options struct we can 
+> send the kernel that is generated at load time and sent before the 
+> policy so thats its atomic. Would anything else use this? compat_net for 
+> example?
 
-Looks good to me.
+It seems like a lot of complication just to allow for a rare (and
+presently unknown) case.  Policy config flags are easy enough to define
+and we still have plenty of space for them in the existing header, but
+then you have to resolve initial setting, preservation, and allowed
+forms of mutation, and as I said, you'd still be requiring libselinux to
+call libsepol to map to a policydb, mutate the flag, and map it back to
+a policy image at load time, so you don't gain a whole lot over the
+current genbools call (except for the atomicity of the preservation).
 
-Karl
-
-> ---
-> 
->  security/selinux/ss/services.c |   38 ++++++++++++++++++++++++++++++++++++++
->  1 file changed, 38 insertions(+)
-> 
-> --- a/security/selinux/ss/services.c
-> +++ b/security/selinux/ss/services.c
-> @@ -1249,6 +1249,7 @@ bad:
->  }
->  
->  extern void selinux_complete_init(void);
-> +static int security_preserve_bools(struct policydb *p);
->  
->  /**
->   * security_load_policy - Load a security policy configuration.
-> @@ -1325,6 +1326,12 @@ int security_load_policy(void *data, size_t len)
->  		goto err;
->  	}
->  
-> +	rc = security_preserve_bools(&newpolicydb);
-> +	if (rc) {
-> +		printk(KERN_ERR "security:  unable to preserve booleans\n");
-> +		goto err;
-> +	}
-> +
->  	/* Clone the SID table. */
->  	sidtab_shutdown(&sidtab);
->  	if (sidtab_map(&sidtab, clone_sid, &newsidtab)) {
-> @@ -1882,6 +1889,37 @@ out:
->  	return rc;
->  }
->  
-> +static int security_preserve_bools(struct policydb *p)
-> +{
-> +	int rc, nbools = 0, *bvalues = NULL, i;
-> +	char **bnames = NULL;
-> +	struct cond_bool_datum *booldatum;
-> +	struct cond_node *cur;
-> +
-> +	rc = security_get_bools(&nbools, &bnames, &bvalues);
-> +	if (rc)
-> +		goto out;
-> +	for (i = 0; i < nbools; i++) {
-> +		booldatum = hashtab_search(p->p_bools.table, bnames[i]);
-> +		if (booldatum)
-> +			booldatum->state = bvalues[i];
-> +	}
-> +	for (cur = p->cond_list; cur != NULL; cur = cur->next) {
-> +		rc = evaluate_cond_node(p, cur);
-> +		if (rc)
-> +			goto out;
-> +	}
-> +
-> +out:
-> +	if (bnames) {
-> +		for (i = 0; i < nbools; i++)
-> +			kfree(bnames[i]);
-> +	}
-> +	kfree(bnames);
-> +	kfree(bvalues);
-> +	return rc;
-> +}
-> +
->  /*
->   * security_sid_mls_copy() - computes a new sid based on the given
->   * sid and the mls portion of mls_sid.
-> 
-> 
+-- 
+Stephen Smalley
+National Security Agency
 
 
 --
