@@ -1,66 +1,121 @@
-Subject: Re: [PATCH][RFC] selinux: preserve boolean values across
-	policy	reloads
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Joshua Brindle <method@manicmethod.com>
-Cc: selinux@tycho.nsa.gov, James Morris <jmorris@namei.org>,
-        Eric Paris <eparis@parisplace.org>,
-        Karl MacMillan <kmacmillan@mentalrootkit.com>
-In-Reply-To: <4627B5DE.2030907@manicmethod.com>
-References: <1177006579.27654.169.camel@moss-spartans.epoch.ncsc.mil>
-	 <4627B314.8050103@manicmethod.com>
-	 <1177007462.27654.187.camel@moss-spartans.epoch.ncsc.mil>
-	 <4627B5DE.2030907@manicmethod.com>
+Subject: Re: [PATCH -trunk][RFC] setsebool: only use libsemanage for
+	persistent boolean changes
+From: Karl MacMillan <kmacmillan@mentalrootkit.com>
+To: Stephen Smalley <sds@tycho.nsa.gov>
+Cc: selinux@tycho.nsa.gov, Joshua Brindle <method@manicmethod.com>,
+        Darrel Goeddel <dgoeddel@TrustedCS.com>
+In-Reply-To: <1177007764.27654.193.camel@moss-spartans.epoch.ncsc.mil>
+References: <1177007764.27654.193.camel@moss-spartans.epoch.ncsc.mil>
 Content-Type: text/plain
-Date: Thu, 19 Apr 2007 14:42:15 -0400
-Message-Id: <1177008135.27654.198.camel@moss-spartans.epoch.ncsc.mil>
+Date: Thu, 19 Apr 2007 14:36:55 -0400
+Message-Id: <1177007815.21732.22.camel@localhost.localdomain>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2007-04-19 at 14:33 -0400, Joshua Brindle wrote:
-> Stephen Smalley wrote:
-> > On Thu, 2007-04-19 at 14:21 -0400, Joshua Brindle wrote:
-> >   
-> >> Stephen Smalley wrote:
-> >>     
-> >>> At present, the userland policy loading code has to go through contortions to preserve
-> >>> boolean values across policy reloads, and cannot do so atomically.  
-> >>> As this is what we always want to do for reloads, let the kernel preserve them instead.
-> >>>
-> >>>   
-> >>>       
-> >> Are there situation where you may want to reset the boolean state to 
-> >> policy defaults? I can't think of realistic scenarios but if one ever 
-> >> comes up do we want to provide that facility?
-> >>     
-> >
-> > You can always set them after the load if you want to force them back to
-> > those defaults.  But I don't think anything is presently using
-> > load_policy -b.
-> >
-> > Alternative model is to make it a policy config flag (which I also
-> > played with), but then you don't gain anything in libselinux wrt
-> > removing/reducing the libsepol dependency - you still need sepol
-> > interfaces to set/clear that flag.
-> >   
-> Thats what I was thinking. We could always have an selinuxfs node but 
-> that is racy. It seems like we need some sort of options struct we can 
-> send the kernel that is generated at load time and sent before the 
-> policy so thats its atomic. Would anything else use this? compat_net for 
-> example?
+On Thu, 2007-04-19 at 14:36 -0400, Stephen Smalley wrote:
+> While the optimizations I introduced for libsemanage helped somewhat in reducing the
+> extraneous work done by setsebool for transient boolean changes, there were still a lot
+> of files that were unnecessarily created or modified due to the entire transactional model of
+> libsemanage, and I couldn't see a clean way of fixing that.  In retrospect, while libsemanage
+> needs to understand active booleans in order to affect persistent changes (due to boolean
+> preservation on reloads), setsebool should just apply active boolean changes directly via libselinux.
+> And with the dropped setlocaldefs support, we can require managed policy for persistent boolean
+> changes.
+> 
 
-It seems like a lot of complication just to allow for a rare (and
-presently unknown) case.  Policy config flags are easy enough to define
-and we still have plenty of space for them in the existing header, but
-then you have to resolve initial setting, preservation, and allowed
-forms of mutation, and as I said, you'd still be requiring libselinux to
-call libsepol to map to a policydb, mutate the flag, and map it back to
-a policy image at load time, so you don't gain a whole lot over the
-current genbools call (except for the atomicity of the preservation).
+The only problem is if semanage starts enforcing access control on the
+booleans in a different way than the selinuxfs nodes. In that case we
+want the change to go through libsemanage.
 
--- 
-Stephen Smalley
-National Security Agency
+Personally, I think that libsemanage should just fake file access
+decisions for persistent changes, but Josh never liked that idea.
+
+Karl
+
+> Change setsebool to only use libsemanage for persistent boolean changes.
+> Temporal/transient boolean changes are directly performed via libselinux.
+> Persistent boolean changes for unmanaged policy are no longer supported
+> due to the dropped setlocaldefs support.
+> 
+> ---
+> 
+>  policycoreutils/setsebool/setsebool.c |   28 ++++++++++++++++------------
+>  1 file changed, 16 insertions(+), 12 deletions(-)
+> 
+> 
+> Index: trunk/policycoreutils/setsebool/setsebool.c
+> ===================================================================
+> --- trunk/policycoreutils/setsebool/setsebool.c	(revision 2356)
+> +++ trunk/policycoreutils/setsebool/setsebool.c	(working copy)
+> @@ -73,12 +73,12 @@
+>  	return rc;
+>  }
+>  
+> -/* Apply boolean changes to policy via libselinux */
+> +/* Apply temporal boolean changes to policy via libselinux */
+>  static int selinux_set_boolean_list(size_t boolcnt,
+> -				    SELboolean * boollist, int perm)
+> +				    SELboolean * boollist)
+>  {
+>  
+> -	if (security_set_boolean_list(boolcnt, boollist, perm)) {
+> +	if (security_set_boolean_list(boolcnt, boollist, 0)) {
+>  		if (errno == ENOENT)
+>  			fprintf(stderr, "Could not change active booleans: "
+>  				"Invalid boolean\n");
+> @@ -91,9 +91,9 @@
+>  	return 0;
+>  }
+>  
+> -/* Apply (permanent) boolean changes to policy via libsemanage */
+> +/* Apply permanent boolean changes to policy via libsemanage */
+>  static int semanage_set_boolean_list(size_t boolcnt,
+> -				     SELboolean * boollist, int perm)
+> +				     SELboolean * boollist)
+>  {
+>  
+>  	size_t j;
+> @@ -115,9 +115,9 @@
+>  		goto err;
+>  
+>  	} else if (managed == 0) {
+> -		if (selinux_set_boolean_list(boolcnt, boollist, perm) < 0)
+> -			goto err;
+> -		goto out;
+> +		fprintf(stderr,
+> +			"Cannot set persistent booleans without managed policy.\n");
+> +		goto err;
+>  	}
+>  
+>  	if (semanage_connect(handle) < 0)
+> @@ -140,8 +140,7 @@
+>  		if (semanage_bool_key_extract(handle, boolean, &bool_key) < 0)
+>  			goto err;
+>  
+> -		if (perm
+> -		    && semanage_bool_modify_local(handle, bool_key,
+> +		if (semanage_bool_modify_local(handle, bool_key,
+>  						  boolean) < 0)
+>  			goto err;
+>  
+> @@ -224,8 +223,13 @@
+>  		*value_ptr = '=';
+>  	}
+>  
+> -	if (semanage_set_boolean_list(boolcnt, vallist, permanent) < 0)
+> -		goto err;
+> +	if (permanent) {
+> +		if (semanage_set_boolean_list(boolcnt, vallist) < 0)
+> +			goto err;
+> +	} else {
+> +		if (selinux_set_boolean_list(boolcnt, vallist) < 0)
+> +			goto err;
+> +	}
+>  
+>  	/* Now log what was done */
+>  	pwd = getpwuid(getuid());
+> 
 
 
 --
