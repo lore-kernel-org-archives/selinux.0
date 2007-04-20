@@ -1,33 +1,46 @@
 Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l3KJTT9u027355
-	for <selinux@tycho.nsa.gov>; Fri, 20 Apr 2007 15:29:29 -0400
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l3KJUPns027416
+	for <selinux@tycho.nsa.gov>; Fri, 20 Apr 2007 15:30:25 -0400
 Received: from mx1.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id l3KJTSP1004017
-	for <selinux@tycho.nsa.gov>; Fri, 20 Apr 2007 19:29:28 GMT
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id l3KJUOP1004182
+	for <selinux@tycho.nsa.gov>; Fri, 20 Apr 2007 19:30:24 GMT
 From: dwalsh@redhat.com
-Date: Fri, 20 Apr 2007 15:29:25 -0400
-Message-Id: <200704201929.l3KJTPT6027296@redsox.boston.devel.redhat.com>
+Date: Fri, 20 Apr 2007 15:29:53 -0400
+Message-Id: <200704201929.l3KJTrNg027302@redsox.boston.devel.redhat.com>
 To: cpebenito@tresys.com
 CC: selinux@tycho.nsa.gov
-Subject: Fixes for locate tool
+Subject: misc fixes for netutils
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 
---- nsaserefpolicy/policy/modules/apps/slocate.te	2007-02-19 11:32:52.000000000 -0500
-+++ serefpolicy-2.5.12/policy/modules/apps/slocate.te	2007-04-16 12:08:09.000000000 -0400
-@@ -42,9 +42,8 @@
- files_read_etc_runtime_files(locate_t)
- files_read_etc_files(locate_t)
+--- nsaserefpolicy/policy/modules/admin/netutils.te	2007-03-26 16:24:13.000000000 -0400
++++ serefpolicy-2.5.12/policy/modules/admin/netutils.te	2007-04-11 17:07:34.000000000 -0400
+@@ -40,6 +41,7 @@
  
--fs_getattr_xattr_fs(locate_t)
--fs_getattr_rpc_pipefs(locate_t)
--fs_getattr_rpc_dirs(locate_t)
-+fs_getattr_all_fs(locate_t)
-+fs_getattr_all_dirs(locate_t)
+ # Perform network administration operations and have raw access to the network.
+ allow netutils_t self:capability { net_admin net_raw setuid setgid };
++dontaudit netutils_t self:capability sys_tty_config;
+ allow netutils_t self:process { sigkill sigstop signull signal };
+ allow netutils_t self:netlink_route_socket { bind create getattr nlmsg_read nlmsg_write read write };
+ allow netutils_t self:packet_socket create_socket_perms;
+@@ -50,6 +52,8 @@
+ manage_files_pattern(netutils_t,netutils_tmp_t,netutils_tmp_t)
+ files_tmp_filetrans(netutils_t, netutils_tmp_t, { file dir })
  
- libs_use_shared_libs(locate_t)
- libs_use_ld_so(locate_t)
++dev_read_sysfs(netutils_t)
++
+ kernel_search_proc(netutils_t)
+ 
+ corenet_non_ipsec_sendrecv(netutils_t)
+@@ -132,6 +136,8 @@
+ 
+ logging_send_syslog_msg(ping_t)
+ 
++miscfiles_read_localization(ping_t)
++
+ sysnet_read_config(ping_t)
+ sysnet_dns_name_resolve(ping_t)
 
 --
 This message was distributed to subscribers of the selinux mailing list.
