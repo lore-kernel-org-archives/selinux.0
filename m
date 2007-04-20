@@ -1,46 +1,47 @@
-Subject: Re: object class discovery userland
-From: "Christopher J. PeBenito" <cpebenito@tresys.com>
-To: Eamon Walsh <ewalsh@tycho.nsa.gov>
-Cc: SELinux Mail List <selinux@tycho.nsa.gov>,
-        Stephen Smalley <sds@tycho.nsa.gov>,
-        Joshua Brindle <jbrindle@tresys.com>
-In-Reply-To: <4628F20E.2000208@tycho.nsa.gov>
-References: <1177077717.15762.32.camel@sgc> <4628F05B.7040309@tycho.nsa.gov>
-	 <4628F20E.2000208@tycho.nsa.gov>
-Content-Type: text/plain
-Date: Fri, 20 Apr 2007 13:19:01 -0400
-Message-Id: <1177089541.24870.17.camel@sgc>
-Mime-Version: 1.0
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l3KIrNKV025008
+	for <selinux@tycho.nsa.gov>; Fri, 20 Apr 2007 14:53:23 -0400
+Received: from mx1.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id l3KIrLP1026799
+	for <selinux@tycho.nsa.gov>; Fri, 20 Apr 2007 18:53:22 GMT
+From: dwalsh@redhat.com
+Date: Fri, 20 Apr 2007 14:53:14 -0400
+Message-Id: <200704201853.l3KIrEGf027126@redsox.boston.devel.redhat.com>
+To: cpebenito@tresys.com
+CC: selinux@tycho.nsa.gov
+Subject: bluetooth reads inotifyfs_t:dir
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2007-04-20 at 13:02 -0400, Eamon Walsh wrote:
-> Eamon Walsh wrote:
-> > Christopher J. PeBenito wrote:
-> >> 3. stop exporting class and perm indexes outside of the libraries.  Then
-> >> the reverse lookup wouldn't be needed.  This would involve some
-> >> overhauling of the libraries.
-> > 
-> > I don't think this is a good idea because of the disruption it would 
-> > cause with access vector processing (as passed to security_av_string() 
-> > and avc_has_perm()).  How do you or together strings?
-> > 
-> > Why not just cache the numbers in the library, as Karl suggested, or 
-> > create a parallel "class_num" or "class_index" directory with numeric 
-> > nodes (perhaps renaming class to class_name).
-> > 
-> class_num/1/perms/1
-> class_num/1/name
+--- nsaserefpolicy/policy/modules/services/bluetooth.te	2007-03-20 23:38:04.000000000 -0400
++++ serefpolicy-2.5.12/policy/modules/services/bluetooth.te	2007-04-11 17:07:34.000000000 -0400
+@@ -98,7 +98,7 @@
+ 
+ fs_getattr_all_fs(bluetooth_t)
+ fs_search_auto_mountpoints(bluetooth_t)
+-fs_search_inotifyfs(bluetooth_t)
++fs_list_inotifyfs(bluetooth_t)
+ 
+ #Handle bluetooth serial devices
+ term_use_unallocated_ttys(bluetooth_t)
 
-I don't feel strongly about any of my suggestions, I mainly wanted to
-get the discussion going.  The inspiration for symlink idea was from all
-the symlinking you see in sysfs, but the above structure certainly is an
-option too.
+From:  <dwalsh@redhat.com>
+To: cpebenito@tresys.com
+CC: selinux@tycho.nsa.gov
+Subject: bluetooth reads inotifyfs_t:dir
 
--- 
-Chris PeBenito
-Tresys Technology, LLC
-(410) 290-1411 x150
+
+--- nsaserefpolicy/policy/modules/services/bluetooth.te	2007-03-20 23:38:04.000000000 -0400
++++ serefpolicy-2.5.12/policy/modules/services/bluetooth.te	2007-04-11 17:07:34.000000000 -0400
+@@ -98,7 +98,7 @@
+ 
+ fs_getattr_all_fs(bluetooth_t)
+ fs_search_auto_mountpoints(bluetooth_t)
+-fs_search_inotifyfs(bluetooth_t)
++fs_list_inotifyfs(bluetooth_t)
+ 
+ #Handle bluetooth serial devices
+ term_use_unallocated_ttys(bluetooth_t)
 
 
 --
