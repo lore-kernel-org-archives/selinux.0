@@ -1,24 +1,27 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l3ND7Jm4003482
-	for <selinux@tycho.nsa.gov>; Mon, 23 Apr 2007 09:07:19 -0400
-Received: from wx-out-0506.google.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l3ND7Ir9013653
-	for <selinux@tycho.nsa.gov>; Mon, 23 Apr 2007 13:07:18 GMT
-Received: by wx-out-0506.google.com with SMTP id s17so1761629wxc
-        for <selinux@tycho.nsa.gov>; Mon, 23 Apr 2007 06:07:18 -0700 (PDT)
-Message-ID: <462CAF84.20708@gmail.com>
-Date: Mon, 23 Apr 2007 08:07:16 -0500
-From: Ted X Toth <txtoth@gmail.com>
-MIME-Version: 1.0
-To: selinux@tycho.nsa.gov, Daniel J Walsh <dwalsh@redhat.com>
-Subject: adding to selinux.py
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Subject: Re: adding to selinux.py
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Ted X Toth <txtoth@gmail.com>
+Cc: selinux@tycho.nsa.gov, Daniel J Walsh <dwalsh@redhat.com>
+In-Reply-To: <462CAF84.20708@gmail.com>
+References: <462CAF84.20708@gmail.com>
+Content-Type: text/plain
+Date: Mon, 23 Apr 2007 10:09:31 -0400
+Message-Id: <1177337371.24282.8.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Would it be possible to get get_ordered_context_list and get_default_context* added to selinux.py?
+On Mon, 2007-04-23 at 08:07 -0500, Ted X Toth wrote:
+> Would it be possible to get get_ordered_context_list and get_default_context* added to selinux.py?
 
-Ted
+selinux.py is generated via swig, so you'd actually want to modify
+selinuxswig.i and regenerate it.   And I think selinuxswig.i should be
+reworked and split along the lines of semanageswig.i and
+semanageswig_python.i over in libsemanage.
+
+-- 
+Stephen Smalley
+National Security Agency
 
 
 --
