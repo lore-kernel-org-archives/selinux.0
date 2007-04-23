@@ -1,75 +1,69 @@
-Subject: Re: [POLICYREP PATCH] Add generic iterators and a list data type
-	to	libsepol
-From: James Antill <jantill@redhat.com>
-To: Karl MacMillan <kmacmillan@mentalrootkit.com>
-Cc: Eamon Walsh <ewalsh@tycho.nsa.gov>, selinux@tycho.nsa.gov
-In-Reply-To: <1177343326.26236.18.camel@localhost.localdomain>
-References: <20070420133430.9884.86379.stgit@localhost.localdomain>
-	 <46291A98.2040003@tycho.nsa.gov>
-	 <1177343326.26236.18.camel@localhost.localdomain>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-swHp0qySuXjvPcCcvLQm"
-Date: Mon, 23 Apr 2007 12:28:08 -0400
-Message-Id: <1177345688.20127.9.camel@code.and.org>
-Mime-Version: 1.0
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="utf-8"
+Subject: Re: object class discovery userland
+Date: Mon, 23 Apr 2007 12:33:43 -0400
+Message-ID: <390A6B1AB2C08C4AB50BFD2992A5EDD58E9FBD@joker.antitrust.sultec.com>
+From: "Nick Nam" <nnam@echostorm.net>
+To: <jbrindle@tresys.com>, <sds@tycho.nsa.gov>, <cpebenito@tresys.com>
+Cc: <ewalsh@tycho.nsa.gov>, <selinux@tycho.nsa.gov>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 
---=-swHp0qySuXjvPcCcvLQm
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
 
-On Mon, 2007-04-23 at 11:48 -0400, Karl MacMillan wrote:
+-----Original Message-----
+From: Joshua Brindle
+To: Stephen Smalley; Christopher J. PeBenito
+CC: Eamon Walsh; SELinux Mail List
+Sent: Mon Apr 23 10:43:52 2007
+Subject: RE: object class discovery userland
 
-> Glib, on the other hand, would provide everything that we need. In fact,
-> gobject is a perfect fit for the policy object abstraction that I
-> created with many advantages (including support for exporting the
-> objects to other languages like python).
->=20
-> The Pros of using glib:
-> * All the data structures that we need.
-> * Better tested foundation.
-> * Safe string functions.
-> * Familiar environment for many developers.
-> * Complete object-oriented layer for the policy rep.
-> * Easy export to Python and other languages.
-> * Our code gets much smaller (libsemanage in particular could shrink if
-> we used glib).
->=20
-> The Cons:
-> * Large dependency.
-> * Potential security issues in glib (not certain this is a real issue,
-> but glib is fairly big).
-> * Glib tends to be slightly verbose and boilerplate heavy.
+> From: Stephen Smalley [mailto:sds@tycho.nsa.gov] 
+> 
+> On Fri, 2007-04-20 at 13:19 -0400, Christopher J. PeBenito wrote:
+> > On Fri, 2007-04-20 at 13:02 -0400, Eamon Walsh wrote:
+> > > Eamon Walsh wrote:
+> > > > Christopher J. PeBenito wrote:
+> > > >> 3. stop exporting class and perm indexes outside of the 
+> > > >> libraries.  Then the reverse lookup wouldn't be needed.  This 
+> > > >> would involve some overhauling of the libraries.
+> > > > 
+> > > > I don't think this is a good idea because of the disruption it 
+> > > > would cause with access vector processing (as passed to 
+> > > > security_av_string() and avc_has_perm()).  How do you 
+> or together strings?
+> > > > 
+> > > > Why not just cache the numbers in the library, as Karl 
+> suggested, 
+> > > > or create a parallel "class_num" or "class_index" 
+> directory with 
+> > > > numeric nodes (perhaps renaming class to class_name).
+> > > > 
+> > > class_num/1/perms/1
+> > > class_num/1/name
+> > 
+> > I don't feel strongly about any of my suggestions, I mainly 
+> wanted to 
+> > get the discussion going.  The inspiration for symlink idea 
+> was from 
+> > all the symlinking you see in sysfs, but the above 
+> structure certainly 
+> > is an option too.
+> 
+> I'd recommend caching in the library and doing the reverse 
+> lookup there rather than encoding it into the pseudo filesystem state.
 
- I'm pretty sure glib is used in a few security relevant places, so I
-doubt that's a problem. The "dependency" argument just seems like normal
-C programmer twitchyness ... glib is at least as portable as what we'd
-use it in and is included in pretty much every distro.
+Making the library open and cache every class and permission seems
+undesirable. What do you have against doing it from the filesystem?
 
- The only real problem I've ever had with glib is that calling g_new()
-calls abort() on failure (and by extension so does everything that
-allocates in glib).
- This also tends to mean that glib code allocates much more freely than
-normal C code. But if you can swallow the allocation death pill, it's
-hard to argue against glib ... IMO.
 
---=20
-James Antill <jantill@redhat.com>
+--
+This message was distributed to subscribers of the selinux mailing list.
+If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
+the words "unsubscribe selinux" without quotes as the message.
 
---=-swHp0qySuXjvPcCcvLQm
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.7 (GNU/Linux)
-
-iD8DBQBGLN6Y11eXTEMrxtQRAphjAKCc8BKajKbXsJ8pNGJt45iGfvxkwgCgvVts
-Ualm+CN1DvQe7HdlweQamuc=
-=Hs97
------END PGP SIGNATURE-----
-
---=-swHp0qySuXjvPcCcvLQm--
 
 
 --
