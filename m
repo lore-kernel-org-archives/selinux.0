@@ -1,208 +1,133 @@
 Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l3OIUN07001491
-	for <selinux@tycho.nsa.gov>; Tue, 24 Apr 2007 14:30:23 -0400
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l3OIUY7N001638
+	for <selinux@tycho.nsa.gov>; Tue, 24 Apr 2007 14:30:34 -0400
 Received: from scarecrow.columbia.tresys.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l3OIUMSG027787
-	for <selinux@tycho.nsa.gov>; Tue, 24 Apr 2007 18:30:22 GMT
-Message-Id: <20070423213721.090230000@tresys.com>
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l3OIUWSG027830
+	for <selinux@tycho.nsa.gov>; Tue, 24 Apr 2007 18:30:33 GMT
+Message-Id: <20070423213731.972575000@tresys.com>
 References: <20070423213455.741326000@tresys.com>
-Date: Mon, 23 Apr 2007 17:34:56 -0400
+Date: Mon, 23 Apr 2007 17:35:07 -0400
 From: jbrindle@tresys.com
 To: selinux@tycho.nsa.gov
-Subject: [PATCH 01/33] libsepol: basic serilization support
+Subject: [PATCH 12/33] libsemanage: basic serialization
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Serialization versioning added to the sepol handle.
+This is the serialization infrastructure for libsemanage.
 
-Serialization utility functions added in serialize.[ch]
 ---
- libsepol/include/sepol/handle.h |   17 +
- libsepol/src/handle.c           |   89 +++++++++
- libsepol/src/handle.h           |    5 
- libsepol/src/libsepol.map       |    1 
- libsepol/src/serialize.c        |  389 ++++++++++++++++++++++++++++++++++++++++
- libsepol/src/serialize.h        |   45 ++++
- 6 files changed, 546 insertions(+)
+ libsemanage/include/semanage/handle.h |   17 +
+ libsemanage/src/handle.c              |   28 ++
+ libsemanage/src/handle_internal.h     |    5 
+ libsemanage/src/libsemanage.map       |    1 
+ libsemanage/src/serialize.c           |  389 ++++++++++++++++++++++++++++++++++
+ libsemanage/src/serialize.h           |   45 +++
+ 6 files changed, 485 insertions(+)
 
-Index: selinux-pms-support/libsepol/include/sepol/handle.h
+Index: selinux-pms-support/libsemanage/include/semanage/handle.h
 ===================================================================
---- selinux-pms-support.orig/libsepol/include/sepol/handle.h
-+++ selinux-pms-support/libsepol/include/sepol/handle.h
-@@ -1,6 +1,11 @@
- #ifndef _SEPOL_HANDLE_H_
- #define _SEPOL_HANDLE_H_
+--- selinux-pms-support.orig/libsemanage/include/semanage/handle.h
++++ selinux-pms-support/libsemanage/include/semanage/handle.h
+@@ -21,6 +21,11 @@
+ #ifndef _SEMANAGE_HANDLE_H_
+ #define _SEMANAGE_HANDLE_H_
  
++#define SEMANAGE_SERIAL_VERSION_MAJOR 1
++#define SEMANAGE_SERIAL_VERSION_MINOR 0
++
 +#include <inttypes.h>
 +
-+#define SEPOL_SERIAL_VERSION_MAJOR 1
-+#define SEPOL_SERIAL_VERSION_MINOR 0
-+
- struct sepol_handle;
- typedef struct sepol_handle sepol_handle_t;
+ /* All accesses with semanage are through a "semanage_handle".  The
+  * handle may ultimately reference local config files,
+  * the binary policy file, a module store, or a policy management server. 
+@@ -38,6 +43,18 @@ semanage_handle_t *semanage_handle_creat
+  * previously called if the handle was connected. */
+ void semanage_handle_destroy(semanage_handle_t *);
  
-@@ -10,4 +15,16 @@ sepol_handle_t *sepol_handle_create(void
- /* Destroy a sepol handle. */
- void sepol_handle_destroy(sepol_handle_t *);
- 
-+/* Serialize the serialization version. */
-+int sepol_handle_version_serialize(sepol_handle_t * sh, char **data, uint64_t *size);
-+
-+/* Unserialize the serialization version. */
-+int sepol_handle_version_unserialize(sepol_handle_t * sh, char **data, uint64_t *size);
-+
 +/* Get the serialization version. */
-+int sepol_handle_get_version(sepol_handle_t *sh, uint32_t * major, uint32_t * minor);
++int semanage_handle_get_version(semanage_handle_t *sh, uint32_t * major, uint32_t * minor);
 +
 +/* Set the serialization version. */
-+int sepol_handle_set_version(sepol_handle_t *sh, uint32_t major, uint32_t minor);
++int semanage_handle_set_version(semanage_handle_t *sh, uint32_t major, uint32_t minor);
++
++/* Serialize the serialization version. */
++int semanage_handle_version_serialize(semanage_handle_t *sh, char **data, uint64_t *size);
++
++/* Unserialize the serialization version. */
++int semanage_handle_version_unserialize(semanage_handle_t *sh, char **data, uint64_t *size);
++
+ /* This is the type of connection to the store, for now only
+  * direct is supported */
+ enum semanage_connect_type {
+Index: selinux-pms-support/libsemanage/src/handle.c
+===================================================================
+--- selinux-pms-support.orig/libsemanage/src/handle.c
++++ selinux-pms-support/libsemanage/src/handle.c
+@@ -82,6 +82,34 @@ semanage_handle_t *semanage_handle_creat
+ 	return NULL;
+ }
+ 
++int semanage_handle_get_version(semanage_handle_t *sh, uint32_t * major, uint32_t * minor)
++{
++	return sepol_handle_get_version(sh->sepolh, major, minor);
++}
++
++hidden_def(semanage_handle_get_version)
++
++int semanage_handle_set_version(semanage_handle_t *sh, uint32_t major, uint32_t minor)
++{
++	return sepol_handle_set_version(sh->sepolh, major, minor);
++}
++
++hidden_def(semanage_handle_set_version)
++
++int semanage_handle_version_serialize(semanage_handle_t *sh, char **data, uint64_t *size)
++{
++	return sepol_handle_version_serialize(sh->sepolh, data, size);
++}
++
++hidden_def(semanage_handle_version_serialize)
++
++int semanage_handle_version_unserialize(semanage_handle_t *sh, char **data, uint64_t *size)
++{
++	return sepol_handle_version_unserialize(sh->sepolh, data, size);
++}
++
++hidden_def(semanage_handle_version_unserialize)
++
+ void semanage_set_rebuild(semanage_handle_t * sh, int do_rebuild)
+ {
+ 
+Index: selinux-pms-support/libsemanage/src/handle_internal.h
+===================================================================
+--- selinux-pms-support.orig/libsemanage/src/handle_internal.h
++++ selinux-pms-support/libsemanage/src/handle_internal.h
+@@ -8,4 +8,9 @@ hidden_proto(semanage_begin_transaction)
+     hidden_proto(semanage_handle_destroy)
+     hidden_proto(semanage_reload_policy)
+     hidden_proto(semanage_access_check)
++hidden_proto(semanage_handle_get_version)
++hidden_proto(semanage_handle_set_version)
++hidden_proto(semanage_handle_version_serialize)
++hidden_proto(semanage_handle_version_unserialize)
 +
  #endif
-Index: selinux-pms-support/libsepol/src/handle.c
+Index: selinux-pms-support/libsemanage/src/libsemanage.map
 ===================================================================
---- selinux-pms-support.orig/libsepol/src/handle.c
-+++ selinux-pms-support/libsepol/src/handle.c
-@@ -1,6 +1,7 @@
- #include <stdlib.h>
- #include "handle.h"
- #include "debug.h"
-+#include "serialize.h"
- 
- sepol_handle_t *sepol_handle_create(void)
- {
-@@ -9,6 +10,10 @@ sepol_handle_t *sepol_handle_create(void
- 	if (sh == NULL)
- 		return NULL;
- 
-+	/* Set default serialization version. */
-+	sh->version_major = 0;
-+	sh->version_minor = 0;
-+
- 	/* Set callback */
- 	sh->msg_callback = sepol_msg_default_handler;
- 	sh->msg_callback_arg = NULL;
-@@ -20,3 +25,87 @@ void sepol_handle_destroy(sepol_handle_t
- {
- 	free(sh);
- }
-+
-+int sepol_handle_get_version(sepol_handle_t *sh, uint32_t * major, uint32_t * minor)
-+{
-+	*major = sh->version_major;
-+	*minor = sh->version_minor;
-+	return STATUS_SUCCESS;
-+}
-+
-+int sepol_handle_set_version(sepol_handle_t *sh, uint32_t major, uint32_t minor)
-+{
-+	sh->version_major = major;
-+	sh->version_minor = minor;
-+	return STATUS_SUCCESS;
-+}
-+
-+int sepol_handle_version_serialize(sepol_handle_t * sh, char **data, uint64_t *size)
-+{
-+	int status = STATUS_SUCCESS;
-+	char *ptr;
-+
-+	/* Sundry sanity checks. */
-+	if (data == NULL || size == NULL) {
-+		status = STATUS_ERR;
-+		goto cleanup;
-+	}
-+
-+	/* Calculate size. */
-+	status = sepol_serialize(sh, &(sh->version_major), 0, SEPOL_SERIAL_UINT32_T, NULL, size);
-+	if (status != STATUS_SUCCESS)
-+		goto cleanup;
-+	status = sepol_serialize(sh, &(sh->version_minor), 0, SEPOL_SERIAL_UINT32_T, NULL, size);
-+	if (status != STATUS_SUCCESS)
-+		goto cleanup;
-+
-+	/* Allocate memory. */
-+	ptr = *data = calloc(*size, sizeof(char));
-+	if (*data == NULL) {
-+		status = STATUS_ERR;
-+		goto cleanup;
-+	}
-+
-+	/* Serialize. */
-+	status = sepol_serialize(sh, &(sh->version_major), 0, SEPOL_SERIAL_UINT32_T, &ptr, NULL);
-+	if (status != STATUS_SUCCESS)
-+		goto cleanup;
-+	status = sepol_serialize(sh, &(sh->version_minor), 0, SEPOL_SERIAL_UINT32_T, &ptr, NULL);
-+	if (status != STATUS_SUCCESS)
-+		goto cleanup;
-+
-+cleanup:
-+	return status;
-+}
-+
-+int sepol_handle_version_unserialize(sepol_handle_t * sh, char **data, uint64_t *size)
-+{
-+	int status = STATUS_SUCCESS;
-+	uint32_t *major = NULL;
-+	uint32_t *minor = NULL;
-+	size_t *datum_length = NULL;
-+	char *ptr = *data;
-+
-+	/* Sundry sanity checks. */
-+	if (data == NULL || *data == NULL || size == NULL) {
-+		status = STATUS_ERR;
-+		goto cleanup;
-+	}
-+
-+	status = sepol_unserialize(sh, &ptr, size, (void **)&major, &datum_length, SEPOL_SERIAL_UINT32_T);
-+	if (status != STATUS_SUCCESS)
-+		goto cleanup;
-+
-+	status = sepol_unserialize(sh, &ptr, size, (void **)&minor, &datum_length, SEPOL_SERIAL_UINT32_T);
-+	if (status != STATUS_SUCCESS)
-+		goto cleanup;
-+
-+	sh->version_major = *major;
-+	sh->version_minor = *minor;
-+
-+cleanup:
-+	free(major);
-+	free(minor);
-+	free(datum_length);
-+	return status;
-+}
-Index: selinux-pms-support/libsepol/src/handle.h
-===================================================================
---- selinux-pms-support.orig/libsepol/src/handle.h
-+++ selinux-pms-support/libsepol/src/handle.h
-@@ -1,9 +1,14 @@
- #ifndef _SEPOL_INTERNAL_HANDLE_H_
- #define _SEPOL_INTERNAL_HANDLE_H_
- 
-+#include <inttypes.h>
- #include <sepol/handle.h>
- 
- struct sepol_handle {
-+	/* Serialization version. */
-+	uint32_t version_major;
-+	uint32_t version_minor;
-+
- 	/* Error handling */
- 	int msg_level;
- 	const char *msg_channel;
-Index: selinux-pms-support/libsepol/src/libsepol.map
-===================================================================
---- selinux-pms-support.orig/libsepol/src/libsepol.map
-+++ selinux-pms-support/libsepol/src/libsepol.map
-@@ -12,5 +12,6 @@
- 	sepol_policydb_*; sepol_set_policydb_from_file; 
- 	sepol_policy_kern_*;
- 	sepol_policy_file_*;
-+	sepol_*_serialize; sepol_*_unserialize;
+--- selinux-pms-support.orig/libsemanage/src/libsemanage.map
++++ selinux-pms-support/libsemanage/src/libsemanage.map
+@@ -13,6 +13,7 @@ LIBSEMANAGE_1.0 {
+ 	  semanage_iface_*; semanage_port_*; semanage_context_*;
+ 	  semanage_node_*;
+ 	  semanage_fcontext_*; semanage_access_check; semanage_set_create_store;
++	  semanage_*_serialize; semanage_*_unserialize;
+ 	  semanage_is_connected;
    local: *;
  };
-Index: selinux-pms-support/libsepol/src/serialize.c
+Index: selinux-pms-support/libsemanage/src/serialize.c
 ===================================================================
 --- /dev/null
-+++ selinux-pms-support/libsepol/src/serialize.c
++++ selinux-pms-support/libsemanage/src/serialize.c
 @@ -0,0 +1,389 @@
 +/* Author: Caleb Case <ccase@tresys.com>
 + *
@@ -230,7 +155,7 @@ Index: selinux-pms-support/libsepol/src/serialize.c
 +#include "handle.h"
 +#include "debug.h"
 +#include "serialize.h"
-+#include "private.h"
++#include "byteswap.h"
 +
 +/* This file provides general serialize and unserialize functions. */
 +
@@ -250,27 +175,27 @@ Index: selinux-pms-support/libsepol/src/serialize.c
 + *
 + *  Supported datum_types (defined in serialize.h):
 + *
-+ *  SEPOL_SERIAL_INT32_T
++ *  SEMANAGE_SERIAL_INT32_T
 + *    Serializes datum to a int32_t as defined in inttypes.h
 + *    datum may NOT be NULL.
 + *    datum_length is not utilized.
-+ *  SEPOL_SERIAL_UINT32_T
++ *  SEMANAGE_SERIAL_UINT32_T
 + *    Serializes datum to a uint32_t as defined in inttypes.h
 + *    datum may NOT be NULL.
 + *    datum_length is not utilized.
-+ *  SEPOL_SERIAL_SIZE_T
++ *  SEMANAGE_SERIAL_SIZE_T
 + *    Serializes datum to a size_t as defined in stddef.h
 + *    datum may NOT be NULL.
 + *    datum_length is not utilized.
-+ *  SEPOL_SERIAL_STRING
++ *  SEMANAGE_SERIAL_STRING
 + *    Serializes a char*.
 + *    datum may be NULL.
 + *    datum_length should be the length of the string as returned by strlen.
-+ *  SEPOL_SERIAL_STRING_ARRAY
++ *  SEMANAGE_SERIAL_STRING_ARRAY
 + *    Serializes a char**.
 + *    datum may be NULL.
 + *    datum_length should be the size of the array.
-+ *    Each string will be serialized as per SEPOL_SERIAL_STRING and its size
++ *    Each string will be serialized as per SEMANAGE_SERIAL_STRING and its size
 + *    determined via strlen.
 + *
 + *  NULL pointers are distinguished (where they are allowed at all).
@@ -278,7 +203,7 @@ Index: selinux-pms-support/libsepol/src/serialize.c
 + *  serialization from the empty string "".
 + *
 + */
-+int sepol_serialize(sepol_handle_t * handle,
++int semanage_serialize(semanage_handle_t * handle,
 +		    const void *datum,
 +		    size_t datum_length,
 +		    unsigned int datum_type, char **data, uint64_t * size)
@@ -289,8 +214,8 @@ Index: selinux-pms-support/libsepol/src/serialize.c
 +	void *temp = NULL;
 +
 +	switch (datum_type) {
-+		case SEPOL_SERIAL_INT32_T:
-+		case SEPOL_SERIAL_UINT32_T:
++		case SEMANAGE_SERIAL_INT32_T:
++		case SEMANAGE_SERIAL_UINT32_T:
 +			if (size == NULL) {
 +				temp = calloc(1, sizeof(int32_t));
 +				if (temp == NULL) {
@@ -305,7 +230,7 @@ Index: selinux-pms-support/libsepol/src/serialize.c
 +			else
 +				*size += sizeof(int32_t);
 +			break;
-+		case SEPOL_SERIAL_SIZE_T:
++		case SEMANAGE_SERIAL_SIZE_T:
 +			if (size == NULL) {
 +				temp = calloc(1, sizeof(uint64_t));
 +				if (temp == NULL) {
@@ -321,7 +246,7 @@ Index: selinux-pms-support/libsepol/src/serialize.c
 +			else
 +				*size += sizeof(uint64_t);
 +			break;
-+		case SEPOL_SERIAL_STRING:
++		case SEMANAGE_SERIAL_STRING:
 +			/* Flags (intended as a bitmap):
 +			 * 0 == NULL
 +			 * 1 == Non NULL
@@ -329,7 +254,7 @@ Index: selinux-pms-support/libsepol/src/serialize.c
 +			flags = (datum == NULL) ? 0 : 1;
 +
 +			status =
-+				sepol_serialize(handle, &flags, 0, SEPOL_SERIAL_UINT32_T, data,
++				semanage_serialize(handle, &flags, 0, SEMANAGE_SERIAL_UINT32_T, data,
 +						size);
 +			if (status != STATUS_SUCCESS)
 +				goto cleanup;
@@ -338,8 +263,8 @@ Index: selinux-pms-support/libsepol/src/serialize.c
 +			if (flags & 1) {
 +				/* Size. */
 +				status =
-+					sepol_serialize(handle, &datum_length, 0,
-+							SEPOL_SERIAL_SIZE_T, data, size);
++					semanage_serialize(handle, &datum_length, 0,
++							SEMANAGE_SERIAL_SIZE_T, data, size);
 +				if (status != STATUS_SUCCESS)
 +					goto cleanup;
 +
@@ -359,7 +284,7 @@ Index: selinux-pms-support/libsepol/src/serialize.c
 +				}
 +			}
 +			break;
-+		case SEPOL_SERIAL_STRING_ARRAY:
++		case SEMANAGE_SERIAL_STRING_ARRAY:
 +			/* Flags (intended as a bitmap):
 +			 * 0 == NULL
 +			 * 1 == Non NULL
@@ -367,7 +292,7 @@ Index: selinux-pms-support/libsepol/src/serialize.c
 +			flags = (datum == NULL) ? 0 : 1;
 +
 +			status =
-+				sepol_serialize(handle, &flags, 0, SEPOL_SERIAL_UINT32_T, data,
++				semanage_serialize(handle, &flags, 0, SEMANAGE_SERIAL_UINT32_T, data,
 +						size);
 +			if (status != STATUS_SUCCESS)
 +				goto cleanup;
@@ -376,17 +301,17 @@ Index: selinux-pms-support/libsepol/src/serialize.c
 +			if (flags & 1) {
 +				/* Size. */
 +				status =
-+					sepol_serialize(handle, &datum_length, 0,
-+							SEPOL_SERIAL_UINT32_T, data, size);
++					semanage_serialize(handle, &datum_length, 0,
++							SEMANAGE_SERIAL_UINT32_T, data, size);
 +				if (status != STATUS_SUCCESS)
 +					goto cleanup;
 +
 +				/* Datum. */
 +				for (i = 0; i < datum_length; i++) {
 +					status =
-+						sepol_serialize(handle, ((char **)datum)[i],
++						semanage_serialize(handle, ((char **)datum)[i],
 +								strlen(((char **)datum)[i]),
-+								SEPOL_SERIAL_STRING, data, size);
++								SEMANAGE_SERIAL_STRING, data, size);
 +					if (status != STATUS_SUCCESS)
 +						goto cleanup;
 +				}
@@ -404,7 +329,7 @@ Index: selinux-pms-support/libsepol/src/serialize.c
 +	return status;
 +}
 +
-+/** Unserializes various kinds of datum as serialized by sepol_serialize.
++/** Unserializes various kinds of datum as serialized by semanage_serialize.
 + *
 + *  This function acts iteratively moving the *data AND size values.
 + *  size is decremented as data is unserialized.
@@ -414,24 +339,24 @@ Index: selinux-pms-support/libsepol/src/serialize.c
 + *
 + *  Supported datum_types (defined in serialize.h):
 + *
-+ *  SEPOL_SERIAL_INT32_T
++ *  SEMANAGE_SERIAL_INT32_T
 + *    Unserializes data into an int32_t as defined in inttypes.h.
 + *    datum_length may be NULL.
-+ *  SEPOL_SERIAL_UINT32_T
++ *  SEMANAGE_SERIAL_UINT32_T
 + *    Unserializes data into an uint32_t as defined in inttypes.h.
 + *    datum_length may be NULL.
-+ *  SEPOL_SERIAL_SIZE_T
++ *  SEMANAGE_SERIAL_SIZE_T
 + *    Unserializes data into an size_t as defined in stddef.h.
 + *    datum_length may be NULL.
-+ *  SEPOL_SERIAL_STRING
++ *  SEMANAGE_SERIAL_STRING
 + *    Unserializes data into a NULL terminated char*.
 + *    datum_length may NOT be NULL and will be the size of the string.
-+ *  SEPOL_SERIAL_STRING_ARRAY
++ *  SEMANAGE_SERIAL_STRING_ARRAY
 + *    Unserializes data into a char**.
-+ *    Each entry in the array will be unserialized as per SEPOL_SERIAL_STRING.
++ *    Each entry in the array will be unserialized as per SEMANAGE_SERIAL_STRING.
 + *    datum_length may NOT be NULL and will be the size of the array.
 + */
-+int sepol_unserialize(sepol_handle_t * handle,
++int semanage_unserialize(semanage_handle_t * handle,
 +		char **data, uint64_t * size,
 +		void **datum,
 +		size_t ** datum_length,
@@ -444,8 +369,8 @@ Index: selinux-pms-support/libsepol/src/serialize.c
 +	size_t *temp_length = NULL;
 +
 +	switch (datum_type) {
-+		case SEPOL_SERIAL_INT32_T:
-+		case SEPOL_SERIAL_UINT32_T:
++		case SEMANAGE_SERIAL_INT32_T:
++		case SEMANAGE_SERIAL_UINT32_T:
 +			*datum = calloc(1, sizeof(int32_t));
 +			if (*datum == NULL) {
 +				status = STATUS_ERR;
@@ -458,7 +383,7 @@ Index: selinux-pms-support/libsepol/src/serialize.c
 +			*size -= sizeof(int32_t);
 +			*data += sizeof(int32_t);
 +			break;
-+		case SEPOL_SERIAL_SIZE_T:
++		case SEMANAGE_SERIAL_SIZE_T:
 +			temp = calloc(1, sizeof(uint64_t));
 +			if (temp == NULL) {
 +				status = STATUS_ERR;
@@ -485,26 +410,26 @@ Index: selinux-pms-support/libsepol/src/serialize.c
 +			*size -= sizeof(uint64_t);
 +			*data += sizeof(uint64_t);
 +			break;
-+		case SEPOL_SERIAL_STRING:
++		case SEMANAGE_SERIAL_STRING:
 +			/* Flags (intended as a bitmap):
 +			 * 0 == NULL
 +			 * 1 == Non NULL
 +			 */
 +			status =
-+				sepol_unserialize(handle,
++				semanage_unserialize(handle,
 +						data, size,
 +						(void **)(&flags), NULL,
-+						SEPOL_SERIAL_UINT32_T);
++						SEMANAGE_SERIAL_UINT32_T);
 +			if (status != STATUS_SUCCESS)
 +				goto cleanup;
 +
 +			if (*flags & 1) {
 +				/* Size. */
 +				status =
-+					sepol_unserialize(handle,
++					semanage_unserialize(handle,
 +							data, size,
 +							(void **)datum_length, NULL,
-+							SEPOL_SERIAL_SIZE_T);
++							SEMANAGE_SERIAL_SIZE_T);
 +				if (status != STATUS_SUCCESS)
 +					goto cleanup;
 +
@@ -527,16 +452,16 @@ Index: selinux-pms-support/libsepol/src/serialize.c
 +			free(flags);
 +			flags = NULL;
 +			break;
-+		case SEPOL_SERIAL_STRING_ARRAY:
++		case SEMANAGE_SERIAL_STRING_ARRAY:
 +			/* Flags (intended as a bitmap):
 +			 * 0 == NULL
 +			 * 1 == Non NULL
 +			 */
 +			status =
-+				sepol_unserialize(handle,
++				semanage_unserialize(handle,
 +						data, size,
 +						(void **)(&flags), NULL,
-+						SEPOL_SERIAL_UINT32_T);
++						SEMANAGE_SERIAL_UINT32_T);
 +			if (status != STATUS_SUCCESS)
 +				goto cleanup;
 +
@@ -544,10 +469,10 @@ Index: selinux-pms-support/libsepol/src/serialize.c
 +			if (*flags & 1) {
 +				/* Size. */
 +				status =
-+					sepol_unserialize(handle,
++					semanage_unserialize(handle,
 +							data, size,
 +							(void **)datum_length, NULL,
-+							SEPOL_SERIAL_UINT32_T);
++							SEMANAGE_SERIAL_UINT32_T);
 +				if (status != STATUS_SUCCESS)
 +					goto cleanup;
 +
@@ -561,12 +486,12 @@ Index: selinux-pms-support/libsepol/src/serialize.c
 +				}
 +
 +				for (i = 0; i < **datum_length; i++) {
-+					status = sepol_unserialize(handle,
++					status = semanage_unserialize(handle,
 +							data,
 +							size,
 +							(void **)&(((char **)(*datum))[i]),
 +							&temp_length,
-+							SEPOL_SERIAL_STRING);
++							SEMANAGE_SERIAL_STRING);
 +
 +					if (status != STATUS_SUCCESS)
 +						goto cleanup;
@@ -593,10 +518,10 @@ Index: selinux-pms-support/libsepol/src/serialize.c
 +	return status;
 +}
 +
-Index: selinux-pms-support/libsepol/src/serialize.h
+Index: selinux-pms-support/libsemanage/src/serialize.h
 ===================================================================
 --- /dev/null
-+++ selinux-pms-support/libsepol/src/serialize.h
++++ selinux-pms-support/libsemanage/src/serialize.h
 @@ -0,0 +1,45 @@
 +/* Author: Caleb Case <ccase@tresys.com>
 + *
@@ -618,25 +543,25 @@ Index: selinux-pms-support/libsepol/src/serialize.h
 + *  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 + */
 +
-+#ifndef _SEPOL_SERIALIZE_INTERNAL_H_
-+#define _SEPOL_SERIALIZE_INTERNAL_H_
++#ifndef _SEMANAGE_SERIALIZE_INTERNAL_H_
++#define _SEMANAGE_SERIALIZE_INTERNAL_H_
 +
 +#include <inttypes.h>
 +#include "handle.h"
 +
 +/* Datum types. */
-+#define SEPOL_SERIAL_INT32_T 0
-+#define SEPOL_SERIAL_UINT32_T 1
-+#define SEPOL_SERIAL_SIZE_T 2
-+#define SEPOL_SERIAL_STRING 3
-+#define SEPOL_SERIAL_STRING_ARRAY 4
++#define SEMANAGE_SERIAL_INT32_T 0
++#define SEMANAGE_SERIAL_UINT32_T 1
++#define SEMANAGE_SERIAL_SIZE_T 2
++#define SEMANAGE_SERIAL_STRING 3
++#define SEMANAGE_SERIAL_STRING_ARRAY 4
 +
-+extern int sepol_serialize(sepol_handle_t * handle,
++int semanage_serialize(semanage_handle_t * handle,
 +		    const void *datum,
 +		    size_t datum_size,
 +		    unsigned int datum_type, char **data, uint64_t * size);
 +
-+extern int sepol_unserialize(sepol_handle_t * handle,
++int semanage_unserialize(semanage_handle_t * handle,
 +    char **data, uint64_t * size,
 +    void **datum,
 +    size_t ** datum_length,
