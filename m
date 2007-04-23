@@ -1,1057 +1,212 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l3OIUu5B001937
-	for <selinux@tycho.nsa.gov>; Tue, 24 Apr 2007 14:30:56 -0400
-Received: from scarecrow.columbia.tresys.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id l3OIUrJc002926
-	for <selinux@tycho.nsa.gov>; Tue, 24 Apr 2007 18:30:54 GMT
-Message-Id: <20070423213749.159962000@tresys.com>
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l3OIUN07001491
+	for <selinux@tycho.nsa.gov>; Tue, 24 Apr 2007 14:30:23 -0400
+Received: from scarecrow.columbia.tresys.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l3OIUMSG027787
+	for <selinux@tycho.nsa.gov>; Tue, 24 Apr 2007 18:30:22 GMT
+Message-Id: <20070423213721.090230000@tresys.com>
 References: <20070423213455.741326000@tresys.com>
-Date: Mon, 23 Apr 2007 17:35:24 -0400
+Date: Mon, 23 Apr 2007 17:34:56 -0400
 From: jbrindle@tresys.com
 To: selinux@tycho.nsa.gov
-Subject: [PATCH 29/33] libsemanage: interface serialization tests
+Subject: [PATCH 01/33] libsepol: basic serilization support
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
----
- libsemanage/tests/libsemanage-tests.c      |    6 
- libsemanage/tests/test_interfaces_file.c   |  548 +++++++++++++++++++++++++++++
- libsemanage/tests/test_interfaces_file.h   |   32 +
- libsemanage/tests/test_interfaces_policy.c |  403 +++++++++++++++++++++
- libsemanage/tests/test_interfaces_policy.h |   32 +
- 5 files changed, 1021 insertions(+)
+Serialization versioning added to the sepol handle.
 
-Index: selinux-pms-support/libsemanage/tests/libsemanage-tests.c
+Serialization utility functions added in serialize.[ch]
+---
+ libsepol/include/sepol/handle.h |   17 +
+ libsepol/src/handle.c           |   89 +++++++++
+ libsepol/src/handle.h           |    5 
+ libsepol/src/libsepol.map       |    1 
+ libsepol/src/serialize.c        |  389 ++++++++++++++++++++++++++++++++++++++++
+ libsepol/src/serialize.h        |   45 ++++
+ 6 files changed, 546 insertions(+)
+
+Index: selinux-pms-support/libsepol/include/sepol/handle.h
 ===================================================================
---- selinux-pms-support.orig/libsemanage/tests/libsemanage-tests.c
-+++ selinux-pms-support/libsemanage/tests/libsemanage-tests.c
-@@ -42,6 +42,9 @@
- #include "test_fcontexts_file.h"
- #include "test_fcontexts_policy.h"
+--- selinux-pms-support.orig/libsepol/include/sepol/handle.h
++++ selinux-pms-support/libsepol/include/sepol/handle.h
+@@ -1,6 +1,11 @@
+ #ifndef _SEPOL_HANDLE_H_
+ #define _SEPOL_HANDLE_H_
  
-+#include "test_interfaces_file.h"
-+#include "test_interfaces_policy.h"
++#include <inttypes.h>
 +
- #include <CUnit/Basic.h>
- #include <CUnit/Console.h>
- #include <CUnit/TestDB.h>
-@@ -104,6 +107,9 @@ static int do_tests(int interactive, int
- 	DECLARE_SUITE(fcontexts_file);
- 	DECLARE_SUITE(fcontexts_policy);
- 
-+	DECLARE_SUITE(interfaces_file);
-+	DECLARE_SUITE(interfaces_policy);
++#define SEPOL_SERIAL_VERSION_MAJOR 1
++#define SEPOL_SERIAL_VERSION_MINOR 0
 +
- 	/* The ps_api_disconnect test 'unforks'. */
- 	DECLARE_SUITE(ps_api_disconnect);
+ struct sepol_handle;
+ typedef struct sepol_handle sepol_handle_t;
  
-Index: selinux-pms-support/libsemanage/tests/test_interfaces_file.c
+@@ -10,4 +15,16 @@ sepol_handle_t *sepol_handle_create(void
+ /* Destroy a sepol handle. */
+ void sepol_handle_destroy(sepol_handle_t *);
+ 
++/* Serialize the serialization version. */
++int sepol_handle_version_serialize(sepol_handle_t * sh, char **data, uint64_t *size);
++
++/* Unserialize the serialization version. */
++int sepol_handle_version_unserialize(sepol_handle_t * sh, char **data, uint64_t *size);
++
++/* Get the serialization version. */
++int sepol_handle_get_version(sepol_handle_t *sh, uint32_t * major, uint32_t * minor);
++
++/* Set the serialization version. */
++int sepol_handle_set_version(sepol_handle_t *sh, uint32_t major, uint32_t minor);
++
+ #endif
+Index: selinux-pms-support/libsepol/src/handle.c
 ===================================================================
---- /dev/null
-+++ selinux-pms-support/libsemanage/tests/test_interfaces_file.c
-@@ -0,0 +1,548 @@
-+/* Authors: Christopher Ashworth <cashworth@tresys.com>
-+ *          Caleb Case <ccase@tresys.com>
-+ *
-+ * Copyright (C)  2007 Tresys Technology, LLC
-+ *
-+ *  This library is free software; you can redistribute it and/or
-+ *  modify it under the terms of the GNU Lesser General Public
-+ *  License as published by the Free Software Foundation; either
-+ *  version 2.1 of the License, or (at your option) any later version.
-+ *
-+ *  This library is distributed in the hope that it will be useful,
-+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-+ *  Lesser General Public License for more details.
-+ *
-+ *  You should have received a copy of the GNU Lesser General Public
-+ *  License along with this library; if not, write to the Free Software
-+ *  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
-+ */
+--- selinux-pms-support.orig/libsepol/src/handle.c
++++ selinux-pms-support/libsepol/src/handle.c
+@@ -1,6 +1,7 @@
+ #include <stdlib.h>
+ #include "handle.h"
+ #include "debug.h"
++#include "serialize.h"
+ 
+ sepol_handle_t *sepol_handle_create(void)
+ {
+@@ -9,6 +10,10 @@ sepol_handle_t *sepol_handle_create(void
+ 	if (sh == NULL)
+ 		return NULL;
+ 
++	/* Set default serialization version. */
++	sh->version_major = 0;
++	sh->version_minor = 0;
 +
-+/*  The purpose of this file is to provide unit tests of the functions in:
-+ *
-+ *  libsemanage/src/interfaces_file.c
-+ *
-+ */
+ 	/* Set callback */
+ 	sh->msg_callback = sepol_msg_default_handler;
+ 	sh->msg_callback_arg = NULL;
+@@ -20,3 +25,87 @@ void sepol_handle_destroy(sepol_handle_t
+ {
+ 	free(sh);
+ }
 +
-+#include "globals.h"
-+#include "utilities.h"
-+#include "test_interfaces_file.h"
-+
-+#include <libgen.h>
-+#include <limits.h>
-+#include <signal.h>
-+#include <stdio.h>
-+#include <stdlib.h>
-+#include <string.h>
-+#include <sys/wait.h>
-+#include <unistd.h>
-+#include <CUnit/Basic.h>
-+
-+#include <assert.h>
-+#include <ctype.h>
-+#include <errno.h>
-+#include <fcntl.h>
-+#include <limits.h>
-+#include <stdio.h>
-+#include <stdlib.h>
-+#include <string.h>
-+#include <unistd.h>
-+#include <arpa/inet.h>
-+#include <netinet/in.h>
-+#include <sys/socket.h>
-+#include <sys/stat.h>
-+#include <sys/types.h>
-+#include <sys/un.h>
-+#include <selinux/selinux.h>
-+
-+#include "debug.h"
-+#include "byteswap.h"
-+#include "handle.h"
-+#include "modules.h"
-+#include "policy.h"
-+#include "interfaces_local.h"
-+#include "messages_internal.h"
-+#include "semanage_store.h"
-+#include "database_file.h"
-+#include "user_internal.h"
-+#include "seuser_internal.h"
-+#include "port_internal.h"
-+#include "iface_internal.h"
-+#include "boolean_internal.h"
-+#include "fcontext_internal.h"
-+#include "node_internal.h"
-+
-+#include "database_llist.h"
-+
-+/* Server table setup. */
-+
-+/* Record functions. */
-+
-+static record_table_t test_iface_rtable = {
-+	.create = (create_f)semanage_iface_create,
-+	.key_extract = (key_extract_f)semanage_iface_key_extract,
-+	.key_free = (key_free_f)semanage_iface_key_free,
-+	.clone = (clone_f)semanage_iface_clone,
-+	.compare = (compare_f)semanage_iface_compare,
-+	.compare2 = (compare2_f)semanage_iface_compare2,
-+	.compare2_qsort = NULL,
-+	.free = (free_f)semanage_iface_free,
-+	.serialize = (serialize_f)semanage_iface_serialize,
-+	.unserialize = (unserialize_f)semanage_iface_unserialize,
-+};
-+
-+/* Table functions. */
-+
-+/* Test cache function. */
-+static int test_dbase_local_cache(
-+	semanage_handle_t *handle,
-+	dbase_config_t *dconfig)
++int sepol_handle_get_version(sepol_handle_t *sh, uint32_t * major, uint32_t * minor)
 +{
-+	int status = 0;
-+
-+	/* Add some test entries to the list. */
-+	record_t *iface = NULL;
-+	record_key_t *ifacekey = NULL;
-+
-+	record_table_t *rtable = dconfig->dtable->get_rtable(dconfig);
-+
-+	/* Create record. */
-+	status = rtable->create(sh, &iface);
-+	if (status) goto cleanup;
-+
-+	/* Populate record. */
-+	semanage_context_t *ifcon;
-+	semanage_context_t *msgcon;
-+
-+	status = semanage_iface_set_name(sh, (semanage_iface_t *)iface, "testname");
-+	if (status) goto cleanup;
-+
-+	status = semanage_context_from_string(sh, "iftestuser:iftestrole:iftesttype", &ifcon);
-+	if (status) goto cleanup;
-+	status = semanage_iface_set_ifcon(sh, (semanage_iface_t *)iface, ifcon);
-+	if (status) goto cleanup;
-+
-+	status = semanage_context_from_string(sh, "msgtestuser:msgtestrole:msgtesttype", &msgcon);
-+	if (status) goto cleanup;
-+	status = semanage_iface_set_msgcon(sh, (semanage_iface_t *)iface, msgcon);
-+	if (status) goto cleanup;
-+
-+	status = rtable->key_extract(sh, iface, &ifacekey);
-+	if (status) goto cleanup;
-+
-+	/* Add record. */
-+	status = dconfig->dtable->add(
-+		sh,
-+		dconfig,
-+		ifacekey,
-+		iface);
-+	if (status) goto cleanup;
-+
-+	/* Cleanup. */
-+	semanage_context_free(ifcon);
-+	ifcon = NULL;
-+	semanage_context_free(msgcon);
-+	msgcon = NULL;
-+	rtable->free(iface);
-+	iface = NULL;
-+	rtable->key_free(ifacekey);
-+	ifacekey = NULL;
-+
-+	/* Create record. */
-+	status = rtable->create(sh, &iface);
-+	if (status) goto cleanup;
-+
-+	/* Populate record. */
-+	status = semanage_iface_set_name(sh, (semanage_iface_t *)iface, "testname2");
-+	if (status) goto cleanup;
-+
-+	status = semanage_context_from_string(sh, "iftestuser2:iftestrole2:iftesttype2", &ifcon);
-+	if (status) goto cleanup;
-+	status = semanage_iface_set_ifcon(sh, (semanage_iface_t *)iface, ifcon);
-+	if (status) goto cleanup;
-+
-+	status = semanage_context_from_string(sh, "msgtestuser2:msgtestrole2:msgtesttype2", &msgcon);
-+	if (status) goto cleanup;
-+	status = semanage_iface_set_msgcon(sh, (semanage_iface_t *)iface, msgcon);
-+	if (status) goto cleanup;
-+
-+	status = rtable->key_extract(sh, iface, &ifacekey);
-+	if (status) goto cleanup;
-+
-+	/* Add record. */
-+	status = dconfig->dtable->add(
-+		sh,
-+		dconfig,
-+		ifacekey,
-+		iface);
-+	if (status) goto cleanup;
-+
-+	/* Cleanup. */
-+cleanup:
-+	semanage_context_free(ifcon);
-+	semanage_context_free(msgcon);
-+	rtable->free(iface);
-+	rtable->key_free(ifacekey);
-+
-+	CU_ASSERT( status == 0 );
-+	return status;
++	*major = sh->version_major;
++	*minor = sh->version_minor;
++	return STATUS_SUCCESS;
 +}
 +
-+/* Database callback table. */
-+static dbase_table_t test_file_dtable = {
-+
-+	/* Cache/Transactions */
-+	.cache = test_dbase_local_cache,
-+	.drop_cache = (void *)dbase_llist_drop_cache,
-+	.flush = NULL,
-+	.is_modified = (void *)dbase_llist_is_modified,
-+
-+	/* Database API */
-+	.iterate = (void *)dbase_llist_iterate,
-+	.exists = (void *)dbase_llist_exists,
-+	.list = (void *)dbase_llist_list,
-+	.add = (void *)dbase_llist_add,
-+	.set = (void *)dbase_llist_set,
-+	.del = (void *)dbase_llist_del,
-+	.clear = (void *)dbase_llist_clear,
-+	.modify = (void *)dbase_llist_modify,
-+	.query = (void *)dbase_llist_query,
-+	.count = (void *)dbase_llist_count,
-+
-+	/* Polymorphism */
-+	.get_rtable = (void *)dbase_llist_get_rtable
-+};
-+
-+/* The suite initialization function.
-+ * Returns zero on success, non-zero otherwise.
-+ */
-+int interfaces_file_test_init(void)
++int sepol_handle_set_version(sepol_handle_t *sh, uint32_t major, uint32_t minor)
 +{
-+	int status = 0;
++	sh->version_major = major;
++	sh->version_minor = minor;
++	return STATUS_SUCCESS;
++}
 +
-+	if (ps_pid == 0) {
-+		/* Server code. */
++int sepol_handle_version_serialize(sepol_handle_t * sh, char **data, uint64_t *size)
++{
++	int status = STATUS_SUCCESS;
++	char *ptr;
 +
-+		/* Reset locks status. */
-+		sh->u.ps_handle.socket_fd = 0;
-+
-+		/* Store setup. */
-+		dbase_config_t *dconfig = semanage_iface_dbase_local(sh);
-+
-+		if ((status =
-+			dbase_file_init(
-+				sh,
-+				"fakesuffix",
-+				&test_iface_rtable,
-+				NULL,
-+				(dbase_file_t **)&dconfig->dbase)))
-+			goto cleanup;
-+
-+		dconfig->dtable = &test_file_dtable;
-+
++	/* Sundry sanity checks. */
++	if (data == NULL || size == NULL) {
++		status = STATUS_ERR;
++		goto cleanup;
 +	}
 +
-+	/* Cleanup. */
-+cleanup:
-+	return status;
-+}
++	/* Calculate size. */
++	status = sepol_serialize(sh, &(sh->version_major), 0, SEPOL_SERIAL_UINT32_T, NULL, size);
++	if (status != STATUS_SUCCESS)
++		goto cleanup;
++	status = sepol_serialize(sh, &(sh->version_minor), 0, SEPOL_SERIAL_UINT32_T, NULL, size);
++	if (status != STATUS_SUCCESS)
++		goto cleanup;
 +
-+/* The suite cleanup function.
-+ * Returns zero on success, non-zero otherwise.
-+ */
-+int interfaces_file_test_cleanup(void)
-+{
-+	return 0;
-+}
++	/* Allocate memory. */
++	ptr = *data = calloc(*size, sizeof(char));
++	if (*data == NULL) {
++		status = STATUS_ERR;
++		goto cleanup;
++	}
 +
-+/* Adds all the tests needed for this suite.
-+*/
-+int interfaces_file_add_tests(CU_pSuite suite)
-+{
-+	CU_ErrorCode status;
-+
-+	if (NULL == CU_add_test(suite, "semanage_iface_serialize_local", test_semanage_iface_serialize_local))
++	/* Serialize. */
++	status = sepol_serialize(sh, &(sh->version_major), 0, SEPOL_SERIAL_UINT32_T, &ptr, NULL);
++	if (status != STATUS_SUCCESS)
++		goto cleanup;
++	status = sepol_serialize(sh, &(sh->version_minor), 0, SEPOL_SERIAL_UINT32_T, &ptr, NULL);
++	if (status != STATUS_SUCCESS)
 +		goto cleanup;
 +
 +cleanup:
-+	if (CUE_SUCCESS != (status = CU_get_error()))
-+		CU_cleanup_registry();
 +	return status;
 +}
 +
-+/* Tests the semanage_iface_serialize_local function in interfaces_file.c
-+ */
-+void test_semanage_iface_serialize_local(void) {
-+	int status;
-+
-+	uint32_t message_type;
-+	uint64_t data_length;
-+	char *data = NULL;
-+	char *ptr = NULL;
-+	int timeout = 0;
-+	uint32_t database_type = 0;
-+
-+	semanage_iface_t **records = NULL;
-+	unsigned int records_size;
-+
-+	dbase_config_t *dconfig = semanage_iface_dbase_local(sh);
-+	record_table_t *rtable = dconfig->dtable->get_rtable(dconfig);
-+
-+	char *ifcon_str = NULL;
-+	char *msgcon_str = NULL;
-+
-+	int commit_number = 7;
-+
-+	if (ps_pid == 0) {
-+		/* Server code. */
-+
-+		/* On caching the client will ask for the commit number. */
-+		status = test_semanage_ps_handle_get_commit_number(sh, commit_number);
-+		CU_ASSERT( status == STATUS_SUCCESS );
-+		if (status != STATUS_SUCCESS)
-+			goto cleanup;
-+
-+		/* Wait for message. */
-+		if ((status = read_msg(sh, client_socket_fd, timeout, &message_type, &data_length, &data)))
-+			goto cleanup;
-+
-+		CU_ASSERT( message_type == PS_GET_DATABASE );
-+		if (message_type != PS_GET_DATABASE) {
-+			status = -1;
-+			goto cleanup;
-+		}
-+
-+		/* Get and serialize the database. */
-+		free(data);
-+		data = NULL;
-+
-+		if ((status = semanage_iface_serialize_local(sh, &data, &data_length)))
-+			goto cleanup;
-+
-+		/* Send back the database. */
-+		if ((status = write_msg(sh, client_socket_fd, PS_OK, data_length, data)))
-+			goto cleanup;
-+
-+		/* On caching the client will ask for the commit number. */
-+		status = test_semanage_ps_handle_get_commit_number(sh, commit_number);
-+		CU_ASSERT( status == STATUS_SUCCESS );
-+		if (status != STATUS_SUCCESS)
-+			goto cleanup;
-+
-+		/* On flushing the client will ask for the commit number. */
-+		//FIXME: Why does the client ask for the commit number so many times here?
-+		status = test_semanage_ps_handle_get_commit_number(sh, commit_number);
-+		CU_ASSERT( status == STATUS_SUCCESS );
-+		if (status != STATUS_SUCCESS)
-+			goto cleanup;
-+
-+		status = test_semanage_ps_handle_get_commit_number(sh, commit_number);
-+		CU_ASSERT( status == STATUS_SUCCESS );
-+		if (status != STATUS_SUCCESS)
-+			goto cleanup;
-+
-+		/* Receive changed database. */
-+		free(data);
-+		data = NULL;
-+
-+		if ((status = read_msg(sh, client_socket_fd, timeout, &message_type, &data_length, &data)))
-+			goto cleanup;
-+
-+		CU_ASSERT( message_type == PS_PUT_DATABASE );
-+		if (message_type != PS_PUT_DATABASE) {
-+			status = -1;
-+			goto cleanup;
-+		}
-+
-+		/* Say we got it ok. */
-+		if ((status = write_msg(sh, client_socket_fd, PS_OK, 0, NULL)))
-+			goto cleanup;
-+
-+		/* Unserialize the database type */
-+		ptr = data;
-+		if(semanage_dbase_ps_database_type_unserialize(sh, &ptr, &data_length, &database_type));
-+			goto cleanup;
-+
-+		/* Unserialize the database. and don't move the data pointer.*/
-+		if ((status = semanage_iface_unserialize_local(sh, ptr, data_length)))
-+			goto cleanup;
-+
-+		/* Gather the database records. */
-+		status = dconfig->dtable->list(sh, dconfig, (record_t ***)&records, &records_size);
-+		CU_ASSERT( status == 0 );
-+		CU_ASSERT( records != NULL );
-+		CU_ASSERT( records_size == 3 );
-+
-+		/* Verify data. */
-+		char *name = (char *)semanage_iface_get_name(records[0]);
-+
-+		semanage_context_t *ifcon = semanage_iface_get_ifcon(records[0]);
-+		status = semanage_context_to_string(sh, ifcon, &ifcon_str);
-+
-+		semanage_context_t *msgcon = semanage_iface_get_msgcon(records[0]);
-+		status = semanage_context_to_string(sh, msgcon, &msgcon_str);
-+
-+		CU_ASSERT( strcmp(name, "testname") == 0 );
-+		CU_ASSERT( strcmp(ifcon_str, "iftestuser:iftestrole:iftesttype") == 0 );
-+		CU_ASSERT( strcmp(msgcon_str, "msgtestuser:msgtestrole:msgtesttype") == 0 );
-+
-+		/* Cleanup. */
-+		free(ifcon_str);
-+		free(msgcon_str);
-+
-+		name = (char *)semanage_iface_get_name(records[1]);
-+
-+		ifcon = semanage_iface_get_ifcon(records[1]);
-+		ifcon_str = NULL;
-+		status = semanage_context_to_string(sh, ifcon, &ifcon_str);
-+
-+		msgcon = semanage_iface_get_msgcon(records[1]);
-+		msgcon_str = NULL;
-+		status = semanage_context_to_string(sh, msgcon, &msgcon_str);
-+
-+		CU_ASSERT( strcmp(name, "testname2") == 0 );
-+		CU_ASSERT( strcmp(ifcon_str, "iftestuser2:iftestrole2:iftesttype2") == 0 );
-+		CU_ASSERT( strcmp(msgcon_str, "msgtestuser2:msgtestrole2:msgtesttype2") == 0 );
-+
-+		/* Cleanup. */
-+		free(ifcon_str);
-+		free(msgcon_str);
-+
-+		name = (char *)semanage_iface_get_name(records[2]);
-+
-+		ifcon = semanage_iface_get_ifcon(records[2]);
-+		ifcon_str = NULL;
-+		status = semanage_context_to_string(sh, ifcon, &ifcon_str);
-+
-+		msgcon = semanage_iface_get_msgcon(records[2]);
-+		msgcon_str = NULL;
-+		status = semanage_context_to_string(sh, msgcon, &msgcon_str);
-+
-+		CU_ASSERT( strcmp(name, "testname3") == 0 );
-+		CU_ASSERT( strcmp(ifcon_str, "iftestuser3:iftestrole3:iftesttype3") == 0 );
-+		CU_ASSERT( strcmp(msgcon_str, "msgtestuser3:msgtestrole3:msgtesttype3") == 0 );
-+
-+	}
-+
-+	if (ps_pid > 0) {
-+		/* Client code. */
-+
-+		/* Cache database.
-+		 * This sends a message to the server requesting the database.
-+		 * The server serializes the database and sends it to us (the client).
-+		 * Internally the database is unserialized and loaded.
-+		 */
-+		status = dconfig->dtable->cache(sh, dconfig);
-+		CU_ASSERT( status == 0 );
-+
-+		/* Gather the database records. */
-+		status = dconfig->dtable->list(sh, dconfig, (record_t ***)&records, &records_size);
-+		CU_ASSERT( status == 0 );
-+		CU_ASSERT( records != NULL );
-+		CU_ASSERT( records_size == 2 );
-+
-+		/* Verify data was sent correctly. */
-+		char *name = (char *)semanage_iface_get_name(records[0]);
-+
-+		semanage_context_t *ifcon = semanage_iface_get_ifcon(records[0]);
-+		status = semanage_context_to_string(sh, ifcon, &ifcon_str);
-+
-+		semanage_context_t *msgcon = semanage_iface_get_msgcon(records[0]);
-+		status = semanage_context_to_string(sh, msgcon, &msgcon_str);
-+
-+		CU_ASSERT( strcmp(name, "testname") == 0 );
-+		CU_ASSERT( strcmp(ifcon_str, "iftestuser:iftestrole:iftesttype") == 0 );
-+		CU_ASSERT( strcmp(msgcon_str, "msgtestuser:msgtestrole:msgtesttype") == 0 );
-+
-+		/* Cleanup. */
-+		free(ifcon_str);
-+		free(msgcon_str);
-+
-+		name = (char *)semanage_iface_get_name(records[1]);
-+
-+		ifcon = semanage_iface_get_ifcon(records[1]);
-+		ifcon_str = NULL;
-+		status = semanage_context_to_string(sh, ifcon, &ifcon_str);
-+
-+		msgcon = semanage_iface_get_msgcon(records[1]);
-+		msgcon_str = NULL;
-+		status = semanage_context_to_string(sh, msgcon, &msgcon_str);
-+
-+		CU_ASSERT( strcmp(name, "testname2") == 0 );
-+		CU_ASSERT( strcmp(ifcon_str, "iftestuser2:iftestrole2:iftesttype2") == 0 );
-+		CU_ASSERT( strcmp(msgcon_str, "msgtestuser2:msgtestrole2:msgtesttype2") == 0 );
-+
-+		/* Change something. */
-+
-+		/* Add some test entries to the list. */
-+		record_t *iface = NULL;
-+		record_key_t *ifacekey = NULL;
-+
-+		/* Create record. */
-+		status = rtable->create(sh, &iface);
-+		if (status) goto cleanup;
-+
-+		/* Populate record. */
-+		status = semanage_iface_set_name(sh, (semanage_iface_t *)iface, "testname3");
-+		if (status) goto cleanup;
-+
-+		status = semanage_context_from_string(sh, "iftestuser3:iftestrole3:iftesttype3", &ifcon);
-+		if (status) goto cleanup;
-+		status = semanage_iface_set_ifcon(sh, (semanage_iface_t *)iface, ifcon);
-+		if (status) goto cleanup;
-+
-+		status = semanage_context_from_string(sh, "msgtestuser3:msgtestrole3:msgtesttype3", &msgcon);
-+		if (status) goto cleanup;
-+		status = semanage_iface_set_msgcon(sh, (semanage_iface_t *)iface, msgcon);
-+		if (status) goto cleanup;
-+
-+		status = rtable->key_extract(sh, iface, &ifacekey);
-+		if (status) goto cleanup;
-+
-+		/* Add record. */
-+		status = dconfig->dtable->add(
-+			sh,
-+			dconfig,
-+			ifacekey,
-+			iface);
-+		if (status) goto cleanup;
-+
-+		/* Cleanup. */
-+		semanage_context_free(ifcon);
-+		semanage_context_free(msgcon);
-+		rtable->free(iface);
-+		rtable->key_free(ifacekey);
-+
-+		/* Flush database.
-+		 * This sends a message to the server to replace its database
-+		 * with the one we are sending.  Internally the flush serializes
-+		 * the database and sends it.  The server then unserializes it,
-+		 * clears its old copy, and replaces it with the new one.
-+		 */
-+		status = dconfig->dtable->flush(sh, dconfig);
-+		CU_ASSERT( status == 0 );
-+
-+	}
-+
-+	/* Cleanup. */
-+cleanup:
-+	if (records != NULL) {
-+		unsigned int i;
-+		for (i = 0; i < records_size; i++) {
-+			if (!records[i])
-+				break;
-+			rtable->free((record_t *)records[i]);
-+		}
-+	}
-+
-+	free(records);
-+	free(data);
-+	free(ifcon_str);
-+	free(msgcon_str);
-+
-+	CU_ASSERT( status == 0 );
-+	if (status != 0) {
-+		printf("\n\nReceived error code in %s: %d | %s\n", (ps_pid == 0) ? "server" : "client", status, strerror(status));
-+	}
-+}
-+
-Index: selinux-pms-support/libsemanage/tests/test_interfaces_file.h
-===================================================================
---- /dev/null
-+++ selinux-pms-support/libsemanage/tests/test_interfaces_file.h
-@@ -0,0 +1,32 @@
-+/* Authors: Christopher Ashworth <cashworth@tresys.com>
-+ *          Caleb Case <ccase@tresys.com>
-+ *
-+ * Copyright (C)  2007 Tresys Technology, LLC
-+ *
-+ *  This library is free software; you can redistribute it and/or
-+ *  modify it under the terms of the GNU Lesser General Public
-+ *  License as published by the Free Software Foundation; either
-+ *  version 2.1 of the License, or (at your option) any later version.
-+ *
-+ *  This library is distributed in the hope that it will be useful,
-+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-+ *  Lesser General Public License for more details.
-+ *
-+ *  You should have received a copy of the GNU Lesser General Public
-+ *  License along with this library; if not, write to the Free Software
-+ *  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
-+ */
-+
-+#ifndef __TEST_INTERFACES_FILE_H__
-+#define __TEST_INTERFACES_FILE_H__
-+
-+#include <CUnit/Basic.h>
-+
-+int interfaces_file_test_init(void);
-+int interfaces_file_test_cleanup(void);
-+int interfaces_file_add_tests(CU_pSuite suite);
-+
-+void test_semanage_iface_serialize_local(void);
-+
-+#endif
-Index: selinux-pms-support/libsemanage/tests/test_interfaces_policy.c
-===================================================================
---- /dev/null
-+++ selinux-pms-support/libsemanage/tests/test_interfaces_policy.c
-@@ -0,0 +1,403 @@
-+/* Authors: Christopher Ashworth <cashworth@tresys.com>
-+ *          Caleb Case <ccase@tresys.com>
-+ *
-+ * Copyright (C)  2007 Tresys Technology, LLC
-+ *
-+ *  This library is free software; you can redistribute it and/or
-+ *  modify it under the terms of the GNU Lesser General Public
-+ *  License as published by the Free Software Foundation; either
-+ *  version 2.1 of the License, or (at your option) any later version.
-+ *
-+ *  This library is distributed in the hope that it will be useful,
-+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-+ *  Lesser General Public License for more details.
-+ *
-+ *  You should have received a copy of the GNU Lesser General Public
-+ *  License along with this library; if not, write to the Free Software
-+ *  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
-+ */
-+
-+/*  The purpose of this file is to provide unit tests of the functions in:
-+ *
-+ *  libsemanage/src/interfaces_policy.c
-+ *
-+ */
-+
-+#include "globals.h"
-+#include "utilities.h"
-+#include "test_interfaces_policy.h"
-+
-+#include <libgen.h>
-+#include <limits.h>
-+#include <signal.h>
-+#include <stdio.h>
-+#include <stdlib.h>
-+#include <string.h>
-+#include <sys/wait.h>
-+#include <unistd.h>
-+#include <CUnit/Basic.h>
-+
-+#include <assert.h>
-+#include <ctype.h>
-+#include <errno.h>
-+#include <fcntl.h>
-+#include <limits.h>
-+#include <stdio.h>
-+#include <stdlib.h>
-+#include <string.h>
-+#include <unistd.h>
-+#include <arpa/inet.h>
-+#include <netinet/in.h>
-+#include <sys/socket.h>
-+#include <sys/stat.h>
-+#include <sys/types.h>
-+#include <sys/un.h>
-+#include <selinux/selinux.h>
-+
-+#include "debug.h"
-+#include "byteswap.h"
-+#include "handle.h"
-+#include "modules.h"
-+#include "policy.h"
-+#include "interfaces_policy.h"
-+#include "messages_internal.h"
-+#include "semanage_store.h"
-+#include "database_policydb.h"
-+#include "user_internal.h"
-+#include "seuser_internal.h"
-+#include "port_internal.h"
-+#include "iface_internal.h"
-+#include "boolean_internal.h"
-+#include "fcontext_internal.h"
-+#include "node_internal.h"
-+
-+#include "database_llist.h"
-+
-+/* Server table setup. */
-+
-+/* Record functions. */
-+
-+static record_table_t test_iface_rtable = {
-+	.create = (create_f)semanage_iface_create,
-+	.key_extract = (key_extract_f)semanage_iface_key_extract,
-+	.key_free = (key_free_f)semanage_iface_key_free,
-+	.clone = (clone_f)semanage_iface_clone,
-+	.compare = (compare_f)semanage_iface_compare,
-+	.compare2 = (compare2_f)semanage_iface_compare2,
-+	.compare2_qsort = NULL,
-+	.free = (free_f)semanage_iface_free,
-+	.serialize = (serialize_f)semanage_iface_serialize,
-+	.unserialize = (unserialize_f)semanage_iface_unserialize,
-+};
-+
-+/* Table functions. */
-+
-+/* Test cache function. */
-+static int test_dbase_policydb_cache(
-+	semanage_handle_t *handle,
-+	dbase_config_t *dconfig)
++int sepol_handle_version_unserialize(sepol_handle_t * sh, char **data, uint64_t *size)
 +{
-+	int status = 0;
++	int status = STATUS_SUCCESS;
++	uint32_t *major = NULL;
++	uint32_t *minor = NULL;
++	size_t *datum_length = NULL;
++	char *ptr = *data;
 +
-+	/* Add some test entries to the list. */
-+	record_t *iface = NULL;
-+	record_key_t *ifacekey = NULL;
-+
-+	record_table_t *rtable = dconfig->dtable->get_rtable(dconfig);
-+
-+	/* Create record. */
-+	status = rtable->create(sh, &iface);
-+	if (status) goto cleanup;
-+
-+	/* Populate record. */
-+	semanage_context_t *ifcon;
-+	semanage_context_t *msgcon;
-+
-+	status = semanage_iface_set_name(sh, (semanage_iface_t *)iface, "testname");
-+	if (status) goto cleanup;
-+
-+	status = semanage_context_from_string(sh, "iftestuser:iftestrole:iftesttype", &ifcon);
-+	if (status) goto cleanup;
-+	status = semanage_iface_set_ifcon(sh, (semanage_iface_t *)iface, ifcon);
-+	if (status) goto cleanup;
-+
-+	status = semanage_context_from_string(sh, "msgtestuser:msgtestrole:msgtesttype", &msgcon);
-+	if (status) goto cleanup;
-+	status = semanage_iface_set_msgcon(sh, (semanage_iface_t *)iface, msgcon);
-+	if (status) goto cleanup;
-+
-+	status = rtable->key_extract(sh, iface, &ifacekey);
-+	if (status) goto cleanup;
-+
-+	/* Add record. */
-+	status = dconfig->dtable->add(
-+		sh,
-+		dconfig,
-+		ifacekey,
-+		iface);
-+	if (status) goto cleanup;
-+
-+	/* Cleanup. */
-+	semanage_context_free(ifcon);
-+	ifcon = NULL;
-+	semanage_context_free(msgcon);
-+	msgcon = NULL;
-+	rtable->free(iface);
-+	iface = NULL;
-+	rtable->key_free(ifacekey);
-+	ifacekey = NULL;
-+
-+	/* Create record. */
-+	status = rtable->create(sh, &iface);
-+	if (status) goto cleanup;
-+
-+	/* Populate record. */
-+	status = semanage_iface_set_name(sh, (semanage_iface_t *)iface, "testname2");
-+	if (status) goto cleanup;
-+
-+	status = semanage_context_from_string(sh, "iftestuser2:iftestrole2:iftesttype2", &ifcon);
-+	if (status) goto cleanup;
-+	status = semanage_iface_set_ifcon(sh, (semanage_iface_t *)iface, ifcon);
-+	if (status) goto cleanup;
-+
-+	status = semanage_context_from_string(sh, "msgtestuser2:msgtestrole2:msgtesttype2", &msgcon);
-+	if (status) goto cleanup;
-+	status = semanage_iface_set_msgcon(sh, (semanage_iface_t *)iface, msgcon);
-+	if (status) goto cleanup;
-+
-+	status = rtable->key_extract(sh, iface, &ifacekey);
-+	if (status) goto cleanup;
-+
-+	/* Add record. */
-+	status = dconfig->dtable->add(
-+		sh,
-+		dconfig,
-+		ifacekey,
-+		iface);
-+	if (status) goto cleanup;
-+
-+	/* Cleanup. */
-+cleanup:
-+	semanage_context_free(ifcon);
-+	semanage_context_free(msgcon);
-+	rtable->free(iface);
-+	rtable->key_free(ifacekey);
-+
-+	CU_ASSERT( status == 0 );
-+	return status;
-+}
-+
-+/* Database callback table. */
-+static dbase_table_t test_policydb_dtable = {
-+
-+	/* Cache/Transactions */
-+	.cache = test_dbase_policydb_cache,
-+	.drop_cache = (void *)dbase_llist_drop_cache,
-+	.flush = NULL,
-+	.is_modified = (void *)dbase_llist_is_modified,
-+
-+	/* Database API */
-+	.iterate = (void *)dbase_llist_iterate,
-+	.exists = (void *)dbase_llist_exists,
-+	.list = (void *)dbase_llist_list,
-+	.add = (void *)dbase_llist_add,
-+	.set = (void *)dbase_llist_set,
-+	.del = (void *)dbase_llist_del,
-+	.clear = (void *)dbase_llist_clear,
-+	.modify = (void *)dbase_llist_modify,
-+	.query = (void *)dbase_llist_query,
-+	.count = (void *)dbase_llist_count,
-+
-+	/* Polymorphism */
-+	.get_rtable = (void *)dbase_llist_get_rtable
-+};
-+
-+/* The suite initialization function.
-+ * Returns zero on success, non-zero otherwise.
-+ */
-+int interfaces_policy_test_init(void)
-+{
-+	int status = 0;
-+
-+	if (ps_pid == 0) {
-+		/* Server code. */
-+
-+		/* Reset locks status. */
-+		sh->u.ps_handle.socket_fd = 0;
-+
-+		/* Store setup. */
-+		dbase_config_t *dconfig = semanage_iface_dbase_policy(sh);
-+
-+		if ((status =
-+			dbase_policydb_init(
-+				sh,
-+				"fakesuffix",
-+				&test_iface_rtable,
-+				NULL,
-+				(dbase_policydb_t **)&dconfig->dbase)))
-+			goto cleanup;
-+
-+		dconfig->dtable = &test_policydb_dtable;
-+
++	/* Sundry sanity checks. */
++	if (data == NULL || *data == NULL || size == NULL) {
++		status = STATUS_ERR;
++		goto cleanup;
 +	}
 +
-+	/* Cleanup. */
-+cleanup:
-+	return status;
-+}
-+
-+/* The suite cleanup function.
-+ * Returns zero on success, non-zero otherwise.
-+ */
-+int interfaces_policy_test_cleanup(void)
-+{
-+	return 0;
-+}
-+
-+/* Adds all the tests needed for this suite.
-+*/
-+int interfaces_policy_add_tests(CU_pSuite suite)
-+{
-+	CU_ErrorCode status;
-+
-+	if (NULL == CU_add_test(suite, "semanage_iface_serialize_policy", test_semanage_iface_serialize_policy))
++	status = sepol_unserialize(sh, &ptr, size, (void **)&major, &datum_length, SEPOL_SERIAL_UINT32_T);
++	if (status != STATUS_SUCCESS)
 +		goto cleanup;
 +
++	status = sepol_unserialize(sh, &ptr, size, (void **)&minor, &datum_length, SEPOL_SERIAL_UINT32_T);
++	if (status != STATUS_SUCCESS)
++		goto cleanup;
++
++	sh->version_major = *major;
++	sh->version_minor = *minor;
++
 +cleanup:
-+	if (CUE_SUCCESS != (status = CU_get_error()))
-+		CU_cleanup_registry();
++	free(major);
++	free(minor);
++	free(datum_length);
 +	return status;
 +}
+Index: selinux-pms-support/libsepol/src/handle.h
+===================================================================
+--- selinux-pms-support.orig/libsepol/src/handle.h
++++ selinux-pms-support/libsepol/src/handle.h
+@@ -1,9 +1,14 @@
+ #ifndef _SEPOL_INTERNAL_HANDLE_H_
+ #define _SEPOL_INTERNAL_HANDLE_H_
+ 
++#include <inttypes.h>
+ #include <sepol/handle.h>
+ 
+ struct sepol_handle {
++	/* Serialization version. */
++	uint32_t version_major;
++	uint32_t version_minor;
 +
-+/* Tests the semanage_iface_serialize_policy function in interfaces_policy.c
-+ */
-+void test_semanage_iface_serialize_policy(void) {
-+	int status;
-+
-+	uint32_t message_type;
-+	uint64_t data_length;
-+	char *data = NULL;
-+	int timeout = 0;
-+
-+	semanage_iface_t **records = NULL;
-+	unsigned int records_size;
-+
-+	dbase_config_t *dconfig = semanage_iface_dbase_policy(sh);
-+	record_table_t *rtable = dconfig->dtable->get_rtable(dconfig);
-+
-+	char *ifcon_str = NULL;
-+	char *msgcon_str = NULL;
-+
-+	int commit_number = 7;
-+
-+	if (ps_pid == 0) {
-+		/* Server code. */
-+
-+		/* On caching the client will ask for the commit number. */
-+		status = test_semanage_ps_handle_get_commit_number(sh, commit_number);
-+		CU_ASSERT( status == STATUS_SUCCESS );
-+		if (status != STATUS_SUCCESS)
-+			goto cleanup;
-+
-+		/* Wait for message. */
-+		if ((status = read_msg(sh, client_socket_fd, timeout, &message_type, &data_length, &data)))
-+			goto cleanup;
-+
-+		CU_ASSERT( message_type == PS_GET_DATABASE );
-+		if (message_type != PS_GET_DATABASE) {
-+			status = -1;
-+			goto cleanup;
-+		}
-+
-+		/* Get and serialize the database. */
-+		free(data);
-+		data = NULL;
-+
-+		if ((status = semanage_iface_serialize_policy(sh, &data, &data_length)))
-+			goto cleanup;
-+
-+		/* Send back the database. */
-+		if ((status = write_msg(sh, client_socket_fd, PS_OK, data_length, data)))
-+			goto cleanup;
-+
-+		/* On caching the client will ask for the commit number. */
-+		status = test_semanage_ps_handle_get_commit_number(sh, commit_number);
-+		CU_ASSERT( status == STATUS_SUCCESS );
-+		if (status != STATUS_SUCCESS)
-+			goto cleanup;
-+
-+	}
-+
-+	if (ps_pid > 0) {
-+		/* Client code. */
-+
-+		/* Cache database.
-+		 * This sends a message to the server requesting the database.
-+		 * The server serializes the database and sends it to us (the client).
-+		 * Internally the database is unserialized and loaded.
-+		 */
-+		status = dconfig->dtable->cache(sh, dconfig);
-+		CU_ASSERT( status == 0 );
-+
-+		/* Gather the database records. */
-+		status = dconfig->dtable->list(sh, dconfig, (record_t ***)&records, &records_size);
-+		CU_ASSERT( status == 0 );
-+		CU_ASSERT( records != NULL );
-+		CU_ASSERT( records_size == 2 );
-+
-+		/* Verify data was sent correctly. */
-+		char *name = (char *)semanage_iface_get_name(records[0]);
-+
-+		semanage_context_t *ifcon = semanage_iface_get_ifcon(records[0]);
-+		status = semanage_context_to_string(sh, ifcon, &ifcon_str);
-+
-+		semanage_context_t *msgcon = semanage_iface_get_msgcon(records[0]);
-+		status = semanage_context_to_string(sh, msgcon, &msgcon_str);
-+
-+		CU_ASSERT( strcmp(name, "testname") == 0 );
-+		CU_ASSERT( strcmp(ifcon_str, "iftestuser:iftestrole:iftesttype") == 0 );
-+		CU_ASSERT( strcmp(msgcon_str, "msgtestuser:msgtestrole:msgtesttype") == 0 );
-+
-+		/* Cleanup. */
-+		free(ifcon_str);
-+		free(msgcon_str);
-+
-+		name = (char *)semanage_iface_get_name(records[1]);
-+
-+		ifcon = semanage_iface_get_ifcon(records[1]);
-+		ifcon_str = NULL;
-+		status = semanage_context_to_string(sh, ifcon, &ifcon_str);
-+
-+		msgcon = semanage_iface_get_msgcon(records[1]);
-+		msgcon_str = NULL;
-+		status = semanage_context_to_string(sh, msgcon, &msgcon_str);
-+
-+		CU_ASSERT( strcmp(name, "testname2") == 0 );
-+		CU_ASSERT( strcmp(ifcon_str, "iftestuser2:iftestrole2:iftesttype2") == 0 );
-+		CU_ASSERT( strcmp(msgcon_str, "msgtestuser2:msgtestrole2:msgtesttype2") == 0 );
-+
-+	}
-+
-+	/* Cleanup. */
-+cleanup:
-+	if (records != NULL) {
-+		unsigned int i;
-+		for (i = 0; i < records_size; i++) {
-+			if (!records[i])
-+				break;
-+			rtable->free((record_t *)records[i]);
-+		}
-+	}
-+
-+	free(records);
-+	free(data);
-+	free(ifcon_str);
-+	free(msgcon_str);
-+
-+	CU_ASSERT( status == 0 );
-+	if (status != 0) {
-+		printf("\n\nReceived error code in %s: %d | %s\n", (ps_pid == 0) ? "server" : "client", status, strerror(status));
-+	}
-+}
-+
-Index: selinux-pms-support/libsemanage/tests/test_interfaces_policy.h
+ 	/* Error handling */
+ 	int msg_level;
+ 	const char *msg_channel;
+Index: selinux-pms-support/libsepol/src/libsepol.map
+===================================================================
+--- selinux-pms-support.orig/libsepol/src/libsepol.map
++++ selinux-pms-support/libsepol/src/libsepol.map
+@@ -12,5 +12,6 @@
+ 	sepol_policydb_*; sepol_set_policydb_from_file; 
+ 	sepol_policy_kern_*;
+ 	sepol_policy_file_*;
++	sepol_*_serialize; sepol_*_unserialize;
+   local: *;
+ };
+Index: selinux-pms-support/libsepol/src/serialize.c
 ===================================================================
 --- /dev/null
-+++ selinux-pms-support/libsemanage/tests/test_interfaces_policy.h
-@@ -0,0 +1,32 @@
-+/* Authors: Christopher Ashworth <cashworth@tresys.com>
-+ *          Caleb Case <ccase@tresys.com>
++++ selinux-pms-support/libsepol/src/serialize.c
+@@ -0,0 +1,389 @@
++/* Author: Caleb Case <ccase@tresys.com>
 + *
-+ * Copyright (C)  2007 Tresys Technology, LLC
++ * Copyright (C) 2004-2007 Tresys Technology, LLC
 + *
 + *  This library is free software; you can redistribute it and/or
 + *  modify it under the terms of the GNU Lesser General Public
@@ -1068,16 +223,424 @@ Index: selinux-pms-support/libsemanage/tests/test_interfaces_policy.h
 + *  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 + */
 +
-+#ifndef __TEST_INTERFACES_POLICY_H__
-+#define __TEST_INTERFACES_POLICY_H__
++#include <stdlib.h>
++#include <string.h>
++#include <limits.h>
 +
-+#include <CUnit/Basic.h>
++#include "handle.h"
++#include "debug.h"
++#include "serialize.h"
++#include "private.h"
 +
-+int interfaces_policy_test_init(void);
-+int interfaces_policy_test_cleanup(void);
-+int interfaces_policy_add_tests(CU_pSuite suite);
++/* This file provides general serialize and unserialize functions. */
 +
-+void test_semanage_iface_serialize_policy(void);
++/** Serializes various kinds of datum.
++ *
++ *  Two use cases:
++ *  1) Calling serialize with a non-NULL size.
++ *     This causes serialize to calculate the expected
++ *     size of serializing.  No serialization occurs.
++ *     Destructively modifies size.  Data may be NULL.
++ *  2) Calling serialize with a NULL size.
++ *     This results in data being filled with the
++ *     serialized information.  Caller must pre-allocate
++ *     space for data.  Destructively modifies data.
++ *
++ *  This function acts iteratively moving the *data or size values.
++ *
++ *  Supported datum_types (defined in serialize.h):
++ *
++ *  SEPOL_SERIAL_INT32_T
++ *    Serializes datum to a int32_t as defined in inttypes.h
++ *    datum may NOT be NULL.
++ *    datum_length is not utilized.
++ *  SEPOL_SERIAL_UINT32_T
++ *    Serializes datum to a uint32_t as defined in inttypes.h
++ *    datum may NOT be NULL.
++ *    datum_length is not utilized.
++ *  SEPOL_SERIAL_SIZE_T
++ *    Serializes datum to a size_t as defined in stddef.h
++ *    datum may NOT be NULL.
++ *    datum_length is not utilized.
++ *  SEPOL_SERIAL_STRING
++ *    Serializes a char*.
++ *    datum may be NULL.
++ *    datum_length should be the length of the string as returned by strlen.
++ *  SEPOL_SERIAL_STRING_ARRAY
++ *    Serializes a char**.
++ *    datum may be NULL.
++ *    datum_length should be the size of the array.
++ *    Each string will be serialized as per SEPOL_SERIAL_STRING and its size
++ *    determined via strlen.
++ *
++ *  NULL pointers are distinguished (where they are allowed at all).
++ *  In the case of strings this means that a NULL char* has a different
++ *  serialization from the empty string "".
++ *
++ */
++int sepol_serialize(sepol_handle_t * handle,
++		    const void *datum,
++		    size_t datum_length,
++		    unsigned int datum_type, char **data, uint64_t * size)
++{
++	int status;
++	unsigned int flags;
++	uint32_t i;
++	void *temp = NULL;
++
++	switch (datum_type) {
++		case SEPOL_SERIAL_INT32_T:
++		case SEPOL_SERIAL_UINT32_T:
++			if (size == NULL) {
++				temp = calloc(1, sizeof(int32_t));
++				if (temp == NULL) {
++					status = STATUS_ERR;
++					goto cleanup;
++				}
++
++				*((int32_t *)temp) = cpu_to_le32(*((int32_t *) datum));
++				memcpy(*data, temp, sizeof(int32_t));
++				*data += sizeof(int32_t);
++			}
++			else
++				*size += sizeof(int32_t);
++			break;
++		case SEPOL_SERIAL_SIZE_T:
++			if (size == NULL) {
++				temp = calloc(1, sizeof(uint64_t));
++				if (temp == NULL) {
++					status = STATUS_ERR;
++					goto cleanup;
++				}
++
++				*((uint64_t *)temp) = cpu_to_le64(*((size_t *) datum));
++
++				memcpy(*data, temp, sizeof(uint64_t));
++				*data += sizeof(uint64_t);
++			}
++			else
++				*size += sizeof(uint64_t);
++			break;
++		case SEPOL_SERIAL_STRING:
++			/* Flags (intended as a bitmap):
++			 * 0 == NULL
++			 * 1 == Non NULL
++			 */
++			flags = (datum == NULL) ? 0 : 1;
++
++			status =
++				sepol_serialize(handle, &flags, 0, SEPOL_SERIAL_UINT32_T, data,
++						size);
++			if (status != STATUS_SUCCESS)
++				goto cleanup;
++
++			/* Write if not null. */
++			if (flags & 1) {
++				/* Size. */
++				status =
++					sepol_serialize(handle, &datum_length, 0,
++							SEPOL_SERIAL_SIZE_T, data, size);
++				if (status != STATUS_SUCCESS)
++					goto cleanup;
++
++				/* Datum. */
++				if (size == NULL) {
++					status =
++						snprintf(*data, datum_length + 1, "%s",
++								(char *)datum);
++					if (status < 0 || (unsigned)status > datum_length)
++						goto cleanup;
++					else {
++						*data += status + 1;
++						status = STATUS_SUCCESS;
++					}
++				} else {
++					*size += datum_length + 1;
++				}
++			}
++			break;
++		case SEPOL_SERIAL_STRING_ARRAY:
++			/* Flags (intended as a bitmap):
++			 * 0 == NULL
++			 * 1 == Non NULL
++			 */
++			flags = (datum == NULL) ? 0 : 1;
++
++			status =
++				sepol_serialize(handle, &flags, 0, SEPOL_SERIAL_UINT32_T, data,
++						size);
++			if (status != STATUS_SUCCESS)
++				goto cleanup;
++
++			/* Write if not null. */
++			if (flags & 1) {
++				/* Size. */
++				status =
++					sepol_serialize(handle, &datum_length, 0,
++							SEPOL_SERIAL_UINT32_T, data, size);
++				if (status != STATUS_SUCCESS)
++					goto cleanup;
++
++				/* Datum. */
++				for (i = 0; i < datum_length; i++) {
++					status =
++						sepol_serialize(handle, ((char **)datum)[i],
++								strlen(((char **)datum)[i]),
++								SEPOL_SERIAL_STRING, data, size);
++					if (status != STATUS_SUCCESS)
++						goto cleanup;
++				}
++			}
++			break;
++		default:
++			status = STATUS_ERR;
++			goto cleanup;
++	}
++
++	/* Cleanup. */
++	status = STATUS_SUCCESS;
++cleanup:
++	free(temp);
++	return status;
++}
++
++/** Unserializes various kinds of datum as serialized by sepol_serialize.
++ *
++ *  This function acts iteratively moving the *data AND size values.
++ *  size is decremented as data is unserialized.
++ *
++ *  It also allocates memory for datum and, depending on datum_type, datum_length.
++ *  Caller must free.
++ *
++ *  Supported datum_types (defined in serialize.h):
++ *
++ *  SEPOL_SERIAL_INT32_T
++ *    Unserializes data into an int32_t as defined in inttypes.h.
++ *    datum_length may be NULL.
++ *  SEPOL_SERIAL_UINT32_T
++ *    Unserializes data into an uint32_t as defined in inttypes.h.
++ *    datum_length may be NULL.
++ *  SEPOL_SERIAL_SIZE_T
++ *    Unserializes data into an size_t as defined in stddef.h.
++ *    datum_length may be NULL.
++ *  SEPOL_SERIAL_STRING
++ *    Unserializes data into a NULL terminated char*.
++ *    datum_length may NOT be NULL and will be the size of the string.
++ *  SEPOL_SERIAL_STRING_ARRAY
++ *    Unserializes data into a char**.
++ *    Each entry in the array will be unserialized as per SEPOL_SERIAL_STRING.
++ *    datum_length may NOT be NULL and will be the size of the array.
++ */
++int sepol_unserialize(sepol_handle_t * handle,
++		char **data, uint64_t * size,
++		void **datum,
++		size_t ** datum_length,
++		unsigned int datum_type)
++{
++	int status;
++	unsigned int *flags = NULL;
++	uint32_t i;
++	void *temp = NULL;
++	size_t *temp_length = NULL;
++
++	switch (datum_type) {
++		case SEPOL_SERIAL_INT32_T:
++		case SEPOL_SERIAL_UINT32_T:
++			*datum = calloc(1, sizeof(int32_t));
++			if (*datum == NULL) {
++				status = STATUS_ERR;
++				goto cleanup;
++			}
++
++			memcpy(*datum, *data, sizeof(int32_t));
++			**((int32_t **)datum) = le32_to_cpu(**((int32_t **) datum));
++
++			*size -= sizeof(int32_t);
++			*data += sizeof(int32_t);
++			break;
++		case SEPOL_SERIAL_SIZE_T:
++			temp = calloc(1, sizeof(uint64_t));
++			if (temp == NULL) {
++				status = STATUS_ERR;
++				goto cleanup;
++			}
++
++			memcpy(temp, *data, sizeof(uint64_t));
++
++			*((uint64_t *) temp) = le64_to_cpu(*((uint64_t *) temp));
++
++			if (*((uint64_t *) temp) > UINT_MAX) {
++				status = STATUS_ERR;
++				goto cleanup;
++			}
++
++			*datum = calloc(1, sizeof(size_t));
++			if (datum == NULL) {
++				status = STATUS_ERR;
++				goto cleanup;
++			}
++
++			**((size_t **)datum) = *((uint64_t *) temp);
++
++			*size -= sizeof(uint64_t);
++			*data += sizeof(uint64_t);
++			break;
++		case SEPOL_SERIAL_STRING:
++			/* Flags (intended as a bitmap):
++			 * 0 == NULL
++			 * 1 == Non NULL
++			 */
++			status =
++				sepol_unserialize(handle,
++						data, size,
++						(void **)(&flags), NULL,
++						SEPOL_SERIAL_UINT32_T);
++			if (status != STATUS_SUCCESS)
++				goto cleanup;
++
++			if (*flags & 1) {
++				/* Size. */
++				status =
++					sepol_unserialize(handle,
++							data, size,
++							(void **)datum_length, NULL,
++							SEPOL_SERIAL_SIZE_T);
++				if (status != STATUS_SUCCESS)
++					goto cleanup;
++
++				/* Datum. */
++				*datum = calloc(**datum_length + 1, sizeof(char));
++				if (*datum == NULL) {
++					status = STATUS_ERR;
++					goto cleanup;
++				}
++
++				memcpy(*datum, *data, **datum_length + 1);
++
++				*size -= **datum_length + 1;
++				*data += **datum_length + 1;
++			} else {
++				*datum = NULL;
++				*datum_length = NULL;
++			}
++
++			free(flags);
++			flags = NULL;
++			break;
++		case SEPOL_SERIAL_STRING_ARRAY:
++			/* Flags (intended as a bitmap):
++			 * 0 == NULL
++			 * 1 == Non NULL
++			 */
++			status =
++				sepol_unserialize(handle,
++						data, size,
++						(void **)(&flags), NULL,
++						SEPOL_SERIAL_UINT32_T);
++			if (status != STATUS_SUCCESS)
++				goto cleanup;
++
++			/* Write if not null. */
++			if (*flags & 1) {
++				/* Size. */
++				status =
++					sepol_unserialize(handle,
++							data, size,
++							(void **)datum_length, NULL,
++							SEPOL_SERIAL_UINT32_T);
++				if (status != STATUS_SUCCESS)
++					goto cleanup;
++
++				/* Datum. */
++				*datum =
++					calloc(sizeof(char *),
++							sizeof(char *) * (**datum_length));
++				if (*datum == NULL) {
++					status = STATUS_ERR;
++					goto cleanup;
++				}
++
++				for (i = 0; i < **datum_length; i++) {
++					status = sepol_unserialize(handle,
++							data,
++							size,
++							(void **)&(((char **)(*datum))[i]),
++							&temp_length,
++							SEPOL_SERIAL_STRING);
++
++					if (status != STATUS_SUCCESS)
++						goto cleanup;
++
++					free(temp_length);
++					temp_length = NULL;
++				}
++			}
++
++			free(flags);
++			flags = NULL;
++			break;
++		default:
++			status = STATUS_ERR;
++			goto cleanup;
++	}
++
++	/* Cleanup. */
++	status = STATUS_SUCCESS;
++cleanup:
++	free(flags);
++	free(temp);
++	free(temp_length);
++	return status;
++}
++
+Index: selinux-pms-support/libsepol/src/serialize.h
+===================================================================
+--- /dev/null
++++ selinux-pms-support/libsepol/src/serialize.h
+@@ -0,0 +1,45 @@
++/* Author: Caleb Case <ccase@tresys.com>
++ *
++ * Copyright (C) 2005-2007 Tresys Technology, LLC
++ * Copyright (C) 2005 Red Hat Inc.
++ *
++ *  This library is free software; you can redistribute it and/or
++ *  modify it under the terms of the GNU Lesser General Public
++ *  License as published by the Free Software Foundation; either
++ *  version 2.1 of the License, or (at your option) any later version.
++ *
++ *  This library is distributed in the hope that it will be useful,
++ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
++ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
++ *  Lesser General Public License for more details.
++ *
++ *  You should have received a copy of the GNU Lesser General Public
++ *  License along with this library; if not, write to the Free Software
++ *  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
++ */
++
++#ifndef _SEPOL_SERIALIZE_INTERNAL_H_
++#define _SEPOL_SERIALIZE_INTERNAL_H_
++
++#include <inttypes.h>
++#include "handle.h"
++
++/* Datum types. */
++#define SEPOL_SERIAL_INT32_T 0
++#define SEPOL_SERIAL_UINT32_T 1
++#define SEPOL_SERIAL_SIZE_T 2
++#define SEPOL_SERIAL_STRING 3
++#define SEPOL_SERIAL_STRING_ARRAY 4
++
++extern int sepol_serialize(sepol_handle_t * handle,
++		    const void *datum,
++		    size_t datum_size,
++		    unsigned int datum_type, char **data, uint64_t * size);
++
++extern int sepol_unserialize(sepol_handle_t * handle,
++    char **data, uint64_t * size,
++    void **datum,
++    size_t ** datum_length,
++    unsigned int datum_type);
 +
 +#endif
 
