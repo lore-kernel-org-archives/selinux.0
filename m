@@ -1,70 +1,39 @@
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l3NHgUkE022654
+	for <selinux@tycho.nsa.gov>; Mon, 23 Apr 2007 13:42:30 -0400
+Received: from mail6.sea5.speakeasy.net (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id l3NHgSJ5013417
+	for <selinux@tycho.nsa.gov>; Mon, 23 Apr 2007 17:42:29 GMT
+Date: Mon, 23 Apr 2007 13:42:26 -0400 (EDT)
+From: James Morris <jmorris@namei.org>
+To: Stephen Smalley <sds@tycho.nsa.gov>
+cc: Ken YANG <spng.yang@gmail.com>, SELinux List <selinux@tycho.nsa.gov>,
+        Daniel J Walsh <dwalsh@redhat.com>
+Subject: Re: can not boot with strict policy
+In-Reply-To: <1177340494.24282.28.camel@moss-spartans.epoch.ncsc.mil>
+Message-ID: <Line.LNX.4.64.0704231341100.3793@d.namei>
+References: <462CA1F0.2000400@gmail.com> <1177340494.24282.28.camel@moss-spartans.epoch.ncsc.mil>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="utf-8"
-Subject: Re: object class discovery userland
-Date: Mon, 23 Apr 2007 12:36:12 -0400
-Message-ID: <390A6B1AB2C08C4AB50BFD2992A5EDD58E9FBE@joker.antitrust.sultec.com>
-From: "Nick Nam" <nnam@echostorm.net>
-To: <jbrindle@tresys.com>, <sds@tycho.nsa.gov>, <cpebenito@tresys.com>
-Cc: <ewalsh@tycho.nsa.gov>, <selinux@tycho.nsa.gov>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+On Mon, 23 Apr 2007, Stephen Smalley wrote:
 
-
------Original Message-----
-From: Joshua Brindle
-To: Stephen Smalley; Christopher J. PeBenito
-CC: Eamon Walsh; SELinux Mail List
-Sent: Mon Apr 23 10:43:52 2007
-Subject: RE: object class discovery userland
-
-> From: Stephen Smalley [mailto:sds@tycho.nsa.gov] 
+> /lib/libsepol.so.1 should be labeled with shlib_t, not lib_t.  Under
+> targeted policy, they are aliases for one another.  Under strict, they
+> are separate types.
 > 
-> On Fri, 2007-04-20 at 13:19 -0400, Christopher J. PeBenito wrote:
-> > On Fri, 2007-04-20 at 13:02 -0400, Eamon Walsh wrote:
-> > > Eamon Walsh wrote:
-> > > > Christopher J. PeBenito wrote:
-> > > >> 3. stop exporting class and perm indexes outside of the 
-> > > >> libraries.  Then the reverse lookup wouldn't be needed.  This 
-> > > >> would involve some overhauling of the libraries.
-> > > > 
-> > > > I don't think this is a good idea because of the disruption it 
-> > > > would cause with access vector processing (as passed to 
-> > > > security_av_string() and avc_has_perm()).  How do you 
-> or together strings?
-> > > > 
-> > > > Why not just cache the numbers in the library, as Karl 
-> suggested, 
-> > > > or create a parallel "class_num" or "class_index" 
-> directory with 
-> > > > numeric nodes (perhaps renaming class to class_name).
-> > > > 
-> > > class_num/1/perms/1
-> > > class_num/1/name
-> > 
-> > I don't feel strongly about any of my suggestions, I mainly 
-> wanted to 
-> > get the discussion going.  The inspiration for symlink idea 
-> was from 
-> > all the symlinking you see in sysfs, but the above 
-> structure certainly 
-> > is an option too.
-> 
-> I'd recommend caching in the library and doing the reverse 
-> lookup there rather than encoding it into the pseudo filesystem state.
+> Boot with "enforcing=0 single" to come up permissive into single-user
+> mode, then run /sbin/fixfiles relabel -F to forcible relabel everything,
+> then reboot.
 
-Making the library open and cache every class and permission seems
-undesirable. What do you have against doing it from the filesystem?
+I wonder if we could automate this, so that the autorelabel is also run 
+on boot if you switch between different types of policy.
 
-
---
-This message was distributed to subscribers of the selinux mailing list.
-If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
-the words "unsubscribe selinux" without quotes as the message.
-
-
-
+-- 
+James Morris
+<jmorris@namei.org>
 
 --
 This message was distributed to subscribers of the selinux mailing list.
