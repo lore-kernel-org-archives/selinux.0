@@ -1,317 +1,55 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l3OIUcP8001687
-	for <selinux@tycho.nsa.gov>; Tue, 24 Apr 2007 14:30:38 -0400
-Received: from scarecrow.columbia.tresys.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l3OIUbSG027859
-	for <selinux@tycho.nsa.gov>; Tue, 24 Apr 2007 18:30:37 GMT
-Message-Id: <20070423213736.899912000@tresys.com>
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l3OIUtDl001925
+	for <selinux@tycho.nsa.gov>; Tue, 24 Apr 2007 14:30:55 -0400
+Received: from scarecrow.columbia.tresys.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id l3OIUrJc002922
+	for <selinux@tycho.nsa.gov>; Tue, 24 Apr 2007 18:30:53 GMT
+Message-Id: <20070423213748.175168000@tresys.com>
 References: <20070423213455.741326000@tresys.com>
-Date: Mon, 23 Apr 2007 17:35:12 -0400
+Date: Mon, 23 Apr 2007 17:35:23 -0400
 From: jbrindle@tresys.com
 To: selinux@tycho.nsa.gov
-Subject: [PATCH 17/33] libsemanage: interface serialization
+Subject: [PATCH 28/33] libsemanage: fcontexts serialization tests
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 ---
- libsemanage/include/semanage/interfaces_local.h  |   28 +++
- libsemanage/include/semanage/interfaces_policy.h |    6 
- libsemanage/src/iface_internal.h                 |   49 ++++++
- libsemanage/src/iface_record.c                   |   48 ++++++
- libsemanage/src/interfaces_local.c               |   16 ++
- libsemanage/src/interfaces_policy.c              |   16 ++
- libsemanage/tests/libsemanage-tests.c            |    2 
- libsemanage/tests/test_iface_record.c            |  172 +++++++++++++++++++++++
- libsemanage/tests/test_iface_record.h            |   32 ++++
- 9 files changed, 367 insertions(+), 2 deletions(-)
+ libsemanage/tests/libsemanage-tests.c     |    6 
+ libsemanage/tests/test_fcontexts_file.c   |  531 ++++++++++++++++++++++++++++++
+ libsemanage/tests/test_fcontexts_file.h   |   32 +
+ libsemanage/tests/test_fcontexts_policy.c |  394 ++++++++++++++++++++++
+ libsemanage/tests/test_fcontexts_policy.h |   32 +
+ 5 files changed, 995 insertions(+)
 
-Index: selinux-pms-support/libsemanage/include/semanage/interfaces_local.h
-===================================================================
---- selinux-pms-support.orig/libsemanage/include/semanage/interfaces_local.h
-+++ selinux-pms-support/libsemanage/include/semanage/interfaces_local.h
-@@ -1,8 +1,28 @@
--/* Copyright (C) 2005 Red Hat, Inc. */
-+/* Authors: Ivan Gyurdiev        <ivg2@cornell.edu>
-+ *          Christopher Ashworth <cashworth@tresys.com>
-+ *
-+ * Copyright (C) 2005 Red Hat, Inc.
-+ * Copyright (C)  2007 Tresys Technology, LLC
-+ *
-+ *  This library is free software; you can redistribute it and/or
-+ *  modify it under the terms of the GNU Lesser General Public
-+ *  License as published by the Free Software Foundation; either
-+ *  version 2.1 of the License, or (at your option) any later version.
-+ *
-+ *  This library is distributed in the hope that it will be useful,
-+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-+ *  Lesser General Public License for more details.
-+ *
-+ *  You should have received a copy of the GNU Lesser General Public
-+ *  License along with this library; if not, write to the Free Software
-+ *  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
-+ */
- 
- #ifndef _SEMANAGE_INTERFACES_LOCAL_H_
- #define _SEMANAGE_INTERFACES_LOCAL_H_
- 
-+#include <inttypes.h>
- #include <semanage/iface_record.h>
- #include <semanage/handle.h>
- 
-@@ -33,4 +53,10 @@ extern int semanage_iface_list_local(sem
- 				     semanage_iface_t *** records,
- 				     unsigned int *count);
- 
-+extern int semanage_iface_serialize_local(semanage_handle_t * handle,
-+					  char **data, uint64_t * data_length);
-+
-+extern int semanage_iface_unserialize_local(semanage_handle_t * handle,
-+					    char *data, uint64_t data_length);
-+
- #endif
-Index: selinux-pms-support/libsemanage/include/semanage/interfaces_policy.h
-===================================================================
---- selinux-pms-support.orig/libsemanage/include/semanage/interfaces_policy.h
-+++ selinux-pms-support/libsemanage/include/semanage/interfaces_policy.h
-@@ -26,4 +26,10 @@ extern int semanage_iface_list(semanage_
- 			       semanage_iface_t *** records,
- 			       unsigned int *count);
- 
-+extern int semanage_iface_serialize_policy(semanage_handle_t * handle,
-+					   char **data, uint64_t * data_length);
-+
-+extern int semanage_iface_unserialize_policy(semanage_handle_t * handle,
-+					     char *data, uint64_t data_length);
-+
- #endif
-Index: selinux-pms-support/libsemanage/src/iface_internal.h
-===================================================================
---- selinux-pms-support.orig/libsemanage/src/iface_internal.h
-+++ selinux-pms-support/libsemanage/src/iface_internal.h
-@@ -1,10 +1,34 @@
-+/* Authors: Ivan Gyurdiev        <ivg2@cornell.edu>
-+ *          Christopher Ashworth <cashworth@tresys.com>
-+ *          Caleb Case           <ccase@tresys.com>
-+ *
-+ * Copyright (C) 2005 Red Hat, Inc.
-+ * Copyright (C)  2007 Tresys Technology, LLC
-+ *
-+ *  This library is free software; you can redistribute it and/or
-+ *  modify it under the terms of the GNU Lesser General Public
-+ *  License as published by the Free Software Foundation; either
-+ *  version 2.1 of the License, or (at your option) any later version.
-+ *
-+ *  This library is distributed in the hope that it will be useful,
-+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-+ *  Lesser General Public License for more details.
-+ *
-+ *  You should have received a copy of the GNU Lesser General Public
-+ *  License along with this library; if not, write to the Free Software
-+ *  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
-+ */
-+
- #ifndef _SEMANAGE_IFACE_INTERNAL_H_
- #define _SEMANAGE_IFACE_INTERNAL_H_
- 
-+#include <inttypes.h>
- #include <semanage/iface_record.h>
- #include <semanage/interfaces_local.h>
- #include <semanage/interfaces_policy.h>
- #include "database.h"
-+#include "database_policydb.h"
- #include "handle.h"
- #include "dso.h"
- 
-@@ -24,6 +48,7 @@ hidden_proto(semanage_iface_create)
- 
- /* IFACE RECORD: metod table */
- extern record_table_t SEMANAGE_IFACE_RTABLE;
-+extern record_policydb_table_t SEMANAGE_IFACE_POLICYDB_RTABLE;
- 
- extern int iface_policydb_dbase_init(semanage_handle_t * handle,
- 				     dbase_config_t * dconfig);
-@@ -35,4 +60,28 @@ extern int iface_file_dbase_init(semanag
- 
- extern void iface_file_dbase_release(dbase_config_t * dconfig);
- 
-+extern int iface_ps_local_dbase_init(semanage_handle_t * handle,
-+			       uint32_t sandbox_id, dbase_config_t * dconfig);
-+
-+extern void iface_ps_local_dbase_release(dbase_config_t * dconfig);
-+
-+extern int iface_ps_policydb_dbase_init(semanage_handle_t * handle,
-+		uint32_t sandbox_id,
-+					dbase_config_t * dconfig);
-+
-+extern void iface_ps_policydb_dbase_release(dbase_config_t * dconfig);
-+
-+/*======== Internal API:  Serialize/Unserialize ========== */
-+hidden int semanage_iface_calculate_serialized_size(semanage_handle_t * handle,
-+						    const semanage_iface_t *
-+						    iface, uint64_t * size);
-+
-+hidden int semanage_iface_serialize(semanage_handle_t * handle,
-+				    const semanage_iface_t * iface,
-+				    char **data, uint64_t * size);
-+
-+hidden int semanage_iface_unserialize(semanage_handle_t * handle,
-+				      char **data, uint64_t * size,
-+				      semanage_iface_t ** iface);
-+
- #endif
-Index: selinux-pms-support/libsemanage/src/iface_record.c
-===================================================================
---- selinux-pms-support.orig/libsemanage/src/iface_record.c
-+++ selinux-pms-support/libsemanage/src/iface_record.c
-@@ -1,4 +1,24 @@
--/* Copyright (C) 2005 Red Hat, Inc. */
-+/* Authors: Ivan Gyurdiev        <ivg2@cornell.edu>
-+ *          Christopher Ashworth <cashworth@tresys.com>
-+ *          Caleb Case           <ccase@tresys.com>
-+ *
-+ * Copyright (C) 2005 Red Hat, Inc.
-+ * Copyright (C)  2007 Tresys Technology, LLC
-+ *
-+ *  This library is free software; you can redistribute it and/or
-+ *  modify it under the terms of the GNU Lesser General Public
-+ *  License as published by the Free Software Foundation; either
-+ *  version 2.1 of the License, or (at your option) any later version.
-+ *
-+ *  This library is distributed in the hope that it will be useful,
-+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-+ *  Lesser General Public License for more details.
-+ *
-+ *  You should have received a copy of the GNU Lesser General Public
-+ *  License along with this library; if not, write to the Free Software
-+ *  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
-+ */
- 
- /* Object: semanage_iface_t (Network Interface)
-  * Object: semanage_iface_key_t (Network Interface Key)
-@@ -19,9 +39,12 @@ typedef sepol_iface_t record_t;
- typedef sepol_iface_key_t record_key_t;
- #define DBASE_RECORD_DEFINED
- 
-+#include <stdlib.h>
-+#include <string.h>
- #include "iface_internal.h"
- #include "handle.h"
- #include "database.h"
-+#include "debug.h"
- 
- /* Key */
- int semanage_iface_compare(const semanage_iface_t * iface,
-@@ -156,6 +179,27 @@ void semanage_iface_free(semanage_iface_
- 
- hidden_def(semanage_iface_free)
- 
-+/* Serialize/Unserialize */
-+/** Destructively modifies data and size.
-+ *  Caller must pre-allocate space for data.
-+ *  Use semanage_iface_calculate_serialized_size(). */
-+hidden int semanage_iface_serialize(semanage_handle_t * handle,
-+				    const semanage_iface_t * iface,
-+				    char **data, uint64_t * size)
-+{
-+	return sepol_iface_serialize(handle->sepolh, iface, data, size);
-+}
-+
-+/** Destructively modifies iface, data and size.
-+ *  Allocates space for iface.
-+ *  Caller must free. */
-+hidden int semanage_iface_unserialize(semanage_handle_t * handle,
-+				      char **data, uint64_t * size,
-+				      semanage_iface_t ** iface)
-+{
-+	return sepol_iface_unserialize(handle->sepolh, data, size, iface);
-+}
-+
- /* Record base functions */
- record_table_t SEMANAGE_IFACE_RTABLE = {
- 	.create = semanage_iface_create,
-@@ -166,4 +210,6 @@ record_table_t SEMANAGE_IFACE_RTABLE = {
- 	.compare2 = semanage_iface_compare2,
- 	.compare2_qsort = semanage_iface_compare2_qsort,
- 	.free = semanage_iface_free,
-+	.serialize = semanage_iface_serialize,
-+	.unserialize = semanage_iface_unserialize,
- };
-Index: selinux-pms-support/libsemanage/src/interfaces_local.c
-===================================================================
---- selinux-pms-support.orig/libsemanage/src/interfaces_local.c
-+++ selinux-pms-support/libsemanage/src/interfaces_local.c
-@@ -69,3 +69,19 @@ int semanage_iface_list_local(semanage_h
- 	dbase_config_t *dconfig = semanage_iface_dbase_local(handle);
- 	return dbase_list(handle, dconfig, records, count);
- }
-+
-+int semanage_iface_serialize_local(semanage_handle_t * handle,
-+				   char **data, uint64_t * data_length)
-+{
-+
-+	dbase_config_t *dconfig = semanage_iface_dbase_local(handle);
-+	return dbase_serialize(handle, dconfig, data, data_length);
-+}
-+
-+int semanage_iface_unserialize_local(semanage_handle_t * handle,
-+				     char *data, uint64_t data_length)
-+{
-+
-+	dbase_config_t *dconfig = semanage_iface_dbase_local(handle);
-+	return dbase_unserialize(handle, dconfig, data, data_length);
-+}
-Index: selinux-pms-support/libsemanage/src/interfaces_policy.c
-===================================================================
---- selinux-pms-support.orig/libsemanage/src/interfaces_policy.c
-+++ selinux-pms-support/libsemanage/src/interfaces_policy.c
-@@ -50,3 +50,19 @@ int semanage_iface_list(semanage_handle_
- 	dbase_config_t *dconfig = semanage_iface_dbase_policy(handle);
- 	return dbase_list(handle, dconfig, records, count);
- }
-+
-+int semanage_iface_serialize_policy(semanage_handle_t * handle,
-+				    char **data, uint64_t * data_length)
-+{
-+
-+	dbase_config_t *dconfig = semanage_iface_dbase_policy(handle);
-+	return dbase_serialize(handle, dconfig, data, data_length);
-+}
-+
-+int semanage_iface_unserialize_policy(semanage_handle_t * handle,
-+				      char *data, uint64_t data_length)
-+{
-+
-+	dbase_config_t *dconfig = semanage_iface_dbase_policy(handle);
-+	return dbase_unserialize(handle, dconfig, data, data_length);
-+}
 Index: selinux-pms-support/libsemanage/tests/libsemanage-tests.c
 ===================================================================
 --- selinux-pms-support.orig/libsemanage/tests/libsemanage-tests.c
 +++ selinux-pms-support/libsemanage/tests/libsemanage-tests.c
-@@ -24,6 +24,7 @@
- #include "test_boolean_record.h"
- #include "test_context_record.h"
- #include "test_fcontext_record.h"
-+#include "test_iface_record.h"
+@@ -39,6 +39,9 @@
+ #include "test_booleans_file.h"
+ #include "test_booleans_policy.h"
  
++#include "test_fcontexts_file.h"
++#include "test_fcontexts_policy.h"
++
  #include <CUnit/Basic.h>
  #include <CUnit/Console.h>
-@@ -63,6 +64,7 @@ static int do_tests(int interactive, int
- 	DECLARE_SUITE(boolean_record);
- 	DECLARE_SUITE(context_record);
- 	DECLARE_SUITE(fcontext_record);
-+	DECLARE_SUITE(iface_record);
+ #include <CUnit/TestDB.h>
+@@ -98,6 +101,9 @@ static int do_tests(int interactive, int
+ 	DECLARE_SUITE(booleans_file);
+ 	DECLARE_SUITE(booleans_policy);
  
- 	if (verbose)
- 		CU_basic_set_mode(CU_BRM_VERBOSE);
-Index: selinux-pms-support/libsemanage/tests/test_iface_record.c
++	DECLARE_SUITE(fcontexts_file);
++	DECLARE_SUITE(fcontexts_policy);
++
+ 	/* The ps_api_disconnect test 'unforks'. */
+ 	DECLARE_SUITE(ps_api_disconnect);
+ 
+Index: selinux-pms-support/libsemanage/tests/test_fcontexts_file.c
 ===================================================================
 --- /dev/null
-+++ selinux-pms-support/libsemanage/tests/test_iface_record.c
-@@ -0,0 +1,172 @@
++++ selinux-pms-support/libsemanage/tests/test_fcontexts_file.c
+@@ -0,0 +1,531 @@
 +/* Authors: Christopher Ashworth <cashworth@tresys.com>
 + *          Caleb Case <ccase@tresys.com>
 + *
@@ -334,160 +72,519 @@ Index: selinux-pms-support/libsemanage/tests/test_iface_record.c
 +
 +/*  The purpose of this file is to provide unit tests of the functions in:
 + *
-+ *  libsemanage/src/semanage_store.c
++ *  libsemanage/src/fcontexts_file.c
 + *
 + */
 +
-+#include "iface_internal.h"
-+#include "iface_record.h"
-+#include <sepol/context_record.h>
-+
 +#include "globals.h"
 +#include "utilities.h"
-+#include "test_iface_record.h"
++#include "test_fcontexts_file.h"
 +
 +#include <libgen.h>
++#include <limits.h>
++#include <signal.h>
++#include <stdio.h>
++#include <stdlib.h>
++#include <string.h>
++#include <sys/wait.h>
++#include <unistd.h>
++#include <CUnit/Basic.h>
++
++#include <assert.h>
++#include <ctype.h>
++#include <errno.h>
++#include <fcntl.h>
 +#include <limits.h>
 +#include <stdio.h>
 +#include <stdlib.h>
 +#include <string.h>
 +#include <unistd.h>
-+#include <CUnit/Basic.h>
++#include <arpa/inet.h>
++#include <netinet/in.h>
++#include <sys/socket.h>
++#include <sys/stat.h>
++#include <sys/types.h>
++#include <sys/un.h>
++#include <selinux/selinux.h>
++
++#include "debug.h"
++#include "byteswap.h"
++#include "handle.h"
++#include "modules.h"
++#include "policy.h"
++#include "fcontexts_local.h"
++#include "messages_internal.h"
++#include "semanage_store.h"
++#include "database_file.h"
++#include "user_internal.h"
++#include "seuser_internal.h"
++#include "port_internal.h"
++#include "iface_internal.h"
++#include "boolean_internal.h"
++#include "fcontext_internal.h"
++#include "node_internal.h"
++
++#include "database_llist.h"
++
++/* Server table setup. */
++
++/* Record functions. */
++
++static record_table_t test_fcontext_rtable = {
++	.create = (create_f)semanage_fcontext_create,
++	.key_extract = (key_extract_f)semanage_fcontext_key_extract,
++	.key_free = (key_free_f)semanage_fcontext_key_free,
++	.clone = (clone_f)semanage_fcontext_clone,
++	.compare = (compare_f)semanage_fcontext_compare,
++	.compare2 = (compare2_f)semanage_fcontext_compare2,
++	.compare2_qsort = NULL,
++	.free = (free_f)semanage_fcontext_free,
++	.serialize = (serialize_f)semanage_fcontext_serialize,
++	.unserialize = (unserialize_f)semanage_fcontext_unserialize,
++};
++
++/* Table functions. */
++
++/* Test cache function. */
++static int test_dbase_file_cache(
++	semanage_handle_t *handle,
++	dbase_config_t *dconfig)
++{
++	int status = 0;
++
++	/* Add some test entries to the list. */
++	record_t *fcontext = NULL;
++	record_key_t *fcontextkey = NULL;
++
++	record_table_t *rtable = dconfig->dtable->get_rtable(dconfig);
++
++	/* Create record. */
++	status = rtable->create(sh, &fcontext);
++	if (status) goto cleanup;
++
++	/* Populate record. */
++	semanage_context_t *context;
++	status = semanage_context_create(sh, &context);
++	if (status) goto cleanup;
++
++	status = semanage_context_set_user(sh, context, "testuser");
++	if (status) goto cleanup;
++	status = semanage_context_set_role(sh, context, "testrole");
++	if (status) goto cleanup;
++	status = semanage_context_set_type(sh, context, "testtype");
++	if (status) goto cleanup;
++	status = semanage_fcontext_set_con(sh, (semanage_fcontext_t *)fcontext, context);
++	if (status) goto cleanup;
++
++	semanage_fcontext_set_type((semanage_fcontext_t *)fcontext, 1);
++	status = semanage_fcontext_set_expr(sh, (semanage_fcontext_t *)fcontext, "/testlocation/*");
++	if (status) goto cleanup;
++
++	status = rtable->key_extract(sh, fcontext, &fcontextkey);
++	if (status) goto cleanup;
++
++	/* Add record. */
++	status = dconfig->dtable->add(
++		sh,
++		dconfig,
++		fcontextkey,
++		fcontext);
++	if (status) goto cleanup;
++
++	/* Cleanup. */
++	semanage_context_free(context);
++	context = NULL;
++	rtable->free(fcontext);
++	fcontext = NULL;
++	rtable->key_free(fcontextkey);
++	fcontextkey = NULL;
++
++	/* Create record. */
++	status = rtable->create(sh, &fcontext);
++	if (status) goto cleanup;
++
++	/* Populate record. */
++	status = semanage_context_create(sh, &context);
++	if (status) goto cleanup;
++
++	status = semanage_context_set_user(sh, context, "testuser2");
++	if (status) goto cleanup;
++	status = semanage_context_set_role(sh, context, "testrole2");
++	if (status) goto cleanup;
++	status = semanage_context_set_type(sh, context, "testtype2");
++	if (status) goto cleanup;
++	status = semanage_fcontext_set_con(sh, (semanage_fcontext_t *)fcontext, context);
++	if (status) goto cleanup;
++
++	semanage_fcontext_set_type((semanage_fcontext_t *)fcontext, 2);
++	status = semanage_fcontext_set_expr(sh, (semanage_fcontext_t *)fcontext, "/testlocation2/*");
++	if (status) goto cleanup;
++
++	status = rtable->key_extract(sh, fcontext, &fcontextkey);
++	if (status) goto cleanup;
++
++	/* Add record. */
++	status = dconfig->dtable->add(
++		sh,
++		dconfig,
++		fcontextkey,
++		fcontext);
++	if (status) goto cleanup;
++
++	/* Cleanup. */
++cleanup:
++	semanage_context_free(context);
++	rtable->free(fcontext);
++	rtable->key_free(fcontextkey);
++
++	CU_ASSERT( status == 0 );
++	return status;
++}
++
++/* Database callback table. */
++static dbase_table_t test_file_dtable = {
++
++	/* Cache/Transactions */
++	.cache = test_dbase_file_cache,
++	.drop_cache = (void *)dbase_llist_drop_cache,
++	.flush = NULL,
++	.is_modified = (void *)dbase_llist_is_modified,
++
++	/* Database API */
++	.iterate = (void *)dbase_llist_iterate,
++	.exists = (void *)dbase_llist_exists,
++	.list = (void *)dbase_llist_list,
++	.add = (void *)dbase_llist_add,
++	.set = (void *)dbase_llist_set,
++	.del = (void *)dbase_llist_del,
++	.clear = (void *)dbase_llist_clear,
++	.modify = (void *)dbase_llist_modify,
++	.query = (void *)dbase_llist_query,
++	.count = (void *)dbase_llist_count,
++
++	/* Polymorphism */
++	.get_rtable = (void *)dbase_llist_get_rtable
++};
 +
 +/* The suite initialization function.
 + * Returns zero on success, non-zero otherwise.
 + */
-+int iface_record_test_init(void)
++int fcontexts_file_test_init(void)
 +{
-+	/* initialize the handle */
-+	sh = semanage_handle_create();
-+	if (sh == NULL)
-+		return -1;
++	int status = 0;
 +
-+	/* hide error messages */
-+	sh->msg_callback = test_msg_handler;
++	if (ps_pid == 0) {
++		/* Server code. */
 +
-+	return 0;
++		/* Reset locks status. */
++		sh->u.ps_handle.socket_fd = 0;
++
++		/* Store setup. */
++		dbase_config_t *dconfig = semanage_fcontext_dbase_local(sh);
++
++		if ((status =
++			dbase_file_init(
++				sh,
++				"fakesuffix",
++				&test_fcontext_rtable,
++				NULL,
++				(dbase_file_t **)&dconfig->dbase)))
++			goto cleanup;
++
++		dconfig->dtable = &test_file_dtable;
++
++	}
++
++	/* Cleanup. */
++cleanup:
++	return status;
 +}
 +
 +/* The suite cleanup function.
 + * Returns zero on success, non-zero otherwise.
 + */
-+int iface_record_test_cleanup(void)
++int fcontexts_file_test_cleanup(void)
 +{
-+	semanage_handle_destroy(sh);
 +	return 0;
 +}
 +
 +/* Adds all the tests needed for this suite.
-+ */
-+int iface_record_add_tests(CU_pSuite suite)
++*/
++int fcontexts_file_add_tests(CU_pSuite suite)
 +{
-+	if (NULL ==
-+	    CU_add_test(suite, "semanage_iface_serialize",
-+			test_semanage_iface_serialize)) {
++	CU_ErrorCode status;
++
++	if (NULL == CU_add_test(suite, "semanage_fcontext_serialize_local", test_semanage_fcontext_serialize_local))
++		goto cleanup;
++
++cleanup:
++	if (CUE_SUCCESS != (status = CU_get_error()))
 +		CU_cleanup_registry();
-+		return CU_get_error();
++	return status;
++}
++
++/* Tests the semanage_fcontext_serialize_local function in fcontexts_file.c
++ */
++void test_semanage_fcontext_serialize_local(void) {
++	int status;
++
++	uint32_t message_type;
++	uint64_t data_length;
++	char *data = NULL;
++	char *ptr = NULL;
++	int timeout = 0;
++	uint32_t database_type = 0;
++
++	semanage_fcontext_t **records = NULL;
++	unsigned int records_size;
++
++	dbase_config_t *dconfig = semanage_fcontext_dbase_local(sh);
++	record_table_t *rtable = dconfig->dtable->get_rtable(dconfig);
++
++	int commit_number = 7;
++
++	if (ps_pid == 0) {
++		/* Server code. */
++
++		/* On caching the client will ask for the commit number. */
++		status = test_semanage_ps_handle_get_commit_number(sh, commit_number);
++		CU_ASSERT( status == STATUS_SUCCESS );
++		if (status != STATUS_SUCCESS)
++			goto cleanup;
++
++		/* Wait for message. */
++		if ((status = read_msg(sh, client_socket_fd, timeout, &message_type, &data_length, &data)))
++			goto cleanup;
++
++		CU_ASSERT( message_type == PS_GET_DATABASE );
++		if (message_type != PS_GET_DATABASE) {
++			status = -1;
++			goto cleanup;
++		}
++
++		/* Get and serialize the database. */
++		free(data);
++		data = NULL;
++
++		if ((status = semanage_fcontext_serialize_local(sh, &data, &data_length)))
++			goto cleanup;
++
++		/* Send back the database. */
++		if ((status = write_msg(sh, client_socket_fd, PS_OK, data_length, data)))
++			goto cleanup;
++
++		/* On caching the client will ask for the commit number. */
++		status = test_semanage_ps_handle_get_commit_number(sh, commit_number);
++		CU_ASSERT( status == STATUS_SUCCESS );
++		if (status != STATUS_SUCCESS)
++			goto cleanup;
++
++		/* On flushing the client will ask for the commit number. */
++		//FIXME: Why does the client ask for the commit number so many times here?
++		status = test_semanage_ps_handle_get_commit_number(sh, commit_number);
++		CU_ASSERT( status == STATUS_SUCCESS );
++		if (status != STATUS_SUCCESS)
++			goto cleanup;
++
++		status = test_semanage_ps_handle_get_commit_number(sh, commit_number);
++		CU_ASSERT( status == STATUS_SUCCESS );
++		if (status != STATUS_SUCCESS)
++			goto cleanup;
++
++		/* Receive changed database. */
++		free(data);
++		data = NULL;
++
++		if ((status = read_msg(sh, client_socket_fd, timeout, &message_type, &data_length, &data)))
++			goto cleanup;
++
++		CU_ASSERT( message_type == PS_PUT_DATABASE );
++		if (message_type != PS_PUT_DATABASE) {
++			status = -1;
++			goto cleanup;
++		}
++
++		/* Say we got it ok. */
++		if ((status = write_msg(sh, client_socket_fd, PS_OK, 0, NULL)))
++			goto cleanup;
++
++		/* Unserialize the database type */
++		ptr = data;
++		if(semanage_dbase_ps_database_type_unserialize(sh, &ptr, &data_length, &database_type));
++			goto cleanup;
++
++		/* Unserialize the database. and don't move the data pointer.*/
++		if ((status = semanage_fcontext_unserialize_local(sh, ptr, data_length)))
++			goto cleanup;
++
++		/* Gather the database records. */
++		status = dconfig->dtable->list(sh, dconfig, (record_t ***)&records, &records_size);
++		CU_ASSERT( status == 0 );
++		CU_ASSERT( records != NULL );
++		CU_ASSERT( records_size == 3 );
++
++		/* Verify data. */
++		semanage_context_t *context = semanage_fcontext_get_con(records[0]);
++		char *user = (char *)semanage_context_get_user(context);
++		char *role = (char *)semanage_context_get_role(context);
++		char *type = (char *)semanage_context_get_type(context);
++		int ftype = semanage_fcontext_get_type(records[0]);
++		char *expr = (char *)semanage_fcontext_get_expr(records[0]);
++
++		CU_ASSERT( strcmp(user, "testuser") == 0 );
++		CU_ASSERT( strcmp(role, "testrole") == 0 );
++		CU_ASSERT( strcmp(type, "testtype") == 0 );
++		CU_ASSERT( ftype == 1 );
++		CU_ASSERT( strcmp(expr, "/testlocation/*") == 0 );
++
++		context = semanage_fcontext_get_con(records[1]);
++		user = (char *)semanage_context_get_user(context);
++		role = (char *)semanage_context_get_role(context);
++		type = (char *)semanage_context_get_type(context);
++		ftype = semanage_fcontext_get_type(records[1]);
++		expr = (char *)semanage_fcontext_get_expr(records[1]);
++
++		CU_ASSERT( strcmp(user, "testuser2") == 0 );
++		CU_ASSERT( strcmp(role, "testrole2") == 0 );
++		CU_ASSERT( strcmp(type, "testtype2") == 0 );
++		CU_ASSERT( ftype == 2 );
++		CU_ASSERT( strcmp(expr, "/testlocation2/*") == 0 );
++
++		context = semanage_fcontext_get_con(records[2]);
++		user = (char *)semanage_context_get_user(context);
++		role = (char *)semanage_context_get_role(context);
++		type = (char *)semanage_context_get_type(context);
++		ftype = semanage_fcontext_get_type(records[2]);
++		expr = (char *)semanage_fcontext_get_expr(records[2]);
++
++		CU_ASSERT( strcmp(user, "testuser3") == 0 );
++		CU_ASSERT( strcmp(role, "testrole3") == 0 );
++		CU_ASSERT( strcmp(type, "testtype3") == 0 );
++		CU_ASSERT( ftype == 3 );
++		CU_ASSERT( strcmp(expr, "/testlocation3/*") == 0 );
 +	}
 +
-+	return 0;
-+}
++	if (ps_pid > 0) {
++		/* Client code. */
 +
-+/* Tests the semanage_iface_serialize function in iface_record.c
-+ */
-+void test_semanage_iface_serialize(void)
-+{
-+	int status;
-+	char *data;
-+	uint64_t data_length = 0;
++		/* Cache database.
++		 * This sends a message to the server requesting the database.
++		 * The server serializes the database and sends it to us (the client).
++		 * Internally the database is unserialized and loaded.
++		 */
++		status = dconfig->dtable->cache(sh, dconfig);
++		CU_ASSERT( status == 0 );
 +
-+	/* serialize */
++		/* Gather the database records. */
++		status = dconfig->dtable->list(sh, dconfig, (record_t ***)&records, &records_size);
++		CU_ASSERT( status == 0 );
++		CU_ASSERT( records != NULL );
++		CU_ASSERT( records_size == 2 );
 +
-+	semanage_iface_t *iface;
-+	status = semanage_iface_create(sh, &iface);
-+	semanage_context_t *ifcon;
-+	semanage_context_t *msgcon;
++		/* Verify data was sent correctly. */
++		semanage_context_t *context = semanage_fcontext_get_con(records[0]);
++		char *user = (char *)semanage_context_get_user(context);
++		char *role = (char *)semanage_context_get_role(context);
++		char *type = (char *)semanage_context_get_type(context);
++		int ftype = semanage_fcontext_get_type(records[0]);
++		char *expr = (char *)semanage_fcontext_get_expr(records[0]);
 +
-+	/* setup test fields */
-+	const char *name = "testname";
-+	const char *ifcon_str = "iftestuser:iftestrole:iftesttype";
-+	const char *msgcon_str = "msgtestuser:msgtestrole:msgtesttype";
++		CU_ASSERT( strcmp(user, "testuser") == 0 );
++		CU_ASSERT( strcmp(role, "testrole") == 0 );
++		CU_ASSERT( strcmp(type, "testtype") == 0 );
++		CU_ASSERT( ftype == 1 );
++		CU_ASSERT( strcmp(expr, "/testlocation/*") == 0 );
 +
-+	status = semanage_iface_set_name(sh, iface, name);
-+	CU_ASSERT(status == 0);
++		context = semanage_fcontext_get_con(records[1]);
++		user = (char *)semanage_context_get_user(context);
++		role = (char *)semanage_context_get_role(context);
++		type = (char *)semanage_context_get_type(context);
++		ftype = semanage_fcontext_get_type(records[1]);
++		expr = (char *)semanage_fcontext_get_expr(records[1]);
 +
-+	status = semanage_context_from_string(sh, ifcon_str, &ifcon);
-+	CU_ASSERT(status == 0);
-+	status = semanage_iface_set_ifcon(sh, iface, ifcon);
-+	CU_ASSERT(status == 0);
++		CU_ASSERT( strcmp(user, "testuser2") == 0 );
++		CU_ASSERT( strcmp(role, "testrole2") == 0 );
++		CU_ASSERT( strcmp(type, "testtype2") == 0 );
++		CU_ASSERT( ftype == 2 );
++		CU_ASSERT( strcmp(expr, "/testlocation2/*") == 0 );
 +
-+	status = semanage_context_from_string(sh, msgcon_str, &msgcon);
-+	CU_ASSERT(status == 0);
-+	status = semanage_iface_set_msgcon(sh, iface, msgcon);
-+	CU_ASSERT(status == 0);
++		/* Change something. */
 +
-+	/* set aside enough space... */
-+	status = semanage_iface_serialize(sh, iface, NULL, &data_length);
-+	CU_ASSERT(status == 0);
-+	data = calloc(data_length, sizeof(char));
++		/* Add some test entries to the list. */
++		record_t *fcontext = NULL;
++		record_key_t *fcontextkey = NULL;
 +
-+	char *data2;
-+	data2 = data;
-+	status = semanage_iface_serialize(sh, iface, &data2, NULL);
-+	CU_ASSERT(status == 0);
-+	/* iterator/destructive effect check */
-+	CU_ASSERT((unsigned)(data2 - data) == data_length);
++		/* Create record. */
++		status = rtable->create(sh, &fcontext);
++		if (status) goto cleanup;
 +
-+	/* unserialize */
-+	semanage_iface_t *iface2;
-+	data2 = data;
-+	uint64_t data_length2 = data_length;
-+	status = semanage_iface_unserialize(sh, &data2, &data_length2, &iface2);
-+	CU_ASSERT(status == 0);
-+	/* iterator/destructive effect check */
-+	CU_ASSERT((unsigned)(data2 - data) == data_length);
++		/* Populate record. */
++		status = semanage_context_create(sh, &context);
++		if (status) goto cleanup;
 +
-+	/* get results */
-+	const char *name2;
-+	const semanage_context_t *ifcon2;
-+	const semanage_context_t *msgcon2;
-+	char *ifcon_str2;
-+	char *msgcon_str2;
++		status = semanage_context_set_user(sh, context, "testuser3");
++		if (status) goto cleanup;
++		status = semanage_context_set_role(sh, context, "testrole3");
++		if (status) goto cleanup;
++		status = semanage_context_set_type(sh, context, "testtype3");
++		if (status) goto cleanup;
++		status = semanage_fcontext_set_con(sh, (semanage_fcontext_t *)fcontext, context);
++		if (status) goto cleanup;
 +
-+	name2 = semanage_iface_get_name(iface2);
++		semanage_fcontext_set_type((semanage_fcontext_t *)fcontext, 3);
++		status = semanage_fcontext_set_expr(sh, (semanage_fcontext_t *)fcontext, "/testlocation3/*");
++		if (status) goto cleanup;
 +
-+	ifcon2 = semanage_iface_get_ifcon(iface2);
-+	status = semanage_context_to_string(sh, ifcon2, &ifcon_str2);
-+	CU_ASSERT(status == 0);
++		status = rtable->key_extract(sh, fcontext, &fcontextkey);
++		if (status) goto cleanup;
 +
-+	msgcon2 = semanage_iface_get_msgcon(iface2);
-+	status = semanage_context_to_string(sh, msgcon2, &msgcon_str2);
-+	CU_ASSERT(status == 0);
++		/* Add record. */
++		status = dconfig->dtable->add(
++				sh,
++				dconfig,
++				fcontextkey,
++				fcontext);
++		if (status) goto cleanup;
 +
-+	/* compare */
-+	status = strcmp(name, name2);
-+	CU_ASSERT(status == 0);
++		/* Cleanup. */
++		semanage_context_free(context);
++		rtable->free(fcontext);
++		rtable->key_free(fcontextkey);
 +
-+	status = strcmp(ifcon_str, ifcon_str2);
-+	CU_ASSERT(status == 0);
++		/* Flush database.
++		 * This sends a message to the server to replace its database
++		 * with the one we are sending.  Internally the flush serializes
++		 * the database and sends it.  The server then unserializes it,
++		 * clears its old copy, and replaces it with the new one.
++		 */
++		status = dconfig->dtable->flush(sh, dconfig);
++		CU_ASSERT( status == 0 );
++	}
 +
-+	status = strcmp(msgcon_str, msgcon_str2);
-+	CU_ASSERT(status == 0);
++	/* Cleanup. */
++cleanup:
++	if (records != NULL) {
++		unsigned int i;
++		for (i = 0; i < records_size; i++) {
++			if (!records[i])
++				break;
++			rtable->free((record_t *)records[i]);
++		}
++	}
 +
-+	/* cleanup */
-+	semanage_iface_free(iface);
-+	semanage_iface_free(iface2);
-+	semanage_context_free(ifcon);
-+	semanage_context_free(msgcon);
-+	free(ifcon_str2);
-+	free(msgcon_str2);
++	free(records);
 +	free(data);
 +
++	CU_ASSERT( status == 0 );
++	if (status != 0) {
++		printf("\n\nReceived error code in %s: %d | %s\n", (ps_pid == 0) ? "server" : "client", status, strerror(status));
++	}
 +}
-Index: selinux-pms-support/libsemanage/tests/test_iface_record.h
++
+Index: selinux-pms-support/libsemanage/tests/test_fcontexts_file.h
 ===================================================================
 --- /dev/null
-+++ selinux-pms-support/libsemanage/tests/test_iface_record.h
++++ selinux-pms-support/libsemanage/tests/test_fcontexts_file.h
 @@ -0,0 +1,32 @@
 +/* Authors: Christopher Ashworth <cashworth@tresys.com>
 + *          Caleb Case <ccase@tresys.com>
@@ -509,16 +606,452 @@ Index: selinux-pms-support/libsemanage/tests/test_iface_record.h
 + *  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 + */
 +
-+#ifndef __TEST_IFACE_RECORD_H__
-+#define __TEST_IFACE_RECORD_H__
++#ifndef __TEST_FCONTEXTS_FILE_H__
++#define __TEST_FCONTEXTS_FILE_H__
 +
 +#include <CUnit/Basic.h>
 +
-+int iface_record_test_init(void);
-+int iface_record_test_cleanup(void);
-+int iface_record_add_tests(CU_pSuite suite);
++int fcontexts_file_test_init(void);
++int fcontexts_file_test_cleanup(void);
++int fcontexts_file_add_tests(CU_pSuite suite);
 +
-+void test_semanage_iface_serialize(void);
++void test_semanage_fcontext_serialize_local(void);
++
++#endif
+Index: selinux-pms-support/libsemanage/tests/test_fcontexts_policy.c
+===================================================================
+--- /dev/null
++++ selinux-pms-support/libsemanage/tests/test_fcontexts_policy.c
+@@ -0,0 +1,394 @@
++/* Authors: Christopher Ashworth <cashworth@tresys.com>
++ *          Caleb Case <ccase@tresys.com>
++ *
++ * Copyright (C)  2007 Tresys Technology, LLC
++ *
++ *  This library is free software; you can redistribute it and/or
++ *  modify it under the terms of the GNU Lesser General Public
++ *  License as published by the Free Software Foundation; either
++ *  version 2.1 of the License, or (at your option) any later version.
++ *
++ *  This library is distributed in the hope that it will be useful,
++ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
++ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
++ *  Lesser General Public License for more details.
++ *
++ *  You should have received a copy of the GNU Lesser General Public
++ *  License along with this library; if not, write to the Free Software
++ *  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
++ */
++
++/*  The purpose of this file is to provide unit tests of the functions in:
++ *
++ *  libsemanage/src/fcontexts_policy.c
++ *
++ */
++
++#include "globals.h"
++#include "utilities.h"
++#include "test_fcontexts_policy.h"
++
++#include <libgen.h>
++#include <limits.h>
++#include <signal.h>
++#include <stdio.h>
++#include <stdlib.h>
++#include <string.h>
++#include <sys/wait.h>
++#include <unistd.h>
++#include <CUnit/Basic.h>
++
++#include <assert.h>
++#include <ctype.h>
++#include <errno.h>
++#include <fcntl.h>
++#include <limits.h>
++#include <stdio.h>
++#include <stdlib.h>
++#include <string.h>
++#include <unistd.h>
++#include <arpa/inet.h>
++#include <netinet/in.h>
++#include <sys/socket.h>
++#include <sys/stat.h>
++#include <sys/types.h>
++#include <sys/un.h>
++#include <selinux/selinux.h>
++
++#include "debug.h"
++#include "byteswap.h"
++#include "handle.h"
++#include "modules.h"
++#include "policy.h"
++#include "fcontexts_policy.h"
++#include "messages_internal.h"
++#include "semanage_store.h"
++#include "database_policydb.h"
++#include "user_internal.h"
++#include "seuser_internal.h"
++#include "port_internal.h"
++#include "iface_internal.h"
++#include "boolean_internal.h"
++#include "fcontext_internal.h"
++#include "node_internal.h"
++
++#include "database_llist.h"
++
++/* Server table setup. */
++
++/* Record functions. */
++
++static record_table_t test_fcontext_rtable = {
++	.create = (create_f)semanage_fcontext_create,
++	.key_extract = (key_extract_f)semanage_fcontext_key_extract,
++	.key_free = (key_free_f)semanage_fcontext_key_free,
++	.clone = (clone_f)semanage_fcontext_clone,
++	.compare = (compare_f)semanage_fcontext_compare,
++	.compare2 = (compare2_f)semanage_fcontext_compare2,
++	.compare2_qsort = NULL,
++	.free = (free_f)semanage_fcontext_free,
++	.serialize = (serialize_f)semanage_fcontext_serialize,
++	.unserialize = (unserialize_f)semanage_fcontext_unserialize,
++};
++
++/* Table functions. */
++
++/* Test cache function. */
++static int test_dbase_policydb_cache(
++	semanage_handle_t *handle,
++	dbase_config_t *dconfig)
++{
++	int status = 0;
++
++	/* Add some test entries to the list. */
++	record_t *fcontext = NULL;
++	record_key_t *fcontextkey = NULL;
++
++	record_table_t *rtable = dconfig->dtable->get_rtable(dconfig);
++
++	/* Create record. */
++	status = rtable->create(sh, &fcontext);
++	if (status) goto cleanup;
++
++	/* Populate record. */
++	semanage_context_t *context;
++	status = semanage_context_create(sh, &context);
++	if (status) goto cleanup;
++
++	status = semanage_context_set_user(sh, context, "testuser");
++	if (status) goto cleanup;
++	status = semanage_context_set_role(sh, context, "testrole");
++	if (status) goto cleanup;
++	status = semanage_context_set_type(sh, context, "testtype");
++	if (status) goto cleanup;
++	status = semanage_fcontext_set_con(sh, (semanage_fcontext_t *)fcontext, context);
++	if (status) goto cleanup;
++
++	semanage_fcontext_set_type((semanage_fcontext_t *)fcontext, 1);
++	status = semanage_fcontext_set_expr(sh, (semanage_fcontext_t *)fcontext, "/testlocation/*");
++	if (status) goto cleanup;
++
++	status = rtable->key_extract(sh, fcontext, &fcontextkey);
++	if (status) goto cleanup;
++
++	/* Add record. */
++	status = dconfig->dtable->add(
++		sh,
++		dconfig,
++		fcontextkey,
++		fcontext);
++	if (status) goto cleanup;
++
++	/* Cleanup. */
++	semanage_context_free(context);
++	context = NULL;
++	rtable->free(fcontext);
++	fcontext = NULL;
++	rtable->key_free(fcontextkey);
++	fcontextkey = NULL;
++
++	/* Create record. */
++	status = rtable->create(sh, &fcontext);
++	if (status) goto cleanup;
++
++	/* Populate record. */
++	status = semanage_context_create(sh, &context);
++	if (status) goto cleanup;
++
++	status = semanage_context_set_user(sh, context, "testuser2");
++	if (status) goto cleanup;
++	status = semanage_context_set_role(sh, context, "testrole2");
++	if (status) goto cleanup;
++	status = semanage_context_set_type(sh, context, "testtype2");
++	if (status) goto cleanup;
++	status = semanage_fcontext_set_con(sh, (semanage_fcontext_t *)fcontext, context);
++	if (status) goto cleanup;
++
++	semanage_fcontext_set_type((semanage_fcontext_t *)fcontext, 2);
++	status = semanage_fcontext_set_expr(sh, (semanage_fcontext_t *)fcontext, "/testlocation2/*");
++	if (status) goto cleanup;
++
++	status = rtable->key_extract(sh, fcontext, &fcontextkey);
++	if (status) goto cleanup;
++
++	/* Add record. */
++	status = dconfig->dtable->add(
++		sh,
++		dconfig,
++		fcontextkey,
++		fcontext);
++	if (status) goto cleanup;
++
++	/* Cleanup. */
++cleanup:
++	semanage_context_free(context);
++	rtable->free(fcontext);
++	rtable->key_free(fcontextkey);
++
++	CU_ASSERT( status == 0 );
++	return status;
++}
++
++/* Database callback table. */
++static dbase_table_t test_policydb_dtable = {
++
++	/* Cache/Transactions */
++	.cache = test_dbase_policydb_cache,
++	.drop_cache = (void *)dbase_llist_drop_cache,
++	.flush = NULL,
++	.is_modified = (void *)dbase_llist_is_modified,
++
++	/* Database API */
++	.iterate = (void *)dbase_llist_iterate,
++	.exists = (void *)dbase_llist_exists,
++	.list = (void *)dbase_llist_list,
++	.add = (void *)dbase_llist_add,
++	.set = (void *)dbase_llist_set,
++	.del = (void *)dbase_llist_del,
++	.clear = (void *)dbase_llist_clear,
++	.modify = (void *)dbase_llist_modify,
++	.query = (void *)dbase_llist_query,
++	.count = (void *)dbase_llist_count,
++
++	/* Polymorphism */
++	.get_rtable = (void *)dbase_llist_get_rtable
++};
++
++/* The suite initialization function.
++ * Returns zero on success, non-zero otherwise.
++ */
++int fcontexts_policy_test_init(void)
++{
++	int status = 0;
++
++	if (ps_pid == 0) {
++		/* Server code. */
++
++		/* Reset locks status. */
++		sh->u.ps_handle.socket_fd = 0;
++
++		/* Store setup. */
++		dbase_config_t *dconfig = semanage_fcontext_dbase_policy(sh);
++
++		if ((status =
++			dbase_policydb_init(
++				sh,
++				"fakesuffix",
++				&test_fcontext_rtable,
++				NULL,
++				(dbase_policydb_t **)&dconfig->dbase)))
++			goto cleanup;
++
++		dconfig->dtable = &test_policydb_dtable;
++
++	}
++
++	/* Cleanup. */
++cleanup:
++	return status;
++}
++
++/* The suite cleanup function.
++ * Returns zero on success, non-zero otherwise.
++ */
++int fcontexts_policy_test_cleanup(void)
++{
++	return 0;
++}
++
++/* Adds all the tests needed for this suite.
++*/
++int fcontexts_policy_add_tests(CU_pSuite suite)
++{
++	CU_ErrorCode status;
++
++	if (NULL == CU_add_test(suite, "semanage_fcontext_serialize_policy", test_semanage_fcontext_serialize_policy))
++		goto cleanup;
++
++cleanup:
++	if (CUE_SUCCESS != (status = CU_get_error()))
++		CU_cleanup_registry();
++	return status;
++}
++
++/* Tests the semanage_fcontext_serialize_policy function in fcontexts_policy.c
++ */
++void test_semanage_fcontext_serialize_policy(void) {
++	int status;
++
++	uint32_t message_type;
++	uint64_t data_length;
++	char *data = NULL;
++	int timeout = 0;
++
++	semanage_fcontext_t **records = NULL;
++	unsigned int records_size;
++
++	dbase_config_t *dconfig = semanage_fcontext_dbase_policy(sh);
++	record_table_t *rtable = dconfig->dtable->get_rtable(dconfig);
++
++	int commit_number = 7;
++
++	if (ps_pid == 0) {
++		/* Server code. */
++
++		/* On caching the client will ask for the commit number. */
++		status = test_semanage_ps_handle_get_commit_number(sh, commit_number);
++		CU_ASSERT( status == STATUS_SUCCESS );
++		if (status != STATUS_SUCCESS)
++			goto cleanup;
++
++		/* Wait for message. */
++		if ((status = read_msg(sh, client_socket_fd, timeout, &message_type, &data_length, &data)))
++			goto cleanup;
++
++		CU_ASSERT( message_type == PS_GET_DATABASE );
++		if (message_type != PS_GET_DATABASE) {
++			status = -1;
++			goto cleanup;
++		}
++
++		/* Get and serialize the database. */
++		free(data);
++		data = NULL;
++
++		if ((status = semanage_fcontext_serialize_policy(sh, &data, &data_length)))
++			goto cleanup;
++
++		/* Send back the database. */
++		if ((status = write_msg(sh, client_socket_fd, PS_OK, data_length, data)))
++			goto cleanup;
++
++		/* On caching the client will ask for the commit number. */
++		status = test_semanage_ps_handle_get_commit_number(sh, commit_number);
++		CU_ASSERT( status == STATUS_SUCCESS );
++		if (status != STATUS_SUCCESS)
++			goto cleanup;
++
++	}
++
++	if (ps_pid > 0) {
++		/* Client code. */
++
++		/* Cache database.
++		 * This sends a message to the server requesting the database.
++		 * The server serializes the database and sends it to us (the client).
++		 * Internally the database is unserialized and loaded.
++		 */
++		status = dconfig->dtable->cache(sh, dconfig);
++		CU_ASSERT( status == 0 );
++
++		/* Gather the database records. */
++		status = dconfig->dtable->list(sh, dconfig, (record_t ***)&records, &records_size);
++		CU_ASSERT( status == 0 );
++		CU_ASSERT( records != NULL );
++		CU_ASSERT( records_size == 2 );
++
++		/* Verify data was sent correctly. */
++		semanage_context_t *context = semanage_fcontext_get_con(records[0]);
++		char *user = (char *)semanage_context_get_user(context);
++		char *role = (char *)semanage_context_get_role(context);
++		char *type = (char *)semanage_context_get_type(context);
++		int ftype = semanage_fcontext_get_type(records[0]);
++		char *expr = (char *)semanage_fcontext_get_expr(records[0]);
++
++		CU_ASSERT( strcmp(user, "testuser") == 0 );
++		CU_ASSERT( strcmp(role, "testrole") == 0 );
++		CU_ASSERT( strcmp(type, "testtype") == 0 );
++		CU_ASSERT( ftype == 1 );
++		CU_ASSERT( strcmp(expr, "/testlocation/*") == 0 );
++
++		context = semanage_fcontext_get_con(records[1]);
++		user = (char *)semanage_context_get_user(context);
++		role = (char *)semanage_context_get_role(context);
++		type = (char *)semanage_context_get_type(context);
++		ftype = semanage_fcontext_get_type(records[1]);
++		expr = (char *)semanage_fcontext_get_expr(records[1]);
++
++		CU_ASSERT( strcmp(user, "testuser2") == 0 );
++		CU_ASSERT( strcmp(role, "testrole2") == 0 );
++		CU_ASSERT( strcmp(type, "testtype2") == 0 );
++		CU_ASSERT( ftype == 2 );
++		CU_ASSERT( strcmp(expr, "/testlocation2/*") == 0 );
++	}
++
++	/* Cleanup. */
++cleanup:
++	if (records != NULL) {
++		unsigned int i;
++		for (i = 0; i < records_size; i++) {
++			if (!records[i])
++				break;
++			rtable->free((record_t *)records[i]);
++		}
++	}
++
++	free(records);
++	free(data);
++
++	CU_ASSERT( status == 0 );
++	if (status != 0) {
++		printf("\n\nReceived error code in %s: %d | %s\n", (ps_pid == 0) ? "server" : "client", status, strerror(status));
++	}
++}
++
+Index: selinux-pms-support/libsemanage/tests/test_fcontexts_policy.h
+===================================================================
+--- /dev/null
++++ selinux-pms-support/libsemanage/tests/test_fcontexts_policy.h
+@@ -0,0 +1,32 @@
++/* Authors: Christopher Ashworth <cashworth@tresys.com>
++ *          Caleb Case <ccase@tresys.com>
++ *
++ * Copyright (C)  2007 Tresys Technology, LLC
++ *
++ *  This library is free software; you can redistribute it and/or
++ *  modify it under the terms of the GNU Lesser General Public
++ *  License as published by the Free Software Foundation; either
++ *  version 2.1 of the License, or (at your option) any later version.
++ *
++ *  This library is distributed in the hope that it will be useful,
++ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
++ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
++ *  Lesser General Public License for more details.
++ *
++ *  You should have received a copy of the GNU Lesser General Public
++ *  License along with this library; if not, write to the Free Software
++ *  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
++ */
++
++#ifndef __TEST_FCONTEXTS_POLICY_H__
++#define __TEST_FCONTEXTS_POLICY_H__
++
++#include <CUnit/Basic.h>
++
++int fcontexts_policy_test_init(void);
++int fcontexts_policy_test_cleanup(void);
++int fcontexts_policy_add_tests(CU_pSuite suite);
++
++void test_semanage_fcontext_serialize_policy(void);
 +
 +#endif
 
