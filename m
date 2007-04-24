@@ -1,102 +1,59 @@
-Message-ID: <462E1745.8050608@redhat.com>
-Date: Tue, 24 Apr 2007 10:42:13 -0400
-From: Daniel J Walsh <dwalsh@redhat.com>
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l3OF6wg6018251
+	for <selinux@tycho.nsa.gov>; Tue, 24 Apr 2007 11:06:58 -0400
+Received: from tcsfw4.tcs-sec.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id l3OF6u3M011137
+	for <selinux@tycho.nsa.gov>; Tue, 24 Apr 2007 15:06:57 GMT
+Message-ID: <27C0723414C58546B4084C2F17BE052A213A23@chaos.tcs.tcs-sec.com>
+From: Chad Hanson <chanson@TrustedCS.com>
+To: Xavier Toth <txtoth@gmail.com>, Michael C Thompson
+	 <thompsmc@us.ibm.com>
+Cc: selinux@tycho.nsa.gov
+Subject: RE: directory polyinstantiation failure
+Date: Tue, 24 Apr 2007 11:06:42 -0400
 MIME-Version: 1.0
-To: Stephen Smalley <sds@tycho.nsa.gov>, SE Linux <selinux@tycho.nsa.gov>
-Subject: Patch to correct genhomedircon homedir labeling.
-Content-Type: multipart/mixed;
- boundary="------------070409040407080804080509"
+Content-Type: text/plain
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This is a multi-part message in MIME format.
---------------070409040407080804080509
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
 
-semanage can change the __default__ login mapping command to a user 
-other than user_u.  This patch will cause genhomedircon to use this 
-setting rather than currently always using user_u.
+I believe "user" fallback case also creates a problem in utilizing namespace
+for the current version of GDM with RHEL 5 from my testing. 
 
-semanage login -m -s staff_u __default__
+-Chad
 
-
-Should cause all login accounts added by useradd to use staff_home* by 
-default.
-
---------------070409040407080804080509
-Content-Type: text/x-patch;
- name="genhomedircon.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="genhomedircon.patch"
-
---- nsapolicycoreutils/scripts/genhomedircon	2007-04-24 10:36:17.000000000 -0400
-+++ policycoreutils-2.0.9/scripts/genhomedircon	2007-04-20 13:58:01.000000000 -0400
-@@ -136,6 +136,9 @@
- 		self.contextdir = "/contexts"
- 		self.filecontextdir = self.contextdir+"/files"
- 		self.usepwd = usepwd
-+		self.default_user = "user_u"
-+		self.default_prefix = "user"
-+		self.users = self.getUsers()
- 
- 	def getFileContextDir(self):
- 		return self.selinuxdir+self.type+self.filecontextdir
-@@ -212,6 +215,10 @@
- 		prefs["prefix"] = prefix
- 		prefs["home"] = home
- 		udict[user] = prefs
-+			
-+	def setDefaultUser(self, user, prefix):
-+		self.default_user = user
-+		self.default_prefix = prefix
- 		
- 	def getUsers(self):
- 		udict = {}
-@@ -220,7 +227,11 @@
- 			for seuser in list:
- 				user = []
- 				seusername = semanage_seuser_get_sename(seuser)
--				self.adduser(udict, semanage_seuser_get_name(seuser), seusername, self.get_default_prefix(seusername))
-+				prefix = self.get_default_prefix(seusername)
-+				if semanage_seuser_get_name(seuser) == "__default__":
-+					self.setDefaultUser(seusername, prefix)
-+
-+				self.adduser(udict, semanage_seuser_get_name(seuser), seusername, prefix)
- 				
- 		else:
- 			try:
-@@ -270,12 +281,11 @@
- 		return ret
- 
- 	def genHomeDirContext(self):
--		users = self.getUsers()
- 		ret = ""
- 		# Fill in HOME and prefix for users that are defined
--		for u in users.keys():
--			ret += self.getHomeDirContext (u, users[u]["seuser"], users[u]["home"], users[u]["prefix"])
--			ret += self.getUserContext (u, users[u]["seuser"], users[u]["prefix"])
-+		for u in self.users.keys():
-+			ret += self.getHomeDirContext (u, self.users[u]["seuser"], self.users[u]["home"], self.users[u]["prefix"])
-+			ret += self.getUserContext (u, self.users[u]["seuser"], self.users[u]["prefix"])
- 		return ret+"\n"
- 
- 	def checkExists(self, home):
-@@ -322,9 +332,9 @@
- 	def genoutput(self):
- 		ret = self.heading()
- 		for h in self.getHomeDirs():
--			ret += self.getHomeDirContext ("user_u", "user_u" , h+'/[^/]*', "user")
-+			ret += self.getHomeDirContext (self.default_user, self.default_user, h+'/[^/]*', self.default_prefix)
- 			ret += self.getHomeRootContext(h)
--		ret += self.getUserContext(".*", "user_u", "user") + "\n"
-+		ret += self.getUserContext(".*", self.default_user, self.default_prefix) + "\n"
- 		ret += self.genHomeDirContext()
- 		return ret
- 
-
---------------070409040407080804080509--
+> -----Original Message-----
+> From: Xavier Toth [mailto:txtoth@gmail.com] 
+> Sent: Wednesday, April 18, 2007 12:00 PM
+> To: Michael C Thompson
+> Cc: selinux@tycho.nsa.gov
+> Subject: Re: directory polyinstantiation failure
+> 
+> Here is the patch for to expand $HOME. However as I looked at 
+> the code I see the reason for behavior that had confused me 
+> partly because it isn't documented and partly because I don't 
+> think it is desired. I'd specified some directories to be 
+> polyinstantiated by level but then I'd see that they might 
+> also get polyinstantiated by user. The code as described in 
+> the following comment is overriding my specified method if 
+> getexeccon fails.
+> /*
+>  * This function checks if the calling program has requested context
+>  * change by calling setexeccon(). If context change is not requested
+>  * then it does not make sense to polyinstantiate based on context.
+>  * The return value from this function is used when selecting the
+>  * polyinstantiation method. If context change is not requested then
+>  * the polyinstantiation method is set to USER, even if the 
+> configuration
+>  * file lists the method as "context" or "both".
+>  */
+> static int ctxt_based_inst_needed(void)
+> 
+> Why if getexeccon fails doesn't it make sense to 
+> polyinstantiate based on context/level? Why not call getcon 
+> lf getexeccon fails and use that context instead of switching 
+> the method?
+> 
 
 --
 This message was distributed to subscribers of the selinux mailing list.
