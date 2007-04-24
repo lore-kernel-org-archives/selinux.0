@@ -1,98 +1,73 @@
-Subject: Re: [POLICYREP PATCH] Add generic iterators and a list data type
-	to	libsepol
-From: James Antill <jantill@redhat.com>
-To: Karl MacMillan <kmacmillan@mentalrootkit.com>
-Cc: Stephen Smalley <sds@tycho.nsa.gov>, Eamon Walsh <ewalsh@tycho.nsa.gov>,
-        selinux@tycho.nsa.gov
-In-Reply-To: <1177364151.6398.9.camel@localhost.localdomain>
-References: <20070420133430.9884.86379.stgit@localhost.localdomain>
-	 <46291A98.2040003@tycho.nsa.gov>
-	 <1177343326.26236.18.camel@localhost.localdomain>
-	 <1177345688.20127.9.camel@code.and.org>
-	 <1177350773.24282.63.camel@moss-spartans.epoch.ncsc.mil>
-	 <1177364151.6398.9.camel@localhost.localdomain>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-jztC+rNlnqNKsrBoKpkZ"
-Date: Mon, 23 Apr 2007 19:33:03 -0400
-Message-Id: <1177371183.20127.43.camel@code.and.org>
-Mime-Version: 1.0
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l3O8Flrc028742
+	for <selinux@tycho.nsa.gov>; Tue, 24 Apr 2007 04:15:47 -0400
+Received: from wr-out-0506.google.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l3O8FkfB017415
+	for <selinux@tycho.nsa.gov>; Tue, 24 Apr 2007 08:15:46 GMT
+Received: by wr-out-0506.google.com with SMTP id q50so1783491wrq
+        for <selinux@tycho.nsa.gov>; Tue, 24 Apr 2007 01:15:46 -0700 (PDT)
+Message-ID: <462DBBC8.9060300@gmail.com>
+Date: Tue, 24 Apr 2007 16:11:52 +0800
+From: Ken YANG <spng.yang@gmail.com>
+MIME-Version: 1.0
+To: Daniel J Walsh <dwalsh@redhat.com>
+CC: Stephen Smalley <sds@tycho.nsa.gov>, James Morris <jmorris@namei.org>,
+        SELinux List <selinux@tycho.nsa.gov>
+Subject: Re: can not boot with strict policy
+References: <462CA1F0.2000400@gmail.com>	 <1177340494.24282.28.camel@moss-spartans.epoch.ncsc.mil>	 <Line.LNX.4.64.0704231341100.3793@d.namei> <1177350508.24282.58.camel@moss-spartans.epoch.ncsc.mil> <462CF79C.5080804@redhat.com>
+In-Reply-To: <462CF79C.5080804@redhat.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+Daniel J Walsh wrote:
+> Stephen Smalley wrote:
+>> On Mon, 2007-04-23 at 13:42 -0400, James Morris wrote:
+>>  
+>>> On Mon, 23 Apr 2007, Stephen Smalley wrote:
+>>>
+>>>    
+>>>> /lib/libsepol.so.1 should be labeled with shlib_t, not lib_t.  Under
+>>>> targeted policy, they are aliases for one another.  Under strict, they
+>>>> are separate types.
+>>>>
+>>>> Boot with "enforcing=0 single" to come up permissive into single-user
+>>>> mode, then run /sbin/fixfiles relabel -F to forcible relabel 
+>>>> everything,
+>>>> then reboot.
+>>>>       
+>>> I wonder if we could automate this, so that the autorelabel is also 
+>>> run on boot if you switch between different types of policy.
+>>>     
+>>
+>> rc.sysinit does have autorelabel support, but that won't help in this
+>> case, because here everything (including /sbin/init) will fail to run
+>> due to the inability to execute shared libs.  It would have to happen
+>> from early userspace or /sbin/init before loading policy and switching
+>> to enforcing mode.
 
---=-jztC+rNlnqNKsrBoKpkZ
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+in such situation, we will have "kernel panic" each time when changing
+from "targeted" to "strict", aren't we?
 
-On Mon, 2007-04-23 at 17:35 -0400, Karl MacMillan wrote:
-> On Mon, 2007-04-23 at 13:52 -0400, Stephen Smalley wrote:
+there muse be some methods to solve this problems.
 
-> >   However, looking around, I see you can
-> > replace the allocator virtual table with your own functions and there
-> > are g_try_* functions that return NULL rather than calling abort.  But
-> > not clear that helps with its own internal usage of g_new.
-> >=20
->=20
-> This does help internal usage of g_new (verified by code inspection and
-> experimentation).
-
- Errm, What do you mean here? The vtable calls return NULL on failure
-_now_ (they just call libc malloc/realloc/free), they only exist so you
-can replace them with debugging versions as in g_mem_profile().
- g_new() calls g_malloc() which is defined as calling abort(), via.
-g_error(), on allocation failure. Pretty much everything in glib will
-break if that changes, for instance g_list_append() calls g_slice_new()
-as you add something to the linked list, which calls g_malloc() ... and
-g_list_append() has no error path because it knows it can't fail. Dito.
-g_hash_table_new_full() on both counts.
-
->  However, glib includes several custom allocators and
-> replacing the allocator vtable did not seem to help there. It might be
-> possible to track down all of the allocators and convince them not to
-> abort, but there may be problems in the future. We could also try
-> catching sigabort but there would be no good way to figure out why the
-> abort was delivered. This is really frustrating and is causing people to
-> not use glib (the X hackers rejected it over this reason).
-
- Dealing with the abort() is the simple problem, it's how you then get
-out from the call to g_queue_push_fail() when it happens four functions
-calls further down the stack ... without dereferencing NULL a few times.
-
-> Any other options (there don't seem to be any obvious ones)? Personally,
-> I vote for the C++ STL but that requires a small change to which some
-> might object. In summary - C sucks and I'm tired of this 1980s
-> programming environment.
-
- I completely agree, although personally I think C++ sucks more. The
-options are pretty sparse, as everyone generally hacks up mediocre
-versions of exactly what they need (as everyone is loath to have
-externals deps).
- The only other one that comes to mind is NSPR, which is again mostly a
-matter of portability with a few other useful things thrown in for good
-measure. But I'd be loath to recommend it for libsepol (or much else,
-for that matter).
- Of course there are a few million on the internets, of varying quality,
-but nothing that's in Fedora that I know of.
-
---=20
-James Antill - <james.antill@redhat.com>
-setsockopt(fd, IPPROTO_TCP, TCP_CONGESTION, ...);
-setsockopt(fd, IPPROTO_TCP, TCP_DEFER_ACCEPT, ...);
-setsockopt(fd, SOL_SOCKET,  SO_ATTACH_FILTER, ...);
+>>
+>>   
+> So the real question, is there much value with the division between 
+> lib_t and shlib_t.
+> When dealing with strict policy, shared libraries were always getting 
+> mislabeled as lib_t, and causing problems, for little security advantage.
+> As we remove the differences between strict and targeted, I don't intend 
+> to get rid of lib_t == shlib_t.
 
 
---=-jztC+rNlnqNKsrBoKpkZ
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
+i find most files labeled with "lib_t" are ".a" or symbolic link to
+".so"
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.7 (GNU/Linux)
+what difference between lib_t and shlib_t? what is the purpose of
+"lib_t" type?
 
-iD8DBQBGLUIu11eXTEMrxtQRAorWAJ4kmU0A6Kcd5Pf0E9ub6B+giFoyqACggYff
-3tnUKi3+BINorYKy6yA3WP4=
-=XIvx
------END PGP SIGNATURE-----
-
---=-jztC+rNlnqNKsrBoKpkZ--
+> 
 
 
 --
