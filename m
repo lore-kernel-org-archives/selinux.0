@@ -1,47 +1,46 @@
 Subject: Re: can not boot with strict policy
-From: "Christopher J. PeBenito" <cpebenito@tresys.com>
-To: Ken YANG <spng.yang@gmail.com>
-Cc: Daniel J Walsh <dwalsh@redhat.com>, Stephen Smalley <sds@tycho.nsa.gov>,
-        James Morris <jmorris@namei.org>, SELinux List <selinux@tycho.nsa.gov>
-In-Reply-To: <462DBBC8.9060300@gmail.com>
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: "Christopher J. PeBenito" <cpebenito@tresys.com>
+Cc: Daniel J Walsh <dwalsh@redhat.com>, James Morris <jmorris@namei.org>,
+        Ken YANG <spng.yang@gmail.com>, SELinux List <selinux@tycho.nsa.gov>
+In-Reply-To: <1177417417.8672.25.camel@sgc>
 References: <462CA1F0.2000400@gmail.com>
 	 <1177340494.24282.28.camel@moss-spartans.epoch.ncsc.mil>
 	 <Line.LNX.4.64.0704231341100.3793@d.namei>
 	 <1177350508.24282.58.camel@moss-spartans.epoch.ncsc.mil>
-	 <462CF79C.5080804@redhat.com>  <462DBBC8.9060300@gmail.com>
+	 <462CF79C.5080804@redhat.com>  <1177417417.8672.25.camel@sgc>
 Content-Type: text/plain
-Date: Tue, 24 Apr 2007 08:26:59 -0400
-Message-Id: <1177417620.8672.28.camel@sgc>
+Date: Tue, 24 Apr 2007 08:59:34 -0400
+Message-Id: <1177419574.24282.128.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2007-04-24 at 16:11 +0800, Ken YANG wrote:
-> Daniel J Walsh wrote:
+On Tue, 2007-04-24 at 12:23 +0000, Christopher J. PeBenito wrote:
+> On Mon, 2007-04-23 at 14:14 -0400, Daniel J Walsh wrote:
 > > So the real question, is there much value with the division between 
 > > lib_t and shlib_t.
 > > When dealing with strict policy, shared libraries were always getting 
-> > mislabeled as lib_t, and causing problems, for little security advantage.
+> > mislabeled as lib_t, and causing problems, for little security advantage. 
+> 
+> In Gentoo I don't see these kinds of problems, and we still have the
+> strict policy as the default option (until recently on desktops) and I
+> don't see this problem; the fc regexes work very well.  However, the
+> Gentoo community is far smaller than Fedora/RHEL.
+> 
 > > As we remove the differences between strict and targeted, I don't intend 
 > > to get rid of lib_t == shlib_t.
 > 
-> 
-> i find most files labeled with "lib_t" are ".a" or symbolic link to
-> ".so"
-> 
-> what difference between lib_t and shlib_t? what is the purpose of
-> "lib_t" type?
+> I had intended to drop the alias, so i guess we need more discussion. :)
 
-The difference boils down to being able to mmap shlib_t files as
-executable (which is required for shared libraries to work), whereas
-that is not allowed for lib_t files.  That means that only shared
-libraries are shlib_t and symlinks and static libraries (and other
-random files placed in /lib or /usr/lib) are lib_t.
+There were definitely problems with shared objects showing up as lib_t
+in Fedora, so I suppose the question is what security benefit do we
+derive from maintaining the shlib_t vs. lib_t distinction (and the same
+question could be applied for many of the "system" types).  
 
 -- 
-Chris PeBenito
-Tresys Technology, LLC
-(410) 290-1411 x150
+Stephen Smalley
+National Security Agency
 
 
 --
