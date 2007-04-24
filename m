@@ -1,53 +1,40 @@
-Subject: Re: [Fwd: restorecon single fs patch]
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Daniel J Walsh <dwalsh@redhat.com>
-Cc: SE Linux <selinux@tycho.nsa.gov>,
-        Karl MacMillan <kmacmillan@mentalrootkit.com>
-In-Reply-To: <1175541324.5889.84.camel@moss-spartans.epoch.ncsc.mil>
-References: <46115278.4020401@redhat.com>
-	 <1175541324.5889.84.camel@moss-spartans.epoch.ncsc.mil>
-Content-Type: text/plain
-Date: Tue, 24 Apr 2007 16:33:13 -0400
-Message-Id: <1177446793.24282.199.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l3OKctqA010938
+	for <selinux@tycho.nsa.gov>; Tue, 24 Apr 2007 16:38:55 -0400
+Received: from nz-out-0506.google.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id l3OKcsJc000586
+	for <selinux@tycho.nsa.gov>; Tue, 24 Apr 2007 20:38:54 GMT
+Received: by nz-out-0506.google.com with SMTP id n1so1754535nzf
+        for <selinux@tycho.nsa.gov>; Tue, 24 Apr 2007 13:38:54 -0700 (PDT)
+Message-ID: <462E6ADC.7010802@gmail.com>
+Date: Tue, 24 Apr 2007 15:38:52 -0500
+From: Ted X Toth <txtoth@gmail.com>
+MIME-Version: 1.0
+To: Stephen Smalley <sds@tycho.nsa.gov>
+CC: selinux@tycho.nsa.gov, Daniel J Walsh <dwalsh@redhat.com>
+Subject: Re: adding to selinux.py
+References: <462CAF84.20708@gmail.com> <1177337371.24282.8.camel@moss-spartans.epoch.ncsc.mil>
+In-Reply-To: <1177337371.24282.8.camel@moss-spartans.epoch.ncsc.mil>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 2007-04-02 at 15:15 -0400, Stephen Smalley wrote:
-> On Mon, 2007-04-02 at 14:59 -0400, Daniel J Walsh wrote:
-> > Patch to tell restorecon to only do one file system.
-> 
-> Observations:
-> - This is yet another reason to coalesce setfiles and restorecon, as
-> setfiles already stops on filesystem boundaries.
-> - Here you introduce -l as meaning "limit to one filesystem" for
-> restorecon, but -l means log to setfiles and to the fixfiles script
-> front-end.  Seems prone to user confusion/conflict (think of what
-> happens if I want to pass this option through fixfiles to restorecon)
-> and it will get worse when/if we merge setfiles and restorecon together
-> if we don't fix it now.
-> 
-> How hard would it be to just fold restorecon and setfiles into a single
-> binary, and have them only differ in the default interfaces and
-> behaviors they provide (based on their argv[0] value), and try to use a
-> single standard set of options to the degree we can without breaking
-> widely used ones?
+Stephen Smalley wrote:
+> On Mon, 2007-04-23 at 08:07 -0500, Ted X Toth wrote:
+>   
+>> Would it be possible to get get_ordered_context_list and get_default_context* added to selinux.py?
+>>     
+>
+> selinux.py is generated via swig, so you'd actually want to modify
+> selinuxswig.i and regenerate it.   And I think selinuxswig.i should be
+> reworked and split along the lines of semanageswig.i and
+> semanageswig_python.i over in libsemanage.
+>
+>   
+Is this something that I should look at doing or will Dan be doing it? 
+Should I open a bug report?
 
-FYI, I have work in progress to collapse all restorecon functionality
-into setfiles and make it offer either user interface and default
-behavior depending on how it is invoked.
-
-Also, I don't object to having an option to the restorecon user
-interface to only do one filesystem, but it should use an option other
-than -l since that is already being used by both setfiles and fixfiles
-to signify logging.  I'd also like to revisit the current options and
-see whether we actually need/want them all - there seem to be multiple
-ways of doing the same thing, just with slight variances.
-
--- 
-Stephen Smalley
-National Security Agency
-
+Ted
 
 --
 This message was distributed to subscribers of the selinux mailing list.
