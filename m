@@ -1,70 +1,261 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l3OLdXcn015067
-	for <selinux@tycho.nsa.gov>; Tue, 24 Apr 2007 17:39:33 -0400
-Received: from mx1.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id l3OLdWJc011164
-	for <selinux@tycho.nsa.gov>; Tue, 24 Apr 2007 21:39:32 GMT
-Subject: Re: [PATCH 25/33] libsemanage: policy server database hooks
-From: Karl MacMillan <kmacmillan@mentalrootkit.com>
-To: jbrindle@tresys.com
-Cc: selinux@tycho.nsa.gov
-In-Reply-To: <20070423213744.959901000@tresys.com>
-References: <20070423213455.741326000@tresys.com>
-	 <20070423213744.959901000@tresys.com>
-Content-Type: text/plain
-Date: Tue, 24 Apr 2007 17:39:31 -0400
-Message-Id: <1177450771.3428.18.camel@localhost.localdomain>
-Mime-Version: 1.0
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l3OMTgBm017526
+	for <selinux@tycho.nsa.gov>; Tue, 24 Apr 2007 18:29:42 -0400
+Received: from exchange.columbia.tresys.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with SMTP id l3OMTePI004077
+	for <selinux@tycho.nsa.gov>; Tue, 24 Apr 2007 22:29:40 GMT
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Subject: RE: [PATCH 01/33] libsepol: basic serilization support
+Date: Tue, 24 Apr 2007 18:29:39 -0400
+Message-ID: <6FE441CD9F0C0C479F2D88F959B01588A71AE2@exchange.columbia.tresys.com>
+In-Reply-To: <1177444855.10744.25.camel@localhost.localdomain>
+References: <20070423213455.741326000@tresys.com> <20070423213721.090230000@tresys.com> <1177444855.10744.25.camel@localhost.localdomain>
+From: "Joshua Brindle" <jbrindle@tresys.com>
+To: "Karl MacMillan" <kmacmillan@mentalrootkit.com>
+Cc: <selinux@tycho.nsa.gov>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 2007-04-23 at 17:35 -0400, jbrindle@tresys.com wrote:
-> plain text document attachment (semanage.ps_api.diff)
-> Implements all database functions for a policy server backend.
+> From: Karl MacMillan [mailto:kmacmillan@mentalrootkit.com] 
+> 
+> On Mon, 2007-04-23 at 17:34 -0400, jbrindle@tresys.com wrote:
+> > plain text document attachment (sepol.serialize.diff) Serialization 
+> > versioning added to the sepol handle.
+> > 
+> > Serialization utility functions added in serialize.[ch]
+> > ---
+> >  libsepol/include/sepol/handle.h |   17 +
+> >  libsepol/src/handle.c           |   89 +++++++++
+> >  libsepol/src/handle.h           |    5 
+> >  libsepol/src/libsepol.map       |    1 
+> >  libsepol/src/serialize.c        |  389 
+> ++++++++++++++++++++++++++++++++++++++++
+> >  libsepol/src/serialize.h        |   45 ++++
+> >  6 files changed, 546 insertions(+)
+> > 
+> > Index: selinux-pms-support/libsepol/include/sepol/handle.h
+> > ===================================================================
+> > --- selinux-pms-support.orig/libsepol/include/sepol/handle.h
+> > +++ selinux-pms-support/libsepol/include/sepol/handle.h
+> > @@ -1,6 +1,11 @@
+> >  #ifndef _SEPOL_HANDLE_H_
+> >  #define _SEPOL_HANDLE_H_
+> >  
+> > +#include <inttypes.h>
+> > +
+> > +#define SEPOL_SERIAL_VERSION_MAJOR 1
+> > +#define SEPOL_SERIAL_VERSION_MINOR 0
+> > +
+> >  struct sepol_handle;
+> >  typedef struct sepol_handle sepol_handle_t;
+> >  
+> > @@ -10,4 +15,16 @@ sepol_handle_t *sepol_handle_create(void
+> >  /* Destroy a sepol handle. */
+> >  void sepol_handle_destroy(sepol_handle_t *);
+> >  
+> > +/* Serialize the serialization version. */ int 
+> > +sepol_handle_version_serialize(sepol_handle_t * sh, char **data, 
+> > +uint64_t *size);
+> > +
+> > +/* Unserialize the serialization version. */ int 
+> > +sepol_handle_version_unserialize(sepol_handle_t * sh, char **data, 
+> > +uint64_t *size);
+> > +
+> > +/* Get the serialization version. */
+> > +int sepol_handle_get_version(sepol_handle_t *sh, uint32_t * major, 
+> > +uint32_t * minor);
+> > +
+> > +/* Set the serialization version. */
+> > +int sepol_handle_set_version(sepol_handle_t *sh, uint32_t major, 
+> > +uint32_t minor);
+> > +
+> >  #endif
+> 
+> Can you give some idea about how the versioning is supposed 
+> to work? In
+> particular:
+> 
+> * How is it related to the policy version?
+> * Why would it change separately from the policy version?
+> * Is there any advantage to version each component separately 
+> rather that a global version?
+> 
 
-Any thoughts on how this should be merged? I'm concerned about merging
-without a working policy server that has been reviewed as well.
+Most of the stuff we are serializing isn't actually in policy, modules
+are already a serialized version of policy and we don't do anything with
+it, the stuff we are serializing is mostly semanage stuff (file
+contexts, seusers, etc) that have nothing to do with policy. The
+per-component versioning was discussed but thought to be too much
+overhead for the number of objects we are serializing.
 
-* What are your plans for the policy server - will it be proposed for
-inclusion upstream?
+> <snip>
+> 
+> > Index: selinux-pms-support/libsepol/src/serialize.c
+> > ===================================================================
+> > --- /dev/null
+> > +++ selinux-pms-support/libsepol/src/serialize.c
+> > @@ -0,0 +1,389 @@
+> > +/* Author: Caleb Case <ccase@tresys.com>
+> > + *
+> > + * Copyright (C) 2004-2007 Tresys Technology, LLC
+> > + *
+> > + *  This library is free software; you can redistribute it and/or
+> > + *  modify it under the terms of the GNU Lesser General Public
+> > + *  License as published by the Free Software Foundation; either
+> > + *  version 2.1 of the License, or (at your option) any 
+> later version.
+> > + *
+> > + *  This library is distributed in the hope that it will be useful,
+> > + *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+> > + *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  
+> See the GNU
+> > + *  Lesser General Public License for more details.
+> > + *
+> > + *  You should have received a copy of the GNU Lesser 
+> General Public
+> > + *  License along with this library; if not, write to the Free 
+> > +Software
+> > + *  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  
+> > +02110-1301  USA  */
+> > +
+> > +#include <stdlib.h>
+> > +#include <string.h>
+> > +#include <limits.h>
+> > +
+> > +#include "handle.h"
+> > +#include "debug.h"
+> > +#include "serialize.h"
+> > +#include "private.h"
+> > +
+> > +/* This file provides general serialize and unserialize 
+> functions. */
+> > +
+> > +/** Serializes various kinds of datum.
+> > + *
+> > + *  Two use cases:
+> > + *  1) Calling serialize with a non-NULL size.
+> > + *     This causes serialize to calculate the expected
+> > + *     size of serializing.  No serialization occurs.
+> > + *     Destructively modifies size.  Data may be NULL.
+> > + *  2) Calling serialize with a NULL size.
+> > + *     This results in data being filled with the
+> > + *     serialized information.  Caller must pre-allocate
+> > + *     space for data.  Destructively modifies data.
+> > + *
+> 
+> Why don't you allocate space for the caller? These two use 
+> cases are, well, odd. If you allocate then the caller can 
+> memcpy and free if they want.
+> 
 
-* What is the timeline for completion of the policy server?
+It works basically the same way the current policy serialization works,
+pass in the data once to get size, allocate and pass in the buffer to
+which its being serialized. We did this for consistency with the current
+mechanisms.
 
-* Are their any docs at all about the protocol?
+> > + *  This function acts iteratively moving the *data or size values.
+> > + *
+> > + *  Supported datum_types (defined in serialize.h):
+> > + *
+> > + *  SEPOL_SERIAL_INT32_T
+> > + *    Serializes datum to a int32_t as defined in inttypes.h
+> > + *    datum may NOT be NULL.
+> > + *    datum_length is not utilized.
+> > + *  SEPOL_SERIAL_UINT32_T
+> > + *    Serializes datum to a uint32_t as defined in inttypes.h
+> > + *    datum may NOT be NULL.
+> > + *    datum_length is not utilized.
+> > + *  SEPOL_SERIAL_SIZE_T
+> > + *    Serializes datum to a size_t as defined in stddef.h
+> > + *    datum may NOT be NULL.
+> > + *    datum_length is not utilized.
+> 
+> How can you serialize a type that is platform specific? How 
+> would this be handled when communication between a 32 and 64 
+> bit host? I thought we always used fixed width types for all 
+> binary communication anyway.
+> 
 
-* Any progress on the exec-based policy server instead of the long
-running daemon?
+SEPOL_SERIAL_SIZE_T is always 64 bits. We should be checking if it tries
+to serialize into a smaller type, if not that's a bug. 
 
-Basically - this patch set is too large to review, there have been no
-ongoing design discussions, there is no way to review large portions of
-the patch set due to external dependencies, and I have seen no proposed
-plan for merging.
+> > + *  SEPOL_SERIAL_STRING
+> > + *    Serializes a char*.
+> > + *    datum may be NULL.
+> > + *    datum_length should be the length of the string as 
+> returned by strlen.
+> 
+> Why not call strlen? Especially since the string array version does.
+> 
 
-I have voiced these concerns previously and without at least some of the
-above I'm opposed merging at this time.
+IIRC because we use the same entry point for all data types to get to
+these.
 
-I would suggest as an alternative plan you do a depth-first submission
-instead of the breadth-first approach that you are currently attempting.
-That would allow a review of the end-to-end design with a relatively
-small amount of code. From that point expanding the coverage would only
-require a quick review that the patch continues on the already accepted
-approach.
+> > + *  SEPOL_SERIAL_STRING_ARRAY
+> > + *    Serializes a char**.
+> > + *    datum may be NULL.
+> > + *    datum_length should be the size of the array.
+> > + *    Each string will be serialized as per 
+> SEPOL_SERIAL_STRING and its size
+> > + *    determined via strlen.
+> > + *
+> > + *  NULL pointers are distinguished (where they are 
+> allowed at all).
+> > + *  In the case of strings this means that a NULL char* has a 
+> > + different
+> > + *  serialization from the empty string "".
+> 
+> Why?
+> 
 
-That steps that I suggest are:
+Not sure, will check.
 
-* Choose a _single_ and _simple_ semanage operation to control.
-Something like adding a role to a user.
+> > + *
+> > + */
+> > +int sepol_serialize(sepol_handle_t * handle,
+> > +		    const void *datum,
+> > +		    size_t datum_length,
+> > +		    unsigned int datum_type, char **data, 
+> uint64_t * size) {
+> 
+> Why a single multiplexed function? Seems _much_ easier to 
+> have a sepol_serialize_string, sepol_serialize_uint32, etc. 
+> This would allow type safety and improve readability, both at 
+> the call site and the definition.
+> 
 
-* Post a minimal policy server that can control this operation
-(preferably exec-based).
+We can do that I guess, IMO it doesn't make much of a difference.
 
-* Post the libsemange code to communicate with the server _only_ that
-single operation.
+> 
+> <snip>
+> 
+> > +		case SEPOL_SERIAL_SIZE_T:
+> > +			if (size == NULL) {
+> > +				temp = calloc(1, sizeof(uint64_t));
+> > +				if (temp == NULL) {
+> > +					status = STATUS_ERR;
+> > +					goto cleanup;
+> > +				}
+> > +
+> > +				*((uint64_t *)temp) = 
+> cpu_to_le64(*((size_t *) datum));
+> > +
+> > +				memcpy(*data, temp, sizeof(uint64_t));
+> > +				*data += sizeof(uint64_t);
+> > +			}
+> > +			else
+> > +				*size += sizeof(uint64_t);
+> > +			break;
+> 
+> Err - I don't think this is allowed. I believe that size_t is 
+> supposed to be word size and there is no reason that word 
+> size is limited to 64 bits.
+> 
 
-* Create an example policy that controls this operation that can be used
-to test and demonstrate the functionality.
-
-Karl
+IIRC in ANSI C it is limited to 64 bits. I might be wrong on this but I
+remember us looking it up when this happened.
 
 
 --
