@@ -1,347 +1,567 @@
-Subject: [RFC] Ability to allow undefined permissions and classes -v3
-From: Eric Paris <eparis@redhat.com>
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l3PLwTT6021519
+	for <selinux@tycho.nsa.gov>; Wed, 25 Apr 2007 17:58:29 -0400
+Received: from mx1.redhat.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l3PLwSYP006112
+	for <selinux@tycho.nsa.gov>; Wed, 25 Apr 2007 21:58:28 GMT
+Received: from int-mx1.corp.redhat.com (int-mx1.corp.redhat.com [172.16.52.254])
+	by mx1.redhat.com (8.13.1/8.13.1) with ESMTP id l3PLwRFd010974
+	for <selinux@tycho.nsa.gov>; Wed, 25 Apr 2007 17:58:28 -0400
+Received: from pobox-2.corp.redhat.com (pobox-2.corp.redhat.com [10.11.255.15])
+	by int-mx1.corp.redhat.com (8.13.1/8.13.1) with ESMTP id l3PLwMmF009381
+	for <selinux@tycho.nsa.gov>; Wed, 25 Apr 2007 17:58:22 -0400
+Received: from localhost.localdomain (vpn-14-34.rdu.redhat.com [10.11.14.34])
+	by pobox-2.corp.redhat.com (8.13.1/8.13.1) with ESMTP id l3PLwLEB015184
+	for <selinux@tycho.nsa.gov>; Wed, 25 Apr 2007 17:58:21 -0400
+From: Karl MacMillan <kmacmillan@mentalrootkit.com>
+Subject: [POLICYREP PATCH] Add objset to libsepol
 To: selinux@tycho.nsa.gov
-Cc: sds@tycho.nsa.gov, jmorris@namei.org, csellers@tresys.com
-Content-Type: text/plain
-Date: Wed, 25 Apr 2007 17:39:31 -0400
-Message-Id: <1177537171.4221.25.camel@dhcp59-235.rdu.redhat.com>
-Mime-Version: 1.0
+Date: Wed, 25 Apr 2007 17:58:22 -0400
+Message-ID: <20070425215822.16055.18880.stgit@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-After many months this RFC is back again!  Still has the selinuxfs
-boolean to turn it on and off that will get changed to a policy option
-when the actual functionality seems reasonable to everyone.  The only
-change between -v2 and -v3 is in context_struct_compute_av().  In wake
-of the last discussion I had to make the class checking more stringent
-so I wouldn't be allowing userspace classes.  Previously the decision
-for an 'unknown class' was anything larger than the last defined in
-policy.  Now it should be a bit more kernel specific and should check
+Add the objset data structure to libsepol. Object sets behave similarly to
+Python sets.
 
-less than policy
-greater than policy but less than number of kernel classes
-greater than policy and greater than number of kernel classes
+Signed-off-by: Karl MacMillan <kmacmillan@mentalrootkit.com>
+---
 
-less than policy means it is defined in policy and so just deal with the
-permissions.  greater than both means its invalid.  So the case in the
-middle is interesting if the request is actually 'hole' in the kernel
-defs because of the removal of userspace classes.  So that check makes
-it a little more complex.  Until the userspace class definitions
-actually turn to NULL in kernel this isn't 'perfect' and might mistake a
-userspace class for a kernel class but that should only temporarily
-(until the classes are actually gone which will likely be the case when
-this patch is applied) affect selinuxfs answers.
+ libsepol/include/sepol/objset.h |  169 +++++++++++++++++++++++++++++++++++++++
+ libsepol/src/objset.c           |  154 ++++++++++++++++++++++++++++++++++++
+ libsepol/tests/libsepol-tests.c |    2 
+ libsepol/tests/test-objset.c    |  147 ++++++++++++++++++++++++++++++++++
+ libsepol/tests/test-objset.h    |   12 +++
+ 5 files changed, 484 insertions(+), 0 deletions(-)
 
-I think what this means though is that I don't need a special call from
-selinuxfs to answer access questions.  If the request from selinuxfs is
-asking about kernel permissions it will get exactly the answer the
-kernel would have made.  If the check is about userspace permissions it
-will answer as best the policy knows but the 'allow unknown' stuff won't
-change that answer since it only mucks with things defined by the kdefs.
-
-I do have a question if my method of storing an array of size
-kdefs->cts_len is going to work going forward.  How is the policy going
-to grow?  Will we have gaps of potentially hundreds of classes and then
-add a new kernel class?  If so I will have a large waste in my array.
-Its already the case that this proposed array is wasting space for all
-of the userspace classes as it stands.
-
--Eric
-
- security/selinux/hooks.c       |    2 +
- security/selinux/include/avc.h |    2 +
- security/selinux/selinuxfs.c   |   56 +++++++++++++++++++++++++++++++++
- security/selinux/ss/policydb.c |    2 +
- security/selinux/ss/policydb.h |    2 +
- security/selinux/ss/services.c |   68 +++++++++++++++++++++++++++++++++------
- 6 files changed, 121 insertions(+), 11 deletions(-)
-
-diff --git a/security/selinux/ss/policydb.c b/security/selinux/ss/policydb.c
-index 0ac1021..92316c7 100644
---- a/security/selinux/ss/policydb.c
-+++ b/security/selinux/ss/policydb.c
-@@ -670,6 +670,8 @@ void policydb_destroy(struct policydb *p)
- 	}
- 	kfree(p->type_attr_map);
- 
-+	kfree(p->undefined_perms);
+diff --git a/libsepol/include/sepol/objset.h b/libsepol/include/sepol/objset.h
+new file mode 100644
+index 0000000..14f49e8
+--- /dev/null
++++ b/libsepol/include/sepol/objset.h
+@@ -0,0 +1,169 @@
++/* Author: Karl MacMillan <kmacmillan@mentalrootkit.com> */
 +
- 	return;
- }
- 
-diff --git a/security/selinux/ss/policydb.h b/security/selinux/ss/policydb.h
-index 8319d5f..257b836 100644
---- a/security/selinux/ss/policydb.h
-+++ b/security/selinux/ss/policydb.h
-@@ -242,6 +242,8 @@ struct policydb {
- 	struct ebitmap *type_attr_map;
- 
- 	unsigned int policyvers;
++#ifndef __sepol_objset_h__
++#define __sepol_objset_h__
 +
-+	u32 *undefined_perms;
- };
- 
- extern void policydb_destroy(struct policydb *p);
-diff --git a/security/selinux/ss/services.c b/security/selinux/ss/services.c
-index 1e52356..03728fa 100644
---- a/security/selinux/ss/services.c
-+++ b/security/selinux/ss/services.c
-@@ -59,6 +59,7 @@
- 
- extern void selnl_notify_policyload(u32 seqno);
- unsigned int policydb_loaded_version;
-+int selinux_allow_unknown = 0;
- 
- /*
-  * This is declared in avc.c
-@@ -293,6 +294,7 @@ static int context_struct_compute_av(struct context *scontext,
- 	struct class_datum *tclass_datum;
- 	struct ebitmap *sattr, *tattr;
- 	struct ebitmap_node *snode, *tnode;
-+	const struct selinux_class_perm *kdefs = &selinux_class_perm;
- 	unsigned int i, j;
- 
- 	/*
-@@ -306,13 +308,6 @@ static int context_struct_compute_av(struct context *scontext,
- 		    tclass <= SECCLASS_NETLINK_DNRT_SOCKET)
- 			tclass = SECCLASS_NETLINK_SOCKET;
- 
--	if (!tclass || tclass > policydb.p_classes.nprim) {
--		printk(KERN_ERR "security_compute_av:  unrecognized class %d\n",
--		       tclass);
--		return -EINVAL;
--	}
--	tclass_datum = policydb.class_val_to_struct[tclass - 1];
--
- 	/*
- 	 * Initialize the access vectors to the default values.
- 	 */
-@@ -323,6 +318,39 @@ static int context_struct_compute_av(struct context *scontext,
- 	avd->seqno = latest_granting;
- 
- 	/*
-+	 * Check if the class in question is a kernel class and if it
-+	 * is defined in policy.  If yes to both it will pad the allow
-+	 * for undefined perms if appropriete.
-+	 */
-+	if (unlikely(!tclass)) {
-+		printk(KERN_ERR "security_compute_av:  unrecognized class 0");
-+		return -EINVAL;
-+	}
-+	if (unlikely(tclass > policydb.p_classes.nprim)) {
-+		if (tclass > kdefs->cts_len || !selinux_allow_unknown) {
-+			printk(KERN_ERR "security_compute_av:  unrecognized ",
-+				"class %d\n", tclass);
-+			return -EINVAL;
-+		} else {
-+			/* 
-+			 * kernel class not in policy, but we
-+			 * allow uknown, so let everything through
-+			 */
-+			avd->allowed = 0xffffffff;
-+			return 0;
-+		}
-+	} else
-+		if (tclass < kdefs->cts_len && selinux_allow_unknown)
-+			/* 
-+			 * kernel class, defined in policy, allow unknown.
-+			 * might have undefined permissions, so default 
-+			 * those perms to allow
-+			 */
-+			avd->allowed = policydb.undefined_perms[tclass - 1];
++#include <sepol/iter.h>
++#include <sepol/handle.h>
 +
-+	tclass_datum = policydb.class_val_to_struct[tclass - 1];
++/**
++ * \defgroup libsepol_objset sepol_objset: sets of unique objects
++ * Object sets store sets of objects unique objects (think sets in
++ * the mathematical sense). The data structure is unordered.
++ * 
++ * For example, consider the following example:
++ *
++ * \code
++ * struct sepol_objset *set;
++ * struct sepol_handle *h;
++ * 
++ * // object set creation ommitted
++ * sepol_objset_add(h, set, "foo");
++ * sepol_objset_add(h, set, "bar");
++ * sepol_objset_add(h, set, "baz");
++ * sepol_objset_add(h, set, "foo");
++ * // at this point the objset contains the strings
++ * // "foo", "bar", and "baz". The duplicate "foo"
++ * // was not added.
++ * \endcode
++ *
++ * In contrast to the objpool data structure, objsets are designed to
++ * be space efficient and hold a relatively small number of objects.
++ * Additionally, the lifecycle management of the objects is not
++ * handled by objsets - it is the responsibility of the caller.
++ *
++ * It is possible to use objsets in conjunction with objpools. In this
++ * mode all of the objects should be added to the pool first so that
++ * the objset comparison function can become a simple pointer
++ * compare. This likely only makes sense when several objsets share a
++ * single objpool (each holding a different subset of the objects
++ * stored in the objpool).
++ */
++struct sepol_objset;
 +
-+	/*
- 	 * If a specific type enforcement rule was defined for
- 	 * this permission check, then use it.
- 	 */
-@@ -1048,6 +1076,13 @@ static int validate_classes(struct policydb *p)
- 	const char *def_class, *def_perm, *pol_class;
- 	struct symtab *perms;
- 
-+	if (selinux_allow_unknown) {
-+		u32 num_classes = kdefs->cts_len;
-+		p->undefined_perms = kzalloc(sizeof(u32)*num_classes, GFP_KERNEL);
-+		if (!p->undefined_perms)
-+			return -ENOMEM;
-+	}
++/**
++ * \ingroup libsepol_objset
++ * Function type for comparison of objects stored an objset.
++ */
++typedef int (*sepol_objset_cmp_t)(struct sepol_objset *s, void *a, void *b);
 +
- 	for (i = 1; i < kdefs->cts_len; i++) {
- 		def_class = kdefs->class_to_string[i];
- 		if (i > p->p_classes.nprim) {
-@@ -1079,14 +1114,18 @@ static int validate_classes(struct policydb *p)
- 			printk(KERN_INFO
- 			       "security:  permission %s in class %s not defined in policy\n",
- 			       def_perm, pol_class);
-+			if (selinux_allow_unknown)
-+				p->undefined_perms[class_val-1] |= perm_val;
- 			continue;
- 		}
- 		perdatum = hashtab_search(perms->table, def_perm);
- 		if (perdatum == NULL) {
--			printk(KERN_ERR
-+			printk(KERN_INFO
- 			       "security:  permission %s in class %s not found in policy\n",
- 			       def_perm, pol_class);
--			return -EINVAL;
-+			if (selinux_allow_unknown)
-+				p->undefined_perms[class_val-1] |= perm_val;
-+			continue;
- 		}
- 		pol_val = 1 << (perdatum->value - 1);
- 		if (pol_val != perm_val) {
-@@ -1122,14 +1161,18 @@ static int validate_classes(struct policydb *p)
- 				printk(KERN_INFO
- 				       "security:  permission %s in class %s not defined in policy\n",
- 				       def_perm, pol_class);
-+				if (selinux_allow_unknown)
-+					p->undefined_perms[class_val-1] |= (1 << j);
- 				continue;
- 			}
- 			perdatum = hashtab_search(perms->table, def_perm);
- 			if (perdatum == NULL) {
--				printk(KERN_ERR
-+				printk(KERN_INFO
- 				       "security:  permission %s in class %s not found in policy\n",
- 				       def_perm, pol_class);
--				return -EINVAL;
-+				if (selinux_allow_unknown)
-+					p->undefined_perms[class_val-1] |= (1 << j);
-+				continue;
- 			}
- 			if (perdatum->value != j + 1) {
- 				printk(KERN_ERR
-@@ -1271,6 +1314,9 @@ int security_load_policy(void *data, size_t len)
- 
- 	LOAD_LOCK;
- 
-+	/* pay not attention to me as I am part of the /selinux madness!! */
-+	selinux_allow_unknown = selinux_allow_unknown_sysctl_value;
++/**
++ * \ingroup libsepol_objset
++ * Create a new objset.
++ *
++ * @param h sepol handle (may be NULL)
++ * @param set out pointer for newly created objset
++ * @param cmp comparison function for objects stored in the set
++ *
++ * \retval SEPOL_ENOMEM out of memory
++ * \retval SEPOL_OK success
++ */
++extern int sepol_objset_create(struct sepol_handle *h, struct sepol_objset **set,
++			       sepol_objset_cmp_t cmp);
 +
- 	if (!ss_initialized) {
- 		avtab_cache_init();
- 		if (policydb_read(&policydb, fp)) {
-diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-index d41e24d..dafff79 100644
---- a/security/selinux/hooks.c
-+++ b/security/selinux/hooks.c
-@@ -86,6 +86,8 @@ extern unsigned int policydb_loaded_version;
- extern int selinux_nlmsg_lookup(u16 sclass, u16 nlmsg_type, u32 *perm);
- extern int selinux_compat_net;
- 
-+int selinux_allow_unknown_sysctl_value = 0;
++/**
++ * \ingroup libsepol_objset
++ *
++ * Free an objset. The contained objects are not freed, only the
++ * objset itself.
++ *
++ * @param s objset to free
++ */
++extern void sepol_objset_free(struct sepol_objset *s);
 +
- #ifdef CONFIG_SECURITY_SELINUX_DEVELOP
- int selinux_enforcing = 0;
- 
-diff --git a/security/selinux/include/avc.h b/security/selinux/include/avc.h
-index 6ed10c3..27f96ae 100644
---- a/security/selinux/include/avc.h
-+++ b/security/selinux/include/avc.h
-@@ -18,6 +18,8 @@
- #include "av_permissions.h"
- #include "security.h"
- 
-+extern int selinux_allow_unknown_sysctl_value;
++/**
++ * \ingroup libsepol_objset
++ *
++ * Return the length (number of objects) of the objset. This operation
++ * is constant time.
++ *
++ * @param s objset to determine length
++ *
++ * \retval >=0 number of objects in objset
++ */
++extern unsigned int sepol_objset_length(struct sepol_objset *s);
 +
- #ifdef CONFIG_SECURITY_SELINUX_DEVELOP
- extern int selinux_enforcing;
- #else
-diff --git a/security/selinux/selinuxfs.c b/security/selinux/selinuxfs.c
-index 93b3177..ca39ca4 100644
---- a/security/selinux/selinuxfs.c
-+++ b/security/selinux/selinuxfs.c
-@@ -100,6 +100,7 @@ enum sel_inos {
- 	SEL_MEMBER,	/* compute polyinstantiation membership decision */
- 	SEL_CHECKREQPROT, /* check requested protection, not kernel-applied one */
- 	SEL_COMPAT_NET,	/* whether to use old compat network packet controls */
-+	SEL_UNKNOWN,	/* allows unknown perms and classes */
- };
- 
- #define TMPBUFLEN	12
-@@ -113,6 +114,16 @@ static ssize_t sel_read_enforce(struct file *filp, char __user *buf,
- 	return simple_read_from_buffer(buf, count, ppos, tmpbuf, length);
- }
- 
-+static ssize_t sel_read_unknown(struct file *filp, char __user *buf,
-+				size_t count, loff_t *ppos)
++/**
++ * \ingroup libsepol_objset
++ * Set the compare function.
++ *
++ * @param s objset
++ * @param cmp new compare function
++ *
++ * \retval SEPOL_OK success
++ */
++extern int sepol_objset_set_cmp(struct sepol_objset *s, sepol_objset_cmp_t cmp);
++
++/**
++ * \ingroup libsepol_objset
++ *
++ * Add an object to the object set. The object is only added if an
++ * identical object is not already present.
++ *
++ * @param h sepol handle (may be NULL)
++ * @param s objset to add object
++ * @param obj object to add
++ *
++ * \retval SEPOL_OK success (object was added)
++ * \retval SEPOL_EEXIST object not added because object already exists
++ * \retval SEPOL_ENOMEM out of memory
++ */
++extern int sepol_objset_add(struct sepol_handle *h, struct sepol_objset *s,
++			    void *obj);
++
++/**
++ * \ingroup libsepol_objset
++ *
++ * Delete an object from the object set.
++ *
++ * @param h sepol handle (may be NULL)
++ * @param s objset from which to delete object
++ * @param obj object to delete
++ *
++ * \retval SEPOL_OK success
++ * \retval SEPOL_ENOENT object does not exist in set
++ * \retval SEPOL_ENOMEM out of memory
++ */
++extern int sepol_objset_del(struct sepol_handle *h, struct sepol_objset *s,
++			    void *obj);
++
++/**
++ * \ingroup libsepol_objset
++ *
++ * Iterate over the objects in the set. The objset is unordered so the
++ * order the objects are returned from the iterator should not be
++ * depended upon.
++ *
++ * @param h sepol handle (may be NULL)
++ * @param s objset to iterate over
++ * @param iter already created iterator to set to initial position
++ *
++ * \retval SEPOL_OK success
++ * \retval SEPOL_ITERSTOP stop iteration (set is empty)
++ */
++extern int sepol_objset_iter(struct sepol_handle *h, struct sepol_objset *s,
++			     struct sepol_iter *iter);
++
++/**
++ * \ingroup libsepol_objset
++ *
++ * Mark this set as a compliment. This is simply a flag and does not change
++ * the contents of the set.
++ *
++ * @param s objset to compliment
++ * @param compliment value of compliment flag (0 or 1)
++ */
++extern void sepol_objset_set_compliment(struct sepol_objset *s, char compliment);
++
++/**
++ * \ingroup libsepol_objset
++ *
++ * Return the current value of the compliement flag.
++ *
++ * @param s objset from which to obtain the compliment value
++ *
++ * \retval 0|1 current value of compliment flag
++ */
++extern char sepol_objset_get_compliement(struct sepol_objset *s);
++
++#endif
+diff --git a/libsepol/src/objset.c b/libsepol/src/objset.c
+new file mode 100644
+index 0000000..7b86e6b
+--- /dev/null
++++ b/libsepol/src/objset.c
+@@ -0,0 +1,154 @@
++/*
++ * Author : Karl MacMillan <kmacmillan@mentalrootkit.com>
++ *
++ * Copyright (C) 2007 Red Hat, Inc.
++ *
++ * This library is free software; you can redistribute it and/or
++ * modify it under the terms of the GNU Lesser General Public
++ * License as published by the Free Software Foundation; either
++ * version 2.1 of the License, or (at your option) any later version.
++ *
++ * This library is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
++ * Lesser General Public License for more details.
++ *
++ * You should have received a copy of the GNU Lesser General Public
++ * License along with this library; if not, write to the Free Software
++ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
++ */
++
++#include <sepol/objset.h>
++#include <sepol/list.h>
++#include <sepol/errcodes.h>
++
++#include "debug.h"
++
++#include <stdlib.h>
++
++struct sepol_objset
 +{
-+	char tmpbuf[TMPBUFLEN];
-+	ssize_t length;
-+
-+	length = scnprintf(tmpbuf, TMPBUFLEN, "%d", selinux_allow_unknown_sysctl_value);
-+	return simple_read_from_buffer(buf, count, ppos, tmpbuf, length);
-+}
-+
- #ifdef CONFIG_SECURITY_SELINUX_DEVELOP
- static ssize_t sel_write_enforce(struct file * file, const char __user * buf,
- 				 size_t count, loff_t *ppos)
-@@ -161,11 +172,55 @@ out:
- #define sel_write_enforce NULL
- #endif
- 
-+static ssize_t sel_write_unknown(struct file * file, const char __user * buf,
-+				 size_t count, loff_t *ppos)
-+
-+{
-+	char *page;
-+	ssize_t length;
-+	int new_value;
-+
-+	if (count >= PAGE_SIZE)
-+		return -ENOMEM;
-+	if (*ppos != 0) {
-+		/* No partial writes. */
-+		return -EINVAL;
-+	}
-+	page = (char*)get_zeroed_page(GFP_KERNEL);
-+	if (!page)
-+		return -ENOMEM;
-+	length = -EFAULT;
-+	if (copy_from_user(page, buf, count))
-+		goto out;
-+
-+	length = -EINVAL;
-+	if (sscanf(page, "%d", &new_value) != 1)
-+		goto out;
-+
-+	if (new_value != selinux_allow_unknown_sysctl_value) {
-+		length = 0;
-+		audit_log(current->audit_context, GFP_KERNEL, AUDIT_MAC_STATUS,
-+			"allow_unknown=%d old_allow_unknown%d auid=%u", new_value, 
-+			selinux_allow_unknown_sysctl_value,
-+			audit_get_loginuid(current->audit_context));
-+		selinux_allow_unknown_sysctl_value = new_value;
-+	}
-+	length = count;
-+out:
-+	free_page((unsigned long) page);
-+	return length;
-+}
-+
- static const struct file_operations sel_enforce_ops = {
- 	.read		= sel_read_enforce,
- 	.write		= sel_write_enforce,
- };
- 
-+static struct file_operations sel_unknown_ops = {
-+	.read		= sel_read_unknown,
-+	.write		= sel_write_unknown,
++	struct sepol_list *objs;
++	sepol_objset_cmp_t cmp;
++	unsigned int len;
++	char compliment;
 +};
 +
- #ifdef CONFIG_SECURITY_SELINUX_DISABLE
- static ssize_t sel_write_disable(struct file * file, const char __user * buf,
- 				 size_t count, loff_t *ppos)
-@@ -1283,6 +1338,7 @@ static int sel_fill_super(struct super_block * sb, void * data, int silent)
- 		[SEL_MEMBER] = {"member", &transaction_ops, S_IRUGO|S_IWUGO},
- 		[SEL_CHECKREQPROT] = {"checkreqprot", &sel_checkreqprot_ops, S_IRUGO|S_IWUSR},
- 		[SEL_COMPAT_NET] = {"compat_net", &sel_compat_net_ops, S_IRUGO|S_IWUSR},
-+		[SEL_UNKNOWN] = {"allow_unknown", &sel_unknown_ops, S_IRUGO|S_IWUSR},
- 		/* last one */ {""}
- 	};
- 	ret = simple_fill_super(sb, SELINUX_MAGIC, selinux_files);
-
++int sepol_objset_create(struct sepol_handle *h, struct sepol_objset **set,
++			sepol_objset_cmp_t cmp)
++{
++	int ret;
++
++	*set = calloc(1, sizeof(struct sepol_objset));
++	if (*set == NULL)
++		return SEPOL_ENOMEM;
++
++	(*set)->cmp = cmp;
++
++	ret = sepol_list_create(h, &(*set)->objs);
++	if (ret < 0) {
++		free(set);
++		return ret;
++	}
++	
++	return SEPOL_OK;
++}
++
++void sepol_objset_free(struct sepol_objset *s)
++{
++	if (s == NULL)
++		return;
++	sepol_list_free(s->objs);
++	free(s);
++}
++
++unsigned int sepol_objset_length(struct sepol_objset *s)
++{
++	return sepol_list_length(s->objs);
++}
++
++int sepol_objset_set_cmp(struct sepol_objset *s, sepol_objset_cmp_t cmp)
++{
++	s->cmp = cmp;
++	
++	return SEPOL_OK;
++}
++
++int sepol_objset_add(struct sepol_handle *h, struct sepol_objset *s, void *obj)
++{
++	int ret, ret2, cmp;
++	struct sepol_iter *iter;
++	void *cur;
++
++	ret = sepol_iter_create(h, &iter);
++	if (ret < 0)
++		return ret;
++
++	ret = sepol_list_begin(h, s->objs, iter);
++	sepol_foreach(h, ret, cur, iter) {
++		cmp = s->cmp(s, cur, obj);
++		if (cmp == 0) {
++			ret = SEPOL_EEXIST;
++			goto out;
++		} else if (cmp > 0) {
++			ret = sepol_list_insert(h, s->objs, iter, obj);
++			goto out;
++		}
++	}
++	if (ret != SEPOL_ITERSTOP) {
++		ERR(h, "iteration ended abnormally");
++		goto out;
++	}
++	ret = sepol_list_append(h, s->objs, obj);
++out:
++	ret2 = sepol_iter_free(h, iter);
++	if (ret2 != SEPOL_OK) {
++		ERR(h, "error freeing iterator");
++		return ret2;
++	}
++	return ret;
++}
++
++int sepol_objset_del(struct sepol_handle *h, struct sepol_objset *s, void *obj)
++{
++	int ret, ret2, cmp;
++	struct sepol_iter *iter;
++	void *cur;
++
++	ret = sepol_iter_create(h, &iter);
++	if (ret < 0)
++		return ret;
++
++	ret = sepol_list_begin(h, s->objs, iter);
++	sepol_foreach(h, ret, cur, iter) {
++		cmp = s->cmp(s, cur, obj);
++		if (cmp == 0) {
++			ret = sepol_list_del(h, s->objs, iter);
++			goto out;
++		}
++	}
++	if (ret == SEPOL_ITERSTOP)
++		ret = SEPOL_ENOENT;
++		
++out:
++	ret2 = sepol_iter_free(h, iter);
++	if (ret2 != SEPOL_OK)
++		return ret2;
++	return ret;	
++}
++
++int sepol_objset_iter(struct sepol_handle *h, struct sepol_objset *s,
++		      struct sepol_iter *iter)
++{
++	return sepol_list_begin(h, s->objs, iter);
++}
++
++void sepol_objset_set_compliment(struct sepol_objset *s, char compliment)
++{
++	s->compliment = compliment;
++}
++
++char sepol_objset_get_compliement(struct sepol_objset *s)
++{
++	return s->compliment;
++}
+diff --git a/libsepol/tests/libsepol-tests.c b/libsepol/tests/libsepol-tests.c
+index 2fee01d..5156ada 100644
+--- a/libsepol/tests/libsepol-tests.c
++++ b/libsepol/tests/libsepol-tests.c
+@@ -25,6 +25,7 @@
+ #include "test-list.h"
+ #include "test-hashtab.h"
+ #include "test-objpool.h"
++#include "test-objset.h"
+ 
+ #include <CUnit/Basic.h>
+ #include <CUnit/Console.h>
+@@ -67,6 +68,7 @@ static int do_tests(int interactive, int verbose)
+ 	DECLARE_SUITE(list);
+ 	DECLARE_SUITE(hashtab);
+ 	DECLARE_SUITE(objpool);
++	DECLARE_SUITE(objset);
+ 
+ 	if (verbose)
+ 		CU_basic_set_mode(CU_BRM_VERBOSE);
+diff --git a/libsepol/tests/test-objset.c b/libsepol/tests/test-objset.c
+new file mode 100644
+index 0000000..a6bb934
+--- /dev/null
++++ b/libsepol/tests/test-objset.c
+@@ -0,0 +1,147 @@
++/*
++ * Author : Karl MacMillan <kmacmillan@mentalrootkit.com>
++ *
++ * Copyright (C) 2007 Red Hat, Inc.
++ *
++ * This library is free software; you can redistribute it and/or
++ * modify it under the terms of the GNU Lesser General Public
++ * License as published by the Free Software Foundation; either
++ * version 2.1 of the License, or (at your option) any later version.
++ *
++ * This library is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
++ * Lesser General Public License for more details.
++ *
++ * You should have received a copy of the GNU Lesser General Public
++ * License along with this library; if not, write to the Free Software
++ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
++ */
++
++#include "test-objset.h"
++
++#include <sepol/objset.h>
++#include <sepol/objpool.h>
++#include <sepol/iter.h>
++#include <sepol/policydb/symtab.h>
++#include <sepol/errcodes.h>
++
++#include <stdlib.h>
++#include <stdio.h>
++
++int objset_test_init(void)
++{
++	return 0;
++}
++
++int objset_test_cleanup(void)
++{
++	return 0;
++}
++
++static int ptrcmp(struct sepol_objset *s, void *a, void *b)
++{
++	if (a == b)
++		return 0;
++	else if (a < b)
++		return -1;
++	else
++		return 1;
++}
++
++static void test_objset(void)
++{
++	int ret;
++	struct sepol_objset *s;
++	struct sepol_objpool *objpool;
++	struct sepol_handle *h;
++	char *strs[3];
++	char *str;
++
++	h = sepol_handle_create();
++	CU_ASSERT(h != NULL);
++
++	ret = sepol_objset_create(h, &s, (sepol_objset_cmp_t)sepol_symcmp);
++	CU_ASSERT(ret == SEPOL_OK);
++
++	ret = sepol_objset_add(h, s, "foo");
++	CU_ASSERT(ret == SEPOL_OK);
++
++	ret = sepol_objset_add(h, s, "foo");
++	CU_ASSERT(ret == SEPOL_EEXIST);
++
++	CU_ASSERT(sepol_objset_length(s) == 1);
++
++	ret = sepol_objset_add(h, s, "bar");
++	CU_ASSERT(ret == SEPOL_OK);
++
++	CU_ASSERT(sepol_objset_length(s) == 2);
++
++	ret = sepol_objset_del(h, s, "bar");
++	CU_ASSERT(ret == SEPOL_OK);
++	
++	CU_ASSERT(sepol_objset_length(s) == 1);
++
++	ret = sepol_objset_del(h, s, "bar");
++	CU_ASSERT(ret == SEPOL_ENOENT);
++
++	ret = sepol_objset_del(h, s, "foo");
++	CU_ASSERT(ret == SEPOL_OK);
++	
++	CU_ASSERT(sepol_objset_length(s) == 0);
++
++	sepol_objset_free(s);
++
++
++	/* obj pool test */
++	ret = sepol_objset_create(h, &s, (sepol_objset_cmp_t)ptrcmp);
++	CU_ASSERT(ret == SEPOL_OK);
++
++	strs[0] = strdup("foo");
++	CU_ASSERT(strs[0] != NULL);
++	strs[1] = strdup("foo");
++	CU_ASSERT(strs[1] != NULL);
++	strs[2] = strdup("bar");
++	CU_ASSERT(strs[2] != NULL);
++
++	ret = sepol_objpool_create(h, &objpool, (sepol_objpool_hash_t)sepol_symhash,
++				   (sepol_objpool_cmp_t)sepol_symcmp, free, 64);
++	CU_ASSERT(ret == SEPOL_OK);
++	
++	str = strs[0];
++	str = sepol_objpool_add(h, objpool, (void*)str);
++	CU_ASSERT(str != NULL);
++	str = strs[1];
++	str = sepol_objpool_add(h, objpool,(void*)str);
++	CU_ASSERT(str != NULL);
++	str = strs[2];
++	str = sepol_objpool_add(h, objpool, (void*)str);
++	CU_ASSERT(str != NULL);
++
++	ret = sepol_objset_add(h, s, strs[0]);
++	CU_ASSERT(ret == SEPOL_OK);
++
++	ret = sepol_objset_add(h, s, strs[0]);
++	CU_ASSERT(ret == SEPOL_EEXIST);
++
++	CU_ASSERT(sepol_objset_length(s) == 1);
++
++	ret = sepol_objset_add(h, s, strs[2]);
++	CU_ASSERT(ret == SEPOL_OK);
++
++	CU_ASSERT(sepol_objset_length(s) == 2);
++
++	sepol_objpool_free(h, objpool);
++	sepol_objset_free(s);
++	sepol_handle_destroy(h);
++}
++
++int objset_add_tests(CU_pSuite suite)
++{
++	if (NULL == CU_add_test(suite, "test_objset",
++				test_objset)) {
++		return -1;
++	}
++
++	return 0;
++}
+diff --git a/libsepol/tests/test-objset.h b/libsepol/tests/test-objset.h
+new file mode 100644
+index 0000000..d6ab340
+--- /dev/null
++++ b/libsepol/tests/test-objset.h
+@@ -0,0 +1,12 @@
++/* Author : Karl MacMillan <kmacmillan@mentalrootkit.com> */
++
++#ifndef __test_objset_h__
++#define __test_objset_h__
++
++#include <CUnit/Basic.h>
++
++int objset_test_init(void);
++int objset_test_cleanup(void);
++int objset_add_tests(CU_pSuite suite);
++
++#endif
 
 
 --
