@@ -1,215 +1,79 @@
-Message-ID: <462F6FCE.3010806@redhat.com>
-Date: Wed, 25 Apr 2007 11:12:14 -0400
-From: Daniel J Walsh <dwalsh@redhat.com>
-MIME-Version: 1.0
-To: Stephen Smalley <sds@tycho.nsa.gov>, SE Linux <selinux@tycho.nsa.gov>
-Subject: Man page fixes for semanage.  Add SELinux so whatis will pick it
- up
-Content-Type: multipart/mixed;
- boundary="------------080307040304080403060602"
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l3PFGr9E028505
+	for <selinux@tycho.nsa.gov>; Wed, 25 Apr 2007 11:16:53 -0400
+Received: from mx1.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id l3PFGpQt022394
+	for <selinux@tycho.nsa.gov>; Wed, 25 Apr 2007 15:16:52 GMT
+Subject: RE: [PATCH 01/33] libsepol: basic serilization support
+From: Karl MacMillan <kmacmillan@mentalrootkit.com>
+To: Joshua Brindle <jbrindle@tresys.com>
+Cc: selinux@tycho.nsa.gov
+In-Reply-To: <6FE441CD9F0C0C479F2D88F959B01588A71B39@exchange.columbia.tresys.com>
+References: <20070423213455.741326000@tresys.com>
+	 <20070423213721.090230000@tresys.com>
+	 <1177444855.10744.25.camel@localhost.localdomain>
+	 <6FE441CD9F0C0C479F2D88F959B01588A71AE2@exchange.columbia.tresys.com>
+	 <1177476585.3428.91.camel@localhost.localdomain>
+	 <6FE441CD9F0C0C479F2D88F959B01588A71B39@exchange.columbia.tresys.com>
+Content-Type: text/plain
+Date: Wed, 25 Apr 2007 11:16:50 -0400
+Message-Id: <1177514210.3428.117.camel@localhost.localdomain>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This is a multi-part message in MIME format.
---------------080307040304080403060602
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+On Wed, 2007-04-25 at 10:14 -0400, Joshua Brindle wrote:
+> > From: Karl MacMillan [mailto:kmacmillan@mentalrootkit.com] 
 
+<snip>
 
+> > > 
+> > > SEPOL_SERIAL_SIZE_T is always 64 bits. We should be checking if it 
+> > > tries to serialize into a smaller type, if not that's a bug.
+> > > 
+> > 
+> > How can that be? On a 64bit platform I can represent a size 
+> > that can't be represented by a 32bit size_t. How can I 
+> > transfer this data to a 32bit system? I can't put it in a 
+> > data structure with size_t - it would have to be unint64_t. 
+> > So why not just use that?
+> > 
+> 
+> That's why I said "We should be checking if it tries to serialize into a
+> smaller type, if not that's a bug"
+> 
+> IIRC we needed something that could serialize/unserialize size_t because
+> its used in some components that we serialize. We could always cast to
+> uint64_t and serialize it that way (which is pretty much what we are
+> doing anyway). 
+> 
 
---------------080307040304080403060602
-Content-Type: text/x-patch;
- name="libsemanage-rhat.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="libsemanage-rhat.patch"
+Something is going wrong in our communication here. You _cannot_
+reliably transfer size_t from a 64bit system to a 32bit system (assuming
+that size_t is 64 and 32 bits respectively). That means that you cannot
+reliably serialize data structures that use size_t - you must change the
+data structures. Otherwise the serialized data will not be valid on all
+systems.
 
-diff --exclude-from=exclude -N -u -r nsalibsemanage/man/man3/semanage_bool.3 libsemanage-2.0.0/man/man3/semanage_bool.3
---- nsalibsemanage/man/man3/semanage_bool.3	2006-11-16 17:14:05.000000000 -0500
-+++ libsemanage-2.0.0/man/man3/semanage_bool.3	2007-03-17 09:09:50.000000000 -0400
-@@ -1,5 +1,8 @@
- .TH semanage_bool 3 "16 March 2006" "ivg2@cornell.edu" "Libsemanage API documentation"
- 
-+.SH "NAME" 
-+SELinux Policy Booleans Management API
-+
- .SH "SYNOPSIS"
- .B #include <semanage/boolean_record.h>
- .br
-diff --exclude-from=exclude -N -u -r nsalibsemanage/man/man3/semanage_bool_set_active.3 libsemanage-2.0.0/man/man3/semanage_bool_set_active.3
---- nsalibsemanage/man/man3/semanage_bool_set_active.3	2006-11-16 17:14:05.000000000 -0500
-+++ libsemanage-2.0.0/man/man3/semanage_bool_set_active.3	2007-03-17 09:09:13.000000000 -0400
-@@ -1,7 +1,7 @@
- .TH semanage_bool_set_local 3 "4 January 2006" "ivg2@cornell.edu" "Libsemanage API documentation"
- .SH "NAME"
- .B semanage_bool_set_active \- 
--update an existing boolean in the currently active policy
-+update an existing SELinux boolean in the currently active policy
- 
- .SH "SYNOPSIS"
- .B #include <semanage/booleans_active.h>
-diff --exclude-from=exclude -N -u -r nsalibsemanage/man/man3/semanage_count.3 libsemanage-2.0.0/man/man3/semanage_count.3
---- nsalibsemanage/man/man3/semanage_count.3	2006-11-16 17:14:05.000000000 -0500
-+++ libsemanage-2.0.0/man/man3/semanage_count.3	2007-03-17 09:08:40.000000000 -0400
-@@ -1,5 +1,8 @@
- .TH semanage_count 3 "16 March 2006" "ivg2@cornell.edu" "Libsemanage API documentation"
- 
-+.SH "NAME" 
-+SELinux Management API
-+
- .SH "SYNOPSIS"
- The following count function is supported for any semanage record.
- .br
-diff --exclude-from=exclude -N -u -r nsalibsemanage/man/man3/semanage_del.3 libsemanage-2.0.0/man/man3/semanage_del.3
---- nsalibsemanage/man/man3/semanage_del.3	2006-11-16 17:14:05.000000000 -0500
-+++ libsemanage-2.0.0/man/man3/semanage_del.3	2007-03-17 09:08:29.000000000 -0400
-@@ -1,5 +1,8 @@
- .TH semanage_del 3 "16 March 2006" "ivg2@cornell.edu" "Libsemanage API documentation"
- 
-+.SH "NAME" 
-+SELinux Management API
-+
- .SH "SYNOPSIS"
- The following delete function is supported for any semanage record.
- .br
-diff --exclude-from=exclude -N -u -r nsalibsemanage/man/man3/semanage_exists.3 libsemanage-2.0.0/man/man3/semanage_exists.3
---- nsalibsemanage/man/man3/semanage_exists.3	2006-11-16 17:14:05.000000000 -0500
-+++ libsemanage-2.0.0/man/man3/semanage_exists.3	2007-03-17 09:08:21.000000000 -0400
-@@ -1,5 +1,8 @@
- .TH semanage_exists 3 "16 March 2006" "ivg2@cornell.edu" "Libsemanage API documentation"
- 
-+.SH "NAME" 
-+SELinux Management API
-+
- .SH "SYNOPSIS"
- The following exists function is supported for any semanage record.
- .br
-diff --exclude-from=exclude -N -u -r nsalibsemanage/man/man3/semanage_fcontext.3 libsemanage-2.0.0/man/man3/semanage_fcontext.3
---- nsalibsemanage/man/man3/semanage_fcontext.3	2006-11-16 17:14:05.000000000 -0500
-+++ libsemanage-2.0.0/man/man3/semanage_fcontext.3	2007-03-17 09:08:09.000000000 -0400
-@@ -1,5 +1,8 @@
- .TH semanage_fcontext 3 "16 March 2006" "ivg2@cornell.edu" "Libsemanage API documentation"
- 
-+.SH "NAME" 
-+SELinux File Context Management API
-+
- .SH "SYNOPSIS"
- .B #include <semanage/fcontext_record.h>
- .br
-diff --exclude-from=exclude -N -u -r nsalibsemanage/man/man3/semanage_iface.3 libsemanage-2.0.0/man/man3/semanage_iface.3
---- nsalibsemanage/man/man3/semanage_iface.3	2006-11-16 17:14:05.000000000 -0500
-+++ libsemanage-2.0.0/man/man3/semanage_iface.3	2007-03-17 09:07:46.000000000 -0400
-@@ -1,5 +1,8 @@
- .TH semanage_iface 3 "16 March 2006" "ivg2@cornell.edu" "Libsemanage API documentation"
- 
-+.SH "NAME" 
-+SELinux Network Interfaces Management API
-+
- .SH "SYNOPSIS"
- .B #include <semanage/iface_record.h>
- .br
-diff --exclude-from=exclude -N -u -r nsalibsemanage/man/man3/semanage_iterate.3 libsemanage-2.0.0/man/man3/semanage_iterate.3
---- nsalibsemanage/man/man3/semanage_iterate.3	2006-11-16 17:14:05.000000000 -0500
-+++ libsemanage-2.0.0/man/man3/semanage_iterate.3	2007-03-17 09:07:10.000000000 -0400
-@@ -1,5 +1,8 @@
- .TH semanage_iterate 3 "15 March 2006" "ivg2@cornell.edu" "Libsemanage API documentation"
- 
-+.SH "NAME" 
-+SELinux Management API
-+
- .SH "SYNOPSIS"
- The following iterate function is supported for any semanage record.
- .br
-diff --exclude-from=exclude -N -u -r nsalibsemanage/man/man3/semanage_list.3 libsemanage-2.0.0/man/man3/semanage_list.3
---- nsalibsemanage/man/man3/semanage_list.3	2006-11-16 17:14:05.000000000 -0500
-+++ libsemanage-2.0.0/man/man3/semanage_list.3	2007-03-17 09:06:54.000000000 -0400
-@@ -1,7 +1,10 @@
--.TH semanage_list 3 "16 March 2006" "ivg2@cornell.edu" "Libsemanage API documentation"
-+.TH semanage_list 3 "16 March 2006" "ivg2@cornell.edu" "SELinux managent API documentation"
-+
-+.SH "NAME" 
-+SELinux Lists Management API
- 
- .SH "SYNOPSIS"
--The following list function is supported for any semanage record.
-+The following list function is supported for any SELinux managent record.
- .br
- Replace the function and object name as necessary.
- 
-diff --exclude-from=exclude -N -u -r nsalibsemanage/man/man3/semanage_modify.3 libsemanage-2.0.0/man/man3/semanage_modify.3
---- nsalibsemanage/man/man3/semanage_modify.3	2006-11-16 17:14:05.000000000 -0500
-+++ libsemanage-2.0.0/man/man3/semanage_modify.3	2007-03-17 09:06:23.000000000 -0400
-@@ -1,5 +1,8 @@
- .TH semanage_modify 3 "16 March 2006" "ivg2@cornell.edu" "Libsemanage API documentation"
- 
-+.SH "NAME" 
-+SELinux Management API
-+
- .SH "SYNOPSIS"
- The following modify function is supported for any semanage record.
- .br
-diff --exclude-from=exclude -N -u -r nsalibsemanage/man/man3/semanage_node.3 libsemanage-2.0.0/man/man3/semanage_node.3
---- nsalibsemanage/man/man3/semanage_node.3	2006-11-16 17:14:05.000000000 -0500
-+++ libsemanage-2.0.0/man/man3/semanage_node.3	2007-03-17 09:06:05.000000000 -0400
-@@ -1,5 +1,8 @@
- .TH semanage_node 3 "16 March 2006" "ivg2@cornell.edu" "Libsemanage API documentation"
- 
-+.SH "NAME" 
-+SELinux Network Nodes Management API
-+
- .SH "SYNOPSIS"
- .B #include <semanage/node_record.h>
- .br
-diff --exclude-from=exclude -N -u -r nsalibsemanage/man/man3/semanage_port.3 libsemanage-2.0.0/man/man3/semanage_port.3
---- nsalibsemanage/man/man3/semanage_port.3	2006-11-16 17:14:05.000000000 -0500
-+++ libsemanage-2.0.0/man/man3/semanage_port.3	2007-03-17 09:05:34.000000000 -0400
-@@ -1,5 +1,8 @@
- .TH semanage_port 3 "16 March 2006" "ivg2@cornell.edu" "Libsemanage API documentation"
- 
-+.SH "NAME" 
-+SELinux Network Ports Management API
-+
- .SH "SYNOPSIS"
- .B #include <semanage/port_record.h>
- .br
-diff --exclude-from=exclude -N -u -r nsalibsemanage/man/man3/semanage_query.3 libsemanage-2.0.0/man/man3/semanage_query.3
---- nsalibsemanage/man/man3/semanage_query.3	2006-11-16 17:14:05.000000000 -0500
-+++ libsemanage-2.0.0/man/man3/semanage_query.3	2007-03-17 09:05:06.000000000 -0400
-@@ -1,5 +1,8 @@
- .TH semanage_query 3 "15 March 2006" "ivg2@cornell.edu" "Libsemanage API documentation"
- 
-+.SH "NAME" 
-+SELinux Management API
-+
- .SH "SYNOPSIS"
- The following query function is supported for any semanage record.
- .br
-diff --exclude-from=exclude -N -u -r nsalibsemanage/man/man3/semanage_seuser.3 libsemanage-2.0.0/man/man3/semanage_seuser.3
---- nsalibsemanage/man/man3/semanage_seuser.3	2006-11-16 17:14:05.000000000 -0500
-+++ libsemanage-2.0.0/man/man3/semanage_seuser.3	2007-03-17 09:04:38.000000000 -0400
-@@ -1,5 +1,8 @@
- .TH semanage_seuser 3 "16 March 2006" "ivg2@cornell.edu" "Libsemanage API documentation"
- 
-+.SH "NAME" 
-+Linux UID to SELinux User Management API
-+
- .SH "SYNOPSIS"
- .B #include <semanage/seuser_record.h>
- .br
-diff --exclude-from=exclude -N -u -r nsalibsemanage/man/man3/semanage_user.3 libsemanage-2.0.0/man/man3/semanage_user.3
---- nsalibsemanage/man/man3/semanage_user.3	2006-11-16 17:14:05.000000000 -0500
-+++ libsemanage-2.0.0/man/man3/semanage_user.3	2007-03-17 09:03:36.000000000 -0400
-@@ -1,5 +1,8 @@
- .TH semanage_user 3 "16 March 2006" "ivg2@cornell.edu" "Libsemanage API documentation"
- 
-+.SH "NAME" 
-+SELinux User Management API
-+
- .SH "SYNOPSIS"
- .B #include <semanage/user_record.h>
- .br
+There is no way to check "if it tries to serialize into a smaller type"
+- you will always hit this condition at some point.
 
---------------080307040304080403060602--
+As for the size, C99 says:
+
+"The value of the result [of sizeof] is implementation-defined, and its
+type (an unsigned integer type) is size_t,"
+
+Later it says:
+
+"The types used for size_t and ptrdiff_t should not have an integer
+conversion rank greater than that of signed long int unless the
+implementation supports objects large enough to make this necessary."
+
+I read that to say that the width of size_t is implementation defined
+and could be larger that 64 bits.
+
+Karl
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
