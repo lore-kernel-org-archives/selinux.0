@@ -1,274 +1,154 @@
 Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l3ONvYcb020887
-	for <selinux@tycho.nsa.gov>; Tue, 24 Apr 2007 19:57:34 -0400
-Received: from exchange.columbia.tresys.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with SMTP id l3ONvXPI013037
-	for <selinux@tycho.nsa.gov>; Tue, 24 Apr 2007 23:57:33 GMT
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Subject: RE: [PATCH 25/33] libsemanage: policy server database hooks
-Date: Tue, 24 Apr 2007 19:57:31 -0400
-Message-ID: <6FE441CD9F0C0C479F2D88F959B01588A71AE5@exchange.columbia.tresys.com>
-In-Reply-To: <1177456800.3428.73.camel@localhost.localdomain>
-References: <20070423213455.741326000@tresys.com> <20070423213744.959901000@tresys.com> <1177450771.3428.18.camel@localhost.localdomain> <6FE441CD9F0C0C479F2D88F959B01588A71AE4@exchange.columbia.tresys.com> <1177456800.3428.73.camel@localhost.localdomain>
-From: "Joshua Brindle" <jbrindle@tresys.com>
-To: "Karl MacMillan" <kmacmillan@mentalrootkit.com>
-Cc: <selinux@tycho.nsa.gov>
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l3P4kLjZ030364
+	for <selinux@tycho.nsa.gov>; Wed, 25 Apr 2007 00:46:21 -0400
+Received: from mail.and.org (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l3P4kKEA013172
+	for <selinux@tycho.nsa.gov>; Wed, 25 Apr 2007 04:46:21 GMT
+Subject: Re: [PATCH 00/33] libsemanage/libsepol object serialization and
+	ps-api
+From: James Antill <jantill@redhat.com>
+To: jbrindle@tresys.com
+Cc: selinux@tycho.nsa.gov
+In-Reply-To: <1177456360.20127.83.camel@code.and.org>
+References: <20070423213455.741326000@tresys.com>
+	 <1177456360.20127.83.camel@code.and.org>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-eAUClcdu6gom7mt0WwQX"
+Date: Wed, 25 Apr 2007 00:46:19 -0400
+Message-Id: <1177476379.20127.86.camel@code.and.org>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-> From: Karl MacMillan [mailto:kmacmillan@mentalrootkit.com] 
-> 
-> On Tue, 2007-04-24 at 18:39 -0400, Joshua Brindle wrote:
-> > > From: Karl MacMillan [mailto:kmacmillan@mentalrootkit.com]
-> > > 
-> > > On Mon, 2007-04-23 at 17:35 -0400, jbrindle@tresys.com wrote:
-> > > > plain text document attachment (semanage.ps_api.diff)
-> > > Implements all
-> > > > database functions for a policy server backend.
-> > > 
-> > > Any thoughts on how this should be merged? I'm concerned about 
-> > > merging without a working policy server that has been reviewed as 
-> > > well.
-> > > 
-> > 
-> > Its available, review it ;)
-> 
-> I have - every time you have posted an RFC.
-> 
 
-I meant the policy server itself.
+--=-eAUClcdu6gom7mt0WwQX
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-> >  Note that it won't work with _just_ this patch set as it 
-> expects the 
-> > enforcement hooks to be present. It should be trivial to 
-> comment out 
-> > all the function pointers to get it to work without that though.
-> > 
-> 
-> But there is a working set of patches somewhere?
-> 
+On Tue, 2007-04-24 at 19:12 -0400, James Antill wrote:
+> On Mon, 2007-04-23 at 17:34 -0400, jbrindle@tresys.com wrote:
+> > This is the majority of the patches from the policy server release a fe=
+w months ago. This implements object serialization to send objects (eg., bo=
+oleans, file contexts, etc) across the line to the policy server. It also i=
+mplements the line protocol to connect to the policy server and the backend=
+ for libsemanage so that semodule, semanage, etc will talk to a policy serv=
+er instead of doing local operations.
+> >=20
+> > The object serialization will also be necessary for the policy represen=
+tation branch as we will use this infrastructure to serialize the policy tr=
+ee for module reading and writing.
+> >=20
+> > The only part left for the policy server is the hooks that were impleme=
+nted in the expander. As the policy representation work is going on and sho=
+uld remove the expander entirely these patches will have to wait until we h=
+ave enough of the new representation work to implement them there.
+> >=20
+> > This is obviously meant only for trunk and the policyrep branch.
+>=20
+>  Karl asked me to have a look at this, and I haven't looked at all of
+> it ... but what I have seen worries me a bit.
 
-Yes, which include the hooks, I sent a link to the list which you
-responded to:
-http://marc.info/?l=selinux&m=117286669726063&w=2
 
-The full set of patches are in the srpms and in the svn tree.
+ Here's the first parts:
 
-> > > * What are your plans for the policy server - will it be proposed 
-> > > for inclusion upstream?
-> > > 
-> > 
-> > That was never my intention.
-> > 
-> 
-> Well - that is a problem in my opinion. I think we get two choices:
-> 
-> 1) policy server and libsemanage are both upstream and are 
-> considered closely coupled and developed in parallel.
-> 
-> 2) protocol for communication with a policy server is well 
-> documented and designed for interop with multiple server 
-> implementations.
-> 
+[patch 01]
+=20
+int sepol_serialize(sepol_handle_t * handle,
+		    const void *datum,
+		    size_t datum_length,
+		    unsigned int datum_type, char **data, uint64_t * size)
+		   =20
+ This is better fixed by Karl's suggestion of not having a single function,=
+ but having datum_length which is ignored for SEPOL_SERIAL_INT32_T etc. is =
+confusing.
 
-I was going to go for #2. It doesn't matter that much to me though, we
-could put the policy server in the upstream tree.
+ The serialization for SEPOL_SERIAL_STRING:
+  Why are you using snprintf()?
+  You are moving datum_length into status (size_t into int), which is just =
+asking for pain.
 
-> If you want these huge, intrusive changes for code that won't 
-> be part of upstream I think there needs to be some 
-> justification. Why should upstream take on the maintenance of 
-> code that it ultimately can't fix (because of a huge external 
-> dependency)? Why is this better as a separate project? How 
-> will maintenance work? Is a different implementation of the 
-> policy server really feasible or are the changes really 
-> tailored to your specific implementation?
-> 
+int sepol_unserialize(sepol_handle_t * handle,
+		char **data, uint64_t * size,
+		void **datum,
+		size_t ** datum_length,
+		unsigned int datum_type)
 
-It's a generic protocol and we provide generic hooks (we actually
-provide more data in the hooks than my specific implementation uses). I
-don't know how useful another implementation would be, though.
+SEPOL_SERIAL_STRING_ARRAY:
+                               /* Datum. */
+				*datum =3D
+					calloc(sizeof(char *),
+							sizeof(char *) * (**datum_length));
 
-> > > * What is the timeline for completion of the policy server?
-> > > 
-> > 
-> > I sent out an RFC/announcement a while back about its 
-> availability on 
-> > oss.tresys.com, noone bothered to respond.
-> > 
-> 
-> I responded - 
-> http://marc.info/?l=selinux&m=117286669726063&w=2. That is 
-> where I first asked about an exec based server.
-> 
+ I'm pretty sure you want calloc(sizeof(char *), **datum_length);
 
-Err.. Right, sorry about that
+[patch 10]
 
-> > > * Are their any docs at all about the protocol?
-> > > 
-> > 
-> > Some, I'll dig them out and post them on oss.
-> > 
-> > > * Any progress on the exec-based policy server instead of 
-> the long 
-> > > running daemon?
-> > > 
-> > 
-> > The exec-based one has nothing to do with this patchset. The exec 
-> > based policy server would merely run with the new and old 
-> policies as 
-> > arguments and do its thing, it would not need to communicate with 
-> > libsemanage.
-> 
-> I don't think that would work - how are you going to detect 
-> changes to port labels or seusers? It would at least be 
-> massively inefficient.
-> 
+=20
+ int dbase_serialize(struct semanage_handle *handle,
+		    dbase_config_t * dconfig,
+		    char **data, uint64_t * data_length)
 
-The policy server will eventually have to implement access control on
-ocontext changes and we could just pass the whole active and previous
-directories to it to do the things not in policies, like seusers. I
-guess we could make it work with a socket pair though.
+ size_t can still be 32bits, so storing uint64_t's in it might be bad.
+ I'm not sure I understand what the completed_count is doing, are you leaki=
+ng anything if the calloc() fails? I think you want to free upto count all =
+the time.=20
 
-> You can simply exec the server and communicate over 
-> unix-domain sockets (or a pair pipes). That would make the 
-> two servers very similar.
-> 
-> >  This patchset is for the long-running daemon that listens 
-> on a unix 
-> > domain socket or tcp socket. The exec based one should come 
-> along with 
-> > the hook code when that gets ported over to the new representation.
-> > 
-> 
-> What is the justification for the long-running daemon?
-> 
+[patch 12]
+ semanage_serialize is an exact copy of sepol_serialize, AFAICS, so see abo=
+ve.
+=20
+[patch 16]
 
-Network management.
+ I assume semanage_fcontext_get_con(fcontext) doesn't allocate anything, st=
+ill it'd be nice to not call it twice and just reuse con.
+=20
+ I worry about having semanage_fcontext_unserialize() leave fcontext alloca=
+ted on failure. A bunch of code does this with arrays ... but even so.
+=20
+[patch 21]
+=20
+ Dito. user_extra is left allocated on the failure path, in semanage_user_e=
+xtra_unserialize.
+ Dito. user is left allocated on the failure path, in semanage_user_unseria=
+lize.
+=20
+[patch 22]
+ =20
+ for (i =3D 0; i < *modules_size; i++) {
+		/* Module name. */
+		status =3D semanage_unserialize(handle, data, size, (void **)&(*modules)[=
+i].name, &temp_size, SEMANAGE_SERIAL_STRING);
+		if (status !=3D STATUS_SUCCESS)
+			goto cleanup;
 
-> > > Basically - this patch set is too large to review, there 
-> have been 
-> > > no ongoing design discussions, there is no way to review large 
-> > > portions of the patch set due to external dependencies, 
-> and I have 
-> > > seen no proposed plan for merging.
-> > > 
-> > 
-> > There have been occasional RFC's that noone responded to. 
-> > 
-> 
-> I've responded to every RFC and stated these concerns every 
-> time. Trying to suggest that nobody has responded is very inaccurate.
-> 
+		/* Module version. */
+		status =3D semanage_unserialize(handle, data, size, (void **)&(*modules)[=
+i].version, &temp_size, SEMANAGE_SERIAL_STRING);
+		if (status !=3D STATUS_SUCCESS)
+		        goto cleanup;
+}
 
-Ok, ok, sorry about that mischaractorization.
+ temp_size is allocated on _each call_ to unserialize.=20
+=20
+[patch 23]
+=20
+ Why are you calling serialize twice, INT32_T is a fixed size, no?
 
-> > > I have voiced these concerns previously and without at 
-> least some of 
-> > > the above I'm opposed merging at this time.
-> > > 
-> > 
-> > I believe you have some misconceptions about this patchset, 
-> read below.
-> > 
-> 
-> I don't think so. Basically - this forms the lowest part of 
-> the policy server protocol. Trying to understand whether 
-> these patches make sense in that context means understanding 
-> the system as a whole. Yes you have posted pieces, but I have 
-> not seen something that works end-to-end.
-> 
+--=20
+James Antill <jantill@redhat.com>
 
-The stuff on oss works end-to-end.
+--=-eAUClcdu6gom7mt0WwQX
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
 
-> Additionally, you keep posting these massive patch sets. They 
-> are not reviewable in any sane way.
-> 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.7 (GNU/Linux)
 
-Right, we've been sitting on these patches, I'll try to be better about
-doing things incrementally in the future (but to be fair this has been
-in the works for quite some time).
+iD8DBQBGLt0a11eXTEMrxtQRAi0kAJ90KNBodl2p9DsQFMJe+euiSOF+1QCgiuWy
++izg4YUAagnqjzJP4Iics6o=
+=nF2Z
+-----END PGP SIGNATURE-----
 
-> > > I would suggest as an alternative plan you do a depth-first 
-> > > submission instead of the breadth-first approach that you are 
-> > > currently attempting.
-> > > That would allow a review of the end-to-end design with a 
-> relatively 
-> > > small amount of code. From that point expanding the 
-> coverage would 
-> > > only require a quick review that the patch continues on 
-> the already 
-> > > accepted approach.
-> > > 
-> > > That steps that I suggest are:
-> > > 
-> > > * Choose a _single_ and _simple_ semanage operation to control.
-> > > Something like adding a role to a user.
-> > > 
-> > 
-> > This patchset nor the hooks currently available do access 
-> control on 
-> > semanage operations. Only policy modules have enforcement hooks 
-> > written
-> 
-> Yes, but they need to eventually and without that serializing 
-> all of these data structures is not useful (at the moment). 
-> If they are only going to be used for the policyrep then we 
-> should merge them later and tailor them for that usage.
-> 
-
-They should be useful for both cases. We'll need them for policyrep soon
-and for policy server later, I was hoping to have them up and
-generalized for both usages.
-
-> > > * Post a minimal policy server that can control this operation 
-> > > (preferably exec-based).
-> > > 
-> > 
-> > As part of the hooks, yes.
-> > 
-> > > * Post the libsemange code to communicate with the server _only_ 
-> > > that single operation.
-> > > 
-> > 
-> > That is silly, to choose a new backend for libsemanage you need all 
-> > the function pointers. Filling in all of them with direct versions 
-> > except for a single one would be at least confusing and at 
-> most would 
-> > break badly since both the local semanage and the policy 
-> server would 
-> > attempt to lock the store.
-> > 
-> 
-> Of course it would only work for a limited set of operations 
-> (and the rest would likely return an error rather than having 
-> direct versions substituted).
-> 
-
-That won't work with the current libsemanage setup, it'll just fail
-anytime you try to do anything.
-
-> The point is that it would allow review of a smaller set of 
-> patches that makes some sort of sense as a whole. Your 
-> submissions are not tailored for thorough review and any 
-> feedback you receive is going to be shallow.
-> I think that is harmful in the long run.
-> 
-
-Yes, big bang integration sucks and this patch set to implement
-serialization was much bigger than I'd have liked it to be but its all
-done and starting over now makes little sense.
-
-> If others (Steve and Darrell) want to merge these patches that's fine.
-> But based on the problems I have seen so far, the size of 
-> this patch set, and the _many_ larger questions I'm opposed.
-> 
-> My biggest concern, honestly, is the long term viability and 
-> maintenance of this code.
-> 
-
-Fair enough.
+--=-eAUClcdu6gom7mt0WwQX--
 
 
 --
