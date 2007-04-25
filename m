@@ -1,60 +1,111 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l3PFXJNV029580
-	for <selinux@tycho.nsa.gov>; Wed, 25 Apr 2007 11:33:19 -0400
-Received: from web86906.mail.ukl.yahoo.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with SMTP id l3PFWpcu008503
-	for <selinux@tycho.nsa.gov>; Wed, 25 Apr 2007 15:32:52 GMT
-Date: Wed, 25 Apr 2007 15:31:00 +0000 (GMT)
-From: JanuGerman <doublemalam@yahoo.co.uk>
-Subject: Re: cannot login using strict policy
-To: Karl MacMillan <kmacmillan@mentalrootkit.com>
-Cc: SELinux List <selinux@tycho.nsa.gov>, Stephen Smalley <sds@tycho.nsa.gov>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ascii
-Message-ID: <706356.14667.qm@web86906.mail.ukl.yahoo.com>
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l3PFeSp2030112
+	for <selinux@tycho.nsa.gov>; Wed, 25 Apr 2007 11:40:28 -0400
+Received: from mx1.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id l3PFeRwY029445
+	for <selinux@tycho.nsa.gov>; Wed, 25 Apr 2007 15:40:28 GMT
+Subject: RE: [PATCH 01/33] libsepol: basic serilization support
+From: Karl MacMillan <kmacmillan@mentalrootkit.com>
+To: Joshua Brindle <jbrindle@tresys.com>
+Cc: selinux@tycho.nsa.gov
+In-Reply-To: <6FE441CD9F0C0C479F2D88F959B01588B40435@exchange.columbia.tresys.com>
+References: <20070423213455.741326000@tresys.com>
+	 <20070423213721.090230000@tresys.com>
+	 <1177444855.10744.25.camel@localhost.localdomain>
+	 <6FE441CD9F0C0C479F2D88F959B01588A71AE2@exchange.columbia.tresys.com>
+	 <1177476585.3428.91.camel@localhost.localdomain>
+	 <6FE441CD9F0C0C479F2D88F959B01588A71B39@exchange.columbia.tresys.com>
+	 <1177514210.3428.117.camel@localhost.localdomain>
+	 <6FE441CD9F0C0C479F2D88F959B01588B40435@exchange.columbia.tresys.com>
+Content-Type: text/plain
+Date: Wed, 25 Apr 2007 11:40:22 -0400
+Message-Id: <1177515622.3428.126.camel@localhost.localdomain>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hi Karl,
+On Wed, 2007-04-25 at 11:21 -0400, Joshua Brindle wrote:
+> > From: Karl MacMillan [mailto:kmacmillan@mentalrootkit.com] 
+> > 
+> > On Wed, 2007-04-25 at 10:14 -0400, Joshua Brindle wrote:
+> > > > From: Karl MacMillan [mailto:kmacmillan@mentalrootkit.com]
+> > 
+> > <snip>
+> > 
+> > > > > 
+> > > > > SEPOL_SERIAL_SIZE_T is always 64 bits. We should be 
+> > checking if it 
+> > > > > tries to serialize into a smaller type, if not that's a bug.
+> > > > > 
+> > > > 
+> > > > How can that be? On a 64bit platform I can represent a size that 
+> > > > can't be represented by a 32bit size_t. How can I 
+> > transfer this data 
+> > > > to a 32bit system? I can't put it in a data structure 
+> > with size_t - 
+> > > > it would have to be unint64_t.
+> > > > So why not just use that?
+> > > > 
+> > > 
+> > > That's why I said "We should be checking if it tries to 
+> > serialize into 
+> > > a smaller type, if not that's a bug"
+> > > 
+> > > IIRC we needed something that could serialize/unserialize size_t 
+> > > because its used in some components that we serialize. We 
+> > could always 
+> > > cast to uint64_t and serialize it that way (which is pretty 
+> > much what 
+> > > we are doing anyway).
+> > > 
+> > 
+> > Something is going wrong in our communication here. You 
+> > _cannot_ reliably transfer size_t from a 64bit system to a 
+> > 32bit system (assuming that size_t is 64 and 32 bits 
+> > respectively). That means that you cannot reliably serialize 
+> > data structures that use size_t - you must change the data 
+> > structures. Otherwise the serialized data will not be valid 
+> > on all systems.
+> > 
+> > There is no way to check "if it tries to serialize into a 
+> > smaller type"
+> > - you will always hit this condition at some point.
+> > 
+> > As for the size, C99 says:
+> > 
+> > "The value of the result [of sizeof] is 
+> > implementation-defined, and its type (an unsigned integer 
+> > type) is size_t,"
+> > 
+> > Later it says:
+> > 
+> > "The types used for size_t and ptrdiff_t should not have an 
+> > integer conversion rank greater than that of signed long int 
+> > unless the implementation supports objects large enough to 
+> > make this necessary."
+> > 
+> > I read that to say that the width of size_t is implementation 
+> > defined and could be larger that 64 bits.
+> 
+> How do you suppose we should serialize variables that are normally
+> size_t then? For example, a policy module is essentially a file that
+> gets sent across and has a length of size_t, all the policy module
+> functions (eg., sepol_load_policy, etc) use a size_t so we have to
+> serialize it and unserialize it in some way.
+> 
 
-Thanks for the response. I have to reboot with 'selinux=0' in order to diagnose the type of .bash_profile. It is 'root:object_r:user_home_t:s0'. This seems to me a problem, like every time, i will have to reboot with selinux=0, in order to get the attributes of the file. Plus one question regarding the unconfined_t. Is unconfined_t is changed to confined_t in strict policy mode?
+You define the size as uint64_t or uint32_t and check for overflow
+everywhere you convert from size_t (or long for things like fseek).
 
-Best,
-JG
+> There is an assumption here that a policy file will never be longer than
+> uint64 long, probably a fair assumption. On 32 bit systems I'll cast
+> into a 32 bit and if its too long it should error out.
 
------ Original Message ----
-From: Karl MacMillan <kmacmillan@mentalrootkit.com>
-To: JanuGerman <doublemalam@yahoo.co.uk>
-Cc: SELinux List <selinux@tycho.nsa.gov>; Stephen Smalley <sds@tycho.nsa.gov>
-Sent: Wednesday, 25 April, 2007 5:20:28 PM
-Subject: Re: cannot login using strict policy
-
-On Wed, 2007-04-25 at 14:52 +0000, JanuGerman wrote:
-> I have installed strict policy and then relabelled the files using 'fixfiles relablel' after rebooting with 'enforcing=0 single'. Every thing went well, but when i try to login, i get an error message that 
-> localuser:root being added to access control list
-> -/bin/bash: /root/.bash_profile: permission denied.
-> Any idea?
-
-What is the type on /root/.bash_profile? Any avcs?
+Are you using this only for policy file offsets or for length? I would
+consider using uint32_t - that is likely sufficient.
 
 Karl
 
-
-
-
---
-This message was distributed to subscribers of the selinux mailing list.
-If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
-the words "unsubscribe selinux" without quotes as the message.
-
-
-
-
-
-      ___________________________________________________________
-Yahoo! Answers - Got a question? Someone out there knows the answer. Try it
-now.
-http://uk.answers.yahoo.com/ 
 
 --
 This message was distributed to subscribers of the selinux mailing list.
