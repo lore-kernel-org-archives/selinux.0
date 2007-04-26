@@ -1,5 +1,5 @@
-Subject: [PATCH 2/6] libsepol: Remove obsolete interfaces and code used to
-	support local boolean and user files
+Subject: [PATCH 3/6] libselinux: Remove obsolete interfaces and code for
+	local boolean and user files
 From: Stephen Smalley <sds@tycho.nsa.gov>
 To: selinux@tycho.nsa.gov
 Cc: Karl MacMillan <kmacmillan@mentalrootkit.com>,
@@ -8,57 +8,143 @@ Cc: Karl MacMillan <kmacmillan@mentalrootkit.com>,
 In-Reply-To: <1177594803.24282.322.camel@moss-spartans.epoch.ncsc.mil>
 References: <1177594803.24282.322.camel@moss-spartans.epoch.ncsc.mil>
 Content-Type: text/plain
-Date: Thu, 26 Apr 2007 09:51:38 -0400
-Message-Id: <1177595498.24282.332.camel@moss-spartans.epoch.ncsc.mil>
+Date: Thu, 26 Apr 2007 09:53:54 -0400
+Message-Id: <1177595634.24282.335.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Remove obsolete interfaces and code used to support local
-boolean and user files.
+Remove obsolete interfaces and code for local boolean and user files,
+and remove the permanent flag from the security_set_boolean_list()
+interface.
 
 Signed-off-by:  Stephen Smalley <sds@tycho.nsa.gov>
 
 ---
 
- libsepol/man/man3/sepol_genbools.3 |   16 -
- libsepol/man/man3/sepol_genusers.3 |   54 ------
- libsepol/man/man8/genpolbools.8    |   16 -
- libsepol/man/man8/genpolusers.8    |   42 ----
- libsepol/src/genbools.c            |  179 ---------------------
- libsepol/src/genusers.c            |  315 -------------------------------------
- libsepol/src/libsepol.map          |    4 
- 7 files changed, 6 insertions(+), 620 deletions(-)
+ libselinux/include/selinux/selinux.h             |   10 -
+ libselinux/man/man3/security_load_booleans.3     |   22 +-
+ libselinux/man/man3/selinux_binary_policy_path.3 |    5 
+ libselinux/man/man3/selinux_booleans_path.3      |    1 
+ libselinux/src/booleans.c                        |  213 -----------------------
+ libselinux/src/file_path_suffixes.h              |    2 
+ libselinux/src/selinux_config.c                  |   36 +--
+ libselinux/src/selinux_internal.h                |    2 
+ libselinux/src/selinuxswig.i                     |    6 
+ 9 files changed, 26 insertions(+), 271 deletions(-)
 
-Index: policyrep/libsepol/src/libsepol.map
+
+Index: policyrep/libselinux/src/selinux_internal.h
 ===================================================================
---- policyrep/libsepol/src/libsepol.map	(revision 2382)
-+++ policyrep/libsepol/src/libsepol.map	(working copy)
-@@ -1,12 +1,12 @@
- LIBSEPOL_2.0 {
-   global: 
- 	sepol_module_package_*; sepol_link_modules; sepol_expand_module; sepol_link_packages;
--	sepol_bool_*; sepol_genbools*; 
-+	sepol_bool_*; sepol_genbools_array; 
- 	sepol_context_*; sepol_mls_*; sepol_check_context;
- 	sepol_iface_*; 
- 	sepol_port_*;
- 	sepol_node_*;
--	sepol_user_*; sepol_genusers; sepol_set_delusers;
-+	sepol_user_*; 
- 	sepol_msg_*; sepol_debug;
- 	sepol_handle_*;
- 	sepol_policydb_*; sepol_set_policydb_from_file; 
-Index: policyrep/libsepol/src/genbools.c
+--- policyrep/libselinux/src/selinux_internal.h	(revision 2382)
++++ policyrep/libselinux/src/selinux_internal.h	(working copy)
+@@ -62,14 +62,12 @@
+     hidden_proto(selinux_netfilter_context_path)
+     hidden_proto(selinux_homedir_context_path)
+     hidden_proto(selinux_user_contexts_path)
+-    hidden_proto(selinux_booleans_path)
+     hidden_proto(selinux_customizable_types_path)
+     hidden_proto(selinux_media_context_path)
+     hidden_proto(selinux_path)
+     hidden_proto(selinux_check_passwd_access)
+     hidden_proto(selinux_check_securetty_context)
+     hidden_proto(matchpathcon_init_prefix)
+-    hidden_proto(selinux_users_path)
+     hidden_proto(selinux_usersconf_path);
+ hidden_proto(selinux_translations_path);
+ hidden_proto(selinux_getenforcemode);
+Index: policyrep/libselinux/src/selinux_config.c
 ===================================================================
---- policyrep/libsepol/src/genbools.c	(revision 2382)
-+++ policyrep/libsepol/src/genbools.c	(working copy)
-@@ -10,185 +10,6 @@
- #include "private.h"
- #include "dso.h"
+--- policyrep/libselinux/src/selinux_config.c	(revision 2382)
++++ policyrep/libselinux/src/selinux_config.c	(working copy)
+@@ -27,18 +26,16 @@
+ #define USER_CONTEXTS     5
+ #define FAILSAFE_CONTEXT  6
+ #define DEFAULT_TYPE      7
+-#define BOOLEANS          8
+-#define MEDIA_CONTEXTS    9
+-#define REMOVABLE_CONTEXT 10
+-#define CUSTOMIZABLE_TYPES    11
+-#define USERS_DIR         12
+-#define SEUSERS           13
+-#define TRANSLATIONS      14
+-#define NETFILTER_CONTEXTS    15
+-#define FILE_CONTEXTS_HOMEDIR 16
+-#define FILE_CONTEXTS_LOCAL 17
+-#define SECURETTY_TYPES   18
+-#define NEL               19
++#define MEDIA_CONTEXTS    8
++#define REMOVABLE_CONTEXT 9
++#define CUSTOMIZABLE_TYPES    10
++#define SEUSERS           11
++#define TRANSLATIONS      12
++#define NETFILTER_CONTEXTS    13
++#define FILE_CONTEXTS_HOMEDIR 14
++#define FILE_CONTEXTS_LOCAL 15
++#define SECURETTY_TYPES   16
++#define NEL               17
  
--/* -- Deprecated -- */
+ /* New layout is relative to SELINUXDIR/policytype. */
+ static char *file_paths[NEL];
+@@ -321,20 +314,6 @@
+ 
+ hidden_def(selinux_user_contexts_path)
+ 
+-const char *selinux_booleans_path()
+-{
+-	return get_path(BOOLEANS);
+-}
 -
+-hidden_def(selinux_booleans_path)
+-
+-const char *selinux_users_path()
+-{
+-	return get_path(USERS_DIR);
+-}
+-
+-hidden_def(selinux_users_path)
+-
+ const char *selinux_usersconf_path()
+ {
+ 	return get_path(SEUSERS);
+Index: policyrep/libselinux/include/selinux/selinux.h
+===================================================================
+--- policyrep/libselinux/include/selinux/selinux.h	(revision 2382)
++++ policyrep/libselinux/include/selinux/selinux.h	(working copy)
+@@ -236,14 +236,8 @@
+ 	} SELboolean;
+ 	/* save a list of booleans in a single transaction.  */
+ 	extern int security_set_boolean_list(size_t boolcnt,
+-					     SELboolean * boollist,
+-					     int permanent);
++					     SELboolean * boollist);
+ 
+-/* Load policy boolean settings.
+-   Path may be NULL, in which case the booleans are loaded from
+-   the active policy boolean configuration file. */
+-	extern int security_load_booleans(char *path);
+-
+ /* Check the validity of a security context. */
+ 	extern int security_check_context(security_context_t con);
+ 	extern int security_check_context_raw(security_context_t con);
+@@ -422,9 +416,7 @@
+ 	extern const char *selinux_media_context_path(void);
+ 	extern const char *selinux_contexts_path(void);
+ 	extern const char *selinux_securetty_types_path(void);
+-	extern const char *selinux_booleans_path(void);
+ 	extern const char *selinux_customizable_types_path(void);
+-	extern const char *selinux_users_path(void);
+ 	extern const char *selinux_usersconf_path(void);
+ 	extern const char *selinux_translations_path(void);
+ 	extern const char *selinux_netfilter_context_path(void);
+Index: policyrep/libselinux/src/booleans.c
+===================================================================
+--- policyrep/libselinux/src/booleans.c	(revision 2382)
++++ policyrep/libselinux/src/booleans.c	(working copy)
+@@ -234,162 +234,6 @@
+ 
+ hidden_def(security_commit_booleans)
+ 
 -static char *strtrim(char *dest, char *source, int size)
 -{
 -	int i = 0;
@@ -76,7 +162,6 @@ Index: policyrep/libsepol/src/genbools.c
 -	dest[i + 1] = '\0';
 -	return dest;
 -}
--
 -static int process_boolean(char *buffer, char *name, int namesize, int *val)
 -{
 -	char name1[BUFSIZ];
@@ -100,8 +185,7 @@ Index: policyrep/libsepol/src/genbools.c
 -				 (tok, "false", sizeof("false") - 1))
 -				*val = 0;
 -			if (*val != 0 && *val != 1) {
--				ERR(NULL, "illegal value for boolean "
--				    "%s=%s", name, tok);
+-				errno = EINVAL;
 -				return -1;
 -			}
 -
@@ -109,617 +193,327 @@ Index: policyrep/libsepol/src/genbools.c
 -	}
 -	return 1;
 -}
--
--static int load_booleans(struct policydb *policydb, const char *path,
--			 int *changesp)
+-static int save_booleans(size_t boolcnt, SELboolean * boollist)
 -{
+-	ssize_t len;
+-	size_t i;
+-	char outbuf[BUFSIZ];
+-	char *inbuf = NULL;
+-
+-	/* Open file */
+-	const char *bool_file = selinux_booleans_path();
+-	char local_bool_file[PATH_MAX];
+-	char tmp_bool_file[PATH_MAX];
 -	FILE *boolf;
--	char *buffer = NULL;
--	size_t size = 0;
--	char localbools[BUFSIZ];
--	char name[BUFSIZ];
--	int val;
--	int errors = 0, changes = 0;
--	struct cond_bool_datum *datum;
--
--	boolf = fopen(path, "r");
--	if (boolf == NULL)
--		goto localbool;
--
--	while (getline(&buffer, &size, boolf) > 0) {
--		int ret = process_boolean(buffer, name, sizeof(name), &val);
--		if (ret == -1)
--			errors++;
--		if (ret == 1) {
--			datum = hashtab_search(policydb->p_bools.table, name);
--			if (!datum) {
--				ERR(NULL, "unknown boolean %s", name);
--				errors++;
--				continue;
--			}
--			if (datum->state != val) {
--				datum->state = val;
--				changes++;
--			}
--		}
+-	int fd;
+-	int *used = (int *)malloc(sizeof(int) * boolcnt);
+-	if (!used) {
+-		return -1;
 -	}
--	fclose(boolf);
--      localbool:
--	snprintf(localbools, sizeof(localbools), "%s.local", path);
--	boolf = fopen(localbools, "r");
+-	/* zero out used field */
+-	for (i = 0; i < boolcnt; i++)
+-		used[i] = 0;
+-
+-	snprintf(tmp_bool_file, sizeof(tmp_bool_file), "%s.XXXXXX", bool_file);
+-	fd = mkstemp(tmp_bool_file);
+-	if (fd < 0) {
+-		free(used);
+-		return -1;
+-	}
+-
+-	snprintf(local_bool_file, sizeof(local_bool_file), "%s.local",
+-		 bool_file);
+-	boolf = fopen(local_bool_file, "r");
 -	if (boolf != NULL) {
--		while (getline(&buffer, &size, boolf) > 0) {
--			int ret =
--			    process_boolean(buffer, name, sizeof(name), &val);
--			if (ret == -1)
--				errors++;
--			if (ret == 1) {
--				datum =
--				    hashtab_search(policydb->p_bools.table,
--						   name);
--				if (!datum) {
--					ERR(NULL, "unknown boolean %s", name);
--					errors++;
--					continue;
+-		ssize_t ret;
+-		size_t size = 0;
+-		int val;
+-		char boolname[BUFSIZ];
+-		char *buffer;
+-		inbuf = NULL;
+-		__fsetlocking(boolf, FSETLOCKING_BYCALLER);
+-		while ((len = getline(&inbuf, &size, boolf)) > 0) {
+-			buffer = strdup(inbuf);
+-			if (!buffer)
+-				goto close_remove_fail;
+-			ret =
+-			    process_boolean(inbuf, boolname, sizeof(boolname),
+-					    &val);
+-			if (ret != 1) {
+-				ret = write(fd, buffer, len);
+-				free(buffer);
+-				if (ret != len)
+-					goto close_remove_fail;
+-			} else {
+-				free(buffer);
+-				for (i = 0; i < boolcnt; i++) {
+-					if (strcmp(boollist[i].name, boolname)
+-					    == 0) {
+-						snprintf(outbuf, sizeof(outbuf),
+-							 "%s=%d\n", boolname,
+-							 boollist[i].value);
+-						len = strlen(outbuf);
+-						used[i] = 1;
+-						if (write(fd, outbuf, len) !=
+-						    len)
+-							goto close_remove_fail;
+-						else
+-							break;
+-					}
 -				}
--				if (datum->state != val) {
--					datum->state = val;
--					changes++;
+-				if (i == boolcnt) {
+-					snprintf(outbuf, sizeof(outbuf),
+-						 "%s=%d\n", boolname, val);
+-					len = strlen(outbuf);
+-					if (write(fd, outbuf, len) != len)
+-						goto close_remove_fail;
 -				}
 -			}
+-			free(inbuf);
+-			inbuf = NULL;
 -		}
 -		fclose(boolf);
 -	}
--	free(buffer);
+-
+-	for (i = 0; i < boolcnt; i++) {
+-		if (used[i] == 0) {
+-			snprintf(outbuf, sizeof(outbuf), "%s=%d\n",
+-				 boollist[i].name, boollist[i].value);
+-			len = strlen(outbuf);
+-			if (write(fd, outbuf, len) != len) {
+-			      close_remove_fail:
+-				free(inbuf);
+-				close(fd);
+-			      remove_fail:
+-				unlink(tmp_bool_file);
+-				free(used);
+-				return -1;
+-			}
+-		}
+-
+-	}
+-	if (fchmod(fd, S_IRUSR | S_IWUSR) != 0)
+-		goto close_remove_fail;
+-	close(fd);
+-	if (rename(tmp_bool_file, local_bool_file) != 0)
+-		goto remove_fail;
+-
+-	free(used);
+-	return 0;
+-}
+ static void rollback(SELboolean * boollist, int end)
+ {
+ 	int i;
+@@ -400,11 +244,11 @@
+ 								 name));
+ }
+ 
+-int security_set_boolean_list(size_t boolcnt, SELboolean * boollist,
+-			      int permanent)
++int security_set_boolean_list(size_t boolcnt, SELboolean * boollist)
+ {
+ 
+ 	size_t i;
++
+ 	for (i = 0; i < boolcnt; i++) {
+ 		if (security_set_boolean(boollist[i].name, boollist[i].value)) {
+ 			rollback(boollist, i);
+@@ -416,59 +260,6 @@
+ 	if (security_commit_booleans()) {
+ 		return -1;
+ 	}
+-
+-	if (permanent)
+-		return save_booleans(boolcnt, boollist);
+-
+ 	return 0;
+ }
+-int security_load_booleans(char *path)
+-{
+-	FILE *boolf;
+-	char *inbuf;
+-	char localbools[BUFSIZ];
+-	size_t len = 0, errors = 0;
+-	int val;
+-	char name[BUFSIZ];
+ 
+-	boolf = fopen(path ? path : selinux_booleans_path(), "r");
+-	if (boolf == NULL)
+-		goto localbool;
+-
+-	__fsetlocking(boolf, FSETLOCKING_BYCALLER);
+-	while (getline(&inbuf, &len, boolf) > 0) {
+-		int ret = process_boolean(inbuf, name, sizeof(name), &val);
+-		if (ret == -1)
+-			errors++;
+-		if (ret == 1)
+-			if (security_set_boolean(name, val) < 0) {
+-				errors++;
+-			}
+-	}
+-	fclose(boolf);
+-      localbool:
+-	snprintf(localbools, sizeof(localbools), "%s.local",
+-		 (path ? path : selinux_booleans_path()));
+-	boolf = fopen(localbools, "r");
+-
+-	if (boolf != NULL) {
+-		int ret;
+-		__fsetlocking(boolf, FSETLOCKING_BYCALLER);
+-		while (getline(&inbuf, &len, boolf) > 0) {
+-			ret = process_boolean(inbuf, name, sizeof(name), &val);
+-			if (ret == -1)
+-				errors++;
+-			if (ret == 1)
+-				if (security_set_boolean(name, val) < 0) {
+-					errors++;
+-				}
+-		}
+-		fclose(boolf);
+-	}
+-	if (security_commit_booleans() < 0)
+-		return -1;
+-
 -	if (errors)
 -		errno = EINVAL;
--	*changesp = changes;
 -	return errors ? -1 : 0;
 -}
--
--int sepol_genbools(void *data, size_t len, char *booleans)
--{
--	struct policydb policydb;
--	struct policy_file pf;
--	int rc, changes = 0;
--
--	if (policydb_init(&policydb))
--		goto err;
--	if (policydb_from_image(NULL, data, len, &policydb) < 0)
--		goto err;
--
--	if (load_booleans(&policydb, booleans, &changes) < 0) {
--		WARN(NULL, "error while reading %s", booleans);
--	}
--
--	if (!changes)
--		goto out;
--
--	if (evaluate_conds(&policydb) < 0) {
--		ERR(NULL, "error while re-evaluating conditionals");
--		errno = EINVAL;
--		goto err_destroy;
--	}
--
--	pf.type = PF_USE_MEMORY;
--	pf.data = data;
--	pf.len = len;
--	rc = policydb_write(&policydb, &pf);
--	if (rc) {
--		ERR(NULL, "unable to write new binary policy image");
--		errno = EINVAL;
--		goto err_destroy;
--	}
--
--      out:
--	policydb_destroy(&policydb);
--	return 0;
--
--      err_destroy:
--	policydb_destroy(&policydb);
--
--      err:
--	return -1;
--}
--
--int hidden sepol_genbools_policydb(policydb_t * policydb, const char *booleans)
--{
--	int rc, changes = 0;
--
--	rc = load_booleans(policydb, booleans, &changes);
--	if (!rc && changes)
--		rc = evaluate_conds(policydb);
--	if (rc)
--		errno = EINVAL;
--	return rc;
--}
--
--/* -- End Deprecated -- */
--
- int sepol_genbools_array(void *data, size_t len, char **names, int *values,
- 			 int nel)
- {
-Index: policyrep/libsepol/src/genusers.c
+Index: policyrep/libselinux/src/file_path_suffixes.h
 ===================================================================
---- policyrep/libsepol/src/genusers.c	(revision 2382)
-+++ policyrep/libsepol/src/genusers.c	(working copy)
-@@ -1,315 +0,0 @@
--#include <stdio.h>
--#include <stdio_ext.h>
--#include <stdlib.h>
--#include <ctype.h>
--#include <errno.h>
--#include <limits.h>
--
--#include <sepol/policydb/policydb.h>
--#include <stdarg.h>
--
--#include "debug.h"
--#include "private.h"
--#include "dso.h"
--#include "mls.h"
--
--/* -- Deprecated -- */
--
--void sepol_set_delusers(int on __attribute((unused)))
--{
--	WARN(NULL, "Deprecated interface");
--}
--
--#undef BADLINE
--#define BADLINE() { \
--	ERR(NULL, "invalid entry %s (%s:%u)", \
--		buffer, path, lineno); \
--	continue; \
--}
--
--static int load_users(struct policydb *policydb, const char *path)
--{
--	FILE *fp;
--	char *buffer = NULL, *p, *q, oldc;
--	size_t len = 0;
--	ssize_t nread;
--	unsigned lineno = 0, islist = 0, bit;
--	user_datum_t *usrdatum;
--	role_datum_t *roldatum;
--	ebitmap_node_t *rnode;
--
--	fp = fopen(path, "r");
--	if (fp == NULL)
--		return -1;
--	__fsetlocking(fp, FSETLOCKING_BYCALLER);
--
--	while ((nread = getline(&buffer, &len, fp)) > 0) {
--		lineno++;
--		if (buffer[nread - 1] == '\n')
--			buffer[nread - 1] = 0;
--		p = buffer;
--		while (*p && isspace(*p))
--			p++;
--		if (!(*p) || *p == '#')
--			continue;
--
--		if (strncasecmp(p, "user", 4))
--			BADLINE();
--		p += 4;
--		if (!isspace(*p))
--			BADLINE();
--		while (*p && isspace(*p))
--			p++;
--		if (!(*p))
--			BADLINE();
--		q = p;
--		while (*p && !isspace(*p))
--			p++;
--		if (!(*p))
--			BADLINE();
--		*p++ = 0;
--
--		usrdatum = hashtab_search(policydb->p_users.table, q);
--		if (usrdatum) {
--			/* Replacing an existing user definition. */
--			ebitmap_destroy(&usrdatum->roles.roles);
--			ebitmap_init(&usrdatum->roles.roles);
--		} else {
--			char *id = strdup(q);
--
--			/* Adding a new user definition. */
--			usrdatum =
--			    (user_datum_t *) malloc(sizeof(user_datum_t));
--			if (!id || !usrdatum) {
--				ERR(NULL, "out of memory");
--				free(buffer);
--				fclose(fp);
--				return -1;
--			}
--			memset(usrdatum, 0, sizeof(user_datum_t));
--			usrdatum->s.value = ++policydb->p_users.nprim;
--			ebitmap_init(&usrdatum->roles.roles);
--			if (hashtab_insert(policydb->p_users.table,
--					   id, (hashtab_datum_t) usrdatum)) {
--				ERR(NULL, "out of memory");
--				free(buffer);
--				fclose(fp);
--				return -1;
--			}
--		}
--
--		while (*p && isspace(*p))
--			p++;
--		if (!(*p))
--			BADLINE();
--		if (strncasecmp(p, "roles", 5))
--			BADLINE();
--		p += 5;
--		if (!isspace(*p))
--			BADLINE();
--		while (*p && isspace(*p))
--			p++;
--		if (!(*p))
--			BADLINE();
--		if (*p == '{') {
--			islist = 1;
--			p++;
--		} else
--			islist = 0;
--
--		do {
--			while (*p && isspace(*p))
--				p++;
--			if (!(*p))
--				BADLINE();
--
--			q = p;
--			while (*p && *p != ';' && *p != '}' && !isspace(*p))
--				p++;
--			if (!(*p))
--				BADLINE();
--			if (*p == '}')
--				islist = 0;
--			oldc = *p;
--			*p++ = 0;
--			if (!q[0])
--				break;
--
--			roldatum = hashtab_search(policydb->p_roles.table, q);
--			if (!roldatum) {
--				ERR(NULL, "undefined role %s (%s:%u)",
--				    q, path, lineno);
--				continue;
--			}
--			/* Set the role and every role it dominates */
--			ebitmap_for_each_bit(&roldatum->dominates, rnode, bit) {
--				if (ebitmap_node_get_bit(rnode, bit))
--					if (ebitmap_set_bit
--					    (&usrdatum->roles.roles, bit, 1)) {
--						ERR(NULL, "out of memory");
--						free(buffer);
--						fclose(fp);
--						return -1;
--					}
--			}
--		} while (islist);
--
--		if (policydb->mls) {
--			context_struct_t context;
--			char *scontext, *r, *s;
--
--			while (*p && isspace(*p))
--				p++;
--			if (!(*p))
--				BADLINE();
--			if (strncasecmp(p, "level", 5))
--				BADLINE();
--			p += 5;
--			if (!isspace(*p))
--				BADLINE();
--			while (*p && isspace(*p))
--				p++;
--			if (!(*p))
--				BADLINE();
--			q = p;
--			while (*p && strncasecmp(p, "range", 5))
--				p++;
--			if (!(*p))
--				BADLINE();
--			*--p = 0;
--			p++;
--
--			scontext = malloc(p - q);
--			if (!scontext) {
--				ERR(NULL, "out of memory");
--				free(buffer);
--				fclose(fp);
--				return -1;
--			}
--			r = scontext;
--			s = q;
--			while (*s) {
--				if (!isspace(*s))
--					*r++ = *s;
--				s++;
--			}
--			*r = 0;
--			r = scontext;
--
--			context_init(&context);
--			if (mls_context_to_sid(policydb, oldc, &r, &context) <
--			    0) {
--				ERR(NULL, "invalid level %s (%s:%u)", scontext,
--				    path, lineno);
--				free(scontext);
--				continue;
--
--			}
--			free(scontext);
--			memcpy(&usrdatum->dfltlevel, &context.range.level[0],
--			       sizeof(usrdatum->dfltlevel));
--
--			if (strncasecmp(p, "range", 5))
--				BADLINE();
--			p += 5;
--			if (!isspace(*p))
--				BADLINE();
--			while (*p && isspace(*p))
--				p++;
--			if (!(*p))
--				BADLINE();
--			q = p;
--			while (*p && *p != ';')
--				p++;
--			if (!(*p))
--				BADLINE();
--			*p++ = 0;
--
--			scontext = malloc(p - q);
--			if (!scontext) {
--				ERR(NULL, "out of memory");
--				free(buffer);
--				fclose(fp);
--				return -1;
--			}
--			r = scontext;
--			s = q;
--			while (*s) {
--				if (!isspace(*s))
--					*r++ = *s;
--				s++;
--			}
--			*r = 0;
--			r = scontext;
--
--			context_init(&context);
--			if (mls_context_to_sid(policydb, oldc, &r, &context) <
--			    0) {
--				ERR(NULL, "invalid range %s (%s:%u)", scontext,
--				    path, lineno);
--				free(scontext);
--				continue;
--			}
--			free(scontext);
--			memcpy(&usrdatum->range, &context.range,
--			       sizeof(usrdatum->range));
--		}
--	}
--
--	free(buffer);
--	fclose(fp);
--	return 0;
--}
--
--int sepol_genusers(void *data, size_t len,
--		   const char *usersdir, void **newdata, size_t * newlen)
--{
--	struct policydb policydb;
--	char path[PATH_MAX];
--
--	/* Construct policy database */
--	if (policydb_init(&policydb))
--		goto err;
--	if (policydb_from_image(NULL, data, len, &policydb) < 0)
--		goto err;
--
--	/* Load locally defined users. */
--	snprintf(path, sizeof path, "%s/local.users", usersdir);
--	if (load_users(&policydb, path) < 0)
--		goto err_destroy;
--
--	/* Write policy database */
--	if (policydb_to_image(NULL, &policydb, newdata, newlen) < 0)
--		goto err_destroy;
--
--	policydb_destroy(&policydb);
--	return 0;
--
--      err_destroy:
--	policydb_destroy(&policydb);
--
--      err:
--	return -1;
--}
--
--int hidden sepol_genusers_policydb(policydb_t * policydb, const char *usersdir)
--{
--	char path[PATH_MAX];
--
--	/* Load locally defined users. */
--	snprintf(path, sizeof path, "%s/local.users", usersdir);
--	if (load_users(policydb, path) < 0) {
--		ERR(NULL, "unable to load local.users: %s", strerror(errno));
--		return -1;
--	}
--
--	if (policydb_reindex_users(policydb) < 0) {
--		ERR(NULL, "unable to reindex users: %s", strerror(errno));
--		return -1;
--
--	}
--
--	return 0;
--}
--
--/* -- End Deprecated -- */
-Index: policyrep/libsepol/man/man8/genpolbools.8
+--- policyrep/libselinux/src/file_path_suffixes.h	(revision 2382)
++++ policyrep/libselinux/src/file_path_suffixes.h	(working copy)
+@@ -8,11 +8,9 @@
+     S_(FAILSAFE_CONTEXT, "/contexts/failsafe_context")
+     S_(DEFAULT_TYPE, "/contexts/default_type")
+     S_(SECURETTY_TYPES, "/contexts/securetty_types")
+-    S_(BOOLEANS, "/booleans")
+     S_(MEDIA_CONTEXTS, "/contexts/files/media")
+     S_(REMOVABLE_CONTEXT, "/contexts/removable_context")
+     S_(CUSTOMIZABLE_TYPES, "/contexts/customizable_types")
+-    S_(USERS_DIR, "/users/")
+     S_(SEUSERS, "/seusers")
+     S_(TRANSLATIONS, "/setrans.conf")
+     S_(NETFILTER_CONTEXTS, "/contexts/netfilter_contexts")
+Index: policyrep/libselinux/src/selinuxswig.i
 ===================================================================
---- policyrep/libsepol/man/man8/genpolbools.8	(revision 2382)
-+++ policyrep/libsepol/man/man8/genpolbools.8	(working copy)
-@@ -1,16 +0,0 @@
--.TH "genpolbools" "8" "11 August 2004" "sds@epoch.ncsc.mil" "SELinux Command Line documentation"
--.SH "NAME"
--genpolbools \- Rewrite a binary policy with different boolean settings
--.SH "SYNOPSIS"
--.B genpolbools oldpolicy booleans newpolicy
--
--.SH "DESCRIPTION"
--.B genpolbools
--rewrites an existing binary policy with different boolean settings,
--generating a new binary policy.  The booleans file specifies the 
--different boolean settings using name=value lines, where value
--can be 0 or false to disable the boolean or 1 or true to enable it.
--
--
--
--
-Index: policyrep/libsepol/man/man8/genpolusers.8
+--- policyrep/libselinux/src/selinuxswig.i	(revision 2382)
++++ policyrep/libselinux/src/selinuxswig.i	(working copy)
+@@ -66,9 +66,7 @@
+ extern int selinux_mkload_policy(int preservebools);
+ extern int selinux_init_load_policy(int *enforce);
+ extern int security_set_boolean_list(size_t boolcnt, 
+-				     SELboolean *boollist, 
+-				     int permanent);
+-extern int security_load_booleans(char *path);
++				     SELboolean *boollist);
+ extern int security_check_context(security_context_t con);
+ extern int security_canonicalize_context(security_context_t con,
+ 					 security_context_t *canoncon);
+@@ -106,9 +104,7 @@
+ extern const char *selinux_homedir_context_path(void);
+ extern const char *selinux_media_context_path(void);
+ extern const char *selinux_contexts_path(void);
+-extern const char *selinux_booleans_path(void);
+ extern const char *selinux_customizable_types_path(void);
+-extern const char *selinux_users_path(void);
+ extern const char *selinux_usersconf_path(void);
+ extern const char *selinux_translations_path(void);
+ extern const char *selinux_netfilter_context_path(void);
+Index: policyrep/libselinux/man/man3/selinux_booleans_path.3
 ===================================================================
---- policyrep/libsepol/man/man8/genpolusers.8	(revision 2382)
-+++ policyrep/libsepol/man/man8/genpolusers.8	(working copy)
-@@ -1,42 +0,0 @@
--.\" Hey, Emacs! This is an -*- nroff -*- source file.
--.\" Copyright (c) 1997 Manoj Srivastava <srivasta@debian.org>
--.\"
--.\" This is free documentation; you can redistribute it and/or
--.\" modify it under the terms of the GNU General Public License as
--.\" published by the Free Software Foundation; either version 2 of
--.\" the License, or (at your option) any later version.
--.\"
--.\" The GNU General Public License's references to "object code"
--.\" and "executables" are to be interpreted as the output of any
--.\" document formatting or typesetting system, including
--.\" intermediate and printed output.
--.\"
--.\" This manual is distributed in the hope that it will be useful,
--.\" but WITHOUT ANY WARRANTY; without even the implied warranty of
--.\" MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
--.\" GNU General Public License for more details.
--.\"
--.\" You should have received a copy of the GNU General Public
--.\" License along with this manual; if not, write to the Free
--.\" Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139,
--.\" USA.
--.\"
--.TH GENPOLUSERS 8 "Mar 12 2005" "SELinux" "SELinux Command Line documentation"
--.SH NAME
--genpolusers \- Generate new binary policy with updated user configuration
--.SH SYNOPSIS
--genpolusers in-policy usersdir out-policy
--.SH DESCRIPTION
--Given an existing binary policy file 
--.I in\-policy, 
--generate a new binary policy 
--.I out\-policy 
--with an updated user configuration based on any 
--.B system.users 
--and
--.B local.users 
--files in the specified 
--.I usersdir.
--.SH AUTHOR
--This manual page (and just the manual page) was written by Manoj
--Srivastava <srivasta@debian.org>.
-Index: policyrep/libsepol/man/man3/sepol_genbools.3
+--- policyrep/libselinux/man/man3/selinux_booleans_path.3	(revision 2382)
++++ policyrep/libselinux/man/man3/selinux_booleans_path.3	(working copy)
+@@ -1 +0,0 @@
+-.so man3/selinux_binary_policy_path.3
+Index: policyrep/libselinux/man/man3/security_load_booleans.3
 ===================================================================
---- policyrep/libsepol/man/man3/sepol_genbools.3	(revision 2382)
-+++ policyrep/libsepol/man/man3/sepol_genbools.3	(working copy)
-@@ -4,25 +4,17 @@
+--- policyrep/libselinux/man/man3/security_load_booleans.3	(revision 2382)
++++ policyrep/libselinux/man/man3/security_load_booleans.3	(working copy)
+@@ -1,13 +1,11 @@
+ .TH "security_get_boolean_names" "3" "15 November 2004" "dwalsh@redhat.com" "SELinux API Documentation"
+ .SH "NAME"
+-security_load_booleans, security_set_boolean, security_commit_booleans, 
++security_set_boolean_list, security_set_boolean, security_commit_booleans, 
+ security_get_boolean_names, security_get_boolean_active,
+ security_get_boolean_pending \- routines for manipulating SELinux boolean values
  .SH "SYNOPSIS"
- .B #include <sepol/sepol.h>
+ .B #include <selinux/selinux.h>
  .sp
--.BI "int sepol_genbools(void *" data ", size_t "len ", char *" boolpath );
+-extern int security_load_booleans(char *path);
 -.br
- .BI "int sepol_genbools_array(void *" data ", size_t " len ", char **" names ", int *" values ", int " nel );
+ extern int security_get_boolean_names(char ***names, int *len);
+ .br
+ extern int security_get_boolean_pending(const char *name);
+@@ -17,21 +15,19 @@
+ extern int security_set_boolean(const char *name, int value);
+ .br
+ extern int security_commit_booleans(void);
++.br.
++extern int security_set_boolean_list(size_t boolcnt, SELboolean *boollist);
  
+-
  .SH "DESCRIPTION"
--.B sepol_genbools
-+.B sepol_genbools_array
- rewrites a binary policy stored in the memory region described by
--(data, len) to use the boolean settings specified in the file named by
--boolpath.  The boolean settings are specified by name=value lines
--where value may be 0 or false to disable or 1 or true to enable.  The
--binary policy is rewritten in place in memory.
-+(data, len) to use the boolean settings specified in the parallel
-+arrays (names, values) with nel elements each. The binary policy is
-+rewritten in place in memory.
  
--.B sepol_genbools_array
--does likewise, but obtains the boolean settings from the parallel arrays
--(names, values) with nel elements each.
+ The SELinux policy can include conditional rules that are enabled or
+ disabled based on the current values of a set of policy booleans.
+ These policy booleans allow runtime modification of the security
+-policy without having to load a new policy.  
++policy without having to load a new policy.  These interfaces
++allow for the manipulation of the active boolean values at runtime
++without changing them persistently.  Persistent changes must be
++performed using the libsemanage interfaces.
+ 
+-The SELinux API allows for a transaction based update.  So you can set several boolean values and the commit them all at once.
 -
- .SH "RETURN VALUE"
- Returns 0 on success or -1 otherwise, with errno set appropriately.
--An errno of ENOENT indicates that the boolean file did not exist.
- An errno of EINVAL indicates that one or more booleans listed in the
- boolean file was undefined in the policy or had an invalid value specified;
- in this case, the binary policy is still rewritten but any invalid
-Index: policyrep/libsepol/man/man3/sepol_genusers.3
+-security_load_booleans
+-.br
+-Load policy boolean settings. Path may be NULL, in which case the booleans are loaded from the active policy boolean configuration file.
+-
+ security_get_boolean_names
+ .br
+ Returns a list of boolean names, currently supported by the loaded policy.
+@@ -52,6 +48,10 @@
+ .br
+ Commit all pending values for the booleans.
+ 
++security_set_boolean_list
++.br
++Set a list of booleans to new values.
++
+ .SH AUTHOR	
+ This manual page was written by Dan Walsh <dwalsh@redhat.com>.
+ 
+Index: policyrep/libselinux/man/man3/selinux_binary_policy_path.3
 ===================================================================
---- policyrep/libsepol/man/man3/sepol_genusers.3	(revision 2382)
-+++ policyrep/libsepol/man/man3/sepol_genusers.3	(working copy)
-@@ -1,54 +0,0 @@
--.TH "sepol_genusers" "3" "15 March 2005" "sds@tycho.nsa.gov" "SE Linux binary policy API documentation"
--.SH "NAME"
--sepol_genusers \- Generate a new binary policy image with a customized user configuration
--.SH "SYNOPSIS"
--.B #include <sepol/sepol.h>
--.sp
--.BI "int sepol_genusers(void *" data ", size_t "len ", const char *" usersdir ", void *" newdata ", size_t *" newlen);
--.sp
--.BI "void sepol_set_delusers(int " on ");"
+--- policyrep/libselinux/man/man3/selinux_binary_policy_path.3	(revision 2382)
++++ policyrep/libselinux/man/man3/selinux_binary_policy_path.3	(working copy)
+@@ -4,7 +4,7 @@
+ selinux_failsafe_context_path, selinux_removable_context_path,
+ selinux_default_context_path, selinux_user_contexts_path,
+ selinux_file_context_path, selinux_media_context_path,
+-selinux_contexts_path, selinux_booleans_path \- These functions return the paths to the active SELinux policy configuration
++selinux_contexts_path, \- These functions return the paths to the active SELinux policy configuration
+ directories and files.
+ 
+ .SH "SYNOPSIS"
+@@ -31,9 +31,7 @@
+ .br
+ extern const char *selinux_contexts_path(void);
+ .br
+-extern const char *selinux_booleans_path(void);
+ 
 -
--.SH "DESCRIPTION"
--.B sepol_genusers
--generates a new binary policy image from 
--an existing binary policy image stored in the memory region described by
--the starting address
--.I data
--and the length
--.I len
--and a pair of user configuration files named 
--.B system.users 
--and
--.B local.users
--from the directory specified by
--.I usersdir.
--The resulting binary policy is placed into dynamically allocated
--memory and the variables
--.I newdata
--and
--.I newlen
--are set to refer to the new binary image's starting address and length.
--The original binary policy image is not modified.
--
--By default, 
--.B sepol_genusers
--will preserve user entries that are defined in the original binary policy image
--but not defined in the user configuration files.  If such user entries
--should instead by omitted entirely from the new binary policy image, then
--the
--.B sepol_set_delusers
--function may be called with 
--.I on
--set to 1 prior to calling
--.B sepol_genusers
--in order to enable deletion of such users.
--
--.SH "RETURN VALUE"
--Returns 0 on success or -1 otherwise, with errno set appropriately.
--An errno of ENOENT indicates that one or both of the user
--configuration files did not exist.  An errno of EINVAL indicates that
--either the original binary policy image or the generated one were
--invalid.  An errno of ENOMEM indicates that insufficient memory was
--available to process the original binary policy image or to generate
--the new policy image.  Invalid entries in the user configuration files
--are skipped with a warning.
+ .SH "DESCRIPTION"
+ 
+ These functions return the paths to the active policy configuration
+@@ -60,7 +58,6 @@
+ .sp
+ selinux_securetty_types_path() - defines tty types for newrole securettys
+ .sp
+-selinux_booleans_path() - initial policy boolean settings
+ 
+ .SH AUTHOR	
+ This manual page was written by Dan Walsh <dwalsh@redhat.com>.
 
 -- 
 Stephen Smalley
