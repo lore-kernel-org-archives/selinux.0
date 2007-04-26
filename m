@@ -1,42 +1,42 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l3Q01KoE026932
-	for <selinux@tycho.nsa.gov>; Wed, 25 Apr 2007 20:01:20 -0400
-Received: from mail3.sea5.speakeasy.net (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l3Q00x48020706
-	for <selinux@tycho.nsa.gov>; Thu, 26 Apr 2007 00:01:00 GMT
-Date: Wed, 25 Apr 2007 19:59:12 -0400 (EDT)
-From: James Morris <jmorris@namei.org>
-To: Eric Paris <eparis@redhat.com>
-cc: selinux@tycho.nsa.gov, sds@tycho.nsa.gov, csellers@tresys.com
-Subject: Re: [RFC] Ability to allow undefined permissions and classes -v3
-In-Reply-To: <1177537171.4221.25.camel@dhcp59-235.rdu.redhat.com>
-Message-ID: <Line.LNX.4.64.0704251956270.26475@d.namei>
-References: <1177537171.4221.25.camel@dhcp59-235.rdu.redhat.com>
+From: Russell Coker <russell@coker.com.au>
+Reply-To: russell@coker.com.au
+To: James Morris <jmorris@namei.org>
+Subject: Re: can not boot with strict policy
+Date: Thu, 26 Apr 2007 17:45:42 +1100
+Cc: Stephen Smalley <sds@tycho.nsa.gov>, Ken YANG <spng.yang@gmail.com>,
+        SELinux List <selinux@tycho.nsa.gov>,
+        Daniel J Walsh <dwalsh@redhat.com>
+References: <462CA1F0.2000400@gmail.com> <1177340494.24282.28.camel@moss-spartans.epoch.ncsc.mil> <Line.LNX.4.64.0704231341100.3793@d.namei>
+In-Reply-To: <Line.LNX.4.64.0704231341100.3793@d.namei>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Message-Id: <200704261645.50811.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 25 Apr 2007, Eric Paris wrote:
+On Tuesday 24 April 2007 03:42, James Morris <jmorris@namei.org> wrote:
+> > Boot with "enforcing=0 single" to come up permissive into single-user
+> > mode, then run /sbin/fixfiles relabel -F to forcible relabel everything,
+> > then reboot.
+>
+> I wonder if we could automate this, so that the autorelabel is also run
+> on boot if you switch between different types of policy.
 
-> add a new kernel class?  If so I will have a large waste in my array.
-> Its already the case that this proposed array is wasting space for all
-> of the userspace classes as it stands.
+There are a few ways of doing this.  For my Kickstart configuration of MLS 
+systems and Play machines I used to create an /etc/init.d script that would 
+put the machine in enforcing mode and configure grub with enforcing=1 and 
+then put enforcing=0 on the grub command-line before the final reboot of the 
+install.
 
-Is this patch against my for-akpm branch?
-
-> +		p->undefined_perms = kzalloc(sizeof(u32)*num_classes, GFP_KERNEL);
-
-Use kcalloc().
-
-
-Otherwise looks ok to me.
-
-
+For a more general solution you might want to have /sbin/init search 
+for /.changing-policy-type as a reason to boot in permissive mode.
 
 -- 
-James Morris
-<jmorris@namei.org>
+russell@coker.com.au
+http://etbe.blogspot.com/          My Blog
+
+http://www.coker.com.au/sponsorship.html Sponsoring Free Software development
 
 --
 This message was distributed to subscribers of the selinux mailing list.
