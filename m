@@ -1,38 +1,31 @@
-Subject: Re: [PATCH 0/6] Drop legacy boolean/users support (setlocaldefs)
+Subject: Re: [POLICYREP PATCH] Fix 64bit compilation issue (and remove
+	questionably casting of void* to
 From: Karl MacMillan <kmacmillan@mentalrootkit.com>
 To: Stephen Smalley <sds@tycho.nsa.gov>
-Cc: selinux@tycho.nsa.gov, Joshua Brindle <method@manicmethod.com>,
-        Darrel Goeddel <dgoeddel@TrustedCS.com>
-In-Reply-To: <1177594803.24282.322.camel@moss-spartans.epoch.ncsc.mil>
-References: <1177594803.24282.322.camel@moss-spartans.epoch.ncsc.mil>
+Cc: selinux@tycho.nsa.gov
+In-Reply-To: <1177597617.24282.346.camel@moss-spartans.epoch.ncsc.mil>
+References: <20070425215634.15998.22854.stgit@localhost.localdomain>
+	 <1177597617.24282.346.camel@moss-spartans.epoch.ncsc.mil>
 Content-Type: text/plain
-Date: Thu, 26 Apr 2007 14:48:36 -0400
-Message-Id: <1177613316.3405.29.camel@localhost.localdomain>
+Date: Thu, 26 Apr 2007 14:51:16 -0400
+Message-Id: <1177613476.3405.31.camel@localhost.localdomain>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2007-04-26 at 09:40 -0400, Stephen Smalley wrote:
-> The following patch series completely removes the legacy support for
-> local boolean and user definitions (setlocaldefs) from libsepol and
-> libselinux and updates libsemanage and policycoreutils for the resulting
-> interface changes and removals.  As such, it requires bumping the .so
-> versions, which has already been done on the policyrep branch (and these
-> patches are therefore intended to be applied there first, and then
-> merged to trunk later along with the policyrep work).
+On Thu, 2007-04-26 at 10:26 -0400, Stephen Smalley wrote:
+> On Wed, 2007-04-25 at 17:56 -0400, Karl MacMillan wrote:
+> > int).
+> > 
+> > Signed-off-by: Karl MacMillan <kmacmillan@mentalrootkit.com>
 > 
-> The preservebools support is left temporarily intact since the
-> corresponding kernel support for automatically preserving booleans
-> across policy reload is not yet in a released kernel.org kernel.
+> Acked-by:  Stephen Smalley <sds@tycho.nsa.gov>
+> 
+> Merge at will.
 > 
 
-Entire patch series:
+Merged into policyrep branch.
 
-Acked-by: Karl MacMillan <kmacmillan@mentalrootkit.com>
-
-And merged into the policyrep branch.
-
-Karl
 
 
 --
