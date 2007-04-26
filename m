@@ -1,28 +1,51 @@
-Subject: Re: policycoreutils patch
+Subject: Re: [POLICYREP PATCH] Add generic iterators and a list data type
+	to libsepol
 From: Karl MacMillan <kmacmillan@mentalrootkit.com>
-To: Daniel J Walsh <dwalsh@redhat.com>
-Cc: Stephen Smalley <sds@tycho.nsa.gov>, SE Linux <selinux@tycho.nsa.gov>
-In-Reply-To: <4630C59F.1070106@redhat.com>
-References: <4630C59F.1070106@redhat.com>
+To: Stephen Smalley <sds@tycho.nsa.gov>
+Cc: Joshua Brindle <method@manicmethod.com>, selinux@tycho.nsa.gov
+In-Reply-To: <1177595383.24282.329.camel@moss-spartans.epoch.ncsc.mil>
+References: <20070420133430.9884.86379.stgit@localhost.localdomain>
+	 <1177432926.24282.176.camel@moss-spartans.epoch.ncsc.mil>
+	 <1177530561.14349.0.camel@localhost.localdomain>
+	 <462FBE8A.30308@manicmethod.com>
+	 <1177588173.24282.267.camel@moss-spartans.epoch.ncsc.mil>
+	 <4630AC81.6090709@manicmethod.com>
+	 <1177595383.24282.329.camel@moss-spartans.epoch.ncsc.mil>
 Content-Type: text/plain
-Date: Thu, 26 Apr 2007 15:18:54 -0400
-Message-Id: <1177615134.3405.43.camel@localhost.localdomain>
+Date: Thu, 26 Apr 2007 15:24:09 -0400
+Message-Id: <1177615449.3405.45.camel@localhost.localdomain>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2007-04-26 at 11:30 -0400, Daniel J Walsh wrote:
-> This patch moves audit2why to /usr/bin to match audit2allow, since both
-> can be used from userspace.  Also moves sepolgen-ifget to /usr/sbin,
-> since this is not to be run by normal users.
+On Thu, 2007-04-26 at 09:49 -0400, Stephen Smalley wrote:
+> On Thu, 2007-04-26 at 09:43 -0400, Joshua Brindle wrote:
+
+<snip>
+
+> > >>> Merged as libsepol 2.0.4.
+> > >>>   
+> > >>>       
+> > >> shouldn't this be 2.1.4 or similar since 2.0.4 will be the next revision 
+> > >> of trunk?
+> > >>     
+> > >
+> > > It doesn't actually matter, as we can update the version just before
+> > > merging to trunk.
+> > >
+> > >   
+> > but if we ever roll up rpm's for testing this branch it will be 
+> > undesirable to have overlapping versions.
+> 
+> I'm not sure why one would ever do that (roll up rpms, vs. just make
+> install install-pywrap relabel).
+> 
+> Changing the {VERSION, ChangeLog} on the branch will also prevent clean
+> merges from the trunk.
 > 
 
-sepolgen-ifgen can be run by a normal user and the output saved to an
-arbitrary file. audit2allow also has flags for reading the interface
-information from a non-default flag. So I think it should stay
-in /usr/bin.
-
-I merged the audit2why change to trunk, stable, and policyrep.
+This part was compelling to me (the merging) so I removed the version
+change completely and the changelog entries.
 
 Karl
 
