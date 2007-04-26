@@ -1,4 +1,4 @@
-Subject: [PATCH 4/6] libsemanage:  update for interface change to libselinux
+Subject: [PATCH 5/6] audit2why:  update for interface change to libsepol
 From: Stephen Smalley <sds@tycho.nsa.gov>
 To: selinux@tycho.nsa.gov
 Cc: Karl MacMillan <kmacmillan@mentalrootkit.com>,
@@ -7,35 +7,47 @@ Cc: Karl MacMillan <kmacmillan@mentalrootkit.com>,
 In-Reply-To: <1177594803.24282.322.camel@moss-spartans.epoch.ncsc.mil>
 References: <1177594803.24282.322.camel@moss-spartans.epoch.ncsc.mil>
 Content-Type: text/plain
-Date: Thu, 26 Apr 2007 09:55:18 -0400
-Message-Id: <1177595718.24282.337.camel@moss-spartans.epoch.ncsc.mil>
+Date: Thu, 26 Apr 2007 09:56:54 -0400
+Message-Id: <1177595814.24282.339.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Update libsemanage for the interface change to
-security_set_boolean_list (removal of permanent flag).
+Update audit2why for the removal of sepol_gen*_policydb
+from libsepol.  These are obsolete with managed policy.
 
 Signed-off-by:  Stephen Smalley <sds@tycho.nsa.gov>
 
 ---
 
- libsemanage/src/booleans_activedb.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ policycoreutils/audit2why/audit2why.c |   14 --------------
+ 1 file changed, 14 deletions(-)
 
-Index: policyrep/libsemanage/src/booleans_activedb.c
+Index: policyrep/policycoreutils/audit2why/audit2why.c
 ===================================================================
---- policyrep/libsemanage/src/booleans_activedb.c	(revision 2382)
-+++ policyrep/libsemanage/src/booleans_activedb.c	(working copy)
-@@ -119,7 +119,7 @@
- 	}
+--- policyrep/policycoreutils/audit2why/audit2why.c	(revision 2382)
++++ policyrep/policycoreutils/audit2why/audit2why.c	(working copy)
+@@ -111,20 +111,6 @@
+ 	fclose(fp);
+ 	sepol_set_policydb(&policydb);
  
- 	/* Commit */
--	if (security_set_boolean_list(bcount, blist, 0) < 0) {
-+	if (security_set_boolean_list(bcount, blist) < 0) {
- 		ERR(handle, "libselinux commit failed");
- 		goto err;
- 	}
+-	if (!set_path) {
+-		/* If they didn't specify a full path of a binary policy file,
+-		   then also try loading any boolean settings and user
+-		   definitions from the active locations.  Otherwise,
+-		   they can use genpolbools and genpolusers to build a
+-		   binary policy file that includes any desired settings
+-		   and then apply audit2why -p to the resulting file. 
+-		   Errors are non-fatal as such settings are optional. */
+-		sepol_debug(0);
+-		(void)sepol_genbools_policydb(&policydb,
+-					      selinux_booleans_path());
+-		(void)sepol_genusers_policydb(&policydb, selinux_users_path());
+-	}
+-
+ 	/* Initialize the sidtab for subsequent use by sepol_context_to_sid
+ 	   and sepol_compute_av_reason. */
+ 	rc = sepol_sidtab_init(&sidtab);
 
 -- 
 Stephen Smalley
