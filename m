@@ -1,60 +1,44 @@
-Message-ID: <4630C527.50100@manicmethod.com>
-Date: Thu, 26 Apr 2007 11:28:39 -0400
-From: Joshua Brindle <method@manicmethod.com>
-MIME-Version: 1.0
-To: Stephen Smalley <sds@tycho.nsa.gov>
-CC: selinux@tycho.nsa.gov, Karl MacMillan <kmacmillan@mentalrootkit.com>,
-        Darrel Goeddel <dgoeddel@TrustedCS.com>
 Subject: Re: [PATCH 0/6] Drop legacy boolean/users support (setlocaldefs)
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Joshua Brindle <method@manicmethod.com>
+Cc: selinux@tycho.nsa.gov, Karl MacMillan <kmacmillan@mentalrootkit.com>,
+        Darrel Goeddel <dgoeddel@TrustedCS.com>
+In-Reply-To: <4630C527.50100@manicmethod.com>
 References: <1177594803.24282.322.camel@moss-spartans.epoch.ncsc.mil>
-In-Reply-To: <1177594803.24282.322.camel@moss-spartans.epoch.ncsc.mil>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	 <4630C527.50100@manicmethod.com>
+Content-Type: text/plain
+Date: Thu, 26 Apr 2007 11:38:25 -0400
+Message-Id: <1177601905.24282.354.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Stephen Smalley wrote:
-> The following patch series completely removes the legacy support for
-> local boolean and user definitions (setlocaldefs) from libsepol and
-> libselinux and updates libsemanage and policycoreutils for the resulting
-> interface changes and removals.  As such, it requires bumping the .so
-> versions, which has already been done on the policyrep branch (and these
-> patches are therefore intended to be applied there first, and then
-> merged to trunk later along with the policyrep work).
->
->   
-Hrm, it doesn't seem appropriate to merge things entirely unrelated to 
-the policyrep branch into that branch just because the soversion was 
-bumped there. Karl, what do you think about this?
+On Thu, 2007-04-26 at 11:28 -0400, Joshua Brindle wrote:
+> Stephen Smalley wrote:
+> > The following patch series completely removes the legacy support for
+> > local boolean and user definitions (setlocaldefs) from libsepol and
+> > libselinux and updates libsemanage and policycoreutils for the resulting
+> > interface changes and removals.  As such, it requires bumping the .so
+> > versions, which has already been done on the policyrep branch (and these
+> > patches are therefore intended to be applied there first, and then
+> > merged to trunk later along with the policyrep work).
+> >
+> >   
+> Hrm, it doesn't seem appropriate to merge things entirely unrelated to 
+> the policyrep branch into that branch just because the soversion was 
+> bumped there. Karl, what do you think about this?
 
-> The preservebools support is left temporarily intact since the
-> corresponding kernel support for automatically preserving booleans
-> across policy reload is not yet in a released kernel.org kernel.
->
-> The complete diffstat for all 6 patches is:
->
->  libselinux/include/selinux/selinux.h             |   10 
->  libselinux/man/man3/security_load_booleans.3     |   22 -
->  libselinux/man/man3/selinux_binary_policy_path.3 |    5 
->  libselinux/man/man3/selinux_booleans_path.3      |    1 
->  libselinux/src/booleans.c                        |  213 ---------------
->  libselinux/src/file_path_suffixes.h              |    2 
->  libselinux/src/load_policy.c                     |   23 -
->  libselinux/src/selinux_config.c                  |   41 --
->  libselinux/src/selinux_internal.h                |    3 
->  libselinux/src/selinuxswig.i                     |    6 
->  libsemanage/src/booleans_activedb.c              |    2 
->  libsepol/man/man3/sepol_genbools.3               |   16 -
->  libsepol/man/man3/sepol_genusers.3               |   54 ---
->  libsepol/man/man8/genpolbools.8                  |   16 -
->  libsepol/man/man8/genpolusers.8                  |   42 ---
->  libsepol/src/genbools.c                          |  179 -------------
->  libsepol/src/genusers.c                          |  315 -----------------------
->  libsepol/src/libsepol.map                        |    4 
->  policycoreutils/audit2why/audit2why.c            |   14 -
->  policycoreutils/setsebool/setsebool.c            |    2 
->  20 files changed, 35 insertions(+), 935 deletions(-)
->
->   
+The alternative is to apply it in a separate branch and merge them
+separately to trunk or merge them together later and then to trunk.
+Seems less painful to get it all done together, only bump the .so
+version once, and avoid conflicts a priori by keeping it within a single
+devel branch.
+
+So, at worst, the branch is ill-named ;)
+
+-- 
+Stephen Smalley
+National Security Agency
 
 
 --
