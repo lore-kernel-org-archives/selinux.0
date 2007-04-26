@@ -1,25 +1,23 @@
 Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l3QIZ9kp025007
-	for <selinux@tycho.nsa.gov>; Thu, 26 Apr 2007 14:35:09 -0400
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l3QIdPKZ025331
+	for <selinux@tycho.nsa.gov>; Thu, 26 Apr 2007 14:39:25 -0400
 Received: from mx1.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id l3QIZ7SH014276
-	for <selinux@tycho.nsa.gov>; Thu, 26 Apr 2007 18:35:07 GMT
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id l3QIdOSH015394
+	for <selinux@tycho.nsa.gov>; Thu, 26 Apr 2007 18:39:24 GMT
 Received: from int-mx1.corp.redhat.com (int-mx1.corp.redhat.com [172.16.52.254])
-	by mx1.redhat.com (8.13.1/8.13.1) with ESMTP id l3QIZ7LY009812
-	for <selinux@tycho.nsa.gov>; Thu, 26 Apr 2007 14:35:07 -0400
+	by mx1.redhat.com (8.13.1/8.13.1) with ESMTP id l3QIdOlf011886
+	for <selinux@tycho.nsa.gov>; Thu, 26 Apr 2007 14:39:24 -0400
 Received: from pobox-2.corp.redhat.com (pobox-2.corp.redhat.com [10.11.255.15])
-	by int-mx1.corp.redhat.com (8.13.1/8.13.1) with ESMTP id l3QIZ7OT014950
-	for <selinux@tycho.nsa.gov>; Thu, 26 Apr 2007 14:35:07 -0400
+	by int-mx1.corp.redhat.com (8.13.1/8.13.1) with ESMTP id l3QIdNPg016027
+	for <selinux@tycho.nsa.gov>; Thu, 26 Apr 2007 14:39:24 -0400
 Received: from localhost.localdomain (vpn-14-41.rdu.redhat.com [10.11.14.41])
-	by pobox-2.corp.redhat.com (8.13.1/8.13.1) with ESMTP id l3QIZ66n007281
-	for <selinux@tycho.nsa.gov>; Thu, 26 Apr 2007 14:35:06 -0400
+	by pobox-2.corp.redhat.com (8.13.1/8.13.1) with ESMTP id l3QIdNg9007964
+	for <selinux@tycho.nsa.gov>; Thu, 26 Apr 2007 14:39:23 -0400
 From: Karl MacMillan <kmacmillan@mentalrootkit.com>
 Subject: [POLICYREP PATCH] Add objset to libsepol
 To: selinux@tycho.nsa.gov
-Date: Thu, 26 Apr 2007 14:35:06 -0400
-Message-ID: <20070426183506.9811.32600.stgit@localhost.localdomain>
-In-Reply-To: 1177608900.3999.34.camel@code.and.org
-References: 1177608900.3999.34.camel@code.and.org
+Date: Thu, 26 Apr 2007 14:39:23 -0400
+Message-ID: <20070426183923.11082.69829.stgit@localhost.localdomain>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Sender: owner-selinux@tycho.nsa.gov
@@ -28,24 +26,24 @@ List-Id: selinux@tycho.nsa.gov
 Add the objset data structure to libsepol. Object sets behave similarly to
 Python sets.
 
-Updated based on comments from James Antill.
+Updated based on comments from James Antill and Stephen Smalley.
 
 Signed-off-by: Karl MacMillan <kmacmillan@mentalrootkit.com>
 ---
 
- libsepol/include/sepol/objset.h |  177 ++++++++++++++++++++++++++++++++++++++
- libsepol/src/objset.c           |  182 +++++++++++++++++++++++++++++++++++++++
+ libsepol/include/sepol/objset.h |  176 ++++++++++++++++++++++++++++++++++++++
+ libsepol/src/objset.c           |  181 +++++++++++++++++++++++++++++++++++++++
  libsepol/tests/libsepol-tests.c |    2 
  libsepol/tests/test-objset.c    |  150 ++++++++++++++++++++++++++++++++
  libsepol/tests/test-objset.h    |   12 +++
- 5 files changed, 523 insertions(+), 0 deletions(-)
+ 5 files changed, 521 insertions(+), 0 deletions(-)
 
 diff --git a/libsepol/include/sepol/objset.h b/libsepol/include/sepol/objset.h
 new file mode 100644
-index 0000000..9690c41
+index 0000000..974c6fc
 --- /dev/null
 +++ b/libsepol/include/sepol/objset.h
-@@ -0,0 +1,177 @@
+@@ -0,0 +1,176 @@
 +/* Author: Karl MacMillan <kmacmillan@mentalrootkit.com> */
 +
 +#ifndef __sepol_objset_h__
@@ -168,9 +166,8 @@ index 0000000..9690c41
 + * \ingroup libsepol_objset
 + *
 + * Determine whether an object is contained in the set. The current value
-+ * of compliment is respected, so for the set { "bar", "baz" } testing
-+ * if "foo" is contained will be 0 if compliment is 0 or 1 if compliment
-+ * is 1.
++ * of compliment is _not_ respected, so for the set { "bar", "baz" } testing
++ * if "foo" is contained will always return 0.
 + *
 + * @param h sepol handle (may be NULL)
 + * @param s object set
@@ -209,7 +206,7 @@ index 0000000..9690c41
 + * @param s objset to compliment
 + * @param compliment value of compliment flag (0 or 1)
 + */
-+extern void sepol_objset_set_compliment(struct sepol_objset *s, char compliment);
++extern void sepol_objset_set_complement(struct sepol_objset *s, char complement);
 +
 +/**
 + * \ingroup libsepol_objset
@@ -220,15 +217,15 @@ index 0000000..9690c41
 + *
 + * \retval 0|1 current value of compliment flag
 + */
-+extern char sepol_objset_get_compliment(struct sepol_objset *s);
++extern char sepol_objset_get_complement(struct sepol_objset *s);
 +
 +#endif
 diff --git a/libsepol/src/objset.c b/libsepol/src/objset.c
 new file mode 100644
-index 0000000..e3911c2
+index 0000000..c7b51d8
 --- /dev/null
 +++ b/libsepol/src/objset.c
-@@ -0,0 +1,182 @@
+@@ -0,0 +1,181 @@
 +/*
 + * Author : Karl MacMillan <kmacmillan@mentalrootkit.com>
 + *
@@ -261,7 +258,7 @@ index 0000000..e3911c2
 +{
 +	struct sepol_list *objs;
 +	sepol_objset_cmp_t cmp;
-+	char compliment;
++	char complement;
 +};
 +
 +int sepol_objset_create(struct sepol_handle *h, struct sepol_objset **set,
@@ -376,20 +373,19 @@ index 0000000..e3911c2
 +{
 +	int ret;
 +	struct sepol_iter *iter;
-+	int found = !s->compliment;
 +
 +	ret = sepol_objset_seek(h, s, &iter, obj);
 +	switch (ret) {
 +	case SEPOL_EEXIST:
 +		sepol_iter_free(h, iter);
-+		ret = found;
++		ret = 1;
 +		break;
 +	case SEPOL_ENOENT:
 +		sepol_iter_free(h, iter);
-+		ret = !found;
++		ret = 0;
 +		break;
 +	case SEPOL_ITERSTOP:
-+		ret = !found;
++		ret = 0;
 +		break;
 +	}
 +
@@ -402,14 +398,14 @@ index 0000000..e3911c2
 +	return sepol_list_begin(h, s->objs, iter);
 +}
 +
-+void sepol_objset_set_compliment(struct sepol_objset *s, char compliment)
++void sepol_objset_set_complement(struct sepol_objset *s, char complement)
 +{
-+	s->compliment = compliment;
++	s->complement = complement;
 +}
 +
-+char sepol_objset_get_compliment(struct sepol_objset *s)
++char sepol_objset_get_complement(struct sepol_objset *s)
 +{
-+	return s->compliment;
++	return s->complement;
 +}
 diff --git a/libsepol/tests/libsepol-tests.c b/libsepol/tests/libsepol-tests.c
 index 2fee01d..5156ada 100644
