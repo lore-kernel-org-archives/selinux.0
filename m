@@ -1,87 +1,55 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l3QCsw18031618
-	for <selinux@tycho.nsa.gov>; Thu, 26 Apr 2007 08:54:58 -0400
-Received: from exchange.columbia.tresys.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with SMTP id l3QCsgdH021013
-	for <selinux@tycho.nsa.gov>; Thu, 26 Apr 2007 12:54:42 GMT
-Subject: Re: Remove admin templates from userdom_admin_user_template
-From: "Christopher J. PeBenito" <cpebenito@tresys.com>
-To: Daniel J Walsh <dwalsh@redhat.com>
-Cc: SE Linux <selinux@tycho.nsa.gov>
-In-Reply-To: <46277806.3050307@redhat.com>
-References: <46277806.3050307@redhat.com>
+Subject: [PATCH 0/6] Drop legacy boolean/users support (setlocaldefs)
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: selinux@tycho.nsa.gov
+Cc: Karl MacMillan <kmacmillan@mentalrootkit.com>,
+        Joshua Brindle <method@manicmethod.com>,
+        Darrel Goeddel <dgoeddel@TrustedCS.com>
 Content-Type: text/plain
-Date: Thu, 26 Apr 2007 08:53:52 -0400
-Message-Id: <1177592032.3570.2.camel@sgc.columbia.tresys.com>
+Date: Thu, 26 Apr 2007 09:40:03 -0400
+Message-Id: <1177594803.24282.322.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2007-04-19 at 10:09 -0400, Daniel J Walsh wrote:
-> --- nsaserefpolicy/policy/modules/system/userdomain.if  2007-03-26 16:24:13.000000000 -0400
-> +++ serefpolicy-2.5.12/policy/modules/system/userdomain.if      2007-04-19 09:43:55.000000000 -0400
-> @@ -1225,22 +1230,6 @@
->         ')
->  
->         optional_policy(`
-> -               cron_admin_template($1,$1_t,$1_r)
-> -       ')
-> -
-> -       optional_policy(`
-> -               ethereal_admin_template($1,$1_t,$1_r)
-> -       ')
-> -
-> -       optional_policy(`
-> -               lpr_admin_template($1,$1_t,$1_r)
-> -       ')
-> -
-> -       optional_policy(`
-> -               mta_admin_template($1,$1_t,$1_r)
-> -       ')
-> -
-> -       optional_policy(`
->                 userhelper_exec($1_t)
->         ')
->  ')
-> --- nsaserefpolicy/policy/modules/system/userdomain.te  2007-03-26 16:24:13.000000000 -0400
-> +++ serefpolicy-2.5.12/policy/modules/system/userdomain.te      2007-04-19 09:48:39.000000000 -0400
-> @@ -101,10 +102,27 @@
->  # Local policy
->  #
->  
-> +userdom_unpriv_user_template(user)
->  ifdef(`strict_policy',`
->         userdom_admin_user_template(sysadm)
-> +
-> +       optional_policy(`
-> +               cron_admin_template(sysadm,sysadm_t,sysadm_r)
-> +       ')
-> +
-> +       optional_policy(`
-> +               ethereal_admin_template(sysadm,sysadm_t,sysadm_r)
-> +       ')
-> +
-> +       optional_policy(`
-> +               lpr_admin_template(sysadm,sysadm_t,sysadm_r)
-> +       ')
-> +
-> +       optional_policy(`
-> +               mta_admin_template(sysadm,sysadm_t,sysadm_r)
-> +       ')
-> +
->         userdom_unpriv_user_template(staff)
-> -       userdom_unpriv_user_template(user)
->  
->         # user role change rules:
->         # sysadm_r can change to user roles
+The following patch series completely removes the legacy support for
+local boolean and user definitions (setlocaldefs) from libsepol and
+libselinux and updates libsemanage and policycoreutils for the resulting
+interface changes and removals.  As such, it requires bumping the .so
+versions, which has already been done on the policyrep branch (and these
+patches are therefore intended to be applied there first, and then
+merged to trunk later along with the policyrep work).
 
-The main part has already been done.  Not going to move out the user
-definition, as that is what the strict-targeted merge branch is for.
+The preservebools support is left temporarily intact since the
+corresponding kernel support for automatically preserving booleans
+across policy reload is not yet in a released kernel.org kernel.
+
+The complete diffstat for all 6 patches is:
+
+ libselinux/include/selinux/selinux.h             |   10 
+ libselinux/man/man3/security_load_booleans.3     |   22 -
+ libselinux/man/man3/selinux_binary_policy_path.3 |    5 
+ libselinux/man/man3/selinux_booleans_path.3      |    1 
+ libselinux/src/booleans.c                        |  213 ---------------
+ libselinux/src/file_path_suffixes.h              |    2 
+ libselinux/src/load_policy.c                     |   23 -
+ libselinux/src/selinux_config.c                  |   41 --
+ libselinux/src/selinux_internal.h                |    3 
+ libselinux/src/selinuxswig.i                     |    6 
+ libsemanage/src/booleans_activedb.c              |    2 
+ libsepol/man/man3/sepol_genbools.3               |   16 -
+ libsepol/man/man3/sepol_genusers.3               |   54 ---
+ libsepol/man/man8/genpolbools.8                  |   16 -
+ libsepol/man/man8/genpolusers.8                  |   42 ---
+ libsepol/src/genbools.c                          |  179 -------------
+ libsepol/src/genusers.c                          |  315 -----------------------
+ libsepol/src/libsepol.map                        |    4 
+ policycoreutils/audit2why/audit2why.c            |   14 -
+ policycoreutils/setsebool/setsebool.c            |    2 
+ 20 files changed, 35 insertions(+), 935 deletions(-)
 
 -- 
-Chris PeBenito
-Tresys Technology, LLC
-(410) 290-1411 x150
+Stephen Smalley
+National Security Agency
 
 
 --
