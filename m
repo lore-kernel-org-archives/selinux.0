@@ -1,14 +1,19 @@
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l3RFv3fk020151
+	for <selinux@tycho.nsa.gov>; Fri, 27 Apr 2007 11:57:03 -0400
+Received: from mx1.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id l3RFv2Eq005637
+	for <selinux@tycho.nsa.gov>; Fri, 27 Apr 2007 15:57:02 GMT
 Subject: Re: Next policyrep patches
-From: Stephen Smalley <sds@tycho.nsa.gov>
+From: Karl MacMillan <kmacmillan@mentalrootkit.com>
 To: Joshua Brindle <method@manicmethod.com>
-Cc: Karl MacMillan <kmacmillan@mentalrootkit.com>,
-        SE Linux <selinux@tycho.nsa.gov>, Daniel J Walsh <dwalsh@redhat.com>
+Cc: SE Linux <selinux@tycho.nsa.gov>
 In-Reply-To: <46321964.3000302@manicmethod.com>
 References: <1177686208.15215.7.camel@localhost.localdomain>
 	 <46321964.3000302@manicmethod.com>
 Content-Type: text/plain
-Date: Fri, 27 Apr 2007 11:56:38 -0400
-Message-Id: <1177689398.3357.52.camel@moss-spartans.epoch.ncsc.mil>
+Date: Fri, 27 Apr 2007 11:55:01 -0400
+Message-Id: <1177689301.15215.25.camel@localhost.localdomain>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
@@ -42,25 +47,46 @@ On Fri, 2007-04-27 at 11:40 -0400, Joshua Brindle wrote:
 > we can start work on the linker and generator (expander).
 > 
 > This brings up some other questions, there is no such thing as an 
-> expander anymore, its really a code generator, do we want to change the 
+> expander anymore, its really a code generator,
+
+Seems basically the same to me - the current module format and the
+policyrep format accomplish similar things in different ways.
+
+>  do we want to change the 
 > API to reflect that difference or just leave the current 
-> sepol_expand_module function? I guess the general question is, how 
+> sepol_expand_module function? 
+
+It has to change somewhat because it won't be taking a policydb anymore.
+We are also going to be working with sepol_policy objects, which can
+have modules:
+
+sepol_policy
+     |
+     |---- sepol_module ("foo")
+     |             |
+     |             |----- [statements]
+     |
+     |---- sepol_module ("bar")
+                   |
+                   |----- [statements]
+
+
+So it seems like it should be:
+
+sepol_policy_expand(struct sepol_handle *h, struct sepol_policy *p, 
+                    struct sepol_policydb **out, int check_constraints);
+
+1. Why not allocate the out policy?
+2. Seems like verbose or not should be handled via the debug options for
+the handle.
+
+> I guess the general question is, how 
 > destructive are we looking to be with the exported API?
 
-For interfaces that are only used within the core selinux userland code,
-I'd say we have significant freedom to change and/or remove them,
-particularly as we have incremented the .so version.  For interfaces in
-use by the selinux userland patches that have been integrated into
-external packages, then we need to be more careful, although strictly
-speaking we can make changes since we have changed the .so version there
-as well.
+Good question - I would prefer it to change as little as possible, but I
+guess we need some changes.
 
-The transition for distributions might be a bit painful though; we'll
-ultimately need a mass rebuild to make the switch completely.
-
--- 
-Stephen Smalley
-National Security Agency
+Karl
 
 
 --
