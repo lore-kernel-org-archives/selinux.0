@@ -1,71 +1,34 @@
-Subject: Re: [PATCH 1/1] libselinux: helpful message when /selinux won't
-	mount
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Dax Kelson <dax@gurulabs.com>
-Cc: selinux@tycho.nsa.gov
-In-Reply-To: <1177618067.26931.13.camel@mentorng.gurulabs.com>
-References: <1177618067.26931.13.camel@mentorng.gurulabs.com>
-Content-Type: text/plain
-Date: Fri, 27 Apr 2007 13:03:14 -0400
-Message-Id: <1177693394.3357.66.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l3RIffZI031961
+	for <selinux@tycho.nsa.gov>; Fri, 27 Apr 2007 14:41:41 -0400
+Received: from wx-out-0506.google.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l3RIffKw021058
+	for <selinux@tycho.nsa.gov>; Fri, 27 Apr 2007 18:41:41 GMT
+Received: by wx-out-0506.google.com with SMTP id s17so1009386wxc
+        for <selinux@tycho.nsa.gov>; Fri, 27 Apr 2007 11:41:41 -0700 (PDT)
+Message-ID: <463243E3.2060602@gmail.com>
+Date: Fri, 27 Apr 2007 13:41:39 -0500
+From: Ted X Toth <txtoth@gmail.com>
+MIME-Version: 1.0
+To: selinux@tycho.nsa.gov
+Subject: launching apps at level (MLS) and polyinstantiation
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2007-04-26 at 14:07 -0600, Dax Kelson wrote:
-> Last night a co-worker was trying to do a Phyical-2-Virtual (P2V)
-> migration of a RHEL5 box.
-> 
-> During bootup, the following not-so-helpful message was seen:
-> 
-> "Unable to load SELinux Policy. Machine is in enforcing mode. Halting
-> now."
-> 
-> I ran it down to the /selinux mount point not existing on the root
-> filesystem, but the troubleshooting was more difficult than it should
-> have been (it didn't help that it was a 3am).
-> 
-> Please consider the following trivial patch for inclusion into
-> libselinux so that others may have an easier time if they happen into
-> the same situation.
-> 
-> Signed-off-by:  Dax Kelson <dax@gurulabs.com>
-> 
-> ===================================================================
-> --- libselinux-2.0.8-org/src/load_policy.c	2007-03-08 12:44:37.000000000 -0700
-> +++ libselinux-2.0.8/src/load_policy.c	2007-04-26 13:54:18.000000000 -0600
-> @@ -226,6 +226,7 @@
->  			 */
->  			*enforce = 0;
->  		}
-> +		printf("Mount failed for selinuxfs on /selinux\n");
->  		goto noload;
->  	}
->  	set_selinuxmnt(SELINUXMNT);
+I'm working on an application that launches other applications at a 
+specified level. I have also configured polyinstantiation for a some 
+directories. What I have found is that I had to make this application 
+pam aware in order for the child process to get polyinstantiated 
+directories. One issue is the reauthentication I've already 
+authenticated why should I have to reauthenticate so that a child 
+process can use polyinstantiated directories? Currently this app works 
+when run as root but not as other users because the unshare call in 
+pam_namespace fails for lack of permissions (CAP_SYS_ADMIN?). What do I 
+need to do so that the application has this capability? I tried making 
+the app setuid but that didn't help.
 
-Merged, with the following diff on top of it to redirect to stderr and
-to provide more information.  Shows up as the following message if you
-boot without a /selinux directory:
-	Mount failed for selinuxfs on /selinux:  No such file or directory
-
-Index: libselinux/src/load_policy.c
-===================================================================
---- libselinux/src/load_policy.c	(revision 2411)
-+++ libselinux/src/load_policy.c	(working copy)
-@@ -226,7 +226,7 @@
- 			 */
- 			*enforce = 0;
- 		}
--		printf("Mount failed for selinuxfs on /selinux\n");
-+		fprintf(stderr, "Mount failed for selinuxfs on %s:  %s\n", SELINUXMNT, strerror(errno));
- 		goto noload;
- 	}
- 	set_selinuxmnt(SELINUXMNT);
-
--- 
-Stephen Smalley
-National Security Agency
-
+Ted
 
 --
 This message was distributed to subscribers of the selinux mailing list.
