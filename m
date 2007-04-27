@@ -1,51 +1,62 @@
-Subject: Re: launching apps at level (MLS) and polyinstantiation
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Ted X Toth <txtoth@gmail.com>
-Cc: selinux@tycho.nsa.gov
-In-Reply-To: <1177700491.3357.113.camel@moss-spartans.epoch.ncsc.mil>
-References: <463243E3.2060602@gmail.com>
-	 <1177700491.3357.113.camel@moss-spartans.epoch.ncsc.mil>
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l3RJF4XY002150
+	for <selinux@tycho.nsa.gov>; Fri, 27 Apr 2007 15:15:04 -0400
+Received: from exchange.columbia.tresys.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with SMTP id l3RJF4Kw026047
+	for <selinux@tycho.nsa.gov>; Fri, 27 Apr 2007 19:15:04 GMT
+Subject: [RFC] Policy Representation Overview
+From: "Christopher J. PeBenito" <cpebenito@tresys.com>
+To: SELinux Mail List <selinux@tycho.nsa.gov>
+Cc: Karl MacMillan <kmacmillan@mentalrootkit.com>
 Content-Type: text/plain
-Date: Fri, 27 Apr 2007 15:05:49 -0400
-Message-Id: <1177700749.3357.116.camel@moss-spartans.epoch.ncsc.mil>
+Date: Fri, 27 Apr 2007 19:14:27 +0000
+Message-Id: <1177701267.3570.63.camel@sgc>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2007-04-27 at 15:01 -0400, Stephen Smalley wrote:
-> On Fri, 2007-04-27 at 13:41 -0500, Ted X Toth wrote:
-> > I'm working on an application that launches other applications at a 
-> > specified level. I have also configured polyinstantiation for a some 
-> > directories. What I have found is that I had to make this application 
-> > pam aware in order for the child process to get polyinstantiated 
-> > directories. One issue is the reauthentication I've already 
-> > authenticated why should I have to reauthenticate so that a child 
-> > process can use polyinstantiated directories? Currently this app works 
-> > when run as root but not as other users because the unshare call in 
-> > pam_namespace fails for lack of permissions (CAP_SYS_ADMIN?). What do I 
-> > need to do so that the application has this capability? I tried making 
-> > the app setuid but that didn't help.
-> 
-> First, your application sounds similar to newrole -l, so hopefully you
-> can draw from it.
+Here is an overview of the new policy representation [1].  It includes
+much of the initial design as we understand it, plus a few
+modifications.  The significant differences are:
 
-In fact, newrole -l <level> -- -c <app> will run an application in a
-given level.
+1. A single symbol table at the root node of the abstract syntax tree,
+rather than a symbol table per block.
 
-> 
-> What precisely requires your app to perform authentication?  You control
-> your app's pam config, so you can define those modules as you see fit,
-> including using trivial ones like pam_permit.so.  And you control
-> whether your app calls pam_authenticate().  Possibly you may need to set
-> up state to make pam_open_session() happy.
-> 
-> newrole has the same issue wrt needing capabilities, so look to it as an
-> example - look at the NAMESPACE_PRIV code.  It needs to be suid but also
-> needs to run in a domain that is allowed those capabilities.
-> 
+2. The distinction between types and attributes.  The two implement the
+'Typeset Object' interface, but are not subclasses to each other.
+
+3. The distinction of 'policy statements'.  Examples are 'typeattribute'
+and 'typealias'.
+
+Here are the reasons for these three changes:
+
+1. A single symbol table allows for easier name symbol resolution.
+Consider if one optional block defines a symbol that another optional
+block uses.  With a single symbol table, the latter optional only need
+to search the top-most, authoritative symbol table for the symbol's
+existence.  Otherwise it would need to recurse into every single block
+to find the symbol as that the top-most did not define it.
+
+2. Although types and attributes may be used interchangably within AV
+rules, they are not valid tokens in many other parts of a policy.  For
+example, the default of a 'type_transition' must be a type, not an
+attribute.  Likewise, the one cannot assign an attribute to a type
+within 'typeattribute'; the operation is really adding the type to an
+attribute's type list.
+
+3. The inclusion of the statements simplify the process of linking in
+modules.  Because modules can have typeattribute statements, it is
+necessary to append a type to an attribute's type list.  It is possible
+that either the type or attribute is defined in the module; thus it is
+necessary to defer resolving the 'typeattribute' until after symbols
+have been linked.
+
+[1] http://oss.tresys.com/projects/setools/chrome/site/policy-rep/overview.pdf
+
 -- 
-Stephen Smalley
-National Security Agency
+Chris PeBenito
+Tresys Technology, LLC
+(410) 290-1411 x150
 
 
 --
