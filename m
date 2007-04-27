@@ -1,64 +1,54 @@
-Subject: Re: policycoreutils patch
-From: Stephen Smalley <sds@tycho.nsa.gov>
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l3RFeLj5019064
+	for <selinux@tycho.nsa.gov>; Fri, 27 Apr 2007 11:40:22 -0400
+Received: from exchange.columbia.tresys.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with SMTP id l3RFeKEq001234
+	for <selinux@tycho.nsa.gov>; Fri, 27 Apr 2007 15:40:21 GMT
+Message-ID: <46321964.3000302@manicmethod.com>
+Date: Fri, 27 Apr 2007 11:40:20 -0400
+From: Joshua Brindle <method@manicmethod.com>
+MIME-Version: 1.0
 To: Karl MacMillan <kmacmillan@mentalrootkit.com>
-Cc: Daniel J Walsh <dwalsh@redhat.com>, SE Linux <selinux@tycho.nsa.gov>
-In-Reply-To: <1177684208.15215.0.camel@localhost.localdomain>
-References: <4630C59F.1070106@redhat.com>
-	 <1177615134.3405.43.camel@localhost.localdomain>
-	 <4631F19C.2090508@redhat.com>
-	 <1177684208.15215.0.camel@localhost.localdomain>
-Content-Type: text/plain
-Date: Fri, 27 Apr 2007 11:10:39 -0400
-Message-Id: <1177686639.3357.16.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+CC: SE Linux <selinux@tycho.nsa.gov>
+Subject: Re: Next policyrep patches
+References: <1177686208.15215.7.camel@localhost.localdomain>
+In-Reply-To: <1177686208.15215.7.camel@localhost.localdomain>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2007-04-27 at 10:30 -0400, Karl MacMillan wrote:
-> On Fri, 2007-04-27 at 08:50 -0400, Daniel J Walsh wrote:
-> > Karl MacMillan wrote:
-> > > On Thu, 2007-04-26 at 11:30 -0400, Daniel J Walsh wrote:
-> > >   
-> > >> This patch moves audit2why to /usr/bin to match audit2allow, since both
-> > >> can be used from userspace.  Also moves sepolgen-ifget to /usr/sbin,
-> > >> since this is not to be run by normal users.
-> > >>
-> > >>     
-> > >
-> > > sepolgen-ifgen can be run by a normal user and the output saved to an
-> > > arbitrary file. audit2allow also has flags for reading the interface
-> > > information from a non-default flag. So I think it should stay
-> > > in /usr/bin.
-> > >
-> > > I merged the audit2why change to trunk, stable, and policyrep.
-> > >
-> > > Karl
-> > >
-> > >
-> > >   
-> > I guess the argument would be just because it can be run by a normal 
-> > user,  should it be placed in /usr/bin?
-> 
-> That was my thinking.
-> 
-> >   I look at apps that are almost 
-> > never run by normal users and tend to put them in /usr/sbin.  But 
-> > overall I don't really care.  The only problem is that I have 
-> > selinux-policy-devel package executes it in /usr/sbin.   So moving it 
-> > back to /usr/bin would be a hassle.
-> 
-> I don't really care - anyone else have an opinion? Otherwise I can merge
-> the move to sbin.
+Karl MacMillan wrote:
+> Here is my plan for the next set of policyrep patches:
+>
+> 1. Basic policy objects (sepol/policy.h). Basic object system and
+> top-level objects for the policy representation.
+>
+> 2. Policy components (each as a separate patch). For example, type
+> declarations (which would include type and typealias) would be a patch
+> adding include/sepol/types.h and src/types.c.
+>
+> For existing components (like booleans), I would like to merge the
+> record and component files. So booleans.h and boolean_record.h would be
+> merged. Objections?
+>
+>   
+fine with me.
+> 3. When all of the components are merged I'll send the parser changes.
+> This is the first patch that will cause breakage. Any objection to
+> checkmodule being broken for a while?
+>   
+Its well understood that the branch is going to be broken for a while, 
+there is no way around that if we expect to do the development in a 
+distributed way.
 
-I have no strong opinion, but I think moving things around unnecessarily
-leads to confusion and breakage and should be avoided.  And that these
-kinds of changes should not be made in the Fedora packages _before_
-being accepted upstream.
+I'd like the components and tree structure as soon as possible so that 
+we can start work on the linker and generator (expander).
 
--- 
-Stephen Smalley
-National Security Agency
-
+This brings up some other questions, there is no such thing as an 
+expander anymore, its really a code generator, do we want to change the 
+API to reflect that difference or just leave the current 
+sepol_expand_module function? I guess the general question is, how 
+destructive are we looking to be with the exported API?
 
 --
 This message was distributed to subscribers of the selinux mailing list.
