@@ -1,46 +1,63 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l3RF3UVN016613
-	for <selinux@tycho.nsa.gov>; Fri, 27 Apr 2007 11:03:30 -0400
-Received: from mx1.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id l3RF3TEq020673
-	for <selinux@tycho.nsa.gov>; Fri, 27 Apr 2007 15:03:29 GMT
-Received: from int-mx1.corp.redhat.com (int-mx1.corp.redhat.com [172.16.52.254])
-	by mx1.redhat.com (8.13.1/8.13.1) with ESMTP id l3RF3SZf016303
-	for <selinux@tycho.nsa.gov>; Fri, 27 Apr 2007 11:03:28 -0400
-Received: from pobox-2.corp.redhat.com (pobox-2.corp.redhat.com [10.11.255.15])
-	by int-mx1.corp.redhat.com (8.13.1/8.13.1) with ESMTP id l3RF3S2u009089
-	for <selinux@tycho.nsa.gov>; Fri, 27 Apr 2007 11:03:28 -0400
-Received: from [10.11.15.28] (vpn-15-28.rdu.redhat.com [10.11.15.28])
-	by pobox-2.corp.redhat.com (8.13.1/8.13.1) with ESMTP id l3RF3SH7001121
-	for <selinux@tycho.nsa.gov>; Fri, 27 Apr 2007 11:03:28 -0400
-Subject: Next policyrep patches
-From: Karl MacMillan <kmacmillan@mentalrootkit.com>
-To: SE Linux <selinux@tycho.nsa.gov>
+Subject: Re: policycoreutils patch
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Karl MacMillan <kmacmillan@mentalrootkit.com>
+Cc: Daniel J Walsh <dwalsh@redhat.com>, SE Linux <selinux@tycho.nsa.gov>
+In-Reply-To: <1177684208.15215.0.camel@localhost.localdomain>
+References: <4630C59F.1070106@redhat.com>
+	 <1177615134.3405.43.camel@localhost.localdomain>
+	 <4631F19C.2090508@redhat.com>
+	 <1177684208.15215.0.camel@localhost.localdomain>
 Content-Type: text/plain
-Date: Fri, 27 Apr 2007 11:03:28 -0400
-Message-Id: <1177686208.15215.7.camel@localhost.localdomain>
+Date: Fri, 27 Apr 2007 11:10:39 -0400
+Message-Id: <1177686639.3357.16.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Here is my plan for the next set of policyrep patches:
+On Fri, 2007-04-27 at 10:30 -0400, Karl MacMillan wrote:
+> On Fri, 2007-04-27 at 08:50 -0400, Daniel J Walsh wrote:
+> > Karl MacMillan wrote:
+> > > On Thu, 2007-04-26 at 11:30 -0400, Daniel J Walsh wrote:
+> > >   
+> > >> This patch moves audit2why to /usr/bin to match audit2allow, since both
+> > >> can be used from userspace.  Also moves sepolgen-ifget to /usr/sbin,
+> > >> since this is not to be run by normal users.
+> > >>
+> > >>     
+> > >
+> > > sepolgen-ifgen can be run by a normal user and the output saved to an
+> > > arbitrary file. audit2allow also has flags for reading the interface
+> > > information from a non-default flag. So I think it should stay
+> > > in /usr/bin.
+> > >
+> > > I merged the audit2why change to trunk, stable, and policyrep.
+> > >
+> > > Karl
+> > >
+> > >
+> > >   
+> > I guess the argument would be just because it can be run by a normal 
+> > user,  should it be placed in /usr/bin?
+> 
+> That was my thinking.
+> 
+> >   I look at apps that are almost 
+> > never run by normal users and tend to put them in /usr/sbin.  But 
+> > overall I don't really care.  The only problem is that I have 
+> > selinux-policy-devel package executes it in /usr/sbin.   So moving it 
+> > back to /usr/bin would be a hassle.
+> 
+> I don't really care - anyone else have an opinion? Otherwise I can merge
+> the move to sbin.
 
-1. Basic policy objects (sepol/policy.h). Basic object system and
-top-level objects for the policy representation.
+I have no strong opinion, but I think moving things around unnecessarily
+leads to confusion and breakage and should be avoided.  And that these
+kinds of changes should not be made in the Fedora packages _before_
+being accepted upstream.
 
-2. Policy components (each as a separate patch). For example, type
-declarations (which would include type and typealias) would be a patch
-adding include/sepol/types.h and src/types.c.
-
-For existing components (like booleans), I would like to merge the
-record and component files. So booleans.h and boolean_record.h would be
-merged. Objections?
-
-3. When all of the components are merged I'll send the parser changes.
-This is the first patch that will cause breakage. Any objection to
-checkmodule being broken for a while?
-
-Karl
+-- 
+Stephen Smalley
+National Security Agency
 
 
 --
