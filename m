@@ -1,54 +1,61 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l3RFeLj5019064
-	for <selinux@tycho.nsa.gov>; Fri, 27 Apr 2007 11:40:22 -0400
-Received: from exchange.columbia.tresys.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with SMTP id l3RFeKEq001234
-	for <selinux@tycho.nsa.gov>; Fri, 27 Apr 2007 15:40:21 GMT
-Message-ID: <46321964.3000302@manicmethod.com>
-Date: Fri, 27 Apr 2007 11:40:20 -0400
-From: Joshua Brindle <method@manicmethod.com>
-MIME-Version: 1.0
-To: Karl MacMillan <kmacmillan@mentalrootkit.com>
-CC: SE Linux <selinux@tycho.nsa.gov>
-Subject: Re: Next policyrep patches
-References: <1177686208.15215.7.camel@localhost.localdomain>
-In-Reply-To: <1177686208.15215.7.camel@localhost.localdomain>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Subject: Re: [PATCH 1/1] libselinux: helpful message when /selinux won't
+	mount
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Dax Kelson <dax@gurulabs.com>
+Cc: selinux@tycho.nsa.gov, Karl MacMillan <kmacmillan@mentalrootkit.com>,
+        Joshua Brindle <method@manicmethod.com>
+In-Reply-To: <1177618067.26931.13.camel@mentorng.gurulabs.com>
+References: <1177618067.26931.13.camel@mentorng.gurulabs.com>
+Content-Type: text/plain
+Date: Fri, 27 Apr 2007 11:45:30 -0400
+Message-Id: <1177688730.3357.41.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Karl MacMillan wrote:
-> Here is my plan for the next set of policyrep patches:
->
-> 1. Basic policy objects (sepol/policy.h). Basic object system and
-> top-level objects for the policy representation.
->
-> 2. Policy components (each as a separate patch). For example, type
-> declarations (which would include type and typealias) would be a patch
-> adding include/sepol/types.h and src/types.c.
->
-> For existing components (like booleans), I would like to merge the
-> record and component files. So booleans.h and boolean_record.h would be
-> merged. Objections?
->
->   
-fine with me.
-> 3. When all of the components are merged I'll send the parser changes.
-> This is the first patch that will cause breakage. Any objection to
-> checkmodule being broken for a while?
->   
-Its well understood that the branch is going to be broken for a while, 
-there is no way around that if we expect to do the development in a 
-distributed way.
+On Thu, 2007-04-26 at 14:07 -0600, Dax Kelson wrote:
+> Last night a co-worker was trying to do a Phyical-2-Virtual (P2V)
+> migration of a RHEL5 box.
+> 
+> During bootup, the following not-so-helpful message was seen:
+> 
+> "Unable to load SELinux Policy. Machine is in enforcing mode. Halting
+> now."
+> 
+> I ran it down to the /selinux mount point not existing on the root
+> filesystem, but the troubleshooting was more difficult than it should
+> have been (it didn't help that it was a 3am).
+> 
+> Please consider the following trivial patch for inclusion into
+> libselinux so that others may have an easier time if they happen into
+> the same situation.
+> 
+> Signed-off-by:  Dax Kelson <dax@gurulabs.com>
+> 
+> ===================================================================
+> --- libselinux-2.0.8-org/src/load_policy.c	2007-03-08 12:44:37.000000000 -0700
+> +++ libselinux-2.0.8/src/load_policy.c	2007-04-26 13:54:18.000000000 -0600
+> @@ -226,6 +226,7 @@
+>  			 */
+>  			*enforce = 0;
+>  		}
+> +		printf("Mount failed for selinuxfs on /selinux\n");
+>  		goto noload;
+>  	}
+>  	set_selinuxmnt(SELINUXMNT);
 
-I'd like the components and tree structure as soon as possible so that 
-we can start work on the linker and generator (expander).
+I'm fine with merging this for now, but I think we also likely want to
+introduce a similar error reporting facility into libselinux to match
+what we have in libsemanage and libsepol (e.g. see
+libsepol/include/sepol/debug.h and libsepol/src/debug.[hc]) to allow
+such messages to be handled in various ways by the caller.  What do
+others think?  One difference is that libselinux presently has no notion
+of handles.
 
-This brings up some other questions, there is no such thing as an 
-expander anymore, its really a code generator, do we want to change the 
-API to reflect that difference or just leave the current 
-sepol_expand_module function? I guess the general question is, how 
-destructive are we looking to be with the exported API?
+-- 
+Stephen Smalley
+National Security Agency
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
