@@ -1,43 +1,59 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l3RNdX6j014663
-	for <selinux@tycho.nsa.gov>; Fri, 27 Apr 2007 19:39:33 -0400
-Received: from web51501.mail.re2.yahoo.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with SMTP id l3RNdW33002405
-	for <selinux@tycho.nsa.gov>; Fri, 27 Apr 2007 23:39:32 GMT
-Date: Fri, 27 Apr 2007 16:38:57 -0700 (PDT)
-From: Steve G <linux_4ever@yahoo.com>
-Subject: Re: Patch to cleanup audit handling in policy.
-To: Daniel J Walsh <dwalsh@redhat.com>,
-        "Christopher J. PeBenito" <cpebenito@tresys.com>,
-        SE Linux <selinux@tycho.nsa.gov>
-In-Reply-To: <4632781D.2030406@redhat.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Message-ID: <254813.17034.qm@web51501.mail.re2.yahoo.com>
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l3TEn2ZS016689
+	for <selinux@tycho.nsa.gov>; Sun, 29 Apr 2007 10:49:02 -0400
+Received: from smtp113.sbc.mail.re2.yahoo.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with SMTP id l3TEn1JW015820
+	for <selinux@tycho.nsa.gov>; Sun, 29 Apr 2007 14:49:01 GMT
+Mime-Version: 1.0 (Apple Message framework v752.3)
+Message-Id: <79DD4F6A-4BD4-4FD7-BB00-C4B7705B4EF8@nall.com>
+Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
+To: SE Linux <selinux@tycho.nsa.gov>
+From: Joe Nall <joe@nall.com>
+Subject: Does the MLS range in modular file context have to be raw?
+Date: Sun, 29 Apr 2007 09:48:33 -0500
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
->I have removed -send_audit_msgs_pattern and replaced it with 4 functions 
+In a modular policy context file
 
-I'd like to clarify what they are in case anyone thinks the names need tweeking
+/var/opt/jcdx/ICM(/.*)?                 gen_context 
+(system_u:object_r:jcdx_icm_var_t,s15:c0.c1023)
 
-logging_send_audit_msg - This is for any Trusted App that needs to send audit
-events
+works, but
 
-logging_set_loginuid - This would be for entry point daemons or daemons that
-perform actions on behalf of a user (cron/at). Includes the ability to send audit
-events.
+/var/opt/jcdx/ICM(/.*)?                 gen_context 
+(system_u:object_r:jcdx_icm_var_t,SystemHigh)
 
-logging_set_audit - This should be for the audit daemon only
+does not with the following error during installation:
 
-logging_set_auditctl - This is only for auditctl and autrace.
+libsepol.mls_from_string: invalid MLS context SystemHigh
+libsepol.mls_from_string: could not construct mls context structure
+libsepol.context_from_record: could not create context structure
+libsepol.context_from_string: could not create context structure
+libsepol.sepol_context_to_sid: could not convert  
+system_u:object_r:jcdx_icm_var_t:SystemHigh to sid
+/etc/selinux/mls/contexts/files/file_contexts:  line 818 has invalid  
+context system_u:object_r:jcdx_icm_var_t:SystemHigh
+libsemanage.semanage_install_active: setfiles returned error code 1.
+/usr/sbin/semodule:  Failed!
 
--Steve
+In both cases the creation of the .pp file works.
 
-__________________________________________________
-Do You Yahoo!?
-Tired of spam?  Yahoo! Mail has the best spam protection around 
-http://mail.yahoo.com 
+This concerns me because we have a number of daemons that run at  
+labels other than SystemHigh. The raw context for these daemons must  
+be hardcoded in the policy developers environment, which presumes we  
+know the mapping on the target machine, which we don't.
+
+We can work around this in the RPM spec file, creating the .fc files  
+on the fly using the setrans.conf of the target machine and compiling  
+during the installation, but this is complex and feels like we are  
+working around a bug.
+
+How can I specify a file context with a human readable label in a  
+modular policy?
+
+joe
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
