@@ -1,53 +1,52 @@
 Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l3UEPIsb029751
-	for <selinux@tycho.nsa.gov>; Mon, 30 Apr 2007 10:25:18 -0400
-Received: from exchange.columbia.tresys.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with SMTP id l3UEPHid025216
-	for <selinux@tycho.nsa.gov>; Mon, 30 Apr 2007 14:25:17 GMT
-Subject: Re: kudzu fixes to allow it to edit and restart init for MLS
-From: "Christopher J. PeBenito" <cpebenito@tresys.com>
-To: dwalsh@redhat.com
-Cc: selinux@tycho.nsa.gov
-In-Reply-To: <200704201930.l3KJUJMV027319@redsox.boston.devel.redhat.com>
-References: <200704201930.l3KJUJMV027319@redsox.boston.devel.redhat.com>
-Content-Type: text/plain
-Date: Mon, 30 Apr 2007 10:24:54 -0400
-Message-Id: <1177943094.3570.80.camel@sgc>
-Mime-Version: 1.0
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l3UEPjk7029812
+	for <selinux@tycho.nsa.gov>; Mon, 30 Apr 2007 10:25:45 -0400
+Received: from mx1.redhat.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l3UEPiid025288
+	for <selinux@tycho.nsa.gov>; Mon, 30 Apr 2007 14:25:44 GMT
+Message-ID: <4635FC63.3000003@redhat.com>
+Date: Mon, 30 Apr 2007 10:25:39 -0400
+From: Daniel J Walsh <dwalsh@redhat.com>
+MIME-Version: 1.0
+To: "Christopher J. PeBenito" <cpebenito@tresys.com>
+CC: Steve G <linux_4ever@yahoo.com>, SE Linux <selinux@tycho.nsa.gov>
+Subject: Re: Patch to cleanup audit handling in policy.
+References: <254813.17034.qm@web51501.mail.re2.yahoo.com> <1177942650.3570.78.camel@sgc>
+In-Reply-To: <1177942650.3570.78.camel@sgc>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2007-04-20 at 15:30 -0400, dwalsh@redhat.com wrote:
-> p--- nsaserefpolicy/policy/modules/admin/kudzu.te	2007-04-10 12:52:58.000000000 -0400
-> +++ serefpolicy-2.5.12/policy/modules/admin/kudzu.te	2007-04-11 17:07:34.000000000 -0400
-> @@ -21,8 +21,8 @@
->  # Local policy
->  #
->  
-> -allow kudzu_t self:capability { dac_override sys_admin sys_rawio net_admin sys_tty_config mknod };
-> -dontaudit kudzu_t self:capability { sys_ptrace sys_tty_config };
-> +allow kudzu_t self:capability { dac_override sys_admin sys_ptrace sys_rawio net_admin sys_tty_config mknod };
-> +dontaudit kudzu_t self:capability sys_tty_config;
->  allow kudzu_t self:process { signal_perms execmem };
->  allow kudzu_t self:fifo_file rw_fifo_file_perms;
->  allow kudzu_t self:unix_stream_socket { connectto create_stream_socket_perms };
-> @@ -103,6 +103,8 @@
->  init_use_fds(kudzu_t)
->  init_use_script_ptys(kudzu_t)
->  init_stream_connect_script(kudzu_t)
-> +init_read_init_state(kudzu_t)
-> +init_ptrace_init_domain(kudzu_t)
->  # kudzu will telinit to make init re-read
->  # the inittab after configuring serial consoles
->  init_telinit(kudzu_t)
-
-Kudzu really needs to ptrace init?
-
--- 
-Chris PeBenito
-Tresys Technology, LLC
-(410) 290-1411 x150
-
+Christopher J. PeBenito wrote:
+> On Fri, 2007-04-27 at 16:38 -0700, Steve G wrote:
+>   
+>>> I have removed -send_audit_msgs_pattern and replaced it with 4 functions 
+>>>       
+>> I'd like to clarify what they are in case anyone thinks the names need tweeking
+>>
+>> logging_send_audit_msg - This is for any Trusted App that needs to send audit
+>> events
+>>
+>> logging_set_loginuid - This would be for entry point daemons or daemons that
+>> perform actions on behalf of a user (cron/at). Includes the ability to send audit
+>> events.
+>>
+>> logging_set_audit - This should be for the audit daemon only
+>>
+>> logging_set_auditctl - This is only for auditctl and autrace.
+>>     
+>
+> I'm not convinced that these are necessary.  The assertions in the
+> policy are mainly to stop people from accidentally shooting themselves
+> in the foot by allowing potentially dangerous access, for example,
+> access to /etc/shadow or raw disk access.
+>
+>   
+When I reviewed the policy, almost ever call to allow audit was wrong.  
+I think we should
+take advantage of the tools to allow policy writers to accidently grant 
+more access then is
+necessary.
 
 --
 This message was distributed to subscribers of the selinux mailing list.
