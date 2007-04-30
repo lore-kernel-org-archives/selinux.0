@@ -1,40 +1,49 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l3UF06Ls000446
-	for <selinux@tycho.nsa.gov>; Mon, 30 Apr 2007 11:00:06 -0400
-Received: from web51502.mail.re2.yahoo.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with SMTP id l3UF04id001116
-	for <selinux@tycho.nsa.gov>; Mon, 30 Apr 2007 15:00:05 GMT
-Message-ID: <20070430145914.7790.qmail@web51502.mail.re2.yahoo.com>
-Date: Mon, 30 Apr 2007 07:59:14 -0700 (PDT)
-From: Steve G <linux_4ever@yahoo.com>
-Subject: Re: Patch to cleanup audit handling in policy.
-To: "Christopher J. PeBenito" <cpebenito@tresys.com>
-Cc: Daniel J Walsh <dwalsh@redhat.com>, SE Linux <selinux@tycho.nsa.gov>
-In-Reply-To: <1177942650.3570.78.camel@sgc>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l3UF49F1000759
+	for <selinux@tycho.nsa.gov>; Mon, 30 Apr 2007 11:04:09 -0400
+Received: from exchange.columbia.tresys.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with SMTP id l3UF48bP003174
+	for <selinux@tycho.nsa.gov>; Mon, 30 Apr 2007 15:04:08 GMT
+Subject: Re: aide has a new directory
+From: "Christopher J. PeBenito" <cpebenito@tresys.com>
+To: dwalsh@redhat.com
+Cc: selinux@tycho.nsa.gov
+In-Reply-To: <200704201928.l3KJSCXC027282@redsox.boston.devel.redhat.com>
+References: <200704201928.l3KJSCXC027282@redsox.boston.devel.redhat.com>
+Content-Type: text/plain
+Date: Mon, 30 Apr 2007 11:03:48 -0400
+Message-Id: <1177945428.3570.96.camel@sgc>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+On Fri, 2007-04-20 at 15:28 -0400, dwalsh@redhat.com wrote:
+> --- nsaserefpolicy/policy/modules/services/aide.fc	2006-11-16 17:15:21.000000000 -0500
+> +++ serefpolicy-2.5.12/policy/modules/services/aide.fc	2007-04-18 22:31:58.000000000 -0400
+> @@ -3,3 +3,4 @@
+>  /var/lib/aide(/.*)		gen_context(system_u:object_r:aide_db_t,mls_systemhigh)
+>  
+>  /var/log/aide.log	--	gen_context(system_u:object_r:aide_log_t,mls_systemhigh)
+> +/var/log/aide(/.*)?		gen_context(system_u:object_r:aide_log_t,mls_systemhigh)
+> --- nsaserefpolicy/policy/modules/services/aide.te	2007-01-02 12:57:43.000000000 -0500
+> +++ serefpolicy-2.5.12/policy/modules/services/aide.te	2007-04-18 22:31:08.000000000 -0400
+> @@ -32,7 +32,7 @@
+>  manage_files_pattern(aide_t,aide_db_t,aide_db_t)
+>  
+>  # logs
+> -allow aide_t aide_log_t:file manage_file_perms;
+> +manage_files_pattern(aide_t, aide_log_t, aide_log_t)
+>  logging_log_filetrans(aide_t,aide_log_t,file)
+>  
+>  files_read_all_files(aide_t)
 
->I'm not convinced that these are necessary.
+Merged.
 
-The audit policy seems very broken. It allows way too much permission to
-applications. The audit_control permission means that they can potentially delete
-audit rules or change the loginuid. That should not be handed out like candy. 
+-- 
+Chris PeBenito
+Tresys Technology, LLC
+(410) 290-1411 x150
 
-The interfaces that Dan created allows the exact kind of permission to be applied
-without having to copy and paste individual permissions which is error prone.
-(There are only 4 use cases of the audit system.) Part of what makes it error
-prone is the naming convention for all the pieces. Example: "audit_write" is that
-for the capability, the netlink interface, or audit logs?
-
--Steve
-
-__________________________________________________
-Do You Yahoo!?
-Tired of spam?  Yahoo! Mail has the best spam protection around 
-http://mail.yahoo.com 
 
 --
 This message was distributed to subscribers of the selinux mailing list.
