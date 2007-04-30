@@ -1,71 +1,73 @@
-Subject: Re: Does the MLS range in modular file context have to be raw?
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Joe Nall <joe@nall.com>
-Cc: SE Linux <selinux@tycho.nsa.gov>,
-        Karl MacMillan <kmacmillan@mentalrootkit.com>,
-        Joshua Brindle <method@manicmethod.com>,
-        Daniel J Walsh <dwalsh@redhat.com>
-In-Reply-To: <79DD4F6A-4BD4-4FD7-BB00-C4B7705B4EF8@nall.com>
-References: <79DD4F6A-4BD4-4FD7-BB00-C4B7705B4EF8@nall.com>
-Content-Type: text/plain
-Date: Mon, 30 Apr 2007 08:17:06 -0400
-Message-Id: <1177935426.16232.15.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l3UEDtOv028803
+	for <selinux@tycho.nsa.gov>; Mon, 30 Apr 2007 10:13:57 -0400
+Received: from Bishop.columbia.tresys.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l3UEDqid023664
+	for <selinux@tycho.nsa.gov>; Mon, 30 Apr 2007 14:13:52 GMT
+From: "Jeremy A. Mowery" <jmowery@tresys.com>
+To: selinux@tycho.nsa.gov
+Subject: [ANN] SETools 3.2 Release
+Date: Mon, 30 Apr 2007 10:14:30 -0400
+Cc: fedora-selinux-list@redhat.com
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="utf-8"
+Message-Id: <200704301014.30836.jmowery@tresys.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Sun, 2007-04-29 at 09:48 -0500, Joe Nall wrote:
-> In a modular policy context file
-> 
-> /var/opt/jcdx/ICM(/.*)?                 gen_context 
-> (system_u:object_r:jcdx_icm_var_t,s15:c0.c1023)
-> 
-> works, but
-> 
-> /var/opt/jcdx/ICM(/.*)?                 gen_context 
-> (system_u:object_r:jcdx_icm_var_t,SystemHigh)
-> 
-> does not with the following error during installation:
-> 
-> libsepol.mls_from_string: invalid MLS context SystemHigh
-> libsepol.mls_from_string: could not construct mls context structure
-> libsepol.context_from_record: could not create context structure
-> libsepol.context_from_string: could not create context structure
-> libsepol.sepol_context_to_sid: could not convert  
-> system_u:object_r:jcdx_icm_var_t:SystemHigh to sid
-> /etc/selinux/mls/contexts/files/file_contexts:  line 818 has invalid  
-> context system_u:object_r:jcdx_icm_var_t:SystemHigh
-> libsemanage.semanage_install_active: setfiles returned error code 1.
-> /usr/sbin/semodule:  Failed!
-> 
-> In both cases the creation of the .pp file works.
-> 
-> This concerns me because we have a number of daemons that run at  
-> labels other than SystemHigh. The raw context for these daemons must  
-> be hardcoded in the policy developers environment, which presumes we  
-> know the mapping on the target machine, which we don't.
-> 
-> We can work around this in the RPM spec file, creating the .fc files  
-> on the fly using the setrans.conf of the target machine and compiling  
-> during the installation, but this is complex and feels like we are  
-> working around a bug.
-> 
-> How can I specify a file context with a human readable label in a  
-> modular policy?
+A new release of SETools is now available on the Tresys OSS site, from
+http://oss.tresys.com. The primary changes this release are the addition
+of MLS to sediff and sediffx, the ability to export and import policy list
+files to better manage long lists of policy modules, and the introduction
+of SWIG wrappers for python and java. The complete change log for this 
+release follows.
 
-IIUC, that isn't specific to modular policy; the same would apply to
-monolithic policy, and both setfiles and libselinux matchpathcon expect
-file contexts to contain raw contexts.  
+SETools 3.2:
 
-I think the error occurs upon the setfiles -c validation of the file
-contexts against the policy file, and that checking needs to work on a
-non-selinux build host or even on a selinux w/ different policy build
-host, so it doesn't use anything from the base system, just the provided
-file contexts and binary policy file.
+libapol, libqpol, libesaudit, libpoldiff:
 
--- 
-Stephen Smalley
-National Security Agency
+  * If --enable-swig-python is given during configure time, the build
+    system will create Python SWIG wrappers for these libraries.
+
+  * If --enable-swig-java is given during configure time, the build
+    system will create Java SWIG wrappers for these libraries.
+
+libpoldiff:
+
+  * Provides ability to diff levels, categories, and range_transition
+    statements.  Provides ability to diff modifications to a user's
+    default level and permitted MLS range, assuming the policies are MLS.
+    
+apol, seaudit, sediffx:
+
+  * Introduces 'policy list', a small text file that contains
+    references to a base policy and any number of modules.  After
+    selecting the base policy and modules in a tool's open policy
+    dialog, click on 'Export' to write a policy list to disk.  That
+    policy list then may be imported into the same tool or any other
+    graphical SETools application.  This file also may be specified
+    on the command line for all tools that load a policy.
+
+sesearch, apol:
+
+  * Provides full support for version 21 policy (i.e., object classes for
+    range_transition statements).
+
+sediff:
+
+  * Shows MLS diffs.
+
+sediffx:
+
+  * Shows MLS diffs.
+
+  * Provides option to show line numbers that contributed just to a
+    specific AV rule's permission by clicking that AV rule's permissions.
+    This is in addition to existing sediffx behavior that showed all lines
+    associated with a particular rule difference.
+
+  * Provides support for type joins and splits within the type remap dialog.
 
 
 --
