@@ -1,60 +1,52 @@
 Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l3UEb7ob030738
-	for <selinux@tycho.nsa.gov>; Mon, 30 Apr 2007 10:37:07 -0400
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l3UEdJ3p030930
+	for <selinux@tycho.nsa.gov>; Mon, 30 Apr 2007 10:39:19 -0400
 Received: from exchange.columbia.tresys.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with SMTP id l3UEb6id027112
-	for <selinux@tycho.nsa.gov>; Mon, 30 Apr 2007 14:37:06 GMT
-Subject: Re: kudzu fixes to allow it to edit and restart init for MLS
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with SMTP id l3UEdHid027578
+	for <selinux@tycho.nsa.gov>; Mon, 30 Apr 2007 14:39:17 GMT
+Subject: Re: misc fixes for netutils
 From: "Christopher J. PeBenito" <cpebenito@tresys.com>
-To: Daniel J Walsh <dwalsh@redhat.com>
+To: dwalsh@redhat.com
 Cc: selinux@tycho.nsa.gov
-In-Reply-To: <4635FDB4.2030208@redhat.com>
-References: <200704201930.l3KJUJMV027319@redsox.boston.devel.redhat.com>
-	 <1177943094.3570.80.camel@sgc>  <4635FDB4.2030208@redhat.com>
+In-Reply-To: <200704201929.l3KJTrNg027302@redsox.boston.devel.redhat.com>
+References: <200704201929.l3KJTrNg027302@redsox.boston.devel.redhat.com>
 Content-Type: text/plain
-Date: Mon, 30 Apr 2007 14:36:46 +0000
-Message-Id: <1177943806.3570.85.camel@sgc>
+Date: Mon, 30 Apr 2007 10:38:58 -0400
+Message-Id: <1177943938.3570.88.camel@sgc>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 2007-04-30 at 10:31 -0400, Daniel J Walsh wrote:
-> Christopher J. PeBenito wrote:
-> > On Fri, 2007-04-20 at 15:30 -0400, dwalsh@redhat.com wrote:
-> >   
-> >> p--- nsaserefpolicy/policy/modules/admin/kudzu.te	2007-04-10 12:52:58.000000000 -0400
-> >> +++ serefpolicy-2.5.12/policy/modules/admin/kudzu.te	2007-04-11 17:07:34.000000000 -0400
-> >> @@ -21,8 +21,8 @@
-> >>  # Local policy
-> >>  #
-> >>  
-> >> -allow kudzu_t self:capability { dac_override sys_admin sys_rawio net_admin sys_tty_config mknod };
-> >> -dontaudit kudzu_t self:capability { sys_ptrace sys_tty_config };
-> >> +allow kudzu_t self:capability { dac_override sys_admin sys_ptrace sys_rawio net_admin sys_tty_config mknod };
-> >> +dontaudit kudzu_t self:capability sys_tty_config;
-> >>  allow kudzu_t self:process { signal_perms execmem };
-> >>  allow kudzu_t self:fifo_file rw_fifo_file_perms;
-> >>  allow kudzu_t self:unix_stream_socket { connectto create_stream_socket_perms };
-> >> @@ -103,6 +103,8 @@
-> >>  init_use_fds(kudzu_t)
-> >>  init_use_script_ptys(kudzu_t)
-> >>  init_stream_connect_script(kudzu_t)
-> >> +init_read_init_state(kudzu_t)
-> >> +init_ptrace_init_domain(kudzu_t)
-> >>  # kudzu will telinit to make init re-read
-> >>  # the inittab after configuring serial consoles
-> >>  init_telinit(kudzu_t)
-> >>     
-> >
-> > Kudzu really needs to ptrace init?
-> >
-> >   
-> I am not sure, you can merge it with a dontaudit, and we can get the 
-> LSPP People to test without it. 
+On Fri, 2007-04-20 at 15:29 -0400, dwalsh@redhat.com wrote:
+> --- nsaserefpolicy/policy/modules/admin/netutils.te	2007-03-26 16:24:13.000000000 -0400
+> +++ serefpolicy-2.5.12/policy/modules/admin/netutils.te	2007-04-11 17:07:34.000000000 -0400
+> @@ -40,6 +41,7 @@
+>  
+>  # Perform network administration operations and have raw access to the network.
+>  allow netutils_t self:capability { net_admin net_raw setuid setgid };
+> +dontaudit netutils_t self:capability sys_tty_config;
+>  allow netutils_t self:process { sigkill sigstop signull signal };
+>  allow netutils_t self:netlink_route_socket { bind create getattr nlmsg_read nlmsg_write read write };
+>  allow netutils_t self:packet_socket create_socket_perms;
+> @@ -50,6 +52,8 @@
+>  manage_files_pattern(netutils_t,netutils_tmp_t,netutils_tmp_t)
+>  files_tmp_filetrans(netutils_t, netutils_tmp_t, { file dir })
+>  
+> +dev_read_sysfs(netutils_t)
+> +
+>  kernel_search_proc(netutils_t)
+>  
+>  corenet_non_ipsec_sendrecv(netutils_t)
+> @@ -132,6 +136,8 @@
+>  
+>  logging_send_syslog_msg(ping_t)
+>  
+> +miscfiles_read_localization(ping_t)
+> +
+>  sysnet_read_config(ping_t)
+>  sysnet_dns_name_resolve(ping_t)
 
-I'm thinking that we should probably put the process ptrace dontaudit
-back into ps_process_pattern().  Ever since it was removed, theres been
-a noticeable increase in ptrace rules popping up.
+Merged, except for the middle hunk, which is redundant.
 
 -- 
 Chris PeBenito
