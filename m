@@ -1,73 +1,47 @@
 Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l3UEDtOv028803
-	for <selinux@tycho.nsa.gov>; Mon, 30 Apr 2007 10:13:57 -0400
-Received: from Bishop.columbia.tresys.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l3UEDqid023664
-	for <selinux@tycho.nsa.gov>; Mon, 30 Apr 2007 14:13:52 GMT
-From: "Jeremy A. Mowery" <jmowery@tresys.com>
-To: selinux@tycho.nsa.gov
-Subject: [ANN] SETools 3.2 Release
-Date: Mon, 30 Apr 2007 10:14:30 -0400
-Cc: fedora-selinux-list@redhat.com
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
-Message-Id: <200704301014.30836.jmowery@tresys.com>
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l3UEIapd029067
+	for <selinux@tycho.nsa.gov>; Mon, 30 Apr 2007 10:18:36 -0400
+Received: from exchange.columbia.tresys.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with SMTP id l3UEIYid024102
+	for <selinux@tycho.nsa.gov>; Mon, 30 Apr 2007 14:18:34 GMT
+Subject: Re: Patch to cleanup audit handling in policy.
+From: "Christopher J. PeBenito" <cpebenito@tresys.com>
+To: Steve G <linux_4ever@yahoo.com>
+Cc: Daniel J Walsh <dwalsh@redhat.com>, SE Linux <selinux@tycho.nsa.gov>
+In-Reply-To: <254813.17034.qm@web51501.mail.re2.yahoo.com>
+References: <254813.17034.qm@web51501.mail.re2.yahoo.com>
+Content-Type: text/plain
+Date: Mon, 30 Apr 2007 14:17:30 +0000
+Message-Id: <1177942650.3570.78.camel@sgc>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-A new release of SETools is now available on the Tresys OSS site, from
-http://oss.tresys.com. The primary changes this release are the addition
-of MLS to sediff and sediffx, the ability to export and import policy list
-files to better manage long lists of policy modules, and the introduction
-of SWIG wrappers for python and java. The complete change log for this 
-release follows.
+On Fri, 2007-04-27 at 16:38 -0700, Steve G wrote:
+> >I have removed -send_audit_msgs_pattern and replaced it with 4 functions 
+> 
+> I'd like to clarify what they are in case anyone thinks the names need tweeking
+> 
+> logging_send_audit_msg - This is for any Trusted App that needs to send audit
+> events
+> 
+> logging_set_loginuid - This would be for entry point daemons or daemons that
+> perform actions on behalf of a user (cron/at). Includes the ability to send audit
+> events.
+> 
+> logging_set_audit - This should be for the audit daemon only
+> 
+> logging_set_auditctl - This is only for auditctl and autrace.
 
-SETools 3.2:
+I'm not convinced that these are necessary.  The assertions in the
+policy are mainly to stop people from accidentally shooting themselves
+in the foot by allowing potentially dangerous access, for example,
+access to /etc/shadow or raw disk access.
 
-libapol, libqpol, libesaudit, libpoldiff:
-
-  * If --enable-swig-python is given during configure time, the build
-    system will create Python SWIG wrappers for these libraries.
-
-  * If --enable-swig-java is given during configure time, the build
-    system will create Java SWIG wrappers for these libraries.
-
-libpoldiff:
-
-  * Provides ability to diff levels, categories, and range_transition
-    statements.  Provides ability to diff modifications to a user's
-    default level and permitted MLS range, assuming the policies are MLS.
-    
-apol, seaudit, sediffx:
-
-  * Introduces 'policy list', a small text file that contains
-    references to a base policy and any number of modules.  After
-    selecting the base policy and modules in a tool's open policy
-    dialog, click on 'Export' to write a policy list to disk.  That
-    policy list then may be imported into the same tool or any other
-    graphical SETools application.  This file also may be specified
-    on the command line for all tools that load a policy.
-
-sesearch, apol:
-
-  * Provides full support for version 21 policy (i.e., object classes for
-    range_transition statements).
-
-sediff:
-
-  * Shows MLS diffs.
-
-sediffx:
-
-  * Shows MLS diffs.
-
-  * Provides option to show line numbers that contributed just to a
-    specific AV rule's permission by clicking that AV rule's permissions.
-    This is in addition to existing sediffx behavior that showed all lines
-    associated with a particular rule difference.
-
-  * Provides support for type joins and splits within the type remap dialog.
+-- 
+Chris PeBenito
+Tresys Technology, LLC
+(410) 290-1411 x150
 
 
 --
