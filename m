@@ -1,60 +1,64 @@
 Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l41DVwwG028907
-	for <selinux@tycho.nsa.gov>; Tue, 1 May 2007 09:31:58 -0400
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l41DkIAS030140
+	for <selinux@tycho.nsa.gov>; Tue, 1 May 2007 09:46:18 -0400
 Received: from exchange.columbia.tresys.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with SMTP id l41DVv1O001390
-	for <selinux@tycho.nsa.gov>; Tue, 1 May 2007 13:31:57 GMT
-Subject: Re: Patch to cleanup audit handling in policy.
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with SMTP id l41DkG1O003140
+	for <selinux@tycho.nsa.gov>; Tue, 1 May 2007 13:46:16 GMT
+Subject: Re: amtu policy/used for MLS Test suite, needs to run in the field
 From: "Christopher J. PeBenito" <cpebenito@tresys.com>
-To: Karl MacMillan <kmacmillan@mentalrootkit.com>
-Cc: Steve G <linux_4ever@yahoo.com>, Daniel J Walsh <dwalsh@redhat.com>,
-        SE Linux <selinux@tycho.nsa.gov>
-In-Reply-To: <1177980591.13269.10.camel@localhost.localdomain>
-References: <20070430145914.7790.qmail@web51502.mail.re2.yahoo.com>
-	 <1177951993.3570.115.camel@sgc>
-	 <1177980591.13269.10.camel@localhost.localdomain>
+To: dwalsh@redhat.com
+Cc: selinux@tycho.nsa.gov
+In-Reply-To: <200704201930.l3KJUhev027327@redsox.boston.devel.redhat.com>
+References: <200704201930.l3KJUhev027327@redsox.boston.devel.redhat.com>
 Content-Type: text/plain
-Date: Tue, 01 May 2007 13:31:36 +0000
-Message-Id: <1178026296.3570.144.camel@sgc>
+Date: Tue, 01 May 2007 09:45:55 -0400
+Message-Id: <1178027155.3570.146.camel@sgc>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 2007-04-30 at 20:49 -0400, Karl MacMillan wrote:
-> On Mon, 2007-04-30 at 16:53 +0000, Christopher J. PeBenito wrote:
-> > On Mon, 2007-04-30 at 07:59 -0700, Steve G wrote:
-> 
-> <snip>
-> 
-> > 
-> > > The interfaces that Dan created allows the exact kind of permission to be applied
-> > > without having to copy and paste individual permissions which is error prone.
-> > > (There are only 4 use cases of the audit system.) Part of what makes it error
-> > > prone is the naming convention for all the pieces. Example: "audit_write" is that
-> > > for the capability, the netlink interface, or audit logs?
-> > 
-> > This is the reason policy patterns exist.
-> > 
-> 
-> So far the policy patterns have been very hard to automatically generate
-> using sepolgen. Note that this deficiency is not something that I can
-> address - it is a problem with the patterns themselves.
+On Fri, 2007-04-20 at 15:30 -0400, dwalsh@redhat.com wrote:
+> +# Specific allow rules required for amtu
+> +allow amtu_t self:capability { audit_write net_raw };
+> +allow amtu_t self:netlink_audit_socket { create nlmsg_relay read write };
+> +allow amtu_t self:packet_socket { bind create read write };
+> +allow amtu_t self:udp_socket { create ioctl };
 
-I don't see how it could be any more complex than matching rules to an
-interface.
+Seems to be missing some corenet rules?
 
->  Given that and
-> my concerns over their clarity I would prefer that no more patterns be
-> introduced.
-> 
-> Can I ask why you are so against these audit interfaces and would prefer
-> patterns?
-
-I don't agree with the assertions which means the attributes are
-dropped, so that just leaves the rules, which don't refer to any types
-in the logging module.  They only refer to resources in the current
-module (all self rules), so its not an interface, its a pattern.
-
+> +files_manage_boot_files(amtu_t)
+> +files_read_etc_runtime_files(amtu_t)
+> +files_read_etc_files(amtu_t)
+> +
+> +kernel_read_system_state(amtu_t)
+> +
+> +libs_use_ld_so(amtu_t)
+> +libs_use_shared_libs(amtu_t)
+> +
+> +optional_policy(`
+> +    seutil_use_newrole_fds(amtu_t)
+> +');
+> +
+> +optional_policy(`
+> +    userdom_use_sysadm_fds(amtu_t)
+> +');
+> +
+> +optional_policy(`
+> +    userdom_sigchld_sysadm(amtu_t)
+> +');
+> +
+> +optional_policy(`
+> +    nscd_dontaudit_search_pid(amtu_t)
+> +');
+> +
+> +optional_policy(`
+> +    kernel_dontaudit_read_system_state(amtu_t)
+> +');
+> +
+> +optional_policy(`
+> +    term_dontaudit_search_ptys(amtu_t)
+> +');
+> +
 -- 
 Chris PeBenito
 Tresys Technology, LLC
