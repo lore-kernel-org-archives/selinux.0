@@ -1,51 +1,43 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l410vM1n002014
-	for <selinux@tycho.nsa.gov>; Mon, 30 Apr 2007 20:57:22 -0400
-Received: from mx1.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id l410vL6j008596
-	for <selinux@tycho.nsa.gov>; Tue, 1 May 2007 00:57:21 GMT
-Subject: Re: Patch to cleanup audit handling in policy.
-From: Karl MacMillan <kmacmillan@mentalrootkit.com>
-To: "Christopher J. PeBenito" <cpebenito@tresys.com>
-Cc: Steve G <linux_4ever@yahoo.com>, Daniel J Walsh <dwalsh@redhat.com>,
-        SE Linux <selinux@tycho.nsa.gov>
-In-Reply-To: <1177951993.3570.115.camel@sgc>
-References: <20070430145914.7790.qmail@web51502.mail.re2.yahoo.com>
-	 <1177951993.3570.115.camel@sgc>
-Content-Type: text/plain
-Date: Mon, 30 Apr 2007 20:49:51 -0400
-Message-Id: <1177980591.13269.10.camel@localhost.localdomain>
-Mime-Version: 1.0
+Mime-Version: 1.0 (Apple Message framework v752.2)
+Message-Id: <637AC7CF-43ED-4078-BF5D-0A0604D3E314@sf-net.com>
+Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
+To: SELinux List <SELinux@tycho.nsa.gov>
+From: Stefan Schulze Frielinghaus <stefan@sf-net.com>
+Subject: MLS and no read up, no write down
+Date: Tue, 1 May 2007 10:06:20 +0200
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 2007-04-30 at 16:53 +0000, Christopher J. PeBenito wrote:
-> On Mon, 2007-04-30 at 07:59 -0700, Steve G wrote:
+Hello,
 
-<snip>
+in D. Bell and L. LaPadula "Secure Computer System: Unified  
+Exposition and Multics Interpretation" on page 42 the feature to  
+append something to a file is described as:
 
-> 
-> > The interfaces that Dan created allows the exact kind of permission to be applied
-> > without having to copy and paste individual permissions which is error prone.
-> > (There are only 4 use cases of the audit system.) Part of what makes it error
-> > prone is the naming convention for all the pieces. Example: "audit_write" is that
-> > for the capability, the netlink interface, or audit logs?
-> 
-> This is the reason policy patterns exist.
-> 
+if attribute is append, current-level(subject) is dominated by level 
+(object);
 
-So far the policy patterns have been very hard to automatically generate
-using sepolgen. Note that this deficiency is not something that I can
-address - it is a problem with the patterns themselves. Given that and
-my concerns over their clarity I would prefer that no more patterns be
-introduced.
+Wouldn't this mean that someone with a security level e.g. of  
+unclassified could append something to a file labeled as top secret?  
+Isn't this a security problem? For example someone can't read a top  
+secret file but he could append rubbish or false information.
 
-Can I ask why you are so against these audit interfaces and would prefer
-patterns?
+M. Bishop "Computer Security: Art and Science" describes the Bell  
+LaPadula model on page 125 even for write acces:
 
-Karl
+S can write O if and only if l(s) <= l(o) and S has discretionary  
+write access to O.
 
+Is the SELinux MLS stuff exactly build like the Bell LaPadule theory?  
+The "no read up" theory sounds good and logical but the "no write  
+down" sounds suspicious. I would expect that if I write to a file  
+that the current level of the subject has to be equal to the level of  
+the object.
 
+How is something like that handled by SELinux?
+
+Best regards,
+Stefan
 
 --
 This message was distributed to subscribers of the selinux mailing list.
