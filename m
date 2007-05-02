@@ -1,93 +1,103 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l42HPs7h007492
-	for <selinux@tycho.nsa.gov>; Wed, 2 May 2007 13:25:54 -0400
-Received: from mx1.redhat.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l42HPs38025179
-	for <selinux@tycho.nsa.gov>; Wed, 2 May 2007 17:25:54 GMT
-Subject: Re: Patch to cleanup audit handling in policy.
-From: Karl MacMillan <kmacmillan@mentalrootkit.com>
-To: "Christopher J. PeBenito" <cpebenito@tresys.com>
-Cc: Steve G <linux_4ever@yahoo.com>, Daniel J Walsh <dwalsh@redhat.com>,
-        SE Linux <selinux@tycho.nsa.gov>
-In-Reply-To: <1178125691.445.2.camel@sgc.columbia.tresys.com>
-References: <20070430145914.7790.qmail@web51502.mail.re2.yahoo.com>
-	 <1177951993.3570.115.camel@sgc>
-	 <1177980591.13269.10.camel@localhost.localdomain>
-	 <1178026296.3570.144.camel@sgc>
-	 <1178032864.3757.3.camel@localhost.localdomain>
-	 <1178125691.445.2.camel@sgc.columbia.tresys.com>
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l42HU0U6007801
+	for <selinux@tycho.nsa.gov>; Wed, 2 May 2007 13:30:00 -0400
+Received: from exchange.columbia.tresys.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with SMTP id l42HTxuY002143
+	for <selinux@tycho.nsa.gov>; Wed, 2 May 2007 17:29:59 GMT
+Subject: Re: modutils policy patch
+From: "Christopher J. PeBenito" <cpebenito@tresys.com>
+To: Daniel J Walsh <dwalsh@redhat.com>
+Cc: SE Linux <selinux@tycho.nsa.gov>
+In-Reply-To: <46278057.6000608@redhat.com>
+References: <46278057.6000608@redhat.com>
 Content-Type: text/plain
-Date: Wed, 02 May 2007 13:18:03 -0400
-Message-Id: <1178126283.7700.3.camel@localhost.localdomain>
+Date: Wed, 02 May 2007 13:29:37 -0400
+Message-Id: <1178126977.445.6.camel@sgc.columbia.tresys.com>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2007-05-02 at 13:08 -0400, Christopher J. PeBenito wrote:
-> On Tue, 2007-05-01 at 11:21 -0400, Karl MacMillan wrote:
-> > On Tue, 2007-05-01 at 13:31 +0000, Christopher J. PeBenito wrote:
-> > > On Mon, 2007-04-30 at 20:49 -0400, Karl MacMillan wrote:
-> > > > On Mon, 2007-04-30 at 16:53 +0000, Christopher J. PeBenito wrote:
-> > > > > On Mon, 2007-04-30 at 07:59 -0700, Steve G wrote:
-> > > > > > The interfaces that Dan created allows the exact kind of permission to be applied
-> > > > > > without having to copy and paste individual permissions which is error prone.
-> > > > > > (There are only 4 use cases of the audit system.) Part of what makes it error
-> > > > > > prone is the naming convention for all the pieces. Example: "audit_write" is that
-> > > > > > for the capability, the netlink interface, or audit logs?
-> > > > > 
-> > > > > This is the reason policy patterns exist.
-> > > > > 
-> > > > 
-> > > > So far the policy patterns have been very hard to automatically generate
-> > > > using sepolgen. Note that this deficiency is not something that I can
-> > > > address - it is a problem with the patterns themselves.
-> > > 
-> > > I don't see how it could be any more complex than matching rules to an
-> > > interface.
-> > > 
-> > 
-> > http://www.nsa.gov/selinux/list-archive/0701/18939.cfm
-> > 
-> > Summary - patterns that contain unrelated types cannot be reliably
-> > generated. This - to me - is a major drawback. Whether that will apply
-> > here is not clear.
+On Thu, 2007-04-19 at 10:44 -0400, Daniel J Walsh wrote:
+> insmod needs to be able to mount kvmfs for kvm.
 > 
-> Even if they can't be generated, I don't see how that negates their
-> usefulness.
+> insmod executes init scripts when inserting and removing certain
+> modules.
 > 
+> Any gui tool that is launched via userhelper can trigger a 
+> unconfined_rw_pipe including ones that insert modules.
 
-It doesn't negate it - it limits it.
+Merged except for the init script part; thats a spec transition instead
+of a auto (insmod is selinux-aware)?
 
-> > > >  Given that and
-> > > > my concerns over their clarity I would prefer that no more patterns be
-> > > > introduced.
-> > > > 
-> > > > Can I ask why you are so against these audit interfaces and would prefer
-> > > > patterns?
-> > > 
-> > > I don't agree with the assertions which means the attributes are
-> > > dropped, so that just leaves the rules, which don't refer to any types
-> > > in the logging module.  They only refer to resources in the current
-> > > module (all self rules), so its not an interface, its a pattern.
-> > > 
-> > 
-> > I think that distinction is not useful to a policy writer. As a policy
-> > writer I think it would be natural to look for audit interfaces in
-> > logging - by making these patterns they are harder to find.
-> > 
-> > So - why make this distinction?
 > 
-> Its always been the definition of an interface.
 > 
-
-Great - so why has that always been the definition and what is the
-motivation for separating the patterns and the interfaces in this
-circumstance. What value does this provide to the policy writer?
-
-My assertion is that in this case the separation is harmful to the
-readability of the policy without advantage.
-
-Karl
+> 
+> 
+> 
+> differences
+> between files
+> attachment
+> (modutils.patch)
+> 
+> --- nsaserefpolicy/policy/modules/system/modutils.te    2007-04-11 15:52:54.000000000 -0400
+> +++ serefpolicy-2.5.12/policy/modules/system/modutils.te        2007-04-17 15:50:53.000000000 -0400
+> @@ -58,6 +58,7 @@
+>  kernel_read_system_state(insmod_t)
+>  kernel_write_proc_files(insmod_t)
+>  kernel_mount_debugfs(insmod_t)
+> +kernel_mount_kvmfs(insmod_t)
+>  kernel_read_debugfs(insmod_t)
+>  # Rules for /proc/sys/kernel/tainted
+>  kernel_read_kernel_sysctls(insmod_t)
+> @@ -101,6 +102,7 @@
+>  init_use_fds(insmod_t)
+>  init_use_script_fds(insmod_t)
+>  init_use_script_ptys(insmod_t)
+> +init_spec_domtrans_script(insmod_t)
+>  
+>  libs_use_ld_so(insmod_t)
+>  libs_use_shared_libs(insmod_t)
+> @@ -163,6 +165,10 @@
+>         xserver_getattr_log(insmod_t)
+>  ')
+>  
+> +optional_policy(`
+> +       unconfined_dontaudit_rw_pipes(insmod_t)
+> +')
+> +
+>  ########################################
+>  #
+>  # depmod local policy
+> --- nsaserefpolicy/policy/modules/kernel/kernel.if      2007-02-19 11:32:51.000000000 -0500
+> +++ serefpolicy-2.5.12/policy/modules/kernel/kernel.if  2007-04-17 15:50:55.000000000 -0400
+> @@ -2408,3 +2425,22 @@
+>  
+>         typeattribute $1 kern_unconfined;
+>  ')
+> +
+> +########################################
+> +## <summary>
+> +##     Mount a kernel vm filesystem.
+> +## </summary>
+> +## <param name="domain">
+> +##     <summary>
+> +##     The type of the domain mounting the filesystem.
+> +##     </summary>
+> +## </param>
+> +#
+> +interface(`kernel_mount_kvmfs',`
+> +       gen_require(`
+> +               type kvmfs_t;
+> +       ')
+> +
+> +       allow $1 kvmfs_t:filesystem mount;
+> +')
+> +
+> 
+-- 
+Chris PeBenito
+Tresys Technology, LLC
+(410) 290-1411 x150
 
 
 --
