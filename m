@@ -1,99 +1,75 @@
 Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l42HU0U6007801
-	for <selinux@tycho.nsa.gov>; Wed, 2 May 2007 13:30:00 -0400
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l42HqNCn009136
+	for <selinux@tycho.nsa.gov>; Wed, 2 May 2007 13:52:23 -0400
 Received: from exchange.columbia.tresys.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with SMTP id l42HTxuY002143
-	for <selinux@tycho.nsa.gov>; Wed, 2 May 2007 17:29:59 GMT
-Subject: Re: modutils policy patch
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with SMTP id l42HqMuY006535
+	for <selinux@tycho.nsa.gov>; Wed, 2 May 2007 17:52:22 GMT
+Subject: Re: logwatch tries to look at avahi, avahi needs to use winbind
 From: "Christopher J. PeBenito" <cpebenito@tresys.com>
-To: Daniel J Walsh <dwalsh@redhat.com>
-Cc: SE Linux <selinux@tycho.nsa.gov>
-In-Reply-To: <46278057.6000608@redhat.com>
-References: <46278057.6000608@redhat.com>
+To: dwalsh@redhat.com
+Cc: selinux@tycho.nsa.gov
+In-Reply-To: <200704201854.l3KIs47L027135@redsox.boston.devel.redhat.com>
+References: <200704201854.l3KIs47L027135@redsox.boston.devel.redhat.com>
 Content-Type: text/plain
-Date: Wed, 02 May 2007 13:29:37 -0400
-Message-Id: <1178126977.445.6.camel@sgc.columbia.tresys.com>
+Date: Wed, 02 May 2007 17:52:00 +0000
+Message-Id: <1178128320.445.9.camel@sgc.columbia.tresys.com>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2007-04-19 at 10:44 -0400, Daniel J Walsh wrote:
-> insmod needs to be able to mount kvmfs for kvm.
-> 
-> insmod executes init scripts when inserting and removing certain
-> modules.
-> 
-> Any gui tool that is launched via userhelper can trigger a 
-> unconfined_rw_pipe including ones that insert modules.
-
-Merged except for the init script part; thats a spec transition instead
-of a auto (insmod is selinux-aware)?
-
-> 
-> 
-> 
-> 
-> 
-> differences
-> between files
-> attachment
-> (modutils.patch)
-> 
-> --- nsaserefpolicy/policy/modules/system/modutils.te    2007-04-11 15:52:54.000000000 -0400
-> +++ serefpolicy-2.5.12/policy/modules/system/modutils.te        2007-04-17 15:50:53.000000000 -0400
-> @@ -58,6 +58,7 @@
->  kernel_read_system_state(insmod_t)
->  kernel_write_proc_files(insmod_t)
->  kernel_mount_debugfs(insmod_t)
-> +kernel_mount_kvmfs(insmod_t)
->  kernel_read_debugfs(insmod_t)
->  # Rules for /proc/sys/kernel/tainted
->  kernel_read_kernel_sysctls(insmod_t)
-> @@ -101,6 +102,7 @@
->  init_use_fds(insmod_t)
->  init_use_script_fds(insmod_t)
->  init_use_script_ptys(insmod_t)
-> +init_spec_domtrans_script(insmod_t)
->  
->  libs_use_ld_so(insmod_t)
->  libs_use_shared_libs(insmod_t)
-> @@ -163,6 +165,10 @@
->         xserver_getattr_log(insmod_t)
+On Fri, 2007-04-20 at 14:54 -0400, dwalsh@redhat.com wrote:
+> --- nsaserefpolicy/policy/modules/admin/logwatch.te	2007-04-10 12:52:58.000000000 -0400
+> +++ serefpolicy-2.5.12/policy/modules/admin/logwatch.te	2007-04-11 17:07:34.000000000 -0400
+> @@ -95,6 +95,10 @@
 >  ')
 >  
-> +optional_policy(`
-> +       unconfined_dontaudit_rw_pipes(insmod_t)
+>  optional_policy(`
+> +	avahi_dontaudit_search_pid(logwatch_t)
 > +')
 > +
->  ########################################
->  #
->  # depmod local policy
-> --- nsaserefpolicy/policy/modules/kernel/kernel.if      2007-02-19 11:32:51.000000000 -0500
-> +++ serefpolicy-2.5.12/policy/modules/kernel/kernel.if  2007-04-17 15:50:55.000000000 -0400
-> @@ -2408,3 +2425,22 @@
->  
->         typeattribute $1 kern_unconfined;
+> +optional_policy(`
+>  	bind_read_config(logwatch_t)
+>  	bind_read_zone(logwatch_t)
+>  ')
+> --- nsaserefpolicy/policy/modules/services/avahi.if	2007-01-02 12:57:43.000000000 -0500
+> +++ serefpolicy-2.5.12/policy/modules/services/avahi.if	2007-04-11 17:07:34.000000000 -0400
+> @@ -39,3 +39,22 @@
+>  	files_search_pids($1)
+>  	stream_connect_pattern($1,avahi_var_run_t,avahi_var_run_t,avahi_t)
 >  ')
 > +
 > +########################################
 > +## <summary>
-> +##     Mount a kernel vm filesystem.
+> +##	Do not audit attempts to search the AVAHI pid directory.
 > +## </summary>
 > +## <param name="domain">
-> +##     <summary>
-> +##     The type of the domain mounting the filesystem.
-> +##     </summary>
+> +##	<summary>
+> +##	Domain allowed access.
+> +##	</summary>
 > +## </param>
 > +#
-> +interface(`kernel_mount_kvmfs',`
-> +       gen_require(`
-> +               type kvmfs_t;
-> +       ')
+> +interface(`avahi_dontaudit_search_pid',`
+> +	gen_require(`
+> +		type avahi_var_run_t;
+> +	')
 > +
-> +       allow $1 kvmfs_t:filesystem mount;
+> +	dontaudit $1 avahi_var_run_t:dir search_dir_perms;
 > +')
 > +
-> 
+> --- nsaserefpolicy/policy/modules/services/avahi.te	2007-03-20 23:38:05.000000000 -0400
+> +++ serefpolicy-2.5.12/policy/modules/services/avahi.te	2007-04-18 16:04:51.000000000 -0400
+> @@ -105,3 +105,7 @@
+>  optional_policy(`
+>  	udev_read_db(avahi_t)
+>  ')
+> +
+> +optional_policy(`
+> +	samba_stream_connect_winbind(avahi_t)
+> +')
+
+Merged except for this last part.  I can't find any reference in the
+avahi code or wiki for it connecting to windbind.
+
 -- 
 Chris PeBenito
 Tresys Technology, LLC
