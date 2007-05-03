@@ -1,47 +1,80 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l43F0qAs025669
-	for <selinux@tycho.nsa.gov>; Thu, 3 May 2007 11:00:52 -0400
-Received: from exchange.columbia.tresys.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with SMTP id l43F0qqf021303
-	for <selinux@tycho.nsa.gov>; Thu, 3 May 2007 15:00:52 GMT
-Subject: Re: squid patch
-From: "Christopher J. PeBenito" <cpebenito@tresys.com>
-To: Daniel J Walsh <dwalsh@redhat.com>
-Cc: SE Linux <selinux@tycho.nsa.gov>
-In-Reply-To: <46278600.2010806@redhat.com>
-References: <46278600.2010806@redhat.com>
-Content-Type: text/plain
-Date: Thu, 03 May 2007 15:00:26 +0000
-Message-Id: <1178204426.445.64.camel@sgc.columbia.tresys.com>
-Mime-Version: 1.0
+Message-ID: <463A005B.3010504@manicmethod.com>
+Date: Thu, 03 May 2007 11:31:39 -0400
+From: Joshua Brindle <method@manicmethod.com>
+MIME-Version: 1.0
+To: Stephen Smalley <sds@tycho.nsa.gov>
+CC: Eric Paris <eparis@redhat.com>, selinux@tycho.nsa.gov,
+        Karl MacMillan <kmacmillan@mentalrootkit.com>
+Subject: Re: Where to specific the handling of unknown kernel classes and
+ perms
+References: <1178141128.3897.33.camel@dhcp59-235.rdu.redhat.com>	 <463930F3.7020803@manicmethod.com>	 <1178196394.3443.135.camel@moss-spartans.epoch.ncsc.mil>	 <4639E183.4080909@manicmethod.com> <1178200479.3443.172.camel@moss-spartans.epoch.ncsc.mil>
+In-Reply-To: <1178200479.3443.172.camel@moss-spartans.epoch.ncsc.mil>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2007-04-19 at 11:08 -0400, Daniel J Walsh wrote:
-> @@ -181,3 +184,12 @@
->  #squid requires the following when run in diskd mode, the recommended setting
->  allow squid_t tmpfs_t:file { read write };
->  ') dnl end TODO
-> +
-> +optional_policy(`
-> +       apache_content_template(squid)
-> +       corenet_tcp_connect_http_cache_port(httpd_squid_script_t)
-> +       squid_read_config(httpd_squid_script_t)
-> +       allow httpd_squid_script_t self:tcp_socket create_socket_perms;
-> +       sysnet_read_config(httpd_squid_script_t)
-> +       corenet_non_ipsec_sendrecv(httpd_squid_script_t)
-> +')
+Stephen Smalley wrote:
+> On Thu, 2007-05-03 at 09:20 -0400, Joshua Brindle wrote:
+>   
+>> Stephen Smalley wrote:
+>>     
+>>> On Wed, 2007-05-02 at 20:46 -0400, Joshua Brindle wrote:
+>>>   
+>>>       
+>>>> Eric Paris wrote:
+>>>>     
+>>>>         
+>>>>> I just sent out a kernel patch with the tristate flag to change kernel
+>>>>> handling of unknown classes and permissions.  The idea is that when the
+>>>>> policy is created someone can set the flag to any of the three options
+>>>>> (deny/reject/allow) and the kernel will act accordingly.  My problem is
+>>>>> I don't understand the userspace tools which create policy.  I patched
+>>>>> libsepol to support this new flag when it reads or writes a policydb,
+>>>>> which allows me to edit my policy.21 by hand in hex and then call
+>>>>> load_policy to test my kernel.  My problem now is that I don't know
+>>>>> where a user should be specifying how they want the flags to be set.  To
+>>>>> be perfectly honest after a bit of searching I'm not even sure where
+>>>>> policy.21 gets created when I build a policy.
+>>>>>
+>>>>>   
+>>>>>       
+>>>>>           
+>>>> It should be setable in semanage.conf or by checkpolicy if building a 
+>>>> monolithic policy.
+>>>>     
+>>>>         
+>>> Hmm...actually, I would have argued that it should only be settable by
+>>> checkpolicy/checkmodule, and always inherited from the base module in
+>>> the link/expand case.  That way we can always know what the kernel
+>>> behavior is by looking at the base module, vs. having to separately look
+>>> at semanage.conf.  It is a tradeoff though in terms of analyzability vs.
+>>> ease of customization
+>>>       
+>> Even if it is propagated from the base policy I think it should be 
+>> overridable in semanage.conf. Propagating it from base means we'll have 
+>> to extend the policy server object model to cover it but that is no big 
+>> deal. The reason semanage.conf would be nice is to change the behavior 
+>> locally on RH systems without rebuilding the base policy.
+>>     
+>
+> I understand that, but as semanage.conf is not "managed" (just a config
+> file to rpm and not managed by libsemanage itself) and changes to it are
+> not audited, this means that you won't be able to tell easily what
+> behavior was in effect at a given time.  That's the tradeoff.
+>
+> Regardless, for Eric's purposes, it would be sufficient for basic
+> operation to add a command line flag to checkpolicy and checkmodule to
+> set these flags in monolithic policy and base modules, and to modify
+> libsepol (in particular, expand_module()) to propagate the base flags in
+> the same manner as it already does for the mls flag.  Then he or we can
+> separately add a libsepol interface to mutate the flag and modify
+> libsemanage to use that interface and have a new semanage.conf setting.
+>
+>   
 
-This brings up a problem to which I currently don't have a good
-solution.  Due to the encapsulation, the squid module doesn't actually
-know how many types are created or their names when using
-apache_content_template(), so httpd_squid_script_t can't be used here.
-
--- 
-Chris PeBenito
-Tresys Technology, LLC
-(410) 290-1411 x150
-
+Ok, I agree, we can work out how to change it on end systems without 
+rebuilding the policy later. This should certainly be a managed setting 
+so that we can enforce access control on it and audit if necessary.
 
 --
 This message was distributed to subscribers of the selinux mailing list.
