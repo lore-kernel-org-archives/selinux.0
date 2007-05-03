@@ -1,75 +1,39 @@
-Subject: Re: [RFC] Ability to allow unknown class and permissions -v4
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Eric Paris <eparis@redhat.com>
-Cc: selinux@tycho.nsa.gov, Chad Sellers <csellers@tresys.com>
-In-Reply-To: <1178140294.3897.22.camel@dhcp59-235.rdu.redhat.com>
-References: <1178130337.3897.14.camel@dhcp59-235.rdu.redhat.com>
-	 <1178134459.3443.105.camel@moss-spartans.epoch.ncsc.mil>
-	 <1178140294.3897.22.camel@dhcp59-235.rdu.redhat.com>
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l43D6LnF019452
+	for <selinux@tycho.nsa.gov>; Thu, 3 May 2007 09:06:21 -0400
+Received: from exchange.columbia.tresys.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with SMTP id l43D6LQe027692
+	for <selinux@tycho.nsa.gov>; Thu, 3 May 2007 13:06:21 GMT
+Subject: Re: rename_dir_perms missing
+From: "Christopher J. PeBenito" <cpebenito@tresys.com>
+To: Dave Quigley <dquigley+selinux@gmail.com>
+Cc: selinux@tycho.nsa.gov
+In-Reply-To: <f888952b0705021249o40ef05cn1ac2524d9582e3c9@mail.gmail.com>
+References: <f888952b0705021249o40ef05cn1ac2524d9582e3c9@mail.gmail.com>
 Content-Type: text/plain
-Date: Thu, 03 May 2007 08:50:10 -0400
-Message-Id: <1178196610.3443.140.camel@moss-spartans.epoch.ncsc.mil>
+Date: Thu, 03 May 2007 09:05:57 -0400
+Message-Id: <1178197557.445.50.camel@sgc.columbia.tresys.com>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2007-05-02 at 17:11 -0400, Eric Paris wrote:
-> It does get rid of the special casing but it isn't much less complex.
-> Anyone see a way to make this bit better?
-> 
-> -Eric
-> 
-> 
-> @@ -322,6 +316,38 @@ static int context_struct_compute_av(struct context *scontext,
->  	avd->seqno = latest_granting;
->  
->  	/*
-> +	 * Check for all the invalid cases.
-> +	 * - tclass 0
-> +	 * - tclass > policy and > kernel
-> +	 * - tclass > policy but is a userspace class
-> +	 * - tclass > policy but we do not allow unknowns
-> +	 */
-> +	if (unlikely(!tclass))
-> +		goto inval_class;
-> +	if (unlikely(tclass > policydb.p_class.nprim))
-> +		if (tclass > kdefs->cts_len || 
-> +		    !kdefs->class_to_string[tclass - 1] ||
-> +		    policydb.handle_unknown != ALLOW_UNKOWN)
-> +			goto inval_class;
-> +
-> +	/* 
-> +	 * Kernel class and we ALLOW_UNKNOWN so pad the allow decision 
-> +	 * the pad will be all 1 for unknown classes.
-> +	 */
-> +	if (tclass <= kdefs->cts_len && (policydb.handle_unknown == ALLOW_UNKNOWN))
-> +		avd->allowed = policydb.undefined_perms[tclass - 1];
-> +
-> +	/*
-> +	 * Kernel class not in policy and we ALLOW_UNKNOWN.  Since decision is 
-> +	 * completed return.
-> +	 */
-> +	if (unlikely(tclass > policydb.p_class.nprim &&
-> +		     tclass <= kdefs->cts_len))
+On Wed, 2007-05-02 at 15:49 -0400, Dave Quigley wrote:
+> Hello,
+>     I was looking through the reference policy and I noticed that
+> there is a problem with rename_dirs_pattern. It uses a define called
+> rename_dir_perms that does not exist anywhere. The interface is $1 is
+> the type that wants permissions $2 is the container type and $3 is the
+> directory type. rename_dir_perms is used on the $3 target and is
+> missing completely. The reason this didn't show up is that
+> rename_dirs_pattern is never actually used anywhere. Which permissions
+> are needed for this to work?
 
-You can drop the second test (tclass <= kdefs->cts_len) or turn it into
-a BUG_ON, because you should only reach this point if that is true.  And
-you must ensure that you don't go further if the first test is true
-regardless, as you will otherwise index beyond the end of the
-class_val_to_struct array.
+My guess would be { getattr rename }.
 
-> +		return 0;
-> +
-> +	tclass_datum = policydb.class_val_to_struct[tclass - 1];
-> +
-> +	/*
->  	 * If a specific type enforcement rule was defined for
->  	 * this permission check, then use it.
->  	 */
-> 
 -- 
-Stephen Smalley
-National Security Agency
+Chris PeBenito
+Tresys Technology, LLC
+(410) 290-1411 x150
 
 
 --
