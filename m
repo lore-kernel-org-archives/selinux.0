@@ -1,44 +1,72 @@
-Subject: Re: Where to specific the handling of unknown kernel classes and
-	perms
+Subject: Re: [RFC] Ability to allow unknown class and permissions -v4
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Joshua Brindle <method@manicmethod.com>
-Cc: Eric Paris <eparis@redhat.com>, selinux@tycho.nsa.gov,
-        Karl MacMillan <kmacmillan@mentalrootkit.com>
-In-Reply-To: <463930F3.7020803@manicmethod.com>
-References: <1178141128.3897.33.camel@dhcp59-235.rdu.redhat.com>
-	 <463930F3.7020803@manicmethod.com>
+To: Eric Paris <eparis@redhat.com>
+Cc: selinux@tycho.nsa.gov, Chad Sellers <csellers@tresys.com>
+In-Reply-To: <1178140294.3897.22.camel@dhcp59-235.rdu.redhat.com>
+References: <1178130337.3897.14.camel@dhcp59-235.rdu.redhat.com>
+	 <1178134459.3443.105.camel@moss-spartans.epoch.ncsc.mil>
+	 <1178140294.3897.22.camel@dhcp59-235.rdu.redhat.com>
 Content-Type: text/plain
-Date: Thu, 03 May 2007 08:46:34 -0400
-Message-Id: <1178196394.3443.135.camel@moss-spartans.epoch.ncsc.mil>
+Date: Thu, 03 May 2007 08:50:10 -0400
+Message-Id: <1178196610.3443.140.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2007-05-02 at 20:46 -0400, Joshua Brindle wrote:
-> Eric Paris wrote:
-> > I just sent out a kernel patch with the tristate flag to change kernel
-> > handling of unknown classes and permissions.  The idea is that when the
-> > policy is created someone can set the flag to any of the three options
-> > (deny/reject/allow) and the kernel will act accordingly.  My problem is
-> > I don't understand the userspace tools which create policy.  I patched
-> > libsepol to support this new flag when it reads or writes a policydb,
-> > which allows me to edit my policy.21 by hand in hex and then call
-> > load_policy to test my kernel.  My problem now is that I don't know
-> > where a user should be specifying how they want the flags to be set.  To
-> > be perfectly honest after a bit of searching I'm not even sure where
-> > policy.21 gets created when I build a policy.
-> >
-> >   
-> It should be setable in semanage.conf or by checkpolicy if building a 
-> monolithic policy.
+On Wed, 2007-05-02 at 17:11 -0400, Eric Paris wrote:
+> It does get rid of the special casing but it isn't much less complex.
+> Anyone see a way to make this bit better?
+> 
+> -Eric
+> 
+> 
+> @@ -322,6 +316,38 @@ static int context_struct_compute_av(struct context *scontext,
+>  	avd->seqno = latest_granting;
+>  
+>  	/*
+> +	 * Check for all the invalid cases.
+> +	 * - tclass 0
+> +	 * - tclass > policy and > kernel
+> +	 * - tclass > policy but is a userspace class
+> +	 * - tclass > policy but we do not allow unknowns
+> +	 */
+> +	if (unlikely(!tclass))
+> +		goto inval_class;
+> +	if (unlikely(tclass > policydb.p_class.nprim))
+> +		if (tclass > kdefs->cts_len || 
+> +		    !kdefs->class_to_string[tclass - 1] ||
+> +		    policydb.handle_unknown != ALLOW_UNKOWN)
+> +			goto inval_class;
+> +
+> +	/* 
+> +	 * Kernel class and we ALLOW_UNKNOWN so pad the allow decision 
+> +	 * the pad will be all 1 for unknown classes.
+> +	 */
+> +	if (tclass <= kdefs->cts_len && (policydb.handle_unknown == ALLOW_UNKNOWN))
+> +		avd->allowed = policydb.undefined_perms[tclass - 1];
+> +
+> +	/*
+> +	 * Kernel class not in policy and we ALLOW_UNKNOWN.  Since decision is 
+> +	 * completed return.
+> +	 */
+> +	if (unlikely(tclass > policydb.p_class.nprim &&
+> +		     tclass <= kdefs->cts_len))
 
-Hmm...actually, I would have argued that it should only be settable by
-checkpolicy/checkmodule, and always inherited from the base module in
-the link/expand case.  That way we can always know what the kernel
-behavior is by looking at the base module, vs. having to separately look
-at semanage.conf.  It is a tradeoff though in terms of analyzability vs.
-ease of customization.
+You can drop the second test (tclass <= kdefs->cts_len) or turn it into
+a BUG_ON, because you should only reach this point if that is true.  And
+you must ensure that you don't go further if the first test is true
+regardless, as you will otherwise index beyond the end of the
+class_val_to_struct array.
 
+> +		return 0;
+> +
+> +	tclass_datum = policydb.class_val_to_struct[tclass - 1];
+> +
+> +	/*
+>  	 * If a specific type enforcement rule was defined for
+>  	 * this permission check, then use it.
+>  	 */
+> 
 -- 
 Stephen Smalley
 National Security Agency
