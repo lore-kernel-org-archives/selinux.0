@@ -1,20 +1,15 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l43Cgcsj018326
-	for <selinux@tycho.nsa.gov>; Thu, 3 May 2007 08:42:38 -0400
-Received: from mx1.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id l43Cgbqf023932
-	for <selinux@tycho.nsa.gov>; Thu, 3 May 2007 12:42:37 GMT
 Subject: Re: Where to specific the handling of unknown kernel classes and
 	perms
-From: Karl MacMillan <kmacmillan@mentalrootkit.com>
+From: Stephen Smalley <sds@tycho.nsa.gov>
 To: Joshua Brindle <method@manicmethod.com>
-Cc: Eric Paris <eparis@redhat.com>, selinux@tycho.nsa.gov
+Cc: Eric Paris <eparis@redhat.com>, selinux@tycho.nsa.gov,
+        Karl MacMillan <kmacmillan@mentalrootkit.com>
 In-Reply-To: <463930F3.7020803@manicmethod.com>
 References: <1178141128.3897.33.camel@dhcp59-235.rdu.redhat.com>
 	 <463930F3.7020803@manicmethod.com>
 Content-Type: text/plain
-Date: Thu, 03 May 2007 08:42:34 -0400
-Message-Id: <1178196154.3404.6.camel@localhost.localdomain>
+Date: Thu, 03 May 2007 08:46:34 -0400
+Message-Id: <1178196394.3443.135.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
@@ -36,12 +31,17 @@ On Wed, 2007-05-02 at 20:46 -0400, Joshua Brindle wrote:
 > >   
 > It should be setable in semanage.conf or by checkpolicy if building a 
 > monolithic policy.
-> 
 
-The other option, I guess, is to set the flag on the base module and
-have that propagated to the kernel policy.
+Hmm...actually, I would have argued that it should only be settable by
+checkpolicy/checkmodule, and always inherited from the base module in
+the link/expand case.  That way we can always know what the kernel
+behavior is by looking at the base module, vs. having to separately look
+at semanage.conf.  It is a tradeoff though in terms of analyzability vs.
+ease of customization.
 
-Karl
+-- 
+Stephen Smalley
+National Security Agency
 
 
 --
