@@ -1,52 +1,49 @@
-Message-ID: <4639E183.4080909@manicmethod.com>
-Date: Thu, 03 May 2007 09:20:03 -0400
-From: Joshua Brindle <method@manicmethod.com>
-MIME-Version: 1.0
-To: Stephen Smalley <sds@tycho.nsa.gov>
-CC: Eric Paris <eparis@redhat.com>, selinux@tycho.nsa.gov,
-        Karl MacMillan <kmacmillan@mentalrootkit.com>
-Subject: Re: Where to specific the handling of unknown kernel classes and
- perms
-References: <1178141128.3897.33.camel@dhcp59-235.rdu.redhat.com>	 <463930F3.7020803@manicmethod.com> <1178196394.3443.135.camel@moss-spartans.epoch.ncsc.mil>
-In-Reply-To: <1178196394.3443.135.camel@moss-spartans.epoch.ncsc.mil>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l43DcYIT021307
+	for <selinux@tycho.nsa.gov>; Thu, 3 May 2007 09:38:34 -0400
+Received: from exchange.columbia.tresys.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with SMTP id l43DcYQe002660
+	for <selinux@tycho.nsa.gov>; Thu, 3 May 2007 13:38:34 GMT
+Subject: Re: Additional textrel_shlib_t
+From: "Christopher J. PeBenito" <cpebenito@tresys.com>
+To: Daniel J Walsh <dwalsh@redhat.com>
+Cc: SE Linux <selinux@tycho.nsa.gov>
+In-Reply-To: <4627A425.7030800@redhat.com>
+References: <4627A425.7030800@redhat.com>
+Content-Type: text/plain
+Date: Thu, 03 May 2007 09:38:10 -0400
+Message-Id: <1178199490.445.52.camel@sgc.columbia.tresys.com>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Stephen Smalley wrote:
-> On Wed, 2007-05-02 at 20:46 -0400, Joshua Brindle wrote:
->   
->> Eric Paris wrote:
->>     
->>> I just sent out a kernel patch with the tristate flag to change kernel
->>> handling of unknown classes and permissions.  The idea is that when the
->>> policy is created someone can set the flag to any of the three options
->>> (deny/reject/allow) and the kernel will act accordingly.  My problem is
->>> I don't understand the userspace tools which create policy.  I patched
->>> libsepol to support this new flag when it reads or writes a policydb,
->>> which allows me to edit my policy.21 by hand in hex and then call
->>> load_policy to test my kernel.  My problem now is that I don't know
->>> where a user should be specifying how they want the flags to be set.  To
->>> be perfectly honest after a bit of searching I'm not even sure where
->>> policy.21 gets created when I build a policy.
->>>
->>>   
->>>       
->> It should be setable in semanage.conf or by checkpolicy if building a 
->> monolithic policy.
->>     
->
-> Hmm...actually, I would have argued that it should only be settable by
-> checkpolicy/checkmodule, and always inherited from the base module in
-> the link/expand case.  That way we can always know what the kernel
-> behavior is by looking at the base module, vs. having to separately look
-> at semanage.conf.  It is a tradeoff though in terms of analyzability vs.
-> ease of customization
-Even if it is propagated from the base policy I think it should be 
-overridable in semanage.conf. Propagating it from base means we'll have 
-to extend the policy server object model to cover it but that is no big 
-deal. The reason semanage.conf would be nice is to change the behavior 
-locally on RH systems without rebuilding the base policy.
+On Thu, 2007-04-19 at 13:17 -0400, Daniel J Walsh wrote:
+> --- nsaserefpolicy/policy/modules/system/libraries.fc   2007-04-10 16:13:39.000000000 -0400
+> +++ serefpolicy-2.5.12/policy/modules/system/libraries.fc       2007-04-17 10:00:22.000000000 -0400
+> @@ -82,6 +81,7 @@
+>  /opt/netbeans(.*/)?jdk.*/linux/.+\.so(\.[^/]*)* -- gen_context(system_u:object_r:textrel_shlib_t,s0)
+>  /opt/cxoffice/lib/wine/.+\.so          --      gen_context(system_u:object_r:textrel_shlib_t,s0)
+>  /opt/ibm/java2-ppc64-50/jre/bin/.+\.so(\.[^/]*)* -- gen_context(system_u:object_r:textrel_shlib_t,s0)
+> +/opt/f-secure/fspms/libexec/librapi.so(\.[^/]*)* -- gen_context(system_u:object_r:textrel_shlib_t,s0)
+>  
+>  ifdef(`distro_gentoo',`
+>  # despite the extensions, they are actually libs
+> @@ -132,6 +132,7 @@
+>  /usr/(.*/)?nvidia/.+\.so(\..*)?                --      gen_context(system_u:object_r:textrel_shlib_t,s0)
+>  
+>  /usr/lib/win32/.*                      --      gen_context(system_u:object_r:shlib_t,s0)
+> +/usr/lib/transgaming_cedega/gddb_parser.so --  gen_context(system_u:object_r:shlib_t,s0)
+>  
+>  /usr/(.*/)?lib(64)?(/.*)?/nvidia/.+\.so(\..*)? -- gen_context(system_u:object_r:textrel_shlib_t,s0)
+>  /usr/lib(64)?(/.*)?/nvidia/.+\.so(\..*)? --    gen_context(system_u:object_r:textrel_shlib_t,s0)
+
+Merged.
+
+-- 
+Chris PeBenito
+Tresys Technology, LLC
+(410) 290-1411 x150
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
