@@ -1,11 +1,11 @@
 Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l430klZo028322
-	for <selinux@tycho.nsa.gov>; Wed, 2 May 2007 20:46:48 -0400
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l432CWOb030268
+	for <selinux@tycho.nsa.gov>; Wed, 2 May 2007 22:12:32 -0400
 Received: from exchange.columbia.tresys.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with SMTP id l430kk5h006959
-	for <selinux@tycho.nsa.gov>; Thu, 3 May 2007 00:46:46 GMT
-Message-ID: <463930F3.7020803@manicmethod.com>
-Date: Wed, 02 May 2007 20:46:43 -0400
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with SMTP id l432CV5h015182
+	for <selinux@tycho.nsa.gov>; Thu, 3 May 2007 02:12:31 GMT
+Message-ID: <4639450B.70302@manicmethod.com>
+Date: Wed, 02 May 2007 22:12:27 -0400
 From: Joshua Brindle <method@manicmethod.com>
 MIME-Version: 1.0
 To: Eric Paris <eparis@redhat.com>
@@ -31,10 +31,6 @@ Eric Paris wrote:
 > be perfectly honest after a bit of searching I'm not even sure where
 > policy.21 gets created when I build a policy.
 >
->   
-It should be setable in semanage.conf or by checkpolicy if building a 
-monolithic policy.
-
 > So really I'm just looking for a pointer on what now-a-days creates that
 > policy.21 which gets loaded on boot up and where in the whole policy
 > build process would be the best place to specify how the policy should
@@ -43,29 +39,6 @@ monolithic policy.
 > process, but I don't even know what program would be the right one to
 > process that input.....
 >
->   
-So... when you add a module to your policy (eg., semodule -i foo.pp) 
-libsemanage eventually calls sepol_link_packages and 
-sepol_expand_module. sepol_expand_module is where the policy that is 
-written to disk and loaded at bootup is created.
-
-If you look semanage_store.c in the semanage_expand_sandbox function 
-you'll see:
-
-        int policyvers = sh->conf->policyvers;
-        if (sepol_policydb_set_vers(out, policyvers)) {
-
-where out is the new policy being created. It should be pretty simple to 
-add a new option to the semanage conf struct and conf parser and add a 
-call in this function to set the option.
-
-In checkpolicy.c policy options are set directly (since its statically 
-linked against libsepol):
-
-                policydb.policy_type = POLICY_KERN;
-                policydb.policyvers = policyvers;
-
-look for those lines and your option should go there.
 > -Eric
 >
 > (patch for libsepol below)
@@ -88,13 +61,22 @@ look for those lines and your option should go there.
 >  
 > +/* the config flags related to unknown classes/perms are bits 2 and 3 */
 > +#define POLICYDB_CONFIG_UNKNOWN_MASK   6
+>   
+it would be easier to understand if unknown perms options were #defined 
+and the mask was just all of them or'd together
 > +#define POLICYDB_CONFIG_UNKNOWN_SHIFT  1
 > +
+>   
+not sure why it would ever move and if you make the perms into defines 
+this wouldn't be necessary.
+
 > +enum policy_with_unknown_perms {
 > +	 DENY_UNKNOWN = 0,
 > +	 REJECT_UNKNOWN = 1,
 > +	 ALLOW_UNKNOWN = 2
 > +};
+>   
+for better or worse we don't use enums in this library.
 >  #define OBJECT_R "object_r"
 >  #define OBJECT_R_VAL 1
 >  
@@ -120,11 +102,18 @@ look for those lines and your option should go there.
 > +	i = POLICYDB_CONFIG_UNKNOWN_MASK & (p->handle_unknown << POLICYDB_CONFIG_UNKNOWN_SHIFT);
 > +	if (i)
 > +		config |= i;
+>   
+again, this would be easier to read if you used defines for the options
 >  
 >  	/* Write the magic number and string identifiers. */
 >  	items = 0;
 >
 >
+>
+> --
+> This message was distributed to subscribers of the selinux mailing list.
+> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
+> the words "unsubscribe selinux" without quotes as the message.
 >
 >   
 
