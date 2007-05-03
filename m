@@ -1,76 +1,43 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l43CIAbr017281
-	for <selinux@tycho.nsa.gov>; Thu, 3 May 2007 08:18:10 -0400
-Received: from exchange.columbia.tresys.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with SMTP id l43CI9Qe021375
-	for <selinux@tycho.nsa.gov>; Thu, 3 May 2007 12:18:09 GMT
-Subject: Re: Patch to cleanup audit handling in policy.
-From: "Christopher J. PeBenito" <cpebenito@tresys.com>
-To: Karl MacMillan <kmacmillan@mentalrootkit.com>
-Cc: Steve G <linux_4ever@yahoo.com>, Daniel J Walsh <dwalsh@redhat.com>,
-        SE Linux <selinux@tycho.nsa.gov>
-In-Reply-To: <1178126283.7700.3.camel@localhost.localdomain>
-References: <20070430145914.7790.qmail@web51502.mail.re2.yahoo.com>
-	 <1177951993.3570.115.camel@sgc>
-	 <1177980591.13269.10.camel@localhost.localdomain>
-	 <1178026296.3570.144.camel@sgc>
-	 <1178032864.3757.3.camel@localhost.localdomain>
-	 <1178125691.445.2.camel@sgc.columbia.tresys.com>
-	 <1178126283.7700.3.camel@localhost.localdomain>
-Content-Type: text/plain
-Date: Thu, 03 May 2007 12:17:45 +0000
-Message-Id: <1178194665.445.42.camel@sgc.columbia.tresys.com>
-Mime-Version: 1.0
+In-Reply-To: <1178025679.26421.40.camel@moss-spartans.epoch.ncsc.mil>
+References: <637AC7CF-43ED-4078-BF5D-0A0604D3E314@sf-net.com> <1178025679.26421.40.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0 (Apple Message framework v752.2)
+Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
+Message-Id: <032854E3-0523-4657-A53C-B4F6FB986CDF@sf-net.com>
+Cc: SELinux List <SELinux@tycho.nsa.gov>
+From: Stefan Schulze Frielinghaus <stefan@sf-net.com>
+Subject: Re: MLS and no read up, no write down
+Date: Thu, 3 May 2007 14:31:38 +0200
+To: Stephen Smalley <sds@tycho.nsa.gov>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2007-05-02 at 13:18 -0400, Karl MacMillan wrote:
-> On Wed, 2007-05-02 at 13:08 -0400, Christopher J. PeBenito wrote:
-> > On Tue, 2007-05-01 at 11:21 -0400, Karl MacMillan wrote:
-> > > On Tue, 2007-05-01 at 13:31 +0000, Christopher J. PeBenito wrote:
-> > > > On Mon, 2007-04-30 at 20:49 -0400, Karl MacMillan wrote:
-> > > > >  Given that and
-> > > > > my concerns over their clarity I would prefer that no more patterns be
-> > > > > introduced.
-> > > > > 
-> > > > > Can I ask why you are so against these audit interfaces and would prefer
-> > > > > patterns?
-> > > > 
-> > > > I don't agree with the assertions which means the attributes are
-> > > > dropped, so that just leaves the rules, which don't refer to any types
-> > > > in the logging module.  They only refer to resources in the current
-> > > > module (all self rules), so its not an interface, its a pattern.
-> > > > 
-> > > 
-> > > I think that distinction is not useful to a policy writer. As a policy
-> > > writer I think it would be natural to look for audit interfaces in
-> > > logging - by making these patterns they are harder to find.
-> > > 
-> > > So - why make this distinction?
-> > 
-> > Its always been the definition of an interface.
-> > 
-> 
-> Great - so why has that always been the definition
+> MLS/BLP is a confidentiality model, not an integrity model.  It is
+> usually used together with an integrity model such as Biba or Type
+> Enforcement (TE).
 
-Not sure how you can ask that since interfaces providing access to a
-module's private resource is a fundamental principle.
+Ok that sounds logical to me!
 
->  and what is the
-> motivation for separating the patterns and the interfaces in this
-> circumstance. What value does this provide to the policy writer?
+> Note btw that multi-level security can be implemented via Type
+> Enforcement (just map levels to types and define your allow rules to
+> match the BLP restrictions) if the discrete number of levels is not  
+> too
+> large, and real multi-level security needs are often met better by TE,
+> as it supports controlled information flow via assured pipelines. Even
+> if one needs the native MLS engine in SELinux (e.g. to support a huge
+> number of discrete levels due to many categories), TE provides a  
+> way to
+> confine and protect MLS trusted subjects and to provide integrity and
+> least privilege.  TE was originally designed to complement MLS in that
+> manner.
 
-Indeed that is a good question, which is why I said it was compelling in
-the other thread.
+That's right. In most situatiions I would use TE because it's not so  
+complex
+and therefor not so error-prone.
 
-> My assertion is that in this case the separation is harmful to the
-> readability of the policy without advantage.
+Thanks for the detailed explanations!
 
--- 
-Chris PeBenito
-Tresys Technology, LLC
-(410) 290-1411 x150
-
+Best regards,
+Stefan
 
 --
 This message was distributed to subscribers of the selinux mailing list.
