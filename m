@@ -1,52 +1,47 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l43CeauU018160
-	for <selinux@tycho.nsa.gov>; Thu, 3 May 2007 08:40:36 -0400
-Received: from exchange.columbia.tresys.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with SMTP id l43CeYQe024683
-	for <selinux@tycho.nsa.gov>; Thu, 3 May 2007 12:40:34 GMT
-Subject: Re: logwatch tries to look at avahi, avahi needs to use winbind
-From: "Christopher J. PeBenito" <cpebenito@tresys.com>
-To: Daniel J Walsh <dwalsh@redhat.com>
-Cc: selinux@tycho.nsa.gov
-In-Reply-To: <4638F3CA.6020103@redhat.com>
-References: <200704201854.l3KIs47L027135@redsox.boston.devel.redhat.com>
-	 <1178128320.445.9.camel@sgc.columbia.tresys.com>
-	 <4638F3CA.6020103@redhat.com>
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l43Cgcsj018326
+	for <selinux@tycho.nsa.gov>; Thu, 3 May 2007 08:42:38 -0400
+Received: from mx1.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id l43Cgbqf023932
+	for <selinux@tycho.nsa.gov>; Thu, 3 May 2007 12:42:37 GMT
+Subject: Re: Where to specific the handling of unknown kernel classes and
+	perms
+From: Karl MacMillan <kmacmillan@mentalrootkit.com>
+To: Joshua Brindle <method@manicmethod.com>
+Cc: Eric Paris <eparis@redhat.com>, selinux@tycho.nsa.gov
+In-Reply-To: <463930F3.7020803@manicmethod.com>
+References: <1178141128.3897.33.camel@dhcp59-235.rdu.redhat.com>
+	 <463930F3.7020803@manicmethod.com>
 Content-Type: text/plain
-Date: Thu, 03 May 2007 12:40:10 +0000
-Message-Id: <1178196010.445.49.camel@sgc.columbia.tresys.com>
+Date: Thu, 03 May 2007 08:42:34 -0400
+Message-Id: <1178196154.3404.6.camel@localhost.localdomain>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2007-05-02 at 16:25 -0400, Daniel J Walsh wrote:
-> Christopher J. PeBenito wrote:
-> > On Fri, 2007-04-20 at 14:54 -0400, dwalsh@redhat.com wrote:
-> >> --- nsaserefpolicy/policy/modules/services/avahi.te	2007-03-20 23:38:05.000000000 -0400
-> >> +++ serefpolicy-2.5.12/policy/modules/services/avahi.te	2007-04-18 16:04:51.000000000 -0400
-> >> @@ -105,3 +105,7 @@
-> >>  optional_policy(`
-> >>  	udev_read_db(avahi_t)
-> >>  ')
-> >> +
-> >> +optional_policy(`
-> >> +	samba_stream_connect_winbind(avahi_t)
-> >> +')
-> >>     
+On Wed, 2007-05-02 at 20:46 -0400, Joshua Brindle wrote:
+> Eric Paris wrote:
+> > I just sent out a kernel patch with the tristate flag to change kernel
+> > handling of unknown classes and permissions.  The idea is that when the
+> > policy is created someone can set the flag to any of the three options
+> > (deny/reject/allow) and the kernel will act accordingly.  My problem is
+> > I don't understand the userspace tools which create policy.  I patched
+> > libsepol to support this new flag when it reads or writes a policydb,
+> > which allows me to edit my policy.21 by hand in hex and then call
+> > load_policy to test my kernel.  My problem now is that I don't know
+> > where a user should be specifying how they want the flags to be set.  To
+> > be perfectly honest after a bit of searching I'm not even sure where
+> > policy.21 gets created when I build a policy.
 > >
-> > Merged except for this last part.  I can't find any reference in the
-> > avahi code or wiki for it connecting to windbind.
+> >   
+> It should be setable in semanage.conf or by checkpolicy if building a 
+> monolithic policy.
 > 
-> Right, turns out avahi uses nsswitch, and this is causing the avc.  
-> Attached patch to switch to using nsswitch.
 
-Merged, except I made it unconditional, since I see usage of getpwnam()
-and getgrnam() in main.c of avahi-daemon.
+The other option, I guess, is to set the flag on the base module and
+have that propagated to the kernel policy.
 
--- 
-Chris PeBenito
-Tresys Technology, LLC
-(410) 290-1411 x150
+Karl
 
 
 --
