@@ -1,52 +1,91 @@
-Message-ID: <463A4F7C.7000302@trustedcs.com>
-Date: Thu, 03 May 2007 16:09:16 -0500
-From: Darrel Goeddel <dgoeddel@TrustedCS.com>
-MIME-Version: 1.0
-To: Stephen Smalley <sds@tycho.nsa.gov>
-CC: Xavier Toth <txtoth@gmail.com>, selinux@tycho.nsa.gov,
-        Joshua Brindle <method@manicmethod.com>,
-        Karl MacMillan <kmacmillan@mentalrootkit.com>
-Subject: Re: launching apps at level (MLS) and polyinstantiation
-References: <463243E3.2060602@gmail.com>	 <1177700491.3357.113.camel@moss-spartans.epoch.ncsc.mil>	 <1177700749.3357.116.camel@moss-spartans.epoch.ncsc.mil>	 <463360B0.7020106@gmail.com>	 <1177934887.16232.7.camel@moss-spartans.epoch.ncsc.mil>	 <4636002F.5000100@gmail.com>	 <1177944754.16232.28.camel@moss-spartans.epoch.ncsc.mil>	 <cadfc0e40705020849o3f1b90c4l6f7bb5d9dcbc3c23@mail.gmail.com>	 <1178125027.3443.67.camel@moss-spartans.epoch.ncsc.mil>	 <cadfc0e40705030611l532d490dr2016dbff69a51628@mail.gmail.com>	 <1178200148.3443.166.camel@moss-spartans.epoch.ncsc.mil> <1178219938.3443.209.camel@moss-spartans.epoch.ncsc.mil>
-In-Reply-To: <1178219938.3443.209.camel@moss-spartans.epoch.ncsc.mil>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l43LOuxw011809
+	for <selinux@tycho.nsa.gov>; Thu, 3 May 2007 17:24:56 -0400
+Received: from mx1.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id l43LOtNE003043
+	for <selinux@tycho.nsa.gov>; Thu, 3 May 2007 21:24:55 GMT
+Subject: Re: Patch to cleanup audit handling in policy.
+From: Karl MacMillan <kmacmillan@mentalrootkit.com>
+To: "Christopher J. PeBenito" <cpebenito@tresys.com>
+Cc: Steve G <linux_4ever@yahoo.com>, Daniel J Walsh <dwalsh@redhat.com>,
+        SE Linux <selinux@tycho.nsa.gov>
+In-Reply-To: <1178194665.445.42.camel@sgc.columbia.tresys.com>
+References: <20070430145914.7790.qmail@web51502.mail.re2.yahoo.com>
+	 <1177951993.3570.115.camel@sgc>
+	 <1177980591.13269.10.camel@localhost.localdomain>
+	 <1178026296.3570.144.camel@sgc>
+	 <1178032864.3757.3.camel@localhost.localdomain>
+	 <1178125691.445.2.camel@sgc.columbia.tresys.com>
+	 <1178126283.7700.3.camel@localhost.localdomain>
+	 <1178194665.445.42.camel@sgc.columbia.tresys.com>
+Content-Type: text/plain
+Date: Thu, 03 May 2007 17:16:58 -0400
+Message-Id: <1178227018.14937.6.camel@localhost.localdomain>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Stephen Smalley wrote:
-> How about the revised patch below (only including the newrole.c and
-> Makefile diffs since the hashtab code is unchanged)?  The changes from
-> your patch are:
-> - Make sure everything is properly enabled/disabled by USE_PAM and move
-> the code into the existing USE_PAM block where appropriate.
-> - Call the config file newrole_pam.conf since there could be other
-> newrole config files in the future.
-> - Distinguish missing config file (ok) from errors during parsing of the
-> config file (should abort).
-> - Remove the Authenticating <username> message since it could be
-> confusing in the case where you are using a pam config that doesn't
-> require it and it doesn't really provide any benefit.
-> - Improve error checking and handling.
-> - Coding style cleanups (indentation, comment style, etc).
+On Thu, 2007-05-03 at 12:17 +0000, Christopher J. PeBenito wrote:
+> On Wed, 2007-05-02 at 13:18 -0400, Karl MacMillan wrote:
+> > On Wed, 2007-05-02 at 13:08 -0400, Christopher J. PeBenito wrote:
+> > > On Tue, 2007-05-01 at 11:21 -0400, Karl MacMillan wrote:
+> > > > On Tue, 2007-05-01 at 13:31 +0000, Christopher J. PeBenito wrote:
+> > > > > On Mon, 2007-04-30 at 20:49 -0400, Karl MacMillan wrote:
+> > > > > >  Given that and
+> > > > > > my concerns over their clarity I would prefer that no more patterns be
+> > > > > > introduced.
+> > > > > > 
+> > > > > > Can I ask why you are so against these audit interfaces and would prefer
+> > > > > > patterns?
+> > > > > 
+> > > > > I don't agree with the assertions which means the attributes are
+> > > > > dropped, so that just leaves the rules, which don't refer to any types
+> > > > > in the logging module.  They only refer to resources in the current
+> > > > > module (all self rules), so its not an interface, its a pattern.
+> > > > > 
+> > > > 
+> > > > I think that distinction is not useful to a policy writer. As a policy
+> > > > writer I think it would be natural to look for audit interfaces in
+> > > > logging - by making these patterns they are harder to find.
+> > > > 
+> > > > So - why make this distinction?
+> > > 
+> > > Its always been the definition of an interface.
+> > > 
+> > 
+> > Great - so why has that always been the definition
 > 
-> To test, I created a /etc/pam.d/newrole-noauth config that had
-> pam_permit.so for its auth module and created
-> a /etc/selinux/newrole_pam.conf that mapped one program to
-> newrole-noauth.
+> Not sure how you can ask that since interfaces providing access to a
+> module's private resource is a fundamental principle.
 > 
-> The alternative model would be to eliminate /etc/selnux/newrole_pam.conf
-> entirely from the equation, and just have newrole look for (test via
-> access()) a /etc/pam.d/newrole_<appname> config and use
-> newrole_<appname> as the service name if present.
 
-I like this idea.  I haven't had a chance to test this yet, but it looks
-to be assuming that the arg to -c is just the command name without any
-path info.  Should we strip that down to its basename in case someone runs
-'newrole -l secret -c /usr/bin/foo' as opposed to 'newrole -l secret -c foo'?
+I agree that interfaces are the only way to provide access to a modules
+types, but I don't think that is their only purpose. They are also for
+grouping and organizing related access.
 
--- 
+> >  and what is the
+> > motivation for separating the patterns and the interfaces in this
+> > circumstance. What value does this provide to the policy writer?
+> 
+> Indeed that is a good question, which is why I said it was compelling in
+> the other thread.
+> 
 
-Darrel
+I would suggest that for most of the patterns they don't have any other
+logical grouping - the access being allowed is private to the module.
+
+These audit rules seem different. The access is really about allowing a
+domain access to the audit subsystem. It is not simply private access
+that cannot be further grouped. That the access is allowed purely via
+permissions on module private types is an unimportant implementation
+detail.
+
+So, taking the broader definition of interfaces as grouping related
+access, it seems natural to make these audit interfaces and put them in
+logging.if.
+
+Karl
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
