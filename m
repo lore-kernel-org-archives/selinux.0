@@ -1,93 +1,105 @@
-Message-ID: <463B5356.1040804@redhat.com>
-Date: Fri, 04 May 2007 11:37:58 -0400
+Message-ID: <463B5A4B.2090004@redhat.com>
+Date: Fri, 04 May 2007 12:07:39 -0400
 From: Daniel J Walsh <dwalsh@redhat.com>
 MIME-Version: 1.0
-To: Joshua Brindle <method@manicmethod.com>
-CC: Stephen Smalley <sds@tycho.nsa.gov>, Eric Paris <eparis@redhat.com>,
-        selinux@tycho.nsa.gov, Karl MacMillan <kmacmillan@mentalrootkit.com>
-Subject: Re: Where to specific the handling of unknown kernel classes and
- perms
-References: <1178141128.3897.33.camel@dhcp59-235.rdu.redhat.com>	 <463930F3.7020803@manicmethod.com>	 <1178196394.3443.135.camel@moss-spartans.epoch.ncsc.mil>	 <4639E183.4080909@manicmethod.com> <1178200479.3443.172.camel@moss-spartans.epoch.ncsc.mil> <463A005B.3010504@manicmethod.com>
-In-Reply-To: <463A005B.3010504@manicmethod.com>
+To: rob myers <rob.myers@gtri.gatech.edu>
+CC: SELinux@tycho.nsa.gov
+Subject: Re: oracle policy
+References: <1177969059.1731.46.camel@rxm-581b.stl.gtri.gatech.edu>
+In-Reply-To: <1177969059.1731.46.camel@rxm-581b.stl.gtri.gatech.edu>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Joshua Brindle wrote:
-> Stephen Smalley wrote:
->> On Thu, 2007-05-03 at 09:20 -0400, Joshua Brindle wrote:
->>  
->>> Stephen Smalley wrote:
->>>    
->>>> On Wed, 2007-05-02 at 20:46 -0400, Joshua Brindle wrote:
->>>>        
->>>>> Eric Paris wrote:
->>>>>            
->>>>>> I just sent out a kernel patch with the tristate flag to change 
->>>>>> kernel
->>>>>> handling of unknown classes and permissions.  The idea is that 
->>>>>> when the
->>>>>> policy is created someone can set the flag to any of the three 
->>>>>> options
->>>>>> (deny/reject/allow) and the kernel will act accordingly.  My 
->>>>>> problem is
->>>>>> I don't understand the userspace tools which create policy.  I 
->>>>>> patched
->>>>>> libsepol to support this new flag when it reads or writes a 
->>>>>> policydb,
->>>>>> which allows me to edit my policy.21 by hand in hex and then call
->>>>>> load_policy to test my kernel.  My problem now is that I don't know
->>>>>> where a user should be specifying how they want the flags to be 
->>>>>> set.  To
->>>>>> be perfectly honest after a bit of searching I'm not even sure where
->>>>>> policy.21 gets created when I build a policy.
->>>>>>
->>>>>>                   
->>>>> It should be setable in semanage.conf or by checkpolicy if 
->>>>> building a monolithic policy.
->>>>>             
->>>> Hmm...actually, I would have argued that it should only be settable by
->>>> checkpolicy/checkmodule, and always inherited from the base module in
->>>> the link/expand case.  That way we can always know what the kernel
->>>> behavior is by looking at the base module, vs. having to separately 
->>>> look
->>>> at semanage.conf.  It is a tradeoff though in terms of 
->>>> analyzability vs.
->>>> ease of customization
->>>>       
->>> Even if it is propagated from the base policy I think it should be 
->>> overridable in semanage.conf. Propagating it from base means we'll 
->>> have to extend the policy server object model to cover it but that 
->>> is no big deal. The reason semanage.conf would be nice is to change 
->>> the behavior locally on RH systems without rebuilding the base policy.
->>>     
->>
->> I understand that, but as semanage.conf is not "managed" (just a config
->> file to rpm and not managed by libsemanage itself) and changes to it are
->> not audited, this means that you won't be able to tell easily what
->> behavior was in effect at a given time.  That's the tradeoff.
->>
->> Regardless, for Eric's purposes, it would be sufficient for basic
->> operation to add a command line flag to checkpolicy and checkmodule to
->> set these flags in monolithic policy and base modules, and to modify
->> libsepol (in particular, expand_module()) to propagate the base flags in
->> the same manner as it already does for the mls flag.  Then he or we can
->> separately add a libsepol interface to mutate the flag and modify
->> libsemanage to use that interface and have a new semanage.conf setting.
->>
->>   
+rob myers wrote:
+> hello
 >
-> Ok, I agree, we can work out how to change it on end systems without 
-> rebuilding the policy later. This should certainly be a managed 
-> setting so that we can enforce access control on it and audit if 
-> necessary.
+> i am working on writing some SELinux policy that will confine oracle to
+> its own domain on a RHEL5 machine running targeted policy.  my security
+> goal is to limit risk to the rest of the system from any potential
+> compromise of oracle.  as far as i know, no such policy exists publicly
+> yet.  i'd like to collaborate with anyone else that has an interest in
+> writing a similar policy for oracle.  my initial efforts are attached.
+> tips, pointers, and constructive criticism requested!
 >
-> -- 
-> This message was distributed to subscribers of the selinux mailing list.
-> If you no longer wish to subscribe, send mail to 
-> majordomo@tycho.nsa.gov with
-> the words "unsubscribe selinux" without quotes as the message.
-Is this possible to be a boolean?  Tunable eventually.
+> one of the problems with writing a general oracle policy is that
+> different people may install the software in different locations.  i've
+> chosen /opt/oracle/10.2.0, but maybe there is a more appropriate place
+> for it?
+>
+> rob.
+>   
+
+First off I have never run oracle (They don't like my company much :^) ...
+
+Lets start by looking at your file context file. 
+
+Eliminate the version number from the file path.  You can use a regular 
+expression to handle this or you are going to have problems with 9.3 
+comes out.
+
+I like to minimize the number of context in the file context,  The more 
+files in the context the more likely you are to get one wrong.  
+One general rule I use is if you domain does not need to modify a 
+file/directory, you should use the system defaults.  (Unless you want to 
+prevent other confined domains from reading the files, for security 
+purposes).  So do you really need  oracle_ro_t?
+
+Remove these
+/opt/oracle(/.*)?          gen_context(system_u:object_r:oracle_ro_t,s0)
+/etc/oracle-9iR2(/.*)?          
+gen_context(system_u:object_r:oracle_ro_t,s0)
+/etc/oracle-10gR2(/.*)?          
+gen_context(system_u:object_r:oracle_ro_t,s0)
+
+Add this
+files_read_usr_files(oracle_t)
+
+The only file that should be labeled oracle_exec_t is the domains entry 
+point.  Helper apps should be just labeled bin_t.  Or even better break 
+the helper apps and write policy for their specific tasks.  But this is 
+a lot more work.
+
+Your jar files should be labeled shlib_t so they will work on MLS/Strict 
+policy machines.
+
+You should not specify lib_t if the system default would have been lib_t.
+
+
+As for the te file.  You want to eliminate the entire require block from 
+the file.  Any of the types you are defining there should be removed and 
+allow rules that use these types should be replaced with interfaces.
+
+For example
+
+allow oracle_t proc_t:file read;
+
+Should be replaced with
+
+kernel_read_system_state(oracle_t)
+
+I would bet oracle is using nsswitch  so you can add
+auth_use_nsswitch(oracle_t)
+
+And eliminate a lot of other rules. Like (nscd, netlink_route_socket)
+
+I like to avoid
+domain_auto_trans(unconfined_t, oracle_exec_t, oracle_t)
+
+And only have the transition happen in the init scripts.  Transitioning 
+directly from unconfined_t ends up with lots of avcs when users do stuff 
+like
+
+confined_app >> ~/mylog
+
+Also you might be able to eliminate the ability to write to terminals by 
+doing this.
+
+
+
+
+
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
