@@ -1,108 +1,93 @@
-Message-ID: <463B3438.5050506@redhat.com>
-Date: Fri, 04 May 2007 09:25:12 -0400
+Message-ID: <463B5356.1040804@redhat.com>
+Date: Fri, 04 May 2007 11:37:58 -0400
 From: Daniel J Walsh <dwalsh@redhat.com>
 MIME-Version: 1.0
-To: Stephen Smalley <sds@tycho.nsa.gov>, SE Linux <selinux@tycho.nsa.gov>
-Subject: More swig changes for libselinux
-Content-Type: multipart/mixed;
- boundary="------------010501010609080602020002"
+To: Joshua Brindle <method@manicmethod.com>
+CC: Stephen Smalley <sds@tycho.nsa.gov>, Eric Paris <eparis@redhat.com>,
+        selinux@tycho.nsa.gov, Karl MacMillan <kmacmillan@mentalrootkit.com>
+Subject: Re: Where to specific the handling of unknown kernel classes and
+ perms
+References: <1178141128.3897.33.camel@dhcp59-235.rdu.redhat.com>	 <463930F3.7020803@manicmethod.com>	 <1178196394.3443.135.camel@moss-spartans.epoch.ncsc.mil>	 <4639E183.4080909@manicmethod.com> <1178200479.3443.172.camel@moss-spartans.epoch.ncsc.mil> <463A005B.3010504@manicmethod.com>
+In-Reply-To: <463A005B.3010504@manicmethod.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This is a multi-part message in MIME format.
---------------010501010609080602020002
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-
-Added get_context_list.h
-
---------------010501010609080602020002
-Content-Type: text/plain;
- name="diff"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="diff"
-
---- nsalibselinux/src/selinuxswig.i	2007-04-12 16:02:48.000000000 -0400
-+++ libselinux-2.0.13/src/selinuxswig.i	2007-04-23 10:26:21.000000000 -0400
-@@ -21,6 +21,7 @@
- %module selinux
- %{
- 	#include "selinux/selinux.h"
-+	#include "selinux/get_context_list.h"
- %}
- %apply int *OUTPUT { int * };
- %apply int *OUTPUT { size_t * };
-@@ -42,8 +43,12 @@
- 
- %typedef unsigned mode_t;
- 
-+%include "../include/selinux/get_context_list.h"
-+
- extern int is_selinux_enabled(void);
- extern int is_selinux_mls_enabled(void);
-+extern void freecon(security_context_t con);
-+extern void freeconary(security_context_t * con);
- extern int getcon(security_context_t *con);
- extern int setcon(security_context_t con);
- extern int getpidcon(int pid, security_context_t *con);
-@@ -90,6 +95,11 @@
- 			mode_t mode,
- 			security_context_t *con);
- 
-+extern int matchpathcon_init_prefix(const char *path,
-+				    const char *prefix);
-+extern void matchpathcon_fini(void);
-+
-+
- extern int matchmediacon(const char *media,
- 		 security_context_t *con);
- 
-@@ -106,6 +116,7 @@
- extern const char *selinux_homedir_context_path(void);
- extern const char *selinux_media_context_path(void);
- extern const char *selinux_contexts_path(void);
-+extern const char *selinux_securetty_types_path(void);
- extern const char *selinux_booleans_path(void);
- extern const char *selinux_customizable_types_path(void);
- extern const char *selinux_users_path(void);
-@@ -113,11 +124,15 @@
- extern const char *selinux_translations_path(void);
- extern const char *selinux_netfilter_context_path(void);
- extern const char *selinux_path(void);
--extern int selinux_check_passwd_access(access_vector_t requested);
--extern int checkPasswdAccess(access_vector_t requested);
-+#extern int selinux_check_passwd_access(access_vector_t requested);
-+#extern int checkPasswdAccess(access_vector_t requested);
- 
-+extern int selinux_check_securetty_context(security_context_t tty_context);
-+void set_selinuxmnt(char *mnt);
-+
-+#ifdef SWIGpython
- // This tells SWIG to treat char ** as a special case
--%typemap(python,in) char ** {
-+%typemap(in) char ** {
-   /* Check if is a list */
-   if (PyList_Check($input)) {
-     int size = PyList_Size($input);
-@@ -143,6 +158,7 @@
-     return NULL;
-   }
- }
-+#endif
- 
- extern int rpm_execcon(unsigned int verified, 
- 		       const char *filename, 
-@@ -164,3 +180,7 @@
- }
- extern int selinux_getpolicytype(char **enforce);
- extern int getseuserbyname(const char *linuxuser, char **seuser, char **level);
-+
-+int selinux_file_context_cmp(const security_context_t a, const security_context_t b);
-+int selinux_file_context_verify(const char *path, mode_t mode);
-+int selinux_lsetfilecon_default(const char *path);
-
---------------010501010609080602020002--
+Joshua Brindle wrote:
+> Stephen Smalley wrote:
+>> On Thu, 2007-05-03 at 09:20 -0400, Joshua Brindle wrote:
+>>  
+>>> Stephen Smalley wrote:
+>>>    
+>>>> On Wed, 2007-05-02 at 20:46 -0400, Joshua Brindle wrote:
+>>>>        
+>>>>> Eric Paris wrote:
+>>>>>            
+>>>>>> I just sent out a kernel patch with the tristate flag to change 
+>>>>>> kernel
+>>>>>> handling of unknown classes and permissions.  The idea is that 
+>>>>>> when the
+>>>>>> policy is created someone can set the flag to any of the three 
+>>>>>> options
+>>>>>> (deny/reject/allow) and the kernel will act accordingly.  My 
+>>>>>> problem is
+>>>>>> I don't understand the userspace tools which create policy.  I 
+>>>>>> patched
+>>>>>> libsepol to support this new flag when it reads or writes a 
+>>>>>> policydb,
+>>>>>> which allows me to edit my policy.21 by hand in hex and then call
+>>>>>> load_policy to test my kernel.  My problem now is that I don't know
+>>>>>> where a user should be specifying how they want the flags to be 
+>>>>>> set.  To
+>>>>>> be perfectly honest after a bit of searching I'm not even sure where
+>>>>>> policy.21 gets created when I build a policy.
+>>>>>>
+>>>>>>                   
+>>>>> It should be setable in semanage.conf or by checkpolicy if 
+>>>>> building a monolithic policy.
+>>>>>             
+>>>> Hmm...actually, I would have argued that it should only be settable by
+>>>> checkpolicy/checkmodule, and always inherited from the base module in
+>>>> the link/expand case.  That way we can always know what the kernel
+>>>> behavior is by looking at the base module, vs. having to separately 
+>>>> look
+>>>> at semanage.conf.  It is a tradeoff though in terms of 
+>>>> analyzability vs.
+>>>> ease of customization
+>>>>       
+>>> Even if it is propagated from the base policy I think it should be 
+>>> overridable in semanage.conf. Propagating it from base means we'll 
+>>> have to extend the policy server object model to cover it but that 
+>>> is no big deal. The reason semanage.conf would be nice is to change 
+>>> the behavior locally on RH systems without rebuilding the base policy.
+>>>     
+>>
+>> I understand that, but as semanage.conf is not "managed" (just a config
+>> file to rpm and not managed by libsemanage itself) and changes to it are
+>> not audited, this means that you won't be able to tell easily what
+>> behavior was in effect at a given time.  That's the tradeoff.
+>>
+>> Regardless, for Eric's purposes, it would be sufficient for basic
+>> operation to add a command line flag to checkpolicy and checkmodule to
+>> set these flags in monolithic policy and base modules, and to modify
+>> libsepol (in particular, expand_module()) to propagate the base flags in
+>> the same manner as it already does for the mls flag.  Then he or we can
+>> separately add a libsepol interface to mutate the flag and modify
+>> libsemanage to use that interface and have a new semanage.conf setting.
+>>
+>>   
+>
+> Ok, I agree, we can work out how to change it on end systems without 
+> rebuilding the policy later. This should certainly be a managed 
+> setting so that we can enforce access control on it and audit if 
+> necessary.
+>
+> -- 
+> This message was distributed to subscribers of the selinux mailing list.
+> If you no longer wish to subscribe, send mail to 
+> majordomo@tycho.nsa.gov with
+> the words "unsubscribe selinux" without quotes as the message.
+Is this possible to be a boolean?  Tunable eventually.
 
 --
 This message was distributed to subscribers of the selinux mailing list.
