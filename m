@@ -1,197 +1,250 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l47ElCX1023369
-	for <selinux@tycho.nsa.gov>; Mon, 7 May 2007 10:47:12 -0400
-Received: from mx1.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id l47ElBPQ007642
-	for <selinux@tycho.nsa.gov>; Mon, 7 May 2007 14:47:11 GMT
-Message-ID: <463F3BEE.6060504@redhat.com>
-Date: Mon, 07 May 2007 10:47:10 -0400
-From: Daniel J Walsh <dwalsh@redhat.com>
-MIME-Version: 1.0
-To: "Christopher J. PeBenito" <cpebenito@tresys.com>
-CC: SE Linux <selinux@tycho.nsa.gov>
-Subject: Re: squid patch
-References: <46278600.2010806@redhat.com> <1178545161.25271.5.camel@sgc>
-In-Reply-To: <1178545161.25271.5.camel@sgc>
-Content-Type: multipart/mixed;
- boundary="------------090709080201050709010609"
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l47EpIUu023560
+	for <selinux@tycho.nsa.gov>; Mon, 7 May 2007 10:51:18 -0400
+Received: from exchange.columbia.tresys.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with SMTP id l47EpHKF011486
+	for <selinux@tycho.nsa.gov>; Mon, 7 May 2007 14:51:17 GMT
+Subject: Re: apcupsd policy
+From: "Christopher J. PeBenito" <cpebenito@tresys.com>
+To: dwalsh@redhat.com
+Cc: selinux@tycho.nsa.gov
+In-Reply-To: <200704201926.l3KJQuOH027268@redsox.boston.devel.redhat.com>
+References: <200704201926.l3KJQuOH027268@redsox.boston.devel.redhat.com>
+Content-Type: text/plain
+Date: Mon, 07 May 2007 10:50:46 -0400
+Message-Id: <1178549446.25271.6.camel@sgc>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This is a multi-part message in MIME format.
---------------090709080201050709010609
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+On Fri, 2007-04-20 at 15:26 -0400, dwalsh@redhat.com wrote:
+> --- nsaserefpolicy/policy/modules/services/apcupsd.fc	1969-12-31 19:00:00.000000000 -0500
+> +++ serefpolicy-2.5.12/policy/modules/services/apcupsd.fc	2007-04-11 17:07:34.000000000 -0400
+> @@ -0,0 +1,9 @@
+> +
+> +/usr/sbin/apcupsd		--	gen_context(system_u:object_r:apcupsd_exec_t,s0)
+> +/var/log/apcupsd\.events.*		--	gen_context(system_u:object_r:apcupsd_log_t,s0)
+> +/var/run/apcupsd\.pid		--	gen_context(system_u:object_r:apcupsd_var_run_t,s0)
+> +
+> +/var/www/apcupsd/multimon.cgi		--	gen_context(system_u:object_r:httpd_apcupsd_cgi_script_exec_t,s0)
+> +/var/www/apcupsd/upsfstats.cgi		--	gen_context(system_u:object_r:httpd_apcupsd_cgi_script_exec_t,s0)
+> +/var/www/apcupsd/upsimage.cgi		--	gen_context(system_u:object_r:httpd_apcupsd_cgi_script_exec_t,s0)
+> +/var/www/apcupsd/upsstats.cgi		--	gen_context(system_u:object_r:httpd_apcupsd_cgi_script_exec_t,s0)
+> --- nsaserefpolicy/policy/modules/services/apcupsd.if	1969-12-31 19:00:00.000000000 -0500
+> +++ serefpolicy-2.5.12/policy/modules/services/apcupsd.if	2007-04-11 17:07:34.000000000 -0400
+> @@ -0,0 +1,108 @@
+> +
+> +## <summary>policy for apcupsd</summary>
+> +
+> +########################################
+> +## <summary>
+> +##	Execute a domain transition to run apcupsd.
+> +## </summary>
+> +## <param name="domain">
+> +## <summary>
+> +##	Domain allowed to transition.
+> +## </summary>
+> +## </param>
+> +#
+> +interface(`apcupsd_domtrans',`
+> +	gen_require(`
+> +		type apcupsd_t, apcupsd_exec_t;
+> +	')
+> +
+> +	domain_auto_trans($1,apcupsd_exec_t,apcupsd_t)
+> +
+> +	allow apcupsd_t $1:fd use;
+> +	allow apcupsd_t $1:fifo_file rw_file_perms;
+> +	allow apcupsd_t $1:process sigchld;
+> +')
+> +
+> +########################################
+> +## <summary>
+> +##	Read apcupsd PID files.
+> +## </summary>
+> +## <param name="domain">
+> +##	<summary>
+> +##	Domain allowed access.
+> +##	</summary>
+> +## </param>
+> +#
+> +interface(`apcupsd_read_pid_files',`
+> +	gen_require(`
+> +		type apcupsd_var_run_t;
+> +	')
+> +
+> +	files_search_pids($1)
+> +	allow $1 apcupsd_var_run_t:file r_file_perms;
+> +')
+> +
+> +
+> +########################################
+> +## <summary>
+> +##	Allow the specified domain to read apcupsd's log files.
+> +## </summary>
+> +## <param name="domain">
+> +##	<summary>
+> +##	Domain allowed access.
+> +##	</summary>
+> +## </param>
+> +## <rolecap/>
+> +#
+> +interface(`apcupsd_read_log',`
+> +	gen_require(`
+> +		type apcupsd_log_t;
+> +	')
+> +
+> +	logging_search_logs($1)
+> +	allow $1 apcupsd_log_t:dir r_dir_perms;
+> +	allow $1 apcupsd_log_t:file { read getattr lock };
+> +')
+> +
+> +########################################
+> +## <summary>
+> +##	Allow the specified domain to append
+> +##	apcupsd log files.
+> +## </summary>
+> +## <param name="domain">
+> +## 	<summary>
+> +##	Domain allowed to transition.
+> +## 	</summary>
+> +## </param>
+> +#
+> +interface(`apcupsd_append_log',`
+> +	gen_require(`
+> +		type var_log_t, apcupsd_log_t;
+> +	')
+> +
+> +	logging_search_logs($1)
+> +	allow $1 apcupsd_log_t:dir r_dir_perms;
+> +	allow $1 apcupsd_log_t:file { getattr append };
+> +')
+> +
+> +########################################
+> +## <summary>
+> +##	Execute a domain transition to run httpd_apcupsd_cgi_script.
+> +## </summary>
+> +## <param name="domain">
+> +## <summary>
+> +##	Domain allowed to transition.
+> +## </summary>
+> +## </param>
+> +#
+> +interface(`httpd_apcupsd_cgi_script_domtrans',`
+> +	gen_require(`
+> +		type httpd_apcupsd_cgi_script_t, httpd_apcupsd_cgi_script_exec_t;
+> +	')
+> +
+> +	domain_auto_trans($1,httpd_apcupsd_cgi_script_exec_t,httpd_apcupsd_cgi_script_t)
+> +
+> +	allow httpd_apcupsd_cgi_script_t $1:fd use;
+> +	allow httpd_apcupsd_cgi_script_t $1:fifo_file rw_file_perms;
+> +	allow httpd_apcupsd_cgi_script_t $1:process sigchld;
+> +')
+> --- nsaserefpolicy/policy/modules/services/apcupsd.te	1969-12-31 19:00:00.000000000 -0500
+> +++ serefpolicy-2.5.12/policy/modules/services/apcupsd.te	2007-04-12 15:16:19.000000000 -0400
+> @@ -0,0 +1,91 @@
+> +policy_module(apcupsd,1.0.0)
+> +
+> +########################################
+> +#
+> +# Declarations
+> +#
+> +
+> +type apcupsd_t;
+> +type apcupsd_exec_t;
+> +domain_type(apcupsd_t)
+> +init_daemon_domain(apcupsd_t, apcupsd_exec_t)
+> +
+> +type apcupsd_lock_t;
+> +files_lock_file(apcupsd_lock_t)
+> +
+> +type apcupsd_log_t;
+> +logging_log_file(apcupsd_log_t)
+> +
+> +type apcupsd_var_run_t;
+> +files_pid_file(apcupsd_var_run_t)
+> +
+> +########################################
+> +#
+> +# apcupsd local policy
+> +#
+> +
+> +# Init script handling
+> +init_use_fds(apcupsd_t)
+> +init_use_script_ptys(apcupsd_t)
+> +domain_use_interactive_fds(apcupsd_t)
+> +
+> +allow apcupsd_t self:fifo_file rw_file_perms;
+> +allow apcupsd_t self:unix_stream_socket create_stream_socket_perms;
+> +allow apcupsd_t self:tcp_socket create_stream_socket_perms;
+> +
+> +corenet_tcp_bind_apcupsd_port(apcupsd_t)
+> +corenet_tcp_bind_all_nodes(apcupsd_t)
+> +corenet_tcp_sendrecv_generic_if(apcupsd_t)
+> +corenet_tcp_sendrecv_all_nodes(apcupsd_t)
+> +corenet_tcp_sendrecv_all_ports(apcupsd_t)
+> +
+> +dev_rw_generic_usb_dev(apcupsd_t)
+> +
+> +files_read_etc_files(apcupsd_t)
+> +files_search_locks(apcupsd_t)
+> +
+> +libs_use_ld_so(apcupsd_t)
+> +libs_use_shared_libs(apcupsd_t)
+> +
+> +miscfiles_read_localization(apcupsd_t)
+> +
+> +ifdef(`targeted_policy',`
+> +	term_dontaudit_use_unallocated_ttys(apcupsd_t)
+> +	term_dontaudit_use_generic_ptys(apcupsd_t)
+> +')
+> +
+> +allow apcupsd_t apcupsd_lock_t:file manage_file_perms;
+> +files_lock_filetrans(apcupsd_t,apcupsd_lock_t,file)
+> +
+> +allow apcupsd_t apcupsd_log_t:file manage_file_perms;
+> +allow apcupsd_t apcupsd_log_t:dir { rw_dir_perms setattr };
+> +logging_log_filetrans(apcupsd_t,apcupsd_log_t,{ file dir })
+> +
+> +allow apcupsd_t apcupsd_var_run_t:file manage_file_perms;
+> +allow apcupsd_t apcupsd_var_run_t:dir rw_dir_perms;
+> +files_pid_filetrans(apcupsd_t,apcupsd_var_run_t, file)
+> +
+> +logging_send_syslog_msg(apcupsd_t)
+> +
+> +########################################
+> +#
+> +# apcupsd_cgi Declarations
+> +#
+> +
+> +apache_content_template(apcupsd_cgi)
+> +
+> +# Default Networking
+> +sysnet_dns_name_resolve(httpd_apcupsd_cgi_script_t)
+> +corenet_non_ipsec_sendrecv(httpd_apcupsd_cgi_script_t)
+> +
+> +allow httpd_apcupsd_cgi_script_t self:tcp_socket create_stream_socket_perms;
+> +corenet_tcp_sendrecv_all_if(httpd_apcupsd_cgi_script_t)
+> +corenet_tcp_sendrecv_all_nodes(httpd_apcupsd_cgi_script_t)
+> +corenet_tcp_sendrecv_all_ports(httpd_apcupsd_cgi_script_t)
+> +corenet_tcp_connect_apcupsd_port(httpd_apcupsd_cgi_script_t)
+> +
+> +allow httpd_apcupsd_cgi_script_t self:udp_socket create_socket_perms;
+> +corenet_udp_sendrecv_all_if(httpd_apcupsd_cgi_script_t)
+> +corenet_udp_sendrecv_all_nodes(httpd_apcupsd_cgi_script_t)
+> +corenet_udp_sendrecv_all_ports(httpd_apcupsd_cgi_script_t)
+> +
 
-Christopher J. PeBenito wrote:
-> On Thu, 2007-04-19 at 11:08 -0400, Daniel J Walsh wrote:
->   
->> Added httpd_squid_script_t
->>
->> squid_conf_t can be a directory
->> Squid also needs additional ports to communicate with
->>
->> dovecot and snmp try to read squid files.  (Snuck in a couple of other
->> fixes for dovecot and snmp)
->>     
->
-> Merged except for the apache template, plus:
->
->   
->> +interface(`squid_dontaudit_search_squid_cache',`
->> +       gen_require(`
->> +               type squid_cache_t;
->> +       ')
->> +
->> +       dontaudit $1 squid_cache_t:dir search_dir_perms;
->> +')
->>     
->
-> Dropped the second squid in the name.
->
->   
->> --- nsaserefpolicy/policy/modules/services/snmp.te      2007-03-26 10:39:04.000000000 -0400
->> +++ serefpolicy-2.5.12/policy/modules/services/snmp.te  2007-04-11 17:07:34.000000000 -0400
->> @@ -134,6 +134,11 @@
->>  ')
->>  
->>  optional_policy(`
->> +       mta_read_config(snmpd_t)
->> +       mta_search_queue(snmpd_t)
->> +')
->>     
->
-> The second interface is missing.
->
->   
->>  optional_policy(`
->> +       sendmail_read_log(snmpd_t)
->> +')
->>     
->
-> This one is missing too.
->
->   
+Merged, except for the cgi part.  Also some reordering.  The apcupsd
+port definition was missing so I commented out the relevant lines for
+now.
 
-Ok here is an updated patch with the missing interfaces.
+-- 
+Chris PeBenito
+Tresys Technology, LLC
+(410) 290-1411 x150
 
-snmp is trying to execute sys_module, we are dontauditing
-
-Switched from using nis_use_ypbind to nsswitch, since snmp is using nsswitch
-
-Also sneaking in a fix for manage sendmail_log_t.
-
-
-
---------------090709080201050709010609
-Content-Type: text/x-patch;
- name="snmp.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="snmp.patch"
-
---- nsaserefpolicy/policy/modules/services/snmp.te	2007-05-07 10:32:44.000000000 -0400
-+++ serefpolicy-2.6.3/policy/modules/services/snmp.te	2007-05-07 10:36:03.000000000 -0400
-@@ -26,7 +26,7 @@
- # Local policy
- #
- allow snmpd_t self:capability { dac_override kill net_admin sys_nice sys_tty_config };
--dontaudit snmpd_t self:capability sys_tty_config;
-+dontaudit snmpd_t self:capability { sys_module sys_tty_config };
- allow snmpd_t self:fifo_file rw_fifo_file_perms;
- allow snmpd_t self:unix_dgram_socket create_socket_perms;
- allow snmpd_t self:unix_stream_socket create_stream_socket_perms;
-@@ -135,18 +135,19 @@
- 
- optional_policy(`
- 	mta_read_config(snmpd_t)
-+	mta_search_queue(snmpd_t)
- ')
- 
- optional_policy(`
--	nis_use_ypbind(snmpd_t)
-+	auth_use_nsswitch(snmpd_t)
- ')
- 
- optional_policy(`
--	nscd_socket_use(snmpd_t)
-+	rpc_search_nfs_state_data(snmpd_t)
- ')
- 
- optional_policy(`
--	rpc_search_nfs_state_data(snmpd_t)
-+	sendmail_read_log(snmpd_t)
- ')
- 
- optional_policy(`
---- nsaserefpolicy/policy/modules/services/mta.if	2007-03-26 10:39:04.000000000 -0400
-+++ serefpolicy-2.6.3/policy/modules/services/mta.if	2007-05-07 10:36:03.000000000 -0400
-@@ -847,6 +847,25 @@
- 	manage_files_pattern($1,mqueue_spool_t,mqueue_spool_t)
- ')
- 
-+########################################
-+## <summary>
-+##	search	mail queue dirs.
-+## </summary>
-+## <param name="domain">
-+##	<summary>
-+##	Domain allowed access.
-+##	</summary>
-+## </param>
-+#
-+interface(`mta_search_queue',`
-+	gen_require(`
-+		type mqueue_spool_t;
-+	')
-+
-+	files_search_spool($1)
-+	allow $1 mqueue_spool_t:dir search_dir_perms;
-+')
-+
- #######################################
- ## <summary>
- ##	Read sendmail binary.
---- nsaserefpolicy/policy/modules/services/sendmail.if	2006-11-16 17:15:21.000000000 -0500
-+++ serefpolicy-2.6.3/policy/modules/services/sendmail.if	2007-05-07 10:36:03.000000000 -0400
-@@ -76,6 +76,26 @@
- 
- ########################################
- ## <summary>
-+##	read sendmail logs.
-+## </summary>
-+## <param name="domain">
-+##	<summary>
-+##	Domain allowed access.
-+##	</summary>
-+## </param>
-+## <rolecap/>
-+#
-+interface(`sendmail_read_log',`
-+	gen_require(`
-+		type sendmail_log_t;
-+	')
-+
-+	logging_search_logs($1)
-+	read_files_pattern($1, sendmail_log_t, sendmail_log_t)
-+')
-+
-+########################################
-+## <summary>
- ##	Create, read, write, and delete sendmail logs.
- ## </summary>
- ## <param name="domain">
-@@ -91,7 +111,7 @@
- 	')
- 
- 	logging_search_logs($1)
--	allow $1 sendmail_log_t:file manage_file_perms;
-+	manage_files_pattern($1, sendmail_log_t, sendmail_log_t)
- ')
- 
- ########################################
-
---------------090709080201050709010609--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
