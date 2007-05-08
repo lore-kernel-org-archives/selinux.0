@@ -3,49 +3,40 @@ From: Stephen Smalley <sds@tycho.nsa.gov>
 To: Christoph Hellwig <hch@infradead.org>
 Cc: Eric Paris <eparis@redhat.com>, nfs@lists.sourceforge.net,
         selinux@tycho.nsa.gov, James Morris <jmorris@namei.org>
-In-Reply-To: <20070508094120.GA11417@infradead.org>
+In-Reply-To: <20070508121406.GA16701@infradead.org>
 References: <1178560513.3898.32.camel@dhcp59-235.rdu.redhat.com>
 	 <20070508094120.GA11417@infradead.org>
+	 <1178626229.10325.155.camel@moss-spartans.epoch.ncsc.mil>
+	 <20070508121406.GA16701@infradead.org>
 Content-Type: text/plain
-Date: Tue, 08 May 2007 08:10:29 -0400
-Message-Id: <1178626229.10325.155.camel@moss-spartans.epoch.ncsc.mil>
+Date: Tue, 08 May 2007 09:01:06 -0400
+Message-Id: <1178629266.6056.35.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2007-05-08 at 10:41 +0100, Christoph Hellwig wrote:
-> On Mon, May 07, 2007 at 01:55:13PM -0400, Eric Paris wrote:
-> > When selinux attempts to do its part of mounting a new FS it checks the
-> > mount data for selinux context information.  For most FS's this is a
-> > text string but for NFS this is a data blob (struct nfs_mount_data)
-> > Version 6 and later of this struct have a context field which selinux
-> > can use to pass context information from userspace to where it is used
-> > by selinux (security/selinux/hooks.c:try_context_mount())
+On Tue, 2007-05-08 at 13:14 +0100, Christoph Hellwig wrote:
+> On Tue, May 08, 2007 at 08:10:29AM -0400, Stephen Smalley wrote:
+> > The context= mount support in selinux already deals with ascii mount
+> > options; it is only the binary ones that need special handling.  And
+> > this isn't new functionality in selinux - it went upstream in 2004.
+> > Eric's patch is just fixing this corner case, not introducing new
+> > functionality.
 > 
-> selinux has no business sniffing mount data at all, so the proper fix
-> is to remove this code entirely.  If selinux wants to have it's own
-> mount options it needs either:
-> 
->  - get a mount option at the vfs level.  These are only bit flags, so
->    it's probably not useful for what selinux is currently doing
->  - hook into every filesystem, which is the part of the kernel controlling
->    the text (or in a few cases binary) options.
-> 
-> > The code in try_context_mount then casts the data to a struct
-> > nfs_mount_data.
-> 
-> Note that this will soon stop to work completely because nfs is moving
-> towards proper ascii mount options.
+> It's still conceptually broken.  Names for ascii mount options are
+> the filesystems business, and context= is a perfectly fine name for
+> the file systems to use.  This kind of half-assed aspect oriented
+> programming using the LSM hooks is a completely nightmare because
+> it breaks this concept of a central registry of mount options valid
+> for a filesystem.
 
-The context= mount support in selinux already deals with ascii mount
-options; it is only the binary ones that need special handling.  And
-this isn't new functionality in selinux - it went upstream in 2004.
-Eric's patch is just fixing this corner case, not introducing new
-functionality.
-
-http://marc.info/?l=git-commits-head&m=107695907809907&w=2
-http://marc.info/?l=git-commits-head&m=107695907911284&w=2
-http://marc.info/?l=git-commits-head&m=107695950928758&w=2
+Is it really better to modify all the filesystems to support a context=
+mount option, particularly when they in turn just have to call into the
+security module to do anything with that option?  It is somewhat similar
+to the vfs fallbacks for *xattr for security attributes, which likewise
+isn't entirely nice to look at, but seems better than patching all the
+filesystems when the goal is to provide uniform interface across them
+all and the security module has to do all of the real work anyway.
 
 -- 
 Stephen Smalley
