@@ -1,100 +1,138 @@
 Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l49LPVBa015428
-	for <selinux@tycho.nsa.gov>; Wed, 9 May 2007 17:25:31 -0400
-Received: from mx1.redhat.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l49LPUoo011854
-	for <selinux@tycho.nsa.gov>; Wed, 9 May 2007 21:25:30 GMT
-Received: from int-mx1.corp.redhat.com (int-mx1.corp.redhat.com [172.16.52.254])
-	by mx1.redhat.com (8.13.1/8.13.1) with ESMTP id l49LNQhx027284
-	for <selinux@tycho.nsa.gov>; Wed, 9 May 2007 17:23:26 -0400
-Received: from pobox-2.corp.redhat.com (pobox-2.corp.redhat.com [10.11.255.15])
-	by int-mx1.corp.redhat.com (8.13.1/8.13.1) with ESMTP id l49LNPDY029311
-	for <selinux@tycho.nsa.gov>; Wed, 9 May 2007 17:23:25 -0400
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Subject: [PATCH] Convert sepol_list_del to void return
-Message-Id: <63fcfe6bf3ffc49cf83b.1178745281@localhost.localdomain>
-Date: Wed, 09 May 2007 17:14:41 -0400
-From: Karl MacMillan <kmacmillan@mentalrootkit.com>
-To: selinux@tycho.nsa.gov
-Cc: kmacmill@redhat.com
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l49MkTAt019493
+	for <selinux@tycho.nsa.gov>; Wed, 9 May 2007 18:46:29 -0400
+Received: from exchange.columbia.tresys.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with SMTP id l49MkRTv020664
+	for <selinux@tycho.nsa.gov>; Wed, 9 May 2007 22:46:27 GMT
+Subject: Re: [PATCH] Basic policy representation
+From: "J. Tang" <jtang@tresys.com>
+To: Karl MacMillan <kmacmillan@mentalrootkit.com>
+Cc: selinux <selinux@tycho.nsa.gov>
+In-Reply-To: <1178738540.2951.16.camel@localhost.localdomain>
+References: <bd4ee6e00a634ac9157f.1178575607@localhost.localdomain>
+	 <1178735753.5665.38.camel@localhost.localdomain>
+	 <1178738540.2951.16.camel@localhost.localdomain>
+Content-Type: text/plain
+Date: Wed, 09 May 2007 18:46:58 -0400
+Message-Id: <1178750819.5665.100.camel@localhost.localdomain>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Convert sepol_list_del to void return. There is no possibility of error after
-converting the free functions to always return void.
+On Wed, 2007-05-09 at 15:22 -0400, Karl MacMillan wrote: 
+> > 1. What about aliases for categories and levels?
+> Not certain what you are asking.
 
-Signed-off-by: User "Karl MacMillan <kmacmillan@mentalrootkit.com>"
----
+Categories and levels can have aliases.  Is this addressed?
 
-4 files changed, 5 insertions(+), 8 deletions(-)
-libsepol/include/sepol/list.h |    3 +--
-libsepol/src/list.c           |    4 +---
-libsepol/src/objset.c         |    3 ++-
-libsepol/tests/test-list.c    |    3 +--
+> Requires are going to be removed entirely - I thought that this had 
 
+Current modules have requirements.  If it is true that policyrep must be
+able to accept all existing policies, then there must be some way to
+represent module requirements.
 
-diff -r c41d53f65490 -r 63fcfe6bf3ff libsepol/include/sepol/list.h
---- a/libsepol/include/sepol/list.h	Wed May 09 16:20:11 2007 -0400
-+++ b/libsepol/include/sepol/list.h	Wed May 09 17:13:42 2007 -0400
-@@ -199,8 +199,7 @@ extern int sepol_list_pop_back(struct se
-  *
-  * \retval SEPOL_OK success
-  */
--extern int sepol_list_del(struct sepol_handle *h, struct sepol_list *list,
--			  struct sepol_iter *iter);
-+extern void sepol_list_del(struct sepol_list *list, struct sepol_iter *iter);
- 
- /**
-  * \ingroup libsepol_list
-diff -r c41d53f65490 -r 63fcfe6bf3ff libsepol/src/list.c
---- a/libsepol/src/list.c	Wed May 09 16:20:11 2007 -0400
-+++ b/libsepol/src/list.c	Wed May 09 17:13:42 2007 -0400
-@@ -278,8 +278,7 @@ int sepol_list_pop_back(struct sepol_han
- }
- 
- 
--int sepol_list_del(struct sepol_handle *h, struct sepol_list *list,
--		   struct sepol_iter *iter)
-+void sepol_list_del(struct sepol_list *list, struct sepol_iter *iter)
- {
- 	struct sepol_list_item *cur;
- 
-@@ -306,7 +305,6 @@ out:
- 	free(cur);
- 	list->len--;
- 	sepol_iter_set_state(iter, NULL);
--	return SEPOL_OK;
- }
- 
- static int sepol_list_next(struct sepol_handle *h, struct sepol_iter *iter)
-diff -r c41d53f65490 -r 63fcfe6bf3ff libsepol/src/objset.c
---- a/libsepol/src/objset.c	Wed May 09 16:20:11 2007 -0400
-+++ b/libsepol/src/objset.c	Wed May 09 17:13:42 2007 -0400
-@@ -127,8 +127,9 @@ int sepol_objset_del(struct sepol_handle
- 	ret = sepol_objset_seek(h, s, &iter, obj);
- 	switch (ret) {
- 	case SEPOL_EEXIST:
--		ret = sepol_list_del(h, s->objs, iter);
-+		sepol_list_del(s->objs, iter);
- 		sepol_iter_free(iter);
-+		ret = SEPOL_OK;
- 		break;
- 	case SEPOL_ENOENT:
- 		sepol_iter_free(iter);
-diff -r c41d53f65490 -r 63fcfe6bf3ff libsepol/tests/test-list.c
---- a/libsepol/tests/test-list.c	Wed May 09 16:20:11 2007 -0400
-+++ b/libsepol/tests/test-list.c	Wed May 09 17:13:42 2007 -0400
-@@ -143,8 +143,7 @@ static void test_list(void)
- 			CU_ASSERT(ret == SEPOL_OK);
- 			ret = sepol_iter_next(h, iter);
- 			CU_ASSERT(ret == SEPOL_OK);
--			ret = sepol_list_del(h, list, iter2);
--			CU_ASSERT(ret == SEPOL_OK);
-+			sepol_list_del(list, iter2);
- 			i++;
- 			continue;
- 		}
+> No - permissions will just be strings. There must be some
+> misunderstanding as this question makes no sense to me.
+
+Does this mean:
+
+  allow A B : C d;
+  allow x y : z d;
+
+will have two instances within memory of the string "d"?
+
+> > For each
+> > string lookup, is there a linear search through all sepol_objects to
+> > find a sepol_object whose sepol_typeid is SEPOL_TYPEID_ATTRIBUTE or
+> > SEPOL_TYPEID_TYPE, and whose sepol_objpool's name matches the
+> string?
+> At least for the initial search, yes.
+
+This does not seem correct.  Given the following:
+
+optional {
+  typealias a alias b;
+}
+
+optional {
+  type a;
+  allow a x : y z;  # type x is never declared anywhere
+}
+
+It appears that the proposed algorithm will incorrectly mark the first
+optional's requirements as being met.
+
+> > Do SEPOL_TYPEID_TYPEALIAS objects represent the statement:
+> >  typealias lib_t alias shlib_t;
+> Yes.
+> > or just the symbol shlib_t?
+> It stores both.
+
+In the statement:
+
+  type A alias {B C D E F};
+
+will this create five instances of a SEPOL_TYPEID_TYPEALIAS or just one?
+
+> There is no way to easily track the level in the tree without seeing
+> both the opening and closing of a parent - hence the hybrid traversal
+> strategy. I think that information is generally useful.
+
+Why does a public user of this API need to track levels?  If a user
+really wanted to know at what level a node is, he could always walk up
+the tree by way of the node's parent.
+
+> > > +extern int sepol_module_create_tree(struct sepol_handle *h,
+> > > +				    struct sepol_module **module,
+> > > +				    struct sepol_parent *root);
+> > What does the second parameter represent?  A list of sepol_module
+> > pointers, an out parameter to a sepol_module, or something else?
+> Out parameter - just liked every other create function.
+
+Function prototypes such as these may be difficult to wrap via SWIG.
+
+> +const char *sepol_typeid_tostring(int typeid)
+
+Should not this take an enum sepol_typeid instead?
+
+> +uint32_t sepol_object_get_typeid(struct sepol_object *o)
+
+Why does this return a uint32_t, sepol_typeid_tostring() take a signed
+integer, and type identifiers are declared as an enumeration?
+
+> +char sepol_object_isinstance(struct sepol_object *o, uint32_t typeid)
+
+Ibid.
+
+> +int sepol_object_tostring(struct sepol_handle *h, struct sepol_object
+*o,
+> +			  int style, char **str)
+
+Should not the third parameter be of type enum sepol_tostring_style?
+
+It would be convenient if the debugging style were to report line
+numbers and the name of the module from which the object originated.
+Where within the proposed design are line numbers and filenames stored?
+
+> + * Insert a child object into the list of children for the
+> + * sepol_parent. See sepol_list_insert for more information on the
+> + * semantics of this insert.
+> + *
+> + * @param h sepol_handle (may be NULL)
+> + * @param p sepol_parent to which to insert child object
+> + * @param iter iterator representing the position to insert the child
+object
+> + * @param o child object to insert
+
+It is unclear by the given documentation if the given iterator should
+point to the parent or to a location within the parent node's children.
+
+Where within the proposed design are order dependent statements
+recorded?  Given the string MLS level "a:b.c", how are the actual
+categories determined?
+
+-- 
+Jason Tang / jtang@tresys.com
 
 --
 This message was distributed to subscribers of the selinux mailing list.
