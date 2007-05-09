@@ -1,73 +1,49 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l49E4gae024671
-	for <selinux@tycho.nsa.gov>; Wed, 9 May 2007 10:04:43 -0400
-Received: from mx1.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id l49E4aAb029534
-	for <selinux@tycho.nsa.gov>; Wed, 9 May 2007 14:04:37 GMT
-Subject: Re: [PATCH] Basic policy representation
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l49EERnC025099
+	for <selinux@tycho.nsa.gov>; Wed, 9 May 2007 10:14:27 -0400
+Received: from mx1.redhat.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l49EDnNF014523
+	for <selinux@tycho.nsa.gov>; Wed, 9 May 2007 14:13:49 GMT
+Received: from int-mx1.corp.redhat.com (int-mx1.corp.redhat.com [172.16.52.254])
+	by mx1.redhat.com (8.13.1/8.13.1) with ESMTP id l49EDPPM004778
+	for <selinux@tycho.nsa.gov>; Wed, 9 May 2007 10:13:25 -0400
+Received: from pobox-2.corp.redhat.com (pobox-2.corp.redhat.com [10.11.255.15])
+	by int-mx1.corp.redhat.com (8.13.1/8.13.1) with ESMTP id l49EDPbw016618
+	for <selinux@tycho.nsa.gov>; Wed, 9 May 2007 10:13:25 -0400
+Received: from [10.11.14.127] (vpn-14-127.rdu.redhat.com [10.11.14.127])
+	by pobox-2.corp.redhat.com (8.13.1/8.13.1) with ESMTP id l49EDPrM005794
+	for <selinux@tycho.nsa.gov>; Wed, 9 May 2007 10:13:25 -0400
+Subject: Re: policyrep questions
 From: Karl MacMillan <kmacmillan@mentalrootkit.com>
-To: Brian Pomerantz <bapper@piratehaven.org>
-Cc: selinux@tycho.nsa.gov
-In-Reply-To: <1178653280.3155.6.camel@localhost.localdomain>
-References: <bd4ee6e00a634ac9157f.1178575607@localhost.localdomain>
-	 <46408CF6.1050409@manicmethod.com>
-	 <1178636917.25354.28.camel@localhost.localdomain>
-	 <46409BB6.7040500@manicmethod.com>
-	 <1178640671.25354.49.camel@localhost.localdomain>
-	 <20070508164741.GA29479@skull.piratehaven.org>
-	 <1178653280.3155.6.camel@localhost.localdomain>
+To: SE Linux <selinux@tycho.nsa.gov>
+In-Reply-To: <1178663380.2379.11.camel@localhost.localdomain>
+References: <1178663380.2379.11.camel@localhost.localdomain>
 Content-Type: text/plain
-Date: Wed, 09 May 2007 10:03:30 -0400
-Message-Id: <1178719410.2379.32.camel@localhost.localdomain>
+Date: Wed, 09 May 2007 10:13:25 -0400
+Message-Id: <1178720005.2379.37.camel@localhost.localdomain>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2007-05-08 at 15:41 -0400, Karl MacMillan wrote:
-> On Tue, 2007-05-08 at 09:47 -0700, Brian Pomerantz wrote:
-> > On Tue, May 08, 2007 at 12:11:11PM -0400, Karl MacMillan wrote:
-> > > On Tue, 2007-05-08 at 11:48 -0400, Joshua Brindle wrote:
-> > > > Karl MacMillan wrote:
-> > > > > On Tue, 2007-05-08 at 10:45 -0400, Joshua Brindle wrote:
-> > > > >   
-> > > > >> Karl MacMillan wrote:
-> > <snip>
-> > > > >> is it really necessary to use a char here? granted its smaller but it 
-> > > > >> also doesn't really convey to someone new to the code what is going on. 
-> > > > >> Perhaps a bool typemap? or short int?
-> > > > >>
-> > > > >>     
-> > > > >
-> > > > > Char isn't necessary, though I think it is a common idiom to use char as
-> > > > > boolean in C programs. What do you mean by typemap (typedef?). I don't
-> > > > > really think that short int is any better.
-> > > > >
-> > > > >   
-> > > > 
-> > > > oops, I meant typedef.
-> > > > 
-> > > 
-> > > I've worked on codebases with and without boolean typedefs and
-> > > personally prefer to not have a typedef. Any other opinions?
-> > > 
-> > 
-> > Using the standard *nix form of returning int is always safe and
-> > consistent.
-> > 
+On Tue, 2007-05-08 at 18:29 -0400, Karl MacMillan wrote:
 > 
-> I actually prefer returning char instead - to me that is a common way to
-> indicate that the returned value has a limited range of values (2 in
-> this case). But maybe that is just the code bases I've worked on. I
-> don't care either way - this seems like a bike shed discussion . . .
+> 3) The existing objects copy the passed in strings where I was hoping to
+> avoid the copy. Any opinions either way? I'm currently leaning towards
+> copying because that kind of change will create hard to track down bugs
+> for no good reason.
 > 
 
-On the other hand, the existing code (for things like sepol_bool) uses
-int for boolean values. So I'll change to using int everywhere.
-Ahh . . . the bike shed looks much nicer painted blue rather than green.
+To make things more confusing - some of the existing code copies strings
+while others do not. For example sepol_bool_set_name copies the string
+while sepol_bool_key_create does not. I assume that the thought was that
+the keys were temporary and likely to be populated from other sources
+(existing bools, user input, etc.).
+
+However - I think that this inconsistency is just confusing. I'm going
+to change all of the functions to copy the strings. Changing in this
+direction means the worst case is that a few strings will be leaked.
 
 Karl
-
-
 
 
 --
