@@ -1,199 +1,301 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l49NR0k9021133
-	for <selinux@tycho.nsa.gov>; Wed, 9 May 2007 19:27:00 -0400
-Received: from mx1.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id l49NQwE8010550
-	for <selinux@tycho.nsa.gov>; Wed, 9 May 2007 23:26:59 GMT
-Subject: Re: [PATCH] Basic policy representation
-From: Karl MacMillan <kmacmillan@mentalrootkit.com>
-To: "J. Tang" <jtang@tresys.com>
-Cc: selinux <selinux@tycho.nsa.gov>
-In-Reply-To: <1178750819.5665.100.camel@localhost.localdomain>
-References: <bd4ee6e00a634ac9157f.1178575607@localhost.localdomain>
-	 <1178735753.5665.38.camel@localhost.localdomain>
-	 <1178738540.2951.16.camel@localhost.localdomain>
-	 <1178750819.5665.100.camel@localhost.localdomain>
-Content-Type: text/plain
-Date: Wed, 09 May 2007 19:26:57 -0400
-Message-Id: <1178753217.21282.12.camel@localhost.localdomain>
+Date: Thu, 10 May 2007 18:12:18 +0900
+From: Yuichi Nakamura <ynakam@hitachisoft.jp>
+To: Stephen Smalley <sds@tycho.nsa.gov>
+Cc: ynakam@hitachisoft.jp, selinux@tycho.nsa.gov, busybox@kaigai.gr.jp,
+        Karl MacMillan <kmacmillan@mentalrootkit.com>,
+        Joshua Brindle <method@manicmethod.com>
+Subject: Ver3(Re: [patch] reducing size of libselinux(ver 2)
+Message-Id: <20070510181218.0499cd05.ynakam@hitachisoft.jp>
+In-Reply-To: <1178738679.3504.25.camel@moss-spartans.epoch.ncsc.mil>
+References: <20070507133423.3bd2463a.ynakam@hitachisoft.jp>
+	<1178738679.3504.25.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2007-05-09 at 18:46 -0400, J. Tang wrote:
-> On Wed, 2007-05-09 at 15:22 -0400, Karl MacMillan wrote: 
-> > > 1. What about aliases for categories and levels?
-> > Not certain what you are asking.
-> 
-> Categories and levels can have aliases.  Is this addressed?
-> 
+Thank you for review and idea !
 
-Not yet.
+On Wed, 09 May 2007 15:24:39 -0400
+Stephen Smalley wrote:
+<snip>
+> Remove the fixed dependency on libsepol from libselinux by
+> having it use dlopen() and friends and provide graceful fallbacks
+> in the absence of libsepol.
+<snip>
+> -	if (vers > kernvers) {
+> +	if (vers > kernvers && policydb_to_image) {
+Here, 
+I think policydb_to_image is not so good to indicate whether libsepol is used or not. 
+I think  it is better to prepare flag that indicates whether libsepol functions are used or not.
+I prepared "int usesepol" flag to indicate whether libsepol functions are used or not.
+Please see new patch.
 
-> > Requires are going to be removed entirely - I thought that this had 
-> 
-> Current modules have requirements.  If it is true that policyrep must be
-> able to accept all existing policies, then there must be some way to
-> represent module requirements.
-> 
+> -	vers = vers_max();
+> -	minvers = vers_min();
+> +	if (vers_max)
+> +		vers = vers_max();
+> +	if (vers_min)
+> +		minvers = vers_min();
+I think we can write
+if (usesepol){
+	vers = vers_max();
+	minvers = vers_min();
+}
 
-I don't see why - the import function will just create the bare rules
-and declarations and the normal resolution functions can work. The
-requirements would just be thrown out.
+And I cross-compiled your code with your patch in my ARM environment, and 
+load_policy in poilcycoreutils worked in my ARM device: 
+* /selinux/policyvers -> 20
+* /etc/selinux/policy/policy.19 exists
+then policy.19 was loaded successfully.
 
-> > No - permissions will just be strings. There must be some
-> > misunderstanding as this question makes no sense to me.
-> 
-> Does this mean:
-> 
->   allow A B : C d;
->   allow x y : z d;
-> 
-> will have two instances within memory of the string "d"?
-> 
+Regards,
+-- 
+Yuichi Nakamura
+Hitachi Software Engineering Co., Ltd.
+Japan SELinux Users Group(JSELUG)
+SELinux Policy Editor: http://seedit.sourceforge.net/
 
-Perhaps - it depends on whether there is a string pool at the root of
-the tree the object is in. If there is a string pool, however, there
-will only be one instance.
+Below is patch version 3.
 
-> > > For each
-> > > string lookup, is there a linear search through all sepol_objects to
-> > > find a sepol_object whose sepol_typeid is SEPOL_TYPEID_ATTRIBUTE or
-> > > SEPOL_TYPEID_TYPE, and whose sepol_objpool's name matches the
-> > string?
-> > At least for the initial search, yes.
-> 
-> This does not seem correct.  Given the following:
-> 
-> optional {
->   typealias a alias b;
-> }
-> 
-> optional {
->   type a;
->   allow a x : y z;  # type x is never declared anywhere
-> }
-> 
-> It appears that the proposed algorithm will incorrectly mark the first
-> optional's requirements as being met.
-> 
-
-What makes you conclude that? The algorithm will still have to correctly
-resolve dependencies - there is nothing about the tree structure
-preventing that.
-
-> > > Do SEPOL_TYPEID_TYPEALIAS objects represent the statement:
-> > >  typealias lib_t alias shlib_t;
-> > Yes.
-> > > or just the symbol shlib_t?
-> > It stores both.
-> 
-> In the statement:
-> 
->   type A alias {B C D E F};
-> 
-> will this create five instances of a SEPOL_TYPEID_TYPEALIAS or just one?
-> 
-
-The code I posted for comments would create 0 - you would just have a
-type declaration. The goal is to represent the policy in the same
-structure as the source - it helps for policy generation.
-
-> > There is no way to easily track the level in the tree without seeing
-> > both the opening and closing of a parent - hence the hybrid traversal
-> > strategy. I think that information is generally useful.
-> 
-> Why does a public user of this API need to track levels?  If a user
-> really wanted to know at what level a node is, he could always walk up
-> the tree by way of the node's parent.
-> 
-
-If you want to print out the tree structure you need this. Is there some
-reason to not export this?
-
-> > > > +extern int sepol_module_create_tree(struct sepol_handle *h,
-> > > > +				    struct sepol_module **module,
-> > > > +				    struct sepol_parent *root);
-> > > What does the second parameter represent?  A list of sepol_module
-> > > pointers, an out parameter to a sepol_module, or something else?
-> > Out parameter - just liked every other create function.
-> 
-> Function prototypes such as these may be difficult to wrap via SWIG.
-> 
-
-Why? What is going to be harder is to always convert sepol_object and
-sepol_parent to the most specific type when returned I think. That and
-mapping the iterators to python iterators.
-
-I'm considering wrapping by hand if it will make the python code more
-idiomatic.
-
-> > +const char *sepol_typeid_tostring(int typeid)
-> 
-> Should not this take an enum sepol_typeid instead?
-> 
-
-Yes.
-
-> > +uint32_t sepol_object_get_typeid(struct sepol_object *o)
-> 
-> Why does this return a uint32_t, sepol_typeid_tostring() take a signed
-> integer, and type identifiers are declared as an enumeration?
-> 
-
-Because they will end up being serialized and sent over the wire. This
-function will make certain that the ids can be represented as a uint32
-if necessary.
-
-> > +char sepol_object_isinstance(struct sepol_object *o, uint32_t typeid)
-> 
-> Ibid.
-> 
-
-Changed.
-
-> > +int sepol_object_tostring(struct sepol_handle *h, struct sepol_object
-> *o,
-> > +			  int style, char **str)
-> 
-> Should not the third parameter be of type enum sepol_tostring_style?
-> 
-
-Changed.
-
-> It would be convenient if the debugging style were to report line
-> numbers and the name of the module from which the object originated.
-> Where within the proposed design are line numbers and filenames stored?
-> 
-
-Nowhere yet - send patches.
-
-> > + * Insert a child object into the list of children for the
-> > + * sepol_parent. See sepol_list_insert for more information on the
-> > + * semantics of this insert.
-> > + *
-> > + * @param h sepol_handle (may be NULL)
-> > + * @param p sepol_parent to which to insert child object
-> > + * @param iter iterator representing the position to insert the child
-> object
-> > + * @param o child object to insert
-> 
-> It is unclear by the given documentation if the given iterator should
-> point to the parent or to a location within the parent node's children.
-> 
-
-Point within parents list of children.
-
-> Where within the proposed design are order dependent statements
-> recorded?  Given the string MLS level "a:b.c", how are the actual
-> categories determined?
-> 
-
-I haven't finished the MLS portion - feel free to start on that if you
-want.
-
-Karl
-
+ Makefile      |   26 +++++++++++++-
+ load_policy.c |  102 ++++++++++++++++++++++++++++++++++++++++++++++++----------
+ policy.h      |    2 +
+ policyvers.c  |    2 -
+ 4 files changed, 110 insertions(+), 22 deletions(-)
+Index: policyrep/libselinux/src/policyvers.c
+===================================================================
+--- policyrep/libselinux/src/policyvers.c	(revision 2435)
++++ policyrep/libselinux/src/policyvers.c	(working copy)
+@@ -10,8 +10,6 @@
+ #include "dso.h"
+ #include <limits.h>
+ 
+-#define DEFAULT_POLICY_VERSION 15
+-
+ int security_policyvers(void)
+ {
+ 	int fd, ret;
+Index: policyrep/libselinux/src/policy.h
+===================================================================
+--- policyrep/libselinux/src/policy.h	(revision 2435)
++++ policyrep/libselinux/src/policy.h	(working copy)
+@@ -20,4 +20,6 @@
+ 
+ #define FILECONTEXTS "/etc/security/selinux/file_contexts"
+ 
++#define DEFAULT_POLICY_VERSION 15
++
+ #endif
+Index: policyrep/libselinux/src/Makefile
+===================================================================
+--- policyrep/libselinux/src/Makefile	(revision 2435)
++++ policyrep/libselinux/src/Makefile	(working copy)
+@@ -18,8 +18,28 @@
+ SWIGSO=_selinux.so
+ SWIGFILES=$(SWIGSO) selinux.py 
+ LIBSO=$(TARGET).$(LIBVERSION)
+-OBJS= $(patsubst %.c,%.o,$(filter-out $(SWIGCOUT),$(wildcard *.c))) 
+-LOBJS= $(patsubst %.c,%.lo,$(filter-out $(SWIGCOUT),$(wildcard *.c)))
++
++DISABLE_AVC ?= n
++DISABLE_BOOL ?= n
++
++ifeq ($(EMBEDDED),y)
++	override DISABLE_AVC=y
++	override DISABLE_BOOL=y
++endif
++
++SRCS=$(filter-out $(SWIGCOUT),$(wildcard *.c))
++ifeq ($(DISABLE_AVC),y)
++	UNUSED_SRCS=avc.c avc_internal.c avc_sidtab.c
++	SRCS= $(filter-out $(UNUSED_SRCS), $(filter-out $(SWIGCOUT),$(wildcard *.c)))
++endif
++ifeq ($(DISABLE_BOOL),y)
++	UNUSED_SRCS+=booleans.c
++
++	SRCS= $(filter-out $(UNUSED_SRCS), $(filter-out $(SWIGCOUT),$(wildcard *.c)))
++endif
++
++OBJS= $(patsubst %.c,%.o,$(SRCS))
++LOBJS= $(patsubst %.c,%.lo,$(SRCS))
+ CFLAGS ?= -Wall -W -Wundef -Wmissing-noreturn -Wmissing-format-attribute
+ override CFLAGS += -I../include -I$(INCLUDEDIR) -D_GNU_SOURCE -D_FILE_OFFSET_BITS=64
+ RANLIB=ranlib
+@@ -48,7 +68,7 @@
+ 	$(CC) $(LDFLAGS) -shared -o $@ $< -L. -lselinux -L$(LIBDIR) -Wl,-soname,$@
+ 
+ $(LIBSO): $(LOBJS)
+-	$(CC) $(LDFLAGS) -shared -o $@ $^ -ldl -lsepol -L$(LIBDIR) -Wl,-soname,$(LIBSO),-z,defs,-z,relro
++	$(CC) $(LDFLAGS) -shared -o $@ $^ -ldl -L$(LIBDIR) -Wl,-soname,$(LIBSO),-z,defs,-z,relro
+ 	ln -sf $@ $(TARGET) 
+ 
+ %.o:  %.c policy.h
+Index: policyrep/libselinux/src/load_policy.c
+===================================================================
+--- policyrep/libselinux/src/load_policy.c	(revision 2435)
++++ policyrep/libselinux/src/load_policy.c	(working copy)
+@@ -12,6 +12,7 @@
+ #include "selinux_internal.h"
+ #include <sepol/sepol.h>
+ #include <sepol/policydb.h>
++#include <dlfcn.h>
+ #include "policy.h"
+ #include <limits.h>
+ 
+@@ -41,8 +42,8 @@
+ 
+ int selinux_mkload_policy(void)
+ {
+-	int vers = sepol_policy_kern_vers_max();
+ 	int kernvers = security_policyvers();
++	int vers = kernvers, minvers = DEFAULT_POLICY_VERSION;
+ 	char path[PATH_MAX];
+ 	struct stat sb;
+ 	size_t size;
+@@ -50,20 +51,80 @@
+ 	int fd, rc = -1;
+ 	sepol_policydb_t *policydb;
+ 	sepol_policy_file_t *pf;
++	int usesepol = 0;
++	int (*vers_max)(void) = NULL;
++	int (*vers_min)(void) = NULL;
++	int (*policy_file_create)(sepol_policy_file_t **) = NULL;
++	void (*policy_file_free)(sepol_policy_file_t *) = NULL;
++	void (*policy_file_set_mem)(sepol_policy_file_t *, char*, size_t) = NULL;
++	int (*policydb_create)(sepol_policydb_t **) = NULL;
++	void (*policydb_free)(sepol_policydb_t *) = NULL;
++	int (*policydb_read)(sepol_policydb_t *, sepol_policy_file_t *) = NULL;
++	int (*policydb_set_vers)(sepol_policydb_t *, unsigned int) = NULL;
++	int (*policydb_to_image)(sepol_handle_t *, sepol_policydb_t *, void **, size_t *) = NULL;
++#ifdef SHARED
++	char *errormsg = NULL;
++	void *libsepolh = NULL;
++	libsepolh = dlopen("libsepol.so", RTLD_NOW);
++	if (libsepolh) {
++		usesepol = 1;
++		dlerror();
++#define DLERR() if ((errormsg = dlerror())) goto dlclose;
++		vers_max = dlsym(libsepolh, "sepol_policy_kern_vers_max");
++		DLERR();
++		vers_min = dlsym(libsepolh, "sepol_policy_kern_vers_min");
++		DLERR();
+ 
++		policy_file_create = dlsym(libsepolh, "sepol_policy_file_create");
++		DLERR();
++		policy_file_free = dlsym(libsepolh, "sepol_policy_file_free");
++		DLERR();
++		policy_file_set_mem = dlsym(libsepolh, "sepol_policy_file_set_mem");
++		DLERR();
++		policydb_create = dlsym(libsepolh, "sepol_policydb_create");
++		DLERR();
++		policydb_free = dlsym(libsepolh, "sepol_policydb_free");
++		DLERR();
++		policydb_read = dlsym(libsepolh, "sepol_policydb_read");
++		DLERR();
++		policydb_set_vers = dlsym(libsepolh, "sepol_policydb_set_vers");
++		DLERR();
++		policydb_to_image = dlsym(libsepolh, "sepol_policydb_to_image");
++		DLERR();
++#undef DLERR
++	}
++#else
++	usesepol = 1;
++	vers_max = sepol_policy_kern_vers_max;
++	vers_min = sepol_policy_kern_vers_min;
++	policy_file_create = sepol_policy_file_create;
++	policy_file_free = sepol_policy_file_free;
++	policy_file_set_mem = sepol_policy_file_set_mem;
++	policydb_create = sepol_policydb_create;
++	policydb_free = sepol_policydb_free;
++	policydb_read = sepol_policydb_read;
++	policydb_set_vers = sepol_policydb_set_vers;
++	policydb_to_image = sepol_policydb_to_image;
++#endif
++
++	if (usesepol) {
++		vers = vers_max();
++		minvers = vers_min();
++	}
++
+       search:
+ 	snprintf(path, sizeof(path), "%s.%d",
+ 		 selinux_binary_policy_path(), vers);
+ 	fd = open(path, O_RDONLY);
+ 	while (fd < 0 && errno == ENOENT
+-	       && --vers >= sepol_policy_kern_vers_min()) {
++	       && --vers >= minvers) {
+ 		/* Check prior versions to see if old policy is available */
+ 		snprintf(path, sizeof(path), "%s.%d",
+ 			 selinux_binary_policy_path(), vers);
+ 		fd = open(path, O_RDONLY);
+ 	}
+ 	if (fd < 0)
+-		return -1;
++		goto dlclose;
+ 
+ 	if (fstat(fd, &sb) < 0)
+ 		goto close;
+@@ -73,32 +134,32 @@
+ 	if (map == MAP_FAILED)
+ 		goto close;
+ 
+-	if (vers > kernvers) {
++	if (vers > kernvers && usesepol) {
+ 		/* Need to downgrade to kernel-supported version. */
+-		if (sepol_policy_file_create(&pf))
++		if (policy_file_create(&pf))
+ 			goto unmap;
+-		if (sepol_policydb_create(&policydb)) {
+-			sepol_policy_file_free(pf);
++		if (policydb_create(&policydb)) {
++			policy_file_free(pf);
+ 			goto unmap;
+ 		}
+-		sepol_policy_file_set_mem(pf, data, size);
+-		if (sepol_policydb_read(policydb, pf)) {
+-			sepol_policy_file_free(pf);
+-			sepol_policydb_free(policydb);
++		policy_file_set_mem(pf, data, size);
++		if (policydb_read(policydb, pf)) {
++			policy_file_free(pf);
++			policydb_free(policydb);
+ 			goto unmap;
+ 		}
+-		if (sepol_policydb_set_vers(policydb, kernvers) ||
+-		    sepol_policydb_to_image(NULL, policydb, &data, &size)) {
++		if (policydb_set_vers(policydb, kernvers) ||
++		    policydb_to_image(NULL, policydb, &data, &size)) {
+ 			/* Downgrade failed, keep searching. */
+-			sepol_policy_file_free(pf);
+-			sepol_policydb_free(policydb);
++			policy_file_free(pf);
++			policydb_free(policydb);
+ 			munmap(map, sb.st_size);
+ 			close(fd);
+ 			vers--;
+ 			goto search;
+ 		}
+-		sepol_policy_file_free(pf);
+-		sepol_policydb_free(policydb);
++		policy_file_free(pf);
++		policydb_free(policydb);
+ 	}
+ 
+ 	rc = security_load_policy(data, size);
+@@ -109,6 +170,13 @@
+ 	munmap(map, sb.st_size);
+       close:
+ 	close(fd);
++      dlclose:
++#ifdef SHARED
++	if (errormsg)
++		fprintf(stderr, "libsepol:  %s\n", errormsg);
++	if (libsepolh)
++		dlclose(libsepolh);
++#endif
+ 	return rc;
+ }
 
 --
 This message was distributed to subscribers of the selinux mailing list.
