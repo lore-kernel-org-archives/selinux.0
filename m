@@ -1,149 +1,79 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l4AK0Ipn015560
-	for <selinux@tycho.nsa.gov>; Thu, 10 May 2007 16:00:18 -0400
-Received: from mx1.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id l4AK0FUk028599
-	for <selinux@tycho.nsa.gov>; Thu, 10 May 2007 20:00:15 GMT
-Subject: Re: [PATCH] Basic policy representation
-From: Karl MacMillan <kmacmillan@mentalrootkit.com>
-To: "J. Tang" <jtang@tresys.com>
-Cc: selinux <selinux@tycho.nsa.gov>
-In-Reply-To: <1178826153.5665.125.camel@localhost.localdomain>
-References: <bd4ee6e00a634ac9157f.1178575607@localhost.localdomain>
-	 <1178735753.5665.38.camel@localhost.localdomain>
-	 <1178738540.2951.16.camel@localhost.localdomain>
-	 <1178750819.5665.100.camel@localhost.localdomain>
-	 <1178753217.21282.12.camel@localhost.localdomain>
-	 <1178826153.5665.125.camel@localhost.localdomain>
+Received: from [144.51.25.121] (moss-spartans [144.51.25.121])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id l4AKC2ua016184
+	for <selinux@tycho.nsa.gov>; Thu, 10 May 2007 16:12:02 -0400
+Subject: [RFC][PATCH] libselinux: Namespacing
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: selinux@tycho.nsa.gov
 Content-Type: text/plain
-Date: Thu, 10 May 2007 16:00:13 -0400
-Message-Id: <1178827213.24335.82.camel@localhost.localdomain>
+Date: Thu, 10 May 2007 16:12:02 -0400
+Message-Id: <1178827922.3504.141.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2007-05-10 at 15:42 -0400, J. Tang wrote:
-> On Wed, 2007-05-09 at 19:26 -0400, Karl MacMillan wrote:
-> > I don't see why - the import function will just create the bare rules
-> > and declarations and the normal resolution functions can work. The
-> > requirements would just be thrown out.
-> 
-> An existing module could have this:
-> 
-> optional o {
->   type A, B, C;  # type A is not used by this optional
->   allow B C: d e;
-> }
-> 
-> Within the proposed design, how is type A represented?  It is neither
-> used within a rule nor is it a definition.
+libselinux presently lacks proper namespacing of its functions.  This
+patch is just for comment on an approach to gradually fixing that
+problem, starting with just a trivial example for a single function.
+The idea is to switch over the real function to being properly
+namespaced, provide an alias under the old name in the symbol table for
+binary compatibility, and make the old name a macro in the public
+headers that expands to the new name so that source rebuilds against the
+new library will start using the new name.  Then at some point in the
+future, we drop the old name macro from the source API, forcing an
+update to external sources to build against newer headers, while leaving
+the alias present in the symbol table as long as we need compatibility
+with existing binaries.  Thoughts?
 
-Perhaps you mean (as the syntax above is not supported):
+Index: policyrep/libselinux/include/selinux/selinux.h
+===================================================================
+--- policyrep/libselinux/include/selinux/selinux.h	(revision 2435)
++++ policyrep/libselinux/include/selinux/selinux.h	(working copy)
+@@ -16,7 +16,8 @@
+ 	typedef char *security_context_t;
+ 
+ /* Free the memory allocated for a context by any of the below get* calls. */
+-	extern void freecon(security_context_t con);
++	extern void selinux_freecon(security_context_t con);
++#define freecon(c) selinux_freecon(c)
+ 
+ /* Free the memory allocated for a context array by security_compute_user. */
+ 	extern void freeconary(security_context_t * con);
+Index: policyrep/libselinux/src/freecon.c
+===================================================================
+--- policyrep/libselinux/src/freecon.c	(revision 2435)
++++ policyrep/libselinux/src/freecon.c	(working copy)
+@@ -3,9 +3,12 @@
+ #include <stdlib.h>
+ #include <errno.h>
+ 
+-void freecon(security_context_t con)
++void selinux_freecon(security_context_t con)
+ {
+ 	free(con);
+ }
+ 
+-hidden_def(freecon)
++asm(".symver selinux_freecon, freecon@@");
++
++hidden_def(selinux_freecon)
++
+Index: policyrep/libselinux/src/selinux_internal.h
+===================================================================
+--- policyrep/libselinux/src/selinux_internal.h	(revision 2435)
++++ policyrep/libselinux/src/selinux_internal.h	(working copy)
+@@ -24,7 +24,7 @@
+     hidden_proto(security_compute_relabel_raw)
+     hidden_proto(is_selinux_enabled)
+     hidden_proto(is_selinux_mls_enabled)
+-    hidden_proto(freecon)
++    hidden_proto(selinux_freecon)
+     hidden_proto(freeconary)
+     hidden_proto(getprevcon)
+     hidden_proto(getprevcon_raw)
 
-require {
-	type A, B, C;
-}
-
-Otherwise this is just a plain type declaration / definition (not
-certain there is a difference for types).
-
-So for the proposed design the require statement would be a no-op, while
-the type declarations would be represented by sepol_type objects.
-
->   It is a declaration, under
-> classic compiler terminology.  The given design does not seem to make a
-> distinction between declarations and definitions.
-> 
-
-Not certain there is a real differences - we basically have:
-
-1) type declarations - introduce a symbol into the type namespace (no
-difference between declaration and definition)
-2) type alias - introduce a alternative symbol into the type namespace
-(no difference between declaration and definition)
-3) attributes - here there is a distinction between the declaration and
-the distributed definition, but you could likely just remove the
-declaration.
-
-Regardless - what are you getting at? As far as I can see the tree
-structure can represent the required semantics correctly. I'm also
-confident that any shortcomings can be addressed by tweaks to the basic
-design I've proposed.
-
-It seems like you are obliquely hinting that there is an overall design
-problem. If so, please stop and just state any concerns you have about
-the design directly.
-
-> > >   allow A B : C d;
-> > >   allow x y : z d;
-> > Perhaps - it depends on whether there is a string pool at the root of
-> > the tree the object is in. If there is a string pool, however, there
-> > will only be one instance.
-> 
-> Here are three scenarios:
-> 
-> 1.  Both rules are declared unconditionally.  This is a monolithic
-> policy.
-> 
-> 2.  First allow rule is declared unconditonally, the second rule within
-> a conditional.  This is a monolithic policy.
-> 
-> 3.  The two rules are from different modules.  Their respective ASTs are
-> presumably joined during linking.
-> 
-> For which of these scenario(s) is there a string pool "at the root of
-> the tree the [rules are] in"?  If so, it holds that there is only one
-> instance of "d", and thus am I correct in saying that permissions are
-> indeed instances of sepol_objpools?
-> 
-
-For all cases there may or may not be a string pool at the root of the
-policy tree (sepol_policy).
-
-I don't know what else to say other than you need to read the patches
-more closely - you are not understanding the string pools. They are
-simply an optimization - everything in all of the objects can safely be
-assumed to simply be strings (or bools, or sets of strings, etc). You
-would never instantiate an sepol_objpool as a permission - it just
-doesn't make sense.
-
-> > > In the statement
-> > >   type A alias {B C D E F}
-> > > will this create five instances of a SEPOL_TYPEID_TYPEALIAS or just
-> > one?
-> > The code I posted for comments would create 0 - you would just have a
-> > type declaration. The goal is to represent the policy in the same
-> > structure as the source - it helps for policy generation.
-> 
-> Follow-up question: In the statement
-> 
->   typealias A alias {B C D E F};
-> 
-> will this create five instances of a SEPOL_TYPEID_TYPEALIAS or just one?
-
-Just one.
-
-> It is unclear by the supplied documentation what the intended behavior
-> is.
-> 
-
-Please read the code more closely - both the current patches and the old
-RFCs.
-
-> > If you want to print out the tree structure you need this. Is there
-> > some
-> > reason to not export this?
-> 
-> Why would not the user call sepol_object_tostring() from the topmost
-> node?
-> 
-
-The tostring functions only print a single node in the tree. To answer
-your more general question, though, they might want to do special
-formatting, export the nodes in some way, or any of a million other
-things. Again, why not export this?
-
-Karl
+-- 
+Stephen Smalley
+National Security Agency
 
 
 --
