@@ -1,54 +1,224 @@
-Subject: Re: Making Fedora a contributer friendly environment
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Karl MacMillan <kmacmill@redhat.com>
-Cc: Development discussions related to Fedora Core <fedora-devel-list@redhat.com>,
-        SE Linux <selinux@tycho.nsa.gov>
-In-Reply-To: <1178812160.24335.35.camel@localhost.localdomain>
-References: <1178291788.2702.10.camel@vorpal.macdev.com>
-	 <200705091725.58679.opensource@till.name>
-	 <1178805305.17816.29.camel@localhost.localdomain>
-	 <200705101650.50233.opensource@till.name>
-	 <1178812160.24335.35.camel@localhost.localdomain>
-Content-Type: text/plain
-Date: Thu, 10 May 2007 12:27:10 -0400
-Message-Id: <1178814430.3504.120.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l4AHj5Md007924
+	for <selinux@tycho.nsa.gov>; Thu, 10 May 2007 13:45:10 -0400
+Received: from mx2.redhat.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l4AHj1dn003215
+	for <selinux@tycho.nsa.gov>; Thu, 10 May 2007 17:45:02 GMT
+Received: from int-mx1.corp.redhat.com (int-mx1.corp.redhat.com [172.16.52.254])
+	by mx2.redhat.com (8.13.1/8.13.1) with ESMTP id l4AHhcAv000792
+	for <selinux@tycho.nsa.gov>; Thu, 10 May 2007 13:43:42 -0400
+Received: from pobox-2.corp.redhat.com (pobox-2.corp.redhat.com [10.11.255.15])
+	by int-mx1.corp.redhat.com (8.13.1/8.13.1) with ESMTP id l4AHhbPE007901
+	for <selinux@tycho.nsa.gov>; Thu, 10 May 2007 13:43:37 -0400
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Subject: [PATCH] Make sepol_iter_get_data return void
+Message-Id: <1d04713e6b39fcf695ed.1178819012@localhost.localdomain>
+Date: Thu, 10 May 2007 13:43:32 -0400
+From: Karl MacMillan <kmacmillan@mentalrootkit.com>
+To: selinux@tycho.nsa.gov
+Cc: kmacmill@redhat.com
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2007-05-10 at 11:49 -0400, Karl MacMillan wrote:
-> [CC'd the selinux development list so that the developers are aware of
-> these issues]
-> 
-> On Thu, 2007-05-10 at 16:50 +0200, Till Maas wrote:
-> > On Do Mai 10 2007, Karl MacMillan wrote:
-> > 
-> > > When selinux is turned on again a full relabel of the filesystem is done
-> > > to correct these problems. If the custom file context wasn't added to
-> > > the database of file contexts (via a module or semanage) the file is set
-> > > to the default label.
-> > 
-> > So will chcon in a scriptlet work, when an rpm is installed while selinux is 
-> > not active?
-> > 
-> 
-> Unfortunately it won't - does semanage / semodule work in this instance
-> (it probably should so that users can turn selinux back on after
-> disabling and doing package management).
+Make sepol_ter_get_data return void and always succeed. This
+is doable because implementors can push all errors into
+sepol_iter_next. Forcing this to always succeed simplifies
+many error paths.
 
-semodule works with selinux disabled (it won't load the resulting policy
-naturally, but it manipulates the policy store and regenerates the
-policy files appropriately, so they would be used when selinux is next
-enabled, and a relabel would happen at that time).  semanage has some
-dependencies on libselinux (e.g. is_selinux_mls_enabled,
-security_check_context) that should be converted to using libsemanage or
-libsepol interfaces, and then there is the separate issue of the context
-translation support.
+Signed-off-by: User "Karl MacMillan <kmacmillan@mentalrootkit.com>"
+---
 
--- 
-Stephen Smalley
-National Security Agency
+6 files changed, 21 insertions(+), 24 deletions(-)
+libsepol/include/sepol/iter.h |   17 ++++++++---------
+libsepol/src/hashtab.c        |    2 +-
+libsepol/src/iter.c           |    8 ++++----
+libsepol/src/list.c           |    8 +++-----
+libsepol/tests/test-hashtab.c |    2 +-
+libsepol/tests/test-list.c    |    8 ++++----
 
+
+diff -r e89916201547 -r 1d04713e6b39 libsepol/include/sepol/iter.h
+--- a/libsepol/include/sepol/iter.h	Thu May 10 10:59:59 2007 -0400
++++ b/libsepol/include/sepol/iter.h	Thu May 10 13:43:00 2007 -0400
+@@ -27,7 +27,7 @@
+  *
+  *   while (ret == SEPOL_OK) {
+  *      // process the data
+- *      data = sepol_iter_get_data(h, iter);
++ *      data = sepol_iter_get_data(iter);
+  *      ret = sepol_iter_next(h, iter);
+  *   }
+  *   if (ret != SEPOL_ITERSTOP)
+@@ -95,15 +95,14 @@ extern int sepol_iter_clone(struct sepol
+ /**
+  * \ingroup libsepol_iter
+  * Return the data at this iterator location. The type
+- * of the returned data is data structure specific.
+- *
+- * @param h sepol handle (can be NULL)
++ * of the returned data is data structure specific. This function
++ * should always succeed.
++ *
+  * @param iter iterator from which to return data
+  *
+  * \retval non-NULL the data
+- * \retval NULL error
+- */
+-extern void *sepol_iter_get_data(struct sepol_handle *h, struct sepol_iter *iter);
++ */
++extern void *sepol_iter_get_data(struct sepol_iter *iter);
+ 
+ /**
+  * \ingroup libsepol_iter
+@@ -217,7 +216,7 @@ extern int sepol_iter_backward(struct se
+  *  a call to sepol_list_begin).
+  */
+ #define sepol_foreach(h, ret, cur, iter)				\
+-	for (; ret == SEPOL_OK && (cur = sepol_iter_get_data(h, iter)); \
++	for (; ret == SEPOL_OK && (cur = sepol_iter_get_data(iter)); \
+ 	     ret = sepol_iter_next(h, iter)) \
+ 		
+ 
+@@ -229,7 +228,7 @@ extern void sepol_iter_set_prev(struct s
+ extern void sepol_iter_set_prev(struct sepol_iter *iter,
+ 				int (*prev)(struct sepol_handle *, struct sepol_iter *));
+ extern void sepol_iter_set_get_data(struct sepol_iter *iter,
+-				    void *(*get)(struct sepol_handle *, struct sepol_iter *));
++				    void *(*get)(struct sepol_iter *));
+ extern void sepol_iter_set_free(struct sepol_iter *iter, void (*state_free)(void *data));
+ extern void sepol_iter_set_clone(struct sepol_iter *iter,
+ 				 int (*clone)(struct sepol_handle *, const struct sepol_iter *old, struct sepol_iter *new_iter));
+diff -r e89916201547 -r 1d04713e6b39 libsepol/src/hashtab.c
+--- a/libsepol/src/hashtab.c	Thu May 10 10:59:59 2007 -0400
++++ b/libsepol/src/hashtab.c	Thu May 10 13:43:00 2007 -0400
+@@ -277,7 +277,7 @@ static int hashtab_iter_next(struct sepo
+ 	return hashtab_state_next_internal(state);
+ }
+ 
+-static void *hashtab_iter_get_data(struct sepol_handle *h, struct sepol_iter *iter)
++static void *hashtab_iter_get_data(struct sepol_iter *iter)
+ {
+ 	struct hashtab_iter_state *state = sepol_iter_get_state(iter);
+ 	assert(state);
+diff -r e89916201547 -r 1d04713e6b39 libsepol/src/iter.c
+--- a/libsepol/src/iter.c	Thu May 10 10:59:59 2007 -0400
++++ b/libsepol/src/iter.c	Thu May 10 13:43:00 2007 -0400
+@@ -32,7 +32,7 @@ struct sepol_iter
+ 	void *state;
+ 	int (*next)(struct sepol_handle *, struct sepol_iter *);
+ 	int (*prev)(struct sepol_handle *, struct sepol_iter *);
+-	void *(*get)(struct sepol_handle *, struct sepol_iter *);
++	void *(*get)(struct sepol_iter *);
+ 	int (*clone)(struct sepol_handle *, const struct sepol_iter *, struct sepol_iter *);
+ 	void (*free_fn)(void *);
+ };
+@@ -73,12 +73,12 @@ int sepol_iter_clone(struct sepol_handle
+ 	return iter->clone(h, iter, *new_iter);
+ }
+ 
+-void *sepol_iter_get_data(struct sepol_handle *h, struct sepol_iter *iter)
++void *sepol_iter_get_data(struct sepol_iter *iter)
+ {
+ 	assert(iter);
+ 	assert(iter->get);
+ 
+-	return iter->get(h, iter);
++	return iter->get(iter);
+ }
+ 
+ int sepol_iter_next(struct sepol_handle *h, struct sepol_iter *iter)
+@@ -163,7 +163,7 @@ void sepol_iter_set_prev(struct sepol_it
+ }
+ 
+ void sepol_iter_set_get_data(struct sepol_iter *iter,
+-			     void *(*get)(struct sepol_handle *, struct sepol_iter *))
++			     void *(*get)(struct sepol_iter *))
+ {
+ 	assert(iter);
+ 	iter->get = get;
+diff -r e89916201547 -r 1d04713e6b39 libsepol/src/list.c
+--- a/libsepol/src/list.c	Thu May 10 10:59:59 2007 -0400
++++ b/libsepol/src/list.c	Thu May 10 13:43:00 2007 -0400
+@@ -189,7 +189,7 @@ int sepol_list_extend(struct sepol_handl
+ 	void *data;
+ 
+ 	while (ret == SEPOL_OK) {
+-		data = sepol_iter_get_data(h, iter);
++		data = sepol_iter_get_data(iter);
+ 		if (!data)
+ 			return SEPOL_ERR;
+ 		ret = sepol_list_append(h, list, data);
+@@ -347,16 +347,14 @@ static int sepol_list_prev(struct sepol_
+ 	}	
+ }
+ 
+-static void *sepol_list_iter_get_data(struct sepol_handle *h, struct sepol_iter *iter)
++static void *sepol_list_iter_get_data(struct sepol_iter *iter)
+ {
+ 	struct sepol_list_item *cur;
+ 
+ 	assert(iter);
+ 
+ 	cur = (struct sepol_list_item*)sepol_iter_get_state(iter);
+-	if (!cur) {
+-		return NULL;
+-	}
++	assert(cur);
+ 
+ 	return cur->item;
+ }
+diff -r e89916201547 -r 1d04713e6b39 libsepol/tests/test-hashtab.c
+--- a/libsepol/tests/test-hashtab.c	Thu May 10 10:59:59 2007 -0400
++++ b/libsepol/tests/test-hashtab.c	Thu May 10 13:43:00 2007 -0400
+@@ -56,7 +56,7 @@ static void test_hashtab_iter(void)
+ 	ret = hashtab_iter(NULL, h, iter);
+ 	CU_ASSERT(ret == SEPOL_OK);
+ 	while (ret == SEPOL_OK) {
+-		cur = (hashtab_ptr_t)sepol_iter_get_data(NULL, iter);
++		cur = (hashtab_ptr_t)sepol_iter_get_data(iter);
+ 		CU_ASSERT(cur != NULL);
+ 		i = *(int*)cur->datum;
+ 		CU_ASSERT(i < 3);
+diff -r e89916201547 -r 1d04713e6b39 libsepol/tests/test-list.c
+--- a/libsepol/tests/test-list.c	Thu May 10 10:59:59 2007 -0400
++++ b/libsepol/tests/test-list.c	Thu May 10 13:43:00 2007 -0400
+@@ -116,7 +116,7 @@ static void test_list(void)
+ 	CU_ASSERT(ret == 0);
+ 	i = 5;
+ 	while (ret == SEPOL_OK) {
+-		num = (int *)sepol_iter_get_data(h, iter);
++		num = (int *)sepol_iter_get_data(iter);
+ 		CU_ASSERT(num != NULL);
+ 		CU_ASSERT(*num == i);
+ 		i--;
+@@ -129,7 +129,7 @@ static void test_list(void)
+ 	CU_ASSERT(ret == 0);
+ 	ret = sepol_iter_prev(h, iter);
+ 	CU_ASSERT(ret == 0);
+-	num = (int *)sepol_iter_get_data(h, iter);
++	num = (int *)sepol_iter_get_data(iter);
+ 	CU_ASSERT(num != NULL);
+ 	CU_ASSERT(*num == 4);
+ 	
+@@ -263,7 +263,7 @@ static void test_list_extend(void)
+ 	CU_ASSERT(ret == SEPOL_OK);
+ 	i = 0;
+ 	while (ret == SEPOL_OK) {
+-		composer = (char *)sepol_iter_get_data(h, iter);
++		composer = (char *)sepol_iter_get_data(iter);
+ 		CU_ASSERT(composer != NULL);
+ 		CU_ASSERT(strcmp(composers[i], composer) == 0);
+ 		ret = sepol_iter_next(h, iter);
+@@ -331,7 +331,7 @@ static void test_list_extend_list(void)
+ 	CU_ASSERT(ret == SEPOL_OK);
+ 	i = 0;
+ 	while (ret == SEPOL_OK) {
+-		composer = (char *)sepol_iter_get_data(h, iter);
++		composer = (char *)sepol_iter_get_data(iter);
+ 		CU_ASSERT(composer != NULL);
+ 		CU_ASSERT(strcmp(composers[i], composer) == 0);
+ 		ret = sepol_iter_next(h, iter);
 
 --
 This message was distributed to subscribers of the selinux mailing list.
