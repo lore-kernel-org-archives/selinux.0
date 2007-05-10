@@ -1,301 +1,76 @@
-Date: Thu, 10 May 2007 18:12:18 +0900
-From: Yuichi Nakamura <ynakam@hitachisoft.jp>
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l4A9Xcmk009232
+	for <selinux@tycho.nsa.gov>; Thu, 10 May 2007 05:33:38 -0400
+Received: from nz-out-0506.google.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id l4A9XbYU015366
+	for <selinux@tycho.nsa.gov>; Thu, 10 May 2007 09:33:37 GMT
+Received: by nz-out-0506.google.com with SMTP id n1so509681nzf
+        for <selinux@tycho.nsa.gov>; Thu, 10 May 2007 02:33:37 -0700 (PDT)
+Message-ID: <4642E6D4.2030006@gmail.com>
+Date: Thu, 10 May 2007 17:33:08 +0800
+From: Ken YANG <spng.yang@gmail.com>
+MIME-Version: 1.0
 To: Stephen Smalley <sds@tycho.nsa.gov>
-Cc: ynakam@hitachisoft.jp, selinux@tycho.nsa.gov, busybox@kaigai.gr.jp,
+CC: JanuGerman <doublemalam@yahoo.co.uk>,
         Karl MacMillan <kmacmillan@mentalrootkit.com>,
-        Joshua Brindle <method@manicmethod.com>
-Subject: Ver3(Re: [patch] reducing size of libselinux(ver 2)
-Message-Id: <20070510181218.0499cd05.ynakam@hitachisoft.jp>
-In-Reply-To: <1178738679.3504.25.camel@moss-spartans.epoch.ncsc.mil>
-References: <20070507133423.3bd2463a.ynakam@hitachisoft.jp>
-	<1178738679.3504.25.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+        SELinux List <selinux@tycho.nsa.gov>
+Subject: Re: cannot login using strict policy
+References: <706356.14667.qm@web86906.mail.ukl.yahoo.com> <1177515880.24282.223.camel@moss-spartans.epoch.ncsc.mil>
+In-Reply-To: <1177515880.24282.223.camel@moss-spartans.epoch.ncsc.mil>
+Content-Type: text/plain; charset=gb18030; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Thank you for review and idea !
-
-On Wed, 09 May 2007 15:24:39 -0400
 Stephen Smalley wrote:
-<snip>
-> Remove the fixed dependency on libsepol from libselinux by
-> having it use dlopen() and friends and provide graceful fallbacks
-> in the absence of libsepol.
-<snip>
-> -	if (vers > kernvers) {
-> +	if (vers > kernvers && policydb_to_image) {
-Here, 
-I think policydb_to_image is not so good to indicate whether libsepol is used or not. 
-I think  it is better to prepare flag that indicates whether libsepol functions are used or not.
-I prepared "int usesepol" flag to indicate whether libsepol functions are used or not.
-Please see new patch.
+> On Wed, 2007-04-25 at 15:31 +0000, JanuGerman wrote:
+>> Hi Karl,
+>>
+>> Thanks for the response. I have to reboot with 'selinux=0' in order to
+>> diagnose the type of .bash_profile. It is
+>> 'root:object_r:user_home_t:s0'. This seems to me a problem, like every
+>> time, i will have to reboot with selinux=0, in order to get the
+>> attributes of the file. Plus one question regarding the unconfined_t.
+>> Is unconfined_t is changed to confined_t in strict policy mode?
+> 
+> You should just be able to boot with enforcing=0, not selinux=0.  Or
+> even switch to permissive via setenforce 0 if you can login at least on
+> the console and newrole -r sysadm_r.
+> 
+> Under strict policy, users run in confined domains like user_t and
+> staff_t, and the user must newrole -r sysadm_r to enter the admin role.
+> 
+> The /root files should be labeled with sysadm_home_t, not user_home_t.
+> Look at /etc/selinux/strict/contexts/files/file_contexts.homedirs for
+> the /root entries.
 
-> -	vers = vers_max();
-> -	minvers = vers_min();
-> +	if (vers_max)
-> +		vers = vers_max();
-> +	if (vers_min)
-> +		minvers = vers_min();
-I think we can write
-if (usesepol){
-	vers = vers_max();
-	minvers = vers_min();
-}
+i also had the same error when switching from targeted to strict.
 
-And I cross-compiled your code with your patch in my ARM environment, and 
-load_policy in poilcycoreutils worked in my ARM device: 
-* /selinux/policyvers -> 20
-* /etc/selinux/policy/policy.19 exists
-then policy.19 was loaded successfully.
+i notice in avc that there are some deny errors:
 
-Regards,
--- 
-Yuichi Nakamura
-Hitachi Software Engineering Co., Ltd.
-Japan SELinux Users Group(JSELUG)
-SELinux Policy Editor: http://seedit.sourceforge.net/
+avc: denied { search } comm="gconfd-2" name="root"
+scontext=root:staff_r:staff_gconfd_t:s0-s0:c0.c1023
+tcontext=root:object_r:sysadm_home_dir_t:s0
 
-Below is patch version 3.
+i guess that this error is relative to the "permission denied" of
+".bash_profile"
 
- Makefile      |   26 +++++++++++++-
- load_policy.c |  102 ++++++++++++++++++++++++++++++++++++++++++++++++----------
- policy.h      |    2 +
- policyvers.c  |    2 -
- 4 files changed, 110 insertions(+), 22 deletions(-)
-Index: policyrep/libselinux/src/policyvers.c
-===================================================================
---- policyrep/libselinux/src/policyvers.c	(revision 2435)
-+++ policyrep/libselinux/src/policyvers.c	(working copy)
-@@ -10,8 +10,6 @@
- #include "dso.h"
- #include <limits.h>
- 
--#define DEFAULT_POLICY_VERSION 15
--
- int security_policyvers(void)
- {
- 	int fd, ret;
-Index: policyrep/libselinux/src/policy.h
-===================================================================
---- policyrep/libselinux/src/policy.h	(revision 2435)
-+++ policyrep/libselinux/src/policy.h	(working copy)
-@@ -20,4 +20,6 @@
- 
- #define FILECONTEXTS "/etc/security/selinux/file_contexts"
- 
-+#define DEFAULT_POLICY_VERSION 15
-+
- #endif
-Index: policyrep/libselinux/src/Makefile
-===================================================================
---- policyrep/libselinux/src/Makefile	(revision 2435)
-+++ policyrep/libselinux/src/Makefile	(working copy)
-@@ -18,8 +18,28 @@
- SWIGSO=_selinux.so
- SWIGFILES=$(SWIGSO) selinux.py 
- LIBSO=$(TARGET).$(LIBVERSION)
--OBJS= $(patsubst %.c,%.o,$(filter-out $(SWIGCOUT),$(wildcard *.c))) 
--LOBJS= $(patsubst %.c,%.lo,$(filter-out $(SWIGCOUT),$(wildcard *.c)))
-+
-+DISABLE_AVC ?= n
-+DISABLE_BOOL ?= n
-+
-+ifeq ($(EMBEDDED),y)
-+	override DISABLE_AVC=y
-+	override DISABLE_BOOL=y
-+endif
-+
-+SRCS=$(filter-out $(SWIGCOUT),$(wildcard *.c))
-+ifeq ($(DISABLE_AVC),y)
-+	UNUSED_SRCS=avc.c avc_internal.c avc_sidtab.c
-+	SRCS= $(filter-out $(UNUSED_SRCS), $(filter-out $(SWIGCOUT),$(wildcard *.c)))
-+endif
-+ifeq ($(DISABLE_BOOL),y)
-+	UNUSED_SRCS+=booleans.c
-+
-+	SRCS= $(filter-out $(UNUSED_SRCS), $(filter-out $(SWIGCOUT),$(wildcard *.c)))
-+endif
-+
-+OBJS= $(patsubst %.c,%.o,$(SRCS))
-+LOBJS= $(patsubst %.c,%.lo,$(SRCS))
- CFLAGS ?= -Wall -W -Wundef -Wmissing-noreturn -Wmissing-format-attribute
- override CFLAGS += -I../include -I$(INCLUDEDIR) -D_GNU_SOURCE -D_FILE_OFFSET_BITS=64
- RANLIB=ranlib
-@@ -48,7 +68,7 @@
- 	$(CC) $(LDFLAGS) -shared -o $@ $< -L. -lselinux -L$(LIBDIR) -Wl,-soname,$@
- 
- $(LIBSO): $(LOBJS)
--	$(CC) $(LDFLAGS) -shared -o $@ $^ -ldl -lsepol -L$(LIBDIR) -Wl,-soname,$(LIBSO),-z,defs,-z,relro
-+	$(CC) $(LDFLAGS) -shared -o $@ $^ -ldl -L$(LIBDIR) -Wl,-soname,$(LIBSO),-z,defs,-z,relro
- 	ln -sf $@ $(TARGET) 
- 
- %.o:  %.c policy.h
-Index: policyrep/libselinux/src/load_policy.c
-===================================================================
---- policyrep/libselinux/src/load_policy.c	(revision 2435)
-+++ policyrep/libselinux/src/load_policy.c	(working copy)
-@@ -12,6 +12,7 @@
- #include "selinux_internal.h"
- #include <sepol/sepol.h>
- #include <sepol/policydb.h>
-+#include <dlfcn.h>
- #include "policy.h"
- #include <limits.h>
- 
-@@ -41,8 +42,8 @@
- 
- int selinux_mkload_policy(void)
- {
--	int vers = sepol_policy_kern_vers_max();
- 	int kernvers = security_policyvers();
-+	int vers = kernvers, minvers = DEFAULT_POLICY_VERSION;
- 	char path[PATH_MAX];
- 	struct stat sb;
- 	size_t size;
-@@ -50,20 +51,80 @@
- 	int fd, rc = -1;
- 	sepol_policydb_t *policydb;
- 	sepol_policy_file_t *pf;
-+	int usesepol = 0;
-+	int (*vers_max)(void) = NULL;
-+	int (*vers_min)(void) = NULL;
-+	int (*policy_file_create)(sepol_policy_file_t **) = NULL;
-+	void (*policy_file_free)(sepol_policy_file_t *) = NULL;
-+	void (*policy_file_set_mem)(sepol_policy_file_t *, char*, size_t) = NULL;
-+	int (*policydb_create)(sepol_policydb_t **) = NULL;
-+	void (*policydb_free)(sepol_policydb_t *) = NULL;
-+	int (*policydb_read)(sepol_policydb_t *, sepol_policy_file_t *) = NULL;
-+	int (*policydb_set_vers)(sepol_policydb_t *, unsigned int) = NULL;
-+	int (*policydb_to_image)(sepol_handle_t *, sepol_policydb_t *, void **, size_t *) = NULL;
-+#ifdef SHARED
-+	char *errormsg = NULL;
-+	void *libsepolh = NULL;
-+	libsepolh = dlopen("libsepol.so", RTLD_NOW);
-+	if (libsepolh) {
-+		usesepol = 1;
-+		dlerror();
-+#define DLERR() if ((errormsg = dlerror())) goto dlclose;
-+		vers_max = dlsym(libsepolh, "sepol_policy_kern_vers_max");
-+		DLERR();
-+		vers_min = dlsym(libsepolh, "sepol_policy_kern_vers_min");
-+		DLERR();
- 
-+		policy_file_create = dlsym(libsepolh, "sepol_policy_file_create");
-+		DLERR();
-+		policy_file_free = dlsym(libsepolh, "sepol_policy_file_free");
-+		DLERR();
-+		policy_file_set_mem = dlsym(libsepolh, "sepol_policy_file_set_mem");
-+		DLERR();
-+		policydb_create = dlsym(libsepolh, "sepol_policydb_create");
-+		DLERR();
-+		policydb_free = dlsym(libsepolh, "sepol_policydb_free");
-+		DLERR();
-+		policydb_read = dlsym(libsepolh, "sepol_policydb_read");
-+		DLERR();
-+		policydb_set_vers = dlsym(libsepolh, "sepol_policydb_set_vers");
-+		DLERR();
-+		policydb_to_image = dlsym(libsepolh, "sepol_policydb_to_image");
-+		DLERR();
-+#undef DLERR
-+	}
-+#else
-+	usesepol = 1;
-+	vers_max = sepol_policy_kern_vers_max;
-+	vers_min = sepol_policy_kern_vers_min;
-+	policy_file_create = sepol_policy_file_create;
-+	policy_file_free = sepol_policy_file_free;
-+	policy_file_set_mem = sepol_policy_file_set_mem;
-+	policydb_create = sepol_policydb_create;
-+	policydb_free = sepol_policydb_free;
-+	policydb_read = sepol_policydb_read;
-+	policydb_set_vers = sepol_policydb_set_vers;
-+	policydb_to_image = sepol_policydb_to_image;
-+#endif
-+
-+	if (usesepol) {
-+		vers = vers_max();
-+		minvers = vers_min();
-+	}
-+
-       search:
- 	snprintf(path, sizeof(path), "%s.%d",
- 		 selinux_binary_policy_path(), vers);
- 	fd = open(path, O_RDONLY);
- 	while (fd < 0 && errno == ENOENT
--	       && --vers >= sepol_policy_kern_vers_min()) {
-+	       && --vers >= minvers) {
- 		/* Check prior versions to see if old policy is available */
- 		snprintf(path, sizeof(path), "%s.%d",
- 			 selinux_binary_policy_path(), vers);
- 		fd = open(path, O_RDONLY);
- 	}
- 	if (fd < 0)
--		return -1;
-+		goto dlclose;
- 
- 	if (fstat(fd, &sb) < 0)
- 		goto close;
-@@ -73,32 +134,32 @@
- 	if (map == MAP_FAILED)
- 		goto close;
- 
--	if (vers > kernvers) {
-+	if (vers > kernvers && usesepol) {
- 		/* Need to downgrade to kernel-supported version. */
--		if (sepol_policy_file_create(&pf))
-+		if (policy_file_create(&pf))
- 			goto unmap;
--		if (sepol_policydb_create(&policydb)) {
--			sepol_policy_file_free(pf);
-+		if (policydb_create(&policydb)) {
-+			policy_file_free(pf);
- 			goto unmap;
- 		}
--		sepol_policy_file_set_mem(pf, data, size);
--		if (sepol_policydb_read(policydb, pf)) {
--			sepol_policy_file_free(pf);
--			sepol_policydb_free(policydb);
-+		policy_file_set_mem(pf, data, size);
-+		if (policydb_read(policydb, pf)) {
-+			policy_file_free(pf);
-+			policydb_free(policydb);
- 			goto unmap;
- 		}
--		if (sepol_policydb_set_vers(policydb, kernvers) ||
--		    sepol_policydb_to_image(NULL, policydb, &data, &size)) {
-+		if (policydb_set_vers(policydb, kernvers) ||
-+		    policydb_to_image(NULL, policydb, &data, &size)) {
- 			/* Downgrade failed, keep searching. */
--			sepol_policy_file_free(pf);
--			sepol_policydb_free(policydb);
-+			policy_file_free(pf);
-+			policydb_free(policydb);
- 			munmap(map, sb.st_size);
- 			close(fd);
- 			vers--;
- 			goto search;
- 		}
--		sepol_policy_file_free(pf);
--		sepol_policydb_free(policydb);
-+		policy_file_free(pf);
-+		policydb_free(policydb);
- 	}
- 
- 	rc = security_load_policy(data, size);
-@@ -109,6 +170,13 @@
- 	munmap(map, sb.st_size);
-       close:
- 	close(fd);
-+      dlclose:
-+#ifdef SHARED
-+	if (errormsg)
-+		fprintf(stderr, "libsepol:  %s\n", errormsg);
-+	if (libsepolh)
-+		dlclose(libsepolh);
-+#endif
- 	return rc;
- }
+i find that "staff_gconfd_t" is generated by domain transition
+from "staff_t" to "staff_gconfd_t". (defined in
+gnome_per_role_template())
+
+i wonder why "root" user role is staff_r when login through gdm,
+and is sysadm_r when login in 3 level(through mingetty)
+
+as stephen said, in strict policy, users should be run in user_t and
+staff_t, and the "local_login_t" line in "users/root" indicate the
+role of root is "sysadm_r", and the same line in "default_contexts"
+indicate that the role of user is staff_r.
+
+i am confused in above situations. what decide the role and domain of
+user (normal users and root)?
+
+> 
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
