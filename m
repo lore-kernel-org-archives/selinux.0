@@ -1,84 +1,90 @@
-Subject: Re: Ver3(Re: [patch] reducing size of libselinux(ver 2)
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Yuichi Nakamura <ynakam@hitachisoft.jp>
-Cc: selinux@tycho.nsa.gov, busybox@kaigai.gr.jp,
-        Karl MacMillan <kmacmillan@mentalrootkit.com>,
-        Joshua Brindle <method@manicmethod.com>
-In-Reply-To: <1178813498.3504.109.camel@moss-spartans.epoch.ncsc.mil>
-References: <20070507133423.3bd2463a.ynakam@hitachisoft.jp>
-	 <1178738679.3504.25.camel@moss-spartans.epoch.ncsc.mil>
-	 <20070510181218.0499cd05.ynakam@hitachisoft.jp>
-	 <1178802414.3504.98.camel@moss-spartans.epoch.ncsc.mil>
-	 <1178813498.3504.109.camel@moss-spartans.epoch.ncsc.mil>
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l4AJg0UC014777
+	for <selinux@tycho.nsa.gov>; Thu, 10 May 2007 15:42:01 -0400
+Received: from exchange.columbia.tresys.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with SMTP id l4AJg0Uk025261
+	for <selinux@tycho.nsa.gov>; Thu, 10 May 2007 19:42:00 GMT
+Subject: Re: [PATCH] Basic policy representation
+From: "J. Tang" <jtang@tresys.com>
+To: Karl MacMillan <kmacmillan@mentalrootkit.com>
+Cc: selinux <selinux@tycho.nsa.gov>
+In-Reply-To: <1178753217.21282.12.camel@localhost.localdomain>
+References: <bd4ee6e00a634ac9157f.1178575607@localhost.localdomain>
+	 <1178735753.5665.38.camel@localhost.localdomain>
+	 <1178738540.2951.16.camel@localhost.localdomain>
+	 <1178750819.5665.100.camel@localhost.localdomain>
+	 <1178753217.21282.12.camel@localhost.localdomain>
 Content-Type: text/plain
-Date: Thu, 10 May 2007 14:04:19 -0400
-Message-Id: <1178820259.3504.123.camel@moss-spartans.epoch.ncsc.mil>
+Date: Thu, 10 May 2007 15:42:33 -0400
+Message-Id: <1178826153.5665.125.camel@localhost.localdomain>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2007-05-10 at 12:11 -0400, Stephen Smalley wrote:
-> On Thu, 2007-05-10 at 09:06 -0400, Stephen Smalley wrote:
-> > On Thu, 2007-05-10 at 18:12 +0900, Yuichi Nakamura wrote:
-> > > Thank you for review and idea !
-> > > 
-> > > On Wed, 09 May 2007 15:24:39 -0400
-> > > Stephen Smalley wrote:
-> > > <snip>
-> > > > Remove the fixed dependency on libsepol from libselinux by
-> > > > having it use dlopen() and friends and provide graceful fallbacks
-> > > > in the absence of libsepol.
-> > > <snip>
-> > > > -	if (vers > kernvers) {
-> > > > +	if (vers > kernvers && policydb_to_image) {
-> > > Here, 
-> > > I think policydb_to_image is not so good to indicate whether libsepol is used or not. 
-> > > I think  it is better to prepare flag that indicates whether libsepol functions are used or not.
-> > > I prepared "int usesepol" flag to indicate whether libsepol functions are used or not.
-> > 
-> > That's true - dlsym() technically can return NULL even upon success.
-> > 
-> > > Please see new patch.
-> > 
-> > Looks mostly sane to me.  Some comments:
-> > - libselinux/utils/Makefile needs to properly handle the DISABLE_AVC and
-> > DISABLE_BOOLS options - some of those utilities won't build with your
-> > cut-down version of libselinux so a make EMBEDDED=y at the top of
-> > libselinux will fail.
-> > - Is DISABLE_BOOLS still worthwhile?  Especially since I removed much of
-> > that code already as part of removing the legacy booleans/users support
-> > for setlocaldefs?
-> > - Could likely introduce a DISABLE_SETRANS that reduces setrans_client.c
-> > to trivial stubs in the embedded case (no translation daemon likely
-> > there, right?).
-> > - Could likely introduce a DISABLE_RPM that drops rpm.o from the
-> > library.
-> > - With the elimination of libsepol as a fixed dependency for libselinux,
-> > we can go back and remove -lsepol from a number of the Makefiles (e.g.
-> > libselinux/utils, several of the policycoreutils) and we can later
-> > eliminate it for the patched selinux userland packages (like coreutils -
-> > it would be nice if things like mv worked without libsepol present as
-> > they don't need it).
-> 
-> One other comment:  The policyrep branch is primarily for the policy
-> representation work; we have also been merging patches that involve
-> incompatible interface changes to it so that the entire branch can be
-> rolled over to trunk with a single bump in the .so version.  This patch
-> doesn't really fall into either of those categories and could go
-> straight to trunk if you wanted to have it sooner (as policyrep will
-> take time to mature before it can be merged to trunk).  Of course, to do
-> that, you'd have to re-base and deal with the legacy
-> sepol_genbools/genusers calls in the trunk version as well.
+On Wed, 2007-05-09 at 19:26 -0400, Karl MacMillan wrote:
+> I don't see why - the import function will just create the bare rules
+> and declarations and the normal resolution functions can work. The
+> requirements would just be thrown out.
 
-Oh, and there was a mistake in the error message I put in the dlclose
-error path - should be "libselinux:  %s\n" rather than "libsepol:  %s
-\n", so it shows up as something like:
-libselinux:  /lib/libsepol.so.2: undefined symbol: sepol_policydb_create
+An existing module could have this:
+
+optional o {
+  type A, B, C;  # type A is not used by this optional
+  allow B C: d e;
+}
+
+Within the proposed design, how is type A represented?  It is neither
+used within a rule nor is it a definition.  It is a declaration, under
+classic compiler terminology.  The given design does not seem to make a
+distinction between declarations and definitions.
+
+> >   allow A B : C d;
+> >   allow x y : z d;
+> Perhaps - it depends on whether there is a string pool at the root of
+> the tree the object is in. If there is a string pool, however, there
+> will only be one instance.
+
+Here are three scenarios:
+
+1.  Both rules are declared unconditionally.  This is a monolithic
+policy.
+
+2.  First allow rule is declared unconditonally, the second rule within
+a conditional.  This is a monolithic policy.
+
+3.  The two rules are from different modules.  Their respective ASTs are
+presumably joined during linking.
+
+For which of these scenario(s) is there a string pool "at the root of
+the tree the [rules are] in"?  If so, it holds that there is only one
+instance of "d", and thus am I correct in saying that permissions are
+indeed instances of sepol_objpools?
+
+> > In the statement
+> >   type A alias {B C D E F}
+> > will this create five instances of a SEPOL_TYPEID_TYPEALIAS or just
+> one?
+> The code I posted for comments would create 0 - you would just have a
+> type declaration. The goal is to represent the policy in the same
+> structure as the source - it helps for policy generation.
+
+Follow-up question: In the statement
+
+  typealias A alias {B C D E F};
+
+will this create five instances of a SEPOL_TYPEID_TYPEALIAS or just one?
+It is unclear by the supplied documentation what the intended behavior
+is.
+
+> If you want to print out the tree structure you need this. Is there
+> some
+> reason to not export this?
+
+Why would not the user call sepol_object_tostring() from the topmost
+node?
 
 -- 
-Stephen Smalley
-National Security Agency
-
+Jason Tang / jtang@tresys.com
 
 --
 This message was distributed to subscribers of the selinux mailing list.
