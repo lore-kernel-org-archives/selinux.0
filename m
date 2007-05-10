@@ -1,104 +1,76 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l4AFnMBY001073
-	for <selinux@tycho.nsa.gov>; Thu, 10 May 2007 11:49:22 -0400
-Received: from mx1.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id l4AFnLaY003829
-	for <selinux@tycho.nsa.gov>; Thu, 10 May 2007 15:49:21 GMT
-Received: from int-mx1.corp.redhat.com (int-mx1.corp.redhat.com [172.16.52.254])
-	by mx1.redhat.com (8.13.1/8.13.1) with ESMTP id l4AFnKus028451
-	for <selinux@tycho.nsa.gov>; Thu, 10 May 2007 11:49:20 -0400
-Received: from pobox-2.corp.redhat.com (pobox-2.corp.redhat.com [10.11.255.15])
-	by int-mx1.corp.redhat.com (8.13.1/8.13.1) with ESMTP id l4AFnK48027677
-	for <selinux@tycho.nsa.gov>; Thu, 10 May 2007 11:49:20 -0400
-Subject: Re: Making Fedora a contributer friendly environment
-From: Karl MacMillan <kmacmill@redhat.com>
-To: Development discussions related to Fedora Core <fedora-devel-list@redhat.com>
-Cc: SE Linux <selinux@tycho.nsa.gov>
-In-Reply-To: <200705101650.50233.opensource@till.name>
-References: <1178291788.2702.10.camel@vorpal.macdev.com>
-	 <200705091725.58679.opensource@till.name>
-	 <1178805305.17816.29.camel@localhost.localdomain>
-	 <200705101650.50233.opensource@till.name>
+Subject: Re: Ver3(Re: [patch] reducing size of libselinux(ver 2)
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Yuichi Nakamura <ynakam@hitachisoft.jp>
+Cc: selinux@tycho.nsa.gov, busybox@kaigai.gr.jp,
+        Karl MacMillan <kmacmillan@mentalrootkit.com>,
+        Joshua Brindle <method@manicmethod.com>
+In-Reply-To: <1178802414.3504.98.camel@moss-spartans.epoch.ncsc.mil>
+References: <20070507133423.3bd2463a.ynakam@hitachisoft.jp>
+	 <1178738679.3504.25.camel@moss-spartans.epoch.ncsc.mil>
+	 <20070510181218.0499cd05.ynakam@hitachisoft.jp>
+	 <1178802414.3504.98.camel@moss-spartans.epoch.ncsc.mil>
 Content-Type: text/plain
-Date: Thu, 10 May 2007 11:49:20 -0400
-Message-Id: <1178812160.24335.35.camel@localhost.localdomain>
+Date: Thu, 10 May 2007 12:11:38 -0400
+Message-Id: <1178813498.3504.109.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-[CC'd the selinux development list so that the developers are aware of
-these issues]
-
-On Thu, 2007-05-10 at 16:50 +0200, Till Maas wrote:
-> On Do Mai 10 2007, Karl MacMillan wrote:
+On Thu, 2007-05-10 at 09:06 -0400, Stephen Smalley wrote:
+> On Thu, 2007-05-10 at 18:12 +0900, Yuichi Nakamura wrote:
+> > Thank you for review and idea !
+> > 
+> > On Wed, 09 May 2007 15:24:39 -0400
+> > Stephen Smalley wrote:
+> > <snip>
+> > > Remove the fixed dependency on libsepol from libselinux by
+> > > having it use dlopen() and friends and provide graceful fallbacks
+> > > in the absence of libsepol.
+> > <snip>
+> > > -	if (vers > kernvers) {
+> > > +	if (vers > kernvers && policydb_to_image) {
+> > Here, 
+> > I think policydb_to_image is not so good to indicate whether libsepol is used or not. 
+> > I think  it is better to prepare flag that indicates whether libsepol functions are used or not.
+> > I prepared "int usesepol" flag to indicate whether libsepol functions are used or not.
 > 
-> > When selinux is turned on again a full relabel of the filesystem is done
-> > to correct these problems. If the custom file context wasn't added to
-> > the database of file contexts (via a module or semanage) the file is set
-> > to the default label.
+> That's true - dlsym() technically can return NULL even upon success.
 > 
-> So will chcon in a scriptlet work, when an rpm is installed while selinux is 
-> not active?
+> > Please see new patch.
 > 
+> Looks mostly sane to me.  Some comments:
+> - libselinux/utils/Makefile needs to properly handle the DISABLE_AVC and
+> DISABLE_BOOLS options - some of those utilities won't build with your
+> cut-down version of libselinux so a make EMBEDDED=y at the top of
+> libselinux will fail.
+> - Is DISABLE_BOOLS still worthwhile?  Especially since I removed much of
+> that code already as part of removing the legacy booleans/users support
+> for setlocaldefs?
+> - Could likely introduce a DISABLE_SETRANS that reduces setrans_client.c
+> to trivial stubs in the embedded case (no translation daemon likely
+> there, right?).
+> - Could likely introduce a DISABLE_RPM that drops rpm.o from the
+> library.
+> - With the elimination of libsepol as a fixed dependency for libselinux,
+> we can go back and remove -lsepol from a number of the Makefiles (e.g.
+> libselinux/utils, several of the policycoreutils) and we can later
+> eliminate it for the patched selinux userland packages (like coreutils -
+> it would be nice if things like mv worked without libsepol present as
+> they don't need it).
 
-Unfortunately it won't - does semanage / semodule work in this instance
-(it probably should so that users can turn selinux back on after
-disabling and doing package management).
+One other comment:  The policyrep branch is primarily for the policy
+representation work; we have also been merging patches that involve
+incompatible interface changes to it so that the entire branch can be
+rolled over to trunk with a single bump in the .so version.  This patch
+doesn't really fall into either of those categories and could go
+straight to trunk if you wanted to have it sooner (as policyrep will
+take time to mature before it can be merged to trunk).  Of course, to do
+that, you'd have to re-base and deal with the legacy
+sepol_genbools/genusers calls in the trunk version as well.
 
-> > Not sure what you mean - you should be able to run semanage in a post.
-> > Perhaps you should also need to do chcon (as opposed to restorecon)
-> > because the command may not have run before the file was created.
-> 
-> When I tested semanage, the problem occured, how to update the labels with 
-> semanage. E.g. when the regex is changed that desribes, which files should be 
-> labeled in a certain way. And when one wants to remove the old labels when 
-> uninstalling the package. E.g
-> 
-> version 1 of the package:
-> 
-> %post
-> semanage add RULE1
-> %postun
-> semanage remove RULE1
-> 
-> As far as I understand rpm, when updating the release of version 1, first 
-> semanage add RULE1 from release two runs from %post and then
-> semanage remove RULE1 from release one. This effectivly removes the rule from 
-> the /etc/selinux, because identical rules seem not be added more than once 
-> to /etc/selinux. When I restrict the %postun only to complete removals of the 
-> package,
-
-Which seems like the right answer.
-
->  than when one changes the RULES, e.g. in a version 2:
-> 
-> %post 
-> semanage add RULE2
-> %postun
-> semanage remove RULE2
-> 
-> then RULE1 will not be removed (it is not the final remove). Then every 
-> release has to include "semanage remove RULE1" in "%post" maybe forever. I 
-> hope you understand the problem I try to describe, because I did not really 
-> use the correct selinux-terms.
-> 
-
-Seems like there are two cases:
-
-1) The context changes but the file spec stays the same - blindly adding
-should always work here (it will overwrite the old file context).
-
-2) The file spec changes (doesn't matter if the context changes) - you
-will have to carry around the removal in the post forever.
-
-> I would be happy, if I am wrong with this. But if this problem is not solvable 
-> with semanage, imho semanage is not a good way to add selinux support to a 
-> package.
-> 
-
-Maybe - we can make changes as necessary to make it usable.
-
-Karl
+-- 
+Stephen Smalley
+National Security Agency
 
 
 --
