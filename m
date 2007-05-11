@@ -1,51 +1,60 @@
-Subject: Re: [RFC][PATCH] Coalesce setfiles and restorecon into a single
-	program
-From: "Christopher J. PeBenito" <cpebenito@tresys.com>
-To: Karl MacMillan <kmacmillan@mentalrootkit.com>
-Cc: Stephen Smalley <sds@tycho.nsa.gov>, selinux@tycho.nsa.gov
-In-Reply-To: <1178894318.11064.0.camel@localhost.localdomain>
-References: <1178306387.677.14.camel@moss-spartans.epoch.ncsc.mil>
-	 <1178894318.11064.0.camel@localhost.localdomain>
+Subject: Re: [RFC][PATCH] libselinux: Namespacing
+From: Karl MacMillan <kmacmillan@mentalrootkit.com>
+To: Stephen Smalley <sds@tycho.nsa.gov>
+Cc: selinux@tycho.nsa.gov
+In-Reply-To: <1178887062.3504.147.camel@moss-spartans.epoch.ncsc.mil>
+References: <1178827922.3504.141.camel@moss-spartans.epoch.ncsc.mil>
+	 <1178829062.24335.86.camel@localhost.localdomain>
+	 <1178887062.3504.147.camel@moss-spartans.epoch.ncsc.mil>
 Content-Type: text/plain
-Date: Fri, 11 May 2007 17:06:55 +0000
-Message-Id: <1178903215.11827.7.camel@sgc>
+Date: Fri, 11 May 2007 14:37:06 -0400
+Message-Id: <1178908626.11064.18.camel@localhost.localdomain>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2007-05-11 at 10:38 -0400, Karl MacMillan wrote:
-> On Fri, 2007-05-04 at 15:19 -0400, Stephen Smalley wrote:
-> > restorecon started life as a much simpler program, but has gradually
-> > grown to being largely a duplicate of setfiles, only differing in its
-> > interface and default behaviors.  Meanwhile, people keep adding features
-> > and options to both programs, leading to inconsistencies.
+On Fri, 2007-05-11 at 08:37 -0400, Stephen Smalley wrote:
+> On Thu, 2007-05-10 at 16:31 -0400, Karl MacMillan wrote:
+> > On Thu, 2007-05-10 at 16:12 -0400, Stephen Smalley wrote:
+> > > libselinux presently lacks proper namespacing of its functions.  This
+> > > patch is just for comment on an approach to gradually fixing that
+> > > problem, starting with just a trivial example for a single function.
+> > > The idea is to switch over the real function to being properly
+> > > namespaced, provide an alias under the old name in the symbol table for
+> > > binary compatibility, and make the old name a macro in the public
+> > > headers that expands to the new name so that source rebuilds against the
+> > > new library will start using the new name.  Then at some point in the
+> > > future, we drop the old name macro from the source API, forcing an
+> > > update to external sources to build against newer headers, while leaving
+> > > the alias present in the symbol table as long as we need compatibility
+> > > with existing binaries.  Thoughts?
+> > > 
 > > 
-> > This patch coalesces setfiles and restorecon into a single program
-> > presenting different interfaces and default behaviors depending on
-> > basename(argv[0]), making restorecon a symlink to setfiles.
-> > 
-> > Unresolved issue: Current policy defines separate domains for the two
-> > programs.  We need to either coalesce the domains as well, or if there
-> > is legitimate reason for separating them, restorecon could remain a
-> > separate binary (either a complete separate copy or a wrapper) even if
-> > the sources are coalesced.
-> > 
-> > Comments?
-> > 
+> > Sounds good to me - will this impact the python bindings? If we do have
+> > to change the bindings we should take as an opportunity to fix the
+> > namespace issues there. For example, bo reason to have
+> > selinux.selinux_booleans_path - should be changed to
+> > selinux.booleans_path.
 > 
-> This and the bug fix patch were merged into trunk and policyrep.
+> Yes, it would affect the python bindings too; not sure what needs to be
+> done there for backward compatibility.
 > 
-> Karl
 
-The related policy changes have been committed to trunk.  Those that are
-interested in the policy change can see:
+Shouldn't be hard to provide the backwards compatibility - either
+through swig or a pure python module.
 
-http://oss.tresys.com/projects/refpolicy/changeset/2293
+> We also have to decide what to do about functions that already have
+> their own prefix, like the security_ functions and the avc_ functions;
+> I'm inclined to leave those alone as already being adequately
+> namespaced.
+> 
 
--- 
-Chris PeBenito
-Tresys Technology, LLC
-(410) 290-1411 x150
+I'd vote for changing them. The consistency is nice in general (I'm not
+certain that it is obvious enough to everyone which prefix applies to
+which function) and it will make wrapping in languages that support
+proper namespacing simpler.
+
+Karl
 
 
 --
