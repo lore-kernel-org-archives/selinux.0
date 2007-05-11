@@ -1,60 +1,51 @@
-Subject: Re: [RFC][PATCH] libselinux: Namespacing
+Subject: Re: [PATCH -trunk] newrole: enable use of alternate pam
+	configurations for running applications in a different context (Was: Re:
+	launching apps at level (MLS) and polyinstantiation)
 From: Karl MacMillan <kmacmillan@mentalrootkit.com>
 To: Stephen Smalley <sds@tycho.nsa.gov>
-Cc: selinux@tycho.nsa.gov
-In-Reply-To: <1178887062.3504.147.camel@moss-spartans.epoch.ncsc.mil>
-References: <1178827922.3504.141.camel@moss-spartans.epoch.ncsc.mil>
-	 <1178829062.24335.86.camel@localhost.localdomain>
-	 <1178887062.3504.147.camel@moss-spartans.epoch.ncsc.mil>
+Cc: Ted X Toth <txtoth@gmail.com>, selinux@tycho.nsa.gov,
+        Joshua Brindle <method@manicmethod.com>,
+        Darrel Goeddel <dgoeddel@TrustedCS.com>
+In-Reply-To: <1178651473.6056.101.camel@moss-spartans.epoch.ncsc.mil>
+References: <463243E3.2060602@gmail.com>
+	 <1177700491.3357.113.camel@moss-spartans.epoch.ncsc.mil>
+	 <1177700749.3357.116.camel@moss-spartans.epoch.ncsc.mil>
+	 <463360B0.7020106@gmail.com>
+	 <1177934887.16232.7.camel@moss-spartans.epoch.ncsc.mil>
+	 <4636002F.5000100@gmail.com>
+	 <1177944754.16232.28.camel@moss-spartans.epoch.ncsc.mil>
+	 <cadfc0e40705020849o3f1b90c4l6f7bb5d9dcbc3c23@mail.gmail.com>
+	 <1178125027.3443.67.camel@moss-spartans.epoch.ncsc.mil>
+	 <cadfc0e40705030611l532d490dr2016dbff69a51628@mail.gmail.com>
+	 <1178200148.3443.166.camel@moss-spartans.epoch.ncsc.mil>
+	 <1178219938.3443.209.camel@moss-spartans.epoch.ncsc.mil>
+	 <463B81F3.7030802@gmail.com>
+	 <1178306629.677.17.camel@moss-spartans.epoch.ncsc.mil>
+	 <463B9448.40007@gmail.com>
+	 <1178651473.6056.101.camel@moss-spartans.epoch.ncsc.mil>
 Content-Type: text/plain
-Date: Fri, 11 May 2007 14:37:06 -0400
-Message-Id: <1178908626.11064.18.camel@localhost.localdomain>
+Date: Fri, 11 May 2007 14:42:26 -0400
+Message-Id: <1178908946.11064.20.camel@localhost.localdomain>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2007-05-11 at 08:37 -0400, Stephen Smalley wrote:
-> On Thu, 2007-05-10 at 16:31 -0400, Karl MacMillan wrote:
-> > On Thu, 2007-05-10 at 16:12 -0400, Stephen Smalley wrote:
-> > > libselinux presently lacks proper namespacing of its functions.  This
-> > > patch is just for comment on an approach to gradually fixing that
-> > > problem, starting with just a trivial example for a single function.
-> > > The idea is to switch over the real function to being properly
-> > > namespaced, provide an alias under the old name in the symbol table for
-> > > binary compatibility, and make the old name a macro in the public
-> > > headers that expands to the new name so that source rebuilds against the
-> > > new library will start using the new name.  Then at some point in the
-> > > future, we drop the old name macro from the source API, forcing an
-> > > update to external sources to build against newer headers, while leaving
-> > > the alias present in the symbol table as long as we need compatibility
-> > > with existing binaries.  Thoughts?
-> > > 
-> > 
-> > Sounds good to me - will this impact the python bindings? If we do have
-> > to change the bindings we should take as an opportunity to fix the
-> > namespace issues there. For example, bo reason to have
-> > selinux.selinux_booleans_path - should be changed to
-> > selinux.booleans_path.
+On Tue, 2007-05-08 at 15:11 -0400, Stephen Smalley wrote:
+> From: 	Ted X Toth <txtoth@gmail.com>
 > 
-> Yes, it would affect the python bindings too; not sure what needs to be
-> done there for backward compatibility.
+> With some modifications by Stephen Smalley <sds@tycho.nsa.gov>.
+> 
+> Extend newrole to enable use of alternate pam configurations when
+> running an application in a different context.  Introduces
+> /etc/selinux/newrole_pam.conf as a config file mapping application
+> pathnames to pam service names when the application is invoked via
+> newrole.  In the absence of the config file or the absence of a
+> matching entry, falls back to the standard newrole pam configuration.
+> 
+> Signed-off-by: Stephen Smalley <sds@tycho.nsa.gov>
 > 
 
-Shouldn't be hard to provide the backwards compatibility - either
-through swig or a pure python module.
-
-> We also have to decide what to do about functions that already have
-> their own prefix, like the security_ functions and the avc_ functions;
-> I'm inclined to leave those alone as already being adequately
-> namespaced.
-> 
-
-I'd vote for changing them. The consistency is nice in general (I'm not
-certain that it is obvious enough to everyone which prefix applies to
-which function) and it will make wrapping in languages that support
-proper namespacing simpler.
-
-Karl
+Merged into trunk and policyrep.
 
 
 --
