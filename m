@@ -1,46 +1,36 @@
 Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l4FAFg7B012347
-	for <selinux@tycho.nsa.gov>; Tue, 15 May 2007 06:15:43 -0400
-Received: from nospam.sws.net.au (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l4FAFUxl028062
-	for <selinux@tycho.nsa.gov>; Tue, 15 May 2007 10:15:37 GMT
-Received: from localhost (localhost [127.0.0.1])
-	by nospam.sws.net.au (Postfix) with ESMTP id 168CF18902
-	for <selinux@tycho.nsa.gov>; Tue, 15 May 2007 20:15:23 +1000 (EST)
-Received: from nospam.sws.net.au ([127.0.0.1])
-	by localhost (etbe.coker.com.au [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id vUeMW4xeWQ7G for <selinux@tycho.nsa.gov>;
-	Tue, 15 May 2007 20:15:22 +1000 (EST)
-Received: from aeon.coker.com.au (localhost [127.0.0.1])
-	by nospam.sws.net.au (Postfix) with ESMTP id 7B57A18870
-	for <selinux@tycho.nsa.gov>; Tue, 15 May 2007 20:15:22 +1000 (EST)
-Received: from localhost (localhost [127.0.0.1])
-	by aeon.coker.com.au (Postfix) with ESMTP id DE6B020CD0
-	for <selinux@tycho.nsa.gov>; Tue, 15 May 2007 20:15:19 +1000 (EST)
-From: Russell Coker <russell@coker.com.au>
-Reply-To: russell@coker.com.au
-To: "SE-Linux" <selinux@tycho.nsa.gov>
-Subject: swapon => libblkid.so.1 => libdevmapper.so.1.02.1 => libselinux.so.1
-Date: Tue, 15 May 2007 18:46:06 +1000
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l4FBEMVx014937
+	for <selinux@tycho.nsa.gov>; Tue, 15 May 2007 07:14:22 -0400
+Received: from exchange.columbia.tresys.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with SMTP id l4FBELxl005054
+	for <selinux@tycho.nsa.gov>; Tue, 15 May 2007 11:14:21 GMT
+Message-ID: <464995FE.1070807@manicmethod.com>
+Date: Tue, 15 May 2007 07:14:06 -0400
+From: Joshua Brindle <method@manicmethod.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Message-Id: <200705151846.15991.russell@coker.com.au>
+To: Keith Holder <keith_holder@symantec.com>
+CC: selinux@tycho.nsa.gov
+Subject: Re: non-standard filesystem support in SELinux
+References: <Line.LNX.4.64.0705111811230.25709@d.namei> <1178924793.11405.30.camel@localhost.localdomain> <46497E5B.7060103@symantec.com>
+In-Reply-To: <46497E5B.7060103@symantec.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Currently when you run swapon it tries to access /selinux.  This is because of 
-the shared object dependency chain in the subject.
+Keith Holder wrote:
+>
+> A quick question on loadable policy modules.
+>
+> Are there any plans to allow 3rd party filesystem support,
+> without having to edit/recompile the base policy module?
+>
+>     keith
 
-Would it be possible to replace one of those links with a call to dlopen(3) to 
-save this?
-
--- 
-russell@coker.com.au
-http://etbe.coker.com.au/          My Blog
-
-http://www.coker.com.au/sponsorship.html Sponsoring Free Software development
-
+I don't think we've ever thought about it, it seems like something that 
+is very uncommon. I suppose its something we could do when we rewrite 
+the compiler to use the new representation but it won't be high on the 
+list of priorities. To be clear, what kind of support are you looking 
+for? fs_use_* support or genfs support?
 
 --
 This message was distributed to subscribers of the selinux mailing list.
