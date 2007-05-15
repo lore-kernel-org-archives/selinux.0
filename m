@@ -1,45 +1,105 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l4FBYTBj015942
-	for <selinux@tycho.nsa.gov>; Tue, 15 May 2007 07:34:30 -0400
-Received: from exchange.columbia.tresys.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with SMTP id l4FBYSdK000691
-	for <selinux@tycho.nsa.gov>; Tue, 15 May 2007 11:34:29 GMT
-Message-ID: <46499AB6.2070109@manicmethod.com>
-Date: Tue, 15 May 2007 07:34:14 -0400
-From: Joshua Brindle <method@manicmethod.com>
-MIME-Version: 1.0
-To: Keith Holder <keith_holder@symantec.com>
-CC: selinux@tycho.nsa.gov
-Subject: Re: non-standard filesystem support in SELinux
-References: <Line.LNX.4.64.0705111811230.25709@d.namei> <1178924793.11405.30.camel@localhost.localdomain> <46497E5B.7060103@symantec.com> <464995FE.1070807@manicmethod.com> <46499808.9030001@symantec.com>
-In-Reply-To: <46499808.9030001@symantec.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Subject: Re: [BUG] Segfault on duplicate require of sensitivity
+From: Caleb Case <ccase@tresys.com>
+To: B Topscher <bryan@jennandbryan.com>
+Cc: selinux@tycho.nsa.gov, dgoeddel@TrustedCS.com, method@manicmethod.com,
+        Stephen Smalley <sds@tycho.nsa.gov>, kmacmillan@mentalrootkit.com
+In-Reply-To: <8b4cbe570704190829m67daa55di8c21a51408987b89@mail.gmail.com>
+References: <8b4cbe570704190829m67daa55di8c21a51408987b89@mail.gmail.com>
+Content-Type: text/plain
+Date: Tue, 15 May 2007 10:16:13 -0400
+Message-Id: <1179238573.25191.24.camel@localhost>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Keith Holder wrote:
-> Joshua Brindle wrote:
->> Keith Holder wrote:
->>>
->>> A quick question on loadable policy modules.
->>>
->>> Are there any plans to allow 3rd party filesystem support,
->>> without having to edit/recompile the base policy module?
->>>
->>>     keith
->>
->> I don't think we've ever thought about it, it seems like something 
->> that is very uncommon. I suppose its something we could do when we 
->> rewrite the compiler to use the new representation but it won't be 
->> high on the list of priorities. To be clear, what kind of support are 
->> you looking for? fs_use_* support or genfs support?
->
-> Mostly fs_use_* so that the filesystem, mount points and
-> underlying files don't end up with the unlabeled_t type as
-> the default.
->
-Is there a reason you can't use the context mount option to label the 
-mountpoint and its underlying files?
+It turns out that level_datum_t is not defined as an actual datum:
+
+/* Sensitivity attributes */
+typedef struct level_datum {
+        mls_level_t *level;     /* sensitivity and associated categories
+*/
+        unsigned char isalias;  /* is this sensitivity an alias for
+another? */
+        unsigned char defined;
+} level_datum_t;
+
+All *_datum_t should have the form:
+
+typedef struct *_datum {
+        symtab_datum_t s;
+        *
+} *_datum_t;
+
+This assumption causes problems in module_compiler.c:require_symbol when
+the symbol is a duplicate (retval == 1 means duplicate symbol):
+
+int require_symbol(uint32_t symbol_type,
+                   hashtab_key_t key, hashtab_datum_t datum,
+                   uint32_t * dest_value, uint32_t * datum_value)
+{
+
+<snip>
+
+        if (retval == 1) {
+                symtab_datum_t *s =
+                    (symtab_datum_t *) hashtab_search(policydbp->
+
+symtab[symbol_type].table,
+                                                      key);
+                assert(s != NULL);
+                *dest_value = s->value;
+        } else if (retval == -2) {
+
+<snip>
+
+}
+
+Which results in *dest_value being the address of level_datum->level and
+not the value of the sens (which would be level_datum->level->sens.  See
+module_compiler.c:require_sens for more context.
+
+The options I see here are not good.  One option: the level_datum_t
+should be changed into a conforming *_datum_t and the fallout of this
+change handled in the rest of the code which expects to see a
+level_datum_t->level.  Second option: level_datum_t is treated specially
+in require_symbol (using the symbol_type as the switch).
+
+On Thu, 2007-04-19 at 11:29 -0400, B Topscher wrote:
+> When I have sensitivity required in two different locations I get
+> segmentation faults when I try and load the module.  For example,
+> because s0 and s15 are already declared on other files if I require
+> them in the TE file I get a segfault.  I looked in the module.tmp file
+> that was created on build and saw that s0 and s15 are declared
+> somewhere.  However, if I comment out my require in the TE file it
+> loads the module fine.  
+> 
+> 
+> if in the TE I have:
+> 
+> require { 
+>       sensitivity s0;
+> }
+> 
+> function( domain_t )
+> 
+> and the IF I have 
+> 
+> interface(`function',`
+>               gen_require(`
+>                           sensitivity s0;
+>                           ') 
+>               .......
+> ')
+> 
+> When I build and then semodule -i module.pp,  I get a segfault when
+> committing changes (according to semodule -v).  
+> 
+> Thank you
+> Bryan 
+-- 
+Caleb Case
+Tresys Technology
+410-290-1411 x144
 
 --
 This message was distributed to subscribers of the selinux mailing list.
