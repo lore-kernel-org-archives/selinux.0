@@ -1,84 +1,39 @@
-Message-ID: <4649F0A8.10800@manicmethod.com>
-Date: Tue, 15 May 2007 13:40:56 -0400
-From: Joshua Brindle <method@manicmethod.com>
-MIME-Version: 1.0
-To: Karl MacMillan <kmacmillan@mentalrootkit.com>
-CC: Caleb Case <ccase@tresys.com>, B Topscher <bryan@jennandbryan.com>,
-        selinux@tycho.nsa.gov, dgoeddel@TrustedCS.com,
-        Stephen Smalley <sds@tycho.nsa.gov>
-Subject: Re: [BUG] Segfault on duplicate require of sensitivity
-References: <8b4cbe570704190829m67daa55di8c21a51408987b89@mail.gmail.com>	 <1179238573.25191.24.camel@localhost>	 <1179239973.5130.9.camel@localhost.localdomain>	 <1179248956.25191.41.camel@localhost>  <4649EB49.1070302@manicmethod.com> <1179249578.22749.3.camel@localhost.localdomain>
-In-Reply-To: <1179249578.22749.3.camel@localhost.localdomain>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l4FI1S1o007135
+	for <selinux@tycho.nsa.gov>; Tue, 15 May 2007 14:01:28 -0400
+Received: from exchange.columbia.tresys.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with SMTP id l4FI1RWs008204
+	for <selinux@tycho.nsa.gov>; Tue, 15 May 2007 18:01:27 GMT
+Subject: Re: squid patch
+From: "Christopher J. PeBenito" <cpebenito@tresys.com>
+To: Daniel J Walsh <dwalsh@redhat.com>
+Cc: SE Linux <selinux@tycho.nsa.gov>
+In-Reply-To: <463F3BEE.6060504@redhat.com>
+References: <46278600.2010806@redhat.com> <1178545161.25271.5.camel@sgc>
+	 <463F3BEE.6060504@redhat.com>
+Content-Type: text/plain
+Date: Tue, 15 May 2007 14:00:44 -0400
+Message-Id: <1179252044.725.4.camel@sgc>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Karl MacMillan wrote:
-> On Tue, 2007-05-15 at 13:18 -0400, Joshua Brindle wrote:
->   
->> Caleb Case wrote:
->>     
->>> On Tue, 2007-05-15 at 10:39 -0400, Karl MacMillan wrote:
->>>   
->>>       
->>>> On Tue, 2007-05-15 at 10:16 -0400, Caleb Case wrote:
->>>>     
->>>>         
->>>>> It turns out that level_datum_t is not defined as an actual datum:
->>>>>
->>>>>       
->>>>>           
->>>> [...]
->>>>
->>>>     
->>>>         
->>>>> The options I see here are not good.  One option: the level_datum_t
->>>>> should be changed into a conforming *_datum_t and the fallout of this
->>>>> change handled in the rest of the code which expects to see a
->>>>> level_datum_t->level.  Second option: level_datum_t is treated specially
->>>>> in require_symbol (using the symbol_type as the switch).
->>>>>
->>>>>       
->>>>>           
->>>> Making it a _datum_t seems to be the right choice - what is your concern
->>>> about following that path?
->>>>
->>>> Karl
->>>>     
->>>>         
->>> Mainly I am concerned because level_datum_t is exported in libsepol's
->>> protected headers and will require changes to anything that statically
->>> links to libsepol.
->>>
->>>   
->>>       
->> Err, I don't think this is the main issue. The level datum references 
->> the sens_datum, which exists independantly of the level_datum. I think 
->> it would cause all sorts of problems to try to change that in the 
->> current code base.
->>
->>     
->
-> What kind of problems?
->
->   
-What do we put in the symtab_datum? Do we reproduce what is in the 
-sens_datum? They aren't the same data, I'm not totally sure why they are 
-separated (Darrell, want to chime in on this?). The really crappy thing 
-is that we decided to support mls in require statements by just using 
-the whole string (eg., s0:c0.c126-s15:c0.c128) so that whole string gets 
-a level datum (iirc). I guess we can try adding a symtab_datum and see 
-what the fallout is but I think there are alot of assumptions about how 
-level_datum and sens_datum relate.
+On Mon, 2007-05-07 at 10:47 -0400, Daniel J Walsh wrote:
+> Ok here is an updated patch with the missing interfaces.
+> 
+> snmp is trying to execute sys_module, we are dontauditing
+> 
+> Switched from using nis_use_ypbind to nsswitch, since snmp is using nsswitch
+> 
+> Also sneaking in a fix for manage sendmail_log_t.
 
->> Another option is to just punt on this and it should be handled 
->> naturally in the policyrep branch.
->>     
->
-> We can't punt on a reproducible segfault - it needs to be fixed in
-> stable.
->   
-I know, I was half joking...
+Merged.
+
+-- 
+Chris PeBenito
+Tresys Technology, LLC
+(410) 290-1411 x150
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
