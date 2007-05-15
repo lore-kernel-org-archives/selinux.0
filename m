@@ -1,37 +1,67 @@
-Message-ID: <4649FFA2.9060701@redhat.com>
-Date: Tue, 15 May 2007 14:44:50 -0400
-From: Daniel J Walsh <dwalsh@redhat.com>
+Message-ID: <6b3a7f010705151434j55e27adap2cd1722f01db9b34@mail.gmail.com>
+Date: Tue, 15 May 2007 17:34:52 -0400
+From: "Norman Elton" <normelton@gmail.com>
+To: SELinux@tycho.nsa.gov
+Subject: Console login problems
 MIME-Version: 1.0
-To: Eamon Walsh <ewalsh@tycho.nsa.gov>, Ted X Toth <txtoth@gmail.com>,
-        SE Linux <selinux@tycho.nsa.gov>
-Subject: In FC8 I would like to start playing with trusted X.
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: multipart/alternative;
+	boundary="----=_Part_11261_19842280.1179264892520"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Supposedly The SELinux XExtensions are in FC7 and beyond so time to 
-start using them.
+------=_Part_11261_19842280.1179264892520
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-But lets start simple ...
+I have installed RHEL5 on a test system. Local accounts (such as root) can
+login without a problem. Accounts stored in an LDAP/Kerberos database
+experience unpredictable behavior. They can occassionally login. More often
+than not, once they hit a bash prompt, they are immediately kicked back to
+the login prompt. It's like bash is crashing.
 
-Some of you are looking at using Trusted X for MLS, but I want to look 
-at this from a targeted policy point of view.  What are the security 
-goals of a normal Fedora user. 
+In my /var/log/secure, I see the following...
 
-Lets establish two tangible goals.
+May 15 15:57:00 localhost login: pam_unix(login:auth): authentication
+failure; logname=LOGIN uid=0 euid=0 tty=tty1 ruser= rhost=  user=testuser
+May 15 15:57:00 localhost login: pam_krb5[3659]: authentication succeeds for
+'testuser' (testuser@KRBDOMAIN)
+May 15 15:57:00 localhost login: pam_unix(login:session): session opened for
+user testuser by LOGIN(uid=0)
+May 15 15:57:00 localhost login: pam_selinux(login:session): Warning!  Could
+not get new context for /dev/tty1, not relabeling: Invalid argument
+May 15 15:57:00 localhost login: pam_selinux(login:session): usercon=(null),
+prev_context=system_u:object_r:tty_device_t
+May 15 15:57:00 localhost login: LOGIN ON tty1 BY testuser
+May 15 15:57:00 rheltest login: pam_unix(login:session): session closed for
+user testuser
 
-1. Only the application with focus can get keyboard input.  So if I am 
-on a web page that is asking me for a password (On Line Banking) Only 
-Firefox can read the input.  Not Thunderbird.
-Theoretically I could run this with all apps mostly unconfined.
-firefox_t can capture input on firefox_t.  While unconfined_t can not.
+Here's the bizarre part... even if I completely disable selinux and reboot,
+I still get the same warning message and the symptoms reoccur.
 
-2. No apps except gimp can do a screen capture.  Again I want all apps 
-mostly unconfined
-My goal is to get  a policy that prevents any app from screen capture 
-including
-unconfined_t.  Bug gimp_t in the unconfined domain can.
+I would think disabling selinux would make the sympton go away if it were
+indeed an selinux problem.
 
+This is only happening to LDAP/Kerberos users, and not every time. Any
+thoughts?
+
+Thanks,
+
+Norman
+
+------=_Part_11261_19842280.1179264892520
+Content-Type: text/html; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+I have installed RHEL5 on a test system. Local accounts (such as root) can login without a problem. Accounts stored in an LDAP/Kerberos database experience unpredictable behavior. They can occassionally login. More often than not, once they hit a bash prompt, they are immediately kicked back to the login prompt. It&#39;s like bash is crashing.
+<br><br>In my /var/log/secure, I see the following...<br><br>May 15 15:57:00 localhost login: pam_unix(login:auth): authentication failure; logname=LOGIN uid=0 euid=0 tty=tty1 ruser= rhost=&nbsp; user=testuser<br>May 15 15:57:00 localhost login: pam_krb5[3659]: authentication succeeds for &#39;testuser&#39; (
+testuser@KRBDOMAIN)<br>May 15 15:57:00 localhost login: pam_unix(login:session): session opened for user testuser by LOGIN(uid=0)<br>May 15 15:57:00 localhost login: pam_selinux(login:session): Warning!&nbsp; Could not get new context for /dev/tty1, not relabeling: Invalid argument
+<br>May 15 15:57:00 localhost login: pam_selinux(login:session): usercon=(null), prev_context=system_u:object_r:tty_device_t<br>May 15 15:57:00 localhost login: LOGIN ON tty1 BY testuser<br>May 15 15:57:00 rheltest login: pam_unix(login:session): session closed for user testuser
+<br><br>Here&#39;s the bizarre part... even if I completely disable selinux and reboot, I still get the same warning message and the symptoms reoccur.<br><br>I would think disabling selinux would make the sympton go away if it were indeed an selinux problem.
+<br><br>This is only happening to LDAP/Kerberos users, and not every time. Any thoughts?<br><br>Thanks,<br><br>Norman<br>
+
+------=_Part_11261_19842280.1179264892520--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
