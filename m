@@ -1,39 +1,82 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l4FFcK0g030051
-	for <selinux@tycho.nsa.gov>; Tue, 15 May 2007 11:38:21 -0400
-Received: from exchange.columbia.tresys.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with SMTP id l4FFcKdK019626
-	for <selinux@tycho.nsa.gov>; Tue, 15 May 2007 15:38:20 GMT
-Subject: Re: apcupsd policy
-From: "Christopher J. PeBenito" <cpebenito@tresys.com>
-To: Daniel J Walsh <dwalsh@redhat.com>
-Cc: selinux@tycho.nsa.gov
-In-Reply-To: <463F4D58.7000702@redhat.com>
-References: <200704201926.l3KJQuOH027268@redsox.boston.devel.redhat.com>
-	 <1178549446.25271.6.camel@sgc>  <463F4D58.7000702@redhat.com>
+Subject: Re: [BUG] Segfault on duplicate require of sensitivity
+From: Caleb Case <ccase@tresys.com>
+To: Karl MacMillan <kmacmillan@mentalrootkit.com>
+Cc: B Topscher <bryan@jennandbryan.com>, selinux@tycho.nsa.gov,
+        dgoeddel@TrustedCS.com, method@manicmethod.com,
+        Stephen Smalley <sds@tycho.nsa.gov>
+In-Reply-To: <1179239973.5130.9.camel@localhost.localdomain>
+References: <8b4cbe570704190829m67daa55di8c21a51408987b89@mail.gmail.com>
+	 <1179238573.25191.24.camel@localhost>
+	 <1179239973.5130.9.camel@localhost.localdomain>
 Content-Type: text/plain
-Date: Tue, 15 May 2007 11:37:37 -0400
-Message-Id: <1179243457.725.0.camel@sgc>
+Date: Tue, 15 May 2007 13:09:16 -0400
+Message-Id: <1179248956.25191.41.camel@localhost>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 2007-05-07 at 12:01 -0400, Daniel J Walsh wrote:
-> Christopher J. PeBenito wrote:
-> > Merged, except for the cgi part.  Also some reordering.  The apcupsd
-> > port definition was missing so I commented out the relevant lines for
-> > now.
-> >
-> Added the network defs.
-> apcupsd signals itself also.
+On Tue, 2007-05-15 at 10:39 -0400, Karl MacMillan wrote:
+> On Tue, 2007-05-15 at 10:16 -0400, Caleb Case wrote:
+> > It turns out that level_datum_t is not defined as an actual datum:
+> > 
+> 
+> [...]
+> 
+> > 
+> > The options I see here are not good.  One option: the level_datum_t
+> > should be changed into a conforming *_datum_t and the fallout of this
+> > change handled in the rest of the code which expects to see a
+> > level_datum_t->level.  Second option: level_datum_t is treated specially
+> > in require_symbol (using the symbol_type as the switch).
+> > 
+> 
+> Making it a _datum_t seems to be the right choice - what is your concern
+> about following that path?
+> 
+> Karl
 
-Merged.
+Mainly I am concerned because level_datum_t is exported in libsepol's
+protected headers and will require changes to anything that statically
+links to libsepol.
 
+> 
+> > On Thu, 2007-04-19 at 11:29 -0400, B Topscher wrote:
+> > > When I have sensitivity required in two different locations I get
+> > > segmentation faults when I try and load the module.  For example,
+> > > because s0 and s15 are already declared on other files if I require
+> > > them in the TE file I get a segfault.  I looked in the module.tmp file
+> > > that was created on build and saw that s0 and s15 are declared
+> > > somewhere.  However, if I comment out my require in the TE file it
+> > > loads the module fine.  
+> > > 
+> > > 
+> > > if in the TE I have:
+> > > 
+> > > require { 
+> > >       sensitivity s0;
+> > > }
+> > > 
+> > > function( domain_t )
+> > > 
+> > > and the IF I have 
+> > > 
+> > > interface(`function',`
+> > >               gen_require(`
+> > >                           sensitivity s0;
+> > >                           ') 
+> > >               .......
+> > > ')
+> > > 
+> > > When I build and then semodule -i module.pp,  I get a segfault when
+> > > committing changes (according to semodule -v).  
+> > > 
+> > > Thank you
+> > > Bryan 
+> 
 -- 
-Chris PeBenito
-Tresys Technology, LLC
-(410) 290-1411 x150
-
+Caleb Case
+Tresys Technology
+410-290-1411 x144
 
 --
 This message was distributed to subscribers of the selinux mailing list.
