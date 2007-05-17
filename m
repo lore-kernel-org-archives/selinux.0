@@ -1,65 +1,129 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l4GLwFRr006469
-	for <selinux@tycho.nsa.gov>; Wed, 16 May 2007 17:58:15 -0400
-Received: from an-out-0708.google.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l4GLwG7A008279
-	for <selinux@tycho.nsa.gov>; Wed, 16 May 2007 21:58:16 GMT
-Received: by an-out-0708.google.com with SMTP id c10so87403ana
-        for <selinux@tycho.nsa.gov>; Wed, 16 May 2007 14:58:16 -0700 (PDT)
-Message-ID: <464B78CB.4080107@gmail.com>
-Date: Wed, 16 May 2007 16:34:03 -0500
-From: Ted X Toth <txtoth@gmail.com>
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l4H1vj26015205
+	for <selinux@tycho.nsa.gov>; Wed, 16 May 2007 21:57:45 -0400
+Received: from nz-out-0506.google.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id l4H1vidN019121
+	for <selinux@tycho.nsa.gov>; Thu, 17 May 2007 01:57:44 GMT
+Received: by nz-out-0506.google.com with SMTP id n1so769036nzf
+        for <selinux@tycho.nsa.gov>; Wed, 16 May 2007 18:57:44 -0700 (PDT)
+Message-ID: <464BB646.2050201@gmail.com>
+Date: Thu, 17 May 2007 09:56:22 +0800
+From: Ken YANG <spng.yang@gmail.com>
 MIME-Version: 1.0
-To: Eamon Walsh <ewalsh@tycho.nsa.gov>
-CC: SE Linux <selinux@tycho.nsa.gov>
-Subject: Re: In FC8 I would like to start playing with trusted X.
-References: <4649FFA2.9060701@redhat.com> <1179326483.16624.21.camel@code.and.org> <464B2F95.7090700@redhat.com> <464B386D.3060000@tycho.nsa.gov> <464B3A6F.40000@redhat.com> <464B49F6.7010009@tycho.nsa.gov>
-In-Reply-To: <464B49F6.7010009@tycho.nsa.gov>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: Stephen Smalley <sds@tycho.nsa.gov>
+CC: JanuGerman <doublemalam@yahoo.co.uk>,
+        Karl MacMillan <kmacmillan@mentalrootkit.com>,
+        SELinux List <selinux@tycho.nsa.gov>
+Subject: Re: cannot login using strict policy
+References: <706356.14667.qm@web86906.mail.ukl.yahoo.com>	 <1177515880.24282.223.camel@moss-spartans.epoch.ncsc.mil>	 <4642E6D4.2030006@gmail.com>	 <1178800137.3504.71.camel@moss-spartans.epoch.ncsc.mil>	 <46443A37.7070500@gmail.com> <1178887554.3504.157.camel@moss-spartans.epoch.ncsc.mil>
+In-Reply-To: <1178887554.3504.157.camel@moss-spartans.epoch.ncsc.mil>
+Content-Type: text/plain; charset=gb18030
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Eamon Walsh wrote:
-> Daniel J Walsh wrote:
->> Eamon Walsh wrote:
->>> Daniel J Walsh wrote:
->>>> Ok now I was hoping the NSA guys would hop in and say.  Hey here is 
->>>> how you would do it.  :^)
->>>> Because I have no idea.  Any help would be appreciated.
->>> I've been slowly reviewing all of the 35 X protocol extensions of 
->>> which I'm aware, trying to revise the set of object classes and 
->>> permissions. I have about 8 more extensions to go.  I'm hoping to do 
->>> a major release of the security framework and Flask module before FC8.
->>>
->>> I think the two goals you have set forth are a reasonable target.  
->>> The input goal I don't think is possible with the current 
->>> implementation, because the input extensions (XKB, XInput) are not 
->>> covered by the security hooks.  The screenshot goal should be 
->>> possible.  There are many screenshot apps but they all should call 
->>> XCopyImage or similar, which are controllable.  The problem is that 
->>> the screenshot app gets a BadAccess error from the denial and Xlib 
->>> calls abort; it's not very graceful.
->>>
->> That is what I figured.  And in order to get upstream of Xorg to fix 
->> these problems, we have to start showing usefulness of the access 
->> control.
->
->
-> I have some ideas for demos to show the usefulness of the controls. 
-> Basically bring up a graffiti program that draws on other windows and 
-> show how it can be selectively stopped.  Same thing with a program 
-> that monitors keyboard input.  This doesn't have to be SELinux-based, 
-> it could be a simple DAC module with permission buttons on the window 
-> title bar.  Just as soon as I finish my Big Spreadsheet of X Protocol 
-> and implement the support for the extensions...
->
-> Upstream Xorg is not really the problem though.  The new XCB libraries 
-> have support for proper error handling.  The problem is getting the 
-> toolkits and applications, GTK+ etc. to switch over from Xlib and/or 
-> actually check for errors on every request.
->
->
-What is the current status of the xserver policy? Has it been upstreamed?
+Stephen Smalley wrote:
+> On Fri, 2007-05-11 at 17:41 +0800, Ken YANG wrote:
+>> Stephen Smalley wrote:
+>>> On Thu, 2007-05-10 at 17:33 +0800, Ken YANG wrote:
+>>>> Stephen Smalley wrote:
+>>>>> On Wed, 2007-04-25 at 15:31 +0000, JanuGerman wrote:
+>>>>>> Hi Karl,
+>>>>>>
+>>>>>> Thanks for the response. I have to reboot with 'selinux=0' in order to
+>>>>>> diagnose the type of .bash_profile. It is
+>>>>>> 'root:object_r:user_home_t:s0'. This seems to me a problem, like every
+>>>>>> time, i will have to reboot with selinux=0, in order to get the
+>>>>>> attributes of the file. Plus one question regarding the unconfined_t.
+>>>>>> Is unconfined_t is changed to confined_t in strict policy mode?
+>>>>> You should just be able to boot with enforcing=0, not selinux=0.  Or
+>>>>> even switch to permissive via setenforce 0 if you can login at least on
+>>>>> the console and newrole -r sysadm_r.
+>>>>>
+>>>>> Under strict policy, users run in confined domains like user_t and
+>>>>> staff_t, and the user must newrole -r sysadm_r to enter the admin role.
+>>>>>
+>>>>> The /root files should be labeled with sysadm_home_t, not user_home_t.
+>>>>> Look at /etc/selinux/strict/contexts/files/file_contexts.homedirs for
+>>>>> the /root entries.
+>>>> i also had the same error when switching from targeted to strict.
+>>>>
+>>>> i notice in avc that there are some deny errors:
+>>>>
+>>>> avc: denied { search } comm="gconfd-2" name="root"
+>>>> scontext=root:staff_r:staff_gconfd_t:s0-s0:c0.c1023
+>>>> tcontext=root:object_r:sysadm_home_dir_t:s0
+>>>>
+>>>> i guess that this error is relative to the "permission denied" of
+>>>> ".bash_profile"
+>>>>
+>>>> i find that "staff_gconfd_t" is generated by domain transition
+>>>> from "staff_t" to "staff_gconfd_t". (defined in
+>>>> gnome_per_role_template())
+>>>>
+>>>> i wonder why "root" user role is staff_r when login through gdm,
+>>>> and is sysadm_r when login in 3 level(through mingetty)
+>>>>
+>>>> as stephen said, in strict policy, users should be run in user_t and
+>>>> staff_t, and the "local_login_t" line in "users/root" indicate the
+>>>> role of root is "sysadm_r", and the same line in "default_contexts"
+>>>> indicate that the role of user is staff_r.
+>>>>
+>>>> i am confused in above situations. what decide the role and domain of
+>>>> user (normal users and root)?
+>>> get_ordered_context_list(3)
+>> thanks, Stephen
+>>
+>> when i modify the "local_login_t" line in "users/root" to:
+>>
+>> "
+>> system_r:local_login_t:s0       sysadm_r:sysadm_t:s0 staff_r:staff_t:s0 
+>> user_r:user_t:s0
+>> "
+>>
+>> the role of root(login through non-[xgdw]dm, e.g. tty 2) is "sysadm_r"
+>>
+>> but when i modify the "local_login_t" line in "default_contexts" to:
+>>
+>> "
+>> system_r:xdm_t:s0               sysadm_r:sysadm_t:s0 staff_r:staff_t:s0 
+>> user_r:user_t:s0
+>> "
+>>
+>> the role of root (login through gdm) is still staff_r. why?
+> 
+> Likely because your policy doesn't allow xdm_t to transition directly to
+> sysadm_t; check your xdm_sysadm_login boolean.
+
+thanks very much.
+
+sorry for reply so late, i was in a business trip in this period.
+
+i will check relative parts you point out
+
+
+> 
+>> i think the reason of "bash_profile deny error" is relative to the
+>> "gconfd-2 avc error" message, because domains of "staff_r" have not
+>> permission "search" root homedir, and then of course can not "perform
+>> certain operation" in root HOME. As a result, root can not login
+>> through gdm.
+> 
+> Usually one can login, just not use the usual d
+>> additionally,
+>>
+>> in "xserver.fc", the path of gdm seems to be wrong in fedora, gdm in 
+>> fedora locates in "/usr/sbin/gdm", same with debain
+>> and ubuntu.
+>>
+>> so the type of gdm in fedora, is "bin_t" not "xdm_exec_t", i modify
+>> the "xserver.fc" in attachment patch.
+>> please correct me if i am wrong
+> 
+> /usr/sbin/gdm in fedora is a shell script that invokes the
+> real /usr/sbin/gdm-binary.  You don't want xdm_exec_t on the script,
+> only on the real binary.
+>   
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
