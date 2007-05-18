@@ -1,30 +1,56 @@
 Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l4IJrbdb000892
-	for <selinux@tycho.nsa.gov>; Fri, 18 May 2007 15:53:37 -0400
-Message-ID: <464E0440.9090900@tycho.nsa.gov>
-Date: Fri, 18 May 2007 15:53:36 -0400
-From: Eamon Walsh <ewalsh@tycho.nsa.gov>
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l4IL04lM003495
+	for <selinux@tycho.nsa.gov>; Fri, 18 May 2007 17:00:04 -0400
+Received: from mx1.redhat.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l4IL03qK014816
+	for <selinux@tycho.nsa.gov>; Fri, 18 May 2007 21:00:03 GMT
+Received: from int-mx1.corp.redhat.com (int-mx1.corp.redhat.com [172.16.52.254])
+	by mx1.redhat.com (8.13.1/8.13.1) with ESMTP id l4IL03KF030676
+	for <selinux@tycho.nsa.gov>; Fri, 18 May 2007 17:00:03 -0400
+Received: from mail.boston.redhat.com (mail.boston.redhat.com [172.16.76.12])
+	by int-mx1.corp.redhat.com (8.13.1/8.13.1) with ESMTP id l4IKxupL019643
+	for <selinux@tycho.nsa.gov>; Fri, 18 May 2007 17:00:02 -0400
+Received: from [10.12.32.53] (redsox.boston.devel.redhat.com [10.12.32.53])
+	by mail.boston.redhat.com (8.13.1/8.13.1) with ESMTP id l4IKxtxJ011534
+	for <selinux@tycho.nsa.gov>; Fri, 18 May 2007 16:59:56 -0400
+Message-ID: <464E13CB.1070609@redhat.com>
+Date: Fri, 18 May 2007 16:59:55 -0400
+From: Daniel J Walsh <dwalsh@redhat.com>
 MIME-Version: 1.0
-To: Ted X Toth <txtoth@gmail.com>
-CC: SE Linux <selinux@tycho.nsa.gov>
-Subject: Re: In FC8 I would like to start playing with trusted X.
-References: <4649FFA2.9060701@redhat.com> <1179326483.16624.21.camel@code.and.org> <464B2F95.7090700@redhat.com> <464B386D.3060000@tycho.nsa.gov> <464B3A6F.40000@redhat.com> <464B49F6.7010009@tycho.nsa.gov> <464B78CB.4080107@gmail.com>
-In-Reply-To: <464B78CB.4080107@gmail.com>
+To: SE Linux <selinux@tycho.nsa.gov>
+Subject: Fedora Core 7 has frozen and Fedora 8 Development has started
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Ted X Toth wrote:
-> What is the current status of the xserver policy? Has it been upstreamed?
+This is a good time to get experimental code/updates into the rawhide 
+stream. 
 
-I did post refpolicy patches some months back but Chris identified some 
-issues with them and since I am revisiting the object class/permission 
-set I have not done further work on them.
+My goals for Fedora 8:
+
+* Continued consolidation of targeted and strict policy.
+          - Remove selinux-policy-strict package
+          - Add all user roles from strict policy to targeted
+          - Remove unconfined.pp and you have ~= Strict
+          - Add new roles
+                    - guest_r - terminal sessions only, no network, no 
+setuid apps
+                    - xguest_r - X-Windows version of guest_t
+                    - webadm_r - UID 0 role that can administer http
+                    - logadm_r  - UID 0 role that can administer 
+syslog/audit
 
 
--- 
-Eamon Walsh <ewalsh@tycho.nsa.gov>
-National Security Agency
+* Begin using Trusted X Extensions
+          - Limited control on Screen Capture
+          - Control access to keyboard input
+
+* Continue confining all System Domains in Fedora.  (What used to be in 
+Extras)
+
+Others???
+
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
