@@ -1,82 +1,66 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l4LIKKNb012073
-	for <selinux@tycho.nsa.gov>; Mon, 21 May 2007 14:20:20 -0400
-Received: from atlrel8.hp.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l4LIKJ9R004987
-	for <selinux@tycho.nsa.gov>; Mon, 21 May 2007 18:20:19 GMT
-From: Paul Moore <paul.moore@hp.com>
-To: casey@schaufler-ca.com
-Subject: Re: Question on networking accesses
-Date: Mon, 21 May 2007 14:20:04 -0400
-Cc: selinux@tycho.nsa.gov
-References: <598964.83843.qm@web36606.mail.mud.yahoo.com>
-In-Reply-To: <598964.83843.qm@web36606.mail.mud.yahoo.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Message-Id: <200705211420.05195.paul.moore@hp.com>
+Subject: Re: [PATCH 4/4] selinux: add selinuxfs structure for object class
+	discovery
+From: "Christopher J. PeBenito" <cpebenito@tresys.com>
+To: James Morris <jmorris@namei.org>
+Cc: sds@tycho.nsa.gov, jmorris@redhat.com, eparis@redhat.com,
+        selinux@tycho.nsa.gov
+In-Reply-To: <Line.LNX.4.64.0705211306480.17008@d.namei>
+References: <11797619161088-git-send-email-cpebenito@tresys.com>
+	 <11797619172804-git-send-email-cpebenito@tresys.com>
+	 <1179761918482-git-send-email-cpebenito@tresys.com>
+	 <1179761920707-git-send-email-cpebenito@tresys.com>
+	 <11797619233926-git-send-email-cpebenito@tresys.com>
+	 <Line.LNX.4.64.0705211306480.17008@d.namei>
+Content-Type: text/plain
+Date: Mon, 21 May 2007 18:41:43 +0000
+Message-Id: <1179772903.10995.13.camel@sgc>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Monday, May 21 2007 12:07:21 pm Casey Schaufler wrote:
-> --- Paul Moore <paul.moore@hp.com> wrote:
-> > On Monday, May 21 2007 9:48:52 am Casey Schaufler wrote:
-> > > I have what I hope is a fairly straitforward question on the SELinux
-> > > networking model. Let's pretend that I have a process A that sends a
-> > > UDP packet P to a second process B. From the viewpoint of access
-> > > control is this:
-> > >
-> > >     - process A writing to process B
-> > >     - process B reading from process A
-> > >     - process A creating packet P, and process B reading packet P
-> > >
-> > > some combination of the above, or something else entirely?
-> > >
-> > >From 10,000 feet up in the air that sounds roughly about right. 
-> > > Although if
-> >
-> > you are talking about labeled networking it can be a bit more involved,
-> > especially if you are using labeled IPsec.
-> >
-> > Can you be a bit more specific?
->
-> How about if I throw out an example. The evaluation team loved this
-> one back in '92.
+On Mon, 2007-05-21 at 13:18 -0400, James Morris wrote:
+> On Mon, 21 May 2007, Christopher J. PeBenito wrote:
+> 
+> > From: Christopher J. PeBenito <cpebenito@tresys.com>
+> > 
+> > The structure is as follows (relative to selinuxfs root):
+> > 
+> > /class/file/index
+> > /class/file/perms/read
+> > /class/file/perms/write
+> > ...
+> > 
+> > Each class is allocated 33 inodes, 1 for the class index and 32 for
+> > permissions.  Relative to SEL_CLASS_INO_OFFSET, the inode of the index file
+> > DIV 33 is the class number.  The inode of the permission file % 33 is the
+> > index of the permission for that class.
+> 
+> Keep in mind that any of these may need to be 64-bit at some point, so be 
+> careful about hard-coding any 32-bit assumptions into the kernel/user API.
 
-The example wasn't quite what I was hoping for as I'm still a little confused 
-as to exactly what you are looking for.  However, it's Monday and writing 
-email is looking more attractive than real work so let me take a stab at 
-explaining the network access controls from both a sender and receiver point 
-of view.  I'm certain I'll make a mistake or two, but hopefully somebody will 
-point those out.
+Well its 32 because the access vector is a u32, so an object class can
+only have 32 perms max, which is why I had the following macro.  Perhaps
+the macro should be moved to security.h, next to the struct av_decision
+definition?
 
- A - sender without any form of labeled networking:
-   1. The process must have write/send access to the socket
-   2. The socket must have write/send access for the compat_net/SECMARK
-      controls
+> > +#define NVECTORS 32
+> 
+> Macro name is too generic.
 
- B - receiver without any form of labeled networking
-   1. The packet's receiving socket must have read/recv access for the
-      incoming packet based on the compat_net/SECMARK label
-   2. The process must have read/recv access for the socket
+Maybe something like SEL_AV_MAX or SEL_PERM_MAX?
 
- C - sender with labeled networking using NetLabel
-   (same as without any labeled networking, see "A")
+> > +#define DIV(a, b) ((a) / (b) - ((a) % (b) < 0))
+> 
+> Also too generic, and should be a static inline.
 
- D - receiver with labeled networking using NetLabel
-   1. The packet's receiving socket must have read/recv access for the
-      incoming packet based on the compat_net/SECMARK label
-   2. The packet's receiving socket must have read/recv access for the
-      incoming packet based on the NetLabel security attributes
-   3. The process must have read/recv access for the socket
-
-It is a bit more complicated with labeled IPsec as you have to deal with 
-labeled matching of the socket and SPD/SA but I'll leave that as an exercise 
-for the reader.
+Ok.  I noticed it other places in the kernel, which is why I used it.
+What should it be called?  sel_div()?
 
 -- 
-paul moore
-linux security @ hp
+Chris PeBenito
+Tresys Technology, LLC
+(410) 290-1411 x150
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
