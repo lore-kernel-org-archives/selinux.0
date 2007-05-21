@@ -1,44 +1,63 @@
-Subject: Re: [PATCH 1/4] selinux: add support for querying object classes
-	and permissions from the running policy
-From: "Christopher J. PeBenito" <cpebenito@tresys.com>
-To: James Morris <jmorris@namei.org>
-Cc: sds@tycho.nsa.gov, jmorris@redhat.com, eparis@redhat.com,
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l4LIw6Sf014711
+	for <selinux@tycho.nsa.gov>; Mon, 21 May 2007 14:58:06 -0400
+Received: from mail1.sea5.speakeasy.net (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l4LIw49R011198
+	for <selinux@tycho.nsa.gov>; Mon, 21 May 2007 18:58:05 GMT
+Date: Mon, 21 May 2007 14:58:02 -0400 (EDT)
+From: James Morris <jmorris@namei.org>
+To: "Christopher J. PeBenito" <cpebenito@tresys.com>
+cc: sds@tycho.nsa.gov, jmorris@redhat.com, eparis@redhat.com,
         selinux@tycho.nsa.gov
-In-Reply-To: <Line.LNX.4.64.0705211253190.17008@d.namei>
+Subject: Re: [PATCH 4/4] selinux: add selinuxfs structure for object class
+ discovery
+In-Reply-To: <1179772903.10995.13.camel@sgc>
+Message-ID: <Line.LNX.4.64.0705211456230.17765@d.namei>
 References: <11797619161088-git-send-email-cpebenito@tresys.com>
-	 <11797619172804-git-send-email-cpebenito@tresys.com>
-	 <Line.LNX.4.64.0705211253190.17008@d.namei>
-Content-Type: text/plain
-Date: Mon, 21 May 2007 18:44:18 +0000
-Message-Id: <1179773058.10995.17.camel@sgc>
-Mime-Version: 1.0
+ <11797619172804-git-send-email-cpebenito@tresys.com>
+ <1179761918482-git-send-email-cpebenito@tresys.com>
+ <1179761920707-git-send-email-cpebenito@tresys.com>
+ <11797619233926-git-send-email-cpebenito@tresys.com>
+ <Line.LNX.4.64.0705211306480.17008@d.namei> <1179772903.10995.13.camel@sgc>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 2007-05-21 at 13:02 -0400, James Morris wrote:
-> On Mon, 21 May 2007, Christopher J. PeBenito wrote:
-> > +int security_get_classes(char ***classes, int *nclasses)
-> > +{
-> > +	int rc = -ENOMEM;
-> > +
-> > +	POLICY_RDLOCK;
-> > +
-> > +	*nclasses = policydb.p_classes.nprim;
-> > +	*classes = kzalloc(*nclasses*sizeof(*classes),GFP_KERNEL);
-> 
-> Use kcalloc().
-> 
-> Needs to be GFP_ATOMIC because you're holding a spinlock.
-[...]
-> (Have you tested this with all of the lock debugging enabled ?)
+On Mon, 21 May 2007, Christopher J. PeBenito wrote:
 
-Nope, my mistake.  I'm a kernel coding newbie :)
+> Well its 32 because the access vector is a u32, so an object class can
+> only have 32 perms max, which is why I had the following macro.  Perhaps
+> the macro should be moved to security.h, next to the struct av_decision
+> definition?
 
+Yes, and keep in mind that we may move to u64 sometime.
+
+> > > +#define NVECTORS 32
+> > 
+> > Macro name is too generic.
+> 
+> Maybe something like SEL_AV_MAX or SEL_PERM_MAX?
+
+SEL_VEC_MAX ?
+
+> > > +#define DIV(a, b) ((a) / (b) - ((a) % (b) < 0))
+> > 
+> > Also too generic, and should be a static inline.
+> 
+> Ok.  I noticed it other places in the kernel, which is why I used it.
+> What should it be called?  sel_div()?
+
+Yep, should be fine.
+
+KJ folk may be interested in finding all of these and using a common 
+inline instead.
+
+
+- James
 -- 
-Chris PeBenito
-Tresys Technology, LLC
-(410) 290-1411 x150
-
+James Morris
+<jmorris@namei.org>
 
 --
 This message was distributed to subscribers of the selinux mailing list.
