@@ -1,73 +1,170 @@
 Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l4LG7Mgs003115
-	for <selinux@tycho.nsa.gov>; Mon, 21 May 2007 12:07:22 -0400
-Received: from web36606.mail.mud.yahoo.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with SMTP id l4LG7M9R013506
-	for <selinux@tycho.nsa.gov>; Mon, 21 May 2007 16:07:22 GMT
-Date: Mon, 21 May 2007 09:07:21 -0700 (PDT)
-From: Casey Schaufler <casey@schaufler-ca.com>
-Reply-To: casey@schaufler-ca.com
-Subject: Re: Question on networking accesses
-To: Paul Moore <paul.moore@hp.com>
-Cc: selinux@tycho.nsa.gov
-In-Reply-To: <200705211122.25948.paul.moore@hp.com>
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l4LH26kr006999
+	for <selinux@tycho.nsa.gov>; Mon, 21 May 2007 13:02:06 -0400
+Received: from mail7.sea5.speakeasy.net (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l4LH259R022529
+	for <selinux@tycho.nsa.gov>; Mon, 21 May 2007 17:02:05 GMT
+Date: Mon, 21 May 2007 13:02:02 -0400 (EDT)
+From: James Morris <jmorris@namei.org>
+To: "Christopher J. PeBenito" <cpebenito@tresys.com>
+cc: sds@tycho.nsa.gov, jmorris@redhat.com, eparis@redhat.com,
+        selinux@tycho.nsa.gov
+Subject: Re: [PATCH 1/4] selinux: add support for querying object classes
+ and permissions from the running policy
+In-Reply-To: <11797619172804-git-send-email-cpebenito@tresys.com>
+Message-ID: <Line.LNX.4.64.0705211253190.17008@d.namei>
+References: <11797619161088-git-send-email-cpebenito@tresys.com>
+ <11797619172804-git-send-email-cpebenito@tresys.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Message-ID: <598964.83843.qm@web36606.mail.mud.yahoo.com>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+On Mon, 21 May 2007, Christopher J. PeBenito wrote:
 
---- Paul Moore <paul.moore@hp.com> wrote:
+>  int security_sid_mls_copy(u32 sid, u32 mls_sid, u32 *new_sid);
+>  
+> +int security_get_classes(char ***classes, int *nclasses);
+> +int security_get_permissions(char *class, char ***perms, int *nperms);
+> +
+>  #define SECURITY_FS_USE_XATTR		1 /* use xattr */
+>  #define SECURITY_FS_USE_TRANS		2 /* use transition SIDs, e.g. devpts/tmpfs */
+>  #define SECURITY_FS_USE_TASK		3 /* use task SIDs, e.g. pipefs/sockfs */
+> diff --git a/security/selinux/ss/services.c b/security/selinux/ss/services.c
+> index 40660ff..4196c66 100644
+> --- a/security/selinux/ss/services.c
+> +++ b/security/selinux/ss/services.c
+> @@ -1996,6 +1996,99 @@ out:
+>  	return rc;
+>  }
+>  
+> +static int get_classes_callback(void *k, void *d, void *args)
+> +{
+> +	struct class_datum *datum = d;
+> +	char *name = k, **classes = args;
+> +	int value = datum->value - 1;
+> +
+> +	classes[value] = kstrdup(name,GFP_KERNEL);
 
-> On Monday, May 21 2007 9:48:52 am Casey Schaufler wrote:
-> > I have what I hope is a fairly straitforward question on the SELinux
-> > networking model. Let's pretend that I have a process A that sends a
-> > UDP packet P to a second process B. From the viewpoint of access control
-> > is this:
-> >
-> >     - process A writing to process B
-> >     - process B reading from process A
-> >     - process A creating packet P, and process B reading packet P
-> >
-> > some combination of the above, or something else entirely?
+Coding style: spaces after commas (needs to be fixed throughout).
+
+> +
+
+Probably don't need this blank line.
+
+> +	if (classes[value] == NULL)
+> +		return -ENOMEM;
+
+I'd suggest
+
+	if (!foo)
+
+to remain consistent.
+
+> +
+> +	return 0;
+> +}
+> +
+> +int security_get_classes(char ***classes, int *nclasses)
+> +{
+> +	int rc = -ENOMEM;
+> +
+> +	POLICY_RDLOCK;
+> +
+> +	*nclasses = policydb.p_classes.nprim;
+> +	*classes = kzalloc(*nclasses*sizeof(*classes),GFP_KERNEL);
+
+Use kcalloc().
+
+Needs to be GFP_ATOMIC because you're holding a spinlock.
+
+> +	if (!*classes)
+> +		goto out;
+> +
+> +	rc = hashtab_map(policydb.p_classes.table,get_classes_callback,*classes);
+> +	if (rc < 0) {
+> +		int i;
+> +		for (i = 0; i < *nclasses; i++)
+> +			kfree((*classes)[i]);
+> +		kfree(*classes);
+> +	}
+> +	
+> +out:
+> +	POLICY_RDUNLOCK;
+> +	return rc;
+> +}
+> +
+> +static int get_permissions_callback(void *k, void *d, void *args)
+> +{
+> +	struct perm_datum *datum = d;
+> +	char *name = k, **perms = args;
+> +	int value = datum->value - 1;
+> +
+> +	perms[value] = kstrdup(name,GFP_KERNEL);
+
+Ditto.
+
+(Have you tested this with all of the lock debugging enabled ?)
+
+> +
+> +	if (perms[value] == NULL)
+> +		return -ENOMEM;
+> +
+> +	return 0;
+> +}
+> +
+> +int security_get_permissions(char *class, char ***perms, int *nperms)
+> +{
+> +	int rc = -ENOMEM, i;
+> +	struct class_datum *match;
+> +
+> +	POLICY_RDLOCK;
+> +
+> +	match = hashtab_search(policydb.p_classes.table,class);
+> +	if (match == NULL) {
+> +		printk(KERN_ERR "%s:  unrecognized class %s\n",__FUNCTION__,class);
+> +		rc = -EINVAL;
+> +		goto out;
+> +	}
+> +
+> +	*nperms = match->permissions.nprim;
+> +	*perms = kzalloc(*nperms*sizeof(*perms),GFP_KERNEL);
+
+Ditto.
+
+> +	if (!*perms)
+> +		goto out;
+> +
+> +	if (match->comdatum) {
+> +		rc = hashtab_map(match->comdatum->permissions.table,get_permissions_callback,*perms);
+> +		if (rc < 0)
+> +			goto err;
+> +	}
+> +
+> +	rc = hashtab_map(match->permissions.table,get_permissions_callback,*perms);
+> +	if (rc < 0)
+> +		goto err;
+> +
+> +out:
+> +	POLICY_RDUNLOCK;
+> +	return rc;
+> +
+> +err:
+> +	POLICY_RDUNLOCK;
+> +	for (i = 0; i < *nperms; i++)
+> +		kfree((*perms)[i]);
+> +	kfree(*perms);
+> +	return rc;
+> +}
+> +
+>  struct selinux_audit_rule {
+>  	u32 au_seqno;
+>  	struct context au_ctxt;
 > 
-> >From 10,000 feet up in the air that sounds roughly about right.  Although if
-> 
-> you are talking about labeled networking it can be a bit more involved, 
-> especially if you are using labeled IPsec.
-> 
-> Can you be a bit more specific?
 
-How about if I throw out an example. The evaluation team loved this
-one back in '92.
-
-I have a tic-tac-toe server that does little but maintain a tic-tac-toe
-board. It allows two connections, one for the "X" player and one for the
-"O" player. Player X invokes the tictacclient program, which sends a
-UDP packet to tictacserver. The client may be local or remote. What
-access control decisions are made, where, and using what information?
-
-The decision may be different if it's seen as a write from tictacclient
-to tictacserver than if it's seen as a read from tictacclient by
-tictacserver. The decision may have another outcome entirely if the
-packet is treated as a named object that is created by tictacclient.
-
-So, what should the creator of this tic-tac-toe system expect on an
-selinux system? Will the access decision be based on a write from the
-client, a read by the server, the attribues associated with a packet
-object, or something else entirely?
-
-Historical MLS systems treated the access as a write by the client to
-the server (well, the server's socket) but the MLS rules typically
-limited the communications to matching labels. SELinux is much more
-likely to encounter a situation where the client might be able to write
-to the server but the server might not be allowed to read the client
-(or the other way around). It may matter if it is a read or a write.
-
-
-Casey Schaufler
-casey@schaufler-ca.com
+-- 
+James Morris
+<jmorris@namei.org>
 
 --
 This message was distributed to subscribers of the selinux mailing list.
