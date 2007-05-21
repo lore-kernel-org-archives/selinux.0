@@ -1,43 +1,56 @@
 Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l4LJO5Sk016473
-	for <selinux@tycho.nsa.gov>; Mon, 21 May 2007 15:24:05 -0400
-Received: from mail1.sea5.speakeasy.net (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l4LJO49R015151
-	for <selinux@tycho.nsa.gov>; Mon, 21 May 2007 19:24:05 GMT
-Received: from dsl092-066-197.bos1.dsl.speakeasy.net (HELO d.namei) ([66.92.66.197])
-          (envelope-sender <jmorris@namei.org>)
-          by mail1.sea5.speakeasy.net (qmail-ldap-1.03) with AES256-SHA encrypted SMTP
-          for <selinux@tycho.nsa.gov>; 21 May 2007 19:24:04 -0000
-Date: Mon, 21 May 2007 15:24:03 -0400 (EDT)
-From: James Morris <jmorris@namei.org>
-To: selinux@tycho.nsa.gov
-cc: Daniel J Walsh <dwalsh@redhat.com>
-Subject: SELinux wiki - Developer Resources
-Message-ID: <Line.LNX.4.64.0705211519460.17899@d.namei>
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l4LJhLjD017983
+	for <selinux@tycho.nsa.gov>; Mon, 21 May 2007 15:43:21 -0400
+Received: from atlrel8.hp.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l4LJhJ9R018327
+	for <selinux@tycho.nsa.gov>; Mon, 21 May 2007 19:43:19 GMT
+From: Paul Moore <paul.moore@hp.com>
+To: SE Linux <selinux@tycho.nsa.gov>
+Subject: Re: Fedora Core 7 has frozen and Fedora 8 Development has started
+Date: Mon, 21 May 2007 15:43:09 -0400
+Cc: Daniel J Walsh <dwalsh@redhat.com>, Klaus Weidner <klaus@atsec.com>
+References: <464E13CB.1070609@redhat.com> <20070521190811.GA11544@w-m-p.com> <4651EFCC.1040500@redhat.com>
+In-Reply-To: <4651EFCC.1040500@redhat.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Message-Id: <200705211543.10171.paul.moore@hp.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-I've just added a new page to the SELinux project wiki:
+On Monday, May 21 2007 3:15:24 pm Daniel J Walsh wrote:
+> Klaus Weidner wrote:
+> > On Fri, May 18, 2007 at 04:59:55PM -0400, Daniel J Walsh wrote:
+> >> This is a good time to get experimental code/updates into the rawhide
+> >> stream.
+> >
+> > [...]
+> >
+> >> Others???
+> >
+> > I haven't seen MCS mentioned much recently, is anyone working on that at
+> > this time? Back at the 2006 SELinux symposium there were plans to
+> > integrate category support in file managers and maybe other user tools,
+> > to make it more suitable for everyday use by non-experts.
+> >
+> > -Klaus
+>
+> We switched to using the entire context.  There has been some arguments
+> over the value of
+> MCS versus better support for Type Enforcement in general.
 
-http://selinuxproject.org/page/Developer_Resources
+If I recall correctly, there was some chatter about creating a more generic 
+translation facility so that we could translate the entire SELinux context, 
+versus the MLS range which we do now, into a more human readable label.  I 
+believe doing something like this would help achieve some of the goals that 
+Klaus hinted at with the "make it more suitable for everyday use by 
+non-experts".  It would also help to reinforce the notion that the context is 
+a blob and in general shouldn't be parsed by applications that don't know 
+what they are doing.
 
-The purpose of this is to collect information which may be of use to 
-developers who need to make their apps run well on SELinux systems.
-
-If anyone has anything to add to the page (links, advice, anything) please 
-do so.
-
-One thing in particular that I think needs to be addressed is: how can a 
-developer get help developing policy for their project?
-
-
-
-- James
 -- 
-James Morris
-<jmorris@namei.org>
+paul moore
+linux security @ hp
 
 --
 This message was distributed to subscribers of the selinux mailing list.
