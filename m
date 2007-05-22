@@ -1,89 +1,61 @@
 Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l4MEpwG6015999
-	for <selinux@tycho.nsa.gov>; Tue, 22 May 2007 10:51:58 -0400
-Received: from mail.and.org (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id l4MEpuRP014477
-	for <selinux@tycho.nsa.gov>; Tue, 22 May 2007 14:51:57 GMT
-Subject: Re: Fedora Core 7 has frozen and Fedora 8 Development has started
-From: James Antill <jantill@redhat.com>
-To: Klaus Weidner <klaus@atsec.com>
-Cc: Paul Moore <paul.moore@hp.com>, SE Linux <selinux@tycho.nsa.gov>,
-        Daniel J Walsh <dwalsh@redhat.com>
-In-Reply-To: <20070521221304.GB11544@w-m-p.com>
-References: <464E13CB.1070609@redhat.com> <20070521190811.GA11544@w-m-p.com>
-	 <4651EFCC.1040500@redhat.com> <200705211543.10171.paul.moore@hp.com>
-	 <1179779222.23650.24.camel@code.and.org> <20070521221304.GB11544@w-m-p.com>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-jBDm0Ckxzg+cP9dMJxSt"
-Date: Tue, 22 May 2007 10:51:52 -0400
-Message-Id: <1179845512.23650.35.camel@code.and.org>
-Mime-Version: 1.0
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l4MEuJeC016425
+	for <selinux@tycho.nsa.gov>; Tue, 22 May 2007 10:56:19 -0400
+Received: from web36614.mail.mud.yahoo.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with SMTP id l4MEuIRP015526
+	for <selinux@tycho.nsa.gov>; Tue, 22 May 2007 14:56:18 GMT
+Date: Tue, 22 May 2007 07:56:18 -0700 (PDT)
+From: Casey Schaufler <casey@schaufler-ca.com>
+Reply-To: casey@schaufler-ca.com
+Subject: Re: Question on networking accesses
+To: Steve G <linux_4ever@yahoo.com>
+Cc: selinux@tycho.nsa.gov
+In-Reply-To: <827038.22839.qm@web51509.mail.re2.yahoo.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Message-ID: <497871.6976.qm@web36614.mail.mud.yahoo.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 
---=-jBDm0Ckxzg+cP9dMJxSt
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+--- Steve G <linux_4ever@yahoo.com> wrote:
 
-On Mon, 2007-05-21 at 17:13 -0500, Klaus Weidner wrote:
+> 
+> >I guess with SELinux you could think of it as the following:
+> >
+> > - process A (subject) writes to socket A1 (object)
+> > - socket A1 (subject) sends packet to compat_net/SECMARK (object)
+> >
+> >    packet traverses the ether (real magic)
+> >
+> > - socket B1 (subject) receives the packet via int/ext labels (object)
+> > - process B (subject) receives the data via socket B1 (object)
+> 
+> I think this is missing the access control decisions. First, the sender has
+> to be
+> in a domain that allows a connect/sendto, the connection between domains must
+> be
+> allowed by policy, and the receiver has to be in a domain that allows
+> listen/recvfrom. This is omitting any DAC restrictions, capability
+> requirements,
+> and IPTables rules which have first vote on denying the activity. The access
+> control is mostly at the entry points to the transaction and not on a packet
+> by
+> packet basis (except perhaps udp where every packet is an entry point to the
+> transaction).
 
-> Would it make sense to make a distinction between end user modifiable
-> types and admin types? For example, at first glance the following look as
-> if they'd be most relevant for non-admin users:
+The nut of my question, which I think Paul has answered, is about
+the subtle distintion between A writing to B and B reading from A.
+There sure is a lot of sophistication involved in the process, and
+it looks as if A thinks it is writing and B thinks it is reading.
+That implies an intermediate object for A to write and B to read.
+As I noted before, models with insubstantial objects have been frowned
+upon in the past. Y'all may be better positioned to argue in their
+favor than I was back in '95 an '02.
 
- Right, the admin can use nautilus too :). Note that if a context is
-viewed that doesn't match any of those translations the failure mode is
-to just display the full context to the user, so I wanted to add all of
-the types that any user would hit in at least ~/ and /etc.
 
-> >        HACK_TYPE("cvs_data_t", _("Read and write from CVS daemon"));
-> >        HACK_TYPE("public_content_rw_t",
-> >                  _("Read and write from CIFS/ftp/http/nfs/rsync"));
-> >        HACK_TYPE("public_content_t", _("Read from CIFS/ftp/http/nfs/rsy=
-nc"));
-> >        HACK_TYPE("samba_share_t", _("Shared via CIFS (samba)"));
-> >        HACK_TYPE("staff_home_t", _("Staff user data"));
-> >        HACK_TYPE("staff_home_dir_t", _("Staff user home directory"));
-> >        HACK_TYPE("sysadm_home_t", _("Sysadmin user data"));
-> >        HACK_TYPE("sysadm_home_dir_t", _("Sysadmin user home directory")=
-);
-> >        HACK_TYPE("tmp_t", _("Temporary data"));
-> >        HACK_TYPE("user_tmp_t", _("User temporary data"));
-> >        HACK_TYPE("user_home_t", _("User data"));
-> >        HACK_TYPE("user_home_dir_t", _("User home directory"));
-> >        HACK_TYPE("xen_image_t", _("Xen image"));
->=20
-> Maybe one way to do that would be to use a drop-down for the type that
-> only contains the types that the user is actually permitted to change
-> this object to?
-
- The above function _just_ does the translation from a type to "readable
-message saying what the type is". This is not the list of entries that
-is displayed to the user.
- The list is generated by always adding tmp_t, user_home_t, user_tmp_t
-and then whatever is contained in selinux_customizable_types_path().
-Then the current type for the file, and the matchpathcon type for the
-file (with all the other values for the context taken from the current
-context). That's not very pretty either, but it doesn't make me cringe
-as much as the above :).
-
---=20
-James Antill <jantill@redhat.com>
-
---=-jBDm0Ckxzg+cP9dMJxSt
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.7 (GNU/Linux)
-
-iD8DBQBGUwOH11eXTEMrxtQRAvdMAJ45arlWOpk3lXZ67/FSJy0J2jySXwCgx4Hk
-xNR8mk4tc5fOQyylDHVwHyo=
-=M8/6
------END PGP SIGNATURE-----
-
---=-jBDm0Ckxzg+cP9dMJxSt--
-
+Casey Schaufler
+casey@schaufler-ca.com
 
 --
 This message was distributed to subscribers of the selinux mailing list.
