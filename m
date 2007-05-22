@@ -1,58 +1,47 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l4MJOa9R002974
-	for <selinux@tycho.nsa.gov>; Tue, 22 May 2007 15:24:36 -0400
-Received: from atlrel6.hp.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id l4MJOak3016362
-	for <selinux@tycho.nsa.gov>; Tue, 22 May 2007 19:24:36 GMT
-From: Paul Moore <paul.moore@hp.com>
-To: Stefan Schulze Frielinghaus <stefan@sf-net.com>
-Subject: Re: AVC: IPv6 problems
-Date: Tue, 22 May 2007 15:24:28 -0400
-Cc: SELinux List <selinux@tycho.nsa.gov>
-References: <6AA1314E-2718-446E-BFC9-6961DE951E09@sf-net.com>
-In-Reply-To: <6AA1314E-2718-446E-BFC9-6961DE951E09@sf-net.com>
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l4MKRoow006074
+	for <selinux@tycho.nsa.gov>; Tue, 22 May 2007 16:27:50 -0400
+Message-ID: <4653523E.6010403@tycho.nsa.gov>
+Date: Tue, 22 May 2007 16:27:42 -0400
+From: Eamon Walsh <ewalsh@tycho.nsa.gov>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Message-Id: <200705221524.28541.paul.moore@hp.com>
+To: selinux@tycho.nsa.gov
+CC: russell@coker.com.au, eparis@parisplace.org
+Subject: SysV shared memory segments and X
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tuesday, May 22 2007 2:22:09 pm Stefan Schulze Frielinghaus wrote:
-> periodically I receive the following AVC denial:
->
-> audit(1179815459.477:213): avc:  denied  { rawip_send } for
-> saddr=fe80:0000:0000:0000:0211:d8ff:feea:XXXX
-> daddr=fe80:0000:0000:0000:0211:24ff:fee1:YYYY netif=eth0
-> scontext=system_u:system_r:kernel_t:s15:c0.c255
-> tcontext=system_u:object_r:link_local_node_t:s0 tclass=node
->
-> My local rule-set:
->
-> allow kernel_t link_local_node_t:node rawip_send;
-> # another AVC denial which often raises up
-> allow kernel_t compat_ipv4_node_t:node rawip_send;
->
-> The rules seem to be ignored. Every day I receive some of the
-> mentioned AVC denials despite the fact that the TE rules are loaded.
-> Is this a known problem with IPv6 traffic in LANs? Is there even a
-> solution out?
+Having reviewed the various X protocol extensions I can comment on the 
+way X uses shared memory segments, following up on the threads 
+concerning labeling of shared memory segments:
 
-The problem doesn't appear to be related to the TE rules, but rather with the 
-MLS sensitivity labels.  The kernel is running with a very high sensitivity 
-label (s15:c0.c255) and it trying to write/send to a node with a very low 
-sensitivity label (s0) which I believe violates the MLS constraints unless 
-the kernel_t domain or link_local_node_t object has a type attribute which 
-provides MLS overrides.
+http://marc.info/?l=selinux&m=115401962007617&w=2
+http://marc.info/?l=selinux&m=115765873100144&w=2
 
-It's hard to say what the solution is because it most likely depends on what 
-you are trying to do.  You might want to share your goals with the list and 
-perhaps we can help, otherwise I would recommend you look at the MLS 
-reference policy interfaces.
+X server uses shared memory to talk to client applications in two 
+places: sharing of image data and sharing of font metrics.
+
+In the former case, the client application creates the shared memory 
+segment and passes the ID through the protocol to the X server which 
+attaches to it.  Then client can read/write image data to the segment 
+using ShmPutImage, ShmGetImage, etc.  When attaching, the X server calls 
+getpeercred() on the client's UNIX socket and manually checks the values 
+against the ownership and permissions of the segment.  This check was 
+apparently buggy for some years:
+
+http://www.securityfocus.com/bid/4396/discuss
+
+In the latter case, which is different since the font metrics are 
+read-only, the _server_ creates a world-readable shared memory segment 
+and passes its ID to the client which attaches to it to read out the 
+font metrics.
+
 
 -- 
-paul moore
-linux security @ hp
+Eamon Walsh <ewalsh@tycho.nsa.gov>
+National Security Agency
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
