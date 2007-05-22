@@ -1,49 +1,44 @@
-Message-ID: <465329C4.9080202@tresys.com>
-Date: Tue, 22 May 2007 13:35:00 -0400
-From: Joshua Brindle <jbrindle@tresys.com>
-MIME-Version: 1.0
-To: Daniel J Walsh <dwalsh@redhat.com>
-CC: selinux@tycho.nsa.gov, sds@tycho.nsa.gov, kmacmillan@mentalrootkit.com
-Subject: Re: [patch 0/3] genhomedircon replacement in libsemanage
-References: <20070521095414.832619201@tresys.com> <4653270A.50308@redhat.com>
-In-Reply-To: <4653270A.50308@redhat.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l4MILxEN031503
+	for <selinux@tycho.nsa.gov>; Tue, 22 May 2007 14:22:00 -0400
+Received: from moutng.kundenserver.de (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id l4MILwk3002516
+	for <selinux@tycho.nsa.gov>; Tue, 22 May 2007 18:21:58 GMT
+Mime-Version: 1.0 (Apple Message framework v752.2)
+Message-Id: <6AA1314E-2718-446E-BFC9-6961DE951E09@sf-net.com>
+Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
+To: SELinux List <selinux@tycho.nsa.gov>
+From: Stefan Schulze Frielinghaus <stefan@sf-net.com>
+Subject: AVC: IPv6 problems
+Date: Tue, 22 May 2007 20:22:09 +0200
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Daniel J Walsh wrote:
-> jbrindle@tresys.com wrote:
->> This replaces genhomedircon with equivalent functionality in 
->> libsemanage. The homedir_template is also no longer installed, this 
->> leaves some unused path functions in libselinux but removing those 
->> would break the ABI.
->> This does the same things that genhomedircon did though some seemed 
->> strange, like removing /sbin/nologin from the list of valid shells, 
->> presumably to keep ftp users and such from getting file contexts 
->> generated for them, I'm not sure how valid the assumption is but we 
->> didn't want to change the functionality of genhomedircon in this patch 
->> set.
->>
->> The first patch adds genhomedircon.c to libsemanage and calls it from 
->> the semanage_store.c and removes the prior call to genhomedircon.
->>   
-> genhomedircon goal in life was to find "login user accounts" and 
-> generate appropriate file context for them.  So we do not want any users 
-> with UID < 500 or with invalid shells.  /bin/nologin is not a valid 
-> login shell.  genhomedir command should be kept around even if it is 
-> only front-ending libsemanage.  Since an admin can add additional users 
-> with homedirs in random locations.  They could/should then run 
-> genhomedircon to fix the file context file.
->> The second patch is a set of tests for the new functions
->>
+Hello,
 
-Why is /bin/nologin in /etc/shells then? Our code is now making 
-assumptions about what shells are indeed valid that isn't based on what 
-the system itself says.
+periodically I receive the following AVC denial:
 
-semanage -Bn will rebuild the file context files (and the rest of the 
-policy) which includes running genhomedircon. No need for an external 
-command to do this.
+audit(1179815459.477:213): avc:  denied  { rawip_send } for   
+saddr=fe80:0000:0000:0000:0211:d8ff:feea:XXXX  
+daddr=fe80:0000:0000:0000:0211:24ff:fee1:YYYY netif=eth0  
+scontext=system_u:system_r:kernel_t:s15:c0.c255  
+tcontext=system_u:object_r:link_local_node_t:s0 tclass=node
+
+My local rule-set:
+
+allow kernel_t link_local_node_t:node rawip_send;
+# another AVC denial which often raises up
+allow kernel_t compat_ipv4_node_t:node rawip_send;
+
+The rules seem to be ignored. Every day I receive some of the  
+mentioned AVC denials despite the fact that the TE rules are loaded.  
+Is this a known problem with IPv6 traffic in LANs? Is there even a  
+solution out?
+
+Best regards,
+Stefan
+
+PS: I'm using Debian (etch) with refpolicy-20061212.
 
 --
 This message was distributed to subscribers of the selinux mailing list.
