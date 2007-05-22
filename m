@@ -1,61 +1,41 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l4MEuJeC016425
-	for <selinux@tycho.nsa.gov>; Tue, 22 May 2007 10:56:19 -0400
-Received: from web36614.mail.mud.yahoo.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with SMTP id l4MEuIRP015526
-	for <selinux@tycho.nsa.gov>; Tue, 22 May 2007 14:56:18 GMT
-Date: Tue, 22 May 2007 07:56:18 -0700 (PDT)
-From: Casey Schaufler <casey@schaufler-ca.com>
-Reply-To: casey@schaufler-ca.com
-Subject: Re: Question on networking accesses
-To: Steve G <linux_4ever@yahoo.com>
-Cc: selinux@tycho.nsa.gov
-In-Reply-To: <827038.22839.qm@web51509.mail.re2.yahoo.com>
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l4MEsiXX016281
+	for <selinux@tycho.nsa.gov>; Tue, 22 May 2007 10:54:44 -0400
+Received: from exchange.columbia.tresys.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with SMTP id l4MEsh61011778
+	for <selinux@tycho.nsa.gov>; Tue, 22 May 2007 14:54:43 GMT
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Message-ID: <497871.6976.qm@web36614.mail.mud.yahoo.com>
+Content-Type: text/plain;
+	charset="us-ascii"
+Subject: RE: Fedora Core 7 has frozen and Fedora 8 Development has started
+Date: Tue, 22 May 2007 10:54:40 -0400
+Message-ID: <6FE441CD9F0C0C479F2D88F959B01588BEFCC2@exchange.columbia.tresys.com>
+In-Reply-To: <4652F0B7.60506@manicmethod.com>
+References: <464E13CB.1070609@redhat.com> <20070521190811.GA11544@w-m-p.com> <4651EFCC.1040500@redhat.com> <200705211543.10171.paul.moore@hp.com> <1179779222.23650.24.camel@code.and.org> <20070521221304.GB11544@w-m-p.com> <4652F0B7.60506@manicmethod.com>
+From: "Todd Miller" <Tmiller@tresys.com>
+To: "Joshua Brindle" <method@manicmethod.com>,
+        "Klaus Weidner" <klaus@atsec.com>
+Cc: "James Antill" <jantill@redhat.com>, "Paul Moore" <paul.moore@hp.com>,
+        "SE Linux" <selinux@tycho.nsa.gov>,
+        "Daniel J Walsh" <dwalsh@redhat.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+Joshua Brindle wrote:
+> How would the client get that kind of information? apol is the only
+> app I know if that does any kind of relabel analysis to see what who
+> can relabel what-to-what and that would be a pretty high level
+> dependency for nautilus (and it also uses the policy on disk instead
+> of the one loaded into the kernel). Also the list would be completely
+> unusable when run from unconfined_t, which is the normal use case.   
 
---- Steve G <linux_4ever@yahoo.com> wrote:
+There was a proof of concept file label utility in SEDarwin that used a
+sysctl to get the list of allowable file contexts for a user.  Like you
+say, it was basically useless from unconfined_t (it was initially
+written for the old example policy).
 
-> 
-> >I guess with SELinux you could think of it as the following:
-> >
-> > - process A (subject) writes to socket A1 (object)
-> > - socket A1 (subject) sends packet to compat_net/SECMARK (object)
-> >
-> >    packet traverses the ether (real magic)
-> >
-> > - socket B1 (subject) receives the packet via int/ext labels (object)
-> > - process B (subject) receives the data via socket B1 (object)
-> 
-> I think this is missing the access control decisions. First, the sender has
-> to be
-> in a domain that allows a connect/sendto, the connection between domains must
-> be
-> allowed by policy, and the receiver has to be in a domain that allows
-> listen/recvfrom. This is omitting any DAC restrictions, capability
-> requirements,
-> and IPTables rules which have first vote on denying the activity. The access
-> control is mostly at the entry points to the transaction and not on a packet
-> by
-> packet basis (except perhaps udp where every packet is an entry point to the
-> transaction).
+ - todd
 
-The nut of my question, which I think Paul has answered, is about
-the subtle distintion between A writing to B and B reading from A.
-There sure is a lot of sophistication involved in the process, and
-it looks as if A thinks it is writing and B thinks it is reading.
-That implies an intermediate object for A to write and B to read.
-As I noted before, models with insubstantial objects have been frowned
-upon in the past. Y'all may be better positioned to argue in their
-favor than I was back in '95 an '02.
-
-
-Casey Schaufler
-casey@schaufler-ca.com
 
 --
 This message was distributed to subscribers of the selinux mailing list.
