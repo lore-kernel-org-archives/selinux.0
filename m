@@ -1,86 +1,75 @@
-Subject: RE: object class discovery userland
-From: "Christopher J. PeBenito" <cpebenito@tresys.com>
-To: Stephen Smalley <sds@tycho.nsa.gov>
-Cc: Joshua Brindle <jbrindle@tresys.com>, Eamon Walsh <ewalsh@tycho.nsa.gov>,
-        SELinux Mail List <selinux@tycho.nsa.gov>
-In-Reply-To: <1177340283.24282.24.camel@moss-spartans.epoch.ncsc.mil>
-References: <1177077717.15762.32.camel@sgc> <4628F05B.7040309@tycho.nsa.gov>
-	 <4628F20E.2000208@tycho.nsa.gov>  <1177089541.24870.17.camel@sgc>
-	 <1177338792.24282.16.camel@moss-spartans.epoch.ncsc.mil>
-	 <6FE441CD9F0C0C479F2D88F959B01588A71927@exchange.columbia.tresys.com>
-	 <1177340283.24282.24.camel@moss-spartans.epoch.ncsc.mil>
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l4NEsELZ017349
+	for <selinux@tycho.nsa.gov>; Wed, 23 May 2007 10:54:14 -0400
+Received: from mx1.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id l4NEsCeZ016208
+	for <selinux@tycho.nsa.gov>; Wed, 23 May 2007 14:54:12 GMT
+Subject: Re: Fedora Core 7 has frozen and Fedora 8 Development has started
+From: Karl MacMillan <kmacmillan@mentalrootkit.com>
+To: Joshua Brindle <method@manicmethod.com>
+Cc: Todd Miller <Tmiller@tresys.com>, Klaus Weidner <klaus@atsec.com>,
+        James Antill <jantill@redhat.com>, Paul Moore <paul.moore@hp.com>,
+        SE Linux <selinux@tycho.nsa.gov>, Daniel J Walsh <dwalsh@redhat.com>
+In-Reply-To: <465308DD.2090600@manicmethod.com>
+References: <464E13CB.1070609@redhat.com> <20070521190811.GA11544@w-m-p.com>
+	 <4651EFCC.1040500@redhat.com> <200705211543.10171.paul.moore@hp.com>
+	 <1179779222.23650.24.camel@code.and.org> <20070521221304.GB11544@w-m-p.com>
+	 <4652F0B7.60506@manicmethod.com>
+	 <6FE441CD9F0C0C479F2D88F959B01588BEFCC2@exchange.columbia.tresys.com>
+	 <465308DD.2090600@manicmethod.com>
 Content-Type: text/plain
-Date: Wed, 23 May 2007 14:17:32 +0000
-Message-Id: <1179929852.10995.51.camel@sgc.columbia.tresys.com>
+Date: Wed, 23 May 2007 10:01:08 -0400
+Message-Id: <1179928868.26483.14.camel@localhost.localdomain>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 2007-04-23 at 10:58 -0400, Stephen Smalley wrote:
-> On Mon, 2007-04-23 at 10:43 -0400, Joshua Brindle wrote:
-> > > From: Stephen Smalley [mailto:sds@tycho.nsa.gov] 
-> > > 
-> > > On Fri, 2007-04-20 at 13:19 -0400, Christopher J. PeBenito wrote:
-> > > > On Fri, 2007-04-20 at 13:02 -0400, Eamon Walsh wrote:
-> > > > > Eamon Walsh wrote:
-> > > > > > Christopher J. PeBenito wrote:
-> > > > > >> 3. stop exporting class and perm indexes outside of the 
-> > > > > >> libraries.  Then the reverse lookup wouldn't be needed.  This 
-> > > > > >> would involve some overhauling of the libraries.
-> > > > > > 
-> > > > > > I don't think this is a good idea because of the disruption it 
-> > > > > > would cause with access vector processing (as passed to 
-> > > > > > security_av_string() and avc_has_perm()).  How do you 
-> > > or together strings?
-> > > > > > 
-> > > > > > Why not just cache the numbers in the library, as Karl 
-> > > suggested, 
-> > > > > > or create a parallel "class_num" or "class_index" 
-> > > directory with 
-> > > > > > numeric nodes (perhaps renaming class to class_name).
-> > > > > > 
-> > > > > class_num/1/perms/1
-> > > > > class_num/1/name
-> > > > 
-> > > > I don't feel strongly about any of my suggestions, I mainly 
-> > > wanted to 
-> > > > get the discussion going.  The inspiration for symlink idea 
-> > > was from 
-> > > > all the symlinking you see in sysfs, but the above 
-> > > structure certainly 
-> > > > is an option too.
-> > > 
-> > > I'd recommend caching in the library and doing the reverse 
-> > > lookup there rather than encoding it into the pseudo filesystem state.
-> > 
-> > Making the library open and cache every class and permission seems
-> > undesirable. What do you have against doing it from the filesystem?
+On Tue, 2007-05-22 at 11:14 -0400, Joshua Brindle wrote:
+> Todd Miller wrote:
+> > Joshua Brindle wrote:
+> >   
+> >> How would the client get that kind of information? apol is the only
+> >> app I know if that does any kind of relabel analysis to see what who
+> >> can relabel what-to-what and that would be a pretty high level
+> >> dependency for nautilus (and it also uses the policy on disk instead
+> >> of the one loaded into the kernel). Also the list would be completely
+> >> unusable when run from unconfined_t, which is the normal use case.   
+> >>     
+> >
+> > There was a proof of concept file label utility in SEDarwin that used a
+> > sysctl to get the list of allowable file contexts for a user.  Like you
+> > say, it was basically useless from unconfined_t (it was initially
+> > written for the old example policy).
+> >   
 > 
-> You don't have to cache them all - the cache can be populated lazily
-> (but I'd expect it to pull in an entire class at a time).
+> What does allowable file context mean?
 > 
-> I'm not keen on having redundant information in the filesystem state,
-> and I don't think these operations are on the critical path anyway for
-> performance.
 
-One issue that we realized on this is that the cache is going to have to
-be flushed when the policy is reloaded.  For object managers that have a
-full AVC that is simple, since we can just add it to the netlink socket
-handler where it resets the AVC.
+This doesn't have to be an exhaustive list of contexts - but a list of
+the most likely contexts that the user might want would be helpful.
 
-However, for simple ones such as passwd and crond which, don't need an
-AVC, there isn't a facility now.  Crond should be ok since it only
-checks process permissions, which can't change on policy reload.
-Perhaps a lighter version of the netlink support that just listens for
-policy reloads?
+> You need to be able to do an analysis on the policy to see what user can 
+> relabelfrom and what they can relabelto. If they can't relabelfrom the 
+> file being modified in nautilus then nothing should appear, otherwise 
+> the types they can relabelto would appear.
+> 
 
-The object manager will also have to be modified to get the new class
-and perm values on a policy reload.
+1) The analysis isn't that complicated - no reason it can't be done in
+libsepol if it is useful.
 
--- 
-Chris PeBenito
-Tresys Technology, LLC
-(410) 290-1411 x150
+2) It could be data driven from the policy - types could be marked in
+refpolicy as likely candidates for relabeling by different domains.
+
+The larger point, I think, is that users often directly interact with
+types / contexts, particularly when dealing with the filesystem. These
+types should be documented (just like interfaces) and users should be
+given help determining appropriate types / contexts when labeling is
+needed (and users can mean unprivileged users or admins).
+
+Basically - the refpolicy notion that types are private resources of
+modules is broken. There is no encapsulation - so we need docs, etc.
+
+Karl
 
 
 --
