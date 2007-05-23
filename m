@@ -1,77 +1,90 @@
-Subject: Re: [PATCH 1/4] selinux: add support for querying object classes
-	and permissions from the running policy
-From: "Christopher J. PeBenito" <cpebenito@tresys.com>
-To: James Antill <jantill@redhat.com>
-Cc: sds@tycho.nsa.gov, jmorris@redhat.com, eparis@redhat.com,
-        selinux@tycho.nsa.gov
-In-Reply-To: <1179934928.23650.65.camel@code.and.org>
-References: <1179925929721-git-send-email-cpebenito@tresys.com>
-	 <11799259343624-git-send-email-cpebenito@tresys.com>
-	 <1179934928.23650.65.camel@code.and.org>
-Content-Type: text/plain
-Date: Wed, 23 May 2007 17:25:47 +0000
-Message-Id: <1179941147.10995.58.camel@sgc.columbia.tresys.com>
-Mime-Version: 1.0
+Message-ID: <46548D4E.50000@tycho.nsa.gov>
+Date: Wed, 23 May 2007 14:51:58 -0400
+From: Eamon Walsh <ewalsh@tycho.nsa.gov>
+MIME-Version: 1.0
+To: "Christopher J. PeBenito" <cpebenito@tresys.com>
+CC: Stephen Smalley <sds@tycho.nsa.gov>, Joshua Brindle <jbrindle@tresys.com>,
+        SELinux Mail List <selinux@tycho.nsa.gov>
+Subject: Re: object class discovery userland
+References: <1177077717.15762.32.camel@sgc> <4628F05B.7040309@tycho.nsa.gov>	 <4628F20E.2000208@tycho.nsa.gov>  <1177089541.24870.17.camel@sgc>	 <1177338792.24282.16.camel@moss-spartans.epoch.ncsc.mil>	 <6FE441CD9F0C0C479F2D88F959B01588A71927@exchange.columbia.tresys.com>	 <1177340283.24282.24.camel@moss-spartans.epoch.ncsc.mil> <1179929852.10995.51.camel@sgc.columbia.tresys.com>
+In-Reply-To: <1179929852.10995.51.camel@sgc.columbia.tresys.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2007-05-23 at 11:42 -0400, James Antill wrote:
-> On Wed, 2007-05-23 at 09:12 -0400, Christopher J. PeBenito wrote:
-> > 
-> > +static int get_permissions_callback(void *k, void *d, void *args)
-> > +{
-> > +       struct perm_datum *datum = d;
-> > +       char *name = k, **perms = args;
-> > +       int value = datum->value - 1;
-> > +
-> > +       perms[value] = kstrdup(name, GFP_ATOMIC);
-> > +       if (!perms[value])
-> > +               return -ENOMEM;
-> > +
-> > +       return 0;
-> > +}
-> > +
-> > +int security_get_permissions(char *class, char ***perms, int *nperms)
-> > +{
-> [...]
-> > +       *nperms = match->permissions.nprim;
-> > +       *perms = kcalloc(*nperms, sizeof(*perms), GFP_ATOMIC);
-> > +       if (!*perms)
-> > +               goto out;
-> > +
-> > +       if (match->comdatum) {
-> > +               rc = hashtab_map(match->comdatum->permissions.table,
-> > +                               get_permissions_callback, *perms);
-> > +               if (rc < 0)
-> > +                       goto err;
-> > +       }
-> > +
-> > +       rc = hashtab_map(match->permissions.table, get_permissions_callback,
-> > +                       *perms);
+Christopher J. PeBenito wrote:
+> On Mon, 2007-04-23 at 10:58 -0400, Stephen Smalley wrote:
+>> On Mon, 2007-04-23 at 10:43 -0400, Joshua Brindle wrote:
+>>>> From: Stephen Smalley [mailto:sds@tycho.nsa.gov] 
+>>>>
+>>>> On Fri, 2007-04-20 at 13:19 -0400, Christopher J. PeBenito wrote:
+>>>>> On Fri, 2007-04-20 at 13:02 -0400, Eamon Walsh wrote:
+>>>>>> Eamon Walsh wrote:
+>>>>>>> Christopher J. PeBenito wrote:
+>>>>>>>> 3. stop exporting class and perm indexes outside of the 
+>>>>>>>> libraries.  Then the reverse lookup wouldn't be needed.  This 
+>>>>>>>> would involve some overhauling of the libraries.
+>>>>>>> I don't think this is a good idea because of the disruption it 
+>>>>>>> would cause with access vector processing (as passed to 
+>>>>>>> security_av_string() and avc_has_perm()).  How do you 
+>>>> or together strings?
+>>>>>>> Why not just cache the numbers in the library, as Karl 
+>>>> suggested, 
+>>>>>>> or create a parallel "class_num" or "class_index" 
+>>>> directory with 
+>>>>>>> numeric nodes (perhaps renaming class to class_name).
+>>>>>>>
+>>>>>> class_num/1/perms/1
+>>>>>> class_num/1/name
+>>>>> I don't feel strongly about any of my suggestions, I mainly 
+>>>> wanted to 
+>>>>> get the discussion going.  The inspiration for symlink idea 
+>>>> was from 
+>>>>> all the symlinking you see in sysfs, but the above 
+>>>> structure certainly 
+>>>>> is an option too.
+>>>> I'd recommend caching in the library and doing the reverse 
+>>>> lookup there rather than encoding it into the pseudo filesystem state.
+>>> Making the library open and cache every class and permission seems
+>>> undesirable. What do you have against doing it from the filesystem?
+>> You don't have to cache them all - the cache can be populated lazily
+>> (but I'd expect it to pull in an entire class at a time).
+>>
+>> I'm not keen on having redundant information in the filesystem state,
+>> and I don't think these operations are on the critical path anyway for
+>> performance.
 > 
+> One issue that we realized on this is that the cache is going to have to
+> be flushed when the policy is reloaded.  For object managers that have a
+> full AVC that is simple, since we can just add it to the netlink socket
+> handler where it resets the AVC.
 > 
->  So I'm probably just wasting your time out of ignorance here, but this
-> looks really suspicious to me. Why don't you need to add in
-> match->comdatum->permissions.nprim for the allocation?
+> However, for simple ones such as passwd and crond which, don't need an
+> AVC, there isn't a facility now.  Crond should be ok since it only
+> checks process permissions, which can't change on policy reload.
+> Perhaps a lighter version of the netlink support that just listens for
+> policy reloads?
 
-match->permissions.nprim already includes
-match->comdatum->permissions.nprim, see:
+We could require a call to avc_init() for anyone wishing to do lookups. 
+  An empty AVC shouldn't affect performance that much.
 
-http://marc.info/?l=selinux&m=117517987105068&w=2
+The netlink stuff is all in src/avc_internal.c.  There are two copies of 
+the netlink code, one for threaded and one for unthreaded.  Maybe they 
+could be refactored down to a single function used by both.
 
->  Also how is it
-> guaranteed that one "datum->value - 1" won't be the same in both
-> hashtabs? (if it isn't you've leaked memory).
 
-If I understand what you're saying, then we would have a common
-permission and a unique permission with the same value, which isn't
-possible.
+> 
+> The object manager will also have to be modified to get the new class
+> and perm values on a policy reload.
+> 
+
+Sigh.  Maybe we _would_ be better off hiding the numeric values from the 
+caller.
+
 
 -- 
-Chris PeBenito
-Tresys Technology, LLC
-(410) 290-1411 x150
-
+Eamon Walsh <ewalsh@tycho.nsa.gov>
+National Security Agency
 
 --
 This message was distributed to subscribers of the selinux mailing list.
