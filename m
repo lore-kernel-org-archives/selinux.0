@@ -1,90 +1,86 @@
-Message-ID: <46548D4E.50000@tycho.nsa.gov>
-Date: Wed, 23 May 2007 14:51:58 -0400
-From: Eamon Walsh <ewalsh@tycho.nsa.gov>
-MIME-Version: 1.0
-To: "Christopher J. PeBenito" <cpebenito@tresys.com>
-CC: Stephen Smalley <sds@tycho.nsa.gov>, Joshua Brindle <jbrindle@tresys.com>,
-        SELinux Mail List <selinux@tycho.nsa.gov>
-Subject: Re: object class discovery userland
-References: <1177077717.15762.32.camel@sgc> <4628F05B.7040309@tycho.nsa.gov>	 <4628F20E.2000208@tycho.nsa.gov>  <1177089541.24870.17.camel@sgc>	 <1177338792.24282.16.camel@moss-spartans.epoch.ncsc.mil>	 <6FE441CD9F0C0C479F2D88F959B01588A71927@exchange.columbia.tresys.com>	 <1177340283.24282.24.camel@moss-spartans.epoch.ncsc.mil> <1179929852.10995.51.camel@sgc.columbia.tresys.com>
-In-Reply-To: <1179929852.10995.51.camel@sgc.columbia.tresys.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l4O54IxQ020050
+	for <selinux@tycho.nsa.gov>; Thu, 24 May 2007 01:04:18 -0400
+Received: from moutng.kundenserver.de (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id l4O54G8j017494
+	for <selinux@tycho.nsa.gov>; Thu, 24 May 2007 05:04:17 GMT
+In-Reply-To: <200705230927.09084.paul.moore@hp.com>
+References: <6AA1314E-2718-446E-BFC9-6961DE951E09@sf-net.com> <200705221524.28541.paul.moore@hp.com> <9ED0CEA1-908A-4166-960C-256407399AF0@sf-net.com> <200705230927.09084.paul.moore@hp.com>
+Mime-Version: 1.0 (Apple Message framework v752.2)
+Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
+Message-Id: <E60164DE-429F-4B6A-8C3C-8405BF7AD41F@sf-net.com>
+Cc: SELinux List <selinux@tycho.nsa.gov>
+From: Stefan Schulze Frielinghaus <stefan@sf-net.com>
+Subject: Re: AVC: IPv6 problems
+Date: Thu, 24 May 2007 07:04:09 +0200
+To: Paul Moore <paul.moore@hp.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Christopher J. PeBenito wrote:
-> On Mon, 2007-04-23 at 10:58 -0400, Stephen Smalley wrote:
->> On Mon, 2007-04-23 at 10:43 -0400, Joshua Brindle wrote:
->>>> From: Stephen Smalley [mailto:sds@tycho.nsa.gov] 
+
+On 23.05.2007, at 15:27, Paul Moore wrote:
+
+> On Wednesday, May 23 2007 8:21:27 am Stefan Schulze Frielinghaus  
+> wrote:
+>> On 22.05.2007, at 21:24, Paul Moore wrote:
+>>> On Tuesday, May 22 2007 2:22:09 pm Stefan Schulze Frielinghaus  
+>>> wrote:
+>>>> periodically I receive the following AVC denial:
 >>>>
->>>> On Fri, 2007-04-20 at 13:19 -0400, Christopher J. PeBenito wrote:
->>>>> On Fri, 2007-04-20 at 13:02 -0400, Eamon Walsh wrote:
->>>>>> Eamon Walsh wrote:
->>>>>>> Christopher J. PeBenito wrote:
->>>>>>>> 3. stop exporting class and perm indexes outside of the 
->>>>>>>> libraries.  Then the reverse lookup wouldn't be needed.  This 
->>>>>>>> would involve some overhauling of the libraries.
->>>>>>> I don't think this is a good idea because of the disruption it 
->>>>>>> would cause with access vector processing (as passed to 
->>>>>>> security_av_string() and avc_has_perm()).  How do you 
->>>> or together strings?
->>>>>>> Why not just cache the numbers in the library, as Karl 
->>>> suggested, 
->>>>>>> or create a parallel "class_num" or "class_index" 
->>>> directory with 
->>>>>>> numeric nodes (perhaps renaming class to class_name).
->>>>>>>
->>>>>> class_num/1/perms/1
->>>>>> class_num/1/name
->>>>> I don't feel strongly about any of my suggestions, I mainly 
->>>> wanted to 
->>>>> get the discussion going.  The inspiration for symlink idea 
->>>> was from 
->>>>> all the symlinking you see in sysfs, but the above 
->>>> structure certainly 
->>>>> is an option too.
->>>> I'd recommend caching in the library and doing the reverse 
->>>> lookup there rather than encoding it into the pseudo filesystem state.
->>> Making the library open and cache every class and permission seems
->>> undesirable. What do you have against doing it from the filesystem?
->> You don't have to cache them all - the cache can be populated lazily
->> (but I'd expect it to pull in an entire class at a time).
+>>>> audit(1179815459.477:213): avc:  denied  { rawip_send } for
+>>>> saddr=fe80:0000:0000:0000:0211:d8ff:feea:XXXX
+>>>> daddr=fe80:0000:0000:0000:0211:24ff:fee1:YYYY netif=eth0
+>>>> scontext=system_u:system_r:kernel_t:s15:c0.c255
+>>>> tcontext=system_u:object_r:link_local_node_t:s0 tclass=node
 >>
->> I'm not keen on having redundant information in the filesystem state,
->> and I don't think these operations are on the critical path anyway for
->> performance.
-> 
-> One issue that we realized on this is that the cache is going to have to
-> be flushed when the policy is reloaded.  For object managers that have a
-> full AVC that is simple, since we can just add it to the netlink socket
-> handler where it resets the AVC.
-> 
-> However, for simple ones such as passwd and crond which, don't need an
-> AVC, there isn't a facility now.  Crond should be ok since it only
-> checks process permissions, which can't change on policy reload.
-> Perhaps a lighter version of the netlink support that just listens for
-> policy reloads?
+>>> It's hard to say what the solution is because it most likely
+>>> depends on what
+>>> you are trying to do.  You might want to share your goals with the
+>>> list and
+>>> perhaps we can help, otherwise I would recommend you look at the MLS
+>>> reference policy interfaces.
+>>
+>> That's even hard for me too. I can't reproduce the errors so I don't
+>> know where and who is producing these errors. The AVC I've posted
+>> where generated at 2 o'clock am and today I never saw any AVC
+>> denials. Sometimes they come up periodically and some times only
+>> sporadically. I will have a look at the denials and when they were
+>> created maybe I can reproduce the AVCs.
+>> I hoped that this is a problem who someone solved before. But as
+>> already mentioned I will watch them and try to figure out who is
+>> creating these denials.
+>
+> I'll take a guess and say it may be related to IPv6 router  
+> advertisements,
+> neighbor solicitations, or duplicate address detection but I can't  
+> really be
+> sure.  It's been a few years since I've done any real work with  
+> IPv6 and I'm
+> a bit rusty about which class of addresses get used for these  
+> things, I
+> believe it would be the link local address (what is seen in your  
+> AVC denial)
+> but I could be wrong.
 
-We could require a call to avc_init() for anyone wishing to do lookups. 
-  An empty AVC shouldn't affect performance that much.
+Yes it's a link local address. SELinux is running on a central server  
+machine
+which also runs a RADVD daemon for "IPv6 DHCP like behaviour". The
+last two days no AVC errors where created. So I will have to wait  
+until a new
+one comes up and maybe I will find the error.
 
-The netlink stuff is all in src/avc_internal.c.  There are two copies of 
-the netlink code, one for threaded and one for unthreaded.  Maybe they 
-could be refactored down to a single function used by both.
+I also guess that it's a RA, NS or DAD because you will only use link  
+local
+addresses for maintenance.
+
+> Do you make use of IPv6 or is it simply enabled on your system?
+
+Nearly all of my intranet traffic is IPv6. I really use that.
 
 
-> 
-> The object manager will also have to be modified to get the new class
-> and perm values on a policy reload.
-> 
+Best regards,
+Stefan
 
-Sigh.  Maybe we _would_ be better off hiding the numeric values from the 
-caller.
-
-
--- 
-Eamon Walsh <ewalsh@tycho.nsa.gov>
-National Security Agency
 
 --
 This message was distributed to subscribers of the selinux mailing list.
