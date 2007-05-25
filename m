@@ -2,8 +2,8 @@ MIME-Version: 1.0
 Content-Type: text/plain;
 	charset="us-ascii"
 Subject: RE: object class discovery userland
-Date: Thu, 24 May 2007 19:55:52 -0400
-Message-ID: <6FE441CD9F0C0C479F2D88F959B01588BEFF30@exchange.columbia.tresys.com>
+Date: Thu, 24 May 2007 20:00:07 -0400
+Message-ID: <6FE441CD9F0C0C479F2D88F959B01588BEFF31@exchange.columbia.tresys.com>
 In-Reply-To: <465623DD.6090304@tycho.nsa.gov>
 References: <1177077717.15762.32.camel@sgc> <4628F05B.7040309@tycho.nsa.gov>	 <4628F20E.2000208@tycho.nsa.gov>  <1177089541.24870.17.camel@sgc>	 <1177338792.24282.16.camel@moss-spartans.epoch.ncsc.mil>	 <6FE441CD9F0C0C479F2D88F959B01588A71927@exchange.columbia.tresys.com>	 <1177340283.24282.24.camel@moss-spartans.epoch.ncsc.mil> <1179929852.10995.51.camel@sgc.columbia.tresys.com> <46548D4E.50000@tycho.nsa.gov> <465623DD.6090304@tycho.nsa.gov>
 From: "Joshua Brindle" <jbrindle@tresys.com>
@@ -42,10 +42,18 @@ Eamon Walsh wrote:
 > performance for AVC lookups, since the AVC entries could be
 > keyed off the untranslated numbers.
 
-This is interesting.. Then if the permission doesn't exist it would just
-naturally be denied (or the library could respect the configuration if
-there is such a thing) instead of the users being special cased. One
-thing is that the avc remaps with permissions will be painful though.
+One other thing, this seems like a nicer way to migrate existing users
+since they are already using static defines they can just pass in what
+they already have, eg:
+
+In private_flask.h
+#define SECCLASS_WINDOW 32
+
+And then:
+{"xwindow", SECCLASS_WINDOW}
+
+And then change #include <flask.h> to #include "private_flask.h" and the
+calls don't have to be changed.
 
 
 --
