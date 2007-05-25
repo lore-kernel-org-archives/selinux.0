@@ -1,60 +1,96 @@
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Subject: RE: object class discovery userland
-Date: Thu, 24 May 2007 20:00:07 -0400
-Message-ID: <6FE441CD9F0C0C479F2D88F959B01588BEFF31@exchange.columbia.tresys.com>
-In-Reply-To: <465623DD.6090304@tycho.nsa.gov>
-References: <1177077717.15762.32.camel@sgc> <4628F05B.7040309@tycho.nsa.gov>	 <4628F20E.2000208@tycho.nsa.gov>  <1177089541.24870.17.camel@sgc>	 <1177338792.24282.16.camel@moss-spartans.epoch.ncsc.mil>	 <6FE441CD9F0C0C479F2D88F959B01588A71927@exchange.columbia.tresys.com>	 <1177340283.24282.24.camel@moss-spartans.epoch.ncsc.mil> <1179929852.10995.51.camel@sgc.columbia.tresys.com> <46548D4E.50000@tycho.nsa.gov> <465623DD.6090304@tycho.nsa.gov>
-From: "Joshua Brindle" <jbrindle@tresys.com>
-To: "Eamon Walsh" <ewalsh@tycho.nsa.gov>
-Cc: "Christopher J. PeBenito" <cpebenito@tresys.com>,
-        "Stephen Smalley" <sds@tycho.nsa.gov>,
-        "SELinux Mail List" <selinux@tycho.nsa.gov>
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l4PEM3fq004462
+	for <selinux@tycho.nsa.gov>; Fri, 25 May 2007 10:22:03 -0400
+Received: from exchange.columbia.tresys.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with SMTP id l4PEM2oG023572
+	for <selinux@tycho.nsa.gov>; Fri, 25 May 2007 14:22:02 GMT
+Subject: Re: [patch 1/3] libsemanage: genhomedircon replacement
+From: Mark Goldman <mgoldman@tresys.com>
+To: James Antill <jantill@redhat.com>
+Cc: Karl MacMillan <kmacmillan@mentalrootkit.com>,
+        SE Linux <selinux@tycho.nsa.gov>, Joshua Brindle <jbrindle@tresys.com>
+In-Reply-To: <1180022412.24418.58.camel@code.and.org>
+References: <20070521095414.832619201@tresys.com>
+	 <20070521095518.515998898@tresys.com>
+	 <1179868119.9092.38.camel@localhost.localdomain>
+	 <1180015458.3930.173.camel@tresys-winxppro>
+	 <1180022412.24418.58.camel@code.and.org>
+Content-Type: text/plain
+Date: Fri, 25 May 2007 10:22:00 -0400
+Message-Id: <1180102920.3930.219.camel@tresys-winxppro>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Eamon Walsh wrote:
-> Eamon Walsh wrote:
->> Christopher J. PeBenito wrote:
->>> The object manager will also have to be modified to get the new
->>> class and perm values on a policy reload.
->>> 
->> 
->> Sigh.  Maybe we _would_ be better off hiding the numeric values from
->> the caller. 
->> 
-> 
-> Maybe instead of just looking up class and permission values,
-> object managers should be able to give libselinux a mapping from
-> strings to numbers. 
-> 
-> For example, the X server could pass something like
-> 
-> {"xwindow", 1}
-> 
-> at startup time.  Then libselinux would internally convert 1
-> to the real class value for xwindow, keeping track of any
-> changes resulting from reloads.
-> 
-> The object managers are all going to have to do something
-> like this anyway.  Doing it in the library could improve
-> performance for AVC lookups, since the AVC entries could be
-> keyed off the untranslated numbers.
+On Thu, 2007-05-24 at 12:00 -0400, James Antill wrote:
+>  I feel your pain, doing anything non-trivial with strings in C is
+> always a major PITA.
+>  As a personal project I've almost got ustr[1] in a 1.0 release, which I
+> hope could be used in the SELinux libraries (being able to easily
+> integrate it into libraries, is one of it's main points), and would
+> solve this problem and others in the SELinux libs. (like the strdup() +
+> a bit more data).
+I, personally wouldn't object.
 
-One other thing, this seems like a nicer way to migrate existing users
-since they are already using static defines they can just pass in what
-they already have, eg:
+> > As for parsing the input to make the substitution easier, I think it
+> > would be a lot more work to write or use a full fledged parser.  What
+> > we want in this situation is what I wrote in my opinion, although I am
+> > open to suggestions.
+> 
+>  Saying that, there were more than a few problems with semanage_sed()
+> even if you discount the genericness of the name:
+> 
+> 1. You pre-allocate a bad amount of space:
+> 
+> +       srclen = strlen(src);
+> +       maxdest = 2 * srclen;
+> +       dest = malloc(maxdest);
+> 
+> ...consider:
+> 
+> HOME_DIR        -d      system_u:object_r:user_home_dir_t:s0
+> 
+> strlen("HOME_DIR") == 8, *2 == 16
+> strlen("/home/kmacmillan") == 16
+> 
+> ...I think, you really want something like:
+> 
+> +       maxdest = srclen + (replen - vallen) * 2 + 1;
+> 
+> 
+> 2. You pre-reallocate if there isn't enough room to insert a new val,
+> even if it's not possible to insert a new val:
+> 
+> +               min_increment = (dindex + replen + 1) - maxdest;
+> +               if (min_increment >= 0) {
+> 
+> ...consider:
+> 
+> HOME_DIR/.+     system_u:object_r:user_home_t:s0
+> 
+> strlen("HOME_DIR/.+") == 11, *2 == 22
+> strlen("/home/james") == 11
+> 
+> ...now when you are at '.' in the above substitution, you'll have
+> dindex=11 and replen=11 which will trigger a realloc() even though you
+> only have 2 bytes left in src (so HOME_DIR will never match, obviously).
+> 
+> 
+> 3. You should probably be calling strstr() instead of walking the
+> string.
+> 
+> 
+> 4. All the sizes are signed int's, and no overflow/underflow checking is
+> done. This might be safe due to current usage, but it seems like a bad
+> idea to leave it this way in a core security lib.
+> 
+> 
+> [1] http://www.and.org/ustr/
 
-In private_flask.h
-#define SECCLASS_WINDOW 32
+Points all well taken.
 
-And then:
-{"xwindow", SECCLASS_WINDOW}
-
-And then change #include <flask.h> to #include "private_flask.h" and the
-calls don't have to be changed.
-
+-mdg
+  
 
 --
 This message was distributed to subscribers of the selinux mailing list.
