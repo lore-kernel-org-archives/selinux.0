@@ -1,42 +1,29 @@
 Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l4TD6nil025079
-	for <selinux@tycho.nsa.gov>; Tue, 29 May 2007 09:06:49 -0400
-Received: from web39507.mail.mud.yahoo.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with SMTP id l4TD6mGV006351
-	for <selinux@tycho.nsa.gov>; Tue, 29 May 2007 13:06:48 GMT
-Date: Tue, 29 May 2007 06:06:38 -0700 (PDT)
-From: somayeh afzali <somayeh_afzali@yahoo.com>
-To: owner-selinux@tycho.nsa.gov, selinux-approval@tycho.nsa.gov,
-        selinux@tycho.nsa.gov, "J. Tang" <jtang@tresys.com>,
-        Kerry Thompson <kerry@crypt.gen.nz>, himainu-ynakam@miomio.jp,
-        seedit-devel@lists.sourceforge.net, slide@tresys.com
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l4TDxmMR028316
+	for <selinux@tycho.nsa.gov>; Tue, 29 May 2007 09:59:48 -0400
+Received: from wr-out-0506.google.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l4TDxmGV013890
+	for <selinux@tycho.nsa.gov>; Tue, 29 May 2007 13:59:48 GMT
+Received: by wr-out-0506.google.com with SMTP id i28so756705wra
+        for <selinux@tycho.nsa.gov>; Tue, 29 May 2007 06:59:48 -0700 (PDT)
+Message-ID: <465C31D0.2040606@gmail.com>
+Date: Tue, 29 May 2007 08:59:44 -0500
+From: Ted X Toth <txtoth@gmail.com>
 MIME-Version: 1.0
-Content-Type: multipart/alternative; boundary="0-830539296-1180443998=:85080"
-Message-ID: <316087.85080.qm@web39507.mail.mud.yahoo.com>
+To: SE Linux <selinux@tycho.nsa.gov>
+Subject: unshare behavior when polyinstantiating
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
---0-830539296-1180443998=:85080
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+I've run into some polyinstantiation bugs but want to make sure I 
+understand what unshare(CLONE_NEWNS) does before I submit a patch. Is it 
+the case that the new namespace created by unshare is related to the 
+current process and when this process exits the namespace is destroyed 
+or is no longer valid? All mounts and unmounts done in the new namespace 
+have no affect on the parent processes namespace, correct?
 
-hi,
-  are selinux modules is shareobject? how does selinux compiler convert source to binary? what is compiler selinux mecanism?
-   
-  please explain.
-   
-  thanks
-
-       
----------------------------------
-Take the Internet to Go: Yahoo!Go puts the Internet in your pocket: mail, news, photos & more. 
---0-830539296-1180443998=:85080
-Content-Type: text/html; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
-
-<div>hi,</div>  <div>are selinux modules is shareobject?&nbsp;how does selinux compiler convert source to binary? what is compiler selinux mecanism?</div>  <div>&nbsp;</div>  <div>please explain.</div>  <div>&nbsp;</div>  <div>thanks</div><p>&#32;
-      <hr size=1>Take the Internet to Go: Yahoo!Go puts the <a href="http://us.rd.yahoo.com/evt=48253/*http://mobile.yahoo.com/go?refer=1GNXIC">Internet in your pocket:</a> mail, news, photos & more. 
---0-830539296-1180443998=:85080--
+Ted
 
 --
 This message was distributed to subscribers of the selinux mailing list.
