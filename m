@@ -1,29 +1,54 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l4TDxmMR028316
-	for <selinux@tycho.nsa.gov>; Tue, 29 May 2007 09:59:48 -0400
-Received: from wr-out-0506.google.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l4TDxmGV013890
-	for <selinux@tycho.nsa.gov>; Tue, 29 May 2007 13:59:48 GMT
-Received: by wr-out-0506.google.com with SMTP id i28so756705wra
-        for <selinux@tycho.nsa.gov>; Tue, 29 May 2007 06:59:48 -0700 (PDT)
-Message-ID: <465C31D0.2040606@gmail.com>
-Date: Tue, 29 May 2007 08:59:44 -0500
-From: Ted X Toth <txtoth@gmail.com>
+Message-ID: <465C3C94.4020609@redhat.com>
+Date: Tue, 29 May 2007 10:45:40 -0400
+From: Daniel J Walsh <dwalsh@redhat.com>
 MIME-Version: 1.0
-To: SE Linux <selinux@tycho.nsa.gov>
-Subject: unshare behavior when polyinstantiating
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: Stephen Smalley <sds@tycho.nsa.gov>, SE Linux <selinux@tycho.nsa.gov>
+Subject: Dead links in checkpolicy/checkmodule man pages.
+Content-Type: multipart/mixed;
+ boundary="------------050709000102030308010607"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-I've run into some polyinstantiation bugs but want to make sure I 
-understand what unshare(CLONE_NEWNS) does before I submit a patch. Is it 
-the case that the new namespace created by unshare is related to the 
-current process and when this process exits the namespace is destroyed 
-or is no longer valid? All mounts and unmounts done in the new namespace 
-have no affect on the parent processes namespace, correct?
+This is a multi-part message in MIME format.
+--------------050709000102030308010607
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
-Ted
+I think we should just move to the toplevel directory
+
+
+
+--------------050709000102030308010607
+Content-Type: text/plain;
+ name="diff"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="diff"
+
+--- checkpolicy-2.0.2/checkmodule.8~	2007-04-12 16:03:00.000000000 -0400
++++ checkpolicy-2.0.2/checkmodule.8	2007-05-29 10:43:29.000000000 -0400
+@@ -47,7 +47,7 @@ $ checkmodule -M -m httpd.te -o httpd.mo
+ 
+ .SH "SEE ALSO"
+ .B semodule(8), semodule_package(8)
+-SELinux documentation at http://www.nsa.gov/selinux/docs.html,
++SELinux documentation at http://www.nsa.gov/selinux,
+ especially "Configuring the SELinux Policy".
+ 
+ 
+--- checkpolicy-2.0.2/checkpolicy.8~	2007-04-12 16:03:00.000000000 -0400
++++ checkpolicy-2.0.2/checkpolicy.8	2007-05-29 10:43:21.000000000 -0400
+@@ -34,7 +34,7 @@ Write a binary policy file to the specif
+ Specify the policy version, defaults to the latest.
+ 
+ .SH "SEE ALSO"
+-SELinux documentation at http://www.nsa.gov/selinux/docs.html,
++SELinux documentation at http://www.nsa.gov/selinux,
+ especially "Configuring the SELinux Policy".
+ 
+ 
+
+--------------050709000102030308010607--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
