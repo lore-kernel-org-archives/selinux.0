@@ -1,38 +1,63 @@
-Message-ID: <465C79B3.6050501@tycho.nsa.gov>
-Date: Tue, 29 May 2007 15:06:27 -0400
+Message-ID: <465C7C3E.7080206@tycho.nsa.gov>
+Date: Tue, 29 May 2007 15:17:18 -0400
 From: Eamon Walsh <ewalsh@tycho.nsa.gov>
 MIME-Version: 1.0
-To: Stephen Smalley <sds@tycho.nsa.gov>
-CC: "Christopher J. PeBenito" <cpebenito@tresys.com>,
-        Joshua Brindle <jbrindle@tresys.com>,
-        SELinux Mail List <selinux@tycho.nsa.gov>
-Subject: Re: object class discovery userland
-References: <1177077717.15762.32.camel@sgc> <4628F05B.7040309@tycho.nsa.gov>	 <4628F20E.2000208@tycho.nsa.gov>  <1177089541.24870.17.camel@sgc>	 <1177338792.24282.16.camel@moss-spartans.epoch.ncsc.mil>	 <6FE441CD9F0C0C479F2D88F959B01588A71927@exchange.columbia.tresys.com>	 <1177340283.24282.24.camel@moss-spartans.epoch.ncsc.mil>	 <1179929852.10995.51.camel@sgc.columbia.tresys.com> <1180462767.3340.116.camel@moss-spartans.epoch.ncsc.mil>
-In-Reply-To: <1180462767.3340.116.camel@moss-spartans.epoch.ncsc.mil>
+To: Karl MacMillan <kmacmillan@mentalrootkit.com>
+CC: Stephen Smalley <sds@tycho.nsa.gov>, selinux@tycho.nsa.gov
+Subject: Re: [RFC][PATCH] libselinux: Namespacing
+References: <1178827922.3504.141.camel@moss-spartans.epoch.ncsc.mil>	 <1178829062.24335.86.camel@localhost.localdomain>	 <1178887062.3504.147.camel@moss-spartans.epoch.ncsc.mil> <1178908626.11064.18.camel@localhost.localdomain>
+In-Reply-To: <1178908626.11064.18.camel@localhost.localdomain>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Stephen Smalley wrote:
-> On Wed, 2007-05-23 at 14:17 +0000, Christopher J. PeBenito wrote:
-
->> The object manager will also have to be modified to get the new class
->> and perm values on a policy reload.
+Karl MacMillan wrote:
+> On Fri, 2007-05-11 at 08:37 -0400, Stephen Smalley wrote:
+>> On Thu, 2007-05-10 at 16:31 -0400, Karl MacMillan wrote:
+>>> On Thu, 2007-05-10 at 16:12 -0400, Stephen Smalley wrote:
+>>>> libselinux presently lacks proper namespacing of its functions.  This
+>>>> patch is just for comment on an approach to gradually fixing that
+>>>> problem, starting with just a trivial example for a single function.
+>>>> The idea is to switch over the real function to being properly
+>>>> namespaced, provide an alias under the old name in the symbol table for
+>>>> binary compatibility, and make the old name a macro in the public
+>>>> headers that expands to the new name so that source rebuilds against the
+>>>> new library will start using the new name.  Then at some point in the
+>>>> future, we drop the old name macro from the source API, forcing an
+>>>> update to external sources to build against newer headers, while leaving
+>>>> the alias present in the symbol table as long as we need compatibility
+>>>> with existing binaries.  Thoughts?
+>>>>
+>>> Sounds good to me - will this impact the python bindings? If we do have
+>>> to change the bindings we should take as an opportunity to fix the
+>>> namespace issues there. For example, bo reason to have
+>>> selinux.selinux_booleans_path - should be changed to
+>>> selinux.booleans_path.
+>> Yes, it would affect the python bindings too; not sure what needs to be
+>> done there for backward compatibility.
+>>
 > 
-> Why not just require them to remain stable at runtime, and require a
-> restart of the object manager if you are going to change them?  Allowing
-> them to change at any time will introduce a fair amount of
-> complexity/overhead at runtime.
+> Shouldn't be hard to provide the backwards compatibility - either
+> through swig or a pure python module.
 > 
+>> We also have to decide what to do about functions that already have
+>> their own prefix, like the security_ functions and the avc_ functions;
+>> I'm inclined to leave those alone as already being adequately
+>> namespaced.
+>>
+> 
+> I'd vote for changing them. The consistency is nice in general (I'm not
+> certain that it is obvious enough to everyone which prefix applies to
+> which function) and it will make wrapping in languages that support
+> proper namespacing simpler.
 
-I'm fine with this, however I think it should be the kernel's job to 
-enforce the stability of the values.  The policyload should fail if the 
-values are changing.
+I'm fine with changing over the security_ stuff but what to do for the 
+avc stuff?  Either a double prefix selinux_avc_ which is kind of long, 
+or drop the _avc_ in which case there is a conflict between 
+security_compute_create and avc_compute_create.  Maybe "seavc_"?
 
-Perhaps this could be a configurable "experimental" versus "production" 
-option, or perhaps userspace object managers could somehow register with 
-the kernel which will then refuse to change the values if any are 
-currently running.
+Same question about the labeling interface I have in the works, which 
+would introduce a bunch of functions prefixed "selabel_".
 
 
 -- 
