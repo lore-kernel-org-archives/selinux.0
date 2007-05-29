@@ -1,86 +1,94 @@
-Message-ID: <465C67EB.1040801@tycho.nsa.gov>
-Date: Tue, 29 May 2007 13:50:35 -0400
-From: Eamon Walsh <ewalsh@tycho.nsa.gov>
-MIME-Version: 1.0
-To: Joshua Brindle <jbrindle@tresys.com>
-CC: "Christopher J. PeBenito" <cpebenito@tresys.com>,
-        Stephen Smalley <sds@tycho.nsa.gov>,
+Subject: RE: object class discovery userland
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: "Christopher J. PeBenito" <cpebenito@tresys.com>
+Cc: Joshua Brindle <jbrindle@tresys.com>, Eamon Walsh <ewalsh@tycho.nsa.gov>,
         SELinux Mail List <selinux@tycho.nsa.gov>
-Subject: Re: object class discovery userland
-References: <1177077717.15762.32.camel@sgc> <4628F05B.7040309@tycho.nsa.gov>	 <4628F20E.2000208@tycho.nsa.gov>  <1177089541.24870.17.camel@sgc>	 <1177338792.24282.16.camel@moss-spartans.epoch.ncsc.mil>	 <6FE441CD9F0C0C479F2D88F959B01588A71927@exchange.columbia.tresys.com>	 <1177340283.24282.24.camel@moss-spartans.epoch.ncsc.mil> <1179929852.10995.51.camel@sgc.columbia.tresys.com> <46548D4E.50000@tycho.nsa.gov> <465623DD.6090304@tycho.nsa.gov> <6FE441CD9F0C0C479F2D88F959B01588BEFF31@exchange.columbia.tresys.com> <465750DF.1050509@tycho.nsa.gov> <6FE441CD9F0C0C479F2D88F959B01588BEFFA2@exchange.columbia.tresys.com>
-In-Reply-To: <6FE441CD9F0C0C479F2D88F959B01588BEFFA2@exchange.columbia.tresys.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+In-Reply-To: <1179929852.10995.51.camel@sgc.columbia.tresys.com>
+References: <1177077717.15762.32.camel@sgc> <4628F05B.7040309@tycho.nsa.gov>
+	 <4628F20E.2000208@tycho.nsa.gov>  <1177089541.24870.17.camel@sgc>
+	 <1177338792.24282.16.camel@moss-spartans.epoch.ncsc.mil>
+	 <6FE441CD9F0C0C479F2D88F959B01588A71927@exchange.columbia.tresys.com>
+	 <1177340283.24282.24.camel@moss-spartans.epoch.ncsc.mil>
+	 <1179929852.10995.51.camel@sgc.columbia.tresys.com>
+Content-Type: text/plain
+Date: Tue, 29 May 2007 14:19:27 -0400
+Message-Id: <1180462767.3340.116.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Joshua Brindle wrote:
-> Eamon Walsh wrote:
->> Here's a first go at an interface.  It's an init function
->> that is a replacement for avc_init().  It takes flags, the
->> class/permission mapping to use, and callback functions.
->>
->> This is trying to solve a few other problems at the same time, namely:
->>
->> - selinux prefix on the function name
+On Wed, 2007-05-23 at 14:17 +0000, Christopher J. PeBenito wrote:
+> On Mon, 2007-04-23 at 10:58 -0400, Stephen Smalley wrote:
+> > On Mon, 2007-04-23 at 10:43 -0400, Joshua Brindle wrote:
+> > > > From: Stephen Smalley [mailto:sds@tycho.nsa.gov] 
+> > > > 
+> > > > On Fri, 2007-04-20 at 13:19 -0400, Christopher J. PeBenito wrote:
+> > > > > On Fri, 2007-04-20 at 13:02 -0400, Eamon Walsh wrote:
+> > > > > > Eamon Walsh wrote:
+> > > > > > > Christopher J. PeBenito wrote:
+> > > > > > >> 3. stop exporting class and perm indexes outside of the 
+> > > > > > >> libraries.  Then the reverse lookup wouldn't be needed.  This 
+> > > > > > >> would involve some overhauling of the libraries.
+> > > > > > > 
+> > > > > > > I don't think this is a good idea because of the disruption it 
+> > > > > > > would cause with access vector processing (as passed to 
+> > > > > > > security_av_string() and avc_has_perm()).  How do you 
+> > > > or together strings?
+> > > > > > > 
+> > > > > > > Why not just cache the numbers in the library, as Karl 
+> > > > suggested, 
+> > > > > > > or create a parallel "class_num" or "class_index" 
+> > > > directory with 
+> > > > > > > numeric nodes (perhaps renaming class to class_name).
+> > > > > > > 
+> > > > > > class_num/1/perms/1
+> > > > > > class_num/1/name
+> > > > > 
+> > > > > I don't feel strongly about any of my suggestions, I mainly 
+> > > > wanted to 
+> > > > > get the discussion going.  The inspiration for symlink idea 
+> > > > was from 
+> > > > > all the symlinking you see in sysfs, but the above 
+> > > > structure certainly 
+> > > > > is an option too.
+> > > > 
+> > > > I'd recommend caching in the library and doing the reverse 
+> > > > lookup there rather than encoding it into the pseudo filesystem state.
+> > > 
+> > > Making the library open and cache every class and permission seems
+> > > undesirable. What do you have against doing it from the filesystem?
+> > 
+> > You don't have to cache them all - the cache can be populated lazily
+> > (but I'd expect it to pull in an entire class at a time).
+> > 
+> > I'm not keen on having redundant information in the filesystem state,
+> > and I don't think these operations are on the critical path anyway for
+> > performance.
 > 
-> So the client callsites will have to change then, oh well, we wanted to
-> do this anyway..
-
-Well, the old avc_init() could be kept around for awhile.  Calling it 
-would still work, it just wouldn't have a mapping (would treat incoming 
-class/perm values literally).
-
+> One issue that we realized on this is that the cache is going to have to
+> be flushed when the policy is reloaded.  For object managers that have a
+> full AVC that is simple, since we can just add it to the netlink socket
+> handler where it resets the AVC.
 > 
->> - drops support for memory, threading, and locking callbacks
->> (would just always use malloc and pthread)
+> However, for simple ones such as passwd and crond which, don't need an
+> AVC, there isn't a facility now.  Crond should be ok since it only
+> checks process permissions, which can't change on policy reload.
+> Perhaps a lighter version of the netlink support that just listens for
+> policy reloads?
 > 
-> Were these ever used or were they a remnant of the early
-> implementations?
+> The object manager will also have to be modified to get the new class
+> and perm values on a policy reload.
 
-I'm not aware of any users of them.  I put them in basically because the 
-X server wrapped malloc ("Xalloc"), glib has malloc wrappers and so 
-forth.  But the X people are moving away from this and back to straight 
-malloc.  I've come around to the belief that this is better done through 
-the linker with private functions.
-
-
->> - adds type code to logging callback
->>
->> ---
->>
->>  selinux.h |   37 +++++++++++++++++++++++++++++++++++++
->>  1 file changed, 37 insertions(+)
->>
->>
->> Index: libselinux/include/selinux/selinux.h
->> ===================================================================
->> --- libselinux/include/selinux/selinux.h	(revision 2445)
->> +++ libselinux/include/selinux/selinux.h	(working copy) @@ -132,6
->>  		+132,43 @@ unsigned int seqno;
->>  	};
->>
->> +	struct av_mapping {
->> +		const char *name;
->> +		const access_vector_t value;
->> +	};
->> +
-> 
-> Should this be a linked list?
-
-I was thinking that the last element could be zeroed out.  Same thing 
-with the last class element.  Would make it easier to have a static 
-initializer e.g.
-
-struct security_class_mapping *mapping = {
-	{ "xwindow", 32, {{"create", 1}, {"draw", 2}, {NULL, 0}} },
-	{ "xcursor", 33, {{"create", 1}, {"show", 2}, {NULL, 0}} },
-	{ NULL, 0, NULL }
-};
+Why not just require them to remain stable at runtime, and require a
+restart of the object manager if you are going to change them?  Allowing
+them to change at any time will introduce a fair amount of
+complexity/overhead at runtime.
 
 
 -- 
-Eamon Walsh <ewalsh@tycho.nsa.gov>
+Stephen Smalley
 National Security Agency
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
