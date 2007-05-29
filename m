@@ -1,90 +1,98 @@
-Subject: RE: object class discovery userland
+Subject: Re: object class discovery userland
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: "Christopher J. PeBenito" <cpebenito@tresys.com>
-Cc: Joshua Brindle <jbrindle@tresys.com>, Eamon Walsh <ewalsh@tycho.nsa.gov>,
+To: Eamon Walsh <ewalsh@tycho.nsa.gov>
+Cc: Joshua Brindle <jbrindle@tresys.com>,
+        "Christopher J. PeBenito" <cpebenito@tresys.com>,
         SELinux Mail List <selinux@tycho.nsa.gov>
-In-Reply-To: <1179929852.10995.51.camel@sgc.columbia.tresys.com>
+In-Reply-To: <465750DF.1050509@tycho.nsa.gov>
 References: <1177077717.15762.32.camel@sgc> <4628F05B.7040309@tycho.nsa.gov>
 	 <4628F20E.2000208@tycho.nsa.gov>  <1177089541.24870.17.camel@sgc>
 	 <1177338792.24282.16.camel@moss-spartans.epoch.ncsc.mil>
 	 <6FE441CD9F0C0C479F2D88F959B01588A71927@exchange.columbia.tresys.com>
 	 <1177340283.24282.24.camel@moss-spartans.epoch.ncsc.mil>
 	 <1179929852.10995.51.camel@sgc.columbia.tresys.com>
+	 <46548D4E.50000@tycho.nsa.gov> <465623DD.6090304@tycho.nsa.gov>
+	 <6FE441CD9F0C0C479F2D88F959B01588BEFF31@exchange.columbia.tresys.com>
+	 <465750DF.1050509@tycho.nsa.gov>
 Content-Type: text/plain
-Date: Tue, 29 May 2007 14:19:27 -0400
-Message-Id: <1180462767.3340.116.camel@moss-spartans.epoch.ncsc.mil>
+Date: Tue, 29 May 2007 14:24:27 -0400
+Message-Id: <1180463067.3340.120.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2007-05-23 at 14:17 +0000, Christopher J. PeBenito wrote:
-> On Mon, 2007-04-23 at 10:58 -0400, Stephen Smalley wrote:
-> > On Mon, 2007-04-23 at 10:43 -0400, Joshua Brindle wrote:
-> > > > From: Stephen Smalley [mailto:sds@tycho.nsa.gov] 
-> > > > 
-> > > > On Fri, 2007-04-20 at 13:19 -0400, Christopher J. PeBenito wrote:
-> > > > > On Fri, 2007-04-20 at 13:02 -0400, Eamon Walsh wrote:
-> > > > > > Eamon Walsh wrote:
-> > > > > > > Christopher J. PeBenito wrote:
-> > > > > > >> 3. stop exporting class and perm indexes outside of the 
-> > > > > > >> libraries.  Then the reverse lookup wouldn't be needed.  This 
-> > > > > > >> would involve some overhauling of the libraries.
-> > > > > > > 
-> > > > > > > I don't think this is a good idea because of the disruption it 
-> > > > > > > would cause with access vector processing (as passed to 
-> > > > > > > security_av_string() and avc_has_perm()).  How do you 
-> > > > or together strings?
-> > > > > > > 
-> > > > > > > Why not just cache the numbers in the library, as Karl 
-> > > > suggested, 
-> > > > > > > or create a parallel "class_num" or "class_index" 
-> > > > directory with 
-> > > > > > > numeric nodes (perhaps renaming class to class_name).
-> > > > > > > 
-> > > > > > class_num/1/perms/1
-> > > > > > class_num/1/name
-> > > > > 
-> > > > > I don't feel strongly about any of my suggestions, I mainly 
-> > > > wanted to 
-> > > > > get the discussion going.  The inspiration for symlink idea 
-> > > > was from 
-> > > > > all the symlinking you see in sysfs, but the above 
-> > > > structure certainly 
-> > > > > is an option too.
-> > > > 
-> > > > I'd recommend caching in the library and doing the reverse 
-> > > > lookup there rather than encoding it into the pseudo filesystem state.
-> > > 
-> > > Making the library open and cache every class and permission seems
-> > > undesirable. What do you have against doing it from the filesystem?
-> > 
-> > You don't have to cache them all - the cache can be populated lazily
-> > (but I'd expect it to pull in an entire class at a time).
-> > 
-> > I'm not keen on having redundant information in the filesystem state,
-> > and I don't think these operations are on the critical path anyway for
-> > performance.
+On Fri, 2007-05-25 at 17:10 -0400, Eamon Walsh wrote:
+> Here's a first go at an interface.  It's an init function that is a
+> replacement for avc_init().  It takes flags, the class/permission
+> mapping to use, and callback functions.
 > 
-> One issue that we realized on this is that the cache is going to have to
-> be flushed when the policy is reloaded.  For object managers that have a
-> full AVC that is simple, since we can just add it to the netlink socket
-> handler where it resets the AVC.
+> This is trying to solve a few other problems at the same time, namely:
 > 
-> However, for simple ones such as passwd and crond which, don't need an
-> AVC, there isn't a facility now.  Crond should be ok since it only
-> checks process permissions, which can't change on policy reload.
-> Perhaps a lighter version of the netlink support that just listens for
-> policy reloads?
+> - selinux prefix on the function name
+> - drops support for memory, threading, and locking callbacks (would just
+> always use malloc and pthread)
+> - adds type code to logging callback
+
+As you seem to be making this a generic init function, shouldn't it also
+handle the matchpathcon flags and init support as well?  
+
 > 
-> The object manager will also have to be modified to get the new class
-> and perm values on a policy reload.
-
-Why not just require them to remain stable at runtime, and require a
-restart of the object manager if you are going to change them?  Allowing
-them to change at any time will introduce a fair amount of
-complexity/overhead at runtime.
-
-
+> ---
+> 
+>  selinux.h |   37 +++++++++++++++++++++++++++++++++++++
+>  1 file changed, 37 insertions(+)
+> 
+> 
+> Index: libselinux/include/selinux/selinux.h
+> ===================================================================
+> --- libselinux/include/selinux/selinux.h	(revision 2445)
+> +++ libselinux/include/selinux/selinux.h	(working copy)
+> @@ -132,6 +132,43 @@
+>  		unsigned int seqno;
+>  	};
+>  
+> +	struct av_mapping {
+> +		const char *name;
+> +		const access_vector_t value;
+> +	};
+> +
+> +	struct security_class_mapping {
+> +		const char *name;
+> +		const security_class_t value;
+> +		const struct av_mapping *perms;
+> +	};
+> +
+> +/* Initialization routine for caching functions offered by the library */
+> +
+> +	struct selinux_callbacks {
+> +		/* log the printf-style format and arguments,
+> +		   with the type code indicating the type of message */
+> +		int (*func_log) (int type, const char *fmt, ...);
+> +		/* store a string representation of auditdata (corresponding
+> +		   to the given security class) into msgbuf. */
+> +		void (*func_audit) (void *auditdata, security_class_t cls,
+> +				    char *msgbuf, size_t msgbufsize);
+> +	};
+> +
+> +	extern int selinux_init(int flags,
+> +				const struct security_class_mapping *map,
+> +				const struct selinux_callbacks *callbacks);
+> +
+> +        /* Available flags */
+> +#define SELINUX_THREAD          1
+> +#define SELINUX_AVC             2
+> +
+> +        /* Logging type codes, passed to the logging callback */
+> +#define SELINUX_ERROR	        0
+> +#define SELINUX_WARNING		1
+> +#define SELINUX_INFO		2
+> +#define SELINUX_AVC_DENIAL	3
+> +
+>  /* Compute an access decision. */
+>  	extern int security_compute_av(security_context_t scon,
+>  				       security_context_t tcon,
+> 
+> 
 -- 
 Stephen Smalley
 National Security Agency
