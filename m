@@ -1,44 +1,66 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l4UHapRv013693
-	for <selinux@tycho.nsa.gov>; Wed, 30 May 2007 13:36:51 -0400
-Received: from mx1.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id l4UHamue002794
-	for <selinux@tycho.nsa.gov>; Wed, 30 May 2007 17:36:48 GMT
-Date: Wed, 30 May 2007 11:44:17 -0400
-Message-Id: <200705301544.l4UFiHN3011890@localhost.localdomain>
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l4UHbKOn014085
+	for <selinux@tycho.nsa.gov>; Wed, 30 May 2007 13:37:20 -0400
+Received: from mx1.redhat.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l4UHbH2p008301
+	for <selinux@tycho.nsa.gov>; Wed, 30 May 2007 17:37:17 GMT
+Date: Wed, 30 May 2007 11:39:09 -0400
+Message-Id: <200705301539.l4UFd9QD011809@localhost.localdomain>
 From: dwalsh@redhat.com
 To: cpebenito@tresys.com
 CC: selinux@tycho.nsa.gov
-Subject: services_networkmanager changes
+Subject: kernel_selinux changes
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Additional transition rule so uncofnined_t can transition to network manager, requested by networkmanager maintainers
---- nsaserefpolicy/policy/modules/services/networkmanager.if	2007-05-29 14:10:57.000000000 -0400
-+++ serefpolicy-3.0.1/policy/modules/services/networkmanager.if	2007-05-30 09:25:53.000000000 -0400
-@@ -78,3 +78,22 @@
- 	allow $1 NetworkManager_t:dbus send_msg;
- 	allow NetworkManager_t $1:dbus send_msg;
- ')
-+
-+########################################
-+## <summary>
-+##	Transition to NetworkManager 
+Additional interfaces for access to /selinux
+--- nsaserefpolicy/policy/modules/kernel/selinux.if	2007-05-29 14:10:48.000000000 -0400
++++ serefpolicy-3.0.1/policy/modules/kernel/selinux.if	2007-05-30 09:25:53.000000000 -0400
+@@ -51,6 +51,44 @@
+ 
+ ########################################
+ ## <summary>
++##	Do not audit attempts to get the
++##	attributes of the selinuxfs filesystem
 +## </summary>
 +## <param name="domain">
 +##	<summary>
-+##	Domain allowed access.
++##	Domain to not audit.
 +##	</summary>
 +## </param>
 +#
-+interface(`networkmanager_domtrans',`
++interface(`selinux_dontaudit_getattr_fs',`
 +	gen_require(`
-+		type NetworkManager_t, NetworkManager_exec_t;
++		type security_t;
 +	')
-+	corecmd_search_bin($1)
-+	domtrans_pattern($1,NetworkManager_exec_t,NetworkManager_t)
 +
++	dontaudit $1 security_t:filesystem getattr;
 +')
++
++########################################
++## <summary>
++##	Allow domain to get the
++##	attributes of the selinuxfs filesystem
++## </summary>
++## <param name="domain">
++##	<summary>
++##	Domain to not audit.
++##	</summary>
++## </param>
++#
++interface(`selinux_getattr_fs',`
++	gen_require(`
++		type security_t;
++	')
++
++	allow $1 security_t:filesystem getattr;
++')
++
++########################################
++## <summary>
+ ##	Search selinuxfs.
+ ## </summary>
+ ## <param name="domain">
 
 --
 This message was distributed to subscribers of the selinux mailing list.
