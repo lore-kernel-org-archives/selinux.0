@@ -1,64 +1,40 @@
 Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l4UHbLq7014143
-	for <selinux@tycho.nsa.gov>; Wed, 30 May 2007 13:37:21 -0400
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l4UHatr3013818
+	for <selinux@tycho.nsa.gov>; Wed, 30 May 2007 13:36:55 -0400
 Received: from mx1.redhat.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l4UHbG2p008294
-	for <selinux@tycho.nsa.gov>; Wed, 30 May 2007 17:37:17 GMT
-Date: Wed, 30 May 2007 10:17:51 -0400
-Message-Id: <200705301417.l4UEHpv6007730@localhost.localdomain>
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l4UHar2p008243
+	for <selinux@tycho.nsa.gov>; Wed, 30 May 2007 17:36:53 GMT
+Date: Wed, 30 May 2007 10:47:44 -0400
+Message-Id: <200705301447.l4UEliOR008168@localhost.localdomain>
 From: dwalsh@redhat.com
 To: cpebenito@tresys.com
 CC: selinux@tycho.nsa.gov
-Subject: remove uncofined_domain from modutils, needs to exec scripts, few other fixes
+Subject: inetd changes
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
---- nsaserefpolicy/policy/modules/system/modutils.te	2007-05-29 14:10:58.000000000 -0400
-+++ serefpolicy-3.0.1/policy/modules/system/modutils.te	2007-05-30 08:54:03.000000000 -0400
-@@ -102,6 +102,7 @@
- init_use_fds(insmod_t)
- init_use_script_fds(insmod_t)
- init_use_script_ptys(insmod_t)
-+init_spec_domtrans_script(insmod_t)
+--- nsaserefpolicy/policy/modules/services/inetd.te	2007-05-29 14:10:57.000000000 -0400
++++ serefpolicy-3.0.1/policy/modules/services/inetd.te	2007-05-30 07:35:54.000000000 -0400
+@@ -135,8 +135,8 @@
+ mls_fd_use_all_levels(inetd_t)
+ mls_fd_share_all_levels(inetd_t)
+ mls_socket_read_to_clearance(inetd_t)
++mls_socket_write_to_clearance(inetd_t)
+ mls_process_set_level(inetd_t)
+-mls_socket_read_to_clearance(inetd_t)
  
- libs_use_ld_so(insmod_t)
- libs_use_shared_libs(insmod_t)
-@@ -118,6 +119,18 @@
- }
+ sysnet_read_config(inetd_t)
  
- optional_policy(`
-+	alsa_domtrans(insmod_t)
-+')
+@@ -177,6 +177,9 @@
+ # for identd
+ allow inetd_child_t self:netlink_tcpdiag_socket r_netlink_socket_perms;
+ allow inetd_child_t self:capability { setuid setgid };
++allow inetd_child_t self:dir search;
++allow inetd_child_t self:{ lnk_file file } { getattr read };
 +
-+optional_policy(`
-+	firstboot_dontaudit_rw_pipes(insmod_t)
-+')
-+
-+optional_policy(`
-+	hal_write_log(insmod_t)
-+')
-+
-+optional_policy(`
- 	hotplug_search_config(insmod_t)
- ')
+ files_search_home(inetd_child_t)
  
-@@ -150,6 +163,7 @@
- 
- optional_policy(`
- 	rpm_rw_pipes(insmod_t)
-+	rpm_read_script_tmp_files(insmod_t)
- ')
- 
- optional_policy(`
-@@ -180,7 +194,8 @@
- 
- files_read_kernel_symbol_table(depmod_t)
- files_read_kernel_modules(depmod_t)
-+files_delete_kernel_modules(depmod_t)
- 
- fs_getattr_xattr_fs(depmod_t)
- 
- 
+ manage_dirs_pattern(inetd_child_t,inetd_child_tmp_t,inetd_child_tmp_t)
 
 --
 This message was distributed to subscribers of the selinux mailing list.
