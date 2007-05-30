@@ -1,11 +1,11 @@
 Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l4UHbxFL014611
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l4UHbxPZ014618
 	for <selinux@tycho.nsa.gov>; Wed, 30 May 2007 13:37:59 -0400
 Received: from mx1.redhat.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l4UHbs2p008439
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l4UHbs2p008438
 	for <selinux@tycho.nsa.gov>; Wed, 30 May 2007 17:37:55 GMT
-Date: Wed, 30 May 2007 10:16:09 -0400
-Message-Id: <200705301416.l4UEG9VA007720@localhost.localdomain>
+Date: Wed, 30 May 2007 10:25:26 -0400
+Message-Id: <200705301425.l4UEPQsf007799@localhost.localdomain>
 From: dwalsh@redhat.com
 To: cpebenito@tresys.com
 CC: selinux@tycho.nsa.gov
