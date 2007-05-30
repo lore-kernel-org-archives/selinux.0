@@ -1,28 +1,26 @@
 Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l4UHbPSa014271
-	for <selinux@tycho.nsa.gov>; Wed, 30 May 2007 13:37:25 -0400
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l4UHajsw013488
+	for <selinux@tycho.nsa.gov>; Wed, 30 May 2007 13:36:45 -0400
 Received: from mx1.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id l4UHbLue002851
-	for <selinux@tycho.nsa.gov>; Wed, 30 May 2007 17:37:21 GMT
-Date: Wed, 30 May 2007 10:22:43 -0400
-Message-Id: <200705301422.l4UEMhjS007772@localhost.localdomain>
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id l4UHaiue002769
+	for <selinux@tycho.nsa.gov>; Wed, 30 May 2007 17:36:44 GMT
+Date: Wed, 30 May 2007 11:22:34 -0400
+Message-Id: <200705301522.l4UFMYeG010497@localhost.localdomain>
 From: dwalsh@redhat.com
 To: cpebenito@tresys.com
 CC: selinux@tycho.nsa.gov
-Subject: fsdaemon writes files/disks at different levels, Needs write down.
+Subject: admin_vbetool changes
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
---- nsaserefpolicy/policy/modules/services/smartmon.te	2007-05-29 14:10:57.000000000 -0400
-+++ serefpolicy-3.0.1/policy/modules/services/smartmon.te	2007-05-30 09:08:15.000000000 -0400
-@@ -60,6 +60,7 @@
- fs_search_auto_mountpoints(fsdaemon_t)
+--- nsaserefpolicy/policy/modules/admin/vbetool.te	2007-05-29 14:10:59.000000000 -0400
++++ serefpolicy-3.0.1/policy/modules/admin/vbetool.te	2007-05-30 09:25:53.000000000 -0400
+@@ -32,4 +32,5 @@
  
- mls_file_read_up(fsdaemon_t)
-+mls_file_write_down(fsdaemon_t)
- 
- storage_raw_read_fixed_disk(fsdaemon_t)
- storage_raw_write_fixed_disk(fsdaemon_t)
+ optional_policy(`
+ 	hal_rw_pid_files(vbetool_t)
++	hal_write_log(vbetool_t)
+ ')
 
 --
 This message was distributed to subscribers of the selinux mailing list.
