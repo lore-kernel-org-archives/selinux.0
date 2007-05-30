@@ -1,56 +1,42 @@
 Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l4UHaqZS013761
-	for <selinux@tycho.nsa.gov>; Wed, 30 May 2007 13:36:52 -0400
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l4UHbKC2014124
+	for <selinux@tycho.nsa.gov>; Wed, 30 May 2007 13:37:21 -0400
 Received: from mx1.redhat.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l4UHao2p008209
-	for <selinux@tycho.nsa.gov>; Wed, 30 May 2007 17:36:50 GMT
-Date: Wed, 30 May 2007 11:40:46 -0400
-Message-Id: <200705301540.l4UFekZN011834@localhost.localdomain>
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l4UHbG2p008296
+	for <selinux@tycho.nsa.gov>; Wed, 30 May 2007 17:37:17 GMT
+Date: Wed, 30 May 2007 10:35:33 -0400
+Message-Id: <200705301435.l4UEZX0C007957@localhost.localdomain>
 From: dwalsh@redhat.com
 To: cpebenito@tresys.com
 CC: selinux@tycho.nsa.gov
-Subject: apps_uml changes
+Subject: pcscd sends itself a signal and communicates with openct
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Remove TODO
-
---- nsaserefpolicy/policy/modules/apps/uml.if	2007-05-29 14:10:48.000000000 -0400
-+++ serefpolicy-3.0.1/policy/modules/apps/uml.if	2007-05-30 09:25:53.000000000 -0400
-@@ -193,33 +193,6 @@
- 		nis_use_ypbind($1_uml_t)
- 	')
+--- nsaserefpolicy/policy/modules/services/pcscd.te	2007-05-29 14:10:57.000000000 -0400
++++ serefpolicy-3.0.1/policy/modules/services/pcscd.te	2007-05-30 07:35:54.000000000 -0400
+@@ -21,6 +21,7 @@
+ #
  
--	ifdef(`TODO',`
--		# for X
--		optional_policy(`
--			ifelse($1, sysadm,`
--			',`
--				optional_policy(`
--					allow $1_uml_t xdm_xserver_tmp_t:dir search;
--				')
--				allow $1_uml_t $1_xserver_tmp_t:sock_file write;
--				allow $1_uml_t $1_xserver_t:unix_stream_socket connectto;
--			')
--		')
--
--		optional_policy(`
--			# for uml_net
--			domain_auto_trans($1_uml_t, uml_net_exec_t, uml_net_t)
--			allow uml_net_t $1_uml_t:unix_stream_socket { read write };
--			allow uml_net_t $1_uml_t:unix_dgram_socket { read write };
--			dontaudit uml_net_t privfd:fd use;
--			can_access_pty(uml_net_t, $1_uml)
--			dontaudit uml_net_t $1_uml_rw_t:dir { getattr search };
--		')
--		#TODO
--		optional_policy(`
--			allow $1_uml_t $1_xauth_home_t:file { getattr read };
--		')
--	')
+ allow pcscd_t self:capability { dac_override dac_read_search };
++allow pcscd_t self:process signal;
+ allow pcscd_t self:fifo_file { read write };
+ allow pcscd_t self:unix_stream_socket create_stream_socket_perms;
+ allow pcscd_t self:unix_dgram_socket create_socket_perms;
+@@ -57,5 +58,13 @@
+ sysnet_dns_name_resolve(pcscd_t)
+ 
+ optional_policy(`
++	openct_stream_connect(pcscd_t)
++	openct_read_pid_files(pcscd_t)
++	openct_signull(pcscd_t)
++')
++
++optional_policy(`
+ 	rpm_use_script_fds(pcscd_t)
  ')
- 
- ########################################
++
++
 
 --
 This message was distributed to subscribers of the selinux mailing list.
