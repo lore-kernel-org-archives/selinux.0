@@ -1,37 +1,55 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l4UHakqH013498
-	for <selinux@tycho.nsa.gov>; Wed, 30 May 2007 13:36:46 -0400
-Received: from mx1.redhat.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l4UHai2p008173
-	for <selinux@tycho.nsa.gov>; Wed, 30 May 2007 17:36:44 GMT
-Date: Wed, 30 May 2007 08:50:35 -0400
-Message-Id: <200705301250.l4UCoZCF003454@localhost.localdomain>
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l4UHamGv013609
+	for <selinux@tycho.nsa.gov>; Wed, 30 May 2007 13:36:48 -0400
+Received: from mx1.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id l4UHakue002786
+	for <selinux@tycho.nsa.gov>; Wed, 30 May 2007 17:36:47 GMT
+Date: Wed, 30 May 2007 11:31:06 -0400
+Message-Id: <200705301531.l4UFV60b010640@localhost.localdomain>
 From: dwalsh@redhat.com
 To: cpebenito@tresys.com
 CC: selinux@tycho.nsa.gov
-Subject: Mdadm makes its own devices, reads generic iscsi
+Subject: admin_amanda changes
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
---- nsaserefpolicy/policy/modules/system/raid.te	2007-05-29 14:10:58.000000000 -0400
-+++ serefpolicy-3.0.1/policy/modules/system/raid.te	2007-05-30 07:35:54.000000000 -0400
-@@ -19,7 +19,7 @@
- # Local policy
- #
+Amanda fixes
+
+--- nsaserefpolicy/policy/modules/admin/amanda.te	2007-05-29 14:10:59.000000000 -0400
++++ serefpolicy-3.0.1/policy/modules/admin/amanda.te	2007-05-30 09:25:53.000000000 -0400
+@@ -70,7 +70,7 @@
  
--allow mdadm_t self:capability { dac_override sys_admin ipc_lock };
-+allow mdadm_t self:capability { dac_override mknod sys_admin ipc_lock };
- dontaudit mdadm_t self:capability sys_tty_config;
- allow mdadm_t self:process { sigchld sigkill sigstop signull signal };
- allow mdadm_t self:fifo_file rw_fifo_file_perms;
-@@ -46,6 +46,7 @@
- # RAID block device access
- storage_manage_fixed_disk(mdadm_t)
- storage_dev_filetrans_fixed_disk(mdadm_t)
-+storage_read_scsi_generic(mdadm_t)
+ allow amanda_t self:capability { chown dac_override setuid kill };
+ allow amanda_t self:process { setpgid signal };
+-allow amanda_t self:fifo_file { getattr read write ioctl lock };
++allow amanda_t self:fifo_file rw_fifo_file_perms;
+ allow amanda_t self:unix_stream_socket create_stream_socket_perms;
+ allow amanda_t self:unix_dgram_socket create_socket_perms;
+ allow amanda_t self:tcp_socket create_stream_socket_perms;
+@@ -85,18 +85,22 @@
  
- term_dontaudit_list_ptys(mdadm_t)
+ # access to amandas data structure
+ allow amanda_t amanda_data_t:dir { read search write };
+-allow amanda_t amanda_data_t:file { read write };
++allow amanda_t amanda_data_t:file manage_file_perms;
  
+ # access to amanda_dumpdates_t
+ allow amanda_t amanda_dumpdates_t:file { getattr lock read write };
+ 
+ can_exec(amanda_t,amanda_exec_t)
++can_exec(amanda_t,amanda_inetd_exec_t)
+ 
+ # access to amanda_gnutarlists_t (/var/lib/amanda/gnutar-lists)
+ allow amanda_t amanda_gnutarlists_t:dir rw_dir_perms;
+ allow amanda_t amanda_gnutarlists_t:file manage_file_perms;
+ allow amanda_t amanda_gnutarlists_t:lnk_file manage_file_perms;
+ 
++manage_dirs_pattern(amanda_t,amanda_var_lib_t,amanda_var_lib_t)
++manage_files_pattern(amanda_t,amanda_var_lib_t,amanda_var_lib_t)
++
+ manage_files_pattern(amanda_t,amanda_log_t,amanda_log_t)
+ manage_dirs_pattern(amanda_t,amanda_log_t,amanda_log_t)
+ logging_log_filetrans(amanda_t,amanda_log_t,{ file dir })
 
 --
 This message was distributed to subscribers of the selinux mailing list.
