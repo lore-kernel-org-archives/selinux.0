@@ -1,362 +1,176 @@
-Subject: Re: [PATCH 4/4] selinux: add selinuxfs structure for object class
-	discovery
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: "Christopher J. PeBenito" <cpebenito@tresys.com>
-Cc: jmorris@redhat.com, eparis@redhat.com, selinux@tycho.nsa.gov
-In-Reply-To: <11799259484098-git-send-email-cpebenito@tresys.com>
-References: <1179925929721-git-send-email-cpebenito@tresys.com>
-	 <11799259343624-git-send-email-cpebenito@tresys.com>
-	 <11799259391707-git-send-email-cpebenito@tresys.com>
-	 <11799259442921-git-send-email-cpebenito@tresys.com>
-	 <11799259484098-git-send-email-cpebenito@tresys.com>
-Content-Type: text/plain
-Date: Wed, 30 May 2007 11:06:51 -0400
-Message-Id: <1180537611.3340.151.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l4UH3tYY011674
+	for <selinux@tycho.nsa.gov>; Wed, 30 May 2007 13:03:55 -0400
+Received: from wa-out-1112.google.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l4UH3s2p003673
+	for <selinux@tycho.nsa.gov>; Wed, 30 May 2007 17:03:54 GMT
+Received: by wa-out-1112.google.com with SMTP id v27so1284860wah
+        for <selinux@tycho.nsa.gov>; Wed, 30 May 2007 10:03:53 -0700 (PDT)
+Message-ID: <6c18a4f0705301003xc08b41dsd871345a20197cd@mail.gmail.com>
+Date: Wed, 30 May 2007 19:03:53 +0200
+From: "Bernd Bartmann" <bernd.bartmann@gmail.com>
+To: "CentOS mailing list" <centos@centos.org>, selinux@tycho.nsa.gov
+Subject: Centos 5 OpenVPN / SElinux
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2007-05-23 at 09:12 -0400, Christopher J. PeBenito wrote:
-> From: Christopher J. PeBenito <cpebenito@tresys.com>
-> 
-> The structure is as follows (relative to selinuxfs root):
-> 
-> /class/file/index
-> /class/file/perms/read
-> /class/file/perms/write
-> ...
-> 
-> Each class is allocated 33 inodes, 1 for the class index and 32 for
-> permissions.  Relative to SEL_CLASS_INO_OFFSET, the inode of the index file
-> DIV 33 is the class number.  The inode of the permission file % 33 is the
-> index of the permission for that class.
-> 
-> Signed-off-by: Christopher J. PeBenito <cpebenito@tresys.com>
+Hi,
 
-For all four patches:
-Acked-by:  Stephen Smalley <sds@tycho.nsa.gov>
+I'm running Centos 5 32bit and installed openvpn-2.0.9-1.el5.rf from
+Dag Wieers Repo. When OpenVPN is started during boot-up it just shows
+an SElinux related error message. When I start OpenVPN manually after
+the system has come up completely it works fine.
 
-> 
-> ---
->  security/selinux/include/security.h |    1 +
->  security/selinux/selinuxfs.c        |  249 +++++++++++++++++++++++++++++++++++
->  2 files changed, 250 insertions(+), 0 deletions(-)
-> 
-> diff --git a/security/selinux/include/security.h b/security/selinux/include/security.h
-> index 731a173..83bdd4d 100644
-> --- a/security/selinux/include/security.h
-> +++ b/security/selinux/include/security.h
-> @@ -41,6 +41,7 @@ extern int selinux_mls_enabled;
->  
->  int security_load_policy(void * data, size_t len);
->  
-> +#define SEL_VEC_MAX 32
->  struct av_decision {
->  	u32 allowed;
->  	u32 decided;
-> diff --git a/security/selinux/selinuxfs.c b/security/selinux/selinuxfs.c
-> index 95051b1..8be9706 100644
-> --- a/security/selinux/selinuxfs.c
-> +++ b/security/selinux/selinuxfs.c
-> @@ -67,6 +67,10 @@ static struct dentry *bool_dir = NULL;
->  static int bool_num = 0;
->  static int *bool_pending_values = NULL;
->  
-> +/* global data for classes */
-> +static struct dentry *class_dir = NULL;
-> +static unsigned long last_class_ino;
-> +
->  extern void selnl_notify_setenforce(int val);
->  
->  /* Check whether a task is allowed to use a security operation. */
-> @@ -106,6 +110,7 @@ static unsigned long sel_last_ino = SEL_INO_NEXT - 1;
->  
->  #define SEL_INITCON_INO_OFFSET 	0x01000000
->  #define SEL_BOOL_INO_OFFSET	0x02000000
-> +#define SEL_CLASS_INO_OFFSET	0x04000000
->  #define SEL_INO_MASK		0x00ffffff
->  
->  #define TMPBUFLEN	12
-> @@ -237,6 +242,11 @@ static const struct file_operations sel_policyvers_ops = {
->  
->  /* declaration for sel_write_load */
->  static int sel_make_bools(void);
-> +static int sel_make_classes(void);
-> +
-> +/* declaration for sel_make_class_dirs */
-> +static int sel_make_dir(struct inode *dir, struct dentry *dentry,
-> +			unsigned long *ino);
->  
->  static ssize_t sel_read_mls(struct file *filp, char __user *buf,
->  				size_t count, loff_t *ppos)
-> @@ -287,10 +297,18 @@ static ssize_t sel_write_load(struct file * file, const char __user * buf,
->  		goto out;
->  
->  	ret = sel_make_bools();
-> +	if (ret) {
-> +		length = ret;
-> +		goto out1;
-> +	}
-> +
-> +	ret = sel_make_classes();
->  	if (ret)
->  		length = ret;
->  	else
->  		length = count;
-> +
-> +out1:
->  	audit_log(current->audit_context, GFP_KERNEL, AUDIT_MAC_POLICY_LOAD,
->  		"policy loaded auid=%u",
->  		audit_get_loginuid(current->audit_context));
-> @@ -1293,6 +1311,225 @@ out:
->  	return ret;
->  }
->  
-> +static inline unsigned int sel_div(unsigned long a, unsigned long b)
-> +{
-> +	return a / b - (a % b < 0);
-> +}
-> +
-> +static inline unsigned long sel_class_to_ino(u16 class)
-> +{
-> +	return (class * (SEL_VEC_MAX + 1)) | SEL_CLASS_INO_OFFSET;
-> +}
-> +
-> +static inline u16 sel_ino_to_class(unsigned long ino)
-> +{
-> +	return sel_div(ino & SEL_INO_MASK, SEL_VEC_MAX + 1);
-> +}
-> +
-> +static inline unsigned long sel_perm_to_ino(u16 class, u32 perm)
-> +{
-> +	return (class * (SEL_VEC_MAX + 1) + perm) | SEL_CLASS_INO_OFFSET;
-> +}
-> +
-> +static inline u32 sel_ino_to_perm(unsigned long ino)
-> +{
-> +	return (ino & SEL_INO_MASK) % (SEL_VEC_MAX + 1);
-> +}
-> +
-> +static ssize_t sel_read_class(struct file * file, char __user *buf, 
-> +				size_t count, loff_t *ppos)
-> +{
-> +	ssize_t rc, len;
-> +	char *page;
-> +	unsigned long ino = file->f_path.dentry->d_inode->i_ino;
-> +
-> +	page = (char *)__get_free_page(GFP_KERNEL);
-> +	if (!page) {
-> +		rc = -ENOMEM;
-> +		goto out;
-> +	}
-> +
-> +	len = snprintf(page, PAGE_SIZE, "%d", sel_ino_to_class(ino));
-> +	rc = simple_read_from_buffer(buf, count, ppos, page, len);
-> +	free_page((unsigned long)page);
-> +out:
-> +	return rc;
-> +}
-> +
-> +static const struct file_operations sel_class_ops = {
-> +	.read		= sel_read_class,
-> +};
-> +
-> +static ssize_t sel_read_perm(struct file * file, char __user *buf, 
-> +				size_t count, loff_t *ppos)
-> +{
-> +	ssize_t rc, len;
-> +	char *page;
-> +	unsigned long ino = file->f_path.dentry->d_inode->i_ino;
-> +
-> +	page = (char *)__get_free_page(GFP_KERNEL);
-> +	if (!page) {
-> +		rc = -ENOMEM;
-> +		goto out;
-> +	}
-> +
-> +	len = snprintf(page, PAGE_SIZE,"%d", sel_ino_to_perm(ino));
-> +	rc = simple_read_from_buffer(buf, count, ppos, page, len);
-> +	free_page((unsigned long)page);
-> +out:
-> +	return rc;
-> +}
-> +
-> +static const struct file_operations sel_perm_ops = {
-> +	.read		= sel_read_perm,
-> +};
-> +
-> +static int sel_make_perm_files(char *objclass, int classvalue,
-> +				struct dentry *dir)
-> +{
-> +	int i, rc = 0, nperms;
-> +	char **perms;
-> +
-> +	rc = security_get_permissions(objclass, &perms, &nperms);
-> +	if (rc)
-> +		goto out;
-> +
-> +	for (i = 0; i < nperms; i++) {
-> +		struct inode *inode;
-> +		struct dentry *dentry;
-> +
-> +		dentry = d_alloc_name(dir, perms[i]);
-> +		if (!dentry) {
-> +			rc = -ENOMEM;
-> +			goto out1;
-> +		}
-> +
-> +		inode = sel_make_inode(dir->d_sb, S_IFREG|S_IRUGO);
-> +		if (!inode) {
-> +			rc = -ENOMEM;
-> +			goto out1;
-> +		}
-> +		inode->i_fop = &sel_perm_ops;
-> +		/* i+1 since perm values are 1-indexed */
-> +		inode->i_ino = sel_perm_to_ino(classvalue, i+1);
-> +		d_add(dentry, inode);
-> +	}
-> +
-> +out1:
-> +	for (i = 0; i < nperms; i++)
-> +		kfree(perms[i]);
-> +	kfree(perms);
-> +out:
-> +	return rc;
-> +}
-> +
-> +static int sel_make_class_dir_entries(char *classname, int index,
-> +					struct dentry *dir)
-> +{
-> +	struct dentry *dentry = NULL;
-> +	struct inode *inode = NULL;
-> +	int rc;
-> +
-> +	dentry = d_alloc_name(dir, "index");
-> +	if (!dentry) {
-> +		rc = -ENOMEM;
-> +		goto out;
-> +	}
-> +
-> +	inode = sel_make_inode(dir->d_sb, S_IFREG|S_IRUGO);
-> +	if (!inode) {
-> +		rc = -ENOMEM;
-> +		goto out;
-> +	}
-> +
-> +	inode->i_fop = &sel_class_ops;
-> +	inode->i_ino = sel_class_to_ino(index);
-> +	d_add(dentry, inode);
-> +
-> +	dentry = d_alloc_name(dir, "perms");
-> +	if (!dentry) {
-> +		rc = -ENOMEM;
-> +		goto out;
-> +	}
-> +
-> +	rc = sel_make_dir(dir->d_inode, dentry, &last_class_ino);
-> +	if (rc)
-> +		goto out;
-> +
-> +	rc = sel_make_perm_files(classname, index, dentry);
-> +
-> +out:
-> +	return rc;
-> +}
-> +
-> +static void sel_remove_classes(void)
-> +{
-> +	struct list_head *class_node;
-> +
-> +	list_for_each(class_node, &class_dir->d_subdirs) {
-> +		struct dentry *class_subdir = list_entry(class_node,
-> +					struct dentry, d_u.d_child);
-> +		struct list_head *class_subdir_node;
-> +
-> +		list_for_each(class_subdir_node, &class_subdir->d_subdirs) {
-> +			struct dentry *d = list_entry(class_subdir_node,
-> +						struct dentry, d_u.d_child);
-> +
-> +			if (d->d_inode)
-> +				if (d->d_inode->i_mode & S_IFDIR)
-> +					sel_remove_entries(d);
-> +		}
-> +
-> +		sel_remove_entries(class_subdir);
-> +	}
-> +
-> +	sel_remove_entries(class_dir);
-> +}
-> +
-> +static int sel_make_classes(void)
-> +{
-> +	int rc = 0, nclasses, i;
-> +	char **classes;
-> +
-> +	/* delete any existing entries */
-> +	sel_remove_classes();
-> +
-> +	rc = security_get_classes(&classes, &nclasses);
-> +	if (rc < 0)
-> +		goto out;
-> +
-> +	/* +2 since classes are 1-indexed */
-> +	last_class_ino = sel_class_to_ino(nclasses+2);
-> +
-> +	for (i = 0; i < nclasses; i++) {
-> +		struct dentry *class_name_dir;
-> +
-> +		class_name_dir = d_alloc_name(class_dir, classes[i]);
-> +		if (!class_name_dir) {
-> +			rc = -ENOMEM;
-> +			goto out1;
-> +		}
-> +
-> +		rc = sel_make_dir(class_dir->d_inode, class_name_dir,
-> +				&last_class_ino);
-> +		if (rc)
-> +			goto out1;
-> +
-> +		/* i+1 since class values are 1-indexed */
-> +		rc = sel_make_class_dir_entries(classes[i], i+1,
-> +				class_name_dir);
-> +		if (rc)
-> +			goto out1;
-> +	}
-> +
-> +out1:
-> +	for (i = 0; i < nclasses; i++)
-> +		kfree(classes[i]);
-> +	kfree(classes);
-> +out:
-> +	return rc;
-> +}
-> +
->  static int sel_make_dir(struct inode *dir, struct dentry *dentry,
->  			unsigned long *ino)
->  {
-> @@ -1407,6 +1644,18 @@ static int sel_fill_super(struct super_block * sb, void * data, int silent)
->  	if (ret)
->  		goto err;
->  
-> +	dentry = d_alloc_name(sb->s_root, "class");
-> +	if (!dentry) {
-> +		ret = -ENOMEM;
-> +		goto err;
-> +	}
-> +
-> +	ret = sel_make_dir(root_inode, dentry, &sel_last_ino);
-> +	if (ret)
-> +		goto err;
-> +
-> +	class_dir = dentry;
-> +
->  out:
->  	return ret;
->  err:
--- 
-Stephen Smalley
-National Security Agency
+Here are all the messages from /var/log/messages that are SElinux related:
 
+ May 28 21:39:15 srsblnfw01 kernel: audit(1180381151.395:10): avc:
+denied  { use } for  pid=3012 comm="openvpn" name="null" dev=tmpfs
+ino=1396 scontext=system_u:system_r:openvpn_t:s0
+tcontext=system_u:system_r:pppd_t:s0 tclass=fd
+May 28 21:39:15 srsblnfw01 kernel: audit(1180381151.395:11): avc:
+denied  { use } for  pid=3012 comm="openvpn" name="null" dev=tmpfs
+ino=1396 scontext=system_u:system_r:openvpn_t:s0
+tcontext=system_u:system_r:pppd_t:s0 tclass=fd
+May 28 21:39:15 srsblnfw01 kernel: audit(1180381151.395:12): avc:
+denied  { use } for  pid=3012 comm="openvpn" name="null" dev=tmpfs
+ino=1396 scontext=system_u:system_r:openvpn_t:s0
+tcontext=system_u:system_r:pppd_t:s0 tclass=fd
+May 28 21:39:15 srsblnfw01 kernel: audit(1180381151.458:13): avc:
+denied  { execstack } for  pid=3012 comm="openvpn"
+scontext=system_u:system_r:openvpn_t:s0
+tcontext=system_u:system_r:openvpn_t:s0 tclass=process
+May 28 21:39:15 srsblnfw01 kernel: audit(1180381151.465:14): avc:
+denied  { use } for  pid=3014 comm="openvpn" name="null" dev=tmpfs
+ino=1396 scontext=system_u:system_r:openvpn_t:s0
+tcontext=system_u:system_r:pppd_t:s0 tclass=fd
+May 28 21:39:15 srsblnfw01 kernel: audit(1180381151.465:15): avc:
+denied  { use } for  pid=3014 comm="openvpn" name="null" dev=tmpfs
+ino=1396 scontext=system_u:system_r:openvpn_t:s0
+tcontext=system_u:system_r:pppd_t:s0 tclass=fd
+May 28 21:39:15 srsblnfw01 kernel: audit(1180381151.465:16): avc:
+denied  { use } for  pid=3014 comm="openvpn" name="null" dev=tmpfs
+ino=1396 scontext=system_u:system_r:openvpn_t:s0
+tcontext=system_u:system_r:pppd_t:s0 tclass=fd
+May 28 21:39:15 srsblnfw01 kernel: audit(1180381151.466:17): avc:
+denied  { execstack } for  pid=3014 comm="openvpn"
+scontext=system_u:system_r:openvpn_t:s0
+tcontext=system_u:system_r:openvpn_t:s0 tclass=process
+May 28 21:40:06 srsblnfw01 setroubleshoot:      SELinux is preventing
+/usr/sbin/openvpn (openvpn_t) "execstack" access to <Unknown>
+(openvpn_t).      For complete SELinux messages. run sealert -l
+0b738097-f92a-44c4-952b-7247d88a40e0
+May 28 21:40:06 srsblnfw01 setroubleshoot:      SELinux is preventing
+/usr/sbin/openvpn (openvpn_t) "execstack" access to <Unknown>
+(openvpn_t).      For complete SELinux messages. run sealert -l
+0b738097-f92a-44c4-952b-7247d88a40e0
+May 28 21:44:26 srsblnfw01 kernel: audit(1180381461.319:10): avc:
+denied  { use } for  pid=3010 comm="openvpn" name="null" dev=tmpfs
+ino=1396 scontext=system_u:system_r:openvpn_t:s0
+tcontext=system_u:system_r:pppd_t:s0 tclass=fd
+May 28 21:44:26 srsblnfw01 kernel: audit(1180381461.319:11): avc:
+denied  { use } for  pid=3010 comm="openvpn" name="null" dev=tmpfs
+ino=1396 scontext=system_u:system_r:openvpn_t:s0
+tcontext=system_u:system_r:pppd_t:s0 tclass=fd
+May 28 21:44:26 srsblnfw01 kernel: audit(1180381461.319:12): avc:
+denied  { use } for  pid=3010 comm="openvpn" name="null" dev=tmpfs
+ino=1396 scontext=system_u:system_r:openvpn_t:s0
+tcontext=system_u:system_r:pppd_t:s0 tclass=fd
+May 28 21:44:26 srsblnfw01 kernel: audit(1180381461.382:13): avc:
+denied  { execstack } for  pid=3010 comm="openvpn"
+scontext=system_u:system_r:openvpn_t:s0
+tcontext=system_u:system_r:openvpn_t:s0 tclass=process
+May 28 21:44:26 srsblnfw01 kernel: audit(1180381461.390:14): avc:
+denied  { use } for  pid=3012 comm="openvpn" name="null" dev=tmpfs
+ino=1396 scontext=system_u:system_r:openvpn_t:s0
+tcontext=system_u:system_r:pppd_t:s0 tclass=fd
+May 28 21:44:26 srsblnfw01 kernel: audit(1180381461.390:15): avc:
+denied  { use } for  pid=3012 comm="openvpn" name="null" dev=tmpfs
+ino=1396 scontext=system_u:system_r:openvpn_t:s0
+tcontext=system_u:system_r:pppd_t:s0 tclass=fd
+May 28 21:44:26 srsblnfw01 kernel: audit(1180381461.390:16): avc:
+denied  { use } for  pid=3012 comm="openvpn" name="null" dev=tmpfs
+ino=1396 scontext=system_u:system_r:openvpn_t:s0
+tcontext=system_u:system_r:pppd_t:s0 tclass=fd
+May 28 21:44:26 srsblnfw01 kernel: audit(1180381461.390:17): avc:
+denied  { execstack } for  pid=3012 comm="openvpn"
+scontext=system_u:system_r:openvpn_t:s0
+tcontext=system_u:system_r:openvpn_t:s0 tclass=process
+May 28 22:18:52 srsblnfw01 setroubleshoot:      SELinux is preventing
+/usr/sbin/openvpn (openvpn_t) "use" access to /dev/null (pppd_t).
+For complete SELinux messages. run sealert -l
+5701a4da-1d96-4c86-9747-e31b3d5d2219
+May 28 22:18:52 srsblnfw01 setroubleshoot:      SELinux is preventing
+/usr/sbin/openvpn (openvpn_t) "execstack" access to <Unknown>
+(openvpn_t).      For complete SELinux messages. run sealert -l
+0b738097-f92a-44c4-952b-7247d88a40e0
+May 28 22:18:52 srsblnfw01 setroubleshoot:      SELinux is preventing
+/usr/sbin/openvpn (openvpn_t) "use" access to /dev/null (pppd_t).
+For complete SELinux messages. run sealert -l
+5701a4da-1d96-4c86-9747-e31b3d5d2219
+May 28 22:18:52 srsblnfw01 setroubleshoot:      SELinux is preventing
+/usr/sbin/openvpn (openvpn_t) "execstack" access to <Unknown>
+(openvpn_t).      For complete SELinux messages. run sealert -l
+0b738097-f92a-44c4-952b-7247d88a40e0
+May 28 22:26:00 srsblnfw01 setroubleshoot:      SELinux is preventing
+/usr/sbin/openvpn (openvpn_t) "use" access to /dev/null (pppd_t).
+For complete SELinux messages. run sealert -l
+5701a4da-1d96-4c86-9747-e31b3d5d2219
+May 28 22:26:00 srsblnfw01 setroubleshoot:      SELinux is preventing
+/usr/sbin/openvpn (openvpn_t) "execstack" access to <Unknown>
+(openvpn_t).      For complete SELinux messages. run sealert -l
+0b738097-f92a-44c4-952b-7247d88a40e0
+May 28 22:26:00 srsblnfw01 setroubleshoot:      SELinux is preventing
+/usr/sbin/openvpn (openvpn_t) "use" access to /dev/null (pppd_t).
+For complete SELinux messages. run sealert -l
+5701a4da-1d96-4c86-9747-e31b3d5d2219
+May 28 22:26:00 srsblnfw01 setroubleshoot:      SELinux is preventing
+/usr/sbin/openvpn (openvpn_t) "execstack" access to <Unknown>
+(openvpn_t).      For complete SELinux messages. run sealert -l
+0b738097-f92a-44c4-952b-7247d88a40e0
+May 28 22:42:03 srsblnfw01 setroubleshoot:      SELinux is preventing
+/usr/sbin/openvpn (openvpn_t) "use" access to /dev/null (pppd_t).
+For complete SELinux messages. run sealert -l
+5701a4da-1d96-4c86-9747-e31b3d5d2219
+May 28 22:42:03 srsblnfw01 setroubleshoot:      SELinux is preventing
+/usr/sbin/openvpn (openvpn_t) "execstack" access to <Unknown>
+(openvpn_t).      For complete SELinux messages. run sealert -l
+0b738097-f92a-44c4-952b-7247d88a40e0
+May 28 22:42:03 srsblnfw01 setroubleshoot:      SELinux is preventing
+/usr/sbin/openvpn (openvpn_t) "use" access to /dev/null (pppd_t).
+For complete SELinux messages. run sealert -l
+5701a4da-1d96-4c86-9747-e31b3d5d2219
+May 28 22:42:03 srsblnfw01 setroubleshoot:      SELinux is preventing
+/usr/sbin/openvpn (openvpn_t) "execstack" access to <Unknown>
+(openvpn_t).      For complete SELinux messages. run sealert -l
+0b738097-f92a-44c4-952b-7247d88a40e0
+May 28 22:42:05 srsblnfw01 setroubleshoot:      SELinux is preventing
+/usr/sbin/openvpn (openvpn_t) "execstack" access to <Unknown>
+(openvpn_t).      For complete SELinux messages. run sealert -l
+0b738097-f92a-44c4-952b-7247d88a40e0
+May 28 22:42:05 srsblnfw01 setroubleshoot:      SELinux is preventing
+/usr/sbin/openvpn (openvpn_t) "execstack" access to <Unknown>
+(openvpn_t).      For complete SELinux messages. run sealert -l
+0b738097-f92a-44c4-952b-7247d88a40e0
+May 28 22:56:42 srsblnfw01 setroubleshoot:      SELinux is preventing
+/usr/sbin/openvpn (openvpn_t) "execstack" access to <Unknown>
+(openvpn_t).      For complete SELinux messages. run sealert -l
+0b738097-f92a-44c4-952b-7247d88a40e0
+May 28 22:56:42 srsblnfw01 setroubleshoot:      SELinux is preventing
+/usr/sbin/openvpn (openvpn_t) "execstack" access to <Unknown>
+(openvpn_t).      For complete SELinux messages. run sealert -l
+0b738097-f92a-44c4-952b-7247d88a40e0
+
+In Centos4 one could enable / disable SElinux for certain services
+using system-config-securitylevel. This is not possible anymore in
+Centos5. One can only either enable or disable SElinux completely.
+
+Any ideas how to fix the problem so that OpenVPN starts-up correctly
+during boot-up?
+
+Best regards,
+Bernd
 
 --
 This message was distributed to subscribers of the selinux mailing list.
