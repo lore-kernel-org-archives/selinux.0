@@ -1,176 +1,229 @@
 Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l4UH3tYY011674
-	for <selinux@tycho.nsa.gov>; Wed, 30 May 2007 13:03:55 -0400
-Received: from wa-out-1112.google.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l4UH3s2p003673
-	for <selinux@tycho.nsa.gov>; Wed, 30 May 2007 17:03:54 GMT
-Received: by wa-out-1112.google.com with SMTP id v27so1284860wah
-        for <selinux@tycho.nsa.gov>; Wed, 30 May 2007 10:03:53 -0700 (PDT)
-Message-ID: <6c18a4f0705301003xc08b41dsd871345a20197cd@mail.gmail.com>
-Date: Wed, 30 May 2007 19:03:53 +0200
-From: "Bernd Bartmann" <bernd.bartmann@gmail.com>
-To: "CentOS mailing list" <centos@centos.org>, selinux@tycho.nsa.gov
-Subject: Centos 5 OpenVPN / SElinux
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l4UHaq5u013754
+	for <selinux@tycho.nsa.gov>; Wed, 30 May 2007 13:36:52 -0400
+Received: from mx1.redhat.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l4UHao2p008206
+	for <selinux@tycho.nsa.gov>; Wed, 30 May 2007 17:36:50 GMT
+Date: Wed, 30 May 2007 11:11:17 -0400
+Message-Id: <200705301511.l4UFBHQ3010316@localhost.localdomain>
+From: dwalsh@redhat.com
+To: cpebenito@tresys.com
+CC: selinux@tycho.nsa.gov
+Subject: apcupsd policy
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hi,
-
-I'm running Centos 5 32bit and installed openvpn-2.0.9-1.el5.rf from
-Dag Wieers Repo. When OpenVPN is started during boot-up it just shows
-an SElinux related error message. When I start OpenVPN manually after
-the system has come up completely it works fine.
-
-Here are all the messages from /var/log/messages that are SElinux related:
-
- May 28 21:39:15 srsblnfw01 kernel: audit(1180381151.395:10): avc:
-denied  { use } for  pid=3012 comm="openvpn" name="null" dev=tmpfs
-ino=1396 scontext=system_u:system_r:openvpn_t:s0
-tcontext=system_u:system_r:pppd_t:s0 tclass=fd
-May 28 21:39:15 srsblnfw01 kernel: audit(1180381151.395:11): avc:
-denied  { use } for  pid=3012 comm="openvpn" name="null" dev=tmpfs
-ino=1396 scontext=system_u:system_r:openvpn_t:s0
-tcontext=system_u:system_r:pppd_t:s0 tclass=fd
-May 28 21:39:15 srsblnfw01 kernel: audit(1180381151.395:12): avc:
-denied  { use } for  pid=3012 comm="openvpn" name="null" dev=tmpfs
-ino=1396 scontext=system_u:system_r:openvpn_t:s0
-tcontext=system_u:system_r:pppd_t:s0 tclass=fd
-May 28 21:39:15 srsblnfw01 kernel: audit(1180381151.458:13): avc:
-denied  { execstack } for  pid=3012 comm="openvpn"
-scontext=system_u:system_r:openvpn_t:s0
-tcontext=system_u:system_r:openvpn_t:s0 tclass=process
-May 28 21:39:15 srsblnfw01 kernel: audit(1180381151.465:14): avc:
-denied  { use } for  pid=3014 comm="openvpn" name="null" dev=tmpfs
-ino=1396 scontext=system_u:system_r:openvpn_t:s0
-tcontext=system_u:system_r:pppd_t:s0 tclass=fd
-May 28 21:39:15 srsblnfw01 kernel: audit(1180381151.465:15): avc:
-denied  { use } for  pid=3014 comm="openvpn" name="null" dev=tmpfs
-ino=1396 scontext=system_u:system_r:openvpn_t:s0
-tcontext=system_u:system_r:pppd_t:s0 tclass=fd
-May 28 21:39:15 srsblnfw01 kernel: audit(1180381151.465:16): avc:
-denied  { use } for  pid=3014 comm="openvpn" name="null" dev=tmpfs
-ino=1396 scontext=system_u:system_r:openvpn_t:s0
-tcontext=system_u:system_r:pppd_t:s0 tclass=fd
-May 28 21:39:15 srsblnfw01 kernel: audit(1180381151.466:17): avc:
-denied  { execstack } for  pid=3014 comm="openvpn"
-scontext=system_u:system_r:openvpn_t:s0
-tcontext=system_u:system_r:openvpn_t:s0 tclass=process
-May 28 21:40:06 srsblnfw01 setroubleshoot:      SELinux is preventing
-/usr/sbin/openvpn (openvpn_t) "execstack" access to <Unknown>
-(openvpn_t).      For complete SELinux messages. run sealert -l
-0b738097-f92a-44c4-952b-7247d88a40e0
-May 28 21:40:06 srsblnfw01 setroubleshoot:      SELinux is preventing
-/usr/sbin/openvpn (openvpn_t) "execstack" access to <Unknown>
-(openvpn_t).      For complete SELinux messages. run sealert -l
-0b738097-f92a-44c4-952b-7247d88a40e0
-May 28 21:44:26 srsblnfw01 kernel: audit(1180381461.319:10): avc:
-denied  { use } for  pid=3010 comm="openvpn" name="null" dev=tmpfs
-ino=1396 scontext=system_u:system_r:openvpn_t:s0
-tcontext=system_u:system_r:pppd_t:s0 tclass=fd
-May 28 21:44:26 srsblnfw01 kernel: audit(1180381461.319:11): avc:
-denied  { use } for  pid=3010 comm="openvpn" name="null" dev=tmpfs
-ino=1396 scontext=system_u:system_r:openvpn_t:s0
-tcontext=system_u:system_r:pppd_t:s0 tclass=fd
-May 28 21:44:26 srsblnfw01 kernel: audit(1180381461.319:12): avc:
-denied  { use } for  pid=3010 comm="openvpn" name="null" dev=tmpfs
-ino=1396 scontext=system_u:system_r:openvpn_t:s0
-tcontext=system_u:system_r:pppd_t:s0 tclass=fd
-May 28 21:44:26 srsblnfw01 kernel: audit(1180381461.382:13): avc:
-denied  { execstack } for  pid=3010 comm="openvpn"
-scontext=system_u:system_r:openvpn_t:s0
-tcontext=system_u:system_r:openvpn_t:s0 tclass=process
-May 28 21:44:26 srsblnfw01 kernel: audit(1180381461.390:14): avc:
-denied  { use } for  pid=3012 comm="openvpn" name="null" dev=tmpfs
-ino=1396 scontext=system_u:system_r:openvpn_t:s0
-tcontext=system_u:system_r:pppd_t:s0 tclass=fd
-May 28 21:44:26 srsblnfw01 kernel: audit(1180381461.390:15): avc:
-denied  { use } for  pid=3012 comm="openvpn" name="null" dev=tmpfs
-ino=1396 scontext=system_u:system_r:openvpn_t:s0
-tcontext=system_u:system_r:pppd_t:s0 tclass=fd
-May 28 21:44:26 srsblnfw01 kernel: audit(1180381461.390:16): avc:
-denied  { use } for  pid=3012 comm="openvpn" name="null" dev=tmpfs
-ino=1396 scontext=system_u:system_r:openvpn_t:s0
-tcontext=system_u:system_r:pppd_t:s0 tclass=fd
-May 28 21:44:26 srsblnfw01 kernel: audit(1180381461.390:17): avc:
-denied  { execstack } for  pid=3012 comm="openvpn"
-scontext=system_u:system_r:openvpn_t:s0
-tcontext=system_u:system_r:openvpn_t:s0 tclass=process
-May 28 22:18:52 srsblnfw01 setroubleshoot:      SELinux is preventing
-/usr/sbin/openvpn (openvpn_t) "use" access to /dev/null (pppd_t).
-For complete SELinux messages. run sealert -l
-5701a4da-1d96-4c86-9747-e31b3d5d2219
-May 28 22:18:52 srsblnfw01 setroubleshoot:      SELinux is preventing
-/usr/sbin/openvpn (openvpn_t) "execstack" access to <Unknown>
-(openvpn_t).      For complete SELinux messages. run sealert -l
-0b738097-f92a-44c4-952b-7247d88a40e0
-May 28 22:18:52 srsblnfw01 setroubleshoot:      SELinux is preventing
-/usr/sbin/openvpn (openvpn_t) "use" access to /dev/null (pppd_t).
-For complete SELinux messages. run sealert -l
-5701a4da-1d96-4c86-9747-e31b3d5d2219
-May 28 22:18:52 srsblnfw01 setroubleshoot:      SELinux is preventing
-/usr/sbin/openvpn (openvpn_t) "execstack" access to <Unknown>
-(openvpn_t).      For complete SELinux messages. run sealert -l
-0b738097-f92a-44c4-952b-7247d88a40e0
-May 28 22:26:00 srsblnfw01 setroubleshoot:      SELinux is preventing
-/usr/sbin/openvpn (openvpn_t) "use" access to /dev/null (pppd_t).
-For complete SELinux messages. run sealert -l
-5701a4da-1d96-4c86-9747-e31b3d5d2219
-May 28 22:26:00 srsblnfw01 setroubleshoot:      SELinux is preventing
-/usr/sbin/openvpn (openvpn_t) "execstack" access to <Unknown>
-(openvpn_t).      For complete SELinux messages. run sealert -l
-0b738097-f92a-44c4-952b-7247d88a40e0
-May 28 22:26:00 srsblnfw01 setroubleshoot:      SELinux is preventing
-/usr/sbin/openvpn (openvpn_t) "use" access to /dev/null (pppd_t).
-For complete SELinux messages. run sealert -l
-5701a4da-1d96-4c86-9747-e31b3d5d2219
-May 28 22:26:00 srsblnfw01 setroubleshoot:      SELinux is preventing
-/usr/sbin/openvpn (openvpn_t) "execstack" access to <Unknown>
-(openvpn_t).      For complete SELinux messages. run sealert -l
-0b738097-f92a-44c4-952b-7247d88a40e0
-May 28 22:42:03 srsblnfw01 setroubleshoot:      SELinux is preventing
-/usr/sbin/openvpn (openvpn_t) "use" access to /dev/null (pppd_t).
-For complete SELinux messages. run sealert -l
-5701a4da-1d96-4c86-9747-e31b3d5d2219
-May 28 22:42:03 srsblnfw01 setroubleshoot:      SELinux is preventing
-/usr/sbin/openvpn (openvpn_t) "execstack" access to <Unknown>
-(openvpn_t).      For complete SELinux messages. run sealert -l
-0b738097-f92a-44c4-952b-7247d88a40e0
-May 28 22:42:03 srsblnfw01 setroubleshoot:      SELinux is preventing
-/usr/sbin/openvpn (openvpn_t) "use" access to /dev/null (pppd_t).
-For complete SELinux messages. run sealert -l
-5701a4da-1d96-4c86-9747-e31b3d5d2219
-May 28 22:42:03 srsblnfw01 setroubleshoot:      SELinux is preventing
-/usr/sbin/openvpn (openvpn_t) "execstack" access to <Unknown>
-(openvpn_t).      For complete SELinux messages. run sealert -l
-0b738097-f92a-44c4-952b-7247d88a40e0
-May 28 22:42:05 srsblnfw01 setroubleshoot:      SELinux is preventing
-/usr/sbin/openvpn (openvpn_t) "execstack" access to <Unknown>
-(openvpn_t).      For complete SELinux messages. run sealert -l
-0b738097-f92a-44c4-952b-7247d88a40e0
-May 28 22:42:05 srsblnfw01 setroubleshoot:      SELinux is preventing
-/usr/sbin/openvpn (openvpn_t) "execstack" access to <Unknown>
-(openvpn_t).      For complete SELinux messages. run sealert -l
-0b738097-f92a-44c4-952b-7247d88a40e0
-May 28 22:56:42 srsblnfw01 setroubleshoot:      SELinux is preventing
-/usr/sbin/openvpn (openvpn_t) "execstack" access to <Unknown>
-(openvpn_t).      For complete SELinux messages. run sealert -l
-0b738097-f92a-44c4-952b-7247d88a40e0
-May 28 22:56:42 srsblnfw01 setroubleshoot:      SELinux is preventing
-/usr/sbin/openvpn (openvpn_t) "execstack" access to <Unknown>
-(openvpn_t).      For complete SELinux messages. run sealert -l
-0b738097-f92a-44c4-952b-7247d88a40e0
-
-In Centos4 one could enable / disable SElinux for certain services
-using system-config-securitylevel. This is not possible anymore in
-Centos5. One can only either enable or disable SElinux completely.
-
-Any ideas how to fix the problem so that OpenVPN starts-up correctly
-during boot-up?
-
-Best regards,
-Bernd
+--- nsaserefpolicy/policy/modules/services/apcupsd.fc	1969-12-31 19:00:00.000000000 -0500
++++ serefpolicy-3.0.1/policy/modules/services/apcupsd.fc	2007-05-30 09:25:53.000000000 -0400
+@@ -0,0 +1,10 @@
++/usr/sbin/apcupsd		--	gen_context(system_u:object_r:apcupsd_exec_t,s0)
++
++/var/log/apcupsd\.events.*	--	gen_context(system_u:object_r:apcupsd_log_t,s0)
++
++/var/run/apcupsd\.pid		--	gen_context(system_u:object_r:apcupsd_var_run_t,s0)
++
++/var/www/apcupsd/multimon.cgi		--	gen_context(system_u:object_r:httpd_apcupsd_cgi_script_exec_t,s0)
++/var/www/apcupsd/upsfstats.cgi		--	gen_context(system_u:object_r:httpd_apcupsd_cgi_script_exec_t,s0)
++/var/www/apcupsd/upsimage.cgi		--	gen_context(system_u:object_r:httpd_apcupsd_cgi_script_exec_t,s0)
++/var/www/apcupsd/upsstats.cgi		--	gen_context(system_u:object_r:httpd_apcupsd_cgi_script_exec_t,s0)
+--- nsaserefpolicy/policy/modules/services/apcupsd.if	1969-12-31 19:00:00.000000000 -0500
++++ serefpolicy-3.0.1/policy/modules/services/apcupsd.if	2007-05-30 09:25:53.000000000 -0400
+@@ -0,0 +1,103 @@
++## <summary>APC UPS monitoring daemon</summary>
++
++########################################
++## <summary>
++##	Execute a domain transition to run apcupsd.
++## </summary>
++## <param name="domain">
++## <summary>
++##	Domain allowed to transition.
++## </summary>
++## </param>
++#
++interface(`apcupsd_domtrans',`
++	gen_require(`
++		type apcupsd_t, apcupsd_exec_t;
++	')
++
++	domtrans_pattern($1,apcupsd_exec_t,apcupsd_t)
++')
++
++########################################
++## <summary>
++##	Read apcupsd PID files.
++## </summary>
++## <param name="domain">
++##	<summary>
++##	Domain allowed access.
++##	</summary>
++## </param>
++#
++interface(`apcupsd_read_pid_files',`
++	gen_require(`
++		type apcupsd_var_run_t;
++	')
++
++	files_search_pids($1)
++	allow $1 apcupsd_var_run_t:file read_file_perms;
++')
++
++
++########################################
++## <summary>
++##	Allow the specified domain to read apcupsd's log files.
++## </summary>
++## <param name="domain">
++##	<summary>
++##	Domain allowed access.
++##	</summary>
++## </param>
++## <rolecap/>
++#
++interface(`apcupsd_read_log',`
++	gen_require(`
++		type apcupsd_log_t;
++	')
++
++	logging_search_logs($1)
++	allow $1 apcupsd_log_t:dir list_dir_perms;
++	allow $1 apcupsd_log_t:file { read getattr lock };
++')
++
++########################################
++## <summary>
++##	Allow the specified domain to append
++##	apcupsd log files.
++## </summary>
++## <param name="domain">
++## 	<summary>
++##	Domain allowed to transition.
++## 	</summary>
++## </param>
++#
++interface(`apcupsd_append_log',`
++	gen_require(`
++		type var_log_t, apcupsd_log_t;
++	')
++
++	logging_search_logs($1)
++	allow $1 apcupsd_log_t:dir list_dir_perms;
++	allow $1 apcupsd_log_t:file { getattr append };
++')
++
++########################################
++## <summary>
++##	Execute a domain transition to run httpd_apcupsd_cgi_script.
++## </summary>
++## <param name="domain">
++## <summary>
++##	Domain allowed to transition.
++## </summary>
++## </param>
++#
++interface(`httpd_apcupsd_cgi_script_domtrans',`
++	gen_require(`
++		type httpd_apcupsd_cgi_script_t, httpd_apcupsd_cgi_script_exec_t;
++	')
++
++	domain_auto_trans($1,httpd_apcupsd_cgi_script_exec_t,httpd_apcupsd_cgi_script_t)
++
++	allow httpd_apcupsd_cgi_script_t $1:fd use;
++	allow httpd_apcupsd_cgi_script_t $1:fifo_file rw_file_perms;
++	allow httpd_apcupsd_cgi_script_t $1:process sigchld;
++')
+--- nsaserefpolicy/policy/modules/services/apcupsd.te	1969-12-31 19:00:00.000000000 -0500
++++ serefpolicy-3.0.1/policy/modules/services/apcupsd.te	2007-05-30 09:25:53.000000000 -0400
+@@ -0,0 +1,89 @@
++
++policy_module(apcupsd,1.0.1)
++
++########################################
++#
++# Declarations
++#
++
++type apcupsd_t;
++type apcupsd_exec_t;
++init_daemon_domain(apcupsd_t, apcupsd_exec_t)
++
++type apcupsd_lock_t;
++files_lock_file(apcupsd_lock_t)
++
++type apcupsd_log_t;
++logging_log_file(apcupsd_log_t)
++
++type apcupsd_var_run_t;
++files_pid_file(apcupsd_var_run_t)
++
++########################################
++#
++# apcupsd local policy
++#
++
++allow apcupsd_t self:process signal;
++allow apcupsd_t self:fifo_file rw_file_perms;
++allow apcupsd_t self:unix_stream_socket create_stream_socket_perms;
++allow apcupsd_t self:tcp_socket create_stream_socket_perms;
++
++allow apcupsd_t apcupsd_lock_t:file manage_file_perms;
++files_lock_filetrans(apcupsd_t,apcupsd_lock_t,file)
++
++allow apcupsd_t apcupsd_log_t:dir setattr;
++manage_files_pattern(apcupsd_t,apcupsd_log_t,apcupsd_log_t)
++logging_log_filetrans(apcupsd_t,apcupsd_log_t,{ file dir })
++
++manage_files_pattern(apcupsd_t,apcupsd_var_run_t,apcupsd_var_run_t)
++files_pid_filetrans(apcupsd_t,apcupsd_var_run_t, file)
++
++corenet_non_ipsec_sendrecv(apcupsd_t)
++corenet_tcp_sendrecv_generic_if(apcupsd_t)
++corenet_tcp_sendrecv_all_nodes(apcupsd_t)
++corenet_tcp_sendrecv_all_ports(apcupsd_t)
++corenet_tcp_bind_all_nodes(apcupsd_t)
++corenet_tcp_bind_apcupsd_port(apcupsd_t)
++corenet_sendrecv_apcupsd_server_packets(apcupsd_t)
++
++dev_rw_generic_usb_dev(apcupsd_t)
++
++# Init script handling
++domain_use_interactive_fds(apcupsd_t)
++
++files_read_etc_files(apcupsd_t)
++files_search_locks(apcupsd_t)
++
++libs_use_ld_so(apcupsd_t)
++libs_use_shared_libs(apcupsd_t)
++
++logging_send_syslog_msg(apcupsd_t)
++
++miscfiles_read_localization(apcupsd_t)
++
++# https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=240805
++term_use_unallocated_ttys(apcupsd_t)
++
++########################################
++#
++# apcupsd_cgi Declarations
++#
++
++apache_content_template(apcupsd_cgi)
++
++# Default Networking
++sysnet_dns_name_resolve(httpd_apcupsd_cgi_script_t)
++corenet_non_ipsec_sendrecv(httpd_apcupsd_cgi_script_t)
++
++allow httpd_apcupsd_cgi_script_t self:tcp_socket create_stream_socket_perms;
++corenet_tcp_sendrecv_all_if(httpd_apcupsd_cgi_script_t)
++corenet_tcp_sendrecv_all_nodes(httpd_apcupsd_cgi_script_t)
++corenet_tcp_sendrecv_all_ports(httpd_apcupsd_cgi_script_t)
++corenet_tcp_connect_apcupsd_port(httpd_apcupsd_cgi_script_t)
++
++allow httpd_apcupsd_cgi_script_t self:udp_socket create_socket_perms;
++corenet_udp_sendrecv_all_if(httpd_apcupsd_cgi_script_t)
++corenet_udp_sendrecv_all_nodes(httpd_apcupsd_cgi_script_t)
++corenet_udp_sendrecv_all_ports(httpd_apcupsd_cgi_script_t)
++
 
 --
 This message was distributed to subscribers of the selinux mailing list.
