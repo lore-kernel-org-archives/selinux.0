@@ -1,47 +1,27 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l4UHauGr013836
-	for <selinux@tycho.nsa.gov>; Wed, 30 May 2007 13:36:56 -0400
-Received: from mx1.redhat.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l4UHar2p008242
-	for <selinux@tycho.nsa.gov>; Wed, 30 May 2007 17:36:53 GMT
-Date: Wed, 30 May 2007 10:28:43 -0400
-Message-Id: <200705301428.l4UEShUe007842@localhost.localdomain>
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l4UHasGO013790
+	for <selinux@tycho.nsa.gov>; Wed, 30 May 2007 13:36:54 -0400
+Received: from mx1.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id l4UHapue002811
+	for <selinux@tycho.nsa.gov>; Wed, 30 May 2007 17:36:51 GMT
+Date: Wed, 30 May 2007 10:27:08 -0400
+Message-Id: <200705301427.l4UER8UJ007819@localhost.localdomain>
 From: dwalsh@redhat.com
 To: cpebenito@tresys.com
 CC: selinux@tycho.nsa.gov
-Subject: pyzor needs to communicate with http to get updates, signal spam
+Subject: rlogind needs to be able to change passwd data
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
---- nsaserefpolicy/policy/modules/services/pyzor.te	2007-05-29 14:10:57.000000000 -0400
-+++ serefpolicy-3.0.1/policy/modules/services/pyzor.te	2007-05-30 09:08:15.000000000 -0400
-@@ -54,6 +54,11 @@
- corenet_udp_sendrecv_all_nodes(pyzor_t)
- corenet_udp_sendrecv_all_ports(pyzor_t)
+--- nsaserefpolicy/policy/modules/services/rlogin.te	2007-05-29 14:10:57.000000000 -0400
++++ serefpolicy-3.0.1/policy/modules/services/rlogin.te	2007-05-30 09:08:15.000000000 -0400
+@@ -64,6 +64,7 @@
+ fs_search_auto_mountpoints(rlogind_t)
  
-+corenet_tcp_sendrecv_all_if(pyzor_t)
-+corenet_tcp_sendrecv_all_nodes(pyzor_t)
-+corenet_tcp_sendrecv_all_ports(pyzor_t)
-+corenet_tcp_connect_http_port(pyzor_t)
-+
- dev_read_urand(pyzor_t)
- 
- files_read_etc_files(pyzor_t)
-@@ -68,6 +73,7 @@
- userdom_dontaudit_search_sysadm_home_dirs(pyzor_t)
- 
- ifdef(`targeted_policy',`
-+	userdom_dontaudit_write_sysadm_home_dirs(pyzor_t)
- 	userdom_read_generic_user_home_content_files(pyzor_t)
- ')
- 
-@@ -77,6 +83,7 @@
- ')
- 
- optional_policy(`
-+	spamassassin_signal_spamd(pyzor_t)
- 	spamassassin_read_spamd_tmp_files(pyzor_t)
- ')
+ auth_domtrans_chk_passwd(rlogind_t)
++auth_domtrans_upd_passwd(rlogind_t)
+ auth_rw_login_records(rlogind_t)
+ auth_use_nsswitch(rlogind_t)
  
 
 --
