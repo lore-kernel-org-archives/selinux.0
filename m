@@ -1,57 +1,60 @@
 Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l4UHaqCg013752
-	for <selinux@tycho.nsa.gov>; Wed, 30 May 2007 13:36:52 -0400
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l4UHbKBJ014096
+	for <selinux@tycho.nsa.gov>; Wed, 30 May 2007 13:37:20 -0400
 Received: from mx1.redhat.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l4UHao2p008203
-	for <selinux@tycho.nsa.gov>; Wed, 30 May 2007 17:36:50 GMT
-Date: Wed, 30 May 2007 11:41:46 -0400
-Message-Id: <200705301541.l4UFfkJP011850@localhost.localdomain>
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l4UHbG2p008292
+	for <selinux@tycho.nsa.gov>; Wed, 30 May 2007 17:37:17 GMT
+Date: Wed, 30 May 2007 10:43:53 -0400
+Message-Id: <200705301443.l4UEhr8W008091@localhost.localdomain>
 From: dwalsh@redhat.com
 To: cpebenito@tresys.com
 CC: selinux@tycho.nsa.gov
-Subject: apps_java changes
+Subject: nagios changes
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Allow apps writers to write transition rules when executing java
---- nsaserefpolicy/policy/modules/apps/java.if	2007-05-29 14:10:48.000000000 -0400
-+++ serefpolicy-3.0.1/policy/modules/apps/java.if	2007-05-30 09:25:53.000000000 -0400
-@@ -220,3 +220,35 @@
- 	corecmd_search_bin($1)
- 	domtrans_pattern($1, java_exec_t, java_t)
+nagios is designed to connect to all ports
+needs to read random data
+Uses nsswitch
+
+--- nsaserefpolicy/policy/modules/services/nagios.te	2007-05-29 14:10:57.000000000 -0400
++++ serefpolicy-3.0.1/policy/modules/services/nagios.te	2007-05-30 07:35:54.000000000 -0400
+@@ -73,8 +73,10 @@
+ corenet_udp_sendrecv_all_nodes(nagios_t)
+ corenet_tcp_sendrecv_all_ports(nagios_t)
+ corenet_udp_sendrecv_all_ports(nagios_t)
++corenet_tcp_connect_all_ports(nagios_t)
+ 
+ dev_read_sysfs(nagios_t)
++dev_read_urand(nagios_t)
+ 
+ domain_use_interactive_fds(nagios_t)
+ # for ps
+@@ -97,8 +99,6 @@
+ 
+ miscfiles_read_localization(nagios_t)
+ 
+-sysnet_read_config(nagios_t)
+-
+ userdom_dontaudit_use_unpriv_user_fds(nagios_t)
+ userdom_dontaudit_search_sysadm_home_dirs(nagios_t)
+ 
+@@ -108,14 +108,10 @@
+ 	netutils_domtrans_ping(nagios_t)
+ 	netutils_signal_ping(nagios_t)
+ 	netutils_kill_ping(nagios_t)
+-
+-	# cjp: leaked file descriptors:
+-	#dontaudit ping_t nagios_etc_t:file read;
+-	#dontaudit ping_t nagios_log_t:fifo_file read;
  ')
-+
-+########################################
-+## <summary>
-+##	Execute a java in the specified domain
-+## </summary>
-+## <desc>
-+##	<p>
-+##	Execute the java command in the specified domain.  This allows
-+##	the specified domain to execute any file
-+##	on these filesystems in the specified
-+##	domain. 
-+##	</p>
-+## </desc>
-+## <param name="domain">
-+##	<summary>
-+##	Domain allowed access.
-+##	</summary>
-+## </param>
-+## <param name="target_domain">
-+##	<summary>
-+##	The type of the new process.
-+##	</summary>
-+## </param>
-+#
-+interface(`java_spec_domtrans',`
-+	gen_require(`
-+		type java_exec_t;
-+	')
-+
-+	domain_trans($1,java_exec_t,$2)
-+	type_transition $1 java_exec_t:process $2;
-+')
+ 
+ optional_policy(`
+-	nis_use_ypbind(nagios_t)
++	auth_use_nsswitch(nagios_t)
+ ')
+ 
+ optional_policy(`
 
 --
 This message was distributed to subscribers of the selinux mailing list.
