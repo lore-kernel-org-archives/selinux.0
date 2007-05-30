@@ -1,40 +1,56 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l4UHbQmX014274
-	for <selinux@tycho.nsa.gov>; Wed, 30 May 2007 13:37:26 -0400
-Received: from mx1.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id l4UHbLue002852
-	for <selinux@tycho.nsa.gov>; Wed, 30 May 2007 17:37:21 GMT
-Date: Wed, 30 May 2007 10:17:26 -0400
-Message-Id: <200705301417.l4UEHQRW007726@localhost.localdomain>
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l4UHaqZS013761
+	for <selinux@tycho.nsa.gov>; Wed, 30 May 2007 13:36:52 -0400
+Received: from mx1.redhat.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l4UHao2p008209
+	for <selinux@tycho.nsa.gov>; Wed, 30 May 2007 17:36:50 GMT
+Date: Wed, 30 May 2007 11:40:46 -0400
+Message-Id: <200705301540.l4UFekZN011834@localhost.localdomain>
 From: dwalsh@redhat.com
 To: cpebenito@tresys.com
 CC: selinux@tycho.nsa.gov
-Subject: iptables reads etc runtime files, execed out of failto ban with terminal redirected
+Subject: apps_uml changes
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
---- nsaserefpolicy/policy/modules/system/iptables.te	2007-05-29 14:10:58.000000000 -0400
-+++ serefpolicy-3.0.1/policy/modules/system/iptables.te	2007-05-30 09:22:02.000000000 -0400
-@@ -56,6 +56,7 @@
- domain_use_interactive_fds(iptables_t)
- 
- files_read_etc_files(iptables_t)
-+files_read_etc_runtime_files(iptables_t)
- 
- init_use_fds(iptables_t)
- init_use_script_ptys(iptables_t)
-@@ -77,6 +78,10 @@
- userdom_use_all_users_fds(iptables_t)
- 
- optional_policy(`
-+	fail2ban_append_log(iptables_t)
-+')
-+
-+optional_policy(`
- 	firstboot_use_fds(iptables_t)
- 	firstboot_rw_pipes(iptables_t)
- ')
+Remove TODO
 
+--- nsaserefpolicy/policy/modules/apps/uml.if	2007-05-29 14:10:48.000000000 -0400
++++ serefpolicy-3.0.1/policy/modules/apps/uml.if	2007-05-30 09:25:53.000000000 -0400
+@@ -193,33 +193,6 @@
+ 		nis_use_ypbind($1_uml_t)
+ 	')
+ 
+-	ifdef(`TODO',`
+-		# for X
+-		optional_policy(`
+-			ifelse($1, sysadm,`
+-			',`
+-				optional_policy(`
+-					allow $1_uml_t xdm_xserver_tmp_t:dir search;
+-				')
+-				allow $1_uml_t $1_xserver_tmp_t:sock_file write;
+-				allow $1_uml_t $1_xserver_t:unix_stream_socket connectto;
+-			')
+-		')
+-
+-		optional_policy(`
+-			# for uml_net
+-			domain_auto_trans($1_uml_t, uml_net_exec_t, uml_net_t)
+-			allow uml_net_t $1_uml_t:unix_stream_socket { read write };
+-			allow uml_net_t $1_uml_t:unix_dgram_socket { read write };
+-			dontaudit uml_net_t privfd:fd use;
+-			can_access_pty(uml_net_t, $1_uml)
+-			dontaudit uml_net_t $1_uml_rw_t:dir { getattr search };
+-		')
+-		#TODO
+-		optional_policy(`
+-			allow $1_uml_t $1_xauth_home_t:file { getattr read };
+-		')
+-	')
+ ')
+ 
+ ########################################
 
 --
 This message was distributed to subscribers of the selinux mailing list.
