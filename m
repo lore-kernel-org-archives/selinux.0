@@ -1,68 +1,29 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l4UHbKZq014116
-	for <selinux@tycho.nsa.gov>; Wed, 30 May 2007 13:37:20 -0400
-Received: from mx1.redhat.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l4UHbH2p008302
-	for <selinux@tycho.nsa.gov>; Wed, 30 May 2007 17:37:17 GMT
-Date: Wed, 30 May 2007 11:17:21 -0400
-Message-Id: <200705301517.l4UFHLjj010415@localhost.localdomain>
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l4UHbOlB014232
+	for <selinux@tycho.nsa.gov>; Wed, 30 May 2007 13:37:24 -0400
+Received: from mx1.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id l4UHbLue002849
+	for <selinux@tycho.nsa.gov>; Wed, 30 May 2007 17:37:21 GMT
+Date: Wed, 30 May 2007 10:51:20 -0400
+Message-Id: <200705301451.l4UEpKo6008223@localhost.localdomain>
 From: dwalsh@redhat.com
 To: cpebenito@tresys.com
 CC: selinux@tycho.nsa.gov
-Subject: kernel_mls changes
+Subject: djbdns needs optional_policy
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Policy used in lspp configurations
-
---- nsaserefpolicy/policy/modules/kernel/mls.if	2007-05-29 14:10:48.000000000 -0400
-+++ serefpolicy-3.0.1/policy/modules/kernel/mls.if	2007-05-30 09:25:53.000000000 -0400
-@@ -154,6 +154,26 @@
- ########################################
- ## <summary>
- ##	Make specified domain MLS trusted
-+##	for writing to sockets at any level
-+##	that is dominated by the process clearance.
-+## </summary>
-+## <param name="domain">
-+##	<summary>
-+##	Domain allowed access.
-+##	</summary>
-+## </param>
-+#
-+interface(`mls_socket_write_to_clearance',`
-+	gen_require(`
-+		attribute mlsnetwritetoclr;
-+	')
-+
-+	typeattribute $1 mlsnetwritetoclr;
+--- nsaserefpolicy/policy/modules/services/djbdns.te	2007-05-29 14:10:57.000000000 -0400
++++ serefpolicy-3.0.1/policy/modules/services/djbdns.te	2007-05-30 07:35:54.000000000 -0400
+@@ -44,4 +44,7 @@
+ libs_use_ld_so(djbdns_axfrdns_t)
+ libs_use_shared_libs(djbdns_axfrdns_t)
+ 
+-ucspitcp_service_domain(djbdns_axfrdns_t, djbdns_axfrdns_exec_t)
++optional_policy(`
++	ucspitcp_service_domain(djbdns_axfrdns_t, djbdns_axfrdns_exec_t)
 +')
 +
-+########################################
-+## <summary>
-+##	Make specified domain MLS trusted
- ##	for writing to sockets at any level.
- ## </summary>
- ## <param name="domain">
---- nsaserefpolicy/policy/modules/kernel/mls.te	2007-05-29 14:10:48.000000000 -0400
-+++ serefpolicy-3.0.1/policy/modules/kernel/mls.te	2007-05-30 09:25:53.000000000 -0400
-@@ -18,6 +18,7 @@
- attribute mlsnetreadtoclr;
- attribute mlsnetwrite;
- attribute mlsnetwritetoclr;
-+attribute mlsnetwriteranged;
- attribute mlsnetupgrade;
- attribute mlsnetdowngrade;
- attribute mlsnetrecvall;
-@@ -43,6 +44,8 @@
- attribute mlsxwinwritecolormap;
- attribute mlsxwinwritexinput;
- 
-+# Object attributes that allow MLS overrides for access by all subjects
-+attribute mlsrangedobject;
- attribute mlstrustedobject;
- 
- attribute privrangetrans;
 
 --
 This message was distributed to subscribers of the selinux mailing list.
