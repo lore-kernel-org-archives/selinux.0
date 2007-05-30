@@ -1,97 +1,193 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l4UHbKfi014115
-	for <selinux@tycho.nsa.gov>; Wed, 30 May 2007 13:37:20 -0400
-Received: from mx1.redhat.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l4UHbH2p008305
-	for <selinux@tycho.nsa.gov>; Wed, 30 May 2007 17:37:17 GMT
-Date: Wed, 30 May 2007 10:22:36 -0400
-Message-Id: <200705301422.l4UEMaFZ007770@localhost.localdomain>
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l4UHar2a013767
+	for <selinux@tycho.nsa.gov>; Wed, 30 May 2007 13:36:53 -0400
+Received: from mx1.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id l4UHaoue002804
+	for <selinux@tycho.nsa.gov>; Wed, 30 May 2007 17:36:50 GMT
+Date: Wed, 30 May 2007 11:21:26 -0400
+Message-Id: <200705301521.l4UFLQn1010479@localhost.localdomain>
 From: dwalsh@redhat.com
 To: cpebenito@tresys.com
 CC: selinux@tycho.nsa.gov
-Subject: snmp changes
+Subject: kernel_devices changes
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-remove snmp_etc_t, no value
-snmp requests sys_module (denied)
-snmp uses nsswitch
-snmp wants to read mail log and look at squid config
+Additional devices
+Additional interfaces
 
---- nsaserefpolicy/policy/modules/services/snmp.te	2007-05-29 14:10:57.000000000 -0400
-+++ serefpolicy-3.0.1/policy/modules/services/snmp.te	2007-05-30 07:35:54.000000000 -0400
+--- nsaserefpolicy/policy/modules/kernel/devices.fc	2007-05-29 14:10:48.000000000 -0400
++++ serefpolicy-3.0.1/policy/modules/kernel/devices.fc	2007-05-30 09:25:53.000000000 -0400
+@@ -19,6 +19,7 @@
+ /dev/evtchn		-c	gen_context(system_u:object_r:xen_device_t,s0)
+ /dev/fb[0-9]*		-c	gen_context(system_u:object_r:framebuf_device_t,s0)
+ /dev/full		-c	gen_context(system_u:object_r:null_device_t,s0)
++/dev/fw.*		-c	gen_context(system_u:object_r:usb_device_t,s0)
+ /dev/hiddev.*		-c	gen_context(system_u:object_r:usb_device_t,s0)
+ /dev/hpet		-c	gen_context(system_u:object_r:clock_device_t,s0)
+ /dev/hw_random		-c	gen_context(system_u:object_r:random_device_t,s0)
+@@ -81,6 +82,8 @@
+ 
+ /dev/bus/usb/.*/[0-9]+	-c	gen_context(system_u:object_r:usb_device_t,s0)
+ 
++/dev/cmx.*		-c	gen_context(system_u:object_r:smartcard_device_t,s0)
++
+ /dev/cpu/.*		-c	gen_context(system_u:object_r:cpu_device_t,s0)
+ /dev/cpu/mtrr		-c	gen_context(system_u:object_r:mtrr_device_t,s0)
+ 
+--- nsaserefpolicy/policy/modules/kernel/devices.if	2007-05-29 14:10:48.000000000 -0400
++++ serefpolicy-3.0.1/policy/modules/kernel/devices.if	2007-05-30 09:25:53.000000000 -0400
+@@ -2729,6 +2729,24 @@
+ 
+ ########################################
+ ## <summary>
++##	Get the attributes of a directory in the usb filesystem.
++## </summary>
++## <param name="domain">
++##	<summary>
++##	Domain allowed access.
++##	</summary>
++## </param>
++#
++interface(`dev_search_usbfs_dirs',`
++	gen_require(`
++		type usbfs_t;
++	')
++
++	allow $1 usbfs_t:dir search_dir_perms;
++')
++
++########################################
++## <summary>
+ ##	Do not audit attempts to get the attributes
+ ##	of a directory in the usb filesystem.
+ ## </summary>
+@@ -2939,6 +2957,24 @@
+ 
+ ########################################
+ ## <summary>
++##	Write the video4linux devices.
++## </summary>
++## <param name="domain">
++##	<summary>
++##	Domain allowed access.
++##	</summary>
++## </param>
++#
++interface(`dev_write_video_dev',`
++	gen_require(`
++		type device_t, v4l_device_t;
++	')
++
++	write_chr_files_pattern($1,device_t,v4l_device_t)
++')
++
++########################################
++## <summary>
+ ##	Read and write VMWare devices.
+ ## </summary>
+ ## <param name="domain">
+@@ -3192,3 +3228,78 @@
+ 
+ 	typeattribute $1 devices_unconfined_type;
+ ')
++
++########################################
++## <summary>
++##	Getattr on smartcard devices
++## </summary>
++## <param name="domain">
++##	<summary>
++##	Domain allowed access.
++##	</summary>
++## </param>
++#
++interface(`dev_getattr_smartcard',`
++	gen_require(`
++		type smartcard_device_t;
++	')
++
++	allow $1 smartcard_device_t:chr_file getattr;
++
++')
++
++########################################
++## <summary>
++##	dontaudit getattr on smartcard devices
++## </summary>
++## <param name="domain">
++##	<summary>
++##	Domain allowed access.
++##	</summary>
++## </param>
++#
++interface(`dev_dontaudit_getattr_smartcard',`
++	gen_require(`
++		type smartcard_device_t;
++	')
++
++	dontaudit $1 smartcard_device_t:chr_file getattr;
++
++')
++
++########################################
++## <summary>
++##	Read and write smartcard devices.
++## </summary>
++## <param name="domain">
++##	<summary>
++##	Domain allowed access.
++##	</summary>
++## </param>
++#
++interface(`dev_rw_smartcard',`
++	gen_require(`
++		type device_t, smartcard_device_t;
++	')
++
++	rw_chr_files_pattern($1,device_t,smartcard_device_t)
++')
++
++########################################
++## <summary>
++##	Create, read, write, and delete smartcard devices.
++## </summary>
++## <param name="domain">
++##	<summary>
++##	Domain allowed access.
++##	</summary>
++## </param>
++#
++interface(`dev_manage_smartcard',`
++	gen_require(`
++		type device_t, smartcard_device_t;
++	')
++
++	manage_chr_files_pattern($1,device_t,smartcard_device_t)
++')
++
+--- nsaserefpolicy/policy/modules/kernel/devices.te	2007-05-29 14:10:48.000000000 -0400
++++ serefpolicy-3.0.1/policy/modules/kernel/devices.te	2007-05-30 09:25:53.000000000 -0400
 @@ -1,5 +1,5 @@
  
--policy_module(snmp,1.4.0)
-+policy_module(snmp,1.4.2)
+-policy_module(devices,1.4.0)
++policy_module(devices,1.4.1)
  
  ########################################
  #
-@@ -9,9 +9,6 @@
- type snmpd_exec_t;
- init_daemon_domain(snmpd_t,snmpd_exec_t)
- 
--type snmpd_etc_t;
--files_config_file(snmpd_etc_t)
--
- type snmpd_log_t;
- logging_log_file(snmpd_log_t)
- 
-@@ -26,15 +23,13 @@
- # Local policy
+@@ -139,6 +139,12 @@
  #
- allow snmpd_t self:capability { dac_override kill net_admin sys_nice sys_tty_config };
--dontaudit snmpd_t self:capability sys_tty_config;
-+dontaudit snmpd_t self:capability { sys_module sys_tty_config };
- allow snmpd_t self:fifo_file rw_fifo_file_perms;
- allow snmpd_t self:unix_dgram_socket create_socket_perms;
- allow snmpd_t self:unix_stream_socket create_stream_socket_perms;
- allow snmpd_t self:tcp_socket create_stream_socket_perms;
- allow snmpd_t self:udp_socket connected_stream_socket_perms;
- 
--allow snmpd_t snmpd_etc_t:file { getattr read };
--
- allow snmpd_t snmpd_log_t:file manage_file_perms;
- logging_log_filetrans(snmpd_t,snmpd_log_t,file)
- 
-@@ -124,15 +119,16 @@
- ')
- 
- optional_policy(`
--	cups_read_rw_config(snmpd_t)
-+	auth_use_nsswitch(snmpd_t)
- ')
- 
- optional_policy(`
--	nis_use_ypbind(snmpd_t)
-+	cups_read_rw_config(snmpd_t)
- ')
- 
- optional_policy(`
--	nscd_socket_use(snmpd_t)
-+	mta_read_config(snmpd_t)
-+	mta_search_queue(snmpd_t)
- ')
- 
- optional_policy(`
-@@ -140,9 +136,17 @@
- ')
- 
- optional_policy(`
-+	sendmail_read_log(snmpd_t)
-+')
+ # Type for sound devices and mixers
+ #
++type smartcard_device_t;
++dev_node(smartcard_device_t)
 +
-+optional_policy(`
- 	seutil_sigchld_newrole(snmpd_t)
- ')
++#
++# Type for sound devices and mixers
++#
+ type sound_device_t;
+ dev_node(sound_device_t)
  
- optional_policy(`
-+	squid_read_config(snmpd_t)
-+')
-+
-+optional_policy(`
- 	udev_read_db(snmpd_t)
- ')
 
 --
 This message was distributed to subscribers of the selinux mailing list.
