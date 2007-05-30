@@ -1,59 +1,109 @@
 Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l4UHbwI2014588
-	for <selinux@tycho.nsa.gov>; Wed, 30 May 2007 13:37:58 -0400
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l4UHbxFL014611
+	for <selinux@tycho.nsa.gov>; Wed, 30 May 2007 13:37:59 -0400
 Received: from mx1.redhat.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l4UHbt2p008444
-	for <selinux@tycho.nsa.gov>; Wed, 30 May 2007 17:37:56 GMT
-Date: Wed, 30 May 2007 11:29:13 -0400
-Message-Id: <200705301529.l4UFTDb2010600@localhost.localdomain>
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l4UHbs2p008439
+	for <selinux@tycho.nsa.gov>; Wed, 30 May 2007 17:37:55 GMT
+Date: Wed, 30 May 2007 10:16:09 -0400
+Message-Id: <200705301416.l4UEG9VA007720@localhost.localdomain>
 From: dwalsh@redhat.com
 To: cpebenito@tresys.com
 CC: selinux@tycho.nsa.gov
-Subject: admin_kudzu changes
+Subject: Interfaces to access rwho private date
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-kudzu needs to sys_ptrace to setup init correctly
-Remove unconfined_domain
+I think we should define access to all private data types, and define all interfaces to this data.  This will allow third parties building policy modules to easily use the interfaces.  Currently many times when I go to build a policy module, other domains do not have a complete set of interfaces.
 
---- nsaserefpolicy/policy/modules/admin/kudzu.te	2007-05-29 14:10:59.000000000 -0400
-+++ serefpolicy-3.0.1/policy/modules/admin/kudzu.te	2007-05-30 09:25:53.000000000 -0400
-@@ -21,8 +21,8 @@
- # Local policy
- #
- 
--allow kudzu_t self:capability { dac_override sys_admin sys_rawio net_admin sys_tty_config mknod };
--dontaudit kudzu_t self:capability { sys_ptrace sys_tty_config };
-+allow kudzu_t self:capability { dac_override sys_admin sys_ptrace sys_rawio net_admin sys_tty_config mknod };
-+dontaudit kudzu_t self:capability sys_tty_config;
- allow kudzu_t self:process { signal_perms execmem };
- allow kudzu_t self:fifo_file rw_fifo_file_perms;
- allow kudzu_t self:unix_stream_socket { connectto create_stream_socket_perms };
-@@ -103,6 +103,8 @@
- init_use_fds(kudzu_t)
- init_use_script_ptys(kudzu_t)
- init_stream_connect_script(kudzu_t)
-+init_read_init_state(kudzu_t)
-+init_ptrace_init_domain(kudzu_t)
- # kudzu will telinit to make init re-read
- # the inittab after configuring serial consoles
- init_telinit(kudzu_t)
-@@ -141,15 +143,6 @@
-         udev_read_db(kudzu_t)
- ')
- 
--optional_policy(`
--	# cjp: this was originally in the else block
--	# of ifdef userhelper.te, but it seems to
--	# make more sense here.  also, require
--	# blocks curently do not work in the
--	# else block of optionals
--	unconfined_domain(kudzu_t)
--')
--
- ifdef(`TODO',`
- allow kudzu_t modules_conf_t:file unlink;
- optional_policy(`
+--- nsaserefpolicy/policy/modules/services/rwho.if	2007-05-29 14:10:57.000000000 -0400
++++ serefpolicy-3.0.1/policy/modules/services/rwho.if	2007-05-30 09:08:15.000000000 -0400
+@@ -1 +1,84 @@
+-## <summary>Who is logged in on other machines?</summary>
++
++## <summary>policy for rwho</summary>
++
++########################################
++## <summary>
++##	Execute a domain transition to run rwho.
++## </summary>
++## <param name="domain">
++## <summary>
++##	Domain allowed to transition.
++## </summary>
++## </param>
++#
++interface(`rwho_domtrans',`
++	gen_require(`
++		type rwho_t, rwho_exec_t;
++	')
++
++	domain_auto_trans($1,rwho_exec_t,rwho_t)
++
++	allow rwho_t $1:fd use;
++	allow rwho_t $1:fifo_file rw_file_perms;
++	allow rwho_t $1:process sigchld;
++')
++
++########################################
++## <summary>
++##	Search rwho spool directories.
++## </summary>
++## <param name="domain">
++##	<summary>
++##	Domain allowed access.
++##	</summary>
++## </param>
++#
++interface(`rwho_search_spool',`
++	gen_require(`
++		type rwho_spool_t;
++	')
++
++	allow $1 rwho_spool_t:dir search_dir_perms;
++	files_search_spool($1)
++')
++
++########################################
++## <summary>
++##	Read rwho spool files.
++## </summary>
++## <param name="domain">
++##	<summary>
++##	Domain allowed access.
++##	</summary>
++## </param>
++#
++interface(`rwho_read_spool_files',`
++	gen_require(`
++		type rwho_spool_t;
++	')
++
++	allow $1 rwho_spool_t:file r_file_perms;
++	allow $1 rwho_spool_t:dir list_dir_perms;
++	files_search_spool($1)
++')
++
++########################################
++## <summary>
++##	Create, read, write, and delete
++##	rwho spool files.
++## </summary>
++## <param name="domain">
++##	<summary>
++##	Domain allowed access.
++##	</summary>
++## </param>
++#
++interface(`rwho_manage_spool_files',`
++	gen_require(`
++		type rwho_spool_t;
++	')
++
++	allow $1 rwho_spool_t:file manage_file_perms;
++	allow $1 rwho_spool_t:dir rw_dir_perms;
++	files_search_spool($1)
++')
++
 
 --
 This message was distributed to subscribers of the selinux mailing list.
