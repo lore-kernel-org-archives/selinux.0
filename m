@@ -1,28 +1,49 @@
 Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l4UHarlG013776
-	for <selinux@tycho.nsa.gov>; Wed, 30 May 2007 13:36:53 -0400
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l4UHaq7I013743
+	for <selinux@tycho.nsa.gov>; Wed, 30 May 2007 13:36:52 -0400
 Received: from mx1.redhat.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l4UHao2p008211
-	for <selinux@tycho.nsa.gov>; Wed, 30 May 2007 17:36:51 GMT
-Date: Wed, 30 May 2007 10:54:28 -0400
-Message-Id: <200705301454.l4UEsSwQ008269@localhost.localdomain>
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l4UHan2p008201
+	for <selinux@tycho.nsa.gov>; Wed, 30 May 2007 17:36:50 GMT
+Date: Wed, 30 May 2007 11:24:45 -0400
+Message-Id: <200705301524.l4UFOjC2010528@localhost.localdomain>
 From: dwalsh@redhat.com
 To: cpebenito@tresys.com
 CC: selinux@tycho.nsa.gov
-Subject: Cyrus attempts to write snmp_var_lib
+Subject: admin_readahead changes
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
---- nsaserefpolicy/policy/modules/services/cyrus.te	2007-05-29 14:10:57.000000000 -0400
-+++ serefpolicy-3.0.1/policy/modules/services/cyrus.te	2007-05-30 09:08:15.000000000 -0400
-@@ -138,6 +139,7 @@
+Readahead needs access to raw disk in order for it to run fast
+
+--- nsaserefpolicy/policy/modules/admin/readahead.te	2007-05-29 14:10:59.000000000 -0400
++++ serefpolicy-3.0.1/policy/modules/admin/readahead.te	2007-05-30 09:25:53.000000000 -0400
+@@ -18,7 +18,8 @@
+ # Local policy
+ #
  
+-dontaudit readahead_t self:capability { dac_override dac_read_search sys_tty_config };
++allow readahead_t self:capability { dac_override dac_read_search };
++dontaudit readahead_t self:capability sys_tty_config;
+ allow readahead_t self:process signal_perms;
+ 
+ manage_files_pattern(readahead_t,readahead_var_run_t,readahead_var_run_t)
+@@ -36,7 +37,7 @@
+ dev_dontaudit_read_all_blk_files(readahead_t)
+ dev_dontaudit_getattr_memory_dev(readahead_t)
+ dev_dontaudit_getattr_nvram_dev(readahead_t)
+-storage_dontaudit_getattr_fixed_disk_dev(readahead_t)
++storage_raw_read_fixed_disk(readahead_t)
+ 
+ domain_use_interactive_fds(readahead_t)
+ 
+@@ -76,3 +77,7 @@
  optional_policy(`
- 	snmp_read_snmp_var_lib_files(cyrus_t)
-+	snmp_dontaudit_write_snmp_var_lib_files(cyrus_t)
+ 	seutil_sigchld_newrole(readahead_t)
  ')
- 
- optional_policy(`
++
++optional_policy(`
++	logging_dontaudit_search_audit_config(readahead_t)
++')
 
 --
 This message was distributed to subscribers of the selinux mailing list.
