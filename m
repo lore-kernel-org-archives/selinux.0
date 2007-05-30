@@ -1,37 +1,43 @@
 Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l4UHakwU013502
-	for <selinux@tycho.nsa.gov>; Wed, 30 May 2007 13:36:46 -0400
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l4UHauFT013827
+	for <selinux@tycho.nsa.gov>; Wed, 30 May 2007 13:36:56 -0400
 Received: from mx1.redhat.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l4UHai2p008174
-	for <selinux@tycho.nsa.gov>; Wed, 30 May 2007 17:36:44 GMT
-Date: Wed, 30 May 2007 11:22:01 -0400
-Message-Id: <200705301522.l4UFM0PG010486@localhost.localdomain>
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l4UHaq2p008239
+	for <selinux@tycho.nsa.gov>; Wed, 30 May 2007 17:36:53 GMT
+Date: Wed, 30 May 2007 10:29:54 -0400
+Message-Id: <200705301429.l4UETs7Q007861@localhost.localdomain>
 From: dwalsh@redhat.com
 To: cpebenito@tresys.com
 CC: selinux@tycho.nsa.gov
-Subject: apps_slocate changes
+Subject: Procmail needs to use ypbind, eliminate bogus udp avc messages
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-locates generates avc messages without these rules
-
---- nsaserefpolicy/policy/modules/apps/slocate.te	2007-05-29 14:10:48.000000000 -0400
-+++ serefpolicy-3.0.1/policy/modules/apps/slocate.te	2007-05-30 09:25:53.000000000 -0400
-@@ -39,11 +39,13 @@
+--- nsaserefpolicy/policy/modules/services/procmail.te	2007-05-29 14:10:57.000000000 -0400
++++ serefpolicy-3.0.1/policy/modules/services/procmail.te	2007-05-30 09:08:15.000000000 -0400
+@@ -101,6 +102,10 @@
+ ')
  
- files_list_all(locate_t)
- files_getattr_all_files(locate_t)
-+files_getattr_all_sockets(locate_t)
- files_read_etc_runtime_files(locate_t)
- files_read_etc_files(locate_t)
+ optional_policy(`
++	nis_use_ypbind(procmail_t)
++')
++
++optional_policy(`
+ 	# for a bug in the postfix local program
+ 	postfix_dontaudit_rw_local_tcp_sockets(procmail_t)
+ 	postfix_dontaudit_use_fds(procmail_t)
+@@ -119,8 +124,11 @@
  
- fs_getattr_all_fs(locate_t)
--fs_getattr_all_dirs(locate_t)
-+fs_getattr_all_files(locate_t)
-+fs_list_all(locate_t)
+ optional_policy(`
+ 	corenet_udp_bind_generic_port(procmail_t)
++	corenet_dontaudit_udp_bind_all_ports(procmail_t)
  
- libs_use_shared_libs(locate_t)
- libs_use_ld_so(locate_t)
+ 	spamassassin_exec(procmail_t)
+ 	spamassassin_exec_client(procmail_t)
+ 	spamassassin_read_lib_files(procmail_t)
+ ')
++
++
 
 --
 This message was distributed to subscribers of the selinux mailing list.
