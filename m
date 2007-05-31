@@ -1,79 +1,101 @@
-Subject: Re: [PATCH] SELinux protection for exploiting null dereference
-	using mmap
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: James Morris <jmorris@namei.org>
-Cc: Eric Paris <eparis@redhat.com>, selinux@tycho.nsa.gov, drepper@redhat.com,
-        alan@redhat.com, roland@redhat.com, arjan@infradead.org, mingo@elte.hu,
-        viro@zeniv.linux.org.uk, chrisw@redhat.com
-In-Reply-To: <Line.LNX.4.64.0705311101250.24147@d.namei>
-References: <1180561713.3633.27.camel@dhcp231-215.rdu.redhat.com>
-	 <Line.LNX.4.64.0705301954080.19731@d.namei>
-	 <1180590362.3969.11.camel@localhost.localdomain>
-	 <Line.LNX.4.64.0705310943170.23949@d.namei>
-	 <1180622751.3340.269.camel@moss-spartans.epoch.ncsc.mil>
-	 <Line.LNX.4.64.0705311101250.24147@d.namei>
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l4VG5kk8016171
+	for <selinux@tycho.nsa.gov>; Thu, 31 May 2007 12:05:46 -0400
+Received: from mx1.redhat.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l4VG5jdA020532
+	for <selinux@tycho.nsa.gov>; Thu, 31 May 2007 16:05:45 GMT
+Subject: RE: audit2allow module generation
+From: Karl MacMillan <kmacmillan@mentalrootkit.com>
+To: Anand Patel <apatel@tresys.com>
+Cc: SE Linux <selinux@tycho.nsa.gov>, Daniel J Walsh <dwalsh@redhat.com>
+In-Reply-To: <6FE441CD9F0C0C479F2D88F959B01588BF00ED@exchange.columbia.tresys.com>
+References: 
+	 <6FE441CD9F0C0C479F2D88F959B01588BF00ED@exchange.columbia.tresys.com>
 Content-Type: text/plain
-Date: Thu, 31 May 2007 11:31:26 -0400
-Message-Id: <1180625486.3340.294.camel@moss-spartans.epoch.ncsc.mil>
+Date: Thu, 31 May 2007 12:05:42 -0400
+Message-Id: <1180627542.3534.41.camel@localhost.localdomain>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2007-05-31 at 11:19 -0400, James Morris wrote:
-> On Thu, 31 May 2007, Stephen Smalley wrote:
-> 
-> > On Thu, 2007-05-31 at 09:45 -0400, James Morris wrote:
-> > > On Thu, 31 May 2007, Eric Paris wrote:
-> > > 
-> > > > suggestions for a better name from anyone? 
-> > > 
-> > > system? kernel?
+On Wed, 2007-05-30 at 10:44 -0400, Anand Patel wrote:
+> > -----Original Message-----
+> > From: Karl MacMillan [mailto:kmacmillan@mentalrootkit.com]
+> > Sent: Tuesday, May 29, 2007 5:12 PM
+> > To: Anand Patel
+> > Cc: SE Linux; Daniel J Walsh
+> > Subject: Re: audit2allow module generation
 > > 
-> > In retrospect, we likely should have moved all of the execmem/stack/heap
-> > checks into a separate memory class and we could have put this one there
-> > as well.  There is a 'system' class already, so it isn't better than
-> > using 'process' aside from having more free bits; using a new class will
-> > ensure that no existing policy implicitly allows this check via an allow
-> > a b:c *; rule.
-> 
-> Time for a new policy format version?
-
-If we were going to do that, I think we would want to bundle up a
-collection of changes that would affect the kernel format, e.g.:
-	purging of obsolete perms, initial sids, etc,
-	reorganization of existing access vectors,
-	revisit ioctl perms,
-	add user_transition support,
-	add native support for type sets and their relationships
-
-But we don't really need it just for this check; adding a new class
-isn't a problem.
-
-> > > > It doesn't address the question of 'is 1 page enough'   Anyone with a
-> > > > good suggestion of how much is enough?  Or a reasonable idea on how to
-> > > > make something like this configureable if we can't agree on a single
-> > > > number?
-> > > 
-> > > For SELinux, have a default and allow the value to be set via a selinuxfs 
-> > > node.
+> > On Tue, 2007-05-29 at 16:25 -0400, Anand Patel wrote:
+> > > I am trying to use audit2allow to generate module out of audit
+> messages.
+> > >
+> > > So, I installed refpolicy headers first. Then tried sepolgen-ifgen
+> > >
+> > > %sepolgen-ifgen
+> > > % ... some output ...
+> > > %parsing file /usr/share/selinux/devel/include/services/snmp.if
+> > > %error parsing file
+> /usr/share/selinux/devel/include/services/snmap.if:
+> > > %could not parse text: "Syntax error on line 1 ( [type=OPAREN]"
+> > >
+> > > Parser had problem parsing almost all if files and generated above
+> > > error.
 > > 
-> > Or it could be a sysctl value if you wanted it to generalize beyond
-> > selinux.
+> > The problem is that the refpolicy "language" is far from fixed and
+> > parsing it cleanly is almost impossible because of M4. So the parser
+> > sometimes gets out of sync with refpolicy (hence the policyrep work).
+> > 
+> > I just need some more specific information about the refpolicy version
+> > you are using and I should be able to fix-up the parser.
 > 
-> So, the dummy module would use the sysctl value, and SELinux would 
-> selectively allow bypass of this?  We then need to ensure SELinux is 
-> appropriately mediating changes to the sysctl.
+> I was using current release from oss.tresys.com/projects/refpolicy.
+> 
 
-Possibly, although the dummy module would be limited to a global
-system-wide restriction.
+Ok - Chris, any chance you can start running sepolgen-ifgen on refpolicy
+and alerting me to breakage?
 
-SELinux can already control access to sysctls; we just have to label it
-appropriately in policy genfs_contexts and define the allow rules to the
-type.
+> So, every new version of refpolicy will require tweaks to audit2allow
+> parser.
 
--- 
-Stephen Smalley
-National Security Agency
+No - only when the refpolicy "language" changes (or there is just a new
+M4 usage, etc). Basically - I'm trying to parse an informal language
+based on M4 which is a pain.
+
+>  What tweaks does it require? Where does it fail? Can you give me
+> some insight of how parser works?
+> 
+
+See refparser.py in sepolgen.
+
+Karl
+
+> Thanks,
+> 
+> 
+> > 
+> > Thanks - Karl
+> > 
+> > > It would been helpful if error included correct line number.
+> > > Is it parser bug?
+> > > Am I doing anything wrong?
+> > > Is there any documentation available on how to use this policy
+> > > generation tools?
+> > > What are the dependencies these tools have?
+> > >
+> > >
+> > > Thanks,
+> > >
+> > > Anand Patel
+> > > Tresys Technology
+> > > apatel@tresys.com
+> > > 410-290-1411xt153
+> > >
+> > >
+> Anand Patel
+> Tresys Technology
+> apatel@tresys.com
+> 410-290-1411xt153
 
 
 --
