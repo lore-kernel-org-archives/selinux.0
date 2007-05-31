@@ -1,46 +1,51 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l4VIsRhj026453
-	for <selinux@tycho.nsa.gov>; Thu, 31 May 2007 14:54:28 -0400
-Received: from mx1.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id l4VIsOBu006749
-	for <selinux@tycho.nsa.gov>; Thu, 31 May 2007 18:54:24 GMT
-Received: from int-mx1.corp.redhat.com (int-mx1.corp.redhat.com [172.16.52.254])
-	by mx1.redhat.com (8.13.1/8.13.1) with ESMTP id l4VIsEGg020257
-	for <selinux@tycho.nsa.gov>; Thu, 31 May 2007 14:54:14 -0400
-Received: from mail.boston.redhat.com (mail.boston.redhat.com [172.16.76.12])
-	by int-mx1.corp.redhat.com (8.13.1/8.13.1) with ESMTP id l4VIsDXo031756
-	for <selinux@tycho.nsa.gov>; Thu, 31 May 2007 14:54:13 -0400
-Received: from [10.12.32.53] (redsox.boston.devel.redhat.com [10.12.32.53])
-	by mail.boston.redhat.com (8.13.1/8.13.1) with ESMTP id l4VIsBvF029104
-	for <selinux@tycho.nsa.gov>; Thu, 31 May 2007 14:54:13 -0400
-Message-ID: <465F19D1.7040706@redhat.com>
-Date: Thu, 31 May 2007 14:54:09 -0400
-From: Daniel J Walsh <dwalsh@redhat.com>
+Message-ID: <465F1E77.1070301@tycho.nsa.gov>
+Date: Thu, 31 May 2007 15:13:59 -0400
+From: Eamon Walsh <ewalsh@tycho.nsa.gov>
 MIME-Version: 1.0
-To: SE Linux <selinux@tycho.nsa.gov>
-Subject: With the release of Fedora Core 7 I have bumped the policy version
- in Rawhide
+To: Stephen Smalley <sds@tycho.nsa.gov>
+CC: SE Linux <selinux@tycho.nsa.gov>
+Subject: Re: [PATCH] libselinux: reindent selinux.h
+References: <465E0BBC.4080508@tycho.nsa.gov> <1180620819.3340.239.camel@moss-spartans.epoch.ncsc.mil>
+In-Reply-To: <1180620819.3340.239.camel@moss-spartans.epoch.ncsc.mil>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Tomorrows rawhide will have selinux-policy-3.0.1. 
+Stephen Smalley wrote:
+> On Wed, 2007-05-30 at 19:41 -0400, Eamon Walsh wrote:
+>   
+>> We say that C++ is considered harmful, yet we have allowed "extern C" 
+>> declarations to infect our header files and eat up 10% of every line.
+>>
+>> This claustrophobic madness must be stopped.
+>>     
+>
+> While I don't object to the change, note that the next time someone runs
+> 'make indent' on the tree, we'll be right back to where we were before.
+> Unless we can make Lindent a bit smarter.
+>   
+The following works for me:
 
-This policy is the first release of the merged (strict/targeted) 
-policy.  As such there is no longer a selinux-policy-strict.  This is 
-real experimental and I expect some problems.  I have been running it 
-here for a couple of days. 
+Index: scripts/Lindent
+===================================================================
+--- scripts/Lindent	(revision 2445)
++++ scripts/Lindent	(working copy)
+@@ -1,2 +1,8 @@
+ #!/bin/sh
++
++perl -e 'undef $/;' -pi \
++     -e 's|#ifdef __cplusplus\n(.*?)\n#endif|//__CPP \1|g' "$@"
++
+ indent -npro -kr -i8 -ts8 -sob -l80 -ss -ncs "$@"
++
++perl -pi -e 's|^//__CPP (.*)$|#ifdef __cplusplus\n\1\n#endif|' "$@"
 
-With this policy you can install the strict type users staff_u, user_u, 
-sysadm_u.  As well as the unonfined_u/system_u.  You should be able to 
-mix and match the users.  So if you want to setup a Guest X-Windows 
-login you would set it up with a user of user_u:user_r:user_t.  And you 
-might have your regular login as system_u:unconfined_r:unconfined_t.
 
-The idea is if you remove the unconfined policy package, you will be 
-basically running in strict policy mode.  (This has not been tested.) 
 
-Dan
+-- 
+Eamon Walsh <ewalsh@tycho.nsa.gov>
+National Security Agency
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
