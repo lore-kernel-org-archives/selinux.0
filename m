@@ -1,60 +1,84 @@
-Subject: RE: pipefs issue
+Subject: Re: [patch] Reducing size of libselinux/libsepol: 3rd
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: "Clarkson, Mike R (US SSA)" <mike.clarkson@baesystems.com>
-Cc: Chad Sellers <csellers@tresys.com>, selinux@tycho.nsa.gov,
-        Darrel Goeddel <dgoeddel@TrustedCS.com>
-In-Reply-To: <FB39F4E77226B448BC1388D3BE4E00CD01DBEFD6@blums0008.bluelnk.net>
-References: <C2849B7E.223EB%csellers@tresys.com>
-	 <FB39F4E77226B448BC1388D3BE4E00CD01DBEFD6@blums0008.bluelnk.net>
+To: Yuichi Nakamura <ynakam@hitachisoft.jp>
+Cc: selinux@tycho.nsa.gov, busybox@kaigai.gr.jp
+In-Reply-To: <20070523103936.baf38e0b.ynakam@hitachisoft.jp>
+References: <20070523103936.baf38e0b.ynakam@hitachisoft.jp>
 Content-Type: text/plain
-Date: Thu, 31 May 2007 16:18:24 -0400
-Message-Id: <1180642704.3340.385.camel@moss-spartans.epoch.ncsc.mil>
+Date: Thu, 31 May 2007 17:00:56 -0400
+Message-Id: <1180645256.3340.390.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2007-05-31 at 13:02 -0700, Clarkson, Mike R (US SSA) wrote:
-> Thanks for the info on the 3 pipes that Java creates. I had a feeling
-> that this is what was going on, but I'm still confused on one point. The
-> c++ executable is not writing anything to stdout or stderr, it writes
-> it's output to a file. The AVC messages below indicate that the import_t
-> domain (the c++ executable) is attempting to write to the pipe. Is there
-> some implicit writing that occurs between the processes?
+On Wed, 2007-05-23 at 10:39 +0900, Yuichi Nakamura wrote:
+> Hi. 
+> As discussed in previous threads, 
+> http://marc.info/?t=117609454600002&r=1&w=2
+> http://marc.info/?t=117886013000001&r=1&w=2
+> I would like to submit patch to reduce size of libselinux+libsepol, again.
+> 
+> 1. Background
+> Current libselinux+libsepol size is big for embedded devices.
+> libselinux.so.1: 115348 byte
+> libsepol.so.1:302067
+> Total: 417415 byte
+> It uses more than 400kbyte.
+> Needs for embedded device is various, because hardware resource is various.
+> If device is rich enough, people may want full-featured SELinux.
+> If device is not rich, people want to reduce binary size by removing 
+> some features. 
+> For example, some may not want modular policy, may not want boolean.
+> 
+> We thought size of libselinux+libsepol can be reduced 
+> by removing libsepol and removing unnecessary functions from libselinux.
+> 
+> 2. What this patch does
+> 1) libsepol is separated from libselinux
+>  libsepol is not required by libselinux. 
+>  So you do not have to compile libsepol,
+>  if you do not need libsepol functions.
+> 
+> 2) Some features are disabled in libselinux
+> By typing "make EMBEDDED=y" in libselinux dir, what happens is following.
+> Following values are defined in Makefile.
+> >ifeq ($(EMBEDDED),y)
+> >        override DISABLE_AVC=y
+> >        override DISABLE_SETRANS=y
+> >        override DISABLE_RPM=y
+> >        override DISABLE_BOOL=y
+> >endif
+> 
+> * DISABLE_AVC
+>   Disables user space avc support, avc.c avc_internal.c avc_sidtab.c are not compiled.
+> * DISABLE_SETRANS
+>   Some functions of translations are replaced with stubs in setrans_client.c
+> * DISABLE_RPM
+>   Disables rpm features, rpm.c are not compiled.
+> * DISABLE_BOOL
+>   Disable boolean features, booleans.c are not compiled.
+> 
+> 3) Fixes to libselinux/utils
+>  * -lsepol is removed
+>  *  When make EMBEDDED=y, some utils are not compiled.
+> 
+> 3. Size measurement
+> Compiled libselinux/libsepol in trunk by gcc(x86).
+> 
+> * Before
+> libselinux.so.1: 115348 byte
+> libsepol.so.1:302067
+> Total: 417415 byte
+> 
+> * After
+> libselinux.so.1: 77103 byte
+> libsepol.so.1:0 byte(do not have to compile)
+> Total: 77103 byte
+> 
+> Please consider merging this patch.
 
-SELinux checks permissions when a file descriptor is opened, inherited
-across execve or received via local IPC, so you will see attempted
-accesses at those times even if the descriptor is never actually used
-for a read or write.  In this case, the pipe descriptors are inherited
-across execve and checked at that time (and closed and replaced with
-descriptors to the null device if access is denied).  So if you don't
-actually need to allow the accesses, you can just add dontaudit rules to
-suppress the audit messages and SELinux will silently remap those
-descriptors to /dev/null for you.
+Thanks, merged.
 
-> Also, it looks like SELinux is not allowing me to write up. Is that
-> standard? The BLP model typically allows writing up. 
-
-Many MLS systems don't allow writing up without privilege (as that
-allows a low process to potentially corrupt high data), and the default
-mls constraints in SELinux policy are written that way.  You of course
-can change them in your policy/mls file if you want, and just use Type
-Enforcement to provide integrity protection.
-
-> The only mls attribute that I've seen that addresses writing up is
-> mlsfilewritetoclr, which looks like it allows writing to the high end of
-> a process range. Is that correct?
-
-mlsfilewritetoclr is for writing up to your high/clearance, while
-mlsfilewrite allows arbitrary writing (up or down) by the process, and
-mlstrustedobject allows any process to write to the object.
-
-mlsfilewriteinrange looks a bit odd to me.
-
-Again, these can be customized to your needs.
-
--- 
-Stephen Smalley
-National Security Agency
 
 
 --
