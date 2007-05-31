@@ -1,60 +1,58 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l4VD1TSa004715
-	for <selinux@tycho.nsa.gov>; Thu, 31 May 2007 09:01:29 -0400
-Received: from exchange.columbia.tresys.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with SMTP id l4VD1RWZ020778
-	for <selinux@tycho.nsa.gov>; Thu, 31 May 2007 13:01:27 GMT
-Subject: Re: djbdns needs optional_policy
-From: "Christopher J. PeBenito" <cpebenito@tresys.com>
-To: Daniel J Walsh <dwalsh@redhat.com>
-Cc: selinux@tycho.nsa.gov
-In-Reply-To: <465EAE60.2050002@redhat.com>
-References: <200705301451.l4UEpKo6008223@localhost.localdomain>
-	 <20070531102457.GA16057@peter.simplex.ro>  <465EAE60.2050002@redhat.com>
-Content-Type: text/plain
-Date: Thu, 31 May 2007 13:00:19 +0000
-Message-Id: <1180616419.10995.140.camel@sgc.columbia.tresys.com>
-Mime-Version: 1.0
+Message-ID: <465ECD72.1070809@kaigai.gr.jp>
+Date: Thu, 31 May 2007 22:28:18 +0900
+From: KaiGai Kohei <kaigai@kaigai.gr.jp>
+MIME-Version: 1.0
+To: Eamon Walsh <ewalsh@tycho.nsa.gov>
+CC: KaiGai Kohei <kaigai@ak.jp.nec.com>, Joshua Brindle <jbrindle@tresys.com>,
+        "Christopher J. PeBenito" <cpebenito@tresys.com>,
+        Stephen Smalley <sds@tycho.nsa.gov>,
+        SELinux Mail List <selinux@tycho.nsa.gov>
+Subject: Re: object class discovery userland
+References: <1177077717.15762.32.camel@sgc> <4628F05B.7040309@tycho.nsa.gov>	 <4628F20E.2000208@tycho.nsa.gov>  <1177089541.24870.17.camel@sgc>	 <1177338792.24282.16.camel@moss-spartans.epoch.ncsc.mil>	 <6FE441CD9F0C0C479F2D88F959B01588A71927@exchange.columbia.tresys.com>	 <1177340283.24282.24.camel@moss-spartans.epoch.ncsc.mil> <1179929852.10995.51.camel@sgc.columbia.tresys.com> <46548D4E.50000@tycho.nsa.gov> <465623DD.6090304@tycho.nsa.gov> <6FE441CD9F0C0C479F2D88F959B01588BEFF31@exchange.columbia.tresys.com> <465750DF.1050509@tycho.nsa.gov> <465CDF54.9050300@ak.jp.nec.com> <465DD820.70005@tycho.nsa.gov>
+In-Reply-To: <465DD820.70005@tycho.nsa.gov>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2007-05-31 at 07:15 -0400, Daniel J Walsh wrote:
-> Petre Rodan wrote:
-> > Hi Daniel,
-> >
-> > On Wed, May 30, 2007 at 10:51:20AM -0400, dwalsh@redhat.com wrote:
-> >   
-> >> --- nsaserefpolicy/policy/modules/services/djbdns.te	2007-05-29 14:10:57.000000000 -0400
-> >> +++ serefpolicy-3.0.1/policy/modules/services/djbdns.te	2007-05-30 07:35:54.000000000 -0400
-> >> @@ -44,4 +44,7 @@
-> >>  libs_use_ld_so(djbdns_axfrdns_t)
-> >>  libs_use_shared_libs(djbdns_axfrdns_t)
-> >>  
-> >> -ucspitcp_service_domain(djbdns_axfrdns_t, djbdns_axfrdns_exec_t)
-> >> +optional_policy(`
-> >> +	ucspitcp_service_domain(djbdns_axfrdns_t, djbdns_axfrdns_exec_t)
-> >> +')
-> >> +
-> >>     
-> >
-> > http://marc.info/?l=selinux&m=117621284727331&w=2
-> >
-> > what is the reason for your tweak? 
-> >
-> > bye,
-> > peter
-> >
-> >   
-> It's been a while, but I believe if ucspictcp and djbdns are built as 
-> modules the packages will not build correctly. 
+> I think that because of the heavy customization in the Postgres AVC 
+> implementation it is best kept outside-of-tree at the current time.
 
-Build or link fails?  I would expect the link to fail.
+OK,
 
+> There are other applications that use process pools such as Apache and 
+> if these become hosts to object managers then it may be useful to 
+> provide a shared memory option in the libselinux version.  The solution 
+> would involve a flag to the init function, some method of providing the 
+> shared memory segment to attach to, and special functionality for the 
+> "manager" process that will listen on netlink.
+
+Can I consider those features as a future todo? Or, do you want to have
+a discussion in this chance?
+
+> However, the Postgres implementation is not fully "shared memory" based. 
+>  The SID-to-context mapping is kept in a "pg_selinux" database table 
+> which is not stored in shared memory but rather is mapped from disk 
+> (correct me if I'm wrong). 
+
+It's correct. SE-PostgreSQL leverages one of the subsystems provided by native
+PostgreSQL, to implement SID-to-context mapping. It is not based on share memory
+directly.
+
+> In the previous thread, the possibility of 
+> providing callbacks for doing the SID-to-context mapping was discussed. 
+>  However IMO if this part of the library has to be outsourced to the 
+> application then the application might as well do the entire AVC.
+
+I agrees your opinion.
+In the case that applications can handle SID-to-context mapping well,
+those works should be outsourced and being detachable from libselinux's AVC.
+
+In my case, an idea using PostgreSQL's Oid (Object Identifier) as a persistent
+SID works well :)
+
+Thanks,
 -- 
-Chris PeBenito
-Tresys Technology, LLC
-(410) 290-1411 x150
-
+KaiGai Kohei <kaigai@kaigai.gr.jp>
 
 --
 This message was distributed to subscribers of the selinux mailing list.
