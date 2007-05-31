@@ -1,80 +1,42 @@
-Subject: Re: [RFC][PATCH] libselinux: Namespacing
-From: Karl MacMillan <kmacmillan@mentalrootkit.com>
-To: Stephen Smalley <sds@tycho.nsa.gov>
-Cc: Eamon Walsh <ewalsh@tycho.nsa.gov>, selinux@tycho.nsa.gov
-In-Reply-To: <1180536342.3340.149.camel@moss-spartans.epoch.ncsc.mil>
-References: <1178827922.3504.141.camel@moss-spartans.epoch.ncsc.mil>
-	 <1178829062.24335.86.camel@localhost.localdomain>
-	 <1178887062.3504.147.camel@moss-spartans.epoch.ncsc.mil>
-	 <1178908626.11064.18.camel@localhost.localdomain>
-	 <465C7C3E.7080206@tycho.nsa.gov>
-	 <1180536342.3340.149.camel@moss-spartans.epoch.ncsc.mil>
-Content-Type: text/plain
-Date: Thu, 31 May 2007 12:27:47 -0400
-Message-Id: <1180628867.3534.60.camel@localhost.localdomain>
-Mime-Version: 1.0
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Subject: SELinux userspace infrastructure language
+Date: Thu, 31 May 2007 13:35:20 -0400
+Message-ID: <6FE441CD9F0C0C479F2D88F959B01588BF01FF@exchange.columbia.tresys.com>
+From: "Joshua Brindle" <jbrindle@tresys.com>
+To: <selinux@tycho.nsa.gov>
+Cc: "Karl MacMillan" <kmacmill@redhat.com>,
+        "Stephen Smalley" <sds@tycho.nsa.gov>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2007-05-30 at 10:45 -0400, Stephen Smalley wrote:
-> On Tue, 2007-05-29 at 15:17 -0400, Eamon Walsh wrote:
-> > Karl MacMillan wrote:
-> > > On Fri, 2007-05-11 at 08:37 -0400, Stephen Smalley wrote:
-> > >> On Thu, 2007-05-10 at 16:31 -0400, Karl MacMillan wrote:
-> > >>> On Thu, 2007-05-10 at 16:12 -0400, Stephen Smalley wrote:
-> > >>>> libselinux presently lacks proper namespacing of its functions.  This
-> > >>>> patch is just for comment on an approach to gradually fixing that
-> > >>>> problem, starting with just a trivial example for a single function.
-> > >>>> The idea is to switch over the real function to being properly
-> > >>>> namespaced, provide an alias under the old name in the symbol table for
-> > >>>> binary compatibility, and make the old name a macro in the public
-> > >>>> headers that expands to the new name so that source rebuilds against the
-> > >>>> new library will start using the new name.  Then at some point in the
-> > >>>> future, we drop the old name macro from the source API, forcing an
-> > >>>> update to external sources to build against newer headers, while leaving
-> > >>>> the alias present in the symbol table as long as we need compatibility
-> > >>>> with existing binaries.  Thoughts?
-> > >>>>
-> > >>> Sounds good to me - will this impact the python bindings? If we do have
-> > >>> to change the bindings we should take as an opportunity to fix the
-> > >>> namespace issues there. For example, bo reason to have
-> > >>> selinux.selinux_booleans_path - should be changed to
-> > >>> selinux.booleans_path.
-> > >> Yes, it would affect the python bindings too; not sure what needs to be
-> > >> done there for backward compatibility.
-> > >>
-> > > 
-> > > Shouldn't be hard to provide the backwards compatibility - either
-> > > through swig or a pure python module.
-> > > 
-> > >> We also have to decide what to do about functions that already have
-> > >> their own prefix, like the security_ functions and the avc_ functions;
-> > >> I'm inclined to leave those alone as already being adequately
-> > >> namespaced.
-> > >>
-> > > 
-> > > I'd vote for changing them. The consistency is nice in general (I'm not
-> > > certain that it is obvious enough to everyone which prefix applies to
-> > > which function) and it will make wrapping in languages that support
-> > > proper namespacing simpler.
-> > 
-> > I'm fine with changing over the security_ stuff but what to do for the 
-> > avc stuff?  Either a double prefix selinux_avc_ which is kind of long, 
-> > or drop the _avc_ in which case there is a conflict between 
-> > security_compute_create and avc_compute_create.  Maybe "seavc_"?
-> > 
-> > Same question about the labeling interface I have in the works, which 
-> > would introduce a bunch of functions prefixed "selabel_".
-> 
-> I don't actually agree with changing over the security_ or avc_ prefixes
-> unless someone can show a real conflict; having separate prefixes for
-> different "subsystems"/"objects" of libselinux is IMHO reasonable.
-> 
+Some discussion has started off-list about what language to use for the
+implementation of the new policy intermediary format and we'd like to
+bring this discussion into the community to get feedback from users and
+other developers.
 
-OK - perhaps then the python wrapper should be two modules so the python
-namespacing is more natural.
+In the policyrep branch we've basically started taking OOisms and
+pythonisms and reimplementing them in C which is non-ideal. There is
+also madness behind the string handling in some newer work we are doing.
+We discussed the possibility of using python or C++ for our libraries so
+that they are more represenative of the datastructures that are being
+created elsewhere and being reimplemented in C. 
 
-KArl
+Libsemanage could easily be implemented in pure python, it doesn't do
+much hard work, libsepol, on the other hand, is used by a lot of
+external stuff so it's a more difficult sell. It would be nice to
+potentially use the STL for a lot of the stuff we are doing in libsepol.
+
+Libsemanage need not be rewritten immediately (or at all if not
+considered a necessity) but the new policy representation work will be
+happening in the near term so the language chosen for it will
+immediately be used. This language would be required for any systems
+with managed policies (eg., using policy modules and semanage) so that
+is something to be considered.
+
+What are some opinions from users and other people developing systems
+with SELinux?
 
 
 --
