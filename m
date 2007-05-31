@@ -1,52 +1,61 @@
-Date: Thu, 31 May 2007 21:28:31 +0100
-From: Stephen Bennett <spb@gentoo.org>
-To: Karl MacMillan <kmacmill@redhat.com>
-Cc: Chad Sellers <csellers@tresys.com>, Joshua Brindle
- <jbrindle@tresys.com>,
-        selinux@tycho.nsa.gov, Stephen Smalley
- <sds@tycho.nsa.gov>
-Subject: Re: SELinux userspace infrastructure language
-Message-ID: <20070531212831.039d6949@maya>
-In-Reply-To: <1180641428.22021.34.camel@localhost.localdomain>
-References: <C2848590.223A5%csellers@tresys.com>
-	<1180638802.22021.17.camel@localhost.localdomain>
-	<20070531205635.3b85f72b@maya>
-	<1180641092.22021.30.camel@localhost.localdomain>
-	<1180641428.22021.34.camel@localhost.localdomain>
+Subject: RE: pipefs issue
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: "Clarkson, Mike R (US SSA)" <mike.clarkson@baesystems.com>
+Cc: Chad Sellers <csellers@tresys.com>, selinux@tycho.nsa.gov,
+        Darrel Goeddel <dgoeddel@TrustedCS.com>
+In-Reply-To: <FB39F4E77226B448BC1388D3BE4E00CD01DBEFD6@blums0008.bluelnk.net>
+References: <C2849B7E.223EB%csellers@tresys.com>
+	 <FB39F4E77226B448BC1388D3BE4E00CD01DBEFD6@blums0008.bluelnk.net>
+Content-Type: text/plain
+Date: Thu, 31 May 2007 16:18:24 -0400
+Message-Id: <1180642704.3340.385.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 31 May 2007 15:57:08 -0400
-Karl MacMillan <kmacmill@redhat.com> wrote:
+On Thu, 2007-05-31 at 13:02 -0700, Clarkson, Mike R (US SSA) wrote:
+> Thanks for the info on the 3 pipes that Java creates. I had a feeling
+> that this is what was going on, but I'm still confused on one point. The
+> c++ executable is not writing anything to stdout or stderr, it writes
+> it's output to a file. The AVC messages below indicate that the import_t
+> domain (the c++ executable) is attempting to write to the pipe. Is there
+> some implicit writing that occurs between the processes?
 
-> > I think there are things that are very useful for us around config
-> > file parsing, general string handling, etc. Also the graph library
-> > would be great for some of the analysis tasks.
+SELinux checks permissions when a file descriptor is opened, inherited
+across execve or received via local IPC, so you will see attempted
+accesses at those times even if the descriptor is never actually used
+for a read or write.  In this case, the pipe descriptors are inherited
+across execve and checked at that time (and closed and replaced with
+descriptors to the null device if access is denied).  So if you don't
+actually need to allow the accesses, you can just add dontaudit rules to
+suppress the audit messages and SELinux will silently remap those
+descriptors to /dev/null for you.
 
-This is true, though last time I looked at the boost parser libraries
-(admittedly quite a few years ago) they felt more like a nice
-demonstration of how to abuse certain language features in new and
-interesting ways than a practical way to get things done. The other
-parts I've not yet had a need to use.
+> Also, it looks like SELinux is not allowing me to write up. Is that
+> standard? The BLP model typically allows writing up. 
 
-> > Last time I used it I kept a private copy and only linked in what I
-> > used. I guess we could limit the use to python, though, and only
-> > have it as a runtime requirement for the python bindings.
+Many MLS systems don't allow writing up without privilege (as that
+allows a low process to potentially corrupt high data), and the default
+mls constraints in SELinux policy are written that way.  You of course
+can change them in your policy/mls file if you want, and just use Type
+Enforcement to provide integrity protection.
 
-Yeah, in many cases this is the only reasonable way to use it. Which is
-a shame, really, because some small parts can be nice to have but
-aren't worth depending on the entire thing for.
+> The only mls attribute that I've seen that addresses writing up is
+> mlsfilewritetoclr, which looks like it allows writing to the high end of
+> a process range. Is that correct?
 
-> Most of boost is just headers, so it is just a compile time
-> dependency.
+mlsfilewritetoclr is for writing up to your high/clearance, while
+mlsfilewrite allows arbitrary writing (up or down) by the process, and
+mlstrustedobject allows any process to write to the object.
 
-Another good point, though my perception here is rather skewed towards
-Gentoo, where compile time dependencies are just as much of a pain, and
-boost is a really big compile time depend for just a couple of headers.
-That's fixed by importing small parts of it into the source tree,
-though, so it's not a massive problem.
+mlsfilewriteinrange looks a bit odd to me.
+
+Again, these can be customized to your needs.
+
+-- 
+Stephen Smalley
+National Security Agency
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
