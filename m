@@ -1,58 +1,46 @@
-Message-ID: <465ECD72.1070809@kaigai.gr.jp>
-Date: Thu, 31 May 2007 22:28:18 +0900
-From: KaiGai Kohei <kaigai@kaigai.gr.jp>
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l4VDjZbr007285
+	for <selinux@tycho.nsa.gov>; Thu, 31 May 2007 09:45:35 -0400
+Received: from mail6.sea5.speakeasy.net (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l4VDjXtC028577
+	for <selinux@tycho.nsa.gov>; Thu, 31 May 2007 13:45:33 GMT
+Date: Thu, 31 May 2007 09:45:30 -0400 (EDT)
+From: James Morris <jmorris@namei.org>
+To: Eric Paris <eparis@redhat.com>
+cc: selinux@tycho.nsa.gov, sds@tycho.nsa.gov, drepper@redhat.com,
+        alan@redhat.com, roland@redhat.com, arjan@infradead.org, mingo@elte.hu,
+        viro@zeniv.linux.org.uk, chrisw@redhat.com
+Subject: Re: [PATCH] SELinux protection for exploiting null dereference using
+ mmap
+In-Reply-To: <1180590362.3969.11.camel@localhost.localdomain>
+Message-ID: <Line.LNX.4.64.0705310943170.23949@d.namei>
+References: <1180561713.3633.27.camel@dhcp231-215.rdu.redhat.com>
+ <Line.LNX.4.64.0705301954080.19731@d.namei> <1180590362.3969.11.camel@localhost.localdomain>
 MIME-Version: 1.0
-To: Eamon Walsh <ewalsh@tycho.nsa.gov>
-CC: KaiGai Kohei <kaigai@ak.jp.nec.com>, Joshua Brindle <jbrindle@tresys.com>,
-        "Christopher J. PeBenito" <cpebenito@tresys.com>,
-        Stephen Smalley <sds@tycho.nsa.gov>,
-        SELinux Mail List <selinux@tycho.nsa.gov>
-Subject: Re: object class discovery userland
-References: <1177077717.15762.32.camel@sgc> <4628F05B.7040309@tycho.nsa.gov>	 <4628F20E.2000208@tycho.nsa.gov>  <1177089541.24870.17.camel@sgc>	 <1177338792.24282.16.camel@moss-spartans.epoch.ncsc.mil>	 <6FE441CD9F0C0C479F2D88F959B01588A71927@exchange.columbia.tresys.com>	 <1177340283.24282.24.camel@moss-spartans.epoch.ncsc.mil> <1179929852.10995.51.camel@sgc.columbia.tresys.com> <46548D4E.50000@tycho.nsa.gov> <465623DD.6090304@tycho.nsa.gov> <6FE441CD9F0C0C479F2D88F959B01588BEFF31@exchange.columbia.tresys.com> <465750DF.1050509@tycho.nsa.gov> <465CDF54.9050300@ak.jp.nec.com> <465DD820.70005@tycho.nsa.gov>
-In-Reply-To: <465DD820.70005@tycho.nsa.gov>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-> I think that because of the heavy customization in the Postgres AVC 
-> implementation it is best kept outside-of-tree at the current time.
+On Thu, 31 May 2007, Eric Paris wrote:
 
-OK,
+> suggestions for a better name from anyone? 
 
-> There are other applications that use process pools such as Apache and 
-> if these become hosts to object managers then it may be useful to 
-> provide a shared memory option in the libselinux version.  The solution 
-> would involve a flag to the init function, some method of providing the 
-> shared memory segment to attach to, and special functionality for the 
-> "manager" process that will listen on netlink.
+system? kernel?
 
-Can I consider those features as a future todo? Or, do you want to have
-a discussion in this chance?
+> It doesn't address the question of 'is 1 page enough'   Anyone with a
+> good suggestion of how much is enough?  Or a reasonable idea on how to
+> make something like this configureable if we can't agree on a single
+> number?
 
-> However, the Postgres implementation is not fully "shared memory" based. 
->  The SID-to-context mapping is kept in a "pg_selinux" database table 
-> which is not stored in shared memory but rather is mapped from disk 
-> (correct me if I'm wrong). 
+For SELinux, have a default and allow the value to be set via a selinuxfs 
+node.
 
-It's correct. SE-PostgreSQL leverages one of the subsystems provided by native
-PostgreSQL, to implement SID-to-context mapping. It is not based on share memory
-directly.
 
-> In the previous thread, the possibility of 
-> providing callbacks for doing the SID-to-context mapping was discussed. 
->  However IMO if this part of the library has to be outsourced to the 
-> application then the application might as well do the entire AVC.
 
-I agrees your opinion.
-In the case that applications can handle SID-to-context mapping well,
-those works should be outsourced and being detachable from libselinux's AVC.
-
-In my case, an idea using PostgreSQL's Oid (Object Identifier) as a persistent
-SID works well :)
-
-Thanks,
+- James
 -- 
-KaiGai Kohei <kaigai@kaigai.gr.jp>
+James Morris
+<jmorris@namei.org>
 
 --
 This message was distributed to subscribers of the selinux mailing list.
