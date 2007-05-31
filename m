@@ -1,62 +1,64 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l4V1Ne9a008804
-	for <selinux@tycho.nsa.gov>; Wed, 30 May 2007 21:23:41 -0400
-Received: from smtp4.na.baesystems.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l4V1Nepq008525
-	for <selinux@tycho.nsa.gov>; Thu, 31 May 2007 01:23:40 GMT
-Received: from BLUMS0022.bluelnk.net (blums0022.na.baesystems.com [10.40.96.145])
-	by smtp4.na.baesystems.com (8.13.6/8.13.6) with ESMTP id l4V1NDPv009552
-	for <selinux@tycho.nsa.gov>; Wed, 30 May 2007 21:23:13 -0400 (EDT)
-Received: from blums0008.bluelnk.net (blums0008.sd.gd.com [134.120.81.40])
-	by smtp1.na.baesystems.com (8.13.6/8.13.6) with ESMTP id l4V1Nc7V019912
-	for <selinux@tycho.nsa.gov>; Wed, 30 May 2007 21:23:39 -0400 (EDT)
+Date: Wed, 30 May 2007 18:40:57 -0700
+From: Chris Wright <chrisw@sous-sol.org>
+To: Eric Paris <eparis@redhat.com>
+Cc: selinux@tycho.nsa.gov, sds@tycho.nsa.gov, drepper@redhat.com,
+        alan@redhat.com, roland@redhat.com, arjan@infradead.org, mingo@elte.hu,
+        viro@zeniv.linux.org.uk, jmorris@namei.org, chrisw@redhat.com
+Subject: Re: [PATCH] SELinux protection for exploiting null dereference
+	using mmap
+Message-ID: <20070531014057.GI3429@sequoia.sous-sol.org>
+References: <1180561713.3633.27.camel@dhcp231-215.rdu.redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Subject: pipefs issue
-Date: Wed, 30 May 2007 18:23:38 -0700
-Message-ID: <FB39F4E77226B448BC1388D3BE4E00CD01DBEF78@blums0008.bluelnk.net>
-From: "Clarkson, Mike R \(US SSA\)" <mike.clarkson@baesystems.com>
-To: <selinux@tycho.nsa.gov>
-Cc: "Jensen, Curtis R \(US SSA\)" <curtis.jensen@baesystems.com>
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1180561713.3633.27.camel@dhcp231-215.rdu.redhat.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-I've got a java process running in the datalabeler_t domain at the s2
-mls level, which kicks off a c++ executable in the import_t domain. 
+* Eric Paris (eparis@redhat.com) wrote:
+> +	int (*mmap_zero) (void);
+>  	int (*file_mmap) (struct file * file,
+>  			  unsigned long reqprot,
+>  			  unsigned long prot, unsigned long flags);
 
-There appears to be some inter-process communication being set up using
-pipefs between the parent and child process which is causing mls
-constraint issues. I'm not familiar with pipefs and I'm not explicitly
-creating this communication, either linux or java is implicitly creating
-it for me.
+When I looked into this originally, I expected to use existing file_mmap
+hook, augmented with addr (of course, adding smth for mremap as well).
 
-Is this configurable so that I can prevent the pipefs from being
-created?
+> --- a/mm/mmap.c
+> +++ b/mm/mmap.c
+> @@ -1026,6 +1026,12 @@ unsigned long do_mmap_pgoff(struct file * file, unsigned long addr,
+>  	error = security_file_mmap(file, reqprot, prot, flags);
+>  	if (error)
+>  		return error;
+> +
+> +	if (unlikely(addr < PAGE_SIZE)) {
+> +		error = security_mmap_zero();
+> +		if (error)
+> +			return error;
+> +	}
 
-Alternatively, can I satisfy the below AVC denial messages without
-giving the import_t domain mlsfilereadup privilege? I don't mind giving
-the datalabeler_t domain extra privileges like writedown or readup, but
-I don't want to give the import_t domain those kind of mls privileges.
+I believe this is correct (despite the distinction of MAP_FIXED vs
+!MAP_FIXED).
 
-type=AVC msg=audit(1180552217.128:260021): avc:  denied  { read } for
-pid=2585 comm="SimulatedImport" name="[4155253]" dev=pipefs ino=4155253
-scontext=m2_u:system_r:import_t:s1
-tcontext=m2_u:system_r:datalabeler_t:s2-s15:c0.c255 tclass=fifo_file
+> --- a/mm/mremap.c
+> +++ b/mm/mremap.c
+> @@ -291,6 +291,12 @@ unsigned long do_mremap(unsigned long addr,
+>  		if ((addr <= new_addr) && (addr+old_len) > new_addr)
+>  			goto out;
+>  
+> +		if (unlikely(new_addr < PAGE_SIZE)) {
+> +			ret = security_mmap_zero();
+> +			if (ret)
+> +				goto out;
+> +			ret = -EINVAL;
+> +		}
 
-type=AVC msg=audit(1180552217.128:260021): avc:  denied  { write } for
-pid=2585 comm="SimulatedImport" name="[4155252]" dev=pipefs ino=4155252
-scontext=m2_u:system_r:import_t:s1
-tcontext=m2_u:system_r:datalabeler_t:s2-s15:c0.c255 tclass=fifo_file
+This, on the other hand, I believe is correct only to the degree that
+the current semantics of get_unmapped_area stay unchanged.  This is why
+I had expected passing the addr to the module directly, since the cutoff
+point is a lot like policy (one page is somewhat arbitrary).
 
-type=AVC msg=audit(1180552217.128:260021): avc:  denied  { write } for
-pid=2585 comm="SimulatedImport" name="[4155254]" dev=pipefs ino=4155254
-scontext=m2_u:system_r:import_t:s1
-tcontext=m2_u:system_r:datalabeler_t:s2-s15:c0.c255 tclass=fifo_file
-
-Thanks
-
-
+thanks,
+-chris
 
 --
 This message was distributed to subscribers of the selinux mailing list.
