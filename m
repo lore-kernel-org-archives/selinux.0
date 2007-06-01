@@ -1,4 +1,4 @@
-Date: Fri, 1 Jun 2007 12:40:53 +0100
+Date: Fri, 1 Jun 2007 12:47:45 +0100
 From: Stephen Bennett <spb@gentoo.org>
 To: James Antill <jantill@redhat.com>
 Cc: Joshua Brindle <jbrindle@tresys.com>,
@@ -7,36 +7,48 @@ Cc: Joshua Brindle <jbrindle@tresys.com>,
         Stephen Smalley
  <sds@tycho.nsa.gov>
 Subject: Re: SELinux userspace infrastructure language
-Message-ID: <20070601124053.5942ac27@maya>
-In-Reply-To: <1180671015.7793.22.camel@code.and.org>
+Message-ID: <20070601124745.7fb795d7@maya>
+In-Reply-To: <20070601124053.5942ac27@maya>
 References: <6FE441CD9F0C0C479F2D88F959B01588BF01FF@exchange.columbia.tresys.com>
 	<1180633622.3534.78.camel@localhost.localdomain>
 	<6FE441CD9F0C0C479F2D88F959B01588BF0204@exchange.columbia.tresys.com>
 	<20070531204502.3a667419@maya>
 	<1180671015.7793.22.camel@code.and.org>
+	<20070601124053.5942ac27@maya>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 01 Jun 2007 00:10:15 -0400
-James Antill <jantill@redhat.com> wrote:
+On Fri, 1 Jun 2007 12:40:53 +0100
+Stephen Bennett <spb@gentoo.org> wrote:
 
-> > From the library side, C++ has the advantage that it can produce
-> > bindings for any language that C can.
+> On Fri, 01 Jun 2007 00:10:15 -0400
+> James Antill <jantill@redhat.com> wrote:
 > 
->  Do you have a examples of this? From what little I know it's _much_
-> harder to produce usable bindings from C++, the Qt/KDE bindings seem
-> to have been in the works for years now and AIUI only very
-> recently[1] got into KDE's stable branch. With the first non-C++
-> application being written in ... python.
+> > > From the library side, C++ has the advantage that it can produce
+> > > bindings for any language that C can.
+> > 
+> >  Do you have a examples of this? From what little I know it's _much_
+> > harder to produce usable bindings from C++, the Qt/KDE bindings seem
+> > to have been in the works for years now and AIUI only very
+> > recently[1] got into KDE's stable branch. With the first non-C++
+> > application being written in ... python.
+> 
+> I know from recent experience that Ruby and Python can be done
+> directly without too much trouble. If anything else is needed that
+> particularly defies bindings in C++, one can (in principle, and if
+> you haven't relied upon too many of the more advanced language
+> features) create a C API by turning all object pointers into opaque
+> types and wrapping methods in regular function calls, then go from
+> that.
 
-I know from recent experience that Ruby and Python can be done directly
-without too much trouble. If anything else is needed that particularly
-defies bindings in C++, one can (in principle, and if you haven't
-relied upon too many of the more advanced language features) create a C
-API by turning all object pointers into opaque types and wrapping
-methods in regular function calls, then go from that.
+The example I had in mind being
+http://paludis.pioto.org/trac/browser/trunk -- the ruby/ and python/
+directories contain the bindings for those languages. The library
+itself is a lot of pretty 'heavy' C++. The Python interface uses the
+Boost library for convenience, whereas Ruby uses the Ruby/C API
+directly.
 
 --
 This message was distributed to subscribers of the selinux mailing list.
