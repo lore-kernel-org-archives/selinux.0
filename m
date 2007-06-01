@@ -1,105 +1,67 @@
-Subject: Passing sec info to security modules when mounting an FS
-From: Eric Paris <eparis@redhat.com>
-To: nfs@lists.sourceforge.net, selinux@tycho.nsa.gov
-Cc: sds@tycho.nsa.gov, jmorris@namei.org, trond.myklebust@fys.uio.no,
-        hch@infradead.org, viro@zeniv.linux.org.uk
-Content-Type: text/plain
-Date: Fri, 01 Jun 2007 19:19:49 -0400
-Message-Id: <1180739989.3931.47.camel@localhost.localdomain>
-Mime-Version: 1.0
+Message-ID: <4660A986.3040701@tycho.nsa.gov>
+Date: Fri, 01 Jun 2007 19:19:34 -0400
+From: Eamon Walsh <ewalsh@tycho.nsa.gov>
+MIME-Version: 1.0
+To: SE Linux <selinux@tycho.nsa.gov>
+CC: Stephen Smalley <sds@tycho.nsa.gov>
+Subject: [PATCH] libselinux: set errno in string functions
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-A while back I posted a (ugly) patch trying to address a quirk found
-dealing with NFS and it's use of binary mount data.
+Set errno to EINVAL in string functions on bad input.
 
-http://marc.info/?l=linux-nfs&m=117856053112297&w=2
+Signed-off-by: Eamon Walsh <ewalsh@tycho.nsa.gov>
 
-The answer was LSM modules/SELinux 'stop trying to read NFS's binary
-mount data.'  So now I'm working on a real long term solution to the
-problem.
+---
 
-A two second overview of how this work now.  With binary mount data,
-SELinux checks if the FS is NFS and if so inside try_context_mount() it
-casts the data to a nfs_mount_data and then grabs the security context
-from the data->context field added in version 6 of the nfs_mount_data.
-Its being doing that for quite some time now.  For any FS which has
-binary mount data other than NFS it is impossible to pass security
-relevant information to the SELinux.  For text mount options selinux
-walks the string, copies all of the relevant options (context=,
-fscontext=, defcontext=, rootcontext=) to a new page and then inside
-try_context_mount() uses those options.
+ stringrep.c |   10 ++++++++--
+ 1 file changed, 8 insertions(+), 2 deletions(-)
 
-Since everyone seemed to agree that having selinux grab the context out
-of the binary data was the wrong way to do things it appears that
-filesystems like NFS, which have binary mount data, are going to need a
-way to pass the security information contained in that mount data
-through the VFS to get it to the LSM hooks.  I figure we can add a new
-vfs_kern_mount_secdata() which takes as a argument a string which
-contains all of the relevant security information.  This string can then
-be passed right on down into the security modules and we can eliminate
-the NFS specific handling of the mount data in the selinux code.
 
-The first problem with this right now is that the SELinux parser is
-expecting to get full mount options like context=user_u:role_r:type_t
-but the NFS code (somewhere I haven't figure out where yet) is
-manipulating the security string and taking the context=blah and
-stripping the first part of the string and only storing the part after
-the =.  Which means that now something is going to have to change how
-the security options are being handled.  I can see this being done a
-couple of places
+--- libselinux/src/stringrep.c	2007-06-01 16:05:26.000000000 -0400
++++ libselinux/src/stringrep.c	2007-06-01 15:50:52.000000000 -0400
+@@ -160,6 +160,7 @@
+ 		}
+ 	}
+ 
++	errno = EINVAL;
+ 	return 0;
+ }
+ 
+@@ -197,13 +198,17 @@
+ 			return av_perm_to_string[i].value;
+ 	}
+ 
++	errno = EINVAL;
+ 	return 0;
+ }
+ 
+ const char *security_class_to_string(security_class_t tclass)
+ {
+-	tclass = (tclass > 0 && tclass < NCLASSES) ? tclass : 0;
+-	return class_to_string_data.str + class_to_string[tclass];
++	if (tclass > 0 && tclass < NCLASSES)
++		return class_to_string_data.str + class_to_string[tclass];
++
++	errno = EINVAL;
++	return NULL;
+ }
+ 
+ const char *security_av_perm_to_string(security_class_t tclass,
+@@ -242,6 +247,7 @@
+ 				+ av_perm_to_string[i].nameidx;
+ 	}
+ 
++	errno = EINVAL;
+ 	return NULL;
+ }
+ 
 
-?the nfs code - can just store the full text string it got in userspace
-and pass it along.  Other binary mount data FS's could do the same
-thing.  (I think this is the best option)
 
-?the nfs code - can just append context= onto the front of the string
-before it calls into the new vfs_kern_mount_secdata() function, seems
-like this is not the place to add some selinux specific text
-manipulation, but then again, nfs decided to pull that part of the
-string off, why can't it put it back?
-
-?the vfs to a new LSM hook - create some new hook which verifys the data
-and can manipulate it if needed before it is passed to the real LSM
-hook?  (ok this is a terrible idea)
-
-?extra flags being passed down to the original security_sb_kern_mount
-hook - if we pass extra flags down the security_sb_kern_mount to say
-this came from a binary mount then the selinux code could deal with all
-of the special casing itself.
-
-?no extra flags and selinux code can just assume what is meant when it
-gets a string without one of the tokens it recognizes.  Right now we
-catch those errors and bomb out, but I haven't ever seen the printk...
-
-Personally I think the 'fix' should be to store the full string in the
-data->context field of the nfs data instead of making the NFS chain
-parse and manipulate the string.  If others in the NFS world agree to
-this solution can you give me pointers to where the context= part of the
-mount options got pulled off?   Is that in userspace?
-
-It also is a bit of a change in meaning for the ->context field.  It no
-longer would be just a selinux context and would instead be a 'security
-string' which could contain all of the possible options someday and
-would get parsed correctly.
-
-I also heard that NFS was going to go to a text mount option in the
-future and maybe for such a corner case of a problem (remember that link
-way back at the top) we could just ignore all of this until that
-happens.  If so I think all of the problem would go away since selinux
-can just find its options from the text string like every other FS
-already does.  In the meantime maybe people would be agreeable to a
-nasty hack inside the SELinux code (something like changing the nfs
-specific check in try_context_mount to (d->version <  NFS_MOUNT_VERSION)
-&& (d->version < 0xc00000000) to get the same result as my previous hack
-in the other patch but realize that d->version might actually be a
-pointer to a kernel data structure rather than to a version field)
-
-So what is the right longterm solution?  Add a new vfs function which
-takes a security string and change NFS to keep the whole string?  Wait
-the problem out and go with a hack?  Do something I haven't though of?
-
--Eric
+-- 
+Eamon Walsh <ewalsh@tycho.nsa.gov>
+National Security Agency
 
 
 --
