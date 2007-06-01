@@ -1,51 +1,56 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l51F2G2J015047
-	for <selinux@tycho.nsa.gov>; Fri, 1 Jun 2007 11:02:16 -0400
-Received: from exchange.columbia.tresys.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with SMTP id l51F2FA6011664
-	for <selinux@tycho.nsa.gov>; Fri, 1 Jun 2007 15:02:15 GMT
-Subject: Re: With the release of Fedora Core 7 I have bumped the policy
-	version in Rawhide
-From: "Christopher J. PeBenito" <cpebenito@tresys.com>
-To: Daniel J Walsh <dwalsh@redhat.com>
-Cc: SELinux Mail List <selinux@tycho.nsa.gov>
-In-Reply-To: <465F19D1.7040706@redhat.com>
-References: <465F19D1.7040706@redhat.com>
-Content-Type: text/plain
-Date: Fri, 01 Jun 2007 11:01:04 -0400
-Message-Id: <1180710064.28862.5.camel@sgc.columbia.tresys.com>
-Mime-Version: 1.0
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Subject: RE: SELinux userspace infrastructure language
+Date: Fri, 1 Jun 2007 11:17:26 -0400
+Message-ID: <6FE441CD9F0C0C479F2D88F959B01588BF02B3@exchange.columbia.tresys.com>
+In-Reply-To: <1180709345.24709.14.camel@localhost.localdomain>
+References: <6FE441CD9F0C0C479F2D88F959B01588BF01FF@exchange.columbia.tresys.com> <1180633622.3534.78.camel@localhost.localdomain> <6FE441CD9F0C0C479F2D88F959B01588BF0204@exchange.columbia.tresys.com> <20070531204502.3a667419@maya>  <1180671015.7793.22.camel@code.and.org> <1180709345.24709.14.camel@localhost.localdomain>
+From: "Joshua Brindle" <jbrindle@tresys.com>
+To: "Karl MacMillan" <kmacmill@redhat.com>,
+        "James Antill" <jantill@redhat.com>
+Cc: "Stephen Bennett" <spb@gentoo.org>, <selinux@tycho.nsa.gov>,
+        "Stephen Smalley" <sds@tycho.nsa.gov>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2007-05-31 at 14:54 -0400, Daniel J Walsh wrote:
-> Tomorrows rawhide will have selinux-policy-3.0.1. 
+Karl MacMillan wrote:
+> On Fri, 2007-06-01 at 00:10 -0400, James Antill wrote:
+>> On Thu, 2007-05-31 at 20:45 +0100, Stephen Bennett wrote:
+>>> On Thu, 31 May 2007 13:54:23 -0400
+>>> "Joshua Brindle" <jbrindle@tresys.com> wrote:
+>>> 
+>>>> Given all this I think C++ is the best bet, though I'm not adverse
+>>>> to most of the frontends being written in python, it would just be
+>>>> nice if the actual policy representation and accessors are
+>>>> available from a shared library API that most languages can use.
+>>> 
+>>> From the library side, C++ has the advantage that it can produce
+>>> bindings for any language that C can.
+>> 
+>>  Do you have a examples of this? From what little I know it's _much_
+>> harder to produce usable bindings from C++, the Qt/KDE bindings seem
+>> to have been in the works for years now and AIUI only very
+>> recently[1] got into KDE's stable branch. With the first non-C++
+>> application being written in ... python.
 > 
-> This policy is the first release of the merged (strict/targeted) 
-> policy.  As such there is no longer a selinux-policy-strict.  This is 
-> real experimental and I expect some problems.  I have been running it 
-> here for a couple of days. 
+> It's a matter of how idiomatic you want the bindings and what
+> the C++ code looks like. If you stick to fairly
+> straightforward C++ code then the bindings are pretty simple.
+> If you use lots of advanced features then things can be strange.
 > 
-> With this policy you can install the strict type users staff_u, user_u, 
-> sysadm_u.  As well as the unonfined_u/system_u.  You should be able to 
-> mix and match the users.  So if you want to setup a Guest X-Windows 
-> login you would set it up with a user of user_u:user_r:user_t.  And you 
-> might have your regular login as system_u:unconfined_r:unconfined_t.
+>>  Even assuming everyone could cooperatively write good C++ code from
+>> scratch using just the right C++ features, which is a huge
+>> assumption[2], it then has to be debugged and then after all that
+>> work all you'll gain is that you can then bind to python (and maybe,
+>>  Java/ruby) as well? Is anyone writing anything in a language other
+>> than C or Python? 
+>> 
+> 
+> In the selinux world? Some people have, but not recently.
+> 
 
-As a side note is that an unconfined_u seuser is going to be added,
-which will be the appropriate seuser to use for unconfined users.  So
-eventually you'll end up with unconfined_u:unconfined_r:unconfined_t.
-
-> The idea is if you remove the unconfined policy package, you will be 
-> basically running in strict policy mode.  (This has not been tested.) 
-
-Actually you also have to take out anaconda and firstboot since they
-unconditionally depend on unconfined.  Otherwise it should work.
-
--- 
-Chris PeBenito
-Tresys Technology, LLC
-(410) 290-1411 x150
+SLIDE is in active development and is written in Java.
 
 
 --
