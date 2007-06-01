@@ -1,54 +1,58 @@
-Date: Fri, 1 Jun 2007 12:47:45 +0100
-From: Stephen Bennett <spb@gentoo.org>
-To: James Antill <jantill@redhat.com>
-Cc: Joshua Brindle <jbrindle@tresys.com>,
-        Karl MacMillan
- <kmacmill@redhat.com>, selinux@tycho.nsa.gov,
-        Stephen Smalley
- <sds@tycho.nsa.gov>
-Subject: Re: SELinux userspace infrastructure language
-Message-ID: <20070601124745.7fb795d7@maya>
-In-Reply-To: <20070601124053.5942ac27@maya>
-References: <6FE441CD9F0C0C479F2D88F959B01588BF01FF@exchange.columbia.tresys.com>
-	<1180633622.3534.78.camel@localhost.localdomain>
-	<6FE441CD9F0C0C479F2D88F959B01588BF0204@exchange.columbia.tresys.com>
-	<20070531204502.3a667419@maya>
-	<1180671015.7793.22.camel@code.and.org>
-	<20070601124053.5942ac27@maya>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Message-ID: <46602E03.8080200@redhat.com>
+Date: Fri, 01 Jun 2007 10:32:35 -0400
+From: Daniel J Walsh <dwalsh@redhat.com>
+MIME-Version: 1.0
+To: Stephen Smalley <sds@tycho.nsa.gov>, SE Linux <selinux@tycho.nsa.gov>
+Subject: policycoreutils patch
+Content-Type: multipart/mixed;
+ boundary="------------010107040206070000010301"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 1 Jun 2007 12:40:53 +0100
-Stephen Bennett <spb@gentoo.org> wrote:
+This is a multi-part message in MIME format.
+--------------010107040206070000010301
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
-> On Fri, 01 Jun 2007 00:10:15 -0400
-> James Antill <jantill@redhat.com> wrote:
-> 
-> > > From the library side, C++ has the advantage that it can produce
-> > > bindings for any language that C can.
-> > 
-> >  Do you have a examples of this? From what little I know it's _much_
-> > harder to produce usable bindings from C++, the Qt/KDE bindings seem
-> > to have been in the works for years now and AIUI only very
-> > recently[1] got into KDE's stable branch. With the first non-C++
-> > application being written in ... python.
-> 
-> I know from recent experience that Ruby and Python can be done
-> directly without too much trouble. If anything else is needed that
-> particularly defies bindings in C++, one can (in principle, and if
-> you haven't relied upon too many of the more advanced language
-> features) create a C API by turning all object pointers into opaque
-> types and wrapping methods in regular function calls, then go from
-> that.
+policycoreutils should be checking if the user is the default_type not 
+hard coded to user_u.
 
-The example I had in mind being
-http://paludis.pioto.org/trac/browser/trunk -- the ruby/ and python/
-directories contain the bindings for those languages. The library
-itself is a lot of pretty 'heavy' C++. The Python interface uses the
-Boost library for convenience, whereas Ruby uses the Ruby/C API
-directly.
+Also if selinux is not enabled, the verification step should not 
+happen.  This is causing problems in chroot environments for the install.
+
+Both these fixes should go into the new genhomedircon that is being 
+added to semanage.
+
+--------------010107040206070000010301
+Content-Type: text/plain;
+ name="diff"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="diff"
+
+diff --exclude-from=exclude --exclude=sepolgen-1.0.8 --exclude=gui --exclude=po -N -u -r nsapolicycoreutils/scripts/genhomedircon policycoreutils-2.0.19/scripts/genhomedircon
+--- nsapolicycoreutils/scripts/genhomedircon	2007-05-18 09:58:33.000000000 -0400
++++ policycoreutils-2.0.19/scripts/genhomedircon	2007-06-01 10:29:32.000000000 -0400
+@@ -193,7 +193,7 @@
+ 		return prefix
+ 		
+ 	def adduser(self, udict, user, seuser, prefix):
+-		if seuser == "user_u" or user == "__default__" or user == "system_u":
++		if seuser == self.default_user or user == "__default__" or user == "system_u":
+ 			return
+ 		# !!! chooses first prefix in the list to use in the file context !!!
+ 		try:
+@@ -263,7 +263,7 @@
+ 				i = i.replace("system_u", seuser)
+ 				# Validate if the generated context exists.  Some user types may not exist
+ 				scon = i.split()[-1]
+-				if selinux.security_check_context(scon) == 0:
++				if selinux.is_selinux_enabled() < 1 or selinux.security_check_context(scon) == 0:
+ 					ret = ret+i
+ 		fd.close()
+ 		return ret
+
+--------------010107040206070000010301--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
