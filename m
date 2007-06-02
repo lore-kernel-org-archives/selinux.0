@@ -1,50 +1,73 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l52Dil9F008452
-	for <selinux@tycho.nsa.gov>; Sat, 2 Jun 2007 09:44:47 -0400
-Received: from moutng.kundenserver.de (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id l52DijVf023693
-	for <selinux@tycho.nsa.gov>; Sat, 2 Jun 2007 13:44:46 GMT
-Mime-Version: 1.0 (Apple Message framework v752.2)
-Message-Id: <40E6CEE4-6DFE-4458-8DB7-11D81DFC7E80@sf-net.com>
-Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
-To: SELinux List <selinux@tycho.nsa.gov>
-From: Stefan Schulze Frielinghaus <stefan@sf-net.com>
-Subject: Apache and PHP
-Date: Sat, 2 Jun 2007 15:44:37 +0200
+Message-ID: <4661ACEF.3000801@kaigai.gr.jp>
+Date: Sun, 03 Jun 2007 02:46:23 +0900
+From: KaiGai Kohei <kaigai@kaigai.gr.jp>
+MIME-Version: 1.0
+To: Stephen Smalley <sds@tycho.nsa.gov>
+CC: Joe Nall <joe@nall.com>, SELinux Mail List <selinux@tycho.nsa.gov>,
+        ewalsh@tycho.nsa.gov, KaiGai Kohei <kaigai@ak.jp.nec.com>
+Subject: generic fallbacks of getpeercon (Re: [redhat-lspp] Labeling an interface)
+References: <C32347D4-3E32-4741-B847-6826EED3BB7A@nall.com> <1180631739.3340.309.camel@moss-spartans.epoch.ncsc.mil>
+In-Reply-To: <1180631739.3340.309.camel@moss-spartans.epoch.ncsc.mil>
+Content-Type: text/plain; charset=ISO-2022-JP
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hello everyone,
+Stephen Smalley wrote:
+> On Thu, 2007-05-31 at 10:58 -0500, Joe Nall wrote:
+>> I would like to label an ethernet interface so that all of the  
+>> inbound connections are labeled with a range.
+>>
+>> semanage interface -a -t netif_t --range S-S eth1
+>>
+>> succeeds, but getpeercon fails with "Protocol not available"
+>>
+>> Is there any way to do this with what is in evaluation?
+> 
+> getpeercon() only returns a context if a labeled networking mechanism
+> was used; we don't implicitly convey the netif label or secmark label to
+> it.  So if you want a default labeling behavior, that has to be done in
+> your application, e.g. the application would fall back to some default
+> if getpeercon() failed.
 
-I try to create a policy for a Wiki system:
+Stephen,
 
-dokuwiki.te:
+How do you think necessity for generic fall back behavior in the case when
+getpeercon() failed?
 
-policy_module(dokuwiki, 1.0.0)
+I think such a falling-back labeling behavior is worthwhile for appliablity
+of SE-PostgreSQL, because RDBMS will be connected from MS-Windows'ed clients
+which are impossible to set up network labeling, for example.
 
-gen_require(`
-         type httpd_t;
-')
+The current version of SE-PostgreSQL adopts the simplest way to handle
+a connection from a client without any network labeling. Its connection
+will be closed soon.
 
-apache_content_template(dokuwiki)
+I got a question and a suggestion about SE-PostgreSQL's behavior in those cases
+just after my speech in this year's SELinux Symposium.
+He suggested me that it is possible to associate a security context and network
+interfaces or network address/port.
+For example, RDBMS server has two NIC. One is connected to internal network and
+connections from there are defined as SystemLow-SystemHigh, the other is connected
+to external network and defined as SystemLow, like the following image.
 
-I labeled the files correctly and enabled the apache_enable_cgi  
-boolean, but I still get some AVC errors:
+SystemLow-SystemHigh +--------+      SystemLow
+            --> eth0 |SE-PgSQL| eth1 <---
+---------------------= server =---------------
+            INTERNAL +--------+ EXTERNAL
 
-# dmesg -c | audit2allow
-allow httpd_t httpd_dokuwiki_content_t:dir { getattr read search };
-allow httpd_t httpd_dokuwiki_content_t:file { getattr read };
-allow httpd_t httpd_dokuwiki_script_rw_t:dir { getattr search write };
-allow httpd_t httpd_dokuwiki_script_rw_t:file { getattr read write };
+I think his suggestion is fair enough as a fall back of getpeercon(),
+but we don't have any consensus.
 
-It seems to me that the apache daemon does no type transition from  
-httpd_t to httpd_dokuwiki_script_t. I thought that if I use the  
-apache_content_template that a new type is created (along some others  
-too) and that I can use this as an entrypoint. Do I have to enable  
-something else so that a type transition will occure?
+Is it really necessary?
+ - At least, I think the facility is worthwhile.
 
-Best regards,
-Stefan
+How is it implemented and described in the policy?
+ - Is it possible to use the security context of netif/address/port of inbound
+   connection as an entrypoint of domain transition?
+   Those may be configurable with SECMARK.
+
+-- 
+KaiGai Kohei <kaigai@kaigai.gr.jp>
 
 --
 This message was distributed to subscribers of the selinux mailing list.
