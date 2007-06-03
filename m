@@ -1,50 +1,75 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l544OB1I025476
-	for <selinux@tycho.nsa.gov>; Mon, 4 Jun 2007 00:24:11 -0400
-Received: from www346.sakura.ne.jp (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l544O7Hw001226
-	for <selinux@tycho.nsa.gov>; Mon, 4 Jun 2007 04:24:09 GMT
-Message-Id: <200706040423.l544NU3H086014@www346.sakura.ne.jp>
-Subject: [RFC] permissions for conditional UPDATE statement
-From: kaigai@kaigai.gr.jp
-To: jbrindle@tresys.com, russell@coker.com.au
-Cc: selinux@tycho.nsa.gov, kaigai@kaigai.gr.jp, kaigai@ak.jp.nec.com
-MIME-Version: 1.0
-Content-Type: text/plain; charset="ISO-2022-JP"
-Date: Mon, 04 Jun 2007 13:23:30 +0900
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l545tIZS028258
+	for <selinux@tycho.nsa.gov>; Mon, 4 Jun 2007 01:55:18 -0400
+Received: from msp1.hitachi-sk.co.jp (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id l545tGxY023985
+	for <selinux@tycho.nsa.gov>; Mon, 4 Jun 2007 05:55:17 GMT
+Received: from vs1.hitachi-sk.co.jp ([133.108.252.215])
+	by msp1.hitachi-sk.co.jp (unknown) with ESMTP id l545t9Tf031617
+	for <selinux@tycho.nsa.gov>; Mon, 4 Jun 2007 14:55:10 +0900
+Received: from gw2.hitachi-sk.co.jp (unknown [133.108.252.242])
+	by vs1.hitachi-sk.co.jp (Postfix) with ESMTP id CF82E381D3
+	for <selinux@tycho.nsa.gov>; Mon,  4 Jun 2007 14:55:09 +0900 (JST)
+Received: (from root@localhost)
+        by gw2.hitachi-sk.co.jp (unknown) id l545t9gI024910
+        for selinux@tycho.nsa.gov; Mon, 4 Jun 2007 14:55:09 +0900
+Received: from sms1.l-isa.hitachi-sk.co.jp (mlb.isa.hitachi-sk.co.jp [133.108.245.84])
+	by dns1.hitachi-sk.co.jp (8.11.6/3.7W) with ESMTP id l545t9618692
+	for <selinux@tycho.nsa.gov>; Mon, 4 Jun 2007 14:55:09 +0900
+Date: Mon, 4 Jun 2007 03:18:47 +0900
+From: Yuichi Nakamura <ynakam@hitachisoft.jp>
+To: selinux@tycho.nsa.gov
+Cc: ynakam@hitachisoft.jp
+Subject: [patch] Bug in restorecon
+Message-Id: <20070604031847.0ec6c158.ynakam@hitachisoft.jp>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-It is a RFC in security design of SE-PostgreSQL.
+Hi.
 
-In the current version of SE-PostgreSQL, {select update} for table,
-column and tuple classes are required when a client execute a SQL
-query with conditional UPDATE query, for example.
+I found a bug in restorecon in trunk.
+restorecon to relative path does not work.
+(such as restorecon -R .).
+Path is expanded by realpath in restorecon, isn't it ?
 
-It means that the following SQL requires '{select update}' permission,
-not only 'update', because the query tries to refer 'z' column
-of 'tbl_1' table on WHERE clause.
+Following is a fix.
 
-  UPDATE tbl_1 SET x = 10, y = 'aaa' WHERE z = true;
+Index: policycoreutils/setfiles/setfiles.c
+===================================================================
+--- policycoreutils/setfiles/setfiles.c (revision 2457)
++++ policycoreutils/setfiles/setfiles.c (working copy)
+@@ -223,19 +223,19 @@
+        /* fullname will be the real file that gets labeled
+         * name will be what is matched in the policy */
+        if (NULL != rootpath) {
+-               if (0 != strncmp(rootpath, name, rootpathlen)) {
++               if (0 != strncmp(rootpath, fullname, rootpathlen)) {
+                        fprintf(stderr, "%s:  %s is not located in %s\n",
+-                               progname, name, rootpath);
++                               progname, fullname, rootpath);
+                        return -1;
+                }
+-               name += rootpathlen;
++               fullname += rootpathlen;
+        }
+ 
+-       if (rootpath != NULL && name[0] == '\0')
++       if (rootpath != NULL && fullname[0] == '\0')
+                /* this is actually the root dir of the alt root */
+                return matchpathcon_index("/", sb->st_mode, con);
+        else
+-               return matchpathcon_index(name, sb->st_mode, con);
++               return matchpathcon_index(fullname, sb->st_mode, con);
+ }
+ 
+ void usage(const char *const name)
 
-The query indeed refers 'tbl_1', 'z' column and each targeted tuples,
-so 'select' permission might be appropriate.
-But there is a significant difference from general SELECT statement
-from conditional UPDATE. It does not return its content.
 
-We have a matter in this approach. DBA have to allow SELECT permission
-to enable conditional UPDATE statement, even if he does not want to
-expose its contents.
+Regards,
+Yuichi Nakamura
 
-I have an idea to solve them. add 'reference' (or 'refer') permission
-on table, column and tuple object classes.
-It means references to those objects without returning their contents
-to clients.
-
-Any comments please,
-Thanks,
---
-KaiGai Kohei <kaigai@kaigai.gr.jp>
 
 --
 This message was distributed to subscribers of the selinux mailing list.
