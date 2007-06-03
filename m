@@ -1,73 +1,53 @@
-Message-ID: <4661ACEF.3000801@kaigai.gr.jp>
-Date: Sun, 03 Jun 2007 02:46:23 +0900
-From: KaiGai Kohei <kaigai@kaigai.gr.jp>
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l531KCw5032277
+	for <selinux@tycho.nsa.gov>; Sat, 2 Jun 2007 21:20:12 -0400
+Received: from mu-out-0910.google.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l531KA6D013647
+	for <selinux@tycho.nsa.gov>; Sun, 3 Jun 2007 01:20:11 GMT
+Received: by mu-out-0910.google.com with SMTP id i10so1249640mue
+        for <selinux@tycho.nsa.gov>; Sat, 02 Jun 2007 18:20:10 -0700 (PDT)
+Message-ID: <f71a82820706021820m34d5da17n56dcb312a061a988@mail.gmail.com>
+Date: Sun, 3 Jun 2007 10:20:09 +0900
+From: "Shintaro Fujiwara" <shintaro.fujiwara@gmail.com>
+To: selinux@tycho.nsa.gov
+Subject: Can't login in F7 strict
 MIME-Version: 1.0
-To: Stephen Smalley <sds@tycho.nsa.gov>
-CC: Joe Nall <joe@nall.com>, SELinux Mail List <selinux@tycho.nsa.gov>,
-        ewalsh@tycho.nsa.gov, KaiGai Kohei <kaigai@ak.jp.nec.com>
-Subject: generic fallbacks of getpeercon (Re: [redhat-lspp] Labeling an interface)
-References: <C32347D4-3E32-4741-B847-6826EED3BB7A@nall.com> <1180631739.3340.309.camel@moss-spartans.epoch.ncsc.mil>
-In-Reply-To: <1180631739.3340.309.camel@moss-spartans.epoch.ncsc.mil>
-Content-Type: text/plain; charset=ISO-2022-JP
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Stephen Smalley wrote:
-> On Thu, 2007-05-31 at 10:58 -0500, Joe Nall wrote:
->> I would like to label an ethernet interface so that all of the  
->> inbound connections are labeled with a range.
->>
->> semanage interface -a -t netif_t --range S-S eth1
->>
->> succeeds, but getpeercon fails with "Protocol not available"
->>
->> Is there any way to do this with what is in evaluation?
-> 
-> getpeercon() only returns a context if a labeled networking mechanism
-> was used; we don't implicitly convey the netif label or secmark label to
-> it.  So if you want a default labeling behavior, that has to be done in
-> your application, e.g. the application would fall back to some default
-> if getpeercon() failed.
+Hello.
 
-Stephen,
+I'm trying to work out on F7 strict policy.
+My server is now FC6, so I'm trying to change it 7.
 
-How do you think necessity for generic fall back behavior in the case when
-getpeercon() failed?
+I yum installed every selinux related packages.
+I made localaudit.pp typing
+#audit2allow -i /var/log/audit/audit.log -m localaudit > localaudit.te
+at /usr/share/selinux/devel
+#semodule -i localaudit.pp
+violation reported by libsepol.chek_assertions
 
-I think such a falling-back labeling behavior is worthwhile for appliablity
-of SE-PostgreSQL, because RDBMS will be connected from MS-Windows'ed clients
-which are impossible to set up network labeling, for example.
+local_login_t local_login_t:netlink_audit_socket { nlmsg_relay };
+local_login_t local_login_t:capability { audit_write };
+local_login_t local_login_t:capability { audit_control };
 
-The current version of SE-PostgreSQL adopts the simplest way to handle
-a connection from a client without any network labeling. Its connection
-will be closed soon.
+So,I commented those lines on localaudit.te including require brace.
+This time I succeeded installing localaudit.pp.
 
-I got a question and a suggestion about SE-PostgreSQL's behavior in those cases
-just after my speech in this year's SELinux Symposium.
-He suggested me that it is possible to associate a security context and network
-interfaces or network address/port.
-For example, RDBMS server has two NIC. One is connected to internal network and
-connections from there are defined as SystemLow-SystemHigh, the other is connected
-to external network and defined as SystemLow, like the following image.
+I restarted my machine setting Enforcing/strict.
+During the startup process, I could see Keymap had failed.
+I can't login from console.
+I typed like a US key not jp106, still I can't.
 
-SystemLow-SystemHigh +--------+      SystemLow
-            --> eth0 |SE-PgSQL| eth1 <---
----------------------= server =---------------
-            INTERNAL +--------+ EXTERNAL
+You made strict policy not logging in from console?
+What should I do?
 
-I think his suggestion is fair enough as a fall back of getpeercon(),
-but we don't have any consensus.
 
-Is it really necessary?
- - At least, I think the facility is worthwhile.
-
-How is it implemented and described in the policy?
- - Is it possible to use the security context of netif/address/port of inbound
-   connection as an entrypoint of domain transition?
-   Those may be configurable with SECMARK.
-
--- 
-KaiGai Kohei <kaigai@kaigai.gr.jp>
+homepage http://intrajp.no-ip.com/
+SELinux Forum JP http://intrajp.no-ip.com/xoops
+SELinux Wiki JP http://intrajp.no-ip.com/pukiwiki
+my blog JP http://intrajp.no-ip.com/nucleus
 
 --
 This message was distributed to subscribers of the selinux mailing list.
