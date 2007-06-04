@@ -1,75 +1,34 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l545tIZS028258
-	for <selinux@tycho.nsa.gov>; Mon, 4 Jun 2007 01:55:18 -0400
-Received: from msp1.hitachi-sk.co.jp (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id l545tGxY023985
-	for <selinux@tycho.nsa.gov>; Mon, 4 Jun 2007 05:55:17 GMT
-Received: from vs1.hitachi-sk.co.jp ([133.108.252.215])
-	by msp1.hitachi-sk.co.jp (unknown) with ESMTP id l545t9Tf031617
-	for <selinux@tycho.nsa.gov>; Mon, 4 Jun 2007 14:55:10 +0900
-Received: from gw2.hitachi-sk.co.jp (unknown [133.108.252.242])
-	by vs1.hitachi-sk.co.jp (Postfix) with ESMTP id CF82E381D3
-	for <selinux@tycho.nsa.gov>; Mon,  4 Jun 2007 14:55:09 +0900 (JST)
-Received: (from root@localhost)
-        by gw2.hitachi-sk.co.jp (unknown) id l545t9gI024910
-        for selinux@tycho.nsa.gov; Mon, 4 Jun 2007 14:55:09 +0900
-Received: from sms1.l-isa.hitachi-sk.co.jp (mlb.isa.hitachi-sk.co.jp [133.108.245.84])
-	by dns1.hitachi-sk.co.jp (8.11.6/3.7W) with ESMTP id l545t9618692
-	for <selinux@tycho.nsa.gov>; Mon, 4 Jun 2007 14:55:09 +0900
-Date: Mon, 4 Jun 2007 03:18:47 +0900
-From: Yuichi Nakamura <ynakam@hitachisoft.jp>
-To: selinux@tycho.nsa.gov
-Cc: ynakam@hitachisoft.jp
-Subject: [patch] Bug in restorecon
-Message-Id: <20070604031847.0ec6c158.ynakam@hitachisoft.jp>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Message-ID: <4663EF03.6060301@kaigai.gr.jp>
+Date: Mon, 04 Jun 2007 19:52:51 +0900
+From: KaiGai Kohei <kaigai@kaigai.gr.jp>
+MIME-Version: 1.0
+To: KaiGai Kohei <kaigai@kaigai.gr.jp>
+CC: Stephen Smalley <sds@tycho.nsa.gov>, Joe Nall <joe@nall.com>,
+        SELinux Mail List <selinux@tycho.nsa.gov>, ewalsh@tycho.nsa.gov,
+        KaiGai Kohei <kaigai@ak.jp.nec.com>
+Subject: Re: generic fallbacks of getpeercon (Re: [redhat-lspp] Labeling an
+ interface)
+References: <C32347D4-3E32-4741-B847-6826EED3BB7A@nall.com> <1180631739.3340.309.camel@moss-spartans.epoch.ncsc.mil> <4661ACEF.3000801@kaigai.gr.jp>
+In-Reply-To: <4661ACEF.3000801@kaigai.gr.jp>
+Content-Type: text/plain; charset=ISO-2022-JP
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hi.
+> For example, RDBMS server has two NIC. One is connected to internal network and
+> connections from there are defined as SystemLow-SystemHigh, the other is connected
+> to external network and defined as SystemLow, like the following image.
+> 
+> SystemLow-SystemHigh +--------+      SystemLow
+>             --> eth0 |SE-PgSQL| eth1 <---
+> ---------------------= server =---------------
+>             INTERNAL +--------+ EXTERNAL
 
-I found a bug in restorecon in trunk.
-restorecon to relative path does not work.
-(such as restorecon -R .).
-Path is expanded by realpath in restorecon, isn't it ?
+I drew an illustration to help my explanation.
+  http://kaigai.sblo.jp/article/4247935.html
 
-Following is a fix.
-
-Index: policycoreutils/setfiles/setfiles.c
-===================================================================
---- policycoreutils/setfiles/setfiles.c (revision 2457)
-+++ policycoreutils/setfiles/setfiles.c (working copy)
-@@ -223,19 +223,19 @@
-        /* fullname will be the real file that gets labeled
-         * name will be what is matched in the policy */
-        if (NULL != rootpath) {
--               if (0 != strncmp(rootpath, name, rootpathlen)) {
-+               if (0 != strncmp(rootpath, fullname, rootpathlen)) {
-                        fprintf(stderr, "%s:  %s is not located in %s\n",
--                               progname, name, rootpath);
-+                               progname, fullname, rootpath);
-                        return -1;
-                }
--               name += rootpathlen;
-+               fullname += rootpathlen;
-        }
- 
--       if (rootpath != NULL && name[0] == '\0')
-+       if (rootpath != NULL && fullname[0] == '\0')
-                /* this is actually the root dir of the alt root */
-                return matchpathcon_index("/", sb->st_mode, con);
-        else
--               return matchpathcon_index(name, sb->st_mode, con);
-+               return matchpathcon_index(fullname, sb->st_mode, con);
- }
- 
- void usage(const char *const name)
-
-
-Regards,
-Yuichi Nakamura
-
+Thanks,
+-- 
+KaiGai Kohei <kaigai@kaigai.gr.jp>
 
 --
 This message was distributed to subscribers of the selinux mailing list.
