@@ -1,191 +1,92 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l55CZHha020180
-	for <selinux@tycho.nsa.gov>; Tue, 5 Jun 2007 08:35:17 -0400
-Received: from moss-lions.epoch.ncsc.mil (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id l55CZFN4029867
-	for <selinux@tycho.nsa.gov>; Tue, 5 Jun 2007 12:35:15 GMT
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l55CYvD6020136
+	for <selinux@tycho.nsa.gov>; Tue, 5 Jun 2007 08:34:57 -0400
+Received: from moss-lions.epoch.ncsc.mil (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l55CYs9Y016136
+	for <selinux@tycho.nsa.gov>; Tue, 5 Jun 2007 12:34:54 GMT
 Received: from moss-lions.epoch.ncsc.mil (localhost.localdomain [127.0.0.1])
-	by moss-lions.epoch.ncsc.mil (8.13.8/8.13.8) with ESMTP id l55CXibc012987
+	by moss-lions.epoch.ncsc.mil (8.13.8/8.13.8) with ESMTP id l55CXhOO012983
 	for <selinux@tycho.nsa.gov>; Tue, 5 Jun 2007 08:33:44 -0400
 Received: (from jwcart2@localhost)
-	by moss-lions.epoch.ncsc.mil (8.13.8/8.13.8/Submit) id l55CXi6j012986
-	for selinux@tycho.nsa.gov; Tue, 5 Jun 2007 08:33:44 -0400
+	by moss-lions.epoch.ncsc.mil (8.13.8/8.13.8/Submit) id l55CXh49012982
+	for selinux@tycho.nsa.gov; Tue, 5 Jun 2007 08:33:43 -0400
+Message-ID: <9e8747560706041536w668b0d58wb02dec03c86c8da4@mail.gmail.com>
+Date: Tue, 5 Jun 2007 00:36:40 +0200
+From: "Paul S" <nnm.one@gmail.com>
+To: SELinux@tycho.nsa.gov
+Subject: help,sshd, nlmsg_relay
 MIME-Version: 1.0
 Content-Type: multipart/alternative;
-	boundary="----_=_NextPart_001_01C7A6EF.DF3A347C"
-Subject: Help with semanage...
-Date: Mon, 4 Jun 2007 17:30:33 -0400
-Message-ID: <D06FE0A2807BC145B0D38744789D4F5D0399F027@de01exm68.ds.mot.com>
-In-Reply-To: <20070531204502.3a667419@maya>
-References: <6FE441CD9F0C0C479F2D88F959B01588BF01FF@exchange.columbia.tresys.com><1180633622.3534.78.camel@localhost.localdomain><6FE441CD9F0C0C479F2D88F959B01588BF0204@exchange.columbia.tresys.com> <20070531204502.3a667419@maya>
-From: "Hasan Rezaul-CHR010" <CHR010@motorola.com>
-To: <selinux@tycho.nsa.gov>, "Stephen Smalley" <sds@tycho.nsa.gov>
+	boundary="----=_Part_14691_32376496.1180996600715"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This is a multi-part message in MIME format.
+------=_Part_14691_32376496.1180996600715
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-------_=_NextPart_001_01C7A6EF.DF3A347C
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
+Hi,
 
-Hi All,
+When I try to connect to my sshd from LAN, when in enforcing more, I get
+permission denied after typing in the password on the client.
+I tried pinpointing the problem but I can't seem to compile and use a module
+for sshd from the AVC messages. I used "cat /var/log/messages | audit2allow
+-l -M local" and when installing the module I get lots of assertions, so
+here's the sshd parts:
 
-I have a Linux machine (Machine_A) running a collection of  *strict*
-SELinux policies. On Machine_A, I am able to further modify policies by
-using semanage, and also add/delete policy modules using semodule. I can
-make changes at will successfully as many times as I want.
+-------------------------------------------------------------------------------------------------------------
+[root@area51 sshd]# cat MYsshd.te
+module MYsshd 1.0;
 
-I tarred up the entire  /etc/selinux/* directory from Machine_A, and I
-untarred the tar-ball on another Linux machine, Machine_B. On Machine_B,
-I also created and mounted the /selinux/ directory.=20
+require {
+        type staff_t;
+        type user_home_dir_t;
+        type sshd_t;
+        class file { write ioctl };
+        class capability { audit_control audit_write };
+        class netlink_audit_socket { create nlmsg_relay write read };
+}
 
-With all selinux files/dirs in place, AFTER rebooting Machine_B, SELinux
-policies seem to be working as expected !
+#============= sshd_t ==============
+allow sshd_t self:capability { audit_control audit_write };
+allow sshd_t self:netlink_audit_socket { create nlmsg_relay read write };
 
-At this point, I am able to execute  "semanage"  ONLY ONE time
-successfully !  Any attempts to make any further changes after the first
-time fails with the error below...
+#============= staff_t =============
+allow staff_t user_home_dir_t:file { write ioctl };
 
-So for example, If I create a new user-mapping with:  "semanage login -a
--s staff_u Admin", this first command is successful !
+-------------------------------------------------------------------------------------------------------------
+[root@area51 sshd]# semodule -i MYsshd.pp
+libsepol.check_assertion_helper: assertion on line 0 violated by allow
+sshd_t sshd_t:netlink_audit_socket { nlmsg_relay };
+libsepol.check_assertion_helper: assertion on line 0 violated by allow
+sshd_t sshd_t:capability { audit_write };
+libsepol.check_assertion_helper: assertion on line 0 violated by allow
+sshd_t sshd_t:capability { audit_control };
+libsepol.check_assertions: 3 assertion violations occured
+libsemanage.semanage_expand_sandbox: Expand module failed
+semodule:  Failed!
 
-But every semanage command run afterwards has this same error:
+-------------------------------------------------------------------------------------------------------------
 
-semanage login -d Admin
-Libsemanage.semanage_make_sandbox: Could not copy files to sandbox
-/etc/selinux/strict/modules/tmp
-/usr/sbin/semanage: Could not start semanage transaction
 
-The error message in the /var/log/messages file is:
-Jun  4 21:10:11 unknown python: Failed:  delete SELinux user mapping
-name=3DAdmin
+thnx
 
-Any ideas on why I can execute semanage only ONCE ?  I have tried
-rebooting the machine several times, to see if it helps, but it doesn't
-!
+------=_Part_14691_32376496.1180996600715
+Content-Type: text/html; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-Also, whats the significance of the
-/etc/selinux/strict/module/semanage.read.LOCK  &  semanage.trans.LOCK
-files ?
+Hi, <br><br>When I try to connect to my sshd from LAN, when in enforcing more, I get permission denied after typing in the password on the client.<br>I tried pinpointing the problem but I can&#39;t seem to compile and use a module for sshd from the AVC messages. I used &quot;cat /var/log/messages | audit2allow -l -M local&quot; and when installing the module I get lots of assertions, so here&#39;s the sshd parts:
+<br><br>-------------------------------------------------------------------------------------------------------------<br>[root@area51 sshd]# cat MYsshd.te<br>module MYsshd 1.0;<br><br>require {<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; type staff_t;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; type user_home_dir_t;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; type sshd_t;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; class file { write ioctl };<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; class capability { audit_control audit_write };<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; class netlink_audit_socket { create nlmsg_relay write read };
+<br>}<br><br>#============= sshd_t ==============<br>allow sshd_t self:capability { audit_control audit_write };<br>allow sshd_t self:netlink_audit_socket { create nlmsg_relay read write };<br><br>#============= staff_t =============
+<br>allow staff_t user_home_dir_t:file { write ioctl };<br><br>-------------------------------------------------------------------------------------------------------------<br>[root@area51 sshd]# semodule -i MYsshd.pp <br>
+libsepol.check_assertion_helper: assertion on line 0 violated by allow sshd_t sshd_t:netlink_audit_socket { nlmsg_relay };<br>libsepol.check_assertion_helper: assertion on line 0 violated by allow sshd_t sshd_t:capability { audit_write };
+<br>libsepol.check_assertion_helper: assertion on line 0 violated by allow sshd_t sshd_t:capability { audit_control };<br>libsepol.check_assertions: 3 assertion violations occured<br>libsemanage.semanage_expand_sandbox: Expand module failed
+<br>semodule:&nbsp; Failed!<br><br>-------------------------------------------------------------------------------------------------------------<br><br><br>thnx<br>
 
-Thanks in advance,
-
-- Rezaul.
-
-------_=_NextPart_001_01C7A6EF.DF3A347C
-Content-Type: text/html;
-	charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
-
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
-<HTML>
-<HEAD>
-<META HTTP-EQUIV=3D"Content-Type" CONTENT=3D"text/html; =
-charset=3Dus-ascii">
-<META NAME=3D"Generator" CONTENT=3D"MS Exchange Server version =
-6.5.7652.14">
-<TITLE>Help with semanage...</TITLE>
-</HEAD>
-<BODY>
-<!-- Converted from text/rtf format -->
-
-<P><SPAN LANG=3D"en-us"><FONT SIZE=3D2 FACE=3D"Arial">Hi =
-All,</FONT></SPAN>
-</P>
-
-<P><SPAN LANG=3D"en-us"><FONT SIZE=3D2 FACE=3D"Arial">I have a Linux =
-machine (Machine_A) running a collection of&nbsp; *strict*&nbsp; SELinux =
-policies. On Machine_A, I am able to further modify policies by using =
-semanage, and also add/delete policy modules using semodule.</FONT><FONT =
-SIZE=3D2 FACE=3D"Arial"> I can make changes at will successfully as many =
-times as I want.</FONT></SPAN></P>
-
-<P><SPAN LANG=3D"en-us"><FONT SIZE=3D2 FACE=3D"Arial">I tarred up the =
-entire&nbsp; /etc/selinux/* directory from Machine_A, and I untarred =
-the</FONT> <FONT SIZE=3D2 FACE=3D"Arial">tar-ball</FONT><FONT SIZE=3D2 =
-FACE=3D"Arial"> on another Linux machine, Machine_B. On =
-Machine_B,</FONT> <FONT SIZE=3D2 FACE=3D"Arial">I also</FONT> <FONT =
-SIZE=3D2 FACE=3D"Arial">created and mounted the /selinux/ directory. =
-</FONT></SPAN></P>
-
-<P><SPAN LANG=3D"en-us"><FONT SIZE=3D2 FACE=3D"Arial">With all selinux =
-files/dirs in place, AFTER</FONT><FONT SIZE=3D2 FACE=3D"Arial"> =
-rebooting Machine_B, SELinux policies seem to be working as expected =
-!</FONT></SPAN>
-</P>
-
-<P><SPAN LANG=3D"en-us"><FONT SIZE=3D2 FACE=3D"Arial">At this point, I =
-am able to execute&nbsp;</FONT> <FONT SIZE=3D2 =
-FACE=3D"Arial">&quot;</FONT><FONT SIZE=3D2 =
-FACE=3D"Arial">semanage</FONT><FONT SIZE=3D2 =
-FACE=3D"Arial">&quot;</FONT><FONT SIZE=3D2 FACE=3D"Arial">&nbsp;<U><B> =
-ONLY</B></U></FONT><U><B><FONT SIZE=3D2 FACE=3D"Arial"> =
-ONE</FONT></B></U><B><FONT SIZE=3D2 FACE=3D"Arial"></FONT> <FONT =
-SIZE=3D2 FACE=3D"Arial">time</FONT> <FONT SIZE=3D2 =
-FACE=3D"Arial">successfully</FONT></B> <FONT SIZE=3D2 =
-FACE=3D"Arial">!&nbsp;</FONT> <FONT SIZE=3D2 FACE=3D"Arial">Any attempts =
-to make any further changes after the first time fails with the error =
-below...</FONT></SPAN></P>
-
-<P><SPAN LANG=3D"en-us"><FONT SIZE=3D2 FACE=3D"Arial">So</FONT> <FONT =
-SIZE=3D2 FACE=3D"Arial">for example,</FONT> <FONT SIZE=3D2 =
-FACE=3D"Arial">If I create a new user-mapping</FONT><FONT SIZE=3D2 =
-FACE=3D"Arial"> with:</FONT><FONT SIZE=3D2 FACE=3D"Arial">&nbsp; =
-&quot;</FONT><B><FONT SIZE=3D2 FACE=3D"Arial">semanage login -a -s =
-staff_u Admin</FONT></B><FONT SIZE=3D2 FACE=3D"Arial">&quot;, this first =
-command is successful !</FONT></SPAN></P>
-
-<P><SPAN LANG=3D"en-us"><FONT SIZE=3D2 FACE=3D"Arial">But every semanage =
-command run afterwards has this same error:</FONT></SPAN>
-</P>
-
-<P><SPAN LANG=3D"en-us"><B><FONT SIZE=3D2 FACE=3D"Arial">semanage login =
--d Admin</FONT></B></SPAN>
-
-<BR><SPAN LANG=3D"en-us"><I><FONT SIZE=3D2 =
-FACE=3D"Arial">Libsemanage.semanage_make_sandbox: Could not copy files =
-to sandbox /etc/selinux/strict/modules/tmp</FONT></I></SPAN>
-
-<BR><SPAN LANG=3D"en-us"><I><FONT SIZE=3D2 =
-FACE=3D"Arial">/usr/sbin/semanage: Could not start semanage =
-transaction</FONT></I></SPAN>
-</P>
-
-<P><SPAN LANG=3D"en-us"><FONT SIZE=3D2 FACE=3D"Arial">The error message =
-in the /var/log/messages file is:</FONT></SPAN>
-
-<BR><SPAN LANG=3D"en-us"><I><FONT SIZE=3D2 FACE=3D"Arial">Jun&nbsp; 4 =
-21:10:11 unknown</FONT></I><I><B> <FONT SIZE=3D2 =
-FACE=3D"Arial">python</FONT></B><FONT SIZE=3D2 FACE=3D"Arial">: =
-Failed:&nbsp; delete SELinux user mapping name=3DAdmin</FONT></I></SPAN>
-</P>
-
-<P><SPAN LANG=3D"en-us"><FONT SIZE=3D2 FACE=3D"Arial">Any ideas on why I =
-can execute semanage only ONCE ?&nbsp; I have tried rebooting the =
-machine several times, to see if it helps, but it doesn't =
-!</FONT></SPAN></P>
-
-<P><SPAN LANG=3D"en-us"><FONT SIZE=3D2 FACE=3D"Arial">Also, whats the =
-significance of the&nbsp; /etc/selinux/strict/module/</FONT><B><FONT =
-SIZE=3D2 FACE=3D"Arial">semanage.read.LOCK&nbsp;</FONT></B> <FONT =
-SIZE=3D2 FACE=3D"Arial">&amp;&nbsp;</FONT><B> <FONT SIZE=3D2 =
-FACE=3D"Arial">semanage.trans.LOCK&nbsp;&nbsp;</FONT></B> <FONT SIZE=3D2 =
-FACE=3D"Arial">files ?</FONT></SPAN>
-</P>
-
-<P><SPAN LANG=3D"en-us"><FONT SIZE=3D2 FACE=3D"Arial">Thanks in =
-advance,</FONT></SPAN>
-</P>
-
-<P><SPAN LANG=3D"en-us"><FONT SIZE=3D2 FACE=3D"Arial">- =
-Rezaul.</FONT></SPAN>
-</P>
-
-</BODY>
-</HTML>
-------_=_NextPart_001_01C7A6EF.DF3A347C--
+------=_Part_14691_32376496.1180996600715--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
