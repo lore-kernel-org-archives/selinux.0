@@ -1,55 +1,44 @@
-From: Paul Moore <paul.moore@hp.com>
-To: KaiGai Kohei <kaigai@ak.jp.nec.com>
-Subject: Re: generic fallbacks of getpeercon (Re: [redhat-lspp] Labeling an interface)
-Date: Mon, 4 Jun 2007 15:28:16 -0400
-Cc: Stephen Smalley <sds@tycho.nsa.gov>, Joe Nall <joe@nall.com>,
-        SELinux Mail List <selinux@tycho.nsa.gov>, ewalsh@tycho.nsa.gov
-References: <C32347D4-3E32-4741-B847-6826EED3BB7A@nall.com> <4661ACEF.3000801@kaigai.gr.jp> <1180966620.14220.57.camel@moss-spartans.epoch.ncsc.mil>
-In-Reply-To: <1180966620.14220.57.camel@moss-spartans.epoch.ncsc.mil>
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l54Jirqh007577
+	for <selinux@tycho.nsa.gov>; Mon, 4 Jun 2007 15:44:53 -0400
+Received: from mail7.sea5.speakeasy.net (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l54JiqXk007882
+	for <selinux@tycho.nsa.gov>; Mon, 4 Jun 2007 19:44:52 GMT
+Date: Mon, 4 Jun 2007 15:44:48 -0400 (EDT)
+From: James Morris <jmorris@namei.org>
+To: Eric Paris <eparis@redhat.com>
+cc: netdev@vger.kernel.org, davem@davemloft.net, selinux@tycho.nsa.gov,
+        Joy Latten <latten@austin.ibm.com>
+Subject: Re: [PATCH]: Add security check before flushing SAD/SPD
+In-Reply-To: <1180983953.3950.37.camel@localhost.localdomain>
+Message-ID: <Line.LNX.4.64.0706041544230.13341@d.namei>
+References: <200703262321.l2QNLZlR014240@faith.austin.ibm.com>
+ <1180983953.3950.37.camel@localhost.localdomain>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Message-Id: <200706041528.16505.paul.moore@hp.com>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Monday, June 4 2007 10:17:00 am Stephen Smalley wrote:
-> On Sun, 2007-06-03 at 02:46 +0900, KaiGai Kohei wrote:
-> > Stephen Smalley wrote:
-> > > On Thu, 2007-05-31 at 10:58 -0500, Joe Nall wrote:
-> > >> I would like to label an ethernet interface so that all of the
-> > >> inbound connections are labeled with a range.
-> > >>
-> > >> semanage interface -a -t netif_t --range S-S eth1
-> > >>
-> > >> succeeds, but getpeercon fails with "Protocol not available"
-> > >>
-> > >> Is there any way to do this with what is in evaluation?
-> > >
-> > > getpeercon() only returns a context if a labeled networking mechanism
-> > > was used; we don't implicitly convey the netif label or secmark label
-> > > to it.  So if you want a default labeling behavior, that has to be done
-> > > in your application, e.g. the application would fall back to some
-> > > default if getpeercon() failed.
-> >
-> > Stephen,
-> >
-> > How do you think necessity for generic fall back behavior in the case
-> > when getpeercon() failed?
->
-> I think it would be useful.  There was some discussion of it during the
-> labeled networking discussions, but directly returning the secmark label
-> or the netif/netmsg labels was viewed as problematic because they aren't
-> peer/process contexts.
+On Mon, 4 Jun 2007, Eric Paris wrote:
 
-Just a heads-up, I hope to start working some patches for this in a few weeks 
-time.  The basic idea is to assign fallback contexts to interfaces and/or 
-network addresses that would be used as the external packet label when one 
-was not present.
+> Some time ago this thread bounced back and forth and seemed to come to
+> rest with the patch below, I cleaned up the comments and put all the
+> ACKs it received in one place below, but so much time has passed I doubt
+> if they should still count for free.  I also rediffed the patch against
+> the latest miller tree.  Is the idea or patch in any way flawed or
+> unacceptable to people at the moment?
+> 
+> Anyone willing to step up an re-ack the patch to get it moving into the
+> tree?
+
+Looks good to me.
+
+Acked-by: James Morris <jmorris@namei.org>
+
 
 -- 
-paul moore
-linux security @ hp
+James Morris
+<jmorris@namei.org>
 
 --
 This message was distributed to subscribers of the selinux mailing list.
