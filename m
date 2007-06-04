@@ -1,590 +1,322 @@
 Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l54H1dEX028916
-	for <selinux@tycho.nsa.gov>; Mon, 4 Jun 2007 13:01:39 -0400
-Received: from wx-out-0506.google.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l54H1cXk011626
-	for <selinux@tycho.nsa.gov>; Mon, 4 Jun 2007 17:01:39 GMT
-Received: by wx-out-0506.google.com with SMTP id i28so1172759wxd
-        for <selinux@tycho.nsa.gov>; Mon, 04 Jun 2007 10:01:38 -0700 (PDT)
-Message-ID: <4664456B.4090109@gmail.com>
-Date: Mon, 04 Jun 2007 12:01:31 -0500
-From: Ted X Toth <txtoth@gmail.com>
-MIME-Version: 1.0
-To: SE Linux <selinux@tycho.nsa.gov>
-Subject: [Fwd: Re: More swig changes for libselinux]
-Content-Type: multipart/mixed;
- boundary="------------020306030300040303090205"
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l54JBt3c005354
+	for <selinux@tycho.nsa.gov>; Mon, 4 Jun 2007 15:11:55 -0400
+Received: from mx1.redhat.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l54JBqXk002685
+	for <selinux@tycho.nsa.gov>; Mon, 4 Jun 2007 19:11:53 GMT
+Subject: Re: [PATCH]: Add security check before flushing SAD/SPD
+From: Eric Paris <eparis@redhat.com>
+To: netdev@vger.kernel.org
+Cc: davem@davemloft.net, jmorris@namei.org, selinux@tycho.nsa.gov,
+        Joy Latten <latten@austin.ibm.com>
+In-Reply-To: <200703262321.l2QNLZlR014240@faith.austin.ibm.com>
+References: <200703262321.l2QNLZlR014240@faith.austin.ibm.com>
+Content-Type: text/plain
+Date: Mon, 04 Jun 2007 15:05:53 -0400
+Message-Id: <1180983953.3950.37.camel@localhost.localdomain>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This is a multi-part message in MIME format.
---------------020306030300040303090205
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Some time ago this thread bounced back and forth and seemed to come to
+rest with the patch below, I cleaned up the comments and put all the
+ACKs it received in one place below, but so much time has passed I doubt
+if they should still count for free.  I also rediffed the patch against
+the latest miller tree.  Is the idea or patch in any way flawed or
+unacceptable to people at the moment?
 
-I tried working this off line with Dan but we haven't made any headway 
-so I'm hoping someone in the group can help shed some light on this 
-problem. I'm trying to call selinux.get_ordered_context_list from python 
-but there current isn't a mapping for security_context_t ** so I wrote 
-one but it didn't work. Then I tried to simplify it the point where I 
-could make the call but wouldn't be able to process the results so I 
-could see if it was a problem with my mapping or something else. The 
-result is that even the simplest mapping is causing a problem hopefully 
-someone with more swig and python experience can help me out.
+Anyone willing to step up an re-ack the patch to get it moving into the
+tree?
 
-Ted 
+-Eric
 
---------------020306030300040303090205
-Content-Type: message/rfc822;
- name="Re: More swig changes for libselinux"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="Re: More swig changes for libselinux"
+Currently we check for permission before deleting entries from SAD and
+SPD, (see security_xfrm_policy_delete() security_xfrm_state_delete())
+However we are not checking for authorization when flushing the SPD and
+the SAD completely. It was perhaps missed in the original security hooks
+patch.
 
-X-Account-Key: account2
-Received: by 10.70.87.17 with HTTP; Thu, 17 May 2007 12:32:24 -0700 (PDT)
-Message-ID: <cadfc0e40705171232k7bcc1ed6o951a57df19e2243e@mail.gmail.com>
-Date: Thu, 17 May 2007 14:32:24 -0500
-From: "Xavier Toth" <txtoth@gmail.com>
-To: "Daniel J Walsh" <dwalsh@redhat.com>
-Subject: Re: More swig changes for libselinux
-In-Reply-To: <464A0C86.6090603@redhat.com>
-MIME-Version: 1.0
-Content-Type: multipart/mixed;
-	boundary="----=_Part_23197_17191289.1179430344249"
-References: <463B3438.5050506@redhat.com>
-	 <cadfc0e40705100606i5c3542d1s331ca77565b21abc@mail.gmail.com>
-	 <cadfc0e40705101529o38138820ua32c8796447b9a3@mail.gmail.com>
-	 <cadfc0e40705110751s37270711h3477e9357ffb3826@mail.gmail.com>
-	 <46487D87.2030501@redhat.com>
-	 <cadfc0e40705141032o7bed98eek146877e7b1fceefb@mail.gmail.com>
-	 <4649D7C4.2000509@redhat.com>
-	 <cadfc0e40705151006g562ddabfha7803d57c0e39103@mail.gmail.com>
-	 <464A0C86.6090603@redhat.com>
-Delivered-To: txtoth@gmail.com
+This patch adds a security check when flushing entries from the SAD and
+SPD.  It runs the entire database and checks each entry for a denial.
+If the process attempting the flush is unable to remove all of the
+entries a denial is logged the the flush function returns an error
+without removing anything.
 
-------=_Part_23197_17191289.1179430344249
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+This is particularly useful when a process may need to create or delete
+its own xfrm entries used for things like labeled networking but that
+same process should not be able to delete other entries or flush the
+entire database.
 
-I've done a little more work on the typemapping to accomodate where
-the security_context_t ** appears in the parameter list. However I'm
-still experiencing the :
-Traceback (most recent call last):
-  File "./test.py", line 27, in ?
-    for security_context in security_context_list:
-TypeError: expected string or Unicode object, NoneType found
+WAS Signed-off-by: Signed-off-by: Joy Latten<latten@austin.ibm.com> NOT NOW
+WAS Acked-by: James Morris <jmorris@namei.org> NOT NOW
+WAS Acked-by: Eric Paris <eparis@parisplace.org> NOT NOW
 
-error.
+---
 
-One of the experiments I tried involved using these mapping:
-%typemap(in, numinputs=0) security_context_t **(security_context_t *temp=NULL) {
-       $1 = &temp;
-}
+ include/net/xfrm.h     |    6 ++--
+ net/key/af_key.c       |   10 ++++++-
+ net/xfrm/xfrm_policy.c |   63 +++++++++++++++++++++++++++++++++++++++++++++--
+ net/xfrm/xfrm_state.c  |   46 ++++++++++++++++++++++++++++++++--
+ net/xfrm/xfrm_user.c   |    9 +++++-
+ 5 files changed, 121 insertions(+), 13 deletions(-)
 
-%typemap(argout) (const char *user, security_context_t fromcon,
-security_context_t **list) {
-       $result = SWIG_Python_AppendOutput($result, $3);
-}
-
-basically not processing the returned security_context_t** and the
-test1.py script which doesn't try and process the security_context_t
-** returned since it hasn't been converted into a list. What's
-interesting is that any python list is messed up after the call to
-get_ordered_context_list :(
-
-Ted
-
-On 5/15/07, Daniel J Walsh <dwalsh@redhat.com> wrote:
-> Xavier Toth wrote:
-> > [jcdxdev@comms newrolegui]$ ./test.py
-> > list length 26
-> > return code 26
-> > user_u:user_r:user_xserver_t:UNCLASSIFIED
-> > user_u:user_r:user_crontab_t:UNCLASSIFIED
-> > user_u:user_r:user_iceauth_t:UNCLASSIFIED
-> > user_u:user_r:loadkeys_t:UNCLASSIFIED
-> > user_u:user_r:pam_t:UNCLASSIFIED
-> > user_u:user_r:ping_t:UNCLASSIFIED
-> > user_u:user_r:user_lpr_t:UNCLASSIFIED
-> > user_u:user_r:user_ssh_t:UNCLASSIFIED
-> > user_u:user_r:user_dbusd_t:UNCLASSIFIED
-> > user_u:user_r:user_xauth_t:UNCLASSIFIED
-> > user_u:user_r:utempter_t:UNCLASSIFIED
-> > user_u:user_r:user_spamassassin_t:UNCLASSIFIED
-> > user_u:user_r:user_sudo_t:UNCLASSIFIED
-> > user_u:user_r:newrole_t:UNCLASSIFIED
-> > user_u:user_r:traceroute_t:UNCLASSIFIED
-> > user_u:user_r:user_su_t:UNCLASSIFIED
-> > user_u:user_r:passwd_t:UNCLASSIFIED
-> > user_u:user_r:chfn_t:UNCLASSIFIED
-> > user_u:user_r:user_t:UNCLASSIFIED
-> > user_u:user_r:user_gpg_t:UNCLASSIFIED
-> > user_u:user_r:user_spamc_t:UNCLASSIFIED
-> > user_u:user_r:user_mail_t:UNCLASSIFIED
-> > user_u:user_r:user_ssh_agent_t:UNCLASSIFIED
-> > user_u:user_r:user_gpg_agent_t:UNCLASSIFIED
-> > user_u:user_r:user_javaplugin_t:UNCLASSIFIED
-> > user_u:user_r:user_chkpwd_t:UNCLASSIFIED
-> > Traceback (most recent call last):
-> >  File "./test.py", line 27, in ?
-> >    for security_context in security_context_list:
-> > TypeError: expected string or Unicode object, NoneType found
-> >
-> >
-> > On 5/15/07, Daniel J Walsh <dwalsh@redhat.com> wrote:
-> >> Xavier Toth wrote:
-> >> > As I said I'm getting a typeerror after calling
-> >> > get_ordered_context_list which I don't understand. The call seems to
-> >> > work fine and it appears that the list is constructed and populated
-> >> > correctly but the for loop iterating over the list fails after the
-> >> > last member is processed with something like 'expected string or
-> >> > unicode got NoneType'. Any ideas?
-> >> >
-> >> > On 5/14/07, Daniel J Walsh <dwalsh@redhat.com> wrote:
-> >> >> Xavier Toth wrote:
-> >> >> > I cleaned the typemap up a bit but am still getting a typeerror.
-> >> >> >
-> >> >> > %typemap(argout) security_context_t ** {
-> >> >> >     PyObject *list_security_context = PyList_New(0); // Create the
-> >> >> list.
-> >> >> >     if (list_security_context) {
-> >> >> >         security_context_t **p_p_security_context_t = arg3;
-> >> >> >         while (*p_p_security_context_t) { // Move each string
-> >> into the
-> >> >> > list.
-> >> >> >             security_context_t *p_security_context_t =
-> >> >> > *p_p_security_context_t;
-> >> >> >             if (PyList_Append(list_security_context,
-> >> >> > PyString_FromString((char
-> >> >> > *)*p_security_context_t)) < 0) {
-> >> >> >                 fprintf(stderr, "Fail to insert item in list.\n");
-> >> >> >                 $result = -1;
-> >> >> >                 break;
-> >> >> >             }
-> >> >> >             p_p_security_context_t++;
-> >> >> >         }
-> >> >> >     }
-> >> >> >     else {
-> >> >> >         fprintf(stderr, "Fail to create list.\n");
-> >> >> >         $result = -1;
-> >> >> >     }
-> >> >> >
-> >> >> >     $result = SWIG_Python_AppendOutput($result,
-> >> >> list_security_context);
-> >> >> >
-> >> >> > }
-> >> >> >
-> >> >> >
-> >> >> > On 5/10/07, Xavier Toth <txtoth@gmail.com> wrote:
-> >> >> >> I don't know if this is the right approach but here's what I tried
-> >> >> >> adding to selinuxswig.i
-> >> >> >>
-> >> >> >> %typemap(argout) security_context_t ** {
-> >> >> >>         int len = 0, i = 0;
-> >> >> >>         PyObject * list_security_context = NULL;
-> >> >> >>         security_context_t **p_p_security_context_t = arg3;
-> >> >> >>         for (len = 0; *p_p_security_context_t != NULL;
-> >> >> >> p_p_security_context_t++, len++) ;
-> >> >> >>         // Build a list of the returned strings.
-> >> >> >>         list_security_context = PyList_New(len); // Create the
-> >> list
-> >> >> >> of strings.
-> >> >> >>         if (list_security_context != NULL) {
-> >> >> >>                 p_p_security_context_t = arg3;
-> >> >> >>                 for (i = 0; i < len; i++,
-> >> p_p_security_context_t++) {
-> >> >> >> // Move each
-> >> >> >> string into the list.
-> >> >> >>                         security_context_t *p_security_context_t =
-> >> >> >> *p_p_security_context_t;
-> >> >> >>                         if
-> >> >> >> (PyList_SetItem(list_security_context,i,PyString_FromString((char
-> >> >> >> *)*p_security_context_t)) == -1) {
-> >> >> >>                                 fprintf(stderr, "Fail to insert
-> >> item
-> >> >> >> in list.\n");
-> >> >> >>                                 return NULL;
-> >> >> >>                         }
-> >> >> >>                 }
-> >> >> >>         }
-> >> >> >>         else {
-> >> >> >>                 fprintf(stderr, "Fail to create list.\n");
-> >> >> >>                 return NULL;
-> >> >> >>         }
-> >> >> >>
-> >> >> >>         $result = SWIG_Python_AppendOutput($result,
-> >> >> >> list_security_context);
-> >> >> >> }
-> >> >> >>
-> >> >> >> test script
-> >> >> >>
-> >> >> >> #!/usr/bin/env python
-> >> >> >>
-> >> >> >> import getpass
-> >> >> >> import seobject
-> >> >> >> import selinux
-> >> >> >>
-> >> >> >> seluser_records = seobject.seluserRecords()
-> >> >> >> seluser_dict = seluser_records.get_all()
-> >> >> >> keys = seluser_dict.keys()
-> >> >> >> keys.sort()
-> >> >> >> for key in keys:
-> >> >> >>     print "%s %s" % (seluser_dict[key] [0], seluser_dict[key] [3])
-> >> >> >>
-> >> >> >> #seluser_records.list()
-> >> >> >>
-> >> >> >> user_name =  getpass.getuser()
-> >> >> >> print user_name
-> >> >> >> id, seuser_name, level = selinux.getseuserbyname(user_name)
-> >> >> >> print seuser_name
-> >> >> >> (rc, security_context_list) =
-> >> >> >> selinux.get_ordered_context_list(seuser_name, None)
-> >> >> >> for security_context in security_context_list:
-> >> >> >>     print security_context
-> >> >> >>
-> >> >> >> output from test script
-> >> >> >>
-> >> >> >> sysadm sysadm_r staff_r secadm_r auditadm_r
-> >> >> >> staff sysadm_r staff_r secadm_r auditadm_r
-> >> >> >> sysadm sysadm_r
-> >> >> >> user system_r
-> >> >> >> user user_r
-> >> >> >> root
-> >> >> >> root
-> >> >> >> root:staff_r:staff_xserver_t:SystemLow-SystemHigh
-> >> >> >> Traceback (most recent call last):
-> >> >> >>   File "./test.py", line 21, in ?
-> >> >> >>     for security_context in security_context_list:
-> >> >> >> TypeError: expected string or Unicode object, NoneType found
-> >> >> >>
-> >> >> >> Is there something I need to do to terminate the list? Also this
-> >> >> >> should probably generate an exception for the error conditions.
-> >> >> >>
-> >> >> >> Ted
-> >> >> >>
-> >> >> >>
-> >> >> >> On 5/10/07, Xavier Toth <txtoth@gmail.com> wrote:
-> >> >> >> > I'm pretty new to swig and python but what about a typemap for
-> >> >> >> > security_context_t **. Also in the swig docs I noticed :
-> >> >> >> > // This cleans up the char ** array we malloc'd before the
-> >> function
-> >> >> >> call
-> >> >> >> > %typemap(freearg) char ** {
-> >> >> >> >   free((char *) $1);
-> >> >> >> > }
-> >> >> >> > which seems to go along with %typemap(in) char ** would you not
-> >> >> want
-> >> >> >> > to add this to selinuxswig.i?
-> >> >> >> >
-> >> >> >> > On 5/4/07, Daniel J Walsh <dwalsh@redhat.com> wrote:
-> >> >> >> > > Added get_context_list.h
-> >> >> >> > >
-> >> >> >> > > --- nsalibselinux/src/selinuxswig.i     2007-04-12
-> >> >> >> 16:02:48.000000000 -0400
-> >> >> >> > > +++ libselinux-2.0.13/src/selinuxswig.i 2007-04-23
-> >> >> >> 10:26:21.000000000 -0400
-> >> >> >> > > @@ -21,6 +21,7 @@
-> >> >> >> > >  %module selinux
-> >> >> >> > >  %{
-> >> >> >> > >         #include "selinux/selinux.h"
-> >> >> >> > > +       #include "selinux/get_context_list.h"
-> >> >> >> > >  %}
-> >> >> >> > >  %apply int *OUTPUT { int * };
-> >> >> >> > >  %apply int *OUTPUT { size_t * };
-> >> >> >> > > @@ -42,8 +43,12 @@
-> >> >> >> > >
-> >> >> >> > >  %typedef unsigned mode_t;
-> >> >> >> > >
-> >> >> >> > > +%include "../include/selinux/get_context_list.h"
-> >> >> >> > > +
-> >> >> >> > >  extern int is_selinux_enabled(void);
-> >> >> >> > >  extern int is_selinux_mls_enabled(void);
-> >> >> >> > > +extern void freecon(security_context_t con);
-> >> >> >> > > +extern void freeconary(security_context_t * con);
-> >> >> >> > >  extern int getcon(security_context_t *con);
-> >> >> >> > >  extern int setcon(security_context_t con);
-> >> >> >> > >  extern int getpidcon(int pid, security_context_t *con);
-> >> >> >> > > @@ -90,6 +95,11 @@
-> >> >> >> > >                         mode_t mode,
-> >> >> >> > >                         security_context_t *con);
-> >> >> >> > >
-> >> >> >> > > +extern int matchpathcon_init_prefix(const char *path,
-> >> >> >> > > +                                   const char *prefix);
-> >> >> >> > > +extern void matchpathcon_fini(void);
-> >> >> >> > > +
-> >> >> >> > > +
-> >> >> >> > >  extern int matchmediacon(const char *media,
-> >> >> >> > >                  security_context_t *con);
-> >> >> >> > >
-> >> >> >> > > @@ -106,6 +116,7 @@
-> >> >> >> > >  extern const char *selinux_homedir_context_path(void);
-> >> >> >> > >  extern const char *selinux_media_context_path(void);
-> >> >> >> > >  extern const char *selinux_contexts_path(void);
-> >> >> >> > > +extern const char *selinux_securetty_types_path(void);
-> >> >> >> > >  extern const char *selinux_booleans_path(void);
-> >> >> >> > >  extern const char *selinux_customizable_types_path(void);
-> >> >> >> > >  extern const char *selinux_users_path(void);
-> >> >> >> > > @@ -113,11 +124,15 @@
-> >> >> >> > >  extern const char *selinux_translations_path(void);
-> >> >> >> > >  extern const char *selinux_netfilter_context_path(void);
-> >> >> >> > >  extern const char *selinux_path(void);
-> >> >> >> > > -extern int selinux_check_passwd_access(access_vector_t
-> >> >> requested);
-> >> >> >> > > -extern int checkPasswdAccess(access_vector_t requested);
-> >> >> >> > > +#extern int selinux_check_passwd_access(access_vector_t
-> >> >> requested);
-> >> >> >> > > +#extern int checkPasswdAccess(access_vector_t requested);
-> >> >> >> > >
-> >> >> >> > > +extern int selinux_check_securetty_context(security_context_t
-> >> >> >> tty_context);
-> >> >> >> > > +void set_selinuxmnt(char *mnt);
-> >> >> >> > > +
-> >> >> >> > > +#ifdef SWIGpython
-> >> >> >> > >  // This tells SWIG to treat char ** as a special case
-> >> >> >> > > -%typemap(python,in) char ** {
-> >> >> >> > > +%typemap(in) char ** {
-> >> >> >> > >    /* Check if is a list */
-> >> >> >> > >    if (PyList_Check($input)) {
-> >> >> >> > >      int size = PyList_Size($input);
-> >> >> >> > > @@ -143,6 +158,7 @@
-> >> >> >> > >      return NULL;
-> >> >> >> > >    }
-> >> >> >> > >  }
-> >> >> >> > > +#endif
-> >> >> >> > >
-> >> >> >> > >  extern int rpm_execcon(unsigned int verified,
-> >> >> >> > >                        const char *filename,
-> >> >> >> > > @@ -164,3 +180,7 @@
-> >> >> >> > >  }
-> >> >> >> > >  extern int selinux_getpolicytype(char **enforce);
-> >> >> >> > >  extern int getseuserbyname(const char *linuxuser, char
-> >> **seuser,
-> >> >> >> char **level);
-> >> >> >> > > +
-> >> >> >> > > +int selinux_file_context_cmp(const security_context_t a,
-> >> const
-> >> >> >> security_context_t b);
-> >> >> >> > > +int selinux_file_context_verify(const char *path, mode_t
-> >> mode);
-> >> >> >> > > +int selinux_lsetfilecon_default(const char *path);
-> >> >> >> > >
-> >> >> >> > >
-> >> >> >> >
-> >> >> >>
-> >> >> I am no expert on swig either.  I usually muddle around until I
-> >> get it
-> >> >> to work.
-> >> >>
-> >> >> Does this patch work for you?
-> >> >>
-> >> >>
-> >> >>
-> >> >> --- selinuxswig.i~      2007-05-04 09:25:35.000000000 -0400
-> >> >> +++ selinuxswig.i       2007-05-14 11:11:47.000000000 -0400
-> >> >> @@ -17,6 +17,11 @@
-> >> >>   *  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
-> >> >> 02110-1301  USA
-> >> >>   */
-> >> >>
-> >> >> +%header %{
-> >> >> +       #define STATUS_SUCCESS 0
-> >> >> +       #define STATUS_ERR -1
-> >> >> +%}
-> >> >> +
-> >> >>
-> >> >>  %module selinux
-> >> >>  %{
-> >> >> @@ -29,6 +34,7 @@
-> >> >>  %typemap(in, numinputs=0) security_context_t *(security_context_t
-> >> >> temp=NULL) {
-> >> >>         $1 = &temp;
-> >> >>  }
-> >> >> +
-> >> >>  %typemap(argout) security_context_t * (char *temp=NULL) {
-> >> >>         if (*$1)
-> >> >>                 temp = *$1;
-> >> >> @@ -43,6 +49,32 @@
-> >> >>
-> >> >>  %typedef unsigned mode_t;
-> >> >>
-> >> >> +%typemap(in, numinputs=0) security_context_t ** (security_context_t
-> >> >> *temp=NULL){
-> >> >> +       $1 = &temp;
-> >> >> +}
-> >> >> +
-> >> >> +%typemap(argout) security_context_t ** {
-> >> >> +    PyObject *list_security_context = PyList_New(0); // Create the
-> >> >> list.
-> >> >> +    if (list_security_context) {
-> >> >> +        security_context_t **p_p_security_context_t =
-> >> >> (security_context_t **)(arg3);
-> >> >> +        while (*p_p_security_context_t) { // Move each string into
-> >> >> the list.
-> >> >> +            security_context_t *p_security_context_t =
-> >> >> *p_p_security_context_t;
-> >> >> +            if (PyList_Append(list_security_context,
-> >> >> PyString_FromString((char
-> >> >> +*)*p_security_context_t)) < 0) {
-> >> >> +                fprintf(stderr, "Fail to insert item in list.\n");
-> >> >> +               $result = SWIG_From_int(STATUS_ERR);
-> >> >> +               break;
-> >> >> +            }
-> >> >> +            p_p_security_context_t++;
-> >> >> +        }
-> >> >> +       $result = SWIG_Python_AppendOutput($result,
-> >> >> list_security_context);
-> >> >> +    }
-> >> >> +    else {
-> >> >> +        fprintf(stderr, "Fail to create list.\n");
-> >> >> +       $result = SWIG_From_int(STATUS_ERR);
-> >> >> +    }
-> >> >> +}
-> >> >> +
-> >> >>  %include "../include/selinux/get_context_list.h"
-> >> >>
-> >> >>  extern int is_selinux_enabled(void);
-> >> >>
-> >> >>
-> >> I have not been able to get my version to bring back more then one item
-> >> in the list.
-> >>
-> >> Could you print the list for me?
-> >>
-> Ok I have been able to duplicate your error on an MLS machine.  I will
-> look into it some more tomorrow.  Must be something wrong with the binding.
->
-
-------=_Part_23197_17191289.1179430344249
-Content-Type: text/x-patch; name=libselinux-rhat.patch;
-	charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: base64
-X-Attachment-Id: f_f1tjodp3
-Content-Disposition: attachment; filename="libselinux-rhat.patch"
-
-LS0tIGxpYnNlbGludXgtMS4zMy40L3NyYy9zZWxpbnV4c3dpZy5pCTIwMDctMDEtMTEgMTM6MDE6
-MjQuMDAwMDAwMDAwIC0wNjAwCisrKyBsaWJzZWxpbnV4LTIuMC4xMy5uZXcvc3JjL3NlbGludXhz
-d2lnLmkJMjAwNy0wNS0xNyAxMzowMzozOC4wMDAwMDAwMDAgLTA1MDAKQEAgLTE3LDE4ICsxNywy
-NSBAQAogICogIEZvdW5kYXRpb24sIEluYy4sIDUxIEZyYW5rbGluIFN0LCBGaWZ0aCBGbG9vciwg
-Qm9zdG9uLCBNQSAgMDIxMTAtMTMwMSAgVVNBCiAgKi8KIAorJWltcG9ydCBjcG9pbnRlci5pCisK
-KyVoZWFkZXIgJXsKKyAgICAgICAjZGVmaW5lIFNUQVRVU19TVUNDRVNTIDAKKyAgICAgICAjZGVm
-aW5lIFNUQVRVU19FUlIgLTEKKyV9CiAKICVtb2R1bGUgc2VsaW51eAogJXsKIAkjaW5jbHVkZSAi
-c2VsaW51eC9zZWxpbnV4LmgiCisJI2luY2x1ZGUgInNlbGludXgvZ2V0X2NvbnRleHRfbGlzdC5o
-IgogJX0KICVhcHBseSBpbnQgKk9VVFBVVCB7IGludCAqIH07CiAlYXBwbHkgaW50ICpPVVRQVVQg
-eyBzaXplX3QgKiB9OwogCi0ldHlwZW1hcChpbiwgbnVtaW5wdXRzPTApIHNlY3VyaXR5X2NvbnRl
-eHRfdCAqKHNlY3VyaXR5X2NvbnRleHRfdCB0ZW1wKSB7CisldHlwZW1hcChpbiwgbnVtaW5wdXRz
-PTApIHNlY3VyaXR5X2NvbnRleHRfdCAqKHNlY3VyaXR5X2NvbnRleHRfdCB0ZW1wPU5VTEwpIHsK
-IAkkMSA9ICZ0ZW1wOwogfQotJXR5cGVtYXAoYXJnb3V0KSBzZWN1cml0eV9jb250ZXh0X3QgKiAo
-Y2hhciAqdGVtcCkgeworJXR5cGVtYXAoYXJnb3V0KSBzZWN1cml0eV9jb250ZXh0X3QgKiAoY2hh
-ciAqdGVtcD1OVUxMKSB7CiAJaWYgKCokMSkKIAkJdGVtcCA9ICokMTsKIAllbHNlCkBAIC00MCwx
-MCArNDcsNzQgQEAKIAkkMSA9IChzZWN1cml0eV9jb250ZXh0X3QpUHlTdHJpbmdfQXNTdHJpbmco
-JGlucHV0KTsKIH0KIAorJXdyYXBwZXIgJXsKKwlzdGF0aWMgUHlPYmplY3QqIHNlY3VyaXR5X2Nv
-bnRleHRfbGlzdDJwbGlzdCgKKwkJaW50IGNvdW50LAorCQlzZWN1cml0eV9jb250ZXh0X3QgKmxp
-c3QpIAorCXsKKwkJaW50IGk7CisJCVB5T2JqZWN0ICpzZWN1cml0eV9jb250ZXh0X3N0cmluZywg
-KnNlY3VyaXR5X2NvbnRleHRfbGlzdDsKKwkJc2VjdXJpdHlfY29udGV4dF9saXN0ID0gUHlMaXN0
-X05ldyhjb3VudCk7IC8vIENyZWF0ZSB0aGUgbGlzdC4KKwkJaWYgKHNlY3VyaXR5X2NvbnRleHRf
-bGlzdCkgeworCQkJZm9yIChpPTA7IGkgPCBjb3VudDsgaSsrKSB7IAorCQkJCXNlY3VyaXR5X2Nv
-bnRleHRfc3RyaW5nID0gUHlTdHJpbmdfRnJvbVN0cmluZyhzdHJkdXAoKGNoYXIgKilsaXN0W2ld
-KSk7CisJCQkJaWYgKFB5TGlzdF9TZXRJdGVtKHNlY3VyaXR5X2NvbnRleHRfbGlzdCwgaSwgc2Vj
-dXJpdHlfY29udGV4dF9zdHJpbmcpIDwgMCkgeworCQkJCQlQeUVycl9TZXRTdHJpbmcoUHlFeGNf
-TWVtb3J5RXJyb3IsInR5cGVtYXAoYXJnb3V0KSBzZWN1cml0eV9jb250ZXh0X3QgKio6IEZhaWwg
-dG8gaW5zZXJ0IGl0ZW0gaW4gbGlzdC4iKTsKKwkJCQkJUHlfREVDUkVGKHNlY3VyaXR5X2NvbnRl
-eHRfbGlzdCk7CisJCQkJCXJldHVybiBOVUxMOworCQkJCX0KKwkJCX0KKwkJfQorCQllbHNlIHsK
-KwkJCVB5RXJyX1NldFN0cmluZyhQeUV4Y19NZW1vcnlFcnJvciwidHlwZW1hcChhcmdvdXQpIHNl
-Y3VyaXR5X2NvbnRleHRfdCAqKjogRmFpbCB0byBjcmVhdGUgbGlzdC4iKTsKKwkJCXJldHVybiBO
-VUxMOworCQl9CisJCXJldHVybiBzZWN1cml0eV9jb250ZXh0X2xpc3Q7CisJfQorJX0KKworJXR5
-cGVtYXAoYXJnb3V0KSAoY29uc3QgY2hhciAqdXNlciwgc2VjdXJpdHlfY29udGV4dF90IGZyb21j
-b24sIHNlY3VyaXR5X2NvbnRleHRfdCAqKmxpc3QpIHsKKwlpbnQgY291bnQ7CisKKwlTV0lHX0Fz
-VmFsX2ludCgkcmVzdWx0LCAmY291bnQpOworCVB5T2JqZWN0ICpzZWN1cml0eV9jb250ZXh0X2xp
-c3QgPSBOVUxMOworCQorCWlmICgoc2VjdXJpdHlfY29udGV4dF9saXN0ID0gc2VjdXJpdHlfY29u
-dGV4dF9saXN0MnBsaXN0KGNvdW50LCAqJDMpKSA9PSBOVUxMKQorCQkkcmVzdWx0ID0gU1dJR19G
-cm9tX2ludChTVEFUVVNfRVJSKTsKKwllbHNlCisJCSRyZXN1bHQgPSBTV0lHX0Zyb21faW50KFNU
-QVRVU19TVUNDRVNTKTsKKworCWZyZWVjb25hcnkoKiQzKTsKKwklYXBwZW5kX291dHB1dChzZWN1
-cml0eV9jb250ZXh0X2xpc3QpOworfQorCisldHlwZW1hcChhcmdvdXQpIChjb25zdCBjaGFyICp1
-c2VyLCBjb25zdCBjaGFyICpsZXZlbCwgc2VjdXJpdHlfY29udGV4dF90IGZyb21jb24sIHNlY3Vy
-aXR5X2NvbnRleHRfdCAqKmxpc3QpIHsKKwlpbnQgY291bnQ7CisKKwlTV0lHX0FzVmFsX2ludCgk
-cmVzdWx0LCAmY291bnQpOworCVB5T2JqZWN0ICpzZWN1cml0eV9jb250ZXh0X2xpc3QgPSBOVUxM
-OworCQorCWlmICgoc2VjdXJpdHlfY29udGV4dF9saXN0ID0gc2VjdXJpdHlfY29udGV4dF9saXN0
-MnBsaXN0KGNvdW50LCAqJDQpKSA9PSBOVUxMKQorCQkkcmVzdWx0ID0gU1dJR19Gcm9tX2ludChT
-VEFUVVNfRVJSKTsKKwllbHNlCisJCSRyZXN1bHQgPSBTV0lHX0Zyb21faW50KFNUQVRVU19TVUND
-RVNTKTsKKworCWZyZWVjb25hcnkoKiQ0KTsKKwklYXBwZW5kX291dHB1dChzZWN1cml0eV9jb250
-ZXh0X2xpc3QpOworfQorCisldHlwZW1hcChpbiwgbnVtaW5wdXRzPTApIHNlY3VyaXR5X2NvbnRl
-eHRfdCAqKihzZWN1cml0eV9jb250ZXh0X3QgKnRlbXA9TlVMTCkgeworCSQxID0gJnRlbXA7Cit9
-CisKICV0eXBlZGVmIHVuc2lnbmVkIG1vZGVfdDsKIAorJWluY2x1ZGUgIi4uL2luY2x1ZGUvc2Vs
-aW51eC9nZXRfY29udGV4dF9saXN0LmgiCisKIGV4dGVybiBpbnQgaXNfc2VsaW51eF9lbmFibGVk
-KHZvaWQpOwogZXh0ZXJuIGludCBpc19zZWxpbnV4X21sc19lbmFibGVkKHZvaWQpOworZXh0ZXJu
-IHZvaWQgZnJlZWNvbihzZWN1cml0eV9jb250ZXh0X3QgY29uKTsKK2V4dGVybiB2b2lkIGZyZWVj
-b25hcnkoc2VjdXJpdHlfY29udGV4dF90ICogY29uKTsKIGV4dGVybiBpbnQgZ2V0Y29uKHNlY3Vy
-aXR5X2NvbnRleHRfdCAqY29uKTsKIGV4dGVybiBpbnQgc2V0Y29uKHNlY3VyaXR5X2NvbnRleHRf
-dCBjb24pOwogZXh0ZXJuIGludCBnZXRwaWRjb24oaW50IHBpZCwgc2VjdXJpdHlfY29udGV4dF90
-ICpjb24pOwpAQCAtOTAsNiArMTYxLDExIEBACiAJCQltb2RlX3QgbW9kZSwKIAkJCXNlY3VyaXR5
-X2NvbnRleHRfdCAqY29uKTsKIAorZXh0ZXJuIGludCBtYXRjaHBhdGhjb25faW5pdF9wcmVmaXgo
-Y29uc3QgY2hhciAqcGF0aCwKKwkJCQkgICAgY29uc3QgY2hhciAqcHJlZml4KTsKK2V4dGVybiB2
-b2lkIG1hdGNocGF0aGNvbl9maW5pKHZvaWQpOworCisKIGV4dGVybiBpbnQgbWF0Y2htZWRpYWNv
-bihjb25zdCBjaGFyICptZWRpYSwKIAkJIHNlY3VyaXR5X2NvbnRleHRfdCAqY29uKTsKIApAQCAt
-MTA2LDYgKzE4Miw3IEBACiBleHRlcm4gY29uc3QgY2hhciAqc2VsaW51eF9ob21lZGlyX2NvbnRl
-eHRfcGF0aCh2b2lkKTsKIGV4dGVybiBjb25zdCBjaGFyICpzZWxpbnV4X21lZGlhX2NvbnRleHRf
-cGF0aCh2b2lkKTsKIGV4dGVybiBjb25zdCBjaGFyICpzZWxpbnV4X2NvbnRleHRzX3BhdGgodm9p
-ZCk7CitleHRlcm4gY29uc3QgY2hhciAqc2VsaW51eF9zZWN1cmV0dHlfdHlwZXNfcGF0aCh2b2lk
-KTsKIGV4dGVybiBjb25zdCBjaGFyICpzZWxpbnV4X2Jvb2xlYW5zX3BhdGgodm9pZCk7CiBleHRl
-cm4gY29uc3QgY2hhciAqc2VsaW51eF9jdXN0b21pemFibGVfdHlwZXNfcGF0aCh2b2lkKTsKIGV4
-dGVybiBjb25zdCBjaGFyICpzZWxpbnV4X3VzZXJzX3BhdGgodm9pZCk7CkBAIC0xMTMsMTEgKzE5
-MCw0NSBAQAogZXh0ZXJuIGNvbnN0IGNoYXIgKnNlbGludXhfdHJhbnNsYXRpb25zX3BhdGgodm9p
-ZCk7CiBleHRlcm4gY29uc3QgY2hhciAqc2VsaW51eF9uZXRmaWx0ZXJfY29udGV4dF9wYXRoKHZv
-aWQpOwogZXh0ZXJuIGNvbnN0IGNoYXIgKnNlbGludXhfcGF0aCh2b2lkKTsKLWV4dGVybiBpbnQg
-c2VsaW51eF9jaGVja19wYXNzd2RfYWNjZXNzKGFjY2Vzc192ZWN0b3JfdCByZXF1ZXN0ZWQpOwot
-ZXh0ZXJuIGludCBjaGVja1Bhc3N3ZEFjY2VzcyhhY2Nlc3NfdmVjdG9yX3QgcmVxdWVzdGVkKTsK
-KyNleHRlcm4gaW50IHNlbGludXhfY2hlY2tfcGFzc3dkX2FjY2VzcyhhY2Nlc3NfdmVjdG9yX3Qg
-cmVxdWVzdGVkKTsKKyNleHRlcm4gaW50IGNoZWNrUGFzc3dkQWNjZXNzKGFjY2Vzc192ZWN0b3Jf
-dCByZXF1ZXN0ZWQpOworCitleHRlcm4gaW50IHNlbGludXhfY2hlY2tfc2VjdXJldHR5X2NvbnRl
-eHQoc2VjdXJpdHlfY29udGV4dF90IHR0eV9jb250ZXh0KTsKK3ZvaWQgc2V0X3NlbGludXhtbnQo
-Y2hhciAqbW50KTsKKworI2lmZGVmIFNXSUdweXRob24KKy8vIFRoaXMgdGVsbHMgU1dJRyB0byB0
-cmVhdCBjaGFyICoqIGFzIGEgc3BlY2lhbCBjYXNlCisldHlwZW1hcChpbikgY2hhciAqKiB7Cisg
-IC8qIENoZWNrIGlmIGlzIGEgbGlzdCAqLworICBpZiAoUHlMaXN0X0NoZWNrKCRpbnB1dCkpIHsK
-KyAgICBpbnQgc2l6ZSA9IFB5TGlzdF9TaXplKCRpbnB1dCk7CisgICAgaW50IGkgPSAwOworICAg
-ICQxID0gKGNoYXIgKiopIG1hbGxvYygoc2l6ZSsxKSpzaXplb2YoY2hhciAqKSk7CisgICAgaWYg
-KCQxID09IE5VTEwpIHsKKwlQeUVycl9TZXRTdHJpbmcoUHlFeGNfTWVtb3J5RXJyb3IsIk91dCBv
-ZiBtZW1vcnkiKTsKKwlyZXR1cm4gTlVMTDsKKyAgICB9CisgICAgZm9yIChpID0gMDsgaSA8IHNp
-emU7IGkrKykgeworICAgICAgUHlPYmplY3QgKm8gPSBQeUxpc3RfR2V0SXRlbSgkaW5wdXQsaSk7
-CisgICAgICBpZiAoUHlTdHJpbmdfQ2hlY2sobykpCisJJDFbaV0gPSBQeVN0cmluZ19Bc1N0cmlu
-ZyhQeUxpc3RfR2V0SXRlbSgkaW5wdXQsaSkpOworICAgICAgZWxzZSB7CisJUHlFcnJfU2V0U3Ry
-aW5nKFB5RXhjX1R5cGVFcnJvciwibGlzdCBtdXN0IGNvbnRhaW4gc3RyaW5ncyIpOworCWZyZWUo
-JDEpOworCXJldHVybiBOVUxMOworICAgICAgfQorICAgIH0KKyAgICAkMVtpXSA9IDA7CisgIH0g
-ZWxzZSB7CisgICAgUHlFcnJfU2V0U3RyaW5nKFB5RXhjX1R5cGVFcnJvciwibm90IGEgbGlzdCIp
-OworICAgIHJldHVybiBOVUxMOworICB9Cit9CisjZW5kaWYKKwogZXh0ZXJuIGludCBycG1fZXhl
-Y2Nvbih1bnNpZ25lZCBpbnQgdmVyaWZpZWQsIAogCQkgICAgICAgY29uc3QgY2hhciAqZmlsZW5h
-bWUsIAotCQkgICAgICAgY2hhciAqY29uc3QgYXJndltdLCBjaGFyICpjb25zdCBlbnZwW10pOwor
-CQkgICAgICAgY2hhciAqKiwgY2hhciAqKik7CiAKIGV4dGVybiBpbnQgaXNfY29udGV4dF9jdXN0
-b21pemFibGUgKHNlY3VyaXR5X2NvbnRleHRfdCBzY29udGV4dCk7CiAKQEAgLTEyNiw3ICsyMzcs
-NyBAQAogZXh0ZXJuIGludCBzZWxpbnV4X3Jhd190b190cmFuc19jb250ZXh0KGNoYXIgKnJhdywg
-CiAJCQkJCXNlY3VyaXR5X2NvbnRleHRfdCAqdHJhbnNwKTsKIAotJXR5cGVtYXAoaW4sIG51bWlu
-cHV0cz0wKSBjaGFyICoqKGNoYXIgKnRlbXApIHsKKyV0eXBlbWFwKGluLCBudW1pbnB1dHM9MCkg
-Y2hhciAqKihjaGFyICp0ZW1wPU5VTEwpIHsKIAkkMSA9ICZ0ZW1wOwogfQogCkBAIC0xMzUsMyAr
-MjQ2LDggQEAKIH0KIGV4dGVybiBpbnQgc2VsaW51eF9nZXRwb2xpY3l0eXBlKGNoYXIgKiplbmZv
-cmNlKTsKIGV4dGVybiBpbnQgZ2V0c2V1c2VyYnluYW1lKGNvbnN0IGNoYXIgKmxpbnV4dXNlciwg
-Y2hhciAqKnNldXNlciwgY2hhciAqKmxldmVsKTsKKworaW50IHNlbGludXhfZmlsZV9jb250ZXh0
-X2NtcChjb25zdCBzZWN1cml0eV9jb250ZXh0X3QgYSwgY29uc3Qgc2VjdXJpdHlfY29udGV4dF90
-IGIpOworaW50IHNlbGludXhfZmlsZV9jb250ZXh0X3ZlcmlmeShjb25zdCBjaGFyICpwYXRoLCBt
-b2RlX3QgbW9kZSk7CitpbnQgc2VsaW51eF9sc2V0ZmlsZWNvbl9kZWZhdWx0KGNvbnN0IGNoYXIg
-KnBhdGgpOworCg==
-------=_Part_23197_17191289.1179430344249
-Content-Type: text/x-python; name=test1.py; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: base64
-X-Attachment-Id: f_f1tm6dse
-Content-Disposition: attachment; filename="test1.py"
-
-IyEvdXNyL2Jpbi9lbnYgcHl0aG9uCgppbXBvcnQgZ2V0cGFzcwppbXBvcnQgc2VvYmplY3QKaW1w
-b3J0IHNlbGludXgKCnVzZXJfbmFtZSA9ICBnZXRwYXNzLmdldHVzZXIoKQoKZm9vID0gWyIxIiwg
-IjIiLCAiMyJdCmZvciBmIGluIGZvbzoKICAgIHByaW50IGYKCihpZCwgc2V1c2VyX25hbWUsIGxl
-dmVsKSA9IHNlbGludXguZ2V0c2V1c2VyYnluYW1lKHVzZXJfbmFtZSkKCnJjLCBzZWN1cml0eV9j
-b250ZXh0X2xpc3QgID0gc2VsaW51eC5nZXRfb3JkZXJlZF9jb250ZXh0X2xpc3Qoc2V1c2VyX25h
-bWUsIE5vbmUpCnByaW50ICJyZXR1cm4gY29kZSAlZCIgJSAocmMpCgpmb3IgZiBpbiBmb286CiAg
-ICBwcmludCBmCgo=
-------=_Part_23197_17191289.1179430344249--
+diff --git a/include/net/xfrm.h b/include/net/xfrm.h
+index 90185e8..311f25a 100644
+--- a/include/net/xfrm.h
++++ b/include/net/xfrm.h
+@@ -964,7 +964,7 @@ struct xfrmk_spdinfo {
+ 
+ extern struct xfrm_state *xfrm_find_acq_byseq(u32 seq);
+ extern int xfrm_state_delete(struct xfrm_state *x);
+-extern void xfrm_state_flush(u8 proto, struct xfrm_audit *audit_info);
++extern int xfrm_state_flush(u8 proto, struct xfrm_audit *audit_info);
+ extern void xfrm_sad_getinfo(struct xfrmk_sadinfo *si);
+ extern void xfrm_spd_getinfo(struct xfrmk_spdinfo *si);
+ extern int xfrm_replay_check(struct xfrm_state *x, __be32 seq);
+@@ -1020,13 +1020,13 @@ struct xfrm_policy *xfrm_policy_bysel_ctx(u8 type, int dir,
+ 					  struct xfrm_sec_ctx *ctx, int delete,
+ 					  int *err);
+ struct xfrm_policy *xfrm_policy_byid(u8, int dir, u32 id, int delete, int *err);
+-void xfrm_policy_flush(u8 type, struct xfrm_audit *audit_info);
++int xfrm_policy_flush(u8 type, struct xfrm_audit *audit_info);
+ u32 xfrm_get_acqseq(void);
+ void xfrm_alloc_spi(struct xfrm_state *x, __be32 minspi, __be32 maxspi);
+ struct xfrm_state * xfrm_find_acq(u8 mode, u32 reqid, u8 proto,
+ 				  xfrm_address_t *daddr, xfrm_address_t *saddr,
+ 				  int create, unsigned short family);
+-extern void xfrm_policy_flush(u8 type, struct xfrm_audit *audit_info);
++extern int xfrm_policy_flush(u8 type, struct xfrm_audit *audit_info);
+ extern int xfrm_sk_policy_insert(struct sock *sk, int dir, struct xfrm_policy *pol);
+ extern int xfrm_bundle_ok(struct xfrm_policy *pol, struct xfrm_dst *xdst,
+ 			  struct flowi *fl, int family, int strict);
+diff --git a/net/key/af_key.c b/net/key/af_key.c
+index d302dda..0f8304b 100644
+--- a/net/key/af_key.c
++++ b/net/key/af_key.c
+@@ -1682,6 +1682,7 @@ static int pfkey_flush(struct sock *sk, struct sk_buff *skb, struct sadb_msg *hd
+ 	unsigned proto;
+ 	struct km_event c;
+ 	struct xfrm_audit audit_info;
++	int err;
+ 
+ 	proto = pfkey_satype2proto(hdr->sadb_msg_satype);
+ 	if (proto == 0)
+@@ -1689,7 +1690,9 @@ static int pfkey_flush(struct sock *sk, struct sk_buff *skb, struct sadb_msg *hd
+ 
+ 	audit_info.loginuid = audit_get_loginuid(current->audit_context);
+ 	audit_info.secid = 0;
+-	xfrm_state_flush(proto, &audit_info);
++	err = xfrm_state_flush(proto, &audit_info);
++	if (err)
++		return err;
+ 	c.data.proto = proto;
+ 	c.seq = hdr->sadb_msg_seq;
+ 	c.pid = hdr->sadb_msg_pid;
+@@ -2683,10 +2686,13 @@ static int pfkey_spdflush(struct sock *sk, struct sk_buff *skb, struct sadb_msg
+ {
+ 	struct km_event c;
+ 	struct xfrm_audit audit_info;
++	int err;
+ 
+ 	audit_info.loginuid = audit_get_loginuid(current->audit_context);
+ 	audit_info.secid = 0;
+-	xfrm_policy_flush(XFRM_POLICY_TYPE_MAIN, &audit_info);
++	err = xfrm_policy_flush(XFRM_POLICY_TYPE_MAIN, &audit_info);
++	if (err)
++		return err;
+ 	c.data.type = XFRM_POLICY_TYPE_MAIN;
+ 	c.event = XFRM_MSG_FLUSHPOLICY;
+ 	c.pid = hdr->sadb_msg_pid;
+diff --git a/net/xfrm/xfrm_policy.c b/net/xfrm/xfrm_policy.c
+index 64a3751..157bfbd 100644
+--- a/net/xfrm/xfrm_policy.c
++++ b/net/xfrm/xfrm_policy.c
+@@ -834,11 +834,67 @@ struct xfrm_policy *xfrm_policy_byid(u8 type, int dir, u32 id, int delete,
+ }
+ EXPORT_SYMBOL(xfrm_policy_byid);
+ 
+-void xfrm_policy_flush(u8 type, struct xfrm_audit *audit_info)
++#ifdef CONFIG_SECURITY_NETWORK_XFRM
++static inline int
++xfrm_policy_flush_secctx_check(u8 type, struct xfrm_audit *audit_info)
+ {
+-	int dir;
++	int dir, err = 0;
++
++	for (dir = 0; dir < XFRM_POLICY_MAX; dir++) {
++		struct xfrm_policy *pol;
++		struct hlist_node *entry;
++		int i;
++
++		hlist_for_each_entry(pol, entry,
++				     &xfrm_policy_inexact[dir], bydst) {
++			if (pol->type != type)
++				continue;
++			err = security_xfrm_policy_delete(pol);
++			if (err) {
++				xfrm_audit_log(audit_info->loginuid,
++					       audit_info->secid,
++					       AUDIT_MAC_IPSEC_DELSPD, 0,
++					       pol, NULL);
++				return err;
++			}
++                }
++		for (i = xfrm_policy_bydst[dir].hmask; i >= 0; i--) {
++			hlist_for_each_entry(pol, entry,
++					     xfrm_policy_bydst[dir].table + i,
++					     bydst) {
++				if (pol->type != type)
++					continue;
++				err = security_xfrm_policy_delete(pol);
++				if (err) {
++					xfrm_audit_log(audit_info->loginuid,
++						       audit_info->secid,
++						       AUDIT_MAC_IPSEC_DELSPD,
++						       0, pol, NULL);
++					return err;
++				}
++			}
++		}
++	}
++	return err;
++}
++#else
++static inline int
++xfrm_policy_flush_secctx_check(u8 type, struct xfrm_audit *audit_info)
++{
++	return 0;
++}
++#endif
++
++int xfrm_policy_flush(u8 type, struct xfrm_audit *audit_info)
++{
++	int dir, err = 0;
+ 
+ 	write_lock_bh(&xfrm_policy_lock);
++
++	err = xfrm_policy_flush_secctx_check(type, audit_info);
++	if (err)
++		goto out;
++
+ 	for (dir = 0; dir < XFRM_POLICY_MAX; dir++) {
+ 		struct xfrm_policy *pol;
+ 		struct hlist_node *entry;
+@@ -891,7 +947,9 @@ void xfrm_policy_flush(u8 type, struct xfrm_audit *audit_info)
+ 		xfrm_policy_count[dir] -= killed;
+ 	}
+ 	atomic_inc(&flow_cache_genid);
++out:
+ 	write_unlock_bh(&xfrm_policy_lock);
++	return err;
+ }
+ EXPORT_SYMBOL(xfrm_policy_flush);
+ 
+@@ -2583,4 +2641,3 @@ restore_state:
+ }
+ EXPORT_SYMBOL(xfrm_migrate);
+ #endif
+-
+diff --git a/net/xfrm/xfrm_state.c b/net/xfrm/xfrm_state.c
+index 372f06e..2cc9d87 100644
+--- a/net/xfrm/xfrm_state.c
++++ b/net/xfrm/xfrm_state.c
+@@ -391,12 +391,48 @@ int xfrm_state_delete(struct xfrm_state *x)
+ }
+ EXPORT_SYMBOL(xfrm_state_delete);
+ 
+-void xfrm_state_flush(u8 proto, struct xfrm_audit *audit_info)
++#ifdef CONFIG_SECURITY_NETWORK_XFRM
++static inline int
++xfrm_state_flush_secctx_check(u8 proto, struct xfrm_audit *audit_info) 
+ {
+-	int i;
+-	int err = 0;
++	int i, err = 0;
++
++	for (i = 0; i <= xfrm_state_hmask; i++) {
++		struct hlist_node *entry;
++		struct xfrm_state *x;
++
++		hlist_for_each_entry(x, entry, xfrm_state_bydst+i, bydst) {
++			if (xfrm_id_proto_match(x->id.proto, proto) &&
++			   (err = security_xfrm_state_delete(x)) != 0) {
++				xfrm_audit_log(audit_info->loginuid,
++					       audit_info->secid,
++					       AUDIT_MAC_IPSEC_DELSA, 
++                                               0, NULL, x);
++
++				return err;
++			}
++		}
++	}
++
++	return err;
++}
++#else
++static inline int
++xfrm_state_flush_secctx_check(u8 proto, struct xfrm_audit *audit_info)
++{
++	return 0;
++}
++#endif
++
++int xfrm_state_flush(u8 proto, struct xfrm_audit *audit_info)
++{
++	int i, err = 0;
+ 
+ 	spin_lock_bh(&xfrm_state_lock);
++	err = xfrm_state_flush_secctx_check(proto, audit_info);
++	if (err)
++		goto out;
++		
+ 	for (i = 0; i <= xfrm_state_hmask; i++) {
+ 		struct hlist_node *entry;
+ 		struct xfrm_state *x;
+@@ -419,8 +455,12 @@ restart:
+ 			}
+ 		}
+ 	}
++	err = 0;
++
++out:
+ 	spin_unlock_bh(&xfrm_state_lock);
+ 	wake_up(&km_waitq);
++	return err;
+ }
+ EXPORT_SYMBOL(xfrm_state_flush);
+ 
+diff --git a/net/xfrm/xfrm_user.c b/net/xfrm/xfrm_user.c
+index b14c7e5..c06883b 100644
+--- a/net/xfrm/xfrm_user.c
++++ b/net/xfrm/xfrm_user.c
+@@ -1418,10 +1418,13 @@ static int xfrm_flush_sa(struct sk_buff *skb, struct nlmsghdr *nlh,
+ 	struct km_event c;
+ 	struct xfrm_usersa_flush *p = NLMSG_DATA(nlh);
+ 	struct xfrm_audit audit_info;
++	int err;
+ 
+ 	audit_info.loginuid = NETLINK_CB(skb).loginuid;
+ 	audit_info.secid = NETLINK_CB(skb).sid;
+-	xfrm_state_flush(p->proto, &audit_info);
++	err = xfrm_state_flush(p->proto, &audit_info);
++	if (err)
++		return err;
+ 	c.data.proto = p->proto;
+ 	c.event = nlh->nlmsg_type;
+ 	c.seq = nlh->nlmsg_seq;
+@@ -1582,7 +1585,9 @@ static int xfrm_flush_policy(struct sk_buff *skb, struct nlmsghdr *nlh,
+ 
+ 	audit_info.loginuid = NETLINK_CB(skb).loginuid;
+ 	audit_info.secid = NETLINK_CB(skb).sid;
+-	xfrm_policy_flush(type, &audit_info);
++	err = xfrm_policy_flush(type, &audit_info);
++	if (err)
++		return err;
+ 	c.data.type = type;
+ 	c.event = nlh->nlmsg_type;
+ 	c.seq = nlh->nlmsg_seq;
 
 
---------------020306030300040303090205--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
