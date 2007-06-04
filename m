@@ -1,74 +1,42 @@
-Subject: Re: Help with semanage...
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Hasan Rezaul-CHR010 <CHR010@motorola.com>
-Cc: selinux@tycho.nsa.gov
-In-Reply-To: <D06FE0A2807BC145B0D38744789D4F5D0399F027@de01exm68.ds.mot.com>
-References: 
-	 <6FE441CD9F0C0C479F2D88F959B01588BF01FF@exchange.columbia.tresys.com>
-	 <1180633622.3534.78.camel@localhost.localdomain>
-	 <6FE441CD9F0C0C479F2D88F959B01588BF0204@exchange.columbia.tresys.com>
-	 <20070531204502.3a667419@maya>
-	 <D06FE0A2807BC145B0D38744789D4F5D0399F027@de01exm68.ds.mot.com>
-Content-Type: text/plain
-Date: Mon, 04 Jun 2007 17:40:33 -0400
-Message-Id: <1180993233.14220.171.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+Message-ID: <46648BAC.8090702@redhat.com>
+Date: Mon, 04 Jun 2007 18:01:16 -0400
+From: Daniel J Walsh <dwalsh@redhat.com>
+MIME-Version: 1.0
+To: Stephen Smalley <sds@tycho.nsa.gov>, SE Linux <selinux@tycho.nsa.gov>
+Subject: setfiles -c is failing do to bad checking on options.
+Content-Type: multipart/mixed;
+ boundary="------------020603030704090905000000"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 2007-06-04 at 17:30 -0400, Hasan Rezaul-CHR010 wrote:
-> Hi All,
-> 
-> I have a Linux machine (Machine_A) running a collection of  *strict*
-> SELinux policies. On Machine_A, I am able to further modify policies
-> by using semanage, and also add/delete policy modules using semodule.
-> I can make changes at will successfully as many times as I want.
-> 
-> I tarred up the entire  /etc/selinux/* directory from Machine_A, and I
-> untarred the tar-ball on another Linux machine, Machine_B. On
-> Machine_B, I also created and mounted the /selinux/ directory. 
-> 
-> With all selinux files/dirs in place, AFTER rebooting Machine_B,
-> SELinux policies seem to be working as expected !
-> 
-> At this point, I am able to execute  "semanage"  ONLY ONE time
-> successfully !  Any attempts to make any further changes after the
-> first time fails with the error below...
-> 
-> So for example, If I create a new user-mapping with:  "semanage login
-> -a -s staff_u Admin", this first command is successful !
-> 
-> But every semanage command run afterwards has this same error:
-> 
-> semanage login -d Admin 
-> Libsemanage.semanage_make_sandbox: Could not copy files to
-> sandbox /etc/selinux/strict/modules/tmp 
-> /usr/sbin/semanage: Could not start semanage transaction
-> 
-> The error message in the /var/log/messages file is: 
-> Jun  4 21:10:11 unknown python: Failed:  delete SELinux user mapping
-> name=Admin
-> 
-> Any ideas on why I can execute semanage only ONCE ?  I have tried
-> rebooting the machine several times, to see if it helps, but it
-> doesn't !
-> 
-> Also, whats the significance of
-> the  /etc/selinux/strict/module/semanage.read.LOCK  &
-> semanage.trans.LOCK   files ?
+This is a multi-part message in MIME format.
+--------------020603030704090905000000
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
-Run restorecon on /etc/selinux, e.g.
-	/sbin/restorecon -R /etc/selinux
 
-This usually happens when the file security contexts in /etc/selinux are
-incorrect and permission is then denied to write to those directories.
-That can happen if you e.g. run semanage or semodule without being in
-the right domain in the first place.
 
--- 
-Stephen Smalley
-National Security Agency
+--------------020603030704090905000000
+Content-Type: text/plain;
+ name="diff"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="diff"
 
+diff --exclude-from=exclude --exclude=sepolgen-1.0.8 --exclude=gui --exclude=po -N -u -r nsapolicycoreutils/setfiles/setfiles.c policycoreutils-2.0.19/setfiles/setfiles.c
+--- nsapolicycoreutils/setfiles/setfiles.c	2007-05-18 09:58:33.000000000 -0400
++++ policycoreutils-2.0.19/setfiles/setfiles.c	2007-06-04 17:42:44.000000000 -0400
+@@ -858,8 +858,6 @@
+ 		if (strcmp(input_filename, "-") != 0)
+ 			fclose(f);
+ 	} else {
+-		if (optind >= argc)
+-			usage(argv[0]);
+ 		for (i = optind; i < argc; i++) {
+ 			errors |= process_one(argv[i]);
+ 		}
+
+--------------020603030704090905000000--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
