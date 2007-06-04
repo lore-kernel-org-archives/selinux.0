@@ -1,44 +1,105 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l54Jirqh007577
-	for <selinux@tycho.nsa.gov>; Mon, 4 Jun 2007 15:44:53 -0400
-Received: from mail7.sea5.speakeasy.net (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l54JiqXk007882
-	for <selinux@tycho.nsa.gov>; Mon, 4 Jun 2007 19:44:52 GMT
-Date: Mon, 4 Jun 2007 15:44:48 -0400 (EDT)
-From: James Morris <jmorris@namei.org>
-To: Eric Paris <eparis@redhat.com>
-cc: netdev@vger.kernel.org, davem@davemloft.net, selinux@tycho.nsa.gov,
-        Joy Latten <latten@austin.ibm.com>
-Subject: Re: [PATCH]: Add security check before flushing SAD/SPD
-In-Reply-To: <1180983953.3950.37.camel@localhost.localdomain>
-Message-ID: <Line.LNX.4.64.0706041544230.13341@d.namei>
-References: <200703262321.l2QNLZlR014240@faith.austin.ibm.com>
- <1180983953.3950.37.camel@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Subject: [PATCH] introduce schedule points in policydb_destroy()
+From: Eric Paris <eparis@redhat.com>
+To: selinux@tycho.nsa.gov
+Cc: sds@tycho.nsa.gov, jmorris@namei.org
+Content-Type: text/plain
+Date: Mon, 04 Jun 2007 17:41:22 -0400
+Message-Id: <1180993282.3950.79.camel@localhost.localdomain>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 4 Jun 2007, Eric Paris wrote:
+During the LSPP testing we found that it was possible for
+policydb_destroy() to take 10+ seconds of kernel time to complete.
+Basically all policydb_destroy() does is walk some (possibly long) lists
+and free the memory it finds.  Turning off slab debugging config options
+made the problem go away since the actual functions which took most of
+the time were (as seen by oprofile)
 
-> Some time ago this thread bounced back and forth and seemed to come to
-> rest with the patch below, I cleaned up the comments and put all the
-> ACKs it received in one place below, but so much time has passed I doubt
-> if they should still count for free.  I also rediffed the patch against
-> the latest miller tree.  Is the idea or patch in any way flawed or
-> unacceptable to people at the moment?
-> 
-> Anyone willing to step up an re-ack the patch to get it moving into the
-> tree?
+> 121202   23.9879  .check_poison_obj
+> 78247    15.4864  .check_slabp
 
-Looks good to me.
+were caused by that.  So I decided to also add some voluntary schedule
+points in that code so config voluntary preempt would be enough to solve
+the problem.  Something similar was done in places like
+shmem_free_pages() when we have to walk a list of memory and free it.
+This was tested by the LSPP group on the hardware which could reproduce
+the problem just loading a new policy and was found to not trigger the
+softlock detector.  It takes just as much processing time, but the
+kernel doesn't spend all that time stuck doing one thing and never
+scheduling.
 
-Acked-by: James Morris <jmorris@namei.org>
+Someday a better way to handle memory might make the time needed in this
+function a lot less, but this fixes the current issue as it stands
+today.
+
+Signed-off-by: Eric Paris <eparis@redhat.com>
+
+---
+
+ security/selinux/ss/policydb.c |    7 +++++++
+ 1 files changed, 7 insertions(+), 0 deletions(-)
+
+diff --git a/security/selinux/ss/policydb.c b/security/selinux/ss/policydb.c
+index 0ac1021..f05f97a 100644
+--- a/security/selinux/ss/policydb.c
++++ b/security/selinux/ss/policydb.c
+@@ -21,6 +21,7 @@
+  */
+ 
+ #include <linux/kernel.h>
++#include <linux/sched.h>
+ #include <linux/slab.h>
+ #include <linux/string.h>
+ #include <linux/errno.h>
+@@ -598,6 +599,7 @@ void policydb_destroy(struct policydb *p)
+ 	struct range_trans *rt, *lrt = NULL;
+ 
+ 	for (i = 0; i < SYM_NUM; i++) {
++		cond_resched();
+ 		hashtab_map(p->symtab[i].table, destroy_f[i], NULL);
+ 		hashtab_destroy(p->symtab[i].table);
+ 	}
+@@ -612,6 +614,7 @@ void policydb_destroy(struct policydb *p)
+ 	avtab_destroy(&p->te_avtab);
+ 
+ 	for (i = 0; i < OCON_NUM; i++) {
++		cond_resched();
+ 		c = p->ocontexts[i];
+ 		while (c) {
+ 			ctmp = c;
+@@ -623,6 +626,7 @@ void policydb_destroy(struct policydb *p)
+ 
+ 	g = p->genfs;
+ 	while (g) {
++		cond_resched();
+ 		kfree(g->fstype);
+ 		c = g->head;
+ 		while (c) {
+@@ -639,18 +643,21 @@ void policydb_destroy(struct policydb *p)
+ 	cond_policydb_destroy(p);
+ 
+ 	for (tr = p->role_tr; tr; tr = tr->next) {
++		cond_resched();
+ 		kfree(ltr);
+ 		ltr = tr;
+ 	}
+ 	kfree(ltr);
+ 
+ 	for (ra = p->role_allow; ra; ra = ra -> next) {
++		cond_resched();
+ 		kfree(lra);
+ 		lra = ra;
+ 	}
+ 	kfree(lra);
+ 
+ 	for (rt = p->range_tr; rt; rt = rt -> next) {
++		cond_resched();
+ 		if (lrt) {
+ 			ebitmap_destroy(&lrt->target_range.level[0].cat);
+ 			ebitmap_destroy(&lrt->target_range.level[1].cat);
 
 
--- 
-James Morris
-<jmorris@namei.org>
 
 --
 This message was distributed to subscribers of the selinux mailing list.
