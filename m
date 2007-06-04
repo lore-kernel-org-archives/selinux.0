@@ -1,63 +1,41 @@
-Subject: Re: [patch] Bug in restorecon
+Subject: Re: [PATCH] SELinux protection for exploiting null dereference
+	using mmap
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Yuichi Nakamura <ynakam@hitachisoft.jp>
-Cc: selinux@tycho.nsa.gov
-In-Reply-To: <20070604031847.0ec6c158.ynakam@hitachisoft.jp>
-References: <20070604031847.0ec6c158.ynakam@hitachisoft.jp>
+To: Alan Cox <alan@redhat.com>
+Cc: Eric Paris <eparis@redhat.com>, selinux@tycho.nsa.gov, drepper@redhat.com,
+        roland@redhat.com, arjan@infradead.org, mingo@elte.hu,
+        viro@zeniv.linux.org.uk, jmorris@namei.org, chrisw@redhat.com
+In-Reply-To: <20070603205653.GE25869@devserv.devel.redhat.com>
+References: <1180561713.3633.27.camel@dhcp231-215.rdu.redhat.com>
+	 <20070603205653.GE25869@devserv.devel.redhat.com>
 Content-Type: text/plain
-Date: Mon, 04 Jun 2007 09:28:44 -0400
-Message-Id: <1180963724.14220.27.camel@moss-spartans.epoch.ncsc.mil>
+Date: Mon, 04 Jun 2007 09:38:26 -0400
+Message-Id: <1180964306.14220.34.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 2007-06-04 at 03:18 +0900, Yuichi Nakamura wrote:
-> Hi.
+On Sun, 2007-06-03 at 16:56 -0400, Alan Cox wrote:
+> On Wed, May 30, 2007 at 05:48:33PM -0400, Eric Paris wrote:
+> > Assuming there is a kernel bug which includes a null dereference it may
+> > allow for a process to place information on the first page on the system
+> > and get the kernel to act in unintended ways.  This patch creates a new
 > 
-> I found a bug in restorecon in trunk.
-> restorecon to relative path does not work.
-> (such as restorecon -R .).
-> Path is expanded by realpath in restorecon, isn't it ?
+> Gak
 > 
-> Following is a fix.
+> > +	if (unlikely(addr < PAGE_SIZE)) {
+> > +		error = security_mmap_zero();
+> > +		if (error)
+> > +			return error;
+> > +	}
 > 
-> Index: policycoreutils/setfiles/setfiles.c
-> ===================================================================
-> --- policycoreutils/setfiles/setfiles.c (revision 2457)
-> +++ policycoreutils/setfiles/setfiles.c (working copy)
-> @@ -223,19 +223,19 @@
->         /* fullname will be the real file that gets labeled
->          * name will be what is matched in the policy */
->         if (NULL != rootpath) {
-> -               if (0 != strncmp(rootpath, name, rootpathlen)) {
-> +               if (0 != strncmp(rootpath, fullname, rootpathlen)) {
->                         fprintf(stderr, "%s:  %s is not located in %s\n",
-> -                               progname, name, rootpath);
-> +                               progname, fullname, rootpath);
->                         return -1;
->                 }
-> -               name += rootpathlen;
-> +               fullname += rootpathlen;
->         }
->  
-> -       if (rootpath != NULL && name[0] == '\0')
-> +       if (rootpath != NULL && fullname[0] == '\0')
->                 /* this is actually the root dir of the alt root */
->                 return matchpathcon_index("/", sb->st_mode, con);
->         else
-> -               return matchpathcon_index(name, sb->st_mode, con);
-> +               return matchpathcon_index(fullname, sb->st_mode, con);
->  }
->  
->  void usage(const char *const name)
+> Wouldn't it be better simply to pass the address and let the mmap test
+> for SELinux make a decsion on it. People who care about performance don't
+> run SELinux enabled kernels anyway.
 
-In that case, why have 'fullname' vs. 'name' at all?  Just directly
-manipulate name and use it throughout.
-
-Make sure that setfiles -r /path/to/altroot
-file_contexts /path/to/altroot still works as expected, e.g.
-labels /path/to/altroot/etc/shadow with the label of /etc/shadow in
-policy.
+That's the wrong mindset IMHO - whatever performance issues exist in
+SELinux should be addressed to enable people who care about performance
+to run with it enabled.
 
 -- 
 Stephen Smalley
