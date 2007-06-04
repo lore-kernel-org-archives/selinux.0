@@ -1,104 +1,73 @@
-Subject: [PATCH] introduce schedule points in policydb_destroy()
-From: Eric Paris <eparis@redhat.com>
-To: selinux@tycho.nsa.gov
-Cc: sds@tycho.nsa.gov, jmorris@namei.org
+Subject: Re: Help with semanage...
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Hasan Rezaul-CHR010 <CHR010@motorola.com>
+Cc: selinux@tycho.nsa.gov
+In-Reply-To: <D06FE0A2807BC145B0D38744789D4F5D0399F027@de01exm68.ds.mot.com>
+References: 
+	 <6FE441CD9F0C0C479F2D88F959B01588BF01FF@exchange.columbia.tresys.com>
+	 <1180633622.3534.78.camel@localhost.localdomain>
+	 <6FE441CD9F0C0C479F2D88F959B01588BF0204@exchange.columbia.tresys.com>
+	 <20070531204502.3a667419@maya>
+	 <D06FE0A2807BC145B0D38744789D4F5D0399F027@de01exm68.ds.mot.com>
 Content-Type: text/plain
-Date: Mon, 04 Jun 2007 17:41:22 -0400
-Message-Id: <1180993282.3950.79.camel@localhost.localdomain>
+Date: Mon, 04 Jun 2007 17:40:33 -0400
+Message-Id: <1180993233.14220.171.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-During the LSPP testing we found that it was possible for
-policydb_destroy() to take 10+ seconds of kernel time to complete.
-Basically all policydb_destroy() does is walk some (possibly long) lists
-and free the memory it finds.  Turning off slab debugging config options
-made the problem go away since the actual functions which took most of
-the time were (as seen by oprofile)
+On Mon, 2007-06-04 at 17:30 -0400, Hasan Rezaul-CHR010 wrote:
+> Hi All,
+> 
+> I have a Linux machine (Machine_A) running a collection of  *strict*
+> SELinux policies. On Machine_A, I am able to further modify policies
+> by using semanage, and also add/delete policy modules using semodule.
+> I can make changes at will successfully as many times as I want.
+> 
+> I tarred up the entire  /etc/selinux/* directory from Machine_A, and I
+> untarred the tar-ball on another Linux machine, Machine_B. On
+> Machine_B, I also created and mounted the /selinux/ directory. 
+> 
+> With all selinux files/dirs in place, AFTER rebooting Machine_B,
+> SELinux policies seem to be working as expected !
+> 
+> At this point, I am able to execute  "semanage"  ONLY ONE time
+> successfully !  Any attempts to make any further changes after the
+> first time fails with the error below...
+> 
+> So for example, If I create a new user-mapping with:  "semanage login
+> -a -s staff_u Admin", this first command is successful !
+> 
+> But every semanage command run afterwards has this same error:
+> 
+> semanage login -d Admin 
+> Libsemanage.semanage_make_sandbox: Could not copy files to
+> sandbox /etc/selinux/strict/modules/tmp 
+> /usr/sbin/semanage: Could not start semanage transaction
+> 
+> The error message in the /var/log/messages file is: 
+> Jun  4 21:10:11 unknown python: Failed:  delete SELinux user mapping
+> name=Admin
+> 
+> Any ideas on why I can execute semanage only ONCE ?  I have tried
+> rebooting the machine several times, to see if it helps, but it
+> doesn't !
+> 
+> Also, whats the significance of
+> the  /etc/selinux/strict/module/semanage.read.LOCK  &
+> semanage.trans.LOCK   files ?
 
-> 121202   23.9879  .check_poison_obj
-> 78247    15.4864  .check_slabp
+Run restorecon on /etc/selinux, e.g.
+	/sbin/restorecon -R /etc/selinux
 
-were caused by that.  So I decided to also add some voluntary schedule
-points in that code so config voluntary preempt would be enough to solve
-the problem.  Something similar was done in places like
-shmem_free_pages() when we have to walk a list of memory and free it.
-This was tested by the LSPP group on the hardware which could reproduce
-the problem just loading a new policy and was found to not trigger the
-softlock detector.  It takes just as much processing time, but the
-kernel doesn't spend all that time stuck doing one thing and never
-scheduling.
+This usually happens when the file security contexts in /etc/selinux are
+incorrect and permission is then denied to write to those directories.
+That can happen if you e.g. run semanage or semodule without being in
+the right domain in the first place.
 
-Someday a better way to handle memory might make the time needed in this
-function a lot less, but this fixes the current issue as it stands
-today.
-
-Signed-off-by: Eric Paris <eparis@redhat.com>
-
----
-
- security/selinux/ss/policydb.c |    7 +++++++
- 1 files changed, 7 insertions(+), 0 deletions(-)
-
-diff --git a/security/selinux/ss/policydb.c b/security/selinux/ss/policydb.c
-index 0ac1021..f05f97a 100644
---- a/security/selinux/ss/policydb.c
-+++ b/security/selinux/ss/policydb.c
-@@ -21,6 +21,7 @@
-  */
- 
- #include <linux/kernel.h>
-+#include <linux/sched.h>
- #include <linux/slab.h>
- #include <linux/string.h>
- #include <linux/errno.h>
-@@ -598,6 +599,7 @@ void policydb_destroy(struct policydb *p)
- 	struct range_trans *rt, *lrt = NULL;
- 
- 	for (i = 0; i < SYM_NUM; i++) {
-+		cond_resched();
- 		hashtab_map(p->symtab[i].table, destroy_f[i], NULL);
- 		hashtab_destroy(p->symtab[i].table);
- 	}
-@@ -612,6 +614,7 @@ void policydb_destroy(struct policydb *p)
- 	avtab_destroy(&p->te_avtab);
- 
- 	for (i = 0; i < OCON_NUM; i++) {
-+		cond_resched();
- 		c = p->ocontexts[i];
- 		while (c) {
- 			ctmp = c;
-@@ -623,6 +626,7 @@ void policydb_destroy(struct policydb *p)
- 
- 	g = p->genfs;
- 	while (g) {
-+		cond_resched();
- 		kfree(g->fstype);
- 		c = g->head;
- 		while (c) {
-@@ -639,18 +643,21 @@ void policydb_destroy(struct policydb *p)
- 	cond_policydb_destroy(p);
- 
- 	for (tr = p->role_tr; tr; tr = tr->next) {
-+		cond_resched();
- 		kfree(ltr);
- 		ltr = tr;
- 	}
- 	kfree(ltr);
- 
- 	for (ra = p->role_allow; ra; ra = ra -> next) {
-+		cond_resched();
- 		kfree(lra);
- 		lra = ra;
- 	}
- 	kfree(lra);
- 
- 	for (rt = p->range_tr; rt; rt = rt -> next) {
-+		cond_resched();
- 		if (lrt) {
- 			ebitmap_destroy(&lrt->target_range.level[0].cat);
- 			ebitmap_destroy(&lrt->target_range.level[1].cat);
-
+-- 
+Stephen Smalley
+National Security Agency
 
 
 --
