@@ -1,287 +1,191 @@
-Subject: RE: SELinux userspace infrastructure language
-From: Karl MacMillan <kmacmillan@mentalrootkit.com>
-To: Joshua Brindle <jbrindle@tresys.com>
-Cc: selinux@tycho.nsa.gov, Stephen Smalley <sds@tycho.nsa.gov>
-In-Reply-To: <6FE441CD9F0C0C479F2D88F959B01588BF044D@exchange.columbia.tresys.com>
-References: 
-	 <6FE441CD9F0C0C479F2D88F959B01588BF01FF@exchange.columbia.tresys.com>
-	 <1180633622.3534.78.camel@localhost.localdomain>
-	 <6FE441CD9F0C0C479F2D88F959B01588BF0204@exchange.columbia.tresys.com>
-	 <1180639909.22021.26.camel@localhost.localdomain>
-	 <1180995888.9766.63.camel@localhost.localdomain>
-	 <6FE441CD9F0C0C479F2D88F959B01588BF044D@exchange.columbia.tresys.com>
-Content-Type: text/plain; charset=utf-8
-Date: Mon, 04 Jun 2007 12:49:38 -0400
-Message-Id: <1180975778.2862.36.camel@localhost.localdomain>
-Mime-Version: 1.0
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l55CZHha020180
+	for <selinux@tycho.nsa.gov>; Tue, 5 Jun 2007 08:35:17 -0400
+Received: from moss-lions.epoch.ncsc.mil (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id l55CZFN4029867
+	for <selinux@tycho.nsa.gov>; Tue, 5 Jun 2007 12:35:15 GMT
+Received: from moss-lions.epoch.ncsc.mil (localhost.localdomain [127.0.0.1])
+	by moss-lions.epoch.ncsc.mil (8.13.8/8.13.8) with ESMTP id l55CXibc012987
+	for <selinux@tycho.nsa.gov>; Tue, 5 Jun 2007 08:33:44 -0400
+Received: (from jwcart2@localhost)
+	by moss-lions.epoch.ncsc.mil (8.13.8/8.13.8/Submit) id l55CXi6j012986
+	for selinux@tycho.nsa.gov; Tue, 5 Jun 2007 08:33:44 -0400
+MIME-Version: 1.0
+Content-Type: multipart/alternative;
+	boundary="----_=_NextPart_001_01C7A6EF.DF3A347C"
+Subject: Help with semanage...
+Date: Mon, 4 Jun 2007 17:30:33 -0400
+Message-ID: <D06FE0A2807BC145B0D38744789D4F5D0399F027@de01exm68.ds.mot.com>
+In-Reply-To: <20070531204502.3a667419@maya>
+References: <6FE441CD9F0C0C479F2D88F959B01588BF01FF@exchange.columbia.tresys.com><1180633622.3534.78.camel@localhost.localdomain><6FE441CD9F0C0C479F2D88F959B01588BF0204@exchange.columbia.tresys.com> <20070531204502.3a667419@maya>
+From: "Hasan Rezaul-CHR010" <CHR010@motorola.com>
+To: <selinux@tycho.nsa.gov>, "Stephen Smalley" <sds@tycho.nsa.gov>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 2007-06-04 at 20:52 -0400, Joshua Brindle wrote:
-> Karl MacMillan wrote:
-> <snip> 
-> > 
-> > To explore this, I coded up some basic ideas in C++ to get a
-> > feel for the time savings (patch below). What I came up with
-> > allows you to do
-> > this:
-> > 
-> > int main(int argc, char **arv)
-> > {
-> >         shared_ptr<Policy> pol(new Policy());
-> >         shared_ptr<Module> mod(new Module("foo", "1.0"));
-> >         pol->append_child(mod);
-> >         shared_ptr<Type> type(new Type("foo"));
-> >         type->aliases().insert("bar");
-> >         type->aliases().insert("baz");
-> >         type->aliases().insert("bar"); // duplicate - will be ingored
-> >         type->attributes().insert("domain");
-> >         type->attributes().insert("userdomain");
-> > 
-> 
-> Interesting, you didn't create attributes/aliases as a proper type? They
-> are just strings associated with types? I'm not adverse to this, I'm
-> just noting that it's a large difference from what we are doing now.
-> 
+This is a multi-part message in MIME format.
 
-It's what I do in sepolgen and what I've done in all of the policyrep
-patches so far. Note that there will be types for attribute, typealias,
-and typeattribute statements - my goal is to represent the policy
-language fairly directly. So far it works well - it makes
-programmatically manipulating policies really simple.
+------_=_NextPart_001_01C7A6EF.DF3A347C
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
 
-[...]
+Hi All,
 
-> 
-> > * Parts of this are _much_ better than the C equivalent in
-> > ways that are very hard to duplicate. The output, for
-> > example, is simple and shared for file, stream, and string output.
-> > 
-> > * Most of this is pretty standard - any C++ coder would be
-> > able to get up to speed quickly.
-> > 
-> > * The biggest drawback is, as usual, that some problems
-> > caused long and mysterious compiler errors (including nested
-> > template insanity out of some of the boost libraries). I'm
-> > pretty used to this but non-C++ programmers might be put off by this.
-> > 
-> > I also did serialization using the boost serialization
-> > library. This allows us to do:
-> > 
-> 
-> Does this mean binary serialization?
+I have a Linux machine (Machine_A) running a collection of  *strict*
+SELinux policies. On Machine_A, I am able to further modify policies by
+using semanage, and also add/delete policy modules using semodule. I can
+make changes at will successfully as many times as I want.
 
-Whatever you want - there is binary, text, XML, and you can implement
-arbitrary formats. The custom format thing is nice - you just need to
-implement support for built-in types (plus some other low-level stuff)
-and the library takes care of using that to serialize higher-level
-types.
+I tarred up the entire  /etc/selinux/* directory from Machine_A, and I
+untarred the tar-ball on another Linux machine, Machine_B. On Machine_B,
+I also created and mounted the /selinux/ directory.=20
 
->  Is the serialization stable
-> (between versions of boost, even major versions?)
-> 
+With all selinux files/dirs in place, AFTER rebooting Machine_B, SELinux
+policies seem to be working as expected !
 
-I'm still looking into this, but it seems that is the case.
+At this point, I am able to execute  "semanage"  ONLY ONE time
+successfully !  Any attempts to make any further changes after the first
+time fails with the error below...
 
-> Will we be able to use this serialization for everything including
-> reading/writing binary modules, reading/writing to sockets?
-> 
+So for example, If I create a new user-mapping with:  "semanage login -a
+-s staff_u Admin", this first command is successful !
 
-Yes - should be able to serialize to any stream. You can also start the
-serialization from any point in the tree (though I believe you have to
-know the starting type for de-serialization).
+But every semanage command run afterwards has this same error:
 
-> > [...]
-> > 	save_policy(*pol, "archive");
-> > 
-> > 	shared_ptr<Policy> newpol(new Policy());
-> >         load_policy(*newpol, "archive");
-> >         output_tree(std::cout, *newpol, DEBUG_OUTPUT);
-> > 
-> > The serialization is pretty easy - for example, serializing
-> > "Type" is done with (this works for both saving and loading):
-> > 
-> > template<class Archive>
-> > void Type::serialize(Archive& ar, const unsigned int version) {
-> > 	ar & boost::serialization::base_object<Node>(*this); 	ar &
-> m_name;
-> > 	ar & m_attributes;
-> > 	ar & m_aliases;
-> > }
-> > 
-> > Finally, I made Python bindings using Boost::Python. The
-> > result is Python bindings that are _easy_ to make and very
-> > idiomatic. For example, Type needs (plus a few simple helpers
-> > and the wrapping for Node):
-> > 
-> > class_<StringSet>("StringSet")
-> >         .def("add", &set_insert)
-> >         .def("discard", &set_erase)
-> >         .def("__str__", &set_to_string)
-> >         .def("__repr__", &set_to_string)
-> >         .def("__iter__", range(&StringSet::begin, &StringSet::end))  
-> 
-> Are those last 3 special functions that are expected to be there by
-> boost? 
+semanage login -d Admin
+Libsemanage.semanage_make_sandbox: Could not copy files to sandbox
+/etc/selinux/strict/modules/tmp
+/usr/sbin/semanage: Could not start semanage transaction
 
-Boost doesn't care - they just make the type behave like a regular
-python class.
+The error message in the /var/log/messages file is:
+Jun  4 21:10:11 unknown python: Failed:  delete SELinux user mapping
+name=3DAdmin
 
-> Do we really have to implement our own stringset class? There is
-> nothing in boost or elsewhere that does this really basic stuff?
-> 
+Any ideas on why I can execute semanage only ONCE ?  I have tried
+rebooting the machine several times, to see if it helps, but it doesn't
+!
 
-I am just wrapping std::set<std::string> which is typedef'd to
-StringSet, so I didn't implement anything. What is above is pretty
-fantastic if you ask me (just the iterator mapping is a huge win). But
-yes, there are easy ways to export container types (through "indexing
-suites"). For example, a vector of nodes is exported via:
+Also, whats the significance of the
+/etc/selinux/strict/module/semanage.read.LOCK  &  semanage.trans.LOCK
+files ?
 
-class_<NodeVector>("NodeVector")
-        .def(vector_indexing_suite<NodeVector, true>());
+Thanks in advance,
 
-That gives you all of special functions that you would expect (and
-conversion to/from python lists). Unfortunately, there seems to only be
-support for map and vector types - sets aren't supported, probably
-because they are less commonly used.
+- Rezaul.
 
-> > ; 
-> > 
-> > class_<Type, bases<Node> >("Type")
-> >         .add_property("name", &Type::get_name, &Type::set_name)
-> >         .add_property("aliases"
-> >                 , make_function(
-> >                         &Type::aliases,
-> > return_value_policy<reference_existing_object>()
-> >                  ))
-> >         .add_property("attributes"
-> >                         , make_function(
-> >                                 &Type::attributes,
-> > return_value_policy<reference_existing_object>()
-> >                          ))
-> >                 ;
-> > 
-> > Which yields bindings that allow you to do:
-> > 
-> > import policyrep
-> > 
-> > t = policyrep.Type()
-> > t.name = "user_t"
-> > t.aliases.add("foo")
-> > t.aliases.add("bar")
-> > 
-> > for a in t.aliases:
-> >     print a
-> > 
-> > These bindings are much better than what you can get out of
-> > swig with much less work. The tradeoff is that they use deep
-> > and mysterious C++ magic, which sometimes makes the compiler
-> > very unhappy.
-> > 
-> 
-> They do look much better,
+------_=_NextPart_001_01C7A6EF.DF3A347C
+Content-Type: text/html;
+	charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
 
-And there are some advantages that aren't readily visible - like there
-are none of those odd swig shadow types. This creates real new-style
-python classes directly.
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+<HEAD>
+<META HTTP-EQUIV=3D"Content-Type" CONTENT=3D"text/html; =
+charset=3Dus-ascii">
+<META NAME=3D"Generator" CONTENT=3D"MS Exchange Server version =
+6.5.7652.14">
+<TITLE>Help with semanage...</TITLE>
+</HEAD>
+<BODY>
+<!-- Converted from text/rtf format -->
 
->  what do you mean unhappy?
-> 
+<P><SPAN LANG=3D"en-us"><FONT SIZE=3D2 FACE=3D"Arial">Hi =
+All,</FONT></SPAN>
+</P>
 
-Ummm - you just have to see it to believe it :) For example, changing
-true to false in the vector example above causes the error message at
-the bottom of this email.
+<P><SPAN LANG=3D"en-us"><FONT SIZE=3D2 FACE=3D"Arial">I have a Linux =
+machine (Machine_A) running a collection of&nbsp; *strict*&nbsp; SELinux =
+policies. On Machine_A, I am able to further modify policies by using =
+semanage, and also add/delete policy modules using semodule.</FONT><FONT =
+SIZE=3D2 FACE=3D"Arial"> I can make changes at will successfully as many =
+times as I want.</FONT></SPAN></P>
 
-The good news, though, is that once you get things right everything
-works well. Part of the advantage to boost::python is that it is uses
-the C++ compiler to introspect the classes / functions at compile time
-to generate the bindings. That means that all of the C++ type
-information is available (unlike swig - which can't fully parse and
-understand the semantics of C or C++). The downside is that the
-compilation can consume huge amounts of cpu / memory and generate
-bizarre errors if the code is wrong.
+<P><SPAN LANG=3D"en-us"><FONT SIZE=3D2 FACE=3D"Arial">I tarred up the =
+entire&nbsp; /etc/selinux/* directory from Machine_A, and I untarred =
+the</FONT> <FONT SIZE=3D2 FACE=3D"Arial">tar-ball</FONT><FONT SIZE=3D2 =
+FACE=3D"Arial"> on another Linux machine, Machine_B. On =
+Machine_B,</FONT> <FONT SIZE=3D2 FACE=3D"Arial">I also</FONT> <FONT =
+SIZE=3D2 FACE=3D"Arial">created and mounted the /selinux/ directory. =
+</FONT></SPAN></P>
 
-> > This has basically convinced me that C++ is the way to go (or
-> > to put it another way - please, oh, please don't make me
-> > write any more C code).
-> > Thoughts?
-> > 
-> 
-> Great news :)
-> 
+<P><SPAN LANG=3D"en-us"><FONT SIZE=3D2 FACE=3D"Arial">With all selinux =
+files/dirs in place, AFTER</FONT><FONT SIZE=3D2 FACE=3D"Arial"> =
+rebooting Machine_B, SELinux policies seem to be working as expected =
+!</FONT></SPAN>
+</P>
 
-I assume that means you think this is the way to go? Steve - any
-thoughts?
+<P><SPAN LANG=3D"en-us"><FONT SIZE=3D2 FACE=3D"Arial">At this point, I =
+am able to execute&nbsp;</FONT> <FONT SIZE=3D2 =
+FACE=3D"Arial">&quot;</FONT><FONT SIZE=3D2 =
+FACE=3D"Arial">semanage</FONT><FONT SIZE=3D2 =
+FACE=3D"Arial">&quot;</FONT><FONT SIZE=3D2 FACE=3D"Arial">&nbsp;<U><B> =
+ONLY</B></U></FONT><U><B><FONT SIZE=3D2 FACE=3D"Arial"> =
+ONE</FONT></B></U><B><FONT SIZE=3D2 FACE=3D"Arial"></FONT> <FONT =
+SIZE=3D2 FACE=3D"Arial">time</FONT> <FONT SIZE=3D2 =
+FACE=3D"Arial">successfully</FONT></B> <FONT SIZE=3D2 =
+FACE=3D"Arial">!&nbsp;</FONT> <FONT SIZE=3D2 FACE=3D"Arial">Any attempts =
+to make any further changes after the first time fails with the error =
+below...</FONT></SPAN></P>
 
-[...]
+<P><SPAN LANG=3D"en-us"><FONT SIZE=3D2 FACE=3D"Arial">So</FONT> <FONT =
+SIZE=3D2 FACE=3D"Arial">for example,</FONT> <FONT SIZE=3D2 =
+FACE=3D"Arial">If I create a new user-mapping</FONT><FONT SIZE=3D2 =
+FACE=3D"Arial"> with:</FONT><FONT SIZE=3D2 FACE=3D"Arial">&nbsp; =
+&quot;</FONT><B><FONT SIZE=3D2 FACE=3D"Arial">semanage login -a -s =
+staff_u Admin</FONT></B><FONT SIZE=3D2 FACE=3D"Arial">&quot;, this first =
+command is successful !</FONT></SPAN></P>
 
-> > diff -r 83885c13a34d libpolicyrep/include/policyrep/policy.hpp
-> > --- a/libpolicyrep/include/policyrep/policy.hpp       Mon Jun 04
-> 13:24:11
-> > 2007 -0400 +++ b/libpolicyrep/include/policyrep/policy.hpp    Mon
-> Jun
-> 04
-> 
-> So this is exported and stable? We never previously exported the
-> policydb, is this intentional?
-> 
+<P><SPAN LANG=3D"en-us"><FONT SIZE=3D2 FACE=3D"Arial">But every semanage =
+command run afterwards has this same error:</FONT></SPAN>
+</P>
 
-Not yet - but I intend this to be stable. That is one of the things we
-need to consider - C++ is not the best for ABI compatibility. I think we
-can make reasonable API/ABI guarantees for stable versions while still
-making more changes than we make to libselinux/libsepol (since it will
-be selinux tools linking to this library I think they will be more
-tolerant to changes).
+<P><SPAN LANG=3D"en-us"><B><FONT SIZE=3D2 FACE=3D"Arial">semanage login =
+-d Admin</FONT></B></SPAN>
 
-[...]
+<BR><SPAN LANG=3D"en-us"><I><FONT SIZE=3D2 =
+FACE=3D"Arial">Libsemanage.semanage_make_sandbox: Could not copy files =
+to sandbox /etc/selinux/strict/modules/tmp</FONT></I></SPAN>
 
+<BR><SPAN LANG=3D"en-us"><I><FONT SIZE=3D2 =
+FACE=3D"Arial">/usr/sbin/semanage: Could not start semanage =
+transaction</FONT></I></SPAN>
+</P>
 
-> > +        std::ostream& operator<<(std::ostream& o, const Node& n); +
-> 
-> Are you overloading the << operator? I thought we weren't going to
-> overload operators.
-> 
+<P><SPAN LANG=3D"en-us"><FONT SIZE=3D2 FACE=3D"Arial">The error message =
+in the /var/log/messages file is:</FONT></SPAN>
 
-Overloading << is pretty much required for efficient use of streams. It
-allows you to do:
+<BR><SPAN LANG=3D"en-us"><I><FONT SIZE=3D2 FACE=3D"Arial">Jun&nbsp; 4 =
+21:10:11 unknown</FONT></I><I><B> <FONT SIZE=3D2 =
+FACE=3D"Arial">python</FONT></B><FONT SIZE=3D2 FACE=3D"Arial">: =
+Failed:&nbsp; delete SELinux user mapping name=3DAdmin</FONT></I></SPAN>
+</P>
 
-policyrep::Type t;
-std::cout << t << std::endl;
+<P><SPAN LANG=3D"en-us"><FONT SIZE=3D2 FACE=3D"Arial">Any ideas on why I =
+can execute semanage only ONCE ?&nbsp; I have tried rebooting the =
+machine several times, to see if it helps, but it doesn't =
+!</FONT></SPAN></P>
 
-I'm not really a fan of operator overloading in general, but in this
-case I think it is worthwhile. And because of the friend function hack
-in the base class we only need to do it in on place - the subclasses
-simply override the virtual function "output".
+<P><SPAN LANG=3D"en-us"><FONT SIZE=3D2 FACE=3D"Arial">Also, whats the =
+significance of the&nbsp; /etc/selinux/strict/module/</FONT><B><FONT =
+SIZE=3D2 FACE=3D"Arial">semanage.read.LOCK&nbsp;</FONT></B> <FONT =
+SIZE=3D2 FACE=3D"Arial">&amp;&nbsp;</FONT><B> <FONT SIZE=3D2 =
+FACE=3D"Arial">semanage.trans.LOCK&nbsp;&nbsp;</FONT></B> <FONT SIZE=3D2 =
+FACE=3D"Arial">files ?</FONT></SPAN>
+</P>
 
-Karl
+<P><SPAN LANG=3D"en-us"><FONT SIZE=3D2 FACE=3D"Arial">Thanks in =
+advance,</FONT></SPAN>
+</P>
 
-Error message from example above:
+<P><SPAN LANG=3D"en-us"><FONT SIZE=3D2 FACE=3D"Arial">- =
+Rezaul.</FONT></SPAN>
+</P>
 
-g++ -Wall -W -Wundef -Wmissing-format-attribute -Wno-unused-parameter
--I. -I../include -D_GNU_SOURCE -I/usr/include/python2.4 -fPIC -DSHARED
--c -o policyrep_python.lo policyrep_python.cpp
-/usr/include/boost/python/with_custodian_and_ward.hpp: In static member
-function ‘static PyObject*
-boost::python::with_custodian_and_ward_postcall<custodian, ward,
-BasePolicy_>::postcall(const ArgumentPackage&, PyObject*) [with
-ArgumentPackage = PyObject*, long unsigned int custodian = 0ul, long
-unsigned int ward = 1ul, BasePolicy_ =
-boost::python::default_call_policies]’:
-/usr/include/boost/python/detail/caller.hpp:201:   instantiated from
-‘PyObject* boost::python::detail::caller_arity<1u>::impl<F, Policies,
-Sig>::operator()(PyObject*, PyObject*) [with F =
-boost::python::objects::iterator_range<boost::python::return_internal_reference<1ul, boost::python::default_call_policies>, __gnu_cxx::__normal_iterator<boost::shared_ptr<policyrep::Node>*, std::vector<boost::shared_ptr<policyrep::Node>, std::allocator<boost::shared_ptr<policyrep::Node> > > > >::next, Policies = boost::python::return_internal_reference<1ul, boost::python::default_call_policies>, Sig = boost::mpl::vector2<boost::shared_ptr<policyrep::Node>&, boost::python::objects::iterator_range<boost::python::return_internal_reference<1ul, boost::python::default_call_policies>, __gnu_cxx::__normal_iterator<boost::shared_ptr<policyrep::Node>*, std::vector<boost::shared_ptr<policyrep::Node>, std::allocator<boost::shared_ptr<policyrep::Node> > > > >&>]’
-/usr/include/boost/python/object/py_function.hpp:38:   instantiated from
-‘PyObject*
-boost::python::objects::caller_py_function_impl<Caller>::operator()(PyObject*, PyObject*) [with Caller = boost::python::detail::caller<boost::python::objects::iterator_range<boost::python::return_internal_reference<1ul, boost::python::default_call_policies>, __gnu_cxx::__normal_iterator<boost::shared_ptr<policyrep::Node>*, std::vector<boost::shared_ptr<policyrep::Node>, std::allocator<boost::shared_ptr<policyrep::Node> > > > >::next, boost::python::return_internal_reference<1ul, boost::python::default_call_policies>, boost::mpl::vector2<boost::shared_ptr<policyrep::Node>&, boost::python::objects::iterator_range<boost::python::return_internal_reference<1ul, boost::python::default_call_policies>, __gnu_cxx::__normal_iterator<boost::shared_ptr<policyrep::Node>*, std::vector<boost::shared_ptr<policyrep::Node>, std::allocator<boost::shared_ptr<policyrep::Node> > > > >&> >]’
-policyrep_python.cpp:74:   instantiated from here
-/usr/include/boost/python/with_custodian_and_ward.hpp:87: warning:
-comparison of unsigned expression < 0 is always false
-
-
-
-
-
+</BODY>
+</HTML>
+------_=_NextPart_001_01C7A6EF.DF3A347C--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
