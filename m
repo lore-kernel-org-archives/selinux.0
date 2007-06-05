@@ -1,30 +1,123 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l54NeEsS020545
-	for <selinux@tycho.nsa.gov>; Mon, 4 Jun 2007 19:40:14 -0400
-Received: from mail1.sea5.speakeasy.net (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id l54NeCIS004899
-	for <selinux@tycho.nsa.gov>; Mon, 4 Jun 2007 23:40:13 GMT
-Date: Mon, 4 Jun 2007 19:40:10 -0400 (EDT)
-From: James Morris <jmorris@namei.org>
-To: Eric Paris <eparis@redhat.com>
-cc: selinux@tycho.nsa.gov, sds@tycho.nsa.gov
-Subject: Re: [PATCH] introduce schedule points in policydb_destroy()
-In-Reply-To: <1180993282.3950.79.camel@localhost.localdomain>
-Message-ID: <Line.LNX.4.64.0706041939220.16720@d.namei>
-References: <1180993282.3950.79.camel@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Date: Tue, 5 Jun 2007 09:20:55 +0900
+From: Yuichi Nakamura <ynakam@hitachisoft.jp>
+To: Stephen Smalley <sds@tycho.nsa.gov>
+Cc: selinux@tycho.nsa.gov
+Subject: Re: [patch] Bug in restorecon
+Message-Id: <20070605092055.53351659.ynakam@hitachisoft.jp>
+In-Reply-To: <1180963724.14220.27.camel@moss-spartans.epoch.ncsc.mil>
+References: <20070604031847.0ec6c158.ynakam@hitachisoft.jp>
+	<1180963724.14220.27.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Applied to
+On Mon, 04 Jun 2007 09:28:44 -0400
+Stephen Smalley wrote:
+> On Mon, 2007-06-04 at 03:18 +0900, Yuichi Nakamura wrote:
+> In that case, why have 'fullname' vs. 'name' at all?  Just directly
+> manipulate name and use it throughout.
+fullname is unnecessary, so removed.
 
-git://git.kernel.org/pub/scm/linux/kernel/git/jmorris/selinux-2.6.git#for-akpm
+> Make sure that setfiles -r /path/to/altroot
+> file_contexts /path/to/altroot still works as expected, e.g.
+> labels /path/to/altroot/etc/shadow with the label of /etc/shadow in
+> policy.
+I tested, 
+"touch /altroot/etc/shadow, setfiles -r /altroot"
+then /altroot/etc/shadow was labeled as same label for /etc/shadow.
+
+Please see below patch.
+
+Index: policycoreutils/setfiles/setfiles.c
+===================================================================
+--- policycoreutils/setfiles/setfiles.c	(revision 2457)
++++ policycoreutils/setfiles/setfiles.c	(working copy)
+@@ -146,20 +146,19 @@
+ int match(const char *name, struct stat *sb, char **con)
+ {
+ 	int ret;
+-	const char *fullname = name;
+ 	char path[PATH_MAX + 1];
+ 
+ 	if (excludeCtr > 0) {
+-		if (exclude(fullname)) {
++		if (exclude(name)) {
+ 			return -1;
+ 		}
+ 	}
+-	ret = lstat(fullname, sb);
++	ret = lstat(name, sb);
+ 	if (ret) {
+ 		if (ignore_enoent && errno == ENOENT)
+ 			return 0;
+ 		fprintf(stderr, "%s:  unable to stat file %s: %s\n", progname,
+-			fullname, strerror(errno));
++			name, strerror(errno));
+ 		return -1;
+ 	}
+ 
+@@ -168,12 +167,12 @@
+ 			if (verbose > 1)
+ 				fprintf(stderr,
+ 					"Warning! %s refers to a symbolic link, not following last component.\n",
+-					fullname);
++					name);
+ 			char *p = NULL, *file_sep;
+-			char *tmp_path = strdupa(fullname);
++			char *tmp_path = strdupa(name);
+ 			size_t len = 0;
+ 			if (!tmp_path) {
+-				fprintf(stderr, "strdupa on %s failed:  %s\n", fullname,
++				fprintf(stderr, "strdupa on %s failed:  %s\n", name,
+ 					strerror(errno));
+ 				return -1;
+ 			}
+@@ -192,7 +191,7 @@
+ 			if (p)
+ 				len = strlen(p);
+ 			if (!p || len + strlen(file_sep) + 2 > PATH_MAX) {
+-				fprintf(stderr, "realpath(%s) failed %s\n", fullname,
++				fprintf(stderr, "realpath(%s) failed %s\n", name,
+ 					strerror(errno));
+ 				return -1;
+ 			}
+@@ -203,25 +202,24 @@
+ 				p++;
+ 			}
+ 			strcpy(p, file_sep);
+-			fullname = path;
+-			if (excludeCtr > 0 && exclude(fullname))
++			name = path;
++			if (excludeCtr > 0 && exclude(name))
+ 				return -1;
+ 		} else {
+ 			char *p;
+-			p = realpath(fullname, path);
++			p = realpath(name, path);
+ 			if (!p) {
+-				fprintf(stderr, "realpath(%s) failed %s\n", fullname,
++				fprintf(stderr, "realpath(%s) failed %s\n", name,
+ 					strerror(errno));
+ 				return -1;
+ 			}
+-			fullname = p;
+-			if (excludeCtr > 0 && exclude(fullname))
++			name = p;
++			if (excludeCtr > 0 && exclude(name))
+ 				return -1;
+ 		}
+ 	}
+-
+-	/* fullname will be the real file that gets labeled
+-	 * name will be what is matched in the policy */
++	
++	/* name will be what is matched in the policy */
 
 
--- 
-James Morris
-<jmorris@namei.org>
+Regards,
+Yuichi Nakamura
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
