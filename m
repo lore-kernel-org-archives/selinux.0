@@ -1,51 +1,102 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l55FO1Qx003320
-	for <selinux@tycho.nsa.gov>; Tue, 5 Jun 2007 11:24:01 -0400
-Received: from exchange.columbia.tresys.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with SMTP id l55FO0x1010648
-	for <selinux@tycho.nsa.gov>; Tue, 5 Jun 2007 15:24:00 GMT
-Subject: Re: upgrading to modular policy
-From: "Christopher J. PeBenito" <cpebenito@tresys.com>
-To: Antoine Martin <antoine@nagafix.co.uk>
-Cc: SE-Linux <selinux@tycho.nsa.gov>
-In-Reply-To: <466578C5.9070602@nagafix.co.uk>
-References: <466578C5.9070602@nagafix.co.uk>
-Content-Type: text/plain
-Date: Tue, 05 Jun 2007 11:22:44 -0400
-Message-Id: <1181056964.6578.7.camel@sgc.columbia.tresys.com>
-Mime-Version: 1.0
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Subject: RE: Help with semanage...
+Date: Tue, 5 Jun 2007 12:34:54 -0400
+Message-ID: <D06FE0A2807BC145B0D38744789D4F5D0399F30B@de01exm68.ds.mot.com>
+In-Reply-To: <1181048822.25769.23.camel@moss-spartans.epoch.ncsc.mil>
+References: <6FE441CD9F0C0C479F2D88F959B01588BF01FF@exchange.columbia.tresys.com> <1180633622.3534.78.camel@localhost.localdomain> <6FE441CD9F0C0C479F2D88F959B01588BF0204@exchange.columbia.tresys.com> <20070531204502.3a667419@maya> <D06FE0A2807BC145B0D38744789D4F5D0399F027@de01exm68.ds.mot.com> <1180993233.14220.171.camel@moss-spartans.epoch.ncsc.mil> <D06FE0A2807BC145B0D38744789D4F5D0399F04E@de01exm68.ds.mot.com> <1181048822.25769.23.camel@moss-spartans.epoch.ncsc.mil>
+From: "Hasan Rezaul-CHR010" <CHR010@motorola.com>
+To: "Stephen Smalley" <sds@tycho.nsa.gov>
+Cc: <selinux@tycho.nsa.gov>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2007-06-05 at 15:52 +0100, Antoine Martin wrote:
-> I am finally getting around to upgrading some custom modules to the
-> modular policy and I have encountered a few issues:
-> * How do I find the new equivalent for macros which have been renamed?
-> ie: file_type_auto_trans, domain_auto_trans, append_logdir_domain,
-> general_domain_access, etc...
+The version of libsemanage I have is:   libsemanage-1.6.17-1
 
-You can look at this:
+1. What specific version of libsemanage  removes the use of the
+..../previous/  directory, as well as the  .../active/base.linked  files
+?
 
-http://oss.tresys.com/projects/refpolicy/browser/docs/macro_conversion_guide
+2. Would I need a newer version of some other library(ies) as well (like
+libselinux, etc), so that executing semodule commands doesn't create a
+.../previous/  directory ?  Example commands: 
+"semodule -i myPolicy.pp"    -or-    "semodule -r myPolicy" 
 
-It hasn't been updated in 10 months, so its probably a little out of
-date, but it should get you started.
+3. Any explanations of why  emptying out the .../previous/*  directory
+allows me to execute another semanage command successfully ?
 
-> * trying to load one of the modules gives:
-> libsepol.permission_copy_callback: Module local depends on permission
-> dccp_recv in class node, not satisfied
-> libsemanage.semanage_link_sandbox: Link packages failed
-> semodule:  Failed!
+Thanks,
 
-It means the headers you are compiling against are newer than the base
-policy you have installed.  The dccp_recv permission does not exist in
-the base policy, but it exists, according to the headers.  You probably
-just need to recompile your base module to include these new perms.
+- Rezaul.  
+
+
+-----Original Message-----
+From: Stephen Smalley [mailto:sds@tycho.nsa.gov] 
+Sent: Tuesday, June 05, 2007 8:07 AM
+To: Hasan Rezaul-CHR010
+Cc: selinux@tycho.nsa.gov
+Subject: RE: Help with semanage...
+
+On Mon, 2007-06-04 at 18:12 -0400, Hasan Rezaul-CHR010 wrote:
+> Interesting. I am logged in as Linux_User = root,  and my SELinux role
+=
+> sysadm_r, domain = sysadm_t.
+> 
+> So Not sure how my security contexts could become incorrect ???
+> 
+> In any case, when I did  "/sbin/restorecon -R /etc/selinux"   it
+DINDT
+> help  :(  Still got the same error.
+
+And what avc messages are you getting in /var/log/messages
+or /var/log/audit/audit.log?
+
+> BUT, just for kicks, I tried deleting the contents of the
+> /etc/selinux/strict/modules/previous/  directory, and then I was able
+to
+> run an semanage command for ONE more time !
+> 
+> So If I remove contents of the .../previous/  directory, then I can
+> execute one more semanage command successfully. So for successful
+> semanage commands I have to keep emptying out  .../previous/*. Very
+> Strange !
+> 
+> 1. Is there anyway to run semanage or semodule commands such that a
+> "previous" directory is NOT created ?
+
+Update libsemanage to a recent version.  What version do you presently
+have?
+
+> 2. What is the significance of the  semanage.read.LOCK  and
+> semanage.trans.LOCK  files ?
+
+libsemanage performs flock(3) calls on them to perform locking on the
+policy store.  The mere existence of the files means nothing (i.e. their
+existence does not imply that anything is locked).
+
+> 3. The fact the  /var/log/messages  file has a "python" error, does
+that
+> mean anything ?
+
+That is just how log messages from a python script like semanage
+manifest, since the real program is the python interpreter.
+
+>    Jun  4 21:10:11 unknown python: Failed:  delete SELinux user
+mapping
+> name=Admin
+> 
+> 4. Any foreseeable problems with getting rid of the
+> /etc/selinux/strict/modules/active/base.linked file ? I need to save
+> some space on my machine.
+
+If you update to a newer libsemanage, it shouldn't be left around
+anymore.
 
 -- 
-Chris PeBenito
-Tresys Technology, LLC
-(410) 290-1411 x150
+Stephen Smalley
+National Security Agency
+
 
 
 --
