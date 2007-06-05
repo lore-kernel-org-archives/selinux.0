@@ -1,62 +1,76 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l55CwBS7021820
-	for <selinux@tycho.nsa.gov>; Tue, 5 Jun 2007 08:58:11 -0400
-Received: from exchange.columbia.tresys.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with SMTP id l55Cw8N4004850
-	for <selinux@tycho.nsa.gov>; Tue, 5 Jun 2007 12:58:08 GMT
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Subject: RE: [RFC] permissions for conditional UPDATE statement
-Date: Tue, 5 Jun 2007 08:58:08 -0400
-Message-ID: <6FE441CD9F0C0C479F2D88F959B01588BF045B@exchange.columbia.tresys.com>
-In-Reply-To: <200706040423.l544NU3H086014@www346.sakura.ne.jp>
-References: <200706040423.l544NU3H086014@www346.sakura.ne.jp>
-From: "Joshua Brindle" <jbrindle@tresys.com>
-To: <kaigai@kaigai.gr.jp>, <russell@coker.com.au>
-Cc: <selinux@tycho.nsa.gov>, <kaigai@ak.jp.nec.com>
+Subject: RE: Help with semanage...
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Hasan Rezaul-CHR010 <CHR010@motorola.com>
+Cc: selinux@tycho.nsa.gov
+In-Reply-To: <D06FE0A2807BC145B0D38744789D4F5D0399F04E@de01exm68.ds.mot.com>
+References: 
+	 <6FE441CD9F0C0C479F2D88F959B01588BF01FF@exchange.columbia.tresys.com>
+	 <1180633622.3534.78.camel@localhost.localdomain>
+	 <6FE441CD9F0C0C479F2D88F959B01588BF0204@exchange.columbia.tresys.com>
+	 <20070531204502.3a667419@maya>
+	 <D06FE0A2807BC145B0D38744789D4F5D0399F027@de01exm68.ds.mot.com>
+	 <1180993233.14220.171.camel@moss-spartans.epoch.ncsc.mil>
+	 <D06FE0A2807BC145B0D38744789D4F5D0399F04E@de01exm68.ds.mot.com>
+Content-Type: text/plain
+Date: Tue, 05 Jun 2007 09:07:02 -0400
+Message-Id: <1181048822.25769.23.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-kaigai@kaigai.gr.jp wrote:
-> It is a RFC in security design of SE-PostgreSQL.
+On Mon, 2007-06-04 at 18:12 -0400, Hasan Rezaul-CHR010 wrote:
+> Interesting. I am logged in as Linux_User = root,  and my SELinux role =
+> sysadm_r, domain = sysadm_t.
 > 
-> In the current version of SE-PostgreSQL, {select update} for
-> table, column and tuple classes are required when a client
-> execute a SQL query with conditional UPDATE query, for example.
+> So Not sure how my security contexts could become incorrect ???
 > 
-> It means that the following SQL requires '{select update}'
-> permission, not only 'update', because the query tries to
-> refer 'z' column of 'tbl_1' table on WHERE clause.
-> 
->   UPDATE tbl_1 SET x = 10, y = 'aaa' WHERE z = true;
-> 
-> The query indeed refers 'tbl_1', 'z' column and each targeted
-> tuples, so 'select' permission might be appropriate.
-> But there is a significant difference from general SELECT
-> statement from conditional UPDATE. It does not return its content.
-> 
-> We have a matter in this approach. DBA have to allow SELECT
-> permission to enable conditional UPDATE statement, even if he
-> does not want to expose its contents.
-> 
-> I have an idea to solve them. add 'reference' (or 'refer')
-> permission on table, column and tuple object classes.
-> It means references to those objects without returning their contents
-> to clients. 
-> 
+> In any case, when I did  "/sbin/restorecon -R /etc/selinux"   it  DINDT
+> help  :(  Still got the same error.
 
-I agree to some extent. The where clause can be used to enumerate what
-data might be but doesn't tell you what it is explicitely (the boolean
-above is a bad example, something like an unknown string is a lot
-harder). I kind of like the 'use' permission more, it can be used
-anywhere this sort of thing happens where extra granularity doesn't
-help.
+And what avc messages are you getting in /var/log/messages
+or /var/log/audit/audit.log?
 
-As an aside, I'm glad to see you are continuing this work dispite
-resistance upstream. Do you have a plan for inclusion? Have you talked
-to upstream offline or somewhere not public about what their problems
-are?
+> BUT, just for kicks, I tried deleting the contents of the
+> /etc/selinux/strict/modules/previous/  directory, and then I was able to
+> run an semanage command for ONE more time !
+> 
+> So If I remove contents of the .../previous/  directory, then I can
+> execute one more semanage command successfully. So for successful
+> semanage commands I have to keep emptying out  .../previous/*. Very
+> Strange !
+> 
+> 1. Is there anyway to run semanage or semodule commands such that a
+> "previous" directory is NOT created ?
+
+Update libsemanage to a recent version.  What version do you presently
+have?
+
+> 2. What is the significance of the  semanage.read.LOCK  and
+> semanage.trans.LOCK  files ?
+
+libsemanage performs flock(3) calls on them to perform locking on the
+policy store.  The mere existence of the files means nothing (i.e. their
+existence does not imply that anything is locked).
+
+> 3. The fact the  /var/log/messages  file has a "python" error, does that
+> mean anything ?
+
+That is just how log messages from a python script like semanage
+manifest, since the real program is the python interpreter.
+
+>    Jun  4 21:10:11 unknown python: Failed:  delete SELinux user mapping
+> name=Admin
+> 
+> 4. Any foreseeable problems with getting rid of the
+> /etc/selinux/strict/modules/active/base.linked file ? I need to save
+> some space on my machine.
+
+If you update to a newer libsemanage, it shouldn't be left around
+anymore.
+
+-- 
+Stephen Smalley
+National Security Agency
 
 
 --
