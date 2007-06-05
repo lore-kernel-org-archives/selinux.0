@@ -1,57 +1,58 @@
-Subject: RE: Help with semanage...
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Hasan Rezaul-CHR010 <CHR010@motorola.com>
-Cc: selinux@tycho.nsa.gov
-In-Reply-To: <1181064978.25769.73.camel@moss-spartans.epoch.ncsc.mil>
-References: 
-	 <6FE441CD9F0C0C479F2D88F959B01588BF01FF@exchange.columbia.tresys.com>
-	 <1180633622.3534.78.camel@localhost.localdomain>
-	 <6FE441CD9F0C0C479F2D88F959B01588BF0204@exchange.columbia.tresys.com>
-	 <20070531204502.3a667419@maya>
-	 <D06FE0A2807BC145B0D38744789D4F5D0399F027@de01exm68.ds.mot.com>
-	 <1180993233.14220.171.camel@moss-spartans.epoch.ncsc.mil>
-	 <D06FE0A2807BC145B0D38744789D4F5D0399F04E@de01exm68.ds.mot.com>
-	 <1181048822.25769.23.camel@moss-spartans.epoch.ncsc.mil>
-	 <D06FE0A2807BC145B0D38744789D4F5D0399F30B@de01exm68.ds.mot.com>
-	 <1181064978.25769.73.camel@moss-spartans.epoch.ncsc.mil>
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l55IEaAt014195
+	for <selinux@tycho.nsa.gov>; Tue, 5 Jun 2007 14:14:46 -0400
+Received: from e32.co.us.ibm.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l55IEZRI018285
+	for <selinux@tycho.nsa.gov>; Tue, 5 Jun 2007 18:14:35 GMT
+Received: from d03relay04.boulder.ibm.com (d03relay04.boulder.ibm.com [9.17.195.106])
+	by e32.co.us.ibm.com (8.12.11.20060308/8.13.8) with ESMTP id l55IAIVJ031722
+	for <selinux@tycho.nsa.gov>; Tue, 5 Jun 2007 14:10:18 -0400
+Received: from d03av03.boulder.ibm.com (d03av03.boulder.ibm.com [9.17.195.169])
+	by d03relay04.boulder.ibm.com (8.13.8/8.13.8/NCO v8.3) with ESMTP id l55IEURX150460
+	for <selinux@tycho.nsa.gov>; Tue, 5 Jun 2007 12:14:31 -0600
+Received: from d03av03.boulder.ibm.com (loopback [127.0.0.1])
+	by d03av03.boulder.ibm.com (8.12.11.20060308/8.13.3) with ESMTP id l55IETle030812
+	for <selinux@tycho.nsa.gov>; Tue, 5 Jun 2007 12:14:30 -0600
+Subject: Re: [PATCH]: Add security check before flushing SAD/SPD
+From: Joy Latten <latten@austin.ibm.com>
+To: James Morris <jmorris@namei.org>
+Cc: Eric Paris <eparis@redhat.com>, netdev@vger.kernel.org,
+        davem@davemloft.net, selinux@tycho.nsa.gov
+In-Reply-To: <Line.LNX.4.64.0706041544230.13341@d.namei>
+References: <200703262321.l2QNLZlR014240@faith.austin.ibm.com>
+	 <1180983953.3950.37.camel@localhost.localdomain>
+	 <Line.LNX.4.64.0706041544230.13341@d.namei>
 Content-Type: text/plain
-Date: Tue, 05 Jun 2007 13:51:28 -0400
-Message-Id: <1181065888.25769.82.camel@moss-spartans.epoch.ncsc.mil>
+Date: Tue, 05 Jun 2007 12:56:04 -0500
+Message-Id: <1181066165.15699.37.camel@faith.austin.ibm.com>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2007-06-05 at 13:36 -0400, Stephen Smalley wrote:
-> On Tue, 2007-06-05 at 12:34 -0400, Hasan Rezaul-CHR010 wrote:
-> > The version of libsemanage I have is:   libsemanage-1.6.17-1
+On Mon, 2007-06-04 at 15:44 -0400, James Morris wrote:
+> On Mon, 4 Jun 2007, Eric Paris wrote:
+> 
+> > Some time ago this thread bounced back and forth and seemed to come to
+> > rest with the patch below, I cleaned up the comments and put all the
+> > ACKs it received in one place below, but so much time has passed I doubt
+> > if they should still count for free.  I also rediffed the patch against
+> > the latest miller tree.  Is the idea or patch in any way flawed or
+> > unacceptable to people at the moment?
 > > 
-> > 1. What specific version of libsemanage  removes the use of the
-> > ..../previous/  directory, as well as the  .../active/base.linked  files
-> > ?
+> > Anyone willing to step up an re-ack the patch to get it moving into the
+> > tree?
 > 
-> 1.9.2 or higher.
+> Looks good to me.
 > 
-> > 2. Would I need a newer version of some other library(ies) as well (like
-> > libselinux, etc), so that executing semodule commands doesn't create a
-> > .../previous/  directory ?  Example commands: 
-> > "semodule -i myPolicy.pp"    -or-    "semodule -r myPolicy" 
+> Acked-by: James Morris <jmorris@namei.org>
 > 
-> No, it is a shared library and the .so version has not changed, so you
-> don't have to upgrade other components.  However, common practice is to
-> upgrade all of the selinux core userland together (checkpolicy,
-> libsepol, libselinux, libsemanage, policycoreutils).
+> 
 
-BTW, you can checkout the latest versions of the stable branch via:
-$ svn co  https://selinux.svn.sourceforge.net/svnroot/selinux/branches/stable/1_0 sel-stable
+I have also tested with 2.6.22-rc3-git7 and all appears to be working as
+expected. 
 
-You can then build and install the entire core selinux userland via:
-$ cd sel-stable
-$ su
-# make install install-pywrap relabel
+Acked-by: Joy Latten <latten@austin.ibm.com>
 
--- 
-Stephen Smalley
-National Security Agency
 
 
 --
