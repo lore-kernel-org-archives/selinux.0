@@ -1,34 +1,127 @@
-Subject: Re: setfiles -c is failing do to bad checking on options.
+Subject: Re: [patch] Bug in restorecon
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Daniel J Walsh <dwalsh@redhat.com>
-Cc: SE Linux <selinux@tycho.nsa.gov>
-In-Reply-To: <46648BAC.8090702@redhat.com>
-References: <46648BAC.8090702@redhat.com>
+To: Yuichi Nakamura <ynakam@hitachisoft.jp>
+Cc: selinux@tycho.nsa.gov
+In-Reply-To: <20070605092055.53351659.ynakam@hitachisoft.jp>
+References: <20070604031847.0ec6c158.ynakam@hitachisoft.jp>
+	 <1180963724.14220.27.camel@moss-spartans.epoch.ncsc.mil>
+	 <20070605092055.53351659.ynakam@hitachisoft.jp>
 Content-Type: text/plain
-Date: Tue, 05 Jun 2007 10:05:45 -0400
-Message-Id: <1181052345.25769.31.camel@moss-spartans.epoch.ncsc.mil>
+Date: Tue, 05 Jun 2007 10:06:07 -0400
+Message-Id: <1181052367.25769.33.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 2007-06-04 at 18:01 -0400, Daniel J Walsh wrote:
-> plain text document attachment (diff)
-> diff --exclude-from=exclude --exclude=sepolgen-1.0.8 --exclude=gui --exclude=po -N -u -r nsapolicycoreutils/setfiles/setfiles.c policycoreutils-2.0.19/setfiles/setfiles.c
-> --- nsapolicycoreutils/setfiles/setfiles.c	2007-05-18 09:58:33.000000000 -0400
-> +++ policycoreutils-2.0.19/setfiles/setfiles.c	2007-06-04 17:42:44.000000000 -0400
-> @@ -858,8 +858,6 @@
->  		if (strcmp(input_filename, "-") != 0)
->  			fclose(f);
->  	} else {
-> -		if (optind >= argc)
-> -			usage(argv[0]);
->  		for (i = optind; i < argc; i++) {
->  			errors |= process_one(argv[i]);
+On Tue, 2007-06-05 at 09:20 +0900, Yuichi Nakamura wrote:
+> On Mon, 04 Jun 2007 09:28:44 -0400
+> Stephen Smalley wrote:
+> > On Mon, 2007-06-04 at 03:18 +0900, Yuichi Nakamura wrote:
+> > In that case, why have 'fullname' vs. 'name' at all?  Just directly
+> > manipulate name and use it throughout.
+> fullname is unnecessary, so removed.
+> 
+> > Make sure that setfiles -r /path/to/altroot
+> > file_contexts /path/to/altroot still works as expected, e.g.
+> > labels /path/to/altroot/etc/shadow with the label of /etc/shadow in
+> > policy.
+> I tested, 
+> "touch /altroot/etc/shadow, setfiles -r /altroot"
+> then /altroot/etc/shadow was labeled as same label for /etc/shadow.
+> 
+> Please see below patch.
+
+Thanks, merged onto trunk.
+
+> 
+> Index: policycoreutils/setfiles/setfiles.c
+> ===================================================================
+> --- policycoreutils/setfiles/setfiles.c	(revision 2457)
+> +++ policycoreutils/setfiles/setfiles.c	(working copy)
+> @@ -146,20 +146,19 @@
+>  int match(const char *name, struct stat *sb, char **con)
+>  {
+>  	int ret;
+> -	const char *fullname = name;
+>  	char path[PATH_MAX + 1];
+>  
+>  	if (excludeCtr > 0) {
+> -		if (exclude(fullname)) {
+> +		if (exclude(name)) {
+>  			return -1;
 >  		}
-
-Thanks, merged.  Only affects trunk, as this was due to the merger of
-setfiles and restorecon into a single program.
-
+>  	}
+> -	ret = lstat(fullname, sb);
+> +	ret = lstat(name, sb);
+>  	if (ret) {
+>  		if (ignore_enoent && errno == ENOENT)
+>  			return 0;
+>  		fprintf(stderr, "%s:  unable to stat file %s: %s\n", progname,
+> -			fullname, strerror(errno));
+> +			name, strerror(errno));
+>  		return -1;
+>  	}
+>  
+> @@ -168,12 +167,12 @@
+>  			if (verbose > 1)
+>  				fprintf(stderr,
+>  					"Warning! %s refers to a symbolic link, not following last component.\n",
+> -					fullname);
+> +					name);
+>  			char *p = NULL, *file_sep;
+> -			char *tmp_path = strdupa(fullname);
+> +			char *tmp_path = strdupa(name);
+>  			size_t len = 0;
+>  			if (!tmp_path) {
+> -				fprintf(stderr, "strdupa on %s failed:  %s\n", fullname,
+> +				fprintf(stderr, "strdupa on %s failed:  %s\n", name,
+>  					strerror(errno));
+>  				return -1;
+>  			}
+> @@ -192,7 +191,7 @@
+>  			if (p)
+>  				len = strlen(p);
+>  			if (!p || len + strlen(file_sep) + 2 > PATH_MAX) {
+> -				fprintf(stderr, "realpath(%s) failed %s\n", fullname,
+> +				fprintf(stderr, "realpath(%s) failed %s\n", name,
+>  					strerror(errno));
+>  				return -1;
+>  			}
+> @@ -203,25 +202,24 @@
+>  				p++;
+>  			}
+>  			strcpy(p, file_sep);
+> -			fullname = path;
+> -			if (excludeCtr > 0 && exclude(fullname))
+> +			name = path;
+> +			if (excludeCtr > 0 && exclude(name))
+>  				return -1;
+>  		} else {
+>  			char *p;
+> -			p = realpath(fullname, path);
+> +			p = realpath(name, path);
+>  			if (!p) {
+> -				fprintf(stderr, "realpath(%s) failed %s\n", fullname,
+> +				fprintf(stderr, "realpath(%s) failed %s\n", name,
+>  					strerror(errno));
+>  				return -1;
+>  			}
+> -			fullname = p;
+> -			if (excludeCtr > 0 && exclude(fullname))
+> +			name = p;
+> +			if (excludeCtr > 0 && exclude(name))
+>  				return -1;
+>  		}
+>  	}
+> -
+> -	/* fullname will be the real file that gets labeled
+> -	 * name will be what is matched in the policy */
+> +	
+> +	/* name will be what is matched in the policy */
+> 
+> 
+> Regards,
+> Yuichi Nakamura
 -- 
 Stephen Smalley
 National Security Agency
