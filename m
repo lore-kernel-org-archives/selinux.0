@@ -1,127 +1,51 @@
-Subject: Re: [patch] Bug in restorecon
+Subject: Re: policycoreutils patch
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Yuichi Nakamura <ynakam@hitachisoft.jp>
-Cc: selinux@tycho.nsa.gov
-In-Reply-To: <20070605092055.53351659.ynakam@hitachisoft.jp>
-References: <20070604031847.0ec6c158.ynakam@hitachisoft.jp>
-	 <1180963724.14220.27.camel@moss-spartans.epoch.ncsc.mil>
-	 <20070605092055.53351659.ynakam@hitachisoft.jp>
+To: Daniel J Walsh <dwalsh@redhat.com>
+Cc: SE Linux <selinux@tycho.nsa.gov>, Joshua Brindle <method@manicmethod.com>,
+        Mark Goldman <mgoldman@tresys.com>
+In-Reply-To: <46602E03.8080200@redhat.com>
+References: <46602E03.8080200@redhat.com>
 Content-Type: text/plain
-Date: Tue, 05 Jun 2007 10:06:07 -0400
-Message-Id: <1181052367.25769.33.camel@moss-spartans.epoch.ncsc.mil>
+Date: Tue, 05 Jun 2007 10:05:05 -0400
+Message-Id: <1181052305.25769.29.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2007-06-05 at 09:20 +0900, Yuichi Nakamura wrote:
-> On Mon, 04 Jun 2007 09:28:44 -0400
-> Stephen Smalley wrote:
-> > On Mon, 2007-06-04 at 03:18 +0900, Yuichi Nakamura wrote:
-> > In that case, why have 'fullname' vs. 'name' at all?  Just directly
-> > manipulate name and use it throughout.
-> fullname is unnecessary, so removed.
+On Fri, 2007-06-01 at 10:32 -0400, Daniel J Walsh wrote:
+> policycoreutils should be checking if the user is the default_type not 
+> hard coded to user_u.
 > 
-> > Make sure that setfiles -r /path/to/altroot
-> > file_contexts /path/to/altroot still works as expected, e.g.
-> > labels /path/to/altroot/etc/shadow with the label of /etc/shadow in
-> > policy.
-> I tested, 
-> "touch /altroot/etc/shadow, setfiles -r /altroot"
-> then /altroot/etc/shadow was labeled as same label for /etc/shadow.
+> Also if selinux is not enabled, the verification step should not 
+> happen.  This is causing problems in chroot environments for the install.
 > 
-> Please see below patch.
+> Both these fixes should go into the new genhomedircon that is being 
+> added to semanage.
 
-Thanks, merged onto trunk.
+Thanks, merged into the current genhomedircon script on trunk.
 
-> 
-> Index: policycoreutils/setfiles/setfiles.c
-> ===================================================================
-> --- policycoreutils/setfiles/setfiles.c	(revision 2457)
-> +++ policycoreutils/setfiles/setfiles.c	(working copy)
-> @@ -146,20 +146,19 @@
->  int match(const char *name, struct stat *sb, char **con)
->  {
->  	int ret;
-> -	const char *fullname = name;
->  	char path[PATH_MAX + 1];
->  
->  	if (excludeCtr > 0) {
-> -		if (exclude(fullname)) {
-> +		if (exclude(name)) {
->  			return -1;
->  		}
->  	}
-> -	ret = lstat(fullname, sb);
-> +	ret = lstat(name, sb);
->  	if (ret) {
->  		if (ignore_enoent && errno == ENOENT)
->  			return 0;
->  		fprintf(stderr, "%s:  unable to stat file %s: %s\n", progname,
-> -			fullname, strerror(errno));
-> +			name, strerror(errno));
->  		return -1;
->  	}
->  
-> @@ -168,12 +167,12 @@
->  			if (verbose > 1)
->  				fprintf(stderr,
->  					"Warning! %s refers to a symbolic link, not following last component.\n",
-> -					fullname);
-> +					name);
->  			char *p = NULL, *file_sep;
-> -			char *tmp_path = strdupa(fullname);
-> +			char *tmp_path = strdupa(name);
->  			size_t len = 0;
->  			if (!tmp_path) {
-> -				fprintf(stderr, "strdupa on %s failed:  %s\n", fullname,
-> +				fprintf(stderr, "strdupa on %s failed:  %s\n", name,
->  					strerror(errno));
->  				return -1;
->  			}
-> @@ -192,7 +191,7 @@
->  			if (p)
->  				len = strlen(p);
->  			if (!p || len + strlen(file_sep) + 2 > PATH_MAX) {
-> -				fprintf(stderr, "realpath(%s) failed %s\n", fullname,
-> +				fprintf(stderr, "realpath(%s) failed %s\n", name,
->  					strerror(errno));
->  				return -1;
->  			}
-> @@ -203,25 +202,24 @@
->  				p++;
->  			}
->  			strcpy(p, file_sep);
-> -			fullname = path;
-> -			if (excludeCtr > 0 && exclude(fullname))
-> +			name = path;
-> +			if (excludeCtr > 0 && exclude(name))
->  				return -1;
->  		} else {
->  			char *p;
-> -			p = realpath(fullname, path);
-> +			p = realpath(name, path);
->  			if (!p) {
-> -				fprintf(stderr, "realpath(%s) failed %s\n", fullname,
-> +				fprintf(stderr, "realpath(%s) failed %s\n", name,
->  					strerror(errno));
->  				return -1;
->  			}
-> -			fullname = p;
-> -			if (excludeCtr > 0 && exclude(fullname))
-> +			name = p;
-> +			if (excludeCtr > 0 && exclude(name))
->  				return -1;
->  		}
->  	}
-> -
-> -	/* fullname will be the real file that gets labeled
-> -	 * name will be what is matched in the policy */
-> +	
-> +	/* name will be what is matched in the policy */
-> 
-> 
-> Regards,
-> Yuichi Nakamura
+> plain text document attachment (diff)
+> diff --exclude-from=exclude --exclude=sepolgen-1.0.8 --exclude=gui --exclude=po -N -u -r nsapolicycoreutils/scripts/genhomedircon policycoreutils-2.0.19/scripts/genhomedircon
+> --- nsapolicycoreutils/scripts/genhomedircon	2007-05-18 09:58:33.000000000 -0400
+> +++ policycoreutils-2.0.19/scripts/genhomedircon	2007-06-01 10:29:32.000000000 -0400
+> @@ -193,7 +193,7 @@
+>  		return prefix
+>  		
+>  	def adduser(self, udict, user, seuser, prefix):
+> -		if seuser == "user_u" or user == "__default__" or user == "system_u":
+> +		if seuser == self.default_user or user == "__default__" or user == "system_u":
+>  			return
+>  		# !!! chooses first prefix in the list to use in the file context !!!
+>  		try:
+> @@ -263,7 +263,7 @@
+>  				i = i.replace("system_u", seuser)
+>  				# Validate if the generated context exists.  Some user types may not exist
+>  				scon = i.split()[-1]
+> -				if selinux.security_check_context(scon) == 0:
+> +				if selinux.is_selinux_enabled() < 1 or selinux.security_check_context(scon) == 0:
+>  					ret = ret+i
+>  		fd.close()
+>  		return ret
 -- 
 Stephen Smalley
 National Security Agency
