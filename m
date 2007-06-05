@@ -1,73 +1,62 @@
-Subject: Re: help,sshd, nlmsg_relay
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Paul S <nnm.one@gmail.com>
-Cc: SELinux@tycho.nsa.gov, Daniel J Walsh <dwalsh@redhat.com>
-In-Reply-To: <9e8747560706041536w668b0d58wb02dec03c86c8da4@mail.gmail.com>
-References: <9e8747560706041536w668b0d58wb02dec03c86c8da4@mail.gmail.com>
-Content-Type: text/plain
-Date: Tue, 05 Jun 2007 08:49:54 -0400
-Message-Id: <1181047794.25769.16.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l55CwBS7021820
+	for <selinux@tycho.nsa.gov>; Tue, 5 Jun 2007 08:58:11 -0400
+Received: from exchange.columbia.tresys.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with SMTP id l55Cw8N4004850
+	for <selinux@tycho.nsa.gov>; Tue, 5 Jun 2007 12:58:08 GMT
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Subject: RE: [RFC] permissions for conditional UPDATE statement
+Date: Tue, 5 Jun 2007 08:58:08 -0400
+Message-ID: <6FE441CD9F0C0C479F2D88F959B01588BF045B@exchange.columbia.tresys.com>
+In-Reply-To: <200706040423.l544NU3H086014@www346.sakura.ne.jp>
+References: <200706040423.l544NU3H086014@www346.sakura.ne.jp>
+From: "Joshua Brindle" <jbrindle@tresys.com>
+To: <kaigai@kaigai.gr.jp>, <russell@coker.com.au>
+Cc: <selinux@tycho.nsa.gov>, <kaigai@ak.jp.nec.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2007-06-05 at 00:36 +0200, Paul S wrote:
-> Hi, 
+kaigai@kaigai.gr.jp wrote:
+> It is a RFC in security design of SE-PostgreSQL.
 > 
-> When I try to connect to my sshd from LAN, when in enforcing more, I
-> get permission denied after typing in the password on the client.
-> I tried pinpointing the problem but I can't seem to compile and use a
-> module for sshd from the AVC messages. I used "cat /var/log/messages |
-> audit2allow -l -M local" and when installing the module I get lots of
-> assertions, so here's the sshd parts: 
+> In the current version of SE-PostgreSQL, {select update} for
+> table, column and tuple classes are required when a client
+> execute a SQL query with conditional UPDATE query, for example.
 > 
-> -------------------------------------------------------------------------------------------------------------
-> [root@area51 sshd]# cat MYsshd.te
-> module MYsshd 1.0;
+> It means that the following SQL requires '{select update}'
+> permission, not only 'update', because the query tries to
+> refer 'z' column of 'tbl_1' table on WHERE clause.
 > 
-> require {
->         type staff_t;
->         type user_home_dir_t;
->         type sshd_t;
->         class file { write ioctl };
->         class capability { audit_control audit_write };
->         class netlink_audit_socket { create nlmsg_relay write read }; 
-> }
+>   UPDATE tbl_1 SET x = 10, y = 'aaa' WHERE z = true;
 > 
-> #============= sshd_t ==============
-> allow sshd_t self:capability { audit_control audit_write };
-> allow sshd_t self:netlink_audit_socket { create nlmsg_relay read
-> write };
+> The query indeed refers 'tbl_1', 'z' column and each targeted
+> tuples, so 'select' permission might be appropriate.
+> But there is a significant difference from general SELECT
+> statement from conditional UPDATE. It does not return its content.
+> 
+> We have a matter in this approach. DBA have to allow SELECT
+> permission to enable conditional UPDATE statement, even if he
+> does not want to expose its contents.
+> 
+> I have an idea to solve them. add 'reference' (or 'refer')
+> permission on table, column and tuple object classes.
+> It means references to those objects without returning their contents
+> to clients. 
+> 
 
-These seem to be showing up lately - file a bug against the policy, as
-they should already be allowed.
+I agree to some extent. The where clause can be used to enumerate what
+data might be but doesn't tell you what it is explicitely (the boolean
+above is a bad example, something like an unknown string is a lot
+harder). I kind of like the 'use' permission more, it can be used
+anywhere this sort of thing happens where extra granularity doesn't
+help.
 
-You can allow them by replacing those two allow rules with the following
-line:
-	logging_send_audit_msg(sshd_t)
-> 
-> #============= staff_t ============= 
-> allow staff_t user_home_dir_t:file { write ioctl };
-> 
-> -------------------------------------------------------------------------------------------------------------
-> [root@area51 sshd]# semodule -i MYsshd.pp 
-> libsepol.check_assertion_helper: assertion on line 0 violated by allow
-> sshd_t sshd_t:netlink_audit_socket { nlmsg_relay };
-> libsepol.check_assertion_helper: assertion on line 0 violated by allow
-> sshd_t sshd_t:capability { audit_write }; 
-> libsepol.check_assertion_helper: assertion on line 0 violated by allow
-> sshd_t sshd_t:capability { audit_control };
-> libsepol.check_assertions: 3 assertion violations occured
-> libsemanage.semanage_expand_sandbox: Expand module failed 
-> semodule:  Failed!
-> 
-> -------------------------------------------------------------------------------------------------------------
-> 
-> 
-> thnx
--- 
-Stephen Smalley
-National Security Agency
+As an aside, I'm glad to see you are continuing this work dispite
+resistance upstream. Do you have a plan for inclusion? Have you talked
+to upstream offline or somewhere not public about what their problems
+are?
 
 
 --
