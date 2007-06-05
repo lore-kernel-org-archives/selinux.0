@@ -1,32 +1,82 @@
-Date: Tue, 5 Jun 2007 15:53:03 -0700
-From: Chris Wright <chrisw@sous-sol.org>
-To: Eric Paris <eparis@redhat.com>
-Cc: linux-kernel@vger.kernel.org, selinux@tycho.nsa.gov,
-        Alan Cox <alan@redhat.com>, drepper@redhat.com, roland@redhat.com,
-        arjan@infradead.org, mingo@elte.hu, viro@zeniv.linux.org.uk,
-        jmorris@namei.org, chrisw@redhat.com, sds@tycho.nsa.gov,
-        sgrubb@redhat.com
-Subject: Re: [PATCH] Protection for exploiting null dereference using mmap
-Message-ID: <20070605225302.GE3723@sequoia.sous-sol.org>
-References: <1180561713.3633.27.camel@dhcp231-215.rdu.redhat.com> <20070603205653.GE25869@devserv.devel.redhat.com> <1180964306.14220.34.camel@moss-spartans.epoch.ncsc.mil> <1181075666.3978.31.camel@localhost.localdomain>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1181075666.3978.31.camel@localhost.localdomain>
+Content-Type: text/plain;
+	charset="us-ascii"
+Subject: RE: SELinux userspace infrastructure language
+Date: Tue, 5 Jun 2007 19:18:58 -0400
+Message-ID: <6FE441CD9F0C0C479F2D88F959B01588BF0507@exchange.columbia.tresys.com>
+In-Reply-To: <1180975778.2862.36.camel@localhost.localdomain>
+References: <6FE441CD9F0C0C479F2D88F959B01588BF01FF@exchange.columbia.tresys.com> <1180633622.3534.78.camel@localhost.localdomain> <6FE441CD9F0C0C479F2D88F959B01588BF0204@exchange.columbia.tresys.com> <1180639909.22021.26.camel@localhost.localdomain> <1180995888.9766.63.camel@localhost.localdomain> <6FE441CD9F0C0C479F2D88F959B01588BF044D@exchange.columbia.tresys.com> <1180975778.2862.36.camel@localhost.localdomain>
+From: "Joshua Brindle" <jbrindle@tresys.com>
+To: "Karl MacMillan" <kmacmillan@mentalrootkit.com>
+Cc: <selinux@tycho.nsa.gov>, "Stephen Smalley" <sds@tycho.nsa.gov>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-* Eric Paris (eparis@redhat.com) wrote:
-> One result of using the dummy hook for non-selinux kernels means that I
-> can't leave the generic module stacking code in the SELinux check.  If
-> the secondary ops are called they will always deny the operation just
-> like in non-selinux systems even if SELinux policy would have allowed
-> the action.  This patch may be the first step to removing the arbitrary
-> LSM module stacking code from SELinux.  I think history has shown the
-> arbitrary module stacking is not a good idea and eventually I want to
-> pull out all the secondary calls which aren't used by the capability
-> module, so I view this as just the first step along those lines.
+Karl MacMillan wrote:
+> On Mon, 2007-06-04 at 20:52 -0400, Joshua Brindle wrote:
+>> Karl MacMillan wrote:
+>> <snip>
 
-Or replace them all with direct library calls to the capability code.
+> [...]
+> 
+>>> diff -r 83885c13a34d libpolicyrep/include/policyrep/policy.hpp
+>>> --- a/libpolicyrep/include/policyrep/policy.hpp       Mon Jun 04
+>>> 13:24:11 2007 -0400 +++ b/libpolicyrep/include/policyrep/policy.hpp
+>>> Mon 
+>> Jun
+>> 04
+>> 
+
+One thing is that I thought you going to separate classes of object into
+their own files (eg., types.cpp, users.cpp, etc) since you had always
+complained about them being munged together in libsepol.
+
+>> So this is exported and stable? We never previously exported the
+>> policydb, is this intentional?
+>> 
+> 
+> Not yet - but I intend this to be stable. That is one of the
+> things we need to consider - C++ is not the best for ABI
+> compatibility. I think we can make reasonable API/ABI
+> guarantees for stable versions while still making more
+> changes than we make to libselinux/libsepol (since it will be
+> selinux tools linking to this library I think they will be
+> more tolerant to changes).
+> 
+
+I worry about making the whole policy structure public instead of just
+the public parts, maybe this isn't something you can do in c++?
+
+> [...]
+> 
+> 
+>>> +        std::ostream& operator<<(std::ostream& o, const Node& n); +
+>> 
+>> Are you overloading the << operator? I thought we weren't going to
+>> overload operators. 
+>> 
+> 
+> Overloading << is pretty much required for efficient use of
+> streams. It allows you to do:
+> 
+> policyrep::Type t;
+> std::cout << t << std::endl;
+> 
+> I'm not really a fan of operator overloading in general, but
+> in this case I think it is worthwhile. And because of the
+> friend function hack in the base class we only need to do it
+> in on place - the subclasses simply override the virtual
+> function "output".
+> 
+
+Hrm, so these aren't included in the elusive "stuff we shouldn't do in
+c++" list?
+
+> <snip>
+> comparison of unsigned expression < 0 is always false
+
+Ew.
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
