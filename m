@@ -1,79 +1,71 @@
-Subject: Re: Can't login in F7 strict
+Subject: RE: SELinux userspace infrastructure language
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Shintaro Fujiwara <shintaro.fujiwara@gmail.com>
-Cc: selinux@tycho.nsa.gov, cpebenito@tresys.com, dwalsh@redhat.com
-In-Reply-To: <f71a82820706051436x58c0c4daodb32610866c4a529@mail.gmail.com>
-References: <f71a82820706021820m34d5da17n56dcb312a061a988@mail.gmail.com>
-	 <f71a82820706051436x58c0c4daodb32610866c4a529@mail.gmail.com>
+To: Karl MacMillan <kmacmillan@mentalrootkit.com>
+Cc: Joshua Brindle <jbrindle@tresys.com>, selinux@tycho.nsa.gov
+In-Reply-To: <1181056422.26965.6.camel@localhost.localdomain>
+References: 
+	 <6FE441CD9F0C0C479F2D88F959B01588BF01FF@exchange.columbia.tresys.com>
+	 <1180633622.3534.78.camel@localhost.localdomain>
+	 <6FE441CD9F0C0C479F2D88F959B01588BF0204@exchange.columbia.tresys.com>
+	 <1180639909.22021.26.camel@localhost.localdomain>
+	 <1180995888.9766.63.camel@localhost.localdomain>
+	 <6FE441CD9F0C0C479F2D88F959B01588BF044D@exchange.columbia.tresys.com>
+	 <1180975778.2862.36.camel@localhost.localdomain>
+	 <1181053167.25769.38.camel@moss-spartans.epoch.ncsc.mil>
+	 <1181056422.26965.6.camel@localhost.localdomain>
 Content-Type: text/plain
-Date: Wed, 06 Jun 2007 08:21:12 -0400
-Message-Id: <1181132472.3699.6.camel@moss-spartans.epoch.ncsc.mil>
+Date: Wed, 06 Jun 2007 08:42:50 -0400
+Message-Id: <1181133770.3699.26.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2007-06-06 at 06:36 +0900, Shintaro Fujiwara wrote:
-> I used interfaces, still error occurs when I install localaudit.pp.
+On Tue, 2007-06-05 at 11:13 -0400, Karl MacMillan wrote:
+> On Tue, 2007-06-05 at 10:19 -0400, Stephen Smalley wrote:
+> > On Mon, 2007-06-04 at 12:49 -0400, Karl MacMillan wrote:
+> > > On Mon, 2007-06-04 at 20:52 -0400, Joshua Brindle wrote:
+> > > > Karl MacMillan wrote:
+> > > > > This has basically convinced me that C++ is the way to go (or
+> > > > > to put it another way - please, oh, please don't make me
+> > > > > write any more C code).
+> > > > > Thoughts?
+> > > > > 
+> > > > 
+> > > > Great news :)
+> > > > 
+> > > 
+> > > I assume that means you think this is the way to go? Steve - any
+> > > thoughts?
+> > 
+> > I'm open to trying it.  Time to create a new branch for it?  So you
+> > would introduce this new library, and prune libsepol down to only
+> > dealing with the kernel policy representation?
+> > 
 > 
-> libsepol.permission_copy_callback: Module localaudit depends on
-> permission nlsms_relay in class netlink_audit_socket, not satisfied
-> libsemanage.semanage_link_sandbox; Link packages failed
-> semodule: Failed !
-> 
-> module localaudit 1.0;
-> 
-> require {
->     type local_login_t
->     ....
->     class netlink_audio_socket { ......nlsms_relay .....};
->     ....
-> }
-> logging_send_audit_msg(local_login_t)
-> logging_set_loginuid(local_login_t)
-> 
-> Almost, but anyway, still I can not install my module (very basic one
-> I guess...;)
+> I think we could continue on the policyrep branch, just pruning libsepol
+> there.
 
->From other discussions on fedora-selinux-list, it seems that there are
-some bugs in that policy; try updating to the latest one in
-updates-testing.
+Actually, I think I'd rather have a clean slate unless you think you'd
+be preserving any of the changes you've made to date in policyrep (vs.
+just reverting/removing all of that code from libsepol).  So I'd favor
+making a clean copy of trunk to a new branch for your new work, and
+another clean copy of trunk to a separate branch for the other changes.
 
+> > Meanwhile, I suppose I should create a separate branch and replay the
+> > setlocaldefs/preservebools changes into it, and we can do the namespace
+> > work in that separate branch as well, separately from the policyrep
+> > work.
+> > 
 > 
-> 
-> 2007/6/3, Shintaro Fujiwara <shintaro.fujiwara@gmail.com>:
-> > Hello.
-> >
-> > I'm trying to work out on F7 strict policy.
-> > My server is now FC6, so I'm trying to change it 7.
-> >
-> > I yum installed every selinux related packages.
-> > I made localaudit.pp typing
-> > #audit2allow -i /var/log/audit/audit.log -m localaudit > localaudit.te
-> > at /usr/share/selinux/devel
-> > #semodule -i localaudit.pp
-> > violation reported by libsepol.chek_assertions
-> >
-> > local_login_t local_login_t:netlink_audit_socket { nlmsg_relay };
-> > local_login_t local_login_t:capability { audit_write };
-> > local_login_t local_login_t:capability { audit_control };
-> >
-> > So,I commented those lines on localaudit.te including require brace.
-> > This time I succeeded installing localaudit.pp.
-> >
-> > I restarted my machine setting Enforcing/strict.
-> > During the startup process, I could see Keymap had failed.
-> > I can't login from console.
-> > I typed like a US key not jp106, still I can't.
-> >
-> > You made strict policy not logging in from console?
-> > What should I do?
-> >
-> >
-> > homepage http://intrajp.no-ip.com/
-> > SELinux Forum JP http://intrajp.no-ip.com/xoops
-> > SELinux Wiki JP http://intrajp.no-ip.com/pukiwiki
-> > my blog JP http://intrajp.no-ip.com/nucleus
-> >
+> That's fine with me, though I guess it results in two ABI bumps for
+> libsepol.
+
+Not necessarily; it depends on how/when we merge to trunk.  If the two
+development efforts turn out to "complete" in the same timeframe or we
+choose to hold merging of either until the other is "complete", then we
+can just merge the one branch to the other, and then merge the union to
+the trunk, only requiring a single ABI bump for the library.
+
 -- 
 Stephen Smalley
 National Security Agency
