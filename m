@@ -1,40 +1,47 @@
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Subject: RE: [PATCH 1/2] libselinux: class and permission mapping support
-Date: Wed, 6 Jun 2007 11:45:45 -0400
-Message-ID: <6FE441CD9F0C0C479F2D88F959B01588BF0563@exchange.columbia.tresys.com>
+Subject: Re: [PATCH 1/2] libselinux: class and permission mapping support
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Eamon Walsh <ewalsh@tycho.nsa.gov>
+Cc: SE Linux <selinux@tycho.nsa.gov>, Joshua Brindle <jbrindle@tresys.com>,
+        "Christopher J. PeBenito" <cpebenito@tresys.com>
 In-Reply-To: <4666D5E6.508@tycho.nsa.gov>
 References: <4666D5E6.508@tycho.nsa.gov>
-From: "Joshua Brindle" <jbrindle@tresys.com>
-To: "Eamon Walsh" <ewalsh@tycho.nsa.gov>, "SE Linux" <selinux@tycho.nsa.gov>
-Cc: "Stephen Smalley" <sds@tycho.nsa.gov>,
-        "Christopher J. PeBenito" <cpebenito@tresys.com>
+Content-Type: text/plain
+Date: Wed, 06 Jun 2007 11:59:36 -0400
+Message-Id: <1181145576.3699.148.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Eamon Walsh wrote:
-> This provides support for userspace object managers to
-> register a mapping of class and permission values.  After the
-> mapping is registered all libselinux functions that take a
-> security class or permission value must be provided with
-> mapped values instead of the "real," kernel values.
+On Wed, 2007-06-06 at 11:42 -0400, Eamon Walsh wrote:
+> This provides support for userspace object managers to register a
+> mapping of class and permission values.  After the mapping is
+> registered all libselinux functions that take a security class
+> or permission value must be provided with mapped values instead
+> of the "real," kernel values.
 > 
-> Changes from the original interface proposal: No
-> selinux_init() function, just a straight set_mapping()
-> function.  Also, to simplify things the incoming mapping does
-> not include explicit values; the classes and permissions are
-> numbered implicitly by their ordering.  NULL strings are used
-> to terminate the lists.
+> Changes from the original interface proposal: No selinux_init()
+> function, just a straight set_mapping() function.  Also, to
+> simplify things the incoming mapping does not include explicit
+> values; the classes and permissions are numbered implicitly by
+> their ordering.  NULL strings are used to terminate the lists.
 > 
 > Tested with X server, no problems encountered.
 > 
-> This patch includes the interface and implementation of the mapping
-> set function. 
-> 
+> This patch includes the interface and implementation of the
+> mapping set function.
 
-Hrm, I thought we agreed that remapping access vectors at runtime was a
-bad idea?
+Can you post a snippet of code from the X server showing the usage of
+this interface by an object manager?
+
+I was thinking that we weren't going down this route due to
+complexity/performance concerns about having to remap the access vectors
+on checks, but it doesn't look too bad from your patches, especially
+since the mapping happens on compute_av and the AVC can just always use
+the mapped values.
+
+-- 
+Stephen Smalley
+National Security Agency
 
 
 --
