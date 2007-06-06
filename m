@@ -1,70 +1,49 @@
-Subject: RE: SELinux userspace infrastructure language
+Subject: Re: [PATCH] Protection for exploiting null dereference using mmap
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Karl MacMillan <kmacmillan@mentalrootkit.com>
-Cc: Joshua Brindle <jbrindle@tresys.com>, selinux@tycho.nsa.gov
-In-Reply-To: <1181056422.26965.6.camel@localhost.localdomain>
-References: 
-	 <6FE441CD9F0C0C479F2D88F959B01588BF01FF@exchange.columbia.tresys.com>
-	 <1180633622.3534.78.camel@localhost.localdomain>
-	 <6FE441CD9F0C0C479F2D88F959B01588BF0204@exchange.columbia.tresys.com>
-	 <1180639909.22021.26.camel@localhost.localdomain>
-	 <1180995888.9766.63.camel@localhost.localdomain>
-	 <6FE441CD9F0C0C479F2D88F959B01588BF044D@exchange.columbia.tresys.com>
-	 <1180975778.2862.36.camel@localhost.localdomain>
-	 <1181053167.25769.38.camel@moss-spartans.epoch.ncsc.mil>
-	 <1181056422.26965.6.camel@localhost.localdomain>
+To: Eric Paris <eparis@redhat.com>
+Cc: Alan Cox <alan@redhat.com>, James Morris <jmorris@namei.org>,
+        linux-kernel@vger.kernel.org, selinux@tycho.nsa.gov,
+        drepper@redhat.com, roland@redhat.com, arjan@infradead.org,
+        mingo@elte.hu, viro@zeniv.linux.org.uk, chrisw@redhat.com,
+        sgrubb@redhat.com
+In-Reply-To: <1181078927.3978.42.camel@localhost.localdomain>
+References: <1180561713.3633.27.camel@dhcp231-215.rdu.redhat.com>
+	 <20070603205653.GE25869@devserv.devel.redhat.com>
+	 <1180964306.14220.34.camel@moss-spartans.epoch.ncsc.mil>
+	 <1181075666.3978.31.camel@localhost.localdomain>
+	 <Line.LNX.4.64.0706051658170.23379@d.namei>
+	 <20070605211616.GE23291@devserv.devel.redhat.com>
+	 <1181078927.3978.42.camel@localhost.localdomain>
 Content-Type: text/plain
-Date: Wed, 06 Jun 2007 08:42:50 -0400
-Message-Id: <1181133770.3699.26.camel@moss-spartans.epoch.ncsc.mil>
+Date: Wed, 06 Jun 2007 08:47:48 -0400
+Message-Id: <1181134068.3699.31.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2007-06-05 at 11:13 -0400, Karl MacMillan wrote:
-> On Tue, 2007-06-05 at 10:19 -0400, Stephen Smalley wrote:
-> > On Mon, 2007-06-04 at 12:49 -0400, Karl MacMillan wrote:
-> > > On Mon, 2007-06-04 at 20:52 -0400, Joshua Brindle wrote:
-> > > > Karl MacMillan wrote:
-> > > > > This has basically convinced me that C++ is the way to go (or
-> > > > > to put it another way - please, oh, please don't make me
-> > > > > write any more C code).
-> > > > > Thoughts?
-> > > > > 
-> > > > 
-> > > > Great news :)
-> > > > 
+On Tue, 2007-06-05 at 17:28 -0400, Eric Paris wrote:
+> On Tue, 2007-06-05 at 17:16 -0400, Alan Cox wrote:
+> > On Tue, Jun 05, 2007 at 05:00:51PM -0400, James Morris wrote:
+> > > This should be an unsigned long.
 > > > 
-> > > I assume that means you think this is the way to go? Steve - any
-> > > thoughts?
+> > > I wonder if the default should be for this value to be zero (i.e. preserve 
+> > > existing behavior).  It could break binaries, albeit potentially insecure 
 > > 
-> > I'm open to trying it.  Time to create a new branch for it?  So you
-> > would introduce this new library, and prune libsepol down to only
-> > dealing with the kernel policy representation?
-> > 
+> > Agreed - DOSemu type apps and lrmi need to map at zero for vm86
 > 
-> I think we could continue on the policyrep branch, just pruning libsepol
-> there.
+> While I understand, there are a few users who will have problems with
+> this default are we really better to not provide this defense in depth
+> for the majority of users and let those with problems turn it off rather
+> than provide no defense by default?  I could even provide a different
+> default for SELinux and non-SELinux if anyone saw value in that?  But if
+> others think that off default is  best I'll send another patch shortly
+> with the unsigned long fix and the default set to 0.  My hope is then
+> that distros will figure out to turn this on.
 
-Actually, I think I'd rather have a clean slate unless you think you'd
-be preserving any of the changes you've made to date in policyrep (vs.
-just reverting/removing all of that code from libsepol).  So I'd favor
-making a clean copy of trunk to a new branch for your new work, and
-another clean copy of trunk to a separate branch for the other changes.
-
-> > Meanwhile, I suppose I should create a separate branch and replay the
-> > setlocaldefs/preservebools changes into it, and we can do the namespace
-> > work in that separate branch as well, separately from the policyrep
-> > work.
-> > 
-> 
-> That's fine with me, though I guess it results in two ABI bumps for
-> libsepol.
-
-Not necessarily; it depends on how/when we merge to trunk.  If the two
-development efforts turn out to "complete" in the same timeframe or we
-choose to hold merging of either until the other is "complete", then we
-can just merge the one branch to the other, and then merge the union to
-the trunk, only requiring a single ABI bump for the library.
+I'd be ok with having a different default for SELinux vs. non-SELinux,
+i.e. no restrictions by default under dummy/capability, but restrict it
+by default to 64k if selinux is enabled.  Then we can use policy to
+grant it as needed to the specific programs.
 
 -- 
 Stephen Smalley
