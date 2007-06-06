@@ -1,51 +1,28 @@
 Reply-To: <vyekkirala@TrustedCS.com>
 From: "Venkat Yekkirala" <vyekkirala@TrustedCS.com>
-To: "'Paul Moore'" <paul.moore@hp.com>, "KaiGai Kohei" <kaigai@kaigai.gr.jp>
-Cc: "KaiGai Kohei" <kaigai@ak.jp.nec.com>,
-        "Stephen Smalley" <sds@tycho.nsa.gov>, "Joe Nall" <joe@nall.com>,
+To: "'Stephen Smalley'" <sds@tycho.nsa.gov>,
+        "KaiGai Kohei" <kaigai@kaigai.gr.jp>
+Cc: "Venkat Yekkirala" <vyekkirala@tcsfw4.tcs-sec.com>,
+        "'Paul Moore'" <paul.moore@hp.com>,
+        "KaiGai Kohei" <kaigai@ak.jp.nec.com>, "Joe Nall" <joe@nall.com>,
         "SELinux Mail List" <selinux@tycho.nsa.gov>, <ewalsh@tycho.nsa.gov>
 Subject: RE: generic fallbacks of getpeercon (Re: [redhat-lspp] Labeling an interface)
-Date: Wed, 6 Jun 2007 13:32:04 -0500
-Message-ID: <000701c7a868$fbdc6a60$cc0a010a@tcssec.com>
+Date: Wed, 6 Jun 2007 13:37:04 -0500
+Message-ID: <000801c7a869$aecf1d70$cc0a010a@tcssec.com>
 MIME-Version: 1.0
 Content-Type: text/plain;
 	charset="iso-8859-1"
-In-Reply-To: <200706061342.15348.paul.moore@hp.com>
+In-Reply-To: <1181152890.3699.189.camel@moss-spartans.epoch.ncsc.mil>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-> > Is it possible to apply onto TE label, not only MLS label?
-> >
-> > Domain transition via packet class is a bit hard to understand.
+> Yes, I'm not referring to fallback behavior there but instead to how
+> they are using security_compute_create() to compute the domain
+> transition on the child.  While preserving the MLS range from 
+> the peer.
 
-IMHO, this would be true if we were introducing the concept of
-domain transitions new into SELinux in this connection. But we aren't.
-We are already used todomain transitions elsewhere. If someone has policy
-already using secmark, it doesn't seem like much of a leap to utilize
-transitions.
-
-> > It's preferable, if we can configure the fallbacked client context
-> > directly, as follows:
-> >     192.168.1.0/24 --> system_u:system_r:sepgsql_client_t
-> >     192.168.2.0/24 -->
-> > system_u:system_r:sepgsql_trusted_client_t:SystemLow-SystemHigh
->
-> That is exactly what I am intending to implement; the system
-> administrator
-> would specify a interface/address/netmask that would match to
-> a _full_
-> SELinux context as you have described above.
-
-I see 2 drawbacks with this approach:
-
-1. We aren't leveraging secmark (and the fine-grained policy that it
-   can offer) which was supposed to move us away from individual/stand-alone
-   netif/node labels here.
-
-2. Redundant labeling (atleast MLS-wise) and the potential for
-inconsistency.
-   Imagine the above saying s2 and secmark saying s3.
-
+Just curious; how does policy analysis based on allow rules you (Stephen)
+mentioned earlier play into this in userland?
 
 --
 This message was distributed to subscribers of the selinux mailing list.
