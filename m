@@ -1,29 +1,144 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l56JCA1V028991
-	for <selinux@tycho.nsa.gov>; Wed, 6 Jun 2007 15:12:10 -0400
-Received: from exchange.columbia.tresys.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with SMTP id l56JC7MB007616
-	for <selinux@tycho.nsa.gov>; Wed, 6 Jun 2007 19:12:07 GMT
-Subject: [PATCH 0/5] libselinux: add object class discovery
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l56JD9D7029109
+	for <selinux@tycho.nsa.gov>; Wed, 6 Jun 2007 15:13:09 -0400
+Received: from exchange.columbia.tresys.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with SMTP id l56JCuXb010950
+	for <selinux@tycho.nsa.gov>; Wed, 6 Jun 2007 19:13:02 GMT
+Subject: [PATCH 4/5] libselinux: add checking for kernel object class
+	discovery
 From: "Christopher J. PeBenito" <cpebenito@tresys.com>
 To: SELinux Mail List <selinux@tycho.nsa.gov>
 Content-Type: text/plain
-Date: Wed, 06 Jun 2007 15:10:43 -0400
-Message-Id: <1181157043.6578.35.camel@sgc.columbia.tresys.com>
+Date: Wed, 06 Jun 2007 15:11:38 -0400
+Message-Id: <1181157098.6578.39.camel@sgc.columbia.tresys.com>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This patch set adds basic support to libselinux to leverage the kernel
-portion of the object class discovery, exported in selinuxfs, to handle
-the four string<->value functions for classes and permissions.  When a
-class is looked up, all of the names and values of the permissions for
-the class are looked up and cached.
+Detect if object class discovery kernel support exists.  Fall back to hardcoded
+values for compatibility.
 
--- 
-Chris PeBenito
-Tresys Technology, LLC
-(410) 290-1411 x150
+Signed-off-by: Chris PeBenito <cpebenito@tresys.com>
+
+---
+ libselinux/src/init.c      |   25 +++++++++++++++++++++++++
+ libselinux/src/stringrep.c |   14 ++++++++++++++
+ 2 files changed, 39 insertions(+)
+
+Index: selinux-obj-class-discovery/libselinux/src/init.c
+===================================================================
+--- selinux-obj-class-discovery.orig/libselinux/src/init.c
++++ selinux-obj-class-discovery/libselinux/src/init.c
+@@ -9,6 +9,7 @@
+ #include <dlfcn.h>
+ #include <sys/vfs.h>
+ #include <stdint.h>
++#include <limits.h>
+ 
+ #include "dso.h"
+ #include "policy.h"
+@@ -17,6 +18,7 @@
+ 
+ char *selinux_mnt = NULL;
+ int selinux_page_size = 0;
++int obj_class_compat = 1;
+ 
+ static void init_selinuxmnt(void)
+ {
+@@ -87,11 +89,33 @@ void set_selinuxmnt(char *mnt)
+ 
+ hidden_def(set_selinuxmnt)
+ 
++static void init_obj_class_compat(void)
++{
++	char path[PATH_MAX];
++	struct stat s;
++
++	if (!selinux_mnt)
++		return;
++
++	snprintf(path,PATH_MAX,"%s/class",selinux_mnt);
++	if (stat(path,&s) < 0)
++		return;
++
++	if (S_ISDIR(s.st_mode))
++		obj_class_compat = 0;
++}
++
++static void fini_obj_class_compat(void)
++{
++	obj_class_compat = 1;
++}
++
+ static void init_lib(void) __attribute__ ((constructor));
+ static void init_lib(void)
+ {
+ 	selinux_page_size = sysconf(_SC_PAGE_SIZE);
+ 	init_selinuxmnt();
++	init_obj_class_compat();
+ 	init_context_translations();
+ }
+ 
+@@ -99,5 +123,6 @@ static void fini_lib(void) __attribute__
+ static void fini_lib(void)
+ {
+ 	fini_selinuxmnt();
++	fini_obj_class_compat();
+ 	fini_context_translations();
+ }
+Index: selinux-obj-class-discovery/libselinux/src/stringrep.c
+===================================================================
+--- selinux-obj-class-discovery.orig/libselinux/src/stringrep.c
++++ selinux-obj-class-discovery/libselinux/src/stringrep.c
+@@ -151,6 +151,8 @@ static const struct av_inherit {
+ #define NVECTORS ARRAY_SIZE(av_perm_to_string)
+ #define MAXVECTORS 8*sizeof(access_vector_t)
+ 
++extern int obj_class_compat;
++
+ struct discover_class_node {
+ 	char *name;
+ 	security_class_t value;
+@@ -411,6 +413,9 @@ security_class_t string_to_security_clas
+ {
+ 	struct discover_class_node *node;
+ 
++	if (obj_class_compat)
++		return string_to_security_class_compat(s);
++
+ 	node = get_class_cache_entry_name(s);
+ 	if (node == NULL) {
+ 		node = discover_class(s);
+@@ -426,6 +431,9 @@ access_vector_t string_to_av_perm(securi
+ {
+ 	struct discover_class_node *node;
+ 
++	if (obj_class_compat)
++		return string_to_av_perm_compat(tclass,s);
++
+ 	node = get_class_cache_entry_value(tclass);
+ 	if (node != NULL) {
+ 		size_t i;
+@@ -441,6 +449,9 @@ const char *security_class_to_string(sec
+ {
+ 	struct discover_class_node *node;
+ 
++	if (obj_class_compat)
++		return security_class_to_string_compat(tclass);
++
+ 	node = get_class_cache_entry_value(tclass);
+ 	if (node == NULL)
+ 		return NULL;
+@@ -454,6 +465,9 @@ const char *security_av_perm_to_string(s
+ 	struct discover_class_node *node;
+ 	size_t i;
+ 
++	if (obj_class_compat)
++		return security_av_perm_to_string_compat(tclass,av);
++
+ 	node = get_class_cache_entry_value(tclass);
+ 	if (av && node)
+ 		for (i = 0; i<MAXVECTORS; i++)
 
 
 --
