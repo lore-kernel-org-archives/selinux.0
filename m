@@ -1,54 +1,151 @@
-Message-ID: <4666E186.4030800@tycho.nsa.gov>
-Date: Wed, 06 Jun 2007 12:32:06 -0400
-From: Eamon Walsh <ewalsh@tycho.nsa.gov>
-MIME-Version: 1.0
-To: Joshua Brindle <jbrindle@tresys.com>
-CC: SE Linux <selinux@tycho.nsa.gov>, Stephen Smalley <sds@tycho.nsa.gov>,
-        "Christopher J. PeBenito" <cpebenito@tresys.com>
 Subject: Re: [PATCH 1/2] libselinux: class and permission mapping support
-References: <4666D5E6.508@tycho.nsa.gov> <6FE441CD9F0C0C479F2D88F959B01588BF0563@exchange.columbia.tresys.com>
-In-Reply-To: <6FE441CD9F0C0C479F2D88F959B01588BF0563@exchange.columbia.tresys.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+From: James Carter <jwcart2@epoch.ncsc.mil>
+Reply-To: jwcart2@epoch.ncsc.mil
+To: Eamon Walsh <ewalsh@tycho.nsa.gov>
+Cc: SE Linux <selinux@tycho.nsa.gov>, Stephen Smalley <sds@tycho.nsa.gov>,
+        Joshua Brindle <jbrindle@tresys.com>,
+        "Christopher J. PeBenito" <cpebenito@tresys.com>
+In-Reply-To: <4666D5E6.508@tycho.nsa.gov>
+References: <4666D5E6.508@tycho.nsa.gov>
+Content-Type: text/plain
+Date: Wed, 06 Jun 2007 12:40:38 -0400
+Message-Id: <1181148038.17617.25.camel@moss-lions.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Joshua Brindle wrote:
-> Eamon Walsh wrote:
->> This provides support for userspace object managers to
->> register a mapping of class and permission values.  After the
->> mapping is registered all libselinux functions that take a
->> security class or permission value must be provided with
->> mapped values instead of the "real," kernel values.
->>
->> Changes from the original interface proposal: No
->> selinux_init() function, just a straight set_mapping()
->> function.  Also, to simplify things the incoming mapping does
->> not include explicit values; the classes and permissions are
->> numbered implicitly by their ordering.  NULL strings are used
->> to terminate the lists.
->>
->> Tested with X server, no problems encountered.
->>
->> This patch includes the interface and implementation of the mapping
->> set function. 
->>
+On Wed, 2007-06-06 at 11:42 -0400, Eamon Walsh wrote:
+> This provides support for userspace object managers to register a
+> mapping of class and permission values.  After the mapping is
+> registered all libselinux functions that take a security class
+> or permission value must be provided with mapped values instead
+> of the "real," kernel values.
 > 
-> Hrm, I thought we agreed that remapping access vectors at runtime was a
-> bad idea?
+> Changes from the original interface proposal: No selinux_init()
+> function, just a straight set_mapping() function.  Also, to
+> simplify things the incoming mapping does not include explicit
+> values; the classes and permissions are numbered implicitly by
+> their ordering.  NULL strings are used to terminate the lists.
 > 
+> Tested with X server, no problems encountered.
+> 
+> This patch includes the interface and implementation of the
+> mapping set function.
+> 
+> Signed-off-by: Eamon Walsh <ewalsh@tycho.nsa.gov>
+> ---
+> 
+>  include/selinux/selinux.h |    8 +++++
+>  src/mapping.c             |   67 ++++++++++++++++++++++++++++++++++++++++++++++
+>  2 files changed, 75 insertions(+)
+> 
+> Index: libselinux/include/selinux/selinux.h
+> ===================================================================
+> --- libselinux/include/selinux/selinux.h	(revision 2464)
+> +++ libselinux/include/selinux/selinux.h	(working copy)
+> @@ -280,6 +280,14 @@
+>  /* Commit the pending values for the booleans */
+>  extern int security_commit_booleans(void);
+>  
+> +/* Userspace class mapping support */
+> +struct security_class_mapping {
+> +	const char *name;
+> +	const char *perms[sizeof(access_vector_t) * 8 + 1];
+> +};
+> +
+> +int selinux_set_mapping(struct security_class_mapping *map);
+> +
+>  /* Common helpers */
+>  
+>  /* Convert between security class values and string names */
+> Index: libselinux/src/mapping.c
+> ===================================================================
+> --- libselinux/src/mapping.c	(revision 0)
+> +++ libselinux/src/mapping.c	(revision 0)
+> @@ -0,0 +1,67 @@
+> +/*
+> + * Class and permission mappings.
+> + */
+> +
+> +#include <stdio.h>
+> +#include <stdlib.h>
+> +#include <stdarg.h>
+> +#include <selinux/selinux.h>
+> +#include "mapping.h"
+> +
+> +/* class and permission mappings */
+> +struct selinux_mapping *current_mapping = NULL;
+> +security_class_t current_mapping_size = 0;
+> +
+> +/* mapping setting function */
+> +int
+> +selinux_set_mapping(struct security_class_mapping *map)
+> +{
+> +	size_t size = sizeof(struct selinux_mapping);
+> +	security_class_t i, j;
+> +	unsigned k;
+> +
+> +	free(current_mapping);
+> +	current_mapping = NULL;
+> +	current_mapping_size = 0;
+> +
+> +	/* Find number of classes in the input mapping plus one */
+> +	i = 1;
+> +	while (map && map[i-1].name)
+> +		i++;
+> +
+Shouldn't you check for map being NULL at the beginning?
+if map == NULL, i = 1, ...
 
-I did think that initially, but I didn't realize that the mapping could 
-be done underneath the AVC instead of on every single call to 
-avc_has_perm or whatnot.
+> +	/* Allocate space for the class records */
+> +	current_mapping = (struct selinux_mapping *)calloc(i, size);
+> +	if (!current_mapping)
+> +		goto err;
+> +
+Now calloc is called with i = 1 ...
 
-The overhead of the remapping should be negligible compared to the cost 
-of an selinuxfs operation, right?  And it frees the userspace object 
-manager from having to manage the translation tables itself.
+> +	/* Store the raw class and permission values */
+> +	j = 0;
+> +	while (map && map[j].name) {
+> +		struct security_class_mapping *p_in = map + (j++);
+> +		struct selinux_mapping *p_out = current_mapping + j;
+> +
+> +		p_out->value = string_to_security_class(p_in->name);
+> +		if (!p_out->value)
+> +			goto err2;
+> +
+> +		k = 0;
+> +		while (p_in->perms && p_in->perms[k]) {
+> +			p_out->perms[k] = string_to_av_perm(p_out->value,
+> +							    p_in->perms[k]);
+> +			if (!p_out->perms[k])
+> +				goto err2;
+> +			k++;
+> +		}
+> +		p_out->num_perms = k;
+> +	}
+> +
+> +	/* Set the mapping size here so the above lookups are "raw" */
+> +	current_mapping_size = i;
+> +	return 0;
+current_mapping_size = 1
+return 0
+for map == NULL
 
+This doesn't seem like the correct behavior.
 
+> +err2:
+> +	free(current_mapping);
+> +	current_mapping = NULL;
+> +	current_mapping_size = 0;
+> +err:
+> +	return -1;
+> +}
+> 
 -- 
-Eamon Walsh <ewalsh@tycho.nsa.gov>
+James Carter <jwcart2@epoch.ncsc.mil>
 National Security Agency
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
