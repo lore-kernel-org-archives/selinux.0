@@ -1,116 +1,105 @@
-Subject: Re: generic fallbacks of getpeercon (Re: [redhat-lspp] Labeling an
-	interface)
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: KaiGai Kohei <kaigai@kaigai.gr.jp>
-Cc: vyekkirala@TrustedCS.com, "'Paul Moore'" <paul.moore@hp.com>,
-        KaiGai Kohei <kaigai@ak.jp.nec.com>, Joe Nall <joe@nall.com>,
-        SELinux Mail List <selinux@tycho.nsa.gov>, ewalsh@tycho.nsa.gov
-In-Reply-To: <4666F455.9080007@kaigai.gr.jp>
-References: <000301c7a83f$ecf25920$cc0a010a@tcssec.com>
-	 <4666EE27.9040803@kaigai.gr.jp>
-	 <1181151255.3699.185.camel@moss-spartans.epoch.ncsc.mil>
-	 <4666F455.9080007@kaigai.gr.jp>
-Content-Type: text/plain
-Date: Wed, 06 Jun 2007 14:01:30 -0400
-Message-Id: <1181152890.3699.189.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l56I1rIW023426
+	for <selinux@tycho.nsa.gov>; Wed, 6 Jun 2007 14:01:53 -0400
+Received: from mail5.sea5.speakeasy.net (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l56I1pXZ029557
+	for <selinux@tycho.nsa.gov>; Wed, 6 Jun 2007 18:01:51 GMT
+Date: Wed, 6 Jun 2007 14:01:47 -0400 (EDT)
+From: James Morris <jmorris@namei.org>
+To: Stephen Smalley <sds@tycho.nsa.gov>
+cc: Eric Paris <eparis@redhat.com>, Alan Cox <alan@redhat.com>,
+        linux-kernel@vger.kernel.org, selinux@tycho.nsa.gov,
+        drepper@redhat.com, roland@redhat.com, arjan@infradead.org,
+        mingo@elte.hu, viro@zeniv.linux.org.uk, chrisw@redhat.com,
+        sgrubb@redhat.com
+Subject: Re: [PATCH] Protection for exploiting null dereference using mmap
+In-Reply-To: <1181151040.3699.181.camel@moss-spartans.epoch.ncsc.mil>
+Message-ID: <Line.LNX.4.64.0706061400020.31665@d.namei>
+References: <1180561713.3633.27.camel@dhcp231-215.rdu.redhat.com>
+ <20070603205653.GE25869@devserv.devel.redhat.com>
+ <1180964306.14220.34.camel@moss-spartans.epoch.ncsc.mil>
+ <1181075666.3978.31.camel@localhost.localdomain>  <Line.LNX.4.64.0706051658170.23379@d.namei>
+  <20070605211616.GE23291@devserv.devel.redhat.com>
+ <1181111433.3978.48.camel@localhost.localdomain>
+ <1181151040.3699.181.camel@moss-spartans.epoch.ncsc.mil>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2007-06-07 at 02:52 +0900, KaiGai Kohei wrote:
-> Stephen Smalley wrote:
-> > On Thu, 2007-06-07 at 02:25 +0900, KaiGai Kohei wrote:
-> >> Venkat Yekkirala wrote:
-> >>>> Your proposal is slightly different in that I view it more as 
-> >>>> a per-domain 
-> >>>> renaming scheme where you rename/relabel packets based on the 
-> >>>> receiving 
-> >>>> domain.  Can you help me understand the advantage of 
-> >>>> renaming "untrusted_network_t" to "sepgsql_client_t" from a 
-> >>>> policy point of 
-> >>>> view?  For example, how would these two policy rules be 
-> >>>> different or have any 
-> >>>> advantage over one another:
-> >>>>
-> >>>>  allow sepgsql_t untrusted_network_t:<class> <perms>;
-> >>>>  allow sepgsql_t sepgsql_client_t:<class> <perms>:
-> >>> I doubt that the intent here is to change the permission checks
-> >>> to use the transition label. Rather the idea seems to be to
-> >>> have getpeercon() return the transition label (sepgsql_client_t).
-> >>>
-> >>> Coincidentally we (Darrel, Chad and myself) were talking about this
-> >>> and it seems like a good idea.
-> >> As Paul and Stephen said, what getpeercon() returns fallbacked context
-> >> is confusable. I think that application should call a function to compute
-> >> fallbacked context explicitly when getpeercon() failed, like follows:
-> >>
-> >> security_context_t peer_con;
-> >>
-> >> if (getpeercon(sockfd, &peer_con)) {
-> >>      security_context_t serv_con, secmark_con;
-> >>      if (getsecmarkcon(sockfd, &secmark_con))
-> >>          return NULL;
-> >>      if (getcon(&serv_con))
-> >>          return NULL;
-> >>      if (security_compute_create(serv_con, secmark_con,
-> >>                                  SECCLASS_PACKET, &peer_con))
-> > 
-> > Have you looked at the xinetd logic?
+On Wed, 6 Jun 2007, Stephen Smalley wrote:
+
+> With the fix already noted by James,
 > 
-> Sorry, I'm not clear what you intend to say.
-> 
-> Just before, I confirmed xinetd-2.3.14-label.patch
-> in xinetd-2.3.14-11.src.rpm (Fedora 7).
+> Acked-by:  Stephen Smalley <sds@tycho.nsa.gov>
 
-Look at xinetd-2.3.14-contextconf.patch.
+Final patch applied to:
 
-> When getpeercon() returns an error, it does not have any
-> fallback implementation.
+git://git.kernel.org/pub/scm/linux/kernel/git/jmorris/selinux-2.6.git#for-akpm
 
-Yes, I'm not referring to fallback behavior there but instead to how
-they are using security_compute_create() to compute the domain
-transition on the child.  While preserving the MLS range from the peer.
 
-BTW, that kind of logic has got to be encapsulated, as discussed at the
-selinux developers summit; we can't have MLS specifics leaking into the
-applications.
+Also queued there is the following patch which enables the check in 
+SELinux:
 
-> ----------------------------------------------------
-> +#ifdef LABELED_NET
-> +static int set_context_from_socket( int fd )
-> +{
-> +   const char *func = "set_context_from_socket" ;
-> +   security_context_t peer_context;
-> +
-> +   if (getpeercon(fd, &peer_context) < 0)
-> +      return -1;             <-- caller exit soon with an error message.
-> +
-> +   int retval = setexeccon(peer_context);
-> +   freecon( peer_context );
-> +
-> +   if (debug.on)
-> +   {
-> +      security_context_t current_exec_context;
-> +      if ( getexeccon( &current_exec_context ) == 0 ) {
-> +
-> +         msg( LOG_DEBUG, func,
-> +          "current security exec context now: %s",
-> +          current_exec_context ? current_exec_context : "unknown" );
-> +
-> +         freecon( current_exec_context );
-> +      }
-> +      else
-> +         msg( LOG_DEBUG, func, "Error calling getexeccon: %m" );
-> +   }
-> +
-> +   return retval;
-> +}
-> +#endif
-> ----------------------------------------------------
-> 
+
+Subject: [PATCH] SELinux: enable minimum address checking for mmap
+
+Enable enable minimum address checking for mmap if not already enabled, and
+disable it on exit if we enabled it. Processes will then require the
+new mmap_zero permission to override the check.  Set the default value to
+64KB as suggested.  If already set, the existing value will be used.
+
+Acked-by: Stephen Smalley <sds@tycho.nsa.gov>
+Acked-by: Eric Paris <eparis@redhat.com>
+Signed-off-by: James Morris <jmorris@namei.org>
+---
+ security/selinux/hooks.c |   17 +++++++++++++++++
+ 1 files changed, 17 insertions(+), 0 deletions(-)
+
+diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+index 2b44832..9a8db0b 100644
+--- a/security/selinux/hooks.c
++++ b/security/selinux/hooks.c
+@@ -112,6 +112,9 @@ int selinux_enabled = 1;
+ /* Original (dummy) security module. */
+ static struct security_operations *original_ops = NULL;
+ 
++/* Did we enable minimum mmap address checking? */
++static int enabled_mmap_min_addr;
++
+ /* Minimal support for a secondary security module,
+    just to allow the use of the dummy or capability modules.
+    The owlsm module can alternatively be used as a secondary
+@@ -4912,6 +4915,16 @@ static __init int selinux_init(void)
+ 	sel_inode_cache = kmem_cache_create("selinux_inode_security",
+ 					    sizeof(struct inode_security_struct),
+ 					    0, SLAB_PANIC, NULL, NULL);
++
++	/*
++	 * Tasks cannot mmap below this without the mmap_zero permission.
++	 * If not enabled already, do so by setting it to 64KB.
++	 */
++	if (mmap_min_addr == 0) {
++		enabled_mmap_min_addr = 1;
++		mmap_min_addr = 65536;
++	}
++
+ 	avc_init();
+ 
+ 	original_ops = secondary_ops = security_ops;
+@@ -5061,6 +5074,10 @@ int selinux_disable(void)
+ 
+ 	selinux_disabled = 1;
+ 	selinux_enabled = 0;
++	
++	/* Disable minimum mmap address check only if we enabled it */
++	if (enabled_mmap_min_addr)
++		mmap_min_addr = 0;
+ 
+ 	/* Reset security_ops to the secondary module, dummy or capability. */
+ 	security_ops = secondary_ops;
 -- 
-Stephen Smalley
-National Security Agency
+1.5.0.6
 
 
 --
