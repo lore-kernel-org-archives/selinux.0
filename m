@@ -1,107 +1,76 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l55NUNNS031869
-	for <selinux@tycho.nsa.gov>; Tue, 5 Jun 2007 19:30:23 -0400
-Received: from ug-out-1314.google.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id l55NUMxb016602
-	for <selinux@tycho.nsa.gov>; Tue, 5 Jun 2007 23:30:22 GMT
-Received: by ug-out-1314.google.com with SMTP id z34so375867ugc
-        for <selinux@tycho.nsa.gov>; Tue, 05 Jun 2007 16:30:20 -0700 (PDT)
-Message-ID: <f71a82820706051630p1c61f183mf793fc39945cb1d4@mail.gmail.com>
-Date: Wed, 6 Jun 2007 08:30:19 +0900
-From: "Shintaro Fujiwara" <shintaro.fujiwara@gmail.com>
-To: "Daniel J Walsh" <dwalsh@redhat.com>
-Subject: Re: Can't login in F7 strict
-Cc: selinux@tycho.nsa.gov, sds@tycho.nsa.gov, cpebenito@tresys.com
-In-Reply-To: <4665DD32.6040508@redhat.com>
+Message-ID: <4666260D.9060409@ak.jp.nec.com>
+Date: Wed, 06 Jun 2007 12:12:13 +0900
+From: KaiGai Kohei <kaigai@ak.jp.nec.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-References: <f71a82820706021820m34d5da17n56dcb312a061a988@mail.gmail.com>
-	 <f71a82820706051436x58c0c4daodb32610866c4a529@mail.gmail.com>
-	 <4665DD32.6040508@redhat.com>
+To: Stephen Smalley <sds@tycho.nsa.gov>, paul.moore@hp.com
+CC: KaiGai Kohei <kaigai@kaigai.gr.jp>, Joe Nall <joe@nall.com>,
+        SELinux Mail List <selinux@tycho.nsa.gov>, ewalsh@tycho.nsa.gov
+Subject: Re: generic fallbacks of getpeercon (Re: [redhat-lspp] Labeling an
+ interface)
+References: <C32347D4-3E32-4741-B847-6826EED3BB7A@nall.com>	 <1180631739.3340.309.camel@moss-spartans.epoch.ncsc.mil>	 <4661ACEF.3000801@kaigai.gr.jp> <1180966620.14220.57.camel@moss-spartans.epoch.ncsc.mil>
+In-Reply-To: <1180966620.14220.57.camel@moss-spartans.epoch.ncsc.mil>
+Content-Type: text/plain; charset=ISO-2022-JP
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Yes, you are right.
+>> How do you think necessity for generic fall back behavior in the case when
+>> getpeercon() failed?
+> 
+> I think it would be useful.  There was some discussion of it during the
+> labeled networking discussions, but directly returning the secmark label
+> or the netif/netmsg labels was viewed as problematic because they aren't
+> peer/process contexts.
 
-I transcribed looking at monitor in short time at morning, so I miss-typed..
-I can't look at it now, but I'm sure I typed properly.
-Because I could made module all right.
-The problem is, I can't install it...
+I agree the conclusion. Those labels don't represent domain's one.
+But I think that using them an entrypoint of domain transition is
+a considerable idea, like this:
+  type_transition postgresql_t untrusted_network_t : packet sepgsql_client_t;
+  type_transition ftpd_t untrusted_network_t : packet ftpd_client_t;
 
-When you really need interfaces in local modules, why not audit2allow
-generate interfaces ?
-It's quite natural that Least permissions permitted, though.
-I tryied such a project last year, but Karl making progress on that I
-believe, so isn't it a nice idea that macro oriented policy alternates
-call oriented one ?
-Or we can go to SEEdit ...?
+Is it different from Paul's idea, isn't it?
+In my understanding, he intends to associate a domain's context directly with
+network interfaces and/or network addresses.
 
+If corrent, I have a question.
+Is it possible to distinguish the fallback context for each server domain?
+For example, when we want to label clients connected from unlabeled network
+as 'sepgsql_unlabeled_client_t', how does the other server handle them?
 
-Officer,System-Informations,Signal School,JGSDF
+>> The current version of SE-PostgreSQL adopts the simplest way to handle
+>> a connection from a client without any network labeling. Its connection
+>> will be closed soon.
+> 
+> X has a more graceful fallback, per Eamon - it defines a
+> nonlocal_context in its own config and uses that as the default if
+> getpeercon fails.
 
+It is possible to implement similar fallbacks in SE-PostgreSQL, of course.
+But we should obtain fallback context sourced from security policy, if possible.
 
+>> How is it implemented and described in the policy?
+>>  - Is it possible to use the security context of netif/address/port of inbound
+>>    connection as an entrypoint of domain transition?
+>>    Those may be configurable with SECMARK.
+> 
+> You can already define a netif (and a netmsg) context in policy and
+> manipulate them via semanage_iface(3) in userland.  We don't presently
+> have a way to convey the netif or netmsg context (or secmark label) to
+> userland from the kernel.  There was some discussion of a separate
+> getdatacon(3) and equivalent for SCM_SECURITY to convey a "data context"
+> separate from the "peer context", but that doesn't exist yet and would
+> take some work in the kernel.
 
-2007/6/6, Daniel J Walsh <dwalsh@redhat.com>:
-> Shintaro Fujiwara wrote:
-> > I used interfaces, still error occurs when I install localaudit.pp.
-> >
-> > libsepol.permission_copy_callback: Module localaudit depends on
-> > permission nlsms_relay in class netlink_audit_socket, not satisfied
-> > libsemanage.semanage_link_sandbox; Link packages failed
-> > semodule: Failed !
-> >
-> > module localaudit 1.0;
-> >
-> > require {
-> >    type local_login_t
-> >    ....
-> >    class netlink_audio_socket { ......nlsms_relay .....};
-> netlink_audit_socket not audio.
-> >    ....
-> > }
-> > logging_send_audit_msg(local_login_t)
-> > logging_set_loginuid(local_login_t)
-> >
-> > Almost, but anyway, still I can not install my module (very basic one
-> > I guess...;)
-> >
-> >
-> > 2007/6/3, Shintaro Fujiwara <shintaro.fujiwara@gmail.com>:
-> >> Hello.
-> >>
-> >> I'm trying to work out on F7 strict policy.
-> >> My server is now FC6, so I'm trying to change it 7.
-> >>
-> >> I yum installed every selinux related packages.
-> >> I made localaudit.pp typing
-> >> #audit2allow -i /var/log/audit/audit.log -m localaudit > localaudit.te
-> >> at /usr/share/selinux/devel
-> >> #semodule -i localaudit.pp
-> >> violation reported by libsepol.chek_assertions
-> >>
-> >> local_login_t local_login_t:netlink_audit_socket { nlmsg_relay };
-> >> local_login_t local_login_t:capability { audit_write };
-> >> local_login_t local_login_t:capability { audit_control };
-> >>
-> >> So,I commented those lines on localaudit.te including require brace.
-> >> This time I succeeded installing localaudit.pp.
-> >>
-> >> I restarted my machine setting Enforcing/strict.
-> >> During the startup process, I could see Keymap had failed.
-> >> I can't login from console.
-> >> I typed like a US key not jp106, still I can't.
-> >>
-> >> You made strict policy not logging in from console?
-> >> What should I do?
-> >>
-> >>
-> >> homepage http://intrajp.no-ip.com/
-> >> SELinux Forum JP http://intrajp.no-ip.com/xoops
-> >> SELinux Wiki JP http://intrajp.no-ip.com/pukiwiki
-> >> my blog JP http://intrajp.no-ip.com/nucleus
-> >>
->
->
+I believe that secmark label is the easiest to manage.
+If we need the facility, I'll post a patch. :)
+
+At first, I like to see the detail of Paul's idea.
+
+Thanks,
+
+> It wouldn't be difficult to modify libselinux getpeercon(3) and/or
+> introduce a new higher level interface in libselinux that queries policy
+> in some manner and obtains a default if the underlying kernel interface
+> cannot provide a context.
 
 --
 This message was distributed to subscribers of the selinux mailing list.
