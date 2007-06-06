@@ -1,47 +1,29 @@
-Subject: RE: generic fallbacks of getpeercon (Re: [redhat-lspp] Labeling an
-	interface)
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: vyekkirala@TrustedCS.com
-Cc: KaiGai Kohei <kaigai@kaigai.gr.jp>,
-        Venkat Yekkirala <vyekkirala@tcsfw4.tcs-sec.com>,
-        "'Paul Moore'" <paul.moore@hp.com>,
-        KaiGai Kohei <kaigai@ak.jp.nec.com>, Joe Nall <joe@nall.com>,
-        SELinux Mail List <selinux@tycho.nsa.gov>, ewalsh@tycho.nsa.gov
-In-Reply-To: <000801c7a869$aecf1d70$cc0a010a@tcssec.com>
-References: <000801c7a869$aecf1d70$cc0a010a@tcssec.com>
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l56JCA1V028991
+	for <selinux@tycho.nsa.gov>; Wed, 6 Jun 2007 15:12:10 -0400
+Received: from exchange.columbia.tresys.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with SMTP id l56JC7MB007616
+	for <selinux@tycho.nsa.gov>; Wed, 6 Jun 2007 19:12:07 GMT
+Subject: [PATCH 0/5] libselinux: add object class discovery
+From: "Christopher J. PeBenito" <cpebenito@tresys.com>
+To: SELinux Mail List <selinux@tycho.nsa.gov>
 Content-Type: text/plain
-Date: Wed, 06 Jun 2007 14:47:25 -0400
-Message-Id: <1181155645.3699.201.camel@moss-spartans.epoch.ncsc.mil>
+Date: Wed, 06 Jun 2007 15:10:43 -0400
+Message-Id: <1181157043.6578.35.camel@sgc.columbia.tresys.com>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2007-06-06 at 13:37 -0500, Venkat Yekkirala wrote:
-> > Yes, I'm not referring to fallback behavior there but instead to how
-> > they are using security_compute_create() to compute the domain
-> > transition on the child.  While preserving the MLS range from 
-> > the peer.
-> 
-> Just curious; how does policy analysis based on allow rules you (Stephen)
-> mentioned earlier play into this in userland?
+This patch set adds basic support to libselinux to leverage the kernel
+portion of the object class discovery, exported in selinuxfs, to handle
+the four string<->value functions for classes and permissions.  When a
+class is looked up, all of the names and values of the permissions for
+the class are looked up and cached.
 
-The allow rules completely describe what is permitted to happen in the
-system, including all possible domain transitions and information flows.
-The type transition rules are consulted to determine appropriate labels,
-both by the kernel (via direct security_transition_sid calls) and by
-various security-aware applications (via security_compute_create(3)),
-but if there isn't a corresponding set of allow rules for that type
-transition, then it will be denied nonetheless.  Thus, while you will
-likely want to look at the type transition rules to understand the
-default system behaviors, you can omit them from analysis when you are
-checking for all possible flows.
-
-Note that the set of allow rules needed to authorize a given type
-transition may vary considerably.
-  
 -- 
-Stephen Smalley
-National Security Agency
+Chris PeBenito
+Tresys Technology, LLC
+(410) 290-1411 x150
 
 
 --
