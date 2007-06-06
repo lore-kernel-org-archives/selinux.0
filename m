@@ -1,42 +1,46 @@
-Message-ID: <46672974.4080803@tycho.nsa.gov>
-Date: Wed, 06 Jun 2007 17:39:00 -0400
-From: Eamon Walsh <ewalsh@tycho.nsa.gov>
+Message-ID: <46673242.1060909@tresys.com>
+Date: Wed, 06 Jun 2007 18:16:34 -0400
+From: Joshua Brindle <jbrindle@tresys.com>
 MIME-Version: 1.0
-To: Joshua Brindle <method@manicmethod.com>
-CC: Paul Moore <paul.moore@hp.com>, vyekkirala@TrustedCS.com,
-        KaiGai Kohei <kaigai@kaigai.gr.jp>,
-        KaiGai Kohei <kaigai@ak.jp.nec.com>,
-        Stephen Smalley <sds@tycho.nsa.gov>, Joe Nall <joe@nall.com>,
+To: Eamon Walsh <ewalsh@tycho.nsa.gov>
+CC: "Christopher J. PeBenito" <cpebenito@tresys.com>,
         SELinux Mail List <selinux@tycho.nsa.gov>
-Subject: Re: generic fallbacks of getpeercon (Re: [redhat-lspp] Labeling an
- interface)
-References: <000701c7a868$fbdc6a60$cc0a010a@tcssec.com> <200706061537.49417.paul.moore@hp.com> <466719B7.6090003@manicmethod.com> <200706061648.37402.paul.moore@hp.com> <466724DE.4010302@manicmethod.com>
-In-Reply-To: <466724DE.4010302@manicmethod.com>
+Subject: Re: [PATCH 1/5] libselinux: rename existing name<->value functions
+ for	compat
+References: <1181157051.6578.36.camel@sgc.columbia.tresys.com> <46671547.5010604@tycho.nsa.gov>
+In-Reply-To: <46671547.5010604@tycho.nsa.gov>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Joshua Brindle wrote:
-> The unfortunate part is that we are going to have all these systems for 
-> managing different kinds of external labels, it would be nice if there 
-> was a centralized management system, even if the backends are spread all 
-> over the place. I don't mean a GUI here either (not that a GUI would be 
-> bad) but more along the lines of a central management library that can 
-> handle it all that a GUI could later use. I'm not sure if libsemanage is 
-> the place for this either, particularly with ipsec where management 
-> really means updating SPD entries to have contexts, I don't know how 
-> people currently manage SPD entries so I'm not sure where we can 
-> interject ourselves without disturbing users..
+Eamon Walsh wrote:
+> Christopher J. PeBenito wrote:
+> 
+> [snip]
+> 
+>> -const char *security_class_to_string(security_class_t tclass)
+>> +static const char *security_class_to_string_compat(security_class_t 
+>> tclass)
+>>  {
+>>      tclass = (tclass > 0 && tclass < NCLASSES) ? tclass : 0;
+>>      return class_to_string_data.str + class_to_string[tclass];
+>>  }
+>>  
+> 
+> This will have to be rebased to the errno patch r2463 in trunk.  Also, 
+> the behavior should be identical on the new functions (return EINVAL in 
+> the same manner).
+> 
+> This patchset should go in prior to the mapping patchset I posted today.
 > 
 
-Maybe libsemanage wrapper layers could be written on top of all the 
-various systems that involve SELinux labels.  This would require that 
-they all have relatively stable programmatic interfaces though.
+Has anyone stacked these patches yet to see if they integrate as 
+expected? I assume they will since Chris' patches just change the 
+interfaces that you were using to obtain the kernel values.
 
+This seems to have worked out well assuming the integration fell out 
+naturally :)
 
--- 
-Eamon Walsh <ewalsh@tycho.nsa.gov>
-National Security Agency
 
 --
 This message was distributed to subscribers of the selinux mailing list.
