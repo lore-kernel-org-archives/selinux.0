@@ -1,95 +1,52 @@
 Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l56JD2he029089
-	for <selinux@tycho.nsa.gov>; Wed, 6 Jun 2007 15:13:02 -0400
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l56JDNHK029141
+	for <selinux@tycho.nsa.gov>; Wed, 6 Jun 2007 15:13:23 -0400
 Received: from exchange.columbia.tresys.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with SMTP id l56JCuXZ010950
-	for <selinux@tycho.nsa.gov>; Wed, 6 Jun 2007 19:12:57 GMT
-Subject: [PATCH 3/5] libselinux: add string<->value functions that use
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with SMTP id l56JDJXZ011029
+	for <selinux@tycho.nsa.gov>; Wed, 6 Jun 2007 19:13:19 GMT
+Subject: [PATCH 5/5] libselinux: update checkAccess for object class
 	discovery
 From: "Christopher J. PeBenito" <cpebenito@tresys.com>
 To: SELinux Mail List <selinux@tycho.nsa.gov>
 Content-Type: text/plain
-Date: Wed, 06 Jun 2007 15:11:30 -0400
-Message-Id: <1181157090.6578.38.camel@sgc.columbia.tresys.com>
+Date: Wed, 06 Jun 2007 19:12:00 +0000
+Message-Id: <1181157120.6578.40.camel@sgc.columbia.tresys.com>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Add new value->name, name->value functions that use object class discovery.
+Change checkAccess.c functions to use object class discovery where possible.
 
 Signed-off-by: Chris PeBenito <cpebenito@tresys.com>
 
 ---
- libselinux/src/stringrep.c |   56 +++++++++++++++++++++++++++++++++++++++++++++
- 1 file changed, 56 insertions(+)
+ libselinux/src/checkAccess.c |   11 +++++++++--
+ 1 file changed, 9 insertions(+), 2 deletions(-)
 
-Index: selinux-obj-class-discovery/libselinux/src/stringrep.c
+Index: selinux-obj-class-discovery/libselinux/src/checkAccess.c
 ===================================================================
---- selinux-obj-class-discovery.orig/libselinux/src/stringrep.c
-+++ selinux-obj-class-discovery/libselinux/src/stringrep.c
-@@ -407,6 +407,62 @@ static const char *security_av_perm_to_s
- 	return NULL;
- }
- 
-+security_class_t string_to_security_class(const char *s)
-+{
-+	struct discover_class_node *node;
+--- selinux-obj-class-discovery.orig/libselinux/src/checkAccess.c
++++ selinux-obj-class-discovery/libselinux/src/checkAccess.c
+@@ -13,10 +13,17 @@ int selinux_check_passwd_access(access_v
+ 	if (is_selinux_enabled() == 0)
+ 		return 0;
+ 	if (getprevcon_raw(&user_context) == 0) {
++		security_class_t passwd_class;
+ 		struct av_decision avd;
+-		int retval = security_compute_av_raw(user_context,
++		int retval;
 +
-+	node = get_class_cache_entry_name(s);
-+	if (node == NULL) {
-+		node = discover_class(s);
-+
-+		if (node == NULL)
++		passwd_class = string_to_security_class("passwd");
++		if (passwd_class == 0)
 +			return 0;
-+	}
 +
-+	return node->value;
-+}
-+
-+access_vector_t string_to_av_perm(security_class_t tclass, const char *s)
-+{
-+	struct discover_class_node *node;
-+
-+	node = get_class_cache_entry_value(tclass);
-+	if (node != NULL) {
-+		size_t i;
-+		for (i=0; i<MAXVECTORS && node->perms[i] != NULL; i++)
-+			if (strcmp(node->perms[i],s) == 0)
-+				return (1<<i);
-+	}
-+
-+	return 0;
-+}
-+
-+const char *security_class_to_string(security_class_t tclass)
-+{
-+	struct discover_class_node *node;
-+
-+	node = get_class_cache_entry_value(tclass);
-+	if (node == NULL)
-+		return NULL;
-+	else
-+		return node->name;
-+}
-+
-+const char *security_av_perm_to_string(security_class_t tclass,
-+				       access_vector_t av)
-+{
-+	struct discover_class_node *node;
-+	size_t i;
-+
-+	node = get_class_cache_entry_value(tclass);
-+	if (av && node)
-+		for (i = 0; i<MAXVECTORS; i++)
-+			if ((1<<i) & av)
-+				return node->perms[i];
-+
-+	return NULL;
-+}
-+
- int security_av_string(security_class_t tclass, access_vector_t av, char **res)
- {
- 	unsigned int i = 0;
++		retval = security_compute_av_raw(user_context,
+ 						     user_context,
+-						     SECCLASS_PASSWD,
++						     passwd_class,
+ 						     requested,
+ 						     &avd);
+ 
 
 
 --
