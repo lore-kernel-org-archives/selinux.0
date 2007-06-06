@@ -1,52 +1,80 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l56JDNHK029141
-	for <selinux@tycho.nsa.gov>; Wed, 6 Jun 2007 15:13:23 -0400
-Received: from exchange.columbia.tresys.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with SMTP id l56JDJXZ011029
-	for <selinux@tycho.nsa.gov>; Wed, 6 Jun 2007 19:13:19 GMT
-Subject: [PATCH 5/5] libselinux: update checkAccess for object class
-	discovery
-From: "Christopher J. PeBenito" <cpebenito@tresys.com>
-To: SELinux Mail List <selinux@tycho.nsa.gov>
+Subject: Re: Passing sec info to security modules when mounting an FS
+From: Eric Paris <eparis@redhat.com>
+To: Stephen Smalley <sds@tycho.nsa.gov>
+Cc: nfs@lists.sourceforge.net, selinux@tycho.nsa.gov, jmorris@namei.org,
+        trond.myklebust@fys.uio.no, hch@infradead.org, viro@zeniv.linux.org.uk
+In-Reply-To: <1180965288.14220.43.camel@moss-spartans.epoch.ncsc.mil>
+References: <1180739989.3931.47.camel@localhost.localdomain>
+	 <1180965288.14220.43.camel@moss-spartans.epoch.ncsc.mil>
 Content-Type: text/plain
-Date: Wed, 06 Jun 2007 19:12:00 +0000
-Message-Id: <1181157120.6578.40.camel@sgc.columbia.tresys.com>
+Date: Wed, 06 Jun 2007 15:22:27 -0400
+Message-Id: <1181157747.3776.18.camel@dhcp231-215.rdu.redhat.com>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Change checkAccess.c functions to use object class discovery where possible.
+On Mon, 2007-06-04 at 09:54 -0400, Stephen Smalley wrote:
+> On Fri, 2007-06-01 at 19:19 -0400, Eric Paris wrote:
 
-Signed-off-by: Chris PeBenito <cpebenito@tresys.com>
+> > ?the nfs code - can just store the full text string it got in userspace
+> > and pass it along.  Other binary mount data FS's could do the same
+> > thing.  (I think this is the best option)
+> 
+> I don't think that makes much sense from the filesystem point of view -
+> the filesystem owns the options and parses them, passing only a flag to
+> indicate the type of option (context, fscontext, defcontext) and the
+> option value, not the prefixes, to the security module.
+> 
+> I'd expect it to be a direct call from the nfs option parsing code to a
+> security function (which internally would call the security module's
+> operation); no need to call back into the vfs there.
 
----
- libselinux/src/checkAccess.c |   11 +++++++++--
- 1 file changed, 9 insertions(+), 2 deletions(-)
+So it sounded good, tried to start coding the interface but couldn't
+think how to keep security module specific information out of the FS.
+SELinux in particular can grok 4 mount options, 
 
-Index: selinux-obj-class-discovery/libselinux/src/checkAccess.c
-===================================================================
---- selinux-obj-class-discovery.orig/libselinux/src/checkAccess.c
-+++ selinux-obj-class-discovery/libselinux/src/checkAccess.c
-@@ -13,10 +13,17 @@ int selinux_check_passwd_access(access_v
- 	if (is_selinux_enabled() == 0)
- 		return 0;
- 	if (getprevcon_raw(&user_context) == 0) {
-+		security_class_t passwd_class;
- 		struct av_decision avd;
--		int retval = security_compute_av_raw(user_context,
-+		int retval;
-+
-+		passwd_class = string_to_security_class("passwd");
-+		if (passwd_class == 0)
-+			return 0;
-+
-+		retval = security_compute_av_raw(user_context,
- 						     user_context,
--						     SECCLASS_PASSWD,
-+						     passwd_class,
- 						     requested,
- 						     &avd);
- 
+fscontext=
+context=
+rootcontext=
+defcontext=
+
+NFS at the moment can only grok 1 of those 4 (far and away the most
+common) context= but I want the interface to be generic right?  Lets say
+we were to create a new security function:
+
+security_set_mount_option(struct *sb, char *option, int flag)
+
+where the value of flag tells you what the information in *option is
+supposed to be setting. Immediately after the vfs_kern_mount call a FS
+which uses binary mount options could call into this new function thus
+avoiding the bad NFS specific code in the SELinux security module.
+
+The problem is that the FS needs to now have security module specific
+knowledge in order to know how to pass the flag telling the security
+module what it is trying to set.  We just moved NFS specific knowledge
+outside of the security module and put security module specific
+knowledge into the FS.  What is SELinux isn't the security module?  The
+meaning of 'flags' for SELinux would be which of those 4 above options
+they want to set.  Now NFS has to know if selinux is being used or some
+other unknown security module which needs a different set of flag
+meanings.  Where does this get worked out?  In the text mount data the
+security code does all the parsing, so the FS doesn't need to know what
+the security module does or does not understand, although it seems like
+people don't think that's the right thing even for the text options
+case.
+
+I'd be perfectly happy coding this with a hard coded value for the flag
+in NFS code and have that set the context=.  Honestly right now it looks
+like nfs is going to be the only user and i certainly don't expect nfs
+to expand the binary data to support the other rarely used SELinux
+options.  But it seems like a problem to me when the FS needs to
+understand all of the options for all of the possible security module
+needs (even if right now SELinux is the only security module I know of
+using this sort of thing....)
+
+Any comments?
+
+-Eric
 
 
 --
