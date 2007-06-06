@@ -1,37 +1,150 @@
-Date: Wed, 6 Jun 2007 11:06:31 -0700
-From: Chris Wright <chrisw@sous-sol.org>
-To: Eric Paris <eparis@redhat.com>
-Cc: Alan Cox <alan@redhat.com>, James Morris <jmorris@namei.org>,
-        linux-kernel@vger.kernel.org, selinux@tycho.nsa.gov,
-        drepper@redhat.com, roland@redhat.com, arjan@infradead.org,
-        mingo@elte.hu, viro@zeniv.linux.org.uk, chrisw@redhat.com,
-        sds@tycho.nsa.gov, sgrubb@redhat.com
-Subject: Re: [PATCH] Protection for exploiting null dereference using mmap
-Message-ID: <20070606180631.GP3723@sequoia.sous-sol.org>
-References: <1180561713.3633.27.camel@dhcp231-215.rdu.redhat.com> <20070603205653.GE25869@devserv.devel.redhat.com> <1180964306.14220.34.camel@moss-spartans.epoch.ncsc.mil> <1181075666.3978.31.camel@localhost.localdomain> <Line.LNX.4.64.0706051658170.23379@d.namei> <20070605211616.GE23291@devserv.devel.redhat.com> <1181111433.3978.48.camel@localhost.localdomain>
+Message-ID: <4666FDA0.3010809@tycho.nsa.gov>
+Date: Wed, 06 Jun 2007 14:32:00 -0400
+From: Eamon Walsh <ewalsh@tycho.nsa.gov>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1181111433.3978.48.camel@localhost.localdomain>
+To: jwcart2@epoch.ncsc.mil
+CC: SE Linux <selinux@tycho.nsa.gov>, Stephen Smalley <sds@tycho.nsa.gov>,
+        Joshua Brindle <jbrindle@tresys.com>,
+        "Christopher J. PeBenito" <cpebenito@tresys.com>
+Subject: [PATCH 1/2] libselinux: class and permission mapping support (try
+ 2)
+References: <4666D5E6.508@tycho.nsa.gov> <1181148038.17617.25.camel@moss-lions.epoch.ncsc.mil>
+In-Reply-To: <1181148038.17617.25.camel@moss-lions.epoch.ncsc.mil>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-* Eric Paris (eparis@redhat.com) wrote:
-> On Tue, 2007-06-05 at 17:16 -0400, Alan Cox wrote:
-> > On Tue, Jun 05, 2007 at 05:00:51PM -0400, James Morris wrote:
-> > > This should be an unsigned long.
-> > > 
-> > > I wonder if the default should be for this value to be zero (i.e. preserve 
-> > > existing behavior).  It could break binaries, albeit potentially insecure 
-> > 
-> > Agreed - DOSemu type apps and lrmi need to map at zero for vm86
-> 
-> And so it shall be!
-> 
-> Signed-off-by: Eric Paris <eparis@redhat.com>
+Changes from the first version: disallow a NULL mapping with
+error EINVAL; add assert statements to the map/unmap helpers
+to catch out-of-bounds value bugs in callers.
 
-With James' fix and real changelog ;-)
+This provides support for userspace object managers to register a
+mapping of class and permission values.  After the mapping is
+registered all libselinux functions that take a security class
+or permission value must be provided with mapped values instead
+of the "real," kernel values.
 
-Acked-by: Chris Wright <chrisw@sous-sol.org>
+Changes from the original interface proposal: No selinux_init()
+function, just a straight set_mapping() function.  Also, to
+simplify things the incoming mapping does not include explicit
+values; the classes and permissions are numbered implicitly by
+their ordering.  NULL strings are used to terminate the lists.
+
+Tested with X server, no problems encountered.
+
+This patch includes the interface and implementation of the
+mapping set function.
+
+Signed-off-by: Eamon Walsh <ewalsh@tycho.nsa.gov>
+---
+
+ include/selinux/selinux.h |    8 +++++
+ src/mapping.c             |   72 ++++++++++++++++++++++++++++++++++++++++++++++
+ 2 files changed, 80 insertions(+)
+
+Index: libselinux/include/selinux/selinux.h
+===================================================================
+--- libselinux/include/selinux/selinux.h	(revision 2464)
++++ libselinux/include/selinux/selinux.h	(working copy)
+@@ -280,6 +280,14 @@
+ /* Commit the pending values for the booleans */
+ extern int security_commit_booleans(void);
+ 
++/* Userspace class mapping support */
++struct security_class_mapping {
++	const char *name;
++	const char *perms[sizeof(access_vector_t) * 8 + 1];
++};
++
++int selinux_set_mapping(struct security_class_mapping *map);
++
+ /* Common helpers */
+ 
+ /* Convert between security class values and string names */
+Index: libselinux/src/mapping.c
+===================================================================
+--- libselinux/src/mapping.c	(revision 0)
++++ libselinux/src/mapping.c	(revision 0)
+@@ -0,0 +1,72 @@
++/*
++ * Class and permission mappings.
++ */
++
++#include <errno.h>
++#include <stdio.h>
++#include <stdlib.h>
++#include <stdarg.h>
++#include <selinux/selinux.h>
++#include "mapping.h"
++
++/* class and permission mappings */
++struct selinux_mapping *current_mapping = NULL;
++security_class_t current_mapping_size = 0;
++
++/* mapping setting function */
++int
++selinux_set_mapping(struct security_class_mapping *map)
++{
++	size_t size = sizeof(struct selinux_mapping);
++	security_class_t i, j;
++	unsigned k;
++
++	free(current_mapping);
++	current_mapping = NULL;
++	current_mapping_size = 0;
++
++	/* Find number of classes in the input mapping */
++	if (!map) {
++		errno = EINVAL;
++		goto err;
++	}
++	i = 0;
++	while (map[i].name)
++		i++;
++
++	/* Allocate space for the class records, plus one for class zero */
++	current_mapping = (struct selinux_mapping *)calloc(++i, size);
++	if (!current_mapping)
++		goto err;
++
++	/* Store the raw class and permission values */
++	j = 0;
++	while (map[j].name) {
++		struct security_class_mapping *p_in = map + (j++);
++		struct selinux_mapping *p_out = current_mapping + j;
++
++		p_out->value = string_to_security_class(p_in->name);
++		if (!p_out->value)
++			goto err2;
++
++		k = 0;
++		while (p_in->perms && p_in->perms[k]) {
++			p_out->perms[k] = string_to_av_perm(p_out->value,
++							    p_in->perms[k]);
++			if (!p_out->perms[k])
++				goto err2;
++			k++;
++		}
++		p_out->num_perms = k;
++	}
++
++	/* Set the mapping size here so the above lookups are "raw" */
++	current_mapping_size = i;
++	return 0;
++err2:
++	free(current_mapping);
++	current_mapping = NULL;
++	current_mapping_size = 0;
++err:
++	return -1;
++}
+
+
+
+-- 
+Eamon Walsh <ewalsh@tycho.nsa.gov>
+National Security Agency
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
