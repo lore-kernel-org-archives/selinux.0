@@ -1,40 +1,40 @@
 Subject: Re: [PATCH] Protection for exploiting null dereference using mmap
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Chris Wright <chrisw@sous-sol.org>
+To: russell@coker.com.au
 Cc: Eric Paris <eparis@redhat.com>, linux-kernel@vger.kernel.org,
         selinux@tycho.nsa.gov, Alan Cox <alan@redhat.com>, drepper@redhat.com,
         roland@redhat.com, arjan@infradead.org, mingo@elte.hu,
         viro@zeniv.linux.org.uk, jmorris@namei.org, chrisw@redhat.com,
         sgrubb@redhat.com
-In-Reply-To: <20070605225302.GE3723@sequoia.sous-sol.org>
+In-Reply-To: <200706061902.05786.russell@coker.com.au>
 References: <1180561713.3633.27.camel@dhcp231-215.rdu.redhat.com>
-	 <20070603205653.GE25869@devserv.devel.redhat.com>
 	 <1180964306.14220.34.camel@moss-spartans.epoch.ncsc.mil>
 	 <1181075666.3978.31.camel@localhost.localdomain>
-	 <20070605225302.GE3723@sequoia.sous-sol.org>
+	 <200706061902.05786.russell@coker.com.au>
 Content-Type: text/plain
-Date: Wed, 06 Jun 2007 08:12:32 -0400
-Message-Id: <1181131952.3699.0.camel@moss-spartans.epoch.ncsc.mil>
+Date: Wed, 06 Jun 2007 08:18:29 -0400
+Message-Id: <1181132309.3699.4.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2007-06-05 at 15:53 -0700, Chris Wright wrote:
-> * Eric Paris (eparis@redhat.com) wrote:
-> > One result of using the dummy hook for non-selinux kernels means that I
-> > can't leave the generic module stacking code in the SELinux check.  If
-> > the secondary ops are called they will always deny the operation just
-> > like in non-selinux systems even if SELinux policy would have allowed
-> > the action.  This patch may be the first step to removing the arbitrary
-> > LSM module stacking code from SELinux.  I think history has shown the
-> > arbitrary module stacking is not a good idea and eventually I want to
-> > pull out all the secondary calls which aren't used by the capability
-> > module, so I view this as just the first step along those lines.
+On Wed, 2007-06-06 at 19:01 +1000, Russell Coker wrote:
+> On Wednesday 06 June 2007 06:34, Eric Paris <eparis@redhat.com> wrote:
+> > This patch uses a new SELinux security class "memprotect."  Policy
+> > already contains a number of allow rules like  a_t self:process *
+> > (unconfined_t being one of them) which mean that putting this check in
+> > the process class (its best current fit) would make it useless as all
 > 
-> Or replace them all with direct library calls to the capability code.
+> I think it would be best to use the process class and change the "*" rules to 
+> ~{ memprotect }.
 
-The only tricky part there is retaining the support for falling back on
-capabilities upon runtime disable of selinux by /sbin/init.
+Eric originally used process class, but I asked him to put it into a
+separate class.  I think that current refpolicy actually doesn't have
+any allow a_t self:process *; rules because we already had to refactor
+all such rules when we introduced execmem and friends, but that doesn't
+mean that there are not legacy policies with such rules, and I'd prefer
+to isolate especially security-sensitive permissions in distinct classes
+(and we are running out of room in process class).
 
 -- 
 Stephen Smalley
