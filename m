@@ -1,49 +1,39 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l56DLpia003462
-	for <selinux@tycho.nsa.gov>; Wed, 6 Jun 2007 09:21:51 -0400
-Received: from mail4.sea5.speakeasy.net (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id l56DLnI6018174
-	for <selinux@tycho.nsa.gov>; Wed, 6 Jun 2007 13:21:50 GMT
-Date: Wed, 6 Jun 2007 09:21:47 -0400 (EDT)
-From: James Morris <jmorris@namei.org>
-To: Eric Paris <eparis@redhat.com>
-cc: Alan Cox <alan@redhat.com>, linux-kernel@vger.kernel.org,
-        selinux@tycho.nsa.gov, drepper@redhat.com, roland@redhat.com,
-        arjan@infradead.org, mingo@elte.hu, viro@zeniv.linux.org.uk,
-        chrisw@redhat.com, sds@tycho.nsa.gov, sgrubb@redhat.com
-Subject: Re: [PATCH] Protection for exploiting null dereference using mmap
-In-Reply-To: <1181111433.3978.48.camel@localhost.localdomain>
-Message-ID: <Line.LNX.4.64.0706060919560.28120@d.namei>
-References: <1180561713.3633.27.camel@dhcp231-215.rdu.redhat.com>
- <20070603205653.GE25869@devserv.devel.redhat.com>
- <1180964306.14220.34.camel@moss-spartans.epoch.ncsc.mil>
- <1181075666.3978.31.camel@localhost.localdomain>  <Line.LNX.4.64.0706051658170.23379@d.namei>
-  <20070605211616.GE23291@devserv.devel.redhat.com>
- <1181111433.3978.48.camel@localhost.localdomain>
+Reply-To: <vyekkirala@TrustedCS.com>
+From: "Venkat Yekkirala" <vyekkirala@TrustedCS.com>
+To: "'Paul Moore'" <paul.moore@hp.com>, "KaiGai Kohei" <kaigai@ak.jp.nec.com>
+Cc: "Stephen Smalley" <sds@tycho.nsa.gov>,
+        "KaiGai Kohei" <kaigai@kaigai.gr.jp>, "Joe Nall" <joe@nall.com>,
+        "SELinux Mail List" <selinux@tycho.nsa.gov>, <ewalsh@tycho.nsa.gov>
+Subject: RE: generic fallbacks of getpeercon (Re: [redhat-lspp] Labeling an interface)
+Date: Wed, 6 Jun 2007 08:38:10 -0500
+Message-ID: <000301c7a83f$ecf25920$cc0a010a@tcssec.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="iso-8859-1"
+In-Reply-To: <200706060745.31980.paul.moore@hp.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 6 Jun 2007, Eric Paris wrote:
+> Your proposal is slightly different in that I view it more as 
+> a per-domain 
+> renaming scheme where you rename/relabel packets based on the 
+> receiving 
+> domain.  Can you help me understand the advantage of 
+> renaming "untrusted_network_t" to "sepgsql_client_t" from a 
+> policy point of 
+> view?  For example, how would these two policy rules be 
+> different or have any 
+> advantage over one another:
+> 
+>  allow sepgsql_t untrusted_network_t:<class> <perms>;
+>  allow sepgsql_t sepgsql_client_t:<class> <perms>:
 
-> +	{
-> +		.ctl_name	= CTL_UNNUMBERED,
-> +		.procname	= "mmap_min_addr",
-> +		.data		= &mmap_min_addr,
-> +		.maxlen         = sizeof(unsigned long),
-> +		.mode		= 0644,
-> +		.proc_handler	= &proc_dointvec,
+I doubt that the intent here is to change the permission checks
+to use the transition label. Rather the idea seems to be to
+have getpeercon() return the transition label (sepgsql_client_t).
 
-proc_doulongvec_minmax
-
-(I can fix this in my tree rather than a resend just for this, if
-there are some acks & no other problems).
-
-
--- 
-James Morris
-<jmorris@namei.org>
+Coincidentally we (Darrel, Chad and myself) were talking about this
+and it seems like a good idea.
 
 --
 This message was distributed to subscribers of the selinux mailing list.
