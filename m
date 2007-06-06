@@ -1,81 +1,73 @@
-Subject: Re: Passing sec info to security modules when mounting an FS
-From: Eric Paris <eparis@redhat.com>
-To: Stephen Smalley <sds@tycho.nsa.gov>
-Cc: nfs@lists.sourceforge.net, selinux@tycho.nsa.gov, jmorris@namei.org,
-        trond.myklebust@fys.uio.no, hch@infradead.org, viro@zeniv.linux.org.uk
-In-Reply-To: <1180965288.14220.43.camel@moss-spartans.epoch.ncsc.mil>
-References: <1180739989.3931.47.camel@localhost.localdomain>
-	 <1180965288.14220.43.camel@moss-spartans.epoch.ncsc.mil>
-Content-Type: text/plain
-Date: Wed, 06 Jun 2007 15:22:27 -0400
-Message-Id: <1181157747.3776.18.camel@dhcp231-215.rdu.redhat.com>
-Mime-Version: 1.0
+From: Paul Moore <paul.moore@hp.com>
+To: vyekkirala@TrustedCS.com
+Subject: Re: generic fallbacks of getpeercon (Re: [redhat-lspp] Labeling an interface)
+Date: Wed, 6 Jun 2007 15:37:49 -0400
+Cc: "KaiGai Kohei" <kaigai@kaigai.gr.jp>,
+        "KaiGai Kohei" <kaigai@ak.jp.nec.com>,
+        "Stephen Smalley" <sds@tycho.nsa.gov>, "Joe Nall" <joe@nall.com>,
+        "SELinux Mail List" <selinux@tycho.nsa.gov>, ewalsh@tycho.nsa.gov
+References: <000701c7a868$fbdc6a60$cc0a010a@tcssec.com>
+In-Reply-To: <000701c7a868$fbdc6a60$cc0a010a@tcssec.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Message-Id: <200706061537.49417.paul.moore@hp.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 2007-06-04 at 09:54 -0400, Stephen Smalley wrote:
-> On Fri, 2007-06-01 at 19:19 -0400, Eric Paris wrote:
+On Wednesday, June 6 2007 2:32:04 pm Venkat Yekkirala wrote:
+> > > It's preferable, if we can configure the fallbacked client context
+> > > directly, as follows:
+> > >     192.168.1.0/24 --> system_u:system_r:sepgsql_client_t
+> > >     192.168.2.0/24 -->
+> > > system_u:system_r:sepgsql_trusted_client_t:SystemLow-SystemHigh
+> >
+> > That is exactly what I am intending to implement; the system
+> > administrator
+> > would specify a interface/address/netmask that would match to
+> > a _full_
+> > SELinux context as you have described above.
+>
+> I see 2 drawbacks with this approach:
+>
+> 1. We aren't leveraging secmark (and the fine-grained policy that it
+>    can offer) which was supposed to move us away from
+> individual/stand-alone netif/node labels here.
 
-> > ?the nfs code - can just store the full text string it got in userspace
-> > and pass it along.  Other binary mount data FS's could do the same
-> > thing.  (I think this is the best option)
-> 
-> I don't think that makes much sense from the filesystem point of view -
-> the filesystem owns the options and parses them, passing only a flag to
-> indicate the type of option (context, fscontext, defcontext) and the
-> option value, not the prefixes, to the security module.
-> 
-> I'd expect it to be a direct call from the nfs option parsing code to a
-> security function (which internally would call the security module's
-> operation); no need to call back into the vfs there.
+We decided long ago to keep the two types of labels, internal and external, 
+separate because merging the two made the policy to difficult to understand, 
+write, and analyze.  I still believe this to be the correct decision.  This 
+approach deliberately avoids making use of the SECMARK labels for this 
+reason.
 
-So it sounded good, tried to start coding the interface but couldn't
-think how to keep security module specific information out of the FS.
-SELinux in particular can grok 4 mount options, 
+I view SECMARK, or any other internal labeling mechanism, as a way to 
+introduce SELinux access controls into the Linux netfilter mechanism which 
+provides a much more flexible and cleaner alternative to the 
+compat_net/netif/node labels we used to have.  NetLabel/CIPSO, labeled IPsec, 
+or any other external labeling mechanism is a way for domains to communicate 
+their labels across the network.  The two labeling mechanisms, internal and 
+external, both provide packet level access controls but for two completely 
+different purposes.
 
-fscontext=
-context=
-rootcontext=
-defcontext=
+The proposal here is to introduce a static external label for single label 
+networks where the remote domain is not explicitly labeling it's network 
+traffic.  This is a common request from people with existing trusted OS 
+installations and would be a nice compliment to the existing labeling 
+mechanisms, both internal and external.
 
-NFS at the moment can only grok 1 of those 4 (far and away the most
-common) context= but I want the interface to be generic right?  Lets say
-we were to create a new security function:
+> 2. Redundant labeling (atleast MLS-wise) and the potential for
+> inconsistency.
 
-security_set_mount_option(struct *sb, char *option, int flag)
+You have the possibility for the same "redundancy" between the existing 
+external and internal labels.  Simply providing another method of determining 
+external labels does not cause any new redundancy that did not exist before.
 
-where the value of flag tells you what the information in *option is
-supposed to be setting. Immediately after the vfs_kern_mount call a FS
-which uses binary mount options could call into this new function thus
-avoiding the bad NFS specific code in the SELinux security module.
+If there is a disparity between the internal and external labels it is either 
+because the policy is incorrect or the connection should not be allowed.
 
-The problem is that the FS needs to now have security module specific
-knowledge in order to know how to pass the flag telling the security
-module what it is trying to set.  We just moved NFS specific knowledge
-outside of the security module and put security module specific
-knowledge into the FS.  What is SELinux isn't the security module?  The
-meaning of 'flags' for SELinux would be which of those 4 above options
-they want to set.  Now NFS has to know if selinux is being used or some
-other unknown security module which needs a different set of flag
-meanings.  Where does this get worked out?  In the text mount data the
-security code does all the parsing, so the FS doesn't need to know what
-the security module does or does not understand, although it seems like
-people don't think that's the right thing even for the text options
-case.
-
-I'd be perfectly happy coding this with a hard coded value for the flag
-in NFS code and have that set the context=.  Honestly right now it looks
-like nfs is going to be the only user and i certainly don't expect nfs
-to expand the binary data to support the other rarely used SELinux
-options.  But it seems like a problem to me when the FS needs to
-understand all of the options for all of the possible security module
-needs (even if right now SELinux is the only security module I know of
-using this sort of thing....)
-
-Any comments?
-
--Eric
-
+-- 
+paul moore
+linux security @ hp
 
 --
 This message was distributed to subscribers of the selinux mailing list.
