@@ -1,58 +1,88 @@
-Date: Wed, 6 Jun 2007 18:07:45 +0100
-From: Stephen Bennett <spb@gentoo.org>
-To: Karl MacMillan <kmacmillan@mentalrootkit.com>
-Cc: Joshua Brindle <jbrindle@tresys.com>, selinux@tycho.nsa.gov,
-        Stephen
- Smalley <sds@tycho.nsa.gov>
-Subject: Re: SELinux userspace infrastructure language
-Message-ID: <20070606180745.1052eece@maya>
-In-Reply-To: <1181147401.5358.1.camel@localhost.localdomain>
-References: <6FE441CD9F0C0C479F2D88F959B01588BF01FF@exchange.columbia.tresys.com>
-	<1180633622.3534.78.camel@localhost.localdomain>
-	<6FE441CD9F0C0C479F2D88F959B01588BF0204@exchange.columbia.tresys.com>
-	<1180639909.22021.26.camel@localhost.localdomain>
-	<1180995888.9766.63.camel@localhost.localdomain>
-	<6FE441CD9F0C0C479F2D88F959B01588BF044D@exchange.columbia.tresys.com>
-	<1180975778.2862.36.camel@localhost.localdomain>
-	<6FE441CD9F0C0C479F2D88F959B01588BF0507@exchange.columbia.tresys.com>
-	<1181141337.12540.16.camel@localhost.localdomain>
-	<6FE441CD9F0C0C479F2D88F959B01588BF0548@exchange.columbia.tresys.com>
-	<1181143088.12540.42.camel@localhost.localdomain>
-	<6FE441CD9F0C0C479F2D88F959B01588BF055F@exchange.columbia.tresys.com>
-	<20070606171904.30916713@maya>
-	<1181147401.5358.1.camel@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Message-ID: <4666ED96.8080508@kaigai.gr.jp>
+Date: Thu, 07 Jun 2007 02:23:34 +0900
+From: KaiGai Kohei <kaigai@kaigai.gr.jp>
+MIME-Version: 1.0
+To: Paul Moore <paul.moore@hp.com>
+CC: KaiGai Kohei <kaigai@ak.jp.nec.com>, Stephen Smalley <sds@tycho.nsa.gov>,
+        Joe Nall <joe@nall.com>, SELinux Mail List <selinux@tycho.nsa.gov>,
+        ewalsh@tycho.nsa.gov
+Subject: Re: generic fallbacks of getpeercon (Re: [redhat-lspp] Labeling an
+ interface)
+References: <C32347D4-3E32-4741-B847-6826EED3BB7A@nall.com> <1180966620.14220.57.camel@moss-spartans.epoch.ncsc.mil> <4666260D.9060409@ak.jp.nec.com> <200706060745.31980.paul.moore@hp.com>
+In-Reply-To: <200706060745.31980.paul.moore@hp.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 06 Jun 2007 12:30:01 -0400
-Karl MacMillan <kmacmillan@mentalrootkit.com> wrote:
-
-> > It's not painful really, even for very small or very large classes.
-> > If you're using it a lot in a given library it's not too hard to
-> > add a few templated utility classes to make life somewhat easier
-> > either.
-> > 
+Paul Moore wrote:
+> On Tuesday 05 June 2007 11:12:13 pm KaiGai Kohei wrote:
+>>>> How do you think necessity for generic fall back behavior in the case
+>>>> when getpeercon() failed?
+>>> I think it would be useful.  There was some discussion of it during the
+>>> labeled networking discussions, but directly returning the secmark label
+>>> or the netif/netmsg labels was viewed as problematic because they aren't
+>>> peer/process contexts.
+>> I agree the conclusion. Those labels don't represent domain's one.
+>> But I think that using them an entrypoint of domain transition is
+>> a considerable idea, like this:
+>>   type_transition postgresql_t untrusted_network_t : packet
+>>     sepgsql_client_t;
+>>   type_transition ftpd_t untrusted_network_t : packet 
+>>     ftpd_client_t;
 > 
-> Can you give an example of what those templated classes do?
+> There was a discussion about using packet type transitions before, although it 
+> was slightly different than what you are proposing here.  The basic idea was 
+> to reconcile both the "internal" and "external" packet labels into a single 
+> label using type transitions.  In the end it became to complex to write sane 
+> policy so the idea was dropped.
+> 
+> Your proposal is slightly different in that I view it more as a per-domain 
+> renaming scheme where you rename/relabel packets based on the receiving 
+> domain.  Can you help me understand the advantage of 
+> renaming "untrusted_network_t" to "sepgsql_client_t" from a policy point of 
+> view?  For example, how would these two policy rules be different or have any 
+> advantage over one another:
+> 
+>  allow sepgsql_t untrusted_network_t:<class> <perms>;
+>  allow sepgsql_t sepgsql_client_t:<class> <perms>:
 
-The one I've been using recently is found at 
-http://paludis.pioto.org/trac/browser/trunk/paludis/util/private_implementation_pattern.hh
-and
-http://paludis.pioto.org/trac/browser/trunk/paludis/util/private_implementation_pattern-impl.hh
-(apologies for long URLs). Usage is fairly simple: in a class Foo,
-simply inherit from PrivateImplementationPatter<Foo>, and then
-initialise _imp with 'new Implementation<Foo>(args here)'. The entirety
-of Implementation<Foo> can then be hidden away in the .cc file,
-inaccessible to the outside world.
+Paul,
 
-> Hmm - I thought that adding a member function (virtual or non-virtual)
-> changed the ABI. Is there some technique for addressing that problem?
+I didn't intend to rename/relabel contexts of packets. The idea uses the context
+of received packet as an entrypoint of domain transition. In other word, the
+server process's context is renamed/relabeled based on packet's one.
 
-Not as far as I'm aware .. adding a new virtual method will break the
-ABI if it's placed before any existing ones, but non-virtual methods
-and virtual methods added to the end shouldn't cause problems.
+The key issues in the discussion is how to determine the context of client process
+connected via unlabeled network. My idea is generating an alternative client
+context based on server process's one and packet's one, using domain transition.
+
+ > Also, if it is decided that this idea does have merit and is worth
+ > implementing I see it as being complimentary, and not mutually exclusive, to
+ > static labeling of unlabeled hosts/networks.
+
+The reason why I wanted to separate fallbacked client contexts per server domain
+is not to give more permissions than necessary.
+For example, fallbacked context for SE-PostgreSQL need to access database with
+limited permission. It does not require permissions for any other services.
+
+ >> Is it different from Paul's idea, isn't it?
+ >> > In my understanding, he intends to associate a domain's context directly
+ >> > with network interfaces and/or network addresses.
+ >
+ > Yes, that is correct.  It is similar to how existing trusted OSs provide
+ > connection/packet labels for unlabeled hosts/networks.
+
+Is it possible to apply onto TE label, not only MLS label?
+
+Domain transition via packet class is a bit hard to understand.
+It's preferable, if we can configure the fallbacked client context
+directly, as follows:
+    192.168.1.0/24 --> system_u:system_r:sepgsql_client_t
+    192.168.2.0/24 --> system_u:system_r:sepgsql_trusted_client_t:SystemLow-SystemHigh
+
+Thanks,
+-- 
+KaiGai Kohei <kaigai@kaigai.gr.jp>
 
 --
 This message was distributed to subscribers of the selinux mailing list.
