@@ -1,65 +1,39 @@
-Subject: Re: three problems about normal user login in strict policy
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: "Christopher J. PeBenito" <cpebenito@tresys.com>
-Cc: Ken YANG <spng.yang@gmail.com>, SELinux List <selinux@tycho.nsa.gov>,
-        Daniel J Walsh <dwalsh@redhat.com>
-In-Reply-To: <1181224077.6578.92.camel@sgc.columbia.tresys.com>
-References: <4667F878.9030805@gmail.com>
-	 <1181223271.11979.4.camel@moss-spartans.epoch.ncsc.mil>
-	 <1181224077.6578.92.camel@sgc.columbia.tresys.com>
-Content-Type: text/plain
-Date: Thu, 07 Jun 2007 09:54:19 -0400
-Message-Id: <1181224459.11979.7.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+Message-ID: <466811C0.7080400@kaigai.gr.jp>
+Date: Thu, 07 Jun 2007 23:10:08 +0900
+From: KaiGai Kohei <kaigai@kaigai.gr.jp>
+MIME-Version: 1.0
+To: Paul Moore <paul.moore@hp.com>
+CC: KaiGai Kohei <kaigai@ak.jp.nec.com>, Stephen Smalley <sds@tycho.nsa.gov>,
+        Joe Nall <joe@nall.com>, SELinux Mail List <selinux@tycho.nsa.gov>,
+        ewalsh@tycho.nsa.gov
+Subject: Re: generic fallbacks of getpeercon (Re: [redhat-lspp] Labeling an
+ interface)
+References: <C32347D4-3E32-4741-B847-6826EED3BB7A@nall.com> <4667ABFD.2070703@ak.jp.nec.com> <4667B6E3.1010000@ak.jp.nec.com> <200706070751.19644.paul.moore@hp.com>
+In-Reply-To: <200706070751.19644.paul.moore@hp.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2007-06-07 at 13:47 +0000, Christopher J. PeBenito wrote:
-> On Thu, 2007-06-07 at 09:34 -0400, Stephen Smalley wrote:
-> > On Thu, 2007-06-07 at 20:22 +0800, Ken YANG wrote:
-> > > 
-> > > i studied the point from walsh about non-root X login,
-> > > see details in following thread:
-> > > 
-> > > http://marc.info/?l=selinux&m=118050940823692&w=2
-> > > 
-> > > when i login with normal user(user_u), i have some questions:
-> > > (i'm in fc7 with strict-mcs policy at svn version 2301)
-> > > 
-> > > 1
-> > > when i login as user_u, i find i can not switch to staff_u through su,
-> > > but i notice that there is corresponding line in "default_contexts" file:
-> > 
-> > The su / pam_selinux integration was reverted a while ago, so su no
-> > longer changes contexts at all, just like in the original SELinux.  
-> > Thus, the SELinux user identity is once again stable for the entire
-> > session, and you have to use newrole to switch roles.  And user_r isn't
-> > generally allowed to switch to staff_r; you need to map your Linux user
-> > identity to staff_u via semanage.
-> > 
-> > > 
-> > > user_r:user_su_t:s0     staff_r:staff_t:s0 user_r:user_t:s0
-> > > sysadm_r:sysadm_t:s0
-> > > 
-> > > and in the policy, i found the condition of su domain transition have
-> > > satisfied, including su_exec_t entrypoint and type_transition rules,
-> > > furthermore, i also meet the constrain conditon in
-> > > su_per_role_template(), e.g. domain_role_change_exemption($1_su_t),
-> > > domain_subj_id_change_exemption($1_su_t),
-> > > domain_obj_id_change_exemption($1_su_t), and etc.
-> > 
-> > Hmm...seems like those should be removed from policy (unless some distro
-> > tunable is set for older fedora or rhel4), as su should no longer be
-> > making such transitions.
+>> One more point is here.
+>> How should be handled a connection come from unlabeled network, without any
+>> fallbacked context? Two ways are considerable for me. One is that
+>> getpeercon() really returns -ENOPROTOOPT, the other is returning an initial
+>> context newly defined for this purpose.
 > 
-> Its in a rhel4 build option.
+> My personal opinion is that the current getpeercon() behavior of 
+> returning -ENOPROTOOPT when a peer label is not present is probably the best 
+> solution as it allows per-application handling of this particular case.  
+> Earlier in the thread Stephen mentioned that Eamon had developed a way to 
+> handle this for X using a domain specific fallback label and that approach 
+> seems to make the most sense to me.
 
-Hmmm...so why is it still showing up in F7 strict policy?
+OK, I agree your opinion.
+SE-PostgreSQL also follows Eamon's solution for the final fallbacked context,
+to avoid unnecessary confusion.
 
+Thanks,
 -- 
-Stephen Smalley
-National Security Agency
-
+KaiGai Kohei <kaigai@kaigai.gr.jp>
 
 --
 This message was distributed to subscribers of the selinux mailing list.
