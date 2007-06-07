@@ -1,115 +1,58 @@
-Message-ID: <46674C16.40005@tycho.nsa.gov>
-Date: Wed, 06 Jun 2007 20:06:46 -0400
-From: Eamon Walsh <ewalsh@tycho.nsa.gov>
+Message-ID: <4667ABFD.2070703@ak.jp.nec.com>
+Date: Thu, 07 Jun 2007 15:55:57 +0900
+From: KaiGai Kohei <kaigai@ak.jp.nec.com>
 MIME-Version: 1.0
-To: "Christopher J. PeBenito" <cpebenito@tresys.com>
-CC: SELinux Mail List <selinux@tycho.nsa.gov>,
-        "sds >> Stephen Smalley" <sds@tycho.nsa.gov>,
-        Joshua Brindle <jbrindle@tresys.com>
-Subject: Re: [PATCH 3/5] libselinux: add string<->value functions that use
- discovery
-References: <1181157090.6578.38.camel@sgc.columbia.tresys.com>
-In-Reply-To: <1181157090.6578.38.camel@sgc.columbia.tresys.com>
+To: Paul Moore <paul.moore@hp.com>
+CC: KaiGai Kohei <kaigai@kaigai.gr.jp>, Stephen Smalley <sds@tycho.nsa.gov>,
+        Joe Nall <joe@nall.com>, SELinux Mail List <selinux@tycho.nsa.gov>,
+        ewalsh@tycho.nsa.gov
+Subject: Re: generic fallbacks of getpeercon (Re: [redhat-lspp] Labeling an
+ interface)
+References: <C32347D4-3E32-4741-B847-6826EED3BB7A@nall.com> <200706060745.31980.paul.moore@hp.com> <4666ED96.8080508@kaigai.gr.jp> <200706061342.15348.paul.moore@hp.com>
+In-Reply-To: <200706061342.15348.paul.moore@hp.com>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Christopher J. PeBenito wrote:
-> Add new value->name, name->value functions that use object class discovery.
+>>  >> Is it different from Paul's idea, isn't it?
+>>  >>
+>>  >> > In my understanding, he intends to associate a domain's context
+>>  >> > directly with network interfaces and/or network addresses.
+>>  >
+>>  > Yes, that is correct.  It is similar to how existing trusted OSs provide
+>>  > connection/packet labels for unlabeled hosts/networks.
+>>
+>> Is it possible to apply onto TE label, not only MLS label?
+>>
+>> Domain transition via packet class is a bit hard to understand.
+>> It's preferable, if we can configure the fallbacked client context
+>> directly, as follows:
+>>     192.168.1.0/24 --> system_u:system_r:sepgsql_client_t
+>>     192.168.2.0/24 -->
+>> system_u:system_r:sepgsql_trusted_client_t:SystemLow-SystemHigh
 > 
-> Signed-off-by: Chris PeBenito <cpebenito@tresys.com>
-> 
-> ---
->  libselinux/src/stringrep.c |   56 +++++++++++++++++++++++++++++++++++++++++++++
->  1 file changed, 56 insertions(+)
-> 
-> Index: selinux-obj-class-discovery/libselinux/src/stringrep.c
-> ===================================================================
-> --- selinux-obj-class-discovery.orig/libselinux/src/stringrep.c
-> +++ selinux-obj-class-discovery/libselinux/src/stringrep.c
-> @@ -407,6 +407,62 @@ static const char *security_av_perm_to_s
->  	return NULL;
->  }
->  
-> +security_class_t string_to_security_class(const char *s)
-> +{
-> +	struct discover_class_node *node;
-> +
-> +	node = get_class_cache_entry_name(s);
-> +	if (node == NULL) {
-> +		node = discover_class(s);
-> +
-> +		if (node == NULL)
-> +			return 0;
-> +	}
-> +
-> +	return node->value;
-> +}
-> +
-> +access_vector_t string_to_av_perm(security_class_t tclass, const char *s)
-> +{
-> +	struct discover_class_node *node;
-> +
-> +	node = get_class_cache_entry_value(tclass);
-> +	if (node != NULL) {
-> +		size_t i;
-> +		for (i=0; i<MAXVECTORS && node->perms[i] != NULL; i++)
-> +			if (strcmp(node->perms[i],s) == 0)
-> +				return (1<<i);
+> That is exactly what I am intending to implement;  the system administrator
+> would specify a interface/address/netmask that would match to a _full_ 
+> SELinux context as you have described above.
 
-I think if you fall off the end of this loop, you may want to flush the
-cache and try once more.  This would handle the case where the policy
-was reloaded with new permission bits added to the class.  This is a
-pretty obscure corner case so maybe it's not worth the effort.  But see
-comments about netlink below.
+Good. It will be more straightforward approach than server's domain
+transition.
+BTW, do you have a plan how to configure the association between them?
 
-> +	}
-> +
-> +	return 0;
+> Now, using a type which is 
+> obviously specific to sepostgres (sepgsql_client_t) may not be the best 
+> choice for a system-wide value, but you could set it to a more generic type 
+> and the individual label-aware applications could transition to a more 
+> specific type as appropriate (much like you described in your other email).
 
-Set errno to EINVAL, as mentioned earlier.
+OK, I agreed.
+If a system-wide fallbacked context is defined, we can use it as a source
+of domain transition for its necessity.
 
-> +}
-> +
-> +const char *security_class_to_string(security_class_t tclass)
-> +{
-> +	struct discover_class_node *node;
-> +
-> +	node = get_class_cache_entry_value(tclass);
-> +	if (node == NULL)
-> +		return NULL;
-> +	else
-> +		return node->name;
-> +}
-> +
-> +const char *security_av_perm_to_string(security_class_t tclass,
-> +				       access_vector_t av)
-> +{
-> +	struct discover_class_node *node;
-> +	size_t i;
-> +
-> +	node = get_class_cache_entry_value(tclass);
-> +	if (av && node)
-> +		for (i = 0; i<MAXVECTORS; i++)
-> +			if ((1<<i) & av)
-> +				return node->perms[i];
-
-Likewise here, if you hit a NULL node->perms[i] you may want to flush
-the cache and try again.
-
-Do we want to flush the cache when a netlink reload notification comes
-in?  I don't necessarily think that the kernel should allow a policy
-reload that moves or deletes classes and permissions.  But in theory
-(disregarding race conditions), this patchset along with use of the
-mapping support could allow a userspace object manager to keep working
-across a policy reload that does move things around and/or delete unused
-values.
-
-
--- 
-Eamon Walsh <ewalsh@tycho.nsa.gov>
-National Security Agency
-
+Thanks,
+--
+Open Source Software Promotion Center, NEC
+KaiGai Kohei <kaigai@ak.jp.nec.com>
 
 --
 This message was distributed to subscribers of the selinux mailing list.
