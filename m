@@ -1,59 +1,115 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l56NQxPU012175
-	for <selinux@tycho.nsa.gov>; Wed, 6 Jun 2007 19:26:59 -0400
-Message-ID: <466742C2.5090103@tycho.nsa.gov>
-Date: Wed, 06 Jun 2007 19:26:58 -0400
+Message-ID: <46674C16.40005@tycho.nsa.gov>
+Date: Wed, 06 Jun 2007 20:06:46 -0400
 From: Eamon Walsh <ewalsh@tycho.nsa.gov>
 MIME-Version: 1.0
-To: Joshua Brindle <jbrindle@tresys.com>
-CC: "Christopher J. PeBenito" <cpebenito@tresys.com>,
-        SELinux Mail List <selinux@tycho.nsa.gov>
-Subject: Re: [PATCH 1/5] libselinux: rename existing name<->value functions
- for	compat
-References: <1181157051.6578.36.camel@sgc.columbia.tresys.com> <46671547.5010604@tycho.nsa.gov> <46673242.1060909@tresys.com>
-In-Reply-To: <46673242.1060909@tresys.com>
+To: "Christopher J. PeBenito" <cpebenito@tresys.com>
+CC: SELinux Mail List <selinux@tycho.nsa.gov>,
+        "sds >> Stephen Smalley" <sds@tycho.nsa.gov>,
+        Joshua Brindle <jbrindle@tresys.com>
+Subject: Re: [PATCH 3/5] libselinux: add string<->value functions that use
+ discovery
+References: <1181157090.6578.38.camel@sgc.columbia.tresys.com>
+In-Reply-To: <1181157090.6578.38.camel@sgc.columbia.tresys.com>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Joshua Brindle wrote:
-> Eamon Walsh wrote:
->> Christopher J. PeBenito wrote:
->>
->> [snip]
->>
->>> -const char *security_class_to_string(security_class_t tclass)
->>> +static const char *security_class_to_string_compat(security_class_t 
->>> tclass)
->>>  {
->>>      tclass = (tclass > 0 && tclass < NCLASSES) ? tclass : 0;
->>>      return class_to_string_data.str + class_to_string[tclass];
->>>  }
->>>  
->> This will have to be rebased to the errno patch r2463 in trunk.  Also, 
->> the behavior should be identical on the new functions (return EINVAL in 
->> the same manner).
->>
->> This patchset should go in prior to the mapping patchset I posted today.
->>
+Christopher J. PeBenito wrote:
+> Add new value->name, name->value functions that use object class discovery.
 > 
-> Has anyone stacked these patches yet to see if they integrate as 
-> expected? I assume they will since Chris' patches just change the 
-> interfaces that you were using to obtain the kernel values.
+> Signed-off-by: Chris PeBenito <cpebenito@tresys.com>
+> 
+> ---
+>  libselinux/src/stringrep.c |   56 +++++++++++++++++++++++++++++++++++++++++++++
+>  1 file changed, 56 insertions(+)
+> 
+> Index: selinux-obj-class-discovery/libselinux/src/stringrep.c
+> ===================================================================
+> --- selinux-obj-class-discovery.orig/libselinux/src/stringrep.c
+> +++ selinux-obj-class-discovery/libselinux/src/stringrep.c
+> @@ -407,6 +407,62 @@ static const char *security_av_perm_to_s
+>  	return NULL;
+>  }
+>  
+> +security_class_t string_to_security_class(const char *s)
+> +{
+> +	struct discover_class_node *node;
+> +
+> +	node = get_class_cache_entry_name(s);
+> +	if (node == NULL) {
+> +		node = discover_class(s);
+> +
+> +		if (node == NULL)
+> +			return 0;
+> +	}
+> +
+> +	return node->value;
+> +}
+> +
+> +access_vector_t string_to_av_perm(security_class_t tclass, const char *s)
+> +{
+> +	struct discover_class_node *node;
+> +
+> +	node = get_class_cache_entry_value(tclass);
+> +	if (node != NULL) {
+> +		size_t i;
+> +		for (i=0; i<MAXVECTORS && node->perms[i] != NULL; i++)
+> +			if (strcmp(node->perms[i],s) == 0)
+> +				return (1<<i);
 
-For users, the interfaces have to work with the mapped values, so I have 
-to go into the new string_to_foo()/foo_to_string() functions and add 
-map_foo()/unmap_foo() calls.  Probably the best way to do this would be 
-to store the mapped values in the discover_class nodes so that the 
-conversions would only be done when selinuxfs is queried.
+I think if you fall off the end of this loop, you may want to flush the
+cache and try once more.  This would handle the case where the policy
+was reloaded with new permission bits added to the class.  This is a
+pretty obscure corner case so maybe it's not worth the effort.  But see
+comments about netlink below.
 
-Also, I just realized that when a mapping is set, the caches have to be 
-flushed.
+> +	}
+> +
+> +	return 0;
+
+Set errno to EINVAL, as mentioned earlier.
+
+> +}
+> +
+> +const char *security_class_to_string(security_class_t tclass)
+> +{
+> +	struct discover_class_node *node;
+> +
+> +	node = get_class_cache_entry_value(tclass);
+> +	if (node == NULL)
+> +		return NULL;
+> +	else
+> +		return node->name;
+> +}
+> +
+> +const char *security_av_perm_to_string(security_class_t tclass,
+> +				       access_vector_t av)
+> +{
+> +	struct discover_class_node *node;
+> +	size_t i;
+> +
+> +	node = get_class_cache_entry_value(tclass);
+> +	if (av && node)
+> +		for (i = 0; i<MAXVECTORS; i++)
+> +			if ((1<<i) & av)
+> +				return node->perms[i];
+
+Likewise here, if you hit a NULL node->perms[i] you may want to flush
+the cache and try again.
+
+Do we want to flush the cache when a netlink reload notification comes
+in?  I don't necessarily think that the kernel should allow a policy
+reload that moves or deletes classes and permissions.  But in theory
+(disregarding race conditions), this patchset along with use of the
+mapping support could allow a userspace object manager to keep working
+across a policy reload that does move things around and/or delete unused
+values.
 
 
 -- 
 Eamon Walsh <ewalsh@tycho.nsa.gov>
 National Security Agency
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
