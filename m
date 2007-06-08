@@ -1,5 +1,5 @@
-Message-ID: <466991D1.2050005@tycho.nsa.gov>
-Date: Fri, 08 Jun 2007 13:28:49 -0400
+Message-ID: <4669913D.1060404@tycho.nsa.gov>
+Date: Fri, 08 Jun 2007 13:26:21 -0400
 From: Eamon Walsh <ewalsh@tycho.nsa.gov>
 MIME-Version: 1.0
 To: Karl MacMillan <kmacmillan@mentalrootkit.com>
@@ -7,7 +7,7 @@ CC: jwcart2@epoch.ncsc.mil, SE Linux <selinux@tycho.nsa.gov>,
         Stephen Smalley <sds@tycho.nsa.gov>,
         Joshua Brindle <jbrindle@tresys.com>,
         "Christopher J. PeBenito" <cpebenito@tresys.com>
-Subject: [PATCH 2/3] libselinux: class and permission mapping support (try
+Subject: [PATCH 1/3] libselinux: class and permission mapping support (try
  3)
 References: <4666D5E6.508@tycho.nsa.gov>	 <1181148038.17617.25.camel@moss-lions.epoch.ncsc.mil>	 <4666FE38.4060401@tycho.nsa.gov> <1181225909.7049.15.camel@localhost.localdomain>
 In-Reply-To: <1181225909.7049.15.camel@localhost.localdomain>
@@ -15,73 +15,251 @@ Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This patch makes avc_reset() exit properly if the AVC
-was not initialized.
+Changes from the second version: rebase to object class discovery
+patchset; flush the AVC when setting a mapping.
+
+Changes from the first version: disallow a NULL mapping with
+error EINVAL; add assert statements to the map/unmap helpers
+to catch out-of-bounds value bugs in callers.
+
+This provides support for userspace object managers to register a
+mapping of class and permission values.  After the mapping is
+registered all libselinux functions that take a security class
+or permission value must be provided with mapped values instead
+of the "real," kernel values.
+
+Changes from the original interface proposal: No selinux_init()
+function, just a straight set_mapping() function.  Also, to
+simplify things the incoming mapping does not include explicit
+values; the classes and permissions are numbered implicitly by
+their ordering.  NULL strings are used to terminate the lists.
+
+Tested with X server, no problems encountered.
+
+This patch includes the interface and implementation of the
+mapping set function.
 
 Signed-off-by: Eamon Walsh <ewalsh@tycho.nsa.gov>
 ---
 
- avc.c          |    5 +++++
- avc_internal.c |    1 +
- avc_internal.h |    1 +
- 3 files changed, 7 insertions(+)
+ include/selinux/selinux.h |    8 +
+ src/mapping.c             |  189 ++++++++++++++++++++++++++++++++++++++++++++++
+ 2 files changed, 197 insertions(+)
 
 
-Index: libselinux/src/avc_internal.h
+Index: libselinux/include/selinux/selinux.h
 ===================================================================
---- libselinux/src/avc_internal.h	(revision 2470)
-+++ libselinux/src/avc_internal.h	(working copy)
-@@ -71,6 +71,7 @@
- /* message prefix and enforcing mode*/
- #define AVC_PREFIX_SIZE 16
- extern char avc_prefix[AVC_PREFIX_SIZE] hidden;
-+extern int avc_running hidden;
- extern int avc_enforcing hidden;
+--- libselinux/include/selinux/selinux.h	(revision 2470)
++++ libselinux/include/selinux/selinux.h	(working copy)
+@@ -280,6 +280,14 @@
+ /* Commit the pending values for the booleans */
+ extern int security_commit_booleans(void);
  
- /* user-supplied callback interface for avc */
-Index: libselinux/src/avc_internal.c
-===================================================================
---- libselinux/src/avc_internal.c	(revision 2470)
-+++ libselinux/src/avc_internal.c	(working copy)
-@@ -44,6 +44,7 @@
- 
- /* message prefix string and avc enforcing mode */
- char avc_prefix[AVC_PREFIX_SIZE] = "uavc";
-+int avc_running = 0;
- int avc_enforcing = 1;
- int avc_netlink_trouble = 0;
- 
-Index: libselinux/src/avc.c
-===================================================================
---- libselinux/src/avc.c	(revision 2470)
-+++ libselinux/src/avc.c	(working copy)
-@@ -225,6 +225,7 @@
- 		avc_netlink_thread = avc_create_thread(&avc_netlink_loop);
- 		avc_netlink_trouble = 0;
- 	}
-+	avc_running = 1;
-       out:
- 	return rc;
- }
-@@ -534,6 +535,9 @@
- 	struct avc_node *node, *tmp;
- 	errno = 0;
- 
-+	if (!avc_running)
-+		return 0;
++/* Userspace class mapping support */
++struct security_class_mapping {
++	const char *name;
++	const char *perms[sizeof(access_vector_t) * 8 + 1];
++};
 +
- 	avc_get_lock(avc_lock);
++int selinux_set_mapping(struct security_class_mapping *map);
++
+ /* Common helpers */
  
- 	for (i = 0; i < AVC_CACHE_SLOTS; i++) {
-@@ -609,6 +613,7 @@
- 	avc_free_lock(avc_lock);
- 	avc_free_lock(avc_log_lock);
- 	avc_free(avc_audit_buf);
-+	avc_running = 0;
- }
- 
- /* ratelimit stuff put aside for now --EFW */
-
+ /* Convert between security class values and string names */
+Index: libselinux/src/mapping.c
+===================================================================
+--- libselinux/src/mapping.c	(revision 0)
++++ libselinux/src/mapping.c	(revision 0)
+@@ -0,0 +1,189 @@
++/*
++ * Class and permission mappings.
++ */
++
++#include <errno.h>
++#include <stdio.h>
++#include <stdlib.h>
++#include <stdarg.h>
++#include <assert.h>
++#include <selinux/selinux.h>
++#include <selinux/avc.h>
++#include "mapping.h"
++
++/*
++ * Class and permission mappings
++ */
++
++struct selinux_mapping {
++	security_class_t value; /* real, kernel value */
++	unsigned num_perms;
++	access_vector_t perms[sizeof(access_vector_t) * 8];
++};
++
++static struct selinux_mapping *current_mapping = NULL;
++static security_class_t current_mapping_size = 0;
++
++/*
++ * Mapping setting function
++ */
++
++int
++selinux_set_mapping(struct security_class_mapping *map)
++{
++	size_t size = sizeof(struct selinux_mapping);
++	security_class_t i, j;
++	unsigned k;
++
++	free(current_mapping);
++	current_mapping = NULL;
++	current_mapping_size = 0;
++
++	if (avc_reset() < 0)
++		goto err;
++
++	/* Find number of classes in the input mapping */
++	if (!map) {
++		errno = EINVAL;
++		goto err;
++	}
++	i = 0;
++	while (map[i].name)
++		i++;
++
++	/* Allocate space for the class records, plus one for class zero */
++	current_mapping = (struct selinux_mapping *)calloc(++i, size);
++	if (!current_mapping)
++		goto err;
++
++	/* Store the raw class and permission values */
++	j = 0;
++	while (map[j].name) {
++		struct security_class_mapping *p_in = map + (j++);
++		struct selinux_mapping *p_out = current_mapping + j;
++
++		p_out->value = string_to_security_class(p_in->name);
++		if (!p_out->value)
++			goto err2;
++
++		k = 0;
++		while (p_in->perms && p_in->perms[k]) {
++			p_out->perms[k] = string_to_av_perm(p_out->value,
++							    p_in->perms[k]);
++			if (!p_out->perms[k])
++				goto err2;
++			k++;
++		}
++		p_out->num_perms = k;
++	}
++
++	/* Set the mapping size here so the above lookups are "raw" */
++	current_mapping_size = i;
++	return 0;
++err2:
++	free(current_mapping);
++	current_mapping = NULL;
++	current_mapping_size = 0;
++err:
++	return -1;
++}
++
++/*
++ * Get real, kernel values from mapped values
++ */
++
++security_class_t
++unmap_class(security_class_t tclass)
++{
++	if (tclass < current_mapping_size)
++		return current_mapping[tclass].value;
++
++	assert(current_mapping_size == 0);
++	return tclass;
++}
++
++access_vector_t
++unmap_perm(security_class_t tclass, access_vector_t tperm)
++{
++	if (tclass < current_mapping_size) {
++		unsigned i;
++		access_vector_t kperm = 0;
++
++		for (i=0; i<current_mapping[tclass].num_perms; i++)
++			if (tperm & (1<<i)) {
++				kperm |= current_mapping[tclass].perms[i];
++				tperm &= ~(1<<i);
++			}
++		assert(tperm == 0);
++		return kperm;
++	}
++
++	assert(current_mapping_size == 0);
++	return tperm;
++}
++
++/*
++ * Get mapped values from real, kernel values
++ */
++
++security_class_t
++map_class(security_class_t kclass)
++{
++	security_class_t i;
++
++	for (i=0; i<current_mapping_size; i++)
++		if (current_mapping[i].value == kclass)
++			return i;
++
++	assert(current_mapping_size == 0);
++	return kclass;
++}
++
++access_vector_t
++map_perm(security_class_t tclass, access_vector_t kperm)
++{
++	if (tclass < current_mapping_size) {
++		unsigned i;
++		access_vector_t tperm = 0;
++
++		for (i=0; i<current_mapping[tclass].num_perms; i++)
++			if (kperm & current_mapping[tclass].perms[i]) {
++				tperm |= 1<<i;
++				kperm &= ~current_mapping[tclass].perms[i];
++			}
++		assert(kperm == 0);
++		return tperm;
++	}
++
++	assert(current_mapping_size == 0);
++	return kperm;
++}
++
++void
++map_decision(security_class_t tclass, struct av_decision *avd)
++{
++	if (tclass < current_mapping_size) {
++		unsigned i;
++		access_vector_t result;
++
++		for (i=0, result=0; i<current_mapping[tclass].num_perms; i++)
++			if (avd->allowed & current_mapping[tclass].perms[i])
++				result |= 1<<i;
++		avd->allowed = result;
++
++		for (i=0, result=0; i<current_mapping[tclass].num_perms; i++)
++			if (avd->decided & current_mapping[tclass].perms[i])
++				result |= 1<<i;
++		avd->decided = result;
++
++		for (i=0, result=0; i<current_mapping[tclass].num_perms; i++)
++			if (avd->auditallow & current_mapping[tclass].perms[i])
++				result |= 1<<i;
++		avd->auditallow = result;
++
++		for (i=0, result=0; i<current_mapping[tclass].num_perms; i++)
++			if (avd->auditdeny & current_mapping[tclass].perms[i])
++				result |= 1<<i;
++		avd->auditdeny = result;
++	}
++}
 
 
 -- 
