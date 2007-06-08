@@ -1,73 +1,58 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l58DwUeE022432
-	for <selinux@tycho.nsa.gov>; Fri, 8 Jun 2007 09:58:30 -0400
-Received: from atlrel9.hp.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l58DwT1Q022213
-	for <selinux@tycho.nsa.gov>; Fri, 8 Jun 2007 13:58:29 GMT
-From: Paul Moore <paul.moore@hp.com>
-To: "Christopher J. PeBenito" <cpebenito@tresys.com>
-Subject: Re: [RFC] use the netmsg initial SID for NetLabel connections
-Date: Fri, 8 Jun 2007 09:58:17 -0400
-Cc: selinux@tycho.nsa.gov, dwalsh@redhat.com
-References: <20070607205808.935275285@hp.com> <1181309811.6578.106.camel@sgc.columbia.tresys.com>
-In-Reply-To: <1181309811.6578.106.camel@sgc.columbia.tresys.com>
+Date: Fri, 8 Jun 2007 16:04:34 +0100 (BST)
+From: Nagendra Tomar <tomer_iisc@yahoo.com>
+Subject: Re: Fwd: "star -xattr" in SELinux enabled system
+To: russell@coker.com.au
+Cc: SELinux@tycho.nsa.gov
+In-Reply-To: <200706081013.23796.russell@coker.com.au>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Message-Id: <200706080958.17891.paul.moore@hp.com>
+Content-Type: multipart/alternative; boundary="0-1100094070-1181315074=:5113"
+Message-ID: <140001.5113.qm@web53711.mail.re2.yahoo.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Friday, June 8 2007 9:36:51 am Christopher J. PeBenito wrote:
-> On Thu, 2007-06-07 at 16:58 -0400, Paul Moore wrote:
-> > --- refpolicy_svn_repo.orig/policy/modules/kernel/kernel.te
-> > +++ refpolicy_svn_repo/policy/modules/kernel/kernel.te
-> > @@ -139,6 +139,13 @@ type sysctl_dev_t, sysctl_type;
-> >  genfscon proc /sys/dev gen_context(system_u:object_r:sysctl_dev_t,s0)
-> >
-> >  #
-> > +# The netmsg inital SID is used by the kernel's NetLabel subsystem for
-> > network +# connections which do not carry full SELinux contexts.
-> > +#
-> > +type netlabel_peer_t;
-> > +sid
-> > netmsg		gen_context(system_u:object_r:netlabel_peer_t,mls_systemhigh) +
-> > +#
-> >  # unlabeled_t is the type of unlabeled objects.
-> >  # Objects that have no known labeling information or that
-> >  # have labels that are no longer valid are treated as having this type.
-> > @@ -153,7 +160,6 @@ sid icmp_socket		gen_context(system_u:ob
-> >  sid
-> > igmp_packet		gen_context(system_u:object_r:unlabeled_t,mls_systemhigh)
-> > sid init		gen_context(system_u:object_r:unlabeled_t,s0)
-> >  sid kmod		gen_context(system_u:object_r:unlabeled_t,mls_systemhigh)
-> > -sid netmsg		gen_context(system_u:object_r:unlabeled_t,mls_systemhigh)
-> >  sid policy		gen_context(system_u:object_r:unlabeled_t,mls_systemhigh)
-> >  sid
-> > scmp_packet		gen_context(system_u:object_r:unlabeled_t,mls_systemhigh)
-> > sid sysctl_modprobe 	gen_context(system_u:object_r:unlabeled_t,s0)
->
-> The type declaration and initial sid line should move over to
-> corenetwork (with corresponding interface changes).  The only reason
-> there were netlabel interfaces in the kernel module were because they
-> were using unlabeled_t.
+--0-1100094070-1181315074=:5113
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 
-Okay, that makes sense.
 
-I still have a question about the best way to provide both labeled and 
-unlabeled NetLabel support to all of the user/application domains in the 
-policy.  I don't have a problem going through all the individual domains and 
-adding calls like these:
 
-  corenet_{tcp,udp,raw}_recv_unlabeled(<domain>)
-  corenet_{tcp,udp,raw}_recv_netlabel(<domain>)
+Russell Coker <russell@coker.com.au> wrote:Why do you need to extract many security contexts from a tar file in a rc 
+script?
 
-... but I was wondering if there was another way I should go about making the 
-change?
+I need to add files from an archive stored on flash to my RFS. This has to happen during boot.
+       I have resolved this issue by extracting the required archives, before the SELinux policy is loaded, i.e from the initramfs' init script and not from the rc script as I mentioned before.
 
+Thanx for your comments.
+
+- Tomar
 -- 
-paul moore
-linux security @ hp
+russell@coker.com.au
+http://etbe.coker.com.au/          My Blog
+-- 
+russell@coker.com.au
+http://etbe.coker.com.au/          My Blog
+
+http://www.coker.com.au/sponsorship.html Sponsoring Free Software development
+http://www.coker.com.au/sponsorship.html Sponsoring Free Software development
+
+
+
+       
+---------------------------------
+ Yahoo! Mail is the world's favourite email. Don't settle for less, sign up for your freeaccount today.
+--0-1100094070-1181315074=:5113
+Content-Type: text/html; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
+
+<br><br><b><i>Russell Coker &lt;russell@coker.com.au&gt;</i></b> wrote:<blockquote class="replbq" style="border-left: 2px solid rgb(16, 16, 255); margin-left: 5px; padding-left: 5px;"><tomer_iisc@yahoo.com>Why do you need to extract many security contexts from a tar file in a rc <br>script?<br><br>I need to add files from an archive stored on flash to my RFS. This has to happen during boot.<br>&nbsp;&nbsp;&nbsp; &nbsp;&nbsp; I have resolved this issue by extracting the required archives, before the SELinux policy is loaded, i.e from the initramfs' init script and not from the rc script as I mentioned before.<br><br>Thanx for your comments.<br><br>- Tomar<br>-- <br>russell@coker.com.au<br>http://etbe.coker.com.au/          My Blog<br></tomer_iisc@yahoo.com>-- <br>russell@coker.com.au<br>http://etbe.coker.com.au/          My Blog<br><br>http://www.coker.com.au/sponsorship.html Sponsoring Free Software
+ development<br><tomer_iisc@yahoo.com>http://www.coker.com.au/sponsorship.html Sponsoring Free Software development<br><br></tomer_iisc@yahoo.com></blockquote><br><p>&#32;
+
+
+      <hr size=1> 
+Yahoo! Mail is the world's favourite email. Don't settle for less, <a
+href="http://uk.rd.yahoo.com/evt=44106/*http://uk.docs.yahoo.com/mail/winter07.html">sign up for your free
+account today</a>.
+--0-1100094070-1181315074=:5113--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
