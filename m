@@ -1,58 +1,64 @@
-Date: Fri, 8 Jun 2007 16:04:34 +0100 (BST)
-From: Nagendra Tomar <tomer_iisc@yahoo.com>
-Subject: Re: Fwd: "star -xattr" in SELinux enabled system
-To: russell@coker.com.au
-Cc: SELinux@tycho.nsa.gov
-In-Reply-To: <200706081013.23796.russell@coker.com.au>
-MIME-Version: 1.0
-Content-Type: multipart/alternative; boundary="0-1100094070-1181315074=:5113"
-Message-ID: <140001.5113.qm@web53711.mail.re2.yahoo.com>
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l58FaqId028546
+	for <selinux@tycho.nsa.gov>; Fri, 8 Jun 2007 11:36:52 -0400
+Received: from mx1.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id l58FapfR004613
+	for <selinux@tycho.nsa.gov>; Fri, 8 Jun 2007 15:36:51 GMT
+Subject: RE: audit2allow module generation
+From: Karl MacMillan <kmacmillan@mentalrootkit.com>
+To: Anand Patel <apatel@tresys.com>
+Cc: SE Linux <selinux@tycho.nsa.gov>, Daniel J Walsh <dwalsh@redhat.com>
+In-Reply-To: <6FE441CD9F0C0C479F2D88F959B01588BF00ED@exchange.columbia.tresys.com>
+References: 
+	 <6FE441CD9F0C0C479F2D88F959B01588BF00ED@exchange.columbia.tresys.com>
+Content-Type: text/plain
+Date: Fri, 08 Jun 2007 11:36:58 -0400
+Message-Id: <1181317018.13633.4.camel@localhost.localdomain>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
---0-1100094070-1181315074=:5113
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+On Wed, 2007-05-30 at 10:44 -0400, Anand Patel wrote:
+> > -----Original Message-----
+> > From: Karl MacMillan [mailto:kmacmillan@mentalrootkit.com]
+> > Sent: Tuesday, May 29, 2007 5:12 PM
+> > To: Anand Patel
+> > Cc: SE Linux; Daniel J Walsh
+> > Subject: Re: audit2allow module generation
+> > 
+> > On Tue, 2007-05-29 at 16:25 -0400, Anand Patel wrote:
+> > > I am trying to use audit2allow to generate module out of audit
+> messages.
+> > >
+> > > So, I installed refpolicy headers first. Then tried sepolgen-ifgen
+> > >
+> > > %sepolgen-ifgen
+> > > % ... some output ...
+> > > %parsing file /usr/share/selinux/devel/include/services/snmp.if
+> > > %error parsing file
+> /usr/share/selinux/devel/include/services/snmap.if:
+> > > %could not parse text: "Syntax error on line 1 ( [type=OPAREN]"
+> > >
+> > > Parser had problem parsing almost all if files and generated above
+> > > error.
+> > 
+> > The problem is that the refpolicy "language" is far from fixed and
+> > parsing it cleanly is almost impossible because of M4. So the parser
+> > sometimes gets out of sync with refpolicy (hence the policyrep work).
+> > 
+> > I just need some more specific information about the refpolicy version
+> > you are using and I should be able to fix-up the parser.
+> 
+> I was using current release from oss.tresys.com/projects/refpolicy.
+> 
+
+What version of sepolgen were you using? The latest (in rawhide) seems
+to work fine on the latest available refpolicy.
+
+Karl
 
 
 
-Russell Coker <russell@coker.com.au> wrote:Why do you need to extract many security contexts from a tar file in a rc 
-script?
-
-I need to add files from an archive stored on flash to my RFS. This has to happen during boot.
-       I have resolved this issue by extracting the required archives, before the SELinux policy is loaded, i.e from the initramfs' init script and not from the rc script as I mentioned before.
-
-Thanx for your comments.
-
-- Tomar
--- 
-russell@coker.com.au
-http://etbe.coker.com.au/          My Blog
--- 
-russell@coker.com.au
-http://etbe.coker.com.au/          My Blog
-
-http://www.coker.com.au/sponsorship.html Sponsoring Free Software development
-http://www.coker.com.au/sponsorship.html Sponsoring Free Software development
-
-
-
-       
----------------------------------
- Yahoo! Mail is the world's favourite email. Don't settle for less, sign up for your freeaccount today.
---0-1100094070-1181315074=:5113
-Content-Type: text/html; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
-
-<br><br><b><i>Russell Coker &lt;russell@coker.com.au&gt;</i></b> wrote:<blockquote class="replbq" style="border-left: 2px solid rgb(16, 16, 255); margin-left: 5px; padding-left: 5px;"><tomer_iisc@yahoo.com>Why do you need to extract many security contexts from a tar file in a rc <br>script?<br><br>I need to add files from an archive stored on flash to my RFS. This has to happen during boot.<br>&nbsp;&nbsp;&nbsp; &nbsp;&nbsp; I have resolved this issue by extracting the required archives, before the SELinux policy is loaded, i.e from the initramfs' init script and not from the rc script as I mentioned before.<br><br>Thanx for your comments.<br><br>- Tomar<br>-- <br>russell@coker.com.au<br>http://etbe.coker.com.au/          My Blog<br></tomer_iisc@yahoo.com>-- <br>russell@coker.com.au<br>http://etbe.coker.com.au/          My Blog<br><br>http://www.coker.com.au/sponsorship.html Sponsoring Free Software
- development<br><tomer_iisc@yahoo.com>http://www.coker.com.au/sponsorship.html Sponsoring Free Software development<br><br></tomer_iisc@yahoo.com></blockquote><br><p>&#32;
-
-
-      <hr size=1> 
-Yahoo! Mail is the world's favourite email. Don't settle for less, <a
-href="http://uk.rd.yahoo.com/evt=44106/*http://uk.docs.yahoo.com/mail/winter07.html">sign up for your free
-account today</a>.
---0-1100094070-1181315074=:5113--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
