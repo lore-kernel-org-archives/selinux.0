@@ -1,39 +1,37 @@
-From: Russell Coker <russell@coker.com.au>
-Reply-To: russell@coker.com.au
-To: Nagendra Tomar <tomer_iisc@yahoo.com>
-Subject: Re: Fwd: "star -xattr" in SELinux enabled system
-Date: Sat, 9 Jun 2007 13:47:49 +1000
-Cc: SELinux@tycho.nsa.gov
-References: <140001.5113.qm@web53711.mail.re2.yahoo.com>
-In-Reply-To: <140001.5113.qm@web53711.mail.re2.yahoo.com>
+From: "Brian Smith" <brian@briansmith.org>
+To: <SELinux@tycho.nsa.gov>
+Subject: SELinux STRICT policy on CentOS 5
+Date: Sat, 9 Jun 2007 14:46:27 +0700
+Message-ID: <000101c7aa6a$4bfe49c0$5e01a8c0@Junk>
 MIME-Version: 1.0
 Content-Type: text/plain;
-  charset="utf-8"
-Message-Id: <200706091347.50549.russell@coker.com.au>
+	charset="utf-8"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Saturday 09 June 2007 01:04, Nagendra Tomar <tomer_iisc@yahoo.com> wrote:
-> Russell Coker <russell@coker.com.au> wrote:Why do you need to extract many
-> security contexts from a tar file in a rc script?
->
-> I need to add files from an archive stored on flash to my RFS. This has to
-> happen during boot. I have resolved this issue by extracting the required
-> archives, before the SELinux policy is loaded, i.e from the initramfs' init
-> script and not from the rc script as I mentioned before.
+Hello all,
+ 
+What is the installation procedure for enabling the STRICT policy in CentOS 5 and/or RHEL 5? Everything I read seemed to indicate it was:
+ 
+	yum install selinux-policy-strict
+	[ set SELINUXTYPE=strict in /etc/selinux/config ]
+	touch /.autorelabel
+	reboot
 
-If you are going to run the script in question without confinement, then why 
-not use an unconfined domain after the policy is loaded instead of doing it 
-before policy load?
+However, whenever I do this I get a kernel panic on boot:
 
-Setting contexts before the policy load means that the contexts can't be 
-validated, and I can't think of any benefits to doing it in the initramfs.
+	http://bugs.centos.org/view.php?id=2002
 
--- 
-russell@coker.com.au
-http://etbe.coker.com.au/          My Blog
+Note that I am not the original bug reporter.
 
-http://www.coker.com.au/sponsorship.html Sponsoring Free Software development
+The targeted policy seems to work without any problems. I tried switching to the strict policy before doing a "yum update -y && reboot" and then after reinstalling I tried AFTER doing a "yum update -u && reboot." I tried the above procedure, but then booting with "enforcing=0." This avoided the kernel panic but I could not log in as root via the console, only via SSH. And, logging in as root via SSH resulted in many permission denied errors; root couldn't read its own bash profile, for example.
+
+I running CentOS in VMWare Server 1.0.3.
+
+Thanks for any assistance,
+Brian
+
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
