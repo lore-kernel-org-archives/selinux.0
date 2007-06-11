@@ -1,355 +1,250 @@
-Message-ID: <466DA23C.9080509@tycho.nsa.gov>
-Date: Mon, 11 Jun 2007 15:27:56 -0400
+Message-ID: <466DA465.6060909@tycho.nsa.gov>
+Date: Mon, 11 Jun 2007 15:37:09 -0400
 From: Eamon Walsh <ewalsh@tycho.nsa.gov>
 MIME-Version: 1.0
 To: SE Linux <selinux@tycho.nsa.gov>
 CC: Stephen Smalley <sds@tycho.nsa.gov>,
         Karl MacMillan <kmacmillan@mentalrootkit.com>,
         Joshua Brindle <jbrindle@tresys.com>
-Subject: [PATCH 1/3] libselinux: labeling support (try 3)
+Subject: [PATCH 2/3] libselinux: labeling support (try 3)
+References: <466DA23C.9080509@tycho.nsa.gov>
+In-Reply-To: <466DA23C.9080509@tycho.nsa.gov>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-The first two tries of this patchset were late last year.  This is
-a labeling API that provides a common way to map from various string
-namespaces into security contexts.
-
-This version of the patchset simplifies the lookup model down to
-(string,number) to context.  There are no void pointers or variadic
-functions which was one of the objections to the previous patchsets.
-A lot of the file contexts stuff such as the inode tracking support
-has also been dropped with the understanding that this stuff should
-be in the setfiles code, not libselinux.  This is a pure lookup
-interface only.
-
-This patchset includes two backends, for file contexts and media
-contexts.  Future work would include libsemanage interfaces for
-managing the data the way the file contexts data is currently done.
-
-This patch includes the interface and generic handle code.  Tested
-with some sample input values, worked OK.
+This patch includes media backend code.
 
 Signed-off-by: Eamon Walsh <ewalsh@tycho.nsa.gov>
 ---
 
- include/selinux/label.h |  108 +++++++++++++++++++++++++++++++++++++
- src/label.c             |  140 ++++++++++++++++++++++++++++++++++++++++++++++++
- src/label_internal.h    |   49 ++++++++++++++++
- 3 files changed, 297 insertions(+)
+ label_media.c |  219 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 219 insertions(+)
 
 
-Index: libselinux/include/selinux/label.h
+Index: libselinux/src/label_media.c
 ===================================================================
---- libselinux/include/selinux/label.h	(revision 0)
-+++ libselinux/include/selinux/label.h	(revision 0)
-@@ -0,0 +1,108 @@
+--- libselinux/src/label_media.c	(revision 0)
++++ libselinux/src/label_media.c	(revision 0)
+@@ -0,0 +1,219 @@
 +/*
-+ * Labeling interface for userspace object managers and others.
++ * Media contexts backend for labeling system
 + *
 + * Author : Eamon Walsh <ewalsh@tycho.nsa.gov>
 + */
-+#ifndef _SELABEL_H_
-+#define _SELABEL_H_
 +
-+#include <sys/types.h>
-+#include <selinux/selinux.h>
-+
-+#ifdef __cplusplus
-+extern "C" {
-+#endif
-+
-+/*
-+ * Opaque type used for all label handles.
-+ */
-+
-+typedef struct selabel_rec *selabel_handle_t;
-+
-+/* 
-+ * Available backends.
-+ */
-+
-+/* file contexts */
-+#define SELABEL_CTX_FILE	0
-+/* media contexts */
-+#define SELABEL_CTX_MEDIA	1
-+
-+/*
-+ * Available options
-+ */
-+
-+/* validate contexts before returning them (boolean value) */
-+#define SELABEL_OPT_VALIDATE	1
-+/* don't use local customizations to backend data (boolean value) */
-+#define SELABEL_OPT_BASEONLY	2
-+/* specify an alternate path to use when loading backend data */
-+#define SELABEL_OPT_PATH	3
-+/* specify a filename prefix to focus the search operation (file contexts) */
-+#define SELABEL_OPT_PREFIX	4
-+
-+struct selabel_opt {
-+	int type;
-+	const char *value;
-+};
-+
-+/*
-+ * Label operations
-+ */
-+
-+/**
-+ * selabel_open - Create a labeling handle.
-+ * @backend: one of the constants specifying a supported labeling backend.
-+ * @opts: array of selabel_opt structures specifying label options or NULL.
-+ * @nopts: number of elements in opts array or zero for no options.
-+ *
-+ * Open a labeling backend for use.  The available backend identifiers are
-+ * listed above.  Options may be provided via the opts parameter; available
-+ * options are listed above.  Not all options may be supported by every
-+ * backend.  Return value is the created handle on success or NULL with
-+ * @errno set on failure.
-+ */
-+selabel_handle_t selabel_open(unsigned int backend, struct selabel_opt *opts,
-+			      size_t nopts);
-+
-+/**
-+ * selabel_close - Close a labeling handle.
-+ * @handle: specifies handle to close
-+ *
-+ * Destroy the specified handle, closing files, freeing allocated memory,
-+ * etc.  The handle may not be further used after it has been closed.
-+ */
-+void selabel_close(selabel_handle_t handle);
-+
-+/**
-+ * selabel_lookup - Perform labeling lookup operation.
-+ * @handle: specifies backend instance to query
-+ * @con: returns the appropriate context with which to label the object
-+ * @key: string input to lookup operation
-+ * @type: numeric input to the lookup operation
-+ *
-+ * Perform a labeling lookup operation.  Return %0 on success, -%1 with
-+ * @errno set on failure.  The key and type arguments are the inputs to the
-+ * lookup operation; appropriate values are dictated by the backend in use.
-+ * The result is returned in the memory pointed to by @con and must be freed
-+ * by the user with freecon().
-+ */
-+int selabel_lookup(selabel_handle_t handle, security_context_t *con,
-+		   const char *key, int type);
-+int selabel_lookup_raw(selabel_handle_t handle, security_context_t *con,
-+		       const char *key, int type);
-+
-+/**
-+ * selabel_stats - log labeling operation statistics.
-+ * @handle: specifies backend instance to query
-+ *
-+ * Log a message with information about the number of queries performed,
-+ * number of unused matching entries, or other operational statistics.
-+ * Message is backend-specific, some backends may not output a message.
-+ */
-+void selabel_stats(selabel_handle_t handle);
-+
-+#ifdef __cplusplus
-+}
-+#endif
-+#endif	/* _SELABEL_H_ */
-Index: libselinux/src/label_internal.h
-===================================================================
---- libselinux/src/label_internal.h	(revision 0)
-+++ libselinux/src/label_internal.h	(revision 0)
-@@ -0,0 +1,49 @@
-+/*
-+ * This file describes the internal interface used by the labeler
-+ * for calling the user-supplied memory allocation, validation,
-+ * and locking routine.
-+ *
-+ * Author : Eamon Walsh <ewalsh@epoch.ncsc.mil>
-+ */
-+#ifndef _SELABEL_INTERNAL_H_
-+#define _SELABEL_INTERNAL_H_
-+
-+#include <stdlib.h>
-+#include <stdarg.h>
-+#include <selinux/selinux.h>
-+#include <selinux/label.h>
-+#include "dso.h"
-+
-+/*
-+ * Installed backends
-+ */
-+int selabel_file_init(struct selabel_rec *rec, struct selabel_opt *opts,
-+		      size_t nopts) hidden;
-+int selabel_media_init(struct selabel_rec *rec, struct selabel_opt *opts,
-+		      size_t nopts) hidden;
-+
-+/*
-+ * Labeling internal structures
-+ */
-+struct selabel_lookup_rec {
-+	security_context_t ctx_raw;
-+	security_context_t ctx_trans;
-+	int validated;
-+};
-+
-+struct selabel_rec {
-+	/* arguments that were passed to selabel_open */
-+	unsigned int backend;
-+	int validating;
-+
-+	/* labeling operations */
-+	struct selabel_lookup_rec *(*func_lookup) (struct selabel_rec *h,
-+						   const char *key, int type);
-+	void (*func_close) (struct selabel_rec *h);
-+	void (*func_stats) (struct selabel_rec *h);
-+
-+	/* supports backend-specific state information */
-+	void *data;
-+};
-+
-+#endif				/* _SELABEL_INTERNAL_H_ */
-Index: libselinux/src/label.c
-===================================================================
---- libselinux/src/label.c	(revision 0)
-+++ libselinux/src/label.c	(revision 0)
-@@ -0,0 +1,140 @@
-+/*
-+ * Generalized labeling frontend for userspace object managers.
-+ *
-+ * Author : Eamon Walsh <ewalsh@epoch.ncsc.mil>
-+ */
-+
-+#include <sys/types.h>
-+#include <errno.h>
-+#include <stdio.h>
-+#include <stdlib.h>
++#include <sys/stat.h>
 +#include <string.h>
++#include <stdio.h>
++#include <stdio_ext.h>
++#include <ctype.h>
++#include <errno.h>
++#include <limits.h>
 +#include "callbacks.h"
 +#include "label_internal.h"
 +
-+#define ARRAY_SIZE(x) (sizeof(x) / sizeof((x)[0]))
-+
-+typedef int (*selabel_initfunc)(struct selabel_rec *rec,
-+				struct selabel_opt *opts, size_t nopts);
-+
-+static selabel_initfunc initfuncs[] = {
-+	&selabel_file_init,
-+	&selabel_media_init,
-+};
-+
 +/*
-+ * Validation functions
++ * Internals
 + */
 +
-+static inline int selabel_is_validate_set(struct selabel_opt *opts, size_t n)
-+{
-+	while (n--)
-+		if (opts[n].type == SELABEL_OPT_VALIDATE)
-+			return !!opts[n].value;
++/* A context specification. */
++typedef struct spec {
++	struct selabel_lookup_rec lr;	/* holds contexts for lookup result */
++	char *key;		/* key string */
++	int matches;		/* number of matches made during operation */
++} spec_t;
 +
++struct saved_data {
++	unsigned int nspec;
++	spec_t *spec_arr;
++};
++
++static int process_line(const char *path, char *line_buf, int pass,
++			unsigned lineno, struct selabel_rec *rec)
++{
++	struct saved_data *data = (struct saved_data *)rec->data;
++	int items;
++	char *buf_p;
++	char *key, *context;
++
++	buf_p = line_buf;
++	while (isspace(*buf_p))
++		buf_p++;
++	/* Skip comment lines and empty lines. */
++	if (*buf_p == '#' || *buf_p == 0)
++		return 0;
++	items = sscanf(line_buf, "%as %as ", &key, &context);
++	if (items < 2) {
++		selinux_log(SELINUX_WARNING,
++			  "%s:  line %d is missing fields, skipping\n", path,
++			  lineno);
++		if (items == 1)
++			free(key);
++		return 0;
++	}
++
++	if (pass == 1) {
++		data->spec_arr[data->nspec].key = key;
++		data->spec_arr[data->nspec].lr.ctx_raw = context;
++	}
++
++	data->nspec++;
++	if (pass == 0) {
++		free(key);
++		free(context);
++	}
 +	return 0;
 +}
 +
-+static int selabel_validate(struct selabel_rec *rec,
-+			    struct selabel_lookup_rec *contexts)
++static int init(struct selabel_rec *rec, struct selabel_opt *opts,
++		size_t n)
 +{
-+	int rc = 0;
++	FILE *fp;
++	struct saved_data *data = (struct saved_data *)rec->data;
++	const char *path = NULL;
++	char *line_buf = NULL;
++	size_t line_len = 0;
++	int status = -1;
++	unsigned int lineno, pass, maxnspec;
++	struct stat sb;
 +
-+	if (!rec->validating || contexts->validated)
-+		goto out;
++	/* Process arguments */
++	while (n--)
++		switch(opts[n].type) {
++		case SELABEL_OPT_PATH:
++			path = opts[n].value;
++			break;
++		}
 +
-+	rc = selinux_validate(&contexts->ctx_raw);
-+	if (rc < 0) {
-+		selinux_log(SELINUX_ERROR, "invalid context %s\n",
-+			    contexts->ctx_raw);
-+		goto out;
++	/* Open the specification file. */
++	if (!path)
++		path = selinux_media_context_path();
++	if ((fp = fopen(path, "r")) == NULL)
++		return -1;
++	__fsetlocking(fp, FSETLOCKING_BYCALLER);
++
++	if (fstat(fileno(fp), &sb) < 0)
++		return -1;
++	if (!S_ISREG(sb.st_mode)) {
++		errno = EINVAL;
++		return -1;
 +	}
 +
-+	contexts->validated = 1;
-+out:
-+	return rc;
++	/* 
++	 * Perform two passes over the specification file.
++	 * The first pass counts the number of specifications and
++	 * performs simple validation of the input.  At the end
++	 * of the first pass, the spec array is allocated.
++	 * The second pass performs detailed validation of the input
++	 * and fills in the spec array.
++	 */
++	maxnspec = UINT_MAX / sizeof(spec_t);
++	for (pass = 0; pass < 2; pass++) {
++		lineno = 0;
++		data->nspec = 0;
++		while (getline(&line_buf, &line_len, fp) > 0 &&
++		       data->nspec < maxnspec) {
++			if (process_line(path, line_buf, pass, ++lineno, rec))
++				goto finish;
++		}
++		lineno = 0;
++
++		if (pass == 0) {
++			if (data->nspec == 0) {
++				status = 0;
++				goto finish;
++			}
++			data->spec_arr = malloc(sizeof(spec_t)*data->nspec);
++			if (data->spec_arr == NULL)
++				goto finish;
++			memset(data->spec_arr, 0, sizeof(spec_t)*data->nspec);
++			maxnspec = data->nspec;
++			rewind(fp);
++		}
++	}
++	free(line_buf);
++
++	status = 0;
++finish:
++	fclose(fp);
++	return status;
 +}
 +
 +/*
-+ * Public API
++ * Backend interface routines
 + */
-+
-+selabel_handle_t selabel_open(unsigned int backend, struct selabel_opt *opts,
-+			      size_t nopts)
++static void close(struct selabel_rec *rec)
 +{
-+	struct selabel_rec *rec = NULL;
++	struct saved_data *data = (struct saved_data *)rec->data;
++	struct spec *spec, *spec_arr = data->spec_arr;
++	unsigned int i;
 +
-+	if (backend >= ARRAY_SIZE(initfuncs)) {
-+		errno = EINVAL;
-+		goto out;
++	for (i = 0; i < data->nspec; i++) {
++		spec = &spec_arr[i];
++		free(spec->key);
++		free(spec->lr.ctx_raw);
++		free(spec->lr.ctx_trans);
 +	}
 +
-+	rec = (struct selabel_rec *)malloc(sizeof(*rec));
-+	if (!rec)
-+		goto out;
++	if (spec_arr)
++	    free(spec_arr);
 +
-+	memset(rec, 0, sizeof(*rec));
-+	rec->backend = backend;
-+	rec->validating = selabel_is_validate_set(opts, nopts);
-+
-+	if ((*initfuncs[backend])(rec, opts, nopts))
-+		free(rec);
-+
-+out:
-+	return rec;
++	memset(data, 0, sizeof(*data));
 +}
 +
-+static struct selabel_lookup_rec *
-+selabel_lookup_common(struct selabel_rec *rec, int translating,
-+		      const char *key, int type)
++static struct selabel_lookup_rec *lookup(struct selabel_rec *rec,
++					 const char *key,
++					 int type __attribute__((unused)))
 +{
-+	struct selabel_lookup_rec *lr = rec->func_lookup(rec, key, type);
-+	if (!lr)
-+		return NULL;
++	struct saved_data *data = (struct saved_data *)rec->data;
++	spec_t *spec_arr = data->spec_arr;
++	unsigned int i;
 +
-+	if (selabel_validate(rec, lr))
-+		return NULL;
++	for (i = 0; i < data->nspec; i++) {
++		if (!strncmp(spec_arr[i].key, key, strlen(key) + 1))
++			break;
++		if (!strncmp(spec_arr[i].key, "*", 2))
++			break;
++	}
 +
-+	if (translating &&
-+	    selinux_raw_to_trans_context(lr->ctx_raw, &lr->ctx_trans))
++	if (i >= data->nspec) {
++		/* No matching specification. */
++		errno = ENOENT;
 +		return NULL;
++	}
 +
-+	return lr;
++	spec_arr[i].matches++;
++	return &spec_arr[i].lr;
 +}
 +
-+int selabel_lookup(struct selabel_rec *rec, security_context_t *con,
-+		   const char *key, int type)
++static void stats(struct selabel_rec *rec)
 +{
-+	struct selabel_lookup_rec *lr;
++	struct saved_data *data = (struct saved_data *)rec->data;
++	unsigned int i, total = 0;
 +
-+	lr = selabel_lookup_common(rec, 1, key, type);
-+	if (!lr)
++	for (i = 0; i < data->nspec; i++)
++		total += data->spec_arr[i].matches;
++
++	selinux_log(SELINUX_INFO, "%u entries, %u matches made\n",
++		  data->nspec, total);
++}
++
++int selabel_media_init(struct selabel_rec *rec, struct selabel_opt *opts,
++		       size_t nopts)
++{
++	struct saved_data *data;
++
++	data = (struct saved_data *)malloc(sizeof(*data));
++	if (!data)
 +		return -1;
++	memset(data, 0, sizeof(*data));
 +
-+	*con = strdup(lr->ctx_trans);
-+	return *con ? 0 : -1;
-+}
++	rec->data = data;
++	rec->func_close = &close;
++	rec->func_lookup = &lookup;
++	rec->func_stats = &stats;
 +
-+int selabel_lookup_raw(struct selabel_rec *rec, security_context_t *con,
-+		       const char *key, int type)
-+{
-+	struct selabel_lookup_rec *lr;
-+
-+	lr = selabel_lookup_common(rec, 0, key, type);
-+	if (!lr)
-+		return -1;
-+
-+	*con = strdup(lr->ctx_raw);
-+	return *con ? 0 : -1;
-+}
-+
-+void selabel_close(struct selabel_rec *rec)
-+{
-+	rec->func_close(rec);
-+	free(rec);
-+}
-+
-+void selabel_stats(struct selabel_rec *rec)
-+{
-+	rec->func_stats(rec);
++	return init(rec, opts, nopts);
 +}
 
 
