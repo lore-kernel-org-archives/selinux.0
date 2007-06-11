@@ -1,43 +1,44 @@
 Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l5BFakKA021721
-	for <selinux@tycho.nsa.gov>; Mon, 11 Jun 2007 11:36:46 -0400
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l5BFabZw021695
+	for <selinux@tycho.nsa.gov>; Mon, 11 Jun 2007 11:36:37 -0400
 Received: from exchange.columbia.tresys.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with SMTP id l5BFajDE028406
-	for <selinux@tycho.nsa.gov>; Mon, 11 Jun 2007 15:36:45 GMT
-Subject: Re: Spam can connect to smtp port and can use mysql backend
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with SMTP id l5BFabDE028374
+	for <selinux@tycho.nsa.gov>; Mon, 11 Jun 2007 15:36:37 GMT
+Subject: Re: iptables reads etc runtime files, execed out of failto ban
+	with terminal redirected
 From: "Christopher J. PeBenito" <cpebenito@tresys.com>
 To: dwalsh@redhat.com
 Cc: selinux@tycho.nsa.gov
-In-Reply-To: <200705301420.l4UEKJQC007751@localhost.localdomain>
-References: <200705301420.l4UEKJQC007751@localhost.localdomain>
+In-Reply-To: <200705301417.l4UEHQRW007726@localhost.localdomain>
+References: <200705301417.l4UEHQRW007726@localhost.localdomain>
 Content-Type: text/plain
-Date: Mon, 11 Jun 2007 15:35:20 +0000
-Message-Id: <1181576120.16029.37.camel@sgc.columbia.tresys.com>
+Date: Mon, 11 Jun 2007 11:35:11 -0400
+Message-Id: <1181576111.16029.36.camel@sgc.columbia.tresys.com>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2007-05-30 at 10:20 -0400, dwalsh@redhat.com wrote:
-> --- nsaserefpolicy/policy/modules/services/spamassassin.te	2007-05-29 14:10:57.000000000 -0400
-> +++ serefpolicy-3.0.1/policy/modules/services/spamassassin.te	2007-05-30 09:08:15.000000000 -0400
-> @@ -101,6 +99,7 @@
->  corenet_tcp_bind_all_nodes(spamd_t)
->  corenet_tcp_bind_spamd_port(spamd_t)
->  corenet_tcp_connect_razor_port(spamd_t)
-> +corenet_tcp_connect_smtp_port(spamd_t)
->  corenet_sendrecv_razor_client_packets(spamd_t)
->  corenet_sendrecv_spamd_server_packets(spamd_t)
->  # spamassassin 3.1 needs this for its
-> @@ -185,6 +184,11 @@
->  ')
+On Wed, 2007-05-30 at 10:17 -0400, dwalsh@redhat.com wrote:
+> --- nsaserefpolicy/policy/modules/system/iptables.te	2007-05-29 14:10:58.000000000 -0400
+> +++ serefpolicy-3.0.1/policy/modules/system/iptables.te	2007-05-30 09:22:02.000000000 -0400
+> @@ -56,6 +56,7 @@
+>  domain_use_interactive_fds(iptables_t)
+>  
+>  files_read_etc_files(iptables_t)
+> +files_read_etc_runtime_files(iptables_t)
+>  
+>  init_use_fds(iptables_t)
+>  init_use_script_ptys(iptables_t)
+> @@ -77,6 +78,10 @@
+>  userdom_use_all_users_fds(iptables_t)
 >  
 >  optional_policy(`
-> +	mysql_search_db(spamd_t)
-> +	mysql_stream_connect(spamd_t)
+> +	fail2ban_append_log(iptables_t)
 > +')
 > +
 > +optional_policy(`
->  	nis_use_ypbind(spamd_t)
+>  	firstboot_use_fds(iptables_t)
+>  	firstboot_rw_pipes(iptables_t)
 >  ')
 
 Merged.
