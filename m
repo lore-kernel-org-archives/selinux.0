@@ -1,149 +1,202 @@
 Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l5BEsrwH018658
-	for <selinux@tycho.nsa.gov>; Mon, 11 Jun 2007 10:54:53 -0400
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l5BErZ9R018591
+	for <selinux@tycho.nsa.gov>; Mon, 11 Jun 2007 10:53:35 -0400
 Received: from exchange.columbia.tresys.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with SMTP id l5BEsoDE019630
-	for <selinux@tycho.nsa.gov>; Mon, 11 Jun 2007 14:54:50 GMT
-Subject: Re: openct modifications
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with SMTP id l5BErQDI019053
+	for <selinux@tycho.nsa.gov>; Mon, 11 Jun 2007 14:53:33 GMT
+Subject: Re: kernel_devices changes
 From: "Christopher J. PeBenito" <cpebenito@tresys.com>
 To: dwalsh@redhat.com
 Cc: selinux@tycho.nsa.gov
-In-Reply-To: <200705301438.l4UEcYWj008006@localhost.localdomain>
-References: <200705301438.l4UEcYWj008006@localhost.localdomain>
+In-Reply-To: <200705301521.l4UFLQn1010479@localhost.localdomain>
+References: <200705301521.l4UFLQn1010479@localhost.localdomain>
 Content-Type: text/plain
-Date: Mon, 11 Jun 2007 10:53:03 -0400
-Message-Id: <1181573583.16029.28.camel@sgc.columbia.tresys.com>
+Date: Mon, 11 Jun 2007 10:52:03 -0400
+Message-Id: <1181573523.16029.26.camel@sgc.columbia.tresys.com>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2007-05-30 at 10:38 -0400, dwalsh@redhat.com wrote:
-> correct path to executable
+On Wed, 2007-05-30 at 11:21 -0400, dwalsh@redhat.com wrote:
+> Additional devices
 > Additional interfaces
-> openct execs itself and needs access to smartcards and usb devices
 > 
-> --- nsaserefpolicy/policy/modules/services/openct.fc	2007-05-29 14:10:57.000000000 -0400
-> +++ serefpolicy-3.0.1/policy/modules/services/openct.fc	2007-05-30 09:08:15.000000000 -0400
-> @@ -2,6 +2,7 @@
->  # /usr
+> --- nsaserefpolicy/policy/modules/kernel/devices.fc	2007-05-29 14:10:48.000000000 -0400
+> +++ serefpolicy-3.0.1/policy/modules/kernel/devices.fc	2007-05-30 09:25:53.000000000 -0400
+> @@ -19,6 +19,7 @@
+>  /dev/evtchn		-c	gen_context(system_u:object_r:xen_device_t,s0)
+>  /dev/fb[0-9]*		-c	gen_context(system_u:object_r:framebuf_device_t,s0)
+>  /dev/full		-c	gen_context(system_u:object_r:null_device_t,s0)
+> +/dev/fw.*		-c	gen_context(system_u:object_r:usb_device_t,s0)
+>  /dev/hiddev.*		-c	gen_context(system_u:object_r:usb_device_t,s0)
+>  /dev/hpet		-c	gen_context(system_u:object_r:clock_device_t,s0)
+>  /dev/hw_random		-c	gen_context(system_u:object_r:random_device_t,s0)
+> @@ -81,6 +82,8 @@
+>  
+>  /dev/bus/usb/.*/[0-9]+	-c	gen_context(system_u:object_r:usb_device_t,s0)
+>  
+> +/dev/cmx.*		-c	gen_context(system_u:object_r:smartcard_device_t,s0)
+> +
+>  /dev/cpu/.*		-c	gen_context(system_u:object_r:cpu_device_t,s0)
+>  /dev/cpu/mtrr		-c	gen_context(system_u:object_r:mtrr_device_t,s0)
+>  
+> --- nsaserefpolicy/policy/modules/kernel/devices.if	2007-05-29 14:10:48.000000000 -0400
+> +++ serefpolicy-3.0.1/policy/modules/kernel/devices.if	2007-05-30 09:25:53.000000000 -0400
+> @@ -2729,6 +2729,24 @@
+>  
+>  ########################################
+>  ## <summary>
+> +##	Get the attributes of a directory in the usb filesystem.
+> +## </summary>
+> +## <param name="domain">
+> +##	<summary>
+> +##	Domain allowed access.
+> +##	</summary>
+> +## </param>
+> +#
+> +interface(`dev_search_usbfs_dirs',`
+> +	gen_require(`
+> +		type usbfs_t;
+> +	')
+> +
+> +	allow $1 usbfs_t:dir search_dir_perms;
+> +')
+> +
+> +########################################
+> +## <summary>
+>  ##	Do not audit attempts to get the attributes
+>  ##	of a directory in the usb filesystem.
+>  ## </summary>
+> @@ -2939,6 +2957,24 @@
+>  
+>  ########################################
+>  ## <summary>
+> +##	Write the video4linux devices.
+> +## </summary>
+> +## <param name="domain">
+> +##	<summary>
+> +##	Domain allowed access.
+> +##	</summary>
+> +## </param>
+> +#
+> +interface(`dev_write_video_dev',`
+> +	gen_require(`
+> +		type device_t, v4l_device_t;
+> +	')
+> +
+> +	write_chr_files_pattern($1,device_t,v4l_device_t)
+> +')
+> +
+> +########################################
+> +## <summary>
+>  ##	Read and write VMWare devices.
+>  ## </summary>
+>  ## <param name="domain">
+> @@ -3192,3 +3228,78 @@
+>  
+>  	typeattribute $1 devices_unconfined_type;
+>  ')
+> +
+> +########################################
+> +## <summary>
+> +##	Getattr on smartcard devices
+> +## </summary>
+> +## <param name="domain">
+> +##	<summary>
+> +##	Domain allowed access.
+> +##	</summary>
+> +## </param>
+> +#
+> +interface(`dev_getattr_smartcard',`
+> +	gen_require(`
+> +		type smartcard_device_t;
+> +	')
+> +
+> +	allow $1 smartcard_device_t:chr_file getattr;
+> +
+> +')
+> +
+> +########################################
+> +## <summary>
+> +##	dontaudit getattr on smartcard devices
+> +## </summary>
+> +## <param name="domain">
+> +##	<summary>
+> +##	Domain allowed access.
+> +##	</summary>
+> +## </param>
+> +#
+> +interface(`dev_dontaudit_getattr_smartcard',`
+> +	gen_require(`
+> +		type smartcard_device_t;
+> +	')
+> +
+> +	dontaudit $1 smartcard_device_t:chr_file getattr;
+> +
+> +')
+> +
+> +########################################
+> +## <summary>
+> +##	Read and write smartcard devices.
+> +## </summary>
+> +## <param name="domain">
+> +##	<summary>
+> +##	Domain allowed access.
+> +##	</summary>
+> +## </param>
+> +#
+> +interface(`dev_rw_smartcard',`
+> +	gen_require(`
+> +		type device_t, smartcard_device_t;
+> +	')
+> +
+> +	rw_chr_files_pattern($1,device_t,smartcard_device_t)
+> +')
+> +
+> +########################################
+> +## <summary>
+> +##	Create, read, write, and delete smartcard devices.
+> +## </summary>
+> +## <param name="domain">
+> +##	<summary>
+> +##	Domain allowed access.
+> +##	</summary>
+> +## </param>
+> +#
+> +interface(`dev_manage_smartcard',`
+> +	gen_require(`
+> +		type device_t, smartcard_device_t;
+> +	')
+> +
+> +	manage_chr_files_pattern($1,device_t,smartcard_device_t)
+> +')
+> +
+> --- nsaserefpolicy/policy/modules/kernel/devices.te	2007-05-29 14:10:48.000000000 -0400
+> +++ serefpolicy-3.0.1/policy/modules/kernel/devices.te	2007-05-30 09:25:53.000000000 -0400
+> @@ -1,5 +1,5 @@
+>  
+> -policy_module(devices,1.4.0)
+> +policy_module(devices,1.4.1)
+>  
+>  ########################################
 >  #
->  /usr/sbin/openct-control	 --	gen_context(system_u:object_r:openct_exec_t,s0)
-> +/usr/sbin/ifdhandler		--	gen_context(system_u:object_r:openct_exec_t,s0)
->  
+
+Please don't update the versions, I do that when appropriate when I
+commit.  Other parts are merged.
+
+> @@ -139,6 +139,12 @@
 >  #
->  # /var
-> --- nsaserefpolicy/policy/modules/services/openct.if	2007-05-29 14:10:57.000000000 -0400
-> +++ serefpolicy-3.0.1/policy/modules/services/openct.if	2007-05-30 09:08:15.000000000 -0400
-> @@ -1 +1,82 @@
->  ## <summary>Service for handling smart card readers.</summary>
+>  # Type for sound devices and mixers
+>  #
+> +type smartcard_device_t;
+> +dev_node(smartcard_device_t)
 > +
-> +########################################
-> +## <summary>
-> +##	Execute a domain transition to run openct.
-> +## </summary>
-> +## <param name="domain">
-> +## <summary>
-> +##	Domain allowed to transition.
-> +## </summary>
-> +## </param>
 > +#
-> +interface(`openct_domtrans',`
-> +	gen_require(`
-> +		type openct_t, openct_exec_t;
-> +	')
-> +
-> +	domain_auto_trans($1,openct_exec_t,openct_t)
-> +
-> +	allow openct_t $1:fd use;
-> +	allow openct_t $1:fifo_file rw_file_perms;
-> +	allow openct_t $1:process sigchld;
-> +')
-> +
-> +########################################
-> +## <summary>
-> +##	Read openct PID files.
-> +## </summary>
-> +## <param name="domain">
-> +##	<summary>
-> +##	Domain allowed access.
-> +##	</summary>
-> +## </param>
+> +# Type for sound devices and mixers
 > +#
-> +interface(`openct_read_pid_files',`
-> +	gen_require(`
-> +		type openct_var_run_t;
-> +	')
-> +
-> +	files_search_pids($1)
-> +	allow $1 openct_var_run_t:dir search_dir_perms;
-> +	allow $1 openct_var_run_t:file r_file_perms;
-> +')
-> +
-> +########################################
-> +## <summary>
-> +##	Connect to openct over an unix stream socket.
-> +## </summary>
-> +## <param name="domain">
-> +##	<summary>
-> +##	Domain allowed access.
-> +##	</summary>
-> +## </param>
-> +#
-> +interface(`openct_stream_connect',`
-> +	gen_require(`
-> +		type openct_t, openct_var_run_t;
-> +	')
-> +
-> +	files_search_pids($1)
-> +	allow $1 openct_var_run_t:dir search_dir_perms;
-> +	allow $1 openct_var_run_t:sock_file write;
-> +	allow $1 openct_t:unix_stream_socket connectto;
-> +')
-> +
-> +########################################
-> +## <summary>
-> +##	Send openct a null signal.
-> +## </summary>
-> +## <param name="domain">
-> +##	<summary>
-> +##	Domain allowed access.
-> +##	</summary>
-> +## </param>
-> +#
-> +interface(`openct_signull',`
-> +	gen_require(`
-> +		type openct_t;
-> +	')
-> +
-> +	allow $1 openct_t:process signull;
-> +')
-> --- nsaserefpolicy/policy/modules/services/openct.te	2007-05-29 14:10:57.000000000 -0400
-> +++ serefpolicy-3.0.1/policy/modules/services/openct.te	2007-05-30 09:08:15.000000000 -0400
-> @@ -21,9 +21,13 @@
->  dontaudit openct_t self:capability sys_tty_config;
->  allow openct_t self:process signal_perms;
+>  type sound_device_t;
+>  dev_node(sound_device_t)
 >  
-> +can_exec(openct_t,openct_exec_t)
-> +
->  manage_files_pattern(openct_t,openct_var_run_t,openct_var_run_t)
->  files_pid_filetrans(openct_t,openct_var_run_t,file)
->  
-> +corecmd_search_bin(openct_t)
-> +
->  kernel_read_kernel_sysctls(openct_t)
->  kernel_list_proc(openct_t)
->  kernel_read_proc_symlinks(openct_t)
-> @@ -31,6 +35,8 @@
->  dev_read_sysfs(openct_t)
->  # openct asks for this
->  dev_rw_usbfs(openct_t)
-> +dev_rw_smartcard(openct_t)
-> +dev_rw_generic_usb_dev(openct_t)
->  
->  domain_use_interactive_fds(openct_t)
-
-Merged with some adjustments.
-
 -- 
 Chris PeBenito
 Tresys Technology, LLC
