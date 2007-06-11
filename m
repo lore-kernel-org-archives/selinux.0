@@ -1,66 +1,33 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l5BHIbrB028838
-	for <selinux@tycho.nsa.gov>; Mon, 11 Jun 2007 13:18:37 -0400
-Received: from mx1.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id l5BHIa0d022276
-	for <selinux@tycho.nsa.gov>; Mon, 11 Jun 2007 17:18:36 GMT
-Message-ID: <466D83E9.2030801@redhat.com>
-Date: Mon, 11 Jun 2007 13:18:33 -0400
+Message-ID: <466D8620.10301@redhat.com>
+Date: Mon, 11 Jun 2007 13:28:00 -0400
 From: Daniel J Walsh <dwalsh@redhat.com>
 MIME-Version: 1.0
-To: "Christopher J. PeBenito" <cpebenito@tresys.com>
-CC: selinux@tycho.nsa.gov
-Subject: Re: fsdaemon writes files/disks at different levels, Needs write
- down.
-References: <200705301422.l4UEMhjS007772@localhost.localdomain>	 <1181575535.16029.34.camel@sgc.columbia.tresys.com>	 <466D7D67.5010900@redhat.com> <1181581857.16029.40.camel@sgc.columbia.tresys.com>
-In-Reply-To: <1181581857.16029.40.camel@sgc.columbia.tresys.com>
+To: Shintaro Fujiwara <shintaro.fujiwara@gmail.com>
+CC: Stephen Smalley <sds@tycho.nsa.gov>, selinux@tycho.nsa.gov,
+        cpebenito@tresys.com
+Subject: Re: Can't login in F7 strict
+References: <f71a82820706021820m34d5da17n56dcb312a061a988@mail.gmail.com>	 <f71a82820706051436x58c0c4daodb32610866c4a529@mail.gmail.com>	 <1181132472.3699.6.camel@moss-spartans.epoch.ncsc.mil>	 <f71a82820706061427u2fd09352k227f5cda439abee4@mail.gmail.com> <f71a82820706070311p12b8cb33x6103d9c6fb1d5292@mail.gmail.com>
+In-Reply-To: <f71a82820706070311p12b8cb33x6103d9c6fb1d5292@mail.gmail.com>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Christopher J. PeBenito wrote:
-> On Mon, 2007-06-11 at 12:50 -0400, Daniel J Walsh wrote:
->   
->> Christopher J. PeBenito wrote:
->>     
->>> On Wed, 2007-05-30 at 10:22 -0400, dwalsh@redhat.com wrote:
->>>   
->>>       
->>>> --- nsaserefpolicy/policy/modules/services/smartmon.te	2007-05-29 14:10:57.000000000 -0400
->>>> +++ serefpolicy-3.0.1/policy/modules/services/smartmon.te	2007-05-30 09:08:15.000000000 -0400
->>>> @@ -60,6 +60,7 @@
->>>>  fs_search_auto_mountpoints(fsdaemon_t)
->>>>  
->>>>  mls_file_read_up(fsdaemon_t)
->>>> +mls_file_write_down(fsdaemon_t)
->>>>  
->>>>  storage_raw_read_fixed_disk(fsdaemon_t)
->>>>  storage_raw_write_fixed_disk(fsdaemon_t)
->>>>     
->>>>         
->>> Looks to me that all of the devices smartmon should care about
->>> (fixed_disk_device_t) are all system high, so I'm not sure why this is
->>> needed.
->>>
->>>   
->>>       
->> Writing its pid file?
->>     
+Shintaro Fujiwara wrote:
+> With the latest policy, I could install and could login my machine.
 >
-> Perhaps the pid file should be systemhigh too.  It might be only the pid
-> number in the file, but do we want to trust it write down when it has
-> raw disk access?
+> Thanks !
 >
->   
-This is why I hate MLS :^(
-
-The only files in /var/run that are SystemHigh right now are.
-
-/var/run/setrans(/.*)?       
-gen_context(system_u:object_r:setrans_var_run_t,mls_systemhigh)
-
-
-
+> But another problem...
+>
+> Keymap(jp106) fails...
+>
+> Is this the only problem for not English speaking people and how
+> should we fix it ?
+> I can use my jp106 keybord as US keybord but invconvinient...
+>
+> Is there still bug in policy or not ?
+>
+Most likely a bug in policy,  Please report it and attach your audit.log
 
 --
 This message was distributed to subscribers of the selinux mailing list.
