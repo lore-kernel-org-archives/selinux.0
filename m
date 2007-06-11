@@ -1,41 +1,71 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l5BE6T7k015796
-	for <selinux@tycho.nsa.gov>; Mon, 11 Jun 2007 10:06:29 -0400
-Received: from exchange.columbia.tresys.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with SMTP id l5BE6PDE009133
-	for <selinux@tycho.nsa.gov>; Mon, 11 Jun 2007 14:06:28 GMT
-Subject: Re: Proper transition rules for pppd to create /etc/resolv.confe
-From: "Christopher J. PeBenito" <cpebenito@tresys.com>
-To: dwalsh@redhat.com
-Cc: selinux@tycho.nsa.gov
-In-Reply-To: <200705301430.l4UEUn0v007884@localhost.localdomain>
-References: <200705301430.l4UEUn0v007884@localhost.localdomain>
-Content-Type: text/plain
-Date: Mon, 11 Jun 2007 10:05:00 -0400
-Message-Id: <1181570700.16029.16.camel@sgc.columbia.tresys.com>
-Mime-Version: 1.0
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l5BEAJ5s016004
+	for <selinux@tycho.nsa.gov>; Mon, 11 Jun 2007 10:10:19 -0400
+Received: from mx1.redhat.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l5BEAIQ2011901
+	for <selinux@tycho.nsa.gov>; Mon, 11 Jun 2007 14:10:18 GMT
+Message-ID: <466D57BF.9070700@redhat.com>
+Date: Mon, 11 Jun 2007 10:10:07 -0400
+From: Daniel J Walsh <dwalsh@redhat.com>
+MIME-Version: 1.0
+To: "Christopher J. PeBenito" <cpebenito@tresys.com>
+CC: selinux@tycho.nsa.gov
+Subject: Re: apps_uml changes
+References: <200705301540.l4UFekZN011834@localhost.localdomain> <1181570689.16029.13.camel@sgc.columbia.tresys.com>
+In-Reply-To: <1181570689.16029.13.camel@sgc.columbia.tresys.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2007-05-30 at 10:30 -0400, dwalsh@redhat.com wrote:
-> --- nsaserefpolicy/policy/modules/services/ppp.te	2007-05-29 14:10:57.000000000 -0400
-> +++ serefpolicy-3.0.1/policy/modules/services/ppp.te	2007-05-30 07:35:54.000000000 -0400
-> @@ -153,7 +153,7 @@
->  
->  files_exec_etc_files(pppd_t)
->  files_manage_etc_runtime_files(pppd_t)
-> -files_etc_filetrans_etc_runtime(pppd_t, { dir file })
-> +sysnet_etc_filetrans_config(pppd_t)
->  files_dontaudit_write_etc_files(pppd_t)
->  
->  # for scripts
-
-Merged with reordering.
-
--- 
-Chris PeBenito
-Tresys Technology, LLC
-(410) 290-1411 x150
+Christopher J. PeBenito wrote:
+> On Wed, 2007-05-30 at 11:40 -0400, dwalsh@redhat.com wrote:
+>   
+>> Remove TODO
+>>     
+>
+> Are you sure that none of these rules are needed?
+>
+>   
+No but I am sick of looking at them.  Unless the UML developers/testers 
+come in and test it with ref policy, I am not sure we want to hang onto 
+these things indefinitely.
+>> --- nsaserefpolicy/policy/modules/apps/uml.if	2007-05-29 14:10:48.000000000 -0400
+>> +++ serefpolicy-3.0.1/policy/modules/apps/uml.if	2007-05-30 09:25:53.000000000 -0400
+>> @@ -193,33 +193,6 @@
+>>  		nis_use_ypbind($1_uml_t)
+>>  	')
+>>  
+>> -	ifdef(`TODO',`
+>> -		# for X
+>> -		optional_policy(`
+>> -			ifelse($1, sysadm,`
+>> -			',`
+>> -				optional_policy(`
+>> -					allow $1_uml_t xdm_xserver_tmp_t:dir search;
+>> -				')
+>> -				allow $1_uml_t $1_xserver_tmp_t:sock_file write;
+>> -				allow $1_uml_t $1_xserver_t:unix_stream_socket connectto;
+>> -			')
+>> -		')
+>> -
+>> -		optional_policy(`
+>> -			# for uml_net
+>> -			domain_auto_trans($1_uml_t, uml_net_exec_t, uml_net_t)
+>> -			allow uml_net_t $1_uml_t:unix_stream_socket { read write };
+>> -			allow uml_net_t $1_uml_t:unix_dgram_socket { read write };
+>> -			dontaudit uml_net_t privfd:fd use;
+>> -			can_access_pty(uml_net_t, $1_uml)
+>> -			dontaudit uml_net_t $1_uml_rw_t:dir { getattr search };
+>> -		')
+>> -		#TODO
+>> -		optional_policy(`
+>> -			allow $1_uml_t $1_xauth_home_t:file { getattr read };
+>> -		')
+>> -	')
+>>  ')
+>>  
+>>  ########################################
+>>     
 
 
 --
