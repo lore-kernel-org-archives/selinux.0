@@ -1,35 +1,35 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l5BKe3xj009211
-	for <selinux@tycho.nsa.gov>; Mon, 11 Jun 2007 16:40:03 -0400
-Received: from mail2.sea5.speakeasy.net (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id l5BKe10d004424
-	for <selinux@tycho.nsa.gov>; Mon, 11 Jun 2007 20:40:01 GMT
-Date: Mon, 11 Jun 2007 16:39:58 -0400 (EDT)
-From: James Morris <jmorris@namei.org>
+Date: Mon, 11 Jun 2007 15:43:36 -0500
+From: "Serge E. Hallyn" <serue@us.ibm.com>
 To: Stephen Smalley <sds@tycho.nsa.gov>
-cc: selinux@tycho.nsa.gov, Eric Paris <eparis@parisplace.org>,
+Cc: selinux@tycho.nsa.gov, James Morris <jmorris@namei.org>,
+        Eric Paris <eparis@parisplace.org>,
         "Serge E. Hallyn" <serue@us.ibm.com>
 Subject: Re: [RFC][PATCH] selinux:  enable authoritative granting of capabilities
-In-Reply-To: <1181591750.8805.151.camel@moss-spartans.epoch.ncsc.mil>
-Message-ID: <Line.LNX.4.64.0706111638220.726@d.namei>
+Message-ID: <20070611204336.GA30846@sergelap.austin.ibm.com>
 References: <1181591750.8805.151.camel@moss-spartans.epoch.ncsc.mil>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1181591750.8805.151.camel@moss-spartans.epoch.ncsc.mil>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 11 Jun 2007, Stephen Smalley wrote:
-
+Quoting Stephen Smalley (sds@tycho.nsa.gov):
 > Extend SELinux to allow capabilities to be granted authoritatively.
 > Introduces a new cap_override access vector to indicate when the
 > secondary module (i.e. capability or dummy) check should be skipped.
 > Handle the new class gracefully even if the policy does not yet have
 > it defined.
 
-Looks good to me.
+Cool.
 
+If we decide to have this take the place of the file capabilities i
+guess we're all set, but if both are going upstream, do you think
+CONFIG_SECURITY_FILE_CAPABILITIES and selinux should be mutually
+exclusive?
 
-> 
+thanks,
+-serge
+
 > ---
 > 
 >  security/selinux/hooks.c                     |   12 +++++++---
@@ -45,13 +45,13 @@ Looks good to me.
 > --- a/security/selinux/hooks.c
 > +++ b/security/selinux/hooks.c
 > @@ -1419,11 +1419,17 @@ static void selinux_capset_set(struct task_struct *target, kernel_cap_t *effecti
->  
+> 
 >  static int selinux_capable(struct task_struct *tsk, int cap)
 >  {
 > +	struct task_security_struct *tsec = tsk->security;
 > +	u32 sid = tsec->sid;
 >  	int rc;
->  
+> 
 > -	rc = secondary_ops->capable(tsk, cap);
 > -	if (rc)
 > -		return rc;
@@ -62,7 +62,7 @@ Looks good to me.
 > +		if (rc)
 > +			return rc;
 > +	}
->  
+> 
 >  	return task_has_capability(tsk,cap);
 >  }
 > diff --git a/security/selinux/include/av_inherit.h b/security/selinux/include/av_inherit.h
@@ -163,7 +163,7 @@ Looks good to me.
 >  #define SECCLASS_DCCP_SOCKET                             60
 >  #define SECCLASS_MEMPROTECT                              61
 > +#define SECCLASS_CAP_OVERRIDE                            62
->  
+> 
 >  /*
 >   * Security identifier indices for initial entities
 > diff --git a/security/selinux/include/initial_sid_to_string.h b/security/selinux/include/initial_sid_to_string.h
@@ -174,7 +174,7 @@ Looks good to me.
 > @@ -305,13 +305,6 @@ static int context_struct_compute_av(struct context *scontext,
 >  		    tclass <= SECCLASS_NETLINK_DNRT_SOCKET)
 >  			tclass = SECCLASS_NETLINK_SOCKET;
->  
+> 
 > -	if (!tclass || tclass > policydb.p_classes.nprim) {
 > -		printk(KERN_ERR "security_compute_av:  unrecognized class %d\n",
 > -		       tclass);
@@ -188,7 +188,7 @@ Looks good to me.
 > @@ -321,6 +314,9 @@ static int context_struct_compute_av(struct context *scontext,
 >  	avd->auditdeny = 0xffffffff;
 >  	avd->seqno = latest_granting;
->  
+> 
 > +	if (!tclass || tclass > policydb.p_classes.nprim)
 > +		return 0;
 > +
@@ -204,11 +204,9 @@ Looks good to me.
 >  	while (constraint) {
 >  		if ((constraint->permissions & (avd->allowed)) &&
 > 
-> 
-
--- 
-James Morris
-<jmorris@namei.org>
+> -- 
+> Stephen Smalley
+> National Security Agency
 
 --
 This message was distributed to subscribers of the selinux mailing list.
