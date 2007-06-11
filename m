@@ -1,80 +1,42 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l5BDm5gQ014751
-	for <selinux@tycho.nsa.gov>; Mon, 11 Jun 2007 09:48:05 -0400
-Received: from exchange.columbia.tresys.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with SMTP id l5BDlwQ2008376
-	for <selinux@tycho.nsa.gov>; Mon, 11 Jun 2007 13:47:59 GMT
-Subject: RE: audit2allow module generation
-From: Anand Patel <apatel@tresys.com>
-To: Karl MacMillan <kmacmillan@mentalrootkit.com>
-Cc: SE Linux <selinux@tycho.nsa.gov>, Daniel J Walsh <dwalsh@redhat.com>
-In-Reply-To: <1181317018.13633.4.camel@localhost.localdomain>
-References: 
-	 <6FE441CD9F0C0C479F2D88F959B01588BF00ED@exchange.columbia.tresys.com>
-	 <1181317018.13633.4.camel@localhost.localdomain>
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l5BE5wcO015723
+	for <selinux@tycho.nsa.gov>; Mon, 11 Jun 2007 10:05:58 -0400
+Received: from exchange.columbia.tresys.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with SMTP id l5BE5vDE009019
+	for <selinux@tycho.nsa.gov>; Mon, 11 Jun 2007 14:05:57 GMT
+Subject: Re: apps_mozilla changes
+From: "Christopher J. PeBenito" <cpebenito@tresys.com>
+To: dwalsh@redhat.com
+Cc: selinux@tycho.nsa.gov
+In-Reply-To: <200705301541.l4UFfFZq011841@localhost.localdomain>
+References: <200705301541.l4UFfFZq011841@localhost.localdomain>
 Content-Type: text/plain
-Date: Mon, 11 Jun 2007 09:47:33 -0400
-Message-Id: <1181569653.3624.70.camel@helpervm>
+Date: Mon, 11 Jun 2007 14:04:32 +0000
+Message-Id: <1181570672.16029.11.camel@sgc.columbia.tresys.com>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2007-06-08 at 11:36 -0400, Karl MacMillan wrote:
-> On Wed, 2007-05-30 at 10:44 -0400, Anand Patel wrote:
-> > > -----Original Message-----
-> > > From: Karl MacMillan [mailto:kmacmillan@mentalrootkit.com]
-> > > Sent: Tuesday, May 29, 2007 5:12 PM
-> > > To: Anand Patel
-> > > Cc: SE Linux; Daniel J Walsh
-> > > Subject: Re: audit2allow module generation
-> > > 
-> > > On Tue, 2007-05-29 at 16:25 -0400, Anand Patel wrote:
-> > > > I am trying to use audit2allow to generate module out of audit
-> > messages.
-> > > >
-> > > > So, I installed refpolicy headers first. Then tried sepolgen-ifgen
-> > > >
-> > > > %sepolgen-ifgen
-> > > > % ... some output ...
-> > > > %parsing file /usr/share/selinux/devel/include/services/snmp.if
-> > > > %error parsing file
-> > /usr/share/selinux/devel/include/services/snmap.if:
-> > > > %could not parse text: "Syntax error on line 1 ( [type=OPAREN]"
-> > > >
-> > > > Parser had problem parsing almost all if files and generated above
-> > > > error.
-> > > 
-> > > The problem is that the refpolicy "language" is far from fixed and
-> > > parsing it cleanly is almost impossible because of M4. So the parser
-> > > sometimes gets out of sync with refpolicy (hence the policyrep work).
-> > > 
-> > > I just need some more specific information about the refpolicy version
-> > > you are using and I should be able to fix-up the parser.
-> > 
-> > I was using current release from oss.tresys.com/projects/refpolicy.
-> > 
-> 
-> What version of sepolgen were you using? The latest (in rawhide) seems
-> to work fine on the latest available refpolicy.
-Version .1
-It seems to work with pristine refpolicy. However, upon modifications to
-policy, new macros and moduels, it generates error during interface
-index parse.
+On Wed, 2007-05-30 at 11:41 -0400, dwalsh@redhat.com wrote:
+> Mozilla wants to read /dev/rand
+> --- nsaserefpolicy/policy/modules/apps/mozilla.if	2007-05-29 14:10:48.000000000 -0400
+> +++ serefpolicy-3.0.1/policy/modules/apps/mozilla.if	2007-05-30 09:25:53.000000000 -0400
+> @@ -150,6 +150,7 @@
+>  	corenet_dontaudit_tcp_bind_generic_port($1_mozilla_t)
+>  
+>  	dev_read_urand($1_mozilla_t)
+> +	dev_read_rand($1_mozilla_t)
+>  	dev_write_sound($1_mozilla_t)
+>  	dev_read_sound($1_mozilla_t)
+>  	dev_dontaudit_rw_dri($1_mozilla_t)
 
-I am currently investigating where it fails.
-
-
-> 
-> Karl
-> 
-> 
-> 
-
+Merged.
 
 -- 
-Anand Patel
-apatel@tresys.com
-410-290-1411xt153
+Chris PeBenito
+Tresys Technology, LLC
+(410) 290-1411 x150
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
