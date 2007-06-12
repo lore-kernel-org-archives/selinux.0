@@ -1,54 +1,62 @@
-From: Russell Coker <russell@coker.com.au>
-Reply-To: russell@coker.com.au
-To: Nagendra Tomar <tomer_iisc@yahoo.com>
-Subject: Re: Fwd: "star -xattr" in SELinux enabled system
-Date: Tue, 12 Jun 2007 18:36:53 +1000
-Cc: SELinux@tycho.nsa.gov
-References: <727001.44086.qm@web53702.mail.re2.yahoo.com>
-In-Reply-To: <727001.44086.qm@web53702.mail.re2.yahoo.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
-Message-Id: <200706121836.55126.russell@coker.com.au>
+Subject: Re: [RFC][PATCH] selinux:  enable authoritative granting of
+	capabilities
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: casey@schaufler-ca.com
+Cc: "Serge E. Hallyn" <serue@us.ibm.com>, selinux@tycho.nsa.gov,
+        James Morris <jmorris@namei.org>, Eric Paris <eparis@parisplace.org>
+In-Reply-To: <620792.60154.qm@web36608.mail.mud.yahoo.com>
+References: <620792.60154.qm@web36608.mail.mud.yahoo.com>
+Content-Type: text/plain
+Date: Tue, 12 Jun 2007 07:31:25 -0400
+Message-Id: <1181647885.17547.3.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Sunday 10 June 2007 14:29, Nagendra Tomar <tomer_iisc@yahoo.com> wrote:
-> > Sometimes the "least privilege" for an application is to allow it to do
-> > almost anything.
->
-> ???? Can you pls explain this ?
+On Mon, 2007-06-11 at 14:43 -0700, Casey Schaufler wrote:
+> --- "Serge E. Hallyn" <serue@us.ibm.com> wrote:
+> 
+> > Quoting Stephen Smalley (sds@tycho.nsa.gov):
+> > > Extend SELinux to allow capabilities to be granted authoritatively.
+> > > Introduces a new cap_override access vector to indicate when the
+> > > secondary module (i.e. capability or dummy) check should be skipped.
+> > > Handle the new class gracefully even if the policy does not yet have
+> > > it defined.
+> > 
+> > Cool.
+> > 
+> > If we decide to have this take the place of the file capabilities i
+> > guess we're all set, but if both are going upstream, do you think
+> > CONFIG_SECURITY_FILE_CAPABILITIES and selinux should be mutually
+> > exclusive?
+> 
+> We're already living in a non-stacking LSM environment, so whatever
+> SELinux wants to do with capabilities is Stephen's affair, I suppose.
+> I assume that this is in preparation for file based capabilities
+> and dealing with interactions with them. My only concern is that you
+> seem to be sneaking around the "additional restrictions" LSM model,
+> with the justification being that the bit you're taking authority over
+> is also an LSM module. I am not convinced that you're completely
+> within the spirit of the thing, although I would hesitate to accuse
+> you of not playing nicely quite yet.
 
-For example sysadm_t in the strict policy.  The range of tasks performed by 
-the sys-admin in regular operation includes everything that a hostile process 
-might want to do.
+First, I don't think this has to be mutually exclusive of file
+capabilities.  Each of them provides a way to grant capabilities to
+programs.
 
-BTW  Please make sure you clearly indicate who wrote each piece of text.  
-Failing to do so confuses people who are trying to follow the discussion, is 
-a copyright violation, and may be considered to be libel.
-
-It is easies for you to correctly indicate the level of quoting when replying 
-to me as it is for me to fix things up when replying to your message.
-
-> > I agree that it makes sense to restrict things as much as possible.  But
-> > when you have data coming from a trusted source the benefits are minimal. 
-> > You could of course have a domain that has minimal access to other
-> > processes but full access to all files on disk.
->
-> Is that not as bad as it can get ? If a domain is allowed to do anything
-> with all files on the  filesystem, it can craft a file with the right
-> context which can then lead it to other domains (on execution). I
-
-This is your scenario!  You presented me with a requirement and I suggested 
-how you could solve it.  If the process does not need to create arbitrary 
-files but instead needs to create files from a small list of types that are 
-known in advance then modifying the policy to cope with it is easy.
+Second, this isn't a misuse of LSM; it follows naturally from the fact
+that LSM defines the capable() hook entirely (there is no base logic -
+it was all moved into the capability module) and thus can
+authoritatively grant capabilities.  The only reason that SELinux is
+presently restrictive wrt to capabilities is because we have it calling
+the secondary module.  Also, it seems that FreeBSD is going down this
+path of using their MAC framework to authoritatively control their
+privileges.
 
 -- 
-russell@coker.com.au
-http://etbe.coker.com.au/          My Blog
+Stephen Smalley
+National Security Agency
 
-http://www.coker.com.au/sponsorship.html Sponsoring Free Software development
 
 --
 This message was distributed to subscribers of the selinux mailing list.
