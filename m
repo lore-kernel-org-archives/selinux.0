@@ -1,81 +1,200 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l5CCDxIJ014747
-	for <selinux@tycho.nsa.gov>; Tue, 12 Jun 2007 08:13:59 -0400
-Received: from exchange.columbia.tresys.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with SMTP id l5CCDvgo024906
-	for <selinux@tycho.nsa.gov>; Tue, 12 Jun 2007 12:13:57 GMT
-Subject: Re: [RFC] use the netmsg initial SID for NetLabel connections
-From: "Christopher J. PeBenito" <cpebenito@tresys.com>
-To: Paul Moore <paul.moore@hp.com>
-Cc: selinux@tycho.nsa.gov, dwalsh@redhat.com
-In-Reply-To: <200706080958.17891.paul.moore@hp.com>
-References: <20070607205808.935275285@hp.com>
-	 <1181309811.6578.106.camel@sgc.columbia.tresys.com>
-	 <200706080958.17891.paul.moore@hp.com>
-Content-Type: text/plain
-Date: Tue, 12 Jun 2007 08:12:16 -0400
-Message-Id: <1181650336.16029.47.camel@sgc.columbia.tresys.com>
-Mime-Version: 1.0
+Message-ID: <466E90C7.5090407@redhat.com>
+Date: Tue, 12 Jun 2007 08:25:43 -0400
+From: Daniel J Walsh <dwalsh@redhat.com>
+MIME-Version: 1.0
+To: Shintaro Fujiwara <shintaro.fujiwara@gmail.com>
+CC: sds@tycho.nsa.gov, selinux@tycho.nsa.gov, cpebenito@tresys.com
+Subject: Re: Can't login in F7 strict
+References: <f71a82820706021820m34d5da17n56dcb312a061a988@mail.gmail.com>	 <f71a82820706051436x58c0c4daodb32610866c4a529@mail.gmail.com>	 <1181132472.3699.6.camel@moss-spartans.epoch.ncsc.mil>	 <f71a82820706061427u2fd09352k227f5cda439abee4@mail.gmail.com>	 <f71a82820706070311p12b8cb33x6103d9c6fb1d5292@mail.gmail.com>	 <466D8620.10301@redhat.com> <f71a82820706111445k2e144280h25f220dc917b3240@mail.gmail.com>
+In-Reply-To: <f71a82820706111445k2e144280h25f220dc917b3240@mail.gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2007-06-08 at 09:58 -0400, Paul Moore wrote:
-> On Friday, June 8 2007 9:36:51 am Christopher J. PeBenito wrote:
-> > On Thu, 2007-06-07 at 16:58 -0400, Paul Moore wrote:
-> > > --- refpolicy_svn_repo.orig/policy/modules/kernel/kernel.te
-> > > +++ refpolicy_svn_repo/policy/modules/kernel/kernel.te
-> > > @@ -139,6 +139,13 @@ type sysctl_dev_t, sysctl_type;
-> > >  genfscon proc /sys/dev gen_context(system_u:object_r:sysctl_dev_t,s0)
-> > >
-> > >  #
-> > > +# The netmsg inital SID is used by the kernel's NetLabel subsystem for
-> > > network +# connections which do not carry full SELinux contexts.
-> > > +#
-> > > +type netlabel_peer_t;
-> > > +sid
-> > > netmsg		gen_context(system_u:object_r:netlabel_peer_t,mls_systemhigh) +
-> > > +#
-> > >  # unlabeled_t is the type of unlabeled objects.
-> > >  # Objects that have no known labeling information or that
-> > >  # have labels that are no longer valid are treated as having this type.
-> > > @@ -153,7 +160,6 @@ sid icmp_socket		gen_context(system_u:ob
-> > >  sid
-> > > igmp_packet		gen_context(system_u:object_r:unlabeled_t,mls_systemhigh)
-> > > sid init		gen_context(system_u:object_r:unlabeled_t,s0)
-> > >  sid kmod		gen_context(system_u:object_r:unlabeled_t,mls_systemhigh)
-> > > -sid netmsg		gen_context(system_u:object_r:unlabeled_t,mls_systemhigh)
-> > >  sid policy		gen_context(system_u:object_r:unlabeled_t,mls_systemhigh)
-> > >  sid
-> > > scmp_packet		gen_context(system_u:object_r:unlabeled_t,mls_systemhigh)
-> > > sid sysctl_modprobe 	gen_context(system_u:object_r:unlabeled_t,s0)
-> >
-> > The type declaration and initial sid line should move over to
-> > corenetwork (with corresponding interface changes).  The only reason
-> > there were netlabel interfaces in the kernel module were because they
-> > were using unlabeled_t.
-> 
-> Okay, that makes sense.
-> 
-> I still have a question about the best way to provide both labeled and 
-> unlabeled NetLabel support to all of the user/application domains in the 
-> policy.  I don't have a problem going through all the individual domains and 
-> adding calls like these:
-> 
->   corenet_{tcp,udp,raw}_recv_unlabeled(<domain>)
->   corenet_{tcp,udp,raw}_recv_netlabel(<domain>)
-> 
-> ... but I was wondering if there was another way I should go about making the 
-> change?
-
-No, that's the right method.  I've been thinking about if this is the
-right vocabulary for the interfaces; I'd like to make it workable for
-labeled ipsec too.  The problem is that ipsec is a little different,
-where you might have interfaces like apache_tcp_recvfrom_user_script().
-
--- 
-Chris PeBenito
-Tresys Technology, LLC
-(410) 290-1411 x150
+Shintaro Fujiwara wrote:
+> There really aren't any denied messages concerning it ...
+> There really are no problem if I attach my log allright, but no use...
+> But I copied .te files I made from both logs (audit.log and messages).
+> Are there any clue in here ?
+> Or,
+> Should I install enableaudit.pp and listen to all the log or not ?
+>
+>
+> ##########here's module i made from audit.log##############
+> module localaudit 1.0;
+>
+> require {
+>        type default_t;
+>        type system_cron_spool_t;
+>        type local_login_t;
+>        type system_dbusd_var_run_t;
+>        type sysadm_su_t;
+>        type crond_t;
+>        class capability { setuid setgid };
+>        class dir { read search };
+> }
+>
+> #============= crond_t ==============
+> allow crond_t system_cron_spool_t:dir read;
+>
+> #============= local_login_t ==============
+> allow local_login_t default_t:dir search;
+default_t is caused by a mislabeled /root.  restorecon -R -v /root
+> allow local_login_t system_dbusd_var_run_t:dir search;
+>
+> #============= sysadm_su_t ==============
+> allow sysadm_su_t default_t:dir search;
+> allow sysadm_su_t self:capability { setuid setgid };
+>
+Latest policy should have this.
+>
+> ##########here's module i made from /var/log/messages##############
+> module localmessages 1.0;
+>
+> require {
+>        type default_t;
+>        type sysctl_net_unix_t;
+>        type init_t;
+>        type initrc_t;
+>        type file_t;
+>        type restorecon_t;
+>        type sysctl_vm_t;
+>        type kernel_t;
+>        type lvm_control_t;
+>        type loadkeys_t;
+>        type proc_kcore_t;
+>        type sysctl_irq_t;
+>        type sysctl_net_t;
+>        type sysctl_hotplug_t;
+>        type mount_t;
+>        type nscd_var_run_t;
+>        type setfiles_t;
+>        type proc_xen_t;
+>        type proc_kmsg_t;
+>        type proc_mdstat_t;
+>        type sysctl_modprobe_t;
+>        type sysctl_dev_t;
+>        type fsadm_t;
+>        type udev_t;
+>        type lvm_t;
+>        type sysctl_kernel_t;
+>        type proc_net_t;
+>        type local_login_t;
+>        type sshd_t;
+>        class capability { audit_write audit_control };
+>        class chr_file write;
+>        class lnk_file getattr;
+>        class dir { getattr read search };
+>        class file { read lock getattr unlink };
+>        class netlink_audit_socket { create ioctl setattr getattr
+> append write nlmsg_relay nlmsg_read create read bind connect setopt
+> getopt shutdown };
+> }
+>
+> #============= initrc_t ==============
+> allow initrc_t lvm_control_t:chr_file write;
+>
+What program caused this?  Should probably be labeled lvm_exec_t
+> #============= loadkeys_t ==============
+> allow loadkeys_t nscd_var_run_t:dir search;
+>
+> #============= udev_t ==============
+> allow udev_t default_t:dir search;
+> #============= fsadm_t ==============
+> allow fsadm_t file_t:file { read getattr };
+These should not exist file_t means you have unlabled files on your system
+>
+> #============= init_t ==============
+> allow init_t file_t:file { read lock getattr };
+>
+> #============= initrc_t ==============
+> allow initrc_t file_t:file read;
+>
+> #============= lvm_t ==============
+> allow lvm_t file_t:file { read getattr };
+>
+> #============= mount_t ==============
+> allow mount_t file_t:file unlink;
+>
+> #============= restorecon_t ==============
+> allow restorecon_t file_t:file read;
+>
+> #============= setfiles_t ==============
+> allow setfiles_t file_t:file read;
+> allow setfiles_t init_t:dir { read getattr search };
+> allow setfiles_t init_t:file getattr;
+> allow setfiles_t init_t:lnk_file getattr;
+> allow setfiles_t initrc_t:dir { read getattr search };
+> allow setfiles_t initrc_t:file getattr;
+> allow setfiles_t initrc_t:lnk_file getattr;
+> allow setfiles_t kernel_t:dir { read getattr search };
+> allow setfiles_t kernel_t:file getattr;
+> allow setfiles_t kernel_t:lnk_file getattr;
+> allow setfiles_t proc_kcore_t:file getattr;
+> allow setfiles_t proc_kmsg_t:file getattr;
+> allow setfiles_t proc_mdstat_t:file getattr;
+> allow setfiles_t proc_net_t:dir { read getattr search };
+> allow setfiles_t proc_net_t:file getattr;
+> allow setfiles_t proc_xen_t:dir { read getattr search };
+> allow setfiles_t proc_xen_t:file getattr;
+Should all be dontaudit, this is caused by running restorecon or 
+setfiles on /proc
+> ###############edited by me################################
+> #allow setfiles_t self:capability audit_write;
+> #allow setfiles_t self:netlink_audit_socket { write nlmsg_relay create 
+> read };
+> ###########################################################
+> allow setfiles_t sysctl_dev_t:dir { read getattr search };
+> allow setfiles_t sysctl_dev_t:file getattr;
+> allow setfiles_t sysctl_hotplug_t:file getattr;
+> allow setfiles_t sysctl_irq_t:dir { read getattr search };
+> allow setfiles_t sysctl_irq_t:file getattr;
+> allow setfiles_t sysctl_kernel_t:dir { read getattr search };
+> allow setfiles_t sysctl_kernel_t:file getattr;
+> allow setfiles_t sysctl_modprobe_t:file getattr;
+> allow setfiles_t sysctl_net_t:dir { read getattr search };
+> allow setfiles_t sysctl_net_t:file getattr;
+> allow setfiles_t sysctl_net_unix_t:dir { read getattr search };
+> allow setfiles_t sysctl_net_unix_t:file getattr;
+> allow setfiles_t sysctl_vm_t:dir { read getattr search };
+> allow setfiles_t sysctl_vm_t:file getattr;
+> allow setfiles_t udev_t:dir { read getattr search };
+> allow setfiles_t udev_t:file getattr;
+> allow setfiles_t udev_t:lnk_file getattr;
+>
+> #============= udev_t ==============
+> allow udev_t file_t:file { read getattr };
+>
+> ###############added by me################################
+>
+> #============= local_login_t ==============
+> logging_send_audit_msg(local_login_t)
+> logging_set_loginuid(local_login_t)
+Latest policy should have these
+>
+> #============= sshd_t ==============
+> logging_send_audit_msg(sshd_t)
+> logging_set_loginuid(sshd_t)
+>
+>
+> 2007/6/12, Daniel J Walsh <dwalsh@redhat.com>:
+>> Shintaro Fujiwara wrote:
+>> > With the latest policy, I could install and could login my machine.
+>> >
+>> > Thanks !
+>> >
+>> > But another problem...
+>> >
+>> > Keymap(jp106) fails...
+>> >
+>> > Is this the only problem for not English speaking people and how
+>> > should we fix it ?
+>> > I can use my jp106 keybord as US keybord but invconvinient...
+>> >
+>> > Is there still bug in policy or not ?
+>> >
+>> Most likely a bug in policy,  Please report it and attach your audit.log
+>>
 
 
 --
