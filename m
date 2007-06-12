@@ -1,79 +1,68 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l5CJUKNR013482
-	for <selinux@tycho.nsa.gov>; Tue, 12 Jun 2007 15:30:20 -0400
-Received: from mx1.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id l5CJUJ19008077
-	for <selinux@tycho.nsa.gov>; Tue, 12 Jun 2007 19:30:19 GMT
-Message-ID: <466EF43C.5050504@redhat.com>
-Date: Tue, 12 Jun 2007 15:30:04 -0400
-From: Daniel J Walsh <dwalsh@redhat.com>
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l5CJuLCA015020
+	for <selinux@tycho.nsa.gov>; Tue, 12 Jun 2007 15:56:21 -0400
+Received: from web36603.mail.mud.yahoo.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with SMTP id l5CJuJ8g018541
+	for <selinux@tycho.nsa.gov>; Tue, 12 Jun 2007 19:56:20 GMT
+Date: Tue, 12 Jun 2007 12:56:04 -0700 (PDT)
+From: Casey Schaufler <casey@schaufler-ca.com>
+Reply-To: casey@schaufler-ca.com
+Subject: Re: [RFC][PATCH] selinux:  enable authoritative granting of capabilities
+To: James Morris <jmorris@namei.org>, Casey Schaufler <casey@schaufler-ca.com>
+Cc: Stephen Smalley <sds@tycho.nsa.gov>, selinux@tycho.nsa.gov,
+        Eric Paris <eparis@parisplace.org>,
+        "Serge E. Hallyn" <serue@us.ibm.com>
+In-Reply-To: <Line.LNX.4.64.0706121342320.4489@localhost.localdomain>
 MIME-Version: 1.0
-To: "Christopher J. PeBenito" <cpebenito@tresys.com>
-CC: selinux@tycho.nsa.gov
-Subject: Re: admin_amtu changes
-References: <200705301530.l4UFUhob010631@localhost.localdomain> <1181674698.16029.71.camel@sgc.columbia.tresys.com>
-In-Reply-To: <1181674698.16029.71.camel@sgc.columbia.tresys.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain; charset=iso-8859-1
+Message-ID: <741703.17747.qm@web36603.mail.mud.yahoo.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Christopher J. PeBenito wrote:
-> On Wed, 2007-05-30 at 11:30 -0400, dwalsh@redhat.com wrote:
->   
->> Can you upstream this policy?
->>     
->
-> I added it with some rearranging and I dropped these rules:
->
->   
->> +allow amtu_t self:capability net_raw;
->> +allow amtu_t self:packet_socket { bind create read write };
->> +allow amtu_t self:udp_socket { create ioctl };
->>     
->
-> because there isn't any corenetwork usage, so it can't actually use any
-> network interfaces.  Can you recheck these perms?  Also, the perms in
-> general seem light, is this policy complete?
->
->   
-Never used it, these came from the MLS test suite.
->> +files_manage_boot_files(amtu_t)
->> +files_read_etc_runtime_files(amtu_t)
->> +files_read_etc_files(amtu_t)
->> +
->> +kernel_read_system_state(amtu_t)
->> +
->> +libs_use_ld_so(amtu_t)
->> +libs_use_shared_libs(amtu_t)
->> +
->> +logging_send_audit_msg(amtu_t)
->> +
->> +optional_policy(`
->> +    seutil_use_newrole_fds(amtu_t)
->> +');
->> +
->> +optional_policy(`
->> +    userdom_use_sysadm_fds(amtu_t)
->> +');
->> +
->> +optional_policy(`
->> +    userdom_sigchld_sysadm(amtu_t)
->> +');
->> +
->> +optional_policy(`
->> +    nscd_dontaudit_search_pid(amtu_t)
->> +');
->> +
->> +optional_policy(`
->> +    kernel_dontaudit_read_system_state(amtu_t)
->> +');
->> +
->> +optional_policy(`
->> +    term_dontaudit_search_ptys(amtu_t)
->> +');
->> +
->>     
 
+--- James Morris <jmorris@namei.org> wrote:
+
+> On Tue, 12 Jun 2007, Casey Schaufler wrote:
+> 
+> > 
+> > --- Stephen Smalley <sds@tycho.nsa.gov> wrote:
+> > 
+> > > On Tue, 2007-06-12 at 08:08 -0700, Casey Schaufler wrote:
+> > > ...
+> > > > 
+> > > > The file capabilty mechanism has been through two CC evaluations
+> > > > for which I have the certificates, so I think that you may have
+> > > > trouble substantiating your claim that it lacks an analyzable policy.
+> > > 
+> > > I'll clarify:  The file capability mechanism encodes policy in the
+> > > filesystem state on a per-file basis,
+> > 
+> > Uh, yeah. They are stored in extended attributes. This provides
+> > superior locality of reference. Extended attributes are a good
+> > thing for security mechanisms, just have a read through the threads
+> > about AA on the LSM list.
+> 
+> The important thing to differentiate here is that filesystem capabilities 
+> stores _policy_ in the filesystem, as opposed to security attributes of 
+> filesystem objects.
+
+What, it's bad to tightly associate the policy with the executable?
+That's crazy talk. The capability vector of a program belongs attached
+to the program. How many other components of the security policy (e.g.
+DAC bits, MLS labels, owner, owning group, setuid bit) are attached to
+the program? And don't go saying that the setuid bits has nothing to
+do with policy, I'll hit you over the head with an evaluation report.
+
+Please remember (or learn) that the SELinux way of doing things is
+the exception rather than the rule for associating "policy" with
+program behavior. Systems have been associating "policy" directly
+with executables for decades. The notion of an external policy
+definition still gives some of us old farts the heebeejeebees.
+
+ 
+
+Casey Schaufler
+casey@schaufler-ca.com
 
 --
 This message was distributed to subscribers of the selinux mailing list.
