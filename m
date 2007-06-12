@@ -1,33 +1,34 @@
 Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l5CD1B7T017672
-	for <selinux@tycho.nsa.gov>; Tue, 12 Jun 2007 09:01:11 -0400
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l5CD1C1q017681
+	for <selinux@tycho.nsa.gov>; Tue, 12 Jun 2007 09:01:12 -0400
 Received: from exchange.columbia.tresys.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with SMTP id l5CD18gq003219
-	for <selinux@tycho.nsa.gov>; Tue, 12 Jun 2007 13:01:09 GMT
-Subject: Re: services_mailman changes
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with SMTP id l5CD18gs003219
+	for <selinux@tycho.nsa.gov>; Tue, 12 Jun 2007 13:01:11 GMT
+Subject: Re: services_networkmanager changes
 From: "Christopher J. PeBenito" <cpebenito@tresys.com>
 To: dwalsh@redhat.com
 Cc: selinux@tycho.nsa.gov
-In-Reply-To: <200705301546.l4UFk5GH011930@localhost.localdomain>
-References: <200705301546.l4UFk5GH011930@localhost.localdomain>
+In-Reply-To: <200705301544.l4UFiHN3011890@localhost.localdomain>
+References: <200705301544.l4UFiHN3011890@localhost.localdomain>
 Content-Type: text/plain
-Date: Tue, 12 Jun 2007 12:59:24 +0000
-Message-Id: <1181653164.16029.64.camel@sgc.columbia.tresys.com>
+Date: Tue, 12 Jun 2007 08:59:27 -0400
+Message-Id: <1181653167.16029.65.camel@sgc.columbia.tresys.com>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2007-05-30 at 11:46 -0400, dwalsh@redhat.com wrote:
-> Additional interfaces for mailman
-> 
-> --- nsaserefpolicy/policy/modules/services/mailman.if	2007-05-29 14:10:57.000000000 -0400
-> +++ serefpolicy-3.0.1/policy/modules/services/mailman.if	2007-05-30 09:25:53.000000000 -0400
-> @@ -275,6 +275,25 @@
->  
->  #######################################
->  ## <summary>
-> +##	append
-> +##	mailman logs.
+On Wed, 2007-05-30 at 11:44 -0400, dwalsh@redhat.com wrote:
+> Additional transition rule so uncofnined_t can transition to network manager, requested by networkmanager maintainers
+> --- nsaserefpolicy/policy/modules/services/networkmanager.if	2007-05-29 14:10:57.000000000 -0400
+> +++ serefpolicy-3.0.1/policy/modules/services/networkmanager.if	2007-05-30 09:25:53.000000000 -0400
+> @@ -78,3 +78,22 @@
+>  	allow $1 NetworkManager_t:dbus send_msg;
+>  	allow NetworkManager_t $1:dbus send_msg;
+>  ')
+> +
+> +########################################
+> +## <summary>
+> +##	Transition to NetworkManager 
 > +## </summary>
 > +## <param name="domain">
 > +##	<summary>
@@ -35,19 +36,14 @@ On Wed, 2007-05-30 at 11:46 -0400, dwalsh@redhat.com wrote:
 > +##	</summary>
 > +## </param>
 > +#
-> +interface(`mailman_append_log',`
+> +interface(`networkmanager_domtrans',`
 > +	gen_require(`
-> +		type mailman_log_t;
+> +		type NetworkManager_t, NetworkManager_exec_t;
 > +	')
+> +	corecmd_search_bin($1)
+> +	domtrans_pattern($1,NetworkManager_exec_t,NetworkManager_t)
 > +
-> +	append_files_pattern($1,mailman_log_t,mailman_log_t)
 > +')
-> +
-> +#######################################
-> +## <summary>
->  ##	Allow domain to read mailman archive files.
->  ## </summary>
->  ## <param name="domain">
 
 Merged.
 
