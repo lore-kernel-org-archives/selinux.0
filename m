@@ -1,92 +1,87 @@
-Subject: Re: [RFC][PATCH] selinux:  enable authoritative granting of
-	capabilities
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: "Serge E. Hallyn" <serue@us.ibm.com>
-Cc: Russell Coker <russell@coker.com.au>,
-        Casey Schaufler <casey@schaufler-ca.com>, selinux@tycho.nsa.gov,
-        James Morris <jmorris@namei.org>, Eric Paris <eparis@parisplace.org>
-In-Reply-To: <20070612154412.GC14397@sergelap.austin.ibm.com>
-References: <20070611204336.GA30846@sergelap.austin.ibm.com>
-	 <620792.60154.qm@web36608.mail.mud.yahoo.com>
-	 <20070611222402.GA21593@sergelap.austin.ibm.com>
-	 <200706121920.07268.russell@coker.com.au>
-	 <20070612154412.GC14397@sergelap.austin.ibm.com>
-Content-Type: text/plain
-Date: Tue, 12 Jun 2007 11:57:37 -0400
-Message-Id: <1181663857.17547.227.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+Date: Tue, 12 Jun 2007 11:03:27 -0500
+From: "Serge E. Hallyn" <serue@us.ibm.com>
+To: Stephen Smalley <sds@tycho.nsa.gov>
+Cc: selinux@tycho.nsa.gov, James Morris <jmorris@namei.org>,
+        Eric Paris <eparis@parisplace.org>,
+        "Serge E. Hallyn" <serue@us.ibm.com>
+Subject: Re: [RFC][PATCH] selinux:  enable authoritative granting of capabilities
+Message-ID: <20070612160327.GD14397@sergelap.austin.ibm.com>
+References: <1181591750.8805.151.camel@moss-spartans.epoch.ncsc.mil> <1181652652.17547.82.camel@moss-spartans.epoch.ncsc.mil>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1181652652.17547.82.camel@moss-spartans.epoch.ncsc.mil>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2007-06-12 at 10:44 -0500, Serge E. Hallyn wrote:
-> Quoting Russell Coker (russell@coker.com.au):
-> > On Tuesday 12 June 2007 08:24, "Serge E. Hallyn" <serue@us.ibm.com> wrote:
-> > > That changes how one uses these a bit, in an interesting way. ?Let's say
-> > > we want users running ping to get CAP_NET_RAW. ?If ping were then
-> > > exploited to exec something else, then with capabilities it would lose
-> > > CAP_NET_RAW. ?How should (or should?) that be emulated in selinux?
-> > 
-> > The solution to this example is to not allow ping to execute anything - it has 
+Quoting Stephen Smalley (sds@tycho.nsa.gov):
+> On Mon, 2007-06-11 at 15:55 -0400, Stephen Smalley wrote:
+> > Extend SELinux to allow capabilities to be granted authoritatively.
+> > Introduces a new cap_override access vector to indicate when the
+> > secondary module (i.e. capability or dummy) check should be skipped.
+> > Handle the new class gracefully even if the policy does not yet have
+> > it defined.
 > 
-> Yes I picked the example hoping you'd recognize that not being allowed
-> to execute anything is not a satisfactory solution in the general case.
+> I was asked privately to explain what motivated this patch.  As the
+> answer is likely of general interest, here is a summary of (and
+> expansion upon) my reply.  I'll likely fold some of this text into the
+> description that goes with the final form of this patch.
 > 
-> Let me try another example - namespace cloning requires CAP_SYS_ADMIN,
-> and generally is followed by an execve.  So if/when we provide a script
-> to start a vserver or checkpoint/restart job for ordinary users, we
-> would want it to run with CAP_SYS_ADMIN, then drop CAP_SYS_ADMIN on
-> execve.
+> The idea of using SELinux RBAC/TE to completely manage Linux
+> capabilities has always been desirable from our point of view, and was
 
-Well, first, no script should be allowed a capability that is not given
-to its caller directly ;)
+Yup, I think this is great.  When James mentioned the idea earlier in
+the thread I thought it would be closer to 'file capabilities
+implemented in selinux', but there's really no reason for it to be.
+This fits better with the existing model, and now the full
+restrictions+privilege of a process can be known in one policy, which is
+*clearly* a good thing.
 
-But the general goal here seems easy to address through TE domain
-transitions.
+thanks,
+-serge
 
-> > no need to do so anyway.  Also an attacker who exploited ping could probably 
-> > make it do whatever net-raw operations they desired without needing to 
-> > execute a different program.
-> > 
-> > For the general case of a privileged process executing another process you 
-> > want a domain_auto_trans.
+> described in the earliest discussions on selinux list (see archives).  A
+> similar approach to superuser privilege overrides was even implemented
+> in a predecessor of SELinux, the DTOS system.  We had held off on it
+> originally in SELinux because of the potential danger in weakening the
+> base system restrictions, but it has always remained a goal, deferred
+> until SELinux was more fully integrated and policy was more mature.
 > 
-> Ok, those can be forced, so I can't override it as a user?
-
-A domain cannot execute code at all (via execve or mmap PROT_EXEC)
-without file:execute permission to its type and a domain cannot execve a
-program in its own domain (i.e. without performing a domain transition)
-without file:execute_no_trans permission to its type.  Thus, one can
-require a domain transition in order to execve a program, and then the
-possible domain transitions are controlled in the usual way
-(process:transition, file:entrypoint).
-
-> Let's say I execute /usr/bin/restart_job, which has CAP_SYS_ADMIN in
-> order to clone some namespaces and then executes my restart job.  I
-> started out as serge_u:serge_r:serge_t, and became
-> serge_u:serge_r:restartjob_t while running /usr/bin/restart_job.  Now
-> when my checkpointed job is exec'ed, I might want to run in my original
-> context.  Any sane way of doing that (and supporting it for various
-> users)?  Do I just have to provide a bunch of domain_auto_trans rules
-> to transition to a bunch of users, and let the selinux user field select
-> which user I actually get transitioned to?
-
-A common idiom in policy is a chain of domain derivations like:
-	domain_auto_trans(user_t, su_exec_t, user_su_t)
-	domain_auto_trans(user_su_t, shell_exec_t, user_t)
-
-This takes you from the initial domain to the privileged domain and back
-again.  Not sure that you need to do this with per-user types though.
-
-> BTW - if the short answer is "we want to provide the *ability* to do
-> capability overrides but stick to the TE transition model in doing so,
-> that's fair too.
+> The motivation for creating this patch now has been the flurry of
+> interest/activity in file capabilities (currently a patch in -mm), which
+> provide an alternative (and in our view inferior) way to achieve the
+> same end - being able to grant capabilities to programs without them
+> needing to be suid root.  But the file capabilities approach lacks a
+> centralized and analyzable policy, the flexibility and control of domain
+> transitions for changes in capability state (vs. the hardcoded
+> capability evolution logic), and the ability to protect and confine the
+> processes that are given these capabilities.
 > 
-> thanks,
-> -serge
--- 
-Stephen Smalley
-National Security Agency
-
+> This patch as implemented makes the distinction very clear:
+> allow ping_t self:capability net_raw; still means what it used to
+> mean, and SELinux will only authoritatively grant the capability if you
+> add a new cap_override rule to the policy, e.g.
+> allow ping_t self:cap_override new_raw;
+> 
+> Thus, by default (in the absence of new policy), nothing changes, and
+> anyone can easily audit their policy to see whether and where they are
+> granting capabilities authoritatively.
+> 
+> Further, as the code uses the _noaudit interface to apply the
+> cap_override check, these permissions will only be allowed by explicit
+> choice of the administrator, not by automated policy generation tools
+> like audit2allow.  The use of the _noaudit interface was also motivated
+> by the fact that this check must occur before the base capability check
+> and would otherwise need to be pervasively dontaudit'd to avoid noise in
+> the audit logs.
+> 
+> At present, the patch clones the capability permissions into the
+> cap_override class; I would have moved them to a common definition and
+> inherited them into both but that would have prevented policy reload on
+> existing kernels.
+> 
+> -- 
+> Stephen Smalley
+> National Security Agency
 
 --
 This message was distributed to subscribers of the selinux mailing list.
