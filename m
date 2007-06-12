@@ -1,37 +1,48 @@
 From: Russell Coker <russell@coker.com.au>
 Reply-To: russell@coker.com.au
-To: "Serge E. Hallyn" <serue@us.ibm.com>
-Subject: Re: [RFC][PATCH] selinux:  enable authoritative granting of capabilities
-Date: Tue, 12 Jun 2007 19:27:17 +1000
-Cc: Stephen Smalley <sds@tycho.nsa.gov>, selinux@tycho.nsa.gov,
-        James Morris <jmorris@namei.org>, Eric Paris <eparis@parisplace.org>
-References: <1181591750.8805.151.camel@moss-spartans.epoch.ncsc.mil> <20070611204336.GA30846@sergelap.austin.ibm.com>
-In-Reply-To: <20070611204336.GA30846@sergelap.austin.ibm.com>
+To: Nagendra Tomar <tomer_iisc@yahoo.com>
+Subject: Re: Fwd: "star -xattr" in SELinux enabled system
+Date: Tue, 12 Jun 2007 18:36:53 +1000
+Cc: SELinux@tycho.nsa.gov
+References: <727001.44086.qm@web53702.mail.re2.yahoo.com>
+In-Reply-To: <727001.44086.qm@web53702.mail.re2.yahoo.com>
 MIME-Version: 1.0
 Content-Type: text/plain;
-  charset="iso-8859-1"
-Message-Id: <200706121927.20068.russell@coker.com.au>
+  charset="utf-8"
+Message-Id: <200706121836.55126.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tuesday 12 June 2007 06:43, "Serge E. Hallyn" <serue@us.ibm.com> wrote:
-> If we decide to have this take the place of the file capabilities i
-> guess we're all set, but if both are going upstream, do you think
-> CONFIG_SECURITY_FILE_CAPABILITIES and selinux should be mutually
-> exclusive?
+On Sunday 10 June 2007 14:29, Nagendra Tomar <tomer_iisc@yahoo.com> wrote:
+> > Sometimes the "least privilege" for an application is to allow it to do
+> > almost anything.
+>
+> ???? Can you pls explain this ?
 
-This is the sort of thing that can be revised at some future time when there 
-are some users for FILE_CAPABILITIES.  While there are no users for either of 
-the options there seems little incentive to make them work together in the 
-short term.
+For example sysadm_t in the strict policy.  The range of tasks performed by 
+the sys-admin in regular operation includes everything that a hostile process 
+might want to do.
 
-The potential interactions between FILE_CAPABILITIES and cap_override are not 
-obvious, I can think of several options for how these things might work - 
-basically determining how much SE Linux will permit FILE_CAPABILITIES to do 
-what it wants.  If we are going to make them work together then before code 
-is written it would probably be more effective to have some agreement on how 
-it will work - which will depend on some sample implementations of both 
-systems and public comment.
+BTW  Please make sure you clearly indicate who wrote each piece of text.  
+Failing to do so confuses people who are trying to follow the discussion, is 
+a copyright violation, and may be considered to be libel.
+
+It is easies for you to correctly indicate the level of quoting when replying 
+to me as it is for me to fix things up when replying to your message.
+
+> > I agree that it makes sense to restrict things as much as possible.  But
+> > when you have data coming from a trusted source the benefits are minimal. 
+> > You could of course have a domain that has minimal access to other
+> > processes but full access to all files on disk.
+>
+> Is that not as bad as it can get ? If a domain is allowed to do anything
+> with all files on the  filesystem, it can craft a file with the right
+> context which can then lead it to other domains (on execution). I
+
+This is your scenario!  You presented me with a requirement and I suggested 
+how you could solve it.  If the process does not need to create arbitrary 
+files but instead needs to create files from a small list of types that are 
+known in advance then modifying the policy to cope with it is easy.
 
 -- 
 russell@coker.com.au
