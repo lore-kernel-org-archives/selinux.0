@@ -1,72 +1,55 @@
 Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l5CD0jhj017562
-	for <selinux@tycho.nsa.gov>; Tue, 12 Jun 2007 09:00:45 -0400
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l5CD1B7T017672
+	for <selinux@tycho.nsa.gov>; Tue, 12 Jun 2007 09:01:11 -0400
 Received: from exchange.columbia.tresys.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with SMTP id l5CD0cgq003112
-	for <selinux@tycho.nsa.gov>; Tue, 12 Jun 2007 13:00:43 GMT
-Subject: Re: Avahi changes
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with SMTP id l5CD18gq003219
+	for <selinux@tycho.nsa.gov>; Tue, 12 Jun 2007 13:01:09 GMT
+Subject: Re: services_mailman changes
 From: "Christopher J. PeBenito" <cpebenito@tresys.com>
 To: dwalsh@redhat.com
 Cc: selinux@tycho.nsa.gov
-In-Reply-To: <200705301504.l4UF4cEH009265@localhost.localdomain>
-References: <200705301504.l4UF4cEH009265@localhost.localdomain>
+In-Reply-To: <200705301546.l4UFk5GH011930@localhost.localdomain>
+References: <200705301546.l4UFk5GH011930@localhost.localdomain>
 Content-Type: text/plain
-Date: Tue, 12 Jun 2007 08:59:12 -0400
-Message-Id: <1181653152.16029.60.camel@sgc.columbia.tresys.com>
+Date: Tue, 12 Jun 2007 12:59:24 +0000
+Message-Id: <1181653164.16029.64.camel@sgc.columbia.tresys.com>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2007-05-30 at 11:04 -0400, dwalsh@redhat.com wrote:
-> Avahi needs fowner
-> Uses nsswitch
+On Wed, 2007-05-30 at 11:46 -0400, dwalsh@redhat.com wrote:
+> Additional interfaces for mailman
 > 
-> --- nsaserefpolicy/policy/modules/services/avahi.te	2007-05-29 14:10:57.000000000 -0400
-> +++ serefpolicy-3.0.1/policy/modules/services/avahi.te	2007-05-30 09:25:53.000000000 -0400
-> @@ -18,7 +18,7 @@
->  # Local policy
->  #
+> --- nsaserefpolicy/policy/modules/services/mailman.if	2007-05-29 14:10:57.000000000 -0400
+> +++ serefpolicy-3.0.1/policy/modules/services/mailman.if	2007-05-30 09:25:53.000000000 -0400
+> @@ -275,6 +275,25 @@
 >  
-> -allow avahi_t self:capability { dac_override setgid chown kill setuid sys_chroot };
-> +allow avahi_t self:capability { dac_override setgid chown fowner kill setuid sys_chroot };
->  dontaudit avahi_t self:capability sys_tty_config;
->  allow avahi_t self:process { setrlimit signal_perms setcap };
->  allow avahi_t self:fifo_file { read write };
-
-Applied this part.
-
-> @@ -32,6 +32,8 @@
->  allow avahi_t avahi_var_run_t:dir setattr;
->  files_pid_filetrans(avahi_t,avahi_var_run_t,file)
->  
-> +auth_use_nsswitch(avahi_t)
+>  #######################################
+>  ## <summary>
+> +##	append
+> +##	mailman logs.
+> +## </summary>
+> +## <param name="domain">
+> +##	<summary>
+> +##	Domain allowed access.
+> +##	</summary>
+> +## </param>
+> +#
+> +interface(`mailman_append_log',`
+> +	gen_require(`
+> +		type mailman_log_t;
+> +	')
 > +
->  kernel_read_kernel_sysctls(avahi_t)
->  kernel_list_proc(avahi_t)
->  kernel_read_proc_symlinks(avahi_t)
-> @@ -63,8 +65,6 @@
->  files_read_etc_runtime_files(avahi_t)
->  files_read_usr_files(avahi_t)
->  
-> -auth_use_nsswitch(avahi_t)
-> -
->  init_signal_script(avahi_t)
->  init_signull_script(avahi_t)
->  
+> +	append_files_pattern($1,mailman_log_t,mailman_log_t)
+> +')
+> +
+> +#######################################
+> +## <summary>
+>  ##	Allow domain to read mailman archive files.
+>  ## </summary>
+>  ## <param name="domain">
 
-The line is already in the right place.
-
-> @@ -75,8 +75,6 @@
->  
->  miscfiles_read_localization(avahi_t)
->  
-> -sysnet_read_config(avahi_t)
-> -
->  userdom_dontaudit_use_unpriv_user_fds(avahi_t)
->  userdom_dontaudit_search_sysadm_home_dirs(avahi_t)
->  
-
-Merged this part too.
+Merged.
 
 -- 
 Chris PeBenito
