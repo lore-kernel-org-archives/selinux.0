@@ -1,51 +1,71 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l5CD1C1q017681
-	for <selinux@tycho.nsa.gov>; Tue, 12 Jun 2007 09:01:12 -0400
-Received: from exchange.columbia.tresys.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with SMTP id l5CD18gs003219
-	for <selinux@tycho.nsa.gov>; Tue, 12 Jun 2007 13:01:11 GMT
-Subject: Re: services_networkmanager changes
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l5CD6PJN018123
+	for <selinux@tycho.nsa.gov>; Tue, 12 Jun 2007 09:06:25 -0400
+Received: from exchange.columbia.tresys.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with SMTP id l5CD6N37006873
+	for <selinux@tycho.nsa.gov>; Tue, 12 Jun 2007 13:06:23 GMT
+Subject: Re: fsdaemon writes files/disks at different levels, Needs write
+	down.
 From: "Christopher J. PeBenito" <cpebenito@tresys.com>
-To: dwalsh@redhat.com
+To: Daniel J Walsh <dwalsh@redhat.com>
 Cc: selinux@tycho.nsa.gov
-In-Reply-To: <200705301544.l4UFiHN3011890@localhost.localdomain>
-References: <200705301544.l4UFiHN3011890@localhost.localdomain>
+In-Reply-To: <466D83E9.2030801@redhat.com>
+References: <200705301422.l4UEMhjS007772@localhost.localdomain>
+	 <1181575535.16029.34.camel@sgc.columbia.tresys.com>
+	 <466D7D67.5010900@redhat.com>
+	 <1181581857.16029.40.camel@sgc.columbia.tresys.com>
+	 <466D83E9.2030801@redhat.com>
 Content-Type: text/plain
-Date: Tue, 12 Jun 2007 08:59:27 -0400
-Message-Id: <1181653167.16029.65.camel@sgc.columbia.tresys.com>
+Date: Tue, 12 Jun 2007 13:04:57 +0000
+Message-Id: <1181653497.16029.67.camel@sgc.columbia.tresys.com>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2007-05-30 at 11:44 -0400, dwalsh@redhat.com wrote:
-> Additional transition rule so uncofnined_t can transition to network manager, requested by networkmanager maintainers
-> --- nsaserefpolicy/policy/modules/services/networkmanager.if	2007-05-29 14:10:57.000000000 -0400
-> +++ serefpolicy-3.0.1/policy/modules/services/networkmanager.if	2007-05-30 09:25:53.000000000 -0400
-> @@ -78,3 +78,22 @@
->  	allow $1 NetworkManager_t:dbus send_msg;
->  	allow NetworkManager_t $1:dbus send_msg;
->  ')
-> +
-> +########################################
-> +## <summary>
-> +##	Transition to NetworkManager 
-> +## </summary>
-> +## <param name="domain">
-> +##	<summary>
-> +##	Domain allowed access.
-> +##	</summary>
-> +## </param>
-> +#
-> +interface(`networkmanager_domtrans',`
-> +	gen_require(`
-> +		type NetworkManager_t, NetworkManager_exec_t;
-> +	')
-> +	corecmd_search_bin($1)
-> +	domtrans_pattern($1,NetworkManager_exec_t,NetworkManager_t)
-> +
-> +')
+On Mon, 2007-06-11 at 13:18 -0400, Daniel J Walsh wrote:
+> Christopher J. PeBenito wrote:
+> > On Mon, 2007-06-11 at 12:50 -0400, Daniel J Walsh wrote:
+> >   
+> >> Christopher J. PeBenito wrote:
+> >>     
+> >>> On Wed, 2007-05-30 at 10:22 -0400, dwalsh@redhat.com wrote:
+> >>>   
+> >>>       
+> >>>> --- nsaserefpolicy/policy/modules/services/smartmon.te	2007-05-29 14:10:57.000000000 -0400
+> >>>> +++ serefpolicy-3.0.1/policy/modules/services/smartmon.te	2007-05-30 09:08:15.000000000 -0400
+> >>>> @@ -60,6 +60,7 @@
+> >>>>  fs_search_auto_mountpoints(fsdaemon_t)
+> >>>>  
+> >>>>  mls_file_read_up(fsdaemon_t)
+> >>>> +mls_file_write_down(fsdaemon_t)
+> >>>>  
+> >>>>  storage_raw_read_fixed_disk(fsdaemon_t)
+> >>>>  storage_raw_write_fixed_disk(fsdaemon_t)
+> >>>>     
+> >>>>         
+> >>> Looks to me that all of the devices smartmon should care about
+> >>> (fixed_disk_device_t) are all system high, so I'm not sure why this is
+> >>> needed.
+> >>>
+> >>>   
+> >>>       
+> >> Writing its pid file?
+> >>     
+> >
+> > Perhaps the pid file should be systemhigh too.  It might be only the pid
+> > number in the file, but do we want to trust it write down when it has
+> > raw disk access?
+> >
+> >   
+> This is why I hate MLS :^(
+> 
+> The only files in /var/run that are SystemHigh right now are.
+> 
+> /var/run/setrans(/.*)?       
+> gen_context(system_u:object_r:setrans_var_run_t,mls_systemhigh)
 
-Merged.
+It still seems like the right course of action; I'm open to comment from
+the MLS guys either way.
 
 -- 
 Chris PeBenito
