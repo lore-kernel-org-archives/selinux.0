@@ -1,54 +1,75 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l5CHnsE3006222
-	for <selinux@tycho.nsa.gov>; Tue, 12 Jun 2007 13:49:54 -0400
-Received: from mail5.sea5.speakeasy.net (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id l5CHnq19014638
-	for <selinux@tycho.nsa.gov>; Tue, 12 Jun 2007 17:49:53 GMT
-Date: Tue, 12 Jun 2007 13:49:49 -0400 (EDT)
-From: James Morris <jmorris@namei.org>
-To: Casey Schaufler <casey@schaufler-ca.com>
-cc: Stephen Smalley <sds@tycho.nsa.gov>, selinux@tycho.nsa.gov,
-        Eric Paris <eparis@parisplace.org>,
-        "Serge E. Hallyn" <serue@us.ibm.com>
-Subject: Re: [RFC][PATCH] selinux:  enable authoritative granting of capabilities
-In-Reply-To: <616061.57558.qm@web36609.mail.mud.yahoo.com>
-Message-ID: <Line.LNX.4.64.0706121342320.4489@localhost.localdomain>
-References: <616061.57558.qm@web36609.mail.mud.yahoo.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l5CIxln2011284
+	for <selinux@tycho.nsa.gov>; Tue, 12 Jun 2007 14:59:47 -0400
+Received: from exchange.columbia.tresys.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with SMTP id l5CIxj8g008221
+	for <selinux@tycho.nsa.gov>; Tue, 12 Jun 2007 18:59:46 GMT
+Subject: Re: admin_amtu changes
+From: "Christopher J. PeBenito" <cpebenito@tresys.com>
+To: dwalsh@redhat.com
+Cc: selinux@tycho.nsa.gov
+In-Reply-To: <200705301530.l4UFUhob010631@localhost.localdomain>
+References: <200705301530.l4UFUhob010631@localhost.localdomain>
+Content-Type: text/plain
+Date: Tue, 12 Jun 2007 18:58:18 +0000
+Message-Id: <1181674698.16029.71.camel@sgc.columbia.tresys.com>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 12 Jun 2007, Casey Schaufler wrote:
+On Wed, 2007-05-30 at 11:30 -0400, dwalsh@redhat.com wrote:
+> Can you upstream this policy?
 
-> 
-> --- Stephen Smalley <sds@tycho.nsa.gov> wrote:
-> 
-> > On Tue, 2007-06-12 at 08:08 -0700, Casey Schaufler wrote:
-> > ...
-> > > 
-> > > The file capabilty mechanism has been through two CC evaluations
-> > > for which I have the certificates, so I think that you may have
-> > > trouble substantiating your claim that it lacks an analyzable policy.
-> > 
-> > I'll clarify:  The file capability mechanism encodes policy in the
-> > filesystem state on a per-file basis,
-> 
-> Uh, yeah. They are stored in extended attributes. This provides
-> superior locality of reference. Extended attributes are a good
-> thing for security mechanisms, just have a read through the threads
-> about AA on the LSM list.
+I added it with some rearranging and I dropped these rules:
 
-The important thing to differentiate here is that filesystem capabilities 
-stores _policy_ in the filesystem, as opposed to security attributes of 
-filesystem objects.
+> +allow amtu_t self:capability net_raw;
+> +allow amtu_t self:packet_socket { bind create read write };
+> +allow amtu_t self:udp_socket { create ioctl };
 
+because there isn't any corenetwork usage, so it can't actually use any
+network interfaces.  Can you recheck these perms?  Also, the perms in
+general seem light, is this policy complete?
 
-
-- James
+> +files_manage_boot_files(amtu_t)
+> +files_read_etc_runtime_files(amtu_t)
+> +files_read_etc_files(amtu_t)
+> +
+> +kernel_read_system_state(amtu_t)
+> +
+> +libs_use_ld_so(amtu_t)
+> +libs_use_shared_libs(amtu_t)
+> +
+> +logging_send_audit_msg(amtu_t)
+> +
+> +optional_policy(`
+> +    seutil_use_newrole_fds(amtu_t)
+> +');
+> +
+> +optional_policy(`
+> +    userdom_use_sysadm_fds(amtu_t)
+> +');
+> +
+> +optional_policy(`
+> +    userdom_sigchld_sysadm(amtu_t)
+> +');
+> +
+> +optional_policy(`
+> +    nscd_dontaudit_search_pid(amtu_t)
+> +');
+> +
+> +optional_policy(`
+> +    kernel_dontaudit_read_system_state(amtu_t)
+> +');
+> +
+> +optional_policy(`
+> +    term_dontaudit_search_ptys(amtu_t)
+> +');
+> +
 -- 
-James Morris
-<jmorris@namei.org>
+Chris PeBenito
+Tresys Technology, LLC
+(410) 290-1411 x150
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
