@@ -1,76 +1,115 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l5CD6PJN018123
-	for <selinux@tycho.nsa.gov>; Tue, 12 Jun 2007 09:06:25 -0400
-Received: from exchange.columbia.tresys.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with SMTP id l5CD6N37006873
-	for <selinux@tycho.nsa.gov>; Tue, 12 Jun 2007 13:06:23 GMT
-Subject: Re: fsdaemon writes files/disks at different levels, Needs write
-	down.
-From: "Christopher J. PeBenito" <cpebenito@tresys.com>
-To: Daniel J Walsh <dwalsh@redhat.com>
-Cc: selinux@tycho.nsa.gov
-In-Reply-To: <466D83E9.2030801@redhat.com>
-References: <200705301422.l4UEMhjS007772@localhost.localdomain>
-	 <1181575535.16029.34.camel@sgc.columbia.tresys.com>
-	 <466D7D67.5010900@redhat.com>
-	 <1181581857.16029.40.camel@sgc.columbia.tresys.com>
-	 <466D83E9.2030801@redhat.com>
-Content-Type: text/plain
-Date: Tue, 12 Jun 2007 13:04:57 +0000
-Message-Id: <1181653497.16029.67.camel@sgc.columbia.tresys.com>
+Subject: Re: [RFC][PATCH] selinux:  enable authoritative granting of
+	capabilities
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: selinux@tycho.nsa.gov
+Cc: James Morris <jmorris@namei.org>, Eric Paris <eparis@parisplace.org>,
+        "Serge E. Hallyn" <serue@us.ibm.com>,
+        "Christopher J. PeBenito" <cpebenito@tresys.com>
+In-Reply-To: <1181591750.8805.151.camel@moss-spartans.epoch.ncsc.mil>
+References: <1181591750.8805.151.camel@moss-spartans.epoch.ncsc.mil>
+Content-Type: multipart/mixed; boundary="=-LqS5FqoefeMJB31jNqj2"
+Date: Tue, 12 Jun 2007 09:24:48 -0400
+Message-Id: <1181654688.17547.110.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 2007-06-11 at 13:18 -0400, Daniel J Walsh wrote:
-> Christopher J. PeBenito wrote:
-> > On Mon, 2007-06-11 at 12:50 -0400, Daniel J Walsh wrote:
-> >   
-> >> Christopher J. PeBenito wrote:
-> >>     
-> >>> On Wed, 2007-05-30 at 10:22 -0400, dwalsh@redhat.com wrote:
-> >>>   
-> >>>       
-> >>>> --- nsaserefpolicy/policy/modules/services/smartmon.te	2007-05-29 14:10:57.000000000 -0400
-> >>>> +++ serefpolicy-3.0.1/policy/modules/services/smartmon.te	2007-05-30 09:08:15.000000000 -0400
-> >>>> @@ -60,6 +60,7 @@
-> >>>>  fs_search_auto_mountpoints(fsdaemon_t)
-> >>>>  
-> >>>>  mls_file_read_up(fsdaemon_t)
-> >>>> +mls_file_write_down(fsdaemon_t)
-> >>>>  
-> >>>>  storage_raw_read_fixed_disk(fsdaemon_t)
-> >>>>  storage_raw_write_fixed_disk(fsdaemon_t)
-> >>>>     
-> >>>>         
-> >>> Looks to me that all of the devices smartmon should care about
-> >>> (fixed_disk_device_t) are all system high, so I'm not sure why this is
-> >>> needed.
-> >>>
-> >>>   
-> >>>       
-> >> Writing its pid file?
-> >>     
-> >
-> > Perhaps the pid file should be systemhigh too.  It might be only the pid
-> > number in the file, but do we want to trust it write down when it has
-> > raw disk access?
-> >
-> >   
-> This is why I hate MLS :^(
-> 
-> The only files in /var/run that are SystemHigh right now are.
-> 
-> /var/run/setrans(/.*)?       
-> gen_context(system_u:object_r:setrans_var_run_t,mls_systemhigh)
 
-It still seems like the right course of action; I'm open to comment from
-the MLS guys either way.
+--=-LqS5FqoefeMJB31jNqj2
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+
+On Mon, 2007-06-11 at 15:55 -0400, Stephen Smalley wrote:
+> Extend SELinux to allow capabilities to be granted authoritatively.
+> Introduces a new cap_override access vector to indicate when the
+> secondary module (i.e. capability or dummy) check should be skipped.
+> Handle the new class gracefully even if the policy does not yet have
+> it defined.
+
+For people who want to test/experiment with this kernel patch, below is
+the policy patch I used to define the new class and permissions (it also
+includes the previously added memprotect class since that hasn't been
+added upstream yet).  If you rebuild your base policy with this patch
+(e.g. grab the source package, add this patch, rebuild and reinstall),
+then you can subsequently create loadable policy modules that use the
+new cap_override permissions for testing.
 
 -- 
-Chris PeBenito
-Tresys Technology, LLC
-(410) 290-1411 x150
+Stephen Smalley
+National Security Agency
+
+--=-LqS5FqoefeMJB31jNqj2
+Content-Disposition: attachment; filename=policy-capoverride.diff
+Content-Type: text/x-patch; name=policy-capoverride.diff; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+
+Index: refpolicy/policy/flask/security_classes
+===================================================================
+--- refpolicy/policy/flask/security_classes	(revision 2324)
++++ refpolicy/policy/flask/security_classes	(working copy)
+@@ -97,4 +97,8 @@
+ 
+ class dccp_socket
+ 
++class memprotect
++
++class cap_override
++
+ # FLASK
+Index: refpolicy/policy/flask/access_vectors
+===================================================================
+--- refpolicy/policy/flask/access_vectors	(revision 2324)
++++ refpolicy/policy/flask/access_vectors	(working copy)
+@@ -648,3 +648,47 @@
+ 	node_bind
+ 	name_connect
+ }
++
++class memprotect
++{
++	mmap_zero
++}
++
++class cap_override
++{
++	# The capabilities are defined in include/linux/capability.h
++	# Care should be taken to ensure that these are consistent with
++	# those definitions. (Order matters)
++
++	chown           
++	dac_override    
++	dac_read_search 
++	fowner          
++	fsetid          
++	kill            
++	setgid           
++	setuid           
++	setpcap          
++	linux_immutable  
++	net_bind_service 
++	net_broadcast    
++	net_admin        
++	net_raw          
++	ipc_lock         
++	ipc_owner        
++	sys_module       
++	sys_rawio        
++	sys_chroot       
++	sys_ptrace       
++	sys_pacct        
++	sys_admin        
++	sys_boot         
++	sys_nice         
++	sys_resource     
++	sys_time         
++	sys_tty_config  
++	mknod
++	lease
++	audit_write
++	audit_control
++}
+
+--=-LqS5FqoefeMJB31jNqj2--
 
 
 --
