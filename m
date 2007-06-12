@@ -1,62 +1,54 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l5CGkw9v001651
-	for <selinux@tycho.nsa.gov>; Tue, 12 Jun 2007 12:46:58 -0400
-Received: from atlrel8.hp.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l5CGkv8g015334
-	for <selinux@tycho.nsa.gov>; Tue, 12 Jun 2007 16:46:57 GMT
-From: Paul Moore <paul.moore@hp.com>
-To: "Christopher J. PeBenito" <cpebenito@tresys.com>
-Subject: Re: [RFC] use the netmsg initial SID for NetLabel connections
-Date: Tue, 12 Jun 2007 12:46:31 -0400
-Cc: selinux@tycho.nsa.gov, dwalsh@redhat.com
-References: <20070607205808.935275285@hp.com> <200706080958.17891.paul.moore@hp.com> <1181650336.16029.47.camel@sgc.columbia.tresys.com>
-In-Reply-To: <1181650336.16029.47.camel@sgc.columbia.tresys.com>
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l5CHnsE3006222
+	for <selinux@tycho.nsa.gov>; Tue, 12 Jun 2007 13:49:54 -0400
+Received: from mail5.sea5.speakeasy.net (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id l5CHnq19014638
+	for <selinux@tycho.nsa.gov>; Tue, 12 Jun 2007 17:49:53 GMT
+Date: Tue, 12 Jun 2007 13:49:49 -0400 (EDT)
+From: James Morris <jmorris@namei.org>
+To: Casey Schaufler <casey@schaufler-ca.com>
+cc: Stephen Smalley <sds@tycho.nsa.gov>, selinux@tycho.nsa.gov,
+        Eric Paris <eparis@parisplace.org>,
+        "Serge E. Hallyn" <serue@us.ibm.com>
+Subject: Re: [RFC][PATCH] selinux:  enable authoritative granting of capabilities
+In-Reply-To: <616061.57558.qm@web36609.mail.mud.yahoo.com>
+Message-ID: <Line.LNX.4.64.0706121342320.4489@localhost.localdomain>
+References: <616061.57558.qm@web36609.mail.mud.yahoo.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Message-Id: <200706121246.32008.paul.moore@hp.com>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tuesday, June 12 2007 8:12:16 am Christopher J. PeBenito wrote:
-> On Fri, 2007-06-08 at 09:58 -0400, Paul Moore wrote:
-> > I still have a question about the best way to provide both labeled and
-> > unlabeled NetLabel support to all of the user/application domains in the
-> > policy.  I don't have a problem going through all the individual domains
-> > and adding calls like these:
-> >
-> >   corenet_{tcp,udp,raw}_recv_unlabeled(<domain>)
-> >   corenet_{tcp,udp,raw}_recv_netlabel(<domain>)
-> >
-> > ... but I was wondering if there was another way I should go about making
-> > the change?
->
-> No, that's the right method.  I've been thinking about if this is the
-> right vocabulary for the interfaces; I'd like to make it workable for
-> labeled ipsec too.
+On Tue, 12 Jun 2007, Casey Schaufler wrote:
 
-Yes, especially for the unlabeled case.  I would think having a single 
-interface to allow a domain to receive unlabeled traffic would be much better 
-than two.
+> 
+> --- Stephen Smalley <sds@tycho.nsa.gov> wrote:
+> 
+> > On Tue, 2007-06-12 at 08:08 -0700, Casey Schaufler wrote:
+> > ...
+> > > 
+> > > The file capabilty mechanism has been through two CC evaluations
+> > > for which I have the certificates, so I think that you may have
+> > > trouble substantiating your claim that it lacks an analyzable policy.
+> > 
+> > I'll clarify:  The file capability mechanism encodes policy in the
+> > filesystem state on a per-file basis,
+> 
+> Uh, yeah. They are stored in extended attributes. This provides
+> superior locality of reference. Extended attributes are a good
+> thing for security mechanisms, just have a read through the threads
+> about AA on the LSM list.
 
-> The problem is that ipsec is a little different, 
-> where you might have interfaces like apache_tcp_recvfrom_user_script().
+The important thing to differentiate here is that filesystem capabilities 
+stores _policy_ in the filesystem, as opposed to security attributes of 
+filesystem objects.
 
-Yes, you also have all the SPD matching issues to deal with.  Hopefully later 
-this year I'll have NetLabel supporting full SELinux contexts which should 
-make NetLabel and IPsec very similar in regards to packet subject/object 
-labels; the class/permissions will still be different but that is more of an 
-interface implementation issue than an actual interface/API issue.
 
-Thanks for you help, I'll hope to have a patch for you to review within a week 
-or two that adds the corenet/NetLabel interfaces to the policy in SVN.  I'd 
-like to get this accepted and merged before I push the final kernel patch up 
-to James/Stephen as the kernel changes require a new/updated policy to work 
-correctly.
 
+- James
 -- 
-paul moore
-linux security @ hp
+James Morris
+<jmorris@namei.org>
 
 --
 This message was distributed to subscribers of the selinux mailing list.
