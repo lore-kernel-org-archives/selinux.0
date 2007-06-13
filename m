@@ -1,78 +1,245 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l5D2Zk7L000668
-	for <selinux@tycho.nsa.gov>; Tue, 12 Jun 2007 22:35:46 -0400
-Received: from wa-out-1112.google.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id l5D2ZiRP015699
-	for <selinux@tycho.nsa.gov>; Wed, 13 Jun 2007 02:35:45 GMT
-Received: by wa-out-1112.google.com with SMTP id j5so65005wah
-        for <selinux@tycho.nsa.gov>; Tue, 12 Jun 2007 19:35:44 -0700 (PDT)
-Message-ID: <466F5726.1090901@gmail.com>
-Date: Wed, 13 Jun 2007 10:32:06 +0800
-From: Ken YANG <spng.yang@gmail.com>
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l5DAw73x020774
+	for <selinux@tycho.nsa.gov>; Wed, 13 Jun 2007 06:58:08 -0400
+Received: from mu-out-0910.google.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l5DAw6J5002720
+	for <selinux@tycho.nsa.gov>; Wed, 13 Jun 2007 10:58:06 GMT
+Received: by mu-out-0910.google.com with SMTP id i10so194691mue
+        for <selinux@tycho.nsa.gov>; Wed, 13 Jun 2007 03:58:05 -0700 (PDT)
+Message-ID: <f71a82820706130358v1293675xf6d32193370f4c3e@mail.gmail.com>
+Date: Wed, 13 Jun 2007 19:58:04 +0900
+From: "Shintaro Fujiwara" <shintaro.fujiwara@gmail.com>
+To: "Daniel J Walsh" <dwalsh@redhat.com>
+Subject: Re: Can't login in F7 strict
+Cc: sds@tycho.nsa.gov, selinux@tycho.nsa.gov, cpebenito@tresys.com
+In-Reply-To: <f71a82820706121316i2ff46ca0j70ea3076569feef5@mail.gmail.com>
 MIME-Version: 1.0
-To: "Christopher J. PeBenito" <cpebenito@tresys.com>
-CC: Stephen Smalley <sds@tycho.nsa.gov>, SELinux List <selinux@tycho.nsa.gov>,
-        Daniel J Walsh <dwalsh@redhat.com>
-Subject: Re: three problems about normal user login in strict policy
-References: <4667F878.9030805@gmail.com>	 <1181223271.11979.4.camel@moss-spartans.epoch.ncsc.mil>	 <1181224077.6578.92.camel@sgc.columbia.tresys.com>	 <1181224459.11979.7.camel@moss-spartans.epoch.ncsc.mil> <1181242131.6578.96.camel@sgc.columbia.tresys.com>
-In-Reply-To: <1181242131.6578.96.camel@sgc.columbia.tresys.com>
-Content-Type: text/plain; charset=GB18030
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+References: <f71a82820706021820m34d5da17n56dcb312a061a988@mail.gmail.com>
+	 <f71a82820706051436x58c0c4daodb32610866c4a529@mail.gmail.com>
+	 <1181132472.3699.6.camel@moss-spartans.epoch.ncsc.mil>
+	 <f71a82820706061427u2fd09352k227f5cda439abee4@mail.gmail.com>
+	 <f71a82820706070311p12b8cb33x6103d9c6fb1d5292@mail.gmail.com>
+	 <466D8620.10301@redhat.com>
+	 <f71a82820706111445k2e144280h25f220dc917b3240@mail.gmail.com>
+	 <466E90C7.5090407@redhat.com>
+	 <f71a82820706121316i2ff46ca0j70ea3076569feef5@mail.gmail.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+not stuff_u but staff_u ...;)
+I miss-spelled,again...;)
 
-thanks for all of your reply.
+I relabeled my system and lesser the problem.
+I will wok on it.
+Thanks.
 
-i am learning walsh blog, i hope i can figure out all points
-about user management in SELinux through all of your replies,
-walsh blog, policy source, and etc...
-
-anyway, thanks again
-
-
-Christopher J. PeBenito wrote:
-> On Thu, 2007-06-07 at 09:54 -0400, Stephen Smalley wrote:
->> On Thu, 2007-06-07 at 13:47 +0000, Christopher J. PeBenito wrote:
->>> On Thu, 2007-06-07 at 09:34 -0400, Stephen Smalley wrote:
->>>> On Thu, 2007-06-07 at 20:22 +0800, Ken YANG wrote:
->>>>> i studied the point from walsh about non-root X login,
->>>>> see details in following thread:
->>>>>
->>>>> http://marc.info/?l=selinux&m=118050940823692&w=2
->>>>>
->>>>> when i login with normal user(user_u), i have some questions:
->>>>> (i'm in fc7 with strict-mcs policy at svn version 2301)
->>>>>
->>>>> 1
->>>>> when i login as user_u, i find i can not switch to staff_u through su,
->>>>> but i notice that there is corresponding line in "default_contexts" file:
->>>> The su / pam_selinux integration was reverted a while ago, so su no
->>>> longer changes contexts at all, just like in the original SELinux.  
->>>> Thus, the SELinux user identity is once again stable for the entire
->>>> session, and you have to use newrole to switch roles.  And user_r isn't
->>>> generally allowed to switch to staff_r; you need to map your Linux user
->>>> identity to staff_u via semanage.
->>>>
->>>>> user_r:user_su_t:s0     staff_r:staff_t:s0 user_r:user_t:s0
->>>>> sysadm_r:sysadm_t:s0
->>>>>
->>>>> and in the policy, i found the condition of su domain transition have
->>>>> satisfied, including su_exec_t entrypoint and type_transition rules,
->>>>> furthermore, i also meet the constrain conditon in
->>>>> su_per_role_template(), e.g. domain_role_change_exemption($1_su_t),
->>>>> domain_subj_id_change_exemption($1_su_t),
->>>>> domain_obj_id_change_exemption($1_su_t), and etc.
->>>> Hmm...seems like those should be removed from policy (unless some distro
->>>> tunable is set for older fedora or rhel4), as su should no longer be
->>>> making such transitions.
->>> Its in a rhel4 build option.
->> Hmmm...so why is it still showing up in F7 strict policy?
-> 
-> He's just looking at the su.if header (hence the $1_su_t references),
-> which is just copied out of the refpolicy sources as is.  So its in the
-> headers, but shouldn't be in the actual policy.
-> 
-
+2007/6/13, Shintaro Fujiwara <shintaro.fujiwara@gmail.com>:
+> Thank you very much for your kind advices.
+>
+> I will relabel my system and regenerate my own policy
+>  with the latest selinux-policy properly.
+> Especially I will check something should not be allowed from initrc_t...
+> And delete lines setfiles (I restoreconed my home directory for the
+> use of stuff_u) stuff.
+>
+> Thanks !
+>
+> ##################################################
+>
+> Officer, System-Informations, Signal School, JGSDF
+>
+> ###################################################
+>
+>
+> 2007/6/12, Daniel J Walsh <dwalsh@redhat.com>:
+> > Shintaro Fujiwara wrote:
+> > > There really aren't any denied messages concerning it ...
+> > > There really are no problem if I attach my log allright, but no use...
+> > > But I copied .te files I made from both logs (audit.log and messages).
+> > > Are there any clue in here ?
+> > > Or,
+> > > Should I install enableaudit.pp and listen to all the log or not ?
+> > >
+> > >
+> > > ##########here's module i made from audit.log##############
+> > > module localaudit 1.0;
+> > >
+> > > require {
+> > >        type default_t;
+> > >        type system_cron_spool_t;
+> > >        type local_login_t;
+> > >        type system_dbusd_var_run_t;
+> > >        type sysadm_su_t;
+> > >        type crond_t;
+> > >        class capability { setuid setgid };
+> > >        class dir { read search };
+> > > }
+> > >
+> > > #============= crond_t ==============
+> > > allow crond_t system_cron_spool_t:dir read;
+> > >
+> > > #============= local_login_t ==============
+> > > allow local_login_t default_t:dir search;
+> > default_t is caused by a mislabeled /root.  restorecon -R -v /root
+> > > allow local_login_t system_dbusd_var_run_t:dir search;
+> > >
+> > > #============= sysadm_su_t ==============
+> > > allow sysadm_su_t default_t:dir search;
+> > > allow sysadm_su_t self:capability { setuid setgid };
+> > >
+> > Latest policy should have this.
+> > >
+> > > ##########here's module i made from /var/log/messages##############
+> > > module localmessages 1.0;
+> > >
+> > > require {
+> > >        type default_t;
+> > >        type sysctl_net_unix_t;
+> > >        type init_t;
+> > >        type initrc_t;
+> > >        type file_t;
+> > >        type restorecon_t;
+> > >        type sysctl_vm_t;
+> > >        type kernel_t;
+> > >        type lvm_control_t;
+> > >        type loadkeys_t;
+> > >        type proc_kcore_t;
+> > >        type sysctl_irq_t;
+> > >        type sysctl_net_t;
+> > >        type sysctl_hotplug_t;
+> > >        type mount_t;
+> > >        type nscd_var_run_t;
+> > >        type setfiles_t;
+> > >        type proc_xen_t;
+> > >        type proc_kmsg_t;
+> > >        type proc_mdstat_t;
+> > >        type sysctl_modprobe_t;
+> > >        type sysctl_dev_t;
+> > >        type fsadm_t;
+> > >        type udev_t;
+> > >        type lvm_t;
+> > >        type sysctl_kernel_t;
+> > >        type proc_net_t;
+> > >        type local_login_t;
+> > >        type sshd_t;
+> > >        class capability { audit_write audit_control };
+> > >        class chr_file write;
+> > >        class lnk_file getattr;
+> > >        class dir { getattr read search };
+> > >        class file { read lock getattr unlink };
+> > >        class netlink_audit_socket { create ioctl setattr getattr
+> > > append write nlmsg_relay nlmsg_read create read bind connect setopt
+> > > getopt shutdown };
+> > > }
+> > >
+> > > #============= initrc_t ==============
+> > > allow initrc_t lvm_control_t:chr_file write;
+> > >
+> > What program caused this?  Should probably be labeled lvm_exec_t
+> > > #============= loadkeys_t ==============
+> > > allow loadkeys_t nscd_var_run_t:dir search;
+> > >
+> > > #============= udev_t ==============
+> > > allow udev_t default_t:dir search;
+> > > #============= fsadm_t ==============
+> > > allow fsadm_t file_t:file { read getattr };
+> > These should not exist file_t means you have unlabled files on your system
+> > >
+> > > #============= init_t ==============
+> > > allow init_t file_t:file { read lock getattr };
+> > >
+> > > #============= initrc_t ==============
+> > > allow initrc_t file_t:file read;
+> > >
+> > > #============= lvm_t ==============
+> > > allow lvm_t file_t:file { read getattr };
+> > >
+> > > #============= mount_t ==============
+> > > allow mount_t file_t:file unlink;
+> > >
+> > > #============= restorecon_t ==============
+> > > allow restorecon_t file_t:file read;
+> > >
+> > > #============= setfiles_t ==============
+> > > allow setfiles_t file_t:file read;
+> > > allow setfiles_t init_t:dir { read getattr search };
+> > > allow setfiles_t init_t:file getattr;
+> > > allow setfiles_t init_t:lnk_file getattr;
+> > > allow setfiles_t initrc_t:dir { read getattr search };
+> > > allow setfiles_t initrc_t:file getattr;
+> > > allow setfiles_t initrc_t:lnk_file getattr;
+> > > allow setfiles_t kernel_t:dir { read getattr search };
+> > > allow setfiles_t kernel_t:file getattr;
+> > > allow setfiles_t kernel_t:lnk_file getattr;
+> > > allow setfiles_t proc_kcore_t:file getattr;
+> > > allow setfiles_t proc_kmsg_t:file getattr;
+> > > allow setfiles_t proc_mdstat_t:file getattr;
+> > > allow setfiles_t proc_net_t:dir { read getattr search };
+> > > allow setfiles_t proc_net_t:file getattr;
+> > > allow setfiles_t proc_xen_t:dir { read getattr search };
+> > > allow setfiles_t proc_xen_t:file getattr;
+> > Should all be dontaudit, this is caused by running restorecon or
+> > setfiles on /proc
+> > > ###############edited by me################################
+> > > #allow setfiles_t self:capability audit_write;
+> > > #allow setfiles_t self:netlink_audit_socket { write nlmsg_relay create
+> > > read };
+> > > ###########################################################
+> > > allow setfiles_t sysctl_dev_t:dir { read getattr search };
+> > > allow setfiles_t sysctl_dev_t:file getattr;
+> > > allow setfiles_t sysctl_hotplug_t:file getattr;
+> > > allow setfiles_t sysctl_irq_t:dir { read getattr search };
+> > > allow setfiles_t sysctl_irq_t:file getattr;
+> > > allow setfiles_t sysctl_kernel_t:dir { read getattr search };
+> > > allow setfiles_t sysctl_kernel_t:file getattr;
+> > > allow setfiles_t sysctl_modprobe_t:file getattr;
+> > > allow setfiles_t sysctl_net_t:dir { read getattr search };
+> > > allow setfiles_t sysctl_net_t:file getattr;
+> > > allow setfiles_t sysctl_net_unix_t:dir { read getattr search };
+> > > allow setfiles_t sysctl_net_unix_t:file getattr;
+> > > allow setfiles_t sysctl_vm_t:dir { read getattr search };
+> > > allow setfiles_t sysctl_vm_t:file getattr;
+> > > allow setfiles_t udev_t:dir { read getattr search };
+> > > allow setfiles_t udev_t:file getattr;
+> > > allow setfiles_t udev_t:lnk_file getattr;
+> > >
+> > > #============= udev_t ==============
+> > > allow udev_t file_t:file { read getattr };
+> > >
+> > > ###############added by me################################
+> > >
+> > > #============= local_login_t ==============
+> > > logging_send_audit_msg(local_login_t)
+> > > logging_set_loginuid(local_login_t)
+> > Latest policy should have these
+> > >
+> > > #============= sshd_t ==============
+> > > logging_send_audit_msg(sshd_t)
+> > > logging_set_loginuid(sshd_t)
+> > >
+> > >
+> > > 2007/6/12, Daniel J Walsh <dwalsh@redhat.com>:
+> > >> Shintaro Fujiwara wrote:
+> > >> > With the latest policy, I could install and could login my machine.
+> > >> >
+> > >> > Thanks !
+> > >> >
+> > >> > But another problem...
+> > >> >
+> > >> > Keymap(jp106) fails...
+> > >> >
+> > >> > Is this the only problem for not English speaking people and how
+> > >> > should we fix it ?
+> > >> > I can use my jp106 keybord as US keybord but invconvinient...
+> > >> >
+> > >> > Is there still bug in policy or not ?
+> > >> >
+> > >> Most likely a bug in policy,  Please report it and attach your audit.log
+> > >>
+> >
+> >
+>
 
 --
 This message was distributed to subscribers of the selinux mailing list.
