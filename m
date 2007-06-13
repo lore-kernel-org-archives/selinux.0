@@ -1,35 +1,52 @@
-Subject: Re: [RFC][PATCH] selinux:  enable authoritative granting of
-	capabilities
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: russell@coker.com.au
-Cc: "Serge E. Hallyn" <serue@us.ibm.com>,
-        Casey Schaufler <casey@schaufler-ca.com>, selinux@tycho.nsa.gov,
-        James Morris <jmorris@namei.org>, Eric Paris <eparis@parisplace.org>
-In-Reply-To: <200706132116.05065.russell@coker.com.au>
-References: <20070611204336.GA30846@sergelap.austin.ibm.com>
-	 <20070612154412.GC14397@sergelap.austin.ibm.com>
-	 <1181663857.17547.227.camel@moss-spartans.epoch.ncsc.mil>
-	 <200706132116.05065.russell@coker.com.au>
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l5DDDXjR029427
+	for <selinux@tycho.nsa.gov>; Wed, 13 Jun 2007 09:13:33 -0400
+Received: from exchange.columbia.tresys.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with SMTP id l5DDDSbZ020051
+	for <selinux@tycho.nsa.gov>; Wed, 13 Jun 2007 13:13:28 GMT
+Subject: Re: kernel_mls changes
+From: "Christopher J. PeBenito" <cpebenito@tresys.com>
+To: dwalsh@redhat.com
+Cc: selinux@tycho.nsa.gov
+In-Reply-To: <200705301517.l4UFHLjj010415@localhost.localdomain>
+References: <200705301517.l4UFHLjj010415@localhost.localdomain>
 Content-Type: text/plain
-Date: Wed, 13 Jun 2007 08:31:50 -0400
-Message-Id: <1181737910.17547.315.camel@moss-spartans.epoch.ncsc.mil>
+Date: Wed, 13 Jun 2007 09:11:39 -0400
+Message-Id: <1181740299.9511.0.camel@sgc.columbia.tresys.com>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2007-06-13 at 21:16 +1000, Russell Coker wrote:
-> On Wednesday 13 June 2007 01:57, Stephen Smalley <sds@tycho.nsa.gov> wrote:
-> > Well, first, no script should be allowed a capability that is not given
-> > to its caller directly ;)
+On Wed, 2007-05-30 at 11:17 -0400, dwalsh@redhat.com wrote:
+> Policy used in lspp configurations
 > 
-> Why not?  Isn't that the entire point of this authoritative granting of 
-> capabilities patch?
 
-_script_, not program.
+> --- nsaserefpolicy/policy/modules/kernel/mls.te	2007-05-29 14:10:48.000000000 -0400
+> +++ serefpolicy-3.0.1/policy/modules/kernel/mls.te	2007-05-30 09:25:53.000000000 -0400
+> @@ -18,6 +18,7 @@
+>  attribute mlsnetreadtoclr;
+>  attribute mlsnetwrite;
+>  attribute mlsnetwritetoclr;
+> +attribute mlsnetwriteranged;
+>  attribute mlsnetupgrade;
+>  attribute mlsnetdowngrade;
+>  attribute mlsnetrecvall;
+> @@ -43,6 +44,8 @@
+>  attribute mlsxwinwritecolormap;
+>  attribute mlsxwinwritexinput;
+>  
+> +# Object attributes that allow MLS overrides for access by all subjects
+> +attribute mlsrangedobject;
+>  attribute mlstrustedobject;
+>  
+>  attribute privrangetrans;
+
+What about the constraints change related to these attributes?
 
 -- 
-Stephen Smalley
-National Security Agency
+Chris PeBenito
+Tresys Technology, LLC
+(410) 290-1411 x150
 
 
 --
