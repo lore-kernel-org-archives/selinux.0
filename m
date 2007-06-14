@@ -1,55 +1,40 @@
-From: Russell Coker <russell@coker.com.au>
-Reply-To: russell@coker.com.au
-To: Stephen Smalley <sds@tycho.nsa.gov>
-Subject: Re: [RFC][PATCH] selinux:  enable authoritative granting of capabilities
-Date: Thu, 14 Jun 2007 19:44:34 +1000
-Cc: selinux@tycho.nsa.gov
-References: <20070611204336.GA30846@sergelap.austin.ibm.com> <200706132116.05065.russell@coker.com.au> <1181737910.17547.315.camel@moss-spartans.epoch.ncsc.mil>
-In-Reply-To: <1181737910.17547.315.camel@moss-spartans.epoch.ncsc.mil>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
-Message-Id: <200706141944.35457.russell@coker.com.au>
+Subject: Re: selinux backups
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Kazuki Omo <omok@honto.info>
+Cc: david carvalho <david@di.ubi.pt>, selinux@tycho.nsa.gov,
+        Daniel J Walsh <dwalsh@redhat.com>, James Antill <jantill@redhat.com>
+In-Reply-To: <20070614024958.GA19806@insanity.honto.info>
+References: <049d01c7ade0$d28ca260$fd01000a@ubi.pt>
+	 <1181758701.17547.453.camel@moss-spartans.epoch.ncsc.mil>
+	 <20070614024958.GA19806@insanity.honto.info>
+Content-Type: text/plain
+Date: Thu, 14 Jun 2007 06:56:02 -0400
+Message-Id: <1181818562.17547.548.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wednesday 13 June 2007 22:31, Stephen Smalley <sds@tycho.nsa.gov> wrote:
-> On Wed, 2007-06-13 at 21:16 +1000, Russell Coker wrote:
-> > On Wednesday 13 June 2007 01:57, Stephen Smalley <sds@tycho.nsa.gov> 
-wrote:
-> > > Well, first, no script should be allowed a capability that is not given
-> > > to its caller directly ;)
-> >
-> > Why not?  Isn't that the entire point of this authoritative granting of
-> > capabilities patch?
->
-> _script_, not program.
+On Thu, 2007-06-14 at 11:49 +0900, Kazuki Omo wrote:
+> Hi,
+> 
+> I checked some backup program for writing selinux article;
+> http://www.atmarkit.co.jp/fsecurity/rensai/selinux202/selinux01.html
+> (Available on next week, but it has Japanese character only.)
+> 
+> Current dump/restore and star are supporting SELinux.
+> If you want to use "cp", you have to use "-c" option for copying 
+> xattrs. 
+> 
+> Also, I couldn't take xattrs by "tar" and "rsync" on CentOS4.4.
+> I didn't check "tar" on Fedora, so it might be able to take xattr.
+> I don't know how we can take xattr with "rsync":-(
 
-OK, that's a bit of a topic change.
-
-I've been thinking about the script issue.  It seems to me that a problem we 
-face is the replacement of executables by scripts (which often happens in 
-distributions and sometimes happens with programs that are relevant to system 
-integrity).
-
-We could write a policy that correctly allows a domain transition on executing 
-an ELF binary only to find that the next version of the distribution replaces 
-it with a BASH or Perl script then there is the potential for an exploit.
-
-Apart from initrc_exec_t are we relying on domain transitions on execution of 
-shell scripts for anything?
-
-Currently common shells have special-case code to deal with the case of 
-uid!=euid and gid!=egid.  I think that this could be considered precedent for 
-having the shell check whether it is run in a different domain to it's parent 
-process, and if so whether the parent domain is permitted to execute 
-shell_exec_t in the current domain.
+Try rsync -X or --xattrs.  Requires a modern version of rsync though.
 
 -- 
-russell@coker.com.au
-http://etbe.coker.com.au/          My Blog
+Stephen Smalley
+National Security Agency
 
-http://www.coker.com.au/sponsorship.html Sponsoring Free Software development
 
 --
 This message was distributed to subscribers of the selinux mailing list.
