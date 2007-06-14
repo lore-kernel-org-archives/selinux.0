@@ -1,39 +1,49 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l5EAcnMd025289
-	for <selinux@tycho.nsa.gov>; Thu, 14 Jun 2007 06:38:50 -0400
-Received: from nospam.sws.net.au (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id l5EAci4s022864
-	for <selinux@tycho.nsa.gov>; Thu, 14 Jun 2007 10:38:47 GMT
 From: Russell Coker <russell@coker.com.au>
 Reply-To: russell@coker.com.au
-To: "david carvalho" <david@di.ubi.pt>
-Subject: Re: selinux backups
-Date: Thu, 14 Jun 2007 19:08:59 +1000
+To: Stephen Smalley <sds@tycho.nsa.gov>
+Subject: Re: [RFC][PATCH] selinux:  enable authoritative granting of capabilities
+Date: Thu, 14 Jun 2007 19:44:34 +1000
 Cc: selinux@tycho.nsa.gov
-References: <049d01c7ade0$d28ca260$fd01000a@ubi.pt>
-In-Reply-To: <049d01c7ade0$d28ca260$fd01000a@ubi.pt>
+References: <20070611204336.GA30846@sergelap.austin.ibm.com> <200706132116.05065.russell@coker.com.au> <1181737910.17547.315.camel@moss-spartans.epoch.ncsc.mil>
+In-Reply-To: <1181737910.17547.315.camel@moss-spartans.epoch.ncsc.mil>
 MIME-Version: 1.0
 Content-Type: text/plain;
   charset="utf-8"
-Message-Id: <200706141909.00957.russell@coker.com.au>
+Message-Id: <200706141944.35457.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thursday 14 June 2007 03:32, "david carvalho" <david@di.ubi.pt> wrote:
-> Good afternoon.
-> Wich is the best way to make a backup of a system running lvm and selinux ?
-> It seems that with lvm systems, the best way is to take a snapshot (wich
-> seems a waste of space in a Volume Group). But with Selinux ?  tar-1.15
-> doesn't apply the right permissions when extracting (at least of what I
-> tested).
+On Wednesday 13 June 2007 22:31, Stephen Smalley <sds@tycho.nsa.gov> wrote:
+> On Wed, 2007-06-13 at 21:16 +1000, Russell Coker wrote:
+> > On Wednesday 13 June 2007 01:57, Stephen Smalley <sds@tycho.nsa.gov> 
+wrote:
+> > > Well, first, no script should be allowed a capability that is not given
+> > > to its caller directly ;)
+> >
+> > Why not?  Isn't that the entire point of this authoritative granting of
+> > capabilities patch?
+>
+> _script_, not program.
 
-Create a file that contains zeros using most of the free space on the 
-filesystem in question (EG dd from /dev/zero) and then unlink it.  Then gzip 
-compress the filesystem, the zero blocks will compress well.
+OK, that's a bit of a topic change.
 
-For my laptop I use cryptsetup to encrypt the LVM volumes so I can't usefully 
-compress them (encrypted data is almost uncompressable), but this does give 
-me encrypted backups which I consider useful.
+I've been thinking about the script issue.  It seems to me that a problem we 
+face is the replacement of executables by scripts (which often happens in 
+distributions and sometimes happens with programs that are relevant to system 
+integrity).
+
+We could write a policy that correctly allows a domain transition on executing 
+an ELF binary only to find that the next version of the distribution replaces 
+it with a BASH or Perl script then there is the potential for an exploit.
+
+Apart from initrc_exec_t are we relying on domain transitions on execution of 
+shell scripts for anything?
+
+Currently common shells have special-case code to deal with the case of 
+uid!=euid and gid!=egid.  I think that this could be considered precedent for 
+having the shell check whether it is run in a different domain to it's parent 
+process, and if so whether the parent domain is permitted to execute 
+shell_exec_t in the current domain.
 
 -- 
 russell@coker.com.au
