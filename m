@@ -1,71 +1,46 @@
-Date: Thu, 14 Jun 2007 11:49:58 +0900
-To: Stephen Smalley <sds@tycho.nsa.gov>
-Cc: david carvalho <david@di.ubi.pt>, selinux@tycho.nsa.gov,
-        Daniel J Walsh <dwalsh@redhat.com>, James Antill <jantill@redhat.com>
-Subject: Re: selinux backups
-Message-ID: <20070614024958.GA19806@insanity.honto.info>
-References: <049d01c7ade0$d28ca260$fd01000a@ubi.pt> <1181758701.17547.453.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-2022-jp
-In-Reply-To: <1181758701.17547.453.camel@moss-spartans.epoch.ncsc.mil>
-From: omok@honto.info (Kazuki Omo)
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l5EAcq7D025307
+	for <selinux@tycho.nsa.gov>; Thu, 14 Jun 2007 06:38:52 -0400
+Received: from nospam.sws.net.au (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id l5EAci4s022865
+	for <selinux@tycho.nsa.gov>; Thu, 14 Jun 2007 10:38:49 GMT
+Received: from localhost (localhost [127.0.0.1])
+	by nospam.sws.net.au (Postfix) with ESMTP id F180218915
+	for <selinux@tycho.nsa.gov>; Thu, 14 Jun 2007 20:38:40 +1000 (EST)
+Received: from nospam.sws.net.au ([127.0.0.1])
+	by localhost (etbe.coker.com.au [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id 5krD55B5OLBm for <selinux@tycho.nsa.gov>;
+	Thu, 14 Jun 2007 20:38:40 +1000 (EST)
+Received: from aeon.coker.com.au (localhost [127.0.0.1])
+	by nospam.sws.net.au (Postfix) with ESMTP id F3E3E18317
+	for <selinux@tycho.nsa.gov>; Thu, 14 Jun 2007 20:38:39 +1000 (EST)
+Received: from localhost (localhost [127.0.0.1])
+	by aeon.coker.com.au (Postfix) with ESMTP id E00B62184F
+	for <selinux@tycho.nsa.gov>; Thu, 14 Jun 2007 20:38:30 +1000 (EST)
+From: Russell Coker <russell@coker.com.au>
+Reply-To: russell@coker.com.au
+To: "SE-Linux" <selinux@tycho.nsa.gov>
+Subject: Informix has label based access control
+Date: Thu, 14 Jun 2007 10:26:29 +1000
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
+Message-Id: <200706141026.29959.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hi,
+http://www.eweek.com/article2/0,1895,2145429,00.asp?kc=EWKNLEDP061307C
 
-I checked some backup program for writing selinux article;
-http://www.atmarkit.co.jp/fsecurity/rensai/selinux202/selinux01.html
-(Available on next week, but it has Japanese character only.)
-
-Current dump/restore and star are supporting SELinux.
-If you want to use "cp", you have to use "-c" option for copying 
-xattrs. 
-
-Also, I couldn't take xattrs by "tar" and "rsync" on CentOS4.4.
-I didn't check "tar" on Fedora, so it might be able to take xattr.
-I don't know how we can take xattr with "rsync":-(
-
-Regards,
-
-OMO
-
-On Wed, Jun 13, 2007 at 02:18:21PM -0400, Stephen Smalley wrote:
-> On Wed, 2007-06-13 at 18:32 +0100, david carvalho wrote:
-> > Good afternoon.
-> > Wich is the best way to make a backup of a system running lvm and
-> > selinux ?
-> > It seems that with lvm systems, the best way is to take a snapshot
-> > (wich seems a waste
-> > of space in a Volume Group). But with Selinux ?  tar-1.15 doesn't
-> > apply the right 
-> > permissions when extracting (at least of what I tested). 
-> > I've bee using "dump" for a while, and I tested it right now and it
-> > preserves the "extended attributes" so it seems to be the right option
-> > for me since the scripts I'm using, use "dump"
-> > Is it possible/preferable to use tar or star ?
-> 
-> What's your distribution and release?  star was the first to support
-> preserving xattrs and selinux, dump/restore later added support, and I
-> think that even tar now has support at least in Fedora.
-> 
-> -- 
-> Stephen Smalley
-> National Security Agency
-> 
-> 
-> --
-> This message was distributed to subscribers of the selinux mailing list.
-> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
-> the words "unsubscribe selinux" without quotes as the message.
-> 
+The above e-week article briefly describes the new release of Informix.  It 
+might be worth comparing what Informix does with the SE-PostgreSQL work.  Of 
+course the Informix stuff wouldn't be integrated with OS security which would 
+make it much less capable.
 
 -- 
-Kazuki Omo: omok@honto.info
-LIDS Japanese Information:
-Japanese: http://www.selinux.gr.jp/LIDS-JP/index.html
-English:  http://www.selinux.gr.jp/LIDS-JP/LIDS_en/index.html
-Diary: http://omok.livejournal.com
+russell@coker.com.au
+http://etbe.coker.com.au/          My Blog
+
+http://www.coker.com.au/sponsorship.html Sponsoring Free Software development
 
 --
 This message was distributed to subscribers of the selinux mailing list.
