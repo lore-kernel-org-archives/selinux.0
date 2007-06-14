@@ -1,44 +1,38 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l5EGql69015398
-	for <selinux@tycho.nsa.gov>; Thu, 14 Jun 2007 12:52:47 -0400
-Received: from mail3.sea5.speakeasy.net (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id l5EGqUtB012887
-	for <selinux@tycho.nsa.gov>; Thu, 14 Jun 2007 16:52:30 GMT
-Date: Thu, 14 Jun 2007 12:52:16 -0400 (EDT)
-From: James Morris <jmorris@namei.org>
-To: Stephen Smalley <sds@tycho.nsa.gov>
-cc: Chad Sellers <csellers@tresys.com>, selinux@tycho.nsa.gov,
-        Eric Paris <eparis@parisplace.org>,
+Date: Thu, 14 Jun 2007 13:28:36 -0400
+Subject: Re: [RFC][PATCH] selinux:  enable authoritative granting of
+ capabilities
+From: Chad Sellers <csellers@tresys.com>
+To: James Morris <jmorris@namei.org>, Stephen Smalley <sds@tycho.nsa.gov>
+CC: <selinux@tycho.nsa.gov>, Eric Paris <eparis@parisplace.org>,
         "Serge E. Hallyn" <serue@us.ibm.com>
-Subject: Re: [RFC][PATCH] selinux:  enable authoritative granting of capabilities
-In-Reply-To: <1181836985.17547.645.camel@moss-spartans.epoch.ncsc.mil>
-Message-ID: <Line.LNX.4.64.0706141250100.18953@localhost.localdomain>
-References: <C296D9C6.23423%csellers@tresys.com>
- <1181836512.17547.640.camel@moss-spartans.epoch.ncsc.mil>
- <1181836985.17547.645.camel@moss-spartans.epoch.ncsc.mil>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Message-ID: <C296F304.23443%csellers@tresys.com>
+In-Reply-To: <Line.LNX.4.64.0706141250100.18953@localhost.localdomain>
+Mime-version: 1.0
+Content-type: text/plain;
+	charset="US-ASCII"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 14 Jun 2007, Stephen Smalley wrote:
+On 6/14/07 12:52 PM, "James Morris" <jmorris@namei.org> wrote:
 
-> +	if (selinux_enforcing) {
-> +		rc = avc_has_perm_noaudit(sid, sid, SECCLASS_CAP_OVERRIDE,
-> +					  CAP_TO_MASK(cap), AVC_STRICT, NULL);
-> +		if (!rc)
-> +			goto out;
+> On Thu, 14 Jun 2007, Stephen Smalley wrote:
+> 
+>> + if (selinux_enforcing) {
+>> +  rc = avc_has_perm_noaudit(sid, sid, SECCLASS_CAP_OVERRIDE,
+>> +       CAP_TO_MASK(cap), AVC_STRICT, NULL);
+>> +  if (!rc)
+>> +   goto out;
+> 
+> I wonder if this will break applications now -- if their suid bit is
+> removed, and SELinux authoritatively grants capabilities, they'll just
+> stop working in permissive mode.
+> 
+Yes, it's definitely an interesting scenario, when a program can succeed in
+enforcing but fail in permissive. Though it might help us convince more
+people to run in enforcing ;-)
 
-I wonder if this will break applications now -- if their suid bit is 
-removed, and SELinux authoritatively grants capabilities, they'll just 
-stop working in permissive mode.
+Chad
 
-
-
-- James
--- 
-James Morris
-<jmorris@namei.org>
 
 --
 This message was distributed to subscribers of the selinux mailing list.
