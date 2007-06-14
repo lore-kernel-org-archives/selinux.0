@@ -1,37 +1,45 @@
-Subject: Re: [RFC][PATCH] selinux:  enable authoritative granting of
-	capabilities
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: James Morris <jmorris@namei.org>
-Cc: Chad Sellers <csellers@tresys.com>, selinux@tycho.nsa.gov,
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l5EIIhTj022142
+	for <selinux@tycho.nsa.gov>; Thu, 14 Jun 2007 14:18:44 -0400
+Received: from mail4.sea5.speakeasy.net (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id l5EIIgtB003128
+	for <selinux@tycho.nsa.gov>; Thu, 14 Jun 2007 18:18:42 GMT
+Date: Thu, 14 Jun 2007 14:18:38 -0400 (EDT)
+From: James Morris <jmorris@namei.org>
+To: Stephen Smalley <sds@tycho.nsa.gov>
+cc: Chad Sellers <csellers@tresys.com>, selinux@tycho.nsa.gov,
         Eric Paris <eparis@parisplace.org>,
         "Serge E. Hallyn" <serue@us.ibm.com>
-In-Reply-To: <Line.LNX.4.64.0706141334280.19226@localhost.localdomain>
-References: <C296F304.23443%csellers@tresys.com>
-	 <Line.LNX.4.64.0706141334280.19226@localhost.localdomain>
-Content-Type: text/plain
-Date: Thu, 14 Jun 2007 13:47:06 -0400
-Message-Id: <1181843226.17547.669.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+Subject: Re: [RFC][PATCH] selinux:  enable authoritative granting of capabilities
+In-Reply-To: <1181843177.17547.667.camel@moss-spartans.epoch.ncsc.mil>
+Message-ID: <Line.LNX.4.64.0706141414360.19417@localhost.localdomain>
+References: <C296D9C6.23423%csellers@tresys.com>
+ <1181836512.17547.640.camel@moss-spartans.epoch.ncsc.mil>
+ <1181836985.17547.645.camel@moss-spartans.epoch.ncsc.mil>
+ <Line.LNX.4.64.0706141250100.18953@localhost.localdomain>
+ <1181843177.17547.667.camel@moss-spartans.epoch.ncsc.mil>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2007-06-14 at 13:35 -0400, James Morris wrote:
-> On Thu, 14 Jun 2007, Chad Sellers wrote:
-> 
-> > Yes, it's definitely an interesting scenario, when a program can succeed in
-> > enforcing but fail in permissive. Though it might help us convince more
-> > people to run in enforcing ;-)
-> 
-> ITYM "convince more people to disable SELinux"
+On Thu, 14 Jun 2007, Stephen Smalley wrote:
 
-Actually, the funny thing there is that selinux=0 would have the same
-effect if you had stripped the suid bits.  Those applications would
-_only_ work with selinux enabled and enforcing.
+> In the short term though, I don't expect distros to make a wholesale
+> removal of suid bits, whether for this support or for file capabilities
+> support.  It would tend to get used incrementally by newer developments,
+> and possibly retroactively applied by security-oriented specialized
+> distros and custom built ones (which tend to disable permissive mode and
+> selinux=disabled altogether in their kernel configs).
+
+Agreed.  Applied selectively, I think it would definitely help people see 
+the value of SELinux, but should not be enabled by default in a distro at 
+this stage :-)
+
 
 -- 
-Stephen Smalley
-National Security Agency
-
+James Morris
+<jmorris@namei.org>
 
 --
 This message was distributed to subscribers of the selinux mailing list.
