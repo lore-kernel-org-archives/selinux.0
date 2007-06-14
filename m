@@ -1,82 +1,68 @@
+Date: Thu, 14 Jun 2007 11:40:54 -0400
 Subject: Re: [RFC][PATCH] selinux:  enable authoritative granting of
-	capabilities
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Joshua Brindle <method@manicmethod.com>
-Cc: casey@schaufler-ca.com, russell@coker.com.au, selinux@tycho.nsa.gov
-In-Reply-To: <46715599.7070300@manicmethod.com>
-References: <558323.22266.qm@web36612.mail.mud.yahoo.com>
-	 <46715599.7070300@manicmethod.com>
-Content-Type: text/plain
-Date: Thu, 14 Jun 2007 11:05:42 -0400
-Message-Id: <1181833542.17547.632.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+ capabilities
+From: Chad Sellers <csellers@tresys.com>
+To: Stephen Smalley <sds@tycho.nsa.gov>, <selinux@tycho.nsa.gov>
+CC: James Morris <jmorris@namei.org>, Eric Paris <eparis@parisplace.org>,
+        "Serge E. Hallyn" <serue@us.ibm.com>
+Message-ID: <C296D9C6.23423%csellers@tresys.com>
+In-Reply-To: <1181655164.17547.116.camel@moss-spartans.epoch.ncsc.mil>
+Mime-version: 1.0
+Content-type: text/plain;
+	charset="US-ASCII"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2007-06-14 at 10:50 -0400, Joshua Brindle wrote:
-> Casey Schaufler wrote:
-> > --- Russell Coker <russell@coker.com.au> wrote:
-> >
-> >   
-> >> On Wednesday 13 June 2007 22:31, Stephen Smalley <sds@tycho.nsa.gov> wrote:
-> >>     
-> >>> On Wed, 2007-06-13 at 21:16 +1000, Russell Coker wrote:
-> >>>       
-> >>>> On Wednesday 13 June 2007 01:57, Stephen Smalley <sds@tycho.nsa.gov> 
-> >>>>         
-> >> wrote:
-> >>     
-> >>>>> Well, first, no script should be allowed a capability that is not given
-> >>>>> to its caller directly ;)
-> >>>>>           
-> >>>> Why not?  Isn't that the entire point of this authoritative granting of
-> >>>> capabilities patch?
-> >>>>         
-> >>> _script_, not program.
-> >>>       
-> >> OK, that's a bit of a topic change.
-> >>
-> >> I've been thinking about the script issue.  It seems to me that a problem we 
-> >> face is the replacement of executables by scripts (which often happens in 
-> >> distributions and sometimes happens with programs that are relevant to system
-> >>
-> >> integrity).
-> >>     
-> >
-> > That should only be a problem on a name based system, right?
-> >
-> > OK, sorry for the dig. Anyhow, it seems that the program that
-> > sets the policy (labels the file system?) ought to be checking
-> > the "type" of the file if it matters. You also might consider
-> > that as 21st century programming (special purpose scripting)
-> > replaces 20th century programming (general purpose binaries)
-> > fewer people are going to be tolerent of a distintion between
-> > a "program" and a "script" and look seriously at how you might
-> > avoid having to treat them differently.
-> >   
+On 6/12/07 9:32 AM, "Stephen Smalley" <sds@tycho.nsa.gov> wrote:
+
+> On Mon, 2007-06-11 at 15:55 -0400, Stephen Smalley wrote:
+>> Extend SELinux to allow capabilities to be granted authoritatively.
+>> Introduces a new cap_override access vector to indicate when the
+>> secondary module (i.e. capability or dummy) check should be skipped.
+>> Handle the new class gracefully even if the policy does not yet have
+>> it defined.
 > 
-> We don't have to treat them differently if the interpreters will respect 
-> ATSECURE and cleanse the environment across domain transitions or setuid 
-> just like the linker does for compiled binaries. The race will still be 
-> there but is alot harder to exploit than environment changes that change 
-> the interpreter behavior.
+> Ah, I realized that this has the same issue in permissive mode as the
+> get_user_sids code - we don't want to arbitrarily allow these
+> dac_override permissions in permissive mode (otherwise setenforce 0
+> turns off DAC as well), so the following patch should be applied on top:
+> 
+> diff -u b/security/selinux/hooks.c b/security/selinux/hooks.c
+> --- b/security/selinux/hooks.c
+> +++ b/security/selinux/hooks.c
+> @@ -1424,7 +1424,7 @@
+> int rc;
+>  
+> rc = avc_has_perm_noaudit(sid, sid, SECCLASS_CAP_OVERRIDE,
+> -      CAP_TO_MASK(cap), 0, NULL);
+> +      CAP_TO_MASK(cap), AVC_STRICT, NULL);
+> if (rc) {
+> rc = secondary_ops->capable(tsk, cap);
+> if (rc)
+> 
+> I'll fold that into the base patch for submission.
 
-Well...actually, the script lookup race has to be addressed or it is all
-for naught - it really isn't that hard to exploit.  You get to choose
-the path by which you access the script.
+This certainly makes the permissive case better than the original patch, but
+you're still opening up a new vector for escalation of privilege when
+SELinux access controls aren't enforcing. At the very least, policy authors
+are going to have to be really careful with this, as it's easy to shoot
+yourself in the foot in permissive. One example scenario of escalation:
 
-The alternative of course is the binary wrapper approach, which works
-with no kernel changes at all.
+A domain is granted cap_override:dac_override in policy. The system is
+running in permissive mode. In permissive mode, the only thing that protects
+the policy from being reloaded is DAC permissions, which the policy has
+granted the domain the ability to override. So, the domain loads a new
+policy which grants it cap_override:*. This means that in permissive
+dac_override can easily get you all capabilities. Also, note that the same
+scenario can be constructed without the original allow rule using a
+capability shedding scenario.
 
->From a quick look, it appears that perl and bash are still performing
-fixed (uid != euid || gid != egid) tests rather than leveraging
-AT_SECURE (of course, such a test would have to be in Linux-specific
-code).  perl also has the -T option to force tainting on, and python has
--E for the environment.
+I realize that there are already other scenarios where a program can use
+dac_override to escalate to further capabilities. My point is that we seem
+to be opening up a new attack vector here.
 
--- 
-Stephen Smalley
-National Security Agency
+Thanks,
+Chad
 
 
 --
