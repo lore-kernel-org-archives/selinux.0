@@ -1,79 +1,82 @@
-Message-ID: <4671568C.2090404@manicmethod.com>
-Date: Thu, 14 Jun 2007 10:54:04 -0400
-From: Joshua Brindle <method@manicmethod.com>
-MIME-Version: 1.0
-To: Stephen Smalley <sds@tycho.nsa.gov>
-CC: russell@coker.com.au, selinux@tycho.nsa.gov,
-        Karl MacMillan <kmacmillan@mentalrootkit.com>
-Subject: Re: [RFC][PATCH] selinux:  enable authoritative granting of	capabilities
-References: <20070611204336.GA30846@sergelap.austin.ibm.com>	 <200706132116.05065.russell@coker.com.au>	 <1181737910.17547.315.camel@moss-spartans.epoch.ncsc.mil>	 <200706141944.35457.russell@coker.com.au>	 <1181818991.17547.554.camel@moss-spartans.epoch.ncsc.mil> <1181832650.17547.619.camel@moss-spartans.epoch.ncsc.mil>
-In-Reply-To: <1181832650.17547.619.camel@moss-spartans.epoch.ncsc.mil>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Subject: Re: [RFC][PATCH] selinux:  enable authoritative granting of
+	capabilities
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Joshua Brindle <method@manicmethod.com>
+Cc: casey@schaufler-ca.com, russell@coker.com.au, selinux@tycho.nsa.gov
+In-Reply-To: <46715599.7070300@manicmethod.com>
+References: <558323.22266.qm@web36612.mail.mud.yahoo.com>
+	 <46715599.7070300@manicmethod.com>
+Content-Type: text/plain
+Date: Thu, 14 Jun 2007 11:05:42 -0400
+Message-Id: <1181833542.17547.632.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Stephen Smalley wrote:
-> On Thu, 2007-06-14 at 07:03 -0400, Stephen Smalley wrote:
->   
->> On Thu, 2007-06-14 at 19:44 +1000, Russell Coker wrote:
->>     
->>> On Wednesday 13 June 2007 22:31, Stephen Smalley <sds@tycho.nsa.gov> wrote:
->>>       
->>>> On Wed, 2007-06-13 at 21:16 +1000, Russell Coker wrote:
->>>>         
->>>>> On Wednesday 13 June 2007 01:57, Stephen Smalley <sds@tycho.nsa.gov> 
->>>>>           
->>> wrote:
->>>       
->>>>>> Well, first, no script should be allowed a capability that is not given
->>>>>> to its caller directly ;)
->>>>>>             
->>>>> Why not?  Isn't that the entire point of this authoritative granting of
->>>>> capabilities patch?
->>>>>           
->>>> _script_, not program.
->>>>         
->>> OK, that's a bit of a topic change.
->>>
->>> I've been thinking about the script issue.  It seems to me that a problem we 
->>> face is the replacement of executables by scripts (which often happens in 
->>> distributions and sometimes happens with programs that are relevant to system 
->>> integrity).
->>>
->>> We could write a policy that correctly allows a domain transition on executing 
->>> an ELF binary only to find that the next version of the distribution replaces 
->>> it with a BASH or Perl script then there is the potential for an exploit.
->>>
->>> Apart from initrc_exec_t are we relying on domain transitions on execution of 
->>> shell scripts for anything?
->>>       
->> It isn't just "shells", but any interpreter.  cgi-bin scripts?
->> semanage?  etc.
->>
->> Solaris solution was to have the kernel create a fd to the script file
->> and pass /dev/fd/<n> as the first argument to the interpreter so that
->> there is no separate lookup when dealing with suid scripts.  Naturally,
->> that doesn't address environmental contamination issues (and AT_SECURE
->> doesn't do enough cleansing to protect scripts), and it can yield
->> confusing results for scripts that aren't expecting their argv[0] to be
->> like that.
->>     
->
-> There was some discussion of introducing a binary wrapper for the python
-> scripts in policycoreutils to address this issue for them; python has a
-> template for such a binary wrapper in its source distribution.  
->
->   
+On Thu, 2007-06-14 at 10:50 -0400, Joshua Brindle wrote:
+> Casey Schaufler wrote:
+> > --- Russell Coker <russell@coker.com.au> wrote:
+> >
+> >   
+> >> On Wednesday 13 June 2007 22:31, Stephen Smalley <sds@tycho.nsa.gov> wrote:
+> >>     
+> >>> On Wed, 2007-06-13 at 21:16 +1000, Russell Coker wrote:
+> >>>       
+> >>>> On Wednesday 13 June 2007 01:57, Stephen Smalley <sds@tycho.nsa.gov> 
+> >>>>         
+> >> wrote:
+> >>     
+> >>>>> Well, first, no script should be allowed a capability that is not given
+> >>>>> to its caller directly ;)
+> >>>>>           
+> >>>> Why not?  Isn't that the entire point of this authoritative granting of
+> >>>> capabilities patch?
+> >>>>         
+> >>> _script_, not program.
+> >>>       
+> >> OK, that's a bit of a topic change.
+> >>
+> >> I've been thinking about the script issue.  It seems to me that a problem we 
+> >> face is the replacement of executables by scripts (which often happens in 
+> >> distributions and sometimes happens with programs that are relevant to system
+> >>
+> >> integrity).
+> >>     
+> >
+> > That should only be a problem on a name based system, right?
+> >
+> > OK, sorry for the dig. Anyhow, it seems that the program that
+> > sets the policy (labels the file system?) ought to be checking
+> > the "type" of the file if it matters. You also might consider
+> > that as 21st century programming (special purpose scripting)
+> > replaces 20th century programming (general purpose binaries)
+> > fewer people are going to be tolerent of a distintion between
+> > a "program" and a "script" and look seriously at how you might
+> > avoid having to treat them differently.
+> >   
+> 
+> We don't have to treat them differently if the interpreters will respect 
+> ATSECURE and cleanse the environment across domain transitions or setuid 
+> just like the linker does for compiled binaries. The race will still be 
+> there but is alot harder to exploit than environment changes that change 
+> the interpreter behavior.
 
-Yes, CLIP has the wrapper on oss.tresys.com, I'll bug them to send it to 
-the list for inclusion into policycoreutils.
+Well...actually, the script lookup race has to be addressed or it is all
+for naught - it really isn't that hard to exploit.  You get to choose
+the path by which you access the script.
 
->>> Currently common shells have special-case code to deal with the case of 
->>> uid!=euid and gid!=egid.  I think that this could be considered precedent for 
->>> having the shell check whether it is run in a different domain to it's parent 
->>> process, and if so whether the parent domain is permitted to execute 
->>> shell_exec_t in the current domain.
->>>       
+The alternative of course is the binary wrapper approach, which works
+with no kernel changes at all.
+
+>From a quick look, it appears that perl and bash are still performing
+fixed (uid != euid || gid != egid) tests rather than leveraging
+AT_SECURE (of course, such a test would have to be in Linux-specific
+code).  perl also has the -T option to force tainting on, and python has
+-E for the environment.
+
+-- 
+Stephen Smalley
+National Security Agency
 
 
 --
