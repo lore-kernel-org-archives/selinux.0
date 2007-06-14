@@ -1,64 +1,682 @@
-Subject: Re: [RFC][PATCH] selinux:  enable authoritative granting of
-	capabilities
+Subject: Re: [PATCH 3/3] libselinux: labeling support (try 3)
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: russell@coker.com.au
-Cc: selinux@tycho.nsa.gov
-In-Reply-To: <200706141944.35457.russell@coker.com.au>
-References: <20070611204336.GA30846@sergelap.austin.ibm.com>
-	 <200706132116.05065.russell@coker.com.au>
-	 <1181737910.17547.315.camel@moss-spartans.epoch.ncsc.mil>
-	 <200706141944.35457.russell@coker.com.au>
+To: Eamon Walsh <ewalsh@tycho.nsa.gov>
+Cc: SE Linux <selinux@tycho.nsa.gov>,
+        Karl MacMillan <kmacmillan@mentalrootkit.com>,
+        Joshua Brindle <jbrindle@tresys.com>
+In-Reply-To: <466DA4D3.7000402@tycho.nsa.gov>
+References: <466DA23C.9080509@tycho.nsa.gov>
+	 <466DA4D3.7000402@tycho.nsa.gov>
 Content-Type: text/plain
-Date: Thu, 14 Jun 2007 07:03:11 -0400
-Message-Id: <1181818991.17547.554.camel@moss-spartans.epoch.ncsc.mil>
+Date: Thu, 14 Jun 2007 08:19:26 -0400
+Message-Id: <1181823566.17547.580.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2007-06-14 at 19:44 +1000, Russell Coker wrote:
-> On Wednesday 13 June 2007 22:31, Stephen Smalley <sds@tycho.nsa.gov> wrote:
-> > On Wed, 2007-06-13 at 21:16 +1000, Russell Coker wrote:
-> > > On Wednesday 13 June 2007 01:57, Stephen Smalley <sds@tycho.nsa.gov> 
-> wrote:
-> > > > Well, first, no script should be allowed a capability that is not given
-> > > > to its caller directly ;)
-> > >
-> > > Why not?  Isn't that the entire point of this authoritative granting of
-> > > capabilities patch?
-> >
-> > _script_, not program.
-> 
-> OK, that's a bit of a topic change.
-> 
-> I've been thinking about the script issue.  It seems to me that a problem we 
-> face is the replacement of executables by scripts (which often happens in 
-> distributions and sometimes happens with programs that are relevant to system 
-> integrity).
-> 
-> We could write a policy that correctly allows a domain transition on executing 
-> an ELF binary only to find that the next version of the distribution replaces 
-> it with a BASH or Perl script then there is the potential for an exploit.
-> 
-> Apart from initrc_exec_t are we relying on domain transitions on execution of 
-> shell scripts for anything?
+On Mon, 2007-06-11 at 15:38 -0400, Eamon Walsh wrote:
+> This patch includes the file contexts backend code.
 
-It isn't just "shells", but any interpreter.  cgi-bin scripts?
-semanage?  etc.
+Logically, then, I would expect you to replace the matchpathcon.c and
+matchmediacon.c code with stub functions that use this new
+implementation, then verify that they still work as expected.  We don't
+want two independent implementations in the library.  Then we can
+deprecate them and eventually phase them out, but that will take some
+time, as they are used by code outside of the core selinux userland,
+including things like rpm, udev, etc.
 
-Solaris solution was to have the kernel create a fd to the script file
-and pass /dev/fd/<n> as the first argument to the interpreter so that
-there is no separate lookup when dealing with suid scripts.  Naturally,
-that doesn't address environmental contamination issues (and AT_SECURE
-doesn't do enough cleansing to protect scripts), and it can yield
-confusing results for scripts that aren't expecting their argv[0] to be
-like that.
-
-> Currently common shells have special-case code to deal with the case of 
-> uid!=euid and gid!=egid.  I think that this could be considered precedent for 
-> having the shell check whether it is run in a different domain to it's parent 
-> process, and if so whether the parent domain is permitted to execute 
-> shell_exec_t in the current domain.
-
+> 
+> Signed-off-by: Eamon Walsh <ewalsh@tycho.nsa.gov>
+> ---
+> 
+>  label_file.c |  637 +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+>  1 file changed, 637 insertions(+)
+> 
+> 
+> Index: libselinux/src/label_file.c
+> ===================================================================
+> --- libselinux/src/label_file.c	(revision 0)
+> +++ libselinux/src/label_file.c	(revision 0)
+> @@ -0,0 +1,637 @@
+> +/*
+> + * File contexts backend for labeling system
+> + *
+> + * Author : Eamon Walsh <ewalsh@tycho.nsa.gov>
+> + * Author : Stephen Smalley <sds@tycho.nsa.gov>
+> + *
+> + * This library derived in part from setfiles and the setfiles.pl script
+> + * developed by Secure Computing Corporation.
+> + */
+> +
+> +#include <fcntl.h>
+> +#include <stdarg.h>
+> +#include <string.h>
+> +#include <stdio.h>
+> +#include <stdio_ext.h>
+> +#include <ctype.h>
+> +#include <errno.h>
+> +#include <limits.h>
+> +#include <regex.h>
+> +#include "callbacks.h"
+> +#include "label_internal.h"
+> +
+> +/*
+> + * Internals, mostly moved over from matchpathcon.c
+> + */
+> +
+> +/* A file security context specification. */
+> +typedef struct spec {
+> +	struct selabel_lookup_rec lr;	/* holds contexts for lookup result */
+> +	char *regex_str;	/* regular expession string for diagnostics */
+> +	char *type_str;		/* type string for diagnostic messages */
+> +	regex_t regex;		/* compiled regular expression */
+> +	mode_t mode;		/* mode format value */
+> +	int matches;		/* number of matching pathnames */
+> +	int hasMetaChars;	/* regular expression has meta-chars */
+> +	int stem_id;		/* indicates which stem-compression item */
+> +} spec_t;
+> +
+> +/* A regular expression stem */
+> +typedef struct stem {
+> +	char *buf;
+> +	int len;
+> +} stem_t;
+> +
+> +/* Our stored configuration */
+> +struct saved_data {
+> +	/*
+> +	 * The array of specifications, initially in the same order as in 
+> +	 * the specification file. Sorting occurs based on hasMetaChars.
+> +	 */
+> +	spec_t *spec_arr;
+> +	unsigned int nspec;
+> +
+> +	/*
+> +	 * The array of regular expression stems.
+> +	 */
+> +	stem_t *stem_arr;
+> +	int num_stems;
+> +	int alloc_stems;
+> +};
+> +
+> +/* Return the length of the text that can be considered the stem, returns 0
+> + * if there is no identifiable stem */
+> +static int get_stem_from_spec(const char *const buf)
+> +{
+> +	const char *tmp = strchr(buf + 1, '/');
+> +	const char *ind;
+> +
+> +	if (!tmp)
+> +		return 0;
+> +
+> +	for (ind = buf; ind < tmp; ind++) {
+> +		if (strchr(".^$?*+|[({", (int)*ind))
+> +			return 0;
+> +	}
+> +	return tmp - buf;
+> +}
+> +
+> +/* return the length of the text that is the stem of a file name */
+> +static int get_stem_from_file_name(const char *const buf)
+> +{
+> +	const char *tmp = strchr(buf + 1, '/');
+> +
+> +	if (!tmp)
+> +		return 0;
+> +	return tmp - buf;
+> +}
+> +
+> +/* find the stem of a file spec, returns the index into stem_arr for a new
+> + * or existing stem, (or -1 if there is no possible stem - IE for a file in
+> + * the root directory or a regex that is too complex for us).  Makes buf
+> + * point to the text AFTER the stem. */
+> +static int find_stem_from_spec(struct saved_data *data, const char **buf)
+> +{
+> +	int i, num = data->num_stems;
+> +	int stem_len = get_stem_from_spec(*buf);
+> +
+> +	if (!stem_len)
+> +		return -1;
+> +	for (i = 0; i < num; i++) {
+> +		if (stem_len == data->stem_arr[i].len
+> +		    && !strncmp(*buf, data->stem_arr[i].buf, stem_len)) {
+> +			*buf += stem_len;
+> +			return i;
+> +		}
+> +	}
+> +	if (data->alloc_stems == num) {
+> +		stem_t *tmp_arr;
+> +		data->alloc_stems = data->alloc_stems * 2 + 16;
+> +		tmp_arr = realloc(data->stem_arr,
+> +				  sizeof(stem_t) * data->alloc_stems);
+> +		if (!tmp_arr)
+> +			return -1;
+> +		data->stem_arr = tmp_arr;
+> +	}
+> +	data->stem_arr[num].len = stem_len;
+> +	data->stem_arr[num].buf = malloc(stem_len + 1);
+> +	if (!data->stem_arr[num].buf)
+> +		return -1;
+> +	memcpy(data->stem_arr[num].buf, *buf, stem_len);
+> +	data->stem_arr[num].buf[stem_len] = '\0';
+> +	data->num_stems++;
+> +	*buf += stem_len;
+> +	return num;
+> +}
+> +
+> +/* find the stem of a file name, returns the index into stem_arr (or -1 if
+> + * there is no match - IE for a file in the root directory or a regex that is
+> + * too complex for us).  Makes buf point to the text AFTER the stem. */
+> +static int find_stem_from_file(struct saved_data *data, const char **buf)
+> +{
+> +	int i;
+> +	int stem_len = get_stem_from_file_name(*buf);
+> +
+> +	if (!stem_len)
+> +		return -1;
+> +	for (i = 0; i < data->num_stems; i++) {
+> +		if (stem_len == data->stem_arr[i].len
+> +		    && !strncmp(*buf, data->stem_arr[i].buf, stem_len)) {
+> +			*buf += stem_len;
+> +			return i;
+> +		}
+> +	}
+> +	return -1;
+> +}
+> +
+> +/*
+> + * Warn about duplicate specifications.
+> + */
+> +static void nodups_specs(struct saved_data *data, const char *path)
+> +{
+> +	unsigned int ii, jj;
+> +	struct spec *curr_spec, *spec_arr = data->spec_arr;
+> +
+> +	for (ii = 0; ii < data->nspec; ii++) {
+> +		curr_spec = &spec_arr[ii];
+> +		for (jj = ii + 1; jj < data->nspec; jj++) {
+> +			if ((!strcmp
+> +			     (spec_arr[jj].regex_str, curr_spec->regex_str))
+> +			    && (!spec_arr[jj].mode || !curr_spec->mode
+> +				|| spec_arr[jj].mode == curr_spec->mode)) {
+> +				if (strcmp
+> +				    (spec_arr[jj].lr.ctx_raw,
+> +				     curr_spec->lr.ctx_raw)) {
+> +					selinux_log
+> +						(SELINUX_WARNING,
+> +						 "%s: Multiple different specifications for %s  (%s and %s).\n",
+> +						 path, curr_spec->regex_str,
+> +						 spec_arr[jj].lr.ctx_raw,
+> +						 curr_spec->lr.ctx_raw);
+> +				} else {
+> +					selinux_log
+> +						(SELINUX_WARNING,
+> +						 "%s: Multiple same specifications for %s.\n",
+> +						 path, curr_spec->regex_str);
+> +				}
+> +			}
+> +		}
+> +	}
+> +}
+> +
+> +/* Determine if the regular expression specification has any meta characters. */
+> +static void spec_hasMetaChars(struct spec *spec)
+> +{
+> +	char *c;
+> +	int len;
+> +	char *end;
+> +
+> +	c = spec->regex_str;
+> +	len = strlen(spec->regex_str);
+> +	end = c + len;
+> +
+> +	spec->hasMetaChars = 0;
+> +
+> +	/* Look at each character in the RE specification string for a 
+> +	 * meta character. Return when any meta character reached. */
+> +	while (c != end) {
+> +		switch (*c) {
+> +		case '.':
+> +		case '^':
+> +		case '$':
+> +		case '?':
+> +		case '*':
+> +		case '+':
+> +		case '|':
+> +		case '[':
+> +		case '(':
+> +		case '{':
+> +			spec->hasMetaChars = 1;
+> +			return;
+> +		case '\\':	/* skip the next character */
+> +			c++;
+> +			break;
+> +		default:
+> +			break;
+> +
+> +		}
+> +		c++;
+> +	}
+> +	return;
+> +}
+> +
+> +static int process_line(struct saved_data *data,
+> +			const char *path, const char *prefix,
+> +			char *line_buf, int pass, unsigned lineno)
+> +{
+> +	int items, len, regerr;
+> +	char *buf_p, *regex, *anchored_regex, *type, *context;
+> +	const char *reg_buf;
+> +	spec_t *spec_arr = data->spec_arr;
+> +	unsigned int nspec = data->nspec;
+> +
+> +	len = strlen(line_buf);
+> +	if (line_buf[len - 1] == '\n')
+> +		line_buf[len - 1] = 0;
+> +	buf_p = line_buf;
+> +	while (isspace(*buf_p))
+> +		buf_p++;
+> +	/* Skip comment lines and empty lines. */
+> +	if (*buf_p == '#' || *buf_p == 0)
+> +		return 0;
+> +	items = sscanf(line_buf, "%as %as %as", &regex, &type, &context);
+> +	if (items < 2) {
+> +		selinux_log(SELINUX_WARNING,
+> +			  "%s:  line %d is missing fields, skipping\n", path,
+> +			  lineno);
+> +		return 0;
+> +	} else if (items == 2) {
+> +		/* The type field is optional. */
+> +		free(context);
+> +		context = type;
+> +		type = 0;
+> +	}
+> +
+> +	reg_buf = regex;
+> +	len = get_stem_from_spec(reg_buf);
+> +	if (len && prefix && strncmp(prefix, regex, len)) {
+> +		/* Stem of regex does not match requested prefix, discard. */
+> +		free(regex);
+> +		free(type);
+> +		free(context);
+> +		return 0;
+> +	}
+> +
+> +	if (pass == 1) {
+> +		/* On the second pass, compile and store the specification in spec. */
+> +		char *cp;
+> +		spec_arr[nspec].stem_id = find_stem_from_spec(data, &reg_buf);
+> +		spec_arr[nspec].regex_str = regex;
+> +
+> +		/* Anchor the regular expression. */
+> +		len = strlen(reg_buf);
+> +		cp = anchored_regex = malloc(len + 3);
+> +		if (!anchored_regex)
+> +			return -1;
+> +		/* Create ^...$ regexp.  */
+> +		*cp++ = '^';
+> +		cp = mempcpy(cp, reg_buf, len);
+> +		*cp++ = '$';
+> +		*cp = '\0';
+> +
+> +		/* Compile the regular expression. */
+> +		regerr =
+> +			regcomp(&spec_arr[nspec].regex,
+> +				anchored_regex, REG_EXTENDED | REG_NOSUB);
+> +		if (regerr != 0) {
+> +			size_t errsz = 0;
+> +			char *errbuf = NULL;
+> +			errsz = regerror(regerr, &spec_arr[nspec].regex,
+> +					 errbuf, errsz);
+> +			if (errsz)
+> +				errbuf = malloc(errsz);
+> +			if (errbuf)
+> +				(void)regerror(regerr,
+> +					       &spec_arr[nspec].regex,
+> +					       errbuf, errsz);
+> +			selinux_log(SELINUX_WARNING,
+> +				  "%s:  line %d has invalid regex %s:  %s\n",
+> +				  path, lineno, anchored_regex,
+> +				  (errbuf ? errbuf : "out of memory"));
+> +			free(anchored_regex);
+> +			return 0;
+> +		}
+> +		free(anchored_regex);
+> +
+> +		/* Convert the type string to a mode format */
+> +		spec_arr[nspec].type_str = type;
+> +		spec_arr[nspec].mode = 0;
+> +		if (!type)
+> +			goto skip_type;
+> +		len = strlen(type);
+> +		if (type[0] != '-' || len != 2) {
+> +			selinux_log(SELINUX_WARNING,
+> +				  "%s:  line %d has invalid file type %s\n",
+> +				  path, lineno, type);
+> +			return 0;
+> +		}
+> +		switch (type[1]) {
+> +		case 'b':
+> +			spec_arr[nspec].mode = S_IFBLK;
+> +			break;
+> +		case 'c':
+> +			spec_arr[nspec].mode = S_IFCHR;
+> +			break;
+> +		case 'd':
+> +			spec_arr[nspec].mode = S_IFDIR;
+> +			break;
+> +		case 'p':
+> +			spec_arr[nspec].mode = S_IFIFO;
+> +			break;
+> +		case 'l':
+> +			spec_arr[nspec].mode = S_IFLNK;
+> +			break;
+> +		case 's':
+> +			spec_arr[nspec].mode = S_IFSOCK;
+> +			break;
+> +		case '-':
+> +			spec_arr[nspec].mode = S_IFREG;
+> +			break;
+> +		default:
+> +			selinux_log(SELINUX_WARNING,
+> +				  "%s:  line %d has invalid file type %s\n",
+> +				  path, lineno, type);
+> +			return 0;
+> +		}
+> +
+> +	skip_type:
+> +		spec_arr[nspec].lr.ctx_raw = context;
+> +
+> +		/* Determine if specification has 
+> +		 * any meta characters in the RE */
+> +		spec_hasMetaChars(&spec_arr[nspec]);
+> +	}
+> +
+> +	data->nspec = ++nspec;
+> +	if (pass == 0) {
+> +		free(regex);
+> +		if (type)
+> +			free(type);
+> +		free(context);
+> +	}
+> +	return 0;
+> +}
+> +
+> +static int init(struct selabel_rec *rec, struct selabel_opt *opts, size_t n)
+> +{
+> +	struct saved_data *data = (struct saved_data *)rec->data;
+> +	const char *path = NULL;
+> +	const char *prefix = NULL;
+> +	FILE *fp;
+> +	FILE *localfp = NULL;
+> +	FILE *homedirfp = NULL;
+> +	char local_path[PATH_MAX + 1];
+> +	char homedir_path[PATH_MAX + 1];
+> +	char *line_buf = NULL;
+> +	size_t line_len = 0;
+> +	unsigned int lineno, pass, i, j, maxnspec;
+> +	spec_t *spec_copy = NULL;
+> +	int status = -1, baseonly = 0;
+> +	struct stat sb;
+> +
+> +	/* Process arguments */
+> +	while (n--)
+> +		switch(opts[n].type) {
+> +		case SELABEL_OPT_PATH:
+> +			path = opts[n].value;
+> +			break;
+> +		case SELABEL_OPT_PREFIX:
+> +			prefix = opts[n].value;
+> +			break;
+> +		case SELABEL_OPT_BASEONLY:
+> +			baseonly = !!opts[n].value;
+> +			break;
+> +		}
+> +
+> +	/* Open the specification file. */
+> +	if (!path)
+> +		path = selinux_file_context_path();
+> +	if ((fp = fopen(path, "r")) == NULL)
+> +		return -1;
+> +	__fsetlocking(fp, FSETLOCKING_BYCALLER);
+> +
+> +	if (fstat(fileno(fp), &sb) < 0)
+> +		return -1;
+> +	if (!S_ISREG(sb.st_mode)) {
+> +		errno = EINVAL;
+> +		return -1;
+> +	}
+> +
+> +	if (!baseonly) {
+> +		snprintf(homedir_path, sizeof(homedir_path), "%s.homedirs",
+> +			 path);
+> +		homedirfp = fopen(homedir_path, "r");
+> +		if (homedirfp != NULL)
+> +			__fsetlocking(homedirfp, FSETLOCKING_BYCALLER);
+> +
+> +		snprintf(local_path, sizeof(local_path), "%s.local", path);
+> +		localfp = fopen(local_path, "r");
+> +		if (localfp != NULL)
+> +			__fsetlocking(localfp, FSETLOCKING_BYCALLER);
+> +	}
+> +
+> +	/* 
+> +	 * Perform two passes over the specification file.
+> +	 * The first pass counts the number of specifications and
+> +	 * performs simple validation of the input.  At the end
+> +	 * of the first pass, the spec array is allocated.
+> +	 * The second pass performs detailed validation of the input
+> +	 * and fills in the spec array.
+> +	 */
+> +	maxnspec = UINT_MAX / sizeof(spec_t);
+> +	for (pass = 0; pass < 2; pass++) {
+> +		lineno = 0;
+> +		data->nspec = 0;
+> +		while (getline(&line_buf, &line_len, fp) > 0
+> +		       && data->nspec < maxnspec) {
+> +			if (process_line(data, path, prefix, line_buf,
+> +					 pass, ++lineno) != 0)
+> +				goto finish;
+> +		}
+> +		lineno = 0;
+> +		if (homedirfp)
+> +			while (getline(&line_buf, &line_len, homedirfp) > 0
+> +			       && data->nspec < maxnspec) {
+> +				if (process_line
+> +				    (data, homedir_path, prefix,
+> +				     line_buf, pass, ++lineno) != 0)
+> +					goto finish;
+> +			}
+> +
+> +		lineno = 0;
+> +		if (localfp)
+> +			while (getline(&line_buf, &line_len, localfp) > 0
+> +			       && data->nspec < maxnspec) {
+> +				if (process_line
+> +				    (data, local_path, prefix, line_buf,
+> +				     pass, ++lineno) != 0)
+> +					goto finish;
+> +			}
+> +
+> +		if (pass == 0) {
+> +			if (data->nspec == 0) {
+> +				status = 0;
+> +				goto finish;
+> +			}
+> +			if (NULL == (data->spec_arr =
+> +				     malloc(sizeof(spec_t) * data->nspec)))
+> +				goto finish;
+> +			memset(data->spec_arr, 0, sizeof(spec_t)*data->nspec);
+> +			maxnspec = data->nspec;
+> +			rewind(fp);
+> +			if (homedirfp)
+> +				rewind(homedirfp);
+> +			if (localfp)
+> +				rewind(localfp);
+> +		}
+> +	}
+> +	free(line_buf);
+> +
+> +	/* Move exact pathname specifications to the end. */
+> +	spec_copy = malloc(sizeof(spec_t) * data->nspec);
+> +	if (!spec_copy)
+> +		goto finish;
+> +	j = 0;
+> +	for (i = 0; i < data->nspec; i++)
+> +		if (data->spec_arr[i].hasMetaChars)
+> +			memcpy(&spec_copy[j++],
+> +			       &data->spec_arr[i], sizeof(spec_t));
+> +	for (i = 0; i < data->nspec; i++)
+> +		if (!data->spec_arr[i].hasMetaChars)
+> +			memcpy(&spec_copy[j++],
+> +			       &data->spec_arr[i], sizeof(spec_t));
+> +	free(data->spec_arr);
+> +	data->spec_arr = spec_copy;
+> +
+> +	nodups_specs(data, path);
+> +
+> +	status = 0;
+> +finish:
+> +	fclose(fp);
+> +	if (data->spec_arr != spec_copy)
+> +		free(data->spec_arr);
+> +	if (homedirfp)
+> +		fclose(homedirfp);
+> +	if (localfp)
+> +		fclose(localfp);
+> +	return status;
+> +}
+> +
+> +/*
+> + * Backend interface routines
+> + */
+> +static void close(struct selabel_rec *rec)
+> +{
+> +	struct saved_data *data = (struct saved_data *)rec->data;
+> +	struct spec *spec;
+> +	struct stem *stem;
+> +	unsigned int i;
+> +
+> +	for (i = 0; i < data->nspec; i++) {
+> +		spec = &data->spec_arr[i];
+> +		free(spec->regex_str);
+> +		free(spec->type_str);
+> +		free(spec->lr.ctx_raw);
+> +		free(spec->lr.ctx_trans);
+> +		regfree(&spec->regex);
+> +	}
+> +
+> +	for (i = 0; i < (unsigned int)data->num_stems; i++) {
+> +		stem = &data->stem_arr[i];
+> +		free(stem->buf);
+> +	}
+> +
+> +	if (data->spec_arr)
+> +		free(data->spec_arr);
+> +	if (data->stem_arr)
+> +		free(data->stem_arr);
+> +	
+> +	memset(data, 0, sizeof(*data));
+> +}
+> +
+> +static struct selabel_lookup_rec *lookup(struct selabel_rec *rec,
+> +					 const char *key, int type)
+> +{
+> +	struct saved_data *data = (struct saved_data *)rec->data;
+> +	spec_t *spec_arr = data->spec_arr;
+> +	int i, rc, file_stem;
+> +	mode_t mode = (mode_t)type;
+> +	const char *buf = key;
+> +
+> +	if (!data->nspec) {
+> +		errno = ENOENT;
+> +		return NULL;
+> +	}
+> +
+> +	file_stem = find_stem_from_file(data, &buf);
+> +	mode &= S_IFMT;
+> +
+> +	/* 
+> +	 * Check for matching specifications in reverse order, so that
+> +	 * the last matching specification is used.
+> +	 */
+> +	for (i = data->nspec - 1; i >= 0; i--) {
+> +		/* if the spec in question matches no stem or has the same
+> +		 * stem as the file AND if the spec in question has no mode
+> +		 * specified or if the mode matches the file mode then we do
+> +		 * a regex check        */
+> +		if ((spec_arr[i].stem_id == -1
+> +		     || spec_arr[i].stem_id == file_stem)
+> +		    && (!mode || !spec_arr[i].mode
+> +			|| mode == spec_arr[i].mode)) {
+> +			if (spec_arr[i].stem_id == -1)
+> +				rc = regexec(&spec_arr[i].regex, key, 0, 0, 0);
+> +			else
+> +				rc = regexec(&spec_arr[i].regex, buf, 0, 0, 0);
+> +
+> +			if (rc == 0) {
+> +				spec_arr[i].matches++;
+> +				break;
+> +			}
+> +			if (rc == REG_NOMATCH)
+> +				continue;
+> +			/* else it's an error */
+> +			return NULL;
+> +		}
+> +	}
+> +
+> +	if (i < 0 || strcmp(spec_arr[i].lr.ctx_raw, "<<none>>") == 0) {
+> +		/* No matching specification. */
+> +		errno = ENOENT;
+> +		return NULL;
+> +	}
+> +
+> +	return &spec_arr[i].lr;
+> +}
+> +
+> +static void stats(struct selabel_rec *rec)
+> +{
+> +	struct saved_data *data = (struct saved_data *)rec->data;
+> +	unsigned int i, nspec = data->nspec;
+> +	spec_t *spec_arr = data->spec_arr;
+> +
+> +	for (i = 0; i < nspec; i++) {
+> +		if (spec_arr[i].matches == 0) {
+> +			if (spec_arr[i].type_str) {
+> +				selinux_log(SELINUX_WARNING,
+> +				    "Warning!  No matches for (%s, %s, %s)\n",
+> +				    spec_arr[i].regex_str,
+> +				    spec_arr[i].type_str,
+> +				    spec_arr[i].lr.ctx_raw);
+> +			} else {
+> +				selinux_log(SELINUX_WARNING,
+> +				    "Warning!  No matches for (%s, %s)\n",
+> +				    spec_arr[i].regex_str,
+> +				    spec_arr[i].lr.ctx_raw);
+> +			}
+> +		}
+> +	}
+> +}
+> +
+> +int selabel_file_init(struct selabel_rec *rec, struct selabel_opt *opts,
+> +		      size_t nopts)
+> +{
+> +	struct saved_data *data;
+> +
+> +	data = (struct saved_data *)malloc(sizeof(*data));
+> +	if (!data)
+> +		return -1;
+> +	memset(data, 0, sizeof(*data));
+> +
+> +	rec->data = data;
+> +	rec->func_close = &close;
+> +	rec->func_stats = &stats;
+> +	rec->func_lookup = &lookup;
+> +
+> +	return init(rec, opts, nopts);
+> +}
+> 
+> 
 -- 
 Stephen Smalley
 National Security Agency
