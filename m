@@ -1,96 +1,103 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l5FFg0iT022694
-	for <selinux@tycho.nsa.gov>; Fri, 15 Jun 2007 11:42:00 -0400
-Received: from web51509.mail.re2.yahoo.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with SMTP id l5FFg0Bo017606
-	for <selinux@tycho.nsa.gov>; Fri, 15 Jun 2007 15:42:00 GMT
-Date: Fri, 15 Jun 2007 08:41:54 -0700 (PDT)
-From: Steve G <linux_4ever@yahoo.com>
-Subject: regarding privilege granting
-To: selinux@tycho.nsa.gov
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l5FG5fmS024391
+	for <selinux@tycho.nsa.gov>; Fri, 15 Jun 2007 12:05:41 -0400
+Received: from web36610.mail.mud.yahoo.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with SMTP id l5FG5doK012649
+	for <selinux@tycho.nsa.gov>; Fri, 15 Jun 2007 16:05:39 GMT
+Date: Fri, 15 Jun 2007 09:05:39 -0700 (PDT)
+From: Casey Schaufler <casey@schaufler-ca.com>
+Reply-To: casey@schaufler-ca.com
+Subject: Re: [RFC v2][PATCH] selinux:  enable authoritative granting of capabilities
+To: Stephen Smalley <sds@tycho.nsa.gov>
+Cc: selinux@tycho.nsa.gov, James Morris <jmorris@namei.org>,
+        Eric Paris <eparis@parisplace.org>,
+        "Serge E. Hallyn" <serue@us.ibm.com>,
+        "Christopher J. PeBenito" <cpebenito@tresys.com>,
+        Chad Sellers <csellers@tresys.com>
+In-Reply-To: <1181921232.17547.775.camel@moss-spartans.epoch.ncsc.mil>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=iso-8859-1
-Message-ID: <20842.17629.qm@web51509.mail.re2.yahoo.com>
+Message-ID: <472431.76522.qm@web36610.mail.mud.yahoo.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hi,
 
-I'm not sure I really like the idea of SE Linux getting in the business of
-granting permissions. I want to make sure that we have a full discussion about
-all aspects of the change. Some of these items I know can be decided by policy,
-but I think you will hear things like this when it goes up for wider review. I
-want to state them here so that we have answers later.
+--- Stephen Smalley <sds@tycho.nsa.gov> wrote:
 
-1) Education. We've been telling users all along that SE Linux does not grant
-permissions. It adds restrictions on top of DAC. To change that now would likely
-confusion the casual user.
+> On Fri, 2007-06-15 at 08:14 -0700, Casey Schaufler wrote:
+> > --- Stephen Smalley <sds@tycho.nsa.gov> wrote:
+> > 
+> > > Second RFC on this patch, collects up discussion and changes so far.  If
+> > > no objections, then this will be re-posted as just a [PATCH] on selinux
+> > > and lkml.
+> > > 
+> > > ---
+> > > 
+> > > Extend SELinux to allow capabilities to be granted authoritatively
+> > > based solely on SELinux policy, enabling users of SELinux to
+> > > selectively reduce or fully eliminate the need for a "root" user and
+> > > setuid executables.  This provides an alternative approach to file
+> > > capabilities without conflicting with it.
+> > 
+> > Why don't you just work with the people who are getting the
+> > file capabilities working and integrate that into SELinux?
+> > Why do you have to take this tangent and confuse everything?
+> > 
+> > There. An objection. I do not believe you've demonstrated that
+> > using the proposed file capabilities can't get you what you
+> > want, and that we don't need two implementations of the same
+> > thing.
+> 
+> I don't think you've taken the time to read and understand the
+> description or the code, or you might realize that your characterization
+> above is false.
 
-2) Nothing security relavent happens without root. All of the trusted databases
-require uid 0 to write to them. In some cases to read. All applications that need
-special permissions have been carefully arranged to start as root and drop
-capabilities as they can.
+I have read and understand the description and have examined the
+code, although I confess that it is the intent that I object to,
+not the implementation of that intent. It's a fine implementation
+of the description.
 
-3) In the few places where setuid must be used, these programs have undergone
-review dozens of times for flaws. No one allows them without much review. If SE
-Linux gets into the business of granting privs, then I doubt people would give
-the apps the extra amount of review that they should get.
+> I did provide feedback to Serge on the file capabilities support as it
+> was being developed.  It will work with SELinux, with or without this
+> change.  But it doesn't solve the same problem.  Read it again.  Please.
+> And Serge, who authored the file capability support, understands that,
+> and appears to like our patch from his comments on list.  So there is no
+> conflict between us and the "file capabilities" people, only between us
+> and people who don't bother to take the time to understand what they are
+> commenting on...
 
-4) Setuid apps are also given special protection by the runtime linker. Without
-having the equivalent ability, you are opening the door to attacks in ways that
-were probably not imagined.
+Yeah, and the horse you rode in on.
 
-5) Apps could work when SE Linux is enabled and suddenly malfunction if selinux
-is disabled. I could see a case where an app had a certain power and loses it
-while its running (depending on what permissive means) and leaves the system in
-an unsafe state.
+Look, you're always badgering people to explain why their LSM
+facilities can't be done using SELinux, or a tweek to SELinux.
+When you take this to LKML expect to get exactly the same question
+(as I posed here) about why SELinux "can't just use" the file
+capabilities. In all your whinging about me above you never answered
+the question. I understand your design goals, and given your
+design goals I completely understand why you would want to do it
+the way you've outlined.
 
-6) What would permissive mode look like? Would any app that wants any capability
-automatically get it? If you enforce old capability model then it isn't
-permissive since you won't be able to collect all the permissions that an app
-needs.
+My concern is with the future of file capabilities, which I like.
+I would like to see them move forward for my own nefarious purposes.
+Those purposes do not require the sophistication of SELinux, so
+I do not want to see the advance of file capabilities run up
+against the "SELinux does that, ''just'' use SELinux" argument
+every time someone wants to improve it. It gets tiresome and
+consumes way to much of the limited time I have to work on projects.
 
-7) It will be hard to find for compliance auditing any applications that have
-been granted special privileges.
+So please explain, so that even an MLS junkie like me can understand,
+why you can't "just" use the file capability machanism as it's
+designed. I read what you wrote. I read the code. Humor me and
+answer the question if you'd be so kind. I'm sure that you have
+a good reason and sufficient understanding of all the surrounding
+issues to make it clear.
 
-8) Backdoors can be planted into systems with the aid of selinux policy. People
-have no way of comparing what is in memory against what is on disk. Modifying
-policy in memory will become an attack point since it now can grant capabilities
-instead of impose restrictions. Rootkit detectors will not be able to find this
-attack vector.
-
-9) Allowing SE Linux to override DAC restrictions means that we go from 2 layers
-of security to 1 layer. All analysis would have to be done from a selinux
-perspective. I seriously doubt the average admin will be able to analyze the
-security implications on a server given the tools available. You would need to
-have commandline tools that lets an admin make some basic discoveries about
-access. They will need to be able to find all apps with elevated privileges, what
-capabilities does it have. Given a file, what accounts & domain can access or
-alter it, given a file and domain what actions can be performed? I think this
-will tremendously complicate understanding security for your machine.
-
-10) Simple commandline tools will need to be available for people to remove the
-granted capability if they disagree with it. Think about times when people chmod
-a program to remove the setuid bit so that it only runs for the admin.
-
-11) What about signal/ptrace attacks. If apps started as a user do not change
-uid, the user has control over them. Some operations follow uid rules when the
-kernel is deciding whether or not to allow an interaction. If SE Linux elevates
-the privs, then the user may have a new way to attack a previously unassailable
-target.
-
-There are likely many unforeseen attack vectors that this opens the door to.
-There would have to be new analytical tools created to allow people to understand
-what they are deploying. This has to be carefully considered by a wider audience
-before proceeding.
-
--Steve
+Thank you.
 
 
-       
-____________________________________________________________________________________
-Pinpoint customers who are looking for what you sell. 
-http://searchmarketing.yahoo.com/
+
+Casey Schaufler
+casey@schaufler-ca.com
 
 --
 This message was distributed to subscribers of the selinux mailing list.
