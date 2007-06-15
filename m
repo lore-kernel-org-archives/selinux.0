@@ -1,110 +1,188 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l5FKoTmo009573
-	for <selinux@tycho.nsa.gov>; Fri, 15 Jun 2007 16:50:29 -0400
-Received: from web36605.mail.mud.yahoo.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with SMTP id l5FKoSY9007785
-	for <selinux@tycho.nsa.gov>; Fri, 15 Jun 2007 20:50:29 GMT
-Date: Fri, 15 Jun 2007 13:50:28 -0700 (PDT)
-From: Casey Schaufler <casey@schaufler-ca.com>
-Reply-To: casey@schaufler-ca.com
-Subject: Re: [RFC v2][PATCH] selinux:  enable authoritative granting of capabilities
-To: Stephen Smalley <sds@tycho.nsa.gov>
-Cc: selinux@tycho.nsa.gov, James Morris <jmorris@namei.org>,
-        Eric Paris <eparis@parisplace.org>,
-        "Serge E. Hallyn" <serue@us.ibm.com>,
-        "Christopher J. PeBenito" <cpebenito@tresys.com>,
-        Chad Sellers <csellers@tresys.com>, Steve G <linux_4ever@yahoo.com>
-In-Reply-To: <1181936209.17547.943.camel@moss-spartans.epoch.ncsc.mil>
+Message-ID: <467320D6.5040703@tycho.nsa.gov>
+Date: Fri, 15 Jun 2007 19:29:26 -0400
+From: Eamon Walsh <ewalsh@tycho.nsa.gov>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Message-ID: <686318.23489.qm@web36605.mail.mud.yahoo.com>
+To: SE Linux <selinux@tycho.nsa.gov>
+CC: Stephen Smalley <sds@tycho.nsa.gov>,
+        Karl MacMillan <kmacmillan@mentalrootkit.com>
+Subject: [PATCH 1/7] libselinux: labeling support (try 4)
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+Changes from the third version: remove handle typedef, includes patch
+for setfiles, rebases matchpathcon code to use new interface, includes
+X backend, fixes setfiles -c, rolls in callback interface patch.
 
---- Stephen Smalley <sds@tycho.nsa.gov> wrote:
+This is a labeling API that provides a common way to map from various
+string namespaces into security contexts.
 
-> On Fri, 2007-06-15 at 09:05 -0700, Casey Schaufler wrote:
-> > Look, you're always badgering people to explain why their LSM
-> > facilities can't be done using SELinux, or a tweek to SELinux.
-> > When you take this to LKML expect to get exactly the same question
-> > (as I posed here) about why SELinux "can't just use" the file
-> > capabilities.
-> 
-> File capabilities don't allow us to assign domain Foo (corresponding to
-> a program, a set of programs, a user role, whatever) a capability solely
-> through SELinux policy; we have to separately and independently set a
-> file capability bitmask on the file in addition to allowing the
-> capability under the SELinux policy, and we are limited to the fixed
-> capability evolution rules - we can't adjust them to fit specific needs
-> as domains transition as we can in policy.  That's the difference; file
-> capabilities remain an orthogonal mechanism outside of our policy that
-> has to be separately managed, assigned to files, preserved across
-> prelinks and updates, incorporated into analysis, etc.
-> 
-> > My concern is with the future of file capabilities, which I like.
-> > I would like to see them move forward for my own nefarious purposes.
-> > Those purposes do not require the sophistication of SELinux, so
-> > I do not want to see the advance of file capabilities run up
-> > against the "SELinux does that, ''just'' use SELinux" argument
-> > every time someone wants to improve it. It gets tiresome and
-> > consumes way to much of the limited time I have to work on projects.
-> 
-> This provides a mechanism for people who use SELinux already to manage
-> their capabilities fully via SELinux based on roles and domains.  File
-> capabilities provides a mechanism for people who don't use SELinux to
-> manage their capabilities based on per-file EAs.  They can both be
-> merged into mainline as far as I'm concerned.
-> 
-> > So please explain, so that even an MLS junkie like me can understand,
-> > why you can't "just" use the file capability machanism as it's
-> > designed.
-> 
-> It is about being able to fully manage capabilities in policy, just as
-> we already fully manage MLS overrides in policy.
-> 
-> Look, with current SELinux, we have policy rules like:
-> 	allow ping_t self:capability net_raw;
-> 	allow ping_t ping_exec_t:file entrypoint;
-> 	...
-> and rpm and friends apply the file contexts mapping to assign
-> ping_exec_t to /bin/ping for us when ping is installed/updated and
-> prelink knows to preserve that context when prelink'ing the binary, etc.
-> And although /bin/ping is suid root, it can only ever use the
-> capabilities we've allowed it in policy.
-> 
-> With my patch, we can further take away the suid root'ness of /bin/ping
-> and add a single allow ping_t self:cap_override net_raw; to policy and
-> we're done - ping is now able to run with net_raw and policy is
-> centralized.  In fact, we wouldn't even need that separate allow rule if
-> we just made the existing SELinux capability allow rules always
-> authoritative, but I'm taking the conservative and compatible route - no
-> change to existing behavior.
-> 
-> With file capabilities, we have to add an entirely new extended
-> attribute (security.capability) to /bin/ping, where that attribute
-> directly encodes policy (the actual capability bits, not just a
-> descriptive type tag), and now we have duplicated state between policy
-> and filesystem.  From a management point of view, the situation is now
-> worse than the setuid root binary - I have redundant capability bitmaps
-> that I am managing in policy and on a per-file basis.  Meanwhile, rpm
-> and friends, prelink, etc have no knowledge of this security.capability
-> and will cheerfully blow it away until they are all updated.
-> 
-> File capabilities are helpful for non-selinux systems.  They don't help
-> users of SELinux much at all, if any.
+This version of the patchset simplifies the lookup model down to
+(string,number) to context.  There are no void pointers or variadic
+functions which was one of the objections to the previous patchsets.
+A lot of the file contexts stuff such as the inode tracking support
+has also been dropped with the understanding that this stuff should
+be in the setfiles code, not libselinux.  This is a pure lookup
+interface only.
 
-Thank you.
+This patchset includes 3 backends, for file contexts, media contexts
+and X.  Future work would include libsemanage interfaces for
+managing the data the way the file contexts data is currently done.
 
-Are you planning to do the same with mode bits? Your arguments
-would apply equally well for them, too. It's the authoritative
-hooks arguement.
+This patch includes the new callback interface.
+
+Signed-off-by: Eamon Walsh <ewalsh@tycho.nsa.gov>
+---
+
+ include/selinux/selinux.h |   25 +++++++++++++++++
+ src/callbacks.c           |   67 ++++++++++++++++++++++++++++++++++++++++++++++
+ src/callbacks.h           |   24 ++++++++++++++++
+ 3 files changed, 116 insertions(+)
 
 
+Index: libselinux/include/selinux/selinux.h
+===================================================================
+--- libselinux/include/selinux/selinux.h	(revision 2474)
++++ libselinux/include/selinux/selinux.h	(working copy)
+@@ -132,6 +132,31 @@
+ 	unsigned int seqno;
+ };
+ 
++/* Callback facilities */
++union selinux_callback {
++	/* log the printf-style format and arguments,
++	   with the type code indicating the type of message */
++	int (*func_log) (int type, const char *fmt, ...);
++	/* store a string representation of auditdata (corresponding
++	   to the given security class) into msgbuf. */
++	int (*func_audit) (void *auditdata, security_class_t cls,
++			   char *msgbuf, size_t msgbufsize);
++	/* validate the supplied context, modifying if necessary */
++	int (*func_validate) (security_context_t *ctx);
++};
++
++#define SELINUX_CB_LOG		0
++#define SELINUX_CB_AUDIT	1
++#define SELINUX_CB_VALIDATE	2
++
++extern void selinux_set_callback(int type, union selinux_callback cb);
++
++	/* Logging type codes, passed to the logging callback */
++#define SELINUX_ERROR	        0
++#define SELINUX_WARNING		1
++#define SELINUX_INFO		2
++#define SELINUX_AVC		3
++
+ /* Compute an access decision. */
+ extern int security_compute_av(security_context_t scon,
+ 			       security_context_t tcon,
+Index: libselinux/src/callbacks.h
+===================================================================
+--- libselinux/src/callbacks.h	(revision 0)
++++ libselinux/src/callbacks.h	(revision 0)
+@@ -0,0 +1,24 @@
++/*
++ * This file describes the callbacks passed to selinux_init() and available
++ * for use from the library code.  They all have default implementations.
++ */
++#ifndef _SELINUX_CALLBACKS_H_
++#define _SELINUX_CALLBACKS_H_
++
++#include <stdio.h>
++#include <stdlib.h>
++#include <string.h>
++#include <selinux/selinux.h>
++#include "dso.h"
++
++/* callback pointers */
++extern int __attribute__ ((format(printf, 2, 3)))
++(*selinux_log) (int type, const char *, ...) hidden;
++
++extern int
++(*selinux_audit) (void *, security_class_t, char *, size_t) hidden;
++
++extern int
++(*selinux_validate)(security_context_t *ctx) hidden;
++
++#endif				/* _SELINUX_CALLBACKS_H_ */
+Index: libselinux/src/callbacks.c
+===================================================================
+--- libselinux/src/callbacks.c	(revision 0)
++++ libselinux/src/callbacks.c	(revision 0)
+@@ -0,0 +1,67 @@
++/*
++ * User-supplied callbacks and default implementations.
++ * Class and permission mappings.
++ */
++
++#include <stdio.h>
++#include <stdlib.h>
++#include <stdarg.h>
++#include <selinux/selinux.h>
++#include "callbacks.h"
++
++/* default implementations */
++static int __attribute__ ((format(printf, 2, 3)))
++default_selinux_log(int type __attribute__((unused)), const char *fmt, ...)
++{
++	int rc;
++	va_list ap;
++	va_start(ap, fmt);
++	rc = vfprintf(stderr, fmt, ap);
++	va_end(ap);
++	return rc;
++}
++
++static int
++default_selinux_audit(void *ptr __attribute__((unused)),
++		      security_class_t cls __attribute__((unused)),
++		      char *buf __attribute__((unused)),
++		      size_t len __attribute__((unused)))
++{
++	return 0;
++}
++
++static int
++default_selinux_validate(security_context_t *ctx)
++{
++	return security_check_context(*ctx);
++}
++
++/* callback pointers */
++int __attribute__ ((format(printf, 2, 3)))
++(*selinux_log)(int, const char *, ...) =
++	default_selinux_log;
++
++int
++(*selinux_audit) (void *, security_class_t, char *, size_t) =
++	default_selinux_audit;
++
++int
++(*selinux_validate)(security_context_t *ctx) =
++	default_selinux_validate;
++
++/* callback setting function */
++void
++selinux_set_callback(int type, union selinux_callback cb)
++{
++	switch (type) {
++	case SELINUX_CB_LOG:
++		selinux_log = cb.func_log;
++		break;
++	case SELINUX_CB_AUDIT:
++		selinux_audit = cb.func_audit;
++		break;
++	case SELINUX_CB_VALIDATE:
++		selinux_validate = cb.func_validate;
++		break;
++	}
++}
 
 
-Casey Schaufler
-casey@schaufler-ca.com
+-- 
+Eamon Walsh <ewalsh@tycho.nsa.gov>
+National Security Agency
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
