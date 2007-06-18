@@ -1,123 +1,85 @@
-Subject: Re: [RFC v2][PATCH] selinux:  enable authoritative granting of
-	capabilities
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: casey@schaufler-ca.com
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l5IFWqfX005845
+	for <selinux@tycho.nsa.gov>; Mon, 18 Jun 2007 11:32:52 -0400
+Received: from web36609.mail.mud.yahoo.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with SMTP id l5IFWpax007792
+	for <selinux@tycho.nsa.gov>; Mon, 18 Jun 2007 15:32:52 GMT
+Date: Mon, 18 Jun 2007 08:32:51 -0700 (PDT)
+From: Casey Schaufler <casey@schaufler-ca.com>
+Reply-To: casey@schaufler-ca.com
+Subject: Re: [RFC v2][PATCH] selinux:  enable authoritative granting of capabilities
+To: Stephen Smalley <sds@tycho.nsa.gov>, casey@schaufler-ca.com
 Cc: selinux@tycho.nsa.gov, James Morris <jmorris@namei.org>,
         Eric Paris <eparis@parisplace.org>,
         "Serge E. Hallyn" <serue@us.ibm.com>,
         "Christopher J. PeBenito" <cpebenito@tresys.com>,
         Chad Sellers <csellers@tresys.com>, Steve G <linux_4ever@yahoo.com>
-In-Reply-To: <686318.23489.qm@web36605.mail.mud.yahoo.com>
-References: <686318.23489.qm@web36605.mail.mud.yahoo.com>
-Content-Type: text/plain
-Date: Mon, 18 Jun 2007 09:03:26 -0400
-Message-Id: <1182171806.7236.29.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+In-Reply-To: <1182171806.7236.29.camel@moss-spartans.epoch.ncsc.mil>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Message-ID: <352455.10817.qm@web36609.mail.mud.yahoo.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2007-06-15 at 13:50 -0700, Casey Schaufler wrote:
-> --- Stephen Smalley <sds@tycho.nsa.gov> wrote:
+
+--- Stephen Smalley <sds@tycho.nsa.gov> wrote:
+
+
+> The mandatory security policy
+
+Let's get our words strait. I believe that what you're talking
+about here is the SELinux mechanism for enforcing the policy
+provided from user space.
+
+> doesn't depend on the mode bits / DAC, and
+> thus remains orthogonal to it.
+
+You could certainly incorporate the mode bits and/or ACLs
+into the userland tools that generate policy. Why, for the
+time being you could even us restoreconfigd to keep the labels
+in sync with changing mode bits. I'm not saying that I want
+you to do this. In truth, I don't much care, but I can certainly
+see someone making a case for doing it, and once that gets
+through it's only a matter of time before it starts looking
+as if putting it in the kernel wouldn't be a bad idea.
+
+> The mandatory security policy does
+> depend on controlling the use of capabilities (e.g. a process with
+> CAP_SYS_RAWIO can easily subvert the intent of the mandatory policy, and
+> a number of capability checks have no separate check/LSM hook so we need
+> the mandatory capability check for complete coverage), and already
+> controls their use (restrictively).  Extending SELinux to further grant
+> capabilities authoritatively isn't much of a stretch.  Doing the same
+> for mode bits would extend SELinux beyond what it needs for mandatory
+> protection and run into compatibility issues with the pervasive use of
+> mode bits by users and applications.  I don't think the analogy fits.
 > 
-> > On Fri, 2007-06-15 at 09:05 -0700, Casey Schaufler wrote:
-> > > Look, you're always badgering people to explain why their LSM
-> > > facilities can't be done using SELinux, or a tweek to SELinux.
-> > > When you take this to LKML expect to get exactly the same question
-> > > (as I posed here) about why SELinux "can't just use" the file
-> > > capabilities.
-> > 
-> > File capabilities don't allow us to assign domain Foo (corresponding to
-> > a program, a set of programs, a user role, whatever) a capability solely
-> > through SELinux policy; we have to separately and independently set a
-> > file capability bitmask on the file in addition to allowing the
-> > capability under the SELinux policy, and we are limited to the fixed
-> > capability evolution rules - we can't adjust them to fit specific needs
-> > as domains transition as we can in policy.  That's the difference; file
-> > capabilities remain an orthogonal mechanism outside of our policy that
-> > has to be separately managed, assigned to files, preserved across
-> > prelinks and updates, incorporated into analysis, etc.
-> > 
-> > > My concern is with the future of file capabilities, which I like.
-> > > I would like to see them move forward for my own nefarious purposes.
-> > > Those purposes do not require the sophistication of SELinux, so
-> > > I do not want to see the advance of file capabilities run up
-> > > against the "SELinux does that, ''just'' use SELinux" argument
-> > > every time someone wants to improve it. It gets tiresome and
-> > > consumes way to much of the limited time I have to work on projects.
-> > 
-> > This provides a mechanism for people who use SELinux already to manage
-> > their capabilities fully via SELinux based on roles and domains.  File
-> > capabilities provides a mechanism for people who don't use SELinux to
-> > manage their capabilities based on per-file EAs.  They can both be
-> > merged into mainline as far as I'm concerned.
-> > 
-> > > So please explain, so that even an MLS junkie like me can understand,
-> > > why you can't "just" use the file capability machanism as it's
-> > > designed.
-> > 
-> > It is about being able to fully manage capabilities in policy, just as
-> > we already fully manage MLS overrides in policy.
-> > 
-> > Look, with current SELinux, we have policy rules like:
-> > 	allow ping_t self:capability net_raw;
-> > 	allow ping_t ping_exec_t:file entrypoint;
-> > 	...
-> > and rpm and friends apply the file contexts mapping to assign
-> > ping_exec_t to /bin/ping for us when ping is installed/updated and
-> > prelink knows to preserve that context when prelink'ing the binary, etc.
-> > And although /bin/ping is suid root, it can only ever use the
-> > capabilities we've allowed it in policy.
-> > 
-> > With my patch, we can further take away the suid root'ness of /bin/ping
-> > and add a single allow ping_t self:cap_override net_raw; to policy and
-> > we're done - ping is now able to run with net_raw and policy is
-> > centralized.  In fact, we wouldn't even need that separate allow rule if
-> > we just made the existing SELinux capability allow rules always
-> > authoritative, but I'm taking the conservative and compatible route - no
-> > change to existing behavior.
-> > 
-> > With file capabilities, we have to add an entirely new extended
-> > attribute (security.capability) to /bin/ping, where that attribute
-> > directly encodes policy (the actual capability bits, not just a
-> > descriptive type tag), and now we have duplicated state between policy
-> > and filesystem.  From a management point of view, the situation is now
-> > worse than the setuid root binary - I have redundant capability bitmaps
-> > that I am managing in policy and on a per-file basis.  Meanwhile, rpm
-> > and friends, prelink, etc have no knowledge of this security.capability
-> > and will cheerfully blow it away until they are all updated.
-> > 
-> > File capabilities are helpful for non-selinux systems.  They don't help
-> > users of SELinux much at all, if any.
+> Let me ask you what your counter-proposal is.  The situation today is
+> that one must authorize a program for capabilities twice:
+> - in the filesystem state via setuid or file capabilities, and
+> - in SELinux policy.
 > 
-> Thank you.
-> 
-> Are you planning to do the same with mode bits? Your arguments
-> would apply equally well for them, too. It's the authoritative
-> hooks arguement.
+> Do you view that status quo as acceptable or desirable long term?
 
-The mandatory security policy doesn't depend on the mode bits / DAC, and
-thus remains orthogonal to it.  The mandatory security policy does
-depend on controlling the use of capabilities (e.g. a process with
-CAP_SYS_RAWIO can easily subvert the intent of the mandatory policy, and
-a number of capability checks have no separate check/LSM hook so we need
-the mandatory capability check for complete coverage), and already
-controls their use (restrictively).  Extending SELinux to further grant
-capabilities authoritatively isn't much of a stretch.  Doing the same
-for mode bits would extend SELinux beyond what it needs for mandatory
-protection and run into compatibility issues with the pervasive use of
-mode bits by users and applications.  I don't think the analogy fits.
+This is exactly how traditional Unix MLS systems with capabilities
+behave. To perform a chmod on a file you don't own on Irix you need
+CAP_FOWNER. To preform the same action on Trusted Irix you may also
+need CAP_MAC_READ, CAP_MAC_WRITE, or both. My counter proposal?
 
-Let me ask you what your counter-proposal is.  The situation today is
-that one must authorize a program for capabilities twice:
-- in the filesystem state via setuid or file capabilities, and
-- in SELinux policy.
+"Just" add the POSIX CAP_MAC_... capabilities to capability.h and
+have SELinux use them, using the existing capabilities mechanisms
+like everyone else. You've just made a pass through the SELinux
+code to switch to authoritative capability handling, so you should
+know all the places the you'd need to consider changing. Let me know
+if you need help figuring out how to cleanly apply capabilities to
+a mandatory access control facility. 
 
-Do you view that status quo as acceptable or desirable long term?
-  
--- 
-Stephen Smalley
-National Security Agency
+I wouldn't be too surprised if someone proposed those
+capabilities be introduced in the near future anyway.
 
+
+Casey Schaufler
+casey@schaufler-ca.com
 
 --
 This message was distributed to subscribers of the selinux mailing list.
