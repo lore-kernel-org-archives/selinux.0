@@ -1,53 +1,45 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l5JEQTNn008773
-	for <selinux@tycho.nsa.gov>; Tue, 19 Jun 2007 10:26:29 -0400
-Received: from exchange.columbia.tresys.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with SMTP id l5JEQRif009826
-	for <selinux@tycho.nsa.gov>; Tue, 19 Jun 2007 14:26:27 GMT
-Subject: Re: unable to connect PostgreSQL from user_t
-From: "Christopher J. PeBenito" <cpebenito@tresys.com>
-To: KaiGai Kohei <kaigai@kaigai.gr.jp>
-Cc: selinux@tycho.nsa.gov
-In-Reply-To: <46737613.3020205@kaigai.gr.jp>
-References: <46737613.3020205@kaigai.gr.jp>
-Content-Type: text/plain
-Date: Tue, 19 Jun 2007 14:24:50 +0000
-Message-Id: <1182263090.4077.113.camel@gorn>
-Mime-Version: 1.0
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l5JEtQE8011427
+	for <selinux@tycho.nsa.gov>; Tue, 19 Jun 2007 10:55:26 -0400
+Received: from mx1.redhat.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l5JEtPD6022041
+	for <selinux@tycho.nsa.gov>; Tue, 19 Jun 2007 14:55:25 GMT
+Received: from int-mx1.corp.redhat.com (int-mx1.corp.redhat.com [172.16.52.254])
+	by mx1.redhat.com (8.13.1/8.13.1) with ESMTP id l5JEtO3m030016
+	for <selinux@tycho.nsa.gov>; Tue, 19 Jun 2007 10:55:24 -0400
+Received: from mail.boston.redhat.com (mail.boston.redhat.com [172.16.76.12])
+	by int-mx1.corp.redhat.com (8.13.1/8.13.1) with ESMTP id l5JEtOXk018291
+	for <selinux@tycho.nsa.gov>; Tue, 19 Jun 2007 10:55:24 -0400
+Received: from [10.12.32.53] (redsox.boston.devel.redhat.com [10.12.32.53])
+	by mail.boston.redhat.com (8.13.1/8.13.1) with ESMTP id l5JEtN30003500
+	for <selinux@tycho.nsa.gov>; Tue, 19 Jun 2007 10:55:24 -0400
+Message-ID: <4677EE5B.9030405@redhat.com>
+Date: Tue, 19 Jun 2007 10:55:23 -0400
+From: Daniel J Walsh <dwalsh@redhat.com>
+MIME-Version: 1.0
+To: SE Linux <selinux@tycho.nsa.gov>
+Subject: Per Domain Permissive Mode
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Sat, 2007-06-16 at 14:33 +0900, KaiGai Kohei wrote:
-> I found the following definition at 'policy/modules/services/postgresql.te'
-> 
-> --------------------------------
-> ifdef(`TODO',`
-> ifdef(`targeted_policy', `', `
-> bool allow_user_postgresql_connect false;
-> 
-> if (allow_user_postgresql_connect) {
-> # allow any user domain to connect to the database server
-> allow userdomain postgresql_t:unix_stream_socket connectto;
-> allow userdomain postgresql_var_run_t:sock_file write;
-> allow userdomain postgresql_tmp_t:sock_file write;
-> }
-> ')
-> --------------------------------
-> Is there any reason why this block is disabled now, although
-> 'mysql_stream_connect($_t)' is enabled at 'system/userdomain.if' ?
+Steven mentioned in another conversion the idea of a Per Domain 
+Permissive Mode.  This is something our customers are looking for. 
 
-No, just a block that missed getting converted from the example policy.
+A few customers want to write policy to confine an application but they 
+are afraid of releasing it in enforcingmode to hundreds/thousands of 
+machines, and then finding out they missed a crucial code path.  The 
+would like to be able to write the policy distribute it and gather AVC 
+messages in for a couple of months, until they fail confident that the 
+policy will work.  Currently they would have to turn all the machines to 
+permissive mode or take there chances.  
 
-> The attached patch enables the definition and moves them into
-> userdomain.(if|te) as mysql did.
+Having a simple domain that would run in permissive mode while the rest 
+of the machine ran enforcing would satisfy this need.
 
-Merged, though I moved the userdomain.if change down a few lines.
+Thoughts...
 
--- 
-Chris PeBenito
-Tresys Technology, LLC
-(410) 290-1411 x150
-
+Dan
 
 --
 This message was distributed to subscribers of the selinux mailing list.
