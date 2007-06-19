@@ -1,73 +1,69 @@
 Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l5JGBfMA018343
-	for <selinux@tycho.nsa.gov>; Tue, 19 Jun 2007 12:11:41 -0400
-Received: from mx1.redhat.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l5JGBeZO006938
-	for <selinux@tycho.nsa.gov>; Tue, 19 Jun 2007 16:11:40 GMT
-Message-ID: <46780038.9040208@redhat.com>
-Date: Tue, 19 Jun 2007 12:11:36 -0400
-From: Daniel J Walsh <dwalsh@redhat.com>
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l5JGYUqc023297
+	for <selinux@tycho.nsa.gov>; Tue, 19 Jun 2007 12:34:30 -0400
+Received: from dmzmta103.na.baesystems.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l5JGYTZO010908
+	for <selinux@tycho.nsa.gov>; Tue, 19 Jun 2007 16:34:30 GMT
+Received: from BLUMS0033.bluelnk.net (blums0033.bluelnk.net [10.40.96.54])
+	by dmzmta103.na.baesystems.com (Switch-3.2.5/Switch-3.2.5) with ESMTP id l5JGY8bC006052
+	for <selinux@tycho.nsa.gov>; Tue, 19 Jun 2007 12:34:08 -0400
+Received: from blums0008.bluelnk.net (blums0008.sd.gd.com [134.120.81.40])
+	by usdmta002.na.baesystems.com (Switch-3.2.0/Switch-3.2.0) with ESMTP id l5JGYIMv031565
+	for <selinux@tycho.nsa.gov>; Tue, 19 Jun 2007 12:34:21 -0400
 MIME-Version: 1.0
-To: Karl MacMillan <kmacmillan@mentalrootkit.com>
-CC: James Morris <jmorris@namei.org>, SE Linux <selinux@tycho.nsa.gov>
-Subject: Re: Per Domain Permissive Mode
-References: <4677EE5B.9030405@redhat.com>	 <Line.LNX.4.64.0706191116580.15755@localhost.localdomain>	 <Line.LNX.4.64.0706191118420.15755@localhost.localdomain> <1182267849.21615.103.camel@localhost.localdomain>
-In-Reply-To: <1182267849.21615.103.camel@localhost.localdomain>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain;
+	charset="us-ascii"
+Subject: problem setting the security context of directories vs files
+Date: Tue, 19 Jun 2007 09:34:24 -0700
+Message-ID: <FB39F4E77226B448BC1388D3BE4E00CD01DBF7FE@blums0008.bluelnk.net>
+From: "Clarkson, Mike R \(US SSA\)" <mike.clarkson@baesystems.com>
+To: <selinux@tycho.nsa.gov>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Karl MacMillan wrote:
-> On Tue, 2007-06-19 at 11:19 -0400, James Morris wrote:
->   
->> On Tue, 19 Jun 2007, James Morris wrote:
->>
->>     
->>> On Tue, 19 Jun 2007, Daniel J Walsh wrote:
->>>
->>>       
->>>> Thoughts...
->>>>         
->>> We can do this in policy: define a domain which runs with all accessess 
->>> allowed, and also optionally logged for profiling purposes.
->>>       
->> Actually, this is not entirely useful for development -- perhaps some kind 
->> of abstraction can be used to hide all of the allow rules, so it just 
->> appears to the policy developer that the domain is in permissive mode.
->>
->>     
->
-> The complicated bit is actually the auditallow rules to get similar
-> auditing to permissive. We only want to add auditallow rules for the
-> extra access allowed to make the domain unconfined not for all access
-> allowed by the domain. That basically means parsing the module, figuring
-> out what was allowed, and adding auditallow for the difference between
-> that access and unconfined.
->
-> Sepolgen is almost at a point it can do this. Slide, as far as I know,
-> doesn't parse the access in sufficient detail to do this yet.
->
-> One downside to this approach is teaching policy generation tools to
-> generate access for granted messages in the log. It also makes explicit
-> auditallow somewhat useless.
->
-> Karl
->
->   
-One interesting twist would be if dontaudit rules were enforced.  For 
-example when an app uses pam, it attempts to read/write /etc/shadow.
-Most apps have this dontaudited so a different code path gets walked 
-within pam.  If we just run the app totally in permissive mode, the app
-will not hit this code path, until it gets out in the wild in enforcing 
-mode.
+I'm having trouble setting the security context of directories using
+file contexts. It seems to be working fine for files, but not
+directories.
+
+I have a module named import. Here is a copy of my import.fc file:
+
+/m2ds/import	--	gen_context(system_u:object_r:import_dir_t,s0)
+/m2ds/import/datasources	--
+gen_context(system_u:object_r:import_dir_t,s0)
+/m2ds/import/stage	--
+gen_context(system_u:object_r:import_stage_t,s0)
+/m2ds/import/junk	--
+gen_context(system_u:object_r:import_dir_t,s0)
+/home/m2/SimulatedImport/bin/SimulatedImport	--
+gen_context(system_u:object_r:import_exec_t,s0)
+/home/m2/SimulatedImport/bin/SimulatedImport_Server	--
+gen_context(system_u:object_r:import_exec_t,s0)
 
 
-So the algorithm should be something like the following
 
-newallowrules = unconfined_domain - ( allowrules + dontauditrules )
+"/m2ds/import" is a directory.
+"/m2ds/import/datasources" is a directory.
+"/m2ds/import/junk" is a file.
 
-permissiveconfineddomain = newallowrules + allowrules + dontauditrules + 
-{ auditallow newallowrules }
+In the /m2ds directory, I do the following sequence of commands: 
+
+> restorecon -R import
+> ls -dZ import
+drwxr-xr-x  root root system_u:object_r:default_t:SystemLow import
+> cd import
+> ls -Z
+drwxr-xr-x  root root system_u:object_r:default_t:SystemLow datasources
+-rw-r--r--  root root system_u:object_r:import_dir_t:SystemLow junk
+drwxr-x---  root root system_u:object_r:default_t:SystemLow stage
+
+As can be seen from the output above, the "/m2ds/import/junk" file has a
+type of import_dir_t as specified in the file context file. But the
+"/m2ds/import", "/m2ds/import/datasources", and "/m2ds/import/stage"
+directories all have the default_t type, instead of the types specified
+in the file context file.
+
+Am I doing something wrong?
+
 
 
 --
