@@ -1,56 +1,42 @@
 Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l5JFARPL013133
-	for <selinux@tycho.nsa.gov>; Tue, 19 Jun 2007 11:10:27 -0400
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l5JFDaKI013343
+	for <selinux@tycho.nsa.gov>; Tue, 19 Jun 2007 11:13:37 -0400
 Received: from exchange.columbia.tresys.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with SMTP id l5JFAPif020850
-	for <selinux@tycho.nsa.gov>; Tue, 19 Jun 2007 15:10:25 GMT
-Message-ID: <4677F1BC.2000201@tresys.com>
-Date: Tue, 19 Jun 2007 11:09:48 -0400
-From: Joshua Brindle <jbrindle@tresys.com>
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with SMTP id l5JFDaif021535
+	for <selinux@tycho.nsa.gov>; Tue, 19 Jun 2007 15:13:36 GMT
+Message-ID: <4677F29A.7080604@manicmethod.com>
+Date: Tue, 19 Jun 2007 11:13:30 -0400
+From: Joshua Brindle <method@manicmethod.com>
 MIME-Version: 1.0
-To: Karl MacMillan <kmacmillan@mentalrootkit.com>
-CC: Mark Goldman <mgoldman@tresys.com>, SE Linux <selinux@tycho.nsa.gov>,
-        Daniel J Walsh <dwalsh@redhat.com>
-Subject: Re: [patch 1/3] libsemanage: genhomedircon replacement
-References: <20070521095414.832619201@tresys.com>	 <20070521095518.515998898@tresys.com>	 <1179868119.9092.38.camel@localhost.localdomain>	 <1180015458.3930.173.camel@tresys-winxppro>	 <1180017921.2940.24.camel@localhost.localdomain>	 <1180034401.3930.203.camel@tresys-winxppro>	 <1180108369.6331.18.camel@localhost.localdomain>	 <6FE441CD9F0C0C479F2D88F959B01588BEFF95@exchange.columbia.tresys.com> <1180137749.10334.18.camel@localhost.localdomain>
-In-Reply-To: <1180137749.10334.18.camel@localhost.localdomain>
+To: Daniel J Walsh <dwalsh@redhat.com>
+CC: SE Linux <selinux@tycho.nsa.gov>, slide@tresys.com
+Subject: Re: Per Domain Permissive Mode
+References: <4677EE5B.9030405@redhat.com>
+In-Reply-To: <4677EE5B.9030405@redhat.com>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Karl MacMillan wrote:
-> On Fri, 2007-05-25 at 13:06 -0400, Joshua Brindle wrote:
->> Karl MacMillan wrote:
->>>> If you would like to move the list types out of policyrep and into
->>>> trunk, I'll be happy to use it.  Otherwise it is out of the scope of
->>>> this patch. 
->>>>
->>> Please rebase against the policyrep branch - we can then
->>> consider merging the list types and this patch to trunk if
->>> desired. I will NACK this patch if it contains the additional list
->>> types. 
->> There aren't additional list types because there aren't any in trunk.
->> This has nothing to do with policyrep and doesn't break ABI
->> compatibility and should be in trunk. I hate this idea of pushing
->> everything into policyrep because its going to make it that much harder
->> to get good testing done and the source of bugs will be harder to track
->> down.
->>
-> 
-> Ok.
-> 
->> If you are so insistent on using the list types in policyrep why not
->> port them to trunk so we can use them?
-> 
-> That option is fine with me (and was one of my suggestions), though I
-> don't have time to do the port right now. Can you or Mark send a patch
-> pulling over the iterators and list?
+Daniel J Walsh wrote:
+> Steven mentioned in another conversion the idea of a Per Domain 
+> Permissive Mode.  This is something our customers are looking for.
+> A few customers want to write policy to confine an application but 
+> they are afraid of releasing it in enforcingmode to hundreds/thousands 
+> of machines, and then finding out they missed a crucial code path.  
+> The would like to be able to write the policy distribute it and gather 
+> AVC messages in for a couple of months, until they fail confident that 
+> the policy will work.  Currently they would have to turn all the 
+> machines to permissive mode or take there chances. 
+> Having a simple domain that would run in permissive mode while the 
+> rest of the machine ran enforcing would satisfy this need.
+>
+> Thoughts...
 
-I'm going to bring this back up because I think this patch is important 
-to get into upstream as a first step toward generic label generation.
-
-Since we aren't using the policyrep branch anymore and libpolicyrep is 
-going to be in c++ do you still have reservations against this patch?
+I don't think this should be done at the mechanism level. One can create 
+a policy that allows everything and also audits it, and turns that into 
+policy. This sounds like something SLIDE would be pretty good at (it 
+already has a remote agent that monitors logs and pushes policy to 
+remote machines).
 
 
 --
