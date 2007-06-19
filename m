@@ -1,95 +1,45 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l5J7xNSl018851
-	for <selinux@tycho.nsa.gov>; Tue, 19 Jun 2007 03:59:23 -0400
-Received: from wa-out-1112.google.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l5J7xLxg018287
-	for <selinux@tycho.nsa.gov>; Tue, 19 Jun 2007 07:59:21 GMT
-Received: by wa-out-1112.google.com with SMTP id j5so2366546wah
-        for <selinux@tycho.nsa.gov>; Tue, 19 Jun 2007 00:59:20 -0700 (PDT)
-Message-ID: <46778C6B.50307@gmail.com>
-Date: Tue, 19 Jun 2007 15:57:31 +0800
-From: Ken YANG <spng.yang@gmail.com>
-MIME-Version: 1.0
-To: "Christopher J. PeBenito" <cpebenito@tresys.com>
-CC: Stephen Smalley <sds@tycho.nsa.gov>, SELinux List <selinux@tycho.nsa.gov>,
-        Daniel J Walsh <dwalsh@redhat.com>
-Subject: Re: three problems about normal user login in strict policy
-References: <4667F878.9030805@gmail.com>	 <1181223271.11979.4.camel@moss-spartans.epoch.ncsc.mil>	 <1181224077.6578.92.camel@sgc.columbia.tresys.com>	 <1181224459.11979.7.camel@moss-spartans.epoch.ncsc.mil> <1181242131.6578.96.camel@sgc.columbia.tresys.com>
-In-Reply-To: <1181242131.6578.96.camel@sgc.columbia.tresys.com>
-Content-Type: text/plain; charset=gb18030
+Subject: Re: [RFC][PATCH] libselinux: refactored SWIG bindings
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: James Athey <jathey@tresys.com>
+Cc: selinux@tycho.nsa.gov, Daniel J Walsh <dwalsh@redhat.com>,
+        Ted X Toth <txtoth@gmail.com>,
+        Karl MacMillan <kmacmillan@mentalrootkit.com>,
+        Joshua Brindle <method@manicmethod.com>
+In-Reply-To: <1181744873.18728.10.camel@exodus.columbia.tresys.com>
+References: <1181744873.18728.10.camel@exodus.columbia.tresys.com>
+Content-Type: text/plain
+Date: Tue, 19 Jun 2007 07:40:54 -0400
+Message-Id: <1182253254.15064.4.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Christopher J. PeBenito wrote:
-> On Thu, 2007-06-07 at 09:54 -0400, Stephen Smalley wrote:
->> On Thu, 2007-06-07 at 13:47 +0000, Christopher J. PeBenito wrote:
->>> On Thu, 2007-06-07 at 09:34 -0400, Stephen Smalley wrote:
->>>> On Thu, 2007-06-07 at 20:22 +0800, Ken YANG wrote:
->>>>> i studied the point from walsh about non-root X login,
->>>>> see details in following thread:
->>>>>
->>>>> http://marc.info/?l=selinux&m=118050940823692&w=2
->>>>>
->>>>> when i login with normal user(user_u), i have some questions:
->>>>> (i'm in fc7 with strict-mcs policy at svn version 2301)
->>>>>
->>>>> 1
->>>>> when i login as user_u, i find i can not switch to staff_u through su,
->>>>> but i notice that there is corresponding line in "default_contexts" file:
->>>> The su / pam_selinux integration was reverted a while ago, so su no
->>>> longer changes contexts at all, just like in the original SELinux.  
->>>> Thus, the SELinux user identity is once again stable for the entire
->>>> session, and you have to use newrole to switch roles.  And user_r isn't
->>>> generally allowed to switch to staff_r; you need to map your Linux user
->>>> identity to staff_u via semanage.
-
-sorry for reply so late, i just covered walsh's blog, and
-reviewed some points about selinux user, but i still had 2
-questions:
-
-now that su/pam_selinux will not change selinux user id,
-and user_r cannt switch to staff_r, what is the function
-of "user_r:user_su_t:s0 staff_r:staff_t:s0..." line in
-"default_context", and where is it used?
-
-another question is:
-
-i declared a user in policy:
-
-gen_user(ken, user, user_r, s0, s0)
-
-"ken" is my linux login user, i think if login program find the
-same SELinux user and linux user identity, it will use the "ken"
-in the context for the initial shell process, but after i login
-through tty2, and execute "id -Z", i found my user in context
-was still user_u, i.e. user_u:user_r:user_t:s0.
-
-is there something i missing?
-
->>>>
->>>>> user_r:user_su_t:s0     staff_r:staff_t:s0 user_r:user_t:s0
->>>>> sysadm_r:sysadm_t:s0
->>>>>
->>>>> and in the policy, i found the condition of su domain transition have
->>>>> satisfied, including su_exec_t entrypoint and type_transition rules,
->>>>> furthermore, i also meet the constrain conditon in
->>>>> su_per_role_template(), e.g. domain_role_change_exemption($1_su_t),
->>>>> domain_subj_id_change_exemption($1_su_t),
->>>>> domain_obj_id_change_exemption($1_su_t), and etc.
->>>> Hmm...seems like those should be removed from policy (unless some distro
->>>> tunable is set for older fedora or rhel4), as su should no longer be
->>>> making such transitions.
->>> Its in a rhel4 build option.
->> Hmmm...so why is it still showing up in F7 strict policy?
+On Wed, 2007-06-13 at 10:27 -0400, James Athey wrote:
+> I've attached refactored SWIG bindings for libselinux.  As
+> requested, I've moved the Python specific wrappers into their own file.
+> Here are some of the highlights:
 > 
-> He's just looking at the su.if header (hence the $1_su_t references),
-> which is just copied out of the refpolicy sources as is.  So its in the
-> headers, but shouldn't be in the actual policy.
-
-sorry for omitting this point, i deliberately include these calls for
-testing, which will not be in the actual policy.
-
+> * Should leak a lot less memory, because the wrapper handles memory
+> management for lists and strings automatically
+> * security_get_boolean_names is now usable
+> * Instead of whitelisting functions to be wrapped, it blacklists
+> functions that should not be wrapped
 > 
+> It's still not an ideal wrapper, partly because many functions still
+> return two values - a return code, and the actual returned data.  In
+> every language except C, the desired semantics would be just returning
+> the data and throwing an exception if the return code != 0.  I didn't
+> add this feature because it would definitely break existing code.
+
+Ted reports that this patch solves his problems with the libselinux
+python bindings.  However, I noticed that it breaks
+system-config-selinux due to excluding selinux_raw_to_trans_context and
+friends.  Dan, can you check over the patch and see if there are any
+other omissions from these python bindings that you need?
+
+-- 
+Stephen Smalley
+National Security Agency
 
 
 --
