@@ -1,79 +1,115 @@
-Date: Wed, 20 Jun 2007 15:13:33 -0500
-From: "Serge E. Hallyn" <serue@us.ibm.com>
-To: Stephen Smalley <sds@tycho.nsa.gov>
-Cc: selinux@tycho.nsa.gov, James Morris <jmorris@namei.org>,
-        Eric Paris <eparis@parisplace.org>,
-        "Serge E. Hallyn" <serue@us.ibm.com>,
-        "Christopher J. PeBenito" <cpebenito@tresys.com>,
-        Chad Sellers <csellers@tresys.com>,
-        Karl MacMillan <kmacmillan@mentalrootkit.com>,
-        Darrel Goeddel <dgoeddel@TrustedCS.com>,
-        Chad Hanson <chanson@TrustedCS.com>
-Subject: Re: [RFC v2][PATCH] selinux:  enable authoritative granting of capabilities
-Message-ID: <20070620201333.GC32520@sergelap.austin.ibm.com>
-References: <1181917726.17547.750.camel@moss-spartans.epoch.ncsc.mil> <1182365766.15064.199.camel@moss-spartans.epoch.ncsc.mil>
+Message-ID: <467989CD.8010008@tycho.nsa.gov>
+Date: Wed, 20 Jun 2007 16:10:53 -0400
+From: Eamon Walsh <ewalsh@tycho.nsa.gov>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1182365766.15064.199.camel@moss-spartans.epoch.ncsc.mil>
+To: SE Linux <selinux@tycho.nsa.gov>
+CC: Stephen Smalley <sds@tycho.nsa.gov>, Joshua Brindle <jbrindle@tresys.com>,
+        Karl MacMillan <kmacmillan@mentalrootkit.com>
+Subject: [PATCH] libselinux: add x_contexts path lookup function
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Quoting Stephen Smalley (sds@tycho.nsa.gov):
-> An alternative approach to implementing this support for authoritative
-> granting of capabilities by SELinux would be to compute the full
-> cap_override access vector upon exec and cap_combine it with the base
-> capability sets, such that the task's capability bitmasks would reflect
-> the combined capabilities authorized by the base logic and by SELinux
-> policy.  Then the capable() hook itself would remain unchanged from the
-> current (unpatched) code, just checking the task's capability bitmask
-> and then checking the SELinux capability access vector as a further
-> restriction on use.
-> 
-> There are two places where that computation and combination could be
-> done: before the usual capability evolution logic is applied (by
-> cap_bprm_apply_creds) or after it.  If before, we'd be manipulating the
-> bprm capability bitmasks (similar to file capabilities) and then letting
-> the usual capability evolution occur; if after, we'd be manipulating the
-> task capability bitmasks after they have been updated by the capability
-> module.
-> 
-> Observations:
-> - This approach would make the granting of such capabilities visible in
-> the task's capability bitmasks as returned by capget
-> or /proc/self/status.
+This patch adds an selinux_x_context_path() function identical to
+selinux_media_context_path(), fixing a hardcoded path in the X label
+backend.
 
-That's kind of cool, but I guess it would also lead to policy
-reloads not fully affecting the capabilities granted to already
-running programs.  So if you remove CAP_NET_RAW from ping_t,
-some long-running ping (haha, insert your own better example here)
-would continue to run with CAP_NET_RAW, right?
+I'm bothered that some of these pathnames are exposed in the interface.
+I assume that this done so libsemanage knows where to look.  But
+having them in the interface could encourage users to depend on them
+instead of libsemanage.
 
-Was there ever any mention of just stopping the stacking with
-capability, and just letting selinux handle all it's own capability
-logic?  Oh, yes, (vaguely recalling) the argument was about turning
-selinux off?  But with the authoritative capabilities logic being
-added to selinux that would be a problem anyway, right?
+There are also a lot of these functions, maybe we should just expose 
+the internal function that takes a type code.
 
-> Those bitmasks would however still not reflect
-> the further restrictions imposed by the SELinux capability access vector
-> check.
-> - This approach would enable the existing capability-based tests to
-> provide some protection of the privileged process even apart from the
-> SELinux checks, although such protection will still be incomplete
-> without the SELinux checks (e.g. we'd gain separate ptrace checking
-> based on capabilities, but still depend on selinux control over
-> creating/relabeling-to the entrypoint type for the domain).  The extent
-> of additional checking depends on whether we do the manipulation before
-> or after the usual evolution logic as well; if before, we pick up the
-> usual checking on exec; if after, we don't.
-> - Doing the computation and combination first and then applying the
-> usual evolution logic has a cost in flexibility as it won't support
-> orthogonal changes in capabilities.
+Signed-off-by: Eamon Walsh <ewalsh@tycho.nsa.gov>
+---
 
-What do you mean by orthogonal changes in capabilities?  Do you mean
-selinux interpreting some caps differently from the capability module?
+ include/selinux/selinux.h |    1 +
+ src/file_path_suffixes.h  |    1 +
+ src/label_x.c             |    2 +-
+ src/selinux_config.c      |   10 +++++++++-
+ src/selinux_internal.h    |    1 +
+ 5 files changed, 13 insertions(+), 2 deletions(-)
 
--serge
+
+Index: libselinux/include/selinux/selinux.h
+===================================================================
+--- libselinux/include/selinux/selinux.h	(revision 2488)
++++ libselinux/include/selinux/selinux.h	(working copy)
+@@ -454,6 +454,7 @@
+ extern const char *selinux_file_context_local_path(void);
+ extern const char *selinux_homedir_context_path(void);
+ extern const char *selinux_media_context_path(void);
++extern const char *selinux_x_context_path(void);
+ extern const char *selinux_contexts_path(void);
+ extern const char *selinux_securetty_types_path(void);
+ extern const char *selinux_booleans_path(void);
+Index: libselinux/src/file_path_suffixes.h
+===================================================================
+--- libselinux/src/file_path_suffixes.h	(revision 2488)
++++ libselinux/src/file_path_suffixes.h	(working copy)
+@@ -18,3 +18,4 @@
+     S_(NETFILTER_CONTEXTS, "/contexts/netfilter_contexts")
+     S_(FILE_CONTEXTS_HOMEDIR, "/contexts/files/file_contexts.homedir")
+     S_(FILE_CONTEXTS_LOCAL, "/contexts/files/file_contexts.local")
++    S_(X_CONTEXTS, "/contexts/x_contexts")
+Index: libselinux/src/selinux_internal.h
+===================================================================
+--- libselinux/src/selinux_internal.h	(revision 2488)
++++ libselinux/src/selinux_internal.h	(working copy)
+@@ -65,6 +65,7 @@
+     hidden_proto(selinux_booleans_path)
+     hidden_proto(selinux_customizable_types_path)
+     hidden_proto(selinux_media_context_path)
++    hidden_proto(selinux_x_context_path)
+     hidden_proto(selinux_path)
+     hidden_proto(selinux_check_passwd_access)
+     hidden_proto(selinux_check_securetty_context)
+Index: libselinux/src/label_x.c
+===================================================================
+--- libselinux/src/label_x.c	(revision 2488)
++++ libselinux/src/label_x.c	(working copy)
+@@ -107,7 +107,7 @@
+ 
+ 	/* Open the specification file. */
+ 	if (!path)
+-		path = "/etc/selinux/refpolicy/contexts/x_contexts";
++		path = selinux_x_context_path();
+ 	if ((fp = fopen(path, "r")) == NULL)
+ 		return -1;
+ 	__fsetlocking(fp, FSETLOCKING_BYCALLER);
+Index: libselinux/src/selinux_config.c
+===================================================================
+--- libselinux/src/selinux_config.c	(revision 2488)
++++ libselinux/src/selinux_config.c	(working copy)
+@@ -38,7 +38,8 @@
+ #define FILE_CONTEXTS_HOMEDIR 16
+ #define FILE_CONTEXTS_LOCAL 17
+ #define SECURETTY_TYPES   18
+-#define NEL               19
++#define X_CONTEXTS        19
++#define NEL               20
+ 
+ /* New layout is relative to SELINUXDIR/policytype. */
+ static char *file_paths[NEL];
+@@ -369,3 +370,10 @@
+ }
+ 
+ hidden_def(selinux_file_context_local_path)
++
++const char *selinux_x_context_path()
++{
++	return get_path(X_CONTEXTS);
++}
++
++hidden_def(selinux_x_context_path)
+
+
+-- 
+Eamon Walsh <ewalsh@tycho.nsa.gov>
+National Security Agency
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
