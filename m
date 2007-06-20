@@ -1,71 +1,141 @@
-Message-ID: <4679AB3E.3090302@tresys.com>
-Date: Wed, 20 Jun 2007 18:33:34 -0400
-From: Joshua Brindle <jbrindle@tresys.com>
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l5KNYFAt026050
+	for <selinux@tycho.nsa.gov>; Wed, 20 Jun 2007 19:34:15 -0400
+Received: from mail7.sea5.speakeasy.net (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l5KNYD1M003203
+	for <selinux@tycho.nsa.gov>; Wed, 20 Jun 2007 23:34:14 GMT
+Date: Wed, 20 Jun 2007 19:34:10 -0400 (EDT)
+From: James Morris <jmorris@namei.org>
+To: "J. Bruce Fields" <bfields@fieldses.org>
+cc: selinux@tycho.nsa.gov, nfsv4@linux-nfs.org,
+        Karl MacMillan <kmacmill@redhat.com>,
+        "Matthew N. Dodd" <Matthew.Dodd@sparta.com>,
+        Chris Vance <Christopher.Vance@sparta.com>,
+        Eric Paris <eparis@redhat.com>, Stephen Smalley <sds@tycho.nsa.gov>
+Subject: Re: [RFC] Security Enhanced NFS (SENFS) Requirements - draft 05
+In-Reply-To: <20070620220201.GL3302@fieldses.org>
+Message-ID: <Line.LNX.4.64.0706201841160.25962@localhost.localdomain>
+References: <Line.LNX.4.64.0706201635280.25279@localhost.localdomain>
+ <20070620220201.GL3302@fieldses.org>
 MIME-Version: 1.0
-To: Stephen Smalley <sds@tycho.nsa.gov>
-CC: selinux@tycho.nsa.gov, James Morris <jmorris@namei.org>,
-        Eric Paris <eparis@parisplace.org>,
-        "Serge E. Hallyn" <serue@us.ibm.com>,
-        "Christopher J. PeBenito" <cpebenito@tresys.com>,
-        Chad Sellers <csellers@tresys.com>,
-        Karl MacMillan <kmacmillan@mentalrootkit.com>,
-        Darrel Goeddel <dgoeddel@TrustedCS.com>,
-        Chad Hanson <chanson@TrustedCS.com>
-Subject: Re: [RFC v2][PATCH] selinux:  enable authoritative granting of	capabilities
-References: <1181917726.17547.750.camel@moss-spartans.epoch.ncsc.mil> <1182365766.15064.199.camel@moss-spartans.epoch.ncsc.mil>
-In-Reply-To: <1182365766.15064.199.camel@moss-spartans.epoch.ncsc.mil>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Stephen Smalley wrote:
-> An alternative approach to implementing this support for authoritative
-> granting of capabilities by SELinux would be to compute the full
-> cap_override access vector upon exec and cap_combine it with the base
-> capability sets, such that the task's capability bitmasks would reflect
-> the combined capabilities authorized by the base logic and by SELinux
-> policy.  Then the capable() hook itself would remain unchanged from the
-> current (unpatched) code, just checking the task's capability bitmask
-> and then checking the SELinux capability access vector as a further
-> restriction on use.
-> 
-> There are two places where that computation and combination could be
-> done: before the usual capability evolution logic is applied (by
-> cap_bprm_apply_creds) or after it.  If before, we'd be manipulating the
-> bprm capability bitmasks (similar to file capabilities) and then letting
-> the usual capability evolution occur; if after, we'd be manipulating the
-> task capability bitmasks after they have been updated by the capability
-> module.
-> 
-> Observations:
-> - This approach would make the granting of such capabilities visible in
-> the task's capability bitmasks as returned by capget
-> or /proc/self/status.  Those bitmasks would however still not reflect
-> the further restrictions imposed by the SELinux capability access vector
-> check.
-> - This approach would enable the existing capability-based tests to
-> provide some protection of the privileged process even apart from the
-> SELinux checks, although such protection will still be incomplete
-> without the SELinux checks (e.g. we'd gain separate ptrace checking
-> based on capabilities, but still depend on selinux control over
-> creating/relabeling-to the entrypoint type for the domain).  The extent
-> of additional checking depends on whether we do the manipulation before
-> or after the usual evolution logic as well; if before, we pick up the
-> usual checking on exec; if after, we don't.
-> - Doing the computation and combination first and then applying the
-> usual evolution logic has a cost in flexibility as it won't support
-> orthogonal changes in capabilities.
-> 
-> Thoughts?
-> 
+On Wed, 20 Jun 2007, J. Bruce Fields wrote:
 
-So this lets SELinux granted capabilities to migrate across execve(), 
-granted the Selinux policy still has to be consulted to grant 
-capabilities before use but this could result in incorrect policy being 
-enforced, right? Particularly across policy reloads or boolean changes; 
-this just doesn't seem as robust as the old method of deciding at time 
-of use rather than time of process creation.
+> On Wed, Jun 20, 2007 at 04:49:45PM -0400, James Morris wrote:
+> >     SENFS should support authentication on a per-domain granularity so that
+> >     different domains running on a client can use different cryptographic
+> >     keys and facilities.
+> 
+> Sorry, I'm not totally sure I understand what a "domain" is. I assume
+> every rpc call will need to be associated with a domain?  (Just one, or
+> is it every more than one?)  If you need a different credential for each
+> domain, what kind of access control do you need for those credentials?
 
+A domain in SELinux refers to a process running in a specific security 
+context (i.e. with a specific security label).  Processes running in the 
+same domain are considered equivalent by SELinux from a security point of 
+view.
+
+An example of the above is that a process labeled as "unclassified" might 
+not have access to the same keying material as a process labeled as 
+"secret", and the system needs to differentiate on that basis.
+
+Generally, the SELinux credentials need to be used as factors in 
+authentication when providing NFS access.
+
+Each RPC call would be associated with an individual process on the 
+client, although SELinux would only make use of the SELinux labels, which 
+are applied at domain granularity.
+
+Per-domain access control needs to cover all security-relevant aspects of 
+the interaction, and would be configured in SELinux security policy.
+
+> > 3.9.  Domains of Interpretation
+> > 
+> >     In SELinux, a Domain of Interpretation (DOI) represents an
+> >     administrative security boundary, where all systems within the DOI have
+> >     semantically coherent labeling.  That is, a security label must always
+> >     mean exactly the same thing anywhere within the DOI.  An SELinux DOI
+> >     may be further demarcated for any other administrative purpose.
+> 
+> Does the current SELinux have any notion of a DOI?
+
+DOI is an attribute negotiated and used by the IPsec labeled networking in 
+SELinux.
+
+> Would it be possible to ignore this problem in a first implementation,
+> and just assume the client and server are always in the same DOI?
+
+We want to build DOI support in from the start, rather than try and add it 
+later.  Identifying and checking DOIs is not difficult, although things 
+like translation can be (and this aspect will not be mandatory).
+
+> > 3.14.  Namespace Access
+> > 
+> >     The server should provide a means to authorize selective access to the
+> >     exported filesystem namespace based upon client credentials and
+> >     according to security policy.
+> 
+> Could you give an example?  Why is this necessary, and how does it go
+> beyond the ordinary access control used for files in the exported
+> filesystems?
+
+Good point -- in general, SELinux access control would simply handle this 
+correctly.
+
+There are cases, though, where multi-level security folk might want to 
+either hide part of the namespace completely, or even present a different 
+view, based on the client domain.  e.g. domains labeled as 'unclassified' 
+objects only see:
+
+server:/export
+       |-- rfcs
+       |-- usenet
+
+while domains labeled as 'secret' only see:
+
+server:/export
+       |-- memos
+
+
+In the MLS world, this kind of thing is a common requirement (where it's 
+sometimes referred to as multilevel directories, or more generally, 
+polyinstantiation).
+
+
+> > 3.15.  External Remote Filesystems
+> > 
+> >     Under NFSv4, filesystems located externally to the server may be
+> >     exported in the same namespace as locally exported filesystems.
+> 
+> You're thinking of referrals here, or something else?
+
+Yes.
+
+> >     SENFS will not support this initially in Full Mode, although for Guest
+> >     Mode, the server may convey locally generated security labels to the
+> >     client.
+> 
+> I don't understand.
+
+If my understanding of multi-server name spaces & referrals is correct, 
+then the NFS server may be exporting a filesystem from another machine as 
+if it was its own.
+
+In this case, we won't initially try and solve the potential SELinux 
+issues here (e.g. conveying SELinux state between multiple parties, and 
+across multiple security boundaries), and instead just allow the server to 
+assign labels to the filesystem itself.  This would likely be some default 
+label for the entire referred fs.
+
+
+- James
+-- 
+James Morris
+<jmorris@namei.org>
 
 --
 This message was distributed to subscribers of the selinux mailing list.
