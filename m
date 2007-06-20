@@ -1,40 +1,96 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l5KEvfoV026632
-	for <selinux@tycho.nsa.gov>; Wed, 20 Jun 2007 10:57:41 -0400
-Received: from exchange.columbia.tresys.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with SMTP id l5KEveAt000168
-	for <selinux@tycho.nsa.gov>; Wed, 20 Jun 2007 14:57:40 GMT
-Subject: Re: radius wants to be able to read samba files
-From: "Christopher J. PeBenito" <cpebenito@tresys.com>
-To: dwalsh@redhat.com
-Cc: selinux@tycho.nsa.gov
-In-Reply-To: <200705301427.l4UERhvI007829@localhost.localdomain>
-References: <200705301427.l4UERhvI007829@localhost.localdomain>
+Subject: Re: [PATCH] libsepol: sepol_check_context correct error handling
+	behavior
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Eamon Walsh <ewalsh@tycho.nsa.gov>
+Cc: SE Linux <selinux@tycho.nsa.gov>
+In-Reply-To: <4676CB4A.80203@tycho.nsa.gov>
+References: <4676CB4A.80203@tycho.nsa.gov>
 Content-Type: text/plain
-Date: Wed, 20 Jun 2007 14:56:02 +0000
-Message-Id: <1182351362.16539.31.camel@gorn>
+Date: Wed, 20 Jun 2007 11:16:32 -0400
+Message-Id: <1182352592.15064.111.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2007-05-30 at 10:27 -0400, dwalsh@redhat.com wrote:
-> --- nsaserefpolicy/policy/modules/services/radius.te	2007-05-29 14:10:57.000000000 -0400
-> +++ serefpolicy-3.0.1/policy/modules/services/radius.te	2007-05-30 09:08:15.000000000 -0400
-> @@ -124,3 +124,7 @@
->  optional_policy(`
->  	udev_read_db(radiusd_t)
->  ')
-> +
-> +optional_policy(`
-> +	samba_read_var_files(radiusd_t)
-> +')
+On Mon, 2007-06-18 at 14:13 -0400, Eamon Walsh wrote:
+> Returns EINVAL, EEXIST as appropriate.  Also fixed man page.
+> 
+> Signed-off-by: Eamon Walsh <ewalsh@tycho.nsa.gov>
+> ---
+> 
+>  man/man3/sepol_check_context.3 |    2 +-
+>  src/context.c                  |    1 +
+>  src/context_record.c           |    2 ++
+>  src/sidtab.c                   |    4 +++-
+>  4 files changed, 7 insertions(+), 2 deletions(-)
 
-Merged.
+Acked-by:  Stephen Smalley <sds@tycho.nsa.gov>
 
+Merge at will.
+
+> 
+> 
+> Index: libsepol/src/sidtab.c
+> ===================================================================
+> --- libsepol/src/sidtab.c	(revision 2474)
+> +++ libsepol/src/sidtab.c	(working copy)
+> @@ -56,8 +56,10 @@
+>  		cur = cur->next;
+>  	}
+>  
+> -	if (cur && sid == cur->sid)
+> +	if (cur && sid == cur->sid) {
+> +		errno = EEXIST;
+>  		return -EEXIST;
+> +	}
+>  
+>  	newnode = (sidtab_node_t *) malloc(sizeof(sidtab_node_t));
+>  	if (newnode == NULL)
+> Index: libsepol/src/context_record.c
+> ===================================================================
+> --- libsepol/src/context_record.c	(revision 2474)
+> +++ libsepol/src/context_record.c	(working copy)
+> @@ -1,3 +1,4 @@
+> +#include <errno.h>
+>  #include <stdlib.h>
+>  #include <string.h>
+>  #include <stdio.h>
+> @@ -260,6 +261,7 @@
+>  	return STATUS_SUCCESS;
+>  
+>        mcontext:
+> +	errno = EINVAL;
+>  	ERR(handle, "malformed context \"%s\"", str);
+>  
+>        err:
+> Index: libsepol/src/context.c
+> ===================================================================
+> --- libsepol/src/context.c	(revision 2474)
+> +++ libsepol/src/context.c	(working copy)
+> @@ -224,6 +224,7 @@
+>  	return STATUS_SUCCESS;
+>  
+>        err_destroy:
+> +	errno = EINVAL;
+>  	context_destroy(scontext);
+>  
+>        err:
+> Index: libsepol/man/man3/sepol_check_context.3
+> ===================================================================
+> --- libsepol/man/man3/sepol_check_context.3	(revision 2474)
+> +++ libsepol/man/man3/sepol_check_context.3	(working copy)
+> @@ -22,4 +22,4 @@
+>  from libselinux instead.
+>  
+>  .SH "RETURN VALUE"
+> -Returns 0 on success or -EINVAL otherwise.
+> +Returns 0 on success or -1 with errno set otherwise.
+> 
+> 
+> 
 -- 
-Chris PeBenito
-Tresys Technology, LLC
-(410) 290-1411 x150
+Stephen Smalley
+National Security Agency
 
 
 --
