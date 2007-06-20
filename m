@@ -1,93 +1,45 @@
-Subject: Re: [PATCH] libsepol: sepol_check_context correct error handling
-	behavior
+Subject: Re: [PATCH 6/7] libselinux: labeling support (try 4)
 From: Stephen Smalley <sds@tycho.nsa.gov>
 To: Eamon Walsh <ewalsh@tycho.nsa.gov>
-Cc: SE Linux <selinux@tycho.nsa.gov>
-In-Reply-To: <4676CB4A.80203@tycho.nsa.gov>
-References: <4676CB4A.80203@tycho.nsa.gov>
+Cc: SE Linux <selinux@tycho.nsa.gov>,
+        Karl MacMillan <kmacmillan@mentalrootkit.com>
+In-Reply-To: <1182350581.15064.98.camel@moss-spartans.epoch.ncsc.mil>
+References: <467320D6.5040703@tycho.nsa.gov>  <4673243E.30304@tycho.nsa.gov>
+	 <1182350581.15064.98.camel@moss-spartans.epoch.ncsc.mil>
 Content-Type: text/plain
-Date: Wed, 20 Jun 2007 11:16:32 -0400
-Message-Id: <1182352592.15064.111.camel@moss-spartans.epoch.ncsc.mil>
+Date: Wed, 20 Jun 2007 11:13:56 -0400
+Message-Id: <1182352436.15064.107.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 2007-06-18 at 14:13 -0400, Eamon Walsh wrote:
-> Returns EINVAL, EEXIST as appropriate.  Also fixed man page.
+On Wed, 2007-06-20 at 10:43 -0400, Stephen Smalley wrote:
+> On Fri, 2007-06-15 at 19:43 -0400, Eamon Walsh wrote:
+> > This patch rebases the matchpathcon code to use the new interface.
 > 
-> Signed-off-by: Eamon Walsh <ewalsh@tycho.nsa.gov>
-> ---
-> 
->  man/man3/sepol_check_context.3 |    2 +-
->  src/context.c                  |    1 +
->  src/context_record.c           |    2 ++
->  src/sidtab.c                   |    4 +++-
->  4 files changed, 7 insertions(+), 2 deletions(-)
+> matchpathcon() is supposed to internally call matchpathcon_init if it
+> hasn't already been called, and this behavior is relied upon by some
+> programs including restorecon.  So I'll have to at least modify your
+> matchpathcon() to call matchpathcon_init if !hnd.  You'll see similar
+> logic in the original matchpathcon_common() function before your patch.
 
-Acked-by:  Stephen Smalley <sds@tycho.nsa.gov>
+Like so, on top of your patch:
 
-Merge at will.
+diff -u libselinux/src/matchpathcon.c libselinux/src/matchpathcon.c
+--- libselinux/src/matchpathcon.c	(working copy)
++++ libselinux/src/matchpathcon.c	(working copy)
+@@ -312,8 +312,8 @@
+ 
+ int matchpathcon(const char *name, mode_t mode, security_context_t * con)
+ {
+-	if (!mycanoncon)
+-		mycanoncon = default_canoncon;
++	if (!hnd && (matchpathcon_init_prefix(NULL, NULL) < 0))
++			return -1;
+ 
+ 	return notrans ?
+ 		selabel_lookup_raw(hnd, con, name, mode) :
 
-> 
-> 
-> Index: libsepol/src/sidtab.c
-> ===================================================================
-> --- libsepol/src/sidtab.c	(revision 2474)
-> +++ libsepol/src/sidtab.c	(working copy)
-> @@ -56,8 +56,10 @@
->  		cur = cur->next;
->  	}
->  
-> -	if (cur && sid == cur->sid)
-> +	if (cur && sid == cur->sid) {
-> +		errno = EEXIST;
->  		return -EEXIST;
-> +	}
->  
->  	newnode = (sidtab_node_t *) malloc(sizeof(sidtab_node_t));
->  	if (newnode == NULL)
-> Index: libsepol/src/context_record.c
-> ===================================================================
-> --- libsepol/src/context_record.c	(revision 2474)
-> +++ libsepol/src/context_record.c	(working copy)
-> @@ -1,3 +1,4 @@
-> +#include <errno.h>
->  #include <stdlib.h>
->  #include <string.h>
->  #include <stdio.h>
-> @@ -260,6 +261,7 @@
->  	return STATUS_SUCCESS;
->  
->        mcontext:
-> +	errno = EINVAL;
->  	ERR(handle, "malformed context \"%s\"", str);
->  
->        err:
-> Index: libsepol/src/context.c
-> ===================================================================
-> --- libsepol/src/context.c	(revision 2474)
-> +++ libsepol/src/context.c	(working copy)
-> @@ -224,6 +224,7 @@
->  	return STATUS_SUCCESS;
->  
->        err_destroy:
-> +	errno = EINVAL;
->  	context_destroy(scontext);
->  
->        err:
-> Index: libsepol/man/man3/sepol_check_context.3
-> ===================================================================
-> --- libsepol/man/man3/sepol_check_context.3	(revision 2474)
-> +++ libsepol/man/man3/sepol_check_context.3	(working copy)
-> @@ -22,4 +22,4 @@
->  from libselinux instead.
->  
->  .SH "RETURN VALUE"
-> -Returns 0 on success or -EINVAL otherwise.
-> +Returns 0 on success or -1 with errno set otherwise.
-> 
-> 
-> 
 -- 
 Stephen Smalley
 National Security Agency
