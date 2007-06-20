@@ -1,496 +1,398 @@
-Message-ID: <46797B9C.5060800@tycho.nsa.gov>
-Date: Wed, 20 Jun 2007 15:10:20 -0400
-From: Eamon Walsh <ewalsh@tycho.nsa.gov>
-MIME-Version: 1.0
-To: SE Linux <selinux@tycho.nsa.gov>
-CC: Stephen Smalley <sds@tycho.nsa.gov>
-Subject: [PATCH] libselinux: minor man page fixes
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l5KJfSxl014531
+	for <selinux@tycho.nsa.gov>; Wed, 20 Jun 2007 15:41:28 -0400
+Received: from exchange.columbia.tresys.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with SMTP id l5KJfNe5005096
+	for <selinux@tycho.nsa.gov>; Wed, 20 Jun 2007 19:41:27 GMT
+Subject: Re: kernel_files changes
+From: "Christopher J. PeBenito" <cpebenito@tresys.com>
+To: dwalsh@redhat.com
+Cc: selinux@tycho.nsa.gov
+In-Reply-To: <200705301520.l4UFKOD6010463@localhost.localdomain>
+References: <200705301520.l4UFKOD6010463@localhost.localdomain>
+Content-Type: text/plain
+Date: Wed, 20 Jun 2007 15:39:36 -0400
+Message-Id: <1182368376.16539.38.camel@gorn.columbia.tresys.com>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Converts occurrences of 'SE Linux' to SELinux, corrects my
-e-mail address.
+On Wed, 2007-05-30 at 11:20 -0400, dwalsh@redhat.com wrote:
+> asound.state used by actl
+> Addtional etc_runtime
+> Separate files_mounton_dirs from mounton_files (automount, mount)
+> Change search to search_dir_perms 
+> Additional missing interfaces manage_usr_files (Needed by prelink)
+> Lots of additional file systems
 
-The patch has very long lines.
+Merged with some reordering.
 
-Signed-off-by: Eamon Walsh <ewalsh@tycho.nsa.gov>
----
-
- man3/avc_add_callback.3                |    6 +++---
- man3/avc_cache_stats.3                 |    6 +++---
- man3/avc_compute_create.3              |    2 +-
- man3/avc_context_to_sid.3              |    6 +++---
- man3/avc_has_perm.3                    |    6 +++---
- man3/avc_init.3                        |    6 +++---
- man3/freecon.3                         |    2 +-
- man3/get_ordered_context_list.3        |    2 +-
- man3/getcon.3                          |    2 +-
- man3/getexeccon.3                      |    2 +-
- man3/getfilecon.3                      |    2 +-
- man3/getfscreatecon.3                  |    2 +-
- man3/getseuserbyname.3                 |    2 +-
- man3/is_selinux_enabled.3              |    4 ++--
- man3/matchmediacon.3                   |    2 +-
- man3/matchpathcon.3                    |    2 +-
- man3/security_check_context.3          |    4 ++--
- man3/security_class_to_string.3        |    2 +-
- man3/security_compute_av.3             |    2 +-
- man3/security_getenforce.3             |    6 +++---
- man3/security_load_policy.3            |    2 +-
- man3/security_policyvers.3             |    2 +-
- man3/selinux_check_securetty_context.3 |    2 +-
- man3/selinux_getenforcemode.3          |    2 +-
- man3/selinux_policy_root.3             |    2 +-
- man3/setfilecon.3                      |    2 +-
- man8/matchpathcon.8                    |    2 +-
- 27 files changed, 41 insertions(+), 41 deletions(-)
-
-
-Index: man8/matchpathcon.8
-===================================================================
---- man8/matchpathcon.8    (revision 2487)
-+++ man8/matchpathcon.8    (working copy)
-@@ -1,4 +1,4 @@
--.TH "matchpathcon" "8" "21 April 2005" "dwalsh@redhat.com" "SE Linux 
-Command Line documentation"
-+.TH "matchpathcon" "8" "21 April 2005" "dwalsh@redhat.com" "SELinux 
-Command Line documentation"
- .SH "NAME"
- matchpathcon \- get the default SELinux security context for the 
-specified path from the file contexts configuration.
- 
-Index: man3/get_ordered_context_list.3
-===================================================================
---- man3/get_ordered_context_list.3    (revision 2487)
-+++ man3/get_ordered_context_list.3    (working copy)
-@@ -1,4 +1,4 @@
--.TH "get_ordered_context_list" "3" "1 January 2004" 
-"russell@coker.com.au" "SE Linux"
-+.TH "get_ordered_context_list" "3" "1 January 2004" 
-"russell@coker.com.au" "SELinux"
- .SH "NAME"
- get_ordered_context_list, get_ordered_context_list_with_level, 
-get_default_context, get_default_context_with_level, 
-get_default_context_with_role, get_default_context_with_rolelevel, 
-query_user_context, manual_user_enter_context, get_default_role \- 
-determine SELinux context(s) for user sessions
- 
-Index: man3/matchmediacon.3
-===================================================================
---- man3/matchmediacon.3    (revision 2487)
-+++ man3/matchmediacon.3    (working copy)
-@@ -1,4 +1,4 @@
--.TH "matchmediacon" "3" "15 November 2004" "dwalsh@redhat.com" "SE 
-Linux API documentation"
-+.TH "matchmediacon" "3" "15 November 2004" "dwalsh@redhat.com" "SELinux 
-API documentation"
- .SH "NAME"
- matchmediacon \- get the default SELinux security context for the 
-specified mediatype from the policy.
- 
-Index: man3/getfscreatecon.3
-===================================================================
---- man3/getfscreatecon.3    (revision 2487)
-+++ man3/getfscreatecon.3    (working copy)
-@@ -1,4 +1,4 @@
--.TH "getfscreatecon" "3" "1 January 2004" "russell@coker.com.au" "SE 
-Linux API documentation"
-+.TH "getfscreatecon" "3" "1 January 2004" "russell@coker.com.au" 
-"SELinux API documentation"
- .SH "NAME"
- getfscreatecon, setfscreatecon \- get or set the SELinux security 
-context used for creating a new file system object.
- 
-Index: man3/getcon.3
-===================================================================
---- man3/getcon.3    (revision 2487)
-+++ man3/getcon.3    (working copy)
-@@ -1,4 +1,4 @@
--.TH "getcon" "3" "1 January 2004" "russell@coker.com.au" "SE Linux API 
-documentation"
-+.TH "getcon" "3" "1 January 2004" "russell@coker.com.au" "SELinux API 
-documentation"
- .SH "NAME"
- getcon, getprevcon, getpidcon \- get SELinux security context of a process.
- .br
-Index: man3/security_load_policy.3
-===================================================================
---- man3/security_load_policy.3    (revision 2487)
-+++ man3/security_load_policy.3    (working copy)
-@@ -1,4 +1,4 @@
--.TH "security_load_policy" "3" "1 January 2004" "russell@coker.com.au" 
-"SE Linux API documentation"
-+.TH "security_load_policy" "3" "1 January 2004" "russell@coker.com.au" 
-"SELinux API documentation"
- .SH "NAME"
- security_load_policy \- load a new SELinux policy
- .SH "SYNOPSIS"
-Index: man3/security_getenforce.3
-===================================================================
---- man3/security_getenforce.3    (revision 2487)
-+++ man3/security_getenforce.3    (working copy)
-@@ -1,4 +1,4 @@
--.TH "security_getenforce" "3" "1 January 2004" "russell@coker.com.au" 
-"SE Linux API documentation"
-+.TH "security_getenforce" "3" "1 January 2004" "russell@coker.com.au" 
-"SELinux API documentation"
- .SH "NAME"
- security_getenforce, security_setenforce \- get or set the enforcing 
-state of SELinux
- .SH "SYNOPSIS"
-@@ -10,11 +10,11 @@
- 
- .SH "DESCRIPTION"
- .B security_getenforce
--returns 0 if SE Linux is running in permissive mode, 1 if it is running in
-+returns 0 if SELinux is running in permissive mode, 1 if it is running in
- enforcing mode, and -1 on error.
- 
- .B security_setenforce
--sets SE Linux to enforcing mode if the value 1 is passed in, and sets it to
-+sets SELinux to enforcing mode if the value 1 is passed in, and sets it to
- permissive mode if 0 is passed in.  On success 0 is returned, on error 
--1 is
- returned.
- 
-Index: man3/selinux_policy_root.3
-===================================================================
---- man3/selinux_policy_root.3    (revision 2487)
-+++ man3/selinux_policy_root.3    (working copy)
-@@ -1,4 +1,4 @@
--.TH "selinux_policy_root" "3" "25 May 2004" "dwalsh@redhat.com" "SE 
-Linux API documentation"
-+.TH "selinux_policy_root" "3" "25 May 2004" "dwalsh@redhat.com" 
-"SELinux API documentation"
- .SH "NAME"
- selinux_policy_root \- return the path of the SELinux policy files for 
-this machine.
- .SH "SYNOPSIS"
-Index: man3/getfilecon.3
-===================================================================
---- man3/getfilecon.3    (revision 2487)
-+++ man3/getfilecon.3    (working copy)
-@@ -1,4 +1,4 @@
--.TH "getfilecon" "3" "1 January 2004" "russell@coker.com.au" "SE Linux 
-API documentation"
-+.TH "getfilecon" "3" "1 January 2004" "russell@coker.com.au" "SELinux 
-API documentation"
- .SH "NAME"
- getfilecon, fgetfilecon, lgetfilecon \- get SELinux security context of 
-a file
- .SH "SYNOPSIS"
-Index: man3/freecon.3
-===================================================================
---- man3/freecon.3    (revision 2487)
-+++ man3/freecon.3    (working copy)
-@@ -1,4 +1,4 @@
--.TH "freecon" "3" "1 January 2004" "russell@coker.com.au" "SE Linux API 
-documentation"
-+.TH "freecon" "3" "1 January 2004" "russell@coker.com.au" "SELinux API 
-documentation"
- .SH "NAME"
- freecon, freeconary \- free memory associated with SELinux security 
-contexts.
- .SH "SYNOPSIS"
-Index: man3/avc_compute_create.3
-===================================================================
---- man3/avc_compute_create.3    (revision 2487)
-+++ man3/avc_compute_create.3    (working copy)
-@@ -1,7 +1,7 @@
- .\" Hey Emacs! This file is -*- nroff -*- source.
- .\"
- .\" Author: Eamon Walsh (ewalsh@tycho.nsa.gov) 2007
--.TH "avc_compute_create" "3" "30 Mar 2007" "" "SE Linux API documentation"
-+.TH "avc_compute_create" "3" "30 Mar 2007" "" "SELinux API documentation"
- .SH "NAME"
- avc_compute_create \- obtain SELinux label for new object.
- .SH "SYNOPSIS"
-Index: man3/security_compute_av.3
-===================================================================
---- man3/security_compute_av.3    (revision 2487)
-+++ man3/security_compute_av.3    (working copy)
-@@ -1,4 +1,4 @@
--.TH "security_compute_av" "3" "1 January 2004" "russell@coker.com.au" 
-"SE Linux API documentation"
-+.TH "security_compute_av" "3" "1 January 2004" "russell@coker.com.au" 
-"SELinux API documentation"
- .SH "NAME"
- security_compute_av, security_compute_create, security_compute_relabel,
- security_compute_user, security_get_initial_context \- query
-Index: man3/setfilecon.3
-===================================================================
---- man3/setfilecon.3    (revision 2487)
-+++ man3/setfilecon.3    (working copy)
-@@ -1,4 +1,4 @@
--.TH "setfilecon" "3" "1 January 2004" "russell@coker.com.au" "SE Linux 
-API documentation"
-+.TH "setfilecon" "3" "1 January 2004" "russell@coker.com.au" "SELinux 
-API documentation"
- .SH "NAME"
- setfilecon, fsetfilecon, lsetfilecon \- set SELinux security context of 
-a file
- 
-Index: man3/avc_add_callback.3
-===================================================================
---- man3/avc_add_callback.3    (revision 2487)
-+++ man3/avc_add_callback.3    (working copy)
-@@ -1,7 +1,7 @@
- .\" Hey Emacs! This file is -*- nroff -*- source.
- .\"
--.\" Author: Eamon Walsh (ewalsh@epoch.ncsc.mil) 2004
--.TH "avc_add_callback" "3" "9 June 2004" "" "SE Linux API documentation"
-+.\" Author: Eamon Walsh (ewalsh@tycho.nsa.gov) 2004
-+.TH "avc_add_callback" "3" "9 June 2004" "" "SELinux API documentation"
- .SH "NAME"
- avc_add_callback \- additional event notification for SELinux userspace 
-object managers.
- .SH "SYNOPSIS"
-@@ -173,7 +173,7 @@
- .BR AVC_CALLBACK_RESET .
- 
- .SH "AUTHOR"
--Eamon Walsh <ewalsh@epoch.ncsc.mil>
-+Eamon Walsh <ewalsh@tycho.nsa.gov>
- 
- .SH "SEE ALSO"
- .BR avc_init (3),
-Index: man3/selinux_check_securetty_context.3
-===================================================================
---- man3/selinux_check_securetty_context.3    (revision 2487)
-+++ man3/selinux_check_securetty_context.3    (working copy)
-@@ -1,4 +1,4 @@
--.TH "selinux_check_securetty_context" "3" "1 January 2007" 
-"dwalsh@redhat.com" "SE Linux API documentation"
-+.TH "selinux_check_securetty_context" "3" "1 January 2007" 
-"dwalsh@redhat.com" "SELinux API documentation"
- .SH "NAME"
- selinux_check_securetty_context \- check whether a SELinux tty security 
-context is defined as a securetty context
- .SH "SYNOPSIS"
-Index: man3/getseuserbyname.3
-===================================================================
---- man3/getseuserbyname.3    (revision 2487)
-+++ man3/getseuserbyname.3    (working copy)
-@@ -1,4 +1,4 @@
--.TH "getseuserbyname" "3" "29 September 2005" "dwalsh@redhat.com" "SE 
-Linux API documentation"
-+.TH "getseuserbyname" "3" "29 September 2005" "dwalsh@redhat.com" 
-"SELinux API documentation"
- .SH "NAME"
- getseuserbyname \- get SELinux username and level for a given Linux 
-username
- .SH "SYNOPSIS"
-Index: man3/security_check_context.3
-===================================================================
---- man3/security_check_context.3    (revision 2487)
-+++ man3/security_check_context.3    (working copy)
-@@ -1,4 +1,4 @@
--.TH "security_check_context" "3" "1 January 2004" 
-"russell@coker.com.au" "SE Linux API documentation"
-+.TH "security_check_context" "3" "1 January 2004" 
-"russell@coker.com.au" "SELinux API documentation"
- .SH "NAME"
- security_check_context \- check the validity of a SELinux context
- .SH "SYNOPSIS"
-@@ -8,7 +8,7 @@
- 
- .SH "DESCRIPTION"
- .B security_check_context
--returns 0 if SE Linux is running and the context is valid, otherwise it
-+returns 0 if SELinux is running and the context is valid, otherwise it
- returns -1.
- 
- .SH "SEE ALSO"
-Index: man3/avc_cache_stats.3
-===================================================================
---- man3/avc_cache_stats.3    (revision 2487)
-+++ man3/avc_cache_stats.3    (working copy)
-@@ -1,7 +1,7 @@
- .\" Hey Emacs! This file is -*- nroff -*- source.
- .\"
--.\" Author: Eamon Walsh (ewalsh@epoch.ncsc.mil) 2004
--.TH "avc_cache_stats" "3" "27 May 2004" "" "SE Linux API documentation"
-+.\" Author: Eamon Walsh (ewalsh@tycho.nsa.gov) 2004
-+.TH "avc_cache_stats" "3" "27 May 2004" "" "SELinux API documentation"
- .SH "NAME"
- avc_cache_stats, avc_av_stats, avc_sid_stats \- obtain userspace 
-SELinux AVC statistics.
- .SH "SYNOPSIS"
-@@ -89,7 +89,7 @@
- is made before the cache is flushed.
- 
- .SH "AUTHOR"
--Eamon Walsh <ewalsh@epoch.ncsc.mil>
-+Eamon Walsh <ewalsh@tycho.nsa.gov>
- 
- .SH "SEE ALSO"
- .BR avc_init (3),
-Index: man3/avc_context_to_sid.3
-===================================================================
---- man3/avc_context_to_sid.3    (revision 2487)
-+++ man3/avc_context_to_sid.3    (working copy)
-@@ -1,7 +1,7 @@
- .\" Hey Emacs! This file is -*- nroff -*- source.
- .\"
--.\" Author: Eamon Walsh (ewalsh@epoch.ncsc.mil) 2004
--.TH "avc_context_to_sid" "3" "27 May 2004" "" "SE Linux API documentation"
-+.\" Author: Eamon Walsh (ewalsh@tycho.nsa.gov) 2004
-+.TH "avc_context_to_sid" "3" "27 May 2004" "" "SELinux API documentation"
- .SH "NAME"
- avc_context_to_sid, avc_sid_to_context, sidput, sidget, 
-avc_get_initial_sid \- obtain and manipulate SELinux security ID's.
- .SH "SYNOPSIS"
-@@ -86,7 +86,7 @@
- will be called on a SID when its object is destroyed.  Proper reference 
-counting is necessary to ensure that SID's and associated cache entries 
-are reclaimed from memory when no longer needed.
- 
- .SH "AUTHOR"
--Eamon Walsh <ewalsh@epoch.ncsc.mil>
-+Eamon Walsh <ewalsh@tycho.nsa.gov>
- 
- .SH "SEE ALSO"
- .BR avc_init (3),
-Index: man3/getexeccon.3
-===================================================================
---- man3/getexeccon.3    (revision 2487)
-+++ man3/getexeccon.3    (working copy)
-@@ -1,4 +1,4 @@
--.TH "getexeccon" "3" "1 January 2004" "russell@coker.com.au" "SE Linux 
-API documentation"
-+.TH "getexeccon" "3" "1 January 2004" "russell@coker.com.au" "SELinux 
-API documentation"
- .SH "NAME"
- getexeccon, setexeccon \- get or set the SELinux security context used 
-for executing a new process.
- .br
-Index: man3/security_class_to_string.3
-===================================================================
---- man3/security_class_to_string.3    (revision 2487)
-+++ man3/security_class_to_string.3    (working copy)
-@@ -1,7 +1,7 @@
- .\" Hey Emacs! This file is -*- nroff -*- source.
- .\"
- .\" Author: Eamon Walsh (ewalsh@tycho.nsa.gov) 2007
--.TH "security_class_to_string" "3" "30 Mar 2007" "" "SE Linux API 
-documentation"
-+.TH "security_class_to_string" "3" "30 Mar 2007" "" "SELinux API 
-documentation"
- .SH "NAME"
- security_class_to_string, security_av_perm_to_string, 
-string_to_security_class, string_to_av_perm, security_av_string \- convert
- between SELinux class and permission values and string names.
-Index: man3/security_policyvers.3
-===================================================================
---- man3/security_policyvers.3    (revision 2487)
-+++ man3/security_policyvers.3    (working copy)
-@@ -1,4 +1,4 @@
--.TH "security_policyvers" "3" "1 January 2004" "russell@coker.com.au" 
-"SE Linux API documentation"
-+.TH "security_policyvers" "3" "1 January 2004" "russell@coker.com.au" 
-"SELinux API documentation"
- .SH "NAME"
- security_policyvers \- get the version of the SELinux policy
- .SH "SYNOPSIS"
-Index: man3/avc_has_perm.3
-===================================================================
---- man3/avc_has_perm.3    (revision 2487)
-+++ man3/avc_has_perm.3    (working copy)
-@@ -1,7 +1,7 @@
- .\" Hey Emacs! This file is -*- nroff -*- source.
- .\"
--.\" Author: Eamon Walsh (ewalsh@epoch.ncsc.mil) 2004
--.TH "avc_has_perm" "3" "27 May 2004" "" "SE Linux API documentation"
-+.\" Author: Eamon Walsh (ewalsh@tycho.nsa.gov) 2004
-+.TH "avc_has_perm" "3" "27 May 2004" "" "SELinux API documentation"
- .SH "NAME"
- avc_has_perm, avc_has_perm_noaudit, avc_audit, avc_entry_ref_init \- 
-obtain and audit SELinux access decisions.
- .SH "SYNOPSIS"
-@@ -144,7 +144,7 @@
- netlink by the policy.
- 
- .SH "AUTHOR"
--Eamon Walsh <ewalsh@epoch.ncsc.mil>
-+Eamon Walsh <ewalsh@tycho.nsa.gov>
- 
- .SH "SEE ALSO"
- .BR avc_init (3),
-Index: man3/is_selinux_enabled.3
-===================================================================
---- man3/is_selinux_enabled.3    (revision 2487)
-+++ man3/is_selinux_enabled.3    (working copy)
-@@ -1,4 +1,4 @@
--.TH "is_selinux_enabled" "3" "1 January 2004" "russell@coker.com.au" 
-"SE Linux API documentation"
-+.TH "is_selinux_enabled" "3" "1 January 2004" "russell@coker.com.au" 
-"SELinux API documentation"
- .SH "NAME"
- is_selinux_enabled \- check whether SELinux is enabled
- .SH "SYNOPSIS"
-@@ -8,7 +8,7 @@
- 
- .SH "DESCRIPTION"
- .B is_selinux_enabled
--returns 1 if SE Linux is running or 0 if it is not.  May change soon.
-+returns 1 if SELinux is running or 0 if it is not.  May change soon.
- 
- .SH "SEE ALSO"
- .BR selinux "(8)"
-Index: man3/avc_init.3
-===================================================================
---- man3/avc_init.3    (revision 2487)
-+++ man3/avc_init.3    (working copy)
-@@ -1,7 +1,7 @@
- .\" Hey Emacs! This file is -*- nroff -*- source.
- .\"
--.\" Author: Eamon Walsh (ewalsh@epoch.ncsc.mil) 2004
--.TH "avc_init" "3" "27 May 2004" "" "SE Linux API documentation"
-+.\" Author: Eamon Walsh (ewalsh@tycho.nsa.gov) 2004
-+.TH "avc_init" "3" "27 May 2004" "" "SELinux API documentation"
- .SH "NAME"
- avc_init, avc_destroy, avc_reset, avc_cleanup \- userspace SELinux AVC 
-setup and teardown.
- .SH "SYNOPSIS"
-@@ -201,7 +201,7 @@
- is called.
- 
- .SH "AUTHOR"
--Eamon Walsh <ewalsh@epoch.ncsc.mil>
-+Eamon Walsh <ewalsh@tycho.nsa.gov>
- 
- .SH "SEE ALSO"
- .BR avc_has_perm (3),
-Index: man3/selinux_getenforcemode.3
-===================================================================
---- man3/selinux_getenforcemode.3    (revision 2487)
-+++ man3/selinux_getenforcemode.3    (working copy)
-@@ -1,4 +1,4 @@
--.TH "selinux_getenforcemode" "3" "25 May 2004" "dwalsh@redhat.com" "SE 
-Linux API documentation"
-+.TH "selinux_getenforcemode" "3" "25 May 2004" "dwalsh@redhat.com" 
-"SELinux API documentation"
- .SH "NAME"
- selinux_getenforcemode \- get the enforcing state of SELinux
- .SH "SYNOPSIS"
-Index: man3/matchpathcon.3
-===================================================================
---- man3/matchpathcon.3    (revision 2487)
-+++ man3/matchpathcon.3    (working copy)
-@@ -1,4 +1,4 @@
--.TH "matchpathcon" "3" "16 March 2005" "sds@tycho.nsa.gov" "SE Linux 
-API documentation"
-+.TH "matchpathcon" "3" "16 March 2005" "sds@tycho.nsa.gov" "SELinux API 
-documentation"
- .SH "NAME"
- matchpathcon \- get the default SELinux security context for the 
-specified path from the file contexts configuration.
- 
-
+> --- nsaserefpolicy/policy/modules/kernel/files.fc	2007-05-29 14:10:48.000000000 -0400
+> +++ serefpolicy-3.0.1/policy/modules/kernel/files.fc	2007-05-30 09:25:53.000000000 -0400
+> @@ -45,7 +45,6 @@
+>  /etc			-d	gen_context(system_u:object_r:etc_t,s0)
+>  /etc/.*				gen_context(system_u:object_r:etc_t,s0)
+>  /etc/\.fstab\.hal\..+	--	gen_context(system_u:object_r:etc_runtime_t,s0)
+> -/etc/asound\.state	--	gen_context(system_u:object_r:etc_runtime_t,s0)
+>  /etc/blkid(/.*)?		gen_context(system_u:object_r:etc_runtime_t,s0)
+>  /etc/fstab\.REVOKE	--	gen_context(system_u:object_r:etc_runtime_t,s0)
+>  /etc/HOSTNAME		--	gen_context(system_u:object_r:etc_runtime_t,s0)
+> @@ -54,6 +53,7 @@
+>  /etc/issue\.net		--	gen_context(system_u:object_r:etc_runtime_t,s0)
+>  /etc/localtime		-l	gen_context(system_u:object_r:etc_t,s0)
+>  /etc/mtab		--	gen_context(system_u:object_r:etc_runtime_t,s0)
+> +/etc/mtab\.fuselock	--	gen_context(system_u:object_r:etc_runtime_t,s0)
+>  /etc/motd		--	gen_context(system_u:object_r:etc_runtime_t,s0)
+>  /etc/nohotplug		--	gen_context(system_u:object_r:etc_runtime_t,s0)
+>  /etc/nologin.*		--	gen_context(system_u:object_r:etc_runtime_t,s0)
+> --- nsaserefpolicy/policy/modules/kernel/files.if	2007-05-29 14:10:48.000000000 -0400
+> +++ serefpolicy-3.0.1/policy/modules/kernel/files.if	2007-05-30 09:25:53.000000000 -0400
+> @@ -343,8 +343,7 @@
+>  
+>  ########################################
+>  ## <summary>
+> -##	Mount a filesystem on all non-security
+> -##	directories and files.
+> +##	Mount a filesystem on all non-security directories.
+>  ## </summary>
+>  ## <param name="domain">
+>  ##	<summary>
+> @@ -352,12 +351,29 @@
+>  ##	</summary>
+>  ## </param>
+>  #
+> -interface(`files_mounton_non_security',`
+> +interface(`files_mounton_non_security_dir',`
+>  	gen_require(`
+>  		attribute file_type, security_file_type;
+>  	')
+>  
+>  	allow $1 { file_type -security_file_type }:dir mounton;
+> +')
+> +
+> +########################################
+> +## <summary>
+> +##	Mount a filesystem on all non-security and files.
+> +## </summary>
+> +## <param name="domain">
+> +##	<summary>
+> +##	Domain allowed access.
+> +##	</summary>
+> +## </param>
+> +#
+> +interface(`files_mounton_non_security_files',`
+> +	gen_require(`
+> +		attribute file_type, security_file_type;
+> +	')
+> +
+>  	allow $1 { file_type -security_file_type }:file mounton;
+>  ')
+>  
+> @@ -376,7 +392,7 @@
+>  		attribute file_type, security_file_type;
+>  	')
+>  
+> -	allow $1 { file_type -security_file_type }:dir write;
+> +	allow $1 { file_type -security_file_type }:dir rw_dir_perms;
+>  ')
+>  
+>  ########################################
+> @@ -987,7 +1003,7 @@
+>  		attribute file_type;
+>  	')
+>  
+> -	dontaudit $1 file_type:dir search;
+> +	dontaudit $1 file_type:dir search_dir_perms;
+>  ')
+>  
+>  ########################################
+> @@ -1315,7 +1331,7 @@
+>  		type boot_t;
+>  	')
+>  
+> -	dontaudit $1 boot_t:dir search;
+> +	dontaudit $1 boot_t:dir search_dir_perms;
+>  ')
+>  
+>  ########################################
+> @@ -3305,6 +3321,42 @@
+>  
+>  ########################################
+>  ## <summary>
+> +##	Add and remove entries from /usr directories.
+> +## </summary>
+> +## <param name="domain">
+> +##	<summary>
+> +##	Domain allowed access.
+> +##	</summary>
+> +## </param>
+> +#
+> +interface(`files_rw_usr_dirs',`
+> +	gen_require(`
+> +		type usr_t;
+> +	')
+> +
+> +	allow $1 usr_t:dir rw_dir_perms;
+> +')
+> +
+> +########################################
+> +## <summary>
+> +##	Create, read, write, and delete files in the /usr directory.
+> +## </summary>
+> +## <param name="domain">
+> +##	<summary>
+> +##	Domain allowed access.
+> +##	</summary>
+> +## </param>
+> +#
+> +interface(`files_manage_usr_files',`
+> +	gen_require(`
+> +		type usr_t;
+> +	')
+> +
+> +	manage_files_pattern($1, usr_t, usr_t)
+> +')
+> +
+> +########################################
+> +## <summary>
+>  ##	Get the attributes of files in /usr.
+>  ## </summary>
+>  ## <param name="domain">
+> @@ -3632,7 +3684,7 @@
+>  		type var_t;
+>  	')
+>  
+> -	dontaudit $1 var_t:dir search;
+> +	dontaudit $1 var_t:dir search_dir_perms;
+>  ')
+>  
+>  ########################################
+> @@ -3988,7 +4040,7 @@
+>  		type var_lock_t;
+>  	')
+>  
+> -	dontaudit $1 var_lock_t:dir search;
+> +	dontaudit $1 var_lock_t:dir search_dir_perms;
+>  ')
+>  
+>  ########################################
+> @@ -4007,7 +4059,7 @@
+>  		type var_t, var_lock_t;
+>  	')
+>  
+> -	rw_dirs_pattern($1,var_t,var_lock_t)
+> +	rw_files_pattern($1,var_t,var_lock_t)
+>  ')
+>  
+>  ########################################
+> @@ -4176,7 +4228,7 @@
+>  		type var_run_t;
+>  	')
+>  
+> -	dontaudit $1 var_run_t:dir search;
+> +	dontaudit $1 var_run_t:dir search_dir_perms;
+>  ')
+>  
+>  ########################################
+> @@ -4524,6 +4576,8 @@
+>  	# Need to give access to /selinux/member
+>  	selinux_compute_member($1)
+>  
+> + 	files_search_home($1)
+> +
+>  	# Need sys_admin capability for mounting
+>  	allow $1 self:capability { chown fsetid sys_admin };
+>  
+> @@ -4546,6 +4600,8 @@
+>  	# Default type for mountpoints
+>  	allow $1 poly_t:dir { create mounton };
+>  	fs_unmount_xattr_fs($1)
+> +	corecmd_exec_bin($1)
+> +
+>  ')
+>  
+>  ########################################
+> @@ -4583,3 +4639,28 @@
+>  
+>  	allow $1 { file_type -security_file_type }:dir manage_dir_perms;
+>  ')
+> +
+> +########################################
+> +## <summary>
+> +##	Create a core files in /
+> +## </summary>
+> +## <desc>
+> +##	<p>
+> +##	Create a core file in /,
+> +##	</p>
+> +## </desc>
+> +## <param name="domain">
+> +##	<summary>
+> +##	Domain allowed access.
+> +##	</summary>
+> +## </param>
+> +## <rolecap/>
+> +#
+> +interface(`files_dump_core',`
+> +	gen_require(`
+> +		type root_t;
+> +	')
+> +
+> +	allow $1 root_t:dir rw_dir_perms;
+> +	allow $1 root_t:file { create getattr write };
+> +')
+> --- nsaserefpolicy/policy/modules/kernel/files.te	2007-05-29 14:10:48.000000000 -0400
+> +++ serefpolicy-3.0.1/policy/modules/kernel/files.te	2007-05-30 09:25:53.000000000 -0400
+> @@ -54,6 +54,7 @@
+>  files_type(etc_t)
+>  # compatibility aliases for removed types:
+>  typealias etc_t alias automount_etc_t;
+> +typealias etc_t alias snmpd_etc_t;
+>  
+>  #
+>  # etc_runtime_t is the type of various
+> --- nsaserefpolicy/policy/modules/kernel/filesystem.if	2007-05-29 14:10:48.000000000 -0400
+> +++ serefpolicy-3.0.1/policy/modules/kernel/filesystem.if	2007-05-30 09:25:53.000000000 -0400
+> @@ -1096,6 +1096,24 @@
+>  
+>  ########################################
+>  ## <summary>
+> +##	Search dosfs filesystem. 
+> +## </summary>
+> +## <param name="domain">
+> +##	<summary>
+> +##	Domain allowed access.
+> +##	</summary>
+> +## </param>
+> +#
+> +interface(`fs_search_dos',`
+> +	gen_require(`
+> +		type dosfs_t;
+> +	')
+> +
+> +	allow $1 dosfs_t:dir search_dir_perms;
+> +')
+> +
+> +########################################
+> +## <summary>
+>  ##	Read files on a DOS filesystem.
+>  ## </summary>
+>  ## <param name="domain">
+> @@ -1291,6 +1309,26 @@
+>  
+>  ########################################
+>  ## <summary>
+> +##	Read files on an iso9660 filesystem, which
+> +##	is usually used on CDs.
+> +## </summary>
+> +## <param name="domain">
+> +##	<summary>
+> +##	Domain allowed access.
+> +##	</summary>
+> +## </param>
+> +#
+> +interface(`fs_getattr_iso9660_files',`
+> +	gen_require(`
+> +		type iso9660_t;
+> +	')
+> +
+> +	allow $1 iso9660_t:dir list_dir_perms;
+> +	allow $1 iso9660_t:file getattr;
+> +')
+> +
+> +########################################
+> +## <summary>
+>  ##	Mount a NFS filesystem.
+>  ## </summary>
+>  ## <param name="domain">
+> @@ -3420,3 +3458,22 @@
+>  	relabelfrom_blk_files_pattern($1,noxattrfs,noxattrfs)
+>  	relabelfrom_chr_files_pattern($1,noxattrfs,noxattrfs)
+>  ')
+> +
+> +
+> +########################################
+> +## <summary>
+> +##      Mount an fuse filesystem.
+> +## </summary>
+> +## <param name="domain">
+> +##      <summary>
+> +##      Domain allowed access.
+> +##      </summary>
+> +## </param>
+> +#
+> +interface(`fs_mount_fusefs',`
+> +        gen_require(`
+> +                type fusefs_t;
+> +        ')
+> +
+> +        allow $1 fusefs_t:filesystem mount;
+> +')
+> --- nsaserefpolicy/policy/modules/kernel/filesystem.te	2007-05-29 14:10:48.000000000 -0400
+> +++ serefpolicy-3.0.1/policy/modules/kernel/filesystem.te	2007-05-30 09:25:53.000000000 -0400
+> @@ -54,17 +54,29 @@
+>  
+>  type capifs_t;
+>  fs_type(capifs_t)
+> +files_mountpoint(capifs_t)
+>  genfscon capifs / gen_context(system_u:object_r:capifs_t,s0)
+>  
+>  type configfs_t;
+>  fs_type(configfs_t)
+>  genfscon configfs / gen_context(system_u:object_r:configfs_t,s0)
+>  
+> +type cpusetfs_t;
+> +fs_type(cpusetfs_t)
+> +allow cpusetfs_t self:filesystem associate;
+> +genfscon cpuset / gen_context(system_u:object_r:cpusetfs_t,s0)
+> +
+>  type eventpollfs_t;
+>  fs_type(eventpollfs_t)
+>  # change to task SID 20060628
+>  #genfscon eventpollfs / gen_context(system_u:object_r:eventpollfs_t,s0)
+>  
+> +type fusefs_t;
+> +fs_noxattr_type(fusefs_t)
+> +allow fusefs_t self:filesystem associate;
+> +genfscon fuse / gen_context(system_u:object_r:fusefs_t,s0)
+> +genfscon fuseblk / gen_context(system_u:object_r:fusefs_t,s0)
+> +
+>  type futexfs_t;
+>  fs_type(futexfs_t)
+>  genfscon futexfs / gen_context(system_u:object_r:futexfs_t,s0)
+> @@ -83,6 +95,11 @@
+>  fs_type(inotifyfs_t)
+>  genfscon inotifyfs / gen_context(system_u:object_r:inotifyfs_t,s0)
+>  
+> +type mvfs_t;
+> +fs_noxattr_type(mvfs_t)
+> +allow mvfs_t self:filesystem associate;
+> +genfscon mvfs / gen_context(system_u:object_r:mvfs_t,s0)
+> +
+>  type nfsd_fs_t;
+>  fs_type(nfsd_fs_t)
+>  genfscon nfsd / gen_context(system_u:object_r:nfsd_fs_t,s0)
+> @@ -105,6 +122,16 @@
+>  genfscon rpc_pipefs / gen_context(system_u:object_r:rpc_pipefs_t,s0)
+>  files_mountpoint(rpc_pipefs_t)
+>  
+> +type spufs_t;
+> +fs_type(spufs_t)
+> +genfscon spufs / gen_context(system_u:object_r:spufs_t,s0)
+> +files_mountpoint(spufs_t)
+> +
+> +type vxfs_t;
+> +fs_noxattr_type(vxfs_t)
+> +files_mountpoint(vxfs_t)
+> +genfscon vxfs / gen_context(system_u:object_r:vxfs_t,s0)
+> +
+>  #
+>  # tmpfs_t is the type for tmpfs filesystems
+>  #
 -- 
-Eamon Walsh <ewalsh@tycho.nsa.gov>
-National Security Agency
+Chris PeBenito
+Tresys Technology, LLC
+(410) 290-1411 x150
 
 
 --
