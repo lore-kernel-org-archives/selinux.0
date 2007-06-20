@@ -1,135 +1,51 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l5KNYFAt026050
-	for <selinux@tycho.nsa.gov>; Wed, 20 Jun 2007 19:34:15 -0400
-Received: from mail7.sea5.speakeasy.net (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l5KNYD1M003203
-	for <selinux@tycho.nsa.gov>; Wed, 20 Jun 2007 23:34:14 GMT
-Date: Wed, 20 Jun 2007 19:34:10 -0400 (EDT)
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l5KNcO4p026248
+	for <selinux@tycho.nsa.gov>; Wed, 20 Jun 2007 19:38:24 -0400
+Received: from mail4.sea5.speakeasy.net (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id l5KNcKfi016188
+	for <selinux@tycho.nsa.gov>; Wed, 20 Jun 2007 23:38:22 GMT
+Date: Wed, 20 Jun 2007 19:38:15 -0400 (EDT)
 From: James Morris <jmorris@namei.org>
-To: "J. Bruce Fields" <bfields@fieldses.org>
-cc: selinux@tycho.nsa.gov, nfsv4@linux-nfs.org,
-        Karl MacMillan <kmacmill@redhat.com>,
-        "Matthew N. Dodd" <Matthew.Dodd@sparta.com>,
-        Chris Vance <Christopher.Vance@sparta.com>,
-        Eric Paris <eparis@redhat.com>, Stephen Smalley <sds@tycho.nsa.gov>
-Subject: Re: [RFC] Security Enhanced NFS (SENFS) Requirements - draft 05
-In-Reply-To: <20070620220201.GL3302@fieldses.org>
-Message-ID: <Line.LNX.4.64.0706201841160.25962@localhost.localdomain>
-References: <Line.LNX.4.64.0706201635280.25279@localhost.localdomain>
- <20070620220201.GL3302@fieldses.org>
+To: Mike Eisler <email2mre-linuxv4@yahoo.com>
+cc: selinux@tycho.nsa.gov, nfsv4@linux-nfs.org, Matthew.Dodd@sparta.com,
+        Christopher.Vance@sparta.com, eparis@redhat.com, sds@tycho.nsa.gov
+Subject: RE: [RFC] Security Enhanced NFS (SENFS) Requirements - draft 05
+In-Reply-To: <558072.14557.qm@web31815.mail.mud.yahoo.com>
+Message-ID: <Line.LNX.4.64.0706201934480.25962@localhost.localdomain>
+References: <558072.14557.qm@web31815.mail.mud.yahoo.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 20 Jun 2007, J. Bruce Fields wrote:
+On Wed, 20 Jun 2007, Mike Eisler wrote:
 
-> On Wed, Jun 20, 2007 at 04:49:45PM -0400, James Morris wrote:
-> >     SENFS should support authentication on a per-domain granularity so that
-> >     different domains running on a client can use different cryptographic
-> >     keys and facilities.
+> Interesting. This seems to have overlaps with the TNFS stuff
+>   http://www.ietf.org/html.charters/OLD/tnfs-charter.html
 > 
-> Sorry, I'm not totally sure I understand what a "domain" is. I assume
-> every rpc call will need to be associated with a domain?  (Just one, or
-> is it every more than one?)  If you need a different credential for each
-> domain, what kind of access control do you need for those credentials?
-
-A domain in SELinux refers to a process running in a specific security 
-context (i.e. with a specific security label).  Processes running in the 
-same domain are considered equivalent by SELinux from a security point of 
-view.
-
-An example of the above is that a process labeled as "unclassified" might 
-not have access to the same keying material as a process labeled as 
-"secret", and the system needs to differentiate on that basis.
-
-Generally, the SELinux credentials need to be used as factors in 
-authentication when providing NFS access.
-
-Each RPC call would be associated with an individual process on the 
-client, although SELinux would only make use of the SELinux labels, which 
-are applied at domain granularity.
-
-Per-domain access control needs to cover all security-relevant aspects of 
-the interaction, and would be configured in SELinux security policy.
-
-> > 3.9.  Domains of Interpretation
-> > 
-> >     In SELinux, a Domain of Interpretation (DOI) represents an
-> >     administrative security boundary, where all systems within the DOI have
-> >     semantically coherent labeling.  That is, a security label must always
-> >     mean exactly the same thing anywhere within the DOI.  An SELinux DOI
-> >     may be further demarcated for any other administrative purpose.
+> which did produce an internet draft (draft-ietf-tnfs-spec-xx), but TNFS
+> never got traction in the market, and apparently the WG folded before
+> it produced an RFC.
 > 
-> Does the current SELinux have any notion of a DOI?
-
-DOI is an attribute negotiated and used by the IPsec labeled networking in 
-SELinux.
-
-> Would it be possible to ignore this problem in a first implementation,
-> and just assume the client and server are always in the same DOI?
-
-We want to build DOI support in from the start, rather than try and add it 
-later.  Identifying and checking DOIs is not difficult, although things 
-like translation can be (and this aspect will not be mandatory).
-
-> > 3.14.  Namespace Access
-> > 
-> >     The server should provide a means to authorize selective access to the
-> >     exported filesystem namespace based upon client credentials and
-> >     according to security policy.
 > 
-> Could you give an example?  Why is this necessary, and how does it go
-> beyond the ordinary access control used for files in the exported
-> filesystems?
+> (Found an old version of the i-d at
+> http://www.watersprings.org/pub/id/draft-ietf-tnfs-spec-01.txt
+>  )
 
-Good point -- in general, SELinux access control would simply handle this 
-correctly.
+Indeed, some of the requirements for SENFS are based on earlier research 
+(e.g. DTOS), which referenced TNFS as related work.  TNFS was considered 
+too MLS-specific, whereas the Flask model used by SELinux is designed for 
+for generic & flexible mandatory access control.
 
-There are cases, though, where multi-level security folk might want to 
-either hide part of the namespace completely, or even present a different 
-view, based on the client domain.  e.g. domains labeled as 'unclassified' 
-objects only see:
-
-server:/export
-       |-- rfcs
-       |-- usenet
-
-while domains labeled as 'secret' only see:
-
-server:/export
-       |-- memos
-
-
-In the MLS world, this kind of thing is a common requirement (where it's 
-sometimes referred to as multilevel directories, or more generally, 
-polyinstantiation).
-
-
-> > 3.15.  External Remote Filesystems
-> > 
-> >     Under NFSv4, filesystems located externally to the server may be
-> >     exported in the same namespace as locally exported filesystems.
+> > The intention is to get SENFS on the IETF standards track, so any 
+> > assistance in that area would also be appreciated.
 > 
-> You're thinking of referrals here, or something else?
+> The NFSv4 WG will meet at the IETF meeting July 23.
+> You should contact the WG chairs to
+> see if you can get on the WG meeting's agenda. 
+>   http://ietf.org/html.charters/nfsv4-charter.html
 
-Yes.
-
-> >     SENFS will not support this initially in Full Mode, although for Guest
-> >     Mode, the server may convey locally generated security labels to the
-> >     client.
-> 
-> I don't understand.
-
-If my understanding of multi-server name spaces & referrals is correct, 
-then the NFS server may be exporting a filesystem from another machine as 
-if it was its own.
-
-In this case, we won't initially try and solve the potential SELinux 
-issues here (e.g. conveying SELinux state between multiple parties, and 
-across multiple security boundaries), and instead just allow the server to 
-assign labels to the filesystem itself.  This would likely be some default 
-label for the entire referred fs.
+Thanks.
 
 
 - James
