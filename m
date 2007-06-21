@@ -1,223 +1,283 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l5LNL2bo002468
-	for <selinux@tycho.nsa.gov>; Thu, 21 Jun 2007 19:21:02 -0400
-Received: from atlrel7.hp.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l5LNL0nL019141
-	for <selinux@tycho.nsa.gov>; Thu, 21 Jun 2007 23:21:01 GMT
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l5LNLAZi002501
+	for <selinux@tycho.nsa.gov>; Thu, 21 Jun 2007 19:21:10 -0400
+Received: from atlrel8.hp.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id l5LNL9bP001322
+	for <selinux@tycho.nsa.gov>; Thu, 21 Jun 2007 23:21:09 GMT
 From: "Paul Moore" <paul.moore@hp.com>
-Message-Id: <20070621232051.180583544@hp.com>
+Message-Id: <20070621232053.954015985@hp.com>
 References: <20070621231507.402982591@hp.com>
-Date: Thu, 21 Jun 2007 19:15:09 -0400
+Date: Thu, 21 Jun 2007 19:15:11 -0400
 To: selinux@tycho.nsa.gov
 Cc: cpebenito@tresys.com, Paul Moore <paul.moore@hp.com>
-Subject: [PATCHv2 2/5] Add NetLabel labeled and unlabeled support to the system domains
+Subject: [PATCHv2 4/5] Add NetLabel labeled and unlabeled support to the application domains
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 This patch adds calls to the NetLabel corenet policy interfaces to grant the
-relevant system domains access to NetLabel labeled and unlabeled packets.
+relevant application domains access to NetLabel labeled and unlabeled packets.
 
 Signed-off-by: Paul Moore <paul.moore@hp.com>
 ---
- policy/modules/system/hotplug.te    |    3 ++-
- policy/modules/system/init.te       |    3 ++-
- policy/modules/system/ipsec.te      |    2 +-
- policy/modules/system/iscsi.te      |    3 ++-
- policy/modules/system/logging.te    |    3 ++-
- policy/modules/system/lvm.te        |    3 ++-
- policy/modules/system/mount.te      |    3 ++-
- policy/modules/system/sysnetwork.if |    9 ++++++---
- policy/modules/system/sysnetwork.te |    3 ++-
- policy/modules/system/userdomain.if |    9 ++-------
- policy/modules/system/xen.te        |    3 ++-
- 11 files changed, 25 insertions(+), 19 deletions(-)
+ policy/modules/apps/calamaris.te   |    3 ++-
+ policy/modules/apps/evolution.if   |    9 ++++++---
+ policy/modules/apps/games.if       |    3 ++-
+ policy/modules/apps/gift.if        |    6 ++++--
+ policy/modules/apps/gpg.if         |    6 ++++--
+ policy/modules/apps/irc.if         |    3 ++-
+ policy/modules/apps/java.if        |    3 ++-
+ policy/modules/apps/mozilla.if     |    3 ++-
+ policy/modules/apps/screen.if      |    3 ++-
+ policy/modules/apps/thunderbird.if |    3 ++-
+ policy/modules/apps/uml.if         |    3 ++-
+ policy/modules/apps/vmware.te      |    3 ++-
+ policy/modules/apps/webalizer.te   |    3 ++-
+ policy/modules/apps/yam.te         |    3 ++-
+ 14 files changed, 36 insertions(+), 18 deletions(-)
 
-Index: refpolicy_svn_repo/policy/modules/system/hotplug.te
+Index: refpolicy_svn_repo/policy/modules/apps/calamaris.te
 ===================================================================
---- refpolicy_svn_repo.orig/policy/modules/system/hotplug.te
-+++ refpolicy_svn_repo/policy/modules/system/hotplug.te
-@@ -51,7 +51,8 @@ kernel_read_net_sysctls(hotplug_t)
+--- refpolicy_svn_repo.orig/policy/modules/apps/calamaris.te
++++ refpolicy_svn_repo/policy/modules/apps/calamaris.te
+@@ -40,7 +40,8 @@ kernel_read_system_state(calamaris_t)
  
- files_read_kernel_modules(hotplug_t)
+ corecmd_exec_bin(calamaris_t)
  
--corenet_non_ipsec_sendrecv(hotplug_t)
-+corenet_all_recvfrom_unlabeled(hotplug_t)
-+corenet_all_recvfrom_netlabel(hotplug_t)
- corenet_tcp_sendrecv_all_if(hotplug_t)
- corenet_udp_sendrecv_all_if(hotplug_t)
- corenet_tcp_sendrecv_all_nodes(hotplug_t)
-Index: refpolicy_svn_repo/policy/modules/system/init.te
+-corenet_non_ipsec_sendrecv(calamaris_t)
++corenet_all_recvfrom_unlabeled(calamaris_t)
++corenet_all_recvfrom_netlabel(calamaris_t)
+ corenet_tcp_sendrecv_generic_if(calamaris_t)
+ corenet_udp_sendrecv_generic_if(calamaris_t)
+ corenet_tcp_sendrecv_all_nodes(calamaris_t)
+Index: refpolicy_svn_repo/policy/modules/apps/evolution.if
 ===================================================================
---- refpolicy_svn_repo.orig/policy/modules/system/init.te
-+++ refpolicy_svn_repo/policy/modules/system/init.te
-@@ -247,7 +247,8 @@ kernel_dontaudit_getattr_message_if(init
+--- refpolicy_svn_repo.orig/policy/modules/apps/evolution.if
++++ refpolicy_svn_repo/policy/modules/apps/evolution.if
+@@ -188,7 +188,8 @@ template(`evolution_per_role_template',`
+ 	# Run various programs
+ 	corecmd_exec_bin($1_evolution_t)
  
- files_read_kernel_symbol_table(initrc_t)
+-	corenet_non_ipsec_sendrecv($1_evolution_t)
++	corenet_all_recvfrom_unlabeled($1_evolution_t)
++	corenet_all_recvfrom_netlabel($1_evolution_t)
+ 	corenet_tcp_sendrecv_generic_if($1_evolution_t)
+ 	corenet_udp_sendrecv_generic_if($1_evolution_t)
+ 	corenet_raw_sendrecv_generic_if($1_evolution_t)
+@@ -681,7 +682,8 @@ template(`evolution_per_role_template',`
+ 	corecmd_exec_shell($1_evolution_server_t)
  
--corenet_non_ipsec_sendrecv(initrc_t)
-+corenet_all_recvfrom_unlabeled(initrc_t)
-+corenet_all_recvfrom_netlabel(initrc_t)
- corenet_tcp_sendrecv_all_if(initrc_t)
- corenet_udp_sendrecv_all_if(initrc_t)
- corenet_tcp_sendrecv_all_nodes(initrc_t)
-Index: refpolicy_svn_repo/policy/modules/system/ipsec.te
+ 	# Obtain weather data via http (read server name from xml file in /usr)
+-	corenet_non_ipsec_sendrecv($1_evolution_server_t)
++	corenet_all_recvfrom_unlabeled($1_evolution_server_t)
++	corenet_all_recvfrom_netlabel($1_evolution_server_t)
+ 	corenet_tcp_sendrecv_generic_if($1_evolution_server_t)
+ 	corenet_tcp_sendrecv_all_nodes($1_evolution_server_t)
+ 	corenet_tcp_sendrecv_http_port($1_evolution_server_t)
+@@ -758,7 +760,8 @@ template(`evolution_per_role_template',`
+ 	# Transition from user type
+ 	domain_auto_trans($2, evolution_webcal_exec_t, $1_evolution_webcal_t)
+ 
+-	corenet_non_ipsec_sendrecv($1_evolution_webcal_t)
++	corenet_all_recvfrom_unlabeled($1_evolution_webcal_t)
++	corenet_all_recvfrom_netlabel($1_evolution_webcal_t)
+ 	corenet_tcp_sendrecv_generic_if($1_evolution_webcal_t)
+ 	corenet_raw_sendrecv_generic_if($1_evolution_webcal_t)
+ 	corenet_tcp_sendrecv_all_nodes($1_evolution_webcal_t)
+Index: refpolicy_svn_repo/policy/modules/apps/games.if
 ===================================================================
---- refpolicy_svn_repo.orig/policy/modules/system/ipsec.te
-+++ refpolicy_svn_repo/policy/modules/system/ipsec.te
-@@ -95,7 +95,7 @@ kernel_getattr_core_if(ipsec_t)
- kernel_getattr_message_if(ipsec_t)
+--- refpolicy_svn_repo.orig/policy/modules/apps/games.if
++++ refpolicy_svn_repo/policy/modules/apps/games.if
+@@ -92,7 +92,8 @@ template(`games_per_role_template',`
  
- # Pluto needs network access
--corenet_non_ipsec_sendrecv(ipsec_t)
-+corenet_all_recvfrom_unlabeled(ipsec_t)
- corenet_tcp_sendrecv_all_if(ipsec_t)
- corenet_raw_sendrecv_all_if(ipsec_t)
- corenet_tcp_sendrecv_all_nodes(ipsec_t)
-Index: refpolicy_svn_repo/policy/modules/system/iscsi.te
+ 	corecmd_exec_bin($1_games_t)
+ 
+-	corenet_non_ipsec_sendrecv($1_games_t)
++	corenet_all_recvfrom_unlabeled($1_games_t)
++	corenet_all_recvfrom_netlabel($1_games_t)
+ 	corenet_tcp_sendrecv_generic_if($1_games_t)
+ 	corenet_udp_sendrecv_generic_if($1_games_t)
+ 	corenet_tcp_sendrecv_all_nodes($1_games_t)
+Index: refpolicy_svn_repo/policy/modules/apps/gift.if
 ===================================================================
---- refpolicy_svn_repo.orig/policy/modules/system/iscsi.te
-+++ refpolicy_svn_repo/policy/modules/system/iscsi.te
-@@ -54,7 +54,8 @@ files_search_var_lib(iscsid_t)
- manage_files_pattern(iscsid_t,iscsi_var_run_t,iscsi_var_run_t)
- files_pid_filetrans(iscsid_t,iscsi_var_run_t,file)
+--- refpolicy_svn_repo.orig/policy/modules/apps/gift.if
++++ refpolicy_svn_repo/policy/modules/apps/gift.if
+@@ -96,7 +96,8 @@ template(`gift_per_role_template',`
+ 	kernel_read_system_state($1_giftd_t)
  
--corenet_non_ipsec_sendrecv(iscsid_t)
-+corenet_all_recvfrom_unlabeled(iscsid_t)
-+corenet_all_recvfrom_netlabel(iscsid_t)
- corenet_tcp_sendrecv_all_if(iscsid_t)
- corenet_tcp_sendrecv_all_nodes(iscsid_t)
- corenet_tcp_sendrecv_all_ports(iscsid_t)
-Index: refpolicy_svn_repo/policy/modules/system/logging.te
+ 	# Connect to gift daemon
+-	corenet_non_ipsec_sendrecv($1_gift_t)
++	corenet_all_recvfrom_unlabeled($1_gift_t)
++	corenet_all_recvfrom_netlabel($1_gift_t)
+ 	corenet_tcp_sendrecv_generic_if($1_gift_t)
+ 	corenet_tcp_sendrecv_all_nodes($1_gift_t)
+ 	corenet_tcp_sendrecv_giftd_port($1_gift_t)
+@@ -155,7 +156,8 @@ template(`gift_per_role_template',`
+ 	kernel_read_kernel_sysctls($1_giftd_t)
+ 
+ 	# Serve content on various p2p networks. Ports can be random.
+-	corenet_non_ipsec_sendrecv($1_giftd_t)
++	corenet_all_recvfrom_unlabeled($1_giftd_t)
++	corenet_all_recvfrom_netlabel($1_giftd_t)
+ 	corenet_tcp_sendrecv_generic_if($1_giftd_t)
+ 	corenet_udp_sendrecv_generic_if($1_giftd_t)
+ 	corenet_tcp_sendrecv_all_nodes($1_giftd_t)
+Index: refpolicy_svn_repo/policy/modules/apps/gpg.if
 ===================================================================
---- refpolicy_svn_repo.orig/policy/modules/system/logging.te
-+++ refpolicy_svn_repo/policy/modules/system/logging.te
-@@ -303,7 +303,8 @@ init_read_utmp(syslogd_t)
- init_dontaudit_write_utmp(syslogd_t)
- term_write_all_user_ttys(syslogd_t)
+--- refpolicy_svn_repo.orig/policy/modules/apps/gpg.if
++++ refpolicy_svn_repo/policy/modules/apps/gpg.if
+@@ -98,7 +98,8 @@ template(`gpg_per_role_template',`
+ 	# allow ps to show gpg
+ 	ps_process_pattern($2,$1_gpg_t)
  
--corenet_non_ipsec_sendrecv(syslogd_t)
-+corenet_all_recvfrom_unlabeled(syslogd_t)
-+corenet_all_recvfrom_netlabel(syslogd_t)
- corenet_udp_sendrecv_all_if(syslogd_t)
- corenet_udp_sendrecv_all_nodes(syslogd_t)
- corenet_udp_sendrecv_all_ports(syslogd_t)
-Index: refpolicy_svn_repo/policy/modules/system/lvm.te
+-	corenet_non_ipsec_sendrecv($1_gpg_t)
++	corenet_all_recvfrom_unlabeled($1_gpg_t)
++	corenet_all_recvfrom_netlabel($1_gpg_t)
+ 	corenet_tcp_sendrecv_all_if($1_gpg_t)
+ 	corenet_udp_sendrecv_all_if($1_gpg_t)
+ 	corenet_tcp_sendrecv_all_nodes($1_gpg_t)
+@@ -161,6 +162,8 @@ template(`gpg_per_role_template',`
+ 
+ 	dontaudit $1_gpg_helper_t $1_gpg_secret_t:file read;
+ 
++	corenet_all_recvfrom_unlabeled($1_gpg_helper_t)
++	corenet_all_recvfrom_netlabel($1_gpg_helper_t)
+ 	corenet_tcp_sendrecv_all_if($1_gpg_helper_t)
+ 	corenet_raw_sendrecv_all_if($1_gpg_helper_t)
+ 	corenet_udp_sendrecv_all_if($1_gpg_helper_t)
+@@ -169,7 +172,6 @@ template(`gpg_per_role_template',`
+ 	corenet_raw_sendrecv_all_nodes($1_gpg_helper_t)
+ 	corenet_tcp_sendrecv_all_ports($1_gpg_helper_t)
+ 	corenet_udp_sendrecv_all_ports($1_gpg_helper_t)
+-	corenet_non_ipsec_sendrecv($1_gpg_helper_t)
+ 	corenet_tcp_bind_all_nodes($1_gpg_helper_t)
+ 	corenet_udp_bind_all_nodes($1_gpg_helper_t)
+ 	corenet_tcp_connect_all_ports($1_gpg_helper_t)
+Index: refpolicy_svn_repo/policy/modules/apps/irc.if
 ===================================================================
---- refpolicy_svn_repo.orig/policy/modules/system/lvm.te
-+++ refpolicy_svn_repo/policy/modules/system/lvm.te
-@@ -69,7 +69,8 @@ kernel_dontaudit_getattr_core_if(clvmd_t
- corecmd_exec_shell(clvmd_t)
- corecmd_getattr_bin_files(clvmd_t)
+--- refpolicy_svn_repo.orig/policy/modules/apps/irc.if
++++ refpolicy_svn_repo/policy/modules/apps/irc.if
+@@ -90,7 +90,8 @@ template(`irc_per_role_template',`
+ 	
+ 	kernel_read_proc_symlinks($1_irc_t)
  
--corenet_non_ipsec_sendrecv(clvmd_t)
-+corenet_all_recvfrom_unlabeled(clvmd_t)
-+corenet_all_recvfrom_netlabel(clvmd_t)
- corenet_tcp_sendrecv_all_if(clvmd_t)
- corenet_udp_sendrecv_all_if(clvmd_t)
- corenet_raw_sendrecv_all_if(clvmd_t)
-Index: refpolicy_svn_repo/policy/modules/system/mount.te
+-	corenet_non_ipsec_sendrecv($1_irc_t)
++	corenet_all_recvfrom_unlabeled($1_irc_t)
++	corenet_all_recvfrom_netlabel($1_irc_t)
+ 	corenet_tcp_sendrecv_generic_if($1_irc_t)
+ 	corenet_udp_sendrecv_generic_if($1_irc_t)
+ 	corenet_tcp_sendrecv_all_nodes($1_irc_t)
+Index: refpolicy_svn_repo/policy/modules/apps/java.if
 ===================================================================
---- refpolicy_svn_repo.orig/policy/modules/system/mount.te
-+++ refpolicy_svn_repo/policy/modules/system/mount.te
-@@ -139,7 +139,8 @@ ifdef(`targeted_policy',`
+--- refpolicy_svn_repo.orig/policy/modules/apps/java.if
++++ refpolicy_svn_repo/policy/modules/apps/java.if
+@@ -97,7 +97,8 @@ template(`java_per_role_template',`
+ 	# Search bin directory under javaplugin for javaplugin executable
+ 	corecmd_search_bin($1_javaplugin_t)
  
- optional_policy(`
- 	# for nfs
--	corenet_non_ipsec_sendrecv(mount_t)
-+	corenet_all_recvfrom_unlabeled(mount_t)
-+	corenet_all_recvfrom_netlabel(mount_t)
- 	corenet_tcp_sendrecv_all_if(mount_t)
- 	corenet_raw_sendrecv_all_if(mount_t)
- 	corenet_udp_sendrecv_all_if(mount_t)
-Index: refpolicy_svn_repo/policy/modules/system/sysnetwork.if
+-	corenet_non_ipsec_sendrecv($1_javaplugin_t)
++	corenet_all_recvfrom_unlabeled($1_javaplugin_t)
++	corenet_all_recvfrom_netlabel($1_javaplugin_t)
+ 	corenet_tcp_sendrecv_generic_if($1_javaplugin_t)
+ 	corenet_udp_sendrecv_generic_if($1_javaplugin_t)
+ 	corenet_tcp_sendrecv_all_nodes($1_javaplugin_t)
+Index: refpolicy_svn_repo/policy/modules/apps/mozilla.if
 ===================================================================
---- refpolicy_svn_repo.orig/policy/modules/system/sysnetwork.if
-+++ refpolicy_svn_repo/policy/modules/system/sysnetwork.if
-@@ -480,7 +480,8 @@ interface(`sysnet_dns_name_resolve',`
- 	allow $1 self:tcp_socket create_socket_perms;
- 	allow $1 self:udp_socket create_socket_perms;
+--- refpolicy_svn_repo.orig/policy/modules/apps/mozilla.if
++++ refpolicy_svn_repo/policy/modules/apps/mozilla.if
+@@ -126,7 +126,8 @@ template(`mozilla_per_role_template',`
+ 	corecmd_exec_bin($1_mozilla_t)
  
--	corenet_non_ipsec_sendrecv($1)
-+	corenet_all_recvfrom_unlabeled($1)
-+	corenet_all_recvfrom_netlabel($1)
- 	corenet_tcp_sendrecv_all_if($1)
- 	corenet_udp_sendrecv_all_if($1)
- 	corenet_tcp_sendrecv_all_nodes($1)
-@@ -511,7 +512,8 @@ interface(`sysnet_use_ldap',`
- 
- 	allow $1 self:tcp_socket create_socket_perms;
- 
--	corenet_non_ipsec_sendrecv($1)
-+	corenet_all_recvfrom_unlabeled($1)
-+	corenet_all_recvfrom_netlabel($1)
- 	corenet_tcp_sendrecv_all_if($1)
- 	corenet_tcp_sendrecv_all_nodes($1)
- 	corenet_tcp_sendrecv_ldap_port($1)
-@@ -540,7 +542,8 @@ interface(`sysnet_use_portmap',`
- 	allow $1 self:tcp_socket create_socket_perms;
- 	allow $1 self:udp_socket create_socket_perms;
- 
--	corenet_non_ipsec_sendrecv($1)
-+	corenet_all_recvfrom_unlabeled($1)
-+	corenet_all_recvfrom_netlabel($1)
- 	corenet_tcp_sendrecv_all_if($1)
- 	corenet_udp_sendrecv_all_if($1)
- 	corenet_tcp_sendrecv_all_nodes($1)
-Index: refpolicy_svn_repo/policy/modules/system/sysnetwork.te
+ 	# Browse the web, connect to printer
+-	corenet_non_ipsec_sendrecv($1_mozilla_t)
++	corenet_all_recvfrom_unlabeled($1_mozilla_t)
++	corenet_all_recvfrom_netlabel($1_mozilla_t)
+ 	corenet_tcp_sendrecv_generic_if($1_mozilla_t)
+ 	corenet_raw_sendrecv_generic_if($1_mozilla_t)
+ 	corenet_tcp_sendrecv_all_nodes($1_mozilla_t)
+Index: refpolicy_svn_repo/policy/modules/apps/screen.if
 ===================================================================
---- refpolicy_svn_repo.orig/policy/modules/system/sysnetwork.te
-+++ refpolicy_svn_repo/policy/modules/system/sysnetwork.te
-@@ -84,7 +84,8 @@ kernel_read_network_state(dhcpc_t)
- kernel_read_kernel_sysctls(dhcpc_t)
- kernel_use_fds(dhcpc_t)
+--- refpolicy_svn_repo.orig/policy/modules/apps/screen.if
++++ refpolicy_svn_repo/policy/modules/apps/screen.if
+@@ -111,7 +111,8 @@ template(`screen_per_role_template',`
+ 	corecmd_shell_domtrans($1_screen_t,$2)
+ 	corecmd_bin_domtrans($1_screen_t,$2)
  
--corenet_non_ipsec_sendrecv(dhcpc_t)
-+corenet_all_recvfrom_unlabeled(dhcpc_t)
-+corenet_all_recvfrom_netlabel(dhcpc_t)
- corenet_tcp_sendrecv_all_if(dhcpc_t)
- corenet_raw_sendrecv_all_if(dhcpc_t)
- corenet_udp_sendrecv_all_if(dhcpc_t)
-Index: refpolicy_svn_repo/policy/modules/system/userdomain.if
+-	corenet_non_ipsec_sendrecv($1_screen_t)
++	corenet_all_recvfrom_unlabeled($1_screen_t)
++	corenet_all_recvfrom_netlabel($1_screen_t)
+ 	corenet_tcp_sendrecv_generic_if($1_screen_t)
+ 	corenet_udp_sendrecv_generic_if($1_screen_t)
+ 	corenet_tcp_sendrecv_all_nodes($1_screen_t)
+Index: refpolicy_svn_repo/policy/modules/apps/thunderbird.if
 ===================================================================
---- refpolicy_svn_repo.orig/policy/modules/system/userdomain.if
-+++ refpolicy_svn_repo/policy/modules/system/userdomain.if
-@@ -537,7 +537,8 @@ template(`userdom_basic_networking_templ
- 	allow $1_t self:tcp_socket create_stream_socket_perms;
- 	allow $1_t self:udp_socket create_socket_perms;
+--- refpolicy_svn_repo.orig/policy/modules/apps/thunderbird.if
++++ refpolicy_svn_repo/policy/modules/apps/thunderbird.if
+@@ -105,7 +105,8 @@ template(`thunderbird_per_role_template'
+ 	# Startup shellscript
+ 	corecmd_exec_shell($1_thunderbird_t)
  
--	corenet_non_ipsec_sendrecv($1_t)
-+	corenet_all_recvfrom_unlabeled($1_t)
-+	corenet_all_recvfrom_netlabel($1_t)
- 	corenet_tcp_sendrecv_all_if($1_t)
- 	corenet_udp_sendrecv_all_if($1_t)
- 	corenet_tcp_sendrecv_all_nodes($1_t)
-@@ -546,12 +547,6 @@ template(`userdom_basic_networking_templ
- 	corenet_udp_sendrecv_all_ports($1_t)
- 	corenet_tcp_connect_all_ports($1_t)
- 	corenet_sendrecv_all_client_packets($1_t)
--
--	ifdef(`enable_mls',`
--		# netlabel/CIPSO labeled networking 
--		corenet_tcp_recv_netlabel($1_t)
--		corenet_udp_recv_netlabel($1_t)
--	')
- ')
- 
- #######################################
-Index: refpolicy_svn_repo/policy/modules/system/xen.te
+-	corenet_non_ipsec_sendrecv($1_thunderbird_t)
++	corenet_all_recvfrom_unlabeled($1_thunderbird_t)
++	corenet_all_recvfrom_netlabel($1_thunderbird_t)
+ 	corenet_tcp_sendrecv_generic_if($1_thunderbird_t)
+ 	corenet_tcp_sendrecv_all_nodes($1_thunderbird_t)
+ 	corenet_tcp_sendrecv_ipp_port($1_thunderbird_t)
+Index: refpolicy_svn_repo/policy/modules/apps/uml.if
 ===================================================================
---- refpolicy_svn_repo.orig/policy/modules/system/xen.te
-+++ refpolicy_svn_repo/policy/modules/system/xen.te
-@@ -132,7 +132,8 @@ kernel_read_network_state(xend_t)
- corecmd_exec_bin(xend_t)
- corecmd_exec_shell(xend_t)
+--- refpolicy_svn_repo.orig/policy/modules/apps/uml.if
++++ refpolicy_svn_repo/policy/modules/apps/uml.if
+@@ -152,7 +152,8 @@ template(`uml_per_role_template',`
+ 	# for xterm
+ 	corecmd_exec_bin($1_uml_t)
  
--corenet_non_ipsec_sendrecv(xend_t)
-+corenet_all_recvfrom_unlabeled(xend_t)
-+corenet_all_recvfrom_netlabel(xend_t)
- corenet_tcp_sendrecv_all_if(xend_t)
- corenet_tcp_sendrecv_all_nodes(xend_t)
- corenet_tcp_sendrecv_all_ports(xend_t)
+-	corenet_non_ipsec_sendrecv($1_uml_t)
++	corenet_all_recvfrom_unlabeled($1_uml_t)
++	corenet_all_recvfrom_netlabel($1_uml_t)
+ 	corenet_tcp_sendrecv_generic_if($1_uml_t)
+ 	corenet_udp_sendrecv_generic_if($1_uml_t)
+ 	corenet_tcp_sendrecv_all_nodes($1_uml_t)
+Index: refpolicy_svn_repo/policy/modules/apps/vmware.te
+===================================================================
+--- refpolicy_svn_repo.orig/policy/modules/apps/vmware.te
++++ refpolicy_svn_repo/policy/modules/apps/vmware.te
+@@ -45,7 +45,8 @@ kernel_read_kernel_sysctls(vmware_host_t
+ kernel_list_proc(vmware_host_t)
+ kernel_read_proc_symlinks(vmware_host_t)
+ 
+-corenet_non_ipsec_sendrecv(vmware_host_t)
++corenet_all_recvfrom_unlabeled(vmware_host_t)
++corenet_all_recvfrom_netlabel(vmware_host_t)
+ corenet_tcp_sendrecv_generic_if(vmware_host_t)
+ corenet_udp_sendrecv_generic_if(vmware_host_t)
+ corenet_raw_sendrecv_generic_if(vmware_host_t)
+Index: refpolicy_svn_repo/policy/modules/apps/webalizer.te
+===================================================================
+--- refpolicy_svn_repo.orig/policy/modules/apps/webalizer.te
++++ refpolicy_svn_repo/policy/modules/apps/webalizer.te
+@@ -61,7 +61,8 @@ files_var_lib_filetrans(webalizer_t,weba
+ kernel_read_kernel_sysctls(webalizer_t)
+ kernel_read_system_state(webalizer_t)
+ 
+-corenet_non_ipsec_sendrecv(webalizer_t)
++corenet_all_recvfrom_unlabeled(webalizer_t)
++corenet_all_recvfrom_netlabel(webalizer_t)
+ corenet_tcp_sendrecv_all_if(webalizer_t)
+ corenet_tcp_sendrecv_all_nodes(webalizer_t)
+ corenet_tcp_sendrecv_all_ports(webalizer_t)
+Index: refpolicy_svn_repo/policy/modules/apps/yam.te
+===================================================================
+--- refpolicy_svn_repo.orig/policy/modules/apps/yam.te
++++ refpolicy_svn_repo/policy/modules/apps/yam.te
+@@ -60,7 +60,8 @@ corecmd_exec_bin(yam_t)
+ 
+ # Rsync and lftp need to network.  They also set files attributes to
+ # match whats on the remote server.
+-corenet_non_ipsec_sendrecv(yam_t)
++corenet_all_recvfrom_unlabeled(yam_t)
++corenet_all_recvfrom_netlabel(yam_t)
+ corenet_tcp_sendrecv_generic_if(yam_t)
+ corenet_tcp_sendrecv_all_nodes(yam_t)
+ corenet_tcp_sendrecv_all_ports(yam_t)
 
 -- 
 paul moore
