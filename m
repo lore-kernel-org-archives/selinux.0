@@ -1,80 +1,199 @@
-Subject: Re: [RFC v2][PATCH] selinux:  enable authoritative granting of
-	capabilities
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: "Serge E. Hallyn" <serue@us.ibm.com>
-Cc: selinux@tycho.nsa.gov, James Morris <jmorris@namei.org>,
-        Eric Paris <eparis@parisplace.org>,
-        "Christopher J. PeBenito" <cpebenito@tresys.com>,
-        Chad Sellers <csellers@tresys.com>,
-        Karl MacMillan <kmacmillan@mentalrootkit.com>,
-        Darrel Goeddel <dgoeddel@TrustedCS.com>,
-        Chad Hanson <chanson@TrustedCS.com>
-In-Reply-To: <20070620210835.GA21869@sergelap.austin.ibm.com>
-References: <1181917726.17547.750.camel@moss-spartans.epoch.ncsc.mil>
-	 <1182365766.15064.199.camel@moss-spartans.epoch.ncsc.mil>
-	 <20070620201333.GC32520@sergelap.austin.ibm.com>
-	 <1182372732.15064.268.camel@moss-spartans.epoch.ncsc.mil>
-	 <20070620210835.GA21869@sergelap.austin.ibm.com>
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l5LDUm1G028512
+	for <selinux@tycho.nsa.gov>; Thu, 21 Jun 2007 09:30:48 -0400
+Received: from exchange.columbia.tresys.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with SMTP id l5LDUlA7026215
+	for <selinux@tycho.nsa.gov>; Thu, 21 Jun 2007 13:30:47 GMT
+Subject: Re: Many fixes to get xen working - Diff off of
+	strict-targeted-merge-2266
+From: "Christopher J. PeBenito" <cpebenito@tresys.com>
+To: dwalsh@redhat.com
+Cc: selinux@tycho.nsa.gov
+In-Reply-To: <200705301245.l4UCjSWP003416@localhost.localdomain>
+References: <200705301245.l4UCjSWP003416@localhost.localdomain>
 Content-Type: text/plain
-Date: Thu, 21 Jun 2007 08:24:52 -0400
-Message-Id: <1182428692.15064.277.camel@moss-spartans.epoch.ncsc.mil>
+Date: Thu, 21 Jun 2007 13:28:46 +0000
+Message-Id: <1182432526.16539.40.camel@gorn.columbia.tresys.com>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2007-06-20 at 16:08 -0500, Serge E. Hallyn wrote:
-> Quoting Stephen Smalley (sds@tycho.nsa.gov):
-> > On Wed, 2007-06-20 at 15:13 -0500, Serge E. Hallyn wrote:
-> > > Quoting Stephen Smalley (sds@tycho.nsa.gov):
-> > > > An alternative approach to implementing this support for authoritative
-> > > > granting of capabilities by SELinux would be to compute the full
-> > > > cap_override access vector upon exec and cap_combine it with the base
-> > > > capability sets, such that the task's capability bitmasks would reflect
-> > > > the combined capabilities authorized by the base logic and by SELinux
-> > > > policy.  Then the capable() hook itself would remain unchanged from the
-> > > > current (unpatched) code, just checking the task's capability bitmask
-> > > > and then checking the SELinux capability access vector as a further
-> > > > restriction on use.
-> > > > 
-> > > > There are two places where that computation and combination could be
-> > > > done: before the usual capability evolution logic is applied (by
-> > > > cap_bprm_apply_creds) or after it.  If before, we'd be manipulating the
-> > > > bprm capability bitmasks (similar to file capabilities) and then letting
-> > > > the usual capability evolution occur; if after, we'd be manipulating the
-> > > > task capability bitmasks after they have been updated by the capability
-> > > > module.
-> > > > 
-> > > > Observations:
-> > > > - This approach would make the granting of such capabilities visible in
-> > > > the task's capability bitmasks as returned by capget
-> > > > or /proc/self/status.
-> > > 
-> > > That's kind of cool, but I guess it would also lead to policy
-> > > reloads not fully affecting the capabilities granted to already
-> > > running programs.  So if you remove CAP_NET_RAW from ping_t,
-> > > some long-running ping (haha, insert your own better example here)
-> > > would continue to run with CAP_NET_RAW, right?
-> > 
-> > Suppose that you granted ping_t net_raw authoritatively via the
-> > following pair of rules (both required):
-> > # Allow ping_t to use net_raw capability; checked-on-use.
-> > allow ping_t self:capability net_raw;
-> > # Grant ping_t net_raw capability even if not suid; checked-on-exec.
-> > allow ping_t self:cap_override net_raw;
-> > 
-> > Now you want to revoke net_raw from ping_t (or possibly both allow rules
-> > were under a boolean in the first place, and you are toggling the
-> > boolean).  You can still remove/disable the first rule and thus revoke
-> > any further use of the capability.
-> 
-> But you can't have that take effect for non-root users (who would not
-> otherwise have the capability) while letting root users use it, right?
+Merged.
 
-True.
-
+On Wed, 2007-05-30 at 08:45 -0400, dwalsh@redhat.com wrote:
+> --- nsaserefpolicy/policy/modules/system/xen.if	2007-05-29 14:10:58.000000000 -0400
+> +++ serefpolicy-3.0.1/policy/modules/system/xen.if	2007-05-30 07:35:54.000000000 -0400
+> @@ -72,12 +72,35 @@
+>  	')
+>  
+>  	logging_search_logs($1)
+> +	allow $1 xend_var_log_t:dir search_dir_perms;
+>  	allow $1 xend_var_log_t:file { getattr append };
+>  	dontaudit $1 xend_var_log_t:file write;
+>  ')
+>  
+>  ########################################
+>  ## <summary>
+> +##	Allow the specified domain to manage
+> +##	xend log files.
+> +## </summary>
+> +## <param name="domain">
+> +## 	<summary>
+> +##	Domain allowed to transition.
+> +## 	</summary>
+> +## </param>
+> +#
+> +interface(`xen_manage_log',`
+> +	gen_require(`
+> +		type var_log_t, xend_var_log_t;
+> +	')
+> +
+> +	logging_search_logs($1)
+> +	allow $1 xend_var_log_t:dir create_dir_perms;
+> +	allow $1 xend_var_log_t:file create_file_perms;
+> +	dontaudit $1 xend_var_log_t:file write;
+> +')
+> +
+> +########################################
+> +## <summary>
+>  ##	Do not audit attempts to read and write
+>  ##	Xen unix domain stream sockets.  These
+>  ##	are leaked file descriptors.
+> @@ -151,3 +174,25 @@
+>  
+>  	domtrans_pattern($1,xm_exec_t,xm_t)
+>  ')
+> +
+> +########################################
+> +## <summary>
+> +##	Allow the specified domain to read
+> +##	xend image files.
+> +## </summary>
+> +## <param name="domain">
+> +## 	<summary>
+> +##	Domain allowed to transition.
+> +## 	</summary>
+> +## </param>
+> +#
+> +interface(`xen_read_image_files',`
+> +	gen_require(`
+> +		type xen_image_t, xend_var_lib_t;
+> +	')
+> +
+> +	files_list_var_lib($1)
+> +	allow $1 xend_var_lib_t:dir search_dir_perms;
+> +	read_files_pattern($1,xen_image_t,xen_image_t)
+> +')
+> +
+> --- nsaserefpolicy/policy/modules/system/xen.te	2007-05-29 14:10:58.000000000 -0400
+> +++ serefpolicy-3.0.1/policy/modules/system/xen.te	2007-05-30 07:35:54.000000000 -0400
+> @@ -25,6 +25,10 @@
+>  domain_type(xend_t)
+>  init_daemon_domain(xend_t, xend_exec_t)
+>  
+> +# tmp files
+> +type xend_tmp_t;
+> +files_tmp_file(xend_tmp_t)
+> +
+>  # var/lib files
+>  type xend_var_lib_t;
+>  files_type(xend_var_lib_t)
+> @@ -88,6 +92,7 @@
+>  allow xend_t xen_image_t:dir list_dir_perms;
+>  manage_dirs_pattern(xend_t,xen_image_t,xen_image_t)
+>  manage_files_pattern(xend_t,xen_image_t,xen_image_t)
+> +read_lnk_files_pattern(xend_t,xen_image_t,xen_image_t)
+>  rw_blk_files_pattern(xend_t,xen_image_t,xen_image_t)
+>  
+>  allow xend_t xenctl_t:fifo_file manage_file_perms;
+> @@ -97,7 +102,8 @@
+>  allow xend_t xend_var_run_t:dir setattr;
+>  manage_files_pattern(xend_t,xend_var_run_t,xend_var_run_t)
+>  manage_sock_files_pattern(xend_t,xend_var_run_t,xend_var_run_t)
+> -files_pid_filetrans(xend_t,xend_var_run_t, { file sock_file })
+> +manage_fifo_files_pattern(xend_t,xend_var_run_t,xend_var_run_t)
+> +files_pid_filetrans(xend_t,xend_var_run_t, { file sock_file fifo_file })
+>  
+>  # log files
+>  allow xend_t xend_var_log_t:dir setattr;
+> @@ -105,6 +111,10 @@
+>  manage_sock_files_pattern(xend_t,xend_var_log_t,xend_var_log_t)
+>  logging_log_filetrans(xend_t,xend_var_log_t,{ sock_file file dir })
+>  
+> +manage_files_pattern(xend_t,xend_tmp_t,xend_tmp_t)
+> +manage_dirs_pattern(xend_t,xend_tmp_t,xend_tmp_t)
+> +files_tmp_filetrans(xend_t, xend_tmp_t, { file dir })
+> +
+>  # var/lib files for xend
+>  manage_dirs_pattern(xend_t,xend_var_lib_t,xend_var_lib_t)
+>  manage_files_pattern(xend_t,xend_var_lib_t,xend_var_lib_t)
+> @@ -165,8 +175,13 @@
+>  files_manage_etc_runtime_files(xend_t)
+>  files_etc_filetrans_etc_runtime(xend_t,file)
+>  files_read_usr_files(xend_t)
+> +files_read_default_symlinks(xend_t)
+> +
+> +#tunable_policy(`xen_use_raw_disk',`
+> +	storage_raw_read_fixed_disk(xend_t)
+> +	storage_raw_write_fixed_disk(xend_t)
+> +#')
+>  
+> -storage_raw_read_fixed_disk(xend_t)
+>  storage_raw_read_removable_device(xend_t)
+>  
+>  term_getattr_all_user_ptys(xend_t)
+> @@ -195,6 +210,10 @@
+>  
+>  xen_stream_connect_xenstore(xend_t)
+>  
+> +lvm_domtrans(xend_t)
+> +
+> +mount_domtrans(xend_t)
+> +
+>  netutils_domtrans(xend_t)
+>  
+>  optional_policy(`
+> @@ -275,6 +294,12 @@
+>  
+>  files_read_usr_files(xenstored_t)
+>  
+> +#tunable_policy(`xen_use_raw_disk',`
+> +	storage_raw_read_fixed_disk(xenstored_t)
+> +	storage_raw_write_fixed_disk(xenstored_t)
+> +#')
+> +storage_raw_read_removable_device(xenstored_t)
+> +
+>  term_use_generic_ptys(xenstored_t)
+>  term_use_console(xenconsoled_t)
+>  
+> @@ -308,6 +333,11 @@
+>  
+>  allow xm_t xen_image_t:dir rw_dir_perms;
+>  allow xm_t xen_image_t:file read_file_perms;
+> +allow xm_t xen_image_t:blk_file r_file_perms;
+> +
+> +#tunable_policy(`xen_use_raw_disk',`
+> +	storage_raw_read_fixed_disk(xm_t)
+> +#')
+>  
+>  kernel_read_system_state(xm_t)
+>  kernel_read_kernel_sysctls(xm_t)
+> @@ -343,3 +373,11 @@
+>  xen_append_log(xm_t)
+>  xen_stream_connect(xm_t)
+>  xen_stream_connect_xenstore(xm_t)
+> +
+> +#Should have a boolean wrapping these
+> +fs_list_auto_mountpoints(xend_t)
+> +files_search_mnt(xend_t)
+> +fs_write_nfs_files(xend_t)
+> +fs_read_nfs_files(xend_t)
+> +fs_getattr_all_fs(xend_t)
+> +fs_read_dos_files(xend_t)
 -- 
-Stephen Smalley
-National Security Agency
+Chris PeBenito
+Tresys Technology, LLC
+(410) 290-1411 x150
 
 
 --
