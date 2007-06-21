@@ -1,150 +1,107 @@
-Subject: Re: RHEL5 console login problem - pam_selinux cannot determine new
-	context
+Subject: Re: Services running into vserver
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Luke Kearney <lukek@amazon.com>
-Cc: selinux@tycho.nsa.gov, Daniel J Walsh <dwalsh@redhat.com>
-In-Reply-To: <467A8A93.20807@amazon.com>
-References: <467A8A93.20807@amazon.com>
+To: Daniel Gil Mayol <daniel.gil-mayol@brunel.de>
+Cc: selinux@tycho.nsa.gov
+In-Reply-To: <467A7993.8020506@brunel.de>
+References: <467A2A30.2070905@brunel.de>
+	 <1182428600.15064.275.camel@moss-spartans.epoch.ncsc.mil>
+	 <467A7993.8020506@brunel.de>
 Content-Type: text/plain
-Date: Thu, 21 Jun 2007 11:01:34 -0400
-Message-Id: <1182438094.15064.293.camel@moss-spartans.epoch.ncsc.mil>
+Date: Thu, 21 Jun 2007 11:19:33 -0400
+Message-Id: <1182439173.15064.308.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2007-06-21 at 15:26 +0100, Luke Kearney wrote:
-> Hi there,
->                                                                                                                                                        
->  
-> I'm getting a problem when logging in on a console on a RHEL5 box, I am 
-> suspecting that the problem is somewhere in pam_selinux.so
+On Thu, 2007-06-21 at 15:13 +0200, Daniel Gil Mayol wrote:
+> Stephen Smalley wrote:
+> > On Thu, 2007-06-21 at 09:35 +0200, Daniel Gil Mayol wrote:
+> >   
+> >> Hello my name is Daniel and I have a question related with the services 
+> >> running into a vserver.
+> >>
+> >> I have read that for Red Hat Enterprise Linux (v. 4), due to a SELinux 
+> >> bug the dbus can't send audit messages (here is the link: 
+> >> http://rhn.redhat.com/errata/RHBA-2006-0049.html ).
+> >>
+> >> I have the services dns and dhcp running in a vserver and the system 
+> >> doesn't work as expected but no audit messages are logged (I suppose 
+> >> that these both services uses dbus (messagebus) and don't send denied 
+> >> messages to audit system). Can I get audit messages without update the 
+> >> selinux policy (fix the bug)? Obviously, without place the services out 
+> >> of the vserver :)
+> >>     
+> >
+> > I'm a bit skeptical that the dbus issue has anything to do with the
+> > problem you are encountering.
+> >
+> > Can you provide more information about what you mean by "the system
+> > doesn't work as expected"?  And have you tried with SELinux in
+> > permissive mode (setenforce 0) to verify that selinux is the culprit?
+> >   
+> For example, there is a pppoe connection which works with SELinux 
+> disabled but in Enforcing mode, after few seconds it breaks.
+> No audit messages are posted...but something like "can't bind to fix 
+> socket" appear in the console.
 
-I saw the same bug in Fedora a while ago, and it was a bug in
-pam_selinux.  Dan, is there an update for RHEL5?
+Sounds like a name_bind denial.  Many of those are dontaudit'd because a
+common library and application behavior is to scan the port space for an
+available port, trying each one in sequence or pseudo randomly, thereby
+generating a lot of avc denials.  Sometimes the application will then
+fail after so many tries.  See e.g.
+https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=219349
+for a similar case with vsftpd.
 
->                                                                                                                                                        
->  
-> I'm not sure if it's a misconfiguration of mine, or a bug...
->                                                                                                                                                        
->  
-> I'm using:
-> RHEL5, with
-> pam-0.99.6.2-3.14.el5
-> libselinux-1.33.4-2.el5
-> selinux-policy-2.4.6-67.el5
->                                                                                                                                                        
->  
-> With the default pam options, pam_selinux is unable to get the user 
-> context, and so there is no transition when a user logs in on the 
-> console, and they end up in the "system_u:system_r:local_login_t" context
->                                                                                                                                                        
->  
-> Relevant line in /etc/pam.d/login:
-> session    required     pam_selinux.so open verbose debug
->                                                                                                                                                        
->  
-> The console login with default pam options:
->                                                                                                                                                        
->  
-> ...
-> testhost login: root
-> Password:
-> Security Context (null) Assigned
-> Last login: Thu Jun 21 07:04:28 on tty1
-> [root@testhost ~]# id -Z
-> system_u:system_r:local_login_t:SystemLow-SystemHigh
->                                                                                                                                                        
->  
-> And here is the syslogged debug info:
->                                                                                                                                                        
->  
-> Jun 21 05:27:28 testhost login: pam_unix(login:session): session opened 
-> for user root by LOGIN(uid=0)
-> Jun 21 05:27:28 testhost login: pam_selinux(login:session): Open Session
-> Jun 21 05:27:28 testhost login: pam_selinux(login:session): Username= 
-> root SELinux User = root Level= s0-s0:c0.c1023
-> Jun 21 05:27:28 testhost login: pam_selinux(login:session): Warning!  
-> Could not get new context for /dev/tty1, not relabeling: Invalid argument
-> Jun 21 05:27:28 testhost login: pam_selinux(login:session): 
-> usercon=(null), prev_context=system_u:object_r:tty_device_t
-> Jun 21 05:27:28 testhost login: pam_selinux(login:session): Security 
-> Context (null) Assigned
-> Jun 21 05:27:28 testhost login: pam_selinux(login:session): set root 
-> security context to (null)
-> Jun 21 05:27:28 testhost login: ROOT LOGIN ON tty1
->                                                                                                                                                        
->  
->                                                                                                                                                         
-> 
-> However if I change pam_selinux to use the select_context option, then 
-> it *does* correctly determine the default context:
->                                                                                                                                                         
-> 
-> So changing /etc/pam.d/login:
-> session    required     pam_selinux.so open verbose select_context debug
->                                                                                                                                                         
-> 
-> And now the console login:
->                                                                                                                                                         
-> 
-> testhost login: root
-> Password:
-> Default Security Context root:sysadm_r:sysadm_t:SystemLow-SystemHigh
->                                                                                                                                                         
-> 
-> Would you like to enter a different role or level? [n]
-> Security Context root:sysadm_r:sysadm_t:SystemLow-SystemHigh Assigned
-> Last login: Thu Jun 21 07:06:21 on tty1
-> [root@testhost ~]# id -Z
-> root:sysadm_r:sysadm_t:SystemLow-SystemHigh
-> 
-> And here is the strace of the pam_selinux failure (stracing mingetty on 
-> tty1):
->                                                                                                                                                         
-> 
-> send(3, "<87>Jun 21 05:27:28 login: pam_selinux(login:session): 
-> Username= root SELinux User = root Level= s0-s0:c0.c1023", 111, 
-> MSG_NOSIGNAL) = 111
-> gettid()                                = 3376
-> open("/proc/self/task/3376/attr/exec", O_RDONLY|O_LARGEFILE) = 4
-> read(4, "", 4095)                       = 0
-> close(4)                                = 0
-> getxattr("/dev/tty1", "security.selinux", 
-> "system_u:object_r:tty_device_t:s0", 255) = 34
-> socket(PF_FILE, SOCK_STREAM, 0)         = 4
-> connect(4, {sa_family=AF_FILE, path="/var/run/setrans/.setrans-unix"}, 
-> 110) = 0
-> sendmsg(4, {msg_name(0)=NULL, msg_iov(5)=[{"\2\0\0\0", 4}, {"\"\0\0\0", 
-> 4}, {"\1\0\0\0", 4}, {"system_u:object_r:tty_device_t:s0\0", 34}, {"\0", 
-> 1}], msg_controllen=0, msg_flags=0}, MSG_NOSIGNAL) = 47
-> readv(4, [{"\2\0\0\0", 4}, {"\37\0\0\0", 4}, {"\0\0\0\0", 4}], 3) = 12
-> readv(4, [{"system_u:object_r:tty_device_t\0", 31}], 1) = 31
-> close(4)                                = 0
-> socket(PF_FILE, SOCK_STREAM, 0)         = 4
-> connect(4, {sa_family=AF_FILE, path="/var/run/setrans/.setrans-unix"}, 
-> 110) = 0
-> sendmsg(4, {msg_name(0)=NULL, msg_iov(5)=[{"\3\0\0\0", 4}, {"\37\0\0\0", 
-> 4}, {"\1\0\0\0", 4}, {"system_u:object_r:tty_device_t\0", 31}, {"\0", 
-> 1}], msg_controllen=0, msg_flags=0}, MSG_NOSIGNAL) = 44
-> readv(4, [{"\3\0\0\0", 4}, {"\"\0\0\0", 4}, {"\0\0\0\0", 4}], 3) = 12
-> readv(4, [{"system_u:object_r:tty_device_t:s0\0", 34}], 1) = 34
-> close(4)                                = 0
-> open("/selinux/relabel", O_RDWR|O_LARGEFILE) = 4
-> write(4, "(null) system_u:object_r:tty_device_t:s0 10", 43) = -1 EINVAL 
-> (Invalid argument)
-> close(4)                                = 0
-> time(NULL)                              = 1182428848
-> stat64("/etc/localtime", {st_mode=S_IFREG|0644, st_size=1037, ...}) = 0
-> stat64("/etc/localtime", {st_mode=S_IFREG|0644, st_size=1037, ...}) = 0
-> stat64("/etc/localtime", {st_mode=S_IFREG|0644, st_size=1037, ...}) = 0
-> send(3, "<85>Jun 21 05:27:28 login: pam_selinux(login:session): 
-> Warning!  Could not get new context for /dev/tty1, not relabeling: 
-> Invalid argument", 138, MSG_NOSIGNAL) = 138
-> 
-> --
-> This message was distributed to subscribers of the selinux mailing list.
-> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
-> the words "unsubscribe selinux" without quotes as the message.
+To see the name_bind denials, build and load a policy that omits the
+dontaudit rules and retry. Under RHEL4, that would be done by installing
+selinux-policy-targeted-sources (if using targeted policy, of course)
+and checkpolicy packages (if not already present) and then:
+cd /etc/selinux/targeted/src/policy
+make clean enableaudit load
+
+This will remove all dontaudit rules from policy, yielding a lot of avc
+messages for harmless application and library probing.  But it should
+also show you the name_bind denials.  To revert the policy to its
+original state, you can:
+cd /etc/selinux/targeted/src/policy
+make clean load
+
+> If a service works with SELinux disabled and then it s started in 
+> Enforcing mode and no audit messages are logged, can this service be 
+> blocked by the SELinux? I have some dontaudit defined but this makes 
+> that an operation is not processed by AUDIT (no audit-message is shown), 
+> it shall not block the service, or?.
+
+dontaudit means to suppress the avc denial message, while still denying
+the operation.  It is used to silence noisy messages caused by innocent
+application and library probing that is not truly needed for operation.
+
+> > Are you checking the right place for audit messages?  /var/log/messages
+> > if not running auditd; /var/log/audit/audit.log if running auditd.
+> >   
+> Yes, the messages are logged in /var/log/messages.
+> Instead of auditd, kauditd is running but doesn't write into 
+> /var/log/audit/audit.log .... is that ok?
+
+Yes, only the userspace auditd will write to /var/log/audit/audit.log;
+the kernel auditd thread just sends the audit messages to the userspace
+audit daemon (or feeds them to klogd if not present).
+
+> > You can also rebuild your policy with no dontaudit rules via 'make
+> > enableaudit load' to turn on all SELinux auditing.
+> >
+> > Kernel version and .config?
+> >   
+> Red Hat Enterprise Linux 4
+> Linux  kernel-2.6.17.13-1
+
+Just to note:  by using your own custom kernel on RHEL4, your policy may
+be out of sync with the kernel, e.g. the kernel may include newer
+permission checks not defined by your RHEL4 policy.
+
+And, of course, RHEL5 is available and has a much more modern version of
+SELinux with it.
+
 -- 
 Stephen Smalley
 National Security Agency
