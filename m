@@ -1,78 +1,71 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l5LGngJF010398
-	for <selinux@tycho.nsa.gov>; Thu, 21 Jun 2007 12:49:42 -0400
-Received: from exchange.columbia.tresys.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with SMTP id l5LGnajl011651
-	for <selinux@tycho.nsa.gov>; Thu, 21 Jun 2007 16:49:36 GMT
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Subject: RE: [patch 1/3] libsemanage: genhomedircon replacement
-Date: Thu, 21 Jun 2007 12:49:35 -0400
-Message-ID: <6FE441CD9F0C0C479F2D88F959B01588D01904@exchange.columbia.tresys.com>
-In-Reply-To: <1182443353.11527.50.camel@localhost.localdomain>
-References: <20070521095414.832619201@tresys.com> <20070521095518.515998898@tresys.com> <1179868119.9092.38.camel@localhost.localdomain> <1180015458.3930.173.camel@tresys-winxppro> <1180017921.2940.24.camel@localhost.localdomain> <1180034401.3930.203.camel@tresys-winxppro> <1180108369.6331.18.camel@localhost.localdomain> <6FE441CD9F0C0C479F2D88F959B01588BEFF95@exchange.columbia.tresys.com> <1180137749.10334.18.camel@localhost.localdomain> <4677F1BC.2000201@tresys.com> <1182443353.11527.50.camel@localhost.localdomain>
-From: "Joshua Brindle" <jbrindle@tresys.com>
-To: "Karl MacMillan" <kmacmillan@mentalrootkit.com>
-Cc: "Mark Goldman" <mgoldman@tresys.com>, "SE Linux" <selinux@tycho.nsa.gov>,
-        "Daniel J Walsh" <dwalsh@redhat.com>
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l5LHHmPC012645
+	for <selinux@tycho.nsa.gov>; Thu, 21 Jun 2007 13:17:48 -0400
+Received: from exchange.columbia.tresys.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with SMTP id l5LHHlLu024768
+	for <selinux@tycho.nsa.gov>; Thu, 21 Jun 2007 17:17:47 GMT
+Subject: Re: nagios changes
+From: "Christopher J. PeBenito" <cpebenito@tresys.com>
+To: dwalsh@redhat.com
+Cc: selinux@tycho.nsa.gov
+In-Reply-To: <200705301443.l4UEhr8W008091@localhost.localdomain>
+References: <200705301443.l4UEhr8W008091@localhost.localdomain>
+Content-Type: text/plain
+Date: Thu, 21 Jun 2007 13:15:46 -0400
+Message-Id: <1182446146.12012.0.camel@gorn.columbia.tresys.com>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Karl MacMillan wrote:
-> On Tue, 2007-06-19 at 11:09 -0400, Joshua Brindle wrote:
->> Karl MacMillan wrote:
->>> On Fri, 2007-05-25 at 13:06 -0400, Joshua Brindle wrote:
->>>> Karl MacMillan wrote:
->>>>>> If you would like to move the list types out of policyrep and
->>>>>> into trunk, I'll be happy to use it.  Otherwise it is out of the
->>>>>> scope of this patch. 
->>>>>> 
->>>>> Please rebase against the policyrep branch - we can then consider
->>>>> merging the list types and this patch to trunk if desired. I will
->>>>> NACK this patch if it contains the additional list types.
->>>> There aren't additional list types because there aren't any in
->>>> trunk. This has nothing to do with policyrep and doesn't break ABI
->>>> compatibility and should be in trunk. I hate this idea of pushing
->>>> everything into policyrep because its going to make it that much
->>>> harder to get good testing done and the source of bugs will be
->>>> harder to track down. 
->>>> 
->>> 
->>> Ok.
->>> 
->>>> If you are so insistent on using the list types in policyrep why
->>>> not port them to trunk so we can use them?
->>> 
->>> That option is fine with me (and was one of my suggestions), though
->>> I don't have time to do the port right now. Can you or Mark send a
->>> patch pulling over the iterators and list?
->> 
->> I'm going to bring this back up because I think this patch is
->> important to get into upstream as a first step toward generic label
->> generation. 
->> 
-> 
-> Can you tell me a little more about what you are thinking with this?
-> 
->> Since we aren't using the policyrep branch anymore and libpolicyrep
->> is going to be in c++ do you still have reservations against this
->> patch? 
->> 
-> 
-> I'm still convinced about the maintenance long term and
-> potential for errors. Have all of the implementation issues
-> that James brought up been resolved? Remind me why this is
-> better in C than in an external Python helper.
-> 
+On Wed, 2007-05-30 at 10:43 -0400, dwalsh@redhat.com wrote:
+> nagios is designed to connect to all ports
+> needs to read random data
+> Uses nsswitch
 
-Its very hacky, we have to close the current transaction (from within
-the library) so that genhomedircon can connect and get a read lock on
-the newly created active store and then it modifies the files outside of
-the module store, non-ideal in almost every way.
+Merged.
 
-
-
+> --- nsaserefpolicy/policy/modules/services/nagios.te	2007-05-29 14:10:57.000000000 -0400
+> +++ serefpolicy-3.0.1/policy/modules/services/nagios.te	2007-05-30 07:35:54.000000000 -0400
+> @@ -73,8 +73,10 @@
+>  corenet_udp_sendrecv_all_nodes(nagios_t)
+>  corenet_tcp_sendrecv_all_ports(nagios_t)
+>  corenet_udp_sendrecv_all_ports(nagios_t)
+> +corenet_tcp_connect_all_ports(nagios_t)
+>  
+>  dev_read_sysfs(nagios_t)
+> +dev_read_urand(nagios_t)
+>  
+>  domain_use_interactive_fds(nagios_t)
+>  # for ps
+> @@ -97,8 +99,6 @@
+>  
+>  miscfiles_read_localization(nagios_t)
+>  
+> -sysnet_read_config(nagios_t)
+> -
+>  userdom_dontaudit_use_unpriv_user_fds(nagios_t)
+>  userdom_dontaudit_search_sysadm_home_dirs(nagios_t)
+>  
+> @@ -108,14 +108,10 @@
+>  	netutils_domtrans_ping(nagios_t)
+>  	netutils_signal_ping(nagios_t)
+>  	netutils_kill_ping(nagios_t)
+> -
+> -	# cjp: leaked file descriptors:
+> -	#dontaudit ping_t nagios_etc_t:file read;
+> -	#dontaudit ping_t nagios_log_t:fifo_file read;
+>  ')
+>  
+>  optional_policy(`
+> -	nis_use_ypbind(nagios_t)
+> +	auth_use_nsswitch(nagios_t)
+>  ')
+>  
+>  optional_policy(`
+-- 
+Chris PeBenito
+Tresys Technology, LLC
+(410) 290-1411 x150
 
 
 --
