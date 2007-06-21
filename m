@@ -1,34 +1,37 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l5LFNJH1003860
-	for <selinux@tycho.nsa.gov>; Thu, 21 Jun 2007 11:23:19 -0400
-Received: from exchange.columbia.tresys.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with SMTP id l5LFNGA7021728
-	for <selinux@tycho.nsa.gov>; Thu, 21 Jun 2007 15:23:16 GMT
-Subject: Re: dhcpd needs additional privs from dbus
-From: "Christopher J. PeBenito" <cpebenito@tresys.com>
-To: dwalsh@redhat.com
-Cc: selinux@tycho.nsa.gov
-In-Reply-To: <200705301452.l4UEq0GX008232@localhost.localdomain>
-References: <200705301452.l4UEq0GX008232@localhost.localdomain>
+Subject: Re: RHEL5 console login problem - pam_selinux cannot determine new
+	context
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Luke Kearney <lukek@amazon.com>
+Cc: selinux@tycho.nsa.gov, Daniel J Walsh <dwalsh@redhat.com>
+In-Reply-To: <1182438094.15064.293.camel@moss-spartans.epoch.ncsc.mil>
+References: <467A8A93.20807@amazon.com>
+	 <1182438094.15064.293.camel@moss-spartans.epoch.ncsc.mil>
 Content-Type: text/plain
-Date: Thu, 21 Jun 2007 11:21:35 -0400
-Message-Id: <1182439295.24679.7.camel@gorn.columbia.tresys.com>
+Date: Thu, 21 Jun 2007 12:00:15 -0400
+Message-Id: <1182441615.15064.327.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2007-05-30 at 10:52 -0400, dwalsh@redhat.com wrote:
-> --- nsaserefpolicy/policy/modules/services/dhcp.te	2007-05-29 14:10:57.000000000 -0400
-> +++ serefpolicy-3.0.1/policy/modules/services/dhcp.te	2007-05-30 07:35:54.000000000 -0400
-[...]
-> +	dbus_dontaudit_rw_system_selinux_socket(dhcpd_t)
+On Thu, 2007-06-21 at 11:01 -0400, Stephen Smalley wrote:
+> On Thu, 2007-06-21 at 15:26 +0100, Luke Kearney wrote:
+> > Hi there,
+> >                                                                                                                                                        
+> >  
+> > I'm getting a problem when logging in on a console on a RHEL5 box, I am 
+> > suspecting that the problem is somewhere in pam_selinux.so
+> 
+> I saw the same bug in Fedora a while ago, and it was a bug in
+> pam_selinux.  Dan, is there an update for RHEL5?
 
-I can't find a patch that adds an implementation of this interface.
+Looks like this is bug 229542, and fixed in pam-0.99.6.2-3.15.el5.
+Don't know about official RHEL5 update status, but there are some rpms
+over at:
+http://people.redhat.com/dwalsh/SELinux/RHEL5/
 
 -- 
-Chris PeBenito
-Tresys Technology, LLC
-(410) 290-1411 x150
+Stephen Smalley
+National Security Agency
 
 
 --
