@@ -1,145 +1,56 @@
 Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l5LEQZ8F032231
-	for <selinux@tycho.nsa.gov>; Thu, 21 Jun 2007 10:26:35 -0400
-Received: from smtp-fw-0102.amazon.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l5LEQYPC024658
-	for <selinux@tycho.nsa.gov>; Thu, 21 Jun 2007 14:26:34 GMT
-Received: from exchg-sl1-01.ant.amazon.com (exchg-sl1-01.ant.amazon.com [10.68.20.85])
-	by smtp-in-4102.sea5.amazon.com (8.12.11/8.12.10) with ESMTP id l5LEQWv6010223
-	for <selinux@tycho.nsa.gov>; Thu, 21 Jun 2007 14:26:33 GMT
-Message-ID: <467A8A93.20807@amazon.com>
-Date: Thu, 21 Jun 2007 15:26:27 +0100
-From: Luke Kearney <lukek@amazon.com>
-MIME-Version: 1.0
-To: selinux@tycho.nsa.gov
-Subject: RHEL5 console login problem - pam_selinux cannot determine new context
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l5LEmpsT001268
+	for <selinux@tycho.nsa.gov>; Thu, 21 Jun 2007 10:48:51 -0400
+Received: from exchange.columbia.tresys.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with SMTP id l5LEmoPC028543
+	for <selinux@tycho.nsa.gov>; Thu, 21 Jun 2007 14:48:50 GMT
+Subject: Re: Procmail needs to use ypbind, eliminate bogus udp avc messages
+From: "Christopher J. PeBenito" <cpebenito@tresys.com>
+To: dwalsh@redhat.com
+Cc: selinux@tycho.nsa.gov
+In-Reply-To: <200705301429.l4UETs7Q007861@localhost.localdomain>
+References: <200705301429.l4UETs7Q007861@localhost.localdomain>
+Content-Type: text/plain
+Date: Thu, 21 Jun 2007 10:47:10 -0400
+Message-Id: <1182437230.24679.5.camel@gorn.columbia.tresys.com>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hi there,
-                                                                                                                                                       
- 
-I'm getting a problem when logging in on a console on a RHEL5 box, I am 
-suspecting that the problem is somewhere in pam_selinux.so
-                                                                                                                                                       
- 
-I'm not sure if it's a misconfiguration of mine, or a bug...
-                                                                                                                                                       
- 
-I'm using:
-RHEL5, with
-pam-0.99.6.2-3.14.el5
-libselinux-1.33.4-2.el5
-selinux-policy-2.4.6-67.el5
-                                                                                                                                                       
- 
-With the default pam options, pam_selinux is unable to get the user 
-context, and so there is no transition when a user logs in on the 
-console, and they end up in the "system_u:system_r:local_login_t" context
-                                                                                                                                                       
- 
-Relevant line in /etc/pam.d/login:
-session    required     pam_selinux.so open verbose debug
-                                                                                                                                                       
- 
-The console login with default pam options:
-                                                                                                                                                       
- 
-...
-testhost login: root
-Password:
-Security Context (null) Assigned
-Last login: Thu Jun 21 07:04:28 on tty1
-[root@testhost ~]# id -Z
-system_u:system_r:local_login_t:SystemLow-SystemHigh
-                                                                                                                                                       
- 
-And here is the syslogged debug info:
-                                                                                                                                                       
- 
-Jun 21 05:27:28 testhost login: pam_unix(login:session): session opened 
-for user root by LOGIN(uid=0)
-Jun 21 05:27:28 testhost login: pam_selinux(login:session): Open Session
-Jun 21 05:27:28 testhost login: pam_selinux(login:session): Username= 
-root SELinux User = root Level= s0-s0:c0.c1023
-Jun 21 05:27:28 testhost login: pam_selinux(login:session): Warning!  
-Could not get new context for /dev/tty1, not relabeling: Invalid argument
-Jun 21 05:27:28 testhost login: pam_selinux(login:session): 
-usercon=(null), prev_context=system_u:object_r:tty_device_t
-Jun 21 05:27:28 testhost login: pam_selinux(login:session): Security 
-Context (null) Assigned
-Jun 21 05:27:28 testhost login: pam_selinux(login:session): set root 
-security context to (null)
-Jun 21 05:27:28 testhost login: ROOT LOGIN ON tty1
-                                                                                                                                                       
- 
-                                                                                                                                                        
+On Wed, 2007-05-30 at 10:29 -0400, dwalsh@redhat.com wrote:
+> --- nsaserefpolicy/policy/modules/services/procmail.te	2007-05-29 14:10:57.000000000 -0400
+> +++ serefpolicy-3.0.1/policy/modules/services/procmail.te	2007-05-30 09:08:15.000000000 -0400
+> @@ -101,6 +102,10 @@
+>  ')
+>  
+>  optional_policy(`
+> +	nis_use_ypbind(procmail_t)
+> +')
+> +
+> +optional_policy(`
+>  	# for a bug in the postfix local program
+>  	postfix_dontaudit_rw_local_tcp_sockets(procmail_t)
+>  	postfix_dontaudit_use_fds(procmail_t)
+> @@ -119,8 +124,11 @@
+>  
+>  optional_policy(`
+>  	corenet_udp_bind_generic_port(procmail_t)
+> +	corenet_dontaudit_udp_bind_all_ports(procmail_t)
+>  
+>  	spamassassin_exec(procmail_t)
+>  	spamassassin_exec_client(procmail_t)
+>  	spamassassin_read_lib_files(procmail_t)
+>  ')
+> +
+> +
 
-However if I change pam_selinux to use the select_context option, then 
-it *does* correctly determine the default context:
-                                                                                                                                                        
+Merged, minus the extra whitespace at the end.
 
-So changing /etc/pam.d/login:
-session    required     pam_selinux.so open verbose select_context debug
-                                                                                                                                                        
+-- 
+Chris PeBenito
+Tresys Technology, LLC
+(410) 290-1411 x150
 
-And now the console login:
-                                                                                                                                                        
-
-testhost login: root
-Password:
-Default Security Context root:sysadm_r:sysadm_t:SystemLow-SystemHigh
-                                                                                                                                                        
-
-Would you like to enter a different role or level? [n]
-Security Context root:sysadm_r:sysadm_t:SystemLow-SystemHigh Assigned
-Last login: Thu Jun 21 07:06:21 on tty1
-[root@testhost ~]# id -Z
-root:sysadm_r:sysadm_t:SystemLow-SystemHigh
-
-And here is the strace of the pam_selinux failure (stracing mingetty on 
-tty1):
-                                                                                                                                                        
-
-send(3, "<87>Jun 21 05:27:28 login: pam_selinux(login:session): 
-Username= root SELinux User = root Level= s0-s0:c0.c1023", 111, 
-MSG_NOSIGNAL) = 111
-gettid()                                = 3376
-open("/proc/self/task/3376/attr/exec", O_RDONLY|O_LARGEFILE) = 4
-read(4, "", 4095)                       = 0
-close(4)                                = 0
-getxattr("/dev/tty1", "security.selinux", 
-"system_u:object_r:tty_device_t:s0", 255) = 34
-socket(PF_FILE, SOCK_STREAM, 0)         = 4
-connect(4, {sa_family=AF_FILE, path="/var/run/setrans/.setrans-unix"}, 
-110) = 0
-sendmsg(4, {msg_name(0)=NULL, msg_iov(5)=[{"\2\0\0\0", 4}, {"\"\0\0\0", 
-4}, {"\1\0\0\0", 4}, {"system_u:object_r:tty_device_t:s0\0", 34}, {"\0", 
-1}], msg_controllen=0, msg_flags=0}, MSG_NOSIGNAL) = 47
-readv(4, [{"\2\0\0\0", 4}, {"\37\0\0\0", 4}, {"\0\0\0\0", 4}], 3) = 12
-readv(4, [{"system_u:object_r:tty_device_t\0", 31}], 1) = 31
-close(4)                                = 0
-socket(PF_FILE, SOCK_STREAM, 0)         = 4
-connect(4, {sa_family=AF_FILE, path="/var/run/setrans/.setrans-unix"}, 
-110) = 0
-sendmsg(4, {msg_name(0)=NULL, msg_iov(5)=[{"\3\0\0\0", 4}, {"\37\0\0\0", 
-4}, {"\1\0\0\0", 4}, {"system_u:object_r:tty_device_t\0", 31}, {"\0", 
-1}], msg_controllen=0, msg_flags=0}, MSG_NOSIGNAL) = 44
-readv(4, [{"\3\0\0\0", 4}, {"\"\0\0\0", 4}, {"\0\0\0\0", 4}], 3) = 12
-readv(4, [{"system_u:object_r:tty_device_t:s0\0", 34}], 1) = 34
-close(4)                                = 0
-open("/selinux/relabel", O_RDWR|O_LARGEFILE) = 4
-write(4, "(null) system_u:object_r:tty_device_t:s0 10", 43) = -1 EINVAL 
-(Invalid argument)
-close(4)                                = 0
-time(NULL)                              = 1182428848
-stat64("/etc/localtime", {st_mode=S_IFREG|0644, st_size=1037, ...}) = 0
-stat64("/etc/localtime", {st_mode=S_IFREG|0644, st_size=1037, ...}) = 0
-stat64("/etc/localtime", {st_mode=S_IFREG|0644, st_size=1037, ...}) = 0
-send(3, "<85>Jun 21 05:27:28 login: pam_selinux(login:session): 
-Warning!  Could not get new context for /dev/tty1, not relabeling: 
-Invalid argument", 138, MSG_NOSIGNAL) = 138
 
 --
 This message was distributed to subscribers of the selinux mailing list.
