@@ -1,55 +1,89 @@
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Subject: RE: [patch 1/3] libsemanage: genhomedircon replacement
-Date: Fri, 22 Jun 2007 11:31:37 -0400
-Message-ID: <6FE441CD9F0C0C479F2D88F959B01588D019AE@exchange.columbia.tresys.com>
-In-Reply-To: <1182525734.3014.20.camel@localhost.localdomain>
-References: <20070521095414.832619201@tresys.com> <20070521095518.515998898@tresys.com> <1179868119.9092.38.camel@localhost.localdomain> <1180015458.3930.173.camel@tresys-winxppro> <1180017921.2940.24.camel@localhost.localdomain> <1180034401.3930.203.camel@tresys-winxppro> <1180108369.6331.18.camel@localhost.localdomain> <6FE441CD9F0C0C479F2D88F959B01588BEFF95@exchange.columbia.tresys.com> <1180137749.10334.18.camel@localhost.localdomain> <4677F1BC.2000201@tresys.com> <1182443353.11527.50.camel@localhost.localdomain> <6FE441CD9F0C0C479F2D88F959B01588D01904@exchange.columbia.tresys.com> <1182449086.11527.80.camel@localhost.localdomain> <6FE441CD9F0C0C479F2D88F959B01588D01920@exchange.columbia.tresys.com> <1182449898.11527.83.camel@localhost.localdomain> <6FE441CD9F0C0C479F2D88F959B01588D01928@exchange.columbia.tresys.com> <1182450900.11527.88.camel@localhost.localdomain> <467AE59E.2050501@tycho.nsa.gov> <1182525734.3014.20.camel@localhost.localdomain>
-From: "Joshua Brindle" <jbrindle@tresys.com>
-To: "Karl MacMillan" <kmacmillan@mentalrootkit.com>,
-        "Eamon Walsh" <ewalsh@tycho.nsa.gov>
-Cc: "Mark Goldman" <mgoldman@tresys.com>, "SE Linux" <selinux@tycho.nsa.gov>,
-        "Daniel J Walsh" <dwalsh@redhat.com>
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l5MFVUi3011844
+	for <selinux@tycho.nsa.gov>; Fri, 22 Jun 2007 11:31:30 -0400
+Received: from mail.and.org (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id l5MFVTIG008175
+	for <selinux@tycho.nsa.gov>; Fri, 22 Jun 2007 15:31:29 GMT
+Subject: Re: backups in fedora
+From: James Antill <jantill@redhat.com>
+To: david carvalho <david@di.ubi.pt>
+Cc: selinux@tycho.nsa.gov
+In-Reply-To: <078701c7b4dd$009d7640$fd01000a@ubi.pt>
+References: <078701c7b4dd$009d7640$fd01000a@ubi.pt>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-WADzqAmssW9SxkQlaV4j"
+Date: Fri, 22 Jun 2007 11:31:02 -0400
+Message-Id: <1182526262.31779.64.camel@code.and.org>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Karl MacMillan wrote:
-> On Thu, 2007-06-21 at 16:54 -0400, Eamon Walsh wrote:
->> Karl MacMillan wrote:
->>> On Thu, 2007-06-21 at 14:25 -0400, Joshua Brindle wrote:
->>>> Karl MacMillan wrote:
->>>>> On Thu, 2007-06-21 at 14:09 -0400, Joshua Brindle wrote:
 
-> 
-> I'm not convinced by this. First, we've been doing this for a
-> long time and haven't had a single problem. Second,
-> libsemanage is not a typical library (like, say, libm).
-> Callers likely need to be fairly familiar with how it works and use
-> it carefully. 
-> 
-> Other than being in-process, what are the other advantageous
-> of writing this in C (I've heard none). If it is just making
-> it in-process why don't we just embed the python interpreter :)
->
+--=-WADzqAmssW9SxkQlaV4j
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
 
-Wow, talk about hacky... Anyway, I've already told you the advantage.
-We'll have to get rid of genhomedircon as it currently exists (as an
-independent user of libsemanage itself) and completely rewrite it to
-operate on the sandbox to get equivalent functionality. The C rewrite is
-already complete and is consistent with the way the rest of libsemanage
-works (doing work in the sandbox in the library). Why should
-genhomedircon be different than any of the other activities libsemanage
-does on the files in the sandbox (including parsing, rewriting, etc)?
+On Fri, 2007-06-22 at 15:52 +0100, david carvalho wrote:
+> Hi !
+> after I run a few tests, I've verified that "dump" can backup/restore
+> files
+> with selinu attributes. Later "tar" versions seem to do this also, but
+> when I extract
+> a tar archive with "--xattr" or "--selinux", the attributes aren't
+> there.
+> So there are 2 options. Or they aren't been created whith these
+> attributes, or it's
+> on the extraction stage.
+> Could you please provide me a simple example of tar creation and
+> extraction for=20
+> selinux/extended attributes ?
 
-IIRC running genhomedircon out of the library was always considered
-temporary until we got around to rewriting it to be a proper part of the
-library, I'm not sure why you are objecting so strongly, this is the
-natural progression. This also makes it much easier to use modular
-policy in embedded deployments since they often do not have python. With
-libpolicyrep being in c++ and libsemanage being completely in C one
-could use policy modules without python altogether (and even reimplement
-parts of semanage in C if that functionality were desired)
+ From man tar:
+
+       --acls this option causes tar to store each file=E2=80=99s ACLs in t=
+he archive.
+
+       --selinux
+              this option causes tar to store  each  file=E2=80=99s  SELinu=
+x  security
+              context information in the archive.
+
+       --xattrs
+              this  option causes tar to store each file=E2=80=99s extended=
+ attributes
+              in the archive. This option also enables --acls and--selinux =
+ if
+              they haven=E2=80=99t been set already, due to the fact that t=
+he data for
+              those are stored in special xattrs.
+
+ As the above implies tar doesn't automatically create archives with any
+xattrs in them. However if the information is there it will
+automatically use it on extraction.
+ The simple create example is:
+
+ tar --xattrs -cvf my-backup.tar ./path/to/backup
+
+=E2=80=A6at which point extracting as normal will use that information (usi=
+ng
+--no-xattrs etc. will tell tar to ignore the information in an
+extracting archive).
+
+--=20
+James Antill <jantill@redhat.com>
+
+--=-WADzqAmssW9SxkQlaV4j
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.7 (GNU/Linux)
+
+iD8DBQBGe+s211eXTEMrxtQRAgT4AKCNQgresy7GLRtlac5SxZjfWi+8wwCeJzCq
+3BpujJdEjGZkjkYOt3W5JV8=
+=UkjW
+-----END PGP SIGNATURE-----
+
+--=-WADzqAmssW9SxkQlaV4j--
 
 
 --
