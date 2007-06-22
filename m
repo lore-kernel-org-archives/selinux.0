@@ -1,68 +1,148 @@
-Subject: Re: Linux user / SELinux user changes...
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Hasan Rezaul-CHR010 <CHR010@motorola.com>
-Cc: selinux@tycho.nsa.gov
-In-Reply-To: <D06FE0A2807BC145B0D38744789D4F5D03ABC378@de01exm68.ds.mot.com>
-References: <1181917726.17547.750.camel@moss-spartans.epoch.ncsc.mil>
-	 <1182365766.15064.199.camel@moss-spartans.epoch.ncsc.mil>
-	 <20070620201333.GC32520@sergelap.austin.ibm.com>
-	 <1182372732.15064.268.camel@moss-spartans.epoch.ncsc.mil>
-	 <20070620210835.GA21869@sergelap.austin.ibm.com>
-	 <1182428692.15064.277.camel@moss-spartans.epoch.ncsc.mil>
-	 <D06FE0A2807BC145B0D38744789D4F5D03ABC378@de01exm68.ds.mot.com>
-Content-Type: text/plain
-Date: Fri, 22 Jun 2007 07:36:28 -0400
-Message-Id: <1182512188.24664.10.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+Message-ID: <467BB78F.3040002@redhat.com>
+Date: Fri, 22 Jun 2007 07:50:39 -0400
+From: Daniel J Walsh <dwalsh@redhat.com>
+MIME-Version: 1.0
+To: Eamon Walsh <ewalsh@tycho.nsa.gov>
+CC: Karl MacMillan <kmacmillan@mentalrootkit.com>,
+        Joshua Brindle <jbrindle@tresys.com>,
+        Mark Goldman <mgoldman@tresys.com>, SE Linux <selinux@tycho.nsa.gov>
+Subject: Re: [patch 1/3] libsemanage: genhomedircon replacement
+References: <20070521095414.832619201@tresys.com>	 <20070521095518.515998898@tresys.com>	 <1179868119.9092.38.camel@localhost.localdomain>	 <1180015458.3930.173.camel@tresys-winxppro>	 <1180017921.2940.24.camel@localhost.localdomain>	 <1180034401.3930.203.camel@tresys-winxppro>	 <1180108369.6331.18.camel@localhost.localdomain>	 <6FE441CD9F0C0C479F2D88F959B01588BEFF95@exchange.columbia.tresys.com>	 <1180137749.10334.18.camel@localhost.localdomain>	 <4677F1BC.2000201@tresys.com>	 <1182443353.11527.50.camel@localhost.localdomain>	 <6FE441CD9F0C0C479F2D88F959B01588D01904@exchange.columbia.tresys.com>	 <1182449086.11527.80.camel@localhost.localdomain>	 <6FE441CD9F0C0C479F2D88F959B01588D01920@exchange.columbia.tresys.com>	 <1182449898.11527.83.camel@localhost.localdomain>	 <6FE441CD9F0C0C479F2D88F959B01588D01928@exchange.columbia.tresys.com> <1182450900.11527.88.camel@localhost.localdomain> <467AE59E.2050501@tycho.nsa.gov>
+In-Reply-To: <467AE59E.2050501@tycho.nsa.gov>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2007-06-21 at 21:29 -0400, Hasan Rezaul-CHR010 wrote:
->  Hi All,
-> 
-> If I have Linux users "root"  and "test"     and I have
-> SELinux users  "staff_u", and "user_u",  and 
-> SELinux roles  "staff_r", and "user_r"  
-> 
-> If I ssh into the Linux machine as test, my SELinux identity is user_u.
-> If I ssh into the Linux machine as root, my SELinux identity is staff_u.
-> 
-> Lets say I ssh into my Linux machine as Linux user "root".
-> "id -Z"  shows   staff_u:staff_r:staff_t
-> 
-> Now if I downgrade my Linux user priviledge to user "test" by using  su
-> as follows:
-> 
-> su - test
-> Pass: test
-> 
-> id -Z  =>  still shows me that I am staff_u , even though I am Linux
-> user "test" (Linux user test should ideally be mapped to user_u).
-> 
-> Is there a way for SELinux to automatically adjust/change the SELinux
-> user, whenever the Linux user is changed via "su"  ???
+Eamon Walsh wrote:
+> Karl MacMillan wrote:
+>> On Thu, 2007-06-21 at 14:25 -0400, Joshua Brindle wrote:
+>>> Karl MacMillan wrote:
+>>>> On Thu, 2007-06-21 at 14:09 -0400, Joshua Brindle wrote:
+>>>>> Karl MacMillan wrote:
+>>>>>> On Thu, 2007-06-21 at 12:49 -0400, Joshua Brindle wrote:
+>>>>>>> Karl MacMillan wrote:
+>>>>>>>> On Tue, 2007-06-19 at 11:09 -0400, Joshua Brindle wrote:
+>>>>>>>>> Karl MacMillan wrote:
+>>>>>>>>>> On Fri, 2007-05-25 at 13:06 -0400, Joshua Brindle wrote:
+>>>>>>>>>>> Karl MacMillan wrote:
+>>>>>>>>>>>>> If you would like to move the list types out of policyrep and
+>>>>>>>>>>>>> into trunk, I'll be happy to use it.  Otherwise it is out of
+>>>>>>>>>>>>> the scope of this patch.
+>>>>>>>>>>>> Please rebase against the policyrep branch - we can then
+>>>>>>>>>>>> consider merging the list types and this patch to trunk if
+>>>>>>>>>>>> desired. I will NACK this patch if it contains the
+>>>>>> additional list types.
+>>>>>>>>>>> There aren't additional list types because there aren't any in
+>>>>>>>>>>> trunk. This has nothing to do with policyrep and doesn't break
+>>>>>>>>>>> ABI compatibility and should be in trunk. I hate this idea of
+>>>>>>>>>>> pushing everything into policyrep because its going to make it
+>>>>>>>>>>> that much harder to get good testing done and the source of
+>>>>>>>>>>> bugs will be harder to track down.
+>>>>>>>>>>>
+>>>>>>>>>> Ok.
+>>>>>>>>>>
+>>>>>>>>>>> If you are so insistent on using the list types in policyrep
+>>>>>>>>>>> why not port them to trunk so we can use them?
+>>>>>>>>>> That option is fine with me (and was one of my suggestions),
+>>>>>>>>>> though I don't have time to do the port right now. Can you or
+>>>>>>>>>> Mark send a patch pulling over the iterators and list?
+>>>>>>>>> I'm going to bring this back up because I think this patch is
+>>>>>>>>> important to get into upstream as a first step toward generic
+>>>>>>>>> label generation.
+>>>>>>>> Can you tell me a little more about what you are thinking with
+>>>>>>>> this?
+>>>>>> ??
+>>>>>>
+>>>>> We need labels for various object managers (like policy server)
+>>>>> generated per user. For example, if you look back at the PoC apache
+>>>>> metapolicy you'll see some hardcoded labels like user_apache_types_t
+>>>>> and so on, these need to be generated for each user.
+>>>>>
+>>>>>
+>>>>>>>>> Since we aren't using the policyrep branch anymore and
+>>>>>>>>> libpolicyrep is going to be in c++ do you still have
+>>>>>>>>> reservations against this patch?
+>>>>>>>> I'm still convinced about the maintenance long term and potential
+>>>>>>>> for errors. Have all of the implementation issues that James
+>>>>>>>> brought up been resolved? Remind me why this is better in C than
+>>>>>>>> in an external Python helper.
+>>>>>>> Its very hacky, we have to close the current transaction (from
+>>>>>>> within the library) so that genhomedircon can connect and get a
+>>>>>>> read lock on the newly created active store and then it modifies
+>>>>>>> the files outside of the module store, non-ideal in almost every
+>>>>>>> way.
+>>>>>> Why does it need to get the read lock - why can't it be changed to
+>>>>>> take the sandbox location and work on that directly? Fixing that
+>>>>>> might be better long term as it seems advantageous to allow helper
+>>>>>> programs in general (for separation and least-privilege).
+>>>>>>
+>>>>> Work directly on the module store? The module store is a private
+>>>>> resource of libsemanage, applications should not modify it directly
+>>>>> outside of libsemanage.
+>>>> genhomedircon is part of libsemanage - it just runs in a
+>>>> separate process. IOW it is just an implementation detail.
+>>>>
+>>> Not to mention running a python interpreter from a library is pretty
+>>> lame.
+>>
+>> Why? It's less lame than doing this string manipulation in C if you ask
+>> me. Not to mention safer - the kind of string manipulation done for this
+>> is perhaps the biggest source of exploitable flaws in software.
+>
+> I'm going to do the unthinkable and agree with Josh, I think the 
+> solution to this is to write correct code, not to give up and use a 
+> scripting language.  I'm not a fan of the Python dependencies.
+>
+>>
+>> [...]
+>>
+>>>> Think about a process to verify untrusted data (like modules)
+>>>> - it would be helpful to allow a separate process to examine
+>>>> that data. Yes things like semodule will have full access but
+>>>> allowing a lower-privileged process to handle some parts is desirable
+>>>> in my opinion. 
+>>> We already have a facility to run external apps that can do that. In
+>>> semanage.conf just do:
+>>>
+>>> [verify module]
+>>> path=/some/path/to/checker
+>>> [end]
+>>>
+>>> Which has nothing to do with genhomedircon, genhomedircon is mutating
+>>> the store, we should not be providing a facility to let random programs
+>>> mutate the store arbitrarilly.
+>>
+>> My point (that seems to be getting lost) is that genhomedircon is not an
+>> arbitrary program. It's just part of libsemanage. Why shouldn't we allow
+>> separate processes to mutate the store if they are built-in to
+>> libsemanage?
+>
+> Running helpers from a library is IMO a bad idea, because it's not 
+> easy to completely insulate helper processes from the caller.  Caller 
+> could get unexpected results from an ill-timed wait(2) call for 
+> example, or not be expecting strange things in its process tree.
+>
+>
+Just food for thought.
 
-In original SELinux, we intentionally chose to not change SELinux user
-identity upon su; the SELinux user identity was established upon login
-session creation and served as a fixed bound on the potential set of
-security contexts that the user could enter for the entire session
-(using newrole to change roles).
+Change genhomedircon to output to stdout.  Now it does not need privs to 
+manipulate the file store.  libsemanage can read its output and do the 
+manipulation.
 
-In early Fedora and RHEL (Fedora < 5?, RHEL 4) SELinux, Red Hat chose to
-integrate su with SELinux by putting pam_selinux into /etc/pam.d/su.
-But they later reverted that - it caused more problems than it solved.
-So modern Fedora and RHEL 5 have the original SELinux behavior of
-keeping them separated.
+My concern about converting genhomedircon to C is the experimentation 
+with the script will get much more difficult.  For example a couple of 
+things that could be tried are figuring out if a machine has automounted 
+home directories (local or remote) and generating the correct context. 
+Handling the situation where you can not get the list of all potential 
+users.  Rewriting this tool in C not only increases the chance of coding 
+problems, it also eliminates many developers who could potentially work 
+with it.
 
-You could put pam_selinux into /etc/pam.d/su (see /etc/pam.d/login for
-an example) and change your policy to allow that (see the
-ifdef(`distro_rhel4' blocks in policy/modules/admin/su.if), but that
-would deviate from current standard practice.
-
--- 
-Stephen Smalley
-National Security Agency
-
+Currently we treat via policy genhomedircon, semanage, setsebool, 
+semodule with the same semanage_exec_t.  I want to break these tools up 
+via least privs, especially setsebool.  To allow specific administrators 
+to only set certain booleans.  The way the library currently works makes 
+this difficult.
 
 --
 This message was distributed to subscribers of the selinux mailing list.
