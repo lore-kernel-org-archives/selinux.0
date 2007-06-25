@@ -1,156 +1,150 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l5PKwsoO025619
-	for <selinux@tycho.nsa.gov>; Mon, 25 Jun 2007 16:58:54 -0400
-Received: from mail.and.org (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l5PKwr6d002955
-	for <selinux@tycho.nsa.gov>; Mon, 25 Jun 2007 20:58:53 GMT
-Subject: Re: [PATCH] Initial policyrep patch
-From: James Antill <jantill@redhat.com>
-To: Karl MacMillan <kmacmillan@mentalrootkit.com>
-Cc: selinux@tycho.nsa.gov
-In-Reply-To: <d060fb6e9bd19573be1a.1182796135@localhost.localdomain>
-References: <d060fb6e9bd19573be1a.1182796135@localhost.localdomain>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-4qjVqJZyE6cTShaWmQX/"
-Date: Mon, 25 Jun 2007 16:58:49 -0400
-Message-Id: <1182805129.4391.41.camel@code.and.org>
-Mime-Version: 1.0
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Subject: RE: mls contraints on adding files to directories
+Date: Mon, 25 Jun 2007 14:14:22 -0700
+Message-ID: <FB39F4E77226B448BC1388D3BE4E00CD01DBFAB8@blums0008.bluelnk.net>
+References: <FB39F4E77226B448BC1388D3BE4E00CD01DBFA97@blums0008.bluelnk.net> <1182799181.5636.156.camel@moss-spartans.epoch.ncsc.mil> <FB39F4E77226B448BC1388D3BE4E00CD01DBFAAF@blums0008.bluelnk.net> <1182805012.5636.184.camel@moss-spartans.epoch.ncsc.mil>
+From: "Clarkson, Mike R \(US SSA\)" <mike.clarkson@baesystems.com>
+To: "Stephen Smalley" <sds@tycho.nsa.gov>
+Cc: <selinux@tycho.nsa.gov>, "Scott Lawler" <scott.lawler@lightspeed-tech.net>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 
---=-4qjVqJZyE6cTShaWmQX/
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
 
-On Mon, 2007-06-25 at 14:28 -0400, Karl MacMillan wrote:
-> Initial patch to create a new policyrep branch using C++. This patch incl=
-udes basic classes for
-> representing policy (Node and Parent), a few policy objects, a bison pars=
-er, a boost::python
-> binding, and basic test infrastructure.
->=20
-> Signed-off-by: User "Karl MacMillan <kmacmillan@mentalrootkit.com>"
+> -----Original Message-----
+> From: Stephen Smalley [mailto:sds@tycho.nsa.gov]
+> Sent: Monday, June 25, 2007 1:57 PM
+> To: Clarkson, Mike R (US SSA)
+> Cc: selinux@tycho.nsa.gov; Scott Lawler
+> Subject: RE: mls contraints on adding files to directories
+> 
+> On Mon, 2007-06-25 at 13:18 -0700, Clarkson, Mike R (US SSA) wrote:
+> >
+> > > -----Original Message-----
+> > > From: Stephen Smalley [mailto:sds@tycho.nsa.gov]
+> > > Sent: Monday, June 25, 2007 12:20 PM
+> > > To: Clarkson, Mike R (US SSA)
+> > > Cc: selinux@tycho.nsa.gov
+> > > Subject: Re: mls contraints on adding files to directories
+> > >
+> > > On Mon, 2007-06-25 at 11:54 -0700, Clarkson, Mike R (US SSA)
+wrote:
+> > > > I think that I'm misunderstanding the mls constraints on adding
+> > files to
+> > > > directories.
+> > > >
+> > > > I thought that the following constraint would prevent adding a
+file
+> > at a
+> > > > higher security level than the directory, unless the domain of
+the
+> > > > writing process had been given the mlsfilewritetoclr attribute,
+or
+> > the
+> > > > directory type had been given the mlstrustedobject attribute:
+> > > >
+> > > > mlsconstrain dir { add_name remove_name reparent rmdir }
+> > > > 	((( l1 dom l2 ) and ( l1 domby h2 )) or
+> > > > 	 (( t1 == mlsfilewritetoclr ) and ( h1 dom l2 ) and ( l1
+domby
+> > > > l2 )) or
+> > > > 	 ( t1 == mlsfilewrite ) or
+> > > > 	 ( t2 == mlstrustedobject ));
+> > >
+> > > (l1, h1) are the low and high levels of the process.
+> > > (l2, h2) are the low and high levels of the directory (usually the
+> > > same).
+> > >
+> > > This is a constraint on a permission check between the process and
+the
+> > > parent directory.  The new file's label doesn't come into play at
+all
+> > in
+> > > this constraint.
+> >
+> > What you mention above is what I understood. However, I would have
+> > expected the touch cmd below to fail. Since I ran the touch cmd
+using
+> > runcon -s3, the touch cmd process's l1 and h1 are both s3.
+> 
+> Hmmm...does runcon set both low and high or just low?  BTW, under the
+> -mls policy, you have to use newrole to change levels like that, so
+you
+> obviously aren't using the same policy we are.
 
- So I suck at C++, so feel free to ignore any of these comments that are
-stupid :)
+I just did a quick test, and it appears that runcon sets both the low
+and high levels. In one window I typed:
+	
+# runcon -l s2 sleep 15
 
-> +namespace policyrep {
-> +
-> +	class location;
-> +
-> +	class Parser {
-> +	public:
-> +		Parser();
-> +		virtual ~Parser();
-> +
-> +		// scanner
-> +		void scan_begin();
-> +		void scan_end();
-> +		bool trace_scanning;
-> +
-> +		// Parser
-> +		Module* parse(const std::string& f);
+In another window I typed:
 
- Why are you returning a pointer here, this implies that it can return
-NULL ... but it can't, it throws an exception if there's an error.
+# ps -efZ | grep sleep
+root:system_r:unconfined_t:s2   root     27399 18911  0 21:05 pts/3
+00:00:00 sleep 15
 
-> +		std::string file;
+Without the runcon I get a range since my shell has the range of
+SystemLow-SystemHigh
 
- Do you really want public members like this?
+You're correct, we are not using the mls policy distributed with RHEL5.
+We're currently using a mls policy based off of the targeted policy,
+with the intent to switch to the strict-mls policy distributed with
+RHEL5 once we get our domains set up.
 
-> +		bool trace_parsing;
-> +		Module* pmodule;
-> +
-> +		// error handling
-> +		virtual void error(const policyrep::location& l, const std::string& m)=
-;
-> +		virtual void error(const std::string& m);
-> +	};
-[...]
-> +	struct PolicyImpl;
-> +	class Policy : public Parent {
-> +	public:
-> +		Policy(bool mls=3Dfalse);
-> +		Policy(const Policy& other);
-> +		virtual ~Policy() { };
-> +		void operator=3D(const Policy& other);
-
- Is it normal to have only a virtual dtor? My understanding was you
-generally wanted ctor, dtor and op=3D to have the same overidability.
-
-> +		bool get_mls() const;
-> +		void set_mls(bool val);
-
- Isn't this better done with polymorphism? Like:
-
-                 bool mls() const;
-                 void mls(bool);
-
-> +                virtual void output(std::ostream& o, enum OutputStyle st=
-yle=3DDEFAULT_OUTPUT) const;
-> +	protected:
-> +		PolicyImpl* impl;
-> +	};
-> +	typedef boost::shared_ptr<Policy> PolicyPtr;
-
-[...]            =20
-> +                std::string get_name() const;
-> +                void set_name(std::string name);
-> +                std::string get_version() const;
-> +                void set_version(std::string version);
-
- Don't you want to be returning a const reference like:
-
-                  const std::string &name(void) const;
-
-...AIUI this automatically converts to a std::string via. copy in the
-cases you need a writable version. Dito. the set version, but just for
-the speed increase (Ie. the internal member is still a plain
-std::string).
-
-> +       Module::Module() : impl(new ModuleImpl) { }
-> +
-> +       Module::Module(const Module& other)
-> +               : Parent(), impl(new ModuleImpl)
-> +       {
-> +               *impl =3D *other.impl;
-> +       }=20
-
- So you are allocating memory to a pointer impl, but the Policy dtor
-does nothing?
-
-> +                virtual void output(std::ostream& o, enum OutputStyle st=
-yle=3DDEFAULT_OUTPUT) const;
-> +        protected:
-> +		ModuleImpl* impl;
-> +        };
-> +	typedef boost::shared_ptr<Module> ModulePtr;
-[...]
-
-> +	void Policy::operator=3D(const Policy& other)
-> +	{
-> +		*impl =3D *impl;=09
-> +	}
-
- This looks very wrong.
+What's the reason behind not letting runcon switch levels? 
 
 
---=20
-James Antill <jantill@redhat.com>
+> 
+> >  As shown
+> > below, l2 and h2 (for the directory) are both s1. So l1 does
+dominate
+> > l2, but l1 is NOT dominated by h2. So I would expect that the touch
+> > process would not be able to pass this constraint for add_name.
+> 
+> Testing with -mls policy here and using newrole -l s3 instead of
+runcon,
+> I get an immediate write denial on the directory.  And even if I
+switch
+> to permissive to get past that denial, it proceeds to log the add_name
+> denial.
+> 
+> So I'd tentatively guess that you granted your domain a mls override
+in
+> your policy.
+> 
+> >
+> > >
+> > > > However, I can use runcon to create a file at a higher level
+than
+> > the
+> > > > directory. For example, I can do the following:
+> > > >
+> > > > > runcon -l s3 touch /m2ds/import/datasources/inputBuffer/U/temp
+> > > >
+> > > > > ls -Z /m2ds/import/datasources/inputBuffer/U/temp
+> > > > -rw-r--r--  root root root:object_r:import_datasources_t:s3
+> > > > /m2ds/import/datasources/inputBuffer/U/temp
+> > > >
+> > > > > ls -dZ /m2ds/import/datasources/inputBuffer/U
+> > > > drwxrwxr-x  root m252 system_u:object_r:import_datasources_t:s1
+> > > > /m2ds/import/datasources/inputBuffer/U
+> > > >
+> > > > I'm able to do this with the policy in Enforcing mode.
+> > > >
+> > > > So what is this mlsconstrain statement doing?
+> > >
+> > > --
+> > > Stephen Smalley
+> > > National Security Agency
+> >
+> >
+> --
+> Stephen Smalley
+> National Security Agency
 
---=-4qjVqJZyE6cTShaWmQX/
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.7 (GNU/Linux)
-
-iD8DBQBGgCyJ11eXTEMrxtQRAnG7AJ9b3azzjPJXGWnapSLye/1rRUzZNwCgk2aW
-jqyL9i+HfUO1uz92czCNNuE=
-=Imph
------END PGP SIGNATURE-----
-
---=-4qjVqJZyE6cTShaWmQX/--
 
 
 --
