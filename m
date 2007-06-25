@@ -1,60 +1,101 @@
-Date: Sun, 24 Jun 2007 18:20:17 -0700 (PDT)
-From: Nagendra Tomar <tomer_iisc@yahoo.com>
-Subject: Re: Question on security_load_policy
-To: Nagendra Tomar <tomer_iisc@yahoo.com>, SELinux@tycho.nsa.gov
-Cc: Stephen Smalley <sds@tycho.nsa.gov>
-In-Reply-To: <994059.5156.qm@web53704.mail.re2.yahoo.com>
+From: Paul Moore <paul.moore@hp.com>
+To: James Morris <jmorris@namei.org>
+Subject: Re: [RFC] Security Enhanced NFS (SENFS) Requirements - draft 05
+Date: Mon, 25 Jun 2007 08:54:51 -0400
+Cc: selinux@tycho.nsa.gov, Stephen Smalley <sds@tycho.nsa.gov>,
+        Eric Paris <eparis@redhat.com>, Karl MacMillan <kmacmill@redhat.com>,
+        James Carter <jwcart2@epoch.ncsc.mil>,
+        Chris Vance <Christopher.Vance@sparta.com>,
+        "Matthew N. Dodd" <Matthew.Dodd@sparta.com>, nfsv4@linux-nfs.org,
+        Trond Myklebust <trond.myklebust@fys.uio.no>, neilb@suse.de,
+        rwatson@freebsd.org
+References: <Line.LNX.4.64.0706201635280.25279@localhost.localdomain> <200706221845.21148.paul.moore@hp.com> <Line.LNX.4.64.0706221957410.8933@localhost.localdomain>
+In-Reply-To: <Line.LNX.4.64.0706221957410.8933@localhost.localdomain>
 MIME-Version: 1.0
-Content-Type: multipart/alternative; boundary="0-257857369-1182734417=:36431"
-Message-ID: <714965.36431.qm@web53711.mail.re2.yahoo.com>
+Content-Type: text/plain;
+  charset="us-ascii"
+Message-Id: <200706250854.52287.paul.moore@hp.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
---0-257857369-1182734417=:36431
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+On Friday 22 June 2007 8:07:52 pm James Morris wrote:
+> On Fri, 22 Jun 2007, Paul Moore wrote:
+> > On Wednesday, June 20 2007 4:49:45 pm James Morris wrote:
+> > > Attached is a draft requirements document for the integration of
+> > > SELinux and NFSv4 (SENFS).  Also available at:
+> > >
+> > > http://namei.org/selinux/nfs/senfs-requirements-draft-05.txt
+> > >
+> > > This has been through a few internal iterations from the SELinux side,
+> > > and we hope to now obtain feedback from a wider audience, particularly
+> > > Linux NFS developers.
+> > >
+> > > The goals at this stage are to ensure we have capture all of the
+> > > requirements correctly, and that we're on the right track in general.
+> > >
+> > > Low-level implementation details are not considered in this document,
+> > > and are intended to be outlined in a subsequent functional
+> > > specification, once the requirements have been nailed down.
+> > >
+> > > Please reply with any feedback.
+> > >
+> > > The intention is to get SENFS on the IETF standards track, so any
+> > > assistance in that area would also be appreciated.
+> >
+> > Please understand the following is a bit of a nit, but I thought it might
+> > be a good idea to make this point now in an effort to make broader
+> > acceptance a bit easier ...
+> >
+> > I realize the current motivation for this work is to enable SELinux, but
+> > considering section 3.1, "Community Acceptance", I wonder if the language
+> > in the document could be more implementation agnostic.  I'm not a NFS
+> > expert, but in reading the requirements I did not see much that was
+> > specific to SELinux.  Most of the requirements involved the careful
+> > binding of security labels to file objects and the honoring of those
+> > labels in both the security enforcement mechanisms of the NFS client and
+> > server.  Granted there is language regarding per-domain
+> > authentication/configuration as well as SELinux DOIs but in reality I
+> > think the per-domain auth/config could be abstracted out to per-label
+> > auth/config and the concept of differing DOIs is not exclusive to
+> > SELinux.  In fact I think that support of multiple DOIs is what could
+> > make this a very flexible mechanism, as we could abstract the NFS
+> > security label out to things other than SELinux contexts.
+> >
+> > I believe that moving the requirement language from "SELinux NFS" to
+> > "labeled NFS" should eventually result in a cleaner design by forcing the
+> > implementation to treat the security label as an atomic attribute (a
+> > desire I often hear voiced about the SELinux context outside of the
+> > security server) as well as expanding the relevance of the standard to OS
+> > implementations that support labels but not SELinux style Domain Type
+> > Enforcement (i.e. conventional MLS systems, or other security models not
+> > yet envisioned). Granted, a general labeled NFS implementation would not
+> > be a magic bullet to solving interoperability, but it would at least
+> > provide a common mechanism for communication upon which DOI based
+> > translations could be built.
+>
+> Ok, so what we could have is a generic Labled NFS specification and then
+> develop an SELinux-specific profile.
+>
+> One concern would be that after adding a generic abstraction layer, that
+> it may still remain too SELinux-specific and not quite fit the needs of
+> another scheme down the track.
+>
+> Aside from that, I would not have a problem with the idea.
 
+Great, I think it's a good goal to shoot for at this stage.  I agree that it 
+may be a bit foolish to try and predict the needs of some random, future 
+security model; my point was that a generic label based approach has more of 
+a chance than a strictly SELinux approach.  I think a common NFS framework 
+shared amongst different known labeled OS implementations/designs is a more 
+realistic goal.
 
+I'll be curious to see what others have to say during the review process.
 
-Nagendra Tomar <tomer_iisc@yahoo.com> wrote: In the security_load_policy() function, for the not-first-time policy load case (ss_initialized is true) what is the significance of cloning the existing sidtab and then updating the contexts of all the sidtab entries (sidtab_map_remove_on_error) ?
-            
- Why can't we just drop the table and then let the new table be populated dynamically as and when new contexts are looked up. As this is how the original sidtab was populated in the first place.
+Thanks.
 
-Tomar>> I see the need for it to support existing processes 
-                which already have the SID stored in their 
-                task_struct.  If we re-create SIDs these existing SIDs 
-                will not be relevant.
-
-I can see that it might have some performance benefits in terms of  not requiring to create SIDs for the security contexts that were already present in the current sidtab, but is that overhead really worth this effort.  
-
-If we remove the code that does the cloning and conversion of contexts (sidtab_map and sidtab_map_remove_on_error calls)
-we will have uniform code for both the first-time and the not-first-time policy load case. IMHO, that will result in  slightly cleaner security_load_policy function.  
-        If we do that, we will have to call policydb_load_isids() also for the not-first-time poliy load case.
-
-Thanx,
-Tomar
-          
-
----------------------------------
-  Yahoo! Mail is the world's favourite email. Don't settle for less, sign up for your free account today.
-
-       
----------------------------------
- Yahoo! Answers - Get better answers from someone who knows. Tryit now.
---0-257857369-1182734417=:36431
-Content-Type: text/html; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
-
-<br><br><b><i>Nagendra Tomar &lt;tomer_iisc@yahoo.com&gt;</i></b> wrote:<blockquote class="replbq" style="border-left: 2px solid rgb(16, 16, 255); margin-left: 5px; padding-left: 5px;"> In the security_load_policy() function, for the not-first-time policy load case (ss_initialized is true) what is the significance of cloning the existing sidtab and then updating the contexts of all the sidtab entries (sidtab_map_remove_on_error) ?<br>&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;  &nbsp;&nbsp;  <br>&nbsp;Why can't we just drop the table and then let the new table be populated dynamically as and when new contexts are looked up. As this is how the original sidtab was populated in the first place.<br><br>Tomar&gt;&gt; I see the need for it to support existing processes <br>&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; which already have the SID stored in their <br>&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; task_struct.&nbsp; If
- we re-create SIDs these existing SIDs <br>&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; will not be relevant.<br><br>I can see that it might have some performance benefits in terms of&nbsp; not requiring to create SIDs for the security contexts that were already present in the current sidtab, but is that overhead really worth this effort.&nbsp; <br><br>If we remove the code that does the cloning and conversion of contexts (sidtab_map and sidtab_map_remove_on_error calls)<br>we will have uniform code for both the first-time and the not-first-time policy load case. IMHO, that will result in  slightly cleaner security_load_policy function.&nbsp; <br>&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;  If we do that, we will have to call policydb_load_isids() also for the not-first-time poliy load case.<br><br>Thanx,<br>Tomar<br><div>          </div><hr size="1">  Yahoo! Mail is the world's favourite email. Don't settle for less, <a
- href="http://uk.rd.yahoo.com/evt=44106/*http://uk.docs.yahoo.com/mail/winter07.html">sign up for your free account today</a>.</blockquote><br><p>&#32;
-
-
-      <hr size=1> 
-Yahoo! Answers - Get better answers from someone who knows. <a
-href="http://uk.answers.yahoo.com/;_ylc=X3oDMTEydmViNG02BF9TAzIxMTQ3MTcxOTAEc2VjA21haWwEc2xrA3RhZ2xpbmU">Try
-it now</a>.
---0-257857369-1182734417=:36431--
+-- 
+paul moore
+linux security @ hp
 
 --
 This message was distributed to subscribers of the selinux mailing list.
