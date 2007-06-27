@@ -1,48 +1,71 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l5RJdoCK006753
-	for <selinux@tycho.nsa.gov>; Wed, 27 Jun 2007 15:39:51 -0400
-Received: from atlrel7.hp.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id l5RJdnTr013351
-	for <selinux@tycho.nsa.gov>; Wed, 27 Jun 2007 19:39:49 GMT
-From: Paul Moore <paul.moore@hp.com>
-To: "Christopher J. PeBenito" <cpebenito@tresys.com>
-Subject: Re: [PATCHv2 0/5] Labeled network policy patches
-Date: Wed, 27 Jun 2007 15:38:49 -0400
-Cc: selinux@tycho.nsa.gov
-References: <20070621231507.402982591@hp.com> <1182958680.14634.9.camel@gorn>
-In-Reply-To: <1182958680.14634.9.camel@gorn>
 MIME-Version: 1.0
 Content-Type: text/plain;
-  charset="iso-8859-1"
-Message-Id: <200706271538.49996.paul.moore@hp.com>
+	charset="us-ascii"
+Subject: file_contexts & labelling...
+Date: Wed, 27 Jun 2007 18:56:07 -0400
+Message-ID: <D06FE0A2807BC145B0D38744789D4F5D03B138D9@de01exm68.ds.mot.com>
+In-Reply-To: <1182790991.5636.87.camel@moss-spartans.epoch.ncsc.mil>
+References: <20070625162622.42210.qmail@web51503.mail.re2.yahoo.com> <1182790991.5636.87.camel@moss-spartans.epoch.ncsc.mil>
+From: "Hasan Rezaul-CHR010" <CHR010@motorola.com>
+To: "Stephen Smalley" <sds@tycho.nsa.gov>
+Cc: <selinux@tycho.nsa.gov>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wednesday, June 27 2007 11:38:00 am Christopher J. PeBenito wrote:
-> On Thu, 2007-06-21 at 19:15 -0400, Paul Moore wrote:
-> > The latest revision of the labeled policy patches which enable both
-> > labeled and unlabeled policy support for NetLabel.  This revision takes
-> > into account Chris' feedback from the first version and reduces the
-> > number of interface calls in each domain down to two at present: one for
-> > unlabeled access, one for NetLabel access.  The older, transport layer
-> > specific interfaces, are still present for use by third-party modules but
-> > are not used in the default policy modules.
->
-> Merged.
+Hi All,
 
-Thanks Chris, I'll re-base the kernel patch against a more current kernel and 
-send it to the list before the end of the week.
+Suppose I use the Fedora Core 6 *strict* policy as my base...
 
-> The existing corenetwork interfaces still have to remain for
-> compatibility, I just put them back.  There were also some places that
-> still were using the old interfaces, which I also fixed.
+I get the following file_context files as part of it:
 
-Sorry about that, I thought I caught all the changes but it looked like I 
-missed a few.  Thanks again.
+/etc/selinux/strict/modules/active/file_contexts
+/etc/selinux/strict/modules/active/file_contexts.template
+/etc/selinux/strict/contexts/files/file_contexts
 
--- 
-paul moore
-linux security @ hp
+Lets say on my Linux machine I have a few additional directories under /
+e.g.  /data , /download
+
+And I want to label these directories a particular way... e.g.   I want
+to label /data  as var_t for example...
+
+I modified the above three file_context files to achieve this, such that
+
+When I do "restorecon -rF /data" , the /data directory gets labeled as
+var_t .
+
+The problem I have is that:
+
+Any time I execute commands (e.g. semanage or semodule) to modify the
+running selinux policy, ...  the above three files automatically revert
+back to their original version, and the changes I made to them get lost
+!
+
+How can I create modified file_context files or any other appropriate
+file(s), such that, my changes are retained and stay permanent... So
+that anytime I later need to relabel my /data directory, the directory
+gets labeled the way I want, and doesn't get assigned default_t  or
+file_t  or unlabeled_t, etc.
+
+Question #2
+------------
+
+If I have setup my Linux <-> SELinux login mappings such that a regular
+Linux user ssh into the box and gets context  user:user_u:user_t    and
+it generally works... 
+But sometimes something in my policy is getting corrupted ?!? such that
+the login mappings remain exactly the same as before, but for some
+strange reason, that regular Linux user ssh into the Linux box, but gets
+context
+system_u:system_r:kernel_t
+
+Where should I look to see whats breaking to cause this anomaly ?
+
+
+Thanks as always for your great help  :-)
+
+- Reza.
+ 
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
