@@ -1,48 +1,40 @@
 Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l5TJ4CDt009250
-	for <selinux@tycho.nsa.gov>; Fri, 29 Jun 2007 15:04:12 -0400
-Received: from atlrel6.hp.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l5TJ4BHt018934
-	for <selinux@tycho.nsa.gov>; Fri, 29 Jun 2007 19:04:11 GMT
-From: Paul Moore <paul.moore@hp.com>
-To: James Morris <jmorris@namei.org>
-Subject: Re: [PATCH] SELinux: use SECINITSID_NETMSG instead of SECINITSID_UNLABELED for NetLabel
-Date: Fri, 29 Jun 2007 15:04:00 -0400
-Cc: selinux@tycho.nsa.gov
-References: <20070629154825.662837991@hp.com> <Line.LNX.4.64.0706291457360.25401@localhost.localdomain>
-In-Reply-To: <Line.LNX.4.64.0706291457360.25401@localhost.localdomain>
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l5TJKhnT010347
+	for <selinux@tycho.nsa.gov>; Fri, 29 Jun 2007 15:20:43 -0400
+Received: from [66.135.97.2] (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l5TJKfHt021915
+	for <selinux@tycho.nsa.gov>; Fri, 29 Jun 2007 19:20:42 GMT
+Message-ID: <46855B72.7050502@manicmethod.com>
+Date: Fri, 29 Jun 2007 15:20:18 -0400
+From: Joshua Brindle <method@manicmethod.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Message-Id: <200706291504.00803.paul.moore@hp.com>
+To: Karl MacMillan <kmacmillan@mentalrootkit.com>
+CC: selinux@tycho.nsa.gov
+Subject: Re: [PATCH] Initial policyrep patch v2
+References: <f71c0f396608e6e362ed.1183040619@localhost.localdomain>
+In-Reply-To: <f71c0f396608e6e362ed.1183040619@localhost.localdomain>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Friday, June 29 2007 2:58:25 pm James Morris wrote:
-> On Fri, 29 Jun 2007, Paul Moore wrote:
-> > These changes will make NetLabel behave like labeled IPsec where there is
-> > an access check for both labeled and unlabeled packets as well as
-> > providing the ability to restrict domains to receiving only labeled
-> > packets when NetLabel is in use.  The changes to the policy are straight
-> > forward with the following necessary to receive labeled traffic (with
-> > SECINITSID_NETMSG defined as "netlabel_peer_t"):
->
-> Applied to
-> git://git.kernel.org/pub/scm/linux/kernel/git/jmorris/selinux-2.6.git#for-a
->kpm
+Karl MacMillan wrote:
+> +	
+> +	AVRule* define_avrule(AVRule::Type type, IdSet* src_types,
+> +			      IdSet* tgt_types, IdSet* classes,
+> +			      IdSet* perms, Parser& driver)
+> +	{
+> +		AVRule* x = new AVRule(type);
+> +		
+> +		x->src_types().ids().insert(src_types->ids().begin(), src_types->ids().end());
+> +		x->src_types().set_compl(src_types->get_compl());
+> +		delete src_types;
+> +
+>   
+I don't see - (subtraction) handling here, also compliments are not 
+allowed in type sets for any rules except neverallows (which also allows 
+*), also how do you handle * in permissions?
 
-Thanks.
 
-> Please test, as the next mainline merge window could open at any time.
-
-I have been testing this with the associated policy changes for a little while 
-now and have not seen any regressions.  I haven't yet had a chance to verify 
-the new Reference Policy release that Chris just announced but I plan to at 
-least boot it once before the end of the day.
-
--- 
-paul moore
-linux security @ hp
 
 --
 This message was distributed to subscribers of the selinux mailing list.
