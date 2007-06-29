@@ -1,36 +1,37 @@
-From: Paul Moore <paul.moore@hp.com>
-To: Karl MacMillan <kmacmillan@mentalrootkit.com>
-Subject: Re: selinux and FC6
-Date: Thu, 28 Jun 2007 17:27:43 -0400
-Cc: James Athey <jathey@tresys.com>, shazyboy khan <shazyboy.linux@gmail.com>,
-        SELinux@tycho.nsa.gov
-References: <7e531af80706280400w7f42600ai8cb01680d2236843@mail.gmail.com> <1183044882.20574.12.camel@exodus.columbia.tresys.com> <1183046435.6812.1.camel@localhost.localdomain>
-In-Reply-To: <1183046435.6812.1.camel@localhost.localdomain>
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l5TFilgu028723
+	for <selinux@tycho.nsa.gov>; Fri, 29 Jun 2007 11:44:47 -0400
+Received: from mail8.sea5.speakeasy.net (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l5TFilc2015036
+	for <selinux@tycho.nsa.gov>; Fri, 29 Jun 2007 15:44:47 GMT
+Received: from dsl092-066-197.bos1.dsl.speakeasy.net (HELO d.namei) ([66.92.66.197])
+          (envelope-sender <jmorris@namei.org>)
+          by mail8.sea5.speakeasy.net (qmail-ldap-1.03) with AES256-SHA encrypted SMTP
+          for <selinux@tycho.nsa.gov>; 29 Jun 2007 15:44:46 -0000
+Date: Fri, 29 Jun 2007 11:44:45 -0400 (EDT)
+From: James Morris <jmorris@namei.org>
+To: selinux@tycho.nsa.gov
+Subject: LCA 2008 CFP
+Message-ID: <Line.LNX.4.64.0706291142180.22341@localhost.localdomain>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Message-Id: <200706281727.43603.paul.moore@hp.com>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thursday, June 28 2007 12:00:35 pm Karl MacMillan wrote:
-> On Thu, 2007-06-28 at 11:34 -0400, James Athey wrote:
-> > And finally, some shameless commercial promotion: if you want to learn
-> > more about editing the Reference policy, take a look at this book:
-> > http://www.selinuxbyexample.com/
->
-> Err - thanks for the plug, just wish you had have chosen a different
-> url. That site is a joke by one of the authors. I haven't actually
-> joined a circus . . .
+Just a reminder that the Call for Presentations is currenly open for LCA 
+08 in Melbourne:
 
-Well, if this space isn't a circus I'm at a loss as to what we should call[1] 
-it ;)
+http://lca2008.linux.org.au/presentations/announcement
 
-[1] Substitute "label" if you are feeling particularly snarky
+(I'm not part of the conference organization, but think it would be a 
+great conference for people working on SELinux projects to present at).
 
+
+
+- James
 -- 
-paul moore
-linux security @ hp
+James Morris
+<jmorris@namei.org>
 
 --
 This message was distributed to subscribers of the selinux mailing list.
