@@ -1,52 +1,42 @@
 Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l615X13a019605
-	for <selinux@tycho.nsa.gov>; Sun, 1 Jul 2007 01:33:01 -0400
-Received: from [66.135.97.2] (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id l615Wxoo029557
-	for <selinux@tycho.nsa.gov>; Sun, 1 Jul 2007 05:33:00 GMT
-Message-ID: <46873C42.3020805@manicmethod.com>
-Date: Sun, 01 Jul 2007 01:31:46 -0400
-From: Joshua Brindle <method@manicmethod.com>
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l617KrnP022487
+	for <selinux@tycho.nsa.gov>; Sun, 1 Jul 2007 03:20:53 -0400
+Received: from web39508.mail.mud.yahoo.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with SMTP id l617Kqoo011506
+	for <selinux@tycho.nsa.gov>; Sun, 1 Jul 2007 07:20:52 GMT
+Date: Sun, 1 Jul 2007 00:20:37 -0700 (PDT)
+From: somayeh afzali <somayeh_afzali@yahoo.com>
+Subject: selinux performance
+To: "J. Tang" <jtang@tresys.com>, himainu-ynakam@miomio.jp,
+        seedit-devel@lists.sourceforge.net, owner-selinux@tycho.nsa.gov,
+        selinux@tycho.nsa.gov, selinux-approval@tycho.nsa.gov,
+        Kerry Thompson <kerry@crypt.gen.nz>
 MIME-Version: 1.0
-To: David Cottle <webmaster@aus-city.com>
-CC: selinux@tycho.nsa.gov
-Subject: Re: selinux AVC errors despite making a rule :(
-References: <46872F11.8030906@aus-city.com>
-In-Reply-To: <46872F11.8030906@aus-city.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: multipart/alternative; boundary="0-1922322483-1183274437=:99458"
+Message-ID: <311665.99458.qm@web39508.mail.mud.yahoo.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-David Cottle wrote:
-> Okay I got a server running FC6 and Plesk 8.1.1 running websites.
->
-> I do a :
-> grep avc /var/log/messages
-> to see any policies need tweaking.
->
-> I get:
-> Jun 28 23:29:18 server kernel: audit(1183073358.302:2368: avc: denied {
-> link } for pid=8544 comm="in.proftpd"
-> scontext=system_u:system_r:ftpd_t:s0
-> tcontext=system_u:system_r:crond_t:s0-s0:c0.c1023 tclass=key
->
-> every single minute. Now I started a webcam that FTPs into the server
-> every minute. So I thought no biggy, its in.proftpd, lets make a policy:
->
-> grep proftpd /var/log/messages | audit2allow -M proftpd
-> selinux -i proftpd.pp
->
-> okay but i STILL get these errors every minute...
->
-> Can someone please help me?
->   
+--0-1922322483-1183274437=:99458
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 
-Run audit2why on the denial and see where the denial is coming from, I 
-suspect it is because of the MLS constraints in which case you need to 
-figure out why they are in different levels or make ftpd_t a trusted mls 
-subject.
+hi,
 
+is there a tool for checking selinux performance?
 
+thanks
+
+       
+---------------------------------
+Looking for a deal? Find great prices on flights and hotels with Yahoo! FareChase.
+--0-1922322483-1183274437=:99458
+Content-Type: text/html; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
+
+hi,<br><br>is there a tool for checking selinux performance?<br><br>thanks<br><p>&#32;
+      <hr size=1>Looking for a deal? <a href="http://us.rd.yahoo.com/evt=47094/*http://farechase.yahoo.com/;_ylc=X3oDMTFicDJoNDllBF9TAzk3NDA3NTg5BHBvcwMxMwRzZWMDZ3JvdXBzBHNsawNlbWFpbC1uY20-">Find great prices on flights and hotels</a> with Yahoo! FareChase.
+--0-1922322483-1183274437=:99458--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
