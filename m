@@ -1,42 +1,33 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l617KrnP022487
-	for <selinux@tycho.nsa.gov>; Sun, 1 Jul 2007 03:20:53 -0400
-Received: from web39508.mail.mud.yahoo.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with SMTP id l617Kqoo011506
-	for <selinux@tycho.nsa.gov>; Sun, 1 Jul 2007 07:20:52 GMT
-Date: Sun, 1 Jul 2007 00:20:37 -0700 (PDT)
-From: somayeh afzali <somayeh_afzali@yahoo.com>
-Subject: selinux performance
-To: "J. Tang" <jtang@tresys.com>, himainu-ynakam@miomio.jp,
-        seedit-devel@lists.sourceforge.net, owner-selinux@tycho.nsa.gov,
-        selinux@tycho.nsa.gov, selinux-approval@tycho.nsa.gov,
-        Kerry Thompson <kerry@crypt.gen.nz>
-MIME-Version: 1.0
-Content-Type: multipart/alternative; boundary="0-1922322483-1183274437=:99458"
-Message-ID: <311665.99458.qm@web39508.mail.mud.yahoo.com>
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l618Qptb003188
+	for <selinux@tycho.nsa.gov>; Sun, 1 Jul 2007 04:26:52 -0400
+Received: from moutng.kundenserver.de (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l618QoYt005525
+	for <selinux@tycho.nsa.gov>; Sun, 1 Jul 2007 08:26:50 GMT
+Mime-Version: 1.0 (Apple Message framework v752.2)
+Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
+Message-Id: <61D1AE62-7AED-4A77-9EFC-0B56164B7F17@sf-net.com>
+Cc: SELinux List <selinux@tycho.nsa.gov>
+From: Stefan Schulze Frielinghaus <stefan@sf-net.com>
+Subject: apcupsd policy addon
+Date: Sun, 1 Jul 2007 10:26:45 +0200
+To: "Christopher PeBenito J." <cpebenito@tresys.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
---0-1922322483-1183274437=:99458
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+debian stores the apcupsd binary under /sbin not /usr/sbin
 
-hi,
-
-is there a tool for checking selinux performance?
-
-thanks
-
-       
----------------------------------
-Looking for a deal? Find great prices on flights and hotels with Yahoo! FareChase.
---0-1922322483-1183274437=:99458
-Content-Type: text/html; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
-
-hi,<br><br>is there a tool for checking selinux performance?<br><br>thanks<br><p>&#32;
-      <hr size=1>Looking for a deal? <a href="http://us.rd.yahoo.com/evt=47094/*http://farechase.yahoo.com/;_ylc=X3oDMTFicDJoNDllBF9TAzk3NDA3NTg5BHBvcwMxMwRzZWMDZ3JvdXBzBHNsawNlbWFpbC1uY20-">Find great prices on flights and hotels</a> with Yahoo! FareChase.
---0-1922322483-1183274437=:99458--
+--- /usr/src/refpolicy-20070629/policy/modules/services/ 
+apcupsd.fc      2007-05-07 16:55:54.000000000 +0200
++++ policy/modules/services/apcupsd.fc  2007-07-01 10:18:45.000000000  
++0200
+@@ -1,4 +1,5 @@
+/usr/sbin/apcupsd              --      gen_context 
+(system_u:object_r:apcupsd_exec_t,s0)
++/sbin/apcupsd                  --      gen_context 
+(system_u:object_r:apcupsd_exec_t,s0)
+/var/log/apcupsd\.events.*     --      gen_context 
+(system_u:object_r:apcupsd_log_t,s0)
 
 --
 This message was distributed to subscribers of the selinux mailing list.
