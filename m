@@ -1,53 +1,34 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l62FUZd2010374
-	for <selinux@tycho.nsa.gov>; Mon, 2 Jul 2007 11:30:35 -0400
-Received: from smtp-bedford.mitre.org (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id l62FUW49012419
-	for <selinux@tycho.nsa.gov>; Mon, 2 Jul 2007 15:30:32 GMT
-Received: from smtp-bedford.mitre.org (localhost.localdomain [127.0.0.1])
-	by smtp-bedford.mitre.org (8.12.11.20060308/8.12.11) with SMTP id l62FUUKi004960
-	for <selinux@tycho.nsa.gov>; Mon, 2 Jul 2007 11:30:30 -0400
-Received: from smtp-bedford.mitre.org (localhost.localdomain [127.0.0.1])
-	by smtp-bedford.mitre.org (Postfix) with ESMTP id E6EF7BF00
-	for <selinux@tycho.nsa.gov>; Mon,  2 Jul 2007 11:30:29 -0400 (EDT)
-To: Karl MacMillan <kmacmillan@mentalrootkit.com>
-Cc: russell@coker.com.au, selinux@tycho.nsa.gov
-Subject: Re: GPLv3
-References: <200707021930.00649.russell@coker.com.au>
-	<1183386470.16330.5.camel@localhost.localdomain>
-From: ramsdell@mitre.org (John D. Ramsdell)
-Date: 02 Jul 2007 11:30:28 -0400
-In-Reply-To: <1183386470.16330.5.camel@localhost.localdomain>
-Message-ID: <ogtk5tilt63.fsf@oolong.mitre.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+	charset="us-ascii"
+Subject: RE: [patch 1/3] libsemanage: genhomedircon replacement
+Date: Mon, 2 Jul 2007 11:54:56 -0400
+Message-ID: <6FE441CD9F0C0C479F2D88F959B01588D01EBC@exchange.columbia.tresys.com>
+In-Reply-To: <1183386217.16330.0.camel@localhost.localdomain>
+References: <20070521095414.832619201@tresys.com> <1180017921.2940.24.camel@localhost.localdomain> <1180034401.3930.203.camel@tresys-winxppro> <1180108369.6331.18.camel@localhost.localdomain> <6FE441CD9F0C0C479F2D88F959B01588BEFF95@exchange.columbia.tresys.com> <1180137749.10334.18.camel@localhost.localdomain> <4677F1BC.2000201@tresys.com> <1182443353.11527.50.camel@localhost.localdomain> <6FE441CD9F0C0C479F2D88F959B01588D01904@exchange.columbia.tresys.com> <1182449086.11527.80.camel@localhost.localdomain> <6FE441CD9F0C0C479F2D88F959B01588D01920@exchange.columbia.tresys.com> <1182449898.11527.83.camel@localhost.localdomain> <6FE441CD9F0C0C479F2D88F959B01588D01928@exchange.columbia.tresys.com> <1182450900.11527.88.camel@localhost.localdomain> <467AE59E.2050501@tycho.nsa.gov> <1182525734.3014.20.camel@localhost.localdomain> <467BFF99.9000404@tycho.nsa.gov> <1182540624.6599.5.camel@localhost.localdomain> <467C3728.6070803@tycho.nsa.gov>  <468904FA.7030102@tresys.com> <118338621!
+ 7.16330.0
+	.camel@localhost.localdomain>
+From: "Joshua Brindle" <jbrindle@tresys.com>
+To: "Karl MacMillan" <kmacmillan@mentalrootkit.com>
+Cc: "Eamon Walsh" <ewalsh@tycho.nsa.gov>, "Mark Goldman" <mgoldman@tresys.com>,
+        "SE Linux" <selinux@tycho.nsa.gov>,
+        "Daniel J Walsh" <dwalsh@redhat.com>,
+        "James Antill" <jantill@redhat.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Karl MacMillan <kmacmillan@mentalrootkit.com> writes:
+Karl MacMillan wrote:
+> On Mon, 2007-07-02 at 10:00 -0400, Joshua Brindle wrote:
 
-> On Mon, 2007-07-02 at 19:29 +1000, Russell Coker wrote:
-> > What are we going to do regarding GPLv3?
+> 
+> I'm certain James can answer any questions.
+> 
+> More to the point - what do you think of using some string library?
+> 
 
-> I think it is too soon to do this. ...
+I'm not at all adverse to the idea, I even suggested it quite a while
+back and was denied due to our anti-dependency mindset at the time.
 
-I notice FSF already has cute Buttons available for projects to
-promote their switch to GPLv3 at http://gplv3.fsf.org/.
-
-Seriously though, in Richard Stallman's page titled "Why Upgrade to
-GPLv3", you can find this quote:
-
-   When we say that GPLv2 and GPLv3 are incompatible, it means there
-   is no legal way to combine code under GPLv2 with code under GPLv3
-   in a single program.
-
-This means a GPLv2 library cannot be linked with a GPLv3 program, as I
-read it.  I think Karl's call for careful planning before any switch
-is wise.
-
-http://www.gnu.org/licenses/rms-why-gplv3.html
-
-John
 
 --
 This message was distributed to subscribers of the selinux mailing list.
