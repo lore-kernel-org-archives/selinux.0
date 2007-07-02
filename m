@@ -1,33 +1,47 @@
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l62KZlWY031179
+	for <selinux@tycho.nsa.gov>; Mon, 2 Jul 2007 16:35:47 -0400
+Received: from mx1.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id l62KZkr0021234
+	for <selinux@tycho.nsa.gov>; Mon, 2 Jul 2007 20:35:46 GMT
+Message-ID: <4689619E.7060200@redhat.com>
+Date: Mon, 02 Jul 2007 16:35:42 -0400
+From: Daniel J Walsh <dwalsh@redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Subject: RE: [patch 1/3] libsemanage: genhomedircon replacement
-Date: Mon, 2 Jul 2007 11:54:56 -0400
-Message-ID: <6FE441CD9F0C0C479F2D88F959B01588D01EBC@exchange.columbia.tresys.com>
-In-Reply-To: <1183386217.16330.0.camel@localhost.localdomain>
-References: <20070521095414.832619201@tresys.com> <1180017921.2940.24.camel@localhost.localdomain> <1180034401.3930.203.camel@tresys-winxppro> <1180108369.6331.18.camel@localhost.localdomain> <6FE441CD9F0C0C479F2D88F959B01588BEFF95@exchange.columbia.tresys.com> <1180137749.10334.18.camel@localhost.localdomain> <4677F1BC.2000201@tresys.com> <1182443353.11527.50.camel@localhost.localdomain> <6FE441CD9F0C0C479F2D88F959B01588D01904@exchange.columbia.tresys.com> <1182449086.11527.80.camel@localhost.localdomain> <6FE441CD9F0C0C479F2D88F959B01588D01920@exchange.columbia.tresys.com> <1182449898.11527.83.camel@localhost.localdomain> <6FE441CD9F0C0C479F2D88F959B01588D01928@exchange.columbia.tresys.com> <1182450900.11527.88.camel@localhost.localdomain> <467AE59E.2050501@tycho.nsa.gov> <1182525734.3014.20.camel@localhost.localdomain> <467BFF99.9000404@tycho.nsa.gov> <1182540624.6599.5.camel@localhost.localdomain> <467C3728.6070803@tycho.nsa.gov>  <468904FA.7030102@tresys.com> <118338621!
- 7.16330.0
-	.camel@localhost.localdomain>
-From: "Joshua Brindle" <jbrindle@tresys.com>
-To: "Karl MacMillan" <kmacmillan@mentalrootkit.com>
-Cc: "Eamon Walsh" <ewalsh@tycho.nsa.gov>, "Mark Goldman" <mgoldman@tresys.com>,
-        "SE Linux" <selinux@tycho.nsa.gov>,
-        "Daniel J Walsh" <dwalsh@redhat.com>,
-        "James Antill" <jantill@redhat.com>
+To: Karl MacMillan <kmacmillan@mentalrootkit.com>
+CC: SE Linux <selinux@tycho.nsa.gov>
+Subject: Re: Allowing apache to read custom types
+References: <1183387458.16330.15.camel@localhost.localdomain>
+In-Reply-To: <1183387458.16330.15.camel@localhost.localdomain>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 Karl MacMillan wrote:
-> On Mon, 2007-07-02 at 10:00 -0400, Joshua Brindle wrote:
+> I had a coworker ask about how to allow apache to read a custom type for
+> a policy that he wrote. Essentially, the policy is not focused on web
+> pages so it is not really ideal for the types to be generated from the
+> apache templates. I couldn't find any interfaces to allow apache to read
+> external types (I understand that these would be "reverse" interfaces -
+> but it seems like the most convenient way).
+>
+> Am I just missing the best approach here?
+>
+> Karl
+>
+>
+> --
+> This message was distributed to subscribers of the selinux mailing list.
+> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
+> the words "unsubscribe selinux" without quotes as the message.
+>   
+We could add an attribute
 
-> 
-> I'm certain James can answer any questions.
-> 
-> More to the point - what do you think of using some string library?
-> 
+apache_readable and an interface to define it.
 
-I'm not at all adverse to the idea, I even suggested it quite a while
-back and was denied due to our anti-dependency mindset at the time.
+read_file_pattern(httpd_t,  apache_readable, apache_readable)
+read_file_pattern(httpd_sys_script_t,  apache_readable, apache_readable)
+
 
 
 --
