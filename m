@@ -1,47 +1,53 @@
 Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l62FSsO5010188
-	for <selinux@tycho.nsa.gov>; Mon, 2 Jul 2007 11:28:54 -0400
-Received: from mail.asahi-net.or.jp (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id l62FSn49012054
-	for <selinux@tycho.nsa.gov>; Mon, 2 Jul 2007 15:28:50 GMT
-Message-ID: <46891A02.2040106@kaigai.gr.jp>
-Date: Tue, 03 Jul 2007 00:30:10 +0900
-From: KaiGai Kohei <kaigai@kaigai.gr.jp>
-MIME-Version: 1.0
-To: russell@coker.com.au
-Cc: selinux@tycho.nsa.gov
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l62FUZd2010374
+	for <selinux@tycho.nsa.gov>; Mon, 2 Jul 2007 11:30:35 -0400
+Received: from smtp-bedford.mitre.org (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id l62FUW49012419
+	for <selinux@tycho.nsa.gov>; Mon, 2 Jul 2007 15:30:32 GMT
+Received: from smtp-bedford.mitre.org (localhost.localdomain [127.0.0.1])
+	by smtp-bedford.mitre.org (8.12.11.20060308/8.12.11) with SMTP id l62FUUKi004960
+	for <selinux@tycho.nsa.gov>; Mon, 2 Jul 2007 11:30:30 -0400
+Received: from smtp-bedford.mitre.org (localhost.localdomain [127.0.0.1])
+	by smtp-bedford.mitre.org (Postfix) with ESMTP id E6EF7BF00
+	for <selinux@tycho.nsa.gov>; Mon,  2 Jul 2007 11:30:29 -0400 (EDT)
+To: Karl MacMillan <kmacmillan@mentalrootkit.com>
+Cc: russell@coker.com.au, selinux@tycho.nsa.gov
 Subject: Re: GPLv3
 References: <200707021930.00649.russell@coker.com.au>
-In-Reply-To: <200707021930.00649.russell@coker.com.au>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	<1183386470.16330.5.camel@localhost.localdomain>
+From: ramsdell@mitre.org (John D. Ramsdell)
+Date: 02 Jul 2007 11:30:28 -0400
+In-Reply-To: <1183386470.16330.5.camel@localhost.localdomain>
+Message-ID: <ogtk5tilt63.fsf@oolong.mitre.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Russell,
+Karl MacMillan <kmacmillan@mentalrootkit.com> writes:
 
-Does your opinion means that non-GPL software like libselinux also
-should be relicensed to GPL-v3?
-If so, the incompatibility is not acceptable for several non-GPL
-softwares like PostgreSQL (BSD licensed).
+> On Mon, 2007-07-02 at 19:29 +1000, Russell Coker wrote:
+> > What are we going to do regarding GPLv3?
 
-Russell Coker wrote:
-> What are we going to do regarding GPLv3?
-> 
-> The NSA code has no copyright (being produced by the US government) and the 
-> majority of other code included in the SE Linux policy and utilities comes 
-> from a small number of sources.  Getting agreement to relicense the source 
-> under GPLv3 should not be that difficult (if Tresys, Red Hat, and IBM agree 
-> then we're almost there).
-> 
-> I think that the patent clauses in GPLv3 have some potential to avoid problems 
-> in future, and if nothing else will be good PR.
-> 
-> I would like to relicense my code under GPLv3.  Anyone who wants to use any of 
-> my SE Linux related code under GPLv3 can do so.  Of course this doesn't give 
-> any real benefit unless others join in.
+> I think it is too soon to do this. ...
 
--- 
-KaiGai Kohei <kaigai@kaigai.gr.jp>
+I notice FSF already has cute Buttons available for projects to
+promote their switch to GPLv3 at http://gplv3.fsf.org/.
+
+Seriously though, in Richard Stallman's page titled "Why Upgrade to
+GPLv3", you can find this quote:
+
+   When we say that GPLv2 and GPLv3 are incompatible, it means there
+   is no legal way to combine code under GPLv2 with code under GPLv3
+   in a single program.
+
+This means a GPLv2 library cannot be linked with a GPLv3 program, as I
+read it.  I think Karl's call for careful planning before any switch
+is wise.
+
+http://www.gnu.org/licenses/rms-why-gplv3.html
+
+John
 
 --
 This message was distributed to subscribers of the selinux mailing list.
