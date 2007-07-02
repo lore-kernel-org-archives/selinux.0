@@ -1,46 +1,36 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l62ES1c1005808
-	for <selinux@tycho.nsa.gov>; Mon, 2 Jul 2007 10:28:01 -0400
-Received: from mx1.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id l62ES049027378
-	for <selinux@tycho.nsa.gov>; Mon, 2 Jul 2007 14:28:00 GMT
-Subject: Re: GPLv3
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l62EiLAU006819
+	for <selinux@tycho.nsa.gov>; Mon, 2 Jul 2007 10:44:21 -0400
+Received: from mx1.redhat.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l62EiKgI026114
+	for <selinux@tycho.nsa.gov>; Mon, 2 Jul 2007 14:44:20 GMT
+Received: from int-mx1.corp.redhat.com (int-mx1.corp.redhat.com [172.16.52.254])
+	by mx1.redhat.com (8.13.1/8.13.1) with ESMTP id l62EiKbN029902
+	for <selinux@tycho.nsa.gov>; Mon, 2 Jul 2007 10:44:20 -0400
+Received: from pobox-2.corp.redhat.com (pobox-2.corp.redhat.com [10.11.255.15])
+	by int-mx1.corp.redhat.com (8.13.1/8.13.1) with ESMTP id l62EiJ4a008251
+	for <selinux@tycho.nsa.gov>; Mon, 2 Jul 2007 10:44:19 -0400
+Received: from [10.11.14.241] (vpn-14-241.rdu.redhat.com [10.11.14.241])
+	by pobox-2.corp.redhat.com (8.13.1/8.13.1) with ESMTP id l62EiJHI010494
+	for <selinux@tycho.nsa.gov>; Mon, 2 Jul 2007 10:44:19 -0400
+Subject: Allowing apache to read custom types
 From: Karl MacMillan <kmacmillan@mentalrootkit.com>
-To: russell@coker.com.au
-Cc: selinux@tycho.nsa.gov
-In-Reply-To: <200707021930.00649.russell@coker.com.au>
-References: <200707021930.00649.russell@coker.com.au>
+To: SE Linux <selinux@tycho.nsa.gov>
 Content-Type: text/plain
-Date: Mon, 02 Jul 2007 10:27:50 -0400
-Message-Id: <1183386470.16330.5.camel@localhost.localdomain>
+Date: Mon, 02 Jul 2007 10:44:18 -0400
+Message-Id: <1183387458.16330.15.camel@localhost.localdomain>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 2007-07-02 at 19:29 +1000, Russell Coker wrote:
-> What are we going to do regarding GPLv3?
-> 
-> The NSA code has no copyright (being produced by the US government) and the 
-> majority of other code included in the SE Linux policy and utilities comes 
-> from a small number of sources.  Getting agreement to relicense the source 
-> under GPLv3 should not be that difficult (if Tresys, Red Hat, and IBM agree 
-> then we're almost there).
-> 
-> I think that the patent clauses in GPLv3 have some potential to avoid problems 
-> in future, and if nothing else will be good PR.
-> 
-> I would like to relicense my code under GPLv3.  Anyone who wants to use any of 
-> my SE Linux related code under GPLv3 can do so.  Of course this doesn't give 
-> any real benefit unless others join in.
-> 
+I had a coworker ask about how to allow apache to read a custom type for
+a policy that he wrote. Essentially, the policy is not focused on web
+pages so it is not really ideal for the types to be generated from the
+apache templates. I couldn't find any interfaces to allow apache to read
+external types (I understand that these would be "reverse" interfaces -
+but it seems like the most convenient way).
 
-I think it is too soon to do this. The FSF is still preparing documents
-on how best to transition to the v3 and I think it is going to take a
-while for corporations to digest the changes.
-
-I'd rather wait to consider this as I don't believe there is any real
-benefit from us being an early adopter. Most importantly, I want to see
-how the v2/v3 incompatibilities are handled by other projects.
+Am I just missing the best approach here?
 
 Karl
 
