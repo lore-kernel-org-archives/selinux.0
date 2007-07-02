@@ -1,36 +1,54 @@
 Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l61DpJKf012771
-	for <selinux@tycho.nsa.gov>; Sun, 1 Jul 2007 09:51:19 -0400
-Received: from mail1.sea5.speakeasy.net (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l61DpIsA009123
-	for <selinux@tycho.nsa.gov>; Sun, 1 Jul 2007 13:51:18 GMT
-Date: Sun, 1 Jul 2007 09:51:13 -0400 (EDT)
-From: James Morris <jmorris@namei.org>
-To: somayeh afzali <somayeh_afzali@yahoo.com>
-cc: "J. Tang" <jtang@tresys.com>, himainu-ynakam@miomio.jp,
-        seedit-devel@lists.sourceforge.net, owner-selinux@tycho.nsa.gov,
-        selinux@tycho.nsa.gov, selinux-approval@tycho.nsa.gov,
-        Kerry Thompson <kerry@crypt.gen.nz>
-Subject: Re: selinux performance
-In-Reply-To: <311665.99458.qm@web39508.mail.mud.yahoo.com>
-Message-ID: <Line.LNX.4.64.0707010951060.12094@d.namei>
-References: <311665.99458.qm@web39508.mail.mud.yahoo.com>
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l629m1E9023621
+	for <selinux@tycho.nsa.gov>; Mon, 2 Jul 2007 05:48:03 -0400
+Received: from nospam.sws.net.au (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l629lvAg012652
+	for <selinux@tycho.nsa.gov>; Mon, 2 Jul 2007 09:47:59 GMT
+Received: from localhost (localhost [127.0.0.1])
+	by nospam.sws.net.au (Postfix) with ESMTP id 15ED718907
+	for <selinux@tycho.nsa.gov>; Mon,  2 Jul 2007 19:47:12 +1000 (EST)
+Received: from nospam.sws.net.au ([127.0.0.1])
+	by localhost (etbe.coker.com.au [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id HgUBtDSevW-W for <selinux@tycho.nsa.gov>;
+	Mon,  2 Jul 2007 19:47:11 +1000 (EST)
+Received: from aeon.coker.com.au (localhost [127.0.0.1])
+	by nospam.sws.net.au (Postfix) with ESMTP id 4F88F188E3
+	for <selinux@tycho.nsa.gov>; Mon,  2 Jul 2007 19:47:10 +1000 (EST)
+Received: from localhost (localhost [127.0.0.1])
+	by aeon.coker.com.au (Postfix) with ESMTP id 4E4EE21DEE
+	for <selinux@tycho.nsa.gov>; Mon,  2 Jul 2007 19:46:59 +1000 (EST)
+From: Russell Coker <russell@coker.com.au>
+Reply-To: russell@coker.com.au
+To: selinux@tycho.nsa.gov
+Subject: GPLv3
+Date: Mon, 2 Jul 2007 19:29:59 +1000
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+  charset="us-ascii"
+Message-Id: <200707021930.00649.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Sun, 1 Jul 2007, somayeh afzali wrote:
+What are we going to do regarding GPLv3?
 
-> hi,
-> 
-> is there a tool for checking selinux performance?
+The NSA code has no copyright (being produced by the US government) and the 
+majority of other code included in the SE Linux policy and utilities comes 
+from a small number of sources.  Getting agreement to relicense the source 
+under GPLv3 should not be that difficult (if Tresys, Red Hat, and IBM agree 
+then we're almost there).
 
-avcstat can help
+I think that the patent clauses in GPLv3 have some potential to avoid problems 
+in future, and if nothing else will be good PR.
+
+I would like to relicense my code under GPLv3.  Anyone who wants to use any of 
+my SE Linux related code under GPLv3 can do so.  Of course this doesn't give 
+any real benefit unless others join in.
 
 -- 
-James Morris
-<jmorris@namei.org>
+russell@coker.com.au
+http://etbe.coker.com.au/          My Blog
+
+http://www.coker.com.au/sponsorship.html Sponsoring Free Software development
 
 --
 This message was distributed to subscribers of the selinux mailing list.
