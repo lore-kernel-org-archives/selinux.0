@@ -1,54 +1,78 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l629m1E9023621
-	for <selinux@tycho.nsa.gov>; Mon, 2 Jul 2007 05:48:03 -0400
-Received: from nospam.sws.net.au (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l629lvAg012652
-	for <selinux@tycho.nsa.gov>; Mon, 2 Jul 2007 09:47:59 GMT
-Received: from localhost (localhost [127.0.0.1])
-	by nospam.sws.net.au (Postfix) with ESMTP id 15ED718907
-	for <selinux@tycho.nsa.gov>; Mon,  2 Jul 2007 19:47:12 +1000 (EST)
-Received: from nospam.sws.net.au ([127.0.0.1])
-	by localhost (etbe.coker.com.au [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id HgUBtDSevW-W for <selinux@tycho.nsa.gov>;
-	Mon,  2 Jul 2007 19:47:11 +1000 (EST)
-Received: from aeon.coker.com.au (localhost [127.0.0.1])
-	by nospam.sws.net.au (Postfix) with ESMTP id 4F88F188E3
-	for <selinux@tycho.nsa.gov>; Mon,  2 Jul 2007 19:47:10 +1000 (EST)
-Received: from localhost (localhost [127.0.0.1])
-	by aeon.coker.com.au (Postfix) with ESMTP id 4E4EE21DEE
-	for <selinux@tycho.nsa.gov>; Mon,  2 Jul 2007 19:46:59 +1000 (EST)
-From: Russell Coker <russell@coker.com.au>
-Reply-To: russell@coker.com.au
-To: selinux@tycho.nsa.gov
-Subject: GPLv3
-Date: Mon, 2 Jul 2007 19:29:59 +1000
+Message-ID: <468904FA.7030102@tresys.com>
+Date: Mon, 02 Jul 2007 10:00:26 -0400
+From: Joshua Brindle <jbrindle@tresys.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Message-Id: <200707021930.00649.russell@coker.com.au>
+To: Eamon Walsh <ewalsh@tycho.nsa.gov>
+CC: Karl MacMillan <kmacmillan@mentalrootkit.com>,
+        Mark Goldman <mgoldman@tresys.com>, SE Linux <selinux@tycho.nsa.gov>,
+        Daniel J Walsh <dwalsh@redhat.com>, James Antill <jantill@redhat.com>
+Subject: Re: [patch 1/3] libsemanage: genhomedircon replacement
+References: <20070521095414.832619201@tresys.com>	 <1180017921.2940.24.camel@localhost.localdomain>	 <1180034401.3930.203.camel@tresys-winxppro>	 <1180108369.6331.18.camel@localhost.localdomain>	 <6FE441CD9F0C0C479F2D88F959B01588BEFF95@exchange.columbia.tresys.com>	 <1180137749.10334.18.camel@localhost.localdomain>	 <4677F1BC.2000201@tresys.com>	 <1182443353.11527.50.camel@localhost.localdomain>	 <6FE441CD9F0C0C479F2D88F959B01588D01904@exchange.columbia.tresys.com>	 <1182449086.11527.80.camel@localhost.localdomain>	 <6FE441CD9F0C0C479F2D88F959B01588D01920@exchange.columbia.tresys.com>	 <1182449898.11527.83.camel@localhost.localdomain>	 <6FE441CD9F0C0C479F2D88F959B01588D01928@exchange.columbia.tresys.com>	 <1182450900.11527.88.camel@localhost.localdomain>	 <467AE59E.2050501@tycho.nsa.gov>	 <1182525734.3014.20.camel@localhost.localdomain>	 <467BFF99.9000404@tycho.nsa.gov> <1182540624.6599.5.camel@localhost.localdomain> <467C3728.6070803@tycho.nsa.gov>
+In-Reply-To: <467C3728.6070803@tycho.nsa.gov>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-What are we going to do regarding GPLv3?
+Eamon Walsh wrote:
+> Karl MacMillan wrote:
+>> On Fri, 2007-06-22 at 12:58 -0400, Eamon Walsh wrote:
+>>> Karl MacMillan wrote:
+>>>> On Thu, 2007-06-21 at 16:54 -0400, Eamon Walsh wrote:
+>>>>
+>>>>>   I'm not a fan of the Python dependencies.
+>>>>>
+>>>> Why?
+>>> Here's a nice example of RPM hell, courtesy of our Python 
+>>> dependency.  I got this earlier in the year on one of my machines.
+>>>
+>>>
+>>> # yum -y upgrade
+>>> --> Running transaction check
+>>> --> Processing Dependency: gnutls-devel for package: libsoup-devel
+>>> --> Processing Dependency: python(abi) = 2.4 for package: 
+>>> audit-libs-python
+>>> --> Restarting Dependency Resolution with new changes.
+>>> --> Populating transaction set with selected packages. Please wait.
+>>> ---> Package gnutls-devel.i386 0:1.4.5-1 set to be updated
+>>> --> Running transaction check
+>>> --> Processing Dependency: python(abi) = 2.4 for package: 
+>>> audit-libs-python
+>>> --> Finished Dependency Resolution
+>>> Error: Missing Dependency: python(abi) = 2.4 is needed by package 
+>>> audit-libs-python
+>>>
+>>
+>> Rawhide or a release? Was this during the move to 2.5?
+> 
+> It was upgrading across the 2.4/2.5 switch, not rawhide as I recall.  To 
+> answer James, this was just an example of a problem I ran into; I don't 
+> have any specific problems with the bindings.
+> 
+>>
+>> Larger issue, though, is that any dependency could cause the same
+>> problem. I'm not convinced that what was likely a packaging error or yum
+>> error should prevent us from using the best tools for the job.
+>>
+>> Again: I'm not totally against this. I'm just very concerned about the
+>> potential for problems in this code and the initial implementation
+>> confirmed all of those concerns. Is it possible to get this code correct
+>> in C? Sure. Is it likely for it to be correct initially and stay that
+>> way is the question.
+>>
+>> Can I suggest a middle ground? Implement in C (or C++) but use a string
+>> library.
+> 
+> A library would be great, I'm still depressed about glib's 
+> abort-on-malloc making it unusable.  ustr was mentioned earlier as a 
+> possible library that could be used.
+> 
+> 
 
-The NSA code has no copyright (being produced by the US government) and the 
-majority of other code included in the SE Linux policy and utilities comes 
-from a small number of sources.  Getting agreement to relicense the source 
-under GPLv3 should not be that difficult (if Tresys, Red Hat, and IBM agree 
-then we're almost there).
+Unfortunately ustr isn't in yum so we'd have to pull code into the lib 
+itself, which I'd prefer not to. Additionally ustr's documentation is a 
+bit lacking: http://www.and.org/ustr/functions . Stuff like "This 
+function does nothing." in the docs is a bit disconcerting as well.
 
-I think that the patent clauses in GPLv3 have some potential to avoid problems 
-in future, and if nothing else will be good PR.
-
-I would like to relicense my code under GPLv3.  Anyone who wants to use any of 
-my SE Linux related code under GPLv3 can do so.  Of course this doesn't give 
-any real benefit unless others join in.
-
--- 
-russell@coker.com.au
-http://etbe.coker.com.au/          My Blog
-
-http://www.coker.com.au/sponsorship.html Sponsoring Free Software development
 
 --
 This message was distributed to subscribers of the selinux mailing list.
