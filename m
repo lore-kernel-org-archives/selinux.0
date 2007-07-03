@@ -1,5 +1,5 @@
-Message-ID: <468A8807.2000403@redhat.com>
-Date: Tue, 03 Jul 2007 13:31:51 -0400
+Message-ID: <468A888C.1050404@redhat.com>
+Date: Tue, 03 Jul 2007 13:34:04 -0400
 From: Daniel J Walsh <dwalsh@redhat.com>
 MIME-Version: 1.0
 To: rob myers <rob.myers@gtri.gatech.edu>
@@ -53,7 +53,17 @@ rob myers wrote:
 > i'm not sure what you mean by breaking the helper apps and writing
 > policy for their specific tasks.  could you refer me to an example or
 > explain a bit more?
->
+>   
+If you look at postfix, you will see a good example.  The idea of least 
+privs is to give an app the least privs it needs to do a job.
+
+As an example if your oracle app needed r/w access to the disk in order 
+to format it in a particular way, and the way it did this was to exec
+/usr/bin/oracle_disk_format  You could give oracle_t 
+fixed_disk_device_t:blk_file manage_blk_device_t; Or you could generate 
+a policy for oracle_disk_format_t,
+and only give the helper app that permission.   Oracle would only be 
+able to format the disk through the execing of the helper app.
 >   
 >> I like to avoid
 >> domain_auto_trans(unconfined_t, oracle_exec_t, oracle_t)
@@ -74,29 +84,24 @@ rob myers wrote:
 > there a more elegant way to ensure that the database runs in oracle_t
 > than using domain_auto_trans()?
 >
+>   
+What is the command to stop and start the oracle database?  service 
+oracle restart
+should do the correct thing. 
 > it seems a bit wacky for me to create a
 > corenet_dontaudit_tcp_connect_snmp_port interface as part of the oracle
 > interfaces... is there already a similar interface that i missed?  if
 > not, what is the correct way to do this?
 >
+>   
+Why is oracle trying to connect to the snmp port, and why do you want to 
+prevent it?
 > the attached policy should incorporate all of your helpful suggestions,
 > and i believe it is much better as a result.  thanks again, and please
 > let me know how i can improve this version, too.
 >
 > rob.
 >   
-Looks good.
-
-allow oracle_t oracle_exec_t:file execute_no_trans;
-Should be 
-can_exec(oracle_t, oracle_exec_t)
-
-allow oracle_t self:process { setpgid getsched };
-allow oracle_t self:process execmem;
-
-Combine these.
-
-Now see if Chris PeBenito will take your policy upstream :^)
 
 
 --
