@@ -1,58 +1,103 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l63Brb94007342
-	for <selinux@tycho.nsa.gov>; Tue, 3 Jul 2007 07:53:37 -0400
-Received: from nospam.sws.net.au (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id l63BrXG0011036
-	for <selinux@tycho.nsa.gov>; Tue, 3 Jul 2007 11:53:34 GMT
-Received: from localhost (localhost [127.0.0.1])
-	by nospam.sws.net.au (Postfix) with ESMTP id AFF2518955
-	for <selinux@tycho.nsa.gov>; Tue,  3 Jul 2007 21:53:30 +1000 (EST)
-Received: from nospam.sws.net.au ([127.0.0.1])
-	by localhost (etbe.coker.com.au [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id bsQQD18xwm-r for <selinux@tycho.nsa.gov>;
-	Tue,  3 Jul 2007 21:53:30 +1000 (EST)
-Received: from aeon.coker.com.au (localhost [127.0.0.1])
-	by nospam.sws.net.au (Postfix) with ESMTP id ED16F1894D
-	for <selinux@tycho.nsa.gov>; Tue,  3 Jul 2007 21:53:29 +1000 (EST)
-Received: from localhost (localhost [127.0.0.1])
-	by aeon.coker.com.au (Postfix) with ESMTP id 81C18208DD
-	for <selinux@tycho.nsa.gov>; Tue,  3 Jul 2007 21:53:11 +1000 (EST)
-From: Russell Coker <russell@coker.com.au>
-Reply-To: russell@coker.com.au
-Subject: Re: GPLv3
-Date: Tue, 3 Jul 2007 21:53:08 +1000
-Cc: selinux@tycho.nsa.gov
-References: <200707021930.00649.russell@coker.com.au> <1183386470.16330.5.camel@localhost.localdomain> <ogtk5tilt63.fsf@oolong.mitre.org>
-In-Reply-To: <ogtk5tilt63.fsf@oolong.mitre.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-To: "Undisclosed.Recipients": ;
-Message-Id: <200707032153.10158.russell@coker.com.au>
+Subject: Re: Can someone please assist me with selinux issue
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: David Cottle <webmaster@aus-city.com>
+Cc: SE Linux <selinux@tycho.nsa.gov>
+In-Reply-To: <468A2FE2.5000903@aus-city.com>
+References: <20070521095414.832619201@tresys.com>
+	 <6FE441CD9F0C0C479F2D88F959B01588BEFF95@exchange.columbia.tresys.com>
+	 <1180137749.10334.18.camel@localhost.localdomain>
+	 <4677F1BC.2000201@tresys.com>
+	 <1182443353.11527.50.camel@localhost.localdomain>
+	 <6FE441CD9F0C0C479F2D88F959B01588D01904@exchange.columbia.tresys.com>
+	 <1182449086.11527.80.camel@localhost.localdomain>
+	 <6FE441CD9F0C0C479F2D88F959B01588D01920@exchange.columbia.tresys.com>
+	 <1182449898.11527.83.camel@localhost.localdomain>
+	 <6FE441CD9F0C0C479F2D88F959B01588D01928@exchange.columbia.tresys.com>
+	 <1182450900.11527.88.camel@localhost.localdomain>
+	 <467AE59E.2050501@tycho.nsa.gov>
+	 <1182525734.3014.20.camel@localhost.localdomain>
+	 <467BFF99.9000404@tycho.nsa.gov>
+	 <1182540624.6599.5.camel@localhost.localdomain>
+	 <467C3728.6070803@tycho.nsa.gov>  <468904FA.7030102@tresys.com>
+	 <1183386217.16330.0.camel@localhost.locald! omain>
+	 <46896D88.7060504@tresys.com> <1183425133.32465.16.camel@code.and.org>
+	 <468A2FE2.5000903@aus-city.com>
+Content-Type: text/plain
+Date: Tue, 03 Jul 2007 08:07:35 -0400
+Message-Id: <1183464455.12218.243.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tuesday 03 July 2007 01:30, "John D. Ramsdell" <ramsdell@mitre.org> wrote:
-> This means a GPLv2 library cannot be linked with a GPLv3 program, as I
-> read it.  I think Karl's call for careful planning before any switch
-> is wise.
+On Tue, 2007-07-03 at 21:15 +1000, David Cottle wrote:
+> -----BEGIN PGP SIGNED MESSAGE-----
+> Hash: SHA1
+> 
+> Hi,
+> 
+> I got a ftp session from a IP camera sending images every 1 minute.
+> 
+> I keep getting these AVC messages in /var/logs/messages:
+> 
+> Jul  1 04:43:40 server kernel: audit(1183229020.232:8256): avc:
+> denied  { link } for  pid=2043 comm="in.proftpd"
+> scontext=system_u:system_r:ftpd_t:s0
+> tcontext=system_u:system_r:ftpd_t:s0 tclass=key
+> Jul  1 04:44:40 server kernel: audit(1183229080.245:8257): avc:
+> denied  { link } for  pid=2061 comm="in.proftpd"
+> scontext=system_u:system_r:ftpd_t:s0
+> tcontext=system_u:system_r:ftpd_t:s0 tclass=key
+> Jul  1 04:45:40 server kernel: audit(1183229140.367:8258): avc:
+> denied  { link } for  pid=2259 comm="in.proftpd"
+> scontext=system_u:system_r:ftpd_t:s0
+> tcontext=system_u:system_r:crond_t:s0-s0:c0.c1023 tclass=key
+> Jul  1 04:46:40 server kernel: audit(1183229200.238:8259): avc:
+> denied  { link } for  pid=2267 comm="in.proftpd"
+> scontext=system_u:system_r:ftpd_t:s0
+> tcontext=system_u:system_r:crond_t:s0-s0:c0.c1023 tclass=key
+> 
+> Every time there is a transfer.  So at 1 minute intervals there are
+> too many.  Also I want to add more webcams so no doubt its going to
+> get worse.
+> 
+> However I read and created a policy:
+> 
+> grep proftpd /var/log/messages | audit2allow -M proftpd
+> selinux -i proftpd.pp
+> 
+> 
+> However the above I STILL get the annoying AVC denied messages.
+> 
+> Can someone please explain and tell me how can I update and get rid of
+> the denied messages?
+> 
+> This is the proftpd.te rule it made:
+> 
+> module proftpd 1.0;
+> 
+> require {
+>     type ftpd_t;
+>     type crond_t;
+>     type httpd_suexec_t;
+>     class capability dac_override;
+>     class key { write search };
+> }
+> 
+> #============= ftpd_t ==============
+> allow ftpd_t crond_t:key search;
+> allow ftpd_t httpd_suexec_t:key search;
+> allow ftpd_t self:capability dac_override;
+> allow ftpd_t self:key { write search };
 
-LGPLv3 should be fine for libraries.
+You don't seem to be allowing "link" permission above, which is what was
+being denied by the audit messages you posted.
 
-On Tuesday 03 July 2007 01:30, KaiGai Kohei <kaigai@kaigai.gr.jp> wrote:
-> Does your opinion means that non-GPL software like libselinux also
-> should be relicensed to GPL-v3?
-> If so, the incompatibility is not acceptable for several non-GPL
-> softwares like PostgreSQL (BSD licensed).
-
-PostgreSQL is linked against glibc, I expect LGPLv3 to work everywhere that 
-LGPLv2 works.
+> But I see crond, httpd and ftpd all there but this rule does nothing :(
 
 -- 
-russell@coker.com.au
-http://etbe.coker.com.au/          My Blog
+Stephen Smalley
+National Security Agency
 
-http://www.coker.com.au/sponsorship.html Sponsoring Free Software development
 
 --
 This message was distributed to subscribers of the selinux mailing list.
