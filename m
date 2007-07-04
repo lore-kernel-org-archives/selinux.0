@@ -1,108 +1,83 @@
-Message-ID: <468A888C.1050404@redhat.com>
-Date: Tue, 03 Jul 2007 13:34:04 -0400
-From: Daniel J Walsh <dwalsh@redhat.com>
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l64BKJr8018972
+	for <selinux@tycho.nsa.gov>; Wed, 4 Jul 2007 07:20:19 -0400
+Received: from web39506.mail.mud.yahoo.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with SMTP id l64BKHv3028163
+	for <selinux@tycho.nsa.gov>; Wed, 4 Jul 2007 11:20:18 GMT
+Date: Wed, 4 Jul 2007 04:20:12 -0700 (PDT)
+From: somayeh afzali <somayeh_afzali@yahoo.com>
+Subject: selinux performance
+To: "J. Tang" <jtang@tresys.com>, himainu-ynakam@miomio.jp,
+        seedit-devel@lists.sourceforge.net, owner-selinux@tycho.nsa.gov,
+        selinux@tycho.nsa.gov, selinux-approval@tycho.nsa.gov,
+        Kerry Thompson <kerry@crypt.gen.nz>
 MIME-Version: 1.0
-To: rob myers <rob.myers@gtri.gatech.edu>
-CC: SELinux@tycho.nsa.gov
-Subject: Re: oracle policy
-References: <1177969059.1731.46.camel@rxm-581b.stl.gtri.gatech.edu>	 <463B5A4B.2090004@redhat.com> <1183415825.3413.66.camel@rxm-581b.stl.gtri.gatech.edu>
-In-Reply-To: <1183415825.3413.66.camel@rxm-581b.stl.gtri.gatech.edu>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: multipart/mixed; boundary="0-1630610923-1183548012=:92551"
+Message-ID: <774589.92551.qm@web39506.mail.mud.yahoo.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-rob myers wrote:
-> On Fri, 2007-05-04 at 12:07 -0400, Daniel J Walsh wrote:
->   
->> rob myers wrote:
->>     
->>> hello
->>>
->>> i am working on writing some SELinux policy that will confine oracle to
->>> its own domain on a RHEL5 machine running targeted policy.  my security
->>> goal is to limit risk to the rest of the system from any potential
->>> compromise of oracle.  as far as i know, no such policy exists publicly
->>> yet.  i'd like to collaborate with anyone else that has an interest in
->>> writing a similar policy for oracle.  my initial efforts are attached.
->>> tips, pointers, and constructive criticism requested!
->>>       
->
->   
->> I like to minimize the number of context in the file context,  The more 
->> files in the context the more likely you are to get one wrong.  
->> One general rule I use is if you domain does not need to modify a 
->> file/directory, you should use the system defaults.  (Unless you want to 
->> prevent other confined domains from reading the files, for security 
->> purposes).  So do you really need  oracle_ro_t?
->>     
->
-> nope, not for my current security goals.  thanks for pointing that out.
->
->   
->> The only file that should be labeled oracle_exec_t is the domains entry 
->> point.  Helper apps should be just labeled bin_t.  Or even better break 
->> the helper apps and write policy for their specific tasks.  But this is 
->> a lot more work.
->>     
->
-> again, you are correct.  there are many helper apps that do not need to
-> be labeled oracle_exec_t.  i've pared the list of binaries with
-> oracle_exec_t down to those that are called by the init script and that
-> need to be run in oracle_t.
->
-> i'm not sure what you mean by breaking the helper apps and writing
-> policy for their specific tasks.  could you refer me to an example or
-> explain a bit more?
->   
-If you look at postfix, you will see a good example.  The idea of least 
-privs is to give an app the least privs it needs to do a job.
+--0-1630610923-1183548012=:92551
+Content-Type: multipart/alternative; boundary="0-1276229675-1183548012=:92551"
 
-As an example if your oracle app needed r/w access to the disk in order 
-to format it in a particular way, and the way it did this was to exec
-/usr/bin/oracle_disk_format  You could give oracle_t 
-fixed_disk_device_t:blk_file manage_blk_device_t; Or you could generate 
-a policy for oracle_disk_format_t,
-and only give the helper app that permission.   Oracle would only be 
-able to format the disk through the execing of the helper app.
->   
->> I like to avoid
->> domain_auto_trans(unconfined_t, oracle_exec_t, oracle_t)
->>
->> And only have the transition happen in the init scripts.  Transitioning 
->> directly from unconfined_t ends up with lots of avcs when users do stuff 
->> like
->>
->> confined_app >> ~/mylog
->>
->> Also you might be able to eliminate the ability to write to terminals by 
->> doing this.
->>     
->
-> this did not obviate the need to write to terminals.  only transitioning
-> from init also introduces another problem- when a dbadmin stops and
-> restarts the database, the database comes back up in unconfined_t.  is
-> there a more elegant way to ensure that the database runs in oracle_t
-> than using domain_auto_trans()?
->
->   
-What is the command to stop and start the oracle database?  service 
-oracle restart
-should do the correct thing. 
-> it seems a bit wacky for me to create a
-> corenet_dontaudit_tcp_connect_snmp_port interface as part of the oracle
-> interfaces... is there already a similar interface that i missed?  if
-> not, what is the correct way to do this?
->
->   
-Why is oracle trying to connect to the snmp port, and why do you want to 
-prevent it?
-> the attached policy should incorporate all of your helpful suggestions,
-> and i believe it is much better as a result.  thanks again, and please
-> let me know how i can improve this version, too.
->
-> rob.
->   
+--0-1276229675-1183548012=:92551
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 
+
+
+
+
+       
+---------------------------------
+Get the free Yahoo! toolbar and rest assured with the added security of spyware protection. 
+--0-1276229675-1183548012=:92551
+Content-Type: text/html; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
+
+<br><br><br><p>&#32;
+      <hr size=1><a href="http://us.rd.yahoo.com/evt=48226/*http://new.toolbar.yahoo.com/toolbar/features/norton/index.php">Get the free Yahoo! toolbar</a> and rest assured with the added security of spyware protection.
+ 
+--0-1276229675-1183548012=:92551--
+
+--0-1630610923-1183548012=:92551
+Content-Type: message/rfc822
+Content-Transfer-Encoding: 8bit
+
+Received: from [81.28.34.224] by web39508.mail.mud.yahoo.com via HTTP; Sun, 01 Jul 2007 00:20:37 PDT
+Date: Sun, 1 Jul 2007 00:20:37 -0700 (PDT)
+From: somayeh afzali <somayeh_afzali@yahoo.com>
+Subject: selinux performance
+To: "J. Tang" <jtang@tresys.com>, himainu-ynakam@miomio.jp,
+    seedit-devel@lists.sourceforge.net, owner-selinux@tycho.nsa.gov,
+    selinux@tycho.nsa.gov, selinux-approval@tycho.nsa.gov,
+    Kerry Thompson <kerry@crypt.gen.nz>
+MIME-Version: 1.0
+Content-Type: multipart/alternative; boundary="0-1922322483-1183274437=:99458"
+Content-Transfer-Encoding: 8bit
+
+--0-1922322483-1183274437=:99458
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
+
+hi,
+
+is there a tool for checking selinux performance?
+
+thanks
+
+       
+---------------------------------
+Looking for a deal? Find great prices on flights and hotels with Yahoo! FareChase.
+--0-1922322483-1183274437=:99458
+Content-Type: text/html; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
+
+hi,<br><br>is there a tool for checking selinux performance?<br><br>thanks<br><p>&#32;
+      <hr size=1>Looking for a deal? <a href="http://us.rd.yahoo.com/evt=47094/*http://farechase.yahoo.com/;_ylc=X3oDMTFicDJoNDllBF9TAzk3NDA3NTg5BHBvcwMxMwRzZWMDZ3JvdXBzBHNsawNlbWFpbC1uY20-">Find great prices on flights and hotels</a> with Yahoo! FareChase.
+--0-1922322483-1183274437=:99458--
+
+--0-1630610923-1183548012=:92551--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
