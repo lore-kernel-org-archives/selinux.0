@@ -1,82 +1,52 @@
 Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l67I2IAJ011710
-	for <selinux@tycho.nsa.gov>; Sat, 7 Jul 2007 14:02:19 -0400
-Received: from smtp104.sbc.mail.mud.yahoo.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with SMTP id l67I2IIU000440
-	for <selinux@tycho.nsa.gov>; Sat, 7 Jul 2007 18:02:18 GMT
-In-Reply-To: <468E7356.5080207@redhat.com>
-References: <468E7356.5080207@redhat.com>
-Mime-Version: 1.0 (Apple Message framework v752.3)
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l688Z282032486
+	for <selinux@tycho.nsa.gov>; Sun, 8 Jul 2007 04:35:02 -0400
+Received: from moutng.kundenserver.de (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l688Z08T027239
+	for <selinux@tycho.nsa.gov>; Sun, 8 Jul 2007 08:35:00 GMT
+Mime-Version: 1.0 (Apple Message framework v752.2)
+Message-Id: <B850829A-A7A6-4B2A-B6A2-51EE83B6DC48@sf-net.com>
 Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
-Message-Id: <DF3A1347-A2F4-4615-BA13-FDB0904BACAF@nall.com>
-Cc: joe.rocklin@ngc.com, Daniel J Walsh <dwalsh@redhat.com>
-From: Joe Nall <joe@nall.com>
-Subject: Re: [Fwd: libsemanage API]
-Date: Sat, 7 Jul 2007 13:01:57 -0500
-To: SE Linux <selinux@tycho.nsa.gov>
+To: SELinux List <selinux@tycho.nsa.gov>
+From: Stefan Schulze Frielinghaus <stefan@sf-net.com>
+Subject: SELinux user root
+Date: Sun, 8 Jul 2007 10:35:02 +0200
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-extern "C" {
-         #include <semanage/semanage.h>
-         #include <semanage/user_record.h>
-}
-#include <iostream>
+Like from the RHEL4 manuel (http://www.redhat.com/docs/manuals/ 
+enterprise/RHEL-4-Manual/selinux-guide/rhlcommon-section-0038.html)  
+the SELinux user root exists only for legacy reasons:
 
-using namespace std;
+# root is retained as a separate user identity simply as a
+# compatibility measure with the "strict" policy.  It could
+# be dropped and mapped to user_u but this allows existing
+# file contexts that have "root" as the user identity to
+# remain valid.
 
-int main (int argc, char **argv) {
-         semanage_handle_t *sh = semanage_handle_create();
+   user root roles { user_r sysadm_r system_r };
 
-         semanage_user_t **list;
-         unsigned int count;
+But if I try to modify the login context of root to use user_u I get  
+the following error:
 
-         semanage_connect(sh);
+$ semanage login -m -s user_u root
 
-         semanage_user_list(sh, &list, &count);
+libsemanage.validate_handler: MLS range s0-s15:c0.c1023 for Unix user  
+root exceeds allowed range s0 for SELinux user user_u
+libsemanage.validate_handler: seuser mapping [root -> (user_u, s0- 
+s15:c0.c1023)] is invalid
+libsemanage.dbase_llist_iterate: could not iterate over records
+/usr/sbin/semanage: Could not modify login mapping for root
 
-         for (int i = 0; i < count; i++) {
-                 cout << i << ": " << semanage_user_get_name(list[i])  
-<< endl;
-         }
+I'm not really sure how to interprete this message. I would guess  
+it's because user_u has only a valid MLS range SystemLow and root has  
+a SystemLow-SystemHigh range. But why could this be a problem?
 
-         return 0;
-}
+The system I'm testing this is a CentOS5 with a MLS policy installed.
 
-sudo ./a.out
-Password:
-0: root
-1: staff_u
-2: sysadm_u
-3: system_u
-4: user_u
 
-On Jul 6, 2007, at 11:52 AM, Daniel J Walsh wrote:
-
-> extern "C" {
-> 	#include <semanage/semanage.h>
-> }
-> #include <iostream>
->
-> using namespace std;
->
-> int main (int argc, char **argv) {
-> 	semanage_handle_t *sh = semanage_handle_create();
->
-> 	semanage_user_t **list;
-> 	unsigned int count;
->
-> 	semanage_connect(sh);
->
-> 	semanage_user_list(sh, &list, &count);
->
-> 	for (int i = 0; i < count; i++) {
-> 		cout << i << ": " << list[i].name << endl;
-> 	}
->
-> 	return 0;
-> }
-
+cheers,
+Stefan
 
 --
 This message was distributed to subscribers of the selinux mailing list.
