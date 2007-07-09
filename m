@@ -1,96 +1,71 @@
-Message-ID: <469272EB.9050602@manicmethod.com>
-Date: Mon, 09 Jul 2007 13:39:55 -0400
-From: Joshua Brindle <method@manicmethod.com>
-MIME-Version: 1.0
-To: Stephen Smalley <sds@tycho.nsa.gov>
-CC: selinux@tycho.nsa.gov, Karl MacMillan <kmacmillan@mentalrootkit.com>,
-        John Ramsdell <ramsdell@mitre.org>
-Subject: Re: [patch] libselinux:  fix getfilecon handling of zero-length	context
-References: <1183999553.12430.94.camel@moss-spartans.epoch.ncsc.mil>	 <469266C8.4050905@manicmethod.com> <1183999843.12430.96.camel@moss-spartans.epoch.ncsc.mil>
-In-Reply-To: <1183999843.12430.96.camel@moss-spartans.epoch.ncsc.mil>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Subject: Re: SELinux user root
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Stefan Schulze Frielinghaus <stefan@sf-net.com>
+Cc: SELinux List <selinux@tycho.nsa.gov>
+In-Reply-To: <B850829A-A7A6-4B2A-B6A2-51EE83B6DC48@sf-net.com>
+References: <B850829A-A7A6-4B2A-B6A2-51EE83B6DC48@sf-net.com>
+Content-Type: text/plain
+Date: Mon, 09 Jul 2007 14:07:46 -0400
+Message-Id: <1184004466.12430.121.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Stephen Smalley wrote:
-> On Mon, 2007-07-09 at 12:48 -0400, Joshua Brindle wrote:
->   
->> Stephen Smalley wrote:
->>     
->>> As observed by John Ramsdell, *getfilecon() on a /proc/sys inode on
->>> returns garbage and can lead to memory corruption upon later freecon.
->>> This happens on 2.6.21 and later due to the proc sysctl rewrite in the
->>> kernel.  The *getfilecon_raw() functions correctly return zero in this
->>> case, but the non-raw functions are not handling that result properly.
->>> Initialize *context on entry to *getfilecon() so that it has a
->>> well-defined value even if *getfilecon_raw() returns zero.
->>>
->>> Signed-off-by:  Stephen Smalley <sds@tycho.nsa.gov>
->>>
->>>   
->>>       
->> Acked-By: Joshua Brindle <jbrindle@manicmethod.com>
->>
->> This should go into stable/1_0 and trunk, right?
->>     
->
-> Yes.
->
->   
+On Sun, 2007-07-08 at 10:35 +0200, Stefan Schulze Frielinghaus wrote:
+> Like from the RHEL4 manuel (http://www.redhat.com/docs/manuals/ 
+> enterprise/RHEL-4-Manual/selinux-guide/rhlcommon-section-0038.html)  
+> the SELinux user root exists only for legacy reasons:
+> 
+> # root is retained as a separate user identity simply as a
+> # compatibility measure with the "strict" policy.  It could
+> # be dropped and mapped to user_u but this allows existing
+> # file contexts that have "root" as the user identity to
+> # remain valid.
+> 
+>    user root roles { user_r sysadm_r system_r };
 
-Thanks, merged into 1.34.11 and 2.0.24
+That is true under the default targeted policy.  It is not true of
+strict policy or mls policy.  The difference is that targeted policy has
+no notion of user roles and does not try to control users, only specific
+programs/daemons, whereas strict and mls policies include user roles and
+limit what users can do.
 
->>> ---
->>>
->>>  libselinux/src/fgetfilecon.c |    2 ++
->>>  libselinux/src/getfilecon.c  |    2 ++
->>>  libselinux/src/lgetfilecon.c |    2 ++
->>>  3 files changed, 6 insertions(+)
->>>
->>> Index: trunk/libselinux/src/fgetfilecon.c
->>> ===================================================================
->>> --- trunk/libselinux/src/fgetfilecon.c	(revision 2490)
->>> +++ trunk/libselinux/src/fgetfilecon.c	(working copy)
->>> @@ -51,6 +51,8 @@
->>>  	security_context_t rcontext;
->>>  	int ret;
->>>  
->>> +	*context = NULL;
->>> +
->>>  	ret = fgetfilecon_raw(fd, &rcontext);
->>>  
->>>  	if (ret > 0) {
->>> Index: trunk/libselinux/src/lgetfilecon.c
->>> ===================================================================
->>> --- trunk/libselinux/src/lgetfilecon.c	(revision 2490)
->>> +++ trunk/libselinux/src/lgetfilecon.c	(working copy)
->>> @@ -51,6 +51,8 @@
->>>  	int ret;
->>>  	security_context_t rcontext;
->>>  
->>> +	*context = NULL;
->>> +
->>>  	ret = lgetfilecon_raw(path, &rcontext);
->>>  
->>>  	if (ret > 0) {
->>> Index: trunk/libselinux/src/getfilecon.c
->>> ===================================================================
->>> --- trunk/libselinux/src/getfilecon.c	(revision 2490)
->>> +++ trunk/libselinux/src/getfilecon.c	(working copy)
->>> @@ -51,6 +51,8 @@
->>>  	int ret;
->>>  	security_context_t rcontext;
->>>  
->>> +	*context = NULL;
->>> +
->>>  	ret = getfilecon_raw(path, &rcontext);
->>>  
->>>  	if (ret > 0) {
->>>
->>>
->>>   
->>>       
+> But if I try to modify the login context of root to use user_u I get  
+> the following error:
+> 
+> $ semanage login -m -s user_u root
+> 
+> libsemanage.validate_handler: MLS range s0-s15:c0.c1023 for Unix user  
+> root exceeds allowed range s0 for SELinux user user_u
+> libsemanage.validate_handler: seuser mapping [root -> (user_u, s0- 
+> s15:c0.c1023)] is invalid
+> libsemanage.dbase_llist_iterate: could not iterate over records
+> /usr/sbin/semanage: Could not modify login mapping for root
+> 
+> I'm not really sure how to interprete this message. I would guess  
+> it's because user_u has only a valid MLS range SystemLow and root has  
+> a SystemLow-SystemHigh range. But why could this be a problem?
 
+Because, as you said, user_u isn't authorized for that range.  The Linux
+user is limited by the permissions of the SELinux user to which he is
+mapped.
+
+Also, the above semanage command would not actually remove the "root"
+SELinux user from the kernel policy; it would only remove the mapping
+from the seusers file.  The seusers file was introduced as a way to
+allow Linux users to be added/modified/removed without needing to change
+the kernel policy each time, by letting you map each Linux user to one
+of the predefined SELinux users.
+
+It would make more sense to map "root" to "staff_u" than to "user_u".
+But you aren't achieving much by doing so, you still need "root" in the
+kernel policy for compatibility with your on-disk file contexts.
+
+> The system I'm testing this is a CentOS5 with a MLS policy installed.
+
+-- 
+Stephen Smalley
+National Security Agency
 
 
 --
