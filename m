@@ -1,72 +1,68 @@
-Subject: Re: SELinux user root
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Stefan Schulze Frielinghaus <stefan@sf-net.com>
-Cc: SELinux List <selinux@tycho.nsa.gov>
-In-Reply-To: <B850829A-A7A6-4B2A-B6A2-51EE83B6DC48@sf-net.com>
-References: <B850829A-A7A6-4B2A-B6A2-51EE83B6DC48@sf-net.com>
-Content-Type: text/plain
-Date: Mon, 09 Jul 2007 14:07:46 -0400
-Message-Id: <1184004466.12430.121.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+To: Stephen Smalley <sds@tycho.nsa.gov>
+Cc: selinux@tycho.nsa.gov
+Subject: getfilecon return code
+From: ramsdell@mitre.org (John D. Ramsdell)
+Date: 09 Jul 2007 14:07:30 -0400
+In-Reply-To: <1183999553.12430.94.camel@moss-spartans.epoch.ncsc.mil>
+Message-ID: <ogtmyy5lacd.fsf@oolong.mitre.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Sun, 2007-07-08 at 10:35 +0200, Stefan Schulze Frielinghaus wrote:
-> Like from the RHEL4 manuel (http://www.redhat.com/docs/manuals/ 
-> enterprise/RHEL-4-Manual/selinux-guide/rhlcommon-section-0038.html)  
-> the SELinux user root exists only for legacy reasons:
-> 
-> # root is retained as a separate user identity simply as a
-> # compatibility measure with the "strict" policy.  It could
-> # be dropped and mapped to user_u but this allows existing
-> # file contexts that have "root" as the user identity to
-> # remain valid.
-> 
->    user root roles { user_r sysadm_r system_r };
+I hadn't carefully read the manual page for getfilecon until now, but
+I notice it states that a positive number is returned indicating the
+number of bytes malloc'd for the context, and -1 is returned
+indicating failure and that errno is set.  I would have guessed from
+the description that zero is never an allowed return value.  In fact,
+I wrote code that freecon'd a context whenever the return value was
+not -1.
 
-That is true under the default targeted policy.  It is not true of
-strict policy or mls policy.  The difference is that targeted policy has
-no notion of user roles and does not try to control users, only specific
-programs/daemons, whereas strict and mls policies include user roles and
-limit what users can do.
+In the example below, when checking out a file in /proc/sys, zero is
+returned and the result is a NULL context, something that need not be
+free'd.  To me, failure to allocate a context feels like a failure
+condition.
 
-> But if I try to modify the login context of root to use user_u I get  
-> the following error:
-> 
-> $ semanage login -m -s user_u root
-> 
-> libsemanage.validate_handler: MLS range s0-s15:c0.c1023 for Unix user  
-> root exceeds allowed range s0 for SELinux user user_u
-> libsemanage.validate_handler: seuser mapping [root -> (user_u, s0- 
-> s15:c0.c1023)] is invalid
-> libsemanage.dbase_llist_iterate: could not iterate over records
-> /usr/sbin/semanage: Could not modify login mapping for root
-> 
-> I'm not really sure how to interprete this message. I would guess  
-> it's because user_u has only a valid MLS range SystemLow and root has  
-> a SystemLow-SystemHigh range. But why could this be a problem?
+Perhaps the best strategy is to assume success when the context produced
+in non-null, and not worry about the return code.
 
-Because, as you said, user_u isn't authorized for that range.  The Linux
-user is limited by the permissions of the SELinux user to which he is
-mapped.
+  security_context_t con = NULL;
+  int rc = getfilecon(MP, &con);
+  if (!con) /* Handle failure here */        
+  else /* do something and then freecon(con) */
 
-Also, the above semanage command would not actually remove the "root"
-SELinux user from the kernel policy; it would only remove the mapping
-from the seusers file.  The seusers file was introduced as a way to
-allow Linux users to be added/modified/removed without needing to change
-the kernel policy each time, by letting you map each Linux user to one
-of the predefined SELinux users.
+Is the following expression always true?
 
-It would make more sense to map "root" to "staff_u" than to "user_u".
-But you aren't achieving much by doing so, you still need "root" in the
-kernel policy for compatibility with your on-disk file contexts.
+  (con != NULL) == (rc > 0)
 
-> The system I'm testing this is a CentOS5 with a MLS policy installed.
+John
 
--- 
-Stephen Smalley
-National Security Agency
+[ramsdell@goo selinux]$ make
+cc     mygetfilecon.c  /home/ramsdell/src/libselinux-2.0.8/src/libselinux.a -o mygetfilecon
+[ramsdell@goo selinux]$ ./mygetfilecon
+getfilecon("/proc/sys/kernel/pid_max", &con) = 0
+con = NULL
+[ramsdell@goo selinux]$ cat mygetfilecon.c
+#include <stdio.h>
+#include <selinux/selinux.h>
 
+#define MP "/proc/sys/kernel/pid_max"
+
+int
+main(int argc, char **argv)
+{
+  security_context_t con;
+  int rc = getfilecon(MP, &con);
+  printf("getfilecon(\"%s\", &con) = %d\n", MP, rc);
+  if (rc < 0)
+    perror("getfilecon");
+  else if (con)
+    printf("con = \"%s\"\n", con);
+  else
+    printf("con = NULL\n", con);
+  return 0;
+}
+[ramsdell@goo selinux]$ 
 
 --
 This message was distributed to subscribers of the selinux mailing list.
