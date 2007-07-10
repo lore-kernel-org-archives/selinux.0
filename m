@@ -1,69 +1,36 @@
-Subject: Re: SELinux user root
+Subject: Re: can i use selinux and others to control bandwidth?
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Stefan Schulze Frielinghaus <stefan@sf-net.com>
+To: Ken YANG <spng.yang@gmail.com>
 Cc: SELinux List <selinux@tycho.nsa.gov>
-In-Reply-To: <ABA6C50B-476A-4775-BCAC-DD4ECD98B610@sf-net.com>
-References: <B850829A-A7A6-4B2A-B6A2-51EE83B6DC48@sf-net.com>
-	 <1184004466.12430.121.camel@moss-spartans.epoch.ncsc.mil>
-	 <ABA6C50B-476A-4775-BCAC-DD4ECD98B610@sf-net.com>
+In-Reply-To: <469356AC.7090701@gmail.com>
+References: <469356AC.7090701@gmail.com>
 Content-Type: text/plain
-Date: Tue, 10 Jul 2007 09:10:58 -0400
-Message-Id: <1184073058.12430.177.camel@moss-spartans.epoch.ncsc.mil>
+Date: Tue, 10 Jul 2007 09:18:23 -0400
+Message-Id: <1184073503.12430.180.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2007-07-10 at 10:17 +0200, Stefan Schulze Frielinghaus wrote:
-> On 09.07.2007, at 20:07, Stephen Smalley wrote:
+On Tue, 2007-07-10 at 17:51 +0800, Ken YANG wrote:
 > 
-> >> But if I try to modify the login context of root to use user_u I get
-> >> the following error:
-> >>
-> >> $ semanage login -m -s user_u root
-> >>
-> >> libsemanage.validate_handler: MLS range s0-s15:c0.c1023 for Unix user
-> >> root exceeds allowed range s0 for SELinux user user_u
-> >> libsemanage.validate_handler: seuser mapping [root -> (user_u, s0-
-> >> s15:c0.c1023)] is invalid
-> >> libsemanage.dbase_llist_iterate: could not iterate over records
-> >> /usr/sbin/semanage: Could not modify login mapping for root
-> >>
-> >> I'm not really sure how to interprete this message. I would guess
-> >> it's because user_u has only a valid MLS range SystemLow and root has
-> >> a SystemLow-SystemHigh range. But why could this be a problem?
-> >
-> > Because, as you said, user_u isn't authorized for that range.  The  
-> > Linux
-> > user is limited by the permissions of the SELinux user to which he is
-> > mapped.
-> >
-> > Also, the above semanage command would not actually remove the "root"
-> > SELinux user from the kernel policy; it would only remove the mapping
-> > from the seusers file.  The seusers file was introduced as a way to
-> > allow Linux users to be added/modified/removed without needing to  
-> > change
-> > the kernel policy each time, by letting you map each Linux user to one
-> > of the predefined SELinux users.
-> >
-> > It would make more sense to map "root" to "staff_u" than to "user_u".
-> > But you aren't achieving much by doing so, you still need "root" in  
-> > the
-> > kernel policy for compatibility with your on-disk file contexts.
+> hi all:
 > 
-> But how to limit the linux user root to not switch to sysadm_r? I  
-> would change his SELinux user to user_u (but that's not working like  
-> we pointed out). Or would you change the SELinux user root to not  
-> include the sysadm_r role?
+> 
+> i wondered how to use selinux or the combination with
+> other mechanisms to control bandwidth?
+> 
+> e.g. i can confine john to use 30% of the whole bandwidth,
+> and confine jerry to use 70% of the bandwidth.
+> 
+> i search in selinux mailing list, but i don't find anything
+> useful, can anyone give some hints?
+> 
 
-You could change the mapping for Linux user "root" by changing both his
-SELinux user and his range, e.g.:
-	semanage login -m -s user_u -r s0 root
-
-Or you could change the authorizations for SELinux user "root", e.g.:
-	semanage user -m -R user_r root
-
-The former is likely safer (fewer side effects, only affects login, not
-already running processes).
+SELinux doesn't presently provide controls on resource usage, although
+it has been discussed as a natural extension, e.g. per-role/domain/level
+resource limits.  There were some people looking at extending CKRM for
+SELinux, but I think they gave up after they saw that CKRM wasn't
+getting upstreamed.  
 
 -- 
 Stephen Smalley
