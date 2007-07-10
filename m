@@ -1,62 +1,44 @@
 Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l6ADe0ME012678
-	for <selinux@tycho.nsa.gov>; Tue, 10 Jul 2007 09:40:00 -0400
-Received: from compusult.net (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id l6ADdwrO029980
-	for <selinux@tycho.nsa.gov>; Tue, 10 Jul 2007 13:39:59 GMT
-Received: from lcrawley (lcrawley.compusult.net [10.1.1.101])
-	by compusult.net (8.13.1/8.13.1) with SMTP id l6ADdxK9009522
-	for <selinux@tycho.nsa.gov>; Tue, 10 Jul 2007 11:09:59 -0230
-Message-ID: <004001c7c2f7$cf2a1220$6501010a@compusult.net>
-From: "Laura Crawley" <lcrawley@compusult.net>
-To: <selinux@tycho.nsa.gov>
-Subject: Kernel caching
-Date: Tue, 10 Jul 2007 11:09:59 -0230
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l6AHmpaQ001973
+	for <selinux@tycho.nsa.gov>; Tue, 10 Jul 2007 13:48:53 -0400
+Received: from dmzmta103.na.baesystems.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id l6AHmon6003597
+	for <selinux@tycho.nsa.gov>; Tue, 10 Jul 2007 17:48:50 GMT
+Received: from BLUMS0034.bluelnk.net (blums0034.bluelnk.net [10.40.96.55])
+	by dmzmta103.na.baesystems.com (Switch-3.2.5/Switch-3.2.5) with ESMTP id l6AHmCsi016504
+	for <selinux@tycho.nsa.gov>; Tue, 10 Jul 2007 13:48:12 -0400
+Received: from blums0008.bluelnk.net (blums0008.sd.gd.com [134.120.81.40])
+	by usdmta003.na.baesystems.com (Switch-3.2.5/Switch-3.2.5) with ESMTP id l6AHm8Rf031371
+	for <selinux@tycho.nsa.gov>; Tue, 10 Jul 2007 13:48:10 -0400
 MIME-Version: 1.0
-Content-Type: multipart/alternative;
-	boundary="----=_NextPart_000_003D_01C7C2E2.DAB7E230"
+Content-Type: text/plain;
+	charset="US-ASCII"
+Subject: using newrole to reset the mls level
+Date: Tue, 10 Jul 2007 10:48:45 -0700
+Message-ID: <FB39F4E77226B448BC1388D3BE4E00CD01FB6D93@blums0008.bluelnk.net>
+From: "Clarkson, Mike R \(US SSA\)" <mike.clarkson@baesystems.com>
+To: <selinux@tycho.nsa.gov>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This is a multi-part message in MIME format.
+I've found that I need to provide the following mls privileges to allow
+resetting the mls level with newrole (newrole -l s2)
 
-------=_NextPart_000_003D_01C7C2E2.DAB7E230
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
 
-Has anyone run into a problem where all the cache is being used and as =
-soon as the cache fills, it instantly goes to swap. This is terminating =
-our program. Also, is there some way to configure the cache size for the =
-kernel?
+mls_process_set_level (needed to allow modifying the level)
+mls_file_write_down (needed to allow relabeling the tty)
+mls_file_read_up (needed to read the tty)
+mls_file_upgrade (needed to set a new level for the tty)
+mls_file_downgrade (needed to restore tty when exiting newrole)
+mls_fd_use_all_levels (needed to allow using the tty fd)
 
-Thank you,
-Laura
-------=_NextPart_000_003D_01C7C2E2.DAB7E230
-Content-Type: text/html;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
+These are a lot of privileges to provide to a domain.
 
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
-<HTML><HEAD>
-<META http-equiv=3DContent-Type content=3D"text/html; =
-charset=3Diso-8859-1">
-<META content=3D"MSHTML 6.00.2800.1593" name=3DGENERATOR>
-<STYLE></STYLE>
-</HEAD>
-<BODY bgColor=3D#ffffff>
-<DIV><FONT face=3DArial size=3D2>Has anyone run into a problem where all =
-the cache=20
-is being used and as soon as the cache fills, it instantly goes to swap. =
-This is=20
-terminating our program. Also, is there some way to configure the cache =
-size for=20
-the kernel?</FONT></DIV>
-<DIV><FONT face=3DArial size=3D2></FONT>&nbsp;</DIV>
-<DIV><FONT face=3DArial size=3D2>Thank you,</FONT></DIV>
-<DIV><FONT face=3DArial size=3D2>Laura</FONT></DIV></BODY></HTML>
+Is there another way to allow newrole to work without having to provide
+all of these privileges?
 
-------=_NextPart_000_003D_01C7C2E2.DAB7E230--
+Thanks
+
 
 
 --
