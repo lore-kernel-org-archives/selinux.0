@@ -1,58 +1,218 @@
-In-Reply-To: <1184004466.12430.121.camel@moss-spartans.epoch.ncsc.mil>
-References: <B850829A-A7A6-4B2A-B6A2-51EE83B6DC48@sf-net.com> <1184004466.12430.121.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0 (Apple Message framework v752.2)
-Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
-Message-Id: <ABA6C50B-476A-4775-BCAC-DD4ECD98B610@sf-net.com>
-Cc: SELinux List <selinux@tycho.nsa.gov>
-From: Stefan Schulze Frielinghaus <stefan@sf-net.com>
-Subject: Re: SELinux user root
-Date: Tue, 10 Jul 2007 10:17:34 +0200
-To: Stephen Smalley <sds@tycho.nsa.gov>
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l6A8wBca025977
+	for <selinux@tycho.nsa.gov>; Tue, 10 Jul 2007 04:58:11 -0400
+Received: from web34812.mail.mud.yahoo.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with SMTP id l6A8wAnS005507
+	for <selinux@tycho.nsa.gov>; Tue, 10 Jul 2007 08:58:10 GMT
+Date: Tue, 10 Jul 2007 09:58:09 +0100 (BST)
+From: Louis Lam <lshoujun@yahoo.com>
+Subject: Re: Newbie: Using SELINUX to contain vmware
+To: Ken YANG <spng.yang@gmail.com>
+Cc: selinux@tycho.nsa.gov
+In-Reply-To: <469209F1.9080708@gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Message-ID: <965615.33439.qm@web34812.mail.mud.yahoo.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+Hi,
 
-On 09.07.2007, at 20:07, Stephen Smalley wrote:
+I managed to compile the vmware.pp, but not using the latest reference policy. The vmware.if file
+on Centos5 matched the ref policy dtd 20061018. So i managed to compile the module.
 
->> But if I try to modify the login context of root to use user_u I get
->> the following error:
->>
->> $ semanage login -m -s user_u root
->>
->> libsemanage.validate_handler: MLS range s0-s15:c0.c1023 for Unix user
->> root exceeds allowed range s0 for SELinux user user_u
->> libsemanage.validate_handler: seuser mapping [root -> (user_u, s0-
->> s15:c0.c1023)] is invalid
->> libsemanage.dbase_llist_iterate: could not iterate over records
->> /usr/sbin/semanage: Could not modify login mapping for root
->>
->> I'm not really sure how to interprete this message. I would guess
->> it's because user_u has only a valid MLS range SystemLow and root has
->> a SystemLow-SystemHigh range. But why could this be a problem?
->
-> Because, as you said, user_u isn't authorized for that range.  The  
-> Linux
-> user is limited by the permissions of the SELinux user to which he is
-> mapped.
->
-> Also, the above semanage command would not actually remove the "root"
-> SELinux user from the kernel policy; it would only remove the mapping
-> from the seusers file.  The seusers file was introduced as a way to
-> allow Linux users to be added/modified/removed without needing to  
-> change
-> the kernel policy each time, by letting you map each Linux user to one
-> of the predefined SELinux users.
->
-> It would make more sense to map "root" to "staff_u" than to "user_u".
-> But you aren't achieving much by doing so, you still need "root" in  
+But when i tried to load the module i get a denied message in the setroubleshoot browser. So i
+copied the vmware.pp into /etc/selinux/targeted/modules/active/modules/ and fixed the context to
+be the same as the other modules and successfully loaded it without errors. Is this the correct
+way to do it? i'm not too sure.
+
+I got an error doing restorecon:
+restorecon -R -v "vmware relative directories"
+restorecon: error while labeling files under vmware relative directories
+
+I don't see any other error messages that explains this failure, what could be the cause? Is it
+logged somewhere?
+
+Hi Ken, would you be able to share which Distribution (FC?) you're using and also the reference
+policy version that enabled you to contain vmware? I'd like to try to get it to work first then
+figure out how to port it back to Centos5/RHEL5 once i get it to work.
+
+Thanks in advance,
+Louis
+
+
+
+--- Ken YANG <spng.yang@gmail.com> wrote:
+
+> Louis Lam wrote:
+> > Hi,
+> > 
+> > I was trying this on a Centos05 system, assuming that it was built upon the same sources as
+> RHEL5:
+> > 
+> > I've installed the selinux-policy-devel rpm. can't find the vmware.pp module. Source wise
+> there is
+> > only a vmware.if file. No vmware.te or vmware.fc. I'm not sure why these two files are not
+> > included  since all three are needed to make the vmware.pp module. 
+> 
+> devel package only contains interface files, just as other "*devel"
+> package, which only include header files.
+> 
+> so selinux-policy-devel only contains vmware.if file.
+> 
+> Perhaps someone who is
+> > experienced on RHEL5/CENTOS can shed light on the reason why only the vmware.if is included?
+> > 
+> > Then I read somewhere that policygentool can be used to generate all the three files
+> > (.if,.te,.fc). I'll try this approach too.
+> > 
+> > BUT in this case where I were to try the method that Ken suggested below (Thanks Ken!). I'm
+> using
+> > the files from "http://oss.tresys.com/repos/refpolicy/trunk" .In this case i already have all
 > the
-> kernel policy for compatibility with your on-disk file contexts.
+> > three files, I could just use make on them to generate the pp right?
+> > 
+> > But when i try to do make I get the following errors that I don't seem to understand:
+> > 
+> > make -f /usr/share/selinux/devel/Makefile
+> > vmware.if:168: Error: duplicate definition of vmware_per_role_template(). Original definition
+> on
+> > 16
+> > 9.
+> > vmware.if:186: Error: duplicate definition of vmware_read_system_config(). Original definition
+> on
+> > 1
+> > 87.
+> > vmware.if:204: Error: duplicate definition of vmware_append_system_config(). Original
+> definition
+> > on
+> >  205.
+> > Compiling targeted vmware module
+> > /usr/bin/checkmodule:  loading policy configuration from tmp/vmware.tmp
+> > vmware.te:38:ERROR 'syntax error' at token 'manage_files_pattern' on line 78147:
+> > # cjp: the ro and rw files should be split up
+> > manage_files_pattern(vmware_host_t,vmware_sys_conf_t,vmware_sys_conf_t)
+> > /usr/bin/checkmodule:  error(s) encountered while parsing configuration
+> > make: *** [tmp/vmware.mod] Error 1
+> > 
+> > Not very sure what is going on here, pl help. I'm thinking there may be some conflict between
+> the
+> > vmware.if from the selinux-policy-devel rpm and the one downloaded from
+> > http://oss.tresys.com/repos/refpolicy/trunk
+> 
+> using Makefile to build vmware.pp, you already have vmware interface
+> file(in selinux-policy-devel), and you get vmware.[if,fc,te] from trunk,
+> so there are duplicate definition errors.
+> 
+> in /usr/share/selinux/devel/include/Makefile:
+> 
+> tmp/all_interfaces.conf: $(m4support) $(all_interfaces) $(detected_ifs)
+>          @test -d tmp || mkdir -p tmp
+>          $(verbose) m4 $^ | sed -e s/dollarsstar/\$$\*/g > $@
+> 
+> 
+> you can remove vmware.if you get from trunk or selinux-policy source
+> package, and then build vmware.pp
+> 
+> 
+> > 
+> > Thanks in advance.
+> > Louis
+> > 
+> > 
+> > 
+> > --- Ken YANG <spng.yang@gmail.com> wrote:
+> > 
+> >> Louis Lam wrote:
+> >>> Hi Ken,
+> >>>
+> >>> Thank you for your replies. I'll try that out.
+> >>>
+> >>> About my system. My target is to use RHEL 5. But i have no restrictions to use FC either.
+> >>>
+> >>> Pardon my ignorance, btw, what do you mean by the "upstream" vmware policy? Where may I be
+> >> able to
+> >>> get it?
+> >> IMHO, "upstream" means reference policy svn trunk, you can get it through:
+> >>
+> >> svn co http://oss.tresys.com/repos/refpolicy/trunk refpolicy
+> >>
+> >> similarly, you can also user vmware[.te, .fc, .if] in EL5 policy source.
+> >>
+> >>
+> >>> Thanks in advance,
+> >>> Louis
+> >>>
+> >>>
+> >>> --- Ken YANG <spng.yang@gmail.com> wrote:
+> >>>
+> >>>> Louis Lam wrote:
+> >>>>> Hi All,
+> >>>>>
+> >>>>> I'm trying to use SELINUX to contain vmware. I'm a newbie to the "newer" modules based
+> >> SELINUX
+> >>>>> under RHEL5/CenTOS5. I can see that there is a vmware.if defined but don't know how to
+> build
+> >>>> the
+> >>>>> module vmware.pp. Not even sure if i'm on the correct track doing this. pl advice.
+> >>>> what is your system? in fedora, there is vmware module at default:
+> >>>>
+> >>>> -(:17:48:$)-> sudo semodule -l|grep vmware
+> >>>> vmware  1.1.1
+> >>>>
+> >>>> if your policy have not vmware module, you can build it from policy source:
+> >>>>
+> >>>> # cd "dir containg your vmware source policy"
+> >>>> (vmware.fc, vmware.te, vmware.if)
+> >>>>
+> >>>> # make -f /usr/share/selinux/devel/Makefile
+> >>>> (you must install selinux-policy-devel package first)
+> >>>>
+> >>>> # semodule -i vmware.pp
+> >>>> # restorecon -R -v "vmware relative directories"
+> >>>>
+> >>>>
+> >>>>> I'm trying to use SELINUX to contain the free vmplayer 2.0.0 downloadable from vmware
+> site.
+> >>>> Has
+> >>>>> anyone succeeded in doing so? Maybe can point me to the right resources. Thanks.
+> >>>> through upstream vmware policy, i can run vmware-workstation 6 smoothly,
+> >>>> so i think vmplayer 2.0.0 is also ok.
+> >>>>
+> >>>>
+> >>>>> Thanks in Advance,
+> >>>>> Louis
+> >>>>>
+> >>>>> Send instant messages to your online friends http://uk.messenger.yahoo.com 
+> >>>>>
+> >>>>> --
+> >>>>> This message was distributed to subscribers of the selinux mailing list.
+> >>>>> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
+> >>>>> the words "unsubscribe selinux" without quotes as the message.
+> >>>>>
+> >>>> --
+> >>>> This message was distributed to subscribers of the selinux mailing list.
+> >>>> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
+> >>>> the words "unsubscribe selinux" without quotes as the message.
+> >>>>
+> >>>
+> >>> Send instant messages to your online friends http://uk.messenger.yahoo.com 
+> >>>
+> >>
+> >> --
+> >> This message was distributed to subscribers of the selinux mailing list.
+> >> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
+> >> the words "unsubscribe selinux" without quotes as the message.
+> >>
+> > 
+> > 
+> > Send instant messages to your online friends http://uk.messenger.yahoo.com 
+> > 
+> 
+> 
 
-But how to limit the linux user root to not switch to sysadm_r? I  
-would change his SELinux user to user_u (but that's not working like  
-we pointed out). Or would you change the SELinux user root to not  
-include the sysadm_r role?
 
+Send instant messages to your online friends http://uk.messenger.yahoo.com 
 
 --
 This message was distributed to subscribers of the selinux mailing list.
