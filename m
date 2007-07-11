@@ -1,58 +1,86 @@
-Message-ID: <4694D18A.9030502@manicmethod.com>
-Date: Wed, 11 Jul 2007 08:48:10 -0400
-From: Joshua Brindle <method@manicmethod.com>
-MIME-Version: 1.0
+In-Reply-To: <1184073058.12430.177.camel@moss-spartans.epoch.ncsc.mil>
+References: <B850829A-A7A6-4B2A-B6A2-51EE83B6DC48@sf-net.com> <1184004466.12430.121.camel@moss-spartans.epoch.ncsc.mil> <ABA6C50B-476A-4775-BCAC-DD4ECD98B610@sf-net.com> <1184073058.12430.177.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0 (Apple Message framework v752.2)
+Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
+Message-Id: <5393133C-85CF-4367-8D56-F5557C3192B4@sf-net.com>
+Cc: SELinux List <selinux@tycho.nsa.gov>
+From: Stefan Schulze Frielinghaus <stefan@sf-net.com>
+Subject: Re: SELinux user root
+Date: Wed, 11 Jul 2007 14:52:16 +0200
 To: Stephen Smalley <sds@tycho.nsa.gov>
-CC: "Clarkson, Mike R (US SSA)" <mike.clarkson@baesystems.com>,
-        selinux@tycho.nsa.gov,
-        "Christopher J. PeBenito" <cpebenito@tresys.com>,
-        Karl MacMillan <kmacmillan@mentalrootkit.com>
-Subject: Re: using semodule_package
-References: <FB39F4E77226B448BC1388D3BE4E00CD01FB6DF2@blums0008.bluelnk.net> <1184156241.3392.41.camel@moss-spartans.epoch.ncsc.mil>
-In-Reply-To: <1184156241.3392.41.camel@moss-spartans.epoch.ncsc.mil>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Stephen Smalley wrote:
-> On Tue, 2007-07-10 at 19:10 -0700, Clarkson, Mike R (US SSA) wrote:
->   
->> The manpage for semodule_package gives examples for how to use it:
->> 	semodule_package -o httpd.pp -m httpd.mod -f httpd.fc
->>
->> Am I supposed to get the *.mod files for modules when I compile the
->> policy? I have a base.mod file, but no *.mod files for the loadable
->> modules. The closest that I have is <module_name>.mod.role files under
->> the .../policy/tmp directory.
->>
->> I'd like to be able to use semodule_package to update file contexts
->> without having to recompile.
->>     
->
-> It appears that the .mod files are removed at the end of the build
-> process after they have been packaged into .pp files.  Not sure why.
->   
 
-Its a feature of make, all intermediate files without a specific target 
-are deleted after the build process. This use to be preventable by 
-adding .secondary to the Makefile but there has been a long standing bug 
-that keeps that from working.
+On 10.07.2007, at 15:10, Stephen Smalley wrote:
 
-> Options, aside from tracking down the relevant makefile rule and
-> removing it, might include:
-> - regenerating the .mod via checkmodule on tmp/<name>.tmp, e.g.
-> 	checkmodule -M -m tmp/zebra.tmp -o tmp/zebra.mod
-> or
-> - extracting the already built .mod file from the .pp file
+> On Tue, 2007-07-10 at 10:17 +0200, Stefan Schulze Frielinghaus wrote:
+>> On 09.07.2007, at 20:07, Stephen Smalley wrote:
+>>
+>>>> But if I try to modify the login context of root to use user_u I  
+>>>> get
+>>>> the following error:
+>>>>
+>>>> $ semanage login -m -s user_u root
+>>>>
+>>>> libsemanage.validate_handler: MLS range s0-s15:c0.c1023 for Unix  
+>>>> user
+>>>> root exceeds allowed range s0 for SELinux user user_u
+>>>> libsemanage.validate_handler: seuser mapping [root -> (user_u, s0-
+>>>> s15:c0.c1023)] is invalid
+>>>> libsemanage.dbase_llist_iterate: could not iterate over records
+>>>> /usr/sbin/semanage: Could not modify login mapping for root
+>>>>
+>>>> I'm not really sure how to interprete this message. I would guess
+>>>> it's because user_u has only a valid MLS range SystemLow and  
+>>>> root has
+>>>> a SystemLow-SystemHigh range. But why could this be a problem?
+>>>
+>>> Because, as you said, user_u isn't authorized for that range.  The
+>>> Linux
+>>> user is limited by the permissions of the SELinux user to which  
+>>> he is
+>>> mapped.
+>>>
+>>> Also, the above semanage command would not actually remove the  
+>>> "root"
+>>> SELinux user from the kernel policy; it would only remove the  
+>>> mapping
+>>> from the seusers file.  The seusers file was introduced as a way to
+>>> allow Linux users to be added/modified/removed without needing to
+>>> change
+>>> the kernel policy each time, by letting you map each Linux user  
+>>> to one
+>>> of the predefined SELinux users.
+>>>
+>>> It would make more sense to map "root" to "staff_u" than to  
+>>> "user_u".
+>>> But you aren't achieving much by doing so, you still need "root" in
+>>> the
+>>> kernel policy for compatibility with your on-disk file contexts.
+>>
+>> But how to limit the linux user root to not switch to sysadm_r? I
+>> would change his SELinux user to user_u (but that's not working like
+>> we pointed out). Or would you change the SELinux user root to not
+>> include the sysadm_r role?
 >
-> I took the semodule_package.c code once and created a
-> semodule_unpackage.c file from it to unpack the .mod file, but never got
-> around to generalizing it (e.g. unpacking all of the files) or
-> committing it.  Attached below for your amusement.
-> $ gcc -lsepol -o semodule_unpackage semodule_unpackage.c
-> $ ./semodule_unpackage zebra.pp zebra.mod
->  
->   
+> You could change the mapping for Linux user "root" by changing both  
+> his
+> SELinux user and his range, e.g.:
+> 	semanage login -m -s user_u -r s0 root
+>
+> Or you could change the authorizations for SELinux user "root", e.g.:
+> 	semanage user -m -R user_r root
+>
+> The former is likely safer (fewer side effects, only affects login,  
+> not
+> already running processes).
+
+Yeah the first one runs fine for me.
+
+Thanks!
+
+-Stefan
 
 
 
