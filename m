@@ -1,8 +1,8 @@
-Subject: Re: Libsemanage dependency on version of Linux...
+Subject: RE: Libsemanage dependency on version of Linux...
 From: Stephen Smalley <sds@tycho.nsa.gov>
 To: Hasan Rezaul-CHR010 <CHR010@motorola.com>
 Cc: SE Linux <selinux@tycho.nsa.gov>
-In-Reply-To: <1184269199.3392.338.camel@moss-spartans.epoch.ncsc.mil>
+In-Reply-To: <D06FE0A2807BC145B0D38744789D4F5D03C0A78D@de01exm68.ds.mot.com>
 References: <20070521095414.832619201@tresys.com>
 	 <1180137749.10334.18.camel@localhost.localdomain>
 	 <4677F1BC.2000201@tresys.com>
@@ -22,58 +22,43 @@ References: <20070521095414.832619201@tresys.com>
 	 <46896D88.7060504@tresys.com> <1183425133.32465.16.camel@code.and.org>
 	 <468A2FE2.5000903@aus-city.com>
 	 <1183464455.12218.243.camel@moss-spartans.epoch.ncs! c.mil>
-	 <468C2D9! 5.2010801 @aus-city.co m>
+	 <468C2D9! ! 5.20108 01 @aus-city .co m>
 	 <1183638838.12218.334.camel@moss-spartans.epoch.ncsc.mil>
 	 <D06FE0A2807BC145B0D38744789D4F5D03C0A72F@de01exm68.ds.mot.com>
 	 <1184269199.3392.338.camel@moss-spartans.epoch.ncsc.mil>
+	 <D06FE0A2807BC145B0D38744789D4F5D03C0A78D@de01exm68.ds.mot.com>
 Content-Type: text/plain
-Date: Thu, 12 Jul 2007 15:49:44 -0400
-Message-Id: <1184269784.3392.347.camel@moss-spartans.epoch.ncsc.mil>
+Date: Thu, 12 Jul 2007 15:57:56 -0400
+Message-Id: <1184270276.3392.350.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2007-07-12 at 15:39 -0400, Stephen Smalley wrote:
-> On Thu, 2007-07-12 at 15:03 -0400, Hasan Rezaul-CHR010 wrote:
-> > Hi All,
-> > 
-> > I currently am running on Linux 2.6.14,  and I have
-> > libsemanage-1.6.17-1
-> > 
-> > After discussing with Stephen Smalley, I learned that in order for
-> > semanage to NOT create a "/previous" directory, I need to upgrade my
-> > libsemanage library to version   1.9.2  or higher.
-> > 
-> > My question is:  is libsemanage version 1.9.2  dependent on a Linux
-> > version newer than Linux 2.6.14 ???
-> > 
-> > What is the latest version of libsemanage that is supported in Linux
-> > version 2.6.14 ?
-> > 
-> > Also, what are the latest versions of the following other libs
-> > supported by Linux 2.6.14 : ?
-> > 
-> > checkpolicy 
-> > libsepol 
-> > libselinux 
-> > Policycoreutils
+On Thu, 2007-07-12 at 15:48 -0400, Hasan Rezaul-CHR010 wrote:
+> Thanks Stephen,
 > 
-> Hi,
+> So given the fact that I must use Linux Kernel 2.6.14  :
 > 
-> You should generally upgrade all of the core SELinux userland components
-> together to be safe, but newer versions of the SELinux core userland
-> should work fine on older kernels (at least for the stable branch).
+> Are you saying that its okay for us to upgrade SELinux libs FROM  the
+> versions listed below TO the versions listed below while continuing to
+> use Linux Kernel 2.6.14 ?  In other words, the newer versions of the
+> SELinux-related libs DON'T depend on the version of the Linux kernel ?
+> I would like to upgrade the libs as described below, but I fear that the
+> new libs versions may not work correctly with Linux 2.6.14.
 > 
-> You may wish to set the policy-version in
-> your /etc/selinux/semanage.conf file though to make sure that it is
-> generating the right policy version for your kernel (as reported by
-> cat /selinux/policyvers), especially if you are using an older SysVinit
-> that doesn't use the newer policy loading logic with automatic
-> downgrading.
+> Please confirm...
+> 
+> 
+> libsemanage-1.6.17-1     =>  libsemanage-1.10.4
+> checkpolicy-1.33.1-2     =>  checkpolicy-1.34.3-x
+> libsepol-1.15.3-1        =>  libsepol-1.16.3-x
+> libselinux-1.33.4-2      =>  libselinux-1.34.10-x
+> policycoreutils-1.34.1-4 =>  policycoreutils-1.34.10-x 
 
-BTW, any particular reason you are stuck on 2.6.14?  It is a fairly old
-kernel, and even "stable" distributions like RHEL5 and Debian etch are
-using 2.6.18 derivatives IIRC.
+AFAIK, there should be no problems from such an upgrade, and if there
+are, that's a bug.
+
+Naturally, trying it out on a test machine first considered a good idea.
 
 -- 
 Stephen Smalley
