@@ -1,36 +1,36 @@
 Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l6BGY1PG024963
-	for <selinux@tycho.nsa.gov>; Wed, 11 Jul 2007 12:34:01 -0400
-Received: from exchange.columbia.tresys.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with SMTP id l6BGY0wX015850
-	for <selinux@tycho.nsa.gov>; Wed, 11 Jul 2007 16:34:00 GMT
-Message-ID: <46950663.5010801@tresys.com>
-Date: Wed, 11 Jul 2007 12:33:39 -0400
-From: Joshua Brindle <jbrindle@tresys.com>
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l6C3M1Lc000897
+	for <selinux@tycho.nsa.gov>; Wed, 11 Jul 2007 23:22:01 -0400
+Received: from wa-out-1112.google.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l6C3M049015940
+	for <selinux@tycho.nsa.gov>; Thu, 12 Jul 2007 03:22:01 GMT
+Received: by wa-out-1112.google.com with SMTP id k22so18291waf
+        for <selinux@tycho.nsa.gov>; Wed, 11 Jul 2007 20:22:00 -0700 (PDT)
+Message-ID: <46959D3B.7040202@gmail.com>
+Date: Thu, 12 Jul 2007 11:17:15 +0800
+From: Ken YANG <spng.yang@gmail.com>
 MIME-Version: 1.0
-To: Karl MacMillan <kmacmillan@mentalrootkit.com>
-CC: selinux@tycho.nsa.gov
-Subject: Re: [PATCH] Initial policyrep patch v3
-References: <c438376dfb35c9525c9c.1184161294@localhost.localdomain>
-In-Reply-To: <c438376dfb35c9525c9c.1184161294@localhost.localdomain>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: SELinux List <selinux@tycho.nsa.gov>
+Subject: which tool i should use for policy generation
+Content-Type: text/plain; charset=GB18030
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Karl MacMillan wrote:
-> Initial patch to create a new policyrep branch using C++. This patch includes basic classes for
-> representing policy (Node and Parent), a few policy objects, a bison parser, a boost::python
-> binding, and basic test infrastructure.
-> 
-> Includes updates based on comments from James Antill
-> and Josh Brindle.
-> * * *
-> 
-> Signed-off-by: User "Karl MacMillan <kmacmillan@mentalrootkit.com>"
-> ---
 
-Acked and merged into a new policyrep branch. Now we can have 
-incremental patches instead of giant ones :)
+
+i find three papers about policy generation tools:
+
+<<Guided Policy Generation for Application Authors>>
+<<Madison: A New Approach to Policy Generation>>
+<<Madison ¨C A New Approach to Policy Generation>>
+
+
+it seems the last one is the last, so is that mean we
+should use sepolgen rather than madison.
+
+BTW, i notice the madison is not in fedora rawhide
+repository, is this another reason we should use
+sepolgen?
 
 
 --
