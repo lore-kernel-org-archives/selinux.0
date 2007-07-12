@@ -1,127 +1,70 @@
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l6CJS1d1027751
+	for <selinux@tycho.nsa.gov>; Thu, 12 Jul 2007 15:28:02 -0400
+Received: from an-out-0708.google.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l6CJS1EW007033
+	for <selinux@tycho.nsa.gov>; Thu, 12 Jul 2007 19:28:01 GMT
+Received: by an-out-0708.google.com with SMTP id c38so61381ana
+        for <selinux@tycho.nsa.gov>; Thu, 12 Jul 2007 12:28:00 -0700 (PDT)
+Message-ID: <8b4cbe570707121228k405bd393ycd108084b942792d@mail.gmail.com>
+Date: Thu, 12 Jul 2007 15:28:00 -0400
+From: "B Topscher" <bryan@jennandbryan.com>
+To: "SELinux List" <selinux@tycho.nsa.gov>
+Subject: RHEL 5 strict and mls login fails
 MIME-Version: 1.0
 Content-Type: multipart/alternative;
-	boundary="----_=_NextPart_001_01C7C4B7.485D1348"
-Subject: Libsemanage dependency on version of Linux...
-Date: Thu, 12 Jul 2007 15:03:07 -0400
-Message-ID: <D06FE0A2807BC145B0D38744789D4F5D03C0A72F@de01exm68.ds.mot.com>
-In-Reply-To: <1183638838.12218.334.camel@moss-spartans.epoch.ncsc.mil>
-References: <20070521095414.832619201@tresys.com> <1180137749.10334.18.camel@localhost.localdomain> <4677F1BC.2000201@tresys.com> <1182443353.11527.50.camel@localhost.localdomain> <6FE441CD9F0C0C479F2D88F959B01588D01904@exchange.columbia.tresys.com> <1182449086.11527.80.camel@localhost.localdomain> <6FE441CD9F0C0C479F2D88F959B01588D01920@exchange.columbia.tresys.com> <1182449898.11527.83.camel@localhost.localdomain> <6FE441CD9F0C0C479F2D88F959B01588D01928@exchange.columbia.tresys.com> <1182450900.11527.88.camel@localhost.localdomain> <467AE59E.2050501@tycho.nsa.gov> <1182525734.3014.20.camel@localhost.localdomain> <467BFF99.9000404@tycho.nsa.gov> <1182540624.6599.5.camel@localhost.localdomain> <467C3728.6070803@tycho.nsa.gov>  <468904FA.7030102@tresys.com> <1183386217.16330.0.camel@localhost.locald! omain> <46896D88.7060504@tresys.com> <1183425133.32465.16.camel@code.and.org> <468A2FE2.5000903@aus-city.com> <1183464455.12218.243.camel@moss-spartans.epoch.ncs! c.mil> <468C2D9!
- 5.2010801
-	@aus-city.co
-	m> <1183638838.12218.334.camel@moss-spartans.epoch.ncsc.mil>
-From: "Hasan Rezaul-CHR010" <CHR010@motorola.com>
-To: "Stephen Smalley" <sds@tycho.nsa.gov>
-Cc: "SE Linux" <selinux@tycho.nsa.gov>
+	boundary="----=_Part_27103_32798485.1184268480750"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This is a multi-part message in MIME format.
+------=_Part_27103_32798485.1184268480750
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-------_=_NextPart_001_01C7C4B7.485D1348
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
+I installed the newest version of RHEL 5 out of the box for x86_64
+platform.  I installed the selinux-policy-strict, selinux-policy-mls, and
+the policycoreutils-newrole package.  I set SELINUXTYPE to mls and left
+SELINUX as permissive.  I touched /.autorelabel and rebooted.  After the
+relabeling I set SELINUX to enforcing.  When I go to login to the console I
+get "no shell: Permission Denied".   I tried it with the strict policy and
+got the same results.
 
-Hi All,
+I checked the AVN's and it says that locale_login_t cannot execute_no_trans
+to shell_exec_t.  So I added that to the system/locallogin.te file
+(specifically, allow local_login_t shell_exec_t:file execute_no trans;
+allow local_login_t bin_t:file {execute execute_no_trans};
+consoletype_domtrans(local_login_t)) in the refpolicy.  I did a make load
+and rebooted.  I can now login but I get permission denied when I try and
+run newrole.  I also get:
 
-I currently am running on Linux 2.6.14,  and I have
-libsemanage-1.6.17-1
+-bash: /bin/hostname: Permission Denied
+-bash: /root/.bash_profile: Permission Denied
+-bash-3.1#
 
-After discussing with Stephen Smalley, I learned that in order for
-semanage to NOT create a "/previous" directory, I need to upgrade my
-libsemanage library to version   1.9.2  or higher.
+With FC6 and RHEL5 beta this was never needed.  I could login in eforcing
+and mls and then newrole right out of the box.  Has anyone experienced this
+or have any suggestions?  Before I start making more changes to the policy I
+want to make sure I am not doing something dumb.
 
-My question is:  is libsemanage version 1.9.2  dependent on a Linux
-version newer than Linux 2.6.14 ???
+My .bash_profile as root is set to root:root:object_r:sysadm_home_t:s0.  I
+have the same issue when I try this as root or as a user.
 
-What is the latest version of libsemanage that is supported in Linux
-version 2.6.14 ?
+Thank you for any suggestions.
 
-Also, what are the latest versions of the following other libs supported
-by Linux 2.6.14 : ?
+Bryan
 
-checkpolicy
-libsepol
-libselinux
-Policycoreutils
+------=_Part_27103_32798485.1184268480750
+Content-Type: text/html; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-Thanks in advance,
+I installed the newest version of RHEL 5 out of the box for x86_64 platform.&nbsp; I installed the selinux-policy-strict, selinux-policy-mls, and the policycoreutils-newrole package.&nbsp; I set SELINUXTYPE to mls and left SELINUX as permissive.&nbsp; I touched /.autorelabel and rebooted.&nbsp; After the relabeling I set SELINUX to enforcing.&nbsp; When I go to login to the console I get &quot;no shell: Permission Denied&quot;.&nbsp;&nbsp; I tried it with the strict policy and got the same results.
+<br><br>I checked the AVN&#39;s and it says that locale_login_t cannot execute_no_trans to shell_exec_t.&nbsp; So I added that to the system/locallogin.te file (specifically, allow local_login_t shell_exec_t:file execute_no trans;&nbsp; allow local_login_t bin_t:file {execute execute_no_trans};&nbsp; consoletype_domtrans(local_login_t)) in the refpolicy.&nbsp; I did a make load and rebooted.&nbsp; I can now login but I get permission denied when I try and run newrole.&nbsp; I also get:
+<br><br>-bash: /bin/hostname: Permission Denied<br>-bash: /root/.bash_profile: Permission Denied<br>-bash-3.1# <br><br>With FC6 and RHEL5 beta this was never needed.&nbsp; I could login in eforcing and mls and then newrole right out of the box.&nbsp; Has anyone experienced this or have any suggestions?&nbsp; Before I start making more changes to the policy I want to make sure I am not doing something dumb.
+<br><br>My .bash_profile as root is set to root:root:object_r:sysadm_home_t:s0.&nbsp; I have the same issue when I try this as root or as a user.&nbsp; <br><br>Thank you for any suggestions.<br><br>Bryan<br>
 
-- Rezaul.
-
-------_=_NextPart_001_01C7C4B7.485D1348
-Content-Type: text/html;
-	charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
-
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
-<HTML>
-<HEAD>
-<META HTTP-EQUIV=3D"Content-Type" CONTENT=3D"text/html; =
-charset=3Dus-ascii">
-<META NAME=3D"Generator" CONTENT=3D"MS Exchange Server version =
-6.5.7652.24">
-<TITLE>Libsemanage dependency on version of Linux...</TITLE>
-</HEAD>
-<BODY>
-<!-- Converted from text/rtf format -->
-
-<P><SPAN LANG=3D"en-us"><FONT SIZE=3D2 FACE=3D"Arial">Hi =
-All,</FONT></SPAN>
-</P>
-
-<P><SPAN LANG=3D"en-us"><FONT SIZE=3D2 FACE=3D"Arial">I currently am =
-running on Linux 2.6.14,&nbsp; and I have&nbsp;&nbsp; =
-libsemanage-1.6.17-1</FONT></SPAN>
-</P>
-
-<P><SPAN LANG=3D"en-us"><FONT SIZE=3D2 FACE=3D"Arial">After discussing =
-with Stephen Smalley, I learned that in order for semanage to NOT create =
-a &quot;/previous&quot; directory, I need to upgrade my libsemanage =
-library to version&nbsp;&nbsp;<B> 1.9.2&nbsp;</B> or =
-higher.</FONT></SPAN></P>
-
-<P><SPAN LANG=3D"en-us"><FONT SIZE=3D2 FACE=3D"Arial">My question =
-is:&nbsp; is libsemanage version</FONT><B> <FONT SIZE=3D2 =
-FACE=3D"Arial">1.9.2&nbsp;</FONT></B> <FONT SIZE=3D2 =
-FACE=3D"Arial">dependent on a Linux version newer than Linux 2.6.14 =
-???</FONT></SPAN>
-</P>
-
-<P><SPAN LANG=3D"en-us"><FONT SIZE=3D2 FACE=3D"Arial">What is the latest =
-version of libsemanage that is supported in Linux version 2.6.14 =
-?</FONT></SPAN>
-</P>
-
-<P><SPAN LANG=3D"en-us"><FONT SIZE=3D2 FACE=3D"Arial">Also, what are the =
-latest versions of the following other libs supported by Linux 2.6.14 : =
-?</FONT></SPAN>
-</P>
-
-<P><SPAN LANG=3D"en-us"><FONT SIZE=3D2 =
-FACE=3D"Arial">checkpolicy</FONT></SPAN>
-
-<BR><SPAN LANG=3D"en-us"><FONT SIZE=3D2 =
-FACE=3D"Arial">libsepol</FONT></SPAN>
-
-<BR><SPAN LANG=3D"en-us"><FONT SIZE=3D2 =
-FACE=3D"Arial">libselinux</FONT></SPAN>
-
-<BR><SPAN LANG=3D"en-us"><FONT SIZE=3D2 =
-FACE=3D"Arial">Policycoreutils</FONT></SPAN>
-</P>
-
-<P><SPAN LANG=3D"en-us"><FONT SIZE=3D2 FACE=3D"Arial">Thanks in =
-advance,</FONT></SPAN>
-</P>
-
-<P><SPAN LANG=3D"en-us"><FONT SIZE=3D2 FACE=3D"Arial">- =
-Rezaul.</FONT></SPAN>
-</P>
-
-</BODY>
-</HTML>
-------_=_NextPart_001_01C7C4B7.485D1348--
+------=_Part_27103_32798485.1184268480750--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
