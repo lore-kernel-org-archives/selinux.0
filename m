@@ -1,54 +1,93 @@
-Subject: Re: RHEL 5 strict and mls login fails
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: B Topscher <bryan@jennandbryan.com>
-Cc: SELinux List <selinux@tycho.nsa.gov>
-In-Reply-To: <8b4cbe570707121228k405bd393ycd108084b942792d@mail.gmail.com>
-References: <8b4cbe570707121228k405bd393ycd108084b942792d@mail.gmail.com>
-Content-Type: text/plain
-Date: Thu, 12 Jul 2007 15:43:53 -0400
-Message-Id: <1184269433.3392.342.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Subject: RE: Libsemanage dependency on version of Linux...
+Date: Thu, 12 Jul 2007 15:48:11 -0400
+Message-ID: <D06FE0A2807BC145B0D38744789D4F5D03C0A78D@de01exm68.ds.mot.com>
+In-Reply-To: <1184269199.3392.338.camel@moss-spartans.epoch.ncsc.mil>
+References: <20070521095414.832619201@tresys.com> <1180137749.10334.18.camel@localhost.localdomain> <4677F1BC.2000201@tresys.com> <1182443353.11527.50.camel@localhost.localdomain> <6FE441CD9F0C0C479F2D88F959B01588D01904@exchange.columbia.tresys.com> <1182449086.11527.80.camel@localhost.localdomain> <6FE441CD9F0C0C479F2D88F959B01588D01920@exchange.columbia.tresys.com> <1182449898.11527.83.camel@localhost.localdomain> <6FE441CD9F0C0C479F2D88F959B01588D01928@exchange.columbia.tresys.com> <1182450900.11527.88.camel@localhost.localdomain> <467AE59E.2050501@tycho.nsa.gov> <1182525734.3014.20.camel@localhost.localdomain> <467BFF99.9000404@tycho.nsa.gov> <1182540624.6599.5.camel@localhost.localdomain> <467C3728.6070803@tycho.nsa.gov>  <468904FA.7030102@tresys.com> <1183386217.16330.0.camel@localhost.locald! omain> <46896D88.7060504@tresys.com> <1183425133.32465.16.camel@code.and.org> <468A2FE2.5000903@aus-city.com> <1183464455.12218.243.camel@moss-spartans.epoch.ncs! c.mil> <468C2D9!
+ ! 5.20108
+	01 @aus-city
+	.co m> <1183638838.12218.334.camel@moss-spartans.epoch.ncsc.mil> <D06FE0A2807BC145B0D38744789D4F5D03C0A72F@de01exm68.ds.mot.com> <1184269199.3392.338.camel@moss-spartans.epoch.ncsc.mil>
+From: "Hasan Rezaul-CHR010" <CHR010@motorola.com>
+To: "Stephen Smalley" <sds@tycho.nsa.gov>
+Cc: "SE Linux" <selinux@tycho.nsa.gov>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2007-07-12 at 15:28 -0400, B Topscher wrote:
-> I installed the newest version of RHEL 5 out of the box for x86_64
-> platform.  I installed the selinux-policy-strict, selinux-policy-mls,
-> and the policycoreutils-newrole package.  I set SELINUXTYPE to mls and
-> left SELINUX as permissive.  I touched /.autorelabel and rebooted.
-> After the relabeling I set SELINUX to enforcing.  When I go to login
-> to the console I get "no shell: Permission Denied".   I tried it with
-> the strict policy and got the same results. 
-> 
-> I checked the AVN's and it says that locale_login_t cannot
-> execute_no_trans to shell_exec_t.  So I added that to the
-> system/locallogin.te file (specifically, allow local_login_t
-> shell_exec_t:file execute_no trans;  allow local_login_t bin_t:file
-> {execute execute_no_trans};  consoletype_domtrans(local_login_t)) in
-> the refpolicy.  I did a make load and rebooted.  I can now login but I
-> get permission denied when I try and run newrole.  I also get: 
-> 
-> -bash: /bin/hostname: Permission Denied
-> -bash: /root/.bash_profile: Permission Denied
-> -bash-3.1# 
-> 
-> With FC6 and RHEL5 beta this was never needed.  I could login in
-> eforcing and mls and then newrole right out of the box.  Has anyone
-> experienced this or have any suggestions?  Before I start making more
-> changes to the policy I want to make sure I am not doing something
-> dumb. 
-> 
-> My .bash_profile as root is set to
-> root:root:object_r:sysadm_home_t:s0.  I have the same issue when I try
-> this as root or as a user.  
+Thanks Stephen,
 
-Is this the same issue as the "RHEL5 console login problem - pam_selinux
-cannot determine new context" issue reported previously on this list Jun
-21?  Bug 229542?  Fixed in pam-0.99.6.2-3.15.el5?
+So given the fact that I must use Linux Kernel 2.6.14  :
+
+Are you saying that its okay for us to upgrade SELinux libs FROM  the
+versions listed below TO the versions listed below while continuing to
+use Linux Kernel 2.6.14 ?  In other words, the newer versions of the
+SELinux-related libs DON'T depend on the version of the Linux kernel ?
+I would like to upgrade the libs as described below, but I fear that the
+new libs versions may not work correctly with Linux 2.6.14.
+
+Please confirm...
+
+
+libsemanage-1.6.17-1     =>  libsemanage-1.10.4
+checkpolicy-1.33.1-2     =>  checkpolicy-1.34.3-x
+libsepol-1.15.3-1        =>  libsepol-1.16.3-x
+libselinux-1.33.4-2      =>  libselinux-1.34.10-x
+policycoreutils-1.34.1-4 =>  policycoreutils-1.34.10-x 
+
+Thanks,
+
+- Rezaul.
+
+
+-----Original Message-----
+From: Stephen Smalley [mailto:sds@tycho.nsa.gov] 
+Sent: Thursday, July 12, 2007 2:40 PM
+To: Hasan Rezaul-CHR010
+Cc: SE Linux
+Subject: Re: Libsemanage dependency on version of Linux...
+
+On Thu, 2007-07-12 at 15:03 -0400, Hasan Rezaul-CHR010 wrote:
+> Hi All,
+> 
+> I currently am running on Linux 2.6.14,  and I have
+> libsemanage-1.6.17-1
+> 
+> After discussing with Stephen Smalley, I learned that in order for
+> semanage to NOT create a "/previous" directory, I need to upgrade my
+> libsemanage library to version   1.9.2  or higher.
+> 
+> My question is:  is libsemanage version 1.9.2  dependent on a Linux
+> version newer than Linux 2.6.14 ???
+> 
+> What is the latest version of libsemanage that is supported in Linux
+> version 2.6.14 ?
+> 
+> Also, what are the latest versions of the following other libs
+> supported by Linux 2.6.14 : ?
+> 
+> checkpolicy 
+> libsepol 
+> libselinux 
+> Policycoreutils
+
+Hi,
+
+You should generally upgrade all of the core SELinux userland components
+together to be safe, but newer versions of the SELinux core userland
+should work fine on older kernels (at least for the stable branch).
+
+You may wish to set the policy-version in
+your /etc/selinux/semanage.conf file though to make sure that it is
+generating the right policy version for your kernel (as reported by
+cat /selinux/policyvers), especially if you are using an older SysVinit
+that doesn't use the newer policy loading logic with automatic
+downgrading.
 
 -- 
 Stephen Smalley
 National Security Agency
+
 
 
 --
