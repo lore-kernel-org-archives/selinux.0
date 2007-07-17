@@ -1,213 +1,127 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l6HIg6Et017815
-	for <selinux@tycho.nsa.gov>; Tue, 17 Jul 2007 14:42:06 -0400
-Received: from mx1.redhat.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l6HIg5FN028960
-	for <selinux@tycho.nsa.gov>; Tue, 17 Jul 2007 18:42:06 GMT
-Subject: Re: [POLICYREP] [PATCH 1/1] policyrep role implementation
-From: Karl MacMillan <kmacmillan@mentalrootkit.com>
-To: Joshua Brindle <method@manicmethod.com>
-Cc: selinux@tycho.nsa.gov, Joshua Brindle <jbrindle@tresys.com>
-In-Reply-To: <20070717172318.422721428@manicmethod.com>
-References: <20070717172210.256077142@manicmethod.com>
-	 <20070717172318.422721428@manicmethod.com>
-Content-Type: text/plain
-Date: Tue, 17 Jul 2007 14:42:03 -0400
-Message-Id: <1184697723.3833.36.camel@localhost.localdomain>
-Mime-Version: 1.0
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l6HKYIOX027969
+	for <selinux@tycho.nsa.gov>; Tue, 17 Jul 2007 16:34:18 -0400
+Received: from exchange.columbia.tresys.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with SMTP id l6HKYGTM027216
+	for <selinux@tycho.nsa.gov>; Tue, 17 Jul 2007 20:34:17 GMT
+Message-ID: <469D27B2.7020903@manicmethod.com>
+Date: Tue, 17 Jul 2007 16:33:54 -0400
+From: Joshua Brindle <method@manicmethod.com>
+MIME-Version: 1.0
+To: Karl MacMillan <kmacmillan@mentalrootkit.com>
+CC: selinux@tycho.nsa.gov
+Subject: Re: [POLICYREP] [RFC/PATCH 1/3] policy package class
+References: <20070717150336.135143158@manicmethod.com>	 <20070717150405.334131301@manicmethod.com>	 <1184686310.3833.3.camel@localhost.localdomain>	 <469CECFF.5030506@manicmethod.com> <1184697024.3833.22.camel@localhost.localdomain>
+In-Reply-To: <1184697024.3833.22.camel@localhost.localdomain>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2007-07-17 at 13:22 -0400, Joshua Brindle wrote:
-> plain text document attachment (roles)
-> Signed-off-by: Joshua Brindle <jbrindle@tresys.com>
-> 
-> ---
->  libpolicyrep/include/policyrep/policy.hpp |    1 
->  libpolicyrep/include/policyrep/role.hpp   |   45 ++++++++++++++++
->  libpolicyrep/src/policy_parse.y           |   13 ++--
->  libpolicyrep/src/role.cpp                 |   82 ++++++++++++++++++++++++++++++
->  libpolicyrep/tests/example.te             |    4 +
->  libpolicyrep/tests/libpolicyrep-test.cpp  |    6 +-
->  6 files changed, 144 insertions(+), 7 deletions(-)
-> 
-> --- policyrep-roles.orig/libpolicyrep/include/policyrep/policy.hpp
-> +++ policyrep-roles/libpolicyrep/include/policyrep/policy.hpp
-> @@ -8,6 +8,7 @@
->  #include <policyrep/te_decl.hpp>
->  #include <policyrep/rule.hpp>
->  #include <policyrep/conditional.hpp>
-> +#include <policyrep/role.hpp>
->  
+Karl MacMillan wrote:
+> On Tue, 2007-07-17 at 12:23 -0400, Joshua Brindle wrote:
+>   
+>> Karl MacMillan wrote:
+>>     
+>>> On Tue, 2007-07-17 at 11:03 -0400, method@manicmethod.com wrote:
+>>>   
+>>>       
+>>>> plain text document attachment (00-policy_package-header.patch)
+>>>> --
+>>>>
+>>>> --- a/libpolicyrep/include/policyrep/policy_package.hpp	(revision 0)
+>>>> +++ b/libpolicyrep/include/policyrep/policy_package.hpp	(revision 0)
+>>>> @@ -0,0 +1,38 @@
+>>>> +/* Author: Joshua Brindle <method@manicmethod.com> */
+>>>> +
+>>>> +#ifndef __policy_package_hpp__
+>>>> +#define __policy_package_hpp__
+>>>> +
+>>>> +
+>>>> +#include <policyrep/policy.hpp>
+>>>> +
+>>>> +namespace policyrep
+>>>> +{
+>>>> +	struct PolicyPackageImpl;
+>>>> +	class PolicyPackage
+>>>> +	{
+>>>> +	public:
+>>>> +		PolicyPackage();
+>>>> +		PolicyPackage(std::string filename);
+>>>> +		~PolicyPackage();
+>>>> +
+>>>>     
+>>>>         
+>>> Destructors should always be virtual - otherwise subclassing is
+>>> difficult.
+>>>   
+>>>       
+>> I don't think there is any reason to ever subclass a policy package. Its 
+>> different from the ast components.
+>>     
+>
+> Except that if the destructor is not virtual you cannot effectively
+> subclass without breaking binary compatibility. Also - in this case
+> there is no real downside to virtual by default, so why not do it?
+>
+>   
 
-I assume other things will go in this file? Perhaps role_trans? If so -
-is the file name generic enough or should it be something like rbac.hpp?
+Fine.
 
->  namespace policyrep
->  {
-> --- /dev/null
-> +++ policyrep-roles/libpolicyrep/include/policyrep/role.hpp
-> @@ -0,0 +1,45 @@
-> +/* Author: Joshua Brindle <jbrindle@tresys.com> */
-> +
-> +#ifndef __role_hpp__
-> +#define __role_hpp__
-> +
-> +#include <policyrep/policy_base.hpp>
-> +
-> +namespace policyrep
-> +{
-> +
-> +        //
-> +        // Role
-> +        //
-> +
-> +	struct RoleImpl;
-> +        class Role : public Node
-> +	{
-> +        public:
-> +		Role();
-> +		Role(const std::string& name);
+>>>   
+>>>       
+>>>> +		const Module get_policy_module() const;
+>>>> +
+>>>> +		const std::string get_file_contexts() const;
+>>>> +		const std::string get_seusers() const;
+>>>> +		const std::string get_user_extra() const;
+>>>> +		const std::string get_netfilter_contexts() const;
+>>>> +
+>>>>     
+>>>>         
+>>> why not const std::string&? I also think we should always default to
+>>> virtual.
+>>>
+>>>   
+>>>       
+>> because this won't be subclassed I don't think these should be virtual.
+>>
+>>     
+>
+> See above. What about the return type, though?
+>
+>   
 
-Missing copy constructor.
+I just don't see it as advantageous, since functions aren't part of the 
+mangled class struct the ABI won't change if they are added later as 
+virtuals (assuming there is no other virtuals below that will change 
+alignment and everything else is private). Also, if we determine that, 
+e.g. seusers have no business in modules we can remove the functions 
+without destroying the rest of the function alignments which will only 
+affect the API not the ABI, for this reason I'd prefer to avoid virtuals 
+unless there is a real possibility of the class being subclassed.
 
-> +		virtual ~Role();
-> +		virtual void operator=(const Role& other);
-> +
-> +		template<class T>
-> +                Role(const std::string& name, T types_begin, T end)
-> +		{
-> +			init();
-> +			set_name(name);
-> +			types().insert(types_begin, end);
-> +		}
-> +
-> +                virtual const std::string& get_name() const;
-> +                virtual void set_name(const std::string& name);
-> +
-> +                virtual StringSet& types();
-> +        protected:
-> +                virtual void do_output(std::ostream& o, const OutputFormatter& op) const;
-> +		void init();
-> +		RoleImpl* impl;
-> +        };
-> +	typedef boost::shared_ptr<Role> RolePtr;
-> +
-> +} // namespace policyrep
-> +
-> +#endif
-> --- policyrep-roles.orig/libpolicyrep/src/policy_parse.y
-> +++ policyrep-roles/libpolicyrep/src/policy_parse.y
-> @@ -116,6 +116,7 @@ policyrep::policy_parser::token_type
->  %type <pnode> av_perms_def
->  %type <pnode> attribute_def
->  %type <pnode> type_def
-> +%type <pnode> role_type_def
->  %type <pnode> typealias_def
->  %type <pnode> typeattribute_def
->  %type <pnode> allow_def
-> @@ -237,6 +238,8 @@ policy_statement        : class_def
->  			| type_def
->                          | typealias_def
->                          | typeattribute_def
-> +			/* Roles */
-> +			| role_type_def
->  			/* rules */
->  			| allow_def
->  			| auditallow_def
-> @@ -427,10 +430,10 @@ dontaudit_def		: DONTAUDIT names names C
->  neverallow_def		: NEVERALLOW names names COLON names names  SEMI
->  			  { $$ = define_avrule(AVRule::NEVERALLOW, $2, $3, $5, $6, driver); }
->  		        ;
-> -role_type_def		: ROLE IDENTIFIER TYPES names SEMI
-> -			{ $$ = define_role_types(); check($$); }
-> - 			| ROLE IDENTIFIER
-> - 			{ $$ = define_role_types(); check($$); }
-> +role_type_def		: ROLE IDENTIFIER TYPES id_comma_list SEMI
-> +                          { $$ = new Role(*$2, $4->begin(), $4->end()); delete $2; delete $4; }
-> + 			| ROLE IDENTIFIER SEMI
-> +			  { $$ = new Role(*$2); delete $2; }
->                          ;
->  /*
->  role_dominance		: DOMINANCE LBRACE roles RBRACE { $$ = $3; check($$); }
-> @@ -441,13 +444,11 @@ role_trans_def		: ROLE_TRANSITION names 
->  role_allow_def		: ALLOW names names SEMI
->  			{ $$ = define_role_allow(); check($$); }
->  			;
-> -*/
->  roles			: role_def
->  			{ $$ = $1; check($$); }
->  			| roles role_def
->  			{ $$ = merge_roles_dom($1, $2); check($$); }
->  			;
-> -/*
->  role_def		: ROLE IDENTIFIER_push SEMI
->                          { $$ = define_role_dom(NULL); check($$); }
->  			| ROLE IDENTIFIER_push LBRACE roles RBRACE
-> --- /dev/null
-> +++ policyrep-roles/libpolicyrep/src/role.cpp
-> @@ -0,0 +1,82 @@
-> +/*
-> + * Author : Joshua Brindle <jbrindle@tresys.com>
-> + *
-> + * Copyright (C) 2007 Tresys Technology, LLC.
-> + *
-> + * This library is free software; you can redistribute it and/or
-> + * modify it under the terms of the GNU Lesser General Public
-> + * License as published by the Free Software Foundation; either
-> + * version 2.1 of the License, or (at your option) any later version.
-> + *
-> + * This library is distributed in the hope that it will be useful,
-> + * but WITHOUT ANY WARRANTY; without even the implied warranty of
-> + * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-> + * Lesser General Public License for more details.
-> + *
-> + * You should have received a copy of the GNU Lesser General Public
-> + * License along with this library; if not, write to the Free Software
-> + * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
-> + */
-> +
-> +#include <policyrep/role.hpp>
-> +
-> +namespace policyrep
-> +{
-> +
-> +	//
-> +	// Role
-> +	//
-> +
-> +	struct RoleImpl
-> +	{
-> +		std::string name;
-> +		StringSet types;
-> +	};
-> +
-> +	void Role::init()
-> +	{
-> +		impl = new RoleImpl;
-> +	}
-> +
-> +	Role::Role() { init(); }
-> +
-> +	Role::Role(const std::string& name)
-> +	{
-> +		init();
-> +		impl->name = name;
-> +	}
-> +
-> +	Role::~Role() { delete impl; }
-> +
-> +	void Role::operator=(const Role& other)
-> +	{
-> +		*impl = *other.impl;
-> +	}
-> +
+On the std::string&, I've seen arguments against making std::strings 
+pointers because then you don't need to deal with initialization and the 
+string data itself is on the heap anyway, whats the advantage to making 
+these pointers?
+>>>> +	protected:
+>>>> +		void init();
+>>>> +		int read_package(std::string filename);	
+>>>> +
+>>>> +	private:
+>>>> +		PolicyPackageImpl* impl;
+>>>>     
+>>>>         
+>>> We need to make a decision on whether this is going to be protected or
+>>> private and stick with that. I've done protected so far - if you want to
+>>> change it please say why and send a patch changing all existing classes.
+>>>
+>>>   
+>>>       
+>> Same argument. If this isn't subclassed it shouldn't be protected, other 
+>> classes are different that way.
+>>     
 
-The copy operator and constructor are not properly chaining to the base
-classes (it was my mistake in the initial patch). I think you can go
-ahead and check this in and I will fix it up when I fix everything else.
-
-Karl
 
 
 --
