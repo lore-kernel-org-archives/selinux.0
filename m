@@ -1,774 +1,698 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l6ILUTgQ027672
-	for <selinux@tycho.nsa.gov>; Wed, 18 Jul 2007 17:30:29 -0400
-Received: from e35.co.us.ibm.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id l6ILURq3015273
-	for <selinux@tycho.nsa.gov>; Wed, 18 Jul 2007 21:30:27 GMT
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l6ILVKVM027750
+	for <selinux@tycho.nsa.gov>; Wed, 18 Jul 2007 17:31:20 -0400
+Received: from e34.co.us.ibm.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l6ILVIdP010112
+	for <selinux@tycho.nsa.gov>; Wed, 18 Jul 2007 21:31:18 GMT
 Received: from d03relay02.boulder.ibm.com (d03relay02.boulder.ibm.com [9.17.195.227])
-	by e35.co.us.ibm.com (8.13.8/8.13.8) with ESMTP id l6ILURtQ022941
-	for <selinux@tycho.nsa.gov>; Wed, 18 Jul 2007 17:30:27 -0400
-Received: from d03av01.boulder.ibm.com (d03av01.boulder.ibm.com [9.17.195.167])
-	by d03relay02.boulder.ibm.com (8.13.8/8.13.8/NCO v8.4) with ESMTP id l6ILURPL252822
-	for <selinux@tycho.nsa.gov>; Wed, 18 Jul 2007 15:30:27 -0600
-Received: from d03av01.boulder.ibm.com (loopback [127.0.0.1])
-	by d03av01.boulder.ibm.com (8.12.11.20060308/8.13.3) with ESMTP id l6ILUQv5003304
-	for <selinux@tycho.nsa.gov>; Wed, 18 Jul 2007 15:30:27 -0600
-Subject: [RFC][Patch 1/3]integrity: API, hooks, placement and dummy provider
+	by e34.co.us.ibm.com (8.13.8/8.13.8) with ESMTP id l6ILVIA4016330
+	for <selinux@tycho.nsa.gov>; Wed, 18 Jul 2007 17:31:18 -0400
+Received: from d03av04.boulder.ibm.com (d03av04.boulder.ibm.com [9.17.195.170])
+	by d03relay02.boulder.ibm.com (8.13.8/8.13.8/NCO v8.4) with ESMTP id l6ILVIV9209780
+	for <selinux@tycho.nsa.gov>; Wed, 18 Jul 2007 15:31:18 -0600
+Received: from d03av04.boulder.ibm.com (loopback [127.0.0.1])
+	by d03av04.boulder.ibm.com (8.12.11.20060308/8.13.3) with ESMTP id l6ILVGXW031240
+	for <selinux@tycho.nsa.gov>; Wed, 18 Jul 2007 15:31:17 -0600
+Subject: [RFC][Patch 3/3]integrity:TPM internel kernel interface
 From: Mimi Zohar <zohar@linux.vnet.ibm.com>
 To: James Morris <jmorris@namei.org>
 Cc: selinux@tycho.nsa.gov, zohar@us.ibm.com, safford@watson.ibm.com,
         sailer@us.ibm.com
 Content-Type: text/plain
-Date: Wed, 18 Jul 2007 17:34:29 -0400
-Message-Id: <1184794469.10771.8.camel@localhost.localdomain>
+Date: Wed, 18 Jul 2007 17:35:19 -0400
+Message-Id: <1184794519.10771.10.camel@localhost.localdomain>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This patch provides an integrity framework (API and set of hooks), placement
-of the integrity hooks in the appropriate places in the fs directory, and a
-dummy provider for an integrity service. 
 
-The three integrity API calls provided are:
-	integrity_verify_metadata, integrity_verity_data, integrity_measure
-
-The seven integrity hooks are:
-	inode_setxattr, inode_post_setxattr, 
-	inode_alloc_integrity, inode_free_integrity, inode_init_integrity,
-	file_free_integrity, d_instantiate
-
-(Details on the calls and their exact arguments are in linux/integrity.h,
-included in the patch.)
-
-Initially, the integrity_verify_metadata API is called by an LSM module 
-to retrieve a requested dentry's label (xattr, such as security.selinux, 
-or security.slim.level), along with the result of integrity verification 
-of the label.
-
-Based on the result of this call, the LSM module may also choose to use
-integrity_verify_data to request a verification of the file's data, and
-integrity_measure, to commit the file's measurement to some form of
-logging/attestation service, such as a TPM.
-
-The latter two functions are separate calls, so that the LSM module can
-optimize performance by using them only as needed.  For example, if the
-integrity_verify_metadata call shows that the label is not trustworthy, it is
-probably not necessary to hash and measure the file, as the current LSM check
-will likely be denied anyway.
+Resubmitting integrity-tpm-internal-kernel-interface.patch, which
+was originally Signed-off-by Kylene Hall.
 
 Signed-off-by: Mimi Zohar <zohar@us.ibm.com>
----
 
-Index: linux-2.6.22-rc6-mm1/include/linux/integrity.h
+Index: linux-2.6.22-rc6-mm1/drivers/char/tpm/tpm.c
 ===================================================================
---- /dev/null
-+++ linux-2.6.22-rc6-mm1/include/linux/integrity.h
-@@ -0,0 +1,254 @@
-+/*
-+ * integrity.h
-+ *
-+ * Copyright (C) 2005,2006,2007 IBM Corporation
-+ * Author: Mimi Zohar <zohar@us.ibm.com>
-+ *
-+ *      This program is free software; you can redistribute it and/or modify
-+ *      it under the terms of the GNU General Public License as published by
-+ *      the Free Software Foundation, version 2 of the License.
-+ */
-+
-+#ifndef _LINUX_INTEGRITY_H
-+#define _LINUX_INTEGRITY_H
-+
+--- linux-2.6.22-rc6-mm1.orig/drivers/char/tpm/tpm.c
++++ linux-2.6.22-rc6-mm1/drivers/char/tpm/tpm.c
+@@ -1,5 +1,5 @@
+ /*
+- * Copyright (C) 2004 IBM Corporation
++ * Copyright (C) 2004,2007 IBM Corporation
+  *
+  * Authors:
+  * Leendert van Doorn <leendert@watson.ibm.com>
+@@ -26,6 +26,13 @@
+ #include <linux/poll.h>
+ #include <linux/mutex.h>
+ #include <linux/spinlock.h>
++#include <linux/mm.h>
++#include <linux/slab.h>
++#include <linux/string.h>
++#include <linux/crypto.h>
 +#include <linux/fs.h>
 +
-+/**
-+ * struct integrity_operations - main integrity structure
-+ *
-+ * @verify_data:
-+ *	Verify the integrity of a dentry.
-+ *	@dentry contains the dentry structure to be verified.
-+ *	@file or contains the file structure to be verified.
-+ *	@status contains INTEGRITY_PASS, INTEGRITY_FAIL, or
-+ * 		INTEGRITY_NOLABEL
-+ *	Return 0 on success or errno values
-+ *
-+ * @verify_metadata:
-+ *	Verify the integrity of a dentry's metadata; return the value
-+ * 	of the requested xattr_name and the verification result of the
-+ *	dentry's metadata.
-+ *	@dentry contains the dentry structure of the metadata to be verified.
-+ *	@xattr_name, if not null, contains the name of the xattr
-+ *		 being requested.
-+ *	@xattr_value, if not null, is a pointer for the xattr value.
-+ *	@xattr_val_len will be set to the length of the xattr value.
-+ *	@status contains INTEGRITY_PASS, INTEGRITY_FAIL, or
-+ * 		INTEGRITY_NOLABEL
-+ *	Return 0 on success or errno values
-+ *
-+ * @measure:
-+ *	Update an aggregate integrity value with the inode's measurement.
-+ *	The aggregate integrity value is maintained in secure storage such
-+ *	as in a TPM PCR.
-+ *	@dentry contains the dentry structure of the inode to be measured.
-+ *	@file or contains the file structure of the inode to be measured.
-+ *	@filename either contains the full pathname/short file name.
-+ *	@mask contains the filename permission status(i.e. read, write, append).
-+ *
-+ * @inode_setxattr:
-+ *	Check permission before permitting an integrity extended attribute
-+ * 	to be set.
-+ *	@value identified by @name for @dentry.
-+ *	Return 0 if permission is granted.
-+ *
-+ * @inode_post_setxattr:
-+ *	Update inode integrity xattr after successful setxattr operation.
-+ * 	identified by @name for @dentry.
-+ *
-+ * @inode_alloc_integrity:
-+ *	Allocate and attach an integrity structure to @inode->i_integrity.  The
-+ * 	i_integrity field is initialized to NULL when the inode structure is
-+ * 	allocated.
-+ * 	@inode contains the inode structure.
-+ * 	Return 0 if operation was successful.
-+ *
-+ * @inode_free_integrity:
-+ *	@inode contains the inode structure.
-+ * 	Deallocate the inode integrity structure and set @inode->i_integrity to
-+ * 	NULL.
-+ *
-+ * @inode_init_integrity:
-+ *	Create inode integrity xattr for a new inode based on the new security
-+ * 	xattr information.
-+ *	@inode contains the inode structure of the newly created inode.
-+ *	@dir contains the inode structure of the parent directory.
-+ * 	@name contains the security xattr name suffix.
-+ *	@value contains the security attribute value.
-+ *	@len contains the length of the security attribute value.
-+ *
-+ * @file_free_integrity:
-+ *	Update the integrity xattr value as necessary.
-+ * 	*file contains the file structure being closed.
-+ *
-+ * @d_instantiate:
-+ *	Initialize the integrity structure of an inode for a dentry.
-+ *	@dentry to complete.
-+ *	@inode to attach to this dentry.
-+ */
-+
-+#define PASS_STR "INTEGRITY_PASS"
-+#define FAIL_STR "INTEGRITY_FAIL"
-+#define NOLABEL_STR "INTEGRITY_NOLABEL"
-+
-+struct integrity_operations {
-+	int (*verify_metadata) (struct dentry *dentry, char *xattr_name,
-+			char **xattr_value, int *xattr_val_len, int *status);
-+	int (*verify_data) (struct dentry *dentry, struct file *file,
-+				int *status);
-+	void (*measure) (struct dentry *dentry, struct file *file,
-+			const unsigned char *filename, int mask);
-+	int (*inode_setxattr) (struct dentry *dentry, char *name, void *value,
-+			       size_t size, int flags);
-+	void (*inode_post_setxattr) (struct dentry *dentry, char *name);
-+	int (*inode_alloc_integrity) (struct inode *inode);
-+	void (*inode_free_integrity) (struct inode *inode);
-+	void (*inode_init_integrity) (struct inode *inode, struct inode *dir,
-+				    char **name, void **value, size_t *len);
-+	void (*file_free_integrity) (struct file * file);
-+	void (*d_instantiate) (struct dentry *dentry, struct inode *inode);
-+};
-+extern int register_integrity(struct integrity_operations *ops);
-+extern int unregister_integrity(struct integrity_operations *ops);
-+
-+/* global variables */
-+extern struct integrity_operations *integrity_ops;
-+enum integrity_status {
-+	INTEGRITY_PASS = 0, INTEGRITY_FAIL = -1, INTEGRITY_NOLABEL = -2
-+};
-+
-+/* inline stuff */
-+#ifdef CONFIG_INTEGRITY
-+static inline int integrity_verify_metadata(struct dentry *dentry,
-+			char *xattr_name, char **xattr_value,
-+			int *xattr_val_len, int *status)
-+{
-+	return integrity_ops->verify_metadata(dentry, xattr_name,
-+			xattr_value, xattr_val_len, status);
-+}
-+
-+static inline int integrity_verify_data(struct dentry *dentry,
-+					struct file *file, int *status)
-+{
-+	return integrity_ops->verify_data(dentry, file, status);
-+}
-+
-+static inline void integrity_measure(struct dentry *dentry, struct file *file,
-+			const unsigned char *filename, int mask)
-+{
-+	integrity_ops->measure(dentry, file, filename, mask);
-+}
-+
-+static inline int integrity_inode_setxattr(struct dentry *dentry, char *name,
-+					   void *value, size_t size, int flags)
-+{
-+	if (unlikely (IS_PRIVATE (dentry->d_inode)))
-+		return 0;
-+	return integrity_ops->inode_setxattr(dentry, name, value, size, flags);
-+}
-+
-+static inline void integrity_inode_post_setxattr(struct dentry *dentry, char *name)
-+{
-+	if (unlikely (IS_PRIVATE (dentry->d_inode)))
-+		return;
-+ 	integrity_ops->inode_post_setxattr(dentry, name);
-+}
-+
-+static inline int integrity_inode_alloc(struct inode *inode)
-+{
-+	return integrity_ops->inode_alloc_integrity(inode);
-+}
-+
-+static inline void integrity_inode_free(struct inode *inode)
-+{
-+	integrity_ops->inode_free_integrity(inode);
-+}
-+
-+static inline void integrity_inode_init_integrity(struct inode *inode,
-+						struct inode *dir,
-+						char **name,
-+						void **value,
-+						size_t *len)
-+{
-+	if (unlikely (IS_PRIVATE (inode)))
-+		return;
-+	integrity_ops->inode_init_integrity(inode, dir, name, value, len);
-+	return;
-+}
-+
-+static inline void integrity_file_free(struct file *file)
-+{
-+	integrity_ops->file_free_integrity(file);
-+}
-+
-+static inline void integrity_d_instantiate(struct dentry *dentry, struct inode *inode)
-+{
-+	if (unlikely (inode && IS_PRIVATE(inode)))
-+		return;
-+	integrity_ops->d_instantiate(dentry, inode);
-+}
-+#else
-+static inline int integrity_verify_metadata(struct dentry *dentry,
-+			char *xattr_name, char **xattr_value,
-+			int *xattr_val_len, int *status)
-+{
-+	status = INTEGRITY_PASS;
-+	return 0;
-+}
-+
-+static inline int integrity_verify_data(struct dentry *dentry,
-+					struct file *file, int *status)
-+{
-+	status = INTEGRITY_PASS;
-+	return 0;
-+}
-+
-+static inline void integrity_measure(struct dentry *dentry, struct file *file,
-+			const unsigned char *filename, int mask)
-+{
-+}
-+
-+static inline int integrity_inode_setxattr(struct dentry *dentry, char *name,
-+					   void *value, size_t size, int flags)
-+{
-+	return 0;
-+}
-+
-+static inline void integrity_inode_post_setxattr(struct dentry *dentry, char *name)
-+{ }
-+
-+static inline int integrity_inode_alloc(struct inode *inode)
-+{
-+	return 0;
-+}
-+
-+static inline void integrity_inode_free(struct inode *inode)
-+{ }
-+
-+static inline int integrity_inode_init_integrity(struct inode *inode,
-+						struct inode *dir,
-+						char **name,
-+						void **value,
-+						size_t *len)
-+{
-+	return -EOPNOTSUPP;
-+}
-+
-+static inline int integrity_file_permission(struct file *file, int mask)
-+{
-+	return 0;
-+}
-+
-+static inline void integrity_file_free(struct file *file)
-+{
-+	return;
-+}
-+
-+static inline void integrity_d_instantiate(struct dentry *dentry, struct inode *inode)
-+{
-+	return;
-+}
-+
-+#endif
-+#endif
-Index: linux-2.6.22-rc6-mm1/security/Kconfig
-===================================================================
---- linux-2.6.22-rc6-mm1.orig/security/Kconfig
-+++ linux-2.6.22-rc6-mm1/security/Kconfig
-@@ -39,6 +39,14 @@ config KEYS_DEBUG_PROC_KEYS
++#include <asm/scatterlist.h>
  
- 	  If you are unsure as to whether this is required, answer N.
+ #include "tpm.h"
  
-+config INTEGRITY
-+	bool "Enable different integrity models"
-+	help
-+	  This allows you to choose different integrity modules to be
-+	  configured into your kernel.
-+
-+	  If you are unsure how to answer this question, answer N.
-+
- config SECURITY
- 	bool "Enable different security models"
- 	depends on SYSFS
-Index: linux-2.6.22-rc6-mm1/security/Makefile
-===================================================================
---- linux-2.6.22-rc6-mm1.orig/security/Makefile
-+++ linux-2.6.22-rc6-mm1/security/Makefile
-@@ -12,6 +12,7 @@ endif
+@@ -49,6 +56,8 @@ enum tpm_duration {
+ static LIST_HEAD(tpm_chip_list);
+ static DEFINE_SPINLOCK(driver_lock);
+ static DECLARE_BITMAP(dev_mask, TPM_NUM_DEVICES);
++#define TPM_CHIP_NUM_MASK       0x0000ffff
++#define TPM_CHIP_TYPE_SHIFT     16
  
- # Object file lists
- obj-$(CONFIG_SECURITY)			+= security.o dummy.o inode.o
-+obj-$(CONFIG_INTEGRITY)		+= integrity.o integrity_dummy.o
- # Must precede capability.o in order to stack properly.
- obj-$(CONFIG_SECURITY_SELINUX)		+= selinux/built-in.o
- obj-$(CONFIG_SECURITY_CAPABILITIES)	+= commoncap.o capability.o
-Index: linux-2.6.22-rc6-mm1/security/integrity.c
-===================================================================
---- /dev/null
-+++ linux-2.6.22-rc6-mm1/security/integrity.c
-@@ -0,0 +1,45 @@
-+/*
-+ * integrity.c
-+ *
-+ * register integrity subsystem
-+ *
-+ * Copyright (C) 2005,2006,2007 IBM Corporation
-+ * Author: Mimi Zohar <zohar@us.ibm.com>
-+ *
-+ *      This program is free software; you can redistribute it and/or modify
-+ *      it under the terms of the GNU General Public License as published by
-+ *      the Free Software Foundation, version 2 of the License.
-+ */
-+
-+#include <linux/module.h>
-+#include <linux/init.h>
-+#include <linux/kernel.h>
-+#include <linux/sched.h>
-+#include <linux/integrity.h>
-+
-+#include "integrity_dummy.h"
-+
-+struct integrity_operations *integrity_ops = &dummy_integrity_ops;
-+
-+int register_integrity(struct integrity_operations *ops)
-+{
-+	if (integrity_ops != &dummy_integrity_ops)
-+		return -EAGAIN;
-+
-+	integrity_ops = ops;
-+	integrity_fixup_ops(integrity_ops);
-+	return 0;
-+}
-+
-+int unregister_integrity(struct integrity_operations *ops)
-+{
-+	if (ops != integrity_ops)
-+		return -EINVAL;
-+
-+	integrity_ops = &dummy_integrity_ops;
-+	return 0;
-+}
-+
-+EXPORT_SYMBOL_GPL(register_integrity);
-+EXPORT_SYMBOL_GPL(unregister_integrity);
-+EXPORT_SYMBOL_GPL(integrity_ops);
-Index: linux-2.6.22-rc6-mm1/security/integrity_dummy.c
-===================================================================
---- /dev/null
-+++ linux-2.6.22-rc6-mm1/security/integrity_dummy.c
-@@ -0,0 +1,147 @@
-+/*
-+ * integrity_dummy.c
-+ *
-+ * Instantiate integrity subsystem
-+ *
-+ * Copyright (C) 2005,2006,2007 IBM Corporation
-+ * Author: Mimi Zohar <zohar@us.ibm.com>
-+ *
-+ *      This program is free software; you can redistribute it and/or modify
-+ *      it under the terms of the GNU General Public License as published by
-+ *      the Free Software Foundation, version 2 of the License.
-+ */
-+
-+#include <linux/module.h>
-+#include <linux/init.h>
-+#include <linux/kernel.h>
-+#include <linux/capability.h>
-+#include <linux/integrity.h>
-+#include <linux/xattr.h>
-+#include "integrity_dummy.h"
-+
-+/*
-+ *  Return the extended attribute, if requested.
-+ */
-+static int dummy_verify_metadata(struct dentry *dentry, char *xattr_name,
-+				 char **xattr_value, int *xattr_value_len,
-+				 int *status)
-+{
-+	char *value = NULL;
-+	int size = 0;
-+	int error = 0;
-+
-+	if (!status)
-+		return -EINVAL;
-+
-+	/* get requested extended attribute */
-+	if (xattr_name && xattr_value && xattr_value_len) {
-+		/* Might be called before the vfs layer is available */
-+		size = dentry->d_inode->i_op->getxattr(dentry, xattr_name,
-+					   NULL, 0);
-+		if (size < 0) {
-+			if (size == -ENODATA)
-+				*status = INTEGRITY_NOLABEL;
-+			return size;
-+		}
-+
-+		value = kzalloc(size + 1, GFP_KERNEL);
-+		if (!value)
-+			return -ENOMEM;
-+		error = dentry->d_inode->i_op->getxattr(dentry, xattr_name,
-+					   value, size);
-+	}
-+
-+	if (xattr_value_len)
-+		*xattr_value_len = size;
-+	if (xattr_value)
-+		*xattr_value = value;
-+	if (status)
-+		*status = INTEGRITY_PASS;
-+	return error;
-+}
-+
-+static int dummy_verify_data(struct dentry *dentry, struct file *file,
-+			     int *status)
-+{
-+	if (status)
-+		*status = INTEGRITY_PASS;
-+	return 0;
-+}
-+
-+static void dummy_measure(struct dentry *dentry, struct file *file,
-+			  const unsigned char *filename, int mask)
-+{
-+	return;
-+}
-+
-+static int dummy_inode_alloc_integrity(struct inode *inode)
-+{
-+	return 0;
-+}
-+
-+static void dummy_inode_free_integrity(struct inode *inode)
-+{
-+	return;
-+}
-+
-+static void dummy_inode_init_integrity(struct inode *inode, struct inode *dir,
-+				       char **name, void **value, size_t * len)
-+{
-+	return;
-+}
-+
-+static void dummy_file_free_integrity(struct file *file)
-+{
-+	return;
-+}
-+
-+static int dummy_inode_setxattr(struct dentry *dentry, char *name, void *value,
-+				size_t size, int flags)
-+{
-+	return 0;
-+}
-+
-+static void dummy_inode_post_setxattr(struct dentry *dentry, char *name)
-+{
-+}
-+
-+static void dummy_d_instantiate(struct dentry *dentry, struct inode *inode)
-+{
-+	return;
-+}
-+
-+struct integrity_operations dummy_integrity_ops = {
-+	.verify_metadata = dummy_verify_metadata,
-+	.verify_data = dummy_verify_data,
-+	.measure = dummy_measure,
-+	.inode_setxattr = dummy_inode_setxattr,
-+	.inode_post_setxattr = dummy_inode_post_setxattr,
-+	.inode_alloc_integrity = dummy_inode_alloc_integrity,
-+	.inode_init_integrity = dummy_inode_init_integrity,
-+	.inode_free_integrity = dummy_inode_free_integrity,
-+	.file_free_integrity = dummy_file_free_integrity,
-+	.d_instantiate = dummy_d_instantiate
-+};
-+
-+#define set_to_dummy_if_null(ops, function)				\
-+	do {								\
-+		if (!ops->function) {					\
-+			ops->function = dummy_##function;		\
-+			printk(KERN_INFO "Had to override the " #function \
-+			" security operation with the dummy one.\n");\
-+			}						\
-+	} while (0)
-+
-+void integrity_fixup_ops(struct integrity_operations *ops)
-+{
-+	set_to_dummy_if_null(ops, verify_metadata);
-+	set_to_dummy_if_null(ops, verify_data);
-+	set_to_dummy_if_null(ops, measure);
-+	set_to_dummy_if_null(ops, inode_setxattr);
-+	set_to_dummy_if_null(ops, inode_post_setxattr);
-+	set_to_dummy_if_null(ops, inode_alloc_integrity);
-+	set_to_dummy_if_null(ops, inode_init_integrity);
-+	set_to_dummy_if_null(ops, inode_free_integrity);
-+	set_to_dummy_if_null(ops, file_free_integrity);
-+	set_to_dummy_if_null(ops, d_instantiate);
-+}
-Index: linux-2.6.22-rc6-mm1/security/integrity_dummy.h
-===================================================================
---- /dev/null
-+++ linux-2.6.22-rc6-mm1/security/integrity_dummy.h
-@@ -0,0 +1,13 @@
-+/*
-+ * integrity_dummy.h
-+ *
-+ * Copyright (C) 2005,2006,2007 IBM Corporation
-+ * Author: Mimi Zohar <zohar@us.ibm.com>
-+ *
-+ *      This program is free software; you can redistribute it and/or modify
-+ *      it under the terms of the GNU General Public License as published by
-+ *      the Free Software Foundation, version 2 of the License.
-+ */
-+
-+extern struct integrity_operations dummy_integrity_ops;
-+extern void integrity_fixup_ops(struct integrity_operations *ops);
-Index: linux-2.6.22-rc6-mm1/fs/dcache.c
-===================================================================
---- linux-2.6.22-rc6-mm1.orig/fs/dcache.c
-+++ linux-2.6.22-rc6-mm1/fs/dcache.c
-@@ -28,6 +28,7 @@
- #include <linux/file.h>
- #include <asm/uaccess.h>
- #include <linux/security.h>
-+#include <linux/integrity.h>
- #include <linux/seqlock.h>
- #include <linux/swap.h>
- #include <linux/bootmem.h>
-@@ -990,6 +991,7 @@ void d_instantiate(struct dentry *entry,
- 	entry->d_inode = inode;
- 	fsnotify_d_instantiate(entry, inode);
- 	spin_unlock(&dcache_lock);
-+	integrity_d_instantiate(entry, inode);
- 	security_d_instantiate(entry, inode);
+ /*
+  * Array with one entry per ordinal defining the maximum amount
+@@ -321,7 +330,7 @@ static const u8 tpm_ordinal_duration[TPM
+ 
+ static void user_reader_timeout(unsigned long ptr)
+ {
+-	struct tpm_chip *chip = (struct tpm_chip *) ptr;
++	struct tpm_chip *chip = (struct tpm_chip *)ptr;
+ 
+ 	schedule_work(&chip->work);
+ }
+@@ -337,10 +346,9 @@ static void timeout_work(struct work_str
  }
  
-@@ -1054,6 +1056,7 @@ struct dentry *d_instantiate_unique(stru
- 	spin_unlock(&dcache_lock);
- 
- 	if (!result) {
-+		integrity_d_instantiate(entry, inode);
- 		security_d_instantiate(entry, inode);
- 		return NULL;
- 	}
-@@ -1191,6 +1194,7 @@ struct dentry *d_splice_alias(struct ino
- 			BUG_ON(!(new->d_flags & DCACHE_DISCONNECTED));
- 			fsnotify_d_instantiate(new, inode);
- 			spin_unlock(&dcache_lock);
-+			integrity_d_instantiate(new, inode);
- 			security_d_instantiate(new, inode);
- 			d_rehash(dentry);
- 			d_move(new, dentry);
-@@ -1201,6 +1205,7 @@ struct dentry *d_splice_alias(struct ino
- 			dentry->d_inode = inode;
- 			fsnotify_d_instantiate(dentry, inode);
- 			spin_unlock(&dcache_lock);
-+			integrity_d_instantiate(dentry, inode);
- 			security_d_instantiate(dentry, inode);
- 			d_rehash(dentry);
- 		}
-@@ -1752,6 +1757,7 @@ found:
- 	spin_unlock(&dcache_lock);
- out_nolock:
- 	if (actual == dentry) {
-+		integrity_d_instantiate(dentry, inode);
- 		security_d_instantiate(dentry, inode);
- 		return NULL;
- 	}
-Index: linux-2.6.22-rc6-mm1/fs/ext3/xattr_security.c
-===================================================================
---- linux-2.6.22-rc6-mm1.orig/fs/ext3/xattr_security.c
-+++ linux-2.6.22-rc6-mm1/fs/ext3/xattr_security.c
-@@ -9,6 +9,7 @@
- #include <linux/ext3_jbd.h>
- #include <linux/ext3_fs.h>
- #include <linux/security.h>
-+#include <linux/integrity.h>
- #include "xattr.h"
- 
- static size_t
-@@ -57,12 +58,19 @@ ext3_init_security(handle_t *handle, str
- 
- 	err = security_inode_init_security(inode, dir, &name, &value, &len);
- 	if (err) {
-+		/* Even if creation of the security xattr fails, must
-+		 * indicate this is a new inode. */
-+		integrity_inode_init_integrity(inode, dir, NULL, NULL, NULL);
- 		if (err == -EOPNOTSUPP)
- 			return 0;
- 		return err;
- 	}
- 	err = ext3_xattr_set_handle(handle, inode, EXT3_XATTR_INDEX_SECURITY,
- 				    name, value, len, 0);
-+
-+	integrity_inode_init_integrity(inode, dir, &name, &value, &len);
-+	err = ext3_xattr_set_handle(handle, inode, EXT3_XATTR_INDEX_SECURITY,
-+				    name, value, len, 0);
- 	kfree(name);
- 	kfree(value);
- 	return err;
-Index: linux-2.6.22-rc6-mm1/fs/file_table.c
-===================================================================
---- linux-2.6.22-rc6-mm1.orig/fs/file_table.c
-+++ linux-2.6.22-rc6-mm1/fs/file_table.c
-@@ -12,6 +12,7 @@
- #include <linux/module.h>
- #include <linux/fs.h>
- #include <linux/security.h>
-+#include <linux/integrity.h>
- #include <linux/eventpoll.h>
- #include <linux/rcupdate.h>
- #include <linux/mount.h>
-@@ -168,6 +169,7 @@ void fastcall __fput(struct file *file)
- 	if (file->f_op && file->f_op->release)
- 		file->f_op->release(inode, file);
- 	security_file_free(file);
-+	integrity_file_free(file);
- 	if (unlikely(S_ISCHR(inode->i_mode) && inode->i_cdev != NULL))
- 		cdev_put(inode->i_cdev);
- 	fops_put(file->f_op);
-@@ -239,6 +241,7 @@ void put_filp(struct file *file)
+ /*
+- * Returns max number of jiffies to wait
++ * tpm_calc_ordinal_duration - returns max number of jiffies to wait
+  */
+-unsigned long tpm_calc_ordinal_duration(struct tpm_chip *chip,
+-					   u32 ordinal)
++unsigned long tpm_calc_ordinal_duration(struct tpm_chip *chip, u32 ordinal)
  {
- 	if (atomic_dec_and_test(&file->f_count)) {
- 		security_file_free(file);
-+		integrity_file_free(file);
- 		file_kill(file);
- 		file_free(file);
- 	}
-Index: linux-2.6.22-rc6-mm1/fs/inode.c
-===================================================================
---- linux-2.6.22-rc6-mm1.orig/fs/inode.c
-+++ linux-2.6.22-rc6-mm1/fs/inode.c
-@@ -17,6 +17,7 @@
- #include <linux/hash.h>
- #include <linux/swap.h>
- #include <linux/security.h>
-+#include <linux/integrity.h>
- #include <linux/pagemap.h>
- #include <linux/cdev.h>
- #include <linux/bootmem.h>
-@@ -151,6 +152,14 @@ static struct inode *alloc_inode(struct 
- 			return NULL;
- 		}
+ 	int duration_idx = TPM_UNDEFINED;
+ 	int duration = 0;
+@@ -363,10 +371,9 @@ unsigned long tpm_calc_ordinal_duration(
+ EXPORT_SYMBOL_GPL(tpm_calc_ordinal_duration);
  
-+		if (integrity_inode_alloc(inode)) {
-+			if (inode->i_sb->s_op->destroy_inode)
-+				inode->i_sb->s_op->destroy_inode(inode);
-+			else
-+				kmem_cache_free(inode_cachep, (inode));
-+			return NULL;
-+		}
-+
- 		mapping->a_ops = &empty_aops;
-  		mapping->host = inode;
- 		mapping->flags = 0;
-@@ -181,6 +190,7 @@ void destroy_inode(struct inode *inode) 
+ /*
+- * Internal kernel interface to transmit TPM commands
++ * tpm_transmit - internal kernel interface to transmit TPM commands
+  */
+-static ssize_t tpm_transmit(struct tpm_chip *chip, const char *buf,
+-			    size_t bufsiz)
++ssize_t tpm_transmit(struct tpm_chip * chip, char *buf, size_t bufsiz)
  {
- 	BUG_ON(inode_has_buffers(inode));
- 	security_inode_free(inode);
-+	integrity_inode_free(inode);
- 	if (inode->i_sb->s_op->destroy_inode)
- 		inode->i_sb->s_op->destroy_inode(inode);
- 	else
-Index: linux-2.6.22-rc6-mm1/fs/xattr.c
-===================================================================
---- linux-2.6.22-rc6-mm1.orig/fs/xattr.c
-+++ linux-2.6.22-rc6-mm1/fs/xattr.c
-@@ -13,6 +13,7 @@
- #include <linux/xattr.h>
- #include <linux/namei.h>
- #include <linux/security.h>
-+#include <linux/integrity.h>
- #include <linux/syscalls.h>
- #include <linux/module.h>
- #include <linux/fsnotify.h>
-@@ -83,11 +84,17 @@ vfs_setxattr(struct dentry *dentry, char
- 	error = security_inode_setxattr(dentry, name, value, size, flags);
- 	if (error)
+ 	ssize_t rc;
+ 	u32 count, ordinal;
+@@ -385,8 +392,7 @@ static ssize_t tpm_transmit(struct tpm_c
+ 	mutex_lock(&chip->tpm_mutex);
+ 
+ 	if ((rc = chip->vendor.send(chip, (u8 *) buf, count)) < 0) {
+-		dev_err(chip->dev,
+-			"tpm_transmit: tpm_send: error %zd\n", rc);
++		dev_err(chip->dev, "tpm_transmit: tpm_send: error %zd\n", rc);
  		goto out;
-+
-+	error = integrity_inode_setxattr(dentry, name, value, size, flags);
-+	if (error)
-+		goto out;
-+
- 	error = -EOPNOTSUPP;
- 	if (inode->i_op->setxattr) {
- 		error = inode->i_op->setxattr(dentry, name, value, size, flags);
- 		if (!error) {
- 			fsnotify_xattr(dentry);
-+			integrity_inode_post_setxattr(dentry, name);
- 			security_inode_post_setxattr(dentry, name, value,
- 						     size, flags);
- 		}
-@@ -180,6 +187,8 @@ vfs_removexattr(struct dentry *dentry, c
+ 	}
  
- 	mutex_lock(&inode->i_mutex);
- 	error = inode->i_op->removexattr(dentry, name);
-+	if (!error)
-+		integrity_inode_post_setxattr(dentry, name);
- 	mutex_unlock(&inode->i_mutex);
+@@ -418,12 +424,12 @@ static ssize_t tpm_transmit(struct tpm_c
+ out_recv:
+ 	rc = chip->vendor.recv(chip, (u8 *) buf, bufsiz);
+ 	if (rc < 0)
+-		dev_err(chip->dev,
+-			"tpm_transmit: tpm_recv: error %zd\n", rc);
++		dev_err(chip->dev, "tpm_transmit: tpm_recv: error %zd\n", rc);
+ out:
+ 	mutex_unlock(&chip->tpm_mutex);
+ 	return rc;
+ }
++EXPORT_SYMBOL_GPL(tpm_transmit);
  
- 	if (!error)
-Index: linux-2.6.22-rc6-mm1/include/linux/fs.h
-===================================================================
---- linux-2.6.22-rc6-mm1.orig/include/linux/fs.h
-+++ linux-2.6.22-rc6-mm1/include/linux/fs.h
-@@ -668,6 +668,9 @@ struct inode {
- #ifdef CONFIG_SECURITY
- 	void			*i_security;
- #endif
-+#ifdef CONFIG_INTEGRITY
-+	void			*i_integrity;
-+#endif
- 	void			*i_private; /* fs or device private pointer */
+ #define TPM_DIGEST_SIZE 20
+ #define TPM_ERROR_SIZE 10
+@@ -471,13 +477,13 @@ static const u8 tpm_cap[] = {
+ 	0, 0, 1, 0		/* TPM_CAP_SUB_<TYPE> */
  };
  
+-static ssize_t transmit_cmd(struct tpm_chip *chip, u8 *data, int len,
++static ssize_t transmit_cmd(struct tpm_chip *chip, u8 * data, int len,
+ 			    char *desc)
+ {
+ 	int err;
+ 
+ 	len = tpm_transmit(chip, data, len);
+-	if (len <  0)
++	if (len < 0)
+ 		return len;
+ 	if (len == TPM_ERROR_SIZE) {
+ 		err = be32_to_cpu(*((__be32 *) (data + TPM_RET_CODE_IDX)));
+@@ -497,7 +503,7 @@ void tpm_gen_interrupt(struct tpm_chip *
+ 	data[TPM_CAP_SUBCAP_IDX] = TPM_CAP_PROP_TIS_TIMEOUT;
+ 
+ 	rc = transmit_cmd(chip, data, sizeof(data),
+-			"attempting to determine the timeouts");
++			  "attempting to determine the timeouts");
+ }
+ EXPORT_SYMBOL_GPL(tpm_gen_interrupt);
+ 
+@@ -512,7 +518,7 @@ void tpm_get_timeouts(struct tpm_chip *c
+ 	data[TPM_CAP_SUBCAP_IDX] = TPM_CAP_PROP_TIS_TIMEOUT;
+ 
+ 	rc = transmit_cmd(chip, data, sizeof(data),
+-			"attempting to determine the timeouts");
++			  "attempting to determine the timeouts");
+ 	if (rc)
+ 		goto duration;
+ 
+@@ -544,7 +550,7 @@ duration:
+ 	data[TPM_CAP_SUBCAP_IDX] = TPM_CAP_PROP_TIS_DURATION;
+ 
+ 	rc = transmit_cmd(chip, data, sizeof(data),
+-			"attempting to determine the durations");
++			  "attempting to determine the durations");
+ 	if (rc)
+ 		return;
+ 
+@@ -570,17 +576,20 @@ EXPORT_SYMBOL_GPL(tpm_get_timeouts);
+ void tpm_continue_selftest(struct tpm_chip *chip)
+ {
+ 	u8 data[] = {
+-		0, 193,			/* TPM_TAG_RQU_COMMAND */
+-		0, 0, 0, 10,		/* length */
+-		0, 0, 0, 83,		/* TPM_ORD_GetCapability */
++		0, 193,		/* TPM_TAG_RQU_COMMAND */
++		0, 0, 0, 10,	/* length */
++		0, 0, 0, 83,	/* TPM_ORD_GetCapability */
+ 	};
+ 
+ 	tpm_transmit(chip, data, sizeof(data));
+ }
+ EXPORT_SYMBOL_GPL(tpm_continue_selftest);
+ 
+-ssize_t tpm_show_enabled(struct device * dev, struct device_attribute * attr,
+-			char *buf)
++/*
++ * tpm_show_enabled - determine the permanent disabled state
++ */
++ssize_t tpm_show_enabled(struct device *dev, struct device_attribute *attr,
++			 char *buf)
+ {
+ 	u8 data[max_t(int, ARRAY_SIZE(tpm_cap), 35)];
+ 	ssize_t rc;
+@@ -594,13 +603,16 @@ ssize_t tpm_show_enabled(struct device *
+ 	data[TPM_CAP_SUBCAP_IDX] = TPM_CAP_FLAG_PERM;
+ 
+ 	rc = transmit_cmd(chip, data, sizeof(data),
+-			"attemtping to determine the permanent state");
++			  "attemtping to determine the permanent state");
+ 	if (rc)
+ 		return 0;
+ 	return sprintf(buf, "%d\n", !data[TPM_GET_CAP_PERM_DISABLE_IDX]);
+ }
+ EXPORT_SYMBOL_GPL(tpm_show_enabled);
+ 
++/*
++ * tpm_show_active - determine the permanent inactive state
++ */
+ ssize_t tpm_show_active(struct device * dev, struct device_attribute * attr,
+ 			char *buf)
+ {
+@@ -616,15 +628,18 @@ ssize_t tpm_show_active(struct device * 
+ 	data[TPM_CAP_SUBCAP_IDX] = TPM_CAP_FLAG_PERM;
+ 
+ 	rc = transmit_cmd(chip, data, sizeof(data),
+-			"attemtping to determine the permanent state");
++			  "attemtping to determine the permanent state");
+ 	if (rc)
+ 		return 0;
+ 	return sprintf(buf, "%d\n", !data[TPM_GET_CAP_PERM_INACTIVE_IDX]);
+ }
+ EXPORT_SYMBOL_GPL(tpm_show_active);
+ 
++/*
++ * tpm_show_owned - determine the owner state
++ */
+ ssize_t tpm_show_owned(struct device * dev, struct device_attribute * attr,
+-			char *buf)
++		       char *buf)
+ {
+ 	u8 data[sizeof(tpm_cap)];
+ 	ssize_t rc;
+@@ -638,15 +653,18 @@ ssize_t tpm_show_owned(struct device * d
+ 	data[TPM_CAP_SUBCAP_IDX] = TPM_CAP_PROP_OWNER;
+ 
+ 	rc = transmit_cmd(chip, data, sizeof(data),
+-			"attempting to determine the owner state");
++			  "attempting to determine the owner state");
+ 	if (rc)
+ 		return 0;
+ 	return sprintf(buf, "%d\n", data[TPM_GET_CAP_RET_BOOL_1_IDX]);
+ }
+ EXPORT_SYMBOL_GPL(tpm_show_owned);
+ 
++/*
++ * tpm_show_temp_deactivated - determine the temporary inactive state
++ */
+ ssize_t tpm_show_temp_deactivated(struct device * dev,
+-				struct device_attribute * attr, char *buf)
++				  struct device_attribute * attr, char *buf)
+ {
+ 	u8 data[sizeof(tpm_cap)];
+ 	ssize_t rc;
+@@ -660,13 +678,14 @@ ssize_t tpm_show_temp_deactivated(struct
+ 	data[TPM_CAP_SUBCAP_IDX] = TPM_CAP_FLAG_VOL;
+ 
+ 	rc = transmit_cmd(chip, data, sizeof(data),
+-			"attempting to determine the temporary state");
++			  "attempting to determine the temporary state");
+ 	if (rc)
+ 		return 0;
+ 	return sprintf(buf, "%d\n", data[TPM_GET_CAP_TEMP_INACTIVE_IDX]);
+ }
+ EXPORT_SYMBOL_GPL(tpm_show_temp_deactivated);
+ 
++#define READ_PCR_RESULT_SIZE 30
+ static const u8 pcrread[] = {
+ 	0, 193,			/* TPM_TAG_RQU_COMMAND */
+ 	0, 0, 0, 14,		/* length */
+@@ -677,7 +696,8 @@ static const u8 pcrread[] = {
+ ssize_t tpm_show_pcrs(struct device *dev, struct device_attribute *attr,
+ 		      char *buf)
+ {
+-	u8 data[max_t(int, max(ARRAY_SIZE(tpm_cap), ARRAY_SIZE(pcrread)), 30)];
++	u8 data[max_t(int, max(ARRAY_SIZE(tpm_cap), ARRAY_SIZE(pcrread)),
++		READ_PCR_RESULT_SIZE)];
+ 	ssize_t rc;
+ 	int i, j, num_pcrs;
+ 	__be32 index;
+@@ -692,7 +712,7 @@ ssize_t tpm_show_pcrs(struct device *dev
+ 	data[TPM_CAP_SUBCAP_IDX] = TPM_CAP_PROP_PCR;
+ 
+ 	rc = transmit_cmd(chip, data, sizeof(data),
+-			"attempting to determine the number of PCRS");
++			  "attempting to determine the number of PCRS");
+ 	if (rc)
+ 		return 0;
+ 
+@@ -702,7 +722,7 @@ ssize_t tpm_show_pcrs(struct device *dev
+ 		index = cpu_to_be32(i);
+ 		memcpy(data + 10, &index, 4);
+ 		rc = transmit_cmd(chip, data, sizeof(data),
+-				"attempting to read a PCR");
++				  "attempting to read a PCR");
+ 		if (rc)
+ 			goto out;
+ 		str += sprintf(str, "PCR-%02d: ", i);
+@@ -715,6 +735,102 @@ out:
+ }
+ EXPORT_SYMBOL_GPL(tpm_show_pcrs);
+ 
++/*
++ * tpm_chip_lookup - return tpm_chip for given chip number and type
++ */
++static struct tpm_chip *tpm_chip_lookup(int chip_num, int chip_typ)
++{
++	struct tpm_chip *pos;
++
++	spin_lock(&driver_lock);
++	list_for_each_entry(pos, &tpm_chip_list, list)
++	    if ((chip_num == TPM_ANY_NUM || pos->dev_num == chip_num)
++		&& (chip_typ == TPM_ANY_TYPE)) {
++		spin_unlock(&driver_lock);
++		return pos;
++	}
++
++	spin_unlock(&driver_lock);
++	return NULL;
++}
++
++/**
++ * tpm_pcr_read - read a pcr value
++ * @chip_id: 	tpm chip identifier
++ * 		Upper 2 bytes: ANY, HW_ONLY or SW_ONLY
++ * 		Lower 2 bytes: tpm idx # or AN&
++ * @pcr_idx:	pcr idx to retrieve
++ * @res_buf: 	TPM_PCR value
++ * @res_buf_size: 20 bytes (or NULL if you don't care)
++ */
++int tpm_pcr_read(u32 chip_id, int pcr_idx, u8 * res_buf, int res_buf_size)
++{
++	u8 data[READ_PCR_RESULT_SIZE];
++	int rc;
++	__be32 index;
++	int chip_num = chip_id & TPM_CHIP_NUM_MASK;
++	struct tpm_chip *chip;
++
++	if (res_buf && res_buf_size < TPM_DIGEST_SIZE)
++		return -ENOSPC;
++
++	if ((chip = tpm_chip_lookup(chip_num,
++				    chip_id >> TPM_CHIP_TYPE_SHIFT)) == NULL)
++		return -ENODEV;
++
++	memcpy(data, pcrread, sizeof(pcrread));
++	index = cpu_to_be32(pcr_idx);
++	memcpy(data + 10, &index, 4);
++	rc = tpm_transmit(chip, data, sizeof(data));
++	if (rc > 0)
++		rc = be32_to_cpu(*((u32 *) (data + 6)));
++
++	if (rc == 0 && res_buf)
++		memcpy(res_buf, data + 10, TPM_DIGEST_SIZE);
++
++	return rc;
++
++}
++EXPORT_SYMBOL_GPL(tpm_pcr_read);
++
++#define EXTEND_PCR_SIZE 34
++static const u8 pcrextend[] = {
++	0, 193,			/* TPM_TAG_RQU_COMMAND */
++	0, 0, 0, 34,		/* length */
++	0, 0, 0, 20,		/* TPM_ORD_Extend */
++	0, 0, 0, 0		/* PCR index */
++};
++
++/**
++ * tpm_pcr_extend - extend pcr value with hash
++ * @chip_id: 	tpm chip identifier
++ * 		Upper 2 bytes: ANY, HW_ONLY or SW_ONLY
++ * 		Lower 2 bytes: tpm idx # or AN&
++ * @pcr_idx:	pcr idx to extend
++ * @hash: 	hash value used to extend pcr value
++ */
++int tpm_pcr_extend(u32 chip_id, int pcr_idx, const u8 * hash)
++{
++	u8 data[EXTEND_PCR_SIZE];
++	int rc;
++	__be32 index;
++	int chip_num = chip_id & TPM_CHIP_NUM_MASK;
++	struct tpm_chip *chip;
++
++	if ((chip = tpm_chip_lookup(chip_num,
++				    chip_id >> TPM_CHIP_TYPE_SHIFT)) == NULL)
++		return -ENODEV;
++
++	memcpy(data, pcrextend, sizeof(pcrextend));
++	index = cpu_to_be32(pcr_idx);
++	memcpy(data + 10, &index, 4);
++	memcpy(data + 14, hash, TPM_DIGEST_SIZE);
++	if ((rc = tpm_transmit(chip, data, sizeof(data))) > 0)
++		rc = be32_to_cpu(*((u32 *) (data + 6)));
++	return rc;
++}
++EXPORT_SYMBOL_GPL(tpm_pcr_extend);
++
+ #define  READ_PUBEK_RESULT_SIZE 314
+ static const u8 readpubek[] = {
+ 	0, 193,			/* TPM_TAG_RQU_COMMAND */
+@@ -722,6 +838,9 @@ static const u8 readpubek[] = {
+ 	0, 0, 0, 124,		/* TPM_ORD_ReadPubek */
+ };
+ 
++/*
++ * tpm_show_pubek - returns the tpm's public endorcement key
++ */
+ ssize_t tpm_show_pubek(struct device *dev, struct device_attribute *attr,
+ 		       char *buf)
+ {
+@@ -741,13 +860,13 @@ ssize_t tpm_show_pubek(struct device *de
+ 	memcpy(data, readpubek, sizeof(readpubek));
+ 
+ 	err = transmit_cmd(chip, data, READ_PUBEK_RESULT_SIZE,
+-			"attempting to read the PUBEK");
++			   "attempting to read the PUBEK");
+ 	if (err)
+ 		goto out;
+ 
+ 	/* 
+ 	   ignore header 10 bytes
+-	   algorithm 32 bits (1 == RSA )
++	   algorithm 32 bits (1 == RSA)
+ 	   encscheme 16 bits
+ 	   sigscheme 16 bits
+ 	   parameters (RSA 12->bytes: keybit, #primes, expbit)  
+@@ -756,17 +875,16 @@ ssize_t tpm_show_pubek(struct device *de
+ 	   ignore checksum 20 bytes
+ 	 */
+ 
+-	str +=
+-	    sprintf(str,
+-		    "Algorithm: %02X %02X %02X %02X\nEncscheme: %02X %02X\n"
+-		    "Sigscheme: %02X %02X\nParameters: %02X %02X %02X %02X"
+-		    " %02X %02X %02X %02X %02X %02X %02X %02X\n"
+-		    "Modulus length: %d\nModulus: \n",
+-		    data[10], data[11], data[12], data[13], data[14],
+-		    data[15], data[16], data[17], data[22], data[23],
+-		    data[24], data[25], data[26], data[27], data[28],
+-		    data[29], data[30], data[31], data[32], data[33],
+-		    be32_to_cpu(*((__be32 *) (data + 34))));
++	str += sprintf(str,
++		       "Algorithm: %02X %02X %02X %02X\nEncscheme: %02X %02X\n"
++		       "Sigscheme: %02X %02X\nParameters: %02X %02X %02X %02X"
++		       " %02X %02X %02X %02X %02X %02X %02X %02X\n"
++		       "Modulus length: %d\nModulus: \n",
++		       data[10], data[11], data[12], data[13], data[14],
++		       data[15], data[16], data[17], data[22], data[23],
++		       data[24], data[25], data[26], data[27], data[28],
++		       data[29], data[30], data[31], data[32], data[33],
++		       be32_to_cpu(*((__be32 *) (data + 34))));
+ 
+ 	for (i = 0; i < 256; i++) {
+ 		str += sprintf(str, "%02X ", data[i + 38]);
+@@ -791,10 +909,14 @@ static const u8 cap_version[] = {
+ 	0, 0, 0, 0
+ };
+ 
++/*
++ * tpm_show_caps - returns the manufacturer and chip version
++ */
+ ssize_t tpm_show_caps(struct device *dev, struct device_attribute *attr,
+ 		      char *buf)
+ {
+-	u8 data[max_t(int, max(ARRAY_SIZE(tpm_cap), ARRAY_SIZE(cap_version)), 30)];
++	u8 data[max_t(int, max(ARRAY_SIZE(tpm_cap),
++			       ARRAY_SIZE(cap_version)), 30)];
+ 	ssize_t rc;
+ 	char *str = buf;
+ 
+@@ -807,34 +929,39 @@ ssize_t tpm_show_caps(struct device *dev
+ 	data[TPM_CAP_SUBCAP_IDX] = TPM_CAP_PROP_MANUFACTURER;
+ 
+ 	rc = transmit_cmd(chip, data, sizeof(data),
+-			"attempting to determine the manufacturer");
++			  "attempting to determine the manufacturer");
+ 	if (rc)
+ 		return 0;
+ 
+ 	str += sprintf(str, "Manufacturer: 0x%x\n",
+-		       be32_to_cpu(*((__be32 *) (data + TPM_GET_CAP_RET_UINT32_1_IDX))));
++		       be32_to_cpu(*((__be32 *) (data +
++						 TPM_GET_CAP_RET_UINT32_1_IDX))));
+ 
+ 	memcpy(data, cap_version, sizeof(cap_version));
+ 	data[CAP_VERSION_IDX] = CAP_VERSION_1_1;
+ 	rc = transmit_cmd(chip, data, sizeof(data),
+-			"attempting to determine the 1.1 version");
++			  "attempting to determine the 1.1 version");
+ 	if (rc)
+ 		goto out;
+ 
+ 	str += sprintf(str,
+ 		       "TCG version: %d.%d\nFirmware version: %d.%d\n",
+-		       (int) data[14], (int) data[15], (int) data[16],
+-		       (int) data[17]);
++		       (int)data[14], (int)data[15], (int)data[16],
++		       (int)data[17]);
+ 
+ out:
+ 	return str - buf;
+ }
+ EXPORT_SYMBOL_GPL(tpm_show_caps);
+ 
++/*
++ * tpm_show_caps_1_2 - returns the manufacturer and chip 1.2 version
++ */
+ ssize_t tpm_show_caps_1_2(struct device * dev,
+ 			  struct device_attribute * attr, char *buf)
+ {
+-	u8 data[max_t(int, max(ARRAY_SIZE(tpm_cap), ARRAY_SIZE(cap_version)), 30)];
++	u8 data[max_t
++		(int, max(ARRAY_SIZE(tpm_cap), ARRAY_SIZE(cap_version)), 30)];
+ 	ssize_t len;
+ 	char *str = buf;
+ 
+@@ -846,8 +973,7 @@ ssize_t tpm_show_caps_1_2(struct device 
+ 	data[TPM_CAP_IDX] = TPM_CAP_PROP;
+ 	data[TPM_CAP_SUBCAP_IDX] = TPM_CAP_PROP_MANUFACTURER;
+ 
+-	if ((len = tpm_transmit(chip, data, sizeof(data))) <=
+-	    TPM_ERROR_SIZE) {
++	if ((len = tpm_transmit(chip, data, sizeof(data))) <= TPM_ERROR_SIZE) {
+ 		dev_dbg(chip->dev, "A TPM error (%d) occurred "
+ 			"attempting to determine the manufacturer\n",
+ 			be32_to_cpu(*((__be32 *) (data + TPM_RET_CODE_IDX))));
+@@ -855,30 +981,32 @@ ssize_t tpm_show_caps_1_2(struct device 
+ 	}
+ 
+ 	str += sprintf(str, "Manufacturer: 0x%x\n",
+-		       be32_to_cpu(*((__be32 *) (data + TPM_GET_CAP_RET_UINT32_1_IDX))));
++		       be32_to_cpu(*((__be32 *) (data +
++						 TPM_GET_CAP_RET_UINT32_1_IDX))));
+ 
+ 	memcpy(data, cap_version, sizeof(cap_version));
+ 	data[CAP_VERSION_IDX] = CAP_VERSION_1_2;
+ 
+-	if ((len = tpm_transmit(chip, data, sizeof(data))) <=
+-	    TPM_ERROR_SIZE) {
++	if ((len = tpm_transmit(chip, data, sizeof(data))) <= TPM_ERROR_SIZE) {
+ 		dev_err(chip->dev, "A TPM error (%d) occurred "
+ 			"attempting to determine the 1.2 version\n",
+ 			be32_to_cpu(*((__be32 *) (data + TPM_RET_CODE_IDX))));
+ 		goto out;
+ 	}
+-	str += sprintf(str,
+-		       "TCG version: %d.%d\nFirmware version: %d.%d\n",
+-		       (int) data[16], (int) data[17], (int) data[18],
+-		       (int) data[19]);
++	str += sprintf(str, "TCG version: %d.%d\nFirmware version: %d.%d\n",
++		       (int)data[16], (int)data[17], (int)data[18],
++		       (int)data[19]);
+ 
+ out:
+ 	return str - buf;
+ }
+ EXPORT_SYMBOL_GPL(tpm_show_caps_1_2);
+ 
+-ssize_t tpm_store_cancel(struct device *dev, struct device_attribute *attr,
+-			const char *buf, size_t count)
++/*
++ * tpm_store_cancel - cancel the current tpm operation
++ */
++ssize_t tpm_store_cancel(struct device * dev, struct device_attribute * attr,
++			 const char *buf, size_t count)
+ {
+ 	struct tpm_chip *chip = dev_get_drvdata(dev);
+ 	if (chip == NULL)
+@@ -973,8 +1101,7 @@ ssize_t tpm_write(struct file *file, con
+ 	if (in_size > TPM_BUFSIZE)
+ 		in_size = TPM_BUFSIZE;
+ 
+-	if (copy_from_user
+-	    (chip->data_buffer, (void __user *) buf, in_size)) {
++	if (copy_from_user(chip->data_buffer, (void __user *)buf, in_size)) {
+ 		mutex_unlock(&chip->buffer_mutex);
+ 		return -EFAULT;
+ 	}
+@@ -992,8 +1119,8 @@ ssize_t tpm_write(struct file *file, con
+ }
+ EXPORT_SYMBOL_GPL(tpm_write);
+ 
+-ssize_t tpm_read(struct file *file, char __user *buf,
+-		 size_t size, loff_t *off)
++ssize_t tpm_read(struct file * file, char __user * buf,
++		 size_t size, loff_t * off)
+ {
+ 	struct tpm_chip *chip = file->private_data;
+ 	int ret_size;
+@@ -1114,7 +1241,7 @@ struct tpm_chip *tpm_register_hardware(s
+ 	INIT_WORK(&chip->work, timeout_work);
+ 
+ 	setup_timer(&chip->user_read_timer, user_reader_timeout,
+-			(unsigned long)chip);
++		    (unsigned long)chip);
+ 
+ 	memcpy(&chip->vendor, entry, sizeof(struct tpm_vendor_specific));
+ 
+@@ -1140,8 +1267,7 @@ struct tpm_chip *tpm_register_hardware(s
+ 	if (misc_register(&chip->vendor.miscdev)) {
+ 		dev_err(chip->dev,
+ 			"unable to misc_register %s, minor %d\n",
+-			chip->vendor.miscdev.name,
+-			chip->vendor.miscdev.minor);
++			chip->vendor.miscdev.name, chip->vendor.miscdev.minor);
+ 		put_device(dev);
+ 		clear_bit(chip->dev_num, dev_mask);
+ 		kfree(chip);
+Index: linux-2.6.22-rc6-mm1/drivers/char/tpm/tpm.h
+===================================================================
+--- linux-2.6.22-rc6-mm1.orig/drivers/char/tpm/tpm.h
++++ linux-2.6.22-rc6-mm1/drivers/char/tpm/tpm.h
+@@ -1,5 +1,5 @@
+ /*
+- * Copyright (C) 2004 IBM Corporation
++ * Copyright (C) 2004, 2007 IBM Corporation
+  *
+  * Authors:
+  * Leendert van Doorn <leendert@watson.ibm.com>
+@@ -26,6 +26,7 @@
+ #include <linux/miscdevice.h>
+ #include <linux/platform_device.h>
+ #include <linux/io.h>
++#include <linux/tpm.h>
+ 
+ enum tpm_timeout {
+ 	TPM_TIMEOUT = 5,	/* msecs */
+Index: linux-2.6.22-rc6-mm1/include/linux/tpm.h
+===================================================================
+--- /dev/null
++++ linux-2.6.22-rc6-mm1/include/linux/tpm.h
+@@ -0,0 +1,60 @@
++/*
++ * Copyright (C) 2004,2007 IBM Corporation
++ *
++ * Authors:
++ * Leendert van Doorn <leendert@watson.ibm.com>
++ * Dave Safford <safford@watson.ibm.com>
++ * Reiner Sailer <sailer@watson.ibm.com>
++ * Kylene Hall <kjhall@us.ibm.com>
++ *
++ * Maintained by: <tpmdd_devel@lists.sourceforge.net>
++ *
++ * Device driver for TCG/TCPA TPM (trusted platform module).
++ * Specifications at www.trustedcomputinggroup.org
++ *
++ * This program is free software; you can redistribute it and/or
++ * modify it under the terms of the GNU General Public License as
++ * published by the Free Software Foundation, version 2 of the
++ * License.
++ *
++ */
++#ifndef __LINUX_TPM_H__
++#define __LINUX_TPM_H__
++
++#define PCI_DEVICE_ID_AMD_8111_LPC    0x7468
++
++/*
++ * Chip type is one of these values in the upper two bytes of chip_id
++ */
++enum tpm_chip_type {
++	TPM_HW_TYPE = 0x0,
++	TPM_SW_TYPE = 0x1,
++	TPM_ANY_TYPE = 0xFFFF,
++};
++
++/*
++ * Chip num is this value or a valid tpm idx in lower two bytes of chip_id
++ */
++enum tpm_chip_num {
++	TPM_ANY_NUM = 0xFFFF,
++};
++
++
++#if defined(CONFIG_TCG_TPM) || defined(CONFIG_TCG_TPM_MODULE)
++
++extern int tpm_pcr_read(u32 chip_id, int pcr_idx, u8* res_buf, int res_buf_size);
++extern int tpm_pcr_extend(u32 chip_id, int pcr_idx, const u8* hash);
++#else
++static inline int tpm_pcr_read(u32 chip_id, int pcr_idx, u8* res_buf,
++				int res_buf_size)
++{
++	return -ENODEV;
++}
++
++static inline int tpm_pcr_extend(u32 chip_id, int pcr_idx, const u8* hash)
++{
++	return -ENODEV;
++}
++#endif
++#endif
++
 
 
 
