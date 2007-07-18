@@ -1,52 +1,116 @@
 Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l6ILTS6V027394
-	for <selinux@tycho.nsa.gov>; Wed, 18 Jul 2007 17:29:38 -0400
-Received: from e35.co.us.ibm.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l6ILTRdP009912
-	for <selinux@tycho.nsa.gov>; Wed, 18 Jul 2007 21:29:27 GMT
-Received: from d03relay02.boulder.ibm.com (d03relay02.boulder.ibm.com [9.17.195.227])
-	by e35.co.us.ibm.com (8.13.8/8.13.8) with ESMTP id l6ILTOwL021784
-	for <selinux@tycho.nsa.gov>; Wed, 18 Jul 2007 17:29:24 -0400
-Received: from d03av02.boulder.ibm.com (d03av02.boulder.ibm.com [9.17.195.168])
-	by d03relay02.boulder.ibm.com (8.13.8/8.13.8/NCO v8.4) with ESMTP id l6ILTOCk258392
-	for <selinux@tycho.nsa.gov>; Wed, 18 Jul 2007 15:29:24 -0600
-Received: from d03av02.boulder.ibm.com (loopback [127.0.0.1])
-	by d03av02.boulder.ibm.com (8.12.11.20060308/8.13.3) with ESMTP id l6ILTOPK007951
-	for <selinux@tycho.nsa.gov>; Wed, 18 Jul 2007 15:29:24 -0600
-Subject: Re: [RFC]integrity: SELinux patch
-From: Mimi Zohar <zohar@linux.vnet.ibm.com>
-To: James Morris <jmorris@namei.org>
-Cc: selinux@tycho.nsa.gov, zohar@us.ibm.com, safford@watson.ibm.com,
-        sailer@us.ibm.com
-In-Reply-To: <Line.LNX.4.64.0707171025160.5764@d.namei>
-References: <1184594240.5860.5.camel@localhost.localdomain>
-	 <Line.LNX.4.64.0707171025160.5764@d.namei>
-Content-Type: text/plain
-Date: Wed, 18 Jul 2007 17:33:22 -0400
-Message-Id: <1184794402.10771.6.camel@localhost.localdomain>
-Mime-Version: 1.0
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l6ILTIHm027350
+	for <selinux@tycho.nsa.gov>; Wed, 18 Jul 2007 17:29:18 -0400
+Received: from py-out-1112.google.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l6ILTHdP009895
+	for <selinux@tycho.nsa.gov>; Wed, 18 Jul 2007 21:29:17 GMT
+Received: by py-out-1112.google.com with SMTP id d32so741094pye
+        for <selinux@tycho.nsa.gov>; Wed, 18 Jul 2007 14:29:17 -0700 (PDT)
+Message-ID: <469E8622.3070309@gmail.com>
+Date: Wed, 18 Jul 2007 16:29:06 -0500
+From: Ted X Toth <txtoth@gmail.com>
+MIME-Version: 1.0
+To: Daniel J Walsh <dwalsh@redhat.com>
+CC: Stephen Smalley <sds@tycho.nsa.gov>, SE Linux <selinux@tycho.nsa.gov>
+Subject: Re: New test program for libselinux/utils that helped with testing
+ MLS/Role/Level coding
+References: <45A68F43.3050101@redhat.com>
+In-Reply-To: <45A68F43.3050101@redhat.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2007-07-17 at 10:44 -0400, James Morris wrote: 
-> On Mon, 16 Jul 2007, Mimi Zohar wrote:
-> 
-> > This is a first attempt to verify and measure file integrity, by
-> > adding the new Linux Integrity Modules(LIM) API calls to SElinux.
-> > We are planning on posting the corresponding LIM and IMA patches to
-> > LKML, but would like comments/suggestions here first, particularly
-> > in regards to the policy checking code in selinux_measure() called 
-> > from selinux_inode_permission().
-> 
-> Can you please post the integrity code being called? (Perhaps I missed it, 
-> or should we look at your older patches?)
-
-Based on comments here on the selinux mailing list, I need to make some
-additional changes to the LIM patches (i.e use audit).  So I'll post the 
-current set of LIM patches here.
-
-Mimi
-
+Daniel J Walsh wrote:
+> getdefaultcon.c
+> ------------------------------------------------------------------------
+>
+> diff --exclude-from=exclude -N -u -r nsalibselinux/utils/getdefaultcon.c libselinux-1.33.4/utils/getdefaultcon.c
+> --- nsalibselinux/utils/getdefaultcon.c	1969-12-31 19:00:00.000000000 -0500
+> +++ libselinux-1.33.4/utils/getdefaultcon.c	2007-01-11 14:24:24.000000000 -0500
+> @@ -0,0 +1,75 @@
+> +#include <unistd.h>
+> +#include <sys/types.h>
+> +#include <fcntl.h>
+> +#include <stdio.h>
+> +#include <stdlib.h>
+> +#include <errno.h>
+> +#include <string.h>
+> +#include <ctype.h>
+> +#include <selinux/selinux.h>
+> +#include <selinux/get_context_list.h>
+> +
+> +void usage(char *name, char *detail, int rc)
+> +{
+> +	fprintf(stderr, "usage:  %s [-l level] user fromcon\n", name);
+> +	if (detail)
+> +		fprintf(stderr, "%s:  %s\n", name, detail);
+> +	exit(rc);
+> +}
+> +
+> +int main(int argc, char **argv)
+> +{
+> +	security_context_t usercon = NULL, cur_context = NULL;
+> +	char *user = NULL, *level = NULL, *role=NULL, *seuser=NULL;
+> +	int ret, opt;
+> +
+> +	while ((opt = getopt(argc, argv, "l:r:")) > 0) {
+> +		switch (opt) {
+> +		case 'l':
+> +			level = strdup(optarg);
+> +			break;
+> +		case 'r':
+> +			role = strdup(optarg);
+> +			break;
+> +		default:
+> +			usage(argv[0], "invalid option", 1);
+> +		}
+> +	}
+> +
+> +	if (((argc - optind) < 1) || ((argc - optind) > 2))
+> +		usage(argv[0], "invalid number of arguments", 2);
+> +
+> +	/* If selinux isn't available, bail out. */
+> +	if (!is_selinux_enabled()) {
+> +		fprintf(stderr,
+> +			"%s may be used only on a SELinux kernel.\n", argv[0]);
+> +		return 1;
+> +	}
+> +
+> +	user = argv[optind];
+> +
+> +	/* If a context wasn't passed, use the current context. */
+> +	if (((argc - optind) < 2)) {
+> +		if (getcon(&cur_context) < 0) {
+> +			fprintf(stderr, "Couldn't get current context.\n");
+> +			return 2;
+> +		}
+> +	} else
+> +		cur_context = argv[optind + 1];
+> +
+> +	if (getseuserbyname(user, &seuser, &level)==0) {
+> +		if (role != NULL && role[0]) 
+> +			ret=get_default_context_with_rolelevel(seuser, role, level,cur_context,&usercon);
+> +		else
+> +			ret=get_default_context_with_level(seuser, level, cur_context,&usercon);
+> +	}
+> +	if (ret < 0)
+> +		perror(argv[0]);
+> +	else
+> +		printf("%s: %s from %s %s %s %s -> %s\n", argv[0], user, cur_context, seuser, role, level, usercon);
+> +
+> +
+> +	free(usercon);
+> +
+> +	return 0;
+> +}
+>   
+I tried running this test program on RHEL 5 and 
+get_default_context_with_level fails with "Invalid argument". I supplied 
+a valid linux user name and verified that getseuserbyname returned 
+'user_u' and  's0' for the user and level respectively. I did this 
+because some other code which runs on fc6 where  I use 
+get_default_context_with_level also failed with the same error when I 
+ran it on RHEL 5.
 
 --
 This message was distributed to subscribers of the selinux mailing list.
