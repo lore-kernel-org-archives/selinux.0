@@ -1,49 +1,58 @@
-Subject: Re: There is a bug in checkmodule that is driving me nuts
-From: Karl MacMillan <kmacmill@redhat.com>
-To: Daniel J Walsh <dwalsh@redhat.com>
-Cc: Stephen Smalley <sds@tycho.nsa.gov>, Joshua Brindle <jbrindle@tresys.com>,
-        SE Linux <selinux@tycho.nsa.gov>
-In-Reply-To: <46A11983.5090405@redhat.com>
-References: <46A11983.5090405@redhat.com>
-Content-Type: text/plain
-Date: Fri, 20 Jul 2007 18:28:24 -0400
-Message-Id: <1184970504.14677.6.camel@localhost.localdomain>
-Mime-Version: 1.0
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l6KMglt6032342
+	for <selinux@tycho.nsa.gov>; Fri, 20 Jul 2007 18:42:47 -0400
+Received: from mail6.sea5.speakeasy.net (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id l6KMgkEE000845
+	for <selinux@tycho.nsa.gov>; Fri, 20 Jul 2007 22:42:46 GMT
+Date: Fri, 20 Jul 2007 18:42:43 -0400 (EDT)
+From: James Morris <jmorris@namei.org>
+To: Anthony Liguori <anthony@codemonkey.ws>
+cc: "Daniel P. Berrange" <berrange@redhat.com>,
+        kvm-devel <kvm-devel@lists.sourceforge.net>,
+        David Windsor <dwindsor@tresys.com>,
+        Joshua Brindle <jbrindle@tresys.com>, selinux <selinux@tycho.nsa.gov>
+Subject: Re: [kvm-devel] [RFC][PATCH 00/01]qemu VM entrypoints
+In-Reply-To: <46A11F1A.2080004@codemonkey.ws>
+Message-ID: <Line.LNX.4.64.0707201834490.10703@d.namei>
+References: <C2C68600.366D%dwindsor@tresys.com> <20070720201101.GC12218@redhat.com>
+ <Line.LNX.4.64.0707201628150.9702@d.namei> <46A11F1A.2080004@codemonkey.ws>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+On Fri, 20 Jul 2007, Anthony Liguori wrote:
 
-On Fri, 2007-07-20 at 16:22 -0400, Daniel J Walsh wrote:
-> The compiler is mistakenly seeing a
+> James Morris wrote:
+> > On Fri, 20 Jul 2007, Daniel P. Berrange wrote:
+> > 
+> >   
+> > > It could be - if your put the policy at the control API layer instead of
+> > > in QEMU itself.
+> > >     
+> > 
+> > Then you can bypass MAC security by invoking qemu directly.
+> >   
 > 
-> gen_requires {
->        type  xguest_gnome_home_t;
-> }
-> 
-> As a redefinition of the type
-> 
->  /usr/bin/checkmodule -M -m guest.tmp -o guest.mod/usr/bin/checkmodule:  
-> loading policy configuration from guest.tmp
-> policy/modules/users/guest.te:4:ERROR 'duplicate declaration of 
-> type/attribute' at token ';' on line 55020:
->         type xguest_gnome_home_t;
-> #line 4
-> /usr/bin/checkmodule:  error(s) encountered while parsing configuration
-> 
-> The problem is the gen_requires happens before the declaration.
-> 
-> The type is being declared in  a template file.
+> You can bypass MAC security by writing your own binary that uses the KVM
+> kernel interfaces.
 
-For better or discarding of requires upon hitting a declaration isn't
-like to be fixed (when the require is first).
+Yep, I was thinking only about qemu.
 
-I have an alternative suggestion - remove all of the requires from the
-policy and use an sepolgen-based pre-processor to add them back in until
-the policyrep work is done. That will ease the migration and can be done
-far more easily than fixing the current compiler.
+I guess you'd have OS policy preventing normal domains from accessing 
+/dev/kvm (or /dev/lguest etc.), while a security-aware launcher would 
+enforce access control policy over which domains could launch which disk 
+images as VMs, and also setup the execution context & fork.
 
-Karl
+So, perhaps this would be better done at the libvirt layer (i.e. make 
+libvirt the object manager).
 
+
+
+- James
+-- 
+James Morris
+<jmorris@namei.org>
 
 --
 This message was distributed to subscribers of the selinux mailing list.
