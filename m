@@ -1,43 +1,80 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l6KFLSZK032563
-	for <selinux@tycho.nsa.gov>; Fri, 20 Jul 2007 11:21:28 -0400
-Received: from mail6.sea5.speakeasy.net (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id l6KFLQ02001068
-	for <selinux@tycho.nsa.gov>; Fri, 20 Jul 2007 15:21:27 GMT
-Date: Fri, 20 Jul 2007 11:21:24 -0400 (EDT)
-From: James Morris <jmorris@namei.org>
-To: Stephen Smalley <sds@tycho.nsa.gov>
-cc: Daniel J Walsh <dwalsh@redhat.com>, Eric Paris <eparis@redhat.com>,
-        SE Linux <selinux@tycho.nsa.gov>
-Subject: Re: [Fwd: cups AVC...]
-In-Reply-To: <1184944350.17338.813.camel@moss-spartans.epoch.ncsc.mil>
-Message-ID: <Line.LNX.4.64.0707201116360.7319@d.namei>
-References: <46A0C494.7060000@redhat.com>  <1184941981.17338.801.camel@moss-spartans.epoch.ncsc.mil>
-  <Line.LNX.4.64.0707201045520.7144@d.namei> <1184944350.17338.813.camel@moss-spartans.epoch.ncsc.mil>
+Message-ID: <46A0D780.6020405@redhat.com>
+Date: Fri, 20 Jul 2007 11:40:48 -0400
+From: Daniel J Walsh <dwalsh@redhat.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Stephen Smalley <sds@tycho.nsa.gov>
+CC: Eric Paris <eparis@redhat.com>, SE Linux <selinux@tycho.nsa.gov>,
+        James Morris <jmorris@namei.org>
+Subject: Re: [Fwd: cups AVC...]
+References: <46A0C494.7060000@redhat.com> <1184941981.17338.801.camel@moss-spartans.epoch.ncsc.mil>
+In-Reply-To: <1184941981.17338.801.camel@moss-spartans.epoch.ncsc.mil>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 20 Jul 2007, Stephen Smalley wrote:
+Stephen Smalley wrote:
+> On Fri, 2007-07-20 at 10:20 -0400, Daniel J Walsh wrote:
+>   
+>> Kernel problem?
+>>     
+>
+> Yet another pseudo filesystem type, with no entry in policy to configure
+> labeling for it.  Looks like it allocates exactly one inode that is
+> shared for all instances, to be used by things like eventpoll, eventfd,
+> signalfd, and timerfd.  Replaces eventpollfs.
+>
+> Given that there is a single shared inode, I guess you want a genfscon
+> statement rather than fs_use_task, and then allow access everywhere that
+> access was given for e.g. eventpollfs.
+>
+> Yuck.  We need a better way to handle these things, to avoid having to
+> touch policy configuration each time a new pseudo fs type is introduced.
+> Possibly the file_system_type structure could also specify labeling
+> behavior for security modules.
+>
+>   
+>> -------- Original Message --------
+>> Subject: 	cups AVC...
+>> Date: 	Fri, 20 Jul 2007 07:04:08 -0700
+>> From: 	Tom London <selinux@gmail.com>
+>> To: 	fedora-selinux <fedora-selinux-list@redhat.com>
+>>
+>>
+>>
+>> Seem to be getting this one from cups.  Haven't seen 'anon_inodefs' before....
+>>
+>> Printing to HP5MP seems to work however....
+>>
+>> tom
+>>
+>> type=AVC msg=audit(1184938825.408:32): avc:  denied  { ioctl } for
+>> pid=5296 comm="cupsd" name="[eventpoll]" dev=anon_inodefs ino=385
+>> scontext=system_u:system_r:cupsd_t:s0-s0:c0.c1023
+>> tcontext=system_u:object_r:unlabeled_t:s0 tclass=file
+>> type=SYSCALL msg=audit(1184938825.408:32): arch=40000003 syscall=54
+>> success=no exit=-13 a0=1 a1=5401 a2=bfda72ac a3=bfda73cc items=0
+>> ppid=5295 pid=5296 auid=500 uid=0 gid=0 euid=0 suid=0 fsuid=0 egid=0
+>> sgid=0 fsgid=0 tty=(none) comm="cupsd" exe="/usr/sbin/cupsd"
+>> subj=system_u:system_r:cupsd_t:s0-s0:c0.c1023 key=(null)
+>> type=AVC_PATH msg=audit(1184938825.408:32):  path="anon_inode:[eventpoll]"
+>> type=LABEL_LEVEL_CHANGE msg=audit(1184938825.408:33): user pid=5296
+>> uid=0 auid=500 subj=system_u:system_r:cupsd_t:s0-s0:c0.c1023
+>> msg='printer=HP5MP uri=hp:/par/HP_LaserJet_5MP?device=/dev/parport0
+>> banners=none,none range=unknown: exe="/usr/sbin/cupsd"
+>> (hostname=localhost.localdomain, addr=127.0.0.1, terminal=?
+>> res=success)'
+>>
+>>     
+I am just adding:
 
-> > > Yuck.  We need a better way to handle these things, to avoid having to
-> > > touch policy configuration each time a new pseudo fs type is introduced.
-> > > Possibly the file_system_type structure could also specify labeling
-> > > behavior for security modules.
-> > 
-> > What about some way of recognising that there is no policy at all for the 
-> > fstype, and just allowing the access (with a warning) ?
-> 
-> What, fail open?
+genfscon anon_inodefs / gen_context(system_u:object_r:eventpollfs_t,s0)
 
-Only in the case where the kernel has been updated to a development 
-version and policy has not.
+Does that look ok?
 
+ I also notice in /proc/filesystem that there is a securityfs which we 
+do not define in policy.
+Any idea what this is for?
 
--- 
-James Morris
-<jmorris@namei.org>
 
 --
 This message was distributed to subscribers of the selinux mailing list.
