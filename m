@@ -1,116 +1,79 @@
-Date: Mon, 23 Jul 2007 16:03:30 +0900
-From: Yuichi Nakamura <ynakam@hitachisoft.jp>
-To: selinux@tycho.nsa.gov
-Subject: [patch] customizable AVTAB_HASH_BITS for embedded devices
-Cc: ynakam@hitachisoft.jp, sds@tycho.nsa.gov, busybox@kaigai.gr.jp
-Message-Id: <20070723124502.17C7.YNAKAM@hitachisoft.jp>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="US-ASCII"
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l6NDtoEi013124
+	for <selinux@tycho.nsa.gov>; Mon, 23 Jul 2007 09:55:50 -0400
+Received: from moss-lions.epoch.ncsc.mil (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l6NDtm3O001080
+	for <selinux@tycho.nsa.gov>; Mon, 23 Jul 2007 13:55:48 GMT
+Received: from moss-lions.epoch.ncsc.mil (localhost.localdomain [127.0.0.1])
+	by moss-lions.epoch.ncsc.mil (8.14.1/8.14.1) with ESMTP id l6NDtGLP016153
+	for <selinux@tycho.nsa.gov>; Mon, 23 Jul 2007 09:55:16 -0400
+Received: (from jwcart2@localhost)
+	by moss-lions.epoch.ncsc.mil (8.14.1/8.14.1/Submit) id l6NDtG3i016152
+	for selinux@tycho.nsa.gov; Mon, 23 Jul 2007 09:55:16 -0400
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l6KJbCik019914
+	for <selinux@tycho.nsa.gov>; Fri, 20 Jul 2007 15:37:12 -0400
+Received: from exchange.columbia.tresys.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with SMTP id l6KJbB2i027801
+	for <selinux@tycho.nsa.gov>; Fri, 20 Jul 2007 19:37:11 GMT
+Date: Fri, 20 Jul 2007 15:32:16 -0400
+Subject: [RFC][PATCH 00/01]qemu VM entrypoints
+From: David Windsor <dwindsor@tresys.com>
+To: selinux <selinux@tycho.nsa.gov>,
+        kvm-devel <kvm-devel@lists.sourceforge.net>
+CC: Joshua Brindle <jbrindle@tresys.com>
+Message-ID: <C2C68600.366D%dwindsor@tresys.com>
+Mime-version: 1.0
+Content-type: text/plain;
+	charset="US-ASCII"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hi.
+Hi,
 
-I am working to reduce memory usage of SELinux for embedded devices.
-I would like to propose very small patch at first.
-Thanks for advice > KaiGai-san .
+After a bit more discussion about integrating SELinux and KVM, it seems that
+there is little interest in adding enforcement hooks to KVM as it stands.
+Once KVM gets some type of inter-vm communication mechanism, MAC hooks will
+probably be added in that space.
 
-1. Background 
-* In avtab_init:
- h->htable = vmalloc(sizeof(*(h->htable)) * AVTAB_SIZE);
-Number of hash table size is AVTAB_SIZE.
+Until then, there seems to be interest in adding MAC controls to control VM
+management operations, such as migrating VMs, or saving/resuming VMs.
 
-* In avtab.h
-#define AVTAB_HASH_BITS 15
-#define AVTAB_HASH_BUCKETS (1 << AVTAB_HASH_BITS)
-#define AVTAB_SIZE AVTAB_HASH_BUCKETS
+One particular aspect of VM management which may be nice to control via
+SELinux is the loading of a virtual hard disk into a VM.  Currently,
+administrators would have to rely on file permissions to control which files
+could be used as a virtual hard disks.  The semantics of file permissions do
+not accomplish what is needed here.  A domain needs to explicitly get
+permission from the policy to both use a file as a virtual disk and to use
+the contents of that virtual disk as an "entrypoint" to the new, virtual
+machine of a different integrity level.
 
-AVTAB_SIZE is 2^15 = 32768
+Since there is no SELinux permission for this, I have created the vm {
+entrypoint } object class/permission pair to represent this type of access.
+Policy for allowing domain user_t to load a virtual disk of type
+qemu_virtdisk_t would look something like:
 
-So 32768 entries are allocated for avtab, 
-and 2 avtabs are used in policydb:
-struct avtab te_avtab;
-struct avtab te_cond_avtab;
+allow user_t qemu_virtdisk_t:file r_file_perms;
+type_change user_t qemu_virtdisk_t:vm vm_user_t;
+allow qemu_virtdisk_t user_vm_t:vm entrypoint;
 
-If te rules are fewer than 32768,
-unused entries are using memory.
+Please note that this patch will only check the entrypoint permission, and
+does not actually facilitate transitioning on the type of the virtual disk.
+I want some comments before continuing with this approach.
 
-In embedded devices, the rules tend to be fewer.
-In my test system(SH architecture board), it is less than 10000 rules.
+When loading a virtual disk into a VM, qemu would consult the policy to see
+essentially three things: if the current process is allowed to read the
+virtual disk file, what the type of the VM should be after loading the disk,
+and if the virtual disk is in fact allowed to serve as an entrypoint to the
+target domain.
 
-2. Patch
-I made AVTAB_HASH_BITS customizable by Kconfig.
-Allocated hash slots for avtab can be reduced by reducing AVTAB_HASH_BITS.
+One problem with this approach is that loading a VM is not an exec-based
+operation.  Dynamic transitions could be used, but could possibly be avoided
+by altering the patch to fork, then re-exec in the target domain.
 
-Attached  patch is for 2.6.22.
-Then, I measured memory usage by /proc/memstat before/after tuning
+This patch applies cleanly to kvm-userspace trunk.
 
-* Memory usage: SELinux before loading policy.
-2720k is used.
-
-* Memory usage: SELinux after loading policy(about 8000 rules) before patch
-+1068k increase
-
-* Memory usage: SELinux after loading poilcy(about 8000 rules) after patch.
-  configured AVTAB_HASH_BITS as "13" 
-+876k increase
--> improved 192k
-
-* Theoretical value:
-- Before tuning: 
-  Number of hashslot 2^15 * 2 
-  Size of hash slot: 4 (sizeof(*(h->htable)))
-  Memory usage = 2^15*2*4 = 262k
-
-- After tuning: 
-  Number of hash slot is 2^13 * 2, 
-  and size of hash slot is 4 (sizeof(*(h->htable)))
-  Memory usage = 2^13*2*4 = 65k 
-  -> 197k should improve, this value is almost the same as measured value.
-
-Following is a patch:
-
-diff -ur security/selinux.orig/Kconfig security/selinux/Kconfig
---- security/selinux.orig/Kconfig	2007-07-20 17:29:30.000000000 +0900
-+++ security/selinux/Kconfig	2007-07-20 17:45:40.000000000 +0900
-@@ -11,6 +11,17 @@
- 	  from <http://www.nsa.gov/selinux/>.
- 	  If you are unsure how to answer this question, answer N.
- 
-+config SECURITY_SELINUX_AVTAB_HASH_BITS
-+	int "NSA SELinux default AVTAB_HASH_BITS value"
-+	depends on SECURITY_SELINUX && EMBEDDED
-+	range 1 15
-+	default 15
-+	help
-+	  This configures AVTAB_HASH_BITS in avtab.h. The size of avtab hashtable 
-+	  is 2^AVTAB_HASH_BITS. You can improve memory footprint of SELinux by 
-+	  configuring this value appropriately.
-+	  If you are unsure how to answer this question, answer 15.
-+
- config SECURITY_SELINUX_BOOTPARAM
- 	bool "NSA SELinux boot parameter"
- 	depends on SECURITY_SELINUX
-diff -ur security/selinux.orig/ss/avtab.h security/selinux/ss/avtab.h
---- security/selinux.orig/ss/avtab.h	2007-07-20 17:29:30.000000000 +0900
-+++ security/selinux/ss/avtab.h	2007-07-20 18:18:56.000000000 +0900
-@@ -74,7 +74,7 @@
- void avtab_cache_init(void);
- void avtab_cache_destroy(void);
- 
--#define AVTAB_HASH_BITS 15
-+#define AVTAB_HASH_BITS CONFIG_SECURITY_SELINUX_AVTAB_HASH_BITS
- #define AVTAB_HASH_BUCKETS (1 << AVTAB_HASH_BITS)
- #define AVTAB_HASH_MASK (AVTAB_HASH_BUCKETS-1)
- 
-
-Regards,
--- 
-Yuichi Nakamura
-Hitachi Software Engineering Co., Ltd.
-Japan SELinux Users Group(JSELUG): http://www.selinux.gr.jp/
-SELinux Policy Editor: http://seedit.sourceforge.net/
-
+Thoughts?
 
 --
 This message was distributed to subscribers of the selinux mailing list.
