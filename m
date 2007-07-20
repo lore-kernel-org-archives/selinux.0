@@ -1,79 +1,86 @@
 Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l6NDtoEi013124
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l6NDto6V013121
 	for <selinux@tycho.nsa.gov>; Mon, 23 Jul 2007 09:55:50 -0400
 Received: from moss-lions.epoch.ncsc.mil (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l6NDtm3O001080
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l6NDtm3O001083
 	for <selinux@tycho.nsa.gov>; Mon, 23 Jul 2007 13:55:48 GMT
 Received: from moss-lions.epoch.ncsc.mil (localhost.localdomain [127.0.0.1])
-	by moss-lions.epoch.ncsc.mil (8.14.1/8.14.1) with ESMTP id l6NDtGLP016153
+	by moss-lions.epoch.ncsc.mil (8.14.1/8.14.1) with ESMTP id l6NDtGfD016161
 	for <selinux@tycho.nsa.gov>; Mon, 23 Jul 2007 09:55:16 -0400
 Received: (from jwcart2@localhost)
-	by moss-lions.epoch.ncsc.mil (8.14.1/8.14.1/Submit) id l6NDtG3i016152
+	by moss-lions.epoch.ncsc.mil (8.14.1/8.14.1/Submit) id l6NDtGNj016160
 	for selinux@tycho.nsa.gov; Mon, 23 Jul 2007 09:55:16 -0400
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l6KJbCik019914
-	for <selinux@tycho.nsa.gov>; Fri, 20 Jul 2007 15:37:12 -0400
-Received: from exchange.columbia.tresys.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with SMTP id l6KJbB2i027801
-	for <selinux@tycho.nsa.gov>; Fri, 20 Jul 2007 19:37:11 GMT
-Date: Fri, 20 Jul 2007 15:32:16 -0400
-Subject: [RFC][PATCH 00/01]qemu VM entrypoints
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l6KJbFtV019939
+	for <selinux@tycho.nsa.gov>; Fri, 20 Jul 2007 15:37:15 -0400
+Received: from exchange.columbia.tresys.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with SMTP id l6KJbEKP009714
+	for <selinux@tycho.nsa.gov>; Fri, 20 Jul 2007 19:37:14 GMT
+Date: Fri, 20 Jul 2007 15:32:23 -0400
+Subject: [RFC][PATCH 01/01] SELinux: add VM entrypoint object
+ class/permission
 From: David Windsor <dwindsor@tresys.com>
 To: selinux <selinux@tycho.nsa.gov>,
         kvm-devel <kvm-devel@lists.sourceforge.net>
 CC: Joshua Brindle <jbrindle@tresys.com>
-Message-ID: <C2C68600.366D%dwindsor@tresys.com>
+Message-ID: <C2C68607.366F%dwindsor@tresys.com>
 Mime-version: 1.0
 Content-type: text/plain;
 	charset="US-ASCII"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hi,
+This patchset modifies libselinux to include the vm object class and the
+entrypoint permission for use with the userspace qemu SELinux code.
 
-After a bit more discussion about integrating SELinux and KVM, it seems that
-there is little interest in adding enforcement hooks to KVM as it stands.
-Once KVM gets some type of inter-vm communication mechanism, MAC hooks will
-probably be added in that space.
 
-Until then, there seems to be interest in adding MAC controls to control VM
-management operations, such as migrating VMs, or saving/resuming VMs.
-
-One particular aspect of VM management which may be nice to control via
-SELinux is the loading of a virtual hard disk into a VM.  Currently,
-administrators would have to rely on file permissions to control which files
-could be used as a virtual hard disks.  The semantics of file permissions do
-not accomplish what is needed here.  A domain needs to explicitly get
-permission from the policy to both use a file as a virtual disk and to use
-the contents of that virtual disk as an "entrypoint" to the new, virtual
-machine of a different integrity level.
-
-Since there is no SELinux permission for this, I have created the vm {
-entrypoint } object class/permission pair to represent this type of access.
-Policy for allowing domain user_t to load a virtual disk of type
-qemu_virtdisk_t would look something like:
-
-allow user_t qemu_virtdisk_t:file r_file_perms;
-type_change user_t qemu_virtdisk_t:vm vm_user_t;
-allow qemu_virtdisk_t user_vm_t:vm entrypoint;
-
-Please note that this patch will only check the entrypoint permission, and
-does not actually facilitate transitioning on the type of the virtual disk.
-I want some comments before continuing with this approach.
-
-When loading a virtual disk into a VM, qemu would consult the policy to see
-essentially three things: if the current process is allowed to read the
-virtual disk file, what the type of the VM should be after loading the disk,
-and if the virtual disk is in fact allowed to serve as an entrypoint to the
-target domain.
-
-One problem with this approach is that loading a VM is not an exec-based
-operation.  Dynamic transitions could be used, but could possibly be avoided
-by altering the patch to fork, then re-exec in the target domain.
-
-This patch applies cleanly to kvm-userspace trunk.
-
-Thoughts?
+Index: src/selinux/libselinux/include/selinux/av_permissions.h
+===================================================================
+--- src.orig/selinux/libselinux/include/selinux/av_permissions.h
+2007-07-14 23:55:36.000000000 -0400
++++ src/selinux/libselinux/include/selinux/av_permissions.h     2007-07-15
+00:18:59.000000000 -0400
+@@ -897,3 +897,4 @@
+ #define KEY__CREATE                               0x00000040UL
+ #define CONTEXT__TRANSLATE                        0x00000001UL
+ #define CONTEXT__CONTAINS                         0x00000002UL
++#define VM__ENTRYPOINT                           0x00000001UL
+Index: src/selinux/libselinux/include/selinux/flask.h
+===================================================================
+--- src.orig/selinux/libselinux/include/selinux/flask.h 2007-07-14
+23:55:36.000000000 -0400
++++ src/selinux/libselinux/include/selinux/flask.h      2007-07-15
+00:55:14.000000000 -0400
+@@ -64,6 +64,7 @@
+ #define SECCLASS_PACKET                                  57
+ #define SECCLASS_KEY                                     58
+ #define SECCLASS_CONTEXT                                 59
++#define SECCLASS_VM                                     60
+ 
+ /*
+  * Security identifier indices for initial entities
+Index: src/selinux/libselinux/src/class_to_string.h
+===================================================================
+--- src.orig/selinux/libselinux/src/class_to_string.h   2007-07-14
+23:55:36.000000000 -0400
++++ src/selinux/libselinux/src/class_to_string.h        2007-07-15
+00:18:59.000000000 -0400
+@@ -62,3 +62,4 @@
+     S_("packet")
+     S_("key")
+     S_("context")
++    S_("vm")
+Index: src/selinux/libselinux/src/av_perm_to_string.h
+===================================================================
+--- src.orig/selinux/libselinux/src/av_perm_to_string.h 2007-07-14
+23:55:36.000000000 -0400
++++ src/selinux/libselinux/src/av_perm_to_string.h      2007-07-15
+00:57:10.000000000 -0400
+@@ -267,3 +267,4 @@
+     S_(SECCLASS_KEY, KEY__CREATE, "create")
+     S_(SECCLASS_CONTEXT, CONTEXT__TRANSLATE, "translate")
+     S_(SECCLASS_CONTEXT, CONTEXT__CONTAINS, "contains")
++    S_(SECCLASS_VM, VM__ENTRYPOINT, "entrypoint")
 
 --
 This message was distributed to subscribers of the selinux mailing list.
