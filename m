@@ -1,47 +1,39 @@
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l6KHjr6Z012002
+	for <selinux@tycho.nsa.gov>; Fri, 20 Jul 2007 13:45:53 -0400
+Received: from mail2.sea5.speakeasy.net (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l6KHjqKP022947
+	for <selinux@tycho.nsa.gov>; Fri, 20 Jul 2007 17:45:52 GMT
+Date: Fri, 20 Jul 2007 13:45:49 -0400 (EDT)
+From: James Morris <jmorris@namei.org>
+To: Stephen Smalley <sds@tycho.nsa.gov>
+cc: Daniel J Walsh <dwalsh@redhat.com>, Eric Paris <eparis@redhat.com>,
+        SE Linux <selinux@tycho.nsa.gov>
 Subject: Re: [Fwd: cups AVC...]
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Daniel J Walsh <dwalsh@redhat.com>
-Cc: Eric Paris <eparis@redhat.com>, SE Linux <selinux@tycho.nsa.gov>,
-        James Morris <jmorris@namei.org>
-In-Reply-To: <46A0D780.6020405@redhat.com>
-References: <46A0C494.7060000@redhat.com>
-	 <1184941981.17338.801.camel@moss-spartans.epoch.ncsc.mil>
-	 <46A0D780.6020405@redhat.com>
-Content-Type: text/plain
-Date: Fri, 20 Jul 2007 13:13:41 -0400
-Message-Id: <1184951621.17338.848.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+In-Reply-To: <1184950833.17338.833.camel@moss-spartans.epoch.ncsc.mil>
+Message-ID: <Line.LNX.4.64.0707201345020.8666@d.namei>
+References: <46A0C494.7060000@redhat.com>  <1184941981.17338.801.camel@moss-spartans.epoch.ncsc.mil>
+  <Line.LNX.4.64.0707201045520.7144@d.namei>  <1184944350.17338.813.camel@moss-spartans.epoch.ncsc.mil>
+  <Line.LNX.4.64.0707201116360.7319@d.namei> <1184950833.17338.833.camel@moss-spartans.epoch.ncsc.mil>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2007-07-20 at 11:40 -0400, Daniel J Walsh wrote:
-> I am just adding:
-> 
-> genfscon anon_inodefs / gen_context(system_u:object_r:eventpollfs_t,s0)
-> 
-> Does that look ok?
-> 
->  I also notice in /proc/filesystem that there is a securityfs which we 
-> do not define in policy.
-> Any idea what this is for?
+On Fri, 20 Jul 2007, Stephen Smalley wrote:
 
-Calling it eventpollfs might be misleading given that it can also be
-used for other purposes now.  I suppose you could make eventpollfs_t a
-typealias to a new anon_inodefs_t type.
+> and we don't want to give access by default (at least not without some
+> further policy option, akin to the one for Eric's patches for allowing
+> unknown permissions by default - if those patches ever materialize).
 
-Greg KH created securityfs in 2005 to avoid having every security module
-introduce their own pseudo filesystem and mount point. Motivated by
-AppArmor, I think, and only used by it so far AFAIK.  In theory, we
-should replace selinuxfs with nodes in securityfs, but doing so would be
-rather disruptive to userspace and provide us with no real gain in
-functionality.
+That was the line of thinking.
 
-http://marc.info/?l=git-commits-head&m=112663824224465&w=2
 
+
+- James
 -- 
-Stephen Smalley
-National Security Agency
-
+James Morris
+<jmorris@namei.org>
 
 --
 This message was distributed to subscribers of the selinux mailing list.
