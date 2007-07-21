@@ -1,49 +1,59 @@
-Subject: Re: Proposed patch to lisemanage/policycoreutils patches to
-	not	run genhomedircon/setfiles when setting booleans.
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Daniel J Walsh <dwalsh@redhat.com>
-Cc: SE Linux <selinux@tycho.nsa.gov>,
-        Karl MacMillan <kmacmillan@mentalrootkit.com>,
-        Joshua Brindle <method@manicmethod.com>
-In-Reply-To: <46A11BC4.10106@redhat.com>
-References: <469E6FFF.3040009@redhat.com>
-	 <1184954124.17338.868.camel@moss-spartans.epoch.ncsc.mil>
-	 <46A11BC4.10106@redhat.com>
-Content-Type: text/plain
-Date: Mon, 23 Jul 2007 13:06:31 -0400
-Message-Id: <1185210391.5266.12.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l6NHGIWl029245
+	for <selinux@tycho.nsa.gov>; Mon, 23 Jul 2007 13:16:18 -0400
+Received: from moss-lions.epoch.ncsc.mil (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l6NHGHX7006044
+	for <selinux@tycho.nsa.gov>; Mon, 23 Jul 2007 17:16:17 GMT
+Received: from moss-lions.epoch.ncsc.mil (localhost.localdomain [127.0.0.1])
+	by moss-lions.epoch.ncsc.mil (8.14.1/8.14.1) with ESMTP id l6NHFgtS018164
+	for <selinux@tycho.nsa.gov>; Mon, 23 Jul 2007 13:15:42 -0400
+Received: (from jwcart2@localhost)
+	by moss-lions.epoch.ncsc.mil (8.14.1/8.14.1/Submit) id l6NHFgSE018163
+	for selinux@tycho.nsa.gov; Mon, 23 Jul 2007 13:15:42 -0400
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l6L2SIWr010494
+	for <selinux@tycho.nsa.gov>; Fri, 20 Jul 2007 22:28:18 -0400
+Received: from victor.provo.novell.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l6L2SGH3000907
+	for <selinux@tycho.nsa.gov>; Sat, 21 Jul 2007 02:28:17 GMT
+Message-ID: <46A16F3C.3080307@novell.com>
+Date: Fri, 20 Jul 2007 19:28:12 -0700
+From: Crispin Cowan <crispin@novell.com>
+MIME-Version: 1.0
+To: linux-security-module@vger.kernel.org,
+        apparmor-dev <apparmor-dev@forge.novell.com>,
+        SELinux ML <selinux@tycho.nsa.gov>,
+        Bastille Linux Announce <bastille-linux-announce@lists.bastille-linux.org>,
+        apparmor-announce@forge.novell.com,
+        AppArmor Mailinglist <apparmor-general@forge.novell.com>
+Subject: Security BoF at LinuxWorld
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2007-07-20 at 16:32 -0400, Daniel J Walsh wrote:
-> Stephen Smalley wrote:
-> > On Wed, 2007-07-18 at 15:54 -0400, Daniel J Walsh wrote:
-> >   
-> >> Takes about 2 seconds off the time to rebuild policy and lots more if 
-> >> you are backending your passwd database with ldap.  Or have many 
-> >> different locations for homedirs.
-> >>     
-> >
-> > The way this should work is libsemanage should internally know what
-> > needs to be rebuilt and only rebuild those things.  Not require the
-> > caller to enable/disable parts.
-> >  
-> >   
-> I tend to agree, but this at least meets my short term goals.
+For those attending LinuxWorld <http://www.linuxworldexpo.com/live/12/>
+next month in San Francisco, there will be a BoF on Linux Intrusion
+Prevention and Security
+<http://www.linuxworldexpo.com/live/12/events/12SFO07A/conference/tracksessions//QMONYB001HXO>.
+LSM is one of the primary ways to implement security and intrusion
+prevention enhancements, people on this list might be interested.
 
-Understood, but I don't think we want this approach upstream.  Joshua?
-Karl?  
+There are already separate sessions on SELinux
+<http://www.linuxworldexpo.com/live/12/events/12SFO07A/conference/tracksessions/Security/QMONYB00129X>,
+AppArmor
+<http://www.linuxworldexpo.com/live/12/events/12SFO07A/conference/tracksessions/Security/QMONYB00129R>,
+and Bastille
+<http://www.linuxworldexpo.com/live/12/events/12SFO07A/conference/tracksessions/Security/QMONYB0012A4>
+so while these systems are likely to come up, I would hope that we spend
+most of the time talking about other projects, or more general topics
+such as how to improve the LSM interface.
 
-I'd rather work through the internal issues of libsemanage, as we want
-that anyway so that e.g. semanage login -a doesn't rebuild policy either
-(that was the whole point of moving Linux users out of policy, but
-libsemanage today still rebuilds everything!).
+Crispin
 
 -- 
-Stephen Smalley
-National Security Agency
-
+Crispin Cowan, Ph.D.               http://crispincowan.com/~crispin/
+Director of Software Engineering   http://novell.com
+	AppArmor Chat: irc.oftc.net/#apparmor
 
 --
 This message was distributed to subscribers of the selinux mailing list.
