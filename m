@@ -1,61 +1,36 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l6KNXdIf002136
-	for <selinux@tycho.nsa.gov>; Fri, 20 Jul 2007 19:33:39 -0400
-Received: from mail2.sea5.speakeasy.net (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id l6KNXZEE007577
-	for <selinux@tycho.nsa.gov>; Fri, 20 Jul 2007 23:33:36 GMT
-Date: Fri, 20 Jul 2007 19:33:33 -0400 (EDT)
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l6L1fZAr008711
+	for <selinux@tycho.nsa.gov>; Fri, 20 Jul 2007 21:41:35 -0400
+Received: from mail2.sea5.speakeasy.net (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l6L1fYH3025864
+	for <selinux@tycho.nsa.gov>; Sat, 21 Jul 2007 01:41:34 GMT
+Date: Fri, 20 Jul 2007 21:41:31 -0400 (EDT)
 From: James Morris <jmorris@namei.org>
-To: Anthony Liguori <anthony@codemonkey.ws>
-cc: "Daniel P. Berrange" <berrange@redhat.com>,
+To: "Daniel P. Berrange" <berrange@redhat.com>
+cc: David Windsor <dwindsor@gmail.com>,
         kvm-devel <kvm-devel@lists.sourceforge.net>,
         David Windsor <dwindsor@tresys.com>,
-        Joshua Brindle <jbrindle@tresys.com>, selinux <selinux@tycho.nsa.gov>
+        Joshua Brindle <jbrindle@tresys.com>, selinux <selinux@tycho.nsa.gov>,
+        qemu-devel <qemu-devel@nongnu.org>
 Subject: Re: [kvm-devel] [RFC][PATCH 00/01]qemu VM entrypoints
-In-Reply-To: <46A13CDB.7020900@codemonkey.ws>
-Message-ID: <Line.LNX.4.64.0707201922220.12412@d.namei>
+In-Reply-To: <20070720235007.GA1595@redhat.com>
+Message-ID: <Line.LNX.4.64.0707202138210.12822@d.namei>
 References: <C2C68600.366D%dwindsor@tresys.com> <20070720201101.GC12218@redhat.com>
- <Line.LNX.4.64.0707201628150.9702@d.namei> <46A11F1A.2080004@codemonkey.ws>
- <Line.LNX.4.64.0707201834490.10703@d.namei> <46A13CDB.7020900@codemonkey.ws>
+ <Line.LNX.4.64.0707201628150.9702@d.namei> <25a1d91b0707201457m6865a505maf93d22c5c28f0cc@mail.gmail.com>
+ <20070720235007.GA1595@redhat.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 20 Jul 2007, Anthony Liguori wrote:
+On Sat, 21 Jul 2007, Daniel P. Berrange wrote:
 
-> > I guess you'd have OS policy preventing normal domains from accessing
-> > /dev/kvm (or /dev/lguest etc.), while a security-aware launcher would
-> > enforce access control policy over which domains could launch which disk
-> > images as VMs, and also setup the execution context & fork.
-> >   
-> 
-> I really think you have to start with the assumption that a guest can access
-> anything that QEMU can access and attempt to build security around that.  If
-> you want to restrict what the guest can see, restrict what QEMU can see.
+> obviously the UNIX user has a corresponding SELinux domain. In the remote 
+> case, one could map x509 certificate IDs (the remote user's identify) to 
+> appropriate local SELinux domains.
 
-Right, we are talking about specific invocations of qemu running in 
-different security domains.  SELinux policy at the OS level would control 
-what each domain (i.e. instance of qemu) can do.
-
-> At some point, we may do crazy stuff like syscall pass-through in which case,
-> it would be all but impossible to have a "security-aware" launcher.
-
-We need some mechanism to invoke VM instances so that they execute in a 
-specific security domain, and to ensure that the domain performing the 
-invocation is authorized to do so, on the specific disk image, and to be 
-transitioned to a specific domain of execution according to policy.
-
-This is just the invocation phase.
-
-There may need to be further controls on e.g. inter-VM communication or 
-other things which may operate outside the standard host OS mechanisms.
-
-I'm not sure exactly what syscall passthrough entails, or what the 
-security implications are.  How would it make it impossible to have a 
-security-aware launcher (i.e. the application which invokes the VM 
-instance per above) ?
-
+There is already a mechanism for conveying SELinux labels over the network 
+via IPsec.
 
 
 - James
