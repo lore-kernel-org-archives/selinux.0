@@ -1,71 +1,74 @@
 Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l6L4KHkW015033
-	for <selinux@tycho.nsa.gov>; Sat, 21 Jul 2007 00:20:17 -0400
-Received: from fk-out-0910.google.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l6L4KGqb012444
-	for <selinux@tycho.nsa.gov>; Sat, 21 Jul 2007 04:20:16 GMT
-Received: by fk-out-0910.google.com with SMTP id 19so192329fkr
-        for <selinux@tycho.nsa.gov>; Fri, 20 Jul 2007 21:20:15 -0700 (PDT)
-Message-ID: <f71a82820707202120h46791ea4xaeef58248a8c346b@mail.gmail.com>
-Date: Sat, 21 Jul 2007 13:20:15 +0900
-From: "Shintaro Fujiwara" <shintaro.fujiwara@gmail.com>
-To: "Karl MacMillan" <kmacmill@redhat.com>
-Subject: Re: There is a bug in checkmodule that is driving me nuts
-Cc: selinux <selinux@tycho.nsa.gov>
-In-Reply-To: <1184970504.14677.6.camel@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-References: <46A11983.5090405@redhat.com>
-	 <1184970504.14677.6.camel@localhost.localdomain>
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l6L6r8cU020987
+	for <selinux@tycho.nsa.gov>; Sat, 21 Jul 2007 02:53:08 -0400
+Received: from wx-out-0506.google.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l6L6r7qb028169
+	for <selinux@tycho.nsa.gov>; Sat, 21 Jul 2007 06:53:07 GMT
+Received: by wx-out-0506.google.com with SMTP id h30so1088293wxd
+        for <selinux@tycho.nsa.gov>; Fri, 20 Jul 2007 23:53:07 -0700 (PDT)
+Date: Sat, 21 Jul 2007 02:53:03 -0400
+Subject: Re: [kvm-devel] [RFC][PATCH 00/01]qemu VM entrypoints
+From: David Windsor <dwindsor@gmail.com>
+To: Avi Kivity <avi@qumranet.com>, Anthony Liguori <anthony@codemonkey.ws>
+CC: kvm-devel <kvm-devel@lists.sourceforge.net>,
+        David Windsor <dwindsor@tresys.com>,
+        Joshua Brindle <jbrindle@tresys.com>, selinux <selinux@tycho.nsa.gov>
+Message-ID: <C2C7258F.36C9%dwindsor@gmail.com>
+In-Reply-To: <46A1A5E9.7000807@qumranet.com>
+Mime-version: 1.0
+Content-type: text/plain;
+	charset="US-ASCII"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hello,
+On 7/21/07 2:21 AM, "Avi Kivity" <avi@qumranet.com> wrote:
 
-Can I ask what policyrep is ?
-Is that policy-generating project on going or wat ?
+> Anthony Liguori wrote:
+>> James Morris wrote:
+>>   
+>>> On Fri, 20 Jul 2007, Daniel P. Berrange wrote:
+>>> 
+>>>   
+>>>     
+>>>> It could be - if your put the policy at the control API layer instead of
+>>>> in QEMU itself.
+>>>>     
+>>>>       
+>>> Then you can bypass MAC security by invoking qemu directly.
+>>>   
+>>>     
+>> 
+>> You can bypass MAC security by writing your own binary that uses the KVM
+>> kernel interfaces.
+>> 
+>>   
+> 
+> I guess modifying qemu makes sense if the modification gives you *more*
+> permissions.
+> 
+> i.e. you start out just with the ability to access the disk image, and
+> then you transition to a new domain that allows you to access some network.
+> 
+> 
+> Is that what is intended here?
 
-Thanks.
+The intent here is to provide some mechanism for a policy-driven transition
+to occur when loading a virtual disk.  So, an administrator would write
+policy for say, a topsecret_vm_t domain, in which the top secret VM can run.
+All access requests from this VM would have a source type of topsecret_vm_t
+on the host machine.  The virtual disk, labeled perhaps as topsecret_disk_t,
+would need to be authorized in policy to be an entrypoint into the
+topsecret_vm_t domain.  This patch proposes a mechanism that allows us to
+provide policy driven controls both over which files can be used as a disk
+image, and to which domain a qemu process will transition after loading the
+disk image.  
 
-2007/7/21, Karl MacMillan <kmacmill@redhat.com>:
->
-> On Fri, 2007-07-20 at 16:22 -0400, Daniel J Walsh wrote:
-> > The compiler is mistakenly seeing a
-> >
-> > gen_requires {
-> >        type  xguest_gnome_home_t;
-> > }
-> >
-> > As a redefinition of the type
-> >
-> >  /usr/bin/checkmodule -M -m guest.tmp -o guest.mod/usr/bin/checkmodule:
-> > loading policy configuration from guest.tmp
-> > policy/modules/users/guest.te:4:ERROR 'duplicate declaration of
-> > type/attribute' at token ';' on line 55020:
-> >         type xguest_gnome_home_t;
-> > #line 4
-> > /usr/bin/checkmodule:  error(s) encountered while parsing configuration
-> >
-> > The problem is the gen_requires happens before the declaration.
-> >
-> > The type is being declared in  a template file.
->
-> For better or discarding of requires upon hitting a declaration isn't
-> like to be fixed (when the require is first).
->
-> I have an alternative suggestion - remove all of the requires from the
-> policy and use an sepolgen-based pre-processor to add them back in until
-> the policyrep work is done. That will ease the migration and can be done
-> far more easily than fixing the current compiler.
->
-> Karl
->
->
-> --
-> This message was distributed to subscribers of the selinux mailing list.
-> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
-> the words "unsubscribe selinux" without quotes as the message.
->
+Originally, I thought qemu was the proper place for this type of an
+enforcement hook, but libvirt may be more appropriate because qemu could be
+launched with a different security context if loading a virtual disk, rather
+than having qemu set up the security context of the VM.  Thoughts?
+
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
