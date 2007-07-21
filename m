@@ -1,74 +1,39 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l6L6r8cU020987
-	for <selinux@tycho.nsa.gov>; Sat, 21 Jul 2007 02:53:08 -0400
-Received: from wx-out-0506.google.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l6L6r7qb028169
-	for <selinux@tycho.nsa.gov>; Sat, 21 Jul 2007 06:53:07 GMT
-Received: by wx-out-0506.google.com with SMTP id h30so1088293wxd
-        for <selinux@tycho.nsa.gov>; Fri, 20 Jul 2007 23:53:07 -0700 (PDT)
-Date: Sat, 21 Jul 2007 02:53:03 -0400
-Subject: Re: [kvm-devel] [RFC][PATCH 00/01]qemu VM entrypoints
-From: David Windsor <dwindsor@gmail.com>
-To: Avi Kivity <avi@qumranet.com>, Anthony Liguori <anthony@codemonkey.ws>
-CC: kvm-devel <kvm-devel@lists.sourceforge.net>,
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l6LHtiwU022140
+	for <selinux@tycho.nsa.gov>; Sat, 21 Jul 2007 13:55:44 -0400
+Received: from mail8.sea5.speakeasy.net (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id l6LHth7s006049
+	for <selinux@tycho.nsa.gov>; Sat, 21 Jul 2007 17:55:44 GMT
+Date: Sat, 21 Jul 2007 13:55:40 -0400 (EDT)
+From: James Morris <jmorris@namei.org>
+To: Anthony Liguori <anthony@codemonkey.ws>
+cc: David Windsor <dwindsor@gmail.com>,
+        kvm-devel <kvm-devel@lists.sourceforge.net>,
         David Windsor <dwindsor@tresys.com>,
         Joshua Brindle <jbrindle@tresys.com>, selinux <selinux@tycho.nsa.gov>
-Message-ID: <C2C7258F.36C9%dwindsor@gmail.com>
-In-Reply-To: <46A1A5E9.7000807@qumranet.com>
-Mime-version: 1.0
-Content-type: text/plain;
-	charset="US-ASCII"
+Subject: Re: [kvm-devel] [RFC][PATCH 00/01]qemu VM entrypoints
+In-Reply-To: <46A22C37.5030004@codemonkey.ws>
+Message-ID: <Line.LNX.4.64.0707211354410.5867@d.namei>
+References: <C2C7258F.36C9%dwindsor@gmail.com> <46A22C37.5030004@codemonkey.ws>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On 7/21/07 2:21 AM, "Avi Kivity" <avi@qumranet.com> wrote:
+On Sat, 21 Jul 2007, Anthony Liguori wrote:
 
-> Anthony Liguori wrote:
->> James Morris wrote:
->>   
->>> On Fri, 20 Jul 2007, Daniel P. Berrange wrote:
->>> 
->>>   
->>>     
->>>> It could be - if your put the policy at the control API layer instead of
->>>> in QEMU itself.
->>>>     
->>>>       
->>> Then you can bypass MAC security by invoking qemu directly.
->>>   
->>>     
->> 
->> You can bypass MAC security by writing your own binary that uses the KVM
->> kernel interfaces.
->> 
->>   
-> 
-> I guess modifying qemu makes sense if the modification gives you *more*
-> permissions.
-> 
-> i.e. you start out just with the ability to access the disk image, and
-> then you transition to a new domain that allows you to access some network.
-> 
-> 
-> Is that what is intended here?
+> Can you already write an selinux policy that changes the label of a 
+> process when it open()s a different file?
 
-The intent here is to provide some mechanism for a policy-driven transition
-to occur when loading a virtual disk.  So, an administrator would write
-policy for say, a topsecret_vm_t domain, in which the top secret VM can run.
-All access requests from this VM would have a source type of topsecret_vm_t
-on the host machine.  The virtual disk, labeled perhaps as topsecret_disk_t,
-would need to be authorized in policy to be an entrypoint into the
-topsecret_vm_t domain.  This patch proposes a mechanism that allows us to
-provide policy driven controls both over which files can be used as a disk
-image, and to which domain a qemu process will transition after loading the
-disk image.  
-
-Originally, I thought qemu was the proper place for this type of an
-enforcement hook, but libvirt may be more appropriate because qemu could be
-launched with a different security context if loading a virtual disk, rather
-than having qemu set up the security context of the VM.  Thoughts?
+No, and you normally want to do this over an exec anyway, to ensure the 
+new execution state is clean.
 
 
+
+- James
+-- 
+James Morris
+<jmorris@namei.org>
 
 --
 This message was distributed to subscribers of the selinux mailing list.
