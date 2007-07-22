@@ -1,64 +1,44 @@
 Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l6LJ1UO4025032
-	for <selinux@tycho.nsa.gov>; Sat, 21 Jul 2007 15:01:30 -0400
-Received: from exchange.columbia.tresys.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with SMTP id l6LJ1T3P023028
-	for <selinux@tycho.nsa.gov>; Sat, 21 Jul 2007 19:01:30 GMT
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l6MG1jgO019813
+	for <selinux@tycho.nsa.gov>; Sun, 22 Jul 2007 12:01:46 -0400
+Received: from mail2.sea5.speakeasy.net (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l6MG1i8A004671
+	for <selinux@tycho.nsa.gov>; Sun, 22 Jul 2007 16:01:45 GMT
+Received: from dsl092-066-197.bos1.dsl.speakeasy.net (HELO d.namei) ([66.92.66.197])
+          (envelope-sender <jmorris@namei.org>)
+          by mail2.sea5.speakeasy.net (qmail-ldap-1.03) with AES256-SHA encrypted SMTP
+          for <selinux@tycho.nsa.gov>; 22 Jul 2007 16:01:43 -0000
+Date: Sun, 22 Jul 2007 12:01:41 -0400 (EDT)
+From: James Morris <jmorris@namei.org>
+To: selinux@tycho.nsa.gov
+cc: linux-security-module@vger.kernel.org, nfsv4@linux-nfs.org,
+        linux-fsdevel@vger.kernel.org, Robert Watson <rwatson@FreeBSD.org>,
+        "Matthew N. Dodd" <Matthew.Dodd@sparta.com>,
+        Chris Vance <Christopher.Vance@sparta.com>
+Subject: ANN: Labeled NFS mailing list
+Message-ID: <Line.LNX.4.64.0707221143110.6263@d.namei>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Subject: RE: [kvm-devel] [RFC][PATCH 00/01]qemu VM entrypoints
-Date: Sat, 21 Jul 2007 15:01:25 -0400
-Message-ID: <6FE441CD9F0C0C479F2D88F959B01588DE1B1E@exchange.columbia.tresys.com>
-In-Reply-To: <Line.LNX.4.64.0707211354410.5867@d.namei>
-References: <C2C7258F.36C9%dwindsor@gmail.com> <46A22C37.5030004@codemonkey.ws> <Line.LNX.4.64.0707211354410.5867@d.namei>
-From: "Joshua Brindle" <jbrindle@tresys.com>
-To: "James Morris" <jmorris@namei.org>,
-        "Anthony Liguori" <anthony@codemonkey.ws>
-Cc: "David Windsor" <dwindsor@gmail.com>,
-        "kvm-devel" <kvm-devel@lists.sourceforge.net>,
-        "David Windsor" <dwindsor@tresys.com>,
-        "selinux" <selinux@tycho.nsa.gov>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-James Morris wrote:
-> On Sat, 21 Jul 2007, Anthony Liguori wrote:
-> 
->> Can you already write an selinux policy that changes the label of a
->> process when it open()s a different file?
-> 
-> No, and you normally want to do this over an exec anyway, to
-> ensure the new execution state is clean.
-> 
+The folk at linux-nfs.org have kindly setup a mailing list for the Labeled 
+NFS development effort.
 
-This is correct and the object model being proposed isn't just about
-opening files. 
+The purpose of the list is for initial analysis and design of a mandatory 
+access control (MAC) extension to NFSv4, in support of SELinux and other 
+MAC schemes across different platforms.
 
-Anthony - There are several userspace object managers for SELinux,
-basically they manage resources that are too abstract for the kernel to
-manage. These include DBUS connections, X windows/pixmaps/cursors/etc,
-postgresql tables and rows, etc. SELinux is designed to designed to have
-non-centralized enforcement of the policy (but centralized decision
-making). In this case the object model isn't just about opening a file,
-its about lauching and restricting a vm based on an abstract resource,
-in this case a virtual disk file, that the kernel can't differenciate
-from any other file.
+For mailing list subscription information, please see: 
+http://linux-nfs.org/cgi-bin/mailman/listinfo/labeled-nfs
 
-The reason for this abstraction is simple, think about all the files
-that qemu has to open that aren't disk files. For example, if you have 3
-vm's, unclass, secret, top secret, those qemu processes still have to
-share resources, library files, configuration files, devices,
-potentially log, pid etc. If someone could manage to get a top secret
-disk labeled lib_t they could boot any of those vm's with that disk
-image (using snapshot or some feature to prevent write attempts on it),
-and disclose top secret data where it shouldn't be disclosed. 
+Prior discussion of this project (which started out as SELinux-specific) 
+may be found at: http://thread.gmane.org/gmane.linux.nfsv4/5341
 
-With David's object model this kind of attack can be prevented because
-virtual disk files aren't 'just files' to qemu, they are an abstract
-resource that means more than just a regular file, just like a database
-file is more than just a regular file for SE-Postgresql.
 
+-- 
+James Morris
+<jmorris@namei.org>
 
 --
 This message was distributed to subscribers of the selinux mailing list.
