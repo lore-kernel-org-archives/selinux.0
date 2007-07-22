@@ -1,103 +1,105 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l6MHd7i7024506
-	for <selinux@tycho.nsa.gov>; Sun, 22 Jul 2007 13:39:07 -0400
-Received: from wx-out-0506.google.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l6MHd68A015471
-	for <selinux@tycho.nsa.gov>; Sun, 22 Jul 2007 17:39:06 GMT
-Received: by wx-out-0506.google.com with SMTP id h30so1335784wxd
-        for <selinux@tycho.nsa.gov>; Sun, 22 Jul 2007 10:39:06 -0700 (PDT)
-Date: Sun, 22 Jul 2007 13:39:00 -0400
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l6MKN2PL030947
+	for <selinux@tycho.nsa.gov>; Sun, 22 Jul 2007 16:23:02 -0400
+Received: from wx-out-0506.google.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id l6MKN1nP001804
+	for <selinux@tycho.nsa.gov>; Sun, 22 Jul 2007 20:23:01 GMT
+Received: by wx-out-0506.google.com with SMTP id h30so1354255wxd
+        for <selinux@tycho.nsa.gov>; Sun, 22 Jul 2007 13:23:01 -0700 (PDT)
+Date: Sun, 22 Jul 2007 16:22:57 -0400
 Subject: Re: [kvm-devel] [RFC][PATCH 00/01]qemu VM entrypoints
 From: David Windsor <dwindsor@gmail.com>
-To: Anthony Liguori <anthony@codemonkey.ws>
-CC: Avi Kivity <avi@qumranet.com>, kvm-devel <kvm-devel@lists.sourceforge.net>,
-        David Windsor <dwindsor@tresys.com>,
-        Joshua Brindle <jbrindle@tresys.com>, selinux <selinux@tycho.nsa.gov>
-Message-ID: <C2C90E74.36FE%dwindsor@gmail.com>
-In-Reply-To: <46A22C37.5030004@codemonkey.ws>
+To: Anthony Liguori <anthony@codemonkey.ws>,
+        Joshua Brindle <jbrindle@tresys.com>
+CC: James Morris <jmorris@namei.org>,
+        kvm-devel <kvm-devel@lists.sourceforge.net>,
+        David Windsor <dwindsor@tresys.com>, selinux <selinux@tycho.nsa.gov>
+Message-ID: <C2C934E1.3709%dwindsor@gmail.com>
+In-Reply-To: <46A3AB09.3090800@codemonkey.ws>
 Mime-version: 1.0
 Content-type: text/plain;
 	charset="US-ASCII"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On 7/21/07 11:54 AM, "Anthony Liguori" <anthony@codemonkey.ws> wrote:
+On 7/22/07 3:07 PM, "Anthony Liguori" <anthony@codemonkey.ws> wrote:
 
-> David Windsor wrote:
->> On 7/21/07 2:21 AM, "Avi Kivity" <avi@qumranet.com> wrote:
->> 
+> Joshua Brindle wrote:
+>> James Morris wrote:
 >>   
->>> Anthony Liguori wrote:
+>>> On Sat, 21 Jul 2007, Anthony Liguori wrote:
+>>> 
 >>>     
->>>> James Morris wrote:
->>>>   
+>>>> Can you already write an selinux policy that changes the label of a
+>>>> process when it open()s a different file?
 >>>>       
->>>>> On Fri, 20 Jul 2007, Daniel P. Berrange wrote:
->>>>> 
->>>>>   
->>>>>     
->>>>>         
->>>>>> It could be - if your put the policy at the control API layer instead of
->>>>>> in QEMU itself.
->>>>>>     
->>>>>>       
->>>>>>           
->>>>> Then you can bypass MAC security by invoking qemu directly.
->>>>>   
->>>>>     
->>>>>         
->>>> You can bypass MAC security by writing your own binary that uses the KVM
->>>> kernel interfaces.
->>>> 
->>>>   
->>>>       
->>> I guess modifying qemu makes sense if the modification gives you *more*
->>> permissions.
+>>> No, and you normally want to do this over an exec anyway, to
+>>> ensure the new execution state is clean.
 >>> 
->>> i.e. you start out just with the ability to access the disk image, and
->>> then you transition to a new domain that allows you to access some network.
->>> 
->>> 
->>> Is that what is intended here?
 >>>     
 >> 
->> The intent here is to provide some mechanism for a policy-driven transition
->> to occur when loading a virtual disk.  So, an administrator would write
->> policy for say, a topsecret_vm_t domain, in which the top secret VM can run.
->> All access requests from this VM would have a source type of topsecret_vm_t
->> on the host machine.  The virtual disk, labeled perhaps as topsecret_disk_t,
->> would need to be authorized in policy to be an entrypoint into the
->> topsecret_vm_t domain.  This patch proposes a mechanism that allows us to
->> provide policy driven controls both over which files can be used as a disk
->> image, and to which domain a qemu process will transition after loading the
->> disk image.  
+>> This is correct and the object model being proposed isn't just about
+>> opening files. 
+>> 
+>> Anthony - There are several userspace object managers for SELinux,
+>> basically they manage resources that are too abstract for the kernel to
+>> manage. These include DBUS connections, X windows/pixmaps/cursors/etc,
+>> postgresql tables and rows, etc. SELinux is designed to designed to have
+>> non-centralized enforcement of the policy (but centralized decision
+>> making). In this case the object model isn't just about opening a file,
+>> its about lauching and restricting a vm based on an abstract resource,
+>> in this case a virtual disk file, that the kernel can't differenciate
+>> from any other file.
+>> 
+>> The reason for this abstraction is simple, think about all the files
+>> that qemu has to open that aren't disk files. For example, if you have 3
+>> vm's, unclass, secret, top secret, those qemu processes still have to
+>> share resources, library files, configuration files, devices,
+>> potentially log, pid etc. If someone could manage to get a top secret
+>> disk labeled lib_t they could boot any of those vm's with that disk
+>> image (using snapshot or some feature to prevent write attempts on it),
+>> and disclose top secret data where it shouldn't be disclosed.
 >>   
 > 
-> Can you already write an selinux policy that changes the label of a
-> process when it open()s a different file?
+> The only way that the VM could possible see the top secret data is if
+> the disk file was readable by the QEMU process running the secret
+> guest.  That's the security problem.  You address this "attack" by
+> simply not letting the user that launched the QEMU process have read
+> access to the top secret disk file.   Why would you ever want to allow
+> the QEMU process that's running a "secret" domain to have any read
+> access to top secret files?
 > 
 
-Yes, technically a process can change its context without executing execve.
-However, this is generally considered to be bad from a security perspective,
-as domain transitions should always occur at the boundary of an execve,
-because of the environmental cleansing that occurs as a result of executing
-a new binary.  This type of behavior, the changing of a process' security
-context outside of an execve, is called a dynamic transition and violates
-various useful security properties, namely label tranquility.  See
-http://beyondabstraction.net/2006/04/06/the-environment-environmental-contam
-ination-and-selinux-part-1 for more information about how SELinux and the
-linux environment interact.
+There will be some cases where VMs of different integrity levels have
+file:read permissions in common for certain files, for example, shared
+libraries, or other resources which may be explicitly shared.
+
+The vm:entrypoint is similar in nature to the file:entrypoint permission.
+For files, only a certain trusted codebase is authorized in policy as an
+entrypoint into a certain domain; this codebase is given file:entrypoint
+permission wrt the target domain.  Similarly, for virtual machines, it would
+be nice to authorize in policy a certain disk image as an entrypoint into a
+certain domain.  It would also be nice to have SELinux policy decide which
+domain a VM will execute in not only based on the type of the virtual disk,
+but on the type of the process loading the virtual disk.  This can be
+accomplished using the vm:entrypoint permission and type_transition rules.
+If the patch that I posted is moved to libvirt, no modification of qemu is
+necessary, and those wishing to use qemu (and likely other userspace
+backends later) would just link against libvirt and libselinux.
+
+Thanks,
+
+David Windsor
+
 
 > Regards,
 > 
 > Anthony Liguori
 > 
->> Originally, I thought qemu was the proper place for this type of an
->> enforcement hook, but libvirt may be more appropriate because qemu could be
->> launched with a different security context if loading a virtual disk, rather
->> than having qemu set up the security context of the VM.  Thoughts?
->> 
->> 
+>> With David's object model this kind of attack can be prevented because
+>> virtual disk files aren't 'just files' to qemu, they are an abstract
+>> resource that means more than just a regular file, just like a database
+>> file is more than just a regular file for SE-Postgresql.
 >> 
 >>   
 > 
