@@ -1,59 +1,93 @@
-Message-ID: <46A4CFC7.2020407@manicmethod.com>
-Date: Mon, 23 Jul 2007 11:56:55 -0400
-From: Joshua Brindle <method@manicmethod.com>
+Message-ID: <46A4D091.90307@redhat.com>
+Date: Mon, 23 Jul 2007 12:00:17 -0400
+From: Daniel J Walsh <dwalsh@redhat.com>
 MIME-Version: 1.0
-To: Stephen Smalley <sds@tycho.nsa.gov>
-CC: selinux@tycho.nsa.gov, "Christopher J. PeBenito" <cpebenito@tresys.com>,
-        Karl MacMillan <kmacmillan@mentalrootkit.com>
-Subject: Re: [patch] libselinux:  fix type mismatch in string_to_security_class
-References: <1185200517.1998.14.camel@moss-spartans.epoch.ncsc.mil>
-In-Reply-To: <1185200517.1998.14.camel@moss-spartans.epoch.ncsc.mil>
+To: Karl MacMillan <kmacmillan@mentalrootkit.com>
+CC: Stephen Smalley <sds@tycho.nsa.gov>, Karl MacMillan <kmacmill@redhat.com>,
+        Joshua Brindle <jbrindle@tresys.com>, SE Linux <selinux@tycho.nsa.gov>
+Subject: Re: There is a bug in checkmodule that is driving me nuts
+References: <46A11983.5090405@redhat.com>	 <1184970504.14677.6.camel@localhost.localdomain> <1185201029.1998.19.camel@moss-spartans.epoch.ncsc.mil> <46A4BD5F.6070408@redhat.com> <46A4C2A6.80605@mentalrootkit.com>
+In-Reply-To: <46A4C2A6.80605@mentalrootkit.com>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Stephen Smalley wrote:
-> Fix type mismatch in string_to_security_class, produces seg fault on x86_64.
-> For https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=249038
+Karl MacMillan wrote:
+> Daniel J Walsh wrote:
+>> Stephen Smalley wrote:
+>>> On Fri, 2007-07-20 at 18:28 -0400, Karl MacMillan wrote:
+>>>  
+>>>> On Fri, 2007-07-20 at 16:22 -0400, Daniel J Walsh wrote:
+>>>>   
+>>>>> The compiler is mistakenly seeing a
+>>>>>
+>>>>> gen_requires {
+>>>>>        type  xguest_gnome_home_t;
+>>>>> }
+>>>>>
+>>>>> As a redefinition of the type
+>>>>>
+>>>>>  /usr/bin/checkmodule -M -m guest.tmp -o 
+>>>>> guest.mod/usr/bin/checkmodule:  loading policy configuration from 
+>>>>> guest.tmp
+>>>>> policy/modules/users/guest.te:4:ERROR 'duplicate declaration of 
+>>>>> type/attribute' at token ';' on line 55020:
+>>>>>         type xguest_gnome_home_t;
+>>>>> #line 4
+>>>>> /usr/bin/checkmodule:  error(s) encountered while parsing 
+>>>>> configuration
+>>>>>
+>>>>> The problem is the gen_requires happens before the declaration.
+>>>>>
+>>>>> The type is being declared in  a template file.
+>>>>>       
+>>>> For better or discarding of requires upon hitting a declaration isn't
+>>>> like to be fixed (when the require is first).
+>>>>     
+>>>
+>>> How hard is it to escalate a requires to a decl?
+>>> Already happens for users and roles, right?
+>>>
+>>>  
+>>>> I have an alternative suggestion - remove all of the requires from the
+>>>> policy and use an sepolgen-based pre-processor to add them back in 
+>>>> until
+>>>> the policyrep work is done. That will ease the migration and can be 
+>>>> done
+>>>> far more easily than fixing the current compiler.
+>>>>
+>>>> Karl
+>>>>
+>>>>
+>>>> -- 
+>>>> This message was distributed to subscribers of the selinux mailing 
+>>>> list.
+>>>> If you no longer wish to subscribe, send mail to 
+>>>> majordomo@tycho.nsa.gov with
+>>>> the words "unsubscribe selinux" without quotes as the message.
+>>>>     
+>> If we resorted Templates before Interfaces, would this problem go away?
+>>
 >
-> Signed-off-by:  Stephen Smalley <sds@tycho.nsa.gov>
->   
-Acked-By: Joshua Brindle <method@manicmethod.com>
+> Potentially - requires after declarations works fine (the requires is 
+> just ignored). The other way around is what is more trouble.
+>
+> Karl
+Ok I was able to hack around this by removing the optional block around 
+gnome_per_role_domain, and moving the definition before the xwindows stuff.
 
-merged into libselinux 2.0.25
-> ---
->
->  stringrep.c |    4 ++--
->  1 file changed, 2 insertions(+), 2 deletions(-)
->
-> Index: src/stringrep.c
->   
--p0 or -p1 from top of the repo? :)
+I will add comments that this is broken, and when the new compiler is 
+available we can put it back the way it was.
 
-> ===================================================================
-> --- src/stringrep.c	(revision 2496)
-> +++ src/stringrep.c	(working copy)
-> @@ -236,7 +236,7 @@
->  
->  	dentry = readdir(dir);
->  	while (dentry != NULL) {
-> -		size_t value;
-> +		unsigned int value;
->  		struct stat m;
->  
->  		snprintf(path, sizeof path, "%s/class/%s/perms/%s", selinux_mnt,s,dentry->d_name);
-> @@ -258,7 +258,7 @@
->  		if (ret < 0)
->  			goto err4;
->  
-> -		if (sscanf(buf, "%u", (unsigned int *)&value) != 1)
-> +		if (sscanf(buf, "%u", &value) != 1)
->  			goto err4;
->  
->  		node->perms[value-1] = strdup(dentry->d_name);
 >
->   
-
+>
+>>
+>> -- 
+>> This message was distributed to subscribers of the selinux mailing list.
+>> If you no longer wish to subscribe, send mail to 
+>> majordomo@tycho.nsa.gov with
+>> the words "unsubscribe selinux" without quotes as the message.
+>
 
 
 --
