@@ -1,5 +1,5 @@
-Message-ID: <46A4D091.90307@redhat.com>
-Date: Mon, 23 Jul 2007 12:00:17 -0400
+Message-ID: <46A4D0B5.3030401@redhat.com>
+Date: Mon, 23 Jul 2007 12:00:53 -0400
 From: Daniel J Walsh <dwalsh@redhat.com>
 MIME-Version: 1.0
 To: Karl MacMillan <kmacmillan@mentalrootkit.com>
@@ -73,12 +73,6 @@ Karl MacMillan wrote:
 > just ignored). The other way around is what is more trouble.
 >
 > Karl
-Ok I was able to hack around this by removing the optional block around 
-gnome_per_role_domain, and moving the definition before the xwindows stuff.
-
-I will add comments that this is broken, and when the new compiler is 
-available we can put it back the way it was.
-
 >
 >
 >>
@@ -88,6 +82,18 @@ available we can put it back the way it was.
 >> majordomo@tycho.nsa.gov with
 >> the words "unsubscribe selinux" without quotes as the message.
 >
+template(`userdom_unpriv_xwindows_login_user', `
+
+userdom_unpriv_login_user($1)
+# Should be optional but policy will not build because of compiler problems
+# Must be before xwindows calls
+#optional_policy(`
+    gnome_per_role_template($1, $1_usertype, $1_r)
+    gnome_exec_gconf($1_t)
+#')
+
+userdom_xwindows_client_template($1)
+...
 
 
 --
