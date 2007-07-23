@@ -1,39 +1,125 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l6NIS5kp002975
-	for <selinux@tycho.nsa.gov>; Mon, 23 Jul 2007 14:28:05 -0400
-Received: from exchange.columbia.tresys.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with SMTP id l6NIS46V000753
-	for <selinux@tycho.nsa.gov>; Mon, 23 Jul 2007 18:28:04 GMT
-Subject: Re: [patch 0/1] Add user object to libpolicyrep
-From: Mark Goldman <mgoldman@tresys.com>
-To: selinux@tycho.nsa.gov
-Cc: jbrindle@tresys.com
-In-Reply-To: <20070723173440.880072184@tresys.com>
-References: <20070723173440.880072184@tresys.com>
+Subject: Re: [patch] customizable AVTAB_HASH_BITS for embedded devices
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Yuichi Nakamura <ynakam@hitachisoft.jp>
+Cc: selinux@tycho.nsa.gov, busybox@kaigai.gr.jp,
+        James Morris <jmorris@namei.org>, Eric Paris <eparis@parisplace.org>
+In-Reply-To: <20070723124502.17C7.YNAKAM@hitachisoft.jp>
+References: <20070723124502.17C7.YNAKAM@hitachisoft.jp>
 Content-Type: text/plain
-Date: Mon, 23 Jul 2007 14:28:00 -0400
-Message-Id: <1185215280.5887.15.camel@tresys-winxppro>
+Date: Mon, 23 Jul 2007 15:58:31 -0400
+Message-Id: <1185220711.4177.30.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 2007-07-23 at 13:34 -0400, mgoldman@tresys.com wrote:
-> Added User object to libpolicyrep.
+On Mon, 2007-07-23 at 16:03 +0900, Yuichi Nakamura wrote:
+> Hi.
 > 
-> Signed-off-by: Joshua Brindle
+> I am working to reduce memory usage of SELinux for embedded devices.
+> I would like to propose very small patch at first.
+> Thanks for advice > KaiGai-san .
 > 
->  include/policyrep/policy.hpp |    1 
->  include/policyrep/user.hpp   |   46 ++++++++++++++++++++++
->  src/policy_parse.y           |    8 +++
->  src/user.cpp                 |   89 +++++++++++++++++++++++++++++++++++++++++++
->  tests/example.te             |    4 +
->  tests/libpolicyrep-test.cpp  |    4 +
->  6 files changed, 152 insertions(+)
+> 1. Background 
+> * In avtab_init:
+>  h->htable = vmalloc(sizeof(*(h->htable)) * AVTAB_SIZE);
+> Number of hash table size is AVTAB_SIZE.
+> 
+> * In avtab.h
+> #define AVTAB_HASH_BITS 15
+> #define AVTAB_HASH_BUCKETS (1 << AVTAB_HASH_BITS)
+> #define AVTAB_SIZE AVTAB_HASH_BUCKETS
+> 
+> AVTAB_SIZE is 2^15 = 32768
+> 
+> So 32768 entries are allocated for avtab, 
+> and 2 avtabs are used in policydb:
+> struct avtab te_avtab;
+> struct avtab te_cond_avtab;
+> 
+> If te rules are fewer than 32768,
+> unused entries are using memory.
+> 
+> In embedded devices, the rules tend to be fewer.
+> In my test system(SH architecture board), it is less than 10000 rules.
+> 
+> 2. Patch
+> I made AVTAB_HASH_BITS customizable by Kconfig.
+> Allocated hash slots for avtab can be reduced by reducing AVTAB_HASH_BITS.
+> 
+> Attached  patch is for 2.6.22.
+> Then, I measured memory usage by /proc/memstat before/after tuning
+> 
+> * Memory usage: SELinux before loading policy.
+> 2720k is used.
+> 
+> * Memory usage: SELinux after loading policy(about 8000 rules) before patch
+> +1068k increase
+> 
+> * Memory usage: SELinux after loading poilcy(about 8000 rules) after patch.
+>   configured AVTAB_HASH_BITS as "13" 
+> +876k increase
+> -> improved 192k
+> 
+> * Theoretical value:
+> - Before tuning: 
+>   Number of hashslot 2^15 * 2 
+>   Size of hash slot: 4 (sizeof(*(h->htable)))
+>   Memory usage = 2^15*2*4 = 262k
+> 
+> - After tuning: 
+>   Number of hash slot is 2^13 * 2, 
+>   and size of hash slot is 4 (sizeof(*(h->htable)))
+>   Memory usage = 2^13*2*4 = 65k 
+>   -> 197k should improve, this value is almost the same as measured value.
+> 
+> Following is a patch:
+> 
+> diff -ur security/selinux.orig/Kconfig security/selinux/Kconfig
+> --- security/selinux.orig/Kconfig	2007-07-20 17:29:30.000000000 +0900
+> +++ security/selinux/Kconfig	2007-07-20 17:45:40.000000000 +0900
+> @@ -11,6 +11,17 @@
+>  	  from <http://www.nsa.gov/selinux/>.
+>  	  If you are unsure how to answer this question, answer N.
+>  
+> +config SECURITY_SELINUX_AVTAB_HASH_BITS
+> +	int "NSA SELinux default AVTAB_HASH_BITS value"
+> +	depends on SECURITY_SELINUX && EMBEDDED
+> +	range 1 15
+> +	default 15
+> +	help
+> +	  This configures AVTAB_HASH_BITS in avtab.h. The size of avtab hashtable 
+> +	  is 2^AVTAB_HASH_BITS. You can improve memory footprint of SELinux by 
+> +	  configuring this value appropriately.
+> +	  If you are unsure how to answer this question, answer 15.
+> +
+>  config SECURITY_SELINUX_BOOTPARAM
+>  	bool "NSA SELinux boot parameter"
+>  	depends on SECURITY_SELINUX
+> diff -ur security/selinux.orig/ss/avtab.h security/selinux/ss/avtab.h
+> --- security/selinux.orig/ss/avtab.h	2007-07-20 17:29:30.000000000 +0900
+> +++ security/selinux/ss/avtab.h	2007-07-20 18:18:56.000000000 +0900
+> @@ -74,7 +74,7 @@
+>  void avtab_cache_init(void);
+>  void avtab_cache_destroy(void);
+>  
+> -#define AVTAB_HASH_BITS 15
+> +#define AVTAB_HASH_BITS CONFIG_SECURITY_SELINUX_AVTAB_HASH_BITS
+>  #define AVTAB_HASH_BUCKETS (1 << AVTAB_HASH_BITS)
+>  #define AVTAB_HASH_MASK (AVTAB_HASH_BUCKETS-1)
 
-Note: This patch does not contain MLS support for users.  This support
-will be in a forthcoming MLS patch.
+I'm open to making this configurable, although I'm not sure whether it
+should be a Kconfig setting or selinuxfs (or sysctl) setting.  Ideally,
+of course, it would be runtime computed based on the actual policy size.
+Rewriting the avtab and other security server data structures to more
+kernel native would be fine with me too - they don't need to match the
+userland ones.
 
--Mark Goldman
+(please cc James, Eric, and me on selinux kernel patches)
+
+-- 
+Stephen Smalley
+National Security Agency
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
