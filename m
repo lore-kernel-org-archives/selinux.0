@@ -1,109 +1,115 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l6MKN2PL030947
-	for <selinux@tycho.nsa.gov>; Sun, 22 Jul 2007 16:23:02 -0400
-Received: from wx-out-0506.google.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id l6MKN1nP001804
-	for <selinux@tycho.nsa.gov>; Sun, 22 Jul 2007 20:23:01 GMT
-Received: by wx-out-0506.google.com with SMTP id h30so1354255wxd
-        for <selinux@tycho.nsa.gov>; Sun, 22 Jul 2007 13:23:01 -0700 (PDT)
-Date: Sun, 22 Jul 2007 16:22:57 -0400
-Subject: Re: [kvm-devel] [RFC][PATCH 00/01]qemu VM entrypoints
-From: David Windsor <dwindsor@gmail.com>
-To: Anthony Liguori <anthony@codemonkey.ws>,
-        Joshua Brindle <jbrindle@tresys.com>
-CC: James Morris <jmorris@namei.org>,
-        kvm-devel <kvm-devel@lists.sourceforge.net>,
-        David Windsor <dwindsor@tresys.com>, selinux <selinux@tycho.nsa.gov>
-Message-ID: <C2C934E1.3709%dwindsor@gmail.com>
-In-Reply-To: <46A3AB09.3090800@codemonkey.ws>
-Mime-version: 1.0
-Content-type: text/plain;
-	charset="US-ASCII"
+Date: Mon, 23 Jul 2007 16:03:30 +0900
+From: Yuichi Nakamura <ynakam@hitachisoft.jp>
+To: selinux@tycho.nsa.gov
+Subject: [patch] customizable AVTAB_HASH_BITS for embedded devices
+Cc: ynakam@hitachisoft.jp, sds@tycho.nsa.gov, busybox@kaigai.gr.jp
+Message-Id: <20070723124502.17C7.YNAKAM@hitachisoft.jp>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="US-ASCII"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On 7/22/07 3:07 PM, "Anthony Liguori" <anthony@codemonkey.ws> wrote:
+Hi.
 
-> Joshua Brindle wrote:
->> James Morris wrote:
->>   
->>> On Sat, 21 Jul 2007, Anthony Liguori wrote:
->>> 
->>>     
->>>> Can you already write an selinux policy that changes the label of a
->>>> process when it open()s a different file?
->>>>       
->>> No, and you normally want to do this over an exec anyway, to
->>> ensure the new execution state is clean.
->>> 
->>>     
->> 
->> This is correct and the object model being proposed isn't just about
->> opening files. 
->> 
->> Anthony - There are several userspace object managers for SELinux,
->> basically they manage resources that are too abstract for the kernel to
->> manage. These include DBUS connections, X windows/pixmaps/cursors/etc,
->> postgresql tables and rows, etc. SELinux is designed to designed to have
->> non-centralized enforcement of the policy (but centralized decision
->> making). In this case the object model isn't just about opening a file,
->> its about lauching and restricting a vm based on an abstract resource,
->> in this case a virtual disk file, that the kernel can't differenciate
->> from any other file.
->> 
->> The reason for this abstraction is simple, think about all the files
->> that qemu has to open that aren't disk files. For example, if you have 3
->> vm's, unclass, secret, top secret, those qemu processes still have to
->> share resources, library files, configuration files, devices,
->> potentially log, pid etc. If someone could manage to get a top secret
->> disk labeled lib_t they could boot any of those vm's with that disk
->> image (using snapshot or some feature to prevent write attempts on it),
->> and disclose top secret data where it shouldn't be disclosed.
->>   
-> 
-> The only way that the VM could possible see the top secret data is if
-> the disk file was readable by the QEMU process running the secret
-> guest.  That's the security problem.  You address this "attack" by
-> simply not letting the user that launched the QEMU process have read
-> access to the top secret disk file.   Why would you ever want to allow
-> the QEMU process that's running a "secret" domain to have any read
-> access to top secret files?
-> 
+I am working to reduce memory usage of SELinux for embedded devices.
+I would like to propose very small patch at first.
+Thanks for advice > KaiGai-san .
 
-There will be some cases where VMs of different integrity levels have
-file:read permissions in common for certain files, for example, shared
-libraries, or other resources which may be explicitly shared.
+1. Background 
+* In avtab_init:
+ h->htable = vmalloc(sizeof(*(h->htable)) * AVTAB_SIZE);
+Number of hash table size is AVTAB_SIZE.
 
-The vm:entrypoint is similar in nature to the file:entrypoint permission.
-For files, only a certain trusted codebase is authorized in policy as an
-entrypoint into a certain domain; this codebase is given file:entrypoint
-permission wrt the target domain.  Similarly, for virtual machines, it would
-be nice to authorize in policy a certain disk image as an entrypoint into a
-certain domain.  It would also be nice to have SELinux policy decide which
-domain a VM will execute in not only based on the type of the virtual disk,
-but on the type of the process loading the virtual disk.  This can be
-accomplished using the vm:entrypoint permission and type_transition rules.
-If the patch that I posted is moved to libvirt, no modification of qemu is
-necessary, and those wishing to use qemu (and likely other userspace
-backends later) would just link against libvirt and libselinux.
+* In avtab.h
+#define AVTAB_HASH_BITS 15
+#define AVTAB_HASH_BUCKETS (1 << AVTAB_HASH_BITS)
+#define AVTAB_SIZE AVTAB_HASH_BUCKETS
 
-Thanks,
+AVTAB_SIZE is 2^15 = 32768
 
-David Windsor
+So 32768 entries are allocated for avtab, 
+and 2 avtabs are used in policydb:
+struct avtab te_avtab;
+struct avtab te_cond_avtab;
 
+If te rules are fewer than 32768,
+unused entries are using memory.
 
-> Regards,
-> 
-> Anthony Liguori
-> 
->> With David's object model this kind of attack can be prevented because
->> virtual disk files aren't 'just files' to qemu, they are an abstract
->> resource that means more than just a regular file, just like a database
->> file is more than just a regular file for SE-Postgresql.
->> 
->>   
-> 
+In embedded devices, the rules tend to be fewer.
+In my test system(SH architecture board), it is less than 10000 rules.
 
+2. Patch
+I made AVTAB_HASH_BITS customizable by Kconfig.
+Allocated hash slots for avtab can be reduced by reducing AVTAB_HASH_BITS.
+
+Attached  patch is for 2.6.22.
+Then, I measured memory usage by /proc/memstat before/after tuning
+
+* Memory usage: SELinux before loading policy.
+2720k is used.
+
+* Memory usage: SELinux after loading policy(about 8000 rules) before patch
++1068k increase
+
+* Memory usage: SELinux after loading poilcy(about 8000 rules) after patch.
+  configured AVTAB_HASH_BITS as "13" 
++876k increase
+-> improved 192k
+
+* Theoretical value:
+- Before tuning: 
+  Number of hashslot 2^15 * 2 
+  Size of hash slot: 4 (sizeof(*(h->htable)))
+  Memory usage = 2^15*2*4 = 262k
+
+- After tuning: 
+  Number of hash slot is 2^13 * 2, 
+  and size of hash slot is 4 (sizeof(*(h->htable)))
+  Memory usage = 2^13*2*4 = 65k 
+  -> 197k should improve, this value is almost the same as measured value.
+
+Following is a patch:
+
+diff -ur security/selinux.orig/Kconfig security/selinux/Kconfig
+--- security/selinux.orig/Kconfig	2007-07-20 17:29:30.000000000 +0900
++++ security/selinux/Kconfig	2007-07-20 17:45:40.000000000 +0900
+@@ -11,6 +11,17 @@
+ 	  from <http://www.nsa.gov/selinux/>.
+ 	  If you are unsure how to answer this question, answer N.
+ 
++config SECURITY_SELINUX_AVTAB_HASH_BITS
++	int "NSA SELinux default AVTAB_HASH_BITS value"
++	depends on SECURITY_SELINUX && EMBEDDED
++	range 1 15
++	default 15
++	help
++	  This configures AVTAB_HASH_BITS in avtab.h. The size of avtab hashtable 
++	  is 2^AVTAB_HASH_BITS. You can improve memory footprint of SELinux by 
++	  configuring this value appropriately.
++	  If you are unsure how to answer this question, answer 15.
++
+ config SECURITY_SELINUX_BOOTPARAM
+ 	bool "NSA SELinux boot parameter"
+ 	depends on SECURITY_SELINUX
+diff -ur security/selinux.orig/ss/avtab.h security/selinux/ss/avtab.h
+--- security/selinux.orig/ss/avtab.h	2007-07-20 17:29:30.000000000 +0900
++++ security/selinux/ss/avtab.h	2007-07-20 18:18:56.000000000 +0900
+@@ -74,7 +74,7 @@
+ void avtab_cache_init(void);
+ void avtab_cache_destroy(void);
+ 
+-#define AVTAB_HASH_BITS 15
++#define AVTAB_HASH_BITS CONFIG_SECURITY_SELINUX_AVTAB_HASH_BITS
+ #define AVTAB_HASH_BUCKETS (1 << AVTAB_HASH_BITS)
+ #define AVTAB_HASH_MASK (AVTAB_HASH_BUCKETS-1)
+ 
+
+Regards,
+-- 
+Yuichi Nakamura
+Hitachi Software Engineering Co., Ltd.
+Japan SELinux Users Group(JSELUG): http://www.selinux.gr.jp/
+SELinux Policy Editor: http://seedit.sourceforge.net/
 
 
 --
