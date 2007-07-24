@@ -1,38 +1,48 @@
-Subject: Re: [patch] libselinux:  fix type mismatch in
-	string_to_security_class
+Subject: Re: [PATCH] selinux_xfrm_sec_ctx_alloc: null-terminate context
+	string
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: "John D. Ramsdell" <ramsdell@mitre.org>
-Cc: selinux@tycho.nsa.gov
-In-Reply-To: <ogtodi14r03.fsf@oolong.mitre.org>
-References: <1185200517.1998.14.camel@moss-spartans.epoch.ncsc.mil>
-	 <ogtodi14r03.fsf@oolong.mitre.org>
+To: Venkat Yekkirala <vyekkirala@TrustedCS.com>
+Cc: selinux@tycho.nsa.gov, jmorris@namei.org, latten@austin.ibm.com
+In-Reply-To: <46A61263.2050404@trustedcs.com>
+References: <46A61263.2050404@trustedcs.com>
 Content-Type: text/plain
-Date: Tue, 24 Jul 2007 15:05:26 -0400
-Message-Id: <1185303926.16598.88.camel@moss-spartans.epoch.ncsc.mil>
+Date: Tue, 24 Jul 2007 15:20:59 -0400
+Message-Id: <1185304859.16598.90.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2007-07-24 at 14:05 -0400, John D. Ramsdell wrote:
-> Stephen Smalley <sds@tycho.nsa.gov> writes:
+On Tue, 2007-07-24 at 09:53 -0500, Venkat Yekkirala wrote:
+> xfrm_audit_log() expects the context string to be null-terminated
+> which currently doesn't happen with user-supplied contexts.
 > 
-> > Fix type mismatch in string_to_security_class, produces seg fault on x86_64.
-> > For https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=249038
-> 
-> ...
-> > -		size_t value;
-> > +		unsigned int value;
-> ...
-> >  
-> > -		if (sscanf(buf, "%u", (unsigned int *)&value) != 1)
-> > +		if (sscanf(buf, "%u", &value) != 1)
-> 
-> There is another way to fix this bug.  You can leave the type as
-> size_t, but use the C99 z modifier.  GCC supports the z modifier.
+> Signed-off-by: Venkat Yekkirala <vyekkirala@TrustedCS.com>
 
-Sure, but the actual value is an unsigned int, not a size_t, so this is
-the more correct fix.
+Acked-by:  Stephen Smalley <sds@tycho.nsa.gov>
 
+> ---
+>  security/selinux/xfrm.c |    3 ++-
+>  1 file changed, 2 insertions(+), 1 deletion(-)
+> 
+> --- selinux-2.6/security/selinux/xfrm.c	2007-07-24 09:43:23.000000000 -0500
+> +++ selinux-2.6/security/selinux/xfrm.c	2007-07-24 09:44:11.000000000 -0500
+> @@ -216,7 +216,7 @@ static int selinux_xfrm_sec_ctx_alloc(st
+>  		return -ENOMEM;
+>  
+>  	*ctxp = ctx = kmalloc(sizeof(*ctx) +
+> -			      uctx->ctx_len,
+> +			      uctx->ctx_len + 1,
+>  			      GFP_KERNEL);
+>  
+>  	if (!ctx)
+> @@ -229,6 +229,7 @@ static int selinux_xfrm_sec_ctx_alloc(st
+>  	memcpy(ctx->ctx_str,
+>  	       uctx+1,
+>  	       ctx->ctx_len);
+> +	ctx->ctx_str[ctx->ctx_len] = 0;
+>  	rc = security_context_to_sid(ctx->ctx_str,
+>  				     ctx->ctx_len,
+>  				     &ctx->ctx_sid);
 -- 
 Stephen Smalley
 National Security Agency
