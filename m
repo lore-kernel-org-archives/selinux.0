@@ -1,51 +1,41 @@
-Subject: Re: [PATCH] selinux_xfrm_sec_ctx_alloc: null-terminate context
-	string
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Venkat Yekkirala <vyekkirala@TrustedCS.com>
-Cc: selinux@tycho.nsa.gov, jmorris@namei.org, latten@austin.ibm.com
-In-Reply-To: <46A61263.2050404@trustedcs.com>
-References: <46A61263.2050404@trustedcs.com>
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l6OJkNs1005271
+	for <selinux@tycho.nsa.gov>; Tue, 24 Jul 2007 15:46:23 -0400
+Received: from exchange.columbia.tresys.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with SMTP id l6OJkMXQ027358
+	for <selinux@tycho.nsa.gov>; Tue, 24 Jul 2007 19:46:22 GMT
+Subject: Re: Additional permission checks for nscd
+From: "Christopher J. PeBenito" <cpebenito@tresys.com>
+To: Daniel J Walsh <dwalsh@redhat.com>
+Cc: SE Linux <selinux@tycho.nsa.gov>
+In-Reply-To: <4694FDA6.3060603@redhat.com>
+References: <4694FDA6.3060603@redhat.com>
 Content-Type: text/plain
-Date: Tue, 24 Jul 2007 15:20:59 -0400
-Message-Id: <1185304859.16598.90.camel@moss-spartans.epoch.ncsc.mil>
+Date: Tue, 24 Jul 2007 15:46:14 -0400
+Message-Id: <1185306374.24951.0.camel@gorn>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2007-07-24 at 09:53 -0500, Venkat Yekkirala wrote:
-> xfrm_audit_log() expects the context string to be null-terminated
-> which currently doesn't happen with user-supplied contexts.
-> 
-> Signed-off-by: Venkat Yekkirala <vyekkirala@TrustedCS.com>
-
-Acked-by:  Stephen Smalley <sds@tycho.nsa.gov>
-
-> ---
->  security/selinux/xfrm.c |    3 ++-
->  1 file changed, 2 insertions(+), 1 deletion(-)
-> 
-> --- selinux-2.6/security/selinux/xfrm.c	2007-07-24 09:43:23.000000000 -0500
-> +++ selinux-2.6/security/selinux/xfrm.c	2007-07-24 09:44:11.000000000 -0500
-> @@ -216,7 +216,7 @@ static int selinux_xfrm_sec_ctx_alloc(st
->  		return -ENOMEM;
+On Wed, 2007-07-11 at 11:56 -0400, Daniel J Walsh wrote:
+> --- nsaserefpolicy/policy/flask/access_vectors  2007-06-19 16:23:34.000000000 -0400
+> +++ serefpolicy-3.0.2/policy/flask/access_vectors       2007-07-11 10:06:28.000000000 -0400
+> @@ -598,6 +598,8 @@
+>         shmempwd
+>         shmemgrp
+>         shmemhost
+> +       getserv
+> +       shmemserv
+>  }
 >  
->  	*ctxp = ctx = kmalloc(sizeof(*ctx) +
-> -			      uctx->ctx_len,
-> +			      uctx->ctx_len + 1,
->  			      GFP_KERNEL);
->  
->  	if (!ctx)
-> @@ -229,6 +229,7 @@ static int selinux_xfrm_sec_ctx_alloc(st
->  	memcpy(ctx->ctx_str,
->  	       uctx+1,
->  	       ctx->ctx_len);
-> +	ctx->ctx_str[ctx->ctx_len] = 0;
->  	rc = security_context_to_sid(ctx->ctx_str,
->  				     ctx->ctx_len,
->  				     &ctx->ctx_sid);
+>  # Define the access vector interpretation for controlling
+
+Merged.
+
 -- 
-Stephen Smalley
-National Security Agency
+Chris PeBenito
+Tresys Technology, LLC
+(410) 290-1411 x150
 
 
 --
