@@ -1,139 +1,94 @@
-Subject: Re: [patch] Update for libselinux embedded build support
+Subject: Re: [RFC] Dynamically deciding number of hash slots for avtab
+	(Was:Re: [patch] customizable AVTAB_HASH_BITS for embedded devices
 From: Stephen Smalley <sds@tycho.nsa.gov>
 To: Yuichi Nakamura <ynakam@hitachisoft.jp>
-Cc: selinux@tycho.nsa.gov, busybox@kaigai.gr.jp, ewalsh@tycho.nsa.gov
-In-Reply-To: <20070725120139.6112.YNAKAM@hitachisoft.jp>
-References: <20070725120139.6112.YNAKAM@hitachisoft.jp>
+Cc: selinux@tycho.nsa.gov, busybox@kaigai.gr.jp,
+        James Morris <jmorris@namei.org>, Eric Paris <eparis@parisplace.org>,
+        kaigai@ak.jp.nec.com, method@manicmethod.com
+In-Reply-To: <20070725113339.610F.YNAKAM@hitachisoft.jp>
+References: <20070724181924.41F6.YNAKAM@hitachisoft.jp>
+	 <1185281523.16598.42.camel@moss-spartans.epoch.ncsc.mil>
+	 <20070725113339.610F.YNAKAM@hitachisoft.jp>
 Content-Type: text/plain
-Date: Wed, 25 Jul 2007 08:47:40 -0400
-Message-Id: <1185367660.2900.28.camel@moss-spartans.epoch.ncsc.mil>
+Date: Wed, 25 Jul 2007 08:59:40 -0400
+Message-Id: <1185368380.2900.40.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2007-07-25 at 12:10 +0900, Yuichi Nakamura wrote:
+On Wed, 2007-07-25 at 12:01 +0900, Yuichi Nakamura wrote:
 > Hi.
 > 
-> Recently, some userspace AVC features are merged to libselinux.
-> I found make EMBEDDED=y fails due to that.
-> So I've updated "make EMBEDDED=y" support for libselinux.
+> Thanks for reply.
 > 
-> Index: libselinux/src/Makefile
-> ===================================================================
-> --- libselinux/src/Makefile	(revision 2500)
-> +++ libselinux/src/Makefile	(working copy)
-> @@ -20,7 +20,7 @@
->  LIBSO=$(TARGET).$(LIBVERSION)
->  
->  ifeq ($(DISABLE_AVC),y)
-> -	UNUSED_SRCS+=avc.c avc_internal.c avc_sidtab.c 
-> +	UNUSED_SRCS+=avc.c avc_internal.c avc_sidtab.c mapping.c stringrep.c checkAccess.c
->  endif
->  ifeq ($(DISABLE_BOOL),y)
->  	UNUSED_SRCS+=booleans.c
-> Index: libselinux/src/compute_create.c
-> ===================================================================
-> --- libselinux/src/compute_create.c	(revision 2500)
-> +++ libselinux/src/compute_create.c	(working copy)
-> @@ -36,7 +36,12 @@
->  		ret = -1;
->  		goto out;
->  	}
-> +
-> +#ifdef DISABLE_AVC
-> +	snprintf(buf, size, "%s %s %hu", scon, tcon, tclass);
-> +#else
->  	snprintf(buf, size, "%s %s %hu", scon, tcon, unmap_class(tclass));
-> +#endif
+> On Tue, 24 Jul 2007 08:52:03 -0400
+> Stephen Smalley  wrote:
+> > On Tue, 2007-07-24 at 18:32 +0900, Yuichi Nakamura wrote:
+> > > On Mon, 23 Jul 2007 15:58:31 -0400
+> > > Stephen Smalley  wrote:
+> > > > I'm open to making this configurable, although I'm not sure whether it
+> > > > should be a Kconfig setting or selinuxfs (or sysctl) setting.  Ideally,
+> > > > of course, it would be runtime computed based on the actual policy size.
+> > > > Rewriting the avtab and other security server data structures to more
+> > > > kernel native would be fine with me too - they don't need to match the
+> > > > userland ones.
+> > > > 
+> > > > (please cc James, Eric, and me on selinux kernel patches)
+> > > OK, I made patch about that. 
+> > > Please look at patch at the end of this e-mail.
+> > > 
+> > > It decides number of hash slots based on number of unconditional TE rules.
+> > > I looked at avtab_read, and found number of unconditional TE rules are 
+> > > described in binary policy, 
+> > > so it can be used.
+> > > Number of hash slot is 2^n. n is decided based on number of unconditional TE rules.
+> > > If number of unconditional TE rules is 4000, n is 12, so 2^12 = 4096 slots 
+> > > are allocated for te_avtab and te_cond_avtab.
+> > 
+> > That seems too high; we don't need one slot per rule, especially given
+> > the AVC, as noted by KaiGai.  I'd tune it down further.  And make the
+> > max lower, such that we can always use kmalloc instead of vmalloc.
+> I see. Please do that.
 
-As with the kernel, we don't want #ifdef's sprinkled through the code.
-Instead, just #define unmap_class(x) x and #define unmap_perm(x,y) y in
-mapping.h #ifdef DISABLE_AVC.
+What?  Your patch would make this change.
 
->  
->  	ret = write(fd, buf, strlen(buf));
->  	if (ret < 0)
-> Index: libselinux/src/compute_member.c
-> ===================================================================
-> --- libselinux/src/compute_member.c	(revision 2500)
-> +++ libselinux/src/compute_member.c	(working copy)
-> @@ -36,7 +36,12 @@
->  		ret = -1;
->  		goto out;
->  	}
-> +
-> +#ifdef DISABLE_AVC
-> +	snprintf(buf, size, "%s %s %hu", scon, tcon, tclass);
-> +#else
->  	snprintf(buf, size, "%s %s %hu", scon, tcon, unmap_class(tclass));
-> +#endif
->  
->  	ret = write(fd, buf, strlen(buf));
->  	if (ret < 0)
-> Index: libselinux/src/compute_relabel.c
-> ===================================================================
-> --- libselinux/src/compute_relabel.c	(revision 2500)
-> +++ libselinux/src/compute_relabel.c	(working copy)
-> @@ -36,7 +36,12 @@
->  		ret = -1;
->  		goto out;
->  	}
-> +
-> +#ifdef DISABLE_AVC
-> +	snprintf(buf, size, "%s %s %hu", scon, tcon, tclass);
-> +#else
->  	snprintf(buf, size, "%s %s %hu", scon, tcon, unmap_class(tclass));
-> +#endif
->  
->  	ret = write(fd, buf, strlen(buf));
->  	if (ret < 0)
-> Index: libselinux/src/compute_av.c
-> ===================================================================
-> --- libselinux/src/compute_av.c	(revision 2500)
-> +++ libselinux/src/compute_av.c	(working copy)
-> @@ -37,8 +37,13 @@
->  		goto out;
->  	}
->  
-> +#ifdef DISABLE_AVC
->  	snprintf(buf, len, "%s %s %hu %x", scon, tcon,
-> +		 tclass, requested);
-> +#else
-> +	snprintf(buf, len, "%s %s %hu %x", scon, tcon,
->  		 unmap_class(tclass), unmap_perm(tclass, requested));
-> +#endif
->  
->  	ret = write(fd, buf, strlen(buf));
->  	if (ret < 0)
-> @@ -56,7 +61,9 @@
->  		goto out2;
->  	}
->  
-> +#ifndef DISABLE_AVC
->  	map_decision(tclass, avd);
-> +#endif
->  
->  	ret = 0;
->        out2:
-> Index: libselinux/Makefile
-> ===================================================================
-> --- libselinux/Makefile	(revision 2500)
-> +++ libselinux/Makefile	(working copy)
-> @@ -8,6 +8,9 @@
->  	override DISABLE_RPM=y
->  	override DISABLE_BOOL=y
->  endif
-> +ifeq ($(DISABLE_AVC),y)
-> +	EMFLAGS+= -DDISABLE_AVC
-> +endif
->  ifeq ($(DISABLE_BOOL),y)
->  	EMFLAGS+= -DDISABLE_BOOL
->  endif
-> 
-> 
-> 
-> 
-> Regards,
+> Are you going to always use kmalloc?
+> Using kmalloc only when size of hash slots is small does not sound good for you?
+
+No, we don't want the code conditionally using kmalloc or vmalloc.  Just
+pick one and use throughout, setting the max accordingly.
+
+> > > +	
+> > > +	if (nrules > MAX_AVTAB_SIZE) {
+> > > +		nslot = MAX_AVTAB_SIZE;
+> > > +		mask =  MAX_AVTAB_HASH_MASK ;
+> > > +	} else {
+> > > +		while(work) {
+> > > +			work  = work>>1;
+> > > +			shift++;
+> > > +		}
+> > > +		mask =(1 << shift) - 1;	
+> > > +		nslot = 1 << shift;
+> > 
+> > I'd tune this down.  And you only need to compute 1 << shift once.
+> Fixed about 1<<shift.
+
+But you still don't need this many slots, I think, as it is ok for the
+hash chains to be longer in the avtab.
+
+> > Not sure if this should still be called avtab_init() as it no longer
+> > happens at policydb_init().  Versus keeping a simple avtab_init() that
+> > just clears the avtab fields and introducing a new avtab_alloc()
+> > function or similar.
+> I prepared avtab_alloc, because it looks cleaner.
+
+Good.
+
+> Following is updated patch with trivial fixes.
+> Using kmalloc, using another hash func are pending
+
+And the hash stats for using it with reference policy?
+
 -- 
 Stephen Smalley
 National Security Agency
