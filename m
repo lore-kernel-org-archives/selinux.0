@@ -1,109 +1,111 @@
-Date: Wed, 25 Jul 2007 23:07:53 +0900
-From: Yuichi Nakamura <himainu-ynakam@miomio.jp>
-To: Stephen Smalley <sds@tycho.nsa.gov>
-Cc: himainu-ynakam@miomio.jp, ynakam@hitachisoft.jp, selinux@tycho.nsa.gov,
-        busybox@kaigai.gr.jp, jmorris@namei.org, eparis@parisplace.org,
-        kaigai@ak.jp.nec.com, method@manicmethod.com
-Subject: Re: [RFC] Dynamically deciding number of hash slots for avtab
- (Was:Re: [patch] customizable AVTAB_HASH_BITS for embedded devices
-Message-Id: <20070725230753.48a63602.himainu-ynakam@miomio.jp>
-In-Reply-To: <1185368380.2900.40.camel@moss-spartans.epoch.ncsc.mil>
-References: <20070724181924.41F6.YNAKAM@hitachisoft.jp>
-	<1185281523.16598.42.camel@moss-spartans.epoch.ncsc.mil>
-	<20070725113339.610F.YNAKAM@hitachisoft.jp>
-	<1185368380.2900.40.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Subject: RE: using semodule_package
+Date: Wed, 25 Jul 2007 10:40:28 -0700
+Message-ID: <FB39F4E77226B448BC1388D3BE4E00CD01FB737E@blums0008.bluelnk.net>
+References: <FB39F4E77226B448BC1388D3BE4E00CD01FB6DF2@blums0008.bluelnk.net> <1184156241.3392.41.camel@moss-spartans.epoch.ncsc.mil>
+From: "Clarkson, Mike R \(US SSA\)" <mike.clarkson@baesystems.com>
+To: <selinux@tycho.nsa.gov>
+Cc: "Stephen Smalley" <sds@tycho.nsa.gov>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 25 Jul 2007 08:59:40 -0400
-Stephen Smalley  wrote:
-> On Wed, 2007-07-25 at 12:01 +0900, Yuichi Nakamura wrote:
-> > Hi.
-> > 
-> > Thanks for reply.
-> > 
-> > On Tue, 24 Jul 2007 08:52:03 -0400
-> > Stephen Smalley  wrote:
-> > > On Tue, 2007-07-24 at 18:32 +0900, Yuichi Nakamura wrote:
-> > > > On Mon, 23 Jul 2007 15:58:31 -0400
-> > > > Stephen Smalley  wrote:
-> > > > > I'm open to making this configurable, although I'm not sure whether it
-> > > > > should be a Kconfig setting or selinuxfs (or sysctl) setting.  Ideally,
-> > > > > of course, it would be runtime computed based on the actual policy size.
-> > > > > Rewriting the avtab and other security server data structures to more
-> > > > > kernel native would be fine with me too - they don't need to match the
-> > > > > userland ones.
-> > > > > 
-> > > > > (please cc James, Eric, and me on selinux kernel patches)
-> > > > OK, I made patch about that. 
-> > > > Please look at patch at the end of this e-mail.
-> > > > 
-> > > > It decides number of hash slots based on number of unconditional TE rules.
-> > > > I looked at avtab_read, and found number of unconditional TE rules are 
-> > > > described in binary policy, 
-> > > > so it can be used.
-> > > > Number of hash slot is 2^n. n is decided based on number of unconditional TE rules.
-> > > > If number of unconditional TE rules is 4000, n is 12, so 2^12 = 4096 slots 
-> > > > are allocated for te_avtab and te_cond_avtab.
-> > > 
-> > > That seems too high; we don't need one slot per rule, especially given
-> > > the AVC, as noted by KaiGai.  I'd tune it down further.  And make the
-> > > max lower, such that we can always use kmalloc instead of vmalloc.
-> > I see. Please do that.
-> 
-> What?  Your patch would make this change.
-OOps, I was misunderstaning.
+The manpage for checkmodule shows the following example using a .te
+file:
+	checkmodule -M -m httpd.te -o httpd.mod
 
-> > Are you going to always use kmalloc?
-> > Using kmalloc only when size of hash slots is small does not sound good for you?
-> 
-> No, we don't want the code conditionally using kmalloc or vmalloc.  Just
-> pick one and use throughout, setting the max accordingly.
-I see.
+Is this correct?
+
+It fails for me with the following error:
+
+# checkmodule -M -m zebra.te -o zebra.mod
+checkmodule:  loading policy configuration from zebra.te
+(unknown source)::ERROR 'syntax error' at token 'policy_module' on line
+2:
+policy_module(zebra,1.3.0)
+
+checkmodule:  error(s) encountered while parsing configuration
 
 
-> > > > +	
-> > > > +	if (nrules > MAX_AVTAB_SIZE) {
-> > > > +		nslot = MAX_AVTAB_SIZE;
-> > > > +		mask =  MAX_AVTAB_HASH_MASK ;
-> > > > +	} else {
-> > > > +		while(work) {
-> > > > +			work  = work>>1;
-> > > > +			shift++;
-> > > > +		}
-> > > > +		mask =(1 << shift) - 1;	
-> > > > +		nslot = 1 << shift;
-> > > 
-> > > I'd tune this down.  And you only need to compute 1 << shift once.
-> > Fixed about 1<<shift.
-> 
-> But you still don't need this many slots, I think, as it is ok for the
-> hash chains to be longer in the avtab.
-I think so, number of slots may be 1/2 or smaller.
+The example below (from Stephen Smalley's below email) uses the .tmp
+file and works:
+	checkmodule -M -m tmp/zebra.tmp -o tmp/zebra.mod
 
-> > > Not sure if this should still be called avtab_init() as it no longer
-> > > happens at policydb_init().  Versus keeping a simple avtab_init() that
-> > > just clears the avtab fields and introducing a new avtab_alloc()
-> > > function or similar.
-> > I prepared avtab_alloc, because it looks cleaner.
-> 
-> Good.
-> 
-> > Following is updated patch with trivial fixes.
-> > Using kmalloc, using another hash func are pending
-> 
-> And the hash stats for using it with reference policy?
-Yes, current test policy that I used was refpolicy with small number of modules.
 
-I am now in place where no development environment, within this week...
-I will start to measure hash stats in some situations next week.
-I also am going to send update for libselinux in another thread, next week.
+Although this successfully creates the zebra.mod file, when I try to use
+the zebra.mod file with semodule_package to create a zebra.pp file, the
+zebra.pp file appears to be invalid. When I try to load the zebra.pp
+file, I get the following error:
 
-Regards,
----
-Yuichi Nakamura
+# semodule -i
+/etc/selinux/refpolicy-targeted-mls/src/policy/tmp/zebra.pp
+libsepol.context_from_record: user gen_context(system_u is not defined
+libsepol.context_from_record: could not create context structure
+libsepol.context_from_string: could not create context structure
+libsepol.sepol_context_to_sid: could not convert
+gen_context(system_u:object_r:zebra_conf_t,s0) to sid
+/etc/selinux/refpolicy-targeted-mls/contexts/files/file_contexts:  line
+398 has invalid context gen_context(system_u:object_r:zebra_conf_t,s0)
+libsemanage.semanage_install_active: setfiles returned error code 1.
+semodule:  Failed!
+
+I created the zebra.pp file with the following command:
+semodule_package -o zebra.pp -m zebra.mod -f
+../policy/modules/services/zebra.fc
+
+The other thing that I notice is that although I made no changes to the
+zebra.fc file (I'm just trying to successfully create a .pp file first),
+the zebra.pp file that the semodule_package cmd creates is not the same
+size as the original zebra.pp file. This happens even when I don't
+include the -f option with the semodule_package command.
+
+
+
+> -----Original Message-----
+> From: Stephen Smalley [mailto:sds@tycho.nsa.gov]
+> Sent: Wednesday, July 11, 2007 5:17 AM
+> To: Clarkson, Mike R (US SSA)
+> Cc: selinux@tycho.nsa.gov; Christopher J. PeBenito; Joshua Brindle;
+Karl
+> MacMillan
+> Subject: Re: using semodule_package
+> 
+> On Tue, 2007-07-10 at 19:10 -0700, Clarkson, Mike R (US SSA) wrote:
+> > The manpage for semodule_package gives examples for how to use it:
+> > 	semodule_package -o httpd.pp -m httpd.mod -f httpd.fc
+> >
+> > Am I supposed to get the *.mod files for modules when I compile the
+> > policy? I have a base.mod file, but no *.mod files for the loadable
+> > modules. The closest that I have is <module_name>.mod.role files
+under
+> > the .../policy/tmp directory.
+> >
+> > I'd like to be able to use semodule_package to update file contexts
+> > without having to recompile.
+> 
+> It appears that the .mod files are removed at the end of the build
+> process after they have been packaged into .pp files.  Not sure why.
+> Options, aside from tracking down the relevant makefile rule and
+> removing it, might include:
+> - regenerating the .mod via checkmodule on tmp/<name>.tmp, e.g.
+> 	checkmodule -M -m tmp/zebra.tmp -o tmp/zebra.mod
+> or
+> - extracting the already built .mod file from the .pp file
+> 
+> I took the semodule_package.c code once and created a
+> semodule_unpackage.c file from it to unpack the .mod file, but never
+got
+> around to generalizing it (e.g. unpacking all of the files) or
+> committing it.  Attached below for your amusement.
+> $ gcc -lsepol -o semodule_unpackage semodule_unpackage.c
+> $ ./semodule_unpackage zebra.pp zebra.mod
+> 
+> --
+> Stephen Smalley
+> National Security Agency
+
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
