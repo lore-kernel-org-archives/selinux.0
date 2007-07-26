@@ -1,52 +1,79 @@
-Subject: Re: newrole and ftp
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: "Clarkson, Mike R (US SSA)" <mike.clarkson@baesystems.com>
-Cc: selinux@tycho.nsa.gov, "Christopher J. PeBenito" <cpebenito@tresys.com>
-In-Reply-To: <FB39F4E77226B448BC1388D3BE4E00CD01FB7440@blums0008.bluelnk.net>
-References: <FB39F4E77226B448BC1388D3BE4E00CD01FB7440@blums0008.bluelnk.net>
-Content-Type: text/plain
-Date: Thu, 26 Jul 2007 14:48:17 -0400
-Message-Id: <1185475697.12224.216.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Subject: RE: newrole and ftp
+Date: Thu, 26 Jul 2007 13:48:44 -0700
+Message-ID: <FB39F4E77226B448BC1388D3BE4E00CD01FB7469@blums0008.bluelnk.net>
+References: <FB39F4E77226B448BC1388D3BE4E00CD01FB7440@blums0008.bluelnk.net> <1185475697.12224.216.camel@moss-spartans.epoch.ncsc.mil>
+From: "Clarkson, Mike R \(US SSA\)" <mike.clarkson@baesystems.com>
+To: "Stephen Smalley" <sds@tycho.nsa.gov>
+Cc: <selinux@tycho.nsa.gov>, "Christopher J. PeBenito" <cpebenito@tresys.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2007-07-26 at 11:29 -0700, Clarkson, Mike R (US SSA) wrote:
-> When I use newrole to start up an ftp server at a particular mls level,
-> it doesn't start the server at the specified level. For instance:
+
+
+> -----Original Message-----
+> From: Stephen Smalley [mailto:sds@tycho.nsa.gov]
+> Sent: Thursday, July 26, 2007 11:48 AM
+> To: Clarkson, Mike R (US SSA)
+> Cc: selinux@tycho.nsa.gov; Christopher J. PeBenito
+> Subject: Re: newrole and ftp
 > 
-> newrole -l SystemHigh -- -c "/etc/init.d/vsftpd start"
+> On Thu, 2007-07-26 at 11:29 -0700, Clarkson, Mike R (US SSA) wrote:
+> > When I use newrole to start up an ftp server at a particular mls
+level,
+> > it doesn't start the server at the specified level. For instance:
+> >
+> > newrole -l SystemHigh -- -c "/etc/init.d/vsftpd start"
+> >
+> > The server starts up with the range SystemLow-SystemHigh.
+> >
+> > However, this works:
+> >
+> > runcon -t ftpd_t -l SystemHigh /etc/init.d/vsftpd start
+> >
+> > Anyone know why?
 > 
-> The server starts up with the range SystemLow-SystemHigh.
+> Sounds like a range_transition rule causing the exec
+> of /etc/init.d/vsftpd to automatically transition to
+> SystemLow-SystemHigh.
 > 
-> However, this works:
+> In the newrole case, you have newrole exec'ing the user's shell in a
+> specified context, and then the user's shell exec'ing the command w/o
+> any specific context, thus automatic domain, role, or range
+transitions
+> may take affect.
 > 
-> runcon -t ftpd_t -l SystemHigh /etc/init.d/vsftpd start
+> In the runcon case, you have runcon directly executing the command in
+a
+> specified context, thereby overriding any automatic transitions
+defined
+> in policy.
 > 
-> Anyone know why?
+> Possibly newrole should have a way to directly exec commands without
+> going through a shell.
+> 
+> But the first question is whether you have such a range transition
+rule
+> in your policy, and if so, did you mean to have such a rule?
 
-Sounds like a range_transition rule causing the exec
-of /etc/init.d/vsftpd to automatically transition to
-SystemLow-SystemHigh.
+Yes, the problem resulted because I was starting out in the unconfined_t
+domain. /etc/init.d/vsftpd is labeled initrc_exec_t, and the unconfined
+domain makes the call init_domtrans_script(unconfined_t) which includes
+a range_transition rule. A simple workaround was to reset my domain as
+well as my level so that the range_transition rule would not apply:
+	newrole -t ftpd_t -l SystemHigh -- -c "/etc/init.d/vsftpd start"
 
-In the newrole case, you have newrole exec'ing the user's shell in a
-specified context, and then the user's shell exec'ing the command w/o
-any specific context, thus automatic domain, role, or range transitions
-may take affect.
+BTW, thanks for pointing out the range_transition rule. I wasn't aware
+of them.
 
-In the runcon case, you have runcon directly executing the command in a
-specified context, thereby overriding any automatic transitions defined
-in policy.
+> 
+> --
+> Stephen Smalley
+> National Security Agency
 
-Possibly newrole should have a way to directly exec commands without
-going through a shell.
 
-But the first question is whether you have such a range transition rule
-in your policy, and if so, did you mean to have such a rule?
-
--- 
-Stephen Smalley
-National Security Agency
 
 
 --
