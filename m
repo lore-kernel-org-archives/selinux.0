@@ -1,47 +1,50 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l6RJ49or003080
-	for <selinux@tycho.nsa.gov>; Fri, 27 Jul 2007 15:04:09 -0400
-Received: from wx-out-0506.google.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l6RJ48VF028293
-	for <selinux@tycho.nsa.gov>; Fri, 27 Jul 2007 19:04:08 GMT
-Received: by wx-out-0506.google.com with SMTP id h30so885366wxd
-        for <selinux@tycho.nsa.gov>; Fri, 27 Jul 2007 12:04:08 -0700 (PDT)
-Message-ID: <9f066ee90707271204p2bfe6da7k4f8f50798c50c2e8@mail.gmail.com>
-Date: Fri, 27 Jul 2007 15:04:08 -0400
-From: Mark <elihusmails@gmail.com>
-To: selinux@tycho.nsa.gov
-Subject: beginner to SE Linux policy
-MIME-Version: 1.0
-Content-Type: multipart/alternative;
-	boundary="----=_Part_10322_6063733.1185563048636"
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l6RJ2n5Z002887
+	for <selinux@tycho.nsa.gov>; Fri, 27 Jul 2007 15:02:49 -0400
+Received: from exchange.columbia.tresys.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with SMTP id l6RJ2lbT004324
+	for <selinux@tycho.nsa.gov>; Fri, 27 Jul 2007 19:02:47 GMT
+Subject: Re: Novice problem with apol/ policy.conf
+From: "Christopher J. PeBenito" <cpebenito@tresys.com>
+To: Eric Paris <eparis@redhat.com>
+Cc: Markelov Andrey <amarkelov@pluscom.ru>, selinux@tycho.nsa.gov,
+        fedora-selinux-list@redhat.com, method@manicmethod.com
+In-Reply-To: <1185558252.3669.2.camel@dhcp231-215.rdu.redhat.com>
+References: <F08777953B2EF943ACCD5C9C4C0DDA1EA578CA@mailserver.pluscom.ru>
+	 <1185558252.3669.2.camel@dhcp231-215.rdu.redhat.com>
+Content-Type: text/plain
+Date: Fri, 27 Jul 2007 19:02:35 +0000
+Message-Id: <1185562955.24951.52.camel@gorn>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-------=_Part_10322_6063733.1185563048636
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+On Fri, 2007-07-27 at 13:44 -0400, Eric Paris wrote:
+> On Fri, 2007-07-27 at 17:58 +0400, Markelov Andrey wrote:
+> > Hello,
+> > I am novice in SELinux. For policy analysis I compiled policy.conf from selinux-policy-2.4.6-30.el5.src.rpm on RHEL5. 
+> > When I tried to open policy.21 with apol (GUI version 3.0
+> >  libapol version 3.0.0) it was ok. But when i opened  policy.conf  i received the following error: The selected file does not appear to be a valid SELinux Policy. Error opening policy: Input/output error. And in console 
+> > tmp/rolemap.conf:624:ERROR 'syntax error' at token 'ntfs-3g' on line 1563798:
+> > genfscon ntfs-3g / system_u:object_r:dosfs_t
+> > 
+> > genfscon msdos / system_u:object_r:dosfs_t
+> > 
+> > What is the possible reason?
+> 
+> I'd bet on an apol bug, but I don't know.  The addition of a '-' in
+> ntfs-3g caused a number of headaches.  I'm adding the upstream list to
+> the cc and hopefully one of the people who work on apol will know right
+> offhand.
 
-I have seen programs that will help me to edit and analyze SE Linux
-policies.  What I am interested in is a resource that will help me
-understand what a policy does and how to write them.  At least for me,
-learning at the code level and not using GUI tools helps me to understand
-things better.
+Just like the checkpolicy/checkmodule parser, the setools parser had to
+be updated, and this happened in setools 3.0.1.
 
-So what resources are out there for me to start looking at?
+-- 
+Chris PeBenito
+Tresys Technology, LLC
+(410) 290-1411 x150
 
-Thanks in advance.
-Mark
-
-------=_Part_10322_6063733.1185563048636
-Content-Type: text/html; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
-I have seen programs that will help me to edit and analyze SE Linux policies.&nbsp; What I am interested in is a resource that will help me understand what a policy does and how to write them.&nbsp; At least for me, learning at the code level and not using GUI tools helps me to understand things better.&nbsp; 
-<br><br>So what resources are out there for me to start looking at?<br><br>Thanks in advance.<br clear="all">Mark<br>
-
-------=_Part_10322_6063733.1185563048636--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
