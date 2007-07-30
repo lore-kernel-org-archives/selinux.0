@@ -1,59 +1,86 @@
 Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l6UJmscs015067
-	for <selinux@tycho.nsa.gov>; Mon, 30 Jul 2007 15:48:54 -0400
-Received: from rv-out-0910.google.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l6UJmqT4026214
-	for <selinux@tycho.nsa.gov>; Mon, 30 Jul 2007 19:48:53 GMT
-Received: by rv-out-0910.google.com with SMTP id k15so398653rvb
-        for <selinux@tycho.nsa.gov>; Mon, 30 Jul 2007 12:48:52 -0700 (PDT)
-Message-ID: <7b740b700707301248l6d427dcevf7e3ab03dccd065a@mail.gmail.com>
-Date: Tue, 31 Jul 2007 00:48:52 +0500
-From: "shahbaz khan" <shazalive@gmail.com>
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l6UKZ6ui018976
+	for <selinux@tycho.nsa.gov>; Mon, 30 Jul 2007 16:35:06 -0400
+Received: from atlrel8.hp.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l6UKZ5T4004335
+	for <selinux@tycho.nsa.gov>; Mon, 30 Jul 2007 20:35:05 GMT
+Received: from smtp2.fc.hp.com (smtp.fc.hp.com [15.11.136.114])
+	by atlrel8.hp.com (Postfix) with ESMTP id 6E6363465B
+	for <selinux@tycho.nsa.gov>; Mon, 30 Jul 2007 16:35:03 -0400 (EDT)
+From: "Paul Moore" <paul.moore@hp.com>
+Message-Id: <20070730203331.970255822@hp.com>
+Date: Mon, 30 Jul 2007 16:33:26 -0400
 To: selinux@tycho.nsa.gov
-Subject: PMS and selinux
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Subject: [PATCH] SELinux: restore proper NetLabel caching behavior
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-I had some problems sending this so sorry for twin sends if ahappened so.
+A small fix to the SELinux/NetLabel glue code to ensure that the NetLabel
+cache is utilized when possible.  This was broken when the SELinux/NetLabel
+glue code was reorganized in the last kernel release.
 
-I would like to ask a few questions from the experts regarding some
-implementations. I am working on a survey on selinux rsbac and
-grsecurity. Got some from mailing lists but need more. References will
-be appreciated.. They are the following:
+Signed-off-by: Paul Moore <paul.moore@hp.com>
+---
+ include/net/netlabel.h      |    2 ++
+ security/selinux/netlabel.c |   16 ++++++++++++----
+ 2 files changed, 14 insertions(+), 4 deletions(-)
 
-1. What is a security aware application. What functionality it can
-provide? Has this functionality been provide in the other competitors.
+Index: linux-2.6_netlabel-cache-fix-2/include/net/netlabel.h
+===================================================================
+--- linux-2.6_netlabel-cache-fix-2.orig/include/net/netlabel.h
++++ linux-2.6_netlabel-cache-fix-2/include/net/netlabel.h
+@@ -132,6 +132,8 @@ struct netlbl_lsm_secattr_catmap {
+ #define NETLBL_SECATTR_CACHE            0x00000002
+ #define NETLBL_SECATTR_MLS_LVL          0x00000004
+ #define NETLBL_SECATTR_MLS_CAT          0x00000008
++#define NETLBL_SECATTR_CACHEABLE        (NETLBL_SECATTR_MLS_LVL | \
++					 NETLBL_SECATTR_MLS_CAT)
+ struct netlbl_lsm_secattr {
+ 	u32 flags;
+ 
+Index: linux-2.6_netlabel-cache-fix-2/security/selinux/netlabel.c
+===================================================================
+--- linux-2.6_netlabel-cache-fix-2.orig/security/selinux/netlabel.c
++++ linux-2.6_netlabel-cache-fix-2/security/selinux/netlabel.c
+@@ -162,9 +162,13 @@ int selinux_netlbl_skbuff_getsid(struct 
+ 
+ 	netlbl_secattr_init(&secattr);
+ 	rc = netlbl_skbuff_getattr(skb, &secattr);
+-	if (rc == 0 && secattr.flags != NETLBL_SECATTR_NONE)
++	if (rc == 0 && secattr.flags != NETLBL_SECATTR_NONE) {
+ 		rc = security_netlbl_secattr_to_sid(&secattr, base_sid, sid);
+-	else
++		if (rc == 0 &&
++		    (secattr.flags & NETLBL_SECATTR_CACHEABLE) &&
++		    (secattr.flags & NETLBL_SECATTR_CACHE))
++			netlbl_cache_add(skb, &secattr);
++	} else
+ 		*sid = SECSID_NULL;
+ 	netlbl_secattr_destroy(&secattr);
+ 
+@@ -307,11 +311,15 @@ int selinux_netlbl_sock_rcv_skb(struct s
+ 
+ 	netlbl_secattr_init(&secattr);
+ 	rc = netlbl_skbuff_getattr(skb, &secattr);
+-	if (rc == 0 && secattr.flags != NETLBL_SECATTR_NONE)
++	if (rc == 0 && secattr.flags != NETLBL_SECATTR_NONE) {
+ 		rc = security_netlbl_secattr_to_sid(&secattr,
+ 						    SECINITSID_NETMSG,
+ 						    &nlbl_sid);
+-	else
++		if (rc == 0 &&
++		    (secattr.flags & NETLBL_SECATTR_CACHEABLE) &&
++		    (secattr.flags & NETLBL_SECATTR_CACHE))
++			netlbl_cache_add(skb, &secattr);
++	} else
+ 		nlbl_sid = SECINITSID_UNLABELED;
+ 	netlbl_secattr_destroy(&secattr);
+ 	if (rc != 0)
 
-2. Where are sids implemented. I have heard that they are history now.
-How are they opaque to object managers?
+-- 
+paul moore
+linux security @ hp
 
-3. What difference has PMS brought to selinux. Do we have such in
-other implementations?
-
-4. How is PMS implemented? Any technical documents? Is it a secure
-application using the extended api?
-
-5. How and where is AVC implemented?
-
-6.Is there any good logging facility apart from regular denial? I have
-heard rsbac and grsecurity has better logging facilities.
-
-7. SELinux uses syscall interception. Is it through LSM? How does
-rsbac and grsecurity manage this?
-
-8. Of the topic but how does grsecurity implement acls and rbac. Is
-rbac used through the acls or a seperate module?
-
-9. How can we best judge the network controls of rsbac and grsecurity
-w.r.t. implementation, usability and functionality?
-
-I will be glad to put the names of responders in my survey document's
-acknowledgements.
-
-Thank you.
-Shaz.
 
 --
 This message was distributed to subscribers of the selinux mailing list.
