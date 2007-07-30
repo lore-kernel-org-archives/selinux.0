@@ -1,40 +1,94 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l6S36jV5024440
-	for <selinux@tycho.nsa.gov>; Fri, 27 Jul 2007 23:06:45 -0400
-Received: from exchange.columbia.tresys.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with SMTP id l6S36jV9017099
-	for <selinux@tycho.nsa.gov>; Sat, 28 Jul 2007 03:06:45 GMT
+Date: Mon, 30 Jul 2007 10:22:54 +0900
+From: Yuichi Nakamura <ynakam@hitachisoft.jp>
+To: Stephen Smalley <sds@tycho.nsa.gov>
+Subject: Re: [patch] Update for libselinux embedded build support
+Cc: ynakam@hitachisoft.jp, selinux@tycho.nsa.gov, busybox@kaigai.gr.jp,
+        ewalsh@tycho.nsa.gov
+In-Reply-To: <1185367660.2900.28.camel@moss-spartans.epoch.ncsc.mil>
+References: <20070725120139.6112.YNAKAM@hitachisoft.jp> <1185367660.2900.28.camel@moss-spartans.epoch.ncsc.mil>
+Message-Id: <20070730102119.CC6E.YNAKAM@hitachisoft.jp>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Subject: RE: beginner to SE Linux policy
-Date: Fri, 27 Jul 2007 23:06:43 -0400
-Message-ID: <6FE441CD9F0C0C479F2D88F959B01588DE2001@exchange.columbia.tresys.com>
-In-Reply-To: <9f066ee90707271204p2bfe6da7k4f8f50798c50c2e8@mail.gmail.com>
-References: <9f066ee90707271204p2bfe6da7k4f8f50798c50c2e8@mail.gmail.com>
-From: "Brian M. Williams" <bwilliams@tresys.com>
-To: "Mark" <elihusmails@gmail.com>, <selinux@tycho.nsa.gov>
+Content-Type: text/plain; charset="US-ASCII"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Mark,
 
-	As for understanding how policy works and how to write it, there is a book: SELinux by Example which goes into detailed explanation [http://www.amazon.com/SELinux-Example-Security-Enhanced-Development/dp/0131963694].  There are also slides at [http://tresys.com/selinux/selinux-course-outline.html] which come from a course which Tresys offers on SELinux policy of which the book was based.  There are also some documents on the NSA site which may or may not be up to date [http://www.nsa.gov/selinux/info/docs.cfm].
+On Wed, 25 Jul 2007 08:47:40 -0400
+Stephen Smalley wrote:
+> On Wed, 2007-07-25 at 12:10 +0900, Yuichi Nakamura wrote:
+...
+> > Index: libselinux/src/compute_create.c
+> > ===================================================================
+> > --- libselinux/src/compute_create.c	(revision 2500)
+> > +++ libselinux/src/compute_create.c	(working copy)
+> > @@ -36,7 +36,12 @@
+> >  		ret = -1;
+> >  		goto out;
+> >  	}
+> > +
+> > +#ifdef DISABLE_AVC
+> > +	snprintf(buf, size, "%s %s %hu", scon, tcon, tclass);
+> > +#else
+> >  	snprintf(buf, size, "%s %s %hu", scon, tcon, unmap_class(tclass));
+> > +#endif
+> 
+> As with the kernel, we don't want #ifdef's sprinkled through the code.
+> Instead, just #define unmap_class(x) x and #define unmap_perm(x,y) y in
+> mapping.h #ifdef DISABLE_AVC.
+Fixed, below is updated patch.
 
-Brian
 
-________________________________________
-From: owner-selinux@tycho.nsa.gov [mailto:owner-selinux@tycho.nsa.gov] On Behalf Of Mark
-Sent: Friday, July 27, 2007 3:04 PM
-To: selinux@tycho.nsa.gov
-Subject: beginner to SE Linux policy
+Index: libselinux/src/Makefile
+===================================================================
+--- libselinux/src/Makefile	(revision 2502)
++++ libselinux/src/Makefile	(working copy)
+@@ -20,7 +20,7 @@
+ LIBSO=$(TARGET).$(LIBVERSION)
+ 
+ ifeq ($(DISABLE_AVC),y)
+-	UNUSED_SRCS+=avc.c avc_internal.c avc_sidtab.c 
++	UNUSED_SRCS+=avc.c avc_internal.c avc_sidtab.c mapping.c stringrep.c checkAccess.c
+ endif
+ ifeq ($(DISABLE_BOOL),y)
+ 	UNUSED_SRCS+=booleans.c
+Index: libselinux/src/mapping.h
+===================================================================
+--- libselinux/src/mapping.h	(revision 2502)
++++ libselinux/src/mapping.h	(working copy)
+@@ -31,4 +31,11 @@
+ extern void
+ map_decision(security_class_t tclass, struct av_decision *avd);
+ 
++/*mapping is not used for embedded build*/
++#ifdef DISABLE_AVC 
++#define unmap_perm(x,y) y
++#define unmap_class(x) x
++#define map_decision(x,y) 
++#endif
++
+ #endif				/* _SELINUX_MAPPING_H_ */
+Index: libselinux/Makefile
+===================================================================
+--- libselinux/Makefile	(revision 2502)
++++ libselinux/Makefile	(working copy)
+@@ -8,6 +8,9 @@
+ 	override DISABLE_RPM=y
+ 	override DISABLE_BOOL=y
+ endif
++ifeq ($(DISABLE_AVC),y)
++	EMFLAGS+= -DDISABLE_AVC
++endif
+ ifeq ($(DISABLE_BOOL),y)
+ 	EMFLAGS+= -DDISABLE_BOOL
+ endif
 
-I have seen programs that will help me to edit and analyze SE Linux policies.  What I am interested in is a resource that will help me understand what a policy does and how to write them.  At least for me, learning at the code level and not using GUI tools helps me to understand things better.  
+Regards,
+-- 
+Yuichi Nakamura
+Hitachi Software Engineering Co., Ltd.
+Japan SELinux Users Group(JSELUG): http://www.selinux.gr.jp/
+SELinux Policy Editor: http://seedit.sourceforge.net/
 
-So what resources are out there for me to start looking at?
-
-Thanks in advance.
-Mark
 
 
 --
