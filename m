@@ -1,28 +1,29 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l6UEOHmS021511
-	for <selinux@tycho.nsa.gov>; Mon, 30 Jul 2007 10:24:17 -0400
-Received: from web36605.mail.mud.yahoo.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with SMTP id l6UEOFJp028753
-	for <selinux@tycho.nsa.gov>; Mon, 30 Jul 2007 14:24:15 GMT
-Date: Mon, 30 Jul 2007 07:24:10 -0700 (PDT)
-From: Casey Schaufler <casey@schaufler-ca.com>
-Reply-To: casey@schaufler-ca.com
-Subject: selinux_audit_set_callback
-To: SELinux List <selinux@tycho.nsa.gov>, Audit List <linux-audit@redhat.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Message-ID: <160485.79511.qm@web36605.mail.mud.yahoo.com>
+Subject: Re: selinux_audit_set_callback
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: casey@schaufler-ca.com
+Cc: SELinux List <selinux@tycho.nsa.gov>, Audit List <linux-audit@redhat.com>
+In-Reply-To: <160485.79511.qm@web36605.mail.mud.yahoo.com>
+References: <160485.79511.qm@web36605.mail.mud.yahoo.com>
+Content-Type: text/plain
+Date: Mon, 30 Jul 2007 10:46:22 -0400
+Message-Id: <1185806782.15215.36.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+On Mon, 2007-07-30 at 07:24 -0700, Casey Schaufler wrote:
+> What is the rationale behind the selinux_audit_set_callback()
+> mechanism? It looks for all the world as if the selinux code
+> ought to be able to call the registered function directly.
 
-What is the rationale behind the selinux_audit_set_callback()
-mechanism? It looks for all the world as if the selinux code
-ought to be able to call the registered function directly.
+Looks like it is a legacy of when the callback was a static function
+registered from an initcall in the same file where the function was
+defined.
 
+-- 
+Stephen Smalley
+National Security Agency
 
-Casey Schaufler
-casey@schaufler-ca.com
 
 --
 This message was distributed to subscribers of the selinux mailing list.
