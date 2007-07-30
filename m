@@ -1,86 +1,51 @@
 Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l6UKZ6ui018976
-	for <selinux@tycho.nsa.gov>; Mon, 30 Jul 2007 16:35:06 -0400
-Received: from atlrel8.hp.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l6UKZ5T4004335
-	for <selinux@tycho.nsa.gov>; Mon, 30 Jul 2007 20:35:05 GMT
-Received: from smtp2.fc.hp.com (smtp.fc.hp.com [15.11.136.114])
-	by atlrel8.hp.com (Postfix) with ESMTP id 6E6363465B
-	for <selinux@tycho.nsa.gov>; Mon, 30 Jul 2007 16:35:03 -0400 (EDT)
-From: "Paul Moore" <paul.moore@hp.com>
-Message-Id: <20070730203331.970255822@hp.com>
-Date: Mon, 30 Jul 2007 16:33:26 -0400
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l6ULS28C022726
+	for <selinux@tycho.nsa.gov>; Mon, 30 Jul 2007 17:28:02 -0400
+Received: from atlrel7.hp.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l6ULS1T4012964
+	for <selinux@tycho.nsa.gov>; Mon, 30 Jul 2007 21:28:01 GMT
+Received: from smtp2.fc.hp.com (smtp.cnd.hp.com [15.11.136.114])
+	by atlrel7.hp.com (Postfix) with ESMTP id 8C45E37139
+	for <selinux@tycho.nsa.gov>; Mon, 30 Jul 2007 17:20:03 -0400 (EDT)
+Received: from ldl.fc.hp.com (ldl.fc.hp.com [15.11.146.30])
+	by smtp2.fc.hp.com (Postfix) with ESMTP id 0659F193626
+	for <selinux@tycho.nsa.gov>; Mon, 30 Jul 2007 21:08:29 +0000 (UTC)
+Received: from localhost (ldl.fc.hp.com [127.0.0.1])
+	by ldl.fc.hp.com (Postfix) with ESMTP id DDD1F39C194
+	for <selinux@tycho.nsa.gov>; Mon, 30 Jul 2007 15:08:28 -0600 (MDT)
+Received: from ldl.fc.hp.com ([127.0.0.1])
+	by localhost (ldl.fc.hp.com [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id FSiQ3OP-tYIL for <selinux@tycho.nsa.gov>;
+	Mon, 30 Jul 2007 15:08:25 -0600 (MDT)
+Received: from flek.americas.hpqcorp.net (flek.americas.hpqcorp.net [16.116.116.116])
+	(using TLSv1 with cipher DHE-RSA-AES256-SHA (256/256 bits))
+	(No client certificate requested)
+	by ldl.fc.hp.com (Postfix) with ESMTP id BC13539C192
+	for <selinux@tycho.nsa.gov>; Mon, 30 Jul 2007 15:08:25 -0600 (MDT)
+From: Paul Moore <paul.moore@hp.com>
 To: selinux@tycho.nsa.gov
-Subject: [PATCH] SELinux: restore proper NetLabel caching behavior
+Subject: Re: [PATCH] SELinux: restore proper NetLabel caching behavior
+Date: Mon, 30 Jul 2007 17:08:23 -0400
+References: <20070730203331.970255822@hp.com>
+In-Reply-To: <20070730203331.970255822@hp.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Message-Id: <200707301708.24181.paul.moore@hp.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-A small fix to the SELinux/NetLabel glue code to ensure that the NetLabel
-cache is utilized when possible.  This was broken when the SELinux/NetLabel
-glue code was reorganized in the last kernel release.
+On Monday, July 30 2007 4:33:26 pm Paul Moore wrote:
+> A small fix to the SELinux/NetLabel glue code to ensure that the NetLabel
+> cache is utilized when possible.  This was broken when the SELinux/NetLabel
+> glue code was reorganized in the last kernel release.
 
-Signed-off-by: Paul Moore <paul.moore@hp.com>
----
- include/net/netlabel.h      |    2 ++
- security/selinux/netlabel.c |   16 ++++++++++++----
- 2 files changed, 14 insertions(+), 4 deletions(-)
-
-Index: linux-2.6_netlabel-cache-fix-2/include/net/netlabel.h
-===================================================================
---- linux-2.6_netlabel-cache-fix-2.orig/include/net/netlabel.h
-+++ linux-2.6_netlabel-cache-fix-2/include/net/netlabel.h
-@@ -132,6 +132,8 @@ struct netlbl_lsm_secattr_catmap {
- #define NETLBL_SECATTR_CACHE            0x00000002
- #define NETLBL_SECATTR_MLS_LVL          0x00000004
- #define NETLBL_SECATTR_MLS_CAT          0x00000008
-+#define NETLBL_SECATTR_CACHEABLE        (NETLBL_SECATTR_MLS_LVL | \
-+					 NETLBL_SECATTR_MLS_CAT)
- struct netlbl_lsm_secattr {
- 	u32 flags;
- 
-Index: linux-2.6_netlabel-cache-fix-2/security/selinux/netlabel.c
-===================================================================
---- linux-2.6_netlabel-cache-fix-2.orig/security/selinux/netlabel.c
-+++ linux-2.6_netlabel-cache-fix-2/security/selinux/netlabel.c
-@@ -162,9 +162,13 @@ int selinux_netlbl_skbuff_getsid(struct 
- 
- 	netlbl_secattr_init(&secattr);
- 	rc = netlbl_skbuff_getattr(skb, &secattr);
--	if (rc == 0 && secattr.flags != NETLBL_SECATTR_NONE)
-+	if (rc == 0 && secattr.flags != NETLBL_SECATTR_NONE) {
- 		rc = security_netlbl_secattr_to_sid(&secattr, base_sid, sid);
--	else
-+		if (rc == 0 &&
-+		    (secattr.flags & NETLBL_SECATTR_CACHEABLE) &&
-+		    (secattr.flags & NETLBL_SECATTR_CACHE))
-+			netlbl_cache_add(skb, &secattr);
-+	} else
- 		*sid = SECSID_NULL;
- 	netlbl_secattr_destroy(&secattr);
- 
-@@ -307,11 +311,15 @@ int selinux_netlbl_sock_rcv_skb(struct s
- 
- 	netlbl_secattr_init(&secattr);
- 	rc = netlbl_skbuff_getattr(skb, &secattr);
--	if (rc == 0 && secattr.flags != NETLBL_SECATTR_NONE)
-+	if (rc == 0 && secattr.flags != NETLBL_SECATTR_NONE) {
- 		rc = security_netlbl_secattr_to_sid(&secattr,
- 						    SECINITSID_NETMSG,
- 						    &nlbl_sid);
--	else
-+		if (rc == 0 &&
-+		    (secattr.flags & NETLBL_SECATTR_CACHEABLE) &&
-+		    (secattr.flags & NETLBL_SECATTR_CACHE))
-+			netlbl_cache_add(skb, &secattr);
-+	} else
- 		nlbl_sid = SECINITSID_UNLABELED;
- 	netlbl_secattr_destroy(&secattr);
- 	if (rc != 0)
+I forgot to add that this patch is against Linus' tree from earlier today and 
+has been tested on a Rawhide box w/o any problems.
 
 -- 
 paul moore
 linux security @ hp
-
 
 --
 This message was distributed to subscribers of the selinux mailing list.
