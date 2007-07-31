@@ -1,40 +1,41 @@
 Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l6VIKMne031699
-	for <selinux@tycho.nsa.gov>; Tue, 31 Jul 2007 14:20:22 -0400
-Received: from web51506.mail.re2.yahoo.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with SMTP id l6VIKLM8015624
-	for <selinux@tycho.nsa.gov>; Tue, 31 Jul 2007 18:20:21 GMT
-Date: Tue, 31 Jul 2007 11:19:30 -0700 (PDT)
-From: Steve G <linux_4ever@yahoo.com>
-Subject: Re: setroubleshooter/sealert on central loghost?
-To: Jan-Frode Myklebust <janfrode@tanso.net>, selinux@tycho.nsa.gov
-In-Reply-To: <911f42990707310750r349d11c4x9132c68d83cf8cfc@mail.gmail.com>
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l6VJdgkR004694
+	for <selinux@tycho.nsa.gov>; Tue, 31 Jul 2007 15:39:42 -0400
+Received: from atlrel9.hp.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l6VJdgM8000387
+	for <selinux@tycho.nsa.gov>; Tue, 31 Jul 2007 19:39:42 GMT
+From: Paul Moore <paul.moore@hp.com>
+To: linux-audit@redhat.com
+Subject: New audit record types for static network labels
+Date: Tue, 31 Jul 2007 15:37:14 -0400
+Cc: selinux@tycho.nsa.gov
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Message-ID: <946030.39450.qm@web51506.mail.re2.yahoo.com>
+Content-Type: text/plain;
+  charset="us-ascii"
+Message-Id: <200707311537.14940.paul.moore@hp.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+I am currently working on a series of patches to add support for static 
+external network labels to NetLabel/SELinux.  The idea is that a user could 
+define a physical interface, IP address, address mask, and context which 
+would be applied as an external label to the packet when an explicit label 
+was not present.  This is similar to other trusted OSs which allow 
+administrators to assign labels to single level, unlabeled networks.  For 
+those of you following the SELinux list it was discussed a month or two ago.
 
->We run a centralized syslog server, and separate all syslogged avc
->into a separate log file. Is it possible to have setroubleshooter/sealert
->use this log file ?
+This is relevant to the audit subsystem because adding/removing these 
+address/context entries should most likely be audited for the same reasons we 
+audit other NetLabel or XFRM labeling related configuration changes.  To 
+accomplish this I would like to suggest the addition of the following record 
+types, comments?
 
-setroubleshoot can be told to use a particular file for an analysis. It normally
-does analysis using the realtime audit stream. So I suspect you'd have to
-manually run the analysis.
+#define AUDIT_MAC_UNLBL_STATICADD 14XX  /* NetLabel: add a static label */
+#define AUDIT_MAC_UNLBL_STATICDEL 14XX  /* NetLabel: del a static label */
 
-That said, we are working on centrally logging the audit events and reworking
-setroubleshoot to work off that new datastream including the host names so that
-you can do analysis correctly per machine.
-
--Steve
-
-
-       
-____________________________________________________________________________________
-Choose the right car based on your needs.  Check out Yahoo! Autos new Car Finder tool.
-http://autos.yahoo.com/carfinder/
+-- 
+paul moore
+linux security @ hp
 
 --
 This message was distributed to subscribers of the selinux mailing list.
