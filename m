@@ -1,9 +1,9 @@
 From: "David P. Quigley" <dpquigl@tycho.nsa.gov>
 To: selinux@tycho.nsa.gov, labeled-nfs@linux-nfs.org
 Cc: "David P. Quigley" <dpquigl@tycho.nsa.gov>
-Subject: [PATCH 4/7] Security: Add secctx_to_secid LSM hooks and security helper functions
-Date: Wed,  1 Aug 2007 16:02:09 -0400
-Message-Id: <11859985323640-git-send-email-dpquigl@tycho.nsa.gov>
+Subject: [PATCH 1/7] Security: Add inode_{get,set}secid LSM hooks and security helper functions
+Date: Wed,  1 Aug 2007 16:02:06 -0400
+Message-Id: <1185998532157-git-send-email-dpquigl@tycho.nsa.gov>
 In-Reply-To: <11859985322836-git-send-email-dpquigl@tycho.nsa.gov>
 References: <11859985322836-git-send-email-dpquigl@tycho.nsa.gov>
 Sender: owner-selinux@tycho.nsa.gov
@@ -11,126 +11,139 @@ List-Id: selinux@tycho.nsa.gov
 
 From: David P. Quigley <dpquigl@tycho.nsa.gov>
 
-The existing LSM interface provides a hook for converting a security identifier
-to a security context. This patch introduces a complementary hook to provide
-the conversion from the security context to corresponding security identifier.
+This patch adds a pair of new hooks to LSM. The existing method of setting
+security information through inode_getsecurity and inode_setsecurity use
+extended attributes. However, NFS prefers to manipulate inode fields directly
+and to do this we need a method to access the inode's security field in a
+module independent manner.
 
 Signed-off-by: David P. Quigley <dpquigl@tycho.nsa.gov>
 ---
- include/linux/security.h |   17 ++++++++++++++---
- security/dummy.c         |    6 +++++-
- security/selinux/hooks.c |    6 +++++-
- 3 files changed, 24 insertions(+), 5 deletions(-)
+ include/linux/security.h |   27 +++++++++++++++++++++++++++
+ security/dummy.c         |   10 ++++++++++
+ security/selinux/hooks.c |   15 +++++++++++++++
+ 3 files changed, 52 insertions(+), 0 deletions(-)
 
 diff --git a/include/linux/security.h b/include/linux/security.h
-index fbfada9..d55bb5a 100644
+index c11dc8a..fbfada9 100644
 --- a/include/linux/security.h
 +++ b/include/linux/security.h
-@@ -1147,6 +1147,11 @@ struct request_sock;
-  *	@secid contains the security ID.
-  *	@secdata contains the pointer that stores the converted security context.
+@@ -413,6 +413,11 @@ struct request_sock;
+  *	is specified by @buffer_size.  @buffer may be NULL to request
+  *	the size of the buffer required.
+  *	Returns number of bytes used/required on success.
++ * @inode_getsecid:
++ * 	Returns secid from @inode;
++ * @inode_setsecid:
++ * 	Set the security structure value of @inode with @sid.
++ * 	Returns 0 on success.
   *
-+ * @secctx_to_secid:
-+ *	Convert security context to secid.
-+ *	@secid contains the security ID.
-+ *	@secdata contains the pointer that stores the converted security context.
-+ *
-  * @release_secctx:
-  *	Release the security context.
-  *	@secdata contains the security context.
-@@ -1336,6 +1341,7 @@ struct security_operations {
-  	int (*getprocattr)(struct task_struct *p, char *name, char **value);
-  	int (*setprocattr)(struct task_struct *p, char *name, void *value, size_t size);
- 	int (*secid_to_secctx)(u32 secid, char **secdata, u32 *seclen);
-+	int (*secctx_to_secid)(u32 *secid, char *secdata, u32 seclen);
- 	void (*release_secctx)(char *secdata, u32 seclen);
+  * Security hooks for file operations
+  *
+@@ -1235,6 +1240,8 @@ struct security_operations {
+   	int (*inode_getsecurity)(const struct inode *inode, const char *name, void *buffer, size_t size, int err);
+   	int (*inode_setsecurity)(struct inode *inode, const char *name, const void *value, size_t size, int flags);
+   	int (*inode_listsecurity)(struct inode *inode, char *buffer, size_t buffer_size);
++	void (*inode_getsecid)(struct inode *inode, u32 *secid);
++	void (*inode_setsecid)(struct inode *inode, u32 secid);
  
- #ifdef CONFIG_SECURITY_NETWORK
-@@ -2140,7 +2146,10 @@ static inline int security_secid_to_secctx(u32 secid, char **secdata, u32 *secle
- {
- 	return security_ops->secid_to_secctx(secid, secdata, seclen);
+ 	int (*file_permission) (struct file * file, int mask);
+ 	int (*file_alloc_security) (struct file * file);
+@@ -1793,6 +1800,18 @@ static inline int security_inode_listsecurity(struct inode *inode, char *buffer,
+ 	return security_ops->inode_listsecurity(inode, buffer, buffer_size);
  }
--
-+static inline int security_secctx_to_secid(u32 *secid, char *secdata, u32 seclen)
+ 
++static inline void security_inode_getsecid(struct inode *inode, u32 *secid)
 +{
-+	return security_ops->secctx_to_secid(secid, secdata, seclen);
++	security_ops->inode_getsecid(inode, secid);
 +}
- static inline void security_release_secctx(char *secdata, u32 seclen)
- {
- 	return security_ops->release_secctx(secdata, seclen);
-@@ -2826,7 +2835,10 @@ static inline int security_secid_to_secctx(u32 secid, char **secdata, u32 *secle
- {
- 	return -EOPNOTSUPP;
- }
--
-+static inline int security_secctx_to_secid(u32 *secid, char *secdata, u32 seclen)
++
++static inline void security_inode_setsecid(struct inode *inode, u32 sid)
 +{
-+	return -EOPNOTSUPP;
++	if (unlikely (IS_PRIVATE (inode)))
++		return;
++	security_ops->inode_setsecid(inode, sid);
 +}
- static inline void security_release_secctx(char *secdata, u32 seclen)
++
+ static inline int security_file_permission (struct file *file, int mask)
  {
+ 	return security_ops->file_permission (file, mask);
+@@ -2473,6 +2492,14 @@ static inline int security_inode_listsecurity(struct inode *inode, char *buffer,
+ 	return 0;
  }
-@@ -3330,6 +3342,5 @@ static inline int security_key_permission(key_ref_t key_ref,
  
- #endif
- #endif /* CONFIG_KEYS */
--
- #endif /* ! __LINUX_SECURITY_H */
- 
++static inline void security_inode_getsecid(struct inode *inode, u32 *secid)
++{
++}
++
++static inline void security_inode_setsecid(struct inode *inode, u32 secid)
++{
++}
++
+ static inline int security_file_permission (struct file *file, int mask)
+ {
+ 	return 0;
 diff --git a/security/dummy.c b/security/dummy.c
-index c0c50aa..1eecab7 100644
+index 19d813d..c0c50aa 100644
 --- a/security/dummy.c
 +++ b/security/dummy.c
-@@ -933,6 +933,10 @@ static int dummy_secid_to_secctx(u32 secid, char **secdata, u32 *seclen)
- {
- 	return -EOPNOTSUPP;
+@@ -392,6 +392,14 @@ static int dummy_inode_listsecurity(struct inode *inode, char *buffer, size_t bu
+ 	return 0;
  }
-+static int dummy_secctx_to_secid(u32 *secid, char *secdata, u32 seclen)
+ 
++static void dummy_inode_getsecid(struct inode *inode, u32 *secid)
 +{
-+	return -EOPNOTSUPP;
 +}
- 
- static void dummy_release_secctx(char *secdata, u32 seclen)
++
++static void dummy_inode_setsecid(struct inode *inode, u32 secid)
++{
++}
++
+ static const char *dummy_inode_xattr_getsuffix(void)
  {
-@@ -1093,6 +1097,7 @@ void security_fixup_ops (struct security_operations *ops)
-  	set_to_dummy_if_null(ops, getprocattr);
-  	set_to_dummy_if_null(ops, setprocattr);
-  	set_to_dummy_if_null(ops, secid_to_secctx);
-+	set_to_dummy_if_null(ops, secctx_to_secid);
-  	set_to_dummy_if_null(ops, release_secctx);
- #ifdef CONFIG_SECURITY_NETWORK
- 	set_to_dummy_if_null(ops, unix_stream_connect);
-@@ -1141,6 +1146,5 @@ void security_fixup_ops (struct security_operations *ops)
- 	set_to_dummy_if_null(ops, key_free);
- 	set_to_dummy_if_null(ops, key_permission);
- #endif	/* CONFIG_KEYS */
--
- }
- 
+ 	return NULL;
+@@ -1022,6 +1030,8 @@ void security_fixup_ops (struct security_operations *ops)
+ 	set_to_dummy_if_null(ops, inode_getsecurity);
+ 	set_to_dummy_if_null(ops, inode_setsecurity);
+ 	set_to_dummy_if_null(ops, inode_listsecurity);
++	set_to_dummy_if_null(ops, inode_getsecid);
++	set_to_dummy_if_null(ops, inode_setsecid);
+ 	set_to_dummy_if_null(ops, file_permission);
+ 	set_to_dummy_if_null(ops, file_alloc_security);
+ 	set_to_dummy_if_null(ops, file_free_security);
 diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-index 56d8ecb..ea517ad 100644
+index 0fac682..56d8ecb 100644
 --- a/security/selinux/hooks.c
 +++ b/security/selinux/hooks.c
-@@ -4668,7 +4668,10 @@ static int selinux_secid_to_secctx(u32 secid, char **secdata, u32 *seclen)
- {
- 	return security_sid_to_context(secid, secdata, seclen);
+@@ -2457,6 +2457,19 @@ static int selinux_inode_listsecurity(struct inode *inode, char *buffer, size_t
+ 	return len;
  }
--
-+static int selinux_secctx_to_secid(u32 *secid, char* secdata, u32 seclen)
+ 
++static void selinux_inode_getsecid(struct inode *inode, u32 *secid)
 +{
-+	return security_context_to_sid(secdata, seclen, secid);
++	struct inode_security_struct *isec = inode->i_security;
++	*secid = isec->sid;
 +}
- static void selinux_release_secctx(char *secdata, u32 seclen)
- {
- 	if (secdata)
-@@ -4858,6 +4861,7 @@ static struct security_operations selinux_ops = {
- 	.setprocattr =                  selinux_setprocattr,
++
++static void selinux_inode_setsecid(struct inode *inode, u32 secid)
++{
++	struct inode_security_struct *isec = inode->i_security;
++	isec->sid = secid;
++	isec->initialized = 1;
++}
++
+ /* file security operations */
  
- 	.secid_to_secctx =		selinux_secid_to_secctx,
-+	.secctx_to_secid =		selinux_secctx_to_secid,
- 	.release_secctx =		selinux_release_secctx,
+ static int selinux_file_permission(struct file *file, int mask)
+@@ -4773,6 +4786,8 @@ static struct security_operations selinux_ops = {
+ 	.inode_getsecurity =            selinux_inode_getsecurity,
+ 	.inode_setsecurity =            selinux_inode_setsecurity,
+ 	.inode_listsecurity =           selinux_inode_listsecurity,
++	.inode_getsecid = 		selinux_inode_getsecid,
++	.inode_setsecid = 		selinux_inode_setsecid,
  
-         .unix_stream_connect =		selinux_socket_unix_stream_connect,
+ 	.file_permission =		selinux_file_permission,
+ 	.file_alloc_security =		selinux_file_alloc_security,
 -- 
 1.5.2.2
 
