@@ -1,96 +1,196 @@
 Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l71FqWkV006855
-	for <selinux@tycho.nsa.gov>; Wed, 1 Aug 2007 11:52:32 -0400
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l71FtpfK007252
+	for <selinux@tycho.nsa.gov>; Wed, 1 Aug 2007 11:55:51 -0400
 Received: from mx1.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id l71FqUKI000992
-	for <selinux@tycho.nsa.gov>; Wed, 1 Aug 2007 15:52:30 GMT
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id l71FtlKI002006
+	for <selinux@tycho.nsa.gov>; Wed, 1 Aug 2007 15:55:47 GMT
 Received: from int-mx1.corp.redhat.com (int-mx1.corp.redhat.com [172.16.52.254])
-	by mx1.redhat.com (8.13.1/8.13.1) with ESMTP id l71FqTWa014560
-	for <selinux@tycho.nsa.gov>; Wed, 1 Aug 2007 11:52:29 -0400
+	by mx1.redhat.com (8.13.1/8.13.1) with ESMTP id l71Ftkfu017100
+	for <selinux@tycho.nsa.gov>; Wed, 1 Aug 2007 11:55:46 -0400
 Received: from pobox.corp.redhat.com (pobox.corp.redhat.com [10.11.255.20])
-	by int-mx1.corp.redhat.com (8.13.1/8.13.1) with ESMTP id l71FqTkX004267
-	for <selinux@tycho.nsa.gov>; Wed, 1 Aug 2007 11:52:29 -0400
+	by int-mx1.corp.redhat.com (8.13.1/8.13.1) with ESMTP id l71FtkDk005706
+	for <selinux@tycho.nsa.gov>; Wed, 1 Aug 2007 11:55:46 -0400
 Received: from [10.11.14.155] (vpn-14-155.rdu.redhat.com [10.11.14.155])
-	by pobox.corp.redhat.com (8.13.1/8.13.1) with ESMTP id l71FqSWo019385
-	for <selinux@tycho.nsa.gov>; Wed, 1 Aug 2007 11:52:28 -0400
-Subject: [PATCH] libsepol: support the handle_unknown config flag
+	by pobox.corp.redhat.com (8.13.1/8.13.1) with ESMTP id l71Ftj3i020706
+	for <selinux@tycho.nsa.gov>; Wed, 1 Aug 2007 11:55:45 -0400
+Subject: [PATCH] checkpolicy: add options to set handle_unknown
 From: Eric Paris <eparis@redhat.com>
 To: selinux@tycho.nsa.gov
 Content-Type: text/plain
-Date: Wed, 01 Aug 2007 11:52:28 -0400
-Message-Id: <1185983548.3673.21.camel@localhost.localdomain>
+Date: Wed, 01 Aug 2007 11:55:45 -0400
+Message-Id: <1185983745.3673.26.camel@localhost.localdomain>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Update the policydb definition to contain a handle_unknown flag.  Change
-libsepol to copy the handle_unknown config flag from the base policy to
-the final binary policy.  Also makes libsepol properly read and write
-the flag which dealing with policy modules.
+Add a new command line options, -U (0-2), to checkmodule and checkpolicy
+which sets the handle_unknown config flag.  Default to 0, which means
+deny unknowns.  
 
 Signed-off-by: Eric Paris <eparis@redhat.com>
 
-diff -Naupr libsepol-2.0.4/include/sepol/policydb/policydb.h libsepol-2.0.4.new/include/sepol/policydb/policydb.h
---- libsepol-2.0.4/include/sepol/policydb/policydb.h	2007-06-21 05:17:02.000000000 -0400
-+++ libsepol-2.0.4.new/include/sepol/policydb/policydb.h	2007-07-31 16:14:13.000000000 -0400
-@@ -469,6 +469,8 @@ typedef struct policydb {
- 	ebitmap_t *attr_type_map;	/* not saved in the binary policy */
+diff -Naupr checkpolicy-2.0.3.old/checkmodule.c checkpolicy-2.0.3/checkmodule.c
+--- checkpolicy-2.0.3.old/checkmodule.c	2007-07-26 19:03:19.000000000 -0400
++++ checkpolicy-2.0.3/checkmodule.c	2007-07-31 17:08:11.000000000 -0400
+@@ -39,6 +39,7 @@ extern int optind;
+ static sidtab_t sidtab;
  
- 	unsigned policyvers;
-+
-+	unsigned handle_unknown;
- } policydb_t;
+ extern int mlspol;
++extern int handle_unknown;
  
- struct sepol_policydb {
-@@ -599,6 +601,13 @@ extern int policydb_write(struct policyd
+ static char *txtfile = "policy.conf";
+ static char *binfile = "policy";
+@@ -121,6 +122,7 @@ static int write_binary_policy(policydb_
  
- #define POLICYDB_CONFIG_MLS    1
+ 	p->policy_type = policy_type;
+ 	p->policyvers = policyvers;
++	p->handle_unknown = handle_unknown;
  
-+/* the config flags related to unknown classes/perms are bits 2 and 3 */
-+#define DENY_UNKNOWN	0x00000000
-+#define REJECT_UNKNOWN	0x00000002
-+#define ALLOW_UNKNOWN 	0x00000004
-+
-+#define POLICYDB_CONFIG_UNKNOWN_MASK	(DENY_UNKNOWN | REJECT_UNKNOWN | ALLOW_UNKNOWN)
-+
- #define OBJECT_R "object_r"
- #define OBJECT_R_VAL 1
+ 	pf.type = PF_USE_STDIO;
+ 	pf.fp = outfp;
+@@ -135,13 +137,17 @@ static int write_binary_policy(policydb_
  
-diff -Naupr libsepol-2.0.4/src/expand.c libsepol-2.0.4.new/src/expand.c
---- libsepol-2.0.4/src/expand.c	2007-06-21 05:17:01.000000000 -0400
-+++ libsepol-2.0.4.new/src/expand.c	2007-07-27 18:32:39.000000000 -0400
-@@ -2248,6 +2248,7 @@ int expand_module(sepol_handle_t * handl
+ static void usage(char *progname)
+ {
+-	printf("usage:  %s [-V] [-b] [-m] [-M] [-o FILE] [INPUT]\n", progname);
++	printf("usage:  %s [-V] [-b] [-U handle_unknown] [-m] [-M] [-o FILE] [INPUT]\n", progname);
+ 	printf("Build base and policy modules.\n");
+ 	printf("Options:\n");
+ 	printf("  INPUT      build module from INPUT (else read from \"%s\")\n",
+ 	       txtfile);
+ 	printf("  -V         show policy versions created by this program\n");
+ 	printf("  -b         treat input as a binary policy file\n");
++	printf("  -U 0-2     How the kernel should handle unknown classes and permissions\n");
++	printf("               0: Deny unknown kernel checks\n");
++	printf("               1: Reject loading of policy with unknowns\n");
++	printf("               2: Allow unknown kernel checks\n");
+ 	printf("  -m         build a policy module instead of a base module\n");
+ 	printf("  -M         enable MLS policy\n");
+ 	printf("  -o FILE    write module to FILE (else just check syntax)\n");
+@@ -156,7 +162,7 @@ int main(int argc, char **argv)
+ 	int show_version = 0;
+ 	policydb_t modpolicydb;
  
- 	/* Copy mls state from base to out */
- 	out->mls = base->mls;
-+	out->handle_unknown = base->handle_unknown;
- 
- 	if ((state.typemap =
- 	     (uint32_t *) calloc(state.base->p_types.nprim,
-diff -Naupr libsepol-2.0.4/src/policydb.c libsepol-2.0.4.new/src/policydb.c
---- libsepol-2.0.4/src/policydb.c	2007-06-21 05:17:01.000000000 -0400
-+++ libsepol-2.0.4.new/src/policydb.c	2007-07-31 16:17:53.000000000 -0400
-@@ -3057,6 +3057,8 @@ int policydb_read(policydb_t * p, struct
- 		p->mls = 0;
+-	while ((ch = getopt(argc, argv, "ho:dbVmM")) != EOF) {
++	while ((ch = getopt(argc, argv, "ho:dbVU:mM")) != EOF) {
+ 		switch (ch) {
+ 		case 'h':
+ 			usage(argv[0]);
+@@ -171,6 +177,22 @@ int main(int argc, char **argv)
+ 		case 'V':
+ 			show_version = 1;
+ 			break;
++		case 'U':
++			handle_unknown = strtol(optarg, (char **) NULL, 10);
++			switch (handle_unknown){
++			case 0:
++				handle_unknown = DENY_UNKNOWN;
++				break;
++			case 1:
++				handle_unknown = REJECT_UNKNOWN;
++				break;
++			case 2:
++				handle_unknown = ALLOW_UNKNOWN;
++				break;
++			default:
++				usage(argv[0]);
++			}
++			break;
+ 		case 'm':
+ 			policy_type = POLICY_MOD;
+ 			policyvers = MOD_POLICYDB_VERSION_MAX;
+@@ -189,6 +211,12 @@ int main(int argc, char **argv)
+ 		exit(0);
  	}
  
-+	p->handle_unknown = buf[bufindex] & POLICYDB_CONFIG_UNKNOWN_MASK;
++	if (handle_unknown && (policy_type != POLICY_BASE)) {
++		printf("Handling of unknown classes and permissions is only ");
++		printf("valid in the base module\n");
++		exit(1);
++	}
 +
- 	bufindex++;
+ 	if (optind != argc) {
+ 		file = argv[optind++];
+ 		if (optind != argc)
+@@ -214,6 +242,7 @@ int main(int argc, char **argv)
  
- 	info = policydb_lookup_compat(r_policyvers, policy_type);
-diff -Naupr libsepol-2.0.4/src/write.c libsepol-2.0.4.new/src/write.c
---- libsepol-2.0.4/src/write.c	2007-06-21 05:17:01.000000000 -0400
-+++ libsepol-2.0.4.new/src/write.c	2007-07-31 16:18:49.000000000 -0400
-@@ -1534,6 +1534,8 @@ int policydb_write(policydb_t * p, struc
- 	if (p->mls)
- 		config |= POLICYDB_CONFIG_MLS;
+ 		modpolicydb.policy_type = policy_type;
+ 		modpolicydb.mls = mlspol;
++		modpolicydb.handle_unknown = handle_unknown;
  
-+	config |= (POLICYDB_CONFIG_UNKNOWN_MASK & p->handle_unknown);
-+
- 	/* Write the magic number and string identifiers. */
- 	items = 0;
- 	if (p->policy_type == POLICY_KERN) {
+ 		if (read_source_policy(&modpolicydb, file, argv[0]) == -1) {
+ 			exit(1);
+diff -Naupr checkpolicy-2.0.3.old/checkpolicy.c checkpolicy-2.0.3/checkpolicy.c
+--- checkpolicy-2.0.3.old/checkpolicy.c	2007-07-26 19:03:19.000000000 -0400
++++ checkpolicy-2.0.3/checkpolicy.c	2007-07-31 17:18:38.000000000 -0400
+@@ -90,6 +90,7 @@ static sidtab_t sidtab;
+ 
+ extern policydb_t *policydbp;
+ extern int mlspol;
++extern int handle_unknown;
+ 
+ static char *txtfile = "policy.conf";
+ static char *binfile = "policy";
+@@ -99,7 +100,7 @@ unsigned int policyvers = POLICYDB_VERSI
+ void usage(char *progname)
+ {
+ 	printf
+-	    ("usage:  %s [-b] [-d] [-M] [-c policyvers (%d-%d)] [-o output_file] [input_file]\n",
++	    ("usage:  %s [-b] [-d] [-U handle unknown (0-2) [-M] [-c policyvers (%d-%d)] [-o output_file] [input_file]\n",
+ 	     progname, POLICYDB_VERSION_MIN, POLICYDB_VERSION_MAX);
+ 	exit(1);
+ }
+@@ -390,7 +391,7 @@ int main(int argc, char **argv)
+ 	int show_version = 0;
+ 	struct policy_file pf;
+ 
+-	while ((ch = getopt(argc, argv, "o:dbMVc:")) != EOF) {
++	while ((ch = getopt(argc, argv, "o:dbU:MVc:")) != EOF) {
+ 		switch (ch) {
+ 		case 'o':
+ 			outfile = optarg;
+@@ -405,6 +406,22 @@ int main(int argc, char **argv)
+ 		case 'V':
+ 			show_version = 1;
+ 			break;
++		case 'U':
++			handle_unknown = strtol(optarg, (char **) NULL, 10);
++			switch (handle_unknown) {
++			case 0:
++				handle_unknown = DENY_UNKNOWN;
++				break;
++			case 1:
++				handle_unknown = REJECT_UNKNOWN;
++				break;
++			case 2:
++				handle_unknown = ALLOW_UNKNOWN;
++				break;
++			default:
++				usage(argv[0]);
++			}
++			break;
+ 		case 'M':
+ 			mlspol = 1;
+ 			break;
+@@ -515,6 +532,7 @@ int main(int argc, char **argv)
+ 
+ 		/* Let sepol know if we are dealing with MLS support */
+ 		parse_policy.mls = mlspol;
++		parse_policy.handle_unknown = handle_unknown;
+ 
+ 		policydbp = &parse_policy;
+ 
+diff -Naupr checkpolicy-2.0.3.old/policy_parse.y checkpolicy-2.0.3/policy_parse.y
+--- checkpolicy-2.0.3.old/policy_parse.y	2007-07-26 19:03:19.000000000 -0400
++++ checkpolicy-2.0.3/policy_parse.y	2007-07-26 21:11:36.000000000 -0400
+@@ -67,6 +67,7 @@ queue_t id_queue = 0;
+ static unsigned int pass;
+ char *curfile = 0;
+ int mlspol = 0;
++int handle_unknown = 0;
+ 
+ extern unsigned long policydb_lineno;
+ extern unsigned long source_lineno;
 
 
 
