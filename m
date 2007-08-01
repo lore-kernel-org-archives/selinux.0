@@ -1,62 +1,68 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l71Lx3wa002289
-	for <selinux@tycho.nsa.gov>; Wed, 1 Aug 2007 17:59:03 -0400
-Received: from web36609.mail.mud.yahoo.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with SMTP id l71Lx2dm020780
-	for <selinux@tycho.nsa.gov>; Wed, 1 Aug 2007 21:59:02 GMT
-Date: Wed, 1 Aug 2007 14:59:02 -0700 (PDT)
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l71M6kEx002700
+	for <selinux@tycho.nsa.gov>; Wed, 1 Aug 2007 18:06:46 -0400
+Received: from web36608.mail.mud.yahoo.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with SMTP id l71M6ixj006248
+	for <selinux@tycho.nsa.gov>; Wed, 1 Aug 2007 22:06:45 GMT
+Date: Wed, 1 Aug 2007 15:06:43 -0700 (PDT)
 From: Casey Schaufler <casey@schaufler-ca.com>
 Reply-To: casey@schaufler-ca.com
-Subject: Re: [RFC] SENFS: MAC labeling support for NFSv4
+Subject: Re: [Labeled-nfs] [PATCH 6/7] NFSv4: Client implementation of MAC Labeling
 To: Stephen Smalley <sds@tycho.nsa.gov>, casey@schaufler-ca.com
 Cc: "David P. Quigley" <dpquigl@tycho.nsa.gov>, selinux@tycho.nsa.gov,
         labeled-nfs@linux-nfs.org
-In-Reply-To: <1186003807.15215.401.camel@moss-spartans.epoch.ncsc.mil>
+In-Reply-To: <1186004060.15215.406.camel@moss-spartans.epoch.ncsc.mil>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=iso-8859-1
-Message-ID: <127128.61452.qm@web36609.mail.mud.yahoo.com>
+Message-ID: <222173.8862.qm@web36608.mail.mud.yahoo.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 
 --- Stephen Smalley <sds@tycho.nsa.gov> wrote:
 
-> On Wed, 2007-08-01 at 13:55 -0700, Casey Schaufler wrote:
+> On Wed, 2007-08-01 at 14:29 -0700, Casey Schaufler wrote:
 > > --- "David P. Quigley" <dpquigl@tycho.nsa.gov> wrote:
 > > 
-> > > This is the first set of patches attempting to provide a generic
-> framework
-> > > for
-> > > MAC labeling in NFSv4.
+> > > From: David P. Quigley <dpquigl@tycho.nsa.gov>
+> > > 
+> > > There are several places where recommended attributes are implemented in
+> the
+> > > NFSv4 client code. This patch adds two functions to encode and decode the
+> > > secid
+> > > recommended attribute which makes use of the LSM hooks added earlier. It
+> also
+> > > adds code to grab the label from the file attribute structures and encode
+> the
+> > > label to be sent back to the server. Even though the code is there to
+> encode
+> > > a
+> > > label to be sent back to the server there does not appear to be an
+> interface
+> > > to
+> > > use it yet.
 > > 
-> > I've read through the patches and I have one very important issue.
-> > If you are going to provide a "generic" framework you need to support
-> > label representations other than u32. If you only want to support
-> > SELinux, and I understand that that is your initial target, a u32
-> > is fine, but if you want a generic framework you need to allow for
-> > the kinds of labels that have been used elsewhere. Smack (under
-> > review now) uses an 8byte label. Trusted Irix uses a 510byte label,
-> > and although I wouldn't expect that implementation to actually get
-> > ported any time soon it provides an existence proof for large labels.
-> > If you're talking about NFS you need to seriously consider what
-> > TrustedSolaris requires, if just out of courtesy to those who brought
-> > you NFS in the first place.
+> > My usual comments regarding configuration names being SELINUX instead
+> > of MAC if you stick with u32 labels.
+> > 
+> > Now I'm confused. Are you sending the context string on the wire,
+> > or a sid? 
 > 
-> The label representation over the wire isn't a u32 (or inherently
-> limited in size); the u32 secid is just a handle to the label.  As long
-> as the code invokes a secid_to_secctx hook to obtain the actual label to
-> be conveyed over the wire, there is no harm, and it is more efficient to
-> handle them as secids than full labels internally.
+> The context string.  But it is then mapped to a local SID when it is
+> received.
 
-This is true for SELinux, where the secid is a map to a sophisticated
-label. On Smack the label is completely unsophisticated and
-translating back and forth to secids adds unnecessary overhead.
+For Smack I would want to pass the label (a short character string)
+and then use the string unaltered. I don't need to map it to a SID.
+If the interface translates the label to a SID I then have to
+translate it right back to a label. I need to invoke the translation
+infrastructure twice just to get back what I had originally.
 
-In the spirit of LSM I suggest that blobs are more appropriate
-units of data than u32s. I understand that the SELinux design
-philosophy is well served by secids. My design philosophy, which
-is pretty much the opposite, has no need for secids and is
-negatively impacted by interfaces that require them.
+My conculsion* is that the interface needs to be LSM clean, and
+leave the representation and processing of the data up to the
+LSM module and not make assumptions about how it should be represented.
+
+----
+* In support of my goal, of course.
 
 
 Casey Schaufler
