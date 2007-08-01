@@ -1,68 +1,48 @@
 Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l71M6kEx002700
-	for <selinux@tycho.nsa.gov>; Wed, 1 Aug 2007 18:06:46 -0400
-Received: from web36608.mail.mud.yahoo.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with SMTP id l71M6ixj006248
-	for <selinux@tycho.nsa.gov>; Wed, 1 Aug 2007 22:06:45 GMT
-Date: Wed, 1 Aug 2007 15:06:43 -0700 (PDT)
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l71MEkES003118
+	for <selinux@tycho.nsa.gov>; Wed, 1 Aug 2007 18:14:46 -0400
+Received: from web36601.mail.mud.yahoo.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with SMTP id l71MEjxj007393
+	for <selinux@tycho.nsa.gov>; Wed, 1 Aug 2007 22:14:45 GMT
+Date: Wed, 1 Aug 2007 15:14:45 -0700 (PDT)
 From: Casey Schaufler <casey@schaufler-ca.com>
 Reply-To: casey@schaufler-ca.com
-Subject: Re: [Labeled-nfs] [PATCH 6/7] NFSv4: Client implementation of MAC Labeling
-To: Stephen Smalley <sds@tycho.nsa.gov>, casey@schaufler-ca.com
+Subject: Re: [PATCH 4/7] Security: Add secctx_to_secid LSM hooks and security helper functions
+To: Paul Moore <paul.moore@hp.com>, casey@schaufler-ca.com
 Cc: "David P. Quigley" <dpquigl@tycho.nsa.gov>, selinux@tycho.nsa.gov,
         labeled-nfs@linux-nfs.org
-In-Reply-To: <1186004060.15215.406.camel@moss-spartans.epoch.ncsc.mil>
+In-Reply-To: <200708011741.19107.paul.moore@hp.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=iso-8859-1
-Message-ID: <222173.8862.qm@web36608.mail.mud.yahoo.com>
+Message-ID: <101642.143.qm@web36601.mail.mud.yahoo.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 
---- Stephen Smalley <sds@tycho.nsa.gov> wrote:
+--- Paul Moore <paul.moore@hp.com> wrote:
 
-> On Wed, 2007-08-01 at 14:29 -0700, Casey Schaufler wrote:
+> On Wednesday, August 1 2007 5:11:27 pm Casey Schaufler wrote:
 > > --- "David P. Quigley" <dpquigl@tycho.nsa.gov> wrote:
-> > 
 > > > From: David P. Quigley <dpquigl@tycho.nsa.gov>
-> > > 
-> > > There are several places where recommended attributes are implemented in
-> the
-> > > NFSv4 client code. This patch adds two functions to encode and decode the
-> > > secid
-> > > recommended attribute which makes use of the LSM hooks added earlier. It
-> also
-> > > adds code to grab the label from the file attribute structures and encode
-> the
-> > > label to be sent back to the server. Even though the code is there to
-> encode
-> > > a
-> > > label to be sent back to the server there does not appear to be an
-> interface
-> > > to
-> > > use it yet.
-> > 
-> > My usual comments regarding configuration names being SELINUX instead
-> > of MAC if you stick with u32 labels.
-> > 
-> > Now I'm confused. Are you sending the context string on the wire,
-> > or a sid? 
+> > >
+> > > The existing LSM interface provides a hook for converting a security
+> > > identifier
+> > > to a security context. This patch introduces a complementary hook to
+> > > provide the conversion from the security context to corresponding
+> > > security identifier.
+> >
+> > This is strictly SELinux behavior. I don't suppose it hurts
+> > anything, but a general framework won't need this.
 > 
-> The context string.  But it is then mapped to a local SID when it is
-> received.
+> I'm not so sure about that ... having a mechanism which maps an arbitrarily 
+> large label into a easily manipulated token (and back again) seems like 
+> something that could be of use to other security mechanisms besides 
+> SELinux/TE.
 
-For Smack I would want to pass the label (a short character string)
-and then use the string unaltered. I don't need to map it to a SID.
-If the interface translates the label to a SID I then have to
-translate it right back to a label. I need to invoke the translation
-infrastructure twice just to get back what I had originally.
-
-My conculsion* is that the interface needs to be LSM clean, and
-leave the representation and processing of the data up to the
-LSM module and not make assumptions about how it should be represented.
-
-----
-* In support of my goal, of course.
+Yes, if you wanted to port the SecureWare CMW to Linux it would be
+quite valuable. If on the other hand you have a small, directly
+used label a mapping mechanism is unnecessary and being required
+to do mappings is a pain in the bum. But, that's just me.
 
 
 Casey Schaufler
