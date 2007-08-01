@@ -1,20 +1,20 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l71L3wVg030120
-	for <selinux@tycho.nsa.gov>; Wed, 1 Aug 2007 17:03:58 -0400
-Received: from web36609.mail.mud.yahoo.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with SMTP id l71L3vdm010885
-	for <selinux@tycho.nsa.gov>; Wed, 1 Aug 2007 21:03:57 GMT
-Date: Wed, 1 Aug 2007 14:03:57 -0700 (PDT)
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l71L884f030507
+	for <selinux@tycho.nsa.gov>; Wed, 1 Aug 2007 17:08:08 -0400
+Received: from web36615.mail.mud.yahoo.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with SMTP id l71L86pI027405
+	for <selinux@tycho.nsa.gov>; Wed, 1 Aug 2007 21:08:07 GMT
+Date: Wed, 1 Aug 2007 14:08:06 -0700 (PDT)
 From: Casey Schaufler <casey@schaufler-ca.com>
 Reply-To: casey@schaufler-ca.com
-Subject: Re: [PATCH 2/7] VFS: Add sid field to iattr structure for notify_change
+Subject: Re: [PATCH 3/7] KConfig: Add KConfig entries for MAC labeled NFS
 To: "David P. Quigley" <dpquigl@tycho.nsa.gov>, selinux@tycho.nsa.gov,
         labeled-nfs@linux-nfs.org
 Cc: "David P. Quigley" <dpquigl@tycho.nsa.gov>
-In-Reply-To: <11859985323116-git-send-email-dpquigl@tycho.nsa.gov>
+In-Reply-To: <118599853274-git-send-email-dpquigl@tycho.nsa.gov>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=iso-8859-1
-Message-ID: <158594.39342.qm@web36609.mail.mud.yahoo.com>
+Message-ID: <493100.35943.qm@web36615.mail.mud.yahoo.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
@@ -23,43 +23,66 @@ List-Id: selinux@tycho.nsa.gov
 
 > From: David P. Quigley <dpquigl@tycho.nsa.gov>
 > 
-> Since NFSv4 likes to directly modify fields in the incore inode we need a way
-> to inform notify_change that the secid for the inode has changed. This patch
-> adds a flag for notify_change and a field into the iattr struct to allow us
-> to
-> persist incore inode changes to disk.
+> This patch adds two entries into the fs/KConfig file. The first entry
+> NFS_V4_MAC enables MAC labeling support to the NFSv4 client while the second
+> entry NFSD_V4_MAC enables MAC labeling support on the server side.
 > 
 > Signed-off-by: David P. Quigley <dpquigl@tycho.nsa.gov>
 > ---
->  include/linux/fs.h |    2 ++
->  1 files changed, 2 insertions(+), 0 deletions(-)
+>  fs/Kconfig |   18 ++++++++++++++++++
+>  1 files changed, 18 insertions(+), 0 deletions(-)
 > 
-> diff --git a/include/linux/fs.h b/include/linux/fs.h
-> index d33bead..f5d324b 100644
-> --- a/include/linux/fs.h
-> +++ b/include/linux/fs.h
-> @@ -330,6 +330,7 @@ typedef void (dio_iodone_t)(struct kiocb *iocb, loff_t
-> offset,
->  #define ATTR_KILL_SUID	2048
->  #define ATTR_KILL_SGID	4096
->  #define ATTR_FILE	8192
-> +#define ATTR_MAC_LABEL  16384
+
+Unless you change away from u32 labels:
+
+> diff --git a/fs/Kconfig b/fs/Kconfig
+> index 58a0650..c4e42e2 100644
+> --- a/fs/Kconfig
+> +++ b/fs/Kconfig
+> @@ -1593,6 +1593,15 @@ config NFS_V4
 >  
->  /*
->   * This is the Inode Attributes structure, used for notify_change().  It
-> @@ -356,6 +357,7 @@ struct iattr {
->  	 * check for (ia_valid & ATTR_FILE), and not for (ia_file != NULL).
->  	 */
->  	struct file	*ia_file;
-> +	u32		ia_sid;
-
-void *ia_blob;
-
-so as not to be dependent on u32 labels.
-
->  };
+>  	  If unsure, say N.
 >  
->  /*
+> +config NFS_V4_MAC
+
+config NFS_V4_SELINUX
+
+> +	bool "Provide MAC Labeled NFSv4 client support"
+
+bool "Provide SELINUX Labeled NFSv4 client support"
+
+> +	depends on NFS_V4 && SECURITY_SELINUX
+> +	help
+> +	  Say Y here if you want label attribute support for NFS version 4.
+> +
+> +	  If unsure, say N.
+> +
+> +
+>  config NFS_DIRECTIO
+>  	bool "Allow direct I/O on NFS files"
+>  	depends on NFS_FS
+> @@ -1682,6 +1691,15 @@ config NFSD_V4
+>  	  should only be used if you are interested in helping to test NFSv4.
+>  	  If unsure, say N.
+>  
+> +config NFSD_V4_MAC
+
+config NFS_V4_SELINUX
+
+> +	bool "Provide MAC Labeled NFSv4 server support"
+
+bool "Provide SELINUX Labeled NFSv4 server support"
+
+> +	depends on NFSD_V4 && SECURITY_SELINUX
+> +	help
+> +	  If you would like to include support for label file attributes
+> +	  over NFSv4, say Y here.
+> +
+> +	  If unsure, say N.
+> +
+>  config NFSD_TCP
+>  	bool "Provide NFS server over TCP support"
+>  	depends on NFSD
 > -- 
 > 1.5.2.2
 > 
