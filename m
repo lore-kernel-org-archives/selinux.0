@@ -1,9 +1,9 @@
 From: "David P. Quigley" <dpquigl@tycho.nsa.gov>
 To: selinux@tycho.nsa.gov, labeled-nfs@linux-nfs.org
 Cc: "David P. Quigley" <dpquigl@tycho.nsa.gov>
-Subject: [PATCH 5/7] NFSv4: Add secid recommended attribute and NFSv4 flags
-Date: Wed,  1 Aug 2007 16:02:10 -0400
-Message-Id: <11859985333464-git-send-email-dpquigl@tycho.nsa.gov>
+Subject: [PATCH 3/7] KConfig: Add KConfig entries for MAC labeled NFS
+Date: Wed,  1 Aug 2007 16:02:08 -0400
+Message-Id: <118599853274-git-send-email-dpquigl@tycho.nsa.gov>
 In-Reply-To: <11859985322836-git-send-email-dpquigl@tycho.nsa.gov>
 References: <11859985322836-git-send-email-dpquigl@tycho.nsa.gov>
 Sender: owner-selinux@tycho.nsa.gov
@@ -11,107 +11,51 @@ List-Id: selinux@tycho.nsa.gov
 
 From: David P. Quigley <dpquigl@tycho.nsa.gov>
 
-This patch adds a new recommended attribute named secid into the NFSv4 file
-attribute structure. In addition it also adds several new flags to allow the
-NFS client and server to determine if this attribute is supported and if it is
-being sent over the wire.
+This patch adds two entries into the fs/KConfig file. The first entry
+NFS_V4_MAC enables MAC labeling support to the NFSv4 client while the second
+entry NFSD_V4_MAC enables MAC labeling support on the server side.
 
 Signed-off-by: David P. Quigley <dpquigl@tycho.nsa.gov>
 ---
- fs/nfs/nfs4proc.c           |    1 +
- include/linux/nfs4.h        |    1 +
- include/linux/nfs_xdr.h     |    3 +++
- include/linux/nfsd/export.h |    5 +++--
- include/linux/nfsd/nfsd.h   |    8 +++++---
- 5 files changed, 13 insertions(+), 5 deletions(-)
+ fs/Kconfig |   18 ++++++++++++++++++
+ 1 files changed, 18 insertions(+), 0 deletions(-)
 
-diff --git a/fs/nfs/nfs4proc.c b/fs/nfs/nfs4proc.c
-index 6ca2795..9caddc9 100644
---- a/fs/nfs/nfs4proc.c
-+++ b/fs/nfs/nfs4proc.c
-@@ -98,6 +98,7 @@ const u32 nfs4_fattr_bitmap[2] = {
- 	| FATTR4_WORD1_TIME_ACCESS
- 	| FATTR4_WORD1_TIME_METADATA
- 	| FATTR4_WORD1_TIME_MODIFY
-+	| FATTR4_WORD1_MAC_LABEL
- };
+diff --git a/fs/Kconfig b/fs/Kconfig
+index 58a0650..c4e42e2 100644
+--- a/fs/Kconfig
++++ b/fs/Kconfig
+@@ -1593,6 +1593,15 @@ config NFS_V4
  
- const u32 nfs4_statfs_bitmap[2] = {
-diff --git a/include/linux/nfs4.h b/include/linux/nfs4.h
-index 8726491..e978031 100644
---- a/include/linux/nfs4.h
-+++ b/include/linux/nfs4.h
-@@ -348,6 +348,7 @@ enum lock_type4 {
- #define FATTR4_WORD1_TIME_MODIFY        (1UL << 21)
- #define FATTR4_WORD1_TIME_MODIFY_SET    (1UL << 22)
- #define FATTR4_WORD1_MOUNTED_ON_FILEID  (1UL << 23)
-+#define FATTR4_WORD1_MAC_LABEL		(1UL << 31)
+ 	  If unsure, say N.
  
- #define NFSPROC4_NULL 0
- #define NFSPROC4_COMPOUND 1
-diff --git a/include/linux/nfs_xdr.h b/include/linux/nfs_xdr.h
-index cf74a4d..f6100e7 100644
---- a/include/linux/nfs_xdr.h
-+++ b/include/linux/nfs_xdr.h
-@@ -56,6 +56,9 @@ struct nfs_fattr {
- 	__u64			change_attr;	/* NFSv4 change attribute */
- 	__u64			pre_change_attr;/* pre-op NFSv4 change attribute */
- 	unsigned long		time_start;
-+#ifdef CONFIG_NFS_V4_MAC
-+	__u32			secid;
-+#endif
- };
++config NFS_V4_MAC
++	bool "Provide MAC Labeled NFSv4 client support"
++	depends on NFS_V4 && SECURITY_SELINUX
++	help
++	  Say Y here if you want label attribute support for NFS version 4.
++
++	  If unsure, say N.
++
++
+ config NFS_DIRECTIO
+ 	bool "Allow direct I/O on NFS files"
+ 	depends on NFS_FS
+@@ -1682,6 +1691,15 @@ config NFSD_V4
+ 	  should only be used if you are interested in helping to test NFSv4.
+ 	  If unsure, say N.
  
- #define NFS_ATTR_WCC		0x0001		/* pre-op WCC data    */
-diff --git a/include/linux/nfsd/export.h b/include/linux/nfsd/export.h
-index 5cd1924..76652ad 100644
---- a/include/linux/nfsd/export.h
-+++ b/include/linux/nfsd/export.h
-@@ -32,7 +32,8 @@
- #define NFSEXP_ALLSQUASH	0x0008
- #define NFSEXP_ASYNC		0x0010
- #define NFSEXP_GATHERED_WRITES	0x0020
--/* 40 80 100 currently unused */
-+#define NFSEXP_MAC_LABEL	0x0040 /* Support Mac label fattr4 */
-+/* 80 100 currently unused */
- #define NFSEXP_NOHIDE		0x0200
- #define NFSEXP_NOSUBTREECHECK	0x0400
- #define	NFSEXP_NOAUTHNLM	0x0800		/* Don't authenticate NLM requests - just trust */
-@@ -40,7 +41,7 @@
- #define NFSEXP_FSID		0x2000
- #define	NFSEXP_CROSSMOUNT	0x4000
- #define	NFSEXP_NOACL		0x8000	/* reserved for possible ACL related use */
--#define NFSEXP_ALLFLAGS		0xFE3F
-+#define NFSEXP_ALLFLAGS		0xFE7F
- 
- /* The flags that may vary depending on security flavor: */
- #define NFSEXP_SECINFO_FLAGS	(NFSEXP_READONLY | NFSEXP_ROOTSQUASH \
-diff --git a/include/linux/nfsd/nfsd.h b/include/linux/nfsd/nfsd.h
-index e452256..f381441 100644
---- a/include/linux/nfsd/nfsd.h
-+++ b/include/linux/nfsd/nfsd.h
-@@ -309,8 +309,9 @@ extern struct timeval	nfssvc_boot;
-  | FATTR4_WORD1_OWNER	        | FATTR4_WORD1_OWNER_GROUP  | FATTR4_WORD1_RAWDEV           \
-  | FATTR4_WORD1_SPACE_AVAIL     | FATTR4_WORD1_SPACE_FREE   | FATTR4_WORD1_SPACE_TOTAL      \
-  | FATTR4_WORD1_SPACE_USED      | FATTR4_WORD1_TIME_ACCESS  | FATTR4_WORD1_TIME_ACCESS_SET  \
-- | FATTR4_WORD1_TIME_DELTA   | FATTR4_WORD1_TIME_METADATA    \
-- | FATTR4_WORD1_TIME_MODIFY     | FATTR4_WORD1_TIME_MODIFY_SET | FATTR4_WORD1_MOUNTED_ON_FILEID)
-+ | FATTR4_WORD1_TIME_DELTA   	| FATTR4_WORD1_TIME_METADATA    			    \
-+ | FATTR4_WORD1_TIME_MODIFY     | FATTR4_WORD1_TIME_MODIFY_SET 				    \
-+ | FATTR4_WORD1_MOUNTED_ON_FILEID | FATTR4_WORD1_MAC_LABEL)
- 
- /* These will return ERR_INVAL if specified in GETATTR or READDIR. */
- #define NFSD_WRITEONLY_ATTRS_WORD1							    \
-@@ -321,7 +322,8 @@ extern struct timeval	nfssvc_boot;
- (FATTR4_WORD0_SIZE              | FATTR4_WORD0_ACL                                         )
- #define NFSD_WRITEABLE_ATTRS_WORD1                                                          \
- (FATTR4_WORD1_MODE              | FATTR4_WORD1_OWNER         | FATTR4_WORD1_OWNER_GROUP     \
-- | FATTR4_WORD1_TIME_ACCESS_SET | FATTR4_WORD1_TIME_METADATA | FATTR4_WORD1_TIME_MODIFY_SET)
-+ | FATTR4_WORD1_TIME_ACCESS_SET | FATTR4_WORD1_TIME_METADATA 				    \
-+ | FATTR4_WORD1_TIME_MODIFY_SET | FATTR4_WORD1_MAC_LABEL)
- 
- #endif /* CONFIG_NFSD_V4 */
- 
++config NFSD_V4_MAC
++	bool "Provide MAC Labeled NFSv4 server support"
++	depends on NFSD_V4 && SECURITY_SELINUX
++	help
++	  If you would like to include support for label file attributes
++	  over NFSv4, say Y here.
++
++	  If unsure, say N.
++
+ config NFSD_TCP
+ 	bool "Provide NFS server over TCP support"
+ 	depends on NFSD
 -- 
 1.5.2.2
 
