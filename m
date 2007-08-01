@@ -1,44 +1,93 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l71FO1fd004158
-	for <selinux@tycho.nsa.gov>; Wed, 1 Aug 2007 11:24:01 -0400
-Received: from atlrel7.hp.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id l71FNuKI021844
-	for <selinux@tycho.nsa.gov>; Wed, 1 Aug 2007 15:23:56 GMT
-From: "Paul Moore" <paul.moore@hp.com>
-Message-Id: <20070801151554.725968439@hp.com>
-References: <20070801151257.475951538@hp.com>
-Date: Wed, 01 Aug 2007 11:12:58 -0400
-To: netdev@vger.kernel.org, selinux@tycho.nsa.gov
-Cc: Paul Moore <paul.moore@hp.com>
-Subject: [PATCH 1/2] SELinux: remove redundant pointer checks before calling kfree()
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Subject: RE: mounted file systems
+Date: Wed, 1 Aug 2007 08:22:08 -0700
+Message-ID: <FB39F4E77226B448BC1388D3BE4E00CD01FB7627@blums0008.bluelnk.net>
+References: <FB39F4E77226B448BC1388D3BE4E00CD01FB761B@blums0008.bluelnk.net> <1185979048.15215.293.camel@moss-spartans.epoch.ncsc.mil> <FB39F4E77226B448BC1388D3BE4E00CD01FB7623@blums0008.bluelnk.net> <1185980071.15215.312.camel@moss-spartans.epoch.ncsc.mil>
+From: "Clarkson, Mike R \(US SSA\)" <mike.clarkson@baesystems.com>
+To: "Stephen Smalley" <sds@tycho.nsa.gov>
+Cc: <selinux@tycho.nsa.gov>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-We don't need to check for NULL pointers before calling kfree().
 
-Signed-off-by: Paul Moore <paul.moore@hp.com>
----
- security/selinux/hooks.c |    3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
 
-Index: linux-2.6_secctx-leaks/security/selinux/hooks.c
-===================================================================
---- linux-2.6_secctx-leaks.orig/security/selinux/hooks.c
-+++ linux-2.6_secctx-leaks/security/selinux/hooks.c
-@@ -4658,8 +4658,7 @@ static int selinux_secid_to_secctx(u32 s
- 
- static void selinux_release_secctx(char *secdata, u32 seclen)
- {
--	if (secdata)
--		kfree(secdata);
-+	kfree(secdata);
- }
- 
- #ifdef CONFIG_KEYS
+> -----Original Message-----
+> From: Stephen Smalley [mailto:sds@tycho.nsa.gov]
+> Sent: Wednesday, August 01, 2007 7:55 AM
+> To: Clarkson, Mike R (US SSA)
+> Cc: selinux@tycho.nsa.gov
+> Subject: RE: mounted file systems
+> 
+> On Wed, 2007-08-01 at 07:51 -0700, Clarkson, Mike R (US SSA) wrote:
+> > Labeled NFS
+> 
+> Ok, then see the labeled NFS discussions as per the link in my
+previous
+> reply.
+> 
+> At present, there is no labeled NFS support - an effort to provide
+such
+> support is just getting underway.  So you are limited to per-mount
+> labeling granularity client-side.
 
--- 
-paul moore
-linux security @ hp
+In my experience, the granularity on the client-side is per file system,
+rather than per-mount. For instance, multiple mount points into
+subdirectories on the same file system does not allow those mount points
+to have separate labels client-side.
+
+> 
+> There was an experimental NFSv3 SELinux implementation, see:
+> http://www.nsa.gov/selinux/code/download1.cfm
+> http://www.nsa.gov/selinux/papers/nfsv3-abs.cfm
+> 
+> But that wasn't merged upstream.
+> 
+> >
+> > > -----Original Message-----
+> > > From: Stephen Smalley [mailto:sds@tycho.nsa.gov]
+> > > Sent: Wednesday, August 01, 2007 7:37 AM
+> > > To: Clarkson, Mike R (US SSA)
+> > > Cc: selinux@tycho.nsa.gov
+> > > Subject: Re: mounted file systems
+> > >
+> > > On Wed, 2007-08-01 at 07:30 -0700, Clarkson, Mike R (US SSA)
+wrote:
+> > > > Is there any way to maintain a file system's labels, when that
+file
+> > > > system is mounted from one SELinux box to another?
+> > >
+> > > Are you talking about labeled NFS?  Or moving a disk from one
+machine
+> > to
+> > > another machine, possibly with different policy?
+> > >
+> > > http://marc.info/?l=selinux&m=118512054912053&w=2
+> > >
+> > >
+> > > > My experience is that I can only apply a single label to the
+entire
+> > > > mounted file system, so that I lose the diversity of labels that
+> > existed
+> > > > on the original file system.
+> > > >
+> > > > I'm wondering if there is another approach that would work
+better or
+> > if
+> > > > there are any plans for future support for this.
+> > >
+> > > --
+> > > Stephen Smalley
+> > > National Security Agency
+> >
+> >
+> --
+> Stephen Smalley
+> National Security Agency
+
+
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
