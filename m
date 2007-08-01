@@ -1,65 +1,57 @@
-Subject: Re: oracle policy
-From: rob myers <rob.myers@gtri.gatech.edu>
-To: Daniel J Walsh <dwalsh@redhat.com>
-Cc: SELinux@tycho.nsa.gov
-In-Reply-To: <1185914486.3413.313.camel@rxm-581b.stl.gtri.gatech.edu>
-References: <1177969059.1731.46.camel@rxm-581b.stl.gtri.gatech.edu>
-	 <463B5A4B.2090004@redhat.com>
-	 <1183415825.3413.66.camel@rxm-581b.stl.gtri.gatech.edu>
-	 <468A888C.1050404@redhat.com>
-	 <1185914486.3413.313.camel@rxm-581b.stl.gtri.gatech.edu>
-Content-Type: text/plain
-Date: Tue, 31 Jul 2007 19:18:02 -0400
-Message-Id: <1185923882.21438.3.camel@rxm-581b.stl.gtri.gatech.edu>
-Mime-Version: 1.0
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l710CKcO022176
+	for <selinux@tycho.nsa.gov>; Tue, 31 Jul 2007 20:12:20 -0400
+Received: from rv-out-0910.google.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l710CJDj009287
+	for <selinux@tycho.nsa.gov>; Wed, 1 Aug 2007 00:12:19 GMT
+Received: by rv-out-0910.google.com with SMTP id k15so28025rvb
+        for <selinux@tycho.nsa.gov>; Tue, 31 Jul 2007 17:12:19 -0700 (PDT)
+Message-ID: <7b740b700707311712n3c695740gb540b88412596a5a@mail.gmail.com>
+Date: Wed, 1 Aug 2007 05:12:18 +0500
+From: "shahbaz khan" <shazalive@gmail.com>
+To: selinux@tycho.nsa.gov
+Subject: selinux rsbac and grsecurity internels
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2007-07-31 at 16:41 -0400, rob myers wrote: 
-> On Tue, 2007-07-03 at 13:34 -0400, Daniel J Walsh wrote: 
-> > rob myers wrote:
-> > >
-> > > i'm not sure what you mean by breaking the helper apps and writing
-> > > policy for their specific tasks.  could you refer me to an example or
-> > > explain a bit more?
-> > >   
-> > If you look at postfix, you will see a good example.  The idea of least 
-> > privs is to give an app the least privs it needs to do a job.
-> > 
-> > As an example if your oracle app needed r/w access to the disk in order 
-> > to format it in a particular way, and the way it did this was to exec
-> > /usr/bin/oracle_disk_format  You could give oracle_t 
-> > fixed_disk_device_t:blk_file manage_blk_device_t; Or you could generate 
-> > a policy for oracle_disk_format_t,
-> > and only give the helper app that permission.   Oracle would only be 
-> > able to format the disk through the execing of the helper app.
-> 
-> ok, that makes sense.  the attached policy is a rewrite that attempts to
-> implement this suggestion.  feedback is always appreciated.
+I would like to ask a few questions from the experts regarding some
+implementations. I am working on a survey on selinux rsbac and
+grsecurity. Got some from mailing lists but need more. References will
+be appreciated.. They are the following:
 
-this patch might help, too.
+1. What is a security aware application. What functionality it can
+provide? Has this functionality been provide in the other competitors.
 
---- oracle.te.orig	2007-07-31 19:12:11.000000000 -0400
-+++ oracle.te	2007-07-31 19:12:46.000000000 -0400
-@@ -48,9 +48,10 @@ allow oracle_db_t oracle_dbfile_t:file {
- allow oracle_db_t oracle_dbfile_t:dir { create_dir_perms };
- 
- # Automatically transition to the correct domain
-+domain_auto_trans(oracle_sqlplus_t, oracle_db_exec_t, oracle_db_t)
-+domain_auto_trans(oracle_lsnrctl_t, oracle_tnslsnr_exec_t, oracle_tnslsnr_t)
-+
- ifdef(`targeted_policy', `
--    domain_auto_trans(oracle_sqlplus_t, oracle_db_exec_t, oracle_db_t)
--    domain_auto_trans(oracle_lsnrctl_t, oracle_tnslsnr_exec_t, oracle_tnslsnr_t)
-     domain_auto_trans(unconfined_t, oracle_sqlplus_exec_t, oracle_sqlplus_t)
-     domain_auto_trans(unconfined_t, oracle_lsnrctl_exec_t, oracle_lsnrctl_t)
- ')
+2. Where are sids implemented. I have heard that they are history now.
+How are they opaque to object managers?
 
-kind regards.
+3. What difference has PMS brought to selinux. Do we have such in
+other implementations?
 
-rob.
+4. How is PMS implemented? Any technical documents? Is it a secure
+application using the extended api?
 
+5. How and where is AVC implemented?
 
+6.Is there any good logging facility apart from regular denial? I have
+heard rsbac and grsecurity has better logging facilities.
+
+7. SELinux uses syscall interception. Is it through LSM? How does
+rsbac and grsecurity manage this?
+
+8. Of the topic but how does grsecurity implement acls and rbac. Is
+rbac used through the acls or a seperate module?
+
+9. How can we best judge the network controls of rsbac and grsecurity
+w.r.t. implementation, usability and functionality?
+
+I will be glad to put the names of responders in my survey document's
+acknowledgements.
+
+Thank you.
+Shaz.
 
 --
 This message was distributed to subscribers of the selinux mailing list.
