@@ -1,102 +1,38 @@
-Subject: Re: Problem with semanage, looks like we don't handle the <<none>>
-	context type?
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Daniel J Walsh <dwalsh@redhat.com>
-Cc: Joshua Brindle <jbrindle@tresys.com>, SE Linux <selinux@tycho.nsa.gov>
-In-Reply-To: <46B09165.9030907@redhat.com>
-References: <46AF3C5E.8080700@redhat.com> <46AFA0C8.90608@tresys.com>
-	 <46AFA242.1010903@redhat.com>
-	 <1185971344.15215.247.camel@moss-spartans.epoch.ncsc.mil>
-	 <1185973320.15215.258.camel@moss-spartans.epoch.ncsc.mil>
-	 <46B09165.9030907@redhat.com>
-Content-Type: text/plain
-Date: Wed, 01 Aug 2007 10:07:26 -0400
-Message-Id: <1185977246.15215.272.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l71EV3Ww031810
+	for <selinux@tycho.nsa.gov>; Wed, 1 Aug 2007 10:31:03 -0400
+Received: from dmzmta103.na.baesystems.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l71EV2fE002467
+	for <selinux@tycho.nsa.gov>; Wed, 1 Aug 2007 14:31:02 GMT
+Received: from BLUMS0033.bluelnk.net (blums0033.bluelnk.net [10.40.96.54])
+	by dmzmta103.na.baesystems.com (Switch-3.2.5/Switch-3.2.5) with ESMTP id l71EU7na016258
+	for <selinux@tycho.nsa.gov>; Wed, 1 Aug 2007 10:30:07 -0400
+Received: from blums0008.bluelnk.net (blums0008.sd.gd.com [134.120.81.40])
+	by usdmta001.na.baesystems.com (Switch-3.2.0/Switch-3.2.0) with ESMTP id l71ETdof016336
+	for <selinux@tycho.nsa.gov>; Wed, 1 Aug 2007 10:29:41 -0400
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Subject: mounted file systems
+Date: Wed, 1 Aug 2007 07:30:58 -0700
+Message-ID: <FB39F4E77226B448BC1388D3BE4E00CD01FB761B@blums0008.bluelnk.net>
+From: "Clarkson, Mike R \(US SSA\)" <mike.clarkson@baesystems.com>
+To: <selinux@tycho.nsa.gov>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2007-08-01 at 09:57 -0400, Daniel J Walsh wrote:
-> Stephen Smalley wrote:
-> > On Wed, 2007-08-01 at 08:29 -0400, Stephen Smalley wrote:
-> >   
-> >> On Tue, 2007-07-31 at 16:57 -0400, Daniel J Walsh wrote:
-> >>     
-> >>> Joshua Brindle wrote:
-> >>>       
-> >>>> Daniel J Walsh wrote:
-> >>>>         
-> >>>>> cat /tmp/test.py
-> >>>>> #!/usr/bin/python
-> >>>>> from semanage import *
-> >>>>> sh = semanage_handle_create()
-> >>>>> rc, con = semanage_context_from_string(sh, "<<none>>")
-> >>>>> rc,fcontext = semanage_fcontext_create(sh)
-> >>>>> semanage_fcontext_set_con(sh, fcontext, con)
-> >>>>>
-> >>>>>
-> >>>>> # python /tmp/test.py
-> >>>>> Segmentation fault
-> >>>>>           
-> >>>> Granted the segfault needs to be fixed but what exactly are you trying 
-> >>>> to accomplish? <<none>> is not a type, its just something matchpathcon 
-> >>>> uses to short circuit its labeling behavior.
-> >>>>
-> >>>>         
-> >>> I have a request from someone who wants to setup a directory that 
-> >>> shortcuts the labeling behaviour.  IE wants restorecon and friends to do 
-> >>> nothing in the directory.
-> >>>       
-> >> libsemanage maps a NULL context to <<none>>.
-> >>     
-> >
-> > Also, you never did a semanage_context_create() in the above.
-> >
-> >   
-> 
-> rc, con = semanage_context_from_string(sh, "<<none>>")
-> Should do the same, well at least
-> 
-> rc, con = semanage_context_from_string(sh, "system_u:object_r:etc_t")
-> 
-> Should
-> 
-> 
-> Anyways I worked on this a little further,  I now have creation working and modification partially working.
-> 
-> I can create a <<none>> entry as described in a previous mail, and I can modify it to a normal context.  But I have 
-> no way of modifying a normal context to a <<none>> without deleting and recreating the entry.
-> 
->                        rc = semanage_fcontext_set_con(self.sh, fcontext, None)
-> 
-> Segfaults.
+Is there any way to maintain a file system's labels, when that file
+system is mounted from one SELinux box to another?
 
-Try this patch for libsepol.
+My experience is that I can only apply a single label to the entire
+mounted file system, so that I lose the diversity of labels that existed
+on the original file system. 
 
-Make sepol_context_clone correctly handle a NULL context (for the
-"<<none>>" case).
+I'm wondering if there is another approach that would work better or if
+there are any plans for future support for this.
 
-Index: libsepol/src/context_record.c
-===================================================================
---- libsepol/src/context_record.c	(revision 2502)
-+++ libsepol/src/context_record.c	(working copy)
-@@ -154,6 +154,12 @@
- {
- 
- 	sepol_context_t *new_con = NULL;
-+
-+	if (!con) {
-+		*con_ptr = NULL;
-+		return 0;
-+	}
-+	  
- 	if (sepol_context_create(handle, &new_con) < 0)
- 		goto err;
- 
+Thanks 
 
--- 
-Stephen Smalley
-National Security Agency
 
 
 --
