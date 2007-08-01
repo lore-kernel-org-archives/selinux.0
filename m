@@ -1,50 +1,70 @@
-Subject: Re: security_task_getsecid and selinux_get_task_sid
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: casey@schaufler-ca.com
-Cc: SELinux List <selinux@tycho.nsa.gov>
-In-Reply-To: <698109.14273.qm@web36607.mail.mud.yahoo.com>
-References: <698109.14273.qm@web36607.mail.mud.yahoo.com>
-Content-Type: text/plain
-Date: Wed, 01 Aug 2007 16:54:16 -0400
-Message-Id: <1186001656.15215.377.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l71KthYI029414
+	for <selinux@tycho.nsa.gov>; Wed, 1 Aug 2007 16:55:43 -0400
+Received: from web36611.mail.mud.yahoo.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with SMTP id l71KtgpI023091
+	for <selinux@tycho.nsa.gov>; Wed, 1 Aug 2007 20:55:42 GMT
+Date: Wed, 1 Aug 2007 13:55:37 -0700 (PDT)
+From: Casey Schaufler <casey@schaufler-ca.com>
+Reply-To: casey@schaufler-ca.com
+Subject: Re: [RFC] SENFS: MAC labeling support for NFSv4
+To: "David P. Quigley" <dpquigl@tycho.nsa.gov>, selinux@tycho.nsa.gov,
+        labeled-nfs@linux-nfs.org
+In-Reply-To: <11859985322836-git-send-email-dpquigl@tycho.nsa.gov>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Message-ID: <31809.62508.qm@web36611.mail.mud.yahoo.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2007-08-01 at 13:39 -0700, Casey Schaufler wrote:
-> --- Stephen Smalley <sds@tycho.nsa.gov> wrote:
-> 
-> > On Wed, 2007-08-01 at 12:49 -0700, Casey Schaufler wrote:
-> > > Is there any difference between calls to security_task_getsecid() and
-> > > selinux_get_task_sid() with selinux installed? It doesn't look like
-> > > there is, but I could be missing something.
-> > 
-> > No, there is known duplication between the direct SELinux exports and
-> > certain LSM hooks, a consequence of audit going one direction and
-> > labeled networking going the other.  On our todo list for cleanup unless
-> > you get to it first.  Same thing applies for e.g.
-> > security_secid_to_secctx vs. selinux_sid_to_string.
-> 
-> OK, thank you.
-> 
-> On a related note, selinux_get_inode_sid() has no LSM equivilent.
-> This isn't surprising, but it's one of the interfaces I need to
-> address for my own nefarious purposes. Which would you prefer:
-> 
->    security_inode_getsecid()
->    security_inode_sid()
->    security_get_inode_sid()
-> 
-> I would lean toward security_inode_getsecid() because of the existing
-> security_task_getsecid(), but as it's your code I'm mucking with I
-> wouldn't want to impose my taste without asking.
 
-See patch 1/7 in the labeled NFS series.
+--- "David P. Quigley" <dpquigl@tycho.nsa.gov> wrote:
 
--- 
-Stephen Smalley
-National Security Agency
+> This is the first set of patches attempting to provide a generic framework
+> for
+> MAC labeling in NFSv4.
 
+I've read through the patches and I have one very important issue.
+If you are going to provide a "generic" framework you need to support
+label representations other than u32. If you only want to support
+SELinux, and I understand that that is your initial target, a u32
+is fine, but if you want a generic framework you need to allow for
+the kinds of labels that have been used elsewhere. Smack (under
+review now) uses an 8byte label. Trusted Irix uses a 510byte label,
+and although I wouldn't expect that implementation to actually get
+ported any time soon it provides an existence proof for large labels.
+If you're talking about NFS you need to seriously consider what
+TrustedSolaris requires, if just out of courtesy to those who brought
+you NFS in the first place.
+
+> This patch set is based heavily off of the patch from
+> Sparta that was circulated privately in our discussion. It contains several
+> new
+> LSM hooks to provide a method for setting the incore inode data and encoding
+> security information for passing across the wire in a module independent
+> manner. This patch set does not provide a method for setting the label on the
+> server from the client but provides the method for encoding those labels on
+> the
+> client. The patch applies on top of James Morris's SELinux git tree at git
+> commit hash 80ba80a9bf25d251237694c3fcee850a73324532. I am currently
+> maintaining these patches using guilt so if you have any patches for me to
+> add
+> to the set or to fold into the current patch set please mail them to the list
+> and I will add them to the next round of patches.
+> 
+> 
+> 
+> --
+> This message was distributed to subscribers of the selinux mailing list.
+> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
+> the words "unsubscribe selinux" without quotes as the message.
+> 
+> 
+> 
+
+
+Casey Schaufler
+casey@schaufler-ca.com
 
 --
 This message was distributed to subscribers of the selinux mailing list.
