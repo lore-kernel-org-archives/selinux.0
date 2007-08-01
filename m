@@ -1,30 +1,31 @@
 Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l71Jnh8j024453
-	for <selinux@tycho.nsa.gov>; Wed, 1 Aug 2007 15:49:43 -0400
-Received: from web36606.mail.mud.yahoo.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with SMTP id l71JngpI002838
-	for <selinux@tycho.nsa.gov>; Wed, 1 Aug 2007 19:49:42 GMT
-Date: Wed, 1 Aug 2007 12:49:37 -0700 (PDT)
-From: Casey Schaufler <casey@schaufler-ca.com>
-Reply-To: casey@schaufler-ca.com
-Subject: security_task_getsecid and selinux_get_task_sid
-To: SELinux List <selinux@tycho.nsa.gov>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Message-ID: <82670.92517.qm@web36606.mail.mud.yahoo.com>
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l71K6HpU025587
+	for <selinux@tycho.nsa.gov>; Wed, 1 Aug 2007 16:06:17 -0400
+Received: from moss-terrapins.epoch.ncsc.mil (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l71K6FpI005681
+	for <selinux@tycho.nsa.gov>; Wed, 1 Aug 2007 20:06:16 GMT
+From: "David P. Quigley" <dpquigl@tycho.nsa.gov>
+To: selinux@tycho.nsa.gov, labeled-nfs@linux-nfs.org
+Subject: [RFC] SENFS: MAC labeling support for NFSv4
+Date: Wed,  1 Aug 2007 16:02:05 -0400
+Message-Id: <11859985322836-git-send-email-dpquigl@tycho.nsa.gov>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+This is the first set of patches attempting to provide a generic framework for
+MAC labeling in NFSv4. This patch set is based heavily off of the patch from
+Sparta that was circulated privately in our discussion. It contains several new
+LSM hooks to provide a method for setting the incore inode data and encoding
+security information for passing across the wire in a module independent
+manner. This patch set does not provide a method for setting the label on the
+server from the client but provides the method for encoding those labels on the
+client. The patch applies on top of James Morris's SELinux git tree at git
+commit hash 80ba80a9bf25d251237694c3fcee850a73324532. I am currently
+maintaining these patches using guilt so if you have any patches for me to add
+to the set or to fold into the current patch set please mail them to the list
+and I will add them to the next round of patches.
 
-Is there any difference between calls to security_task_getsecid() and
-selinux_get_task_sid() with selinux installed? It doesn't look like
-there is, but I could be missing something.
 
-Thank you.
-
-
-Casey Schaufler
-casey@schaufler-ca.com
 
 --
 This message was distributed to subscribers of the selinux mailing list.
