@@ -1,238 +1,107 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l71218LI026986
-	for <selinux@tycho.nsa.gov>; Tue, 31 Jul 2007 22:01:08 -0400
-Received: from rv-out-0910.google.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l71216Dj022833
-	for <selinux@tycho.nsa.gov>; Wed, 1 Aug 2007 02:01:06 GMT
-Received: by rv-out-0910.google.com with SMTP id k15so44471rvb
-        for <selinux@tycho.nsa.gov>; Tue, 31 Jul 2007 19:01:05 -0700 (PDT)
-Message-ID: <46AFE917.5080107@gmail.com>
-Date: Wed, 01 Aug 2007 09:59:51 +0800
-From: Ken YANG <spng.yang@gmail.com>
+Message-ID: <46B055F3.6080404@ak.jp.nec.com>
+Date: Wed, 01 Aug 2007 18:44:19 +0900
+From: KaiGai Kohei <kaigai@ak.jp.nec.com>
 MIME-Version: 1.0
-To: SELinux List <selinux@tycho.nsa.gov>
-Subject: Re: [PATCH RFC] soundserver policy modification
-References: <46AEFFBF.2030008@gmail.com>
-In-Reply-To: <46AEFFBF.2030008@gmail.com>
-Content-Type: multipart/mixed;
- boundary="------------020409030706050207020107"
+To: Paul Howarth <paul@city-fan.org>
+CC: KaiGai Kohei <kaigai@kaigai.gr.jp>, Stephen Smalley <sds@tycho.nsa.gov>,
+        fedora-selinux-list-bounces@redhat.com, selinux@tycho.nsa.gov,
+        dwalsh@redhat.com
+Subject: Re: Guideline for RPM packages
+References: <46681714.3030009@kaigai.gr.jp>	<1181227502.11979.24.camel@moss-spartans.epoch.ncsc.mil>	<46681ED6.1010408@kaigai.gr.jp>	<46A861F6.10709@ak.jp.nec.com>	<46AE00BD.80900@city-fan.org>	<46AE07F5.1090101@kaigai.gr.jp>	<46AFDFA4.5060303@ak.jp.nec.com> <20070801075747.7ff9cfd2@metropolis.intra.city-fan.org>
+In-Reply-To: <20070801075747.7ff9cfd2@metropolis.intra.city-fan.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This is a multi-part message in MIME format.
---------------020409030706050207020107
-Content-Type: text/plain; charset=GB18030
-Content-Transfer-Encoding: 7bit
+Paul Howarth wrote:
+> On Wed, 01 Aug 2007 10:19:32 +0900
+> KaiGai Kohei <kaigai@ak.jp.nec.com> wrote:
+> 
+>> KaiGai Kohei wrote:
+>>> Paul Howarth wrote:
+>>>> KaiGai Kohei wrote:
+>>>>>>>> If I remember correctly, someone posted a guideline to make
+>>>>>>>> a RPM package which contains binary security policy, several
+>>>>>>>> weeks ago.
+>>>>>>>>
+>>>>>>>> If you know the URL, would you tell me the location?
+>>>>>>> There is a draft guide at:
+>>>>>>> http://fedoraproject.org/wiki/PackagingDrafts/SELinux/PolicyModules
+>>>>>> Thanks, so much!
+>>>>> I have a comment for the Policy Module Packaging Guideline.
+>>>>>
+>>>>> The document says every *.pp files should be installed for any
+>>>>> sort of policies (targeted, strict, mls) in the %post section.
+>>>>> However, it can cause a problem when a part of policies are not
+>>>>> installed yet.
+>>>>>
+>>>>> When we try to install an application including policy package on
+>>>>> the system which has only targeted policy, installation of *.pp
+>>>>> files for strict/mls will be failed no need to say.
+>>>>> If we want to install selinux-policy-strict or -mls later, the
+>>>>> oraphan *.pp files are not linked automatically because
+>>>>> "/usr/bin/semodule -i" is not invoked. It will cause a simple
+>>>>> problem, but a bit difficult to find out.
+>>>>>
+>>>>> I have an idea that uses "%triggerin" to invoke
+>>>>> "/use/bin/semodule -i" to link orphan *.pp files on instllation
+>>>>> of selinux-policy-* packages later, as follows:
+>>>>>
+>>>>> ----------------
+>>>>>   %triggerin -- selinux-policy-targeted
+>>>>>   if [ $0 -eq 1 ]; then
+>>>>>       /usr/sbin/semodule -s targeted -i
+>>>>> %{_datadir}/selinux/targeted/mymodule.pp &> /dev/null || : fi
+>>>>>   %triggerin -- selinux-policy-strict
+>>>>>   if [ $0 -eq 1 ]; then
+>>>>>       /usr/sbin/semodule -s strict -i
+>>>>> %{_datadir}/selinux/strict/mymodule.pp &> /dev/null || : fi
+>>>>>   %triggerin -- selinux-policy-mls
+>>>>>   if [ $0 -eq 1 ]; then
+>>>>>       /usr/sbin/semodule -s mls -i
+>>>>> %{_datadir}/selinux/mls/mymodule.pp &> /dev/null || : fi
+>>>>> ----------------
+>>>>>
+>>>>> If the application is installed on the system which already has
+>>>>> selinux-policy-strict, "%triggerin -- selinux-policy-strict" will
+>>>>> be invoked just when the application is installed, so there is no
+>>>>> degrading.
+>>>> Looks sane to me though it would be nice if there was some way of
+>>>> expressing this once rather than duplicate it for each policy type.
+>>>> Can't think of any way of doing that though.
+>>> I tried to find a way to describe it once without a duplication,
+>>> but I could not get a good idea.
+>>>
+>>> If we can describe them like as "%triggerin -- selinux-policy-*",
+>>> it's better. Please tell me, if anyone knows more appropriate way
+>>> to describe.
+> 
+> An alternative approach could be to have a standard directory to drop
+> policy modules packages, and then have the selinux-policy-* package
+> link in all policy modules found in those directories when the
+> selinux-policy-* is newly installed. It should only do that for new
+> installs so as to give the admin the option of not using (semodule -r)
+> particular modules from that point onwards, and not having to keep
+> re-removing the modules at every policy update.
+> 
+> How about that?
 
-Ken YANG wrote:
-> hi all,
-> 
-> i add some policy for nas(network audio system),
-> the drive of this modification is:
-> 
-> http://marc.info/?l=fedora-selinux-list&m=118493958413746&w=2
-> 
-> i post the modification to fedora-selinux-list
-> at last Saturday. Considering that fedora rawhide
-> policy now is merged version(strict and targeted),
-> which is somewhat different from the upstream policy,
-> so i post to that list:
-> 
-> http://marc.info/?l=fedora-selinux-list&m=118561164825982&w=2
-> 
-> but there wasnt reply about this patch until now,
-> so i think i post to the wrong place, then i "diff" with
-> the upstream policy(2377).
-> 
-> please review this patch.
+Paul,
 
-sorry, in last patch, i forgot add some targeted_policy
-rules, which had been removed from the merged-version
-policy(selinux-policy>3.0)
+I can agree your idea.
 
-additionally, the new patch based on 2383 version
+You say *.pp files in /usr/share/selinux/mls are linked when
+selinux-policy-mls is newly installed in, for example.
+Is it correct, isn't it?
 
-> 
-> 
-> thanks in advance.
-> 
-> 
-> 
+There is no need to write duplicate scripts.
+However, it's necessary to modify %post section in the selinux-policy-*
+packages instead of implicit invoking the script.
 
-
---------------020409030706050207020107
-Content-Type: text/x-patch;
- name="soundserver-2383.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="soundserver-2383.patch"
-
-diff -Nur svn/policy/modules/services/soundserver.fc svn-soundserver/policy/modules/services/soundserver.fc
---- svn/policy/modules/services/soundserver.fc	2007-04-16 14:55:31.000000000 +0800
-+++ svn-soundserver/policy/modules/services/soundserver.fc	2007-08-01 09:50:22.000000000 +0800
-@@ -1,10 +1,28 @@
--/etc/nas(/.*)?			gen_context(system_u:object_r:soundd_etc_t,s0)
- /etc/yiff(/.*)?			gen_context(system_u:object_r:soundd_etc_t,s0)
--
--/usr/bin/nasd		--	gen_context(system_u:object_r:soundd_exec_t,s0)
- /usr/bin/gpe-soundserver --	gen_context(system_u:object_r:soundd_exec_t,s0)
--
- /usr/sbin/yiff		--	gen_context(system_u:object_r:soundd_exec_t,s0)
--
- /var/run/yiff-[0-9]+\.pid --	gen_context(system_u:object_r:soundd_var_run_t,s0)
- /var/state/yiff(/.*)?		gen_context(system_u:object_r:soundd_state_t,s0)
-+
-+
-+#
-+# Following is for nas
-+
-+#
-+# /usr/bin
-+#
-+
-+/usr/bin/nasd		--	gen_context(system_u:object_r:soundd_exec_t,s0)
-+
-+
-+# 
-+# /tmp
-+#
-+/tmp/\.sockets		-d	gen_context(system_u:object_r:soundd_tmp_t,s0)
-+/tmp/\.sockets/.*	-s	<<none>>
-+
-+#
-+# /etc
-+#
-+/etc/nas(/.*)?			gen_context(system_u:object_r:soundd_etc_t,s0)
-+
-diff -Nur svn/policy/modules/services/soundserver.if svn-soundserver/policy/modules/services/soundserver.if
---- svn/policy/modules/services/soundserver.if	2007-04-16 14:55:35.000000000 +0800
-+++ svn-soundserver/policy/modules/services/soundserver.if	2007-08-01 09:50:22.000000000 +0800
-@@ -13,3 +13,64 @@
- interface(`soundserver_tcp_connect',`
- 	refpolicywarn(`$0($*) has been deprecated.')
- ')
-+
-+
-+########################################
-+## <summary>
-+##	Execute a domain transition to run soundserver.
-+## </summary>
-+## <param name="domain">
-+## <summary>
-+##	Domain allowed to transition.
-+## </summary>
-+## </param>
-+#
-+interface(`soundserver_domtrans',`
-+	gen_require(`
-+		type soundd_t, soundd_exec_t;
-+	')
-+
-+	domain_auto_trans($1,soundd_exec_t,soundd_t)
-+
-+	allow soundd_t $1:fd use;
-+	allow soundd_t $1:fifo_file rw_file_perms;
-+	allow soundd_t $1:process sigchld;
-+')
-+
-+########################################
-+## <summary>
-+##	Do not audit attempts to read, 
-+##	soundserver tmp files
-+## </summary>
-+## <param name="domain">
-+##	<summary>
-+##	Domain to not audit.
-+##	</summary>
-+## </param>
-+#
-+interface(`soundserver_dontaudit_read_tmp_files',`
-+	gen_require(`
-+		type soundd_tmp_t;
-+	')
-+
-+	dontaudit $1 soundd_tmp_t:file r_file_perms;
-+')
-+
-+########################################
-+## <summary>
-+##	Allow domain to read, soundserver tmp files
-+## </summary>
-+## <param name="domain">
-+##	<summary>
-+##	Domain to not audit.
-+##	</summary>
-+## </param>
-+#
-+interface(`soundserver_read_tmp_files',`
-+	gen_require(`
-+		type soundd_tmp_t;
-+	')
-+
-+	dontaudit $1 soundd_tmp_t:file r_file_perms;
-+')
-+
-diff -Nur svn/policy/modules/services/soundserver.te svn-soundserver/policy/modules/services/soundserver.te
---- svn/policy/modules/services/soundserver.te	2007-07-03 15:26:28.000000000 +0800
-+++ svn-soundserver/policy/modules/services/soundserver.te	2007-08-01 09:51:59.000000000 +0800
-@@ -1,5 +1,5 @@
- 
--policy_module(soundserver,1.3.0)
-+policy_module(soundserver,1.3.1)
- 
- ########################################
- #
-@@ -8,10 +8,13 @@
- 
- type soundd_t;
- type soundd_exec_t;
-+domain_type(soundd_t)
-+domain_entry_file(soundd_t,soundd_exec_t)
- init_daemon_domain(soundd_t,soundd_exec_t)
- 
- type soundd_etc_t alias etc_soundd_t;
--files_type(soundd_etc_t)
-+#files_type(soundd_etc_t)
-+files_config_file(soundd_etc_t)
- 
- type soundd_state_t;
- files_type(soundd_state_t)
-@@ -28,13 +31,32 @@
- 
- ########################################
- #
--# Declarations
-+# sound server local policy
- #
- 
- dontaudit soundd_t self:capability sys_tty_config;
- allow soundd_t self:process { setpgid signal_perms };
-+
- allow soundd_t self:tcp_socket create_stream_socket_perms;
- allow soundd_t self:udp_socket create_socket_perms;
-+
-+allow soundd_t self:unix_stream_socket { connectto create_stream_socket_perms };
-+manage_sock_files_pattern(soundd_t,soundd_tmp_t,soundd_tmp_t)
-+files_tmp_filetrans(soundd_t, soundd_tmp_t, { file dir sock_file })
-+
-+
-+# Remove /tmp/.sockets/audio$n
-+delete_files_pattern(soundd_t,soundd_tmp_t,soundd_tmp_t)
-+delete_sock_files_pattern(soundd_t,soundd_tmp_t,soundd_tmp_t)
-+
-+allow soundd_t self:capability { dac_override };
-+
-+fs_getattr_all_fs(soundd_t)
-+
-+optional_policy(`
-+	alsa_domtrans(soundd_t)
-+')
-+
- # for yiff
- allow soundd_t self:shm create_shm_perms;
- 
-
---------------020409030706050207020107--
+Is it possible?
+-- 
+OSS Platform Development Division, NEC
+KaiGai Kohei <kaigai@ak.jp.nec.com>
 
 --
 This message was distributed to subscribers of the selinux mailing list.
