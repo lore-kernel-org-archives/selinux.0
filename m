@@ -1,158 +1,74 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l72Jgl19020034
-	for <selinux@tycho.nsa.gov>; Thu, 2 Aug 2007 15:42:47 -0400
-Received: from mx1.redhat.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l72JggOD025546
-	for <selinux@tycho.nsa.gov>; Thu, 2 Aug 2007 19:42:42 GMT
-Date: Thu, 2 Aug 2007 15:42:36 -0400
-Message-Id: <200708021942.l72JgaaE029018@redsox.boston.devel.redhat.com>
-From: dwalsh@redhat.com
-To: cpebenito@tresys.com
-CC: selinux@tycho.nsa.gov
-Subject: [PATCH] refpolicy: admin_usermanage changes
+Message-ID: <46B23421.1030101@manicmethod.com>
+Date: Thu, 02 Aug 2007 15:44:33 -0400
+From: Joshua Brindle <method@manicmethod.com>
+MIME-Version: 1.0
+To: Paul Moore <paul.moore@hp.com>
+CC: Eric Paris <eparis@redhat.com>, Stephen Smalley <sds@tycho.nsa.gov>,
+        selinux@tycho.nsa.gov, jmorris@namei.org,
+        Karl MacMillan <kmacmillan@mentalrootkit.com>
+Subject: Re: [PATCH] kernel: selinux: policy selectable handling of unknown
+ classes and perms
+References: <1185983352.3673.16.camel@localhost.localdomain> <1186068805.2434.40.camel@moss-spartans.epoch.ncsc.mil> <1186075512.4405.34.camel@localhost.localdomain> <200708021443.26314.paul.moore@hp.com>
+In-Reply-To: <200708021443.26314.paul.moore@hp.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Fix bug in reading crackdb
-Use new audit interfaces
-Transition to nscd to reload cache
-Configure apache file ~public_html
-Write to samba log file when running in domain controller mode
+Paul Moore wrote:
+> On Thursday, August 2 2007 1:25:12 pm Eric Paris wrote:
+>   
+>> Maybe instead a versioning scheme?  Every security check comes with a
+>> 'version.'  Every time we add/change a security check we add one to the
+>> 'version' for that check.  If the policy handed to the kernel has a
+>> 'version' less than the value we get from the security hook call coded
+>> in kernel we can just allow it?   Maybe that could be a solution to the
+>> issue I am addressing now along with things like this netlabel change?
+>> It certainly would have to touch a whole lot of stuff and might be a
+>> pain to keep up with.  Lets say I move a security hook around in a
+>> function, I need to decide if the version need to be bumped on that hook
+>> or not.  Not impossible, but not pretty.  Also probably means a policy
+>> version update, which in turn breaks the discussion which we have
+>> ongoing above....
+>>     
+>
+> While I'm not an expert on the policy aspects of this discussion and how the 
+> kernel and userspace objects managers interact I think at some point we are 
+> going to need something like what Eric proposes above.  With the requirement 
+> that new kernels must not regress when using old policy we are going to run 
+> into issues as we move forward and add new permission checks.  While I don't 
+> think we've seen it yet, it is reasonable to think that this problem will 
+> expand into userspace as we develop more and more userspace object managers 
+> such a X, CUPS, Postgres, etc.
+>
+> I know the changes aren't likely to be pretty, I'm kinda cringing at the 
+> thought actually, but I think it's a necessary evil for the long term 
+> survivability of SELinux.  At least that's what I took away from Eric and 
+> Stephen's comments on this thread and I tend to agree.
+>   
 
---- nsaserefpolicy/policy/modules/admin/usermanage.if	2007-05-29 14:10:59.000000000 -0400
-+++ serefpolicy-3.0.5/policy/modules/admin/usermanage.if	2007-08-02 11:02:02.000000000 -0400
-@@ -278,5 +278,5 @@
- 		type crack_db_t;
- 	')
- 
--	allow $1 crack_db_t:file read_file_perms;
-+	read_files_pattern($1,crack_db_t,crack_db_t)
- ')
---- nsaserefpolicy/policy/modules/admin/usermanage.te	2007-07-25 10:37:43.000000000 -0400
-+++ serefpolicy-3.0.5/policy/modules/admin/usermanage.te	2007-08-02 11:02:02.000000000 -0400
-@@ -191,7 +192,6 @@
- allow groupadd_t self:unix_stream_socket create_stream_socket_perms;
- allow groupadd_t self:unix_dgram_socket sendto;
- allow groupadd_t self:unix_stream_socket connectto;
--allow groupadd_t self:netlink_audit_socket { create_netlink_socket_perms nlmsg_relay };
- 
- fs_getattr_xattr_fs(groupadd_t)
- fs_search_auto_mountpoints(groupadd_t)
-@@ -223,6 +223,7 @@
- # Execute /usr/bin/{passwd,chfn,chsh} and /usr/sbin/{useradd,vipw}.
- corecmd_exec_bin(groupadd_t)
- 
-+logging_send_audit_msgs(groupadd_t)
- logging_send_syslog_msg(groupadd_t)
- 
- miscfiles_read_localization(groupadd_t)
-@@ -245,8 +246,13 @@
- ')
- 
- optional_policy(`
-+	nscd_domtrans(groupadd_t)
-+')
-+
-+optional_policy(`
- 	rpm_use_fds(groupadd_t)
- 	rpm_rw_pipes(groupadd_t)
-+	rpm_dontaudit_rw_tmp_files(groupadd_t)
- ')
- 
- ########################################
-@@ -254,7 +260,7 @@
- # Passwd local policy
- #
- 
--allow passwd_t self:capability { chown dac_override fsetid setuid setgid sys_resource audit_control audit_write };
-+allow passwd_t self:capability { chown dac_override fsetid setuid setgid sys_resource };
- allow passwd_t self:process ~{ ptrace setcurrent setexec setfscreate setrlimit execmem execstack execheap };
- allow passwd_t self:process { setrlimit setfscreate };
- allow passwd_t self:fd use;
-@@ -264,7 +270,6 @@
- allow passwd_t self:unix_stream_socket create_stream_socket_perms;
- allow passwd_t self:unix_dgram_socket sendto;
- allow passwd_t self:unix_stream_socket connectto;
--allow passwd_t self:netlink_audit_socket { create_netlink_socket_perms nlmsg_relay };
- allow passwd_t self:shm create_shm_perms;
- allow passwd_t self:sem create_sem_perms;
- allow passwd_t self:msgq create_msgq_perms;
-@@ -316,6 +321,7 @@
- libs_use_ld_so(passwd_t)
- libs_use_shared_libs(passwd_t)
- 
-+logging_send_audit_msgs(passwd_t)
- logging_send_syslog_msg(passwd_t)
- 
- miscfiles_read_localization(passwd_t)
-@@ -336,6 +342,7 @@
- 
- optional_policy(`
- 	nscd_socket_use(passwd_t)
-+	nscd_domtrans(passwd_t)
- ')
- 
- ########################################
-@@ -426,6 +433,7 @@
- 
- optional_policy(`
- 	nscd_socket_use(sysadm_passwd_t)
-+	nscd_domtrans(sysadm_passwd_t)
- ')
- 
- ########################################
-@@ -433,7 +441,7 @@
- # Useradd local policy
- #
- 
--allow useradd_t self:capability { dac_override chown kill fowner fsetid setuid sys_resource audit_write };
-+allow useradd_t self:capability { dac_override chown kill fowner fsetid setuid sys_resource };
- dontaudit useradd_t self:capability sys_tty_config;
- allow useradd_t self:process ~{ ptrace setcurrent setexec setfscreate setrlimit execmem execstack execheap };
- allow useradd_t self:process setfscreate;
-@@ -447,7 +455,6 @@
- allow useradd_t self:unix_stream_socket create_stream_socket_perms;
- allow useradd_t self:unix_dgram_socket sendto;
- allow useradd_t self:unix_stream_socket connectto;
--allow useradd_t self:netlink_audit_socket { create_netlink_socket_perms nlmsg_relay };
- 
- # for getting the number of groups
- kernel_read_kernel_sysctls(useradd_t)
-@@ -492,6 +499,7 @@
- libs_use_ld_so(useradd_t)
- libs_use_shared_libs(useradd_t)
- 
-+logging_send_audit_msgs(useradd_t)
- logging_send_syslog_msg(useradd_t)
- 
- miscfiles_read_localization(useradd_t)
-@@ -514,11 +525,26 @@
- mta_manage_spool(useradd_t)
- 
- optional_policy(`
-+	apache_manage_all_content(useradd_t)
-+')
-+
-+optional_policy(`
- 	dpkg_use_fds(useradd_t)
- 	dpkg_rw_pipes(useradd_t)
- ')
- 
- optional_policy(`
-+	nscd_domtrans(useradd_t)
-+')
-+
-+optional_policy(`
-+	tunable_policy(`samba_domain_controller',`
-+		samba_append_log(useradd_t)
-+	')
-+')
-+
-+optional_policy(`
- 	rpm_use_fds(useradd_t)
- 	rpm_rw_pipes(useradd_t)
-+	rpm_dontaudit_rw_tmp_files(useradd_t)
- ')
+I'd have to give a pretty hard NAK (for what it would be worth) to the 
+versioning system, it simply doesn't scale; in the past we've used 
+policy versions to decide how some permission checks work (see fine 
+grained netlink discussions) and it was fairly non-ideal. I have to go 
+back to the 'the object manager should decide how to deal with unknown 
+permissions' argument. The object manager knows how its objects are 
+used, and how the security system affects those objects, it is in the 
+best position to make those decisions, the security server can only make 
+a rough estimation on what the object manager and user want to do, which 
+may or may not be accurate.
+
+Here is an example, granted kernexec uses the reboot capability but 
+suppose we wanted to make it a separate permission, I'm fairly certain 
+that we'd want to always deny it if the policy didn't know about it, 
+whereas SE-X is completely unusable without policy and still has OS 
+level policy determining who can talk to the X daemon itself, SE-X would 
+have to make a determination of whether to run at all or run with course 
+grained permissions, chances are most people would want the latter. This 
+means we'd actually have environments where some object managers deny by 
+default and others allow (or even short circuit access attempts 
+altogether). This is ideal from a scalability and dynamic system 
+perspective and seems by far to be the best solution.
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
