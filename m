@@ -1,68 +1,51 @@
-Subject: Re: [RFC] SENFS: MAC labeling support for NFSv4
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: casey@schaufler-ca.com
-Cc: "David P. Quigley" <dpquigl@tycho.nsa.gov>, selinux@tycho.nsa.gov,
-        labeled-nfs@linux-nfs.org
-In-Reply-To: <127128.61452.qm@web36609.mail.mud.yahoo.com>
-References: <127128.61452.qm@web36609.mail.mud.yahoo.com>
-Content-Type: text/plain
-Date: Thu, 02 Aug 2007 09:19:49 -0400
-Message-Id: <1186060789.26901.72.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l72EFwCD022913
+	for <selinux@tycho.nsa.gov>; Thu, 2 Aug 2007 10:15:58 -0400
+Received: from mx1.redhat.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l72EFuPD022827
+	for <selinux@tycho.nsa.gov>; Thu, 2 Aug 2007 14:15:56 GMT
+Message-ID: <46B1E719.500@redhat.com>
+Date: Thu, 02 Aug 2007 10:15:53 -0400
+From: Daniel J Walsh <dwalsh@redhat.com>
+MIME-Version: 1.0
+To: Jan-Frode Myklebust <janfrode@tanso.net>
+CC: selinux@tycho.nsa.gov
+Subject: Re: setroubleshooter/sealert on central loghost?
+References: <911f42990707310750r349d11c4x9132c68d83cf8cfc@mail.gmail.com>
+In-Reply-To: <911f42990707310750r349d11c4x9132c68d83cf8cfc@mail.gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2007-08-01 at 14:59 -0700, Casey Schaufler wrote:
-> --- Stephen Smalley <sds@tycho.nsa.gov> wrote:
-> 
-> > On Wed, 2007-08-01 at 13:55 -0700, Casey Schaufler wrote:
-> > > --- "David P. Quigley" <dpquigl@tycho.nsa.gov> wrote:
-> > > 
-> > > > This is the first set of patches attempting to provide a generic
-> > framework
-> > > > for
-> > > > MAC labeling in NFSv4.
-> > > 
-> > > I've read through the patches and I have one very important issue.
-> > > If you are going to provide a "generic" framework you need to support
-> > > label representations other than u32. If you only want to support
-> > > SELinux, and I understand that that is your initial target, a u32
-> > > is fine, but if you want a generic framework you need to allow for
-> > > the kinds of labels that have been used elsewhere. Smack (under
-> > > review now) uses an 8byte label. Trusted Irix uses a 510byte label,
-> > > and although I wouldn't expect that implementation to actually get
-> > > ported any time soon it provides an existence proof for large labels.
-> > > If you're talking about NFS you need to seriously consider what
-> > > TrustedSolaris requires, if just out of courtesy to those who brought
-> > > you NFS in the first place.
-> > 
-> > The label representation over the wire isn't a u32 (or inherently
-> > limited in size); the u32 secid is just a handle to the label.  As long
-> > as the code invokes a secid_to_secctx hook to obtain the actual label to
-> > be conveyed over the wire, there is no harm, and it is more efficient to
-> > handle them as secids than full labels internally.
-> 
-> This is true for SELinux, where the secid is a map to a sophisticated
-> label. On Smack the label is completely unsophisticated and
-> translating back and forth to secids adds unnecessary overhead.
-> 
-> In the spirit of LSM I suggest that blobs are more appropriate
-> units of data than u32s. I understand that the SELinux design
-> philosophy is well served by secids. My design philosophy, which
-> is pretty much the opposite, has no need for secids and is
-> negatively impacted by interfaces that require them.
+Jan-Frode Myklebust wrote:
+> We run a centralized syslog server, and separate all syslogged avc
+> into a separate log file. Is it possible to have setroubleshooter/sealert
+> use this log file ?
+>
+> Also it would be nice if one could get the correct "Host Name" in
+> the setroubleshhot browser and alerts. Guess that also will have
+> to be added to the avc-log lines is some format.. I tried faking it
+> with:
+>
+> type=AVC msg=audit(1185725759.359:2945): avc:  denied  { search } for
+> pid=2077 hostname="my.hostname.com" comm="snmpd" name="fs" dev=proc
+> ino=4026531869 scontext=system_u:system_r:snmpd_t:s0
+> tcontext=system_u:object_r:sysctl_fs_t:s0 tclass=dir
+>
+> But the troubleshooter doesn't pick up the hostname. Any ideas ?
+>
+>
+>  -jf
+>
+> --
+> This message was distributed to subscribers of the selinux mailing list.
+> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
+> the words "unsubscribe selinux" without quotes as the message.
+>   
+If you keep the logs separate you can use sealert on the log files.
 
-Blobs require full lifecycle management.  secids are lighter weight, and
-it isn't that hard for you to implement a secid-to-label mapping in your
-own module even if you don't otherwise use them internally.
+sealert -a logfile
 
-secids are already entrenched in the LSM interface for labeled
-networking and are already entrenched in the audit-selinux interface
-(even if converted to using LSM hooks).
-
--- 
-Stephen Smalley
-National Security Agency
 
 
 --
