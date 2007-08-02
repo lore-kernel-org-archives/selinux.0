@@ -1,77 +1,71 @@
-Message-ID: <46B1F5D1.3020804@manicmethod.com>
-Date: Thu, 02 Aug 2007 11:18:41 -0400
-From: Joshua Brindle <method@manicmethod.com>
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l72FQkW0030919
+	for <selinux@tycho.nsa.gov>; Thu, 2 Aug 2007 11:26:46 -0400
+Received: from web36608.mail.mud.yahoo.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with SMTP id l72FQiWr026546
+	for <selinux@tycho.nsa.gov>; Thu, 2 Aug 2007 15:26:44 GMT
+Date: Thu, 2 Aug 2007 08:26:31 -0700 (PDT)
+From: Casey Schaufler <casey@schaufler-ca.com>
+Reply-To: casey@schaufler-ca.com
+Subject: Re: [RFC] SENFS: MAC labeling support for NFSv4
+To: Stephen Smalley <sds@tycho.nsa.gov>, casey@schaufler-ca.com
+Cc: "David P. Quigley" <dpquigl@tycho.nsa.gov>, selinux@tycho.nsa.gov,
+        labeled-nfs@linux-nfs.org
+In-Reply-To: <1186060789.26901.72.camel@moss-spartans.epoch.ncsc.mil>
 MIME-Version: 1.0
-To: Stephen Smalley <sds@tycho.nsa.gov>
-CC: Eric Paris <eparis@redhat.com>, selinux@tycho.nsa.gov, jmorris@namei.org,
-        Karl MacMillan <kmacmillan@mentalrootkit.com>,
-        Paul Moore <paul.moore@hp.com>
-Subject: Re: [PATCH] kernel: selinux: policy selectable handling of unknown
- classes and perms
-References: <1185983352.3673.16.camel@localhost.localdomain> <1186065564.2434.12.camel@moss-spartans.epoch.ncsc.mil>
-In-Reply-To: <1186065564.2434.12.camel@moss-spartans.epoch.ncsc.mil>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain; charset=iso-8859-1
+Message-ID: <912088.21089.qm@web36608.mail.mud.yahoo.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Stephen Smalley wrote:
-> On Wed, 2007-08-01 at 11:49 -0400, Eric Paris wrote:
->   
->> Allow policy to select, in much the same way as it selects MLS support,
->> how the kernel should handle access decisions which contain either
->> unknown classes or unknown permissions in unknown classes.  The three
->> choices are (from a kernel perspective)
->>
->> 0 - Deny unknown security access. (default)
->> 2 - reject loading policy if it does not contain all definitions
->> 4 - allow unknown security access
->>     
->
-> If we leave the default as the current behavior (i.e. deny access if
-> checking an unknown class or permission), then what exactly have we
-> achieved with this patch?  The next time we introduce a new permission
-> check in the kernel, anyone who installs that kernel on an existing
-> distribution release will still encounter breakage.  It will only start
-> providing benefit for newer distribution releases with policies built to
-> have the non-default setting.
->
->   
-I don't think we should change the default behavior of the policy, this 
-could have some very unintended consequences to people building policies 
-for security oriented systems that may not be aware of the build 
-infrastructure changes necessary to keep the old behavior.
 
-> Other points to ponder:
-> - Would this have helped with the recent netlabel breakage?  I don't
-> think so, as that was introducing a further check for an existing
-> class/perm in the unlabeled case, not a new class/perm.
-> - Does this help with letting us fix the ioctl hook?  Problem there is
-> again that we are more likely to start mapping ioctls to read/write or
-> getattr/setattr instead of the generic "ioctl" fallback rather than
-> introducing new perms.
->   
-How many policies give ioctl without giving read/write or 
-getattr/setattr? Is this really an issue?
+--- Stephen Smalley <sds@tycho.nsa.gov> wrote:
+ 
+> > In the spirit of LSM I suggest that blobs are more appropriate
+> > units of data than u32s. I understand that the SELinux design
+> > philosophy is well served by secids. My design philosophy, which
+> > is pretty much the opposite, has no need for secids and is
+> > negatively impacted by interfaces that require them.
+> 
+> Blobs require full lifecycle management.
 
-> - We still can't easily add new perms to common definitions (displaces
-> class-specific ones).
->   
-I'm not sure we are going to be able to handle this one until we extend 
-object class/perm discovery to the kernel object managers, its a 
-completely different problem from what this is attempting to solve.
+Yup.
 
-> - Does this help us with secmark at all, e.g. can we eliminate
-> compat_net?  Do we want to eliminate compat_net yet?  Fedora still seems
-> to have compat_net=1.
-> - We still can't purge obsolete classes/perms or reorganize the existing
-> ones safely with this change.
->   
-Ditto.
+> secids are lighter weight,
 
-> So...is it worth it by itself?
->   
+They are lighter weight than big labels. They are heavier than
+small labels. They require translation, while certain designs of
+small labels don't even require translation to print.
+
+> and
+> it isn't that hard for you to implement a secid-to-label mapping in your
+> own module even if you don't otherwise use them internally.
+
+Is true. It just feels silly to translate a text string into a secid
+so that I can pass it to someone who only cares about the secid because
+they want to use it to get the string I had in the first place.
+
+> secids are already entrenched in the LSM interface for labeled
+> networking
+
+The xfrm interfaces that require secids are seriously SELinux components.
+Netlabel only uses secids for audit. 
+
+> and are already entrenched in the audit-selinux interface
+> (even if converted to using LSM hooks).
+
+So I've found. It is annoying that the audit system passes around sids
+when it never uses them except to get the associated strings, which
+Smack uses natively and can provide trivially.
+
+Well, I can generally identify a windmill when I'm tilting it, so
+now that I've aired my heretical notions I'll get on with it.
+
+Thank you.
 
 
+Casey Schaufler
+casey@schaufler-ca.com
 
 --
 This message was distributed to subscribers of the selinux mailing list.
