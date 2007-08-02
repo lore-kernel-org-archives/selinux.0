@@ -1,51 +1,262 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l72EFwCD022913
-	for <selinux@tycho.nsa.gov>; Thu, 2 Aug 2007 10:15:58 -0400
-Received: from mx1.redhat.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l72EFuPD022827
-	for <selinux@tycho.nsa.gov>; Thu, 2 Aug 2007 14:15:56 GMT
-Message-ID: <46B1E719.500@redhat.com>
-Date: Thu, 02 Aug 2007 10:15:53 -0400
-From: Daniel J Walsh <dwalsh@redhat.com>
-MIME-Version: 1.0
-To: Jan-Frode Myklebust <janfrode@tanso.net>
-CC: selinux@tycho.nsa.gov
-Subject: Re: setroubleshooter/sealert on central loghost?
-References: <911f42990707310750r349d11c4x9132c68d83cf8cfc@mail.gmail.com>
-In-Reply-To: <911f42990707310750r349d11c4x9132c68d83cf8cfc@mail.gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Subject: Re: [PATCH] kernel: selinux: policy selectable handling of unknown
+	classes and perms
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Eric Paris <eparis@redhat.com>
+Cc: selinux@tycho.nsa.gov, jmorris@namei.org,
+        Joshua Brindle <method@manicmethod.com>,
+        Karl MacMillan <kmacmillan@mentalrootkit.com>,
+        Paul Moore <paul.moore@hp.com>
+In-Reply-To: <1185983352.3673.16.camel@localhost.localdomain>
+References: <1185983352.3673.16.camel@localhost.localdomain>
+Content-Type: text/plain
+Date: Thu, 02 Aug 2007 10:39:24 -0400
+Message-Id: <1186065564.2434.12.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Jan-Frode Myklebust wrote:
-> We run a centralized syslog server, and separate all syslogged avc
-> into a separate log file. Is it possible to have setroubleshooter/sealert
-> use this log file ?
->
-> Also it would be nice if one could get the correct "Host Name" in
-> the setroubleshhot browser and alerts. Guess that also will have
-> to be added to the avc-log lines is some format.. I tried faking it
-> with:
->
-> type=AVC msg=audit(1185725759.359:2945): avc:  denied  { search } for
-> pid=2077 hostname="my.hostname.com" comm="snmpd" name="fs" dev=proc
-> ino=4026531869 scontext=system_u:system_r:snmpd_t:s0
-> tcontext=system_u:object_r:sysctl_fs_t:s0 tclass=dir
->
-> But the troubleshooter doesn't pick up the hostname. Any ideas ?
->
->
->  -jf
->
-> --
-> This message was distributed to subscribers of the selinux mailing list.
-> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
-> the words "unsubscribe selinux" without quotes as the message.
->   
-If you keep the logs separate you can use sealert on the log files.
+On Wed, 2007-08-01 at 11:49 -0400, Eric Paris wrote:
+> Allow policy to select, in much the same way as it selects MLS support,
+> how the kernel should handle access decisions which contain either
+> unknown classes or unknown permissions in unknown classes.  The three
+> choices are (from a kernel perspective)
+> 
+> 0 - Deny unknown security access. (default)
+> 2 - reject loading policy if it does not contain all definitions
+> 4 - allow unknown security access
 
-sealert -a logfile
+If we leave the default as the current behavior (i.e. deny access if
+checking an unknown class or permission), then what exactly have we
+achieved with this patch?  The next time we introduce a new permission
+check in the kernel, anyone who installs that kernel on an existing
+distribution release will still encounter breakage.  It will only start
+providing benefit for newer distribution releases with policies built to
+have the non-default setting.
 
+Other points to ponder:
+- Would this have helped with the recent netlabel breakage?  I don't
+think so, as that was introducing a further check for an existing
+class/perm in the unlabeled case, not a new class/perm.
+- Does this help with letting us fix the ioctl hook?  Problem there is
+again that we are more likely to start mapping ioctls to read/write or
+getattr/setattr instead of the generic "ioctl" fallback rather than
+introducing new perms.
+- We still can't easily add new perms to common definitions (displaces
+class-specific ones).
+- Does this help us with secmark at all, e.g. can we eliminate
+compat_net?  Do we want to eliminate compat_net yet?  Fedora still seems
+to have compat_net=1.
+- We still can't purge obsolete classes/perms or reorganize the existing
+ones safely with this change.
+
+So...is it worth it by itself?
+
+> 
+> Signed-off-by: Eric Paris <eparis@redhat.com>
+> ---
+> 
+> Biggest change between this patch and the last on list is that I changed
+> handle_unknown to not be needlessly bit shifted.  I also dropped a check
+> in context_struct_computeav which was redundant.
+> 
+>  security/selinux/ss/policydb.c |    8 +++++
+>  security/selinux/ss/policydb.h |   10 ++++++
+>  security/selinux/ss/services.c |   65 ++++++++++++++++++++++++++++++++++-----
+>  3 files changed, 74 insertions(+), 9 deletions(-)
+> 
+> diff --git a/security/selinux/ss/policydb.c b/security/selinux/ss/policydb.c
+> index f05f97a..588dcfd 100644
+> --- a/security/selinux/ss/policydb.c
+> +++ b/security/selinux/ss/policydb.c
+> @@ -677,6 +677,8 @@ void policydb_destroy(struct policydb *p)
+>  	}
+>  	kfree(p->type_attr_map);
+>  
+> +	kfree(p->undefined_perms);
+> +
+>  	return;
+>  }
+>  
+> @@ -1530,6 +1532,12 @@ int policydb_read(struct policydb *p, void *fp)
+>  			goto bad;
+>  		}
+>  	}
+> +	p->handle_unknown = le32_to_cpu(buf[1]) & POLICYDB_CONFIG_UNKNOWN_MASK;
+> +
+> +	if (p->handle_unknown > ALLOW_UNKNOWN) {
+> +		printk(KERN_ERR "selinux: invalid options for handle_unknown\n");
+> +		goto bad;
+> +	}
+>  
+>  	info = policydb_lookup_compat(p->policyvers);
+>  	if (!info) {
+> diff --git a/security/selinux/ss/policydb.h b/security/selinux/ss/policydb.h
+> index 8319d5f..f84e856 100644
+> --- a/security/selinux/ss/policydb.h
+> +++ b/security/selinux/ss/policydb.h
+> @@ -242,6 +242,9 @@ struct policydb {
+>  	struct ebitmap *type_attr_map;
+>  
+>  	unsigned int policyvers;
+> +
+> +	int handle_unknown;
+> +	u32 *undefined_perms;
+>  };
+>  
+>  extern void policydb_destroy(struct policydb *p);
+> @@ -253,6 +256,13 @@ extern int policydb_read(struct policydb *p, void *fp);
+>  
+>  #define POLICYDB_CONFIG_MLS    1
+>  
+> +/* the config flags related to unknown classes/perms are bits 2 and 3 */
+> +#define DENY_UNKNOWN	0x00000000
+> +#define REJECT_UNKNOWN	0x00000002
+> +#define ALLOW_UNKNOWN	0x00000004
+> +
+> +#define POLICYDB_CONFIG_UNKNOWN_MASK 	(DENY_UNKNOWN | REJECT_UNKNOWN | ALLOW_UNKNOWN)
+> +
+>  #define OBJECT_R "object_r"
+>  #define OBJECT_R_VAL 1
+>  
+> diff --git a/security/selinux/ss/services.c b/security/selinux/ss/services.c
+> index 0ae032f..d3f3a43 100644
+> --- a/security/selinux/ss/services.c
+> +++ b/security/selinux/ss/services.c
+> @@ -292,6 +292,7 @@ static int context_struct_compute_av(struct context *scontext,
+>  	struct class_datum *tclass_datum;
+>  	struct ebitmap *sattr, *tattr;
+>  	struct ebitmap_node *snode, *tnode;
+> +	const struct selinux_class_perm *kdefs = &selinux_class_perm;
+>  	unsigned int i, j;
+>  
+>  	/*
+> @@ -305,13 +306,6 @@ static int context_struct_compute_av(struct context *scontext,
+>  		    tclass <= SECCLASS_NETLINK_DNRT_SOCKET)
+>  			tclass = SECCLASS_NETLINK_SOCKET;
+>  
+> -	if (!tclass || tclass > policydb.p_classes.nprim) {
+> -		printk(KERN_ERR "security_compute_av:  unrecognized class %d\n",
+> -		       tclass);
+> -		return -EINVAL;
+> -	}
+> -	tclass_datum = policydb.class_val_to_struct[tclass - 1];
+> -
+>  	/*
+>  	 * Initialize the access vectors to the default values.
+>  	 */
+> @@ -322,6 +316,36 @@ static int context_struct_compute_av(struct context *scontext,
+>  	avd->seqno = latest_granting;
+>  
+>  	/*
+> +	 * Check for all the invalid cases.
+> +	 * - tclass 0
+> +	 * - tclass > policy and > kernel
+> +	 * - tclass > policy but is a userspace class
+> +	 * - tclass > policy but we do not allow unknowns
+> +	 */
+> +	if (unlikely(!tclass))
+> +		goto inval_class;
+> +	if (unlikely(tclass > policydb.p_classes.nprim))
+> +		if (tclass > kdefs->cts_len || 
+> +		    !kdefs->class_to_string[tclass - 1] ||
+> +		    policydb.handle_unknown != ALLOW_UNKNOWN)
+> +			goto inval_class;
+> +
+> +	/* 
+> +	 * Kernel class and we ALLOW_UNKNOWN so pad the allow decision 
+> +	 * the pad will be all 1 for unknown classes.
+> +	 */
+> +	if (tclass <= kdefs->cts_len && (policydb.handle_unknown == ALLOW_UNKNOWN))
+> +		avd->allowed = policydb.undefined_perms[tclass - 1];
+> +
+> +	/*
+> +	 * Not in policy. Since decision is completed (all 1 or all 0) return.
+> +	 */
+> +	if (unlikely(tclass > policydb.p_classes.nprim))
+> +		return 0;
+> +
+> +	tclass_datum = policydb.class_val_to_struct[tclass - 1];
+> +
+> +	/*
+>  	 * If a specific type enforcement rule was defined for
+>  	 * this permission check, then use it.
+>  	 */
+> @@ -387,6 +411,10 @@ static int context_struct_compute_av(struct context *scontext,
+>  	}
+>  
+>  	return 0;
+> +
+> +inval_class:
+> +	printk(KERN_ERR "security_compute_av:  unrecognized class %d\n", tclass);
+> +	return -EINVAL;
+>  }
+>  
+>  static int security_validtrans_handle_fail(struct context *ocontext,
+> @@ -1054,6 +1082,13 @@ static int validate_classes(struct policydb *p)
+>  	const char *def_class, *def_perm, *pol_class;
+>  	struct symtab *perms;
+>  
+> +	if (p->handle_unknown == ALLOW_UNKNOWN) {
+> +		u32 num_classes = kdefs->cts_len;
+> +		p->undefined_perms = kcalloc(num_classes, sizeof(u32), GFP_KERNEL);
+> +		if (!p->undefined_perms)
+> +			return -ENOMEM;
+> +	}
+> +
+>  	for (i = 1; i < kdefs->cts_len; i++) {
+>  		def_class = kdefs->class_to_string[i];
+>  		if (!def_class)
+> @@ -1062,6 +1097,10 @@ static int validate_classes(struct policydb *p)
+>  			printk(KERN_INFO
+>  			       "security:  class %s not defined in policy\n",
+>  			       def_class);
+> +			if (p->handle_unknown == ALLOW_UNKNOWN)
+> +				p->undefined_perms[i-1] = ~0U;
+> +			if (p->handle_unknown == REJECT_UNKNOWN)
+> +				return -EINVAL;
+>  			continue;
+>  		}
+>  		pol_class = p->p_class_val_to_name[i-1];
+> @@ -1087,12 +1126,16 @@ static int validate_classes(struct policydb *p)
+>  			printk(KERN_INFO
+>  			       "security:  permission %s in class %s not defined in policy\n",
+>  			       def_perm, pol_class);
+> +			if (p->handle_unknown == ALLOW_UNKNOWN)
+> +				p->undefined_perms[class_val-1] |= perm_val;
+> +			else if (p->handle_unknown == REJECT_UNKNOWN)
+> +				return -EINVAL;
+>  			continue;
+>  		}
+>  		perdatum = hashtab_search(perms->table, def_perm);
+>  		if (perdatum == NULL) {
+>  			printk(KERN_ERR
+> -			       "security:  permission %s in class %s not found in policy\n",
+> +			       "security:  permission %s in class %s not found in policy, bad policy\n",
+>  			       def_perm, pol_class);
+>  			return -EINVAL;
+>  		}
+> @@ -1130,12 +1173,16 @@ static int validate_classes(struct policydb *p)
+>  				printk(KERN_INFO
+>  				       "security:  permission %s in class %s not defined in policy\n",
+>  				       def_perm, pol_class);
+> +				if (p->handle_unknown == ALLOW_UNKNOWN)
+> +					p->undefined_perms[class_val-1] |= (1 << j);
+> +				else if (p->handle_unknown == REJECT_UNKNOWN)
+> +					return -EINVAL;
+>  				continue;
+>  			}
+>  			perdatum = hashtab_search(perms->table, def_perm);
+>  			if (perdatum == NULL) {
+>  				printk(KERN_ERR
+> -				       "security:  permission %s in class %s not found in policy\n",
+> +				       "security:  permission %s in class %s not found in policy, bad policy\n",
+>  				       def_perm, pol_class);
+>  				return -EINVAL;
+>  			}
+> 
+-- 
+Stephen Smalley
+National Security Agency
 
 
 --
