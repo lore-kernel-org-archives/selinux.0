@@ -1,12 +1,12 @@
-Date: Wed, 1 Aug 2007 20:21:21 -0700 (PDT)
+Date: Wed, 1 Aug 2007 20:24:32 -0700 (PDT)
 From: James Morris <jmorris@namei.org>
 To: "David P. Quigley" <dpquigl@tycho.nsa.gov>
 cc: selinux@tycho.nsa.gov, labeled-nfs@linux-nfs.org
-Subject: Re: [PATCH 2/7] VFS: Add sid field to iattr structure for notify_change
-In-Reply-To: <11859985323116-git-send-email-dpquigl@tycho.nsa.gov>
-Message-ID: <Pine.LNX.4.64.0708012019380.29184@us.intercode.com.au>
+Subject: Re: [PATCH 3/7] KConfig: Add KConfig entries for MAC labeled NFS
+In-Reply-To: <118599853274-git-send-email-dpquigl@tycho.nsa.gov>
+Message-ID: <Pine.LNX.4.64.0708012023340.29184@us.intercode.com.au>
 References: <11859985322836-git-send-email-dpquigl@tycho.nsa.gov>
- <11859985323116-git-send-email-dpquigl@tycho.nsa.gov>
+ <118599853274-git-send-email-dpquigl@tycho.nsa.gov>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
@@ -14,11 +14,15 @@ List-Id: selinux@tycho.nsa.gov
 
 On Wed, 1 Aug 2007, David P. Quigley wrote:
 
->  	struct file	*ia_file;
-> +	u32		ia_sid;
+> This patch adds two entries into the fs/KConfig file. The first entry
+> NFS_V4_MAC enables MAC labeling support to the NFSv4 client while the second
+> entry NFSD_V4_MAC enables MAC labeling support on the server side.
 
-This should be called ia_secid, and conditionally compiled per some 
-Kconfig parameter.
+> +	depends on NFS_V4 && SECURITY_SELINUX
+
+I think you want these as
+
+	depends on NFS_V4 && SECURITY
 
 
 
