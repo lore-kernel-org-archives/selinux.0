@@ -1,139 +1,282 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l72IHrIW012462
-	for <selinux@tycho.nsa.gov>; Thu, 2 Aug 2007 14:17:53 -0400
-Received: from mx1.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id l72IHpev007234
-	for <selinux@tycho.nsa.gov>; Thu, 2 Aug 2007 18:17:52 GMT
-Date: Thu, 2 Aug 2007 14:17:48 -0400
-Message-Id: <200708021817.l72IHm5X022833@redsox.boston.devel.redhat.com>
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l72IHBEo012415
+	for <selinux@tycho.nsa.gov>; Thu, 2 Aug 2007 14:17:11 -0400
+Received: from mx1.redhat.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l72IHAOD009590
+	for <selinux@tycho.nsa.gov>; Thu, 2 Aug 2007 18:17:10 GMT
+Date: Thu, 2 Aug 2007 14:16:59 -0400
+Message-Id: <200708021816.l72IGxVT022810@redsox.boston.devel.redhat.com>
 From: dwalsh@redhat.com
 To: cpebenito@tresys.com
 CC: selinux@tycho.nsa.gov
-Subject: [PATCH] refpolicy: admin_readahead changes
+Subject: [PATCH] refpolicy: system_udev changes including brctl policy.  Mostly xen related
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
---- nsaserefpolicy/policy/modules/admin/readahead.fc	2007-05-29 14:10:59.000000000 -0400
-+++ serefpolicy-3.0.5/policy/modules/admin/readahead.fc	2007-08-02 11:02:02.000000000 -0400
-@@ -2,3 +2,4 @@
- # /usr
- #
- /usr/sbin/readahead	--	gen_context(system_u:object_r:readahead_exec_t,s0)
-+/etc/readahead.d(/.*)?		gen_context(system_u:object_r:readahead_etc_rw_t,s0)
---- nsaserefpolicy/policy/modules/admin/readahead.te	2007-07-25 10:37:43.000000000 -0400
-+++ serefpolicy-3.0.5/policy/modules/admin/readahead.te	2007-08-02 11:43:14.000000000 -0400
-@@ -9,19 +9,24 @@
- type readahead_t;
- type readahead_exec_t;
- init_daemon_domain(readahead_t,readahead_exec_t)
--application_domain(readahead_t,readahead_exec_t)
+--- nsaserefpolicy/policy/modules/system/udev.te	2007-07-25 10:37:42.000000000 -0400
++++ serefpolicy-3.0.5/policy/modules/system/udev.te	2007-08-02 11:02:02.000000000 -0400
+@@ -68,8 +68,9 @@
+ allow udev_t udev_tbl_t:file manage_file_perms;
+ dev_filetrans(udev_t,udev_tbl_t,file)
  
- type readahead_var_run_t;
- files_pid_file(readahead_var_run_t)
++manage_dirs_pattern(udev_t,udev_var_run_t,udev_var_run_t)
+ manage_files_pacttern(udev_t,udev_var_run_t,udev_var_run_t)
+-files_pid_filetrans(udev_t,udev_var_run_t,file)
++files_pid_filetrans(udev_t,udev_var_run_t,{ file dir })
  
-+type readahead_etc_rw_t;
-+files_pid_file(readahead_etc_rw_t)
+ kernel_read_system_state(udev_t)
+ kernel_getattr_core_if(udev_t)
+@@ -83,16 +84,23 @@
+ kernel_dgram_send(udev_t)
+ kernel_signal(udev_t)
+ 
++#https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=235182
++kernel_rw_net_sysctls(udev_t)
++kernel_read_network_state(udev_t)
 +
- ########################################
- #
- # Local policy
- #
+ corecmd_exec_all_executables(udev_t)
  
--dontaudit readahead_t self:capability { dac_override dac_read_search sys_tty_config };
-+allow readahead_t self:capability { dac_override dac_read_search };
-+dontaudit readahead_t self:capability sys_tty_config;
- allow readahead_t self:process signal_perms;
+ dev_rw_sysfs(udev_t)
+ dev_manage_all_dev_nodes(udev_t)
+ dev_rw_generic_files(udev_t)
+ dev_delete_generic_files(udev_t)
++dev_search_usbfs_dirs(udev_t)
++dev_relabel_all_dev_nodes(udev_t)
  
-+manage_files_pattern(readahead_t,readahead_etc_rw_t,readahead_etc_rw_t)
-+
- manage_files_pattern(readahead_t,readahead_var_run_t,readahead_var_run_t)
- files_pid_filetrans(readahead_t,readahead_var_run_t,file)
+ domain_read_all_domains_state(udev_t)
+ domain_dontaudit_ptrace_all_domains(udev_t) #pidof triggers these 
  
-@@ -37,7 +42,7 @@
- dev_dontaudit_read_all_blk_files(readahead_t)
- dev_dontaudit_getattr_memory_dev(readahead_t)
- dev_dontaudit_getattr_nvram_dev(readahead_t)
--storage_dontaudit_getattr_fixed_disk_dev(readahead_t)
-+storage_raw_read_fixed_disk(readahead_t)
++files_read_usr_files(udev_t)
+ files_read_etc_runtime_files(udev_t)
+ files_read_etc_files(udev_t)
+ files_exec_etc_files(udev_t)
+@@ -142,9 +150,16 @@
+ seutil_read_file_contexts(udev_t)
+ seutil_domtrans_setfiles(udev_t)
  
- domain_use_interactive_fds(readahead_t)
++sysnet_read_dhcpc_pid(udev_t)
++sysnet_rw_dhcp_config(udev_t)
++sysnet_delete_dhcpc_pid(udev_t)
+ sysnet_domtrans_ifconfig(udev_t)
+ sysnet_domtrans_dhcpc(udev_t)
++sysnet_signal_dhcpc(udev_t)
++sysnet_etc_filetrans_config(udev_t)
++sysnet_manage_config(udev_t)
  
-@@ -68,6 +73,7 @@
- libs_use_shared_libs(readahead_t)
++userdom_use_sysadm_ttys(udev_t)
+ userdom_dontaudit_search_all_users_home_content(udev_t)
  
- logging_send_syslog_msg(readahead_t)
-+logging_dontaudit_search_audit_config(readahead_t)
- 
- miscfiles_read_localization(readahead_t)
- 
-@@ -75,5 +81,9 @@
- userdom_dontaudit_search_sysadm_home_dirs(readahead_t)
+ ifdef(`distro_gentoo',`
+@@ -170,6 +185,10 @@
+ ')
  
  optional_policy(`
-+	cron_system_entry(readahead_t, readahead_exec_t)
++	brctl_domtrans(udev_t)
 +')
 +
 +optional_policy(`
- 	seutil_sigchld_newrole(readahead_t)
+ 	consoletype_exec(udev_t)
  ')
+ 
+@@ -178,6 +197,10 @@
+ ')
+ 
+ optional_policy(`
++	fstools_domtrans(udev_t)
++')
++
++optional_policy(`
+ 	hal_dgram_send(udev_t)
+ ')
+ 
+@@ -188,5 +211,24 @@
+ ')
+ 
+ optional_policy(`
++	openct_read_pid_files(udev_t)
++	openct_domtrans(udev_t)
++')
++
++optional_policy(`
++	pcscd_read_pub_files(udev_t)
++	pcscd_domtrans(udev_t)
++')
++
++optional_policy(`
++	xen_manage_log(udev_t)
++	kernel_write_xen_state(udev_t)
++	kernel_read_xen_state(udev_t)
++	xen_read_image_files(udev_t)
++')
++
++optional_policy(`
+ 	xserver_read_xdm_pid(udev_t)
+ ')
++
++
+--- nsaserefpolicy/policy/modules/system/brctl.fc	1969-12-31 19:00:00.000000000 -0500
++++ serefpolicy-3.0.5/policy/modules/system/brctl.fc	2007-08-02 11:02:02.000000000 -0400
+@@ -0,0 +1,2 @@
++
++/usr/sbin/brctl		--	gen_context(system_u:object_r:brctl_exec_t,s0)
+--- nsaserefpolicy/policy/modules/system/brctl.if	1969-12-31 19:00:00.000000000 -0500
++++ serefpolicy-3.0.5/policy/modules/system/brctl.if	2007-08-02 11:02:02.000000000 -0400
+@@ -0,0 +1,25 @@
++
++## <summary>Utilities for configuring the linux ethernet bridge</summary>
++
++
++########################################
++## <summary>
++##	Execute a domain transition to run brctl.
++## </summary>
++## <param name="domain">
++## <summary>
++##	Domain allowed to transition.
++## </summary>
++## </param>
++#
++interface(`brctl_domtrans',`
++	gen_require(`
++		type brctl_t, brctl_exec_t;
++	')
++
++	domain_auto_trans($1,brctl_exec_t,brctl_t)
++
++	allow brctl_t $1:fd use;
++	allow brctl_t $1:fifo_file rw_file_perms;
++	allow brctl_t $1:process sigchld;
++')
+--- nsaserefpolicy/policy/modules/system/brctl.te	1969-12-31 19:00:00.000000000 -0500
++++ serefpolicy-3.0.5/policy/modules/system/brctl.te	2007-08-02 11:02:02.000000000 -0400
+@@ -0,0 +1,50 @@
++policy_module(brctl,1.0.0)
++
++########################################
++#
++# Declarations
++#
++
++type brctl_t;
++type brctl_exec_t;
++domain_type(brctl_t)
++init_daemon_domain(brctl_t, brctl_exec_t)
++
++########################################
++#
++# brctl local policy
++#
++
++allow brctl_t self:capability net_admin;
++
++allow brctl_t self:tcp_socket create_socket_perms;
++allow brctl_t self:unix_dgram_socket create_socket_perms;
++
++dev_rw_sysfs(brctl_t)
++
++# Init script handling
++domain_use_interactive_fds(brctl_t)
++
++kernel_load_module(brctl_t)
++kernel_read_network_state(brctl_t)
++kernel_read_sysctl(brctl_t)
++
++## internal communication is often done using fifo and unix sockets.
++allow brctl_t self:fifo_file rw_file_perms;
++allow brctl_t self:unix_stream_socket create_stream_socket_perms;
++
++files_read_etc_files(brctl_t)
++
++libs_use_ld_so(brctl_t)
++libs_use_shared_libs(brctl_t)
++
++miscfiles_read_localization(brctl_t)
++
++ifdef(`targeted_policy',`
++	term_dontaudit_use_unallocated_ttys(brctl_t)
++	term_dontaudit_use_generic_ptys(brctl_t)
++')
++
++optional_policy(`
++	xen_append_log(brctl_t)
++')
 From:  dwalsh@redhat.com
 To: cpebenito@tresys.com
 CC: selinux@tycho.nsa.gov
-Subject: [PATCH] refpolicy: system_logging changes
+Subject: [PATCH] refpolicy: kernel_devices changes
 --text follows this line--
---- nsaserefpolicy/policy/modules/system/logging.fc	2007-05-29 14:10:58.000000000 -0400
-+++ serefpolicy-3.0.5/policy/modules/system/logging.fc	2007-08-02 11:02:02.000000000 -0400
-@@ -1,12 +1,15 @@
--
- /dev/log		-s	gen_context(system_u:object_r:devlog_t,s0)
- 
-+/etc/rsyslog.conf		gen_context(system_u:object_r:syslog_conf_t,s0)
-+/etc/syslog.conf		gen_context(system_u:object_r:syslog_conf_t,s0)
- /etc/audit(/.*)?		gen_context(system_u:object_r:auditd_etc_t,mls_systemhigh)
- 
- /sbin/auditctl		--	gen_context(system_u:object_r:auditctl_exec_t,s0)
- /sbin/auditd		--	gen_context(system_u:object_r:auditd_exec_t,s0)
-+/sbin/rklogd		--	gen_context(system_u:object_r:klogd_exec_t,s0)
- /sbin/klogd		--	gen_context(system_u:object_r:klogd_exec_t,s0)
- /sbin/minilogd		--	gen_context(system_u:object_r:syslogd_exec_t,s0)
-+/sbin/rsyslogd		--	gen_context(system_u:object_r:syslogd_exec_t,s0)
- /sbin/syslogd		--	gen_context(system_u:object_r:syslogd_exec_t,s0)
- /sbin/syslog-ng		--	gen_context(system_u:object_r:syslogd_exec_t,s0)
- 
-@@ -43,3 +46,5 @@
- /var/spool/postfix/pid	-d	gen_context(system_u:object_r:var_run_t,s0)
- 
- /var/tinydns/log/main(/.*)?	gen_context(system_u:object_r:var_log_t,s0)
+--- nsaserefpolicy/policy/modules/kernel/devices.fc	2007-06-15 14:54:30.000000000 -0400
++++ serefpolicy-3.0.5/policy/modules/kernel/devices.fc	2007-08-02 11:02:02.000000000 -0400
+@@ -12,6 +12,7 @@
+ /dev/atibm		-c	gen_context(system_u:object_r:mouse_device_t,s0)
+ /dev/audio.*		-c	gen_context(system_u:object_r:sound_device_t,s0)
+ /dev/beep		-c	gen_context(system_u:object_r:sound_device_t,s0)
++/dev/dmfm		-c	gen_context(system_u:object_r:sound_device_t,s0)
+ /dev/dsp.*		-c	gen_context(system_u:object_r:sound_device_t,s0)
+ /dev/efirtc		-c	gen_context(system_u:object_r:clock_device_t,s0)
+ /dev/em8300.*		-c	gen_context(system_u:object_r:v4l_device_t,s0)
+@@ -19,6 +20,7 @@
+ /dev/evtchn		-c	gen_context(system_u:object_r:xen_device_t,s0)
+ /dev/fb[0-9]*		-c	gen_context(system_u:object_r:framebuf_device_t,s0)
+ /dev/full		-c	gen_context(system_u:object_r:null_device_t,s0)
++/dev/[0-9].*		-c	gen_context(system_u:object_r:usb_device_t,s0)
+ /dev/fw.*		-c	gen_context(system_u:object_r:usb_device_t,s0)
+ /dev/hiddev.*		-c	gen_context(system_u:object_r:usb_device_t,s0)
+ /dev/hpet		-c	gen_context(system_u:object_r:clock_device_t,s0)
+@@ -53,7 +55,7 @@
+ /dev/radio.*		-c	gen_context(system_u:object_r:v4l_device_t,s0)
+ /dev/random		-c	gen_context(system_u:object_r:random_device_t,s0)
+ /dev/raw1394.*		-c	gen_context(system_u:object_r:v4l_device_t,s0)
+-/dev/(misc/)?rtc	-c	gen_context(system_u:object_r:clock_device_t,s0)
++/dev/(misc/)?rtc[0-9]*	-c	gen_context(system_u:object_r:clock_device_t,s0)
+ /dev/sequencer		-c	gen_context(system_u:object_r:sound_device_t,s0)
+ /dev/sequencer2		-c	gen_context(system_u:object_r:sound_device_t,s0)
+ /dev/smpte.*		-c	gen_context(system_u:object_r:sound_device_t,s0)
+@@ -64,7 +66,9 @@
+ /dev/sonypi		-c	gen_context(system_u:object_r:v4l_device_t,s0)
+ /dev/tlk[0-3]		-c	gen_context(system_u:object_r:v4l_device_t,s0)
+ /dev/urandom		-c	gen_context(system_u:object_r:urandom_device_t,s0)
++/dev/usbmon[0-9]+	-c	gen_context(system_u:object_r:usb_device_t,s0)
+ /dev/usbdev.*		-c	gen_context(system_u:object_r:usb_device_t,s0)
++/dev/usb[0-9]+		-c	gen_context(system_u:object_r:usb_device_t,s0)
+ /dev/usblp.*		-c	gen_context(system_u:object_r:printer_device_t,s0)
+ ifdef(`distro_suse', `
+ /dev/usbscanner		-c	gen_context(system_u:object_r:scanner_device_t,s0)
+@@ -127,3 +131,7 @@
+ /var/named/chroot/dev/random -c	gen_context(system_u:object_r:random_device_t,s0)
+ /var/named/chroot/dev/zero -c	gen_context(system_u:object_r:zero_device_t,s0)
+ ')
 +
-+/var/log/syslog-ng(/.*)?	--	gen_context(system_u:object_r:syslogd_var_run_t,s0)
---- nsaserefpolicy/policy/modules/system/logging.if	2007-06-15 14:54:34.000000000 -0400
-+++ serefpolicy-3.0.5/policy/modules/system/logging.if	2007-08-02 11:02:02.000000000 -0400
-@@ -317,6 +379,25 @@
++/etc/udev/devices -d	gen_context(system_u:object_r:device_t,s0)
++/lib/udev/devices -d	gen_context(system_u:object_r:device_t,s0)
++
+--- nsaserefpolicy/policy/modules/kernel/devices.if	2007-06-15 14:54:30.000000000 -0400
++++ serefpolicy-3.0.5/policy/modules/kernel/devices.if	2007-08-02 11:02:02.000000000 -0400
+@@ -2803,6 +2803,24 @@
  
  ########################################
  ## <summary>
-+##	dontaudit search of auditd configuration files.
++##	Get the attributes of a directory in the usb filesystem.
 +## </summary>
 +## <param name="domain">
 +##	<summary>
 +##	Domain allowed access.
 +##	</summary>
 +## </param>
-+## <rolecap/>
 +#
-+interface(`logging_dontaudit_search_audit_config',`
++interface(`dev_search_usbfs_dirs',`
 +	gen_require(`
-+		type auditd_etc_t;
++		type usbfs_t;
 +	')
 +
-+	dontaudit $1 auditd_etc_t:dir search_dir_perms;
++	allow $1 usbfs_t:dir search_dir_perms;
 +')
 +
 +########################################
 +## <summary>
- ##	Allows the domain to open a file in the
- ##	log directory, but does not allow the listing
- ##	of the contents of the log directory.
+ ##	Do not audit attempts to get the attributes
+ ##	of a directory in the usb filesystem.
+ ## </summary>
 
 --
 This message was distributed to subscribers of the selinux mailing list.
