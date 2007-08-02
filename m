@@ -1,96 +1,28 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l72JOEgY018576
-	for <selinux@tycho.nsa.gov>; Thu, 2 Aug 2007 15:24:14 -0400
-Received: from mx1.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id l72JOCev023163
-	for <selinux@tycho.nsa.gov>; Thu, 2 Aug 2007 19:24:13 GMT
-Message-ID: <46B22F59.7070502@redhat.com>
-Date: Thu, 02 Aug 2007 15:24:09 -0400
-From: Daniel J Walsh <dwalsh@redhat.com>
-MIME-Version: 1.0
-To: "Christopher J. PeBenito" <cpebenito@tresys.com>,
-        SE Linux <selinux@tycho.nsa.gov>
-Subject: Pattern patch.  I believe this is a cut and paste error
-Content-Type: multipart/mixed;
- boundary="------------070500050900080701020700"
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l72JPI3l018644
+	for <selinux@tycho.nsa.gov>; Thu, 2 Aug 2007 15:25:18 -0400
+Received: from mx1.redhat.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l72JPIOD022739
+	for <selinux@tycho.nsa.gov>; Thu, 2 Aug 2007 19:25:18 GMT
+Date: Thu, 2 Aug 2007 15:25:14 -0400
+Message-Id: <200708021925.l72JPEeJ025012@redsox.boston.devel.redhat.com>
+From: dwalsh@redhat.com
+To: cpebenito@tresys.com
+CC: selinux@tycho.nsa.gov
+Subject: [PATCH] refpolicy: services_avahi changes
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This is a multi-part message in MIME format.
---------------070500050900080701020700
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-
-
-
---------------070500050900080701020700
-Content-Type: text/x-patch;
- name="pattern.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="pattern.patch"
-
---- nsaserefpolicy/policy/support/file_patterns.spt	2007-05-29 14:10:59.000000000 -0400
-+++ serefpolicy-3.0.5/policy/support/file_patterns.spt	2007-08-02 11:02:03.000000000 -0400
-@@ -310,47 +310,47 @@
- #
- define(`getattr_sock_files_pattern',`
- 	allow $1 $2:dir search_dir_perms;
--	allow $1 $3:sock_file getattr_fifo_file_perms;
-+	allow $1 $3:sock_file getattr_sock_file_perms;
- ')
+--- nsaserefpolicy/policy/modules/services/avahi.te	2007-07-25 10:37:42.000000000 -0400
++++ serefpolicy-3.0.5/policy/modules/services/avahi.te	2007-08-02 11:02:02.000000000 -0400
+@@ -57,6 +57,7 @@
  
- define(`setattr_sock_files_pattern',`
- 	allow $1 $2:dir search_dir_perms;
--	allow $1 $3:sock_file setattr_fifo_file_perms;
-+	allow $1 $3:sock_file setattr_sock_file_perms;
- ')
+ fs_getattr_all_fs(avahi_t)
+ fs_search_auto_mountpoints(avahi_t)
++fs_list_inotifyfs(avahi_t)
  
- define(`read_sock_files_pattern',`
- 	allow $1 $2:dir search_dir_perms;
--	allow $1 $3:sock_file read_fifo_file_perms;
-+	allow $1 $3:sock_file read_sock_file_perms;
- ')
+ domain_use_interactive_fds(avahi_t)
  
- define(`write_sock_files_pattern',`
- 	allow $1 $2:dir search_dir_perms;
--	allow $1 $3:sock_file write_fifo_file_perms;
-+	allow $1 $3:sock_file write_sock_file_perms;
- ')
- 
- define(`rw_sock_files_pattern',`
- 	allow $1 $2:dir search_dir_perms;
--	allow $1 $3:sock_file rw_fifo_file_perms;
-+	allow $1 $3:sock_file rw_sock_file_perms;
- ')
- 
- define(`create_sock_files_pattern',`
- 	allow $1 $2:dir add_entry_dir_perms;
--	allow $1 $3:sock_file create_fifo_file_perms;
-+	allow $1 $3:sock_file create_sock_file_perms;
- ')
- 
- define(`delete_sock_files_pattern',`
- 	allow $1 $2:dir del_entry_dir_perms;
--	allow $1 $3:sock_file delete_fifo_file_perms;
-+	allow $1 $3:sock_file delete_sock_file_perms;
- ')
- 
- define(`rename_sock_files_pattern',`
- 	allow $1 $2:dir rw_dir_perms;
--	allow $1 $3:sock_file rename_fifo_file_perms;
-+	allow $1 $3:sock_file rename_sock_file_perms;
- ')
- 
- define(`manage_sock_files_pattern',`
- 	allow $1 $2:dir rw_dir_perms;
--	allow $1 $3:sock_file manage_fifo_file_perms;
-+	allow $1 $3:sock_file manage_sock_file_perms;
- ')
- 
- define(`relabelfrom_sock_files_pattern',`
-
---------------070500050900080701020700--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
