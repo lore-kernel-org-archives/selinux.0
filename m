@@ -1,12 +1,12 @@
-Date: Wed, 1 Aug 2007 20:24:32 -0700 (PDT)
+Date: Wed, 1 Aug 2007 20:37:11 -0700 (PDT)
 From: James Morris <jmorris@namei.org>
 To: "David P. Quigley" <dpquigl@tycho.nsa.gov>
 cc: selinux@tycho.nsa.gov, labeled-nfs@linux-nfs.org
-Subject: Re: [PATCH 3/7] KConfig: Add KConfig entries for MAC labeled NFS
-In-Reply-To: <118599853274-git-send-email-dpquigl@tycho.nsa.gov>
-Message-ID: <Pine.LNX.4.64.0708012023340.29184@us.intercode.com.au>
+Subject: Re: [PATCH 6/7] NFSv4: Client implementation of MAC Labeling
+In-Reply-To: <11859985332803-git-send-email-dpquigl@tycho.nsa.gov>
+Message-ID: <Pine.LNX.4.64.0708012032360.29184@us.intercode.com.au>
 References: <11859985322836-git-send-email-dpquigl@tycho.nsa.gov>
- <118599853274-git-send-email-dpquigl@tycho.nsa.gov>
+ <11859985332803-git-send-email-dpquigl@tycho.nsa.gov>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
@@ -14,15 +14,28 @@ List-Id: selinux@tycho.nsa.gov
 
 On Wed, 1 Aug 2007, David P. Quigley wrote:
 
-> This patch adds two entries into the fs/KConfig file. The first entry
-> NFS_V4_MAC enables MAC labeling support to the NFSv4 client while the second
-> entry NFSD_V4_MAC enables MAC labeling support on the server side.
+> +#ifdef CONFIG_NFS_V4_MAC
+> +		if ((fattr->valid & NFS_ATTR_FATTR_V4) &&
+> +				(fattr->bitmap[1] & FATTR4_WORD1_MAC_LABEL)) {
+> +			security_inode_setsecid(inode, fattr->secid);
+> +		}
+> +#endif /* CONFIG_NFS_V4_MAC  */
 
-> +	depends on NFS_V4 && SECURITY_SELINUX
+Turn this into a static inline & reuse it, then it can be compiled away 
+cleanly for !CONFIG_NFS_V4_MAC.
 
-I think you want these as
+> +			if (security_secctx_to_secid(sid, (char *)p, len) != 0)
+> +				dprintk("%s: security_decode_secid failed!\n",
+> +								__FUNCTION__);
 
-	depends on NFS_V4 && SECURITY
+Standard form is:
+
+	err = foo();
+	if (err)
+		bar();
+
+
+And then you can print the error code, too.
 
 
 
