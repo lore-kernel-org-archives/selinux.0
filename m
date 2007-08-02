@@ -1,26 +1,39 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l7205Kvo009119
-	for <selinux@tycho.nsa.gov>; Wed, 1 Aug 2007 20:05:20 -0400
-Received: from us.intercode.com.au (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l7205Jxj022093
-	for <selinux@tycho.nsa.gov>; Thu, 2 Aug 2007 00:05:19 GMT
-Date: Wed, 1 Aug 2007 17:05:16 -0700 (PDT)
+Date: Wed, 1 Aug 2007 20:17:20 -0700 (PDT)
 From: James Morris <jmorris@namei.org>
-To: Paul Moore <paul.moore@hp.com>
-cc: netdev@vger.kernel.org, selinux@tycho.nsa.gov
-Subject: Re: [PATCH 2/2] NET: fix memory leaks from security_secid_to_secctx()
-In-Reply-To: <20070801151557.264877461@hp.com>
-Message-ID: <Pine.LNX.4.64.0708011705020.29184@us.intercode.com.au>
-References: <20070801151257.475951538@hp.com> <20070801151557.264877461@hp.com>
+To: "David P. Quigley" <dpquigl@tycho.nsa.gov>
+cc: selinux@tycho.nsa.gov, labeled-nfs@linux-nfs.org
+Subject: Re: [PATCH 1/7] Security: Add inode_{get,set}secid LSM hooks and
+ security helper functions
+In-Reply-To: <1185998532157-git-send-email-dpquigl@tycho.nsa.gov>
+Message-ID: <Pine.LNX.4.64.0708012012580.29184@us.intercode.com.au>
+References: <11859985322836-git-send-email-dpquigl@tycho.nsa.gov>
+ <1185998532157-git-send-email-dpquigl@tycho.nsa.gov>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Both patches applied to:
+On Wed, 1 Aug 2007, David P. Quigley wrote:
 
-git://git.kernel.org/pub/scm/linux/kernel/git/jmorris/selinux-2.6.git#for-akpm
+> + * @inode_getsecid:
+> + * 	Returns secid from @inode;
 
+Probably best to specify that this happens via *secid.
+
+> + * @inode_setsecid:
+> + * 	Set the security structure value of @inode with @sid.
+> + * 	Returns 0 on success.
+
+Except when it returns void :-)
+
+> +	void (*inode_getsecid)(struct inode *inode, u32 *secid);
+> +	void (*inode_setsecid)(struct inode *inode, u32 secid);
+
+> +static inline void security_inode_setsecid(struct inode *inode, u32 sid)
+> +{
+> +	if (unlikely (IS_PRIVATE (inode)))
+
+Please remove the extra spaces.
 
 
 -- 
