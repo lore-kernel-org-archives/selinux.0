@@ -1,66 +1,79 @@
 Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l72KQQ8J023992
-	for <selinux@tycho.nsa.gov>; Thu, 2 Aug 2007 16:26:26 -0400
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l72KRYag024108
+	for <selinux@tycho.nsa.gov>; Thu, 2 Aug 2007 16:27:34 -0400
 Received: from mx1.redhat.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l72KQPM1005117
-	for <selinux@tycho.nsa.gov>; Thu, 2 Aug 2007 20:26:26 GMT
-Date: Thu, 2 Aug 2007 16:26:18 -0400
-Message-Id: <200708022026.l72KQI9M032096@redsox.boston.devel.redhat.com>
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l72KRXM1005242
+	for <selinux@tycho.nsa.gov>; Thu, 2 Aug 2007 20:27:33 GMT
+Date: Thu, 2 Aug 2007 16:27:29 -0400
+Message-Id: <200708022027.l72KRTWh032129@redsox.boston.devel.redhat.com>
 From: dwalsh@redhat.com
 To: cpebenito@tresys.com
 CC: selinux@tycho.nsa.gov
-Subject: [PATCH] refpolicy: system_lvm changes
+Subject: [PATCH] refpolicy: system_locallogin changes
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-New directory for cache file
-Interacts with xen
-runs modutils
-creates tmp files in /dev
+Change local_login to no longer be unconfined
+Now talks dbus
 
---- nsaserefpolicy/policy/modules/system/lvm.fc	2007-05-29 14:10:58.000000000 -0400
-+++ serefpolicy-3.0.5/policy/modules/system/lvm.fc	2007-08-02 11:02:02.000000000 -0400
-@@ -15,6 +15,7 @@
- #
- /etc/lvm(/.*)?			gen_context(system_u:object_r:lvm_etc_t,s0)
- /etc/lvm/\.cache	--	gen_context(system_u:object_r:lvm_metadata_t,s0)
-+/etc/lvm/cache(/.*)?		gen_context(system_u:object_r:lvm_metadata_t,s0)
- /etc/lvm/archive(/.*)?		gen_context(system_u:object_r:lvm_metadata_t,s0)
- /etc/lvm/backup(/.*)?		gen_context(system_u:object_r:lvm_metadata_t,s0)
- /etc/lvm/lock(/.*)?		gen_context(system_u:object_r:lvm_lock_t,s0)
-@@ -228,6 +231,8 @@
- dev_dontaudit_getattr_generic_blk_files(lvm_t)
- dev_dontaudit_getattr_generic_pipes(lvm_t)
- dev_create_generic_dirs(lvm_t)
-+dev_delete_generic_dirs(lvm_t)
-+dev_rw_generic_files(lvm_t)
+--- nsaserefpolicy/policy/modules/system/locallogin.te	2007-07-25 10:37:42.000000000 -0400
++++ serefpolicy-3.0.5/policy/modules/system/locallogin.te	2007-08-02 11:02:02.000000000 -0400
+@@ -25,6 +25,7 @@
+ domain_role_change_exemption(sulogin_t)
+ domain_interactive_fd(sulogin_t)
+ init_domain(sulogin_t,sulogin_exec_t)
++init_system_domain(sulogin_t,sulogin_exec_t)
+ role system_r types sulogin_t;
  
- fs_getattr_xattr_fs(lvm_t)
- fs_search_auto_mountpoints(lvm_t)
-@@ -246,6 +251,7 @@
- storage_dev_filetrans_fixed_disk(lvm_t)
- # Access raw devices and old /dev/lvm (c 109,0).  Is this needed?
- storage_manage_fixed_disk(lvm_t)
-+mls_file_read_up(lvm_t)
+ ########################################
+@@ -97,6 +98,11 @@
+ term_setattr_all_user_ttys(local_login_t)
+ term_setattr_unallocated_ttys(local_login_t)
  
- term_getattr_all_user_ttys(lvm_t)
- term_list_ptys(lvm_t)
-@@ -293,5 +299,15 @@
++tunable_policy(`allow_console_login', `
++     term_relabel_console(local_login_t)
++     term_setattr_console(local_login_t)
++')
++
+ auth_rw_login_records(local_login_t)
+ auth_rw_faillog(local_login_t)
+ auth_manage_pam_console_data(local_login_t)
+@@ -160,6 +166,15 @@
  ')
  
  optional_policy(`
-+	modutils_domtrans_insmod(lvm_t)
++	consolekit_dbus_chat(local_login_t)
 +')
 +
 +optional_policy(`
- 	udev_read_db(lvm_t)
++	dbus_system_bus_client_template(local_login,local_login_t)
++	dbus_send_system_bus(local_login_t)
++')
++
++optional_policy(`
+ 	gpm_getattr_gpmctl(local_login_t)
+ 	gpm_setattr_gpmctl(local_login_t)
  ')
-+
+@@ -178,13 +193,18 @@
+ ')
+ 
+ optional_policy(`
+-	unconfined_domain(local_login_t)
++	unconfined_shell_domtrans(local_login_t)
+ ')
+ 
+ optional_policy(`
+ 	usermanage_read_crack_db(local_login_t)
+ ')
+ 
 +optional_policy(`
-+	xen_append_log(lvm_t)
-+	xen_dontaudit_rw_unix_stream_sockets(lvm_t)
++	xserver_read_xdm_tmp_files(local_login_t)
++	xserver_rw_xdm_tmp_files(local_login_t)
 +')
 +
+ #################################
+ # 
+ # Sulogin local policy
 
 --
 This message was distributed to subscribers of the selinux mailing list.
