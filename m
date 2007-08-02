@@ -1,48 +1,80 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l72KDfAt022801
-	for <selinux@tycho.nsa.gov>; Thu, 2 Aug 2007 16:13:41 -0400
-Received: from mx1.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id l72KDdTm001686
-	for <selinux@tycho.nsa.gov>; Thu, 2 Aug 2007 20:13:39 GMT
-Date: Thu, 2 Aug 2007 16:13:36 -0400
-Message-Id: <200708022013.l72KDahn029980@redsox.boston.devel.redhat.com>
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l72KHr78023116
+	for <selinux@tycho.nsa.gov>; Thu, 2 Aug 2007 16:17:53 -0400
+Received: from mx1.redhat.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l72KHpM1003190
+	for <selinux@tycho.nsa.gov>; Thu, 2 Aug 2007 20:17:51 GMT
+Date: Thu, 2 Aug 2007 16:17:48 -0400
+Message-Id: <200708022017.l72KHmPN030112@redsox.boston.devel.redhat.com>
 From: dwalsh@redhat.com
 To: cpebenito@tresys.com
 CC: selinux@tycho.nsa.gov
-Subject: [PATCH] refpolicy: kernel_storage changes
+Subject: [PATCH] refpolicy: system_sysnetwork changes
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-New storage devices.
-Fedora has fixed_disk_device_t chr files
+dhcpc needs to read urand for ldap
+Now needs to ptrace itself
+Runs ntpdate
+Runs restorecon
 
---- nsaserefpolicy/policy/modules/kernel/storage.fc	2007-06-15 14:54:30.000000000 -0400
-+++ serefpolicy-3.0.5/policy/modules/kernel/storage.fc	2007-08-02 11:02:02.000000000 -0400
-@@ -23,6 +23,7 @@
- /dev/loop.*		-b	gen_context(system_u:object_r:fixed_disk_device_t,mls_systemhigh)
- /dev/lvm		-c	gen_context(system_u:object_r:fixed_disk_device_t,mls_systemhigh)
- /dev/mcdx?		-b	gen_context(system_u:object_r:removable_device_t,s0)
-+/dev/megadev.*		-c	gen_context(system_u:object_r:removable_device_t,s0)
- /dev/mmcblk.*		-b	gen_context(system_u:object_r:removable_device_t,s0)
- /dev/nb[^/]+		-b	gen_context(system_u:object_r:fixed_disk_device_t,mls_systemhigh)
- /dev/optcd		-b	gen_context(system_u:object_r:removable_device_t,s0)
---- nsaserefpolicy/policy/modules/kernel/storage.if	2007-06-15 14:54:30.000000000 -0400
-+++ serefpolicy-3.0.5/policy/modules/kernel/storage.if	2007-08-02 11:02:02.000000000 -0400
-@@ -100,6 +100,7 @@
+--- nsaserefpolicy/policy/modules/system/sysnetwork.if	2007-07-03 07:06:32.000000000 -0400
++++ serefpolicy-3.0.5/policy/modules/system/sysnetwork.if	2007-08-02 11:02:02.000000000 -0400
+@@ -522,6 +522,8 @@
  
- 	dev_list_all_dev_nodes($1)
- 	allow $1 fixed_disk_device_t:blk_file read_blk_file_perms;
-+	allow $1 fixed_disk_device_t:chr_file read_chr_file_perms;
- 	typeattribute $1 fixed_disk_raw_read;
+ 	files_search_etc($1)
+ 	allow $1 net_conf_t:file read_file_perms;
++	# LDAP Configuration using encrypted requires
++	dev_read_urand($1)
  ')
  
-@@ -144,6 +145,7 @@
+ ########################################
+--- nsaserefpolicy/policy/modules/system/sysnetwork.te	2007-07-25 10:37:42.000000000 -0400
++++ serefpolicy-3.0.5/policy/modules/system/sysnetwork.te	2007-08-02 11:02:02.000000000 -0400
+@@ -45,7 +45,7 @@
+ dontaudit dhcpc_t self:capability sys_tty_config;
+ # for access("/etc/bashrc", X_OK) on Red Hat
+ dontaudit dhcpc_t self:capability { dac_read_search sys_module };
+-allow dhcpc_t self:process signal_perms;
++allow dhcpc_t self:process { ptrace signal_perms };
+ allow dhcpc_t self:fifo_file rw_file_perms;
+ allow dhcpc_t self:tcp_socket create_stream_socket_perms;
+ allow dhcpc_t self:udp_socket create_socket_perms;
+@@ -159,6 +159,10 @@
+ 	dbus_connect_system_bus(dhcpc_t)
+ 	dbus_send_system_bus(dhcpc_t)
  
- 	dev_list_all_dev_nodes($1)
- 	allow $1 fixed_disk_device_t:blk_file write_blk_file_perms;
-+	allow $1 fixed_disk_device_t:chr_file write_chr_file_perms;
- 	typeattribute $1 fixed_disk_raw_write;
++	dbus_read_config(dhcpc_t)
++
++	dbus_dontaudit_rw_system_selinux_socket(dhcpc_t)
++
+ 	optional_policy(`
+ 		networkmanager_dbus_chat(dhcpc_t)
+ 	')
+@@ -206,6 +210,7 @@
+ 	# dhclient sometimes starts ntpd
+ 	init_exec_script_files(dhcpc_t)
+ 	ntp_domtrans(dhcpc_t)
++	ntp_domtrans_ntpdate(dhcpc_t)
  ')
+ 
+ optional_policy(`
+@@ -216,6 +221,7 @@
+ optional_policy(`
+ 	seutil_sigchld_newrole(dhcpc_t)
+ 	seutil_dontaudit_search_config(dhcpc_t)
++	seutil_domtrans_setfiles(dhcpc_t)
+ ')
+ 
+ optional_policy(`
+@@ -280,6 +286,8 @@
+ fs_getattr_xattr_fs(ifconfig_t)
+ fs_search_auto_mountpoints(ifconfig_t)
+ 
++selinux_dontaudit_getattr_fs(ifconfig_t)
++
+ term_dontaudit_use_all_user_ttys(ifconfig_t)
+ term_dontaudit_use_all_user_ptys(ifconfig_t)
  
 
 --
