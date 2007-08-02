@@ -1,124 +1,101 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l72K5Xb2022115
-	for <selinux@tycho.nsa.gov>; Thu, 2 Aug 2007 16:05:33 -0400
-Received: from mx1.redhat.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l72K5WM1000667
-	for <selinux@tycho.nsa.gov>; Thu, 2 Aug 2007 20:05:32 GMT
-Date: Thu, 2 Aug 2007 16:03:43 -0400
-Message-Id: <200708022003.l72K3hC5029678@redsox.boston.devel.redhat.com>
-From: dwalsh@redhat.com
-To: cpebenito@tresys.com
-CC: selinux@tycho.nsa.gov
-Subject: [PATCH] refpolicy: kernel_filesystem changes
+Subject: Re: [PATCH] kernel: selinux: policy selectable handling of unknown
+	classes and perms
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Joshua Brindle <method@manicmethod.com>
+Cc: Paul Moore <paul.moore@hp.com>, Eric Paris <eparis@redhat.com>,
+        selinux@tycho.nsa.gov, jmorris@namei.org,
+        Karl MacMillan <kmacmillan@mentalrootkit.com>
+In-Reply-To: <46B23421.1030101@manicmethod.com>
+References: <1185983352.3673.16.camel@localhost.localdomain>
+	 <1186068805.2434.40.camel@moss-spartans.epoch.ncsc.mil>
+	 <1186075512.4405.34.camel@localhost.localdomain>
+	 <200708021443.26314.paul.moore@hp.com>  <46B23421.1030101@manicmethod.com>
+Content-Type: text/plain
+Date: Thu, 02 Aug 2007 16:06:29 -0400
+Message-Id: <1186085189.2434.178.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-anon_inodefs file system
-fusefs file system
-pam_namespace will mount a tmpfs_t filesystem
+On Thu, 2007-08-02 at 15:44 -0400, Joshua Brindle wrote:
+> Paul Moore wrote:
+> > On Thursday, August 2 2007 1:25:12 pm Eric Paris wrote:
+> >   
+> >> Maybe instead a versioning scheme?  Every security check comes with a
+> >> 'version.'  Every time we add/change a security check we add one to the
+> >> 'version' for that check.  If the policy handed to the kernel has a
+> >> 'version' less than the value we get from the security hook call coded
+> >> in kernel we can just allow it?   Maybe that could be a solution to the
+> >> issue I am addressing now along with things like this netlabel change?
+> >> It certainly would have to touch a whole lot of stuff and might be a
+> >> pain to keep up with.  Lets say I move a security hook around in a
+> >> function, I need to decide if the version need to be bumped on that hook
+> >> or not.  Not impossible, but not pretty.  Also probably means a policy
+> >> version update, which in turn breaks the discussion which we have
+> >> ongoing above....
+> >>     
+> >
+> > While I'm not an expert on the policy aspects of this discussion and how the 
+> > kernel and userspace objects managers interact I think at some point we are 
+> > going to need something like what Eric proposes above.  With the requirement 
+> > that new kernels must not regress when using old policy we are going to run 
+> > into issues as we move forward and add new permission checks.  While I don't 
+> > think we've seen it yet, it is reasonable to think that this problem will 
+> > expand into userspace as we develop more and more userspace object managers 
+> > such a X, CUPS, Postgres, etc.
+> >
+> > I know the changes aren't likely to be pretty, I'm kinda cringing at the 
+> > thought actually, but I think it's a necessary evil for the long term 
+> > survivability of SELinux.  At least that's what I took away from Eric and 
+> > Stephen's comments on this thread and I tend to agree.
+> >   
+> 
+> I'd have to give a pretty hard NAK (for what it would be worth) to the 
+> versioning system, it simply doesn't scale; in the past we've used 
+> policy versions to decide how some permission checks work (see fine 
+> grained netlink discussions) and it was fairly non-ideal.
 
---- nsaserefpolicy/policy/modules/kernel/filesystem.if	2007-07-03 07:05:38.000000000 -0400
-+++ serefpolicy-3.0.5/policy/modules/kernel/filesystem.if	2007-08-02 11:02:02.000000000 -0400
-@@ -1192,6 +1192,24 @@
- 
- ########################################
- ## <summary>
-+##      unmount a FUSE filesystem.
-+## </summary>
-+## <param name="domain">
-+##      <summary>
-+##      Domain allowed access.
-+##      </summary>
-+## </param>
-+#
-+interface(`fs_unmount_fusefs',`
-+        gen_require(`
-+                type fusefs_t;
-+        ')
-+
-+        allow $1 fusefs_t:filesystem unmount;
-+')
-+
-+########################################
-+## <summary>
- ##	Search inotifyfs filesystem. 
- ## </summary>
- ## <param name="domain">
-@@ -2219,7 +2237,7 @@
- ##	Domain allowed access.
- ##	</summary>
- ## </param>
--#
-+
- interface(`fs_dontaudit_read_ramfs_files',`
- 	gen_require(`
- 		type ramfs_t;
-@@ -3476,3 +3494,42 @@
- 	relabelfrom_blk_files_pattern($1,noxattrfs,noxattrfs)
- 	relabelfrom_chr_files_pattern($1,noxattrfs,noxattrfs)
- ')
-+
-+########################################
-+## <summary>
-+##	Read files of anon_inodefs file system files.
-+## </summary>
-+## <param name="domain">
-+##	<summary>
-+##	Domain allowed access.
-+##	</summary>
-+## </param>
-+#
-+interface(`fs_read_anon_inodefs_files',`
-+	gen_require(`
-+		type anon_inodefs_t;
-+
-+	')
-+
-+	read_files_pattern($1,anon_inodefs_t,anon_inodefs_t)
-+')
-+
-+########################################
-+## <summary>
-+##	Read/wrie files of anon_inodefs file system files.
-+## </summary>
-+## <param name="domain">
-+##	<summary>
-+##	Domain allowed access.
-+##	</summary>
-+## </param>
-+#
-+interface(`fs_rw_anon_inodefs_files',`
-+	gen_require(`
-+		type anon_inodefs_t;
-+
-+	')
-+
-+	rw_files_pattern($1,anon_inodefs_t,anon_inodefs_t)
-+')
-+
---- nsaserefpolicy/policy/modules/kernel/filesystem.te	2007-07-25 10:37:36.000000000 -0400
-+++ serefpolicy-3.0.5/policy/modules/kernel/filesystem.te	2007-08-02 11:02:02.000000000 -0400
-@@ -43,6 +43,12 @@
- #
- # Non-persistent/pseudo filesystems
- #
-+
-+type anon_inodefs_t;
-+fs_type(anon_inodefs_t)
-+files_mountpoint(anon_inodefs_t)
-+genfscon anon_inodefs / gen_context(system_u:object_r:anon_inodefs_t,s0)
-+
- type bdev_t;
- fs_type(bdev_t)
- genfscon bdev / gen_context(system_u:object_r:bdev_t,s0)
-@@ -139,6 +145,7 @@
- fs_type(tmpfs_t)
- files_type(tmpfs_t)
- files_mountpoint(tmpfs_t)
-+files_poly_parent(tmpfs_t)
- 
- # Use a transition SID based on the allocating task SID and the
- # filesystem SID to label inodes in the following filesystem types,
+Well, that was "policy format version" vs. a separate version that
+identifies the set of security checks known to / expected by the policy.
+Or, as I said in my other email, a bitmap of check indices, where each
+check (not permission, but individual check) has its own unique index
+assigned when it is first introduced and never recycled.
+
+>  I have to go 
+> back to the 'the object manager should decide how to deal with unknown 
+> permissions' argument. The object manager knows how its objects are 
+> used, and how the security system affects those objects, it is in the 
+> best position to make those decisions, the security server can only make 
+> a rough estimation on what the object manager and user want to do, which 
+> may or may not be accurate.
+
+It's actually a policy issue - what set of checks are required in order
+to meet a given policy.
+
+> Here is an example, granted kernexec uses the reboot capability but 
+> suppose we wanted to make it a separate permission, I'm fairly certain 
+> that we'd want to always deny it if the policy didn't know about it,
+
+Actually, I'm sure Fedora would want to allow it by default if it wasn't
+yet defined.
+
+> whereas SE-X is completely unusable without policy and still has OS 
+> level policy determining who can talk to the X daemon itself, SE-X would 
+> have to make a determination of whether to run at all or run with course 
+> grained permissions, chances are most people would want the latter.
+
+That's a policy issue ;)
+
+>  This 
+> means we'd actually have environments where some object managers deny by 
+> default and others allow (or even short circuit access attempts 
+> altogether). This is ideal from a scalability and dynamic system 
+> perspective and seems by far to be the best solution.
+
+-- 
+Stephen Smalley
+National Security Agency
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
