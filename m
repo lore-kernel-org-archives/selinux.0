@@ -1,111 +1,175 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l72KYmtf024869
-	for <selinux@tycho.nsa.gov>; Thu, 2 Aug 2007 16:34:48 -0400
-Received: from mx1.redhat.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l72KYkM1006719
-	for <selinux@tycho.nsa.gov>; Thu, 2 Aug 2007 20:34:46 GMT
-Date: Thu, 2 Aug 2007 16:33:35 -0400
-Message-Id: <200708022033.l72KXZNT032350@redsox.boston.devel.redhat.com>
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l72KZNXB024917
+	for <selinux@tycho.nsa.gov>; Thu, 2 Aug 2007 16:35:23 -0400
+Received: from mx1.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id l72KZKTm005610
+	for <selinux@tycho.nsa.gov>; Thu, 2 Aug 2007 20:35:20 GMT
+Date: Thu, 2 Aug 2007 16:34:43 -0400
+Message-Id: <200708022034.l72KYhN8032390@redsox.boston.devel.redhat.com>
 From: dwalsh@redhat.com
 To: cpebenito@tresys.com
 CC: selinux@tycho.nsa.gov
-Subject: [PATCH] refpolicy: services_ssh changes
+Subject: [PATCH] refpolicy: services_soundserver changes add nasd policy
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Remove unconfined_domain from sshd
-Multiple minor fixes
-
---- nsaserefpolicy/policy/modules/services/ssh.if	2007-07-25 10:37:42.000000000 -0400
-+++ serefpolicy-3.0.5/policy/modules/services/ssh.if	2007-08-02 11:02:02.000000000 -0400
-@@ -202,6 +202,7 @@
+--- nsaserefpolicy/policy/modules/services/soundserver.fc	2007-05-29 14:10:57.000000000 -0400
++++ serefpolicy-3.0.5/policy/modules/services/soundserver.fc	2007-08-02 11:02:02.000000000 -0400
+@@ -1,10 +1,22 @@
+-/etc/nas(/.*)?			gen_context(system_u:object_r:soundd_etc_t,s0)
+-/etc/yiff(/.*)?			gen_context(system_u:object_r:soundd_etc_t,s0)
+-
+-/usr/bin/nasd		--	gen_context(system_u:object_r:soundd_exec_t,s0)
+ /usr/bin/gpe-soundserver --	gen_context(system_u:object_r:soundd_exec_t,s0)
+-
+ /usr/sbin/yiff		--	gen_context(system_u:object_r:soundd_exec_t,s0)
+-
+ /var/run/yiff-[0-9]+\.pid --	gen_context(system_u:object_r:soundd_var_run_t,s0)
+ /var/state/yiff(/.*)?		gen_context(system_u:object_r:soundd_state_t,s0)
++
++
++#
++# Following is for nas
++
++#
++# /usr/bin
++#
++
++/usr/bin/nasd		--	gen_context(system_u:object_r:soundd_exec_t,s0)
++
++
++# 
++# /tmp
++#
++/tmp/\.sockets		-d	gen_context(system_u:object_r:soundd_tmp_t,s0)
++/tmp/\.sockets/.*	-s	<<none>>
++
+--- nsaserefpolicy/policy/modules/services/soundserver.if	2007-05-29 14:10:57.000000000 -0400
++++ serefpolicy-3.0.5/policy/modules/services/soundserver.if	2007-08-02 11:02:02.000000000 -0400
+@@ -13,3 +13,64 @@
+ interface(`soundserver_tcp_connect',`
+ 	refpolicywarn(`$0($*) has been deprecated.')
+ ')
++
++
++########################################
++## <summary>
++##	Execute a domain transition to run soundserver.
++## </summary>
++## <param name="domain">
++## <summary>
++##	Domain allowed to transition.
++## </summary>
++## </param>
++#
++interface(`soundserver_domtrans',`
++	gen_require(`
++		type soundd_t, soundd_exec_t;
++	')
++
++	domain_auto_trans($1,soundd_exec_t,soundd_t)
++
++	allow soundd_t $1:fd use;
++	allow soundd_t $1:fifo_file rw_file_perms;
++	allow soundd_t $1:process sigchld;
++')
++
++########################################
++## <summary>
++##	Do not audit attempts to read, 
++##	soundserver tmp files
++## </summary>
++## <param name="domain">
++##	<summary>
++##	Domain to not audit.
++##	</summary>
++## </param>
++#
++interface(`soundserver_dontaudit_read_tmp_files',`
++	gen_require(`
++		type soundd_tmp_t;
++	')
++
++	dontaudit $1 soundd_tmp_t:file r_file_perms;
++')
++
++########################################
++## <summary>
++##	Allow domain to read, soundserver tmp files
++## </summary>
++## <param name="domain">
++##	<summary>
++##	Domain to not audit.
++##	</summary>
++## </param>
++#
++interface(`soundserver_read_tmp_files',`
++	gen_require(`
++		type soundd_tmp_t;
++	')
++
++	dontaudit $1 soundd_tmp_t:file r_file_perms;
++')
++
+--- nsaserefpolicy/policy/modules/services/soundserver.te	2007-07-25 10:37:42.000000000 -0400
++++ serefpolicy-3.0.5/policy/modules/services/soundserver.te	2007-08-02 11:02:02.000000000 -0400
+@@ -1,5 +1,5 @@
+ 
+-policy_module(soundserver,1.3.0)
++policy_module(soundserver,1.2.1)
+ 
+ ########################################
  #
- template(`ssh_per_role_template',`
- 	gen_require(`
-+		type sshd_t;
- 		type ssh_agent_exec_t, ssh_keysign_exec_t;
- 	')
+@@ -10,9 +10,6 @@
+ type soundd_exec_t;
+ init_daemon_domain(soundd_t,soundd_exec_t)
  
-@@ -708,3 +709,42 @@
+-type soundd_etc_t alias etc_soundd_t;
+-files_type(soundd_etc_t)
+-
+ type soundd_state_t;
+ files_type(soundd_state_t)
  
- 	dontaudit $1 sshd_key_t:file { getattr read };
- ')
-+
-+########################################
-+## <summary>
-+##	Inherit and use a file descriptor
-+##	from the ssh-agent.
-+## </summary>
-+## <param name="domain">
-+##	<summary>
-+##	Domain allowed access.
-+##	</summary>
-+## </param>
-+#
-+interface(`ssh_use_user_ssh_agent_fds',`
-+	gen_require(`
-+		type $1_ssh_agent_t;
-+	')
-+
-+	allow $2 $1_ssh_agent_t:fd use;
-+')
-+
-+########################################
-+## <summary>
-+##	dontaudit use of file descriptor
-+##	from the ssh-agent.
-+## </summary>
-+## <param name="domain">
-+##	<summary>
-+##	Domain allowed access.
-+##	</summary>
-+## </param>
-+#
-+interface(`ssh_dontaudit_use_user_ssh_agent_fds',`
-+	gen_require(`
-+		type $1_ssh_agent_t;
-+	')
-+
-+	dontaudit $2 $1_ssh_agent_t:fd use;
-+')
-+
---- nsaserefpolicy/policy/modules/services/ssh.te	2007-07-25 10:37:42.000000000 -0400
-+++ serefpolicy-3.0.5/policy/modules/services/ssh.te	2007-08-02 11:02:02.000000000 -0400
-@@ -24,7 +24,7 @@
+@@ -28,20 +25,34 @@
  
- # Type for the ssh-agent executable.
- type ssh_agent_exec_t;
--files_type(ssh_agent_exec_t)
-+application_executable_file(ssh_agent_exec_t)
+ ########################################
+ #
+-# Declarations
++# sound server local policy
+ #
  
- # ssh client executable.
- type ssh_exec_t;
-@@ -100,6 +100,11 @@
- 	userdom_use_unpriv_users_ptys(sshd_t)
- ')
- 
+ dontaudit soundd_t self:capability sys_tty_config;
+ allow soundd_t self:process { setpgid signal_perms };
++
+ allow soundd_t self:tcp_socket create_stream_socket_perms;
+ allow soundd_t self:udp_socket create_socket_perms;
++
++allow soundd_t self:unix_stream_socket { connectto create_stream_socket_perms };
++manage_sock_files_pattern(soundd_t,soundd_tmp_t,soundd_tmp_t)
++files_tmp_filetrans(soundd_t, soundd_tmp_t, { file dir sock_file })
++
++
++# Remove /tmp/.sockets/audio$n
++delete_files_pattern(soundd_t,soundd_tmp_t,soundd_tmp_t)
++
++allow soundd_t self:capability { dac_override };
++
++fs_getattr_all_fs(soundd_t)
 +
 +optional_policy(`
-+	xserver_getattr_xauth(sshd_t)
++	alsa_domtrans(soundd_t)
 +')
 +
- optional_policy(`
- 	daemontools_service_domain(sshd_t, sshd_exec_t)
- ')
-@@ -119,7 +124,12 @@
- ')
+ # for yiff
+ allow soundd_t self:shm create_shm_perms;
  
- optional_policy(`
--	unconfined_domain(sshd_t)
-+	usermanage_read_crack_db(sshd_t)
-+')
-+
-+optional_policy(`
-+	unconfined_shell_domtrans(sshd_t)
-+	userdom_read_all_users_home_content_files(sshd_t)
- ')
+-allow soundd_t soundd_etc_t:dir list_dir_perms;
+-allow soundd_t soundd_etc_t:file read_file_perms;
+-allow soundd_t soundd_etc_t:lnk_file { getattr read };
+-
+ manage_files_pattern(soundd_t,soundd_state_t,soundd_state_t)
+ manage_lnk_files_pattern(soundd_t,soundd_state_t,soundd_state_t)
  
- ifdef(`TODO',`
 
 --
 This message was distributed to subscribers of the selinux mailing list.
