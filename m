@@ -1,95 +1,124 @@
 Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l72K5Tck022098
-	for <selinux@tycho.nsa.gov>; Thu, 2 Aug 2007 16:05:29 -0400
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l72K5Xb2022115
+	for <selinux@tycho.nsa.gov>; Thu, 2 Aug 2007 16:05:33 -0400
 Received: from mx1.redhat.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l72K5SM1000653
-	for <selinux@tycho.nsa.gov>; Thu, 2 Aug 2007 20:05:28 GMT
-Date: Thu, 2 Aug 2007 16:04:24 -0400
-Message-Id: <200708022004.l72K4Ome029700@redsox.boston.devel.redhat.com>
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l72K5WM1000667
+	for <selinux@tycho.nsa.gov>; Thu, 2 Aug 2007 20:05:32 GMT
+Date: Thu, 2 Aug 2007 16:03:43 -0400
+Message-Id: <200708022003.l72K3hC5029678@redsox.boston.devel.redhat.com>
 From: dwalsh@redhat.com
 To: cpebenito@tresys.com
 CC: selinux@tycho.nsa.gov
-Subject: [PATCH] refpolicy: kernel_kernel changes
+Subject: [PATCH] refpolicy: kernel_filesystem changes
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Additional interfaces for kernel access
+anon_inodefs file system
+fusefs file system
+pam_namespace will mount a tmpfs_t filesystem
 
---- nsaserefpolicy/policy/modules/kernel/kernel.if	2007-07-03 07:05:38.000000000 -0400
-+++ serefpolicy-3.0.5/policy/modules/kernel/kernel.if	2007-08-02 11:02:02.000000000 -0400
-@@ -108,6 +108,24 @@
+--- nsaserefpolicy/policy/modules/kernel/filesystem.if	2007-07-03 07:05:38.000000000 -0400
++++ serefpolicy-3.0.5/policy/modules/kernel/filesystem.if	2007-08-02 11:02:02.000000000 -0400
+@@ -1192,6 +1192,24 @@
  
  ########################################
  ## <summary>
-+##	Set the process scheduler of kernel threads.
++##      unmount a FUSE filesystem.
 +## </summary>
 +## <param name="domain">
-+##	<summary>
-+##	Domain allowed access.
-+##	</summary>
++##      <summary>
++##      Domain allowed access.
++##      </summary>
 +## </param>
 +#
-+interface(`kernel_setsched',`
-+	gen_require(`
-+		type kernel_t;
-+	')
++interface(`fs_unmount_fusefs',`
++        gen_require(`
++                type fusefs_t;
++        ')
 +
-+	allow $1 kernel_t:process setsched;
++        allow $1 fusefs_t:filesystem unmount;
 +')
 +
 +########################################
 +## <summary>
- ##	Send a SIGCHLD signal to kernel threads.
+ ##	Search inotifyfs filesystem. 
  ## </summary>
  ## <param name="domain">
-@@ -1848,6 +1866,27 @@
- 
- ########################################
- ## <summary>
-+##	Read the process state (/proc/pid) of all unlabeled_t.
-+## </summary>
-+## <param name="domain">
-+##	<summary>
-+##	Domain allowed access.
-+##	</summary>
-+## </param>
-+#
-+interface(`kernel_read_unlabeled_state',`
-+	gen_require(`
-+		type unlabeled_t;
-+	')
+@@ -2219,7 +2237,7 @@
+ ##	Domain allowed access.
+ ##	</summary>
+ ## </param>
+-#
 +
-+	allow $1 unlabeled_t:dir list_dir_perms;
-+	read_files_pattern($1,unlabeled_t,unlabeled_t)
-+	read_lnk_files_pattern($1,unlabeled_t,unlabeled_t)
-+')
-+
-+
-+########################################
-+## <summary>
- ##	Do not audit attempts to list unlabeled directories.
- ## </summary>
- ## <param name="domain">
---- nsaserefpolicy/policy/modules/kernel/kernel.te	2007-07-25 10:37:36.000000000 -0400
-+++ serefpolicy-3.0.5/policy/modules/kernel/kernel.te	2007-08-02 11:02:02.000000000 -0400
-@@ -26,9 +26,6 @@
- role staff_r;
- role user_r;
- 
--# here until order dependence is fixed:
--role unconfined_r;
--
- ifdef(`enable_mls',`
- 	role secadm_r;
- 	role auditadm_r;
-@@ -278,6 +275,7 @@
- 
- optional_policy(`
- 	logging_send_syslog_msg(kernel_t)
-+	logging_unconfined(kernel_t)
+ interface(`fs_dontaudit_read_ramfs_files',`
+ 	gen_require(`
+ 		type ramfs_t;
+@@ -3476,3 +3494,42 @@
+ 	relabelfrom_blk_files_pattern($1,noxattrfs,noxattrfs)
+ 	relabelfrom_chr_files_pattern($1,noxattrfs,noxattrfs)
  ')
++
++########################################
++## <summary>
++##	Read files of anon_inodefs file system files.
++## </summary>
++## <param name="domain">
++##	<summary>
++##	Domain allowed access.
++##	</summary>
++## </param>
++#
++interface(`fs_read_anon_inodefs_files',`
++	gen_require(`
++		type anon_inodefs_t;
++
++	')
++
++	read_files_pattern($1,anon_inodefs_t,anon_inodefs_t)
++')
++
++########################################
++## <summary>
++##	Read/wrie files of anon_inodefs file system files.
++## </summary>
++## <param name="domain">
++##	<summary>
++##	Domain allowed access.
++##	</summary>
++## </param>
++#
++interface(`fs_rw_anon_inodefs_files',`
++	gen_require(`
++		type anon_inodefs_t;
++
++	')
++
++	rw_files_pattern($1,anon_inodefs_t,anon_inodefs_t)
++')
++
+--- nsaserefpolicy/policy/modules/kernel/filesystem.te	2007-07-25 10:37:36.000000000 -0400
++++ serefpolicy-3.0.5/policy/modules/kernel/filesystem.te	2007-08-02 11:02:02.000000000 -0400
+@@ -43,6 +43,12 @@
+ #
+ # Non-persistent/pseudo filesystems
+ #
++
++type anon_inodefs_t;
++fs_type(anon_inodefs_t)
++files_mountpoint(anon_inodefs_t)
++genfscon anon_inodefs / gen_context(system_u:object_r:anon_inodefs_t,s0)
++
+ type bdev_t;
+ fs_type(bdev_t)
+ genfscon bdev / gen_context(system_u:object_r:bdev_t,s0)
+@@ -139,6 +145,7 @@
+ fs_type(tmpfs_t)
+ files_type(tmpfs_t)
+ files_mountpoint(tmpfs_t)
++files_poly_parent(tmpfs_t)
  
- optional_policy(`
+ # Use a transition SID based on the allocating task SID and the
+ # filesystem SID to label inodes in the following filesystem types,
 
 --
 This message was distributed to subscribers of the selinux mailing list.
