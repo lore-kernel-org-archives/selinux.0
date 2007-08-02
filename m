@@ -1,61 +1,63 @@
-Subject: Re: [RFC] SENFS: MAC labeling support for NFSv4
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: casey@schaufler-ca.com
-Cc: "David P. Quigley" <dpquigl@tycho.nsa.gov>, selinux@tycho.nsa.gov
-In-Reply-To: <912088.21089.qm@web36608.mail.mud.yahoo.com>
-References: <912088.21089.qm@web36608.mail.mud.yahoo.com>
-Content-Type: text/plain
-Date: Thu, 02 Aug 2007 11:43:42 -0400
-Message-Id: <1186069422.2434.51.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l72G44PW001359
+	for <selinux@tycho.nsa.gov>; Thu, 2 Aug 2007 12:04:04 -0400
+Received: from mx1.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id l72G43Lt006048
+	for <selinux@tycho.nsa.gov>; Thu, 2 Aug 2007 16:04:03 GMT
+Message-ID: <46B20032.60203@redhat.com>
+Date: Thu, 02 Aug 2007 12:02:58 -0400
+From: Daniel J Walsh <dwalsh@redhat.com>
+MIME-Version: 1.0
+To: "Christopher J. PeBenito" <cpebenito@tresys.com>
+CC: SELinux Mail List <selinux@tycho.nsa.gov>
+Subject: Re: strict/targeted merge snag
+References: <1186069401.4015.81.camel@gorn.columbia.tresys.com>
+In-Reply-To: <1186069401.4015.81.camel@gorn.columbia.tresys.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2007-08-02 at 08:26 -0700, Casey Schaufler wrote:
-> --- Stephen Smalley <sds@tycho.nsa.gov> wrote:
->  
-> > > In the spirit of LSM I suggest that blobs are more appropriate
-> > > units of data than u32s. I understand that the SELinux design
-> > > philosophy is well served by secids. My design philosophy, which
-> > > is pretty much the opposite, has no need for secids and is
-> > > negatively impacted by interfaces that require them.
-> > 
-> > Blobs require full lifecycle management.
-> 
-> Yup.
-> 
-> > secids are lighter weight,
-> 
-> They are lighter weight than big labels. They are heavier than
-> small labels. They require translation, while certain designs of
-> small labels don't even require translation to print.
+Christopher J. PeBenito wrote:
+> If you're not familiar, the Reference Policy project is in the process
+> of merging the strict and targeted policies so that they no longer are
+> build options.  The idea behind this is that a user can incrementally
+> confine their system until they finally arrive at what is currently
+> considered the strict policy, without completely replacing the policy.
+>
+> The way it works now is that if the unconfined module is not included in
+> the policy, the policy will be just like the strict policy now.  Once
+> the unconfined module is inserted, the policy will be similar to the
+> targeted policy now, with some differences.  Instead of using only one
+> role for the entire system, the confined roles (staff_r, sysadm_r, etc)
+> remain, and a new unconfined role is added.  This allows a mix of
+> confined and unconfined users on the system.  A handfull of domains will
+> also become unconfined, just like the targeted policy.
+>
+> The issue that I just ran into has to do with the file contexts.
+> Currently most of the per_role_templates() have a corresponding set of
+> file contexts with HOME_DIR as part of the file specification.  In the
+> past, this has not been a problem since they are ifdef'ed out on the
+> targeted policy, and the per_role_templates() are expanded for each of
+> the user roles in the strict policy.  However, now strict and targeted
+> are the same policy, so if you map a linux user to unconfined_u,
+> genhomedircon expands out all of the HOME_DIR lines for unconfined, and
+> only a couple of the contexts are valid.
+>
+> This will also be more of an issue going forward since additional user
+> roles are desired, and would like the per_role_templates() to be
+> explicitly called rather than done under the hood, so that the user
+> roles can be specified with a subset of the available
+> per_role_templates().
+>
+> Thoughts?
+>
+>   
+genhomedircon now checks if the contexts are valid before assiging 
+them.  So if it
+thinks you need a xyz_gnome_t and the kernel says that does not exist, 
+genhomedircon
+throws it away.  Been that way in Fedora for a while,
 
-I think you'd still lose on the lifecycle management overhead.
-
-> > secids are already entrenched in the LSM interface for labeled
-> > networking
-> 
-> The xfrm interfaces that require secids are seriously SELinux components.
-> Netlabel only uses secids for audit. 
-
-labeled xfrm isn't limited to SELinux; it could be used by any user of
-labeled networking.
-
-> > and are already entrenched in the audit-selinux interface
-> > (even if converted to using LSM hooks).
-> 
-> So I've found. It is annoying that the audit system passes around sids
-> when it never uses them except to get the associated strings, which
-> Smack uses natively and can provide trivially.
-
-...with corresponding lifecycle management overhead.  You'd have to
-allocate and copy at time of audit collection even though the string
-might never be used, versus only allocating and copying upon audit
-record generation.
-
--- 
-Stephen Smalley
-National Security Agency
 
 
 --
