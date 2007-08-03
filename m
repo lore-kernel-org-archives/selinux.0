@@ -1,67 +1,33 @@
-Subject: Re: libsepol.print_missing_requirements
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Shintaro Fujiwara <shintaro.fujiwara@gmail.com>
-Cc: selinux <selinux@tycho.nsa.gov>
-In-Reply-To: <f71a82820708021357o66c94abbgfd73370b98fdbcca@mail.gmail.com>
-References: <f71a82820708021357o66c94abbgfd73370b98fdbcca@mail.gmail.com>
-Content-Type: text/plain
-Date: Fri, 03 Aug 2007 15:41:59 -0400
-Message-Id: <1186170119.2434.313.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l73JrIii016382
+	for <selinux@tycho.nsa.gov>; Fri, 3 Aug 2007 15:53:18 -0400
+Received: from web36615.mail.mud.yahoo.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with SMTP id l73JrHRA001690
+	for <selinux@tycho.nsa.gov>; Fri, 3 Aug 2007 19:53:18 GMT
+Date: Fri, 3 Aug 2007 12:53:12 -0700 (PDT)
+From: Casey Schaufler <casey@schaufler-ca.com>
+Reply-To: casey@schaufler-ca.com
+Subject: Scope of SECMARK_MODE_SEL
+To: SELinux List <selinux@tycho.nsa.gov>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Message-ID: <593652.90657.qm@web36615.mail.mud.yahoo.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2007-08-03 at 05:57 +0900, Shintaro Fujiwara wrote:
-> Hi,
-> I made a .pp file by policygentool in devel directory.
-> But can not istall .pp file in strict policy.
-> I added many type/attribute as global requirements.
-> And finally, libsemanage says common (null) were not met.
 
-Show the actual output of semodule, and attach your .te file.
+It is my assumption that SECMARK_MODE_SEL is defined and coded solely
+for use by SELinux and that it is not intended as a general purpose
+secmark for any random LSM to use. I assume that if another LSM wants
+to use SECMARK that it needs to supply its own SECMARK_MODE value and
+checkentry function.
 
-> I did
-> 
-> semodule -b base.pp
-> 
-> in /usr/share/selinux/strict directory,
-> but can_send_audit_msg were not met.
+Are my assumptions accurate?
 
-Wait, first you say you tried installing a .pp file that you generated
-via policygentool, but now you say you are trying to install the base.pp
-file from strict?
+Thank you.
 
-> so, I did
-> 
-> semodule -b base.pp
-> 
-> in /etc/selinux/strict/modules/active
-> 
-> it worked.
-
-And now you are re-installing the already installed base module from
-strict?  Are /etc/selinux/strict/modules/active/base.pp
-and /usr/share/selinux/strict/base.pp identical?
-
-> Still I can't install my .pp file.
-> 
-> 
-> Why and what sould I do ?
-> 
-> Please help...
-> 
-> version
-
-> policycoreutils-2.0.16-6.fc7
-> policycoreutils-2.0.16-11.fc7
-> policycoreutils-2.0.16-10.fc7
-
-Hmm...three versions of policycoreutils?
-
--- 
-Stephen Smalley
-National Security Agency
-
+Casey Schaufler
+casey@schaufler-ca.com
 
 --
 This message was distributed to subscribers of the selinux mailing list.
