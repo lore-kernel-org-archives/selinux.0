@@ -1,67 +1,67 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l73IuWU1012599
-	for <selinux@tycho.nsa.gov>; Fri, 3 Aug 2007 14:56:32 -0400
-Received: from web36611.mail.mud.yahoo.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with SMTP id l73IuVRA022443
-	for <selinux@tycho.nsa.gov>; Fri, 3 Aug 2007 18:56:31 GMT
-Date: Fri, 3 Aug 2007 11:56:30 -0700 (PDT)
-From: Casey Schaufler <casey@schaufler-ca.com>
-Reply-To: casey@schaufler-ca.com
-Subject: Re: [PATCH][RFC] V1 Remove SELinux dependencies from linux-audit via LSM
-To: Stephen Smalley <sds@tycho.nsa.gov>, casey@schaufler-ca.com
-Cc: LSM List <linux-security-module@vger.kernel.org>,
-        SELinux List <selinux@tycho.nsa.gov>,
-        Audit List <linux-audit@redhat.com>
-In-Reply-To: <1186166599.2434.295.camel@moss-spartans.epoch.ncsc.mil>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Message-ID: <2205.92131.qm@web36611.mail.mud.yahoo.com>
+Subject: Re: libsepol.print_missing_requirements
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Shintaro Fujiwara <shintaro.fujiwara@gmail.com>
+Cc: selinux <selinux@tycho.nsa.gov>
+In-Reply-To: <f71a82820708021357o66c94abbgfd73370b98fdbcca@mail.gmail.com>
+References: <f71a82820708021357o66c94abbgfd73370b98fdbcca@mail.gmail.com>
+Content-Type: text/plain
+Date: Fri, 03 Aug 2007 15:41:59 -0400
+Message-Id: <1186170119.2434.313.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+On Fri, 2007-08-03 at 05:57 +0900, Shintaro Fujiwara wrote:
+> Hi,
+> I made a .pp file by policygentool in devel directory.
+> But can not istall .pp file in strict policy.
+> I added many type/attribute as global requirements.
+> And finally, libsemanage says common (null) were not met.
 
---- Stephen Smalley <sds@tycho.nsa.gov> wrote:
+Show the actual output of semodule, and attach your .te file.
 
-> On Fri, 2007-08-03 at 09:33 -0700, Casey Schaufler wrote:
-> > --- Casey Schaufler <casey@schaufler-ca.com> wrote:
-> > 
-> > > > > diff -uprN -X linux-2.6.22-base/Documentation/dontdiff
-> > > > > linux-2.6.22-base/include/linux/security.h
-> > > > > linux-2.6.22-audit/include/linux/security.h
-> > > > > --- linux-2.6.22-base/include/linux/security.h	2007-07-08
-> > > > 16:32:17.000000000
-> > > > > -0700
-> > > > > +++ linux-2.6.22-audit/include/linux/security.h	2007-08-01
-> > > > 20:14:18.000000000
-> > > > > -0700
-> > > > > @@ -35,6 +35,8 @@
-> > > > >  #include <net/flow.h>
-> > > > >  
-> > > > >  struct ctl_table;
-> > > > > +struct audit_krule;
-> > > > > +struct selinux_audit_rule;
-> > > > 
-> > > > selinux_audit_rule in LSM interface?
-> > > 
-> > > The structure needs a new name. Any objections to audit_rule_lsm?
-> > > I'd suggest security_audit_rule, but that doesn't say anything about
-> > > where to look to see how it gets used.
-> > 
-> > Actually, it's worse than that because an selinux_audit_rule really
-> > is SELinux specific. Any problem with making the security_audit_rule
-> > interfaces use a void * ? The audit code appears to be accomodating.
+> I did
 > 
-> The struct is already opaque outside of the security module, so you can
-> just rename it and implement your own version of the struct in your
-> module.
+> semodule -b base.pp
+> 
+> in /usr/share/selinux/strict directory,
+> but can_send_audit_msg were not met.
 
-Oh so true in the module. The LSM interfaces (security_audit_rule_xxx)
-themselves don't care what it is and it will differ between modules,
-so a void * seems correct there.
+Wait, first you say you tried installing a .pp file that you generated
+via policygentool, but now you say you are trying to install the base.pp
+file from strict?
 
+> so, I did
+> 
+> semodule -b base.pp
+> 
+> in /etc/selinux/strict/modules/active
+> 
+> it worked.
 
-Casey Schaufler
-casey@schaufler-ca.com
+And now you are re-installing the already installed base module from
+strict?  Are /etc/selinux/strict/modules/active/base.pp
+and /usr/share/selinux/strict/base.pp identical?
+
+> Still I can't install my .pp file.
+> 
+> 
+> Why and what sould I do ?
+> 
+> Please help...
+> 
+> version
+
+> policycoreutils-2.0.16-6.fc7
+> policycoreutils-2.0.16-11.fc7
+> policycoreutils-2.0.16-10.fc7
+
+Hmm...three versions of policycoreutils?
+
+-- 
+Stephen Smalley
+National Security Agency
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
