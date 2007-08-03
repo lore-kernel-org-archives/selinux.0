@@ -1,41 +1,84 @@
 Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l7375YtQ027490
-	for <selinux@tycho.nsa.gov>; Fri, 3 Aug 2007 03:05:34 -0400
-Received: from wa-out-1112.google.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l7375Xur005703
-	for <selinux@tycho.nsa.gov>; Fri, 3 Aug 2007 07:05:33 GMT
-Received: by wa-out-1112.google.com with SMTP id k22so727535waf
-        for <selinux@tycho.nsa.gov>; Fri, 03 Aug 2007 00:05:04 -0700 (PDT)
-Message-ID: <46B2D343.30904@gmail.com>
-Date: Fri, 03 Aug 2007 15:03:31 +0800
-From: Ken YANG <spng.yang@gmail.com>
-MIME-Version: 1.0
-To: "Wilmer Jaramillo M." <wilmer@fedoraproject.org>
-CC: selinux@tycho.nsa.gov, fedora-selinux-list@redhat.com
-Subject: Re: New resource for add in selinux.sf.net - Spanish Documentation
-References: <2b26c4260708021918s1a2894a3r6d00558a2524c6dd@mail.gmail.com>
-In-Reply-To: <2b26c4260708021918s1a2894a3r6d00558a2524c6dd@mail.gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l73CQqNs013513
+	for <selinux@tycho.nsa.gov>; Fri, 3 Aug 2007 08:26:52 -0400
+Received: from exchange.columbia.tresys.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with SMTP id l73CQpHw016268
+	for <selinux@tycho.nsa.gov>; Fri, 3 Aug 2007 12:26:51 GMT
+Subject: [ANN] SETools 3.3 Release
+From: "Christopher J. PeBenito" <cpebenito@tresys.com>
+To: SELinux Mail List <selinux@tycho.nsa.gov>
+Cc: fedora-selinux-list@redhat.com
+Content-Type: text/plain
+Date: Fri, 03 Aug 2007 12:26:27 +0000
+Message-Id: <1186143987.4015.111.camel@gorn.columbia.tresys.com>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Wilmer Jaramillo M. wrote:
-> We believe really important to begin only will writing selinux for
-> spanish speakers,
-> http://wiki.fedora-ve.org/SELinux/ should to be the link for to begin
-> and http://wiki.fedora-ve.org/SELinux/Tips just have more complete
-> information.
-> 
-> 
-> The wiki not apply any restriction if you want to join, to participate
-> in the SELinux Spanish Documentation.
+A new release of SETools is now available on the Tresys OSS site, from
+http://oss.tresys.com. The primary changes this release are performance
+enhancements, especially for source policies, the ability to select
+which AV rules are compared (allow and dontaudit only, for example) in
+sediff and sediffx, and a rewrite of libsefs with C++.  The complete
+change log for this release follows.
 
-i don't understand spanish, but it seems good :-)
+SETools 3.3:
+
+SETools:
+
+  * SETools now has an external dependency upon libsqlite3 >= 3.2.  The
+    supplied configure script will enforce this dependency.
+
+  * pkg-config scripts are installed with the SETools libraries.
+
+libsefs:
+
+  * Rewrite of library to have proper namespaces and much more usable
+    object-oriented design.
+
+  * SWIG wrappers generated for this library if the appropriate
+    configure flags are set.
+
+findcon, searchcon:
+
+  * Merge searchcon's functionality into findcon.  The searchcon tool
+    has been removed from SETools.
+
+indexcon, replcon:
+
+  * Updated to use new libsefs design.
+
+apol:
+
+  * Updated to use new libsefs design.
+
+  * Modified to use the SWIG Tcl interface rather than a custom C
+    library.  apol is now a combination of a Tcl script (simply called
+    'apol') and associated packages that are required at runtime.
+
+  * Neverallow rules are only loaded and expanded when the user
+    performs a search for them.  This will dramatically speed up
+    initial policy load time.
+
+awish:
+
+  * awish is no longer needed and thus has been removed from SETools.
+
+sediff, sediffx:
+
+  * Instead of differentiating "AV rules" or "TE rules", user now
+    specifies which particular rule to compare (allow, dontaudit,
+    type_transition, etc.).
+
+  * Neverallow rules are only loaded and expanded when the user
+    performs a diff upon them.  This will dramatically speed up
+    initial policy load time.
 
 
-> 
-> Thanks for the attention.
-> 
+-- 
+Chris PeBenito
+Tresys Technology, LLC
+(410) 290-1411 x150
 
 
 --
