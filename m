@@ -1,78 +1,41 @@
-Message-ID: <46B39A27.8010307@tycho.nsa.gov>
-Date: Fri, 03 Aug 2007 17:12:07 -0400
-From: Eamon Walsh <ewalsh@tycho.nsa.gov>
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l73Lct5n022492
+	for <selinux@tycho.nsa.gov>; Fri, 3 Aug 2007 17:38:55 -0400
+Received: from us.intercode.com.au (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l73Lcq2k016341
+	for <selinux@tycho.nsa.gov>; Fri, 3 Aug 2007 21:38:53 GMT
+Date: Fri, 3 Aug 2007 14:38:50 -0700 (PDT)
+From: James Morris <jmorris@namei.org>
+To: Casey Schaufler <casey@schaufler-ca.com>
+cc: SELinux List <selinux@tycho.nsa.gov>
+Subject: Re: Scope of SECMARK_MODE_SEL
+In-Reply-To: <593652.90657.qm@web36615.mail.mud.yahoo.com>
+Message-ID: <Pine.LNX.4.64.0708031433510.25207@us.intercode.com.au>
+References: <593652.90657.qm@web36615.mail.mud.yahoo.com>
 MIME-Version: 1.0
-To: Daniel J Walsh <dwalsh@redhat.com>
-CC: Stephen Smalley <sds@tycho.nsa.gov>, SE Linux <selinux@tycho.nsa.gov>
-Subject: Re: libselinux Patch to prevent segfault from un-initialized print
- statement
-References: <46B38F7B.70409@redhat.com>
-In-Reply-To: <46B38F7B.70409@redhat.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Please use the following instead, this is a result of the new
-labeling interface having its own logging callback.  I tried to use
-the value of the function pointer to decide compatibility mode;
-this introduces a separate flag variable.
+On Fri, 3 Aug 2007, Casey Schaufler wrote:
 
-How did you find this bug?  Was it from running an old setfiles
-using a new libselinux?
+> 
+> It is my assumption that SECMARK_MODE_SEL is defined and coded solely
+> for use by SELinux and that it is not intended as a general purpose
+> secmark for any random LSM to use. I assume that if another LSM wants
+> to use SECMARK that it needs to supply its own SECMARK_MODE value and
+> checkentry function.
+> 
+> Are my assumptions accurate?
 
-Signed-off-by: Eamon Walsh <ewalsh@tycho.nsa.gov>
----
-
- label_internal.h |    3 ++-
- matchpathcon.c   |    9 ++++-----
- 2 files changed, 6 insertions(+), 6 deletions(-)
-
-
-Index: libselinux/src/matchpathcon.c
-===================================================================
---- libselinux/src/matchpathcon.c	(revision 2508)
-+++ libselinux/src/matchpathcon.c	(working copy)
-@@ -65,14 +65,13 @@
- #ifdef __GNUC__
-     __attribute__ ((format(printf, 1, 2)))
- #endif
--    (*myprintf) (const char *fmt,...);
-+    (*myprintf) (const char *fmt,...) = &default_printf;
-+int myprintf_compat = 0;
- 
- void set_matchpathcon_printf(void (*f) (const char *fmt, ...))
- {
--	if (f)
--		myprintf = f;
--	else
--		myprintf = &default_printf;
-+	myprintf = f ? f : &default_printf;
-+	myprintf_compat = 1;
- }
- 
- static int (*myinvalidcon) (const char *p, unsigned l, char *c) = NULL;
-Index: libselinux/src/label_internal.h
-===================================================================
---- libselinux/src/label_internal.h	(revision 2508)
-+++ libselinux/src/label_internal.h	(working copy)
-@@ -58,10 +58,11 @@
- /*
-  * Compatibility support
-  */
-+extern int myprintf_compat;
- extern void __attribute__ ((format(printf, 1, 2)))
- (*myprintf) (const char *fmt,...);
- 
--#define COMPAT_LOG(type, fmt...) if (myprintf)		  \
-+#define COMPAT_LOG(type, fmt...) if (myprintf_compat)	  \
- 		myprintf(fmt);				  \
- 	else						  \
- 		selinux_log(type, fmt);
+Yes, and you likely also need to add your own entry to the union in 
+struct xt_secmark_target_info, which I'd guess would simply be a smack_t.
 
 
+
+- James 
 -- 
-Eamon Walsh <ewalsh@tycho.nsa.gov>
-National Security Agency
+James Morris <jmorris@namei.org>
 
 
 --
