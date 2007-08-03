@@ -1,33 +1,42 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l73JrIii016382
-	for <selinux@tycho.nsa.gov>; Fri, 3 Aug 2007 15:53:18 -0400
-Received: from web36615.mail.mud.yahoo.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with SMTP id l73JrHRA001690
-	for <selinux@tycho.nsa.gov>; Fri, 3 Aug 2007 19:53:18 GMT
-Date: Fri, 3 Aug 2007 12:53:12 -0700 (PDT)
-From: Casey Schaufler <casey@schaufler-ca.com>
-Reply-To: casey@schaufler-ca.com
-Subject: Scope of SECMARK_MODE_SEL
-To: SELinux List <selinux@tycho.nsa.gov>
+Message-ID: <46B38F7B.70409@redhat.com>
+Date: Fri, 03 Aug 2007 16:26:35 -0400
+From: Daniel J Walsh <dwalsh@redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Message-ID: <593652.90657.qm@web36615.mail.mud.yahoo.com>
+To: Stephen Smalley <sds@tycho.nsa.gov>, SE Linux <selinux@tycho.nsa.gov>
+Subject: libselinux Patch to prevent segfault from un-initialized print statement
+Content-Type: multipart/mixed;
+ boundary="------------050106000806070208070001"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+This is a multi-part message in MIME format.
+--------------050106000806070208070001
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
-It is my assumption that SECMARK_MODE_SEL is defined and coded solely
-for use by SELinux and that it is not intended as a general purpose
-secmark for any random LSM to use. I assume that if another LSM wants
-to use SECMARK that it needs to supply its own SECMARK_MODE value and
-checkentry function.
 
-Are my assumptions accurate?
 
-Thank you.
+--------------050106000806070208070001
+Content-Type: text/plain;
+ name="diff"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="diff"
 
-Casey Schaufler
-casey@schaufler-ca.com
+diff --exclude-from=exclude -N -u -r nsalibselinux/src/matchpathcon.c libselinux-2.0.24/src/matchpathcon.c
+--- nsalibselinux/src/matchpathcon.c	2007-07-16 14:20:46.000000000 -0400
++++ libselinux-2.0.24/src/matchpathcon.c	2007-07-23 10:21:34.000000000 -0400
+@@ -65,7 +65,7 @@
+ #ifdef __GNUC__
+     __attribute__ ((format(printf, 1, 2)))
+ #endif
+-    (*myprintf) (const char *fmt,...);
++    (*myprintf) (const char *fmt,...) = &default_printf;
+ 
+ void set_matchpathcon_printf(void (*f) (const char *fmt, ...))
+ {
+
+--------------050106000806070208070001--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
