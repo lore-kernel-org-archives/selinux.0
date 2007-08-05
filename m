@@ -1,48 +1,30 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l74IKZvi003561
-	for <selinux@tycho.nsa.gov>; Sat, 4 Aug 2007 14:20:35 -0400
-Received: from web36613.mail.mud.yahoo.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with SMTP id l74IKYbF003686
-	for <selinux@tycho.nsa.gov>; Sat, 4 Aug 2007 18:20:34 GMT
-Date: Sat, 4 Aug 2007 11:20:18 -0700 (PDT)
-From: Casey Schaufler <casey@schaufler-ca.com>
-Reply-To: casey@schaufler-ca.com
-Subject: Re: Scope of SECMARK_MODE_SEL
-To: James Morris <jmorris@namei.org>, Casey Schaufler <casey@schaufler-ca.com>
-Cc: SELinux List <selinux@tycho.nsa.gov>
-In-Reply-To: <Pine.LNX.4.64.0708031433510.25207@us.intercode.com.au>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Message-ID: <914026.68329.qm@web36613.mail.mud.yahoo.com>
+To: SELinux@tycho.nsa.gov
+From: Jan-Frode Myklebust <janfrode@tanso.net>
+Subject: Re: setroubleshooter/sealert on central loghost?
+Date: Sun, 5 Aug 2007 22:57:35 +0200
+Message-ID: <slrnfbcedv.43r.mykleb@lc4eb8045376502.ibm.com>
+References: <911f42990707310750r349d11c4x9132c68d83cf8cfc@mail.gmail.com> <46B1E719.500@redhat.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+On 2007-08-02, Daniel J Walsh <dwalsh@redhat.com> wrote:
 
---- James Morris <jmorris@namei.org> wrote:
+> If you keep the logs separate you can use sealert on the log files.
+>
+> sealert -a logfile
 
-> On Fri, 3 Aug 2007, Casey Schaufler wrote:
-> 
-> > 
-> > It is my assumption that SECMARK_MODE_SEL is defined and coded solely
-> > for use by SELinux and that it is not intended as a general purpose
-> > secmark for any random LSM to use. I assume that if another LSM wants
-> > to use SECMARK that it needs to supply its own SECMARK_MODE value and
-> > checkentry function.
-> > 
-> > Are my assumptions accurate?
-> 
-> Yes, and you likely also need to add your own entry to the union in 
-> struct xt_secmark_target_info, which I'd guess would simply be a smack_t.
+This kind of works if I add a "type=AVC" to the syslogged lines, 
+but sealert doesn't show the hostname of the host that sent the
+AVC. Any ideas for how to get the "Host Name" field in the sealert
+browser to show the hostname ? What's the format sealert expects it
+on ? 
 
-Thank you. My question was really aimed at finding out if the
-code should be changed as part of the effort to pull SELinux
-dependencies out of the audit code. Smack and xfrm is a distinct
-set of work.
+If I can find the format, I can probably have syslog-ng insert
+it into the log entries.
 
 
+  -jf
 
-Casey Schaufler
-casey@schaufler-ca.com
 
 --
 This message was distributed to subscribers of the selinux mailing list.
