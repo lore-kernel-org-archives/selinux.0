@@ -1,55 +1,45 @@
-Subject: Re: Fedora/SE-PostgreSQL
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: KaiGai Kohei <kaigai@kaigai.gr.jp>
-Cc: cpebenito@tresys.com, dwalsh@redhat.com, selinux@tycho.nsa.gov
-In-Reply-To: <46B079EF.9050909@kaigai.gr.jp>
-References: <46B079EF.9050909@kaigai.gr.jp>
-Content-Type: text/plain
-Date: Mon, 06 Aug 2007 15:23:07 -0400
-Message-Id: <1186428187.17889.166.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l76JtRol018951
+	for <selinux@tycho.nsa.gov>; Mon, 6 Aug 2007 15:55:27 -0400
+Received: from an-out-0708.google.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l76JtQb3025886
+	for <selinux@tycho.nsa.gov>; Mon, 6 Aug 2007 19:55:26 GMT
+Received: by an-out-0708.google.com with SMTP id c38so340182ana
+        for <selinux@tycho.nsa.gov>; Mon, 06 Aug 2007 12:55:26 -0700 (PDT)
+Message-ID: <9f066ee90708061255t4c037debs2acd2040bae6581b@mail.gmail.com>
+Date: Mon, 6 Aug 2007 15:55:26 -0400
+From: Mark <elihusmails@gmail.com>
+To: selinux@tycho.nsa.gov
+Subject: link to reference policy
+MIME-Version: 1.0
+Content-Type: multipart/alternative;
+	boundary="----=_Part_114586_19441771.1186430126205"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2007-08-01 at 21:17 +0900, KaiGai Kohei wrote:
-> Hi,
-> 
-> A week ago, I submitted a review request of SE-PostgreSQL to
-> the Fedora project as follows:
->   https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=249522
-> 
-> The biggest issue is lack of definitions of new object classes
-> and access vectors related to database.
-> Rest of policies can be installed as a binary security policy module
-> packed within the RPM package, but these definitions and MLS/MCS rules
-> cannot be moduled.
-> 
-> The attached patch adds these definitions to the base policy.
-> 
-> I remember Chris said as follows at the past.
-> > Is the code on a path to being merged upstream?  I'm hesitant to apply
-> > class changes until the code is on a plan to be merged.
-> 
-> However, I would like you to consider it again.
-> I believe that spread of using secure applications, like SE-PostgreSQL,
-> can help promote SELinux more, and it's so worthful to make it more
-> uncomplicated to maintain.
-> 
-> In addition, the next release of PostgreSQL with new features (8.4) is
-> planed at the autumn 2008. It means that any SE-PostgreSQL users have to
-> replace the default selinux-policy package by the modified one for a year
-> and more, at least. I think it's a senseless work.
-> 
-> It may be a time the definitions of object classes related to database are
-> integrated into the base security policy.
+------=_Part_114586_19441771.1186430126205
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-Likely a good idea as well to ensure that it does not collide with the X
-object class rework.
+I am looking for a link to the reference policy RPM file.  Seems that the
+tresys link (http://oss.tresys.com/projects/refpolicy) is broken.
+
+Thanks.
 
 -- 
-Stephen Smalley
-National Security Agency
+..Cheers
+Mark
 
+------=_Part_114586_19441771.1186430126205
+Content-Type: text/html; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+I am looking for a link to the reference policy RPM file.&nbsp; Seems that the tresys link (<a href="http://oss.tresys.com/projects/refpolicy">http://oss.tresys.com/projects/refpolicy</a>) is broken.<br><br>Thanks.<br clear="all">
+<br>-- <br>..Cheers<br>Mark
+
+------=_Part_114586_19441771.1186430126205--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
