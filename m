@@ -1,34 +1,42 @@
-Date: Sun, 5 Aug 2007 17:36:28 -0700 (PDT)
-From: Steve G <linux_4ever@yahoo.com>
-Subject: Re: setroubleshooter/sealert on central loghost?
-To: Jan-Frode Myklebust <janfrode@tanso.net>, SELinux@tycho.nsa.gov
-In-Reply-To: <slrnfbcedv.43r.mykleb@lc4eb8045376502.ibm.com>
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l76CDe1g015376
+	for <selinux@tycho.nsa.gov>; Mon, 6 Aug 2007 08:13:41 -0400
+Received: from mail.asahi-net.or.jp (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id l76CDakZ009744
+	for <selinux@tycho.nsa.gov>; Mon, 6 Aug 2007 12:13:38 GMT
+Message-ID: <46B71093.1050106@kaigai.gr.jp>
+Date: Mon, 06 Aug 2007 21:14:11 +0900
+From: KaiGai Kohei <kaigai@kaigai.gr.jp>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Message-ID: <59794.43337.qm@web51507.mail.re2.yahoo.com>
+To: cpebenito@tresys.com
+Cc: dwalsh@redhat.com, selinux@tycho.nsa.gov
+Subject: Re: Fedora/SE-PostgreSQL
+References: <46B079EF.9050909@kaigai.gr.jp>
+In-Reply-To: <46B079EF.9050909@kaigai.gr.jp>
+Content-Type: text/plain; charset=ISO-2022-JP
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+KaiGai Kohei wrote:
+> A week ago, I submitted a review request of SE-PostgreSQL to
+> the Fedora project as follows:
+>   https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=249522
+> 
+> The biggest issue is lack of definitions of new object classes
+> and access vectors related to database.
+> Rest of policies can be installed as a binary security policy module
+> packed within the RPM package, but these definitions and MLS/MCS rules
+> cannot be moduled.
+> 
+> The attached patch adds these definitions to the base policy.
 
->but sealert doesn't show the hostname of the host that sent the
->AVC. Any ideas for how to get the "Host Name" field in the sealert
->browser to show the hostname ? 
+Don't neglect it please, although we got a bit heavy traffic in some days.
 
-Like I was saying, we are just starting to write the code that does this kind of
-thing, so nothing anywhere expects it.
+I want any comment, to make clear the direction of SE-PostgreSQL.
 
->What's the format sealert expects it on ?
-
-The syntax for the field is likely to be node=computer. But its exact placement
-and who adds it (auditd vs audispd) is not settled.
-
--Steve
-
-
-       
-____________________________________________________________________________________
-Building a website is a piece of cake. Yahoo! Small Business gives you all the tools to get online.
-http://smallbusiness.yahoo.com/webhosting 
+Thanks,
+-- 
+KaiGai Kohei <kaigai@kaigai.gr.jp>
 
 --
 This message was distributed to subscribers of the selinux mailing list.
