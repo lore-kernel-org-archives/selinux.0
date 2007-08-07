@@ -1,91 +1,50 @@
-Message-ID: <46B87669.1040008@ak.jp.nec.com>
-Date: Tue, 07 Aug 2007 22:40:57 +0900
-From: KaiGai Kohei <kaigai@ak.jp.nec.com>
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l77Dp9ji024923
+	for <selinux@tycho.nsa.gov>; Tue, 7 Aug 2007 09:51:09 -0400
+Received: from mx1.redhat.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l77Dp8mT015492
+	for <selinux@tycho.nsa.gov>; Tue, 7 Aug 2007 13:51:08 GMT
+Message-ID: <46B877E5.6030002@redhat.com>
+Date: Tue, 07 Aug 2007 09:47:17 -0400
+From: Daniel J Walsh <dwalsh@redhat.com>
 MIME-Version: 1.0
-To: Stephen Smalley <sds@tycho.nsa.gov>
-CC: KaiGai Kohei <kaigai@kaigai.gr.jp>, cpebenito@tresys.com,
-        dwalsh@redhat.com, selinux@tycho.nsa.gov, ewalsh@tycho.nsa.gov
-Subject: Re: Fedora/SE-PostgreSQL
-References: <46B079EF.9050909@kaigai.gr.jp>	 <1186428187.17889.166.camel@moss-spartans.epoch.ncsc.mil>	 <46B7F7EF.2030200@ak.jp.nec.com> <1186489501.26457.5.camel@moss-spartans.epoch.ncsc.mil>
-In-Reply-To: <1186489501.26457.5.camel@moss-spartans.epoch.ncsc.mil>
-Content-Type: text/plain; charset=ISO-2022-JP
+To: "Christopher J. PeBenito" <cpebenito@tresys.com>
+CC: SE Linux <selinux@tycho.nsa.gov>
+Subject: Re: Application_domain
+References: <46B1F9CD.5070202@redhat.com> <1186491980.18881.15.camel@gorn>
+In-Reply-To: <1186491980.18881.15.camel@gorn>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Stephen Smalley wrote:
-> On Tue, 2007-08-07 at 13:41 +0900, KaiGai Kohei wrote:
->> Stephen Smalley wrote:
->>> On Wed, 2007-08-01 at 21:17 +0900, KaiGai Kohei wrote:
->>>> Hi,
->>>>
->>>> A week ago, I submitted a review request of SE-PostgreSQL to
->>>> the Fedora project as follows:
->>>>   https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=249522
->>>>
->>>> The biggest issue is lack of definitions of new object classes
->>>> and access vectors related to database.
->>>> Rest of policies can be installed as a binary security policy module
->>>> packed within the RPM package, but these definitions and MLS/MCS rules
->>>> cannot be moduled.
->>>>
->>>> The attached patch adds these definitions to the base policy.
->>>>
->>>> I remember Chris said as follows at the past.
->>>>> Is the code on a path to being merged upstream?  I'm hesitant to apply
->>>>> class changes until the code is on a plan to be merged.
->>>> However, I would like you to consider it again.
->>>> I believe that spread of using secure applications, like SE-PostgreSQL,
->>>> can help promote SELinux more, and it's so worthful to make it more
->>>> uncomplicated to maintain.
->>>>
->>>> In addition, the next release of PostgreSQL with new features (8.4) is
->>>> planed at the autumn 2008. It means that any SE-PostgreSQL users have to
->>>> replace the default selinux-policy package by the modified one for a year
->>>> and more, at least. I think it's a senseless work.
->>>>
->>>> It may be a time the definitions of object classes related to database are
->>>> integrated into the base security policy.
->>> Likely a good idea as well to ensure that it does not collide with the X
->>> object class rework.
->> Future modification of object class number is not a matter, because SE-PostgreSQL
->> can also obtain them via /selinux/class on the kernel 2.6.23 or later.
-> 
-> Yes, but IIUC, you are still encoding the fixed class/perm numbers into
-> SE-PostgreSQL when running on older kernels.  Which means that if we
-> take those values for the revamped X classes, we will break
-> SE-PostgreSQL on such systems.
+Christopher J. PeBenito wrote:
+> On Thu, 2007-08-02 at 11:35 -0400, Daniel J Walsh wrote:
+>   
+>> My definition of the application domain, is any file that a normal
+>> user is expected to execute.   It can either have a  transition or
+>> not.  If I define application_domain then it will transition.  If I
+>> just define application_executable_file, then logged in users can
+>> execute it without a transition.
+>>
+>> Daemons for the most part should NOT be application_domains.   This
+>> way we can dontaudit getattr of daemons that users would/should not be
+>> allowed to execute.
+>>
+>> Some applictions can be in both domains.  For example cvs, rsync can
+>> be run without transitioning by users but when run from an initscript
+>> they transition.
+>>
+>> This patch makes changes to the pool to match this.
+>>     
+>
+> If you look back at what you're changing, init_system_domains() are all
+> apps, so the call is in that interface.  Your patch undoes this.
+>
+>   
+Ok I guess your right, even though some of these being user executables 
+is a little shaky.
 
-When SE-PostgreSQL works on kernel 2.6.22 or earlier, it indeed applies
-the fixed class/perm numbers. However, I put a dependency with a specific
-version of security policy to avoid being replaced without updating
-SE-PostgreSQL concurrently.
-
-I can provide a package without fixed class/perm numbers support for the
-rawhide. However, I think a package for Fedora 7, needs fixed ones, should
-be provided for a while.
-
->> Are you worried about that the reworked X object class uses same namespace
->> with what SE-PostgreSQL uses, like "database", "table" and so on?
-> 
-> No, although that brings up another point - I think Eamon intends to
-> prefix all of the X classes with "x" or "X" to "namespace" them, and you
-> may want to do likewise for PostgresQL (not clear whether they should
-> use a postgres-specific prefix or just a db_ prefix to foster re-use for
-> other database managers).
-
-The access control model of SE-PostgreSQL is generic for relational database
-model, so I prefer "db_" prefix for the new object classes.
-In addition, if someone worked for SE-MySQL, similar several difference object
-classes, like "pg_table" and "my_table", would make a confusion.
-
-> Regardless, I'd like to make it easier for people to use SE-PostgreSQL,
-> and until such a time as we can add classes in a module, getting the
-> definitions into the refpolicy is needed.
-
-Thanks,
--- 
-OSS Platform Development Division, NEC
-KaiGai Kohei <kaigai@ak.jp.nec.com>
+Reverting patch in rawhide.
 
 --
 This message was distributed to subscribers of the selinux mailing list.
