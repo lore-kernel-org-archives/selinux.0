@@ -1,41 +1,36 @@
 Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l77GdLq9006442
-	for <selinux@tycho.nsa.gov>; Tue, 7 Aug 2007 12:39:23 -0400
-Received: from dmzmta102.na.baesystems.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id l77GdKAB005308
-	for <selinux@tycho.nsa.gov>; Tue, 7 Aug 2007 16:39:20 GMT
-Received: from BLUMS0035.bluelnk.net (blums0035.bluelnk.net [10.40.96.56])
-	by dmzmta102.na.baesystems.com (Switch-3.2.5/Switch-3.2.5) with ESMTP id l77GcKgb019428
-	for <selinux@tycho.nsa.gov>; Tue, 7 Aug 2007 12:38:20 -0400
-Received: from blums0008.bluelnk.net (blums0008.sd.gd.com [134.120.81.40])
-	by usdmta003.na.baesystems.com (Switch-3.2.5/Switch-3.2.5) with ESMTP id l77GadoC020341
-	for <selinux@tycho.nsa.gov>; Tue, 7 Aug 2007 12:38:16 -0400
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Subject: java.if
-Date: Tue, 7 Aug 2007 09:37:53 -0700
-Message-ID: <FB39F4E77226B448BC1388D3BE4E00CD01FB787D@blums0008.bluelnk.net>
-From: "Clarkson, Mike R \(US SSA\)" <mike.clarkson@baesystems.com>
-To: <selinux@tycho.nsa.gov>
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l77Gbihb006274
+	for <selinux@tycho.nsa.gov>; Tue, 7 Aug 2007 12:37:44 -0400
+Received: from exchange.columbia.tresys.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with SMTP id l77GbfAB004512
+	for <selinux@tycho.nsa.gov>; Tue, 7 Aug 2007 16:37:42 GMT
+Subject: Re: [PATCH] refpolicy: kernel_filesystem changes
+From: "Christopher J. PeBenito" <cpebenito@tresys.com>
+To: dwalsh@redhat.com
+Cc: selinux@tycho.nsa.gov
+In-Reply-To: <200708022003.l72K3hC5029678@redsox.boston.devel.redhat.com>
+References: <200708022003.l72K3hC5029678@redsox.boston.devel.redhat.com>
+Content-Type: text/plain
+Date: Tue, 07 Aug 2007 12:37:11 -0400
+Message-Id: <1186504631.18881.29.camel@gorn>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-I have a number of domains in which I run java programs. I generally
-enter these domains using a script, and then execute_no_trans the java
-executable. So I found I kept replicating the following allow rules in
-these various domains:
+On Thu, 2007-08-02 at 16:03 -0400, dwalsh@redhat.com wrote:
+> anon_inodefs file system
 
-require {type java_exec_t;}
-allow weblogic_t java_exec_t:file {getattr read execute
-execute_no_trans};
+> +type anon_inodefs_t;
+> +fs_type(anon_inodefs_t)
+> +files_mountpoint(anon_inodefs_t)
+> +genfscon anon_inodefs / gen_context(system_u:object_r:anon_inodefs_t,s0)
 
-I looked for an interface to use in java.if, but didn't find one. I
-added one myself so I could eliminate the above rule in each of these
-domains, but I was surprised not to find an existing interface to use.
-This seems like it would be a common issue that other policy creators
-would run into as well, or am I just missing something?
+Does this not work as task sid?
 
+-- 
+Chris PeBenito
+Tresys Technology, LLC
+(410) 290-1411 x150
 
 
 --
