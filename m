@@ -1,50 +1,106 @@
 Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l77Dp9ji024923
-	for <selinux@tycho.nsa.gov>; Tue, 7 Aug 2007 09:51:09 -0400
-Received: from mx1.redhat.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l77Dp8mT015492
-	for <selinux@tycho.nsa.gov>; Tue, 7 Aug 2007 13:51:08 GMT
-Message-ID: <46B877E5.6030002@redhat.com>
-Date: Tue, 07 Aug 2007 09:47:17 -0400
-From: Daniel J Walsh <dwalsh@redhat.com>
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l77Dt689025429
+	for <selinux@tycho.nsa.gov>; Tue, 7 Aug 2007 09:55:06 -0400
+Received: from tyo202.gate.nec.co.jp (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l77Dt3mT016093
+	for <selinux@tycho.nsa.gov>; Tue, 7 Aug 2007 13:55:04 GMT
+Message-ID: <46B878D9.6090004@ak.jp.nec.com>
+Date: Tue, 07 Aug 2007 22:51:21 +0900
+From: KaiGai Kohei <kaigai@ak.jp.nec.com>
 MIME-Version: 1.0
 To: "Christopher J. PeBenito" <cpebenito@tresys.com>
-CC: SE Linux <selinux@tycho.nsa.gov>
-Subject: Re: Application_domain
-References: <46B1F9CD.5070202@redhat.com> <1186491980.18881.15.camel@gorn>
-In-Reply-To: <1186491980.18881.15.camel@gorn>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+CC: KaiGai Kohei <kaigai@kaigai.gr.jp>, dwalsh@redhat.com,
+        selinux@tycho.nsa.gov
+Subject: Re: Fedora/SE-PostgreSQL
+References: <46B079EF.9050909@kaigai.gr.jp> <1186489529.18881.9.camel@gorn>
+In-Reply-To: <1186489529.18881.9.camel@gorn>
+Content-Type: text/plain; charset=ISO-2022-JP
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 Christopher J. PeBenito wrote:
-> On Thu, 2007-08-02 at 11:35 -0400, Daniel J Walsh wrote:
->   
->> My definition of the application domain, is any file that a normal
->> user is expected to execute.   It can either have a  transition or
->> not.  If I define application_domain then it will transition.  If I
->> just define application_executable_file, then logged in users can
->> execute it without a transition.
+> On Wed, 2007-08-01 at 08:17 -0400, KaiGai Kohei wrote:
+>> Hi,
 >>
->> Daemons for the most part should NOT be application_domains.   This
->> way we can dontaudit getattr of daemons that users would/should not be
->> allowed to execute.
+>> A week ago, I submitted a review request of SE-PostgreSQL to
+>> the Fedora project as follows:
+>>   https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=249522
 >>
->> Some applictions can be in both domains.  For example cvs, rsync can
->> be run without transitioning by users but when run from an initscript
->> they transition.
+>> The biggest issue is lack of definitions of new object classes
+>> and access vectors related to database.
+>> Rest of policies can be installed as a binary security policy module
+>> packed within the RPM package, but these definitions and MLS/MCS rules
+>> cannot be moduled.
 >>
->> This patch makes changes to the pool to match this.
->>     
->
-> If you look back at what you're changing, init_system_domains() are all
-> apps, so the call is in that interface.  Your patch undoes this.
->
->   
-Ok I guess your right, even though some of these being user executables 
-is a little shaky.
+>> The attached patch adds these definitions to the base policy.
+> [...] 
+>> --- refpolicy/policy/flask/security_classes	(revision 2385)
+>> +++ refpolicy/policy/flask/security_classes	(working copy)
+>> @@ -99,4 +99,12 @@
+>>  
+>>  class memprotect
+>>  
+>> +# SE-PostgreSQL relation
+>> +class database			# userspace
+>> +class table			# userspace
+>> +class procedure			# userspace
+>> +class column			# userspace
+>> +class tuple			# userspace
+>> +class blob			# userspace
+>> +
+>>  # FLASK
+> 
+> I'm thinking that (with the exception of database) that the object
+> classes should probably be prefixed with "db", so you know they are
+> related.
 
-Reverting patch in rawhide.
+Chris, Thanks for your comments.
+
+As Stephen also pointed out, I'll add a prefix of "db_" for each classes.
+
+I don't think the database class should be an exception.
+The "db_database" will mean a database object managed by RDBMS working
+with SELinux. The name may be a bit strange, but its meaning is clear.
+
+> Interface naming:
+> 
+>> +interface(`mls_database_read_up',`
+> 
+> mls_db_read_all_levels
+> 
+>> +interface(`mls_database_write_down',`
+> 
+> mls_db_write_all_levels
+> 
+>> +interface(`mls_database_upgrade',`
+> 
+> mls_db_upgrade
+> 
+>> +interface(`mls_database_downgrade',`
+> 
+> mls_db_downgrade
+
+OK, I'll rename these interfaces more simple.
+Is it necessary to make the attribute names shorter?
+
+Thanks,
+
+>> +# the database upgrade/downgrade rule
+>> +mlsvalidatetrans { database table procedure column tuple blob }
+>> +	((( l1 eq l2 ) or
+>> +	  (( t3 == mlsdatabaseupgrade ) and ( l1 domby l2 )) or
+>> +	  (( t3 == mlsdatabasedowngrade ) and ( l1 dom l2 )) or
+>> +	  (( t3 == mlsdatabasedowngrade ) and ( l1 incomp l2 ))) and
+>> +	 (( l1 eq h2 ) or
+>> +	  (( t3 == mlsdatabaseupgrade ) and ( h1 domby h2 )) or
+>> +	  (( t3 == mlsdatabasedowngrade ) and ( h1 dom h2 )) or
+>> +	  (( t3 == mlsdatabasedowngrade ) and ( h1 incomp h2 ))));
+>> +
+>>  ') dnl end enable_mls
+
+-- 
+OSS Platform Development Division, NEC
+KaiGai Kohei <kaigai@ak.jp.nec.com>
 
 --
 This message was distributed to subscribers of the selinux mailing list.
