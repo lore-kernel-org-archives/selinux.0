@@ -1,108 +1,93 @@
-Subject: Re: Appropriate number of hash slots for te_avtab(Was:Re: [RFC]
-	Dynamically deciding number of hash slots for avtab
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Yuichi Nakamura <ynakam@hitachisoft.jp>
-Cc: selinux@tycho.nsa.gov, busybox@kaigai.gr.jp,
-        James Morris <jmorris@namei.org>, Eric Paris <eparis@parisplace.org>,
-        kaigai@ak.jp.nec.com, method@manicmethod.com
-In-Reply-To: <20070807175824.4CBF.YNAKAM@hitachisoft.jp>
-References: <20070725113339.610F.YNAKAM@hitachisoft.jp>
-	 <1185368380.2900.40.camel@moss-spartans.epoch.ncsc.mil>
-	 <20070807175824.4CBF.YNAKAM@hitachisoft.jp>
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l77CmV5w017467
+	for <selinux@tycho.nsa.gov>; Tue, 7 Aug 2007 08:48:31 -0400
+Received: from exchange.columbia.tresys.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with SMTP id l77CmUVa005245
+	for <selinux@tycho.nsa.gov>; Tue, 7 Aug 2007 12:48:30 GMT
+Subject: Re: strict/targeted merge snag
+From: "Christopher J. PeBenito" <cpebenito@tresys.com>
+To: Daniel J Walsh <dwalsh@redhat.com>
+Cc: SELinux Mail List <selinux@tycho.nsa.gov>
+In-Reply-To: <46B21774.4070809@redhat.com>
+References: <1186069401.4015.81.camel@gorn.columbia.tresys.com>
+	 <46B20032.60203@redhat.com>
+	 <1186073552.4015.88.camel@gorn.columbia.tresys.com>
+	 <46B21774.4070809@redhat.com>
 Content-Type: text/plain
-Date: Tue, 07 Aug 2007 08:33:29 -0400
-Message-Id: <1186490009.26457.10.camel@moss-spartans.epoch.ncsc.mil>
+Date: Tue, 07 Aug 2007 08:47:59 -0400
+Message-Id: <1186490879.18881.13.camel@gorn>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2007-08-07 at 18:05 +0900, Yuichi Nakamura wrote:
-> Hi.
+On Thu, 2007-08-02 at 13:42 -0400, Daniel J Walsh wrote:
+> Christopher J. PeBenito wrote:
+> > On Thu, 2007-08-02 at 12:02 -0400, Daniel J Walsh wrote:
+> >   
+> >> Christopher J. PeBenito wrote:
+> >>     
+> >>> If you're not familiar, the Reference Policy project is in the process
+> >>> of merging the strict and targeted policies so that they no longer are
+> >>> build options.  The idea behind this is that a user can incrementally
+> >>> confine their system until they finally arrive at what is currently
+> >>> considered the strict policy, without completely replacing the policy.
+> >>>
+> >>> The way it works now is that if the unconfined module is not included in
+> >>> the policy, the policy will be just like the strict policy now.  Once
+> >>> the unconfined module is inserted, the policy will be similar to the
+> >>> targeted policy now, with some differences.  Instead of using only one
+> >>> role for the entire system, the confined roles (staff_r, sysadm_r, etc)
+> >>> remain, and a new unconfined role is added.  This allows a mix of
+> >>> confined and unconfined users on the system.  A handfull of domains will
+> >>> also become unconfined, just like the targeted policy.
+> >>>
+> >>> The issue that I just ran into has to do with the file contexts.
+> >>> Currently most of the per_role_templates() have a corresponding set of
+> >>> file contexts with HOME_DIR as part of the file specification.  In the
+> >>> past, this has not been a problem since they are ifdef'ed out on the
+> >>> targeted policy, and the per_role_templates() are expanded for each of
+> >>> the user roles in the strict policy.  However, now strict and targeted
+> >>> are the same policy, so if you map a linux user to unconfined_u,
+> >>> genhomedircon expands out all of the HOME_DIR lines for unconfined, and
+> >>> only a couple of the contexts are valid.
+> >>>
+> >>> This will also be more of an issue going forward since additional user
+> >>> roles are desired, and would like the per_role_templates() to be
+> >>> explicitly called rather than done under the hood, so that the user
+> >>> roles can be specified with a subset of the available
+> >>> per_role_templates().
+> >>>
+> >>> Thoughts?
+> >>>
+> >>>   
+> >>>       
+> >> genhomedircon now checks if the contexts are valid before assiging 
+> >> them.  So if it
+> >> thinks you need a xyz_gnome_t and the kernel says that does not exist, 
+> >> genhomedircon
+> >> throws it away.  Been that way in Fedora for a while,
+> >>     
+> >
+> > Its not in the stable branch.  Also asking the kernel is not the correct
+> > solution if libsemanage is working on a policy thats not active.
+> >
+> >   
 > 
-> In previous discussion,
-> I posted patch to reduce memory usage of te_avtab, 
-> and it could save up to 300k memory.
+> I am not sure genhomedircon is doing the right thing on the inactive 
+> policies now.  Since it is calling out to the system to get the policy 
+> path.  genhomedircon uses libselinux to find current policy not relying 
+> on libsemanage for this info.
 > 
-> I had to determin two things about te_avtab hash table.
-> 1)  Determin appropriate max number of hash slots.
->   It is 32768(MAX_AVTAB_HASH_SIZE) in previous patch.
->   If it can be smaller, kmalloc can be used instead of zmalloc.
-> 
-> 2) Determin number of hash slots from number of rules.
->  In previous patch, number of allocated hash slots is the same as number of rules.
-> 
-> To determin 1), 
-> We have to see hash stats when big policy is loaded.
-> I loaded full-size refpolicy(It is strict policy), and looked at hash stats.
-> # I defined  DEBUG_HASHES to see hash stats.
-> And varied max number of hash slots.
-> * Version of refpolicy: selinux-policy-strict-2.4.6-80.fc6
-> * Num of uncond rules: 166741.
-> 
-> To determin 2), 
-> We have to see hash stats when small policy is loaded.
-> I loaded small size refpolicy, and looked at hash stats.
-> Varied number of hash slots.
-> * Version of refpoilcy: serefpolicy-2.4.6
-> * Num of uncond rules: 8188
->  # Removed unneeded sources, and made it smaller.
-> 
-> Below is a result of measurement of hash stats.
-> Please give me advice about appropriate number of hash slots. 
-> 
-> 1. Result for 1)
-> * max table size = 32768
-> SELinux:32768 avtab hash slots allocated. Num of rules:166741
-> rules:  166741 entries and 30128/32768 buckets used, longest chain length 34   
-> -> chain length = 34
+> Since this is advanced policy work, shouldn't you use the development 
+> policycoreutils?
 
-Doesn't sound like the hash function is doing so well anymore.
-
-> * 16384
-> SELinux:16384 avtab hash slots allocated. Num of rules:166741   
-> rules:  166741 entries and 16221/16384 buckets used, longest chain length 59   
-> 
-> * 8192
-> SELinux:8192 avtab hash slots allocated. Num of rules:166741
-> rules:  166741 entries and 8190/8192 buckets used, longest chain length 97   
-> 
-> *  4096
-> SELinux:4096 avtab hash slots allocated. Num of rules:166741enfs_contexts
-> rules:  166741 entries and 4096/4096 buckets used, longest chain length 182
->
-> 
-> It seems that 4096, 8192 is small, because chain length is 182, 97.
-> It might be better not to alter max table size, but I am not sure..
-
-If you had adjusted the hash function too, you could have gotten better
-results.
-
-> 2. Result for 2)
-> * Number of slot = num of rules
-> SELinux:8192 avtab hash slots allocated. Num of rules:8188
-> rules:  8188 entries and 3925/8192 buckets used, longest chain length 13     
-> -> chain length = 13
-> 
-> * Number of slot = num of rules/2
-> SELinux:4096 avtab hash slots allocated. Num of rules:8188
-> rules:  8188 entries and 2809/4096 buckets used, longest chain length 21
-> 
-> * Number of slot = num of rules/4
-> SELinux:2048 avtab hash slots allocated. Num of rules:8188
-> rules:  8188 entries and 1742/2048 buckets used, longest chain length 35
-> 
-> *  Number of slot = num of rules/8
-> SELinux:1024 avtab hash slots allocated. Num of rules:8188
-> rules:  8188 entries and 978/1024 buckets used, longest chain length 64
-> 
-> "Number of slot = num of rules/8" may be too small.
-> /4 or /2 is good?
-
-Try tuning the hash function.
+I try not to, otherwise the work can't go to trunk until that
+policycoreutils goes stable.
 
 -- 
-Stephen Smalley
-National Security Agency
+Chris PeBenito
+Tresys Technology, LLC
+(410) 290-1411 x150
 
 
 --
