@@ -1,101 +1,92 @@
-Date: Tue, 07 Aug 2007 18:05:27 +0900
-From: Yuichi Nakamura <ynakam@hitachisoft.jp>
-To: Stephen Smalley <sds@tycho.nsa.gov>
-Subject: Appropriate number of hash slots for te_avtab(Was:Re: [RFC] Dynamically deciding number of hash slots for avtab
-Cc: ynakam@hitachisoft.jp, selinux@tycho.nsa.gov, busybox@kaigai.gr.jp,
-        James Morris <jmorris@namei.org>, Eric Paris <eparis@parisplace.org>,
-        kaigai@ak.jp.nec.com, method@manicmethod.com
-In-Reply-To: <1185368380.2900.40.camel@moss-spartans.epoch.ncsc.mil>
-References: <20070725113339.610F.YNAKAM@hitachisoft.jp> <1185368380.2900.40.camel@moss-spartans.epoch.ncsc.mil>
-Message-Id: <20070807175824.4CBF.YNAKAM@hitachisoft.jp>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="US-ASCII"
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l77CQ0Vc015003
+	for <selinux@tycho.nsa.gov>; Tue, 7 Aug 2007 08:26:00 -0400
+Received: from exchange.columbia.tresys.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with SMTP id l77CPxmT024801
+	for <selinux@tycho.nsa.gov>; Tue, 7 Aug 2007 12:25:59 GMT
+Subject: Re: Fedora/SE-PostgreSQL
+From: "Christopher J. PeBenito" <cpebenito@tresys.com>
+To: KaiGai Kohei <kaigai@kaigai.gr.jp>
+Cc: dwalsh@redhat.com, selinux@tycho.nsa.gov
+In-Reply-To: <46B079EF.9050909@kaigai.gr.jp>
+References: <46B079EF.9050909@kaigai.gr.jp>
+Content-Type: text/plain
+Date: Tue, 07 Aug 2007 08:25:29 -0400
+Message-Id: <1186489529.18881.9.camel@gorn>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hi.
+On Wed, 2007-08-01 at 08:17 -0400, KaiGai Kohei wrote:
+> Hi,
+> 
+> A week ago, I submitted a review request of SE-PostgreSQL to
+> the Fedora project as follows:
+>   https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=249522
+> 
+> The biggest issue is lack of definitions of new object classes
+> and access vectors related to database.
+> Rest of policies can be installed as a binary security policy module
+> packed within the RPM package, but these definitions and MLS/MCS rules
+> cannot be moduled.
+> 
+> The attached patch adds these definitions to the base policy.
+[...] 
+> --- refpolicy/policy/flask/security_classes	(revision 2385)
+> +++ refpolicy/policy/flask/security_classes	(working copy)
+> @@ -99,4 +99,12 @@
+>  
+>  class memprotect
+>  
+> +# SE-PostgreSQL relation
+> +class database			# userspace
+> +class table			# userspace
+> +class procedure			# userspace
+> +class column			# userspace
+> +class tuple			# userspace
+> +class blob			# userspace
+> +
+>  # FLASK
 
-In previous discussion,
-I posted patch to reduce memory usage of te_avtab, 
-and it could save up to 300k memory.
+I'm thinking that (with the exception of database) that the object
+classes should probably be prefixed with "db", so you know they are
+related.
 
-I had to determin two things about te_avtab hash table.
-1)  Determin appropriate max number of hash slots.
-  It is 32768(MAX_AVTAB_HASH_SIZE) in previous patch.
-  If it can be smaller, kmalloc can be used instead of zmalloc.
+Interface naming:
 
-2) Determin number of hash slots from number of rules.
- In previous patch, number of allocated hash slots is the same as number of rules.
+> +interface(`mls_database_read_up',`
 
-To determin 1), 
-We have to see hash stats when big policy is loaded.
-I loaded full-size refpolicy(It is strict policy), and looked at hash stats.
-# I defined  DEBUG_HASHES to see hash stats.
-And varied max number of hash slots.
-* Version of refpolicy: selinux-policy-strict-2.4.6-80.fc6
-* Num of uncond rules: 166741.
+mls_db_read_all_levels
 
-To determin 2), 
-We have to see hash stats when small policy is loaded.
-I loaded small size refpolicy, and looked at hash stats.
-Varied number of hash slots.
-* Version of refpoilcy: serefpolicy-2.4.6
-* Num of uncond rules: 8188
- # Removed unneeded sources, and made it smaller.
+> +interface(`mls_database_write_down',`
 
-Below is a result of measurement of hash stats.
-Please give me advice about appropriate number of hash slots. 
+mls_db_write_all_levels
 
-1. Result for 1)
-* max table size = 32768
-SELinux:32768 avtab hash slots allocated. Num of rules:166741
-rules:  166741 entries and 30128/32768 buckets used, longest chain length 34   
--> chain length = 34
+> +interface(`mls_database_upgrade',`
 
-* 16384
-SELinux:16384 avtab hash slots allocated. Num of rules:166741   
-rules:  166741 entries and 16221/16384 buckets used, longest chain length 59   
+mls_db_upgrade
 
-* 8192
-SELinux:8192 avtab hash slots allocated. Num of rules:166741
-rules:  166741 entries and 8190/8192 buckets used, longest chain length 97   
+> +interface(`mls_database_downgrade',`
 
-*  4096
-SELinux:4096 avtab hash slots allocated. Num of rules:166741enfs_contexts
-rules:  166741 entries and 4096/4096 buckets used, longest chain length 182
+mls_db_downgrade
 
-It seems that 4096, 8192 is small, because chain length is 182, 97.
-It might be better not to alter max table size, but I am not sure..
-
-2. Result for 2)
-* Number of slot = num of rules
-SELinux:8192 avtab hash slots allocated. Num of rules:8188
-rules:  8188 entries and 3925/8192 buckets used, longest chain length 13     
--> chain length = 13
-
-* Number of slot = num of rules/2
-SELinux:4096 avtab hash slots allocated. Num of rules:8188
-rules:  8188 entries and 2809/4096 buckets used, longest chain length 21
-
-* Number of slot = num of rules/4
-SELinux:2048 avtab hash slots allocated. Num of rules:8188
-rules:  8188 entries and 1742/2048 buckets used, longest chain length 35
-
-*  Number of slot = num of rules/8
-SELinux:1024 avtab hash slots allocated. Num of rules:8188
-rules:  8188 entries and 978/1024 buckets used, longest chain length 64
-
-"Number of slot = num of rules/8" may be too small.
-/4 or /2 is good?
-
-
-
-Regards,
+> +# the database upgrade/downgrade rule
+> +mlsvalidatetrans { database table procedure column tuple blob }
+> +	((( l1 eq l2 ) or
+> +	  (( t3 == mlsdatabaseupgrade ) and ( l1 domby l2 )) or
+> +	  (( t3 == mlsdatabasedowngrade ) and ( l1 dom l2 )) or
+> +	  (( t3 == mlsdatabasedowngrade ) and ( l1 incomp l2 ))) and
+> +	 (( l1 eq h2 ) or
+> +	  (( t3 == mlsdatabaseupgrade ) and ( h1 domby h2 )) or
+> +	  (( t3 == mlsdatabasedowngrade ) and ( h1 dom h2 )) or
+> +	  (( t3 == mlsdatabasedowngrade ) and ( h1 incomp h2 ))));
+> +
+>  ') dnl end enable_mls
 -- 
-Yuichi Nakamura
-Hitachi Software Engineering Co., Ltd.
-Japan SELinux Users Group(JSELUG): http://www.selinux.gr.jp/
-SELinux Policy Editor: http://seedit.sourceforge.net/
+Chris PeBenito
+Tresys Technology, LLC
+(410) 290-1411 x150
+
 
 
 --
