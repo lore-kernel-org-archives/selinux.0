@@ -1,92 +1,79 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l77CQ0Vc015003
-	for <selinux@tycho.nsa.gov>; Tue, 7 Aug 2007 08:26:00 -0400
-Received: from exchange.columbia.tresys.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with SMTP id l77CPxmT024801
-	for <selinux@tycho.nsa.gov>; Tue, 7 Aug 2007 12:25:59 GMT
 Subject: Re: Fedora/SE-PostgreSQL
-From: "Christopher J. PeBenito" <cpebenito@tresys.com>
-To: KaiGai Kohei <kaigai@kaigai.gr.jp>
-Cc: dwalsh@redhat.com, selinux@tycho.nsa.gov
-In-Reply-To: <46B079EF.9050909@kaigai.gr.jp>
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: KaiGai Kohei <kaigai@ak.jp.nec.com>
+Cc: KaiGai Kohei <kaigai@kaigai.gr.jp>, cpebenito@tresys.com,
+        dwalsh@redhat.com, selinux@tycho.nsa.gov, ewalsh@tycho.nsa.gov
+In-Reply-To: <46B7F7EF.2030200@ak.jp.nec.com>
 References: <46B079EF.9050909@kaigai.gr.jp>
+	 <1186428187.17889.166.camel@moss-spartans.epoch.ncsc.mil>
+	 <46B7F7EF.2030200@ak.jp.nec.com>
 Content-Type: text/plain
-Date: Tue, 07 Aug 2007 08:25:29 -0400
-Message-Id: <1186489529.18881.9.camel@gorn>
+Date: Tue, 07 Aug 2007 08:25:01 -0400
+Message-Id: <1186489501.26457.5.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2007-08-01 at 08:17 -0400, KaiGai Kohei wrote:
-> Hi,
+On Tue, 2007-08-07 at 13:41 +0900, KaiGai Kohei wrote:
+> Stephen Smalley wrote:
+> > On Wed, 2007-08-01 at 21:17 +0900, KaiGai Kohei wrote:
+> >> Hi,
+> >>
+> >> A week ago, I submitted a review request of SE-PostgreSQL to
+> >> the Fedora project as follows:
+> >>   https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=249522
+> >>
+> >> The biggest issue is lack of definitions of new object classes
+> >> and access vectors related to database.
+> >> Rest of policies can be installed as a binary security policy module
+> >> packed within the RPM package, but these definitions and MLS/MCS rules
+> >> cannot be moduled.
+> >>
+> >> The attached patch adds these definitions to the base policy.
+> >>
+> >> I remember Chris said as follows at the past.
+> >>> Is the code on a path to being merged upstream?  I'm hesitant to apply
+> >>> class changes until the code is on a plan to be merged.
+> >> However, I would like you to consider it again.
+> >> I believe that spread of using secure applications, like SE-PostgreSQL,
+> >> can help promote SELinux more, and it's so worthful to make it more
+> >> uncomplicated to maintain.
+> >>
+> >> In addition, the next release of PostgreSQL with new features (8.4) is
+> >> planed at the autumn 2008. It means that any SE-PostgreSQL users have to
+> >> replace the default selinux-policy package by the modified one for a year
+> >> and more, at least. I think it's a senseless work.
+> >>
+> >> It may be a time the definitions of object classes related to database are
+> >> integrated into the base security policy.
+> > 
+> > Likely a good idea as well to ensure that it does not collide with the X
+> > object class rework.
 > 
-> A week ago, I submitted a review request of SE-PostgreSQL to
-> the Fedora project as follows:
->   https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=249522
-> 
-> The biggest issue is lack of definitions of new object classes
-> and access vectors related to database.
-> Rest of policies can be installed as a binary security policy module
-> packed within the RPM package, but these definitions and MLS/MCS rules
-> cannot be moduled.
-> 
-> The attached patch adds these definitions to the base policy.
-[...] 
-> --- refpolicy/policy/flask/security_classes	(revision 2385)
-> +++ refpolicy/policy/flask/security_classes	(working copy)
-> @@ -99,4 +99,12 @@
->  
->  class memprotect
->  
-> +# SE-PostgreSQL relation
-> +class database			# userspace
-> +class table			# userspace
-> +class procedure			# userspace
-> +class column			# userspace
-> +class tuple			# userspace
-> +class blob			# userspace
-> +
->  # FLASK
+> Future modification of object class number is not a matter, because SE-PostgreSQL
+> can also obtain them via /selinux/class on the kernel 2.6.23 or later.
 
-I'm thinking that (with the exception of database) that the object
-classes should probably be prefixed with "db", so you know they are
-related.
+Yes, but IIUC, you are still encoding the fixed class/perm numbers into
+SE-PostgreSQL when running on older kernels.  Which means that if we
+take those values for the revamped X classes, we will break
+SE-PostgreSQL on such systems.
 
-Interface naming:
+> Are you worried about that the reworked X object class uses same namespace
+> with what SE-PostgreSQL uses, like "database", "table" and so on?
 
-> +interface(`mls_database_read_up',`
+No, although that brings up another point - I think Eamon intends to
+prefix all of the X classes with "x" or "X" to "namespace" them, and you
+may want to do likewise for PostgresQL (not clear whether they should
+use a postgres-specific prefix or just a db_ prefix to foster re-use for
+other database managers).
 
-mls_db_read_all_levels
+Regardless, I'd like to make it easier for people to use SE-PostgreSQL,
+and until such a time as we can add classes in a module, getting the
+definitions into the refpolicy is needed.
 
-> +interface(`mls_database_write_down',`
-
-mls_db_write_all_levels
-
-> +interface(`mls_database_upgrade',`
-
-mls_db_upgrade
-
-> +interface(`mls_database_downgrade',`
-
-mls_db_downgrade
-
-> +# the database upgrade/downgrade rule
-> +mlsvalidatetrans { database table procedure column tuple blob }
-> +	((( l1 eq l2 ) or
-> +	  (( t3 == mlsdatabaseupgrade ) and ( l1 domby l2 )) or
-> +	  (( t3 == mlsdatabasedowngrade ) and ( l1 dom l2 )) or
-> +	  (( t3 == mlsdatabasedowngrade ) and ( l1 incomp l2 ))) and
-> +	 (( l1 eq h2 ) or
-> +	  (( t3 == mlsdatabaseupgrade ) and ( h1 domby h2 )) or
-> +	  (( t3 == mlsdatabasedowngrade ) and ( h1 dom h2 )) or
-> +	  (( t3 == mlsdatabasedowngrade ) and ( h1 incomp h2 ))));
-> +
->  ') dnl end enable_mls
 -- 
-Chris PeBenito
-Tresys Technology, LLC
-(410) 290-1411 x150
-
+Stephen Smalley
+National Security Agency
 
 
 --
