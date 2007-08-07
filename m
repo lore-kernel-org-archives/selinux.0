@@ -1,41 +1,71 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l77EK8r8027813
-	for <selinux@tycho.nsa.gov>; Tue, 7 Aug 2007 10:20:09 -0400
-Received: from exchange.columbia.tresys.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with SMTP id l77EK7Va000040
-	for <selinux@tycho.nsa.gov>; Tue, 7 Aug 2007 14:20:07 GMT
-Subject: Re: [PATCH] refpolicy: kernel_terminal changes new terminal device
-From: "Christopher J. PeBenito" <cpebenito@tresys.com>
-To: dwalsh@redhat.com
-Cc: selinux@tycho.nsa.gov
-In-Reply-To: <200708022012.l72KCs5c029959@redsox.boston.devel.redhat.com>
-References: <200708022012.l72KCs5c029959@redsox.boston.devel.redhat.com>
-Content-Type: text/plain
-Date: Tue, 07 Aug 2007 10:19:38 -0400
-Message-Id: <1186496378.18881.21.camel@gorn>
-Mime-Version: 1.0
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l77EL4fr027908
+	for <selinux@tycho.nsa.gov>; Tue, 7 Aug 2007 10:21:05 -0400
+Received: from atlrel9.hp.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l77EL3mT021040
+	for <selinux@tycho.nsa.gov>; Tue, 7 Aug 2007 14:21:03 GMT
+From: "Paul Moore" <paul.moore@hp.com>
+Message-Id: <20070807141415.525577324@hp.com>
+Date: Tue, 07 Aug 2007 10:14:15 -0400
+To: selinux@tycho.nsa.gov
+Cc: kaigai@ak.jp.nec.com, joe@nall.com
+Subject: [RFC 0/5] Static/fallback external labels for NetLabel
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2007-08-02 at 16:12 -0400, dwalsh@redhat.com wrote:
-> --- nsaserefpolicy/policy/modules/kernel/terminal.fc    2007-05-29 14:10:48.000000000 -0400
-> +++ serefpolicy-3.0.5/policy/modules/kernel/terminal.fc 2007-08-02 11:02:02.000000000 -0400
-> @@ -8,6 +8,7 @@
->  /dev/dcbri[0-9]+       -c      gen_context(system_u:object_r:tty_device_t,s0)
->  /dev/hvc.*             -c      gen_context(system_u:object_r:tty_device_t,s0)
->  /dev/hvsi.*            -c      gen_context(system_u:object_r:tty_device_t,s0)
-> +/dev/i2c[^/]*          -c      gen_context(system_u:object_r:tty_device_t,s0)
->  /dev/ircomm[0-9]+      -c      gen_context(system_u:object_r:tty_device_t,s0)
->  /dev/ip2[^/]*          -c      gen_context(system_u:object_r:tty_device_t,s0)
->  /dev/isdn.*            -c      gen_context(system_u:object_r:tty_device_t,s0)
+This patchset adds the static/fallback labeling feature to NetLabel that has
+been requested on the SELinux mailing list more and more recently.  This new
+bit of functionality also matches what can be found on similar trusted/labeled
+OSs such as Trusted Solaris, HP-UX CMW, etc.  This patchset it not yet ready
+for "upstreaming" so please do not pull this into any tree bound for the
+mainline kernel; I still need to do more review and testing of the code.
+However, I know there are several of you on this list that have been anxiously
+awaiting this patchset so I thought I would make an early release so you could
+get a peek and test it out.  I won't be able to work on this patchset much, if
+at all, between August 10th and the 20th so don't expect an update from me
+until the end of August.
 
-I don't think this is correct, not all i2c devices are ttys.
+The basic idea is that currently there is no method for providing an external
+label to fallback on if a labeled networking mechanism such as NetLabel/CIPSO
+or labeled IPsec is not in use.  This patch adds a mechanism for providing a
+static fallback label, specified per interface/network, which is used when
+a NetLabel recognized labeling protocol (at this point CIPSO) is not in use.
+
+For those of you wishing to try this patchset, it is backed against Linus'
+linux-2.6 git tree from the afternoon of August 6th, but I don't imagine you'll
+have many problems applying the patchset to later trees at this point in the
+2.6.23 release cycle.  In addition to the kernel patches you will also need a
+modified version of netlabelctl from the netlabel_tools package.  A very crude
+version of the modified tools can be found in the netlabel_tools SVN repository
+in the static_label branch.  Please check the NetLabel website on SourceForge,
+http://netlabel.sf.net, for information on the SVN repository.  The three new
+netlabelctl commands are as follows:
+
+ # netlabelctl unlbl add interface:<DEV> address:<ADDR>[/<MASK>] label:<LABEL>
+ # netlabelctl unlbl del interface:<DEV> address:<ADDR>[/<MASK>]
+ # netlabelctl -p unlbl list
+
+   DEV = interface, examples: eth0, lo
+   ADDR = IP address, examples: 192.168.0.3, ::1
+   MASK = IP address mask length, examples 8, 24, 64
+   LABEL = LSM/SELinux label, example: system_u:object_r:unlabeled_t:s2
+
+For example, if you wanted to label all inbound traffic on eth1 from
+192.168.0.0/16 with the label "system_u:object_r:staticlabel_t:s7" you would
+type:
+
+ # netlabelctl unlbl add interface:eth1 address:192.168.0.0/16 \
+                         label:system_u:object_r:staticlabel_t:s7
+
+Both IPv4 and IPv6 addresses can be used and if the address mask is ommitted
+from the command the address is assumed to be a host address, not a network,
+and the maximum mask size for that address family is used.  If you do not wish
+to specify an address, simply use a address mask of zero, "/0", which will
+cause all addresses within that address family to match.
 
 -- 
-Chris PeBenito
-Tresys Technology, LLC
-(410) 290-1411 x150
-
+paul moore
+linux security @ hp
 
 --
 This message was distributed to subscribers of the selinux mailing list.
