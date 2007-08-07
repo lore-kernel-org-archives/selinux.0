@@ -1,75 +1,104 @@
-Subject: Re: Fedora/SE-PostgreSQL
+Subject: Re: Appropriate number of hash slots for te_avtab(Was:Re: [RFC]
+	Dynamically deciding number of hash slots for avtab
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: KaiGai Kohei <kaigai@ak.jp.nec.com>
-Cc: KaiGai Kohei <kaigai@kaigai.gr.jp>, cpebenito@tresys.com,
-        dwalsh@redhat.com, selinux@tycho.nsa.gov, ewalsh@tycho.nsa.gov
-In-Reply-To: <46B7F7EF.2030200@ak.jp.nec.com>
-References: <46B079EF.9050909@kaigai.gr.jp>
-	 <1186428187.17889.166.camel@moss-spartans.epoch.ncsc.mil>
-	 <46B7F7EF.2030200@ak.jp.nec.com>
+To: Yuichi Nakamura <ynakam@hitachisoft.jp>
+Cc: selinux@tycho.nsa.gov, busybox@kaigai.gr.jp,
+        James Morris <jmorris@namei.org>, Eric Paris <eparis@parisplace.org>,
+        kaigai@ak.jp.nec.com, method@manicmethod.com
+In-Reply-To: <20070807175824.4CBF.YNAKAM@hitachisoft.jp>
+References: <20070725113339.610F.YNAKAM@hitachisoft.jp>
+	 <1185368380.2900.40.camel@moss-spartans.epoch.ncsc.mil>
+	 <20070807175824.4CBF.YNAKAM@hitachisoft.jp>
 Content-Type: text/plain
-Date: Tue, 07 Aug 2007 08:25:01 -0400
-Message-Id: <1186489501.26457.5.camel@moss-spartans.epoch.ncsc.mil>
+Date: Tue, 07 Aug 2007 08:33:29 -0400
+Message-Id: <1186490009.26457.10.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2007-08-07 at 13:41 +0900, KaiGai Kohei wrote:
-> Stephen Smalley wrote:
-> > On Wed, 2007-08-01 at 21:17 +0900, KaiGai Kohei wrote:
-> >> Hi,
-> >>
-> >> A week ago, I submitted a review request of SE-PostgreSQL to
-> >> the Fedora project as follows:
-> >>   https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=249522
-> >>
-> >> The biggest issue is lack of definitions of new object classes
-> >> and access vectors related to database.
-> >> Rest of policies can be installed as a binary security policy module
-> >> packed within the RPM package, but these definitions and MLS/MCS rules
-> >> cannot be moduled.
-> >>
-> >> The attached patch adds these definitions to the base policy.
-> >>
-> >> I remember Chris said as follows at the past.
-> >>> Is the code on a path to being merged upstream?  I'm hesitant to apply
-> >>> class changes until the code is on a plan to be merged.
-> >> However, I would like you to consider it again.
-> >> I believe that spread of using secure applications, like SE-PostgreSQL,
-> >> can help promote SELinux more, and it's so worthful to make it more
-> >> uncomplicated to maintain.
-> >>
-> >> In addition, the next release of PostgreSQL with new features (8.4) is
-> >> planed at the autumn 2008. It means that any SE-PostgreSQL users have to
-> >> replace the default selinux-policy package by the modified one for a year
-> >> and more, at least. I think it's a senseless work.
-> >>
-> >> It may be a time the definitions of object classes related to database are
-> >> integrated into the base security policy.
-> > 
-> > Likely a good idea as well to ensure that it does not collide with the X
-> > object class rework.
+On Tue, 2007-08-07 at 18:05 +0900, Yuichi Nakamura wrote:
+> Hi.
 > 
-> Future modification of object class number is not a matter, because SE-PostgreSQL
-> can also obtain them via /selinux/class on the kernel 2.6.23 or later.
+> In previous discussion,
+> I posted patch to reduce memory usage of te_avtab, 
+> and it could save up to 300k memory.
+> 
+> I had to determin two things about te_avtab hash table.
+> 1)  Determin appropriate max number of hash slots.
+>   It is 32768(MAX_AVTAB_HASH_SIZE) in previous patch.
+>   If it can be smaller, kmalloc can be used instead of zmalloc.
+> 
+> 2) Determin number of hash slots from number of rules.
+>  In previous patch, number of allocated hash slots is the same as number of rules.
+> 
+> To determin 1), 
+> We have to see hash stats when big policy is loaded.
+> I loaded full-size refpolicy(It is strict policy), and looked at hash stats.
+> # I defined  DEBUG_HASHES to see hash stats.
+> And varied max number of hash slots.
+> * Version of refpolicy: selinux-policy-strict-2.4.6-80.fc6
+> * Num of uncond rules: 166741.
+> 
+> To determin 2), 
+> We have to see hash stats when small policy is loaded.
+> I loaded small size refpolicy, and looked at hash stats.
+> Varied number of hash slots.
+> * Version of refpoilcy: serefpolicy-2.4.6
+> * Num of uncond rules: 8188
+>  # Removed unneeded sources, and made it smaller.
+> 
+> Below is a result of measurement of hash stats.
+> Please give me advice about appropriate number of hash slots. 
+> 
+> 1. Result for 1)
+> * max table size = 32768
+> SELinux:32768 avtab hash slots allocated. Num of rules:166741
+> rules:  166741 entries and 30128/32768 buckets used, longest chain length 34   
+> -> chain length = 34
 
-Yes, but IIUC, you are still encoding the fixed class/perm numbers into
-SE-PostgreSQL when running on older kernels.  Which means that if we
-take those values for the revamped X classes, we will break
-SE-PostgreSQL on such systems.
+Doesn't sound like the hash function is doing so well anymore.
 
-> Are you worried about that the reworked X object class uses same namespace
-> with what SE-PostgreSQL uses, like "database", "table" and so on?
+> * 16384
+> SELinux:16384 avtab hash slots allocated. Num of rules:166741   
+> rules:  166741 entries and 16221/16384 buckets used, longest chain length 59   
+> 
+> * 8192
+> SELinux:8192 avtab hash slots allocated. Num of rules:166741
+> rules:  166741 entries and 8190/8192 buckets used, longest chain length 97   
+> 
+> *  4096
+> SELinux:4096 avtab hash slots allocated. Num of rules:166741enfs_contexts
+> rules:  166741 entries and 4096/4096 buckets used, longest chain length 182
+>
+> 
+> It seems that 4096, 8192 is small, because chain length is 182, 97.
+> It might be better not to alter max table size, but I am not sure..
 
-No, although that brings up another point - I think Eamon intends to
-prefix all of the X classes with "x" or "X" to "namespace" them, and you
-may want to do likewise for PostgresQL (not clear whether they should
-use a postgres-specific prefix or just a db_ prefix to foster re-use for
-other database managers).
+If you had adjusted the hash function too, you could have gotten better
+results.
 
-Regardless, I'd like to make it easier for people to use SE-PostgreSQL,
-and until such a time as we can add classes in a module, getting the
-definitions into the refpolicy is needed.
+> 2. Result for 2)
+> * Number of slot = num of rules
+> SELinux:8192 avtab hash slots allocated. Num of rules:8188
+> rules:  8188 entries and 3925/8192 buckets used, longest chain length 13     
+> -> chain length = 13
+> 
+> * Number of slot = num of rules/2
+> SELinux:4096 avtab hash slots allocated. Num of rules:8188
+> rules:  8188 entries and 2809/4096 buckets used, longest chain length 21
+> 
+> * Number of slot = num of rules/4
+> SELinux:2048 avtab hash slots allocated. Num of rules:8188
+> rules:  8188 entries and 1742/2048 buckets used, longest chain length 35
+> 
+> *  Number of slot = num of rules/8
+> SELinux:1024 avtab hash slots allocated. Num of rules:8188
+> rules:  8188 entries and 978/1024 buckets used, longest chain length 64
+> 
+> "Number of slot = num of rules/8" may be too small.
+> /4 or /2 is good?
+
+Try tuning the hash function.
 
 -- 
 Stephen Smalley
