@@ -1,80 +1,111 @@
 Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l77HilJ8012177
-	for <selinux@tycho.nsa.gov>; Tue, 7 Aug 2007 13:44:47 -0400
-Received: from web36608.mail.mud.yahoo.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with SMTP id l77HikI4000278
-	for <selinux@tycho.nsa.gov>; Tue, 7 Aug 2007 17:44:46 GMT
-Date: Tue, 7 Aug 2007 10:44:30 -0700 (PDT)
-From: Casey Schaufler <casey@schaufler-ca.com>
-Reply-To: casey@schaufler-ca.com
-Subject: Re: [PATCH][RFC] V2 Remove SELinux dependencies from linux-audit via LSM
-To: Stephen Smalley <sds@tycho.nsa.gov>, casey@schaufler-ca.com
-Cc: LSM List <linux-security-module@vger.kernel.org>,
-        SELinux List <selinux@tycho.nsa.gov>,
-        Audit List <linux-audit@redhat.com>
-In-Reply-To: <1186498030.26457.68.camel@moss-spartans.epoch.ncsc.mil>
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l77HuqDL013622
+	for <selinux@tycho.nsa.gov>; Tue, 7 Aug 2007 13:56:52 -0400
+Received: from an-out-0708.google.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l77HuqI4003233
+	for <selinux@tycho.nsa.gov>; Tue, 7 Aug 2007 17:56:52 GMT
+Received: by an-out-0708.google.com with SMTP id c38so397704ana
+        for <selinux@tycho.nsa.gov>; Tue, 07 Aug 2007 10:56:51 -0700 (PDT)
+Message-ID: <9f066ee90708071056j74618a8akd860ef084f055243@mail.gmail.com>
+Date: Tue, 7 Aug 2007 13:56:51 -0400
+From: Mark <elihusmails@gmail.com>
+To: "shahbaz khan" <shazalive@gmail.com>, selinux@tycho.nsa.gov,
+        fedora-selinux-list@redhat.com
+Subject: Re: beginner to SE Linux policy
+In-Reply-To: <7b740b700707280714u72d59b83j3f6c3065d15e2b79@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Message-ID: <973639.58905.qm@web36608.mail.mud.yahoo.com>
+Content-Type: multipart/alternative;
+	boundary="----=_Part_126600_16989075.1186509411726"
+References: <9f066ee90707271204p2bfe6da7k4f8f50798c50c2e8@mail.gmail.com>
+	 <7b740b700707280714u72d59b83j3f6c3065d15e2b79@mail.gmail.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+------=_Part_126600_16989075.1186509411726
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
---- Stephen Smalley <sds@tycho.nsa.gov> wrote:
+Thanks for the help.  I just want to become more familiar with SE Linux and
+understand the context of the te, fe, if..etc files and how I can modify
+them so that my programs are more secure.  There just seems to be alot of
+information that may or may not be related in order to help me.  For
+instance, there is the seedit tools, SLIDE and RedHat tools available.
+Also, which is a better distribution to learn SE Linux, CentOS or Fedora
+Core?
 
-> On Sun, 2007-08-05 at 17:03 -0700, Casey Schaufler wrote:
-> > From: Casey Schaufler <casey@schaufler-ca.com>
-> > 
-> > This patch interposes LSM interfaces between the audit system
-> > and SELinux. This helps make SELinux a cleaner LSM and clarifies
-> > the interfaces provided by the audit system. The audit system
-> > no longer requires SELinux functions or data structures, making
-> > it available for use by other LSMs.
-> > 
-> > The audit system interfaces should now be useful to any LSM that
-> > can provide secids and text string representations that match them.
-> > The audit system uses secids only to map to those strings and
-> > treats them as opaque data otherwise. Audit rule information that
-> > is specific to an LSM is maintained through a void *. 
-> > 
-> > The SELinux code uses LSM interfaces to access the audit system,
-> > with the exception of audit_rule_update_callout(), which is
-> > intended to be called at the descretion of an LSM to update the
-> > LSM specific rules.
-> > 
-> > The LSM interface includes six new entries, four for audit and two
-> > that supply secids from the LSM to networking and audit subsystems.
-> > Also, there were several cases where SELinux code was being called
-> > where LSM interfaces were more appropriate. These uses have been
-> > repaired and the SELinux interfaces are no longer exported.
-> > 
-> > Signed-off-by: Casey Schaufler <casey@schaufler-ca.com>
-> 
-> Looks sane, but the patch is malformed again, so I can't apply it.
+I am an application developer who really just needs to learn how to write
+policies for the programs I am developing.  Things like policies, domains
+and domain transition are important areas I really want to learn.
 
-I have to change my posting infrastructure. Stoopid 21st century software.
+Thanks for the help.
 
-> There are still a few places where you appear to be making
-> sparse-induced cleanups of other code unrelated to this change, so make
-> those separate patches (and be sure you aren't duplicating what is
-> already upstream).
+PS.  I ordered the SE Linux by Example yesterday!
+-- 
+..Cheers
+Mark
 
-I'll just have to live with the warnings, I guess. Thank you.
+On 7/28/07, shahbaz khan <shazalive@gmail.com> wrote:
+>
+> Mark
+>
+> Selinux by example is the best answer to ur stated problem. NSA documents
+> will give u a good background because things have been changing alot. Do not
+> miss tresys' reference policy and policy managemnt server. U can get more
+> info about it from tresys' website. Once u start to get aquainted with
+> selinux this mailing list will be more useful to u. Also join fedora selinux
+> mailing list.
+>
+> I am not sure which policy analysis tool will be more useful to u. Why
+> dont u right a more specific question to this list w.r.t. policy analysis
+> tools. U might get good answers from selinux by example.
+>
+> Shaz.
+>
+>
+>
+>
+> On 7/28/07, Mark <elihusmails@gmail.com> wrote:
+> >
+> > I have seen programs that will help me to edit and analyze SE Linux
+> > policies.  What I am interested in is a resource that will help me
+> > understand what a policy does and how to write them.  At least for me,
+> > learning at the code level and not using GUI tools helps me to understand
+> > things better.
+> >
+> > So what resources are out there for me to start looking at?
+> >
+> > Thanks in advance.
+> > Mark
+> >
+>
+>
 
-> You've tested the resulting kernel?  Built with a variety of configs?
+------=_Part_126600_16989075.1186509411726
+Content-Type: text/html; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-Testing has been minimal (hence the [RFC]) because I don't want to
-invest too much time in something that might not go anywhere. I will
-work on an applyable patch posting and begin serious testing now that
-someone who knows sanity when they see it (never one of my strong
-points) has identified it as such. I have built it SELinux, Smack,
-and neither, but only spent any serious run time with Smack.
+Thanks for the help.&nbsp; I just want to become more familiar with SE Linux and understand the context of the te, fe, if..etc files and how I can modify them so that my programs are more secure.&nbsp; There just seems to be alot of information that may or may not be related in order to help me.&nbsp; For instance, there is the seedit tools, SLIDE and RedHat tools available.&nbsp; Also, which is a better distribution to learn SE Linux, CentOS or Fedora Core?
+<br><br>I am an application developer who really just needs to learn how to write policies for the programs I am developing.&nbsp; Things like policies, domains and domain transition are important areas I really want to learn.
+<br><br>Thanks for the help.<br><br>PS.&nbsp; I ordered the SE Linux by Example yesterday!<br>-- <br>..Cheers<br>Mark
+<br><br><div><span class="gmail_quote">On 7/28/07, <b class="gmail_sendername">shahbaz khan</b> &lt;<a href="mailto:shazalive@gmail.com">shazalive@gmail.com</a>&gt; wrote:</span><blockquote class="gmail_quote" style="border-left: 1px solid rgb(204, 204, 204); margin: 0pt 0pt 0pt 0.8ex; padding-left: 1ex;">
+<div>Mark</div>
+<div>&nbsp;</div>
+<div>Selinux by example is the best answer to ur stated problem. NSA documents will give u a good background because things have been changing alot. Do not miss tresys&#39; reference policy and policy managemnt server. U can get more info about it from tresys&#39; website. Once u start to get aquainted with selinux this mailing list will be more useful to u. Also join fedora selinux mailing list.
+</div>
+<div>&nbsp;</div>
+<div>I am not sure which policy analysis tool will be more useful to u. Why dont u right a more specific question to this list w.r.t. policy analysis tools. U might get good answers from selinux by example.</div>
+<div>&nbsp;</div>
+<div>Shaz.</div><div><span class="e" id="q_1140d2d7e5e35182_1">
+<div><br>&nbsp;</div><br><br>
+<div><span class="gmail_quote">On 7/28/07, <b class="gmail_sendername">Mark</b> &lt;<a href="mailto:elihusmails@gmail.com" target="_blank" onclick="return top.js.OpenExtLink(window,event,this)">elihusmails@gmail.com</a>&gt; wrote:
+</span>
+<blockquote class="gmail_quote" style="border-left: 1px solid rgb(204, 204, 204); margin: 0px 0px 0px 0.8ex; padding-left: 1ex;">I have seen programs that will help me to edit and analyze SE Linux policies.&nbsp; What I am interested in is a resource that will help me understand what a policy does and how to write them.&nbsp; At least for me, learning at the code level and not using GUI tools helps me to understand things better.&nbsp; 
+<br><br>So what resources are out there for me to start looking at?<br><br>Thanks in advance.<br clear="all"><span>Mark<br></span></blockquote></div><br>
+</span></div></blockquote></div><br>
 
-Thank you.
-
-
-Casey Schaufler
-casey@schaufler-ca.com
+------=_Part_126600_16989075.1186509411726--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
