@@ -1,72 +1,205 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l781DAcR013872
-	for <selinux@tycho.nsa.gov>; Tue, 7 Aug 2007 21:13:11 -0400
-Received: from exchange.columbia.tresys.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with SMTP id l781D8LJ016836
-	for <selinux@tycho.nsa.gov>; Wed, 8 Aug 2007 01:13:09 GMT
-Message-ID: <46B91890.2020101@manicmethod.com>
-Date: Tue, 07 Aug 2007 21:12:48 -0400
-From: Joshua Brindle <method@manicmethod.com>
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l784dCuW023959
+	for <selinux@tycho.nsa.gov>; Wed, 8 Aug 2007 00:39:13 -0400
+Received: from mo10.iijmio.jp (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id l784d9Vu024492
+	for <selinux@tycho.nsa.gov>; Wed, 8 Aug 2007 04:39:10 GMT
+Message-Id: <200708080438.l784cj4N015640@mbox.iijmio-mail.jp>
 MIME-Version: 1.0
-To: KaiGai Kohei <kaigai@kaigai.gr.jp>
-CC: "Christopher J. PeBenito" <cpebenito@tresys.com>,
-        KaiGai Kohei <kaigai@ak.jp.nec.com>, dwalsh@redhat.com,
-        selinux@tycho.nsa.gov
-Subject: Re: Fedora/SE-PostgreSQL
-References: <46B079EF.9050909@kaigai.gr.jp> <1186489529.18881.9.camel@gorn>	 <46B878D9.6090004@ak.jp.nec.com> <1186495764.18881.17.camel@gorn> <46B8ABC5.60705@kaigai.gr.jp>
-In-Reply-To: <46B8ABC5.60705@kaigai.gr.jp>
-Content-Type: text/plain; charset=ISO-2022-JP
+From: himainu-ynakam@miomio.jp
+Subject: [patch][BusyBox] Domain assignment support for SELinux/AppArmor/LIDS
+To: busybox@busybox.net
+Cc: selinux@tycho.nsa.gov, vda.linux@googlemail.com, busybox@kaigai.gr.jp,
+        hiroshi.shinji@gmail.com
+Date: Wed, 08 Aug 2007 13:38:45 +0900
+Content-Type: multipart/mixed;
+	boundary="=_8cca24d4daeaada09e41e0a72ca81965"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-KaiGai Kohei wrote:
-> The attached patch adds definitions of new classes and permissions,
-> and MLS/MCS rules.
-> 
-> Following items are differences from the first patch.
-> 
-> * add "db_" prefix for each object classes.
->   e.g) "table" -> "db_table"
-> * interfaces in policy/modules/kernel/mls.if are renamed.
->   - mls_database_read_up    -> mls_db_read_all_levels
->   - mls_database_write_down -> mls_db_write_all_levels
->   - mls_database_upgrade    -> mls_db_upgrade
->   - mls_database_downgrade  -> mls_db_downgrade
-> * MLS attributes related to database are renamed
->   - mlsdatabaseXXXXX -> mlsdbXXXXX
-> 
-> Any comment please,
-> 
-> Christopher J. PeBenito wrote:
->> On Tue, 2007-08-07 at 22:51 +0900, KaiGai Kohei wrote:
->>> Christopher J. PeBenito wrote:
->>>> On Wed, 2007-08-01 at 08:17 -0400, KaiGai Kohei wrote:
->>>> Interface naming:
->>>>
->>>>> +interface(`mls_database_read_up',`
->>>> mls_db_read_all_levels
->>>>
->>>>> +interface(`mls_database_write_down',`
->>>> mls_db_write_all_levels
->>>>
->>>>> +interface(`mls_database_upgrade',`
->>>> mls_db_upgrade
->>>>
->>>>> +interface(`mls_database_downgrade',`
->>>> mls_db_downgrade
->>> OK, I'll rename these interfaces more simple.
->>> Is it necessary to make the attribute names shorter?
->> Not strictly, but it probably would be a good idea.
->>
-> 
+--=_8cca24d4daeaada09e41e0a72ca81965
+Content-Type: text/plain; charset="ISO-2022-JP"
+Content-Transfer-Encoding: 7bit
 
-These interface names seem kind of ambiguous, they could mean downgrade
-the database files on disk or within an selinux aware database server.
-They also have very low granularity, but I haven't decided if that
-matters much.
+Hello.
 
-It would be nice to have less ambiguous interface names though.
+We would like to suggest Secure OSes(such as SELinux/AppArmor/LIDS) domain
+assignment support for BusyBox. This work is done by Hiroshi Shinji.
 
+1. Background
+
+Secure OSes such as SELinux, AppArmor and LIDS can assign domain to processes.
+"Domain" means set of access rights.
+Domain is assinged to processes at the time of "exec" system call.
+# This is a little similar to "suid" feature of Linux.
+
+For example, in the case of SELinux, /sbin/syslogd is assigned syslogd_t
+domain at the execution time of /sbin/syslogd. syslogd_t are allowed to
+read syslogd.conf, write log files, etc.
+
+However, current BusyBox does not suitable for assigning domains.
+Because BusyBox is a single file that is called through a lot of links.
+
+Secure OS treats "/sbin/syslogd" and "/sbin/httpd" as "/bin/busybox".
+So, /sbin/syslogd and /sbin/httpd run as the same domain.
+
+Known solutions to this problem is preparing wrapper program that calls
+applet.
+　 For example, /sbin/syslogd is a small C program that calls
+"/bin/busybox syslogd". Then, at the execution of /sbin/syslogd,
+syslogd_t domain is assigned and "/bin/busybox syslogd" is called
+and inherits assinged domain(syslogd_t).
+However, such wrapper consumes storage(more than 1k byte per wrapper).
+For detailed description about this problem,
+Yusuke Sato wrote documentation:
+http://www.selinux.gr.jp/LIDS-JP/LIDS_en/document/general/web_lids_busybox/main.html
+
+2. Our solution
+Shinji came up with one idea. He thought "script wrappper" like below.
+
+If you enabled "INSTALL_APPLET_SCRIPT_WRAPPERS", wrappers like below are
+installed.
+
+The contents of "/sbin/syslogd" is following.
+
+#!/bin/busybox
+
+It is only 15 byte.
+
+When /sbin/syslogd is executed, "/bin/busybox /sbin/syslogd <other arguments>" is called.
+
+To achive above, we had to modify applets.c
+
+-       applet_name = argv[0];
+-       run_applet_and_exit(argv[0], argv);
++       applet_name = bb_get_last_path_component(argv[0]);
++       run_applet_and_exit(applet_name, argv);
+
+We tried the patch for SELinux and AppArmor.
+And domains were assigned sucessfully!
+
+3. Limitation
+Programs that are used as interpreter can not be installed as script wrapper.
+It is due to limitation of exec(interpreter can not be called twice).
+For example, /bin/sh can not be installed as script wrapper.
+If /bin/sh is installed as script wrapper, shell scripts do not run.
+In interpreting #!/bin/sh
+
+-> /bin/sh is #!/bin/busybox,
+-> #! is called twice
+-> exec system call fails(limitation of exec system call).
+
+In our patch, sh is installed as symlink or hard link by default
+(you can install it as script wrapper if you still need).
+
+Assigning domain is critical to secure OSes.
+We want way to assign to domains to busybox applets.
+Please review this patch and consider merging.
+
+Regards,
+Yuichi Nakamura
+JSELUG(Japan SELinux Users Group)
+
+--=_8cca24d4daeaada09e41e0a72ca81965
+Content-Type: application/octet-stream
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment;
+ filename="domain_assign.patch"
+
+SW5kZXg6IE1ha2VmaWxlLmN1c3RvbQo9PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09
+PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09Ci0tLSBNYWtlZmlsZS5jdXN0b20JKHJl
+dmlzaW9uIDE5NDE3KQorKysgTWFrZWZpbGUuY3VzdG9tCSh3b3JraW5nIGNvcHkpCkBAIC0xMiw2
+ICsxMiwxNyBAQAogaWZlcSAoJChDT05GSUdfSU5TVEFMTF9BUFBMRVRfSEFSRExJTktTKSx5KQog
+SU5TVEFMTF9PUFRTOj0gLS1oYXJkbGlua3MKIGVuZGlmCitpZmVxICgkKENPTkZJR19JTlNUQUxM
+X0FQUExFVF9TQ1JJUFRfV1JBUFBFUlMpLHkpCitpZmVxICgkKENPTkZJR19JTlNUQUxMX1NIX0FQ
+UExFVF9TWU1MSU5LKSx5KQorSU5TVEFMTF9PUFRTOj0gLS1zdy1zaC1zeW0KK2VuZGlmCitpZmVx
+ICgkKENPTkZJR19JTlNUQUxMX1NIX0FQUExFVF9IQVJETElOSykseSkKK0lOU1RBTExfT1BUUzo9
+IC0tc3ctc2gtaGFyZAorZW5kaWYKK2lmZXEgKCQoQ09ORklHX0lOU1RBTExfU0hfQVBQTEVUX1ND
+UklQVF9XUkFQUEVSKSx5KQorSU5TVEFMTF9PUFRTOj0gLS1zY3JpcHR3cmFwcGVyCitlbmRpZgor
+ZW5kaWYKIGluc3RhbGw6ICQoc3JjdHJlZSkvYXBwbGV0cy9pbnN0YWxsLnNoIGJ1c3lib3ggYnVz
+eWJveC5saW5rcwogCSQoUSlET19JTlNUQUxMX0xJQlM9IiQoc3RyaXAgJChMSUJCVVNZQk9YX1NP
+TkFNRSkgJChET19JTlNUQUxMX0xJQlMpKSIgXAogCQkkKFNIRUxMKSAkPCAkKENPTkZJR19QUkVG
+SVgpICQoSU5TVEFMTF9PUFRTKQpJbmRleDogYXBwbGV0cy9pbnN0YWxsLnNoCj09PT09PT09PT09
+PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT0K
+LS0tIGFwcGxldHMvaW5zdGFsbC5zaAkocmV2aXNpb24gMTk0MTcpCisrKyBhcHBsZXRzL2luc3Rh
+bGwuc2gJKHdvcmtpbmcgY29weSkKQEAgLTUsMTkgKzUsMjMgQEAKIAogcHJlZml4PSR7MX0KIGlm
+IFsgLXogIiRwcmVmaXgiIF07IHRoZW4KLQllY2hvICJ1c2FnZTogYXBwbGV0cy9pbnN0YWxsLnNo
+IERFU1RJTkFUSU9OIFstLXN5bWxpbmtzLy0taGFyZGxpbmtzXSIKKwllY2hvICJ1c2FnZTogYXBw
+bGV0cy9pbnN0YWxsLnNoIERFU1RJTkFUSU9OIFstLXN5bWxpbmtzLy0taGFyZGxpbmtzLy0tc2Ny
+aXB0d3JhcHBlcl0iCiAJZXhpdCAxOwogZmkKIGg9YHNvcnQgYnVzeWJveC5saW5rcyB8IHVuaXFg
+CitzY3JpcHR3cmFwcGVyPSJuIgogY2xlYW51cD0iMCIKIG5vY2xvYmJlcj0iMCIKIGNhc2UgIiQy
+IiBpbgotCS0taGFyZGxpbmtzKSBsaW5rb3B0cz0iLWYiOzsKLQktLXN5bWxpbmtzKSAgbGlua29w
+dHM9Ii1mcyI7OwotCS0tY2xlYW51cCkgICBjbGVhbnVwPSIxIjs7Ci0JLS1ub2Nsb2JiZXIpIG5v
+Y2xvYmJlcj0iMSI7OwotCSIiKSAgICAgICAgICBoPSIiOzsKLQkqKSAgICAgICAgICAgZWNobyAi
+VW5rbm93biBpbnN0YWxsIG9wdGlvbjogJDIiOyBleGl0IDE7OworCS0taGFyZGxpbmtzKSAgICAg
+bGlua29wdHM9Ii1mIjs7CisJLS1zeW1saW5rcykgICAgICBsaW5rb3B0cz0iLWZzIjs7CisJLS1z
+Y3JpcHR3cmFwcGVyKSBzY3JpcHR3cmFwcGVyPSJ5Ijtzd3JhcGFsbD0ieSI7OworCS0tc3ctc2gt
+aGFyZCkgICAgc2NyaXB0d3JhcHBlcj0ieSI7bGlua29wdHM9Ii1mIjs7CisJLS1zdy1zaC1zeW0p
+ICAgICBzY3JpcHR3cmFwcGVyPSJ5IjtsaW5rb3B0cz0iLWZzIjs7CisJLS1jbGVhbnVwKSAgICAg
+ICBjbGVhbnVwPSIxIjs7CisJLS1ub2Nsb2JiZXIpICAgICBub2Nsb2JiZXI9IjEiOzsKKwkiIikg
+ICAgICAgICAgICAgIGg9IiI7OworCSopICAgICAgICAgICAgICAgZWNobyAiVW5rbm93biBpbnN0
+YWxsIG9wdGlvbjogJDIiOyBleGl0IDE7OwogZXNhYwogCiBpZiBbIC1uICIkRE9fSU5TVEFMTF9M
+SUJTIiBdICYmIFsgIiRET19JTlNUQUxMX0xJQlMiICE9ICJuIiBdOyB0aGVuCkBAIC01Miw2ICs1
+Niw3IEBACiAJCWNkICIkcGQiCiAJZG9uZQogCWAKKwlleGl0IDAKIGZpCiAKIHJtIC1mICRwcmVm
+aXgvYmluL2J1c3lib3ggfHwgZXhpdCAxCkBAIC02MSwzNCArNjYsNDUgQEAKIGZvciBpIGluICRo
+OyBkbwogCWFwcGRpcj1gZGlybmFtZSAkaWAKIAlta2RpciAtcCAkcHJlZml4LyRhcHBkaXIgfHwg
+ZXhpdCAxCi0JaWYgWyAiJDIiID0gIi0taGFyZGxpbmtzIiBdOyB0aGVuCi0JCWJiX3BhdGg9IiRw
+cmVmaXgvYmluL2J1c3lib3giCisJaWYgWyAiJHNjcmlwdHdyYXBwZXIiID0gInkiIF07IHRoZW4K
+KwkJaWYgWyAiJHN3cmFwYWxsIiAhPSAieSIgXSAmJiBbICIkaSIgPSAiL2Jpbi9zaCIgXTsgdGhl
+bgorCQkJbG4gJGxpbmtvcHRzIGJ1c3lib3ggJHByZWZpeCRpIHx8IGV4aXQgMQorCQllbHNlCisJ
+CQlybSAtZiAkcHJlZml4JGkKKwkJCWVjaG8gIiMhL2Jpbi9idXN5Ym94IiA+ICRwcmVmaXgkaQor
+CQkJY2htb2QgK3ggJHByZWZpeC8kaQorCQlmaQorCQllY2hvICIJJHByZWZpeCRpIgogCWVsc2UK
+LQkJY2FzZSAiJGFwcGRpciIgaW4KLQkJLykKLQkJCWJiX3BhdGg9ImJpbi9idXN5Ym94IgotCQk7
+OwotCQkvYmluKQotCQkJYmJfcGF0aD0iYnVzeWJveCIKLQkJOzsKLQkJL3NiaW4pCi0JCQliYl9w
+YXRoPSIuLi9iaW4vYnVzeWJveCIKLQkJOzsKLQkJL3Vzci9iaW58L3Vzci9zYmluKQotCQkJYmJf
+cGF0aD0iLi4vLi4vYmluL2J1c3lib3giCi0JCTs7Ci0JCSopCi0JCWVjaG8gIlVua25vd24gaW5z
+dGFsbGF0aW9uIGRpcmVjdG9yeTogJGFwcGRpciIKLQkJZXhpdCAxCi0JCTs7Ci0JCWVzYWMKKwkJ
+aWYgWyAiJDIiID0gIi0taGFyZGxpbmtzIiBdOyB0aGVuCisJCQliYl9wYXRoPSIkcHJlZml4L2Jp
+bi9idXN5Ym94IgorCQllbHNlCisJCQljYXNlICIkYXBwZGlyIiBpbgorCQkJLykKKwkJCQliYl9w
+YXRoPSJiaW4vYnVzeWJveCIKKwkJCTs7CisJCQkvYmluKQorCQkJCWJiX3BhdGg9ImJ1c3lib3gi
+CisJCQk7OworCQkJL3NiaW4pCisJCQkJYmJfcGF0aD0iLi4vYmluL2J1c3lib3giCisJCQk7Owor
+CQkJL3Vzci9iaW58L3Vzci9zYmluKQorCQkJCWJiX3BhdGg9Ii4uLy4uL2Jpbi9idXN5Ym94Igor
+CQkJOzsKKwkJCSopCisJCQllY2hvICJVbmtub3duIGluc3RhbGxhdGlvbiBkaXJlY3Rvcnk6ICRh
+cHBkaXIiCisJCQlleGl0IDEKKwkJCTs7CisJCQllc2FjCisJCWZpCisJCWlmIFsgIiRub2Nsb2Ji
+ZXIiID0gIjAiIF0gfHwgWyAhIC1lICIkcHJlZml4JGkiIF07IHRoZW4KKwkJCWVjaG8gIiAgJHBy
+ZWZpeCRpIC0+ICRiYl9wYXRoIgorCQkJbG4gJGxpbmtvcHRzICRiYl9wYXRoICRwcmVmaXgkaSB8
+fCBleGl0IDEKKwkJZWxzZQorCQkJZWNobyAiICAkcHJlZml4JGkgYWxyZWFkeSBleGlzdHMiCisJ
+CWZpCiAJZmkKLQlpZiBbICIkbm9jbG9iYmVyIiA9ICIwIiBdIHx8IFsgISAtZSAiJHByZWZpeCRp
+IiBdOyB0aGVuCi0JCWVjaG8gIiAgJHByZWZpeCRpIC0+ICRiYl9wYXRoIgotCQlsbiAkbGlua29w
+dHMgJGJiX3BhdGggJHByZWZpeCRpIHx8IGV4aXQgMQotCWVsc2UKLQkJZWNobyAiICAkcHJlZml4
+JGkgYWxyZWFkeSBleGlzdHMiCi0JZmkKIGRvbmUKIAogZXhpdCAwCkluZGV4OiBhcHBsZXRzL2Fw
+cGxldHMuYwo9PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09
+PT09PT09PT09PT09PT09PT09Ci0tLSBhcHBsZXRzL2FwcGxldHMuYwkocmV2aXNpb24gMTk0MTcp
+CisrKyBhcHBsZXRzL2FwcGxldHMuYwkod29ya2luZyBjb3B5KQpAQCAtNTk4LDggKzU5OCw4IEBA
+CiAJCWFyZ3YrKzsKIAl9CiAJLyogd2Ugd2FudCAiPGFyZ3ZbMF0+OiBhcHBsZXQgbm90IGZvdW5k
+Iiwgbm90ICJidXN5Ym94OiAuLi4iICovCi0JYXBwbGV0X25hbWUgPSBhcmd2WzBdOwotCXJ1bl9h
+cHBsZXRfYW5kX2V4aXQoYXJndlswXSwgYXJndik7CisJYXBwbGV0X25hbWUgPSBiYl9nZXRfbGFz
+dF9wYXRoX2NvbXBvbmVudChhcmd2WzBdKTsKKwlydW5fYXBwbGV0X2FuZF9leGl0KGFwcGxldF9u
+YW1lLCBhcmd2KTsKIAliYl9lcnJvcl9tc2dfYW5kX2RpZSgiYXBwbGV0IG5vdCBmb3VuZCIpOwog
+fQogCkluZGV4OiBDb25maWcuaW4KPT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09
+PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PQotLS0gQ29uZmlnLmluCShyZXZpc2lvbiAx
+OTQxNykKKysrIENvbmZpZy5pbgkod29ya2luZyBjb3B5KQpAQCAtNDY1LDYgKzQ2NSwxMSBAQAog
+CSAgSW5zdGFsbCBhcHBsZXRzIGFzIGhhcmQtbGlua3MgdG8gdGhlIGJ1c3lib3ggYmluYXJ5LiBU
+aGlzIG1pZ2h0IGNvdW50CiAJICBvbiBhIGZpbGVzeXN0ZW0gd2l0aCBmZXcgaW5vZGVzLgogCitj
+b25maWcgSU5TVEFMTF9BUFBMRVRfU0NSSVBUX1dSQVBQRVJTCisJYm9vbCAiYXMgc2NyaXB0IHdy
+YXBwZXJzIgorCWhlbHAKKwkgIEluc3RhbGwgYXBwbGV0cyBhcyBzY3JpcHQgd3JhcHBlcnMgdGhh
+dCBjYWxsIHRoZSBidXN5Ym94IGJpbmFyeS4KKwogY29uZmlnIElOU1RBTExfQVBQTEVUX0RPTlQK
+IAlib29sICJub3QgaW5zdGFsbGVkIgogCWRlcGVuZHMgb24gRkVBVFVSRV9JTlNUQUxMRVIgfHwg
+RkVBVFVSRV9TSF9TVEFOREFMT05FIHx8IEZFQVRVUkVfUFJFRkVSX0FQUExFVFMKQEAgLTQ3NCw2
+ICs0NzksMzAgQEAKIAogZW5kY2hvaWNlCiAKK2Nob2ljZQorCXByb21wdCAiL2Jpbi9zaCBhcHBs
+ZXQgbGluayIKKwlkZWZhdWx0IElOU1RBTExfU0hfQVBQTEVUX1NZTUxJTksKKwlkZXBlbmRzIG9u
+IElOU1RBTExfQVBQTEVUX1NDUklQVF9XUkFQUEVSUworCWhlbHAKKwkgIENob29zZSBob3cgeW91
+IGluc3RhbGwgL2Jpbi9zaCBhcHBsZXQgbGluay4KKworY29uZmlnIElOU1RBTExfU0hfQVBQTEVU
+X1NZTUxJTksKKwlib29sICJhcyBzb2Z0LWxpbmsiCisJaGVscAorCSAgSW5zdGFsbCAvYmluL3No
+IGFwcGxldCBhcyBzb2Z0LWxpbmsgdG8gdGhlIGJ1c3lib3ggYmluYXJ5LgorCitjb25maWcgSU5T
+VEFMTF9TSF9BUFBMRVRfSEFSRExJTksKKwlib29sICJhcyBoYXJkLWxpbmsiCisJaGVscAorCSAg
+SW5zdGFsbCAvYmluL3NoIGFwcGxldCBhcyBoYXJkLWxpbmsgdG8gdGhlIGJ1c3lib3ggYmluYXJ5
+LgorCitjb25maWcgSU5TVEFMTF9TSF9BUFBMRVRfU0NSSVBUX1dSQVBQRVIKKwlib29sICJhcyBz
+Y3JpcHQgd3JhcHBlciIKKwloZWxwCisJICBJbnN0YWxsIC9iaW4vc2ggYXBwbGV0IGFzIHNjcmlw
+dCB3cmFwcGVyIHRoYXQgY2FsbCB0aGUgYnVzeWJveCBiaW5hcnkuCisKK2VuZGNob2ljZQorCiBj
+b25maWcgUFJFRklYCiAJc3RyaW5nICJCdXN5Qm94IGluc3RhbGxhdGlvbiBwcmVmaXgiCiAJZGVm
+YXVsdCAiLi9faW5zdGFsbCIK
+--=_8cca24d4daeaada09e41e0a72ca81965--
 
 
 --
