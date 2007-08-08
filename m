@@ -1,122 +1,82 @@
 Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l78C9tuj024011
-	for <selinux@tycho.nsa.gov>; Wed, 8 Aug 2007 08:09:55 -0400
-Received: from fw5540.nrl.navy.mil (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id l78C9qEu019582
-	for <selinux@tycho.nsa.gov>; Wed, 8 Aug 2007 12:09:52 GMT
-Received: from chacs.nrl.navy.mil (sun1.fw5540.net [10.0.0.11])
-	by fw5540.nrl.navy.mil (8.13.6/8.13.6) with ESMTP id l78C85B0028860
-	for <selinux@tycho.nsa.gov>; Wed, 8 Aug 2007 08:08:06 -0400 (EDT)
-Received: from chacs.nrl.navy.mil (sun1 [10.0.0.11])
-	by chacs.nrl.navy.mil (8.13.6/8.13.6) with SMTP id l78C85Ua000222
-	for <selinux@tycho.nsa.gov>; Wed, 8 Aug 2007 08:08:05 -0400 (EDT)
-Received: (from PC05 [10.0.1.195])
- by chacs.nrl.navy.mil (SMSSMTP 4.1.16.48) with SMTP id M2007080808080507967
- for <selinux@tycho.nsa.gov>; Wed, 08 Aug 2007 08:08:05 -0400
-From: "Kim Lawson-Jenkins" <lawson@itd.nrl.navy.mil>
-To: <selinux@tycho.nsa.gov>
-Subject: Migrating older SELinux policies to new Linux releases
-Date: Wed, 8 Aug 2007 08:04:11 -0500
-Message-ID: <001b01c7d9bc$9d227a70$c301000a@PC05>
-MIME-Version: 1.0
-Content-Type: multipart/alternative;
-	boundary="----=_NextPart_000_001C_01C7D992.B44C7270"
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l78CXZSx026193
+	for <selinux@tycho.nsa.gov>; Wed, 8 Aug 2007 08:33:37 -0400
+Received: from exchange.columbia.tresys.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with SMTP id l78CXXaB024551
+	for <selinux@tycho.nsa.gov>; Wed, 8 Aug 2007 12:33:33 GMT
+Subject: Re: Fedora/SE-PostgreSQL
+From: "Christopher J. PeBenito" <cpebenito@tresys.com>
+To: Joshua Brindle <method@manicmethod.com>
+Cc: KaiGai Kohei <kaigai@kaigai.gr.jp>, KaiGai Kohei <kaigai@ak.jp.nec.com>,
+        dwalsh@redhat.com, selinux@tycho.nsa.gov
+In-Reply-To: <46B91890.2020101@manicmethod.com>
+References: <46B079EF.9050909@kaigai.gr.jp> <1186489529.18881.9.camel@gorn>
+	 <46B878D9.6090004@ak.jp.nec.com> <1186495764.18881.17.camel@gorn>
+	 <46B8ABC5.60705@kaigai.gr.jp>  <46B91890.2020101@manicmethod.com>
+Content-Type: text/plain
+Date: Wed, 08 Aug 2007 08:33:01 -0400
+Message-Id: <1186576381.18881.39.camel@gorn>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This is a multi-part message in MIME format.
+On Tue, 2007-08-07 at 21:12 -0400, Joshua Brindle wrote:
+> KaiGai Kohei wrote:
+> > The attached patch adds definitions of new classes and permissions,
+> > and MLS/MCS rules.
+> > 
+> > Following items are differences from the first patch.
+> > 
+> > * add "db_" prefix for each object classes.
+> >   e.g) "table" -> "db_table"
+> > * interfaces in policy/modules/kernel/mls.if are renamed.
+> >   - mls_database_read_up    -> mls_db_read_all_levels
+> >   - mls_database_write_down -> mls_db_write_all_levels
+> >   - mls_database_upgrade    -> mls_db_upgrade
+> >   - mls_database_downgrade  -> mls_db_downgrade
+> > * MLS attributes related to database are renamed
+> >   - mlsdatabaseXXXXX -> mlsdbXXXXX
+> > 
+> > Any comment please,
+> > 
+> > Christopher J. PeBenito wrote:
+> >> On Tue, 2007-08-07 at 22:51 +0900, KaiGai Kohei wrote:
+> >>> Christopher J. PeBenito wrote:
+> >>>> On Wed, 2007-08-01 at 08:17 -0400, KaiGai Kohei wrote:
+> >>>> Interface naming:
+> >>>>
+> >>>>> +interface(`mls_database_read_up',`
+> >>>> mls_db_read_all_levels
+> >>>>
+> >>>>> +interface(`mls_database_write_down',`
+> >>>> mls_db_write_all_levels
+> >>>>
+> >>>>> +interface(`mls_database_upgrade',`
+> >>>> mls_db_upgrade
+> >>>>
+> >>>>> +interface(`mls_database_downgrade',`
+> >>>> mls_db_downgrade
+> >>> OK, I'll rename these interfaces more simple.
+> >>> Is it necessary to make the attribute names shorter?
+> >> Not strictly, but it probably would be a good idea.
+> >>
+> > 
+> 
+> These interface names seem kind of ambiguous, they could mean downgrade
+> the database files on disk or within an selinux aware database server.
+> They also have very low granularity, but I haven't decided if that
+> matters much.
+> 
+> It would be nice to have less ambiguous interface names though.
 
-------=_NextPart_000_001C_01C7D992.B44C7270
-Content-Type: text/plain;
-	charset="US-ASCII"
-Content-Transfer-Encoding: 7bit
+All of the mls interfaces are coarse, as they make mls exemptions.  If
+it was talking about the files on disk, you would be using the mls file
+downgrade interface.
 
- 
-
-I'm migrating application software from Fedora Core 3 to RHEL5.  The SELinux
-strict policy was used for Fedora Core 3 and as a first step I only want to
-migrate the existing policy to RHEL5.  (Later I plan to make changes to the
-policy using the newer SELinux development tools.)  I've seen several books
-and whitepapers that discuss generating new policies using the current
-SELinux tools but I have seen no whitepapers, examples, or guidelines on how
-to, say, migrate older strict policies to the new reference policy.  Are
-there any such guidelines or suggestions documented somewhere?
-
-
-------=_NextPart_000_001C_01C7D992.B44C7270
-Content-Type: text/html;
-	charset="US-ASCII"
-Content-Transfer-Encoding: quoted-printable
-
-<html xmlns:o=3D"urn:schemas-microsoft-com:office:office" =
-xmlns:w=3D"urn:schemas-microsoft-com:office:word" =
-xmlns=3D"http://www.w3.org/TR/REC-html40">
-
-<head>
-<meta http-equiv=3DContent-Type content=3D"text/html; =
-charset=3Dus-ascii">
-<meta name=3DGenerator content=3D"Microsoft Word 11 (filtered medium)">
-<style>
-<!--
- /* Style Definitions */
- p.MsoNormal, li.MsoNormal, div.MsoNormal
-	{margin:0in;
-	margin-bottom:.0001pt;
-	font-size:12.0pt;
-	font-family:"Times New Roman";}
-a:link, span.MsoHyperlink
-	{color:blue;
-	text-decoration:underline;}
-a:visited, span.MsoHyperlinkFollowed
-	{color:purple;
-	text-decoration:underline;}
-span.EmailStyle17
-	{mso-style-type:personal-compose;
-	font-family:Arial;
-	color:windowtext;}
-@page Section1
-	{size:8.5in 11.0in;
-	margin:1.0in 1.25in 1.0in 1.25in;}
-div.Section1
-	{page:Section1;}
--->
-</style>
-
-</head>
-
-<body lang=3DEN-US link=3Dblue vlink=3Dpurple>
-
-<div class=3DSection1>
-
-<p class=3DMsoNormal><font size=3D2 face=3DArial><span =
-style=3D'font-size:10.0pt;
-font-family:Arial'><o:p>&nbsp;</o:p></span></font></p>
-
-<p class=3DMsoNormal><font size=3D2 face=3DArial><span =
-style=3D'font-size:10.0pt;
-font-family:Arial'>I&#8217;m migrating application software from Fedora =
-Core 3
-to RHEL5. &nbsp;The SELinux strict policy was used for Fedora Core 3 and =
-as a
-first step I only want to migrate the existing policy to RHEL5.&nbsp; =
-(Later I plan
-to make changes to the policy using the newer SELinux development =
-tools.) &nbsp;I&#8217;ve
-seen several books and whitepapers that discuss generating new policies =
-using
-the current SELinux tools but I have seen no whitepapers, examples, or
-guidelines on how to, say, migrate older strict policies to the new =
-reference
-policy.&nbsp; Are there any such guidelines or suggestions documented
-somewhere?</span></font><o:p></o:p></p>
-
-</div>
-
-</body>
-
-</html>
-
-------=_NextPart_000_001C_01C7D992.B44C7270--
+-- 
+Chris PeBenito
+Tresys Technology, LLC
+(410) 290-1411 x150
 
 
 --
