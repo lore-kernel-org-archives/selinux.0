@@ -1,121 +1,54 @@
-Subject: Re: Appropriate number of hash slots for te_avtab(Was:Re: [RFC]
-	Dynamically deciding number of hash slots for avtab
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Yuichi Nakamura <ynakam@hitachisoft.jp>
-Cc: selinux@tycho.nsa.gov, busybox@kaigai.gr.jp,
-        James Morris <jmorris@namei.org>, Eric Paris <eparis@parisplace.org>,
+Date: Wed, 8 Aug 2007 23:58:02 +0900
+From: Yuichi Nakamura <himainu-ynakam@miomio.jp>
+To: James Morris <jmorris@namei.org>
+Cc: himainu-ynakam@miomio.jp, ynakam@hitachisoft.jp, sds@tycho.nsa.gov,
+        selinux@tycho.nsa.gov, busybox@kaigai.gr.jp, eparis@parisplace.org,
         kaigai@ak.jp.nec.com, method@manicmethod.com
-In-Reply-To: <20070808150021.C617.YNAKAM@hitachisoft.jp>
+Subject: Re: Appropriate number of hash slots for te_avtab(Was:Re: [RFC]
+ Dynamically deciding number of hash slots for avtab
+Message-Id: <20070808235802.1b3047c6.himainu-ynakam@miomio.jp>
+In-Reply-To: <Pine.LNX.4.64.0708080740400.12788@us.intercode.com.au>
 References: <20070807175824.4CBF.YNAKAM@hitachisoft.jp>
-	 <1186490009.26457.10.camel@moss-spartans.epoch.ncsc.mil>
-	 <20070808150021.C617.YNAKAM@hitachisoft.jp>
-Content-Type: text/plain
-Date: Wed, 08 Aug 2007 10:45:12 -0400
-Message-Id: <1186584312.6916.111.camel@moss-spartans.epoch.ncsc.mil>
+	<1186490009.26457.10.camel@moss-spartans.epoch.ncsc.mil>
+	<20070808150021.C617.YNAKAM@hitachisoft.jp>
+	<Pine.LNX.4.64.0708080740400.12788@us.intercode.com.au>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2007-08-08 at 15:00 +0900, Yuichi Nakamura wrote:
-> On Tue, 07 Aug 2007 08:33:29 -0400
-> Stephen Smalley  wrote:
-> >If you had adjusted the hash function too, you could have gotten better
-> results.
-> <snip>
-> > Try tuning the hash function.
-> 
-> Thanks for advice.
-> So, I tried another hash function.
-> I found jhash_3words in linux/jhash.h,
-> it calculates hash value based on 3 args. 
-> 
-> I replaced AVTAB_HASH using jhash like below, 
-> and measured hash stats again.
-> 
-> #define AVTAB_HASH(keyp,mask)	\
-> (jhash_3words((u32)(keyp->target_class), \
->  (u32)(keyp->target_type), \
->  (u32)(keyp->source_type), 0) & \
->  mask)
-> 
-> Following is result.
-> 
-> 1. Result for 1) (Full strict refpolicy)
-> 
-> * max table size = 32768
-> SELinux:32768 avtab hash slots allocated. Num of rules:166741
-> - default hash
-> rules:  166741 entries and 30128/32768 buckets used, longest chain length 34   
-> - jhash
-> rules:  166741 entries and 32391/32768 buckets used, longest chain length 21  
-> 
-> * 16384
-> SELinux:16384 avtab hash slots allocated. Num of rules:166741   
-> - default
-> rules:  166741 entries and 16221/16384 buckets used, longest chain length 59   
-> - jhash
-> rules:  166741 entries and 16382/16384 buckets used, longest chain length 27
-> 
-> * 8192
-> SELinux:8192 avtab hash slots allocated. Num of rules:166741
-> - default
-> rules:  166741 entries and 8190/8192 buckets used, longest chain length 97   
-> - jhash
-> rules:  166741 entries and 8192/8192 buckets used, longest chain length 41 
-> 
-> *  4096
-> SELinux:4096 avtab hash slots allocated. Num of rules:166741enfs_contexts
-> - default
-> rules:  166741 entries and 4096/4096 buckets used, longest chain length 182
-> - jhash
-> rules:  166741 entries and 4096/4096 buckets used, longest chain length 67 
-> 
-> jhash is better.
-> If we use jhash, max table size could be 16384 or 8192..
-> 
-> 2. Result for 2) (smaller refpolicy)
-> 
-> * Number of slot = num of rules
-> SELinux:8192 avtab hash slots allocated. Num of rules:8188
-> - default
-> rules:  8188 entries and 3925/8192 buckets used, longest chain length 13
-> - jhash
-> rules:  8188 entries and 5053/8192 buckets used, longest chain length 7 
-> 
-> * Number of slot = num of rules/2
-> SELinux:4096 avtab hash slots allocated. Num of rules:8188
-> - default
-> rules:  8188 entries and 2809/4096 buckets used, longest chain length 21
-> - jhash
-> rules:  8188 entries and 3466/4096 buckets used, longest chain length 9 
-> 
-> * Number of slot = num of rules/4
-> SELinux:2048 avtab hash slots allocated. Num of rules:8188
-> - default
-> rules:  8188 entries and 1742/2048 buckets used, longest chain length 35
-> - jhash
-> rules:  8188 entries and 1991/2048 buckets used, longest chain length 12 
-> 
-> *  Number of slot = num of rules/8
-> SELinux:1024 avtab hash slots allocated. Num of rules:8188
-> - default
-> rules:  8188 entries and 978/1024 buckets used, longest chain length 64
-> - jhash
-> rules:  8188 entries and 1024/1024 buckets used, longest chain length 22
-> 
-> jhash is also better.
-> 
-> Can We use jhash ?
+On Wed, 8 Aug 2007 07:43:00 -0700 (PDT)
+James Morris  wrote:
 
-I think so, as long as it doesn't impose a significant overhead.
-Running some benchmarks would be useful, although the AVC will hide much
-of it.  Might want to set /selinux/avc/cache_threshold to a low value
-for measurement so that you see the actual cost of the avtab lookups.
+> On Wed, 8 Aug 2007, Yuichi Nakamura wrote:
+> 
+> > * Number of slot = num of rules/2
+> > SELinux:4096 avtab hash slots allocated. Num of rules:8188
+> > - default
+> > rules:  8188 entries and 2809/4096 buckets used, longest chain length 21
+> > - jhash
+> > rules:  8188 entries and 3466/4096 buckets used, longest chain length 9 
+> 
+> This looks pretty good.
+> 
+> What is the performance overhead of jhash vs. the existing hash?
+I am not sure now.
 
--- 
-Stephen Smalley
-National Security Agency
+> 
+> (You could probably make a kernel module which calls the avc in a loop 
+> with some repeatable sequence of paramters).
+OK, I will try it next.
 
+> 
+> 
+> -- 
+> James Morris
+> <jmorris@namei.org>
+> 
+> --
+> This message was distributed to subscribers of the selinux mailing list.
+> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
+> the words "unsubscribe selinux" without quotes as the message.
 
 --
 This message was distributed to subscribers of the selinux mailing list.
