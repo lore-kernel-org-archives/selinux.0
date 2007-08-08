@@ -1,205 +1,115 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l784dCuW023959
-	for <selinux@tycho.nsa.gov>; Wed, 8 Aug 2007 00:39:13 -0400
-Received: from mo10.iijmio.jp (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id l784d9Vu024492
-	for <selinux@tycho.nsa.gov>; Wed, 8 Aug 2007 04:39:10 GMT
-Message-Id: <200708080438.l784cj4N015640@mbox.iijmio-mail.jp>
+Date: Wed, 08 Aug 2007 15:00:51 +0900
+From: Yuichi Nakamura <ynakam@hitachisoft.jp>
+To: Stephen Smalley <sds@tycho.nsa.gov>
+Subject: Re: Appropriate number of hash slots for te_avtab(Was:Re: [RFC] Dynamically deciding number of hash slots for avtab
+Cc: ynakam@hitachisoft.jp, selinux@tycho.nsa.gov, busybox@kaigai.gr.jp,
+        James Morris <jmorris@namei.org>, Eric Paris <eparis@parisplace.org>,
+        kaigai@ak.jp.nec.com, method@manicmethod.com
+In-Reply-To: <1186490009.26457.10.camel@moss-spartans.epoch.ncsc.mil>
+References: <20070807175824.4CBF.YNAKAM@hitachisoft.jp> <1186490009.26457.10.camel@moss-spartans.epoch.ncsc.mil>
+Message-Id: <20070808150021.C617.YNAKAM@hitachisoft.jp>
 MIME-Version: 1.0
-From: himainu-ynakam@miomio.jp
-Subject: [patch][BusyBox] Domain assignment support for SELinux/AppArmor/LIDS
-To: busybox@busybox.net
-Cc: selinux@tycho.nsa.gov, vda.linux@googlemail.com, busybox@kaigai.gr.jp,
-        hiroshi.shinji@gmail.com
-Date: Wed, 08 Aug 2007 13:38:45 +0900
-Content-Type: multipart/mixed;
-	boundary="=_8cca24d4daeaada09e41e0a72ca81965"
+Content-Type: text/plain; charset="US-ASCII"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
---=_8cca24d4daeaada09e41e0a72ca81965
-Content-Type: text/plain; charset="ISO-2022-JP"
-Content-Transfer-Encoding: 7bit
 
-Hello.
+On Tue, 07 Aug 2007 08:33:29 -0400
+Stephen Smalley  wrote:
+>If you had adjusted the hash function too, you could have gotten better
+results.
+<snip>
+> Try tuning the hash function.
 
-We would like to suggest Secure OSes(such as SELinux/AppArmor/LIDS) domain
-assignment support for BusyBox. This work is done by Hiroshi Shinji.
+Thanks for advice.
+So, I tried another hash function.
+I found jhash_3words in linux/jhash.h,
+it calculates hash value based on 3 args. 
 
-1. Background
+I replaced AVTAB_HASH using jhash like below, 
+and measured hash stats again.
 
-Secure OSes such as SELinux, AppArmor and LIDS can assign domain to processes.
-"Domain" means set of access rights.
-Domain is assinged to processes at the time of "exec" system call.
-# This is a little similar to "suid" feature of Linux.
+#define AVTAB_HASH(keyp,mask)	\
+(jhash_3words((u32)(keyp->target_class), \
+ (u32)(keyp->target_type), \
+ (u32)(keyp->source_type), 0) & \
+ mask)
 
-For example, in the case of SELinux, /sbin/syslogd is assigned syslogd_t
-domain at the execution time of /sbin/syslogd. syslogd_t are allowed to
-read syslogd.conf, write log files, etc.
+Following is result.
 
-However, current BusyBox does not suitable for assigning domains.
-Because BusyBox is a single file that is called through a lot of links.
+1. Result for 1) (Full strict refpolicy)
 
-Secure OS treats "/sbin/syslogd" and "/sbin/httpd" as "/bin/busybox".
-So, /sbin/syslogd and /sbin/httpd run as the same domain.
+* max table size = 32768
+SELinux:32768 avtab hash slots allocated. Num of rules:166741
+- default hash
+rules:  166741 entries and 30128/32768 buckets used, longest chain length 34   
+- jhash
+rules:  166741 entries and 32391/32768 buckets used, longest chain length 21  
 
-Known solutions to this problem is preparing wrapper program that calls
-applet.
-　 For example, /sbin/syslogd is a small C program that calls
-"/bin/busybox syslogd". Then, at the execution of /sbin/syslogd,
-syslogd_t domain is assigned and "/bin/busybox syslogd" is called
-and inherits assinged domain(syslogd_t).
-However, such wrapper consumes storage(more than 1k byte per wrapper).
-For detailed description about this problem,
-Yusuke Sato wrote documentation:
-http://www.selinux.gr.jp/LIDS-JP/LIDS_en/document/general/web_lids_busybox/main.html
+* 16384
+SELinux:16384 avtab hash slots allocated. Num of rules:166741   
+- default
+rules:  166741 entries and 16221/16384 buckets used, longest chain length 59   
+- jhash
+rules:  166741 entries and 16382/16384 buckets used, longest chain length 27
 
-2. Our solution
-Shinji came up with one idea. He thought "script wrappper" like below.
+* 8192
+SELinux:8192 avtab hash slots allocated. Num of rules:166741
+- default
+rules:  166741 entries and 8190/8192 buckets used, longest chain length 97   
+- jhash
+rules:  166741 entries and 8192/8192 buckets used, longest chain length 41 
 
-If you enabled "INSTALL_APPLET_SCRIPT_WRAPPERS", wrappers like below are
-installed.
+*  4096
+SELinux:4096 avtab hash slots allocated. Num of rules:166741enfs_contexts
+- default
+rules:  166741 entries and 4096/4096 buckets used, longest chain length 182
+- jhash
+rules:  166741 entries and 4096/4096 buckets used, longest chain length 67 
 
-The contents of "/sbin/syslogd" is following.
+jhash is better.
+If we use jhash, max table size could be 16384 or 8192..
 
-#!/bin/busybox
+2. Result for 2) (smaller refpolicy)
 
-It is only 15 byte.
+* Number of slot = num of rules
+SELinux:8192 avtab hash slots allocated. Num of rules:8188
+- default
+rules:  8188 entries and 3925/8192 buckets used, longest chain length 13
+- jhash
+rules:  8188 entries and 5053/8192 buckets used, longest chain length 7 
 
-When /sbin/syslogd is executed, "/bin/busybox /sbin/syslogd <other arguments>" is called.
+* Number of slot = num of rules/2
+SELinux:4096 avtab hash slots allocated. Num of rules:8188
+- default
+rules:  8188 entries and 2809/4096 buckets used, longest chain length 21
+- jhash
+rules:  8188 entries and 3466/4096 buckets used, longest chain length 9 
 
-To achive above, we had to modify applets.c
+* Number of slot = num of rules/4
+SELinux:2048 avtab hash slots allocated. Num of rules:8188
+- default
+rules:  8188 entries and 1742/2048 buckets used, longest chain length 35
+- jhash
+rules:  8188 entries and 1991/2048 buckets used, longest chain length 12 
 
--       applet_name = argv[0];
--       run_applet_and_exit(argv[0], argv);
-+       applet_name = bb_get_last_path_component(argv[0]);
-+       run_applet_and_exit(applet_name, argv);
+*  Number of slot = num of rules/8
+SELinux:1024 avtab hash slots allocated. Num of rules:8188
+- default
+rules:  8188 entries and 978/1024 buckets used, longest chain length 64
+- jhash
+rules:  8188 entries and 1024/1024 buckets used, longest chain length 22
 
-We tried the patch for SELinux and AppArmor.
-And domains were assigned sucessfully!
+jhash is also better.
 
-3. Limitation
-Programs that are used as interpreter can not be installed as script wrapper.
-It is due to limitation of exec(interpreter can not be called twice).
-For example, /bin/sh can not be installed as script wrapper.
-If /bin/sh is installed as script wrapper, shell scripts do not run.
-In interpreting #!/bin/sh
-
--> /bin/sh is #!/bin/busybox,
--> #! is called twice
--> exec system call fails(limitation of exec system call).
-
-In our patch, sh is installed as symlink or hard link by default
-(you can install it as script wrapper if you still need).
-
-Assigning domain is critical to secure OSes.
-We want way to assign to domains to busybox applets.
-Please review this patch and consider merging.
+Can We use jhash ?
 
 Regards,
+-- 
 Yuichi Nakamura
-JSELUG(Japan SELinux Users Group)
-
---=_8cca24d4daeaada09e41e0a72ca81965
-Content-Type: application/octet-stream
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment;
- filename="domain_assign.patch"
-
-SW5kZXg6IE1ha2VmaWxlLmN1c3RvbQo9PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09
-PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09Ci0tLSBNYWtlZmlsZS5jdXN0b20JKHJl
-dmlzaW9uIDE5NDE3KQorKysgTWFrZWZpbGUuY3VzdG9tCSh3b3JraW5nIGNvcHkpCkBAIC0xMiw2
-ICsxMiwxNyBAQAogaWZlcSAoJChDT05GSUdfSU5TVEFMTF9BUFBMRVRfSEFSRExJTktTKSx5KQog
-SU5TVEFMTF9PUFRTOj0gLS1oYXJkbGlua3MKIGVuZGlmCitpZmVxICgkKENPTkZJR19JTlNUQUxM
-X0FQUExFVF9TQ1JJUFRfV1JBUFBFUlMpLHkpCitpZmVxICgkKENPTkZJR19JTlNUQUxMX1NIX0FQ
-UExFVF9TWU1MSU5LKSx5KQorSU5TVEFMTF9PUFRTOj0gLS1zdy1zaC1zeW0KK2VuZGlmCitpZmVx
-ICgkKENPTkZJR19JTlNUQUxMX1NIX0FQUExFVF9IQVJETElOSykseSkKK0lOU1RBTExfT1BUUzo9
-IC0tc3ctc2gtaGFyZAorZW5kaWYKK2lmZXEgKCQoQ09ORklHX0lOU1RBTExfU0hfQVBQTEVUX1ND
-UklQVF9XUkFQUEVSKSx5KQorSU5TVEFMTF9PUFRTOj0gLS1zY3JpcHR3cmFwcGVyCitlbmRpZgor
-ZW5kaWYKIGluc3RhbGw6ICQoc3JjdHJlZSkvYXBwbGV0cy9pbnN0YWxsLnNoIGJ1c3lib3ggYnVz
-eWJveC5saW5rcwogCSQoUSlET19JTlNUQUxMX0xJQlM9IiQoc3RyaXAgJChMSUJCVVNZQk9YX1NP
-TkFNRSkgJChET19JTlNUQUxMX0xJQlMpKSIgXAogCQkkKFNIRUxMKSAkPCAkKENPTkZJR19QUkVG
-SVgpICQoSU5TVEFMTF9PUFRTKQpJbmRleDogYXBwbGV0cy9pbnN0YWxsLnNoCj09PT09PT09PT09
-PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT0K
-LS0tIGFwcGxldHMvaW5zdGFsbC5zaAkocmV2aXNpb24gMTk0MTcpCisrKyBhcHBsZXRzL2luc3Rh
-bGwuc2gJKHdvcmtpbmcgY29weSkKQEAgLTUsMTkgKzUsMjMgQEAKIAogcHJlZml4PSR7MX0KIGlm
-IFsgLXogIiRwcmVmaXgiIF07IHRoZW4KLQllY2hvICJ1c2FnZTogYXBwbGV0cy9pbnN0YWxsLnNo
-IERFU1RJTkFUSU9OIFstLXN5bWxpbmtzLy0taGFyZGxpbmtzXSIKKwllY2hvICJ1c2FnZTogYXBw
-bGV0cy9pbnN0YWxsLnNoIERFU1RJTkFUSU9OIFstLXN5bWxpbmtzLy0taGFyZGxpbmtzLy0tc2Ny
-aXB0d3JhcHBlcl0iCiAJZXhpdCAxOwogZmkKIGg9YHNvcnQgYnVzeWJveC5saW5rcyB8IHVuaXFg
-CitzY3JpcHR3cmFwcGVyPSJuIgogY2xlYW51cD0iMCIKIG5vY2xvYmJlcj0iMCIKIGNhc2UgIiQy
-IiBpbgotCS0taGFyZGxpbmtzKSBsaW5rb3B0cz0iLWYiOzsKLQktLXN5bWxpbmtzKSAgbGlua29w
-dHM9Ii1mcyI7OwotCS0tY2xlYW51cCkgICBjbGVhbnVwPSIxIjs7Ci0JLS1ub2Nsb2JiZXIpIG5v
-Y2xvYmJlcj0iMSI7OwotCSIiKSAgICAgICAgICBoPSIiOzsKLQkqKSAgICAgICAgICAgZWNobyAi
-VW5rbm93biBpbnN0YWxsIG9wdGlvbjogJDIiOyBleGl0IDE7OworCS0taGFyZGxpbmtzKSAgICAg
-bGlua29wdHM9Ii1mIjs7CisJLS1zeW1saW5rcykgICAgICBsaW5rb3B0cz0iLWZzIjs7CisJLS1z
-Y3JpcHR3cmFwcGVyKSBzY3JpcHR3cmFwcGVyPSJ5Ijtzd3JhcGFsbD0ieSI7OworCS0tc3ctc2gt
-aGFyZCkgICAgc2NyaXB0d3JhcHBlcj0ieSI7bGlua29wdHM9Ii1mIjs7CisJLS1zdy1zaC1zeW0p
-ICAgICBzY3JpcHR3cmFwcGVyPSJ5IjtsaW5rb3B0cz0iLWZzIjs7CisJLS1jbGVhbnVwKSAgICAg
-ICBjbGVhbnVwPSIxIjs7CisJLS1ub2Nsb2JiZXIpICAgICBub2Nsb2JiZXI9IjEiOzsKKwkiIikg
-ICAgICAgICAgICAgIGg9IiI7OworCSopICAgICAgICAgICAgICAgZWNobyAiVW5rbm93biBpbnN0
-YWxsIG9wdGlvbjogJDIiOyBleGl0IDE7OwogZXNhYwogCiBpZiBbIC1uICIkRE9fSU5TVEFMTF9M
-SUJTIiBdICYmIFsgIiRET19JTlNUQUxMX0xJQlMiICE9ICJuIiBdOyB0aGVuCkBAIC01Miw2ICs1
-Niw3IEBACiAJCWNkICIkcGQiCiAJZG9uZQogCWAKKwlleGl0IDAKIGZpCiAKIHJtIC1mICRwcmVm
-aXgvYmluL2J1c3lib3ggfHwgZXhpdCAxCkBAIC02MSwzNCArNjYsNDUgQEAKIGZvciBpIGluICRo
-OyBkbwogCWFwcGRpcj1gZGlybmFtZSAkaWAKIAlta2RpciAtcCAkcHJlZml4LyRhcHBkaXIgfHwg
-ZXhpdCAxCi0JaWYgWyAiJDIiID0gIi0taGFyZGxpbmtzIiBdOyB0aGVuCi0JCWJiX3BhdGg9IiRw
-cmVmaXgvYmluL2J1c3lib3giCisJaWYgWyAiJHNjcmlwdHdyYXBwZXIiID0gInkiIF07IHRoZW4K
-KwkJaWYgWyAiJHN3cmFwYWxsIiAhPSAieSIgXSAmJiBbICIkaSIgPSAiL2Jpbi9zaCIgXTsgdGhl
-bgorCQkJbG4gJGxpbmtvcHRzIGJ1c3lib3ggJHByZWZpeCRpIHx8IGV4aXQgMQorCQllbHNlCisJ
-CQlybSAtZiAkcHJlZml4JGkKKwkJCWVjaG8gIiMhL2Jpbi9idXN5Ym94IiA+ICRwcmVmaXgkaQor
-CQkJY2htb2QgK3ggJHByZWZpeC8kaQorCQlmaQorCQllY2hvICIJJHByZWZpeCRpIgogCWVsc2UK
-LQkJY2FzZSAiJGFwcGRpciIgaW4KLQkJLykKLQkJCWJiX3BhdGg9ImJpbi9idXN5Ym94IgotCQk7
-OwotCQkvYmluKQotCQkJYmJfcGF0aD0iYnVzeWJveCIKLQkJOzsKLQkJL3NiaW4pCi0JCQliYl9w
-YXRoPSIuLi9iaW4vYnVzeWJveCIKLQkJOzsKLQkJL3Vzci9iaW58L3Vzci9zYmluKQotCQkJYmJf
-cGF0aD0iLi4vLi4vYmluL2J1c3lib3giCi0JCTs7Ci0JCSopCi0JCWVjaG8gIlVua25vd24gaW5z
-dGFsbGF0aW9uIGRpcmVjdG9yeTogJGFwcGRpciIKLQkJZXhpdCAxCi0JCTs7Ci0JCWVzYWMKKwkJ
-aWYgWyAiJDIiID0gIi0taGFyZGxpbmtzIiBdOyB0aGVuCisJCQliYl9wYXRoPSIkcHJlZml4L2Jp
-bi9idXN5Ym94IgorCQllbHNlCisJCQljYXNlICIkYXBwZGlyIiBpbgorCQkJLykKKwkJCQliYl9w
-YXRoPSJiaW4vYnVzeWJveCIKKwkJCTs7CisJCQkvYmluKQorCQkJCWJiX3BhdGg9ImJ1c3lib3gi
-CisJCQk7OworCQkJL3NiaW4pCisJCQkJYmJfcGF0aD0iLi4vYmluL2J1c3lib3giCisJCQk7Owor
-CQkJL3Vzci9iaW58L3Vzci9zYmluKQorCQkJCWJiX3BhdGg9Ii4uLy4uL2Jpbi9idXN5Ym94Igor
-CQkJOzsKKwkJCSopCisJCQllY2hvICJVbmtub3duIGluc3RhbGxhdGlvbiBkaXJlY3Rvcnk6ICRh
-cHBkaXIiCisJCQlleGl0IDEKKwkJCTs7CisJCQllc2FjCisJCWZpCisJCWlmIFsgIiRub2Nsb2Ji
-ZXIiID0gIjAiIF0gfHwgWyAhIC1lICIkcHJlZml4JGkiIF07IHRoZW4KKwkJCWVjaG8gIiAgJHBy
-ZWZpeCRpIC0+ICRiYl9wYXRoIgorCQkJbG4gJGxpbmtvcHRzICRiYl9wYXRoICRwcmVmaXgkaSB8
-fCBleGl0IDEKKwkJZWxzZQorCQkJZWNobyAiICAkcHJlZml4JGkgYWxyZWFkeSBleGlzdHMiCisJ
-CWZpCiAJZmkKLQlpZiBbICIkbm9jbG9iYmVyIiA9ICIwIiBdIHx8IFsgISAtZSAiJHByZWZpeCRp
-IiBdOyB0aGVuCi0JCWVjaG8gIiAgJHByZWZpeCRpIC0+ICRiYl9wYXRoIgotCQlsbiAkbGlua29w
-dHMgJGJiX3BhdGggJHByZWZpeCRpIHx8IGV4aXQgMQotCWVsc2UKLQkJZWNobyAiICAkcHJlZml4
-JGkgYWxyZWFkeSBleGlzdHMiCi0JZmkKIGRvbmUKIAogZXhpdCAwCkluZGV4OiBhcHBsZXRzL2Fw
-cGxldHMuYwo9PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09
-PT09PT09PT09PT09PT09PT09Ci0tLSBhcHBsZXRzL2FwcGxldHMuYwkocmV2aXNpb24gMTk0MTcp
-CisrKyBhcHBsZXRzL2FwcGxldHMuYwkod29ya2luZyBjb3B5KQpAQCAtNTk4LDggKzU5OCw4IEBA
-CiAJCWFyZ3YrKzsKIAl9CiAJLyogd2Ugd2FudCAiPGFyZ3ZbMF0+OiBhcHBsZXQgbm90IGZvdW5k
-Iiwgbm90ICJidXN5Ym94OiAuLi4iICovCi0JYXBwbGV0X25hbWUgPSBhcmd2WzBdOwotCXJ1bl9h
-cHBsZXRfYW5kX2V4aXQoYXJndlswXSwgYXJndik7CisJYXBwbGV0X25hbWUgPSBiYl9nZXRfbGFz
-dF9wYXRoX2NvbXBvbmVudChhcmd2WzBdKTsKKwlydW5fYXBwbGV0X2FuZF9leGl0KGFwcGxldF9u
-YW1lLCBhcmd2KTsKIAliYl9lcnJvcl9tc2dfYW5kX2RpZSgiYXBwbGV0IG5vdCBmb3VuZCIpOwog
-fQogCkluZGV4OiBDb25maWcuaW4KPT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09
-PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PQotLS0gQ29uZmlnLmluCShyZXZpc2lvbiAx
-OTQxNykKKysrIENvbmZpZy5pbgkod29ya2luZyBjb3B5KQpAQCAtNDY1LDYgKzQ2NSwxMSBAQAog
-CSAgSW5zdGFsbCBhcHBsZXRzIGFzIGhhcmQtbGlua3MgdG8gdGhlIGJ1c3lib3ggYmluYXJ5LiBU
-aGlzIG1pZ2h0IGNvdW50CiAJICBvbiBhIGZpbGVzeXN0ZW0gd2l0aCBmZXcgaW5vZGVzLgogCitj
-b25maWcgSU5TVEFMTF9BUFBMRVRfU0NSSVBUX1dSQVBQRVJTCisJYm9vbCAiYXMgc2NyaXB0IHdy
-YXBwZXJzIgorCWhlbHAKKwkgIEluc3RhbGwgYXBwbGV0cyBhcyBzY3JpcHQgd3JhcHBlcnMgdGhh
-dCBjYWxsIHRoZSBidXN5Ym94IGJpbmFyeS4KKwogY29uZmlnIElOU1RBTExfQVBQTEVUX0RPTlQK
-IAlib29sICJub3QgaW5zdGFsbGVkIgogCWRlcGVuZHMgb24gRkVBVFVSRV9JTlNUQUxMRVIgfHwg
-RkVBVFVSRV9TSF9TVEFOREFMT05FIHx8IEZFQVRVUkVfUFJFRkVSX0FQUExFVFMKQEAgLTQ3NCw2
-ICs0NzksMzAgQEAKIAogZW5kY2hvaWNlCiAKK2Nob2ljZQorCXByb21wdCAiL2Jpbi9zaCBhcHBs
-ZXQgbGluayIKKwlkZWZhdWx0IElOU1RBTExfU0hfQVBQTEVUX1NZTUxJTksKKwlkZXBlbmRzIG9u
-IElOU1RBTExfQVBQTEVUX1NDUklQVF9XUkFQUEVSUworCWhlbHAKKwkgIENob29zZSBob3cgeW91
-IGluc3RhbGwgL2Jpbi9zaCBhcHBsZXQgbGluay4KKworY29uZmlnIElOU1RBTExfU0hfQVBQTEVU
-X1NZTUxJTksKKwlib29sICJhcyBzb2Z0LWxpbmsiCisJaGVscAorCSAgSW5zdGFsbCAvYmluL3No
-IGFwcGxldCBhcyBzb2Z0LWxpbmsgdG8gdGhlIGJ1c3lib3ggYmluYXJ5LgorCitjb25maWcgSU5T
-VEFMTF9TSF9BUFBMRVRfSEFSRExJTksKKwlib29sICJhcyBoYXJkLWxpbmsiCisJaGVscAorCSAg
-SW5zdGFsbCAvYmluL3NoIGFwcGxldCBhcyBoYXJkLWxpbmsgdG8gdGhlIGJ1c3lib3ggYmluYXJ5
-LgorCitjb25maWcgSU5TVEFMTF9TSF9BUFBMRVRfU0NSSVBUX1dSQVBQRVIKKwlib29sICJhcyBz
-Y3JpcHQgd3JhcHBlciIKKwloZWxwCisJICBJbnN0YWxsIC9iaW4vc2ggYXBwbGV0IGFzIHNjcmlw
-dCB3cmFwcGVyIHRoYXQgY2FsbCB0aGUgYnVzeWJveCBiaW5hcnkuCisKK2VuZGNob2ljZQorCiBj
-b25maWcgUFJFRklYCiAJc3RyaW5nICJCdXN5Qm94IGluc3RhbGxhdGlvbiBwcmVmaXgiCiAJZGVm
-YXVsdCAiLi9faW5zdGFsbCIK
---=_8cca24d4daeaada09e41e0a72ca81965--
+Hitachi Software Engineering Co., Ltd.
+Japan SELinux Users Group(JSELUG): http://www.selinux.gr.jp/
+SELinux Policy Editor: http://seedit.sourceforge.net/
 
 
 --
