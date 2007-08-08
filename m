@@ -1,84 +1,61 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l78HNwLV019773
-	for <selinux@tycho.nsa.gov>; Wed, 8 Aug 2007 13:23:58 -0400
-Received: from rv-out-0910.google.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l78HNvSH023458
-	for <selinux@tycho.nsa.gov>; Wed, 8 Aug 2007 17:23:57 GMT
-Received: by rv-out-0910.google.com with SMTP id k15so171482rvb
-        for <selinux@tycho.nsa.gov>; Wed, 08 Aug 2007 10:23:56 -0700 (PDT)
-Message-ID: <7b740b700708081023g2da83502wb8bc42691ca7c4ea@mail.gmail.com>
-Date: Wed, 8 Aug 2007 22:23:56 +0500
-From: "shahbaz khan" <shazalive@gmail.com>
-To: Mark <elihusmails@gmail.com>
-Subject: Re: only allow 1 port for listening
-Cc: selinux@tycho.nsa.gov, fedora-selinux-list@redhat.com
-In-Reply-To: <9f066ee90708080840q627adbbavb9e83b45a9f017e8@mail.gmail.com>
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l78HOjqc019854
+	for <selinux@tycho.nsa.gov>; Wed, 8 Aug 2007 13:24:45 -0400
+Received: from mail.asahi-net.or.jp (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id l78HOhCU006961
+	for <selinux@tycho.nsa.gov>; Wed, 8 Aug 2007 17:24:44 GMT
+Message-ID: <46B9FC81.6080804@kaigai.gr.jp>
+Date: Thu, 09 Aug 2007 02:25:21 +0900
+From: KaiGai Kohei <kaigai@kaigai.gr.jp>
 MIME-Version: 1.0
-Content-Type: multipart/alternative;
-	boundary="----=_Part_1733_10043160.1186593836173"
-References: <9f066ee90708080840q627adbbavb9e83b45a9f017e8@mail.gmail.com>
+To: "Christopher J. PeBenito" <cpebenito@tresys.com>
+Cc: Joshua Brindle <method@manicmethod.com>,
+        KaiGai Kohei <kaigai@ak.jp.nec.com>, dwalsh@redhat.com,
+        selinux@tycho.nsa.gov
+Subject: Re: Fedora/SE-PostgreSQL
+References: <46B079EF.9050909@kaigai.gr.jp> <1186489529.18881.9.camel@gorn>	 <46B878D9.6090004@ak.jp.nec.com> <1186495764.18881.17.camel@gorn>	 <46B8ABC5.60705@kaigai.gr.jp>  <46B91890.2020101@manicmethod.com> <1186576381.18881.39.camel@gorn>
+In-Reply-To: <1186576381.18881.39.camel@gorn>
+Content-Type: text/plain; charset=ISO-2022-JP
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-------=_Part_1733_10043160.1186593836173
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Christopher J. PeBenito wrote:
+> On Tue, 2007-08-07 at 21:12 -0400, Joshua Brindle wrote:
+>> KaiGai Kohei wrote:
+>>> The attached patch adds definitions of new classes and permissions,
+>>> and MLS/MCS rules.
+>>>
+>>> Following items are differences from the first patch.
+>>>
+>>> * add "db_" prefix for each object classes.
+>>>   e.g) "table" -> "db_table"
+>>> * interfaces in policy/modules/kernel/mls.if are renamed.
+>>>   - mls_database_read_up    -> mls_db_read_all_levels
+>>>   - mls_database_write_down -> mls_db_write_all_levels
+>>>   - mls_database_upgrade    -> mls_db_upgrade
+>>>   - mls_database_downgrade  -> mls_db_downgrade
+>>> * MLS attributes related to database are renamed
+>>>   - mlsdatabaseXXXXX -> mlsdbXXXXX
 
-On 8/8/07, Mark <elihusmails@gmail.com> wrote:
->
-> I am new to writing policies and have been reading the reference policy
-> files.  I wrote a simple TCP server that listens on a port for connections.
-> I would like to write a policy that will only allow my program to bind to a
-> specific port(9999).  I looked at the reference policy and see that the
-> ports that programs are allowed to use is in
-> policy/modules/kernel/corenetwork.te.  My questions is, can I specify the
-> port in my programs type enforcement file so that I can make a module
-> instead of listing this in the kernel policy?  If so, what would the syntax
-> be?
+>> These interface names seem kind of ambiguous, they could mean downgrade
+>> the database files on disk or within an selinux aware database server.
+>> They also have very low granularity, but I haven't decided if that
+>> matters much.
+>>
+>> It would be nice to have less ambiguous interface names though.
+> 
+> All of the mls interfaces are coarse, as they make mls exemptions.  If
+> it was talking about the files on disk, you would be using the mls file
+> downgrade interface.
 
+I don't have any special opinion about its naming scheme.
+(It is possible to update the patch again, if necessary.)
 
-This is the best help you can get:
+Is there any other opinion for the "db_" prefixed new object classes?
+I just started to modify SE-PostgreSQL to use these prefixed ones.
 
- http://securityblog.org/brindle/2007/05/28/secure-networking-with-selinux/
-
-This is a good description keeping everything to the point by Joshua Brindle
-of Tresys. If you want details try "Networking in NSA security-enhanced
-linux" by James Moris of Red Hat:
-
-https://www.redhat.com/f/pdf/sec/Networking_in_NSA-SELinux.pdf
-
-Shaz.
-
-
-> Thanks in advance.
->
-> --
-> ..Cheers
-> Mark
-
-------=_Part_1733_10043160.1186593836173
-Content-Type: text/html; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
-<br>
-<div><span class="gmail_quote">On 8/8/07, <b class="gmail_sendername">Mark</b> &lt;<a href="mailto:elihusmails@gmail.com">elihusmails@gmail.com</a>&gt; wrote:</span>
-<blockquote class="gmail_quote" style="PADDING-LEFT: 1ex; MARGIN: 0px 0px 0px 0.8ex; BORDER-LEFT: #ccc 1px solid">I am new to writing policies and have been reading the reference policy files.&nbsp; I wrote a simple TCP server that listens on a port for connections.&nbsp; I would like to write a policy that will only allow my program to bind to a specific port(9999).&nbsp; I looked at the reference policy and see that the ports that programs are allowed to use is in policy/modules/kernel/corenetwork.te.&nbsp; My questions is, can I specify the port in my programs type enforcement file so that I can make a module instead of listing this in the kernel policy?&nbsp; If so, what would the syntax be? 
-</blockquote>
-<div>&nbsp;</div>
-<div>This is the best help you can get:</div>
-<div>&nbsp;&nbsp;&nbsp; </div>
-<div><font color="#0000cc">&nbsp;</font><a href="http://securityblog.org/brindle/2007/05/28/secure-networking-with-selinux/">http://securityblog.org/brindle/2007/05/28/secure-networking-with-selinux/</a></div>
-<div>&nbsp;</div>
-<div>This is a good description keeping everything to the point by Joshua Brindle of Tresys. If you want details try &quot;Networking in NSA security-enhanced linux&quot; by James Moris of Red Hat:</div>
-<div>&nbsp;</div>
-<div><a href="https://www.redhat.com/f/pdf/sec/Networking_in_NSA-SELinux.pdf">https://www.redhat.com/f/pdf/sec/Networking_in_NSA-SELinux.pdf</a></div>
-<div><br>Shaz.</div>
-<div>&nbsp;</div>
-<blockquote class="gmail_quote" style="PADDING-LEFT: 1ex; MARGIN: 0px 0px 0px 0.8ex; BORDER-LEFT: #ccc 1px solid">Thanks in advance.<br clear="all"><br>-- <br>..Cheers<br><span class="sg">Mark </span></blockquote></div><br>
-
-------=_Part_1733_10043160.1186593836173--
+-- 
+KaiGai Kohei <kaigai@kaigai.gr.jp>
 
 --
 This message was distributed to subscribers of the selinux mailing list.
