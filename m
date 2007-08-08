@@ -1,34 +1,52 @@
-Date: Wed, 8 Aug 2007 08:35:09 -0700 (PDT)
-From: James Morris <jmorris@namei.org>
-To: Stephen Smalley <sds@tycho.nsa.gov>
-cc: Yuichi Nakamura <ynakam@hitachisoft.jp>, selinux@tycho.nsa.gov,
-        busybox@kaigai.gr.jp, Eric Paris <eparis@parisplace.org>,
-        kaigai@ak.jp.nec.com, method@manicmethod.com
-Subject: Re: Appropriate number of hash slots for te_avtab(Was:Re: [RFC]
- Dynamically deciding number of hash slots for avtab
-In-Reply-To: <1186584312.6916.111.camel@moss-spartans.epoch.ncsc.mil>
-Message-ID: <Pine.LNX.4.64.0708080833570.3111@us.intercode.com.au>
-References: <20070807175824.4CBF.YNAKAM@hitachisoft.jp>
- <1186490009.26457.10.camel@moss-spartans.epoch.ncsc.mil>
- <20070808150021.C617.YNAKAM@hitachisoft.jp> <1186584312.6916.111.camel@moss-spartans.epoch.ncsc.mil>
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l78Fe4wV009665
+	for <selinux@tycho.nsa.gov>; Wed, 8 Aug 2007 11:40:04 -0400
+Received: from an-out-0708.google.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l78Fe4Mx000453
+	for <selinux@tycho.nsa.gov>; Wed, 8 Aug 2007 15:40:04 GMT
+Received: by an-out-0708.google.com with SMTP id c38so41401ana
+        for <selinux@tycho.nsa.gov>; Wed, 08 Aug 2007 08:40:04 -0700 (PDT)
+Message-ID: <9f066ee90708080840q627adbbavb9e83b45a9f017e8@mail.gmail.com>
+Date: Wed, 8 Aug 2007 11:40:03 -0400
+From: Mark <elihusmails@gmail.com>
+To: selinux@tycho.nsa.gov, fedora-selinux-list@redhat.com
+Subject: only allow 1 port for listening
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: multipart/alternative;
+	boundary="----=_Part_3078_30185273.1186587603815"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 8 Aug 2007, Stephen Smalley wrote:
+------=_Part_3078_30185273.1186587603815
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-> > Can We use jhash ?
-> 
-> I think so, as long as it doesn't impose a significant overhead.
+I am new to writing policies and have been reading the reference policy
+files.  I wrote a simple TCP server that listens on a port for connections.
+I would like to write a policy that will only allow my program to bind to a
+specific port(9999).  I looked at the reference policy and see that the
+ports that programs are allowed to use is in
+policy/modules/kernel/corenetwork.te.  My questions is, can I specify the
+port in my programs type enforcement file so that I can make a module
+instead of listing this in the kernel policy?  If so, what would the syntax
+be?
 
-It's now used extensively in the networking code, so I suspect it will be 
-ok (and unlikely to be a bottleneck for SELinux), but yep, we do need to 
-measure it.
+Thanks in advance.
 
 -- 
-James Morris
-<jmorris@namei.org>
+..Cheers
+Mark
+
+------=_Part_3078_30185273.1186587603815
+Content-Type: text/html; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+I am new to writing policies and have been reading the reference policy files.&nbsp; I wrote a simple TCP server that listens on a port for connections.&nbsp; I would like to write a policy that will only allow my program to bind to a specific port(9999).&nbsp; I looked at the reference policy and see that the ports that programs are allowed to use is in policy/modules/kernel/corenetwork.te.&nbsp; My questions is, can I specify the port in my programs type enforcement file so that I can make a module instead of listing this in the kernel policy?&nbsp; If so, what would the syntax be?
+<br><br>Thanks in advance.<br clear="all"><br>-- <br>..Cheers<br>Mark
+
+------=_Part_3078_30185273.1186587603815--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
