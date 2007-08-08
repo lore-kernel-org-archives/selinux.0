@@ -1,53 +1,24 @@
 Subject: Re: A QUESTION FROM SUN VALLEY, CA
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Robert Adams <whatifwe@ix.netcom.com>
-Cc: selinux@tycho.nsa.gov
-In-Reply-To: <000001c7d9ea$5e28b810$6501a8c0@INCA>
+To: Mark <elihusmails@gmail.com>
+Cc: Robert Adams <whatifwe@ix.netcom.com>, selinux@tycho.nsa.gov
+In-Reply-To: <9f066ee90708081148v48c1bbd2r9f4ae362c81ddfbf@mail.gmail.com>
 References: <000001c7d9ea$5e28b810$6501a8c0@INCA>
+	 <9f066ee90708081148v48c1bbd2r9f4ae362c81ddfbf@mail.gmail.com>
 Content-Type: text/plain
-Date: Wed, 08 Aug 2007 15:14:21 -0400
-Message-Id: <1186600461.6916.333.camel@moss-spartans.epoch.ncsc.mil>
+Date: Wed, 08 Aug 2007 15:20:13 -0400
+Message-Id: <1186600813.6916.337.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2007-08-08 at 11:31 -0700, Robert Adams wrote:
-> Hello
-> 
->  
-> 
-> Some time ago, you informed me that resultant SELinux operating system
-> would be subjected to a Common Criteria Test by Red Hat.
+On Wed, 2007-08-08 at 14:48 -0400, Mark wrote:
+> the way I understand things is that you cannot make a change to the
+> code, but you can tweak the configuration
 
-First, to clarify, SELinux is just an implementation of flexible MAC for
-Linux, not its own distinct operating system, and SELinux by itself has
-not and will not be evaluated - one would evaluate a complete system
-that might include SELinux.  Products that incorporate SELinux have
-undergone evaluation, see http://niap-ccevs.org for information on
-validated products and products in evaluation.  It is those products
-that are evaluated/validated, not SELinux per se, although the product's
-evaluation may have included coverage of the SELinux functionality.
-
-> The concept of open-source provides the user access to the source code
-> for purposes of correcting errors and making needed modifications.
-> 
->  
-> 
-> Isn't the concept of open-source and the common criteria test somewhat
-> inconsistent?  Is the certification provided by common-criteria
-> nullified when the user makes a change to the SELinux operating
-> system?
-
-The certification is invalidated if a security-relevant change is made,
-yes, although there is a process for maintaining a certificate as
-changes are made, e.g. for updates.
-
-The user is still free to make modifications, but unsurprisingly the
-modified result is not covered by a prior certification.  That's no
-different than the fact that a user is free to make modifications but
-doing so may invalidate his warranty/support agreement with the Linux
-vendor and may invalidate certification by ISVs that their applications
-will run on the system.
+Depends on whether the configuration in question is security relevant.
+Security policy configuration would be relevant as part of meeting some
+security goal.
 
 -- 
 Stephen Smalley
