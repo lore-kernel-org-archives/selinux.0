@@ -1,71 +1,41 @@
-From: "Kim Lawson-Jenkins" <lawson@itd.nrl.navy.mil>
-To: "'Stephen Smalley'" <sds@tycho.nsa.gov>
-Cc: <selinux@tycho.nsa.gov>,
-        "'Christopher J. PeBenito'" <cpebenito@tresys.com>,
-        "'Daniel J Walsh'" <dwalsh@redhat.com>
-References: <001b01c7d9bc$9d227a70$c301000a@PC05> <1186580710.6916.85.camel@moss-spartans.epoch.ncsc.mil>
-Subject: RE: Migrating older SELinux policies to new Linux releases
-Date: Wed, 8 Aug 2007 10:20:03 -0500
-Message-ID: <002001c7d9cf$97e8e9f0$c301000a@PC05>
+Date: Wed, 8 Aug 2007 07:43:00 -0700 (PDT)
+From: James Morris <jmorris@namei.org>
+To: Yuichi Nakamura <ynakam@hitachisoft.jp>
+cc: Stephen Smalley <sds@tycho.nsa.gov>, selinux@tycho.nsa.gov,
+        busybox@kaigai.gr.jp, Eric Paris <eparis@parisplace.org>,
+        kaigai@ak.jp.nec.com, method@manicmethod.com
+Subject: Re: Appropriate number of hash slots for te_avtab(Was:Re: [RFC]
+ Dynamically deciding number of hash slots for avtab
+In-Reply-To: <20070808150021.C617.YNAKAM@hitachisoft.jp>
+Message-ID: <Pine.LNX.4.64.0708080740400.12788@us.intercode.com.au>
+References: <20070807175824.4CBF.YNAKAM@hitachisoft.jp>
+ <1186490009.26457.10.camel@moss-spartans.epoch.ncsc.mil>
+ <20070808150021.C617.YNAKAM@hitachisoft.jp>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="US-ASCII"
-In-Reply-To: <1186580710.6916.85.camel@moss-spartans.epoch.ncsc.mil>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-You're correct.  I am porting from a policy based on example policy to a
-policy based on the reference policy.  I already have the SELinux Reference
-policy strict base module on RHEL5 and as a next step will look at adding a
-loadable policy module as you suggested.  Thanks for a response.  And thank
-you Chris for the location of the macro conversion guide.
+On Wed, 8 Aug 2007, Yuichi Nakamura wrote:
 
-Kim
+> * Number of slot = num of rules/2
+> SELinux:4096 avtab hash slots allocated. Num of rules:8188
+> - default
+> rules:  8188 entries and 2809/4096 buckets used, longest chain length 21
+> - jhash
+> rules:  8188 entries and 3466/4096 buckets used, longest chain length 9 
 
------Original Message-----
-From: Stephen Smalley [mailto:sds@tycho.nsa.gov] 
-Sent: Wednesday, August 08, 2007 8:45 AM
-To: Kim Lawson-Jenkins
-Cc: selinux@tycho.nsa.gov; Christopher J. PeBenito; Daniel J Walsh
-Subject: Re: Migrating older SELinux policies to new Linux releases
+This looks pretty good.
 
-On Wed, 2007-08-08 at 08:04 -0500, Kim Lawson-Jenkins wrote:
->  
-> 
-> I'm migrating application software from Fedora Core 3 to RHEL5.  The
-> SELinux strict policy was used for Fedora Core 3 and as a first step I
-> only want to migrate the existing policy to RHEL5.  (Later I plan to
-> make changes to the policy using the newer SELinux development
-> tools.)  I've seen several books and whitepapers that discuss
-> generating new policies using the current SELinux tools but I have
-> seen no whitepapers, examples, or guidelines on how to, say, migrate
-> older strict policies to the new reference policy.  Are there any such
-> guidelines or suggestions documented somewhere?
+What is the performance overhead of jhash vs. the existing hash?
 
-I'm not aware of anything specific, although there is certainly
-documentation of the refpolicy
-(http://oss.tresys.com/projects/refpolicy/wiki/Documentation) and the
-SELinux by Example book provides examples of writing both kinds of
-policies.  Looking at an example .te file from the refpolicy is always
-helpful too.  SLIDE is an Eclipse plugin for working with refpolicy if
-you like that sort of thing.
+(You could probably make a kernel module which calls the avc in a loop 
+with some repeatable sequence of paramters).
 
-I was thinking that there was a mapping from example policy macros to
-refpolicy interfaces at one time, but I don't see it now.
-
-Just to clarify, what you are actually doing is porting from a policy
-based on example policy to a policy based reference policy.  Both
-policies have a "strict" form and a "targeted" form.  If your changes
-are localized, then you might be able to just create and build a
-loadable policy module and then add that to the existing strict policy
-in RHEL5 (selinux-policy-strict) without needing to rebuild the full
-reference policy.
 
 -- 
-Stephen Smalley
-National Security Agency
-
-
+James Morris
+<jmorris@namei.org>
 
 --
 This message was distributed to subscribers of the selinux mailing list.
