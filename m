@@ -1,115 +1,122 @@
-Date: Wed, 08 Aug 2007 15:00:51 +0900
-From: Yuichi Nakamura <ynakam@hitachisoft.jp>
-To: Stephen Smalley <sds@tycho.nsa.gov>
-Subject: Re: Appropriate number of hash slots for te_avtab(Was:Re: [RFC] Dynamically deciding number of hash slots for avtab
-Cc: ynakam@hitachisoft.jp, selinux@tycho.nsa.gov, busybox@kaigai.gr.jp,
-        James Morris <jmorris@namei.org>, Eric Paris <eparis@parisplace.org>,
-        kaigai@ak.jp.nec.com, method@manicmethod.com
-In-Reply-To: <1186490009.26457.10.camel@moss-spartans.epoch.ncsc.mil>
-References: <20070807175824.4CBF.YNAKAM@hitachisoft.jp> <1186490009.26457.10.camel@moss-spartans.epoch.ncsc.mil>
-Message-Id: <20070808150021.C617.YNAKAM@hitachisoft.jp>
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l78C9tuj024011
+	for <selinux@tycho.nsa.gov>; Wed, 8 Aug 2007 08:09:55 -0400
+Received: from fw5540.nrl.navy.mil (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id l78C9qEu019582
+	for <selinux@tycho.nsa.gov>; Wed, 8 Aug 2007 12:09:52 GMT
+Received: from chacs.nrl.navy.mil (sun1.fw5540.net [10.0.0.11])
+	by fw5540.nrl.navy.mil (8.13.6/8.13.6) with ESMTP id l78C85B0028860
+	for <selinux@tycho.nsa.gov>; Wed, 8 Aug 2007 08:08:06 -0400 (EDT)
+Received: from chacs.nrl.navy.mil (sun1 [10.0.0.11])
+	by chacs.nrl.navy.mil (8.13.6/8.13.6) with SMTP id l78C85Ua000222
+	for <selinux@tycho.nsa.gov>; Wed, 8 Aug 2007 08:08:05 -0400 (EDT)
+Received: (from PC05 [10.0.1.195])
+ by chacs.nrl.navy.mil (SMSSMTP 4.1.16.48) with SMTP id M2007080808080507967
+ for <selinux@tycho.nsa.gov>; Wed, 08 Aug 2007 08:08:05 -0400
+From: "Kim Lawson-Jenkins" <lawson@itd.nrl.navy.mil>
+To: <selinux@tycho.nsa.gov>
+Subject: Migrating older SELinux policies to new Linux releases
+Date: Wed, 8 Aug 2007 08:04:11 -0500
+Message-ID: <001b01c7d9bc$9d227a70$c301000a@PC05>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="US-ASCII"
+Content-Type: multipart/alternative;
+	boundary="----=_NextPart_000_001C_01C7D992.B44C7270"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+This is a multi-part message in MIME format.
 
-On Tue, 07 Aug 2007 08:33:29 -0400
-Stephen Smalley  wrote:
->If you had adjusted the hash function too, you could have gotten better
-results.
-<snip>
-> Try tuning the hash function.
+------=_NextPart_000_001C_01C7D992.B44C7270
+Content-Type: text/plain;
+	charset="US-ASCII"
+Content-Transfer-Encoding: 7bit
 
-Thanks for advice.
-So, I tried another hash function.
-I found jhash_3words in linux/jhash.h,
-it calculates hash value based on 3 args. 
+ 
 
-I replaced AVTAB_HASH using jhash like below, 
-and measured hash stats again.
+I'm migrating application software from Fedora Core 3 to RHEL5.  The SELinux
+strict policy was used for Fedora Core 3 and as a first step I only want to
+migrate the existing policy to RHEL5.  (Later I plan to make changes to the
+policy using the newer SELinux development tools.)  I've seen several books
+and whitepapers that discuss generating new policies using the current
+SELinux tools but I have seen no whitepapers, examples, or guidelines on how
+to, say, migrate older strict policies to the new reference policy.  Are
+there any such guidelines or suggestions documented somewhere?
 
-#define AVTAB_HASH(keyp,mask)	\
-(jhash_3words((u32)(keyp->target_class), \
- (u32)(keyp->target_type), \
- (u32)(keyp->source_type), 0) & \
- mask)
 
-Following is result.
+------=_NextPart_000_001C_01C7D992.B44C7270
+Content-Type: text/html;
+	charset="US-ASCII"
+Content-Transfer-Encoding: quoted-printable
 
-1. Result for 1) (Full strict refpolicy)
+<html xmlns:o=3D"urn:schemas-microsoft-com:office:office" =
+xmlns:w=3D"urn:schemas-microsoft-com:office:word" =
+xmlns=3D"http://www.w3.org/TR/REC-html40">
 
-* max table size = 32768
-SELinux:32768 avtab hash slots allocated. Num of rules:166741
-- default hash
-rules:  166741 entries and 30128/32768 buckets used, longest chain length 34   
-- jhash
-rules:  166741 entries and 32391/32768 buckets used, longest chain length 21  
+<head>
+<meta http-equiv=3DContent-Type content=3D"text/html; =
+charset=3Dus-ascii">
+<meta name=3DGenerator content=3D"Microsoft Word 11 (filtered medium)">
+<style>
+<!--
+ /* Style Definitions */
+ p.MsoNormal, li.MsoNormal, div.MsoNormal
+	{margin:0in;
+	margin-bottom:.0001pt;
+	font-size:12.0pt;
+	font-family:"Times New Roman";}
+a:link, span.MsoHyperlink
+	{color:blue;
+	text-decoration:underline;}
+a:visited, span.MsoHyperlinkFollowed
+	{color:purple;
+	text-decoration:underline;}
+span.EmailStyle17
+	{mso-style-type:personal-compose;
+	font-family:Arial;
+	color:windowtext;}
+@page Section1
+	{size:8.5in 11.0in;
+	margin:1.0in 1.25in 1.0in 1.25in;}
+div.Section1
+	{page:Section1;}
+-->
+</style>
 
-* 16384
-SELinux:16384 avtab hash slots allocated. Num of rules:166741   
-- default
-rules:  166741 entries and 16221/16384 buckets used, longest chain length 59   
-- jhash
-rules:  166741 entries and 16382/16384 buckets used, longest chain length 27
+</head>
 
-* 8192
-SELinux:8192 avtab hash slots allocated. Num of rules:166741
-- default
-rules:  166741 entries and 8190/8192 buckets used, longest chain length 97   
-- jhash
-rules:  166741 entries and 8192/8192 buckets used, longest chain length 41 
+<body lang=3DEN-US link=3Dblue vlink=3Dpurple>
 
-*  4096
-SELinux:4096 avtab hash slots allocated. Num of rules:166741enfs_contexts
-- default
-rules:  166741 entries and 4096/4096 buckets used, longest chain length 182
-- jhash
-rules:  166741 entries and 4096/4096 buckets used, longest chain length 67 
+<div class=3DSection1>
 
-jhash is better.
-If we use jhash, max table size could be 16384 or 8192..
+<p class=3DMsoNormal><font size=3D2 face=3DArial><span =
+style=3D'font-size:10.0pt;
+font-family:Arial'><o:p>&nbsp;</o:p></span></font></p>
 
-2. Result for 2) (smaller refpolicy)
+<p class=3DMsoNormal><font size=3D2 face=3DArial><span =
+style=3D'font-size:10.0pt;
+font-family:Arial'>I&#8217;m migrating application software from Fedora =
+Core 3
+to RHEL5. &nbsp;The SELinux strict policy was used for Fedora Core 3 and =
+as a
+first step I only want to migrate the existing policy to RHEL5.&nbsp; =
+(Later I plan
+to make changes to the policy using the newer SELinux development =
+tools.) &nbsp;I&#8217;ve
+seen several books and whitepapers that discuss generating new policies =
+using
+the current SELinux tools but I have seen no whitepapers, examples, or
+guidelines on how to, say, migrate older strict policies to the new =
+reference
+policy.&nbsp; Are there any such guidelines or suggestions documented
+somewhere?</span></font><o:p></o:p></p>
 
-* Number of slot = num of rules
-SELinux:8192 avtab hash slots allocated. Num of rules:8188
-- default
-rules:  8188 entries and 3925/8192 buckets used, longest chain length 13
-- jhash
-rules:  8188 entries and 5053/8192 buckets used, longest chain length 7 
+</div>
 
-* Number of slot = num of rules/2
-SELinux:4096 avtab hash slots allocated. Num of rules:8188
-- default
-rules:  8188 entries and 2809/4096 buckets used, longest chain length 21
-- jhash
-rules:  8188 entries and 3466/4096 buckets used, longest chain length 9 
+</body>
 
-* Number of slot = num of rules/4
-SELinux:2048 avtab hash slots allocated. Num of rules:8188
-- default
-rules:  8188 entries and 1742/2048 buckets used, longest chain length 35
-- jhash
-rules:  8188 entries and 1991/2048 buckets used, longest chain length 12 
+</html>
 
-*  Number of slot = num of rules/8
-SELinux:1024 avtab hash slots allocated. Num of rules:8188
-- default
-rules:  8188 entries and 978/1024 buckets used, longest chain length 64
-- jhash
-rules:  8188 entries and 1024/1024 buckets used, longest chain length 22
-
-jhash is also better.
-
-Can We use jhash ?
-
-Regards,
--- 
-Yuichi Nakamura
-Hitachi Software Engineering Co., Ltd.
-Japan SELinux Users Group(JSELUG): http://www.selinux.gr.jp/
-SELinux Policy Editor: http://seedit.sourceforge.net/
+------=_NextPart_000_001C_01C7D992.B44C7270--
 
 
 --
