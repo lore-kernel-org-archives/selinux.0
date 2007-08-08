@@ -1,49 +1,58 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l78JDmAj031115
-	for <selinux@tycho.nsa.gov>; Wed, 8 Aug 2007 15:13:48 -0400
-Received: from tresys-winxppro.columbia.tresys.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l78JDjSH027854
-	for <selinux@tycho.nsa.gov>; Wed, 8 Aug 2007 19:13:45 GMT
-Received: from tresys-winxppro.columbia.tresys.com (localhost.localdomain [127.0.0.1])
-	by tresys-winxppro.columbia.tresys.com (8.13.8/8.13.8) with ESMTP id l78KMrtB017102
-	for <selinux@tycho.nsa.gov>; Wed, 8 Aug 2007 16:22:53 -0400
-Received: (from paul@localhost)
-	by tresys-winxppro.columbia.tresys.com (8.13.8/8.13.8/Submit) id l78KMqtL017101
-	for selinux@tycho.nsa.gov; Wed, 8 Aug 2007 16:22:52 -0400
-Message-Id: <20070808202252.190491979@tresys.com>
-Date: Wed, 08 Aug 2007 16:22:52 -0400
-From: tmiller@tresys.com
-To: selinux@tycho.nsa.gov
-Subject: [patch 0/3] libsemanage: genhomedircon replacement
+Subject: Re: A QUESTION FROM SUN VALLEY, CA
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Robert Adams <whatifwe@ix.netcom.com>
+Cc: selinux@tycho.nsa.gov
+In-Reply-To: <000001c7d9ea$5e28b810$6501a8c0@INCA>
+References: <000001c7d9ea$5e28b810$6501a8c0@INCA>
+Content-Type: text/plain
+Date: Wed, 08 Aug 2007 15:14:21 -0400
+Message-Id: <1186600461.6916.333.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This replaces genhomedircon with equivalent functionality in
-libsemanage. The homedir_template is also no longer installed, this leaves
-some unused path functions in libselinux but removing those would break
-the ABI.
+On Wed, 2007-08-08 at 11:31 -0700, Robert Adams wrote:
+> Hello
+> 
+>  
+> 
+> Some time ago, you informed me that resultant SELinux operating system
+> would be subjected to a Common Criteria Test by Red Hat.
 
-This does the same things that genhomedircon did though some seemed
-strange, like removing /sbin/nologin from the list of valid shells,
-presumably to keep ftp users and such from getting file contexts generated
-for them, I'm not sure how valid the assumption is but we didn't want
-to change the functionality of genhomedircon in this patch set.
+First, to clarify, SELinux is just an implementation of flexible MAC for
+Linux, not its own distinct operating system, and SELinux by itself has
+not and will not be evaluated - one would evaluate a complete system
+that might include SELinux.  Products that incorporate SELinux have
+undergone evaluation, see http://niap-ccevs.org for information on
+validated products and products in evaluation.  It is those products
+that are evaluated/validated, not SELinux per se, although the product's
+evaluation may have included coverage of the SELinux functionality.
 
-The first patch adds genhomedircon.c to libsemanage and calls it from
-the semanage_store.c and removes the prior call to genhomedircon. This
-version uses libustr for string manipulations, which creates an external
-dependency available in the development yum repository. There is, however,
-an option to embed the ustr code directly into the library and eliminate
-the runtime dependency.
+> The concept of open-source provides the user access to the source code
+> for purposes of correcting errors and making needed modifications.
+> 
+>  
+> 
+> Isn't the concept of open-source and the common criteria test somewhat
+> inconsistent?  Is the certification provided by common-criteria
+> nullified when the user makes a change to the SELinux operating
+> system?
 
-The second patch is a set of tests for the new functions
+The certification is invalidated if a security-relevant change is made,
+yes, although there is a process for maintaining a certificate as
+changes are made, e.g. for updates.
 
-The third patch removes the old genhomedircon script.
-
-Signed-Off-By: Todd Miller <tmiller@tresys.com>
-
+The user is still free to make modifications, but unsurprisingly the
+modified result is not covered by a prior certification.  That's no
+different than the fact that a user is free to make modifications but
+doing so may invalidate his warranty/support agreement with the Linux
+vendor and may invalidate certification by ISVs that their applications
+will run on the system.
 
 -- 
+Stephen Smalley
+National Security Agency
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
