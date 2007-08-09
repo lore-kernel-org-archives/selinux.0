@@ -1,42 +1,63 @@
 Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l79IBAbX026806
-	for <selinux@tycho.nsa.gov>; Thu, 9 Aug 2007 14:11:10 -0400
-Received: from mx1.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id l79IB9k4022148
-	for <selinux@tycho.nsa.gov>; Thu, 9 Aug 2007 18:11:10 GMT
-Received: from int-mx1.corp.redhat.com (int-mx1.corp.redhat.com [172.16.52.254])
-	by mx1.redhat.com (8.13.1/8.13.1) with ESMTP id l79IB4bW003904
-	for <selinux@tycho.nsa.gov>; Thu, 9 Aug 2007 14:11:04 -0400
-Received: from warthog.cambridge.redhat.com (warthog.cambridge.redhat.com [172.16.18.73])
-	by int-mx1.corp.redhat.com (8.13.1/8.13.1) with ESMTP id l79IB3I4010503
-	for <selinux@tycho.nsa.gov>; Thu, 9 Aug 2007 14:11:04 -0400
-Received: from redhat.com (localhost.localdomain [127.0.0.1])
-	by warthog.cambridge.redhat.com (8.14.1/8.13.8) with ESMTP id l79IB3jl021054
-	for <selinux@tycho.nsa.gov>; Thu, 9 Aug 2007 19:11:03 +0100
-From: David Howells <dhowells@redhat.com>
-In-Reply-To: <830177.29212.qm@web36605.mail.mud.yahoo.com>
-References: <830177.29212.qm@web36605.mail.mud.yahoo.com>
-To: casey@schaufler-ca.com
-Cc: dhowells@redhat.com, torvalds@osdl.org, akpm@osdl.org, steved@redhat.com,
-        trond.myklebust@fys.uio.no, linux-fsdevel@vger.kernel.org,
-        linux-cachefs@redhat.com, nfsv4@linux-nfs.org,
-        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 09/14] CacheFiles: Permit a process's create SID to be overridden [try #2]
-Date: Thu, 09 Aug 2007 19:07:42 +0100
-Message-ID: <20954.1186682862@redhat.com>
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l79II4Jj027448
+	for <selinux@tycho.nsa.gov>; Thu, 9 Aug 2007 14:18:04 -0400
+Subject: Re: Upstreaming shared LSM interfaces
+From: "David P. Quigley" <dpquigl@tycho.nsa.gov>
+To: James Morris <jmorris@namei.org>
+Cc: David Howells <dhowells@redhat.com>, selinux@tycho.nsa.gov
+In-Reply-To: <Pine.LNX.4.64.0708091111470.19611@us.intercode.com.au>
+References: <1186682361.14386.27.camel@moss-terrapins.epoch.ncsc.mil>
+	 <Pine.LNX.4.64.0708091111470.19611@us.intercode.com.au>
+Content-Type: text/plain
+Date: Thu, 09 Aug 2007 14:13:03 -0400
+Message-Id: <1186683183.14386.29.camel@moss-terrapins.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Casey Schaufler <casey@schaufler-ca.com> wrote:
+Redirected to the SELinux mailing list, and I am leaving David Howells
+on the CC line since he isn't actually on the SELinux mailing list.
 
-> This is SELinux specific funtionality and should be done in the
-> SELinux code. You should not be adding interfaces that are SELinux
-> specific, in this case using secids instead of the LSM blob interfaces.
 
-Is using secids your only objection?  Or are you objecting to the whole
-'act-as' concept?
-
-David
+On Thu, 2007-08-09 at 11:12 -0700, James Morris wrote:
+> Please discuss technical issues on a public mailing list.
+> 
+> 
+> On Thu, 9 Aug 2007, David P. Quigley wrote:
+> 
+> > Hello Everyone,
+> > 	Between Casey's Audit patches, the FS-Cache patches and the Labeled NFS
+> > patches there are a bunch of new LSM interfaces being proposed that some
+> > combination of us seem to need. I would like to propose that we agree on
+> > the interfaces and send them to James to be upstreamed. The interfaces
+> > and the proposed prototypes are listed below
+> > 
+> > Interfaces:
+> > 
+> > inode_{get,set}secid: From Labeled NFS patches
+> > void (*inode_getsecid)(struct inode *inode, u32 *secid);
+> > void (*inode_setsecid)(struct inode *inode, u32 secid);
+> > 
+> > 
+> > ipc_getsecid: From Audit patches
+> > void (*ipc_getsecid) (struct kern_ipc_perm *p, u32 *secid);
+> > 
+> > {get,set}_fscreate_secid: From FS-Cache patches
+> > u32 (*get_fscreate_secid)(void);
+> > u32 (*set_fscreate_secid)(u32 secid);
+> > 
+> > 
+> > secctx_to_secid: From Labeled NFS patches
+> > int (*secctx_to_secid)(u32 *secid, char *secdata, u32 seclen);
+> > 
+> > act_as_{secid,self}: From FS-Cache patches
+> > u32 (*act_as_secid)(u32 secid);
+> > u32 (*act_as_self)(void);
+> > 
+> > 
+> > Dave Quigley
+> > 
+> 
 
 
 --
