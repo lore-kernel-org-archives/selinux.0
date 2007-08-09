@@ -1,153 +1,216 @@
-Message-ID: <46BB200A.1080904@trustedcs.com>
-From: Darrel Goeddel <DGoeddel@TrustedCS.com>
-To: Stephen Smalley <sds@tycho.nsa.gov>
-Cc: Paul Moore <paul.moore@hp.com>, selinux@tycho.nsa.gov,
-        kaigai@ak.jp.nec.com, joe@nall.com, James Morris <jmorris@namei.org>,
-        Eric Paris <eparis@parisplace.org>
-Subject: Re: [RFC 0/5] Static/fallback external labels for NetLabel
-Date: Thu, 9 Aug 2007 10:09:14 -0400 
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l79EHcr9003521
+	for <selinux@tycho.nsa.gov>; Thu, 9 Aug 2007 10:17:38 -0400
+Received: from exchange.columbia.tresys.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with SMTP id l79EHaea020305
+	for <selinux@tycho.nsa.gov>; Thu, 9 Aug 2007 14:17:36 GMT
 MIME-Version: 1.0
-in-reply-to: <1186663363.6916.393.camel@moss-spartans.epoch.ncsc.mil>
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Content-Type: multipart/alternative;
+	boundary="----_=_NextPart_001_01C7DA90.096CE369"
+Subject: RE: SLIDE error
+Date: Thu, 9 Aug 2007 10:17:37 -0400
+Message-ID: <6FE441CD9F0C0C479F2D88F959B01588EDE7E2@exchange.columbia.tresys.com>
+In-Reply-To: <9f066ee90708090643o7e326871g9e51204d841a9146@mail.gmail.com>
+From: "Anand Patel" <apatel@tresys.com>
+To: "Mark" <elihusmails@gmail.com>, <selinux@tycho.nsa.gov>,
+        <fedora-selinux-list@redhat.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Stephen Smalley wrote:
-> On Tue, 2007-08-07 at 10:14 -0400, Paul Moore wrote:
->> This patchset adds the static/fallback labeling feature to NetLabel that
-has
->> been requested on the SELinux mailing list more and more recently.  This
-new
->> bit of functionality also matches what can be found on similar
-trusted/labeled
->> OSs such as Trusted Solaris, HP-UX CMW, etc.  This patchset it not yet
-ready
->> for "upstreaming" so please do not pull this into any tree bound for the
->> mainline kernel; I still need to do more review and testing of the code.
->> However, I know there are several of you on this list that have been
-anxiously
->> awaiting this patchset so I thought I would make an early release so you
-could
->> get a peek and test it out.  I won't be able to work on this patchset
-much, if
->> at all, between August 10th and the 20th so don't expect an update from
-me
->> until the end of August.
->>
->> The basic idea is that currently there is no method for providing an
-external
->> label to fallback on if a labeled networking mechanism such as
-NetLabel/CIPSO
->> or labeled IPsec is not in use.  This patch adds a mechanism for
-providing a
->> static fallback label, specified per interface/network, which is used
-when
->> a NetLabel recognized labeling protocol (at this point CIPSO) is not in
-use.
->>
->> For those of you wishing to try this patchset, it is backed against
-Linus'
->> linux-2.6 git tree from the afternoon of August 6th, but I don't imagine
-you'll
->> have many problems applying the patchset to later trees at this point in
-the
->> 2.6.23 release cycle.  In addition to the kernel patches you will also
-need a
->> modified version of netlabelctl from the netlabel_tools package.  A very
-crude
->> version of the modified tools can be found in the netlabel_tools SVN
-repository
->> in the static_label branch.  Please check the NetLabel website on
-SourceForge,
->> http://netlabel.sf.net, for information on the SVN repository.  The three
-new
->> netlabelctl commands are as follows:
->>
->>  # netlabelctl unlbl add interface:<DEV> address:<ADDR>[/<MASK>]
-label:<LABEL>
->>  # netlabelctl unlbl del interface:<DEV> address:<ADDR>[/<MASK>]
->>  # netlabelctl -p unlbl list
->>
->>    DEV = interface, examples: eth0, lo
->>    ADDR = IP address, examples: 192.168.0.3, ::1
->>    MASK = IP address mask length, examples 8, 24, 64
->>    LABEL = LSM/SELinux label, example: system_u:object_r:unlabeled_t:s2
->>
->> For example, if you wanted to label all inbound traffic on eth1 from
->> 192.168.0.0/16 with the label "system_u:object_r:staticlabel_t:s7" you
-would
->> type:
->>
->>  # netlabelctl unlbl add interface:eth1 address:192.168.0.0/16 \
->>                          label:system_u:object_r:staticlabel_t:s7
->>
->> Both IPv4 and IPv6 addresses can be used and if the address mask is
-ommitted
->> from the command the address is assumed to be a host address, not a
-network,
->> and the maximum mask size for that address family is used.  If you do not
-wish
->> to specify an address, simply use a address mask of zero, "/0", which
-will
->> cause all addresses within that address family to match.
-> 
-> Hi,
-> 
-> I like the functionality, but I don't like having yet another mechanism
-> and configuration, and I'm concerned about it being netlabel-centric.
-> Especially when we already have a more generic and flexible mechanism
-> for specifying packet labels, i.e. secmark.
-> 
-> The only reason to not use secmark today for a fallback mechanism is the
-> current separation between 'internal' and 'external' labels.  But I
-> don't believe that separation is necessary or useful, and secmark today
-> is effectively unused.  The original usage scenario for it simply hasn't
-> materialized.
+This is a multi-part message in MIME format.
 
-I agree whole-heartedly with the above statements.  I actually use the
-secmark
-mechanism and labeled ipsec, but unfortunately I need a patched kernel to
-make
-the useful in in regards to the issues of flow control (providing a
-mechanism
-for a controlled network interface) and loopback labeling.  These are
-necessary
-features for the user base I work with.  This user base happens to be the
-LSPP
-crowd, folks that needed a certified platform, but now they can't use the
-certified
-platform because it is woefully lacking in the network control department.
+------_=_NextPart_001_01C7DA90.096CE369
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
 
-> Meanwhile, getting secmark employed, not only as a mechanism for
-> assigning default labels (via iptables rules) but also as a seamless way
-> of propagating labels with socket buffers would solve a lot of our
-> current limitations.  We'd get loopback labeling for free, flexible and
-> generic fallback labeling, forwarding controls would become
-> straightforward, and PEERSEC/SCM_SECURITY becomes much simpler.
-> NetLabel would benefit from it as well.  There are alternative
-> implementation approaches, but none as clean and efficient and reliable.
-> There was a reason we put a sid in the sk_buff in the original SELinux
-> implementations (prior to Linux 2.6 merge).
-> 
-> I've had some initial discussions with James, and he seemed open to
-> revisiting this notion, so I think we need to take another look.
+Mark,
 
-Because of the position I am in (needing to find something workable for
-actual
-users), I have been trying to get my head aounrd the state of SELinux
-networking,
-the ideas that have been talked about in the past, and how we can prevent
-the
-SELinux networking infrastructure from resembling a Rube-Goldberg machine.
-I'll
-be presenting some of the problems I perceive along with some very high
-level
-ideas early next week.
+Go to directory where you have reference policy source installed and run
+"make conf".
 
--- 
+=20
 
-Darrel
+-Anand Patel
+
+=20
+
+=20
+
+________________________________
+
+From: owner-selinux@tycho.nsa.gov [mailto:owner-selinux@tycho.nsa.gov]
+On Behalf Of Mark
+Sent: Thursday, August 09, 2007 9:43 AM
+To: selinux@tycho.nsa.gov; fedora-selinux-list@redhat.com
+Subject: SLIDE error
+
+=20
+
+I have installed the latest version of SLIDE, and downloaded the latest
+reference policy (20070629).  I open up eclipse and create a new policy
+module project.  I then point Eclipse to the location where I unpacked
+the reference policy ( refpolicy-20070629.tar.bz2 ).  I then get the
+following error:
+
+Rules.modular:152: *** No enabled modules! modules.conf may need to be
+generated by using "make conf".  Stop.
+
+Can anyone please tell me where I am going wrong?=20
+Thanks.
+--=20
+..Cheers
+Mark=20
+
+
+------_=_NextPart_001_01C7DA90.096CE369
+Content-Type: text/html;
+	charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
+
+<html xmlns:v=3D"urn:schemas-microsoft-com:vml" =
+xmlns:o=3D"urn:schemas-microsoft-com:office:office" =
+xmlns:w=3D"urn:schemas-microsoft-com:office:word" =
+xmlns=3D"http://www.w3.org/TR/REC-html40">
+
+<head>
+<META HTTP-EQUIV=3D"Content-Type" CONTENT=3D"text/html; =
+charset=3Dus-ascii">
+<meta name=3DGenerator content=3D"Microsoft Word 11 (filtered medium)">
+<!--[if !mso]>
+<style>
+v\:* {behavior:url(#default#VML);}
+o\:* {behavior:url(#default#VML);}
+w\:* {behavior:url(#default#VML);}
+.shape {behavior:url(#default#VML);}
+</style>
+<![endif]-->
+<style>
+<!--
+ /* Font Definitions */
+ @font-face
+	{font-family:Tahoma;
+	panose-1:2 11 6 4 3 5 4 4 2 4;}
+ /* Style Definitions */
+ p.MsoNormal, li.MsoNormal, div.MsoNormal
+	{margin:0in;
+	margin-bottom:.0001pt;
+	font-size:12.0pt;
+	font-family:"Times New Roman";}
+a:link, span.MsoHyperlink
+	{color:blue;
+	text-decoration:underline;}
+a:visited, span.MsoHyperlinkFollowed
+	{color:purple;
+	text-decoration:underline;}
+span.EmailStyle17
+	{mso-style-type:personal-reply;
+	font-family:Arial;
+	color:navy;}
+@page Section1
+	{size:8.5in 11.0in;
+	margin:1.0in 1.25in 1.0in 1.25in;}
+div.Section1
+	{page:Section1;}
+-->
+</style>
+
+</head>
+
+<body lang=3DEN-US link=3Dblue vlink=3Dpurple>
+
+<div class=3DSection1>
+
+<p class=3DMsoNormal><font size=3D2 color=3Dnavy face=3DArial><span =
+style=3D'font-size:
+10.0pt;font-family:Arial;color:navy'>Mark,<o:p></o:p></span></font></p>
+
+<p class=3DMsoNormal><font size=3D2 color=3Dnavy face=3DArial><span =
+style=3D'font-size:
+10.0pt;font-family:Arial;color:navy'>Go to directory where you have =
+reference
+policy source installed and run &#8220;make =
+conf&#8221;.<o:p></o:p></span></font></p>
+
+<p class=3DMsoNormal><font size=3D2 color=3Dnavy face=3DArial><span =
+style=3D'font-size:
+10.0pt;font-family:Arial;color:navy'><o:p>&nbsp;</o:p></span></font></p>
+
+<p class=3DMsoNormal><font size=3D2 color=3Dnavy face=3DArial><span =
+style=3D'font-size:
+10.0pt;font-family:Arial;color:navy'>-Anand =
+Patel<o:p></o:p></span></font></p>
+
+<p class=3DMsoNormal><font size=3D2 color=3Dnavy face=3DArial><span =
+style=3D'font-size:
+10.0pt;font-family:Arial;color:navy'><o:p>&nbsp;</o:p></span></font></p>
+
+<p class=3DMsoNormal><font size=3D2 color=3Dnavy face=3DArial><span =
+style=3D'font-size:
+10.0pt;font-family:Arial;color:navy'><o:p>&nbsp;</o:p></span></font></p>
+
+<div>
+
+<div class=3DMsoNormal align=3Dcenter style=3D'text-align:center'><font =
+size=3D3
+face=3D"Times New Roman"><span style=3D'font-size:12.0pt'>
+
+<hr size=3D2 width=3D"100%" align=3Dcenter tabindex=3D-1>
+
+</span></font></div>
+
+<p class=3DMsoNormal><b><font size=3D2 face=3DTahoma><span =
+style=3D'font-size:10.0pt;
+font-family:Tahoma;font-weight:bold'>From:</span></font></b><font =
+size=3D2
+face=3DTahoma><span style=3D'font-size:10.0pt;font-family:Tahoma'> =
+owner-selinux@tycho.nsa.gov
+[mailto:owner-selinux@tycho.nsa.gov] <b><span =
+style=3D'font-weight:bold'>On
+Behalf Of </span></b>Mark<br>
+<b><span style=3D'font-weight:bold'>Sent:</span></b> Thursday, August =
+09, 2007
+9:43 AM<br>
+<b><span style=3D'font-weight:bold'>To:</span></b> =
+selinux@tycho.nsa.gov;
+fedora-selinux-list@redhat.com<br>
+<b><span style=3D'font-weight:bold'>Subject:</span></b> SLIDE =
+error</span></font><o:p></o:p></p>
+
+</div>
+
+<p class=3DMsoNormal><font size=3D3 face=3D"Times New Roman"><span =
+style=3D'font-size:
+12.0pt'><o:p>&nbsp;</o:p></span></font></p>
+
+<p class=3DMsoNormal><font size=3D3 face=3D"Times New Roman"><span =
+style=3D'font-size:
+12.0pt'>I have installed the latest version of SLIDE, and downloaded the =
+latest
+reference policy (20070629).&nbsp; I open up eclipse and create a new =
+policy
+module project.&nbsp; I then point Eclipse to the location where I =
+unpacked the
+reference policy ( refpolicy-20070629.tar.bz2 ).&nbsp; I then get the =
+following
+error:<br>
+<br>
+Rules.modular:152: *** No enabled modules! modules.conf may need to be
+generated by using &quot;make conf&quot;.&nbsp; Stop.<br>
+<br>
+Can anyone please tell me where I am going wrong? <br>
+Thanks.<br>
+-- <br>
+..Cheers<br>
+Mark <o:p></o:p></span></font></p>
+
+</div>
+
+</body>
+
+</html>
+
+------_=_NextPart_001_01C7DA90.096CE369--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
