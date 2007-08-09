@@ -1,73 +1,71 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l79ET9DM004475
-	for <selinux@tycho.nsa.gov>; Thu, 9 Aug 2007 10:29:09 -0400
-Received: from dmzmta101.na.baesystems.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id l79ET6ea023173
-	for <selinux@tycho.nsa.gov>; Thu, 9 Aug 2007 14:29:07 GMT
-Received: from BLUMS0034.bluelnk.net (blums0034.bluelnk.net [10.40.96.55])
-	by dmzmta101.na.baesystems.com (Switch-3.2.5/Switch-3.2.5) with ESMTP id l79ERLgA010240
-	for <selinux@tycho.nsa.gov>; Thu, 9 Aug 2007 10:27:22 -0400
+Message-ID: <46BB2785.8040507@trustedcs.com>
+From: Darrel Goeddel <DGoeddel@TrustedCS.com>
+To: Paul Moore <paul.moore@hp.com>
+Cc: Stephen Smalley <sds@tycho.nsa.gov>, selinux@tycho.nsa.gov, joe@nall.com,
+        James Morris <jmorris@namei.org>, Eric Paris
+	 <eparis@parisplace.org>,
+        kaigai@ak.jp.nec.com
+Subject: Re: [RFC 0/5] Static/fallback external labels for NetLabel
+Date: Thu, 9 Aug 2007 10:41:09 -0400 
 MIME-Version: 1.0
+in-reply-to: <200708090929.16906.paul.moore@hp.com>
 Content-Type: text/plain;
-	charset="us-ascii"
-Subject: RE: reference policy filesystem.if
-Date: Thu, 9 Aug 2007 07:28:15 -0700
-Message-ID: <FB39F4E77226B448BC1388D3BE4E00CD0219DBB5@blums0008.bluelnk.net>
-References: <FB39F4E77226B448BC1388D3BE4E00CD0219DB98@blums0008.bluelnk.net> <1186661461.25504.15.camel@gorn.columbia.tresys.com>
-From: "Clarkson, Mike R \(US SSA\)" <mike.clarkson@baesystems.com>
-To: "Christopher J. PeBenito" <cpebenito@tresys.com>
-Cc: <selinux@tycho.nsa.gov>
+	charset="iso-8859-1"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Since we're dealing with files in this case, and given that append is a
-separate permission from write, why doesn't writing a file imply
-creating a file?
-
-> -----Original Message-----
-> From: Christopher J. PeBenito [mailto:cpebenito@tresys.com]
-> Sent: Thursday, August 09, 2007 5:11 AM
-> To: Clarkson, Mike R (US SSA)
-> Cc: selinux@tycho.nsa.gov
-> Subject: Re: reference policy filesystem.if
+Paul Moore wrote:
+> On Thursday 09 August 2007 8:42:43 am Stephen Smalley wrote:
+>> I like the functionality, but I don't like having yet another mechanism
+>> and configuration, and I'm concerned about it being netlabel-centric.
 > 
-> On Wed, 2007-08-08 at 16:01 -0700, Clarkson, Mike R (US SSA) wrote:
-> > Aside from the obvious comment cut and paste error, shouldn't this
-> > interface also provide add_entry_dir_perms?
-> 
-> No, it shouldn't.  Those perms are for creating a file in a directory,
-> and write doesn't imply create.
-> 
-> > Maybe this has fixed in newer versions of the reference policy. I'm
-> > using refpolicy-20061212.tar.bz2 downloaded from Tresys.
-> >
-> >
-> > ########################################
-> > ## <summary>
-> > ##	Read files on a NFS filesystem.
-> > ## </summary>
-> > ## <param name="domain">
-> > ##	<summary>
-> > ##	Domain allowed access.
-> > ##	</summary>
-> > ## </param>
-> > #
-> > interface(`fs_write_nfs_files',`
-> > 	gen_require(`
-> > 		type nfs_t;
-> > 	')
-> >
-> > 	allow $1 nfs_t:dir list_dir_perms;
-> > 	write_files_pattern($1,nfs_t,nfs_t)
-> > ')
-> 
-> --
-> Chris PeBenito
-> Tresys Technology, LLC
-> (410) 290-1411 x150
+> NetLabel has always been designed as a framework to support multiple
+different 
+> types of labeling protocols/mechanisms.  Adding this bit of functionality
+to 
+> NetLabel isn't a major departure from the existing architecture.  The only
 
+> real substantial changes to the underlying NetLabel framework are the
+passing 
+> of the IP address family to some of the NetLabel APIs (minor tweak) and
+the 
+> addition of a secid field to the NetLabel security attributes struct (also
+a 
+> pretty minor tweak).
+> 
+> I'm also a little confused about your concern over this new feature being 
+> NetLabel-centric?  I guess I don't understand how that is a problem,
+further 
+> explanation might help ...
 
+I actually have a question regarding this.  This all seems to be aimed at
+getting
+getpeercon to always return our "best knowledge" of what the peer's context
+actually
+is.  This is excellent - we need this functionality.  getpeercon will return
+the
+xfrm label (which is, by mechanism, the context of the peer) if labeled
+ipsec is
+being used, correct?  netlabel will then modify that label with it's own
+idea
+of the peer, correct?  Doesn't that mean a secret peer (using labeled ipsec)
+will
+now actually look like a top_secret peer if there is a "fallback" that
+specifies
+this host as top_secret?  I think this is currently a problem with
+"fighting"
+mechanism that attempt to give information regarding the peer.  There is no
+consistency between them.  A true fallback would have to occur *before* any
+peer
+provided label information would be processed.  I also think that there must
+be consistency forced between the different peer labeling mechanisms.  If I
+get
+packets that are specified as top_secret via CIPSO over an ipsec association
+labeled as user_u:user_r:user_t:secret, that packet should die.
 
+-- 
+
+Darrel
 
 --
 This message was distributed to subscribers of the selinux mailing list.
