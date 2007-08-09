@@ -1,67 +1,99 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l79JcxLD002849
-	for <selinux@tycho.nsa.gov>; Thu, 9 Aug 2007 15:38:59 -0400
-Received: from atlrel8.hp.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l79JcvVe002621
-	for <selinux@tycho.nsa.gov>; Thu, 9 Aug 2007 19:38:57 GMT
-From: Paul Moore <paul.moore@hp.com>
-To: casey@schaufler-ca.com
-Subject: Re: [RFC 0/5] Static/fallback external labels for NetLabel
-Date: Thu, 9 Aug 2007 15:38:27 -0400
-Cc: selinux@tycho.nsa.gov, kaigai@ak.jp.nec.com, joe@nall.com
-References: <313245.75436.qm@web36614.mail.mud.yahoo.com>
-In-Reply-To: <313245.75436.qm@web36614.mail.mud.yahoo.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Message-Id: <200708091538.27325.paul.moore@hp.com>
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l79Jhha4003220
+	for <selinux@tycho.nsa.gov>; Thu, 9 Aug 2007 15:43:43 -0400
+Received: from M4.sparta.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id l79Jhfod016647
+	for <selinux@tycho.nsa.gov>; Thu, 9 Aug 2007 19:43:41 GMT
+Received: from Beta5.sparta.com (beta5.sparta.com [157.185.63.21])
+	by M4.sparta.com (8.13.5/8.13.5) with ESMTP id l79Jhf7t012853
+	for <selinux@tycho.nsa.gov>; Thu, 9 Aug 2007 14:43:41 -0500
+Received: from nemo.columbia.ads.sparta.com (nemo.columbia.sparta.com [157.185.80.75])
+	by Beta5.sparta.com (8.12.11/8.13.1) with ESMTP id l79Jhf0J008662
+	for <selinux@tycho.nsa.gov>; Thu, 9 Aug 2007 14:43:41 -0500
+Mime-Version: 1.0 (Apple Message framework v752.2)
+Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
+Message-Id: <36BDDAA7-7173-42C5-A779-0BD6F1143625@sparta.com>
+Cc: Chris Vance <Christopher.Vance@sparta.com>
+From: Chris Vance <Christopher.Vance@sparta.com>
+Subject: xattr and LSM interaction
+Date: Thu, 9 Aug 2007 15:43:40 -0400
+To: selinux@tycho.nsa.gov
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-[I'm moving offices today and am a bit behind on this thread right now so I'm 
-cherry picking the easy threads]
+Having spent a bit of time looking at the vfs_getxattr and  
+vfs_setxattr (as well as the rest of the xattr management calls), I  
+would appreciate a second opinion or an explanation of the  
+interaction between the xattr code and the LSM code.
 
-On Thursday, August 9 2007 11:48:33 am Casey Schaufler wrote:
-> --- Paul Moore <paul.moore@hp.com> wrote:
-> > The basic idea is that currently there is no method for providing an
-> > external label to fallback on if a labeled networking mechanism such as
-> > NetLabel/CIPSO or labeled IPsec is not in use.  This patch adds a
-> > mechanism for providing a static fallback label, specified per
-> > interface/network, which is used when a NetLabel recognized labeling
-> > protocol (at this point CIPSO) is not in use.
->
-> I'm all in favor of the facility. I do however object to the use of
-> a secid as the mechanism for storing the default label. As I've mentioned
-> elsewhere, secid's are SELinux specific and add unnecessary overhead to
-> schemes that don't use them natively. I understand and appreciate that
-> SELinux is upstream, etc, etc. I understand that a scheme that does not
-> use secid's is less convenient for SELinux. Please?
+It's been a few years since I've lingered in the Linux kernel, so I  
+might have missed another bit of code interaction.  Please let me  
+know if my interpretation is wrong.
 
-I was waiting for you to say something about this, and I think you'll be happy 
-with my take on it ...
+  107 ssize_t
+  108 vfs_getxattr(struct dentry *dentry, char *name, void *value,  
+size_t size)
+  109 {
+  110         struct inode *inode = dentry->d_inode;
+  111         int error;
+  112
+  113         error = xattr_permission(inode, name, MAY_READ);
+  114         if (error)
+  115                 return error;
+  116
+  117         error = security_inode_getxattr(dentry, name);
+  118         if (error)
+  119                 return error;
+  120
+  121         if (inode->i_op->getxattr)
+  122                 error = inode->i_op->getxattr(dentry, name,  
+value, size);
+  123         else
+  124                 error = -EOPNOTSUPP;
+  125
+  126         if (!strncmp(name, XATTR_SECURITY_PREFIX,
+  127                                 XATTR_SECURITY_PREFIX_LEN)) {
+  128                 const char *suffix = name +  
+XATTR_SECURITY_PREFIX_LEN;
+  129                 int ret = security_inode_getsecurity(inode,  
+suffix, value,
+  130                                                      size, error);
+  131                 /*
+  132                  * Only overwrite the return value if a  
+security module
+  133                  * is actually active.
+  134                  */
+  135                 if (ret != -EOPNOTSUPP)
+  136                         error = ret;
+  137         }
+  138
+  139         return error;
+  140 }
 
-The patchset right now takes a binary/string blob label which it converts to a 
-token/secid through the LSM secctx_to_secid interface and returns it to the 
-LSM when it asks for the packet's security attributes.  If the LSM 
-secctx_to_secid interface were to return an error value signifying that the 
-running LSM did not implement that functionality it would be very easy to 
-store the binary/string blob label and return that to the LSM when asked for 
-security attributes.  However, like we talked about regarding the 
-NetLabel/LSM domain mapping API work, until SMACK is accepted upstream I 
-don't want to add any of these changes.
+It looks like if the file system supports xattrs, I/O is performed to  
+go off and retrieve the persistent xattr.  A few lines later, if  
+SELinux is loaded (or any LSM), the persistent xattr value and error  
+code are discarded and replaced by the in-memory inode label  
+retrieved by security_inode_getsecurity().
 
-As long as the LSM hooks exist and the possibility of multiple LSM 
-implementation exist I'm going to do my best to keep NetLabel LSM agnostic.  
-If LSM were to go away and be replaced with SELinux (or some other LSM for 
-that matter) then the NetLabel interface would change a bit to remove some of 
-the abstraction.
+I have a couple questions:
+1) Why is the I/O essentially unconditional if the results are  
+intended to be replaced by the value retrieved via the LSM hook.
+2) Is it always correct to prefer the in-memory-LSM-retrieved  
+representation over the persistent label?  I believe there are cases  
+where the persistent label can be different from the in-memory inode  
+label (if the persistent label is no longer valid in the context of  
+the currently loaded policy, it will default to unlabeled_t, right?).
+3) Is there a way to retrieve the actual persistent label, or is this  
+never needed?
 
-That said, it may be a moot point as from what I've read so far this patchset 
-doesn't appear to have much support.
+An unrelated side note is that hooks.c computes (sizeof  
+XATTR_SECURITY_PREFIX - 1) vs. using XATTR_SECURITY_PREFIX_LEN.   
+Sometimes the LSM hooks pass the entire xattr name, sometimes a  
+portion of it.  The modules must have code to check for ownership a  
+couple ways.
 
--- 
-paul moore
-linux security @ hp
+chris.
 
 --
 This message was distributed to subscribers of the selinux mailing list.
