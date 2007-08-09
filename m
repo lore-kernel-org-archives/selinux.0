@@ -1,29 +1,36 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l79II4Jj027448
-	for <selinux@tycho.nsa.gov>; Thu, 9 Aug 2007 14:18:04 -0400
-Subject: Re: Upstreaming shared LSM interfaces
-From: "David P. Quigley" <dpquigl@tycho.nsa.gov>
-To: James Morris <jmorris@namei.org>
-Cc: David Howells <dhowells@redhat.com>, selinux@tycho.nsa.gov
-In-Reply-To: <Pine.LNX.4.64.0708091111470.19611@us.intercode.com.au>
-References: <1186682361.14386.27.camel@moss-terrapins.epoch.ncsc.mil>
-	 <Pine.LNX.4.64.0708091111470.19611@us.intercode.com.au>
-Content-Type: text/plain
-Date: Thu, 09 Aug 2007 14:13:03 -0400
-Message-Id: <1186683183.14386.29.camel@moss-terrapins.epoch.ncsc.mil>
-Mime-Version: 1.0
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l79IxbVY031488
+	for <selinux@tycho.nsa.gov>; Thu, 9 Aug 2007 14:59:37 -0400
+Received: from web36604.mail.mud.yahoo.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with SMTP id l79IxYVe023597
+	for <selinux@tycho.nsa.gov>; Thu, 9 Aug 2007 18:59:34 GMT
+Date: Thu, 9 Aug 2007 11:59:27 -0700 (PDT)
+From: Casey Schaufler <casey@schaufler-ca.com>
+Reply-To: casey@schaufler-ca.com
+Subject: Fwd: Re: Upstreaming shared LSM interfaces
+To: LSM List <linux-security-module@vger.kernel.org>,
+        SELinux List <selinux@tycho.nsa.gov>,
+        Audit List <linux-audit@redhat.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Message-ID: <588796.69383.qm@web36604.mail.mud.yahoo.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Redirected to the SELinux mailing list, and I am leaving David Howells
-on the CC line since he isn't actually on the SELinux mailing list.
 
+--- Casey Schaufler <casey@schaufler-ca.com> wrote:
 
-On Thu, 2007-08-09 at 11:12 -0700, James Morris wrote:
-> Please discuss technical issues on a public mailing list.
+> Date: Thu, 9 Aug 2007 11:43:53 -0700 (PDT)
+> From: Casey Schaufler <casey@schaufler-ca.com>
+> Subject: Re: Upstreaming shared LSM interfaces
+> To: "David P. Quigley" <dpquigl@tycho.nsa.gov>,
+>         Stephen Smalley <sds@tycho.nsa.gov>, James Morris
+> <jmorris@namei.org>,
+>         David Howells <dhowells@redhat.com>,
+>         Casey Schaufler <casey@schaufler-ca.com>
 > 
 > 
-> On Thu, 9 Aug 2007, David P. Quigley wrote:
+> --- "David P. Quigley" <dpquigl@tycho.nsa.gov> wrote:
 > 
 > > Hello Everyone,
 > > 	Between Casey's Audit patches, the FS-Cache patches and the Labeled NFS
@@ -31,7 +38,18 @@ On Thu, 2007-08-09 at 11:12 -0700, James Morris wrote:
 > > combination of us seem to need. I would like to propose that we agree on
 > > the interfaces and send them to James to be upstreamed. The interfaces
 > > and the proposed prototypes are listed below
-> > 
+> 
+> I was wrong to propose the hooks that get the secids to feed to
+> the audit system. I had hoped that I could contain the scope of
+> the changes required to the audit system to pull SELinux dependencies
+> out by allowing the continued use of secids in that case. I see
+> now the error in my ways and will shortly proposed an alternative
+> patch set for the deselinixifation of audit.
+> 
+> The secid is an internal SELinux data structure (albeit one with
+> many favorable characteristics) and the LSM interface ought not
+> be exposing it.
+> 
 > > Interfaces:
 > > 
 > > inode_{get,set}secid: From Labeled NFS patches
@@ -57,8 +75,19 @@ On Thu, 2007-08-09 at 11:12 -0700, James Morris wrote:
 > > 
 > > Dave Quigley
 > > 
+> > 
+> > 
+> 
+> 
+> Casey Schaufler
+> casey@schaufler-ca.com
+> 
+> 
 > 
 
+
+Casey Schaufler
+casey@schaufler-ca.com
 
 --
 This message was distributed to subscribers of the selinux mailing list.
