@@ -1,80 +1,67 @@
 Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l79JZqFS002632
-	for <selinux@tycho.nsa.gov>; Thu, 9 Aug 2007 15:35:52 -0400
-Received: from exchange.columbia.tresys.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with SMTP id l79JZnVe002058
-	for <selinux@tycho.nsa.gov>; Thu, 9 Aug 2007 19:35:49 GMT
-Subject: RE: reference policy filesystem.if
-From: "Christopher J. PeBenito" <cpebenito@tresys.com>
-To: "Clarkson, Mike R (US SSA)" <mike.clarkson@baesystems.com>
-Cc: selinux@tycho.nsa.gov
-In-Reply-To: <FB39F4E77226B448BC1388D3BE4E00CD0219DBB5@blums0008.bluelnk.net>
-References: <FB39F4E77226B448BC1388D3BE4E00CD0219DB98@blums0008.bluelnk.net>
-	 <1186661461.25504.15.camel@gorn.columbia.tresys.com>
-	 <FB39F4E77226B448BC1388D3BE4E00CD0219DBB5@blums0008.bluelnk.net>
-Content-Type: text/plain
-Date: Thu, 09 Aug 2007 19:35:16 +0000
-Message-Id: <1186688116.25504.24.camel@gorn.columbia.tresys.com>
-Mime-Version: 1.0
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l79JcxLD002849
+	for <selinux@tycho.nsa.gov>; Thu, 9 Aug 2007 15:38:59 -0400
+Received: from atlrel8.hp.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l79JcvVe002621
+	for <selinux@tycho.nsa.gov>; Thu, 9 Aug 2007 19:38:57 GMT
+From: Paul Moore <paul.moore@hp.com>
+To: casey@schaufler-ca.com
+Subject: Re: [RFC 0/5] Static/fallback external labels for NetLabel
+Date: Thu, 9 Aug 2007 15:38:27 -0400
+Cc: selinux@tycho.nsa.gov, kaigai@ak.jp.nec.com, joe@nall.com
+References: <313245.75436.qm@web36614.mail.mud.yahoo.com>
+In-Reply-To: <313245.75436.qm@web36614.mail.mud.yahoo.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Message-Id: <200708091538.27325.paul.moore@hp.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2007-08-09 at 07:28 -0700, Clarkson, Mike R (US SSA) wrote:
-> Since we're dealing with files in this case, and given that append is a
-> separate permission from write, why doesn't writing a file imply
-> creating a file?
+[I'm moving offices today and am a bit behind on this thread right now so I'm 
+cherry picking the easy threads]
 
-You may want to limit a domain to only write to existing files and not
-create new ones.
+On Thursday, August 9 2007 11:48:33 am Casey Schaufler wrote:
+> --- Paul Moore <paul.moore@hp.com> wrote:
+> > The basic idea is that currently there is no method for providing an
+> > external label to fallback on if a labeled networking mechanism such as
+> > NetLabel/CIPSO or labeled IPsec is not in use.  This patch adds a
+> > mechanism for providing a static fallback label, specified per
+> > interface/network, which is used when a NetLabel recognized labeling
+> > protocol (at this point CIPSO) is not in use.
+>
+> I'm all in favor of the facility. I do however object to the use of
+> a secid as the mechanism for storing the default label. As I've mentioned
+> elsewhere, secid's are SELinux specific and add unnecessary overhead to
+> schemes that don't use them natively. I understand and appreciate that
+> SELinux is upstream, etc, etc. I understand that a scheme that does not
+> use secid's is less convenient for SELinux. Please?
 
-> > -----Original Message-----
-> > From: Christopher J. PeBenito [mailto:cpebenito@tresys.com]
-> > Sent: Thursday, August 09, 2007 5:11 AM
-> > To: Clarkson, Mike R (US SSA)
-> > Cc: selinux@tycho.nsa.gov
-> > Subject: Re: reference policy filesystem.if
-> > 
-> > On Wed, 2007-08-08 at 16:01 -0700, Clarkson, Mike R (US SSA) wrote:
-> > > Aside from the obvious comment cut and paste error, shouldn't this
-> > > interface also provide add_entry_dir_perms?
-> > 
-> > No, it shouldn't.  Those perms are for creating a file in a directory,
-> > and write doesn't imply create.
-> > 
-> > > Maybe this has fixed in newer versions of the reference policy. I'm
-> > > using refpolicy-20061212.tar.bz2 downloaded from Tresys.
-> > >
-> > >
-> > > ########################################
-> > > ## <summary>
-> > > ##	Read files on a NFS filesystem.
-> > > ## </summary>
-> > > ## <param name="domain">
-> > > ##	<summary>
-> > > ##	Domain allowed access.
-> > > ##	</summary>
-> > > ## </param>
-> > > #
-> > > interface(`fs_write_nfs_files',`
-> > > 	gen_require(`
-> > > 		type nfs_t;
-> > > 	')
-> > >
-> > > 	allow $1 nfs_t:dir list_dir_perms;
-> > > 	write_files_pattern($1,nfs_t,nfs_t)
-> > > ')
-> > 
-> > --
-> > Chris PeBenito
-> > Tresys Technology, LLC
-> > (410) 290-1411 x150
-> 
-> 
+I was waiting for you to say something about this, and I think you'll be happy 
+with my take on it ...
+
+The patchset right now takes a binary/string blob label which it converts to a 
+token/secid through the LSM secctx_to_secid interface and returns it to the 
+LSM when it asks for the packet's security attributes.  If the LSM 
+secctx_to_secid interface were to return an error value signifying that the 
+running LSM did not implement that functionality it would be very easy to 
+store the binary/string blob label and return that to the LSM when asked for 
+security attributes.  However, like we talked about regarding the 
+NetLabel/LSM domain mapping API work, until SMACK is accepted upstream I 
+don't want to add any of these changes.
+
+As long as the LSM hooks exist and the possibility of multiple LSM 
+implementation exist I'm going to do my best to keep NetLabel LSM agnostic.  
+If LSM were to go away and be replaced with SELinux (or some other LSM for 
+that matter) then the NetLabel interface would change a bit to remove some of 
+the abstraction.
+
+That said, it may be a moot point as from what I've read so far this patchset 
+doesn't appear to have much support.
+
 -- 
-Chris PeBenito
-Tresys Technology, LLC
-(410) 290-1411 x150
-
+paul moore
+linux security @ hp
 
 --
 This message was distributed to subscribers of the selinux mailing list.
