@@ -1,31 +1,29 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l79HrnRw025022
-	for <selinux@tycho.nsa.gov>; Thu, 9 Aug 2007 13:53:49 -0400
-Received: from mx1.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id l79Hrlk4017765
-	for <selinux@tycho.nsa.gov>; Thu, 9 Aug 2007 17:53:47 GMT
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l79HrO0g024933
+	for <selinux@tycho.nsa.gov>; Thu, 9 Aug 2007 13:53:24 -0400
+Received: from mx1.redhat.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l79HrNVe011466
+	for <selinux@tycho.nsa.gov>; Thu, 9 Aug 2007 17:53:23 GMT
 Received: from int-mx1.corp.redhat.com (int-mx1.corp.redhat.com [172.16.52.254])
-	by mx1.redhat.com (8.13.1/8.13.1) with ESMTP id l79Hrk3j023769
-	for <selinux@tycho.nsa.gov>; Thu, 9 Aug 2007 13:53:46 -0400
+	by mx1.redhat.com (8.13.1/8.13.1) with ESMTP id l79HrMPZ023547
+	for <selinux@tycho.nsa.gov>; Thu, 9 Aug 2007 13:53:22 -0400
 Received: from warthog.cambridge.redhat.com (warthog.cambridge.redhat.com [172.16.18.73])
-	by int-mx1.corp.redhat.com (8.13.1/8.13.1) with ESMTP id l79HrkEo002192
-	for <selinux@tycho.nsa.gov>; Thu, 9 Aug 2007 13:53:46 -0400
+	by int-mx1.corp.redhat.com (8.13.1/8.13.1) with ESMTP id l79HrLOP002093
+	for <selinux@tycho.nsa.gov>; Thu, 9 Aug 2007 13:53:22 -0400
 Received: from redhat.com (localhost.localdomain [127.0.0.1])
-	by warthog.cambridge.redhat.com (8.14.1/8.13.8) with ESMTP id l79HrjFG020520
-	for <selinux@tycho.nsa.gov>; Thu, 9 Aug 2007 18:53:45 +0100
+	by warthog.cambridge.redhat.com (8.14.1/8.13.8) with ESMTP id l79HrKar020436
+	for <selinux@tycho.nsa.gov>; Thu, 9 Aug 2007 18:53:21 +0100
 From: David Howells <dhowells@redhat.com>
 To: torvalds@osdl.org, akpm@osdl.org, steved@redhat.com,
         trond.myklebust@fys.uio.no
-Date: Thu, 09 Aug 2007 17:05:10 +0100
-Message-ID: <20070809160509.17906.37422.stgit@warthog.cambridge.redhat.com>
-In-Reply-To: <20070809160438.17906.76348.stgit@warthog.cambridge.redhat.com>
-References: <20070809160438.17906.76348.stgit@warthog.cambridge.redhat.com>
+Date: Thu, 09 Aug 2007 17:04:38 +0100
+Message-ID: <20070809160438.17906.76348.stgit@warthog.cambridge.redhat.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Cc: linux-fsdevel@vger.kernel.org, linux-cachefs@redhat.com,
         nfsv4@linux-nfs.org, linux-kernel@vger.kernel.org
-Subject: [Linux-cachefs] [PATCH 06/14] CacheFiles: Add a hook to write a
-	single page of data to an inode [try #2]
+Subject: [Linux-cachefs] [PATCH 00/14] Permit filesystem local caching [try
+	#2]
 Reply-To: Linux filesystem caching discussion list <linux-cachefs@redhat.com>
 List-Unsubscribe: <https://www.redhat.com/mailman/listinfo/linux-cachefs>,
 	<mailto:linux-cachefs-request@redhat.com?subject=unsubscribe>
@@ -37,207 +35,42 @@ List-Subscribe: <https://www.redhat.com/mailman/listinfo/linux-cachefs>,
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Add an address space operation to write one single page of data to an inode at
-a page-aligned location (thus permitting the implementation to be highly
-optimised).
 
-This is used by CacheFiles to store the contents of netfs pages into their
-backing file pages.
 
-Supply a generic implementation for this that uses the prepare_write() and
-commit_write() address_space operations to bound a copy directly into the page
-cache.
+These patches add local caching for network filesystems such as NFS and AFS.
 
-Hook the Ext2 and Ext3 operations to the generic implementation.
+FS-Cache now runs fully asynchronously as required by Trond Myklebust for NFS.
 
-Signed-Off-By: David Howells <dhowells@redhat.com>
----
+--
+Changes:
 
- fs/ext2/inode.c    |    2 +
- fs/ext3/inode.c    |    3 ++
- include/linux/fs.h |    7 ++++
- mm/filemap.c       |   95 ++++++++++++++++++++++++++++++++++++++++++++++++++++
- 4 files changed, 107 insertions(+), 0 deletions(-)
+ (*) The CacheFiles module no longer accepts directory fds in its cull and
+     inuse commands from cachefilesd.  Instead it uses the current working
+     directory of the calling process as the basis for looking up the object.
+     Corollary to this, fget_light() no longer needs to be exported.
 
-diff --git a/fs/ext2/inode.c b/fs/ext2/inode.c
-index 0079b2c..b3e4b50 100644
---- a/fs/ext2/inode.c
-+++ b/fs/ext2/inode.c
-@@ -695,6 +695,7 @@ const struct address_space_operations ext2_aops = {
- 	.direct_IO		= ext2_direct_IO,
- 	.writepages		= ext2_writepages,
- 	.migratepage		= buffer_migrate_page,
-+	.write_one_page		= generic_file_buffered_write_one_page,
- };
- 
- const struct address_space_operations ext2_aops_xip = {
-@@ -713,6 +714,7 @@ const struct address_space_operations ext2_nobh_aops = {
- 	.direct_IO		= ext2_direct_IO,
- 	.writepages		= ext2_writepages,
- 	.migratepage		= buffer_migrate_page,
-+	.write_one_page		= generic_file_buffered_write_one_page,
- };
- 
- /*
-diff --git a/fs/ext3/inode.c b/fs/ext3/inode.c
-index de4e316..93809eb 100644
---- a/fs/ext3/inode.c
-+++ b/fs/ext3/inode.c
-@@ -1713,6 +1713,7 @@ static const struct address_space_operations ext3_ordered_aops = {
- 	.releasepage	= ext3_releasepage,
- 	.direct_IO	= ext3_direct_IO,
- 	.migratepage	= buffer_migrate_page,
-+	.write_one_page	= generic_file_buffered_write_one_page,
- };
- 
- static const struct address_space_operations ext3_writeback_aops = {
-@@ -1727,6 +1728,7 @@ static const struct address_space_operations ext3_writeback_aops = {
- 	.releasepage	= ext3_releasepage,
- 	.direct_IO	= ext3_direct_IO,
- 	.migratepage	= buffer_migrate_page,
-+	.write_one_page	= generic_file_buffered_write_one_page,
- };
- 
- static const struct address_space_operations ext3_journalled_aops = {
-@@ -1740,6 +1742,7 @@ static const struct address_space_operations ext3_journalled_aops = {
- 	.bmap		= ext3_bmap,
- 	.invalidatepage	= ext3_invalidatepage,
- 	.releasepage	= ext3_releasepage,
-+	.write_one_page	= generic_file_buffered_write_one_page,
- };
- 
- void ext3_set_aops(struct inode *inode)
-diff --git a/include/linux/fs.h b/include/linux/fs.h
-index 6bf1395..1b1f288 100644
---- a/include/linux/fs.h
-+++ b/include/linux/fs.h
-@@ -433,6 +433,11 @@ struct address_space_operations {
- 	int (*migratepage) (struct address_space *,
- 			struct page *, struct page *);
- 	int (*launder_page) (struct page *);
-+	/* write the contents of the source page over the page at the specified
-+	 * index in the target address space (the source page does not need to
-+	 * be related to the target address space) */
-+	int (*write_one_page)(struct address_space *, pgoff_t, struct page *);
-+
- };
- 
- struct backing_dev_info;
-@@ -1669,6 +1674,8 @@ extern ssize_t generic_file_direct_write(struct kiocb *, const struct iovec *,
- 		unsigned long *, loff_t, loff_t *, size_t, size_t);
- extern ssize_t generic_file_buffered_write(struct kiocb *, const struct iovec *,
- 		unsigned long, loff_t, loff_t *, size_t, ssize_t);
-+extern int generic_file_buffered_write_one_page(struct address_space *,
-+						pgoff_t, struct page *);
- extern ssize_t do_sync_read(struct file *filp, char __user *buf, size_t len, loff_t *ppos);
- extern ssize_t do_sync_write(struct file *filp, const char __user *buf, size_t len, loff_t *ppos);
- extern void do_generic_mapping_read(struct address_space *mapping,
-diff --git a/mm/filemap.c b/mm/filemap.c
-index 7b96487..5e419a2 100644
---- a/mm/filemap.c
-+++ b/mm/filemap.c
-@@ -2032,6 +2032,101 @@ zero_length_segment:
- }
- EXPORT_SYMBOL(generic_file_buffered_write);
- 
-+/**
-+ * generic_file_buffered_write_one_page - Write a single page of data to an
-+ *	inode
-+ * @mapping - The address space of the target inode
-+ * @index - The target page in the target inode to fill
-+ * @source - The data to write into the target page
-+ *
-+ * Write the data from the source page to the page in the nominated address
-+ * space at the @index specified.  Note that the file will not be extended if
-+ * the page crosses the EOF marker, in which case only the first part of the
-+ * page will be written.
-+ *
-+ * The @source page does not need to have any association with the file or the
-+ * target page offset.
-+ */
-+int generic_file_buffered_write_one_page(struct address_space *mapping,
-+					 pgoff_t index,
-+					 struct page *source)
-+{
-+	const struct address_space_operations *a_ops = mapping->a_ops;
-+	struct pagevec	lru_pvec;
-+	struct page *page, *cached_page = NULL;
-+	unsigned psize;
-+	loff_t isize;
-+	long status = 0;
-+
-+	pagevec_init(&lru_pvec, 0);
-+
-+	page = __grab_cache_page(mapping, index, &cached_page, &lru_pvec);
-+	if (!page) {
-+		BUG_ON(cached_page);
-+		return -ENOMEM;
-+	}
-+
-+	psize = PAGE_CACHE_SIZE;
-+	isize = i_size_read(mapping->host);
-+	if ((isize >> PAGE_SHIFT) == index)
-+		psize = isize & (PAGE_SIZE - 1);
-+
-+	status = a_ops->prepare_write(NULL, page, 0, psize);
-+	if (unlikely(status)) {
-+		isize = i_size_read(mapping->host);
-+
-+		if (status != AOP_TRUNCATED_PAGE)
-+			unlock_page(page);
-+		page_cache_release(page);
-+		if (status == AOP_TRUNCATED_PAGE)
-+			goto sync;
-+
-+		/* prepare_write() may have instantiated a few blocks outside
-+		 * i_size.  Trim these off again.
-+		 */
-+		if ((1ULL << (index + 1)) > isize)
-+			vmtruncate(mapping->host, isize);
-+		goto sync;
-+	}
-+
-+	copy_highpage(page, source);
-+	flush_dcache_page(page);
-+
-+	status = a_ops->commit_write(NULL, page, 0, psize);
-+	if (status == AOP_TRUNCATED_PAGE) {
-+		page_cache_release(page);
-+		goto sync;
-+	}
-+
-+	if (status > 0)
-+		status = 0;
-+
-+	unlock_page(page);
-+	mark_page_accessed(page);
-+	page_cache_release(page);
-+	if (status < 0)
-+		return status;
-+
-+	balance_dirty_pages_ratelimited(mapping);
-+	cond_resched();
-+
-+sync:
-+	if (cached_page)
-+		page_cache_release(cached_page);
-+
-+	/* the caller must handle O_SYNC themselves, but we handle S_SYNC and
-+	 * MS_SYNCHRONOUS here */
-+	if (unlikely(IS_SYNC(mapping->host)) && !a_ops->writepage)
-+		status = generic_osync_inode(mapping->host, mapping,
-+					     OSYNC_METADATA | OSYNC_DATA);
-+
-+	/* the caller must handle O_DIRECT for themselves */
-+
-+	pagevec_lru_add(&lru_pvec);
-+	return status;
-+}
-+EXPORT_SYMBOL(generic_file_buffered_write_one_page);
-+
- static ssize_t
- __generic_file_aio_write_nolock(struct kiocb *iocb, const struct iovec *iov,
- 				unsigned long nr_segs, loff_t *ppos)
+--
+A tarball of the patches is available at:
+
+	http://people.redhat.com/~dhowells/fscache/patches/nfs+fscache-21.tar.bz2
+
+
+To use this version of CacheFiles, the cachefilesd-0.9 is also required.  It
+is available as an SRPM:
+
+	http://people.redhat.com/~dhowells/fscache/cachefilesd-0.9-1.fc7.src.rpm
+
+Or as individual bits:
+
+	http://people.redhat.com/~dhowells/fscache/cachefilesd-0.9.tar.bz2
+	http://people.redhat.com/~dhowells/fscache/cachefilesd.fc
+	http://people.redhat.com/~dhowells/fscache/cachefilesd.if
+	http://people.redhat.com/~dhowells/fscache/cachefilesd.te
+	http://people.redhat.com/~dhowells/fscache/cachefilesd.spec
+
+The .fc, .if and .te files are for manipulating SELinux.
+
+David
 
 --
 Linux-cachefs mailing list
