@@ -1,53 +1,80 @@
 Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l79JKvZE001364
-	for <selinux@tycho.nsa.gov>; Thu, 9 Aug 2007 15:20:57 -0400
-Received: from smtp112.sbc.mail.re2.yahoo.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with SMTP id l79JKtVe029170
-	for <selinux@tycho.nsa.gov>; Thu, 9 Aug 2007 19:20:55 GMT
-In-Reply-To: <46BB43F9.7010905@trustedcs.com>
-References: <46BB43F9.7010905@trustedcs.com>
-Mime-Version: 1.0 (Apple Message framework v752.3)
-Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
-Message-Id: <CC6496B2-938D-4432-B43E-3A7D887BE938@nall.com>
-Cc: James Morris <jmorris@namei.org>, Stephen Smalley <sds@tycho.nsa.gov>,
-        Paul Moore <paul.moore@hp.com>, SE Linux <selinux@tycho.nsa.gov>,
-        kaigai@ak.jp.nec.com, Eric Paris <eparis@parisplace.org>
-From: Joe Nall <joe@nall.com>
-Subject: Re: [RFC 0/5] Static/fallback external labels for NetLabel
-Date: Thu, 9 Aug 2007 14:20:09 -0500
-To: Darrel Goeddel <DGoeddel@TrustedCS.com>
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l79JZqFS002632
+	for <selinux@tycho.nsa.gov>; Thu, 9 Aug 2007 15:35:52 -0400
+Received: from exchange.columbia.tresys.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with SMTP id l79JZnVe002058
+	for <selinux@tycho.nsa.gov>; Thu, 9 Aug 2007 19:35:49 GMT
+Subject: RE: reference policy filesystem.if
+From: "Christopher J. PeBenito" <cpebenito@tresys.com>
+To: "Clarkson, Mike R (US SSA)" <mike.clarkson@baesystems.com>
+Cc: selinux@tycho.nsa.gov
+In-Reply-To: <FB39F4E77226B448BC1388D3BE4E00CD0219DBB5@blums0008.bluelnk.net>
+References: <FB39F4E77226B448BC1388D3BE4E00CD0219DB98@blums0008.bluelnk.net>
+	 <1186661461.25504.15.camel@gorn.columbia.tresys.com>
+	 <FB39F4E77226B448BC1388D3BE4E00CD0219DBB5@blums0008.bluelnk.net>
+Content-Type: text/plain
+Date: Thu, 09 Aug 2007 19:35:16 +0000
+Message-Id: <1186688116.25504.24.camel@gorn.columbia.tresys.com>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+On Thu, 2007-08-09 at 07:28 -0700, Clarkson, Mike R (US SSA) wrote:
+> Since we're dealing with files in this case, and given that append is a
+> separate permission from write, why doesn't writing a file imply
+> creating a file?
 
-On Aug 9, 2007, at 11:42 AM, Darrel Goeddel wrote:
+You may want to limit a domain to only write to existing files and not
+create new ones.
 
->  (why couldn't this have all waited a bit...)
+> > -----Original Message-----
+> > From: Christopher J. PeBenito [mailto:cpebenito@tresys.com]
+> > Sent: Thursday, August 09, 2007 5:11 AM
+> > To: Clarkson, Mike R (US SSA)
+> > Cc: selinux@tycho.nsa.gov
+> > Subject: Re: reference policy filesystem.if
+> > 
+> > On Wed, 2007-08-08 at 16:01 -0700, Clarkson, Mike R (US SSA) wrote:
+> > > Aside from the obvious comment cut and paste error, shouldn't this
+> > > interface also provide add_entry_dir_perms?
+> > 
+> > No, it shouldn't.  Those perms are for creating a file in a directory,
+> > and write doesn't imply create.
+> > 
+> > > Maybe this has fixed in newer versions of the reference policy. I'm
+> > > using refpolicy-20061212.tar.bz2 downloaded from Tresys.
+> > >
+> > >
+> > > ########################################
+> > > ## <summary>
+> > > ##	Read files on a NFS filesystem.
+> > > ## </summary>
+> > > ## <param name="domain">
+> > > ##	<summary>
+> > > ##	Domain allowed access.
+> > > ##	</summary>
+> > > ## </param>
+> > > #
+> > > interface(`fs_write_nfs_files',`
+> > > 	gen_require(`
+> > > 		type nfs_t;
+> > > 	')
+> > >
+> > > 	allow $1 nfs_t:dir list_dir_perms;
+> > > 	write_files_pattern($1,nfs_t,nfs_t)
+> > > ')
+> > 
+> > --
+> > Chris PeBenito
+> > Tresys Technology, LLC
+> > (410) 290-1411 x150
+> 
+> 
+-- 
+Chris PeBenito
+Tresys Technology, LLC
+(410) 290-1411 x150
 
-Paul is addressing a real need. Like many things that really need  
-doing and take time, multiple people are simultaneously working on it.
-
-I installed the netlabel patches and have tested them with good  
-results in MLS/permissive at a few levels (s0, s2:c0.c253,  
-s2:c0.c253). More testing to follow.
-
-netlabelctl unlbl add interface:eth0 address:10.211.55.8/32  
-label:user_u:object_r:user_t:s2:c0.c253
-
-/netlabelctl unlbl list
-accept:on
-interface:eth0,address: 
-192.168.20.253/32,label:"user_u:object_r:user_t:s0"
-interface:eth0,address: 
-10.211.55.8/32,label:"user_u:object_r:user_t:s2:c0.c253"
-
-getpeercon() returned 'user_u:object_r:user_t:C O N F I D E N T I A L'
-
-for a connection from 10.211.55.8.
-
-This is a big improvement in linux labeled networking functionality.
-
-joe
 
 --
 This message was distributed to subscribers of the selinux mailing list.
