@@ -1,33 +1,29 @@
 From: Paul Moore <paul.moore@hp.com>
-To: James Morris <jmorris@namei.org>
+To: Darrel Goeddel <DGoeddel@TrustedCS.com>
 Subject: Re: [RFC 0/5] Static/fallback external labels for NetLabel
-Date: Thu, 9 Aug 2007 10:50:43 -0400
-Cc: Stephen Smalley <sds@tycho.nsa.gov>, selinux@tycho.nsa.gov,
-        kaigai@ak.jp.nec.com, joe@nall.com, Eric Paris <eparis@parisplace.org>
-References: <20070807141415.525577324@hp.com> <200708090929.16906.paul.moore@hp.com> <Pine.LNX.4.64.0708090654230.16824@us.intercode.com.au>
-In-Reply-To: <Pine.LNX.4.64.0708090654230.16824@us.intercode.com.au>
+Date: Thu, 9 Aug 2007 10:57:17 -0400
+Cc: Stephen Smalley <sds@tycho.nsa.gov>, selinux@tycho.nsa.gov, joe@nall.com,
+        James Morris <jmorris@namei.org>, Eric Paris <eparis@parisplace.org>,
+        kaigai@ak.jp.nec.com
+References: <46BB2785.8040507@trustedcs.com>
+In-Reply-To: <46BB2785.8040507@trustedcs.com>
 MIME-Version: 1.0
 Content-Type: text/plain;
   charset="us-ascii"
-Message-Id: <200708091050.43955.paul.moore@hp.com>
+Message-Id: <200708091057.17756.paul.moore@hp.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thursday 09 August 2007 9:59:53 am James Morris wrote:
-> On Thu, 9 Aug 2007, Paul Moore wrote:
-> >  * Convert the external labeling protocols to make use of the SECMARK
-> > secid field in the sk_buff struct.  The advantage to NetLabel and
-> > explicit labeling protocols is really marginal but this should be a huge
-> > win for labeled IPsec.
->
-> The way we were discussing this (off-list) was that we'd allow iptables
-> secmark labeling to set fallback/default labels, which may be overridden
-> by external labeling (Netlabel, IPsec).
+On Thursday 09 August 2007 10:41:09 am Darrel Goeddel wrote:
+> ... I also think that there must be consistency forced between the different
+> peer labeling mechanisms.  If I get packets that are specified as top_secret
+> via CIPSO over an ipsec association labeled as user_u:user_r:user_t:secret,
+> that packet should die. 
 
-If I understand you correctly, SECMARK would continue as SECMARK as we know it 
-today, the only real difference is that if getpeercon() would return failure 
-because NetLabel or labeled IPsec was not in use we would return the SECMARK 
-label?
+Yes.  This is one of the places in the labeled networking code that has always 
+bothered me.  The current mashup of labels was rather a poor attempt at 
+compromise by everyone involved and I think everyone will agree that we need 
+to come up with a better solution.
 
 -- 
 paul moore
