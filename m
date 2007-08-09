@@ -1,58 +1,51 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l79CEL98024800
-	for <selinux@tycho.nsa.gov>; Thu, 9 Aug 2007 08:14:21 -0400
-Received: from exchange.columbia.tresys.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with SMTP id l79CEIea021389
-	for <selinux@tycho.nsa.gov>; Thu, 9 Aug 2007 12:14:19 GMT
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Subject: Re: reference policy filesystem.if
-Date: Thu, 9 Aug 2007 08:11:01 -0400
-Message-ID: <1186661461.25504.15.camel@gorn.columbia.tresys.com>
-In-Reply-To: <FB39F4E77226B448BC1388D3BE4E00CD0219DB98@blums0008.bluelnk.net>
-References: <FB39F4E77226B448BC1388D3BE4E00CD0219DB98@blums0008.bluelnk.net>
-From: "Christopher J. PeBenito" <cpebenito@tresys.com>
-To: "Clarkson, Mike R (US SSA)" <mike.clarkson@baesystems.com>
-Cc: <selinux@tycho.nsa.gov>
+Subject: Re: Strict policy in FC6 -  firefox does not start.
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Kroum Antov <kroum@voicecho.com>
+Cc: selinux@tycho.nsa.gov, "Christopher J. PeBenito" <cpebenito@tresys.com>,
+        Daniel J Walsh <dwalsh@redhat.com>
+In-Reply-To: <D90C04F065C24B04AEF05BDF8F8E8263@HomePC>
+References: <D90C04F065C24B04AEF05BDF8F8E8263@HomePC>
+Content-Type: text/plain
+Date: Thu, 09 Aug 2007 08:29:01 -0400
+Message-Id: <1186662541.6916.380.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2007-08-08 at 16:01 -0700, Clarkson, Mike R (US SSA) wrote:
-> Aside from the obvious comment cut and paste error, shouldn't this
-> interface also provide add_entry_dir_perms?
-
-No, it shouldn't.  Those perms are for creating a file in a directory,
-and write doesn't imply create.
-
-> Maybe this has fixed in newer versions of the reference policy. I'm
-> using refpolicy-20061212.tar.bz2 downloaded from Tresys.
+On Thu, 2007-08-09 at 01:23 -0700, Kroum Antov wrote:
+> With Strict policy in FC6:  firefox does not start.
+> There are no messages at all. So I decided to check
+> if firefox works under strict policy on F7. 
+> I have installed F7 and enabled strict policy. But from now on I can't
+> longer login if enforcing is on . When I enter username and password
+> and 
+> I get "Authentication Failed" in GDM. In console I just get new
+> "username" prompt.
 > 
-> 
-> ########################################
-> ## <summary>
-> ##	Read files on a NFS filesystem.
-> ## </summary>
-> ## <param name="domain">
-> ##	<summary>
-> ##	Domain allowed access.
-> ##	</summary>
-> ## </param>
-> #
-> interface(`fs_write_nfs_files',`
-> 	gen_require(`
-> 		type nfs_t;
-> 	')
-> 
-> 	allow $1 nfs_t:dir list_dir_perms;
-> 	write_files_pattern($1,nfs_t,nfs_t)
-> ')
+> I do not understand why firefox does not start in fc6.
+> why I can not longin on F7 under strict policy?
+>  
+> What might be wrong?
 
+Since Fedora ships with targeted policy by default, that is the policy
+that gets tested widely and is the only policy that gets tested by Red
+Hat as far as I know (except perhaps -mls, and that only for servers at
+present; no X support there).  Strict policy almost always requires some
+customization to make it work cleanly, which you can do by booting
+permissive and examining the avc denials, although you may need to
+install enableaudit.pp to see them all.  Please report the specific avc
+denials though (ausearch -m AVC -sv no if running auditd or grep
+avc /var/log/messages otherwise)
+
+The good news is that targeted policy and strict policy are being merged
+together such that one can migrate gradually on the continuum from
+targeted policy to strict policy without completely replacing the
+policy.  That is work in progress, with experimental versions in F8
+IIUC.
+ 
 -- 
-Chris PeBenito
-Tresys Technology, LLC
-(410) 290-1411 x150
-
+Stephen Smalley
+National Security Agency
 
 
 --
