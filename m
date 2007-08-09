@@ -1,57 +1,214 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l79FmZ4W013033
-	for <selinux@tycho.nsa.gov>; Thu, 9 Aug 2007 11:48:35 -0400
-Received: from web36614.mail.mud.yahoo.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with SMTP id l79FmYc5017626
-	for <selinux@tycho.nsa.gov>; Thu, 9 Aug 2007 15:48:34 GMT
-Date: Thu, 9 Aug 2007 08:48:33 -0700 (PDT)
-From: Casey Schaufler <casey@schaufler-ca.com>
-Reply-To: casey@schaufler-ca.com
 Subject: Re: [RFC 0/5] Static/fallback external labels for NetLabel
-To: Paul Moore <paul.moore@hp.com>, selinux@tycho.nsa.gov
-Cc: kaigai@ak.jp.nec.com, joe@nall.com
-In-Reply-To: <20070807141415.525577324@hp.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Message-ID: <313245.75436.qm@web36614.mail.mud.yahoo.com>
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Paul Moore <paul.moore@hp.com>
+Cc: selinux@tycho.nsa.gov, kaigai@ak.jp.nec.com, joe@nall.com,
+        James Morris <jmorris@namei.org>, Eric Paris <eparis@parisplace.org>
+In-Reply-To: <200708091048.41932.paul.moore@hp.com>
+References: <20070807141415.525577324@hp.com>
+	 <200708090929.16906.paul.moore@hp.com>
+	 <1186667663.6916.464.camel@moss-spartans.epoch.ncsc.mil>
+	 <200708091048.41932.paul.moore@hp.com>
+Content-Type: text/plain
+Date: Thu, 09 Aug 2007 12:01:46 -0400
+Message-Id: <1186675306.6916.564.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-
---- Paul Moore <paul.moore@hp.com> wrote:
-
-> This patchset adds the static/fallback labeling feature to NetLabel that has
-> been requested on the SELinux mailing list more and more recently.  This new
-> bit of functionality also matches what can be found on similar
-> trusted/labeled
-> OSs such as Trusted Solaris, HP-UX CMW, etc.  This patchset it not yet ready
-> for "upstreaming" so please do not pull this into any tree bound for the
-> mainline kernel; I still need to do more review and testing of the code.
-> However, I know there are several of you on this list that have been
-> anxiously
-> awaiting this patchset so I thought I would make an early release so you
-> could
-> get a peek and test it out.  I won't be able to work on this patchset much,
-> if
-> at all, between August 10th and the 20th so don't expect an update from me
-> until the end of August.
+On Thu, 2007-08-09 at 10:48 -0400, Paul Moore wrote:
+> On Thursday 09 August 2007 9:54:23 am Stephen Smalley wrote:
+> > On Thu, 2007-08-09 at 09:29 -0400, Paul Moore wrote:
+> > > On Thursday 09 August 2007 8:42:43 am Stephen Smalley wrote:
+> > > I'm also a little confused about your concern over this new feature being
+> > > NetLabel-centric?  I guess I don't understand how that is a problem,
+> > > further explanation might help ...
+> >
+> > We want a fallback mechanism that is agnostic to the labeled networking
+> > mechanism.  netlabel may be a "framework" but only for a particular
+> > subset of such mechanisms, i.e. explicit packet labeling.  Putting
+> > functionality into it that should also apply to xfrm labeling is wrong.
 > 
-> The basic idea is that currently there is no method for providing an external
-> label to fallback on if a labeled networking mechanism such as NetLabel/CIPSO
-> or labeled IPsec is not in use.  This patch adds a mechanism for providing a
-> static fallback label, specified per interface/network, which is used when
-> a NetLabel recognized labeling protocol (at this point CIPSO) is not in use.
+> I guess this is always going to be a bit of a religious argument then, as I 
+> tend to think of this feature as a static external label and implementing 
+> this feature as part of an existing external labeling system/framework makes 
+> the most sense to me.  Regardless, it's probably best to focus on the other 
+> issues in this thread, namely what to do with SECMARK, first as that will 
+> have a huge impact on this topic.
 
-I'm all in favor of the facility. I do however object to the use of
-a secid as the mechanism for storing the default label. As I've mentioned
-elsewhere, secid's are SELinux specific and add unnecessary overhead to
-schemes that don't use them natively. I understand and appreciate that
-SELinux is upstream, etc, etc. I understand that a scheme that does not
-use secid's is less convenient for SELinux. Please?
+I agree with that last sentence ;) 
 
+> > > I understand your concern regarding the additional configuration.  While
+> > > netlabelctl and netlabel_tools are not new, they may be new to users who
+> > > want to make use of this new feature.  On an older thread Josh and I had
+> > > a bit of a discussion regarding this and while we never really arrived at
+> > > a magic solution we did talk about integrating some, or all, of the
+> > > netlabelctl functionality into semanage.  This wouldn't be that difficult
+> > > as most of the "intelligence" in netlabelctl is already in a separate
+> > > library; adding that library to semanage should not be that difficult. 
+> > > Would that help ease your configuration concerns?
+> >
+> > I don't care what we call the userland tool; it is still using
+> > netlabel-specific interfaces and infrastructure.
+> 
+> > And re-inventing the secmark wheel.
+> 
+> Well, only if you redefine SECMARK to a greater scope that what it is used for 
+> today.  Granted, both this new static/fallback label feature use IP header 
+> information to derive a packet label but that's about the only similarity I 
+> see here.  If we do decide to redefine SECMARK then you'll be correct, no 
+> need for this patchset.
 
-Casey Schaufler
-casey@schaufler-ca.com
+Exactly.
+
+> > > > The only reason to not use secmark today for a fallback mechanism is
+> > > > the current separation between 'internal' and 'external' labels.  But I
+> > > > don't believe that separation is necessary or useful, and secmark today
+> > > > is effectively unused.  The original usage scenario for it simply
+> > > > hasn't materialized.
+> > > >
+> > > > Meanwhile, getting secmark employed, not only as a mechanism for
+> > > > assigning default labels (via iptables rules) but also as a seamless
+> > > > way of propagating labels with socket buffers would solve a lot of our
+> > > > current limitations.  We'd get loopback labeling for free, flexible and
+> > > > generic fallback labeling, forwarding controls would become
+> > > > straightforward, and PEERSEC/SCM_SECURITY becomes much simpler.
+> > > > NetLabel would benefit from it as well.  There are alternative
+> > > > implementation approaches, but none as clean and efficient and
+> > > > reliable. There was a reason we put a sid in the sk_buff in the
+> > > > original SELinux implementations (prior to Linux 2.6 merge).
+> > > >
+> > > > I've had some initial discussions with James, and he seemed open to
+> > > > revisiting this notion, so I think we need to take another look.
+> > >
+> > > I still think merging the two types of packet labels, "internal"
+> > > and "external" is a mistake; I stated my reasoning a few times before so
+> > > I will save people following this thread from reading it again.
+> >
+> > No one is using the "internal" labels AFAIK, and conceptually, I don't
+> > see a security goal that you would enforce that way that isn't more
+> > cleanly expressed (and more useful) in terms of "external" label.
+> 
+> Okay, so let's get rid of the "internal" label.
+
+Yep, a packet has a single label at any given time.  Period.
+That label can get refined over time as we get more information,
+starting from e.g. the receiving network device and sending address and
+working our way up to an actual label associated with the packet via
+netlabel or labeled xfrm.
+
+Any other model is too confusing and yields curious behavior as the
+distinct labels can become inconsistent with one another.
+
+> > > However, I agree that packet labeling is in a "weird" state right now and
+> > > there is a lot of room for improvement.  Bearing in mind your comments
+> > > that SECMARK is effectively unused due to lack of demand and that having
+> > > two types of packet labels is not helpful I wonder if the following would
+> > > a worthwhile effort:
+> > >
+> > >  * Do away with internal label concept completely, but leave the SECMARK
+> > >    secid field in the sk_buff struct.  This includes removing the SECMARK
+> > >    related MAC checks on incoming traffic, whether we bring back
+> > > compat_net or not is not important.
+> >
+> > Agree with the first part, but not the second.  The secmark packet
+> > checks are actually what we want, with some modification.  IOW, we want
+> > a unified set of checks independent of labeled networking mechanism so
+> > that we can have coherent policy.
+> 
+> Looking again at what I typed, I realized I worded it very poorly.  What I 
+> mean was that we should remove the iptables/SECMARK hooks so that the 
+> iptables bits no longer set the label of a packet, i.e. remove the internal 
+> labeling as we know it today.
+
+Disagree.  Letting a label be initially associated with a packet via
+iptables is very useful.
+
+> > And while we do away with any 
+> > separate notion of "internal" vs "external", we'd still use iptables
+> > secmark rules to define and apply the fallback labels - that is more
+> > expressive and generic than your approach.
+> 
+> My main concern with this goes back to the failed secid-reconciliation 
+> efforts; the key problem here has to do with the behavior of getpeercon().  
+> As it stands right now, in the case of of a UNIX domain socket we return the 
+> label of the domain on the other end, the same with network sockets.  The 
+> current proposed static/fallback mechanism is intentionally coarse grained 
+> with the granularity limit being a single IP address/host.  My reasoning 
+> being that if the other host is not able or willing to send labeled traffic 
+> we should treat it as a single label host.  This seems to mesh well with what 
+> has been done in the past.
+
+The selection granularity is up to the person configuring the iptables
+rules, so no harm there in providing him with more options but only
+using the coarse-grained choices.
+
+> If we adopt the revised SECMARK/iptables method then this is no guaranteed to 
+> be the case.  With the added flexibility/granularity of iptables we could 
+> arrive in a situation where a single IP address/host could take on multiple 
+> different labels based on the type of connection.  Maybe this is what you 
+> want, but it is a departure from what we do today as well as what I've heard 
+> has been done in the past.  Then again, just because we've always done it 
+> this way doesn't mean it's the best solution.
+
+My preference would be to have it assigned a single default/fallback
+label based on iptables, and then overridden after a permission check if
+labeled networking is in use.  No other mutations.
+
+> > >  * Convert the external labeling protocols to make use of the SECMARK
+> > > secid field in the sk_buff struct.  The advantage to NetLabel and
+> > > explicit labeling protocols is really marginal but this should be a huge
+> > > win for labeled IPsec.
+> >
+> > I'm not so sure it is so marginal for netlabel - being able to use a
+> > field from the skb (once initially set for the packet) instead of
+> > inspecting the payload should be a win.
+> 
+> >From a functionality standpoint it is marginal for explicitly labeled packets 
+> because you already have the label as part of the packet's header/payload; 
+> that is what I was referring to.  I agree there are some obvious performance 
+> advantages if you have to look at the label twice.
+
+Propagation/preservation of the label throughout also gets simpler and
+more reliable, and possibly goes beyond what you can do today.  How do
+you deal with ICMP replies currently?
+
+> > > As you stated above, there are some obvious advantages here including
+> > > "free" loopback labeling, easier implementation of general iptables
+> > > forwarding controls in the future, as well as some general implementation
+> > > cleanups in the existing code.  If we did decide to go this route, I
+> > > think I would prefer to keep a fallback/static labeling mechanism similar
+> > > to what is being done in this patchset, with the obvious change being
+> > > made to utilize the new SECMARK secid value.  We've seen all of the
+> > > issues that come to light when we start to make use of iptables to set
+> > > labels on packets and not all of them have elegant solutions; one could
+> > > even argue this is one of the reasons SECMARK as an internal label has
+> > > failed to achieve much use.
+> >
+> > You'll have to elaborate on that one; defining an iptables rule to apply
+> > a fallback label seems much more general and expressive than the
+> > netlabelctl approach.
+> 
+> See my comments above about the difference in getpeercon() behavior.  There 
+> are also implementation issues regarding the use of iptables, the "flush all" 
+> case being a good example.  Yes, there have been solutions tossed around but 
+> nothing concrete.  There is also the ongoing debate about how to properly 
+> generate iptables rules in policy, without a good solution here anything we 
+> do that uses iptables to label packets is going to have a hard time getting 
+> adopted by users.
+
+We don't generate netlabelctl configuration or ipsec configuration from
+policy, so this isn't really different.  Ultimately, you'd have some
+front-end tool that lets you configure labeled networking, including
+selection of mechanism (NetLabel/CIPSO or NetLabel/other or labeled
+IPSEC), selection of appropriate settings for that mechanism, and
+fallbacks (via secmark).
+
+Separate table would likely be useful.
+
+-- 
+Stephen Smalley
+National Security Agency
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
