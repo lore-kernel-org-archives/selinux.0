@@ -1,31 +1,31 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l79Hrb7i024973
-	for <selinux@tycho.nsa.gov>; Thu, 9 Aug 2007 13:53:37 -0400
-Received: from mx1.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id l79HrZk4017732
-	for <selinux@tycho.nsa.gov>; Thu, 9 Aug 2007 17:53:35 GMT
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l79Hs2X3025088
+	for <selinux@tycho.nsa.gov>; Thu, 9 Aug 2007 13:54:02 -0400
+Received: from mx1.redhat.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l79Hs1Ve011595
+	for <selinux@tycho.nsa.gov>; Thu, 9 Aug 2007 17:54:01 GMT
 Received: from int-mx1.corp.redhat.com (int-mx1.corp.redhat.com [172.16.52.254])
-	by mx1.redhat.com (8.13.1/8.13.1) with ESMTP id l79HrZPL023681
-	for <selinux@tycho.nsa.gov>; Thu, 9 Aug 2007 13:53:35 -0400
+	by mx1.redhat.com (8.13.1/8.13.1) with ESMTP id l79Hrva5023874
+	for <selinux@tycho.nsa.gov>; Thu, 9 Aug 2007 13:53:57 -0400
 Received: from warthog.cambridge.redhat.com (warthog.cambridge.redhat.com [172.16.18.73])
-	by int-mx1.corp.redhat.com (8.13.1/8.13.1) with ESMTP id l79HrYbP002151
-	for <selinux@tycho.nsa.gov>; Thu, 9 Aug 2007 13:53:35 -0400
+	by int-mx1.corp.redhat.com (8.13.1/8.13.1) with ESMTP id l79HrubV002253
+	for <selinux@tycho.nsa.gov>; Thu, 9 Aug 2007 13:53:57 -0400
 Received: from redhat.com (localhost.localdomain [127.0.0.1])
-	by warthog.cambridge.redhat.com (8.14.1/8.13.8) with ESMTP id l79HrYmw020478
-	for <selinux@tycho.nsa.gov>; Thu, 9 Aug 2007 18:53:34 +0100
+	by warthog.cambridge.redhat.com (8.14.1/8.13.8) with ESMTP id l79Hru8e020561
+	for <selinux@tycho.nsa.gov>; Thu, 9 Aug 2007 18:53:56 +0100
 From: David Howells <dhowells@redhat.com>
 To: torvalds@osdl.org, akpm@osdl.org, steved@redhat.com,
         trond.myklebust@fys.uio.no
-Date: Thu, 09 Aug 2007 17:04:54 +0100
-Message-ID: <20070809160454.17906.96882.stgit@warthog.cambridge.redhat.com>
+Date: Thu, 09 Aug 2007 17:05:25 +0100
+Message-ID: <20070809160525.17906.35400.stgit@warthog.cambridge.redhat.com>
 In-Reply-To: <20070809160438.17906.76348.stgit@warthog.cambridge.redhat.com>
 References: <20070809160438.17906.76348.stgit@warthog.cambridge.redhat.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Cc: linux-fsdevel@vger.kernel.org, linux-cachefs@redhat.com,
         nfsv4@linux-nfs.org, linux-kernel@vger.kernel.org
-Subject: [Linux-cachefs] [PATCH 03/14] FS-Cache: Provide an
-	add_wait_queue_tail() function [try #2]
+Subject: [Linux-cachefs] [PATCH 09/14] CacheFiles: Permit a process's create
+	SID to be overridden [try #2]
 Reply-To: Linux filesystem caching discussion list <linux-cachefs@redhat.com>
 List-Unsubscribe: <https://www.redhat.com/mailman/listinfo/linux-cachefs>,
 	<mailto:linux-cachefs-request@redhat.com?subject=unsubscribe>
@@ -37,57 +37,162 @@ List-Subscribe: <https://www.redhat.com/mailman/listinfo/linux-cachefs>,
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Provide an add_wait_queue_tail() function to add a waiter to the back of a
-wait queue instead of the front.
+Make it possible for a process's file creation SID to be temporarily overridden
+by CacheFiles so that files created in the cache have the right label attached.
 
-Signed-off-by: David Howells <dhowells@redhat.com>
+Without this facility, files created in the cache will be given the current
+file creation SID of whatever process happens to have invoked CacheFiles
+indirectly by means of opening a netfs file at the time the cache file is
+created.
+
+Signed-Off-By: David Howells <dhowells@redhat.com>
 ---
 
- include/linux/wait.h |    1 +
- kernel/wait.c        |   18 ++++++++++++++++++
- 2 files changed, 19 insertions(+), 0 deletions(-)
+ include/linux/security.h |   35 +++++++++++++++++++++++++++++++++++
+ security/dummy.c         |   12 ++++++++++++
+ security/selinux/hooks.c |   18 ++++++++++++++++++
+ 3 files changed, 65 insertions(+), 0 deletions(-)
 
-diff --git a/include/linux/wait.h b/include/linux/wait.h
-index 0e68628..4cae7db 100644
---- a/include/linux/wait.h
-+++ b/include/linux/wait.h
-@@ -118,6 +118,7 @@ static inline int waitqueue_active(wait_queue_head_t *q)
- #define is_sync_wait(wait)	(!(wait) || ((wait)->private))
- 
- extern void FASTCALL(add_wait_queue(wait_queue_head_t *q, wait_queue_t * wait));
-+extern void FASTCALL(add_wait_queue_tail(wait_queue_head_t *q, wait_queue_t * wait));
- extern void FASTCALL(add_wait_queue_exclusive(wait_queue_head_t *q, wait_queue_t * wait));
- extern void FASTCALL(remove_wait_queue(wait_queue_head_t *q, wait_queue_t * wait));
- 
-diff --git a/kernel/wait.c b/kernel/wait.c
-index 444ddbf..7acc9cc 100644
---- a/kernel/wait.c
-+++ b/kernel/wait.c
-@@ -29,6 +29,24 @@ void fastcall add_wait_queue(wait_queue_head_t *q, wait_queue_t *wait)
- }
- EXPORT_SYMBOL(add_wait_queue);
- 
-+/**
-+ * add_wait_queue_tail - Add a waiter to the back of a waitqueue
-+ * @q: the wait queue to append the waiter to
-+ * @wait: the waiter to be queued
+diff --git a/include/linux/security.h b/include/linux/security.h
+index c11dc8a..92d3da0 100644
+--- a/include/linux/security.h
++++ b/include/linux/security.h
+@@ -1147,6 +1147,13 @@ struct request_sock;
+  *	@secdata contains the security context.
+  *	@seclen contains the length of the security context.
+  *
++ * @get_fscreate_secid:
++ *	Get the current FS security ID.
 + *
-+ * Add a waiter to the back of a waitqueue so that it gets woken up last.
-+ */
-+void fastcall add_wait_queue_tail(wait_queue_head_t *q, wait_queue_t *wait)
++ * @set_fscreate_secid:
++ *	Set the current FS security ID.
++ *	@secid contains the security ID to set.
++ *
+  * This is the main security structure.
+  */
+ struct security_operations {
+@@ -1330,6 +1337,8 @@ struct security_operations {
+  	int (*setprocattr)(struct task_struct *p, char *name, void *value, size_t size);
+ 	int (*secid_to_secctx)(u32 secid, char **secdata, u32 *seclen);
+ 	void (*release_secctx)(char *secdata, u32 seclen);
++	u32 (*get_fscreate_secid)(void);
++	u32 (*set_fscreate_secid)(u32 secid);
+ 
+ #ifdef CONFIG_SECURITY_NETWORK
+ 	int (*unix_stream_connect) (struct socket * sock,
+@@ -2127,6 +2136,16 @@ static inline void security_release_secctx(char *secdata, u32 seclen)
+ 	return security_ops->release_secctx(secdata, seclen);
+ }
+ 
++static inline u32 security_get_fscreate_secid(void)
 +{
-+	unsigned long flags;
-+
-+	wait->flags &= ~WQ_FLAG_EXCLUSIVE;
-+	spin_lock_irqsave(&q->lock, flags);
-+	__add_wait_queue_tail(q, wait);
-+	spin_unlock_irqrestore(&q->lock, flags);
++	return security_ops->get_fscreate_secid();
 +}
-+EXPORT_SYMBOL(add_wait_queue_tail);
 +
- void fastcall add_wait_queue_exclusive(wait_queue_head_t *q, wait_queue_t *wait)
++static inline u32 security_set_fscreate_secid(u32 secid)
++{
++	return security_ops->set_fscreate_secid(secid);
++}
++
+ /* prototypes */
+ extern int security_init	(void);
+ extern int register_security	(struct security_operations *ops);
+@@ -2795,6 +2814,11 @@ static inline void securityfs_remove(struct dentry *dentry)
  {
- 	unsigned long flags;
+ }
+ 
++static inline int security_to_secctx_secid(char *secdata, u32 seclen, u32 *secid)
++{
++	return -EOPNOTSUPP;
++}
++
+ static inline int security_secid_to_secctx(u32 secid, char **secdata, u32 *seclen)
+ {
+ 	return -EOPNOTSUPP;
+@@ -2803,6 +2827,17 @@ static inline int security_secid_to_secctx(u32 secid, char **secdata, u32 *secle
+ static inline void security_release_secctx(char *secdata, u32 seclen)
+ {
+ }
++
++static inline u32 security_get_fscreate_secid(void)
++{
++	return 0;
++}
++
++static inline u32 security_set_fscreate_secid(u32 secid)
++{
++	return 0;
++}
++
+ #endif	/* CONFIG_SECURITY */
+ 
+ #ifdef CONFIG_SECURITY_NETWORK
+diff --git a/security/dummy.c b/security/dummy.c
+index 19d813d..d463e6f 100644
+--- a/security/dummy.c
++++ b/security/dummy.c
+@@ -930,6 +930,16 @@ static void dummy_release_secctx(char *secdata, u32 seclen)
+ {
+ }
+ 
++static u32 dummy_get_fscreate_secid(void)
++{
++	return 0;
++}
++
++static u32 dummy_set_fscreate_secid(u32 secid)
++{
++	return 0;
++}
++
+ #ifdef CONFIG_KEYS
+ static inline int dummy_key_alloc(struct key *key, struct task_struct *ctx,
+ 				  unsigned long flags)
+@@ -1084,6 +1094,8 @@ void security_fixup_ops (struct security_operations *ops)
+  	set_to_dummy_if_null(ops, setprocattr);
+  	set_to_dummy_if_null(ops, secid_to_secctx);
+  	set_to_dummy_if_null(ops, release_secctx);
++ 	set_to_dummy_if_null(ops, get_fscreate_secid);
++ 	set_to_dummy_if_null(ops, set_fscreate_secid);
+ #ifdef CONFIG_SECURITY_NETWORK
+ 	set_to_dummy_if_null(ops, unix_stream_connect);
+ 	set_to_dummy_if_null(ops, unix_may_send);
+diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+index 6237933..c5905b0 100644
+--- a/security/selinux/hooks.c
++++ b/security/selinux/hooks.c
+@@ -4661,6 +4661,22 @@ static void selinux_release_secctx(char *secdata, u32 seclen)
+ 	kfree(secdata);
+ }
+ 
++static u32 selinux_get_fscreate_secid(void)
++{
++	struct task_security_struct *tsec = current->security;
++
++	return tsec->create_sid;
++}
++
++static u32 selinux_set_fscreate_secid(u32 secid)
++{
++	struct task_security_struct *tsec = current->security;
++	u32 oldsid = tsec->create_sid;
++
++	tsec->create_sid = secid;
++	return oldsid;
++}
++
+ #ifdef CONFIG_KEYS
+ 
+ static int selinux_key_alloc(struct key *k, struct task_struct *tsk,
+@@ -4843,6 +4859,8 @@ static struct security_operations selinux_ops = {
+ 
+ 	.secid_to_secctx =		selinux_secid_to_secctx,
+ 	.release_secctx =		selinux_release_secctx,
++	.get_fscreate_secid =		selinux_get_fscreate_secid,
++	.set_fscreate_secid =		selinux_set_fscreate_secid,
+ 
+         .unix_stream_connect =		selinux_socket_unix_stream_connect,
+ 	.unix_may_send =		selinux_socket_unix_may_send,
 
 --
 Linux-cachefs mailing list
