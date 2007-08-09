@@ -1,60 +1,73 @@
-Date: Thu, 9 Aug 2007 07:24:53 -0700 (PDT)
-From: James Morris <jmorris@namei.org>
-To: Darrel Goeddel <DGoeddel@TrustedCS.com>
-cc: Stephen Smalley <sds@tycho.nsa.gov>, Paul Moore <paul.moore@hp.com>,
-        selinux@tycho.nsa.gov, kaigai@ak.jp.nec.com, joe@nall.com,
-        Eric Paris <eparis@parisplace.org>
-Subject: Re: [RFC 0/5] Static/fallback external labels for NetLabel
-In-Reply-To: <46BB200A.1080904@trustedcs.com>
-Message-ID: <Pine.LNX.4.64.0708090717580.16824@us.intercode.com.au>
-References: <46BB200A.1080904@trustedcs.com>
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l79ET9DM004475
+	for <selinux@tycho.nsa.gov>; Thu, 9 Aug 2007 10:29:09 -0400
+Received: from dmzmta101.na.baesystems.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id l79ET6ea023173
+	for <selinux@tycho.nsa.gov>; Thu, 9 Aug 2007 14:29:07 GMT
+Received: from BLUMS0034.bluelnk.net (blums0034.bluelnk.net [10.40.96.55])
+	by dmzmta101.na.baesystems.com (Switch-3.2.5/Switch-3.2.5) with ESMTP id l79ERLgA010240
+	for <selinux@tycho.nsa.gov>; Thu, 9 Aug 2007 10:27:22 -0400
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="us-ascii"
+Subject: RE: reference policy filesystem.if
+Date: Thu, 9 Aug 2007 07:28:15 -0700
+Message-ID: <FB39F4E77226B448BC1388D3BE4E00CD0219DBB5@blums0008.bluelnk.net>
+References: <FB39F4E77226B448BC1388D3BE4E00CD0219DB98@blums0008.bluelnk.net> <1186661461.25504.15.camel@gorn.columbia.tresys.com>
+From: "Clarkson, Mike R \(US SSA\)" <mike.clarkson@baesystems.com>
+To: "Christopher J. PeBenito" <cpebenito@tresys.com>
+Cc: <selinux@tycho.nsa.gov>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 9 Aug 2007, Darrel Goeddel wrote:
+Since we're dealing with files in this case, and given that append is a
+separate permission from write, why doesn't writing a file imply
+creating a file?
 
-> Because of the position I am in (needing to find something workable for
-> actual
-> users), I have been trying to get my head aounrd the state of SELinux
-> networking,
-> the ideas that have been talked about in the past, and how we can prevent
-> the
-> SELinux networking infrastructure from resembling a Rube-Goldberg machine.
-> I'll
-> be presenting some of the problems I perceive along with some very high
-> level
-> ideas early next week.
+> -----Original Message-----
+> From: Christopher J. PeBenito [mailto:cpebenito@tresys.com]
+> Sent: Thursday, August 09, 2007 5:11 AM
+> To: Clarkson, Mike R (US SSA)
+> Cc: selinux@tycho.nsa.gov
+> Subject: Re: reference policy filesystem.if
+> 
+> On Wed, 2007-08-08 at 16:01 -0700, Clarkson, Mike R (US SSA) wrote:
+> > Aside from the obvious comment cut and paste error, shouldn't this
+> > interface also provide add_entry_dir_perms?
+> 
+> No, it shouldn't.  Those perms are for creating a file in a directory,
+> and write doesn't imply create.
+> 
+> > Maybe this has fixed in newer versions of the reference policy. I'm
+> > using refpolicy-20061212.tar.bz2 downloaded from Tresys.
+> >
+> >
+> > ########################################
+> > ## <summary>
+> > ##	Read files on a NFS filesystem.
+> > ## </summary>
+> > ## <param name="domain">
+> > ##	<summary>
+> > ##	Domain allowed access.
+> > ##	</summary>
+> > ## </param>
+> > #
+> > interface(`fs_write_nfs_files',`
+> > 	gen_require(`
+> > 		type nfs_t;
+> > 	')
+> >
+> > 	allow $1 nfs_t:dir list_dir_perms;
+> > 	write_files_pattern($1,nfs_t,nfs_t)
+> > ')
+> 
+> --
+> Chris PeBenito
+> Tresys Technology, LLC
+> (410) 290-1411 x150
 
-I think the problem we have faced in this area here is not enough focus on 
-general usability, and how to make this stuff useful beyond "lspp" 
-customers.  It is essential for SELinux to succeed that it is generally 
-useful, and capable of addressing general security requirements, otherwise 
-we _effectively_ end up with a Trusted Solaris style fork, where you have 
-this odd code in the corner that most people don't and won't use.
-
-The proposal outlined in my last email is:
-
-- Retain existing secmark facilities, allowing them to be used as a way to 
-provide default/fallback labeling
-
-- Allow external labeling (IPsec, CIPSO) to override the secmark labels
-
-This gives us loopback labeling, the ability to retain the general 
-usability of only local iptables-based labeling, and a very simple 
-mechanism for integrating external labeling.
-
-Does this address all of your requirements ?
-
-If not, please explain what's missing.
 
 
-
-- James
--- 
-James Morris
-<jmorris@namei.org>
 
 --
 This message was distributed to subscribers of the selinux mailing list.
