@@ -1,29 +1,31 @@
 Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l79HrO0g024933
-	for <selinux@tycho.nsa.gov>; Thu, 9 Aug 2007 13:53:24 -0400
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l79Hrv4J025056
+	for <selinux@tycho.nsa.gov>; Thu, 9 Aug 2007 13:53:57 -0400
 Received: from mx1.redhat.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l79HrNVe011466
-	for <selinux@tycho.nsa.gov>; Thu, 9 Aug 2007 17:53:23 GMT
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l79HrtVe011547
+	for <selinux@tycho.nsa.gov>; Thu, 9 Aug 2007 17:53:55 GMT
 Received: from int-mx1.corp.redhat.com (int-mx1.corp.redhat.com [172.16.52.254])
-	by mx1.redhat.com (8.13.1/8.13.1) with ESMTP id l79HrMPZ023547
-	for <selinux@tycho.nsa.gov>; Thu, 9 Aug 2007 13:53:22 -0400
+	by mx1.redhat.com (8.13.1/8.13.1) with ESMTP id l79HrsC2023832
+	for <selinux@tycho.nsa.gov>; Thu, 9 Aug 2007 13:53:54 -0400
 Received: from warthog.cambridge.redhat.com (warthog.cambridge.redhat.com [172.16.18.73])
-	by int-mx1.corp.redhat.com (8.13.1/8.13.1) with ESMTP id l79HrLOP002093
-	for <selinux@tycho.nsa.gov>; Thu, 9 Aug 2007 13:53:22 -0400
+	by int-mx1.corp.redhat.com (8.13.1/8.13.1) with ESMTP id l79Hrr3M002230
+	for <selinux@tycho.nsa.gov>; Thu, 9 Aug 2007 13:53:53 -0400
 Received: from redhat.com (localhost.localdomain [127.0.0.1])
-	by warthog.cambridge.redhat.com (8.14.1/8.13.8) with ESMTP id l79HrKar020436
-	for <selinux@tycho.nsa.gov>; Thu, 9 Aug 2007 18:53:21 +0100
+	by warthog.cambridge.redhat.com (8.14.1/8.13.8) with ESMTP id l79HrqUu020547
+	for <selinux@tycho.nsa.gov>; Thu, 9 Aug 2007 18:53:52 +0100
 From: David Howells <dhowells@redhat.com>
 To: torvalds@osdl.org, akpm@osdl.org, steved@redhat.com,
         trond.myklebust@fys.uio.no
-Date: Thu, 09 Aug 2007 17:04:38 +0100
-Message-ID: <20070809160438.17906.76348.stgit@warthog.cambridge.redhat.com>
+Date: Thu, 09 Aug 2007 17:05:20 +0100
+Message-ID: <20070809160520.17906.51993.stgit@warthog.cambridge.redhat.com>
+In-Reply-To: <20070809160438.17906.76348.stgit@warthog.cambridge.redhat.com>
+References: <20070809160438.17906.76348.stgit@warthog.cambridge.redhat.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Cc: linux-fsdevel@vger.kernel.org, linux-cachefs@redhat.com,
         nfsv4@linux-nfs.org, linux-kernel@vger.kernel.org
-Subject: [Linux-cachefs] [PATCH 00/14] Permit filesystem local caching [try
-	#2]
+Subject: [Linux-cachefs] [PATCH 08/14] CacheFiles: Export things for
+	CacheFiles [try #2]
 Reply-To: Linux filesystem caching discussion list <linux-cachefs@redhat.com>
 List-Unsubscribe: <https://www.redhat.com/mailman/listinfo/linux-cachefs>,
 	<mailto:linux-cachefs-request@redhat.com?subject=unsubscribe>
@@ -35,42 +37,41 @@ List-Subscribe: <https://www.redhat.com/mailman/listinfo/linux-cachefs>,
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+Export a number of functions for CacheFiles's use.
 
+Signed-Off-By: David Howells <dhowells@redhat.com>
+---
 
-These patches add local caching for network filesystems such as NFS and AFS.
+ fs/super.c       |    2 ++
+ kernel/auditsc.c |    2 ++
+ 2 files changed, 4 insertions(+), 0 deletions(-)
 
-FS-Cache now runs fully asynchronously as required by Trond Myklebust for NFS.
-
---
-Changes:
-
- (*) The CacheFiles module no longer accepts directory fds in its cull and
-     inuse commands from cachefilesd.  Instead it uses the current working
-     directory of the calling process as the basis for looking up the object.
-     Corollary to this, fget_light() no longer needs to be exported.
-
---
-A tarball of the patches is available at:
-
-	http://people.redhat.com/~dhowells/fscache/patches/nfs+fscache-21.tar.bz2
-
-
-To use this version of CacheFiles, the cachefilesd-0.9 is also required.  It
-is available as an SRPM:
-
-	http://people.redhat.com/~dhowells/fscache/cachefilesd-0.9-1.fc7.src.rpm
-
-Or as individual bits:
-
-	http://people.redhat.com/~dhowells/fscache/cachefilesd-0.9.tar.bz2
-	http://people.redhat.com/~dhowells/fscache/cachefilesd.fc
-	http://people.redhat.com/~dhowells/fscache/cachefilesd.if
-	http://people.redhat.com/~dhowells/fscache/cachefilesd.te
-	http://people.redhat.com/~dhowells/fscache/cachefilesd.spec
-
-The .fc, .if and .te files are for manipulating SELinux.
-
-David
+diff --git a/fs/super.c b/fs/super.c
+index fc8ebed..c0d99dd 100644
+--- a/fs/super.c
++++ b/fs/super.c
+@@ -270,6 +270,8 @@ int fsync_super(struct super_block *sb)
+ 	return sync_blockdev(sb->s_bdev);
+ }
+ 
++EXPORT_SYMBOL_GPL(fsync_super);
++
+ /**
+  *	generic_shutdown_super	-	common helper for ->kill_sb()
+  *	@sb: superblock to kill
+diff --git a/kernel/auditsc.c b/kernel/auditsc.c
+index a777d37..1c068ec 100644
+--- a/kernel/auditsc.c
++++ b/kernel/auditsc.c
+@@ -1526,6 +1526,8 @@ add_names:
+ 	}
+ }
+ 
++EXPORT_SYMBOL_GPL(__audit_inode_child);
++
+ /**
+  * auditsc_get_stamp - get local copies of audit_context values
+  * @ctx: audit_context for the task
 
 --
 Linux-cachefs mailing list
