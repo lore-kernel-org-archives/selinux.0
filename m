@@ -1,48 +1,95 @@
-Subject: Re: Strict policy in FC6 -  firefox does not start.
+Subject: Re: [RFC 0/5] Static/fallback external labels for NetLabel
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Kroum Antov <kroum@voicecho.com>
-Cc: selinux@tycho.nsa.gov, "Christopher J. PeBenito" <cpebenito@tresys.com>,
-        Daniel J Walsh <dwalsh@redhat.com>
-In-Reply-To: <D90C04F065C24B04AEF05BDF8F8E8263@HomePC>
-References: <D90C04F065C24B04AEF05BDF8F8E8263@HomePC>
+To: Paul Moore <paul.moore@hp.com>
+Cc: selinux@tycho.nsa.gov, kaigai@ak.jp.nec.com, joe@nall.com,
+        James Morris <jmorris@namei.org>, Eric Paris <eparis@parisplace.org>
+In-Reply-To: <20070807141415.525577324@hp.com>
+References: <20070807141415.525577324@hp.com>
 Content-Type: text/plain
-Date: Thu, 09 Aug 2007 08:29:01 -0400
-Message-Id: <1186662541.6916.380.camel@moss-spartans.epoch.ncsc.mil>
+Date: Thu, 09 Aug 2007 08:42:43 -0400
+Message-Id: <1186663363.6916.393.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2007-08-09 at 01:23 -0700, Kroum Antov wrote:
-> With Strict policy in FC6:  firefox does not start.
-> There are no messages at all. So I decided to check
-> if firefox works under strict policy on F7. 
-> I have installed F7 and enabled strict policy. But from now on I can't
-> longer login if enforcing is on . When I enter username and password
-> and 
-> I get "Authentication Failed" in GDM. In console I just get new
-> "username" prompt.
+On Tue, 2007-08-07 at 10:14 -0400, Paul Moore wrote:
+> This patchset adds the static/fallback labeling feature to NetLabel that has
+> been requested on the SELinux mailing list more and more recently.  This new
+> bit of functionality also matches what can be found on similar trusted/labeled
+> OSs such as Trusted Solaris, HP-UX CMW, etc.  This patchset it not yet ready
+> for "upstreaming" so please do not pull this into any tree bound for the
+> mainline kernel; I still need to do more review and testing of the code.
+> However, I know there are several of you on this list that have been anxiously
+> awaiting this patchset so I thought I would make an early release so you could
+> get a peek and test it out.  I won't be able to work on this patchset much, if
+> at all, between August 10th and the 20th so don't expect an update from me
+> until the end of August.
 > 
-> I do not understand why firefox does not start in fc6.
-> why I can not longin on F7 under strict policy?
->  
-> What might be wrong?
+> The basic idea is that currently there is no method for providing an external
+> label to fallback on if a labeled networking mechanism such as NetLabel/CIPSO
+> or labeled IPsec is not in use.  This patch adds a mechanism for providing a
+> static fallback label, specified per interface/network, which is used when
+> a NetLabel recognized labeling protocol (at this point CIPSO) is not in use.
+> 
+> For those of you wishing to try this patchset, it is backed against Linus'
+> linux-2.6 git tree from the afternoon of August 6th, but I don't imagine you'll
+> have many problems applying the patchset to later trees at this point in the
+> 2.6.23 release cycle.  In addition to the kernel patches you will also need a
+> modified version of netlabelctl from the netlabel_tools package.  A very crude
+> version of the modified tools can be found in the netlabel_tools SVN repository
+> in the static_label branch.  Please check the NetLabel website on SourceForge,
+> http://netlabel.sf.net, for information on the SVN repository.  The three new
+> netlabelctl commands are as follows:
+> 
+>  # netlabelctl unlbl add interface:<DEV> address:<ADDR>[/<MASK>] label:<LABEL>
+>  # netlabelctl unlbl del interface:<DEV> address:<ADDR>[/<MASK>]
+>  # netlabelctl -p unlbl list
+> 
+>    DEV = interface, examples: eth0, lo
+>    ADDR = IP address, examples: 192.168.0.3, ::1
+>    MASK = IP address mask length, examples 8, 24, 64
+>    LABEL = LSM/SELinux label, example: system_u:object_r:unlabeled_t:s2
+> 
+> For example, if you wanted to label all inbound traffic on eth1 from
+> 192.168.0.0/16 with the label "system_u:object_r:staticlabel_t:s7" you would
+> type:
+> 
+>  # netlabelctl unlbl add interface:eth1 address:192.168.0.0/16 \
+>                          label:system_u:object_r:staticlabel_t:s7
+> 
+> Both IPv4 and IPv6 addresses can be used and if the address mask is ommitted
+> from the command the address is assumed to be a host address, not a network,
+> and the maximum mask size for that address family is used.  If you do not wish
+> to specify an address, simply use a address mask of zero, "/0", which will
+> cause all addresses within that address family to match.
 
-Since Fedora ships with targeted policy by default, that is the policy
-that gets tested widely and is the only policy that gets tested by Red
-Hat as far as I know (except perhaps -mls, and that only for servers at
-present; no X support there).  Strict policy almost always requires some
-customization to make it work cleanly, which you can do by booting
-permissive and examining the avc denials, although you may need to
-install enableaudit.pp to see them all.  Please report the specific avc
-denials though (ausearch -m AVC -sv no if running auditd or grep
-avc /var/log/messages otherwise)
+Hi,
 
-The good news is that targeted policy and strict policy are being merged
-together such that one can migrate gradually on the continuum from
-targeted policy to strict policy without completely replacing the
-policy.  That is work in progress, with experimental versions in F8
-IIUC.
- 
+I like the functionality, but I don't like having yet another mechanism
+and configuration, and I'm concerned about it being netlabel-centric.
+Especially when we already have a more generic and flexible mechanism
+for specifying packet labels, i.e. secmark.
+
+The only reason to not use secmark today for a fallback mechanism is the
+current separation between 'internal' and 'external' labels.  But I
+don't believe that separation is necessary or useful, and secmark today
+is effectively unused.  The original usage scenario for it simply hasn't
+materialized.
+
+Meanwhile, getting secmark employed, not only as a mechanism for
+assigning default labels (via iptables rules) but also as a seamless way
+of propagating labels with socket buffers would solve a lot of our
+current limitations.  We'd get loopback labeling for free, flexible and
+generic fallback labeling, forwarding controls would become
+straightforward, and PEERSEC/SCM_SECURITY becomes much simpler.
+NetLabel would benefit from it as well.  There are alternative
+implementation approaches, but none as clean and efficient and reliable.
+There was a reason we put a sid in the sk_buff in the original SELinux
+implementations (prior to Linux 2.6 merge).
+
+I've had some initial discussions with James, and he seemed open to
+revisiting this notion, so I think we need to take another look.
+  
 -- 
 Stephen Smalley
 National Security Agency
