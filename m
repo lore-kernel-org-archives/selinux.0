@@ -1,50 +1,57 @@
-Subject: Re: [RFC 0/5] Static/fallback external labels for NetLabel
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Paul Moore <paul.moore@hp.com>
-Cc: James Morris <jmorris@namei.org>, selinux@tycho.nsa.gov,
-        kaigai@ak.jp.nec.com, joe@nall.com, Eric Paris <eparis@parisplace.org>
-In-Reply-To: <200708091050.43955.paul.moore@hp.com>
-References: <20070807141415.525577324@hp.com>
-	 <200708090929.16906.paul.moore@hp.com>
-	 <Pine.LNX.4.64.0708090654230.16824@us.intercode.com.au>
-	 <200708091050.43955.paul.moore@hp.com>
-Content-Type: text/plain
-Date: Thu, 09 Aug 2007 11:13:06 -0400
-Message-Id: <1186672386.6916.513.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l79FFb9i009405
+	for <selinux@tycho.nsa.gov>; Thu, 9 Aug 2007 11:15:37 -0400
+Received: from an-out-0708.google.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l79FFac5009712
+	for <selinux@tycho.nsa.gov>; Thu, 9 Aug 2007 15:15:36 GMT
+Received: by an-out-0708.google.com with SMTP id c38so111861ana
+        for <selinux@tycho.nsa.gov>; Thu, 09 Aug 2007 08:15:36 -0700 (PDT)
+Message-ID: <9f066ee90708090815t514eddf6k7d02903d806d7c6c@mail.gmail.com>
+Date: Thu, 9 Aug 2007 11:15:35 -0400
+From: Mark <elihusmails@gmail.com>
+To: selinux@tycho.nsa.gov,
+        "fedora-selinux-list@redhat.com" <fedora-selinux-list@redhat.com>
+Subject: java error after installing reference policy
+MIME-Version: 1.0
+Content-Type: multipart/alternative;
+	boundary="----=_Part_6174_6513594.1186672535760"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2007-08-09 at 10:50 -0400, Paul Moore wrote:
-> On Thursday 09 August 2007 9:59:53 am James Morris wrote:
-> > On Thu, 9 Aug 2007, Paul Moore wrote:
-> > >  * Convert the external labeling protocols to make use of the SECMARK
-> > > secid field in the sk_buff struct.  The advantage to NetLabel and
-> > > explicit labeling protocols is really marginal but this should be a huge
-> > > win for labeled IPsec.
-> >
-> > The way we were discussing this (off-list) was that we'd allow iptables
-> > secmark labeling to set fallback/default labels, which may be overridden
-> > by external labeling (Netlabel, IPsec).
-> 
-> If I understand you correctly, SECMARK would continue as SECMARK as we know it 
-> today, the only real difference is that if getpeercon() would return failure 
-> because NetLabel or labeled IPsec was not in use we would return the SECMARK 
-> label?
+------=_Part_6174_6513594.1186672535760
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-Except that secmark would also be used as the means of propagating the
-label with the skb throughout the stack, thereby enabling loopback
-labeling and flow control.  So secmark gets initialized via iptables to
-a fallback (or left unlabeled if no iptables match exists), then
-replaced (after a consistency check) if labeled networking is in use
-with the explicit or implicit label.  Then the secmark gets used
-everywhere for permission checking - it represents the most accurate
-label we know for the packet at any given time.
+I followed the instructions for installing the latest reference policy:
+http://oss.tresys.com/projects/refpolicy/wiki/UseRefpolicy
+
+After rebooting, I get the following command when I run SLIDE:
+
+Java HotSpot(TM) Client VM warning: Attempt to allocate stack guard pages
+failed.
+Error occurred during initialization of VM
+Could not reserve enough space for code cache
+
+I then tried just running "java -version", and I get the same error message.
+
+I am running Sun's JDK version 1.6 update 2.
+
 
 -- 
-Stephen Smalley
-National Security Agency
+..Cheers
+Mark
 
+------=_Part_6174_6513594.1186672535760
+Content-Type: text/html; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+I followed the instructions for installing the latest reference policy: <a href="http://oss.tresys.com/projects/refpolicy/wiki/UseRefpolicy">http://oss.tresys.com/projects/refpolicy/wiki/UseRefpolicy</a><br><br>After rebooting, I get the following command when I run SLIDE:
+<br><br>Java HotSpot(TM) Client VM warning: Attempt to allocate stack guard pages failed.<br>Error occurred during initialization of VM<br>Could not reserve enough space for code cache<br><br>I then tried just running &quot;java -version&quot;, and I get the same error message.
+<br><br>I am running Sun&#39;s JDK version 1.6 update 2.<br><br><br>-- <br>..Cheers<br>Mark
+
+------=_Part_6174_6513594.1186672535760--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
