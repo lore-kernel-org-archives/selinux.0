@@ -1,77 +1,85 @@
-Message-ID: <46BC8B3E.40309@manicmethod.com>
-Date: Fri, 10 Aug 2007 11:58:54 -0400
-From: Joshua Brindle <method@manicmethod.com>
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l7AG5nIr017576
+	for <selinux@tycho.nsa.gov>; Fri, 10 Aug 2007 12:05:49 -0400
+Received: from mx1.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id l7AG5n1t020547
+	for <selinux@tycho.nsa.gov>; Fri, 10 Aug 2007 16:05:49 GMT
+From: David Howells <dhowells@redhat.com>
+Subject: [PATCH 07/16] CacheFiles: Permit the page lock state to be monitored
+	[try #3]
+To: torvalds@osdl.org, akpm@osdl.org, steved@redhat.com,
+        trond.myklebust@fys.uio.no
+Cc: linux-fsdevel@vger.kernel.org, linux-cachefs@redhat.com,
+        nfsv4@linux-nfs.org, linux-kernel@vger.kernel.org,
+        selinux@tycho.nsa.gov
+Date: Fri, 10 Aug 2007 17:05:32 +0100
+Message-ID: <20070810160532.24698.46481.stgit@warthog.cambridge.redhat.com>
+In-Reply-To: <20070810160455.24698.30983.stgit@warthog.cambridge.redhat.com>
+References: <20070810160455.24698.30983.stgit@warthog.cambridge.redhat.com>
 MIME-Version: 1.0
-To: Daniel J Walsh <dwalsh@redhat.com>
-CC: Stephen Smalley <sds@tycho.nsa.gov>, James Morris <jmorris@namei.org>,
-        Eric Paris <eparis@redhat.com>, selinux@tycho.nsa.gov
-Subject: Re: [PATCH] selinuxfs to globally disable dontaudit rules
-References: <1186696737.20393.10.camel@localhost.localdomain>	 <Pine.LNX.4.64.0708091525410.30691@us.intercode.com.au>	 <46BBAE00.7050600@manicmethod.com>  <46BBBDDF.2000307@manicmethod.com> <1186747308.7233.22.camel@moss-spartans.epoch.ncsc.mil> <46BC8476.9010800@redhat.com>
-In-Reply-To: <46BC8476.9010800@redhat.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain; charset="utf-8"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Daniel J Walsh wrote:
-> Stephen Smalley wrote:
->> On Thu, 2007-08-09 at 21:22 -0400, Joshua Brindle wrote:
->>  
->>> Joshua Brindle wrote:
->>>    
->>>> James Morris wrote:
->>>>      
->>>>> On Thu, 9 Aug 2007, Eric Paris wrote:
->>>>>
->>>>>  
->>>>>        
->>>>>> Currently to disable dontaudit rules best you can do it to load the
->>>>>> enableaudit.pp base policy.  Which still doesn't remove the 
->>>>>> dontaudit
->>>>>> rules from modules.
->>>>>>               
->>>>> Are we sure this can't be done in userspace?  Like, mangle all the 
->>>>> existing policy and reload it?
->>>>>
->>>>>           
->>>> I agree, the infrastructure is certainly in place to do it, just 
->>>> add something in the sepol_handle that says dontaudits should be 
->>>> discarded, then make an interface in libsemanage that uses that and 
->>>> rebuild the policy.
->>>>
->>>> If noone beats me to it I will see if my conclusions about it being 
->>>> fairly simple are accurate this weekend :)
->>>>
->>>>       
->>> I changed my mind, patch below
->>>
->>> it compiles and seems to work after semodule -DB:
->>>     
->>
->> Hmm...doing it this way means that the "disable_dontaudit" behavior
->> won't persist across subsequent policy changes, so if I e.g. then change
->> a boolean persistently, I'll get back all of the dontaudit rules too.
->>
->> Is that what you want, or do you want this flag saved in the policy
->> module store and settable/clearable via semanage to be applied to all
->> subsequent policy builds?
->>
->>   
-> This looks great but it needs to survive a policy rebuild as Stephen 
-> says.
->
+Add a function to install a monitor on the page lock waitqueue for a particular
+page, thus allowing the page being unlocked to be detected.
 
-Hrm... I'm trying to figure out if that is really the behavior we want. 
-The purpose of this was to let someone get some denials from (possibly) 
-dontaudits hiding behavior. After switching dontaudits off the user will 
-generate a module with the rules and insert it. Assuming they exercised 
-enough of the app he won't want the dontaudits off anymore and will 
-happily go about running the app. Are there other use cases where 
-dontaudits should be persistently disabled?
+This is used by CacheFiles to detect read completion on a page in the backing
+filesystem so that it can then copy the data to the waiting netfs page.
 
-If dontaudits are to be persistently disabled I'd rather do it in the 
-kernel with eric's patch, mainly because eric's will at least only 
-persist until reboot whereas if I added something to libsemanage to make 
-it persist it would last across reboots.
+Signed-Off-By: David Howells <dhowells@redhat.com>
+---
+
+ include/linux/pagemap.h |    5 +++++
+ mm/filemap.c            |   19 +++++++++++++++++++
+ 2 files changed, 24 insertions(+), 0 deletions(-)
+
+diff --git a/include/linux/pagemap.h b/include/linux/pagemap.h
+index d1049b6..452fdcf 100644
+--- a/include/linux/pagemap.h
++++ b/include/linux/pagemap.h
+@@ -220,6 +220,11 @@ static inline void wait_on_page_fscache_write(struct page *page)
+ extern void end_page_fscache_write(struct page *page);
+ 
+ /*
++ * Add an arbitrary waiter to a page's wait queue
++ */
++extern void add_page_wait_queue(struct page *page, wait_queue_t *waiter);
++
++/*
+  * Fault a userspace page into pagetables.  Return non-zero on a fault.
+  *
+  * This assumes that two userspace pages are always sufficient.  That's
+diff --git a/mm/filemap.c b/mm/filemap.c
+index 5e419a2..c60c24e 100644
+--- a/mm/filemap.c
++++ b/mm/filemap.c
+@@ -518,6 +518,25 @@ void fastcall wait_on_page_bit(struct page *page, int bit_nr)
+ EXPORT_SYMBOL(wait_on_page_bit);
+ 
+ /**
++ * add_page_wait_queue - Add an arbitrary waiter to a page's wait queue
++ * @page - Page defining the wait queue of interest
++ * @waiter - Waiter to add to the queue
++ *
++ * Add an arbitrary @waiter to the wait queue for the nominated @page.
++ */
++void add_page_wait_queue(struct page *page, wait_queue_t *waiter)
++{
++	wait_queue_head_t *q = page_waitqueue(page);
++	unsigned long flags;
++
++	spin_lock_irqsave(&q->lock, flags);
++	__add_wait_queue(q, waiter);
++	spin_unlock_irqrestore(&q->lock, flags);
++}
++
++EXPORT_SYMBOL_GPL(add_page_wait_queue);
++
++/**
+  * unlock_page - unlock a locked page
+  * @page: the page
+  *
 
 
 --
