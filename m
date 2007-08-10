@@ -1,54 +1,78 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l7AFoGjo016095
-	for <selinux@tycho.nsa.gov>; Fri, 10 Aug 2007 11:50:16 -0400
-Received: from mx1.redhat.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l7AFoELC027134
-	for <selinux@tycho.nsa.gov>; Fri, 10 Aug 2007 15:50:14 GMT
-Message-ID: <46BC8913.20905@redhat.com>
-Date: Fri, 10 Aug 2007 11:49:39 -0400
-From: Daniel J Walsh <dwalsh@redhat.com>
+Message-ID: <46BC8B3E.40309@manicmethod.com>
+Date: Fri, 10 Aug 2007 11:58:54 -0400
+From: Joshua Brindle <method@manicmethod.com>
 MIME-Version: 1.0
-To: "Clarkson, Mike R \(US SSA\)" <mike.clarkson@baesystems.com>
-CC: selinux@tycho.nsa.gov
-Subject: Re: java.if
-References: <FB39F4E77226B448BC1388D3BE4E00CD01FB787D@blums0008.bluelnk.net>
-In-Reply-To: <FB39F4E77226B448BC1388D3BE4E00CD01FB787D@blums0008.bluelnk.net>
+To: Daniel J Walsh <dwalsh@redhat.com>
+CC: Stephen Smalley <sds@tycho.nsa.gov>, James Morris <jmorris@namei.org>,
+        Eric Paris <eparis@redhat.com>, selinux@tycho.nsa.gov
+Subject: Re: [PATCH] selinuxfs to globally disable dontaudit rules
+References: <1186696737.20393.10.camel@localhost.localdomain>	 <Pine.LNX.4.64.0708091525410.30691@us.intercode.com.au>	 <46BBAE00.7050600@manicmethod.com>  <46BBBDDF.2000307@manicmethod.com> <1186747308.7233.22.camel@moss-spartans.epoch.ncsc.mil> <46BC8476.9010800@redhat.com>
+In-Reply-To: <46BC8476.9010800@redhat.com>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Clarkson, Mike R (US SSA) wrote:
-> I have a number of domains in which I run java programs. I generally
-> enter these domains using a script, and then execute_no_trans the java
-> executable. So I found I kept replicating the following allow rules in
-> these various domains:
+Daniel J Walsh wrote:
+> Stephen Smalley wrote:
+>> On Thu, 2007-08-09 at 21:22 -0400, Joshua Brindle wrote:
+>>  
+>>> Joshua Brindle wrote:
+>>>    
+>>>> James Morris wrote:
+>>>>      
+>>>>> On Thu, 9 Aug 2007, Eric Paris wrote:
+>>>>>
+>>>>>  
+>>>>>        
+>>>>>> Currently to disable dontaudit rules best you can do it to load the
+>>>>>> enableaudit.pp base policy.  Which still doesn't remove the 
+>>>>>> dontaudit
+>>>>>> rules from modules.
+>>>>>>               
+>>>>> Are we sure this can't be done in userspace?  Like, mangle all the 
+>>>>> existing policy and reload it?
+>>>>>
+>>>>>           
+>>>> I agree, the infrastructure is certainly in place to do it, just 
+>>>> add something in the sepol_handle that says dontaudits should be 
+>>>> discarded, then make an interface in libsemanage that uses that and 
+>>>> rebuild the policy.
+>>>>
+>>>> If noone beats me to it I will see if my conclusions about it being 
+>>>> fairly simple are accurate this weekend :)
+>>>>
+>>>>       
+>>> I changed my mind, patch below
+>>>
+>>> it compiles and seems to work after semodule -DB:
+>>>     
+>>
+>> Hmm...doing it this way means that the "disable_dontaudit" behavior
+>> won't persist across subsequent policy changes, so if I e.g. then change
+>> a boolean persistently, I'll get back all of the dontaudit rules too.
+>>
+>> Is that what you want, or do you want this flag saved in the policy
+>> module store and settable/clearable via semanage to be applied to all
+>> subsequent policy builds?
+>>
+>>   
+> This looks great but it needs to survive a policy rebuild as Stephen 
+> says.
 >
-> require {type java_exec_t;}
-> allow weblogic_t java_exec_t:file {getattr read execute
-> execute_no_trans};
->
-> I looked for an interface to use in java.if, but didn't find one. I
-> added one myself so I could eliminate the above rule in each of these
-> domains, but I was surprised not to find an existing interface to use.
-> This seems like it would be a common issue that other policy creators
-> would run into as well, or am I just missing something?
->
->
->
-> --
-> This message was distributed to subscribers of the selinux mailing list.
-> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
-> the words "unsubscribe selinux" without quotes as the message.
->   
-Yes there should be an java_exec method.  One problem though is java 
-requires execmem execstack and usually other
-domains do not have this context.   So what we really need is a way to 
-clone a type.  So
 
-java_clone_exec(abc_t) 
+Hrm... I'm trying to figure out if that is really the behavior we want. 
+The purpose of this was to let someone get some denials from (possibly) 
+dontaudits hiding behavior. After switching dontaudits off the user will 
+generate a module with the rules and insert it. Assuming they exercised 
+enough of the app he won't want the dontaudits off anymore and will 
+happily go about running the app. Are there other use cases where 
+dontaudits should be persistently disabled?
 
-Would end up with a new domain, that was the same as  abc_t but added 
-execmem and execstack. 
+If dontaudits are to be persistently disabled I'd rather do it in the 
+kernel with eric's patch, mainly because eric's will at least only 
+persist until reboot whereas if I added something to libsemanage to make 
+it persist it would last across reboots.
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
