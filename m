@@ -1,142 +1,83 @@
-Date: Fri, 10 Aug 2007 16:25:20 +0900
-From: Yuichi Nakamura <ynakam@hitachisoft.jp>
-To: James Morris <jmorris@namei.org>
-Subject: Re: Appropriate number of hash slots for te_avtab(Was:Re: [RFC] Dynamically deciding number of hash slots for avtab
-Cc: ynakam@hitachisoft.jp, Stephen Smalley <sds@tycho.nsa.gov>,
-        selinux@tycho.nsa.gov, busybox@kaigai.gr.jp,
-        Eric Paris <eparis@parisplace.org>, kaigai@ak.jp.nec.com,
-        method@manicmethod.com
-In-Reply-To: <Pine.LNX.4.64.0708080833570.3111@us.intercode.com.au>
-References: <1186584312.6916.111.camel@moss-spartans.epoch.ncsc.mil> <Pine.LNX.4.64.0708080833570.3111@us.intercode.com.au>
-Message-Id: <20070810162046.255A.YNAKAM@hitachisoft.jp>
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l7AAA4B8020826
+	for <selinux@tycho.nsa.gov>; Fri, 10 Aug 2007 06:10:04 -0400
+Received: from mail.gmx.net (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with SMTP id l7AAA37C026636
+	for <selinux@tycho.nsa.gov>; Fri, 10 Aug 2007 10:10:03 GMT
+Content-Type: text/plain; charset="us-ascii"
+Date: Fri, 10 Aug 2007 12:10:03 +0200
+From: selinux770@tortenboxer.de
+Message-ID: <20070810101003.128080@gmx.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="US-ASCII"
+Subject: wrong magic number (using old sources)
+To: selinux@tycho.nsa.gov
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+Hi everyone,
 
-On Wed, 8 Aug 2007 08:35:09 -0700 (PDT)
-James Morris wrote:
-> On Wed, 8 Aug 2007, Stephen Smalley wrote:
-> 
-> > > Can We use jhash ?
-> > 
-> > I think so, as long as it doesn't impose a significant overhead.
-> 
-> It's now used extensively in the networking code, so I suspect it will be 
-> ok (and unlikely to be a bottleneck for SELinux), but yep, we do need to 
-> measure it.
+i try to integrate SELinux into my Nokia 770 Internet Tablet. For this I'm using some old sources which fit best to the architecture (no compile errors or missing components). My current state is, that everything seems to work fine. "sestatus" tells me selinux is enabled.
 
-I've measured performance of hash functions in avtab.c.
-I compared default hash and jhash.
+But my problem is to compile a policy without error messages. It tells me, that loading fails because of a wrong magic number and I don't know where this error comes from. http://www.nsa.gov/selinux/list-archive/0206/2155.cfm tells me that it "Looks like your kernel doesn't have the same policy version as the database." I recompiled the kernel after making and make install the libraries... so I don't understand my error. A full log of the error is provided at the end of my mail.
 
-To measure performance, I measured time to call security_compute_av.
-I measured time 10000 security_compute_av call from system boot, 
-like below code.
+What can be responsible for a wrong magic number? The python wrapper classes? The libraries? The policy source files i try to compile?
 
-int avc_has_perm_noaudit(u32 ssid, u32 tsid,
-                         u16 tclass, u32 requested,
-                         struct av_decision *avd)
-{
-	struct avc_node *node;
-	struct avc_entry entry, *p_ae;
-	int rc = 0;
-	u32 denied;
-+	unsigned long long t0,t1;
-+	unsigned long long t2=0;
-+	static unsigned long long t3=0;
-+	static int count = 0;
-+	static int flag = 1;
-+	static int max = 10000;
-+	int i = 0;
+Thanks in advance for any help.
 
+I'm using the following versions from the debian servers (original source packages, debian changes not included):
+ Apr 10  2006 checkpolicy_1.30.orig.tar.gz
+ Mar 23  2006 libselinux_1.30.orig.tar.gz
+ Apr 10  2006 libsemanage_1.6.orig.tar.gz
+ Mar 22  2006 libsepol_1.12.orig.tar.gz
+ Apr 10  2006 policycoreutils_1.30.orig.tar.gz
 
-	rcu_read_lock();
-+	if (flag && ss_initialized) {
-+		t0 = sched_clock();
-+		security_compute_av(ssid,tsid,tclass, requested, &entry.avd);
-+		t1 = sched_clock();
-+		t2 = t1 - t0;
-+		t3 += t2;
-+		count ++;
-+	} 
-+	if (flag && (count == max)) {
-+		flag = 0;
-+		printk("SELinux:security_compute_av execution time:%Lu\n", t3);
-+
-+	}
+Don't fit these versions?
 
-security_compute_av is located at the entry of avc_has_perm_no_audit.
-And nano second to call 10000 security_compute_av function is printed out.
+The error log:
+/usr/share/selinux/policy/beta1.0# make load
+Makefile:154: warning: overriding commands for target
+`/etc/selinux/./policy/policy.20'
+Makefile:149: warning: ignoring old commands for target
+`/etc/selinux/./policy/policy.20'
+( cd domains/program/ ; for n in *.te ; do echo "define(\`$n')"; done
+) > tmp/program_used_flags.te.tmp
+( cd domains/misc/ ; for n in *.te ; do echo "define(\`$n')"; done )
+>> tmp/program_used_flags.te.tmp
+mv tmp/program_used_flags.te.tmp tmp/program_used_flags.te
+Building policy.conf ...
+m4  -Imacros -s flask/security_classes [... shortened by me ...]
+ > policy.conf.tmp
+Compiling policy ...
+/usr/bin/checkpolicy  -o /etc/selinux/./policy/policy.20 policy.conf
+/usr/bin/checkpolicy:  loading policy configuration from policy.conf
+/usr/bin/checkpolicy:  policy configuration loaded
+/usr/bin/checkpolicy:  writing binary representation (version 20) to
+/etc/selinux/./policy/policy.20
+Loading Policy ...
+/usr/sbin/load_policy /etc/selinux/./policy/policy.20
+/usr/sbin/load_policy:  Warning!  Policy file argument
+(/etc/selinux/./policy/policy.20) is no longer supported, installed
+policy is always loaded.  Continuing...
+libsepol.policydb_read: policydb magic number 0x8c007cff does not
+match expected magic number 0xf97cff8c or 0xf97cff8d
+libsepol.policydb_from_image: policy image is invalid
+libsepol.policydb_read: policydb magic number 0x8c8c7cff does not
+match expected magic number 0xf97cff8c or 0xf97cff8d
+libsepol.policydb_from_image: policy image is invalid
+touch tmp/load
+Building file contexts files...
+Validating file contexts files ...
+/usr/sbin/setfiles -q -c /etc/selinux/./policy/policy.20
+file_contexts/file_contexts
+libsepol.policydb_read: policydb magic number 0x8c007cff does not
+match expected magic number 0xf97cff8c or 0xf97cff8d
+libsepol.sepol_set_policydb_from_file: can't read binary policy: Success
+Error reading policy /etc/selinux/./policy/policy.20: Success
+make: *** [tmp/valid_fc] Error 1
 
-I did this benchmark varying hash table size, policy and hash functions.
-I summarized result with hash table chain length(those I measured in previous message).
-Below is a result.
-
-1. Result for 1) (Full strict refpolicy)
-* max table size = 32768
-        usage of slot  chain-length  time to call 10000 security_compute_av(sec)
-default: 30128/32768   34            6.95
-jhash  : 32391/32768   21            7.28
-
-* 16384
-default:  16221/16384 59  6.91
-jhash:    16382/16384 27  7.28
-
-* 8192
-default: 8190/8192 97 7.15
-jhash:   8192/8192 41 7.78
-
-*  4096
-default: 4096/4096  182 7.73
-jhash:   4096/4096  67  8.87
-
-2. Result for 2) (smaller refpolicy)
-* Number of slot = num of rules
-        usage of slot  chain-length time(sec)
-default : 3925/8192      13           9.65
-jhash   : 5053/8192      7           10.1
-
-* Number of slot = num of rules/2
-default : 2809/4096  21   9.63
-jhash   : 3466/4096   9   10.35
-
-* Number of slot = num of rules/4
-default: 1742/2048  35    9.69
-jhash:   1991/2048  12   10.35
-
-*  Number of slot = num of rules/8
-default: 978/1024    64  10.02
-jhash  : 1024/1024   22  11.23
-
-* Number of slot = default(32768)
-default: 5993/32768 7   9.99
-jhash:  6975/32768  4  10.50
-
-In both case,
-about chain length, jhash is better,
-however, performance is worse !
-so is it better not to use jhash??
-
-About max number of hash slots, 
-we can use 16384 or 8192, because performance is almost the same.
-About number of dynamically allocated hash slots, 
-we can use slot = num of rules /4?
-
-And there is one strange thing.
-Performance is worse in smaller policy.
-For 32768 hash slots, default hash function, 
-6.95(s) for strict policy, 9.99(s) for smaller refpolicy.
-
-Any comments, please.
-
-Regards,
 -- 
-Yuichi Nakamura
-Hitachi Software Engineering Co., Ltd.
-Japan SELinux Users Group(JSELUG): http://www.selinux.gr.jp/
-SELinux Policy Editor: http://seedit.sourceforge.net/
-
+GMX FreeMail: 1 GB Postfach, 5 E-Mail-Adressen, 10 Free SMS.
+Alle Infos und kostenlose Anmeldung: http://www.gmx.net/de/go/freemail
 
 --
 This message was distributed to subscribers of the selinux mailing list.
