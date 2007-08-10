@@ -1,70 +1,260 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l7AF5GBn011823
-	for <selinux@tycho.nsa.gov>; Fri, 10 Aug 2007 11:05:16 -0400
-Received: from exchange.columbia.tresys.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with SMTP id l7AF5E1t004117
-	for <selinux@tycho.nsa.gov>; Fri, 10 Aug 2007 15:05:14 GMT
-Subject: Re: [PATCH] refpolicy: kernel_kernel changes
-From: "Christopher J. PeBenito" <cpebenito@tresys.com>
-To: Daniel J Walsh <dwalsh@redhat.com>
-Cc: selinux@tycho.nsa.gov
-In-Reply-To: <46BC6555.9010802@redhat.com>
-References: <200708022004.l72K4Ome029700@redsox.boston.devel.redhat.com>
-	 <1186497721.18881.27.camel@gorn>  <46BC6555.9010802@redhat.com>
-Content-Type: text/plain
-Date: Fri, 10 Aug 2007 15:04:37 +0000
-Message-Id: <1186758277.25504.33.camel@gorn.columbia.tresys.com>
-Mime-Version: 1.0
+Message-ID: <46BC8476.9010800@redhat.com>
+Date: Fri, 10 Aug 2007 11:29:58 -0400
+From: Daniel J Walsh <dwalsh@redhat.com>
+MIME-Version: 1.0
+To: Stephen Smalley <sds@tycho.nsa.gov>
+CC: Joshua Brindle <method@manicmethod.com>, James Morris <jmorris@namei.org>,
+        Eric Paris <eparis@redhat.com>, selinux@tycho.nsa.gov
+Subject: Re: [PATCH] selinuxfs to globally disable dontaudit rules
+References: <1186696737.20393.10.camel@localhost.localdomain>	 <Pine.LNX.4.64.0708091525410.30691@us.intercode.com.au>	 <46BBAE00.7050600@manicmethod.com>  <46BBBDDF.2000307@manicmethod.com> <1186747308.7233.22.camel@moss-spartans.epoch.ncsc.mil>
+In-Reply-To: <1186747308.7233.22.camel@moss-spartans.epoch.ncsc.mil>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2007-08-10 at 09:17 -0400, Daniel J Walsh wrote:
-> Christopher J. PeBenito wrote:
-> > On Thu, 2007-08-02 at 16:04 -0400, dwalsh@redhat.com wrote:
-> >   
-> >> Additional interfaces for kernel access
-> >>
-> >> @@ -1848,6 +1866,27 @@
-> >>
-> >>  ########################################
-> >>  ## <summary>
-> >> +##     Read the process state (/proc/pid) of all unlabeled_t.
-> >> +## </summary>
-> >> +## <param name="domain">
-> >> +##     <summary>
-> >> +##     Domain allowed access.
-> >> +##     </summary>
-> >> +## </param>
-> >> +#
-> >> +interface(`kernel_read_unlabeled_state',`
-> >> +       gen_require(`
-> >> +               type unlabeled_t;
-> >> +       ')
-> >> +
-> >> +       allow $1 unlabeled_t:dir list_dir_perms;
-> >> +       read_files_pattern($1,unlabeled_t,unlabeled_t)
-> >> +       read_lnk_files_pattern($1,unlabeled_t,unlabeled_t)
-> >> +')
-> >>     
-> >
-> > I'm concerned about this interface since unlabled_t is used for domains
-> > and objects.  Someone using this interface might not realize the
-> > specified domain can now also read other unlabeled files.
-> >
-> >   
-> The only domain that gets assigned this is sysadm_t.  I believe this was 
-> needed in order to kill processes that were in the unlabeled state.  For 
-> example if a sysadm unloads a policy file for a running process.  The 
-> process goes wild eating up all of cpu, and he can't kill it or even see 
-> which process is causing the problem.
+Stephen Smalley wrote:
+> On Thu, 2007-08-09 at 21:22 -0400, Joshua Brindle wrote:
+>   
+>> Joshua Brindle wrote:
+>>     
+>>> James Morris wrote:
+>>>       
+>>>> On Thu, 9 Aug 2007, Eric Paris wrote:
+>>>>
+>>>>  
+>>>>         
+>>>>> Currently to disable dontaudit rules best you can do it to load the
+>>>>> enableaudit.pp base policy.  Which still doesn't remove the dontaudit
+>>>>> rules from modules.
+>>>>>     
+>>>>>           
+>>>> Are we sure this can't be done in userspace?  Like, mangle all the 
+>>>> existing policy and reload it?
+>>>>
+>>>>   
+>>>>         
+>>> I agree, the infrastructure is certainly in place to do it, just add 
+>>> something in the sepol_handle that says dontaudits should be 
+>>> discarded, then make an interface in libsemanage that uses that and 
+>>> rebuild the policy.
+>>>
+>>> If noone beats me to it I will see if my conclusions about it being 
+>>> fairly simple are accurate this weekend :)
+>>>
+>>>       
+>> I changed my mind, patch below
+>>
+>> it compiles and seems to work after semodule -DB:
+>>     
+>
+> Hmm...doing it this way means that the "disable_dontaudit" behavior
+> won't persist across subsequent policy changes, so if I e.g. then change
+> a boolean persistently, I'll get back all of the dontaudit rules too.
+>
+> Is that what you want, or do you want this flag saved in the policy
+> module store and settable/clearable via semanage to be applied to all
+> subsequent policy builds?
+>
+>   
+This looks great but it needs to survive a policy rebuild as Stephen says.
 
-I suppose we should turn this into a read unlabeled files interface
-instead.  That makes it clear that they can read unlabeled files.
 
--- 
-Chris PeBenito
-Tresys Technology, LLC
-(410) 290-1411 x150
+>> [root@scarecrow policy]# sediff -T policy.21.old \; policy.21 | grep -v
+>> dontaudit
+>> TE Rules (Added 0, Added New Type 0, Removed 326583, Removed Missing
+>> Type 0, Modified 0)
+>>  Added TE Rules: 0
+>>  Added TE Rules because of new type: 0
+>>  Removed TE Rules: 326583
+>>  Removed TE Rules because of missing type: 0
+>>  Modified TE Rules: 0
+>>
+>> Index: libsemanage/include/semanage/handle.h
+>> ===================================================================
+>> --- libsemanage/include/semanage/handle.h	(revision 2511)
+>> +++ libsemanage/include/semanage/handle.h	(working copy)
+>> @@ -69,6 +69,9 @@
+>>   * 1 for yes, 0 for no (default) */
+>>  void semanage_set_create_store(semanage_handle_t * handle, int create_store);
+>>  
+>> +/* Set whether or not to disable dontaudits upon commit */
+>> +void semanage_set_disable_dontaudit(semanage_handle_t * handle, int disable_dontaudit);
+>> +
+>>  /* Check whether policy is managed via libsemanage on this system.
+>>   * Must be called prior to trying to connect.
+>>   * Return 1 if policy is managed via libsemanage on this system,
+>> Index: libsemanage/src/libsemanage.map
+>> ===================================================================
+>> --- libsemanage/src/libsemanage.map	(revision 2511)
+>> +++ libsemanage/src/libsemanage.map	(working copy)
+>> @@ -13,6 +13,6 @@
+>>  	  semanage_iface_*; semanage_port_*; semanage_context_*;
+>>  	  semanage_node_*;
+>>  	  semanage_fcontext_*; semanage_access_check; semanage_set_create_store;
+>> -	  semanage_is_connected;
+>> +	  semanage_is_connected; semanage_set_disable_dontaudit;
+>>    local: *;
+>>  };
+>> Index: libsemanage/src/handle.c
+>> ===================================================================
+>> --- libsemanage/src/handle.c	(revision 2511)
+>> +++ libsemanage/src/handle.c	(working copy)
+>> @@ -109,6 +109,14 @@
+>>  	return;
+>>  }
+>>  
+>> +void semanage_set_disable_dontaudit(semanage_handle_t * sh, int disable_dontaudit)
+>> +{
+>> +	assert(sh != NULL);
+>> +	
+>> +	sepol_set_disable_dontaudit(sh->sepolh, disable_dontaudit);
+>> +	return;
+>> +}
+>> +
+>>  int semanage_is_connected(semanage_handle_t * sh)
+>>  {
+>>  	assert(sh != NULL);
+>> Index: libsepol/include/sepol/handle.h
+>> ===================================================================
+>> --- libsepol/include/sepol/handle.h	(revision 2511)
+>> +++ libsepol/include/sepol/handle.h	(working copy)
+>> @@ -7,6 +7,10 @@
+>>  /* Create and return a sepol handle. */
+>>  sepol_handle_t *sepol_handle_create(void);
+>>  
+>> +/* Set whether or not to disable dontaudits, 0 is default and does 
+>> + * not disable dontaudits, 1 disables them */
+>> +void sepol_set_disable_dontaudit(sepol_handle_t * sh, int disable_dontaudit);
+>> +
+>>  /* Destroy a sepol handle. */
+>>  void sepol_handle_destroy(sepol_handle_t *);
+>>  
+>> Index: libsepol/src/handle.h
+>> ===================================================================
+>> --- libsepol/src/handle.h	(revision 2511)
+>> +++ libsepol/src/handle.h	(working copy)
+>> @@ -14,6 +14,9 @@
+>>  	void (*msg_callback) (void *varg,
+>>  			      sepol_handle_t * handle, const char *fmt, ...);
+>>  	void *msg_callback_arg;
+>> +
+>> +	int disable_dontaudit;
+>> +
+>>  };
+>>  
+>>  #endif
+>> Index: libsepol/src/libsepol.map
+>> ===================================================================
+>> --- libsepol/src/libsepol.map	(revision 2511)
+>> +++ libsepol/src/libsepol.map	(working copy)
+>> @@ -12,5 +12,6 @@
+>>  	sepol_policydb_*; sepol_set_policydb_from_file; 
+>>  	sepol_policy_kern_*;
+>>  	sepol_policy_file_*;
+>> +	sepol_set_disable_dontaudit;
+>>    local: *;
+>>  };
+>> Index: libsepol/src/expand.c
+>> ===================================================================
+>> --- libsepol/src/expand.c	(revision 2511)
+>> +++ libsepol/src/expand.c	(working copy)
+>> @@ -1367,6 +1367,8 @@
+>>  	} else if (specified & AVRULE_AUDITDENY) {
+>>  		spec = AVTAB_AUDITDENY;
+>>  	} else if (specified & AVRULE_DONTAUDIT) {
+>> +		if (handle->disable_dontaudit)
+>> +			return EXPAND_RULE_SUCCESS;
+>>  		spec = AVTAB_AUDITDENY;
+>>  	} else if (specified & AVRULE_NEVERALLOW) {
+>>  		spec = AVTAB_NEVERALLOW;
+>> Index: libsepol/src/handle.c
+>> ===================================================================
+>> --- libsepol/src/handle.c	(revision 2511)
+>> +++ libsepol/src/handle.c	(working copy)
+>> @@ -1,4 +1,5 @@
+>>  #include <stdlib.h>
+>> +#include <assert.h>
+>>  #include "handle.h"
+>>  #include "debug.h"
+>>  
+>> @@ -13,9 +14,18 @@
+>>  	sh->msg_callback = sepol_msg_default_handler;
+>>  	sh->msg_callback_arg = NULL;
+>>  
+>> +	/* by default do not disable dontaudits */
+>> +	sh->disable_dontaudit = 0;
+>> +
+>>  	return sh;
+>>  }
+>>  
+>> +void sepol_set_disable_dontaudit(sepol_handle_t * sh, int disable_dontaudit)
+>> +{
+>> +	assert(sh !=NULL);
+>> +	sh->disable_dontaudit = disable_dontaudit;
+>> +}
+>> +
+>>  void sepol_handle_destroy(sepol_handle_t * sh)
+>>  {
+>>  	free(sh);
+>> Index: policycoreutils/semodule/semodule.c
+>> ===================================================================
+>> --- policycoreutils/semodule/semodule.c	(revision 2511)
+>> +++ policycoreutils/semodule/semodule.c	(working copy)
+>> @@ -44,6 +44,7 @@
+>>  static int no_reload;
+>>  static int create_store;
+>>  static int build;
+>> +static int disable_dontaudit;
+>>  
+>>  static semanage_handle_t *sh = NULL;
+>>  static char *store;
+>> @@ -131,6 +132,7 @@
+>>  	printf("  -n,--noreload	   do not reload policy after commit\n");
+>>  	printf("  -h,--help        print this message and quit\n");
+>>  	printf("  -v,--verbose     be verbose\n");
+>> +	printf("  -D,--disable_dontaudit	Remove dontaudits from policy\n");
+>>  }
+>>  
+>>  /* Sets the global mode variable to new_mode, but only if no other
+>> @@ -173,6 +175,7 @@
+>>  		{"reload", 0, NULL, 'R'},
+>>  		{"noreload", 0, NULL, 'n'},
+>>  		{"build", 0, NULL, 'B'},
+>> +		{"disable_dontaudit", 0, NULL, 'D'},
+>>  		{NULL, 0, NULL, 0}
+>>  	};
+>>  	int i;
+>> @@ -181,7 +184,7 @@
+>>  	no_reload = 0;
+>>  	create_store = 0;
+>>  	while ((i =
+>> -		getopt_long(argc, argv, "s:b:hi:lvqr:u:RnB", opts,
+>> +		getopt_long(argc, argv, "s:b:hi:lvqr:u:RnBD", opts,
+>>  			    NULL)) != -1) {
+>>  		switch (i) {
+>>  		case 'b':
+>> @@ -218,6 +221,9 @@
+>>  		case 'B':
+>>  			build = 1;
+>>  			break;
+>> +		case 'D':
+>> +			disable_dontaudit = 1;
+>> +			break;
+>>  		case '?':
+>>  		default:{
+>>  				usage(argv[0]);
+>> @@ -441,6 +447,8 @@
+>>  			semanage_set_reload(sh, 0);
+>>  		if (build)
+>>  			semanage_set_rebuild(sh, 1);
+>> +		if (disable_dontaudit)
+>> +			semanage_set_disable_dontaudit(sh, 1);
+>>  		result = semanage_commit(sh);
+>>  	}
+>>  
+>>
+>>
+>>     
 
 
 --
