@@ -1,239 +1,141 @@
-Message-ID: <46BBBDDF.2000307@manicmethod.com>
-Date: Thu, 09 Aug 2007 21:22:39 -0400
-From: Joshua Brindle <method@manicmethod.com>
-MIME-Version: 1.0
+Date: Fri, 10 Aug 2007 16:25:20 +0900
+From: Yuichi Nakamura <ynakam@hitachisoft.jp>
 To: James Morris <jmorris@namei.org>
-CC: Eric Paris <eparis@redhat.com>, selinux@tycho.nsa.gov, sds@tycho.nsa.gov,
-        dwalsh@redhat.com
-Subject: Re: [PATCH] selinuxfs to globally disable dontaudit rules
-References: <1186696737.20393.10.camel@localhost.localdomain> <Pine.LNX.4.64.0708091525410.30691@us.intercode.com.au> <46BBAE00.7050600@manicmethod.com>
-In-Reply-To: <46BBAE00.7050600@manicmethod.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Subject: Re: Appropriate number of hash slots for te_avtab(Was:Re: [RFC] Dynamically deciding number of hash slots for avtab
+Cc: ynakam@hitachisoft.jp, Stephen Smalley <sds@tycho.nsa.gov>,
+        selinux@tycho.nsa.gov, busybox@kaigai.gr.jp,
+        Eric Paris <eparis@parisplace.org>, kaigai@ak.jp.nec.com,
+        method@manicmethod.com
+In-Reply-To: <Pine.LNX.4.64.0708080833570.3111@us.intercode.com.au>
+References: <1186584312.6916.111.camel@moss-spartans.epoch.ncsc.mil> <Pine.LNX.4.64.0708080833570.3111@us.intercode.com.au>
+Message-Id: <20070810162046.255A.YNAKAM@hitachisoft.jp>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="US-ASCII"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Joshua Brindle wrote:
-> James Morris wrote:
->> On Thu, 9 Aug 2007, Eric Paris wrote:
->>
->>  
->>> Currently to disable dontaudit rules best you can do it to load the
->>> enableaudit.pp base policy.  Which still doesn't remove the dontaudit
->>> rules from modules.
->>>     
->>
->> Are we sure this can't be done in userspace?  Like, mangle all the 
->> existing policy and reload it?
->>
->>   
-> I agree, the infrastructure is certainly in place to do it, just add 
-> something in the sepol_handle that says dontaudits should be 
-> discarded, then make an interface in libsemanage that uses that and 
-> rebuild the policy.
->
-> If noone beats me to it I will see if my conclusions about it being 
-> fairly simple are accurate this weekend :)
->
 
-I changed my mind, patch below
+On Wed, 8 Aug 2007 08:35:09 -0700 (PDT)
+James Morris wrote:
+> On Wed, 8 Aug 2007, Stephen Smalley wrote:
+> 
+> > > Can We use jhash ?
+> > 
+> > I think so, as long as it doesn't impose a significant overhead.
+> 
+> It's now used extensively in the networking code, so I suspect it will be 
+> ok (and unlikely to be a bottleneck for SELinux), but yep, we do need to 
+> measure it.
 
-it compiles and seems to work after semodule -DB:
+I've measured performance of hash functions in avtab.c.
+I compared default hash and jhash.
 
-[root@scarecrow policy]# sediff -T policy.21.old \; policy.21 | grep -v
-dontaudit
-TE Rules (Added 0, Added New Type 0, Removed 326583, Removed Missing
-Type 0, Modified 0)
- Added TE Rules: 0
- Added TE Rules because of new type: 0
- Removed TE Rules: 326583
- Removed TE Rules because of missing type: 0
- Modified TE Rules: 0
+To measure performance, I measured time to call security_compute_av.
+I measured time 10000 security_compute_av call from system boot, 
+like below code.
 
-Index: libsemanage/include/semanage/handle.h
-===================================================================
---- libsemanage/include/semanage/handle.h	(revision 2511)
-+++ libsemanage/include/semanage/handle.h	(working copy)
-@@ -69,6 +69,9 @@
-  * 1 for yes, 0 for no (default) */
- void semanage_set_create_store(semanage_handle_t * handle, int create_store);
- 
-+/* Set whether or not to disable dontaudits upon commit */
-+void semanage_set_disable_dontaudit(semanage_handle_t * handle, int disable_dontaudit);
-+
- /* Check whether policy is managed via libsemanage on this system.
-  * Must be called prior to trying to connect.
-  * Return 1 if policy is managed via libsemanage on this system,
-Index: libsemanage/src/libsemanage.map
-===================================================================
---- libsemanage/src/libsemanage.map	(revision 2511)
-+++ libsemanage/src/libsemanage.map	(working copy)
-@@ -13,6 +13,6 @@
- 	  semanage_iface_*; semanage_port_*; semanage_context_*;
- 	  semanage_node_*;
- 	  semanage_fcontext_*; semanage_access_check; semanage_set_create_store;
--	  semanage_is_connected;
-+	  semanage_is_connected; semanage_set_disable_dontaudit;
-   local: *;
- };
-Index: libsemanage/src/handle.c
-===================================================================
---- libsemanage/src/handle.c	(revision 2511)
-+++ libsemanage/src/handle.c	(working copy)
-@@ -109,6 +109,14 @@
- 	return;
- }
- 
-+void semanage_set_disable_dontaudit(semanage_handle_t * sh, int disable_dontaudit)
-+{
-+	assert(sh != NULL);
-+	
-+	sepol_set_disable_dontaudit(sh->sepolh, disable_dontaudit);
-+	return;
-+}
-+
- int semanage_is_connected(semanage_handle_t * sh)
- {
- 	assert(sh != NULL);
-Index: libsepol/include/sepol/handle.h
-===================================================================
---- libsepol/include/sepol/handle.h	(revision 2511)
-+++ libsepol/include/sepol/handle.h	(working copy)
-@@ -7,6 +7,10 @@
- /* Create and return a sepol handle. */
- sepol_handle_t *sepol_handle_create(void);
- 
-+/* Set whether or not to disable dontaudits, 0 is default and does 
-+ * not disable dontaudits, 1 disables them */
-+void sepol_set_disable_dontaudit(sepol_handle_t * sh, int disable_dontaudit);
-+
- /* Destroy a sepol handle. */
- void sepol_handle_destroy(sepol_handle_t *);
- 
-Index: libsepol/src/handle.h
-===================================================================
---- libsepol/src/handle.h	(revision 2511)
-+++ libsepol/src/handle.h	(working copy)
-@@ -14,6 +14,9 @@
- 	void (*msg_callback) (void *varg,
- 			      sepol_handle_t * handle, const char *fmt, ...);
- 	void *msg_callback_arg;
-+
-+	int disable_dontaudit;
-+
- };
- 
- #endif
-Index: libsepol/src/libsepol.map
-===================================================================
---- libsepol/src/libsepol.map	(revision 2511)
-+++ libsepol/src/libsepol.map	(working copy)
-@@ -12,5 +12,6 @@
- 	sepol_policydb_*; sepol_set_policydb_from_file; 
- 	sepol_policy_kern_*;
- 	sepol_policy_file_*;
-+	sepol_set_disable_dontaudit;
-   local: *;
- };
-Index: libsepol/src/expand.c
-===================================================================
---- libsepol/src/expand.c	(revision 2511)
-+++ libsepol/src/expand.c	(working copy)
-@@ -1367,6 +1367,8 @@
- 	} else if (specified & AVRULE_AUDITDENY) {
- 		spec = AVTAB_AUDITDENY;
- 	} else if (specified & AVRULE_DONTAUDIT) {
-+		if (handle->disable_dontaudit)
-+			return EXPAND_RULE_SUCCESS;
- 		spec = AVTAB_AUDITDENY;
- 	} else if (specified & AVRULE_NEVERALLOW) {
- 		spec = AVTAB_NEVERALLOW;
-Index: libsepol/src/handle.c
-===================================================================
---- libsepol/src/handle.c	(revision 2511)
-+++ libsepol/src/handle.c	(working copy)
-@@ -1,4 +1,5 @@
- #include <stdlib.h>
-+#include <assert.h>
- #include "handle.h"
- #include "debug.h"
- 
-@@ -13,9 +14,18 @@
- 	sh->msg_callback = sepol_msg_default_handler;
- 	sh->msg_callback_arg = NULL;
- 
-+	/* by default do not disable dontaudits */
-+	sh->disable_dontaudit = 0;
-+
- 	return sh;
- }
- 
-+void sepol_set_disable_dontaudit(sepol_handle_t * sh, int disable_dontaudit)
-+{
-+	assert(sh !=NULL);
-+	sh->disable_dontaudit = disable_dontaudit;
-+}
-+
- void sepol_handle_destroy(sepol_handle_t * sh)
- {
- 	free(sh);
-Index: policycoreutils/semodule/semodule.c
-===================================================================
---- policycoreutils/semodule/semodule.c	(revision 2511)
-+++ policycoreutils/semodule/semodule.c	(working copy)
-@@ -44,6 +44,7 @@
- static int no_reload;
- static int create_store;
- static int build;
-+static int disable_dontaudit;
- 
- static semanage_handle_t *sh = NULL;
- static char *store;
-@@ -131,6 +132,7 @@
- 	printf("  -n,--noreload	   do not reload policy after commit\n");
- 	printf("  -h,--help        print this message and quit\n");
- 	printf("  -v,--verbose     be verbose\n");
-+	printf("  -D,--disable_dontaudit	Remove dontaudits from policy\n");
- }
- 
- /* Sets the global mode variable to new_mode, but only if no other
-@@ -173,6 +175,7 @@
- 		{"reload", 0, NULL, 'R'},
- 		{"noreload", 0, NULL, 'n'},
- 		{"build", 0, NULL, 'B'},
-+		{"disable_dontaudit", 0, NULL, 'D'},
- 		{NULL, 0, NULL, 0}
- 	};
- 	int i;
-@@ -181,7 +184,7 @@
- 	no_reload = 0;
- 	create_store = 0;
- 	while ((i =
--		getopt_long(argc, argv, "s:b:hi:lvqr:u:RnB", opts,
-+		getopt_long(argc, argv, "s:b:hi:lvqr:u:RnBD", opts,
- 			    NULL)) != -1) {
- 		switch (i) {
- 		case 'b':
-@@ -218,6 +221,9 @@
- 		case 'B':
- 			build = 1;
- 			break;
-+		case 'D':
-+			disable_dontaudit = 1;
-+			break;
- 		case '?':
- 		default:{
- 				usage(argv[0]);
-@@ -441,6 +447,8 @@
- 			semanage_set_reload(sh, 0);
- 		if (build)
- 			semanage_set_rebuild(sh, 1);
-+		if (disable_dontaudit)
-+			semanage_set_disable_dontaudit(sh, 1);
- 		result = semanage_commit(sh);
- 	}
- 
+int avc_has_perm_noaudit(u32 ssid, u32 tsid,
+                         u16 tclass, u32 requested,
+                         struct av_decision *avd)
+{
+	struct avc_node *node;
+	struct avc_entry entry, *p_ae;
+	int rc = 0;
+	u32 denied;
++	unsigned long long t0,t1;
++	unsigned long long t2=0;
++	static unsigned long long t3=0;
++	static int count = 0;
++	static int flag = 1;
++	static int max = 10000;
++	int i = 0;
 
 
+	rcu_read_lock();
++	if (flag && ss_initialized) {
++		t0 = sched_clock();
++		security_compute_av(ssid,tsid,tclass, requested, &entry.avd);
++		t1 = sched_clock();
++		t2 = t1 - t0;
++		t3 += t2;
++		count ++;
++	} 
++	if (flag && (count == max)) {
++		flag = 0;
++		printk("SELinux:security_compute_av execution time:%Lu\n", t3);
++
++	}
+
+security_compute_av is located at the entry of avc_has_perm_no_audit.
+And nano second to call 10000 security_compute_av function is printed out.
+
+I did this benchmark varying hash table size, policy and hash functions.
+I summarized result with hash table chain length(those I measured in previous message).
+Below is a result.
+
+1. Result for 1) (Full strict refpolicy)
+* max table size = 32768
+        usage of slot  chain-length  time to call 10000 security_compute_av(sec)
+default: 30128/32768   34            6.95
+jhash  : 32391/32768   21            7.28
+
+* 16384
+default:  16221/16384 59  6.91
+jhash:    16382/16384 27  7.28
+
+* 8192
+default: 8190/8192 97 7.15
+jhash:   8192/8192 41 7.78
+
+*  4096
+default: 4096/4096  182 7.73
+jhash:   4096/4096  67  8.87
+
+2. Result for 2) (smaller refpolicy)
+* Number of slot = num of rules
+        usage of slot  chain-length time(sec)
+default : 3925/8192      13           9.65
+jhash   : 5053/8192      7           10.1
+
+* Number of slot = num of rules/2
+default : 2809/4096  21   9.63
+jhash   : 3466/4096   9   10.35
+
+* Number of slot = num of rules/4
+default: 1742/2048  35    9.69
+jhash:   1991/2048  12   10.35
+
+*  Number of slot = num of rules/8
+default: 978/1024    64  10.02
+jhash  : 1024/1024   22  11.23
+
+* Number of slot = default(32768)
+default: 5993/32768 7   9.99
+jhash:  6975/32768  4  10.50
+
+In both case,
+about chain length, jhash is better,
+however, performance is worse !
+so is it better not to use jhash??
+
+About max number of hash slots, 
+we can use 16384 or 8192, because performance is almost the same.
+About number of dynamically allocated hash slots, 
+we can use slot = num of rules /4?
+
+And there is one strange thing.
+Performance is worse in smaller policy.
+For 32768 hash slots, default hash function, 
+6.95(s) for strict policy, 9.99(s) for smaller refpolicy.
+
+Any comments, please.
+
+Regards,
+-- 
+Yuichi Nakamura
+Hitachi Software Engineering Co., Ltd.
+Japan SELinux Users Group(JSELUG): http://www.selinux.gr.jp/
+SELinux Policy Editor: http://seedit.sourceforge.net/
 
 
 --
