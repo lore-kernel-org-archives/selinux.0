@@ -1,27 +1,54 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l7AFoY6T016132
-	for <selinux@tycho.nsa.gov>; Fri, 10 Aug 2007 11:50:34 -0400
-Received: from web36615.mail.mud.yahoo.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with SMTP id l7AFoV1t016938
-	for <selinux@tycho.nsa.gov>; Fri, 10 Aug 2007 15:50:31 GMT
-Date: Fri, 10 Aug 2007 08:49:51 -0700 (PDT)
-From: Casey Schaufler <casey@schaufler-ca.com>
-Reply-To: casey@schaufler-ca.com
-Subject: Makeup of a secctx
-To: SELinux List <selinux@tycho.nsa.gov>
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l7AFoGjo016095
+	for <selinux@tycho.nsa.gov>; Fri, 10 Aug 2007 11:50:16 -0400
+Received: from mx1.redhat.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l7AFoELC027134
+	for <selinux@tycho.nsa.gov>; Fri, 10 Aug 2007 15:50:14 GMT
+Message-ID: <46BC8913.20905@redhat.com>
+Date: Fri, 10 Aug 2007 11:49:39 -0400
+From: Daniel J Walsh <dwalsh@redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Message-ID: <934564.96590.qm@web36615.mail.mud.yahoo.com>
+To: "Clarkson, Mike R \(US SSA\)" <mike.clarkson@baesystems.com>
+CC: selinux@tycho.nsa.gov
+Subject: Re: java.if
+References: <FB39F4E77226B448BC1388D3BE4E00CD01FB787D@blums0008.bluelnk.net>
+In-Reply-To: <FB39F4E77226B448BC1388D3BE4E00CD01FB787D@blums0008.bluelnk.net>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+Clarkson, Mike R (US SSA) wrote:
+> I have a number of domains in which I run java programs. I generally
+> enter these domains using a script, and then execute_no_trans the java
+> executable. So I found I kept replicating the following allow rules in
+> these various domains:
+>
+> require {type java_exec_t;}
+> allow weblogic_t java_exec_t:file {getattr read execute
+> execute_no_trans};
+>
+> I looked for an interface to use in java.if, but didn't find one. I
+> added one myself so I could eliminate the above rule in each of these
+> domains, but I was surprised not to find an existing interface to use.
+> This seems like it would be a common issue that other policy creators
+> would run into as well, or am I just missing something?
+>
+>
+>
+> --
+> This message was distributed to subscribers of the selinux mailing list.
+> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
+> the words "unsubscribe selinux" without quotes as the message.
+>   
+Yes there should be an java_exec method.  One problem though is java 
+requires execmem execstack and usually other
+domains do not have this context.   So what we really need is a way to 
+clone a type.  So
 
-In current use a secctx is always a null terminated text string.
-Is this by definition or a happy circumstance?
+java_clone_exec(abc_t) 
 
-
-Casey Schaufler
-casey@schaufler-ca.com
+Would end up with a new domain, that was the same as  abc_t but added 
+execmem and execstack. 
 
 --
 This message was distributed to subscribers of the selinux mailing list.
