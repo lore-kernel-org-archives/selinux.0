@@ -1,50 +1,71 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l7AECcGv007095
-	for <selinux@tycho.nsa.gov>; Fri, 10 Aug 2007 10:12:38 -0400
-Received: from mail.gmx.net (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with SMTP id l7AECaLC006869
-	for <selinux@tycho.nsa.gov>; Fri, 10 Aug 2007 14:12:37 GMT
-Cc: Stephen Smalley <sds@tycho.nsa.gov>
-Content-Type: text/plain; charset="us-ascii"
-Date: Fri, 10 Aug 2007 16:12:36 +0200
-From: selinux770@tortenboxer.de
-In-Reply-To: <1186751971.7233.70.camel@moss-spartans.epoch.ncsc.mil>
-Message-ID: <20070810141236.128070@gmx.net>
-MIME-Version: 1.0
-References: <20070810101003.128080@gmx.net>	
- <1186746338.7233.11.camel@moss-spartans.epoch.ncsc.mil>	
- <20070810121259.128050@gmx.net>	
- <1186748504.7233.34.camel@moss-spartans.epoch.ncsc.mil>	
- <20070810130703.128070@gmx.net>
- <1186751971.7233.70.camel@moss-spartans.epoch.ncsc.mil>
-Subject: Re: wrong magic number (using old sources)
-To: selinux@tycho.nsa.gov
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l7AF5GBn011823
+	for <selinux@tycho.nsa.gov>; Fri, 10 Aug 2007 11:05:16 -0400
+Received: from exchange.columbia.tresys.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with SMTP id l7AF5E1t004117
+	for <selinux@tycho.nsa.gov>; Fri, 10 Aug 2007 15:05:14 GMT
+Subject: Re: [PATCH] refpolicy: kernel_kernel changes
+From: "Christopher J. PeBenito" <cpebenito@tresys.com>
+To: Daniel J Walsh <dwalsh@redhat.com>
+Cc: selinux@tycho.nsa.gov
+In-Reply-To: <46BC6555.9010802@redhat.com>
+References: <200708022004.l72K4Ome029700@redsox.boston.devel.redhat.com>
+	 <1186497721.18881.27.camel@gorn>  <46BC6555.9010802@redhat.com>
+Content-Type: text/plain
+Date: Fri, 10 Aug 2007 15:04:37 +0000
+Message-Id: <1186758277.25504.33.camel@gorn.columbia.tresys.com>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-> > Then i think it's 
-> > selinux-policy-default_1.26-7 or
-> > selinux-policy-default_1.26
-> > 
-> > I'm not really sure about that, because the policy was not written by
-> me. It's only for testing. If the version of the policy is relevant, this
-> might by the most probable error. Which version has the policyto be (at least)
->  to work with the (old) packages I mentioned?
-> 
-> That should be fine; you'd only run into problems if using newer
-> reference policy versions with that older checkpolicy.
-> 
-> I'd suggest sending me a copy of your policy.conf and policy.20
-> off-list, and ideally giving me the precise URLs where I can find
-> the .tar.gz files that you used as your baseline.  Then I can try to
-> re-create the bug.
+On Fri, 2007-08-10 at 09:17 -0400, Daniel J Walsh wrote:
+> Christopher J. PeBenito wrote:
+> > On Thu, 2007-08-02 at 16:04 -0400, dwalsh@redhat.com wrote:
+> >   
+> >> Additional interfaces for kernel access
+> >>
+> >> @@ -1848,6 +1866,27 @@
+> >>
+> >>  ########################################
+> >>  ## <summary>
+> >> +##     Read the process state (/proc/pid) of all unlabeled_t.
+> >> +## </summary>
+> >> +## <param name="domain">
+> >> +##     <summary>
+> >> +##     Domain allowed access.
+> >> +##     </summary>
+> >> +## </param>
+> >> +#
+> >> +interface(`kernel_read_unlabeled_state',`
+> >> +       gen_require(`
+> >> +               type unlabeled_t;
+> >> +       ')
+> >> +
+> >> +       allow $1 unlabeled_t:dir list_dir_perms;
+> >> +       read_files_pattern($1,unlabeled_t,unlabeled_t)
+> >> +       read_lnk_files_pattern($1,unlabeled_t,unlabeled_t)
+> >> +')
+> >>     
+> >
+> > I'm concerned about this interface since unlabled_t is used for domains
+> > and objects.  Someone using this interface might not realize the
+> > specified domain can now also read other unlabeled files.
+> >
+> >   
+> The only domain that gets assigned this is sysadm_t.  I believe this was 
+> needed in order to kill processes that were in the unlabeled state.  For 
+> example if a sysadm unloads a policy file for a running process.  The 
+> process goes wild eating up all of cpu, and he can't kill it or even see 
+> which process is causing the problem.
 
-Ok, I just tried to compile the up-to-date stable package from the nsa page. Compiling seems to work with the help you provided. Thanks again for that.
+I suppose we should turn this into a read unlabeled files interface
+instead.  That makes it clear that they can read unlabeled files.
 
-I will now try to bring the system up now with the new packages. This might take some days. I'll notify you about results.
 -- 
-Ist Ihr Browser Vista-kompatibel? Jetzt die neuesten 
-Browser-Versionen downloaden: http://www.gmx.net/de/go/browser
+Chris PeBenito
+Tresys Technology, LLC
+(410) 290-1411 x150
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
