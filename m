@@ -1,254 +1,85 @@
-Subject: Re: [PATCH] selinuxfs to globally disable dontaudit rules
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Joshua Brindle <method@manicmethod.com>
-Cc: James Morris <jmorris@namei.org>, Eric Paris <eparis@redhat.com>,
-        selinux@tycho.nsa.gov, dwalsh@redhat.com
-In-Reply-To: <46BBBDDF.2000307@manicmethod.com>
-References: <1186696737.20393.10.camel@localhost.localdomain>
-	 <Pine.LNX.4.64.0708091525410.30691@us.intercode.com.au>
-	 <46BBAE00.7050600@manicmethod.com>  <46BBBDDF.2000307@manicmethod.com>
-Content-Type: text/plain
-Date: Fri, 10 Aug 2007 08:01:48 -0400
-Message-Id: <1186747308.7233.22.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l7ACD26o028786
+	for <selinux@tycho.nsa.gov>; Fri, 10 Aug 2007 08:13:02 -0400
+Received: from mail.gmx.net (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with SMTP id l7ACD01t019292
+	for <selinux@tycho.nsa.gov>; Fri, 10 Aug 2007 12:13:00 GMT
+Cc: Stephen Smalley <sds@tycho.nsa.gov>
+Content-Type: text/plain; charset="iso-8859-1"
+Date: Fri, 10 Aug 2007 14:12:59 +0200
+From: selinux770@tortenboxer.de
+In-Reply-To: <1186746338.7233.11.camel@moss-spartans.epoch.ncsc.mil>
+Message-ID: <20070810121259.128050@gmx.net>
+MIME-Version: 1.0
+References: <20070810101003.128080@gmx.net>
+ <1186746338.7233.11.camel@moss-spartans.epoch.ncsc.mil>
+Subject: Re: wrong magic number (using old sources)
+To: selinux@tycho.nsa.gov
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2007-08-09 at 21:22 -0400, Joshua Brindle wrote:
-> Joshua Brindle wrote:
-> > James Morris wrote:
-> >> On Thu, 9 Aug 2007, Eric Paris wrote:
-> >>
-> >>  
-> >>> Currently to disable dontaudit rules best you can do it to load the
-> >>> enableaudit.pp base policy.  Which still doesn't remove the dontaudit
-> >>> rules from modules.
-> >>>     
-> >>
-> >> Are we sure this can't be done in userspace?  Like, mangle all the 
-> >> existing policy and reload it?
-> >>
-> >>   
-> > I agree, the infrastructure is certainly in place to do it, just add 
-> > something in the sepol_handle that says dontaudits should be 
-> > discarded, then make an interface in libsemanage that uses that and 
-> > rebuild the policy.
-> >
-> > If noone beats me to it I will see if my conclusions about it being 
-> > fairly simple are accurate this weekend :)
-> >
-> 
-> I changed my mind, patch below
-> 
-> it compiles and seems to work after semodule -DB:
+> You should be able to use the latest selinux userland even if using an
+> older kernel; newer userlands can still generate older kernel policy
+> formats.
 
-Hmm...doing it this way means that the "disable_dontaudit" behavior
-won't persist across subsequent policy changes, so if I e.g. then change
-a boolean persistently, I'll get back all of the dontaudit rules too.
+The current stable userlands don't compile in my environment.
+First, libselinux-1.34.7 throws a compiler error which seems to be caused by a gcc bug:
+cc  -shared -o libselinux.so.1 avc.lo avc_internal.lo avc_sidtab.lo booleans.lo canonicalize_context.lo checkAccess.lo check_context.lo compute_av.lo compute_cr eate.lo compute_member.lo compute_relabel.lo compute_user.lo context.lo disable. lo enabled.lo fgetfilecon.lo freecon.lo freeconary.lo fsetfilecon.lo get_context _list.lo get_default_type.lo getenforce.lo getfilecon.lo getpeercon.lo init.lo i s_customizable_type.lo lgetfilecon.lo load_policy.lo lsetfilecon.lo matchmediaco n.lo matchpathcon.lo policyvers.lo procattr.lo query_user_context.lo rpm.lo seli nux_check_securetty_context.lo selinux_config.lo setenforce.lo setfilecon.lo set rans_client.lo seusers.lo -ldl -lsepol -L/usr/lib -Wl,-soname,libselinux.so.1,-z ,defs,-z,relro
+matchpathcon.lo: In function `set_matchpathcon_flags':matchpathcon.c:(.text+0x27 0): undefined reference to `__tls_get_addr'
+matchpathcon.lo: In function `process_line':matchpathcon.c:(.text+0x1cf0): undef ined reference to `__tls_get_addr'
+matchpathcon.lo: In function `matchpathcon_init_prefix':matchpathcon.c:(.text+0x 1fdc): undefined reference to `__tls_get_addr'
+matchpathcon.lo: In function `matchpathcon':matchpathcon.c:(.text+0x2eb0): undef ined reference to `__tls_get_addr'
+matchpathcon.lo: In function `selinux_file_context_verify':matchpathcon.c:(.text +0x3400): undefined reference to `__tls_get_addr'
+matchpathcon.lo:matchpathcon.c:(.text+0x3468): more undefined references to `__t ls_get_addr' follow
+collect2: ld returned 1 exit status
+make[1]: *** [libselinux.so.1] Error 1
 
-Is that what you want, or do you want this flag saved in the policy
-module store and settable/clearable via semanage to be applied to all
-subsequent policy builds?
+It could be solved by removing -z,defs from the src/Makefile. I don't know the consequences but it works.
 
-> 
-> [root@scarecrow policy]# sediff -T policy.21.old \; policy.21 | grep -v
-> dontaudit
-> TE Rules (Added 0, Added New Type 0, Removed 326583, Removed Missing
-> Type 0, Modified 0)
->  Added TE Rules: 0
->  Added TE Rules because of new type: 0
->  Removed TE Rules: 326583
->  Removed TE Rules because of missing type: 0
->  Modified TE Rules: 0
-> 
-> Index: libsemanage/include/semanage/handle.h
-> ===================================================================
-> --- libsemanage/include/semanage/handle.h	(revision 2511)
-> +++ libsemanage/include/semanage/handle.h	(working copy)
-> @@ -69,6 +69,9 @@
->   * 1 for yes, 0 for no (default) */
->  void semanage_set_create_store(semanage_handle_t * handle, int create_store);
->  
-> +/* Set whether or not to disable dontaudits upon commit */
-> +void semanage_set_disable_dontaudit(semanage_handle_t * handle, int disable_dontaudit);
-> +
->  /* Check whether policy is managed via libsemanage on this system.
->   * Must be called prior to trying to connect.
->   * Return 1 if policy is managed via libsemanage on this system,
-> Index: libsemanage/src/libsemanage.map
-> ===================================================================
-> --- libsemanage/src/libsemanage.map	(revision 2511)
-> +++ libsemanage/src/libsemanage.map	(working copy)
-> @@ -13,6 +13,6 @@
->  	  semanage_iface_*; semanage_port_*; semanage_context_*;
->  	  semanage_node_*;
->  	  semanage_fcontext_*; semanage_access_check; semanage_set_create_store;
-> -	  semanage_is_connected;
-> +	  semanage_is_connected; semanage_set_disable_dontaudit;
->    local: *;
->  };
-> Index: libsemanage/src/handle.c
-> ===================================================================
-> --- libsemanage/src/handle.c	(revision 2511)
-> +++ libsemanage/src/handle.c	(working copy)
-> @@ -109,6 +109,14 @@
->  	return;
->  }
->  
-> +void semanage_set_disable_dontaudit(semanage_handle_t * sh, int disable_dontaudit)
-> +{
-> +	assert(sh != NULL);
-> +	
-> +	sepol_set_disable_dontaudit(sh->sepolh, disable_dontaudit);
-> +	return;
-> +}
-> +
->  int semanage_is_connected(semanage_handle_t * sh)
->  {
->  	assert(sh != NULL);
-> Index: libsepol/include/sepol/handle.h
-> ===================================================================
-> --- libsepol/include/sepol/handle.h	(revision 2511)
-> +++ libsepol/include/sepol/handle.h	(working copy)
-> @@ -7,6 +7,10 @@
->  /* Create and return a sepol handle. */
->  sepol_handle_t *sepol_handle_create(void);
->  
-> +/* Set whether or not to disable dontaudits, 0 is default and does 
-> + * not disable dontaudits, 1 disables them */
-> +void sepol_set_disable_dontaudit(sepol_handle_t * sh, int disable_dontaudit);
-> +
->  /* Destroy a sepol handle. */
->  void sepol_handle_destroy(sepol_handle_t *);
->  
-> Index: libsepol/src/handle.h
-> ===================================================================
-> --- libsepol/src/handle.h	(revision 2511)
-> +++ libsepol/src/handle.h	(working copy)
-> @@ -14,6 +14,9 @@
->  	void (*msg_callback) (void *varg,
->  			      sepol_handle_t * handle, const char *fmt, ...);
->  	void *msg_callback_arg;
-> +
-> +	int disable_dontaudit;
-> +
->  };
->  
->  #endif
-> Index: libsepol/src/libsepol.map
-> ===================================================================
-> --- libsepol/src/libsepol.map	(revision 2511)
-> +++ libsepol/src/libsepol.map	(working copy)
-> @@ -12,5 +12,6 @@
->  	sepol_policydb_*; sepol_set_policydb_from_file; 
->  	sepol_policy_kern_*;
->  	sepol_policy_file_*;
-> +	sepol_set_disable_dontaudit;
->    local: *;
->  };
-> Index: libsepol/src/expand.c
-> ===================================================================
-> --- libsepol/src/expand.c	(revision 2511)
-> +++ libsepol/src/expand.c	(working copy)
-> @@ -1367,6 +1367,8 @@
->  	} else if (specified & AVRULE_AUDITDENY) {
->  		spec = AVTAB_AUDITDENY;
->  	} else if (specified & AVRULE_DONTAUDIT) {
-> +		if (handle->disable_dontaudit)
-> +			return EXPAND_RULE_SUCCESS;
->  		spec = AVTAB_AUDITDENY;
->  	} else if (specified & AVRULE_NEVERALLOW) {
->  		spec = AVTAB_NEVERALLOW;
-> Index: libsepol/src/handle.c
-> ===================================================================
-> --- libsepol/src/handle.c	(revision 2511)
-> +++ libsepol/src/handle.c	(working copy)
-> @@ -1,4 +1,5 @@
->  #include <stdlib.h>
-> +#include <assert.h>
->  #include "handle.h"
->  #include "debug.h"
->  
-> @@ -13,9 +14,18 @@
->  	sh->msg_callback = sepol_msg_default_handler;
->  	sh->msg_callback_arg = NULL;
->  
-> +	/* by default do not disable dontaudits */
-> +	sh->disable_dontaudit = 0;
-> +
->  	return sh;
->  }
->  
-> +void sepol_set_disable_dontaudit(sepol_handle_t * sh, int disable_dontaudit)
-> +{
-> +	assert(sh !=NULL);
-> +	sh->disable_dontaudit = disable_dontaudit;
-> +}
-> +
->  void sepol_handle_destroy(sepol_handle_t * sh)
->  {
->  	free(sh);
-> Index: policycoreutils/semodule/semodule.c
-> ===================================================================
-> --- policycoreutils/semodule/semodule.c	(revision 2511)
-> +++ policycoreutils/semodule/semodule.c	(working copy)
-> @@ -44,6 +44,7 @@
->  static int no_reload;
->  static int create_store;
->  static int build;
-> +static int disable_dontaudit;
->  
->  static semanage_handle_t *sh = NULL;
->  static char *store;
-> @@ -131,6 +132,7 @@
->  	printf("  -n,--noreload	   do not reload policy after commit\n");
->  	printf("  -h,--help        print this message and quit\n");
->  	printf("  -v,--verbose     be verbose\n");
-> +	printf("  -D,--disable_dontaudit	Remove dontaudits from policy\n");
->  }
->  
->  /* Sets the global mode variable to new_mode, but only if no other
-> @@ -173,6 +175,7 @@
->  		{"reload", 0, NULL, 'R'},
->  		{"noreload", 0, NULL, 'n'},
->  		{"build", 0, NULL, 'B'},
-> +		{"disable_dontaudit", 0, NULL, 'D'},
->  		{NULL, 0, NULL, 0}
->  	};
->  	int i;
-> @@ -181,7 +184,7 @@
->  	no_reload = 0;
->  	create_store = 0;
->  	while ((i =
-> -		getopt_long(argc, argv, "s:b:hi:lvqr:u:RnB", opts,
-> +		getopt_long(argc, argv, "s:b:hi:lvqr:u:RnBD", opts,
->  			    NULL)) != -1) {
->  		switch (i) {
->  		case 'b':
-> @@ -218,6 +221,9 @@
->  		case 'B':
->  			build = 1;
->  			break;
-> +		case 'D':
-> +			disable_dontaudit = 1;
-> +			break;
->  		case '?':
->  		default:{
->  				usage(argv[0]);
-> @@ -441,6 +447,8 @@
->  			semanage_set_reload(sh, 0);
->  		if (build)
->  			semanage_set_rebuild(sh, 1);
-> +		if (disable_dontaudit)
-> +			semanage_set_disable_dontaudit(sh, 1);
->  		result = semanage_commit(sh);
->  	}
->  
-> 
-> 
+Second, the policycoreutils-1.34-6 won't compile because of a missing header file, which is not existent in my environment:
+cc -g -Werror -Wall -W -I/usr/include -D_FILE_OFFSET_BITS=64   -c -o restorecond.o restorecond.c
+restorecond.c:44:25: sys/inotify.h: No such file or directory
+restorecond.c: In function `watch_list_free':
+restorecond.c:144: warning: implicit declaration of function `inotify_rm_watch'
+restorecond.c: In function `read_config':
+restorecond.c:283: warning: implicit declaration of function `inotify_add_watch'
+restorecond.c:283: error: `IN_MOVED_FROM' undeclared (first use in this function)
+restorecond.c:283: error: (Each undeclared identifier is reported only once
+restorecond.c:283: error: for each function it appears in.)
+restorecond.c:283: error: `IN_MODIFY' undeclared (first use in this function)
+restorecond.c: In function `watch':
+restorecond.c:291: error: invalid application of `sizeof' to incomplete type `inotify_event'
+restorecond.c:293: error: invalid application of `sizeof' to incomplete type `inotify_event'
+restorecond.c:309: error: dereferencing pointer to incomplete type
+restorecond.c:309: error: dereferencing pointer to incomplete type
+restorecond.c:310: error: dereferencing pointer to incomplete type
+restorecond.c:310: error: dereferencing pointer to incomplete type
+restorecond.c:311: error: dereferencing pointer to incomplete type
+restorecond.c:314: error: dereferencing pointer to incomplete type
+restorecond.c:316: error: dereferencing pointer to incomplete type
+restorecond.c:317: error: dereferencing pointer to incomplete type
+restorecond.c:317: error: dereferencing pointer to incomplete type
+restorecond.c:329: error: invalid application of `sizeof' to incomplete type `inotify_event'
+restorecond.c:329: error: dereferencing pointer to incomplete type
+restorecond.c: In function `watch_list_add':
+restorecond.c:412: error: `IN_CREATE' undeclared (first use in this function)
+restorecond.c:412: error: `IN_MOVED_TO' undeclared (first use in this function)
+restorecond.c: In function `main':
+restorecond.c:456: warning: implicit declaration of function `inotify_init'
+restorecond.c:484: warning: implicit declaration of function `matchpathcon_fini'
+make[1]: *** [restorecond.o] Error 1
+
+That's why I'm using the old sources. They work.
+
+> Those versions are consistent with one another.
+> Kernel version?  Policy version?
+kernel version is 2.6.16-omap1
+How do I find out the policy version?
+
+
 -- 
-Stephen Smalley
-National Security Agency
+Psssst! Schon vom neuen GMX MultiMessenger gehört?
+Der kanns mit allen: http://www.gmx.net/de/go/multimessenger
 
 
 --
