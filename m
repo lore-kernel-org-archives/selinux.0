@@ -1,122 +1,81 @@
 Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l7BFvDVf032536
-	for <selinux@tycho.nsa.gov>; Sat, 11 Aug 2007 11:57:13 -0400
-Received: from web36605.mail.mud.yahoo.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with SMTP id l7BFvBQq006383
-	for <selinux@tycho.nsa.gov>; Sat, 11 Aug 2007 15:57:12 GMT
-Date: Sat, 11 Aug 2007 08:56:56 -0700 (PDT)
-From: Casey Schaufler <casey@schaufler-ca.com>
-Reply-To: casey@schaufler-ca.com
-Subject: Re: [PATCH 00/16] Permit filesystem local caching [try #3]
-To: David Howells <dhowells@redhat.com>, casey@schaufler-ca.com
-Cc: dhowells@redhat.com, torvalds@osdl.org, akpm@osdl.org, steved@redhat.com,
-        trond.myklebust@fys.uio.no, linux-fsdevel@vger.kernel.org,
-        linux-cachefs@redhat.com, nfsv4@linux-nfs.org,
-        linux-kernel@vger.kernel.org, selinux@tycho.nsa.gov,
-        LSM List <linux-security-module@vger.kernel.org>
-In-Reply-To: <7504.1186821682@redhat.com>
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l7BI7XZE007323
+	for <selinux@tycho.nsa.gov>; Sat, 11 Aug 2007 14:07:33 -0400
+Received: from mail.gmx.net (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with SMTP id l7BI7VaG026066
+	for <selinux@tycho.nsa.gov>; Sat, 11 Aug 2007 18:07:32 GMT
+Content-Type: text/plain; charset="us-ascii"
+Date: Sat, 11 Aug 2007 20:07:30 +0200
+From: selinux770@tortenboxer.de
+In-Reply-To: <20070810141236.128070@gmx.net>
+Message-ID: <20070811180730.308640@gmx.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Message-ID: <444368.22491.qm@web36605.mail.mud.yahoo.com>
+References: <20070810101003.128080@gmx.net>	
+ <1186746338.7233.11.camel@moss-spartans.epoch.ncsc.mil>	
+ <20070810121259.128050@gmx.net>	
+ <1186748504.7233.34.camel@moss-spartans.epoch.ncsc.mil>	
+ <20070810130703.128070@gmx.net>
+ <1186751971.7233.70.camel@moss-spartans.epoch.ncsc.mil>
+ <20070810141236.128070@gmx.net>
+Subject: Re: wrong magic number (using old sources)
+To: selinux@tycho.nsa.gov
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+Hello again,
 
---- David Howells <dhowells@redhat.com> wrote:
+unfortunately, the problem persists. I've compiled the current stable package and put the files on the target syste... the error is still "wrong magic number"...
+I also recompiled the kernel... btw... is this necessary each time i change the SELinux libraries versions? I did that too many times the last week ;-)
 
-> Casey Schaufler <casey@schaufler-ca.com> wrote:
+I've got to confess it was just a quick shot, maybe i forgot something, but I don't think so. I'll retry it on monday once a again, but I'm not very confident.
+
+Is there some non-SELinux related library that may be responsible for this error? How is the magic number generated? How is it checked? Is some calculation or transformation performed on this number by other libraries? Since I cross-compile all the packages it may be the case that some libraries differ on the compiling system and the using system. It would be helpful to have a list to check these packages/libraries against inconsistencies that may be responsible for that.... 
+
+-------- Original-Nachricht --------
+Datum: Fri, 10 Aug 2007 16:12:36 +0200
+Von: selinux770@tortenboxer.de
+An: selinux@tycho.nsa.gov
+CC: Stephen Smalley <sds@tycho.nsa.gov>
+Betreff: Re: wrong magic number (using old sources)
+
+> > > Then i think it's 
+> > > selinux-policy-default_1.26-7 or
+> > > selinux-policy-default_1.26
+> > > 
+> > > I'm not really sure about that, because the policy was not written by
+> > me. It's only for testing. If the version of the policy is relevant,
+> this
+> > might by the most probable error. Which version has the policyto be (at
+> least)
+> >  to work with the (old) packages I mentioned?
+> > 
+> > That should be fine; you'd only run into problems if using newer
+> > reference policy versions with that older checkpolicy.
+> > 
+> > I'd suggest sending me a copy of your policy.conf and policy.20
+> > off-list, and ideally giving me the precise URLs where I can find
+> > the .tar.gz files that you used as your baseline.  Then I can try to
+> > re-create the bug.
 > 
-> > How would you expect an LSM that is not SELinux to interface with
-> > CacheFiles?
+> Ok, I just tried to compile the up-to-date stable package from the nsa
+> page. Compiling seems to work with the help you provided. Thanks again for
+> that.
 > 
-> You have to understand that I didn't know that much about the LSM interface,
-> so I asked advice of the Red Hat security people, who, naturally, pointed me
-> at the SELinux mailing list.  I knew my stuff would have to work with SELinux
-> to be used with RH stuff.
-
-Sigh. So it's not only SELinux specific, but RedHat specific as well.
-
-> Furthermore, as you pointed out, there aren't any other LSM modules upstream
-> yet for me to work against.  I would like CacheFiles to work with all LSM
-> modules in general, but I don't know how to do that yet.
-
-While neither is upstream you can certainly look at AppArmor and Smack,
-both of which have nefarious plans for getting upstream.
-
-> I'm open to suggestion as to how to modify things to support any LSM.
-
-It's been a long time since I dealt with file system cacheing, and
-that was under Unix, and I don't claim to have a working understanding
-of the internals of CacheFiles, but ...
-
-> Btw, do you understand the problems that CacheFiles has to deal with?  If I
-> set this down clearly, this may help you or someone else suggest a better way
-> to do things.
+> I will now try to bring the system up now with the new packages. This
+> might take some days. I'll notify you about results.
+> -- 
+> Ist Ihr Browser Vista-kompatibel? Jetzt die neuesten 
+> Browser-Versionen downloaden: http://www.gmx.net/de/go/browser
 > 
->   (1) Some random process tries to access a file on a network filesystem
->       (NFS example).
-> 
->   (2) NFS goes to the cache to attempt to read the data from there prior to
->       going to the network.
-> 
->   (3) The cache driver wants to access the files in the cache, but it's
->       running in the security context of either the aforementioned random
->       process, or one of FS-Cache's thread pool.
+> --
+> This message was distributed to subscribers of the selinux mailing list.
+> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov
+> with
+> the words "unsubscribe selinux" without quotes as the message.
 
-I think that this is the point you should attack. Control the security
-characteristics of the cache driver properly and you shouldn't need the
-complexity that you're asking to introduce.
- 
->       This security context, however, doesn't necessarily give it the rights
->       to access what's in the cache, so the driver has to be permitted to act
->       as a context appropriate to accessing the cache, without changing the
->       overall security context of the random process (which would impact
->       things trying to act on that process - kill() for example).
-
-Can you run the cache as an independent thread and send it messages
-rather than trying to do things in the context of the calling process?
-I know that that involves extra bookkeeppingg, but it's lots safer.
-
->   (4) Assuming the data is found in the cache, all well and good, but if it
->       isn't, the cache driver will have to create some files in the cache.
-> 
->       Now, if the cache driver just went ahead and created the files, they
->       could end up with their own security contexts being derived from the
->       random process's security context, thus potentially making it
-> impossible
->       for other processes to access the cache.
-
-Yes, and the SELinux semantics for what label to give a file don't
-help much, either. The problem with the "act_as" interfaces is that
-I wouldn't expect them to be any more reliable than the old access()
-system call, which never really gave you a helpful answer.
- 
->       So the file-creation part of the security context must also be
->       overridden temporarily, assuming that whatever LSM is in force has such
->       a concept.
-
-Ideally you want to be running in the right context to create the
-new file so that no one can use it and then label it "correctly"
-and make it available.
-
-> Part of the problem is that the VFS does not pass around the security context
-> as which the VFS routines act, but rather gets them from the task_struct. 
-
-That's by design. 
-
-> For
-> the most part, this is entirely sufficient, but in the cache driver case,
-> it's
-> a problem.
-
-The cache driver is a unique case with an unusual function. It's pretty
-obvious that the kernel architecture, the VFS architecture, LSM, SELinux,
-NFS and pretty much everyone else has given no thought whatever to the
-implications of their designs on file system cacheing. For all concerned,
-I'll say "sorry 'bout that".
-
-Casey Schaufler
-casey@schaufler-ca.com
+-- 
+Ist Ihr Browser Vista-kompatibel? Jetzt die neuesten 
+Browser-Versionen downloaden: http://www.gmx.net/de/go/browser
 
 --
 This message was distributed to subscribers of the selinux mailing list.
