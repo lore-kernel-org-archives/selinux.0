@@ -1,68 +1,91 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l7B9SBoY015734
-	for <selinux@tycho.nsa.gov>; Sat, 11 Aug 2007 05:28:11 -0400
-Received: from moutng.kundenserver.de (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id l7B9S9jR016091
-	for <selinux@tycho.nsa.gov>; Sat, 11 Aug 2007 09:28:10 GMT
-Mime-Version: 1.0 (Apple Message framework v752.2)
-To: SELinux List <selinux@tycho.nsa.gov>
-Message-Id: <0485FDE6-7668-4C52-B2FA-ED14C9748F11@sf-net.com>
-Content-Type: multipart/mixed; boundary=Apple-Mail-3-211348989
-Cc: "Christopher J. PeBenito" <cpebenito@tresys.com>
-Subject: [refpolicy] debian changes
-From: Stefan Schulze Frielinghaus <stefan@sf-net.com>
-Date: Sat, 11 Aug 2007 11:27:42 +0200
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l7BBNsmQ020307
+	for <selinux@tycho.nsa.gov>; Sat, 11 Aug 2007 07:23:54 -0400
+Received: from mx1.redhat.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l7BBNrHw003640
+	for <selinux@tycho.nsa.gov>; Sat, 11 Aug 2007 11:23:53 GMT
+Message-ID: <46BD9C47.6080407@redhat.com>
+Date: Sat, 11 Aug 2007 07:23:51 -0400
+From: Daniel J Walsh <dwalsh@redhat.com>
+MIME-Version: 1.0
+To: Mark <elihusmails@gmail.com>
+CC: shahbaz khan <shazalive@gmail.com>, selinux@tycho.nsa.gov,
+        fedora-selinux-list@redhat.com
+Subject: Re: beginner to SE Linux policy
+References: <9f066ee90707271204p2bfe6da7k4f8f50798c50c2e8@mail.gmail.com>	<7b740b700707280714u72d59b83j3f6c3065d15e2b79@mail.gmail.com> <9f066ee90708071056j74618a8akd860ef084f055243@mail.gmail.com>
+In-Reply-To: <9f066ee90708071056j74618a8akd860ef084f055243@mail.gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+Mark wrote:
+> Thanks for the help.  I just want to become more familiar with SE 
+> Linux and understand the context of the te, fe, if..etc files and how 
+> I can modify them so that my programs are more secure.  There just 
+> seems to be alot of information that may or may not be related in 
+> order to help me.  For instance, there is the seedit tools, SLIDE and 
+> RedHat tools available.  Also, which is a better distribution to learn 
+> SE Linux, CentOS or Fedora Core?
+>
+> I am an application developer who really just needs to learn how to 
+> write policies for the programs I am developing.  Things like 
+> policies, domains and domain transition are important areas I really 
+> want to learn.
+>
+> Thanks for the help.
+>
+> PS.  I ordered the SE Linux by Example yesterday!
+> -- 
+> ..Cheers
+> Mark
+You might want to try system-config-selinux/polgengui to build you a 
+policy template. 
+>
+> On 7/28/07, *shahbaz khan* <shazalive@gmail.com 
+> <mailto:shazalive@gmail.com>> wrote:
+>
+>     Mark
+>      
+>     Selinux by example is the best answer to ur stated problem. NSA
+>     documents will give u a good background because things have been
+>     changing alot. Do not miss tresys' reference policy and policy
+>     managemnt server. U can get more info about it from tresys'
+>     website. Once u start to get aquainted with selinux this mailing
+>     list will be more useful to u. Also join fedora selinux mailing list.
+>      
+>     I am not sure which policy analysis tool will be more useful to u.
+>     Why dont u right a more specific question to this list w.r.t.
+>     policy analysis tools. U might get good answers from selinux by
+>     example.
+>      
+>     Shaz.
+>
+>      
+>
+>
+>     On 7/28/07, *Mark* <elihusmails@gmail.com
+>     <mailto:elihusmails@gmail.com>> wrote:
+>
+>         I have seen programs that will help me to edit and analyze SE
+>         Linux policies.  What I am interested in is a resource that
+>         will help me understand what a policy does and how to write
+>         them.  At least for me, learning at the code level and not
+>         using GUI tools helps me to understand things better. 
+>
+>         So what resources are out there for me to start looking at?
+>
+>         Thanks in advance.
+>         Mark
+>
+>
+>
+> ------------------------------------------------------------------------
+>
+> --
+> fedora-selinux-list mailing list
+> fedora-selinux-list@redhat.com
+> https://www.redhat.com/mailman/listinfo/fedora-selinux-list
 
---Apple-Mail-3-211348989
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain;
-	charset=US-ASCII;
-	delsp=yes;
-	format=flowed
-
-Under Debian the file /etc/motd is only a symlink to /var/run/motd  
-which is labelled as var_run_t. OpenSSH etc. needs to read this file.  
-Attached is a patch which labels this file under Debian correctly.
-
-Also ssh generates an avc message:
-
-dmesg | audit2allow
-allow sshd_t var_lib_t:dir search;
-
-But everything works fine in enforcement mode. So my question is  
-should we dontaudit this one or should we allow it (it's only a  
-search permission on var_lib_t which shouldn't be to dangerous). This  
-regards to Debian too.
-
-cheers,
-Stefan
-
-
---Apple-Mail-3-211348989
-Content-Transfer-Encoding: 7bit
-Content-Type: application/octet-stream;
-	x-unix-mode=0644;
-	name=kernel.patch
-Content-Disposition: attachment;
-	filename=kernel.patch
-
---- /usr/src/refpolicy-20070629/policy/modules/kernel/files.fc	2007-06-20 21:47:10.000000000 +0200
-+++ policy/modules/kernel/files.fc	2007-08-11 11:14:22.000000000 +0200
-@@ -240,6 +240,9 @@
- /var/run			-d	gen_context(system_u:object_r:var_run_t,s0-mls_systemhigh)
- /var/run/.*			gen_context(system_u:object_r:var_run_t,s0)
- /var/run/.*\.*pid		<<none>>
-+ifdef(`distro_debian',`
-+/var/run/motd		--	gen_context(system_u:object_r:etc_runtime_t,s0)
-+')
- 
- /var/spool(/.*)?			gen_context(system_u:object_r:var_spool_t,s0)
- /var/spool/postfix/etc(/.*)?	gen_context(system_u:object_r:etc_t,s0)
-
---Apple-Mail-3-211348989--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
