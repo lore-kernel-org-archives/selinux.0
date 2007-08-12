@@ -1,44 +1,118 @@
-Message-ID: <46BE75D1.5030503@redhat.com>
-Date: Sat, 11 Aug 2007 22:52:01 -0400
-From: Daniel J Walsh <dwalsh@redhat.com>
-MIME-Version: 1.0
-To: Stephen Smalley <sds@tycho.nsa.gov>, Karl MacMillan <kmacmill@redhat.com>,
-        SE Linux <selinux@tycho.nsa.gov>
-Subject: Strange behavior with skype
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l7C9Ygmr026111
+	for <selinux@tycho.nsa.gov>; Sun, 12 Aug 2007 05:34:42 -0400
+Received: from moutng.kundenserver.de (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l7C9Ye28011686
+	for <selinux@tycho.nsa.gov>; Sun, 12 Aug 2007 09:34:41 GMT
+Mime-Version: 1.0 (Apple Message framework v752.2)
+To: "Christopher PeBenito J." <cpebenito@tresys.com>
+Message-Id: <BA7830DA-8473-4AE5-B2CF-50DC614E5932@sf-net.com>
+Content-Type: multipart/mixed; boundary=Apple-Mail-2-298135624
+Cc: SELinux List <selinux@tycho.nsa.gov>
+Subject: [refpolicy] awstats
+From: Stefan Schulze Frielinghaus <stefan@sf-net.com>
+Date: Sun, 12 Aug 2007 11:34:09 +0200
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=246762
 
-I downloaded skype from this site
+--Apple-Mail-2-298135624
+Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;
+	charset=US-ASCII;
+	format=flowed
 
-http://www.skype.com/download/skype/linux/
-
-Installed it and did a 
-
-chcon -t unconfined_execmem_exec_t /usr/bin/skype
-
-# ls -lZ /usr/bin/skype
--rwxr-xr-x  root root system_u:object_r:unconfined_execmem_exec_t /usr/bin/skype
+Attached is a new policy for awstats
 
 
-But when I run it, I still get
+--Apple-Mail-2-298135624
+Content-Transfer-Encoding: 7bit
+Content-Type: application/octet-stream;
+	x-unix-mode=0644;
+	name=awstats.fc
+Content-Disposition: attachment;
+	filename=awstats.fc
 
-time->Sat Aug 11 22:46:20 2007
-type=PATH msg=audit(1186886780.191:3467): item=1 name=(null) inode=8060946 dev=fd:00 mode=0100755 ouid=0 ogid=0 rdev=00:00 obj=system_u:object_r:ld_so_t:s0
-type=PATH msg=audit(1186886780.191:3467): item=0 name="/usr/bin/skype" inode=10345414 dev=fd:00 mode=0100755 ouid=0 ogid=0 rdev=00:00 obj=system_u:object_r:unconfined_execmem_exec_t:s0
-type=CWD msg=audit(1186886780.191:3467):  cwd=2F686F6D652F646576656C2F6477616C73682F4D7920446F776E6C6F616473
-type=EXECVE msg=audit(1186886780.191:3467): a0="skype" 
-type=SYSCALL msg=audit(1186886780.191:3467): arch=40000003 syscall=11 success=no exit=-13 a0=9eb8958 a1=9eb8b58 a2=9e95c30 a3=0 items=2 ppid=4077 pid=5789 auid=3267 uid=0 gid=0 euid=0 suid=0 fsuid=0 egid=0 sgid=0 fsgid=0 tty=pts3 comm="skype" subj=system_u:system_r:unconfined_t:s0 key=(null)
-type=AVC msg=audit(1186886780.191:3467): avc:  denied  { execmem } for  pid=5789 comm="skype" scontext=system_u:system_r:unconfined_t:s0 tcontext=system_u:system_r:unconfined_t:s0 tclass=process
+/usr/share/awstats/tools/.+\.pl			gen_context(system_u:object_r:awstats_exec_t,s0)
+/usr/share/awstats/wwwroot(/.*)?		gen_context(system_u:object_r:httpd_awstats_content_t,s0)
+/usr/share/awstats/wwwroot/cgi-bin(/.*)?	gen_context(system_u:object_r:httpd_awstats_script_exec_t,s0)
 
-When I run a unconfined_execmem_exec_t shell script with id -Z I get the proper transition.
+/etc/awstats(/.*)?				gen_context(system_u:object_r:awstats_conf_t,s0)
 
-system_u:system_r:unconfined_execmem_t
+/var/lib/awstats(/.*)?				gen_context(system_u:object_r:awstats_var_lib_t,s0)
+
+--Apple-Mail-2-298135624
+Content-Transfer-Encoding: 7bit
+Content-Type: application/octet-stream;
+	x-unix-mode=0644;
+	name=awstats.te
+Content-Disposition: attachment;
+	filename=awstats.te
 
 
+policy_module(awstats,1.0.0)
 
+gen_require(`
+	type proc_t;
+')
+
+type awstats_t;
+type awstats_exec_t;
+domain_type(awstats_t)
+init_daemon_domain(awstats_t,awstats_exec_t)
+role system_r types awstats_t;
+
+type awstats_conf_t;
+files_config_file(awstats_conf_t)
+
+type awstats_var_lib_t;
+files_type(awstats_var_lib_t)
+manage_files_pattern(awstats_t, awstats_var_lib_t, awstats_var_lib_t)
+manage_files_pattern(httpd_awstats_script_t, awstats_var_lib_t, awstats_var_lib_t)
+
+files_var_lib_filetrans(awstats_t,awstats_var_lib_t,file)
+
+files_search_var_lib(httpd_awstats_script_t)
+
+read_files_pattern(awstats_t, awstats_conf_t, awstats_conf_t)
+read_files_pattern(httpd_awstats_script_t, awstats_conf_t, awstats_conf_t)
+
+files_search_etc(awstats_t)
+
+read_files_pattern(httpd_t, httpd_awstats_content_t, httpd_awstats_content_t)
+
+apache_content_template(awstats)
+
+domtrans_pattern(awstats_t, httpd_awstats_script_exec_t, httpd_awstats_script_t)
+
+allow awstats_t self:fifo_file { getattr ioctl read };
+
+dontaudit awstats_t proc_t:file { getattr read };
+allow awstats_t httpd_awstats_content_t:dir search;
+allow awstats_t httpd_awstats_script_exec_t:dir search;
+dontaudit awstats_t sbin_t:dir search;
+
+apache_read_log(httpd_awstats_script_t)
+
+libs_use_ld_so(awstats_t)
+libs_use_shared_libs(awstats_t)
+
+dev_read_urand(awstats_t)
+
+corecmd_exec_bin(awstats_t)
+corecmd_exec_shell(awstats_t)
+
+# /etc/resolv.conf
+sysnet_read_config(httpd_awstats_script_t)
+
+optional_policy(`
+	cron_system_entry(awstats_t, awstats_exec_t)
+	allow httpd_awstats_script_t crond_t:fd use;
+	allow httpd_awstats_script_t crond_t:fifo_file { ioctl read };
+')
+
+
+--Apple-Mail-2-298135624--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
