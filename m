@@ -1,55 +1,138 @@
-Subject: Re: Strange behavior with skype
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Daniel J Walsh <dwalsh@redhat.com>
-Cc: Karl MacMillan <kmacmill@redhat.com>, SE Linux <selinux@tycho.nsa.gov>,
-        James Morris <jmorris@namei.org>, Eric Paris <eparis@parisplace.org>
-In-Reply-To: <46BE75D1.5030503@redhat.com>
-References: <46BE75D1.5030503@redhat.com>
-Content-Type: text/plain
-Date: Mon, 13 Aug 2007 09:14:02 -0400
-Message-Id: <1187010842.26008.32.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l7DDkg6F019797
+	for <selinux@tycho.nsa.gov>; Mon, 13 Aug 2007 09:46:42 -0400
+Received: from web36612.mail.mud.yahoo.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with SMTP id l7DDkVP5013305
+	for <selinux@tycho.nsa.gov>; Mon, 13 Aug 2007 13:46:31 GMT
+Date: Mon, 13 Aug 2007 06:46:15 -0700 (PDT)
+From: Casey Schaufler <casey@schaufler-ca.com>
+Reply-To: casey@schaufler-ca.com
+Subject: Re: [PATCH 00/16] Permit filesystem local caching [try #3]
+To: David Howells <dhowells@redhat.com>, casey@schaufler-ca.com
+Cc: dhowells@redhat.com, torvalds@osdl.org, akpm@osdl.org, steved@redhat.com,
+        trond.myklebust@fys.uio.no, linux-fsdevel@vger.kernel.org,
+        linux-cachefs@redhat.com, nfsv4@linux-nfs.org,
+        linux-kernel@vger.kernel.org, selinux@tycho.nsa.gov,
+        LSM List <linux-security-module@vger.kernel.org>
+In-Reply-To: <24171.1187002441@redhat.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Message-ID: <353795.27307.qm@web36612.mail.mud.yahoo.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Sat, 2007-08-11 at 22:52 -0400, Daniel J Walsh wrote:
-> https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=246762
-> 
-> I downloaded skype from this site
-> 
-> http://www.skype.com/download/skype/linux/
-> 
-> Installed it and did a 
-> 
-> chcon -t unconfined_execmem_exec_t /usr/bin/skype
-> 
-> # ls -lZ /usr/bin/skype
-> -rwxr-xr-x  root root system_u:object_r:unconfined_execmem_exec_t /usr/bin/skype
-> 
-> 
-> But when I run it, I still get
-> 
-> time->Sat Aug 11 22:46:20 2007
-> type=PATH msg=audit(1186886780.191:3467): item=1 name=(null) inode=8060946 dev=fd:00 mode=0100755 ouid=0 ogid=0 rdev=00:00 obj=system_u:object_r:ld_so_t:s0
-> type=PATH msg=audit(1186886780.191:3467): item=0 name="/usr/bin/skype" inode=10345414 dev=fd:00 mode=0100755 ouid=0 ogid=0 rdev=00:00 obj=system_u:object_r:unconfined_execmem_exec_t:s0
-> type=CWD msg=audit(1186886780.191:3467):  cwd=2F686F6D652F646576656C2F6477616C73682F4D7920446F776E6C6F616473
-> type=EXECVE msg=audit(1186886780.191:3467): a0="skype" 
-> type=SYSCALL msg=audit(1186886780.191:3467): arch=40000003 syscall=11 success=no exit=-13 a0=9eb8958 a1=9eb8b58 a2=9e95c30 a3=0 items=2 ppid=4077 pid=5789 auid=3267 uid=0 gid=0 euid=0 suid=0 fsuid=0 egid=0 sgid=0 fsgid=0 tty=pts3 comm="skype" subj=system_u:system_r:unconfined_t:s0 key=(null)
-> type=AVC msg=audit(1186886780.191:3467): avc:  denied  { execmem } for  pid=5789 comm="skype" scontext=system_u:system_r:unconfined_t:s0 tcontext=system_u:system_r:unconfined_t:s0 tclass=process
-> 
-> When I run a unconfined_execmem_exec_t shell script with id -Z I get the proper transition.
-> 
-> system_u:system_r:unconfined_execmem_t
 
-IIUC, in this case, the attempt to create the mapping is happening from
-the kernel elf loader while mapping in the new executable _before_ the
-domain transition takes effect.  So it shows up as a check on the caller
-domain rather than the new domain.
+--- David Howells <dhowells@redhat.com> wrote:
 
--- 
-Stephen Smalley
-National Security Agency
+> Casey Schaufler <casey@schaufler-ca.com> wrote:
+> 
+> > Sigh. So it's not only SELinux specific, but RedHat specific as well.
+> 
+> *Blink*.  How did you come to that conclusion?
+> 
+> > >   (3) The cache driver wants to access the files in the cache, but it's
+> > >       running in the security context of either the aforementioned random
+> > >       process, or one of FS-Cache's thread pool.
+> > 
+> > I think that this is the point you should attack. Control the security
+> > characteristics of the cache driver properly and you shouldn't need the
+> > complexity that you're asking to introduce.
+> 
+> How?  The cache driver acts on behalf of someone else.  That someone else has
+> one security context, but the cache itself has to have a different context so
+> that the cache can be shared.
+> 
+> Furthermore, the cache driver doesn't have a security context per se.
+> 
+> > >       This security context, however, doesn't necessarily give it the
+> > >       rights to access what's in the cache, so the driver has to be
+> > >       permitted to act as a context appropriate to accessing the cache,
+> > >       without changing the overall security context of the random process
+> > >       (which would impact things trying to act on that process - kill()
+> > >       for example).
+> > 
+> > Can you run the cache as an independent thread and send it messages
+> > rather than trying to do things in the context of the calling process?
+> > I know that that involves extra bookkeeppingg, but it's lots safer.
+> 
+> It introduces more complexity, which I believe you were just arguing against
+> above...  It also incurs more kernel threads - which I really really want to
+> avoid.
+> 
+> I would rank the complexity and resource overhead of the act-as stuff in LSM
+> (or at least in SELinux) as much less than what you're suggesting.
+> 
+> As it stands, the FS-Cache layer has a pool of threads that CacheFiles makes
+> use of, but this can't be bound to the security of a specific cache because
+> there may be more than one cache of more than one cache driver type.
+> 
+> > Yes, and the SELinux semantics for what label to give a file don't
+> > help much, either. The problem with the "act_as" interfaces is that
+> > I wouldn't expect them to be any more reliable than the old access()
+> > system call, which never really gave you a helpful answer.
+> 
+> I don't see how act_as compares to access().
+> 
+> > Ideally you want to be running in the right context to create the
+> > new file so that no one can use it and then label it "correctly"
+> > and make it available.
+> 
+> That sounds like it'd be the complexity thing again...
+> 
+> > > Part of the problem is that the VFS does not pass around the security
+> > > context as which the VFS routines act, but rather gets them from the
+> > > task_struct.
+> > 
+> > That's by design. 
+> 
+> I suspect that's more by the fact that security wasn't particularly thought
+> about when these interfaces were first written.  As with everything in the
+> kernel, it might be negotiable.
+> 
+> > The cache driver is a unique case with an unusual function. It's pretty
+> > obvious that the kernel architecture, the VFS architecture, LSM, SELinux,
+> > NFS and pretty much everyone else has given no thought whatever to the
+> > implications of their designs on file system cacheing. For all concerned,
+> > I'll say "sorry 'bout that".
+> 
+> Meaning you think I should just give up on this?
 
+No, sorry, sometimes I sound meaner than I really am. I meant that
+sympathetically, honest. I don't think you should give up.
+
+> How about I reduce the interface I'm proposing to two functions:
+> 
+>   (1) int security_act_as(struct task_struct *context)
+> 
+> 	Temporarily make the current process act as the given task, including,
+> 	for example, for SELinux, the security ID with which this task acts on
+> 	things, and the security ID with which this task creates files.
+> 
+>   (2) int security_act_as_self(void);
+> 
+> 	Restore the context as which we're asking.
+> 
+> This would mean that the task's security context would have to be able to
+> store
+> acting security IDs for everything, but I don't think that's too much of a
+> stretch resourcewise.
+
+I haven't looked into the issues at all and I bet there are plenty,
+maybe in audit and places outside of the security realm, but this
+looks like a clean approach from the LSM interface standpoint. Do
+you want the entire task or just task->security? I could see it
+either way, but I suspect the task is your best bet. If you call
+security_act_as() twice, then security_act_as_self() do you pop a
+stack, or return to the initial state? How about security_act_as(NULL)
+returning you to the initial state, and dropping security_act_as_self()?
+
+Thank you for taking the effort to address the issues I raised.
+I appreciate your willingness to accommodate my concerns even after
+I'd flamed you.
+
+
+Casey Schaufler
+casey@schaufler-ca.com
 
 --
 This message was distributed to subscribers of the selinux mailing list.
