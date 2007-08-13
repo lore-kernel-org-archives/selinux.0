@@ -1,107 +1,113 @@
 Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l7DFgSMV031496
-	for <selinux@tycho.nsa.gov>; Mon, 13 Aug 2007 11:42:28 -0400
-Received: from web36604.mail.mud.yahoo.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with SMTP id l7DFgO8V000609
-	for <selinux@tycho.nsa.gov>; Mon, 13 Aug 2007 15:42:25 GMT
-Date: Mon, 13 Aug 2007 08:42:23 -0700 (PDT)
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l7DGKOM1002183
+	for <selinux@tycho.nsa.gov>; Mon, 13 Aug 2007 12:20:24 -0400
+Received: from web36612.mail.mud.yahoo.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with SMTP id l7DGKNDa010169
+	for <selinux@tycho.nsa.gov>; Mon, 13 Aug 2007 16:20:23 GMT
+Date: Mon, 13 Aug 2007 09:20:23 -0700 (PDT)
 From: Casey Schaufler <casey@schaufler-ca.com>
 Reply-To: casey@schaufler-ca.com
 Subject: Re: [PATCH 00/16] Permit filesystem local caching [try #3]
-To: Stephen Smalley <sds@tycho.nsa.gov>, David Howells <dhowells@redhat.com>
-Cc: casey@schaufler-ca.com, torvalds@osdl.org, akpm@osdl.org,
-        steved@redhat.com, trond.myklebust@fys.uio.no,
+To: David Howells <dhowells@redhat.com>, Stephen Smalley <sds@tycho.nsa.gov>
+Cc: dhowells@redhat.com, casey@schaufler-ca.com, torvalds@osdl.org,
+        akpm@osdl.org, steved@redhat.com, trond.myklebust@fys.uio.no,
         linux-fsdevel@vger.kernel.org, linux-cachefs@redhat.com,
         nfsv4@linux-nfs.org, linux-kernel@vger.kernel.org,
         selinux@tycho.nsa.gov,
         LSM List <linux-security-module@vger.kernel.org>
-In-Reply-To: <1187017052.26008.51.camel@moss-spartans.epoch.ncsc.mil>
+In-Reply-To: <10228.1187018526@redhat.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=iso-8859-1
-Message-ID: <98087.46480.qm@web36604.mail.mud.yahoo.com>
+Message-ID: <26859.95417.qm@web36612.mail.mud.yahoo.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 
---- Stephen Smalley <sds@tycho.nsa.gov> wrote:
+--- David Howells <dhowells@redhat.com> wrote:
 
-> On Mon, 2007-08-13 at 15:51 +0100, David Howells wrote:
-
-> ... 
-
-> > Actually, to address Stephen Smalley's requirements also, how about making
-> > things a bit more complex.  Have the following suite of functions:
-> > 
-> >  (1) int security_get_context(struct sec **_context);
-> > 
-> > 	This allocates and gives the caller a blob that describes the current
-> > 	context of all the LSM module states attached to the current task and
-> > 	stores a pointer to it in *_context.
-> > 
-> >  (2) int security_push(struct sec *context, struct sec **_old_context)
-> > 
-> > 	This causes all the LSM modules on the current task to switch to a new
-> > 	acting state, passing back the old state.  It does not change how
-> > 	other tasks do things to this one.
-> > 
-> >  (3) int security_pop(struct sec *context)
-> > 
-> > 	This causes all the LSM modules on the current task to switch to a new
-> > 	acting state, deleting the old state.  It does not change how
-> > 	other tasks do things to this one.
-> > 
-> >  (4) int security_delete_context(struct sec *context)
-> > 
-> > 	This deletes a context blob.
-> > 
-> > The context blob could then be structured very simply.  Give each loaded
-> LSM
-> > module an integer index as it is registered.  Having a limit to the number
-> of
-> > LSM modules would make things simpler.  The blob would then be an array of
-> > void pointers, one per LSM module, indexed by the integer index for each
-> one.
-> > It you don't have a limit on the number of LSM modules, you'd also need a
-> > count of slots in the blob.
-> > 
-> > Any LSM module that wanted to implement the above three functions would
-> fill
-> > in or otherwise use the slot that belongs to it.  Otherwise the slot would
-> > just be left NULL.
-> > 
-> > For example:
-> > 
-> > 	context --->+--------+                                    +---------+
-> > 	            | SLOT 0 |----------------------------------->| SELINUX |
-> > 	            +--------+                      +--------+    +---------+
-> > 	            | SLOT 1 |--------------------->| THINGY |
-> > 	            +--------+                      +--------+
-> > 	            | ...    |
-> > 	            +--------+         +-------+
-> > 	            | SLOT N |-------->| AUDIT |
-> > 	            +--------+         +-------+
-> > 
-> > For Stephen and NFS, he could then generate a context from NFS which nfsd
-> > could then put in place.  Perhaps any unfilled slot would be ignored by the
-> > LSM module to which it belonged.
+> Stephen Smalley <sds@tycho.nsa.gov> wrote:
 > 
-> Seems like over-design - we don't need to support LSM stacking, and we
-> don't need to support pushing/popping more than one level of context.
+> > Seems like over-design - we don't need to support LSM stacking, and we
+> > don't need to support pushing/popping more than one level of context.
+> 
+> It will, at some point hopefully, be possible for someone to try, say, NFS
+> exporting a cached ISO9660 mount (CDROM) - in which case, we'd should allow
+> for two levels of stack.  If we can pass the displaced context to the caller
+> to restore later then that allows for more or less unlimited depth.
+> 
+> It occurs to me that the following is almost good enough, but not quite:
+> 
+>   (1) int security_get_context(void **_context);
+> 
+> 	This allocates and gives the caller a blob that describes the current
+> 	context of all the LSM module states attached to the current task and
+> 	stores a pointer to it in *_context.
 
-LSM stacking has always been contentious and I don't see
-that it addresses the issue, which is changing the data used
-by an LSM, not the LSM itself.
+Is this intended to be anything more than a copy of current->security?
 
-> What was the objection again to the original interface, aside from
-> replacing "u32 secids" with "void* security blobs"?
+>   (2) int security_push(void *context, struct sec **_old_context)
+> 
+> 	This causes all the LSM modules on the current task to switch to a new
+> 	acting state, passing back the old state.  It does not change how
+> 	other tasks do things to this one.
 
-The objection centers around exposing LSM specific data outside
-the LSM, and it applies to either secids or blobs, really. If you
-need this information outside the LSM odds are good that what you're
-using it for is going to be LSM specific, and hence should be inside
-the LSM. I admit to two gray areas, audit and system service tasks
-such as the two cited here. I like simplicity and find the single
-security_act_as() interface attractive for the latter case.
+I assume that you're talking about the LSM specific data changing,
+not the LSM itself.
+
+If you change the task->security information you are definitly going
+to change what other tasks can do to the calling task. This is part of
+the dark side of label swapping. This is what I was trying to suggest
+when I said that if you're going to switch labels you switch to a
+system-daemon label, do your work, then change the file label explicitly.
+Stephen may have a trick up his sleeve for SELinux, but I don't
+expect it to be pleasent.  
+
+>   (3) int security_pop(void *context)
+> 
+> 	This causes all the LSM modules on the current task to switch to a new
+> 	acting state, deleting the old state.  It does not change how
+> 	other tasks do things to this one.
+
+Same issues.
+
+>   (4) int security_delete_context(void *context)
+> 
+> I still need a way to transform the cachefilesd context into the kernel's
+> context.  See patch:
+> 
+>    Subject: [Linux-cachefs] [PATCH 12/16] CacheFiles: Get the SID under which
+> 	the CacheFiles module should operate [try #3]
+> 
+> However, this seems to add a fairly generic tranformation, so that could be
+> generalised:
+> 
+>   (5) int security_xfrm_to_kernel_context(void *from, void **_to);
+
+Woof. What are you transforming from? 
+
+> > What was the objection again to the original interface, aside from
+> > replacing "u32 secids" with "void* security blobs"?
+> 
+> I got the impression that Casey thought much of this was tied to SELinux, but
+> rereading his/her
+
+"His" is preferred.
+
+> emails, I'm not so certain.  Maybe that's sufficient. 
+> Casey?
+
+I did get the impression that your initial design was focused
+on SELinux, and that the implications of alternative LSM modules
+had not been very high on your priority list. It's clear from
+your responses that you are taking the issue seriously. Thank you.
+
+> However, I've realised a problem (as outlined above) with what I've got.
+> Namely its stack isn't necessarily deep enough.  Alternatively, nfsd perhaps
+> should suppress caching on what it reads.
+
+That's the really nice thing about cans of worms.
+They come in six-packs.
+
 
 
 Casey Schaufler
