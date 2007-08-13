@@ -1,168 +1,114 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l7CGsBTt013664
-	for <selinux@tycho.nsa.gov>; Sun, 12 Aug 2007 12:54:11 -0400
-Received: from moutng.kundenserver.de (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l7CGsA2u001846
-	for <selinux@tycho.nsa.gov>; Sun, 12 Aug 2007 16:54:10 GMT
-In-Reply-To: <6FE441CD9F0C0C479F2D88F959B01588EDE93E@exchange.columbia.tresys.com>
-References: <BA7830DA-8473-4AE5-B2CF-50DC614E5932@sf-net.com> <6FE441CD9F0C0C479F2D88F959B01588EDE93E@exchange.columbia.tresys.com>
-Mime-Version: 1.0 (Apple Message framework v752.2)
-Content-Type: multipart/mixed; boundary=Apple-Mail-3-324530896
-Message-Id: <F3FB9554-D056-4BF8-8E0D-0797DABD3E5A@sf-net.com>
-Cc: SELinux List <selinux@tycho.nsa.gov>,
-        "Christopher J. PeBenito" <cpebenito@tresys.com>
-From: Stefan Schulze Frielinghaus <stefan@sf-net.com>
-Subject: Re: [refpolicy] awstats
-Date: Sun, 12 Aug 2007 18:54:04 +0200
-To: "Brian M. Williams" <bwilliams@tresys.com>
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l7DAt3Ds006313
+	for <selinux@tycho.nsa.gov>; Mon, 13 Aug 2007 06:55:03 -0400
+Received: from mx1.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id l7DAt0f0020418
+	for <selinux@tycho.nsa.gov>; Mon, 13 Aug 2007 10:55:01 GMT
+From: David Howells <dhowells@redhat.com>
+In-Reply-To: <444368.22491.qm@web36605.mail.mud.yahoo.com>
+References: <444368.22491.qm@web36605.mail.mud.yahoo.com>
+To: casey@schaufler-ca.com
+Cc: dhowells@redhat.com, torvalds@osdl.org, akpm@osdl.org, steved@redhat.com,
+        trond.myklebust@fys.uio.no, linux-fsdevel@vger.kernel.org,
+        linux-cachefs@redhat.com, nfsv4@linux-nfs.org,
+        linux-kernel@vger.kernel.org, selinux@tycho.nsa.gov,
+        LSM List <linux-security-module@vger.kernel.org>
+Subject: Re: [PATCH 00/16] Permit filesystem local caching [try #3]
+Date: Mon, 13 Aug 2007 11:54:01 +0100
+Message-ID: <24171.1187002441@redhat.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+Casey Schaufler <casey@schaufler-ca.com> wrote:
 
---Apple-Mail-3-324530896
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain;
-	charset=US-ASCII;
-	format=flowed
+> Sigh. So it's not only SELinux specific, but RedHat specific as well.
 
-Thanks for the advice. Attached is a new/corrected policy.
+*Blink*.  How did you come to that conclusion?
 
+> >   (3) The cache driver wants to access the files in the cache, but it's
+> >       running in the security context of either the aforementioned random
+> >       process, or one of FS-Cache's thread pool.
+> 
+> I think that this is the point you should attack. Control the security
+> characteristics of the cache driver properly and you shouldn't need the
+> complexity that you're asking to introduce.
 
---Apple-Mail-3-324530896
-Content-Transfer-Encoding: 7bit
-Content-Type: application/octet-stream;
-	x-unix-mode=0644;
-	name=awstats.fc
-Content-Disposition: attachment;
-	filename=awstats.fc
+How?  The cache driver acts on behalf of someone else.  That someone else has
+one security context, but the cache itself has to have a different context so
+that the cache can be shared.
 
-/usr/share/awstats/tools/.+\.pl			gen_context(system_u:object_r:awstats_exec_t,s0)
-/usr/share/awstats/wwwroot(/.*)?		gen_context(system_u:object_r:httpd_awstats_content_t,s0)
-/usr/share/awstats/wwwroot/cgi-bin(/.*)?	gen_context(system_u:object_r:httpd_awstats_script_exec_t,s0)
+Furthermore, the cache driver doesn't have a security context per se.
 
-/etc/awstats(/.*)?				gen_context(system_u:object_r:awstats_conf_t,s0)
+> >       This security context, however, doesn't necessarily give it the
+> >       rights to access what's in the cache, so the driver has to be
+> >       permitted to act as a context appropriate to accessing the cache,
+> >       without changing the overall security context of the random process
+> >       (which would impact things trying to act on that process - kill()
+> >       for example).
+> 
+> Can you run the cache as an independent thread and send it messages
+> rather than trying to do things in the context of the calling process?
+> I know that that involves extra bookkeeppingg, but it's lots safer.
 
-/var/lib/awstats(/.*)?				gen_context(system_u:object_r:awstats_var_lib_t,s0)
+It introduces more complexity, which I believe you were just arguing against
+above...  It also incurs more kernel threads - which I really really want to
+avoid.
 
---Apple-Mail-3-324530896
-Content-Transfer-Encoding: 7bit
-Content-Type: application/octet-stream;
-	x-unix-mode=0644;
-	name=awstats.te
-Content-Disposition: attachment;
-	filename=awstats.te
+I would rank the complexity and resource overhead of the act-as stuff in LSM
+(or at least in SELinux) as much less than what you're suggesting.
 
+As it stands, the FS-Cache layer has a pool of threads that CacheFiles makes
+use of, but this can't be bound to the security of a specific cache because
+there may be more than one cache of more than one cache driver type.
 
-policy_module(awstats,1.0.0)
+> Yes, and the SELinux semantics for what label to give a file don't
+> help much, either. The problem with the "act_as" interfaces is that
+> I wouldn't expect them to be any more reliable than the old access()
+> system call, which never really gave you a helpful answer.
 
-type awstats_t;
-type awstats_exec_t;
-domain_type(awstats_t)
-init_daemon_domain(awstats_t,awstats_exec_t)
-role system_r types awstats_t;
+I don't see how act_as compares to access().
 
-type awstats_conf_t;
-files_config_file(awstats_conf_t)
+> Ideally you want to be running in the right context to create the
+> new file so that no one can use it and then label it "correctly"
+> and make it available.
 
-type awstats_var_lib_t;
-files_type(awstats_var_lib_t)
-manage_files_pattern(awstats_t, awstats_var_lib_t, awstats_var_lib_t)
-manage_files_pattern(httpd_awstats_script_t, awstats_var_lib_t, awstats_var_lib_t)
+That sounds like it'd be the complexity thing again...
 
-files_var_lib_filetrans(awstats_t,awstats_var_lib_t,file)
+> > Part of the problem is that the VFS does not pass around the security
+> > context as which the VFS routines act, but rather gets them from the
+> > task_struct.
+> 
+> That's by design. 
 
-files_search_var_lib(httpd_awstats_script_t)
+I suspect that's more by the fact that security wasn't particularly thought
+about when these interfaces were first written.  As with everything in the
+kernel, it might be negotiable.
 
-read_files_pattern(awstats_t, awstats_conf_t, awstats_conf_t)
-read_files_pattern(httpd_awstats_script_t, awstats_conf_t, awstats_conf_t)
+> The cache driver is a unique case with an unusual function. It's pretty
+> obvious that the kernel architecture, the VFS architecture, LSM, SELinux,
+> NFS and pretty much everyone else has given no thought whatever to the
+> implications of their designs on file system cacheing. For all concerned,
+> I'll say "sorry 'bout that".
 
-files_search_etc(awstats_t)
+Meaning you think I should just give up on this?
 
-read_files_pattern(httpd_t, httpd_awstats_content_t, httpd_awstats_content_t)
+How about I reduce the interface I'm proposing to two functions:
 
-kernel_dontaudit_read_system_state(awstats_t)
+  (1) int security_act_as(struct task_struct *context)
 
-apache_content_template(awstats)
+	Temporarily make the current process act as the given task, including,
+	for example, for SELinux, the security ID with which this task acts on
+	things, and the security ID with which this task creates files.
 
-domtrans_pattern(awstats_t, httpd_awstats_script_exec_t, httpd_awstats_script_t)
+  (2) int security_act_as_self(void);
 
-allow awstats_t self:fifo_file { getattr ioctl read };
+	Restore the context as which we're asking.
 
-dontaudit awstats_t proc_t:file { getattr read };
-allow awstats_t httpd_awstats_content_t:dir search;
-allow awstats_t httpd_awstats_script_exec_t:dir search;
+This would mean that the task's security context would have to be able to store
+acting security IDs for everything, but I don't think that's too much of a
+stretch resourcewise.
 
-apache_read_log(httpd_awstats_script_t)
-
-libs_use_ld_so(awstats_t)
-libs_use_shared_libs(awstats_t)
-
-dev_read_urand(awstats_t)
-
-corecmd_exec_bin(awstats_t)
-corecmd_exec_shell(awstats_t)
-
-# /etc/resolv.conf
-sysnet_read_config(httpd_awstats_script_t)
-
-optional_policy(`
-	cron_system_entry(awstats_t, awstats_exec_t)
-	cron_use_fds(httpd_awstats_script_t)
-	cron_read_pipes(httpd_awstats_script_t)
-')
-
-
---Apple-Mail-3-324530896
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain;
-	charset=US-ASCII;
-	delsp=yes;
-	format=flowed
-
-
-
-On 12.08.2007, at 18:22, Brian M. Williams wrote:
-
-> A few notes:
->
-> gen_require(`
-> 	type proc_t;
-> ')
-> dontaudit awstats_t proc_t:file { getattr read };
->
-> can be done with:
-> kernel_dontaudit_read_system_state(awstats_t)
->
->
-> allow httpd_awstats_script_t crond_t:fd use;
-> allow httpd_awstats_script_t crond_t:fifo_file { ioctl read };
->
-> can be done with:
-> cron_use_fds(httpd_awstats_script_t)
-> cron_read_pipes(httpd_awstats_script_t)
->
-> Also the dontaudit search of sbin can be removed as bin and sbin  
-> are now
-> the same thing type wise.  If you want this for backwards  
-> compatability
-> use the corecmd_dontaudit_search_sbin() interface.
->
->
->> -----Original Message-----
->> From: owner-selinux@tycho.nsa.gov [mailto:owner- 
->> selinux@tycho.nsa.gov]
-> On Behalf Of Stefan Schulze
->> Frielinghaus
->> Sent: Sunday, August 12, 2007 5:34 AM
->> To: Christopher J. PeBenito
->> Cc: SELinux List
->> Subject: [refpolicy] awstats
->>
->> Attached is a new policy for awstats
->
-
-
---Apple-Mail-3-324530896--
+David
 
 --
 This message was distributed to subscribers of the selinux mailing list.
