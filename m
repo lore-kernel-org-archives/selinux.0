@@ -1,93 +1,108 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l7DLifYW026163
-	for <selinux@tycho.nsa.gov>; Mon, 13 Aug 2007 17:44:41 -0400
-Received: from web36605.mail.mud.yahoo.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with SMTP id l7DLiexJ014308
-	for <selinux@tycho.nsa.gov>; Mon, 13 Aug 2007 21:44:40 GMT
-Date: Mon, 13 Aug 2007 14:44:40 -0700 (PDT)
-From: Casey Schaufler <casey@schaufler-ca.com>
-Reply-To: casey@schaufler-ca.com
-Subject: Re: [PATCH 00/16] Permit filesystem local caching [try #3]
-To: David Howells <dhowells@redhat.com>, casey@schaufler-ca.com
-Cc: dhowells@redhat.com, Stephen Smalley <sds@tycho.nsa.gov>,
-        torvalds@osdl.org, akpm@osdl.org, steved@redhat.com,
-        trond.myklebust@fys.uio.no, linux-fsdevel@vger.kernel.org,
-        linux-cachefs@redhat.com, nfsv4@linux-nfs.org,
-        linux-kernel@vger.kernel.org, selinux@tycho.nsa.gov,
-        LSM List <linux-security-module@vger.kernel.org>
-In-Reply-To: <16119.1187034756@redhat.com>
+Message-ID: <46C0E8E6.4040102@manicmethod.com>
+Date: Mon, 13 Aug 2007 19:27:34 -0400
+From: Joshua Brindle <method@manicmethod.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Message-ID: <462850.65153.qm@web36605.mail.mud.yahoo.com>
+To: Daniel J Walsh <dwalsh@redhat.com>
+CC: Stephen Smalley <sds@tycho.nsa.gov>, James Morris <jmorris@namei.org>,
+        Eric Paris <eparis@redhat.com>, selinux@tycho.nsa.gov
+Subject: Re: [PATCH] selinuxfs to globally disable dontaudit rules
+References: <1186696737.20393.10.camel@localhost.localdomain>	 <Pine.LNX.4.64.0708091525410.30691@us.intercode.com.au>	 <46BBAE00.7050600@manicmethod.com>  <46BBBDDF.2000307@manicmethod.com> <1186747308.7233.22.camel@moss-spartans.epoch.ncsc.mil> <46BC8476.9010800@redhat.com> <46BC8B3E.40309@manicmethod.com> <46BCAB68.8090001@redhat.com>
+In-Reply-To: <46BCAB68.8090001@redhat.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+Daniel J Walsh wrote:
+> Joshua Brindle wrote:
+>> Daniel J Walsh wrote:
+>>> Stephen Smalley wrote:
+>>>> On Thu, 2007-08-09 at 21:22 -0400, Joshua Brindle wrote:
+>>>>  
+>>>>> Joshua Brindle wrote:
+>>>>>  
+>>>>>> James Morris wrote:
+>>>>>>    
+>>>>>>> On Thu, 9 Aug 2007, Eric Paris wrote:
+>>>>>>>
+>>>>>>>  
+>>>>>>>      
+>>>>>>>> Currently to disable dontaudit rules best you can do it to load 
+>>>>>>>> the
+>>>>>>>> enableaudit.pp base policy.  Which still doesn't remove the 
+>>>>>>>> dontaudit
+>>>>>>>> rules from modules.
+>>>>>>>>               
+>>>>>>> Are we sure this can't be done in userspace?  Like, mangle all 
+>>>>>>> the existing policy and reload it?
+>>>>>>>
+>>>>>>>           
+>>>>>> I agree, the infrastructure is certainly in place to do it, just 
+>>>>>> add something in the sepol_handle that says dontaudits should be 
+>>>>>> discarded, then make an interface in libsemanage that uses that 
+>>>>>> and rebuild the policy.
+>>>>>>
+>>>>>> If noone beats me to it I will see if my conclusions about it 
+>>>>>> being fairly simple are accurate this weekend :)
+>>>>>>
+>>>>>>       
+>>>>> I changed my mind, patch below
+>>>>>
+>>>>> it compiles and seems to work after semodule -DB:
+>>>>>     
+>>>>
+>>>> Hmm...doing it this way means that the "disable_dontaudit" behavior
+>>>> won't persist across subsequent policy changes, so if I e.g. then 
+>>>> change
+>>>> a boolean persistently, I'll get back all of the dontaudit rules too.
+>>>>
+>>>> Is that what you want, or do you want this flag saved in the policy
+>>>> module store and settable/clearable via semanage to be applied to all
+>>>> subsequent policy builds?
+>>>>
+>>>>   
+>>> This looks great but it needs to survive a policy rebuild as Stephen 
+>>> says.
+>>>
+>>
+>> Hrm... I'm trying to figure out if that is really the behavior we 
+>> want. The purpose of this was to let someone get some denials from 
+>> (possibly) dontaudits hiding behavior. After switching dontaudits off 
+>> the user will generate a module with the rules and insert it. 
+>> Assuming they exercised enough of the app he won't want the 
+>> dontaudits off anymore and will happily go about running the app. Are 
+>> there other use cases where dontaudits should be persistently disabled?
+>>
+>> If dontaudits are to be persistently disabled I'd rather do it in the 
+>> kernel with eric's patch, mainly because eric's will at least only 
+>> persist until reboot whereas if I added something to libsemanage to 
+>> make it persist it would last across reboots.
+>>
+> Actually I was thinking of the case where you would put an setsebool 
+> in an init script and you might want to boot with enableaudit and this 
+> would replace it, but you wouldn't put a setsebool -P in an init 
+> script, so this is not a problem.  I would guess we would just have to 
+> document that this is to temporarily disable dontaudit rules, until 
+> the next time the policy is rebuilt.
 
---- David Howells <dhowells@redhat.com> wrote:
 
-> Casey Schaufler <casey@schaufler-ca.com> wrote:
-> 
-> > The specification of your push interface that the push operation
-> > not affect how others access the process is OK for SELinux, but
-> > not for any other MAC scheme that I've dealt with, and I think
-> > that's most of them. Nuts. Smack, for example, uses exactly one
-> > label on the process for all purposes.
-> 
-> It's a fairly important concept.  The victimisation security context on a
-> process must not change, even if the kernel overrides the security context
-> that that process acts as so that it can transparently do work on its behalf.
-> 
-> IMO, the right way to do this is to pass the security context directly to
-> vfs_mkdir() and co.
-> 
-> > Are you concerned about accesses other than signals? Signals
-> > could be staitforward to deal with in a pushed situation, but
-> > I'd hesitate to say that the solution would generalize without
-> > additional thought.
-> 
-> There's also /proc and ptrace() for example.  ps -z must not show the
-> overridden state.
-> 
-> > > > >   (5) int security_xfrm_to_kernel_context(void *from, void **_to);
-> > > > 
-> > > > Woof. What are you transforming from? 
-> > > 
-> > > In CacheFiles case, the cachefilesd daemon's security label into the
-> label
-> > > the cache driver acts as on behalf of other processes.
-> > 
-> > I'm not sure I understand what this is doing.
-> 
-> CacheFiles consists of two parts: the kernel module which creates things in
-> the cache and does accesses into the cache on behalf of processes that access
-> cached filesystems, and the userspace daemon that builds cull tables and
-> deletes things.
-> 
-> The reason there are two security labels is that the daemon's label gives it
-> just enough rights to be able to do its job.  More or less all it can do is
-> lookup, opendir, readdir, stat, rmdir, unlink and open the chardev for
-> talking
-> to the kernel module.  This means that the daemon can't, for example, be made
-> to read or modify cache storage objects.
-> 
-> Thus means, however, that the daemon's label isn't sufficient for the kernel
-> module to do its job.  But since there's no way for the kernel module to
-> directly get a label (and indeed it doesn't know the label it needs), a
-> transformation has to be applied that turns the process label used by the
-> daemon into a process label that the kernel, and only the kernel, can use.
-> 
-> The kernel's label gives it, amongst other things, the additional rights to
-> do
-> mkdir, creat, open, read, write, setxattr, getxattr, rename - things the
-> daemon isn't allowed to do.
+So is there any consensus on which approach we want to go with? We have:
 
-With Smack you can leave the label alone, raise CAP_MAC_OVERRIDE,
-do your business of setting the label correctly, and then drop
-the capability. No new hooks required.
+1) use conditionals, doesn't work with third party modules, could have 
+mistakes where dontaudits aren't in conditionals, etc
+2) use the kernel patch from Eric, makes it easier to turn it on and off 
+without rebuilding/reloading policy, faster and some people worried 
+about policy modification would be happier.
+3) use my patch and do it from userland, puts the complexity in 
+userspace, modifies the on-disk policy (persistent across reboots if 
+policy isn't rebuild without the option, slower to use, not persistent 
+across any options that rebuild policy such as persistent boolean 
+changes, etc).
 
 
-Casey Schaufler
-casey@schaufler-ca.com
+
+I'm split between 2 and 3, both have advantages and disadvantages, 
+anyone else want to ring their opinion in?
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
