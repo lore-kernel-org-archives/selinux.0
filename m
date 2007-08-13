@@ -1,29 +1,23 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l7DDkg6F019797
-	for <selinux@tycho.nsa.gov>; Mon, 13 Aug 2007 09:46:42 -0400
-Received: from web36612.mail.mud.yahoo.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with SMTP id l7DDkVP5013305
-	for <selinux@tycho.nsa.gov>; Mon, 13 Aug 2007 13:46:31 GMT
-Date: Mon, 13 Aug 2007 06:46:15 -0700 (PDT)
-From: Casey Schaufler <casey@schaufler-ca.com>
-Reply-To: casey@schaufler-ca.com
 Subject: Re: [PATCH 00/16] Permit filesystem local caching [try #3]
-To: David Howells <dhowells@redhat.com>, casey@schaufler-ca.com
-Cc: dhowells@redhat.com, torvalds@osdl.org, akpm@osdl.org, steved@redhat.com,
-        trond.myklebust@fys.uio.no, linux-fsdevel@vger.kernel.org,
-        linux-cachefs@redhat.com, nfsv4@linux-nfs.org,
-        linux-kernel@vger.kernel.org, selinux@tycho.nsa.gov,
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: David Howells <dhowells@redhat.com>
+Cc: casey@schaufler-ca.com, torvalds@osdl.org, akpm@osdl.org,
+        steved@redhat.com, trond.myklebust@fys.uio.no,
+        linux-fsdevel@vger.kernel.org, linux-cachefs@redhat.com,
+        nfsv4@linux-nfs.org, linux-kernel@vger.kernel.org,
+        selinux@tycho.nsa.gov,
         LSM List <linux-security-module@vger.kernel.org>
 In-Reply-To: <24171.1187002441@redhat.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Message-ID: <353795.27307.qm@web36612.mail.mud.yahoo.com>
+References: <444368.22491.qm@web36605.mail.mud.yahoo.com>
+	 <24171.1187002441@redhat.com>
+Content-Type: text/plain
+Date: Mon, 13 Aug 2007 09:50:57 -0400
+Message-Id: <1187013057.26008.46.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-
---- David Howells <dhowells@redhat.com> wrote:
-
+On Mon, 2007-08-13 at 11:54 +0100, David Howells wrote:
 > Casey Schaufler <casey@schaufler-ca.com> wrote:
 > 
 > > Sigh. So it's not only SELinux specific, but RedHat specific as well.
@@ -96,10 +90,7 @@ List-Id: selinux@tycho.nsa.gov
 > > I'll say "sorry 'bout that".
 > 
 > Meaning you think I should just give up on this?
-
-No, sorry, sometimes I sound meaner than I really am. I meant that
-sympathetically, honest. I don't think you should give up.
-
+> 
 > How about I reduce the interface I'm proposing to two functions:
 > 
 >   (1) int security_act_as(struct task_struct *context)
@@ -107,32 +98,23 @@ sympathetically, honest. I don't think you should give up.
 > 	Temporarily make the current process act as the given task, including,
 > 	for example, for SELinux, the security ID with which this task acts on
 > 	things, and the security ID with which this task creates files.
+
+I don't see how that helps with nfsd assuming the label of a remote
+client process.
+
 > 
 >   (2) int security_act_as_self(void);
 > 
 > 	Restore the context as which we're asking.
 > 
-> This would mean that the task's security context would have to be able to
-> store
+> This would mean that the task's security context would have to be able to store
 > acting security IDs for everything, but I don't think that's too much of a
 > stretch resourcewise.
 
-I haven't looked into the issues at all and I bet there are plenty,
-maybe in audit and places outside of the security realm, but this
-looks like a clean approach from the LSM interface standpoint. Do
-you want the entire task or just task->security? I could see it
-either way, but I suspect the task is your best bet. If you call
-security_act_as() twice, then security_act_as_self() do you pop a
-stack, or return to the initial state? How about security_act_as(NULL)
-returning you to the initial state, and dropping security_act_as_self()?
+-- 
+Stephen Smalley
+National Security Agency
 
-Thank you for taking the effort to address the issues I raised.
-I appreciate your willingness to accommodate my concerns even after
-I'd flamed you.
-
-
-Casey Schaufler
-casey@schaufler-ca.com
 
 --
 This message was distributed to subscribers of the selinux mailing list.
