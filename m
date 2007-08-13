@@ -1,73 +1,72 @@
-From: David Howells <dhowells@redhat.com>
-In-Reply-To: <959629.46851.qm@web36606.mail.mud.yahoo.com>
-References: <959629.46851.qm@web36606.mail.mud.yahoo.com>
-To: casey@schaufler-ca.com
-Cc: dhowells@redhat.com, Stephen Smalley <sds@tycho.nsa.gov>,
-        torvalds@osdl.org, akpm@osdl.org, steved@redhat.com,
-        trond.myklebust@fys.uio.no, linux-fsdevel@vger.kernel.org,
-        linux-cachefs@redhat.com, nfsv4@linux-nfs.org,
-        linux-kernel@vger.kernel.org, selinux@tycho.nsa.gov,
-        LSM List <linux-security-module@vger.kernel.org>
-Subject: Re: [PATCH 00/16] Permit filesystem local caching [try #3]
-Date: Mon, 13 Aug 2007 20:52:36 +0100
-Message-ID: <16119.1187034756@redhat.com>
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l7DKEC4W019524
+	for <selinux@tycho.nsa.gov>; Mon, 13 Aug 2007 16:14:12 -0400
+Received: from an-out-0708.google.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l7DKEAxJ029205
+	for <selinux@tycho.nsa.gov>; Mon, 13 Aug 2007 20:14:10 GMT
+Received: by an-out-0708.google.com with SMTP id c38so321761ana
+        for <selinux@tycho.nsa.gov>; Mon, 13 Aug 2007 13:13:53 -0700 (PDT)
+Message-ID: <4c4ba1530708131313n350f4036o7a2d513770a65c90@mail.gmail.com>
+Date: Mon, 13 Aug 2007 13:13:52 -0700
+From: "Tom London" <selinux@gmail.com>
+To: "Stephen Smalley" <sds@tycho.nsa.gov>
+Subject: Re: Strange behavior with skype
+Cc: "Daniel J Walsh" <dwalsh@redhat.com>,
+        "Karl MacMillan" <kmacmill@redhat.com>,
+        "SE Linux" <selinux@tycho.nsa.gov>, "James Morris" <jmorris@namei.org>,
+        "Eric Paris" <eparis@parisplace.org>
+In-Reply-To: <1187010842.26008.32.camel@moss-spartans.epoch.ncsc.mil>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
+References: <46BE75D1.5030503@redhat.com>
+	 <1187010842.26008.32.camel@moss-spartans.epoch.ncsc.mil>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Casey Schaufler <casey@schaufler-ca.com> wrote:
+On 8/13/07, Stephen Smalley <sds@tycho.nsa.gov> wrote:
+> On Sat, 2007-08-11 at 22:52 -0400, Daniel J Walsh wrote:
+> > https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=246762
+> >
+> > I downloaded skype from this site
+> >
+> > http://www.skype.com/download/skype/linux/
+> >
+> > Installed it and did a
+> >
+> > chcon -t unconfined_execmem_exec_t /usr/bin/skype
+> >
+> > # ls -lZ /usr/bin/skype
+> > -rwxr-xr-x  root root system_u:object_r:unconfined_execmem_exec_t /usr/bin/skype
+> >
+> >
+> > But when I run it, I still get
+> >
+> > time->Sat Aug 11 22:46:20 2007
+> > type=PATH msg=audit(1186886780.191:3467): item=1 name=(null) inode=8060946 dev=fd:00 mode=0100755 ouid=0 ogid=0 rdev=00:00 obj=system_u:object_r:ld_so_t:s0
+> > type=PATH msg=audit(1186886780.191:3467): item=0 name="/usr/bin/skype" inode=10345414 dev=fd:00 mode=0100755 ouid=0 ogid=0 rdev=00:00 obj=system_u:object_r:unconfined_execmem_exec_t:s0
+> > type=CWD msg=audit(1186886780.191:3467):  cwd=2F686F6D652F646576656C2F6477616C73682F4D7920446F776E6C6F616473
+> > type=EXECVE msg=audit(1186886780.191:3467): a0="skype"
+> > type=SYSCALL msg=audit(1186886780.191:3467): arch=40000003 syscall=11 success=no exit=-13 a0=9eb8958 a1=9eb8b58 a2=9e95c30 a3=0 items=2 ppid=4077 pid=5789 auid=3267 uid=0 gid=0 euid=0 suid=0 fsuid=0 egid=0 sgid=0 fsgid=0 tty=pts3 comm="skype" subj=system_u:system_r:unconfined_t:s0 key=(null)
+> > type=AVC msg=audit(1186886780.191:3467): avc:  denied  { execmem } for  pid=5789 comm="skype" scontext=system_u:system_r:unconfined_t:s0 tcontext=system_u:system_r:unconfined_t:s0 tclass=process
+> >
+> > When I run a unconfined_execmem_exec_t shell script with id -Z I get the proper transition.
+> >
+> > system_u:system_r:unconfined_execmem_t
+>
+> IIUC, in this case, the attempt to create the mapping is happening from
+> the kernel elf loader while mapping in the new executable _before_ the
+> domain transition takes effect.  So it shows up as a check on the caller
+> domain rather than the new domain.
+>
 
-> The specification of your push interface that the push operation
-> not affect how others access the process is OK for SELinux, but
-> not for any other MAC scheme that I've dealt with, and I think
-> that's most of them. Nuts. Smack, for example, uses exactly one
-> label on the process for all purposes.
+That pretty much describes what I am seeing....
 
-It's a fairly important concept.  The victimisation security context on a
-process must not change, even if the kernel overrides the security context
-that that process acts as so that it can transparently do work on its behalf.
+I believe this behavior started just a bit before I filed the BZ, as
+my recollection  is this 'used to work'.  That possible?
 
-IMO, the right way to do this is to pass the security context directly to
-vfs_mkdir() and co.
-
-> Are you concerned about accesses other than signals? Signals
-> could be staitforward to deal with in a pushed situation, but
-> I'd hesitate to say that the solution would generalize without
-> additional thought.
-
-There's also /proc and ptrace() for example.  ps -z must not show the
-overridden state.
-
-> > > >   (5) int security_xfrm_to_kernel_context(void *from, void **_to);
-> > > 
-> > > Woof. What are you transforming from? 
-> > 
-> > In CacheFiles case, the cachefilesd daemon's security label into the label
-> > the cache driver acts as on behalf of other processes.
-> 
-> I'm not sure I understand what this is doing.
-
-CacheFiles consists of two parts: the kernel module which creates things in
-the cache and does accesses into the cache on behalf of processes that access
-cached filesystems, and the userspace daemon that builds cull tables and
-deletes things.
-
-The reason there are two security labels is that the daemon's label gives it
-just enough rights to be able to do its job.  More or less all it can do is
-lookup, opendir, readdir, stat, rmdir, unlink and open the chardev for talking
-to the kernel module.  This means that the daemon can't, for example, be made
-to read or modify cache storage objects.
-
-Thus means, however, that the daemon's label isn't sufficient for the kernel
-module to do its job.  But since there's no way for the kernel module to
-directly get a label (and indeed it doesn't know the label it needs), a
-transformation has to be applied that turns the process label used by the
-daemon into a process label that the kernel, and only the kernel, can use.
-
-The kernel's label gives it, amongst other things, the additional rights to do
-mkdir, creat, open, read, write, setxattr, getxattr, rename - things the
-daemon isn't allowed to do.
-
-David
+tom
+-- 
+Tom London
 
 --
 This message was distributed to subscribers of the selinux mailing list.
