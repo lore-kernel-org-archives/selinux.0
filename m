@@ -1,120 +1,118 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l7EEQBAS015537
-	for <selinux@tycho.nsa.gov>; Tue, 14 Aug 2007 10:26:11 -0400
-Received: from py-out-1112.google.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l7EEQ976027484
-	for <selinux@tycho.nsa.gov>; Tue, 14 Aug 2007 14:26:10 GMT
-Received: by py-out-1112.google.com with SMTP id d32so3539631pye
-        for <selinux@tycho.nsa.gov>; Tue, 14 Aug 2007 07:26:10 -0700 (PDT)
-Message-ID: <4c4ba1530708140726wd7ae436hb96b49b0378978ed@mail.gmail.com>
-Date: Tue, 14 Aug 2007 07:26:07 -0700
-From: "Tom London" <selinux@gmail.com>
-To: "Stephen Smalley" <sds@tycho.nsa.gov>
 Subject: Re: Strange behavior with skype
-Cc: "Daniel J Walsh" <dwalsh@redhat.com>,
-        "Karl MacMillan" <kmacmill@redhat.com>,
-        "SE Linux" <selinux@tycho.nsa.gov>, "James Morris" <jmorris@namei.org>,
-        "Eric Paris" <eparis@parisplace.org>
-In-Reply-To: <1187100088.26008.178.camel@moss-spartans.epoch.ncsc.mil>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Tom London <selinux@gmail.com>
+Cc: Daniel J Walsh <dwalsh@redhat.com>, Karl MacMillan <kmacmill@redhat.com>,
+        SE Linux <selinux@tycho.nsa.gov>, James Morris <jmorris@namei.org>,
+        Eric Paris <eparis@parisplace.org>
+In-Reply-To: <4c4ba1530708140726wd7ae436hb96b49b0378978ed@mail.gmail.com>
 References: <46BE75D1.5030503@redhat.com>
 	 <1187010842.26008.32.camel@moss-spartans.epoch.ncsc.mil>
 	 <4c4ba1530708131313n350f4036o7a2d513770a65c90@mail.gmail.com>
 	 <1187092078.26008.103.camel@moss-spartans.epoch.ncsc.mil>
 	 <4c4ba1530708140651u70a907a0s198b744ea96cb44c@mail.gmail.com>
 	 <1187100088.26008.178.camel@moss-spartans.epoch.ncsc.mil>
+	 <4c4ba1530708140726wd7ae436hb96b49b0378978ed@mail.gmail.com>
+Content-Type: text/plain
+Date: Tue, 14 Aug 2007 10:33:07 -0400
+Message-Id: <1187101987.26008.188.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On 8/14/07, Stephen Smalley <sds@tycho.nsa.gov> wrote:
-> On Tue, 2007-08-14 at 06:51 -0700, Tom London wrote:
-> > On 8/14/07, Stephen Smalley <sds@tycho.nsa.gov> wrote:
-> > > On Mon, 2007-08-13 at 13:13 -0700, Tom London wrote:
-> > > > On 8/13/07, Stephen Smalley <sds@tycho.nsa.gov> wrote:
-> > > > > On Sat, 2007-08-11 at 22:52 -0400, Daniel J Walsh wrote:
-> > > > > > https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=246762
+On Tue, 2007-08-14 at 07:26 -0700, Tom London wrote:
+> On 8/14/07, Stephen Smalley <sds@tycho.nsa.gov> wrote:
+> > On Tue, 2007-08-14 at 06:51 -0700, Tom London wrote:
+> > > On 8/14/07, Stephen Smalley <sds@tycho.nsa.gov> wrote:
+> > > > On Mon, 2007-08-13 at 13:13 -0700, Tom London wrote:
+> > > > > On 8/13/07, Stephen Smalley <sds@tycho.nsa.gov> wrote:
+> > > > > > On Sat, 2007-08-11 at 22:52 -0400, Daniel J Walsh wrote:
+> > > > > > > https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=246762
+> > > > > > >
+> > > > > > > I downloaded skype from this site
+> > > > > > >
+> > > > > > > http://www.skype.com/download/skype/linux/
+> > > > > > >
+> > > > > > > Installed it and did a
+> > > > > > >
+> > > > > > > chcon -t unconfined_execmem_exec_t /usr/bin/skype
+> > > > > > >
+> > > > > > > # ls -lZ /usr/bin/skype
+> > > > > > > -rwxr-xr-x  root root system_u:object_r:unconfined_execmem_exec_t /usr/bin/skype
+> > > > > > >
+> > > > > > >
+> > > > > > > But when I run it, I still get
+> > > > > > >
+> > > > > > > time->Sat Aug 11 22:46:20 2007
+> > > > > > > type=PATH msg=audit(1186886780.191:3467): item=1 name=(null) inode=8060946 dev=fd:00 mode=0100755 ouid=0 ogid=0 rdev=00:00 obj=system_u:object_r:ld_so_t:s0
+> > > > > > > type=PATH msg=audit(1186886780.191:3467): item=0 name="/usr/bin/skype" inode=10345414 dev=fd:00 mode=0100755 ouid=0 ogid=0 rdev=00:00 obj=system_u:object_r:unconfined_execmem_exec_t:s0
+> > > > > > > type=CWD msg=audit(1186886780.191:3467):  cwd=2F686F6D652F646576656C2F6477616C73682F4D7920446F776E6C6F616473
+> > > > > > > type=EXECVE msg=audit(1186886780.191:3467): a0="skype"
+> > > > > > > type=SYSCALL msg=audit(1186886780.191:3467): arch=40000003 syscall=11 success=no exit=-13 a0=9eb8958 a1=9eb8b58 a2=9e95c30 a3=0 items=2 ppid=4077 pid=5789 auid=3267 uid=0 gid=0 euid=0 suid=0 fsuid=0 egid=0 sgid=0 fsgid=0 tty=pts3 comm="skype" subj=system_u:system_r:unconfined_t:s0 key=(null)
+> > > > > > > type=AVC msg=audit(1186886780.191:3467): avc:  denied  { execmem } for  pid=5789 comm="skype" scontext=system_u:system_r:unconfined_t:s0 tcontext=system_u:system_r:unconfined_t:s0 tclass=process
+> > > > > > >
+> > > > > > > When I run a unconfined_execmem_exec_t shell script with id -Z I get the proper transition.
+> > > > > > >
+> > > > > > > system_u:system_r:unconfined_execmem_t
 > > > > > >
-> > > > > > I downloaded skype from this site
+> > > > > > IIUC, in this case, the attempt to create the mapping is happening from
+> > > > > > the kernel elf loader while mapping in the new executable _before_ the
+> > > > > > domain transition takes effect.  So it shows up as a check on the caller
+> > > > > > domain rather than the new domain.
 > > > > > >
-> > > > > > http://www.skype.com/download/skype/linux/
-> > > > > >
-> > > > > > Installed it and did a
-> > > > > >
-> > > > > > chcon -t unconfined_execmem_exec_t /usr/bin/skype
-> > > > > >
-> > > > > > # ls -lZ /usr/bin/skype
-> > > > > > -rwxr-xr-x  root root system_u:object_r:unconfined_execmem_exec_t /usr/bin/skype
-> > > > > >
-> > > > > >
-> > > > > > But when I run it, I still get
-> > > > > >
-> > > > > > time->Sat Aug 11 22:46:20 2007
-> > > > > > type=PATH msg=audit(1186886780.191:3467): item=1 name=(null) inode=8060946 dev=fd:00 mode=0100755 ouid=0 ogid=0 rdev=00:00 obj=system_u:object_r:ld_so_t:s0
-> > > > > > type=PATH msg=audit(1186886780.191:3467): item=0 name="/usr/bin/skype" inode=10345414 dev=fd:00 mode=0100755 ouid=0 ogid=0 rdev=00:00 obj=system_u:object_r:unconfined_execmem_exec_t:s0
-> > > > > > type=CWD msg=audit(1186886780.191:3467):  cwd=2F686F6D652F646576656C2F6477616C73682F4D7920446F776E6C6F616473
-> > > > > > type=EXECVE msg=audit(1186886780.191:3467): a0="skype"
-> > > > > > type=SYSCALL msg=audit(1186886780.191:3467): arch=40000003 syscall=11 success=no exit=-13 a0=9eb8958 a1=9eb8b58 a2=9e95c30 a3=0 items=2 ppid=4077 pid=5789 auid=3267 uid=0 gid=0 euid=0 suid=0 fsuid=0 egid=0 sgid=0 fsgid=0 tty=pts3 comm="skype" subj=system_u:system_r:unconfined_t:s0 key=(null)
-> > > > > > type=AVC msg=audit(1186886780.191:3467): avc:  denied  { execmem } for  pid=5789 comm="skype" scontext=system_u:system_r:unconfined_t:s0 tcontext=system_u:system_r:unconfined_t:s0 tclass=process
-> > > > > >
-> > > > > > When I run a unconfined_execmem_exec_t shell script with id -Z I get the proper transition.
-> > > > > >
-> > > > > > system_u:system_r:unconfined_execmem_t
 > > > > >
-> > > > > IIUC, in this case, the attempt to create the mapping is happening from
-> > > > > the kernel elf loader while mapping in the new executable _before_ the
-> > > > > domain transition takes effect.  So it shows up as a check on the caller
-> > > > > domain rather than the new domain.
+> > > > > That pretty much describes what I am seeing....
 > > > > >
+> > > > > I believe this behavior started just a bit before I filed the BZ, as
+> > > > > my recollection  is this 'used to work'.  That possible?
 > > > >
-> > > > That pretty much describes what I am seeing....
+> > > > I don't think the kernel behavior has changed here - domain transitions
+> > > > have always taken effect after the kernel has mapped the executable (we
+> > > > do the domain transition at the same point where the setuid/setgid
+> > > > transition happens, upon compute_creds).  Labeling a program with
+> > > > unconfined_execmem_exec_t can only help when it is userspace (ld.so or
+> > > > the application) that tries to make a writable mapping executable, not
+> > > > the initial mapping of the executable by the kernel.
 > > > >
-> > > > I believe this behavior started just a bit before I filed the BZ, as
-> > > > my recollection  is this 'used to work'.  That possible?
-> > >
-> > > I don't think the kernel behavior has changed here - domain transitions
-> > > have always taken effect after the kernel has mapped the executable (we
-> > > do the domain transition at the same point where the setuid/setgid
-> > > transition happens, upon compute_creds).  Labeling a program with
-> > > unconfined_execmem_exec_t can only help when it is userspace (ld.so or
-> > > the application) that tries to make a writable mapping executable, not
-> > > the initial mapping of the executable by the kernel.
-> > >
-> > > I suppose we could explore moving up where domain transitions happen,
-> > > but that would require a new hook earlier in the code separate from the
-> > > normal compute_creds and could have side effects.
-> > >
-> > OK.  My memory is certainly not what it used to be ;)
->
-> Neither is mine, and I could be wrong - but I don't see that this
-> particular behavior has changed.
->
-> > I do remember changes to mmap/mprotect; perhaps I 'combined' 2 issues...
->
-> Not recently that I recall.  There was the mmap_zero check, but that's
-> separate.
->
-> > So, should something like "runcon -t unconfined_execmem_t
-> > /usr/bin/skype" pass muster?  The transition should occur before the
-> > kernel maps the executable, right?
->
-> No, runcon just writes the desired context to /proc/self/attr/exec and
-> then invokes execve on the program - the transition still happens in the
-> same way, but uses the application-provided value rather than the
-> default type transition (if allowed by policy of course).  You'd have to
-> transition into unconfined_execmem_t in a process first _before_
-> exec'ing skype, e.g.
->         runcon -t unconfined_execmem_t bash -c "/usr/bin/skype"
+> > > > I suppose we could explore moving up where domain transitions happen,
+> > > > but that would require a new hook earlier in the code separate from the
+> > > > normal compute_creds and could have side effects.
+> > > >
+> > > OK.  My memory is certainly not what it used to be ;)
+> >
+> > Neither is mine, and I could be wrong - but I don't see that this
+> > particular behavior has changed.
+> >
+> > > I do remember changes to mmap/mprotect; perhaps I 'combined' 2 issues...
+> >
+> > Not recently that I recall.  There was the mmap_zero check, but that's
+> > separate.
+> >
+> > > So, should something like "runcon -t unconfined_execmem_t
+> > > /usr/bin/skype" pass muster?  The transition should occur before the
+> > > kernel maps the executable, right?
+> >
+> > No, runcon just writes the desired context to /proc/self/attr/exec and
+> > then invokes execve on the program - the transition still happens in the
+> > same way, but uses the application-provided value rather than the
+> > default type transition (if allowed by policy of course).  You'd have to
+> > transition into unconfined_execmem_t in a process first _before_
+> > exec'ing skype, e.g.
+> >         runcon -t unconfined_execmem_t bash -c "/usr/bin/skype"
+> 
+> Ahh.... actually since /usr/bin/skype is binary, seem to need a bit more:
+> 
+> runcon -t unconfined_execmem_t /bin/bash -c "file-containing-/usr/bin/skype"
+> 
+> Above "works".
 
-Ahh.... actually since /usr/bin/skype is binary, seem to need a bit more:
+Sorry, I don't follow.  For example:
+$ runcon -t unconfined_execmem_t -- bash -c id
+works fine, and id is a binary.
 
-runcon -t unconfined_execmem_t /bin/bash -c "file-containing-/usr/bin/skype"
-
-Above "works".
-
-tom
 -- 
-Tom London
+Stephen Smalley
+National Security Agency
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
