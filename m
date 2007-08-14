@@ -1,43 +1,55 @@
-Subject: Re: Illegal errno from kernel
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Steve G <linux_4ever@yahoo.com>
-Cc: SELinux List <selinux@tycho.nsa.gov>
-In-Reply-To: <1187114154.26008.239.camel@moss-spartans.epoch.ncsc.mil>
-References: <126339.54611.qm@web51508.mail.re2.yahoo.com>
-	 <1187114154.26008.239.camel@moss-spartans.epoch.ncsc.mil>
-Content-Type: text/plain
-Date: Tue, 14 Aug 2007 14:11:43 -0400
-Message-Id: <1187115103.26008.246.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l7EJoowg010658
+	for <selinux@tycho.nsa.gov>; Tue, 14 Aug 2007 15:50:50 -0400
+Received: from web51509.mail.re2.yahoo.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with SMTP id l7EJokqR012428
+	for <selinux@tycho.nsa.gov>; Tue, 14 Aug 2007 19:50:47 GMT
+Date: Tue, 14 Aug 2007 12:50:46 -0700 (PDT)
+From: Steve G <linux_4ever@yahoo.com>
+Subject: [PATCH] correct return code in selinux_audit_rule_init
+To: SELinux List <selinux@tycho.nsa.gov>
+MIME-Version: 1.0
+Content-Type: multipart/mixed; boundary="0-1673104596-1187121046=:28392"
+Message-ID: <979167.28392.qm@web51509.mail.re2.yahoo.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2007-08-14 at 13:55 -0400, Stephen Smalley wrote:
-> On Tue, 2007-08-14 at 10:51 -0700, Steve G wrote:
-> > Hi,
-> > 
-> > In security/selinux/ss/services.c at the selinux_audit_rule_init() function is
-> > this code:
-> > 
-> >         if (!ss_initialized)
-> >                 return -ENOTSUPP;
-> > 
-> > The audit system sends that to user space, but its a special value that is
-> > supposed to be internal to the kernel. Should the audit system look for this
-> > value and change it when it calls the function, or should we change this value in
-> > the selinux code? And if we change it, what should it be? EINVAL doesn't make
-> > sense as the syntax of what's being asked to do is correct. Should we define
-> > something like ENOMAC?
-> 
-> It should likely have been -EOPNOTSUPP in the first place.  So I'd just
-> change it to that.
+--0-1673104596-1187121046=:28392
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
+Content-Id: 
+Content-Disposition: inline
 
-...and we already use that elsewhere in the SELinux code.
+This patch corrects an error return code to be something user space recognizes.
 
--- 
-Stephen Smalley
-National Security Agency
+Signed-off-by: Steve Grubb <linux_4ever@yahoo.com>
 
+
+
+       
+____________________________________________________________________________________
+Got a little couch potato? 
+Check out fun summer activities for kids.
+http://search.yahoo.com/search?fr=oni_on_mail&p=summer+activities+for+kids&cs=bz 
+--0-1673104596-1187121046=:28392
+Content-Type: text/x-patch; name="linux-2.6.18-return.patch"
+Content-Description: 1437328182-linux-2.6.18-return.patch
+Content-Disposition: inline; filename="linux-2.6.18-return.patch"
+
+diff -urp linux-2.6.18.x86_64.orig/security/selinux/ss/services.c linux-2.6.18.x86_64/security/selinux/ss/services.c
+--- linux-2.6.18.x86_64.orig/security/selinux/ss/services.c	2007-08-14 15:41:32.000000000 -0400
++++ linux-2.6.18.x86_64/security/selinux/ss/services.c	2007-08-14 15:42:56.000000000 -0400
+@@ -1927,7 +1927,7 @@ int selinux_audit_rule_init(u32 field, u
+ 	*rule = NULL;
+ 
+ 	if (!ss_initialized)
+-		return -ENOTSUPP;
++		return -EOPNOTSUPP;
+ 
+ 	switch (field) {
+ 	case AUDIT_SUBJ_USER:
+
+--0-1673104596-1187121046=:28392--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
