@@ -1,45 +1,28 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l7E6Ein4016416
-	for <selinux@tycho.nsa.gov>; Tue, 14 Aug 2007 02:14:44 -0400
-Received: from moutng.kundenserver.de (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l7E6EgFQ025262
-	for <selinux@tycho.nsa.gov>; Tue, 14 Aug 2007 06:14:43 GMT
-Mime-Version: 1.0 (Apple Message framework v752.2)
-Message-Id: <D7B1D472-6E9E-407F-B9DE-E7D6B100F0CC@sf-net.com>
-Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
-To: SELinux List <selinux@tycho.nsa.gov>
-From: Stefan Schulze Frielinghaus <stefan@sf-net.com>
-Subject: [refpolicy] apt and rpm
-Date: Tue, 14 Aug 2007 08:14:34 +0200
+From: David Howells <dhowells@redhat.com>
+In-Reply-To: <462850.65153.qm@web36605.mail.mud.yahoo.com>
+References: <462850.65153.qm@web36605.mail.mud.yahoo.com>
+To: casey@schaufler-ca.com
+Cc: dhowells@redhat.com, Stephen Smalley <sds@tycho.nsa.gov>,
+        torvalds@osdl.org, akpm@osdl.org, steved@redhat.com,
+        trond.myklebust@fys.uio.no, linux-fsdevel@vger.kernel.org,
+        linux-cachefs@redhat.com, nfsv4@linux-nfs.org,
+        linux-kernel@vger.kernel.org, selinux@tycho.nsa.gov,
+        LSM List <linux-security-module@vger.kernel.org>
+Subject: Re: [PATCH 00/16] Permit filesystem local caching [try #3]
+Date: Tue, 14 Aug 2007 10:39:57 +0100
+Message-ID: <1079.1187084397@redhat.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hello,
+Casey Schaufler <casey@schaufler-ca.com> wrote:
 
-I'm trying to fix the rules for apt and I have some questions  
-regarding how "rpm allow-rules" work.
+> With Smack you can leave the label alone, raise CAP_MAC_OVERRIDE,
+> do your business of setting the label correctly, and then drop
+> the capability. No new hooks required.
 
-For example the last update was about the loadkeys package. In  
-permissive mode I get the following failures while updating:
+That sounds like a contradiction.  How can you both leave it alone and set it?
 
-allow loadkeys_t apt_t:fd use;
-allow loadkeys_t apt_t:fifo_file write;
-allow loadkeys_t devpts_t:dir search;
-allow loadkeys_t dpkg_t:fd use;
-allow loadkeys_t dpkg_t:fifo_file { read write };
-allow loadkeys_t newrole_t:fd use;
-allow loadkeys_t sysadm_devpts_t:chr_file { read write };
-
-With other updates I get nearly the same errors. I beliefe that these  
-problems had rpm too. Because every package apt/rpm tries to exchange/ 
-restart a file descriptor etc. will be needed. I could add for every  
-domain a apt_read_pipes(*) but I think this is _not_ the SELinux way ;-)
-
-How could I solve these ones? Is there an interface which regards  
-other programs more power while speaking with apt/rpm?
-
-cheers,
-Stefan
+David
 
 --
 This message was distributed to subscribers of the selinux mailing list.
