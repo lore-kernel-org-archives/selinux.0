@@ -1,42 +1,39 @@
-Subject: Re: [PATCH 00/16] Permit filesystem local caching [try #3]
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: casey@schaufler-ca.com
-Cc: David Howells <dhowells@redhat.com>, torvalds@osdl.org, akpm@osdl.org,
-        steved@redhat.com, trond.myklebust@fys.uio.no,
-        linux-fsdevel@vger.kernel.org, linux-cachefs@redhat.com,
-        nfsv4@linux-nfs.org, linux-kernel@vger.kernel.org,
-        selinux@tycho.nsa.gov,
-        LSM List <linux-security-module@vger.kernel.org>
-In-Reply-To: <861956.50630.qm@web36613.mail.mud.yahoo.com>
-References: <861956.50630.qm@web36613.mail.mud.yahoo.com>
-Content-Type: text/plain
-Date: Tue, 14 Aug 2007 13:42:48 -0400
-Message-Id: <1187113368.26008.226.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l7EHpTbm000663
+	for <selinux@tycho.nsa.gov>; Tue, 14 Aug 2007 13:51:29 -0400
+Received: from web51508.mail.re2.yahoo.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with SMTP id l7EHpS2U014164
+	for <selinux@tycho.nsa.gov>; Tue, 14 Aug 2007 17:51:28 GMT
+Date: Tue, 14 Aug 2007 10:51:23 -0700 (PDT)
+From: Steve G <linux_4ever@yahoo.com>
+Subject: Illegal errno from kernel
+To: SELinux List <selinux@tycho.nsa.gov>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Message-ID: <126339.54611.qm@web51508.mail.re2.yahoo.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2007-08-14 at 08:53 -0700, Casey Schaufler wrote:
-> --- David Howells <dhowells@redhat.com> wrote:
-> 
-> > Casey Schaufler <casey@schaufler-ca.com> wrote:
-> > 
-> > > With Smack you can leave the label alone, raise CAP_MAC_OVERRIDE,
-> > > do your business of setting the label correctly, and then drop
-> > > the capability. No new hooks required.
-> > 
-> > That sounds like a contradiction.  How can you both leave it alone and set
-> > it?
-> 
-> Whoops, sorry. You leave the process label alone and explicitly
-> set the file label using the xattr interfaces.
+Hi,
 
-xattr interfaces don't help with the initial labeling of the file when
-it is created.
+In security/selinux/ss/services.c at the selinux_audit_rule_init() function is
+this code:
 
--- 
-Stephen Smalley
-National Security Agency
+        if (!ss_initialized)
+                return -ENOTSUPP;
+
+The audit system sends that to user space, but its a special value that is
+supposed to be internal to the kernel. Should the audit system look for this
+value and change it when it calls the function, or should we change this value in
+the selinux code? And if we change it, what should it be? EINVAL doesn't make
+sense as the syntax of what's being asked to do is correct. Should we define
+something like ENOMAC?
+
+-Steve
+
+
+      ____________________________________________________________________________________
+Fussy? Opinionated? Impossible to please? Perfect.  Join Yahoo!'s user panel and lay it on us. http://surveylink.yahoo.com/gmrs/yahoo_panel_invite.asp?a=7 
 
 
 --
