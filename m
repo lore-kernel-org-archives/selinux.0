@@ -1,28 +1,78 @@
-From: David Howells <dhowells@redhat.com>
-In-Reply-To: <462850.65153.qm@web36605.mail.mud.yahoo.com>
-References: <462850.65153.qm@web36605.mail.mud.yahoo.com>
-To: casey@schaufler-ca.com
-Cc: dhowells@redhat.com, Stephen Smalley <sds@tycho.nsa.gov>,
-        torvalds@osdl.org, akpm@osdl.org, steved@redhat.com,
-        trond.myklebust@fys.uio.no, linux-fsdevel@vger.kernel.org,
-        linux-cachefs@redhat.com, nfsv4@linux-nfs.org,
-        linux-kernel@vger.kernel.org, selinux@tycho.nsa.gov,
-        LSM List <linux-security-module@vger.kernel.org>
-Subject: Re: [PATCH 00/16] Permit filesystem local caching [try #3]
-Date: Tue, 14 Aug 2007 10:39:57 +0100
-Message-ID: <1079.1187084397@redhat.com>
+Subject: Re: Strange behavior with skype
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Tom London <selinux@gmail.com>
+Cc: Daniel J Walsh <dwalsh@redhat.com>, Karl MacMillan <kmacmill@redhat.com>,
+        SE Linux <selinux@tycho.nsa.gov>, James Morris <jmorris@namei.org>,
+        Eric Paris <eparis@parisplace.org>
+In-Reply-To: <4c4ba1530708131313n350f4036o7a2d513770a65c90@mail.gmail.com>
+References: <46BE75D1.5030503@redhat.com>
+	 <1187010842.26008.32.camel@moss-spartans.epoch.ncsc.mil>
+	 <4c4ba1530708131313n350f4036o7a2d513770a65c90@mail.gmail.com>
+Content-Type: text/plain
+Date: Tue, 14 Aug 2007 07:47:58 -0400
+Message-Id: <1187092078.26008.103.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Casey Schaufler <casey@schaufler-ca.com> wrote:
+On Mon, 2007-08-13 at 13:13 -0700, Tom London wrote:
+> On 8/13/07, Stephen Smalley <sds@tycho.nsa.gov> wrote:
+> > On Sat, 2007-08-11 at 22:52 -0400, Daniel J Walsh wrote:
+> > > https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=246762
+> > >
+> > > I downloaded skype from this site
+> > >
+> > > http://www.skype.com/download/skype/linux/
+> > >
+> > > Installed it and did a
+> > >
+> > > chcon -t unconfined_execmem_exec_t /usr/bin/skype
+> > >
+> > > # ls -lZ /usr/bin/skype
+> > > -rwxr-xr-x  root root system_u:object_r:unconfined_execmem_exec_t /usr/bin/skype
+> > >
+> > >
+> > > But when I run it, I still get
+> > >
+> > > time->Sat Aug 11 22:46:20 2007
+> > > type=PATH msg=audit(1186886780.191:3467): item=1 name=(null) inode=8060946 dev=fd:00 mode=0100755 ouid=0 ogid=0 rdev=00:00 obj=system_u:object_r:ld_so_t:s0
+> > > type=PATH msg=audit(1186886780.191:3467): item=0 name="/usr/bin/skype" inode=10345414 dev=fd:00 mode=0100755 ouid=0 ogid=0 rdev=00:00 obj=system_u:object_r:unconfined_execmem_exec_t:s0
+> > > type=CWD msg=audit(1186886780.191:3467):  cwd=2F686F6D652F646576656C2F6477616C73682F4D7920446F776E6C6F616473
+> > > type=EXECVE msg=audit(1186886780.191:3467): a0="skype"
+> > > type=SYSCALL msg=audit(1186886780.191:3467): arch=40000003 syscall=11 success=no exit=-13 a0=9eb8958 a1=9eb8b58 a2=9e95c30 a3=0 items=2 ppid=4077 pid=5789 auid=3267 uid=0 gid=0 euid=0 suid=0 fsuid=0 egid=0 sgid=0 fsgid=0 tty=pts3 comm="skype" subj=system_u:system_r:unconfined_t:s0 key=(null)
+> > > type=AVC msg=audit(1186886780.191:3467): avc:  denied  { execmem } for  pid=5789 comm="skype" scontext=system_u:system_r:unconfined_t:s0 tcontext=system_u:system_r:unconfined_t:s0 tclass=process
+> > >
+> > > When I run a unconfined_execmem_exec_t shell script with id -Z I get the proper transition.
+> > >
+> > > system_u:system_r:unconfined_execmem_t
+> >
+> > IIUC, in this case, the attempt to create the mapping is happening from
+> > the kernel elf loader while mapping in the new executable _before_ the
+> > domain transition takes effect.  So it shows up as a check on the caller
+> > domain rather than the new domain.
+> >
+> 
+> That pretty much describes what I am seeing....
+> 
+> I believe this behavior started just a bit before I filed the BZ, as
+> my recollection  is this 'used to work'.  That possible?
 
-> With Smack you can leave the label alone, raise CAP_MAC_OVERRIDE,
-> do your business of setting the label correctly, and then drop
-> the capability. No new hooks required.
+I don't think the kernel behavior has changed here - domain transitions
+have always taken effect after the kernel has mapped the executable (we
+do the domain transition at the same point where the setuid/setgid
+transition happens, upon compute_creds).  Labeling a program with
+unconfined_execmem_exec_t can only help when it is userspace (ld.so or
+the application) that tries to make a writable mapping executable, not
+the initial mapping of the executable by the kernel.
 
-That sounds like a contradiction.  How can you both leave it alone and set it?
+I suppose we could explore moving up where domain transitions happen,
+but that would require a new hook earlier in the code separate from the
+normal compute_creds and could have side effects.
 
-David
+-- 
+Stephen Smalley
+National Security Agency
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
