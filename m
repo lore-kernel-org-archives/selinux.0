@@ -1,29 +1,39 @@
-From: David Howells <dhowells@redhat.com>
-In-Reply-To: <861956.50630.qm@web36613.mail.mud.yahoo.com>
-References: <861956.50630.qm@web36613.mail.mud.yahoo.com>
-To: casey@schaufler-ca.com
-Cc: dhowells@redhat.com, Stephen Smalley <sds@tycho.nsa.gov>,
-        torvalds@osdl.org, akpm@osdl.org, steved@redhat.com,
-        trond.myklebust@fys.uio.no, linux-fsdevel@vger.kernel.org,
-        linux-cachefs@redhat.com, nfsv4@linux-nfs.org,
-        linux-kernel@vger.kernel.org, selinux@tycho.nsa.gov,
-        LSM List <linux-security-module@vger.kernel.org>
-Subject: Re: [PATCH 00/16] Permit filesystem local caching [try #3]
-Date: Tue, 14 Aug 2007 18:58:00 +0100
-Message-ID: <9409.1187114280@redhat.com>
+Subject: Re: Illegal errno from kernel
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Steve G <linux_4ever@yahoo.com>
+Cc: SELinux List <selinux@tycho.nsa.gov>
+In-Reply-To: <126339.54611.qm@web51508.mail.re2.yahoo.com>
+References: <126339.54611.qm@web51508.mail.re2.yahoo.com>
+Content-Type: text/plain
+Date: Tue, 14 Aug 2007 13:55:54 -0400
+Message-Id: <1187114154.26008.239.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Casey Schaufler <casey@schaufler-ca.com> wrote:
+On Tue, 2007-08-14 at 10:51 -0700, Steve G wrote:
+> Hi,
+> 
+> In security/selinux/ss/services.c at the selinux_audit_rule_init() function is
+> this code:
+> 
+>         if (!ss_initialized)
+>                 return -ENOTSUPP;
+> 
+> The audit system sends that to user space, but its a special value that is
+> supposed to be internal to the kernel. Should the audit system look for this
+> value and change it when it calls the function, or should we change this value in
+> the selinux code? And if we change it, what should it be? EINVAL doesn't make
+> sense as the syntax of what's being asked to do is correct. Should we define
+> something like ENOMAC?
 
-> Whoops, sorry. You leave the process label alone and explicitly
-> set the file label using the xattr interfaces.
+It should likely have been -EOPNOTSUPP in the first place.  So I'd just
+change it to that.
 
-That's the wrong way to do things.  There'd then be a window in which
-cachefilesd (the userspace daemon) could attempt to view the file when the
-file has the wrong label attached.
+-- 
+Stephen Smalley
+National Security Agency
 
-David
 
 --
 This message was distributed to subscribers of the selinux mailing list.
