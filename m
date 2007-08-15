@@ -1,91 +1,542 @@
 Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l7FEXtlH011639
-	for <selinux@tycho.nsa.gov>; Wed, 15 Aug 2007 10:33:55 -0400
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l7FEXsq9011626
+	for <selinux@tycho.nsa.gov>; Wed, 15 Aug 2007 10:33:54 -0400
 Received: from tresys-winxppro.columbia.tresys.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l7FEXk9K021800
-	for <selinux@tycho.nsa.gov>; Wed, 15 Aug 2007 14:33:46 GMT
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l7FEXW9K021775
+	for <selinux@tycho.nsa.gov>; Wed, 15 Aug 2007 14:33:33 GMT
 Received: from tresys-winxppro.columbia.tresys.com (localhost.localdomain [127.0.0.1])
-	by tresys-winxppro.columbia.tresys.com (8.13.8/8.13.8) with ESMTP id l7FKiDRb029095
-	for <selinux@tycho.nsa.gov>; Wed, 15 Aug 2007 16:44:13 -0400
+	by tresys-winxppro.columbia.tresys.com (8.13.8/8.13.8) with ESMTP id l7FKiFBv029180
+	for <selinux@tycho.nsa.gov>; Wed, 15 Aug 2007 16:44:15 -0400
 Received: (from paul@localhost)
-	by tresys-winxppro.columbia.tresys.com (8.13.8/8.13.8/Submit) id l7FKiDYa029094
-	for selinux@tycho.nsa.gov; Wed, 15 Aug 2007 16:44:13 -0400
-Message-Id: <20070815204412.867667900@tresys.com>
+	by tresys-winxppro.columbia.tresys.com (8.13.8/8.13.8/Submit) id l7FKiFBD029179
+	for selinux@tycho.nsa.gov; Wed, 15 Aug 2007 16:44:15 -0400
+Message-Id: <20070815204415.042069007@tresys.com>
 References: <20070815204411.705994826@tresys.com>
-Date: Wed, 15 Aug 2007 16:44:12 -0400
+Date: Wed, 15 Aug 2007 16:44:15 -0400
 From: tmiller@tresys.com
 To: selinux@tycho.nsa.gov
-Subject: [patch 1/4] libsemanage: genhomedircon initial cleanup
+Subject: [patch 4/4] libsemanage: remove genhomedircon python script
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Does a series of simple cleanups to make way for the new
-genhomedircon.
- 
-Index: selinux/libsemanage/src/semanage_store.c
+remove legacy genhomedircon python script
+
+Index: selinux/policycoreutils/scripts/genhomedircon
 ===================================================================
---- selinux.orig/libsemanage/src/semanage_store.c
-+++ selinux/libsemanage/src/semanage_store.c
-@@ -1008,14 +1008,15 @@ static int semanage_install_active(seman
- 	const char *active_fc = semanage_path(SEMANAGE_ACTIVE, SEMANAGE_FC);
- 	const char *active_fc_loc =
- 	    semanage_path(SEMANAGE_ACTIVE, SEMANAGE_FC_LOCAL);
--	const char *active_hd =
--	    semanage_path(SEMANAGE_ACTIVE, SEMANAGE_HOMEDIR_TMPL);
- 	const char *active_seusers =
- 	    semanage_path(SEMANAGE_ACTIVE, SEMANAGE_SEUSERS);
- 	const char *active_nc = semanage_path(SEMANAGE_ACTIVE, SEMANAGE_NC);
-+	const char *active_fc_hd =
-+	    semanage_path(SEMANAGE_ACTIVE, SEMANAGE_FC_HOMEDIRS);
+--- selinux.orig/policycoreutils/scripts/genhomedircon
++++ /dev/null
+@@ -1,400 +0,0 @@
+-#! /usr/bin/python -E
+-# Copyright (C) 2004 Tresys Technology, LLC
+-# see file 'COPYING' for use and warranty information
+-#
+-# genhomedircon - this script is used to generate file context
+-# configuration entries for user home directories based on their
+-# default prefixes and is run when building the policy. Specifically, we
+-# replace HOME_ROOT, HOME_DIR, and ROLE macros in .fc files with
+-# generic and user-specific values.
+-#
+-# Based off original script by Dan Walsh, <dwalsh@redhat.com>
+-#
+-# ASSUMPTIONS:
+-#
+-# The file CONTEXTDIR/files/homedir_template exists.  This file is used to
+-# set up the home directory context for each real user.
+-# 
+-# If a user is not listed in CONTEXTDIR/seusers, he will default to user_u, prefix user
+-#
+-# "Real" users (as opposed to system users) are those whose UID is greater than
+-#  or equal STARTING_UID (usually 500) and whose login is not a member of
+-#  EXCLUDE_LOGINS.  Users who are explicitly defined in CONTEXTDIR/seusers
+-#  are always "real" (including root, in the default configuration).
+-#
+-#  
+-
+-import sys, os, pwd, string, getopt, re
+-from semanage import *;
+-import selinux
+-import gettext
+-gettext.install('policycoreutils')
+-
+-def grep(file, var):
+-	ret = ""
+-	fd = open(file, 'r')
+-
+-	for i in  fd.readlines():
+-	    if re.search(var, i, 0) != None:
+-	        ret = i
+-                break
+-	fd.close()
+-	return ret
+-
+-def findval(file, var, delim = ""):
+-	val = ""
+-	try:
+-		fd = open(file, 'r')
+-		for i in  fd.readlines():
+-			if i.startswith(var) == 1:
+-				if delim == "":
+-					val = i.split()[1]
+-				else:
+-					val = i.split(delim)[1]
+-				val = val.split("#")[0]
+-				val = val.strip()
+-		fd.close()
+-	except:
+-		val = ""
+-	return val
+-
+-def getStartingUID():
+-	starting_uid = sys.maxint
+-	uid_min =  findval("/etc/login.defs", "UID_MIN")
+-	if uid_min != "":
+-		uid_min = uid_min.split("#")[0]
+-		uid_min = uid_min.strip()
+-		if int(uid_min) < starting_uid:
+-			starting_uid = int(uid_min)
+-
+-	uid_min =  findval("/etc/libuser.conf", "LU_UIDNUMBER", "=")
+-	if uid_min != "":
+-		uid_min = uid_min.split("#")[0]
+-		uid_min = uid_min.strip()
+-		if int(uid_min) < starting_uid:
+-			starting_uid = int(uid_min)
+-
+-	if starting_uid == sys.maxint:
+-		starting_uid = 500
+-	return starting_uid
+-
+-def getDefaultHomeDir():
+-	ret = []
+-	homedir = findval("/etc/default/useradd", "HOME", "=")
+-	if homedir != "" and not homedir in ret:
+-		ret.append(homedir)
+-	
+-	homedir = findval("/etc/libuser.conf", "LU_HOMEDIRECTORY", "=")
+-	if homedir != "" and not homedir in ret:
+-		ret.append(homedir)
+-	
+-	if ret == []:
+-		ret.append("/home")
+-
+-	# Add /export/home if it exists
+-	# Some customers use this for automounted homedirs
+-	if os.path.exists("/export/home"):
+-		ret.append("/export/home")
+-
+-	return ret
+-
+-def getSELinuxType(directory):
+-	val = findval(directory+"/config", "SELINUXTYPE", "=")
+-	if val != "":
+-		return val
+-	return "targeted"
+-
+-def usage(rc=0, error = ""):
+-	if error != "":
+-		sys.stderr.write("%s\n" % error)
+-		rc = 1
+-	sys.stderr.write("Usage: %s [ -d selinuxdir ] [-n | --nopasswd] [-t selinuxtype ]\n" % sys.argv[0])
+-	sys.stderr.flush()
+-	sys.exit(rc)
+-
+-def warning(warning = ""):
+-	sys.stderr.write("%s\n" % warning)
+-	sys.stderr.flush()
+-	
+-def errorExit(error):
+-	sys.stderr.write("%s exiting for: " % sys.argv[0])
+-	sys.stderr.write("%s\n" % error)
+-	sys.stderr.flush()
+-	sys.exit(1)
+-
+-class selinuxConfig:
+-	def __init__(self, selinuxdir = "/etc/selinux", type = "targeted", usepwd = 1):
+-		self.semanageHandle = semanage_handle_create()
+-		self.semanaged = semanage_is_managed(self.semanageHandle)
+-		if self.semanaged:
+-			rc = semanage_connect(self.semanageHandle)
+-			if rc:
+-				errorExit("Unable to connect to semanage")
+-			(status, self.ulist) = semanage_user_list(self.semanageHandle)
+-		self.type = type
+-		self.selinuxdir = selinuxdir +"/"
+-		self.contextdir = "/contexts"
+-		self.filecontextdir = self.contextdir+"/files"
+-		self.usepwd = usepwd
+-		self.default_user = "user_u"
+-		self.default_prefix = "user"
+-		self.users = self.getUsers()
+-
+-	def getFileContextDir(self):
+-		return self.selinuxdir+self.type+self.filecontextdir
+-
+-	def getFileContextFile(self):
+-		return self.getFileContextDir()+"/file_contexts"
+-	
+-	def getContextDir(self):
+-		return self.selinuxdir+self.type+self.contextdir
+-
+-	def getHomeDirTemplate(self):
+-		return self.getFileContextDir()+"/homedir_template"
+-
+-	def getHomeRootContext(self, homedir):
+-		ret = ""
+-		fd = open(self.getHomeDirTemplate(), 'r')
+-
+-		for i in  fd.readlines():
+-			if i.find("HOME_ROOT") == 0:
+-				i = i.replace("HOME_ROOT", homedir)
+-				ret += i
+-		fd.close()
+-		if ret == "":
+-			errorExit("No Home Root Context Found")
+-		return ret
+-
+-	def heading(self):
+-		ret = "\n#\n#\n# User-specific file contexts, generated via %s\n" % sys.argv[0]
+-		if self.semanaged:
+-			ret += "# use semanage command to manage system users in order to change the file_context\n#\n#\n"
+-		else:
+-			ret += "# edit %s to change file_context\n#\n#\n" % (self.selinuxdir+self.type+"/seusers")
+-		return ret
+-
+-	def get_default_prefix(self, name):
+-		for user in self.ulist:
+-			if semanage_user_get_name(user) == name:
+-				return semanage_user_get_prefix(user)
+-		return name
+-
+-	def get_old_prefix(self, user):
+-		rc = grep(self.selinuxdir+self.type+"/users/system.users", "^user %s" % user)
+-		if rc == "":					    
+-			rc = grep(self.selinuxdir+self.type+"/users/local.users", "^user %s" % user)
+-		if rc != "":
+-			user = rc.split()
+-			prefix  =  user[3]
+-			if prefix == "{":
+-				prefix = user[4]
+-		if len(prefix) > 2 and (prefix[-2:] == "_r" or prefix[-2:] == "_u"):
+-			prefix = prefix[:-2]
+-		return prefix
+-		
+-	def adduser(self, udict, user, seuser, prefix):
+-		if seuser == self.default_user or user == "__default__" or user == "system_u":
+-			return
+-		# !!! chooses first prefix in the list to use in the file context !!!
+-		try:
+-			home = pwd.getpwnam(user)[5]
+-			if home == "/":
+-				# Probably install so hard code to /root
+-				if user == "root":
+-					home = "/root"
+-				else:
+-					return
+-		except KeyError:
+-			if user == "root":
+-				home = "/root"
+-			else:
+-				sys.stderr.write("The user \"%s\" is not present in the passwd file, skipping...\n" % user)
+-				return
+-		prefs = {}
+-		prefs["seuser"] = seuser
+-		prefs["prefix"] = prefix
+-		prefs["home"] = home
+-		udict[user] = prefs
+-			
+-	def setDefaultUser(self, user, prefix):
+-		self.default_user = user
+-		self.default_prefix = prefix
+-		
+-	def getUsers(self):
+-		udict = {}
+-		if self.semanaged:
+-			(status, list) = semanage_seuser_list(self.semanageHandle)
+-			for seuser in list:
+-				user = []
+-				seusername = semanage_seuser_get_sename(seuser)
+-				prefix = self.get_default_prefix(seusername)
+-				if semanage_seuser_get_name(seuser) == "__default__":
+-					self.setDefaultUser(seusername, prefix)
+-
+-				self.adduser(udict, semanage_seuser_get_name(seuser), seusername, prefix)
+-				
+-		else:
+-			try:
+-				fd = open(self.selinuxdir+self.type+"/seusers")
+-				for u in  fd.readlines():
+-					u = u.strip()
+-					if len(u) == 0 or u[0] == "#":
+-						continue
+-					user = u.split(":")
+-					if len(user) < 2:
+-						continue
+-					
+-					prefix = self.get_old_prefix(user[1])
+-					self.adduser(udict, user[0], user[1], prefix)
+-				fd.close()
+-			except IOError, error:
+-				# Must be install so force add of root
+-				self.adduser(udict, "root", "root", "root")
+-
+-		return udict
+-
+-	def getHomeDirContext(self, user, seuser, home, prefix):
+-		ret = "\n\n#\n# Home Context for user %s\n#\n\n" % user
+-		fd = open(self.getHomeDirTemplate(), 'r')
+-		for i in  fd.readlines():
+-			if i.startswith("HOME_DIR") == 1:
+-				i = i.replace("HOME_DIR", home)
+-				i = i.replace("ROLE", prefix)
+-				i = i.replace("system_u", seuser)
+-				# Validate if the generated context exists.  Some user types may not exist
+-				scon = i.split()[-1]
+-				if selinux.is_selinux_enabled() < 1 or selinux.security_check_context(scon) == 0:
+-					ret = ret+i
+-		fd.close()
+-		return ret
+-
+-	def getUserContext(self, user, sel_user, prefix):
+-		ret = ""
+-		fd = open(self.getHomeDirTemplate(), 'r')
+-		for i in  fd.readlines():
+-			if i.find("USER") == 1:
+-				i = i.replace("USER", user)
+-				i = i.replace("ROLE", prefix)
+-				i = i.replace("system_u", sel_user)
+-				ret = ret+i
+-		fd.close()
+-		return ret
+-
+-	def genHomeDirContext(self):
+-		ret = ""
+-		# Fill in HOME and prefix for users that are defined
+-		for u in self.users.keys():
+-			ret += self.getHomeDirContext (u, self.users[u]["seuser"], self.users[u]["home"], self.users[u]["prefix"])
+-			ret += self.getUserContext (u, self.users[u]["seuser"], self.users[u]["prefix"])
+-		return ret+"\n"
+-
+-	def checkExists(self, home):
+-		fd = open(self.getFileContextFile())
+-		for i in  fd.readlines():
+-                    if len(i) == 0:
+-			    continue
+-		    try:
+-			    regex = i.split()[0]
+-			    #match a trailing .+
+-			    regex = re.sub("\.+$", "", regex)
+-			    regex = re.sub("\.\*$", "", regex)
+-			    #strip a (/.*)? which matches anything trailing to a /*$ which matches trailing /'s
+-			    
+-			    regex = re.sub("\(\/\.\*\)\?", "", regex)
+-			    regex = regex + "/*$"
+-			    if re.search(regex,home, 0):
+-				    return 1
+-		    except:
+-			    continue
+-		return 0
+-
+-	def getHomeDirs(self):
+-		homedirs = getDefaultHomeDir()
+-		starting_uid = getStartingUID()
+-		if self.usepwd == 0:
+-			return homedirs
+-		ulist = pwd.getpwall()
+-		for u in ulist:
+-			if u[2] >= starting_uid and \
+-					u[6] in VALID_SHELLS and \
+-					u[5] != "/" and \
+-					string.count(u[5], "/") > 1:
+-				homedir = u[5][:string.rfind(u[5], "/")]
+-				if not homedir in homedirs:
+-					if self.checkExists(homedir) == 1:
+-						warning("%s homedir %s or its parent directory conflicts with a\ndefined context in %s,\n%s will not create a new context. This usually indicates an incorrectly defined system account.  If it is a system account please make sure its login shell is /sbin/nologin." % (u[0], u[5], self.getFileContextFile(), sys.argv[0]))
+-					else:
+-						homedirs.append(homedir)
+-
+-		homedirs.sort()
+-		return homedirs
+- 
+-	def genoutput(self):
+-		ret = self.heading()
+-		for h in self.getHomeDirs():
+-			ret += self.getHomeDirContext (self.default_user, self.default_user, h+'/[^/]*', self.default_prefix)
+-			ret += self.getHomeRootContext(h)
+-		ret += self.getUserContext(".*", self.default_user, self.default_prefix) + "\n"
+-		ret += self.genHomeDirContext()
+-		return ret
+-
+-	def printout(self):
+-		print self.genoutput()
+-
+-	def write(self):
+-		fd = open(self.getFileContextDir()+"/file_contexts.homedirs", "w")
+-		fd.write(self.genoutput())
+-		fd.close()
+-
+-if os.getuid() > 0 or os.geteuid() > 0:
+-	print _("You must be root to run %s.") % sys.argv[0]
+-	sys.exit(1)
+-
+-try:
+-	fd = open("/etc/shells", 'r')
+-	VALID_SHELLS = fd.read().split("\n")
+-	fd.close()
+-	if "/sbin/nologin" in VALID_SHELLS:
+-		VALID_SHELLS.remove("/sbin/nologin")
+-	if "" in VALID_SHELLS:
+-		VALID_SHELLS.remove("")
+-except:
+-	VALID_SHELLS = ['/bin/sh', '/bin/bash', '/bin/ash', '/bin/bsh', '/bin/ksh', '/usr/bin/ksh', '/usr/bin/pdksh', '/bin/tcsh', '/bin/csh', '/bin/zsh']
+-
+-#
+-# This script will generate home dir file context
+-# based off the homedir_template file, entries in the password file, and
+-#
+-try:
+-	usepwd = 1
+-	directory = "/etc/selinux"
+-	type = None
+-	gopts, cmds = getopt.getopt(sys.argv[1:], 'hnd:t:', ['help',
+-						'type=',
+-						'nopasswd',
+-						'dir='])
+-	for o,a in gopts:
+-		if o == '--type' or o == "-t":
+-			type = a
+-		if o == '--nopasswd'  or o == "-n":
+-			usepwd = 0
+-		if o == '--dir'  or o == "-d":
+-			directory = a
+-		if o == '--help'  or o == "-h":
+-			usage()
+-except getopt.error, error:
+-	errorExit(_("Options Error %s ") % error)
+-
+-if type == None:
+-	type = getSELinuxType(directory)
+-
+-if len(cmds) != 0:
+-	usage(1)
+-
+-selconf = selinuxConfig(directory, type, usepwd)
+-try:
+-	selconf.write()
+-except IOError, error:
+-	sys.stderr.write("%s: %s\n" % ( sys.argv[0], error ))
+-	sys.exit(1)
+-
+Index: selinux/policycoreutils/scripts/genhomedircon.8
+===================================================================
+--- selinux.orig/policycoreutils/scripts/genhomedircon.8
++++ /dev/null
+@@ -1,82 +0,0 @@
+-.\" Hey, Emacs! This is an -*- nroff -*- source file.
+-.\" Copyright (c) 2005 Manoj Srivastava <srivasta@debian.org>
+-.\"
+-.\" This is free documentation; you can redistribute it and/or
+-.\" modify it under the terms of the GNU General Public License as
+-.\" published by the Free Software Foundation; either version 2 of
+-.\" the License, or (at your option) any later version.
+-.\"
+-.\" The GNU General Public License's references to "object code"
+-.\" and "executables" are to be interpreted as the output of any
+-.\" document formatting or typesetting system, including
+-.\" intermediate and printed output.
+-.\"
+-.\" This manual is distributed in the hope that it will be useful,
+-.\" but WITHOUT ANY WARRANTY; without even the implied warranty of
+-.\" MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+-.\" GNU General Public License for more details.
+-.\"
+-.\" You should have received a copy of the GNU General Public
+-.\" License along with this manual; if not, write to the Free
+-.\" Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139,
+-.\" USA.
+-.\"
+-.\"
+-.TH GENHOMEDIRCON "8" "January 2005" "Security Enhanced Linux" ""
+-.SH NAME
+-genhomedircon \- generate SELinux file context configuration entries for user home directories 
+-.SH SYNOPSIS
+-.B genhomedircon [ -d selinuxdir ] [-n | --nopasswd] [-t selinuxtype ] [-h]
+-
+-.SH OPTIONS
+-.TP
+-.B "\-h"
+-Print a short usage message
+-.TP
+-.B "\-d selinuxdir (\-\-directory)"
+-Directory where selinux files are installed defaults to /etc/selinux
+-.TP
+-.B 
+-\-n \-\-nopasswd
+-Indicates to the utility not to read homedirectories out of the password database.  
+-.TP
+-\-t selinuxtype (\-\-type)
+-Indicates the selinux type of this install.  Defaults to "targeted".
+-.SH DESCRIPTION
+-.PP
+-This utility is used to generate file context configuration entries for 
+-user home directories based on their 
+-.B prefix 
+-entry in the the 
+-.B semanage user record.  
+-genhomedircon is run when building 
+-the policy. It is also run automaticaly when ever the 
+-.B semanage 
+-utility modifies 
+-.B user
+-or
+-.B login
+-records.
+-Specifically, we replace HOME_ROOT, HOME_DIR, and ROLE macros in the 
+-.I /etc/selinux/<<SELINUXTYPE>>/contexts/files/homedir_template 
+-file with generic and user-specific values.  HOME_ROOT and HOME_DIR is replaced with each distinct location where login users homedirectories are located.  Defaults to /home. ROLE is replaced based on the prefix entry in the 
+-.B user
+-record.
+-.PP 
+-genhomedircon searches through all password entires for all "login" user home directories, (as opposed
+-to system users).  Login users are those whose UID is greater than or equal 
+-.I STARTING_UID
+-(default 500) and whose login shell is not "/sbin/nologin", or
+-"/bin/false". 
+-.PP 
+-.SH AUTHOR
+-This manual page was originally written by 
+-.I Manoj Srivastava <srivasta@debian.org>,
+-for the Debian GNU/Linux system, based on the comments and the code
+-in the utility, and then updated by Dan Walsh of Red Hat. The 
+-.B genhomedircon
+-utility was originally written by 
+-.I Dan Walsh of Red Hat 
+-with some modifications by 
+-.I Tresys Technology, LLC.
+-
+Index: selinux/policycoreutils/scripts/Makefile
+===================================================================
+--- selinux.orig/policycoreutils/scripts/Makefile
++++ selinux/policycoreutils/scripts/Makefile
+@@ -5,18 +5,14 @@ SBINDIR ?= $(PREFIX)/sbin
+ MANDIR ?= $(PREFIX)/share/man
+ LOCALEDIR ?= /usr/share/locale
  
- 	const char *running_fc = selinux_file_context_path();
- 	const char *running_fc_loc = selinux_file_context_local_path();
-+	const char *running_fc_hd = selinux_file_context_homedir_path();
- 	const char *running_hd = selinux_homedir_context_path();
- 	const char *running_policy = selinux_binary_policy_path();
- 	const char *running_seusers = selinux_usersconf_path();
-@@ -1027,14 +1028,15 @@ static int semanage_install_active(seman
- 	 * POLICYTYPE and should probably be done in the future. */
- 	char store_fc[PATH_MAX];
- 	char store_fc_loc[PATH_MAX];
--	char store_hd[PATH_MAX];
- 	char store_pol[PATH_MAX];
- 	char store_seusers[PATH_MAX];
- 	char store_nc[PATH_MAX];
-+	char store_fc_hd[PATH_MAX];
+-TARGETS=genhomedircon 
+-
+-all: $(TARGETS) fixfiles
++all: fixfiles
  
- 	len = strlen(really_active_store);
- 	running_fc += len;
- 	running_fc_loc += len;
-+	running_fc_hd += len;
- 	running_hd += len;
- 	running_policy += len;
- 	running_seusers += len;
-@@ -1055,9 +1057,10 @@ static int semanage_install_active(seman
- 		goto cleanup;
- 	}
+ install: all
+ 	-mkdir -p $(BINDIR)
+-	install -m 755 $(TARGETS) $(SBINDIR)
+ 	install -m 755 chcat $(BINDIR)
+ 	install -m 755 fixfiles $(DESTDIR)/sbin
+ 	-mkdir -p $(MANDIR)/man8
+ 	install -m 644 fixfiles.8 $(MANDIR)/man8/
+-	install -m 644 genhomedircon.8 $(MANDIR)/man8/
+ 	install -m 644 chcat.8 $(MANDIR)/man8/
  
--	snprintf(store_hd, PATH_MAX, "%s%s", storepath, running_hd);
--	if (semanage_copy_file(active_hd, store_hd, sh->conf->file_mode) == -1) {
--		ERR(sh, "Could not copy %s to %s.", active_hd, store_hd);
-+	snprintf(store_fc_hd, PATH_MAX, "%s%s", storepath, running_fc_hd);
-+	if (semanage_copy_file(active_fc_hd, store_fc_hd, sh->conf->file_mode)
-+	    == -1) {
-+		ERR(sh, "Could not copy %s to %s.", active_fc_hd, store_fc_hd);
- 		goto cleanup;
- 	}
- 
-@@ -1197,6 +1200,10 @@ static int semanage_commit_sandbox(seman
- 		retval = -1;
- 		goto cleanup;
- 	}
-+
-+	/* clean up some files from the sandbox before install */
-+	/* remove homedir_template from sandbox */
-+
- 	if (rename(sandbox, active) == -1) {
- 		ERR(sh, "Error while renaming %s to %s.", sandbox, active);
- 		/* note that if an error occurs during the next
+ clean:
 
 -- 
 
