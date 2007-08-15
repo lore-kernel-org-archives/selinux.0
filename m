@@ -1,58 +1,45 @@
-Subject: Re: The new audit2allow.
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l7FEFhq1009901
+	for <selinux@tycho.nsa.gov>; Wed, 15 Aug 2007 10:15:43 -0400
+Received: from mx1.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id l7FEFerX005063
+	for <selinux@tycho.nsa.gov>; Wed, 15 Aug 2007 14:15:40 GMT
+Received: from int-mx1.corp.redhat.com (int-mx1.corp.redhat.com [172.16.52.254])
+	by mx1.redhat.com (8.13.1/8.13.1) with ESMTP id l7FEFYhp013046
+	for <selinux@tycho.nsa.gov>; Wed, 15 Aug 2007 10:15:34 -0400
+Received: from pobox-2.corp.redhat.com (pobox-2.corp.redhat.com [10.11.255.15])
+	by int-mx1.corp.redhat.com (8.13.1/8.13.1) with ESMTP id l7FEFY7x009413
+	for <selinux@tycho.nsa.gov>; Wed, 15 Aug 2007 10:15:34 -0400
+Received: from localhost.localdomain (vpn-15-14.rdu.redhat.com [10.11.15.14])
+	by pobox-2.corp.redhat.com (8.13.1/8.13.1) with ESMTP id l7FEFY6c021736
+	for <selinux@tycho.nsa.gov>; Wed, 15 Aug 2007 10:15:34 -0400
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Subject: [PATCH] Suppress rule generation for dontaudit rules
+Message-Id: <2ad2d21fc72476558d8f.1187187301@localhost.localdomain>
+Date: Wed, 15 Aug 2007 10:15:01 -0400
 From: Karl MacMillan <kmacmillan@mentalrootkit.com>
-To: Stephen Smalley <sds@tycho.nsa.gov>
-Cc: "Brian M. Williams" <bwilliams@tresys.com>, selinux@tycho.nsa.gov,
-        Joshua Brindle <jbrindle@tresys.com>
-In-Reply-To: <1187186013.2674.40.camel@localhost.localdomain>
-References: 
-	 <6FE441CD9F0C0C479F2D88F959B01588EDEA2F@exchange.columbia.tresys.com>
-	 <1187094627.26008.149.camel@moss-spartans.epoch.ncsc.mil>
-	 <1187186013.2674.40.camel@localhost.localdomain>
-Content-Type: text/plain
-Date: Wed, 15 Aug 2007 10:11:01 -0400
-Message-Id: <1187187061.2674.45.camel@localhost.localdomain>
-Mime-Version: 1.0
+To: selinux@tycho.nsa.gov
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2007-08-15 at 09:53 -0400, Karl MacMillan wrote:
-> On Tue, 2007-08-14 at 08:30 -0400, Stephen Smalley wrote:
+The current policy generation code incorrectly generates allow rules for dontaudit messages. This patch fixes that.
 
-[...]
+Signed-off-by: User "Karl MacMillan <kmacmillan@mentalrootkit.com>"
+---
 
-> ere are specific regressions in the new audit2allow, then
-> > yes, those should be corrected.  Can you provide specific examples where
-> > interface matching is worse - those would be useful test cases going
-> > forward.  The -v output was never rigorously defined (they were just
-> > comment lines, after all, and just to help a human reader with
-> > supplemental information so that he wouldn't have to go back to the
-> > original audit message and correlate it), and I'm not sure how TYPE=AVC
-> > is helpful.  Retaining the audit serial number would likely be useful.
-> > 
-> 
-> Yes - please send me logs where you get unexpected results. Also - can
-> you explain more what you object to in the formatting. I made the
-> formatting change because I found the old formatting to be very
-> difficult to read. I'd be happy to change the formatting to something
-> that makes me happy and fans of the old way happy, but I need to
-> understand what you object to more clearly.
-> 
-> Other than the audit serial number, what would you like to see in the -v
-> output. Also, have you found the -e output that gives lots of
-> information?
-> 
-
-When I went to add the serial number I remembered why it wasn't there. I
-compress all of the audit messages for a specific access vector down to
-a single rule. So I can print the first serial number, but it is
-somewhat misleading as the allow rule may have been generated from
-several audit messages. If you use the -e flag you get every audit
-message that contributed to the allow rule.
-
-Any thoughts on how this should be handled?
-
-Karl
-
+diff -r 56dbe9166d98 -r 2ad2d21fc724 sepolgen/src/sepolgen/policygen.py
+--- a/sepolgen/src/sepolgen/policygen.py	Thu Jun 07 08:08:31 2007 -0400
++++ b/sepolgen/src/sepolgen/policygen.py	Wed Aug 15 10:13:28 2007 -0400
+@@ -139,6 +139,8 @@ class PolicyGenerator:
+ 
+     def __add_allow_rules(self, avs):
+         for av in avs:
++            if not av.denial:
++                continue
+             rule = refpolicy.AVRule(av)
+             if self.explain:
+                 rule.comment = refpolicy.Comment(explain_access(av, verbosity=self.explain))
 
 --
 This message was distributed to subscribers of the selinux mailing list.
