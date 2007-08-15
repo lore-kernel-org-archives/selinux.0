@@ -1,107 +1,173 @@
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Subject: RE: [patch 0/4] libsemanage: genhomedircon replacement
-Date: Wed, 15 Aug 2007 13:37:40 -0400
-Message-ID: <6FE441CD9F0C0C479F2D88F959B01588EDEB87@exchange.columbia.tresys.com>
-In-Reply-To: <1187198560.20485.45.camel@moss-spartans.epoch.ncsc.mil>
-References: <20070815204411.705994826@tresys.com> <1187190639.2674.51.camel@localhost.localdomain> <46C31BD0.5060200@tresys.com> <1187192832.2674.74.camel@localhost.localdomain> <6FE441CD9F0C0C479F2D88F959B01588EDEB74@exchange.columbia.tresys.com> <1187198560.20485.45.camel@moss-spartans.epoch.ncsc.mil>
-From: "Joshua Brindle" <jbrindle@tresys.com>
-To: "Stephen Smalley" <sds@tycho.nsa.gov>
-Cc: "Karl MacMillan" <kmacmillan@mentalrootkit.com>,
-        "Todd Miller" <tmiller@tresys.com>, <selinux@tycho.nsa.gov>
+Subject: Re: wrong magic number (using old sources)
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: selinux770@tortenboxer.de
+Cc: selinux@tycho.nsa.gov
+In-Reply-To: <20070815154407.250820@gmx.net>
+References: <20070810101003.128080@gmx.net>
+	 <1186746338.7233.11.camel@moss-spartans.epoch.ncsc.mil>
+	 <20070810121259.128050@gmx.net>
+	 <1186748504.7233.34.camel@moss-spartans.epoch.ncsc.mil>
+	 <20070810130703.128070@gmx.net>
+	 <1186751971.7233.70.camel@moss-spartans.epoch.ncsc.mil>
+	 <20070810141236.128070@gmx.net>  <20070811180730.308640@gmx.net>
+	 <1187009718.26008.19.camel@moss-spartans.epoch.ncsc.mil>
+	 <20070815154407.250820@gmx.net>
+Content-Type: text/plain
+Date: Wed, 15 Aug 2007 14:33:51 -0400
+Message-Id: <1187202831.20485.66.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Stephen Smalley wrote:
-> On Wed, 2007-08-15 at 11:57 -0400, Joshua Brindle wrote:
->> Karl MacMillan wrote:
->>> On Wed, 2007-08-15 at 11:29 -0400, Joshua Brindle wrote:
->>>> Karl MacMillan wrote:
->>>>> On Wed, 2007-08-15 at 16:44 -0400, tmiller@tresys.com wrote:
->>>>>> This replaces genhomedircon with equivalent functionality in
->>>>>> libsemanage. The homedir_template is also no longer installed,
->>>>>> this leaves some unused path functions in libselinux but
->>> removing those would break the ABI.
->>>>>> 
->>>>> 
->>>>> On a higher level, perhaps we should stop doing per-role home
->>>>> directory labeling at all and therefore remove genhomedircon
->>>>> entirely. I've been thinking about how to work this on a LDAP
->>>>> based network with remote home directories and I think the basic
->>>>> conclusion is that role-based labeling will simply not work
->>>>> (especially if we start assigning different primary roles to the
->>>>> same user on different systems with the same remote home
->>>>> directories). 
->>>>> 
->>>>> I suggest that we rely on either DAC or separate namespaces to
->>>>> separate user access to home directories and have one set of types
->>>>> for all home directories. On systems where you really want SELinux
->>>>> to do the separation you can use user constraints (which could
->>>>> either acheive the current role-level separation or user-level
->>>>> separation based on how you map your SELinux users).
->>>>> 
->>>>> (BTW - most of the above was suggested to me by Dan and Steve in
->>>>> private concersations). 
->>>>> 
->>>>> Thoughts?
->>>> 
->>>> Without genhomedircon how do you expect to be able to label home
->>>> directories with the appropriate MLS levels for the LSPP version
->>>> of RH? 
->>>> 
->>> 
->>> Perhaps it would be better to set it explicitly rather than based on
->>> the user. Either by giving people a way to set MLS file contexts
->>> separately from the type (which might help with MLS customization in
->>> general) or just doing a chcon on the containing home directory and
->>> having that be inherited (and not set on relabel for home
->>> directories). 
->>> 
->> 
->> So... Right now its based on the policy because the home directory
->> contexts are regenerated when the policy changes, you are suggesting
->> making it more difficult to use? Right now you can change someones
->> level with semanage and restorecon -R their home directory which is
->> fairly easy. Setting the contexts explicitly seems like much more
->> burden on the local admin.
+On Wed, 2007-08-15 at 17:44 +0200, selinux770@tortenboxer.de wrote:
+> > Are you cross-compiling from a system with different endianness?
+> Don't think so. I think both systems are little endian.
 > 
-> I thought genhomedircon wasn't setting the level at all (just
-> using whatever is in the template, i.e. s0), and then they
-> were using pam_namespace to instantiate per-level subdirs.
+> I played a little bit with the sources and i found a strange error:
+> Actuallay, the generated magic number is correct. I checked that with an hex editor and also within the next_entry() method in private.h
+> the buffer, the next_entry method returns is:
+> buffer[0]: 8c
+> buffer[1]: ff
+> buffer[2]: 7c
+> buffer[3]: f9
+> buffer[4]: 8
+> buffer[5]: 0
+> buffer[6]: 0
+> buffer[7]: 0
 > 
-
-Oh right, I forgot pam_namespace was being used on all mls systems now.
-
-> I'm trying to understand whether the issue here is limited in
-> scope to home directory labels or actually extends to the
-> entire notion of per-role types (tmp files, ttys, derived
-> program domains, etc).  I know that has long been an area of
-> concern, not only for file relabeling but also for e.g.
-> modules (requires templating that would go beyond even simple
-> interfaces). 
+> The method returns a void pointer, that is interpreted as an uint32_t (4 bytes) pointer (*buf). Printing the first two buffer entries now, i get:
+> *** before conversion: buf[0] : 7cff8c
+> ***  after conversion: buf[0] : 8c007cff
+> *** before conversion: buf[1] : f9000008
+> ***  after conversion: buf[1] : 8f90000
 > 
+> Whereas "before conversion" shows the hex interpretation of buf[i] before le32_to_cpu(buf[i]) is called, and "after conversion" shows the value afterwards. Something wents completely wrong. It seems like a 00 is added at the beginning of buf[0]. The magic number would be correct if we would drop this 00 and take the first byte of buf[1] instead. The strange thing is that, when i declare a 
+>    char *tmpbuf;
+> and set it to
+>    tmpbuf=(char *)buf;
+> the content is correct again:
+> ***  buf as char: tmpbuf[0] : 8c
+> ***  buf as char: tmpbuf[1] : ff
+> ***  buf as char: tmpbuf[2] : 7c
+> ***  buf as char: tmpbuf[3] : f9
+> ***  buf as char: tmpbuf[4] : 8
+> ***  buf as char: tmpbuf[5] : 0
+> ***  buf as char: tmpbuf[6] : 0
+> ***  buf as char: tmpbuf[7] : 0
+> 
+> I don't get the problem... why is
+>          buf[0]     = (00) 7c ff 8c and
+> (char *) buf[3...0] =  f9  7c ff 8c
+> ?
+> 
+> This is obviously not an error within the selinux sources, but maybe you could help me anyway?!
+> 
+> Thanks in advance.
 
-I agree, however I don't want to rely on DAC for seperation of things
-like tmp files. If it were easier to do automatic user/role transitions
-on domains and files those might serve the purpose fine and still
-provide good isolation via MAC but without that I'd hate to see per-role
-types go away.
+I suspect that what we are doing isn't safe/portable.
 
-One example I already brought up offlist is webapps, particularly when
-combined with something like se-postgresql there can be policy driven
-seperation of data in one of the most exploited mediums around. It
-doesn't matter if the seperation is via type: user_cgi_t can access
-user_db_t or user: method:user_r:cgi_t can access method:object_r:db_t
-or not, as long as there is some facility for getting a cgi of mine
-running with the context method:user_r:cgi_t. 
+The corresponding kernel code was converted a while back to avoid
+unaligned access problems, so possibly a similar transformation should
+happen here.
 
-> genhomedircon does serve another purpose, btw - setting the
-> SELinux user identity for the user's home directory.  So if
-> you want to do separation based on SELinux user via
-> constraints, you still need a mechanism for getting the user
-> home directories to have the right SELinux user identity.
+See:
+http://marc.info/?l=selinux&m=110252376515271&w=2
 
+As a simple test of whether this is related, you might try the following
+patch for libsepol (and then rebuild checkpolicy against the updated
+libsepol) and see if it gets you past the magic number check.  If so,
+then the next step would be to apply the same change to the entire
+policydb_read code.
+
+Index: libsepol/src/policydb.c
+===================================================================
+--- libsepol/src/policydb.c	(revision 2517)
++++ libsepol/src/policydb.c	(working copy)
+@@ -2938,36 +2938,37 @@
+ {
+ 
+ 	unsigned int i, j, r_policyvers;
+-	uint32_t *buf, config;
++	uint32_t *buf, buf2[8], config;
+ 	size_t len, nprim, nel;
+ 	char *policydb_str, *target_str = NULL;
+ 	struct policydb_compat_info *info;
+ 	unsigned int policy_type, bufindex;
+ 	ebitmap_node_t *tnode;
++	int rc;
+ 
+ 	config = 0;
+ 
+ 	/* Read the magic number and string length. */
+-	buf = next_entry(fp, sizeof(uint32_t) * 2);
+-	if (!buf)
++	rc = next_entry2(buf2, fp, sizeof(uint32_t) * 2);
++	if (rc < 0)
+ 		return POLICYDB_ERROR;
+ 	for (i = 0; i < 2; i++)
+-		buf[i] = le32_to_cpu(buf[i]);
++		buf2[i] = le32_to_cpu(buf2[i]);
+ 
+-	if (buf[0] == POLICYDB_MAGIC) {
++	if (buf2[0] == POLICYDB_MAGIC) {
+ 		policy_type = POLICY_KERN;
+ 		target_str = POLICYDB_STRING;
+-	} else if (buf[0] == POLICYDB_MOD_MAGIC) {
++	} else if (buf2[0] == POLICYDB_MOD_MAGIC) {
+ 		policy_type = POLICY_MOD;
+ 		target_str = POLICYDB_MOD_STRING;
+ 	} else {
+ 		ERR(fp->handle, "policydb magic number %#08x does not "
+ 		    "match expected magic number %#08x or %#08x",
+-		    buf[0], POLICYDB_MAGIC, POLICYDB_MOD_MAGIC);
++		    buf2[0], POLICYDB_MAGIC, POLICYDB_MOD_MAGIC);
+ 		return POLICYDB_ERROR;
+ 	}
+ 
+-	len = buf[1];
++	len = buf2[1];
+ 	if (len != strlen(target_str)) {
+ 		ERR(fp->handle, "policydb string length %zu does not match "
+ 		    "expected length %zu", len, strlen(target_str));
+Index: libsepol/src/private.h
+===================================================================
+--- libsepol/src/private.h	(revision 2517)
++++ libsepol/src/private.h	(working copy)
+@@ -64,6 +64,29 @@
+ 	return buffer;
+ }
+ 
++static inline int next_entry2(void *buf, struct policy_file *fp, size_t bytes)
++{
++	size_t nread;
++
++	switch (fp->type) {
++	case PF_USE_STDIO:
++		nread = fread(buf, bytes, 1, fp->fp);
++		if (nread != 1)
++			return -1;
++		break;
++	case PF_USE_MEMORY:
++		if (bytes > fp->len)
++			return -1;
++		memcpy(buf, fp->data, bytes);
++		fp->data += bytes;
++		fp->len -= bytes;
++		break;
++	default:
++		return -1;
++	}
++	return 0;
++}
++
+ static inline size_t put_entry(const void *ptr, size_t size, size_t n,
+ 			       struct policy_file *fp)
+ {
+
+
+-- 
+Stephen Smalley
+National Security Agency
 
 
 --
