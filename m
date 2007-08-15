@@ -1,76 +1,63 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l7FFiAi7018138
-	for <selinux@tycho.nsa.gov>; Wed, 15 Aug 2007 11:44:10 -0400
-Received: from mail.gmx.net (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with SMTP id l7FFi99K007835
-	for <selinux@tycho.nsa.gov>; Wed, 15 Aug 2007 15:44:09 GMT
-Cc: Stephen Smalley <sds@tycho.nsa.gov>
-Content-Type: text/plain; charset="iso-8859-1"
-Date: Wed, 15 Aug 2007 17:44:07 +0200
-From: selinux770@tortenboxer.de
-In-Reply-To: <1187009718.26008.19.camel@moss-spartans.epoch.ncsc.mil>
-Message-ID: <20070815154407.250820@gmx.net>
-MIME-Version: 1.0
-References: <20070810101003.128080@gmx.net>	
- <1186746338.7233.11.camel@moss-spartans.epoch.ncsc.mil>	
- <20070810121259.128050@gmx.net>	
- <1186748504.7233.34.camel@moss-spartans.epoch.ncsc.mil>	
- <20070810130703.128070@gmx.net>	
- <1186751971.7233.70.camel@moss-spartans.epoch.ncsc.mil>	
- <20070810141236.128070@gmx.net>  <20070811180730.308640@gmx.net>
- <1187009718.26008.19.camel@moss-spartans.epoch.ncsc.mil>
-Subject: Re: wrong magic number (using old sources)
-To: selinux@tycho.nsa.gov
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l7FFlnrc018508
+	for <selinux@tycho.nsa.gov>; Wed, 15 Aug 2007 11:47:49 -0400
+Received: from mx1.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id l7FFlkrX002023
+	for <selinux@tycho.nsa.gov>; Wed, 15 Aug 2007 15:47:46 GMT
+Subject: Re: [patch 0/4] libsemanage: genhomedircon replacement
+From: Karl MacMillan <kmacmillan@mentalrootkit.com>
+To: Joshua Brindle <jbrindle@tresys.com>
+Cc: tmiller@tresys.com, selinux@tycho.nsa.gov
+In-Reply-To: <46C31BD0.5060200@tresys.com>
+References: <20070815204411.705994826@tresys.com>
+	 <1187190639.2674.51.camel@localhost.localdomain>
+	 <46C31BD0.5060200@tresys.com>
+Content-Type: text/plain
+Date: Wed, 15 Aug 2007 11:47:12 -0400
+Message-Id: <1187192832.2674.74.camel@localhost.localdomain>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-> Are you cross-compiling from a system with different endianness?
-Don't think so. I think both systems are little endian.
+On Wed, 2007-08-15 at 11:29 -0400, Joshua Brindle wrote:
+> Karl MacMillan wrote:
+> > On Wed, 2007-08-15 at 16:44 -0400, tmiller@tresys.com wrote:
+> >> This replaces genhomedircon with equivalent functionality in libsemanage. The
+> >> homedir_template is also no longer installed, this leaves some unused path
+> >> functions in libselinux but removing those would break the ABI.
+> >>
+> > 
+> > On a higher level, perhaps we should stop doing per-role home
+> > directory labeling at all and therefore remove genhomedircon entirely.
+> > I've been thinking about how to work this on a LDAP based network with
+> > remote home directories and I think the basic conclusion is that
+> > role-based labeling will simply not work (especially if we start
+> > assigning different primary roles to the same user on different systems
+> > with the same remote home directories).
+> > 
+> > I suggest that we rely on either DAC or separate namespaces to separate
+> > user access to home directories and have one set of types for all home
+> > directories. On systems where you really want SELinux to do the
+> > separation you can use user constraints (which could either acheive the
+> > current role-level separation or user-level separation based on how you
+> > map your SELinux users).
+> > 
+> > (BTW - most of the above was suggested to me by Dan and Steve in private
+> > concersations).
+> > 
+> > Thoughts?
+> 
+> Without genhomedircon how do you expect to be able to label home 
+> directories with the appropriate MLS levels for the LSPP version of RH?
+> 
 
-I played a little bit with the sources and i found a strange error:
-Actuallay, the generated magic number is correct. I checked that with an hex editor and also within the next_entry() method in private.h
-the buffer, the next_entry method returns is:
-buffer[0]: 8c
-buffer[1]: ff
-buffer[2]: 7c
-buffer[3]: f9
-buffer[4]: 8
-buffer[5]: 0
-buffer[6]: 0
-buffer[7]: 0
+Perhaps it would be better to set it explicitly rather than based on the
+user. Either by giving people a way to set MLS file contexts separately
+from the type (which might help with MLS customization in general) or
+just doing a chcon on the containing home directory and having that be
+inherited (and not set on relabel for home directories).
 
-The method returns a void pointer, that is interpreted as an uint32_t (4 bytes) pointer (*buf). Printing the first two buffer entries now, i get:
-*** before conversion: buf[0] : 7cff8c
-***  after conversion: buf[0] : 8c007cff
-*** before conversion: buf[1] : f9000008
-***  after conversion: buf[1] : 8f90000
-
-Whereas "before conversion" shows the hex interpretation of buf[i] before le32_to_cpu(buf[i]) is called, and "after conversion" shows the value afterwards. Something wents completely wrong. It seems like a 00 is added at the beginning of buf[0]. The magic number would be correct if we would drop this 00 and take the first byte of buf[1] instead. The strange thing is that, when i declare a 
-   char *tmpbuf;
-and set it to
-   tmpbuf=(char *)buf;
-the content is correct again:
-***  buf as char: tmpbuf[0] : 8c
-***  buf as char: tmpbuf[1] : ff
-***  buf as char: tmpbuf[2] : 7c
-***  buf as char: tmpbuf[3] : f9
-***  buf as char: tmpbuf[4] : 8
-***  buf as char: tmpbuf[5] : 0
-***  buf as char: tmpbuf[6] : 0
-***  buf as char: tmpbuf[7] : 0
-
-I don't get the problem... why is
-         buf[0]     = (00) 7c ff 8c and
-(char *) buf[3...0] =  f9  7c ff 8c
-?
-
-This is obviously not an error within the selinux sources, but maybe you could help me anyway?!
-
-Thanks in advance.
-
--- 
-Psssst! Schon vom neuen GMX MultiMessenger gehört?
-Der kanns mit allen: http://www.gmx.net/de/go/multimessenger
+Karl
 
 
 --
