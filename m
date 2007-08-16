@@ -1,107 +1,215 @@
-Subject: Re: wrong magic number (using old sources)
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: selinux770@tortenboxer.de
-Cc: selinux@tycho.nsa.gov
-In-Reply-To: <20070816080523.135750@gmx.net>
-References: <20070810101003.128080@gmx.net>
-	 <1186746338.7233.11.camel@moss-spartans.epoch.ncsc.mil>
-	 <20070810121259.128050@gmx.net>
-	 <1186748504.7233.34.camel@moss-spartans.epoch.ncsc.mil>
-	 <20070810130703.128070@gmx.net>
-	 <1186751971.7233.70.camel@moss-spartans.epoch.ncsc.mil>
-	 <20070810141236.128070@gmx.net>  <20070811180730.308640@gmx.net>
-	 <1187009718.26008.19.camel@moss-spartans.epoch.ncsc.mil>
-	 <20070815154407.250820@gmx.net>
-	 <1187202831.20485.66.camel@moss-spartans.epoch.ncsc.mil>
-	 <20070816080523.135750@gmx.net>
-Content-Type: text/plain
-Date: Thu, 16 Aug 2007 08:59:24 -0400
-Message-Id: <1187269164.909.8.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+Date: Thu, 16 Aug 2007 08:04:41 -0700 (PDT)
+From: James Morris <jmorris@namei.org>
+To: Darrel Goeddel <DGoeddel@TrustedCS.com>
+cc: Paul Moore <paul.moore@hp.com>, Stephen Smalley <sds@tycho.nsa.gov>,
+        selinux@tycho.nsa.gov, kaigai@ak.jp.nec.com, joe@nall.com,
+        Eric Paris <eparis@parisplace.org>
+Subject: Re: [RFC 0/5] Static/fallback external labels for NetLabel
+In-Reply-To: <46C37F99.1060406@trustedcs.com>
+Message-ID: <Xine.LNX.4.64.0708160711280.30949@us.intercode.com.au>
+References: <46C37F99.1060406@trustedcs.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2007-08-16 at 10:05 +0200, selinux770@tortenboxer.de wrote:
-> > I suspect that what we are doing isn't safe/portable.
+On Wed, 15 Aug 2007, Darrel Goeddel wrote:
+
 > > 
-> > The corresponding kernel code was converted a while back to avoid
-> > unaligned access problems, so possibly a similar transformation should
-> > happen here.
-> > 
-> > See:
-> > http://marc.info/?l=selinux&m=110252376515271&w=2
-> > 
-> > As a simple test of whether this is related, you might try the following
-> > patch for libsepol (and then rebuild checkpolicy against the updated
-> > libsepol) and see if it gets you past the magic number check.  If so,
-> > then the next step would be to apply the same change to the entire
-> > policydb_read code.
+> > Perhaps I'm missing something, but the send check is necessary for e.g. 
+> > "can a httpd_server_t socket send an smtp_client_t packet" ?
 > 
-> That's it. After applying the changes in source code i get past the magic number check. Now, my policyversion number is wrong but i would suggest, that this error is related to the problem you described. I included also a printf for buf2[] to check the values after conversion:
-> # make
-> ( cd domains/program/ ; for n in *.te ; do echo "define(\`$n')"; done ) > tmp/program_used_flags.te.tmp
-> ( cd domains/misc/ ; for n in *.te ; do echo "define(\`$n')"; done ) >> tmp/program_used_flags.te.tmp
-> mv tmp/program_used_flags.te.tmp tmp/program_used_flags.te
-> Building policy.conf ...
-> [...] > policy.conf.tmp
-> Building file contexts files...
-> /usr/bin/checkpolicy  -o policy.20 policy.conf
-> /usr/bin/checkpolicy:  loading policy configuration from policy.conf
-> /usr/bin/checkpolicy:  policy configuration loaded
-> /usr/bin/checkpolicy:  writing binary representation (version 21) to policy.20
-> Validating file contexts files ...
-> /usr/sbin/setfiles -q -c policy.20 file_contexts/file_contexts
->  buf2[0]: f97cff8c
->  buf2[1]: 8
->  buf2[2]: bea60574
->  buf2[3]: bea60560
->  buf2[4]: 4004a304
->  buf2[5]: 400469a4
->  buf2[6]: 0
->  buf2[7]: 400a26f0
-> libsepol.policydb_read: policydb version 352321536 does not match my version range 15-21
-> libsepol.sepol_set_policydb_from_file: can't read binary policy: Success
-> Error reading policy policy.20: Success
-> make: *** [policy.20] Error 1
+> The send check would be necessary for that particular type of check.  In
+> the proposed scheme, that particular question would never arise.  The
+> skb is merely an extension of the socket, much as the socket is an
+> extension of the process.  The question is now "can httpd_server_t
+> flow_out of an smtp_t network entity?"  I'm having trouble coming up with
+> nice terminology for that one.  How's this for the question - "can an
+> httpd_server_t packet go to a destination with certain characteristics?"
+
+I don't see the problem.  The skb is labeled by SECMARK and optionally 
+external labeling, and then the check is applied.
+
+There is no need for for new terminology or abstractions, it is simply 
+"Can socket_t send packet_t" ?
+
+> > What you're calling fallback labels will likely be the only labels a 
+> > normal user encounters.
 > 
-> I think it is only necessary to declare unint32_t buf2[] of size 2 and not 8, isn't it?
+> That is correct.  In the absence of labeled network (just about all cases),
+> the SECMARK facility will provide the label of the peer.
 
-Ok, so libsepol needs to be fixed in the same way the kernel was to
-eliminate unaligned accesses.  Might take a little bit to work through
-all the code.  The size of the buffer has to be large enough for the
-largest next_entry() request.
+Not really.  It will be a label describing what we know about the packet, 
+which in the case of local labeling, is based only on local attributes 
+(e.g. destination port, derived from existing connection etc.).
 
-As a possible short term work around, you might try this patch instead.
-It just converts the static buffer used within libsepol from unsigned
-char to uint32_t so that the buffer will be aligned (at least for u32).
-That avoids changing all the callers.
+Once external labeling is applied, what we know will become more specific, 
+and ultimately, could be the label of the peer.
 
-Index: libsepol/src/private.h
-===================================================================
---- libsepol/src/private.h	(revision 2517)
-+++ libsepol/src/private.h	(working copy)
-@@ -5,6 +5,7 @@
- #include <byteswap.h>
- #include <endian.h>
- #include <sepol/policydb/policydb.h>
-+#include <stdint.h>
- 
- #if __BYTE_ORDER == __LITTLE_ENDIAN
- #define cpu_to_le16(x) (x)
-@@ -39,7 +40,7 @@
- /* Reading from a policy "file". */
- static inline void *next_entry(struct policy_file *fp, size_t bytes)
- {
--	static unsigned char buffer[BUFSIZ];
-+	static uint32_t buffer[20];
- 	size_t nread;
- 
- 	if (bytes > sizeof buffer)
+> >> There's that darn send again...  The flow_out check from SECFILTER is 
+> >> really performing the duties of the current send operation.
+> > 
+> > I think there's a slight misunderstanding here.  I'm proposing not having 
+> > SECFILTER at all, and instead adding netif_in and netif_out SELinux hooks.
+> 
+> That would provide flow control only at the interface level.  That is
+> certainly better than the current lack of flow control ability, but it
+> does not offer the flexibility of the iptables mechanism.
 
+It's not needed here -- the flexibility is provided in the selection and 
+classification of packets.  What you need here is the ability to control 
+which interfaces a packet can flow across, and this does not call for the 
+use of a generalized and separate mechanism.
+
+> It also gives us
+> different controls over forwarded traffic.  Instead of the ability of
+> the unique forward check that SECFILTER would provide, we are limited
+> to using the in and out netif checks.  We can no longer say that sysadm_t
+> traffic can come into the machine, sysadm_t traffic can go out of the
+> machine, but sysadm_t traffic can not pass through the machine.
+
+The forward check will be performed via the flow_forward hook.
+
+> > Discussion of security gates and similar I think will really confuse 
+> > people, as will the idea of labeling such abstract entities, which is 
+> > heading down a similar path to earlier proposals on this topic.
+> 
+> I think a lot of the previous confusion came from some of the
+> following points:
+> 
+> - trying to use secmark as BOTH an implicit fallback context AND
+>  a flow control point
+> - the transitions from secmark to xfrm to NetLabel, etc., that were
+>  thrown in to allow domain->packet->domain
+> 
+> I'm avoiding those issues with these simple rules:
+> 
+> - SECMARK is used only for establishing a fallback context for the peer
+
+Not in the general case, only when external labeling is in use.
+
+> - SECFILTER is used only for performing the flow control checks
+
+Unnecessary and complicated.  SELinux hooks can do this within the 
+existing framework.
+
+> - the packet always carries the peer's context, not a data context
+
+What is a "data context"?
+
+The label always simply has the most specific current information about 
+the packet.  It may be some default for all packets, it may be based upon 
+local attributes, or it may carry the label of the peer.
+
+> >> - a packet goes though "filter points", the packet is the subject and 
+> >>   the "filter point" is the object it must pass through (these 
+> >>   filters happen
+> >>   at input, output, and forwarding)
+> > 
+> > What they really are is the boundary of network layer of the machine, 
+> > which is to say, the boundary of machine itself in terms of network 
+> > functionality.  i.e. once a packet is accepted into the IP stack, it can 
+> > be forwarded, delivered etc.
+> > 
+> > So, allowing flow_in means "the packet can flow into this machine", and 
+> > similar for flow_forward and flow_out.
+> > 
+> > The socket recv/send checks are against the endpoint (at least, as 
+> > delegated by an authorized endpoint via the socket).
+> 
+> The recv check makes sense.  The socket is getting a packet from peer
+> peer_domain_t:secret, can the socket read that in?  The label of
+> peer_domain_t:secret came from the SECMARK mechanism which arrived at
+> that label based on the characteristics of the sender.  The
+> peer_domain_t:secret could have just as easily been explicitly conveyed
+> by the sender.
+> 
+> Does it make sense to make that check for outgoing traffic?  There is
+> no way to have peer-provided information about the receiver, you only
+> know where the info is going, not who will actually get it.  Yes, I
+> understand that I double standard here because I somehow believe that
+> the src characteristics for incoming packets are more useful than the
+> dst characteristics for outgoing packets.  I don't love outgoing
+> packets any less - I am giving the incoming more credibility because
+> there _can_ be real information about the context in that case.
+
+So, you trust the characteristics of a packet arriving from the network 
+more than those on locally generated packets?
+
+Keep in mind that we are also able to leverage connection tracking, so the 
+vast majority of packet labeling via secmark will have been validated as 
+being part of an existing connection.
+
+> Using SECMARK for the target of the outgoing access check means that we
+> are back to needing another place to store the "target" info in the skb,
+
+I need a concrete example.  What target information?  How is it used?
+
+> SECFILTER really is doing the same job for outgoing traffic as the current
+> usage of SECMARK, the only difference is that the subject comes from the
+> skb (same as the socket for locally generated traffic) and the decision
+> is made in the SECFILTER module, not delayed (which needs storage) until
+> later.
+
+I don't understand.
+
+> I'll bang my head around here to see what kind of functionality would be
+> missing (as opposed to the SECMARK/SECFILTER combo) with what you are
+> suggesting.  I'll try to come up with some diagrams for the different
+> methods that are being discussed to make sure we are on the same page.
+> Since you are going for "no SECFILTER", how are you envisioning the
+> network layer checks you described before being (flow_in, flow_forward,
+> flow_out) handled?  Or are you saying the idea should go, not just the
+> SECFILTER way of doing it?
+
+Well, we need something for the forwarding case at least.  Is it enough to 
+have just a flow_forward check which matches the packet label against 
+kernel_t ?  
+
+e.g. "Can this machine forward a packet labeled intranet_t" ?
+
+> 
+> > The netif_in and netif_out allow checking of the packet flowing across 
+> > specific physical interfaces.
+> > 
+> > I don't think we need to add any new abstractions here, and these should 
+> > be understandable by people who can configure networking.
+> > 
+> >> - a socket reading a packet must be able to listen to the peer that 
+> >>   created it - a slightly new meaning for current socket vs. secmark 
+> >>   access check
+> > 
+> > I'm not sure what this means.
+> 
+> The socket vs. secmark check conceptually means "can the local process
+> read this type of information" right now. 
+
+The secmark label can be anything at all, so it means whatever its labeled 
+with.  e.g. someone could label all traffic passing over eth0 as "secret", 
+or "sysadm_t"
+
+> By having the secmark field
+> always convey the context of the peer, the check takes on a slightly
+> different meaning - "can the local process read information written by
+> the peer process?".
+
+As mentioned, it carries the most specific currently available information 
+about the packet.  What it means in terms of distributed information flow 
+is thus context-specific.
+
+Without a specific field for e.g. peer_sid, which always only means the 
+peer, policy development & analysis will need to be "aware" of what the 
+label represents in a specific situation.
+
+I think this is an acceptable trade-off, as the users of external labeling 
+where such concepts are also critical also tend to have access to policy 
+expertise and can tightly control the policy and deployment.
+
+
+- James
 -- 
-Stephen Smalley
-National Security Agency
-
+James Morris
+<jmorris@namei.org>
 
 --
 This message was distributed to subscribers of the selinux mailing list.
