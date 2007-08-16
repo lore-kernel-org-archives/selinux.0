@@ -1,194 +1,244 @@
-Subject: Re: policycoreutils patches
+Subject: Re: [PATCH] selinuxfs to globally disable dontaudit rules
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Daniel J Walsh <dwalsh@redhat.com>
-Cc: SE Linux <selinux@tycho.nsa.gov>,
-        Karl MacMillan <kmacmillan@mentalrootkit.com>,
-        Joshua Brindle <method@manicmethod.com>
-In-Reply-To: <46B22681.2030107@redhat.com>
-References: <46B22681.2030107@redhat.com>
+To: Joshua Brindle <method@manicmethod.com>
+Cc: James Morris <jmorris@namei.org>, Eric Paris <eparis@redhat.com>,
+        selinux@tycho.nsa.gov, dwalsh@redhat.com
+In-Reply-To: <46BBBDDF.2000307@manicmethod.com>
+References: <1186696737.20393.10.camel@localhost.localdomain>
+	 <Pine.LNX.4.64.0708091525410.30691@us.intercode.com.au>
+	 <46BBAE00.7050600@manicmethod.com>  <46BBBDDF.2000307@manicmethod.com>
 Content-Type: text/plain
-Date: Thu, 16 Aug 2007 13:21:57 -0400
-Message-Id: <1187284917.909.29.camel@moss-spartans.epoch.ncsc.mil>
+Date: Thu, 16 Aug 2007 13:28:37 -0400
+Message-Id: <1187285317.909.36.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2007-08-02 at 14:46 -0400, Daniel J Walsh wrote:
-> nsapolicycoreutils_audit2allow_Makefile - Move sepolgen-iggen to sbindir.
-
-Karl, is moving sepolgen-ifgen fine with you?
-Dan - every time we move something like this, we risk breaking existing
-packages (like .spec file invocation of it), scripts, etc, so let's
-minimize please.
-
-> nsapolicycoreutils_run_init_Makefile Change permissions to 755 instead 
-> of 555, Some audit scripts are reporting problems with 755 permissions.
-
-Ok by me, but I don't quite understand why it matters.
-
-> nsapolicycoreutils_scripts_chcat - Missing : after else commands
-
-Hmm...so chcat has been broken for a while.  Is it actually being used?
-Worth retaining (upstream)?
-
-> nsapolicycoreutils_scripts_fixfiles - Certain patterns were not 
-> expanding.  So relabel was not complete also fix error handling
-
-This seems pretty fragile.
-
-> nsapolicycoreutils_scripts_genhomedircon - Speed up processing by a 
-> factor of 10 by precompiling regex
-
-Obsoleted by the libsemanage genhomedircon support, I think, once it is
-merged.
-
-> nsapolicycoreutils_semanage_semanage - Fix handling of internationalization
-> nsapolicycoreutils_semanage_seobject.py - Allow users to specify <<none>>
-
-Is this the way we want to handle this?  Layering seems broken.
-
+On Thu, 2007-08-09 at 21:22 -0400, Joshua Brindle wrote:
+> Joshua Brindle wrote:
+> > James Morris wrote:
+> >> On Thu, 9 Aug 2007, Eric Paris wrote:
+> >>
+> >>  
+> >>> Currently to disable dontaudit rules best you can do it to load the
+> >>> enableaudit.pp base policy.  Which still doesn't remove the dontaudit
+> >>> rules from modules.
+> >>>     
+> >>
+> >> Are we sure this can't be done in userspace?  Like, mangle all the 
+> >> existing policy and reload it?
+> >>
+> >>   
+> > I agree, the infrastructure is certainly in place to do it, just add 
+> > something in the sepol_handle that says dontaudits should be 
+> > discarded, then make an interface in libsemanage that uses that and 
+> > rebuild the policy.
+> >
+> > If noone beats me to it I will see if my conclusions about it being 
+> > fairly simple are accurate this weekend :)
+> >
 > 
-> plain text document attachment
-> (nsapolicycoreutils_audit2allow_Makefile)
-> --- nsapolicycoreutils/audit2allow/Makefile	2007-07-16 14:20:41.000000000 -0400
-> +++ policycoreutils-2.0.22/audit2allow/Makefile	2007-07-31 15:45:57.000000000 -0400
-> @@ -1,6 +1,7 @@
->  # Installation directories.
->  PREFIX ?= ${DESTDIR}/usr
->  BINDIR ?= $(PREFIX)/bin
-> +SBINDIR ?= $(PREFIX)/sbin
->  LIBDIR ?= $(PREFIX)/lib
->  MANDIR ?= $(PREFIX)/share/man
->  LOCALEDIR ?= /usr/share/locale
-> @@ -10,7 +11,7 @@
->  install: all
->  	-mkdir -p $(BINDIR)
->  	install -m 755 audit2allow $(BINDIR)
-> -	install -m 755 sepolgen-ifgen $(BINDIR)
-> +	install -m 755 sepolgen-ifgen $(SBINDIR)
->  	-mkdir -p $(MANDIR)/man1
->  	install -m 644 audit2allow.1 $(MANDIR)/man1/
+> I changed my mind, patch below
+> 
+> it compiles and seems to work after semodule -DB:
+> 
+> [root@scarecrow policy]# sediff -T policy.21.old \; policy.21 | grep -v
+> dontaudit
+> TE Rules (Added 0, Added New Type 0, Removed 326583, Removed Missing
+> Type 0, Modified 0)
+>  Added TE Rules: 0
+>  Added TE Rules because of new type: 0
+>  Removed TE Rules: 326583
+>  Removed TE Rules because of missing type: 0
+>  Modified TE Rules: 0
+> 
+> Index: libsemanage/include/semanage/handle.h
+> ===================================================================
+> --- libsemanage/include/semanage/handle.h	(revision 2511)
+> +++ libsemanage/include/semanage/handle.h	(working copy)
+> @@ -69,6 +69,9 @@
+>   * 1 for yes, 0 for no (default) */
+>  void semanage_set_create_store(semanage_handle_t * handle, int create_store);
 >  
-> plain text document attachment (nsapolicycoreutils_run_init_Makefile)
-> --- nsapolicycoreutils/run_init/Makefile	2007-07-16 14:20:41.000000000 -0400
-> +++ policycoreutils-2.0.22/run_init/Makefile	2007-07-31 15:45:57.000000000 -0400
-> @@ -34,8 +34,8 @@
->  install: all
->  	test -d $(SBINDIR)      || install -m 755 -d $(SBINDIR)
->  	test -d $(MANDIR)/man1 || install -m 755 -d $(MANDIR)/man1
-> -	install -m 555 run_init $(SBINDIR)
-> -	install -m 555 open_init_pty $(SBINDIR)
-> +	install -m 755 run_init $(SBINDIR)
-> +	install -m 755 open_init_pty $(SBINDIR)
->  	install -m 644 run_init.8 $(MANDIR)/man8/
->  	install -m 644 open_init_pty.8 $(MANDIR)/man8/
->  ifeq (${PAMH}, /usr/include/security/pam_appl.h)
-> plain text document attachment (nsapolicycoreutils_scripts_chcat)
-> --- nsapolicycoreutils/scripts/chcat	2007-07-16 14:20:41.000000000 -0400
-> +++ policycoreutils-2.0.22/scripts/chcat	2007-07-31 15:45:57.000000000 -0400
-> @@ -77,7 +77,7 @@
->              
->          if len(cats) > 0:
->              new_serange = "%s-%s:%s" % (serange[0], top[0], ",".join(cats))
-> -        else
-> +        else:
->              new_serange = "%s-%s" % (serange[0], top[0])
->              
->          if add_ind:
-> @@ -155,7 +155,7 @@
->  
->          if len(cats) > 0:
->              new_serange = "%s-%s:%s" % (serange[0], top[0], ",".join(cats))
-> -        else
-> +        else:
->              new_serange = "%s-%s" % (serange[0], top[0])
->              
->          if add_ind:
-> plain text document attachment (nsapolicycoreutils_scripts_fixfiles)
-> --- nsapolicycoreutils/scripts/fixfiles	2007-07-16 14:20:41.000000000 -0400
-> +++ policycoreutils-2.0.22/scripts/fixfiles	2007-07-31 15:45:57.000000000 -0400
-> @@ -88,7 +88,7 @@
->                    esac; \
->                 fi; \
->              done | \
-> -	while read pattern ; do find $pattern \
-> +	while read pattern ; do sh -c "find $pattern" \
->  		      ! \( -fstype ext2 -o -fstype ext3 -o -fstype jfs -o -fstype xfs \) -prune  -o \
->  		      \( -wholename /home -o -wholename /root -o -wholename /tmp -wholename /dev \) -prune -o -print; \
->  		      done 2> /dev/null | \
-> @@ -108,6 +108,7 @@
->  
->  rpmlist() {
->  rpm -q --qf '[%{FILESTATES} %{FILENAMES}\n]' "$1" | grep '^0 ' | cut -f2- -d ' '
-> +[ ${PIPESTATUS[0]} != 0 ] && echo "$1 not found" >/dev/stderr
+> +/* Set whether or not to disable dontaudits upon commit */
+> +void semanage_set_disable_dontaudit(semanage_handle_t * handle, int disable_dontaudit);
+> +
+>  /* Check whether policy is managed via libsemanage on this system.
+>   * Must be called prior to trying to connect.
+>   * Return 1 if policy is managed via libsemanage on this system,
+> Index: libsemanage/src/libsemanage.map
+> ===================================================================
+> --- libsemanage/src/libsemanage.map	(revision 2511)
+> +++ libsemanage/src/libsemanage.map	(working copy)
+> @@ -13,6 +13,6 @@
+>  	  semanage_iface_*; semanage_port_*; semanage_context_*;
+>  	  semanage_node_*;
+>  	  semanage_fcontext_*; semanage_access_check; semanage_set_create_store;
+> -	  semanage_is_connected;
+> +	  semanage_is_connected; semanage_set_disable_dontaudit;
+>    local: *;
+>  };
+> Index: libsemanage/src/handle.c
+> ===================================================================
+> --- libsemanage/src/handle.c	(revision 2511)
+> +++ libsemanage/src/handle.c	(working copy)
+> @@ -109,6 +109,14 @@
+>  	return;
 >  }
 >  
->  # 
-> plain text document attachment
-> (nsapolicycoreutils_scripts_genhomedircon)
-> --- nsapolicycoreutils/scripts/genhomedircon	2007-07-16 14:20:41.000000000 -0400
-> +++ policycoreutils-2.0.22/scripts/genhomedircon	2007-08-01 16:03:41.000000000 -0400
-> @@ -139,7 +139,22 @@
->  		self.default_user = "user_u"
->  		self.default_prefix = "user"
->  		self.users = self.getUsers()
-> +		fd = open(self.getFileContextFile())
-> +		self.fclines=[]
-> +		for i in fd.readlines():
-> +		    try:
-> +			    regex = i.split()[0]
-> +			    #match a trailing .+
-> +			    regex = re.sub("\.+$", "", regex)
-> +			    regex = re.sub("\.\*$", "", regex)
-> +			    regex = re.sub("\(\/\.\*\)\?", "", regex)
-> +			    regex = regex + "/*$"
-> +			    self.fclines.append(re.compile(regex))
-> +		    except:
-> +			    continue
+> +void semanage_set_disable_dontaudit(semanage_handle_t * sh, int disable_dontaudit)
+> +{
+> +	assert(sh != NULL);
+> +	
+> +	sepol_set_disable_dontaudit(sh->sepolh, disable_dontaudit);
+> +	return;
+> +}
+> +
+>  int semanage_is_connected(semanage_handle_t * sh)
+>  {
+>  	assert(sh != NULL);
+> Index: libsepol/include/sepol/handle.h
+> ===================================================================
+> --- libsepol/include/sepol/handle.h	(revision 2511)
+> +++ libsepol/include/sepol/handle.h	(working copy)
+> @@ -7,6 +7,10 @@
+>  /* Create and return a sepol handle. */
+>  sepol_handle_t *sepol_handle_create(void);
 >  
-> +		fd.close()
-> +		
->  	def getFileContextDir(self):
->  		return self.selinuxdir+self.type+self.filecontextdir
+> +/* Set whether or not to disable dontaudits, 0 is default and does 
+> + * not disable dontaudits, 1 disables them */
+> +void sepol_set_disable_dontaudit(sepol_handle_t * sh, int disable_dontaudit);
+> +
+>  /* Destroy a sepol handle. */
+>  void sepol_handle_destroy(sepol_handle_t *);
 >  
-> @@ -289,20 +304,9 @@
->  		return ret+"\n"
+> Index: libsepol/src/handle.h
+> ===================================================================
+> --- libsepol/src/handle.h	(revision 2511)
+> +++ libsepol/src/handle.h	(working copy)
+> @@ -14,6 +14,9 @@
+>  	void (*msg_callback) (void *varg,
+>  			      sepol_handle_t * handle, const char *fmt, ...);
+>  	void *msg_callback_arg;
+> +
+> +	int disable_dontaudit;
+> +
+>  };
 >  
->  	def checkExists(self, home):
-> -		fd = open(self.getFileContextFile())
-> -		for i in  fd.readlines():
-> -                    if len(i) == 0:
-> -			    continue
-> +		for i in self.fclines:
->  		    try:
-> -			    regex = i.split()[0]
-> -			    #match a trailing .+
-> -			    regex = re.sub("\.+$", "", regex)
-> -			    regex = re.sub("\.\*$", "", regex)
-> -			    #strip a (/.*)? which matches anything trailing to a /*$ which matches trailing /'s
-> -			    
-> -			    regex = re.sub("\(\/\.\*\)\?", "", regex)
-> -			    regex = regex + "/*$"
-> -			    if re.search(regex,home, 0):
-> +			    if i.match(home):
->  				    return 1
->  		    except:
->  			    continue
-> plain text document attachment (nsapolicycoreutils_semanage_semanage)
-> --- nsapolicycoreutils/semanage/semanage	2007-07-16 14:20:41.000000000 -0400
-> +++ policycoreutils-2.0.22/semanage/semanage	2007-07-31 15:45:57.000000000 -0400
-> @@ -34,7 +34,10 @@
->  sys.stdout = codecs.getwriter(locale.getpreferredencoding())(sys.__stdout__, 'replace')
+>  #endif
+> Index: libsepol/src/libsepol.map
+> ===================================================================
+> --- libsepol/src/libsepol.map	(revision 2511)
+> +++ libsepol/src/libsepol.map	(working copy)
+> @@ -12,5 +12,6 @@
+>  	sepol_policydb_*; sepol_set_policydb_from_file; 
+>  	sepol_policy_kern_*;
+>  	sepol_policy_file_*;
+> +	sepol_set_disable_dontaudit;
+>    local: *;
+>  };
+> Index: libsepol/src/expand.c
+> ===================================================================
+> --- libsepol/src/expand.c	(revision 2511)
+> +++ libsepol/src/expand.c	(working copy)
+> @@ -1367,6 +1367,8 @@
+>  	} else if (specified & AVRULE_AUDITDENY) {
+>  		spec = AVTAB_AUDITDENY;
+>  	} else if (specified & AVRULE_DONTAUDIT) {
+> +		if (handle->disable_dontaudit)
+> +			return EXPAND_RULE_SUCCESS;
+>  		spec = AVTAB_AUDITDENY;
+>  	} else if (specified & AVRULE_NEVERALLOW) {
+>  		spec = AVTAB_NEVERALLOW;
+> Index: libsepol/src/handle.c
+> ===================================================================
+> --- libsepol/src/handle.c	(revision 2511)
+> +++ libsepol/src/handle.c	(working copy)
+> @@ -1,4 +1,5 @@
+>  #include <stdlib.h>
+> +#include <assert.h>
+>  #include "handle.h"
+>  #include "debug.h"
 >  
->  try:
-> -       gettext.install(PROGNAME, localedir="/usr/share/locale", unicode=1)
-> +       gettext.install(PROGNAME,
-> +                       localedir="/usr/share/locale",
-> +                       unicode=False,
-> +                       codeset = 'utf-8')
->  except IOError:
->         import __builtin__
->         __builtin__.__dict__['_'] = unicode
+> @@ -13,9 +14,18 @@
+>  	sh->msg_callback = sepol_msg_default_handler;
+>  	sh->msg_callback_arg = NULL;
+>  
+> +	/* by default do not disable dontaudits */
+> +	sh->disable_dontaudit = 0;
+> +
+>  	return sh;
+>  }
+>  
+> +void sepol_set_disable_dontaudit(sepol_handle_t * sh, int disable_dontaudit)
+> +{
+> +	assert(sh !=NULL);
+> +	sh->disable_dontaudit = disable_dontaudit;
+> +}
+> +
+>  void sepol_handle_destroy(sepol_handle_t * sh)
+>  {
+>  	free(sh);
+> Index: policycoreutils/semodule/semodule.c
+> ===================================================================
+> --- policycoreutils/semodule/semodule.c	(revision 2511)
+> +++ policycoreutils/semodule/semodule.c	(working copy)
+> @@ -44,6 +44,7 @@
+>  static int no_reload;
+>  static int create_store;
+>  static int build;
+> +static int disable_dontaudit;
+>  
+>  static semanage_handle_t *sh = NULL;
+>  static char *store;
+> @@ -131,6 +132,7 @@
+>  	printf("  -n,--noreload	   do not reload policy after commit\n");
+>  	printf("  -h,--help        print this message and quit\n");
+>  	printf("  -v,--verbose     be verbose\n");
+> +	printf("  -D,--disable_dontaudit	Remove dontaudits from policy\n");
+>  }
+>  
+>  /* Sets the global mode variable to new_mode, but only if no other
+> @@ -173,6 +175,7 @@
+>  		{"reload", 0, NULL, 'R'},
+>  		{"noreload", 0, NULL, 'n'},
+>  		{"build", 0, NULL, 'B'},
+> +		{"disable_dontaudit", 0, NULL, 'D'},
+>  		{NULL, 0, NULL, 0}
+>  	};
+>  	int i;
+> @@ -181,7 +184,7 @@
+>  	no_reload = 0;
+>  	create_store = 0;
+>  	while ((i =
+> -		getopt_long(argc, argv, "s:b:hi:lvqr:u:RnB", opts,
+> +		getopt_long(argc, argv, "s:b:hi:lvqr:u:RnBD", opts,
+>  			    NULL)) != -1) {
+>  		switch (i) {
+>  		case 'b':
+> @@ -218,6 +221,9 @@
+>  		case 'B':
+>  			build = 1;
+>  			break;
+> +		case 'D':
+> +			disable_dontaudit = 1;
+> +			break;
+>  		case '?':
+>  		default:{
+>  				usage(argv[0]);
+> @@ -441,6 +447,8 @@
+>  			semanage_set_reload(sh, 0);
+>  		if (build)
+>  			semanage_set_rebuild(sh, 1);
+> +		if (disable_dontaudit)
+> +			semanage_set_disable_dontaudit(sh, 1);
+>  		result = semanage_commit(sh);
+>  	}
+
+Acked-by:  Stephen Smalley <sds@tycho.nsa.gov>
+
+Merge at will.
+
 -- 
 Stephen Smalley
 National Security Agency
