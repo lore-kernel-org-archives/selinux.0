@@ -1,43 +1,91 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l7GKOjIQ026457
-	for <selinux@tycho.nsa.gov>; Thu, 16 Aug 2007 16:24:45 -0400
-Received: from exchange.columbia.tresys.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with SMTP id l7GKOiYY025737
-	for <selinux@tycho.nsa.gov>; Thu, 16 Aug 2007 20:24:44 GMT
-Message-ID: <46C4B276.3000009@manicmethod.com>
-Date: Thu, 16 Aug 2007 16:24:22 -0400
-From: Joshua Brindle <method@manicmethod.com>
 MIME-Version: 1.0
-To: shahbaz khan <shazalive@gmail.com>
-CC: selinux@tycho.nsa.gov
-Subject: Re: TE for networked resources
-References: <7b740b700708161147q1ce955d4ha64320547ac81663@mail.gmail.com>
-In-Reply-To: <7b740b700708161147q1ce955d4ha64320547ac81663@mail.gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain;
+	charset="us-ascii"
+Subject: RE: confining the unconfined_t domain
+Date: Thu, 16 Aug 2007 13:37:08 -0700
+Message-ID: <FB39F4E77226B448BC1388D3BE4E00CD0219DF30@blums0008.bluelnk.net>
+References: <FB39F4E77226B448BC1388D3BE4E00CD0219DEFA@blums0008.bluelnk.net> <1187287622.909.72.camel@moss-spartans.epoch.ncsc.mil>
+From: "Clarkson, Mike R \(US SSA\)" <mike.clarkson@baesystems.com>
+To: "Stephen Smalley" <sds@tycho.nsa.gov>
+Cc: <selinux@tycho.nsa.gov>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-shahbaz khan wrote:
-> I was curious while reading Brindle et al paper on enhancing selinux 
-> policy for network domain that do we really need TE for these remote 
-> resources. Can't we just do with IBAC and RBAC? We can let the local 
-> subjects handle the TE with their own types with respect to the IBAC 
-> and RBAC of remote subject. This might be what they call equivalence 
-> mechanism. The problems associated with TE are too tough for 
-> selinux and current network controls to handle. The solutions will 
-> cost too much.
->  
-Like Steve said, we want to be able to bind executable code to domains 
-most of the time. However, the scheme we proposed leaves the translation 
-layer vague intentionally. There is nothing that prevents you from 
-making a translation server that only uses IBAC and RBAC.  One potential 
-use of this is interacting with non-TE security systems.
 
-> Is there any progress on this work. Let me know because I have also 
-> working on this and might be able to assist.
 
-Not as of late. We have the iptools patches in svn but other than that 
-nothing much has happened.
+> -----Original Message-----
+> From: Stephen Smalley [mailto:sds@tycho.nsa.gov]
+> Sent: Thursday, August 16, 2007 11:07 AM
+> To: Clarkson, Mike R (US SSA)
+> Cc: selinux@tycho.nsa.gov
+> Subject: Re: confining the unconfined_t domain
+> 
+> On Thu, 2007-08-16 at 10:15 -0700, Clarkson, Mike R (US SSA) wrote:
+> > I'd like to prevent the unconfined_t domain from executing certain
+files
+> > associated with domains that I've added. What is the best way to do
+> > this?
+> >
+> > I was trying to track down how the unconfined_t domain is given the
+> > executable permissions to all executable files. I assume it is
+through
+> > the  exec_type attribute somehow. I found the
+> > corecmd_exec_all_executables and corecmd_mmap_all_executables
+interfaces
+> > in corecommands.if, which both give execute privilege to exec_type,
+but
+> > I don't see these being called from the unconfined module. Can
+someone
+> > point out how this privilege is provided to the unconfined_t domain?
+> 
+> Um, unconfined_t is "unconfined".  By definition.
+> 
+> And removing the ability to execute another program doesn't change
+what
+> unconfined_t can do (i.e. its actual permissions); it can always
+create
+> its own copy of the same code and execute it in unconfined_t.
+> 
+> Use a different domain if you want it to be confined.
+
+I recognize that it would be better to use the strict policy so that we
+didn't have an unconfined_t domain, and we plan to switch in the future
+before going to operations, but for now we're using the targeted policy
+while in a prototype phase with an upcoming demo.
+
+I'd like to be able to demonstrate some of the power of SELinux by
+showing that only domains that have been granted permissions have access
+to certain files. It kind of defeats the purpose when absolutely anybody
+who logs in to the system can execute these files because they log into
+the unconfined_t domain. 
+
+I also recognize that removing execute doesn't prevent copying the file
+and executing the copy. But if I can eliminate execute permissions of
+unconfined_t, I can presumably eliminate all access if I so choose.
+Also, in this particular case, the file in question is owned by root
+with the setuid bit set, so limiting execute permissions is more
+important. When a non-root user copies a file with the setuid bit set,
+the copy of the file does not retain the setuid bit.
+
+Unconfined uses the file_type attribute rather than the exec_type
+attribute to get execute privilege to all executables (why?). I know
+this because I added a neverallow rule (neverallow unconfined_t
+my_exec_t:file execute), and then eliminated the call to
+domain_entry_file, and I still got a compile error resulting from the
+neverallow rule. However, if I remove the call to files_type, then it
+compiles fine. This eliminates all access to the file from the
+unconfined_t domain. Will there be any bad side effects to eliminating
+the file_type attribute to my_exec_t? Is there really no better way to
+accomplish this?
+
+Thanks
+ 
+> 
+> --
+> Stephen Smalley
+> National Security Agency
+
+
 
 
 --
