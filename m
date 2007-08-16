@@ -1,86 +1,120 @@
-Subject: Re: TE for networked resources
+Subject: RE: confining the unconfined_t domain
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: shahbaz khan <shazalive@gmail.com>
-Cc: selinux@tycho.nsa.gov, muhammad.alam@uibk.ac.at
-In-Reply-To: <7b740b700708161401x53a17dd7x628d291f38a6a355@mail.gmail.com>
-References: <7b740b700708161147q1ce955d4ha64320547ac81663@mail.gmail.com>
-	 <1187291188.909.96.camel@moss-spartans.epoch.ncsc.mil>
-	 <7b740b700708161401x53a17dd7x628d291f38a6a355@mail.gmail.com>
+To: "Clarkson, Mike R (US SSA)" <mike.clarkson@baesystems.com>
+Cc: selinux@tycho.nsa.gov, Daniel J Walsh <dwalsh@redhat.com>
+In-Reply-To: <FB39F4E77226B448BC1388D3BE4E00CD0219DF30@blums0008.bluelnk.net>
+References: <FB39F4E77226B448BC1388D3BE4E00CD0219DEFA@blums0008.bluelnk.net>
+	 <1187287622.909.72.camel@moss-spartans.epoch.ncsc.mil>
+	 <FB39F4E77226B448BC1388D3BE4E00CD0219DF30@blums0008.bluelnk.net>
 Content-Type: text/plain
-Date: Thu, 16 Aug 2007 17:08:21 -0400
-Message-Id: <1187298501.909.139.camel@moss-spartans.epoch.ncsc.mil>
+Date: Thu, 16 Aug 2007 17:15:29 -0400
+Message-Id: <1187298929.909.147.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2007-08-17 at 02:01 +0500, shahbaz khan wrote:
-> On 8/17/07, Stephen Smalley <sds@tycho.nsa.gov > wrote: 
->         On Thu, 2007-08-16 at 23:47 +0500, shahbaz khan wrote:
->         > I was curious while reading Brindle et al paper on enhancing
->         selinux 
->         > policy for network domain that do we really need TE for
->         these remote
->         > resources. Can't we just do with IBAC and RBAC? We can let
->         the local
->         > subjects handle the TE with their own types with respect to
->         the IBAC 
->         > and RBAC of remote subject. This might be what they call
->         equivalence
->         > mechanism. The problems associated with TE are too tough for
->         selinux
->         > and current network controls to handle. The solutions will
->         cost too 
->         > much.
->         
->         User identity and role doesn't convey enough information - you
->         lose the
->         binding to the actual program/code.  Which matters.  You want
->         to be able
->         to allow a given component to interact with another component 
->         specifically, not any arbitrary process running with a given
->         user
->         identity or role.
->  
-> I think this arbitration can be solved with iptables' rules. A local
-> to remote port restriction. And further hardened with port labels.
-> Will the label of ports not be enough? At the required points we still
-> have TE.
+On Thu, 2007-08-16 at 13:37 -0700, Clarkson, Mike R (US SSA) wrote:
+> 
+> > -----Original Message-----
+> > From: Stephen Smalley [mailto:sds@tycho.nsa.gov]
+> > Sent: Thursday, August 16, 2007 11:07 AM
+> > To: Clarkson, Mike R (US SSA)
+> > Cc: selinux@tycho.nsa.gov
+> > Subject: Re: confining the unconfined_t domain
+> > 
+> > On Thu, 2007-08-16 at 10:15 -0700, Clarkson, Mike R (US SSA) wrote:
+> > > I'd like to prevent the unconfined_t domain from executing certain
+> files
+> > > associated with domains that I've added. What is the best way to do
+> > > this?
+> > >
+> > > I was trying to track down how the unconfined_t domain is given the
+> > > executable permissions to all executable files. I assume it is
+> through
+> > > the  exec_type attribute somehow. I found the
+> > > corecmd_exec_all_executables and corecmd_mmap_all_executables
+> interfaces
+> > > in corecommands.if, which both give execute privilege to exec_type,
+> but
+> > > I don't see these being called from the unconfined module. Can
+> someone
+> > > point out how this privilege is provided to the unconfined_t domain?
+> > 
+> > Um, unconfined_t is "unconfined".  By definition.
+> > 
+> > And removing the ability to execute another program doesn't change
+> what
+> > unconfined_t can do (i.e. its actual permissions); it can always
+> create
+> > its own copy of the same code and execute it in unconfined_t.
+> > 
+> > Use a different domain if you want it to be confined.
+> 
+> I recognize that it would be better to use the strict policy so that we
+> didn't have an unconfined_t domain, and we plan to switch in the future
+> before going to operations, but for now we're using the targeted policy
+> while in a prototype phase with an upcoming demo.
 
-No, ports aren't adequate for identifying the components.  Think client
-side ports and also think dynamic port assignment (ala portmap).
+It doesn't matter what policy you use (targeted or strict); you just
+can't reasonably restrict unconfined_t without doing major surgery on
+it, and then you have the further problem of once having done major
+surgery on it, you no longer have a domain from which you can do admin
+tasks.  Better to introduce a separate domain and use it instead.
 
-> TE definitely gives a security granularity at the program/code level
-> but it is being taken care of by the local system. If the local system
-> ensures it till its boundaries then the remote subject, handling the
-> requests, can contain the security problems with its own context and
-> identity and role of the remote subject.
-> 
-> Sacrificing of the code binding at the cost of reasonable reduction in
-> complexity, where code binding is mandatory in the boundaries of
-> computer system but between two systems very little is lost. In the
-> boundaries of the local system a malicious code cannot get executed
-> with the right policy and if it does how can TE help to contain it
-> from the remote system if TE attribute is considered on the remote
-> side? I think identity and role are enough to contain it on the remote
-> side. The tradeoff will only broaden risks for the data of that role
-> and identity because it will not consider its types. Here identity
-> serves as the level of granularity in a specific role.
-> 
-> Secondly, with SECMARK and IPSEC associations we do pass on the TE
-> attribute in context. For extra sensitive applications and services,
-> TE can be considered which means we still reduce the penalty of
-> complexity in policy maintenance.
-> 
-> Shaz
-> 
->  
->         > Is there any progress on this work. Let me know because I
->         have also
->         > working on this and might be able to assist. 
->         
->         --
->         Stephen Smalley
->         National Security Agency
+> I'd like to be able to demonstrate some of the power of SELinux by
+> showing that only domains that have been granted permissions have access
+> to certain files. It kind of defeats the purpose when absolutely anybody
+> who logs in to the system can execute these files because they log into
+> the unconfined_t domain.
+
+It is more than being able to execute the file type, but also that it
+can e.g.:
+- relabel to and from that file type,
+- enter the domain associated with the file,
+- read/write that type,
+- ptrace the domain,
+...
+
+> I also recognize that removing execute doesn't prevent copying the file
+> and executing the copy. But if I can eliminate execute permissions of
+> unconfined_t, I can presumably eliminate all access if I so choose.
+
+Yep, but then it is no longer unconfined_t, and how will you
+subsequently update those files?
+
+> Also, in this particular case, the file in question is owned by root
+> with the setuid bit set, so limiting execute permissions is more
+> important. When a non-root user copies a file with the setuid bit set,
+> the copy of the file does not retain the setuid bit.
+
+But now you are relying on DAC for your actual protection.
+
+> Unconfined uses the file_type attribute rather than the exec_type
+> attribute to get execute privilege to all executables (why?).
+
+files.if defines the interface for gaining unconfined access to all
+files, and files.te implements that by allowing all permissions between
+such domains and all file types.  All permissions, including execute.
+But write and relabelto are no less important.
+
+>  I know
+> this because I added a neverallow rule (neverallow unconfined_t
+> my_exec_t:file execute), and then eliminated the call to
+> domain_entry_file, and I still got a compile error resulting from the
+> neverallow rule. However, if I remove the call to files_type, then it
+> compiles fine. This eliminates all access to the file from the
+> unconfined_t domain. Will there be any bad side effects to eliminating
+> the file_type attribute to my_exec_t? Is there really no better way to
+> accomplish this?
+
+Without file_type, you won't be allowed to create or relabel files with
+that type (associate check).
+
+Better way is to create a separate domain that is restricted, then
+assign your users to it instead of unconfined_t, only letting root use
+unconfined_t.  That's the model for the merged targeted+strict policy, I
+think, that is being created in rawhide / Fedora 8.
+
 -- 
 Stephen Smalley
 National Security Agency
