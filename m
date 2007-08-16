@@ -1,56 +1,43 @@
-Subject: Re: [PATCH] selinuxfs to globally disable dontaudit rules
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Joshua Brindle <method@manicmethod.com>
-Cc: James Morris <jmorris@namei.org>, Eric Paris <eparis@redhat.com>,
-        selinux@tycho.nsa.gov, dwalsh@redhat.com
-In-Reply-To: <46C4A5DA.7030709@manicmethod.com>
-References: <1186696737.20393.10.camel@localhost.localdomain>
-	 <Pine.LNX.4.64.0708091525410.30691@us.intercode.com.au>
-	 <46BBAE00.7050600@manicmethod.com>  <46BBBDDF.2000307@manicmethod.com>
-	 <1187285317.909.36.camel@moss-spartans.epoch.ncsc.mil>
-	 <46C48D2B.3010504@manicmethod.com>
-	 <1187286476.909.51.camel@moss-spartans.epoch.ncsc.mil>
-	 <46C48F01.40101@manicmethod.com>
-	 <1187287475.909.69.camel@moss-spartans.epoch.ncsc.mil>
-	 <1187291884.909.103.camel@moss-spartans.epoch.ncsc.mil>
-	 <46C4A5DA.7030709@manicmethod.com>
-Content-Type: text/plain
-Date: Thu, 16 Aug 2007 15:33:37 -0400
-Message-Id: <1187292817.909.111.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l7GKOjIQ026457
+	for <selinux@tycho.nsa.gov>; Thu, 16 Aug 2007 16:24:45 -0400
+Received: from exchange.columbia.tresys.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with SMTP id l7GKOiYY025737
+	for <selinux@tycho.nsa.gov>; Thu, 16 Aug 2007 20:24:44 GMT
+Message-ID: <46C4B276.3000009@manicmethod.com>
+Date: Thu, 16 Aug 2007 16:24:22 -0400
+From: Joshua Brindle <method@manicmethod.com>
+MIME-Version: 1.0
+To: shahbaz khan <shazalive@gmail.com>
+CC: selinux@tycho.nsa.gov
+Subject: Re: TE for networked resources
+References: <7b740b700708161147q1ce955d4ha64320547ac81663@mail.gmail.com>
+In-Reply-To: <7b740b700708161147q1ce955d4ha64320547ac81663@mail.gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2007-08-16 at 15:30 -0400, Joshua Brindle wrote:
-> Stephen Smalley wrote:
-> >> Some of Dan's policycoreutils patches are trivial or simple bug fixes.
-> >> Others are less clear to me.
-> >>
-> >> I was going to test the libsemanage genhomedircon patches, but haven't
-> >> done so yet.  I don't have a problem with them conceptually.  Have you
-> >> verified that they yield no change in output under -targeted and -strict
-> >> policy?  And run them under valgrind?
-> >>     
-> >
-> > Oh, and what to do about the fact that it won't build anywhere but
-> > rawhide (ustr dependency)?
-> >
-> >   
-> We can pull the parts of ustr we need into the library, it is designed 
-> to do used that way. This is also trunk though, and we don't guarantee 
-> ABI stability in trunk right? The sepolgen dependency of python 2.5 
-> causes similar problems AFAIK.
+shahbaz khan wrote:
+> I was curious while reading Brindle et al paper on enhancing selinux 
+> policy for network domain that do we really need TE for these remote 
+> resources. Can't we just do with IBAC and RBAC? We can let the local 
+> subjects handle the TE with their own types with respect to the IBAC 
+> and RBAC of remote subject. This might be what they call equivalence 
+> mechanism. The problems associated with TE are too tough for 
+> selinux and current network controls to handle. The solutions will 
+> cost too much.
+>  
+Like Steve said, we want to be able to bind executable code to domains 
+most of the time. However, the scheme we proposed leaves the translation 
+layer vague intentionally. There is nothing that prevents you from 
+making a translation server that only uses IBAC and RBAC.  One potential 
+use of this is interacting with non-TE security systems.
 
-Ok.  I just wanted to test on F7, so I just did a yum
---enablerepo=development install ustr ustr-devel and then everything was
-happy.
+> Is there any progress on this work. Let me know because I have also 
+> working on this and might be able to assist.
 
-But the more important issue is that it doesn't work (see other mail).
-Pity.  ENOTEST w/o users added to seusers.
-
--- 
-Stephen Smalley
-National Security Agency
+Not as of late. We have the iptools patches in svn but other than that 
+nothing much has happened.
 
 
 --
