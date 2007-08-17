@@ -1,55 +1,90 @@
-Subject: RE: [patch 0/4] libsemanage: genhomedircon replacement
-From: Karl MacMillan <kmacmillan@mentalrootkit.com>
-To: Joshua Brindle <jbrindle@tresys.com>
-Cc: Stephen Smalley <sds@tycho.nsa.gov>, Todd Miller <tmiller@tresys.com>,
-        selinux@tycho.nsa.gov
-In-Reply-To: <6FE441CD9F0C0C479F2D88F959B01588EDEBAB@exchange.columbia.tresys.com>
-References: <20070815204411.705994826@tresys.com>
-	 <1187190639.2674.51.camel@localhost.localdomain>
-	 <46C31BD0.5060200@tresys.com>
-	 <1187192832.2674.74.camel@localhost.localdomain>
-	 <6FE441CD9F0C0C479F2D88F959B01588EDEB74@exchange.columbia.tresys.com>
-	 <1187198560.20485.45.camel@moss-spartans.epoch.ncsc.mil>
-	 <1187205378.2838.12.camel@localhost.localdomain>
-	 <1187207793.20485.103.camel@moss-spartans.epoch.ncsc.mil>
-	 <1187209022.2838.38.camel@localhost.localdomain>
-	 <1187209889.20485.138.camel@moss-spartans.epoch.ncsc.mil>
-	 <1187210504.2838.56.camel@localhost.localdomain>
-	 <6FE441CD9F0C0C479F2D88F959B01588EDEBA9@exchange.columbia.tresys.com>
-	 <1187212166.2838.73.camel@localhost.localdomain>
-	 <6FE441CD9F0C0C479F2D88F959B01588EDEBAB@exchange.columbia.tresys.com>
-Content-Type: text/plain
-Date: Fri, 17 Aug 2007 09:33:25 -0400
-Message-Id: <1187357605.9435.14.camel@localhost.localdomain>
-Mime-Version: 1.0
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l7HF5YDa020286
+	for <selinux@tycho.nsa.gov>; Fri, 17 Aug 2007 11:05:34 -0400
+Received: from exchange.columbia.tresys.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with SMTP id l7HF5X3G023910
+	for <selinux@tycho.nsa.gov>; Fri, 17 Aug 2007 15:05:33 GMT
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Subject: weird mprotect error
+Date: Fri, 17 Aug 2007 11:05:29 -0400
+Message-ID: <6FE441CD9F0C0C479F2D88F959B0158818654C@exchange.columbia.tresys.com>
+From: "Christopher J. PeBenito" <cpebenito@tresys.com>
+To: <selinux@tycho.nsa.gov>
+Cc: <joe@nall.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2007-08-15 at 17:12 -0400, Joshua Brindle wrote:
-> Karl MacMillan wrote:
-> > On Wed, 2007-08-15 at 16:47 -0400, Joshua Brindle wrote:
+I was working on a RHEL 5.1 beta machine with MLS policy, and I get a weird mprotect EACCES error in enforcing.  I have the folowing hello-world program:
 
-[...]
+#include <stdio.h>
 
-> > 
-> > a) there is no real way to not use it currently and
-> > b) every time there is a choice like this it has a huge
-> > impact on maintenance and usability.
-> > 
-> > I think we should make a choice and support one standard way
-> > of doing things. People are still free to customize, but the
-> > upstream should have one standard.
-> > 
-> 
-> Then the upstream should have it available. RH doesn't have to use it
-> but like I told you off list we have systems that use it and need it. 
+main()
+{
+        printf("mlstest\n");
+}
 
-I'd really like to here _why_ they need per-role home directory types -
-so far you haven't explained that. I think this is an important problem
-to fix because I don't see how current practice can possibly work with
-users stored in a directory or remote home directories.
+and the following policy:
 
-Karl
+policy_module(mlstest,1.0.1)
+require { sensitivity s4; category c253; }
+
+type mlstest_t;
+type mlstest_exec_t;
+domain_type(mlstest_t)
+init_ranged_daemon_domain(mlstest_t,mlstest_exec_t,s4:c0.c253)
+mls_rangetrans_target(mlstest_t)
+ 
+libs_use_ld_so(mlstest_t)
+libs_use_shared_libs(mlstest_t)
+init_use_fds(mlstest_t)
+init_use_script_ptys(mlstest_t)
+domain_use_interactive_fds(mlstest_t)
+
+#mls_fd_use_all_levels(mlstest_t)
+
+Without the one mls rule, I get a denial, as expected, since mlstest_t's level is not equal to initrc_t's:
+
+avc:  denied  { use } for  pid=3884 comm="mlstest" path="/lib/ld-2.5.so" dev=dm-0 ino=16842976 scontext=system_u:system_r:mlstest_t:s4:c0.c253 tcontext=system_u:system_r:initrc_t:s0-s15:c0.c1023 tclass=fd
+
+What is weird thing is that ld.so is in the path of denial which seems unexpected.  I would have expected to see a pty (since this was via run_init).  The behavior in the program is also not what was expected as shown by the strace:
+
+execve("/home/jcdxdev/mlstest/mlstest", ["/home/jcdxdev/mlstest/mlstest"], [/* 19 vars */]) = 0
+brk(0)                                  = 0x86fa000
+fcntl64(0, F_GETFD)                     = 0
+fcntl64(1, F_GETFD)                     = 0
+fcntl64(2, F_GETFD)                     = 0
+access("/etc/suid-debug", F_OK)         = -1 ENOENT (No such file or directory)
+mmap2(NULL, 4096, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0xb7f50000
+access("/etc/ld.so.preload", R_OK)      = -1 ENOENT (No such file or directory)
+open("/etc/ld.so.cache", O_RDONLY)      = 3
+fstat64(3, {st_mode=S_IFREG|0644, st_size=57159, ...}) = 0
+mmap2(NULL, 57159, PROT_READ, MAP_PRIVATE, 3, 0) = 0xb7f42000
+close(3)                                = 0
+open("/lib/libc.so.6", O_RDONLY)        = 3
+read(3, "\177ELF\1\1\1\0\0\0\0\0\0\0\0\0\3\0\3\0\1\0\0\0000\337"..., 512) = 512
+fstat64(3, {st_mode=S_IFREG|0755, st_size=1576952, ...}) = 0
+mmap2(0x9b8000, 1295780, PROT_READ|PROT_EXEC, MAP_PRIVATE|MAP_DENYWRITE, 3, 0) = 0x9b8000
+mmap2(0xaef000, 12288, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED|MAP_DENYWRITE, 3, 0x137) = 0xaef000
+mmap2(0xaf2000, 9636, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED|MAP_ANONYMOUS, -1, 0) = 0xaf2000
+close(3)                                = 0
+mmap2(NULL, 4096, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0xb7f41000
+set_thread_area({entry_number:-1 -> 6, base_addr:0xb7f416c0, limit:1048575, seg_32bit:1, contents:0, read_exec_only:0, limit_in_pages:1, seg_not_present:0, useable:1}) = 0
+mprotect(0xaef000, 8192, PROT_READ)     = 0
+mprotect(0x9b4000, 4096, PROT_READ)     = -1 EACCES (Permission denied)
+writev(2, [{"/home/jcdxdev/mlstest/mlstest", 29}, {": ", 2}, {"error while loading shared libra"..., 36}, {": ", 2}, {"/lib/ld-linux.so.2", 18}, {": ", 2}, {"cannot apply additional memory p"..., 58}, {": ", 2}, {"Permission denied", 17}, {"\n", 1}], 10) = 167
+exit_group(127)                         = ?
+
+The mprotect fails with perm denied.  The only denial is the above one.  If you uncomment the mls rule in the above policy, the program functions as anticipated.  
+
+Ideas?
+
+--
+Chris PeBenito
+Tresys Technology, LLC
+(410) 290-1411 x150
+
 
 
 --
