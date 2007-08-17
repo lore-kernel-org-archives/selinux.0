@@ -1,82 +1,53 @@
-Message-ID: <46C5E6DB.20501@tresys.com>
-Date: Fri, 17 Aug 2007 14:20:11 -0400
-From: Joshua Brindle <jbrindle@tresys.com>
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l7HJbHaL009597
+	for <selinux@tycho.nsa.gov>; Fri, 17 Aug 2007 15:37:17 -0400
+Received: from web36613.mail.mud.yahoo.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with SMTP id l7HJbFDd012590
+	for <selinux@tycho.nsa.gov>; Fri, 17 Aug 2007 19:37:15 GMT
+Date: Fri, 17 Aug 2007 12:37:00 -0700 (PDT)
+From: Casey Schaufler <casey@schaufler-ca.com>
+Reply-To: casey@schaufler-ca.com
+Subject: Re: [PATCH 1/2] VFS/Security: Rework inode_getsecurity and callers to return resulting buffer
+To: "David P. Quigley" <dpquigl@tycho.nsa.gov>, jmorris@namei.org
+Cc: selinux@tycho.nsa.gov, "David P. Quigley" <dpquigl@tycho.nsa.gov>
+In-Reply-To: <11873700741313-git-send-email-dpquigl@tycho.nsa.gov>
 MIME-Version: 1.0
-To: Karl MacMillan <kmacmillan@mentalrootkit.com>
-CC: Stephen Smalley <sds@tycho.nsa.gov>, Todd Miller <tmiller@tresys.com>,
-        selinux@tycho.nsa.gov
-Subject: Re: [patch 0/4] libsemanage: genhomedircon replacement
-References: <20070815204411.705994826@tresys.com>	 <1187190639.2674.51.camel@localhost.localdomain>	 <46C31BD0.5060200@tresys.com>	 <1187192832.2674.74.camel@localhost.localdomain>	 <6FE441CD9F0C0C479F2D88F959B01588EDEB74@exchange.columbia.tresys.com>	 <1187198560.20485.45.camel@moss-spartans.epoch.ncsc.mil>	 <1187205378.2838.12.camel@localhost.localdomain>	 <1187207793.20485.103.camel@moss-spartans.epoch.ncsc.mil>	 <1187209022.2838.38.camel@localhost.localdomain>	 <1187209889.20485.138.camel@moss-spartans.epoch.ncsc.mil>	 <1187210504.2838.56.camel@localhost.localdomain>	 <6FE441CD9F0C0C479F2D88F959B01588EDEBA9@exchange.columbia.tresys.com>	 <1187212166.2838.73.camel@localhost.localdomain>	 <1187280118.909.22.camel@moss-spartans.epoch.ncsc.mil> <1187357470.9435.12.camel@localhost.localdomain>
-In-Reply-To: <1187357470.9435.12.camel@localhost.localdomain>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain; charset=iso-8859-1
+Message-ID: <295203.62723.qm@web36613.mail.mud.yahoo.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Karl MacMillan wrote:
-> On Thu, 2007-08-16 at 12:01 -0400, Stephen Smalley wrote:
->> On Wed, 2007-08-15 at 17:09 -0400, Karl MacMillan wrote:
->>> On Wed, 2007-08-15 at 16:47 -0400, Joshua Brindle wrote:
-> 
-> [...]
-> 
->> I guess I'm confused.  genhomedircon has been present in upstream
->> selinux for some time, so we can't just remove it without providing
->> equivalent functionality.
->>
-> 
-> Well - it would have to be coordinated with policy updates. I guess I'd
-> be fine with providing a way to optionally run it.
-> 
->> Not generating per-role types can be done by shipping a homedir_template
->> with no "macros" (ROLE).
->>
->> It doesn't actually walk all users, does it? 
-> 
-> Not the current version.
-> 
->>  Just ones that have
->> explicit entries in seusers (everyone else falling back to the default
->> and having their home directories labeled with the base set of home
->> directory types for user_t).
->>
-> 
-> I'm still concerned about the number of calls out to a directory for a
-> large seusers file and eventually I want to push the seusers mapping
-> into the directory as well.
->
 
-So, the number of calls to the directory server directly corresponds to 
-how crappy the code calling out to said directory server is. That is, 
-LDAP does allow one to query the server and get lots of entries out at 
-once. I suspect this is a problem with using pam, is that right?
+--- "David P. Quigley" <dpquigl@tycho.nsa.gov> wrote:
+
+> From: David P. Quigley <dpquigl@tycho.nsa.gov>
+> 
+> This patch modifies the interface to inode_getsecurity to have the function
+> return a buffer containing the security blob and its length via parameters
+> instead of relying on the calling function to give it an appropriately sized
+> buffer. Security blobs obtained with this function should be freed using the
+> release_secctx LSM hook.
+
+You are making the assumption that the LSM is going to return a secctx
+for all possible named attributes. The caller already has to know the
+name of the interesting attribute, that should imply that the caller
+has enough information to get the right size for a buffer. I don't think
+much of interfaces that require you to allocate memory that you're
+just going to throw away after you glance at the data, especially in
+the file system lookup path.
+
+> This alleviates the problem of the caller having to
+> guess a length and preallocate a buffer for this function allowing it to be
+> used elsewhere for Labeled NFS. The patch also removed the unused err
+> parameter. The same conversion is similar to the one used by Al Viro for the
+> security_getprocattr hook.
+
+These are very different use frequency cases.
 
 
-> I'm also thinking about when we finally have labeled, remote home
-> directories. Each system trying to label home directories based on its
-> view of the default role for a user is going to break horribly.
-> 
 
-sounds like you are going to have some sort of cooperation with the 
-policy anyway, why not extend that to labeling?
-
->> So what's the real problem with leaving it intact, and just changing
->> your usage if you don't want per-role home directory types.
->>
-> 
-> If it can be completely disabled that's fine (this is assuming that Dan
-> wants to make this change on home directory labeling). What I'm really
-> pushing for is reconsidering whether the current practice makes sense
-> and considering the problems that it causes. I'm probably go about this
-> the wrong way as there hasn't been much discussion on that point.
-> 
-> As I'm trying to make user home directories work in a typical remote
-> homedir / directory setting I would like to get the defaults changed
-> sooner so that when that support finally shows up we are ready.
-> 
-
-Weren't you just griping at me for trying to support stuff that isn't 
-"upstream" yet...
-
+Casey Schaufler
+casey@schaufler-ca.com
 
 --
 This message was distributed to subscribers of the selinux mailing list.
