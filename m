@@ -1,89 +1,189 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l7HF5YDa020286
-	for <selinux@tycho.nsa.gov>; Fri, 17 Aug 2007 11:05:34 -0400
-Received: from exchange.columbia.tresys.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with SMTP id l7HF5X3G023910
-	for <selinux@tycho.nsa.gov>; Fri, 17 Aug 2007 15:05:33 GMT
 MIME-Version: 1.0
 Content-Type: text/plain;
-	charset="iso-8859-1"
-Subject: weird mprotect error
-Date: Fri, 17 Aug 2007 11:05:29 -0400
-Message-ID: <6FE441CD9F0C0C479F2D88F959B0158818654C@exchange.columbia.tresys.com>
-From: "Christopher J. PeBenito" <cpebenito@tresys.com>
-To: <selinux@tycho.nsa.gov>
-Cc: <joe@nall.com>
+	charset="us-ascii"
+Subject: RE: confining the unconfined_t domain
+Date: Fri, 17 Aug 2007 08:18:41 -0700
+Message-ID: <FB39F4E77226B448BC1388D3BE4E00CD0219DF7C@blums0008.bluelnk.net>
+References: <FB39F4E77226B448BC1388D3BE4E00CD0219DEFA@blums0008.bluelnk.net> <1187287622.909.72.camel@moss-spartans.epoch.ncsc.mil> <FB39F4E77226B448BC1388D3BE4E00CD0219DF30@blums0008.bluelnk.net> <1187298929.909.147.camel@moss-spartans.epoch.ncsc.mil>
+From: "Clarkson, Mike R \(US SSA\)" <mike.clarkson@baesystems.com>
+To: "Stephen Smalley" <sds@tycho.nsa.gov>
+Cc: <selinux@tycho.nsa.gov>, "Daniel J Walsh" <dwalsh@redhat.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-I was working on a RHEL 5.1 beta machine with MLS policy, and I get a weird mprotect EACCES error in enforcing.  I have the folowing hello-world program:
 
-#include <stdio.h>
 
-main()
-{
-        printf("mlstest\n");
-}
+> -----Original Message-----
+> From: Stephen Smalley [mailto:sds@tycho.nsa.gov]
+> Sent: Thursday, August 16, 2007 2:15 PM
+> To: Clarkson, Mike R (US SSA)
+> Cc: selinux@tycho.nsa.gov; Daniel J Walsh
+> Subject: RE: confining the unconfined_t domain
+> 
+> On Thu, 2007-08-16 at 13:37 -0700, Clarkson, Mike R (US SSA) wrote:
+> >
+> > > -----Original Message-----
+> > > From: Stephen Smalley [mailto:sds@tycho.nsa.gov]
+> > > Sent: Thursday, August 16, 2007 11:07 AM
+> > > To: Clarkson, Mike R (US SSA)
+> > > Cc: selinux@tycho.nsa.gov
+> > > Subject: Re: confining the unconfined_t domain
+> > >
+> > > On Thu, 2007-08-16 at 10:15 -0700, Clarkson, Mike R (US SSA)
+wrote:
+> > > > I'd like to prevent the unconfined_t domain from executing
+certain
+> > files
+> > > > associated with domains that I've added. What is the best way to
+do
+> > > > this?
+> > > >
+> > > > I was trying to track down how the unconfined_t domain is given
+the
+> > > > executable permissions to all executable files. I assume it is
+> > through
+> > > > the  exec_type attribute somehow. I found the
+> > > > corecmd_exec_all_executables and corecmd_mmap_all_executables
+> > interfaces
+> > > > in corecommands.if, which both give execute privilege to
+exec_type,
+> > but
+> > > > I don't see these being called from the unconfined module. Can
+> > someone
+> > > > point out how this privilege is provided to the unconfined_t
+domain?
+> > >
+> > > Um, unconfined_t is "unconfined".  By definition.
+> > >
+> > > And removing the ability to execute another program doesn't change
+> > what
+> > > unconfined_t can do (i.e. its actual permissions); it can always
+> > create
+> > > its own copy of the same code and execute it in unconfined_t.
+> > >
+> > > Use a different domain if you want it to be confined.
+> >
+> > I recognize that it would be better to use the strict policy so that
+we
+> > didn't have an unconfined_t domain, and we plan to switch in the
+future
+> > before going to operations, but for now we're using the targeted
+policy
+> > while in a prototype phase with an upcoming demo.
+> 
+> It doesn't matter what policy you use (targeted or strict); you just
+> can't reasonably restrict unconfined_t without doing major surgery on
+> it, and then you have the further problem of once having done major
+> surgery on it, you no longer have a domain from which you can do admin
+> tasks.  Better to introduce a separate domain and use it instead.
 
-and the following policy:
+I think there may be a fairly simple way to restrict the unconfined_t
+domain from having access to specified files. I added an attribute to
+files.te called always_confined_type, as well as an interface to
+files.if to assign this attribute to a given file type. Then I modified
+files.te as follows to use the always_confined_type attribute:
 
-policy_module(mlstest,1.0.1)
-require { sensitivity s4; category c253; }
+########################################
+#
+# Unconfined access to this module
+#
 
-type mlstest_t;
-type mlstest_exec_t;
-domain_type(mlstest_t)
-init_ranged_daemon_domain(mlstest_t,mlstest_exec_t,s4:c0.c253)
-mls_rangetrans_target(mlstest_t)
- 
-libs_use_ld_so(mlstest_t)
-libs_use_shared_libs(mlstest_t)
-init_use_fds(mlstest_t)
-init_use_script_ptys(mlstest_t)
-domain_use_interactive_fds(mlstest_t)
+# Create/access any file in a labeled filesystem;
+allow files_unconfined_type {file_type -always_confined_type}:{ file
+chr_file } ~execmod;
+allow files_unconfined_type {file_type -always_confined_type}:{ dir
+lnk_file sock_file fifo_file blk_file } *;
 
-#mls_fd_use_all_levels(mlstest_t)
+# Mount/unmount any filesystem with the context= option. 
+allow files_unconfined_type {file_type -always_confined_type}:filesystem
+*;
 
-Without the one mls rule, I get a denial, as expected, since mlstest_t's level is not equal to initrc_t's:
+ifdef(`targeted_policy',`
+	tunable_policy(`allow_execmod',`
+		allow files_unconfined_type {file_type
+-always_confined_type}:file execmod;
+	')
+')
 
-avc:  denied  { use } for  pid=3884 comm="mlstest" path="/lib/ld-2.5.so" dev=dm-0 ino=16842976 scontext=system_u:system_r:mlstest_t:s4:c0.c253 tcontext=system_u:system_r:initrc_t:s0-s15:c0.c1023 tclass=fd
+This denies all access to the file type given the always_confined_type
+attribute, so if you want to be able to do anything with that file type,
+you'll have to do from some domain which has been explicitly granted
+appropriate permissions.
 
-What is weird thing is that ld.so is in the path of denial which seems unexpected.  I would have expected to see a pty (since this was via run_init).  The behavior in the program is also not what was expected as shown by the strace:
+Do you see any problems with this approach?
 
-execve("/home/jcdxdev/mlstest/mlstest", ["/home/jcdxdev/mlstest/mlstest"], [/* 19 vars */]) = 0
-brk(0)                                  = 0x86fa000
-fcntl64(0, F_GETFD)                     = 0
-fcntl64(1, F_GETFD)                     = 0
-fcntl64(2, F_GETFD)                     = 0
-access("/etc/suid-debug", F_OK)         = -1 ENOENT (No such file or directory)
-mmap2(NULL, 4096, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0xb7f50000
-access("/etc/ld.so.preload", R_OK)      = -1 ENOENT (No such file or directory)
-open("/etc/ld.so.cache", O_RDONLY)      = 3
-fstat64(3, {st_mode=S_IFREG|0644, st_size=57159, ...}) = 0
-mmap2(NULL, 57159, PROT_READ, MAP_PRIVATE, 3, 0) = 0xb7f42000
-close(3)                                = 0
-open("/lib/libc.so.6", O_RDONLY)        = 3
-read(3, "\177ELF\1\1\1\0\0\0\0\0\0\0\0\0\3\0\3\0\1\0\0\0000\337"..., 512) = 512
-fstat64(3, {st_mode=S_IFREG|0755, st_size=1576952, ...}) = 0
-mmap2(0x9b8000, 1295780, PROT_READ|PROT_EXEC, MAP_PRIVATE|MAP_DENYWRITE, 3, 0) = 0x9b8000
-mmap2(0xaef000, 12288, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED|MAP_DENYWRITE, 3, 0x137) = 0xaef000
-mmap2(0xaf2000, 9636, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED|MAP_ANONYMOUS, -1, 0) = 0xaf2000
-close(3)                                = 0
-mmap2(NULL, 4096, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0xb7f41000
-set_thread_area({entry_number:-1 -> 6, base_addr:0xb7f416c0, limit:1048575, seg_32bit:1, contents:0, read_exec_only:0, limit_in_pages:1, seg_not_present:0, useable:1}) = 0
-mprotect(0xaef000, 8192, PROT_READ)     = 0
-mprotect(0x9b4000, 4096, PROT_READ)     = -1 EACCES (Permission denied)
-writev(2, [{"/home/jcdxdev/mlstest/mlstest", 29}, {": ", 2}, {"error while loading shared libra"..., 36}, {": ", 2}, {"/lib/ld-linux.so.2", 18}, {": ", 2}, {"cannot apply additional memory p"..., 58}, {": ", 2}, {"Permission denied", 17}, {"\n", 1}], 10) = 167
-exit_group(127)                         = ?
+> 
+> > I'd like to be able to demonstrate some of the power of SELinux by
+> > showing that only domains that have been granted permissions have
+access
+> > to certain files. It kind of defeats the purpose when absolutely
+anybody
+> > who logs in to the system can execute these files because they log
+into
+> > the unconfined_t domain.
+> 
+> It is more than being able to execute the file type, but also that it
+> can e.g.:
+> - relabel to and from that file type,
+> - enter the domain associated with the file,
+> - read/write that type,
+> - ptrace the domain,
+> ...
+> 
+> > I also recognize that removing execute doesn't prevent copying the
+file
+> > and executing the copy. But if I can eliminate execute permissions
+of
+> > unconfined_t, I can presumably eliminate all access if I so choose.
+> 
+> Yep, but then it is no longer unconfined_t, and how will you
+> subsequently update those files?
+> 
+> > Also, in this particular case, the file in question is owned by root
+> > with the setuid bit set, so limiting execute permissions is more
+> > important. When a non-root user copies a file with the setuid bit
+set,
+> > the copy of the file does not retain the setuid bit.
+> 
+> But now you are relying on DAC for your actual protection.
+> 
+> > Unconfined uses the file_type attribute rather than the exec_type
+> > attribute to get execute privilege to all executables (why?).
+> 
+> files.if defines the interface for gaining unconfined access to all
+> files, and files.te implements that by allowing all permissions
+between
+> such domains and all file types.  All permissions, including execute.
+> But write and relabelto are no less important.
+> 
+> >  I know
+> > this because I added a neverallow rule (neverallow unconfined_t
+> > my_exec_t:file execute), and then eliminated the call to
+> > domain_entry_file, and I still got a compile error resulting from
+the
+> > neverallow rule. However, if I remove the call to files_type, then
+it
+> > compiles fine. This eliminates all access to the file from the
+> > unconfined_t domain. Will there be any bad side effects to
+eliminating
+> > the file_type attribute to my_exec_t? Is there really no better way
+to
+> > accomplish this?
+> 
+> Without file_type, you won't be allowed to create or relabel files
+with
+> that type (associate check).
+> 
+> Better way is to create a separate domain that is restricted, then
+> assign your users to it instead of unconfined_t, only letting root use
+> unconfined_t.  That's the model for the merged targeted+strict policy,
+I
+> think, that is being created in rawhide / Fedora 8.
+> 
+> --
+> Stephen Smalley
+> National Security Agency
 
-The mprotect fails with perm denied.  The only denial is the above one.  If you uncomment the mls rule in the above policy, the program functions as anticipated.  
-
-Ideas?
-
---
-Chris PeBenito
-Tresys Technology, LLC
-(410) 290-1411 x150
 
 
 
