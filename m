@@ -1,40 +1,81 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l7HHBArk031065
-	for <selinux@tycho.nsa.gov>; Fri, 17 Aug 2007 13:11:10 -0400
-Received: from moss-terrapins.epoch.ncsc.mil (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id l7HHB9Em022194
-	for <selinux@tycho.nsa.gov>; Fri, 17 Aug 2007 17:11:09 GMT
-From: "David P. Quigley" <dpquigl@tycho.nsa.gov>
-To: jmorris@namei.org
-Cc: selinux@tycho.nsa.gov
-Subject: [RFC]Cleanup inode_getsecurity and callers for use with labeled NFS
-Date: Fri, 17 Aug 2007 13:01:12 -0400
-Message-Id: <1187370074408-git-send-email-dpquigl@tycho.nsa.gov>
+Message-ID: <46C5E6DB.20501@tresys.com>
+Date: Fri, 17 Aug 2007 14:20:11 -0400
+From: Joshua Brindle <jbrindle@tresys.com>
+MIME-Version: 1.0
+To: Karl MacMillan <kmacmillan@mentalrootkit.com>
+CC: Stephen Smalley <sds@tycho.nsa.gov>, Todd Miller <tmiller@tresys.com>,
+        selinux@tycho.nsa.gov
+Subject: Re: [patch 0/4] libsemanage: genhomedircon replacement
+References: <20070815204411.705994826@tresys.com>	 <1187190639.2674.51.camel@localhost.localdomain>	 <46C31BD0.5060200@tresys.com>	 <1187192832.2674.74.camel@localhost.localdomain>	 <6FE441CD9F0C0C479F2D88F959B01588EDEB74@exchange.columbia.tresys.com>	 <1187198560.20485.45.camel@moss-spartans.epoch.ncsc.mil>	 <1187205378.2838.12.camel@localhost.localdomain>	 <1187207793.20485.103.camel@moss-spartans.epoch.ncsc.mil>	 <1187209022.2838.38.camel@localhost.localdomain>	 <1187209889.20485.138.camel@moss-spartans.epoch.ncsc.mil>	 <1187210504.2838.56.camel@localhost.localdomain>	 <6FE441CD9F0C0C479F2D88F959B01588EDEBA9@exchange.columbia.tresys.com>	 <1187212166.2838.73.camel@localhost.localdomain>	 <1187280118.909.22.camel@moss-spartans.epoch.ncsc.mil> <1187357470.9435.12.camel@localhost.localdomain>
+In-Reply-To: <1187357470.9435.12.camel@localhost.localdomain>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-These patches modify inode_getsecurity and its callers to use the format
-similar to the one used by getprocattr which was proposed by Al Viro. They
-also rework vfs_getxattr to avoid unnecessary calls to the LSM. These patches
-are to support the ongoing work on Labeled NFS.
+Karl MacMillan wrote:
+> On Thu, 2007-08-16 at 12:01 -0400, Stephen Smalley wrote:
+>> On Wed, 2007-08-15 at 17:09 -0400, Karl MacMillan wrote:
+>>> On Wed, 2007-08-15 at 16:47 -0400, Joshua Brindle wrote:
+> 
+> [...]
+> 
+>> I guess I'm confused.  genhomedircon has been present in upstream
+>> selinux for some time, so we can't just remove it without providing
+>> equivalent functionality.
+>>
+> 
+> Well - it would have to be coordinated with policy updates. I guess I'd
+> be fine with providing a way to optionally run it.
+> 
+>> Not generating per-role types can be done by shipping a homedir_template
+>> with no "macros" (ROLE).
+>>
+>> It doesn't actually walk all users, does it? 
+> 
+> Not the current version.
+> 
+>>  Just ones that have
+>> explicit entries in seusers (everyone else falling back to the default
+>> and having their home directories labeled with the base set of home
+>> directory types for user_t).
+>>
+> 
+> I'm still concerned about the number of calls out to a directory for a
+> large seusers file and eventually I want to push the seusers mapping
+> into the directory as well.
+>
 
-The first patch converts inode_getsecurity to return the security blob via a
-parameter and the length of the blob via the function's return value. This
-removes the need for the called to guess the length of the security blob. The
-patch also removed the unused err parameter. All of the callers are updated to
-use a helper function named xattr_getsecurity which keeps the xattr style
-interface and performs generic checks which were originally in the security
-modules.
+So, the number of calls to the directory server directly corresponds to 
+how crappy the code calling out to said directory server is. That is, 
+LDAP does allow one to query the server and get lots of entries out at 
+once. I suspect this is a problem with using pam, is that right?
 
-The second patch reworks vfs_getxattr to unconditionally call to the LSM in
-the case that we are requesting a security namespace attribute. Originally we
-would grab the value from disk then clobber it with the one from the LSM. This
-way we can grab it directly from the LSM and in the case when there is no
-module loaded or it does not support inode_getsecurity we fall back on the
-inode getxattr operation.
 
-David Quigley
+> I'm also thinking about when we finally have labeled, remote home
+> directories. Each system trying to label home directories based on its
+> view of the default role for a user is going to break horribly.
+> 
 
+sounds like you are going to have some sort of cooperation with the 
+policy anyway, why not extend that to labeling?
+
+>> So what's the real problem with leaving it intact, and just changing
+>> your usage if you don't want per-role home directory types.
+>>
+> 
+> If it can be completely disabled that's fine (this is assuming that Dan
+> wants to make this change on home directory labeling). What I'm really
+> pushing for is reconsidering whether the current practice makes sense
+> and considering the problems that it causes. I'm probably go about this
+> the wrong way as there hasn't been much discussion on that point.
+> 
+> As I'm trying to make user home directories work in a typical remote
+> homedir / directory setting I would like to get the defaults changed
+> sooner so that when that support finally shows up we are ready.
+> 
+
+Weren't you just griping at me for trying to support stuff that isn't 
+"upstream" yet...
 
 
 --
