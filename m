@@ -1,178 +1,43 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l7GNAYxC004569
-	for <selinux@tycho.nsa.gov>; Thu, 16 Aug 2007 19:10:34 -0400
-Received: from rv-out-0910.google.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id l7GNAXYY028357
-	for <selinux@tycho.nsa.gov>; Thu, 16 Aug 2007 23:10:33 GMT
-Received: by rv-out-0910.google.com with SMTP id k15so293514rvb
-        for <selinux@tycho.nsa.gov>; Thu, 16 Aug 2007 16:10:33 -0700 (PDT)
-Message-ID: <7b740b700708161610v2d0baef1qc30806975fff7e50@mail.gmail.com>
-Date: Fri, 17 Aug 2007 04:10:32 +0500
-From: "shahbaz khan" <shazalive@gmail.com>
-To: "Stephen Smalley" <sds@tycho.nsa.gov>
-Subject: Re: TE for networked resources
-Cc: selinux@tycho.nsa.gov, muhammad.alam@uibk.ac.at
-In-Reply-To: <7b740b700708161553x549d52ddh22bc3b124e63e687@mail.gmail.com>
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l7H7Gm78025551
+	for <selinux@tycho.nsa.gov>; Fri, 17 Aug 2007 03:16:58 -0400
+Received: from ausmtp04.au.ibm.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l7H7GMJO009529
+	for <selinux@tycho.nsa.gov>; Fri, 17 Aug 2007 07:16:35 GMT
+Received: from sd0109e.au.ibm.com (d23rh905.au.ibm.com [202.81.18.225])
+	by ausmtp04.au.ibm.com (8.13.8/8.13.8) with ESMTP id l7H7JNA6100958
+	for <selinux@tycho.nsa.gov>; Fri, 17 Aug 2007 17:19:31 +1000
+Received: from d23av04.au.ibm.com (d23av04.au.ibm.com [9.190.235.139])
+	by sd0109e.au.ibm.com (8.13.8/8.13.8/NCO v8.5) with ESMTP id l7H7J4sx210568
+	for <selinux@tycho.nsa.gov>; Fri, 17 Aug 2007 17:19:10 +1000
+Received: from d23av04.au.ibm.com (loopback [127.0.0.1])
+	by d23av04.au.ibm.com (8.12.11.20060308/8.13.3) with ESMTP id l7H8FUu5025616
+	for <selinux@tycho.nsa.gov>; Fri, 17 Aug 2007 18:15:31 +1000
+Message-ID: <46C549AC.70804@linux.vnet.ibm.com>
+Date: Fri, 17 Aug 2007 12:39:32 +0530
+From: Subrata Modak <subrata@linux.vnet.ibm.com>
 MIME-Version: 1.0
-Content-Type: multipart/alternative;
-	boundary="----=_Part_26688_1878753.1187305832695"
-References: <7b740b700708161147q1ce955d4ha64320547ac81663@mail.gmail.com>
-	 <1187291188.909.96.camel@moss-spartans.epoch.ncsc.mil>
-	 <7b740b700708161401x53a17dd7x628d291f38a6a355@mail.gmail.com>
-	 <1187298501.909.139.camel@moss-spartans.epoch.ncsc.mil>
-	 <7b740b700708161553x549d52ddh22bc3b124e63e687@mail.gmail.com>
+To: ltp-announce@lists.sourceforge.net, ltp-list@lists.sourceforge.net,
+        linux-audit <linux-audit@redhat.com>,
+        redhat-lspp <redhat-lspp@redhat.com>, SELinux <selinux@tycho.nsa.gov>,
+        linux-kernel@vger.kernel.org
+CC: klausk@br.ibm.com, reddenr@us.ibm.com, gcwilson@us.ibm.com
+Subject: [Announce] RHEL5 LSPP/EAL4 Certification Testsuite has been released
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-------=_Part_26688_1878753.1187305832695
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Dear All,
 
-On 8/17/07, shahbaz khan <shazalive@gmail.com> wrote:
->
->
->
->  On 8/17/07, Stephen Smalley <sds@tycho.nsa.gov> wrote:
-> >
-> > On Fri, 2007-08-17 at 02:01 +0500, shahbaz khan wrote:
-> > > On 8/17/07, Stephen Smalley < sds@tycho.nsa.gov > wrote:
-> > >         On Thu, 2007-08-16 at 23:47 +0500, shahbaz khan wrote:
-> > >         > I was curious while reading Brindle et al paper on enhancing
-> > >         selinux
-> > >         > policy for network domain that do we really need TE for
-> > >         these remote
-> > >         > resources. Can't we just do with IBAC and RBAC? We can let
-> > >         the local
-> > >         > subjects handle the TE with their own types with respect to
-> > >         the IBAC
-> > >         > and RBAC of remote subject. This might be what they call
-> > >         equivalence
-> > >         > mechanism. The problems associated with TE are too tough for
-> > >         selinux
-> > >         > and current network controls to handle. The solutions will
-> > >         cost too
-> > >         > much.
-> > >
-> > >         User identity and role doesn't convey enough information - you
-> >
-> > >         lose the
-> > >         binding to the actual program/code.  Which matters.  You want
-> > >         to be able
-> > >         to allow a given component to interact with another component
-> > >         specifically, not any arbitrary process running with a given
-> > >         user
-> > >         identity or role.
-> > >
-> > > I think this arbitration can be solved with iptables' rules. A local
-> > > to remote port restriction. And further hardened with port labels.
-> > > Will the label of ports not be enough? At the required points we still
-> > > have TE.
-> >
-> > No, ports aren't adequate for identifying the components.  Think client
-> > side ports and also think dynamic port assignment (ala portmap).
->
->
-> What about netfilter's connection tracking feature for dynamic port
-> assignment where labels can be passed to related ports?
->
+The Red Hat Enterprise Linux 5 LSPP/EAL4 Certification Testsuite  has 
+been released and can be found at http://ltp.sourceforge.net/ or 
+http://sourceforge.net/project/showfiles.php?group_id=3382. You can find 
+more details about this testsuite from 'lspp/README' contained in the 
+package.
 
-Ephemeral ports assignment i.e. random port assignment, is a problem if the
-program is not already bind()'ed. Correct me if I am wrong. This is also an
-issue which selinux needs to address as well. Again its not that difficult
-to handle.
+Regards & Thanks--
+Subrata Modak
 
- We assume that the client is part of the network domain because we also
-> need to distribute the policy. Thus, the security admin has access to set
-> iptables and only he is allowed to do so.
-> Let me check on portmap. But it is'nt an issue as much as I can comprehend
-> at this time.
->
-> Shaz.
->
-> > TE definitely gives a security granularity at the program/code level
-> > > but it is being taken care of by the local system. If the local system
-> >
-> > > ensures it till its boundaries then the remote subject, handling the
-> > > requests, can contain the security problems with its own context and
-> > > identity and role of the remote subject.
-> > >
-> > > Sacrificing of the code binding at the cost of reasonable reduction in
-> >
-> > > complexity, where code binding is mandatory in the boundaries of
-> > > computer system but between two systems very little is lost. In the
-> > > boundaries of the local system a malicious code cannot get executed
-> > > with the right policy and if it does how can TE help to contain it
-> > > from the remote system if TE attribute is considered on the remote
-> > > side? I think identity and role are enough to contain it on the remote
-> >
-> > > side. The tradeoff will only broaden risks for the data of that role
-> > > and identity because it will not consider its types. Here identity
-> > > serves as the level of granularity in a specific role.
-> > >
-> > > Secondly, with SECMARK and IPSEC associations we do pass on the TE
-> > > attribute in context. For extra sensitive applications and services,
-> > > TE can be considered which means we still reduce the penalty of
-> > > complexity in policy maintenance.
-> > >
-> > > Shaz
-> > >
-> > >
-> > >         > Is there any progress on this work. Let me know because I
-> > >         have also
-> > >         > working on this and might be able to assist.
-> > >
-> > >         --
-> > >         Stephen Smalley
-> > >         National Security Agency
-> > --
-> > Stephen Smalley
-> > National Security Agency
-> >
-> >
-
-------=_Part_26688_1878753.1187305832695
-Content-Type: text/html; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
-<br><br>
-<div><span class="gmail_quote">On 8/17/07, <b class="gmail_sendername">shahbaz khan</b> &lt;<a href="mailto:shazalive@gmail.com">shazalive@gmail.com</a>&gt; wrote:</span>
-<blockquote class="gmail_quote" style="PADDING-LEFT: 1ex; MARGIN: 0px 0px 0px 0.8ex; BORDER-LEFT: #ccc 1px solid"><br><br>
-<div>
-<div><span class="q" id="q_11470e207d715370_1"><span class="gmail_quote">On 8/17/07, <b class="gmail_sendername">Stephen Smalley</b> &lt;<a onclick="return top.js.OpenExtLink(window,event,this)" href="mailto:sds@tycho.nsa.gov" target="_blank">
-sds@tycho.nsa.gov</a>&gt; wrote:</span> 
-<blockquote class="gmail_quote" style="PADDING-LEFT: 1ex; MARGIN: 0px 0px 0px 0.8ex; BORDER-LEFT: #ccc 1px solid">On Fri, 2007-08-17 at 02:01 +0500, shahbaz khan wrote:<br>&gt; On 8/17/07, Stephen Smalley &lt;<a onclick="return top.js.OpenExtLink(window,event,this)" href="mailto:sds@tycho.nsa.gov" target="_blank">
- sds@tycho.nsa.gov</a> &gt; wrote:<br>&gt;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; On Thu, 2007-08-16 at 23:47 +0500, shahbaz khan wrote:<br>&gt;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &gt; I was curious while reading Brindle et al paper on enhancing<br>&gt;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; selinux<br>&gt;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &gt; policy for network domain that do we really need TE for 
-<br>&gt;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; these remote<br>&gt;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &gt; resources. Can&#39;t we just do with IBAC and RBAC? We can let<br>&gt;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; the local<br>&gt;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &gt; subjects handle the TE with their own types with respect to<br>
-&gt;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; the IBAC<br>&gt;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &gt; and RBAC of remote subject. This might be what they call<br>&gt;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; equivalence<br>&gt;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &gt; mechanism. The problems associated with TE are too tough for<br>&gt;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; selinux 
-<br>&gt;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &gt; and current network controls to handle. The solutions will<br>&gt;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; cost too<br>&gt;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &gt; much.<br>&gt;<br>&gt;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; User identity and role doesn&#39;t convey enough information - you 
-<br>&gt;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; lose the<br>&gt;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; binding to the actual program/code.&nbsp;&nbsp;Which matters.&nbsp;&nbsp;You want<br>&gt;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; to be able<br>&gt;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; to allow a given component to interact with another component<br>&gt;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; specifically, not any arbitrary process running with a given 
-<br>&gt;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; user<br>&gt;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; identity or role.<br>&gt;<br>&gt; I think this arbitration can be solved with iptables&#39; rules. A local<br>&gt; to remote port restriction. And further hardened with port labels.<br>
-&gt; Will the label of ports not be enough? At the required points we still<br>&gt; have TE.<br><br>No, ports aren&#39;t adequate for identifying the components.&nbsp;&nbsp;Think client<br>side ports and also think dynamic port assignment (ala portmap). 
-</blockquote>
-<div>&nbsp;</div></span></div>
-<div>What about netfilter&#39;s connection tracking feature for dynamic port assignment where labels&nbsp;can be&nbsp;passed to related ports?</div></div></blockquote>
-<div>&nbsp;</div>
-<div>Ephemeral ports assignment i.e. random port assignment, is a problem if the program is not already bind()&#39;ed. Correct me if I am wrong. This is also an issue which selinux needs to address as well. Again its not that difficult to handle.
-</div><br>
-<blockquote class="gmail_quote" style="PADDING-LEFT: 1ex; MARGIN: 0px 0px 0px 0.8ex; BORDER-LEFT: #ccc 1px solid">
-<div>
-<div>We assume that the client is part&nbsp;of the network domain because we also need to distribute the policy. Thus, the security admin has access to set iptables and only he is allowed to do so.</div>
-<div>Let me check on portmap. But it&nbsp;is&#39;nt&nbsp;an issue as much as I can comprehend at this time.</div>
-<div>&nbsp;</div>
-<div>Shaz.</div>
-<div><span class="q" id="q_11470e207d715370_3"><br>
-<blockquote class="gmail_quote" style="PADDING-LEFT: 1ex; MARGIN: 0px 0px 0px 0.8ex; BORDER-LEFT: #ccc 1px solid">&gt; TE definitely gives a security granularity at the program/code level<br>&gt; but it is being taken care of by the local system. If the local system 
-<br>&gt; ensures it till its boundaries then the remote subject, handling the<br>&gt; requests, can contain the security problems with its own context and<br>&gt; identity and role of the remote subject.<br>&gt;<br>&gt; Sacrificing of the code binding at the cost of reasonable reduction in 
-<br>&gt; complexity, where code binding is mandatory in the boundaries of<br>&gt; computer system but between two systems very little is lost. In the<br>&gt; boundaries of the local system a malicious code cannot get executed 
-<br>&gt; with the right policy and if it does how can TE help to contain it<br>&gt; from the remote system if TE attribute is considered on the remote<br>&gt; side? I think identity and role are enough to contain it on the remote 
-<br>&gt; side. The tradeoff will only broaden risks for the data of that role<br>&gt; and identity because it will not consider its types. Here identity<br>&gt; serves as the level of granularity in a specific role.<br>&gt; 
-<br>&gt; Secondly, with SECMARK and IPSEC associations we do pass on the TE<br>&gt; attribute in context. For extra sensitive applications and services,<br>&gt; TE can be considered which means we still reduce the penalty of 
-<br>&gt; complexity in policy maintenance.<br>&gt;<br>&gt; Shaz<br>&gt;<br>&gt;<br>&gt;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &gt; Is there any progress on this work. Let me know because I<br>&gt;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; have also<br>&gt;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &gt; working on this and might be able to assist. 
-<br>&gt;<br>&gt;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; --<br>&gt;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Stephen Smalley<br>&gt;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; National Security Agency<br>--<br>Stephen Smalley<br>National Security Agency<br><br></blockquote></span></div></div></blockquote></div><br><br clear="all">
-
-------=_Part_26688_1878753.1187305832695--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
