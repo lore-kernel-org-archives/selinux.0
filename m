@@ -1,41 +1,43 @@
-Subject: Re: why there is a only_changed_user in restorecon?
+Subject: Re: Method to assign MCS Category without login.
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Liu Jian <gjk.liu@gmail.com>
-Cc: selinux <selinux@tycho.nsa.gov>
-In-Reply-To: <8c2dc7030708200117w26d86872kff135e63a1ec0548@mail.gmail.com>
-References: <8c2dc7030708200117w26d86872kff135e63a1ec0548@mail.gmail.com>
+To: "Joshua.Kramer" <josh@globalherald.net>
+Cc: SELinux@tycho.nsa.gov, Daniel J Walsh <dwalsh@redhat.com>
+In-Reply-To: <Pine.LNX.4.64.0708191603500.15934@home-av-server.home-av>
+References: <Pine.LNX.4.64.0708191603500.15934@home-av-server.home-av>
 Content-Type: text/plain
-Date: Mon, 20 Aug 2007 07:48:21 -0400
-Message-Id: <1187610501.24940.17.camel@moss-spartans.epoch.ncsc.mil>
+Date: Mon, 20 Aug 2007 07:57:59 -0400
+Message-Id: <1187611079.24940.27.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 2007-08-20 at 16:17 +0800, Liu Jian wrote:
-> I wonder why there is special check on the only_changed_user in the
-> restorecon. After
-> 'chcon -u systerm_u /home/user/file', the secruity label of the file
-> is changed from 'user_u:object_r:user_home_t' to
-> 'system_u:object_r:user_home_t'. But 'restorecon /home/user/file' can
-> not restore its label to original.
+On Sun, 2007-08-19 at 16:06 -0400, Joshua.Kramer wrote:
+> Hello,
 > 
-> 'man restorecon', you can see:
+> I apoligize if this is too 'basic' or 'distro-specific' for this list, but 
+> I have a question regarding MCS Category Access.
 > 
-> ...
+> On page 509 of the RHEL5 manual, there's a note that states: "MCS category
+> access is assigned during login."
 > 
-> -F Force reset of context to match file_context for customizable
-> files, or the user section, if it has changed.
-> ...
-> 
-> Yes, we can 'restorcecon -F /home/user/file' get the original label
-> 
-> 
-> But why there is special check on the only_changed_user? any reason...
+> What is the mechanism that does this?
 
-As I recall, it was to avoid extraneous relabeling of files.  New files
-inherit the SELinux user of the creating process, and thus may not
-correspond with the initial state defined in the file_contexts
-specification.  
+The per-user category authorizations are defined via the semanage
+command (semanage login) or system-config-selinux GUI (User Mapping),
+and stored in /etc/selinux/$SELINUXTYPE/seusers.  Login and sshd consult
+that mapping in order to set the user's initial security context at
+login time, and crond does likewise for cron jobs.
+
+> How can I assign MCS Category Access to an arbitrary Python script that is
+> run as a certain user from Crontab (without being 'logged in')?
+
+crond should consult the mapping and use it when starting the user's
+cron job, so it should be possible to assign the categories to the
+user's identity via semanage and then crond should use it.
+
+That's the theory of operation.  As to whether it actually works in
+RHEL5, I don't know - it might require subsequent LSPP updates that
+would show up in 5.1.
 
 -- 
 Stephen Smalley
