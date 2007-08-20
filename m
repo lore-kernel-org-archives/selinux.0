@@ -1,48 +1,30 @@
-Subject: Re: Method to assign MCS Category without login.
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: "Joshua.Kramer" <josh@globalherald.net>
-Cc: SELinux@tycho.nsa.gov, Daniel J Walsh <dwalsh@redhat.com>
-In-Reply-To: <Pine.LNX.4.64.0708191603500.15934@home-av-server.home-av>
-References: <Pine.LNX.4.64.0708191603500.15934@home-av-server.home-av>
-Content-Type: text/plain
-Date: Mon, 20 Aug 2007 07:57:59 -0400
-Message-Id: <1187611079.24940.27.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+From: David Howells <dhowells@redhat.com>
+In-Reply-To: <alpine.LFD.0.999.0708161550140.30176@woody.linux-foundation.org>
+References: <alpine.LFD.0.999.0708161550140.30176@woody.linux-foundation.org> <29015.1187178055@redhat.com>
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: dhowells@redhat.com, viro@ftp.linux.org.uk, sds@tycho.nsa.gov,
+        casey@schaufler-ca.com, linux-fsdevel@vger.kernel.org,
+        nfsv4@linux-nfs.org, linux-kernel@vger.kernel.org,
+        selinux@tycho.nsa.gov, linux-security-module@vger.kernel.org
+Subject: Re: Adding a security parameter to VFS functions
+Date: Mon, 20 Aug 2007 13:09:52 +0100
+Message-ID: <11466.1187611792@redhat.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Sun, 2007-08-19 at 16:06 -0400, Joshua.Kramer wrote:
-> Hello,
-> 
-> I apoligize if this is too 'basic' or 'distro-specific' for this list, but 
-> I have a question regarding MCS Category Access.
-> 
-> On page 509 of the RHEL5 manual, there's a note that states: "MCS category
-> access is assigned during login."
-> 
-> What is the mechanism that does this?
+Linus Torvalds <torvalds@linux-foundation.org> wrote:
 
-The per-user category authorizations are defined via the semanage
-command (semanage login) or system-config-selinux GUI (User Mapping),
-and stored in /etc/selinux/$SELINUXTYPE/seusers.  Login and sshd consult
-that mapping in order to set the user's initial security context at
-login time, and crond does likewise for cron jobs.
+> > Would you object greatly to functions like vfs_mkdir() gaining a security
+> > parameter?  What I'm thinking of is this:
+> ...
+> Why the *hell* would mkdir() be so magical as to need something like that?
 
-> How can I assign MCS Category Access to an arbitrary Python script that is
-> run as a certain user from Crontab (without being 'logged in')?
+If you look again, you'll notice that I said "functions like vfs_mkdir()".  I
+was I using vfs_mkdir() as an example.  I didn't mean to apply this to
+directory creation only.  It would need to apply to all the vfs_*() entry
+points called by nfsd and cachefiles.
 
-crond should consult the mapping and use it when starting the user's
-cron job, so it should be possible to assign the categories to the
-user's identity via semanage and then crond should use it.
-
-That's the theory of operation.  As to whether it actually works in
-RHEL5, I don't know - it might require subsequent LSPP updates that
-would show up in 5.1.
-
--- 
-Stephen Smalley
-National Security Agency
-
+David
 
 --
 This message was distributed to subscribers of the selinux mailing list.
