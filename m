@@ -1,156 +1,46 @@
-Message-ID: <46CB5374.6060808@redhat.com>
-Date: Tue, 21 Aug 2007 17:04:52 -0400
-From: Daniel J Walsh <dwalsh@redhat.com>
+Date: Tue, 21 Aug 2007 10:33:40 -0400 (EDT)
+From: Josh <josh@globalherald.net>
+To: Stephen Smalley <sds@tycho.nsa.gov>
+cc: SELinux@tycho.nsa.gov, Daniel J Walsh <dwalsh@redhat.com>,
+        Karl MacMillan <kmacmillan@mentalrootkit.com>,
+        Joshua Brindle <method@manicmethod.com>
+Subject: Re: Method to assign MCS Category without login.
+In-Reply-To: <1187698887.1451.52.camel@moss-spartans.epoch.ncsc.mil>
+Message-ID: <Pine.LNX.4.64.0708211009490.15934@home-av-server.home-av>
+References: <Pine.LNX.4.64.0708191603500.15934@home-av-server.home-av>
+ <1187611079.24940.27.camel@moss-spartans.epoch.ncsc.mil>
+ <Pine.LNX.4.64.0708201313150.21628@home-av-server.home-av>
+ <1187698887.1451.52.camel@moss-spartans.epoch.ncsc.mil>
 MIME-Version: 1.0
-To: "Clarkson, Mike R \(US SSA\)" <mike.clarkson@baesystems.com>
-CC: Stephen Smalley <sds@tycho.nsa.gov>, selinux@tycho.nsa.gov
-Subject: Re: confining the unconfined_t domain
-References: <FB39F4E77226B448BC1388D3BE4E00CD0219DEFA@blums0008.bluelnk.net> <1187287622.909.72.camel@moss-spartans.epoch.ncsc.mil> <FB39F4E77226B448BC1388D3BE4E00CD0219DF30@blums0008.bluelnk.net> <1187298929.909.147.camel@moss-spartans.epoch.ncsc.mil> <FB39F4E77226B448BC1388D3BE4E00CD0219DF7C@blums0008.bluelnk.net>
-In-Reply-To: <FB39F4E77226B448BC1388D3BE4E00CD0219DF7C@blums0008.bluelnk.net>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Clarkson, Mike R (US SSA) wrote:
->   
->> -----Original Message-----
->> From: Stephen Smalley [mailto:sds@tycho.nsa.gov]
->> Sent: Thursday, August 16, 2007 2:15 PM
->> To: Clarkson, Mike R (US SSA)
->> Cc: selinux@tycho.nsa.gov; Daniel J Walsh
->> Subject: RE: confining the unconfined_t domain
->>
->> On Thu, 2007-08-16 at 13:37 -0700, Clarkson, Mike R (US SSA) wrote:
->>     
->>>> -----Original Message-----
->>>> From: Stephen Smalley [mailto:sds@tycho.nsa.gov]
->>>> Sent: Thursday, August 16, 2007 11:07 AM
->>>> To: Clarkson, Mike R (US SSA)
->>>> Cc: selinux@tycho.nsa.gov
->>>> Subject: Re: confining the unconfined_t domain
->>>>
->>>> On Thu, 2007-08-16 at 10:15 -0700, Clarkson, Mike R (US SSA)
->>>>         
-> wrote:
->   
->>>>> I'd like to prevent the unconfined_t domain from executing
->>>>>           
-> certain
->   
->>> files
->>>       
->>>>> associated with domains that I've added. What is the best way to
->>>>>           
-> do
->   
->>>>> this?
->>>>>
->>>>> I was trying to track down how the unconfined_t domain is given
->>>>>           
-> the
->   
->>>>> executable permissions to all executable files. I assume it is
->>>>>           
->>> through
->>>       
->>>>> the  exec_type attribute somehow. I found the
->>>>> corecmd_exec_all_executables and corecmd_mmap_all_executables
->>>>>           
->>> interfaces
->>>       
->>>>> in corecommands.if, which both give execute privilege to
->>>>>           
-> exec_type,
->   
->>> but
->>>       
->>>>> I don't see these being called from the unconfined module. Can
->>>>>           
->>> someone
->>>       
->>>>> point out how this privilege is provided to the unconfined_t
->>>>>           
-> domain?
->   
->>>> Um, unconfined_t is "unconfined".  By definition.
->>>>
->>>> And removing the ability to execute another program doesn't change
->>>>         
->>> what
->>>       
->>>> unconfined_t can do (i.e. its actual permissions); it can always
->>>>         
->>> create
->>>       
->>>> its own copy of the same code and execute it in unconfined_t.
->>>>
->>>> Use a different domain if you want it to be confined.
->>>>         
->>> I recognize that it would be better to use the strict policy so that
->>>       
-> we
->   
->>> didn't have an unconfined_t domain, and we plan to switch in the
->>>       
-> future
->   
->>> before going to operations, but for now we're using the targeted
->>>       
-> policy
->   
->>> while in a prototype phase with an upcoming demo.
->>>       
->> It doesn't matter what policy you use (targeted or strict); you just
->> can't reasonably restrict unconfined_t without doing major surgery on
->> it, and then you have the further problem of once having done major
->> surgery on it, you no longer have a domain from which you can do admin
->> tasks.  Better to introduce a separate domain and use it instead.
->>     
->
-> I think there may be a fairly simple way to restrict the unconfined_t
-> domain from having access to specified files. I added an attribute to
-> files.te called always_confined_type, as well as an interface to
-> files.if to assign this attribute to a given file type. Then I modified
-> files.te as follows to use the always_confined_type attribute:
->
-> ########################################
-> #
-> # Unconfined access to this module
-> #
->
-> # Create/access any file in a labeled filesystem;
-> allow files_unconfined_type {file_type -always_confined_type}:{ file
-> chr_file } ~execmod;
-> allow files_unconfined_type {file_type -always_confined_type}:{ dir
-> lnk_file sock_file fifo_file blk_file } *;
->
-> # Mount/unmount any filesystem with the context= option. 
-> allow files_unconfined_type {file_type -always_confined_type}:filesystem
-> *;
->
-> ifdef(`targeted_policy',`
-> 	tunable_policy(`allow_execmod',`
-> 		allow files_unconfined_type {file_type
-> -always_confined_type}:file execmod;
-> 	')
-> ')
->
-> This denies all access to the file type given the always_confined_type
-> attribute, so if you want to be able to do anything with that file type,
-> you'll have to do from some domain which has been explicitly granted
-> appropriate permissions.
->
-> Do you see any problems with this approach?
->
->   
-Well it is still fairly easily gotten around.
 
-setenforce 0
-Build an rpm package that overwrites them
-Build a policy module that gives me this privs,
-Use fstools or other apps to write over the files.
-...
-How do my backup utilities work.  Can I use them to subvert your protection.
+> I'd guess that you would want the root httpd process to perform the set
+> up of the child's context, including switching it into the desired
+> category set and into a different domain than the root httpd process.
+
+So the question then becomes, does the root httpd process then need to be 
+trusted, and does this trust break the domain/type enforcement that is 
+applied to the httpd domain?  (For example: when I first set up a 
+Python-based website, my connection to Postgres was denied because I 
+hadn't yet defined a rule to allow it.  If I alow the root httpd instance 
+to be trusted - in order to set the context - will that weaken the domain 
+and type enforcement for httpd?
+
+Being a newbie I am most likely missing something here.
+
+> What is your real goal?
+
+My goal is to protect Python-based sites from each other.  The OS is 
+protected against rogue scripts by the domain and type enforcement of 
+HTTPD; but I would like to use Category Access to protect the scripts 
+against other rogue scripts.
+
+Thanks,
+-Josh
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
