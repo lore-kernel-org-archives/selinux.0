@@ -1,45 +1,41 @@
-Date: Tue, 21 Aug 2007 10:33:40 -0400 (EDT)
-From: Josh <josh@globalherald.net>
-To: Stephen Smalley <sds@tycho.nsa.gov>
-cc: SELinux@tycho.nsa.gov, Daniel J Walsh <dwalsh@redhat.com>,
-        Karl MacMillan <kmacmillan@mentalrootkit.com>,
-        Joshua Brindle <method@manicmethod.com>
-Subject: Re: Method to assign MCS Category without login.
-In-Reply-To: <1187698887.1451.52.camel@moss-spartans.epoch.ncsc.mil>
-Message-ID: <Pine.LNX.4.64.0708211009490.15934@home-av-server.home-av>
-References: <Pine.LNX.4.64.0708191603500.15934@home-av-server.home-av>
- <1187611079.24940.27.camel@moss-spartans.epoch.ncsc.mil>
- <Pine.LNX.4.64.0708201313150.21628@home-av-server.home-av>
- <1187698887.1451.52.camel@moss-spartans.epoch.ncsc.mil>
+Message-ID: <46CB783F.6080204@manicmethod.com>
+Date: Tue, 21 Aug 2007 19:41:51 -0400
+From: Joshua Brindle <method@manicmethod.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+To: Daniel J Walsh <dwalsh@redhat.com>
+CC: Stephen Smalley <sds@tycho.nsa.gov>, James Morris <jmorris@namei.org>,
+        Eric Paris <eparis@redhat.com>, selinux@tycho.nsa.gov
+Subject: Re: [PATCH] selinuxfs to globally disable dontaudit rules
+References: <1186696737.20393.10.camel@localhost.localdomain>	 <Pine.LNX.4.64.0708091525410.30691@us.intercode.com.au>	 <46BBAE00.7050600@manicmethod.com>  <46BBBDDF.2000307@manicmethod.com>	 <1187285317.909.36.camel@moss-spartans.epoch.ncsc.mil>	 <46C48D2B.3010504@manicmethod.com>	 <1187286476.909.51.camel@moss-spartans.epoch.ncsc.mil>	 <46C48F01.40101@manicmethod.com> <1187287475.909.69.camel@moss-spartans.epoch.ncsc.mil> <46C4A4E7.8050902@manicmethod.com> <46CB4E14.3020809@redhat.com>
+In-Reply-To: <46CB4E14.3020809@redhat.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+Daniel J Walsh wrote:
+> I would like to get these patches into policycoreutils.
+>
+>
+> Submitted before, but here we go.
+>
+> Change run_tty and open_init_pty to 755 instead of 555.  Some audit 
+> tools are reporting this as a problem.  And I see no real value of 
+> 555. for these to.
+>
+> Simple bugfix for chcat
+>
+> Fixes to make sure fixfiles reports errors and handles strange regexes.
+>
+> Speed enhancement for genhomedircon to only compile regex's once.
+>
+The current plan is to change to a genhomedircon based on C in 
+libsemanage. Have you looked at those patches to see if they suffer the 
+same problem you are fixing here?
 
-> I'd guess that you would want the root httpd process to perform the set
-> up of the child's context, including switching it into the desired
-> category set and into a different domain than the root httpd process.
+>
+> I reverted sepolgen-ifgen from sbin to bin, but I doubt many/anyone 
+> will run it as non root, but I guess you never no.
 
-So the question then becomes, does the root httpd process then need to be 
-trusted, and does this trust break the domain/type enforcement that is 
-applied to the httpd domain?  (For example: when I first set up a 
-Python-based website, my connection to Postgres was denied because I 
-hadn't yet defined a rule to allow it.  If I alow the root httpd instance 
-to be trusted - in order to set the context - will that weaken the domain 
-and type enforcement for httpd?
-
-Being a newbie I am most likely missing something here.
-
-> What is your real goal?
-
-My goal is to protect Python-based sites from each other.  The OS is 
-protected against rogue scripts by the domain and type enforcement of 
-HTTPD; but I would like to use Category Access to protect the scripts 
-against other rogue scripts.
-
-Thanks,
--Josh
 
 
 --
