@@ -1,171 +1,56 @@
-Message-ID: <46CB4E14.3020809@redhat.com>
-Date: Tue, 21 Aug 2007 16:41:56 -0400
+Message-ID: <46CB51E8.5020603@redhat.com>
+Date: Tue, 21 Aug 2007 16:58:16 -0400
 From: Daniel J Walsh <dwalsh@redhat.com>
 MIME-Version: 1.0
-To: Joshua Brindle <method@manicmethod.com>
-CC: Stephen Smalley <sds@tycho.nsa.gov>, James Morris <jmorris@namei.org>,
-        Eric Paris <eparis@redhat.com>, selinux@tycho.nsa.gov
-Subject: Re: [PATCH] selinuxfs to globally disable dontaudit rules
-References: <1186696737.20393.10.camel@localhost.localdomain>	 <Pine.LNX.4.64.0708091525410.30691@us.intercode.com.au>	 <46BBAE00.7050600@manicmethod.com>  <46BBBDDF.2000307@manicmethod.com>	 <1187285317.909.36.camel@moss-spartans.epoch.ncsc.mil>	 <46C48D2B.3010504@manicmethod.com>	 <1187286476.909.51.camel@moss-spartans.epoch.ncsc.mil>	 <46C48F01.40101@manicmethod.com> <1187287475.909.69.camel@moss-spartans.epoch.ncsc.mil> <46C4A4E7.8050902@manicmethod.com>
-In-Reply-To: <46C4A4E7.8050902@manicmethod.com>
-Content-Type: multipart/mixed;
- boundary="------------050004040207090403010303"
+To: jwcart2@tycho.nsa.gov
+CC: "Christopher J. PeBenito" <cpebenito@tresys.com>,
+        SELinux <selinux@tycho.nsa.gov>, Steve Smalley <sds@epoch.ncsc.mil>
+Subject: Re: Question concerning building policy modules
+References: <1187203804.26375.69.camel@moss-lions.epoch.ncsc.mil>
+In-Reply-To: <1187203804.26375.69.camel@moss-lions.epoch.ncsc.mil>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This is a multi-part message in MIME format.
---------------050004040207090403010303
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+James Carter wrote:
+> Why isn't the Makefile and other information needed to build a module
+> separately in the appropriate /usr/share/selinux/<policy name>
+> directory?  This seems like the logical place for that information.  The
+> (not very well documented) "install-headers" make target in the
+> refpolicy Makefile does this.
+>
+> Instead, the information to build a module for Fedora is in
+> the /usr/share/selinux/devel directory.  This directory would seem to be
+> independent of the policy type, even though it is only for building
+> Fedora policies.  This seems confusing.  The devel directory should have
+> stuff that all policies need or could use.
+>
+> Wouldn't it make sense that if I wanted to build a module for the
+> current policy, I would use the Makefile in devel which would look
+> at /etc/selinux/config and include the Makefile for the current policy,
+> but if I wanted to compile for a particular policy, I would just use the
+> Makefile in its /usr/share directory?
+>
+>   
+This is an old argument, between strict and targeted policy.   I did not 
+like the idea of building
+policy modules different for each type of policy,  Since almost everyone 
+is exactly the same or would not work on different policies.  This seems 
+to be proven to be correct as we move to strict/targeted policy merge. 
 
-I would like to get these patches into policycoreutils.
+So you add a level of complexity with very little value.  Just imagine a 
+third party shipping multiple policies for the
+same package depending on an infinite number of policy packages.
+
+targeted, strict, mls, olpc, CDS-ABC.
+
+And almost guaranteed the same policy package would work for all or the 
+package will only really work on one (MLS).  So I went with the least 
+common denominator and only ship one devel package.  All interfaces for 
+all packages ship. 
 
 
-Submitted before, but here we go.
 
-Change run_tty and open_init_pty to 755 instead of 555.  Some audit 
-tools are reporting this as a problem.  And I see no real value of 555. 
-for these to.
-
-Simple bugfix for chcat
-
-Fixes to make sure fixfiles reports errors and handles strange regexes.
-
-Speed enhancement for genhomedircon to only compile regex's once.
-
-
-I reverted sepolgen-ifgen from sbin to bin, but I doubt many/anyone will 
-run it as non root, but I guess you never no.
-
---------------050004040207090403010303
-Content-Type: text/plain;
- name="diff"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="diff"
-
-diff --exclude-from=exclude --exclude=sepolgen-1.0.8 --exclude=gui --exclude=po -N -u -r nsapolicycoreutils/run_init/Makefile policycoreutils-2.0.22/run_init/Makefile
---- nsapolicycoreutils/run_init/Makefile	2007-07-16 14:20:41.000000000 -0400
-+++ policycoreutils-2.0.22/run_init/Makefile	2007-07-31 15:45:57.000000000 -0400
-@@ -34,8 +34,8 @@
- install: all
- 	test -d $(SBINDIR)      || install -m 755 -d $(SBINDIR)
- 	test -d $(MANDIR)/man1 || install -m 755 -d $(MANDIR)/man1
--	install -m 555 run_init $(SBINDIR)
--	install -m 555 open_init_pty $(SBINDIR)
-+	install -m 755 run_init $(SBINDIR)
-+	install -m 755 open_init_pty $(SBINDIR)
- 	install -m 644 run_init.8 $(MANDIR)/man8/
- 	install -m 644 open_init_pty.8 $(MANDIR)/man8/
- ifeq (${PAMH}, /usr/include/security/pam_appl.h)
-diff --exclude-from=exclude --exclude=sepolgen-1.0.8 --exclude=gui --exclude=po -N -u -r nsapolicycoreutils/scripts/chcat policycoreutils-2.0.22/scripts/chcat
---- nsapolicycoreutils/scripts/chcat	2007-07-16 14:20:41.000000000 -0400
-+++ policycoreutils-2.0.22/scripts/chcat	2007-07-31 15:45:57.000000000 -0400
-@@ -77,7 +77,7 @@
-             
-         if len(cats) > 0:
-             new_serange = "%s-%s:%s" % (serange[0], top[0], ",".join(cats))
--        else
-+        else:
-             new_serange = "%s-%s" % (serange[0], top[0])
-             
-         if add_ind:
-@@ -155,7 +155,7 @@
- 
-         if len(cats) > 0:
-             new_serange = "%s-%s:%s" % (serange[0], top[0], ",".join(cats))
--        else
-+        else:
-             new_serange = "%s-%s" % (serange[0], top[0])
-             
-         if add_ind:
-diff --exclude-from=exclude --exclude=sepolgen-1.0.8 --exclude=gui --exclude=po -N -u -r nsapolicycoreutils/scripts/fixfiles policycoreutils-2.0.22/scripts/fixfiles
---- nsapolicycoreutils/scripts/fixfiles	2007-07-16 14:20:41.000000000 -0400
-+++ policycoreutils-2.0.22/scripts/fixfiles	2007-07-31 15:45:57.000000000 -0400
-@@ -88,7 +88,7 @@
-                   esac; \
-                fi; \
-             done | \
--	while read pattern ; do find $pattern \
-+	while read pattern ; do sh -c "find $pattern" \
- 		      ! \( -fstype ext2 -o -fstype ext3 -o -fstype jfs -o -fstype xfs \) -prune  -o \
- 		      \( -wholename /home -o -wholename /root -o -wholename /tmp -wholename /dev \) -prune -o -print; \
- 		      done 2> /dev/null | \
-@@ -108,6 +108,7 @@
- 
- rpmlist() {
- rpm -q --qf '[%{FILESTATES} %{FILENAMES}\n]' "$1" | grep '^0 ' | cut -f2- -d ' '
-+[ ${PIPESTATUS[0]} != 0 ] && echo "$1 not found" >/dev/stderr
- }
- 
- # 
-diff --exclude-from=exclude --exclude=sepolgen-1.0.8 --exclude=gui --exclude=po -N -u -r nsapolicycoreutils/scripts/genhomedircon policycoreutils-2.0.22/scripts/genhomedircon
---- nsapolicycoreutils/scripts/genhomedircon	2007-07-16 14:20:41.000000000 -0400
-+++ policycoreutils-2.0.22/scripts/genhomedircon	2007-08-01 16:03:41.000000000 -0400
-@@ -139,7 +139,22 @@
- 		self.default_user = "user_u"
- 		self.default_prefix = "user"
- 		self.users = self.getUsers()
-+		fd = open(self.getFileContextFile())
-+		self.fclines=[]
-+		for i in fd.readlines():
-+		    try:
-+			    regex = i.split()[0]
-+			    #match a trailing .+
-+			    regex = re.sub("\.+$", "", regex)
-+			    regex = re.sub("\.\*$", "", regex)
-+			    regex = re.sub("\(\/\.\*\)\?", "", regex)
-+			    regex = regex + "/*$"
-+			    self.fclines.append(re.compile(regex))
-+		    except:
-+			    continue
- 
-+		fd.close()
-+		
- 	def getFileContextDir(self):
- 		return self.selinuxdir+self.type+self.filecontextdir
- 
-@@ -289,20 +304,9 @@
- 		return ret+"\n"
- 
- 	def checkExists(self, home):
--		fd = open(self.getFileContextFile())
--		for i in  fd.readlines():
--                    if len(i) == 0:
--			    continue
-+		for i in self.fclines:
- 		    try:
--			    regex = i.split()[0]
--			    #match a trailing .+
--			    regex = re.sub("\.+$", "", regex)
--			    regex = re.sub("\.\*$", "", regex)
--			    #strip a (/.*)? which matches anything trailing to a /*$ which matches trailing /'s
--			    
--			    regex = re.sub("\(\/\.\*\)\?", "", regex)
--			    regex = regex + "/*$"
--			    if re.search(regex,home, 0):
-+			    if i.match(home):
- 				    return 1
- 		    except:
- 			    continue
-diff --exclude-from=exclude --exclude=sepolgen-1.0.8 --exclude=gui --exclude=po -N -u -r nsapolicycoreutils/semanage/semanage policycoreutils-2.0.22/semanage/semanage
---- nsapolicycoreutils/semanage/semanage	2007-07-16 14:20:41.000000000 -0400
-+++ policycoreutils-2.0.22/semanage/semanage	2007-07-31 15:45:57.000000000 -0400
-@@ -34,7 +34,10 @@
- sys.stdout = codecs.getwriter(locale.getpreferredencoding())(sys.__stdout__, 'replace')
- 
- try:
--       gettext.install(PROGNAME, localedir="/usr/share/locale", unicode=1)
-+       gettext.install(PROGNAME,
-+                       localedir="/usr/share/locale",
-+                       unicode=False,
-+                       codeset = 'utf-8')
- except IOError:
-        import __builtin__
-        __builtin__.__dict__['_'] = unicode
- 			
-
---------------050004040207090403010303--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
