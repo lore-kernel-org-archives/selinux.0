@@ -1,28 +1,36 @@
-Date: Tue, 21 Aug 2007 07:40:06 -0700 (PDT)
-From: James Morris <jmorris@namei.org>
+From: Paul Moore <paul.moore@hp.com>
 To: Stephen Smalley <sds@tycho.nsa.gov>
-cc: Eric Paris <eparis@parisplace.org>, selinux@tycho.nsa.gov
-Subject: Re: [PATCH] SELinux: change Kconfig to use select instead of depends
-In-Reply-To: <1187704586.1451.113.camel@moss-spartans.epoch.ncsc.mil>
-Message-ID: <Xine.LNX.4.64.0708210739370.18718@us.intercode.com.au>
-References: <1170868063.19578.31.camel@localhost.localdomain>
- <1187704586.1451.113.camel@moss-spartans.epoch.ncsc.mil>
+Subject: Re: [patch] Tuning avtab to reduce memory usage
+Date: Tue, 21 Aug 2007 11:11:26 -0400
+Cc: Yuichi Nakamura <ynakam@hitachisoft.jp>, selinux@tycho.nsa.gov,
+        James Morris <jmorris@namei.org>, Eric Paris <eparis@parisplace.org>,
+        Kaigai Kohei <kaigai@ak.jp.nec.com>
+References: <20070821130540.7AD3.YNAKAM@hitachisoft.jp> <1187704058.1451.107.camel@moss-spartans.epoch.ncsc.mil>
+In-Reply-To: <1187704058.1451.107.camel@moss-spartans.epoch.ncsc.mil>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Message-Id: <200708211111.27019.paul.moore@hp.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 21 Aug 2007, Stephen Smalley wrote:
+On Tuesday, August 21 2007 9:47:38 am Stephen Smalley wrote:
+> We likely should look at optimizing the ebitmap code, or replacing it
+> with the native kernel bitmaps (include/linux/bitmap.h, lib/bitmap.c).
+> For example, ebitmap_next could possibly use find_next_bit().
 
-> Acked-by: Stephen Smalley <sds@tycho.nsa.gov>
+[Removed the busybox list because I'm sure they don't care]
 
-Applied to
-git://git.kernel.org/pub/scm/linux/kernel/git/jmorris/selinux-2.6.git#for-akpm
-
+Would the fact that the MLS category bitmaps grow to 1024 bits be a concern 
+with using a single contiguous bitmap instead of the sparse bitmap the 
+ebitmap currently uses?  Granted, in the worst case of c0.c1023 the kernel 
+bitmap would most certainly be better but I wonder what the common case is 
+(and if the MLS compartments even factor into the discussion) and which type 
+is better suited to handle this case.
 
 -- 
-James Morris
-<jmorris@namei.org>
+paul moore
+linux security @ hp
 
 --
 This message was distributed to subscribers of the selinux mailing list.
