@@ -1,52 +1,48 @@
-Date: Mon, 20 Aug 2007 13:26:24 -0400 (EDT)
-From: Josh <josh@globalherald.net>
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l7L29Vq6011633
+	for <selinux@tycho.nsa.gov>; Mon, 20 Aug 2007 22:09:31 -0400
+Received: from smtp101.sbc.mail.mud.yahoo.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with SMTP id l7L29TUA013667
+	for <selinux@tycho.nsa.gov>; Tue, 21 Aug 2007 02:09:29 GMT
+In-Reply-To: <1187380020.909.358.camel@moss-spartans.epoch.ncsc.mil>
+References: <6FE441CD9F0C0C479F2D88F959B0158818654C@exchange.columbia.tresys.com> <1187380020.909.358.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0 (Apple Message framework v752.3)
+Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
+Message-Id: <D38FAD33-E7B4-4A2A-909E-892800350EFE@nall.com>
+Cc: "Christopher J. PeBenito" <cpebenito@tresys.com>, selinux@tycho.nsa.gov
+From: Joe Nall <joe@nall.com>
+Subject: Re: weird mprotect error
+Date: Mon, 20 Aug 2007 21:09:20 -0500
 To: Stephen Smalley <sds@tycho.nsa.gov>
-cc: SELinux@tycho.nsa.gov, Daniel J Walsh <dwalsh@redhat.com>
-Subject: Re: Method to assign MCS Category without login.
-In-Reply-To: <1187611079.24940.27.camel@moss-spartans.epoch.ncsc.mil>
-Message-ID: <Pine.LNX.4.64.0708201313150.21628@home-av-server.home-av>
-References: <Pine.LNX.4.64.0708191603500.15934@home-av-server.home-av>
- <1187611079.24940.27.camel@moss-spartans.epoch.ncsc.mil>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 
-Stephen, thank you for the reply.  There's another particular question:
+On Aug 17, 2007, at 2:47 PM, Stephen Smalley wrote:
 
-> crond should consult the mapping and use it when starting the user's
-> cron job, so it should be possible to assign the categories to the
-> user's identity via semanage and then crond should use it.
+> On Fri, 2007-08-17 at 11:05 -0400, Christopher J. PeBenito wrote:
+>> I was working on a RHEL 5.1 beta machine with MLS policy, and I  
+>> get a weird mprotect EACCES error in enforcing.  I have the  
+>> folowing hello-world program:
+>> ...
+>> init_ranged_daemon_domain(mlstest_t,mlstest_exec_t,s4:c0.c253)
+>> ...
+>> #mls_fd_use_all_levels(mlstest_t)
+>>
+>> Without the one mls rule, I get a denial, as expected, since  
+>> mlstest_t's level is not equal to initrc_t's:
+>>
+> mprotect/mmap checks are against the "open file" object aka struct  
+> file,
+> and thus include a fd use check (if the open file was originally  
+> created
+> by a task in another label).  So you could very well get such a denial
+> from mprotect on a mapping of ld.so.
 
-What about an executable with an embedded python interpreter?  I am 
-writing WSGI-Python scripts that execute within apache httpd.  When I 
-start apache, it in turn creates child httpd daemons that run as a 
-specified Unix user.  So, for example, you might have three httpd's 
-running:
+Any recommendations on how to start an unprivileged non SystemLow  
+daemon? This seems broken.
 
-root      9232  0.0  2.1  51416 16152 ?        Ssl  Aug11   0:02
- 	/usr/sbin/httpd
-demo_usr  31634  0.0  1.0 297544  7788 ?        Sl   Aug19   0:00
- 	/usr/sbin/httpd
-apache   31660  0.0  1.0  51416  7852 ?        S    Aug19   0:00
- 	/usr/sbin/httpd
-
-The httpd running as root, starts the normal httpd that runs as apache. 
-It also starts another httpd.  This particular httpd runs as a different 
-Linux user (in this case demo_usr), for which I have set up SELinux 
-cateory access.  Since 'login' is the app that sets the current running 
-category access for logged-in users, and presumably httpd does not run 
-'login' to run its children, I'm wondering how I can grant the correct 
-category access to the httpd running as demo_usr.
-
-This demo_usr httpd in turn has an embedded Python interpreter running a 
-script.  I was thinking I might be able to use the python-selinux modules 
-to enable the script to activate its own category access - is this 
-possible?
-
-Thanks,
--Josh
+joe
 
 
 --
