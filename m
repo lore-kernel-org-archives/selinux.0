@@ -1,36 +1,29 @@
-From: Paul Moore <paul.moore@hp.com>
-To: Stephen Smalley <sds@tycho.nsa.gov>
-Subject: Re: [patch] Tuning avtab to reduce memory usage
-Date: Tue, 21 Aug 2007 11:11:26 -0400
-Cc: Yuichi Nakamura <ynakam@hitachisoft.jp>, selinux@tycho.nsa.gov,
-        James Morris <jmorris@namei.org>, Eric Paris <eparis@parisplace.org>,
-        Kaigai Kohei <kaigai@ak.jp.nec.com>
-References: <20070821130540.7AD3.YNAKAM@hitachisoft.jp> <1187704058.1451.107.camel@moss-spartans.epoch.ncsc.mil>
-In-Reply-To: <1187704058.1451.107.camel@moss-spartans.epoch.ncsc.mil>
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l7LFPoWp030760
+	for <selinux@tycho.nsa.gov>; Tue, 21 Aug 2007 11:25:50 -0400
+Received: from mx1.redhat.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l7LFPn0B014402
+	for <selinux@tycho.nsa.gov>; Tue, 21 Aug 2007 15:25:49 GMT
+Received: from int-mx1.corp.redhat.com (int-mx1.corp.redhat.com [172.16.52.254])
+	by mx1.redhat.com (8.13.1/8.13.1) with ESMTP id l7LFPmVp001423
+	for <selinux@tycho.nsa.gov>; Tue, 21 Aug 2007 11:25:48 -0400
+Received: from mail.boston.redhat.com (mail.boston.redhat.com [172.16.76.12])
+	by int-mx1.corp.redhat.com (8.13.1/8.13.1) with ESMTP id l7LFPmsE016501
+	for <selinux@tycho.nsa.gov>; Tue, 21 Aug 2007 11:25:48 -0400
+Message-ID: <46CB03FB.9020108@redhat.com>
+Date: Tue, 21 Aug 2007 11:25:47 -0400
+From: Daniel J Walsh <dwalsh@redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Message-Id: <200708211111.27019.paul.moore@hp.com>
+To: SE Linux <selinux@tycho.nsa.gov>,
+        "Fedora SELinux support list for users & developers." <fedora-selinux-list@redhat.com>,
+        Development discussions related to Fedora Core <fedora-devel-list@redhat.com>
+Subject: FYI My guide to writing SELinux policy.
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tuesday, August 21 2007 9:47:38 am Stephen Smalley wrote:
-> We likely should look at optimizing the ebitmap code, or replacing it
-> with the native kernel bitmaps (include/linux/bitmap.h, lib/bitmap.c).
-> For example, ebitmap_next could possibly use find_next_bit().
+http://www.redhatmagazine.com/2007/08/21/a-step-by-step-guide-to-building-a-new-selinux-policy-module/ 
 
-[Removed the busybox list because I'm sure they don't care]
-
-Would the fact that the MLS category bitmaps grow to 1024 bits be a concern 
-with using a single contiguous bitmap instead of the sparse bitmap the 
-ebitmap currently uses?  Granted, in the worst case of c0.c1023 the kernel 
-bitmap would most certainly be better but I wonder what the common case is 
-(and if the MLS compartments even factor into the discussion) and which type 
-is better suited to handle this case.
-
--- 
-paul moore
-linux security @ hp
 
 --
 This message was distributed to subscribers of the selinux mailing list.
