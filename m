@@ -1,233 +1,189 @@
-Subject: Re: [PATCH] kernel: selinux: policy selectable handling of unknown
-	classes and perms
+Subject: Re: [PATCH] checkpolicy: add options to set handle_unknown
 From: Stephen Smalley <sds@tycho.nsa.gov>
 To: Eric Paris <eparis@redhat.com>
-Cc: selinux@tycho.nsa.gov, jmorris@namei.org
-In-Reply-To: <1185983352.3673.16.camel@localhost.localdomain>
-References: <1185983352.3673.16.camel@localhost.localdomain>
+Cc: selinux@tycho.nsa.gov
+In-Reply-To: <1185983745.3673.26.camel@localhost.localdomain>
+References: <1185983745.3673.26.camel@localhost.localdomain>
 Content-Type: text/plain
-Date: Tue, 21 Aug 2007 15:40:38 -0400
-Message-Id: <1187725238.1451.212.camel@moss-spartans.epoch.ncsc.mil>
+Date: Tue, 21 Aug 2007 15:41:40 -0400
+Message-Id: <1187725300.1451.214.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2007-08-01 at 11:49 -0400, Eric Paris wrote:
-> Allow policy to select, in much the same way as it selects MLS support,
-> how the kernel should handle access decisions which contain either
-> unknown classes or unknown permissions in unknown classes.  The three
-> choices are (from a kernel perspective)
-> 
-> 0 - Deny unknown security access. (default)
-> 2 - reject loading policy if it does not contain all definitions
-> 4 - allow unknown security access
+On Wed, 2007-08-01 at 11:55 -0400, Eric Paris wrote:
+> Add a new command line options, -U (0-2), to checkmodule and checkpolicy
+> which sets the handle_unknown config flag.  Default to 0, which means
+> deny unknowns.  
 > 
 > Signed-off-by: Eric Paris <eparis@redhat.com>
 
-It would be nice to have SELinux emit a KERN_INFO message about which
-behavior was selected when policy is loaded, so that you can easily
-tell.
+dispol/dismod should display the flag setting (preferably in
+human-readable form).
 
-> ---
 > 
-> Biggest change between this patch and the last on list is that I changed
-> handle_unknown to not be needlessly bit shifted.  I also dropped a check
-> in context_struct_computeav which was redundant.
-> 
->  security/selinux/ss/policydb.c |    8 +++++
->  security/selinux/ss/policydb.h |   10 ++++++
->  security/selinux/ss/services.c |   65 ++++++++++++++++++++++++++++++++++-----
->  3 files changed, 74 insertions(+), 9 deletions(-)
-> 
-> diff --git a/security/selinux/ss/policydb.c b/security/selinux/ss/policydb.c
-> index f05f97a..588dcfd 100644
-> --- a/security/selinux/ss/policydb.c
-> +++ b/security/selinux/ss/policydb.c
-> @@ -677,6 +677,8 @@ void policydb_destroy(struct policydb *p)
->  	}
->  	kfree(p->type_attr_map);
+> diff -Naupr checkpolicy-2.0.3.old/checkmodule.c checkpolicy-2.0.3/checkmodule.c
+> --- checkpolicy-2.0.3.old/checkmodule.c	2007-07-26 19:03:19.000000000 -0400
+> +++ checkpolicy-2.0.3/checkmodule.c	2007-07-31 17:08:11.000000000 -0400
+> @@ -39,6 +39,7 @@ extern int optind;
+>  static sidtab_t sidtab;
 >  
-> +	kfree(p->undefined_perms);
-> +
->  	return;
->  }
+>  extern int mlspol;
+> +extern int handle_unknown;
 >  
-> @@ -1530,6 +1532,12 @@ int policydb_read(struct policydb *p, void *fp)
->  			goto bad;
->  		}
->  	}
-> +	p->handle_unknown = le32_to_cpu(buf[1]) & POLICYDB_CONFIG_UNKNOWN_MASK;
-> +
-> +	if (p->handle_unknown > ALLOW_UNKNOWN) {
-> +		printk(KERN_ERR "selinux: invalid options for handle_unknown\n");
-> +		goto bad;
-> +	}
+>  static char *txtfile = "policy.conf";
+>  static char *binfile = "policy";
+> @@ -121,6 +122,7 @@ static int write_binary_policy(policydb_
 >  
->  	info = policydb_lookup_compat(p->policyvers);
->  	if (!info) {
-> diff --git a/security/selinux/ss/policydb.h b/security/selinux/ss/policydb.h
-> index 8319d5f..f84e856 100644
-> --- a/security/selinux/ss/policydb.h
-> +++ b/security/selinux/ss/policydb.h
-> @@ -242,6 +242,9 @@ struct policydb {
->  	struct ebitmap *type_attr_map;
+>  	p->policy_type = policy_type;
+>  	p->policyvers = policyvers;
+> +	p->handle_unknown = handle_unknown;
 >  
->  	unsigned int policyvers;
-> +
-> +	int handle_unknown;
-> +	u32 *undefined_perms;
->  };
+>  	pf.type = PF_USE_STDIO;
+>  	pf.fp = outfp;
+> @@ -135,13 +137,17 @@ static int write_binary_policy(policydb_
 >  
->  extern void policydb_destroy(struct policydb *p);
-> @@ -253,6 +256,13 @@ extern int policydb_read(struct policydb *p, void *fp);
+>  static void usage(char *progname)
+>  {
+> -	printf("usage:  %s [-V] [-b] [-m] [-M] [-o FILE] [INPUT]\n", progname);
+> +	printf("usage:  %s [-V] [-b] [-U handle_unknown] [-m] [-M] [-o FILE] [INPUT]\n", progname);
+>  	printf("Build base and policy modules.\n");
+>  	printf("Options:\n");
+>  	printf("  INPUT      build module from INPUT (else read from \"%s\")\n",
+>  	       txtfile);
+>  	printf("  -V         show policy versions created by this program\n");
+>  	printf("  -b         treat input as a binary policy file\n");
+> +	printf("  -U 0-2     How the kernel should handle unknown classes and permissions\n");
+> +	printf("               0: Deny unknown kernel checks\n");
+> +	printf("               1: Reject loading of policy with unknowns\n");
+> +	printf("               2: Allow unknown kernel checks\n");
+>  	printf("  -m         build a policy module instead of a base module\n");
+>  	printf("  -M         enable MLS policy\n");
+>  	printf("  -o FILE    write module to FILE (else just check syntax)\n");
+> @@ -156,7 +162,7 @@ int main(int argc, char **argv)
+>  	int show_version = 0;
+>  	policydb_t modpolicydb;
 >  
->  #define POLICYDB_CONFIG_MLS    1
->  
-> +/* the config flags related to unknown classes/perms are bits 2 and 3 */
-> +#define DENY_UNKNOWN	0x00000000
-> +#define REJECT_UNKNOWN	0x00000002
-> +#define ALLOW_UNKNOWN	0x00000004
-> +
-> +#define POLICYDB_CONFIG_UNKNOWN_MASK 	(DENY_UNKNOWN | REJECT_UNKNOWN | ALLOW_UNKNOWN)
-> +
->  #define OBJECT_R "object_r"
->  #define OBJECT_R_VAL 1
->  
-> diff --git a/security/selinux/ss/services.c b/security/selinux/ss/services.c
-> index 0ae032f..d3f3a43 100644
-> --- a/security/selinux/ss/services.c
-> +++ b/security/selinux/ss/services.c
-> @@ -292,6 +292,7 @@ static int context_struct_compute_av(struct context *scontext,
->  	struct class_datum *tclass_datum;
->  	struct ebitmap *sattr, *tattr;
->  	struct ebitmap_node *snode, *tnode;
-> +	const struct selinux_class_perm *kdefs = &selinux_class_perm;
->  	unsigned int i, j;
->  
->  	/*
-> @@ -305,13 +306,6 @@ static int context_struct_compute_av(struct context *scontext,
->  		    tclass <= SECCLASS_NETLINK_DNRT_SOCKET)
->  			tclass = SECCLASS_NETLINK_SOCKET;
->  
-> -	if (!tclass || tclass > policydb.p_classes.nprim) {
-> -		printk(KERN_ERR "security_compute_av:  unrecognized class %d\n",
-> -		       tclass);
-> -		return -EINVAL;
-> -	}
-> -	tclass_datum = policydb.class_val_to_struct[tclass - 1];
-> -
->  	/*
->  	 * Initialize the access vectors to the default values.
->  	 */
-> @@ -322,6 +316,36 @@ static int context_struct_compute_av(struct context *scontext,
->  	avd->seqno = latest_granting;
->  
->  	/*
-> +	 * Check for all the invalid cases.
-> +	 * - tclass 0
-> +	 * - tclass > policy and > kernel
-> +	 * - tclass > policy but is a userspace class
-> +	 * - tclass > policy but we do not allow unknowns
-> +	 */
-> +	if (unlikely(!tclass))
-> +		goto inval_class;
-> +	if (unlikely(tclass > policydb.p_classes.nprim))
-> +		if (tclass > kdefs->cts_len || 
-> +		    !kdefs->class_to_string[tclass - 1] ||
-> +		    policydb.handle_unknown != ALLOW_UNKNOWN)
-> +			goto inval_class;
-> +
-> +	/* 
-> +	 * Kernel class and we ALLOW_UNKNOWN so pad the allow decision 
-> +	 * the pad will be all 1 for unknown classes.
-> +	 */
-> +	if (tclass <= kdefs->cts_len && (policydb.handle_unknown == ALLOW_UNKNOWN))
-> +		avd->allowed = policydb.undefined_perms[tclass - 1];
-> +
-> +	/*
-> +	 * Not in policy. Since decision is completed (all 1 or all 0) return.
-> +	 */
-> +	if (unlikely(tclass > policydb.p_classes.nprim))
-> +		return 0;
-> +
-> +	tclass_datum = policydb.class_val_to_struct[tclass - 1];
-> +
-> +	/*
->  	 * If a specific type enforcement rule was defined for
->  	 * this permission check, then use it.
->  	 */
-> @@ -387,6 +411,10 @@ static int context_struct_compute_av(struct context *scontext,
+> -	while ((ch = getopt(argc, argv, "ho:dbVmM")) != EOF) {
+> +	while ((ch = getopt(argc, argv, "ho:dbVU:mM")) != EOF) {
+>  		switch (ch) {
+>  		case 'h':
+>  			usage(argv[0]);
+> @@ -171,6 +177,22 @@ int main(int argc, char **argv)
+>  		case 'V':
+>  			show_version = 1;
+>  			break;
+> +		case 'U':
+> +			handle_unknown = strtol(optarg, (char **) NULL, 10);
+> +			switch (handle_unknown){
+> +			case 0:
+> +				handle_unknown = DENY_UNKNOWN;
+> +				break;
+> +			case 1:
+> +				handle_unknown = REJECT_UNKNOWN;
+> +				break;
+> +			case 2:
+> +				handle_unknown = ALLOW_UNKNOWN;
+> +				break;
+> +			default:
+> +				usage(argv[0]);
+> +			}
+> +			break;
+>  		case 'm':
+>  			policy_type = POLICY_MOD;
+>  			policyvers = MOD_POLICYDB_VERSION_MAX;
+> @@ -189,6 +211,12 @@ int main(int argc, char **argv)
+>  		exit(0);
 >  	}
 >  
->  	return 0;
-> +
-> +inval_class:
-> +	printk(KERN_ERR "security_compute_av:  unrecognized class %d\n", tclass);
-> +	return -EINVAL;
->  }
->  
->  static int security_validtrans_handle_fail(struct context *ocontext,
-> @@ -1054,6 +1082,13 @@ static int validate_classes(struct policydb *p)
->  	const char *def_class, *def_perm, *pol_class;
->  	struct symtab *perms;
->  
-> +	if (p->handle_unknown == ALLOW_UNKNOWN) {
-> +		u32 num_classes = kdefs->cts_len;
-> +		p->undefined_perms = kcalloc(num_classes, sizeof(u32), GFP_KERNEL);
-> +		if (!p->undefined_perms)
-> +			return -ENOMEM;
+> +	if (handle_unknown && (policy_type != POLICY_BASE)) {
+> +		printf("Handling of unknown classes and permissions is only ");
+> +		printf("valid in the base module\n");
+> +		exit(1);
 > +	}
 > +
->  	for (i = 1; i < kdefs->cts_len; i++) {
->  		def_class = kdefs->class_to_string[i];
->  		if (!def_class)
-> @@ -1062,6 +1097,10 @@ static int validate_classes(struct policydb *p)
->  			printk(KERN_INFO
->  			       "security:  class %s not defined in policy\n",
->  			       def_class);
-> +			if (p->handle_unknown == ALLOW_UNKNOWN)
-> +				p->undefined_perms[i-1] = ~0U;
-> +			if (p->handle_unknown == REJECT_UNKNOWN)
-> +				return -EINVAL;
->  			continue;
->  		}
->  		pol_class = p->p_class_val_to_name[i-1];
-> @@ -1087,12 +1126,16 @@ static int validate_classes(struct policydb *p)
->  			printk(KERN_INFO
->  			       "security:  permission %s in class %s not defined in policy\n",
->  			       def_perm, pol_class);
-> +			if (p->handle_unknown == ALLOW_UNKNOWN)
-> +				p->undefined_perms[class_val-1] |= perm_val;
-> +			else if (p->handle_unknown == REJECT_UNKNOWN)
-> +				return -EINVAL;
->  			continue;
->  		}
->  		perdatum = hashtab_search(perms->table, def_perm);
->  		if (perdatum == NULL) {
->  			printk(KERN_ERR
-> -			       "security:  permission %s in class %s not found in policy\n",
-> +			       "security:  permission %s in class %s not found in policy, bad policy\n",
->  			       def_perm, pol_class);
->  			return -EINVAL;
->  		}
-> @@ -1130,12 +1173,16 @@ static int validate_classes(struct policydb *p)
->  				printk(KERN_INFO
->  				       "security:  permission %s in class %s not defined in policy\n",
->  				       def_perm, pol_class);
-> +				if (p->handle_unknown == ALLOW_UNKNOWN)
-> +					p->undefined_perms[class_val-1] |= (1 << j);
-> +				else if (p->handle_unknown == REJECT_UNKNOWN)
-> +					return -EINVAL;
->  				continue;
->  			}
->  			perdatum = hashtab_search(perms->table, def_perm);
->  			if (perdatum == NULL) {
->  				printk(KERN_ERR
-> -				       "security:  permission %s in class %s not found in policy\n",
-> +				       "security:  permission %s in class %s not found in policy, bad policy\n",
->  				       def_perm, pol_class);
->  				return -EINVAL;
->  			}
+>  	if (optind != argc) {
+>  		file = argv[optind++];
+>  		if (optind != argc)
+> @@ -214,6 +242,7 @@ int main(int argc, char **argv)
+>  
+>  		modpolicydb.policy_type = policy_type;
+>  		modpolicydb.mls = mlspol;
+> +		modpolicydb.handle_unknown = handle_unknown;
+>  
+>  		if (read_source_policy(&modpolicydb, file, argv[0]) == -1) {
+>  			exit(1);
+> diff -Naupr checkpolicy-2.0.3.old/checkpolicy.c checkpolicy-2.0.3/checkpolicy.c
+> --- checkpolicy-2.0.3.old/checkpolicy.c	2007-07-26 19:03:19.000000000 -0400
+> +++ checkpolicy-2.0.3/checkpolicy.c	2007-07-31 17:18:38.000000000 -0400
+> @@ -90,6 +90,7 @@ static sidtab_t sidtab;
+>  
+>  extern policydb_t *policydbp;
+>  extern int mlspol;
+> +extern int handle_unknown;
+>  
+>  static char *txtfile = "policy.conf";
+>  static char *binfile = "policy";
+> @@ -99,7 +100,7 @@ unsigned int policyvers = POLICYDB_VERSI
+>  void usage(char *progname)
+>  {
+>  	printf
+> -	    ("usage:  %s [-b] [-d] [-M] [-c policyvers (%d-%d)] [-o output_file] [input_file]\n",
+> +	    ("usage:  %s [-b] [-d] [-U handle unknown (0-2) [-M] [-c policyvers (%d-%d)] [-o output_file] [input_file]\n",
+>  	     progname, POLICYDB_VERSION_MIN, POLICYDB_VERSION_MAX);
+>  	exit(1);
+>  }
+> @@ -390,7 +391,7 @@ int main(int argc, char **argv)
+>  	int show_version = 0;
+>  	struct policy_file pf;
+>  
+> -	while ((ch = getopt(argc, argv, "o:dbMVc:")) != EOF) {
+> +	while ((ch = getopt(argc, argv, "o:dbU:MVc:")) != EOF) {
+>  		switch (ch) {
+>  		case 'o':
+>  			outfile = optarg;
+> @@ -405,6 +406,22 @@ int main(int argc, char **argv)
+>  		case 'V':
+>  			show_version = 1;
+>  			break;
+> +		case 'U':
+> +			handle_unknown = strtol(optarg, (char **) NULL, 10);
+> +			switch (handle_unknown) {
+> +			case 0:
+> +				handle_unknown = DENY_UNKNOWN;
+> +				break;
+> +			case 1:
+> +				handle_unknown = REJECT_UNKNOWN;
+> +				break;
+> +			case 2:
+> +				handle_unknown = ALLOW_UNKNOWN;
+> +				break;
+> +			default:
+> +				usage(argv[0]);
+> +			}
+> +			break;
+>  		case 'M':
+>  			mlspol = 1;
+>  			break;
+> @@ -515,6 +532,7 @@ int main(int argc, char **argv)
+>  
+>  		/* Let sepol know if we are dealing with MLS support */
+>  		parse_policy.mls = mlspol;
+> +		parse_policy.handle_unknown = handle_unknown;
+>  
+>  		policydbp = &parse_policy;
+>  
+> diff -Naupr checkpolicy-2.0.3.old/policy_parse.y checkpolicy-2.0.3/policy_parse.y
+> --- checkpolicy-2.0.3.old/policy_parse.y	2007-07-26 19:03:19.000000000 -0400
+> +++ checkpolicy-2.0.3/policy_parse.y	2007-07-26 21:11:36.000000000 -0400
+> @@ -67,6 +67,7 @@ queue_t id_queue = 0;
+>  static unsigned int pass;
+>  char *curfile = 0;
+>  int mlspol = 0;
+> +int handle_unknown = 0;
+>  
+>  extern unsigned long policydb_lineno;
+>  extern unsigned long source_lineno;
 > 
 > 
 > 
