@@ -1,45 +1,59 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l7LIR2Ig013766
-	for <selinux@tycho.nsa.gov>; Tue, 21 Aug 2007 14:27:02 -0400
-Received: from exchange.columbia.tresys.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with SMTP id l7LIQxYx012786
-	for <selinux@tycho.nsa.gov>; Tue, 21 Aug 2007 18:26:59 GMT
-Subject: Re: [refpolicy] postfix changes
-From: "Christopher J. PeBenito" <cpebenito@tresys.com>
-To: Stefan Schulze Frielinghaus <stefan@sf-net.com>
-Cc: SELinux List <selinux@tycho.nsa.gov>
-In-Reply-To: <D7E6BD9F-1C0A-49F4-B95B-D311C691A90E@sf-net.com>
-References: <D7E6BD9F-1C0A-49F4-B95B-D311C691A90E@sf-net.com>
-Content-Type: text/plain
-Date: Tue, 21 Aug 2007 18:26:05 +0000
-Message-Id: <1187720765.13874.32.camel@gorn>
-Mime-Version: 1.0
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l7LIkNag015298
+	for <selinux@tycho.nsa.gov>; Tue, 21 Aug 2007 14:46:23 -0400
+Received: from exchange.columbia.tresys.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with SMTP id l7LIkKtV022434
+	for <selinux@tycho.nsa.gov>; Tue, 21 Aug 2007 18:46:21 GMT
+Message-ID: <46CB32F6.3000106@manicmethod.com>
+Date: Tue, 21 Aug 2007 14:46:14 -0400
+From: Joshua Brindle <method@manicmethod.com>
+MIME-Version: 1.0
+To: "Todd C. Miller" <tmiller@tresys.com>
+CC: SELinux Mail List <selinux@tycho.nsa.gov>
+Subject: Re: [PATCH] genhomedircon: fix find() return value usage
+References: <200708202032.l7KKWWCY009001@tex.courtesan.com>
+In-Reply-To: <200708202032.l7KKWWCY009001@tex.courtesan.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Sat, 2007-08-18 at 02:26 -0400, Stefan Schulze Frielinghaus wrote:
---- /usr/src/refpolicy-20070629/policy/modules/services/postfix.if      2007-06-27 17:23:21.000000000 +0200
-+++ policy/modules/services/postfix.if  2007-08-16 18:14:02.000000000 +0200
-@@ -456,3 +456,11 @@
- 
-        typeattribute $1 postfix_user_domtrans;
- ')
-+
-+interface(`postfix_read_master_file',`
-+       gen_require(`
-+               type postfix_master_t;
-+       ')
-+
-+       allow $1 postfix_master_t:file read;
-+')
+Todd C. Miller wrote:
+> This patch fixes a bug in the genhomedircon python script that would
+> ignore valid entries such as:
+>
+> /tmp/\.exchange-USER(/.*)?  system_u:object_r:ROLE_evolution_exchange_tmp_t:s0
+>
+> With this fix the python genhomedircon and the C replacement produce
+> equivalent output.
+>
+>   
+Note that this is for the stable branch only, since it conflicts with 
+the pending genhomedircon replacement patch for trunk. Does anyone 
+object to this going into stable?
 
-Needs XML documentation.  Also, its a domain type, so its not
-master_file, its master_state.
+> Signed-Off-By: Todd Miller <tmiller@tresys.com>
+>
+> Index: policycoreutils/scripts/genhomedircon
+> ===================================================================
+> --- policycoreutils/scripts/genhomedircon	(revision 2519)
+> +++ policycoreutils/scripts/genhomedircon	(working copy)
+> @@ -272,7 +272,7 @@
+>  		ret = ""
+>  		fd = open(self.getHomeDirTemplate(), 'r')
+>  		for i in  fd.readlines():
+> -			if i.find("USER") == 1:
+> +			if i.find("USER") >= 0:
+>  				i = i.replace("USER", user)
+>  				i = i.replace("ROLE", prefix)
+>  				i = i.replace("system_u", sel_user)
+>
+> --
+> This message was distributed to subscribers of the selinux mailing list.
+> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
+> the words "unsubscribe selinux" without quotes as the message.
+>
+>   
 
--- 
-Chris PeBenito
-Tresys Technology, LLC
-(410) 290-1411 x150
 
 
 --
