@@ -1,145 +1,119 @@
-Subject: Re: [patch] libsepol: eliminate unaligned accesses (Was: Re: wrong
-	magic number (using old sources))
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Eric Paris <eparis@parisplace.org>
-Cc: selinux770@tortenboxer.de, selinux@tycho.nsa.gov,
-        Joshua Brindle <method@manicmethod.com>,
-        Karl MacMillan <kmacmillan@mentalrootkit.com>
-In-Reply-To: <7e0fb38c0708211221g39b4fd73y3e1ee8ef8e6a8417@mail.gmail.com>
-References: <20070810101003.128080@gmx.net>
-	 <1186751971.7233.70.camel@moss-spartans.epoch.ncsc.mil>
-	 <20070810141236.128070@gmx.net> <20070811180730.308640@gmx.net>
-	 <1187009718.26008.19.camel@moss-spartans.epoch.ncsc.mil>
-	 <20070815154407.250820@gmx.net>
-	 <1187202831.20485.66.camel@moss-spartans.epoch.ncsc.mil>
-	 <20070816080523.135750@gmx.net>
-	 <1187269164.909.8.camel@moss-spartans.epoch.ncsc.mil>
-	 <1187715923.1451.164.camel@moss-spartans.epoch.ncsc.mil>
-	 <7e0fb38c0708211221g39b4fd73y3e1ee8ef8e6a8417@mail.gmail.com>
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l7LJgdqV020620
+	for <selinux@tycho.nsa.gov>; Tue, 21 Aug 2007 15:42:39 -0400
+Received: from exchange.columbia.tresys.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with SMTP id l7LJgctV003720
+	for <selinux@tycho.nsa.gov>; Tue, 21 Aug 2007 19:42:38 GMT
+Subject: Re: [patch] Tuning avtab to reduce memory usage
+From: "J. Tang" <jtang@tresys.com>
+To: Yuichi Nakamura <ynakam@hitachisoft.jp>, selinux <selinux@tycho.nsa.gov>
+In-Reply-To: <20070821130540.7AD3.YNAKAM@hitachisoft.jp>
+References: <20070821130540.7AD3.YNAKAM@hitachisoft.jp>
 Content-Type: text/plain
-Date: Tue, 21 Aug 2007 15:33:48 -0400
-Message-Id: <1187724828.1451.210.camel@moss-spartans.epoch.ncsc.mil>
+Date: Tue, 21 Aug 2007 15:43:20 -0400
+Message-Id: <1187725400.15264.73.camel@localhost.localdomain>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2007-08-21 at 15:21 -0400, Eric Paris wrote:
-> Not sure why I went over this patch, but looks pretty good 5 or so
-> comments inline.
-> 
-> 
-> *****policydb.c
-> > @@ -2683,12 +2697,13 @@
-> >  static int range_trans_rule_read(range_trans_rule_t ** r,
-> >                                  struct policy_file *fp)
-> >  {
-> > -       uint32_t *buf, nel;
-> > +       uint32_t buf[2], nel;
-> 
-> why buf[2] ?   looks like buf[1] would suffice.
+On Tue, 2007-08-21 at 13:29 +0900, Yuichi Nakamura wrote:
+> I compared 3 hash functions, default, jhash, hash_long.
+> default is default AVTAB_HASH.
+> jhash is function defined in linux/jhash.h.
+> hash_long is defined in linux/hash.h, I used it like following.
+> 	(int)(hash_long(((unsigned long)keyp->target_class)+
+>     (((unsigned long)keyp->target_type)<<2)+
+>     (((unsigned long)keyp->source_type)<<9)  , bits))
 
-True, fixed.  Cut-and-paste.
+A number of months ago, the SETools team also recognized the limitations
+of the current avtab hash function.  Beginning with SETools 3.3 release,
+we use a different hashing routine that is better suited for refpolicy
+analysis.  The following analysis may be of interest to those adjusting
+the kernel avtab.
 
-> >         unsigned int i;
-> >         range_trans_rule_t *rt, *lrt = NULL;
-> > +       int rc;
-> >
-> > -       buf = next_entry(fp, sizeof(uint32_t));
-> > -       if (!buf)
-> > +       rc = next_entry(buf, fp, sizeof(uint32_t));
-> > +       if (rc < 0)
-> >                 return -1;
-> >         nel = le32_to_cpu(buf[0]);
-> >         for (i = 0; i < nel; i++) {
-> 
-> 
-> 
-> > @@ -2799,11 +2818,12 @@
-> >                              struct policy_file *fp)
-> >  {
-> >         avrule_block_t *last_block = NULL, *curblock;
-> > -       uint32_t *buf, num_blocks, nel;
-> > +       uint32_t buf[2], num_blocks, nel;
-> 
-> Another why buf[2]
+0. Background
 
-Ditto.
+The existing AV table in the kernel uses a 15-bit hash key, constructed
+as:[0]
 
-> 
-> > +       int rc;
-> >
-> > -       if ((buf = next_entry(fp, sizeof(uint32_t))) == NULL) {
-> > +       rc = next_entry(buf, fp, sizeof(uint32_t));
-> > +       if (rc < 0)
-> >                 return -1;
-> > -       }
-> >         num_blocks = le32_to_cpu(buf[0]);
-> >         nel = num_blocks;
-> >         while (num_blocks > 0) {
-> 
-> 
-> 
-> ******module.c
-> > @@ -415,9 +418,9 @@
-> >                               struct sepol_policy_file *spf, int verbose)
-> >  {
-> >         struct policy_file *file = &spf->pf;
-> > -       uint32_t *buf, nsec;
-> > +       uint32_t buf[5], nsec;
-> 
-> why buf[5]  isn't 1 enough here?
+  #define AVTAB_HASH(keyp) \
+  ((keyp->target_class + \
+   (keyp->target_type << 2) + \
+   (keyp->source_type << 9)) & \
+   AVTAB_HASH_MASK)
 
-Ditto.
+We identified these problems with this hashing function:
 
-> 
-> >         size_t *offsets, len;
-> > -       int retval = -1;
-> > +       int rc;
-> >         unsigned i, seen = 0;
-> >
-> >         if (module_package_read_offsets(mod, file, &offsets, &nsec))
-> 
-> 
-> > @@ -593,7 +596,7 @@
-> >
-> >        cleanup:
-> >         free(offsets);
-> > -       return retval;
-> > +       return -1;
-> why throw away rc?  just generally useless here?
+  a. The majority of rules in refpolicy involve the object classes
+process (value 2), file (6), and dir (7).  Thus at least three bits are
+needed to best express the target class.
 
-rc gets overwritten as we read each section of the package, and we want
-to ensure that we don't ultimately return success when we failed.  And
-it wasn't useful to preserve a distinct return value anyway.
+  b. Refpolicy has roughly 2000 distinct types and attributes.  Only 7
+bits are preserved for source_type.
 
-> >  }
-> >  int sepol_module_package_info(struct sepol_policy_file *spf, int *type,
-> 
-> 
-> 
-> > Index: trunk/libsepol/src/avtab.c
-> > ===================================================================
-> > --- trunk/libsepol/src/avtab.c  (revision 2520)
-> > +++ trunk/libsepol/src/avtab.c  (working copy)
-> > @@ -337,8 +337,8 @@
-> >                     int (*insertf) (avtab_t * a, avtab_key_t * k,
-> >                                     avtab_datum_t * d, void *p), void *p)
-> >  {
-> > -       uint16_t *buf16, enabled;
-> > -       uint32_t *buf32, items, items2, val;
-> > +       uint16_t buf16[4], enabled;
-> > +       uint32_t buf32[7], items, items2, val;
-> 
-> looks like buf32 was allowed to be up to 8 but now only 7.  Just know
-> something about how this will be used that you know 7 is enough?  I
-> didn't dig into it.
+To our surprise, we discovered that for a particular policy with several
+hundred thousand rules, some buckets were empty, while others were
+nearly 200.[1]  We measured the effectiveness of the hash table by way
+of calculating the standard deviation in bucket lengths; it was 65.8227.
 
-The old code was wrong (and the new code is consistent with the kernel).
+1. Change in avtab size
+
+Our first optimization was to increase the hash table size to 16 bits.
+As expected, this roughly halved the access time and bucket lengths.
+With this change, we discovered that some buckets were still unused; the
+longest chain, however, was still excessively long at 101.  The standard
+deviation halved to 33.0038.
+
+2. Alternative Hashing Function
+
+In combination with the increase in hash table size, we devised this
+hashing function:[2]
+
+  #define AVTAB_HASH(keyp) \
+  ((((keyp->source_type & 0xff) << 8) | (keyp->target_type & 0xff)) ^ \
+   (keyp->target_class & 0xf) ^ \
+   AVTAB_HASH_MASK)
+
+This routine keeps the lower eight bits of the source and target types,
+as well as the lower four bits of the target class.  The algorithm
+itself is very fast due to bitwise logic.[3]
+
+2. Evaluation
+
+With this new hashing function, our calculated standard deviation
+dropped significantly, to 10.6086.  With the aforementioned policy, the
+shortest chain was now 8, the longest slightly more at 112.  This
+implies that the algorithm has better distribution than the original
+avtab algorithm.  As expected, runtime was cut considerably, without
+further increasing the memory footprint of the avtab.
+
+3. Applicability to Current Discussion
+
+The SETools hashing algorithm is designed for a 16-bit hash.  It could
+be applied to other bucket sizes by modding it against an appopriate
+prime number.
+
+When choosing the hashing algorithm for the avtab, we recommend that the
+types of data be also considered.  If it is known that policies will
+have thousands of types, the hashing function should reflect that
+information.  Likewise, if most rules are clustered around a few object
+classes, those class values need to become better discriminators.[4]
+The hashing algorithm changes are independent of changes to the bitmap
+and can be implemented regardless of other patches.
+
+
+[0] From Linux kernel 2.6.22.1 source, security/selinux/ss/avtab.c,
+lines 25-29.
+[1] The precise policy used can be provided, if requiested.
+[2] We actually hash conditional rules into the same avtab as
+unconditional rules; for brevity conditionals are not shown.
+[3] On the x86 architecture, bitwise operations take a single cycle to
+complete.
+[4] Another improvement would be to have an avalanche effect in the
+algorithm.
 
 -- 
-Stephen Smalley
-National Security Agency
-
+Jason Tang / jtang@tresys.com
 
 --
 This message was distributed to subscribers of the selinux mailing list.
