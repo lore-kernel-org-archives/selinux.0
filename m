@@ -1,49 +1,45 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l7MDIrnR016952
-	for <selinux@tycho.nsa.gov>; Wed, 22 Aug 2007 09:18:53 -0400
-Received: from smtp111.sbc.mail.mud.yahoo.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with SMTP id l7MDIpx9015996
-	for <selinux@tycho.nsa.gov>; Wed, 22 Aug 2007 13:18:51 GMT
-In-Reply-To: <1187705925.1451.123.camel@moss-spartans.epoch.ncsc.mil>
-References: <6FE441CD9F0C0C479F2D88F959B0158818654C@exchange.columbia.tresys.com> <1187380020.909.358.camel@moss-spartans.epoch.ncsc.mil> <D38FAD33-E7B4-4A2A-909E-892800350EFE@nall.com> <1187705925.1451.123.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0 (Apple Message framework v752.3)
-Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
-Message-Id: <FDD03592-C4AE-4066-B866-90B830235880@nall.com>
-Cc: "Christopher J. PeBenito" <cpebenito@tresys.com>,
-        SE Linux <selinux@tycho.nsa.gov>
-From: Joe Nall <joe@nall.com>
-Subject: Re: weird mprotect error
-Date: Wed, 22 Aug 2007 08:18:29 -0500
-To: Stephen Smalley <sds@tycho.nsa.gov>
+Date: Wed, 22 Aug 2007 06:44:34 -0700 (PDT)
+From: James Morris <jmorris@namei.org>
+To: Yuichi Nakamura <ynakam@hitachisoft.jp>
+cc: selinux@tycho.nsa.gov, Stephen Smalley <sds@tycho.nsa.gov>,
+        busybox@kaigai.gr.jp, Eric Paris <eparis@parisplace.org>,
+        kaigai@ak.jp.nec.com
+Subject: Re: [patch] Tuning avtab to reduce memory usage
+In-Reply-To: <20070822115145.E7D3.YNAKAM@hitachisoft.jp>
+Message-ID: <Xine.LNX.4.64.0708220642110.21844@us.intercode.com.au>
+References: <20070821130540.7AD3.YNAKAM@hitachisoft.jp>
+ <Xine.LNX.4.64.0708210645130.16813@us.intercode.com.au>
+ <20070822115145.E7D3.YNAKAM@hitachisoft.jp>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+On Wed, 22 Aug 2007, Yuichi Nakamura wrote:
 
-On Aug 21, 2007, at 9:18 AM, Stephen Smalley wrote:
 
-> On Mon, 2007-08-20 at 21:09 -0500, Joe Nall wrote:
->> Any recommendations on how to start an unprivileged non SystemLow
->> daemon? This seems broken.
->
-> Maybe I don't understand the actual problem.
+Just a couple more nits...
 
-We couldn't make a non SystemLow, unprivileged daemon run in  
-enforcing mode.
+> +#define AVTAB_HASH(keyp, mask) \
+>  ((keyp->target_class + \
+>   (keyp->target_type << 2) + \
+>   (keyp->source_type << 9)) & \
+> - AVTAB_HASH_MASK)
+> + mask)
 
-> Is it reproducible with an upstream (or Fedora) kernel?
+Can you make this a static inline ?
 
-Tried to reproduce it on F7 yesterday and ran into login issues.
+> +	if (rc) {
+> +		goto err;
+> +	}
 
-> What's the exact test case?  Trying to run an /etc/init.d script that
-> calls that mlstest program using run_init?
+Don't need these braces.
 
-chcon system_u:object_r:mlstest_exec_t mlstest
-run_init ./mlstest
 
-The test case was derived from a more complicated daemon and init  
-script.
-
-joe
+- James
+-- 
+James Morris
+<jmorris@namei.org>
 
 --
 This message was distributed to subscribers of the selinux mailing list.
