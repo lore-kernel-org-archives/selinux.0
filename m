@@ -1,139 +1,41 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l7M3C1dG015661
-	for <selinux@tycho.nsa.gov>; Tue, 21 Aug 2007 23:12:01 -0400
-Received: from mail7.hitachi.co.jp (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l7M3Bxfa016113
-	for <selinux@tycho.nsa.gov>; Wed, 22 Aug 2007 03:11:59 GMT
-Received: from mlsv18.hitachi.co.jp (unknown [133.144.234.166])
-	by mail7.hitachi.co.jp (Postfix) with ESMTP id 86DB337AE0
-	for <selinux@tycho.nsa.gov>; Wed, 22 Aug 2007 12:11:58 +0900 (JST)
-Date: Wed, 22 Aug 2007 12:11:45 +0900
-From: Yuichi Nakamura <ynakam@hitachisoft.jp>
-To: "J. Tang" <jtang@tresys.com>
-Subject: Re: [patch] Tuning avtab to reduce memory usage
-Cc: ynakam@hitachisoft.jp, selinux <selinux@tycho.nsa.gov>
-In-Reply-To: <1187725400.15264.73.camel@localhost.localdomain>
-References: <20070821130540.7AD3.YNAKAM@hitachisoft.jp> <1187725400.15264.73.camel@localhost.localdomain>
-Message-Id: <20070822120800.E7D6.YNAKAM@hitachisoft.jp>
+Message-ID: <46CBB0B7.2080503@ak.jp.nec.com>
+Date: Wed, 22 Aug 2007 12:42:47 +0900
+From: KaiGai Kohei <kaigai@ak.jp.nec.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="US-ASCII"
+To: Yuichi Nakamura <ynakam@hitachisoft.jp>
+CC: James Morris <jmorris@namei.org>, selinux@tycho.nsa.gov,
+        Stephen Smalley <sds@tycho.nsa.gov>, busybox@kaigai.gr.jp,
+        Eric Paris <eparis@parisplace.org>
+Subject: Re: [patch] Tuning avtab to reduce memory usage
+References: <20070821130540.7AD3.YNAKAM@hitachisoft.jp> <Xine.LNX.4.64.0708210645130.16813@us.intercode.com.au> <20070822115145.E7D3.YNAKAM@hitachisoft.jp>
+In-Reply-To: <20070822115145.E7D3.YNAKAM@hitachisoft.jp>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 21 Aug 2007 15:43:20 -0400
-"J. Tang"  wrote:
-> On Tue, 2007-08-21 at 13:29 +0900, Yuichi Nakamura wrote:
-> > I compared 3 hash functions, default, jhash, hash_long.
-> > default is default AVTAB_HASH.
-> > jhash is function defined in linux/jhash.h.
-> > hash_long is defined in linux/hash.h, I used it like following.
-> > 	(int)(hash_long(((unsigned long)keyp->target_class)+
-> >     (((unsigned long)keyp->target_type)<<2)+
-> >     (((unsigned long)keyp->source_type)<<9)  , bits))
-> 
-> A number of months ago, the SETools team also recognized the limitations
-> of the current avtab hash function.  Beginning with SETools 3.3 release,
-> we use a different hashing routine that is better suited for refpolicy
-> analysis.  The following analysis may be of interest to those adjusting
-> the kernel avtab.
-> 
-> 0. Background
-> 
-> The existing AV table in the kernel uses a 15-bit hash key, constructed
-> as:[0]
-> 
->   #define AVTAB_HASH(keyp) \
->   ((keyp->target_class + \
->    (keyp->target_type << 2) + \
->    (keyp->source_type << 9)) & \
->    AVTAB_HASH_MASK)
-> 
-> We identified these problems with this hashing function:
-> 
->   a. The majority of rules in refpolicy involve the object classes
-> process (value 2), file (6), and dir (7).  Thus at least three bits are
-> needed to best express the target class.
-> 
->   b. Refpolicy has roughly 2000 distinct types and attributes.  Only 7
-> bits are preserved for source_type.
-> 
-> To our surprise, we discovered that for a particular policy with several
-> hundred thousand rules, some buckets were empty, while others were
-> nearly 200.[1]  We measured the effectiveness of the hash table by way
-> of calculating the standard deviation in bucket lengths; it was 65.8227.
-> 
-> 1. Change in avtab size
-> 
-> Our first optimization was to increase the hash table size to 16 bits.
-> As expected, this roughly halved the access time and bucket lengths.
-> With this change, we discovered that some buckets were still unused; the
-> longest chain, however, was still excessively long at 101.  The standard
-> deviation halved to 33.0038.
-> 
-> 2. Alternative Hashing Function
-> 
-> In combination with the increase in hash table size, we devised this
-> hashing function:[2]
-> 
->   #define AVTAB_HASH(keyp) \
->   ((((keyp->source_type & 0xff) << 8) | (keyp->target_type & 0xff)) ^ \
->    (keyp->target_class & 0xf) ^ \
->    AVTAB_HASH_MASK)
-> 
-> This routine keeps the lower eight bits of the source and target types,
-> as well as the lower four bits of the target class.  The algorithm
-> itself is very fast due to bitwise logic.[3]
-> 
-> 2. Evaluation
-> 
-> With this new hashing function, our calculated standard deviation
-> dropped significantly, to 10.6086.  With the aforementioned policy, the
-> shortest chain was now 8, the longest slightly more at 112.  This
-> implies that the algorithm has better distribution than the original
-> avtab algorithm.  As expected, runtime was cut considerably, without
-> further increasing the memory footprint of the avtab.
-> 
-> 3. Applicability to Current Discussion
-> 
-> The SETools hashing algorithm is designed for a 16-bit hash.  It could
-> be applied to other bucket sizes by modding it against an appopriate
-> prime number.
-> 
-> When choosing the hashing algorithm for the avtab, we recommend that the
-> types of data be also considered.  If it is known that policies will
-> have thousands of types, the hashing function should reflect that
-> information.  Likewise, if most rules are clustered around a few object
-> classes, those class values need to become better discriminators.[4]
-> The hashing algorithm changes are independent of changes to the bitmap
-> and can be implemented regardless of other patches.
-> 
-> 
-> [0] From Linux kernel 2.6.22.1 source, security/selinux/ss/avtab.c,
-> lines 25-29.
-> [1] The precise policy used can be provided, if requiested.
-Thanks for interesting information.
-I tried this hash function, 
-but I could not improve the standard deviation to selinux-policy-strict-2.4.6-80.fc6. 
-Could you give me your policy?
+Yuichi Nakamura wrote:
+> On Tue, 21 Aug 2007 07:00:56 -0700 (PDT)
+> James Morris  wrote:
+>> On Tue, 21 Aug 2007, Yuichi Nakamura wrote:
+>>
+>>> Hi.
+>>>
+>>> I would like to propose patch that reduce memory usage of avtab again.
+>> This looks good, although there are some coding style and other issues 
+>> which need to be fixed.  Also see Documentation/SubmittingPatches and 
+>> Documentation/CodingStyle in the kernel tree.
+> Thanks for review !
 
+FYI.
 
-> [2] We actually hash conditional rules into the same avtab as
-> unconditional rules; for brevity conditionals are not shown.
-> [3] On the x86 architecture, bitwise operations take a single cycle to
-> complete.
-> [4] Another improvement would be to have an avalanche effect in the
-> algorithm.
-> 
-> -- 
-> Jason Tang / jtang@tresys.com
+These documents are also translated into Japanese language.
 
-Regards,
+http://www.linux.or.jp/JF/JFdocs/kernel-docs-2.6/SubmittingPatches.html
+http://www.linux.or.jp/JF/JFdocs/kernel-docs-2.6/CodingStyle.html
+
 -- 
-Yuichi Nakamura
-Hitachi Software Engineering Co., Ltd.
-Japan SELinux Users Group(JSELUG): http://www.selinux.gr.jp/
-SELinux Policy Editor: http://seedit.sourceforge.net/
-
+OSS Platform Development Division, NEC
+KaiGai Kohei <kaigai@ak.jp.nec.com>
 
 --
 This message was distributed to subscribers of the selinux mailing list.
