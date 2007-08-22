@@ -1,81 +1,57 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l7MJtwf2019261
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l7MJtwvw019244
 	for <selinux@tycho.nsa.gov>; Wed, 22 Aug 2007 15:55:58 -0400
-Received: from exchange.columbia.tresys.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with SMTP id l7MJtwca002237
-	for <selinux@tycho.nsa.gov>; Wed, 22 Aug 2007 19:55:58 GMT
-Subject: Re: [PATCH] refpolicy: admin_logwatch changes
+Received: from exchange.columbia.tresys.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with SMTP id l7MJtvH3002104
+	for <selinux@tycho.nsa.gov>; Wed, 22 Aug 2007 19:55:57 GMT
+Subject: Re: [PATCH] refpolicy: apps_vmware changes
 From: "Christopher J. PeBenito" <cpebenito@tresys.com>
 To: dwalsh@redhat.com
 Cc: selinux@tycho.nsa.gov
-In-Reply-To: <200708021938.l72JcMZ6028891@redsox.boston.devel.redhat.com>
-References: <200708021938.l72JcMZ6028891@redsox.boston.devel.redhat.com>
+In-Reply-To: <200708021956.l72Ju2S3029420@redsox.boston.devel.redhat.com>
+References: <200708021956.l72Ju2S3029420@redsox.boston.devel.redhat.com>
 Content-Type: text/plain
-Date: Wed, 22 Aug 2007 15:55:03 -0400
-Message-Id: <1187812503.13874.99.camel@gorn>
+Date: Wed, 22 Aug 2007 15:55:02 -0400
+Message-Id: <1187812502.13874.98.camel@gorn>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2007-08-02 at 15:38 -0400, dwalsh@redhat.com wrote:
-> logwatch uses nsswitch
-> Needs to be able to read utmp file
-> Also watches samba files
+On Thu, 2007-08-02 at 15:56 -0400, dwalsh@redhat.com wrote:
+> Fixes for vmware
+> --- nsaserefpolicy/policy/modules/apps/vmware.fc        2007-07-03 07:05:43.000000000 -0400
+> +++ serefpolicy-3.0.5/policy/modules/apps/vmware.fc     2007-08-02 11:02:02.000000000 -0400
+> @@ -23,6 +23,7 @@
+>  /usr/bin/vmware-smbd           --      gen_context(system_u:object_r:vmware_host_exec_t,s0)
+>  /usr/bin/vmware-smbpasswd      --      gen_context(system_u:object_r:vmware_host_exec_t,s0)
+>  /usr/bin/vmware-smbpasswd\.bin --      gen_context(system_u:object_r:vmware_host_exec_t,s0)
+> +/usr/bin/vmware-vmx            --      gen_context(system_u:object_r:vmware_host_exec_t,s0)
+>  /usr/bin/vmware-wizard         --      gen_context(system_u:object_r:vmware_exec_t,s0)
+>  /usr/bin/vmware                        --      gen_context(system_u:object_r:vmware_exec_t,s0)
+> 
+> --- nsaserefpolicy/policy/modules/apps/vmware.te        2007-07-25 10:37:37.000000000 -0400
+> +++ serefpolicy-3.0.5/policy/modules/apps/vmware.te     2007-08-02 11:02:02.000000000 -0400
+> @@ -29,7 +29,7 @@
+> 
+>  allow vmware_host_t self:capability { setuid net_raw };
+>  dontaudit vmware_host_t self:capability sys_tty_config;
+> -allow vmware_host_t self:process signal_perms;
+> +allow vmware_host_t self:process { execstack execmem signal_perms };
+>  allow vmware_host_t self:fifo_file rw_fifo_file_perms;
+>  allow vmware_host_t self:unix_stream_socket create_stream_socket_perms;
+>  allow vmware_host_t self:rawip_socket create_socket_perms;
 
-Merged, with a little reorganization.
+Which version of vmware requires this?  Other parts merged.
 
-> --- nsaserefpolicy/policy/modules/admin/logwatch.te     2007-07-25 10:37:43.000000000 -0400
-> +++ serefpolicy-3.0.5/policy/modules/admin/logwatch.te  2007-08-02 11:02:02.000000000 -0400
-> @@ -29,7 +29,6 @@
->  allow logwatch_t self:process signal;
->  allow logwatch_t self:fifo_file rw_file_perms;
->  allow logwatch_t self:unix_stream_socket create_stream_socket_perms;
-> -allow logwatch_t self:netlink_route_socket r_netlink_socket_perms;
-> 
->  manage_dirs_pattern(logwatch_t,logwatch_cache_t,logwatch_cache_t)
->  manage_files_pattern(logwatch_t,logwatch_cache_t,logwatch_cache_t)
-> @@ -68,6 +67,9 @@
->  fs_getattr_all_fs(logwatch_t)
->  fs_dontaudit_list_auto_mountpoints(logwatch_t)
-> 
-> +init_read_utmp(logwatch_t)
-> +init_dontaudit_write_utmp(logwatch_t)
-> +
->  term_dontaudit_getattr_pty_dirs(logwatch_t)
->  term_dontaudit_list_ptys(logwatch_t)
-> 
-> @@ -96,6 +98,10 @@
->  ')
-> 
->  optional_policy(`
-> +       auth_use_nsswitch(logwatch_t)
-> +')
-> +
-> +optional_policy(`
->         avahi_dontaudit_search_pid(logwatch_t)
->  ')
-> 
-> @@ -117,14 +123,6 @@
->  ')
-> 
->  optional_policy(`
-> -       nis_use_ypbind(logwatch_t)
-> -')
-> -
-> -optional_policy(`
-> -       nscd_socket_use(logwatch_t)
-> -')
-> -
-> -optional_policy(`
->         ntp_domtrans(logwatch_t)
->  ')
-> 
-> @@ -134,4 +132,5 @@
-> 
->  optional_policy(`
->         samba_read_log(logwatch_t)
-> +       samba_read_share_files(logwatch_t)
->  ')
+> @@ -56,6 +56,8 @@
+>  corenet_tcp_sendrecv_all_ports(vmware_host_t)
+>  corenet_udp_sendrecv_all_ports(vmware_host_t)
+>  corenet_raw_bind_all_nodes(vmware_host_t)
+> +corenet_tcp_bind_all_nodes(vmware_host_t)
+> +corenet_udp_bind_all_nodes(vmware_host_t)
+>  corenet_tcp_connect_all_ports(vmware_host_t)
+>  corenet_sendrecv_all_client_packets(vmware_host_t)
+>  corenet_sendrecv_all_server_packets(vmware_host_t)
 > 
 > 
 -- 
