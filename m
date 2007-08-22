@@ -1,18 +1,18 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l7MLMrO1026718
-	for <selinux@tycho.nsa.gov>; Wed, 22 Aug 2007 17:22:53 -0400
-Received: from mx1.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id l7MLMqBp021045
-	for <selinux@tycho.nsa.gov>; Wed, 22 Aug 2007 21:22:52 GMT
-Message-ID: <46CCA926.3070205@redhat.com>
-Date: Wed, 22 Aug 2007 17:22:46 -0400
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l7MLaK2Q027611
+	for <selinux@tycho.nsa.gov>; Wed, 22 Aug 2007 17:36:20 -0400
+Received: from mx1.redhat.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l7MLaJFu019392
+	for <selinux@tycho.nsa.gov>; Wed, 22 Aug 2007 21:36:19 GMT
+Message-ID: <46CCAC4B.1060506@redhat.com>
+Date: Wed, 22 Aug 2007 17:36:11 -0400
 From: Daniel J Walsh <dwalsh@redhat.com>
 MIME-Version: 1.0
 To: "Christopher J. PeBenito" <cpebenito@tresys.com>
-CC: SE Linux <selinux@tycho.nsa.gov>
-Subject: Re: [Fwd: [PATCH] refpolicy: system_iptables changes]
-References: <46B22279.9030909@redhat.com> <1187812514.13874.104.camel@gorn>
-In-Reply-To: <1187812514.13874.104.camel@gorn>
+CC: selinux@tycho.nsa.gov, Tom London <selinux@gmail.com>
+Subject: Re: [PATCH] refpolicy: apps_vmware changes
+References: <200708021956.l72Ju2S3029420@redsox.boston.devel.redhat.com> <1187812502.13874.98.camel@gorn>
+In-Reply-To: <1187812502.13874.98.camel@gorn>
 Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
@@ -21,41 +21,51 @@ List-Id: selinux@tycho.nsa.gov
 Hash: SHA1
 
 Christopher J. PeBenito wrote:
-> On Thu, 2007-08-02 at 14:29 -0400, Daniel J Walsh wrote:
->> Switch iptables to use nsswitch
+> On Thu, 2007-08-02 at 15:56 -0400, dwalsh@redhat.com wrote:
+>> Fixes for vmware
+>> --- nsaserefpolicy/policy/modules/apps/vmware.fc        2007-07-03 07:05:43.000000000 -0400
+>> +++ serefpolicy-3.0.5/policy/modules/apps/vmware.fc     2007-08-02 11:02:02.000000000 -0400
+>> @@ -23,6 +23,7 @@
+>>  /usr/bin/vmware-smbd           --      gen_context(system_u:object_r:vmware_host_exec_t,s0)
+>>  /usr/bin/vmware-smbpasswd      --      gen_context(system_u:object_r:vmware_host_exec_t,s0)
+>>  /usr/bin/vmware-smbpasswd\.bin --      gen_context(system_u:object_r:vmware_host_exec_t,s0)
+>> +/usr/bin/vmware-vmx            --      gen_context(system_u:object_r:vmware_host_exec_t,s0)
+>>  /usr/bin/vmware-wizard         --      gen_context(system_u:object_r:vmware_exec_t,s0)
+>>  /usr/bin/vmware                        --      gen_context(system_u:object_r:vmware_exec_t,s0)
 >>
->> --- nsaserefpolicy/policy/modules/system/iptables.te    2007-07-25
->> 10:37:42.000000000 -0400
->> +++ serefpolicy-3.0.4/policy/modules/system/iptables.te 2007-07-25
->> 12:27:26.000000000 -0400
->> @@ -44,6 +44,8 @@
+>> --- nsaserefpolicy/policy/modules/apps/vmware.te        2007-07-25 10:37:37.000000000 -0400
+>> +++ serefpolicy-3.0.5/policy/modules/apps/vmware.te     2007-08-02 11:02:02.000000000 -0400
+>> @@ -29,7 +29,7 @@
 >>
->>  corenet_relabelto_all_packets(iptables_t)
+>>  allow vmware_host_t self:capability { setuid net_raw };
+>>  dontaudit vmware_host_t self:capability sys_tty_config;
+>> -allow vmware_host_t self:process signal_perms;
+>> +allow vmware_host_t self:process { execstack execmem signal_perms };
+>>  allow vmware_host_t self:fifo_file rw_fifo_file_perms;
+>>  allow vmware_host_t self:unix_stream_socket create_stream_socket_perms;
+>>  allow vmware_host_t self:rawip_socket create_socket_perms;
+> 
+> Which version of vmware requires this?  Other parts merged.
+> 
+>> @@ -56,6 +56,8 @@
+>>  corenet_tcp_sendrecv_all_ports(vmware_host_t)
+>>  corenet_udp_sendrecv_all_ports(vmware_host_t)
+>>  corenet_raw_bind_all_nodes(vmware_host_t)
+>> +corenet_tcp_bind_all_nodes(vmware_host_t)
+>> +corenet_udp_bind_all_nodes(vmware_host_t)
+>>  corenet_tcp_connect_all_ports(vmware_host_t)
+>>  corenet_sendrecv_all_client_packets(vmware_host_t)
+>>  corenet_sendrecv_all_server_packets(vmware_host_t)
 >>
->> +auth_use_nsswitch(iptables_t)
->> +
-> 
-> I applied this part a few lines down
-> 
->>  dev_read_sysfs(iptables_t)
 >>
->>  fs_getattr_xattr_fs(iptables_t)
->> @@ -62,6 +64,7 @@
->>  init_use_script_ptys(iptables_t)
->>  # to allow rules to be saved on reboot:
->>  init_rw_script_tmp_files(iptables_t)
->> +init_rw_script_stream_sockets(iptables_t)
-> 
-> This is weird, what caused this behavior?
-> 
-Some firewall tool that execs iptables.
+I think these came from Tom?
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.7 (GNU/Linux)
 Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org
 
-iD8DBQFGzKkmrlYvE4MpobMRAjVpAJ9fsuWej8tKcqTObJ21bRtIooItuACfcKmg
-9ARrzgIfAFMNwxcgvY6yuAE=
-=eIl/
+iD8DBQFGzKxKrlYvE4MpobMRAlW3AJ9PiuuwwMdoD074Sr8iQ5zgqcNUjACcDNmv
+Pe0RvYxFAOqr7GVNah0hWPI=
+=nEA0
 -----END PGP SIGNATURE-----
 
 --
