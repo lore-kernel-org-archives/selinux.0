@@ -11,8 +11,8 @@ References:
 	 <1187705925.1451.123.camel@moss-spartans.epoch.ncsc.mil>
 	 <FDD03592-C4AE-4066-B866-90B830235880@nall.com>
 Content-Type: text/plain
-Date: Wed, 22 Aug 2007 10:10:34 -0400
-Message-Id: <1187791834.1451.343.camel@moss-spartans.epoch.ncsc.mil>
+Date: Wed, 22 Aug 2007 11:06:37 -0400
+Message-Id: <1187795197.1451.368.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
@@ -42,11 +42,15 @@ On Wed, 2007-08-22 at 08:18 -0500, Joe Nall wrote:
 > The test case was derived from a more complicated daemon and init  
 > script.
 
-So the question is what is really specific to MLS about this issue?
+Ok, so I brought up F7 with its -mls policy in permissive to workaround
+the broken login policy, logged in, newrole'd to sysadm_r, and switched
+to enforcing mode.  Created the mlstest policy module and inserted it,
+created the mlstest program, labeled it, tried the above with run_init.
+No unexpected avc messages about ld.*so, and no obvious problems (but no
+output, of course, since it doesn't have access to the pty).
 
-For example, if you simply did the domain transition here and didn't
-allow fd use permission between those types, does the problem still
-manifest?
+I'll try stracing it too, but that will require further policy rules to
+let that happen across all the relevant domain transitions there.
 
 -- 
 Stephen Smalley
