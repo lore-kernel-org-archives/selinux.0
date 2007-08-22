@@ -1,41 +1,88 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l7MJu5Hn019306
-	for <selinux@tycho.nsa.gov>; Wed, 22 Aug 2007 15:56:05 -0400
-Received: from exchange.columbia.tresys.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with SMTP id l7MJu4H3002120
-	for <selinux@tycho.nsa.gov>; Wed, 22 Aug 2007 19:56:04 GMT
-Subject: Re: [PATCH] refpolicy: system_miscfiles changes
+Subject: Re: weird mprotect error
 From: "Christopher J. PeBenito" <cpebenito@tresys.com>
-To: Daniel J Walsh <dwalsh@redhat.com>
-Cc: SE Linux <selinux@tycho.nsa.gov>
-In-Reply-To: <46B221A7.4040000@redhat.com>
-References: <46B221A7.4040000@redhat.com>
+To: Stephen Smalley <sds@tycho.nsa.gov>
+Cc: Joe Nall <joe@nall.com>, SE Linux <selinux@tycho.nsa.gov>,
+        Eric Paris <eparis@parisplace.org>, James Morris <jmorris@namei.org>
+In-Reply-To: <1187809224.1451.451.camel@moss-spartans.epoch.ncsc.mil>
+References: 
+	 <6FE441CD9F0C0C479F2D88F959B0158818654C@exchange.columbia.tresys.com>
+	 <1187380020.909.358.camel@moss-spartans.epoch.ncsc.mil>
+	 <D38FAD33-E7B4-4A2A-909E-892800350EFE@nall.com>
+	 <1187705925.1451.123.camel@moss-spartans.epoch.ncsc.mil>
+	 <FDD03592-C4AE-4066-B866-90B830235880@nall.com>
+	 <1187795197.1451.368.camel@moss-spartans.epoch.ncsc.mil>
+	 <1187799306.1451.389.camel@moss-spartans.epoch.ncsc.mil>
+	 <1187800948.13874.77.camel@gorn>
+	 <1187809224.1451.451.camel@moss-spartans.epoch.ncsc.mil>
 Content-Type: text/plain
-Date: Wed, 22 Aug 2007 15:55:09 -0400
-Message-Id: <1187812509.13874.102.camel@gorn>
+Date: Wed, 22 Aug 2007 20:18:44 +0000
+Message-Id: <1187813924.13874.108.camel@gorn>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2007-08-02 at 14:25 -0400, Daniel J Walsh wrote:
+On Wed, 2007-08-22 at 15:00 -0400, Stephen Smalley wrote:
+> On Wed, 2007-08-22 at 16:42 +0000, Christopher J. PeBenito wrote:
+> > On Wed, 2007-08-22 at 12:15 -0400, Stephen Smalley wrote:
+> > > Ok, so what is happening here is fairly simple, I think:  the kernel is
+> > > opening the ELF interpreter (/lib/ld-2.x.so) while we are still running
+> > > in the caller's context (hence initrc_t), so the struct file is created
+> > > in that context, and mappings are created from it.  Then we perform the
+> > > context transition, and when the program later tries to operate on the
+> > > mapping, it gets the denial.
+> > > 
+> > > Rather than using mls_fd_use_all_levels() on mlstest_t though, I think
+> > > you want to use mls_fd_share_all_levels() on initrc_t, like we do with
+> > > the login domains and newrole.  Then mlstest_t isn't generally
+> > > authorized to override MLS on fd use permission, but only on the
+> > > initrc_t fds.
+> > > 
+> > > Same issue would exist under TE if you completely disallowed fd use.
+> > 
+> > What this seems to imply is that you must always be allowed to inherit
+> > fds from the parent domain that exec()s you.  Interesting.  Makes the
+> > fd:use check seem less useful since you can only deny inheriting fds
+> > from your parent's parent.
 > 
-> Additional fonts directory
+> That along with denying receiving fds from an unrelated process via
+> local IPC.
+> 
+> This is another example of how the point at which we perform context
+> transitions in the kernel (just hooking into compute_creds and
+> paralleling the setuid/setgid transition) may not be optimal.  We've
+> seen that previously as well with e.g. the mmap permission checking of
+> the executable image occurring in the caller's context rather than the
+> new context (e.g. for execmem).
+> 
+> So at some point we may want to explore alternatives there.
 
-Merged
+Definitely seems worth exploring, especially for execmem type things.
+Otherwise the permissions that have this problem become a little fuzzy
+and can apply to both the domain that has the rule and any of its child
+processes (in certain cases).
 
-> --- nsaserefpolicy/policy/modules/system/miscfiles.fc   2007-05-29 14:10:58.000000000 -0400
-> +++ serefpolicy-3.0.4/policy/modules/system/miscfiles.fc        2007-07-25 12:07:25.000000000 -0400
-> @@ -66,6 +66,7 @@
->  /var/lib/texmf(/.*)?           gen_context(system_u:object_r:tetex_data_t,s0)
-> 
->  /var/cache/fonts(/.*)?         gen_context(system_u:object_r:tetex_data_t,s0)
-> +/var/cache/fontconfig(/.*)?    gen_context(system_u:object_r:fonts_t,s0)
->  /var/cache/man(/.*)?           gen_context(system_u:object_r:man_t,s0)
-> 
->  /var/spool/texmf(/.*)?         gen_context(system_u:object_r:tetex_data_t,s0)
-> 
-> 
-> 
+> > So after a quick grep I see:
+> > 
+> > policy/modules/system/init.te:mls_fd_use_all_levels(init_t)
+> > 
+> > kernel_t runs at sys high, init is sys low-high, so this makes sense.
+> > At the same time it may be ok for the kernel to share its fds, since it
+> > can transition to more than init_t.
+> > 
+> > policy/modules/services/cups.te:mls_fd_use_all_levels(cupsd_t)
+> > policy/modules/system/logging.te:mls_fd_use_all_levels(auditd_t)
+> > policy/modules/system/setrans.te:mls_fd_use_all_levels(setrans_t)
+> > 
+> > initrc_t runs at sys low-high, the above run in sys high, so these will
+> > be replaced by the initrc_t fd share.
+> > 
+> > policy/modules/services/inetd.te:mls_fd_use_all_levels(inetd_t)
+> > 
+> > Don't know why this needs it.  It can only transitioned to via initrc_t,
+> > so I'm thinking that this probably can be dropped.
+
+I have made all but the first (kernel_t/init_t) changes.
+
 -- 
 Chris PeBenito
 Tresys Technology, LLC
