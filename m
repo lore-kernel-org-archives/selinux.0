@@ -1,44 +1,68 @@
-Message-ID: <46CC5703.20704@redhat.com>
-Date: Wed, 22 Aug 2007 11:32:19 -0400
-From: Daniel J Walsh <dwalsh@redhat.com>
-MIME-Version: 1.0
-To: Joshua Brindle <method@manicmethod.com>
-CC: Stephen Smalley <sds@tycho.nsa.gov>, James Morris <jmorris@namei.org>,
-        Eric Paris <eparis@redhat.com>, selinux@tycho.nsa.gov
-Subject: Re: [PATCH] selinuxfs to globally disable dontaudit rules
-References: <1186696737.20393.10.camel@localhost.localdomain>	 <Pine.LNX.4.64.0708091525410.30691@us.intercode.com.au>	 <46BBAE00.7050600@manicmethod.com>  <46BBBDDF.2000307@manicmethod.com>	 <1187285317.909.36.camel@moss-spartans.epoch.ncsc.mil>	 <46C48D2B.3010504@manicmethod.com>	 <1187286476.909.51.camel@moss-spartans.epoch.ncsc.mil>	 <46C48F01.40101@manicmethod.com> <1187287475.909.69.camel@moss-spartans.epoch.ncsc.mil> <46C4A4E7.8050902@manicmethod.com> <46CB4E14.3020809@redhat.com> <46CB783F.6080204@manicmethod.com>
-In-Reply-To: <46CB783F.6080204@manicmethod.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Subject: Re: weird mprotect error
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Joe Nall <joe@nall.com>
+Cc: "Christopher J. PeBenito" <cpebenito@tresys.com>,
+        SE Linux <selinux@tycho.nsa.gov>, Eric Paris <eparis@parisplace.org>
+In-Reply-To: <1187795197.1451.368.camel@moss-spartans.epoch.ncsc.mil>
+References: 
+	 <6FE441CD9F0C0C479F2D88F959B0158818654C@exchange.columbia.tresys.com>
+	 <1187380020.909.358.camel@moss-spartans.epoch.ncsc.mil>
+	 <D38FAD33-E7B4-4A2A-909E-892800350EFE@nall.com>
+	 <1187705925.1451.123.camel@moss-spartans.epoch.ncsc.mil>
+	 <FDD03592-C4AE-4066-B866-90B830235880@nall.com>
+	 <1187795197.1451.368.camel@moss-spartans.epoch.ncsc.mil>
+Content-Type: text/plain
+Date: Wed, 22 Aug 2007 11:39:20 -0400
+Message-Id: <1187797160.1451.380.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Joshua Brindle wrote:
-> Daniel J Walsh wrote:
->> I would like to get these patches into policycoreutils.
->>
->>
->> Submitted before, but here we go.
->>
->> Change run_tty and open_init_pty to 755 instead of 555.  Some audit 
->> tools are reporting this as a problem.  And I see no real value of 
->> 555. for these to.
->>
->> Simple bugfix for chcat
->>
->> Fixes to make sure fixfiles reports errors and handles strange regexes.
->>
->> Speed enhancement for genhomedircon to only compile regex's once.
->>
-> The current plan is to change to a genhomedircon based on C in 
-> libsemanage. Have you looked at those patches to see if they suffer 
-> the same problem you are fixing here?
-No.
->
->>
->> I reverted sepolgen-ifgen from sbin to bin, but I doubt many/anyone 
->> will run it as non root, but I guess you never no.
->
->
+On Wed, 2007-08-22 at 11:06 -0400, Stephen Smalley wrote:
+> On Wed, 2007-08-22 at 08:18 -0500, Joe Nall wrote:
+> > On Aug 21, 2007, at 9:18 AM, Stephen Smalley wrote:
+> > 
+> > > On Mon, 2007-08-20 at 21:09 -0500, Joe Nall wrote:
+> > >> Any recommendations on how to start an unprivileged non SystemLow
+> > >> daemon? This seems broken.
+> > >
+> > > Maybe I don't understand the actual problem.
+> > 
+> > We couldn't make a non SystemLow, unprivileged daemon run in  
+> > enforcing mode.
+> > 
+> > > Is it reproducible with an upstream (or Fedora) kernel?
+> > 
+> > Tried to reproduce it on F7 yesterday and ran into login issues.
+> > 
+> > > What's the exact test case?  Trying to run an /etc/init.d script that
+> > > calls that mlstest program using run_init?
+> > 
+> > chcon system_u:object_r:mlstest_exec_t mlstest
+> > run_init ./mlstest
+> > 
+> > The test case was derived from a more complicated daemon and init  
+> > script.
+> 
+> Ok, so I brought up F7 with its -mls policy in permissive to workaround
+> the broken login policy, logged in, newrole'd to sysadm_r, and switched
+> to enforcing mode.  Created the mlstest policy module and inserted it,
+> created the mlstest program, labeled it, tried the above with run_init.
+> No unexpected avc messages about ld.*so, and no obvious problems (but no
+> output, of course, since it doesn't have access to the pty).
+> 
+> I'll try stracing it too, but that will require further policy rules to
+> let that happen across all the relevant domain transitions there.
+
+Ok, did that, and no errors.
+
+So...seems like something is peculiar to the RHEL5.1 kernel and/or
+policy.
+Or your test case was different from mine somehow.
+
+-- 
+Stephen Smalley
+National Security Agency
 
 
 --
