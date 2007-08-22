@@ -1,105 +1,83 @@
-Message-ID: <46CC8233.7020605@redhat.com>
-Date: Wed, 22 Aug 2007 14:36:35 -0400
-From: Daniel J Walsh <dwalsh@redhat.com>
-MIME-Version: 1.0
-To: jwcart2@tycho.nsa.gov
-CC: "Christopher J. PeBenito" <cpebenito@tresys.com>,
-        SELinux <selinux@tycho.nsa.gov>, Steve Smalley <sds@epoch.ncsc.mil>
-Subject: Re: Question concerning building policy modules
-References: <1187203804.26375.69.camel@moss-lions.epoch.ncsc.mil>	 <46CB51E8.5020603@redhat.com>	 <1187800281.20340.34.camel@moss-lions.epoch.ncsc.mil>	 <46CC68D4.3070001@redhat.com> <1187802068.20340.46.camel@moss-lions.epoch.ncsc.mil>
-In-Reply-To: <1187802068.20340.46.camel@moss-lions.epoch.ncsc.mil>
-Content-Type: text/plain; charset=ISO-8859-1
+Subject: Re: weird mprotect error
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: "Christopher J. PeBenito" <cpebenito@tresys.com>
+Cc: Joe Nall <joe@nall.com>, SE Linux <selinux@tycho.nsa.gov>,
+        Eric Paris <eparis@parisplace.org>, James Morris <jmorris@namei.org>
+In-Reply-To: <1187800948.13874.77.camel@gorn>
+References: 
+	 <6FE441CD9F0C0C479F2D88F959B0158818654C@exchange.columbia.tresys.com>
+	 <1187380020.909.358.camel@moss-spartans.epoch.ncsc.mil>
+	 <D38FAD33-E7B4-4A2A-909E-892800350EFE@nall.com>
+	 <1187705925.1451.123.camel@moss-spartans.epoch.ncsc.mil>
+	 <FDD03592-C4AE-4066-B866-90B830235880@nall.com>
+	 <1187795197.1451.368.camel@moss-spartans.epoch.ncsc.mil>
+	 <1187799306.1451.389.camel@moss-spartans.epoch.ncsc.mil>
+	 <1187800948.13874.77.camel@gorn>
+Content-Type: text/plain
+Date: Wed, 22 Aug 2007 15:00:24 -0400
+Message-Id: <1187809224.1451.451.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
-
-James Carter wrote:
-> On Wed, 2007-08-22 at 12:48 -0400, Daniel J Walsh wrote:
->> -----BEGIN PGP SIGNED MESSAGE-----
->> Hash: SHA1
->>
->> James Carter wrote:
->>> On Tue, 2007-08-21 at 16:58 -0400, Daniel J Walsh wrote:
->>>> James Carter wrote:
->>>>> Why isn't the Makefile and other information needed to build a module
->>>>> separately in the appropriate /usr/share/selinux/<policy name>
->>>>> directory?  This seems like the logical place for that information.  The
->>>>> (not very well documented) "install-headers" make target in the
->>>>> refpolicy Makefile does this.
->>>>>
->>>>> Instead, the information to build a module for Fedora is in
->>>>> the /usr/share/selinux/devel directory.  This directory would seem to be
->>>>> independent of the policy type, even though it is only for building
->>>>> Fedora policies.  This seems confusing.  The devel directory should have
->>>>> stuff that all policies need or could use.
->>>>>
->>>>> Wouldn't it make sense that if I wanted to build a module for the
->>>>> current policy, I would use the Makefile in devel which would look
->>>>> at /etc/selinux/config and include the Makefile for the current policy,
->>>>> but if I wanted to compile for a particular policy, I would just use the
->>>>> Makefile in its /usr/share directory?
->>>>>
->>>>>   
->>>> This is an old argument, between strict and targeted policy.   I did not 
->>>> like the idea of building
->>>> policy modules different for each type of policy,  Since almost everyone 
->>>> is exactly the same or would not work on different policies.  This seems 
->>>> to be proven to be correct as we move to strict/targeted policy merge. 
->>>>
->>>> So you add a level of complexity with very little value.  Just imagine a 
->>>> third party shipping multiple policies for the
->>>> same package depending on an infinite number of policy packages.
->>>>
->>>> targeted, strict, mls, olpc, CDS-ABC.
->>>>
->>>> And almost guaranteed the same policy package would work for all or the 
->>>> package will only really work on one (MLS).  So I went with the least 
->>>> common denominator and only ship one devel package.  All interfaces for 
->>>> all packages ship. 
->>> On a different note, what is the policy going to be called when the
->>> difference between strict and targeted is only whether a certain module
->>> is loaded or not?  Will there only be one policy package?  Or maybe
->>> there will be policy-mcs and policy-mls packages?
->>>
->>>
->> We will be shipping just targeted policy and allow you to define any
->> types of users you want.
->  
-> Steve tells me that the name "targeted" is not going away, since
-> libselinux uses that name as the default policy name.
+On Wed, 2007-08-22 at 16:42 +0000, Christopher J. PeBenito wrote:
+> On Wed, 2007-08-22 at 12:15 -0400, Stephen Smalley wrote:
+> > Ok, so what is happening here is fairly simple, I think:  the kernel is
+> > opening the ELF interpreter (/lib/ld-2.x.so) while we are still running
+> > in the caller's context (hence initrc_t), so the struct file is created
+> > in that context, and mappings are created from it.  Then we perform the
+> > context transition, and when the program later tries to operate on the
+> > mapping, it gets the denial.
+> > 
+> > Rather than using mls_fd_use_all_levels() on mlstest_t though, I think
+> > you want to use mls_fd_share_all_levels() on initrc_t, like we do with
+> > the login domains and newrole.  Then mlstest_t isn't generally
+> > authorized to override MLS on fd use permission, but only on the
+> > initrc_t fds.
+> > 
+> > Same issue would exist under TE if you completely disallowed fd use.
 > 
->> Removing the unconfined.pp file will remove
->> all of the unconfined domains.  As an alternative, you can change the
->> __default__ to a confined user type and then not allow users to login as
->> unconfined users.  (I find this much more interesting.)
+> What this seems to imply is that you must always be allowed to inherit
+> fds from the parent domain that exec()s you.  Interesting.  Makes the
+> fd:use check seem less useful since you can only deny inheriting fds
+> from your parent's parent.
+
+That along with denying receiving fds from an unrelated process via
+local IPC.
+
+This is another example of how the point at which we perform context
+transitions in the kernel (just hooking into compute_creds and
+paralleling the setuid/setgid transition) may not be optimal.  We've
+seen that previously as well with e.g. the mmap permission checking of
+the executable image occurring in the caller's context rather than the
+new context (e.g. for execmem).
+
+So at some point we may want to explore alternatives there.
+ 
+> So after a quick grep I see:
 > 
-> It is.  
-> Is it working now?  I was under the impression that there were still some issues to be worked out.
+> policy/modules/system/init.te:mls_fd_use_all_levels(init_t)
 > 
+> kernel_t runs at sys high, init is sys low-high, so this makes sense.
+> At the same time it may be ok for the kernel to share its fds, since it
+> can transition to more than init_t.
+> 
+> policy/modules/services/cups.te:mls_fd_use_all_levels(cupsd_t)
+> policy/modules/system/logging.te:mls_fd_use_all_levels(auditd_t)
+> policy/modules/system/setrans.te:mls_fd_use_all_levels(setrans_t)
+> 
+> initrc_t runs at sys low-high, the above run in sys high, so these will
+> be replaced by the initrc_t fd share.
+> 
+> policy/modules/services/inetd.te:mls_fd_use_all_levels(inetd_t)
+> 
+> Don't know why this needs it.  It can only transitioned to via initrc_t,
+> so I'm thinking that this probably can be dropped.
 
-I don't know what you mean by is is working now?  Rawhide-F8/Test1
-policy has my version of the strict/targeted merge.  It supports
+-- 
+Stephen Smalley
+National Security Agency
 
-login user types of unconfined_t, sysadm_t, staff_t, user_t as well as
-guest_t (terminal only, least priv user), and xguest_t (Xwindows Least
-Priv user, with Firefox transition)
-
-As well as super user types logadm_t, webadm_t, auditadm_t.
-
-I have not tried to remove the unconfined.pp to see what happens.  I
-have removed a lot of unconfined domains in this version of policy.
-(gdm, xdm, ldconfig, modutils, sshd) are all confined now.
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.7 (GNU/Linux)
-Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org
-
-iD8DBQFGzIIyrlYvE4MpobMRAoyCAJ0QNoCi/izOsnqxQ1iesJcHwZc1jACfSd6B
-EHwfeh+hdyThXIL+d1asnx8=
-=HwSZ
------END PGP SIGNATURE-----
 
 --
 This message was distributed to subscribers of the selinux mailing list.
