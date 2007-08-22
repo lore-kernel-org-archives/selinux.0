@@ -1,49 +1,83 @@
 Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l7MJu9wj019345
-	for <selinux@tycho.nsa.gov>; Wed, 22 Aug 2007 15:56:09 -0400
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l7MJtwf2019261
+	for <selinux@tycho.nsa.gov>; Wed, 22 Aug 2007 15:55:58 -0400
 Received: from exchange.columbia.tresys.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with SMTP id l7MJu8ca002253
-	for <selinux@tycho.nsa.gov>; Wed, 22 Aug 2007 19:56:08 GMT
-Subject: Re: [Fwd: [PATCH] refpolicy: system_iptables changes]
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with SMTP id l7MJtwca002237
+	for <selinux@tycho.nsa.gov>; Wed, 22 Aug 2007 19:55:58 GMT
+Subject: Re: [PATCH] refpolicy: admin_logwatch changes
 From: "Christopher J. PeBenito" <cpebenito@tresys.com>
-To: Daniel J Walsh <dwalsh@redhat.com>
-Cc: SE Linux <selinux@tycho.nsa.gov>
-In-Reply-To: <46B22279.9030909@redhat.com>
-References: <46B22279.9030909@redhat.com>
+To: dwalsh@redhat.com
+Cc: selinux@tycho.nsa.gov
+In-Reply-To: <200708021938.l72JcMZ6028891@redsox.boston.devel.redhat.com>
+References: <200708021938.l72JcMZ6028891@redsox.boston.devel.redhat.com>
 Content-Type: text/plain
-Date: Wed, 22 Aug 2007 15:55:14 -0400
-Message-Id: <1187812514.13874.104.camel@gorn>
+Date: Wed, 22 Aug 2007 15:55:03 -0400
+Message-Id: <1187812503.13874.99.camel@gorn>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2007-08-02 at 14:29 -0400, Daniel J Walsh wrote:
-> Switch iptables to use nsswitch
+On Thu, 2007-08-02 at 15:38 -0400, dwalsh@redhat.com wrote:
+> logwatch uses nsswitch
+> Needs to be able to read utmp file
+> Also watches samba files
+
+Merged, with a little reorganization.
+
+> --- nsaserefpolicy/policy/modules/admin/logwatch.te     2007-07-25 10:37:43.000000000 -0400
+> +++ serefpolicy-3.0.5/policy/modules/admin/logwatch.te  2007-08-02 11:02:02.000000000 -0400
+> @@ -29,7 +29,6 @@
+>  allow logwatch_t self:process signal;
+>  allow logwatch_t self:fifo_file rw_file_perms;
+>  allow logwatch_t self:unix_stream_socket create_stream_socket_perms;
+> -allow logwatch_t self:netlink_route_socket r_netlink_socket_perms;
 > 
-> --- nsaserefpolicy/policy/modules/system/iptables.te    2007-07-25
-> 10:37:42.000000000 -0400
-> +++ serefpolicy-3.0.4/policy/modules/system/iptables.te 2007-07-25
-> 12:27:26.000000000 -0400
-> @@ -44,6 +44,8 @@
+>  manage_dirs_pattern(logwatch_t,logwatch_cache_t,logwatch_cache_t)
+>  manage_files_pattern(logwatch_t,logwatch_cache_t,logwatch_cache_t)
+> @@ -68,6 +67,9 @@
+>  fs_getattr_all_fs(logwatch_t)
+>  fs_dontaudit_list_auto_mountpoints(logwatch_t)
 > 
->  corenet_relabelto_all_packets(iptables_t)
-> 
-> +auth_use_nsswitch(iptables_t)
+> +init_read_utmp(logwatch_t)
+> +init_dontaudit_write_utmp(logwatch_t)
 > +
-
-I applied this part a few lines down
-
->  dev_read_sysfs(iptables_t)
+>  term_dontaudit_getattr_pty_dirs(logwatch_t)
+>  term_dontaudit_list_ptys(logwatch_t)
 > 
->  fs_getattr_xattr_fs(iptables_t)
-> @@ -62,6 +64,7 @@
->  init_use_script_ptys(iptables_t)
->  # to allow rules to be saved on reboot:
->  init_rw_script_tmp_files(iptables_t)
-> +init_rw_script_stream_sockets(iptables_t)
-
-This is weird, what caused this behavior?
-
+> @@ -96,6 +98,10 @@
+>  ')
+> 
+>  optional_policy(`
+> +       auth_use_nsswitch(logwatch_t)
+> +')
+> +
+> +optional_policy(`
+>         avahi_dontaudit_search_pid(logwatch_t)
+>  ')
+> 
+> @@ -117,14 +123,6 @@
+>  ')
+> 
+>  optional_policy(`
+> -       nis_use_ypbind(logwatch_t)
+> -')
+> -
+> -optional_policy(`
+> -       nscd_socket_use(logwatch_t)
+> -')
+> -
+> -optional_policy(`
+>         ntp_domtrans(logwatch_t)
+>  ')
+> 
+> @@ -134,4 +132,5 @@
+> 
+>  optional_policy(`
+>         samba_read_log(logwatch_t)
+> +       samba_read_share_files(logwatch_t)
+>  ')
+> 
+> 
 -- 
 Chris PeBenito
 Tresys Technology, LLC
