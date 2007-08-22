@@ -1,62 +1,78 @@
-Subject: Re: Method to assign MCS Category without login.
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Josh <josh@globalherald.net>
-Cc: SELinux@tycho.nsa.gov, Daniel J Walsh <dwalsh@redhat.com>,
-        Karl MacMillan <kmacmillan@mentalrootkit.com>,
-        Joshua Brindle <method@manicmethod.com>
-In-Reply-To: <Pine.LNX.4.64.0708211009490.15934@home-av-server.home-av>
-References: <Pine.LNX.4.64.0708191603500.15934@home-av-server.home-av>
-	 <1187611079.24940.27.camel@moss-spartans.epoch.ncsc.mil>
-	 <Pine.LNX.4.64.0708201313150.21628@home-av-server.home-av>
-	 <1187698887.1451.52.camel@moss-spartans.epoch.ncsc.mil>
-	 <Pine.LNX.4.64.0708211009490.15934@home-av-server.home-av>
+Subject: Re: Question concerning building policy modules
+From: "Christopher J. PeBenito" <cpebenito@tresys.com>
+To: Stephen Smalley <sds@epoch.ncsc.mil>
+Cc: Daniel J Walsh <dwalsh@redhat.com>, jwcart2@tycho.nsa.gov,
+        SELinux <selinux@tycho.nsa.gov>
+In-Reply-To: <1187781201.1451.221.camel@moss-spartans.epoch.ncsc.mil>
+References: <1187203804.26375.69.camel@moss-lions.epoch.ncsc.mil>
+	 <46CB51E8.5020603@redhat.com>
+	 <1187781201.1451.221.camel@moss-spartans.epoch.ncsc.mil>
 Content-Type: text/plain
-Date: Wed, 22 Aug 2007 08:44:49 -0400
-Message-Id: <1187786689.1451.279.camel@moss-spartans.epoch.ncsc.mil>
+Date: Wed, 22 Aug 2007 12:57:58 +0000
+Message-Id: <1187787478.13874.57.camel@gorn>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2007-08-21 at 10:33 -0400, Josh wrote:
-> > I'd guess that you would want the root httpd process to perform the set
-> > up of the child's context, including switching it into the desired
-> > category set and into a different domain than the root httpd process.
+On Wed, 2007-08-22 at 07:13 -0400, Stephen Smalley wrote:
+> On Tue, 2007-08-21 at 16:58 -0400, Daniel J Walsh wrote:
+> > James Carter wrote:
+> > > Why isn't the Makefile and other information needed to build a module
+> > > separately in the appropriate /usr/share/selinux/<policy name>
+> > > directory?  This seems like the logical place for that information.  The
+> > > (not very well documented) "install-headers" make target in the
+> > > refpolicy Makefile does this.
+
+Sorry, I was out of the office last week.  I'll add some docs about
+setting up a policy module build via headers.
+
+> > > Instead, the information to build a module for Fedora is in
+> > > the /usr/share/selinux/devel directory.  This directory would seem to be
+> > > independent of the policy type, even though it is only for building
+> > > Fedora policies.  This seems confusing.  The devel directory should have
+> > > stuff that all policies need or could use.
+> > >
+> > > Wouldn't it make sense that if I wanted to build a module for the
+> > > current policy, I would use the Makefile in devel which would look
+> > > at /etc/selinux/config and include the Makefile for the current policy,
+> > > but if I wanted to compile for a particular policy, I would just use the
+> > > Makefile in its /usr/share directory?
+> > >
+> > >   
+> > This is an old argument, between strict and targeted policy.   I did not 
+> > like the idea of building
+> > policy modules different for each type of policy,  Since almost everyone 
+> > is exactly the same or would not work on different policies.  This seems 
+> > to be proven to be correct as we move to strict/targeted policy merge. 
+> > 
+> > So you add a level of complexity with very little value.  Just imagine a 
+> > third party shipping multiple policies for the
+> > same package depending on an infinite number of policy packages.
+> > 
+> > targeted, strict, mls, olpc, CDS-ABC.
+> > 
+> > And almost guaranteed the same policy package would work for all or the 
+> > package will only really work on one (MLS).  So I went with the least 
+> > common denominator and only ship one devel package.  All interfaces for 
+> > all packages ship. 
 > 
-> So the question then becomes, does the root httpd process then need to be 
-> trusted, and does this trust break the domain/type enforcement that is 
-> applied to the httpd domain?  (For example: when I first set up a 
-> Python-based website, my connection to Postgres was denied because I 
-> hadn't yet defined a rule to allow it.  If I alow the root httpd instance 
-> to be trusted - in order to set the context - will that weaken the domain 
-> and type enforcement for httpd?
+> But does this allow people using a policy other than targeted to build
+> loadable modules using the /usr/share/selinux/devel/Makefile?  Or do
+> they have to separately install refpolicy to do that?  That's the
+> problem, IIUC.
 
-No, you'd allow it to set MCS categories and to transition to a domain
-for the child processes, but it wouldn't be able to transition to any
-arbitrary domain.  TE is a pairwise access matrix.  You'd need a
-distinct domain for the root httpd process from the one you use for the
-children, so that might require refactoring httpd_t into two domains, a
-httpd_master_t and a httpd_child_t or likewise.
-
-> Being a newbie I am most likely missing something here.
-> 
-> > What is your real goal?
-> 
-> My goal is to protect Python-based sites from each other.  The OS is 
-> protected against rogue scripts by the domain and type enforcement of 
-> HTTPD; but I would like to use Category Access to protect the scripts 
-> against other rogue scripts.
-
-Well, you should be able to run different scripts in different domains
-to achieve the same end.
-
-The tricky part is getting them into the right domain; normally that
-happens via an exec, but here you are just doing a fork and running an
-interpreter in-process.  You could have it do a setcon(3), but you'll
-get stronger protection if you have the child exec it instead.
+It works because the headers are currently the same between the policy
+types.  The only thing needed to change the behavior are the usual
+build.conf settings.  Refpolicy upstream has the separate dirs
+in /usr/share/selinux in case that changes, or 3rd parties want
+different implementations per type.  Also it has a copy of the
+build.conf so the infrastructure doesn't have to try to determine the
+right settings.
 
 -- 
-Stephen Smalley
-National Security Agency
+Chris PeBenito
+Tresys Technology, LLC
+(410) 290-1411 x150
 
 
 --
