@@ -1,67 +1,75 @@
-Subject: Re: Question concerning building policy modules
-From: James Carter <jwcart2@tycho.nsa.gov>
-Reply-To: jwcart2@tycho.nsa.gov
-To: Daniel J Walsh <dwalsh@redhat.com>
-Cc: "Christopher J. PeBenito" <cpebenito@tresys.com>,
-        SELinux <selinux@tycho.nsa.gov>, Steve Smalley <sds@epoch.ncsc.mil>
-In-Reply-To: <46CB51E8.5020603@redhat.com>
-References: <1187203804.26375.69.camel@moss-lions.epoch.ncsc.mil>
-	 <46CB51E8.5020603@redhat.com>
-Content-Type: text/plain
-Date: Wed, 22 Aug 2007 12:31:21 -0400
-Message-Id: <1187800281.20340.34.camel@moss-lions.epoch.ncsc.mil>
-Mime-Version: 1.0
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l7MGhueX002374
+	for <selinux@tycho.nsa.gov>; Wed, 22 Aug 2007 12:43:56 -0400
+Received: from moutng.kundenserver.de (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l7MGhtca027098
+	for <selinux@tycho.nsa.gov>; Wed, 22 Aug 2007 16:43:55 GMT
+In-Reply-To: <1187721931.13874.37.camel@gorn>
+References: <477DC293-F96F-4AFB-AD19-E66C80CC3AB4@sf-net.com> <1187721931.13874.37.camel@gorn>
+Mime-Version: 1.0 (Apple Message framework v752.2)
+Content-Type: multipart/mixed; boundary=Apple-Mail-2--959567823
+Message-Id: <D041BDDB-B989-4DA5-B312-5D9387DE8A9A@sf-net.com>
+Cc: SELinux List <selinux@tycho.nsa.gov>
+From: Stefan Schulze Frielinghaus <stefan@sf-net.com>
+Subject: Re: [refpolicy] selinuxutils (semodule)
+Date: Wed, 22 Aug 2007 18:43:49 +0200
+To: "Christopher J. PeBenito" <cpebenito@tresys.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2007-08-21 at 16:58 -0400, Daniel J Walsh wrote:
-> James Carter wrote:
-> > Why isn't the Makefile and other information needed to build a module
-> > separately in the appropriate /usr/share/selinux/<policy name>
-> > directory?  This seems like the logical place for that information.  The
-> > (not very well documented) "install-headers" make target in the
-> > refpolicy Makefile does this.
-> >
-> > Instead, the information to build a module for Fedora is in
-> > the /usr/share/selinux/devel directory.  This directory would seem to be
-> > independent of the policy type, even though it is only for building
-> > Fedora policies.  This seems confusing.  The devel directory should have
-> > stuff that all policies need or could use.
-> >
-> > Wouldn't it make sense that if I wanted to build a module for the
-> > current policy, I would use the Makefile in devel which would look
-> > at /etc/selinux/config and include the Makefile for the current policy,
-> > but if I wanted to compile for a particular policy, I would just use the
-> > Makefile in its /usr/share directory?
-> >
-> >   
-> This is an old argument, between strict and targeted policy.   I did not 
-> like the idea of building
-> policy modules different for each type of policy,  Since almost everyone 
-> is exactly the same or would not work on different policies.  This seems 
-> to be proven to be correct as we move to strict/targeted policy merge. 
-> 
-> So you add a level of complexity with very little value.  Just imagine a 
-> third party shipping multiple policies for the
-> same package depending on an infinite number of policy packages.
-> 
-> targeted, strict, mls, olpc, CDS-ABC.
-> 
-> And almost guaranteed the same policy package would work for all or the 
-> package will only really work on one (MLS).  So I went with the least 
-> common denominator and only ship one devel package.  All interfaces for 
-> all packages ship. 
 
-On a different note, what is the policy going to be called when the
-difference between strict and targeted is only whether a certain module
-is loaded or not?  Will there only be one policy package?  Or maybe
-there will be policy-mcs and policy-mls packages?
+--Apple-Mail-2--959567823
+Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;
+	charset=US-ASCII;
+	format=flowed
 
 
--- 
-James Carter <jwcart2@tycho.nsa.gov>
-National Security Agency
+On 21.08.2007, at 20:45, Christopher J. PeBenito wrote:
+>
+>> Attached is a patch which solves this. I added the allow rules
+>> without a debian distribution check. Maybe we should allow it only to
+>> debian?
+>
+> Yes, it should be in a distro_debian, since this is definitely a
+> debian-specific access, since the .py is in a different location.
 
+OK, attached is the right patch with a distro_debian check.
+
+
+--Apple-Mail-2--959567823
+Content-Transfer-Encoding: 7bit
+Content-Type: application/octet-stream;
+	x-unix-mode=0644;
+	name=selinuxutil.te.patch
+Content-Disposition: attachment;
+	filename=selinuxutil.te.patch
+
+--- /usr/src/refpolicy-20070629/policy/modules/system/selinuxutil.te	2007-06-29 16:48:13.000000000 +0200
++++ policy/modules/system/selinuxutil.te	2007-08-22 18:37:38.000000000 +0200
+@@ -479,6 +479,11 @@
+ files_read_usr_files(semanage_t)
+ files_list_pids(semanage_t)
+ 
++ifdef(`distro_debian',`
++	files_read_var_lib_files(semanage_t)
++	files_read_var_lib_symlinks(semanage_t)
++')
++
+ mls_file_write_down(semanage_t)
+ mls_rangetrans_target(semanage_t)
+ mls_file_read_up(semanage_t)
+@@ -518,6 +523,8 @@
+ 
+ userdom_search_sysadm_home_dirs(semanage_t)
+ 
++selinux_dontaudit_getattr_fs(semanage_t)
++
+ # cjp: need a more general way to handle this:
+ ifdef(`enable_mls',`
+ 	# read secadm tmp files
+
+--Apple-Mail-2--959567823--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
