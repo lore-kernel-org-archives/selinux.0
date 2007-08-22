@@ -1,84 +1,35 @@
-Subject: Re: Question concerning building policy modules
-From: James Carter <jwcart2@tycho.nsa.gov>
-Reply-To: jwcart2@tycho.nsa.gov
-To: "Christopher J. PeBenito" <cpebenito@tresys.com>
-Cc: Stephen Smalley <sds@epoch.ncsc.mil>, Daniel J Walsh <dwalsh@redhat.com>,
-        SELinux <selinux@tycho.nsa.gov>
-In-Reply-To: <1187787478.13874.57.camel@gorn>
-References: <1187203804.26375.69.camel@moss-lions.epoch.ncsc.mil>
-	 <46CB51E8.5020603@redhat.com>
-	 <1187781201.1451.221.camel@moss-spartans.epoch.ncsc.mil>
-	 <1187787478.13874.57.camel@gorn>
-Content-Type: text/plain
-Date: Wed, 22 Aug 2007 11:57:03 -0400
-Message-Id: <1187798223.20340.10.camel@moss-lions.epoch.ncsc.mil>
-Mime-Version: 1.0
+Date: Wed, 22 Aug 2007 09:05:38 -0700 (PDT)
+From: James Morris <jmorris@namei.org>
+To: Yuichi Nakamura <ynakam@hitachisoft.jp>
+cc: selinux@tycho.nsa.gov, Stephen Smalley <sds@tycho.nsa.gov>,
+        busybox@kaigai.gr.jp, Eric Paris <eparis@parisplace.org>,
+        kaigai@ak.jp.nec.com
+Subject: Re: [patch] Tuning avtab to reduce memory usage
+In-Reply-To: <20070822115145.E7D3.YNAKAM@hitachisoft.jp>
+Message-ID: <Xine.LNX.4.64.0708220904060.18309@us.intercode.com.au>
+References: <20070821130540.7AD3.YNAKAM@hitachisoft.jp>
+ <Xine.LNX.4.64.0708210645130.16813@us.intercode.com.au>
+ <20070822115145.E7D3.YNAKAM@hitachisoft.jp>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2007-08-22 at 12:57 +0000, Christopher J. PeBenito wrote:
-> On Wed, 2007-08-22 at 07:13 -0400, Stephen Smalley wrote:
-> > On Tue, 2007-08-21 at 16:58 -0400, Daniel J Walsh wrote:
-> > > James Carter wrote:
-> > > > Why isn't the Makefile and other information needed to build a module
-> > > > separately in the appropriate /usr/share/selinux/<policy name>
-> > > > directory?  This seems like the logical place for that information.  The
-> > > > (not very well documented) "install-headers" make target in the
-> > > > refpolicy Makefile does this.
-> 
-> Sorry, I was out of the office last week.  I'll add some docs about
-> setting up a policy module build via headers.
-> 
-> > > > Instead, the information to build a module for Fedora is in
-> > > > the /usr/share/selinux/devel directory.  This directory would seem to be
-> > > > independent of the policy type, even though it is only for building
-> > > > Fedora policies.  This seems confusing.  The devel directory should have
-> > > > stuff that all policies need or could use.
-> > > >
-> > > > Wouldn't it make sense that if I wanted to build a module for the
-> > > > current policy, I would use the Makefile in devel which would look
-> > > > at /etc/selinux/config and include the Makefile for the current policy,
-> > > > but if I wanted to compile for a particular policy, I would just use the
-> > > > Makefile in its /usr/share directory?
-> > > >
-> > > >   
-> > > This is an old argument, between strict and targeted policy.   I did not 
-> > > like the idea of building
-> > > policy modules different for each type of policy,  Since almost everyone 
-> > > is exactly the same or would not work on different policies.  This seems 
-> > > to be proven to be correct as we move to strict/targeted policy merge. 
-> > > 
-> > > So you add a level of complexity with very little value.  Just imagine a 
-> > > third party shipping multiple policies for the
-> > > same package depending on an infinite number of policy packages.
-> > > 
-> > > targeted, strict, mls, olpc, CDS-ABC.
-> > > 
-> > > And almost guaranteed the same policy package would work for all or the 
-> > > package will only really work on one (MLS).  So I went with the least 
-> > > common denominator and only ship one devel package.  All interfaces for 
-> > > all packages ship. 
-> > 
-> > But does this allow people using a policy other than targeted to build
-> > loadable modules using the /usr/share/selinux/devel/Makefile?  Or do
-> > they have to separately install refpolicy to do that?  That's the
-> > problem, IIUC.
-> 
-> It works because the headers are currently the same between the policy
-> types.  
-Which is not always the case.
+On Wed, 22 Aug 2007, Yuichi Nakamura wrote:
 
-> The only thing needed to change the behavior are the usual
-> build.conf settings.  Refpolicy upstream has the separate dirs
-> in /usr/share/selinux in case that changes, or 3rd parties want
-> different implementations per type.  Also it has a copy of the
-> build.conf so the infrastructure doesn't have to try to determine the
-> right settings.
-> 
+> +	rc = avtab_alloc(a, nel);
+> +	if (rc) {
+> +		rc = -ENOMEM;
+> +		goto bad;
+> +	}
+
+Please also just use the return code here.
+
+
+- James
 -- 
-James Carter <jwcart2@tycho.nsa.gov>
-National Security Agency
-
+James Morris
+<jmorris@namei.org>
 
 --
 This message was distributed to subscribers of the selinux mailing list.
