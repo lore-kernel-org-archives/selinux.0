@@ -1,75 +1,104 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l7MGhueX002374
-	for <selinux@tycho.nsa.gov>; Wed, 22 Aug 2007 12:43:56 -0400
-Received: from moutng.kundenserver.de (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l7MGhtca027098
-	for <selinux@tycho.nsa.gov>; Wed, 22 Aug 2007 16:43:55 GMT
-In-Reply-To: <1187721931.13874.37.camel@gorn>
-References: <477DC293-F96F-4AFB-AD19-E66C80CC3AB4@sf-net.com> <1187721931.13874.37.camel@gorn>
-Mime-Version: 1.0 (Apple Message framework v752.2)
-Content-Type: multipart/mixed; boundary=Apple-Mail-2--959567823
-Message-Id: <D041BDDB-B989-4DA5-B312-5D9387DE8A9A@sf-net.com>
-Cc: SELinux List <selinux@tycho.nsa.gov>
-From: Stefan Schulze Frielinghaus <stefan@sf-net.com>
-Subject: Re: [refpolicy] selinuxutils (semodule)
-Date: Wed, 22 Aug 2007 18:43:49 +0200
-To: "Christopher J. PeBenito" <cpebenito@tresys.com>
+Subject: Re: weird mprotect error
+From: "Christopher J. PeBenito" <cpebenito@tresys.com>
+To: Stephen Smalley <sds@tycho.nsa.gov>
+Cc: Joe Nall <joe@nall.com>, SE Linux <selinux@tycho.nsa.gov>
+In-Reply-To: <1187799306.1451.389.camel@moss-spartans.epoch.ncsc.mil>
+References: 
+	 <6FE441CD9F0C0C479F2D88F959B0158818654C@exchange.columbia.tresys.com>
+	 <1187380020.909.358.camel@moss-spartans.epoch.ncsc.mil>
+	 <D38FAD33-E7B4-4A2A-909E-892800350EFE@nall.com>
+	 <1187705925.1451.123.camel@moss-spartans.epoch.ncsc.mil>
+	 <FDD03592-C4AE-4066-B866-90B830235880@nall.com>
+	 <1187795197.1451.368.camel@moss-spartans.epoch.ncsc.mil>
+	 <1187799306.1451.389.camel@moss-spartans.epoch.ncsc.mil>
+Content-Type: text/plain
+Date: Wed, 22 Aug 2007 16:42:28 +0000
+Message-Id: <1187800948.13874.77.camel@gorn>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+On Wed, 2007-08-22 at 12:15 -0400, Stephen Smalley wrote:
+> On Wed, 2007-08-22 at 11:06 -0400, Stephen Smalley wrote:
+> > On Wed, 2007-08-22 at 08:18 -0500, Joe Nall wrote:
+> > > On Aug 21, 2007, at 9:18 AM, Stephen Smalley wrote:
+> > > 
+> > > > On Mon, 2007-08-20 at 21:09 -0500, Joe Nall wrote:
+> > > >> Any recommendations on how to start an unprivileged non SystemLow
+> > > >> daemon? This seems broken.
+> > > >
+> > > > Maybe I don't understand the actual problem.
+> > > 
+> > > We couldn't make a non SystemLow, unprivileged daemon run in  
+> > > enforcing mode.
+> > > 
+> > > > Is it reproducible with an upstream (or Fedora) kernel?
+> > > 
+> > > Tried to reproduce it on F7 yesterday and ran into login issues.
+> > > 
+> > > > What's the exact test case?  Trying to run an /etc/init.d script that
+> > > > calls that mlstest program using run_init?
+> > > 
+> > > chcon system_u:object_r:mlstest_exec_t mlstest
+> > > run_init ./mlstest
+> > > 
+> > > The test case was derived from a more complicated daemon and init  
+> > > script.
+> > 
+> > Ok, so I brought up F7 with its -mls policy in permissive to workaround
+> > the broken login policy, logged in, newrole'd to sysadm_r, and switched
+> > to enforcing mode.  Created the mlstest policy module and inserted it,
+> > created the mlstest program, labeled it, tried the above with run_init.
+> > No unexpected avc messages about ld.*so, and no obvious problems (but no
+> > output, of course, since it doesn't have access to the pty).
+> 
+> Oops, never mind - I reproduced it.
+> 
+> Ok, so what is happening here is fairly simple, I think:  the kernel is
+> opening the ELF interpreter (/lib/ld-2.x.so) while we are still running
+> in the caller's context (hence initrc_t), so the struct file is created
+> in that context, and mappings are created from it.  Then we perform the
+> context transition, and when the program later tries to operate on the
+> mapping, it gets the denial.
+> 
+> Rather than using mls_fd_use_all_levels() on mlstest_t though, I think
+> you want to use mls_fd_share_all_levels() on initrc_t, like we do with
+> the login domains and newrole.  Then mlstest_t isn't generally
+> authorized to override MLS on fd use permission, but only on the
+> initrc_t fds.
+> 
+> Same issue would exist under TE if you completely disallowed fd use.
 
---Apple-Mail-2--959567823
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain;
-	charset=US-ASCII;
-	format=flowed
+What this seems to imply is that you must always be allowed to inherit
+fds from the parent domain that exec()s you.  Interesting.  Makes the
+fd:use check seem less useful since you can only deny inheriting fds
+from your parent's parent.
 
+So after a quick grep I see:
 
-On 21.08.2007, at 20:45, Christopher J. PeBenito wrote:
->
->> Attached is a patch which solves this. I added the allow rules
->> without a debian distribution check. Maybe we should allow it only to
->> debian?
->
-> Yes, it should be in a distro_debian, since this is definitely a
-> debian-specific access, since the .py is in a different location.
+policy/modules/system/init.te:mls_fd_use_all_levels(init_t)
 
-OK, attached is the right patch with a distro_debian check.
+kernel_t runs at sys high, init is sys low-high, so this makes sense.
+At the same time it may be ok for the kernel to share its fds, since it
+can transition to more than init_t.
 
+policy/modules/services/cups.te:mls_fd_use_all_levels(cupsd_t)
+policy/modules/system/logging.te:mls_fd_use_all_levels(auditd_t)
+policy/modules/system/setrans.te:mls_fd_use_all_levels(setrans_t)
 
---Apple-Mail-2--959567823
-Content-Transfer-Encoding: 7bit
-Content-Type: application/octet-stream;
-	x-unix-mode=0644;
-	name=selinuxutil.te.patch
-Content-Disposition: attachment;
-	filename=selinuxutil.te.patch
+initrc_t runs at sys low-high, the above run in sys high, so these will
+be replaced by the initrc_t fd share.
 
---- /usr/src/refpolicy-20070629/policy/modules/system/selinuxutil.te	2007-06-29 16:48:13.000000000 +0200
-+++ policy/modules/system/selinuxutil.te	2007-08-22 18:37:38.000000000 +0200
-@@ -479,6 +479,11 @@
- files_read_usr_files(semanage_t)
- files_list_pids(semanage_t)
- 
-+ifdef(`distro_debian',`
-+	files_read_var_lib_files(semanage_t)
-+	files_read_var_lib_symlinks(semanage_t)
-+')
-+
- mls_file_write_down(semanage_t)
- mls_rangetrans_target(semanage_t)
- mls_file_read_up(semanage_t)
-@@ -518,6 +523,8 @@
- 
- userdom_search_sysadm_home_dirs(semanage_t)
- 
-+selinux_dontaudit_getattr_fs(semanage_t)
-+
- # cjp: need a more general way to handle this:
- ifdef(`enable_mls',`
- 	# read secadm tmp files
+policy/modules/services/inetd.te:mls_fd_use_all_levels(inetd_t)
 
---Apple-Mail-2--959567823--
+Don't know why this needs it.  It can only transitioned to via initrc_t,
+so I'm thinking that this probably can be dropped.
+
+-- 
+Chris PeBenito
+Tresys Technology, LLC
+(410) 290-1411 x150
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
