@@ -1,45 +1,57 @@
-Date: Wed, 22 Aug 2007 06:44:34 -0700 (PDT)
-From: James Morris <jmorris@namei.org>
-To: Yuichi Nakamura <ynakam@hitachisoft.jp>
-cc: selinux@tycho.nsa.gov, Stephen Smalley <sds@tycho.nsa.gov>,
-        busybox@kaigai.gr.jp, Eric Paris <eparis@parisplace.org>,
-        kaigai@ak.jp.nec.com
-Subject: Re: [patch] Tuning avtab to reduce memory usage
-In-Reply-To: <20070822115145.E7D3.YNAKAM@hitachisoft.jp>
-Message-ID: <Xine.LNX.4.64.0708220642110.21844@us.intercode.com.au>
-References: <20070821130540.7AD3.YNAKAM@hitachisoft.jp>
- <Xine.LNX.4.64.0708210645130.16813@us.intercode.com.au>
- <20070822115145.E7D3.YNAKAM@hitachisoft.jp>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Subject: Re: weird mprotect error
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Joe Nall <joe@nall.com>
+Cc: "Christopher J. PeBenito" <cpebenito@tresys.com>,
+        SE Linux <selinux@tycho.nsa.gov>
+In-Reply-To: <FDD03592-C4AE-4066-B866-90B830235880@nall.com>
+References: 
+	 <6FE441CD9F0C0C479F2D88F959B0158818654C@exchange.columbia.tresys.com>
+	 <1187380020.909.358.camel@moss-spartans.epoch.ncsc.mil>
+	 <D38FAD33-E7B4-4A2A-909E-892800350EFE@nall.com>
+	 <1187705925.1451.123.camel@moss-spartans.epoch.ncsc.mil>
+	 <FDD03592-C4AE-4066-B866-90B830235880@nall.com>
+Content-Type: text/plain
+Date: Wed, 22 Aug 2007 10:10:34 -0400
+Message-Id: <1187791834.1451.343.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 22 Aug 2007, Yuichi Nakamura wrote:
+On Wed, 2007-08-22 at 08:18 -0500, Joe Nall wrote:
+> On Aug 21, 2007, at 9:18 AM, Stephen Smalley wrote:
+> 
+> > On Mon, 2007-08-20 at 21:09 -0500, Joe Nall wrote:
+> >> Any recommendations on how to start an unprivileged non SystemLow
+> >> daemon? This seems broken.
+> >
+> > Maybe I don't understand the actual problem.
+> 
+> We couldn't make a non SystemLow, unprivileged daemon run in  
+> enforcing mode.
+> 
+> > Is it reproducible with an upstream (or Fedora) kernel?
+> 
+> Tried to reproduce it on F7 yesterday and ran into login issues.
+> 
+> > What's the exact test case?  Trying to run an /etc/init.d script that
+> > calls that mlstest program using run_init?
+> 
+> chcon system_u:object_r:mlstest_exec_t mlstest
+> run_init ./mlstest
+> 
+> The test case was derived from a more complicated daemon and init  
+> script.
 
+So the question is what is really specific to MLS about this issue?
 
-Just a couple more nits...
+For example, if you simply did the domain transition here and didn't
+allow fd use permission between those types, does the problem still
+manifest?
 
-> +#define AVTAB_HASH(keyp, mask) \
->  ((keyp->target_class + \
->   (keyp->target_type << 2) + \
->   (keyp->source_type << 9)) & \
-> - AVTAB_HASH_MASK)
-> + mask)
-
-Can you make this a static inline ?
-
-> +	if (rc) {
-> +		goto err;
-> +	}
-
-Don't need these braces.
-
-
-- James
 -- 
-James Morris
-<jmorris@namei.org>
+Stephen Smalley
+National Security Agency
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
