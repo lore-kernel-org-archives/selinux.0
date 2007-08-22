@@ -1,67 +1,82 @@
-Subject: Re: weird mprotect error
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Joe Nall <joe@nall.com>
-Cc: "Christopher J. PeBenito" <cpebenito@tresys.com>,
-        SE Linux <selinux@tycho.nsa.gov>, Eric Paris <eparis@parisplace.org>
-In-Reply-To: <1187795197.1451.368.camel@moss-spartans.epoch.ncsc.mil>
-References: 
-	 <6FE441CD9F0C0C479F2D88F959B0158818654C@exchange.columbia.tresys.com>
-	 <1187380020.909.358.camel@moss-spartans.epoch.ncsc.mil>
-	 <D38FAD33-E7B4-4A2A-909E-892800350EFE@nall.com>
-	 <1187705925.1451.123.camel@moss-spartans.epoch.ncsc.mil>
-	 <FDD03592-C4AE-4066-B866-90B830235880@nall.com>
-	 <1187795197.1451.368.camel@moss-spartans.epoch.ncsc.mil>
+Subject: Re: Question concerning building policy modules
+From: James Carter <jwcart2@tycho.nsa.gov>
+Reply-To: jwcart2@tycho.nsa.gov
+To: "Christopher J. PeBenito" <cpebenito@tresys.com>
+Cc: Stephen Smalley <sds@epoch.ncsc.mil>, Daniel J Walsh <dwalsh@redhat.com>,
+        SELinux <selinux@tycho.nsa.gov>
+In-Reply-To: <1187787478.13874.57.camel@gorn>
+References: <1187203804.26375.69.camel@moss-lions.epoch.ncsc.mil>
+	 <46CB51E8.5020603@redhat.com>
+	 <1187781201.1451.221.camel@moss-spartans.epoch.ncsc.mil>
+	 <1187787478.13874.57.camel@gorn>
 Content-Type: text/plain
-Date: Wed, 22 Aug 2007 11:39:20 -0400
-Message-Id: <1187797160.1451.380.camel@moss-spartans.epoch.ncsc.mil>
+Date: Wed, 22 Aug 2007 11:57:03 -0400
+Message-Id: <1187798223.20340.10.camel@moss-lions.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2007-08-22 at 11:06 -0400, Stephen Smalley wrote:
-> On Wed, 2007-08-22 at 08:18 -0500, Joe Nall wrote:
-> > On Aug 21, 2007, at 9:18 AM, Stephen Smalley wrote:
-> > 
-> > > On Mon, 2007-08-20 at 21:09 -0500, Joe Nall wrote:
-> > >> Any recommendations on how to start an unprivileged non SystemLow
-> > >> daemon? This seems broken.
-> > >
-> > > Maybe I don't understand the actual problem.
-> > 
-> > We couldn't make a non SystemLow, unprivileged daemon run in  
-> > enforcing mode.
-> > 
-> > > Is it reproducible with an upstream (or Fedora) kernel?
-> > 
-> > Tried to reproduce it on F7 yesterday and ran into login issues.
-> > 
-> > > What's the exact test case?  Trying to run an /etc/init.d script that
-> > > calls that mlstest program using run_init?
-> > 
-> > chcon system_u:object_r:mlstest_exec_t mlstest
-> > run_init ./mlstest
-> > 
-> > The test case was derived from a more complicated daemon and init  
-> > script.
+On Wed, 2007-08-22 at 12:57 +0000, Christopher J. PeBenito wrote:
+> On Wed, 2007-08-22 at 07:13 -0400, Stephen Smalley wrote:
+> > On Tue, 2007-08-21 at 16:58 -0400, Daniel J Walsh wrote:
+> > > James Carter wrote:
+> > > > Why isn't the Makefile and other information needed to build a module
+> > > > separately in the appropriate /usr/share/selinux/<policy name>
+> > > > directory?  This seems like the logical place for that information.  The
+> > > > (not very well documented) "install-headers" make target in the
+> > > > refpolicy Makefile does this.
 > 
-> Ok, so I brought up F7 with its -mls policy in permissive to workaround
-> the broken login policy, logged in, newrole'd to sysadm_r, and switched
-> to enforcing mode.  Created the mlstest policy module and inserted it,
-> created the mlstest program, labeled it, tried the above with run_init.
-> No unexpected avc messages about ld.*so, and no obvious problems (but no
-> output, of course, since it doesn't have access to the pty).
+> Sorry, I was out of the office last week.  I'll add some docs about
+> setting up a policy module build via headers.
 > 
-> I'll try stracing it too, but that will require further policy rules to
-> let that happen across all the relevant domain transitions there.
+> > > > Instead, the information to build a module for Fedora is in
+> > > > the /usr/share/selinux/devel directory.  This directory would seem to be
+> > > > independent of the policy type, even though it is only for building
+> > > > Fedora policies.  This seems confusing.  The devel directory should have
+> > > > stuff that all policies need or could use.
+> > > >
+> > > > Wouldn't it make sense that if I wanted to build a module for the
+> > > > current policy, I would use the Makefile in devel which would look
+> > > > at /etc/selinux/config and include the Makefile for the current policy,
+> > > > but if I wanted to compile for a particular policy, I would just use the
+> > > > Makefile in its /usr/share directory?
+> > > >
+> > > >   
+> > > This is an old argument, between strict and targeted policy.   I did not 
+> > > like the idea of building
+> > > policy modules different for each type of policy,  Since almost everyone 
+> > > is exactly the same or would not work on different policies.  This seems 
+> > > to be proven to be correct as we move to strict/targeted policy merge. 
+> > > 
+> > > So you add a level of complexity with very little value.  Just imagine a 
+> > > third party shipping multiple policies for the
+> > > same package depending on an infinite number of policy packages.
+> > > 
+> > > targeted, strict, mls, olpc, CDS-ABC.
+> > > 
+> > > And almost guaranteed the same policy package would work for all or the 
+> > > package will only really work on one (MLS).  So I went with the least 
+> > > common denominator and only ship one devel package.  All interfaces for 
+> > > all packages ship. 
+> > 
+> > But does this allow people using a policy other than targeted to build
+> > loadable modules using the /usr/share/selinux/devel/Makefile?  Or do
+> > they have to separately install refpolicy to do that?  That's the
+> > problem, IIUC.
+> 
+> It works because the headers are currently the same between the policy
+> types.  
+Which is not always the case.
 
-Ok, did that, and no errors.
-
-So...seems like something is peculiar to the RHEL5.1 kernel and/or
-policy.
-Or your test case was different from mine somehow.
-
+> The only thing needed to change the behavior are the usual
+> build.conf settings.  Refpolicy upstream has the separate dirs
+> in /usr/share/selinux in case that changes, or 3rd parties want
+> different implementations per type.  Also it has a copy of the
+> build.conf so the infrastructure doesn't have to try to determine the
+> right settings.
+> 
 -- 
-Stephen Smalley
+James Carter <jwcart2@tycho.nsa.gov>
 National Security Agency
 
 
