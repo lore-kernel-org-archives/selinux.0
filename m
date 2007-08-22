@@ -1,33 +1,41 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l7MJu3WL019292
-	for <selinux@tycho.nsa.gov>; Wed, 22 Aug 2007 15:56:03 -0400
-Received: from exchange.columbia.tresys.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with SMTP id l7MJu2H3002113
-	for <selinux@tycho.nsa.gov>; Wed, 22 Aug 2007 19:56:03 GMT
-Subject: Re: [PATCH] refpolicy: services_avahi changes
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l7MJtu70019228
+	for <selinux@tycho.nsa.gov>; Wed, 22 Aug 2007 15:55:56 -0400
+Received: from exchange.columbia.tresys.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with SMTP id l7MJttca002232
+	for <selinux@tycho.nsa.gov>; Wed, 22 Aug 2007 19:55:55 GMT
+Subject: Re: [PATCH] refpolicy: apps_usernetctl changes
 From: "Christopher J. PeBenito" <cpebenito@tresys.com>
 To: dwalsh@redhat.com
 Cc: selinux@tycho.nsa.gov
-In-Reply-To: <200708021925.l72JPEeJ025012@redsox.boston.devel.redhat.com>
-References: <200708021925.l72JPEeJ025012@redsox.boston.devel.redhat.com>
+In-Reply-To: <200708021956.l72JuSF2029434@redsox.boston.devel.redhat.com>
+References: <200708021956.l72JuSF2029434@redsox.boston.devel.redhat.com>
 Content-Type: text/plain
-Date: Wed, 22 Aug 2007 15:55:08 -0400
-Message-Id: <1187812508.13874.101.camel@gorn>
+Date: Wed, 22 Aug 2007 15:55:01 -0400
+Message-Id: <1187812501.13874.97.camel@gorn>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2007-08-02 at 15:25 -0400, dwalsh@redhat.com wrote:
-> --- nsaserefpolicy/policy/modules/services/avahi.te     2007-07-25 10:37:42.000000000 -0400
-> +++ serefpolicy-3.0.5/policy/modules/services/avahi.te  2007-08-02 11:02:02.000000000 -0400
-> @@ -57,6 +57,7 @@
+On Thu, 2007-08-02 at 15:56 -0400, dwalsh@redhat.com wrote:
+> No one uses this boolean
+> --- nsaserefpolicy/policy/modules/apps/usernetctl.te    2007-07-25 10:37:37.000000000 -0400
+> +++ serefpolicy-3.0.5/policy/modules/apps/usernetctl.te 2007-08-02 11:02:02.000000000 -0400
+> @@ -6,14 +6,6 @@
+>  # Declarations
+>  #
 > 
->  fs_getattr_all_fs(avahi_t)
->  fs_search_auto_mountpoints(avahi_t)
-> +fs_list_inotifyfs(avahi_t)
-> 
->  domain_use_interactive_fds(avahi_t)
-> 
+> -## <desc>
+> -## <p>
+> -## Allow users to control network interfaces
+> -## (also needs USERCTL=true)
+> -## </p>
+> -## </desc>
+> -gen_tunable(user_net_control,false)
+> -
+>  type usernetctl_t;
+>  type usernetctl_exec_t;
+>  application_domain(usernetctl_t,usernetctl_exec_t)
 
 Merged.
 
