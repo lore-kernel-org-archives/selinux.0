@@ -1,57 +1,51 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l7NHgltd011419
-	for <selinux@tycho.nsa.gov>; Thu, 23 Aug 2007 13:42:47 -0400
-Received: from exchange.columbia.tresys.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with SMTP id l7NHgknv000535
-	for <selinux@tycho.nsa.gov>; Thu, 23 Aug 2007 17:42:47 GMT
-Subject: Re: [PATCH] refpolicy: apps_vmware changes
-From: "Christopher J. PeBenito" <cpebenito@tresys.com>
-To: Tom London <selinux@gmail.com>
-Cc: Daniel J Walsh <dwalsh@redhat.com>, selinux@tycho.nsa.gov
-In-Reply-To: <4c4ba1530708221752q6ba5f9dy7a1ec67f9c6f8956@mail.gmail.com>
-References: <200708021956.l72Ju2S3029420@redsox.boston.devel.redhat.com>
-	 <1187812502.13874.98.camel@gorn> <46CCAC4B.1060506@redhat.com>
-	 <4c4ba1530708221752q6ba5f9dy7a1ec67f9c6f8956@mail.gmail.com>
-Content-Type: text/plain
-Date: Thu, 23 Aug 2007 17:41:50 +0000
-Message-Id: <1187890910.13874.140.camel@gorn>
-Mime-Version: 1.0
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l7NHuEHq012446
+	for <selinux@tycho.nsa.gov>; Thu, 23 Aug 2007 13:56:14 -0400
+Received: from exchange.columbia.tresys.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with SMTP id l7NHuENC006183
+	for <selinux@tycho.nsa.gov>; Thu, 23 Aug 2007 17:56:14 GMT
+Date: Thu, 23 Aug 2007 13:55:22 -0400
+Subject: colons valid in identifiers in compilers?
+From: "Spencer R. Shimko" <sshimko@tresys.com>
+To: <selinux@tycho.nsa.gov>
+Message-ID: <C2F3424A.D494%sshimko@tresys.com>
+Mime-version: 1.0
+Content-type: text/plain;
+	charset="US-ASCII"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2007-08-22 at 17:52 -0700, Tom London wrote:
-> On 8/22/07, Daniel J Walsh <dwalsh@redhat.com> wrote:
-> > Christopher J. PeBenito wrote:
-> > > On Thu, 2007-08-02 at 15:56 -0400, dwalsh@redhat.com wrote:
-> > >> Fixes for vmware
+All,
 
-> > >> @@ -29,7 +29,7 @@
-> > >>
-> > >>  allow vmware_host_t self:capability { setuid net_raw };
-> > >>  dontaudit vmware_host_t self:capability sys_tty_config;
-> > >> -allow vmware_host_t self:process signal_perms;
-> > >> +allow vmware_host_t self:process { execstack execmem signal_perms };
-> > >>  allow vmware_host_t self:fifo_file rw_fifo_file_perms;
-> > >>  allow vmware_host_t self:unix_stream_socket create_stream_socket_perms;
-> > >>  allow vmware_host_t self:rawip_socket create_socket_perms;
-> > >
-> > > Which version of vmware requires this?  Other parts merged.
-> > >>
-> > I think these came from Tom?
-> 
-> I'm running VMWare Workstation 6.0.
-> 
-> Need me to recreate?
+We were experimenting with labeling aliased interfaces yesterday.  Of course
+it doesn't work in the kernel, the denials are on the physical interface
+label and the aliased interface labels are never checked (and rightly so).
 
-Mainly I want to write a comment in the policy since previous
-workstation versions didn't need it.  However, if if there has been a
-vmware update since you hit this, it would be good to verify the rules
-are still required.
+The strange part is that, according to the lexer and parser sources, a colon
+should never be a valid identifier.  E.g. eth0:1 should never be valid in a
+netifcon statement:
 
+netifcon eth0:1 system_u:system_r:netif01_t system_u:system_r:unlabeled_t
+
+The statement above should be invalid but it isn't throwing a compiler
+error.  You can test this using:
+
+# semanage interface -a -t http_port_t eth0:1
+
+Subsequently running checkpolicy in debug mode reveals that the aliased
+interface label does appear in the binary policy.
+
+According to the compiler sources a colon is not part of a valid identifier
+(line 203 in policy_scan.l).  Why is the above succeeding given the lexer's
+definition of an identifier?
+
+Thanks,
+Spencer
 -- 
-Chris PeBenito
+Spencer Shimko
 Tresys Technology, LLC
-(410) 290-1411 x150
+sshimko@tresys.com
+(410) 290-1411 x 125
 
 
 --
