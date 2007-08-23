@@ -1,45 +1,73 @@
-Subject: Re: colons valid in identifiers in compilers?
+Subject: Re: semanage and semodule failures...
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: "Spencer R. Shimko" <sshimko@tresys.com>
-Cc: selinux@tycho.nsa.gov
-In-Reply-To: <C2F3424A.D494%sshimko@tresys.com>
-References: <C2F3424A.D494%sshimko@tresys.com>
+To: Hasan Rezaul-CHR010 <CHR010@motorola.com>
+Cc: Steve Grubb <sgrubb@redhat.com>, Karl MacMillan <kmacmill@redhat.com>,
+        Daniel J Walsh <dwalsh@redhat.com>, SE Linux <selinux@tycho.nsa.gov>
+In-Reply-To: <D06FE0A2807BC145B0D38744789D4F5D03EA1C75@de01exm68.ds.mot.com>
+References: <D06FE0A2807BC145B0D38744789D4F5D03EA1C75@de01exm68.ds.mot.com>
 Content-Type: text/plain
-Date: Thu, 23 Aug 2007 15:20:12 -0400
-Message-Id: <1187896812.1451.642.camel@moss-spartans.epoch.ncsc.mil>
+Date: Thu, 23 Aug 2007 15:15:38 -0400
+Message-Id: <1187896538.1451.640.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2007-08-23 at 13:55 -0400, Spencer R. Shimko wrote:
-> All,
+On Thu, 2007-08-23 at 13:32 -0400, Hasan Rezaul-CHR010 wrote:
+> Hi All,
 > 
-> We were experimenting with labeling aliased interfaces yesterday.  Of course
-> it doesn't work in the kernel, the denials are on the physical interface
-> label and the aliased interface labels are never checked (and rightly so).
+> I am running SELinux in STRICT mode on an embedded Linux card (running
+> Linux 2.6.14).
 > 
-> The strange part is that, according to the lexer and parser sources, a colon
-> should never be a valid identifier.  E.g. eth0:1 should never be valid in a
-> netifcon statement:
+> Initially had the following versions of core SELinux libs :
 > 
-> netifcon eth0:1 system_u:system_r:netif01_t system_u:system_r:unlabeled_t
+>  [ libsemanage-1.6.17-1 , checkpolicy-1.33.1-2 , libsepol-1.15.3-1 ,
+> libselinux-1.33.4-2 , policycoreutils-1.34.1-4 ]
 > 
-> The statement above should be invalid but it isn't throwing a compiler
-> error.  You can test this using:
+> With the above versions, "semanage" and "semodule" would work just
+> fine ! However, the problem was that everytime any minor policy change
+> was made using semanage or semodule,
+> a  /etc/selinux/strict/modules/previous/   directory would get created
+> with redundant policy info, and  waste a lot of space on my Linux
+> Card !
 > 
-> # semanage interface -a -t http_port_t eth0:1
+> In order to eliminate creation of this unnecessary "previous"
+> directory, Stephen Smalley suggested that I upgrade my core SELinux
+> libs to the following newer/stable versions:
 > 
-> Subsequently running checkpolicy in debug mode reveals that the aliased
-> interface label does appear in the binary policy.
+> [ libsemanage-1.10.4 ,
+> checkpolicy-1.34.3-x , libsepol-1.16.3-x , libselinux-1.34.10-x , policycoreutils-1.34.10-x ]...
 > 
-> According to the compiler sources a colon is not part of a valid identifier
-> (line 203 in policy_scan.l).  Why is the above succeeding given the lexer's
-> definition of an identifier?
+> However, with these newer lib versions, I cant successfully make any
+> policy changes anymore  :-(   Any ideas ?
+> 
+>  
+> 
+> root# semodule -r myPolicy
+> 
+> libsemanage.semanage_make_sandbox: Could not copy files to
+> sandbox /etc/selinux/strict/modules/tmp.
+> 
+> semodule:  Failed on myPolicy!
+> 
+>  
+> 
+> root# semanage login -a -s staff_u Admin
+> 
+> libsemanage.semanage_make_sandbox: Could not copy files to
+> sandbox /etc/selinux/strict/modules/tmp.
+> 
+> /usr/sbin/semanage: Could not start semanage transaction
+> 
+>  
+> 
+> *** Note: I did run "restorecon -rF /etc/selinux/strict/modules"
+> 
+>              I also gave full (777) permissions to
+> the /etc/selinux/strict/modules  directory...   same result  :-(
 
-Changes via semanage don't go through checkpolicy at all, so the
-checkpolicy lexer/parser are irrelevant.  It is purely up to what the
-libsemanage parser allows, and what the libsepol interface allows (which
-doesn't care).  Interesting point though.
+Any avc messages in /var/log/messages or /var/log/audit/audit.log?
+
+Filesystem full?  Filesystem mounted read-only?
 
 -- 
 Stephen Smalley
