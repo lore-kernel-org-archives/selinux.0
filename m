@@ -1,33 +1,76 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l7MNnpW0004226
-	for <selinux@tycho.nsa.gov>; Wed, 22 Aug 2007 19:49:51 -0400
-Received: from mx1.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id l7MNnoBp017541
-	for <selinux@tycho.nsa.gov>; Wed, 22 Aug 2007 23:49:50 GMT
-From: Steve Grubb <sgrubb@redhat.com>
-To: linux-audit@redhat.com
-Subject: Re: [Announce] RHEL5 LSPP/EAL4 Certification Testsuite has been released again
-Date: Wed, 22 Aug 2007 19:48:44 -0400
-Cc: Subrata Modak <subrata@linux.vnet.ibm.com>,
-        redhat-lspp <redhat-lspp@redhat.com>, gcwilson@us.ibm.com,
-        SELinux <selinux@tycho.nsa.gov>, reddenr@us.ibm.com
-References: <46C549AC.70804@linux.vnet.ibm.com> <46CADD1D.9090901@linux.vnet.ibm.com>
-In-Reply-To: <46CADD1D.9090901@linux.vnet.ibm.com>
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l7N0q8G6007647
+	for <selinux@tycho.nsa.gov>; Wed, 22 Aug 2007 20:52:08 -0400
+Received: from nf-out-0910.google.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l7N0q7sU019387
+	for <selinux@tycho.nsa.gov>; Thu, 23 Aug 2007 00:52:07 GMT
+Received: by nf-out-0910.google.com with SMTP id k4so313357nfd
+        for <selinux@tycho.nsa.gov>; Wed, 22 Aug 2007 17:52:06 -0700 (PDT)
+Message-ID: <4c4ba1530708221752q6ba5f9dy7a1ec67f9c6f8956@mail.gmail.com>
+Date: Wed, 22 Aug 2007 17:52:06 -0700
+From: "Tom London" <selinux@gmail.com>
+To: "Daniel J Walsh" <dwalsh@redhat.com>
+Subject: Re: [PATCH] refpolicy: apps_vmware changes
+Cc: "Christopher J. PeBenito" <cpebenito@tresys.com>, selinux@tycho.nsa.gov
+In-Reply-To: <46CCAC4B.1060506@redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Message-Id: <200708221948.46652.sgrubb@redhat.com>
+Content-Type: text/plain; charset=ISO-8859-1
+References: <200708021956.l72Ju2S3029420@redsox.boston.devel.redhat.com>
+	 <1187812502.13874.98.camel@gorn> <46CCAC4B.1060506@redhat.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tuesday 21 August 2007 08:39:57 Subrata Modak wrote:
-> The Red Hat Enterprise Linux 5 LSPP/EAL4 Certification Testsuite
-> (rhel5_ibm_eal4_cert_suite2.tgz) has been released and can be
-> found at http://ltp.sourceforge.net/ 
+On 8/22/07, Daniel J Walsh <dwalsh@redhat.com> wrote:
+> -----BEGIN PGP SIGNED MESSAGE-----
+> Hash: SHA1
+>
+> Christopher J. PeBenito wrote:
+> > On Thu, 2007-08-02 at 15:56 -0400, dwalsh@redhat.com wrote:
+> >> Fixes for vmware
+> >> --- nsaserefpolicy/policy/modules/apps/vmware.fc        2007-07-03 07:05:43.000000000 -0400
+> >> +++ serefpolicy-3.0.5/policy/modules/apps/vmware.fc     2007-08-02 11:02:02.000000000 -0400
+> >> @@ -23,6 +23,7 @@
+> >>  /usr/bin/vmware-smbd           --      gen_context(system_u:object_r:vmware_host_exec_t,s0)
+> >>  /usr/bin/vmware-smbpasswd      --      gen_context(system_u:object_r:vmware_host_exec_t,s0)
+> >>  /usr/bin/vmware-smbpasswd\.bin --      gen_context(system_u:object_r:vmware_host_exec_t,s0)
+> >> +/usr/bin/vmware-vmx            --      gen_context(system_u:object_r:vmware_host_exec_t,s0)
+> >>  /usr/bin/vmware-wizard         --      gen_context(system_u:object_r:vmware_exec_t,s0)
+> >>  /usr/bin/vmware                        --      gen_context(system_u:object_r:vmware_exec_t,s0)
+> >>
+> >> --- nsaserefpolicy/policy/modules/apps/vmware.te        2007-07-25 10:37:37.000000000 -0400
+> >> +++ serefpolicy-3.0.5/policy/modules/apps/vmware.te     2007-08-02 11:02:02.000000000 -0400
+> >> @@ -29,7 +29,7 @@
+> >>
+> >>  allow vmware_host_t self:capability { setuid net_raw };
+> >>  dontaudit vmware_host_t self:capability sys_tty_config;
+> >> -allow vmware_host_t self:process signal_perms;
+> >> +allow vmware_host_t self:process { execstack execmem signal_perms };
+> >>  allow vmware_host_t self:fifo_file rw_fifo_file_perms;
+> >>  allow vmware_host_t self:unix_stream_socket create_stream_socket_perms;
+> >>  allow vmware_host_t self:rawip_socket create_socket_perms;
+> >
+> > Which version of vmware requires this?  Other parts merged.
+> >
+> >> @@ -56,6 +56,8 @@
+> >>  corenet_tcp_sendrecv_all_ports(vmware_host_t)
+> >>  corenet_udp_sendrecv_all_ports(vmware_host_t)
+> >>  corenet_raw_bind_all_nodes(vmware_host_t)
+> >> +corenet_tcp_bind_all_nodes(vmware_host_t)
+> >> +corenet_udp_bind_all_nodes(vmware_host_t)
+> >>  corenet_tcp_connect_all_ports(vmware_host_t)
+> >>  corenet_sendrecv_all_client_packets(vmware_host_t)
+> >>  corenet_sendrecv_all_server_packets(vmware_host_t)
+> >>
+> >>
+> I think these came from Tom?
 
-Thanks for making this test suite public!
+I'm running VMWare Workstation 6.0.
 
--Steve
+Need me to recreate?
+
+tom
+-- 
+Tom London
 
 --
 This message was distributed to subscribers of the selinux mailing list.
