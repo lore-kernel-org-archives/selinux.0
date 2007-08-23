@@ -1,43 +1,48 @@
-Subject: Re: [PATCH] genhomedircon: fix find() return value usage
+Subject: Re: [patch 2/5] libsemanage: genhomedircon replacement
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: "Todd C. Miller" <tmiller@tresys.com>
-Cc: SELinux Mail List <selinux@tycho.nsa.gov>
-In-Reply-To: <200708202032.l7KKWWCY009001@tex.courtesan.com>
-References: <200708202032.l7KKWWCY009001@tex.courtesan.com>
+To: tmiller@tresys.com
+Cc: selinux@tycho.nsa.gov, Joshua Brindle <jbrindle@tresys.com>
+In-Reply-To: <1187876361.1451.480.camel@moss-spartans.epoch.ncsc.mil>
+References: <20070821191042.482612921@tresys.com>
+	 <20070821191045.857181383@tresys.com>
+	 <1187876361.1451.480.camel@moss-spartans.epoch.ncsc.mil>
 Content-Type: text/plain
-Date: Thu, 23 Aug 2007 10:57:12 -0400
-Message-Id: <1187881032.1451.493.camel@moss-spartans.epoch.ncsc.mil>
+Date: Thu, 23 Aug 2007 11:03:21 -0400
+Message-Id: <1187881401.1451.498.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 2007-08-20 at 16:32 -0400, Todd C. Miller wrote:
-> This patch fixes a bug in the genhomedircon python script that would
-> ignore valid entries such as:
+On Thu, 2007-08-23 at 09:39 -0400, Stephen Smalley wrote:
+> On Tue, 2007-08-21 at 15:10 -0400, tmiller@tresys.com wrote:
+> > plain text document attachment (genhomedircon-replacement-initial)
+> > Remove python script genhomedircon from libsemanage and replace
+> > with C functionality.
+> > 
+> > Note: This code fixes a bug in the orignal genhomedircon python script; the
+> > following two lines are added to the file contexts whereas the old
+> > genhomedircon would not add them: 
+> > 
+> > /tmp/\.exchange-.*(/.*)?      user_u:object_r:user_evolution_exchange_tmp_t:s0
+> > /tmp/\.exchange-root(/.*)?    root:object_r:user_evolution_exchange_tmp_t:s0
 > 
-> /tmp/\.exchange-USER(/.*)?  system_u:object_r:ROLE_evolution_exchange_tmp_t:s0
-> 
-> With this fix the python genhomedircon and the C replacement produce
-> equivalent output.
-> 
-> Signed-Off-By: Todd Miller <tmiller@tresys.com>
-> 
-> Index: policycoreutils/scripts/genhomedircon
-> ===================================================================
-> --- policycoreutils/scripts/genhomedircon	(revision 2519)
-> +++ policycoreutils/scripts/genhomedircon	(working copy)
-> @@ -272,7 +272,7 @@
->  		ret = ""
->  		fd = open(self.getHomeDirTemplate(), 'r')
->  		for i in  fd.readlines():
-> -			if i.find("USER") == 1:
-> +			if i.find("USER") >= 0:
->  				i = i.replace("USER", user)
->  				i = i.replace("ROLE", prefix)
->  				i = i.replace("system_u", sel_user)
-> 
+> Still wrong.  I still get extra blank lines and sds_home_t rather than
+> staff_home_t out of it.
 
-Thanks, merged to stable and trunk.
+Ah, it would help if I ran semodule against the right set of shared
+libs.  Oops, sorry.
+
+Thanks, merged all 5 patches onto trunk.
+
+Caveat:  libselinux needs to be updated at the same time since it now
+relies on its path name function for file_contexts.homedirs.
+
+There also seemed to be some unimplemented todo items noted in comments,
+like:
++
++       /* clean up some files from the sandbox before install */
++       /* remove homedir_template from sandbox */
++
 
 -- 
 Stephen Smalley
