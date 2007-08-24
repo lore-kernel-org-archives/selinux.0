@@ -1,45 +1,51 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l7OEBgM0023939
-	for <selinux@tycho.nsa.gov>; Fri, 24 Aug 2007 10:11:42 -0400
-Received: from exchange.columbia.tresys.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with SMTP id l7OEBfbR029267
-	for <selinux@tycho.nsa.gov>; Fri, 24 Aug 2007 14:11:41 GMT
-Subject: Re: MLS directory write constraints
-From: "Christopher J. PeBenito" <cpebenito@tresys.com>
-To: Klaus Weidner <klaus@atsec.com>
-Cc: dwalsh@redhat.com, sgrubb@redhat.com,
-        SELinux Mail List <selinux@tycho.nsa.gov>, joe@nall.com
-In-Reply-To: <20070823230519.GC23508@w-m-p.com>
-References: <1187613297.27524.10.camel@gorn>
-	 <20070820205258.GA23508@w-m-p.com> <1187701836.13874.5.camel@gorn>
-	 <20070823230519.GC23508@w-m-p.com>
+Subject: Re: [PATCH] Suppress rule generation for dontaudit rules
+From: Karl MacMillan <kmacmillan@mentalrootkit.com>
+To: Stephen Smalley <sds@tycho.nsa.gov>
+Cc: Joshua Brindle <method@manicmethod.com>, selinux@tycho.nsa.gov
+In-Reply-To: <1187875363.1451.475.camel@moss-spartans.epoch.ncsc.mil>
+References: <2ad2d21fc72476558d8f.1187187301@localhost.localdomain>
+	 <1187289925.909.75.camel@moss-spartans.epoch.ncsc.mil>
+	 <46C4A449.9010102@manicmethod.com>
+	 <1187875363.1451.475.camel@moss-spartans.epoch.ncsc.mil>
 Content-Type: text/plain
-Date: Fri, 24 Aug 2007 14:10:44 +0000
-Message-Id: <1187964644.13874.151.camel@gorn>
+Date: Fri, 24 Aug 2007 12:00:10 -0400
+Message-Id: <1187971210.6753.4.camel@localhost.localdomain>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2007-08-23 at 18:05 -0500, Klaus Weidner wrote:
-> On Tue, Aug 21, 2007 at 09:10:23AM -0400, Christopher J. PeBenito
-> wrote:
-> > I see that the constraints are different in the 2.4.6-67 LSPP policy.
-> > Is this the final one?  I want to make sure that the LSPP policy changes
-> > have been integrated upstream.
+On Thu, 2007-08-23 at 09:22 -0400, Stephen Smalley wrote:
+> On Thu, 2007-08-16 at 15:23 -0400, Joshua Brindle wrote:
+> > Stephen Smalley wrote:
+> > > On Wed, 2007-08-15 at 10:15 -0400, Karl MacMillan wrote:
+> > >   
+> > >> The current policy generation code incorrectly generates allow rules for dontaudit messages. This patch fixes that.
+> > >>
+[...]
+> > 
+> > Merged into 1.0.9
 > 
-> selinux-policy-2.4.6-67.el5 is the evaluated version, that's the one that
-> is known to match LSPP requirements. The version in the older thread that
-> I linked to wasn't final yet, we had made some minor modifications last
-> year to get to the final version. Please use the
-> selinux-policy-2.4.6-67.el5 constraints for upstream if possible.
+> Reverted.  Didn't work.
+> 
 
-I have updated the refpolicy constraints with the above policy's
-constraints.
+That's because it was wildly wrong - I thought I tested that, but I
+guess not. Correct patch below:
 
--- 
-Chris PeBenito
-Tresys Technology, LLC
-(410) 290-1411 x150
+
+diff -r e962f4f773fc sepolgen/src/sepolgen/audit.py
+--- a/sepolgen/src/sepolgen/audit.py	Wed Aug 22 15:55:24 2007 -0400
++++ b/sepolgen/src/sepolgen/audit.py	Thu Aug 23 15:11:09 2007 -0400
+@@ -421,6 +421,8 @@ class AuditParser:
+         """
+         av_set = access.AccessVectorSet()
+         for avc in self.avc_msgs:
++            if avc.denial == True:
++                continue
+             if avc_filter:
+                 if avc_filter.filter(avc):
+                     av_set.add(avc.scontext.type, avc.tcontext.type, avc.tclass,
+
+Signed-off-by: Karl MacMillan <kmacmillan@mentalrootkit.com>
 
 
 --
