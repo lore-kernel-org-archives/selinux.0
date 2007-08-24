@@ -1,46 +1,45 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l7OE62Lt023465
-	for <selinux@tycho.nsa.gov>; Fri, 24 Aug 2007 10:06:13 -0400
-Received: from e23smtp02.au.ibm.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l7OE5wVO014108
-	for <selinux@tycho.nsa.gov>; Fri, 24 Aug 2007 14:06:00 GMT
-Received: from d23relay03.au.ibm.com (d23relay03.au.ibm.com [202.81.18.234])
-	by e23smtp02.au.ibm.com (8.13.1/8.13.1) with ESMTP id l7OE5vJA004124
-	for <selinux@tycho.nsa.gov>; Sat, 25 Aug 2007 00:05:57 +1000
-Received: from d23av04.au.ibm.com (d23av04.au.ibm.com [9.190.235.139])
-	by d23relay03.au.ibm.com (8.13.8/8.13.8/NCO v8.5) with ESMTP id l7OE5sx91519718
-	for <selinux@tycho.nsa.gov>; Sat, 25 Aug 2007 00:05:55 +1000
-Received: from d23av04.au.ibm.com (loopback [127.0.0.1])
-	by d23av04.au.ibm.com (8.12.11.20060308/8.13.3) with ESMTP id l7OF5rvQ028724
-	for <selinux@tycho.nsa.gov>; Sat, 25 Aug 2007 01:05:54 +1000
-Message-ID: <46CEE455.1080504@linux.vnet.ibm.com>
-Date: Fri, 24 Aug 2007 19:29:49 +0530
-From: Subrata Modak <subrata@linux.vnet.ibm.com>
-MIME-Version: 1.0
-To: ltp-announce@lists.sourceforge.net, ltp-list@lists.sourceforge.net,
-        linux-kernel@vger.kernel.org
-CC: Sivakumar Chinnaiah <Sivakumar.C@in.ibm.com>, svaidyan@in.ibm.com,
-        LTC System x team <ltc-system-x@pdl.linux.ibm.com>,
-        ltc-interlock@lists.linux.ibm.com, linux-audit@redhat.com,
-        selinux@tycho.nsa.gov, redhat-lspp@redhat.com
-Subject: [ANNOUNCE] NUMA Testcases has been integrated to LTP
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l7OEBgM0023939
+	for <selinux@tycho.nsa.gov>; Fri, 24 Aug 2007 10:11:42 -0400
+Received: from exchange.columbia.tresys.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with SMTP id l7OEBfbR029267
+	for <selinux@tycho.nsa.gov>; Fri, 24 Aug 2007 14:11:41 GMT
+Subject: Re: MLS directory write constraints
+From: "Christopher J. PeBenito" <cpebenito@tresys.com>
+To: Klaus Weidner <klaus@atsec.com>
+Cc: dwalsh@redhat.com, sgrubb@redhat.com,
+        SELinux Mail List <selinux@tycho.nsa.gov>, joe@nall.com
+In-Reply-To: <20070823230519.GC23508@w-m-p.com>
+References: <1187613297.27524.10.camel@gorn>
+	 <20070820205258.GA23508@w-m-p.com> <1187701836.13874.5.camel@gorn>
+	 <20070823230519.GC23508@w-m-p.com>
+Content-Type: text/plain
+Date: Fri, 24 Aug 2007 14:10:44 +0000
+Message-Id: <1187964644.13874.151.camel@gorn>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hi all,
+On Thu, 2007-08-23 at 18:05 -0500, Klaus Weidner wrote:
+> On Tue, Aug 21, 2007 at 09:10:23AM -0400, Christopher J. PeBenito
+> wrote:
+> > I see that the constraints are different in the 2.4.6-67 LSPP policy.
+> > Is this the final one?  I want to make sure that the LSPP policy changes
+> > have been integrated upstream.
+> 
+> selinux-policy-2.4.6-67.el5 is the evaluated version, that's the one that
+> is known to match LSPP requirements. The version in the older thread that
+> I linked to wasn't final yet, we had made some minor modifications last
+> year to get to the final version. Please use the
+> selinux-policy-2.4.6-67.el5 constraints for upstream if possible.
 
-Support for NUMA has been there in Linux Kernel from years. Here comes 
-the initial set (long delayed) of NUMA Test-cases from LTP and written 
-by sivakumar.c@in.ibm.com. You can download a copy of LTP Suite 
-containing NUMA-testcases from:
-http://prdownloads.sourceforge.net/ltp/ltp-nightly-snapshot_numa.tgz?download
-We request you to comment on the effectiveness/coverage of these 
-testcases and help us contribute to the same.
-Your suggestions/corrections are extremely valuable and immensely welcome.
+I have updated the refpolicy constraints with the above policy's
+constraints.
 
-Regards & Thanks--
-Subrata Modak
+-- 
+Chris PeBenito
+Tresys Technology, LLC
+(410) 290-1411 x150
 
 
 --
