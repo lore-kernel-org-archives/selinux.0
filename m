@@ -1,67 +1,74 @@
 Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l7PAW0XO003505
-	for <selinux@tycho.nsa.gov>; Sat, 25 Aug 2007 06:32:00 -0400
-Received: from mx1.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id l7PAVxDF008645
-	for <selinux@tycho.nsa.gov>; Sat, 25 Aug 2007 10:31:59 GMT
-Message-ID: <46D00510.80608@redhat.com>
-Date: Sat, 25 Aug 2007 06:31:44 -0400
-From: Daniel J Walsh <dwalsh@redhat.com>
-MIME-Version: 1.0
-To: Devin Carraway <selinux-list@devin.com>
-CC: selinux@tycho.nsa.gov
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l7PL0dW1003538
+	for <selinux@tycho.nsa.gov>; Sat, 25 Aug 2007 17:00:39 -0400
+Received: from atlantic.devin.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id l7PL0bk5025108
+	for <selinux@tycho.nsa.gov>; Sat, 25 Aug 2007 21:00:38 GMT
+Date: Sat, 25 Aug 2007 14:00:36 -0700
+From: Devin Carraway <selinux-list@devin.com>
+To: Daniel J Walsh <dwalsh@redhat.com>
+Cc: selinux@tycho.nsa.gov
 Subject: Re: [refpolicy] policy & patch for bitlbee
-References: <20070819045707.GJ18641@atlantic.devin.com>
-In-Reply-To: <20070819045707.GJ18641@atlantic.devin.com>
-Content-Type: text/plain; charset=ISO-8859-1
+Message-ID: <20070825210036.GN28833@atlantic.devin.com>
+References: <20070819045707.GJ18641@atlantic.devin.com> <46D00510.80608@redhat.com>
+MIME-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="i9LlY+UWpKt15+FH"
+In-Reply-To: <46D00510.80608@redhat.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
 
-Devin Carraway wrote:
-> Here's a policy module for BitlBee, a service which acts as a gateway for IRC
-> clients to various IM networks.
-> 
-> The patch adds three new ports to the corenetwork list, for the AIM, Yahoo
-> Messenger and MSN Messenger ports.  I drew the port names from the IANA
-> "registered por numbers' list at http://www.iana.org/assignments/port-numbers .
-> 
-> It's my first attempt at writing a policy module clean enough for publication;
-> feedback/criticism would be welcome.
-> 
-> Devin
-> 
-> 
-Sorry I am way behind on selinux list.
+--i9LlY+UWpKt15+FH
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-First comment, if you have files directories that the confined domain
-does not need to write, and the data within is not secret,  IE You dont
-want other domains to be able to read it.  DO NOT create a type.  Just
-leave the files the default type, and use the interface to allow you
-domain to read it.
+On Sat, Aug 25, 2007 at 06:31:44AM -0400, Daniel J Walsh wrote:
+> First comment, if you have files directories that the confined domain
+> does not need to write, and the data within is not secret,  IE You dont
+> want other domains to be able to read it.  DO NOT create a type.  Just
+> leave the files the default type, and use the interface to allow you
+> domain to read it.
 
-So I would remove
+Hmm, okay.  bitlbee_share_t I put in not because /usr/share/bitlbee contains
+anything sensitive (just one helpfile, at the moment), but because it has no
+need to read any files of type usr_t, so by making a type for it I could av=
+oid
+granting anything on usr_t:file (usr_t:dir has r/o perms implied by
+libs_legacy_use_shared_libs()).  Should I go ahead and let it read usr_t:fi=
+le
+for sake of avoiding the extra type, trading off a somewhat broader scope of
+access for the domain?
+
+> type bitlbee_conf_t;
+> files_config_file(bitlbee_conf_t)
+
+There's a single sensitive piece of data here, namely an (optional) password
+to connect to the bitlbee server -- roughly analogous in policy terms to an
+Apache htpasswd/htdigest file.
+
+Thanks for the feedback!
 
 
-type bitlbee_conf_t;
-files_config_file(bitlbee_conf_t)
+--=20
+Devin  \ aqua(at)devin.com, IRC:Requiem; http://www.devin.com
+Carraway \ 1024D/E9ABFCD2: 13E7 199E DD1E 65F0 8905 2E43 5395 CA0D E9AB FCD2
 
-type bitlbee_share_t;
-files_type(bitlbee_share_t)
+--i9LlY+UWpKt15+FH
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
 
-And just allow bitlbee to read etc_t and usr_t.
-
-Everything else looks ok.
 -----BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.7 (GNU/Linux)
-Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org
+Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFG0AUQrlYvE4MpobMRAm8xAKDjeSySjEY+64bmgNBkEwQ/H9SE+wCggt4A
-zUWWi8GzT4O0o2t7tgg1Cwc=
-=eQ+k
+iD8DBQFG0Jh0U5XKDemr/NIRAuiMAKDbCQkCQyiL5+ZSaAtIsVQ3q2pVwACfYXA2
+DD2zIc+gYkabz/SLU1nPNQ4=
+=UbGQ
 -----END PGP SIGNATURE-----
+
+--i9LlY+UWpKt15+FH--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
