@@ -1,42 +1,92 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l7RISbFV026085
-	for <selinux@tycho.nsa.gov>; Mon, 27 Aug 2007 14:28:37 -0400
-Received: from exchange.columbia.tresys.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with SMTP id l7RISavi027216
-	for <selinux@tycho.nsa.gov>; Mon, 27 Aug 2007 18:28:37 GMT
-Subject: Re: [PATCH] refpolicy: services_rshd changes
-From: "Christopher J. PeBenito" <cpebenito@tresys.com>
-To: dwalsh@redhat.com
-Cc: selinux@tycho.nsa.gov
-In-Reply-To: <200708022040.l72Keu8m032593@redsox.boston.devel.redhat.com>
-References: <200708022040.l72Keu8m032593@redsox.boston.devel.redhat.com>
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l7RJFXjl029528
+	for <selinux@tycho.nsa.gov>; Mon, 27 Aug 2007 15:15:33 -0400
+Subject: Re: [PATCH 1/2] VFS/Security: Rework inode_getsecurity and callers
+	to return resulting buffer
+From: "David P. Quigley" <dpquigl@tycho.nsa.gov>
+To: casey@schaufler-ca.com
+Cc: jmorris@namei.org, selinux@tycho.nsa.gov
+In-Reply-To: <874159.25428.qm@web36615.mail.mud.yahoo.com>
+References: <874159.25428.qm@web36615.mail.mud.yahoo.com>
 Content-Type: text/plain
-Date: Mon, 27 Aug 2007 14:27:34 -0400
-Message-Id: <1188239254.6723.32.camel@gorn>
+Date: Mon, 27 Aug 2007 15:05:09 -0400
+Message-Id: <1188241509.5598.24.camel@moss-terrapins.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2007-08-02 at 16:40 -0400, dwalsh@redhat.com wrote:
-> Remove unconfiend_domain from rshd
+If there are no other concerns with this I'd like to propose that it be
+queued up for the 2.6.24 merge window. If you want I can repost the
+patches.
 
-Merged.
+Dave Quigley
 
-> --- nsaserefpolicy/policy/modules/services/rshd.te      2007-07-25 10:37:42.000000000 -0400
-> +++ serefpolicy-3.0.5/policy/modules/services/rshd.te   2007-08-02 11:02:02.000000000 -0400
-> @@ -85,6 +86,5 @@
->  ')
+On Fri, 2007-08-17 at 14:21 -0700, Casey Schaufler wrote:
+> --- "David P. Quigley" <dpquigl@tycho.nsa.gov> wrote:
 > 
->  optional_policy(`
-> -       unconfined_domain(rshd_t)
->         unconfined_shell_domtrans(rshd_t)
->  ')
+> > On Fri, 2007-08-17 at 12:37 -0700, Casey Schaufler wrote:
+> > > --- "David P. Quigley" <dpquigl@tycho.nsa.gov> wrote:
+> > > 
+> > > > From: David P. Quigley <dpquigl@tycho.nsa.gov>
+> > > > 
+> > > > This patch modifies the interface to inode_getsecurity to have the
+> > function
+> > > > return a buffer containing the security blob and its length via
+> > parameters
+> > > > instead of relying on the calling function to give it an appropriately
+> > sized
+> > > > buffer. Security blobs obtained with this function should be freed using
+> > the
+> > > > release_secctx LSM hook.
+> > > 
+> > > You are making the assumption that the LSM is going to return a secctx
+> > > for all possible named attributes. The caller already has to know the
+> > > name of the interesting attribute, that should imply that the caller
+> > > has enough information to get the right size for a buffer. I don't think
+> > > much of interfaces that require you to allocate memory that you're
+> > > just going to throw away after you glance at the data, especially in
+> > > the file system lookup path.
+> > 
+> > Ok sorry I read this a couple of more times and I understand this now.
+> > Your issue isn't a concern. This is going to be done somewhere for an
+> > lsm since it has to allocate space to store the information internally
+> > and then copy it into the buffer provided by getxattr. In your case
+> > there isn't even an allocation and freeing of data here. In SELinux we
+> > had to allocate a string to store the converted sid in and then copy it
+> > up into the buffer internally. Regardless a copy is going to happen the
+> > question is where.
+> 
+> I checked and indeed everyone who calls this is allocating a
+> buffer anyway (no one is using the stack) so replacing the
+> caller allocated buffer with an LSM managed scheme ought not
+> to be a concern.
+> 
+> > > > This alleviates the problem of the caller having to
+> > > > guess a length and preallocate a buffer for this function allowing it to
+> > be
+> > > > used elsewhere for Labeled NFS. The patch also removed the unused err
+> > > > parameter. The same conversion is similar to the one used by Al Viro for
+> > the
+> > > > security_getprocattr hook.
+> > > 
+> > > These are very different use frequency cases.
+> > > 
+> > > 
+> > > 
+> > > Casey Schaufler
+> > > casey@schaufler-ca.com
+> > 
+> > 
+> > 
 > 
 > 
--- 
-Chris PeBenito
-Tresys Technology, LLC
-(410) 290-1411 x150
+> Casey Schaufler
+> casey@schaufler-ca.com
+> 
+> --
+> This message was distributed to subscribers of the selinux mailing list.
+> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
+> the words "unsubscribe selinux" without quotes as the message.
 
 
 --
