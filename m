@@ -1,31 +1,41 @@
-Date: Mon, 27 Aug 2007 09:55:01 -0700 (PDT)
-From: James Morris <jmorris@namei.org>
-To: Stephen Smalley <sds@tycho.nsa.gov>
-cc: Yuichi Nakamura <ynakam@hitachisoft.jp>, selinux@tycho.nsa.gov,
-        Eric Paris <eparis@parisplace.org>, kaigai@ak.jp.nec.com
-Subject: Re: [patch] Tuning avtab to reduce memory usage
-In-Reply-To: <1188221995.26572.1.camel@moss-spartans.epoch.ncsc.mil>
-Message-ID: <Xine.LNX.4.64.0708270954280.16128@us.intercode.com.au>
-References: <20070823094904.1AB9.YNAKAM@hitachisoft.jp>
- <1187874925.1451.473.camel@moss-spartans.epoch.ncsc.mil>
- <20070824115232.5B89.YNAKAM@hitachisoft.jp> <1188221995.26572.1.camel@moss-spartans.epoch.ncsc.mil>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l7RGrsH8018318
+	for <selinux@tycho.nsa.gov>; Mon, 27 Aug 2007 12:53:54 -0400
+Received: from exchange.columbia.tresys.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with SMTP id l7RGrqQQ008133
+	for <selinux@tycho.nsa.gov>; Mon, 27 Aug 2007 16:53:53 GMT
+Subject: Re: [refpolicy] sendmail needs to read ssl/tls certs
+From: "Christopher J. PeBenito" <cpebenito@tresys.com>
+To: Stefan Schulze Frielinghaus <stefan@sf-net.com>
+Cc: SELinux List <selinux@tycho.nsa.gov>
+In-Reply-To: <CDEB1AB5-859C-4046-A505-357973103EEF@sf-net.com>
+References: <CDEB1AB5-859C-4046-A505-357973103EEF@sf-net.com>
+Content-Type: text/plain
+Date: Mon, 27 Aug 2007 12:52:49 -0400
+Message-Id: <1188233569.6723.14.camel@gorn>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 27 Aug 2007, Stephen Smalley wrote:
+On Thu, 2007-08-23 at 02:31 -0400, Stefan Schulze Frielinghaus wrote:
+> --- /usr/src/refpolicy-20070629/policy/modules/services/sendmail.te     2007-06-29 16:48:13.000000000 +0200
+> +++ policy/modules/services/sendmail.te 2007-08-23 08:25:51.000000000 +0200
+> @@ -91,6 +91,7 @@
+>  
+>  logging_send_syslog_msg(sendmail_t)
+>  
+> +miscfiles_read_certs(sendmail_t)
+>  miscfiles_read_localization(sendmail_t)
+>  
+>  sysnet_dns_name_resolve(sendmail_t)
 
-> Looks good, thanks.
-> 
-> Acked-by:  Stephen Smalley <sds@tycho.nsa.gov>
-
-Applied to 
-git://git.kernel.org/pub/scm/linux/kernel/git/jmorris/selinux-2.6.git#for-akpm
+Merged.
 
 -- 
-James Morris
-<jmorris@namei.org>
+Chris PeBenito
+Tresys Technology, LLC
+(410) 290-1411 x150
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
