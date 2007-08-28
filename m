@@ -1,90 +1,66 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l7SCbcqr028419
-	for <selinux@tycho.nsa.gov>; Tue, 28 Aug 2007 08:37:38 -0400
-Received: from exchange.columbia.tresys.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with SMTP id l7SCbbM5024332
-	for <selinux@tycho.nsa.gov>; Tue, 28 Aug 2007 12:37:37 GMT
-Subject: Re: ANN: SELinux Policy IDE (SLIDE) version 1.2
-From: Dave Sugar <dsugar@tresys.com>
-To: selinux@tycho.nsa.gov
-Cc: Ken YANG <spng.yang@gmail.com>
-In-Reply-To: <46CFB291.6010000@gmail.com>
-References: <1187974484.17434.6.camel@localhost.localdomain>
-	 <46CFB291.6010000@gmail.com>
-Content-Type: text/plain
-Date: Tue, 28 Aug 2007 08:37:36 -0400
-Message-Id: <1188304656.4977.4.camel@localhost.localdomain>
-Mime-Version: 1.0
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l7SCxAxX030118
+	for <selinux@tycho.nsa.gov>; Tue, 28 Aug 2007 08:59:10 -0400
+Received: from moutng.kundenserver.de (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l7SCx8bH017347
+	for <selinux@tycho.nsa.gov>; Tue, 28 Aug 2007 12:59:09 GMT
+In-Reply-To: <50C59BF9-3A4B-4BC2-8F78-F0CFC68592D7@sf-net.com>
+References: <50C59BF9-3A4B-4BC2-8F78-F0CFC68592D7@sf-net.com>
+Mime-Version: 1.0 (Apple Message framework v752.2)
+Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
+Message-Id: <3A263A5A-F7A7-4A40-B066-C0A4B56386C8@sf-net.com>
+Cc: "Christopher J. PeBenito" <cpebenito@tresys.com>,
+        SELinux List <selinux@tycho.nsa.gov>
+From: Stefan Schulze Frielinghaus <stefan@sf-net.com>
+Subject: Re: [refpolicy] dovecot: handling of hard links
+Date: Tue, 28 Aug 2007 14:59:02 +0200
+To: Stefan Schulze Frielinghaus <stefan@sf-net.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Ken,
+Oh I forgot the only thing which doesn't really run quit fine is init  
+now:
 
-Can you give me some more information about what is going on?
-Have you followed the directions posted on the SLIDE project site
-(http://oss.tresys.com/projects/slide/wiki/download)?
-Are there any errors being displayed?
-What platform are you running on?  FC6, f7? x86, x86_64, PPC?
+avc:  denied  { unlink } for  pid=1175 comm="rm" name="ssl- 
+parameters.dat" dev=hda7 ino=2129980  
+scontext=system_u:system_r:initrc_t:s0  
+tcontext=system_u:object_r:dovecot_var_lib_t:s0 tclass=file
 
-Thanks
-Dave Sugar
-dsugar@tresys.com
+Because formerly it was labeled as dovecot_var_run_t which was of  
+files_pid_file(dovecot_var_run_t)
 
-On Sat, 2007-08-25 at 12:39 +0800, Ken YANG wrote:
-> Dave Sugar wrote:
-> > Version 1.2 of the SELinux Policy IDE (SLIDE) from Tresys Technology is
-> > now available for download from the Tresys Open source website at
-> > http://oss.tresys.com.
-> 
-> i can not update through update functionality in Eclipse, i.e.
-> 
-> Help->Software Updates->Find and install...
-> 
-> 
-> > 
-> > SLIDE is an Eclipse plug-in that integrates with the SELinux Reference
-> > Policy to provide a development environment for building SELinux policy.
-> > 
-> > SLIDE Features:
-> > 
-> > 
-> > * A graphical user interface for policy development, including policy
-> > syntax highlighting, context suggestions, and integrated compilation.
-> > * Integration with SELinux Reference Policy, including quick lookup and
-> > documentation for interfaces and macros.
-> > * Wizards and easy to use templates to automate common tasks from
-> > creating a new SELinux policy to adding an interface into an existing
-> > module.
-> > * Integrated remote policy installation and audit log monitoring, to
-> > facilitate policy testing.
-> > * Seamless integration with the power of standard Eclipse.
-> > 
-> > Version 1.2 highlights:
-> > 
-> > * Graphical interface for network configuration via corenetwork.
-> > * Added auto completion, context help, and tool tip descriptions for
-> > Reference Policy macros, as well as including macros in the interface
-> > view and showing their definitions in the declaration view.
-> > * Improved documentation on the open source web site.
-> > * Updates to work with SETools version 3.3.
-> > * Fixed problems with the Console output.
-> > * Bugs fixed with undo/redo when toggling commenting on numerous lines
-> > of policy.
-> > 
-> > 
-> > 
-> > If you would like to contribute, currently the best help would be to
-> > test and provide feedback on the SLIDE plugin and SLIDE Remote.
-> > 
-> > Dave Sugar
-> > Tresys Technology, LLC
-> > 
-> > --
-> > fedora-selinux-list mailing list
-> > fedora-selinux-list@redhat.com
-> > https://www.redhat.com/mailman/listinfo/fedora-selinux-list
-> > 
-> 
+On 28.08.2007, at 14:26, Stefan Schulze Frielinghaus wrote:
+
+> dovecot uses a hard link:
+>
+> /var/lib/dovecot/ssl-parameters.dat
+> /var/run/dovecot/login/ssl-parameters.dat
+>
+> and the policy file looks like that:
+>
+> /var/run/dovecot(-login)?(/.*)?	gen_context 
+> (system_u:object_r:dovecot_var_run_t,s0)
+> /var/lib/dovecot(/.*)?			gen_context 
+> (system_u:object_r:dovecot_var_lib_t,s0)
+>
+> While relabel:
+>
+> $ fixfiles relabel
+>
+> ...
+> matchpathcon_filespec_add:  conflicting specifications for /var/run/ 
+> dovecot/login/ssl-parameters.dat and /var/lib/dovecot/ssl- 
+> parameters.dat, using system_u:object_r:dovecot_var_run_t:s0.
+> ....
+>
+> Since the comment in the policy dovecot.te the file should be  
+> labeled dovecot_var_lib_t but fixfiles relabels it as  
+> dovecot_var_run_t. Attached is a patch which solves this.
+>
+> PS: tested on CentOS5
+>
+> <dovecot.fc.patch>
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
