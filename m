@@ -1,253 +1,155 @@
-Message-ID: <D709A20F2164C84E8B7014B0301F5EF8521359@HAVOC.tcs-sec.com>
-From: Venkat Yekkirala <vyekkirala@TrustedCS.com>
-To: Paul Moore <paul.moore@hp.com>
-Cc: selinux@tycho.nsa.gov, James Morris <jmorris@namei.org>,
-        Darrel Goeddel <DGoeddel@TrustedCS.com>,
-        Stephen Smalley
-	 <sds@tycho.nsa.gov>, kaigai@ak.jp.nec.com,
-        joe@nall.com, Eric Paris
-	 <eparis@parisplace.org>
-Subject: RE: [RFC 0/5] Static/fallback external labels for NetLabel
-Date: Mon, 27 Aug 2007 18:09:12 -0400
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l7S50DJK001108
+	for <selinux@tycho.nsa.gov>; Tue, 28 Aug 2007 01:00:13 -0400
+Received: from py-out-1112.google.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l7S50BrQ007353
+	for <selinux@tycho.nsa.gov>; Tue, 28 Aug 2007 05:00:12 GMT
+Received: by py-out-1112.google.com with SMTP id u77so1525231pyb
+        for <selinux@tycho.nsa.gov>; Mon, 27 Aug 2007 22:00:11 -0700 (PDT)
+Message-ID: <8f34198c0708272200o245e1edcl47d4004f7b5fa659@mail.gmail.com>
+Date: Tue, 28 Aug 2007 13:00:11 +0800
+From: "Ian jonhson" <jonhson.ian@gmail.com>
+To: "Daniel J Walsh" <dwalsh@redhat.com>
+Subject: Re: About the SELinux in FedoraCore
+Cc: "SE Linux" <selinux@tycho.nsa.gov>
+In-Reply-To: <46D2F37C.6030209@redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Content-Type: text/plain; charset=ISO-8859-1
+References: <8f34198c0708250022v194622eaqb7926a1ef3508eeb@mail.gmail.com>
+	 <46CFED5B.5010607@redhat.com>
+	 <8f34198c0708260055t3206d9eajb5e51f9274e99f57@mail.gmail.com>
+	 <46D2F37C.6030209@redhat.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-[Darrel has made me aware I am breaking threads; will fix this
-in a day or two]
+Thank you very much~
 
-> -----Original Message-----
-> From: Paul Moore [mailto:paul.moore@hp.com]
-(snip)
-> 
-> > Also, in the forwarding case, while the original xfrm-label should
-> > still be around in the labeled-IPSec to non-labeled-IPSec case, I
-> > would imagine in the NetLabel case, the option field would lose the
-> > "original" label in a DOI gateway instance (if and when NateLabel
-> > does this), right?
-> 
-> Yes, once you change the packet's label on the wire you have 
-> to potential to 
-> change the packet's label.  However, simply changing the 
-> label to reflect a 
-> different CIPSO DOI (I assume that is the DOI you were 
-> talking about?) 
+Could you give me some example about how they do? Especially about how
+the process fork its child processes and change their domain contexts.
+In this case, I need not to compile the policy, right? Also, I must
+predefine some contexts before the parent process do the allocation,
+but if there are many contexts needed to allocate, can I predefine
+them as a parameters, because I don't know how many context string I
+will use ?
 
-Yes.
+For example, I define them as follows:
 
-> shouldn't change the NetLabel/CIPSO label as seen by SELinux 
-> since the only 
-> thing the on-the-wire label translation would be doing is 
-> translating the 
-> label between two different security domains/DOIs, the 
-> semantic value of the 
-> label should be preserved.
-> 
-> I would consider removing the NetLabel/CIPSO label from a 
-> packet to be the 
-> same as relabeling a packet to unlabeled_t and I still 
-> believe that the 
-> kernel should not get involved in packet relabeling at this 
-> point, leave that 
-> up to userspace.
+type my_context_%d
 
-Traditionally anyway, the original label has been used all the
-way thru for flow-control, etc., since that's the original label
-of the packet. I believe the packet losing the label is just
-a recognition of the fact that the packet can't explicitly
-carry the label onto the other network, but the label is
-implicit from what I understand.
+%d is a paremeter, which can be 1,2,3,...., so I can create large
+group of contexts as:
 
-For example, in the case of xfrm, the label should be preserved
-in the skb->sp field all the way thru, and so we should be able
-to prevent a Top Secret xfrm-labeled packet from being forwarded
-to a Secret interface even when the packet needs to be sent
-in the clear (or using non-labeled IPsec) onto the Secret network.
-In the NetLabel case, I wonder if we could use the
-same special IP Option that we would use for Loopback packet labeling
-to carry the "original" label thru to the last check and
-strip it out before it gets on the wire? If this is possible, then
-I guess we would need to take care to plant this option on the
-packet after it has undergone any xfrms?
+my_context_1
+my_context_2
+my_context_3
+...
+my_context_n
+
+but not need to do the definition:
+
+type my_context_1
+type my_context_2
+type my_context_3
+...
+type my_context_n
 
 
-> 
-> > >  The second idea was to
-> > > divide the secmark
-> > > field in the sk_buff into two 16 bit sub-fields effectively
-> > > shortening peer
-> > > and secmark SIDs to 16 bits.
+On 8/27/07, Daniel J Walsh <dwalsh@redhat.com> wrote:
+> -----BEGIN PGP SIGNED MESSAGE-----
+> Hash: SHA1
+>
+> Ian jonhson wrote:
+> > It sounds very good.
 > >
-> > I would vote for this (or some variant). This has 2 advantages:
+> > Can I change the context of object in user mode dynamically? What I
+> > mean is that I can fork some processes and allocate different context
+> > (or domain context) to them; so they can create their own files
+> > (object) holding different file context.
 > >
-> > 1. Resolve the external labels just once and plant it in the
-> >    split secmark.
+> > I google some references about the selinux in internet, and found many
+> > cases can be dealt with by Apol, and maybe it also needs to compile
+> > the policy file, right? Is it possible that I build a daemon to
+> > allocate different domain context to its child processes? how to do ?
+> Yes if selinux policy allows, programs can change the context of
+> processes that they fork/exec.  You can also just change the context of
+> the current running process, but this is not as secure.  You should ask
+> your questions on the selinux@tycho.nsa.gov list
 > >
-> > 2. Also use this for a loopback packet labeling (as also pointed
-> >    out by you later).
-> 
-> I'm slowly warming up to the idea of splitting the secmark 
-> field, although I 
-> still remain very concerned about the long term effects and 
-> compatibility 
-> issues.  Yes, there is the potential for a network SID mapper 
-> but I'm not 
-> very excited about that idea right now.  I guess what I'd 
-> like to see is 
-> something similar to the change below go through a few 
-> iterations of testing 
-> before we make up our minds.
-
-Sounds like a plan.
-
->  We'd also need to entire 
-> SELinux braintrust to 
-> agree to the idea, and aside from Stephen and James, I'm not 
-> sure they are 
-> still reading this thread.
-> 
-> Index: linux-2.6_misc/security/selinux/ss/sidtab.c
-> ===================================================================
-> --- linux-2.6_misc.orig/security/selinux/ss/sidtab.c
-> +++ linux-2.6_misc/security/selinux/ss/sidtab.c
-> @@ -212,7 +212,7 @@ int sidtab_context_to_sid(struct sidtab
->                 if (sid)
->                         goto unlock_out;
->                 /* No SID exists for the context.  Allocate a 
-> new one. */
-> -               if (s->next_sid == UINT_MAX || s->shutdown) {
-> +               if (s->next_sid > 0x0000ffff || s->shutdown) {
->                         ret = -ENOMEM;
->                         goto unlock_out;
-> 
-> Let's figure out what we need for flow control and forwarding 
-> and then we can 
-> start a separate thread regarding 16 bit SIDs to get 
-> everyone's attention.
-
-Sure.
-
-> 
-> > >  * Loopback/Localhost peer packet labeling
-> > >
-> > > This has been a long standing requirement which at first
-> > > glance seems like it
-> > > would be simple to achieve but in practice it has proven
-> > > quiet difficult to
-> > > implement.  Current solutions to the problem involve using either
-> > > NetLabel/CIPSO or labeled IPsec over loopback to provide 
-> peer labels,
-> > > unfortunately both have drawbacks.  NetLabel/CIPSO is
-> > > currently limited to
-> > > only conveying the MLS sensitivity label over the wire and
-> > > only then for IPv4
-> > > packets.
+> > Thank you very much for  your advices.
 > >
-> > This can perhaps be worked-around by passing the sid verbatim
-> > using a special IP option (I believe suggested by Pete looking
-> > at the Symposium minutes).
-> 
-> Yep, this is basically the idea behind Selopt or similar.
-> 
-> > >  * Packet flow control
-> > >
-> > > Another long standing goal that has not seen much success
-> > > over the years.  The
-> > > two approaches currently being considered are: per-interface
-> > > checks against
-> > > the peer label with the possibility of an additional
-> > > forwarding hook/check if
-> > > needed for labeling purposes, as well as an iptables 
-> based filtering
-> > > mechanism which has already been discussed off and on on the
-> > > public SELinux
-> > > and LSPP mailing lists (SECFILTER/SECPOINT).  The idea behind
-> > > the iptables
-> > > based filtering mechanism is that "filter points" could be
-> > > defined using
-> > > iptables/netfilter which would provide very granular access
-> > > control checks.
-> > > The big question that is currently being debated is how much
-> > > granularity is
-> > > needed and how much makes sense?
+> > Ian
 > >
-> > I believe this is hard to predict for the general case.
-> 
-> Yep, I believe you're right and the fact that this discussion 
-> has gone on for 
-> quite some time without any real obvious answer makes me 
-> think we won't 
-> arrive at one.  In that case, I guess we should just provide the most 
-> granularity possible and let the admins sort it out (the 
-> SECFILTER idea).
-> 
-> As far as I can tell there is still one important issue we 
-> need to resolve - 
-> how to introduce new packet access checks without causing a 
-> regression for 
-> users with older policy.  This of course is tied to the 
-> desire to have a 
-> default/unlabeled_t packet access check in the case where the 
-> admin has not 
-> explicitly setup any SECFILTER points/gates/etc.  Can we live 
-> without a 
-> default check?
-
-I highly doubt it. We have erred on the side of caution on this
-in our patch since we didn't want any inadvertent flows between
-Secret and TS networks for example. This also obviously retains
-the SELinux philosophy of no allows by default.
-
-> It certainly makes the implementation cleaner and the 
-> compatibility issues less of a concern.  Thoughts?
-> 
-> > >  * Fallback labels
-> > >
-> > > The simple idea that started this whole discussion.  The need
-> > > for a usable
-> > > peer label fallback mechanism is understood by everyone but
-> > > the granularity
-> > > with which peer fallback labels are assigned are still a
-> > > source of debate.
-> > > The idea is wether the granularity proposed in this NetLabel
-> > > patchset which
-> > > allows per-host/subnet granularity for each interface is
-> > > enough, and if not
-> > > is a very granular iptables/netfilter peer label assignment
-> > > of fallback
-> > > labels required?  This topic did come up briefly some time
-> > > ago on the public
-> > > mailing list between Joshua Brindle and myself and we 
-> agreed that the
-> > > granularity presented in this patchset is sufficient,
-> > > however, not everyone
-> > > feels this way so we are still discussing the best solution.
 > >
-> > Well, there may be a case, where there's a need to identify an
-> > sshd_t peer different from a httpd_t peer. Or a http_client_t
-> > peer from an rss_aggregator_t peer. Scalability from coarse to
-> > granular should meet the entire spectrum of general cases.
-> 
-> Yes, but you're not really distinguishing between a ssh_t 
-> peer and a http_t 
-> peer, e.g. ssh -p 80, which is what troubles me about port 
-> level granularity.  
-> I sent another mail earlier which I believe described these 
-> concerns a bit 
-> better.
-
-I missed it earlier. We have been brainstorming on this among
-myself, Chad and Darrel and our current thinking (assuming I am
-putting it forward correctly) is that if one limits trust to the
-interface, it actually seems to make sense to allow defaults at
-just the interface level and further it seems to make sense to
-have the same level of granularity for both the fallback and the
-filtering case. At least for MLS, it seems enough to have the ability
-to define fallbacks as also perform filtering at just the interface level.
-The question to be debated is if for TE, we need granularity
-beyond the interface for fallbacks and flow-control.
+> >
+> > On 8/25/07, Daniel J Walsh <dwalsh@redhat.com> wrote:
+> > Ian jonhson wrote:
+> >>>> Dear Daniel,
+> >>>>
+> >>>>
+> >>>> I studied your wiki of FedoraCore, but still don't know how to start
+> >>>> my jobs. What I want to do is:
+> >>>>
+> >>>> With the help of SELinux,
+> >>>>
+> >>>> 1. add some identity tag in subject's processes. The tag maybe is a
+> >>>> integer, which can be set in SID of SELINUX.
+> >>>>
+> > SID are inside the kernel.  What you call tags are called security
+> > contexts "strings" are used for processes and files/directories.  When
+> > they are associated with a process they are sometimes called a domain.
+> > When they are with a physical object they are called a file context.
+> >
+> >>>> 2. the tag mentioned above can be stored in local filesystem, if the
+> >>>> subject's processes create his files or temporary files. In other
+> >>>> words, objects (here, it is files) can hold a tag identified who
+> >>>> created them.
+> >>>>
+> > Well in SELinux there are four parts of the security context.  The
+> > SELinux user will be associated with any file created by the process
+> > that creates it.  But there is also a file context.  So as an example
+> >
+> > system_u:system_r:smbd_t:s0 is the default security context of the
+> > running sampa process.  We can set it up so that it has read/only access
+> > to files/directories  labeled system_u:object_r:public_content_rw_t:s0
+> > root:system_r:httpd_t:s0 is the process domain of the apache server, if
+> > it had been restarted by the root SELinux user.  It could be setup with
+> > read/write access to system_u:object_r:public_content_rw_t:s0, depending
+> > on how the policy is setup.  If apache creates a file in a directory
+> > labeled system_u:object_r:public_content_rw_t:s0, it will get a label
+> > of root:object_r:public_content_rw_t:s0.
+> >
+> > If a third process say named running as system_u:object_r:named_t:s0
+> > tries to read this file, selinux will deny it.
+> >
+> >
+> > All three of these processes had UID=0
+> >
+> > Read danwalsh.livejournal.com from the beginning for a full discussion
+> > of how SELinux works.
+> >
+> >>>> 3. when two processes with different tag access a file holding owner's
+> >>>> tag, the SELINUX can distinguish the processed with different tag and
+> >>>> do access control.
+> >>>>
+> >>>> The two processes with different tag can have different uid or,
+> >>>> evenly, same uid, but their tags are not the same.
+> >>>>
+> >>>> How to implement these functionalities?
+> >>>>
+> >>>> Could you give me some advices?
+> >>>>
+> >>>> Thanks advance,
+> >>
+>
+> -----BEGIN PGP SIGNATURE-----
+> Version: GnuPG v1.4.7 (GNU/Linux)
+> Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org
+>
+> iD8DBQFG0vN7rlYvE4MpobMRAgN/AJ9iLQnUYhuEhmuYZhEKPzZwWM/ItgCfSOBg
+> i30HYwWoxY3awdVUGMXtvmI=
+> =ch01
+> -----END PGP SIGNATURE-----
+>
 
 --
 This message was distributed to subscribers of the selinux mailing list.
