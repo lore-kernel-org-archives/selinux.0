@@ -1,65 +1,77 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l7SGWQxR015047
-	for <selinux@tycho.nsa.gov>; Tue, 28 Aug 2007 12:32:26 -0400
-Received: from smtp111.sbc.mail.mud.yahoo.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with SMTP id l7SGWPqN025109
-	for <selinux@tycho.nsa.gov>; Tue, 28 Aug 2007 16:32:25 GMT
-In-Reply-To: <D709A20F2164C84E8B7014B0301F5EF8521401@HAVOC.tcs-sec.com>
-References: <D709A20F2164C84E8B7014B0301F5EF8521401@HAVOC.tcs-sec.com>
-Mime-Version: 1.0 (Apple Message framework v752.3)
-Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
-Message-Id: <738C5DA5-53CF-4730-A745-1D5E0CD1DA19@nall.com>
-Cc: Paul Moore <paul.moore@hp.com>, Darrel Goeddel <sedgoeddel@gmail.com>,
-        selinux@tycho.nsa.gov, James Morris <jmorris@namei.org>,
-        Darrel Goeddel <DGoeddel@TrustedCS.com>,
-        Stephen Smalley <sds@tycho.nsa.gov>, kaigai@ak.jp.nec.com,
-        Eric Paris <eparis@parisplace.org>
-From: Joe Nall <joe@nall.com>
-Subject: Re: [RFC 0/5] Static/fallback external labels for NetLabel
-Date: Tue, 28 Aug 2007 11:32:06 -0500
-To: Venkat Yekkirala <vyekkirala@TrustedCS.com>
+Message-ID: <46D44F53.1010507@redhat.com>
+Date: Tue, 28 Aug 2007 12:37:39 -0400
+From: Daniel J Walsh <dwalsh@redhat.com>
+MIME-Version: 1.0
+To: Karl MacMillan <kmacmillan@mentalrootkit.com>
+CC: Joshua Brindle <jbrindle@tresys.com>, Stephen Smalley <sds@tycho.nsa.gov>,
+        Todd Miller <tmiller@tresys.com>, selinux@tycho.nsa.gov
+Subject: Re: [patch 0/4] libsemanage: genhomedircon replacement
+References: <20070815204411.705994826@tresys.com>	 <1187190639.2674.51.camel@localhost.localdomain>	 <46C31BD0.5060200@tresys.com>	 <1187192832.2674.74.camel@localhost.localdomain>	 <6FE441CD9F0C0C479F2D88F959B01588EDEB74@exchange.columbia.tresys.com>	 <1187198560.20485.45.camel@moss-spartans.epoch.ncsc.mil>	 <1187205378.2838.12.camel@localhost.localdomain>	 <1187207793.20485.103.camel@moss-spartans.epoch.ncsc.mil>	 <1187209022.2838.38.camel@localhost.localdomain>	 <1187209889.20485.138.camel@moss-spartans.epoch.ncsc.mil>	 <1187210504.2838.56.camel@localhost.localdomain>	 <6FE441CD9F0C0C479F2D88F959B01588EDEBA9@exchange.columbia.tresys.com>	 <1187212166.2838.73.camel@localhost.localdomain>	 <1187280118.909.22.camel@moss-spartans.epoch.ncsc.mil>	 <46D30EE7.3030401@redhat.com>  <46D42F5F.203@tresys.com> <1188312373.19198.14.camel@localhost.localdomain>
+In-Reply-To: <1188312373.19198.14.camel@localhost.localdomain>
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-On Aug 28, 2007, at 11:13 AM, Venkat Yekkirala wrote:
->
-> You are right. I think the whole thing boils down to what you trust  
-> and
-> this can theoretically vary from case to case. For example, if one  
-> trusts
-> a host to compartmentalize/segregate/mac services appropriately but  
-> cannot
-> do OTW labeling, and they trust the network path to it (say by use of
-> IPSec),
-> it's conceivable that they may want the ability to fallback per-port
-> (granted
-> it could get challenging with the use of ephemeral ports by  
-> clients) and
-> further
-> flow-control per-port as well. But I guess we could always start  
-> with the
-> current ideas on what can *reasonably* and *commonly* be trusted,  
-> which it
-> looks like would be the netif and the node (usually using IPSec as you
-> mention below)
-> and see how far that will take us in the real world. At least this  
-> should
-> meet
-> our current needs. I would be curious to see specifically what  
-> other current
-> users such as Joe Nall, Ted Toth and others would like to see. IOW,  
-> will
-> this
-> meet their needs. An explicit (N)ACK would be great.
+Karl MacMillan wrote:
+> On Tue, 2007-08-28 at 10:21 -0400, Joshua Brindle wrote:
+>> Daniel J Walsh wrote:
+>>> -----BEGIN PGP SIGNED MESSAGE-----
+>>> Hash: SHA1
+>>>
+>>> Finally catching up on Email after vacation.
+>>>
+>>> genhomedircon lists the entire list of passwords in order to figure out
+>>> where home directories are.  Not just the contents of the seusers.
+>>>
+> 
+> And this will simply not work with LDAP infrastructure - iterating over
+> tens-of-thousands of users on _every_ workstation is not acceptable.
+> 
+>> Is there an implementation error in the new genhomedircon?
+>>
+>>> At RedHat we have about 50 different root home directories
+>>>
+>>> /home/location/dwalsh
+>>>
+>>> We need to know this in order to have restorecon work properly.
+>>>
+>>> Labeling of the homedir for things like .mozilla .gnome2 and .ssh
+>>> is still needed, but differentiating them on Roles does not make sense
+>>> in a distributed world.  Where if dwalsh logs into a kiosk machine he
+>>> might be xguest_t, on a terminal server guest_t, on his local machine
+>>> unconfined_t and on the security machine staff_t.  If his home directory
+>>> is the same on all of these, SELinux is in trouble.
+>> So, it doesn't make sense for your specific infrastructure, that doesn't 
+>> mean it doesn't make sense ever. And this is a policy issue really, 
+>> genhomedircon just does what its told.
+>>
+>>
+> 
+> Can we turn the question around then? Where would this behavior be
+> useful? And would the per-user labeling and constraints I suggested work
+> in those situations as an alternative? Again, we can leave genhomedircon
+> for all I care, I just want to have the defaults work in most
+> situations.
+> 
+> Karl
+> 
+> 
+I believe ldap will stop you from returning the entire database anyways,
+ Since it is threshold limited.  I had bugreports of genhomedircon
+taking forever to run with large password database > 100,000.  This is
+where the compiling of the regex saved tons of time.
 
- From an untrustworthy host (no MAC enforcement), every port ought to be
-the same for Bell-Lapadula MAC purposes.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.7 (GNU/Linux)
+Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org
 
-I'm sure there are some fringe cases that would violate that rule, but
-they can be handled with IP aliasing on the untrusted host.
-
-joe
+iD8DBQFG1E9SrlYvE4MpobMRAl+BAKCJ+tDpVFIo2e+TPzbCOBhqKzV/pwCgzlOY
+ILOHuv1SxKFdxSVEh+yjOc0=
+=hEyU
+-----END PGP SIGNATURE-----
 
 --
 This message was distributed to subscribers of the selinux mailing list.
