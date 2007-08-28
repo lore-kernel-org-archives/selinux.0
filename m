@@ -1,51 +1,63 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l7SLdLrs011632
-	for <selinux@tycho.nsa.gov>; Tue, 28 Aug 2007 17:39:21 -0400
-Received: from nz-out-0506.google.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l7SLdLp9003176
-	for <selinux@tycho.nsa.gov>; Tue, 28 Aug 2007 21:39:21 GMT
-Received: by nz-out-0506.google.com with SMTP id l1so1458620nzf
-        for <selinux@tycho.nsa.gov>; Tue, 28 Aug 2007 14:39:16 -0700 (PDT)
-Message-ID: <7b740b700708281439p39da575alcb3b3abba43461ef@mail.gmail.com>
-Date: Wed, 29 Aug 2007 02:39:15 +0500
-From: "shahbaz khan" <shazalive@gmail.com>
-To: selinux@tycho.nsa.gov
-Subject: Policy server
-MIME-Version: 1.0
-Content-Type: multipart/alternative;
-	boundary="----=_Part_69598_8772275.1188337155449"
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l7SMQR6Z014695
+	for <selinux@tycho.nsa.gov>; Tue, 28 Aug 2007 18:26:27 -0400
+Received: from smtp102.sbc.mail.mud.yahoo.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with SMTP id l7SMQPKY025048
+	for <selinux@tycho.nsa.gov>; Tue, 28 Aug 2007 22:26:26 GMT
+In-Reply-To: <46D47C1E.9080307@manicmethod.com>
+References: <D709A20F2164C84E8B7014B0301F5EF8521359@HAVOC.tcs-sec.com> <200708281151.07120.paul.moore@hp.com> <4C3962FB-2689-420B-B3E8-F07AF2A48255@nall.com> <200708281451.53650.paul.moore@hp.com> <B238200E-66B8-465E-9875-E50FEA7E1CA8@nall.com> <46D47C1E.9080307@manicmethod.com>
+Mime-Version: 1.0 (Apple Message framework v752.3)
+Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
+Message-Id: <6F2B62D9-0D4D-4F22-8659-317E9EF65743@nall.com>
+Cc: Paul Moore <paul.moore@hp.com>, Darrel Goeddel <sedgoeddel@gmail.com>,
+        Venkat Yekkirala <vyekkirala@TrustedCS.com>, selinux@tycho.nsa.gov,
+        James Morris <jmorris@namei.org>,
+        Darrel Goeddel <DGoeddel@TrustedCS.com>,
+        Stephen Smalley <sds@tycho.nsa.gov>, kaigai@ak.jp.nec.com,
+        Eric Paris <eparis@parisplace.org>
+From: Joe Nall <joe@nall.com>
+Subject: Re: [RFC 0/5] Static/fallback external labels for NetLabel
+Date: Tue, 28 Aug 2007 17:26:01 -0500
+To: Joshua Brindle <method@manicmethod.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-------=_Part_69598_8772275.1188337155449
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
 
-Hi,
+On Aug 28, 2007, at 2:48 PM, Joshua Brindle wrote:
 
-I need to know if PMS is in a condition that it can be run as a policy
-server fro remote clients. Secondly, cant find the policy.conf in my /etc as
-the makefile points. Should I be checking the access rights?
+> Joe Nall wrote:
+>>
+>> On Aug 28, 2007, at 1:51 PM, Paul Moore wrote:
+>>
+>>> On Tuesday, August 28 2007 12:18:05 pm Joe Nall wrote:
+>>>>
+>>>> Will interface aliases (eth0:1) be able to take on different  
+>>>> labels from
+>>>> their base interface?
+>>>
+>>> Not sure, it all depends on if an interface alias ends up  
+>>> creating a separate
+>>> net_device struct in the kernel, I don't have the answer to this  
+>>> off the top
+>>> of my head.  What is your preference?
+>>
+>> That interface aliases be independently labeled.
+>
+> I completely agree with Stephen here. Accessing the same physical  
+> piece of hardware (on the same wire) through a different 'name'  
+> provides basically nothing.
 
--- 
-Shahbaz
-Group: http://securityengineering.wordpress.com
-Email: shazalive@gmail.com
-cell: +92 91 0300 5944647
+Except convenience. Different IP address, different behavior. I can  
+be happy either way.
 
-------=_Part_69598_8772275.1188337155449
-Content-Type: text/html; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+> Most people I've talked to aren't even comfortable using nics that  
+> share the same chips on board (eg., dual nics on the motherboard).
 
-<div>Hi,</div>
-<div>&nbsp;</div>
-<div>I need to know if PMS is in a condition that it can be run as a policy server fro remote clients. Secondly, cant find the policy.conf in my /etc as the makefile points. Should I be checking the access rights?<br clear="all">
-<br>-- <br>Shahbaz<br>Group: <a href="http://securityengineering.wordpress.com">http://securityengineering.wordpress.com</a><br>Email: <a href="mailto:shazalive@gmail.com">shazalive@gmail.com</a><br>cell: +92 91 0300 5944647 
-</div>
+We had the same issue with quad port ethernet cards because they had  
+a shared PCI interface chip. After looking at the driver, the concern  
+was not wholly unfounded ...
 
-------=_Part_69598_8772275.1188337155449--
+joe
 
 --
 This message was distributed to subscribers of the selinux mailing list.
