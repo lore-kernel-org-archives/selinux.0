@@ -1,51 +1,60 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l7SI2MGH026685
-	for <selinux@tycho.nsa.gov>; Tue, 28 Aug 2007 14:02:22 -0400
-Received: from tcsfw4.tcs-sec.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l7SI2KFZ020393
-	for <selinux@tycho.nsa.gov>; Tue, 28 Aug 2007 18:02:21 GMT
-Message-ID: <D709A20F2164C84E8B7014B0301F5EF852144C@HAVOC.tcs-sec.com>
-From: Venkat Yekkirala <vyekkirala@TrustedCS.com>
-To: Darrel Goeddel <sedgoeddel@gmail.com>
-Cc: Paul Moore <paul.moore@hp.com>, selinux@tycho.nsa.gov,
-        James Morris
-	 <jmorris@namei.org>,
+From: Paul Moore <paul.moore@hp.com>
+To: Joe Nall <joe@nall.com>
+Subject: Re: [RFC 0/5] Static/fallback external labels for NetLabel
+Date: Tue, 28 Aug 2007 14:51:53 -0400
+Cc: Darrel Goeddel <sedgoeddel@gmail.com>,
+        Venkat Yekkirala <vyekkirala@TrustedCS.com>, selinux@tycho.nsa.gov,
+        James Morris <jmorris@namei.org>,
         Darrel Goeddel <DGoeddel@TrustedCS.com>,
         Stephen Smalley <sds@tycho.nsa.gov>, kaigai@ak.jp.nec.com,
-        joe@nall.com, Eric Paris <eparis@parisplace.org>
-Subject: RE: [RFC 0/5] Static/fallback external labels for NetLabel
-Date: Tue, 28 Aug 2007 14:02:02 -0400
+        Eric Paris <eparis@parisplace.org>
+References: <D709A20F2164C84E8B7014B0301F5EF8521359@HAVOC.tcs-sec.com> <200708281151.07120.paul.moore@hp.com> <4C3962FB-2689-420B-B3E8-F07AF2A48255@nall.com>
+In-Reply-To: <4C3962FB-2689-420B-B3E8-F07AF2A48255@nall.com>
 MIME-Version: 1.0
 Content-Type: text/plain;
-	charset="iso-8859-1"
+  charset="iso-8859-1"
+Message-Id: <200708281451.53650.paul.moore@hp.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-> I am assuming that the *_socket checks used by netlabel would be 
-> checking against the new peer label that is in (at least 
-> near) the skb, 
-> is that right?  If so, the *_socket checks also take care of the peer 
-> label coming from loopback.  This would be a bit of a policy change 
+On Tuesday, August 28 2007 12:18:05 pm Joe Nall wrote:
+> On Aug 28, 2007, at 10:51 AM, Paul Moore wrote:
+> > Hmm, so in summary, you (TCS) don't see a need for flow control of
+> > fallback
+> > labels with granularity greater then a single host and if really
+> > pushed
+> > interface level granularity would most likely suffice.  I'll
+> > venture that
+> > host/network level granularity might be nice for normal users who
+> > only have
+> > one interface which connects to multiple networks, e.g. the person
+> > sitting at
+> > home on a private home network which also connects to the big-bad-
+> > internet
+> > via a nat box provided by their ISP.
+>
+> This matches my CMW experience. Interface labeling is a must. Per
+> host/net
+> default labeling is very useful, but isn't a show-stopper. Per host/net
+> default labeling is particularly useful when testing since most of us
+> don't
+> have a a dozen physical interfaces and associated infrastructure for
+> test.
 
-I doubt it since NetLabel currently already uses the xfrm label,
-if available, as the base sid.
+That's good to know others have the same needs/requirements.  We've been going 
+around in circles for a while now but I think we are finally starting to 
+settle on what we need.
 
-> since the *_socket checks now apply to domains (not just the 
-> base type 
-> from the initial sid) since the loopback traffic goes through 
-> the same 
-> checks.  I at least hope we don't add another, separate, 
-> check for the 
-> loopback case...
-> 
-> That was just one idea, but I definitely think the 
-> unification should be 
-> a goal of this exercise.
-> 
-> -- 
-> 
-> Darrel
-> 
+> Will interface aliases (eth0:1) be able to take on different labels from
+> their base interface?
+
+Not sure, it all depends on if an interface alias ends up creating a separate 
+net_device struct in the kernel, I don't have the answer to this off the top 
+of my head.  What is your preference?
+
+-- 
+paul moore
+linux security @ hp
 
 --
 This message was distributed to subscribers of the selinux mailing list.
