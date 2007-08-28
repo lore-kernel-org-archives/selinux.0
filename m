@@ -1,8 +1,7 @@
 Subject: Re: [patch 0/4] libsemanage: genhomedircon replacement
-From: Stephen Smalley <sds@tycho.nsa.gov>
+From: Karl MacMillan <kmacmillan@mentalrootkit.com>
 To: Joshua Brindle <jbrindle@tresys.com>
-Cc: Daniel J Walsh <dwalsh@redhat.com>,
-        Karl MacMillan <kmacmillan@mentalrootkit.com>,
+Cc: Daniel J Walsh <dwalsh@redhat.com>, Stephen Smalley <sds@tycho.nsa.gov>,
         Todd Miller <tmiller@tresys.com>, selinux@tycho.nsa.gov
 In-Reply-To: <46D42F5F.203@tresys.com>
 References: <20070815204411.705994826@tresys.com>
@@ -21,8 +20,8 @@ References: <20070815204411.705994826@tresys.com>
 	 <1187280118.909.22.camel@moss-spartans.epoch.ncsc.mil>
 	 <46D30EE7.3030401@redhat.com>  <46D42F5F.203@tresys.com>
 Content-Type: text/plain
-Date: Tue, 28 Aug 2007 10:30:17 -0400
-Message-Id: <1188311417.26572.95.camel@moss-spartans.epoch.ncsc.mil>
+Date: Tue, 28 Aug 2007 10:46:13 -0400
+Message-Id: <1188312373.19198.14.camel@localhost.localdomain>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
@@ -38,16 +37,12 @@ On Tue, 2007-08-28 at 10:21 -0400, Joshua Brindle wrote:
 > > where home directories are.  Not just the contents of the seusers.
 > > 
 > 
+
+And this will simply not work with LDAP infrastructure - iterating over
+tens-of-thousands of users on _every_ workstation is not acceptable.
+
 > Is there an implementation error in the new genhomedircon?
-
-It still walks the entire passwd database (via getpwent()) to get the
-home directory list.  The script did likewise.  So it isn't an
-implementation error, but a characteristic of the genhomedircon
-functionality.
-
-BTW, the C code shouldn't be using getpwnam or getpwent - it should be
-using the _r versions of those functions since it is a library.
-
+> 
 > > At RedHat we have about 50 different root home directories
 > > 
 > > /home/location/dwalsh
@@ -64,9 +59,17 @@ using the _r versions of those functions since it is a library.
 > So, it doesn't make sense for your specific infrastructure, that doesn't 
 > mean it doesn't make sense ever. And this is a policy issue really, 
 > genhomedircon just does what its told.
--- 
-Stephen Smalley
-National Security Agency
+> 
+> 
+
+Can we turn the question around then? Where would this behavior be
+useful? And would the per-user labeling and constraints I suggested work
+in those situations as an alternative? Again, we can leave genhomedircon
+for all I care, I just want to have the defaults work in most
+situations.
+
+Karl
+
 
 
 --
