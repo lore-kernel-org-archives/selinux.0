@@ -1,76 +1,56 @@
 Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l7SGDOkj013532
-	for <selinux@tycho.nsa.gov>; Tue, 28 Aug 2007 12:13:24 -0400
-Received: from tcsfw4.tcs-sec.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l7SGDMFZ025907
-	for <selinux@tycho.nsa.gov>; Tue, 28 Aug 2007 16:13:23 GMT
-Message-ID: <D709A20F2164C84E8B7014B0301F5EF8521401@HAVOC.tcs-sec.com>
-From: Venkat Yekkirala <vyekkirala@TrustedCS.com>
-To: Paul Moore <paul.moore@hp.com>, Darrel Goeddel <sedgoeddel@gmail.com>
-Cc: Venkat Yekkirala <vyekkirala@TrustedCS.com>, selinux@tycho.nsa.gov,
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l7SGIVII013973
+	for <selinux@tycho.nsa.gov>; Tue, 28 Aug 2007 12:18:31 -0400
+Received: from smtp111.sbc.mail.mud.yahoo.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with SMTP id l7SGITFZ026588
+	for <selinux@tycho.nsa.gov>; Tue, 28 Aug 2007 16:18:30 GMT
+In-Reply-To: <200708281151.07120.paul.moore@hp.com>
+References: <D709A20F2164C84E8B7014B0301F5EF8521359@HAVOC.tcs-sec.com> <46D43808.4050008@gmail.com> <200708281151.07120.paul.moore@hp.com>
+Mime-Version: 1.0 (Apple Message framework v752.3)
+Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
+Message-Id: <4C3962FB-2689-420B-B3E8-F07AF2A48255@nall.com>
+Cc: Darrel Goeddel <sedgoeddel@gmail.com>,
+        Venkat Yekkirala <vyekkirala@TrustedCS.com>, selinux@tycho.nsa.gov,
         James Morris <jmorris@namei.org>,
         Darrel Goeddel <DGoeddel@TrustedCS.com>,
         Stephen Smalley <sds@tycho.nsa.gov>, kaigai@ak.jp.nec.com,
-        joe@nall.com, Eric Paris <eparis@parisplace.org>
-Subject: RE: [RFC 0/5] Static/fallback external labels for NetLabel
-Date: Tue, 28 Aug 2007 12:13:03 -0400
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+        Eric Paris <eparis@parisplace.org>
+From: Joe Nall <joe@nall.com>
+Subject: Re: [RFC 0/5] Static/fallback external labels for NetLabel
+Date: Tue, 28 Aug 2007 11:18:05 -0500
+To: Paul Moore <paul.moore@hp.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-(snip)
-> Hmm, so in summary, you (TCS) don't see a need for flow 
-> control of 
-> fallback 
 
-or generically peer (right?; just trying to make sure I am not missing
-anything subtle here ...)
-
-> labels with granularity greater then a single host and if 
-> really pushed 
-> interface level granularity would most likely suffice.  I'll 
-> venture that 
-> host/network level granularity might be nice for normal users 
-> who only have 
-> one interface which connects to multiple networks, e.g. the 
-> person sitting at 
-> home on a private home network which also connects to the 
-> big-bad-internet 
+On Aug 28, 2007, at 10:51 AM, Paul Moore wrote:
+>
+> Hmm, so in summary, you (TCS) don't see a need for flow control of  
+> fallback
+> labels with granularity greater then a single host and if really  
+> pushed
+> interface level granularity would most likely suffice.  I'll  
+> venture that
+> host/network level granularity might be nice for normal users who  
+> only have
+> one interface which connects to multiple networks, e.g. the person  
+> sitting at
+> home on a private home network which also connects to the big-bad- 
+> internet
 > via a nat box provided by their ISP.
 
-You are right. I think the whole thing boils down to what you trust and
-this can theoretically vary from case to case. For example, if one trusts
-a host to compartmentalize/segregate/mac services appropriately but cannot
-do OTW labeling, and they trust the network path to it (say by use of
-IPSec),
-it's conceivable that they may want the ability to fallback per-port
-(granted
-it could get challenging with the use of ephemeral ports by clients) and
-further
-flow-control per-port as well. But I guess we could always start with the
-current ideas on what can *reasonably* and *commonly* be trusted, which it
-looks like would be the netif and the node (usually using IPSec as you
-mention below)
-and see how far that will take us in the real world. At least this should
-meet
-our current needs. I would be curious to see specifically what other current
-users such as Joe Nall, Ted Toth and others would like to see. IOW, will
-this
-meet their needs. An explicit (N)ACK would be great.
+This matches my CMW experience. Interface labeling is a must. Per  
+host/net
+default labeling is very useful, but isn't a show-stopper. Per host/net
+default labeling is particularly useful when testing since most of us  
+don't
+have a a dozen physical interfaces and associated infrastructure for  
+test.
 
-> 
-> This now has me rethinking the need for a full featured 
-> netfilter based 
-> mechanism for flow control (SECFILTER).  I'm wondering if we 
-> would be better 
-> served by simple hooks in the network device layer for in/out 
-> and possible 
-> forward.  As James pointed out in the off-list discussion, the whole 
-> netfilter mechanism seems like a bit much for what we actually need.
+Will interface aliases (eth0:1) be able to take on different labels from
+their base interface?
 
-Agreed.
+joe
 
 --
 This message was distributed to subscribers of the selinux mailing list.
