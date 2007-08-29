@@ -1,139 +1,88 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l7T1cUWs024537
-	for <selinux@tycho.nsa.gov>; Tue, 28 Aug 2007 21:38:30 -0400
-Received: from wa-out-1112.google.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l7T1cTuv006150
-	for <selinux@tycho.nsa.gov>; Wed, 29 Aug 2007 01:38:29 GMT
-Received: by wa-out-1112.google.com with SMTP id k22so9482waf
-        for <selinux@tycho.nsa.gov>; Tue, 28 Aug 2007 18:38:26 -0700 (PDT)
-Message-ID: <46D4CD70.6030606@gmail.com>
-Date: Wed, 29 Aug 2007 09:35:44 +0800
-From: Ken YANG <spng.yang@gmail.com>
+Message-ID: <46D4EBEA.509@manicmethod.com>
+Date: Tue, 28 Aug 2007 23:45:46 -0400
+From: Joshua Brindle <method@manicmethod.com>
 MIME-Version: 1.0
-To: Dave Sugar <dsugar@tresys.com>
-CC: selinux@tycho.nsa.gov
-Subject: Re: ANN: SELinux Policy IDE (SLIDE) version 1.2
-References: <1187974484.17434.6.camel@localhost.localdomain>	 <46CFB291.6010000@gmail.com> <1188304656.4977.4.camel@localhost.localdomain>
-In-Reply-To: <1188304656.4977.4.camel@localhost.localdomain>
-Content-Type: text/plain; charset=gb18030
+To: Joe Nall <joe@nall.com>
+CC: Paul Moore <paul.moore@hp.com>, Darrel Goeddel <sedgoeddel@gmail.com>,
+        Venkat Yekkirala <vyekkirala@TrustedCS.com>, selinux@tycho.nsa.gov,
+        James Morris <jmorris@namei.org>,
+        Darrel Goeddel <DGoeddel@TrustedCS.com>,
+        Stephen Smalley <sds@tycho.nsa.gov>, kaigai@ak.jp.nec.com,
+        Eric Paris <eparis@parisplace.org>
+Subject: Re: [RFC 0/5] Static/fallback external labels for NetLabel
+References: <D709A20F2164C84E8B7014B0301F5EF8521359@HAVOC.tcs-sec.com> <200708281151.07120.paul.moore@hp.com> <4C3962FB-2689-420B-B3E8-F07AF2A48255@nall.com> <200708281451.53650.paul.moore@hp.com> <B238200E-66B8-465E-9875-E50FEA7E1CA8@nall.com> <46D47C1E.9080307@manicmethod.com> <6F2B62D9-0D4D-4F22-8659-317E9EF65743@nall.com> <46D4BAE1.8010805@manicmethod.com>
+In-Reply-To: <46D4BAE1.8010805@manicmethod.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Dave Sugar wrote:
-> Ken,
-> 
-> Can you give me some more information about what is going on?
-> Have you followed the directions posted on the SLIDE project site
-> (http://oss.tresys.com/projects/slide/wiki/download)?
-> Are there any errors being displayed?
-> What platform are you running on?  FC6, f7? x86, x86_64, PPC?
-
-thanks for your reply
-
-originally, i use the eclipse to install slide following the
-"Using the Eclipse Update Site" section.
-
-now i want to update through eclipse:
-
-'Help > Software Updates > Find and Install... > Search for updates
-of the currently installed features '
-
-but eclipse told me there are not any update.
-
-
-after that, i try install a new feature:
-
-Select 'Search for new features to install' and click 'Next'.
-
-but there are some error imformations:
-
-The current configuration contains errors and this operation can have
-unpredictable results.
-  Autotools Feature (0.9.2) requires feature "org.eclipse.cdt
-(4.0.0.200706261300)", or later version.
-  Eclipse C/C++ Development Tools CppUnit support (2.0.0) requires
-plug-in "org.eclipse.cdt.core".
-  Mylyn Task List (Required) (2.0.0.v20070627-1400) requires plug-in
-"org.eclipse.mylar (2.0.0.v20070614-1800)", or compatible.
-
-
-my platform is F8 Rawhide, x86 and eclipse is:
-
--(:09:24:$)-> rpm -qa |grep eclipse
-eclipse-jdt-3.3.0-9.fc8.i386
-eclipse-cdt-4.0.0-5.fc8.i386
-eclipse-subclipse-book-1.2.2-3.fc8.i386
-tomcat5-jasper-eclipse-5.5.23-9jpp.4.fc8.i386
-eclipse-mylyn-2.0.0-4.fc8.i386
-eclipse-platform-3.3.0-9.fc8.i386
-eclipse-subclipse-1.2.2-3.fc8.i386
-icu4j-eclipse-3.6.1-1jpp.2.fc8.i386
-eclipse-rcp-3.3.0-9.fc8.i386
-eclipse-ecj-3.3.0-9.fc8.i386
-eclipse-changelog-2.5.1-2.fc8.i386
-eclipse-cvs-client-3.3.0-9.fc8.i386
-eclipse-gef-3.2.1-4.fc7.i386
-
-
-
-> 
-> Thanks
-> Dave Sugar
-> dsugar@tresys.com
-> 
-> On Sat, 2007-08-25 at 12:39 +0800, Ken YANG wrote:
->> Dave Sugar wrote:
->>> Version 1.2 of the SELinux Policy IDE (SLIDE) from Tresys Technology is
->>> now available for download from the Tresys Open source website at
->>> http://oss.tresys.com.
->> i can not update through update functionality in Eclipse, i.e.
+Joshua Brindle wrote:
+> Joe Nall wrote:
 >>
->> Help->Software Updates->Find and install...
+>> On Aug 28, 2007, at 2:48 PM, Joshua Brindle wrote:
 >>
+>>> Joe Nall wrote:
+>>>>
+>>>> On Aug 28, 2007, at 1:51 PM, Paul Moore wrote:
+>>>>
+>>>>> On Tuesday, August 28 2007 12:18:05 pm Joe Nall wrote:
+>>>>>>
+>>>>>> Will interface aliases (eth0:1) be able to take on different 
+>>>>>> labels from
+>>>>>> their base interface?
+>>>>>
+>>>>> Not sure, it all depends on if an interface alias ends up creating 
+>>>>> a separate
+>>>>> net_device struct in the kernel, I don't have the answer to this 
+>>>>> off the top
+>>>>> of my head.  What is your preference?
+>>>>
+>>>> That interface aliases be independently labeled.
+>>>
+>>> I completely agree with Stephen here. Accessing the same physical 
+>>> piece of hardware (on the same wire) through a different 'name' 
+>>> provides basically nothing.
 >>
->>> SLIDE is an Eclipse plug-in that integrates with the SELinux Reference
->>> Policy to provide a development environment for building SELinux policy.
->>>
->>> SLIDE Features:
->>>
->>>
->>> * A graphical user interface for policy development, including policy
->>> syntax highlighting, context suggestions, and integrated compilation.
->>> * Integration with SELinux Reference Policy, including quick lookup and
->>> documentation for interfaces and macros.
->>> * Wizards and easy to use templates to automate common tasks from
->>> creating a new SELinux policy to adding an interface into an existing
->>> module.
->>> * Integrated remote policy installation and audit log monitoring, to
->>> facilitate policy testing.
->>> * Seamless integration with the power of standard Eclipse.
->>>
->>> Version 1.2 highlights:
->>>
->>> * Graphical interface for network configuration via corenetwork.
->>> * Added auto completion, context help, and tool tip descriptions for
->>> Reference Policy macros, as well as including macros in the interface
->>> view and showing their definitions in the declaration view.
->>> * Improved documentation on the open source web site.
->>> * Updates to work with SETools version 3.3.
->>> * Fixed problems with the Console output.
->>> * Bugs fixed with undo/redo when toggling commenting on numerous lines
->>> of policy.
->>>
->>>
->>>
->>> If you would like to contribute, currently the best help would be to
->>> test and provide feedback on the SLIDE plugin and SLIDE Remote.
->>>
->>> Dave Sugar
->>> Tresys Technology, LLC
->>>
->>> --
->>> fedora-selinux-list mailing list
->>> fedora-selinux-list@redhat.com
->>> https://www.redhat.com/mailman/listinfo/fedora-selinux-list
->>>
-> 
+>> Except convenience. Different IP address, different behavior. I can 
+>> be happy either way.
+>
+> It is misusing an abstraction, the same way as(as Stephen said) having 
+> different access control on two paths that refer to the same inode.
+>
+> It should be no surprise that I was just informed by the apparmor devs 
+> that they do plan to allow differing access between interface aliases.
+>
+
+the more I think about this the less it matters. Doing labeling based on 
+node is really the exact same thing as labeling based on interface aliases.
+
+node 192.168.1.1/24  = net_foo_t
+node 192.168.2.1/24  = net_bar_t
+
+or
+
+eth0:1 (which is 192.168.1.1 with /24 netmask) = net_foo_t
+eth0:2 (which is 192.168.2.1 with /24 netmask) = net_bar_t
+
+see, no difference :)
+
+So if we allow node based then alias isn't any different. also netfilter 
+lets you select on interface aliases so in some way we already allow 
+this behavior.
+
+>>
+>>> Most people I've talked to aren't even comfortable using nics that 
+>>> share the same chips on board (eg., dual nics on the motherboard).
+>>
+>> We had the same issue with quad port ethernet cards because they had 
+>> a shared PCI interface chip. After looking at the driver, the concern 
+>> was not wholly unfounded ...
+>
+> Well.. You still aren't buying anything by avoiding this situation, 
+> the drivers are all in the same process space (even if they are 
+> different drivers), the same network stack will be used, etc. You 
+> might be able to sleep at night but what is the security gain?
+
 
 
 --
