@@ -1,64 +1,85 @@
-Message-ID: <46D57D0B.3020005@manicmethod.com>
-Date: Wed, 29 Aug 2007 10:04:59 -0400
+Message-ID: <46D5822F.3010804@manicmethod.com>
+Date: Wed, 29 Aug 2007 10:26:55 -0400
 From: Joshua Brindle <method@manicmethod.com>
 MIME-Version: 1.0
-To: Joe Nall <joe@nall.com>
-CC: Paul Moore <paul.moore@hp.com>, Darrel Goeddel <sedgoeddel@gmail.com>,
+To: Paul Moore <paul.moore@hp.com>
+CC: Joe Nall <joe@nall.com>, Darrel Goeddel <sedgoeddel@gmail.com>,
         Venkat Yekkirala <vyekkirala@TrustedCS.com>, selinux@tycho.nsa.gov,
         James Morris <jmorris@namei.org>,
         Darrel Goeddel <DGoeddel@TrustedCS.com>,
         Stephen Smalley <sds@tycho.nsa.gov>, kaigai@ak.jp.nec.com,
         Eric Paris <eparis@parisplace.org>
 Subject: Re: [RFC 0/5] Static/fallback external labels for NetLabel
-References: <D709A20F2164C84E8B7014B0301F5EF8521359@HAVOC.tcs-sec.com> <200708281151.07120.paul.moore@hp.com> <4C3962FB-2689-420B-B3E8-F07AF2A48255@nall.com> <200708281451.53650.paul.moore@hp.com> <B238200E-66B8-465E-9875-E50FEA7E1CA8@nall.com> <46D47C1E.9080307@manicmethod.com> <6F2B62D9-0D4D-4F22-8659-317E9EF65743@nall.com> <46D4BAE1.8010805@manicmethod.com> <46D4EBEA.509@manicmethod.com> <46D4F1E2.4050503@manicmethod.com> <EBD2E826-9E36-4864-965E-2A5A134DF3B2@nall.com>
-In-Reply-To: <EBD2E826-9E36-4864-965E-2A5A134DF3B2@nall.com>
+References: <D709A20F2164C84E8B7014B0301F5EF8521359@HAVOC.tcs-sec.com> <46D4EBEA.509@manicmethod.com> <46D4F1E2.4050503@manicmethod.com> <200708290821.46404.paul.moore@hp.com>
+In-Reply-To: <200708290821.46404.paul.moore@hp.com>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Joe Nall wrote:
+Paul Moore wrote:
+> On Wednesday, August 29 2007 12:11:14 am Joshua Brindle wrote:
+>   
+>> Ok, I think my brain is still catching up on this thread.
+>>     
 >
-> On Aug 28, 2007, at 11:11 PM, Joshua Brindle wrote:
->>>
->>> the more I think about this the less it matters. Doing labeling 
->>> based on node is really the exact same thing as labeling based on 
->>> interface aliases.
->>>
->>> node 192.168.1.1/24  = net_foo_t
->>> node 192.168.2.1/24  = net_bar_t
->>>
->>> or
->>>
->>> eth0:1 (which is 192.168.1.1 with /24 netmask) = net_foo_t
->>> eth0:2 (which is 192.168.2.1 with /24 netmask) = net_bar_t
->>>
->>> see, no difference :)
->>>
->>> So if we allow node based then alias isn't any different. also 
->>> netfilter lets you select on interface aliases so in some way we 
->>> already allow this behavior.
+> My brain gave up quite a while ago ... it's just nerves banging away at the 
+> keyboard now :)
+>
+>   
+>> Because of 
+>> what I said above I think we should 1) not do node based fallbacks and
+>> 2) not do nic alias-level fallbacks. This is the safe option (as already
+>> pointed out) and minimizes trust in untrustworthy things (eg., addresses
+>> coming from the network).
 >>
->> Ok, I think my brain is still catching up on this thread. Because of 
->> what I said above I think we should 1) not do node based fallbacks 
->> and 2) not do nic alias-level fallbacks. This is the safe option (as 
->> already pointed out) and minimizes trust in untrustworthy things 
->> (eg., addresses coming from the network).
+>> OTOH it may make some peoples lives easier to allow this. It is a false
+>> sense of security though so I vote for doing nic level fallbacks only
+>> and if someone *really* wants to do this they can just plug several nics
+>> into the same network (hopefully they'd recognize the horrible things
+>> they are doing if it is explicit like that).
+>>
+>> It sounds like the decision is still up in the air though, does anyone
+>> inherently disagree with me here?
+>>     
 >
-> If we install and maintain a router (in a locked box with IP admin 
-> disabled), we are allowed to trust (label based on) the router's IP 
-> address. If we put a single PC behind the router and NAT or route to 
-> it specifically, we are allowed to trust the IP address of the PC 
-> (since it is provided by the router). So there are circumstances where 
-> the IP address of an untrustworthy OS is itself trustworthy in the 
-> eyes of our accreditors.
+> I guess every decision is technically up in the air until the changes/patches 
+> are included in a released kernel, however, I'm pretty confident that host 
+> level granularity of both fallback labels and flow control peer label 
+> filtering is "the right thing".
 >
+> I understand your point about not extending trust beyond the level of the 
+> physical wire, that is very easy to rationalize/understand.  However, from a 
+> practical real-world scenario (see my home network behind a NAT box example, 
+> as well as others) I think there is real value in extending the labeling 
+> beyond the wire to the host/network level.  SELinux has always made some 
+> allowances to facilitate adoption and ease of use, i.e. unconfined_t, but has 
+> been careful to make sure that these concessions were always at the 
+> discretion of the system administrator.  Fallback labeling and peer flow 
+> controls are configuration options which are only available to the system 
+> administrator and providing host level granularity can be a significant 
+> benefit to a lot of people.
+>   
 
-eh? Except not. anything on the same lan as the router can pretend to be 
-said router via both mac address and ip. ip is absolutely not reliable 
-unless its going over ipsec (in which case you'd just use ipsec 
-labeling) or the network is completely isolated (in which case you'd 
-just use interface labeling).
+concessions are fine when the ramifications are understood, unconfined_t 
+is pretty obvious. But when there are security people that believe host 
+based labeling buys anything then it may be an inappropriate concession. 
+I mean, if I can get on your network and in a matter of seconds take 
+over both your IP and MAC address it isn't good. Worse, I could use 
+something like ettercap and MiM you without you even knowing (and even 
+inject data into the stream).
 
+The last email from Joe shows that even security centric people are fine 
+with this situation in a 'medium assurance' environment, if medium 
+assurance means trivially bypassable please count me out. A single 
+shared network is in no way medium assurance IMO, there is no inherent 
+security when you are on a single network (save for fancy switches that 
+do mac filtering and ip locking per port, how many people actually use 
+those features though).
+
+One interesting thing that just occurred to me is vlans. I'm not sure 
+how vlans are implemented on Linux (do they get their own interface 
+names?) but they are much better than the alternative which lets anyone 
+do anything on a single network.
 
 
 --
