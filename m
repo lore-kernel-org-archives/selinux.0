@@ -1,63 +1,62 @@
-From: Paul Moore <paul.moore@hp.com>
-To: Joshua Brindle <method@manicmethod.com>
-Subject: Re: [RFC 0/5] Static/fallback external labels for NetLabel
-Date: Wed, 29 Aug 2007 08:21:45 -0400
-Cc: Joe Nall <joe@nall.com>, Darrel Goeddel <sedgoeddel@gmail.com>,
-        Venkat Yekkirala <vyekkirala@TrustedCS.com>, selinux@tycho.nsa.gov,
-        James Morris <jmorris@namei.org>,
-        Darrel Goeddel <DGoeddel@TrustedCS.com>,
-        Stephen Smalley <sds@tycho.nsa.gov>, kaigai@ak.jp.nec.com,
-        Eric Paris <eparis@parisplace.org>
-References: <D709A20F2164C84E8B7014B0301F5EF8521359@HAVOC.tcs-sec.com> <46D4EBEA.509@manicmethod.com> <46D4F1E2.4050503@manicmethod.com>
-In-Reply-To: <46D4F1E2.4050503@manicmethod.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Message-Id: <200708290821.46404.paul.moore@hp.com>
+Subject: Re: [PATCH] Suppress rule generation for dontaudit rules
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Karl MacMillan <kmacmillan@mentalrootkit.com>
+Cc: Joshua Brindle <method@manicmethod.com>, selinux@tycho.nsa.gov
+In-Reply-To: <1187971210.6753.4.camel@localhost.localdomain>
+References: <2ad2d21fc72476558d8f.1187187301@localhost.localdomain>
+	 <1187289925.909.75.camel@moss-spartans.epoch.ncsc.mil>
+	 <46C4A449.9010102@manicmethod.com>
+	 <1187875363.1451.475.camel@moss-spartans.epoch.ncsc.mil>
+	 <1187971210.6753.4.camel@localhost.localdomain>
+Content-Type: text/plain
+Date: Wed, 29 Aug 2007 08:30:05 -0400
+Message-Id: <1188390605.26572.143.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wednesday, August 29 2007 12:11:14 am Joshua Brindle wrote:
-> Ok, I think my brain is still catching up on this thread.
+On Fri, 2007-08-24 at 12:00 -0400, Karl MacMillan wrote:
+> On Thu, 2007-08-23 at 09:22 -0400, Stephen Smalley wrote:
+> > On Thu, 2007-08-16 at 15:23 -0400, Joshua Brindle wrote:
+> > > Stephen Smalley wrote:
+> > > > On Wed, 2007-08-15 at 10:15 -0400, Karl MacMillan wrote:
+> > > >   
+> > > >> The current policy generation code incorrectly generates allow rules for dontaudit messages. This patch fixes that.
+> > > >>
+> [...]
+> > > 
+> > > Merged into 1.0.9
+> > 
+> > Reverted.  Didn't work.
+> > 
+> 
+> That's because it was wildly wrong - I thought I tested that, but I
+> guess not. Correct patch below:
+> 
+> 
+> diff -r e962f4f773fc sepolgen/src/sepolgen/audit.py
+> --- a/sepolgen/src/sepolgen/audit.py	Wed Aug 22 15:55:24 2007 -0400
+> +++ b/sepolgen/src/sepolgen/audit.py	Thu Aug 23 15:11:09 2007 -0400
+> @@ -421,6 +421,8 @@ class AuditParser:
+>          """
+>          av_set = access.AccessVectorSet()
+>          for avc in self.avc_msgs:
+> +            if avc.denial == True:
+> +                continue
+>              if avc_filter:
+>                  if avc_filter.filter(avc):
+>                      av_set.add(avc.scontext.type, avc.tcontext.type, avc.tclass,
+> 
+> Signed-off-by: Karl MacMillan <kmacmillan@mentalrootkit.com>
 
-My brain gave up quite a while ago ... it's just nerves banging away at the 
-keyboard now :)
-
-> Because of 
-> what I said above I think we should 1) not do node based fallbacks and
-> 2) not do nic alias-level fallbacks. This is the safe option (as already
-> pointed out) and minimizes trust in untrustworthy things (eg., addresses
-> coming from the network).
->
-> OTOH it may make some peoples lives easier to allow this. It is a false
-> sense of security though so I vote for doing nic level fallbacks only
-> and if someone *really* wants to do this they can just plug several nics
-> into the same network (hopefully they'd recognize the horrible things
-> they are doing if it is explicit like that).
->
-> It sounds like the decision is still up in the air though, does anyone
-> inherently disagree with me here?
-
-I guess every decision is technically up in the air until the changes/patches 
-are included in a released kernel, however, I'm pretty confident that host 
-level granularity of both fallback labels and flow control peer label 
-filtering is "the right thing".
-
-I understand your point about not extending trust beyond the level of the 
-physical wire, that is very easy to rationalize/understand.  However, from a 
-practical real-world scenario (see my home network behind a NAT box example, 
-as well as others) I think there is real value in extending the labeling 
-beyond the wire to the host/network level.  SELinux has always made some 
-allowances to facilitate adoption and ease of use, i.e. unconfined_t, but has 
-been careful to make sure that these concessions were always at the 
-discretion of the system administrator.  Fallback labeling and peer flow 
-controls are configuration options which are only available to the system 
-administrator and providing host level granularity can be a significant 
-benefit to a lot of people.
+Causes all avc messages to be discarded, yielding no output from
+audit2allow -a (with a number of avc messages in audit.log).  NAK.
+Third time's the charm?
 
 -- 
-paul moore
-linux security @ hp
+Stephen Smalley
+National Security Agency
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
