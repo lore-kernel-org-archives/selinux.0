@@ -1,79 +1,170 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l7U2f8EN020967
-	for <selinux@tycho.nsa.gov>; Wed, 29 Aug 2007 22:41:08 -0400
-Received: from py-out-1112.google.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l7U2f7r0004749
-	for <selinux@tycho.nsa.gov>; Thu, 30 Aug 2007 02:41:07 GMT
-Received: by py-out-1112.google.com with SMTP id u77so2883145pyb
-        for <selinux@tycho.nsa.gov>; Wed, 29 Aug 2007 19:41:02 -0700 (PDT)
-Message-ID: <8f34198c0708291941n12f2de55y787893586b69fbb5@mail.gmail.com>
-Date: Thu, 30 Aug 2007 10:41:01 +0800
-From: "Ian jonhson" <jonhson.ian@gmail.com>
-To: "SE Linux" <selinux@tycho.nsa.gov>, pam-list@redhat.com
-Subject: how to run the pam_selinux_check to test SELINUX
-Cc: "Daniel J Walsh" <dwalsh@redhat.com>
+Date: Thu, 30 Aug 2007 14:45:16 +0900
+From: Yuichi Nakamura <ynakam@hitachisoft.jp>
+To: selinux@tycho.nsa.gov
+Subject: [RFC][selinux] Tuning SELinux permission check
+Cc: ynakam@hitachisoft.jp, Stephen Smalley <sds@tycho.nsa.gov>,
+        busybox@kaigai.gr.jp, James Morris <jmorris@namei.org>,
+        Eric Paris <eparis@parisplace.org>, kaigai@ak.jp.nec.com
+Message-Id: <20070830142757.58A4.YNAKAM@hitachisoft.jp>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset="US-ASCII"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hi all,
+Hello.
 
-I enabled the SELINUX on my FedoraCore4, and test pam_selinux_check.c
-(distributed with Linux-PAM-0.99). However, it seems that it doesn't
-work, and I have no idea how to do next.
+I am porting SELinux to embedded devices.
+And I found big overhead in read/write on CPUs for embedded devices.
+I tried tuning and found it can be reduced.
+I want comments from community.
 
-The configuration steps about SELINUX:
+1. Background
+Look at benchmark result below.
+lmbench simple read/write.
+Big overhead exists especially on SH(SuperH) arch.
 
-1. After I installed my FC4, I set the SELINUX=enforcing in
-/etc/sysconfig/selinux;
+1) Result for x86(Pentium 4 2.6Ghz), kernel 2.6.22
+                Base    SELinux  Overhead(%)
+Simple read     1.1034  1.2387   12.3
+Simple write    0.9989  1.139    14.0
+* Base: kernel compiled without SELinux support
 
-2. reboot my system. It seems that SELINUX have take in effect, the
-FC4 checked and labeled the filesystem...
+2) Result for ARM(Intel XScale (PXA270 416MHz)), kernel 2.6.17
+                Base    SELinux   Overhead(%)
+Simple read     1.7945  3.1279    74.3
+Simple write    1.4706  2.9228    98.7
 
-Then, I configured the PAM in /etc/pam.d/. My steps are as following:
+3) Result for SH(SH4, SH7751R), kernel 2.6.22
+                Base    SELinux   Overhead(%)
+Simple read     2.6781  6.4671    141.5
+Simple write    2.0781  5.3181    155.9
 
-1. create a new PAM configuration file in /etc/pam.d/, named
-pam_selinux_check, and edited it as follows:
+Overhead more than 100%!
 
-session  sufficient  pam_selinux.so
+2. Solution
+I found function calls in SELinux permission checks
+are causing performance overhead.
+I tried to reduce function calls like below.
 
-2. compile the pam_selinux_check.c
+1) avc_has_perm
+In avc_has_perm, avc_audit is called everytime.
+I think most access does not need to be audited, 
+so I changed it to be called only when necessary.
 
-OK. Now I tested the pam_selinux_check and want to see some work
-details about SELINUX.
+2) avc_has_perm_noaudit
+I changed it to "inline".
 
-#  ./pam_selinux_check
-#                                    /*  <--  nothing happen */
+3) selinux_file_permission
+>From selinux_file_permission,
+file_has_perm -> inode_has_perm -> avc_has_perm
+functions are called.
+I made simple selinux_file_permission and reduced code.
 
-Again, test it with a parameter
+3. Benchmark result after tuning
+Performance is improved especially in SH.
+also a little effective for x86.
 
-# ./pam_selinux_check  tom
-#                                   /*  <--  nothing happed too */
+1) Result for x86
+             Base     SELinux   Overhead(%)
+Simple read  1.1034   1.1939    8.2(before 12.3)
+Simple write 0.9989   1.1039    10.5(before 14.0)
 
-did it righ?
+2) Result for ARM
+             Base     SELinux   Overhead(%)
+Simple read  1.7945   2.7555    53.6(before 74.3)
+Simple write 1.4706   2.5347    72.4(before 98.7)
 
-I don't know what I have missed in my configuring the selinux and pam.
-Maybe, one of the missing is that I just set enforcing in
-/etc/sysconfig/selinux, not together with setting SELINUXTYPE=strict.
-However, when I set SELINUXTYPE=strict, I got a error message at
-booting and system dump. The error message said, I have set nothing
-about strict policy.
-But I don't know how to install strict policy.
+3) Result for SH
+                Base   SELinux  Overhead(%)
+Simple read     2.6781 3.6538  36.43(before 141.5)
+Simple write    2.0781 3.321   59.80(before 155.9)
 
-I just test the functionalities about selinux MAC enforcement, so
-where can I download a simple strict policy, and how to install in my
-FC4+SELINUX?
+Are such changes acceptable ??
+Below is a patch to linux-2.6.22.
 
-As for PAM, it seems the configuration file is right, since I found
-the pam_selinux.so only built the PAM session hooks.
+---
+ security/selinux/avc.c   |    7 +++++--
+ security/selinux/hooks.c |   31 ++++++++++++++++++++++++++-----
+ 2 files changed, 31 insertions(+), 7 deletions(-)
+diff -purN -X linux-2.6.22/Documentation/dontdiff linux-2.6.22.orig/security/selinux/avc.c linux-2.6.22/security/selinux/avc.c
+--- linux-2.6.22.orig/security/selinux/avc.c	2007-07-09 08:32:17.000000000 +0900
++++ linux-2.6.22/security/selinux/avc.c	2007-08-29 16:24:37.000000000 +0900
+@@ -845,7 +845,7 @@ int avc_ss_reset(u32 seqno)
+  * auditing, e.g. in cases where a lock must be held for the check but
+  * should be released for the auditing.
+  */
+-int avc_has_perm_noaudit(u32 ssid, u32 tsid,
++inline int avc_has_perm_noaudit(u32 ssid, u32 tsid,
+                          u16 tclass, u32 requested,
+                          struct av_decision *avd)
+ {
+@@ -910,6 +910,9 @@ int avc_has_perm(u32 ssid, u32 tsid, u16
+ 	int rc;
+ 
+ 	rc = avc_has_perm_noaudit(ssid, tsid, tclass, requested, &avd);
+-	avc_audit(ssid, tsid, tclass, requested, &avd, rc, auditdata);
++
++	if ((requested & ~avd.allowed) | rc | (requested & avd.auditallow))
++		avc_audit(ssid, tsid, tclass, requested, &avd, rc, auditdata);
++
+ 	return rc;
+ }
+diff -purN -X linux-2.6.22/Documentation/dontdiff linux-2.6.22.orig/security/selinux/hooks.c linux-2.6.22/security/selinux/hooks.c
+--- linux-2.6.22.orig/security/selinux/hooks.c	2007-07-09 08:32:17.000000000 +0900
++++ linux-2.6.22/security/selinux/hooks.c	2007-08-29 16:21:51.000000000 +0900
+@@ -2462,6 +2462,11 @@ static int selinux_file_permission(struc
+ {
+ 	int rc;
+ 	struct inode *inode = file->f_path.dentry->d_inode;
++	struct avc_audit_data ad;
++	struct task_security_struct *tsec = current->security;
++	struct file_security_struct *fsec = file->f_security;
++	struct inode_security_struct *isec = inode->i_security;
++	u32 av;
+ 
+ 	if (!mask) {
+ 		/* No permission to check.  Existence test. */
+@@ -2472,11 +2477,27 @@ static int selinux_file_permission(struc
+ 	if ((file->f_flags & O_APPEND) && (mask & MAY_WRITE))
+ 		mask |= MAY_APPEND;
+ 
+-	rc = file_has_perm(current, file,
+-			   file_mask_to_av(inode->i_mode, mask));
+-	if (rc)
+-		return rc;
+-
++	AVC_AUDIT_DATA_INIT(&ad, FS);
++	ad.u.fs.mnt = file->f_path.mnt;
++	ad.u.fs.dentry =  file->f_path.dentry;
++	if (tsec->sid != fsec->sid) {
++		rc = avc_has_perm(tsec->sid, fsec->sid,
++					  SECCLASS_FD,
++					  FD__USE,
++					  &ad);
++			if (rc)
++				return rc;
++	}
++
++	av = file_mask_to_av(inode->i_mode, mask);
++	if (av) {
++		if (unlikely (IS_PRIVATE (inode)))
++			return 0;
++		rc = avc_has_perm(tsec->sid, isec->sid, isec->sclass,
++				 av, &ad);
++		if (rc)
++			return rc;
++	}
+ 	return selinux_netlbl_inode_permission(inode, mask);
+ }
+ 
+Regards,
+-- 
+Yuichi Nakamura
+Hitachi Software Engineering Co., Ltd.
+Japan SELinux Users Group(JSELUG): http://www.selinux.gr.jp/
+SELinux Policy Editor: http://seedit.sourceforge.net/
 
-I don't know what wrong with it, could anybody give me some advices?
 
-
-Thanks in advance,
-
-Ian
 
 --
 This message was distributed to subscribers of the selinux mailing list.
