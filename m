@@ -1,48 +1,39 @@
 From: Paul Moore <paul.moore@hp.com>
 To: Stephen Smalley <sds@tycho.nsa.gov>
-Subject: Re: Backwards compatibility (proposal for a new compat_net like flag)
-Date: Thu, 30 Aug 2007 16:30:11 -0400
-Cc: selinux@tycho.nsa.gov
-References: <200708301602.27272.paul.moore@hp.com> <1188504464.26572.355.camel@moss-spartans.epoch.ncsc.mil>
-In-Reply-To: <1188504464.26572.355.camel@moss-spartans.epoch.ncsc.mil>
+Subject: Re: Time to remove compat_net?
+Date: Thu, 30 Aug 2007 16:33:33 -0400
+Cc: selinux@tycho.nsa.gov, Eric Paris <eparis@parisplace.org>,
+        Karl MacMillan <kmacmillan@mentalrootkit.com>,
+        James Morris <jmorris@namei.org>
+References: <200708301607.42110.paul.moore@hp.com> <1188504744.26572.361.camel@moss-spartans.epoch.ncsc.mil>
+In-Reply-To: <1188504744.26572.361.camel@moss-spartans.epoch.ncsc.mil>
 MIME-Version: 1.0
 Content-Type: text/plain;
   charset="iso-8859-1"
-Message-Id: <200708301630.11322.paul.moore@hp.com>
+Message-Id: <200708301633.33632.paul.moore@hp.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thursday, August 30 2007 4:07:44 pm Stephen Smalley wrote:
-> On Thu, 2007-08-30 at 16:02 -0400, Paul Moore wrote:
-> > Thoughts?  It's not perfect, I know, but I'd like to be able to start
-> > moving forward with some of these labeled networking changes but the
-> > compatibility concerns are crippling us ...
+On Thursday, August 30 2007 4:12:24 pm Stephen Smalley wrote:
+> On Thu, 2007-08-30 at 16:07 -0400, Paul Moore wrote:
+> > Does anyone have any objections to placing the compat_net code on the
+> > kernel's "feature removal schedule" (I'd go for removal in 2/2008, six
+> > months from now)?  SECMARK can do everything that the older compat_net
+> > controls can do, and it does it with less overhead and a cleaner
+> > implementation.
 >
-> Why make it specific to the network access controls, vs. a general
-> versioning scheme for permission checks as discussed in the allow
-> unknown thread?
-
-Just trying to limit the impact.  I would much prefer to utilize an existing 
-versioning scheme.
-
-> Also, decoupling it from the policy as a separate 
-> selinuxfs setting is problematic - what we want is a way for a given
-> policy to select the right mode based on the checks it expects/requires.
-> The separate setting makes it more likely to be out of sync and means we
-> can't atomically change it and load new policy together.
+> I'd be happy to see it go (conditional checks considered harmful), but a
+> good starting point would be to get secmark turned on in Fedora (it was
+> still off last I looked) and verify that nothing breaks.
 >
-> BTW, the allow unknown patches could still be merged if we think they
-> would be useful; they are mostly just pending on some requested
-> cleanups.  They would at least avoid causing denials on new permission
-> checks until policy defines them, once policies are deployed with the
-> new flag.
+> We also don't have any tools capable of managing secmark today; with the
+> legacy controls, we could labels ports and netifs via semanage.  Only
+> secmark userland integration to date has been the basic iptables command
+> line support.
 
-I'm open to suggestions.  
-
-While the allow unknown class/perm patches would help in the case of new 
-access checks it wouldn't help to "toggle" between different types of access 
-checks in a way that a versioning scheme would (at least it wouldn't in it's 
-current form).
+Okay RedHat guys ... are there any plans to migrate semanage over to using the 
+SECMARK controls?  If not, what do you need (besides patches to semanage) to 
+make the transition?
 
 -- 
 paul moore
