@@ -1,78 +1,163 @@
-Subject: Re: SELinux security and passed file descriptors
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: David Howells <dhowells@redhat.com>
-Cc: viro@ftp.linux.org.uk, selinux@tycho.nsa.gov,
-        LSM List <linux-security-module@vger.kernel.org>,
-        James Morris <jmorris@namei.org>, Eric Paris <eparis@parisplace.org>
-In-Reply-To: <10698.1188486734@redhat.com>
-References: <10698.1188486734@redhat.com>
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l7UHcmaL008179
+	for <selinux@tycho.nsa.gov>; Thu, 30 Aug 2007 13:38:48 -0400
+Received: from exchange.columbia.tresys.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with SMTP id l7UHcl3V020689
+	for <selinux@tycho.nsa.gov>; Thu, 30 Aug 2007 17:38:47 GMT
+Subject: Re: ANN: SELinux Policy IDE (SLIDE) version 1.2
+From: Dave Sugar <dsugar@tresys.com>
+To: Ken YANG <spng.yang@gmail.com>
+Cc: selinux@tycho.nsa.gov
+In-Reply-To: <46D4CD70.6030606@gmail.com>
+References: <1187974484.17434.6.camel@localhost.localdomain>
+	 <46CFB291.6010000@gmail.com>
+	 <1188304656.4977.4.camel@localhost.localdomain>
+	 <46D4CD70.6030606@gmail.com>
 Content-Type: text/plain
-Date: Thu, 30 Aug 2007 11:19:55 -0400
-Message-Id: <1188487195.26572.351.camel@moss-spartans.epoch.ncsc.mil>
+Date: Thu, 30 Aug 2007 13:38:44 -0400
+Message-Id: <1188495524.10110.15.camel@localhost.localdomain>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2007-08-30 at 16:12 +0100, David Howells wrote:
-> Hi Stephen,
-> 
-> Imagine you have two processes, say A and B, running with different security
-> contexts.  If A opens a file and passed the file descriptor to B (sends it
-> over an AF_UNIX socket perhaps), then what security context should be assumed
-> when B operates on the file descriptor?  A's security, or B's?
-> 
-> 
-> I would have thought it should be A's security, since A opened the file.  This
-> is usually the case for UID/GID/mode information (which are resident on the
-> file struct) and other FS-specific access contexts (in the in-kernel AFS's
-> case, this includes the kerberos ticket A used to access the file, and I
-> believe the same is true in NFS's case).
-> 
-> 
-> However, having just been looking through security/selinux/hooks.c, this isn't
-> always the case with SELinux.  For ioctls, for example, B's security context
-> will be used.  The same goes for reading and writing.
-> 
-> This is surely incorrect.  This can mean A can pass a file that it can read
-> and write to B that B can't then read or write because it doesn't have access,
-> even though it ought to be able to because *A* can.
+Ken,
 
-That's how mandatory access control is supposed to work; otherwise, a
-flaw in A can leak the descriptor to B at will in violation of security
-policy.  And it has caught any number of bugs in applications as well as
-the kernel where a descriptor is unwittingly leaked across exec.
+I have not tested SLIDE on F8 rawhide, 
 
-Now, we do revalidate access to open files when they are passed across
-local IPC (see selinux_file_receive) and when they are inherited across
-an exec that changes SIDs (see selinux_bprm_post_apply_creds ->
-flush_unauthorized_files), so we don't strictly need the rechecking of
-access on read/write to control propagation.
+You might want to try the RPM installation since you are using eclipse
+installed through an RPM also.  There is a download for
+eclipse-slide-1.2.4.noarch.rpm on the download page.  You will also need
+the eclipse-setools-3.3.0-1.i386.rpm and you will need to get the
+SETools 3.3 rpms (setools-libs-java-3.3.0.i386.rpm and
+setools-libs-3.3.0.i386.rpm) from
+http://oss.tresys.com/projects/setools/wiki/download to get all of the
+features in SLIDE.
 
-The rechecking of access on read/write is instead to permit revocation
-of access upon file relabels (setxattr) and policy changes (boolean
-change or reload).  However, that doesn't give us complete coverage
-(e.g. mmap'd file or in-progress operation that has passed the check).
-If/when the revoke support ever gets to a usable state and is merged, we
-might use that instead, i.e. do a selective revoke if access is no
-longer granted to the new file label or under the new policy upon
-setxattr or policy change rather than rechecking on use.  But I'm not
-sure how well that will work.
+>From the error you are describing, I'm not sure if you having a problem
+with your eclipse installation or not.  You might want to try erasing
+and reinstalling your eclipse-cdt tools and see if some of those
+configuration errors go away.
 
-There is also some discussion going on presently about optimizing
-selinux_file_permission, e.g. only rechecking under certain conditions
-(any one of process SID, file SID, or policy seqno has changed since
-open-time check).
+Dave
 
-> At least, that's how I interpret the code.
+
+On Wed, 2007-08-29 at 09:35 +0800, Ken YANG wrote:
+> Dave Sugar wrote:
+> > Ken,
+> > 
+> > Can you give me some more information about what is going on?
+> > Have you followed the directions posted on the SLIDE project site
+> > (http://oss.tresys.com/projects/slide/wiki/download)?
+> > Are there any errors being displayed?
+> > What platform are you running on?  FC6, f7? x86, x86_64, PPC?
+> 
+> thanks for your reply
+> 
+> originally, i use the eclipse to install slide following the
+> "Using the Eclipse Update Site" section.
+> 
+> now i want to update through eclipse:
+> 
+> 'Help > Software Updates > Find and Install... > Search for updates
+> of the currently installed features '
+> 
+> but eclipse told me there are not any update.
 > 
 > 
-> If I'm right, and this is incorrect behaviour, then I have most of a patch
-> that I'm working on to pass the appropriate credentials around.
-
--- 
-Stephen Smalley
-National Security Agency
-
+> after that, i try install a new feature:
+> 
+> Select 'Search for new features to install' and click 'Next'.
+> 
+> but there are some error imformations:
+> 
+> The current configuration contains errors and this operation can have
+> unpredictable results.
+>   Autotools Feature (0.9.2) requires feature "org.eclipse.cdt
+> (4.0.0.200706261300)", or later version.
+>   Eclipse C/C++ Development Tools CppUnit support (2.0.0) requires
+> plug-in "org.eclipse.cdt.core".
+>   Mylyn Task List (Required) (2.0.0.v20070627-1400) requires plug-in
+> "org.eclipse.mylar (2.0.0.v20070614-1800)", or compatible.
+> 
+> 
+> my platform is F8 Rawhide, x86 and eclipse is:
+> 
+> -(:09:24:$)-> rpm -qa |grep eclipse
+> eclipse-jdt-3.3.0-9.fc8.i386
+> eclipse-cdt-4.0.0-5.fc8.i386
+> eclipse-subclipse-book-1.2.2-3.fc8.i386
+> tomcat5-jasper-eclipse-5.5.23-9jpp.4.fc8.i386
+> eclipse-mylyn-2.0.0-4.fc8.i386
+> eclipse-platform-3.3.0-9.fc8.i386
+> eclipse-subclipse-1.2.2-3.fc8.i386
+> icu4j-eclipse-3.6.1-1jpp.2.fc8.i386
+> eclipse-rcp-3.3.0-9.fc8.i386
+> eclipse-ecj-3.3.0-9.fc8.i386
+> eclipse-changelog-2.5.1-2.fc8.i386
+> eclipse-cvs-client-3.3.0-9.fc8.i386
+> eclipse-gef-3.2.1-4.fc7.i386
+> 
+> 
+> 
+> > 
+> > Thanks
+> > Dave Sugar
+> > dsugar@tresys.com
+> > 
+> > On Sat, 2007-08-25 at 12:39 +0800, Ken YANG wrote:
+> >> Dave Sugar wrote:
+> >>> Version 1.2 of the SELinux Policy IDE (SLIDE) from Tresys Technology is
+> >>> now available for download from the Tresys Open source website at
+> >>> http://oss.tresys.com.
+> >> i can not update through update functionality in Eclipse, i.e.
+> >>
+> >> Help->Software Updates->Find and install...
+> >>
+> >>
+> >>> SLIDE is an Eclipse plug-in that integrates with the SELinux Reference
+> >>> Policy to provide a development environment for building SELinux policy.
+> >>>
+> >>> SLIDE Features:
+> >>>
+> >>>
+> >>> * A graphical user interface for policy development, including policy
+> >>> syntax highlighting, context suggestions, and integrated compilation.
+> >>> * Integration with SELinux Reference Policy, including quick lookup and
+> >>> documentation for interfaces and macros.
+> >>> * Wizards and easy to use templates to automate common tasks from
+> >>> creating a new SELinux policy to adding an interface into an existing
+> >>> module.
+> >>> * Integrated remote policy installation and audit log monitoring, to
+> >>> facilitate policy testing.
+> >>> * Seamless integration with the power of standard Eclipse.
+> >>>
+> >>> Version 1.2 highlights:
+> >>>
+> >>> * Graphical interface for network configuration via corenetwork.
+> >>> * Added auto completion, context help, and tool tip descriptions for
+> >>> Reference Policy macros, as well as including macros in the interface
+> >>> view and showing their definitions in the declaration view.
+> >>> * Improved documentation on the open source web site.
+> >>> * Updates to work with SETools version 3.3.
+> >>> * Fixed problems with the Console output.
+> >>> * Bugs fixed with undo/redo when toggling commenting on numerous lines
+> >>> of policy.
+> >>>
+> >>>
+> >>>
+> >>> If you would like to contribute, currently the best help would be to
+> >>> test and provide feedback on the SLIDE plugin and SLIDE Remote.
+> >>>
+> >>> Dave Sugar
+> >>> Tresys Technology, LLC
+> >>>
+> >>> --
+> >>> fedora-selinux-list mailing list
+> >>> fedora-selinux-list@redhat.com
+> >>> https://www.redhat.com/mailman/listinfo/fedora-selinux-list
+> >>>
+> > 
+> 
 
 --
 This message was distributed to subscribers of the selinux mailing list.
