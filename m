@@ -1,368 +1,419 @@
-Subject: Re: use the OS functionality for reading
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Ulrich Drepper <drepper@redhat.com>
-Cc: SE-Linux <selinux@tycho.nsa.gov>
-In-Reply-To: <46D495A1.20505@redhat.com>
-References: <46D495A1.20505@redhat.com>
-Content-Type: text/plain
-Date: Thu, 30 Aug 2007 16:35:54 -0400
-Message-Id: <1188506154.26572.378.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l7UKwBut022876
+	for <selinux@tycho.nsa.gov>; Thu, 30 Aug 2007 16:58:11 -0400
+Received: from e1.ny.us.ibm.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id l7UKw9f7008315
+	for <selinux@tycho.nsa.gov>; Thu, 30 Aug 2007 20:58:10 GMT
+Received: from d01relay04.pok.ibm.com (d01relay04.pok.ibm.com [9.56.227.236])
+	by e1.ny.us.ibm.com (8.13.8/8.13.8) with ESMTP id l7UKw9Gw024860
+	for <selinux@tycho.nsa.gov>; Thu, 30 Aug 2007 16:58:09 -0400
+Received: from d01av02.pok.ibm.com (d01av02.pok.ibm.com [9.56.224.216])
+	by d01relay04.pok.ibm.com (8.13.8/8.13.8/NCO v8.5) with ESMTP id l7UKw980516430
+	for <selinux@tycho.nsa.gov>; Thu, 30 Aug 2007 16:58:09 -0400
+Received: from d01av02.pok.ibm.com (loopback [127.0.0.1])
+	by d01av02.pok.ibm.com (8.12.11.20060308/8.13.3) with ESMTP id l7UKw9Ex027831
+	for <selinux@tycho.nsa.gov>; Thu, 30 Aug 2007 16:58:09 -0400
+Date: Thu, 30 Aug 2007 15:58:10 -0500
+From: "Serge E. Hallyn" <serue@us.ibm.com>
+To: Mimi Zohar <zohar@linux.vnet.ibm.com>
+Cc: selinux@tycho.nsa.gov, zohar@us.ibm.com, safford@watson.ibm.com,
+        sailer@us.ibm.com
+Subject: Re: [RFC]integrity: SELinux patch
+Message-ID: <20070830205810.GA7692@sergelap.austin.ibm.com>
+References: <1188340501.11528.14.camel@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1188340501.11528.14.camel@localhost.localdomain>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2007-08-28 at 14:37 -0700, Ulrich Drepper wrote:
-> glibc provides for a long time functions to read and write to strings
-> using the stream interfaces (i.e., using FILE).  These functions will
-> also be in the next revision of the POSIX spec.
+Quoting Mimi Zohar (zohar@linux.vnet.ibm.com):
+> This is a second attempt to verify and measure file integrity, by
+> adding the new Linux Integrity Modules(LIM) API calls to SElinux.
+> This posting addresses comments previously made on this list. 
+> I will also post the current set of LIM patches, as well as an
+> initial integrity.te example. 
 > 
-> This functionality could replace the PF_USE_MEMORY use in libsepol.
-> I've attached a patch to implement this.  It compiles but I haven't
-> tested it.
+> The integrity of the SELinux metadata is verified when the xattr
+> is initially retrieved.  On an integrity failure, normal selinux 
+> error processing occurs.
 > 
-> The implementation could be a lot cleaner if some interfaces could be
-> redesigned.  The PF_LEN mode shouldn't exist at all.  Just let the
-> implementation care about the allocation (with open_memstream).  The
-> sepol_policy_file_free should always free the FILE descriptor.  There
-> should be an interface to request generating a string (the complement to
-> sepol_policy_file_set_mem which is for reading).
-> sepol_policy_file_get_len should go away.  All the places in libsepol
-> itself which use struct policy_file should use functions instead of
-> hardcoding the operations.
+> This patch defines a new 'integrity' class with the permission 
+> 'measure'.  Measurement calls are made in selinux_file_mmap(), 
+> selinux_bprm_check_security, and selinux_inode_permission(),
+> based on policy.  (Additional calls might be required.)
+
+Just curious - wouldn't you want to also define a 'update' permission to
+allow policy to permit some domains to update xattrs?  Or does that not
+make sense?
+
+> Signed-off-by: Mimi Zohar <zohar@us.ibm.com>
+> ---
+> Index: linux-2.6.23-rc3-mm1/security/selinux/hooks.c
+> ===================================================================
+> --- linux-2.6.23-rc3-mm1.orig/security/selinux/hooks.c
+> +++ linux-2.6.23-rc3-mm1/security/selinux/hooks.c
+> @@ -69,6 +69,7 @@
+>  #include <linux/audit.h>
+>  #include <linux/string.h>
+>  #include <linux/selinux.h>
+> +#include <linux/integrity.h>
+>  #include <linux/mutex.h>
 > 
-> Anyway, the attached patch could be a first step to cleaning things up.
-
-get_len is less of a concern, as it doesn't appear to be in use outside
-the library.
-
-The fact that set_mem can fail after this change and leave the fp NULL
-seems more troubling, as a subsequent call may use that in a call to
-next_entry and seg fault.
-
-I'm not certain of the benefit of the change is for the input side; on
-the output side, letting the implementation handle the allocation is
-nice.
-
-checkpolicy/checkmodule would need to be updated or they won't build
-against the updated libsepol since they use the static libsepol and its
-private headers.
-
-The patch wasn't relative to your first one, so the private.h diff has
-to be manually applied to services.c.
-
-> plain text document attachment (d-libsepol-fmem)
-> diff -durp libsepol-2.0.7/include/sepol/policydb/policydb.h libsepol-2.0.7-fmem/include/sepol/policydb/policydb.h
-> --- libsepol-2.0.7/include/sepol/policydb/policydb.h	2007-08-23 13:52:46.000000000 -0700
-> +++ libsepol-2.0.7-fmem/include/sepol/policydb/policydb.h	2007-08-28 14:11:56.000000000 -0700
-> @@ -548,16 +548,13 @@ extern int symtab_insert(policydb_t * x,
->  /* A policy "file" may be a memory region referenced by a (data, len) pair
->     or a file referenced by a FILE pointer. */
->  typedef struct policy_file {
-> -#define PF_USE_MEMORY  0
-> -#define PF_USE_STDIO   1
-> -#define PF_LEN         2	/* total up length in len field */
-> +#define PF_USE_STDIO		0
-> +#define PF_USE_STDIO_SYSALLOC	1
-> +#define PF_LEN			2	/* total up length in len field */
->  	unsigned type;
-> -	char *data;
->  	size_t len;
-> -	size_t size;
->  	FILE *fp;
->  	struct sepol_handle *handle;
-> -	unsigned char buffer[BUFSIZ];
->  } policy_file_t;
->  
->  struct sepol_policy_file {
-> diff -durp libsepol-2.0.7/src/genbools.c libsepol-2.0.7-fmem/src/genbools.c
-> --- libsepol-2.0.7/src/genbools.c	2007-08-23 13:52:46.000000000 -0700
-> +++ libsepol-2.0.7-fmem/src/genbools.c	2007-08-28 12:04:40.000000000 -0700
-> @@ -154,10 +154,15 @@ int sepol_genbools(void *data, size_t le
->  		goto err_destroy;
->  	}
->  
-> -	pf.type = PF_USE_MEMORY;
-> -	pf.data = data;
-> -	pf.len = len;
-> +	pf.type = PF_USE_STDIO;
-> +	pf.fp = fmemopen(data, len, "r");
-> +	if (pf.fp == NULL) {
-> +		ERR(NULL, "error while preparing to write new binary policy image");
-> +		errno = EINVAL;
-> +		goto err_destroy;
-> +	}
->  	rc = policydb_write(&policydb, &pf);
-> +	fclose(pf.fp);
->  	if (rc) {
->  		ERR(NULL, "unable to write new binary policy image");
->  		errno = EINVAL;
-> @@ -225,10 +230,15 @@ int sepol_genbools_array(void *data, siz
->  		goto err_destroy;
->  	}
->  
-> -	pf.type = PF_USE_MEMORY;
-> -	pf.data = data;
-> -	pf.len = len;
-> +	pf.type = PF_USE_STDIO;
-> +	pf.fp = fmemopen(data, len, "r");
-> +	if (pf.fp == NULL) {
-> +		ERR(NULL, "error while preparing to write new binary policy image");
-> +		errno = EINVAL;
-> +		goto err_destroy;
-> +	}
->  	rc = policydb_write(&policydb, &pf);
-> +	fclose(pf.fp);
->  	if (rc) {
->  		ERR(NULL, "unable to write binary policy");
->  		errno = EINVAL;
-> diff -durp libsepol-2.0.7/src/module.c libsepol-2.0.7-fmem/src/module.c
-> --- libsepol-2.0.7/src/module.c	2007-08-23 13:52:45.000000000 -0700
-> +++ libsepol-2.0.7-fmem/src/module.c	2007-08-28 14:33:19.000000000 -0700
-> @@ -45,15 +45,6 @@ static int policy_file_seek(struct polic
->  			return -1;
->  		}
->  		return fseek(fp->fp, (long)offset, SEEK_SET);
-> -	case PF_USE_MEMORY:
-> -		if (offset > fp->size) {
-> -			errno = EFAULT;
-> -			return -1;
-> -		}
-> -		fp->data -= fp->size - fp->len;
-> -		fp->data += offset;
-> -		fp->len = fp->size - offset;
-> -		return 0;
->  	default:
->  		return 0;
->  	}
-> @@ -69,8 +60,6 @@ static size_t policy_file_length(struct 
->  		end_offset = ftell(fp->fp);
->  		fseek(fp->fp, prev_offset, SEEK_SET);
->  		return end_offset;
-> -	case PF_USE_MEMORY:
-> -		return fp->size;
->  	default:
->  		return 0;
->  	}
-> @@ -835,7 +824,6 @@ int sepol_module_package_write(sepol_mod
->  	if (p->policy) {
->  		/* compute policy length */
->  		polfile.type = PF_LEN;
-> -		polfile.data = NULL;
->  		polfile.len = 0;
->  		polfile.handle = file->handle;
->  		if (policydb_write(&p->policy->p, &polfile))
-> diff -durp libsepol-2.0.7/src/policydb_convert.c libsepol-2.0.7-fmem/src/policydb_convert.c
-> --- libsepol-2.0.7/src/policydb_convert.c	2007-08-23 13:52:45.000000000 -0700
-> +++ libsepol-2.0.7-fmem/src/policydb_convert.c	2007-08-28 12:03:20.000000000 -0700
-> @@ -13,12 +13,17 @@ int policydb_from_image(sepol_handle_t *
->  
->  	policy_file_t pf;
->  
-> -	pf.type = PF_USE_MEMORY;
-> -	pf.data = data;
-> -	pf.len = len;
-> +	pf.type = PF_USE_STDIO;
-> +	pf.fp = fmemopen(data, len, "r");
-> +	if (pf.fp == NULL) {
-> +		ERR(handle, "cannot prepare reading policy image");
-> +		return STATUS_ERR;
-> +	}
->  	pf.handle = handle;
->  
-> -	if (policydb_read(policydb, &pf, 0)) {
-> +	int fail = policydb_read(policydb, &pf, 0);
-> +	fclose(pf.fp);
-> +	if (fail) {
->  		ERR(handle, "policy image is invalid");
->  		errno = EINVAL;
->  		return STATUS_ERR;
-> @@ -33,51 +38,47 @@ int policydb_to_image(sepol_handle_t * h
->  		      policydb_t * policydb, void **newdata, size_t * newlen)
->  {
->  
-> -	void *tmp_data = NULL;
-> +	char *tmp_data = NULL;
->  	size_t tmp_len;
->  	policy_file_t pf;
->  	struct policydb tmp_policydb;
->  
-> -	/* Compute the length for the new policy image. */
-> -	pf.type = PF_LEN;
-> -	pf.data = NULL;
-> -	pf.len = 0;
-> -	pf.handle = handle;
-> -	if (policydb_write(policydb, &pf)) {
-> -		ERR(handle, "could not compute policy length");
-> -		errno = EINVAL;
-> -		goto err;
-> -	}
-> -
-> -	/* Allocate the new policy image. */
-> -	pf.type = PF_USE_MEMORY;
-> -	pf.data = malloc(pf.len);
-> -	if (!pf.data) {
-> -		ERR(handle, "out of memory");
-> +	/* Generate new policy image.  */
-> +	pf.type = PF_USE_STDIO;
-> +	pf.fp = open_memstream(&tmp_data, &tmp_len);
-> +	if (pf.fp == NULL) {
-> +		ERR(handle, "cannot prepare generating new policy image");
->  		goto err;
->  	}
->  
-> -	/* Need to save len and data prior to modification by policydb_write. */
-> -	tmp_len = pf.len;
-> -	tmp_data = pf.data;
-> -
->  	/* Write out the new policy image. */
->  	if (policydb_write(policydb, &pf)) {
-> +		fclose(pf.fp);
->  		ERR(handle, "could not write policy");
->  		errno = EINVAL;
->  		goto err;
->  	}
-> +	if (fclose(pf.fp) == EOF) {
-> +		ERR(handle, "could not write policy");
-> +		goto err;
-> +	}
->  
->  	/* Verify the new policy image. */
-> -	pf.type = PF_USE_MEMORY;
-> -	pf.data = tmp_data;
-> -	pf.len = tmp_len;
-> +	// pf.type = PF_USE_STDIO;		still set this way
-> +	pf.fp = fmemopen(tmp_data, tmp_len, "r");
-> +	if (pf.fp == NULL) {
-> +		ERR(handle, "cannot prepare verifying policy");
-> +		goto err;
-> +	}
->  	if (policydb_init(&tmp_policydb)) {
-> +		fclose(pf.fp);
->  		ERR(handle, "Out of memory");
->  		errno = ENOMEM;
->  		goto err;
->  	}
-> -	if (policydb_read(&tmp_policydb, &pf, 0)) {
-> +	int fail = policydb_read(&tmp_policydb, &pf, 0);
-> +	fclose(pf.fp);
-> +	if (fail) {
->  		ERR(handle, "new policy image is invalid");
->  		errno = EINVAL;
->  		goto err;
-> diff -durp libsepol-2.0.7/src/policydb_public.c libsepol-2.0.7-fmem/src/policydb_public.c
-> --- libsepol-2.0.7/src/policydb_public.c	2007-08-23 13:52:45.000000000 -0700
-> +++ libsepol-2.0.7-fmem/src/policydb_public.c	2007-08-28 14:24:22.000000000 -0700
-> @@ -22,10 +22,9 @@ void sepol_policy_file_set_mem(sepol_pol
->  		pf->type = PF_LEN;
->  		return;
->  	}
-> -	pf->type = PF_USE_MEMORY;
-> -	pf->data = data;
-> -	pf->len = len;
-> -	pf->size = len;
-> +	pf->type = PF_USE_STDIO_SYSALLOC;
-> +	pf->fp = fmemopen(data, len, "r");
-> +	// XXX Cannot report error and cannot have descriptor freed
->  	return;
->  }
->  
-> @@ -52,8 +51,11 @@ void sepol_policy_file_set_handle(sepol_
->  	pf->pf.handle = handle;
->  }
->  
-> -void sepol_policy_file_free(sepol_policy_file_t * pf)
-> +void sepol_policy_file_free(sepol_policy_file_t * spf)
->  {
-> +	struct policy_file *pf = &spf->pf;
-> +	if (pf->type == PF_USE_STDIO_SYSALLOC && pf->fp != NULL)
-> +		fclose(pf->fp);
->  	free(pf);
->  }
->  
-> diff -durp libsepol-2.0.7/src/private.h libsepol-2.0.7-fmem/src/private.h
-> --- libsepol-2.0.7/src/private.h	2007-08-23 13:52:45.000000000 -0700
-> +++ libsepol-2.0.7-fmem/src/private.h	2007-08-28 14:10:54.000000000 -0700
-> @@ -43,25 +43,7 @@ extern struct policydb_compat_info *poli
->  /* Reading from a policy "file". */
->  static inline int next_entry(void *buf, struct policy_file *fp, size_t bytes)
->  {
-> -	size_t nread;
-> -
-> -	switch (fp->type) {
-> -	case PF_USE_STDIO:
-> -		nread = fread(buf, bytes, 1, fp->fp);
-> -		if (nread != 1)
-> -			return -1;
-> -		break;
-> -	case PF_USE_MEMORY:
-> -		if (bytes > fp->len)
-> -			return -1;
-> -		memcpy(buf, fp->data, bytes);
-> -		fp->data += bytes;
-> -		fp->len -= bytes;
-> -		break;
-> -	default:
-> -		return -1;
-> -	}
-> -	return 0;
-> +	return fread(buf, bytes, 1, fp->fp) != 1 ? -1 : 0;
->  }
->  
->  static inline size_t put_entry(const void *ptr, size_t size, size_t n,
-> @@ -71,17 +53,8 @@ static inline size_t put_entry(const voi
->  
->  	switch (fp->type) {
->  	case PF_USE_STDIO:
-> +	case PF_USE_STDIO_SYSALLOC:
->  		return fwrite(ptr, size, n, fp->fp);
-> -	case PF_USE_MEMORY:
-> -		if (bytes > fp->len) {
-> -			errno = ENOSPC;
-> -			return 0;
-> -		}
-> -
-> -		memcpy(fp->data, ptr, bytes);
-> -		fp->data += bytes;
-> -		fp->len -= bytes;
-> -		return n;
->  	case PF_LEN:
->  		fp->len += bytes;
->  		return n;
-> diff -durp libsepol-2.0.7/src/services.c libsepol-2.0.7-fmem/src/services.c
-> --- libsepol-2.0.7/src/services.c	2007-08-23 13:52:45.000000000 -0700
-> +++ libsepol-2.0.7-fmem/src/services.c	2007-08-28 12:01:03.000000000 -0700
-> @@ -952,16 +952,20 @@ int hidden sepol_load_policy(void *data,
->  	uint32_t seqno;
+>  #include "avc.h"
+> @@ -844,6 +845,7 @@ static int inode_doinit_with_dentry(stru
+>  	char *context = NULL;
+>  	unsigned len = 0;
 >  	int rc = 0;
->  	struct policy_file file = {
-> -		.type = PF_USE_MEMORY,
-> -		.data = data,
-> -		.len = len,
-> -		.fp = NULL
-> -	}, *fp = &file;
-> +		.type = PF_USE_STDIO,
-> +		.fp = fmemopen(data, len, "r")
-> +	};
-> +	if (file.fp == NULL)
-> +		return -errno;
->  
-> -	if (policydb_init(&newpolicydb))
-> +	if (policydb_init(&newpolicydb)) {
-> +		fclose(file.fp);
->  		return -ENOMEM;
-> +	}
->  
-> -	if (policydb_read(&newpolicydb, fp, 1)) {
-> +	int fail = policydb_read(&newpolicydb, &file, 1);
-> +	fclose(file.fp);
-> +	if (fail) {
->  		return -EINVAL;
->  	}
->  
--- 
-Stephen Smalley
-National Security Agency
+> +	int status;
+> 
+>  	if (isec->initialized)
+>  		goto out;
+> @@ -888,34 +890,12 @@ static int inode_doinit_with_dentry(stru
+>  		}
+> 
+>  		len = INITCONTEXTLEN;
+> -		context = kmalloc(len, GFP_KERNEL);
+> -		if (!context) {
+> -			rc = -ENOMEM;
+> +		rc = integrity_verify_metadata(dentry, XATTR_NAME_SELINUX,
+> +				       &context, &len, &status);
 
+Hmm, so in this case shouldn't this be called
+integrity_get_and_verify_xattrs() or something?  I guess that's too
+long, but I wouldn't have thought integrity_verify_metadata() would also
+get the xattrs.
+
+> +		if (rc == -ENOMEM) {
+>  			dput(dentry);
+>  			goto out_unlock;
+>  		}
+> -		rc = inode->i_op->getxattr(dentry, XATTR_NAME_SELINUX,
+> -					   context, len);
+> -		if (rc == -ERANGE) {
+> -			/* Need a larger buffer.  Query for the right size. */
+> -			rc = inode->i_op->getxattr(dentry, XATTR_NAME_SELINUX,
+> -						   NULL, 0);
+> -			if (rc < 0) {
+> -				dput(dentry);
+> -				goto out_unlock;
+> -			}
+> -			kfree(context);
+> -			len = rc;
+> -			context = kmalloc(len, GFP_KERNEL);
+> -			if (!context) {
+> -				rc = -ENOMEM;
+> -				dput(dentry);
+> -				goto out_unlock;
+> -			}
+> -			rc = inode->i_op->getxattr(dentry,
+> -						   XATTR_NAME_SELINUX,
+> -						   context, len);
+> -		}
+>  		dput(dentry);
+>  		if (rc < 0) {
+>  			if (rc != -ENODATA) {
+> @@ -929,6 +909,14 @@ static int inode_doinit_with_dentry(stru
+>  			sid = sbsec->def_sid;
+>  			rc = 0;
+>  		} else {
+> +			if (status == INTEGRITY_FAIL) {
+> +				printk(KERN_WARNING "%s: verify_metadata "
+> +				       "failed for dev=%s ino=%ld\n",
+> +					__FUNCTION__,
+> +					inode->i_sb->s_id, inode->i_ino);
+
+Seems like something worth using audit for.
+
+> +				kfree(context);
+> +				goto out_unlock;
+> +			}
+>  			rc = security_context_to_sid_default(context, rc, &sid,
+>  			                                     sbsec->def_sid);
+>  			if (rc) {
+> @@ -1698,9 +1686,98 @@ static int selinux_bprm_set_security(str
+>  	return 0;
+>  }
+> 
+> -static int selinux_bprm_check_security (struct linux_binprm *bprm)
+> +static int selinux_verify_metadata(struct dentry *dentry)
+>  {
+> -	return secondary_ops->bprm_check_security(bprm);
+> +	int rc, status;
+> +
+> +	if (!dentry)
+> +		return 0;
+> +
+> +	rc = integrity_verify_metadata(dentry, NULL, NULL, NULL, &status);
+> +	if (rc == -EOPNOTSUPP)
+> +		return 0;
+> +	if (rc < 0)
+> +		goto out;
+> +
+> +	if (status != INTEGRITY_PASS) 	/* FAIL | NO_LABEL */
+> +		rc = -EACCES;
+> +out:
+> +	return rc;
+> +}
+> +
+> +static int selinux_verify_data(struct dentry *dentry, struct file *file)
+> +{
+> +	int rc, status;
+> +
+> +	if (!dentry && !file)
+> +		return 0;
+> +
+> +	rc = integrity_verify_data(dentry, file, &status);
+> +	if (rc < 0)
+> +		return 0;
+> +
+> +	if (status != INTEGRITY_PASS)
+> +		rc = -EACCES;
+> +
+> +	return rc;
+> +}
+> +
+> +/*
+> + * Measure based on new 'integrity' class policy
+> + */
+> +static void selinux_measure(struct inode *inode, struct dentry *dentry,
+> +				struct file *file, char *filename,
+> +				int mask)
+> +{
+> +	int rc = 1;
+> +	struct inode_security_struct *isec = inode->i_security;
+> +	struct task_security_struct *tsec = current->security;
+> +	struct av_decision avd;
+> +
+> +	if (!S_ISREG(inode->i_mode))
+> +		return;
+> +
+> +	rc = avc_has_perm_noaudit(tsec->sid, isec->sid, SECCLASS_INTEGRITY,
+> +				  INTEGRITY__MEASURE, AVC_STRICT, &avd);
+> +	if (rc == 0)
+> +		integrity_measure(inode, dentry, file, filename, mask);
+> +#if 0
+> +	else { /* Only used for debugging */
+> +		struct avc_audit_data ad;
+> +
+> +		AVC_AUDIT_DATA_INIT(&ad,FS);
+> +		ad.u.fs.mnt = NULL;
+> +		ad.u.fs.dentry = dentry;
+> +		avc_audit(tsec->sid, isec->sid, SECCLASS_INTEGRITY,
+> +			INTEGRITY__MEASURE, &avd, rc, &ad);
+> +	}
+> +#endif
+> +	return;
+> +}
+> +
+> +/* The OS protects against an executable file, already open for write,
+> + * from being executed in deny_write_access() and an executable file
+> + * already open for execute, from being modified in get_write_access().
+> + * So we can be certain that what we verify and measure here is actually
+> + * what is being executed.
+> + */
+> +static int selinux_bprm_check_security(struct linux_binprm *bprm)
+> +{
+> +	struct dentry *dentry = bprm->file->f_dentry;
+> +	int rc;
+> +
+> +	rc = secondary_ops->bprm_check_security(bprm);
+> +	if (rc != 0)
+> +		return rc;
+> +
+> +	rc = selinux_verify_metadata(dentry);
+> +	if (rc == 0) {
+> +		rc = selinux_verify_data(dentry, bprm->file);
+> +		if (rc == 0)
+> +			selinux_measure(dentry->d_inode, dentry, bprm->file,
+> +					bprm->filename, MAY_EXEC);
+> +	}
+> +	return rc;
+>  }
+> 
+> 
+> @@ -2249,6 +2326,30 @@ static int selinux_inode_follow_link(str
+>  	return dentry_has_perm(current, NULL, dentry, FILE__READ);
+>  }
+> 
+> +static char *get_fname(struct dentry *dentry, struct vfsmount *mnt,
+> +			char **buf)
+> +{
+> +	char *fname = NULL;
+> +	char *path = NULL;
+> +
+> +	path = (char *)__get_free_page(GFP_KERNEL);
+> +	if (path) {
+> +		fname = d_path(dentry, mnt, path, PAGE_SIZE);
+
+Ok, this is kind of a drag performance-wise for something which is
+purely optional.  How about putting this behind some boot or compile 
+option or something?
+
+> +		*buf = path;
+> +	}
+> +
+> +	if (!fname)	/* no choice, use short name */
+> +		fname = (!dentry->d_name.name) ?
+> +		    (char *)dentry->d_iname : (char *)dentry->d_name.name;
+> +	return fname;
+> +}
+> +
+> +static void free_fname(char *path)
+> +{
+> +	if (path)
+> +		free_page((unsigned long)path);
+> +}
+> +
+>  static int selinux_inode_permission(struct inode *inode, int mask,
+>  				    struct nameidata *nd)
+>  {
+> @@ -2263,8 +2364,29 @@ static int selinux_inode_permission(stru
+>  		return 0;
+>  	}
+> 
+> -	return inode_has_perm(current, inode,
+> +	rc = inode_has_perm(current, inode,
+>  			       file_mask_to_av(inode->i_mode, mask), NULL);
+> +	if (rc != 0)
+> +		return rc;
+> +
+> +	if (mask & ~MAY_EXEC) { /* measure executables later */
+> +		struct dentry *dentry = NULL;
+> +		char *path = NULL;
+> +		char *fname = NULL;
+> +
+> +		/* The file name is not required, but only a hint.
+> +		 * When possible, supply a fully qualified path name.
+> +		 */
+> +		if (nd) {
+> +			dentry = nd->dentry;
+> +			fname = get_fname(nd->dentry, nd->mnt, &path);
+> +		}
+> +
+> +		selinux_measure(inode, dentry, NULL, fname, mask);
+> +		if (path)
+> +			free_fname(path);
+> +	}
+> +	return rc;
+>  }
+> 
+>  static int selinux_inode_setattr(struct dentry *dentry, struct iattr *iattr)
+> @@ -2585,8 +2707,18 @@ static int selinux_file_mmap(struct file
+>  	if (selinux_checkreqprot)
+>  		prot = reqprot;
+> 
+> -	return file_map_prot_check(file, prot,
+> -				   (flags & MAP_TYPE) == MAP_SHARED);
+> +	rc = file_map_prot_check(file, prot, (flags & MAP_TYPE) == MAP_SHARED);
+> +	if (file && file->f_dentry && rc == 0) {
+> +		rc = selinux_verify_metadata(file->f_dentry);
+> +		if (rc == 0) {
+> +			rc = selinux_verify_data(NULL, file);
+> +			if (rc == 0)
+> +				selinux_measure(file->f_dentry->d_inode,
+> +						  file->f_dentry, file,
+> +						  NULL, MAY_EXEC);
+> +		}
+> +	}
+> +	return rc;
+>  }
+> 
+>  static int selinux_file_mprotect(struct vm_area_struct *vma,
+> @@ -2628,7 +2760,6 @@ static int selinux_file_mprotect(struct 
+>  			return rc;
+>  	}
+>  #endif
+> -
+>  	return file_map_prot_check(vma->vm_file, prot, vma->vm_flags&VM_SHARED);
+>  }
+> 
+> Index: linux-2.6.23-rc3-mm1/security/selinux/include/av_permissions.h
+> ===================================================================
+> --- linux-2.6.23-rc3-mm1.orig/security/selinux/include/av_permissions.h
+> +++ linux-2.6.23-rc3-mm1/security/selinux/include/av_permissions.h
+> @@ -824,3 +824,4 @@
+>  #define DCCP_SOCKET__NODE_BIND                    0x00400000UL
+>  #define DCCP_SOCKET__NAME_CONNECT                 0x00800000UL
+>  #define MEMPROTECT__MMAP_ZERO                     0x00000001UL
+> +#define INTEGRITY__MEASURE                        0x00000001UL
+> Index: linux-2.6.23-rc3-mm1/security/selinux/include/av_perm_to_string.h
+> ===================================================================
+> --- linux-2.6.23-rc3-mm1.orig/security/selinux/include/av_perm_to_string.h
+> +++ linux-2.6.23-rc3-mm1/security/selinux/include/av_perm_to_string.h
+> @@ -159,3 +159,4 @@
+>     S_(SECCLASS_DCCP_SOCKET, DCCP_SOCKET__NODE_BIND, "node_bind")
+>     S_(SECCLASS_DCCP_SOCKET, DCCP_SOCKET__NAME_CONNECT, "name_connect")
+>     S_(SECCLASS_MEMPROTECT, MEMPROTECT__MMAP_ZERO, "mmap_zero")
+> +   S_(SECCLASS_INTEGRITY, INTEGRITY__MEASURE, "measure")
+> Index: linux-2.6.23-rc3-mm1/security/selinux/include/flask.h
+> ===================================================================
+> --- linux-2.6.23-rc3-mm1.orig/security/selinux/include/flask.h
+> +++ linux-2.6.23-rc3-mm1/security/selinux/include/flask.h
+> @@ -50,6 +50,7 @@
+>  #define SECCLASS_KEY                                     58
+>  #define SECCLASS_DCCP_SOCKET                             60
+>  #define SECCLASS_MEMPROTECT                              61
+> +#define SECCLASS_INTEGRITY                               62
+> 
+>  /*
+>   * Security identifier indices for initial entities
+> Index: linux-2.6.23-rc3-mm1/security/selinux/include/class_to_string.h
+> ===================================================================
+> --- linux-2.6.23-rc3-mm1.orig/security/selinux/include/class_to_string.h
+> +++ linux-2.6.23-rc3-mm1/security/selinux/include/class_to_string.h
+> @@ -64,3 +64,4 @@
+>      S_(NULL)
+>      S_("dccp_socket")
+>      S_("memprotect")
+> +    S_("integrity")
+> Index: linux-2.6.23-rc3-mm1/security/selinux/ss/services.c
+> ===================================================================
+> --- linux-2.6.23-rc3-mm1.orig/security/selinux/ss/services.c
+> +++ linux-2.6.23-rc3-mm1/security/selinux/ss/services.c
+> @@ -305,12 +305,12 @@ static int context_struct_compute_av(str
+>  		    tclass <= SECCLASS_NETLINK_DNRT_SOCKET)
+>  			tclass = SECCLASS_NETLINK_SOCKET;
+> 
+> -	if (!tclass || tclass > policydb.p_classes.nprim) {
+> -		printk(KERN_ERR "security_compute_av:  unrecognized class %d\n",
+> -		       tclass);
+> -		return -EINVAL;
+> -	}
+> -	tclass_datum = policydb.class_val_to_struct[tclass - 1];
+> +//	if (!tclass || tclass > policydb.p_classes.nprim) {
+> +//		printk(KERN_ERR "security_compute_av:  unrecognized class %d\n",
+> +//		       tclass);
+> +//		return -EINVAL;
+> +//	}
+> +//	tclass_datum = policydb.class_val_to_struct[tclass - 1];
+
+As you can see the deletion is plenty obvious in the patch so please
+just delete it here rather than commenting it out :)
+
+(As to the correctness of moving it I can't speak right now)
+
+> 
+>  	/*
+>  	 * Initialize the access vectors to the default values.
+> @@ -321,6 +321,10 @@ static int context_struct_compute_av(str
+>  	avd->auditdeny = 0xffffffff;
+>  	avd->seqno = latest_granting;
+> 
+> +	if (!tclass || tclass > policydb.p_classes.nprim)
+> +		return 0;
+> +	tclass_datum = policydb.class_val_to_struct[tclass - 1];
+> +
+>  	/*
+>  	 * If a specific type enforcement rule was defined for
+>  	 * this permission check, then use it.
+> 
+> 
+> 
+> --
+> This message was distributed to subscribers of the selinux mailing list.
+> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
+> the words "unsubscribe selinux" without quotes as the message.
 
 --
 This message was distributed to subscribers of the selinux mailing list.
