@@ -1,53 +1,66 @@
-From: David Howells <dhowells@redhat.com>
-In-Reply-To: <1188487195.26572.351.camel@moss-spartans.epoch.ncsc.mil>
-References: <1188487195.26572.351.camel@moss-spartans.epoch.ncsc.mil> <10698.1188486734@redhat.com>
+Message-ID: <46D82877.3070302@redhat.com>
+Date: Fri, 31 Aug 2007 07:40:55 -0700
+From: Ulrich Drepper <drepper@redhat.com>
+MIME-Version: 1.0
 To: Stephen Smalley <sds@tycho.nsa.gov>
-Cc: dhowells@redhat.com, viro@ftp.linux.org.uk, selinux@tycho.nsa.gov,
-        LSM List <linux-security-module@vger.kernel.org>,
-        James Morris <jmorris@namei.org>, Eric Paris <eparis@parisplace.org>
-Subject: Re: SELinux security and passed file descriptors
-Date: Fri, 31 Aug 2007 15:32:15 +0100
-Message-ID: <8927.1188570735@redhat.com>
+CC: SE-Linux <selinux@tycho.nsa.gov>, Ulrich Drepper <drepper@gmail.com>
+Subject: Re: use the OS functionality for reading
+References: <46D495A1.20505@redhat.com> <1188506154.26572.378.camel@moss-spartans.epoch.ncsc.mil>
+In-Reply-To: <1188506154.26572.378.camel@moss-spartans.epoch.ncsc.mil>
+Content-Type: text/plain; charset=UTF-8
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Stephen Smalley <sds@tycho.nsa.gov> wrote:
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-> That's how mandatory access control is supposed to work; otherwise, a
-> flaw in A can leak the descriptor to B at will in violation of security
-> policy.
+Stephen Smalley wrote:
+> get_len is less of a concern, as it doesn't appear to be in use outside
+> the library.
 
-Yeah, but by making it impossible to have the flaw, you've also made it
-impossible for A to validly pass to B a file descriptor B wouldn't otherwise
-be able to access directly, but should be able to access on behalf of A.
-
-To put it another way, how does A now legitimately pass on to B the grant of
-rights A had on that specific file descriptor?
-
-I don't think you can practically change the security attached to the file
-struct,
-
-With respect to execve(), imagine that program A (a shell, say) opens a file
-to use as a stdout for program B, which it then proceeds to exec.  Imagine,
-however, the process's security label is changed during the exec of B and this
-disallows B from writing to its stdout.  Is this correct behaviour since it is
-differs depending on whether SELinux is in enforcing mode or not?  Or is there
-some way around this in SELinux?  (I presume this is what
-flush_unauthorized_files() does).
-
-> And it has caught any number of bugs in applications as well as the kernel
-> where a descriptor is unwittingly leaked across exec.
-
-Whilst that may make it a useful debugging tool, it doesn't necessarily make
-it a good policy.
+Good to hear but lots of hand-waving.
 
 
-Btw, surely selinux_file_receive() is redundant because all that it checks is
-whether B can naturally access the file, which surely read and write, etc,
-will check anyway.  OTOH, although it appears to be redundant, I suppose it
-eliminates the use of the file as soon as possible.
+> The fact that set_mem can fail after this change and leave the fp NULL
+> seems more troubling, as a subsequent call may use that in a call to
+> next_entry and seg fault.
+> 
+> I'm not certain of the benefit of the change is for the input side; on
+> the output side, letting the implementation handle the allocation is
+> nice.
 
-David
+Especially the input side is susceptible to security-relevant bugs.
+Maybe in the moment the code is correct.  But who knows, perhaps a
+little innocent change in future might change the picture.  The best way
+to handle these things is to let the runtime perform the allocation.
+Also, this way the code should be faster, it doesn't have to "emit" the
+policy twice.
+
+If you're OK with removing the old interfaces since you know nobody uses
+them the resulting change can lead to a nice and clean and easy to use
+interface.
+
+
+> The patch wasn't relative to your first one, so the private.h diff has
+> to be manually applied to services.c.
+
+RIght, I didn't write them in necessarily this sequence and I didn't
+know what you will apply.  With next_entry reduced to a single fread
+call the function should be inlined again.  It'll indeed be faster.  And
+we don't need the next_entry macro for bound checking anymore since (at
+least in very recent glibcs) fread can handle the bound checking by
+itself.  Inlining is a prerequisite, though.
+
+- --
+➧ Ulrich Drepper ➧ Red Hat, Inc. ➧ 444 Castro St ➧ Mountain View, CA ❖
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.7 (GNU/Linux)
+
+iD8DBQFG2Ch32ijCOnn/RHQRAtSJAKDDjtuEZbBGrTPU0eKlYVpWur0m8QCgvs7d
+QCXbi6fbBv9/DXc/6q+QefQ=
+=J1yt
+-----END PGP SIGNATURE-----
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
