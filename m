@@ -1,66 +1,53 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l7VD9atb006178
-	for <selinux@tycho.nsa.gov>; Fri, 31 Aug 2007 09:09:36 -0400
-Received: from e33.co.us.ibm.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l7VD9Zjc000414
-	for <selinux@tycho.nsa.gov>; Fri, 31 Aug 2007 13:09:35 GMT
-Received: from d03relay02.boulder.ibm.com (d03relay02.boulder.ibm.com [9.17.195.227])
-	by e33.co.us.ibm.com (8.13.8/8.13.8) with ESMTP id l7VD9ZIb030183
-	for <selinux@tycho.nsa.gov>; Fri, 31 Aug 2007 09:09:35 -0400
-Received: from d03av02.boulder.ibm.com (d03av02.boulder.ibm.com [9.17.195.168])
-	by d03relay02.boulder.ibm.com (8.13.8/8.13.8/NCO v8.5) with ESMTP id l7VD9ZPG465160
-	for <selinux@tycho.nsa.gov>; Fri, 31 Aug 2007 07:09:35 -0600
-Received: from d03av02.boulder.ibm.com (loopback [127.0.0.1])
-	by d03av02.boulder.ibm.com (8.12.11.20060308/8.13.3) with ESMTP id l7VD9Yrq020623
-	for <selinux@tycho.nsa.gov>; Fri, 31 Aug 2007 07:09:34 -0600
-Subject: Re: [RFC]integrity: SELinux patch
-From: Mimi Zohar <zohar@linux.vnet.ibm.com>
-To: "Serge E. Hallyn" <serue@us.ibm.com>
-Cc: Mimi Zohar <selinux@tycho.nsa.gov>, zohar@us.ibm.com,
-        safford@watson.ibm.com, sailer@us.ibm.com
-In-Reply-To: <20070830211243.GA20414@sergelap.austin.ibm.com>
-References: <1188340501.11528.14.camel@localhost.localdomain>
-	 <20070830205810.GA7692@sergelap.austin.ibm.com>
-	 <20070830211243.GA20414@sergelap.austin.ibm.com>
-Content-Type: text/plain
-Date: Fri, 31 Aug 2007 09:15:14 -0400
-Message-Id: <1188566114.10618.28.camel@localhost.localdomain>
-Mime-Version: 1.0
+From: David Howells <dhowells@redhat.com>
+In-Reply-To: <1188487195.26572.351.camel@moss-spartans.epoch.ncsc.mil>
+References: <1188487195.26572.351.camel@moss-spartans.epoch.ncsc.mil> <10698.1188486734@redhat.com>
+To: Stephen Smalley <sds@tycho.nsa.gov>
+Cc: dhowells@redhat.com, viro@ftp.linux.org.uk, selinux@tycho.nsa.gov,
+        LSM List <linux-security-module@vger.kernel.org>,
+        James Morris <jmorris@namei.org>, Eric Paris <eparis@parisplace.org>
+Subject: Re: SELinux security and passed file descriptors
+Date: Fri, 31 Aug 2007 15:32:15 +0100
+Message-ID: <8927.1188570735@redhat.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2007-08-30 at 16:12 -0500, Serge E. Hallyn wrote:
-> Quoting Serge E. Hallyn (serue@us.ibm.com):
-> > Quoting Mimi Zohar (zohar@linux.vnet.ibm.com):
-> > > This is a second attempt to verify and measure file integrity, by
-> > > adding the new Linux Integrity Modules(LIM) API calls to SElinux.
-> > > This posting addresses comments previously made on this list. 
-> > > I will also post the current set of LIM patches, as well as an
-> > > initial integrity.te example. 
-> > > 
-> > > The integrity of the SELinux metadata is verified when the xattr
-> > > is initially retrieved.  On an integrity failure, normal selinux 
-> > > error processing occurs.
-> > > 
-> > > This patch defines a new 'integrity' class with the permission 
-> > > 'measure'.  Measurement calls are made in selinux_file_mmap(), 
-> > > selinux_bprm_check_security, and selinux_inode_permission(),
-> > > based on policy.  (Additional calls might be required.)
-> > 
-> > Just curious - wouldn't you want to also define a 'update' permission to
-> > allow policy to permit some domains to update xattrs?  Or does that not
-> > make sense?
-> 
-> Oops, I see, that's what measure is...   nm then.
+Stephen Smalley <sds@tycho.nsa.gov> wrote:
 
-A LIM provider that implements integrity_verify_metadata/data would protect 
-its own integrity xattrs, just as an LSM module protects its own xattrs, but 
-that is not an SElinux issue.  Based on a 'measure' policy, SELinux decides
-whether or not to add a measurement to the measurement list and extend the 
-PCR value.
+> That's how mandatory access control is supposed to work; otherwise, a
+> flaw in A can leak the descriptor to B at will in violation of security
+> policy.
 
-Mimi
+Yeah, but by making it impossible to have the flaw, you've also made it
+impossible for A to validly pass to B a file descriptor B wouldn't otherwise
+be able to access directly, but should be able to access on behalf of A.
 
+To put it another way, how does A now legitimately pass on to B the grant of
+rights A had on that specific file descriptor?
+
+I don't think you can practically change the security attached to the file
+struct,
+
+With respect to execve(), imagine that program A (a shell, say) opens a file
+to use as a stdout for program B, which it then proceeds to exec.  Imagine,
+however, the process's security label is changed during the exec of B and this
+disallows B from writing to its stdout.  Is this correct behaviour since it is
+differs depending on whether SELinux is in enforcing mode or not?  Or is there
+some way around this in SELinux?  (I presume this is what
+flush_unauthorized_files() does).
+
+> And it has caught any number of bugs in applications as well as the kernel
+> where a descriptor is unwittingly leaked across exec.
+
+Whilst that may make it a useful debugging tool, it doesn't necessarily make
+it a good policy.
+
+
+Btw, surely selinux_file_receive() is redundant because all that it checks is
+whether B can naturally access the file, which surely read and write, etc,
+will check anyway.  OTOH, although it appears to be redundant, I suppose it
+eliminates the use of the file as soon as possible.
+
+David
 
 --
 This message was distributed to subscribers of the selinux mailing list.
