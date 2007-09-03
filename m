@@ -1,54 +1,83 @@
-Subject: Re: Time to remove compat_net?
-From: Karl MacMillan <kmacmillan@mentalrootkit.com>
-To: Paul Moore <paul.moore@hp.com>
-Cc: Stephen Smalley <sds@tycho.nsa.gov>, selinux@tycho.nsa.gov,
-        Eric Paris <eparis@parisplace.org>, James Morris <jmorris@namei.org>
-In-Reply-To: <200708301633.33632.paul.moore@hp.com>
-References: <200708301607.42110.paul.moore@hp.com>
-	 <1188504744.26572.361.camel@moss-spartans.epoch.ncsc.mil>
-	 <200708301633.33632.paul.moore@hp.com>
-Content-Type: text/plain
-Date: Mon, 03 Sep 2007 11:02:26 -0400
-Message-Id: <1188831746.2876.3.camel@localhost.localdomain>
-Mime-Version: 1.0
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l83FBHAe023896
+	for <selinux@tycho.nsa.gov>; Mon, 3 Sep 2007 11:11:17 -0400
+Received: from mail.asahi-net.or.jp (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l83FBEjW010319
+	for <selinux@tycho.nsa.gov>; Mon, 3 Sep 2007 15:11:16 GMT
+Received: from [127.0.0.1] (j069218.ppp.asahi-net.or.jp [61.213.69.218])
+	by mail.asahi-net.or.jp (Postfix) with ESMTP id EB76E6448
+	for <selinux@tycho.nsa.gov>; Tue,  4 Sep 2007 00:11:08 +0900 (JST)
+Message-ID: <46DC2457.4010408@kaigai.gr.jp>
+Date: Tue, 04 Sep 2007 00:12:23 +0900
+From: KaiGai Kohei <kaigai@kaigai.gr.jp>
+MIME-Version: 1.0
+To: selinux@tycho.nsa.gov
+Subject: [ANN] SE-PostgreSQL 8.2.4-1.0 Released
+Content-Type: text/plain; charset=ISO-2022-JP
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2007-08-30 at 16:33 -0400, Paul Moore wrote:
-> On Thursday, August 30 2007 4:12:24 pm Stephen Smalley wrote:
-> > On Thu, 2007-08-30 at 16:07 -0400, Paul Moore wrote:
-> > > Does anyone have any objections to placing the compat_net code on the
-> > > kernel's "feature removal schedule" (I'd go for removal in 2/2008, six
-> > > months from now)?  SECMARK can do everything that the older compat_net
-> > > controls can do, and it does it with less overhead and a cleaner
-> > > implementation.
-> >
-> > I'd be happy to see it go (conditional checks considered harmful), but a
-> > good starting point would be to get secmark turned on in Fedora (it was
-> > still off last I looked) and verify that nothing breaks.
-> >
-> > We also don't have any tools capable of managing secmark today; with the
-> > legacy controls, we could labels ports and netifs via semanage.  Only
-> > secmark userland integration to date has been the basic iptables command
-> > line support.
-> 
-> Okay RedHat guys ... are there any plans to migrate semanage over to using the 
-> SECMARK controls?
+This is announcement of the first official version of SE-PostgreSQL.
 
-I have argued in the past that making semanage handle secmark is the
-wrong approach. Basically - the whole point of using secmark is that you
-get the full power of iptables. If we force updates through semanage
-then you either a) recreate all of iptables in semanage or b) seriously
-cripple the mechanism through a restricted interface.
+====================================================================
+  SE-PostgreSQL 8.2.4-1.0 Released
+====================================================================
+SE-PostgreSQL development team released "SE-PostgreSQL 8.2.4-1.0" and
+"The SE-PostgreSQL Security Guide (Japanese/English)".
 
->   If not, what do you need (besides patches to semanage) to 
-> make the transition?
-> 
+You can get these packages from the following URL:
+  http://code.google.com/p/sepgsql/downloads/list
 
-What more do you mean other than setting compat_net to 0?
+NOTE: Any packages built for Fedora development edition (rawhide) will
+      be distributed via Fedora mirrors soon.
 
-Karl
+* SE-PostgreSQL 8.2.4-1.0
+  sepostgresql-8.2.4-1.0.fc7.i386.rpm
+  sepostgresql-8.2.4-1.0.fc7.src.rpm
+* The base security policy for Fedora 7
+  selinux-policy-devel-2.6.4-38.sepgsql.fc7.noarch.rpm
+  selinux-policy-targeted-2.6.4-38.sepgsql.fc7.noarch.rpm
+  selinux-policy-2.6.4-38.sepgsql.fc7.noarch.rpm
+  selinux-policy-2.6.4-38.sepgsql.fc7.src.rpm
+* The official documentation
+  sepgsql_security_guide.20070903.jp.pdf
+  sepgsql_security_guide.20070903.en.pdf
 
+See the following URL, for installation details.
+* SE-PostgreSQL Installation Memo (Fedora 7)
+  http://code.google.com/p/sepgsql/wiki/install_memo_Fedora7
+
+The features of SE-PostgreSQL
+-----------------------------
+Security-Enhanced PostgreSQL (SE-PostgreSQL) is a security extension built
+in PostgreSQL. It enables to apply a unified security policy of SELinux to
+both operating system and database management system.
+In addition, it also provides fine-grained access control including column
+and row level, and mandatory access control being non-bypassable, even if
+privileged database users.
+These features enables to build a database management system into information
+flow control scheme integrated with operating system, and to protect our
+information asset from threats like manipulation or leaking.
+
+The position of this version
+----------------------------
+This is the first official version of SE-PostgreSQL based on PostgreSQL 8.2.4.
+However, it does not have enough achievement of works compared to the original
+PostgreSQL. Therefore, we recommend you to have enough evaluation and
+verification on its introduction.
+The series of SE-PostgreSQL 8.2.4-1.x got into maintenance phase after the
+release of this version, and we don't have any plan to release new version
+in this series, except for bug fixes.
+The SE-PostgreSQL development team has a plan to develop next major version
+of SE-PostgreSQL based on PostgreSQL 8.3, with several new features.
+
+Acknowledgment
+--------------
+The development of SE-PostgreSQL is supported by Exploratory Software Project,
+IPA(Information-technology Promotion Agency, Japan).
+
+-- 
+KaiGai Kohei <kaigai@kaigai.gr.jp>
 
 --
 This message was distributed to subscribers of the selinux mailing list.
