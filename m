@@ -1,69 +1,54 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l83A6AxS006681
-	for <selinux@tycho.nsa.gov>; Mon, 3 Sep 2007 06:06:10 -0400
-Received: from rv-out-0910.google.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l83A68E0025548
-	for <selinux@tycho.nsa.gov>; Mon, 3 Sep 2007 10:06:09 GMT
-Received: by rv-out-0910.google.com with SMTP id k15so866131rvb
-        for <selinux@tycho.nsa.gov>; Mon, 03 Sep 2007 03:06:08 -0700 (PDT)
-Message-ID: <7b740b700709030306i72b7b343q1ddfd229df32586a@mail.gmail.com>
-Date: Mon, 3 Sep 2007 15:06:08 +0500
-From: "shahbaz khan" <shazalive@gmail.com>
-To: selinux@tycho.nsa.gov
-Subject: Get source and destination info
-In-Reply-To: <20cbb9450709030258m68278aferf1a3ed667979cc04@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: multipart/alternative;
-	boundary="----=_Part_9816_12675943.1188813968280"
-References: <20cbb9450709021618o42ae8047k10e52e880c97a0a8@mail.gmail.com>
-	 <711567.2389.qm@web36603.mail.mud.yahoo.com>
-	 <20cbb9450709030258m68278aferf1a3ed667979cc04@mail.gmail.com>
+Subject: Re: Time to remove compat_net?
+From: Karl MacMillan <kmacmillan@mentalrootkit.com>
+To: Paul Moore <paul.moore@hp.com>
+Cc: Stephen Smalley <sds@tycho.nsa.gov>, selinux@tycho.nsa.gov,
+        Eric Paris <eparis@parisplace.org>, James Morris <jmorris@namei.org>
+In-Reply-To: <200708301633.33632.paul.moore@hp.com>
+References: <200708301607.42110.paul.moore@hp.com>
+	 <1188504744.26572.361.camel@moss-spartans.epoch.ncsc.mil>
+	 <200708301633.33632.paul.moore@hp.com>
+Content-Type: text/plain
+Date: Mon, 03 Sep 2007 11:02:26 -0400
+Message-Id: <1188831746.2876.3.camel@localhost.localdomain>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-------=_Part_9816_12675943.1188813968280
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+On Thu, 2007-08-30 at 16:33 -0400, Paul Moore wrote:
+> On Thursday, August 30 2007 4:12:24 pm Stephen Smalley wrote:
+> > On Thu, 2007-08-30 at 16:07 -0400, Paul Moore wrote:
+> > > Does anyone have any objections to placing the compat_net code on the
+> > > kernel's "feature removal schedule" (I'd go for removal in 2/2008, six
+> > > months from now)?  SECMARK can do everything that the older compat_net
+> > > controls can do, and it does it with less overhead and a cleaner
+> > > implementation.
+> >
+> > I'd be happy to see it go (conditional checks considered harmful), but a
+> > good starting point would be to get secmark turned on in Fedora (it was
+> > still off last I looked) and verify that nothing breaks.
+> >
+> > We also don't have any tools capable of managing secmark today; with the
+> > legacy controls, we could labels ports and netifs via semanage.  Only
+> > secmark userland integration to date has been the basic iptables command
+> > line support.
+> 
+> Okay RedHat guys ... are there any plans to migrate semanage over to using the 
+> SECMARK controls?
 
->> Hi,
->>
-> >I am trying to figure out what part in the kernel code is the point
-> >from where I can get source and destination ip-address, port, security
->> labels (selinux etc) from a packet before I export it to application
-> >space for my needs. Any hints?
+I have argued in the past that making semanage handle secmark is the
+wrong approach. Basically - the whole point of using secmark is that you
+get the full power of iptables. If we force updates through semanage
+then you either a) recreate all of iptables in semanage or b) seriously
+cripple the mechanism through a restricted interface.
 
->Look into the netlabel and xfrm code. In Smack it gets dealt with
->in smack_lsm.c, but Smack only uses netlabel. SELinux spreads the
->handling into a number of files, including hooks.c, netlabel.c, xfrm.c,
->and ss/services.c.
+>   If not, what do you need (besides patches to semanage) to 
+> make the transition?
+> 
 
-Can anyone explain this to me? Some elaboration and exactness required.
+What more do you mean other than setting compat_net to 0?
 
+Karl
 
->Casey Schaufler
->casey@schaufler-ca.com
-
-
--- 
-Shahbaz
-Group: http://securityengineering.wordpress.com
-Email: shazalive@gmail.com
-cell: +92 91 0300 5944647
-
-------=_Part_9816_12675943.1188813968280
-Content-Type: text/html; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
-<div>&gt;&gt; Hi,<br>&gt;&gt;<br>&gt; &gt;I am trying to figure out what part in the kernel code is the point<br>&gt; &gt;from where I can get source and destination ip-address, port, security<br>&gt;&gt; labels (selinux etc) from a packet before I export it to application
-<br>&gt; &gt;space for my needs. Any hints?<br><br>&gt;Look into the netlabel and xfrm code. In Smack it gets dealt with<br>&gt;in smack_lsm.c, but Smack only uses netlabel. SELinux spreads the<br>&gt;handling into a number of files, including 
-hooks.c, netlabel.c, xfrm.c,<br>&gt;and ss/services.c.</div>
-<div>&nbsp;</div>
-<div>Can anyone explain this to me? Some elaboration and exactness required.<br><br><br>&gt;Casey Schaufler<br>&gt;<a href="mailto:casey@schaufler-ca.com">casey@schaufler-ca.com</a><br><br clear="all"><br>-- <br>Shahbaz<br>
-Group: <a href="http://securityengineering.wordpress.com">http://securityengineering.wordpress.com</a><br>Email: <a href="mailto:shazalive@gmail.com">shazalive@gmail.com</a><br>cell: +92 91 0300 5944647 </div>
-
-------=_Part_9816_12675943.1188813968280--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
