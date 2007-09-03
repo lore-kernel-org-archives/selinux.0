@@ -1,83 +1,114 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l83FBHAe023896
-	for <selinux@tycho.nsa.gov>; Mon, 3 Sep 2007 11:11:17 -0400
-Received: from mail.asahi-net.or.jp (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l83FBEjW010319
-	for <selinux@tycho.nsa.gov>; Mon, 3 Sep 2007 15:11:16 GMT
-Received: from [127.0.0.1] (j069218.ppp.asahi-net.or.jp [61.213.69.218])
-	by mail.asahi-net.or.jp (Postfix) with ESMTP id EB76E6448
-	for <selinux@tycho.nsa.gov>; Tue,  4 Sep 2007 00:11:08 +0900 (JST)
-Message-ID: <46DC2457.4010408@kaigai.gr.jp>
-Date: Tue, 04 Sep 2007 00:12:23 +0900
-From: KaiGai Kohei <kaigai@kaigai.gr.jp>
-MIME-Version: 1.0
-To: selinux@tycho.nsa.gov
-Subject: [ANN] SE-PostgreSQL 8.2.4-1.0 Released
-Content-Type: text/plain; charset=ISO-2022-JP
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l83GDoSF027517
+	for <selinux@tycho.nsa.gov>; Mon, 3 Sep 2007 12:13:50 -0400
+Received: from mx1.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id l83GDn9v003311
+	for <selinux@tycho.nsa.gov>; Mon, 3 Sep 2007 16:13:49 GMT
+Subject: RE: audit2allow module generation
+From: Karl MacMillan <kmacmillan@mentalrootkit.com>
+To: Anand Patel <apatel@tresys.com>
+Cc: SE Linux <selinux@tycho.nsa.gov>
+In-Reply-To: <6FE441CD9F0C0C479F2D88F959B01588010087D1@exchange.columbia.tresys.com>
+References: 
+	 <6FE441CD9F0C0C479F2D88F959B01588010087D1@exchange.columbia.tresys.com>
+Content-Type: text/plain
+Date: Mon, 03 Sep 2007 12:13:43 -0400
+Message-Id: <1188836023.2876.9.camel@localhost.localdomain>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This is announcement of the first official version of SE-PostgreSQL.
+On Thu, 2007-08-30 at 09:43 -0400, Anand Patel wrote:
+> Karl,
+> 
+> I found that sepol-ifgen parser fails when it sees multiple types in
+> type declaration statement.
+> e.g.
+> 	type foo_t, hello_t;
 
-====================================================================
-  SE-PostgreSQL 8.2.4-1.0 Released
-====================================================================
-SE-PostgreSQL development team released "SE-PostgreSQL 8.2.4-1.0" and
-"The SE-PostgreSQL Security Guide (Japanese/English)".
+This isn't a valid way to define two types - you are instead defining
+the type foo_t with the attribute hello_t. It's an easy mistake to make
+because of the similarity to the require syntax for requiring multiple
+types.
 
-You can get these packages from the following URL:
-  http://code.google.com/p/sepgsql/downloads/list
+I'm sending a large update to the parser soon that will fix this problem
+though.
 
-NOTE: Any packages built for Fedora development edition (rawhide) will
-      be distributed via Fedora mirrors soon.
+Karl
 
-* SE-PostgreSQL 8.2.4-1.0
-  sepostgresql-8.2.4-1.0.fc7.i386.rpm
-  sepostgresql-8.2.4-1.0.fc7.src.rpm
-* The base security policy for Fedora 7
-  selinux-policy-devel-2.6.4-38.sepgsql.fc7.noarch.rpm
-  selinux-policy-targeted-2.6.4-38.sepgsql.fc7.noarch.rpm
-  selinux-policy-2.6.4-38.sepgsql.fc7.noarch.rpm
-  selinux-policy-2.6.4-38.sepgsql.fc7.src.rpm
-* The official documentation
-  sepgsql_security_guide.20070903.jp.pdf
-  sepgsql_security_guide.20070903.en.pdf
+> Then I went back and change to following
+> 	type foo_t;
+> 	type hello_t;
+> and it parsed successfully.
+> 
+> -Anand Patel
+> 
+> -----Original Message-----
+> From: owner-selinux@tycho.nsa.gov [mailto:owner-selinux@tycho.nsa.gov]
+> On Behalf Of Anand Patel
+> Sent: Monday, June 11, 2007 9:48 AM
+> To: Karl MacMillan
+> Cc: SE Linux; Daniel J Walsh
+> Subject: RE: audit2allow module generation
+> 
+> On Fri, 2007-06-08 at 11:36 -0400, Karl MacMillan wrote:
+> > On Wed, 2007-05-30 at 10:44 -0400, Anand Patel wrote:
+> > > > -----Original Message-----
+> > > > From: Karl MacMillan [mailto:kmacmillan@mentalrootkit.com]
+> > > > Sent: Tuesday, May 29, 2007 5:12 PM
+> > > > To: Anand Patel
+> > > > Cc: SE Linux; Daniel J Walsh
+> > > > Subject: Re: audit2allow module generation
+> > > > 
+> > > > On Tue, 2007-05-29 at 16:25 -0400, Anand Patel wrote:
+> > > > > I am trying to use audit2allow to generate module out of audit
+> > > messages.
+> > > > >
+> > > > > So, I installed refpolicy headers first. Then tried
+> sepolgen-ifgen
+> > > > >
+> > > > > %sepolgen-ifgen
+> > > > > % ... some output ...
+> > > > > %parsing file /usr/share/selinux/devel/include/services/snmp.if
+> > > > > %error parsing file
+> > > /usr/share/selinux/devel/include/services/snmap.if:
+> > > > > %could not parse text: "Syntax error on line 1 ( [type=OPAREN]"
+> > > > >
+> > > > > Parser had problem parsing almost all if files and generated
+> above
+> > > > > error.
+> > > > 
+> > > > The problem is that the refpolicy "language" is far from fixed and
+> > > > parsing it cleanly is almost impossible because of M4. So the
+> parser
+> > > > sometimes gets out of sync with refpolicy (hence the policyrep
+> work).
+> > > > 
+> > > > I just need some more specific information about the refpolicy
+> version
+> > > > you are using and I should be able to fix-up the parser.
+> > > 
+> > > I was using current release from oss.tresys.com/projects/refpolicy.
+> > > 
+> > 
+> > What version of sepolgen were you using? The latest (in rawhide) seems
+> > to work fine on the latest available refpolicy.
+> Version .1
+> It seems to work with pristine refpolicy. However, upon modifications to
+> policy, new macros and moduels, it generates error during interface
+> index parse.
+> 
+> I am currently investigating where it fails.
+> 
+> 
+> > 
+> > Karl
+> > 
+> > 
+> > 
+> 
+> 
 
-See the following URL, for installation details.
-* SE-PostgreSQL Installation Memo (Fedora 7)
-  http://code.google.com/p/sepgsql/wiki/install_memo_Fedora7
-
-The features of SE-PostgreSQL
------------------------------
-Security-Enhanced PostgreSQL (SE-PostgreSQL) is a security extension built
-in PostgreSQL. It enables to apply a unified security policy of SELinux to
-both operating system and database management system.
-In addition, it also provides fine-grained access control including column
-and row level, and mandatory access control being non-bypassable, even if
-privileged database users.
-These features enables to build a database management system into information
-flow control scheme integrated with operating system, and to protect our
-information asset from threats like manipulation or leaking.
-
-The position of this version
-----------------------------
-This is the first official version of SE-PostgreSQL based on PostgreSQL 8.2.4.
-However, it does not have enough achievement of works compared to the original
-PostgreSQL. Therefore, we recommend you to have enough evaluation and
-verification on its introduction.
-The series of SE-PostgreSQL 8.2.4-1.x got into maintenance phase after the
-release of this version, and we don't have any plan to release new version
-in this series, except for bug fixes.
-The SE-PostgreSQL development team has a plan to develop next major version
-of SE-PostgreSQL based on PostgreSQL 8.3, with several new features.
-
-Acknowledgment
---------------
-The development of SE-PostgreSQL is supported by Exploratory Software Project,
-IPA(Information-technology Promotion Agency, Japan).
-
--- 
-KaiGai Kohei <kaigai@kaigai.gr.jp>
 
 --
 This message was distributed to subscribers of the selinux mailing list.
