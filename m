@@ -1,96 +1,43 @@
-Date: Wed, 5 Sep 2007 23:45:08 +0900
-From: Yuichi Nakamura <himainu-ynakam@miomio.jp>
-To: Paul Moore <paul.moore@hp.com>
-Cc: himainu-ynakam@miomio.jp, ynakam@hitachisoft.jp, selinux@tycho.nsa.gov,
-        sds@tycho.nsa.gov, busybox@kaigai.gr.jp, jmorris@namei.org,
-        eparis@parisplace.org, kaigai@ak.jp.nec.com
-Subject: Re: [RFC]Tuning selinux_file_permission
-Message-Id: <20070905234508.2f6e483f.himainu-ynakam@miomio.jp>
-In-Reply-To: <200709051019.44607.paul.moore@hp.com>
-References: <20070903170020.D7E4.YNAKAM@hitachisoft.jp>
-	<200709051019.44607.paul.moore@hp.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l85FZnme004661
+	for <selinux@tycho.nsa.gov>; Wed, 5 Sep 2007 11:35:49 -0400
+Received: from moutng.kundenserver.de (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l85FZlJV020920
+	for <selinux@tycho.nsa.gov>; Wed, 5 Sep 2007 15:35:48 GMT
+Mime-Version: 1.0 (Apple Message framework v752.2)
+Message-Id: <6E78FE11-FAA3-4C3B-A87E-FA60ABB71863@sf-net.com>
+Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
+To: SELinux List <selinux@tycho.nsa.gov>
+From: Stefan Schulze Frielinghaus <stefan@sf-net.com>
+Subject: tunable and if-else conditional
+Date: Wed, 5 Sep 2007 17:35:43 +0200
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 5 Sep 2007 10:19:44 -0400
-Paul Moore wrote:
-> On Monday, September 3 2007 4:04:46 am Yuichi Nakamura wrote:
-> > +static int selinux_file_permission(struct file *file, int mask)
-> > +{
-> > +
-> > +	struct task_security_struct *tsec = current->security;
-> > +	struct file_security_struct *fsec = file->f_security;
-> > +	int rc;
-> > +	u32 current_sid_serial;
-> > +
-> > +	if (!mask) {
-> > +		/* No permission to check.  Existence test. */
-> > +		return 0;
-> > +	}
-> > +
-> > +	/*Check FS__USE*/
-> > +	if (tsec->sid != fsec->sid) {
-> > +		struct vfsmount *mnt = file->f_path.mnt;
-> > +		struct dentry *dentry = file->f_path.dentry;
-> > +		struct avc_audit_data ad;
-> > +		AVC_AUDIT_DATA_INIT(&ad, FS);
-> > +		ad.u.fs.mnt = mnt;
-> > +		ad.u.fs.dentry = dentry;
-> > +		rc = avc_has_perm(tsec->sid, fsec->sid,
-> > +				  SECCLASS_FD,
-> > +				  FD__USE,
-> > +				  &ad);
-> > +		if (rc)
-> > +			return rc;
-> > +	}
-> > +
-> > +	/*Skip permission check
-> > +	  when sids are not changed after open*/
-> > +	current_sid_serial = read_sid_serial();
-> > +	if (fsec->sid_serial == current_sid_serial &&
-> > +	    !(fsec->force_file_check))
-> > +		return 0;
-> 
-> Instead of simply returning 0 here, you should return the return value from 
-> selinux_netlbl_inode_permission just like you are doing in your 
-> do_selinux_file_permission() function above.
-> 
-> This NetLabel call is required to ensure that the on-the-wire label is set 
-> correctly for connected stream sockets initiated by a remote host.  It may be 
-> possible to do away with this call at some point but it requires additional 
-> functionality which we do not have at present.
+Hi,
 
-Thanks,
-I forgot about that.
-I will fix it in next patch.
+reading an older poste (http://www.nsa.gov/selinux/list-archive/0610/ 
+thread_body16.cfm) I wonder about the difference between tunable and  
+an if-else conditional.
 
-> 
-> > +	rc = do_selinux_file_permission(file, mask);
-> > +	if (rc)
-> > +		return rc;
-> > +
-> > +	fsec->sid_serial = current_sid_serial;
-> > +	fsec->force_file_check = 0;
-> > +
-> > +	return 0;
-> > +}
-> 
-> -- 
-> paul moore
-> linux security @ hp
-> 
-> --
-> This message was distributed to subscribers of the selinux mailing list.
-> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
-> the words "unsubscribe selinux" without quotes as the message.
+<quote>
+Tunable_policy are blocks that will be replaced by a similar language  
+feature when it becomes available. Tunables will be similar to  
+conditionals, except they will be selected during the policy module  
+linking instead of being selectable at runtime.
+</quote>
 
-Regards,
-Yuichi Nakamura
+Using the latest stable refpolicy (20070629) the feature has already  
+changed? I would guess so because I can change the booleans via  
+setsebool at runtime.
 
+Looking at the file "loadable_module.spt" the tunable seems to me  
+exact the same like a if-else conditional. But I'm not a M4 guy and  
+wanted to make sure. Is this right that a tunable and a if-else  
+conditional is the same now?
 
-
+cheers,
+Stefan
 
 --
 This message was distributed to subscribers of the selinux mailing list.
