@@ -1,36 +1,34 @@
 Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l85Ef03p031166
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l85Ef0Uu031169
 	for <selinux@tycho.nsa.gov>; Wed, 5 Sep 2007 10:41:00 -0400
 Received: from exchange.columbia.tresys.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with SMTP id l85EexJV009584
-	for <selinux@tycho.nsa.gov>; Wed, 5 Sep 2007 14:40:59 GMT
-Subject: Re: [PATCH] refpolicy: admin_bootloader changes
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with SMTP id l85Ef0JV009601
+	for <selinux@tycho.nsa.gov>; Wed, 5 Sep 2007 14:41:00 GMT
+Subject: Re: [PATCH] refpolicy: admin_vbetool changes
 From: "Christopher J. PeBenito" <cpebenito@tresys.com>
 To: dwalsh@redhat.com
 Cc: selinux@tycho.nsa.gov
-In-Reply-To: <200708021935.l72JZi7C028806@redsox.boston.devel.redhat.com>
-References: <200708021935.l72JZi7C028806@redsox.boston.devel.redhat.com>
+In-Reply-To: <200708021938.l72Jcqqx028906@redsox.boston.devel.redhat.com>
+References: <200708021938.l72Jcqqx028906@redsox.boston.devel.redhat.com>
 Content-Type: text/plain
-Date: Wed, 05 Sep 2007 10:39:41 -0400
-Message-Id: <1189003181.30065.21.camel@gorn>
+Date: Wed, 05 Sep 2007 10:39:42 -0400
+Message-Id: <1189003182.30065.22.camel@gorn>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2007-08-02 at 15:35 -0400, dwalsh@redhat.com wrote:
-> hal redirects output to log file
-> --- nsaserefpolicy/policy/modules/admin/bootloader.te   2007-07-25
-> 10:37:43.000000000 -0400
-> +++ serefpolicy-3.0.5/policy/modules/admin/bootloader.te
-> 2007-08-02 11:02:02.000000000 -0400
-> @@ -180,6 +180,7 @@
+On Thu, 2007-08-02 at 15:38 -0400, dwalsh@redhat.com wrote:
+> --- nsaserefpolicy/policy/modules/admin/vbetool.te      2007-05-29
+> 14:10:59.000000000 -0400
+> +++ serefpolicy-3.0.5/policy/modules/admin/vbetool.te   2007-08-02
+> 11:02:02.000000000 -0400
+> @@ -32,4 +32,5 @@
 > 
 >  optional_policy(`
->         hal_dontaudit_append_lib_files(bootloader_t)
-> +       hal_write_log(bootloader_t)
+>         hal_rw_pid_files(vbetool_t)
+> +       hal_write_log(vbetool_t)
 >  ')
 > 
->  optional_policy(`
 
 Merged.
 
