@@ -1,275 +1,195 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l86IQjsn012463
-	for <selinux@tycho.nsa.gov>; Thu, 6 Sep 2007 14:26:45 -0400
-Received: from mx1.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id l86IQhaK008484
-	for <selinux@tycho.nsa.gov>; Thu, 6 Sep 2007 18:26:44 GMT
-Received: from int-mx1.corp.redhat.com (int-mx1.corp.redhat.com [172.16.52.254])
-	by mx1.redhat.com (8.13.1/8.13.1) with ESMTP id l86IQSMc008410
-	for <selinux@tycho.nsa.gov>; Thu, 6 Sep 2007 14:26:28 -0400
-Received: from pobox.corp.redhat.com (pobox.corp.redhat.com [10.11.255.20])
-	by int-mx1.corp.redhat.com (8.13.1/8.13.1) with ESMTP id l86IQReS024320
-	for <selinux@tycho.nsa.gov>; Thu, 6 Sep 2007 14:26:27 -0400
-Received: from [10.11.14.153] (vpn-14-153.rdu.redhat.com [10.11.14.153])
-	by pobox.corp.redhat.com (8.13.1/8.13.1) with ESMTP id l86IQQKN020537
-	for <selinux@tycho.nsa.gov>; Thu, 6 Sep 2007 14:26:26 -0400
-Subject: [PATCH] checkpolicy: implement handling of unknown classes and
-	permissions
-From: Eric Paris <eparis@redhat.com>
-To: selinux@tycho.nsa.gov
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l86ISV8A012883
+	for <selinux@tycho.nsa.gov>; Thu, 6 Sep 2007 14:28:31 -0400
+Received: from exchange.columbia.tresys.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with SMTP id l86ISUOd014543
+	for <selinux@tycho.nsa.gov>; Thu, 6 Sep 2007 18:28:30 GMT
+Subject: Re: [PATCH] refpolicy: services_openvpn changes
+From: "Christopher J. PeBenito" <cpebenito@tresys.com>
+To: dwalsh@redhat.com
+Cc: selinux@tycho.nsa.gov
+In-Reply-To: <200708022045.l72Kja8D032754@redsox.boston.devel.redhat.com>
+References: <200708022045.l72Kja8D032754@redsox.boston.devel.redhat.com>
 Content-Type: text/plain
-Date: Thu, 06 Sep 2007 14:26:26 -0400
-Message-Id: <1189103186.3418.35.camel@localhost.localdomain>
+Date: Thu, 06 Sep 2007 18:27:09 +0000
+Message-Id: <1189103229.3664.25.camel@gorn>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Add a new command line options, -U (allow,reject,deny), to checkmodule
-and checkpolicy which sets the handle_unknown config flag.  Default to
-deny unknowns which is how things have been in the past.  Also add
-dismod and dispol support.
+On Thu, 2007-08-02 at 16:45 -0400, dwalsh@redhat.com wrote:
+> Add interfaces for openvpn to be run by users
+> Wants to read users directories
 
--Eric
+Merged.
 
-diff -Naupr checkpolicy-2.0.3.orig/checkmodule.c checkpolicy-2.0.3/checkmodule.c
---- checkpolicy-2.0.3.orig/checkmodule.c	2007-06-04 15:04:17.000000000 -0400
-+++ checkpolicy-2.0.3/checkmodule.c	2007-09-08 04:05:01.000000000 -0400
-@@ -39,6 +39,7 @@ extern int optind;
- static sidtab_t sidtab;
- 
- extern int mlspol;
-+extern int handle_unknown;
- 
- static char *txtfile = "policy.conf";
- static char *binfile = "policy";
-@@ -121,6 +122,7 @@ static int write_binary_policy(policydb_
- 
- 	p->policy_type = policy_type;
- 	p->policyvers = policyvers;
-+	p->handle_unknown = handle_unknown;
- 
- 	pf.type = PF_USE_STDIO;
- 	pf.fp = outfp;
-@@ -135,13 +137,17 @@ static int write_binary_policy(policydb_
- 
- static void usage(char *progname)
- {
--	printf("usage:  %s [-V] [-b] [-m] [-M] [-o FILE] [INPUT]\n", progname);
-+	printf("usage:  %s [-V] [-b] [-U handle_unknown] [-m] [-M] [-o FILE] [INPUT]\n", progname);
- 	printf("Build base and policy modules.\n");
- 	printf("Options:\n");
- 	printf("  INPUT      build module from INPUT (else read from \"%s\")\n",
- 	       txtfile);
- 	printf("  -V         show policy versions created by this program\n");
- 	printf("  -b         treat input as a binary policy file\n");
-+	printf("  -U OPTION  How to handle unknown classes and permissions\n");
-+	printf("               deny: Deny unknown kernel checks\n");
-+	printf("               reject: Reject loading of policy with unknowns\n");
-+	printf("               allow: Allow unknown kernel checks\n");
- 	printf("  -m         build a policy module instead of a base module\n");
- 	printf("  -M         enable MLS policy\n");
- 	printf("  -o FILE    write module to FILE (else just check syntax)\n");
-@@ -156,7 +162,7 @@ int main(int argc, char **argv)
- 	int show_version = 0;
- 	policydb_t modpolicydb;
- 
--	while ((ch = getopt(argc, argv, "ho:dbVmM")) != EOF) {
-+	while ((ch = getopt(argc, argv, "ho:dbVU:mM")) != EOF) {
- 		switch (ch) {
- 		case 'h':
- 			usage(argv[0]);
-@@ -171,6 +177,20 @@ int main(int argc, char **argv)
- 		case 'V':
- 			show_version = 1;
- 			break;
-+		case 'U':
-+			if (!strcasecmp(optarg, "deny")) {
-+				handle_unknown = DENY_UNKNOWN;
-+				break;
-+			}
-+			if (!strcasecmp(optarg, "reject")) {
-+				handle_unknown = REJECT_UNKNOWN;
-+				break;
-+			}
-+			if (!strcasecmp(optarg, "allow")) {
-+				handle_unknown = ALLOW_UNKNOWN;
-+				break;
-+			}
-+			usage(argv[0]);
- 		case 'm':
- 			policy_type = POLICY_MOD;
- 			policyvers = MOD_POLICYDB_VERSION_MAX;
-@@ -189,6 +209,12 @@ int main(int argc, char **argv)
- 		exit(0);
- 	}
- 
-+	if (handle_unknown && (policy_type != POLICY_BASE)) {
-+		printf("Handling of unknown classes and permissions is only ");
-+		printf("valid in the base module\n");
-+		exit(1);
-+	}
-+
- 	if (optind != argc) {
- 		file = argv[optind++];
- 		if (optind != argc)
-@@ -214,6 +240,7 @@ int main(int argc, char **argv)
- 
- 		modpolicydb.policy_type = policy_type;
- 		modpolicydb.mls = mlspol;
-+		modpolicydb.handle_unknown = handle_unknown;
- 
- 		if (read_source_policy(&modpolicydb, file, argv[0]) == -1) {
- 			exit(1);
-diff -Naupr checkpolicy-2.0.3.orig/checkpolicy.c checkpolicy-2.0.3/checkpolicy.c
---- checkpolicy-2.0.3.orig/checkpolicy.c	2007-06-04 15:04:16.000000000 -0400
-+++ checkpolicy-2.0.3/checkpolicy.c	2007-09-08 04:05:01.000000000 -0400
-@@ -90,6 +90,7 @@ static sidtab_t sidtab;
- 
- extern policydb_t *policydbp;
- extern int mlspol;
-+extern int handle_unknown;
- 
- static char *txtfile = "policy.conf";
- static char *binfile = "policy";
-@@ -99,7 +100,7 @@ unsigned int policyvers = POLICYDB_VERSI
- void usage(char *progname)
- {
- 	printf
--	    ("usage:  %s [-b] [-d] [-M] [-c policyvers (%d-%d)] [-o output_file] [input_file]\n",
-+	    ("usage:  %s [-b] [-d] [-U handle_unknown (allow,deny,reject) [-M] [-c policyvers (%d-%d)] [-o output_file] [input_file]\n",
- 	     progname, POLICYDB_VERSION_MIN, POLICYDB_VERSION_MAX);
- 	exit(1);
- }
-@@ -390,7 +391,7 @@ int main(int argc, char **argv)
- 	int show_version = 0;
- 	struct policy_file pf;
- 
--	while ((ch = getopt(argc, argv, "o:dbMVc:")) != EOF) {
-+	while ((ch = getopt(argc, argv, "o:dbU:MVc:")) != EOF) {
- 		switch (ch) {
- 		case 'o':
- 			outfile = optarg;
-@@ -405,6 +406,20 @@ int main(int argc, char **argv)
- 		case 'V':
- 			show_version = 1;
- 			break;
-+		case 'U':
-+			if (!strcasecmp(optarg, "deny")) {
-+				handle_unknown = DENY_UNKNOWN;
-+				break;
-+			}
-+			if (!strcasecmp(optarg, "allow")) {
-+				handle_unknown = ALLOW_UNKNOWN;
-+				break;
-+			}
-+			if (!strcasecmp(optarg, "reject")) {
-+				handle_unknown = REJECT_UNKNOWN;
-+				break;
-+			}
-+			usage(argv[0]);
- 		case 'M':
- 			mlspol = 1;
- 			break;
-@@ -515,6 +530,7 @@ int main(int argc, char **argv)
- 
- 		/* Let sepol know if we are dealing with MLS support */
- 		parse_policy.mls = mlspol;
-+		parse_policy.handle_unknown = handle_unknown;
- 
- 		policydbp = &parse_policy;
- 
-diff -Naupr checkpolicy-2.0.3.orig/policy_parse.y checkpolicy-2.0.3/policy_parse.y
---- checkpolicy-2.0.3.orig/policy_parse.y	2007-06-04 15:04:17.000000000 -0400
-+++ checkpolicy-2.0.3/policy_parse.y	2007-09-08 04:05:01.000000000 -0400
-@@ -67,6 +67,7 @@ queue_t id_queue = 0;
- static unsigned int pass;
- char *curfile = 0;
- int mlspol = 0;
-+int handle_unknown = 0;
- 
- extern unsigned long policydb_lineno;
- extern unsigned long source_lineno;
-diff -Naupr checkpolicy-2.0.3.orig/test/dismod.c checkpolicy-2.0.3/test/dismod.c
---- checkpolicy-2.0.3.orig/test/dismod.c	2007-06-04 15:04:17.000000000 -0400
-+++ checkpolicy-2.0.3/test/dismod.c	2007-09-08 04:05:01.000000000 -0400
-@@ -665,6 +665,17 @@ int display_avblock(int field, uint32_t 
- 	return 0;
- }
- 
-+int display_handle_unknown(policydb_t * policydb, FILE * out_fp)
-+{
-+	if (policydb->handle_unknown == ALLOW_UNKNOWN)
-+		fprintf(out_fp, "Allow unknown classes and perms\n");
-+	else if (policydb->handle_unknown == DENY_UNKNOWN)
-+		fprintf(out_fp, "Deny unknown classes and perms\n");
-+	else if (policydb->handle_unknown == REJECT_UNKNOWN)
-+		fprintf(out_fp, "Reject unknown classes and perms\n");
-+	return 0;
-+}
-+
- static int read_policy(char *filename, policydb_t * policy)
- {
- 	FILE *in_fp;
-@@ -771,6 +782,7 @@ int menu()
- 	printf("a)  Display avrule requirements\n");
- 	printf("b)  Display avrule declarations\n");
- 	printf("l)  Link in a module\n");
-+	printf("u)  Display the unknown handling setting\n");
- 	printf("\n");
- 	printf("f)  set output file\n");
- 	printf("m)  display menu\n");
-@@ -879,6 +891,10 @@ int main(int argc, char **argv)
- 			fprintf(out_fp, "avrule block declarations:\n");
- 			display_avblock(6, 0, &policydb, out_fp);
- 			break;
-+		case 'u':
-+		case 'U':
-+			display_handle_unknown(&policydb, out_fp);
-+			break;
- 		case 'f':
- 			printf
- 			    ("\nFilename for output (<CR> for screen output): ");
-diff -Naupr checkpolicy-2.0.3.orig/test/dispol.c checkpolicy-2.0.3/test/dispol.c
---- checkpolicy-2.0.3.orig/test/dispol.c	2007-06-04 15:04:17.000000000 -0400
-+++ checkpolicy-2.0.3/test/dispol.c	2007-09-06 15:20:39.000000000 -0400
-@@ -273,6 +273,17 @@ int display_cond_expressions(policydb_t 
- 	return 1;
- }
- 
-+int display_handle_unknown(policydb_t * policydb, FILE * out_fp)
-+{
-+	if (policydb->handle_unknown == ALLOW_UNKNOWN)
-+		fprintf(out_fp, "Allow unknown classes and permisions\n");
-+	else if (policydb->handle_unknown == DENY_UNKNOWN)
-+		fprintf(out_fp, "Deny unknown classes and permisions\n");
-+	else if (policydb->handle_unknown == REJECT_UNKNOWN)
-+		fprintf(out_fp, "Reject unknown classes and permisions\n");
-+	return 0;
-+}
-+
- int change_bool(char *name, int state, policydb_t * p, FILE * fp)
- {
- 	cond_bool_datum_t *bool;
-@@ -298,6 +309,7 @@ int menu()
- 	printf("6)  display conditional expressions\n");
- 	printf("7)  change a boolean value\n");
- 	printf("\n");
-+	printf("u)  display unknown handling setting\n");
- 	printf("f)  set output file\n");
- 	printf("m)  display menu\n");
- 	printf("q)  quit\n");
-@@ -409,6 +421,10 @@ int main(int argc, char **argv)
- 			change_bool(name, state, &policydb, out_fp);
- 			free(name);
- 			break;
-+		case 'u':
-+		case 'U':
-+			display_handle_unknown(&policydb, out_fp);
-+			break;
- 		case 'f':
- 			printf
- 			    ("\nFilename for output (<CR> for screen output): ");
-
+> --- nsaserefpolicy/policy/modules/services/openvpn.if   2007-05-29
+> 14:10:57.000000000 -0400
+> +++ serefpolicy-3.0.5/policy/modules/services/openvpn.if
+> 2007-08-02 11:02:02.000000000 -0400
+> @@ -22,3 +22,71 @@
+>         read_files_pattern($1,openvpn_etc_t,openvpn_etc_t)
+>         read_lnk_files_pattern($1,openvpn_etc_t,openvpn_etc_t)
+>  ')
+> +
+> +########################################
+> +## <summary>
+> +##     Execute OPENVPN clients in the openvpn domain.
+> +## </summary>
+> +## <param name="domain">
+> +##     <summary>
+> +##     Domain allowed access.
+> +##     </summary>
+> +## </param>
+> +#
+> +interface(`openvpn_domtrans',`
+> +       gen_require(`
+> +               type openvpn_t, openvpn_exec_t;
+> +       ')
+> +
+> +       domtrans_pattern($1,openvpn_exec_t,openvpn_t)
+> +')
+> +
+> +########################################
+> +## <summary>
+> +##     Execute OPENVPN clients in the openvpn domain, and
+> +##     allow the specified role the openvpn domain.
+> +## </summary>
+> +## <param name="domain">
+> +##     <summary>
+> +##     Domain allowed access.
+> +##     </summary>
+> +## </param>
+> +## <param name="role">
+> +##     <summary>
+> +##     The role to be allowed the openvpn domain.
+> +##     </summary>
+> +## </param>
+> +## <param name="terminal">
+> +##     <summary>
+> +##     The type of the terminal allow the openvpn domain to use.
+> +##     </summary>
+> +## </param>
+> +## <rolecap/>
+> +#
+> +interface(`openvpn_run',`
+> +       gen_require(`
+> +               type openvpn_t;
+> +       ')
+> +
+> +       openvpn_domtrans($1)
+> +       role $2 types openvpn_t;
+> +       allow openvpn_t $3:chr_file rw_term_perms;
+> +')
+> +
+> +########################################
+> +## <summary>
+> +##     Send generic signals to OPENVPN clients.
+> +## </summary>
+> +## <param name="domain">
+> +##     <summary>
+> +##     Domain allowed access.
+> +##     </summary>
+> +## </param>
+> +#
+> +interface(`openvpn_signal',`
+> +       gen_require(`
+> +               type openvpn_t;
+> +       ')
+> +
+> +       allow $1 openvpn_t:process signal;
+> +')
+> --- nsaserefpolicy/policy/modules/services/openvpn.te   2007-07-25
+> 10:37:42.000000000 -0400
+> +++ serefpolicy-3.0.5/policy/modules/services/openvpn.te
+> 2007-08-02 11:02:02.000000000 -0400
+> @@ -6,6 +6,13 @@
+>  # Declarations
+>  #
+> 
+> +## <desc>
+> +## <p>
+> +## Allow openvpn to read home directories
+> +## </p>
+> +## </desc>
+> +gen_tunable(openvpn_enable_homedirs,false)
+> +
+>  # main openvpn domain
+>  type openvpn_t;
+>  type openvpn_exec_t;
+> @@ -28,7 +35,9 @@
+>  # openvpn local policy
+>  #
+> 
+> -allow openvpn_t self:capability { net_bind_service net_admin setgid
+> setuid sys_tty_config };
+> +allow openvpn_t self:capability { dac_read_search dac_override
+> net_bind_service net_admin setgid setuid sys_tty_config };
+> +allow openvpn_t self:process { signal getsched };
+> +
+>  allow openvpn_t self:unix_dgram_socket { create_socket_perms
+> sendto };
+>  allow openvpn_t self:unix_stream_socket { create_stream_socket_perms
+> connectto };
+>  allow openvpn_t self:udp_socket create_socket_perms;
+> @@ -42,8 +51,8 @@
+>  allow openvpn_t openvpn_var_log_t:file manage_file_perms;
+>  logging_log_filetrans(openvpn_t,openvpn_var_log_t,file)
+> 
+> -allow openvpn_t openvpn_var_run_t:file manage_file_perms;
+> -files_pid_filetrans(openvpn_t, openvpn_var_run_t, file)
+> +manage_files_pattern(openvpn_t,openvpn_var_run_t,openvpn_var_run_t)
+> +files_pid_filetrans(openvpn_t, openvpn_var_run_t, { file dir })
+> 
+>  kernel_read_kernel_sysctls(openvpn_t)
+>  kernel_read_net_sysctls(openvpn_t)
+> @@ -67,6 +76,7 @@
+>  corenet_udp_bind_openvpn_port(openvpn_t)
+>  corenet_sendrecv_openvpn_server_packets(openvpn_t)
+>  corenet_rw_tun_tap_dev(openvpn_t)
+> +corenet_tcp_connect_openvpn_port(openvpn_t)
+> 
+>  dev_search_sysfs(openvpn_t)
+>  dev_read_rand(openvpn_t)
+> @@ -81,10 +91,31 @@
+>  logging_send_syslog_msg(openvpn_t)
+> 
+>  miscfiles_read_localization(openvpn_t)
+> +miscfiles_read_certs(openvpn_t)
+> 
+>  sysnet_dns_name_resolve(openvpn_t)
+>  sysnet_exec_ifconfig(openvpn_t)
+> 
+> +tunable_policy(`openvpn_enable_homedirs',`
+> +       userdom_read_unpriv_users_home_content_files(openvpn_t)
+> +')
+> +
+>  optional_policy(`
+>         daemontools_service_domain(openvpn_t,openvpn_exec_t)
+>  ')
+> +
+> +optional_policy(`
+> +       dbus_system_bus_client_template(openvpn,openvpn_t)
+> +       dbus_connect_system_bus(openvpn_t)
+> +       dbus_send_system_bus(openvpn_t)
+> +       networkmanager_dbus_chat(openvpn_t)
+> +')
+> +
+> +
+> +# Need to interact with terminals if config option "auth-user-pass"
+> is used
+> +userdom_use_sysadm_terms(openvpn_t)
+> +
+> +optional_policy(`
+> +       unconfined_use_terminals(openvpn_t)
+> +')
+> +
+> 
+> 
+-- 
+Chris PeBenito
+Tresys Technology, LLC
+(410) 290-1411 x150
 
 
 --
