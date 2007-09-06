@@ -1,59 +1,213 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l86JMxWg017784
-	for <selinux@tycho.nsa.gov>; Thu, 6 Sep 2007 15:22:59 -0400
-Received: from exchange.columbia.tresys.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with SMTP id l86JMwOd026823
-	for <selinux@tycho.nsa.gov>; Thu, 6 Sep 2007 19:22:58 GMT
-Subject: Re: [refpolicy] selinuxutils (semodule)
-From: "Christopher J. PeBenito" <cpebenito@tresys.com>
-To: Stefan Schulze Frielinghaus <stefan@sf-net.com>
-Cc: SELinux List <selinux@tycho.nsa.gov>
-In-Reply-To: <D041BDDB-B989-4DA5-B312-5D9387DE8A9A@sf-net.com>
-References: <477DC293-F96F-4AFB-AD19-E66C80CC3AB4@sf-net.com>
-	 <1187721931.13874.37.camel@gorn>
-	 <D041BDDB-B989-4DA5-B312-5D9387DE8A9A@sf-net.com>
+Subject: Re: [PATCH] 1/2 SELinux: Add get, set, and cloning of superblock
+	security information
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Eric Paris <eparis@redhat.com>
+Cc: selinux@tycho.nsa.gov, nfs@lists.sourceforge.net, jmorris@namei.org,
+        steved@redhat.com, trond.myklebust@fys.uio.no
+In-Reply-To: <1189106507.3418.66.camel@localhost.localdomain>
+References: <1189030563.3460.41.camel@dhcp231-215.rdu.redhat.com>
+	 <1189103609.3617.169.camel@moss-spartans.epoch.ncsc.mil>
+	 <1189106507.3418.66.camel@localhost.localdomain>
 Content-Type: text/plain
-Date: Thu, 06 Sep 2007 15:21:39 -0400
-Message-Id: <1189106499.3664.41.camel@gorn>
+Date: Thu, 06 Sep 2007 15:59:06 -0400
+Message-Id: <1189108746.3617.200.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2007-08-22 at 12:43 -0400, Stefan Schulze Frielinghaus wrote:
-> --- /usr/src/refpolicy-20070629/policy/modules/system/selinuxutil.te    2007-06-29 16:48:13.000000000 +0200
-> +++ policy/modules/system/selinuxutil.te        2007-08-22 18:37:38.000000000 +0200
-> @@ -479,6 +479,11 @@
->  files_read_usr_files(semanage_t)
->  files_list_pids(semanage_t)
->  
-> +ifdef(`distro_debian',`
-> +       files_read_var_lib_files(semanage_t)
-> +       files_read_var_lib_symlinks(semanage_t)
-> +')
-> +
->  mls_file_write_down(semanage_t)
->  mls_rangetrans_target(semanage_t)
->  mls_file_read_up(semanage_t)
+On Thu, 2007-09-06 at 15:21 -0400, Eric Paris wrote:
+> On Thu, 2007-09-06 at 14:33 -0400, Stephen Smalley wrote:
+> > On Wed, 2007-09-05 at 18:16 -0400, Eric Paris wrote:
+> > > Adds security_get_sb_mnt_opts, security_set_sb_mnt_opts, and
+> > > security_clont_sb_mnt_opts to the LSM and to SELinux.  This is in
+> > > preparation for NFS to be able to own its own mount options and remove
+> > > the NFS specific code from SELinux.
+> > > 
+> > > >From the point of view of SELinux NFS does not use text based mount
+> > > options so this patch is not something that is going away.  NFS merely
+> > > takes the text options from userspace and puts them into the same binary
+> > > format as always and passes that binary mount data around.
+> > > 
+> > > Signed-off-by: Eric Paris <eparis@redhat.com>
+> > > 
+> > > ---
+> > > 
+> > >  include/linux/security.h          |   70 +++++
+> > >  security/dummy.c                  |   26 ++
+> > >  security/selinux/hooks.c          |  618 ++++++++++++++++++++++++-------------
+> > >  security/selinux/include/objsec.h |    1 +
+> > >  4 files changed, 505 insertions(+), 210 deletions(-)
+> > 
+> > Not a very nice diff to read.
+> 
+> I couldn't think of a great way to make it smaller.  I certainly
+> understand....
+> 
+> > 
+> > > diff --git a/include/linux/security.h b/include/linux/security.h
+> 
+> > > +static inline int security_sb_set_mnt_opts (struct super_block *sb,
+> > > +					    char **mount_options,
+> > > +					    int *flags, int num_opts)
+> > > +{
+> > > +	return 0;
+> > > +}
+> > 
+> > For consistency, this should likely do the same thing as the dummy
+> > function, i.e. return -EOPNOTSUPP if num_opts > 0.  Actually, is this
+> > going to get called at all unless num_opts is > 0?
+> 
+> EOPNOTSUPP seems like the right thing.  selinux=0 and mount nfs with
+> context=
+> 
+> > 
+> > > diff --git a/security/dummy.c b/security/dummy.c
+> 
+> > > +static int dummy_sb_set_mnt_opts(struct super_block *sb, char **mount_options,
+> > > +				 int *flags, int num_opts)
+> > > +{
+> > > +	if (unlikely(num_opts))
+> > > +		return -EOPNOTSUPP;
+> > > +	return 0;
+> > > +}
+> > 
+> > Possibly just unconditionally return -EOPNOTSUPP, as the hook wouldn't
+> > normally get called with no options.
+> 
+> I'd rather not rely on the FS to have to follow this convention.  Its
+> written so that num_opts=0 will work fine.
+> > 
+> > > diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+> > > index 3694662..5ebe30b 100644
+> > > --- a/security/selinux/hooks.c
+> > > +++ b/security/selinux/hooks.c
+> > > @@ -362,135 +362,228 @@ static int may_context_mount_inode_relabel(u32 sid,
+> > >  	return rc;
+> > >  }
+> > >  
+> > > -static int try_context_mount(struct super_block *sb, void *data)
+> > > +static int sb_finish_set_opts(struct super_block *sb)
+> > >  {
+> > > -	char *context = NULL, *defcontext = NULL;
+> > > -	char *fscontext = NULL, *rootcontext = NULL;
+> > > -	const char *name;
+> > > -	u32 sid;
+> > > -	int alloc = 0, rc = 0, seen = 0;
+> > > -	struct task_security_struct *tsec = current->security;
+> > >  	struct superblock_security_struct *sbsec = sb->s_security;
+> > > +	struct dentry *root = sb->s_root;
+> > > +	struct inode *root_inode = root->d_inode;
+> > > +	int rc = 0;
+> > >  
+> > > -	if (!data)
+> > > -		goto out;
+> > > +	BUG_ON(!ss_initialized);
+> > 
+> > Why BUG_ON vs. return error?  context mount before initial policy load
+> > is technically possible, even more so if booting permissive and policy
+> > is corrupted.
+> 
+> How should your example case be handled?  we can't store that context
+> information for later.
 
-Merged, but moved down several lines.
+Error code.
 
-> @@ -518,6 +523,8 @@
->  
->  userdom_search_sysadm_home_dirs(semanage_t)
->  
-> +selinux_dontaudit_getattr_fs(semanage_t)
-> +
->  # cjp: need a more general way to handle this:
->  ifdef(`enable_mls',`
->         # read secadm tmp files
+>   The only way we get here is through a direct
+> caller to set or clone from the FS since normally we would come through
+> superblock_doinit->try_context_mount->set_sb...->here and ss_initialized
+> would already have been taken care of.  Should I just dump the
+> superblock on the list to deal with later and not worry that I was given
+> mount options (doesn't seem like we have a good solution to your problem
+> now)?
+> 
+> I like an error code better, what fits?  It should be dealt with in
+> selinux_set_mnt_opts/sb_doinit and not here.  But still the question
+> remains.
 
-Changed this to the allow version, since this is due to the libselinux
-constructor.
+-EOPNOTSUPP or -EINVAL.  Possibly with a printk.
+
+> > 
+> > >  
+> > > -	name = sb->s_type->name;
+> > > +	if (sbsec->initialized)
+> > > +		return 0;
+> > 
+> > Under what conditions would we reach this point if sbsec was already
+> > initialized?  Should it be an error?  A bug?
+> 
+> We can't.  it is caught in both superblock_doinit and
+> selinux_set_sb_mnt_opts.
+
+So BUG_ON?  Or drop it.
+
+> > > +static int try_context_mount(struct super_block *sb, void *data)
+> > > +{
+> > > +	char *context = NULL, *defcontext = NULL;
+> > > +	char *fscontext = NULL, *rootcontext = NULL;
+> > > +	int rc = 0;
+> > > +	char *p, *options = data;
+> > > +	/* selinux only know about 4 mount options */
+> > > +	char *mnt_opts[4];
+> > > +	int mnt_opts_flags[4], num_mnt_opts = 0;
+> > 
+> > Can we #define that once and use it?
+> 
+> the variable declarations?  I guess I could.  They aren't used in many
+> other places, but having [4] randomly in the code is probably not the
+> best idea.
+
+Yes, I just meant replacing 4 with a #define'd symbol.
+
+> > >  
+> > > +/* 
+> > > + * no locking done here, but it shouldn't matter, sbsec->proc would just get
+> > > + * set the same way in another thread and fs_use, hmmmmmm 
+> > > + */
+> > 
+> > Not sure I follow; you do take the lock still in set_mnts_opts before
+> > doing the above AFAICS.  sbsec->list though is another matter.
+> 
+> comment doesn't belong.  I wasn't taking it and was still setting ->proc
+> here but realized it was a stupid idea.  Never removed the comment.
+
+Ok, but sbsec->list might still be an issue technically even if not in
+practice.  There is a global spinlock on the whole list, but you could
+end up adding the superblock twice if you don't take the sbsec lock.
+
+> > 
+> > >  static int superblock_doinit(struct super_block *sb, void *data)
+> > >  {
+> > >  	struct superblock_security_struct *sbsec = sb->s_security;
+> > > -	struct dentry *root = sb->s_root;
+> > > -	struct inode *inode = root->d_inode;
+> > >  	int rc = 0;
+> > >  
+> > > -	mutex_lock(&sbsec->lock);
+> > >  	if (sbsec->initialized)
+> > >  		goto out;
+> > 
+> > One of the things that needs to be fixed is handling of a context mount
+> > option when the superblock has previously been setup.  At present (and
+> > still true of your patch), if one mounts /home/eparis with one context
+> > mount and then tries to mount /home/sds with a different context mount,
+> > the latter proceeds with no indication that the context mount option was
+> > ignored (because we immediately return with success if already
+> > initialized, and they'll end up with the same superblock if they are
+> > from the same filesystem).  So we need to at least check to see if data
+> > is set and return an error if sbsec is already initialized so that
+> > userspace gets an indication of the fact.
+> 
+> I pointed out where I think we need to do this, but what kind of error
+> do we want to return?  Do we actually want the mount command to fail?
+
+-EINVAL with a printk.  Yes, we want the mount to fail there, because
+the user asked for a particular context mount and the kernel can't honor
+the request.  The user is always free to then do a regular mount if he
+is ok with that.
 
 -- 
-Chris PeBenito
-Tresys Technology, LLC
-(410) 290-1411 x150
+Stephen Smalley
+National Security Agency
 
 
 --
