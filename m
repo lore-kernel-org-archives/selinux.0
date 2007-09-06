@@ -1,65 +1,72 @@
 Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l86CbsJt018302
-	for <selinux@tycho.nsa.gov>; Thu, 6 Sep 2007 08:37:54 -0400
-Received: from mx1.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id l86CbqHo006002
-	for <selinux@tycho.nsa.gov>; Thu, 6 Sep 2007 12:37:53 GMT
-Message-ID: <46DFF49C.8040905@redhat.com>
-Date: Thu, 06 Sep 2007 08:37:48 -0400
-From: Daniel J Walsh <dwalsh@redhat.com>
-MIME-Version: 1.0
-To: James Athey <jathey@tresys.com>
-CC: selinux@tycho.nsa.gov
-Subject: Re: [PATCH] libselinux: fix rpm_execcon in SWIG bindings
-References: <1181744873.18728.10.camel@exodus.columbia.tresys.com>	 <46DD6A6C.2040305@redhat.com> <1189020922.8528.10.camel@exodus.columbia.tresys.com>
-In-Reply-To: <1189020922.8528.10.camel@exodus.columbia.tresys.com>
-Content-Type: text/plain; charset=ISO-8859-1
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l86CfIe9018680
+	for <selinux@tycho.nsa.gov>; Thu, 6 Sep 2007 08:41:18 -0400
+Received: from exchange.columbia.tresys.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with SMTP id l86CfHHo007210
+	for <selinux@tycho.nsa.gov>; Thu, 6 Sep 2007 12:41:17 GMT
+Subject: Re: tunable and if-else conditional
+From: "Christopher J. PeBenito" <cpebenito@tresys.com>
+To: Stefan Schulze Frielinghaus <stefan@sf-net.com>
+Cc: SELinux List <selinux@tycho.nsa.gov>
+In-Reply-To: <37E57EBC-1878-4482-9390-F43E29F24E03@sf-net.com>
+References: <6E78FE11-FAA3-4C3B-A87E-FA60ABB71863@sf-net.com>
+	 <1189012887.30065.31.camel@gorn>
+	 <37E57EBC-1878-4482-9390-F43E29F24E03@sf-net.com>
+Content-Type: text/plain
+Date: Thu, 06 Sep 2007 08:39:57 -0400
+Message-Id: <1189082397.3664.7.camel@gorn>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
-
-James Athey wrote:
-> On Tue, 2007-09-04 at 10:23 -0400, Daniel J Walsh wrote:
->> https://bugzilla.redhat.com/show_bug.cgi?id=276121
->>
->> Bug in refactored SWIG Bindings.
->>
->>
->> #!/usr/bin/python
->>
->> import selinux
->> args = [ "/bin/bash", "--version" ]
->> selinux.rpm_execcon(0, args[0], args, [ ])
->>
->> Produces:
->>
->> Traceback (most recent call last):
->>   File "test.py", line 5, in <module>
->>     selinux.rpm_execcon(0, args[0], args, [ ])
->> TypeError: in method 'rpm_execcon', argument 3 of type 'char *const []'
->>
->> Version-Release number of selected component (if applicable):
->> libselinux-2.0.31-3.fc8
->>
->> James do  you have a nice quick fix for this?
+On Thu, 2007-09-06 at 08:18 +0200, Stefan Schulze Frielinghaus wrote:
+> On 05.09.2007, at 19:21, Christopher J. PeBenito wrote:
 > 
-> It's nice, it's quick, and I think it's a fix, but I'll let you be the
-> judge of that.
+> > On Wed, 2007-09-05 at 17:35 +0200, Stefan Schulze Frielinghaus wrote:
+> >> reading an older poste (http://www.nsa.gov/selinux/list-archive/0610/
+> >> thread_body16.cfm) I wonder about the difference between tunable and
+> >> an if-else conditional.
+> >>
+> >> <quote>
+> >> Tunable_policy are blocks that will be replaced by a similar language
+> >> feature when it becomes available. Tunables will be similar to
+> >> conditionals, except they will be selected during the policy module
+> >> linking instead of being selectable at runtime.
+> >> </quote>
+> >>
+> >> Using the latest stable refpolicy (20070629) the feature has already
+> >> changed? I would guess so because I can change the booleans via
+> >> setsebool at runtime.
+> >
+> > No, true tunables require support in the toolchain.  That won't happen
+> > until after the new policy representation is completed.
+> >
+> >> Looking at the file "loadable_module.spt" the tunable seems to me
+> >> exact the same like a if-else conditional. But I'm not a M4 guy and
+> >> wanted to make sure. Is this right that a tunable and a if-else
+> >> conditional is the same now?
+> >
+> > Tunables are implemented as conditional policy right now.
 > 
-> 
-Works for me.
+> So in the end the preferred way of handling booleans is via what?  
+> Because as already pointed out in the post before all if-else  
+> statements were replaced via tunables.
 
-Updated in rawhide.
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.7 (GNU/Linux)
-Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org
+No, not all conditionals were replaced with tunables, see
+global_booleans and line 98 of modutils.if for an example.
 
-iD8DBQFG3/ScrlYvE4MpobMRAqDWAKCb82kdVoqccXUk1KDyGw17kzyRBACghIlB
-V4pH947JvzdUUxeKITc+qUU=
-=+ZBw
------END PGP SIGNATURE-----
+> But the tunables aren't supposed to be changed at runtime which
+> booleans should be. Or do I miss something?
+
+If you don't implement them as conditionals, then the only other option
+would be m4 ifdefs, then the tunables won't be exposed to the users
+since distros don't install source policy anymore.
+
+-- 
+Chris PeBenito
+Tresys Technology, LLC
+(410) 290-1411 x150
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
