@@ -1,129 +1,242 @@
-Date: Thu, 6 Sep 2007 15:16:24 -0400 (EDT)
-Message-Id: <200709061916.l86JGO5O028440@tex.courtesan.com>
-From: "Todd C. Miller" <tmiller@tresys.com>
+Subject: Re: [PATCH] 1/2 SELinux: Add get, set, and cloning of superblock
+	security information
+From: Eric Paris <eparis@redhat.com>
 To: Stephen Smalley <sds@tycho.nsa.gov>
-Cc: selinux@tycho.nsa.gov
-Subject: Re: [patch 0/4] libsemanage: genhomedircon replacement
+Cc: selinux@tycho.nsa.gov, nfs@lists.sourceforge.net, jmorris@namei.org,
+        steved@redhat.com, trond.myklebust@fys.uio.no
+In-Reply-To: <1189103609.3617.169.camel@moss-spartans.epoch.ncsc.mil>
+References: <1189030563.3460.41.camel@dhcp231-215.rdu.redhat.com>
+	 <1189103609.3617.169.camel@moss-spartans.epoch.ncsc.mil>
+Content-Type: text/plain
+Date: Thu, 06 Sep 2007 15:21:47 -0400
+Message-Id: <1189106507.3418.66.camel@localhost.localdomain>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Stephen Smalley wrote:
-> BTW, the C code shouldn't be using getpwnam or getpwent - it should be
-> using the _r versions of those functions since it is a library.
+On Thu, 2007-09-06 at 14:33 -0400, Stephen Smalley wrote:
+> On Wed, 2007-09-05 at 18:16 -0400, Eric Paris wrote:
+> > Adds security_get_sb_mnt_opts, security_set_sb_mnt_opts, and
+> > security_clont_sb_mnt_opts to the LSM and to SELinux.  This is in
+> > preparation for NFS to be able to own its own mount options and remove
+> > the NFS specific code from SELinux.
+> > 
+> > >From the point of view of SELinux NFS does not use text based mount
+> > options so this patch is not something that is going away.  NFS merely
+> > takes the text options from userspace and puts them into the same binary
+> > format as always and passes that binary mount data around.
+> > 
+> > Signed-off-by: Eric Paris <eparis@redhat.com>
+> > 
+> > ---
+> > 
+> >  include/linux/security.h          |   70 +++++
+> >  security/dummy.c                  |   26 ++
+> >  security/selinux/hooks.c          |  618 ++++++++++++++++++++++++-------------
+> >  security/selinux/include/objsec.h |    1 +
+> >  4 files changed, 505 insertions(+), 210 deletions(-)
+> 
+> Not a very nice diff to read.
 
-Below is a diff to use the _r versions.  I sent this out some time ago
-but apparently it didn't make it to the list.
+I couldn't think of a great way to make it smaller.  I certainly
+understand....
 
- - todd
+> 
+> > diff --git a/include/linux/security.h b/include/linux/security.h
 
- genhomedircon.c |   32 +++++++++++++++++++++++++++-----
- 1 file changed, 27 insertions(+), 5 deletions(-)
+> > +static inline int security_sb_set_mnt_opts (struct super_block *sb,
+> > +					    char **mount_options,
+> > +					    int *flags, int num_opts)
+> > +{
+> > +	return 0;
+> > +}
+> 
+> For consistency, this should likely do the same thing as the dummy
+> function, i.e. return -EOPNOTSUPP if num_opts > 0.  Actually, is this
+> going to get called at all unless num_opts is > 0?
 
-Index: libsemanage/src/genhomedircon.c
-===================================================================
---- libsemanage/src/genhomedircon.c	(revision 2549)
-+++ libsemanage/src/genhomedircon.c	(working copy)
-@@ -41,6 +41,7 @@
- #include <fcntl.h>
- #include <pwd.h>
- #include <errno.h>
-+#include <unistd.h>
- 
- /* paths used in get_home_dirs() */
- #define PATH_ETC_USERADD "/etc/default/useradd"
-@@ -145,11 +146,13 @@
- {
- 	semanage_list_t *homedir_list = NULL;
- 	semanage_list_t *shells = NULL;
-+	char *rbuf = NULL;
- 	char *path = NULL;
-+	long rbuflen;
- 	size_t minuid = 0;
- 	size_t minuid_set = 0;
- 	size_t temp;
--	struct passwd *pwbuf;
-+	struct passwd pwstorage, *pwbuf;
- 	struct stat buf;
- 
- 	shells = get_shell_list();
-@@ -215,8 +218,14 @@
- 		minuid_set = 1;
- 	}
- 
-+	rbuflen = sysconf(_SC_GETPW_R_SIZE_MAX);
-+	if (rbuflen <= 0)
-+		goto fail;
-+	rbuf = malloc(rbuflen);
-+	if (rbuf == NULL)
-+		goto fail;
- 	setpwent();
--	for (errno = 0; (pwbuf = getpwent()); errno = 0) {
-+	for (errno = 0; getpwent_r(&pwstorage, rbuf, rbuflen, &pwbuf) == 0; errno = 0) {
- 		if (pwbuf->pw_uid < minuid)
- 			continue;
- 		if (!semanage_list_find(shells, pwbuf->pw_shell))
-@@ -244,6 +253,7 @@
- 		     "Returning list so far.");
- 	}
- 	endpwent();
-+	free(rbuf);
- 	semanage_list_destroy(&shells);
- 	if (semanage_list_sort(&homedir_list))
- 		goto fail;
-@@ -251,6 +261,8 @@
- 	return homedir_list;
- 
-       fail:
-+	endpwent();
-+	free(rbuf);
- 	semanage_list_destroy(&homedir_list);
- 	semanage_list_destroy(&shells);
- 	return NULL;
-@@ -496,8 +508,10 @@
- 	const char *name = NULL;
- 	const char *seuname = NULL;
- 	const char *prefix = NULL;
--	struct passwd *pwent = NULL;
-+	struct passwd pwstorage, *pwent = NULL;
- 	unsigned int i;
-+	long rbuflen;
-+	char *rbuf = NULL;
- 	int retval;
- 
- 	*errors = 0;
-@@ -514,6 +528,14 @@
- 	qsort(user_list, nusers, sizeof(semanage_user_t *),
- 	      (int (*)(const void *, const void *))&user_sort_func);
- 
-+	/* Allocate space for the getpwnam_r buffer */
-+	rbuflen = sysconf(_SC_GETPW_R_SIZE_MAX);
-+	if (rbuflen <= 0)
-+		goto cleanup;
-+	rbuf = malloc(rbuflen);
-+	if (rbuf == NULL)
-+		goto cleanup;
-+
- 	for (i = 0; i < nseusers; i++) {
- 		name = semanage_seuser_get_name(seuser_list[i]);
- 		seuname = semanage_seuser_get_sename(seuser_list[i]);
-@@ -536,8 +558,7 @@
- 		}
- 
- 		errno = 0;
--		pwent = getpwnam(name);
--		if (!pwent) {
-+		if (getpwnam_r(name, &pwstorage, rbuf, rbuflen, &pwent) != 0) {
- 			if (errno != 0) {
- 				*errors = STATUS_ERR;
- 				goto cleanup;
-@@ -561,6 +582,7 @@
- 	}
- 
-       cleanup:
-+	free(rbuf);
- 	if (*errors) {
- 		for (; head; pop_user_entry(&head)) {
- 			/* the pop function takes care of all the cleanup
+EOPNOTSUPP seems like the right thing.  selinux=0 and mount nfs with
+context=
+
+> 
+> > diff --git a/security/dummy.c b/security/dummy.c
+
+> > +static int dummy_sb_set_mnt_opts(struct super_block *sb, char **mount_options,
+> > +				 int *flags, int num_opts)
+> > +{
+> > +	if (unlikely(num_opts))
+> > +		return -EOPNOTSUPP;
+> > +	return 0;
+> > +}
+> 
+> Possibly just unconditionally return -EOPNOTSUPP, as the hook wouldn't
+> normally get called with no options.
+
+I'd rather not rely on the FS to have to follow this convention.  Its
+written so that num_opts=0 will work fine.
+> 
+> > diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+> > index 3694662..5ebe30b 100644
+> > --- a/security/selinux/hooks.c
+> > +++ b/security/selinux/hooks.c
+> > @@ -362,135 +362,228 @@ static int may_context_mount_inode_relabel(u32 sid,
+> >  	return rc;
+> >  }
+> >  
+> > -static int try_context_mount(struct super_block *sb, void *data)
+> > +static int sb_finish_set_opts(struct super_block *sb)
+> >  {
+> > -	char *context = NULL, *defcontext = NULL;
+> > -	char *fscontext = NULL, *rootcontext = NULL;
+> > -	const char *name;
+> > -	u32 sid;
+> > -	int alloc = 0, rc = 0, seen = 0;
+> > -	struct task_security_struct *tsec = current->security;
+> >  	struct superblock_security_struct *sbsec = sb->s_security;
+> > +	struct dentry *root = sb->s_root;
+> > +	struct inode *root_inode = root->d_inode;
+> > +	int rc = 0;
+> >  
+> > -	if (!data)
+> > -		goto out;
+> > +	BUG_ON(!ss_initialized);
+> 
+> Why BUG_ON vs. return error?  context mount before initial policy load
+> is technically possible, even more so if booting permissive and policy
+> is corrupted.
+
+How should your example case be handled?  we can't store that context
+information for later.  The only way we get here is through a direct
+caller to set or clone from the FS since normally we would come through
+superblock_doinit->try_context_mount->set_sb...->here and ss_initialized
+would already have been taken care of.  Should I just dump the
+superblock on the list to deal with later and not worry that I was given
+mount options (doesn't seem like we have a good solution to your problem
+now)?
+
+I like an error code better, what fits?  It should be dealt with in
+selinux_set_mnt_opts/sb_doinit and not here.  But still the question
+remains.
+
+> 
+> >  
+> > -	name = sb->s_type->name;
+> > +	if (sbsec->initialized)
+> > +		return 0;
+> 
+> Under what conditions would we reach this point if sbsec was already
+> initialized?  Should it be an error?  A bug?
+
+We can't.  it is caught in both superblock_doinit and
+selinux_set_sb_mnt_opts.
+
+
+> > +	}
+> > +	if (sbsec->flags & ROOTCONTEXT_MNT) {
+> > +		rc = security_sid_to_context(sbsec->def_sid, &context, &len);
+> 
+> Isn't that the wrong SID to use?
+yes.  /me is quite embarrassed about that one...
+
+
+> > +	if (sbsec->initialized) {
+> > +		printk(KERN_WARNING "%s: we are here with sbsec->initialized == 1\n",
+> > +			__FUNCTION__);
+> > +		goto out;
+> >  	}
+> 
+> BUG_ON?  rc = -EINVAL?  Something other than printk and return 0.
+This is actually where we need to point out the mount the same thing
+with different options which you talk about at the bottom.  I'll check
+this closely and make it a better message.
+
+> > +static int try_context_mount(struct super_block *sb, void *data)
+> > +{
+> > +	char *context = NULL, *defcontext = NULL;
+> > +	char *fscontext = NULL, *rootcontext = NULL;
+> > +	int rc = 0;
+> > +	char *p, *options = data;
+> > +	/* selinux only know about 4 mount options */
+> > +	char *mnt_opts[4];
+> > +	int mnt_opts_flags[4], num_mnt_opts = 0;
+> 
+> Can we #define that once and use it?
+
+the variable declarations?  I guess I could.  They aren't used in many
+other places, but having [4] randomly in the code is probably not the
+best idea.
+
+> 
+> > +	int con_from_nfs = 0;
+> > +
+> > +	if (!data)
+> > +		goto out;
+> > +
+> > +	/* with the nfs patch this will become a goto out; */
+> 
+> Hmm...not sure this is worth separating out for the second patch,
+> although it would mean that a kernel with only the first patch applied
+> won't have nfs context mount support at all.
+
+And it's just a couple lines.
+> 
+> > +	if (sb->s_type->fs_flags & FS_BINARY_MOUNTDATA) {
+> > +		const char *name = sb->s_type->name;
+
+> > +
+> > +		}
+> > +	}
+> > +	} // else for binary mount data.  delete with nfs patch
+> 
+> Especially given this kind of ugliness.
+
+I liked it as well because the NFS specific patch clearly shows the NFS
+people that I pulled the ugly hack out.
+> 
+> > +
+> > +	if(fscontext){
+> 
+> Coding style nit throughout - if (x) { not if(x){
+stupid lazy thumbs.
+
+> >  
+> > +/* 
+> > + * no locking done here, but it shouldn't matter, sbsec->proc would just get
+> > + * set the same way in another thread and fs_use, hmmmmmm 
+> > + */
+> 
+> Not sure I follow; you do take the lock still in set_mnts_opts before
+> doing the above AFAICS.  sbsec->list though is another matter.
+
+comment doesn't belong.  I wasn't taking it and was still setting ->proc
+here but realized it was a stupid idea.  Never removed the comment.
+
+> 
+> >  static int superblock_doinit(struct super_block *sb, void *data)
+> >  {
+> >  	struct superblock_security_struct *sbsec = sb->s_security;
+> > -	struct dentry *root = sb->s_root;
+> > -	struct inode *inode = root->d_inode;
+> >  	int rc = 0;
+> >  
+> > -	mutex_lock(&sbsec->lock);
+> >  	if (sbsec->initialized)
+> >  		goto out;
+> 
+> One of the things that needs to be fixed is handling of a context mount
+> option when the superblock has previously been setup.  At present (and
+> still true of your patch), if one mounts /home/eparis with one context
+> mount and then tries to mount /home/sds with a different context mount,
+> the latter proceeds with no indication that the context mount option was
+> ignored (because we immediately return with success if already
+> initialized, and they'll end up with the same superblock if they are
+> from the same filesystem).  So we need to at least check to see if data
+> is set and return an error if sbsec is already initialized so that
+> userspace gets an indication of the fact.
+
+I pointed out where I think we need to do this, but what kind of error
+do we want to return?  Do we actually want the mount command to fail?
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
