@@ -1,76 +1,129 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l86JAmUb016779
-	for <selinux@tycho.nsa.gov>; Thu, 6 Sep 2007 15:10:48 -0400
-Received: from exchange.columbia.tresys.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with SMTP id l86JAlOd023792
-	for <selinux@tycho.nsa.gov>; Thu, 6 Sep 2007 19:10:47 GMT
-Subject: Re: [refpolicy] dovecot: handling of hard links
-From: "Christopher J. PeBenito" <cpebenito@tresys.com>
-To: Stefan Schulze Frielinghaus <stefan@sf-net.com>
-Cc: SELinux List <selinux@tycho.nsa.gov>
-In-Reply-To: <3A263A5A-F7A7-4A40-B066-C0A4B56386C8@sf-net.com>
-References: <50C59BF9-3A4B-4BC2-8F78-F0CFC68592D7@sf-net.com>
-	 <3A263A5A-F7A7-4A40-B066-C0A4B56386C8@sf-net.com>
-Content-Type: text/plain
-Date: Thu, 06 Sep 2007 15:09:27 -0400
-Message-Id: <1189105767.3664.40.camel@gorn>
-Mime-Version: 1.0
+Date: Thu, 6 Sep 2007 15:16:24 -0400 (EDT)
+Message-Id: <200709061916.l86JGO5O028440@tex.courtesan.com>
+From: "Todd C. Miller" <tmiller@tresys.com>
+To: Stephen Smalley <sds@tycho.nsa.gov>
+Cc: selinux@tycho.nsa.gov
+Subject: Re: [patch 0/4] libsemanage: genhomedircon replacement
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2007-08-28 at 14:59 +0200, Stefan Schulze Frielinghaus wrote:
-> Oh I forgot the only thing which doesn't really run quit fine is init  
-> now:
-> 
-> avc:  denied  { unlink } for  pid=1175 comm="rm" name="ssl- 
-> parameters.dat" dev=hda7 ino=2129980  
-> scontext=system_u:system_r:initrc_t:s0  
-> tcontext=system_u:object_r:dovecot_var_lib_t:s0 tclass=file
-> 
-> Because formerly it was labeled as dovecot_var_run_t which was of  
-> files_pid_file(dovecot_var_run_t)
+Stephen Smalley wrote:
+> BTW, the C code shouldn't be using getpwnam or getpwent - it should be
+> using the _r versions of those functions since it is a library.
 
-So this hardlink is recreated every time dovecot is started?  If so, you
-should add in an interface for deleting this file, and then a rule for
-initrc_t.
+Below is a diff to use the _r versions.  I sent this out some time ago
+but apparently it didn't make it to the list.
 
-> On 28.08.2007, at 14:26, Stefan Schulze Frielinghaus wrote:
-> 
-> > dovecot uses a hard link:
-> >
-> > /var/lib/dovecot/ssl-parameters.dat
-> > /var/run/dovecot/login/ssl-parameters.dat
-> >
-> > and the policy file looks like that:
-> >
-> > /var/run/dovecot(-login)?(/.*)?	gen_context 
-> > (system_u:object_r:dovecot_var_run_t,s0)
-> > /var/lib/dovecot(/.*)?			gen_context 
-> > (system_u:object_r:dovecot_var_lib_t,s0)
-> >
-> > While relabel:
-> >
-> > $ fixfiles relabel
-> >
-> > ...
-> > matchpathcon_filespec_add:  conflicting specifications for /var/run/ 
-> > dovecot/login/ssl-parameters.dat and /var/lib/dovecot/ssl- 
-> > parameters.dat, using system_u:object_r:dovecot_var_run_t:s0.
-> > ....
-> >
-> > Since the comment in the policy dovecot.te the file should be  
-> > labeled dovecot_var_lib_t but fixfiles relabels it as  
-> > dovecot_var_run_t. Attached is a patch which solves this.
-> >
-> > PS: tested on CentOS5
-> >
-> > <dovecot.fc.patch>
-> 
--- 
-Chris PeBenito
-Tresys Technology, LLC
-(410) 290-1411 x150
+ - todd
 
+ genhomedircon.c |   32 +++++++++++++++++++++++++++-----
+ 1 file changed, 27 insertions(+), 5 deletions(-)
+
+Index: libsemanage/src/genhomedircon.c
+===================================================================
+--- libsemanage/src/genhomedircon.c	(revision 2549)
++++ libsemanage/src/genhomedircon.c	(working copy)
+@@ -41,6 +41,7 @@
+ #include <fcntl.h>
+ #include <pwd.h>
+ #include <errno.h>
++#include <unistd.h>
+ 
+ /* paths used in get_home_dirs() */
+ #define PATH_ETC_USERADD "/etc/default/useradd"
+@@ -145,11 +146,13 @@
+ {
+ 	semanage_list_t *homedir_list = NULL;
+ 	semanage_list_t *shells = NULL;
++	char *rbuf = NULL;
+ 	char *path = NULL;
++	long rbuflen;
+ 	size_t minuid = 0;
+ 	size_t minuid_set = 0;
+ 	size_t temp;
+-	struct passwd *pwbuf;
++	struct passwd pwstorage, *pwbuf;
+ 	struct stat buf;
+ 
+ 	shells = get_shell_list();
+@@ -215,8 +218,14 @@
+ 		minuid_set = 1;
+ 	}
+ 
++	rbuflen = sysconf(_SC_GETPW_R_SIZE_MAX);
++	if (rbuflen <= 0)
++		goto fail;
++	rbuf = malloc(rbuflen);
++	if (rbuf == NULL)
++		goto fail;
+ 	setpwent();
+-	for (errno = 0; (pwbuf = getpwent()); errno = 0) {
++	for (errno = 0; getpwent_r(&pwstorage, rbuf, rbuflen, &pwbuf) == 0; errno = 0) {
+ 		if (pwbuf->pw_uid < minuid)
+ 			continue;
+ 		if (!semanage_list_find(shells, pwbuf->pw_shell))
+@@ -244,6 +253,7 @@
+ 		     "Returning list so far.");
+ 	}
+ 	endpwent();
++	free(rbuf);
+ 	semanage_list_destroy(&shells);
+ 	if (semanage_list_sort(&homedir_list))
+ 		goto fail;
+@@ -251,6 +261,8 @@
+ 	return homedir_list;
+ 
+       fail:
++	endpwent();
++	free(rbuf);
+ 	semanage_list_destroy(&homedir_list);
+ 	semanage_list_destroy(&shells);
+ 	return NULL;
+@@ -496,8 +508,10 @@
+ 	const char *name = NULL;
+ 	const char *seuname = NULL;
+ 	const char *prefix = NULL;
+-	struct passwd *pwent = NULL;
++	struct passwd pwstorage, *pwent = NULL;
+ 	unsigned int i;
++	long rbuflen;
++	char *rbuf = NULL;
+ 	int retval;
+ 
+ 	*errors = 0;
+@@ -514,6 +528,14 @@
+ 	qsort(user_list, nusers, sizeof(semanage_user_t *),
+ 	      (int (*)(const void *, const void *))&user_sort_func);
+ 
++	/* Allocate space for the getpwnam_r buffer */
++	rbuflen = sysconf(_SC_GETPW_R_SIZE_MAX);
++	if (rbuflen <= 0)
++		goto cleanup;
++	rbuf = malloc(rbuflen);
++	if (rbuf == NULL)
++		goto cleanup;
++
+ 	for (i = 0; i < nseusers; i++) {
+ 		name = semanage_seuser_get_name(seuser_list[i]);
+ 		seuname = semanage_seuser_get_sename(seuser_list[i]);
+@@ -536,8 +558,7 @@
+ 		}
+ 
+ 		errno = 0;
+-		pwent = getpwnam(name);
+-		if (!pwent) {
++		if (getpwnam_r(name, &pwstorage, rbuf, rbuflen, &pwent) != 0) {
+ 			if (errno != 0) {
+ 				*errors = STATUS_ERR;
+ 				goto cleanup;
+@@ -561,6 +582,7 @@
+ 	}
+ 
+       cleanup:
++	free(rbuf);
+ 	if (*errors) {
+ 		for (; head; pop_user_entry(&head)) {
+ 			/* the pop function takes care of all the cleanup
 
 --
 This message was distributed to subscribers of the selinux mailing list.
