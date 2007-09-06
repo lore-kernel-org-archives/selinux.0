@@ -1,214 +1,111 @@
-Subject: Re: [PATCH] 1/2 SELinux: Add get, set, and cloning of superblock
-	security information
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Eric Paris <eparis@redhat.com>
-Cc: selinux@tycho.nsa.gov, nfs@lists.sourceforge.net, jmorris@namei.org,
-        steved@redhat.com, trond.myklebust@fys.uio.no
-In-Reply-To: <1189106507.3418.66.camel@localhost.localdomain>
-References: <1189030563.3460.41.camel@dhcp231-215.rdu.redhat.com>
-	 <1189103609.3617.169.camel@moss-spartans.epoch.ncsc.mil>
-	 <1189106507.3418.66.camel@localhost.localdomain>
-Content-Type: text/plain
-Date: Thu, 06 Sep 2007 15:59:06 -0400
-Message-Id: <1189108746.3617.200.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+Message-ID: <46E06423.6030707@redhat.com>
+Date: Thu, 06 Sep 2007 16:33:39 -0400
+From: Daniel J Walsh <dwalsh@redhat.com>
+MIME-Version: 1.0
+To: Karl MacMillan <kmacmillan@mentalrootkit.com>
+CC: Stephen Smalley <sds@tycho.nsa.gov>, Joshua Brindle <jbrindle@tresys.com>,
+        Todd Miller <tmiller@tresys.com>, selinux@tycho.nsa.gov
+Subject: Re: [patch 0/4] libsemanage: genhomedircon replacement
+References: <20070815204411.705994826@tresys.com>	 <46C31BD0.5060200@tresys.com>	 <1187192832.2674.74.camel@localhost.localdomain>	 <6FE441CD9F0C0C479F2D88F959B01588EDEB74@exchange.columbia.tresys.com>	 <1187198560.20485.45.camel@moss-spartans.epoch.ncsc.mil>	 <1187205378.2838.12.camel@localhost.localdomain>	 <1187207793.20485.103.camel@moss-spartans.epoch.ncsc.mil>	 <1187209022.2838.38.camel@localhost.localdomain>	 <1187209889.20485.138.camel@moss-spartans.epoch.ncsc.mil>	 <1187210504.2838.56.camel@localhost.localdomain>	 <6FE441CD9F0C0C479F2D88F959B01588EDEBA9@exchange.columbia.tresys.com>	 <1187212166.2838.73.camel@localhost.localdomain>	 <1187280118.909.22.camel@moss-spartans.epoch.ncsc.mil>	 <46D30EE7.3030401@redhat.com>  <46D42F5F.203@tresys.com>	 <1188312373.19198.14.camel@localhost.localdomain>	 <46D44F53.1010507@redhat.com>	 <1189104699.3617.184.camel@moss-spartans.epoch.ncsc.mil> <1189104986.5251.15.camel@localhost.localdomain>
+In-Reply-To: <1189104986.5251.15.camel@localhost.localdomain>
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2007-09-06 at 15:21 -0400, Eric Paris wrote:
-> On Thu, 2007-09-06 at 14:33 -0400, Stephen Smalley wrote:
-> > On Wed, 2007-09-05 at 18:16 -0400, Eric Paris wrote:
-> > > Adds security_get_sb_mnt_opts, security_set_sb_mnt_opts, and
-> > > security_clont_sb_mnt_opts to the LSM and to SELinux.  This is in
-> > > preparation for NFS to be able to own its own mount options and remove
-> > > the NFS specific code from SELinux.
-> > > 
-> > > >From the point of view of SELinux NFS does not use text based mount
-> > > options so this patch is not something that is going away.  NFS merely
-> > > takes the text options from userspace and puts them into the same binary
-> > > format as always and passes that binary mount data around.
-> > > 
-> > > Signed-off-by: Eric Paris <eparis@redhat.com>
-> > > 
-> > > ---
-> > > 
-> > >  include/linux/security.h          |   70 +++++
-> > >  security/dummy.c                  |   26 ++
-> > >  security/selinux/hooks.c          |  618 ++++++++++++++++++++++++-------------
-> > >  security/selinux/include/objsec.h |    1 +
-> > >  4 files changed, 505 insertions(+), 210 deletions(-)
-> > 
-> > Not a very nice diff to read.
-> 
-> I couldn't think of a great way to make it smaller.  I certainly
-> understand....
-> 
-> > 
-> > > diff --git a/include/linux/security.h b/include/linux/security.h
-> 
-> > > +static inline int security_sb_set_mnt_opts (struct super_block *sb,
-> > > +					    char **mount_options,
-> > > +					    int *flags, int num_opts)
-> > > +{
-> > > +	return 0;
-> > > +}
-> > 
-> > For consistency, this should likely do the same thing as the dummy
-> > function, i.e. return -EOPNOTSUPP if num_opts > 0.  Actually, is this
-> > going to get called at all unless num_opts is > 0?
-> 
-> EOPNOTSUPP seems like the right thing.  selinux=0 and mount nfs with
-> context=
-> 
-> > 
-> > > diff --git a/security/dummy.c b/security/dummy.c
-> 
-> > > +static int dummy_sb_set_mnt_opts(struct super_block *sb, char **mount_options,
-> > > +				 int *flags, int num_opts)
-> > > +{
-> > > +	if (unlikely(num_opts))
-> > > +		return -EOPNOTSUPP;
-> > > +	return 0;
-> > > +}
-> > 
-> > Possibly just unconditionally return -EOPNOTSUPP, as the hook wouldn't
-> > normally get called with no options.
-> 
-> I'd rather not rely on the FS to have to follow this convention.  Its
-> written so that num_opts=0 will work fine.
-> > 
-> > > diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-> > > index 3694662..5ebe30b 100644
-> > > --- a/security/selinux/hooks.c
-> > > +++ b/security/selinux/hooks.c
-> > > @@ -362,135 +362,228 @@ static int may_context_mount_inode_relabel(u32 sid,
-> > >  	return rc;
-> > >  }
-> > >  
-> > > -static int try_context_mount(struct super_block *sb, void *data)
-> > > +static int sb_finish_set_opts(struct super_block *sb)
-> > >  {
-> > > -	char *context = NULL, *defcontext = NULL;
-> > > -	char *fscontext = NULL, *rootcontext = NULL;
-> > > -	const char *name;
-> > > -	u32 sid;
-> > > -	int alloc = 0, rc = 0, seen = 0;
-> > > -	struct task_security_struct *tsec = current->security;
-> > >  	struct superblock_security_struct *sbsec = sb->s_security;
-> > > +	struct dentry *root = sb->s_root;
-> > > +	struct inode *root_inode = root->d_inode;
-> > > +	int rc = 0;
-> > >  
-> > > -	if (!data)
-> > > -		goto out;
-> > > +	BUG_ON(!ss_initialized);
-> > 
-> > Why BUG_ON vs. return error?  context mount before initial policy load
-> > is technically possible, even more so if booting permissive and policy
-> > is corrupted.
-> 
-> How should your example case be handled?  we can't store that context
-> information for later.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-Error code.
-
->   The only way we get here is through a direct
-> caller to set or clone from the FS since normally we would come through
-> superblock_doinit->try_context_mount->set_sb...->here and ss_initialized
-> would already have been taken care of.  Should I just dump the
-> superblock on the list to deal with later and not worry that I was given
-> mount options (doesn't seem like we have a good solution to your problem
-> now)?
+Karl MacMillan wrote:
+> On Thu, 2007-09-06 at 14:51 -0400, Stephen Smalley wrote:
+>> On Tue, 2007-08-28 at 12:37 -0400, Daniel J Walsh wrote:
+>>> -----BEGIN PGP SIGNED MESSAGE-----
+>>> Hash: SHA1
+>>>
+>>> Karl MacMillan wrote:
+>>>> On Tue, 2007-08-28 at 10:21 -0400, Joshua Brindle wrote:
+>>>>> Daniel J Walsh wrote:
+>>>>>> -----BEGIN PGP SIGNED MESSAGE-----
+>>>>>> Hash: SHA1
+>>>>>>
+>>>>>> Finally catching up on Email after vacation.
+>>>>>>
+>>>>>> genhomedircon lists the entire list of passwords in order to figure out
+>>>>>> where home directories are.  Not just the contents of the seusers.
+>>>>>>
+>>>> And this will simply not work with LDAP infrastructure - iterating over
+>>>> tens-of-thousands of users on _every_ workstation is not acceptable.
+>>>>
+>>>>> Is there an implementation error in the new genhomedircon?
+>>>>>
+>>>>>> At RedHat we have about 50 different root home directories
+>>>>>>
+>>>>>> /home/location/dwalsh
+>>>>>>
+>>>>>> We need to know this in order to have restorecon work properly.
+>>>>>>
+>>>>>> Labeling of the homedir for things like .mozilla .gnome2 and .ssh
+>>>>>> is still needed, but differentiating them on Roles does not make sense
+>>>>>> in a distributed world.  Where if dwalsh logs into a kiosk machine he
+>>>>>> might be xguest_t, on a terminal server guest_t, on his local machine
+>>>>>> unconfined_t and on the security machine staff_t.  If his home directory
+>>>>>> is the same on all of these, SELinux is in trouble.
+>>>>> So, it doesn't make sense for your specific infrastructure, that doesn't 
+>>>>> mean it doesn't make sense ever. And this is a policy issue really, 
+>>>>> genhomedircon just does what its told.
+>>>>>
+>>>>>
+>>>> Can we turn the question around then? Where would this behavior be
+>>>> useful? And would the per-user labeling and constraints I suggested work
+>>>> in those situations as an alternative? Again, we can leave genhomedircon
+>>>> for all I care, I just want to have the defaults work in most
+>>>> situations.
+>>>>
+>>>> Karl
+>>>>
+>>>>
+>>> I believe ldap will stop you from returning the entire database anyways,
+>>>  Since it is threshold limited.  I had bugreports of genhomedircon
+>>> taking forever to run with large password database > 100,000.  This is
+>>> where the compiling of the regex saved tons of time.
+>> Looking at the genhomedircon code, it seems that the only reason
+>> genhomedircon walks the entire user database is to try to find all home
+>> directory path prefixes in order to generate appropriate default
+>> patterns for ordinary user_t users, and that this behavior could be
+>> disabled with the genhomedircon script by passing --nopasswd or -n to
+>> the script, in which case it would only use the default home directory
+>> prefixes defined by /etc/default/useradd and /etc/libuser.conf plus the
+>> hardcoded defaults of /home and /export/home.  In the libsemanage
+>> re-implementation of genhomedircon, this can still be specified by the
+>> caller, but there isn't presently a way to set the desired value in
+>> semanage.conf right now.
+>>
+>> So, the passwd walk has nothing to do with per-role labeling of user
+>> home directories but rather is just about discovering home directory
+>> locations for default labeling, and you need it if you want to ensure
+>> that all user home directories are labeled with appropriate types even
+>> if they all use the same set of types.  So what is your solution again?
+>>
 > 
-> I like an error code better, what fits?  It should be dealt with in
-> selinux_set_mnt_opts/sb_doinit and not here.  But still the question
-> remains.
-
--EOPNOTSUPP or -EINVAL.  Possibly with a printk.
-
-> > 
-> > >  
-> > > -	name = sb->s_type->name;
-> > > +	if (sbsec->initialized)
-> > > +		return 0;
-> > 
-> > Under what conditions would we reach this point if sbsec was already
-> > initialized?  Should it be an error?  A bug?
+> Interesting - thanks for unwinding this. It seems _much_ more reasonable
+> to provide a mechanism for adding home directory locations manually via
+> semanage.
 > 
-> We can't.  it is caught in both superblock_doinit and
-> selinux_set_sb_mnt_opts.
-
-So BUG_ON?  Or drop it.
-
-> > > +static int try_context_mount(struct super_block *sb, void *data)
-> > > +{
-> > > +	char *context = NULL, *defcontext = NULL;
-> > > +	char *fscontext = NULL, *rootcontext = NULL;
-> > > +	int rc = 0;
-> > > +	char *p, *options = data;
-> > > +	/* selinux only know about 4 mount options */
-> > > +	char *mnt_opts[4];
-> > > +	int mnt_opts_flags[4], num_mnt_opts = 0;
-> > 
-> > Can we #define that once and use it?
+> Karl
 > 
-> the variable declarations?  I guess I could.  They aren't used in many
-> other places, but having [4] randomly in the code is probably not the
-> best idea.
 
-Yes, I just meant replacing 4 with a #define'd symbol.
+How about we run this one time at install.  And then default to off.
+Allow users to regenerate if they come upon a problem or a full relable?
 
-> > >  
-> > > +/* 
-> > > + * no locking done here, but it shouldn't matter, sbsec->proc would just get
-> > > + * set the same way in another thread and fs_use, hmmmmmm 
-> > > + */
-> > 
-> > Not sure I follow; you do take the lock still in set_mnts_opts before
-> > doing the above AFAICS.  sbsec->list though is another matter.
-> 
-> comment doesn't belong.  I wasn't taking it and was still setting ->proc
-> here but realized it was a stupid idea.  Never removed the comment.
+BTW, I thought I stated a few weeks ago the purpose of the walk was to
+find home directories.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.7 (GNU/Linux)
+Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org
 
-Ok, but sbsec->list might still be an issue technically even if not in
-practice.  There is a global spinlock on the whole list, but you could
-end up adding the superblock twice if you don't take the sbsec lock.
-
-> > 
-> > >  static int superblock_doinit(struct super_block *sb, void *data)
-> > >  {
-> > >  	struct superblock_security_struct *sbsec = sb->s_security;
-> > > -	struct dentry *root = sb->s_root;
-> > > -	struct inode *inode = root->d_inode;
-> > >  	int rc = 0;
-> > >  
-> > > -	mutex_lock(&sbsec->lock);
-> > >  	if (sbsec->initialized)
-> > >  		goto out;
-> > 
-> > One of the things that needs to be fixed is handling of a context mount
-> > option when the superblock has previously been setup.  At present (and
-> > still true of your patch), if one mounts /home/eparis with one context
-> > mount and then tries to mount /home/sds with a different context mount,
-> > the latter proceeds with no indication that the context mount option was
-> > ignored (because we immediately return with success if already
-> > initialized, and they'll end up with the same superblock if they are
-> > from the same filesystem).  So we need to at least check to see if data
-> > is set and return an error if sbsec is already initialized so that
-> > userspace gets an indication of the fact.
-> 
-> I pointed out where I think we need to do this, but what kind of error
-> do we want to return?  Do we actually want the mount command to fail?
-
--EINVAL with a printk.  Yes, we want the mount to fail there, because
-the user asked for a particular context mount and the kernel can't honor
-the request.  The user is always free to then do a regular mount if he
-is ok with that.
-
--- 
-Stephen Smalley
-National Security Agency
-
+iD8DBQFG4GQjrlYvE4MpobMRAs5rAJ9Xk0bcctl7royXgf6g8LYrlq0LoQCfclof
+lpfbfgWe4yu84mUxlp1uJC4=
+=BsQR
+-----END PGP SIGNATURE-----
 
 --
 This message was distributed to subscribers of the selinux mailing list.
