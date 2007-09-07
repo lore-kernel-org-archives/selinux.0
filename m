@@ -1,59 +1,45 @@
 Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l87C4llh010036
-	for <selinux@tycho.nsa.gov>; Fri, 7 Sep 2007 08:04:47 -0400
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l87CTIrB011813
+	for <selinux@tycho.nsa.gov>; Fri, 7 Sep 2007 08:29:18 -0400
 Received: from exchange.columbia.tresys.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with SMTP id l87C4fxJ010423
-	for <selinux@tycho.nsa.gov>; Fri, 7 Sep 2007 12:04:41 GMT
-Subject: Re: [refpolicy] dovecot: handling of hard links
-From: "Christopher J. PeBenito" <cpebenito@tresys.com>
-To: Stefan Schulze Frielinghaus <stefan@sf-net.com>
-Cc: SELinux List <selinux@tycho.nsa.gov>
-In-Reply-To: <03970691-89EF-41A5-B14C-70CBF0681056@sf-net.com>
-References: <50C59BF9-3A4B-4BC2-8F78-F0CFC68592D7@sf-net.com>
-	 <3A263A5A-F7A7-4A40-B066-C0A4B56386C8@sf-net.com>
-	 <1189105767.3664.40.camel@gorn>
-	 <03970691-89EF-41A5-B14C-70CBF0681056@sf-net.com>
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with SMTP id l87CTHZj016528
+	for <selinux@tycho.nsa.gov>; Fri, 7 Sep 2007 12:29:17 GMT
+Subject: Re: Graphical depiction of TE policy
+From: Dave Sugar <dsugar@tresys.com>
+To: selinux@tycho.nsa.gov
+In-Reply-To: <A9D9EDA4-EA98-465B-89C5-389E4C4E6945@nall.com>
+References: <A9D9EDA4-EA98-465B-89C5-389E4C4E6945@nall.com>
 Content-Type: text/plain
-Date: Fri, 07 Sep 2007 08:03:20 -0400
-Message-Id: <1189166600.3664.44.camel@gorn>
+Date: Fri, 07 Sep 2007 08:29:14 -0400
+Message-Id: <1189168154.3607.3.camel@localhost.localdomain>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2007-09-07 at 13:32 +0200, Stefan Schulze Frielinghaus wrote:
-> On 06.09.2007, at 21:09, Christopher J. PeBenito wrote:
+Joe,
+
+There has been some work done on graphically representing security
+policy.  A project we worked on here called CDS Framework is a tool to
+graphically generate policy which is then translated into SELinux TE
+policy.  See http://oss.tresys.com/projects/cdsframework
+
+While this is not exactly what you are asking about it is related and I
+wanted to mention it.  
+
+Dave Sugar
+
+
+On Thu, 2007-09-06 at 23:02 -0500, Joe Nall wrote:
+> Has anyone done any work toward automatically generating graphical  
+> representations of TE policy from existing policy? Perhaps have apol  
+> emit dot files like doxygen?
 > 
-> > On Tue, 2007-08-28 at 14:59 +0200, Stefan Schulze Frielinghaus wrote:
-> >> Oh I forgot the only thing which doesn't really run quit fine is init
-> >> now:
-> >>
-> >> avc:  denied  { unlink } for  pid=1175 comm="rm" name="ssl-
-> >> parameters.dat" dev=hda7 ino=2129980
-> >> scontext=system_u:system_r:initrc_t:s0
-> >> tcontext=system_u:object_r:dovecot_var_lib_t:s0 tclass=file
-> >>
-> >> Because formerly it was labeled as dovecot_var_run_t which was of
-> >> files_pid_file(dovecot_var_run_t)
-> >
-> > So this hardlink is recreated every time dovecot is started?  If  
-> > so, you
-> > should add in an interface for deleting this file, and then a rule for
-> > initrc_t.
+> joe
 > 
-> Yes and No. This file is created by the master process of dovecot and  
-> after a specific time the file is altered again and again by the  
-> master process. I would suggest to add a dontaudit rule for initrc_t  
-> because only dovecot needs real manage perms. The file itself  
-> contains parameters for Diffie Hellman key exchange so initrc_t  
-> doesn't need to touch this file. Attached is a patch which solves this.
-
-This hardlink really sounds like a broken behavior to me.
-
--- 
-Chris PeBenito
-Tresys Technology, LLC
-(410) 290-1411 x150
-
+> --
+> This message was distributed to subscribers of the selinux mailing list.
+> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
+> the words "unsubscribe selinux" without quotes as the message.
 
 --
 This message was distributed to subscribers of the selinux mailing list.
