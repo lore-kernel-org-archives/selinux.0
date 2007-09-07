@@ -1,80 +1,62 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l87DrN4s018033
-	for <selinux@tycho.nsa.gov>; Fri, 7 Sep 2007 09:53:23 -0400
-Received: from moutng.kundenserver.de (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id l87DrKZj007704
-	for <selinux@tycho.nsa.gov>; Fri, 7 Sep 2007 13:53:20 GMT
-In-Reply-To: <1189166600.3664.44.camel@gorn>
-References: <50C59BF9-3A4B-4BC2-8F78-F0CFC68592D7@sf-net.com> <3A263A5A-F7A7-4A40-B066-C0A4B56386C8@sf-net.com> <1189105767.3664.40.camel@gorn> <03970691-89EF-41A5-B14C-70CBF0681056@sf-net.com> <1189166600.3664.44.camel@gorn>
-Mime-Version: 1.0 (Apple Message framework v752.2)
-Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
-Message-Id: <078A8F60-104A-4508-BFF7-47F0665B8C8F@sf-net.com>
-Cc: SELinux List <selinux@tycho.nsa.gov>
-From: Stefan Schulze Frielinghaus <stefan@sf-net.com>
-Subject: Re: [refpolicy] dovecot: handling of hard links
-Date: Fri, 7 Sep 2007 15:52:47 +0200
-To: "Christopher J. PeBenito" <cpebenito@tresys.com>
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l87DtxmT018196
+	for <selinux@tycho.nsa.gov>; Fri, 7 Sep 2007 09:55:59 -0400
+Received: from an-out-0708.google.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l87DtvvO001626
+	for <selinux@tycho.nsa.gov>; Fri, 7 Sep 2007 13:55:57 GMT
+Received: by an-out-0708.google.com with SMTP id c38so89878ana
+        for <selinux@tycho.nsa.gov>; Fri, 07 Sep 2007 06:55:43 -0700 (PDT)
+Message-ID: <46E15844.9070401@gmail.com>
+Date: Fri, 07 Sep 2007 08:55:16 -0500
+From: Ted X Toth <txtoth@gmail.com>
+MIME-Version: 1.0
+To: SE Linux <selinux@tycho.nsa.gov>
+Subject: Re: Labelling a new port
+References: <f8f6300f0709060943q2393d380p356d86605cf9444f@mail.gmail.com> <7312DE97-0B10-4674-AD51-0EBD7875A4FA@sf-net.com>
+In-Reply-To: <7312DE97-0B10-4674-AD51-0EBD7875A4FA@sf-net.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 
-On 07.09.2007, at 14:03, Christopher J. PeBenito wrote:
+Also look at the Thursday, May 31st, 2007 entry at http://danwalsh.livejournal.com/
 
-> On Fri, 2007-09-07 at 13:32 +0200, Stefan Schulze Frielinghaus wrote:
->> On 06.09.2007, at 21:09, Christopher J. PeBenito wrote:
->>
->>> On Tue, 2007-08-28 at 14:59 +0200, Stefan Schulze Frielinghaus  
->>> wrote:
->>>> Oh I forgot the only thing which doesn't really run quit fine is  
->>>> init
->>>> now:
->>>>
->>>> avc:  denied  { unlink } for  pid=1175 comm="rm" name="ssl-
->>>> parameters.dat" dev=hda7 ino=2129980
->>>> scontext=system_u:system_r:initrc_t:s0
->>>> tcontext=system_u:object_r:dovecot_var_lib_t:s0 tclass=file
->>>>
->>>> Because formerly it was labeled as dovecot_var_run_t which was of
->>>> files_pid_file(dovecot_var_run_t)
->>>
->>> So this hardlink is recreated every time dovecot is started?  If
->>> so, you
->>> should add in an interface for deleting this file, and then a  
->>> rule for
->>> initrc_t.
->>
->> Yes and No. This file is created by the master process of dovecot and
->> after a specific time the file is altered again and again by the
->> master process. I would suggest to add a dontaudit rule for initrc_t
->> because only dovecot needs real manage perms. The file itself
->> contains parameters for Diffie Hellman key exchange so initrc_t
->> doesn't need to touch this file. Attached is a patch which solves  
->> this.
+Stefan Schulze Frielinghaus wrote:
+> You can add ports via semange e.g. "semanage port -a -t 
+> memcached_port_t -p tcp 11211"
 >
-> This hardlink really sounds like a broken behavior to me.
+> see semanage(8) for more details
+>
+> PS: you need to declare the type in your policy before executing the 
+> command. look at modules/kernel/corenetwork.te for some examples
+>
+> On 06.09.2007, at 18:43, Konstantin Ryabitsev wrote:
+>
+>> Hello, all:
+>>
+>> I'm trying to write a policy for memcached, but I'm not sure how I'd
+>> declare a new memcached_port_t (11211/tcp). Any pointers?
+>>
+>> TIA!
+>>
+>> Cheers,
+>> -- 
+>> Konstantin Ryabitsev
+>> Montréal, Québec
+>>
+>> -- 
+>> fedora-selinux-list mailing list
+>> fedora-selinux-list@redhat.com
+>> https://www.redhat.com/mailman/listinfo/fedora-selinux-list
+>
+>
+> -- 
+> fedora-selinux-list mailing list
+> fedora-selinux-list@redhat.com
+> https://www.redhat.com/mailman/listinfo/fedora-selinux-list
+>
 
-I checked the source rpm of RHEL5server and even the spec files says  
-on line 174:
 
-if ! test -f /var/run/dovecot/login/ssl-parameters.dat; then
-     dovecot --build-ssl-parameters &>/dev/null
-fi
-
-And when dovecot gets started without the ssl-parameters file  
-available it will build it in the directory /var/lib/dovecot and hard  
-link it to /var/run/dovecot/login. Here is an extract from the  
-dovecot changelog (v1.0.rc2 2006-07-04):
-
-When copying ssl-parameters.dat file from /var/lib to /var/run its  
-permissions went wrong if it couldn't be copied with hard linking.
-
-  I agree that the hard link is a little bit ugly but if you want a  
-working dovecot installation out of the box the file /var/lib/dovecot/ 
-ssl-parameters.dat and the hard link /var/run/dovecot/login/ssl- 
-parameters.dat need to be manageable by dovecot (not only the file  
-even the directory where they exist in). We could label the file as a  
-var_lib_t which would seem to be strange in a var_run_t directory or  
-vice versa. Non of them is really nice ;-)
 
 --
 This message was distributed to subscribers of the selinux mailing list.
