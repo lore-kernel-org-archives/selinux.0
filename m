@@ -1,88 +1,305 @@
 Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l8BJHngf019520
-	for <selinux@tycho.nsa.gov>; Tue, 11 Sep 2007 15:17:49 -0400
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l8BJHkgg019517
+	for <selinux@tycho.nsa.gov>; Tue, 11 Sep 2007 15:17:46 -0400
 Received: from exchange.columbia.tresys.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with SMTP id l8BJHibe009966
-	for <selinux@tycho.nsa.gov>; Tue, 11 Sep 2007 19:17:47 GMT
-Subject: Re: [PATCH] refpolicy: system_locallogin changes
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with SMTP id l8BJHibc009966
+	for <selinux@tycho.nsa.gov>; Tue, 11 Sep 2007 19:17:46 GMT
+Subject: Re: Lots of fixes for postfix
 From: "Christopher J. PeBenito" <cpebenito@tresys.com>
-To: dwalsh@redhat.com
-Cc: selinux@tycho.nsa.gov
-In-Reply-To: <200708022027.l72KRTWh032129@redsox.boston.devel.redhat.com>
-References: <200708022027.l72KRTWh032129@redsox.boston.devel.redhat.com>
+To: Daniel J Walsh <dwalsh@redhat.com>
+Cc: SE Linux <selinux@tycho.nsa.gov>
+In-Reply-To: <46B2216E.1040203@redhat.com>
+References: <46B2216E.1040203@redhat.com>
 Content-Type: text/plain
-Date: Tue, 11 Sep 2007 15:16:15 -0400
-Message-Id: <1189538175.7512.16.camel@gorn>
+Date: Tue, 11 Sep 2007 15:16:13 -0400
+Message-Id: <1189538173.7512.15.camel@gorn>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2007-08-02 at 16:27 -0400, dwalsh@redhat.com wrote:
-> Change local_login to no longer be unconfined
-> Now talks dbus
+On Thu, 2007-08-02 at 14:24 -0400, Daniel J Walsh wrote:
+> Added virtual
+> Switch to using nsswitch
+> Lots of daemons want to read master_t:file
 
-Merged.
+Merged except for the dovecot parts, as I couldn't find the
+implementations of the interfaces in the other patches.
 
-> --- nsaserefpolicy/policy/modules/system/locallogin.te  2007-07-25
-> 10:37:42.000000000 -0400
-> +++ serefpolicy-3.0.5/policy/modules/system/locallogin.te
-> 2007-08-02 11:02:02.000000000 -0400
-> @@ -25,6 +25,7 @@
->  domain_role_change_exemption(sulogin_t)
->  domain_interactive_fd(sulogin_t)
->  init_domain(sulogin_t,sulogin_exec_t)
-> +init_system_domain(sulogin_t,sulogin_exec_t)
->  role system_r types sulogin_t;
+> --- nsaserefpolicy/policy/modules/services/postfix.fc   2007-05-29 14:10:57.000000000 -0400
+> +++ serefpolicy-3.0.5/policy/modules/services/postfix.fc        2007-08-02 11:02:02.000000000 -0400
+> @@ -14,6 +14,7 @@
+>  /usr/libexec/postfix/smtpd --  gen_context(system_u:object_r:postfix_smtpd_exec_t,s0)
+>  /usr/libexec/postfix/bounce -- gen_context(system_u:object_r:postfix_bounce_exec_t,s0)
+>  /usr/libexec/postfix/pipe --   gen_context(system_u:object_r:postfix_pipe_exec_t,s0)
+> +/usr/libexec/postfix/virtual --        gen_context(system_u:object_r:postfix_virtual_exec_t,s0)
+>  ', `
+>  /usr/lib/postfix/.*    --      gen_context(system_u:object_r:postfix_exec_t,s0)
+>  /usr/lib/postfix/cleanup --    gen_context(system_u:object_r:postfix_cleanup_exec_t,s0)
+> --- nsaserefpolicy/policy/modules/services/postfix.if   2007-07-03 07:06:27.000000000 -0400
+> +++ serefpolicy-3.0.5/policy/modules/services/postfix.if        2007-08-02 11:02:02.000000000 -0400
+> @@ -41,6 +41,8 @@
+>         allow postfix_$1_t self:unix_stream_socket connectto;
+> 
+>         allow postfix_master_t postfix_$1_t:process signal;
+> +       #https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=244456
+> +       allow postfix_$1_t postfix_master_t:file read;
+> 
+>         allow postfix_$1_t postfix_etc_t:dir list_dir_perms;
+>         read_files_pattern(postfix_$1_t,postfix_etc_t,postfix_etc_t)
+> @@ -66,6 +68,7 @@
+> 
+>         fs_search_auto_mountpoints(postfix_$1_t)
+>         fs_getattr_xattr_fs(postfix_$1_t)
+> +       fs_rw_anon_inodefs_files(postfix_$1_t)
+> 
+>         term_dontaudit_use_console(postfix_$1_t)
+> 
+> @@ -132,10 +135,8 @@
+>         corenet_tcp_connect_all_ports(postfix_$1_t)
+>         corenet_sendrecv_all_client_packets(postfix_$1_t)
+> 
+> -       sysnet_read_config(postfix_$1_t)
+> -
+>         optional_policy(`
+> -               nis_use_ypbind(postfix_$1_t)
+> +               auth_use_nsswitch(postfix_$1_t)
+>         ')
+>  ')
+> 
+> @@ -269,6 +270,42 @@
 > 
 >  ########################################
-> @@ -97,6 +98,11 @@
->  term_setattr_all_user_ttys(local_login_t)
->  term_setattr_unallocated_ttys(local_login_t)
-> 
-> +tunable_policy(`allow_console_login', `
-> +     term_relabel_console(local_login_t)
-> +     term_setattr_console(local_login_t)
+>  ## <summary>
+> +##     Allow domain to read postfix local process state
+> +## </summary>
+> +## <param name="domain">
+> +##     <summary>
+> +##     Domain to not audit.
+> +##     </summary>
+> +## </param>
+> +#
+> +interface(`postfix_read_local_state',`
+> +       gen_require(`
+> +               type postfix_local_t;
+> +       ')
+> +
+> +       read_files_pattern($1,postfix_local_t,postfix_local_t)
 > +')
 > +
->  auth_rw_login_records(local_login_t)
->  auth_rw_faillog(local_login_t)
->  auth_manage_pam_console_data(local_login_t)
-> @@ -160,6 +166,15 @@
->  ')
-> 
->  optional_policy(`
-> +       consolekit_dbus_chat(local_login_t)
+> +########################################
+> +## <summary>
+> +##     Allow domain to read postfix master process state
+> +## </summary>
+> +## <param name="domain">
+> +##     <summary>
+> +##     Domain to not audit.
+> +##     </summary>
+> +## </param>
+> +#
+> +interface(`postfix_read_master_state',`
+> +       gen_require(`
+> +               type postfix_master_t;
+> +       ')
+> +
+> +       read_files_pattern($1,postfix_master_t,postfix_master_t)
 > +')
 > +
-> +optional_policy(`
-> +       dbus_system_bus_client_template(local_login,local_login_t)
-> +       dbus_send_system_bus(local_login_t)
+> +########################################
+> +## <summary>
+>  ##     Do not audit attempts to use
+>  ##     postfix master process file
+>  ##     file descriptors.
+> @@ -434,6 +471,25 @@
+> 
+>  ########################################
+>  ## <summary>
+> +##     Read postfix mail spool files.
+> +## </summary>
+> +## <param name="domain">
+> +##     <summary>
+> +##     Domain allowed access.
+> +##     </summary>
+> +## </param>
+> +#
+> +interface(`postfix_read_spool_files',`
+> +       gen_require(`
+> +               type postfix_spool_t;
+> +       ')
+> +
+> +       files_search_spool($1)
+> +       read_files_pattern($1,postfix_spool_t, postfix_spool_t)
 > +')
 > +
-> +optional_policy(`
->         gpm_getattr_gpmctl(local_login_t)
->         gpm_setattr_gpmctl(local_login_t)
->  ')
-> @@ -178,13 +193,18 @@
->  ')
+> +########################################
+> +## <summary>
+>  ##     Execute postfix user mail programs
+>  ##     in their respective domains.
+>  ## </summary>
+> @@ -450,3 +506,22 @@
 > 
->  optional_policy(`
-> -       unconfined_domain(local_login_t)
-> +       unconfined_shell_domtrans(local_login_t)
+>         typeattribute $1 postfix_user_domtrans;
 >  ')
-> 
->  optional_policy(`
->         usermanage_read_crack_db(local_login_t)
->  ')
-> 
-> +optional_policy(`
-> +       xserver_read_xdm_tmp_files(local_login_t)
-> +       xserver_rw_xdm_tmp_files(local_login_t)
-> +')
 > +
->  #################################
+> +########################################
+> +## <summary>
+> +##     Create a named socket in a postfix private directory.
+> +## </summary>
+> +## <param name="domain">
+> +##     <summary>
+> +##     Domain allowed access.
+> +##     </summary>
+> +## </param>
+> +#
+> +interface(`postfix_create_pivate_sockets',`
+> +       gen_require(`
+> +               type postfix_private_t;
+> +       ')
+> +
+> +       allow $1 postfix_private_t:dir list_dir_perms;
+> +       create_sock_files_pattern($1,postfix_private_t,postfix_private_t)
+> +')
+> --- nsaserefpolicy/policy/modules/services/postfix.te   2007-07-25 10:37:42.000000000 -0400
+> +++ serefpolicy-3.0.5/policy/modules/services/postfix.te        2007-08-02 11:02:02.000000000 -0400
+> @@ -83,6 +83,12 @@
+>  type postfix_var_run_t;
+>  files_pid_file(postfix_var_run_t)
+> 
+> +postfix_server_domain_template(virtual)
+> +mta_mailserver_delivery(postfix_virtual_t)
+> +
+> +type postfix_virtual_tmp_t;
+> +files_tmp_file(postfix_virtual_tmp_t)
+> +
+>  ########################################
 >  #
->  # Sulogin local policy
+>  # Postfix master process local policy
+> @@ -168,6 +174,11 @@
+> 
+>  mta_rw_aliases(postfix_master_t)
+>  mta_read_sendmail_bin(postfix_master_t)
+> +term_dontaudit_search_ptys(postfix_master_t)
+> +
+> +optional_policy(`
+> +       auth_use_nsswitch(postfix_master_t)
+> +')
+> 
+>  optional_policy(`
+>         cyrus_stream_connect(postfix_master_t)
+> @@ -179,9 +190,17 @@
+>  ')
+> 
+>  optional_policy(`
+> +       mysql_stream_connect(postfix_master_t)
+> +')
+> +
+> +optional_policy(`
+>         nis_use_ypbind(postfix_master_t)
+>  ')
+> 
+> +optional_policy(`
+> +       sendmail_signal(postfix_master_t)
+> +')
+> +
+>  ###########################################################
+>  #
+>  # Partially converted rules.  THESE ARE ONLY TEMPORARY
+> @@ -377,7 +396,7 @@
+>  # Postfix pipe local policy
+>  #
+> 
+> -allow postfix_pipe_t self:fifo_file { read write };
+> +allow postfix_pipe_t self:fifo_file rw_fifo_file_perms;
+> 
+>  write_sock_files_pattern(postfix_pipe_t,postfix_private_t,postfix_private_t)
+> 
+> @@ -386,6 +405,10 @@
+>  rw_files_pattern(postfix_pipe_t,postfix_spool_t,postfix_spool_t)
+> 
+>  optional_policy(`
+> +       dovecot_domtrans_deliver(postfix_pipe_t)
+> +')
+> +
+> +optional_policy(`
+>         procmail_domtrans(postfix_pipe_t)
+>  ')
+> 
+> @@ -426,6 +449,11 @@
+>         cron_system_entry(postfix_postdrop_t, postfix_postdrop_exec_t)
+>  ')
+> 
+> +# https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=239951
+> +optional_policy(`
+> +       fstools_read_pipes(postfix_postdrop_t)
+> +')
+> +
+>  optional_policy(`
+>         ppp_use_fds(postfix_postqueue_t)
+>         ppp_sigchld(postfix_postqueue_t)
+> @@ -505,8 +533,6 @@
+>  # Postfix smtp delivery local policy
+>  #
+> 
+> -allow postfix_smtp_t self:netlink_route_socket r_netlink_socket_perms;
+> -
+>  # connect to master process
+>  stream_connect_pattern(postfix_smtp_t,{ postfix_private_t postfix_public_t },{ postfix_private_t postfix_public_t },postfix_master_t)
+> 
+> @@ -514,6 +540,8 @@
+> 
+>  allow postfix_smtp_t postfix_spool_t:file rw_file_perms;
+> 
+> +files_dontaudit_getattr_home_dir(postfix_smtp_t)
+> +
+>  optional_policy(`
+>         cyrus_stream_connect(postfix_smtp_t)
+>  ')
+> @@ -538,9 +566,45 @@
+>  mta_read_aliases(postfix_smtpd_t)
+> 
+>  optional_policy(`
+> +       mailman_read_data_files(postfix_smtpd_t)
+> +')
+> +
+> +optional_policy(`
+>         postgrey_stream_connect(postfix_smtpd_t)
+>  ')
+> 
+>  optional_policy(`
+>         sasl_connect(postfix_smtpd_t)
+>  ')
+> +
+> +optional_policy(`
+> +       dovecot_auth_stream_connect(postfix_smtpd_t)
+> +')
+> +
+> +########################################
+> +#
+> +# Postfix virtual local policy
+> +#
+> +
+> +allow postfix_virtual_t self:fifo_file rw_fifo_file_perms;
+> +allow postfix_virtual_t self:process { setsched setrlimit };
+> +
+> +manage_dirs_pattern(postfix_virtual_t,postfix_virtual_tmp_t,postfix_virtual_tmp_t)
+> +manage_files_pattern(postfix_virtual_t,postfix_virtual_tmp_t,postfix_virtual_tmp_t)
+> +files_tmp_filetrans(postfix_virtual_t, postfix_virtual_tmp_t, { file dir })
+> +
+> +# connect to master process
+> +stream_connect_pattern(postfix_virtual_t,postfix_public_t,postfix_public_t,postfix_master_t)
+> +
+> +allow postfix_virtual_t postfix_spool_t:file rw_file_perms;
+> +
+> +corecmd_exec_shell(postfix_virtual_t)
+> +corecmd_exec_bin(postfix_virtual_t)
+> +
+> +files_read_etc_files(postfix_virtual_t)
+> +
+> +mta_read_aliases(postfix_virtual_t)
+> +mta_delete_spool(postfix_virtual_t)
+> +# For reading spamassasin
+> +mta_read_config(postfix_virtual_t)
+> +mta_manage_spool(postfix_virtual_t)
+> 
 > 
 > 
 -- 
