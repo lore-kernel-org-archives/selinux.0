@@ -1,65 +1,59 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l8CEkfMG031145
-	for <selinux@tycho.nsa.gov>; Wed, 12 Sep 2007 10:46:41 -0400
-Received: from exchange.columbia.tresys.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with SMTP id l8CEka11026178
-	for <selinux@tycho.nsa.gov>; Wed, 12 Sep 2007 14:46:38 GMT
-Subject: Re: [PATCH] refpolicy: services_procmail changes - Minor procmail
-	fixes
-From: "Christopher J. PeBenito" <cpebenito@tresys.com>
-To: dwalsh@redhat.com
-Cc: selinux@tycho.nsa.gov
-In-Reply-To: <200708022044.l72Ki5eY032692@redsox.boston.devel.redhat.com>
-References: <200708022044.l72Ki5eY032692@redsox.boston.devel.redhat.com>
+Subject: Class/permission discovery
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: selinux@tycho.nsa.gov
+Cc: "Christopher J. PeBenito" <cpebenito@tresys.com>,
+        Daniel J Walsh <dwalsh@redhat.com>, Eamon Walsh <ewalsh@tycho.nsa.gov>,
+        Jim Carter <jwcart2@epoch.ncsc.mil>
 Content-Type: text/plain
-Date: Wed, 12 Sep 2007 10:45:07 -0400
-Message-Id: <1189608307.7512.33.camel@gorn>
+Date: Wed, 12 Sep 2007 10:57:50 -0400
+Message-Id: <1189609070.6806.16.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2007-08-02 at 16:44 -0400, dwalsh@redhat.com wrote:
-> --- nsaserefpolicy/policy/modules/services/procmail.te  2007-07-25
-> 10:37:42.000000000 -0400
-> +++ serefpolicy-3.0.5/policy/modules/services/procmail.te
-> 2007-08-02 11:02:02.000000000 -0400
-> @@ -30,6 +30,8 @@
->  allow procmail_t procmail_tmp_t:file manage_file_perms;
->  files_tmp_filetrans(procmail_t, procmail_tmp_t, file)
-> 
-> +can_exec(procmail_t,procmail_exec_t)
-> +
->  kernel_read_system_state(procmail_t)
->  kernel_read_kernel_sysctls(procmail_t)
-> 
-> @@ -108,6 +110,9 @@
->         # for a bug in the postfix local program
->         postfix_dontaudit_rw_local_tcp_sockets(procmail_t)
->         postfix_dontaudit_use_fds(procmail_t)
-> +       postfix_read_spool_files(procmail_t)
-> +       postfix_read_local_state(procmail_t)
-> +       postfix_read_master_state(procmail_t)
->  ')
-> 
->  optional_policy(`
+https://bugzilla.redhat.com/show_bug.cgi?id=283231
 
-Merged.
+When a legacy userspace object manager like dbusd invokes the AVC with
+numeric class and permission values on a kernel that supports object
+class and permission discovery, the AVC ultimately calls the
+integer-to-string mapping functions, but the class information has not
+yet been cached by libselinux (currently triggered upon a
+string_to_security_class() call, requires the string name to look up the
+entry in /selinux/class), so the lookup fails.
 
-> @@ -129,3 +134,7 @@
->         spamassassin_exec_client(procmail_t)
->         spamassassin_read_lib_files(procmail_t)
->  ')
-> +
-> +optional_policy(`
-> +       mailscanner_read_spool(procmail_t)
-> +')
+At least as a short term fix, fall back to the compat functions in this
+case.
 
-dropped since the mailscanner policy looked incomplete.
+Index: libselinux/src/stringrep.c
+===================================================================
+--- libselinux/src/stringrep.c	(revision 2556)
++++ libselinux/src/stringrep.c	(working copy)
+@@ -471,10 +471,9 @@
+ 
+ 	tclass = unmap_class(tclass);
+ 	node = get_class_cache_entry_value(tclass);
+-	if (node == NULL) {
+-		errno = EINVAL;
+-		return NULL;
+-	} else
++	if (node == NULL)
++		return security_class_to_string_compat(tclass);
++	else
+ 		return node->name;
+ }
+ 
+@@ -495,8 +494,7 @@
+ 			if ((1<<i) & av)
+ 				return node->perms[i];
+ 
+-	errno = EINVAL;
+-	return NULL;
++	return security_av_perm_to_string_compat(tclass,av);
+ }
+ 
+ int security_av_string(security_class_t tclass, access_vector_t av, char **res)
 
 -- 
-Chris PeBenito
-Tresys Technology, LLC
-(410) 290-1411 x150
 
 
 --
