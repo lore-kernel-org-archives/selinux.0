@@ -1,32 +1,30 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l8CJUnBE021603
-	for <selinux@tycho.nsa.gov>; Wed, 12 Sep 2007 15:30:49 -0400
-Received: from atlrel7.hp.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l8CJUhlJ026986
-	for <selinux@tycho.nsa.gov>; Wed, 12 Sep 2007 19:30:43 GMT
 From: Paul Moore <paul.moore@hp.com>
-Subject: [PATCH] Small cleanup for 2.6.24 and a git tree test
-To: netdev@vger.kernel.org, selinux@tycho.nsa.gov
-Date: Wed, 12 Sep 2007 15:29:31 -0400
-Message-ID: <20070912192305.18318.11911.stgit@flek.americas.hpqcorp.net>
+To: KaiGai Kohei <kaigai@ak.jp.nec.com>
+Subject: Re: [patch] Tuning avtab to reduce memory usage
+Date: Wed, 12 Sep 2007 15:54:41 -0400
+Cc: selinux@tycho.nsa.gov, Stephen Smalley <sds@tycho.nsa.gov>,
+        Yuichi Nakamura <ynakam@hitachisoft.jp>,
+        James Morris <jmorris@namei.org>, Eric Paris <eparis@parisplace.org>
+References: <20070821130540.7AD3.YNAKAM@hitachisoft.jp> <46CC00F4.2090501@ak.jp.nec.com> <46E7583C.9030103@ak.jp.nec.com>
+In-Reply-To: <46E7583C.9030103@ak.jp.nec.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Message-Id: <200709121554.41662.paul.moore@hp.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-The cleanup patch is pretty trivial and is explained in it's own email, but
-essentially it is just moving similar code into a new function and then
-modifying the original functions to call the newly created function.
+On Tuesday, September 11 2007 11:08:44 pm KaiGai Kohei wrote:
+> The attached patch applies the standard bitmap operations
+> for the iteration macro of ebitmap, and enables to improve
+> the performance in AVC-misses case.
 
-The new and exciting thing is that I actually decided I should probably know
-how to do more than just clone git trees, which means you can get this patch
-by pulling from the brand spankin' new labeled networking git tree.  The tree
-looks okay to me but it's possible I munged something, if that is the case let
-me know and I'll try to fix it ... I'd like to get this working at some point.
+In addition to the code changes to ebitmap_netlbl_{import,export}() you should 
+probably either remove, or preferably update, the comment block in the body 
+of the functions.
 
- * git://git.infradead.org/users/pcmoore/lblnet-2.6
-
-Thanks.
+Thank you for also fixing my cut and paste error in the comment block at the 
+top of the ebitmap_netlbl_import() function :)
 
 -- 
 paul moore
