@@ -1,108 +1,53 @@
-Subject: Re: concept of a permissive domain
-From: Karl MacMillan <kmacmillan@mentalrootkit.com>
-To: Stephen Smalley <sds@tycho.nsa.gov>
-Cc: Daniel J Walsh <dwalsh@redhat.com>, Eric Paris <eparis@redhat.com>,
-        selinux@tycho.nsa.gov
-In-Reply-To: <1189712298.18713.116.camel@moss-spartans.epoch.ncsc.mil>
-References: <1189537981.3407.51.camel@localhost.localdomain>
-	 <46E6FB25.5070507@redhat.com>
-	 <1189545987.4823.6.camel@localhost.localdomain>
-	 <1189692512.18713.61.camel@moss-spartans.epoch.ncsc.mil>
-	 <1189694812.3538.20.camel@localhost.localdomain>
-	 <1189695443.18713.95.camel@moss-spartans.epoch.ncsc.mil>
-	 <46E98E93.40206@redhat.com>
-	 <1189712298.18713.116.camel@moss-spartans.epoch.ncsc.mil>
-Content-Type: text/plain
-Date: Thu, 13 Sep 2007 16:25:07 -0400
-Message-Id: <1189715107.3093.8.camel@localhost.localdomain>
-Mime-Version: 1.0
+From: Paul Moore <paul.moore@hp.com>
+To: KaiGai Kohei <kaigai@ak.jp.nec.com>
+Subject: Re: [PATCH] Improve ebitmap scanning (Re: [patch] Tuning avtab to reduce memory usage)
+Date: Thu, 13 Sep 2007 16:47:17 -0400
+Cc: selinux@tycho.nsa.gov, Stephen Smalley <sds@tycho.nsa.gov>,
+        Yuichi Nakamura <ynakam@hitachisoft.jp>,
+        James Morris <jmorris@namei.org>, Eric Paris <eparis@parisplace.org>
+References: <20070821130540.7AD3.YNAKAM@hitachisoft.jp> <200709121554.41662.paul.moore@hp.com> <46E8945A.9090603@ak.jp.nec.com>
+In-Reply-To: <46E8945A.9090603@ak.jp.nec.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Message-Id: <200709131647.17539.paul.moore@hp.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2007-09-13 at 15:38 -0400, Stephen Smalley wrote:
-> On Thu, 2007-09-13 at 15:25 -0400, Daniel J Walsh wrote:
+On Wednesday, September 12 2007 9:37:30 pm KaiGai Kohei wrote:
+> Paul Moore wrote:
+> > On Tuesday, September 11 2007 11:08:44 pm KaiGai Kohei wrote:
+> >> The attached patch applies the standard bitmap operations
+> >> for the iteration macro of ebitmap, and enables to improve
+> >> the performance in AVC-misses case.
+> >
+> > In addition to the code changes to ebitmap_netlbl_{import,export}() you
+> > should probably either remove, or preferably update, the comment block in
+> > the body of the functions.
+>
+> I replaced the comment block as follows:
+>
+>     /* NetLabel's NETLBL_CATMAP_MAPTYPE is defined as an array of u64,
+>      * however, it is not always compatible with an array of unsigned long
+>      * in ebitmap_node.
+>      * In addition, you should pay attention the following implementation
+>      * assumes unsigned long has a width equal with or less than 64-bit.
+>      */
 
-[...]
+That sound good to me.  FWIW, if/when this patch is accepted I'll take a look 
+at the NetLabel security attributes struct as it _may_ be possible to change 
+the NETLBL_CATMAP_MAPTYPE to an unsigned long from the u64 it currently uses.  
+That should make these import/export functions a little cleaner.
 
-> > > 
-> > Said large financial institution rols out policy for managing huge money
-> > transactions in permissive mode.   Policy build with a pam for verifying
-> > users.
-> 
-> Note that I said it would be better to provide a capability to let
-> people develop policy incrementally while in enforcing mode, not
-> permissive mode.
-> 
+> BTW, is there any wrapper to copy an array of u64 to/from architecture
+> specific unsigned long? If so, it will help implement
+> ebitmap_netlbl_{import|export}() and ebitmap_read() more simply.
 
-That may be a good idea, but it doesn't solve this problem. These
-customers are concerned that they can't fully exercise their
-applications in a testing environment and are, therefore, hesitant to
-deploy these policies in enforcing mode. This, to me, is a reasonable
-concern given the importance of these applications.
+I'm not sure, but Stephen's suggestion to ask lkml sounds like a good one.
 
-They would therefore prefer to deploy in permissive mode for some period
-of time and see if any other denials pop out. Again - this seems
-reasonable.
-
-The only concern here is that permissive is not exactly the same as
-enforcing. This problem can't be fixed entirely, but we can at least
-chip away at some known problems.
-
-> > Users selected app_uses_pam in policy design tool.
-> > 
-> > Tool adds
-> > 
-> > dontaudit financeapp_t shadow_t:file r_file_perms;
-> > 
-> > App in permissive mode reads shadow perms.  Dontaudit covers it up.
-> 
-> So don't do that.  Don't include new dontaudit rules while generating
-> policy in permissive mode, and let the user decide whether to select the
-> dontaudit branch or the allow branch in the final form of the generated
-> policy.
-
-That's not a bad idea.
-
->   For that matter, we should really minimize use of dontaudit
-> rules whenever possible - if we can fix the code to _default_ to the
-> less privileged code path and only try the more privileged code path if
-> it truly needs it, then we should do that.
-> 
-
-Also a good idea.
-
-> > App runs for three months.  policy writer sees no avc messages for a
-> > long time,  Thinks everything is fine.
-> > 
-> > Turns on enforcing mode, app tries to authenticate on mysql, gets
-> > denials apps blow up, millions lost, people say selinux sucks, policy
-> > writer is fired.
-> > 
-> > If I want the current behavior to see full permissive mode, I can
-> > semodule -DB or build my policy without dontaudit.
-> > 
-> > permissive mode not following code path of dontaudit would causes major
-> > problems.
-> 
-> Let me say it again - dontaudit rules don't affect whether or not
-> something is allowed in SELinux today; they are NOT deny rules. 
-
-Agreed.
-
->  If you
-> want deny rules, add those (gasp).
-
-Well - maybe we should explore that concept despite the problems it
-raises.
-
->   Permissive mode is simply following
-> the code path of allowing everything, as requested.
-> 
-
-Yeah - which is the problem.
-
-Karl
-
+-- 
+paul moore
+linux security @ hp
 
 --
 This message was distributed to subscribers of the selinux mailing list.
