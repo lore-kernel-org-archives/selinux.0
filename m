@@ -1,35 +1,44 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l8CKY02h026795
-	for <selinux@tycho.nsa.gov>; Wed, 12 Sep 2007 16:34:00 -0400
-Received: from mx1.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id l8CKXx1I028691
-	for <selinux@tycho.nsa.gov>; Wed, 12 Sep 2007 20:33:59 GMT
-Message-ID: <46E84D34.9030909@redhat.com>
-Date: Wed, 12 Sep 2007 16:33:56 -0400
-From: Daniel J Walsh <dwalsh@redhat.com>
+Message-ID: <46E8945A.9090603@ak.jp.nec.com>
+Date: Thu, 13 Sep 2007 10:37:30 +0900
+From: KaiGai Kohei <kaigai@ak.jp.nec.com>
 MIME-Version: 1.0
-To: "Christopher J. PeBenito" <cpebenito@tresys.com>,
-        SE Linux <selinux@tycho.nsa.gov>
-Subject: I have put my latest policy patch up on http://dwalsh.fedorapeople.org/20070912/
-Content-Type: text/plain; charset=ISO-8859-1
+To: Paul Moore <paul.moore@hp.com>
+CC: selinux@tycho.nsa.gov, Stephen Smalley <sds@tycho.nsa.gov>,
+        Yuichi Nakamura <ynakam@hitachisoft.jp>,
+        James Morris <jmorris@namei.org>, Eric Paris <eparis@parisplace.org>
+Subject: [PATCH] Improve ebitmap scanning (Re: [patch] Tuning avtab to reduce
+ memory usage)
+References: <20070821130540.7AD3.YNAKAM@hitachisoft.jp> <46CC00F4.2090501@ak.jp.nec.com> <46E7583C.9030103@ak.jp.nec.com> <200709121554.41662.paul.moore@hp.com>
+In-Reply-To: <200709121554.41662.paul.moore@hp.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+Paul Moore wrote:
+> On Tuesday, September 11 2007 11:08:44 pm KaiGai Kohei wrote:
+>> The attached patch applies the standard bitmap operations
+>> for the iteration macro of ebitmap, and enables to improve
+>> the performance in AVC-misses case.
+> 
+> In addition to the code changes to ebitmap_netlbl_{import,export}() you should 
+> probably either remove, or preferably update, the comment block in the body 
+> of the functions.
 
-I have a txt file describing the changes for each patch.
+I replaced the comment block as follows:
 
-These are all my changes as of this morning.
+    /* NetLabel's NETLBL_CATMAP_MAPTYPE is defined as an array of u64,
+     * however, it is not always compatible with an array of unsigned long
+     * in ebitmap_node.
+     * In addition, you should pay attention the following implementation
+     * assumes unsigned long has a width equal with or less than 64-bit.
+     */
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.7 (GNU/Linux)
-Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org
-
-iD8DBQFG6E0zrlYvE4MpobMRAnkxAKCLWASlwMbg97APw+eSQGObP05c9ACgpUmA
-Vd8AYzQ7eOh1d0yi+A/V4zw=
-=bhK2
------END PGP SIGNATURE-----
+BTW, is there any wrapper to copy an array of u64 to/from architecture specific
+unsigned long? If so, it will help implement ebitmap_netlbl_{import|export}()
+and ebitmap_read() more simply.
+-- 
+OSS Platform Development Division, NEC
+KaiGai Kohei <kaigai@ak.jp.nec.com>
 
 --
 This message was distributed to subscribers of the selinux mailing list.
