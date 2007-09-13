@@ -1,88 +1,51 @@
 Subject: Re: concept of a permissive domain
 From: Karl MacMillan <kmacmillan@mentalrootkit.com>
 To: Stephen Smalley <sds@tycho.nsa.gov>
-Cc: Eric Paris <eparis@redhat.com>, selinux@tycho.nsa.gov,
-        Daniel J Walsh <dwalsh@redhat.com>
-In-Reply-To: <1189693393.18713.71.camel@moss-spartans.epoch.ncsc.mil>
+Cc: Daniel J Walsh <dwalsh@redhat.com>, Eric Paris <eparis@redhat.com>,
+        selinux@tycho.nsa.gov
+In-Reply-To: <1189692512.18713.61.camel@moss-spartans.epoch.ncsc.mil>
 References: <1189537981.3407.51.camel@localhost.localdomain>
-	 <1189689116.18713.24.camel@moss-spartans.epoch.ncsc.mil>
-	 <1189689599.3538.7.camel@localhost.localdomain>
-	 <1189689910.18713.37.camel@moss-spartans.epoch.ncsc.mil>
-	 <1189691965.3391.28.camel@localhost.localdomain>
-	 <1189693393.18713.71.camel@moss-spartans.epoch.ncsc.mil>
+	 <46E6FB25.5070507@redhat.com>
+	 <1189545987.4823.6.camel@localhost.localdomain>
+	 <1189692512.18713.61.camel@moss-spartans.epoch.ncsc.mil>
 Content-Type: text/plain
-Date: Thu, 13 Sep 2007 10:42:22 -0400
-Message-Id: <1189694542.3538.17.camel@localhost.localdomain>
+Date: Thu, 13 Sep 2007 10:46:52 -0400
+Message-Id: <1189694812.3538.20.camel@localhost.localdomain>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2007-09-13 at 10:23 -0400, Stephen Smalley wrote:
-> On Thu, 2007-09-13 at 09:59 -0400, Eric Paris wrote:
-> > On Thu, 2007-09-13 at 09:25 -0400, Stephen Smalley wrote:
-
-[...]
-
-> > Wow, I can't believe I just heard that after being railed on for
-> > considering using selinuxfs for things like handle_unknown (something
-> > which specifically doesn't have large atomicity issues like compat_net)
-> > Wasn't your main argument post analysis tools?  I can't imagine anything
-> > worse than this to see how the system was set up.  Now when you do
-> > analysis you need to look at 'setenforce' 'compat_net' 'the booleans'
-> > and 'every single friggin type on the whole system.'  Your list of
-> > things to look at in selinuxfs just got a bit larger....
+On Thu, 2007-09-13 at 10:08 -0400, Stephen Smalley wrote:
+> On Tue, 2007-09-11 at 17:26 -0400, Karl MacMillan wrote:
+> > On Tue, 2007-09-11 at 16:31 -0400, Daniel J Walsh wrote:
+> > [...]
+> > > One other feature/requirement would be to not override dontaudit rules.
+> > > So if I have a domain in permissive mode and I have a dontaudit rule  on
+> > > reading /etc/shadow.  The app should still be denied reading
+> > > /etc/shadow.  (This is not a show stopper, but would allow us to force
+> > > apps to take the code paths they will take in enforcing mode.)
 > > 
-> > I guess I'm in favor of doing it in policy...
+> > This isn't specific to per-domain permissive, right? It would be useful
+> > in general for permissive.
 > 
-> Permissive mode (system-wide or per-domain) means that there is no
-> meaningful analysis possible.
-
-Minor detail!
-
->   It is purely a development tool for
-> helping to discover an application's behavior as input into creating a
-> policy.
+> I would be opposed to such a change, as it is a semantic change to what
+> dontaudit means.
 > 
-
-Well - a development tool that will be deployed on production systems.
-
-> In your scenario, the same person supplying the application and its
-> policy is likely also supplying its init script.
-
-The world is not that simple - often people writing selinux policy in
-large organizations are not the same people packaging / maintaining the
-software. Not only that, selinux is _always_ an easier sell if it is
-entirely self-contained.
-
-So I'm fine if we do this via semanage and a config file that sets
-permissive domains via selinuxfs on boot, but there is no way we can
-sell changing init scripts by hand. Honestly, policy just seems so much
-easier.
-
->   Thus, allowing them to
-> make their domain permissive in policy isn't substantively different
-> than allowing them to make it permissive in their init script (which
-> should not be running in the same domain as the application itself -
-> init scripts generally require different sets of permissions).
+> Keep in mind that allow, auditallow, and dontaudit/auditdeny are all
+> independent of one another today and none of them imply the other, e.g.
+> 	allow a b:file read;
+> 	auditallow a b:file *;
+> 	dontaudit a b:file *;
+> is perfectly valid and means:
+> - Let a read files labeled b,
+> - Audit all permission grantings from a to files labeled b,
+> - Don't audit any permission denials from a to files labeled b.
 > 
 
-See above - that is not the case.
-
-> I see permissive mode (system-wide or per-domain) as purely as
-> development tool.
-
-You are, obviously, free to view it however you want. That doesn't
-change the fact that the impetus for this feature is customers that
-requested it for production systems. We should design the feature with
-that use in mind.
-
->   Certain users may choose to employ it in production
-> systems as you say, but those users aren't going to be the ones worried
-> about analyzable or certifiable policy, eh?
-> 
-
-You're probably right as things are today, but why force them into
-different camps?
+I agree that changing the dontaudit semantic has problems - however the
+reason Dan suggested is still valid. Currently, generating policy in
+permissive mode can lead to bogus or overly permissive policy. It would
+be nice to have some solution to that problem.
 
 Karl
 
