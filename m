@@ -1,76 +1,79 @@
-Subject: Re: concept of a permissive domain
-From: Karl MacMillan <kmacmillan@mentalrootkit.com>
-To: Joshua Brindle <method@manicmethod.com>
-Cc: jwcart2@epoch.ncsc.mil, Stephen Smalley <sds@tycho.nsa.gov>,
-        Daniel J Walsh <dwalsh@redhat.com>, Eric Paris <eparis@redhat.com>,
-        selinux@tycho.nsa.gov
-In-Reply-To: <46EA9E7F.8080405@manicmethod.com>
-References: <1189537981.3407.51.camel@localhost.localdomain>
-	 <46E6FB25.5070507@redhat.com>
-	 <1189545987.4823.6.camel@localhost.localdomain>
-	 <1189692512.18713.61.camel@moss-spartans.epoch.ncsc.mil>
-	 <1189694812.3538.20.camel@localhost.localdomain>
-	 <1189695443.18713.95.camel@moss-spartans.epoch.ncsc.mil>
-	 <46E98E93.40206@redhat.com>
-	 <1189712298.18713.116.camel@moss-spartans.epoch.ncsc.mil>
-	 <1189779337.30367.59.camel@moss-lions.epoch.ncsc.mil>
-	 <46EA9E7F.8080405@manicmethod.com>
-Content-Type: text/plain
-Date: Fri, 14 Sep 2007 11:15:37 -0400
-Message-Id: <1189782937.11407.3.camel@kmacmill-desktop>
-Mime-Version: 1.0
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l8EJLu4r020489
+	for <selinux@tycho.nsa.gov>; Fri, 14 Sep 2007 15:21:56 -0400
+Received: from exchange.columbia.tresys.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with SMTP id l8EJLstY014511
+	for <selinux@tycho.nsa.gov>; Fri, 14 Sep 2007 19:21:54 GMT
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Subject: Re: [refpolicy] apt and dpkg changes
+Date: Fri, 14 Sep 2007 14:55:06 -0400
+Message-ID: <1189796106.17544.3.camel@gorn.columbia.tresys.com>
+In-Reply-To: <1189778176.6047.6.camel@vogon>
+References: <415EF526-2C14-4AF6-91A2-7AEC4692823C@sf-net.com> <1189776979.11871.6.camel@gorn>  <1189778176.6047.6.camel@vogon>
+From: "Christopher J. PeBenito" <cpebenito@tresys.com>
+To: "Stefan Schulze Frielinghaus" <stefan@sf-net.com>
+Cc: "SELinux List" <selinux@tycho.nsa.gov>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2007-09-14 at 10:45 -0400, Joshua Brindle wrote:
-> James Carter wrote:
-> > On Thu, 2007-09-13 at 15:38 -0400, Stephen Smalley wrote:
-
-[...]
-
-> >
-> > If this was called a debug domain instead of a permissive domain, would
-> > it be acceptable to change the behavior of dontaudit and other things as
-> > needed to assist in debugging?  
-> >
-> > If there were debug domains, however, it is not hard to imagine that
-> > soon people would be declaring how much easier it is to just run an
-> > application as a debug domain and add dontaudit rules to deny what the
-> > application isn't suppose to do.  
-> >
-> > The problem that does need to be addressed is how to prevent certain
-> > code paths from being followed in permissive/debug mode.  Maybe deny
-> > rules are the best answer.
-> >   
+On Fri, 2007-09-14 at 15:56 +0200, Stefan Schulze Frielinghaus wrote:
+> On Fri, 2007-09-14 at 09:36 -0400, Christopher J. PeBenito wrote:
+> > On Sat, 2007-08-18 at 02:28 -0400, Stefan Schulze Frielinghaus wrote:
+> > > +template(`apt_per_role_template',`
+> > [...]
+> > > +        type $1_apt_t;
+> > > +        domain_type($1_apt_t)
+> > > +        domain_entry_file($1_apt_t,apt_exec_t)
+> > > +       role $3 types $1_apt_t;
+> > > +
+> > > +       type $1_home_apt_t;
+> > > +       files_type($1_home_apt_t)
+> > [...]
+> > > +       manage_dirs_pattern(apt_t,$1_home_apt_t,$1_home_apt_t)
+> > > +       manage_files_pattern(apt_t,$1_home_apt_t,$1_home_apt_t)
+> > > +
+> > > +       allow apt_t $1_home_dir_t:dir search;
+> > > +')
+> > 
+> > Why is this needed?
 > 
-> Since we moved to a avtab datum that is only 1 vector and are now 
-> packing different avtab entry types into the key we could easily make a 
-> new kind of entry, I suggest we call it "reallydontaudit"
+> Management rights are needed because via aptitude you can manage your
+> own config files.
+
+But you would be running it as an admin, not a regular user, right?
+
+> > > --- /usr/src/refpolicy-20070629/policy/modules/admin/apt.te     2007-06-29 16:48:13.000000000 +0200
+> > > +++ policy/modules/admin/apt.te 2007-08-16 17:46:35.000000000 +0200
+> > > @@ -1,6 +1,10 @@
+> > >  
+> > >  policy_module(apt,1.2.0)
+> > >  
+> > > +gen_require(`
+> > > +       type var_log_t;
+> > > +')
+> > [...]
+> > > +# append to logfile
+> > > +allow apt_t var_log_t:dir search;
+> > > +append_files_pattern(apt_t,apt_log_t,apt_log_t)
+> > 
+> > Requiring and using an external type like this is not allowed.
 > 
-> Seriously though, FWIW I like Steves idea of setting permissive on a 
-> domain via selinuxfs (in fact I had a similar idea on my own before he 
-> posted it here). It wouldn't be appropriate to put permissive in the 
-> policy and load it so why would it be to do so at a higher granularity? 
+> Why? Do I need to include a require statement?
 
-Why wouldn't it be appropriate to put permissive in the policy?
+Its one of the core refpolicy rules, which is one of the reasons we have
+interfaces.
 
-> Also this would let you easily put something into permissive 
-> temporarilly without reloading the policy over and over. Nothing 
-> prevents us from adding functionality to semanage and putting an init 
-> script in place for boot time permissive (though doing so does have some 
-> atomicity issues, just like compat_net and friends :\)
+> Otherwise we could use the following:
 > 
+> logging_search_logs(apt_t)
 
-Why cause all of these problems and require building all of this extra
-functionality when you can just put this in the policy? I really don't
-get why we want to put some data in the policy and communicate some
-through other means.
+-- 
+Chris PeBenito
+Tresys Technology, LLC
+(410) 290-1411 x150
 
-Even booleans at this point - there is almost no reason to set those via
-selinuxfs. I'd rather just focus on making loading policy more efficient
-and communicate all of that state that way.
-
-Karl
 
 
 --
