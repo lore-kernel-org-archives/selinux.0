@@ -1,160 +1,174 @@
-Subject: Re: concept of a permissive domain
-From: Eric Paris <eparis@redhat.com>
+Date: Fri, 14 Sep 2007 09:10:33 +0900
+From: Yuichi Nakamura <ynakam@hitachisoft.jp>
 To: Stephen Smalley <sds@tycho.nsa.gov>
-Cc: Daniel J Walsh <dwalsh@redhat.com>,
-        Karl MacMillan <kmacmillan@mentalrootkit.com>, selinux@tycho.nsa.gov
-In-Reply-To: <1189712298.18713.116.camel@moss-spartans.epoch.ncsc.mil>
-References: <1189537981.3407.51.camel@localhost.localdomain>
-	 <46E6FB25.5070507@redhat.com>
-	 <1189545987.4823.6.camel@localhost.localdomain>
-	 <1189692512.18713.61.camel@moss-spartans.epoch.ncsc.mil>
-	 <1189694812.3538.20.camel@localhost.localdomain>
-	 <1189695443.18713.95.camel@moss-spartans.epoch.ncsc.mil>
-	 <46E98E93.40206@redhat.com>
-	 <1189712298.18713.116.camel@moss-spartans.epoch.ncsc.mil>
-Content-Type: text/plain
-Date: Thu, 13 Sep 2007 16:16:52 -0400
-Message-Id: <1189714612.3391.74.camel@localhost.localdomain>
-Mime-Version: 1.0
+Subject: Re: [RFC]selinux: Improving SELinux read/write performance
+Cc: ynakam@hitachisoft.jp, selinux@tycho.nsa.gov, busybox@kaigai.gr.jp,
+        James Morris <jmorris@namei.org>, Eric Paris <eparis@parisplace.org>,
+        kaigai@ak.jp.nec.com, linux-security-module@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+In-Reply-To: <1189688312.18713.17.camel@moss-spartans.epoch.ncsc.mil>
+References: <20070912174759.1B94.YNAKAM@hitachisoft.jp> <1189688312.18713.17.camel@moss-spartans.epoch.ncsc.mil>
+Message-Id: <20070914085804.C8EC.YNAKAM@hitachisoft.jp>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="US-ASCII"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2007-09-13 at 15:38 -0400, Stephen Smalley wrote:
-> On Thu, 2007-09-13 at 15:25 -0400, Daniel J Walsh wrote:
-> > -----BEGIN PGP SIGNED MESSAGE-----
-> > Hash: SHA1
-> > 
-> > Stephen Smalley wrote:
-> > > On Thu, 2007-09-13 at 10:46 -0400, Karl MacMillan wrote:
-> > >> On Thu, 2007-09-13 at 10:08 -0400, Stephen Smalley wrote:
-> > >>> On Tue, 2007-09-11 at 17:26 -0400, Karl MacMillan wrote:
-> > >>>> On Tue, 2007-09-11 at 16:31 -0400, Daniel J Walsh wrote:
-> > >>>> [...]
-> > >>>>> One other feature/requirement would be to not override dontaudit rules.
-> > >>>>> So if I have a domain in permissive mode and I have a dontaudit rule  on
-> > >>>>> reading /etc/shadow.  The app should still be denied reading
-> > >>>>> /etc/shadow.  (This is not a show stopper, but would allow us to force
-> > >>>>> apps to take the code paths they will take in enforcing mode.)
-> > >>>> This isn't specific to per-domain permissive, right? It would be useful
-> > >>>> in general for permissive.
-> > >>> I would be opposed to such a change, as it is a semantic change to what
-> > >>> dontaudit means.
-> > >>>
-> > >>> Keep in mind that allow, auditallow, and dontaudit/auditdeny are all
-> > >>> independent of one another today and none of them imply the other, e.g.
-> > >>> 	allow a b:file read;
-> > >>> 	auditallow a b:file *;
-> > >>> 	dontaudit a b:file *;
-> > >>> is perfectly valid and means:
-> > >>> - Let a read files labeled b,
-> > >>> - Audit all permission grantings from a to files labeled b,
-> > >>> - Don't audit any permission denials from a to files labeled b.
-> > >>>
-> > >> I agree that changing the dontaudit semantic has problems - however the
-> > >> reason Dan suggested is still valid. Currently, generating policy in
-> > >> permissive mode can lead to bogus or overly permissive policy. It would
-> > >> be nice to have some solution to that problem.
-> > > 
-> > > Can't you handle that in the tool, by giving matching interfaces with
-> > > dontaudit rules precedence over ones with allow rules and asking the
-> > > user?
-> > > 
-> > > I'd actually rather see an improved capability for (more easily)
-> > > generating policy incrementally in enforcing mode.  That would make it
-> > > more suitable for production use and avoid the problem above.
-> > > 
-> > Said large financial institution rols out policy for managing huge money
-> > transactions in permissive mode.   Policy build with a pam for verifying
-> > users.
-> 
-> Note that I said it would be better to provide a capability to let
-> people develop policy incrementally while in enforcing mode, not
-> permissive mode.
 
-A fine goal, but not really feasible ATM.  It also doesn't allow for
-going live and testing in production at the same time.  This is still a
-'must have perfect coverage before usage' model.  Just because you
-develop you way means we don't have to worry about the permissive-denial
-issue but it doesn't solve the 'you are fired' issue.  Great in theory,
-but when talking about some ginormous app that noone fully understands I
-wouldn't want to be the one who sticks his neck out.
+On Thu, 13 Sep 2007 08:58:32 -0400
+Stephen Smalley wrote:
+> On Wed, 2007-09-12 at 17:51 +0900, Yuichi Nakamura wrote:
+<snip>
+> Thanks, a few comments below.
+Thanks for comments!
+
+> > 
+> > * Description of patch
+> > This patch improves performance of read/write in SELinux.
+> > It improves performance by skipping permission check in 
+> > selinux_file_permission. Permission is only checked when 
+> > sid change or policy load is detected after file open.
+> > To detect sid change, new LSM hook securiy_dentry_open is added.
+> 
+> I think I'd reword this a little, e.g.
+> 
+> It reduces the selinux overhead on read/write by only revalidating
+> permissions in selinux_file_permission if the task or inode labels have
+> changed or the policy has changed since the open-time check.  A new LSM
+> hook, security_dentry_open, is added to capture the necessary state at
+> open time to allow this optimization.
+I see, I will use that.
+
+> > 
+> > Signed-off-by: Yuichi Nakamura<ynakam@hitachisoft.jp>
+> > ---
+> >  fs/open.c                         |    5 ++++
+> >  include/linux/security.h          |   16 ++++++++++++++
+> >  security/dummy.c                  |    6 +++++
+> >  security/selinux/avc.c            |    5 ++++
+> >  security/selinux/hooks.c          |   43 +++++++++++++++++++++++++++++++++++++-
+> >  security/selinux/include/avc.h    |    2 +
+> >  security/selinux/include/objsec.h |    2 +
+> >  7 files changed, 78 insertions(+), 1 deletion(-)
+> <snip>
+> > diff -purN -X linux-2.6.22/Documentation/dontdiff linux-2.6.22.orig/security/selinux/hooks.c linux-2.6.22/security/selinux/hooks.c
+> > --- linux-2.6.22.orig/security/selinux/hooks.c	2007-07-09 08:32:17.000000000 +0900
+> > +++ linux-2.6.22/security/selinux/hooks.c	2007-09-12 08:42:49.000000000 +0900
+> > @@ -80,6 +82,7 @@
+> >  
+> >  #define XATTR_SELINUX_SUFFIX "selinux"
+> >  #define XATTR_NAME_SELINUX XATTR_SECURITY_PREFIX XATTR_SELINUX_SUFFIX
+> > +#define ACC_MODE(x) ("\000\004\002\006"[(x)&O_ACCMODE])
+> 
+> Leftover from prior version of the patch, no longer needed.
+Fixed.
 
 > 
-> > Users selected app_uses_pam in policy design tool.
-> > 
-> > Tool adds
-> > 
-> > dontaudit financeapp_t shadow_t:file r_file_perms;
-> > 
-> > App in permissive mode reads shadow perms.  Dontaudit covers it up.
+> <snip>
+> > @@ -2715,6 +2737,23 @@ static int selinux_file_receive(struct f
+> >  	return file_has_perm(current, file, file_to_av(file));
+> >  }
+> >  
+> > +static int selinux_dentry_open(struct file *file)
+> > +{
+> > +	struct file_security_struct *fsec;
+> > +	struct inode *inode;
+> > +	struct inode_security_struct *isec;
+> > +	inode = file->f_path.dentry->d_inode;
+> > +	fsec = file->f_security;
+> > +	isec = inode->i_security;
 > 
-> So don't do that.  Don't include new dontaudit rules while generating
-> policy in permissive mode, and let the user decide whether to select the
-> dontaudit branch or the allow branch in the final form of the generated
-> policy.  For that matter, we should really minimize use of dontaudit
-> rules whenever possible - if we can fix the code to _default_ to the
-> less privileged code path and only try the more privileged code path if
-> it truly needs it, then we should do that.
+> I'd add a comment here, e.g.
+> 	  /* 
+> 	   * Save inode label and policy sequence number
+> 	   * at open-time so that selinux_file_permission
+> 	   * can determine whether revalidation is necessary.
+> 	   * Task label is already saved in the file security
+>            * struct as its SID.
+> 	   */
+Fixed.
 
-You rule out the possibility of running in production without enforcing.
-Obviously your customers would never do that, but a customer going from
-no MAC to some non-enforcing MAC to enforcing MAC, would like to
-actually test things along the way.  Its a different customer base.  And
-we don't have to harm one to help the other.
-
-Fixing the code is always the better way to go than dontaudit,
-thankfully they exist because that isn't always possible.  Good thing we
-were thinking about this issue before.
-
-> > App runs for three months.  policy writer sees no avc messages for a
-> > long time,  Thinks everything is fine.
-> > 
-> > Turns on enforcing mode, app tries to authenticate on mysql, gets
-> > denials apps blow up, millions lost, people say selinux sucks, policy
-> > writer is fired.
-> > 
-> > If I want the current behavior to see full permissive mode, I can
-> > semodule -DB or build my policy without dontaudit.
-> > 
-> > permissive mode not following code path of dontaudit would causes major
-> > problems.
 > 
-> Let me say it again - dontaudit rules don't affect whether or not
-> something is allowed in SELinux today; 
+> > +	fsec->isid = isec->sid;
+> > +	fsec->pseqno = avc_policy_seqno();
+> > +
+> > +	/*Permission has to be rechecked here.
+> > +	  Policy load of inode sid can happen between
+> > +	  may_open and selinux_dentry_open.*/
+> 
+> Typo in the comment (s/of/or/), coding style isn't right for a
+> multi-line comment, and likely needs clarification, e.g.
+> 	/*
+> 	 * Since the inode label or policy seqno may have changed
+> 	 * between the selinux_inode_permission check and the saving
+> 	 * of state above, recheck that access is still permitted.
+> 	 * Otherwise, access might never be revalidated against the
+> 	 * new inode label or new policy.
+> 	 * This check is not redundant - do not remove. 
+> 	 */
+Fixed.
 
-correct
 
-> they are NOT deny rules.  If you
-> want deny rules, add those (gasp).  Permissive mode is simply following
-> the code path of allowing everything, as requested.
+> 
+> > +	return inode_has_perm(current, inode, file_to_av(file), NULL);
+> > +}
+> > +
+> >  /* task security operations */
+> >  
+> >  static int selinux_task_create(unsigned long clone_flags)
+> 
+> > diff -purN -X linux-2.6.22/Documentation/dontdiff linux-2.6.22.orig/fs/open.c linux-2.6.22/fs/open.c
+> > --- linux-2.6.22.orig/fs/open.c	2007-07-09 08:32:17.000000000 +0900
+> > +++ linux-2.6.22/fs/open.c	2007-09-12 08:31:24.000000000 +0900
+> > @@ -696,8 +696,13 @@ static struct file *__dentry_open(struct
+> >  	f->f_op = fops_get(inode->i_fop);
+> >  	file_move(f, &inode->i_sb->s_files);
+> >  
+> > +	error = security_dentry_open(f);
+> > +	if (error)
+> > +		goto cleanup_all;
+> > +
+> >  	if (!open && f->f_op)
+> >  		open = f->f_op->open;
+> > +
+> 
+> Extraneous whitespace leftover from prior version of the patch.
+Fixed.
 
-it's not following ANY code path now.  enforcing=0 is following the path
-you describe.
+> 
+> >  	if (open) {
+> >  		error = open(inode, f);
+> >  		if (error)
+> > diff -purN -X linux-2.6.22/Documentation/dontdiff linux-2.6.22.orig/include/linux/security.h linux-2.6.22/include/linux/security.h
+> > --- linux-2.6.22.orig/include/linux/security.h	2007-07-09 08:32:17.000000000 +0900
+> > +++ linux-2.6.22/include/linux/security.h	2007-09-12 08:30:16.000000000 +0900
+> > @@ -503,6 +503,11 @@ struct request_sock;
+> >   *	@file contains the file structure being received.
+> >   *	Return 0 if permission is granted.
+> >   *
+> > + * Security hook for dentry
+> > + *
+> > + * @dentry_open
+> > + *   Check permission or get additional information before opening dentry.
+> > + *
+> 
+> More precisely, "Save open-time permission checking state for later use
+> upon file_permission, and recheck access if anything has changed since
+> inode_permission."
+Fixed.
 
-Start looking at this as a whole new type of domain, not just some
-extension of enforcing=X (although I do plan to tie them into each other
-at some level in the code since they provide similar features).
+> -- 
+> Stephen Smalley
+> National Security Agency
 
-We need denial rules, we just don't have to call them that.  We just
-need to define how dontaudit and auditallow rules work in this new type
-of domain.  Then decide if that somehow interferes if the domain is not
-a permissive domain.  Aside from Karl's little flub, noone is arguing we
-should change anything having to do with enforcing=0 or enforcing=1 and
-a non-permissive-domain.  We don't need to rewrite how dontaudit rules
-affect enforcing domains or non-enforcing-systems, we just need an
-extended definition for permissive domains.  Seems dontaudit and
-auditallow can work very nicely to solve real practical problems
-constraining large applications in environments which may not be friends
-to problems introduced by SELinux.  Everyone agrees running an
-application and just allowing whatever it asks for isn't the best way to
-write policy, but when it's all you have, and all you are going to
-reasonably have I'm not hearing a argument why we can't do what Dan
-wants, other than 'that's not what it means today.'
+I would like to send patch in next e-mail in new thread.
 
-dontaudit as an 'implicit denial in permissive domains' isn't what we
-have today, but then again, we don't have permissive domains today.
-
--Eric
+Regards,
+-- 
+Yuichi Nakamura
+Hitachi Software Engineering Co., Ltd.
+Japan SELinux Users Group(JSELUG): http://www.selinux.gr.jp/
+SELinux Policy Editor: http://seedit.sourceforge.net/
 
 
 --
