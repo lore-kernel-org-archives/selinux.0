@@ -1,63 +1,102 @@
-Message-ID: <46E9DDC1.2060401@ak.jp.nec.com>
-Date: Fri, 14 Sep 2007 10:02:57 +0900
-From: KaiGai Kohei <kaigai@ak.jp.nec.com>
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-CC: Stephen Smalley <sds@tycho.nsa.gov>, Paul Moore <paul.moore@hp.com>,
-        selinux@tycho.nsa.gov, Yuichi Nakamura <ynakam@hitachisoft.jp>,
-        James Morris <jmorris@namei.org>, Eric Paris <eparis@parisplace.org>
-Subject: Wrappers to load bitmaps (Re: [PATCH] Improve ebitmap scanning)
-References: <20070821130540.7AD3.YNAKAM@hitachisoft.jp>	 <46CC00F4.2090501@ak.jp.nec.com> <46E7583C.9030103@ak.jp.nec.com>	 <200709121554.41662.paul.moore@hp.com>  <46E8945A.9090603@ak.jp.nec.com> <1189683270.13723.5.camel@moss-spartans.epoch.ncsc.mil>
-In-Reply-To: <1189683270.13723.5.camel@moss-spartans.epoch.ncsc.mil>
-Content-Type: text/plain; charset=ISO-2022-JP
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l8EDbq1w024605
+	for <selinux@tycho.nsa.gov>; Fri, 14 Sep 2007 09:37:52 -0400
+Received: from exchange.columbia.tresys.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with SMTP id l8EDbpIt014685
+	for <selinux@tycho.nsa.gov>; Fri, 14 Sep 2007 13:37:51 GMT
+Subject: Re: [refpolicy] apt and dpkg changes
+From: "Christopher J. PeBenito" <cpebenito@tresys.com>
+To: Stefan Schulze Frielinghaus <stefan@sf-net.com>
+Cc: SELinux List <selinux@tycho.nsa.gov>
+In-Reply-To: <415EF526-2C14-4AF6-91A2-7AEC4692823C@sf-net.com>
+References: <415EF526-2C14-4AF6-91A2-7AEC4692823C@sf-net.com>
+Content-Type: text/plain
+Date: Fri, 14 Sep 2007 09:36:19 -0400
+Message-Id: <1189776979.11871.6.camel@gorn>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Now I'm improving the performance to scan bitmap in SELinux,
-with replacing its original bitmap implementation (ebitmap)
-by common bitops like find_next_bit().
+On Sat, 2007-08-18 at 02:28 -0400, Stefan Schulze Frielinghaus wrote:
+> +template(`apt_per_role_template',`
+[...]
+> +        type $1_apt_t;
+> +        domain_type($1_apt_t)
+> +        domain_entry_file($1_apt_t,apt_exec_t)
+> +       role $3 types $1_apt_t;
+> +
+> +       type $1_home_apt_t;
+> +       files_type($1_home_apt_t)
+[...]
+> +       manage_dirs_pattern(apt_t,$1_home_apt_t,$1_home_apt_t)
+> +       manage_files_pattern(apt_t,$1_home_apt_t,$1_home_apt_t)
+> +
+> +       allow apt_t $1_home_dir_t:dir search;
+> +')
 
-I posted a patch to replace them, however, it got a bit complex
-bacause we had to translate u64 <--> unsigned long by myself
-to adjust between the format of security policy and common bitops.
-  http://marc.info/?l=selinux&m=118956715414494&w=2
+Why is this needed?
 
-I have an idea to provide several wrapper functions to copy u64/u32
-to/from unsigned long for each architecture.
-Maybe, it will be defined as follows:
-  int arraycpy_u64_to_ulong(u64 *src, unsigned long *dest, size_t len);
-  int arraycpy_ulong_to_u64(unsigned long *src, u64 *dest, size_t len);
-
-I believe this feature will help getting code simpler and reducing bugs
-for any other subsystem, not only SELinux, which loads bitmaps from/to
-userspace and handle them using common bitops.
-
-Any comment please.
-
-Stephen Smalley wrote:
-> On Thu, 2007-09-13 at 10:37 +0900, KaiGai Kohei wrote:
->> Paul Moore wrote:
->>> On Tuesday, September 11 2007 11:08:44 pm KaiGai Kohei wrote:
->>>> The attached patch applies the standard bitmap operations
->>>> for the iteration macro of ebitmap, and enables to improve
->>>> the performance in AVC-misses case.
-
-  <...snip...>
-
->> BTW, is there any wrapper to copy an array of u64 to/from architecture specific
->> unsigned long? If so, it will help implement ebitmap_netlbl_{import|export}()
->> and ebitmap_read() more simply.
 > 
-> Might want to ask on linux-kernel.  More generally, it might be a good
-> idea to cc linux-kernel on your next posting of the patch to get wider
-> review of how you are using the native linux bitmap support.
 > 
-> The patch looks very promising, although a detailed review and testing
-> might take a little bit.
+> 
+> 
+> 
+> 
+> differences
+> between files
+> attachment
+> (apt.te.patch),
+> "apt.te.patch"
+> 
+> --- /usr/src/refpolicy-20070629/policy/modules/admin/apt.te     2007-06-29 16:48:13.000000000 +0200
+> +++ policy/modules/admin/apt.te 2007-08-16 17:46:35.000000000 +0200
+> @@ -1,6 +1,10 @@
+>  
+>  policy_module(apt,1.2.0)
+>  
+> +gen_require(`
+> +       type var_log_t;
+> +')
+[...]
+> +# append to logfile
+> +allow apt_t var_log_t:dir search;
+> +append_files_pattern(apt_t,apt_log_t,apt_log_t)
+
+Requiring and using an external type like this is not allowed.
+
+> 
+> 
+> 
+> 
+> 
+> 
+> differences
+> between files
+> attachment
+> (domain.if.patch), "domain.if.patch"
+> 
+> --- /usr/src/refpolicy-20070629/policy/modules/kernel/domain.if 2007-06-19 15:02:26.000000000 +0200
+> +++ /etc/selinux/my-refpolicy-strict/src/policy/policy/modules/kernel/domain.if 2007-08-14 17:13:09.000000000 +0200
+> @@ -61,6 +61,12 @@
+>         optional_policy(`
+>                 rpm_use_fds($1)
+>                 rpm_read_pipes($1)
+> +
+> +               apt_use_fds($1)
+> +               apt_read_pipes($1)
+> +
+> +               dpkg_use_fds($1)
+> +               dpkg_read_pipes($1)
+>         ')
+
+I find these questionable (as evidenced by the existing comment right
+above the optional_policy line.
 
 -- 
-OSS Platform Development Division, NEC
-KaiGai Kohei <kaigai@ak.jp.nec.com>
+Chris PeBenito
+Tresys Technology, LLC
+(410) 290-1411 x150
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
