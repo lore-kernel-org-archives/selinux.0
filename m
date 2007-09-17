@@ -1,81 +1,104 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l8HHxvA2023881
-	for <selinux@tycho.nsa.gov>; Mon, 17 Sep 2007 13:59:57 -0400
-Received: from exchange.columbia.tresys.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with SMTP id l8HHxurK026587
-	for <selinux@tycho.nsa.gov>; Mon, 17 Sep 2007 17:59:56 GMT
-Subject: Re: [PATCH]some interfaces in userdomain.if lacking
-	user_home_dir_t .
-From: "Christopher J. PeBenito" <cpebenito@tresys.com>
-To: Shintaro Fujiwara <shintaro.fujiwara@gmail.com>
-Cc: selinux <selinux@tycho.nsa.gov>
-In-Reply-To: <f71a82820709152026u5ecc4326gd93925b6f996921@mail.gmail.com>
-References: <f71a82820709152026u5ecc4326gd93925b6f996921@mail.gmail.com>
+Subject: rfc: kernel: special enforcing on suid and setgid chmod
+From: Eric Paris <eparis@redhat.com>
+To: selinux@tycho.nsa.gov
+Cc: dwalsh@redhat.com, sgrubb@redhat.com, sds@tycho.nsa.gov, jmorris@namei.org
 Content-Type: text/plain
-Date: Mon, 17 Sep 2007 17:57:44 +0000
-Message-Id: <1190051864.17544.11.camel@gorn>
+Date: Mon, 17 Sep 2007 14:01:30 -0400
+Message-Id: <1190052090.3413.18.camel@localhost.localdomain>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Sun, 2007-09-16 at 12:26 +0900, Shintaro Fujiwara wrote:
-> Hi, I've checked
-> 
-> http://oss.tresys.com/repos/refpolicy/trunk/policy/modules/system/userdomain.if
-> 
-> and found that
-> some interfaces in userdomain.if lacking user_home_dir_t .
+It was mentioned today that it might be useful to split the security
+check for setting DAC permissions such that the setuid and setgid bits
+could have special enforcement.  This patch adds two new permissions to
+the file class and should explicitly check those.  It doesn't do
+anything for the sticky bit, nor does this patch do anything for setuid
+and setgid on directories.  Thoughts?
 
-Merged.  In the future, please submit patches relative to the root of
-the policy source tree.
+couple questions:
 
-> --- userdomain.if       2007-09-16 11:22:26.000000000 +0900
-> +++ userdomain_new.if   2007-09-16 11:31:14.000000000 +0900
-> @@ -5076,7 +5076,7 @@
->  #
->  interface(`userdom_manage_generic_user_home_content_dirs',`
->        gen_require(`
-> -               type user_home_t;
-> +               type user_home_dir_t, user_home_t;
->        ')
-> 
->        files_search_home($1)
-> @@ -5194,7 +5194,7 @@
->  #
->  interface(`userdom_manage_generic_user_home_content_symlinks',`
->        gen_require(`
-> -               type user_home_t;
-> +               type user_home_dir_t, user_home_t;
->        ')
-> 
->        files_search_home($1)
-> @@ -5214,7 +5214,7 @@
->  #
->  interface(`userdom_manage_generic_user_home_content_pipes',`
->        gen_require(`
-> -               type user_home_t;
-> +               type user_home_dir_t, user_home_t;
->        ')
-> 
->        files_search_home($1)
-> @@ -5234,7 +5234,7 @@
->  #
->  interface(`userdom_manage_generic_user_home_content_sockets',`
->        gen_require(`
-> -               type user_home_t;
-> +               type user_home_dir_t, user_home_t;
->        ')
-> 
->        files_search_home($1)
-> 
-> --
-> This message was distributed to subscribers of the selinux mailing list.
-> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
-> the words "unsubscribe selinux" without quotes as the message.
--- 
-Chris PeBenito
-Tresys Technology, LLC
-(410) 290-1411 x150
+Are their other file types where those bits have meaning other than
+regular files and directories?
+
+Do I/policy people care about these bits on directories? (see man 2
+stat)
+
+Am I allowed to add permissions to the set of common permissions without
+bumping the policy version number?  I first thought about adding setuid
+and setgid to the common set for all files but then figured it would
+break something.
+
+This is uncompiled, untested, untrustworthy,  about the only thing it is
+not un- of is worthy of a bit of discussion.  If discussions goes well,
+I'll actually make a tested version of this patch when the userspace
+people who wanted to make use of it get to it.
+
+-Eric
+
+---
+
+ security/selinux/hooks.c                     |    9 ++++++++-
+ security/selinux/include/av_perm_to_string.h |    2 ++
+ security/selinux/include/av_permissions.h    |    2 ++
+ 3 files changed, 12 insertions(+), 1 deletions(-)
+
+diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+index 3694662..6838e91 100644
+--- a/security/selinux/hooks.c
++++ b/security/selinux/hooks.c
+@@ -2273,6 +2273,7 @@ static int selinux_inode_permission(struct inode *inode, int mask,
+ static int selinux_inode_setattr(struct dentry *dentry, struct iattr *iattr)
+ {
+ 	int rc;
++	u32 check = FILE__SETATTR;
+ 
+ 	rc = secondary_ops->inode_setattr(dentry, iattr);
+ 	if (rc)
+@@ -2281,9 +2282,15 @@ static int selinux_inode_setattr(struct dentry *dentry, struct iattr *iattr)
+ 	if (iattr->ia_valid & ATTR_FORCE)
+ 		return 0;
+ 
++	if ((iattr->ia_valid & ATTR_MODE) & S_ISREG(dentry->d_inode->i_mode)) {
++		if (S_ISUID & iattr->ia_mode)
++			check |= FILE__SETUID;
++		if (S_ISGID & iattr->ia_mode)
++			check |= FILE__SETGID;
++	}
+ 	if (iattr->ia_valid & (ATTR_MODE | ATTR_UID | ATTR_GID |
+ 			       ATTR_ATIME_SET | ATTR_MTIME_SET))
+-		return dentry_has_perm(current, NULL, dentry, FILE__SETATTR);
++		return dentry_has_perm(current, NULL, dentry, check);
+ 
+ 	return dentry_has_perm(current, NULL, dentry, FILE__WRITE);
+ }
+diff --git a/security/selinux/include/av_perm_to_string.h b/security/selinux/include/av_perm_to_string.h
+index 049bf69..11a40af 100644
+--- a/security/selinux/include/av_perm_to_string.h
++++ b/security/selinux/include/av_perm_to_string.h
+@@ -17,6 +17,8 @@
+    S_(SECCLASS_FILE, FILE__EXECUTE_NO_TRANS, "execute_no_trans")
+    S_(SECCLASS_FILE, FILE__ENTRYPOINT, "entrypoint")
+    S_(SECCLASS_FILE, FILE__EXECMOD, "execmod")
++   S_(SECCLASS_FILE, FILE__SETUID, "setuid")
++   S_(SECCLASS_FILE, FILE__SETGID, "setgid")
+    S_(SECCLASS_CHR_FILE, CHR_FILE__EXECUTE_NO_TRANS, "execute_no_trans")
+    S_(SECCLASS_CHR_FILE, CHR_FILE__ENTRYPOINT, "entrypoint")
+    S_(SECCLASS_CHR_FILE, CHR_FILE__EXECMOD, "execmod")
+diff --git a/security/selinux/include/av_permissions.h b/security/selinux/include/av_permissions.h
+index eda89a2..2d28e92 100644
+--- a/security/selinux/include/av_permissions.h
++++ b/security/selinux/include/av_permissions.h
+@@ -99,6 +99,8 @@
+ #define FILE__EXECUTE_NO_TRANS                    0x00020000UL
+ #define FILE__ENTRYPOINT                          0x00040000UL
+ #define FILE__EXECMOD                             0x00080000UL
++#define FILE__SETUID                              0x00100000UL
++#define FILE__SETGID                              0x00200000UL
+ #define LNK_FILE__IOCTL                           0x00000001UL
+ #define LNK_FILE__READ                            0x00000002UL
+ #define LNK_FILE__WRITE                           0x00000004UL
+
 
 
 --
