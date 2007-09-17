@@ -1,154 +1,320 @@
-Message-ID: <46EEE8BB.9060505@redhat.com>
-Date: Mon, 17 Sep 2007 16:51:07 -0400
-From: Daniel J Walsh <dwalsh@redhat.com>
-MIME-Version: 1.0
-To: Stephen Smalley <sds@tycho.nsa.gov>
-CC: Eric Paris <eparis@redhat.com>, selinux@tycho.nsa.gov, sgrubb@redhat.com,
-        jmorris@namei.org
-Subject: Re: rfc: kernel: special enforcing on suid and setgid chmod
-References: <1190052090.3413.18.camel@localhost.localdomain> <1190057036.4034.76.camel@moss-spartans.epoch.ncsc.mil>
-In-Reply-To: <1190057036.4034.76.camel@moss-spartans.epoch.ncsc.mil>
-Content-Type: text/plain; charset=ISO-8859-1
+Subject: Re: [PATCH] selinux: Improving SELinux read/write performance
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Yuichi Nakamura <ynakam@hitachisoft.jp>
+Cc: selinux@tycho.nsa.gov, James Morris <jmorris@namei.org>,
+        Eric Paris <eparis@parisplace.org>, kaigai@ak.jp.nec.com,
+        linux-security-module@vger.kernel.org, linux-kernel@vger.kernel.org
+In-Reply-To: <20070914092048.C8F1.YNAKAM@hitachisoft.jp>
+References: <20070914092048.C8F1.YNAKAM@hitachisoft.jp>
+Content-Type: text/plain
+Date: Mon, 17 Sep 2007 16:45:15 -0400
+Message-Id: <1190061915.4034.78.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
-
-Stephen Smalley wrote:
-> On Mon, 2007-09-17 at 14:01 -0400, Eric Paris wrote:
->> It was mentioned today that it might be useful to split the security
->> check for setting DAC permissions such that the setuid and setgid bits
->> could have special enforcement.  This patch adds two new permissions to
->> the file class and should explicitly check those.  It doesn't do
->> anything for the sticky bit, nor does this patch do anything for setuid
->> and setgid on directories.  Thoughts?
+On Fri, 2007-09-14 at 09:27 +0900, Yuichi Nakamura wrote:
+> Hello.
 > 
-> What's the rationale for it?  How would you use it practically?
-> Where do we draw the line for distinctions among different flavors of
-> setattr?  What are the implications for similar DAC-related extensions
-> elsewhere?
->
-I setup an account with a webadmr:webadm_t.  Only allow this user to
-become root as webadm_t.  User creates a setuid executable.  Uses some
-other flaw to execute this new setuid app to get full root access.
-
-webadmin needs chmod in order to set proper permissions on cgi scripts.
-
-
-
-
-> There is the obvious compatibility concern, which might be offset by
-> your handle unknown patch but only if it goes into the kernel and
-> policies well before this change does.
+> I would like to propose patch that reduces overhead in read/write by SELinux.
+> I sent RFC in previous thread.
+> http://lkml.org/lkml/2007/9/6/14
+> As a result of discussion in previous thread, 
+> quality of code has improved, so I would like to submit patch here.
 > 
->> couple questions:
->>
->> Are their other file types where those bits have meaning other than
->> regular files and directories?
->>
->> Do I/policy people care about these bits on directories? (see man 2
->> stat)
->>
->> Am I allowed to add permissions to the set of common permissions without
->> bumping the policy version number?
+> 1. Background
+> Look at benchmark result below.
+> lmbench simple read/write(average of 5 run).
+> Big overhead exists especially on SH(SuperH) arch.
 > 
-> No, it would alter the values of the per-class perms for classes that
-> inherit from that common definition.  And we don't have a framework
-> today for remapping class/perm values upon such incompatible changes,
-> even if you bump the version.  Could be a good way to get you to
-> implement dynamic lookup of class/perm values and remapping of them at
-> runtime within the kernel ;)
+> 1) Result for x86(Pentium 4 2.6Ghz), kernel 2.6.22
+>                 Base  SELinux  Overhead(%)
+> Simple read     1.10  1.24     12.3
+> Simple write    1.02  1.14     14.0
+> * Base: kernel compiled without SELinux support
 > 
->>   I first thought about adding setuid
->> and setgid to the common set for all files but then figured it would
->> break something.
->>
->> This is uncompiled, untested, untrustworthy,  about the only thing it is
->> not un- of is worthy of a bit of discussion.  If discussions goes well,
->> I'll actually make a tested version of this patch when the userspace
->> people who wanted to make use of it get to it.
->>
->> -Eric
->>
->> ---
->>
->>  security/selinux/hooks.c                     |    9 ++++++++-
->>  security/selinux/include/av_perm_to_string.h |    2 ++
->>  security/selinux/include/av_permissions.h    |    2 ++
->>  3 files changed, 12 insertions(+), 1 deletions(-)
->>
->> diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
->> index 3694662..6838e91 100644
->> --- a/security/selinux/hooks.c
->> +++ b/security/selinux/hooks.c
->> @@ -2273,6 +2273,7 @@ static int selinux_inode_permission(struct inode *inode, int mask,
->>  static int selinux_inode_setattr(struct dentry *dentry, struct iattr *iattr)
->>  {
->>  	int rc;
->> +	u32 check = FILE__SETATTR;
->>  
->>  	rc = secondary_ops->inode_setattr(dentry, iattr);
->>  	if (rc)
->> @@ -2281,9 +2282,15 @@ static int selinux_inode_setattr(struct dentry *dentry, struct iattr *iattr)
->>  	if (iattr->ia_valid & ATTR_FORCE)
->>  		return 0;
->>  
->> +	if ((iattr->ia_valid & ATTR_MODE) & S_ISREG(dentry->d_inode->i_mode)) {
->> +		if (S_ISUID & iattr->ia_mode)
->> +			check |= FILE__SETUID;
->> +		if (S_ISGID & iattr->ia_mode)
->> +			check |= FILE__SETGID;
->> +	}
->>  	if (iattr->ia_valid & (ATTR_MODE | ATTR_UID | ATTR_GID |
->>  			       ATTR_ATIME_SET | ATTR_MTIME_SET))
->> -		return dentry_has_perm(current, NULL, dentry, FILE__SETATTR);
->> +		return dentry_has_perm(current, NULL, dentry, check);
->>  
->>  	return dentry_has_perm(current, NULL, dentry, FILE__WRITE);
->>  }
->> diff --git a/security/selinux/include/av_perm_to_string.h b/security/selinux/include/av_perm_to_string.h
->> index 049bf69..11a40af 100644
->> --- a/security/selinux/include/av_perm_to_string.h
->> +++ b/security/selinux/include/av_perm_to_string.h
->> @@ -17,6 +17,8 @@
->>     S_(SECCLASS_FILE, FILE__EXECUTE_NO_TRANS, "execute_no_trans")
->>     S_(SECCLASS_FILE, FILE__ENTRYPOINT, "entrypoint")
->>     S_(SECCLASS_FILE, FILE__EXECMOD, "execmod")
->> +   S_(SECCLASS_FILE, FILE__SETUID, "setuid")
->> +   S_(SECCLASS_FILE, FILE__SETGID, "setgid")
->>     S_(SECCLASS_CHR_FILE, CHR_FILE__EXECUTE_NO_TRANS, "execute_no_trans")
->>     S_(SECCLASS_CHR_FILE, CHR_FILE__ENTRYPOINT, "entrypoint")
->>     S_(SECCLASS_CHR_FILE, CHR_FILE__EXECMOD, "execmod")
->> diff --git a/security/selinux/include/av_permissions.h b/security/selinux/include/av_permissions.h
->> index eda89a2..2d28e92 100644
->> --- a/security/selinux/include/av_permissions.h
->> +++ b/security/selinux/include/av_permissions.h
->> @@ -99,6 +99,8 @@
->>  #define FILE__EXECUTE_NO_TRANS                    0x00020000UL
->>  #define FILE__ENTRYPOINT                          0x00040000UL
->>  #define FILE__EXECMOD                             0x00080000UL
->> +#define FILE__SETUID                              0x00100000UL
->> +#define FILE__SETGID                              0x00200000UL
->>  #define LNK_FILE__IOCTL                           0x00000001UL
->>  #define LNK_FILE__READ                            0x00000002UL
->>  #define LNK_FILE__WRITE                           0x00000004UL
->>
->>
->>
->> --
->> This message was distributed to subscribers of the selinux mailing list.
->> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
->> the words "unsubscribe selinux" without quotes as the message.
+> 2) Result for SH(SH4, SH7751R), kernel 2.6.22
+>                 Base    SELinux   Overhead(%)
+> Simple read     2.39    5.49      130.5
+> Simple write    2.07    5.10      146.6
+> 
+> 2. About patch
+> It reduces the selinux overhead on read/write by only revalidating
+> permissions in selinux_file_permission if the task or inode labels have
+> changed or the policy has changed since the open-time check.  
+> A new LSM hook, security_dentry_open,  is added to capture 
+> the necessary state at open time to allow this optimization.
+> 
+> 3. Result of benchmark after applying patch
+> 1) Result for x86(Pentium 4 2.6Ghz), kernel 2.6.22
+>                 Base  SELinux  Overhead(%)
+> Simple read     1.10  1.13     2.3(Before 12.3)
+> Simple write    1.02  1.024    0.6(Before 14.0)
+> * Base: kernel compiled without SELinux support
+> 
+> 2) Result for SH(SH4, SH7751R), kernel 2.6.22
+>                 Base    SELinux   Overhead(%)
+> Simple read     2.39    2.63      10.4(Before 130.5)
+> Simple write    2.07    2.34      13.1(Before 146.6)
+> 
+> Overhead in read/write is reduced a lot.
+> This patch adds permission check at open time(in __dentry_open), 
+> but open/close performance does not get worse as shown below.
+> 
+> * Lmbench simple open/close
+> Pentium 4(before patch):
+>                 Base  SELinux  Overhead(%)
+> open/close      5.97  7.45     24.9
+> after patch:
+> open/close      5.97  7.48     25.3
+> 
+> SH(before patch):
+>                 Base  SELinux  Overhead(%)
+> open/close      32.6  62.8   93.0
+> after patch:
+> open/close      32.6    58.7    80.2
+> 
+> Next is a patch for 2.6.22.
+> 
+> It reduces the selinux overhead on read/write by only revalidating
+> permissions in selinux_file_permission if the task or inode labels have
+> changed or the policy has changed since the open-time check.  A new LSM
+> hook, security_dentry_open, is added to capture the necessary state at
+> open time to allow this optimization.
+> 
+> Signed-off-by: Yuichi Nakamura<ynakam@hitachisoft.jp>
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.7 (GNU/Linux)
-Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org
+Thanks, looks good.
 
-iD8DBQFG7ui7rlYvE4MpobMRAgS7AJ9NdCVwHd/Nq3HR6Z0Yi2AyUjzdqACeN/Vv
-T1Y7W2Sep6BYni36kQxI2yc=
-=ye8C
------END PGP SIGNATURE-----
+Acked-by:  Stephen Smalley <sds@tycho.nsa.gov>
+
+> ---
+>  fs/open.c                         |    4 ++
+>  include/linux/security.h          |   18 ++++++++++++
+>  security/dummy.c                  |    6 ++++
+>  security/selinux/avc.c            |    5 +++
+>  security/selinux/hooks.c          |   53 +++++++++++++++++++++++++++++++++++++-
+>  security/selinux/include/avc.h    |    2 +
+>  security/selinux/include/objsec.h |    2 +
+>  7 files changed, 89 insertions(+), 1 deletion(-)
+> diff -purN -X linux-2.6.22/Documentation/dontdiff linux-2.6.22.orig/security/selinux/avc.c linux-2.6.22/security/selinux/avc.c
+> --- linux-2.6.22.orig/security/selinux/avc.c	2007-07-09 08:32:17.000000000 +0900
+> +++ linux-2.6.22/security/selinux/avc.c	2007-09-14 08:35:04.000000000 +0900
+> @@ -913,3 +913,8 @@ int avc_has_perm(u32 ssid, u32 tsid, u16
+>  	avc_audit(ssid, tsid, tclass, requested, &avd, rc, auditdata);
+>  	return rc;
+>  }
+> +
+> +u32 avc_policy_seqno(void)
+> +{
+> +	return avc_cache.latest_notif;
+> +}
+> diff -purN -X linux-2.6.22/Documentation/dontdiff linux-2.6.22.orig/security/selinux/hooks.c linux-2.6.22/security/selinux/hooks.c
+> --- linux-2.6.22.orig/security/selinux/hooks.c	2007-07-09 08:32:17.000000000 +0900
+> +++ linux-2.6.22/security/selinux/hooks.c	2007-09-14 08:43:51.000000000 +0900
+> @@ -14,6 +14,8 @@
+>   *                          <dgoeddel@trustedcs.com>
+>   *  Copyright (C) 2006 Hewlett-Packard Development Company, L.P.
+>   *                     Paul Moore, <paul.moore@hp.com>
+> + *  Copyright (C) 2007 Hitachi Software Engineering Co., Ltd.
+> + *                     Yuichi Nakamura <ynakam@hitachisoft.jp>
+>   *
+>   *	This program is free software; you can redistribute it and/or modify
+>   *	it under the terms of the GNU General Public License version 2,
+> @@ -2458,7 +2460,7 @@ static int selinux_inode_listsecurity(st
+>  
+>  /* file security operations */
+>  
+> -static int selinux_file_permission(struct file *file, int mask)
+> +static int selinux_revalidate_file_permission(struct file *file, int mask)
+>  {
+>  	int rc;
+>  	struct inode *inode = file->f_path.dentry->d_inode;
+> @@ -2480,6 +2482,25 @@ static int selinux_file_permission(struc
+>  	return selinux_netlbl_inode_permission(inode, mask);
+>  }
+>  
+> +static int selinux_file_permission(struct file *file, int mask)
+> +{
+> +	struct inode *inode = file->f_path.dentry->d_inode;
+> +	struct task_security_struct *tsec = current->security;
+> +	struct file_security_struct *fsec = file->f_security;
+> +	struct inode_security_struct *isec = inode->i_security;
+> +
+> +	if (!mask) {
+> +		/* No permission to check.  Existence test. */
+> +		return 0;
+> +	}
+> +
+> +	if (tsec->sid == fsec->sid && fsec->isid == isec->sid
+> +	    && fsec->pseqno == avc_policy_seqno())
+> +		return selinux_netlbl_inode_permission(inode, mask);
+> +
+> +	return selinux_revalidate_file_permission(file, mask);
+> +}
+> +
+>  static int selinux_file_alloc_security(struct file *file)
+>  {
+>  	return file_alloc_security(file);
+> @@ -2715,6 +2736,34 @@ static int selinux_file_receive(struct f
+>  	return file_has_perm(current, file, file_to_av(file));
+>  }
+>  
+> +static int selinux_dentry_open(struct file *file)
+> +{
+> +	struct file_security_struct *fsec;
+> +	struct inode *inode;
+> +	struct inode_security_struct *isec;
+> +	inode = file->f_path.dentry->d_inode;
+> +	fsec = file->f_security;
+> +	isec = inode->i_security;
+> +	/*
+> +	 * Save inode label and policy sequence number
+> +	 * at open-time so that selinux_file_permission
+> +	 * can determine whether revalidation is necessary.
+> +	 * Task label is already saved in the file security
+> +	 * struct as its SID.
+> +	 */
+> +	fsec->isid = isec->sid;
+> +	fsec->pseqno = avc_policy_seqno();
+> +	/*
+> +	 * Since the inode label or policy seqno may have changed
+> +	 * between the selinux_inode_permission check and the saving
+> +	 * of state above, recheck that access is still permitted.
+> +	 * Otherwise, access might never be revalidated against the
+> +	 * new inode label or new policy.
+> +	 * This check is not redundant - do not remove.
+> +	 */
+> +	return inode_has_perm(current, inode, file_to_av(file), NULL);
+> +}
+> +
+>  /* task security operations */
+>  
+>  static int selinux_task_create(unsigned long clone_flags)
+> @@ -4780,6 +4829,8 @@ static struct security_operations selinu
+>  	.file_send_sigiotask =		selinux_file_send_sigiotask,
+>  	.file_receive =			selinux_file_receive,
+>  
+> +	.dentry_open =                  selinux_dentry_open,
+> +
+>  	.task_create =			selinux_task_create,
+>  	.task_alloc_security =		selinux_task_alloc_security,
+>  	.task_free_security =		selinux_task_free_security,
+> diff -purN -X linux-2.6.22/Documentation/dontdiff linux-2.6.22.orig/security/selinux/include/avc.h linux-2.6.22/security/selinux/include/avc.h
+> --- linux-2.6.22.orig/security/selinux/include/avc.h	2007-07-09 08:32:17.000000000 +0900
+> +++ linux-2.6.22/security/selinux/include/avc.h	2007-09-14 08:35:04.000000000 +0900
+> @@ -110,6 +110,8 @@ int avc_has_perm(u32 ssid, u32 tsid,
+>                   u16 tclass, u32 requested,
+>                   struct avc_audit_data *auditdata);
+>  
+> +u32 avc_policy_seqno(void);
+> +
+>  #define AVC_CALLBACK_GRANT		1
+>  #define AVC_CALLBACK_TRY_REVOKE		2
+>  #define AVC_CALLBACK_REVOKE		4
+> diff -purN -X linux-2.6.22/Documentation/dontdiff linux-2.6.22.orig/security/selinux/include/objsec.h linux-2.6.22/security/selinux/include/objsec.h
+> --- linux-2.6.22.orig/security/selinux/include/objsec.h	2007-07-09 08:32:17.000000000 +0900
+> +++ linux-2.6.22/security/selinux/include/objsec.h	2007-09-14 08:35:04.000000000 +0900
+> @@ -53,6 +53,8 @@ struct file_security_struct {
+>  	struct file *file;              /* back pointer to file object */
+>  	u32 sid;              /* SID of open file description */
+>  	u32 fown_sid;         /* SID of file owner (for SIGIO) */
+> +	u32 isid;             /* SID of inode at the time of file open */
+> +	u32 pseqno;           /* Policy seqno at the time of file open */
+>  };
+>  
+>  struct superblock_security_struct {
+> diff -purN -X linux-2.6.22/Documentation/dontdiff linux-2.6.22.orig/fs/open.c linux-2.6.22/fs/open.c
+> --- linux-2.6.22.orig/fs/open.c	2007-07-09 08:32:17.000000000 +0900
+> +++ linux-2.6.22/fs/open.c	2007-09-14 08:40:46.000000000 +0900
+> @@ -696,6 +696,10 @@ static struct file *__dentry_open(struct
+>  	f->f_op = fops_get(inode->i_fop);
+>  	file_move(f, &inode->i_sb->s_files);
+>  
+> +	error = security_dentry_open(f);
+> +	if (error)
+> +		goto cleanup_all;
+> +
+>  	if (!open && f->f_op)
+>  		open = f->f_op->open;
+>  	if (open) {
+> diff -purN -X linux-2.6.22/Documentation/dontdiff linux-2.6.22.orig/include/linux/security.h linux-2.6.22/include/linux/security.h
+> --- linux-2.6.22.orig/include/linux/security.h	2007-07-09 08:32:17.000000000 +0900
+> +++ linux-2.6.22/include/linux/security.h	2007-09-14 08:44:13.000000000 +0900
+> @@ -503,6 +503,13 @@ struct request_sock;
+>   *	@file contains the file structure being received.
+>   *	Return 0 if permission is granted.
+>   *
+> + * Security hook for dentry
+> + *
+> + * @dentry_open
+> + *	Save open-time permission checking state for later use upon
+> + *	file_permission, and recheck access if anything has changed
+> + *	since inode_permission.
+> + *
+>   * Security hooks for task operations.
+>   *
+>   * @task_create:
+> @@ -1253,6 +1260,7 @@ struct security_operations {
+>  	int (*file_send_sigiotask) (struct task_struct * tsk,
+>  				    struct fown_struct * fown, int sig);
+>  	int (*file_receive) (struct file * file);
+> +	int (*dentry_open)  (struct file *file);
+>  
+>  	int (*task_create) (unsigned long clone_flags);
+>  	int (*task_alloc_security) (struct task_struct * p);
+> @@ -1854,6 +1862,11 @@ static inline int security_file_receive 
+>  	return security_ops->file_receive (file);
+>  }
+>  
+> +static inline int security_dentry_open (struct file *file)
+> +{
+> +	return security_ops->dentry_open (file);
+> +}
+> +
+>  static inline int security_task_create (unsigned long clone_flags)
+>  {
+>  	return security_ops->task_create (clone_flags);
+> @@ -2529,6 +2542,11 @@ static inline int security_file_receive 
+>  	return 0;
+>  }
+>  
+> +static inline int security_dentry_open (struct file *file)
+> +{
+> +	return 0;
+> +}
+> +
+>  static inline int security_task_create (unsigned long clone_flags)
+>  {
+>  	return 0;
+> --- linux-2.6.22.orig/security/dummy.c	2007-07-09 08:32:17.000000000 +0900
+> +++ linux-2.6.22/security/dummy.c	2007-09-14 08:35:04.000000000 +0900
+> @@ -459,6 +459,11 @@ static int dummy_file_receive (struct fi
+>  	return 0;
+>  }
+>  
+> +static int dummy_dentry_open (struct file *file)
+> +{
+> +	return 0;
+> +}
+> +
+>  static int dummy_task_create (unsigned long clone_flags)
+>  {
+>  	return 0;
+> @@ -1029,6 +1034,7 @@ void security_fixup_ops (struct security
+>  	set_to_dummy_if_null(ops, file_set_fowner);
+>  	set_to_dummy_if_null(ops, file_send_sigiotask);
+>  	set_to_dummy_if_null(ops, file_receive);
+> +	set_to_dummy_if_null(ops, dentry_open);
+>  	set_to_dummy_if_null(ops, task_create);
+>  	set_to_dummy_if_null(ops, task_alloc_security);
+>  	set_to_dummy_if_null(ops, task_free_security);
+> 
+> Regards,
+-- 
+Stephen Smalley
+National Security Agency
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
