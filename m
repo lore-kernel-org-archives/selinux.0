@@ -1,35 +1,36 @@
-Date: Mon, 17 Sep 2007 14:56:46 -0700 (PDT)
+Date: Tue, 18 Sep 2007 02:12:13 -0700 (PDT)
 From: James Morris <jmorris@namei.org>
-To: Stephen Smalley <sds@tycho.nsa.gov>
-cc: Yuichi Nakamura <ynakam@hitachisoft.jp>, selinux@tycho.nsa.gov,
-        Eric Paris <eparis@parisplace.org>, kaigai@ak.jp.nec.com,
-        linux-security-module@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] selinux: Improving SELinux read/write performance
-In-Reply-To: <1190061915.4034.78.camel@moss-spartans.epoch.ncsc.mil>
-Message-ID: <Xine.LNX.4.64.0709171456150.16840@us.intercode.com.au>
-References: <20070914092048.C8F1.YNAKAM@hitachisoft.jp>
- <1190061915.4034.78.camel@moss-spartans.epoch.ncsc.mil>
+To: Eric Paris <eparis@redhat.com>
+cc: selinux@tycho.nsa.gov, sds@tycho.nsa.gov
+Subject: Re: [PATCH] SELinux: whitespace fun
+In-Reply-To: <1189097504.3418.22.camel@localhost.localdomain>
+Message-ID: <Xine.LNX.4.64.0709180210460.22144@us.intercode.com.au>
+References: <1189097504.3418.22.camel@localhost.localdomain>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 17 Sep 2007, Stephen Smalley wrote:
+If you can create a clean, sanity-checked, tested version of this against 
+for-akpm, it should be good to go for 2.6.24.
 
-> > It reduces the selinux overhead on read/write by only revalidating
-> > permissions in selinux_file_permission if the task or inode labels have
-> > changed or the policy has changed since the open-time check.  A new LSM
-> > hook, security_dentry_open, is added to capture the necessary state at
-> > open time to allow this optimization.
-> > 
-> > Signed-off-by: Yuichi Nakamura<ynakam@hitachisoft.jp>
-> 
-> Thanks, looks good.
-> 
-> Acked-by:  Stephen Smalley <sds@tycho.nsa.gov>
-
-Applied to 
-git://git.kernel.org/pub/scm/linux/kernel/git/jmorris/selinux-2.6.git#for-akpm
+$ git apply --check --whitespace=warn patch
+Adds trailing whitespace.
+/tmp/ep1.txt:581:
+Adds trailing whitespace.
+/tmp/ep1.txt:584:
+Adds trailing whitespace.
+/tmp/ep1.txt:587:
+error: patch failed: security/selinux/hooks.c:4
+error: security/selinux/hooks.c: patch does not apply
+error: patch failed: security/selinux/include/avc.h:109
+error: security/selinux/include/avc.h: patch does not apply
+error: patch failed: security/selinux/include/objsec.h:39
+error: security/selinux/include/objsec.h: patch does not apply
+error: patch failed: security/selinux/ss/avtab.c:10
+error: security/selinux/ss/avtab.c: patch does not apply
+error: patch failed: security/selinux/ss/avtab.h:14
+error: security/selinux/ss/avtab.h: patch does not apply
 
 
 -- 
