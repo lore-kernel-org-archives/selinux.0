@@ -1,40 +1,58 @@
 Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l8IEoxdL002439
-	for <selinux@tycho.nsa.gov>; Tue, 18 Sep 2007 10:50:59 -0400
-Received: from an-out-0708.google.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l8IEowgF013316
-	for <selinux@tycho.nsa.gov>; Tue, 18 Sep 2007 14:50:58 GMT
-Received: by an-out-0708.google.com with SMTP id c38so326686ana
-        for <selinux@tycho.nsa.gov>; Tue, 18 Sep 2007 07:50:51 -0700 (PDT)
-Message-ID: <f71a82820709180750v3163b06eyee88eeecb28f7504@mail.gmail.com>
-Date: Tue, 18 Sep 2007 23:50:51 +0900
-From: "Shintaro Fujiwara" <shintaro.fujiwara@gmail.com>
-To: selinux <selinux@tycho.nsa.gov>
-Subject: [PATCH]dpkg.if lacking dpkg_var_lib_t
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l8IF4BuJ003677
+	for <selinux@tycho.nsa.gov>; Tue, 18 Sep 2007 11:04:11 -0400
+Received: from mx2.sygneca.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l8IF4AgF016747
+	for <selinux@tycho.nsa.gov>; Tue, 18 Sep 2007 15:04:11 GMT
+Received: from [192.168.1.101] (cpc3-bele5-0-0-cust269.belf.cable.ntl.com [82.18.189.14])
+	(using SSLv3 with cipher DHE-RSA-AES256-SHA (256/256 bits))
+	(No client certificate requested)
+	by mx2.sygneca.com (Postfix) with ESMTP id 2BF48A42F8
+	for <selinux@tycho.nsa.gov>; Tue, 18 Sep 2007 16:04:04 +0100 (BST)
+Message-ID: <46EFE8D3.6060309@martinorr.name>
+Date: Tue, 18 Sep 2007 16:03:47 +0100
+From: Martin Orr <martin@martinorr.name>
 MIME-Version: 1.0
+To: Daniel J Walsh <dwalsh@redhat.com>
+CC: selinux@tycho.nsa.gov
+Subject: Re: alsactl policy
+References: <20070916201319.GA2705@tiberius.martinorr.name> <46EE8D70.2080804@redhat.com>
+In-Reply-To: <46EE8D70.2080804@redhat.com>
 Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hi, I was checking another interface and found dpkg_var_lib_t is lacking
-in dpkg.if.
+On 17/09/07 15:21, Daniel J Walsh wrote:
+>>  type alsa_etc_rw_t;
+>>  files_type(alsa_etc_rw_t)
+> 
+>> +type alsa_var_lib_t;
+>> +files_type(alsa_var_lib_t)
+>> +
+>> +type alsa_state_t;
+>> +files_type(alsa_state_t)
+>> +
+> We already have alsa_etc_rw_t for this.  So we could either change
+> alsa_etc_rw_t to this context and typealias it or leave it as rw_t.
+> Or alternatively just allow alsa to write to alsa_var_lib_t,
 
-Is it OK with this patch?
+OK, I thought that alsa_etc_rw_t was for something else.  Since I don't have
+any /etc/alsa/pcm directory, I didn't know what it was for.
 
+> Fedora stores asound.state under etc.  Although it probably would be
+> better in var/lib
+> 
+> I have opened a bugzilla for Fedora to write their asound.state file there.
+> 
+> https://bugzilla.redhat.com/show_bug.cgi?id=293301
 
-Index: policy/modules/admin/dpkg.if
-===================================================================
---- policy/modules/admin/dpkg.if        (revision 2422)
-+++ policy/modules/admin/dpkg.if        (working copy)
-@@ -223,7 +223,7 @@
- #
- interface(`dpkg_lock_db',`
-        gen_require(`
--               type dpkg_lock_t;
-+               type dpkg_lock_t, dpkg_var_lib_t;
-        ')
+There is a bug in the upstream BTS to change this as well:
+https://bugtrack.alsa-project.org/alsa-bug/view.php?id=3128
 
-        files_search_var_lib($1)
+Thanks for your reviewing time,
+
+-- 
+Martin Orr
 
 --
 This message was distributed to subscribers of the selinux mailing list.
