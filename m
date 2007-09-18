@@ -1,183 +1,232 @@
-Subject: Re: concept of a permissive domain
-From: Stephen Smalley <sds@tycho.nsa.gov>
+Message-ID: <46F03221.30504@redhat.com>
+Date: Tue, 18 Sep 2007 16:16:33 -0400
+From: Daniel J Walsh <dwalsh@redhat.com>
+MIME-Version: 1.0
 To: Eric Paris <eparis@redhat.com>
-Cc: Daniel J Walsh <dwalsh@redhat.com>,
-        Karl MacMillan <kmacmillan@mentalrootkit.com>, selinux@tycho.nsa.gov
-In-Reply-To: <1189714612.3391.74.camel@localhost.localdomain>
-References: <1189537981.3407.51.camel@localhost.localdomain>
-	 <46E6FB25.5070507@redhat.com>
-	 <1189545987.4823.6.camel@localhost.localdomain>
-	 <1189692512.18713.61.camel@moss-spartans.epoch.ncsc.mil>
-	 <1189694812.3538.20.camel@localhost.localdomain>
-	 <1189695443.18713.95.camel@moss-spartans.epoch.ncsc.mil>
-	 <46E98E93.40206@redhat.com>
-	 <1189712298.18713.116.camel@moss-spartans.epoch.ncsc.mil>
-	 <1189714612.3391.74.camel@localhost.localdomain>
-Content-Type: text/plain
-Date: Tue, 18 Sep 2007 16:24:54 -0400
-Message-Id: <1190147094.14037.135.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+CC: Stephen Smalley <sds@tycho.nsa.gov>, selinux@tycho.nsa.gov,
+        Karl MacMillan <kmacmillan@mentalrootkit.com>,
+        Joshua Brindle <method@manicmethod.com>
+Subject: Re: [PATCH] libsepol: support the handle_unknown config flag
+References: <1185983548.3673.21.camel@localhost.localdomain>	 <1187900870.1451.650.camel@moss-spartans.epoch.ncsc.mil>	 <1190145622.14037.110.camel@moss-spartans.epoch.ncsc.mil> <1190146280.3451.45.camel@localhost.localdomain>
+In-Reply-To: <1190146280.3451.45.camel@localhost.localdomain>
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2007-09-13 at 16:16 -0400, Eric Paris wrote:
-> On Thu, 2007-09-13 at 15:38 -0400, Stephen Smalley wrote:
-> > On Thu, 2007-09-13 at 15:25 -0400, Daniel J Walsh wrote:
-> > > -----BEGIN PGP SIGNED MESSAGE-----
-> > > Hash: SHA1
-> > > 
-> > > Stephen Smalley wrote:
-> > > > On Thu, 2007-09-13 at 10:46 -0400, Karl MacMillan wrote:
-> > > >> On Thu, 2007-09-13 at 10:08 -0400, Stephen Smalley wrote:
-> > > >>> On Tue, 2007-09-11 at 17:26 -0400, Karl MacMillan wrote:
-> > > >>>> On Tue, 2007-09-11 at 16:31 -0400, Daniel J Walsh wrote:
-> > > >>>> [...]
-> > > >>>>> One other feature/requirement would be to not override dontaudit rules.
-> > > >>>>> So if I have a domain in permissive mode and I have a dontaudit rule  on
-> > > >>>>> reading /etc/shadow.  The app should still be denied reading
-> > > >>>>> /etc/shadow.  (This is not a show stopper, but would allow us to force
-> > > >>>>> apps to take the code paths they will take in enforcing mode.)
-> > > >>>> This isn't specific to per-domain permissive, right? It would be useful
-> > > >>>> in general for permissive.
-> > > >>> I would be opposed to such a change, as it is a semantic change to what
-> > > >>> dontaudit means.
-> > > >>>
-> > > >>> Keep in mind that allow, auditallow, and dontaudit/auditdeny are all
-> > > >>> independent of one another today and none of them imply the other, e.g.
-> > > >>> 	allow a b:file read;
-> > > >>> 	auditallow a b:file *;
-> > > >>> 	dontaudit a b:file *;
-> > > >>> is perfectly valid and means:
-> > > >>> - Let a read files labeled b,
-> > > >>> - Audit all permission grantings from a to files labeled b,
-> > > >>> - Don't audit any permission denials from a to files labeled b.
-> > > >>>
-> > > >> I agree that changing the dontaudit semantic has problems - however the
-> > > >> reason Dan suggested is still valid. Currently, generating policy in
-> > > >> permissive mode can lead to bogus or overly permissive policy. It would
-> > > >> be nice to have some solution to that problem.
-> > > > 
-> > > > Can't you handle that in the tool, by giving matching interfaces with
-> > > > dontaudit rules precedence over ones with allow rules and asking the
-> > > > user?
-> > > > 
-> > > > I'd actually rather see an improved capability for (more easily)
-> > > > generating policy incrementally in enforcing mode.  That would make it
-> > > > more suitable for production use and avoid the problem above.
-> > > > 
-> > > Said large financial institution rols out policy for managing huge money
-> > > transactions in permissive mode.   Policy build with a pam for verifying
-> > > users.
-> > 
-> > Note that I said it would be better to provide a capability to let
-> > people develop policy incrementally while in enforcing mode, not
-> > permissive mode.
-> 
-> A fine goal, but not really feasible ATM.  It also doesn't allow for
-> going live and testing in production at the same time.  This is still a
-> 'must have perfect coverage before usage' model.  Just because you
-> develop you way means we don't have to worry about the permissive-denial
-> issue but it doesn't solve the 'you are fired' issue.  Great in theory,
-> but when talking about some ginormous app that noone fully understands I
-> wouldn't want to be the one who sticks his neck out.
-> 
-> > 
-> > > Users selected app_uses_pam in policy design tool.
-> > > 
-> > > Tool adds
-> > > 
-> > > dontaudit financeapp_t shadow_t:file r_file_perms;
-> > > 
-> > > App in permissive mode reads shadow perms.  Dontaudit covers it up.
-> > 
-> > So don't do that.  Don't include new dontaudit rules while generating
-> > policy in permissive mode, and let the user decide whether to select the
-> > dontaudit branch or the allow branch in the final form of the generated
-> > policy.  For that matter, we should really minimize use of dontaudit
-> > rules whenever possible - if we can fix the code to _default_ to the
-> > less privileged code path and only try the more privileged code path if
-> > it truly needs it, then we should do that.
-> 
-> You rule out the possibility of running in production without enforcing.
-> Obviously your customers would never do that, but a customer going from
-> no MAC to some non-enforcing MAC to enforcing MAC, would like to
-> actually test things along the way.  Its a different customer base.  And
-> we don't have to harm one to help the other.
-> 
-> Fixing the code is always the better way to go than dontaudit,
-> thankfully they exist because that isn't always possible.  Good thing we
-> were thinking about this issue before.
-> 
-> > > App runs for three months.  policy writer sees no avc messages for a
-> > > long time,  Thinks everything is fine.
-> > > 
-> > > Turns on enforcing mode, app tries to authenticate on mysql, gets
-> > > denials apps blow up, millions lost, people say selinux sucks, policy
-> > > writer is fired.
-> > > 
-> > > If I want the current behavior to see full permissive mode, I can
-> > > semodule -DB or build my policy without dontaudit.
-> > > 
-> > > permissive mode not following code path of dontaudit would causes major
-> > > problems.
-> > 
-> > Let me say it again - dontaudit rules don't affect whether or not
-> > something is allowed in SELinux today; 
-> 
-> correct
-> 
-> > they are NOT deny rules.  If you
-> > want deny rules, add those (gasp).  Permissive mode is simply following
-> > the code path of allowing everything, as requested.
-> 
-> it's not following ANY code path now.  enforcing=0 is following the path
-> you describe.
-> 
-> Start looking at this as a whole new type of domain, not just some
-> extension of enforcing=X (although I do plan to tie them into each other
-> at some level in the code since they provide similar features).
-> 
-> We need denial rules, we just don't have to call them that.  We just
-> need to define how dontaudit and auditallow rules work in this new type
-> of domain.  Then decide if that somehow interferes if the domain is not
-> a permissive domain.  Aside from Karl's little flub, noone is arguing we
-> should change anything having to do with enforcing=0 or enforcing=1 and
-> a non-permissive-domain.  We don't need to rewrite how dontaudit rules
-> affect enforcing domains or non-enforcing-systems, we just need an
-> extended definition for permissive domains.  Seems dontaudit and
-> auditallow can work very nicely to solve real practical problems
-> constraining large applications in environments which may not be friends
-> to problems introduced by SELinux.  Everyone agrees running an
-> application and just allowing whatever it asks for isn't the best way to
-> write policy, but when it's all you have, and all you are going to
-> reasonably have I'm not hearing a argument why we can't do what Dan
-> wants, other than 'that's not what it means today.'
-> 
-> dontaudit as an 'implicit denial in permissive domains' isn't what we
-> have today, but then again, we don't have permissive domains today.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-I think we need to be careful that we aren't making SELinux harder to
-understand.  You are introducing a new construct that doesn't correspond
-precisely with either "unconfined" domains under enforcing mode or all
-domains under permissive mode today, and then you'll have to explain to
-users how they each differ and how to use them in a coherent way.  Maybe
-it would be useful to talk again about why we can't go with the "make
-the domain unconfined in policy and use auditallow" approach.  There is
-the log-once aspect of permissive mode, but possibly that could be made
-selectable for domains, and there is the difference in the log messages
-(granted vs. denied), but the tools can certainly deal with that.
+Eric Paris wrote:
+> On Tue, 2007-09-18 at 16:00 -0400, Stephen Smalley wrote:
+>> On Thu, 2007-08-23 at 16:27 -0400, Stephen Smalley wrote:
+>>> On Wed, 2007-08-01 at 11:52 -0400, Eric Paris wrote:
+>>>> Update the policydb definition to contain a handle_unknown flag.  Change
+>>>> libsepol to copy the handle_unknown config flag from the base policy to
+>>>> the final binary policy.  Also makes libsepol properly read and write
+>>>> the flag which dealing with policy modules.
+>>>>
+>>>> Signed-off-by: Eric Paris <eparis@redhat.com>
+>>> Here is a patch on top of yours that allows you to override the base
+>>> module setting via semanage.conf, handle-unknown = [deny,reject,allow].
+>> Need to make a final decision on this patch - benefit is that the end
+>> user can alter the allow/reject/deny behavior for unknown classes/perms
+>> without rebuilding their base module, which is also precisely what
+>> worries people about it ;)  Could be used by a user to select deny or
+>> reject if the distro defaults to allow (e.g. Fedora) for the purpose of
+>> "tightening" the system or to select allow if the distro defaults to
+>> deny or reject for the purpose of relaxing the system.
+> 
+> I vote 'yeah' and lets make sure the kernel audits the message
+> correctly.  If the certification types really feel we need an old and
+> new value (still this is at policy load time) I'm sure I can find some
+> way to do it.
+> 
+> -Eric
+>>> ---
+>>>
+>>>  libsemanage/src/conf-parse.y               |   35 ++++++++++++++++++++---------
+>>>  libsemanage/src/conf-scan.l                |    1 
+>>>  libsemanage/src/semanage_conf.h            |    1 
+>>>  libsemanage/src/semanage_store.c           |    2 +
+>>>  libsepol/include/sepol/policydb.h          |    7 +++++
+>>>  libsepol/include/sepol/policydb/policydb.h |    6 ++--
+>>>  libsepol/src/policydb_public.c             |   18 ++++++++++++++
+>>>  7 files changed, 57 insertions(+), 13 deletions(-)
+>>>
+>>> diff -X /home/sds/dontdiff -ru eric/libsemanage/src/conf-parse.y trunk/libsemanage/src/conf-parse.y
+>>> --- eric/libsemanage/src/conf-parse.y	2007-08-23 16:11:02.000000000 -0400
+>>> +++ trunk/libsemanage/src/conf-parse.y	2007-08-23 16:03:20.000000000 -0400
+>>> @@ -57,7 +57,7 @@
+>>>  }
+>>>  
+>>>  %token MODULE_STORE VERSION EXPAND_CHECK FILE_MODE SAVE_PREVIOUS SAVE_LINKED
+>>> -%token LOAD_POLICY_START SETFILES_START DISABLE_GENHOMEDIRCON
+>>> +%token LOAD_POLICY_START SETFILES_START DISABLE_GENHOMEDIRCON HANDLE_UNKNOWN
+>>>  %token VERIFY_MOD_START VERIFY_LINKED_START VERIFY_KERNEL_START BLOCK_END
+>>>  %token PROG_PATH PROG_ARGS
+>>>  %token <s> ARG
+>>> @@ -81,6 +81,7 @@
+>>>          |       save_previous
+>>>          |       save_linked
+>>>          |       disable_genhomedircon
+>>> +        |       handle_unknown
+>>>          ;
+>>>  
+>>>  module_store:   MODULE_STORE '=' ARG {
+>>> @@ -139,15 +140,28 @@
+>>>          ;
+>>>  
+>>>  disable_genhomedircon: DISABLE_GENHOMEDIRCON '=' ARG {
+>>> -								if (strcasecmp($3, "false") == 0) {
+>>> -										current_conf->disable_genhomedircon = 0;
+>>> -									} else if (strcasecmp($3, "true") == 0) {
+>>> -										current_conf->disable_genhomedircon = 1;
+>>> -									} else {
+>>> -										yyerror("disable-genhomedircon can only be 'true' or 'false'");
+>>> -									}
+>>> -									free($3);
+>>> -					  }
+>>> +	if (strcasecmp($3, "false") == 0) {
+>>> +		current_conf->disable_genhomedircon = 0;
+>>> +	} else if (strcasecmp($3, "true") == 0) {
+>>> +		current_conf->disable_genhomedircon = 1;
+>>> +	} else {
+>>> +		yyerror("disable-genhomedircon can only be 'true' or 'false'");
+>>> +	}
+>>> +	free($3);
+>>> + }
+>>> +
+>>> +handle_unknown: HANDLE_UNKNOWN '=' ARG {
+>>> +	if (strcasecmp($3, "deny") == 0) {
+>>> +		current_conf->handle_unknown = SEPOL_DENY_UNKNOWN;
+>>> +	} else if (strcasecmp($3, "reject") == 0) {
+>>> +		current_conf->handle_unknown = SEPOL_REJECT_UNKNOWN;
+>>> +	} else if (strcasecmp($3, "allow") == 0) {
+>>> +		current_conf->handle_unknown = SEPOL_ALLOW_UNKNOWN;
+>>> +	} else {
+>>> +		yyerror("handle-unknown can only be 'deny', 'reject' or 'allow'");
+>>> +	}
+>>> +	free($3);
+>>> + }
+>>>  
+>>>  command_block: 
+>>>                  command_start external_opts BLOCK_END  {
+>>> @@ -214,6 +228,7 @@
+>>>  	conf->store_path = strdup(basename(selinux_policy_root()));
+>>>  	conf->policyvers = sepol_policy_kern_vers_max();
+>>>  	conf->expand_check = 1;
+>>> +	conf->handle_unknown = -1;
+>>>  	conf->file_mode = 0644;
+>>>  
+>>>  	conf->save_previous = 0;
+>>> diff -X /home/sds/dontdiff -ru eric/libsemanage/src/conf-scan.l trunk/libsemanage/src/conf-scan.l
+>>> --- eric/libsemanage/src/conf-scan.l	2007-08-23 16:11:02.000000000 -0400
+>>> +++ trunk/libsemanage/src/conf-scan.l	2007-08-23 15:53:28.000000000 -0400
+>>> @@ -45,6 +45,7 @@
+>>>  save-previous     return SAVE_PREVIOUS;
+>>>  save-linked       return SAVE_LINKED;
+>>>  disable-genhomedircon return DISABLE_GENHOMEDIRCON;
+>>> +handle-unknown    return HANDLE_UNKNOWN;
+>>>  "[load_policy]"   return LOAD_POLICY_START;
+>>>  "[setfiles]"      return SETFILES_START;
+>>>  "[verify module]" return VERIFY_MOD_START;
+>>> diff -X /home/sds/dontdiff -ru eric/libsemanage/src/semanage_conf.h trunk/libsemanage/src/semanage_conf.h
+>>> --- eric/libsemanage/src/semanage_conf.h	2007-08-23 16:11:02.000000000 -0400
+>>> +++ trunk/libsemanage/src/semanage_conf.h	2007-08-23 15:53:53.000000000 -0400
+>>> @@ -38,6 +38,7 @@
+>>>  	int save_previous;
+>>>  	int save_linked;
+>>>  	int disable_genhomedircon;
+>>> +	int handle_unknown;
+>>>  	mode_t file_mode;
+>>>  	struct external_prog *load_policy;
+>>>  	struct external_prog *setfiles;
+>>> diff -X /home/sds/dontdiff -ru eric/libsemanage/src/semanage_store.c trunk/libsemanage/src/semanage_store.c
+>>> --- eric/libsemanage/src/semanage_store.c	2007-08-23 16:11:02.000000000 -0400
+>>> +++ trunk/libsemanage/src/semanage_store.c	2007-08-23 16:21:53.000000000 -0400
+>>> @@ -1619,6 +1619,8 @@
+>>>  		ERR(sh, "Unknown/Invalid policy version %d.", policyvers);
+>>>  		goto err;
+>>>  	}
+>>> +	if (sh->conf->handle_unknown >= 0)
+>>> +		sepol_policydb_set_handle_unknown(out, sh->conf->handle_unknown);
+>>>  
+>>>  	*policydb = out;
+>>>  	return STATUS_SUCCESS;
+>>> diff -X /home/sds/dontdiff -ru eric/libsepol/include/sepol/policydb/policydb.h trunk/libsepol/include/sepol/policydb/policydb.h
+>>> --- eric/libsepol/include/sepol/policydb/policydb.h	2007-08-23 16:11:32.000000000 -0400
+>>> +++ trunk/libsepol/include/sepol/policydb/policydb.h	2007-08-23 15:36:06.000000000 -0400
+>>> @@ -602,9 +602,9 @@
+>>>  #define POLICYDB_CONFIG_MLS    1
+>>>  
+>>>  /* the config flags related to unknown classes/perms are bits 2 and 3 */
+>>> -#define DENY_UNKNOWN	0x00000000
+>>> -#define REJECT_UNKNOWN	0x00000002
+>>> -#define ALLOW_UNKNOWN 	0x00000004
+>>> +#define DENY_UNKNOWN	SEPOL_DENY_UNKNOWN
+>>> +#define REJECT_UNKNOWN	SEPOL_REJECT_UNKNOWN
+>>> +#define ALLOW_UNKNOWN 	SEPOL_ALLOW_UNKNOWN
+>>>  
+>>>  #define POLICYDB_CONFIG_UNKNOWN_MASK	(DENY_UNKNOWN | REJECT_UNKNOWN | ALLOW_UNKNOWN)
+>>>  
+>>> diff -X /home/sds/dontdiff -ru eric/libsepol/include/sepol/policydb.h trunk/libsepol/include/sepol/policydb.h
+>>> --- eric/libsepol/include/sepol/policydb.h	2007-08-23 16:11:04.000000000 -0400
+>>> +++ trunk/libsepol/include/sepol/policydb.h	2007-08-23 16:27:02.000000000 -0400
+>>> @@ -83,6 +83,13 @@
+>>>   */
+>>>  extern int sepol_policydb_set_vers(sepol_policydb_t * p, unsigned int vers);
+>>>  
+>>> +/* Set how to handle unknown class/perms. */
+>>> +#define SEPOL_DENY_UNKNOWN	    0
+>>> +#define SEPOL_REJECT_UNKNOWN	    2
+>>> +#define SEPOL_ALLOW_UNKNOWN	    4
+>>> +extern int sepol_policydb_set_handle_unknown(sepol_policydb_t * p,
+>>> +					     unsigned int handle_unknown);
+>>> +
+>>>  /* 
+>>>   * Read a policydb from a policy file.
+>>>   * This automatically sets the type and version based on the 
+>>> diff -X /home/sds/dontdiff -ru eric/libsepol/src/policydb_public.c trunk/libsepol/src/policydb_public.c
+>>> --- eric/libsepol/src/policydb_public.c	2007-08-23 16:11:04.000000000 -0400
+>>> +++ trunk/libsepol/src/policydb_public.c	2007-08-23 16:27:40.000000000 -0400
+>>> @@ -134,6 +134,24 @@
+>>>  	return 0;
+>>>  }
+>>>  
+>>> +int sepol_policydb_set_handle_unknown(sepol_policydb_t * sp,
+>>> +				      unsigned int handle_unknown)
+>>> +{
+>>> +	struct policydb *p = &sp->p;
+>>> +
+>>> +	switch (handle_unknown) {
+>>> +	case SEPOL_DENY_UNKNOWN:
+>>> +	case SEPOL_REJECT_UNKNOWN:
+>>> +	case SEPOL_ALLOW_UNKNOWN:
+>>> +		break;
+>>> +	default:
+>>> +		return -1;
+>>> +	}
+>>> +
+>>> +	p->handle_unknown = handle_unknown;		
+>>> +	return 0;
+>>> +}
+>>> +
+>>>  int sepol_policydb_read(sepol_policydb_t * p, sepol_policy_file_t * pf)
+>>>  {
+>>>  	return policydb_read(&p->p, &pf->pf, 0);
+>>>
+> 
 
-Also, one other thing to keep in mind for the permissive domain concept
-is that permission checks don't always fall neatly into the domain-type
-form and that domains tend to flow to related objects (sockets, packets,
-proc inodes, etc), so it is possibly insufficient and/or unsafe to
-determine whether to apply permissive mode on the source context in all
-cases.  Requires some investigation of all of the checks today.
+I doubt anyone would ever change it like just about everything else in
+this file.  So put me in the abstain category.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.7 (GNU/Linux)
+Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org
 
--- 
-Stephen Smalley
-National Security Agency
-
+iD8DBQFG8DIhrlYvE4MpobMRAsTQAJoDQU2woPDp1/QImyzoqAKdGutp3ACgn84D
+1yHcqUySRzqb9JRTqsbvow0=
+=6ZZI
+-----END PGP SIGNATURE-----
 
 --
 This message was distributed to subscribers of the selinux mailing list.
