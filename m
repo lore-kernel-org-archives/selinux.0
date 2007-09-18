@@ -1,48 +1,40 @@
 Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l8IEhCxk001810
-	for <selinux@tycho.nsa.gov>; Tue, 18 Sep 2007 10:43:12 -0400
-Received: from exchange.columbia.tresys.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with SMTP id l8IEhAgF012233
-	for <selinux@tycho.nsa.gov>; Tue, 18 Sep 2007 14:43:10 GMT
-Message-ID: <46EFE08F.7040803@manicmethod.com>
-Date: Tue, 18 Sep 2007 10:28:31 -0400
-From: Joshua Brindle <method@manicmethod.com>
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l8IEoxdL002439
+	for <selinux@tycho.nsa.gov>; Tue, 18 Sep 2007 10:50:59 -0400
+Received: from an-out-0708.google.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l8IEowgF013316
+	for <selinux@tycho.nsa.gov>; Tue, 18 Sep 2007 14:50:58 GMT
+Received: by an-out-0708.google.com with SMTP id c38so326686ana
+        for <selinux@tycho.nsa.gov>; Tue, 18 Sep 2007 07:50:51 -0700 (PDT)
+Message-ID: <f71a82820709180750v3163b06eyee88eeecb28f7504@mail.gmail.com>
+Date: Tue, 18 Sep 2007 23:50:51 +0900
+From: "Shintaro Fujiwara" <shintaro.fujiwara@gmail.com>
+To: selinux <selinux@tycho.nsa.gov>
+Subject: [PATCH]dpkg.if lacking dpkg_var_lib_t
 MIME-Version: 1.0
-To: Mark Goldman <mgoldman@tresys.com>
-CC: selinux@tycho.nsa.gov
-Subject: Re: [POLICYREP] [Patch 0/5] remove modular policy support for policy
- rep branch
-References: <20070816155325.881136010@tresys.com>>
-In-Reply-To: <20070816155325.881136010@tresys.com>>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Mark Goldman wrote:
-> This patchset removes module support from libsepol.  This
-> patchset is in support of the policyrep work.
->
-> Patches one and two removes the files that are solely for 
-> supporting modular policies. 
->
-> Patch three and four eliminates the various structures that 
-> supported modular policies. All functional changes occur in 
-> this patch.
->
-> Patch five puts dispol in libsepol's utils directory.
-> Dispol was not modified in this move.
->
-> This e-mail splits the original patches up so that they will go
-> through the list-serv without being bounced.
->
-> -mdg
->
-> Signed-off-by: Joshua Brindle <jbrindle@tresys.com>
->   
+Hi, I was checking another interface and found dpkg_var_lib_t is lacking
+in dpkg.if.
 
-Merged into the policyrep branch with changes necessary due to the 
-alignment patch that was applied to trunk.
+Is it OK with this patch?
 
+
+Index: policy/modules/admin/dpkg.if
+===================================================================
+--- policy/modules/admin/dpkg.if        (revision 2422)
++++ policy/modules/admin/dpkg.if        (working copy)
+@@ -223,7 +223,7 @@
+ #
+ interface(`dpkg_lock_db',`
+        gen_require(`
+-               type dpkg_lock_t;
++               type dpkg_lock_t, dpkg_var_lib_t;
+        ')
+
+        files_search_var_lib($1)
 
 --
 This message was distributed to subscribers of the selinux mailing list.
