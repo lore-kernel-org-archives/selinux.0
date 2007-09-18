@@ -1,150 +1,217 @@
-Message-ID: <46F02D0B.9020809@redhat.com>
-Date: Tue, 18 Sep 2007 15:54:51 -0400
-From: Daniel J Walsh <dwalsh@redhat.com>
-MIME-Version: 1.0
-To: Stephen Smalley <sds@tycho.nsa.gov>
-CC: Joshua Brindle <method@manicmethod.com>, SE Linux <selinux@tycho.nsa.gov>
-Subject: Re: Change default error handling in libselinux matchpathcon	to	use
- syslog instead of stderr.
-References: <46EFF028.4040500@redhat.com> <46F0065B.1060101@manicmethod.com>	 <1190136184.14037.54.camel@moss-spartans.epoch.ncsc.mil>	 <46F00E55.9030100@manicmethod.com> <1190137543.14037.77.camel@moss-spartans.epoch.ncsc.mil>
-In-Reply-To: <1190137543.14037.77.camel@moss-spartans.epoch.ncsc.mil>
-Content-Type: multipart/mixed;
- boundary="------------030501020601050505030304"
+Subject: Re: [PATCH] libsepol: support the handle_unknown config flag
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Eric Paris <eparis@redhat.com>
+Cc: selinux@tycho.nsa.gov, Karl MacMillan <kmacmillan@mentalrootkit.com>,
+        Daniel J Walsh <dwalsh@redhat.com>,
+        Joshua Brindle <method@manicmethod.com>
+In-Reply-To: <1187900870.1451.650.camel@moss-spartans.epoch.ncsc.mil>
+References: <1185983548.3673.21.camel@localhost.localdomain>
+	 <1187900870.1451.650.camel@moss-spartans.epoch.ncsc.mil>
+Content-Type: text/plain
+Date: Tue, 18 Sep 2007 16:00:22 -0400
+Message-Id: <1190145622.14037.110.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This is a multi-part message in MIME format.
---------------030501020601050505030304
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
-
-Stephen Smalley wrote:
-> On Tue, 2007-09-18 at 13:43 -0400, Joshua Brindle wrote:
->> Stephen Smalley wrote:
->>> On Tue, 2007-09-18 at 13:09 -0400, Joshua Brindle wrote:
->>>   
->>>> Daniel J Walsh wrote:
->>>>     
->>>>> -----BEGIN PGP SIGNED MESSAGE-----
->>>>> Hash: SHA1
->>>>>
->>>>> Current behavior causes problems with network applications.
->>>>>
->>>>> https://bugzilla.redhat.com/show_bug.cgi?id=273081
->>>>>   
->>>>>       
->>>> Wait, what?
->>>>
->>>> I don't think it is an improvement to call the command line matchpathcon 
->>>> applications and have the logs go somewhere not visible by the user. IMO 
->>>> we should take the same approach libsemanage and libsepol did where the 
->>>> logging callbacks can be overridden by specific users of the library but 
->>>> for the command line applications the output still goes to stderr.
->>>>     
->>> You already can override the callback (set_matchpathcon_printf), but the
->>> claim in the bug report is that isn't usable from a library function
->>> that calls matchpathcon because it doesn't know whether it has already
->>> been set by the application.
->>>   
->> Hrm... so the alternative is to send it to syslog? I don't buy it. Can 
->> we just add an interface to see if the default callbacks have been 
->> overridden?
+On Thu, 2007-08-23 at 16:27 -0400, Stephen Smalley wrote:
+> On Wed, 2007-08-01 at 11:52 -0400, Eric Paris wrote:
+> > Update the policydb definition to contain a handle_unknown flag.  Change
+> > libsepol to copy the handle_unknown config flag from the base policy to
+> > the final binary policy.  Also makes libsepol properly read and write
+> > the flag which dealing with policy modules.
+> > 
+> > Signed-off-by: Eric Paris <eparis@redhat.com>
 > 
-> Yep.  And it should be based on the newer interfaces.  There is already
-> a selinux_set_callback() and adding a selinux_get_callback() should be
-> trivial.  setfiles is already rewritten to use the new interfaces in
-> trunk, and we should be moving everything off of matchpathcon and onto
-> selabel_lookup.
+> Here is a patch on top of yours that allows you to override the base
+> module setting via semanage.conf, handle-unknown = [deny,reject,allow].
+
+Need to make a final decision on this patch - benefit is that the end
+user can alter the allow/reject/deny behavior for unknown classes/perms
+without rebuilding their base module, which is also precisely what
+worries people about it ;)  Could be used by a user to select deny or
+reject if the distro defaults to allow (e.g. Fedora) for the purpose of
+"tightening" the system or to select allow if the distro defaults to
+deny or reject for the purpose of relaxing the system.
+
 > 
-> For RHEL 5, I suppose there might be a matchpathcon-specific interface
-> for getting the callback.
+> ---
 > 
-I would still prefer the default not to spew to stdout where an admin
-might not see it or it might not get caught to using syslog.
+>  libsemanage/src/conf-parse.y               |   35 ++++++++++++++++++++---------
+>  libsemanage/src/conf-scan.l                |    1 
+>  libsemanage/src/semanage_conf.h            |    1 
+>  libsemanage/src/semanage_store.c           |    2 +
+>  libsepol/include/sepol/policydb.h          |    7 +++++
+>  libsepol/include/sepol/policydb/policydb.h |    6 ++--
+>  libsepol/src/policydb_public.c             |   18 ++++++++++++++
+>  7 files changed, 57 insertions(+), 13 deletions(-)
+> 
+> diff -X /home/sds/dontdiff -ru eric/libsemanage/src/conf-parse.y trunk/libsemanage/src/conf-parse.y
+> --- eric/libsemanage/src/conf-parse.y	2007-08-23 16:11:02.000000000 -0400
+> +++ trunk/libsemanage/src/conf-parse.y	2007-08-23 16:03:20.000000000 -0400
+> @@ -57,7 +57,7 @@
+>  }
+>  
+>  %token MODULE_STORE VERSION EXPAND_CHECK FILE_MODE SAVE_PREVIOUS SAVE_LINKED
+> -%token LOAD_POLICY_START SETFILES_START DISABLE_GENHOMEDIRCON
+> +%token LOAD_POLICY_START SETFILES_START DISABLE_GENHOMEDIRCON HANDLE_UNKNOWN
+>  %token VERIFY_MOD_START VERIFY_LINKED_START VERIFY_KERNEL_START BLOCK_END
+>  %token PROG_PATH PROG_ARGS
+>  %token <s> ARG
+> @@ -81,6 +81,7 @@
+>          |       save_previous
+>          |       save_linked
+>          |       disable_genhomedircon
+> +        |       handle_unknown
+>          ;
+>  
+>  module_store:   MODULE_STORE '=' ARG {
+> @@ -139,15 +140,28 @@
+>          ;
+>  
+>  disable_genhomedircon: DISABLE_GENHOMEDIRCON '=' ARG {
+> -								if (strcasecmp($3, "false") == 0) {
+> -										current_conf->disable_genhomedircon = 0;
+> -									} else if (strcasecmp($3, "true") == 0) {
+> -										current_conf->disable_genhomedircon = 1;
+> -									} else {
+> -										yyerror("disable-genhomedircon can only be 'true' or 'false'");
+> -									}
+> -									free($3);
+> -					  }
+> +	if (strcasecmp($3, "false") == 0) {
+> +		current_conf->disable_genhomedircon = 0;
+> +	} else if (strcasecmp($3, "true") == 0) {
+> +		current_conf->disable_genhomedircon = 1;
+> +	} else {
+> +		yyerror("disable-genhomedircon can only be 'true' or 'false'");
+> +	}
+> +	free($3);
+> + }
+> +
+> +handle_unknown: HANDLE_UNKNOWN '=' ARG {
+> +	if (strcasecmp($3, "deny") == 0) {
+> +		current_conf->handle_unknown = SEPOL_DENY_UNKNOWN;
+> +	} else if (strcasecmp($3, "reject") == 0) {
+> +		current_conf->handle_unknown = SEPOL_REJECT_UNKNOWN;
+> +	} else if (strcasecmp($3, "allow") == 0) {
+> +		current_conf->handle_unknown = SEPOL_ALLOW_UNKNOWN;
+> +	} else {
+> +		yyerror("handle-unknown can only be 'deny', 'reject' or 'allow'");
+> +	}
+> +	free($3);
+> + }
+>  
+>  command_block: 
+>                  command_start external_opts BLOCK_END  {
+> @@ -214,6 +228,7 @@
+>  	conf->store_path = strdup(basename(selinux_policy_root()));
+>  	conf->policyvers = sepol_policy_kern_vers_max();
+>  	conf->expand_check = 1;
+> +	conf->handle_unknown = -1;
+>  	conf->file_mode = 0644;
+>  
+>  	conf->save_previous = 0;
+> diff -X /home/sds/dontdiff -ru eric/libsemanage/src/conf-scan.l trunk/libsemanage/src/conf-scan.l
+> --- eric/libsemanage/src/conf-scan.l	2007-08-23 16:11:02.000000000 -0400
+> +++ trunk/libsemanage/src/conf-scan.l	2007-08-23 15:53:28.000000000 -0400
+> @@ -45,6 +45,7 @@
+>  save-previous     return SAVE_PREVIOUS;
+>  save-linked       return SAVE_LINKED;
+>  disable-genhomedircon return DISABLE_GENHOMEDIRCON;
+> +handle-unknown    return HANDLE_UNKNOWN;
+>  "[load_policy]"   return LOAD_POLICY_START;
+>  "[setfiles]"      return SETFILES_START;
+>  "[verify module]" return VERIFY_MOD_START;
+> diff -X /home/sds/dontdiff -ru eric/libsemanage/src/semanage_conf.h trunk/libsemanage/src/semanage_conf.h
+> --- eric/libsemanage/src/semanage_conf.h	2007-08-23 16:11:02.000000000 -0400
+> +++ trunk/libsemanage/src/semanage_conf.h	2007-08-23 15:53:53.000000000 -0400
+> @@ -38,6 +38,7 @@
+>  	int save_previous;
+>  	int save_linked;
+>  	int disable_genhomedircon;
+> +	int handle_unknown;
+>  	mode_t file_mode;
+>  	struct external_prog *load_policy;
+>  	struct external_prog *setfiles;
+> diff -X /home/sds/dontdiff -ru eric/libsemanage/src/semanage_store.c trunk/libsemanage/src/semanage_store.c
+> --- eric/libsemanage/src/semanage_store.c	2007-08-23 16:11:02.000000000 -0400
+> +++ trunk/libsemanage/src/semanage_store.c	2007-08-23 16:21:53.000000000 -0400
+> @@ -1619,6 +1619,8 @@
+>  		ERR(sh, "Unknown/Invalid policy version %d.", policyvers);
+>  		goto err;
+>  	}
+> +	if (sh->conf->handle_unknown >= 0)
+> +		sepol_policydb_set_handle_unknown(out, sh->conf->handle_unknown);
+>  
+>  	*policydb = out;
+>  	return STATUS_SUCCESS;
+> diff -X /home/sds/dontdiff -ru eric/libsepol/include/sepol/policydb/policydb.h trunk/libsepol/include/sepol/policydb/policydb.h
+> --- eric/libsepol/include/sepol/policydb/policydb.h	2007-08-23 16:11:32.000000000 -0400
+> +++ trunk/libsepol/include/sepol/policydb/policydb.h	2007-08-23 15:36:06.000000000 -0400
+> @@ -602,9 +602,9 @@
+>  #define POLICYDB_CONFIG_MLS    1
+>  
+>  /* the config flags related to unknown classes/perms are bits 2 and 3 */
+> -#define DENY_UNKNOWN	0x00000000
+> -#define REJECT_UNKNOWN	0x00000002
+> -#define ALLOW_UNKNOWN 	0x00000004
+> +#define DENY_UNKNOWN	SEPOL_DENY_UNKNOWN
+> +#define REJECT_UNKNOWN	SEPOL_REJECT_UNKNOWN
+> +#define ALLOW_UNKNOWN 	SEPOL_ALLOW_UNKNOWN
+>  
+>  #define POLICYDB_CONFIG_UNKNOWN_MASK	(DENY_UNKNOWN | REJECT_UNKNOWN | ALLOW_UNKNOWN)
+>  
+> diff -X /home/sds/dontdiff -ru eric/libsepol/include/sepol/policydb.h trunk/libsepol/include/sepol/policydb.h
+> --- eric/libsepol/include/sepol/policydb.h	2007-08-23 16:11:04.000000000 -0400
+> +++ trunk/libsepol/include/sepol/policydb.h	2007-08-23 16:27:02.000000000 -0400
+> @@ -83,6 +83,13 @@
+>   */
+>  extern int sepol_policydb_set_vers(sepol_policydb_t * p, unsigned int vers);
+>  
+> +/* Set how to handle unknown class/perms. */
+> +#define SEPOL_DENY_UNKNOWN	    0
+> +#define SEPOL_REJECT_UNKNOWN	    2
+> +#define SEPOL_ALLOW_UNKNOWN	    4
+> +extern int sepol_policydb_set_handle_unknown(sepol_policydb_t * p,
+> +					     unsigned int handle_unknown);
+> +
+>  /* 
+>   * Read a policydb from a policy file.
+>   * This automatically sets the type and version based on the 
+> diff -X /home/sds/dontdiff -ru eric/libsepol/src/policydb_public.c trunk/libsepol/src/policydb_public.c
+> --- eric/libsepol/src/policydb_public.c	2007-08-23 16:11:04.000000000 -0400
+> +++ trunk/libsepol/src/policydb_public.c	2007-08-23 16:27:40.000000000 -0400
+> @@ -134,6 +134,24 @@
+>  	return 0;
+>  }
+>  
+> +int sepol_policydb_set_handle_unknown(sepol_policydb_t * sp,
+> +				      unsigned int handle_unknown)
+> +{
+> +	struct policydb *p = &sp->p;
+> +
+> +	switch (handle_unknown) {
+> +	case SEPOL_DENY_UNKNOWN:
+> +	case SEPOL_REJECT_UNKNOWN:
+> +	case SEPOL_ALLOW_UNKNOWN:
+> +		break;
+> +	default:
+> +		return -1;
+> +	}
+> +
+> +	p->handle_unknown = handle_unknown;		
+> +	return 0;
+> +}
+> +
+>  int sepol_policydb_read(sepol_policydb_t * p, sepol_policy_file_t * pf)
+>  {
+>  	return policydb_read(&p->p, &pf->pf, 0);
+> 
+-- 
+Stephen Smalley
+National Security Agency
 
-Updated diff to include changing matchpathcon the exec
-
-udev/install/mkinitrd/kerberos libraries and probably a few others are
-using this interface.
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.7 (GNU/Linux)
-Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org
-
-iD8DBQFG8C0LrlYvE4MpobMRApKVAKCx3bLTKq8pDe+rgARw6DdUo7O0wACgr5Cn
-isUZTJ4Dh8jifv0uXaZ4xWI=
-=HciW
------END PGP SIGNATURE-----
-
---------------030501020601050505030304
-Content-Type: text/plain;
- name="diff"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="diff"
-
-diff --exclude-from=exclude -N -u -r nsalibselinux/src/matchpathcon.c libselinux-2.0.33/src/matchpathcon.c
---- nsalibselinux/src/matchpathcon.c	2007-08-10 11:58:34.000000000 -0400
-+++ libselinux-2.0.33/src/matchpathcon.c	2007-09-18 15:45:42.000000000 -0400
-@@ -2,6 +2,7 @@
- #include <string.h>
- #include <errno.h>
- #include <stdio.h>
-+#include <syslog.h>
- #include "selinux_internal.h"
- #include "label_internal.h"
- #include "callbacks.h"
-@@ -57,7 +58,7 @@
- {
- 	va_list ap;
- 	va_start(ap, fmt);
--	vfprintf(stderr, fmt, ap);
-+	vsyslog(LOG_ERR, fmt, ap);
- 	va_end(ap);
- }
- 
-diff --exclude-from=exclude -N -u -r nsalibselinux/utils/matchpathcon.c libselinux-2.0.33/utils/matchpathcon.c
---- nsalibselinux/utils/matchpathcon.c	2007-07-16 14:20:45.000000000 -0400
-+++ libselinux-2.0.33/utils/matchpathcon.c	2007-09-18 15:50:31.000000000 -0400
-@@ -17,10 +17,24 @@
- 	exit(1);
- }
- 
-+static void
-+#ifdef __GNUC__
-+    __attribute__ ((format(printf, 1, 2)))
-+#endif
-+    myprintf(const char *fmt, ...)
-+{
-+	va_list ap;
-+	va_start(ap, fmt);
-+	vfprintf(stderr, fmt, ap);
-+	va_end(ap);
-+}
-+
- int printmatchpathcon(char *path, int header, int mode)
- {
- 	char *buf;
--	int rc = matchpathcon(path, mode, &buf);
-+	int rc;
-+	set_matchpathcon_printf(myprintf);
-+	rc = matchpathcon(path, mode, &buf);
- 	if (rc < 0) {
- 		fprintf(stderr, "matchpathcon(%s) failed: %s\n", path,
- 			strerror(errno));
-
---------------030501020601050505030304
-Content-Type: application/octet-stream;
- name="diff.sig"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment;
- filename="diff.sig"
-
-iD8DBQBG8C0LrlYvE4MpobMRAhUdAKDo1mp5D2OmVC0g0ihV09pTFiBV0QCcCv461sxp5s2v
-65sP4fzy7LCfFSE=
---------------030501020601050505030304--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
