@@ -1,49 +1,89 @@
-Subject: Re: [PATCH -v2] kernel: selinux: policy selectable handling of
-	unknown classes and perms
-From: Eric Paris <eparis@redhat.com>
-To: Stephen Smalley <sds@tycho.nsa.gov>
-Cc: selinux@tycho.nsa.gov, jmorris@namei.org,
-        Eamon Walsh <ewalsh@tycho.nsa.gov>, Steve G <linux_4ever@yahoo.com>
-In-Reply-To: <1190132935.14037.8.camel@moss-spartans.epoch.ncsc.mil>
-References: <1189695931.3391.46.camel@localhost.localdomain>
-	 <1190132935.14037.8.camel@moss-spartans.epoch.ncsc.mil>
+Subject: Re: Change default error handling in libselinux matchpathcon to
+	use syslog instead of stderr.
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Daniel J Walsh <dwalsh@redhat.com>
+Cc: SE Linux <selinux@tycho.nsa.gov>, Eamon Walsh <ewalsh@tycho.nsa.gov>,
+        Karl MacMillan <kmacmillan@mentalrootkit.com>,
+        Joshua Brindle <method@manicmethod.com>
+In-Reply-To: <46EFF028.4040500@redhat.com>
+References: <46EFF028.4040500@redhat.com>
 Content-Type: text/plain
-Date: Tue, 18 Sep 2007 12:42:19 -0400
-Message-Id: <1190133739.3451.9.camel@localhost.localdomain>
+Date: Tue, 18 Sep 2007 12:43:25 -0400
+Message-Id: <1190133805.14037.18.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2007-09-18 at 12:28 -0400, Stephen Smalley wrote:
-
-> > @@ -296,6 +312,9 @@ static ssize_t sel_write_load(struct file * file, const char __user * buf,
-> >  	if (length)
-> >  		goto out;
-> >  
-> > +	printk(KERN_INFO "Policy loaded with handle_unknown=%s\n",
-> > +	       security_get_handle_unknown_txt());
+On Tue, 2007-09-18 at 11:35 -0400, Daniel J Walsh wrote:
+> -----BEGIN PGP SIGNED MESSAGE-----
+> Hash: SHA1
 > 
-> I think this should have some well-defined prefix on it, like "SELinux:"
-> or something, to make it easy to identify.  Steve Grubb might have an
-> opinion on whether it should use printk or have its own audit message or
-> be added to the load policy audit message.
+> Current behavior causes problems with network applications.
+> 
+> https://bugzilla.redhat.com/show_bug.cgi?id=273081
 
-Baah, yeah, it should have that prefix.
+I'm not sure about changing current behavior, as that is effectively an
+"interface" change.  Or if it isn't, then there are other such changes I
+would make too (e.g. changing the default for SETLOCALDEFS in libselinux
+comes to mind).
 
-I talked to sgrubb about it, he said that since it wasn't something
-which could be 'changed' (like setenforce or a boolean) it didn't need
-an audit message.  I offered to tack it onto the policy load audit
-message but he didn't at the time seem to feel it was portraying useful
-information since we assume we know what policy was loaded and thus just
-knowing it was loaded should be enough to tell us the handle_unknown
-state.
+What if they used the newer interfaces introduced by Eamon (selabel*)?
+setfiles has already been rewritten by him to use those interfaces, and
+thus matchpathcon is a legacy interface at this point.  Does the same
+problem exist there?
 
-He instead suggested an addition to sestatus or some other tool so it
-could be read if the admin cared.
+I suppose that doesn't help you though with RHEL 5, as it would only
+have the older interfaces.
 
-Do you have other feelings now steve?
+Changing the interface from one arbitrary default (stderr) to another
+arbitrary default (syslog) doesn't seem like an improvement, although it
+would fix this particular issue I suppose.  We would need to at least
+make sure that setfiles -c continues to report the error messages as
+expected.
 
--Eric
+One comment below on the code itself.  
+
+> -----BEGIN PGP SIGNATURE-----
+> Version: GnuPG v1.4.7 (GNU/Linux)
+> Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org
+> 
+> iD8DBQFG7/AnrlYvE4MpobMRAksuAJ4uqcUDsSlB9uEpXePUEje39kNAywCeJbDE
+> sZ99tA7s4PgSxD/RnS4MHdg=
+> =g4kG
+> -----END PGP SIGNATURE-----
+> plain text document attachment (diff)
+> diff --exclude-from=exclude -N -u -r nsalibselinux/src/matchpathcon.c libselinux-2.0.33/src/matchpathcon.c
+> --- nsalibselinux/src/matchpathcon.c	2007-08-10 11:58:34.000000000 -0400
+> +++ libselinux-2.0.33/src/matchpathcon.c	2007-09-18 11:28:07.000000000 -0400
+> @@ -2,6 +2,7 @@
+>  #include <string.h>
+>  #include <errno.h>
+>  #include <stdio.h>
+> +#include <syslog.h>
+>  #include "selinux_internal.h"
+>  #include "label_internal.h"
+>  #include "callbacks.h"
+> @@ -55,10 +56,12 @@
+>  #endif
+>      default_printf(const char *fmt, ...)
+>  {
+> +	char buf[BUFSIZ];
+>  	va_list ap;
+>  	va_start(ap, fmt);
+> -	vfprintf(stderr, fmt, ap);
+> +	vsnprintf(buf, sizeof(buf) - 1, fmt, ap);
+>  	va_end(ap);
+> +	syslog(LOG_ERR, buf, strlen(buf));
+>  }
+
+Could you use vsyslog() instead to avoid the need for a fixed size
+buffer?
+
+>  
+>  void
+-- 
+Stephen Smalley
+National Security Agency
 
 
 --
