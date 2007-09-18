@@ -1,58 +1,79 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l8IF4BuJ003677
-	for <selinux@tycho.nsa.gov>; Tue, 18 Sep 2007 11:04:11 -0400
-Received: from mx2.sygneca.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l8IF4AgF016747
-	for <selinux@tycho.nsa.gov>; Tue, 18 Sep 2007 15:04:11 GMT
-Received: from [192.168.1.101] (cpc3-bele5-0-0-cust269.belf.cable.ntl.com [82.18.189.14])
-	(using SSLv3 with cipher DHE-RSA-AES256-SHA (256/256 bits))
-	(No client certificate requested)
-	by mx2.sygneca.com (Postfix) with ESMTP id 2BF48A42F8
-	for <selinux@tycho.nsa.gov>; Tue, 18 Sep 2007 16:04:04 +0100 (BST)
-Message-ID: <46EFE8D3.6060309@martinorr.name>
-Date: Tue, 18 Sep 2007 16:03:47 +0100
-From: Martin Orr <martin@martinorr.name>
+Message-ID: <46EFF028.4040500@redhat.com>
+Date: Tue, 18 Sep 2007 11:35:04 -0400
+From: Daniel J Walsh <dwalsh@redhat.com>
 MIME-Version: 1.0
-To: Daniel J Walsh <dwalsh@redhat.com>
-CC: selinux@tycho.nsa.gov
-Subject: Re: alsactl policy
-References: <20070916201319.GA2705@tiberius.martinorr.name> <46EE8D70.2080804@redhat.com>
-In-Reply-To: <46EE8D70.2080804@redhat.com>
-Content-Type: text/plain; charset=ISO-8859-1
+To: Stephen Smalley <sds@tycho.nsa.gov>, SE Linux <selinux@tycho.nsa.gov>
+Subject: Change default error handling in libselinux matchpathcon to use syslog
+ instead of stderr.
+Content-Type: multipart/mixed;
+ boundary="------------050802090703040909000405"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On 17/09/07 15:21, Daniel J Walsh wrote:
->>  type alsa_etc_rw_t;
->>  files_type(alsa_etc_rw_t)
-> 
->> +type alsa_var_lib_t;
->> +files_type(alsa_var_lib_t)
->> +
->> +type alsa_state_t;
->> +files_type(alsa_state_t)
->> +
-> We already have alsa_etc_rw_t for this.  So we could either change
-> alsa_etc_rw_t to this context and typealias it or leave it as rw_t.
-> Or alternatively just allow alsa to write to alsa_var_lib_t,
+This is a multi-part message in MIME format.
+--------------050802090703040909000405
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 
-OK, I thought that alsa_etc_rw_t was for something else.  Since I don't have
-any /etc/alsa/pcm directory, I didn't know what it was for.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-> Fedora stores asound.state under etc.  Although it probably would be
-> better in var/lib
-> 
-> I have opened a bugzilla for Fedora to write their asound.state file there.
-> 
-> https://bugzilla.redhat.com/show_bug.cgi?id=293301
+Current behavior causes problems with network applications.
 
-There is a bug in the upstream BTS to change this as well:
-https://bugtrack.alsa-project.org/alsa-bug/view.php?id=3128
+https://bugzilla.redhat.com/show_bug.cgi?id=273081
 
-Thanks for your reviewing time,
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.7 (GNU/Linux)
+Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org
 
--- 
-Martin Orr
+iD8DBQFG7/AnrlYvE4MpobMRAksuAJ4uqcUDsSlB9uEpXePUEje39kNAywCeJbDE
+sZ99tA7s4PgSxD/RnS4MHdg=
+=g4kG
+-----END PGP SIGNATURE-----
+
+--------------050802090703040909000405
+Content-Type: text/plain;
+ name="diff"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="diff"
+
+diff --exclude-from=exclude -N -u -r nsalibselinux/src/matchpathcon.c libselinux-2.0.33/src/matchpathcon.c
+--- nsalibselinux/src/matchpathcon.c	2007-08-10 11:58:34.000000000 -0400
++++ libselinux-2.0.33/src/matchpathcon.c	2007-09-18 11:28:07.000000000 -0400
+@@ -2,6 +2,7 @@
+ #include <string.h>
+ #include <errno.h>
+ #include <stdio.h>
++#include <syslog.h>
+ #include "selinux_internal.h"
+ #include "label_internal.h"
+ #include "callbacks.h"
+@@ -55,10 +56,12 @@
+ #endif
+     default_printf(const char *fmt, ...)
+ {
++	char buf[BUFSIZ];
+ 	va_list ap;
+ 	va_start(ap, fmt);
+-	vfprintf(stderr, fmt, ap);
++	vsnprintf(buf, sizeof(buf) - 1, fmt, ap);
+ 	va_end(ap);
++	syslog(LOG_ERR, buf, strlen(buf));
+ }
+ 
+ void
+
+--------------050802090703040909000405
+Content-Type: application/octet-stream;
+ name="diff.sig"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment;
+ filename="diff.sig"
+
+iD8DBQBG7/AnrlYvE4MpobMRApa4AJ48ag0ThcPfD1Lmh1WS1Kn6ohgCUwCdH1Nd97hUG9BK
+QyeTMkPt/T3oqMo=
+--------------050802090703040909000405--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
