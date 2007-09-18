@@ -1,42 +1,49 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l8IHdPHA017314
-	for <selinux@tycho.nsa.gov>; Tue, 18 Sep 2007 13:39:25 -0400
-Received: from an-out-0708.google.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l8IHdN9X025605
-	for <selinux@tycho.nsa.gov>; Tue, 18 Sep 2007 17:39:23 GMT
-Received: by an-out-0708.google.com with SMTP id c38so338332ana
-        for <selinux@tycho.nsa.gov>; Tue, 18 Sep 2007 10:39:23 -0700 (PDT)
-Message-ID: <f71a82820709181039s6aeac4eaq404542de3148c411@mail.gmail.com>
-Date: Wed, 19 Sep 2007 02:39:23 +0900
-From: "Shintaro Fujiwara" <shintaro.fujiwara@gmail.com>
-To: selinux <selinux@tycho.nsa.gov>
-Subject: [PATCH] fstools.te needs corecmd_exec_bin
+Message-ID: <46F00E55.9030100@manicmethod.com>
+Date: Tue, 18 Sep 2007 13:43:49 -0400
+From: Joshua Brindle <method@manicmethod.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+To: Stephen Smalley <sds@tycho.nsa.gov>
+CC: Daniel J Walsh <dwalsh@redhat.com>, SE Linux <selinux@tycho.nsa.gov>
+Subject: Re: Change default error handling in libselinux matchpathcon to	use
+ syslog instead of stderr.
+References: <46EFF028.4040500@redhat.com> <46F0065B.1060101@manicmethod.com> <1190136184.14037.54.camel@moss-spartans.epoch.ncsc.mil>
+In-Reply-To: <1190136184.14037.54.camel@moss-spartans.epoch.ncsc.mil>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-I have attached usb hdd on my strict machine and typed
-mkfs -c /dev/sdb
-and error saying cannot execute /sbin/badblocks.
-I always use -c with mkfs command so I added
-this line to fstools.te.
+Stephen Smalley wrote:
+> On Tue, 2007-09-18 at 13:09 -0400, Joshua Brindle wrote:
+>   
+>> Daniel J Walsh wrote:
+>>     
+>>> -----BEGIN PGP SIGNED MESSAGE-----
+>>> Hash: SHA1
+>>>
+>>> Current behavior causes problems with network applications.
+>>>
+>>> https://bugzilla.redhat.com/show_bug.cgi?id=273081
+>>>   
+>>>       
+>> Wait, what?
+>>
+>> I don't think it is an improvement to call the command line matchpathcon 
+>> applications and have the logs go somewhere not visible by the user. IMO 
+>> we should take the same approach libsemanage and libsepol did where the 
+>> logging callbacks can be overridden by specific users of the library but 
+>> for the command line applications the output still goes to stderr.
+>>     
+>
+> You already can override the callback (set_matchpathcon_printf), but the
+> claim in the bug report is that isn't usable from a library function
+> that calls matchpathcon because it doesn't know whether it has already
+> been set by the application.
+>   
 
+Hrm... so the alternative is to send it to syslog? I don't buy it. Can 
+we just add an interface to see if the default callbacks have been 
+overridden?
 
-Index: policy/modules/system/fstools.te
-===================================================================
---- policy/modules/system/fstools.te    (revision 2422)
-+++ policy/modules/system/fstools.te    (working copy)
-@@ -119,6 +119,9 @@
- corecmd_read_bin_pipes(fsadm_t)
- corecmd_read_bin_sockets(fsadm_t)
-
-+# for mkfs -c
-+corecmd_exec_bin(fsadm_t)
-+
- domain_use_interactive_fds(fsadm_t)
-
- files_list_home(fsadm_t)
 
 --
 This message was distributed to subscribers of the selinux mailing list.
