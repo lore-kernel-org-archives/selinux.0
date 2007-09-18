@@ -1,178 +1,33 @@
-Subject: Re: rfc: kernel: special enforcing on suid and setgid chmod
-From: Stephen Smalley <sds@tycho.nsa.gov>
+Message-ID: <46F0065B.1060101@manicmethod.com>
+Date: Tue, 18 Sep 2007 13:09:47 -0400
+From: Joshua Brindle <method@manicmethod.com>
+MIME-Version: 1.0
 To: Daniel J Walsh <dwalsh@redhat.com>
-Cc: Eric Paris <eparis@redhat.com>, selinux@tycho.nsa.gov, sgrubb@redhat.com,
-        jmorris@namei.org, Karl MacMillan <kmacmillan@mentalrootkit.com>
-In-Reply-To: <46EEE8BB.9060505@redhat.com>
-References: <1190052090.3413.18.camel@localhost.localdomain>
-	 <1190057036.4034.76.camel@moss-spartans.epoch.ncsc.mil>
-	 <46EEE8BB.9060505@redhat.com>
-Content-Type: text/plain
-Date: Tue, 18 Sep 2007 12:58:47 -0400
-Message-Id: <1190134727.14037.31.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+CC: Stephen Smalley <sds@tycho.nsa.gov>, SE Linux <selinux@tycho.nsa.gov>
+Subject: Re: Change default error handling in libselinux matchpathcon to use
+ syslog instead of stderr.
+References: <46EFF028.4040500@redhat.com>
+In-Reply-To: <46EFF028.4040500@redhat.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 2007-09-17 at 16:51 -0400, Daniel J Walsh wrote:
+Daniel J Walsh wrote:
 > -----BEGIN PGP SIGNED MESSAGE-----
 > Hash: SHA1
-> 
-> Stephen Smalley wrote:
-> > On Mon, 2007-09-17 at 14:01 -0400, Eric Paris wrote:
-> >> It was mentioned today that it might be useful to split the security
-> >> check for setting DAC permissions such that the setuid and setgid bits
-> >> could have special enforcement.  This patch adds two new permissions to
-> >> the file class and should explicitly check those.  It doesn't do
-> >> anything for the sticky bit, nor does this patch do anything for setuid
-> >> and setgid on directories.  Thoughts?
-> > 
-> > What's the rationale for it?  How would you use it practically?
-> > Where do we draw the line for distinctions among different flavors of
-> > setattr?  What are the implications for similar DAC-related extensions
-> > elsewhere?
-> >
-> I setup an account with a webadmr:webadm_t.  Only allow this user to
-> become root as webadm_t.  User creates a setuid executable.  Uses some
-> other flaw to execute this new setuid app to get full root access.
+>
+> Current behavior causes problems with network applications.
+>
+> https://bugzilla.redhat.com/show_bug.cgi?id=273081
+>   
 
-Where full root access means what?  Just having uid 0?  Or having all
-capabilities?  If the latter, we already can limit that based on domain,
-so the fact that the user can run a suid root shell doesn't mean that he
-gets capabilities unless his domain is allowed those capabilities.
+Wait, what?
 
-And if you want to distinguish such things on chmod, what about
-controlling the ability to actually perform the suid/sgid transition at
-execve time?  I want to better understand the end game before we start
-making little changes one by one.
-
-Note too that past discussions of splitting setattr were oriented around
-separating the distinct operations (chmod vs. chown vs. utimes vs.
-truncate), so if we are splitting setattr at all (for suid/sgid), we
-should think about the full set of distinctions we want.  Originally we
-always checked setattr permission, then later changed to only check that
-for chmod/chown/utimes with a specific timestamp and to check write for
-the rest (utimes to the current time, truncate).
-
-> webadmin needs chmod in order to set proper permissions on cgi scripts.
-> 
-> 
-> 
-> 
-> > There is the obvious compatibility concern, which might be offset by
-> > your handle unknown patch but only if it goes into the kernel and
-> > policies well before this change does.
-> > 
-> >> couple questions:
-> >>
-> >> Are their other file types where those bits have meaning other than
-> >> regular files and directories?
-> >>
-> >> Do I/policy people care about these bits on directories? (see man 2
-> >> stat)
-> >>
-> >> Am I allowed to add permissions to the set of common permissions without
-> >> bumping the policy version number?
-> > 
-> > No, it would alter the values of the per-class perms for classes that
-> > inherit from that common definition.  And we don't have a framework
-> > today for remapping class/perm values upon such incompatible changes,
-> > even if you bump the version.  Could be a good way to get you to
-> > implement dynamic lookup of class/perm values and remapping of them at
-> > runtime within the kernel ;)
-> > 
-> >>   I first thought about adding setuid
-> >> and setgid to the common set for all files but then figured it would
-> >> break something.
-> >>
-> >> This is uncompiled, untested, untrustworthy,  about the only thing it is
-> >> not un- of is worthy of a bit of discussion.  If discussions goes well,
-> >> I'll actually make a tested version of this patch when the userspace
-> >> people who wanted to make use of it get to it.
-> >>
-> >> -Eric
-> >>
-> >> ---
-> >>
-> >>  security/selinux/hooks.c                     |    9 ++++++++-
-> >>  security/selinux/include/av_perm_to_string.h |    2 ++
-> >>  security/selinux/include/av_permissions.h    |    2 ++
-> >>  3 files changed, 12 insertions(+), 1 deletions(-)
-> >>
-> >> diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-> >> index 3694662..6838e91 100644
-> >> --- a/security/selinux/hooks.c
-> >> +++ b/security/selinux/hooks.c
-> >> @@ -2273,6 +2273,7 @@ static int selinux_inode_permission(struct inode *inode, int mask,
-> >>  static int selinux_inode_setattr(struct dentry *dentry, struct iattr *iattr)
-> >>  {
-> >>  	int rc;
-> >> +	u32 check = FILE__SETATTR;
-> >>  
-> >>  	rc = secondary_ops->inode_setattr(dentry, iattr);
-> >>  	if (rc)
-> >> @@ -2281,9 +2282,15 @@ static int selinux_inode_setattr(struct dentry *dentry, struct iattr *iattr)
-> >>  	if (iattr->ia_valid & ATTR_FORCE)
-> >>  		return 0;
-> >>  
-> >> +	if ((iattr->ia_valid & ATTR_MODE) & S_ISREG(dentry->d_inode->i_mode)) {
-> >> +		if (S_ISUID & iattr->ia_mode)
-> >> +			check |= FILE__SETUID;
-> >> +		if (S_ISGID & iattr->ia_mode)
-> >> +			check |= FILE__SETGID;
-> >> +	}
-> >>  	if (iattr->ia_valid & (ATTR_MODE | ATTR_UID | ATTR_GID |
-> >>  			       ATTR_ATIME_SET | ATTR_MTIME_SET))
-> >> -		return dentry_has_perm(current, NULL, dentry, FILE__SETATTR);
-> >> +		return dentry_has_perm(current, NULL, dentry, check);
-> >>  
-> >>  	return dentry_has_perm(current, NULL, dentry, FILE__WRITE);
-> >>  }
-> >> diff --git a/security/selinux/include/av_perm_to_string.h b/security/selinux/include/av_perm_to_string.h
-> >> index 049bf69..11a40af 100644
-> >> --- a/security/selinux/include/av_perm_to_string.h
-> >> +++ b/security/selinux/include/av_perm_to_string.h
-> >> @@ -17,6 +17,8 @@
-> >>     S_(SECCLASS_FILE, FILE__EXECUTE_NO_TRANS, "execute_no_trans")
-> >>     S_(SECCLASS_FILE, FILE__ENTRYPOINT, "entrypoint")
-> >>     S_(SECCLASS_FILE, FILE__EXECMOD, "execmod")
-> >> +   S_(SECCLASS_FILE, FILE__SETUID, "setuid")
-> >> +   S_(SECCLASS_FILE, FILE__SETGID, "setgid")
-> >>     S_(SECCLASS_CHR_FILE, CHR_FILE__EXECUTE_NO_TRANS, "execute_no_trans")
-> >>     S_(SECCLASS_CHR_FILE, CHR_FILE__ENTRYPOINT, "entrypoint")
-> >>     S_(SECCLASS_CHR_FILE, CHR_FILE__EXECMOD, "execmod")
-> >> diff --git a/security/selinux/include/av_permissions.h b/security/selinux/include/av_permissions.h
-> >> index eda89a2..2d28e92 100644
-> >> --- a/security/selinux/include/av_permissions.h
-> >> +++ b/security/selinux/include/av_permissions.h
-> >> @@ -99,6 +99,8 @@
-> >>  #define FILE__EXECUTE_NO_TRANS                    0x00020000UL
-> >>  #define FILE__ENTRYPOINT                          0x00040000UL
-> >>  #define FILE__EXECMOD                             0x00080000UL
-> >> +#define FILE__SETUID                              0x00100000UL
-> >> +#define FILE__SETGID                              0x00200000UL
-> >>  #define LNK_FILE__IOCTL                           0x00000001UL
-> >>  #define LNK_FILE__READ                            0x00000002UL
-> >>  #define LNK_FILE__WRITE                           0x00000004UL
-> >>
-> >>
-> >>
-> >> --
-> >> This message was distributed to subscribers of the selinux mailing list.
-> >> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
-> >> the words "unsubscribe selinux" without quotes as the message.
-> 
-> -----BEGIN PGP SIGNATURE-----
-> Version: GnuPG v1.4.7 (GNU/Linux)
-> Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org
-> 
-> iD8DBQFG7ui7rlYvE4MpobMRAgS7AJ9NdCVwHd/Nq3HR6Z0Yi2AyUjzdqACeN/Vv
-> T1Y7W2Sep6BYni36kQxI2yc=
-> =ye8C
-> -----END PGP SIGNATURE-----
--- 
-Stephen Smalley
-National Security Agency
+I don't think it is an improvement to call the command line matchpathcon 
+applications and have the logs go somewhere not visible by the user. IMO 
+we should take the same approach libsemanage and libsepol did where the 
+logging callbacks can be overridden by specific users of the library but 
+for the command line applications the output still goes to stderr.
 
 
 --
