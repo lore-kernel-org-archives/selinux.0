@@ -1,41 +1,48 @@
-Date: Tue, 18 Sep 2007 02:12:13 -0700 (PDT)
-From: James Morris <jmorris@namei.org>
-To: Eric Paris <eparis@redhat.com>
-cc: selinux@tycho.nsa.gov, sds@tycho.nsa.gov
-Subject: Re: [PATCH] SELinux: whitespace fun
-In-Reply-To: <1189097504.3418.22.camel@localhost.localdomain>
-Message-ID: <Xine.LNX.4.64.0709180210460.22144@us.intercode.com.au>
-References: <1189097504.3418.22.camel@localhost.localdomain>
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l8IEhCxk001810
+	for <selinux@tycho.nsa.gov>; Tue, 18 Sep 2007 10:43:12 -0400
+Received: from exchange.columbia.tresys.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with SMTP id l8IEhAgF012233
+	for <selinux@tycho.nsa.gov>; Tue, 18 Sep 2007 14:43:10 GMT
+Message-ID: <46EFE08F.7040803@manicmethod.com>
+Date: Tue, 18 Sep 2007 10:28:31 -0400
+From: Joshua Brindle <method@manicmethod.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Mark Goldman <mgoldman@tresys.com>
+CC: selinux@tycho.nsa.gov
+Subject: Re: [POLICYREP] [Patch 0/5] remove modular policy support for policy
+ rep branch
+References: <20070816155325.881136010@tresys.com>>
+In-Reply-To: <20070816155325.881136010@tresys.com>>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-If you can create a clean, sanity-checked, tested version of this against 
-for-akpm, it should be good to go for 2.6.24.
+Mark Goldman wrote:
+> This patchset removes module support from libsepol.  This
+> patchset is in support of the policyrep work.
+>
+> Patches one and two removes the files that are solely for 
+> supporting modular policies. 
+>
+> Patch three and four eliminates the various structures that 
+> supported modular policies. All functional changes occur in 
+> this patch.
+>
+> Patch five puts dispol in libsepol's utils directory.
+> Dispol was not modified in this move.
+>
+> This e-mail splits the original patches up so that they will go
+> through the list-serv without being bounced.
+>
+> -mdg
+>
+> Signed-off-by: Joshua Brindle <jbrindle@tresys.com>
+>   
 
-$ git apply --check --whitespace=warn patch
-Adds trailing whitespace.
-/tmp/ep1.txt:581:
-Adds trailing whitespace.
-/tmp/ep1.txt:584:
-Adds trailing whitespace.
-/tmp/ep1.txt:587:
-error: patch failed: security/selinux/hooks.c:4
-error: security/selinux/hooks.c: patch does not apply
-error: patch failed: security/selinux/include/avc.h:109
-error: security/selinux/include/avc.h: patch does not apply
-error: patch failed: security/selinux/include/objsec.h:39
-error: security/selinux/include/objsec.h: patch does not apply
-error: patch failed: security/selinux/ss/avtab.c:10
-error: security/selinux/ss/avtab.c: patch does not apply
-error: patch failed: security/selinux/ss/avtab.h:14
-error: security/selinux/ss/avtab.h: patch does not apply
+Merged into the policyrep branch with changes necessary due to the 
+alignment patch that was applied to trunk.
 
-
--- 
-James Morris
-<jmorris@namei.org>
 
 --
 This message was distributed to subscribers of the selinux mailing list.
