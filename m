@@ -1,64 +1,54 @@
-Subject: Re: Change default error handling in libselinux matchpathcon
-	to	use syslog instead of stderr.
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Joshua Brindle <method@manicmethod.com>
-Cc: Daniel J Walsh <dwalsh@redhat.com>, SE Linux <selinux@tycho.nsa.gov>
-In-Reply-To: <46F00E55.9030100@manicmethod.com>
-References: <46EFF028.4040500@redhat.com> <46F0065B.1060101@manicmethod.com>
-	 <1190136184.14037.54.camel@moss-spartans.epoch.ncsc.mil>
-	 <46F00E55.9030100@manicmethod.com>
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l8II71Hx020479
+	for <selinux@tycho.nsa.gov>; Tue, 18 Sep 2007 14:07:01 -0400
+Received: from exchange.columbia.tresys.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with SMTP id l8II709X002858
+	for <selinux@tycho.nsa.gov>; Tue, 18 Sep 2007 18:07:00 GMT
+Subject: Re: [PATCH] fstools.te needs corecmd_exec_bin
+From: "Christopher J. PeBenito" <cpebenito@tresys.com>
+To: Shintaro Fujiwara <shintaro.fujiwara@gmail.com>
+Cc: selinux <selinux@tycho.nsa.gov>
+In-Reply-To: <f71a82820709181039s6aeac4eaq404542de3148c411@mail.gmail.com>
+References: <f71a82820709181039s6aeac4eaq404542de3148c411@mail.gmail.com>
 Content-Type: text/plain
-Date: Tue, 18 Sep 2007 13:45:43 -0400
-Message-Id: <1190137543.14037.77.camel@moss-spartans.epoch.ncsc.mil>
+Date: Tue, 18 Sep 2007 14:05:20 -0400
+Message-Id: <1190138720.17544.13.camel@gorn>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2007-09-18 at 13:43 -0400, Joshua Brindle wrote:
-> Stephen Smalley wrote:
-> > On Tue, 2007-09-18 at 13:09 -0400, Joshua Brindle wrote:
-> >   
-> >> Daniel J Walsh wrote:
-> >>     
-> >>> -----BEGIN PGP SIGNED MESSAGE-----
-> >>> Hash: SHA1
-> >>>
-> >>> Current behavior causes problems with network applications.
-> >>>
-> >>> https://bugzilla.redhat.com/show_bug.cgi?id=273081
-> >>>   
-> >>>       
-> >> Wait, what?
-> >>
-> >> I don't think it is an improvement to call the command line matchpathcon 
-> >> applications and have the logs go somewhere not visible by the user. IMO 
-> >> we should take the same approach libsemanage and libsepol did where the 
-> >> logging callbacks can be overridden by specific users of the library but 
-> >> for the command line applications the output still goes to stderr.
-> >>     
-> >
-> > You already can override the callback (set_matchpathcon_printf), but the
-> > claim in the bug report is that isn't usable from a library function
-> > that calls matchpathcon because it doesn't know whether it has already
-> > been set by the application.
-> >   
+On Wed, 2007-09-19 at 02:39 +0900, Shintaro Fujiwara wrote:
+> I have attached usb hdd on my strict machine and typed
+> mkfs -c /dev/sdb
+> and error saying cannot execute /sbin/badblocks.
+> I always use -c with mkfs command so I added
+> this line to fstools.te.
+
+I think instead badblocks should be labeled fsadm_exec_t.
+
+> Index: policy/modules/system/fstools.te
+> ===================================================================
+> --- policy/modules/system/fstools.te    (revision 2422)
+> +++ policy/modules/system/fstools.te    (working copy)
+> @@ -119,6 +119,9 @@
+>  corecmd_read_bin_pipes(fsadm_t)
+>  corecmd_read_bin_sockets(fsadm_t)
 > 
-> Hrm... so the alternative is to send it to syslog? I don't buy it. Can 
-> we just add an interface to see if the default callbacks have been 
-> overridden?
-
-Yep.  And it should be based on the newer interfaces.  There is already
-a selinux_set_callback() and adding a selinux_get_callback() should be
-trivial.  setfiles is already rewritten to use the new interfaces in
-trunk, and we should be moving everything off of matchpathcon and onto
-selabel_lookup.
-
-For RHEL 5, I suppose there might be a matchpathcon-specific interface
-for getting the callback.
-
+> +# for mkfs -c
+> +corecmd_exec_bin(fsadm_t)
+> +
+>  domain_use_interactive_fds(fsadm_t)
+> 
+>  files_list_home(fsadm_t)
+> 
+> --
+> This message was distributed to subscribers of the selinux mailing list.
+> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
+> the words "unsubscribe selinux" without quotes as the message.
 -- 
-Stephen Smalley
-National Security Agency
+Chris PeBenito
+Tresys Technology, LLC
+(410) 290-1411 x150
 
 
 --
