@@ -1,192 +1,98 @@
-Message-ID: <46F0207B.2080304@redhat.com>
-Date: Tue, 18 Sep 2007 15:01:15 -0400
-From: Daniel J Walsh <dwalsh@redhat.com>
-MIME-Version: 1.0
-To: Stephen Smalley <sds@tycho.nsa.gov>
-CC: Eric Paris <eparis@redhat.com>, selinux@tycho.nsa.gov, sgrubb@redhat.com,
-        jmorris@namei.org, Karl MacMillan <kmacmillan@mentalrootkit.com>
-Subject: Re: rfc: kernel: special enforcing on suid and setgid chmod
-References: <1190052090.3413.18.camel@localhost.localdomain>	 <1190057036.4034.76.camel@moss-spartans.epoch.ncsc.mil>	 <46EEE8BB.9060505@redhat.com> <1190134727.14037.31.camel@moss-spartans.epoch.ncsc.mil>
-In-Reply-To: <1190134727.14037.31.camel@moss-spartans.epoch.ncsc.mil>
-Content-Type: text/plain; charset=ISO-8859-1
+Subject: Re: [PATCH] libsepol: support the handle_unknown config flag
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Eric Paris <eparis@redhat.com>
+Cc: selinux@tycho.nsa.gov
+In-Reply-To: <1185983548.3673.21.camel@localhost.localdomain>
+References: <1185983548.3673.21.camel@localhost.localdomain>
+Content-Type: text/plain
+Date: Tue, 18 Sep 2007 15:41:52 -0400
+Message-Id: <1190144512.14037.100.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
-
-Stephen Smalley wrote:
-> On Mon, 2007-09-17 at 16:51 -0400, Daniel J Walsh wrote:
-> Stephen Smalley wrote:
->>>> On Mon, 2007-09-17 at 14:01 -0400, Eric Paris wrote:
->>>>> It was mentioned today that it might be useful to split the security
->>>>> check for setting DAC permissions such that the setuid and setgid bits
->>>>> could have special enforcement.  This patch adds two new permissions to
->>>>> the file class and should explicitly check those.  It doesn't do
->>>>> anything for the sticky bit, nor does this patch do anything for setuid
->>>>> and setgid on directories.  Thoughts?
->>>> What's the rationale for it?  How would you use it practically?
->>>> Where do we draw the line for distinctions among different flavors of
->>>> setattr?  What are the implications for similar DAC-related extensions
->>>> elsewhere?
->>>>
-> I setup an account with a webadmr:webadm_t.  Only allow this user to
-> become root as webadm_t.  User creates a setuid executable.  Uses some
-> other flaw to execute this new setuid app to get full root access.
+On Wed, 2007-08-01 at 11:52 -0400, Eric Paris wrote:
+> Update the policydb definition to contain a handle_unknown flag.  Change
+> libsepol to copy the handle_unknown config flag from the base policy to
+> the final binary policy.  Also makes libsepol properly read and write
+> the flag which dealing with policy modules.
 > 
->> Where full root access means what?  Just having uid 0?  Or having all
->> capabilities?  If the latter, we already can limit that based on domain,
->> so the fact that the user can run a suid root shell doesn't mean that he
->> gets capabilities unless his domain is allowed those capabilities.
+> Signed-off-by: Eric Paris <eparis@redhat.com>
+
+Thanks, merged as of libsepol 2.0.10.
 > 
->> And if you want to distinguish such things on chmod, what about
->> controlling the ability to actually perform the suid/sgid transition at
->> execve time?  I want to better understand the end game before we start
->> making little changes one by one.
+> diff -Naupr libsepol-2.0.4/include/sepol/policydb/policydb.h libsepol-2.0.4.new/include/sepol/policydb/policydb.h
+> --- libsepol-2.0.4/include/sepol/policydb/policydb.h	2007-06-21 05:17:02.000000000 -0400
+> +++ libsepol-2.0.4.new/include/sepol/policydb/policydb.h	2007-07-31 16:14:13.000000000 -0400
+> @@ -469,6 +469,8 @@ typedef struct policydb {
+>  	ebitmap_t *attr_type_map;	/* not saved in the binary policy */
+>  
+>  	unsigned policyvers;
+> +
+> +	unsigned handle_unknown;
+>  } policydb_t;
+>  
+>  struct sepol_policydb {
+> @@ -599,6 +601,13 @@ extern int policydb_write(struct policyd
+>  
+>  #define POLICYDB_CONFIG_MLS    1
+>  
+> +/* the config flags related to unknown classes/perms are bits 2 and 3 */
+> +#define DENY_UNKNOWN	0x00000000
+> +#define REJECT_UNKNOWN	0x00000002
+> +#define ALLOW_UNKNOWN 	0x00000004
+> +
+> +#define POLICYDB_CONFIG_UNKNOWN_MASK	(DENY_UNKNOWN | REJECT_UNKNOWN | ALLOW_UNKNOWN)
+> +
+>  #define OBJECT_R "object_r"
+>  #define OBJECT_R_VAL 1
+>  
+> diff -Naupr libsepol-2.0.4/src/expand.c libsepol-2.0.4.new/src/expand.c
+> --- libsepol-2.0.4/src/expand.c	2007-06-21 05:17:01.000000000 -0400
+> +++ libsepol-2.0.4.new/src/expand.c	2007-07-27 18:32:39.000000000 -0400
+> @@ -2248,6 +2248,7 @@ int expand_module(sepol_handle_t * handl
+>  
+>  	/* Copy mls state from base to out */
+>  	out->mls = base->mls;
+> +	out->handle_unknown = base->handle_unknown;
+>  
+>  	if ((state.typemap =
+>  	     (uint32_t *) calloc(state.base->p_types.nprim,
+> diff -Naupr libsepol-2.0.4/src/policydb.c libsepol-2.0.4.new/src/policydb.c
+> --- libsepol-2.0.4/src/policydb.c	2007-06-21 05:17:01.000000000 -0400
+> +++ libsepol-2.0.4.new/src/policydb.c	2007-07-31 16:17:53.000000000 -0400
+> @@ -3057,6 +3057,8 @@ int policydb_read(policydb_t * p, struct
+>  		p->mls = 0;
+>  	}
+>  
+> +	p->handle_unknown = buf[bufindex] & POLICYDB_CONFIG_UNKNOWN_MASK;
+> +
+>  	bufindex++;
+>  
+>  	info = policydb_lookup_compat(r_policyvers, policy_type);
+> diff -Naupr libsepol-2.0.4/src/write.c libsepol-2.0.4.new/src/write.c
+> --- libsepol-2.0.4/src/write.c	2007-06-21 05:17:01.000000000 -0400
+> +++ libsepol-2.0.4.new/src/write.c	2007-07-31 16:18:49.000000000 -0400
+> @@ -1534,6 +1534,8 @@ int policydb_write(policydb_t * p, struc
+>  	if (p->mls)
+>  		config |= POLICYDB_CONFIG_MLS;
+>  
+> +	config |= (POLICYDB_CONFIG_UNKNOWN_MASK & p->handle_unknown);
+> +
+>  	/* Write the magic number and string identifiers. */
+>  	items = 0;
+>  	if (p->policy_type == POLICY_KERN) {
 > 
->> Note too that past discussions of splitting setattr were oriented around
->> separating the distinct operations (chmod vs. chown vs. utimes vs.
->> truncate), so if we are splitting setattr at all (for suid/sgid), we
->> should think about the full set of distinctions we want.  Originally we
->> always checked setattr permission, then later changed to only check that
->> for chmod/chown/utimes with a specific timestamp and to check write for
->> the rest (utimes to the current time, truncate).
-> 
-> webadmin needs chmod in order to set proper permissions on cgi scripts.
 > 
 > 
-> 
-> 
->>>> There is the obvious compatibility concern, which might be offset by
->>>> your handle unknown patch but only if it goes into the kernel and
->>>> policies well before this change does.
->>>>
->>>>> couple questions:
->>>>>
->>>>> Are their other file types where those bits have meaning other than
->>>>> regular files and directories?
->>>>>
->>>>> Do I/policy people care about these bits on directories? (see man 2
->>>>> stat)
->>>>>
->>>>> Am I allowed to add permissions to the set of common permissions without
->>>>> bumping the policy version number?
->>>> No, it would alter the values of the per-class perms for classes that
->>>> inherit from that common definition.  And we don't have a framework
->>>> today for remapping class/perm values upon such incompatible changes,
->>>> even if you bump the version.  Could be a good way to get you to
->>>> implement dynamic lookup of class/perm values and remapping of them at
->>>> runtime within the kernel ;)
->>>>
->>>>>   I first thought about adding setuid
->>>>> and setgid to the common set for all files but then figured it would
->>>>> break something.
->>>>>
->>>>> This is uncompiled, untested, untrustworthy,  about the only thing it is
->>>>> not un- of is worthy of a bit of discussion.  If discussions goes well,
->>>>> I'll actually make a tested version of this patch when the userspace
->>>>> people who wanted to make use of it get to it.
->>>>>
->>>>> -Eric
->>>>>
->>>>> ---
->>>>>
->>>>>  security/selinux/hooks.c                     |    9 ++++++++-
->>>>>  security/selinux/include/av_perm_to_string.h |    2 ++
->>>>>  security/selinux/include/av_permissions.h    |    2 ++
->>>>>  3 files changed, 12 insertions(+), 1 deletions(-)
->>>>>
->>>>> diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
->>>>> index 3694662..6838e91 100644
->>>>> --- a/security/selinux/hooks.c
->>>>> +++ b/security/selinux/hooks.c
->>>>> @@ -2273,6 +2273,7 @@ static int selinux_inode_permission(struct inode *inode, int mask,
->>>>>  static int selinux_inode_setattr(struct dentry *dentry, struct iattr *iattr)
->>>>>  {
->>>>>  	int rc;
->>>>> +	u32 check = FILE__SETATTR;
->>>>>  
->>>>>  	rc = secondary_ops->inode_setattr(dentry, iattr);
->>>>>  	if (rc)
->>>>> @@ -2281,9 +2282,15 @@ static int selinux_inode_setattr(struct dentry *dentry, struct iattr *iattr)
->>>>>  	if (iattr->ia_valid & ATTR_FORCE)
->>>>>  		return 0;
->>>>>  
->>>>> +	if ((iattr->ia_valid & ATTR_MODE) & S_ISREG(dentry->d_inode->i_mode)) {
->>>>> +		if (S_ISUID & iattr->ia_mode)
->>>>> +			check |= FILE__SETUID;
->>>>> +		if (S_ISGID & iattr->ia_mode)
->>>>> +			check |= FILE__SETGID;
->>>>> +	}
->>>>>  	if (iattr->ia_valid & (ATTR_MODE | ATTR_UID | ATTR_GID |
->>>>>  			       ATTR_ATIME_SET | ATTR_MTIME_SET))
->>>>> -		return dentry_has_perm(current, NULL, dentry, FILE__SETATTR);
->>>>> +		return dentry_has_perm(current, NULL, dentry, check);
->>>>>  
->>>>>  	return dentry_has_perm(current, NULL, dentry, FILE__WRITE);
->>>>>  }
->>>>> diff --git a/security/selinux/include/av_perm_to_string.h b/security/selinux/include/av_perm_to_string.h
->>>>> index 049bf69..11a40af 100644
->>>>> --- a/security/selinux/include/av_perm_to_string.h
->>>>> +++ b/security/selinux/include/av_perm_to_string.h
->>>>> @@ -17,6 +17,8 @@
->>>>>     S_(SECCLASS_FILE, FILE__EXECUTE_NO_TRANS, "execute_no_trans")
->>>>>     S_(SECCLASS_FILE, FILE__ENTRYPOINT, "entrypoint")
->>>>>     S_(SECCLASS_FILE, FILE__EXECMOD, "execmod")
->>>>> +   S_(SECCLASS_FILE, FILE__SETUID, "setuid")
->>>>> +   S_(SECCLASS_FILE, FILE__SETGID, "setgid")
->>>>>     S_(SECCLASS_CHR_FILE, CHR_FILE__EXECUTE_NO_TRANS, "execute_no_trans")
->>>>>     S_(SECCLASS_CHR_FILE, CHR_FILE__ENTRYPOINT, "entrypoint")
->>>>>     S_(SECCLASS_CHR_FILE, CHR_FILE__EXECMOD, "execmod")
->>>>> diff --git a/security/selinux/include/av_permissions.h b/security/selinux/include/av_permissions.h
->>>>> index eda89a2..2d28e92 100644
->>>>> --- a/security/selinux/include/av_permissions.h
->>>>> +++ b/security/selinux/include/av_permissions.h
->>>>> @@ -99,6 +99,8 @@
->>>>>  #define FILE__EXECUTE_NO_TRANS                    0x00020000UL
->>>>>  #define FILE__ENTRYPOINT                          0x00040000UL
->>>>>  #define FILE__EXECMOD                             0x00080000UL
->>>>> +#define FILE__SETUID                              0x00100000UL
->>>>> +#define FILE__SETGID                              0x00200000UL
->>>>>  #define LNK_FILE__IOCTL                           0x00000001UL
->>>>>  #define LNK_FILE__READ                            0x00000002UL
->>>>>  #define LNK_FILE__WRITE                           0x00000004UL
->>>>>
->>>>>
->>>>>
->>>>> --
->>>>> This message was distributed to subscribers of the selinux mailing list.
->>>>> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
->>>>> the words "unsubscribe selinux" without quotes as the message.
+> --
+> This message was distributed to subscribers of the selinux mailing list.
+> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
+> the words "unsubscribe selinux" without quotes as the message.
+-- 
+Stephen Smalley
+National Security Agency
 
-
-I am thinking of the case where you define an application "login user"
-which has the ability to run setuid applications, but the administrator
-governs that he needs to go through sudo and run newrole to the webadm
-user.  If while he is the webadm user he can create a setuid
-application, he can now circomvent the path.
-
-So maybe a bad example would be
-
-unconfined_t - unconfined_sudo_t - webadm_t
-
-If he is able to setuid some shell, he can then switch back to
-unconfined_t and run the shell to get through DAC permissions.
-
-I think as we move into constricting root administrator we are going to
-find other side paths for getting around these restrictions.
-
-I would argue that almost every confined domain, that currently has the
-ability to chmod on a file does not need the ability to set the setuid
-or gid bit.
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.7 (GNU/Linux)
-Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org
-
-iD8DBQFG8CB7rlYvE4MpobMRAroYAJ9N0XIstPUj1HjgOW8dMdq61bG/EwCguAO+
-L6UnymELGWZUA77QCz2SKtY=
-=pxin
------END PGP SIGNATURE-----
 
 --
 This message was distributed to subscribers of the selinux mailing list.
