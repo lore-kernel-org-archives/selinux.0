@@ -1,98 +1,67 @@
-Subject: Re: [PATCH] libsepol: support the handle_unknown config flag
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Eric Paris <eparis@redhat.com>
-Cc: selinux@tycho.nsa.gov
-In-Reply-To: <1185983548.3673.21.camel@localhost.localdomain>
-References: <1185983548.3673.21.camel@localhost.localdomain>
-Content-Type: text/plain
-Date: Tue, 18 Sep 2007 15:41:52 -0400
-Message-Id: <1190144512.14037.100.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+Message-ID: <46F02ACF.3040607@tycho.nsa.gov>
+Date: Tue, 18 Sep 2007 15:45:19 -0400
+From: Eamon Walsh <ewalsh@tycho.nsa.gov>
+MIME-Version: 1.0
+To: Stephen Smalley <sds@tycho.nsa.gov>
+CC: selinux@tycho.nsa.gov
+Subject: Re: [patch] libselinux, setfiles:  fix selabel option flag setting
+References: <1190139648.14037.85.camel@moss-spartans.epoch.ncsc.mil>
+In-Reply-To: <1190139648.14037.85.camel@moss-spartans.epoch.ncsc.mil>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2007-08-01 at 11:52 -0400, Eric Paris wrote:
-> Update the policydb definition to contain a handle_unknown flag.  Change
-> libsepol to copy the handle_unknown config flag from the base policy to
-> the final binary policy.  Also makes libsepol properly read and write
-> the flag which dealing with policy modules.
-> 
-> Signed-off-by: Eric Paris <eparis@redhat.com>
+Stephen Smalley wrote:
+> Fix selabel option flag setting to eliminate a build error on 64-bit.
 
-Thanks, merged as of libsepol 2.0.10.
+Looks good to me.
+
 > 
-> diff -Naupr libsepol-2.0.4/include/sepol/policydb/policydb.h libsepol-2.0.4.new/include/sepol/policydb/policydb.h
-> --- libsepol-2.0.4/include/sepol/policydb/policydb.h	2007-06-21 05:17:02.000000000 -0400
-> +++ libsepol-2.0.4.new/include/sepol/policydb/policydb.h	2007-07-31 16:14:13.000000000 -0400
-> @@ -469,6 +469,8 @@ typedef struct policydb {
->  	ebitmap_t *attr_type_map;	/* not saved in the binary policy */
+> ---
+> 
+>  libselinux/src/matchpathcon.c       |    4 ++--
+>  policycoreutils/setfiles/setfiles.c |    4 ++--
+>  2 files changed, 4 insertions(+), 4 deletions(-)
+> 
+> Index: trunk/libselinux/src/matchpathcon.c
+> ===================================================================
+> --- trunk/libselinux/src/matchpathcon.c	(revision 2562)
+> +++ trunk/libselinux/src/matchpathcon.c	(working copy)
+> @@ -119,10 +119,10 @@
+>  	memset(options, 0, sizeof(options));
+>  	i = SELABEL_OPT_BASEONLY;
+>  	options[i].type = i;
+> -	options[i].value = (char *)(flags & MATCHPATHCON_BASEONLY);
+> +	options[i].value = (flags & MATCHPATHCON_BASEONLY) ? (char*)1 : NULL;
+>  	i = SELABEL_OPT_VALIDATE;
+>  	options[i].type = i;
+> -	options[i].value = (char *)(flags & MATCHPATHCON_VALIDATE);
+> +	options[i].value = (flags & MATCHPATHCON_VALIDATE) ? (char*)1 : NULL;
+>  	notrans = flags & MATCHPATHCON_NOTRANS;
+>  }
 >  
->  	unsigned policyvers;
-> +
-> +	unsigned handle_unknown;
->  } policydb_t;
->  
->  struct sepol_policydb {
-> @@ -599,6 +601,13 @@ extern int policydb_write(struct policyd
->  
->  #define POLICYDB_CONFIG_MLS    1
->  
-> +/* the config flags related to unknown classes/perms are bits 2 and 3 */
-> +#define DENY_UNKNOWN	0x00000000
-> +#define REJECT_UNKNOWN	0x00000002
-> +#define ALLOW_UNKNOWN 	0x00000004
-> +
-> +#define POLICYDB_CONFIG_UNKNOWN_MASK	(DENY_UNKNOWN | REJECT_UNKNOWN | ALLOW_UNKNOWN)
-> +
->  #define OBJECT_R "object_r"
->  #define OBJECT_R_VAL 1
->  
-> diff -Naupr libsepol-2.0.4/src/expand.c libsepol-2.0.4.new/src/expand.c
-> --- libsepol-2.0.4/src/expand.c	2007-06-21 05:17:01.000000000 -0400
-> +++ libsepol-2.0.4.new/src/expand.c	2007-07-27 18:32:39.000000000 -0400
-> @@ -2248,6 +2248,7 @@ int expand_module(sepol_handle_t * handl
->  
->  	/* Copy mls state from base to out */
->  	out->mls = base->mls;
-> +	out->handle_unknown = base->handle_unknown;
->  
->  	if ((state.typemap =
->  	     (uint32_t *) calloc(state.base->p_types.nprim,
-> diff -Naupr libsepol-2.0.4/src/policydb.c libsepol-2.0.4.new/src/policydb.c
-> --- libsepol-2.0.4/src/policydb.c	2007-06-21 05:17:01.000000000 -0400
-> +++ libsepol-2.0.4.new/src/policydb.c	2007-07-31 16:17:53.000000000 -0400
-> @@ -3057,6 +3057,8 @@ int policydb_read(policydb_t * p, struct
->  		p->mls = 0;
+> Index: trunk/policycoreutils/setfiles/setfiles.c
+> ===================================================================
+> --- trunk/policycoreutils/setfiles/setfiles.c	(revision 2562)
+> +++ trunk/policycoreutils/setfiles/setfiles.c	(working copy)
+> @@ -967,8 +967,8 @@
 >  	}
 >  
-> +	p->handle_unknown = buf[bufindex] & POLICYDB_CONFIG_UNKNOWN_MASK;
-> +
->  	bufindex++;
+>  	/* Load the file contexts configuration and check it. */
+> -	opts[0].value = (char *)ctx_validate;
+> -	opts[1].value = (char *)base_only;
+> +	opts[0].value = (ctx_validate ? (char*)1 : NULL);
+> +	opts[1].value = (base_only ? (char *)1 : NULL);
+>  	opts[2].value = altpath;
 >  
->  	info = policydb_lookup_compat(r_policyvers, policy_type);
-> diff -Naupr libsepol-2.0.4/src/write.c libsepol-2.0.4.new/src/write.c
-> --- libsepol-2.0.4/src/write.c	2007-06-21 05:17:01.000000000 -0400
-> +++ libsepol-2.0.4.new/src/write.c	2007-07-31 16:18:49.000000000 -0400
-> @@ -1534,6 +1534,8 @@ int policydb_write(policydb_t * p, struc
->  	if (p->mls)
->  		config |= POLICYDB_CONFIG_MLS;
->  
-> +	config |= (POLICYDB_CONFIG_UNKNOWN_MASK & p->handle_unknown);
-> +
->  	/* Write the magic number and string identifiers. */
->  	items = 0;
->  	if (p->policy_type == POLICY_KERN) {
+>  	hnd = selabel_open(SELABEL_CTX_FILE, opts, 3);
 > 
 > 
-> 
-> --
-> This message was distributed to subscribers of the selinux mailing list.
-> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
-> the words "unsubscribe selinux" without quotes as the message.
--- 
-Stephen Smalley
-National Security Agency
 
+
+-- 
+Eamon Walsh <ewalsh@tycho.nsa.gov>
+National Security Agency
 
 --
 This message was distributed to subscribers of the selinux mailing list.
