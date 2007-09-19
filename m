@@ -1,25 +1,45 @@
-Date: Wed, 19 Sep 2007 14:12:53 -0700 (PDT)
+Date: Wed, 19 Sep 2007 14:15:20 -0700 (PDT)
 From: James Morris <jmorris@namei.org>
-To: Stephen Smalley <sds@tycho.nsa.gov>
-cc: Venkat Yekkirala <vyekkirala@TrustedCS.com>, selinux@tycho.nsa.gov,
-        paul.moore@hp.com, Karl MacMillan <kmacmillan@mentalrootkit.com>,
-        Joshua Brindle <method@manicmethod.com>
-Subject: Re: [RFC] [PATCH 4/4] SELinux changes
-In-Reply-To: <1190211506.25863.56.camel@moss-spartans.epoch.ncsc.mil>
-Message-ID: <Xine.LNX.4.64.0709191412170.31778@us.intercode.com.au>
-References: <46F00BAC.8040103@trustedcs.com> <1190211506.25863.56.camel@moss-spartans.epoch.ncsc.mil>
+To: Eric Paris <eparis@redhat.com>
+cc: selinux@tycho.nsa.gov, sds@tycho.nsa.gov
+Subject: Re: [PATCH] SELinux: whitespace fun
+In-Reply-To: <Xine.LNX.4.64.0709180210460.22144@us.intercode.com.au>
+Message-ID: <Xine.LNX.4.64.0709191413400.31778@us.intercode.com.au>
+References: <1189097504.3418.22.camel@localhost.localdomain>
+ <Xine.LNX.4.64.0709180210460.22144@us.intercode.com.au>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 19 Sep 2007, Stephen Smalley wrote:
+On Tue, 18 Sep 2007, James Morris wrote:
 
-> We thought we were eliminating the need for these per-packet
-> per-node/netif checks by way of secmark, but I guess not if we are
-> keeping secmark separate from labeled networking.
+> If you can create a clean, sanity-checked, tested version of this against 
+> for-akpm, it should be good to go for 2.6.24.
 
-The checks should only be made if labeled networking is active.
+I meant 2.6.23, of course.
+
+> 
+> $ git apply --check --whitespace=warn patch
+> Adds trailing whitespace.
+> /tmp/ep1.txt:581:
+> Adds trailing whitespace.
+> /tmp/ep1.txt:584:
+> Adds trailing whitespace.
+> /tmp/ep1.txt:587:
+> error: patch failed: security/selinux/hooks.c:4
+> error: security/selinux/hooks.c: patch does not apply
+> error: patch failed: security/selinux/include/avc.h:109
+> error: security/selinux/include/avc.h: patch does not apply
+> error: patch failed: security/selinux/include/objsec.h:39
+> error: security/selinux/include/objsec.h: patch does not apply
+> error: patch failed: security/selinux/ss/avtab.c:10
+> error: security/selinux/ss/avtab.c: patch does not apply
+> error: patch failed: security/selinux/ss/avtab.h:14
+> error: security/selinux/ss/avtab.h: patch does not apply
+> 
+> 
+> 
 
 -- 
 James Morris
