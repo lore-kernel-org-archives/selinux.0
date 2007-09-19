@@ -1,66 +1,51 @@
-Subject: Re: concept of a permissive domain
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Martin Orr <martin@martinorr.name>
-Cc: Chad Sellers <csellers@tresys.com>, Eric Paris <eparis@redhat.com>,
-        Daniel J Walsh <dwalsh@redhat.com>,
-        Karl MacMillan <kmacmillan@mentalrootkit.com>, selinux@tycho.nsa.gov
-In-Reply-To: <46F14FBA.7060406@martinorr.name>
-References: <C315C13B.2C502%csellers@tresys.com>
-	 <46F14FBA.7060406@martinorr.name>
-Content-Type: text/plain
-Date: Wed, 19 Sep 2007 12:52:19 -0400
-Message-Id: <1190220739.25863.72.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+Message-ID: <46F15876.3050004@tycho.nsa.gov>
+Date: Wed, 19 Sep 2007 13:12:22 -0400
+From: Eamon Walsh <ewalsh@tycho.nsa.gov>
+MIME-Version: 1.0
+To: Stephen Smalley <sds@tycho.nsa.gov>
+CC: Joshua Brindle <method@manicmethod.com>,
+        Daniel J Walsh <dwalsh@redhat.com>, SE Linux <selinux@tycho.nsa.gov>
+Subject: Re: Change default error handling in libselinux matchpathcon	to	use
+ syslog instead of stderr.
+References: <46EFF028.4040500@redhat.com> <46F0065B.1060101@manicmethod.com>	 <1190136184.14037.54.camel@moss-spartans.epoch.ncsc.mil>	 <46F00E55.9030100@manicmethod.com> <1190137543.14037.77.camel@moss-spartans.epoch.ncsc.mil>
+In-Reply-To: <1190137543.14037.77.camel@moss-spartans.epoch.ncsc.mil>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2007-09-19 at 17:35 +0100, Martin Orr wrote:
-> On 18/09/07 22:54, Chad Sellers wrote:
-> > One other note - how does a special debug domain that allows everything
-> > except things that are dontaudit'd solve the use case that's been thrown
-> > around. If I'm the IT guy, and I'm using this permissive domain to try out a
-> > policy for 3 months in a permissive environment, I certainly don't want
-> > certain items to be denied. Even worse, the current idea would have them
-> > denied and not even audit'd. So, instead of causing a problem 3 months from
-> > now when I switch to enforcing, it causes problems the day I install policy.
-> > Millions are still lost, people still say SELinux sucks, and I (the policy
-> > writer) still get fired (with 3 months less pay as well).
+Stephen Smalley wrote:
+> On Tue, 2007-09-18 at 13:43 -0400, Joshua Brindle wrote:
+>> Stephen Smalley wrote:
+
+[...]
+
+>>> You already can override the callback (set_matchpathcon_printf), but the
+>>> claim in the bug report is that isn't usable from a library function
+>>> that calls matchpathcon because it doesn't know whether it has already
+>>> been set by the application.
+>>>   
+>> Hrm... so the alternative is to send it to syslog? I don't buy it. Can 
+>> we just add an interface to see if the default callbacks have been 
+>> overridden?
 > 
-> To pick out one particular point here, tracking down problems caused by
-> denials which have dontaudit rules is difficult, because by definition they
-> are not logged.  (I have what I guess is such a problem now: iff enforcing
-> is on, the mails cron sends me are empty.)  Would it not be useful to have a
-> way of disabling dontaudit rules, perhaps on a global or perhaps on a
-> per-domain basis?  Just as dontaudit rules are orthogonal to allow rules,
-> this setting would be orthogonal to permissive/enforcing.
+> Yep.  And it should be based on the newer interfaces.  There is already
+> a selinux_set_callback() and adding a selinux_get_callback() should be
+> trivial.  setfiles is already rewritten to use the new interfaces in
+> trunk, and we should be moving everything off of matchpathcon and onto
+> selabel_lookup.
+
+We could add a get function, and/or modify selinux_set_callback(), 
+currently void, to return the previous callback in the same way as 
+signal(2).
+
 > 
-> Please forgive me if this is already possible and I have missed it.
-
-Already possible on a global basis.
-
-Original approach (pre-modular policy, e.g. RHEL 4, Fedora < 5):
-	cd /etc/selinux/$SELINUXTYPE/src/policy
-	make enableaudit load # rebuild and load policy without dontaudits
-	<collect audit messages>
-	make clean load # rebuild and load policy with dontaudits
-
-Current modular policy approach (e.g. RHEL 5, Fedora > 5):
-	semodule -b /usr/share/selinux/$SELINUXTYPE/enableaudit.pp # replace base module with one that has no dontaudits
-	<collect audit messages>
-	semodule -b /usr/share/selinux/$SELINUXTYPE/base.pp # restore original base module
-	(limited to base module, doesn't help with non-base modules)
-
-In current trunk (policycoreutils >= 2.0.23, libsemanage >= 2.0.4,
-libsepol >= 2.0.6):
-	semodule -DB # re-generate policy with dontaudit's stripped
-	<collect audit messages>
-	semodule -B # re-generate policy normally
-	(deals with all policy modules)
+> For RHEL 5, I suppose there might be a matchpathcon-specific interface
+> for getting the callback.
+> 
 
 -- 
-Stephen Smalley
+Eamon Walsh <ewalsh@tycho.nsa.gov>
 National Security Agency
-
 
 --
 This message was distributed to subscribers of the selinux mailing list.
