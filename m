@@ -1,78 +1,32 @@
-From: David Howells <dhowells@redhat.com>
-In-Reply-To: <843863.97817.qm@web36611.mail.mud.yahoo.com>
-References: <843863.97817.qm@web36611.mail.mud.yahoo.com>
-To: casey@schaufler-ca.com
-Cc: dhowells@redhat.com, viro@ftp.linux.org.uk, hch@infradead.org,
-        Trond.Myklebust@netapp.com, sds@tycho.nsa.gov,
-        linux-kernel@vger.kernel.org, selinux@tycho.nsa.gov,
-        linux-security-module@vger.kernel.org
-Subject: Re: [PATCH 2/3] CRED: Split the task security data and move part of it into struct cred
-Date: Wed, 19 Sep 2007 23:57:16 +0100
-Message-ID: <6741.1190242636@redhat.com>
+From: Paul Moore <paul.moore@hp.com>
+To: James Morris <jmorris@namei.org>
+Subject: Re: [RFC] [PATCH 4/4] SELinux changes
+Date: Wed, 19 Sep 2007 19:20:09 -0400
+Cc: vyekkirala@TrustedCS.com, Stephen Smalley <sds@tycho.nsa.gov>,
+        selinux@tycho.nsa.gov, Karl MacMillan <kmacmillan@mentalrootkit.com>,
+        Joshua Brindle <method@manicmethod.com>
+References: <009801c7fb03$2c298260$cc0a010a@tcssec.com> <200709191740.04406.paul.moore@hp.com> <Xine.LNX.4.64.0709191551050.27547@us.intercode.com.au>
+In-Reply-To: <Xine.LNX.4.64.0709191551050.27547@us.intercode.com.au>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Message-Id: <200709191920.09502.paul.moore@hp.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Casey Schaufler <casey@schaufler-ca.com> wrote:
+On Wednesday, September 19 2007 6:52:13 pm James Morris wrote:
+> On Wed, 19 Sep 2007, Paul Moore wrote:
+> > Just for clarification James, what is the motivation for making the
+> > permission checks conditional?  Performance?  Compatibility?
+>
+> Performance -- per packet checks which are not doing anything for the vast
+> majority of users are undesirable.
 
-> > Move into the cred struct the part of the task security data that defines
-> > how a task acts upon an object.  The part that defines how something acts
-> > upon a task remains attached to the task.
-> 
-> This seems to me to be an unnatural and inappropriate separation.  Move the
-> whole of the security blob into the cred if you must have a cred (which I
-> was soooo glad Linux didn't have after having dealt with it in Solaris)
-> rather than having two blobs to deal with.
+All right, we'll throw that requirement on the pile too ...
 
-The separation is necessary for a few reasons:
-
- (1) The task victimisation context must *not* be changed by a temporary
-     override of the action and creation contexts for purposes such as
-     cachefiles.
-
- (2) If the victimisation context is not included in the override cred, then I
-     only need one copy of the override cred to do *all* the work for
-     cachefiles.  I can share that singular override blob across every task
-     that wishes to access the cache.
-
- (3) If the victimisation context is moved to the override cred, I have to
-     create a new context every time I want to apply the override.  This means
-     I have to deal with the possibility of OOM at such points.  I could cache
-     the contexts, but that's messy - and unnecessary.
-
-> If an LSM requires a different treatment between when a task is a subject and
-> when it is an object the LSM should handle that itself.
-
-Indeed, but I can help it to do so by providing separate security pointers on
-the task struct and the cred struct.
-
-> So put all these fields into one blob and attach them to the cred.
-
-The separation is, I think, the correct thing to do.
-
-> Actually, if you put all these fields in the task blob maybe you
-> don't need to do your COW thing at all.
-
-Whilst that is true, one of the purposes of this is to make it easier and
-cleaner to effect the override.  Every field in the cred struct potentially
-must be overridden.  That's a lot of context to save each time I need to apply
-the override and a lot of context to restore each time I want to restore it.
-
-With these patches, all I need to do is to take a ref and swap the cred
-pointers with a memory barrier to satisfy the RCU, and then swap them back
-again and release the ref.  It's much, much simpler.
-
-Furthermore, with respect to LSM and SELinux, I think I can remove the SELinux
-specific knowledge currently present in cachefiles by saying to LSM "give me a
-cred for kernel service X".  With SELinux this can do all the transformations
-necessary to give me the appropriate action SID and file creation SID without
-me needing to know that these concepts exist.  I just apply the cred I'm given
-as an override.
-
-With your suggestion, I either have to do a full set of transformations each
-time I want to apply the override, or I have to know about SELinux or
-whatever's internals.  Your objection to my earlier patch was this very point.
-
-David
+-- 
+paul moore
+linux security @ hp
 
 --
 This message was distributed to subscribers of the selinux mailing list.
