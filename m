@@ -1,68 +1,29 @@
-Subject: Re: [RFC]integrity: SELinux patch
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Mimi Zohar <zohar@linux.vnet.ibm.com>
-Cc: Joshua Brindle <method@manicmethod.com>, selinux@tycho.nsa.gov,
-        zohar@us.ibm.com, safford@watson.ibm.com, sailer@us.ibm.com
-In-Reply-To: <1190230883.7323.3.camel@localhost.localdomain>
-References: <1188340501.11528.14.camel@localhost.localdomain>
-	 <46D4F337.1030704@manicmethod.com>
-	 <1188382494.6129.35.camel@localhost.localdomain>
-	 <1190230883.7323.3.camel@localhost.localdomain>
-Content-Type: text/plain
-Date: Wed, 19 Sep 2007 17:04:00 -0400
-Message-Id: <1190235840.25863.98.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+Date: Wed, 19 Sep 2007 14:12:53 -0700 (PDT)
+From: James Morris <jmorris@namei.org>
+To: Stephen Smalley <sds@tycho.nsa.gov>
+cc: Venkat Yekkirala <vyekkirala@TrustedCS.com>, selinux@tycho.nsa.gov,
+        paul.moore@hp.com, Karl MacMillan <kmacmillan@mentalrootkit.com>,
+        Joshua Brindle <method@manicmethod.com>
+Subject: Re: [RFC] [PATCH 4/4] SELinux changes
+In-Reply-To: <1190211506.25863.56.camel@moss-spartans.epoch.ncsc.mil>
+Message-ID: <Xine.LNX.4.64.0709191412170.31778@us.intercode.com.au>
+References: <46F00BAC.8040103@trustedcs.com> <1190211506.25863.56.camel@moss-spartans.epoch.ncsc.mil>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2007-09-19 at 15:41 -0400, Mimi Zohar wrote:
-> On Wed, 2007-08-29 at 06:14 -0400, Mimi Zohar wrote:
-> > On Wed, 2007-08-29 at 00:16 -0400, Joshua Brindle wrote:
-> > > Mimi Zohar wrote:
-> > > 
-> > > > Index: linux-2.6.23-rc3-mm1/security/selinux/ss/services.c
-> > > > ===================================================================
-> > > > --- linux-2.6.23-rc3-mm1.orig/security/selinux/ss/services.c
-> > > > +++ linux-2.6.23-rc3-mm1/security/selinux/ss/services.c
-> > > > @@ -305,12 +305,12 @@ static int context_struct_compute_av(str
-> > > >  		    tclass <= SECCLASS_NETLINK_DNRT_SOCKET)
-> > > >  			tclass = SECCLASS_NETLINK_SOCKET;
-> > > >  
-> > > > -	if (!tclass || tclass > policydb.p_classes.nprim) {
-> > > > -		printk(KERN_ERR "security_compute_av:  unrecognized class %d\n",
-> > > > -		       tclass);
-> > > > -		return -EINVAL;
-> > > > -	}
-> > > > -	tclass_datum = policydb.class_val_to_struct[tclass - 1];
-> > > > +//	if (!tclass || tclass > policydb.p_classes.nprim) {
-> > > > +//		printk(KERN_ERR "security_compute_av:  unrecognized class %d\n",
-> > > > +//		       tclass);
-> > > > +//		return -EINVAL;
-> > > > +//	}
-> > > > +//	tclass_datum = policydb.class_val_to_struct[tclass - 1];
-> > > >  
-> > > >   
-> > > 
-> > > Err? Did you mean to submit it like this? This should be fixed by Eric's 
-> > > patch to handle unknown classes anyway.
-> > 
-> > I'm working off the latest -mm tree and that patch hasn't made it in yet,
-> > as well as some other patches.  For example, additional security class 
-> > numbers have been defined.  So I will need to update SECCLASS_INTEGRITY
-> > as well. The above code was added in order to test the patch. Once the 
-> > basic integrity concept has been reviewed and accepted, I will repost 
-> > based on the latest selinux development source tree.
-> 
-> Ok, so how do I get the latest selinux development source tree?
+On Wed, 19 Sep 2007, Stephen Smalley wrote:
 
-James Morris maintains a selinux git tree on kernel.org, but even that
-wouldn't yet have Eric's patch (that patch has been posted a few times
-on list, but there are still a couple of changes to be made).
+> We thought we were eliminating the need for these per-packet
+> per-node/netif checks by way of secmark, but I guess not if we are
+> keeping secmark separate from labeled networking.
+
+The checks should only be made if labeled networking is active.
 
 -- 
-Stephen Smalley
-National Security Agency
-
+James Morris
+<jmorris@namei.org>
 
 --
 This message was distributed to subscribers of the selinux mailing list.
