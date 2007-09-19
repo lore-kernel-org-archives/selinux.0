@@ -1,15 +1,15 @@
 Subject: Re: concept of a permissive domain
-From: Eric Paris <eparis@redhat.com>
+From: Stephen Smalley <sds@tycho.nsa.gov>
 To: Martin Orr <martin@martinorr.name>
-Cc: Chad Sellers <csellers@tresys.com>, Stephen Smalley <sds@tycho.nsa.gov>,
+Cc: Chad Sellers <csellers@tresys.com>, Eric Paris <eparis@redhat.com>,
         Daniel J Walsh <dwalsh@redhat.com>,
         Karl MacMillan <kmacmillan@mentalrootkit.com>, selinux@tycho.nsa.gov
 In-Reply-To: <46F14FBA.7060406@martinorr.name>
 References: <C315C13B.2C502%csellers@tresys.com>
 	 <46F14FBA.7060406@martinorr.name>
 Content-Type: text/plain
-Date: Wed, 19 Sep 2007 12:41:25 -0400
-Message-Id: <1190220085.3451.65.camel@localhost.localdomain>
+Date: Wed, 19 Sep 2007 12:52:19 -0400
+Message-Id: <1190220739.25863.72.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
@@ -36,10 +36,30 @@ On Wed, 2007-09-19 at 17:35 +0100, Martin Orr wrote:
 > 
 > Please forgive me if this is already possible and I have missed it.
 
-http://readlist.com/lists/tycho.nsa.gov/selinux/1/7187.html
+Already possible on a global basis.
 
-nope, you didn't miss it, but it should be coming from the userspace
-people sometime.....
+Original approach (pre-modular policy, e.g. RHEL 4, Fedora < 5):
+	cd /etc/selinux/$SELINUXTYPE/src/policy
+	make enableaudit load # rebuild and load policy without dontaudits
+	<collect audit messages>
+	make clean load # rebuild and load policy with dontaudits
+
+Current modular policy approach (e.g. RHEL 5, Fedora > 5):
+	semodule -b /usr/share/selinux/$SELINUXTYPE/enableaudit.pp # replace base module with one that has no dontaudits
+	<collect audit messages>
+	semodule -b /usr/share/selinux/$SELINUXTYPE/base.pp # restore original base module
+	(limited to base module, doesn't help with non-base modules)
+
+In current trunk (policycoreutils >= 2.0.23, libsemanage >= 2.0.4,
+libsepol >= 2.0.6):
+	semodule -DB # re-generate policy with dontaudit's stripped
+	<collect audit messages>
+	semodule -B # re-generate policy normally
+	(deals with all policy modules)
+
+-- 
+Stephen Smalley
+National Security Agency
 
 
 --
