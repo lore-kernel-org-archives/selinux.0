@@ -1,63 +1,49 @@
-Subject: Re: [PATCH -v2] kernel: selinux: policy selectable handling
-	of	unknown classes and perms
-From: Eric Paris <eparis@redhat.com>
-To: Eamon Walsh <ewalsh@tycho.nsa.gov>
-Cc: Stephen Smalley <sds@tycho.nsa.gov>, selinux@tycho.nsa.gov,
-        jmorris@namei.org, Steve G <linux_4ever@yahoo.com>
-In-Reply-To: <46F03EC1.3010900@tycho.nsa.gov>
-References: <1189695931.3391.46.camel@localhost.localdomain>
-	 <1190132935.14037.8.camel@moss-spartans.epoch.ncsc.mil>
-	 <46F03EC1.3010900@tycho.nsa.gov>
+Subject: Re: variables for file context files
+From: rob myers <rob.myers@gtri.gatech.edu>
+To: Stephen Smalley <sds@tycho.nsa.gov>
+Cc: "Clarkson, Mike R (US SSA)" <mike.clarkson@baesystems.com>,
+        selinux@tycho.nsa.gov
+In-Reply-To: <1190322412.12553.56.camel@moss-spartans.epoch.ncsc.mil>
+References: <FB39F4E77226B448BC1388D3BE4E00CD0236BF7C@blums0008.bluelnk.net>
+	 <1190322412.12553.56.camel@moss-spartans.epoch.ncsc.mil>
 Content-Type: text/plain
-Date: Thu, 20 Sep 2007 15:18:55 -0400
-Message-Id: <1190315935.3451.112.camel@localhost.localdomain>
+Date: Thu, 20 Sep 2007 18:55:19 -0400
+Message-Id: <1190328919.22264.98.camel@rxm-581b.stl.gtri.gatech.edu>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2007-09-18 at 17:10 -0400, Eamon Walsh wrote:
-> Stephen Smalley wrote:
-> > On Thu, 2007-09-13 at 11:05 -0400, Eric Paris wrote:
-> >> Allow policy to select, in much the same way as it selects MLS support,
-> >> how the kernel should handle access decisions which contain either
-> >> unknown classes or unknown permissions in known classes.  The three
-> >> choices are
-> >>
-> >> 0 - Deny unknown security access. (default)
-> >> 2 - reject loading policy if it does not contain all definitions
-> >> 4 - allow unknown security access
-> >>
-> >> The policy's choice is exported (with a value of 0,2,4) to userspace
-> >> through /selinuxfs/handle_unknown 
+On Thu, 2007-09-20 at 17:06 -0400, Stephen Smalley wrote:
+> On Thu, 2007-09-20 at 10:03 -0700, Clarkson, Mike R (US SSA) wrote:
+> > Is there a way to set variables in a file context file?
 > > 
-> > Eamon, does this userspace interface work for you to use in the
-> > userspace AVC?  Do you want the integer value like this or would you
-> > prefer the "reject", "deny", or "allow" string that is displayed by the
-> > kernel in its log message at load policy time?
+> > For instance, I'd like to be able to do something like this in my .fc
+> > files
 > > 
+> > ORACLE_HOME = '/opt/nl/oracle/ora10gR2/app/oracle/product/10.2.0/db_1'
+> > $ORACLE_HOME/lib/lib.+\.a -- gen_context(system_u:object_r:lib_t,s0)
+> > $ORACLE_HOME/lib32/lib.+\.a -- gen_context(system_u:object_r:lib_t,s0)
+> > ...
+> > 
+> > That way if my ORACLE_HOME changes, I only have to change a single line
 > 
-> Numeric values are fine, but the tristate is a little cumbersome.  Would 
-> it be possible to split this into two boolean files, one reporting 
-> zero/one for "don't reject/reject" and one reporting zero/one for 
-> "allow/deny"?
+> The source .fc files are run through the m4 preprocessor like everything
+> else (that is how gen_context gets expanded).  So you can define a m4
+> macro and use it in the source .fc file.  But the .fc file that gets
+> packaged into a .pp file has already been preprocessed.
+> 
 
-Is this really necessary?  Are you really trying to say you don't want
-to know about reject and if I put it in another file you can just ignore
-it?  I'm fine with that if userspace just plain doesn't care about it,
-I'll just make one allow/deny boolean.  I don't want to create another
-selinuxfs file if it is going to be useless.  If 2 files are actually
-useful and needed I'm willing to do that too, or maybe one file which
-outputs 2 boolean flags.
+rather than define an m4 macro, i'm substituting for the default, if
+necessary, at policy rpm build time.  an m4 macro might be a cleaner way
+to go.
 
-cat unknown
-0 0
+my code in progress is here:
+http://www.stl.gtri.gatech.edu/rmyers/oracle-selinux/
 
-> Also, I quickly scanned the patch and I didn't see any netlink code.  I 
-> need a netlink notification delivered to userspace when the values 
-> change.  This could be added to the policyload message, or a new 
-> separate message type, or both.
+if your oracle policy is in better shape than mine please send tips,
+hints and patches. :)
 
-Its not there.  I guess I'll look at this now.
+rob.
 
 
 --
