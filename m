@@ -1,38 +1,41 @@
-Subject: Re: variables for file context files
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: "Clarkson, Mike R (US SSA)" <mike.clarkson@baesystems.com>
-Cc: selinux@tycho.nsa.gov
-In-Reply-To: <FB39F4E77226B448BC1388D3BE4E00CD0236BF7C@blums0008.bluelnk.net>
-References: <FB39F4E77226B448BC1388D3BE4E00CD0236BF7C@blums0008.bluelnk.net>
-Content-Type: text/plain
-Date: Thu, 20 Sep 2007 17:06:52 -0400
-Message-Id: <1190322412.12553.56.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+Date: Thu, 20 Sep 2007 14:16:05 -0700 (PDT)
+From: James Morris <jmorris@namei.org>
+To: Stephen Smalley <sds@tycho.nsa.gov>
+cc: Mimi Zohar <zohar@linux.vnet.ibm.com>,
+        Joshua Brindle <method@manicmethod.com>, selinux@tycho.nsa.gov,
+        zohar@us.ibm.com, safford@watson.ibm.com, sailer@us.ibm.com
+Subject: Re: [RFC]integrity: SELinux patch
+In-Reply-To: <1190293949.12553.23.camel@moss-spartans.epoch.ncsc.mil>
+Message-ID: <Xine.LNX.4.64.0709201414120.16685@us.intercode.com.au>
+References: <1188340501.11528.14.camel@localhost.localdomain>
+ <46D4F337.1030704@manicmethod.com>  <1188382494.6129.35.camel@localhost.localdomain>
+  <1190230883.7323.3.camel@localhost.localdomain>
+ <1190235840.25863.98.camel@moss-spartans.epoch.ncsc.mil>
+ <1190252058.7323.33.camel@localhost.localdomain>
+ <1190293949.12553.23.camel@moss-spartans.epoch.ncsc.mil>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2007-09-20 at 10:03 -0700, Clarkson, Mike R (US SSA) wrote:
-> Is there a way to set variables in a file context file?
-> 
-> For instance, I'd like to be able to do something like this in my .fc
-> files
-> 
-> ORACLE_HOME = '/opt/nl/oracle/ora10gR2/app/oracle/product/10.2.0/db_1'
-> $ORACLE_HOME/lib/lib.+\.a -- gen_context(system_u:object_r:lib_t,s0)
-> $ORACLE_HOME/lib32/lib.+\.a -- gen_context(system_u:object_r:lib_t,s0)
-> ...
-> 
-> That way if my ORACLE_HOME changes, I only have to change a single line
+On Thu, 20 Sep 2007, Stephen Smalley wrote:
 
-The source .fc files are run through the m4 preprocessor like everything
-else (that is how gen_context gets expanded).  So you can define a m4
-macro and use it in the source .fc file.  But the .fc file that gets
-packaged into a .pp file has already been preprocessed.
+> Don't worry about conflicts with pending patches; just make a clean
+> patch (where a clean patch follows the usual guidelines and doesn't
+> include commented-out code) against some well-defined baseline (linus,
+> mm, or selinux.git).  Using the for-akpm branch of selinux.git makes it
+> easier for James to merge of course, but as -mm includes that branch, it
+> should be the same except as other patches in mm might happen to overlap
+> and except as one happens to lag behind the other.
+
+Generally, a patch against the latest Linus git will work fine, as that is 
+what -mm is against, and if there are conflicts, they need to be resolved 
+there anyway.
+
 
 -- 
-Stephen Smalley
-National Security Agency
-
+James Morris
+<jmorris@namei.org>
 
 --
 This message was distributed to subscribers of the selinux mailing list.
