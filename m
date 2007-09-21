@@ -1,128 +1,24 @@
 Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l8LFat8F002975
-	for <selinux@tycho.nsa.gov>; Fri, 21 Sep 2007 11:36:55 -0400
-Received: from web36601.mail.mud.yahoo.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with SMTP id l8LFarL2021259
-	for <selinux@tycho.nsa.gov>; Fri, 21 Sep 2007 15:36:54 GMT
-Date: Fri, 21 Sep 2007 08:36:49 -0700 (PDT)
-From: Casey Schaufler <casey@schaufler-ca.com>
-Reply-To: casey@schaufler-ca.com
-Subject: Re: [PATCH 00/22] Introduce credential record
-To: David Howells <dhowells@redhat.com>, viro@ftp.linux.org.uk,
-        hch@infradead.org, Trond.Myklebust@netapp.com, sds@tycho.nsa.gov,
-        casey@schaufler-ca.com
-Cc: linux-kernel@vger.kernel.org, selinux@tycho.nsa.gov,
-        linux-security-module@vger.kernel.org, dhowells@redhat.com
-In-Reply-To: <20070921144703.8323.50492.stgit@warthog.procyon.org.uk>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Message-ID: <718847.32805.qm@web36601.mail.mud.yahoo.com>
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l8LFfQUq003402
+	for <selinux@tycho.nsa.gov>; Fri, 21 Sep 2007 11:41:26 -0400
+Received: from alnrmhc15.comcast.net (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l8LFfNL2021962
+	for <selinux@tycho.nsa.gov>; Fri, 21 Sep 2007 15:41:23 GMT
+From: msmatsko@comcast.net (msm@gwu.edu)
+To: selinux@tycho.nsa.gov
+Subject: Memory and temporary file wiping
+Date: Fri, 21 Sep 2007 15:41:22 +0000
+Message-Id: <092120071541.15588.46F3E622000C82BA00003CE4221557511401059C9B0E039C03@comcast.net>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+Dear selinux,
 
---- David Howells <dhowells@redhat.com> wrote:
+  I'm trying to configure a RedHat Enterprise Linux box for PL2.  Part of that requirement is that memory gets zeroed before reuse and that temporary files be wiped (bcwipe can handle this).  Perusing web resources, one gets the impression that Linux and/or SELinux do the appropriate memory wiping.  However, I cannot find any specifics.  I have tried looking at kernel memory and security documentation to no avail.  Is there a specific SELinux policy for this, or is this just a standard Linux feature?  Thank you for any assistance.
 
-> 
-> 
-> Hi Al, Christoph, Trond, Stephen, Casey,
-> 
-> Here's a set of patches that implement a very basic set of COW credentials. 
-> It
-> compiles, links and runs for x86_64 with EXT3, (V)FAT, NFS, AFS, SELinux and
-> keyrings all enabled.  Most other filesystems are disabled, apart from things
-> like proc.  It is not intended to completely cover the kernel at this point.
-> 
-> The cred struct contains the credentials that the kernel needs to act upon
-> something or to create something.  Credentials that govern how a task may be
-> acted upon remain in the task struct.
-> 
-> In essence, the introduction of the cred struct separates a task's subjective
-> context (the authority with which it acts) from its objective context (the
-> authorisation required by others that want to act upon it), and permits
-> overriding of the subjective context by a kernel service so that the service
-> can act on the task's behalf to do something the task couldn't do on its own
-> authority.
-> 
-> Because keyrings and effective capabilities can be installed or changed in
-> one
-> process by another process, they are shadowed by the cred structure rather
-> than
-> residing there.  Additionally, the session and process keyrings are shared
-> between all the threads of a process.  The shadowing is performed by
-> update_current_cred() which is invoked on entry to any system call that might
-> need it.
-> 
-> A thread's cred struct may be read by that thread without any RCU precautions
-> as only that thread may replace the its own cred struct.  To change a
-> thread's
-> credentials, dup_cred() should be called to create a new copy, the copy
-> should
-> be changed, and then set_current_cred() should be called to make it live. 
-> Once
-> live, it may not be changed as it may then be shared with file descriptors,
-> RPC
-> calls and other threads.  RCU will be used to dispose of the old structure.
-> 
-> 
-> The four patches are:
-> 
->  (1) Introduce struct cred and migrate fsuid, fsgid, the groups list and the
->      keyrings pointer to it.
-> 
->  (2) Introduce a security pointer into the cred struct and add LSM hooks to
->      duplicate the information pointed to thereby and to free it.
-> 
->      Make SELinux implement the hooks, splitting out some the task security
->      data to be associated with struct cred instead.
-> 
->  (3) Migrate the effective capabilities mask into the cred struct.
-> 
->  (4) Provide a pair of LSM hooks so that a kernel service can (a) get a
->      credential record representing the authority with which it is permitted
-> to
->      act, and (b) alter the file creation context in a credential record.
-> 
-> In addition, as this works with cachefiles, I've included all the FS-Cache,
-> CacheFiles, NFS and AFS patches.
-> 
-> To substitute a temporary set of credentials, the cred struct attached to the
-> task should be altered, like so:
-> 
-> 	int get_privileged_creds(...)
-> 	{
-> 		/* get special privileged creds */
-> 		my_special_cred = get_kernel_cred("cachefiles", current);
-> 		change_create_files_as(my_special_cred, my_cache_dir);
-> 	}
-> 
-> 	int do_stuff(...)
-> 	{
-> 		struct cred *cred;
-> 
-> 		/* rotate in the new creds, saving the old */
-> 		cred = __set_current_cred(get_cred(my_special_cred));
-> 
-> 		do_privileged_stuff();
-> 
-> 		/* restore the old creds */
-> 		set_current_cred(cred);
-> 	}
-> 
-> One thing I'm not certain about is how this should interact with /proc, which
-> can display some of the stuff in the cred struct.  I think it may be
-> necessary
-> to have a real cred pointer and an effective cred pointer, with the contents
-> of
-> /proc coming from the real, but the effective governing what actually goes
-> on.
-
-I think you want the effective values to show up in /proc.
-
-
-
-Casey Schaufler
-casey@schaufler-ca.com
+Sincerely,
+Michael Matsko
+Northrop Grumman/XTI
 
 --
 This message was distributed to subscribers of the selinux mailing list.
