@@ -1,362 +1,338 @@
-From: Paul Moore <paul.moore@hp.com>
-To: Venkat Yekkirala <vyekkirala@TrustedCS.com>
-Subject: Re: [RFC] [PATCH 4/4] SELinux changes
-Date: Fri, 21 Sep 2007 16:14:52 -0400
-Cc: selinux@tycho.nsa.gov, sds@tycho.nsa.gov, jmorris@namei.org
-References: <46F00BAC.8040103@trustedcs.com>
-In-Reply-To: <46F00BAC.8040103@trustedcs.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Message-Id: <200709211614.54212.paul.moore@hp.com>
+Subject: Re: [PATCH -v4] kernel: selinux: policy selectable handling of
+	unknown classes and perms
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Eric Paris <eparis@redhat.com>
+Cc: selinux@tycho.nsa.gov, jmorris@namei.org, ewalsh@tycho.nsa.gov,
+        sgrubb@redhat.com
+In-Reply-To: <1190399830.3451.145.camel@localhost.localdomain>
+References: <1190399830.3451.145.camel@localhost.localdomain>
+Content-Type: text/plain
+Date: Fri, 21 Sep 2007 16:15:32 -0400
+Message-Id: <1190405732.17518.172.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tuesday, September 18 2007 1:32:28 pm Venkat Yekkirala wrote:
-> diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-> index 3694662..5434d7f 100644
-> --- a/security/selinux/hooks.c
-> +++ b/security/selinux/hooks.c
-> @@ -3519,6 +3519,124 @@ static int selinux_socket_unix_may_send(struct
-> socket *sock, return 0;
->  }
->
-> +static int selinux_skb_flow_in(struct sk_buff *skb, struct net_device *in,
-> +			       unsigned short family)
+On Fri, 2007-09-21 at 14:37 -0400, Eric Paris wrote:
+> Allow policy to select, in much the same way as it selects MLS support,
+> how the kernel should handle access decisions which contain either
+> unknown classes or unknown permissions in known classes.  The three
+> choices for the policy flags are
+> 
+> 0 - Deny unknown security access. (default)
+> 2 - reject loading policy if it does not contain all definitions
+> 4 - allow unknown security access
+> 
+> The policy's choice is exported through 2 booleans in
+> selinuxfs.  /selinux/deny_unknown and /selinux/reject_unknown. 
+> 
+> Signed-off-by: Eric Paris <eparis@redhat.com>
+
+Acked-by:  Stephen Smalley <sds@tycho.nsa.gov>
+
+> 
+> ---
+> 
+> This should include Eamon's patch splitting things into 2 separate bits.
+> 
+> offline discussions with sgrubb suggested he explicitly did not care to
+> see the unknown state in the audit record.  His claim was that although
+> interesting audit.log != syslog and this is simply another part of the
+> policy.  It is not a security action which can be changed during the
+> lifetime of a policy.
+> 
+> Dropped the unused var pointed out by Eamon since I'm not adding this
+> info to audit messages
+> 
+>  security/selinux/include/security.h |    2 +
+>  security/selinux/selinuxfs.c        |   26 ++++++++++++
+>  security/selinux/ss/policydb.c      |    4 ++
+>  security/selinux/ss/policydb.h      |    8 ++++
+>  security/selinux/ss/services.c      |   75 ++++++++++++++++++++++++++++++----
+>  5 files changed, 106 insertions(+), 9 deletions(-)
+> 
+> diff --git a/security/selinux/include/security.h b/security/selinux/include/security.h
+> index 83bdd4d..39337af 100644
+> --- a/security/selinux/include/security.h
+> +++ b/security/selinux/include/security.h
+> @@ -90,6 +90,8 @@ int security_sid_mls_copy(u32 sid, u32 mls_sid, u32 *new_sid);
+>  
+>  int security_get_classes(char ***classes, int *nclasses);
+>  int security_get_permissions(char *class, char ***perms, int *nperms);
+> +int security_get_reject_unknown(void);
+> +int security_get_allow_unknown(void);
+>  
+>  #define SECURITY_FS_USE_XATTR		1 /* use xattr */
+>  #define SECURITY_FS_USE_TRANS		2 /* use transition SIDs, e.g. devpts/tmpfs */
+> diff --git a/security/selinux/selinuxfs.c b/security/selinux/selinuxfs.c
+> index c9e92da..f5f3e6d 100644
+> --- a/security/selinux/selinuxfs.c
+> +++ b/security/selinux/selinuxfs.c
+> @@ -103,6 +103,8 @@ enum sel_inos {
+>  	SEL_MEMBER,	/* compute polyinstantiation membership decision */
+>  	SEL_CHECKREQPROT, /* check requested protection, not kernel-applied one */
+>  	SEL_COMPAT_NET,	/* whether to use old compat network packet controls */
+> +	SEL_REJECT_UNKNOWN, /* export unknown reject handling to userspace */
+> +	SEL_DENY_UNKNOWN, /* export unknown deny handling to userspace */
+>  	SEL_INO_NEXT,	/* The next inode number to use */
+>  };
+>  
+> @@ -177,6 +179,23 @@ static const struct file_operations sel_enforce_ops = {
+>  	.write		= sel_write_enforce,
+>  };
+>  
+> +static ssize_t sel_read_handle_unknown(struct file *filp, char __user *buf,
+> +					size_t count, loff_t *ppos)
 > +{
-> +	u32 node_sid, if_sid, secid = SECSID_NULL;
-> +	int err;
-> +	struct avc_audit_data ad;
-> +	char *addrp;
-> +	int len;
+> +	char tmpbuf[TMPBUFLEN];
+> +	ssize_t length;
+> +	ino_t ino = filp->f_path.dentry->d_inode->i_ino;
+> +	int handle_unknown = (ino == SEL_REJECT_UNKNOWN) ?
+> +		security_get_reject_unknown() : !security_get_allow_unknown();
 > +
-> +	if (!in) {
-> +		if (skb->dev && skb->dev->ifindex == skb->iif)
-
-When, if ever, will the skb->dev->ifindex != skb->iif?  Doesn't it have to be 
-the same?
-
-> +			in = skb->dev;
-
-Please don't reuse the "in" parameter here (or below), create a new variable 
-("dev" perhaps?).  I know this is a nit, but I think it helps make things 
-easier to read/debug.
-
-> +		else
-> +			in = __dev_get_by_index(skb->iif);
-
-Are you certain it's safe to use __dev_get_by_index() here?  I have a hunch we 
-need to use the regular dev_get_by_index() function and the matching 
-dev_put() call later.
-
-> +		if (!in) {
-> +			err = -EACCES;
-> +			goto out;
-> +		}
-> +	}
-> +	AVC_AUDIT_DATA_INIT(&ad, NET);
-> +	ad.u.net.netif = in->name;
-> +	ad.u.net.family = family;
-> +	err = selinux_parse_skb(skb, &ad, &addrp, &len, 1, NULL);
-> +	if (err)
-> +		goto out;
+> +	length = scnprintf(tmpbuf, TMPBUFLEN, "%d", handle_unknown);
+> +	return simple_read_from_buffer(buf, count, ppos, tmpbuf, length);
+> +}
 > +
-> +	if (in != &loopback_dev) { /* Non-localhost packet */
-> +		err = selinux_xfrm_decode_session(skb, &secid, 0);
-> +		BUG_ON(err);
-> +		/* TODO: Retrieve and check any NetLabel for agreement with
-> +		   any Xfrm; also retrieve fallback if necessary */
-> +	}
-> +#ifdef TODO
-> +	else /* localhost packet */
-> +		/* TODO: Retrieve special IP Option set for localhost traffic */
-> +#endif
-
-Remove the check for loopback and the #ifdef ... #endif block, this stuff 
-should/will be handled in a different set of patches.  Stick with the 
-selinux_xfrm_decode_session() call and the TODO comment for right now.
-
-> +	err = security_node_sid(family, addrp, len, &node_sid);
-> +	if (err)
-> +		goto out;
-> +
-> +	err = avc_has_perm(secid, node_sid,
-> +				  SECCLASS_NODE,
-> +				  NODE__FLOW_IN, &ad);
-> +	if (err)
-> +		goto out;
-> +
-> +	/* See if skb can flow in thru the interface */
-> +	err = sel_netif_sids(in, &if_sid, NULL);
-> +	if (err)
-> +		goto out;
-> +
-> +	err = avc_has_perm(secid, if_sid,
-> +				  SECCLASS_NETIF,
-> +				  NETIF__FLOW_IN, &ad);
-
-Move the NETIF check in front of the NODE check.  I think it makes more sense 
-conceptually to check the interface first.
-
-> +out:
-> +	return err;
+> +static const struct file_operations sel_handle_unknown_ops = {
+> +	.read		= sel_read_handle_unknown,
 > +};
 > +
-> +static int selinux_skb_flow_out(struct sk_buff *skb, int family)
-
-If we change the other functions from "flow_out" to "output" it might make 
-sense to do the same here and below.
-
-> +{
-> +	u32 node_sid, if_sid, secid = SECSID_NULL;
-> +	int err;
-> +	struct avc_audit_data ad;
-> +	char *addrp;
-> +	int len;
-> +	struct sock *sk;
-> +	struct sk_security_struct *sksec;
-> +
-> +	if (!skb->dev) {
-> +		err = -EACCES;
-> +		goto out;
-> +	}
-> +
-> +	AVC_AUDIT_DATA_INIT(&ad, NET);
-> +	ad.u.net.netif = skb->dev->name;
-> +	ad.u.net.family = family;
-> +	err = selinux_parse_skb(skb, &ad, &addrp, &len, 1, NULL);
-> +	if (err)
-> +		goto out;
-> +
-> +	/* TODO: Glean the secid for forwarded packets
-> +	   from any incoming xfrms, NetLabel/Fallback, etc. */
-> +
-> +	if (!secid) {
-
-Make use of the #define where possible, change this to:
-
-	if (secid != SECSID_NULL) {
-
-> +		sk = skb->sk;
-> +		if (sk) {
-> +			sksec = sk->sk_security;
-> +			secid = sksec->sid;
-> +		}
-> +	}
-> +
-> +	err = security_node_sid(family, addrp, len, &node_sid);
-> +	if (err)
-> +		goto out;
-> +
-> +	err = avc_has_perm(secid, node_sid,
-> +				  SECCLASS_NODE,
-> +				  NODE__FLOW_OUT, &ad);
-> +	if (err)
-> +		goto out;
-> +
-> +	/* See if skb can flow out thru the interface */
-> +	err = sel_netif_sids(skb->dev, &if_sid, NULL);
-> +	if (err)
-> +		goto out;
-> +
-> +	err = avc_has_perm(secid, if_sid,
-> +				  SECCLASS_NETIF,
-> +				  NETIF__FLOW_OUT, &ad);
-
-Here I think it is "correct" to check the node first as you are currently 
-doing.
-
-> +out:
-> +	return err;
-> +}
-> +
->  static int selinux_sock_rcv_skb_compat(struct sock *sk, struct sk_buff
-> *skb, struct avc_audit_data *ad, u16 family, char *addrp, int len)
->  {
-> @@ -3629,10 +3747,14 @@ static int selinux_socket_sock_rcv_skb(struct sock
-> *sk, struct sk_buff *skb) if (err)
->  		goto out;
->
-> -	if (selinux_compat_net)
-> +	if (selinux_compat_net) {
-> +		err = selinux_skb_flow_in(skb, NULL, family);
-> +		if (err)
-> +			goto out;
-
-You just lost me here ... why only do the flow_in check when compat_net == 1?
-
->  		err = selinux_sock_rcv_skb_compat(sk, skb, &ad, family,
->  						  addrp, len);
-> -	else
-> +	} else
->  		err = avc_has_perm(sksec->sid, skb->secmark, SECCLASS_PACKET,
->  				   PACKET__RECV, &ad);
->  	if (err)
-> @@ -3924,6 +4046,20 @@ out:
->  	return err;
->  }
->
-> +static unsigned int selinux_ip_forward_first(unsigned int hooknum,
-> +                                              struct sk_buff **pskb,
-> +                                              const struct net_device *in,
-> +                                              const struct net_device
-> *out, +                                              int (*okfn)(struct
-> sk_buff *), +                                              u16 family)
-> +{
-> +	if (selinux_skb_flow_in(*pskb, (struct net_device *)in, family))
-> +		return NF_DROP;
-> +
-> +	return NF_ACCEPT;
-> +}
-> +
-> +
->  static unsigned int selinux_ip_postroute_last(unsigned int hooknum,
->                                                struct sk_buff **pskb,
->                                                const struct net_device *in,
-> @@ -3969,6 +4105,15 @@ out:
->  	return err ? NF_DROP : NF_ACCEPT;
->  }
->
-> +static unsigned int selinux_ipv4_forward_first(unsigned int hooknum,
-> +                                              struct sk_buff **pskb,
-> +                                              const struct net_device *in,
-> +                                              const struct net_device
-> *out, +                                              int (*okfn)(struct
-> sk_buff *)) +{
-> +	return selinux_ip_forward_first(hooknum, pskb, in, out, okfn, PF_INET);
-> +}
-> +
->  static unsigned int selinux_ipv4_postroute_last(unsigned int hooknum,
->  						struct sk_buff **pskb,
->  						const struct net_device *in,
-> @@ -3980,6 +4125,15 @@ static unsigned int
-> selinux_ipv4_postroute_last(unsigned int hooknum,
->
->  #if defined(CONFIG_IPV6) || defined(CONFIG_IPV6_MODULE)
->
-> +static unsigned int selinux_ipv6_forward_first(unsigned int hooknum,
-> +                                              struct sk_buff **pskb,
-> +                                              const struct net_device *in,
-> +                                              const struct net_device
-> *out, +                                              int (*okfn)(struct
-> sk_buff *)) +{
-> +	return selinux_ip_forward_first(hooknum, pskb, in, out, okfn, PF_INET6);
-> +}
-> +
->  static unsigned int selinux_ipv6_postroute_last(unsigned int hooknum,
->  						struct sk_buff **pskb,
->  						const struct net_device *in,
-> @@ -4875,6 +5029,7 @@ static struct security_operations selinux_ops = {
->  	.inet_csk_clone =		selinux_inet_csk_clone,
->  	.inet_conn_established =	selinux_inet_conn_established,
->  	.req_classify_flow =		selinux_req_classify_flow,
-> +	.skb_flow_out =			selinux_skb_flow_out,
->
->  #ifdef CONFIG_SECURITY_NETWORK_XFRM
->  	.xfrm_policy_alloc_security =	selinux_xfrm_policy_alloc,
-> @@ -4978,22 +5133,40 @@ security_initcall(selinux_init);
->
->  #if defined(CONFIG_NETFILTER)
->
-> -static struct nf_hook_ops selinux_ipv4_op = {
-> +static struct nf_hook_ops selinux_ipv4_ops[] = {
-> +	{
->  	.hook =		selinux_ipv4_postroute_last,
->  	.owner =	THIS_MODULE,
->  	.pf =		PF_INET,
->  	.hooknum =	NF_IP_POST_ROUTING,
->  	.priority =	NF_IP_PRI_SELINUX_LAST,
-> +	},
-> +	{
-> +	.hook =		selinux_ipv4_forward_first,
-> +	.owner =	THIS_MODULE,
-> +	.pf =		PF_INET,
-> +	.hooknum =	NF_IP_FORWARD,
-> +	.priority =	NF_IP_PRI_SELINUX_FIRST,
-> +	}
->  };
->
->  #if defined(CONFIG_IPV6) || defined(CONFIG_IPV6_MODULE)
->
-> -static struct nf_hook_ops selinux_ipv6_op = {
-> +static struct nf_hook_ops selinux_ipv6_ops[] = {
-> +	{
->  	.hook =		selinux_ipv6_postroute_last,
->  	.owner =	THIS_MODULE,
->  	.pf =		PF_INET6,
->  	.hooknum =	NF_IP6_POST_ROUTING,
->  	.priority =	NF_IP6_PRI_SELINUX_LAST,
-> +	},
-> +	{
-> +	.hook =		selinux_ipv6_forward_first,
-> +	.owner =	THIS_MODULE,
-> +	.pf =		PF_INET6,
-> +	.hooknum =	NF_IP6_FORWARD,
-> +	.priority =	NF_IP6_PRI_SELINUX_FIRST,
-> +	}
->  };
->
->  #endif	/* IPV6 */
-> @@ -5001,21 +5174,26 @@ static struct nf_hook_ops selinux_ipv6_op = {
->  static int __init selinux_nf_ip_init(void)
->  {
->  	int err = 0;
-> +	int i;
->
->  	if (!selinux_enabled)
->  		goto out;
->
->  	printk(KERN_DEBUG "SELinux:  Registering netfilter hooks\n");
->
-> -	err = nf_register_hook(&selinux_ipv4_op);
-> -	if (err)
-> -		panic("SELinux: nf_register_hook for IPv4: error %d\n", err);
-> +	for (i = 0; i < sizeof(selinux_ipv4_ops)/sizeof(struct nf_hook_ops); i++)
-> { +		err = nf_register_hook(&selinux_ipv4_ops[i]);
-> +		if (err)
-> +			panic("SELinux: nf_register_hook for IPv4: error %d\n", err);
-> +	}
->
->  #if defined(CONFIG_IPV6) || defined(CONFIG_IPV6_MODULE)
->
-> -	err = nf_register_hook(&selinux_ipv6_op);
-> -	if (err)
-> -		panic("SELinux: nf_register_hook for IPv6: error %d\n", err);
-> +	for (i = 0; i < sizeof(selinux_ipv6_ops)/sizeof(struct nf_hook_ops); i++)
-> { +		err = nf_register_hook(&selinux_ipv6_ops[i]);
-> +		if (err)
-> +			panic("SELinux: nf_register_hook for IPv6: error %d\n", err);
-> +	}
->
->  #endif	/* IPV6 */
->
-> @@ -5028,11 +5206,14 @@ __initcall(selinux_nf_ip_init);
 >  #ifdef CONFIG_SECURITY_SELINUX_DISABLE
->  static void selinux_nf_ip_exit(void)
->  {
-> +	int i;
->  	printk(KERN_DEBUG "SELinux:  Unregistering netfilter hooks\n");
->
-> -	nf_unregister_hook(&selinux_ipv4_op);
-> +	for (i = 0; i < sizeof(selinux_ipv4_ops)/sizeof(struct nf_hook_ops); i++)
-> +		nf_unregister_hook(&selinux_ipv4_ops[i]);
->  #if defined(CONFIG_IPV6) || defined(CONFIG_IPV6_MODULE)
-> -	nf_unregister_hook(&selinux_ipv6_op);
-> +	for (i = 0; i < sizeof(selinux_ipv6_ops)/sizeof(struct nf_hook_ops); i++)
-> +		nf_unregister_hook(&selinux_ipv6_ops[i]);
->  #endif	/* IPV6 */
+>  static ssize_t sel_write_disable(struct file * file, const char __user * buf,
+>  				 size_t count, loff_t *ppos)
+> @@ -309,6 +328,11 @@ static ssize_t sel_write_load(struct file * file, const char __user * buf,
+>  		length = count;
+>  
+>  out1:
+> +
+> +	printk(KERN_INFO "SELinux: policy loaded with handle_unknown=%s\n",
+> +	       (security_get_reject_unknown() ? "reject" :
+> +		(security_get_allow_unknown() ? "allow" : "deny")));
+> +
+>  	audit_log(current->audit_context, GFP_KERNEL, AUDIT_MAC_POLICY_LOAD,
+>  		"policy loaded auid=%u",
+>  		audit_get_loginuid(current->audit_context));
+> @@ -1575,6 +1599,8 @@ static int sel_fill_super(struct super_block * sb, void * data, int silent)
+>  		[SEL_MEMBER] = {"member", &transaction_ops, S_IRUGO|S_IWUGO},
+>  		[SEL_CHECKREQPROT] = {"checkreqprot", &sel_checkreqprot_ops, S_IRUGO|S_IWUSR},
+>  		[SEL_COMPAT_NET] = {"compat_net", &sel_compat_net_ops, S_IRUGO|S_IWUSR},
+> +		[SEL_REJECT_UNKNOWN] = {"reject_unknown", &sel_handle_unknown_ops, S_IRUGO},
+> +		[SEL_DENY_UNKNOWN] = {"deny_unknown", &sel_handle_unknown_ops, S_IRUGO},
+>  		/* last one */ {""}
+>  	};
+>  	ret = simple_fill_super(sb, SELINUX_MAGIC, selinux_files);
+> diff --git a/security/selinux/ss/policydb.c b/security/selinux/ss/policydb.c
+> index f05f97a..70d5baa 100644
+> --- a/security/selinux/ss/policydb.c
+> +++ b/security/selinux/ss/policydb.c
+> @@ -677,6 +677,8 @@ void policydb_destroy(struct policydb *p)
+>  	}
+>  	kfree(p->type_attr_map);
+>  
+> +	kfree(p->undefined_perms);
+> +
+>  	return;
 >  }
->  #endif
-
-Once we sort these changes/issues out send me a fresh set of patches backed 
-against Linus' tree and I'll put them in the lblnet testing tree so we can 
-start collecting all of these things in one place.
-
-Thanks for sticking with this.
-
+>  
+> @@ -1530,6 +1532,8 @@ int policydb_read(struct policydb *p, void *fp)
+>  			goto bad;
+>  		}
+>  	}
+> +	p->reject_unknown = !!(le32_to_cpu(buf[1]) & REJECT_UNKNOWN);
+> +	p->allow_unknown = !!(le32_to_cpu(buf[1]) & ALLOW_UNKNOWN);
+>  
+>  	info = policydb_lookup_compat(p->policyvers);
+>  	if (!info) {
+> diff --git a/security/selinux/ss/policydb.h b/security/selinux/ss/policydb.h
+> index 8319d5f..844d310 100644
+> --- a/security/selinux/ss/policydb.h
+> +++ b/security/selinux/ss/policydb.h
+> @@ -242,6 +242,10 @@ struct policydb {
+>  	struct ebitmap *type_attr_map;
+>  
+>  	unsigned int policyvers;
+> +
+> +	unsigned int reject_unknown : 1;
+> +	unsigned int allow_unknown : 1;
+> +	u32 *undefined_perms;
+>  };
+>  
+>  extern void policydb_destroy(struct policydb *p);
+> @@ -253,6 +257,10 @@ extern int policydb_read(struct policydb *p, void *fp);
+>  
+>  #define POLICYDB_CONFIG_MLS    1
+>  
+> +/* the config flags related to unknown classes/perms are bits 2 and 3 */
+> +#define REJECT_UNKNOWN	0x00000002
+> +#define ALLOW_UNKNOWN	0x00000004
+> +
+>  #define OBJECT_R "object_r"
+>  #define OBJECT_R_VAL 1
+>  
+> diff --git a/security/selinux/ss/services.c b/security/selinux/ss/services.c
+> index 6100fc0..4af5be9 100644
+> --- a/security/selinux/ss/services.c
+> +++ b/security/selinux/ss/services.c
+> @@ -292,6 +292,7 @@ static int context_struct_compute_av(struct context *scontext,
+>  	struct class_datum *tclass_datum;
+>  	struct ebitmap *sattr, *tattr;
+>  	struct ebitmap_node *snode, *tnode;
+> +	const struct selinux_class_perm *kdefs = &selinux_class_perm;
+>  	unsigned int i, j;
+>  
+>  	/*
+> @@ -305,13 +306,6 @@ static int context_struct_compute_av(struct context *scontext,
+>  		    tclass <= SECCLASS_NETLINK_DNRT_SOCKET)
+>  			tclass = SECCLASS_NETLINK_SOCKET;
+>  
+> -	if (!tclass || tclass > policydb.p_classes.nprim) {
+> -		printk(KERN_ERR "security_compute_av:  unrecognized class %d\n",
+> -		       tclass);
+> -		return -EINVAL;
+> -	}
+> -	tclass_datum = policydb.class_val_to_struct[tclass - 1];
+> -
+>  	/*
+>  	 * Initialize the access vectors to the default values.
+>  	 */
+> @@ -322,6 +316,36 @@ static int context_struct_compute_av(struct context *scontext,
+>  	avd->seqno = latest_granting;
+>  
+>  	/*
+> +	 * Check for all the invalid cases.
+> +	 * - tclass 0
+> +	 * - tclass > policy and > kernel
+> +	 * - tclass > policy but is a userspace class
+> +	 * - tclass > policy but we do not allow unknowns
+> +	 */
+> +	if (unlikely(!tclass))
+> +		goto inval_class;
+> +	if (unlikely(tclass > policydb.p_classes.nprim))
+> +		if (tclass > kdefs->cts_len || 
+> +		    !kdefs->class_to_string[tclass - 1] ||
+> +		    !policydb.allow_unknown)
+> +			goto inval_class;
+> +
+> +	/* 
+> +	 * Kernel class and we allow unknown so pad the allow decision 
+> +	 * the pad will be all 1 for unknown classes.
+> +	 */
+> +	if (tclass <= kdefs->cts_len && policydb.allow_unknown)
+> +		avd->allowed = policydb.undefined_perms[tclass - 1];
+> +
+> +	/*
+> +	 * Not in policy. Since decision is completed (all 1 or all 0) return.
+> +	 */
+> +	if (unlikely(tclass > policydb.p_classes.nprim))
+> +		return 0;
+> +
+> +	tclass_datum = policydb.class_val_to_struct[tclass - 1];
+> +
+> +	/*
+>  	 * If a specific type enforcement rule was defined for
+>  	 * this permission check, then use it.
+>  	 */
+> @@ -387,6 +411,10 @@ static int context_struct_compute_av(struct context *scontext,
+>  	}
+>  
+>  	return 0;
+> +
+> +inval_class:
+> +	printk(KERN_ERR "%s:  unrecognized class %d\n", __FUNCTION__, tclass);
+> +	return -EINVAL;
+>  }
+>  
+>  static int security_validtrans_handle_fail(struct context *ocontext,
+> @@ -1054,6 +1082,13 @@ static int validate_classes(struct policydb *p)
+>  	const char *def_class, *def_perm, *pol_class;
+>  	struct symtab *perms;
+>  
+> +	if (p->allow_unknown) {
+> +		u32 num_classes = kdefs->cts_len;
+> +		p->undefined_perms = kcalloc(num_classes, sizeof(u32), GFP_KERNEL);
+> +		if (!p->undefined_perms)
+> +			return -ENOMEM;
+> +	}
+> +
+>  	for (i = 1; i < kdefs->cts_len; i++) {
+>  		def_class = kdefs->class_to_string[i];
+>  		if (!def_class)
+> @@ -1062,6 +1097,10 @@ static int validate_classes(struct policydb *p)
+>  			printk(KERN_INFO
+>  			       "security:  class %s not defined in policy\n",
+>  			       def_class);
+> +			if (p->reject_unknown)
+> +				return -EINVAL;
+> +			if (p->allow_unknown)
+> +				p->undefined_perms[i-1] = ~0U;
+>  			continue;
+>  		}
+>  		pol_class = p->p_class_val_to_name[i-1];
+> @@ -1087,12 +1126,16 @@ static int validate_classes(struct policydb *p)
+>  			printk(KERN_INFO
+>  			       "security:  permission %s in class %s not defined in policy\n",
+>  			       def_perm, pol_class);
+> +			if (p->reject_unknown)
+> +				return -EINVAL;
+> +			if (p->allow_unknown)
+> +				p->undefined_perms[class_val-1] |= perm_val;
+>  			continue;
+>  		}
+>  		perdatum = hashtab_search(perms->table, def_perm);
+>  		if (perdatum == NULL) {
+>  			printk(KERN_ERR
+> -			       "security:  permission %s in class %s not found in policy\n",
+> +			       "security:  permission %s in class %s not found in policy, bad policy\n",
+>  			       def_perm, pol_class);
+>  			return -EINVAL;
+>  		}
+> @@ -1130,12 +1173,16 @@ static int validate_classes(struct policydb *p)
+>  				printk(KERN_INFO
+>  				       "security:  permission %s in class %s not defined in policy\n",
+>  				       def_perm, pol_class);
+> +				if (p->reject_unknown)
+> +					return -EINVAL;
+> +				if (p->allow_unknown)
+> +					p->undefined_perms[class_val-1] |= (1 << j);
+>  				continue;
+>  			}
+>  			perdatum = hashtab_search(perms->table, def_perm);
+>  			if (perdatum == NULL) {
+>  				printk(KERN_ERR
+> -				       "security:  permission %s in class %s not found in policy\n",
+> +				       "security:  permission %s in class %s not found in policy, bad policy\n",
+>  				       def_perm, pol_class);
+>  				return -EINVAL;
+>  			}
+> @@ -2102,6 +2149,16 @@ err:
+>  	return rc;
+>  }
+>  
+> +int security_get_reject_unknown(void)
+> +{
+> +	return policydb.reject_unknown;
+> +}
+> +
+> +int security_get_allow_unknown(void)
+> +{
+> +	return policydb.allow_unknown;
+> +}
+> +
+>  struct selinux_audit_rule {
+>  	u32 au_seqno;
+>  	struct context au_ctxt;
+> 
+> 
+> 
+> --
+> This message was distributed to subscribers of the selinux mailing list.
+> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
+> the words "unsubscribe selinux" without quotes as the message.
 -- 
-paul moore
-linux security @ hp
+Stephen Smalley
+National Security Agency
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
