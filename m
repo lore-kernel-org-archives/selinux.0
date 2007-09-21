@@ -1,335 +1,47 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l8LDxqHP026163
-	for <selinux@tycho.nsa.gov>; Fri, 21 Sep 2007 09:59:52 -0400
-Received: from e36.co.us.ibm.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l8LDxpL2002336
-	for <selinux@tycho.nsa.gov>; Fri, 21 Sep 2007 13:59:51 GMT
-Received: from d03relay02.boulder.ibm.com (d03relay02.boulder.ibm.com [9.17.195.227])
-	by e36.co.us.ibm.com (8.13.8/8.13.8) with ESMTP id l8LDxVFV028713
-	for <selinux@tycho.nsa.gov>; Fri, 21 Sep 2007 09:59:31 -0400
-Received: from d03av03.boulder.ibm.com (d03av03.boulder.ibm.com [9.17.195.169])
-	by d03relay02.boulder.ibm.com (8.13.8/8.13.8/NCO v8.5) with ESMTP id l8LDxULl498516
-	for <selinux@tycho.nsa.gov>; Fri, 21 Sep 2007 07:59:30 -0600
-Received: from d03av03.boulder.ibm.com (loopback [127.0.0.1])
-	by d03av03.boulder.ibm.com (8.12.11.20060308/8.13.3) with ESMTP id l8LDxURD015495
-	for <selinux@tycho.nsa.gov>; Fri, 21 Sep 2007 07:59:30 -0600
-Subject: [RFC] [Patch 4/4] integrity: SELinux LIM calls
+Subject: Re: [RFC]integrity: SELinux patch
 From: Mimi Zohar <zohar@linux.vnet.ibm.com>
-To: selinux@tycho.nsa.gov
-Cc: zohar@us.ibm.com, safford@watson.ibm.com, sailer@us.ibm.com
+To: James Morris <jmorris@namei.org>
+Cc: Stephen Smalley <sds@tycho.nsa.gov>,
+        Joshua Brindle <method@manicmethod.com>, selinux@tycho.nsa.gov,
+        zohar@us.ibm.com, safford@watson.ibm.com, sailer@us.ibm.com
+In-Reply-To: <Xine.LNX.4.64.0709201414120.16685@us.intercode.com.au>
+References: <1188340501.11528.14.camel@localhost.localdomain>
+	 <46D4F337.1030704@manicmethod.com>
+	 <1188382494.6129.35.camel@localhost.localdomain>
+	 <1190230883.7323.3.camel@localhost.localdomain>
+	 <1190235840.25863.98.camel@moss-spartans.epoch.ncsc.mil>
+	 <1190252058.7323.33.camel@localhost.localdomain>
+	 <1190293949.12553.23.camel@moss-spartans.epoch.ncsc.mil>
+	 <Xine.LNX.4.64.0709201414120.16685@us.intercode.com.au>
 Content-Type: text/plain
-Date: Fri, 21 Sep 2007 10:05:22 -0400
-Message-Id: <1190383522.11091.31.camel@localhost.localdomain>
+Date: Fri, 21 Sep 2007 10:13:04 -0400
+Message-Id: <1190383984.11091.39.camel@localhost.localdomain>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-[RFC]integrity: SELinux patch
+On Thu, 2007-09-20 at 14:16 -0700, James Morris wrote: 
+> On Thu, 20 Sep 2007, Stephen Smalley wrote:
+> 
+> > Don't worry about conflicts with pending patches; just make a clean
+> > patch (where a clean patch follows the usual guidelines and doesn't
+> > include commented-out code) against some well-defined baseline (linus,
+> > mm, or selinux.git).  Using the for-akpm branch of selinux.git makes it
+> > easier for James to merge of course, but as -mm includes that branch, it
+> > should be the same except as other patches in mm might happen to overlap
+> > and except as one happens to lag behind the other.
+> 
+> Generally, a patch against the latest Linus git will work fine, as that is 
+> what -mm is against, and if there are conflicts, they need to be resolved 
+> there anyway.
 
-This patch verifies and measures file integrity, by adding
-the new Linux Integrity Modules(LIM) API calls to SElinux.
+OK.  Thank you for clarifying the process.  As I still need to post the LIM
+patches based on the -mm tree to LKML, for this iteration the SELinux integrity
+patch will also be against the latest -mm.  Once we are further along in the 
+process, when the LIM patches are back in -mm, I will post a git compatible 
+SELinux integrity patch.
 
-This patch defines a new 'integrity' class with the permission 
-'measure'.  Measurement calls are made in selinux_file_mmap(), 
-selinux_bprm_check_security, and selinux_inode_permission(),
-based on policy.  (Additional calls might be required.)
-
-Signed-off-by: Mimi Zohar <zohar@us.ibm.com>
----
-Index: linux-2.6.23-rc6-mm1/security/selinux/hooks.c
-===================================================================
---- linux-2.6.23-rc6-mm1.orig/security/selinux/hooks.c
-+++ linux-2.6.23-rc6-mm1/security/selinux/hooks.c
-@@ -69,6 +69,7 @@
- #include <linux/audit.h>
- #include <linux/string.h>
- #include <linux/selinux.h>
-+#include <linux/integrity.h>
- #include <linux/mutex.h>
- 
- #include "avc.h"
-@@ -844,6 +845,7 @@ static int inode_doinit_with_dentry(stru
- 	char *context = NULL;
- 	unsigned len = 0;
- 	int rc = 0;
-+	int status;
- 
- 	if (isec->initialized)
- 		goto out;
-@@ -888,34 +890,12 @@ static int inode_doinit_with_dentry(stru
- 		}
- 
- 		len = INITCONTEXTLEN;
--		context = kmalloc(len, GFP_KERNEL);
--		if (!context) {
--			rc = -ENOMEM;
-+		rc = integrity_verify_metadata(dentry, XATTR_NAME_SELINUX,
-+				       &context, &len, &status);
-+		if (rc == -ENOMEM) {
- 			dput(dentry);
- 			goto out_unlock;
- 		}
--		rc = inode->i_op->getxattr(dentry, XATTR_NAME_SELINUX,
--					   context, len);
--		if (rc == -ERANGE) {
--			/* Need a larger buffer.  Query for the right size. */
--			rc = inode->i_op->getxattr(dentry, XATTR_NAME_SELINUX,
--						   NULL, 0);
--			if (rc < 0) {
--				dput(dentry);
--				goto out_unlock;
--			}
--			kfree(context);
--			len = rc;
--			context = kmalloc(len, GFP_KERNEL);
--			if (!context) {
--				rc = -ENOMEM;
--				dput(dentry);
--				goto out_unlock;
--			}
--			rc = inode->i_op->getxattr(dentry,
--						   XATTR_NAME_SELINUX,
--						   context, len);
--		}
- 		dput(dentry);
- 		if (rc < 0) {
- 			if (rc != -ENODATA) {
-@@ -929,6 +909,14 @@ static int inode_doinit_with_dentry(stru
- 			sid = sbsec->def_sid;
- 			rc = 0;
- 		} else {
-+			if (status == INTEGRITY_FAIL) {
-+				printk(KERN_WARNING "%s: verify_metadata "
-+				       "failed for dev=%s ino=%ld\n",
-+					__FUNCTION__,
-+					inode->i_sb->s_id, inode->i_ino);
-+				kfree(context);
-+				goto out_unlock;
-+			}
- 			rc = security_context_to_sid_default(context, rc, &sid,
- 			                                     sbsec->def_sid);
- 			if (rc) {
-@@ -1698,9 +1686,87 @@ static int selinux_bprm_set_security(str
- 	return 0;
- }
- 
--static int selinux_bprm_check_security (struct linux_binprm *bprm)
-+static int selinux_verify_metadata(struct dentry *dentry)
- {
--	return secondary_ops->bprm_check_security(bprm);
-+	int rc, status;
-+
-+	if (!dentry)
-+		return 0;
-+
-+	rc = integrity_verify_metadata(dentry, NULL, NULL, NULL, &status);
-+	if (rc == -EOPNOTSUPP)
-+		return 0;
-+	if (rc < 0)
-+		goto out;
-+
-+	if (status != INTEGRITY_PASS) 	/* FAIL | NO_LABEL */
-+		rc = -EACCES;
-+out:
-+	return rc;
-+}
-+
-+static int selinux_verify_data(struct dentry *dentry, struct file *file)
-+{
-+	int rc, status;
-+
-+	if (!dentry && !file)
-+		return 0;
-+
-+	rc = integrity_verify_data(dentry, file, &status);
-+	if (rc < 0)
-+		return 0;
-+
-+	if (status != INTEGRITY_PASS)
-+		rc = -EACCES;
-+
-+	return rc;
-+}
-+
-+/*
-+ * Measure based on new 'integrity' class policy
-+ */
-+static void selinux_measure(struct inode *inode, struct dentry *dentry,
-+				struct file *file, char *filename,
-+				int mask)
-+{
-+	int rc = 1;
-+	struct inode_security_struct *isec = inode->i_security;
-+	struct task_security_struct *tsec = current->security;
-+	struct av_decision avd;
-+
-+	if (!S_ISREG(inode->i_mode))
-+		return;
-+
-+	rc = avc_has_perm_noaudit(tsec->sid, isec->sid, SECCLASS_INTEGRITY,
-+				  INTEGRITY__MEASURE, AVC_STRICT, &avd);
-+	if (rc == 0)
-+		integrity_measure(inode, dentry, file, filename, mask);
-+	return;
-+}
-+
-+/* The OS protects against an executable file, already open for write,
-+ * from being executed in deny_write_access() and an executable file
-+ * already open for execute, from being modified in get_write_access().
-+ * So we can be certain that what we verify and measure here is actually
-+ * what is being executed.
-+ */
-+static int selinux_bprm_check_security(struct linux_binprm *bprm)
-+{
-+	struct dentry *dentry = bprm->file->f_dentry;
-+	int rc;
-+
-+	rc = secondary_ops->bprm_check_security(bprm);
-+	if (rc != 0)
-+		return rc;
-+
-+	rc = selinux_verify_metadata(dentry);
-+	if (rc == 0) {
-+		rc = selinux_verify_data(dentry, bprm->file);
-+		if (rc == 0)
-+			selinux_measure(dentry->d_inode, dentry, bprm->file,
-+					bprm->filename, MAY_EXEC);
-+	}
-+	return rc;
- }
- 
-
-@@ -2252,6 +2318,30 @@ static int selinux_inode_follow_link(str
- 	return dentry_has_perm(current, NULL, dentry, FILE__READ);
- }
- 
-+static char *get_fname(struct dentry *dentry, struct vfsmount *mnt,
-+			char **buf)
-+{
-+	char *fname = NULL;
-+	char *path = NULL;
-+
-+	path = (char *)__get_free_page(GFP_KERNEL);
-+	if (path) {
-+		fname = d_path(dentry, mnt, path, PAGE_SIZE);
-+		*buf = path;
-+	}
-+
-+	if (!fname)	/* no choice, use short name */
-+		fname = (!dentry->d_name.name) ?
-+		    (char *)dentry->d_iname : (char *)dentry->d_name.name;
-+	return fname;
-+}
-+
-+static void free_fname(char *path)
-+{
-+	if (path)
-+		free_page((unsigned long)path);
-+}
-+
- static int selinux_inode_permission(struct inode *inode, int mask,
- 				    struct nameidata *nd)
- {
-@@ -2266,8 +2356,29 @@ static int selinux_inode_permission(stru
- 		return 0;
- 	}
- 
--	return inode_has_perm(current, inode,
-+	rc = inode_has_perm(current, inode,
- 			       file_mask_to_av(inode->i_mode, mask), NULL);
-+	if (rc != 0)
-+		return rc;
-+
-+	if (mask & ~MAY_EXEC) { /* measure executables later */
-+		struct dentry *dentry = NULL;
-+		char *path = NULL;
-+		char *fname = NULL;
-+
-+		/* The file name is not required, but only a hint.
-+		 * When possible, supply a fully qualified path name.
-+		 */
-+		if (nd) {
-+			dentry = nd->dentry;
-+			fname = get_fname(nd->dentry, nd->mnt, &path);
-+		}
-+
-+		selinux_measure(inode, dentry, NULL, fname, mask);
-+		if (path)
-+			free_fname(path);
-+	}
-+	return rc;
- }
- 
- static int selinux_inode_setattr(struct dentry *dentry, struct iattr *iattr)
-@@ -2588,8 +2699,18 @@ static int selinux_file_mmap(struct file
- 	if (selinux_checkreqprot)
- 		prot = reqprot;
- 
--	return file_map_prot_check(file, prot,
--				   (flags & MAP_TYPE) == MAP_SHARED);
-+	rc = file_map_prot_check(file, prot, (flags & MAP_TYPE) == MAP_SHARED);
-+	if (file && file->f_dentry && rc == 0) {
-+		rc = selinux_verify_metadata(file->f_dentry);
-+		if (rc == 0) {
-+			rc = selinux_verify_data(NULL, file);
-+			if (rc == 0)
-+				selinux_measure(file->f_dentry->d_inode,
-+						  file->f_dentry, file,
-+						  NULL, MAY_EXEC);
-+		}
-+	}
-+	return rc;
- }
- 
- static int selinux_file_mprotect(struct vm_area_struct *vma,
-@@ -2631,7 +2752,6 @@ static int selinux_file_mprotect(struct 
- 			return rc;
- 	}
- #endif
--
- 	return file_map_prot_check(vma->vm_file, prot, vma->vm_flags&VM_SHARED);
- }
- 
-Index: linux-2.6.23-rc6-mm1/security/selinux/include/av_permissions.h
-===================================================================
---- linux-2.6.23-rc6-mm1.orig/security/selinux/include/av_permissions.h
-+++ linux-2.6.23-rc6-mm1/security/selinux/include/av_permissions.h
-@@ -824,3 +824,4 @@
- #define DCCP_SOCKET__NODE_BIND                    0x00400000UL
- #define DCCP_SOCKET__NAME_CONNECT                 0x00800000UL
- #define MEMPROTECT__MMAP_ZERO                     0x00000001UL
-+#define INTEGRITY__MEASURE                        0x00000001UL
-Index: linux-2.6.23-rc6-mm1/security/selinux/include/av_perm_to_string.h
-===================================================================
---- linux-2.6.23-rc6-mm1.orig/security/selinux/include/av_perm_to_string.h
-+++ linux-2.6.23-rc6-mm1/security/selinux/include/av_perm_to_string.h
-@@ -159,3 +159,4 @@
-    S_(SECCLASS_DCCP_SOCKET, DCCP_SOCKET__NODE_BIND, "node_bind")
-    S_(SECCLASS_DCCP_SOCKET, DCCP_SOCKET__NAME_CONNECT, "name_connect")
-    S_(SECCLASS_MEMPROTECT, MEMPROTECT__MMAP_ZERO, "mmap_zero")
-+   S_(SECCLASS_INTEGRITY, INTEGRITY__MEASURE, "measure")
-Index: linux-2.6.23-rc6-mm1/security/selinux/include/flask.h
-===================================================================
---- linux-2.6.23-rc6-mm1.orig/security/selinux/include/flask.h
-+++ linux-2.6.23-rc6-mm1/security/selinux/include/flask.h
-@@ -50,6 +50,7 @@
- #define SECCLASS_KEY                                     58
- #define SECCLASS_DCCP_SOCKET                             60
- #define SECCLASS_MEMPROTECT                              61
-+#define SECCLASS_INTEGRITY                               62
- 
- /*
-  * Security identifier indices for initial entities
-Index: linux-2.6.23-rc6-mm1/security/selinux/include/class_to_string.h
-===================================================================
---- linux-2.6.23-rc6-mm1.orig/security/selinux/include/class_to_string.h
-+++ linux-2.6.23-rc6-mm1/security/selinux/include/class_to_string.h
-@@ -64,3 +64,4 @@
-     S_(NULL)
-     S_("dccp_socket")
-     S_("memprotect")
-+    S_("integrity")
-
+Mimi Zohar
 
 
 --
