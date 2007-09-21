@@ -1,12 +1,12 @@
-Subject: [PATCH -v3] kernel: selinux: policy selectable handling of unknown
+Subject: [PATCH -v4] kernel: selinux: policy selectable handling of unknown
 	classes and perms
 From: Eric Paris <eparis@redhat.com>
 To: selinux@tycho.nsa.gov
 Cc: sds@tycho.nsa.gov, jmorris@namei.org, ewalsh@tycho.nsa.gov,
         sgrubb@redhat.com
 Content-Type: text/plain
-Date: Fri, 21 Sep 2007 14:06:34 -0400
-Message-Id: <1190397994.3451.141.camel@localhost.localdomain>
+Date: Fri, 21 Sep 2007 14:37:10 -0400
+Message-Id: <1190399830.3451.145.camel@localhost.localdomain>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
@@ -35,12 +35,15 @@ interesting audit.log != syslog and this is simply another part of the
 policy.  It is not a security action which can be changed during the
 lifetime of a policy.
 
+Dropped the unused var pointed out by Eamon since I'm not adding this
+info to audit messages
+
  security/selinux/include/security.h |    2 +
- security/selinux/selinuxfs.c        |   27 ++++++++++++
+ security/selinux/selinuxfs.c        |   26 ++++++++++++
  security/selinux/ss/policydb.c      |    4 ++
  security/selinux/ss/policydb.h      |    8 ++++
  security/selinux/ss/services.c      |   75 ++++++++++++++++++++++++++++++----
- 5 files changed, 107 insertions(+), 9 deletions(-)
+ 5 files changed, 106 insertions(+), 9 deletions(-)
 
 diff --git a/security/selinux/include/security.h b/security/selinux/include/security.h
 index 83bdd4d..39337af 100644
@@ -56,7 +59,7 @@ index 83bdd4d..39337af 100644
  #define SECURITY_FS_USE_XATTR		1 /* use xattr */
  #define SECURITY_FS_USE_TRANS		2 /* use transition SIDs, e.g. devpts/tmpfs */
 diff --git a/security/selinux/selinuxfs.c b/security/selinux/selinuxfs.c
-index c9e92da..c8a0fe6 100644
+index c9e92da..f5f3e6d 100644
 --- a/security/selinux/selinuxfs.c
 +++ b/security/selinux/selinuxfs.c
 @@ -103,6 +103,8 @@ enum sel_inos {
@@ -92,15 +95,7 @@ index c9e92da..c8a0fe6 100644
  #ifdef CONFIG_SECURITY_SELINUX_DISABLE
  static ssize_t sel_write_disable(struct file * file, const char __user * buf,
  				 size_t count, loff_t *ppos)
-@@ -269,6 +288,7 @@ static ssize_t sel_write_load(struct file * file, const char __user * buf,
- 	int ret;
- 	ssize_t length;
- 	void *data = NULL;
-+	char *handle_unknown;
- 
- 	mutex_lock(&sel_mutex);
- 
-@@ -309,6 +329,11 @@ static ssize_t sel_write_load(struct file * file, const char __user * buf,
+@@ -309,6 +328,11 @@ static ssize_t sel_write_load(struct file * file, const char __user * buf,
  		length = count;
  
  out1:
@@ -112,7 +107,7 @@ index c9e92da..c8a0fe6 100644
  	audit_log(current->audit_context, GFP_KERNEL, AUDIT_MAC_POLICY_LOAD,
  		"policy loaded auid=%u",
  		audit_get_loginuid(current->audit_context));
-@@ -1575,6 +1600,8 @@ static int sel_fill_super(struct super_block * sb, void * data, int silent)
+@@ -1575,6 +1599,8 @@ static int sel_fill_super(struct super_block * sb, void * data, int silent)
  		[SEL_MEMBER] = {"member", &transaction_ops, S_IRUGO|S_IWUGO},
  		[SEL_CHECKREQPROT] = {"checkreqprot", &sel_checkreqprot_ops, S_IRUGO|S_IWUSR},
  		[SEL_COMPAT_NET] = {"compat_net", &sel_compat_net_ops, S_IRUGO|S_IWUSR},
