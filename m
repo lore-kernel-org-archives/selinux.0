@@ -1,127 +1,75 @@
-Subject: Re: [PATCH] checkpolicy: implement handling of unknown classes
-	andpermissions
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: "Christopher J. PeBenito" <cpebenito@tresys.com>
-Cc: Eric Paris <eparis@redhat.com>, selinux@tycho.nsa.gov,
-        Daniel J Walsh <dwalsh@redhat.com>
-In-Reply-To: <1190395644.15178.5.camel@gorn.columbia.tresys.com>
-References: <1189103186.3418.35.camel@localhost.localdomain>
-	 <1190144886.14037.105.camel@moss-spartans.epoch.ncsc.mil>
-	 <1190395644.15178.5.camel@gorn.columbia.tresys.com>
-Content-Type: text/plain
-Date: Fri, 21 Sep 2007 15:08:56 -0400
-Message-Id: <1190401736.17518.123.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+From: Paul Moore <paul.moore@hp.com>
+To: Venkat Yekkirala <vyekkirala@TrustedCS.com>
+Subject: Re: [RFC] [PATCH 1/4] Label-based flow control of traffic
+Date: Fri, 21 Sep 2007 15:19:02 -0400
+Cc: selinux@tycho.nsa.gov, sds@tycho.nsa.gov, jmorris@namei.org
+References: <46F00B7D.6000909@trustedcs.com>
+In-Reply-To: <46F00B7D.6000909@trustedcs.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Message-Id: <200709211519.04154.paul.moore@hp.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2007-09-21 at 13:27 -0400, Christopher J. PeBenito wrote:
-> On Tue, 2007-09-18 at 15:48 -0400, Stephen Smalley wrote:
-> > On Thu, 2007-09-06 at 14:26 -0400, Eric Paris wrote:
-> > > Add a new command line options, -U (allow,reject,deny), to
-> > checkmodule
-> > > and checkpolicy which sets the handle_unknown config flag.  Default
-> > to
-> > > deny unknowns which is how things have been in the past.  Also add
-> > > dismod and dispol support.
-> > >
-> > > -Eric
-> > 
-> > Thanks, merged as of checkpolicy 2.0.4.
-> > 
-> > Chris/Dan:  we need some way to select the flag setting for the policy
-> > build.  The -U {allow,reject,deny} setting needs to be passed to
-> > checkmodule _only_ when building the base module, or to checkpolicy
-> > when
-> > building a monolithic policy.
-> 
-> Here is a patch for this, I haven't committed this to trunk yet, as I'd
-> prefer to wait for the next stable release of the toolchain (when its
-> that, btw?).
+On Tuesday, September 18 2007 1:31:41 pm Venkat Yekkirala wrote:
+> diff --git a/security/selinux/include/av_perm_to_string.h
+> b/security/selinux/include/av_perm_to_string.h index 049bf69..40f14c7
+> 100644
+> --- a/security/selinux/include/av_perm_to_string.h
+> +++ b/security/selinux/include/av_perm_to_string.h
+> @@ -37,6 +37,8 @@
+>     S_(SECCLASS_NODE, NODE__ENFORCE_DEST, "enforce_dest")
+>     S_(SECCLASS_NODE, NODE__DCCP_RECV, "dccp_recv")
+>     S_(SECCLASS_NODE, NODE__DCCP_SEND, "dccp_send")
+> +   S_(SECCLASS_NODE, NODE__FLOW_IN, "flow_in")
+> +   S_(SECCLASS_NODE, NODE__FLOW_OUT, "flow_out")
+>     S_(SECCLASS_NETIF, NETIF__TCP_RECV, "tcp_recv")
+>     S_(SECCLASS_NETIF, NETIF__TCP_SEND, "tcp_send")
+>     S_(SECCLASS_NETIF, NETIF__UDP_RECV, "udp_recv")
+> @@ -45,6 +47,8 @@
+>     S_(SECCLASS_NETIF, NETIF__RAWIP_SEND, "rawip_send")
+>     S_(SECCLASS_NETIF, NETIF__DCCP_RECV, "dccp_recv")
+>     S_(SECCLASS_NETIF, NETIF__DCCP_SEND, "dccp_send")
+> +   S_(SECCLASS_NETIF, NETIF__FLOW_IN, "flow_in")
+> +   S_(SECCLASS_NETIF, NETIF__FLOW_OUT, "flow_out")
+>     S_(SECCLASS_UNIX_STREAM_SOCKET, UNIX_STREAM_SOCKET__CONNECTTO,
+> "connectto") S_(SECCLASS_UNIX_STREAM_SOCKET, UNIX_STREAM_SOCKET__NEWCONN,
+> "newconn") S_(SECCLASS_UNIX_STREAM_SOCKET, UNIX_STREAM_SOCKET__ACCEPTFROM,
+> "acceptfrom") diff --git a/security/selinux/include/av_permissions.h
+> b/security/selinux/include/av_permissions.h index eda89a2..44188a2 100644
+> --- a/security/selinux/include/av_permissions.h
+> +++ b/security/selinux/include/av_permissions.h
+> @@ -292,6 +292,8 @@
+>  #define NODE__ENFORCE_DEST                        0x00000040UL
+>  #define NODE__DCCP_RECV                           0x00000080UL
+>  #define NODE__DCCP_SEND                           0x00000100UL
+> +#define NODE__FLOW_IN                             0x00000200UL
+> +#define NODE__FLOW_OUT                            0x00000400UL
+>  #define NETIF__TCP_RECV                           0x00000001UL
+>  #define NETIF__TCP_SEND                           0x00000002UL
+>  #define NETIF__UDP_RECV                           0x00000004UL
+> @@ -300,6 +302,8 @@
+>  #define NETIF__RAWIP_SEND                         0x00000020UL
+>  #define NETIF__DCCP_RECV                          0x00000040UL
+>  #define NETIF__DCCP_SEND                          0x00000080UL
+> +#define NETIF__FLOW_IN                            0x00000100UL
+> +#define NETIF__FLOW_OUT                           0x00000200UL
+>  #define NETLINK_SOCKET__IOCTL                     0x00000001UL
+>  #define NETLINK_SOCKET__READ                      0x00000002UL
+>  #define NETLINK_SOCKET__WRITE                     0x00000004UL
 
-I was planning to do it early next week.
+I'm sure this was assumed as a given when you sent this, but just so it's out 
+there and we are all clear on the issue - before any kernel patches are 
+pushed upstream I want to make sure the related policy changes (if any) are 
+have been accepted by Chris into the refpolicy svn tree.
 
-However, I only committed this change to the trunk version of
-checkpolicy/libsepol, not the stable branch, as it certainly isn't a bug
-fix or trivial cleanup.  So by "stable release", do you just mean a
-release, or do you mean a release of the stable branch that includes
-this change?
+I believe the changes here should be pretty minimal: updates to the flask 
+definitions and some new unlabled_t allow rules in the network interfaces ...
 
-> 
-> Index: build.conf
-> ===================================================================
-> --- build.conf	(revision 2423)
-> +++ build.conf	(working copy)
-> @@ -31,6 +31,14 @@
->  # Fedora users should enable redhat.
->  #DISTRO = redhat
->  
-> +# Unknown Permissions Handling
-> +# The behavior for handling permissions defined in the
-> +# kernel but missing from the policy.  The permissions
-> +# can either be allowed, denied, or the policy loading
-> +# can be rejected.
-> +# allow, deny, and reject are current options.
-> +UNK_PERMS = deny
-> +
->  # Direct admin init
->  # Setting this will allow sysadm to directly
->  # run init scripts, instead of requring run_init.
-> Index: Rules.modular
-> ===================================================================
-> --- Rules.modular	(revision 2425)
-> +++ Rules.modular	(working copy)
-> @@ -98,7 +98,7 @@
->  
->  $(base_mod): $(base_conf)
->  	@echo "Compiling $(NAME) base module"
-> -	$(verbose) $(CHECKMODULE) $^ -o $@
-> +	$(verbose) $(CHECKMODULE) -U $(UNK_PERMS) $^ -o $@
->  
->  $(tmpdir)/seusers: $(seusers)
->  	@mkdir -p $(tmpdir)
-> Index: Makefile
-> ===================================================================
-> --- Makefile	(revision 2425)
-> +++ Makefile	(working copy)
-> @@ -201,6 +201,9 @@
->  # if not set, use the type as the name.
->  NAME ?= $(TYPE)
->  
-> +# default unknown permissions setting
-> +UNK_PERMS ?= deny
-> +
->  ifeq ($(DIRECT_INITRC),y)
->  	M4PARAM += -D direct_sysadm_daemon
->  endif
-> Index: Rules.monolithic
-> ===================================================================
-> --- Rules.monolithic	(revision 2425)
-> +++ Rules.monolithic	(working copy)
-> @@ -70,7 +70,7 @@
->  	@echo "WARNING: Policy version mismatch!  Is your OUTPUT_POLICY set correctly?"
->  	@echo
->  endif
-> -	$(verbose) $(CHECKPOLICY) $^ -o $@
-> +	$(verbose) $(CHECKPOLICY) -U $(UNK_PERMS) $^ -o $@
->  
->  ########################################
->  #
-> @@ -84,7 +84,7 @@
->  	@echo "WARNING: Policy version mismatch!  Is your OUTPUT_POLICY set correctly?"
->  	@echo
->  endif
-> -	$(verbose) $(CHECKPOLICY) $^ -o $@
-> +	$(verbose) $(CHECKPOLICY) -U $(UNK_PERMS) $^ -o $@
->  
->  ########################################
->  #
-> 
-> 
 -- 
-Stephen Smalley
-National Security Agency
-
+paul moore
+linux security @ hp
 
 --
 This message was distributed to subscribers of the selinux mailing list.
