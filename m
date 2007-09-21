@@ -1,11 +1,12 @@
 From: David Howells <dhowells@redhat.com>
-Subject: [PATCH 20/22] AFS: Implement shared-writable mmap
+Subject: [PATCH 18/22] AFS: Add a function to excise a rejected write from the
+	pagecache
 To: viro@ftp.linux.org.uk, hch@infradead.org, Trond.Myklebust@netapp.com,
         sds@tycho.nsa.gov, casey@schaufler-ca.com
 Cc: linux-kernel@vger.kernel.org, selinux@tycho.nsa.gov,
         linux-security-module@vger.kernel.org, dhowells@redhat.com
-Date: Fri, 21 Sep 2007 15:48:46 +0100
-Message-ID: <20070921144846.8323.83846.stgit@warthog.procyon.org.uk>
+Date: Fri, 21 Sep 2007 15:48:35 +0100
+Message-ID: <20070921144835.8323.68414.stgit@warthog.procyon.org.uk>
 In-Reply-To: <20070921144703.8323.50492.stgit@warthog.procyon.org.uk>
 References: <20070921144703.8323.50492.stgit@warthog.procyon.org.uk>
 MIME-Version: 1.0
@@ -13,134 +14,139 @@ Content-Type: text/plain; charset="utf-8"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Implement shared-writable mmap for AFS.
+Add a function - cancel_rejected_write() - to excise a rejected write from the
+pagecache.  This function is related to the truncation family of routines.  It
+permits the pages modified by a network filesystem client (such as AFS) to be
+excised and discarded from the pagecache if the attempt to write them back to
+the server fails.
 
-The key with which to access the file is obtained from the VMA at the point
-where the PTE is made writable by the page_mkwrite() VMA op and cached in the
-affected page.
+The dirty and writeback states of the afflicted pages are cancelled and the
+pages themselves are detached for recycling.  All PTEs referring to those
+pages are removed.
 
-If there's an outstanding write on the page made with a different key, then
-page_mkwrite() will flush it before attaching a record of the new key.
+Note that the locking is tricky as it's very easy to deadlock against
+truncate() and other routines once the pages have been unlocked as part of the
+writeback process.  To this end, the PG_error flag is set, then the
+PG_writeback flag is cleared, and only *then* can lock_page() be called.
 
 Signed-off-by: David Howells <dhowells@redhat.com>
 ---
 
- fs/afs/file.c     |   20 +++++++++++++++++++-
- fs/afs/internal.h |    1 +
- fs/afs/write.c    |   35 +++++++++++++++++++++++++++++++++++
- 3 files changed, 55 insertions(+), 1 deletions(-)
+ include/linux/mm.h |    5 ++-
+ mm/truncate.c      |   83 ++++++++++++++++++++++++++++++++++++++++++++++++++++
+ 2 files changed, 86 insertions(+), 2 deletions(-)
 
-diff --git a/fs/afs/file.c b/fs/afs/file.c
-index 525f7c5..1323df4 100644
---- a/fs/afs/file.c
-+++ b/fs/afs/file.c
-@@ -22,6 +22,7 @@ static int afs_readpage(struct file *file, struct page *page);
- static void afs_invalidatepage(struct page *page, unsigned long offset);
- static int afs_releasepage(struct page *page, gfp_t gfp_flags);
- static int afs_launder_page(struct page *page);
-+static int afs_mmap(struct file *file, struct vm_area_struct *vma);
+diff --git a/include/linux/mm.h b/include/linux/mm.h
+index 1692dd6..49863df 100644
+--- a/include/linux/mm.h
++++ b/include/linux/mm.h
+@@ -1091,12 +1091,13 @@ extern int do_munmap(struct mm_struct *, unsigned long, size_t);
  
- const struct file_operations afs_file_operations = {
- 	.open		= afs_open,
-@@ -31,7 +32,7 @@ const struct file_operations afs_file_operations = {
- 	.write		= do_sync_write,
- 	.aio_read	= generic_file_aio_read,
- 	.aio_write	= afs_file_write,
--	.mmap		= generic_file_readonly_mmap,
-+	.mmap		= afs_mmap,
- 	.splice_read	= generic_file_splice_read,
- 	.fsync		= afs_fsync,
- 	.lock		= afs_lock,
-@@ -56,6 +57,11 @@ const struct address_space_operations afs_fs_aops = {
- 	.writepages	= afs_writepages,
- };
+ extern unsigned long do_brk(unsigned long, unsigned long);
  
-+static struct vm_operations_struct afs_file_vm_ops = {
-+	.fault		= filemap_fault,
-+	.page_mkwrite	= afs_page_mkwrite,
-+};
-+
- /*
-  * open an AFS file or directory and attach a key to it
-  */
-@@ -295,3 +301,15 @@ static int afs_releasepage(struct page *page, gfp_t gfp_flags)
- 	_leave(" = 0");
- 	return 0;
+-/* filemap.c */
+-extern unsigned long page_unuse(struct page *);
++/* truncate.c */
+ extern void truncate_inode_pages(struct address_space *, loff_t);
+ extern void truncate_inode_pages_range(struct address_space *,
+ 				       loff_t lstart, loff_t lend);
++extern void cancel_rejected_write(struct address_space *, pgoff_t, pgoff_t);
+ 
++/* filemap.c */
+ /* generic vm_area_ops exported for stackable file systems */
+ extern int filemap_fault(struct vm_area_struct *, struct vm_fault *);
+ 
+diff --git a/mm/truncate.c b/mm/truncate.c
+index 5555cb0..92a68f7 100644
+--- a/mm/truncate.c
++++ b/mm/truncate.c
+@@ -462,3 +462,86 @@ int invalidate_inode_pages2(struct address_space *mapping)
+ 	return invalidate_inode_pages2_range(mapping, 0, -1);
  }
+ EXPORT_SYMBOL_GPL(invalidate_inode_pages2);
 +
 +/*
-+ * memory map part of an AFS file
++ * Cancel that part of a rejected write that affects a particular page
 + */
-+static int afs_mmap(struct file *file, struct vm_area_struct *vma)
++static void cancel_rejected_page(struct address_space *mapping,
++				 struct page *page, pgoff_t *_next)
 +{
-+	_enter("");
-+
-+	file_accessed(file);
-+	vma->vm_ops = &afs_file_vm_ops;
-+	return 0;
++	if (!TestSetPageError(page)) {
++		/* can't lock the page until we've cleared PG_writeback lest we
++		 * deadlock with truncate (amongst other things) */
++		end_page_writeback(page);
++		if (page->mapping == mapping) {
++			lock_page(page);
++			if (page->mapping == mapping) {
++				truncate_complete_page(mapping, page);
++				*_next = page->index + 1;
++			}
++			unlock_page(page);
++		}
++	} else if (PageWriteback(page) || PageDirty(page)) {
++		BUG();
++	}
 +}
-diff --git a/fs/afs/internal.h b/fs/afs/internal.h
-index e1bcce0..12afccc 100644
---- a/fs/afs/internal.h
-+++ b/fs/afs/internal.h
-@@ -743,6 +743,7 @@ extern ssize_t afs_file_write(struct kiocb *, const struct iovec *,
- 			      unsigned long, loff_t);
- extern int afs_writeback_all(struct afs_vnode *);
- extern int afs_fsync(struct file *, struct dentry *, int);
-+extern int afs_page_mkwrite(struct vm_area_struct *, struct page *);
- 
- 
- /*****************************************************************************/
-diff --git a/fs/afs/write.c b/fs/afs/write.c
-index ac621e8..dd471f0 100644
---- a/fs/afs/write.c
-+++ b/fs/afs/write.c
-@@ -155,6 +155,8 @@ static int afs_prepare_page(struct afs_vnode *vnode, struct page *page,
-  * prepare to perform part of a write to a page
-  * - the caller holds the page locked, preventing it from being written out or
-  *   modified by anyone else
-+ * - may be called from afs_page_mkwrite() to set up a page for modification
-+ *   through shared-writable mmap
-  */
- int afs_prepare_write(struct file *file, struct page *page,
- 		      unsigned offset, unsigned to)
-@@ -833,3 +835,36 @@ int afs_fsync(struct file *file, struct dentry *dentry, int datasync)
- 	_leave(" = %d", ret);
- 	return ret;
- }
 +
-+/*
-+ * notification that a previously read-only page is about to become writable
-+ * - if it returns an error, the caller will deliver a bus error signal
++/**
++ * cancel_rejected_write - Cancel a write on a contiguous set of pages
++ * @mapping: mapping affected
++ * @start: first page in set
++ * @end: last page in set
 + *
-+ * we use this to make a record of the key with which the writeback should be
-+ * performed and to flush any outstanding writes made with a different key
++ * Cancel a write of a contiguous set of pages when the writeback was rejected
++ * by the target medium or server.
 + *
-+ * the key to be used is attached to the struct file pinned by the VMA
++ * The pages in question are detached and discarded from the pagecache, and the
++ * writeback and dirty states are cleared prior to invalidation.  The caller
++ * must make sure that all the pages in the range are present in the pagecache,
++ * and the caller must hold PG_writeback on each of them.  NOTE! All the pages
++ * are locked and unlocked as part of this process, so the caller must take
++ * care to avoid deadlock.
++ *
++ * The PTEs pointing to those pages are also cleared, leading to the PTEs being
++ * reset when new pages are allocated and the contents reloaded.
 + */
-+int afs_page_mkwrite(struct vm_area_struct *vma, struct page *page)
++void cancel_rejected_write(struct address_space *mapping,
++			   pgoff_t start, pgoff_t end)
 +{
-+	struct afs_vnode *vnode = AFS_FS_I(vma->vm_file->f_mapping->host);
-+	struct key *key = vma->vm_file->private_data;
-+	int ret;
++	struct pagevec pvec;
++	pgoff_t n;
++	int i;
 +
-+	_enter("{{%x:%u},%x},{%lx}",
-+	       vnode->fid.vid, vnode->fid.vnode, key_serial(key), page->index);
++	BUG_ON(mapping->nrpages < end - start + 1);
 +
++	/* dispose of any PTEs pointing to the affected pages */
++	unmap_mapping_range(mapping,
++			    (loff_t)start << PAGE_CACHE_SHIFT,
++			    (loff_t)(end - start + 1) << PAGE_CACHE_SHIFT,
++			    0);
++
++	pagevec_init(&pvec, 0);
 +	do {
-+		lock_page(page);
-+		if (page->mapping == vma->vm_file->f_mapping)
-+			ret = afs_prepare_write(vma->vm_file, page, 0,
-+						PAGE_SIZE);
-+		else
-+			ret = 0; /* seems there was interference - let the
-+				  * caller deal with it */
-+		unlock_page(page);
-+	} while (ret == AOP_TRUNCATED_PAGE);
++		cond_resched();
++		n = end - start + 1;
++		if (n > PAGEVEC_SIZE)
++			n = PAGEVEC_SIZE;
++		n = pagevec_lookup(&pvec, mapping, start, n);
++		for (i = 0; i < n; i++) {
++			struct page *page = pvec.pages[i];
 +
-+	_leave(" = %d", ret);
-+	return ret;
++			if (page->index < start || page->index > end)
++				continue;
++			start++;
++			cancel_rejected_page(mapping, page, &start);
++		}
++		pagevec_release(&pvec);
++	} while (start - 1 < end);
++
++	/* dispose of any new PTEs pointing to the affected pages */
++	unmap_mapping_range(mapping,
++			    (loff_t)start << PAGE_CACHE_SHIFT,
++			    (loff_t)(end - start + 1) << PAGE_CACHE_SHIFT,
++			    0);
 +}
++EXPORT_SYMBOL_GPL(cancel_rejected_write);
 
 
 --
