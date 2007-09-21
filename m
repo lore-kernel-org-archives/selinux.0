@@ -1,47 +1,114 @@
-Subject: Re: [RFC]integrity: SELinux patch
-From: Mimi Zohar <zohar@linux.vnet.ibm.com>
-To: James Morris <jmorris@namei.org>
-Cc: Stephen Smalley <sds@tycho.nsa.gov>,
-        Joshua Brindle <method@manicmethod.com>, selinux@tycho.nsa.gov,
-        zohar@us.ibm.com, safford@watson.ibm.com, sailer@us.ibm.com
-In-Reply-To: <Xine.LNX.4.64.0709201414120.16685@us.intercode.com.au>
-References: <1188340501.11528.14.camel@localhost.localdomain>
-	 <46D4F337.1030704@manicmethod.com>
-	 <1188382494.6129.35.camel@localhost.localdomain>
-	 <1190230883.7323.3.camel@localhost.localdomain>
-	 <1190235840.25863.98.camel@moss-spartans.epoch.ncsc.mil>
-	 <1190252058.7323.33.camel@localhost.localdomain>
-	 <1190293949.12553.23.camel@moss-spartans.epoch.ncsc.mil>
-	 <Xine.LNX.4.64.0709201414120.16685@us.intercode.com.au>
-Content-Type: text/plain
-Date: Fri, 21 Sep 2007 10:13:04 -0400
-Message-Id: <1190383984.11091.39.camel@localhost.localdomain>
-Mime-Version: 1.0
+From: David Howells <dhowells@redhat.com>
+Subject: [PATCH 21/22] AF_RXRPC: Save the operation ID for debugging
+To: viro@ftp.linux.org.uk, hch@infradead.org, Trond.Myklebust@netapp.com,
+        sds@tycho.nsa.gov, casey@schaufler-ca.com
+Cc: linux-kernel@vger.kernel.org, selinux@tycho.nsa.gov,
+        linux-security-module@vger.kernel.org, dhowells@redhat.com
+Date: Fri, 21 Sep 2007 15:48:51 +0100
+Message-ID: <20070921144851.8323.40332.stgit@warthog.procyon.org.uk>
+In-Reply-To: <20070921144703.8323.50492.stgit@warthog.procyon.org.uk>
+References: <20070921144703.8323.50492.stgit@warthog.procyon.org.uk>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2007-09-20 at 14:16 -0700, James Morris wrote: 
-> On Thu, 20 Sep 2007, Stephen Smalley wrote:
-> 
-> > Don't worry about conflicts with pending patches; just make a clean
-> > patch (where a clean patch follows the usual guidelines and doesn't
-> > include commented-out code) against some well-defined baseline (linus,
-> > mm, or selinux.git).  Using the for-akpm branch of selinux.git makes it
-> > easier for James to merge of course, but as -mm includes that branch, it
-> > should be the same except as other patches in mm might happen to overlap
-> > and except as one happens to lag behind the other.
-> 
-> Generally, a patch against the latest Linus git will work fine, as that is 
-> what -mm is against, and if there are conflicts, they need to be resolved 
-> there anyway.
+Save the operation ID to be used with a call that we're making for display
+through /proc/net/rxrpc_calls.  This helps debugging stuck operations as we
+then know what they are.
 
-OK.  Thank you for clarifying the process.  As I still need to post the LIM
-patches based on the -mm tree to LKML, for this iteration the SELinux integrity
-patch will also be against the latest -mm.  Once we are further along in the 
-process, when the LIM patches are back in -mm, I will post a git compatible 
-SELinux integrity patch.
+Signed-off-by: David Howells <dhowells@redhat.com>
+---
 
-Mimi Zohar
+ include/net/af_rxrpc.h  |    1 +
+ net/rxrpc/af_rxrpc.c    |    3 +++
+ net/rxrpc/ar-internal.h |    1 +
+ net/rxrpc/ar-proc.c     |    7 ++++---
+ 4 files changed, 9 insertions(+), 3 deletions(-)
+
+diff --git a/include/net/af_rxrpc.h b/include/net/af_rxrpc.h
+index 00c2eaa..7e99733 100644
+--- a/include/net/af_rxrpc.h
++++ b/include/net/af_rxrpc.h
+@@ -38,6 +38,7 @@ extern void rxrpc_kernel_intercept_rx_messages(struct socket *,
+ extern struct rxrpc_call *rxrpc_kernel_begin_call(struct socket *,
+ 						  struct sockaddr_rxrpc *,
+ 						  struct key *,
++						  u32,
+ 						  unsigned long,
+ 						  gfp_t);
+ extern int rxrpc_kernel_send_data(struct rxrpc_call *, struct msghdr *,
+diff --git a/net/rxrpc/af_rxrpc.c b/net/rxrpc/af_rxrpc.c
+index c58fa0d..621c1dd 100644
+--- a/net/rxrpc/af_rxrpc.c
++++ b/net/rxrpc/af_rxrpc.c
+@@ -251,6 +251,7 @@ static struct rxrpc_transport *rxrpc_name_to_transport(struct socket *sock,
+  * @sock: The socket on which to make the call
+  * @srx: The address of the peer to contact (defaults to socket setting)
+  * @key: The security context to use (defaults to socket setting)
++ * @operation_ID: The operation ID for this call (debugging only)
+  * @user_call_ID: The ID to use
+  *
+  * Allow a kernel service to begin a call on the nominated socket.  This just
+@@ -263,6 +264,7 @@ static struct rxrpc_transport *rxrpc_name_to_transport(struct socket *sock,
+ struct rxrpc_call *rxrpc_kernel_begin_call(struct socket *sock,
+ 					   struct sockaddr_rxrpc *srx,
+ 					   struct key *key,
++					   u32 operation_ID,
+ 					   unsigned long user_call_ID,
+ 					   gfp_t gfp)
+ {
+@@ -311,6 +313,7 @@ struct rxrpc_call *rxrpc_kernel_begin_call(struct socket *sock,
+ 	call = rxrpc_get_client_call(rx, trans, bundle, user_call_ID, true,
+ 				     gfp);
+ 	rxrpc_put_bundle(trans, bundle);
++	call->op_id = operation_ID;
+ out:
+ 	rxrpc_put_transport(trans);
+ 	release_sock(&rx->sk);
+diff --git a/net/rxrpc/ar-internal.h b/net/rxrpc/ar-internal.h
+index 58aaf89..f362e7e 100644
+--- a/net/rxrpc/ar-internal.h
++++ b/net/rxrpc/ar-internal.h
+@@ -367,6 +367,7 @@ struct rxrpc_call {
+ 		RXRPC_CALL_DEAD,		/* - call is dead */
+ 	} state;
+ 	int			debug_id;	/* debug ID for printks */
++	u32			op_id;		/* operation ID (for debugging only) */
+ 	u8			channel;	/* connection channel occupied by this call */
+ 
+ 	/* transmission-phase ACK management */
+diff --git a/net/rxrpc/ar-proc.c b/net/rxrpc/ar-proc.c
+index 2e83ce3..521b826 100644
+--- a/net/rxrpc/ar-proc.c
++++ b/net/rxrpc/ar-proc.c
+@@ -53,8 +53,8 @@ static int rxrpc_call_seq_show(struct seq_file *seq, void *v)
+ 	if (v == &rxrpc_calls) {
+ 		seq_puts(seq,
+ 			 "Proto Local                  Remote                "
+-			 " SvID ConnID   CallID   End Use State    Abort   "
+-			 " UserID\n");
++			 " SvID ConnID   CallID   OpID     End Use State   "
++			 " Abort    UserID\n");
+ 		return 0;
+ 	}
+ 
+@@ -70,13 +70,14 @@ static int rxrpc_call_seq_show(struct seq_file *seq, void *v)
+ 		ntohs(trans->peer->srx.transport.sin.sin_port));
+ 
+ 	seq_printf(seq,
+-		   "UDP   %-22.22s %-22.22s %4x %08x %08x %s %3u"
++		   "UDP   %-22.22s %-22.22s %4x %08x %08x %08x %s %3u"
+ 		   " %-8.8s %08x %lx\n",
+ 		   lbuff,
+ 		   rbuff,
+ 		   ntohs(call->conn->service_id),
+ 		   ntohl(call->conn->cid),
+ 		   ntohl(call->call_id),
++		   call->op_id,
+ 		   call->conn->in_clientflag ? "Svc" : "Clt",
+ 		   atomic_read(&call->usage),
+ 		   rxrpc_call_states[call->state],
 
 
 --
