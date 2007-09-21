@@ -1,12 +1,11 @@
 From: David Howells <dhowells@redhat.com>
-Subject: [PATCH 10/22] CacheFiles: Add a hook to write a single page of data
-	to an inode
+Subject: [PATCH 20/22] AFS: Implement shared-writable mmap
 To: viro@ftp.linux.org.uk, hch@infradead.org, Trond.Myklebust@netapp.com,
         sds@tycho.nsa.gov, casey@schaufler-ca.com
 Cc: linux-kernel@vger.kernel.org, selinux@tycho.nsa.gov,
         linux-security-module@vger.kernel.org, dhowells@redhat.com
-Date: Fri, 21 Sep 2007 15:47:55 +0100
-Message-ID: <20070921144755.8323.45791.stgit@warthog.procyon.org.uk>
+Date: Fri, 21 Sep 2007 15:48:46 +0100
+Message-ID: <20070921144846.8323.83846.stgit@warthog.procyon.org.uk>
 In-Reply-To: <20070921144703.8323.50492.stgit@warthog.procyon.org.uk>
 References: <20070921144703.8323.50492.stgit@warthog.procyon.org.uk>
 MIME-Version: 1.0
@@ -14,207 +13,134 @@ Content-Type: text/plain; charset="utf-8"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Add an address space operation to write one single page of data to an inode at
-a page-aligned location (thus permitting the implementation to be highly
-optimised).
+Implement shared-writable mmap for AFS.
 
-This is used by CacheFiles to store the contents of netfs pages into their
-backing file pages.
+The key with which to access the file is obtained from the VMA at the point
+where the PTE is made writable by the page_mkwrite() VMA op and cached in the
+affected page.
 
-Supply a generic implementation for this that uses the prepare_write() and
-commit_write() address_space operations to bound a copy directly into the page
-cache.
+If there's an outstanding write on the page made with a different key, then
+page_mkwrite() will flush it before attaching a record of the new key.
 
-Hook the Ext2 and Ext3 operations to the generic implementation.
-
-Signed-Off-By: David Howells <dhowells@redhat.com>
+Signed-off-by: David Howells <dhowells@redhat.com>
 ---
 
- fs/ext2/inode.c    |    2 +
- fs/ext3/inode.c    |    3 ++
- include/linux/fs.h |    7 ++++
- mm/filemap.c       |   95 ++++++++++++++++++++++++++++++++++++++++++++++++++++
- 4 files changed, 107 insertions(+), 0 deletions(-)
+ fs/afs/file.c     |   20 +++++++++++++++++++-
+ fs/afs/internal.h |    1 +
+ fs/afs/write.c    |   35 +++++++++++++++++++++++++++++++++++
+ 3 files changed, 55 insertions(+), 1 deletions(-)
 
-diff --git a/fs/ext2/inode.c b/fs/ext2/inode.c
-index 0079b2c..b3e4b50 100644
---- a/fs/ext2/inode.c
-+++ b/fs/ext2/inode.c
-@@ -695,6 +695,7 @@ const struct address_space_operations ext2_aops = {
- 	.direct_IO		= ext2_direct_IO,
- 	.writepages		= ext2_writepages,
- 	.migratepage		= buffer_migrate_page,
-+	.write_one_page		= generic_file_buffered_write_one_page,
+diff --git a/fs/afs/file.c b/fs/afs/file.c
+index 525f7c5..1323df4 100644
+--- a/fs/afs/file.c
++++ b/fs/afs/file.c
+@@ -22,6 +22,7 @@ static int afs_readpage(struct file *file, struct page *page);
+ static void afs_invalidatepage(struct page *page, unsigned long offset);
+ static int afs_releasepage(struct page *page, gfp_t gfp_flags);
+ static int afs_launder_page(struct page *page);
++static int afs_mmap(struct file *file, struct vm_area_struct *vma);
+ 
+ const struct file_operations afs_file_operations = {
+ 	.open		= afs_open,
+@@ -31,7 +32,7 @@ const struct file_operations afs_file_operations = {
+ 	.write		= do_sync_write,
+ 	.aio_read	= generic_file_aio_read,
+ 	.aio_write	= afs_file_write,
+-	.mmap		= generic_file_readonly_mmap,
++	.mmap		= afs_mmap,
+ 	.splice_read	= generic_file_splice_read,
+ 	.fsync		= afs_fsync,
+ 	.lock		= afs_lock,
+@@ -56,6 +57,11 @@ const struct address_space_operations afs_fs_aops = {
+ 	.writepages	= afs_writepages,
  };
  
- const struct address_space_operations ext2_aops_xip = {
-@@ -713,6 +714,7 @@ const struct address_space_operations ext2_nobh_aops = {
- 	.direct_IO		= ext2_direct_IO,
- 	.writepages		= ext2_writepages,
- 	.migratepage		= buffer_migrate_page,
-+	.write_one_page		= generic_file_buffered_write_one_page,
- };
- 
++static struct vm_operations_struct afs_file_vm_ops = {
++	.fault		= filemap_fault,
++	.page_mkwrite	= afs_page_mkwrite,
++};
++
  /*
-diff --git a/fs/ext3/inode.c b/fs/ext3/inode.c
-index de4e316..93809eb 100644
---- a/fs/ext3/inode.c
-+++ b/fs/ext3/inode.c
-@@ -1713,6 +1713,7 @@ static const struct address_space_operations ext3_ordered_aops = {
- 	.releasepage	= ext3_releasepage,
- 	.direct_IO	= ext3_direct_IO,
- 	.migratepage	= buffer_migrate_page,
-+	.write_one_page	= generic_file_buffered_write_one_page,
- };
- 
- static const struct address_space_operations ext3_writeback_aops = {
-@@ -1727,6 +1728,7 @@ static const struct address_space_operations ext3_writeback_aops = {
- 	.releasepage	= ext3_releasepage,
- 	.direct_IO	= ext3_direct_IO,
- 	.migratepage	= buffer_migrate_page,
-+	.write_one_page	= generic_file_buffered_write_one_page,
- };
- 
- static const struct address_space_operations ext3_journalled_aops = {
-@@ -1740,6 +1742,7 @@ static const struct address_space_operations ext3_journalled_aops = {
- 	.bmap		= ext3_bmap,
- 	.invalidatepage	= ext3_invalidatepage,
- 	.releasepage	= ext3_releasepage,
-+	.write_one_page	= generic_file_buffered_write_one_page,
- };
- 
- void ext3_set_aops(struct inode *inode)
-diff --git a/include/linux/fs.h b/include/linux/fs.h
-index bf35441..38f67ac 100644
---- a/include/linux/fs.h
-+++ b/include/linux/fs.h
-@@ -434,6 +434,11 @@ struct address_space_operations {
- 	int (*migratepage) (struct address_space *,
- 			struct page *, struct page *);
- 	int (*launder_page) (struct page *);
-+	/* write the contents of the source page over the page at the specified
-+	 * index in the target address space (the source page does not need to
-+	 * be related to the target address space) */
-+	int (*write_one_page)(struct address_space *, pgoff_t, struct page *);
-+
- };
- 
- struct backing_dev_info;
-@@ -1669,6 +1674,8 @@ extern ssize_t generic_file_direct_write(struct kiocb *, const struct iovec *,
- 		unsigned long *, loff_t, loff_t *, size_t, size_t);
- extern ssize_t generic_file_buffered_write(struct kiocb *, const struct iovec *,
- 		unsigned long, loff_t, loff_t *, size_t, ssize_t);
-+extern int generic_file_buffered_write_one_page(struct address_space *,
-+						pgoff_t, struct page *);
- extern ssize_t do_sync_read(struct file *filp, char __user *buf, size_t len, loff_t *ppos);
- extern ssize_t do_sync_write(struct file *filp, const char __user *buf, size_t len, loff_t *ppos);
- extern void do_generic_mapping_read(struct address_space *mapping,
-diff --git a/mm/filemap.c b/mm/filemap.c
-index 3a61923..21aeee9 100644
---- a/mm/filemap.c
-+++ b/mm/filemap.c
-@@ -2016,6 +2016,101 @@ zero_length_segment:
+  * open an AFS file or directory and attach a key to it
+  */
+@@ -295,3 +301,15 @@ static int afs_releasepage(struct page *page, gfp_t gfp_flags)
+ 	_leave(" = 0");
+ 	return 0;
  }
- EXPORT_SYMBOL(generic_file_buffered_write);
- 
-+/**
-+ * generic_file_buffered_write_one_page - Write a single page of data to an
-+ *	inode
-+ * @mapping - The address space of the target inode
-+ * @index - The target page in the target inode to fill
-+ * @source - The data to write into the target page
-+ *
-+ * Write the data from the source page to the page in the nominated address
-+ * space at the @index specified.  Note that the file will not be extended if
-+ * the page crosses the EOF marker, in which case only the first part of the
-+ * page will be written.
-+ *
-+ * The @source page does not need to have any association with the file or the
-+ * target page offset.
++
++/*
++ * memory map part of an AFS file
 + */
-+int generic_file_buffered_write_one_page(struct address_space *mapping,
-+					 pgoff_t index,
-+					 struct page *source)
++static int afs_mmap(struct file *file, struct vm_area_struct *vma)
 +{
-+	const struct address_space_operations *a_ops = mapping->a_ops;
-+	struct pagevec	lru_pvec;
-+	struct page *page, *cached_page = NULL;
-+	unsigned psize;
-+	loff_t isize;
-+	long status = 0;
++	_enter("");
 +
-+	pagevec_init(&lru_pvec, 0);
-+
-+	page = __grab_cache_page(mapping, index, &cached_page, &lru_pvec);
-+	if (!page) {
-+		BUG_ON(cached_page);
-+		return -ENOMEM;
-+	}
-+
-+	psize = PAGE_CACHE_SIZE;
-+	isize = i_size_read(mapping->host);
-+	if ((isize >> PAGE_SHIFT) == index)
-+		psize = isize & (PAGE_SIZE - 1);
-+
-+	status = a_ops->prepare_write(NULL, page, 0, psize);
-+	if (unlikely(status)) {
-+		isize = i_size_read(mapping->host);
-+
-+		if (status != AOP_TRUNCATED_PAGE)
-+			unlock_page(page);
-+		page_cache_release(page);
-+		if (status == AOP_TRUNCATED_PAGE)
-+			goto sync;
-+
-+		/* prepare_write() may have instantiated a few blocks outside
-+		 * i_size.  Trim these off again.
-+		 */
-+		if ((1ULL << (index + 1)) > isize)
-+			vmtruncate(mapping->host, isize);
-+		goto sync;
-+	}
-+
-+	copy_highpage(page, source);
-+	flush_dcache_page(page);
-+
-+	status = a_ops->commit_write(NULL, page, 0, psize);
-+	if (status == AOP_TRUNCATED_PAGE) {
-+		page_cache_release(page);
-+		goto sync;
-+	}
-+
-+	if (status > 0)
-+		status = 0;
-+
-+	unlock_page(page);
-+	mark_page_accessed(page);
-+	page_cache_release(page);
-+	if (status < 0)
-+		return status;
-+
-+	balance_dirty_pages_ratelimited(mapping);
-+	cond_resched();
-+
-+sync:
-+	if (cached_page)
-+		page_cache_release(cached_page);
-+
-+	/* the caller must handle O_SYNC themselves, but we handle S_SYNC and
-+	 * MS_SYNCHRONOUS here */
-+	if (unlikely(IS_SYNC(mapping->host)) && !a_ops->writepage)
-+		status = generic_osync_inode(mapping->host, mapping,
-+					     OSYNC_METADATA | OSYNC_DATA);
-+
-+	/* the caller must handle O_DIRECT for themselves */
-+
-+	pagevec_lru_add(&lru_pvec);
-+	return status;
++	file_accessed(file);
++	vma->vm_ops = &afs_file_vm_ops;
++	return 0;
 +}
-+EXPORT_SYMBOL(generic_file_buffered_write_one_page);
+diff --git a/fs/afs/internal.h b/fs/afs/internal.h
+index e1bcce0..12afccc 100644
+--- a/fs/afs/internal.h
++++ b/fs/afs/internal.h
+@@ -743,6 +743,7 @@ extern ssize_t afs_file_write(struct kiocb *, const struct iovec *,
+ 			      unsigned long, loff_t);
+ extern int afs_writeback_all(struct afs_vnode *);
+ extern int afs_fsync(struct file *, struct dentry *, int);
++extern int afs_page_mkwrite(struct vm_area_struct *, struct page *);
+ 
+ 
+ /*****************************************************************************/
+diff --git a/fs/afs/write.c b/fs/afs/write.c
+index ac621e8..dd471f0 100644
+--- a/fs/afs/write.c
++++ b/fs/afs/write.c
+@@ -155,6 +155,8 @@ static int afs_prepare_page(struct afs_vnode *vnode, struct page *page,
+  * prepare to perform part of a write to a page
+  * - the caller holds the page locked, preventing it from being written out or
+  *   modified by anyone else
++ * - may be called from afs_page_mkwrite() to set up a page for modification
++ *   through shared-writable mmap
+  */
+ int afs_prepare_write(struct file *file, struct page *page,
+ 		      unsigned offset, unsigned to)
+@@ -833,3 +835,36 @@ int afs_fsync(struct file *file, struct dentry *dentry, int datasync)
+ 	_leave(" = %d", ret);
+ 	return ret;
+ }
 +
- static ssize_t
- __generic_file_aio_write_nolock(struct kiocb *iocb, const struct iovec *iov,
- 				unsigned long nr_segs, loff_t *ppos)
++/*
++ * notification that a previously read-only page is about to become writable
++ * - if it returns an error, the caller will deliver a bus error signal
++ *
++ * we use this to make a record of the key with which the writeback should be
++ * performed and to flush any outstanding writes made with a different key
++ *
++ * the key to be used is attached to the struct file pinned by the VMA
++ */
++int afs_page_mkwrite(struct vm_area_struct *vma, struct page *page)
++{
++	struct afs_vnode *vnode = AFS_FS_I(vma->vm_file->f_mapping->host);
++	struct key *key = vma->vm_file->private_data;
++	int ret;
++
++	_enter("{{%x:%u},%x},{%lx}",
++	       vnode->fid.vid, vnode->fid.vnode, key_serial(key), page->index);
++
++	do {
++		lock_page(page);
++		if (page->mapping == vma->vm_file->f_mapping)
++			ret = afs_prepare_write(vma->vm_file, page, 0,
++						PAGE_SIZE);
++		else
++			ret = 0; /* seems there was interference - let the
++				  * caller deal with it */
++		unlock_page(page);
++	} while (ret == AOP_TRUNCATED_PAGE);
++
++	_leave(" = %d", ret);
++	return ret;
++}
 
 
 --
