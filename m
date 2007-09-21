@@ -1,12 +1,12 @@
 From: David Howells <dhowells@redhat.com>
-Subject: [PATCH 15/22] NFS: Configuration and mount option changes to enable
-	local caching on NFS
+Subject: [PATCH 10/22] CacheFiles: Add a hook to write a single page of data
+	to an inode
 To: viro@ftp.linux.org.uk, hch@infradead.org, Trond.Myklebust@netapp.com,
         sds@tycho.nsa.gov, casey@schaufler-ca.com
 Cc: linux-kernel@vger.kernel.org, selinux@tycho.nsa.gov,
         linux-security-module@vger.kernel.org, dhowells@redhat.com
-Date: Fri, 21 Sep 2007 15:48:20 +0100
-Message-ID: <20070921144820.8323.1400.stgit@warthog.procyon.org.uk>
+Date: Fri, 21 Sep 2007 15:47:55 +0100
+Message-ID: <20070921144755.8323.45791.stgit@warthog.procyon.org.uk>
 In-Reply-To: <20070921144703.8323.50492.stgit@warthog.procyon.org.uk>
 References: <20070921144703.8323.50492.stgit@warthog.procyon.org.uk>
 MIME-Version: 1.0
@@ -14,294 +14,207 @@ Content-Type: text/plain; charset="utf-8"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Changes to the kernel configuration defintions and to the NFS mount options to
-allow the local caching support added by the previous patch to be enabled.
+Add an address space operation to write one single page of data to an inode at
+a page-aligned location (thus permitting the implementation to be highly
+optimised).
 
-Signed-off-by: David Howells <dhowells@redhat.com>
+This is used by CacheFiles to store the contents of netfs pages into their
+backing file pages.
+
+Supply a generic implementation for this that uses the prepare_write() and
+commit_write() address_space operations to bound a copy directly into the page
+cache.
+
+Hook the Ext2 and Ext3 operations to the generic implementation.
+
+Signed-Off-By: David Howells <dhowells@redhat.com>
 ---
 
- fs/Kconfig        |    8 ++++++++
- fs/nfs/client.c   |   14 ++++++++++----
- fs/nfs/internal.h |    2 ++
- fs/nfs/super.c    |   40 ++++++++++++++++++++++++++++++++++------
- 4 files changed, 54 insertions(+), 10 deletions(-)
+ fs/ext2/inode.c    |    2 +
+ fs/ext3/inode.c    |    3 ++
+ include/linux/fs.h |    7 ++++
+ mm/filemap.c       |   95 ++++++++++++++++++++++++++++++++++++++++++++++++++++
+ 4 files changed, 107 insertions(+), 0 deletions(-)
 
-diff --git a/fs/Kconfig b/fs/Kconfig
-index 8ae7eda..ebc7341 100644
---- a/fs/Kconfig
-+++ b/fs/Kconfig
-@@ -1597,6 +1597,14 @@ config NFS_V4
+diff --git a/fs/ext2/inode.c b/fs/ext2/inode.c
+index 0079b2c..b3e4b50 100644
+--- a/fs/ext2/inode.c
++++ b/fs/ext2/inode.c
+@@ -695,6 +695,7 @@ const struct address_space_operations ext2_aops = {
+ 	.direct_IO		= ext2_direct_IO,
+ 	.writepages		= ext2_writepages,
+ 	.migratepage		= buffer_migrate_page,
++	.write_one_page		= generic_file_buffered_write_one_page,
+ };
  
- 	  If unsure, say N.
+ const struct address_space_operations ext2_aops_xip = {
+@@ -713,6 +714,7 @@ const struct address_space_operations ext2_nobh_aops = {
+ 	.direct_IO		= ext2_direct_IO,
+ 	.writepages		= ext2_writepages,
+ 	.migratepage		= buffer_migrate_page,
++	.write_one_page		= generic_file_buffered_write_one_page,
+ };
  
-+config NFS_FSCACHE
-+	bool "Provide NFS client caching support (EXPERIMENTAL)"
-+	depends on EXPERIMENTAL
-+	depends on NFS_FS=m && FSCACHE || NFS_FS=y && FSCACHE=y
-+	help
-+	  Say Y here if you want NFS data to be cached locally on disc through
-+	  the general filesystem cache manager
-+
- config NFS_DIRECTIO
- 	bool "Allow direct I/O on NFS files"
- 	depends on NFS_FS
-diff --git a/fs/nfs/client.c b/fs/nfs/client.c
-index f1783b2..0de4db4 100644
---- a/fs/nfs/client.c
-+++ b/fs/nfs/client.c
-@@ -543,7 +543,8 @@ error:
  /*
-  * Create a version 2 or 3 client
-  */
--static int nfs_init_server(struct nfs_server *server, const struct nfs_mount_data *data)
-+static int nfs_init_server(struct nfs_server *server, const struct nfs_mount_data *data,
-+			   unsigned int extra_options)
- {
- 	struct nfs_client *clp;
- 	int error, nfsvers = 2;
-@@ -580,6 +581,7 @@ static int nfs_init_server(struct nfs_server *server, const struct nfs_mount_dat
- 	server->acregmax = data->acregmax * HZ;
- 	server->acdirmin = data->acdirmin * HZ;
- 	server->acdirmax = data->acdirmax * HZ;
-+	server->options = extra_options;
+diff --git a/fs/ext3/inode.c b/fs/ext3/inode.c
+index de4e316..93809eb 100644
+--- a/fs/ext3/inode.c
++++ b/fs/ext3/inode.c
+@@ -1713,6 +1713,7 @@ static const struct address_space_operations ext3_ordered_aops = {
+ 	.releasepage	= ext3_releasepage,
+ 	.direct_IO	= ext3_direct_IO,
+ 	.migratepage	= buffer_migrate_page,
++	.write_one_page	= generic_file_buffered_write_one_page,
+ };
  
- 	/* Start lockd here, before we might error out */
- 	error = nfs_start_lockd(server);
-@@ -776,6 +778,7 @@ void nfs_free_server(struct nfs_server *server)
-  * - keyed on server and FSID
-  */
- struct nfs_server *nfs_create_server(const struct nfs_mount_data *data,
-+				     unsigned extra_options,
- 				     struct nfs_fh *mntfh)
- {
- 	struct nfs_server *server;
-@@ -787,7 +790,7 @@ struct nfs_server *nfs_create_server(const struct nfs_mount_data *data,
- 		return ERR_PTR(-ENOMEM);
+ static const struct address_space_operations ext3_writeback_aops = {
+@@ -1727,6 +1728,7 @@ static const struct address_space_operations ext3_writeback_aops = {
+ 	.releasepage	= ext3_releasepage,
+ 	.direct_IO	= ext3_direct_IO,
+ 	.migratepage	= buffer_migrate_page,
++	.write_one_page	= generic_file_buffered_write_one_page,
+ };
  
- 	/* Get a client representation */
--	error = nfs_init_server(server, data);
-+	error = nfs_init_server(server, data, extra_options);
- 	if (error < 0)
- 		goto error;
+ static const struct address_space_operations ext3_journalled_aops = {
+@@ -1740,6 +1742,7 @@ static const struct address_space_operations ext3_journalled_aops = {
+ 	.bmap		= ext3_bmap,
+ 	.invalidatepage	= ext3_invalidatepage,
+ 	.releasepage	= ext3_releasepage,
++	.write_one_page	= generic_file_buffered_write_one_page,
+ };
  
-@@ -911,7 +914,8 @@ error:
-  * Create a version 4 volume record
-  */
- static int nfs4_init_server(struct nfs_server *server,
--		const struct nfs4_mount_data *data, rpc_authflavor_t authflavour)
-+		const struct nfs4_mount_data *data, rpc_authflavor_t authflavour,
-+		unsigned int extra_options)
- {
- 	int error;
+ void ext3_set_aops(struct inode *inode)
+diff --git a/include/linux/fs.h b/include/linux/fs.h
+index bf35441..38f67ac 100644
+--- a/include/linux/fs.h
++++ b/include/linux/fs.h
+@@ -434,6 +434,11 @@ struct address_space_operations {
+ 	int (*migratepage) (struct address_space *,
+ 			struct page *, struct page *);
+ 	int (*launder_page) (struct page *);
++	/* write the contents of the source page over the page at the specified
++	 * index in the target address space (the source page does not need to
++	 * be related to the target address space) */
++	int (*write_one_page)(struct address_space *, pgoff_t, struct page *);
++
+ };
  
-@@ -930,6 +934,7 @@ static int nfs4_init_server(struct nfs_server *server,
- 	server->acregmax = data->acregmax * HZ;
- 	server->acdirmin = data->acdirmin * HZ;
- 	server->acdirmax = data->acdirmax * HZ;
-+	server->options = extra_options;
- 
- 	error = nfs_init_server_rpcclient(server, authflavour);
- 
-@@ -948,6 +953,7 @@ struct nfs_server *nfs4_create_server(const struct nfs4_mount_data *data,
- 				      const char *mntpath,
- 				      const char *ip_addr,
- 				      rpc_authflavor_t authflavour,
-+				      unsigned int extra_options,
- 				      struct nfs_fh *mntfh)
- {
- 	struct nfs_fattr fattr;
-@@ -967,7 +973,7 @@ struct nfs_server *nfs4_create_server(const struct nfs4_mount_data *data,
- 		goto error;
- 
- 	/* set up the general RPC client */
--	error = nfs4_init_server(server, data, authflavour);
-+	error = nfs4_init_server(server, data, authflavour, extra_options);
- 	if (error < 0)
- 		goto error;
- 
-diff --git a/fs/nfs/internal.h b/fs/nfs/internal.h
-index 76cf55d..34ef000 100644
---- a/fs/nfs/internal.h
-+++ b/fs/nfs/internal.h
-@@ -33,6 +33,7 @@ extern struct rpc_program nfs_program;
- extern void nfs_put_client(struct nfs_client *);
- extern struct nfs_client *nfs_find_client(const struct sockaddr_in *, int);
- extern struct nfs_server *nfs_create_server(const struct nfs_mount_data *,
-+					    unsigned int,
- 					    struct nfs_fh *);
- extern struct nfs_server *nfs4_create_server(const struct nfs4_mount_data *,
- 					     const char *,
-@@ -40,6 +41,7 @@ extern struct nfs_server *nfs4_create_server(const struct nfs4_mount_data *,
- 					     const char *,
- 					     const char *,
- 					     rpc_authflavor_t,
-+					     unsigned int,
- 					     struct nfs_fh *);
- extern struct nfs_server *nfs4_create_referral_server(struct nfs_clone_mount *,
- 						      struct nfs_fh *);
-diff --git a/fs/nfs/super.c b/fs/nfs/super.c
-index b878528..7753e9e 100644
---- a/fs/nfs/super.c
-+++ b/fs/nfs/super.c
-@@ -67,6 +67,7 @@ struct nfs_parsed_mount_data {
- 				acdirmin, acdirmax;
- 	int			namlen;
- 	unsigned int		bsize;
-+	unsigned int		options;
- 	unsigned int		auth_flavor_len;
- 	rpc_authflavor_t	auth_flavors[1];
- 	char			*client_address;
-@@ -101,6 +102,7 @@ enum {
- 	Opt_acl, Opt_noacl,
- 	Opt_rdirplus, Opt_nordirplus,
- 	Opt_sharecache, Opt_nosharecache,
-+	Opt_fscache, Opt_nofscache,
- 
- 	/* Mount options that take integer arguments */
- 	Opt_port,
-@@ -149,6 +151,8 @@ static match_table_t nfs_mount_option_tokens = {
- 	{ Opt_nordirplus, "nordirplus" },
- 	{ Opt_sharecache, "sharecache" },
- 	{ Opt_nosharecache, "nosharecache" },
-+	{ Opt_fscache, "fsc" },
-+	{ Opt_nofscache, "nofsc" },
- 
- 	{ Opt_port, "port=%u" },
- 	{ Opt_rsize, "rsize=%u" },
-@@ -495,6 +499,8 @@ static void nfs_show_mount_options(struct seq_file *m, struct nfs_server *nfss,
- 	seq_printf(m, ",timeo=%lu", 10U * clp->retrans_timeo / HZ);
- 	seq_printf(m, ",retrans=%u", clp->retrans_count);
- 	seq_printf(m, ",sec=%s", nfs_pseudoflavour_to_name(nfss->client->cl_auth->au_flavor));
-+	if (nfss->options & NFS_OPTION_FSCACHE)
-+		seq_printf(m, ",fsc");
+ struct backing_dev_info;
+@@ -1669,6 +1674,8 @@ extern ssize_t generic_file_direct_write(struct kiocb *, const struct iovec *,
+ 		unsigned long *, loff_t, loff_t *, size_t, size_t);
+ extern ssize_t generic_file_buffered_write(struct kiocb *, const struct iovec *,
+ 		unsigned long, loff_t, loff_t *, size_t, ssize_t);
++extern int generic_file_buffered_write_one_page(struct address_space *,
++						pgoff_t, struct page *);
+ extern ssize_t do_sync_read(struct file *filp, char __user *buf, size_t len, loff_t *ppos);
+ extern ssize_t do_sync_write(struct file *filp, const char __user *buf, size_t len, loff_t *ppos);
+ extern void do_generic_mapping_read(struct address_space *mapping,
+diff --git a/mm/filemap.c b/mm/filemap.c
+index 3a61923..21aeee9 100644
+--- a/mm/filemap.c
++++ b/mm/filemap.c
+@@ -2016,6 +2016,101 @@ zero_length_segment:
  }
+ EXPORT_SYMBOL(generic_file_buffered_write);
  
- /*
-@@ -725,6 +731,15 @@ static int nfs_parse_mount_options(char *raw,
- 			break;
- 		case Opt_nosharecache:
- 			mnt->flags |= NFS_MOUNT_UNSHARED;
-+			mnt->options &= ~NFS_OPTION_FSCACHE;
-+			break;
-+		case Opt_fscache:
-+			/* sharing is mandatory with fscache */
-+			mnt->options |= NFS_OPTION_FSCACHE;
-+			mnt->flags &= ~NFS_MOUNT_UNSHARED;
-+			break;
-+		case Opt_nofscache:
-+			mnt->options &= ~NFS_OPTION_FSCACHE;
- 			break;
- 
- 		case Opt_port:
-@@ -1081,10 +1096,13 @@ out_err:
-  */
- static int nfs_validate_mount_data(struct nfs_mount_data **options,
- 				   struct nfs_fh *mntfh,
--				   const char *dev_name)
-+				   const char *dev_name,
-+				   unsigned int *_extra_options)
- {
- 	struct nfs_mount_data *data = *options;
- 
-+	*_extra_options = 0;
++/**
++ * generic_file_buffered_write_one_page - Write a single page of data to an
++ *	inode
++ * @mapping - The address space of the target inode
++ * @index - The target page in the target inode to fill
++ * @source - The data to write into the target page
++ *
++ * Write the data from the source page to the page in the nominated address
++ * space at the @index specified.  Note that the file will not be extended if
++ * the page crosses the EOF marker, in which case only the first part of the
++ * page will be written.
++ *
++ * The @source page does not need to have any association with the file or the
++ * target page offset.
++ */
++int generic_file_buffered_write_one_page(struct address_space *mapping,
++					 pgoff_t index,
++					 struct page *source)
++{
++	const struct address_space_operations *a_ops = mapping->a_ops;
++	struct pagevec	lru_pvec;
++	struct page *page, *cached_page = NULL;
++	unsigned psize;
++	loff_t isize;
++	long status = 0;
 +
- 	if (data == NULL)
- 		goto out_no_data;
- 
-@@ -1131,6 +1149,7 @@ static int nfs_validate_mount_data(struct nfs_mount_data **options,
- 			.acregmax	= 60,
- 			.acdirmin	= 30,
- 			.acdirmax	= 60,
-+			.options	= 0,
- 			.mount_server.protocol = IPPROTO_UDP,
- 			.mount_server.program = NFS_MNT_PROGRAM,
- 			.nfs_server.protocol = IPPROTO_TCP,
-@@ -1139,6 +1158,7 @@ static int nfs_validate_mount_data(struct nfs_mount_data **options,
- 
- 		if (nfs_parse_mount_options((char *) *options, &args) == 0)
- 			return -EINVAL;
-+		*_extra_options = args.options;
- 
- 		data = kzalloc(sizeof(*data), GFP_KERNEL);
- 		if (data == NULL)
-@@ -1381,6 +1401,7 @@ static int nfs_get_sb(struct file_system_type *fs_type,
- 	struct nfs_fh mntfh;
- 	struct nfs_mount_data *data = raw_data;
- 	struct dentry *mntroot;
-+	unsigned int extra_options;
- 	int (*compare_super)(struct super_block *, void *) = nfs_compare_super;
- 	struct nfs_sb_mountdata sb_mntdata = {
- 		.mntflags = flags,
-@@ -1388,12 +1409,12 @@ static int nfs_get_sb(struct file_system_type *fs_type,
- 	int error;
- 
- 	/* Validate the mount data */
--	error = nfs_validate_mount_data(&data, &mntfh, dev_name);
-+	error = nfs_validate_mount_data(&data, &mntfh, dev_name, &extra_options);
- 	if (error < 0)
- 		goto out;
- 
- 	/* Get a volume representation */
--	server = nfs_create_server(data, &mntfh);
-+	server = nfs_create_server(data, extra_options, &mntfh);
- 	if (IS_ERR(server)) {
- 		error = PTR_ERR(server);
- 		goto out;
-@@ -1565,11 +1586,14 @@ static int nfs4_validate_mount_data(struct nfs4_mount_data **options,
- 				    rpc_authflavor_t *authflavour,
- 				    char **hostname,
- 				    char **mntpath,
--				    char **ip_addr)
-+				    char **ip_addr,
-+				    unsigned int *_extra_options)
- {
- 	struct nfs4_mount_data *data = *options;
- 	char *c;
- 
-+	*_extra_options = 0;
++	pagevec_init(&lru_pvec, 0);
 +
- 	if (data == NULL)
- 		goto out_no_data;
- 
-@@ -1625,11 +1649,13 @@ static int nfs4_validate_mount_data(struct nfs4_mount_data **options,
- 			.acregmax	= 60,
- 			.acdirmin	= 30,
- 			.acdirmax	= 60,
-+			.options	= 0,
- 			.nfs_server.protocol = IPPROTO_TCP,
- 		};
- 
- 		if (nfs_parse_mount_options((char *) *options, &args) == 0)
- 			return -EINVAL;
-+		*_extra_options = args.options;
- 
- 		if (!nfs_verify_server_address((struct sockaddr *)
- 						&args.nfs_server.address))
-@@ -1736,6 +1762,7 @@ static int nfs4_get_sb(struct file_system_type *fs_type,
- 	rpc_authflavor_t authflavour;
- 	struct nfs_fh mntfh;
- 	struct dentry *mntroot;
-+	unsigned extra_options;
- 	char *mntpath = NULL, *hostname = NULL, *ip_addr = NULL;
- 	int (*compare_super)(struct super_block *, void *) = nfs_compare_super;
- 	struct nfs_sb_mountdata sb_mntdata = {
-@@ -1745,13 +1772,14 @@ static int nfs4_get_sb(struct file_system_type *fs_type,
- 
- 	/* Validate the mount data */
- 	error = nfs4_validate_mount_data(&data, dev_name, &addr, &authflavour,
--					 &hostname, &mntpath, &ip_addr);
-+					 &hostname, &mntpath, &ip_addr,
-+					 &extra_options);
- 	if (error < 0)
- 		goto out;
- 
- 	/* Get a volume representation */
- 	server = nfs4_create_server(data, hostname, &addr, mntpath, ip_addr,
--				    authflavour, &mntfh);
-+				    authflavour, extra_options, &mntfh);
- 	if (IS_ERR(server)) {
- 		error = PTR_ERR(server);
- 		goto out;
++	page = __grab_cache_page(mapping, index, &cached_page, &lru_pvec);
++	if (!page) {
++		BUG_ON(cached_page);
++		return -ENOMEM;
++	}
++
++	psize = PAGE_CACHE_SIZE;
++	isize = i_size_read(mapping->host);
++	if ((isize >> PAGE_SHIFT) == index)
++		psize = isize & (PAGE_SIZE - 1);
++
++	status = a_ops->prepare_write(NULL, page, 0, psize);
++	if (unlikely(status)) {
++		isize = i_size_read(mapping->host);
++
++		if (status != AOP_TRUNCATED_PAGE)
++			unlock_page(page);
++		page_cache_release(page);
++		if (status == AOP_TRUNCATED_PAGE)
++			goto sync;
++
++		/* prepare_write() may have instantiated a few blocks outside
++		 * i_size.  Trim these off again.
++		 */
++		if ((1ULL << (index + 1)) > isize)
++			vmtruncate(mapping->host, isize);
++		goto sync;
++	}
++
++	copy_highpage(page, source);
++	flush_dcache_page(page);
++
++	status = a_ops->commit_write(NULL, page, 0, psize);
++	if (status == AOP_TRUNCATED_PAGE) {
++		page_cache_release(page);
++		goto sync;
++	}
++
++	if (status > 0)
++		status = 0;
++
++	unlock_page(page);
++	mark_page_accessed(page);
++	page_cache_release(page);
++	if (status < 0)
++		return status;
++
++	balance_dirty_pages_ratelimited(mapping);
++	cond_resched();
++
++sync:
++	if (cached_page)
++		page_cache_release(cached_page);
++
++	/* the caller must handle O_SYNC themselves, but we handle S_SYNC and
++	 * MS_SYNCHRONOUS here */
++	if (unlikely(IS_SYNC(mapping->host)) && !a_ops->writepage)
++		status = generic_osync_inode(mapping->host, mapping,
++					     OSYNC_METADATA | OSYNC_DATA);
++
++	/* the caller must handle O_DIRECT for themselves */
++
++	pagevec_lru_add(&lru_pvec);
++	return status;
++}
++EXPORT_SYMBOL(generic_file_buffered_write_one_page);
++
+ static ssize_t
+ __generic_file_aio_write_nolock(struct kiocb *iocb, const struct iovec *iov,
+ 				unsigned long nr_segs, loff_t *ppos)
 
 
 --
