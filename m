@@ -1,24 +1,31 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l8LFfQUq003402
-	for <selinux@tycho.nsa.gov>; Fri, 21 Sep 2007 11:41:26 -0400
-Received: from alnrmhc15.comcast.net (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l8LFfNL2021962
-	for <selinux@tycho.nsa.gov>; Fri, 21 Sep 2007 15:41:23 GMT
-From: msmatsko@comcast.net (msm@gwu.edu)
-To: selinux@tycho.nsa.gov
-Subject: Memory and temporary file wiping
-Date: Fri, 21 Sep 2007 15:41:22 +0000
-Message-Id: <092120071541.15588.46F3E622000C82BA00003CE4221557511401059C9B0E039C03@comcast.net>
+From: David Howells <dhowells@redhat.com>
+In-Reply-To: <718847.32805.qm@web36601.mail.mud.yahoo.com>
+References: <718847.32805.qm@web36601.mail.mud.yahoo.com>
+To: casey@schaufler-ca.com
+Cc: dhowells@redhat.com, viro@ftp.linux.org.uk, hch@infradead.org,
+        Trond.Myklebust@netapp.com, sds@tycho.nsa.gov,
+        linux-kernel@vger.kernel.org, selinux@tycho.nsa.gov,
+        linux-security-module@vger.kernel.org
+Subject: Re: [PATCH 00/22] Introduce credential record
+Date: Fri, 21 Sep 2007 16:40:16 +0100
+Message-ID: <9072.1190389216@redhat.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Dear selinux,
+Casey Schaufler <casey@schaufler-ca.com> wrote:
 
-  I'm trying to configure a RedHat Enterprise Linux box for PL2.  Part of that requirement is that memory gets zeroed before reuse and that temporary files be wiped (bcwipe can handle this).  Perusing web resources, one gets the impression that Linux and/or SELinux do the appropriate memory wiping.  However, I cannot find any specifics.  I have tried looking at kernel memory and security documentation to no avail.  Is there a specific SELinux policy for this, or is this just a standard Linux feature?  Thank you for any assistance.
+> > One thing I'm not certain about is how this should interact with /proc,
+> > which can display some of the stuff in the cred struct.  I think it may be
+> > necessary to have a real cred pointer and an effective cred pointer, with
+> > the contents of /proc coming from the real, but the effective governing
+> > what actually goes on.
+> 
+> I think you want the effective values to show up in /proc.
 
-Sincerely,
-Michael Matsko
-Northrop Grumman/XTI
+Perhaps - but bear in mind that in the override case they weren't set by the
+process itself.
+
+David
 
 --
 This message was distributed to subscribers of the selinux mailing list.
