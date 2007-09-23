@@ -1,48 +1,58 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l8NHW5e2027459
-	for <selinux@tycho.nsa.gov>; Sun, 23 Sep 2007 13:32:05 -0400
-Received: from mail.seekline.net (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l8NHW3CK006643
-	for <selinux@tycho.nsa.gov>; Sun, 23 Sep 2007 17:32:04 GMT
-Subject: [refpolicy] minor comment patch for cron.if
-From: Stefan Schulze Frielinghaus <stefan@seekline.net>
-To: cpebenito@tresys.com
-Cc: selinux@tycho.nsa.gov
-Content-Type: multipart/mixed; boundary="=-DpvGYi/DjLYn5Yhx1OBu"
-Date: Sun, 23 Sep 2007 18:31:28 +0100
-Message-Id: <1190568688.3831.4.camel@vogon>
-Mime-Version: 1.0
+Date: Sun, 23 Sep 2007 14:39:21 -0700 (PDT)
+From: James Morris <jmorris@namei.org>
+To: Eric Paris <eparis@redhat.com>
+cc: selinux@tycho.nsa.gov, sds@tycho.nsa.gov, ewalsh@tycho.nsa.gov,
+        sgrubb@redhat.com
+Subject: Re: [PATCH -v4] kernel: selinux: policy selectable handling of
+ unknown classes and perms
+In-Reply-To: <1190399830.3451.145.camel@localhost.localdomain>
+Message-ID: <Xine.LNX.4.64.0709231431320.23411@us.intercode.com.au>
+References: <1190399830.3451.145.camel@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+On Fri, 21 Sep 2007, Eric Paris wrote:
 
---=-DpvGYi/DjLYn5Yhx1OBu
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+>  	kfree(p->type_attr_map);
+>  
 
-The file cron.if at line 470 has a wrong comment I guess.
-Please have a look at the patch because I'm not 100% sure if I guessed
-the right comment. I saw that only while I run over the cron interfaces.
+Remove the blank line between these.
 
---=-DpvGYi/DjLYn5Yhx1OBu
-Content-Disposition: attachment; filename=cron.if.patch
-Content-Type: text/x-patch; name=cron.if.patch; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+> +	kfree(p->undefined_perms);
+> +
 
---- ../refpolicy-20070629/policy/modules/services/cron.if	2007-06-27 16:23:21.000000000 +0100
-+++ policy/modules/services/cron.if	2007-09-23 18:25:02.000000000 +0100
-@@ -465,7 +465,7 @@
- 
- ########################################
- ## <summary>
--##	Execute APM in the apm domain.
-+##	Execute anacron in the cron system domain.
- ## </summary>
- ## <param name="domain">
- ##	<summary>
+> +
+> +	unsigned int reject_unknown : 1;
+> +	unsigned int allow_unknown : 1;
+> +	u32 *undefined_perms;
 
---=-DpvGYi/DjLYn5Yhx1OBu--
+Why two separate bitfields ?
 
+> +	if (p->allow_unknown) {
+> +		u32 num_classes = kdefs->cts_len;
+> +		p->undefined_perms = kcalloc(num_classes, sizeof(u32), GFP_KERNEL);
+> +		if (!p->undefined_perms)
+> +			return -ENOMEM;
+> +	}
+
+Why have num_classes when you only use the value once ?
+
+It's clearer to just use kdefs->cts_len in the kcalloc.
+
+> +int security_get_reject_unknown(void)
+> +int security_get_allow_unknown(void)
+
+Can you make these static inline?
+
+
+What sort of testing has this had?
+
+
+-- 
+James Morris
+<jmorris@namei.org>
 
 --
 This message was distributed to subscribers of the selinux mailing list.
