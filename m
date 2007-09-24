@@ -1,46 +1,91 @@
-From: David Howells <dhowells@redhat.com>
-In-Reply-To: <20070924153541.GB26258@vino.hallyn.com>
-References: <20070924153541.GB26258@vino.hallyn.com> <20070919161749.8334.26064.stgit@warthog.procyon.org.uk> <20070919161759.8334.11581.stgit@warthog.procyon.org.uk> <20070924140003.GA25689@vino.hallyn.com> <1190643719.487.41.camel@moss-spartans.epoch.ncsc.mil>
-To: "Serge E. Hallyn" <serge@hallyn.com>
-Cc: dhowells@redhat.com, Stephen Smalley <sds@tycho.nsa.gov>,
-        viro@ftp.linux.org.uk, hch@infradead.org, Trond.Myklebust@netapp.com,
-        casey@schaufler-ca.com, linux-kernel@vger.kernel.org,
-        selinux@tycho.nsa.gov, linux-security-module@vger.kernel.org
-Subject: Re: [PATCH 2/3] CRED: Split the task security data and move part of it into struct cred
-Date: Mon, 24 Sep 2007 16:52:55 +0100
-Message-ID: <11732.1190649175@redhat.com>
+Message-ID: <46F7DDBA.3010600@redhat.com>
+Date: Mon, 24 Sep 2007 11:54:34 -0400
+From: Daniel J Walsh <dwalsh@redhat.com>
+MIME-Version: 1.0
+To: Stephen Smalley <sds@tycho.nsa.gov>, SE Linux <selinux@tycho.nsa.gov>
+Subject: Patch for libselinux to build correctly on Sparc.
+Content-Type: multipart/mixed;
+ boundary="------------050404000205010307020709"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Serge E. Hallyn <serge@hallyn.com> wrote:
+This is a multi-part message in MIME format.
+--------------050404000205010307020709
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 
-> Ah, ok, so the daemon would use this to act under the user's
-> credentials.  I was thinking the user would be using this to act
-> under the daemon's or kernel's sid.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-Think kernel service rather than daemon.  NFSd provides its own daemons to
-override the security of, whereas cachefiles runs in the process context of
-whoever called NFS.
+https://bugzilla.redhat.com/show_bug.cgi?id=199367
 
-> Between that and David's response, that this is only for the duration of
-> one syscall (IIUC),
+sparc64 needs to use CFLAGS with CC to link properly using gcc the
+attached patch fixes this issue
 
-That's more or less correct.  You have to add the pagefault handler to that
-list.
+Patch submitted originally by Dennis Gilmore.
 
-> My worry arose from the fact that I don't see
-> security_cred_kernel_act_as() being called anywhere in this patchset...
+Further info from bugzilla.
 
-Look in:
 
-[PATCH 04/22] CRED: Request a credential record for a kernel service
+(In reply to comment #7)
+> It's ok by me, although I'm wondering what CFLAGS you are supplying
+that matter
+> here.
 
-Which was part of a patchset I sent on the 21st Sept.  get_kernel_cred() is in
-turn used by:
+For multilib support, sparc needs libselinux (and libsepol) to be built
+as sparc
+(32bit) and sparc64 (64bit). sparc builds fine (-m32 is assumed by the
+compiler), but when building for sparc64, we need all compile and link
+operations to have -m64 passed for it, or else gcc will mismatch (it
+will make
+sparc64 object files, then try to link them as a 32bit library) and the
+build fails.
 
-[PATCH 13/22] CacheFiles: A cache that backs onto a mounted filesystem
+The easiest way to ensure safe and consistent builds is to universally apply
+CFLAGS whenever calling CC, which is what this patch does.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.7 (GNU/Linux)
+Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org
 
-David
+iD8DBQFG9926rlYvE4MpobMRAuguAKDBxJbz4hV3khmgHFYRiPYCuSS8qACeJUJv
+99nyoIM2VK6cbzR/9xlNHwA=
+=htQu
+-----END PGP SIGNATURE-----
+
+--------------050404000205010307020709
+Content-Type: text/plain;
+ name="diff"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="diff"
+
+diff --exclude-from=exclude -N -u -r nsalibselinux/src/Makefile libselinux-2.0.34/src/Makefile
+--- nsalibselinux/src/Makefile	2007-08-03 16:02:56.000000000 -0400
++++ libselinux-2.0.34/src/Makefile	2007-09-24 11:51:42.000000000 -0400
+@@ -57,10 +57,10 @@
+ 	$(CC) $(CFLAGS) -I$(PYINC) -fPIC -DSHARED -c -o $@ $<
+ 
+ $(SWIGSO): $(SWIGLOBJ)
+-	$(CC) $(LDFLAGS) -shared -o $@ $< -L. -lselinux -L$(LIBDIR) -Wl,-soname,$@
++	$(CC) $(CFLAGS) $(LDFLAGS) -shared -o $@ $< -L. -lselinux -L$(LIBDIR) -Wl,-soname,$@
+ 
+ $(LIBSO): $(LOBJS)
+-	$(CC) $(LDFLAGS) -shared -o $@ $^ -ldl -L$(LIBDIR) -Wl,-soname,$(LIBSO),-z,defs,-z,relro
++	$(CC) $(CFLAGS) $(LDFLAGS) -shared -o $@ $^ -ldl -L$(LIBDIR) -Wl,-soname,$(LIBSO),-z,defs,-z,relro
+ 	ln -sf $@ $(TARGET) 
+ 
+ %.o:  %.c policy.h
+
+--------------050404000205010307020709
+Content-Type: application/octet-stream;
+ name="diff.sig"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment;
+ filename="diff.sig"
+
+iD8DBQBG9926rlYvE4MpobMRAsa1AKDGgkytDyBpGj5O5SrQr9QPqxa6twCghpc+4ZGEpkyN
+kvhYSE632BZgAwY=
+--------------050404000205010307020709--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
