@@ -1,57 +1,78 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l8OCjqc7017145
-	for <selinux@tycho.nsa.gov>; Mon, 24 Sep 2007 08:45:52 -0400
-Received: from exchange.columbia.tresys.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with SMTP id l8OCjpfc013950
-	for <selinux@tycho.nsa.gov>; Mon, 24 Sep 2007 12:45:51 GMT
-Subject: Re: chcon -l permission
-From: "Christopher J. PeBenito" <cpebenito@tresys.com>
-To: "Clarkson, Mike R (US SSA)" <mike.clarkson@baesystems.com>
-Cc: selinux@tycho.nsa.gov
-In-Reply-To: <FB39F4E77226B448BC1388D3BE4E00CD49A287@blums0008.bluelnk.net>
-References: <FB39F4E77226B448BC1388D3BE4E00CD49A287@blums0008.bluelnk.net>
+Subject: Re: [PATCH] checkpolicy: implement handling of unknown classes
+	andpermissions
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: "Christopher J. PeBenito" <cpebenito@tresys.com>
+Cc: Eric Paris <eparis@redhat.com>, selinux@tycho.nsa.gov,
+        Daniel J Walsh <dwalsh@redhat.com>,
+        Joshua Brindle <method@manicmethod.com>,
+        Karl MacMillan <kmacmillan@mentalrootkit.com>
+In-Reply-To: <1190636961.15178.14.camel@gorn>
+References: <1189103186.3418.35.camel@localhost.localdomain>
+	 <1190144886.14037.105.camel@moss-spartans.epoch.ncsc.mil>
+	 <1190395644.15178.5.camel@gorn.columbia.tresys.com>
+	 <1190401736.17518.123.camel@moss-spartans.epoch.ncsc.mil>
+	 <1190636961.15178.14.camel@gorn>
 Content-Type: text/plain
-Date: Mon, 24 Sep 2007 12:44:02 +0000
-Message-Id: <1190637842.15178.24.camel@gorn>
+Date: Mon, 24 Sep 2007 08:41:52 -0400
+Message-Id: <1190637712.487.11.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Sat, 2007-09-22 at 17:05 -0700, Clarkson, Mike R (US SSA) wrote:
-> I have a java process running in a domain named frontgate_t, which reads
-> files and determines the correct classification/compartment level of the
-> file based upon its contents. The java process then relabels the file to
-> the correct level using "chcon -l ...". It can both upgrade or downgrade
-> the level of the file
+On Mon, 2007-09-24 at 12:29 +0000, Christopher J. PeBenito wrote:
+> On Fri, 2007-09-21 at 15:08 -0400, Stephen Smalley wrote:
+> > On Fri, 2007-09-21 at 13:27 -0400, Christopher J. PeBenito wrote:
+> > > On Tue, 2007-09-18 at 15:48 -0400, Stephen Smalley wrote:
+> > > > On Thu, 2007-09-06 at 14:26 -0400, Eric Paris wrote:
+> > > > > Add a new command line options, -U (allow,reject,deny), to
+> > > > checkmodule
+> > > > > and checkpolicy which sets the handle_unknown config flag.  Default
+> > > > to
+> > > > > deny unknowns which is how things have been in the past.  Also add
+> > > > > dismod and dispol support.
+> > > > >
+> > > > > -Eric
+> > > > 
+> > > > Thanks, merged as of checkpolicy 2.0.4.
+> > > > 
+> > > > Chris/Dan:  we need some way to select the flag setting for the policy
+> > > > build.  The -U {allow,reject,deny} setting needs to be passed to
+> > > > checkmodule _only_ when building the base module, or to checkpolicy
+> > > > when
+> > > > building a monolithic policy.
+> > > 
+> > > Here is a patch for this, I haven't committed this to trunk yet, as I'd
+> > > prefer to wait for the next stable release of the toolchain (when its
+> > > that, btw?).
+> > 
+> > I was planning to do it early next week.
+> > 
+> > However, I only committed this change to the trunk version of
+> > checkpolicy/libsepol, not the stable branch, as it certainly isn't a bug
+> > fix or trivial cleanup.  So by "stable release", do you just mean a
+> > release, or do you mean a release of the stable branch that includes
+> > this change?
 > 
-> I'm getting file relabelfrom and relabelto denials in the audit log that
-> I can't get past. I've provided the allow rule indicated by audit2allow.
-> At first I thought this was an mls constraint issue. I expect that the
-> following mls privileges would be required:
-> 	mls_file_upgrade(frontgate_t)
-> 	mls_file_downgrade(frontgate_t)
-> 	mls_context_translate_all_levels(frontgate_t) (maybe needed??)
-> 
-> I provided all of these, and then progressively added more and more mls
-> privileges until I had provided them all. Next, I gutted the mls file
-> that contains all of the mls constraints to once and for all convince
-> myself that this wasn't an mls constraint issue.
-> 
+> I suppose I just mean a release.  A release off trunk still isn't going
+> to be considered stable?
 
-> avc:  denied  { relabelfrom }
-[...]
-> scontext=m252_u:system_r:frontgate_t:s4:c0.c255
-           ^^^^^^
-> tcontext=root:object_r:import_datasources_t:s4:c10
-           ^^^^
-You hit the SELinux user identity equality constraint: m252_u != root.
-You would need domain_obj_id_change_exemption(frontgate_t) to make this
-work.  Or, run in system_u:system_r:frontgate_t:s4:c0.c255.
+Depends on what one means by stable ;)
+
+In the first release made from the trunk, I explicitly warned that
+interfaces were still subject to change, but that was mostly to avoid
+locking sepolgen into fixed interfaces at the time.  Karl, any thoughts
+on where things stand for sepolgen stability?
+
+libsepol and checkpolicy are another matter; we'd have to increment .so
+version or introduce versioned symbols in libsepol for incompatible
+changes (as in the eventual merge of policyrep) and we'd have to provide
+some form of backward compatibility for any checkpolicy command line
+option once it has been released.  So this particular change should be
+stable in the sense of preserving backward compatibility going forward.
 
 -- 
-Chris PeBenito
-Tresys Technology, LLC
-(410) 290-1411 x150
+Stephen Smalley
+National Security Agency
 
 
 --
