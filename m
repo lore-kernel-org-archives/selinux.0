@@ -1,49 +1,104 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l8OD23R3018576
-	for <selinux@tycho.nsa.gov>; Mon, 24 Sep 2007 09:02:03 -0400
-Received: from exchange.columbia.tresys.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with SMTP id l8OD22D3014375
-	for <selinux@tycho.nsa.gov>; Mon, 24 Sep 2007 13:02:02 GMT
-Message-ID: <46F7B51A.2020706@manicmethod.com>
-Date: Mon, 24 Sep 2007 09:01:14 -0400
-From: Joshua Brindle <method@manicmethod.com>
-MIME-Version: 1.0
-To: "Christopher J. PeBenito" <cpebenito@tresys.com>
-CC: "Clarkson, Mike R (US SSA)" <mike.clarkson@baesystems.com>,
-        selinux@tycho.nsa.gov
-Subject: Re: chcon -l permission
-References: <FB39F4E77226B448BC1388D3BE4E00CD49A287@blums0008.bluelnk.net> <1190637842.15178.24.camel@gorn>
-In-Reply-To: <1190637842.15178.24.camel@gorn>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Subject: Re: [PATCH] checkpolicy: implement handling of unknown
+	classes	andpermissions
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Joshua Brindle <method@manicmethod.com>
+Cc: "Christopher J. PeBenito" <cpebenito@tresys.com>,
+        Eric Paris <eparis@redhat.com>, selinux@tycho.nsa.gov,
+        Daniel J Walsh <dwalsh@redhat.com>,
+        Karl MacMillan <kmacmillan@mentalrootkit.com>
+In-Reply-To: <46F7B480.9030202@manicmethod.com>
+References: <1189103186.3418.35.camel@localhost.localdomain>
+	 <1190144886.14037.105.camel@moss-spartans.epoch.ncsc.mil>
+	 <1190395644.15178.5.camel@gorn.columbia.tresys.com>
+	 <1190401736.17518.123.camel@moss-spartans.epoch.ncsc.mil>
+	 <1190636961.15178.14.camel@gorn>
+	 <1190637712.487.11.camel@moss-spartans.epoch.ncsc.mil>
+	 <46F7B480.9030202@manicmethod.com>
+Content-Type: text/plain
+Date: Mon, 24 Sep 2007 08:58:39 -0400
+Message-Id: <1190638719.487.16.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Christopher J. PeBenito wrote:
-> On Sat, 2007-09-22 at 17:05 -0700, Clarkson, Mike R (US SSA) wrote:
->   
->> I have a java process running in a domain named frontgate_t, which reads
->> files and determines the correct classification/compartment level of the
->> file based upon its contents. The java process then relabels the file to
->> the correct level using "chcon -l ...". It can both upgrade or downgrade
->> the level of the file
->>
->> I'm getting file relabelfrom and relabelto denials in the audit log that
->> I can't get past. I've provided the allow rule indicated by audit2allow.
->> At first I thought this was an mls constraint issue. I expect that the
->> following mls privileges would be required:
->> 	mls_file_upgrade(frontgate_t)
->> 	mls_file_downgrade(frontgate_t)
->> 	mls_context_translate_all_levels(frontgate_t) (maybe needed??)
->>
->> I provided all of these, and then progressively added more and more mls
->> privileges until I had provided them all. Next, I gutted the mls file
->> that contains all of the mls constraints to once and for all convince
->> myself that this wasn't an mls constraint issue.
->>
->>     
-Note: you can use audit2why to convince yourself of whether something is 
-a TE or constraint issue without granting your application all MLS 
-privileges.
+On Mon, 2007-09-24 at 08:58 -0400, Joshua Brindle wrote:
+> Stephen Smalley wrote:
+> > On Mon, 2007-09-24 at 12:29 +0000, Christopher J. PeBenito wrote:
+> >   
+> >> On Fri, 2007-09-21 at 15:08 -0400, Stephen Smalley wrote:
+> >>     
+> >>> On Fri, 2007-09-21 at 13:27 -0400, Christopher J. PeBenito wrote:
+> >>>       
+> >>>> On Tue, 2007-09-18 at 15:48 -0400, Stephen Smalley wrote:
+> >>>>         
+> >>>>> On Thu, 2007-09-06 at 14:26 -0400, Eric Paris wrote:
+> >>>>>           
+> >>>>>> Add a new command line options, -U (allow,reject,deny), to
+> >>>>>>             
+> >>>>> checkmodule
+> >>>>>           
+> >>>>>> and checkpolicy which sets the handle_unknown config flag.  Default
+> >>>>>>             
+> >>>>> to
+> >>>>>           
+> >>>>>> deny unknowns which is how things have been in the past.  Also add
+> >>>>>> dismod and dispol support.
+> >>>>>>
+> >>>>>> -Eric
+> >>>>>>             
+> >>>>> Thanks, merged as of checkpolicy 2.0.4.
+> >>>>>
+> >>>>> Chris/Dan:  we need some way to select the flag setting for the policy
+> >>>>> build.  The -U {allow,reject,deny} setting needs to be passed to
+> >>>>> checkmodule _only_ when building the base module, or to checkpolicy
+> >>>>> when
+> >>>>> building a monolithic policy.
+> >>>>>           
+> >>>> Here is a patch for this, I haven't committed this to trunk yet, as I'd
+> >>>> prefer to wait for the next stable release of the toolchain (when its
+> >>>> that, btw?).
+> >>>>         
+> >>> I was planning to do it early next week.
+> >>>
+> >>> However, I only committed this change to the trunk version of
+> >>> checkpolicy/libsepol, not the stable branch, as it certainly isn't a bug
+> >>> fix or trivial cleanup.  So by "stable release", do you just mean a
+> >>> release, or do you mean a release of the stable branch that includes
+> >>> this change?
+> >>>       
+> >> I suppose I just mean a release.  A release off trunk still isn't going
+> >> to be considered stable?
+> >>     
+> >
+> > Depends on what one means by stable ;)
+> >
+> > In the first release made from the trunk, I explicitly warned that
+> > interfaces were still subject to change, but that was mostly to avoid
+> > locking sepolgen into fixed interfaces at the time.  Karl, any thoughts
+> > on where things stand for sepolgen stability?
+> >
+> > libsepol and checkpolicy are another matter; we'd have to increment .so
+> > version or introduce versioned symbols in libsepol for incompatible
+> > changes (as in the eventual merge of policyrep) and we'd have to provide
+> > some form of backward compatibility for any checkpolicy command line
+> > option once it has been released.  So this particular change should be
+> > stable in the sense of preserving backward compatibility going forward.
+> >
+> >   
+> 
+> The functionality in trunk vs. stable isn't that different, just a few 
+> features here and there so there is no reason to make another stable 
+> branch at this point. That brings up the question, when do we make 
+> another stable branch? Are we going to synchronize with rhel releases or 
+> are we going to do it when we think we are going to a new 'major' 
+> version of the toolchain? For example, are we going to make another 
+> stable branch when policyrep gets merged in?
+
+Likely the latter.
+
+-- 
+Stephen Smalley
+National Security Agency
 
 
 --
