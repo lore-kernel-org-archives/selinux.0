@@ -1,25 +1,42 @@
-From: David Howells <dhowells@redhat.com>
-In-Reply-To: <19445.1190748021@lwn.net>
-References: <19445.1190748021@lwn.net>
-To: corbet@lwn.net (Jonathan Corbet)
-Cc: dhowells@redhat.com, viro@ftp.linux.org.uk, hch@infradead.org,
-        Trond.Myklebust@netapp.com, sds@tycho.nsa.gov, casey@schaufler-ca.com,
-        linux-kernel@vger.kernel.org, selinux@tycho.nsa.gov,
-        linux-security-module@vger.kernel.org
-Subject: Re: [PATCH 04/22] CRED: Request a credential record for a kernel service 
-Date: Tue, 25 Sep 2007 20:27:10 +0100
-Message-ID: <24448.1190748430@redhat.com>
+Subject: ANN:  Updated SELinux core userland release
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: selinux@tycho.nsa.gov
+Cc: Manoj Srivastava <manoj.srivastava@stdc.com>,
+        Daniel J Walsh <dwalsh@redhat.com>,
+        "Christopher J. PeBenito" <cpebenito@tresys.com>
+In-Reply-To: <1174593896.31436.158.camel@moss-spartans.epoch.ncsc.mil>
+References: <1174593896.31436.158.camel@moss-spartans.epoch.ncsc.mil>
+Content-Type: text/plain
+Date: Tue, 25 Sep 2007 15:55:58 -0400
+Message-Id: <1190750158.24726.166.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Jonathan Corbet <corbet@lwn.net> wrote:
+An updated release of the SELinux core userland code is available from
+the NSA web site, see:
+http://www.nsa.gov/selinux/news.cfm#R070925
 
-> The comment describes a "dentry" argument, but the actual function does
-> not have that argument.
+Updated versions of the stable and development (trunk) series can be
+downloaded from:
+http://www.nsa.gov/selinux/code/
 
-oops.  Yeah, I decided I didn't want that there.
+For those who use the sourceforge svn tree, the stable branch and trunk
+have been tagged as 20070925 under tags/stable and tags/devel
+respectively for this release.
 
-David
+It would be useful to know if anyone is using the stable branch; it was
+created for use by users and distributions that want maximal stability
+(bug fixes and trivial code cleanups only), e.g. to provide updates to
+an existing distribution release like Debian etch or Fedora Core 6 or
+RHEL 5 without risking the potentially more disruptive changes from the
+trunk/devel series.  However, I  haven't gotten the impression that it
+is being actively used.
+
+-- 
+Stephen Smalley
+National Security Agency
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
