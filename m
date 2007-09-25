@@ -1,18 +1,17 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l8PKnDQo032757
-	for <selinux@tycho.nsa.gov>; Tue, 25 Sep 2007 16:49:13 -0400
-Received: from atlrel7.hp.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id l8PKnBYZ025376
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l8PKnB3T032743
+	for <selinux@tycho.nsa.gov>; Tue, 25 Sep 2007 16:49:11 -0400
+Received: from atlrel8.hp.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l8PKnBRe029659
 	for <selinux@tycho.nsa.gov>; Tue, 25 Sep 2007 20:49:11 GMT
-Received: from smtp1.fc.hp.com (smtp1.fc.hp.com [15.15.136.127])
-	by atlrel7.hp.com (Postfix) with ESMTP id D55183AE72
-	for <selinux@tycho.nsa.gov>; Tue, 25 Sep 2007 16:48:35 -0400 (EDT)
+Received: from smtp1.fc.hp.com (smtp.fc.hp.com [15.15.136.127])
+	by atlrel8.hp.com (Postfix) with ESMTP id 99D62354BE
+	for <selinux@tycho.nsa.gov>; Tue, 25 Sep 2007 16:48:40 -0400 (EDT)
 From: Paul Moore <paul.moore@hp.com>
-Subject: [RFC PATCH 2/2] [SELINUX] Better integration between peer labeling
-	subsystems
+Subject: [RFC PATCH 1/2] [SELINUX] Add a functionality version number
 To: selinux@tycho.nsa.gov
-Date: Tue, 25 Sep 2007 16:48:32 -0400
-Message-ID: <20070925204832.13699.51638.stgit@flek.americas.hpqcorp.net>
+Date: Tue, 25 Sep 2007 16:48:25 -0400
+Message-ID: <20070925204825.13699.85412.stgit@flek.americas.hpqcorp.net>
 In-Reply-To: <20070925203856.13699.90782.stgit@flek.americas.hpqcorp.net>
 References: <20070925203856.13699.90782.stgit@flek.americas.hpqcorp.net>
 MIME-Version: 1.0
@@ -20,202 +19,174 @@ Content-Type: text/plain; charset="utf-8"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Rename the existing selinux_skb_extlbl_sid() function to
-selinux_skb_peerlbl_sid() and modify it's behavior such that it now reconciles
-multiple peer/external labels and if reconciliation is not possible it returns
-an error to the caller.
+Add a functionality/compatability version number to the policy so that the
+kernel can query the policy to see what level of functionality it supports.
 ---
 
- security/selinux/hooks.c            |   70 ++++++++++++++++++++++++++---------
- security/selinux/include/security.h |    2 +
- security/selinux/ss/services.c      |   42 +++++++++++++++++++++
- 3 files changed, 95 insertions(+), 19 deletions(-)
+ security/selinux/include/security.h |   21 +++++++++++++++++++++
+ security/selinux/selinuxfs.c        |   18 ++++++++++++++++++
+ security/selinux/ss/policydb.c      |   20 ++++++++++++++++++++
+ security/selinux/ss/policydb.h      |    6 +++++-
+ security/selinux/ss/services.c      |    2 ++
+ 5 files changed, 66 insertions(+), 1 deletions(-)
 
-diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-index 0753b20..a97d1b1 100644
---- a/security/selinux/hooks.c
-+++ b/security/selinux/hooks.c
-@@ -3132,32 +3132,59 @@ static int selinux_parse_skb(struct sk_buff *skb, struct avc_audit_data *ad,
- }
- 
- /**
-- * selinux_skb_extlbl_sid - Determine the external label of a packet
-+ * selinux_skb_peerlbl_sid - Determine the peer label of a packet
-  * @skb: the packet
-- * @sid: the packet's SID
-+ * @sid: the packet's peer label SID
-  *
-  * Description:
-- * Check the various different forms of external packet labeling and determine
-- * the external SID for the packet.  If only one form of external labeling is
-- * present then it is used, if both labeled IPsec and NetLabel labels are
-- * present then the SELinux type information is taken from the labeled IPsec
-- * SA and the MLS sensitivity label information is taken from the NetLabel
-- * security attributes.  This bit of "magic" is done in the call to
-- * selinux_netlbl_skbuff_getsid().
-+ * Check the various different forms of network peer labeling and determine
-+ * the peer label/SID for the packet.  If only one form of peer labeling is
-+ * present then it is returned in @sid.  If multiple forms of peer labeling
-+ * are present the the different peer labels are checked for consistency
-+ * (i.e. all the different peer labels have the same value) before the peer
-+ * label is returned to the caller in @sid.  The function returns negative
-+ * values when there are multiple, inconsistent peer labels present and zero
-+ * otherwise.  A table summarizing the different return values is below:
-+ *
-+ *                                 | function return |      @sid
-+ *   ------------------------------+-----------------+-----------------
-+ *   no peer labels                |        0        |    SECSID_NULL
-+ *   single peer label             |        0        |    peer_label
-+ *   multiple, consistent labels   |        0        |    peer_label
-+ *   multiple, inconsistent labels |     -EACCES     |    SECSID_NULL
-  *
-  */
--static void selinux_skb_extlbl_sid(struct sk_buff *skb, u32 *sid)
-+static int selinux_skb_peerlbl_sid(struct sk_buff *skb, u32 *sid)
- {
- 	u32 xfrm_sid;
- 	u32 nlbl_sid;
- 
- 	selinux_skb_xfrm_sid(skb, &xfrm_sid);
--	if (selinux_netlbl_skbuff_getsid(skb,
--					 (xfrm_sid == SECSID_NULL ?
--					  SECINITSID_NETMSG : xfrm_sid),
--					 &nlbl_sid) != 0)
--		nlbl_sid = SECSID_NULL;
--	*sid = (nlbl_sid == SECSID_NULL ? xfrm_sid : nlbl_sid);
-+	selinux_netlbl_skbuff_getsid(skb, SECINITSID_NETMSG, &nlbl_sid);
-+
-+	if (nlbl_sid != SECSID_NULL && xfrm_sid != SECSID_NULL) {
-+		if (nlbl_sid != xfrm_sid &&
-+		    /* XXX - not sure if we should just compare the low end of
-+		     * the range or the whole range?  probably safest to
-+		     * compare the entire range ... */
-+		    security_sid_mls_cmp(nlbl_sid, xfrm_sid) != 0) {
-+			*sid = SECSID_NULL;
-+			return -EACCES;
-+		} else
-+			/* at present NetLabel SIDs/labels really only carry
-+			 * MLS information so if the MLS portion of the
-+			 * NetLabel SID matches the MLS portion of the labeled
-+			 * XFRM SID/label then pass along the XFRM SID as it
-+			 * has the most peer label information */
-+			*sid = xfrm_sid;
-+	} else if (nlbl_sid != SECSID_NULL)
-+		*sid = nlbl_sid;
-+	else if (xfrm_sid != SECSID_NULL)
-+		*sid = xfrm_sid;
-+	else
-+		*sid = SECSID_NULL;
-+
-+	return 0;
- }
- 
- /* socket security operations */
-@@ -3640,6 +3667,9 @@ static int selinux_socket_sock_rcv_skb(struct sock *sk, struct sk_buff *skb)
- 	if (err)
- 		goto out;
- 
-+	/* XXX - make use of selinux_skb_peerlbl_sid() here but only once we
-+	 *       have the new peer object class in place */
-+
- 	err = selinux_netlbl_sock_rcv_skb(sksec, skb, &ad);
- 	if (err)
- 		goto out;
-@@ -3701,7 +3731,7 @@ static int selinux_socket_getpeersec_dgram(struct socket *sock, struct sk_buff *
- 	if (sock && sock->sk->sk_family == PF_UNIX)
- 		selinux_get_inode_sid(SOCK_INODE(sock), &peer_secid);
- 	else if (skb)
--		selinux_skb_extlbl_sid(skb, &peer_secid);
-+		selinux_skb_peerlbl_sid(skb, &peer_secid);
- 
- 	if (peer_secid == SECSID_NULL)
- 		err = -EINVAL;
-@@ -3762,7 +3792,9 @@ static int selinux_inet_conn_request(struct sock *sk, struct sk_buff *skb,
- 	u32 newsid;
- 	u32 peersid;
- 
--	selinux_skb_extlbl_sid(skb, &peersid);
-+	err = selinux_skb_peerlbl_sid(skb, &peersid);
-+	if (err)
-+		return err;
- 	if (peersid == SECSID_NULL) {
- 		req->secid = sksec->sid;
- 		req->peer_secid = SECSID_NULL;
-@@ -3800,7 +3832,7 @@ static void selinux_inet_conn_established(struct sock *sk,
- {
- 	struct sk_security_struct *sksec = sk->sk_security;
- 
--	selinux_skb_extlbl_sid(skb, &sksec->peer_sid);
-+	selinux_skb_peerlbl_sid(skb, &sksec->peer_sid);
- }
- 
- static void selinux_req_classify_flow(const struct request_sock *req,
 diff --git a/security/selinux/include/security.h b/security/selinux/include/security.h
-index cd45cf0..4cbb6f7 100644
+index 83bdd4d..cd45cf0 100644
 --- a/security/selinux/include/security.h
 +++ b/security/selinux/include/security.h
-@@ -109,6 +109,8 @@ int security_validate_transition(u32 oldsid, u32 newsid, u32 tasksid,
+@@ -39,6 +39,27 @@ struct netlbl_lsm_secattr;
+ extern int selinux_enabled;
+ extern int selinux_mls_enabled;
  
- int security_sid_mls_copy(u32 sid, u32 mls_sid, u32 *new_sid);
- 
-+int security_sid_mls_cmp(u32 sid_a, u32 sid_b);
++/* Supported functionality/compatibility version */
++extern unsigned int policydb_loaded_compatver;
++#define POLICYDB_COMPATVER_BASE		0
 +
- int security_get_classes(char ***classes, int *nclasses);
- int security_get_permissions(char *class, char ***perms, int *nperms);
- 
-diff --git a/security/selinux/ss/services.c b/security/selinux/ss/services.c
-index ef557b6..ea78f75 100644
---- a/security/selinux/ss/services.c
-+++ b/security/selinux/ss/services.c
-@@ -2009,6 +2009,48 @@ out:
- 	return rc;
- }
- 
++/* Range of supported functionality/compatibility we understand */
++#define POLICYDB_COMPATVER_MIN		POLICYDB_COMPATVER_BASE
++#define POLICYDB_COMPATVER_MAX		POLICYDB_COMPATVER_BASE
++
 +/**
-+ * security_sid_mls_cmp - Compare the MLS portion of two SIDs
-+ * @sid_a: SID to compare
-+ * @sid_b: SID to compare
++ * security_compat_supported - Check if policy supports certain functionality
++ * @requested: requested functionality (see #define COMPATVERS_*)
 + *
 + * Description:
-+ * Compare the MLS portions of two SIDs and return zero if they are the same,
-+ * otherwise return a non-zero value.
++ * Query the currently loaded policy, by way of the selinux_compat_vers
++ * variable to see if the requested functionality is supported.
 + *
 + */
-+int security_sid_mls_cmp(u32 sid_a, u32 sid_b)
-+{
-+	int rc;
-+	struct context *ctx_a;
-+	struct context *ctx_b;
-+
-+	if (!ss_initialized || !selinux_mls_enabled)
-+		return 0;
-+
-+	POLICY_RDLOCK;
-+
-+	ctx_a = sidtab_search(&sidtab, sid_a);
-+	if (!ctx_a) {
-+		printk(KERN_ERR
-+		       "security_sid_mls_cmp:  unrecognized SID %d\n", sid_a);
-+		rc = -EINVAL;
-+		goto out;
-+	}
-+	ctx_b = sidtab_search(&sidtab, sid_b);
-+	if (!ctx_b) {
-+		printk(KERN_ERR
-+		       "security_sid_mls_cmp:  unrecognized SID %d\n", sid_b);
-+		rc = -EINVAL;
-+		goto out;
-+	}
-+	rc = mls_context_cmp(ctx_a, ctx_b);
-+
-+out:
-+	POLICY_RDUNLOCK;
-+	return rc;
++static inline int security_compat_supported(unsigned int requested) {
++	return (policydb_loaded_compatver >= requested);
 +}
 +
- static int get_classes_callback(void *k, void *d, void *args)
- {
- 	struct class_datum *datum = d;
+ int security_load_policy(void * data, size_t len);
+ 
+ #define SEL_VEC_MAX 32
+diff --git a/security/selinux/selinuxfs.c b/security/selinux/selinuxfs.c
+index c9e92da..e5927b9 100644
+--- a/security/selinux/selinuxfs.c
++++ b/security/selinux/selinuxfs.c
+@@ -103,6 +103,7 @@ enum sel_inos {
+ 	SEL_MEMBER,	/* compute polyinstantiation membership decision */
+ 	SEL_CHECKREQPROT, /* check requested protection, not kernel-applied one */
+ 	SEL_COMPAT_NET,	/* whether to use old compat network packet controls */
++	SEL_COMPAT_VERS, /* functionality/compatability version */
+ 	SEL_INO_NEXT,	/* The next inode number to use */
+ };
+ 
+@@ -452,6 +453,22 @@ static const struct file_operations sel_compat_net_ops = {
+ 	.write		= sel_write_compat_net,
+ };
+ 
++static ssize_t sel_read_compat_vers(struct file *filp,
++				      char __user *buf,
++				      size_t count,
++				      loff_t *ppos)
++{
++	char tmpbuf[TMPBUFLEN];
++	ssize_t length;
++
++	length = scnprintf(tmpbuf, TMPBUFLEN, "%d", policydb_loaded_compatver);
++	return simple_read_from_buffer(buf, count, ppos, tmpbuf, length);
++}
++
++static const struct file_operations sel_compat_vers_ops = {
++	.read		= sel_read_compat_vers,
++};
++
+ /*
+  * Remaining nodes use transaction based IO methods like nfsd/nfsctl.c
+  */
+@@ -1575,6 +1592,7 @@ static int sel_fill_super(struct super_block * sb, void * data, int silent)
+ 		[SEL_MEMBER] = {"member", &transaction_ops, S_IRUGO|S_IWUGO},
+ 		[SEL_CHECKREQPROT] = {"checkreqprot", &sel_checkreqprot_ops, S_IRUGO|S_IWUSR},
+ 		[SEL_COMPAT_NET] = {"compat_net", &sel_compat_net_ops, S_IRUGO|S_IWUSR},
++		[SEL_COMPAT_VERS] = {"compat_version", &sel_compat_vers_ops, S_IRUGO},
+ 		/* last one */ {""}
+ 	};
+ 	ret = simple_fill_super(sb, SELINUX_MAGIC, selinux_files);
+diff --git a/security/selinux/ss/policydb.c b/security/selinux/ss/policydb.c
+index f05f97a..6c05516 100644
+--- a/security/selinux/ss/policydb.c
++++ b/security/selinux/ss/policydb.c
+@@ -47,6 +47,7 @@ static char *symtab_name[SYM_NUM] = {
+ #endif
+ 
+ int selinux_mls_enabled = 0;
++unsigned int selinux_compat_version = POLICYDB_COMPATVER_BASE;
+ 
+ static unsigned int symtab_sizes[SYM_NUM] = {
+ 	2,
+@@ -1531,6 +1532,25 @@ int policydb_read(struct policydb *p, void *fp)
+ 		}
+ 	}
+ 
++	if ((le32_to_cpu(buf[1]) & POLICYDB_CONFIG_COMPATVER)) {
++		__le32 compat_buf;
++		rc = next_entry(&compat_buf, fp, sizeof(compat_buf));
++		if (rc < 0)
++			goto bad;
++
++		p->compat_version = le32_to_cpu(compat_buf);
++		if (p->compat_version < POLICYDB_COMPATVER_MIN ||
++		    p->compat_version > POLICYDB_COMPATVER_MAX) {
++			printk(KERN_ERR
++			       "security:  policydb compat_version %d does not"
++			       " match my version range %d-%d\n",
++			       p->compat_version,
++			       POLICYDB_COMPATVER_MIN,
++			       POLICYDB_COMPATVER_MAX);
++			goto bad;
++		}
++	}
++
+ 	info = policydb_lookup_compat(p->policyvers);
+ 	if (!info) {
+ 		printk(KERN_ERR "security:  unable to find policy compat info "
+diff --git a/security/selinux/ss/policydb.h b/security/selinux/ss/policydb.h
+index 8319d5f..59177d3 100644
+--- a/security/selinux/ss/policydb.h
++++ b/security/selinux/ss/policydb.h
+@@ -242,6 +242,9 @@ struct policydb {
+ 	struct ebitmap *type_attr_map;
+ 
+ 	unsigned int policyvers;
++
++	/* functionality/compatability version */
++	unsigned int compat_version;
+ };
+ 
+ extern void policydb_destroy(struct policydb *p);
+@@ -251,7 +254,8 @@ extern int policydb_read(struct policydb *p, void *fp);
+ 
+ #define PERM_SYMTAB_SIZE 32
+ 
+-#define POLICYDB_CONFIG_MLS    1
++#define POLICYDB_CONFIG_MLS		0x00000001
++#define POLICYDB_CONFIG_COMPATVER	0x00000002
+ 
+ #define OBJECT_R "object_r"
+ #define OBJECT_R_VAL 1
+diff --git a/security/selinux/ss/services.c b/security/selinux/ss/services.c
+index 6100fc0..ef557b6 100644
+--- a/security/selinux/ss/services.c
++++ b/security/selinux/ss/services.c
+@@ -58,6 +58,7 @@
+ 
+ extern void selnl_notify_policyload(u32 seqno);
+ unsigned int policydb_loaded_version;
++unsigned int policydb_loaded_compatver;
+ 
+ /*
+  * This is declared in avc.c
+@@ -1304,6 +1305,7 @@ int security_load_policy(void *data, size_t len)
+ 			return -EINVAL;
+ 		}
+ 		policydb_loaded_version = policydb.policyvers;
++		policydb_loaded_compatver = policydb.compat_version;
+ 		ss_initialized = 1;
+ 		seqno = ++latest_granting;
+ 		LOAD_UNLOCK;
 
 
 --
