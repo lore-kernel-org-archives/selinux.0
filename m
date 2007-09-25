@@ -1,61 +1,80 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l8PMeWbO007867
-	for <selinux@tycho.nsa.gov>; Tue, 25 Sep 2007 18:40:32 -0400
-Received: from atlrel8.hp.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id l8PMeVYZ016723
-	for <selinux@tycho.nsa.gov>; Tue, 25 Sep 2007 22:40:31 GMT
-From: Paul Moore <paul.moore@hp.com>
-To: James Morris <jmorris@namei.org>
-Subject: Re: [RFC PATCH 0/2] Series short description
-Date: Tue, 25 Sep 2007 18:38:58 -0400
-Cc: selinux@tycho.nsa.gov
-References: <20070925203856.13699.90782.stgit@flek.americas.hpqcorp.net> <Xine.LNX.4.64.0709251525260.26141@us.intercode.com.au>
-In-Reply-To: <Xine.LNX.4.64.0709251525260.26141@us.intercode.com.au>
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l8PMcfrs007715
+	for <selinux@tycho.nsa.gov>; Tue, 25 Sep 2007 18:38:41 -0400
+Received: from us.intercode.com.au (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l8PMcdRe017035
+	for <selinux@tycho.nsa.gov>; Tue, 25 Sep 2007 22:38:40 GMT
+Date: Tue, 25 Sep 2007 15:38:37 -0700 (PDT)
+From: James Morris <jmorris@namei.org>
+To: Paul Moore <paul.moore@hp.com>
+cc: selinux@tycho.nsa.gov
+Subject: Re: [RFC PATCH 2/2] [SELINUX] Better integration between peer labeling
+ subsystems
+In-Reply-To: <20070925204832.13699.51638.stgit@flek.americas.hpqcorp.net>
+Message-ID: <Xine.LNX.4.64.0709251534360.26141@us.intercode.com.au>
+References: <20070925203856.13699.90782.stgit@flek.americas.hpqcorp.net>
+ <20070925204832.13699.51638.stgit@flek.americas.hpqcorp.net>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Message-Id: <200709251838.58272.paul.moore@hp.com>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tuesday 25 September 2007 6:28:48 pm James Morris wrote:
-> On Tue, 25 Sep 2007, Paul Moore wrote:
-> > This patchset has two patches in it which I would like to get some
-> > feedback on.  The first patch adds a functionality/compatability version
-> > number to the policy so that we can add new functionality to the kernel
-> > which would lie dormant until the correct policy was loaded - it is not
-> > intended to replace Eric's undefined classes/perms work but to compliment
-> > it.
->
-> Can you explain the expected usage scenarios for this?
+On Tue, 25 Sep 2007, Paul Moore wrote:
 
-The one example that springs immediately to mind is the two separate checks 
-for peer labels (one for NetLabel, one for labeled IPsec) in 
-selinux_sock_rcv_skb().  As discussed on the list, we would like to move to a 
-single check for the peer label.  Unfortunately, this runs into problems with 
-backwards compatibility with people using old policy on new kernels.  The 
-idea here was that the kernel would have code for both types of access 
-control and depending on the policy loaded it would select which type of 
-access control to use.
+> +int security_sid_mls_cmp(u32 sid_a, u32 sid_b)
 
-> We already have versioning of policy, and will have the ability to reject,
-> ignore or enforce unknown elements, so why do we need this and how would
-> it typically be used?
+This looks heavyweight on TCP connection establishment (MCS is enabled in 
+Fedora/RHEL).
 
-Eric suggested using the policy version to achieve the same thing; if no one 
-objects to using the policy version number for this purpose I'm more than 
-happy to use it.
+Perhaps see it can be noticed with lmbench and apachbench (with high rates 
+of connection & small files) ?
 
-> Should we instead start thinking about versioning each permission & class?
-> i.e. create a fully versioned interface
 
-This question nags at me, but I keep ignoring it because I fear that a fully 
-versioned avc interface would be overkill in the majority of cases and only 
-serve to slow down the access checks.
+> +{
+> +	int rc;
+> +	struct context *ctx_a;
+> +	struct context *ctx_b;
+> +
+> +	if (!ss_initialized || !selinux_mls_enabled)
+> +		return 0;
+> +
+> +	POLICY_RDLOCK;
+> +
+> +	ctx_a = sidtab_search(&sidtab, sid_a);
+> +	if (!ctx_a) {
+> +		printk(KERN_ERR
+> +		       "security_sid_mls_cmp:  unrecognized SID %d\n", sid_a);
+> +		rc = -EINVAL;
+> +		goto out;
+> +	}
+> +	ctx_b = sidtab_search(&sidtab, sid_b);
+> +	if (!ctx_b) {
+> +		printk(KERN_ERR
+> +		       "security_sid_mls_cmp:  unrecognized SID %d\n", sid_b);
+> +		rc = -EINVAL;
+> +		goto out;
+> +	}
+> +	rc = mls_context_cmp(ctx_a, ctx_b);
+> +
+> +out:
+> +	POLICY_RDUNLOCK;
+> +	return rc;
+> +}
+> +
+>  static int get_classes_callback(void *k, void *d, void *args)
+>  {
+>  	struct class_datum *datum = d;
+> 
+> 
+> --
+> This message was distributed to subscribers of the selinux mailing list.
+> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
+> the words "unsubscribe selinux" without quotes as the message.
+> 
 
 -- 
-paul moore
-linux security @ hp
+James Morris
+<jmorris@namei.org>
 
 --
 This message was distributed to subscribers of the selinux mailing list.
