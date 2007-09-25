@@ -1,41 +1,44 @@
-Subject: ANN:  Updated SELinux core userland release
-From: Stephen Smalley <sds@tycho.nsa.gov>
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l8PKmx9u032715
+	for <selinux@tycho.nsa.gov>; Tue, 25 Sep 2007 16:48:59 -0400
+Received: from atlrel9.hp.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l8PKmwRe029602
+	for <selinux@tycho.nsa.gov>; Tue, 25 Sep 2007 20:48:58 GMT
+Received: from smtp2.fc.hp.com (smtp.fc.hp.com [15.11.136.114])
+	by atlrel9.hp.com (Postfix) with ESMTP id 65A84341CB
+	for <selinux@tycho.nsa.gov>; Tue, 25 Sep 2007 16:48:28 -0400 (EDT)
+From: Paul Moore <paul.moore@hp.com>
+Subject: [RFC PATCH 0/2] Series short description
 To: selinux@tycho.nsa.gov
-Cc: Manoj Srivastava <manoj.srivastava@stdc.com>,
-        Daniel J Walsh <dwalsh@redhat.com>,
-        "Christopher J. PeBenito" <cpebenito@tresys.com>
-In-Reply-To: <1174593896.31436.158.camel@moss-spartans.epoch.ncsc.mil>
-References: <1174593896.31436.158.camel@moss-spartans.epoch.ncsc.mil>
-Content-Type: text/plain
-Date: Tue, 25 Sep 2007 15:55:58 -0400
-Message-Id: <1190750158.24726.166.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+Date: Tue, 25 Sep 2007 16:48:19 -0400
+Message-ID: <20070925203856.13699.90782.stgit@flek.americas.hpqcorp.net>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-An updated release of the SELinux core userland code is available from
-the NSA web site, see:
-http://www.nsa.gov/selinux/news.cfm#R070925
+This patchset has two patches in it which I would like to get some feedback
+on.  The first patch adds a functionality/compatability version number to the
+policy so that we can add new functionality to the kernel which would lie
+dormant until the correct policy was loaded - it is not intended to replace
+Eric's undefined classes/perms work but to compliment it.  The second patch
+is the first step towards a single set of access checks for the different
+peer labeling mechanisms, NetLabel and labeled IPsec, by providing a single
+function to determine the peer label of an incoming packet.  The ideas behind
+both patches have been discussed in the past, but I'd like to see if there
+are any new concerns now that people can see what an implementation would
+look like.  I'm particularly interested in people's take on the policy
+changes.  The approach presented in this patch seems to be sane and low risk
+to me but I'm hoping some of you with more experience tinkering with the
+policy code could take a look and comment.
 
-Updated versions of the stable and development (trunk) series can be
-downloaded from:
-http://www.nsa.gov/selinux/code/
+This is an RFC quality patchset which means it does boot and passes a few
+simple tests but will most likely shave your cat if your turn your back to it
+for more than a few minutes.
 
-For those who use the sourceforge svn tree, the stable branch and trunk
-have been tagged as 20070925 under tags/stable and tags/devel
-respectively for this release.
-
-It would be useful to know if anyone is using the stable branch; it was
-created for use by users and distributions that want maximal stability
-(bug fixes and trivial code cleanups only), e.g. to provide updates to
-an existing distribution release like Debian etch or Fedora Core 6 or
-RHEL 5 without risking the potentially more disruptive changes from the
-trunk/devel series.  However, I  haven't gotten the impression that it
-is being actively used.
-
--- 
-Stephen Smalley
-National Security Agency
+--
+paul moore
+linux security @ hp
 
 
 --
