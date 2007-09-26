@@ -1,63 +1,315 @@
-From: Paul Moore <paul.moore@hp.com>
-To: Joshua Brindle <method@manicmethod.com>
-Subject: Re: [RFC PATCH 0/2] Series short description
-Date: Wed, 26 Sep 2007 13:04:20 -0400
-Cc: Stephen Smalley <sds@tycho.nsa.gov>, James Morris <jmorris@namei.org>,
-        selinux@tycho.nsa.gov
-References: <20070925203856.13699.90782.stgit@flek.americas.hpqcorp.net> <200709261254.56733.paul.moore@hp.com> <46FA8F7E.3070906@manicmethod.com>
-In-Reply-To: <46FA8F7E.3070906@manicmethod.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Message-Id: <200709261304.20745.paul.moore@hp.com>
+Date: Wed, 26 Sep 2007 16:01:28 -0400 (EDT)
+Message-Id: <200709262001.l8QK1Skx029939@tex.courtesan.com>
+To: dwalsh@redhat.com, sds@tycho.nsa.gov
+Cc: selinux@tycho.nsa.gov
+From: "Todd C. Miller" <tmiller@tresys.com>
+Subject: Re: I am concerned about putting genhomedircon changes inlibsemanage into Fedora 8.
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wednesday 26 September 2007 12:57:34 pm Joshua Brindle wrote:
-> Paul Moore wrote:
-> > On Wednesday 26 September 2007 12:43:28 pm Joshua Brindle wrote:
-> >> Paul Moore wrote:
-> >>> Okay, it looks like its probably at least worth investigating the
-> >>> bitmap concept with some RFC patches.
-> >>>
-> >>> Josh, since you brought up the idea and you have a better grasp of the
-> >>> toolchain, can I talk/bribe/make-you-an-offer-you-can't-refuse into
-> >>> working up some patches for the toolchain if I come up with the
-> >>> matching kernel piece?
-> >>
-> >> I knew I should have kept my mouth shut :)
-> >
-> > Think of it as "taking one for the team" ;)
-> >
-> >> I'll try to get around to the toolchain patches this week. Some things
-> >> need to be settled, this will require a policy version bump to 22, and
-> >> we can either ignore all the capabilities we have now and start with
-> >> secid reconciliation or actually factor in all the capabilities we have
-> >> now into it. It will be easier short term to do the former, but possibly
-> >> better in the long term to do the latter.
-> >
-> > I'm not familiar enough with that code to have a strong opinion either
-> > way, although I would think that if you are going to introduce a new
-> > policy version to support this you might as well go all the way and put
-> > all the features into the bitmap.
-> >
-> > Also, don't worry too much about getting them done right away, there is
-> > plenty of work still left to do with the network bits before this issue
-> > becomes a roadblock.  Where would you put the capability bitmap in the
-> > policy?  After the version/config/table-sizes (where I put the ill-fated
-> > version number)?
->
-> Yes, that is probably the best place, though just sticking it somewhere
-> random every time would be much more exciting...
+I've added the checks Steve suggested.  It doesn't appear to cause
+any new regressions.  I didn't do a real parse of the contexts file
+line--I just grab the last whitespace-delimited field.  This should
+be sufficient since the line comes from the template file and the
+added checks will reject a bogus context, should it occur.
 
-Oh yeah, we could even shift the bitmap X number of bits based on the checksum 
-of the policy!  So much fun!
+ - todd
 
-I really need to find something else to occupy my time :)
-
--- 
-paul moore
-linux security @ hp
+Index: libsemanage/src/genhomedircon.c
+===================================================================
+--- libsemanage/src/genhomedircon.c	(revision 2587)
++++ libsemanage/src/genhomedircon.c	(working copy)
+@@ -1,5 +1,6 @@
+-/* Author: Mark Goldman   <mgoldman@tresys.com>
+- * 			Paul Rosenfeld	<prosenfeld@tresys.com>
++/* Author: Mark Goldman	  <mgoldman@tresys.com>
++ * 	   Paul Rosenfeld <prosenfeld@tresys.com>
++ * 	   Todd C. Miller <tmiller@tresys.com>
+  *
+  * Copyright (C) 2007 Tresys Technology, LLC
+  *
+@@ -23,6 +24,9 @@
+ #include <semanage/seusers_policy.h>
+ #include <semanage/users_policy.h>
+ #include <semanage/user_record.h>
++#include <sepol/context.h>
++#include <sepol/context_record.h>
++#include <sepol/policydb/context.h>
+ #include "semanage_store.h"
+ #include "seuser_internal.h"
+ #include "debug.h"
+@@ -80,6 +84,7 @@
+ 	int usepasswd;
+ 	const char *homedir_template_path;
+ 	semanage_handle_t *h_semanage;
++	sepol_policydb_t *policydb;
+ } genhomedircon_settings_t;
+ 
+ typedef struct user_entry {
+@@ -352,10 +357,47 @@
+ 	return retval;
+ }
+ 
+-static int write_home_dir_context(FILE * out, semanage_list_t * tpl,
+-				  const char *user, const char *seuser,
+-				  const char *home, const char *role_prefix)
++static const char * extract_context(Ustr *line)
+ {
++	const char whitespace[] = " \t\n";
++	size_t off, len;
++
++	/* check for trailing whitespace */
++	off = ustr_spn_chrs_rev(line, 0, whitespace, strlen(whitespace));
++
++	/* find the length of the last field in line */
++	len = ustr_cspn_chrs_rev(line, off, whitespace, strlen(whitespace));
++
++	if (len == 0)
++		return NULL;
++	return ustr_cstr(line) + ustr_len(line) - (len + off);
++}
++
++static int check_line(genhomedircon_settings_t * s, Ustr *line)
++{
++	sepol_context_t *ctx_record = NULL;
++	const char *ctx_str;
++	int result;
++
++	ctx_str = extract_context(line);
++	if (!ctx_str)
++		return STATUS_ERR;
++
++	result = sepol_context_from_string(s->h_semanage->sepolh,
++					   ctx_str, &ctx_record);
++	if (result == STATUS_SUCCESS && ctx_record != NULL) {
++		result = sepol_context_check(s->h_semanage->sepolh,
++					     s->policydb, ctx_record);
++		sepol_context_free(ctx_record);
++	}
++	return result;
++}
++
++static int write_home_dir_context(genhomedircon_settings_t * s, FILE * out,
++				  semanage_list_t * tpl, const char *user,
++				  const char *seuser, const char *home,
++				  const char *role_prefix)
++{
+ 	replacement_pair_t repl[] = {
+ 		{.search_for = TEMPLATE_SEUSER,.replace_with = seuser},
+ 		{.search_for = TEMPLATE_HOME_DIR,.replace_with = home},
+@@ -369,8 +411,12 @@
+ 
+ 	for (; tpl; tpl = tpl->next) {
+ 		line = replace_all(tpl->data, repl);
+-		if (!line || !ustr_io_putfileline(&line, out))
++		if (!line)
+ 			goto fail;
++		if (check_line(s, line) == STATUS_SUCCESS) {
++			if (!ustr_io_putfileline(&line, out))
++				goto fail;
++		}
+ 		ustr_sc_free(&line);
+ 	}
+ 	return STATUS_SUCCESS;
+@@ -380,8 +426,8 @@
+ 	return STATUS_ERR;
+ }
+ 
+-static int write_home_root_context(FILE * out, semanage_list_t * tpl,
+-				   char *homedir)
++static int write_home_root_context(genhomedircon_settings_t * s, FILE * out,
++				   semanage_list_t * tpl, char *homedir)
+ {
+ 	replacement_pair_t repl[] = {
+ 		{.search_for = TEMPLATE_HOME_ROOT,.replace_with = homedir},
+@@ -391,8 +437,12 @@
+ 
+ 	for (; tpl; tpl = tpl->next) {
+ 		line = replace_all(tpl->data, repl);
+-		if (!line || !ustr_io_putfileline(&line, out))
++		if (!line)
+ 			goto fail;
++		if (check_line(s, line) == STATUS_SUCCESS) {
++			if (!ustr_io_putfileline(&line, out))
++				goto fail;
++		}
+ 		ustr_sc_free(&line);
+ 	}
+ 	return STATUS_SUCCESS;
+@@ -402,7 +452,8 @@
+ 	return STATUS_ERR;
+ }
+ 
+-static int write_user_context(FILE * out, semanage_list_t * tpl, char *user,
++static int write_user_context(genhomedircon_settings_t * s, FILE * out,
++			      semanage_list_t * tpl, char *user,
+ 			      char *seuser, char *role_prefix)
+ {
+ 	replacement_pair_t repl[] = {
+@@ -415,8 +466,12 @@
+ 
+ 	for (; tpl; tpl = tpl->next) {
+ 		line = replace_all(tpl->data, repl);
+-		if (!line || !ustr_io_putfileline(&line, out))
++		if (!line)
+ 			goto fail;
++		if (check_line(s, line) == STATUS_SUCCESS) {
++			if (!ustr_io_putfileline(&line, out))
++				goto fail;
++		}
+ 		ustr_sc_free(&line);
+ 	}
+ 	return STATUS_SUCCESS;
+@@ -602,7 +657,7 @@
+ 	return head;
+ }
+ 
+-static int write_gen_home_dir_context(FILE * out, genhomedircon_settings_t * s,
++static int write_gen_home_dir_context(genhomedircon_settings_t * s, FILE * out,
+ 				      semanage_list_t * user_context_tpl,
+ 				      semanage_list_t * homedir_context_tpl)
+ {
+@@ -615,13 +670,13 @@
+ 	}
+ 
+ 	for (; users; pop_user_entry(&users)) {
+-		if (write_home_dir_context(out, homedir_context_tpl,
++		if (write_home_dir_context(s, out, homedir_context_tpl,
+ 					   users->name,
+ 					   users->sename, users->home,
+ 					   users->prefix)) {
+ 			return STATUS_ERR;
+ 		}
+-		if (write_user_context(out, user_context_tpl, users->name,
++		if (write_user_context(s, out, user_context_tpl, users->name,
+ 				       users->sename, users->prefix)) {
+ 			return STATUS_ERR;
+ 		}
+@@ -671,7 +726,7 @@
+ 			goto done;
+ 		}
+ 
+-		if (write_home_dir_context(out,
++		if (write_home_dir_context(s, out,
+ 					   homedir_context_tpl, FALLBACK_USER,
+ 					   FALLBACK_USER, ustr_cstr(temp),
+ 					   FALLBACK_USER_PREFIX) !=
+@@ -680,7 +735,7 @@
+ 			retval = STATUS_ERR;
+ 			goto done;
+ 		}
+-		if (write_home_root_context(out,
++		if (write_home_root_context(s, out,
+ 					    homeroot_context_tpl,
+ 					    h->data) != STATUS_SUCCESS) {
+ 			ustr_sc_free(&temp);
+@@ -690,13 +745,13 @@
+ 
+ 		ustr_sc_free(&temp);
+ 	}
+-	if (write_user_context(out, user_context_tpl,
++	if (write_user_context(s, out, user_context_tpl,
+ 			       ".*", FALLBACK_USER,
+ 			       FALLBACK_USER_PREFIX) != STATUS_SUCCESS) {
+ 		retval = STATUS_ERR;
+ 		goto done;
+ 	}
+-	if (write_gen_home_dir_context(out, s, user_context_tpl,
++	if (write_gen_home_dir_context(s, out, user_context_tpl,
+ 				       homedir_context_tpl) != STATUS_SUCCESS) {
+ 		retval = STATUS_ERR;
+ 	}
+@@ -711,7 +766,9 @@
+ 	return retval;
+ }
+ 
+-int semanage_genhomedircon(semanage_handle_t * sh, int usepasswd)
++int semanage_genhomedircon(semanage_handle_t * sh,
++			   sepol_policydb_t * policydb,
++			   int usepasswd)
+ {
+ 	genhomedircon_settings_t s;
+ 	FILE *out = NULL;
+@@ -725,6 +782,7 @@
+ 
+ 	s.usepasswd = usepasswd;
+ 	s.h_semanage = sh;
++	s.policydb = policydb;
+ 
+ 	if (!(out = fopen(s.fcfilepath, "w"))) {
+ 		/* couldn't open output file */
+Index: libsemanage/src/genhomedircon.h
+===================================================================
+--- libsemanage/src/genhomedircon.h	(revision 2587)
++++ libsemanage/src/genhomedircon.h	(working copy)
+@@ -22,6 +22,7 @@
+ 
+ #include "utilities.h"
+ 
+-int semanage_genhomedircon(semanage_handle_t * sh, int usepasswd);
++int semanage_genhomedircon(semanage_handle_t * sh,
++			   sepol_policydb_t * policydb, int usepasswd);
+ 
+ #endif
+Index: libsemanage/src/direct_api.c
+===================================================================
+--- libsemanage/src/direct_api.c	(revision 2587)
++++ libsemanage/src/direct_api.c	(working copy)
+@@ -702,7 +702,7 @@
+ 		goto cleanup;
+ 
+ 	if (sh->do_rebuild || modified) {
+-		retval = semanage_install_sandbox(sh);
++		retval = semanage_install_sandbox(sh, out);
+ 	}
+ 
+       cleanup:
+Index: libsemanage/src/semanage_store.c
+===================================================================
+--- libsemanage/src/semanage_store.c	(revision 2587)
++++ libsemanage/src/semanage_store.c	(working copy)
+@@ -1279,7 +1279,8 @@
+  * should be placed within a mutex lock to ensure that it runs
+  * atomically.	Returns commit number on success, -1 on error.
+  */
+-int semanage_install_sandbox(semanage_handle_t * sh)
++int semanage_install_sandbox(semanage_handle_t * sh,
++			     sepol_policydb_t * policydb)
+ {
+ 	int retval = -1, commit_num = -1;
+ 
+@@ -1294,7 +1295,7 @@
+ 	}
+ 	if (!sh->conf->disable_genhomedircon) {
+ 		if ((retval =
+-		     semanage_genhomedircon(sh, TRUE)) != 0) {
++		     semanage_genhomedircon(sh, policydb, TRUE)) != 0) {
+ 			ERR(sh, "semanage_genhomedircon returned error code %d.",
+ 			    retval);
+ 			goto cleanup;
+Index: libsemanage/src/semanage_store.h
+===================================================================
+--- libsemanage/src/semanage_store.h	(revision 2587)
++++ libsemanage/src/semanage_store.h	(working copy)
+@@ -83,8 +83,6 @@
+ int semanage_get_modules_names(semanage_handle_t * sh,
+ 			       char ***filenames, int *len);
+ 
+-int semanage_install_sandbox(semanage_handle_t * sh);
+-
+ /* lock file routines */
+ int semanage_get_trans_lock(semanage_handle_t * sh);
+ int semanage_get_active_lock(semanage_handle_t * sh);
+@@ -102,7 +100,8 @@
+ int semanage_write_policydb(semanage_handle_t * sh,
+ 			    sepol_policydb_t * policydb);
+ 
+-int semanage_install_sandbox(semanage_handle_t * sh);
++int semanage_install_sandbox(semanage_handle_t * sh,
++			     sepol_policydb_t * policydb);
+ 
+ int semanage_verify_modules(semanage_handle_t * sh,
+ 			    char **module_filenames, int num_modules);
 
 --
 This message was distributed to subscribers of the selinux mailing list.
