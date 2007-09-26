@@ -1,96 +1,68 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l8QFvcBK016509
-	for <selinux@tycho.nsa.gov>; Wed, 26 Sep 2007 11:57:38 -0400
-Received: from py-out-1112.google.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l8QFvbPj008089
-	for <selinux@tycho.nsa.gov>; Wed, 26 Sep 2007 15:57:37 GMT
-Received: by py-out-1112.google.com with SMTP id u77so4814168pyb
-        for <selinux@tycho.nsa.gov>; Wed, 26 Sep 2007 08:57:36 -0700 (PDT)
-Message-ID: <f71a82820709260857l6c81d6aen1f135662c3c3de2d@mail.gmail.com>
-Date: Thu, 27 Sep 2007 00:57:36 +0900
-From: "Shintaro Fujiwara" <shintaro.fujiwara@gmail.com>
-To: selinux <selinux@tycho.nsa.gov>
-Subject: Re: [PATCH] fstools.te needs corecmd_exec_bin
-In-Reply-To: <1190816357.1812.30.camel@gorn.columbia.tresys.com>
+From: Paul Moore <paul.moore@hp.com>
+To: Stephen Smalley <sds@tycho.nsa.gov>
+Subject: Re: [RFC PATCH 2/2] [SELINUX] Better integration between peer labeling subsystems
+Date: Wed, 26 Sep 2007 12:18:27 -0400
+Cc: selinux@tycho.nsa.gov
+References: <20070925203856.13699.90782.stgit@flek.americas.hpqcorp.net> <1190810496.15779.11.camel@moss-spartans.epoch.ncsc.mil> <200709261146.28708.paul.moore@hp.com>
+In-Reply-To: <200709261146.28708.paul.moore@hp.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-References: <f71a82820709181039s6aeac4eaq404542de3148c411@mail.gmail.com>
-	 <1190138720.17544.13.camel@gorn>
-	 <f71a82820709181428j1e8cc81fwc4907a3b18bd5589@mail.gmail.com>
-	 <1190816357.1812.30.camel@gorn.columbia.tresys.com>
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Message-Id: <200709261218.27072.paul.moore@hp.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Thanks!!
-I can bost of my people around here in Japan, i.e. Nakamura or Kaigai.
+On Wednesday 26 September 2007 11:46:28 am Paul Moore wrote:
+> On Wednesday 26 September 2007 8:41:36 am Stephen Smalley wrote:
+> > On Tue, 2007-09-25 at 16:48 -0400, Paul Moore wrote:
+> > > -static void selinux_skb_extlbl_sid(struct sk_buff *skb, u32 *sid)
+> > > +static int selinux_skb_peerlbl_sid(struct sk_buff *skb, u32 *sid)
+> > >  {
+> > >  	u32 xfrm_sid;
+> > >  	u32 nlbl_sid;
+> > >
+> > >  	selinux_skb_xfrm_sid(skb, &xfrm_sid);
+> > > -	if (selinux_netlbl_skbuff_getsid(skb,
+> > > -					 (xfrm_sid == SECSID_NULL ?
+> > > -					  SECINITSID_NETMSG : xfrm_sid),
+> > > -					 &nlbl_sid) != 0)
+> > > -		nlbl_sid = SECSID_NULL;
+> > > -	*sid = (nlbl_sid == SECSID_NULL ? xfrm_sid : nlbl_sid);
+> > > +	selinux_netlbl_skbuff_getsid(skb, SECINITSID_NETMSG, &nlbl_sid);
+> > > +
+> > > +	if (nlbl_sid != SECSID_NULL && xfrm_sid != SECSID_NULL) {
+> > > +		if (nlbl_sid != xfrm_sid &&
+> > > +		    /* XXX - not sure if we should just compare the low end of
+> > > +		     * the range or the whole range?  probably safest to
+> > > +		     * compare the entire range ... */
+> > > +		    security_sid_mls_cmp(nlbl_sid, xfrm_sid) != 0) {
+> >
+> > I know that this isn't the first instance of this, but the goal of the
+> > Flask architecture was to encapsulate the security model completely
+> > within the security server.  So leaking MLS specific logic out into the
+> > hook functions (as is also done by security_sid_mls_copy) violates that
+> > goal.
+>
+> A reasonable request, although off the top of my head I'm not sure there is
+> much we can do other than rename security_sid_mls_cmp() to something a bit
+> less MLS'esque.  Perhaps security_net_peersid_cmp()?  If you have a better
+> idea I'm all ears/eyes ...
 
-Cheers !
+On second thought, it's probably better to move most of the peer label 
+resolution logic into the security server so that selinux_skb_peerlbl_sid() 
+looks something like the following ...
 
-http://sourceforge.net./projects/segax/
+ selinux_skb_peerlbl_sid(skb, *sid)
+ {
+	nlbl_sid = fetch_nlbl_sid(skb);
+        xfrm_sid = fetch_xfrm_sid(skb);
 
-2007/9/26, Christopher J. PeBenito <cpebenito@tresys.com>:
-> On Tue, 2007-09-18 at 17:28 -0400, Shintaro Fujiwara wrote:
-> > Will this OK?
->
-> Yes, merged.
->
-> > Index: policy/modules/system/fstools.fc
-> > ===================================================================
-> > --- policy/modules/system/fstools.fc    (revision 2423)
-> > +++ policy/modules/system/fstools.fc    (working copy)
-> > @@ -1,3 +1,4 @@
-> > +/sbin/badblocks        --      gen_context(system_u:object_r:fsadm_exec_t,s0)
-> >  /sbin/blkid            --      gen_context(system_u:object_r:fsadm_exec_t,s0)
-> >  /sbin/blockdev         --      gen_context(system_u:object_r:fsadm_exec_t,s0)
-> >  /sbin/cfdisk           --      gen_context(system_u:object_r:fsadm_exec_t,s0)
-> >
-> >
-> > 2007/9/19, Christopher J. PeBenito <cpebenito@tresys.com>:
-> > > On Wed, 2007-09-19 at 02:39 +0900, Shintaro Fujiwara wrote:
-> > > > I have attached usb hdd on my strict machine and typed
-> > > > mkfs -c /dev/sdb
-> > > > and error saying cannot execute /sbin/badblocks.
-> > > > I always use -c with mkfs command so I added
-> > > > this line to fstools.te.
-> > >
-> > > I think instead badblocks should be labeled fsadm_exec_t.
-> > >
-> > > > Index: policy/modules/system/fstools.te
-> > > >
-> > ===================================================================
-> > > > --- policy/modules/system/fstools.te    (revision 2422)
-> > > > +++ policy/modules/system/fstools.te    (working copy)
-> > > > @@ -119,6 +119,9 @@
-> > > >  corecmd_read_bin_pipes(fsadm_t)
-> > > >  corecmd_read_bin_sockets(fsadm_t)
-> > > >
-> > > > +# for mkfs -c
-> > > > +corecmd_exec_bin(fsadm_t)
-> > > > +
-> > > >  domain_use_interactive_fds(fsadm_t)
-> > > >
-> > > >  files_list_home(fsadm_t)
-> > > >
-> > > > --
-> > > > This message was distributed to subscribers of the selinux mailing
-> > list.
-> > > > If you no longer wish to subscribe, send mail to
-> > majordomo@tycho.nsa.gov with
-> > > > the words "unsubscribe selinux" without quotes as the message.
-> > > --
-> > > Chris PeBenito
-> > > Tresys Technology, LLC
-> > > (410) 290-1411 x150
-> > >
-> > >
-> >
-> >
-> --
-> Chris PeBenito
-> Tresys Technology, LLC
-> (410) 290-1411 x150
->
->
+        *sid = security_net_peersid_resolve(nlbl_sid, xfrm_sid);
+ }
+
+-- 
+paul moore
+linux security @ hp
 
 --
 This message was distributed to subscribers of the selinux mailing list.
