@@ -1,11 +1,11 @@
 From: David Howells <dhowells@redhat.com>
-Subject: [PATCH 13/24] CacheFiles: Permit the page lock state to be monitored
+Subject: [PATCH 14/24] CacheFiles: Export things for CacheFiles
 To: viro@ftp.linux.org.uk, hch@infradead.org, Trond.Myklebust@netapp.com,
         sds@tycho.nsa.gov, casey@schaufler-ca.com
 Cc: linux-kernel@vger.kernel.org, selinux@tycho.nsa.gov,
         linux-security-module@vger.kernel.org, dhowells@redhat.com
-Date: Wed, 26 Sep 2007 15:22:06 +0100
-Message-ID: <20070926142206.2656.76346.stgit@warthog.procyon.org.uk>
+Date: Wed, 26 Sep 2007 15:22:11 +0100
+Message-ID: <20070926142211.2656.38398.stgit@warthog.procyon.org.uk>
 In-Reply-To: <20070926142059.2656.27100.stgit@warthog.procyon.org.uk>
 References: <20070926142059.2656.27100.stgit@warthog.procyon.org.uk>
 MIME-Version: 1.0
@@ -13,65 +13,41 @@ Content-Type: text/plain; charset="utf-8"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Add a function to install a monitor on the page lock waitqueue for a particular
-page, thus allowing the page being unlocked to be detected.
-
-This is used by CacheFiles to detect read completion on a page in the backing
-filesystem so that it can then copy the data to the waiting netfs page.
+Export a number of functions for CacheFiles's use.
 
 Signed-Off-By: David Howells <dhowells@redhat.com>
 ---
 
- include/linux/pagemap.h |    5 +++++
- mm/filemap.c            |   19 +++++++++++++++++++
- 2 files changed, 24 insertions(+), 0 deletions(-)
+ fs/super.c       |    2 ++
+ kernel/auditsc.c |    2 ++
+ 2 files changed, 4 insertions(+), 0 deletions(-)
 
-diff --git a/include/linux/pagemap.h b/include/linux/pagemap.h
-index d1049b6..452fdcf 100644
---- a/include/linux/pagemap.h
-+++ b/include/linux/pagemap.h
-@@ -220,6 +220,11 @@ static inline void wait_on_page_fscache_write(struct page *page)
- extern void end_page_fscache_write(struct page *page);
+diff --git a/fs/super.c b/fs/super.c
+index 28e7370..0e8c0e2 100644
+--- a/fs/super.c
++++ b/fs/super.c
+@@ -270,6 +270,8 @@ int fsync_super(struct super_block *sb)
+ 	return sync_blockdev(sb->s_bdev);
+ }
  
- /*
-+ * Add an arbitrary waiter to a page's wait queue
-+ */
-+extern void add_page_wait_queue(struct page *page, wait_queue_t *waiter);
++EXPORT_SYMBOL_GPL(fsync_super);
 +
-+/*
-  * Fault a userspace page into pagetables.  Return non-zero on a fault.
-  *
-  * This assumes that two userspace pages are always sufficient.  That's
-diff --git a/mm/filemap.c b/mm/filemap.c
-index 21aeee9..e48e862 100644
---- a/mm/filemap.c
-+++ b/mm/filemap.c
-@@ -518,6 +518,25 @@ void fastcall wait_on_page_bit(struct page *page, int bit_nr)
- EXPORT_SYMBOL(wait_on_page_bit);
- 
  /**
-+ * add_page_wait_queue - Add an arbitrary waiter to a page's wait queue
-+ * @page - Page defining the wait queue of interest
-+ * @waiter - Waiter to add to the queue
-+ *
-+ * Add an arbitrary @waiter to the wait queue for the nominated @page.
-+ */
-+void add_page_wait_queue(struct page *page, wait_queue_t *waiter)
-+{
-+	wait_queue_head_t *q = page_waitqueue(page);
-+	unsigned long flags;
+  *	generic_shutdown_super	-	common helper for ->kill_sb()
+  *	@sb: superblock to kill
+diff --git a/kernel/auditsc.c b/kernel/auditsc.c
+index d87f7ac..159d5d2 100644
+--- a/kernel/auditsc.c
++++ b/kernel/auditsc.c
+@@ -1531,6 +1531,8 @@ add_names:
+ 	}
+ }
+ 
++EXPORT_SYMBOL_GPL(__audit_inode_child);
 +
-+	spin_lock_irqsave(&q->lock, flags);
-+	__add_wait_queue(q, waiter);
-+	spin_unlock_irqrestore(&q->lock, flags);
-+}
-+
-+EXPORT_SYMBOL_GPL(add_page_wait_queue);
-+
-+/**
-  * unlock_page - unlock a locked page
-  * @page: the page
-  *
+ /**
+  * auditsc_get_stamp - get local copies of audit_context values
+  * @ctx: audit_context for the task
 
 
 --
