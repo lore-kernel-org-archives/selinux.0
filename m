@@ -1,46 +1,86 @@
-Message-ID: <46F9F2E2.4060406@ak.jp.nec.com>
-Date: Wed, 26 Sep 2007 14:49:22 +0900
-From: KaiGai Kohei <kaigai@ak.jp.nec.com>
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l8QAepc6020466
+	for <selinux@tycho.nsa.gov>; Wed, 26 Sep 2007 06:40:51 -0400
+Received: from rv-out-0910.google.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l8QAeoRe004318
+	for <selinux@tycho.nsa.gov>; Wed, 26 Sep 2007 10:40:50 GMT
+Received: by rv-out-0910.google.com with SMTP id k15so1902678rvb
+        for <selinux@tycho.nsa.gov>; Wed, 26 Sep 2007 03:40:49 -0700 (PDT)
+Message-ID: <46FA361C.8080008@gmail.com>
+Date: Wed, 26 Sep 2007 18:36:12 +0800
+From: Ken YANG <spng.yang@gmail.com>
 MIME-Version: 1.0
-To: Stephen Smalley <sds@tycho.nsa.gov>
-CC: selinux@tycho.nsa.gov, Paul Moore <paul.moore@hp.com>,
-        Yuichi Nakamura <ynakam@hitachisoft.jp>,
-        James Morris <jmorris@namei.org>, Eric Paris <eparis@parisplace.org>
-Subject: [PATCH] Improve SELinux performance when AVC misses.
-References: <20070821130540.7AD3.YNAKAM@hitachisoft.jp>	 <200708211111.27019.paul.moore@hp.com>	 <1187714269.1451.148.camel@moss-spartans.epoch.ncsc.mil>	 <200708211255.45132.paul.moore@hp.com> <46CC00F4.2090501@ak.jp.nec.com>	 <46E7583C.9030103@ak.jp.nec.com>	 <1190136066.14037.53.camel@moss-spartans.epoch.ncsc.mil>	 <46F22BEF.9050208@ak.jp.nec.com>	 <1190402479.17518.130.camel@moss-spartans.epoch.ncsc.mil>	 <46F89767.2090203@ak.jp.nec.com> <1190728430.24726.13.camel@moss-spartans.epoch.ncsc.mil>
-In-Reply-To: <1190728430.24726.13.camel@moss-spartans.epoch.ncsc.mil>
-Content-Type: text/plain; charset=ISO-2022-JP
+To: SELinux List <selinux@tycho.nsa.gov>
+Subject: puzzles about hidden_def and hidden_proto
+Content-Type: text/plain; charset=GB18030
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
->>>> For example, ebitmap_netlbl_export() when NetLabel is not enabled is
->>>> defined as explicitly inlined function which always returns -ENOMEM,
->>>> however, these are also declarations of function when NetLabel is enabled.
->>> Ah, never mind - as these are defined in the header file, they can stay
->>> static inline.
->> OK. I'll submit a patch to clean up non-stub static inline functions
->> next to this patch.
-> 
-> I don't think it is necessary.
 
-Sorry, I might misread your suggestion.
+hi all,
 
->>> Ok, looks reasonable.  Please run it through ./scripts/checkpatch.pl and
->>> fix up the minor issues it reports, then post a clean message with a
->>> suitable description and the patch inline.
->> What is your stance about warnings for "line over 80 characters" ?
->> To resolve all of them makes harder to read source code, so I'm ignoring
->> them in the attached version.
->> Rest of warnings except for them are removed.
-> 
-> I think we have to conform to it, and if it makes it harder to read,
-> possibly that suggests that we need to rework the code in some way.
+i have three puzzles about the macro "hidden_def"
+and "hidden_proto" in "libsepol/src/dso.h".
 
-I'm preparing another version of patch which does not contain any
-"line over 80 characters" warning. Please wait for a while.
+i copy the definitions of these two macros into
+a separate header file to test these two macros,
+and assembly them:
 
-> Need to make a fresh posting with appropriate subject line, text
-> description of the patch, Signed-off-by, diffstat -p1 output, inlined
-> patch.  No residue from prior replies.
+$ cat hidden_def.h
 
-OK, the following part is a fresh patch.
+int extern_i=12345;
+#define hidden __attribute__ ((visibility("hidden")))
+#define hidden_proto(fct) __hidden_proto (fct, fct##_internal)
+#define __hidden_proto(fct, internal)   \
+        extern __typeof(fct) internal;  \
+        extern __typeof(fct) fct __asm (#internal) hidden;
+#define hidden_def(fct) \
+        asm (".globl " #fct "\n.set " #fct ", " #fct "_internal");
+
+$ cat hidden_def.c
+
+#include "hidden_def.h"
+int main()
+{
+        hidden_proto(extern_i);
+}
+
+$ gcc -S hidden_def.c -o hidden_proto.s
+hidden_def.c: In function ¡®main¡¯:
+hidden_def.c:17: warning: asm declaration ignored due to conflict with
+previous rename
+
+as a result, there aren't #APP(#NO_APP) section in ".s" file
+
+Questions:
+
+(1)
+i don't know why i got these assembly warning?
+
+(2)
+i find in the gas manual:
+
+.set SYMBOL, EXPRESSION
+
+if SYMBOL are flagged as external, it remains flagged
+
+how can "fct" be hidden, because it has been declared as globl.
+
+(3)
+what is the difference between hidden_def and gcc hidden
+visibility attribute? why libsepol use both of them?
+
+
+i know these problems are not selinux-specific, but i have
+googled for a long time, i don't know where i can get guides
+about these kinds of problems. can anyone give me some hints?
+
+
+
+
+
+
+--
+This message was distributed to subscribers of the selinux mailing list.
+If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
+the words "unsubscribe selinux" without quotes as the message.
