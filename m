@@ -1,64 +1,54 @@
 From: Paul Moore <paul.moore@hp.com>
-To: Stephen Smalley <sds@tycho.nsa.gov>
-Subject: Re: [RFC PATCH 2/2] [SELINUX] Better integration between peer labeling subsystems
-Date: Wed, 26 Sep 2007 12:18:27 -0400
-Cc: selinux@tycho.nsa.gov
-References: <20070925203856.13699.90782.stgit@flek.americas.hpqcorp.net> <1190810496.15779.11.camel@moss-spartans.epoch.ncsc.mil> <200709261146.28708.paul.moore@hp.com>
-In-Reply-To: <200709261146.28708.paul.moore@hp.com>
+To: Stephen Smalley <sds@tycho.nsa.gov>,
+        Joshua Brindle <method@manicmethod.com>
+Subject: Re: [RFC PATCH 0/2] Series short description
+Date: Wed, 26 Sep 2007 12:00:09 -0400
+Cc: James Morris <jmorris@namei.org>, selinux@tycho.nsa.gov
+References: <20070925203856.13699.90782.stgit@flek.americas.hpqcorp.net> <200709252312.46945.paul.moore@hp.com> <1190813392.15779.58.camel@moss-spartans.epoch.ncsc.mil>
+In-Reply-To: <1190813392.15779.58.camel@moss-spartans.epoch.ncsc.mil>
 MIME-Version: 1.0
 Content-Type: text/plain;
   charset="iso-8859-1"
-Message-Id: <200709261218.27072.paul.moore@hp.com>
+Message-Id: <200709261200.09547.paul.moore@hp.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wednesday 26 September 2007 11:46:28 am Paul Moore wrote:
-> On Wednesday 26 September 2007 8:41:36 am Stephen Smalley wrote:
-> > On Tue, 2007-09-25 at 16:48 -0400, Paul Moore wrote:
-> > > -static void selinux_skb_extlbl_sid(struct sk_buff *skb, u32 *sid)
-> > > +static int selinux_skb_peerlbl_sid(struct sk_buff *skb, u32 *sid)
-> > >  {
-> > >  	u32 xfrm_sid;
-> > >  	u32 nlbl_sid;
-> > >
-> > >  	selinux_skb_xfrm_sid(skb, &xfrm_sid);
-> > > -	if (selinux_netlbl_skbuff_getsid(skb,
-> > > -					 (xfrm_sid == SECSID_NULL ?
-> > > -					  SECINITSID_NETMSG : xfrm_sid),
-> > > -					 &nlbl_sid) != 0)
-> > > -		nlbl_sid = SECSID_NULL;
-> > > -	*sid = (nlbl_sid == SECSID_NULL ? xfrm_sid : nlbl_sid);
-> > > +	selinux_netlbl_skbuff_getsid(skb, SECINITSID_NETMSG, &nlbl_sid);
-> > > +
-> > > +	if (nlbl_sid != SECSID_NULL && xfrm_sid != SECSID_NULL) {
-> > > +		if (nlbl_sid != xfrm_sid &&
-> > > +		    /* XXX - not sure if we should just compare the low end of
-> > > +		     * the range or the whole range?  probably safest to
-> > > +		     * compare the entire range ... */
-> > > +		    security_sid_mls_cmp(nlbl_sid, xfrm_sid) != 0) {
+On Wednesday 26 September 2007 9:29:52 am Stephen Smalley wrote:
+> On Tue, 2007-09-25 at 23:12 -0400, Paul Moore wrote:
+> > On Tuesday 25 September 2007 10:19:50 pm Joshua Brindle wrote:
+> > > A while back someone (I can't remember if it was me or not) suggested a
+> > > bitmap of policy capabilities that would be determined at compile time
+> > > (eg., does this policy have conditional expressions? turn that bit on.
+> > > Does this policy use class foo? turn that bit on, etc). Why is your
+> > > version scheme better than something like that?
 > >
-> > I know that this isn't the first instance of this, but the goal of the
-> > Flask architecture was to encapsulate the security model completely
-> > within the security server.  So leaking MLS specific logic out into the
-> > hook functions (as is also done by security_sid_mls_copy) violates that
-> > goal.
+> > Well, like I said earlier, forget the versioning scheme I proposed. 
+> > However, for the sake or argument one advantage that I can see to a
+> > version number or a capability bitmap (it would most likely need to be an
+> > ebitmap to allow for future growth) is that it is much easier/quicker to
+> > check in the security server.  Comparing two integers is much faster then
+> > checking for a single bit in an ebitmap.
+> >
+> > That said, I agree that your idea of a policy capability bitmap is
+> > interesting and would allow a lot of flexibility.  I'm just not sure the
+> > implementation would be practical, but then again, you have much more
+> > experience in the policy compiler/toolchain than I do.
 >
-> A reasonable request, although off the top of my head I'm not sure there is
-> much we can do other than rename security_sid_mls_cmp() to something a bit
-> less MLS'esque.  Perhaps security_net_peersid_cmp()?  If you have a better
-> idea I'm all ears/eyes ...
+> I think we'd need a separate content/feature version or bitmap from the
+> format version.
+>
+> The bitmap seems better if we want to support independent selection of
+> subsets.  The version seems better if we want to incrementally build
+> upon each new feature and always require the prior ones to exist or to
+> be obsoleted by the new one.
 
-On second thought, it's probably better to move most of the peer label 
-resolution logic into the security server so that selinux_skb_peerlbl_sid() 
-looks something like the following ...
+Okay, it looks like its probably at least worth investigating the bitmap 
+concept with some RFC patches.
 
- selinux_skb_peerlbl_sid(skb, *sid)
- {
-	nlbl_sid = fetch_nlbl_sid(skb);
-        xfrm_sid = fetch_xfrm_sid(skb);
-
-        *sid = security_net_peersid_resolve(nlbl_sid, xfrm_sid);
- }
+Josh, since you brought up the idea and you have a better grasp of the 
+toolchain, can I talk/bribe/make-you-an-offer-you-can't-refuse into working 
+up some patches for the toolchain if I come up with the matching kernel 
+piece?
 
 -- 
 paul moore
