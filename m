@@ -1,65 +1,46 @@
+Message-ID: <46F9F2E2.4060406@ak.jp.nec.com>
+Date: Wed, 26 Sep 2007 14:49:22 +0900
+From: KaiGai Kohei <kaigai@ak.jp.nec.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Subject: RE: variables for file context files
-Date: Tue, 25 Sep 2007 22:00:02 -0700
-Message-ID: <FB39F4E77226B448BC1388D3BE4E00CD49A292@blums0008.bluelnk.net>
-References: <FB39F4E77226B448BC1388D3BE4E00CD0236BF7C@blums0008.bluelnk.net> <1190322412.12553.56.camel@moss-spartans.epoch.ncsc.mil>
-From: "Clarkson, Mike R \(US SSA\)" <mike.clarkson@baesystems.com>
-To: "Stephen Smalley" <sds@tycho.nsa.gov>
-Cc: <selinux@tycho.nsa.gov>
+To: Stephen Smalley <sds@tycho.nsa.gov>
+CC: selinux@tycho.nsa.gov, Paul Moore <paul.moore@hp.com>,
+        Yuichi Nakamura <ynakam@hitachisoft.jp>,
+        James Morris <jmorris@namei.org>, Eric Paris <eparis@parisplace.org>
+Subject: [PATCH] Improve SELinux performance when AVC misses.
+References: <20070821130540.7AD3.YNAKAM@hitachisoft.jp>	 <200708211111.27019.paul.moore@hp.com>	 <1187714269.1451.148.camel@moss-spartans.epoch.ncsc.mil>	 <200708211255.45132.paul.moore@hp.com> <46CC00F4.2090501@ak.jp.nec.com>	 <46E7583C.9030103@ak.jp.nec.com>	 <1190136066.14037.53.camel@moss-spartans.epoch.ncsc.mil>	 <46F22BEF.9050208@ak.jp.nec.com>	 <1190402479.17518.130.camel@moss-spartans.epoch.ncsc.mil>	 <46F89767.2090203@ak.jp.nec.com> <1190728430.24726.13.camel@moss-spartans.epoch.ncsc.mil>
+In-Reply-To: <1190728430.24726.13.camel@moss-spartans.epoch.ncsc.mil>
+Content-Type: text/plain; charset=ISO-2022-JP
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-
-
-> -----Original Message-----
-> From: Stephen Smalley [mailto:sds@tycho.nsa.gov]
-> Sent: Thursday, September 20, 2007 2:07 PM
-> To: Clarkson, Mike R (US SSA)
-> Cc: selinux@tycho.nsa.gov
-> Subject: Re: variables for file context files
+>>>> For example, ebitmap_netlbl_export() when NetLabel is not enabled is
+>>>> defined as explicitly inlined function which always returns -ENOMEM,
+>>>> however, these are also declarations of function when NetLabel is enabled.
+>>> Ah, never mind - as these are defined in the header file, they can stay
+>>> static inline.
+>> OK. I'll submit a patch to clean up non-stub static inline functions
+>> next to this patch.
 > 
-> On Thu, 2007-09-20 at 10:03 -0700, Clarkson, Mike R (US SSA) wrote:
-> > Is there a way to set variables in a file context file?
-> >
-> > For instance, I'd like to be able to do something like this in my
-.fc
-> > files
-> >
-> > ORACLE_HOME =
-'/opt/nl/oracle/ora10gR2/app/oracle/product/10.2.0/db_1'
-> > $ORACLE_HOME/lib/lib.+\.a -- gen_context(system_u:object_r:lib_t,s0)
-> > $ORACLE_HOME/lib32/lib.+\.a --
-gen_context(system_u:object_r:lib_t,s0)
-> > ...
-> >
-> > That way if my ORACLE_HOME changes, I only have to change a single
-line
+> I don't think it is necessary.
+
+Sorry, I might misread your suggestion.
+
+>>> Ok, looks reasonable.  Please run it through ./scripts/checkpatch.pl and
+>>> fix up the minor issues it reports, then post a clean message with a
+>>> suitable description and the patch inline.
+>> What is your stance about warnings for "line over 80 characters" ?
+>> To resolve all of them makes harder to read source code, so I'm ignoring
+>> them in the attached version.
+>> Rest of warnings except for them are removed.
 > 
-> The source .fc files are run through the m4 preprocessor like
-everything
-> else (that is how gen_context gets expanded).  So you can define a m4
-> macro and use it in the source .fc file.  But the .fc file that gets
-> packaged into a .pp file has already been preprocessed.
+> I think we have to conform to it, and if it makes it harder to read,
+> possibly that suggests that we need to rework the code in some way.
 
-Being able to define a macro in the fc file great, but these appear to
-have a scope local to the file in which they are defined. I find I often
-have the same paths across multiple fc files, and it would be nice to be
-able to have a single definition apply to all the files. Is there a way
-to define them globally and put them in a central file?
+I'm preparing another version of patch which does not contain any
+"line over 80 characters" warning. Please wait for a while.
 
-Thanks
+> Need to make a fresh posting with appropriate subject line, text
+> description of the patch, Signed-off-by, diffstat -p1 output, inlined
+> patch.  No residue from prior replies.
 
-> 
-> --
-> Stephen Smalley
-> National Security Agency
-
-
-
-
---
-This message was distributed to subscribers of the selinux mailing list.
-If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
-the words "unsubscribe selinux" without quotes as the message.
+OK, the following part is a fresh patch.
