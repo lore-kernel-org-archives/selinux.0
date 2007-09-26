@@ -1,152 +1,45 @@
-From: David Howells <dhowells@redhat.com>
-Subject: [PATCH 20/24] AFS: Add a function to excise a rejected write from the
-	pagecache
-To: viro@ftp.linux.org.uk, hch@infradead.org, Trond.Myklebust@netapp.com,
-        sds@tycho.nsa.gov, casey@schaufler-ca.com
-Cc: linux-kernel@vger.kernel.org, selinux@tycho.nsa.gov,
-        linux-security-module@vger.kernel.org, dhowells@redhat.com
-Date: Wed, 26 Sep 2007 15:22:43 +0100
-Message-ID: <20070926142242.2656.74758.stgit@warthog.procyon.org.uk>
-In-Reply-To: <20070926142059.2656.27100.stgit@warthog.procyon.org.uk>
-References: <20070926142059.2656.27100.stgit@warthog.procyon.org.uk>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
+Subject: Re: [PATCH 2/3] CRED: Split the task security data and move part
+	of it into struct cred
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: David Howells <dhowells@redhat.com>
+Cc: "Serge E. Hallyn" <serge@hallyn.com>, viro@ftp.linux.org.uk,
+        hch@infradead.org, Trond.Myklebust@netapp.com, casey@schaufler-ca.com,
+        linux-kernel@vger.kernel.org, selinux@tycho.nsa.gov,
+        linux-security-module@vger.kernel.org, linux-audit@redhat.com
+In-Reply-To: <22215.1190813419@redhat.com>
+References: <1190643719.487.41.camel@moss-spartans.epoch.ncsc.mil>
+	 <20070919161749.8334.26064.stgit@warthog.procyon.org.uk>
+	 <20070919161759.8334.11581.stgit@warthog.procyon.org.uk>
+	 <20070924140003.GA25689@vino.hallyn.com>  <22215.1190813419@redhat.com>
+Content-Type: text/plain
+Date: Wed, 26 Sep 2007 10:14:47 -0400
+Message-Id: <1190816087.15779.81.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Add a function - cancel_rejected_write() - to excise a rejected write from the
-pagecache.  This function is related to the truncation family of routines.  It
-permits the pages modified by a network filesystem client (such as AFS) to be
-excised and discarded from the pagecache if the attempt to write them back to
-the server fails.
+On Wed, 2007-09-26 at 14:30 +0100, David Howells wrote:
+> Stephen Smalley <sds@tycho.nsa.gov> wrote:
+> 
+> > Precisely when to use one identity vs. the other though isn't always
+> > clear, and the potential for accidental divergence is also a concern.
+> 
+> What should auditing use in audit_filter_rules() when dealing with
+> AUDIT_SUBJ_* cases?  Should the SUBJ cases use the subjective SID and the
+> AUDIT_OBJ_* cases use the objective SID?  On the other hand AUDIT_OBJ_* cases
+> don't seem to have anything to do with tasks.
 
-The dirty and writeback states of the afflicted pages are cancelled and the
-pages themselves are detached for recycling.  All PTEs referring to those
-pages are removed.
+(cc'd linux-audit)
 
-Note that the locking is tricky as it's very easy to deadlock against
-truncate() and other routines once the pages have been unlocked as part of the
-writeback process.  To this end, the PG_error flag is set, then the
-PG_writeback flag is cleared, and only *then* can lock_page() be called.
+As you say, I don't think AUDIT_OBJ_* has anything to do with tasks,
+just object labels (like inode labels).
 
-Signed-off-by: David Howells <dhowells@redhat.com>
----
+I think you likely want the actor SID / subject SID or whatever you want
+to call it for AUDIT_SUBJ_*.
 
- include/linux/mm.h |    5 ++-
- mm/truncate.c      |   83 ++++++++++++++++++++++++++++++++++++++++++++++++++++
- 2 files changed, 86 insertions(+), 2 deletions(-)
-
-diff --git a/include/linux/mm.h b/include/linux/mm.h
-index 1692dd6..49863df 100644
---- a/include/linux/mm.h
-+++ b/include/linux/mm.h
-@@ -1091,12 +1091,13 @@ extern int do_munmap(struct mm_struct *, unsigned long, size_t);
- 
- extern unsigned long do_brk(unsigned long, unsigned long);
- 
--/* filemap.c */
--extern unsigned long page_unuse(struct page *);
-+/* truncate.c */
- extern void truncate_inode_pages(struct address_space *, loff_t);
- extern void truncate_inode_pages_range(struct address_space *,
- 				       loff_t lstart, loff_t lend);
-+extern void cancel_rejected_write(struct address_space *, pgoff_t, pgoff_t);
- 
-+/* filemap.c */
- /* generic vm_area_ops exported for stackable file systems */
- extern int filemap_fault(struct vm_area_struct *, struct vm_fault *);
- 
-diff --git a/mm/truncate.c b/mm/truncate.c
-index 5555cb0..92a68f7 100644
---- a/mm/truncate.c
-+++ b/mm/truncate.c
-@@ -462,3 +462,86 @@ int invalidate_inode_pages2(struct address_space *mapping)
- 	return invalidate_inode_pages2_range(mapping, 0, -1);
- }
- EXPORT_SYMBOL_GPL(invalidate_inode_pages2);
-+
-+/*
-+ * Cancel that part of a rejected write that affects a particular page
-+ */
-+static void cancel_rejected_page(struct address_space *mapping,
-+				 struct page *page, pgoff_t *_next)
-+{
-+	if (!TestSetPageError(page)) {
-+		/* can't lock the page until we've cleared PG_writeback lest we
-+		 * deadlock with truncate (amongst other things) */
-+		end_page_writeback(page);
-+		if (page->mapping == mapping) {
-+			lock_page(page);
-+			if (page->mapping == mapping) {
-+				truncate_complete_page(mapping, page);
-+				*_next = page->index + 1;
-+			}
-+			unlock_page(page);
-+		}
-+	} else if (PageWriteback(page) || PageDirty(page)) {
-+		BUG();
-+	}
-+}
-+
-+/**
-+ * cancel_rejected_write - Cancel a write on a contiguous set of pages
-+ * @mapping: mapping affected
-+ * @start: first page in set
-+ * @end: last page in set
-+ *
-+ * Cancel a write of a contiguous set of pages when the writeback was rejected
-+ * by the target medium or server.
-+ *
-+ * The pages in question are detached and discarded from the pagecache, and the
-+ * writeback and dirty states are cleared prior to invalidation.  The caller
-+ * must make sure that all the pages in the range are present in the pagecache,
-+ * and the caller must hold PG_writeback on each of them.  NOTE! All the pages
-+ * are locked and unlocked as part of this process, so the caller must take
-+ * care to avoid deadlock.
-+ *
-+ * The PTEs pointing to those pages are also cleared, leading to the PTEs being
-+ * reset when new pages are allocated and the contents reloaded.
-+ */
-+void cancel_rejected_write(struct address_space *mapping,
-+			   pgoff_t start, pgoff_t end)
-+{
-+	struct pagevec pvec;
-+	pgoff_t n;
-+	int i;
-+
-+	BUG_ON(mapping->nrpages < end - start + 1);
-+
-+	/* dispose of any PTEs pointing to the affected pages */
-+	unmap_mapping_range(mapping,
-+			    (loff_t)start << PAGE_CACHE_SHIFT,
-+			    (loff_t)(end - start + 1) << PAGE_CACHE_SHIFT,
-+			    0);
-+
-+	pagevec_init(&pvec, 0);
-+	do {
-+		cond_resched();
-+		n = end - start + 1;
-+		if (n > PAGEVEC_SIZE)
-+			n = PAGEVEC_SIZE;
-+		n = pagevec_lookup(&pvec, mapping, start, n);
-+		for (i = 0; i < n; i++) {
-+			struct page *page = pvec.pages[i];
-+
-+			if (page->index < start || page->index > end)
-+				continue;
-+			start++;
-+			cancel_rejected_page(mapping, page, &start);
-+		}
-+		pagevec_release(&pvec);
-+	} while (start - 1 < end);
-+
-+	/* dispose of any new PTEs pointing to the affected pages */
-+	unmap_mapping_range(mapping,
-+			    (loff_t)start << PAGE_CACHE_SHIFT,
-+			    (loff_t)(end - start + 1) << PAGE_CACHE_SHIFT,
-+			    0);
-+}
-+EXPORT_SYMBOL_GPL(cancel_rejected_write);
+-- 
+Stephen Smalley
+National Security Agency
 
 
 --
