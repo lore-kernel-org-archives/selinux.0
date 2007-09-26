@@ -1,146 +1,77 @@
-From: David Howells <dhowells@redhat.com>
-Subject: [PATCH 22/24] AFS: Implement shared-writable mmap
-To: viro@ftp.linux.org.uk, hch@infradead.org, Trond.Myklebust@netapp.com,
-        sds@tycho.nsa.gov, casey@schaufler-ca.com
-Cc: linux-kernel@vger.kernel.org, selinux@tycho.nsa.gov,
-        linux-security-module@vger.kernel.org, dhowells@redhat.com
-Date: Wed, 26 Sep 2007 15:22:53 +0100
-Message-ID: <20070926142253.2656.96010.stgit@warthog.procyon.org.uk>
-In-Reply-To: <20070926142059.2656.27100.stgit@warthog.procyon.org.uk>
-References: <20070926142059.2656.27100.stgit@warthog.procyon.org.uk>
+Message-ID: <46FA7107.2000003@manicmethod.com>
+Date: Wed, 26 Sep 2007 10:47:35 -0400
+From: Joshua Brindle <method@manicmethod.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
+To: Daniel J Walsh <dwalsh@redhat.com>
+CC: Stephen Smalley <sds@tycho.nsa.gov>, SE Linux <selinux@tycho.nsa.gov>
+Subject: Re: I am concerned about putting genhomedircon changes in libsemanage
+ into Fedora 8.
+References: <46CED283.8060804@redhat.com> <46FA661F.1080703@redhat.com>
+In-Reply-To: <46FA661F.1080703@redhat.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Implement shared-writable mmap for AFS.
+Daniel J Walsh wrote:
+> -----BEGIN PGP SIGNED MESSAGE-----
+> Hash: SHA1
+>
+> Daniel J Walsh wrote:
+>   
+>> I may hold off on this so we can get a full Rawhide cycle on it.
+>> genhomedircon has many corner cases and do not want to risk blowing F-8
+>> now that we are at Feature Freeze.
+>> All the rest of the patches have been integrated.
+>
+>
+>
+> The genhomedircon replacement is broken in libsemanage.  It is
+> generating invalid file context.  The python version verified the
+> file context it was creating were valid before assiging them.  This is
+> resulting in Fedora Core 8 not being able to autorelabel
+>
+>   
 
-The key with which to access the file is obtained from the VMA at the point
-where the PTE is made writable by the page_mkwrite() VMA op and cached in the
-affected page.
+The python version did the wrong thing entirely. It validated the 
+contexts against the running policy in the kernel, which breaks when you 
+try to do an operation on another store. Also since we moved 
+genhomedircon inside of libsemanage the new policy isn't even loaded yet 
+so we can't validate against the kernel (or the new types added by the 
+module being added would be 'invalid'). The only real way to validate 
+the contexts now would be to load the newly generated policy into the 
+libsepol security server and to the context validations on it.
 
-If there's an outstanding write on the page made with a different key, then
-page_mkwrite() will flush it before attaching a record of the new key.
+This would work, it would just take extra time at module load time. It 
+seems like the real problem is that the invalid contexts are being 
+generated in the first place, relying on genhomedircon to sanity check 
+your file contexts seems like you are punting the problem.
 
-Signed-off-by: David Howells <dhowells@redhat.com>
----
+>  /sbin/fixfiles restore
+> /etc/selinux/targeted/contexts/files/file_contexts.homedirs:  line 26
+> has invalid context user_u:object_r:user_gconf_home_t:s0
+> /etc/selinux/targeted/contexts/files/file_contexts.homedirs:  line 51
+> has invalid context user_u:object_r:user_gconf_tmp_t:s0
+> /etc/selinux/targeted/contexts/files/file_contexts.homedirs:  line 60
+> has invalid context mytuser_u:object_r:mytuser_gnome_home_t:s0
+> /etc/selinux/targeted/contexts/files/file_contexts.homedirs:  line 63
+> has invalid context mytuser_u:object_r:httpd_mytuser_content_t:s0
+> /etc/selinux/targeted/contexts/files/file_contexts.homedirs:  line 64
+> has invalid context mytuser_u:object_r:mytuser_home_ssh_t:s0
+> /etc/selinux/targeted/contexts/files/file_contexts.homedirs:  line 65
+> has invalid context mytuser_u:object_r:mytuser_uml_rw_t:s0
+> /etc/selinux/targeted/contexts/files/file_contexts.homedirs:  line 66
+> has invalid context mytuser_u:object_r:mytuser_mozilla_home_t:s0
+> /etc/selinux/targeted/contexts/files/file_contexts.homedirs:  line 67
+> has invalid context mytuser_u:object_r:mytuser_xauth_home_t:s0
+> /etc/selinux/targeted/contexts/files/file_contexts.homedirs:  line 68
+> has invalid context mytuser_u:object_r:mytuser_fonts_t:s0
+> Exiting after 10 errors.
+>
+> mytuser does not execute the mozilla_per_role_template to these types
+> are not valid.  genhomedircon is only supposed to generate valid context.
+>
+>   
 
- fs/afs/file.c     |   20 +++++++++++++++++++-
- fs/afs/internal.h |    1 +
- fs/afs/write.c    |   35 +++++++++++++++++++++++++++++++++++
- 3 files changed, 55 insertions(+), 1 deletions(-)
-
-diff --git a/fs/afs/file.c b/fs/afs/file.c
-index 525f7c5..1323df4 100644
---- a/fs/afs/file.c
-+++ b/fs/afs/file.c
-@@ -22,6 +22,7 @@ static int afs_readpage(struct file *file, struct page *page);
- static void afs_invalidatepage(struct page *page, unsigned long offset);
- static int afs_releasepage(struct page *page, gfp_t gfp_flags);
- static int afs_launder_page(struct page *page);
-+static int afs_mmap(struct file *file, struct vm_area_struct *vma);
- 
- const struct file_operations afs_file_operations = {
- 	.open		= afs_open,
-@@ -31,7 +32,7 @@ const struct file_operations afs_file_operations = {
- 	.write		= do_sync_write,
- 	.aio_read	= generic_file_aio_read,
- 	.aio_write	= afs_file_write,
--	.mmap		= generic_file_readonly_mmap,
-+	.mmap		= afs_mmap,
- 	.splice_read	= generic_file_splice_read,
- 	.fsync		= afs_fsync,
- 	.lock		= afs_lock,
-@@ -56,6 +57,11 @@ const struct address_space_operations afs_fs_aops = {
- 	.writepages	= afs_writepages,
- };
- 
-+static struct vm_operations_struct afs_file_vm_ops = {
-+	.fault		= filemap_fault,
-+	.page_mkwrite	= afs_page_mkwrite,
-+};
-+
- /*
-  * open an AFS file or directory and attach a key to it
-  */
-@@ -295,3 +301,15 @@ static int afs_releasepage(struct page *page, gfp_t gfp_flags)
- 	_leave(" = 0");
- 	return 0;
- }
-+
-+/*
-+ * memory map part of an AFS file
-+ */
-+static int afs_mmap(struct file *file, struct vm_area_struct *vma)
-+{
-+	_enter("");
-+
-+	file_accessed(file);
-+	vma->vm_ops = &afs_file_vm_ops;
-+	return 0;
-+}
-diff --git a/fs/afs/internal.h b/fs/afs/internal.h
-index e1bcce0..12afccc 100644
---- a/fs/afs/internal.h
-+++ b/fs/afs/internal.h
-@@ -743,6 +743,7 @@ extern ssize_t afs_file_write(struct kiocb *, const struct iovec *,
- 			      unsigned long, loff_t);
- extern int afs_writeback_all(struct afs_vnode *);
- extern int afs_fsync(struct file *, struct dentry *, int);
-+extern int afs_page_mkwrite(struct vm_area_struct *, struct page *);
- 
- 
- /*****************************************************************************/
-diff --git a/fs/afs/write.c b/fs/afs/write.c
-index ac621e8..dd471f0 100644
---- a/fs/afs/write.c
-+++ b/fs/afs/write.c
-@@ -155,6 +155,8 @@ static int afs_prepare_page(struct afs_vnode *vnode, struct page *page,
-  * prepare to perform part of a write to a page
-  * - the caller holds the page locked, preventing it from being written out or
-  *   modified by anyone else
-+ * - may be called from afs_page_mkwrite() to set up a page for modification
-+ *   through shared-writable mmap
-  */
- int afs_prepare_write(struct file *file, struct page *page,
- 		      unsigned offset, unsigned to)
-@@ -833,3 +835,36 @@ int afs_fsync(struct file *file, struct dentry *dentry, int datasync)
- 	_leave(" = %d", ret);
- 	return ret;
- }
-+
-+/*
-+ * notification that a previously read-only page is about to become writable
-+ * - if it returns an error, the caller will deliver a bus error signal
-+ *
-+ * we use this to make a record of the key with which the writeback should be
-+ * performed and to flush any outstanding writes made with a different key
-+ *
-+ * the key to be used is attached to the struct file pinned by the VMA
-+ */
-+int afs_page_mkwrite(struct vm_area_struct *vma, struct page *page)
-+{
-+	struct afs_vnode *vnode = AFS_FS_I(vma->vm_file->f_mapping->host);
-+	struct key *key = vma->vm_file->private_data;
-+	int ret;
-+
-+	_enter("{{%x:%u},%x},{%lx}",
-+	       vnode->fid.vid, vnode->fid.vnode, key_serial(key), page->index);
-+
-+	do {
-+		lock_page(page);
-+		if (page->mapping == vma->vm_file->f_mapping)
-+			ret = afs_prepare_write(vma->vm_file, page, 0,
-+						PAGE_SIZE);
-+		else
-+			ret = 0; /* seems there was interference - let the
-+				  * caller deal with it */
-+		unlock_page(page);
-+	} while (ret == AOP_TRUNCATED_PAGE);
-+
-+	_leave(" = %d", ret);
-+	return ret;
-+}
 
 
 --
