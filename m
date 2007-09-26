@@ -3,323 +3,172 @@ Subject: Re: I am concerned about putting genhomedircon changes
 From: Stephen Smalley <sds@tycho.nsa.gov>
 To: "Todd C. Miller" <tmiller@tresys.com>
 Cc: dwalsh@redhat.com, selinux@tycho.nsa.gov
-In-Reply-To: <200709262001.l8QK1Skx029939@tex.courtesan.com>
+In-Reply-To: <1190836803.15779.159.camel@moss-spartans.epoch.ncsc.mil>
 References: <200709262001.l8QK1Skx029939@tex.courtesan.com>
+	 <1190836803.15779.159.camel@moss-spartans.epoch.ncsc.mil>
 Content-Type: text/plain
-Date: Wed, 26 Sep 2007 16:00:03 -0400
-Message-Id: <1190836803.15779.159.camel@moss-spartans.epoch.ncsc.mil>
+Date: Wed, 26 Sep 2007 16:20:18 -0400
+Message-Id: <1190838018.15779.170.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2007-09-26 at 16:01 -0400, Todd C. Miller wrote:
-> I've added the checks Steve suggested.  It doesn't appear to cause
-> any new regressions.  I didn't do a real parse of the contexts file
-> line--I just grab the last whitespace-delimited field.  This should
-> be sufficient since the line comes from the template file and the
-> added checks will reject a bogus context, should it occur.
+On Wed, 2007-09-26 at 16:00 -0400, Stephen Smalley wrote:
+> On Wed, 2007-09-26 at 16:01 -0400, Todd C. Miller wrote:
+> > I've added the checks Steve suggested.  It doesn't appear to cause
+> > any new regressions.  I didn't do a real parse of the contexts file
+> > line--I just grab the last whitespace-delimited field.  This should
+> > be sufficient since the line comes from the template file and the
+> > added checks will reject a bogus context, should it occur.
+> > 
+> >  - todd
+> > 
+> > Index: libsemanage/src/genhomedircon.c
+> > ===================================================================
+> > --- libsemanage/src/genhomedircon.c	(revision 2587)
+> > +++ libsemanage/src/genhomedircon.c	(working copy)
+> > @@ -1,5 +1,6 @@
+> > -/* Author: Mark Goldman   <mgoldman@tresys.com>
+> > - * 			Paul Rosenfeld	<prosenfeld@tresys.com>
+> > +/* Author: Mark Goldman	  <mgoldman@tresys.com>
+> > + * 	   Paul Rosenfeld <prosenfeld@tresys.com>
+> > + * 	   Todd C. Miller <tmiller@tresys.com>
+> >   *
+> >   * Copyright (C) 2007 Tresys Technology, LLC
+> >   *
+> > @@ -23,6 +24,9 @@
+> >  #include <semanage/seusers_policy.h>
+> >  #include <semanage/users_policy.h>
+> >  #include <semanage/user_record.h>
+> > +#include <sepol/context.h>
+> > +#include <sepol/context_record.h>
+> > +#include <sepol/policydb/context.h>
 > 
->  - todd
-> 
-> Index: libsemanage/src/genhomedircon.c
-> ===================================================================
-> --- libsemanage/src/genhomedircon.c	(revision 2587)
-> +++ libsemanage/src/genhomedircon.c	(working copy)
-> @@ -1,5 +1,6 @@
-> -/* Author: Mark Goldman   <mgoldman@tresys.com>
-> - * 			Paul Rosenfeld	<prosenfeld@tresys.com>
-> +/* Author: Mark Goldman	  <mgoldman@tresys.com>
-> + * 	   Paul Rosenfeld <prosenfeld@tresys.com>
-> + * 	   Todd C. Miller <tmiller@tresys.com>
->   *
->   * Copyright (C) 2007 Tresys Technology, LLC
->   *
-> @@ -23,6 +24,9 @@
->  #include <semanage/seusers_policy.h>
->  #include <semanage/users_policy.h>
->  #include <semanage/user_record.h>
-> +#include <sepol/context.h>
-> +#include <sepol/context_record.h>
-> +#include <sepol/policydb/context.h>
+> That last include shouldn't be necessary - the headers under
+> sepol/policydb/ are private to the static lib.
 
-That last include shouldn't be necessary - the headers under
-sepol/policydb/ are private to the static lib.
+Other tidbits:
+- Running semodule -B with this patch applied yields error messages from
+libsepol on the invalid contexts.  Quiet it via something like:
+  sepol_msg_set_callback(s->h_semanage->sepolh, NULL, NULL);
+  result = sepol_context_check(...);
+  sepol_msg_set_callback(s->h_semanage->sepolh, semanage_msg_relay_handler, NULL);
 
->  #include "semanage_store.h"
->  #include "seuser_internal.h"
->  #include "debug.h"
-> @@ -80,6 +84,7 @@
->  	int usepasswd;
->  	const char *homedir_template_path;
->  	semanage_handle_t *h_semanage;
-> +	sepol_policydb_t *policydb;
->  } genhomedircon_settings_t;
->  
->  typedef struct user_entry {
-> @@ -352,10 +357,47 @@
->  	return retval;
->  }
->  
-> -static int write_home_dir_context(FILE * out, semanage_list_t * tpl,
-> -				  const char *user, const char *seuser,
-> -				  const char *home, const char *role_prefix)
-> +static const char * extract_context(Ustr *line)
->  {
-> +	const char whitespace[] = " \t\n";
-> +	size_t off, len;
-> +
-> +	/* check for trailing whitespace */
-> +	off = ustr_spn_chrs_rev(line, 0, whitespace, strlen(whitespace));
-> +
-> +	/* find the length of the last field in line */
-> +	len = ustr_cspn_chrs_rev(line, off, whitespace, strlen(whitespace));
-> +
-> +	if (len == 0)
-> +		return NULL;
-> +	return ustr_cstr(line) + ustr_len(line) - (len + off);
-> +}
-> +
-> +static int check_line(genhomedircon_settings_t * s, Ustr *line)
-> +{
-> +	sepol_context_t *ctx_record = NULL;
-> +	const char *ctx_str;
-> +	int result;
-> +
-> +	ctx_str = extract_context(line);
-> +	if (!ctx_str)
-> +		return STATUS_ERR;
-> +
-> +	result = sepol_context_from_string(s->h_semanage->sepolh,
-> +					   ctx_str, &ctx_record);
-> +	if (result == STATUS_SUCCESS && ctx_record != NULL) {
-> +		result = sepol_context_check(s->h_semanage->sepolh,
-> +					     s->policydb, ctx_record);
-> +		sepol_context_free(ctx_record);
-> +	}
-> +	return result;
-> +}
-> +
-> +static int write_home_dir_context(genhomedircon_settings_t * s, FILE * out,
-> +				  semanage_list_t * tpl, const char *user,
-> +				  const char *seuser, const char *home,
-> +				  const char *role_prefix)
-> +{
->  	replacement_pair_t repl[] = {
->  		{.search_for = TEMPLATE_SEUSER,.replace_with = seuser},
->  		{.search_for = TEMPLATE_HOME_DIR,.replace_with = home},
-> @@ -369,8 +411,12 @@
->  
->  	for (; tpl; tpl = tpl->next) {
->  		line = replace_all(tpl->data, repl);
-> -		if (!line || !ustr_io_putfileline(&line, out))
-> +		if (!line)
->  			goto fail;
-> +		if (check_line(s, line) == STATUS_SUCCESS) {
-> +			if (!ustr_io_putfileline(&line, out))
-> +				goto fail;
-> +		}
->  		ustr_sc_free(&line);
->  	}
->  	return STATUS_SUCCESS;
-> @@ -380,8 +426,8 @@
->  	return STATUS_ERR;
->  }
->  
-> -static int write_home_root_context(FILE * out, semanage_list_t * tpl,
-> -				   char *homedir)
-> +static int write_home_root_context(genhomedircon_settings_t * s, FILE * out,
-> +				   semanage_list_t * tpl, char *homedir)
->  {
->  	replacement_pair_t repl[] = {
->  		{.search_for = TEMPLATE_HOME_ROOT,.replace_with = homedir},
-> @@ -391,8 +437,12 @@
->  
->  	for (; tpl; tpl = tpl->next) {
->  		line = replace_all(tpl->data, repl);
-> -		if (!line || !ustr_io_putfileline(&line, out))
-> +		if (!line)
->  			goto fail;
-> +		if (check_line(s, line) == STATUS_SUCCESS) {
-> +			if (!ustr_io_putfileline(&line, out))
-> +				goto fail;
-> +		}
->  		ustr_sc_free(&line);
->  	}
->  	return STATUS_SUCCESS;
-> @@ -402,7 +452,8 @@
->  	return STATUS_ERR;
->  }
->  
-> -static int write_user_context(FILE * out, semanage_list_t * tpl, char *user,
-> +static int write_user_context(genhomedircon_settings_t * s, FILE * out,
-> +			      semanage_list_t * tpl, char *user,
->  			      char *seuser, char *role_prefix)
->  {
->  	replacement_pair_t repl[] = {
-> @@ -415,8 +466,12 @@
->  
->  	for (; tpl; tpl = tpl->next) {
->  		line = replace_all(tpl->data, repl);
-> -		if (!line || !ustr_io_putfileline(&line, out))
-> +		if (!line)
->  			goto fail;
-> +		if (check_line(s, line) == STATUS_SUCCESS) {
-> +			if (!ustr_io_putfileline(&line, out))
-> +				goto fail;
-> +		}
->  		ustr_sc_free(&line);
->  	}
->  	return STATUS_SUCCESS;
-> @@ -602,7 +657,7 @@
->  	return head;
->  }
->  
-> -static int write_gen_home_dir_context(FILE * out, genhomedircon_settings_t * s,
-> +static int write_gen_home_dir_context(genhomedircon_settings_t * s, FILE * out,
->  				      semanage_list_t * user_context_tpl,
->  				      semanage_list_t * homedir_context_tpl)
->  {
-> @@ -615,13 +670,13 @@
->  	}
->  
->  	for (; users; pop_user_entry(&users)) {
-> -		if (write_home_dir_context(out, homedir_context_tpl,
-> +		if (write_home_dir_context(s, out, homedir_context_tpl,
->  					   users->name,
->  					   users->sename, users->home,
->  					   users->prefix)) {
->  			return STATUS_ERR;
->  		}
-> -		if (write_user_context(out, user_context_tpl, users->name,
-> +		if (write_user_context(s, out, user_context_tpl, users->name,
->  				       users->sename, users->prefix)) {
->  			return STATUS_ERR;
->  		}
-> @@ -671,7 +726,7 @@
->  			goto done;
->  		}
->  
-> -		if (write_home_dir_context(out,
-> +		if (write_home_dir_context(s, out,
->  					   homedir_context_tpl, FALLBACK_USER,
->  					   FALLBACK_USER, ustr_cstr(temp),
->  					   FALLBACK_USER_PREFIX) !=
-> @@ -680,7 +735,7 @@
->  			retval = STATUS_ERR;
->  			goto done;
->  		}
-> -		if (write_home_root_context(out,
-> +		if (write_home_root_context(s, out,
->  					    homeroot_context_tpl,
->  					    h->data) != STATUS_SUCCESS) {
->  			ustr_sc_free(&temp);
-> @@ -690,13 +745,13 @@
->  
->  		ustr_sc_free(&temp);
->  	}
-> -	if (write_user_context(out, user_context_tpl,
-> +	if (write_user_context(s, out, user_context_tpl,
->  			       ".*", FALLBACK_USER,
->  			       FALLBACK_USER_PREFIX) != STATUS_SUCCESS) {
->  		retval = STATUS_ERR;
->  		goto done;
->  	}
-> -	if (write_gen_home_dir_context(out, s, user_context_tpl,
-> +	if (write_gen_home_dir_context(s, out, user_context_tpl,
->  				       homedir_context_tpl) != STATUS_SUCCESS) {
->  		retval = STATUS_ERR;
->  	}
-> @@ -711,7 +766,9 @@
->  	return retval;
->  }
->  
-> -int semanage_genhomedircon(semanage_handle_t * sh, int usepasswd)
-> +int semanage_genhomedircon(semanage_handle_t * sh,
-> +			   sepol_policydb_t * policydb,
-> +			   int usepasswd)
->  {
->  	genhomedircon_settings_t s;
->  	FILE *out = NULL;
-> @@ -725,6 +782,7 @@
->  
->  	s.usepasswd = usepasswd;
->  	s.h_semanage = sh;
-> +	s.policydb = policydb;
->  
->  	if (!(out = fopen(s.fcfilepath, "w"))) {
->  		/* couldn't open output file */
-> Index: libsemanage/src/genhomedircon.h
-> ===================================================================
-> --- libsemanage/src/genhomedircon.h	(revision 2587)
-> +++ libsemanage/src/genhomedircon.h	(working copy)
-> @@ -22,6 +22,7 @@
->  
->  #include "utilities.h"
->  
-> -int semanage_genhomedircon(semanage_handle_t * sh, int usepasswd);
-> +int semanage_genhomedircon(semanage_handle_t * sh,
-> +			   sepol_policydb_t * policydb, int usepasswd);
->  
->  #endif
-> Index: libsemanage/src/direct_api.c
-> ===================================================================
-> --- libsemanage/src/direct_api.c	(revision 2587)
-> +++ libsemanage/src/direct_api.c	(working copy)
-> @@ -702,7 +702,7 @@
->  		goto cleanup;
->  
->  	if (sh->do_rebuild || modified) {
-> -		retval = semanage_install_sandbox(sh);
-> +		retval = semanage_install_sandbox(sh, out);
->  	}
->  
->        cleanup:
-> Index: libsemanage/src/semanage_store.c
-> ===================================================================
-> --- libsemanage/src/semanage_store.c	(revision 2587)
-> +++ libsemanage/src/semanage_store.c	(working copy)
-> @@ -1279,7 +1279,8 @@
->   * should be placed within a mutex lock to ensure that it runs
->   * atomically.	Returns commit number on success, -1 on error.
->   */
-> -int semanage_install_sandbox(semanage_handle_t * sh)
-> +int semanage_install_sandbox(semanage_handle_t * sh,
-> +			     sepol_policydb_t * policydb)
->  {
->  	int retval = -1, commit_num = -1;
->  
-> @@ -1294,7 +1295,7 @@
->  	}
->  	if (!sh->conf->disable_genhomedircon) {
->  		if ((retval =
-> -		     semanage_genhomedircon(sh, TRUE)) != 0) {
-> +		     semanage_genhomedircon(sh, policydb, TRUE)) != 0) {
->  			ERR(sh, "semanage_genhomedircon returned error code %d.",
->  			    retval);
->  			goto cleanup;
-> Index: libsemanage/src/semanage_store.h
-> ===================================================================
-> --- libsemanage/src/semanage_store.h	(revision 2587)
-> +++ libsemanage/src/semanage_store.h	(working copy)
-> @@ -83,8 +83,6 @@
->  int semanage_get_modules_names(semanage_handle_t * sh,
->  			       char ***filenames, int *len);
->  
-> -int semanage_install_sandbox(semanage_handle_t * sh);
-> -
->  /* lock file routines */
->  int semanage_get_trans_lock(semanage_handle_t * sh);
->  int semanage_get_active_lock(semanage_handle_t * sh);
-> @@ -102,7 +100,8 @@
->  int semanage_write_policydb(semanage_handle_t * sh,
->  			    sepol_policydb_t * policydb);
->  
-> -int semanage_install_sandbox(semanage_handle_t * sh);
-> +int semanage_install_sandbox(semanage_handle_t * sh,
-> +			     sepol_policydb_t * policydb);
->  
->  int semanage_verify_modules(semanage_handle_t * sh,
->  			    char **module_filenames, int num_modules);
+- A diff of file_contexts.homedirs generated via libsemanage vs. the
+old /usr/sbin/genhomedircon script shows differences on rawhide.  Not
+sure who is right.  Diff below.
+
+diff -bwru files.0/file_contexts.homedirs files/file_contexts.homedirs
+--- files.0/file_contexts.homedirs	2007-09-25 19:49:39.000000000 -0400
++++ files/file_contexts.homedirs	2007-09-25 19:50:09.000000000 -0400
+@@ -1,30 +1,53 @@
+-
+ #
+ #
+-# User-specific file contexts, generated via /usr/sbin/genhomedircon
+-# use semanage command to manage system users in order to change the file_context
++# User-specific file contexts, generated via libsemanage
++# use semanage command to manage system users to change the file_context
+ #
+ #
+ 
+ 
+ #
+-# Home Context for user system_u
++# Home Context for user user_u
+ #
+ 
+-/home/[^/]*/.+	system_u:object_r:user_home_t:s0
+-/home/[^/]*/.*/plugins/nprhapengine\.so.*	--	system_u:object_r:textrel_shlib_t:s0
+-/home/[^/]*/.*/plugins/libflashplayer\.so.*	--	system_u:object_r:textrel_shlib_t:s0
+-/home/[^/]*/((www)|(web)|(public_html))(/.+)?	system_u:object_r:httpd_user_content_t:s0
+-/home/[^/]*/\.mozilla(/.*)?/plugins/libflashplayer\.so.*	--	system_u:object_r:textrel_shlib_t:s0
+-/home/[^/]*/\.config/gtk-.*	system_u:object_r:user_gnome_home_t:s0
+-/home/[^/]*	-d	system_u:object_r:user_home_dir_t:s0
++/home/[^/]*/.+	user_u:object_r:user_home_t:s0
++/home/[^/]*/.gnome2(/.*)?	user_u:object_r:user_gnome_home_t:s0
++/home/[^/]*/.*/plugins/nprhapengine\.so.*	--	user_u:object_r:textrel_shlib_t:s0
++/home/[^/]*/.*/plugins/libflashplayer\.so.*	--	user_u:object_r:textrel_shlib_t:s0
++/home/[^/]*/((www)|(web)|(public_html))(/.+)?	user_u:object_r:httpd_user_content_t:s0
++/home/[^/]*/\.ssh(/.*)?	user_u:object_r:user_home_ssh_t:s0
++/home/[^/]*/\.uml(/.*)?	user_u:object_r:user_uml_rw_t:s0
++/home/[^/]*/\.java(/.*)?	user_u:object_r:user_mozilla_home_t:s0
++/home/[^/]*/\.xauth.*	--	user_u:object_r:user_xauth_home_t:s0
++/home/[^/]*/\.fonts(/.*)?	user_u:object_r:user_fonts_t:s0
++/home/[^/]*/\.pyzor(/.*)?	user_u:object_r:user_pyzor_home_t:s0
++/home/[^/]*/\.razor(/.*)?	user_u:object_r:user_razor_home_t:s0
++/home/[^/]*/vmware(/.*)?	user_u:object_r:user_vmware_file_t:s0
++/home/[^/]*/\.galeon(/.*)?	user_u:object_r:user_mozilla_home_t:s0
++/home/[^/]*/\.vmware(/.*)?	user_u:object_r:user_vmware_file_t:s0
++/home/[^/]*/\.vmware[^/]*/.*\.cfg	--	user_u:object_r:user_vmware_conf_t:s0
++/home/[^/]*/\.mozilla(/.*)?	user_u:object_r:user_mozilla_home_t:s0
++/home/[^/]*/\.phoenix(/.*)?	user_u:object_r:user_mozilla_home_t:s0
++/home/[^/]*/\.mplayer(/.*)?	user_u:object_r:user_mplayer_home_t:s0
++/home/[^/]*/\.mozilla(/.*)?/plugins/libflashplayer\.so.*	--	user_u:object_r:textrel_shlib_t:s0
++/home/[^/]*/\.ethereal(/.*)?	user_u:object_r:user_ethereal_home_t:s0
++/home/[^/]*/\.netscape(/.*)?	user_u:object_r:user_mozilla_home_t:s0
++/home/[^/]*/\.Xauthority.*	--	user_u:object_r:user_xauth_home_t:s0
++/home/[^/]*/\.fonts/auto(/.*)?	user_u:object_r:user_fonts_cache_t:s0
++/home/[^/]*/\.config/gtk-.*	user_u:object_r:user_gnome_home_t:s0
++/home/[^/]*/\.fonts\.cache-.*	--	user_u:object_r:user_fonts_cache_t:s0
++/home/[^/]*/\.ICEauthority.*	--	user_u:object_r:user_iceauth_home_t:s0
++/home/[^/]*/\.spamassassin(/.*)?	user_u:object_r:user_spamassassin_home_t:s0
++/home/[^/]*	-d	user_u:object_r:user_home_dir_t:s0
++/home/[^/]*	-l	user_u:object_r:user_home_dir_t:s0
++/home/[^/]*/\.ircmotd	--	user_u:object_r:user_irc_home_t:s0
++/home/[^/]*/\.screenrc	--	user_u:object_r:user_screen_ro_home_t:s0
++/home/[^/]*/\.fonts\.conf	--	user_u:object_r:user_fonts_config_t:s0
+ /home/lost\+found/.*	<<none>>
+ /home	-d	system_u:object_r:home_root_t:s0
+ /home/\.journal	<<none>>
+ /home/lost\+found	-d	system_u:object_r:lost_found_t:s0
+-/tmp/\.exchange-.*(/.*)?	system_u:object_r:user_evolution_exchange_tmp_t:s0
+-/tmp/gconfd-.*	-d	system_u:object_r:user_tmp_t:s0
+-
++/tmp/gconfd-.*	-d	user_u:object_r:user_tmp_t:s0
+ 
+ 
+ #
+@@ -32,12 +55,36 @@
+ #
+ 
+ /root/.+	root:object_r:sysadm_home_t:s0
++/root/.gnome2(/.*)?	root:object_r:sysadm_gnome_home_t:s0
+ /root/.*/plugins/nprhapengine\.so.*	--	root:object_r:textrel_shlib_t:s0
+ /root/.*/plugins/libflashplayer\.so.*	--	root:object_r:textrel_shlib_t:s0
+ /root/((www)|(web)|(public_html))(/.+)?	root:object_r:httpd_sysadm_content_t:s0
++/root/\.ssh(/.*)?	root:object_r:sysadm_home_ssh_t:s0
++/root/\.uml(/.*)?	root:object_r:sysadm_uml_rw_t:s0
++/root/\.java(/.*)?	root:object_r:sysadm_mozilla_home_t:s0
++/root/\.xauth.*	--	root:object_r:sysadm_xauth_home_t:s0
++/root/\.fonts(/.*)?	root:object_r:sysadm_fonts_t:s0
++/root/\.pyzor(/.*)?	root:object_r:sysadm_pyzor_home_t:s0
++/root/\.razor(/.*)?	root:object_r:sysadm_razor_home_t:s0
++/root/vmware(/.*)?	root:object_r:sysadm_vmware_file_t:s0
++/root/\.galeon(/.*)?	root:object_r:sysadm_mozilla_home_t:s0
++/root/\.vmware(/.*)?	root:object_r:sysadm_vmware_file_t:s0
++/root/\.vmware[^/]*/.*\.cfg	--	root:object_r:sysadm_vmware_conf_t:s0
++/root/\.mozilla(/.*)?	root:object_r:sysadm_mozilla_home_t:s0
++/root/\.phoenix(/.*)?	root:object_r:sysadm_mozilla_home_t:s0
++/root/\.mplayer(/.*)?	root:object_r:sysadm_mplayer_home_t:s0
+ /root/\.mozilla(/.*)?/plugins/libflashplayer\.so.*	--	root:object_r:textrel_shlib_t:s0
++/root/\.ethereal(/.*)?	root:object_r:sysadm_ethereal_home_t:s0
++/root/\.netscape(/.*)?	root:object_r:sysadm_mozilla_home_t:s0
++/root/\.Xauthority.*	--	root:object_r:sysadm_xauth_home_t:s0
++/root/\.fonts/auto(/.*)?	root:object_r:sysadm_fonts_cache_t:s0
+ /root/\.config/gtk-.*	root:object_r:sysadm_gnome_home_t:s0
++/root/\.fonts\.cache-.*	--	root:object_r:sysadm_fonts_cache_t:s0
++/root/\.ICEauthority.*	--	root:object_r:sysadm_iceauth_home_t:s0
++/root/\.spamassassin(/.*)?	root:object_r:sysadm_spamassassin_home_t:s0
+ /root	-d	root:object_r:sysadm_home_dir_t:s0
+-/tmp/\.exchange-root(/.*)?	root:object_r:sysadm_evolution_exchange_tmp_t:s0
++/root	-l	root:object_r:sysadm_home_dir_t:s0
++/root/\.ircmotd	--	root:object_r:sysadm_irc_home_t:s0
++/root/\.screenrc	--	root:object_r:sysadm_screen_ro_home_t:s0
++/root/\.fonts\.conf	--	root:object_r:sysadm_fonts_config_t:s0
+ /tmp/gconfd-root	-d	root:object_r:sysadm_tmp_t:s0
+-
+
 -- 
 Stephen Smalley
 National Security Agency
