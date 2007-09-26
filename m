@@ -1,58 +1,93 @@
-Subject: Re: ANN:  Updated SELinux core userland release
+Subject: Re: [RFC PATCH 0/2] Series short description
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: "Christopher J. PeBenito" <cpebenito@tresys.com>
-Cc: selinux@tycho.nsa.gov, Manoj Srivastava <manoj.srivastava@stdc.com>,
-        Daniel J Walsh <dwalsh@redhat.com>
-In-Reply-To: <1190811814.1812.19.camel@gorn.columbia.tresys.com>
-References: <1174593896.31436.158.camel@moss-spartans.epoch.ncsc.mil>
-	 <1190750158.24726.166.camel@moss-spartans.epoch.ncsc.mil>
-	 <1190811814.1812.19.camel@gorn.columbia.tresys.com>
+To: Paul Moore <paul.moore@hp.com>
+Cc: Joshua Brindle <method@manicmethod.com>, James Morris <jmorris@namei.org>,
+        selinux@tycho.nsa.gov
+In-Reply-To: <200709252312.46945.paul.moore@hp.com>
+References: <20070925203856.13699.90782.stgit@flek.americas.hpqcorp.net>
+	 <200709251838.58272.paul.moore@hp.com> <46F9C1C6.7090709@manicmethod.com>
+	 <200709252312.46945.paul.moore@hp.com>
 Content-Type: text/plain
-Date: Wed, 26 Sep 2007 09:25:48 -0400
-Message-Id: <1190813148.15779.53.camel@moss-spartans.epoch.ncsc.mil>
+Date: Wed, 26 Sep 2007 09:29:52 -0400
+Message-Id: <1190813392.15779.58.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2007-09-26 at 13:03 +0000, Christopher J. PeBenito wrote:
-> On Tue, 2007-09-25 at 15:55 -0400, Stephen Smalley wrote:
-> > An updated release of the SELinux core userland code is available from
-> > the NSA web site, see:
-> > http://www.nsa.gov/selinux/news.cfm#R070925
-> > 
-> > Updated versions of the stable and development (trunk) series can be
-> > downloaded from:
-> > http://www.nsa.gov/selinux/code/
-> > 
-> > For those who use the sourceforge svn tree, the stable branch and trunk
-> > have been tagged as 20070925 under tags/stable and tags/devel
-> > respectively for this release.
-> > 
-> > It would be useful to know if anyone is using the stable branch; it was
-> > created for use by users and distributions that want maximal stability
-> > (bug fixes and trivial code cleanups only), e.g. to provide updates to
-> > an existing distribution release like Debian etch or Fedora Core 6 or
-> > RHEL 5 without risking the potentially more disruptive changes from the
-> > trunk/devel series.  However, I  haven't gotten the impression that it
-> > is being actively used.
+On Tue, 2007-09-25 at 23:12 -0400, Paul Moore wrote:
+> On Tuesday 25 September 2007 10:19:50 pm Joshua Brindle wrote:
+> > It seems like we've gotten versioning of the policy wrong if this sort
+> > of thing is necessary (two separate, slightly related version numbers).
 > 
-> Gentoo uses the stable branch, and currently doesn't have plans to use
-> 2.0.
+> I don't think it's necessary to have these two version numbers, as Eric 
+> pointed out earlier the existing policy version would work.  While I don't 
+> have my "History of SELinux" book in front of me right now to know the 
+> original intent of the policy version number, it appears to have been used to 
+> signify policy capabilities on more than one occasion.
 
-Ok, maybe you can help give feedback then on what if any features you'd
-like to see back ported from the trunk to the stable branch.  Examples
-of things that are only presently in the 2.x series include:
-- sepolgen and rewrite of audit2allow to use it,
-- merge of setfiles and restorecon into a single program,
-- merge of genhomedircon script into libsemanage,
-- dlopen of libsepol by libselinux to avoid build-time dependency,
-- disable dontaudit support in semodule and the libraries,
-- improved error reporting in semodule and libsemanage for e.g. disk
-full, read-only filesystem, etc.
-- object class and permission discovery and mapping support,
-- selabel interfaces and rewrite of setfiles to use them,
-- per-command pam configs for newrole,
-- refactored swig bindings for libselinux
+The policy version tells the kernel how to interpret the policy image.
+It is primarily about the policy image format, not the policy content,
+although it has been abused for the latter in some cases because we had
+no other mechanism.
+
+Using the policy version as an indication of the policy content today is
+problematic because the policy toolchain always generates the latest
+version/format it supports independent of what the policy may have
+contained, and at policy load time, the policy image is automatically
+downgraded (by libselinux with help from libsepol) if necessary to the
+latest version/format supported by the kernel.  So the kernel may not
+even see the original version number that was built.
+
+> 
+> > A while back someone (I can't remember if it was me or not) suggested a
+> > bitmap of policy capabilities that would be determined at compile time
+> > (eg., does this policy have conditional expressions? turn that bit on.
+> > Does this policy use class foo? turn that bit on, etc). Why is your
+> > version scheme better than something like that?
+> 
+> Well, like I said earlier, forget the versioning scheme I proposed.  However, 
+> for the sake or argument one advantage that I can see to a version number or 
+> a capability bitmap (it would most likely need to be an ebitmap to allow for 
+> future growth) is that it is much easier/quicker to check in the security 
+> server.  Comparing two integers is much faster then checking for a single bit 
+> in an ebitmap.
+> 
+> That said, I agree that your idea of a policy capability bitmap is interesting 
+> and would allow a lot of flexibility.  I'm just not sure the implementation 
+> would be practical, but then again, you have much more experience in the 
+> policy compiler/toolchain than I do.
+
+I think we'd need a separate content/feature version or bitmap from the
+format version.
+
+The bitmap seems better if we want to support independent selection of
+subsets.  The version seems better if we want to incrementally build
+upon each new feature and always require the prior ones to exist or to
+be obsoleted by the new one.
+
+> > > Eric suggested using the policy version to achieve the same thing; if no
+> > > one objects to using the policy version number for this purpose I'm more
+> > > than happy to use it.
+> >
+> > The more we use the policy version number for things like this the worse
+> > the reader (and compiler) get. I agree with the idea of having something
+> > separate, I just don't think another version number is the answer.
+> 
+> Ideally we would be able to speed up both the security server and the 
+> compiler/parser, but if I had to pick only one I would choose to speed up the 
+> security server.
+> 
+> >From what I can see the policy version number has been abused several times to 
+> signify new capabilities within the policy.  Using the policy version to 
+> signal a shift in the network access controls seems like an acceptable thing 
+> to me based on this history.  However, I understand your concerns that this 
+> is an _abuse_ of the policy version concept and continuing down this road is 
+> only going to cause more and more problems in the policy compiler/parser.  
+> The capability bitmap is initially attractive but I fear it will introduce 
+> too much additional overhead in the security server.
+> 
+> I'm not quite sure where this leaves us, but I would like to work towards 
+> resolving this somehow ...
 
 -- 
 Stephen Smalley
