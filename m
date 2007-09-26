@@ -1,30 +1,110 @@
-From: Paul Moore <paul.moore@hp.com>
-To: Joshua Brindle <method@manicmethod.com>
-Subject: Re: [RFC PATCH 0/2] Series short description
-Date: Wed, 26 Sep 2007 16:46:29 -0400
-Cc: Stephen Smalley <sds@tycho.nsa.gov>, James Morris <jmorris@namei.org>,
-        selinux@tycho.nsa.gov
-References: <20070925203856.13699.90782.stgit@flek.americas.hpqcorp.net> <200709261304.20745.paul.moore@hp.com> <46FAC381.5010208@manicmethod.com>
-In-Reply-To: <46FAC381.5010208@manicmethod.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Message-Id: <200709261646.29704.paul.moore@hp.com>
+From: David Howells <dhowells@redhat.com>
+In-Reply-To: <20070926180858.GP8181@ftp.linux.org.uk>
+References: <20070926180858.GP8181@ftp.linux.org.uk> <20070926142059.2656.27100.stgit@warthog.procyon.org.uk> <20070926142104.2656.26389.stgit@warthog.procyon.org.uk>
+To: Al Viro <viro@ftp.linux.org.uk>
+Cc: dhowells@redhat.com, hch@infradead.org, Trond.Myklebust@netapp.com,
+        sds@tycho.nsa.gov, casey@schaufler-ca.com,
+        linux-kernel@vger.kernel.org, selinux@tycho.nsa.gov,
+        linux-security-module@vger.kernel.org
+Subject: Re: [PATCH 01/24] CRED: Introduce a COW credentials record
+Date: Wed, 26 Sep 2007 22:08:05 +0100
+Message-ID: <29949.1190840885@redhat.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wednesday 26 September 2007 4:39:29 pm Joshua Brindle wrote:
-> So.. how are we going to determine if the policy is capable of doing
-> peersid reconciliation? Is this going to be a user flag or is there an
-> object class it can depend on?
+Al Viro <viro@ftp.linux.org.uk> wrote:
 
-In this case we can probably key off the existence of the yet to be 
-defined "peer" class.  Although we might want/need a more general way of 
-setting the capability bitmap in the future.
+> Umm...  Perhaps a better primitive would be "make sure that our cred is
+> not shared with anybody, creating a copy and redirecting reference to
+> it if needed".
 
--- 
-paul moore
-linux security @ hp
+I wanted to make the point that once a cred record was made live - i.e. exposed
+to the rest of the system - it should not be changed.  I'll think about
+rewording that.  Also "making sure that our cred is not shared" does not work
+for cachefiles where we actually want to create a new set of creds.
+
+Al Viro <viro@ftp.linux.org.uk> wrote:
+
+> > In addition, the default setting of i_uid and i_gid to fsuid and fsgid has
+> > been moved from the callers of new_inode() into new_inode() itself.
+> 
+> I don't think it's safe; better do something trivial like
+> 	own_inode(inode)
+> that would set these (and that's a goot splitup candidate, to go in front
+> of the series).
+
+I think you're probably right.  I commented on this at the bottom of the cover
+note.  One thing I could do is provide a variant on own_inode() that takes a
+parent dir inode pointer and does the sticky GID thing - something that several
+filesystems do.
+
+> FWIW, the main weakness here is the need of update_current_cred() splattered
+> all over the entry points.
+
+Yeah.  I'm not keen on that, but I'm even less keen on sticking something in
+everywhere that the cred struct is consulted.  I don't like the idea of making
+it implicit in the dereference of current->cred either, and neither is Linus.
+
+> Two problems:
+> 	a) it's a bug source (somebody adds a syscall and forgets to
+> add that call / somebody modifies syscall guts and doesn't notice that
+> it needs to be added).
+
+It's simpler to check for its existence at the beginning of a syscall.
+
+> 	b) it's almost always doing noting, so being lazier would be
+> better (event numbers checked in the inlined part, perhaps?)
+
+Linus is against having an inlined part:-/
+
+> The former would be more robust if it had been closer to the places where
+> we get to passing current->cred to functions.
+
+You can't do it there because there may be an override in effect.  Or, rather,
+if you do do it there, you have to not do it if there's an override set.
+
+> The latter...  When do we actually step into this kind of situation (somebody
+> changing keys on us)
+
+There are four cases:
+
+ (1) The request_key() upcall forces us to create a thread keyring.
+
+ (2) The request_key() upcall forces us to create a process keyring.
+
+ (3) A sibling thread instantiates our common process keyring.
+
+ (4) A sibling thread replaces our common session keyring.
+
+The first three could be trivially avoidable by creating the thread and process
+keyrings in advance, (1) and (2) at request_key() time, (3) at clone time.  It
+eats extra resources, but it's easy.
+
+The fourth is more tricky.  A sibling thread can replace our common session
+keyring on us at any time.  I suppose we could decree that you can't replace
+your session keyring if you've got multiple threads.  That ought to be simple
+enough, and I suspect won't impact particularly.
+
+The alternatives are (b) not to include the keyrings in the cred stuff, though
+they are relevant; and (c) to make it possible for sibling threads to change
+each other's creds.  I'm really not keen on (c) as that means you can't just
+dereference your own creds directly without taking locks and stuff.
+
+> and what's the right semantics here?  E.g. if it happens
+> in the middle of long read(), do we want to keep using the original keys?
+
+If you're in the middle of a long read(), you should be using the cred struct
+attached to file->f_cred, not current->cred, and so that problem should not
+arise.
+
+As for long ops that aren't I/O operations on file descriptors, I think it's
+reasonable for you to do the entire op with the creds you started off doing it
+with.
+
+Don't forget that there's also the cap_effective stuff, which appears that it
+can be changed by someone other than the target process.
+
+David
 
 --
 This message was distributed to subscribers of the selinux mailing list.
