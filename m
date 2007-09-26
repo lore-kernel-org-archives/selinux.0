@@ -1,83 +1,43 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l8QAepc6020466
-	for <selinux@tycho.nsa.gov>; Wed, 26 Sep 2007 06:40:51 -0400
-Received: from rv-out-0910.google.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l8QAeoRe004318
-	for <selinux@tycho.nsa.gov>; Wed, 26 Sep 2007 10:40:50 GMT
-Received: by rv-out-0910.google.com with SMTP id k15so1902678rvb
-        for <selinux@tycho.nsa.gov>; Wed, 26 Sep 2007 03:40:49 -0700 (PDT)
-Message-ID: <46FA361C.8080008@gmail.com>
-Date: Wed, 26 Sep 2007 18:36:12 +0800
-From: Ken YANG <spng.yang@gmail.com>
-MIME-Version: 1.0
-To: SELinux List <selinux@tycho.nsa.gov>
-Subject: puzzles about hidden_def and hidden_proto
-Content-Type: text/plain; charset=GB18030
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l8QCc4Nk029487
+	for <selinux@tycho.nsa.gov>; Wed, 26 Sep 2007 08:38:04 -0400
+Received: from exchange.columbia.tresys.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with SMTP id l8QCc28B024495
+	for <selinux@tycho.nsa.gov>; Wed, 26 Sep 2007 12:38:02 GMT
+Subject: Re: turning on optional_policy
+From: "Christopher J. PeBenito" <cpebenito@tresys.com>
+To: "Clarkson, Mike R (US SSA)" <mike.clarkson@baesystems.com>
+Cc: selinux@tycho.nsa.gov
+In-Reply-To: <FB39F4E77226B448BC1388D3BE4E00CD49A291@blums0008.bluelnk.net>
+References: <FB39F4E77226B448BC1388D3BE4E00CD49A291@blums0008.bluelnk.net>
+Content-Type: text/plain
+Date: Wed, 26 Sep 2007 12:36:10 +0000
+Message-Id: <1190810170.1812.9.camel@gorn.columbia.tresys.com>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+On Tue, 2007-09-25 at 22:00 -0700, Clarkson, Mike R (US SSA) wrote:
+> This statement is located in domain.te, allowing all domains to
+> translate contexts using the mcstrans service. 
+> 
+> optional_policy(`
+> 	setrans_translate_context(domain)
+> ')
+> 
+> How do I turn on optional_policy to make this statement take effect?
 
-hi all,
+You would need to load the setrans module.
 
-i have three puzzles about the macro "hidden_def"
-and "hidden_proto" in "libsepol/src/dso.h".
+> Also, when I turn this on, what other side effects will I be getting?
 
-i copy the definitions of these two macros into
-a separate header file to test these two macros,
-and assembly them:
+It allows all domains to translate MLS/MCS levels, and thats it.
+Interfaces shouldn't have side effects.
 
-$ cat hidden_def.h
-
-int extern_i=12345;
-#define hidden __attribute__ ((visibility("hidden")))
-#define hidden_proto(fct) __hidden_proto (fct, fct##_internal)
-#define __hidden_proto(fct, internal)   \
-        extern __typeof(fct) internal;  \
-        extern __typeof(fct) fct __asm (#internal) hidden;
-#define hidden_def(fct) \
-        asm (".globl " #fct "\n.set " #fct ", " #fct "_internal");
-
-$ cat hidden_def.c
-
-#include "hidden_def.h"
-int main()
-{
-        hidden_proto(extern_i);
-}
-
-$ gcc -S hidden_def.c -o hidden_proto.s
-hidden_def.c: In function ¡®main¡¯:
-hidden_def.c:17: warning: asm declaration ignored due to conflict with
-previous rename
-
-as a result, there aren't #APP(#NO_APP) section in ".s" file
-
-Questions:
-
-(1)
-i don't know why i got these assembly warning?
-
-(2)
-i find in the gas manual:
-
-.set SYMBOL, EXPRESSION
-
-if SYMBOL are flagged as external, it remains flagged
-
-how can "fct" be hidden, because it has been declared as globl.
-
-(3)
-what is the difference between hidden_def and gcc hidden
-visibility attribute? why libsepol use both of them?
-
-
-i know these problems are not selinux-specific, but i have
-googled for a long time, i don't know where i can get guides
-about these kinds of problems. can anyone give me some hints?
-
-
-
-
+-- 
+Chris PeBenito
+Tresys Technology, LLC
+(410) 290-1411 x150
 
 
 --
