@@ -1,63 +1,99 @@
-Subject: Re: ANN:  Updated SELinux core userland release
-From: "Christopher J. PeBenito" <cpebenito@tresys.com>
-To: Stephen Smalley <sds@tycho.nsa.gov>
-Cc: selinux@tycho.nsa.gov, Manoj Srivastava <manoj.srivastava@stdc.com>,
-        Daniel J Walsh <dwalsh@redhat.com>
-In-Reply-To: <1190813148.15779.53.camel@moss-spartans.epoch.ncsc.mil>
-References: <1174593896.31436.158.camel@moss-spartans.epoch.ncsc.mil>
-	 <1190750158.24726.166.camel@moss-spartans.epoch.ncsc.mil>
-	 <1190811814.1812.19.camel@gorn.columbia.tresys.com>
-	 <1190813148.15779.53.camel@moss-spartans.epoch.ncsc.mil>
-Content-Type: text/plain
-Date: Wed, 26 Sep 2007 14:06:47 +0000
-Message-Id: <1190815607.1812.27.camel@gorn.columbia.tresys.com>
+Subject: Re: puzzles about hidden_def and hidden_proto
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Ken YANG <spng.yang@gmail.com>
+Cc: SELinux List <selinux@tycho.nsa.gov>
+In-Reply-To: <46FA361C.8080008@gmail.com>
+References: <46FA361C.8080008@gmail.com>
+Content-Type: text/plain; charset=utf-8
+Date: Wed, 26 Sep 2007 10:06:09 -0400
+Message-Id: <1190815569.15779.71.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2007-09-26 at 09:25 -0400, Stephen Smalley wrote:
-> On Wed, 2007-09-26 at 13:03 +0000, Christopher J. PeBenito wrote:
-> > On Tue, 2007-09-25 at 15:55 -0400, Stephen Smalley wrote:
-> > > An updated release of the SELinux core userland code is available from
-> > > the NSA web site, see:
-> > > http://www.nsa.gov/selinux/news.cfm#R070925
-> > > 
-> > > Updated versions of the stable and development (trunk) series can be
-> > > downloaded from:
-> > > http://www.nsa.gov/selinux/code/
-> > > 
-> > > For those who use the sourceforge svn tree, the stable branch and trunk
-> > > have been tagged as 20070925 under tags/stable and tags/devel
-> > > respectively for this release.
-> > > 
-> > > It would be useful to know if anyone is using the stable branch; it was
-> > > created for use by users and distributions that want maximal stability
-> > > (bug fixes and trivial code cleanups only), e.g. to provide updates to
-> > > an existing distribution release like Debian etch or Fedora Core 6 or
-> > > RHEL 5 without risking the potentially more disruptive changes from the
-> > > trunk/devel series.  However, I  haven't gotten the impression that it
-> > > is being actively used.
-> > 
-> > Gentoo uses the stable branch, and currently doesn't have plans to use
-> > 2.0.
+On Wed, 2007-09-26 at 18:36 +0800, Ken YANG wrote:
+> hi all,
 > 
-> Ok, maybe you can help give feedback then on what if any features you'd
-> like to see back ported from the trunk to the stable branch.  Examples
-> of things that are only presently in the 2.x series include:
+> i have three puzzles about the macro "hidden_def"
+> and "hidden_proto" in "libsepol/src/dso.h".
 
-> - disable dontaudit support in semodule and the libraries,
+They came from Ulrich Drepper.
+See:
+http://people.redhat.com/drepper/dsohowto.pdf
 
-If nothing else, this would be choice.  And/or the unknown perms
-handling.
+They are to create and use private definitions of the symbols for calls
+to them within the shared library to avoid relocations on them, as that
+has a cost and is usually unnecessary (you typically don't need to
+permit interposition on such calls).  You declare them with
+hidden_proto() in a header file (see src/*_internal.h), include those
+headers in the .c files that use those symbols, and put a hidden_def()
+in the .c file after the definition.
 
-> - refactored swig bindings for libselinux
-
-If this fixes bugs in the current bindings, that'd be good choice too.
-
+> i copy the definitions of these two macros into
+> a separate header file to test these two macros,
+> and assembly them:
+> 
+> $ cat hidden_def.h
+> 
+> int extern_i=12345;
+> #define hidden __attribute__ ((visibility("hidden")))
+> #define hidden_proto(fct) __hidden_proto (fct, fct##_internal)
+> #define __hidden_proto(fct, internal)   \
+>         extern __typeof(fct) internal;  \
+>         extern __typeof(fct) fct __asm (#internal) hidden;
+> #define hidden_def(fct) \
+>         asm (".globl " #fct "\n.set " #fct ", " #fct "_internal");
+> 
+> $ cat hidden_def.c
+> 
+> #include "hidden_def.h"
+> int main()
+> {
+>         hidden_proto(extern_i);
+> }
+> 
+> $ gcc -S hidden_def.c -o hidden_proto.s
+> hidden_def.c: In function ‘main’:
+> hidden_def.c:17: warning: asm declaration ignored due to conflict with
+> previous rename
+> 
+> as a result, there aren't #APP(#NO_APP) section in ".s" file
+> 
+> Questions:
+> 
+> (1)
+> i don't know why i got these assembly warning?
+> 
+> (2)
+> i find in the gas manual:
+> 
+> .set SYMBOL, EXPRESSION
+> 
+> if SYMBOL are flagged as external, it remains flagged
+> 
+> how can "fct" be hidden, because it has been declared as globl.
+> 
+> (3)
+> what is the difference between hidden_def and gcc hidden
+> visibility attribute? why libsepol use both of them?
+> 
+> 
+> i know these problems are not selinux-specific, but i have
+> googled for a long time, i don't know where i can get guides
+> about these kinds of problems. can anyone give me some hints?
+> 
+> 
+> 
+> 
+> 
+> 
+> --
+> This message was distributed to subscribers of the selinux mailing list.
+> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
+> the words "unsubscribe selinux" without quotes as the message.
 -- 
-Chris PeBenito
-Tresys Technology, LLC
-(410) 290-1411 x150
+Stephen Smalley
+National Security Agency
 
 
 --
