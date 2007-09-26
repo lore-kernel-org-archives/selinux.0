@@ -1,14 +1,15 @@
 Subject: Re: I am concerned about putting genhomedircon changes in
 	libsemanage into Fedora 8.
-From: Stephen Smalley <sds@tycho.nsa.gov>
+From: Karl MacMillan <kmacmillan@mentalrootkit.com>
 To: Joshua Brindle <method@manicmethod.com>
-Cc: Daniel J Walsh <dwalsh@redhat.com>, SE Linux <selinux@tycho.nsa.gov>
+Cc: Daniel J Walsh <dwalsh@redhat.com>, Stephen Smalley <sds@tycho.nsa.gov>,
+        SE Linux <selinux@tycho.nsa.gov>
 In-Reply-To: <46FA7107.2000003@manicmethod.com>
 References: <46CED283.8060804@redhat.com> <46FA661F.1080703@redhat.com>
 	 <46FA7107.2000003@manicmethod.com>
 Content-Type: text/plain
-Date: Wed, 26 Sep 2007 10:52:31 -0400
-Message-Id: <1190818351.15779.99.camel@moss-spartans.epoch.ncsc.mil>
+Date: Wed, 26 Sep 2007 11:03:06 -0400
+Message-Id: <1190818986.2895.15.camel@localhost.localdomain>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
@@ -42,28 +43,17 @@ On Wed, 2007-09-26 at 10:47 -0400, Joshua Brindle wrote:
 > module being added would be 'invalid'). The only real way to validate 
 > the contexts now would be to load the newly generated policy into the 
 > libsepol security server and to the context validations on it.
-
-i.e. sepol_set_policydb_from_file() on the policy, and then
-sepol_check_context() on the contexts, as is done by setfiles -c.
-
+> 
 > This would work, it would just take extra time at module load time. It 
 > seems like the real problem is that the invalid contexts are being 
 > generated in the first place, relying on genhomedircon to sanity check 
 > your file contexts seems like you are punting the problem.
+> 
 
-I think the problem is that the templating mechanism isn't sufficiently
-flexible; the per-role contexts aren't necessarily valid for all cases.
+Perhaps - but it is a significant change in behavior and reworking all
+of the policies is going to be difficult or impossible.
 
-In any event, this is a regression between the old genhomedircon and the
-libsemanage reimplementation and should have been called out as a change
-in behavior in the patch set, even if the old behavior was flawed.
-
-So I guess Dan needs to stay with the old genhomedircon and libsemanage
-for Fedora 8.
-
--- 
-Stephen Smalley
-National Security Agency
+Karl
 
 
 --
