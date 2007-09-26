@@ -1,11 +1,11 @@
 From: David Howells <dhowells@redhat.com>
-Subject: [PATCH 07/24] FS-Cache: Release page->private after failed readahead
+Subject: [PATCH 09/24] FS-Cache: Provide an add_wait_queue_tail() function
 To: viro@ftp.linux.org.uk, hch@infradead.org, Trond.Myklebust@netapp.com,
         sds@tycho.nsa.gov, casey@schaufler-ca.com
 Cc: linux-kernel@vger.kernel.org, selinux@tycho.nsa.gov,
         linux-security-module@vger.kernel.org, dhowells@redhat.com
-Date: Wed, 26 Sep 2007 15:21:35 +0100
-Message-ID: <20070926142135.2656.40699.stgit@warthog.procyon.org.uk>
+Date: Wed, 26 Sep 2007 15:21:45 +0100
+Message-ID: <20070926142145.2656.44041.stgit@warthog.procyon.org.uk>
 In-Reply-To: <20070926142059.2656.27100.stgit@warthog.procyon.org.uk>
 References: <20070926142059.2656.27100.stgit@warthog.procyon.org.uk>
 MIME-Version: 1.0
@@ -13,89 +13,57 @@ Content-Type: text/plain; charset="utf-8"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-The attached patch causes read_cache_pages() to release page-private data on a
-page for which add_to_page_cache() fails or the filler function fails. This
-permits pages with caching references associated with them to be cleaned up.
+Provide an add_wait_queue_tail() function to add a waiter to the back of a
+wait queue instead of the front.
 
-The invalidatepage() address space op is called (indirectly) to do the honours.
-
-Signed-Off-By: David Howells <dhowells@redhat.com>
+Signed-off-by: David Howells <dhowells@redhat.com>
 ---
 
- mm/readahead.c |   40 ++++++++++++++++++++++++++++++++++++++--
- 1 files changed, 38 insertions(+), 2 deletions(-)
+ include/linux/wait.h |    1 +
+ kernel/wait.c        |   18 ++++++++++++++++++
+ 2 files changed, 19 insertions(+), 0 deletions(-)
 
-diff --git a/mm/readahead.c b/mm/readahead.c
-index 39bf45d..12d1378 100644
---- a/mm/readahead.c
-+++ b/mm/readahead.c
-@@ -15,6 +15,7 @@
- #include <linux/backing-dev.h>
- #include <linux/task_io_accounting_ops.h>
- #include <linux/pagevec.h>
-+#include <linux/buffer_head.h>
+diff --git a/include/linux/wait.h b/include/linux/wait.h
+index 0e68628..4cae7db 100644
+--- a/include/linux/wait.h
++++ b/include/linux/wait.h
+@@ -118,6 +118,7 @@ static inline int waitqueue_active(wait_queue_head_t *q)
+ #define is_sync_wait(wait)	(!(wait) || ((wait)->private))
  
- void default_unplug_io_fn(struct backing_dev_info *bdi, struct page *page)
+ extern void FASTCALL(add_wait_queue(wait_queue_head_t *q, wait_queue_t * wait));
++extern void FASTCALL(add_wait_queue_tail(wait_queue_head_t *q, wait_queue_t * wait));
+ extern void FASTCALL(add_wait_queue_exclusive(wait_queue_head_t *q, wait_queue_t * wait));
+ extern void FASTCALL(remove_wait_queue(wait_queue_head_t *q, wait_queue_t * wait));
+ 
+diff --git a/kernel/wait.c b/kernel/wait.c
+index 444ddbf..7acc9cc 100644
+--- a/kernel/wait.c
++++ b/kernel/wait.c
+@@ -29,6 +29,24 @@ void fastcall add_wait_queue(wait_queue_head_t *q, wait_queue_t *wait)
+ }
+ EXPORT_SYMBOL(add_wait_queue);
+ 
++/**
++ * add_wait_queue_tail - Add a waiter to the back of a waitqueue
++ * @q: the wait queue to append the waiter to
++ * @wait: the waiter to be queued
++ *
++ * Add a waiter to the back of a waitqueue so that it gets woken up last.
++ */
++void fastcall add_wait_queue_tail(wait_queue_head_t *q, wait_queue_t *wait)
++{
++	unsigned long flags;
++
++	wait->flags &= ~WQ_FLAG_EXCLUSIVE;
++	spin_lock_irqsave(&q->lock, flags);
++	__add_wait_queue_tail(q, wait);
++	spin_unlock_irqrestore(&q->lock, flags);
++}
++EXPORT_SYMBOL(add_wait_queue_tail);
++
+ void fastcall add_wait_queue_exclusive(wait_queue_head_t *q, wait_queue_t *wait)
  {
-@@ -51,6 +52,41 @@ EXPORT_SYMBOL_GPL(file_ra_state_init);
- 
- #define list_to_page(head) (list_entry((head)->prev, struct page, lru))
- 
-+/*
-+ * see if a page needs releasing upon read_cache_pages() failure
-+ * - the caller of read_cache_pages() may have set PG_private before calling,
-+ *   such as the NFS fs marking pages that are cached locally on disk, thus we
-+ *   need to give the fs a chance to clean up in the event of an error
-+ */
-+static void read_cache_pages_invalidate_page(struct address_space *mapping,
-+					     struct page *page)
-+{
-+	if (PagePrivate(page)) {
-+		if (TestSetPageLocked(page))
-+			BUG();
-+		page->mapping = mapping;
-+		do_invalidatepage(page, 0);
-+		page->mapping = NULL;
-+		unlock_page(page);
-+	}
-+	page_cache_release(page);
-+}
-+
-+/*
-+ * release a list of pages, invalidating them first if need be
-+ */
-+static void read_cache_pages_invalidate_pages(struct address_space *mapping,
-+					      struct list_head *pages)
-+{
-+	struct page *victim;
-+
-+	while (!list_empty(pages)) {
-+		victim = list_to_page(pages);
-+		list_del(&victim->lru);
-+		read_cache_pages_invalidate_page(mapping, victim);
-+	}
-+}
-+
- /**
-  * read_cache_pages - populate an address space with some pages & start reads against them
-  * @mapping: the address_space
-@@ -74,14 +110,14 @@ int read_cache_pages(struct address_space *mapping, struct list_head *pages,
- 		page = list_to_page(pages);
- 		list_del(&page->lru);
- 		if (add_to_page_cache(page, mapping, page->index, GFP_KERNEL)) {
--			page_cache_release(page);
-+			read_cache_pages_invalidate_page(mapping, page);
- 			continue;
- 		}
- 		ret = filler(data, page);
- 		if (!pagevec_add(&lru_pvec, page))
- 			__pagevec_lru_add(&lru_pvec);
- 		if (ret) {
--			put_pages_list(pages);
-+			read_cache_pages_invalidate_pages(mapping, pages);
- 			break;
- 		}
- 		task_io_account_read(PAGE_CACHE_SIZE);
+ 	unsigned long flags;
 
 
 --
