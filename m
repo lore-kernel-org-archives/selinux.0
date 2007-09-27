@@ -1,240 +1,308 @@
-Subject: RE: I am concerned about putting genhomedircon
-	changesinlibsemanage into Fedora 8.
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: "Todd C. Miller" <tmiller@tresys.com>
-Cc: dwalsh@redhat.com, selinux@tycho.nsa.gov
-In-Reply-To: <200709271446.l8REkqfW010331@tex.courtesan.com>
-References: <200709271446.l8REkqfW010331@tex.courtesan.com>
-Content-Type: text/plain
-Date: Thu, 27 Sep 2007 16:07:31 -0400
-Message-Id: <1190923651.13719.38.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+Message-Id: <20070927200752.265801216@tresys.com>
+References: <20070927200712.950671948@tresys.com>
+Date: Thu, 27 Sep 2007 16:07:13 -0400
+From: "Todd C. Miller" <tmiller@tresys.com>
+To: sds@tycho.nsa.gov, dwalsh@redhat.com
+Cc: selinux@tycho.nsa.gov, jbrindle@tresys.com, tmiller@tresys.com
+Subject: [patch 1/4] libsemanage: validate homedir contexts
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2007-09-27 at 10:46 -0400, Todd C. Miller wrote:
-> Daniel J Walsh wrote:
-> 
-> > Already have it.
-> > 
-> > This is a repatch off of libsemanage-2.0.9
-> > 
-> > It should include your stuff plus it gets the fallback_user by looking
-> > up the __default__ login record.
-> > 
-> > That way if I change the __default__ record to use xguest_u, it will
-> > build all user accounts with this context.
-> > 
-> > getpwnam_r returns 0 even if an account does not exist.
-> > 
-> > So you need to check the pointer.
-> > 
-> > A couple of other translation problems also.
-> 
-> Unfortunately, the return values for getpwnam_r() and getpwent_r()
-> are inconsistent.  While getpwnam_r() returns 0 when the user does
-> not exist, getpwent_r() returns ENOENT.  I decided to deal with
-> both semantics in the same way so if they are every brought into
-> line the code will still do the right thing.
-> 
-> I made similar fixes to yours for the seuser vs. user mismatches.
-> A merge of your diff and mine follows.  I added some error condition
-> fixes and made the style more consistent.
-> 
->  - todd
-> 
-> Index: libsemanage/include/semanage/handle.h
-> ===================================================================
-> --- libsemanage/include/semanage/handle.h	(revision 2587)
-> +++ libsemanage/include/semanage/handle.h	(working copy)
-> @@ -69,6 +69,10 @@
->   * 1 for yes, 0 for no (default) */
->  void semanage_set_create_store(semanage_handle_t * handle, int create_store);
->  
-> +/* set whether to generate homedir file context
-> + * 1 for yes (default), 0 for no */
-> +void semanage_set_rebuild_file_context(semanage_handle_t * handle, int do_rebuild_file_context);
+Validate contexts against the new policy before writing them to
+file_contexts.homedirs.
 
-Did you mean to include this change too?  When this separate patch was
-first posted, my suggestion was that the library should internally
-decide whether it was necessary to do this, not the caller.  Also it
-doesn't seem to be doing what it says it does anymore - it only appears
-to affect validation of file contexts via setfiles (which should happen
-on module installs too), not whether genhomedircon runs.
+---
+ libsemanage/src/direct_api.c     |    2 
+ libsemanage/src/genhomedircon.c  |  100 +++++++++++++++++++++++++++++++--------
+ libsemanage/src/genhomedircon.h  |    3 -
+ libsemanage/src/semanage_store.c |    5 +
+ libsemanage/src/semanage_store.h |    5 -
+ 5 files changed, 88 insertions(+), 27 deletions(-)
 
-> +
->  /* Set whether or not to disable dontaudits upon commit */
->  void semanage_set_disable_dontaudit(semanage_handle_t * handle, int disable_dontaudit);
->  
-> Index: libsemanage/src/handle.h
-> ===================================================================
-> --- libsemanage/src/handle.h	(revision 2587)
-> +++ libsemanage/src/handle.h	(working copy)
-> @@ -58,6 +58,7 @@
->  	int is_connected;
->  	int is_in_transaction;
->  	int do_reload;		/* whether to reload policy after commit */
-> +	int do_rebuild_file_context;	/* whether to generate homedircontext */
-
-Ditto.
-
->  	int do_rebuild;		/* whether to rebuild policy if there were no changes */
->  	int modules_modified;
->  	int create_store;	/* whether to create the store if it does not exist
-> Index: libsemanage/src/libsemanage.map
-> ===================================================================
-> --- libsemanage/src/libsemanage.map	(revision 2587)
-> +++ libsemanage/src/libsemanage.map	(working copy)
-> @@ -9,6 +9,7 @@
->  	  semanage_module_list_nth; semanage_module_get_name;
->  	  semanage_module_get_version; semanage_select_store;
->  	  semanage_reload_policy; semanage_set_reload; semanage_set_rebuild;
-> +	  semanage_set_rebuild_file_context;
-
-Ditto.
-
->  	  semanage_user_*; semanage_bool_*; semanage_seuser_*;
->  	  semanage_iface_*; semanage_port_*; semanage_context_*;
->  	  semanage_node_*;
-> Index: libsemanage/src/genhomedircon.c
-> ===================================================================
-> --- libsemanage/src/genhomedircon.c	(revision 2587)
-> +++ libsemanage/src/genhomedircon.c	(working copy)
-<snip>
-> +static int check_line(genhomedircon_settings_t * s, Ustr *line)
-> +{
-> +	sepol_context_t *ctx_record = NULL;
-> +	const char *ctx_str;
-> +	int result;
-> +
-> +	ctx_str = extract_context(line);
-> +	if (!ctx_str)
-> +		return STATUS_ERR;
-> +
-> +	result = sepol_context_from_string(s->h_semanage->sepolh,
-> +					   ctx_str, &ctx_record);
-> +	if (result == STATUS_SUCCESS && ctx_record != NULL) {
-> +		sepol_msg_set_callback(s->h_semanage->sepolh, NULL, NULL);
-> +		result = sepol_context_check(s->h_semanage->sepolh,
-> +					     s->policydb, ctx_record);
-> +		sepol_msg_set_callback(s->h_semanage->sepolh,
-> +				       semanage_msg_relay_handler, NULL);
-
-As noted elsewhere, the last NULL needs to be s->h_semanage or
-subsequent calls to the relay handler will seg fault.
-
-<snip>
-> @@ -496,6 +554,36 @@
->  	free(temp);
->  }
->  
-> +static char *global_fallback_user;
-> +static char *global_fallback_user_prefix;
-
-Not suitable if you want threaded callers - needs to be moved into the
-genhomedircon settings (best) or made a __thread variable.
-
-> +static char *get_fallback_user(void)
-> +{
-> +	return global_fallback_user;
-> +}
-> +
-> +static char *get_fallback_user_prefix(void)
-> +{
-> +	return global_fallback_user_prefix;
-> +}
-> +
-> +static int set_fallback_user(const char *user, const char *prefix)
-> +{
-> +	free(global_fallback_user);
-> +	free(global_fallback_user_prefix);
-> +	global_fallback_user = strdup(user);
-> +	global_fallback_user_prefix = strdup(prefix);
-> +	if (!global_fallback_user || !global_fallback_user_prefix)
-> +		return -1;
-> +	return 0;
-> +}
-> +
-> +static void free_fallback_user(void)
-> +{
-> +	free(global_fallback_user);
-> +	free(global_fallback_user_prefix);
-> +}
-> +
->  static genhomedircon_user_entry_t *get_users(genhomedircon_settings_t * s,
->  					     int *errors)
->  {
-
-> Index: libsemanage/src/semanage_store.c
-> ===================================================================
-> --- libsemanage/src/semanage_store.c	(revision 2587)
-> +++ libsemanage/src/semanage_store.c	(working copy)
-> @@ -1148,7 +1148,7 @@
->  
->        skip_reload:
->  
-> -	if ((r =
-> +	if (sh->do_rebuild_file_context && (r =
->  	     semanage_exec_prog(sh, sh->conf->setfiles, store_pol,
-
-This seems wrong - the interface says it controls whether homedir
-contexts are generated, but this controls whether setfiles is run to
-validate the contexts (which should happen on module installs too).
-
->  				store_fc)) != 0) {
->  		ERR(sh, "setfiles returned error code %d.", r);
-<snip>
-> Index: libsemanage/src/handle.c
-> ===================================================================
-> --- libsemanage/src/handle.c	(revision 2587)
-> +++ libsemanage/src/handle.c	(working copy)
-> @@ -68,6 +68,9 @@
->  	/* By default do not create store */
->  	sh->create_store = 0;
->  
-> +	/* Rebuild the file_contexts by default */
-> +	sh->do_rebuild_file_context = 1;
-> +
->  	/* Set timeout: some default value for now, later use config */
->  	sh->timeout = SEMANAGE_COMMIT_READ_WAIT;
->  
-> @@ -100,6 +103,15 @@
->  	return;
->  }
->  
-> +void semanage_set_rebuild_file_context(semanage_handle_t * sh, int do_rebuild_file_context)
-> +{
-> +
-> +	assert(sh != NULL);
-> +
-> +	sh->do_rebuild_file_context = do_rebuild_file_context;
-> +	return;
-> +}
-> +
->  void semanage_set_create_store(semanage_handle_t * sh, int create_store)
->  {
-
-More of the rebuild file context changes, unrelated to this patch.
-
-> Index: libsemanage/Makefile
-> ===================================================================
-> --- libsemanage/Makefile	(revision 2587)
-> +++ libsemanage/Makefile	(working copy)
-> @@ -1,6 +1,9 @@
->  all: 
->  	$(MAKE) -C src all
->  
-> +swigify: 
-> +	$(MAKE) -C src swigify
-> +
->  pywrap: 
->  	$(MAKE) -C src pywrap
-
-This one is fine but is logically separate.
+Index: trunk/libsemanage/src/genhomedircon.c
+===================================================================
+--- trunk.orig/libsemanage/src/genhomedircon.c
++++ trunk/libsemanage/src/genhomedircon.c
+@@ -1,5 +1,6 @@
+-/* Author: Mark Goldman   <mgoldman@tresys.com>
+- * 			Paul Rosenfeld	<prosenfeld@tresys.com>
++/* Author: Mark Goldman	  <mgoldman@tresys.com>
++ * 	   Paul Rosenfeld <prosenfeld@tresys.com>
++ * 	   Todd C. Miller <tmiller@tresys.com>
+  *
+  * Copyright (C) 2007 Tresys Technology, LLC
+  *
+@@ -23,6 +24,8 @@
+ #include <semanage/seusers_policy.h>
+ #include <semanage/users_policy.h>
+ #include <semanage/user_record.h>
++#include <sepol/context.h>
++#include <sepol/context_record.h>
+ #include "semanage_store.h"
+ #include "seuser_internal.h"
+ #include "debug.h"
+@@ -80,6 +83,7 @@ typedef struct {
+ 	int usepasswd;
+ 	const char *homedir_template_path;
+ 	semanage_handle_t *h_semanage;
++	sepol_policydb_t *policydb;
+ } genhomedircon_settings_t;
+ 
+ typedef struct user_entry {
+@@ -352,9 +356,49 @@ static Ustr *replace_all(const char *str
+ 	return retval;
+ }
+ 
+-static int write_home_dir_context(FILE * out, semanage_list_t * tpl,
+-				  const char *user, const char *seuser,
+-				  const char *home, const char *role_prefix)
++static const char * extract_context(Ustr *line)
++{
++	const char whitespace[] = " \t\n";
++	size_t off, len;
++
++	/* check for trailing whitespace */
++	off = ustr_spn_chrs_rev(line, 0, whitespace, strlen(whitespace));
++
++	/* find the length of the last field in line */
++	len = ustr_cspn_chrs_rev(line, off, whitespace, strlen(whitespace));
++
++	if (len == 0)
++		return NULL;
++	return ustr_cstr(line) + ustr_len(line) - (len + off);
++}
++
++static int check_line(genhomedircon_settings_t * s, Ustr *line)
++{
++	sepol_context_t *ctx_record = NULL;
++	const char *ctx_str;
++	int result;
++
++	ctx_str = extract_context(line);
++	if (!ctx_str)
++		return STATUS_ERR;
++
++	result = sepol_context_from_string(s->h_semanage->sepolh,
++					   ctx_str, &ctx_record);
++	if (result == STATUS_SUCCESS && ctx_record != NULL) {
++		sepol_msg_set_callback(s->h_semanage->sepolh, NULL, NULL);
++		result = sepol_context_check(s->h_semanage->sepolh,
++					     s->policydb, ctx_record);
++		sepol_msg_set_callback(s->h_semanage->sepolh,
++				       semanage_msg_relay_handler, s->h_semanage);
++		sepol_context_free(ctx_record);
++	}
++	return result;
++}
++
++static int write_home_dir_context(genhomedircon_settings_t * s, FILE * out,
++				  semanage_list_t * tpl, const char *user,
++				  const char *seuser, const char *home,
++				  const char *role_prefix)
+ {
+ 	replacement_pair_t repl[] = {
+ 		{.search_for = TEMPLATE_SEUSER,.replace_with = seuser},
+@@ -369,8 +413,12 @@ static int write_home_dir_context(FILE *
+ 
+ 	for (; tpl; tpl = tpl->next) {
+ 		line = replace_all(tpl->data, repl);
+-		if (!line || !ustr_io_putfileline(&line, out))
++		if (!line)
+ 			goto fail;
++		if (check_line(s, line) == STATUS_SUCCESS) {
++			if (!ustr_io_putfileline(&line, out))
++				goto fail;
++		}
+ 		ustr_sc_free(&line);
+ 	}
+ 	return STATUS_SUCCESS;
+@@ -380,8 +428,8 @@ static int write_home_dir_context(FILE *
+ 	return STATUS_ERR;
+ }
+ 
+-static int write_home_root_context(FILE * out, semanage_list_t * tpl,
+-				   char *homedir)
++static int write_home_root_context(genhomedircon_settings_t * s, FILE * out,
++				   semanage_list_t * tpl, char *homedir)
+ {
+ 	replacement_pair_t repl[] = {
+ 		{.search_for = TEMPLATE_HOME_ROOT,.replace_with = homedir},
+@@ -391,8 +439,12 @@ static int write_home_root_context(FILE 
+ 
+ 	for (; tpl; tpl = tpl->next) {
+ 		line = replace_all(tpl->data, repl);
+-		if (!line || !ustr_io_putfileline(&line, out))
++		if (!line)
+ 			goto fail;
++		if (check_line(s, line) == STATUS_SUCCESS) {
++			if (!ustr_io_putfileline(&line, out))
++				goto fail;
++		}
+ 		ustr_sc_free(&line);
+ 	}
+ 	return STATUS_SUCCESS;
+@@ -402,8 +454,9 @@ static int write_home_root_context(FILE 
+ 	return STATUS_ERR;
+ }
+ 
+-static int write_user_context(FILE * out, semanage_list_t * tpl, char *user,
+-			      char *seuser, char *role_prefix)
++static int write_user_context(genhomedircon_settings_t * s, FILE * out,
++			      semanage_list_t * tpl, const char *user,
++			      const char *seuser, const char *role_prefix)
+ {
+ 	replacement_pair_t repl[] = {
+ 		{.search_for = TEMPLATE_USER,.replace_with = user},
+@@ -415,8 +468,12 @@ static int write_user_context(FILE * out
+ 
+ 	for (; tpl; tpl = tpl->next) {
+ 		line = replace_all(tpl->data, repl);
+-		if (!line || !ustr_io_putfileline(&line, out))
++		if (!line)
+ 			goto fail;
++		if (check_line(s, line) == STATUS_SUCCESS) {
++			if (!ustr_io_putfileline(&line, out))
++				goto fail;
++		}
+ 		ustr_sc_free(&line);
+ 	}
+ 	return STATUS_SUCCESS;
+@@ -602,7 +659,7 @@ static genhomedircon_user_entry_t *get_u
+ 	return head;
+ }
+ 
+-static int write_gen_home_dir_context(FILE * out, genhomedircon_settings_t * s,
++static int write_gen_home_dir_context(genhomedircon_settings_t * s, FILE * out,
+ 				      semanage_list_t * user_context_tpl,
+ 				      semanage_list_t * homedir_context_tpl)
+ {
+@@ -615,13 +672,13 @@ static int write_gen_home_dir_context(FI
+ 	}
+ 
+ 	for (; users; pop_user_entry(&users)) {
+-		if (write_home_dir_context(out, homedir_context_tpl,
++		if (write_home_dir_context(s, out, homedir_context_tpl,
+ 					   users->name,
+ 					   users->sename, users->home,
+ 					   users->prefix)) {
+ 			return STATUS_ERR;
+ 		}
+-		if (write_user_context(out, user_context_tpl, users->name,
++		if (write_user_context(s, out, user_context_tpl, users->name,
+ 				       users->sename, users->prefix)) {
+ 			return STATUS_ERR;
+ 		}
+@@ -671,7 +728,7 @@ static int write_context_file(genhomedir
+ 			goto done;
+ 		}
+ 
+-		if (write_home_dir_context(out,
++		if (write_home_dir_context(s, out,
+ 					   homedir_context_tpl, FALLBACK_USER,
+ 					   FALLBACK_USER, ustr_cstr(temp),
+ 					   FALLBACK_USER_PREFIX) !=
+@@ -680,7 +737,7 @@ static int write_context_file(genhomedir
+ 			retval = STATUS_ERR;
+ 			goto done;
+ 		}
+-		if (write_home_root_context(out,
++		if (write_home_root_context(s, out,
+ 					    homeroot_context_tpl,
+ 					    h->data) != STATUS_SUCCESS) {
+ 			ustr_sc_free(&temp);
+@@ -711,7 +768,9 @@ static int write_context_file(genhomedir
+ 	return retval;
+ }
+ 
+-int semanage_genhomedircon(semanage_handle_t * sh, int usepasswd)
++int semanage_genhomedircon(semanage_handle_t * sh,
++			   sepol_policydb_t * policydb,
++			   int usepasswd)
+ {
+ 	genhomedircon_settings_t s;
+ 	FILE *out = NULL;
+@@ -725,6 +784,7 @@ int semanage_genhomedircon(semanage_hand
+ 
+ 	s.usepasswd = usepasswd;
+ 	s.h_semanage = sh;
++	s.policydb = policydb;
+ 
+ 	if (!(out = fopen(s.fcfilepath, "w"))) {
+ 		/* couldn't open output file */
+Index: trunk/libsemanage/src/genhomedircon.h
+===================================================================
+--- trunk.orig/libsemanage/src/genhomedircon.h
++++ trunk/libsemanage/src/genhomedircon.h
+@@ -22,6 +22,7 @@
+ 
+ #include "utilities.h"
+ 
+-int semanage_genhomedircon(semanage_handle_t * sh, int usepasswd);
++int semanage_genhomedircon(semanage_handle_t * sh,
++			   sepol_policydb_t * policydb, int usepasswd);
+ 
+ #endif
+Index: trunk/libsemanage/src/direct_api.c
+===================================================================
+--- trunk.orig/libsemanage/src/direct_api.c
++++ trunk/libsemanage/src/direct_api.c
+@@ -702,7 +702,7 @@ static int semanage_direct_commit(semana
+ 		goto cleanup;
+ 
+ 	if (sh->do_rebuild || modified) {
+-		retval = semanage_install_sandbox(sh);
++		retval = semanage_install_sandbox(sh, out);
+ 	}
+ 
+       cleanup:
+Index: trunk/libsemanage/src/semanage_store.c
+===================================================================
+--- trunk.orig/libsemanage/src/semanage_store.c
++++ trunk/libsemanage/src/semanage_store.c
+@@ -1279,7 +1279,8 @@ static int semanage_commit_sandbox(seman
+  * should be placed within a mutex lock to ensure that it runs
+  * atomically.	Returns commit number on success, -1 on error.
+  */
+-int semanage_install_sandbox(semanage_handle_t * sh)
++int semanage_install_sandbox(semanage_handle_t * sh,
++			     sepol_policydb_t * policydb)
+ {
+ 	int retval = -1, commit_num = -1;
+ 
+@@ -1294,7 +1295,7 @@ int semanage_install_sandbox(semanage_ha
+ 	}
+ 	if (!sh->conf->disable_genhomedircon) {
+ 		if ((retval =
+-		     semanage_genhomedircon(sh, TRUE)) != 0) {
++		     semanage_genhomedircon(sh, policydb, TRUE)) != 0) {
+ 			ERR(sh, "semanage_genhomedircon returned error code %d.",
+ 			    retval);
+ 			goto cleanup;
+Index: trunk/libsemanage/src/semanage_store.h
+===================================================================
+--- trunk.orig/libsemanage/src/semanage_store.h
++++ trunk/libsemanage/src/semanage_store.h
+@@ -83,8 +83,6 @@ int semanage_make_sandbox(semanage_handl
+ int semanage_get_modules_names(semanage_handle_t * sh,
+ 			       char ***filenames, int *len);
+ 
+-int semanage_install_sandbox(semanage_handle_t * sh);
+-
+ /* lock file routines */
+ int semanage_get_trans_lock(semanage_handle_t * sh);
+ int semanage_get_active_lock(semanage_handle_t * sh);
+@@ -102,7 +100,8 @@ int semanage_expand_sandbox(semanage_han
+ int semanage_write_policydb(semanage_handle_t * sh,
+ 			    sepol_policydb_t * policydb);
+ 
+-int semanage_install_sandbox(semanage_handle_t * sh);
++int semanage_install_sandbox(semanage_handle_t * sh,
++			     sepol_policydb_t * policydb);
+ 
+ int semanage_verify_modules(semanage_handle_t * sh,
+ 			    char **module_filenames, int num_modules);
 
 -- 
-Stephen Smalley
-National Security Agency
 
 
 --
