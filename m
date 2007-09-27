@@ -1,583 +1,900 @@
-Message-ID: <46FB08A0.2000308@redhat.com>
-Date: Wed, 26 Sep 2007 21:34:24 -0400
-From: Daniel J Walsh <dwalsh@redhat.com>
+Message-ID: <46FB13EE.3040907@ak.jp.nec.com>
+Date: Thu, 27 Sep 2007 11:22:38 +0900
+From: KaiGai Kohei <kaigai@ak.jp.nec.com>
 MIME-Version: 1.0
-To: Todd Miller <Tmiller@tresys.com>
-CC: sds@tycho.nsa.gov, selinux@tycho.nsa.gov
-Subject: Re: I am concerned about putting genhomedircon changesinlibsemanage
- into Fedora 8.
-References: <200709262020.l8QKKDX7025382@tex.courtesan.com> <46FACCF8.2060500@redhat.com> <6FE441CD9F0C0C479F2D88F959B01588011446F4@exchange.columbia.tresys.com>
-In-Reply-To: <6FE441CD9F0C0C479F2D88F959B01588011446F4@exchange.columbia.tresys.com>
-Content-Type: multipart/mixed;
- boundary="------------000300090208060007060605"
+To: Stephen Smalley <sds@tycho.nsa.gov>
+CC: selinux@tycho.nsa.gov, Paul Moore <paul.moore@hp.com>,
+        Yuichi Nakamura <ynakam@hitachisoft.jp>,
+        James Morris <jmorris@namei.org>, Eric Paris <eparis@parisplace.org>
+Subject: Re: [PATCH] Improve SELinux performance when AVC misses.
+References: <20070821130540.7AD3.YNAKAM@hitachisoft.jp>	 <200708211111.27019.paul.moore@hp.com>	 <1187714269.1451.148.camel@moss-spartans.epoch.ncsc.mil>	 <200708211255.45132.paul.moore@hp.com> <46CC00F4.2090501@ak.jp.nec.com>	 <46E7583C.9030103@ak.jp.nec.com>	 <1190136066.14037.53.camel@moss-spartans.epoch.ncsc.mil>	 <46F22BEF.9050208@ak.jp.nec.com>	 <1190402479.17518.130.camel@moss-spartans.epoch.ncsc.mil>	 <46F89767.2090203@ak.jp.nec.com> <1190728430.24726.13.camel@moss-spartans.epoch.ncsc.mil> <46F9F2E2.4060406@ak.jp.nec.com>
+In-Reply-To: <46F9F2E2.4060406@ak.jp.nec.com>
+Content-Type: text/plain; charset=ISO-2022-JP
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This is a multi-part message in MIME format.
---------------000300090208060007060605
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
-
-Todd Miller wrote:
-> I see the issue, getpwnam_r() has surprising semantics when a user is not found.  I'll have a fix for that tomorrow AM.
+>> I think we have to conform to it, and if it makes it harder to read,
+>> possibly that suggests that we need to rework the code in some way.
 > 
->  - todd
-> 
-> 
-> -----Original Message-----
-> 
-> But
-> /usr/sbin/semanage login -m -s guest_u __default__
-> 
-> Is causing a segfault in genhomedircon line 627
-Already have it.
+> I'm preparing another version of patch which does not contain any
+> "line over 80 characters" warning. Please wait for a while.
 
-This is a repatch off of libsemanage-2.0.9
+The following part is the patch which does not contain any "line
+over 80 characters" warnings.
 
-It should include your stuff plus it gets the fallback_user by looking
-up the __default__ login record.
+--------
+[PATCH] Improve SELinux performance when AVC misses.
 
-That way if I change the __default__ record to use xguest_u, it will
-build all user accounts with this context.
+* We add ebitmap_for_each_positive_bit() which enables to walk on
+  any positive bit on the given ebitmap, to improve its performance
+  using common bit-operations defined in linux/bitops.h.
+  In the previous version, this logic was implemented using a combination
+  of ebitmap_for_each_bit() and ebitmap_node_get_bit(), but is was worse
+  in performance aspect.
+  This logic is most frequestly used to compute a new AVC entry,
+  so this patch can improve SELinux performance when AVC misses are happen.
+* struct ebitmap_node is redefined as an array of "unsigned long", to get
+  suitable for using find_next_bit() which is fasted than iteration of
+  shift and logical operation, and to maximize memory usage allocated
+  from general purpose slab.
+* Any ebitmap_for_each_bit() are repleced by the new implementation
+  in ss/service.c and ss/mls.c. Some of related implementation are
+  changed, however, there is no incompatibility with the previous
+  version.
+* The width of any new line are less or equal than 80-chars.
 
-getpwnam_r returns 0 even if an account does not exist.
+The following benchmark shows the effect of this patch, when we
+access many files which have different security context one after
+another. The number is more than /selinux/avc/cache_threshold, so
+any access always causes AVC misses.
 
-So you need to check the pointer.
+      selinux-2.6      selinux-2.6-ebitmap
+AVG:   22.763 [s]          8.750 [s]
+STD:    0.265              0.019
+------------------------------------------
+1st:   22.558 [s]          8.786 [s]
+2nd:   22.458 [s]          8.750 [s]
+3rd:   22.478 [s]          8.754 [s]
+4th:   22.724 [s]          8.745 [s]
+5th:   22.918 [s]          8.748 [s]
+6th:   22.905 [s]          8.764 [s]
+7th:   23.238 [s]          8.726 [s]
+8th:   22.822 [s]          8.729 [s]
 
-A couple of other translation problems also.
+Signed-off-by: KaiGai Kohei <kaigai@ak.jp.nec.com>
+---
+ security/selinux/ss/ebitmap.c  |  281 ++++++++++++++++++++++-----------------
+ security/selinux/ss/ebitmap.h  |   87 ++++++++++---
+ security/selinux/ss/mls.c      |  156 +++++++++++------------
+ security/selinux/ss/services.c |   16 +--
+ 4 files changed, 303 insertions(+), 237 deletions(-)
 
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.7 (GNU/Linux)
-Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org
-
-iD8DBQFG+whdrlYvE4MpobMRAlR1AKDo9/UsBwEpuVTITZ3TNGPcJUzj3wCfQuqi
-3sJtxxIok2gVI0olG85lAnM=
-=1n+T
------END PGP SIGNATURE-----
-
---------------000300090208060007060605
-Content-Type: text/x-patch;
- name="libsemanage-rhat.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="libsemanage-rhat.patch"
-
-diff --exclude-from=exclude -N -u -r nsalibsemanage/include/semanage/handle.h libsemanage-2.0.9/include/semanage/handle.h
---- nsalibsemanage/include/semanage/handle.h	2007-08-20 19:15:36.000000000 -0400
-+++ libsemanage-2.0.9/include/semanage/handle.h	2007-09-26 19:49:09.000000000 -0400
-@@ -69,6 +69,10 @@
-  * 1 for yes, 0 for no (default) */
- void semanage_set_create_store(semanage_handle_t * handle, int create_store);
- 
-+/* set whether to generate homedir file context
-+ * 1 for yes (default), 0 for no */
-+void semanage_set_rebuild_file_context(semanage_handle_t * handle, int do_rebuild_file_context);
-+
- /* Set whether or not to disable dontaudits upon commit */
- void semanage_set_disable_dontaudit(semanage_handle_t * handle, int disable_dontaudit);
- 
-diff --exclude-from=exclude -N -u -r nsalibsemanage/Makefile libsemanage-2.0.9/Makefile
---- nsalibsemanage/Makefile	2007-07-16 14:20:39.000000000 -0400
-+++ libsemanage-2.0.9/Makefile	2007-09-26 19:49:09.000000000 -0400
-@@ -1,6 +1,9 @@
- all: 
- 	$(MAKE) -C src all
- 
-+swigify: 
-+	$(MAKE) -C src swigify
-+
- pywrap: 
- 	$(MAKE) -C src pywrap
- 
-diff --exclude-from=exclude -N -u -r nsalibsemanage/src/direct_api.c libsemanage-2.0.9/src/direct_api.c
---- nsalibsemanage/src/direct_api.c	2007-09-26 19:37:44.000000000 -0400
-+++ libsemanage-2.0.9/src/direct_api.c	2007-09-26 19:49:09.000000000 -0400
-@@ -702,7 +702,7 @@
- 		goto cleanup;
- 
- 	if (sh->do_rebuild || modified) {
--		retval = semanage_install_sandbox(sh);
-+		retval = semanage_install_sandbox(sh, out);
- 	}
- 
-       cleanup:
-diff --exclude-from=exclude -N -u -r nsalibsemanage/src/genhomedircon.c libsemanage-2.0.9/src/genhomedircon.c
---- nsalibsemanage/src/genhomedircon.c	2007-09-13 08:21:11.000000000 -0400
-+++ libsemanage-2.0.9/src/genhomedircon.c	2007-09-26 19:49:09.000000000 -0400
-@@ -1,5 +1,6 @@
--/* Author: Mark Goldman   <mgoldman@tresys.com>
-- * 			Paul Rosenfeld	<prosenfeld@tresys.com>
-+/* Author: Mark Goldman	  <mgoldman@tresys.com>
-+ * 	   Paul Rosenfeld <prosenfeld@tresys.com>
-+ * 	   Todd C. Miller <tmiller@tresys.com>
+diff --git a/security/selinux/ss/ebitmap.c b/security/selinux/ss/ebitmap.c
+index ce492a6..5643bdd 100644
+--- a/security/selinux/ss/ebitmap.c
++++ b/security/selinux/ss/ebitmap.c
+@@ -10,6 +10,10 @@
   *
-  * Copyright (C) 2007 Tresys Technology, LLC
-  *
-@@ -23,6 +24,8 @@
- #include <semanage/seusers_policy.h>
- #include <semanage/users_policy.h>
- #include <semanage/user_record.h>
-+#include <sepol/context.h>
-+#include <sepol/context_record.h>
- #include "semanage_store.h"
- #include "seuser_internal.h"
- #include "debug.h"
-@@ -80,6 +83,7 @@
- 	int usepasswd;
- 	const char *homedir_template_path;
- 	semanage_handle_t *h_semanage;
-+	sepol_policydb_t *policydb;
- } genhomedircon_settings_t;
- 
- typedef struct user_entry {
-@@ -352,9 +356,48 @@
- 	return retval;
- }
- 
--static int write_home_dir_context(FILE * out, semanage_list_t * tpl,
--				  const char *user, const char *seuser,
--				  const char *home, const char *role_prefix)
-+static const char * extract_context(Ustr *line)
-+{
-+	const char whitespace[] = " \t\n";
-+	size_t off, len;
-+
-+	/* check for trailing whitespace */
-+	off = ustr_spn_chrs_rev(line, 0, whitespace, strlen(whitespace));
-+
-+	/* find the length of the last field in line */
-+	len = ustr_cspn_chrs_rev(line, off, whitespace, strlen(whitespace));
-+
-+	if (len == 0)
-+		return NULL;
-+	return ustr_cstr(line) + ustr_len(line) - (len + off);
-+}
-+
-+static int check_line(genhomedircon_settings_t * s, Ustr *line)
-+{
-+	sepol_context_t *ctx_record = NULL;
-+	const char *ctx_str;
-+	int result;
-+
-+	ctx_str = extract_context(line);
-+	if (!ctx_str)
-+		return STATUS_ERR;
-+
-+	result = sepol_context_from_string(s->h_semanage->sepolh,
-+					   ctx_str, &ctx_record);
-+	if (result == STATUS_SUCCESS && ctx_record != NULL) {
-+		sepol_msg_set_callback(s->h_semanage->sepolh, NULL, NULL);
-+		result = sepol_context_check(s->h_semanage->sepolh,
-+					     s->policydb, ctx_record);
-+		sepol_msg_set_callback(s->h_semanage->sepolh, semanage_msg_relay_handler, NULL);		
-+		sepol_context_free(ctx_record);
-+	}
-+	return result;
-+}
-+
-+static int write_home_dir_context(genhomedircon_settings_t * s, FILE * out,
-+				  semanage_list_t * tpl, const char *user,
-+				  const char *seuser, const char *home,
-+				  const char *role_prefix)
- {
- 	replacement_pair_t repl[] = {
- 		{.search_for = TEMPLATE_SEUSER,.replace_with = seuser},
-@@ -369,8 +412,12 @@
- 
- 	for (; tpl; tpl = tpl->next) {
- 		line = replace_all(tpl->data, repl);
--		if (!line || !ustr_io_putfileline(&line, out))
-+		if (!line)
- 			goto fail;
-+		if (check_line(s, line) == STATUS_SUCCESS) {
-+			if (!ustr_io_putfileline(&line, out))
-+				goto fail;
-+		}
- 		ustr_sc_free(&line);
- 	}
- 	return STATUS_SUCCESS;
-@@ -380,8 +427,8 @@
- 	return STATUS_ERR;
- }
- 
--static int write_home_root_context(FILE * out, semanage_list_t * tpl,
--				   char *homedir)
-+static int write_home_root_context(genhomedircon_settings_t * s, FILE * out,
-+				   semanage_list_t * tpl, char *homedir)
- {
- 	replacement_pair_t repl[] = {
- 		{.search_for = TEMPLATE_HOME_ROOT,.replace_with = homedir},
-@@ -391,8 +438,12 @@
- 
- 	for (; tpl; tpl = tpl->next) {
- 		line = replace_all(tpl->data, repl);
--		if (!line || !ustr_io_putfileline(&line, out))
-+		if (!line)
- 			goto fail;
-+		if (check_line(s, line) == STATUS_SUCCESS) {
-+			if (!ustr_io_putfileline(&line, out))
-+				goto fail;
-+		}
- 		ustr_sc_free(&line);
- 	}
- 	return STATUS_SUCCESS;
-@@ -402,7 +453,8 @@
- 	return STATUS_ERR;
- }
- 
--static int write_user_context(FILE * out, semanage_list_t * tpl, char *user,
-+static int write_user_context(genhomedircon_settings_t * s, FILE * out,
-+			      semanage_list_t * tpl, char *user,
- 			      char *seuser, char *role_prefix)
- {
- 	replacement_pair_t repl[] = {
-@@ -415,8 +467,12 @@
- 
- 	for (; tpl; tpl = tpl->next) {
- 		line = replace_all(tpl->data, repl);
--		if (!line || !ustr_io_putfileline(&line, out))
-+		if (!line)
- 			goto fail;
-+		if (check_line(s, line) == STATUS_SUCCESS) {
-+			if (!ustr_io_putfileline(&line, out))
-+				goto fail;
-+		}
- 		ustr_sc_free(&line);
- 	}
- 	return STATUS_SUCCESS;
-@@ -496,6 +552,32 @@
- 	free(temp);
- }
- 
-+static char *global_fallback_user=NULL;
-+static char *global_fallback_user_prefix=NULL;
-+
-+static int set_fallback_user(const char *user, const char *prefix) {
-+	free(global_fallback_user);
-+	free(global_fallback_user_prefix);
-+	global_fallback_user = strdup(user);
-+	global_fallback_user_prefix = strdup(prefix);
-+	if (!global_fallback_user || !global_fallback_user_prefix)
-+		return -1;
-+	return 0;
-+}
-+
-+static char *get_fallback_user(void) {
-+	return global_fallback_user;
-+}
-+
-+static char *get_fallback_user_prefix(void) {
-+	return global_fallback_user_prefix;
-+}
-+
-+static void free_fallback_user(void) {
-+	free(global_fallback_user);
-+	free(global_fallback_user_prefix);
-+}
-+
- static genhomedircon_user_entry_t *get_users(genhomedircon_settings_t * s,
- 					     int *errors)
- {
-@@ -538,13 +620,39 @@
- 
- 	for (i = 0; i < nseusers; i++) {
- 		name = semanage_seuser_get_name(seuser_list[i]);
-+		if (strcmp(name, DEFAULT_LOGIN) == 0) {
-+			seuname = semanage_seuser_get_sename(seuser_list[i]);
-+
-+			/* find the user structure given the name */
-+			u = bsearch(seuname, user_list, nusers, sizeof(semanage_user_t *),
-+				    (int (*)(const void *, const void *))
-+				    &name_user_cmp);
-+			if (u) {
-+				prefix = semanage_user_get_prefix(*u);
-+			} else {
-+				prefix = name;
-+			}
-+
-+			if (set_fallback_user(seuname, prefix) != 0) {
-+				*errors = STATUS_ERR;
-+				goto cleanup;
-+			}
-+			break;
-+		}
-+	}
-+	char *fallback_user = get_fallback_user();
-+			
-+	for (i = 0; i < nseusers; i++) {
-+		name = semanage_seuser_get_name(seuser_list[i]);
- 		seuname = semanage_seuser_get_sename(seuser_list[i]);
- 
--		if (strcmp(seuname, FALLBACK_USER) == 0)
-+		if (strcmp(seuname, fallback_user) == 0)
- 			continue;
--		if (strcmp(seuname, DEFAULT_LOGIN) == 0)
-+
-+		if (strcmp(name, DEFAULT_LOGIN) == 0)
- 			continue;
--		if (strcmp(seuname, TEMPLATE_SEUSER) == 0)
-+		
-+		if (strcmp(name, TEMPLATE_SEUSER) == 0)
- 			continue;
- 
- 		/* find the user structure given the name */
-@@ -563,6 +671,9 @@
- 				*errors = STATUS_ERR;
- 				goto cleanup;
- 			}
-+		}
-+
-+		if (!pwent) {
- 			WARN(s->h_semanage,
- 			     "user %s not in password file", name);
- 			continue;
-@@ -602,7 +713,7 @@
- 	return head;
- }
- 
--static int write_gen_home_dir_context(FILE * out, genhomedircon_settings_t * s,
-+static int write_gen_home_dir_context(genhomedircon_settings_t * s, FILE * out,
- 				      semanage_list_t * user_context_tpl,
- 				      semanage_list_t * homedir_context_tpl)
- {
-@@ -615,13 +726,13 @@
- 	}
- 
- 	for (; users; pop_user_entry(&users)) {
--		if (write_home_dir_context(out, homedir_context_tpl,
-+		if (write_home_dir_context(s, out, homedir_context_tpl,
- 					   users->name,
- 					   users->sename, users->home,
- 					   users->prefix)) {
- 			return STATUS_ERR;
- 		}
--		if (write_user_context(out, user_context_tpl, users->name,
-+		if (write_user_context(s, out, user_context_tpl, users->name,
- 				       users->sename, users->prefix)) {
- 			return STATUS_ERR;
- 		}
-@@ -662,6 +773,14 @@
- 		goto done;
- 	}
- 
-+	if (write_gen_home_dir_context(s, out, user_context_tpl,
-+				       homedir_context_tpl) != STATUS_SUCCESS) {
-+		retval = STATUS_ERR;
-+	}
-+
-+	char *fallback_user = get_fallback_user();
-+	char *fallback_user_prefix = get_fallback_user_prefix();
-+
- 	for (h = homedirs; h; h = h->next) {
- 		Ustr *temp = ustr_dup_cstr(h->data);
- 
-@@ -671,16 +790,16 @@
- 			goto done;
- 		}
- 
--		if (write_home_dir_context(out,
--					   homedir_context_tpl, FALLBACK_USER,
--					   FALLBACK_USER, ustr_cstr(temp),
--					   FALLBACK_USER_PREFIX) !=
-+		if (write_home_dir_context(s, out,
-+					   homedir_context_tpl, fallback_user,
-+					   fallback_user, ustr_cstr(temp),
-+					   fallback_user_prefix) !=
- 		    STATUS_SUCCESS) {
- 			ustr_sc_free(&temp);
- 			retval = STATUS_ERR;
- 			goto done;
- 		}
--		if (write_home_root_context(out,
-+		if (write_home_root_context(s, out,
- 					    homeroot_context_tpl,
- 					    h->data) != STATUS_SUCCESS) {
- 			ustr_sc_free(&temp);
-@@ -690,16 +809,12 @@
- 
- 		ustr_sc_free(&temp);
- 	}
--	if (write_user_context(out, user_context_tpl,
--			       ".*", FALLBACK_USER,
--			       FALLBACK_USER_PREFIX) != STATUS_SUCCESS) {
-+	if (write_user_context(s, out, user_context_tpl,
-+			       ".*", fallback_user,
-+			       fallback_user_prefix) != STATUS_SUCCESS) {
- 		retval = STATUS_ERR;
- 		goto done;
- 	}
--	if (write_gen_home_dir_context(out, s, user_context_tpl,
--				       homedir_context_tpl) != STATUS_SUCCESS) {
--		retval = STATUS_ERR;
--	}
- 
-       done:
- 	/* Cleanup */
-@@ -711,7 +826,9 @@
- 	return retval;
- }
- 
--int semanage_genhomedircon(semanage_handle_t * sh, int usepasswd)
-+int semanage_genhomedircon(semanage_handle_t * sh,
-+			   sepol_policydb_t * policydb,
-+			   int usepasswd)
- {
- 	genhomedircon_settings_t s;
- 	FILE *out = NULL;
-@@ -719,12 +836,15 @@
- 
- 	assert(sh);
- 
-+	set_fallback_user(FALLBACK_USER, FALLBACK_USER_PREFIX);
-+
- 	s.homedir_template_path =
- 	    semanage_path(SEMANAGE_TMP, SEMANAGE_HOMEDIR_TMPL);
- 	s.fcfilepath = semanage_path(SEMANAGE_TMP, SEMANAGE_FC_HOMEDIRS);
- 
- 	s.usepasswd = usepasswd;
- 	s.h_semanage = sh;
-+	s.policydb = policydb;
- 
- 	if (!(out = fopen(s.fcfilepath, "w"))) {
- 		/* couldn't open output file */
-@@ -735,5 +855,8 @@
- 	retval = write_context_file(&s, out);
- 
- 	fclose(out);
-+
-+	free_fallback_user();
-+
- 	return retval;
- }
-diff --exclude-from=exclude -N -u -r nsalibsemanage/src/genhomedircon.h libsemanage-2.0.9/src/genhomedircon.h
---- nsalibsemanage/src/genhomedircon.h	2007-08-23 16:52:25.000000000 -0400
-+++ libsemanage-2.0.9/src/genhomedircon.h	2007-09-26 19:49:09.000000000 -0400
-@@ -22,6 +22,7 @@
- 
- #include "utilities.h"
- 
--int semanage_genhomedircon(semanage_handle_t * sh, int usepasswd);
-+int semanage_genhomedircon(semanage_handle_t * sh,
-+			   sepol_policydb_t * policydb, int usepasswd);
- 
- #endif
-diff --exclude-from=exclude -N -u -r nsalibsemanage/src/handle.c libsemanage-2.0.9/src/handle.c
---- nsalibsemanage/src/handle.c	2007-08-20 19:15:37.000000000 -0400
-+++ libsemanage-2.0.9/src/handle.c	2007-09-26 19:49:09.000000000 -0400
-@@ -68,6 +68,7 @@
- 	/* By default do not create store */
- 	sh->create_store = 0;
- 
-+	sh->do_rebuild_file_context = 1;
- 	/* Set timeout: some default value for now, later use config */
- 	sh->timeout = SEMANAGE_COMMIT_READ_WAIT;
- 
-@@ -100,6 +101,15 @@
- 	return;
- }
- 
-+void semanage_set_rebuild_file_context(semanage_handle_t * sh, int do_rebuild_file_context)
-+{
-+
-+	assert(sh != NULL);
-+
-+	sh->do_rebuild_file_context = do_rebuild_file_context;
-+	return;
-+}
-+
- void semanage_set_create_store(semanage_handle_t * sh, int create_store)
- {
- 
-diff --exclude-from=exclude -N -u -r nsalibsemanage/src/handle.h libsemanage-2.0.9/src/handle.h
---- nsalibsemanage/src/handle.h	2007-07-16 14:20:38.000000000 -0400
-+++ libsemanage-2.0.9/src/handle.h	2007-09-26 19:49:09.000000000 -0400
-@@ -58,6 +58,7 @@
- 	int is_connected;
- 	int is_in_transaction;
- 	int do_reload;		/* whether to reload policy after commit */
-+	int do_rebuild_file_context;	/* whether to generate homedircontext */
- 	int do_rebuild;		/* whether to rebuild policy if there were no changes */
- 	int modules_modified;
- 	int create_store;	/* whether to create the store if it does not exist
-diff --exclude-from=exclude -N -u -r nsalibsemanage/src/libsemanage.map libsemanage-2.0.9/src/libsemanage.map
---- nsalibsemanage/src/libsemanage.map	2007-08-20 19:15:37.000000000 -0400
-+++ libsemanage-2.0.9/src/libsemanage.map	2007-09-26 19:49:09.000000000 -0400
-@@ -9,6 +9,7 @@
- 	  semanage_module_list_nth; semanage_module_get_name;
- 	  semanage_module_get_version; semanage_select_store;
- 	  semanage_reload_policy; semanage_set_reload; semanage_set_rebuild;
-+	  semanage_set_rebuild_file_context;
- 	  semanage_user_*; semanage_bool_*; semanage_seuser_*;
- 	  semanage_iface_*; semanage_port_*; semanage_context_*;
- 	  semanage_node_*;
-diff --exclude-from=exclude -N -u -r nsalibsemanage/src/semanage_store.c libsemanage-2.0.9/src/semanage_store.c
---- nsalibsemanage/src/semanage_store.c	2007-09-26 19:37:44.000000000 -0400
-+++ libsemanage-2.0.9/src/semanage_store.c	2007-09-26 19:49:09.000000000 -0400
-@@ -1148,7 +1148,7 @@
- 
-       skip_reload:
- 
--	if ((r =
-+	if (sh->do_rebuild_file_context && (r =
- 	     semanage_exec_prog(sh, sh->conf->setfiles, store_pol,
- 				store_fc)) != 0) {
- 		ERR(sh, "setfiles returned error code %d.", r);
-@@ -1279,7 +1279,8 @@
-  * should be placed within a mutex lock to ensure that it runs
-  * atomically.	Returns commit number on success, -1 on error.
+  * (c) Copyright Hewlett-Packard Development Company, L.P., 2006
   */
--int semanage_install_sandbox(semanage_handle_t * sh)
-+int semanage_install_sandbox(semanage_handle_t * sh,
-+			     sepol_policydb_t * policydb)
- {
- 	int retval = -1, commit_num = -1;
- 
-@@ -1294,7 +1295,7 @@
++/*
++ * Updated: KaiGai Kohei <kaigai@ak.jp.nec.com>
++ *      Applied standard bit operations to improve bitmap scanning.
++ */
+
+ #include <linux/kernel.h>
+ #include <linux/slab.h>
+@@ -29,7 +33,7 @@ int ebitmap_cmp(struct ebitmap *e1, struct ebitmap *e2)
+ 	n2 = e2->node;
+ 	while (n1 && n2 &&
+ 	       (n1->startbit == n2->startbit) &&
+-	       (n1->map == n2->map)) {
++	       !memcmp(n1->maps, n2->maps, EBITMAP_SIZE / 8)) {
+ 		n1 = n1->next;
+ 		n2 = n2->next;
  	}
- 	if (!sh->conf->disable_genhomedircon) {
- 		if ((retval =
--		     semanage_genhomedircon(sh, TRUE)) != 0) {
-+		     semanage_genhomedircon(sh, policydb, TRUE)) != 0) {
- 			ERR(sh, "semanage_genhomedircon returned error code %d.",
- 			    retval);
- 			goto cleanup;
-diff --exclude-from=exclude -N -u -r nsalibsemanage/src/semanage_store.h libsemanage-2.0.9/src/semanage_store.h
---- nsalibsemanage/src/semanage_store.h	2007-08-23 16:52:25.000000000 -0400
-+++ libsemanage-2.0.9/src/semanage_store.h	2007-09-26 20:10:59.000000000 -0400
-@@ -83,8 +83,6 @@
- int semanage_get_modules_names(semanage_handle_t * sh,
- 			       char ***filenames, int *len);
- 
--int semanage_install_sandbox(semanage_handle_t * sh);
+@@ -54,7 +58,7 @@ int ebitmap_cpy(struct ebitmap *dst, struct ebitmap *src)
+ 			return -ENOMEM;
+ 		}
+ 		new->startbit = n->startbit;
+-		new->map = n->map;
++		memcpy(new->maps, n->maps, EBITMAP_SIZE / 8);
+ 		new->next = NULL;
+ 		if (prev)
+ 			prev->next = new;
+@@ -84,13 +88,15 @@ int ebitmap_netlbl_export(struct ebitmap *ebmap,
+ {
+ 	struct ebitmap_node *e_iter = ebmap->node;
+ 	struct netlbl_lsm_secattr_catmap *c_iter;
+-	u32 cmap_idx;
++	u32 cmap_idx, cmap_sft;
++	int i;
+
+-	/* This function is a much simpler because SELinux's MAPTYPE happens
+-	 * to be the same as NetLabel's NETLBL_CATMAP_MAPTYPE, if MAPTYPE is
+-	 * changed from a u64 this function will most likely need to be changed
+-	 * as well.  It's not ideal but I think the tradeoff in terms of
+-	 * neatness and speed is worth it. */
++	/* NetLabel's NETLBL_CATMAP_MAPTYPE is defined as an array of u64,
++	 * however, it is not always compatible with an array of unsigned long
++	 * in ebitmap_node.
++	 * In addition, you should pay attention the following implementation
++	 * assumes unsigned long has a width equal with or less than 64-bit.
++	 */
+
+ 	if (e_iter == NULL) {
+ 		*catmap = NULL;
+@@ -104,19 +110,27 @@ int ebitmap_netlbl_export(struct ebitmap *ebmap,
+ 	c_iter->startbit = e_iter->startbit & ~(NETLBL_CATMAP_SIZE - 1);
+
+ 	while (e_iter != NULL) {
+-		if (e_iter->startbit >=
+-		    (c_iter->startbit + NETLBL_CATMAP_SIZE)) {
+-			c_iter->next = netlbl_secattr_catmap_alloc(GFP_ATOMIC);
+-			if (c_iter->next == NULL)
+-				goto netlbl_export_failure;
+-			c_iter = c_iter->next;
+-			c_iter->startbit = e_iter->startbit &
+-				           ~(NETLBL_CATMAP_SIZE - 1);
++		for (i = 0; i < EBITMAP_UNIT_NUMS; i++) {
++			unsigned int delta, e_startbit, c_endbit;
++
++			e_startbit = e_iter->startbit + i * EBITMAP_UNIT_SIZE;
++			c_endbit = c_iter->startbit + NETLBL_CATMAP_SIZE;
++			if (e_startbit >= c_endbit) {
++				c_iter->next
++				  = netlbl_secattr_catmap_alloc(GFP_ATOMIC);
++				if (c_iter->next == NULL)
++					goto netlbl_export_failure;
++				c_iter = c_iter->next;
++				c_iter->startbit
++				  = e_startbit & ~(NETLBL_CATMAP_SIZE - 1);
++			}
++			delta = e_startbit - c_iter->startbit;
++			cmap_idx = delta / NETLBL_CATMAP_MAPSIZE;
++			cmap_sft = delta % NETLBL_CATMAP_MAPSIZE;
++			c_iter->bitmap[cmap_idx]
++				|= e_iter->maps[cmap_idx] << cmap_sft;
++			e_iter = e_iter->next;
+ 		}
+-		cmap_idx = (e_iter->startbit - c_iter->startbit) /
+-			   NETLBL_CATMAP_MAPSIZE;
+-		c_iter->bitmap[cmap_idx] = e_iter->map;
+-		e_iter = e_iter->next;
+ 	}
+
+ 	return 0;
+@@ -128,7 +142,7 @@ netlbl_export_failure:
+
+ /**
+  * ebitmap_netlbl_import - Import a NetLabel category bitmap into an ebitmap
+- * @ebmap: the ebitmap to export
++ * @ebmap: the ebitmap to import
+  * @catmap: the NetLabel category bitmap
+  *
+  * Description:
+@@ -142,36 +156,50 @@ int ebitmap_netlbl_import(struct ebitmap *ebmap,
+ 	struct ebitmap_node *e_iter = NULL;
+ 	struct ebitmap_node *emap_prev = NULL;
+ 	struct netlbl_lsm_secattr_catmap *c_iter = catmap;
+-	u32 c_idx;
++	u32 c_idx, c_pos, e_idx, e_sft;
+
+-	/* This function is a much simpler because SELinux's MAPTYPE happens
+-	 * to be the same as NetLabel's NETLBL_CATMAP_MAPTYPE, if MAPTYPE is
+-	 * changed from a u64 this function will most likely need to be changed
+-	 * as well.  It's not ideal but I think the tradeoff in terms of
+-	 * neatness and speed is worth it. */
++	/* NetLabel's NETLBL_CATMAP_MAPTYPE is defined as an array of u64,
++	 * however, it is not always compatible with an array of unsigned long
++	 * in ebitmap_node.
++	 * In addition, you should pay attention the following implementation
++	 * assumes unsigned long has a width equal with or less than 64-bit.
++	 */
+
+ 	do {
+ 		for (c_idx = 0; c_idx < NETLBL_CATMAP_MAPCNT; c_idx++) {
+-			if (c_iter->bitmap[c_idx] == 0)
++			unsigned int delta;
++			u64 map = c_iter->bitmap[c_idx];
++
++			if (!map)
+ 				continue;
+
+-			e_iter = kzalloc(sizeof(*e_iter), GFP_ATOMIC);
+-			if (e_iter == NULL)
+-				goto netlbl_import_failure;
+-			if (emap_prev == NULL)
+-				ebmap->node = e_iter;
+-			else
+-				emap_prev->next = e_iter;
+-			emap_prev = e_iter;
 -
- /* lock file routines */
- int semanage_get_trans_lock(semanage_handle_t * sh);
- int semanage_get_active_lock(semanage_handle_t * sh);
-@@ -102,7 +100,8 @@
- int semanage_write_policydb(semanage_handle_t * sh,
- 			    sepol_policydb_t * policydb);
- 
--int semanage_install_sandbox(semanage_handle_t * sh);
-+int semanage_install_sandbox(semanage_handle_t * sh,
-+			     sepol_policydb_t * policydb);
- 
- int semanage_verify_modules(semanage_handle_t * sh,
- 			    char **module_filenames, int num_modules);
+-			e_iter->startbit = c_iter->startbit +
+-				           NETLBL_CATMAP_MAPSIZE * c_idx;
+-			e_iter->map = c_iter->bitmap[c_idx];
++			c_pos = c_iter->startbit
++				+ c_idx * NETLBL_CATMAP_MAPSIZE;
++			if (!e_iter
++			    || c_pos >= e_iter->startbit + EBITMAP_SIZE) {
++				e_iter = kzalloc(sizeof(*e_iter), GFP_ATOMIC);
++				if (!e_iter)
++					goto netlbl_import_failure;
++				e_iter->startbit
++					= c_pos - (c_pos % EBITMAP_SIZE);
++				if (emap_prev == NULL)
++					ebmap->node = e_iter;
++				else
++					emap_prev->next = e_iter;
++				emap_prev = e_iter;
++			}
++			delta = c_pos - e_iter->startbit;
++			e_idx = delta / EBITMAP_UNIT_SIZE;
++			e_sft = delta % EBITMAP_UNIT_SIZE;
++			while (map) {
++				e_iter->maps[e_idx++] |= map & (-1UL);
++				map >>= EBITMAP_UNIT_SIZE;
++			}
+ 		}
+ 		c_iter = c_iter->next;
+ 	} while (c_iter != NULL);
+ 	if (e_iter != NULL)
+-		ebmap->highbit = e_iter->startbit + MAPSIZE;
++		ebmap->highbit = e_iter->startbit + EBITMAP_SIZE;
+ 	else
+ 		ebitmap_destroy(ebmap);
 
---------------000300090208060007060605
-Content-Type: application/octet-stream;
- name="libsemanage-rhat.patch.sig"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment;
- filename="libsemanage-rhat.patch.sig"
+@@ -186,6 +214,7 @@ netlbl_import_failure:
+ int ebitmap_contains(struct ebitmap *e1, struct ebitmap *e2)
+ {
+ 	struct ebitmap_node *n1, *n2;
++	int i;
 
-iD8DBQBG+whdrlYvE4MpobMRAvKbAJ96+a0V55bLFZpnVpHXnskZyoEeEQCghVEyvFbLj5mv
-3AUEP6mZQ4qPDBo=
---------------000300090208060007060605--
+ 	if (e1->highbit < e2->highbit)
+ 		return 0;
+@@ -197,8 +226,10 @@ int ebitmap_contains(struct ebitmap *e1, struct ebitmap *e2)
+ 			n1 = n1->next;
+ 			continue;
+ 		}
+-		if ((n1->map & n2->map) != n2->map)
+-			return 0;
++		for (i = 0; i < EBITMAP_UNIT_NUMS; i++) {
++			if ((n1->maps[i] & n2->maps[i]) != n2->maps[i])
++				return 0;
++		}
+
+ 		n1 = n1->next;
+ 		n2 = n2->next;
+@@ -219,12 +250,8 @@ int ebitmap_get_bit(struct ebitmap *e, unsigned long bit)
+
+ 	n = e->node;
+ 	while (n && (n->startbit <= bit)) {
+-		if ((n->startbit + MAPSIZE) > bit) {
+-			if (n->map & (MAPBIT << (bit - n->startbit)))
+-				return 1;
+-			else
+-				return 0;
+-		}
++		if ((n->startbit + EBITMAP_SIZE) > bit)
++			return ebitmap_node_get_bit(n, bit);
+ 		n = n->next;
+ 	}
+
+@@ -238,31 +265,35 @@ int ebitmap_set_bit(struct ebitmap *e, unsigned long bit, int value)
+ 	prev = NULL;
+ 	n = e->node;
+ 	while (n && n->startbit <= bit) {
+-		if ((n->startbit + MAPSIZE) > bit) {
++		if ((n->startbit + EBITMAP_SIZE) > bit) {
+ 			if (value) {
+-				n->map |= (MAPBIT << (bit - n->startbit));
++				ebitmap_node_set_bit(n, bit);
+ 			} else {
+-				n->map &= ~(MAPBIT << (bit - n->startbit));
+-				if (!n->map) {
+-					/* drop this node from the bitmap */
+-
+-					if (!n->next) {
+-						/*
+-						 * this was the highest map
+-						 * within the bitmap
+-						 */
+-						if (prev)
+-							e->highbit = prev->startbit + MAPSIZE;
+-						else
+-							e->highbit = 0;
+-					}
++				unsigned int s;
++
++				ebitmap_node_clr_bit(n, bit);
++
++				s = find_first_bit(n->maps, EBITMAP_SIZE);
++				if (s < EBITMAP_SIZE)
++					return 0;
++
++				/* drop this node from the bitmap */
++				if (!n->next) {
++					/*
++					 * this was the highest map
++					 * within the bitmap
++					 */
+ 					if (prev)
+-						prev->next = n->next;
++						e->highbit = prev->startbit
++							     + EBITMAP_SIZE;
+ 					else
+-						e->node = n->next;
+-
+-					kfree(n);
++						e->highbit = 0;
+ 				}
++				if (prev)
++					prev->next = n->next;
++				else
++					e->node = n->next;
++				kfree(n);
+ 			}
+ 			return 0;
+ 		}
+@@ -277,12 +308,12 @@ int ebitmap_set_bit(struct ebitmap *e, unsigned long bit, int value)
+ 	if (!new)
+ 		return -ENOMEM;
+
+-	new->startbit = bit & ~(MAPSIZE - 1);
+-	new->map = (MAPBIT << (bit - new->startbit));
++	new->startbit = bit - (bit % EBITMAP_SIZE);
++	ebitmap_node_set_bit(new, bit);
+
+ 	if (!n)
+ 		/* this node will be the highest map within the bitmap */
+-		e->highbit = new->startbit + MAPSIZE;
++		e->highbit = new->startbit + EBITMAP_SIZE;
+
+ 	if (prev) {
+ 		new->next = prev->next;
+@@ -316,11 +347,11 @@ void ebitmap_destroy(struct ebitmap *e)
+
+ int ebitmap_read(struct ebitmap *e, void *fp)
+ {
+-	int rc;
+-	struct ebitmap_node *n, *l;
++	struct ebitmap_node *n = NULL;
++	u32 mapunit, count, startbit, index;
++	u64 map;
+ 	__le32 buf[3];
+-	u32 mapsize, count, i;
+-	__le64 map;
++	int rc, i;
+
+ 	ebitmap_init(e);
+
+@@ -328,85 +359,89 @@ int ebitmap_read(struct ebitmap *e, void *fp)
+ 	if (rc < 0)
+ 		goto out;
+
+-	mapsize = le32_to_cpu(buf[0]);
++	mapunit = le32_to_cpu(buf[0]);
+ 	e->highbit = le32_to_cpu(buf[1]);
+ 	count = le32_to_cpu(buf[2]);
+
+-	if (mapsize != MAPSIZE) {
++	if (mapunit != sizeof(u64) * 8) {
+ 		printk(KERN_ERR "security: ebitmap: map size %u does not "
+-		       "match my size %Zd (high bit was %d)\n", mapsize,
+-		       MAPSIZE, e->highbit);
++		       "match my size %Zd (high bit was %d)\n",
++		       mapunit, sizeof(u64) * 8, e->highbit);
+ 		goto bad;
+ 	}
++
++	/* round up e->highbit */
++	e->highbit += EBITMAP_SIZE - 1;
++	e->highbit -= (e->highbit % EBITMAP_SIZE);
++
+ 	if (!e->highbit) {
+ 		e->node = NULL;
+ 		goto ok;
+ 	}
+-	if (e->highbit & (MAPSIZE - 1)) {
+-		printk(KERN_ERR "security: ebitmap: high bit (%d) is not a "
+-		       "multiple of the map size (%Zd)\n", e->highbit, MAPSIZE);
+-		goto bad;
+-	}
+-	l = NULL;
++
+ 	for (i = 0; i < count; i++) {
+-		rc = next_entry(buf, fp, sizeof(u32));
++		rc = next_entry(&startbit, fp, sizeof(u32));
+ 		if (rc < 0) {
+ 			printk(KERN_ERR "security: ebitmap: truncated map\n");
+ 			goto bad;
+ 		}
+-		n = kzalloc(sizeof(*n), GFP_KERNEL);
+-		if (!n) {
+-			printk(KERN_ERR "security: ebitmap: out of memory\n");
+-			rc = -ENOMEM;
+-			goto bad;
+-		}
+-
+-		n->startbit = le32_to_cpu(buf[0]);
++		startbit = le32_to_cpu(startbit);
+
+-		if (n->startbit & (MAPSIZE - 1)) {
++		if (startbit & (mapunit - 1)) {
+ 			printk(KERN_ERR "security: ebitmap start bit (%d) is "
+-			       "not a multiple of the map size (%Zd)\n",
+-			       n->startbit, MAPSIZE);
+-			goto bad_free;
++			       "not a multiple of the map unit size (%Zd)\n",
++			       startbit, mapunit);
++			goto bad;
+ 		}
+-		if (n->startbit > (e->highbit - MAPSIZE)) {
++		if (startbit > e->highbit - mapunit) {
+ 			printk(KERN_ERR "security: ebitmap start bit (%d) is "
+ 			       "beyond the end of the bitmap (%Zd)\n",
+-			       n->startbit, (e->highbit - MAPSIZE));
+-			goto bad_free;
++			       startbit, (e->highbit - mapunit));
++			goto bad;
++		}
++
++		if (!n || startbit >= n->startbit + EBITMAP_SIZE) {
++			struct ebitmap_node *_n;
++			_n = kzalloc(sizeof(*_n), GFP_KERNEL);
++			if (!_n) {
++				printk(KERN_ERR
++				       "security: ebitmap: out of memory\n");
++				rc = -ENOMEM;
++				goto bad;
++			}
++			/* round down */
++			_n->startbit = startbit - (startbit % EBITMAP_SIZE);
++			if (n) {
++				n->next = _n;
++			} else {
++				e->node = _n;
++			}
++			n = _n;
++		} else if (startbit <= n->startbit) {
++			printk(KERN_ERR "security: ebitmap: start bit %d"
++			       " comes after start bit %d\n",
++			       startbit, n->startbit);
++			goto bad;
+ 		}
++
+ 		rc = next_entry(&map, fp, sizeof(u64));
+ 		if (rc < 0) {
+ 			printk(KERN_ERR "security: ebitmap: truncated map\n");
+-			goto bad_free;
++			goto bad;
+ 		}
+-		n->map = le64_to_cpu(map);
++		map = le64_to_cpu(map);
+
+-		if (!n->map) {
+-			printk(KERN_ERR "security: ebitmap: null map in "
+-			       "ebitmap (startbit %d)\n", n->startbit);
+-			goto bad_free;
++		index = (startbit - n->startbit) / EBITMAP_UNIT_SIZE;
++		while (map) {
++			n->maps[index] = map & (-1UL);
++			map = map >> EBITMAP_UNIT_SIZE;
++			index++;
+ 		}
+-		if (l) {
+-			if (n->startbit <= l->startbit) {
+-				printk(KERN_ERR "security: ebitmap: start "
+-				       "bit %d comes after start bit %d\n",
+-				       n->startbit, l->startbit);
+-				goto bad_free;
+-			}
+-			l->next = n;
+-		} else
+-			e->node = n;
+-
+-		l = n;
+ 	}
+-
+ ok:
+ 	rc = 0;
+ out:
+ 	return rc;
+-bad_free:
+-	kfree(n);
+ bad:
+ 	if (!rc)
+ 		rc = -EINVAL;
+diff --git a/security/selinux/ss/ebitmap.h b/security/selinux/ss/ebitmap.h
+index 1270e34..e38a327 100644
+--- a/security/selinux/ss/ebitmap.h
++++ b/security/selinux/ss/ebitmap.h
+@@ -16,14 +16,16 @@
+
+ #include <net/netlabel.h>
+
+-#define MAPTYPE u64			/* portion of bitmap in each node */
+-#define MAPSIZE (sizeof(MAPTYPE) * 8)	/* number of bits in node bitmap */
+-#define MAPBIT  1ULL			/* a bit in the node bitmap */
++#define EBITMAP_UNIT_NUMS	((32 - sizeof(void *) - sizeof(u32))	\
++					/ sizeof(unsigned long))
++#define EBITMAP_UNIT_SIZE	BITS_PER_LONG
++#define EBITMAP_SIZE		(EBITMAP_UNIT_NUMS * EBITMAP_UNIT_SIZE)
++#define EBITMAP_BIT		1ULL
+
+ struct ebitmap_node {
+-	u32 startbit;		/* starting position in the total bitmap */
+-	MAPTYPE map;		/* this node's portion of the bitmap */
+ 	struct ebitmap_node *next;
++	unsigned long maps[EBITMAP_UNIT_NUMS];
++	u32 startbit;
+ };
+
+ struct ebitmap {
+@@ -34,11 +36,17 @@ struct ebitmap {
+ #define ebitmap_length(e) ((e)->highbit)
+ #define ebitmap_startbit(e) ((e)->node ? (e)->node->startbit : 0)
+
+-static inline unsigned int ebitmap_start(struct ebitmap *e,
+-					 struct ebitmap_node **n)
++static inline unsigned int ebitmap_start_positive(struct ebitmap *e,
++						  struct ebitmap_node **n)
+ {
+-	*n = e->node;
+-	return ebitmap_startbit(e);
++	unsigned int ofs;
++
++	for (*n = e->node; *n; *n = (*n)->next) {
++		ofs = find_first_bit((*n)->maps, EBITMAP_SIZE);
++		if (ofs < EBITMAP_SIZE)
++			return (*n)->startbit + ofs;
++	}
++	return ebitmap_length(e);
+ }
+
+ static inline void ebitmap_init(struct ebitmap *e)
+@@ -46,28 +54,65 @@ static inline void ebitmap_init(struct ebitmap *e)
+ 	memset(e, 0, sizeof(*e));
+ }
+
+-static inline unsigned int ebitmap_next(struct ebitmap_node **n,
+-					unsigned int bit)
++static inline unsigned int ebitmap_next_positive(struct ebitmap *e,
++						 struct ebitmap_node **n,
++						 unsigned int bit)
+ {
+-	if ((bit == ((*n)->startbit + MAPSIZE - 1)) &&
+-	    (*n)->next) {
+-		*n = (*n)->next;
+-		return (*n)->startbit;
+-	}
++	unsigned int ofs;
++
++	ofs = find_next_bit((*n)->maps, EBITMAP_SIZE, bit - (*n)->startbit + 1);
++	if (ofs < EBITMAP_SIZE)
++		return ofs + (*n)->startbit;
+
+-	return (bit+1);
++	for (*n = (*n)->next; *n; *n = (*n)->next) {
++		ofs = find_first_bit((*n)->maps, EBITMAP_SIZE);
++		if (ofs < EBITMAP_SIZE)
++			return ofs + (*n)->startbit;
++	}
++	return ebitmap_length(e);
+ }
+
+-static inline int ebitmap_node_get_bit(struct ebitmap_node * n,
++#define EBITMAP_NODE_INDEX(node, bit)	\
++	(((bit) - (node)->startbit) / EBITMAP_UNIT_SIZE)
++#define EBITMAP_NODE_OFFSET(node, bit)	\
++	(((bit) - (node)->startbit) % EBITMAP_UNIT_SIZE)
++
++static inline int ebitmap_node_get_bit(struct ebitmap_node *n,
+ 				       unsigned int bit)
+ {
+-	if (n->map & (MAPBIT << (bit - n->startbit)))
++	unsigned int index = EBITMAP_NODE_INDEX(n, bit);
++	unsigned int ofs = EBITMAP_NODE_OFFSET(n, bit);
++
++	BUG_ON(index >= EBITMAP_UNIT_NUMS);
++	if ((n->maps[index] & (EBITMAP_BIT << ofs)))
+ 		return 1;
+ 	return 0;
+ }
+
+-#define ebitmap_for_each_bit(e, n, bit) \
+-	for (bit = ebitmap_start(e, &n); bit < ebitmap_length(e); bit = ebitmap_next(&n, bit)) \
++static inline void ebitmap_node_set_bit(struct ebitmap_node *n,
++					unsigned int bit)
++{
++	unsigned int index = EBITMAP_NODE_INDEX(n, bit);
++	unsigned int ofs = EBITMAP_NODE_OFFSET(n, bit);
++
++	BUG_ON(index >= EBITMAP_UNIT_NUMS);
++	n->maps[index] |= (EBITMAP_BIT << ofs);
++}
++
++static inline void ebitmap_node_clr_bit(struct ebitmap_node *n,
++					unsigned int bit)
++{
++	unsigned int index = EBITMAP_NODE_INDEX(n, bit);
++	unsigned int ofs = EBITMAP_NODE_OFFSET(n, bit);
++
++	BUG_ON(index >= EBITMAP_UNIT_NUMS);
++	n->maps[index] &= ~(EBITMAP_BIT << ofs);
++}
++
++#define ebitmap_for_each_positive_bit(e, n, bit)	\
++	for (bit = ebitmap_start_positive(e, &n);	\
++	     bit < ebitmap_length(e);			\
++	     bit = ebitmap_next_positive(e, &n, bit))	\
+
+ int ebitmap_cmp(struct ebitmap *e1, struct ebitmap *e2);
+ int ebitmap_cpy(struct ebitmap *dst, struct ebitmap *src);
+diff --git a/security/selinux/ss/mls.c b/security/selinux/ss/mls.c
+index 4a8bab2..9a11dea 100644
+--- a/security/selinux/ss/mls.c
++++ b/security/selinux/ss/mls.c
+@@ -34,7 +34,9 @@
+  */
+ int mls_compute_context_len(struct context * context)
+ {
+-	int i, l, len, range;
++	int i, l, len, head, prev;
++	char *nm;
++	struct ebitmap *e;
+ 	struct ebitmap_node *node;
+
+ 	if (!selinux_mls_enabled)
+@@ -42,31 +44,33 @@ int mls_compute_context_len(struct context * context)
+
+ 	len = 1; /* for the beginning ":" */
+ 	for (l = 0; l < 2; l++) {
+-		range = 0;
+-		len += strlen(policydb.p_sens_val_to_name[context->range.level[l].sens - 1]);
+-
+-		ebitmap_for_each_bit(&context->range.level[l].cat, node, i) {
+-			if (ebitmap_node_get_bit(node, i)) {
+-				if (range) {
+-					range++;
+-					continue;
+-				}
++		int index_sens = context->range.level[l].sens;
++		len += strlen(policydb.p_sens_val_to_name[index_sens - 1]);
+
+-				len += strlen(policydb.p_cat_val_to_name[i]) + 1;
+-				range++;
+-			} else {
+-				if (range > 1)
+-					len += strlen(policydb.p_cat_val_to_name[i - 1]) + 1;
+-				range = 0;
++		/* categories */
++		head = -2;
++		prev = -2;
++		e = &context->range.level[l].cat;
++		ebitmap_for_each_positive_bit(e, node, i) {
++			if (i - prev > 1) {
++				/* one or more negative bits are skipped */
++				if (head != prev) {
++					nm = policydb.p_cat_val_to_name[prev];
++					len += strlen(nm) + 1;
++				}
++				nm = policydb.p_cat_val_to_name[i];
++				len += strlen(nm) + 1;
++				head = i;
+ 			}
++			prev = i;
++		}
++		if (prev != head) {
++			nm = policydb.p_cat_val_to_name[prev];
++			len += strlen(nm) + 1;
+ 		}
+-		/* Handle case where last category is the end of range */
+-		if (range > 1)
+-			len += strlen(policydb.p_cat_val_to_name[i - 1]) + 1;
+-
+ 		if (l == 0) {
+ 			if (mls_level_eq(&context->range.level[0],
+-			                 &context->range.level[1]))
++					 &context->range.level[1]))
+ 				break;
+ 			else
+ 				len++;
+@@ -84,8 +88,9 @@ int mls_compute_context_len(struct context * context)
+ void mls_sid_to_context(struct context *context,
+                         char **scontext)
+ {
+-	char *scontextp;
+-	int i, l, range, wrote_sep;
++	char *scontextp, *nm;
++	int i, l, head, prev;
++	struct ebitmap *e;
+ 	struct ebitmap_node *node;
+
+ 	if (!selinux_mls_enabled)
+@@ -97,61 +102,54 @@ void mls_sid_to_context(struct context *context,
+ 	scontextp++;
+
+ 	for (l = 0; l < 2; l++) {
+-		range = 0;
+-		wrote_sep = 0;
+ 		strcpy(scontextp,
+ 		       policydb.p_sens_val_to_name[context->range.level[l].sens - 1]);
+-		scontextp += strlen(policydb.p_sens_val_to_name[context->range.level[l].sens - 1]);
++		scontextp += strlen(scontextp);
+
+ 		/* categories */
+-		ebitmap_for_each_bit(&context->range.level[l].cat, node, i) {
+-			if (ebitmap_node_get_bit(node, i)) {
+-				if (range) {
+-					range++;
+-					continue;
+-				}
+-
+-				if (!wrote_sep) {
+-					*scontextp++ = ':';
+-					wrote_sep = 1;
+-				} else
+-					*scontextp++ = ',';
+-				strcpy(scontextp, policydb.p_cat_val_to_name[i]);
+-				scontextp += strlen(policydb.p_cat_val_to_name[i]);
+-				range++;
+-			} else {
+-				if (range > 1) {
+-					if (range > 2)
++		head = -2;
++		prev = -2;
++		e = &context->range.level[l].cat;
++		ebitmap_for_each_positive_bit(e, node, i) {
++			if (i - prev > 1) {
++				/* one or more negative bits are skipped */
++				if (prev != head) {
++					if (prev - head > 1)
+ 						*scontextp++ = '.';
+ 					else
+ 						*scontextp++ = ',';
+-
+-					strcpy(scontextp, policydb.p_cat_val_to_name[i - 1]);
+-					scontextp += strlen(policydb.p_cat_val_to_name[i - 1]);
++					nm = policydb.p_cat_val_to_name[prev];
++					strcpy(scontextp, nm);
++					scontextp += strlen(nm);
+ 				}
+-				range = 0;
++				if (prev < 0)
++					*scontextp++ = ':';
++				else
++					*scontextp++ = ',';
++				nm = policydb.p_cat_val_to_name[i];
++				strcpy(scontextp, nm);
++				scontextp += strlen(nm);
++				head = i;
+ 			}
++			prev = i;
+ 		}
+
+-		/* Handle case where last category is the end of range */
+-		if (range > 1) {
+-			if (range > 2)
++		if (prev != head) {
++			if (prev - head > 1)
+ 				*scontextp++ = '.';
+ 			else
+ 				*scontextp++ = ',';
+-
+-			strcpy(scontextp, policydb.p_cat_val_to_name[i - 1]);
+-			scontextp += strlen(policydb.p_cat_val_to_name[i - 1]);
++			nm = policydb.p_cat_val_to_name[prev];
++			strcpy(scontextp, nm);
++			scontextp += strlen(nm);
+ 		}
+
+ 		if (l == 0) {
+ 			if (mls_level_eq(&context->range.level[0],
+ 			                 &context->range.level[1]))
+ 				break;
+-			else {
+-				*scontextp = '-';
+-				scontextp++;
+-			}
++			else
++				*scontextp++ = '-';
+ 		}
+ 	}
+
+@@ -190,17 +188,15 @@ int mls_context_isvalid(struct policydb *p, struct context *c)
+ 		if (!levdatum)
+ 			return 0;
+
+-		ebitmap_for_each_bit(&c->range.level[l].cat, node, i) {
+-			if (ebitmap_node_get_bit(node, i)) {
+-				if (i > p->p_cats.nprim)
+-					return 0;
+-				if (!ebitmap_get_bit(&levdatum->level->cat, i))
+-					/*
+-					 * Category may not be associated with
+-					 * sensitivity in low level.
+-					 */
+-					return 0;
+-			}
++		ebitmap_for_each_positive_bit(&c->range.level[l].cat, node, i) {
++			if (i > p->p_cats.nprim)
++				return 0;
++			if (!ebitmap_get_bit(&levdatum->level->cat, i))
++				/*
++				 * Category may not be associated with
++				 * sensitivity in low level.
++				 */
++				return 0;
+ 		}
+ 	}
+
+@@ -485,18 +481,16 @@ int mls_convert_context(struct policydb *oldp,
+ 		c->range.level[l].sens = levdatum->level->sens;
+
+ 		ebitmap_init(&bitmap);
+-		ebitmap_for_each_bit(&c->range.level[l].cat, node, i) {
+-			if (ebitmap_node_get_bit(node, i)) {
+-				int rc;
+-
+-				catdatum = hashtab_search(newp->p_cats.table,
+-				         	oldp->p_cat_val_to_name[i]);
+-				if (!catdatum)
+-					return -EINVAL;
+-				rc = ebitmap_set_bit(&bitmap, catdatum->value - 1, 1);
+-				if (rc)
+-					return rc;
+-			}
++		ebitmap_for_each_positive_bit(&c->range.level[l].cat, node, i) {
++			int rc;
++
++			catdatum = hashtab_search(newp->p_cats.table,
++						  oldp->p_cat_val_to_name[i]);
++			if (!catdatum)
++				return -EINVAL;
++			rc = ebitmap_set_bit(&bitmap, catdatum->value - 1, 1);
++			if (rc)
++				return rc;
+ 		}
+ 		ebitmap_destroy(&c->range.level[l].cat);
+ 		c->range.level[l].cat = bitmap;
+diff --git a/security/selinux/ss/services.c b/security/selinux/ss/services.c
+index 6100fc0..19be935 100644
+--- a/security/selinux/ss/services.c
++++ b/security/selinux/ss/services.c
+@@ -329,12 +329,8 @@ static int context_struct_compute_av(struct context *scontext,
+ 	avkey.specified = AVTAB_AV;
+ 	sattr = &policydb.type_attr_map[scontext->type - 1];
+ 	tattr = &policydb.type_attr_map[tcontext->type - 1];
+-	ebitmap_for_each_bit(sattr, snode, i) {
+-		if (!ebitmap_node_get_bit(snode, i))
+-			continue;
+-		ebitmap_for_each_bit(tattr, tnode, j) {
+-			if (!ebitmap_node_get_bit(tnode, j))
+-				continue;
++	ebitmap_for_each_positive_bit(sattr, snode, i) {
++		ebitmap_for_each_positive_bit(tattr, tnode, j) {
+ 			avkey.source_type = i + 1;
+ 			avkey.target_type = j + 1;
+ 			for (node = avtab_search_node(&policydb.te_avtab, &avkey);
+@@ -1621,14 +1617,10 @@ int security_get_user_sids(u32 fromsid,
+ 		goto out_unlock;
+ 	}
+
+-	ebitmap_for_each_bit(&user->roles, rnode, i) {
+-		if (!ebitmap_node_get_bit(rnode, i))
+-			continue;
++	ebitmap_for_each_positive_bit(&user->roles, rnode, i) {
+ 		role = policydb.role_val_to_struct[i];
+ 		usercon.role = i+1;
+-		ebitmap_for_each_bit(&role->types, tnode, j) {
+-			if (!ebitmap_node_get_bit(tnode, j))
+-				continue;
++		ebitmap_for_each_positive_bit(&role->types, tnode, j) {
+ 			usercon.type = j+1;
+
+ 			if (mls_setup_user_range(fromcon, user, &usercon))
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
