@@ -1,50 +1,111 @@
+Message-ID: <46FBF229.4030609@manicmethod.com>
+Date: Thu, 27 Sep 2007 14:10:49 -0400
+From: Joshua Brindle <method@manicmethod.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Subject: Re: [PATCH] checkpolicy: implement handling of unknown classesandpermissions
-Date: Thu, 27 Sep 2007 09:35:02 -0400
-Message-ID: <1190900103.4282.2.camel@gorn.columbia.tresys.com>
-In-Reply-To: <1190395644.15178.5.camel@gorn.columbia.tresys.com>
-References: <1189103186.3418.35.camel@localhost.localdomain> <1190144886.14037.105.camel@moss-spartans.epoch.ncsc.mil> <1190395644.15178.5.camel@gorn.columbia.tresys.com>
-From: "Christopher J. PeBenito" <cpebenito@tresys.com>
-To: "Stephen Smalley" <sds@tycho.nsa.gov>
-Cc: "Eric Paris" <eparis@redhat.com>, <selinux@tycho.nsa.gov>,
-        "Daniel J Walsh" <dwalsh@redhat.com>
+To: Stephen Smalley <sds@tycho.nsa.gov>
+CC: Paul Moore <paul.moore@hp.com>, selinux@tycho.nsa.gov
+Subject: Re: [RFC PATCH v2 1/2] [SELINUX] Add a capabilities bitmap to	SELinux
+ policy version 22
+References: <20070926212810.15998.58788.stgit@flek.americas.hpqcorp.net>	 <20070926213218.15998.48463.stgit@flek.americas.hpqcorp.net>	 <46FADC17.8070606@manicmethod.com> <1190893010.27038.15.camel@moss-spartans.epoch.ncsc.mil>
+In-Reply-To: <1190893010.27038.15.camel@moss-spartans.epoch.ncsc.mil>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2007-09-21 at 13:27 -0400, Christopher J. PeBenito wrote:
-> On Tue, 2007-09-18 at 15:48 -0400, Stephen Smalley wrote:
-> > On Thu, 2007-09-06 at 14:26 -0400, Eric Paris wrote:
-> > > Add a new command line options, -U (allow,reject,deny), to
-> > checkmodule
-> > > and checkpolicy which sets the handle_unknown config flag.  Default
-> > to
-> > > deny unknowns which is how things have been in the past.  Also add
-> > > dismod and dispol support.
-> > >
-> > > -Eric
-> > 
-> > Thanks, merged as of checkpolicy 2.0.4.
-> > 
-> > Chris/Dan:  we need some way to select the flag setting for the policy
-> > build.  The -U {allow,reject,deny} setting needs to be passed to
-> > checkmodule _only_ when building the base module, or to checkpolicy
-> > when
-> > building a monolithic policy.
-> 
-> Here is a patch for this, I haven't committed this to trunk yet, as I'd
-> prefer to wait for the next stable release of the toolchain (when its
-> that, btw?).
+Stephen Smalley wrote:
+> On Wed, 2007-09-26 at 18:24 -0400, Joshua Brindle wrote:
+>   
+>> Paul Moore wrote:
+>>     
+>>> Add a new policy capabilities bitmap to SELinux policy version 22.  This bitmap
+>>> will enable the security server to query the policy to determine which features
+>>> it supports.
+>>> ---
+>>>
+>>>  security/selinux/include/security.h |   15 +++++-
+>>>  security/selinux/selinuxfs.c        |   90 +++++++++++++++++++++++++++++++++--
+>>>  security/selinux/ss/policydb.c      |   18 +++++++
+>>>  security/selinux/ss/policydb.h      |    2 +
+>>>  security/selinux/ss/services.c      |   39 +++++++++++++++
+>>>  5 files changed, 158 insertions(+), 6 deletions(-)
+>>>
+>>> diff --git a/security/selinux/include/security.h b/security/selinux/include/security.h
+>>> index 83bdd4d..d7e6ed2 100644
+>>> --- a/security/selinux/include/security.h
+>>> +++ b/security/selinux/include/security.h
+>>> @@ -25,13 +25,14 @@
+>>>  #define POLICYDB_VERSION_MLS		19
+>>>  #define POLICYDB_VERSION_AVTAB		20
+>>>  #define POLICYDB_VERSION_RANGETRANS	21
+>>> +#define POLICYDB_VERSION_CAPBITMAP	22
+>>>  
+>>>   
+>>>       
+>> I didn't like this name (I almost used it myself) because it sounds like 
+>> we are doing something with linux capabilities, I ended up using 
+>> POLICYDB_VERSION_PCAPS (for policy capabilities)
+>>     
+>
+> Doesn't help much; PCAP sounds like process capabilities, and
+> CAP_SETPCAP ;)  I don't think the name matters either way.
+>
+>   
 
-I committed a slightly modified version of this that won't add the -U
-setting unless the build.conf setting is used, for compatibility with
-the stable toolchain branch.
+Fair enough, I'll just use what Paul does next time he releases a 
+patchset (no pressure on you to pick the perfect name Paul ;) )
 
--- 
-Chris PeBenito
-Tresys Technology, LLC
-(410) 290-1411 x150
+>>>  /* Range of policy versions we understand*/
+>>>  #define POLICYDB_VERSION_MIN   POLICYDB_VERSION_BASE
+>>>  #ifdef CONFIG_SECURITY_SELINUX_POLICYDB_VERSION_MAX
+>>>  #define POLICYDB_VERSION_MAX	CONFIG_SECURITY_SELINUX_POLICYDB_VERSION_MAX_VALUE
+>>>  #else
+>>> -#define POLICYDB_VERSION_MAX	POLICYDB_VERSION_RANGETRANS
+>>> +#define POLICYDB_VERSION_MAX	POLICYDB_VERSION_CAPBITMAP
+>>>  #endif
+>>>  
+>>>  struct netlbl_lsm_secattr;
+>>> @@ -39,8 +40,19 @@ struct netlbl_lsm_secattr;
+>>>  extern int selinux_enabled;
+>>>  extern int selinux_mls_enabled;
+>>>  
+>>> +/* Policy capabilities */
+>>> +enum {
+>>> +	POLICYDB_CAPABILITY_NETPEER,
+>>> +	__POLICYDB_CAPABILITY_MAX
+>>> +};
+>>> +#define POLICYDB_CAPABILITY_MAX (__POLICYDB_CAPABILITY_MAX - 1)
+>>> +
+>>>   
+>>>       
+>> Hrm, I just used an ebitmap and didn't set a max at all.
+>>     
+>
+> ebitmaps are a security server internal construct; you have to export
+> them in a different form to users of the security server, like
+> selinuxfs, the hook functions, etc.  Or you'd have to move them out a
+> layer.
+>
+>
+>   
+
+Oops, yea, I forgot that ebitmaps were private to the security server, 
+disregard all comments pertaining to them :)
+
+
+>> Shouldn't this just check if policyvers > POLICYDB_VERSION_CAPBITMAP? it 
+>> could be inlined too.
+>>     
+>
+> It can't be inlined as it is a security server interface.
+>
+> I suppose you could check the version first to see if it is < 22 and
+> always return 0 in that case without having to take the rdlock.
+>
+> You could also extract the first word of the bitmap to a simple unsigned
+> long in the policydb at load time and do a direct bit test on it if
+> req_cap < (sizeof(unsigned long) * 8), without taking policy rdlock.
+>
+>   
 
 
 
