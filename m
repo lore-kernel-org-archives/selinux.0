@@ -1,262 +1,123 @@
-Message-ID: <46FC11F5.8000808@redhat.com>
-Date: Thu, 27 Sep 2007 16:26:29 -0400
-From: Daniel J Walsh <dwalsh@redhat.com>
-MIME-Version: 1.0
-To: Stephen Smalley <sds@tycho.nsa.gov>
-CC: "Todd C. Miller" <tmiller@tresys.com>, selinux@tycho.nsa.gov
-Subject: Re: I am concerned about putting genhomedircon	changesinlibsemanage
- into Fedora 8.
-References: <200709271446.l8REkqfW010331@tex.courtesan.com> <1190923651.13719.38.camel@moss-spartans.epoch.ncsc.mil>
-In-Reply-To: <1190923651.13719.38.camel@moss-spartans.epoch.ncsc.mil>
-Content-Type: text/plain; charset=ISO-8859-1
+Message-Id: <20070927200753.013715498@tresys.com>
+References: <20070927200712.950671948@tresys.com>
+Date: Thu, 27 Sep 2007 16:07:16 -0400
+From: "Todd C. Miller" <tmiller@tresys.com>
+To: sds@tycho.nsa.gov, dwalsh@redhat.com
+Cc: selinux@tycho.nsa.gov, jbrindle@tresys.com, tmiller@tresys.com
+Subject: [patch 4/4] libsemanage: rebuild_file_context option
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+Patch from dwalsh to allow disabling of file_contexts rebuilding.
 
-Stephen Smalley wrote:
-> On Thu, 2007-09-27 at 10:46 -0400, Todd C. Miller wrote:
->> Daniel J Walsh wrote:
->>
->>> Already have it.
->>>
->>> This is a repatch off of libsemanage-2.0.9
->>>
->>> It should include your stuff plus it gets the fallback_user by looking
->>> up the __default__ login record.
->>>
->>> That way if I change the __default__ record to use xguest_u, it will
->>> build all user accounts with this context.
->>>
->>> getpwnam_r returns 0 even if an account does not exist.
->>>
->>> So you need to check the pointer.
->>>
->>> A couple of other translation problems also.
->> Unfortunately, the return values for getpwnam_r() and getpwent_r()
->> are inconsistent.  While getpwnam_r() returns 0 when the user does
->> not exist, getpwent_r() returns ENOENT.  I decided to deal with
->> both semantics in the same way so if they are every brought into
->> line the code will still do the right thing.
->>
->> I made similar fixes to yours for the seuser vs. user mismatches.
->> A merge of your diff and mine follows.  I added some error condition
->> fixes and made the style more consistent.
->>
->>  - todd
->>
->> Index: libsemanage/include/semanage/handle.h
->> ===================================================================
->> --- libsemanage/include/semanage/handle.h	(revision 2587)
->> +++ libsemanage/include/semanage/handle.h	(working copy)
->> @@ -69,6 +69,10 @@
->>   * 1 for yes, 0 for no (default) */
->>  void semanage_set_create_store(semanage_handle_t * handle, int create_store);
->>  
->> +/* set whether to generate homedir file context
->> + * 1 for yes (default), 0 for no */
->> +void semanage_set_rebuild_file_context(semanage_handle_t * handle, int do_rebuild_file_context);
-> 
-> Did you mean to include this change too?  When this separate patch was
-> first posted, my suggestion was that the library should internally
-> decide whether it was necessary to do this, not the caller.  Also it
-> doesn't seem to be doing what it says it does anymore - it only appears
-> to affect validation of file contexts via setfiles (which should happen
-> on module installs too), not whether genhomedircon runs.
-> 
->> +
->>  /* Set whether or not to disable dontaudits upon commit */
->>  void semanage_set_disable_dontaudit(semanage_handle_t * handle, int disable_dontaudit);
->>  
->> Index: libsemanage/src/handle.h
->> ===================================================================
->> --- libsemanage/src/handle.h	(revision 2587)
->> +++ libsemanage/src/handle.h	(working copy)
->> @@ -58,6 +58,7 @@
->>  	int is_connected;
->>  	int is_in_transaction;
->>  	int do_reload;		/* whether to reload policy after commit */
->> +	int do_rebuild_file_context;	/* whether to generate homedircontext */
-> 
-> Ditto.
-> 
->>  	int do_rebuild;		/* whether to rebuild policy if there were no changes */
->>  	int modules_modified;
->>  	int create_store;	/* whether to create the store if it does not exist
->> Index: libsemanage/src/libsemanage.map
->> ===================================================================
->> --- libsemanage/src/libsemanage.map	(revision 2587)
->> +++ libsemanage/src/libsemanage.map	(working copy)
->> @@ -9,6 +9,7 @@
->>  	  semanage_module_list_nth; semanage_module_get_name;
->>  	  semanage_module_get_version; semanage_select_store;
->>  	  semanage_reload_policy; semanage_set_reload; semanage_set_rebuild;
->> +	  semanage_set_rebuild_file_context;
-> 
-> Ditto.
-> 
->>  	  semanage_user_*; semanage_bool_*; semanage_seuser_*;
->>  	  semanage_iface_*; semanage_port_*; semanage_context_*;
->>  	  semanage_node_*;
->> Index: libsemanage/src/genhomedircon.c
->> ===================================================================
->> --- libsemanage/src/genhomedircon.c	(revision 2587)
->> +++ libsemanage/src/genhomedircon.c	(working copy)
-> <snip>
->> +static int check_line(genhomedircon_settings_t * s, Ustr *line)
->> +{
->> +	sepol_context_t *ctx_record = NULL;
->> +	const char *ctx_str;
->> +	int result;
->> +
->> +	ctx_str = extract_context(line);
->> +	if (!ctx_str)
->> +		return STATUS_ERR;
->> +
->> +	result = sepol_context_from_string(s->h_semanage->sepolh,
->> +					   ctx_str, &ctx_record);
->> +	if (result == STATUS_SUCCESS && ctx_record != NULL) {
->> +		sepol_msg_set_callback(s->h_semanage->sepolh, NULL, NULL);
->> +		result = sepol_context_check(s->h_semanage->sepolh,
->> +					     s->policydb, ctx_record);
->> +		sepol_msg_set_callback(s->h_semanage->sepolh,
->> +				       semanage_msg_relay_handler, NULL);
-> 
-> As noted elsewhere, the last NULL needs to be s->h_semanage or
-> subsequent calls to the relay handler will seg fault.
-> 
-> <snip>
->> @@ -496,6 +554,36 @@
->>  	free(temp);
->>  }
->>  
->> +static char *global_fallback_user;
->> +static char *global_fallback_user_prefix;
-> 
-> Not suitable if you want threaded callers - needs to be moved into the
-> genhomedircon settings (best) or made a __thread variable.
-> 
->> +static char *get_fallback_user(void)
->> +{
->> +	return global_fallback_user;
->> +}
->> +
->> +static char *get_fallback_user_prefix(void)
->> +{
->> +	return global_fallback_user_prefix;
->> +}
->> +
->> +static int set_fallback_user(const char *user, const char *prefix)
->> +{
->> +	free(global_fallback_user);
->> +	free(global_fallback_user_prefix);
->> +	global_fallback_user = strdup(user);
->> +	global_fallback_user_prefix = strdup(prefix);
->> +	if (!global_fallback_user || !global_fallback_user_prefix)
->> +		return -1;
->> +	return 0;
->> +}
->> +
->> +static void free_fallback_user(void)
->> +{
->> +	free(global_fallback_user);
->> +	free(global_fallback_user_prefix);
->> +}
->> +
->>  static genhomedircon_user_entry_t *get_users(genhomedircon_settings_t * s,
->>  					     int *errors)
->>  {
-> 
->> Index: libsemanage/src/semanage_store.c
->> ===================================================================
->> --- libsemanage/src/semanage_store.c	(revision 2587)
->> +++ libsemanage/src/semanage_store.c	(working copy)
->> @@ -1148,7 +1148,7 @@
->>  
->>        skip_reload:
->>  
->> -	if ((r =
->> +	if (sh->do_rebuild_file_context && (r =
->>  	     semanage_exec_prog(sh, sh->conf->setfiles, store_pol,
-> 
-> This seems wrong - the interface says it controls whether homedir
-> contexts are generated, but this controls whether setfiles is run to
-> validate the contexts (which should happen on module installs too).
-> 
->>  				store_fc)) != 0) {
->>  		ERR(sh, "setfiles returned error code %d.", r);
-> <snip>
->> Index: libsemanage/src/handle.c
->> ===================================================================
->> --- libsemanage/src/handle.c	(revision 2587)
->> +++ libsemanage/src/handle.c	(working copy)
->> @@ -68,6 +68,9 @@
->>  	/* By default do not create store */
->>  	sh->create_store = 0;
->>  
->> +	/* Rebuild the file_contexts by default */
->> +	sh->do_rebuild_file_context = 1;
->> +
->>  	/* Set timeout: some default value for now, later use config */
->>  	sh->timeout = SEMANAGE_COMMIT_READ_WAIT;
->>  
->> @@ -100,6 +103,15 @@
->>  	return;
->>  }
->>  
->> +void semanage_set_rebuild_file_context(semanage_handle_t * sh, int do_rebuild_file_context)
->> +{
->> +
->> +	assert(sh != NULL);
->> +
->> +	sh->do_rebuild_file_context = do_rebuild_file_context;
->> +	return;
->> +}
->> +
->>  void semanage_set_create_store(semanage_handle_t * sh, int create_store)
->>  {
-> 
-> More of the rebuild file context changes, unrelated to this patch.
-> 
->> Index: libsemanage/Makefile
->> ===================================================================
->> --- libsemanage/Makefile	(revision 2587)
->> +++ libsemanage/Makefile	(working copy)
->> @@ -1,6 +1,9 @@
->>  all: 
->>  	$(MAKE) -C src all
->>  
->> +swigify: 
->> +	$(MAKE) -C src swigify
->> +
->>  pywrap: 
->>  	$(MAKE) -C src pywrap
-> 
-> This one is fine but is logically separate.
-> 
+---
+ libsemanage/Makefile                  |    3 +++
+ libsemanage/include/semanage/handle.h |    4 ++++
+ libsemanage/src/handle.c              |   12 ++++++++++++
+ libsemanage/src/handle.h              |    1 +
+ libsemanage/src/libsemanage.map       |    1 +
+ libsemanage/src/semanage_store.c      |    2 +-
+ 6 files changed, 22 insertions(+), 1 deletion(-)
 
-Yes,   The change to not run genhomedircon should be removed.
+Index: trunk/libsemanage/include/semanage/handle.h
+===================================================================
+--- trunk.orig/libsemanage/include/semanage/handle.h
++++ trunk/libsemanage/include/semanage/handle.h
+@@ -69,6 +69,10 @@ void semanage_set_rebuild(semanage_handl
+  * 1 for yes, 0 for no (default) */
+ void semanage_set_create_store(semanage_handle_t * handle, int create_store);
+ 
++/* set whether to generate homedir file context
++ * 1 for yes (default), 0 for no */
++void semanage_set_rebuild_file_context(semanage_handle_t * handle, int do_rebuild_file_context);
++
+ /* Set whether or not to disable dontaudits upon commit */
+ void semanage_set_disable_dontaudit(semanage_handle_t * handle, int disable_dontaudit);
+ 
+Index: trunk/libsemanage/src/handle.h
+===================================================================
+--- trunk.orig/libsemanage/src/handle.h
++++ trunk/libsemanage/src/handle.h
+@@ -58,6 +58,7 @@ struct semanage_handle {
+ 	int is_connected;
+ 	int is_in_transaction;
+ 	int do_reload;		/* whether to reload policy after commit */
++	int do_rebuild_file_context;	/* whether to generate homedircontext */
+ 	int do_rebuild;		/* whether to rebuild policy if there were no changes */
+ 	int modules_modified;
+ 	int create_store;	/* whether to create the store if it does not exist
+Index: trunk/libsemanage/src/libsemanage.map
+===================================================================
+--- trunk.orig/libsemanage/src/libsemanage.map
++++ trunk/libsemanage/src/libsemanage.map
+@@ -9,6 +9,7 @@ LIBSEMANAGE_1.0 {
+ 	  semanage_module_list_nth; semanage_module_get_name;
+ 	  semanage_module_get_version; semanage_select_store;
+ 	  semanage_reload_policy; semanage_set_reload; semanage_set_rebuild;
++	  semanage_set_rebuild_file_context;
+ 	  semanage_user_*; semanage_bool_*; semanage_seuser_*;
+ 	  semanage_iface_*; semanage_port_*; semanage_context_*;
+ 	  semanage_node_*;
+Index: trunk/libsemanage/src/semanage_store.c
+===================================================================
+--- trunk.orig/libsemanage/src/semanage_store.c
++++ trunk/libsemanage/src/semanage_store.c
+@@ -1148,7 +1148,7 @@ static int semanage_install_active(seman
+ 
+       skip_reload:
+ 
+-	if ((r =
++	if (sh->do_rebuild_file_context && (r =
+ 	     semanage_exec_prog(sh, sh->conf->setfiles, store_pol,
+ 				store_fc)) != 0) {
+ 		ERR(sh, "setfiles returned error code %d.", r);
+Index: trunk/libsemanage/src/handle.c
+===================================================================
+--- trunk.orig/libsemanage/src/handle.c
++++ trunk/libsemanage/src/handle.c
+@@ -68,6 +68,9 @@ semanage_handle_t *semanage_handle_creat
+ 	/* By default do not create store */
+ 	sh->create_store = 0;
+ 
++	/* Rebuild the file_contexts by default */
++	sh->do_rebuild_file_context = 1;
++
+ 	/* Set timeout: some default value for now, later use config */
+ 	sh->timeout = SEMANAGE_COMMIT_READ_WAIT;
+ 
+@@ -100,6 +103,15 @@ void semanage_set_reload(semanage_handle
+ 	return;
+ }
+ 
++void semanage_set_rebuild_file_context(semanage_handle_t * sh, int do_rebuild_file_context)
++{
++
++	assert(sh != NULL);
++
++	sh->do_rebuild_file_context = do_rebuild_file_context;
++	return;
++}
++
+ void semanage_set_create_store(semanage_handle_t * sh, int create_store)
+ {
+ 
+Index: trunk/libsemanage/Makefile
+===================================================================
+--- trunk.orig/libsemanage/Makefile
++++ trunk/libsemanage/Makefile
+@@ -1,6 +1,9 @@
+ all: 
+ 	$(MAKE) -C src all
+ 
++swigify:
++	$(MAKE) -C src swigify
++
+ pywrap: 
+ 	$(MAKE) -C src pywrap
+ 
 
-libsemanage needs to  figure out whether the
-template_homedir/seusers/users changed and not running genhomedircon or
-setfiles would be very nice.  Basically none of these should run if
-setsetbool is executed, or semanage ports/interface/fcontext (most of
-the time)/(semodule most of the time)
-It would be nice if there was a way to run semanage (genhomedircon)
-without running other parts of semanage also.  For example if the
-homedirectory of a user changed.
+-- 
 
-Making this change would allow me to separate the policy for setsebool
-from the rest of semanage.
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.7 (GNU/Linux)
-Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org
-
-iD8DBQFG/BH1rlYvE4MpobMRAsVxAKCHGCnKdWFFmUvmxyuMX+jZ3/sv2ACfZtDs
-xRnh81nj6njrl0olAoPJWU0=
-=bri9
------END PGP SIGNATURE-----
 
 --
 This message was distributed to subscribers of the selinux mailing list.
