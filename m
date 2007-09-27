@@ -1,122 +1,70 @@
-Message-Id: <20070927200753.013715498@tresys.com>
-References: <20070927200712.950671948@tresys.com>
-Date: Thu, 27 Sep 2007 16:07:16 -0400
-From: "Todd C. Miller" <tmiller@tresys.com>
-To: sds@tycho.nsa.gov, dwalsh@redhat.com
-Cc: selinux@tycho.nsa.gov, jbrindle@tresys.com, tmiller@tresys.com
-Subject: [patch 4/4] libsemanage: rebuild_file_context option
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l8RLDOw6032442
+	for <selinux@tycho.nsa.gov>; Thu, 27 Sep 2007 17:13:24 -0400
+Received: from mx1.redhat.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l8RLDNks010393
+	for <selinux@tycho.nsa.gov>; Thu, 27 Sep 2007 21:13:23 GMT
+Received: from int-mx1.corp.redhat.com (int-mx1.corp.redhat.com [172.16.52.254])
+	by mx1.redhat.com (8.13.1/8.13.1) with ESMTP id l8RLCNeb025143
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-SHA bits=256 verify=NO)
+	for <selinux@tycho.nsa.gov>; Thu, 27 Sep 2007 17:12:23 -0400
+Received: from pobox-2.corp.redhat.com (pobox-2.corp.redhat.com [10.11.255.15])
+	by int-mx1.corp.redhat.com (8.13.1/8.13.1) with ESMTP id l8RLCNi6021428
+	for <selinux@tycho.nsa.gov>; Thu, 27 Sep 2007 17:12:23 -0400
+Subject: Re: [RFC] /var versus /srv
+From: Karl MacMillan <kmacmill@redhat.com>
+To: Development discussions related to Fedora <fedora-devel-list@redhat.com>
+Cc: SE Linux <selinux@tycho.nsa.gov>
+In-Reply-To: <20070927161808.672f61f4@redhat.com>
+References: <46F33D05.4020701@ncsu.edu>
+	 <1190839164.16820.53.camel@vincent52.localdomain>
+	 <1190843974.17132.10.camel@localhost6.localdomain6>
+	 <200709262117.40104.sgrubb@redhat.com>
+	 <1190861566.21836.0.camel@localhost6.localdomain6>
+	 <20070927074100.6a37fc03@redhat.com> <46FBF63E.5060909@mindspring.com>
+	 <1190922818.3197.19.camel@localhost.localdomain>
+	 <20070927161808.672f61f4@redhat.com>
+Content-Type: text/plain
+Date: Thu, 27 Sep 2007 17:11:25 -0400
+Message-Id: <1190927485.3197.30.camel@localhost.localdomain>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Patch from dwalsh to allow disabling of file_contexts rebuilding.
+On Thu, 2007-09-27 at 16:18 -0400, Jesse Keating wrote:
+> On Thu, 27 Sep 2007 15:53:38 -0400
+> Karl MacMillan <kmacmill@redhat.com> wrote:
+> 
+> > 3) Have rpm set contexts that aren't yet valid. This option was
+> > explored and there was even a kernel patch that would allow this. The
+> > fear is that it would allow a malicious package to create files with
+> > _any_ context that is not yet valid. It makes it difficult or
+> > impossible to constrain rpm. You could go back after the policy is
+> > installed and check for contexts that are still invalid and fix
+> > those. No decision was reached about how to handle the hole and
+> > nothing happened. The SELinux upstream developers (well, at least me)
+> > are willing to reconsider this proposal.
+> 
+> Wouldn't it be reasonable to lay them down as 'undefined_t' and let the
+> post-rpm transactions relabel them?
+> 
 
----
- libsemanage/Makefile                  |    3 +++
- libsemanage/include/semanage/handle.h |    4 ++++
- libsemanage/src/handle.c              |   12 ++++++++++++
- libsemanage/src/handle.h              |    1 +
- libsemanage/src/libsemanage.map       |    1 +
- libsemanage/src/semanage_store.c      |    2 +-
- 6 files changed, 22 insertions(+), 1 deletion(-)
+That is possible - though obviously you have to handle things cleanly
+for upgrades to that you don't end up with, say, libc labeled as
+undefined_t. So you would have to:
 
-Index: trunk/libsemanage/include/semanage/handle.h
-===================================================================
---- trunk.orig/libsemanage/include/semanage/handle.h
-+++ trunk/libsemanage/include/semanage/handle.h
-@@ -69,6 +69,10 @@ void semanage_set_rebuild(semanage_handl
-  * 1 for yes, 0 for no (default) */
- void semanage_set_create_store(semanage_handle_t * handle, int create_store);
- 
-+/* set whether to generate homedir file context
-+ * 1 for yes (default), 0 for no */
-+void semanage_set_rebuild_file_context(semanage_handle_t * handle, int do_rebuild_file_context);
-+
- /* Set whether or not to disable dontaudits upon commit */
- void semanage_set_disable_dontaudit(semanage_handle_t * handle, int disable_dontaudit);
- 
-Index: trunk/libsemanage/src/handle.h
-===================================================================
---- trunk.orig/libsemanage/src/handle.h
-+++ trunk/libsemanage/src/handle.h
-@@ -58,6 +58,7 @@ struct semanage_handle {
- 	int is_connected;
- 	int is_in_transaction;
- 	int do_reload;		/* whether to reload policy after commit */
-+	int do_rebuild_file_context;	/* whether to generate homedircontext */
- 	int do_rebuild;		/* whether to rebuild policy if there were no changes */
- 	int modules_modified;
- 	int create_store;	/* whether to create the store if it does not exist
-Index: trunk/libsemanage/src/libsemanage.map
-===================================================================
---- trunk.orig/libsemanage/src/libsemanage.map
-+++ trunk/libsemanage/src/libsemanage.map
-@@ -9,6 +9,7 @@ LIBSEMANAGE_1.0 {
- 	  semanage_module_list_nth; semanage_module_get_name;
- 	  semanage_module_get_version; semanage_select_store;
- 	  semanage_reload_policy; semanage_set_reload; semanage_set_rebuild;
-+	  semanage_set_rebuild_file_context;
- 	  semanage_user_*; semanage_bool_*; semanage_seuser_*;
- 	  semanage_iface_*; semanage_port_*; semanage_context_*;
- 	  semanage_node_*;
-Index: trunk/libsemanage/src/semanage_store.c
-===================================================================
---- trunk.orig/libsemanage/src/semanage_store.c
-+++ trunk/libsemanage/src/semanage_store.c
-@@ -1148,7 +1148,7 @@ static int semanage_install_active(seman
- 
-       skip_reload:
- 
--	if ((r =
-+	if (sh->do_rebuild_file_context && (r =
- 	     semanage_exec_prog(sh, sh->conf->setfiles, store_pol,
- 				store_fc)) != 0) {
- 		ERR(sh, "setfiles returned error code %d.", r);
-Index: trunk/libsemanage/src/handle.c
-===================================================================
---- trunk.orig/libsemanage/src/handle.c
-+++ trunk/libsemanage/src/handle.c
-@@ -68,6 +68,9 @@ semanage_handle_t *semanage_handle_creat
- 	/* By default do not create store */
- 	sh->create_store = 0;
- 
-+	/* Rebuild the file_contexts by default */
-+	sh->do_rebuild_file_context = 1;
-+
- 	/* Set timeout: some default value for now, later use config */
- 	sh->timeout = SEMANAGE_COMMIT_READ_WAIT;
- 
-@@ -100,6 +103,15 @@ void semanage_set_reload(semanage_handle
- 	return;
- }
- 
-+void semanage_set_rebuild_file_context(semanage_handle_t * sh, int do_rebuild_file_context)
-+{
-+
-+	assert(sh != NULL);
-+
-+	sh->do_rebuild_file_context = do_rebuild_file_context;
-+	return;
-+}
-+
- void semanage_set_create_store(semanage_handle_t * sh, int create_store)
- {
- 
-Index: trunk/libsemanage/Makefile
-===================================================================
---- trunk.orig/libsemanage/Makefile
-+++ trunk/libsemanage/Makefile
-@@ -1,6 +1,9 @@
- all: 
- 	$(MAKE) -C src all
- 
-+swigify:
-+	$(MAKE) -C src swigify
-+
- pywrap: 
- 	$(MAKE) -C src pywrap
- 
+1) check every context as you put a file down
+2) if it is valid set it
+3) otherwise, set to undefined_t (and ideally add file to list)
+4) install policy in post
+5) relabel (ideally with list kept from before)
 
--- 
+Part of the problem, though, is figuring out what the context for a file
+should be. I believe that you can record contexts from when the rpm was
+built, but how do you handle if the admin has a local labeling rule that
+should take effect?
+
+Karl
 
 
 --
