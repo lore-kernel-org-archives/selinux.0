@@ -1,69 +1,64 @@
-Message-Id: <20070927200752.528616244@tresys.com>
-References: <20070927200712.950671948@tresys.com>
-Date: Thu, 27 Sep 2007 16:07:14 -0400
-From: "Todd C. Miller" <tmiller@tresys.com>
-To: sds@tycho.nsa.gov, dwalsh@redhat.com
-Cc: selinux@tycho.nsa.gov, jbrindle@tresys.com, tmiller@tresys.com
-Subject: [patch 2/4] libsemanage: fix getpw*_r usage
+Date: Thu, 27 Sep 2007 13:47:43 -0700 (PDT)
+From: James Morris <jmorris@namei.org>
+To: KaiGai Kohei <kaigai@ak.jp.nec.com>
+cc: Stephen Smalley <sds@tycho.nsa.gov>, selinux@tycho.nsa.gov,
+        Paul Moore <paul.moore@hp.com>,
+        Yuichi Nakamura <ynakam@hitachisoft.jp>,
+        Eric Paris <eparis@parisplace.org>
+Subject: Re: [PATCH] Improve SELinux performance when AVC misses.
+In-Reply-To: <46FB18D1.6080608@ak.jp.nec.com>
+Message-ID: <Xine.LNX.4.64.0709271342000.21590@us.intercode.com.au>
+References: <20070821130540.7AD3.YNAKAM@hitachisoft.jp>
+ <200708211111.27019.paul.moore@hp.com>  <1187714269.1451.148.camel@moss-spartans.epoch.ncsc.mil>
+  <200708211255.45132.paul.moore@hp.com> <46CC00F4.2090501@ak.jp.nec.com>
+ <46E7583C.9030103@ak.jp.nec.com>  <1190136066.14037.53.camel@moss-spartans.epoch.ncsc.mil>
+  <46F22BEF.9050208@ak.jp.nec.com>  <1190402479.17518.130.camel@moss-spartans.epoch.ncsc.mil>
+  <46F89767.2090203@ak.jp.nec.com> <1190728430.24726.13.camel@moss-spartans.epoch.ncsc.mil>
+ <46F9F2E2.4060406@ak.jp.nec.com> <46FB13EE.3040907@ak.jp.nec.com>
+ <46FB18D1.6080608@ak.jp.nec.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-getpwnam_r() returns 0 when a user doesn't exist and just zeroes the
-struct passwd pointer.  However, getpwent_r() returns ENOENT when there
-are no more users.  This diff deals with both possible behaviors so that
-if the two functions are brought in line nothing will break.  We can
-also remove the errno check and use the return value directly.
+On Thu, 27 Sep 2007, KaiGai Kohei wrote:
 
-Index: trunk/libsemanage/src/genhomedircon.c
-===================================================================
---- trunk.orig/libsemanage/src/genhomedircon.c
-+++ trunk/libsemanage/src/genhomedircon.c
-@@ -158,6 +158,7 @@ static semanage_list_t *get_home_dirs(ge
- 	size_t temp;
- 	struct passwd pwstorage, *pwbuf;
- 	struct stat buf;
-+	int retval;
- 
- 	shells = get_shell_list();
- 	assert(shells);
-@@ -229,7 +230,7 @@ static semanage_list_t *get_home_dirs(ge
- 	if (rbuf == NULL)
- 		goto fail;
- 	setpwent();
--	for (errno = 0; getpwent_r(&pwstorage, rbuf, rbuflen, &pwbuf) == 0; errno = 0) {
-+	while ((retval = getpwent_r(&pwstorage, rbuf, rbuflen, &pwbuf)) == 0) {
- 		if (pwbuf->pw_uid < minuid)
- 			continue;
- 		if (!semanage_list_find(shells, pwbuf->pw_shell))
-@@ -252,7 +253,7 @@ static semanage_list_t *get_home_dirs(ge
- 		free(path);
- 	}
- 
--	if (errno) {
-+	if (retval && retval != ENOENT) {
- 		WARN(s->h_semanage, "Error while fetching users.  "
- 		     "Returning list so far.");
- 	}
-@@ -614,12 +615,13 @@ static genhomedircon_user_entry_t *get_u
- 			prefix = name;
- 		}
- 
--		errno = 0;
--		if (getpwnam_r(name, &pwstorage, rbuf, rbuflen, &pwent) != 0) {
--			if (errno != 0) {
-+		retval = getpwnam_r(name, &pwstorage, rbuf, rbuflen, &pwent);
-+		if (retval != 0 || pwent == NULL) {
-+			if (retval != 0 && retval != ENOENT) {
- 				*errors = STATUS_ERR;
- 				goto cleanup;
- 			}
-+
- 			WARN(s->h_semanage,
- 			     "user %s not in password file", name);
- 			continue;
+> However, there are several ugly manner like as:
+> 
+> -+				c_iter->startbit = e_startbit & ~(NETLBL_CATMAP_SIZE - 1);
+> ++				c_iter->startbit
+> ++				  = e_startbit & ~(NETLBL_CATMAP_SIZE - 1);
+> If both side of the formula is in a same line, the width of the line get overs
+> the 80-char limitation.
+
+This is pretty common, so don't worry.
+
+> 
+> 
+> ++	char *nm;
+>            :
+> ++				if (head != prev) {
+> ++					nm = policydb.p_cat_val_to_name[prev];
+> ++					len += strlen(nm) + 1;
+> ++				}
+> 
+> If the temporary char * variable is named as "cat_name", the above longest
+> line overs 80-char limitation, so I named it as "nm".
+> This naming may be unclear for its purpose.
+
+I think it's better to keep the 80 column limit here.
+
+> ++			struct ebitmap_node *_n;
+> ++			_n = kzalloc(sizeof(*_n), GFP_KERNEL);
+
+Leading underscores are usually used to indicate that core code is not 
+supposed to use the symbol.  Please change it to not have a leading 
+underscore.  'tmp' or 'n2' is probably ok.
+
 
 -- 
-
+James Morris
+<jmorris@namei.org>
 
 --
 This message was distributed to subscribers of the selinux mailing list.
