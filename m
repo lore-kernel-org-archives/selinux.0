@@ -1,57 +1,41 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l8SFMIpe006230
-	for <selinux@tycho.nsa.gov>; Fri, 28 Sep 2007 11:22:18 -0400
-Received: from exchange.columbia.tresys.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with SMTP id l8SFMHMR004934
-	for <selinux@tycho.nsa.gov>; Fri, 28 Sep 2007 15:22:17 GMT
-Subject: ANN: Reference Policy Release
-From: "Christopher J. PeBenito" <cpebenito@tresys.com>
-To: SELinux Mail List <selinux@tycho.nsa.gov>
-Content-Type: text/plain
-Date: Fri, 28 Sep 2007 15:19:55 +0000
-Message-Id: <1190992795.4282.17.camel@gorn.columbia.tresys.com>
-Mime-Version: 1.0
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Subject: RE: [patch 0/4] libsemanage: genhomedircon regressions
+Date: Fri, 28 Sep 2007 11:35:52 -0400
+Message-ID: <6FE441CD9F0C0C479F2D88F959B01588010FFB9B@exchange.columbia.tresys.com>
+In-Reply-To: <1190991546.22078.33.camel@moss-spartans.epoch.ncsc.mil>
+References: <20070927200712.950671948@tresys.com> <1190986603.22078.1.camel@moss-spartans.epoch.ncsc.mil> <1190987098.22078.4.camel@moss-spartans.epoch.ncsc.mil> <6FE441CD9F0C0C479F2D88F959B01588010FFB75@exchange.columbia.tresys.com> <6FE441CD9F0C0C479F2D88F959B01588010FFB86@exchange.columbia.tresys.com> <1190991546.22078.33.camel@moss-spartans.epoch.ncsc.mil>
+From: "Joshua Brindle" <jbrindle@tresys.com>
+To: "Stephen Smalley" <sds@tycho.nsa.gov>, "Todd Miller" <tmiller@tresys.com>
+Cc: <dwalsh@redhat.com>, <selinux@tycho.nsa.gov>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-A new release of the SELinux Reference Policy is now available on the
-Tresys OSS site, http://oss.tresys.com.  In this release, an option for
-unknown permissions handling was added, several minor MLS enhancements
-were merged, and XML building issues for external reference and headers
-builds were fixed.  The complete change log for this release follows.
+Stephen Smalley wrote:
+> On Fri, 2007-09-28 at 11:00 -0400, Todd Miller wrote:
+>> Josh just pointed out that unlike file_contexts,
+>> file_contexts.homedir isn't sorted via semanage_fc_sort().
+>> 
+>> This is probably the best solution, though it would mean we lose the
+>> comments (they get stripped out during the sorting for obvious
+>> reasons). 
+>> 
+>> Thoughts?
+> 
+> I'd have assumed that you want the general /home patterns to
+> come first always (lowest precedence), then the per-user
+> patterns (and no conflicts among the per-user patterns).  So
+> I'm not sure why you'd want to sort it heuristically like the
+> rest of the file contexts.  The heuristics could end up
+> putting the general /home patterns later, which I don't think
+> you ever want.
 
-* Fri Sep 28 2007 Chris PeBenito <selinux@tresys.com> - 20070928
-- Add support for setting the unknown permissions handling.
-- Fix XML building for external reference builds and headers builds.
-- Patch to add missing requirements in userdomain interfaces from Shintaro
-  Fujiwara.
-- Add tcpd_wrapped_domain() for services that use tcp wrappers.
-- Update MLS constraints from LSPP evaluated policy.
-- Allow initrc_t file descriptors to be inherited regardless of MLS level.
-  Accordingly drop MLS permissions from daemons that inherit from any level.
-- Files and radvd updates from Stefan Schulze Frielinghaus.
-- Deprecate mls_file_write_down() and mls_file_read_up(), replaced with
-  mls_write_all_levels() and mls_read_all_levels(), for consistency.
-- Add make kernel and init ranged interfaces pass the range transition MLS
-  constraints.  Also remove calls to mls_rangetrans_target() in modules that use
-  the kernel and init interfaces, since its redundant.
-- Add interfaces for all MLS attributes except X object classes.
-- Require all sensitivities and categories for MLS and MCS policies, not just
-  the low and high sensitivity and category.
-- Database userspace object manager classes from KaiGai Kohei.
-- Add third-party interface for Apache CGI.
-- Add getserv and shmemserv nscd permissions.
-- Add debian apcupsd binary location, from Stefan Schulze Frielinghaus.
-- Added modules:
-        application
-        awstats (Stefan Schulze Frielinghaus)
-        bitlbee (Devin Carraway)
-        brctl (Dan Walsh)
 
--- 
-Chris PeBenito
-Tresys Technology, LLC
-(410) 290-1411 x150
+Matchpathcon should already read file_context.homedirs and matches
+entries in it before going on to the file_context file so using the
+fc_sort function would just be to sort the homedirs file and not sort
+both files together.
 
 
 --
