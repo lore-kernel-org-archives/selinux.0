@@ -1,41 +1,38 @@
 Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l91Di0lP017729
-	for <selinux@tycho.nsa.gov>; Mon, 1 Oct 2007 09:44:00 -0400
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l91Dhqki017706
+	for <selinux@tycho.nsa.gov>; Mon, 1 Oct 2007 09:43:52 -0400
 Received: from exchange.columbia.tresys.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with SMTP id l91Dhlr7002198
-	for <selinux@tycho.nsa.gov>; Mon, 1 Oct 2007 13:43:52 GMT
-Subject: Re: problem with ftpd
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with SMTP id l91Dhlr5002198
+	for <selinux@tycho.nsa.gov>; Mon, 1 Oct 2007 13:43:47 GMT
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Subject: Re: policyd module
+Date: Mon, 1 Oct 2007 08:52:14 -0400
+Message-ID: <1191243135.4282.42.camel@gorn>
+In-Reply-To: <20070929231049.GA14665@lc4eb8045376502.ibm.com>
+References: <20070929231049.GA14665@lc4eb8045376502.ibm.com>
 From: "Christopher J. PeBenito" <cpebenito@tresys.com>
-To: Michael Klinosky <mpk2@enter.net>
-Cc: selinux@tycho.nsa.gov
-In-Reply-To: <46FEA36D.1020501@enter.net>
-References: <46FEA36D.1020501@enter.net>
-Content-Type: text/plain
-Date: Mon, 01 Oct 2007 12:56:46 +0000
-Message-Id: <1191243406.4282.45.camel@gorn>
-Mime-Version: 1.0
+To: "Jan-Frode Myklebust" <janfrode@tanso.net>
+Cc: <selinux@tycho.nsa.gov>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Sat, 2007-09-29 at 15:11 -0400, Michael Klinosky wrote:
-> Hello.
-> I just subscribed, hoping to get help with an SElinux issue. However, it 
-> seems that this isn't quite a discussion list - correct?
-> 
-> If it can be discussed here, I want to figure out how to get SElinux to 
-> allow the application pure-ftpd to run properly. I get 2 alerts, and the 
-> suggestions didn't help.
-> 
-> If this isn't the place, is there another list? Or, could someone email 
-> me directly?
+On Sun, 2007-09-30 at 01:10 +0200, Jan-Frode Myklebust wrote:
+> Here's a module for the postfix policy server "policyd",
+> http://policyd.org/. It also needs the port 10031/tcp labeled as
+> policyd_port_t, but I don't know how to code that in a module. So I've
+> added it manually with "semanage port -a -t policyd_port_t -p tcp 10031"
+> on my systems.
 
-Go ahead and ask.  Audit messages or messages from setroubleshoot, in
-addition to any error messages from ftpd will be useful.
+It is a limitation of modules, ports can only be defined in the base
+module or via semanage.
 
 -- 
 Chris PeBenito
 Tresys Technology, LLC
 (410) 290-1411 x150
+
 
 
 --
