@@ -1,73 +1,41 @@
-Message-ID: <470120CD.5050009@redhat.com>
-Date: Mon, 01 Oct 2007 12:31:09 -0400
-From: Daniel J Walsh <dwalsh@redhat.com>
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l91HcxJa003991
+	for <selinux@tycho.nsa.gov>; Mon, 1 Oct 2007 13:38:59 -0400
+Received: from exchange.columbia.tresys.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with SMTP id l91HcvEn029672
+	for <selinux@tycho.nsa.gov>; Mon, 1 Oct 2007 17:38:57 GMT
 MIME-Version: 1.0
-To: "Todd C. Miller" <tmiller@tresys.com>
-CC: Joshua Brindle <jbrindle@tresys.com>, Stephen Smalley <sds@tycho.nsa.gov>,
-        selinux@tycho.nsa.gov
-Subject: Re: [patch 0/4] libsemanage: genhomedircon regressions
-References: <200709281804.l8SI4Cuj031486@cadmus.columbia.tresys.com>
-In-Reply-To: <200709281804.l8SI4Cuj031486@cadmus.columbia.tresys.com>
-Content-Type: multipart/mixed;
- boundary="------------030307070104030905090001"
+Content-Type: text/plain;
+	charset="us-ascii"
+Subject: RE: [PATCH] ustr cleanups (policyrep branch)
+Date: Mon, 1 Oct 2007 13:35:16 -0400
+Message-ID: <6FE441CD9F0C0C479F2D88F959B01588010FFCDC@exchange.columbia.tresys.com>
+In-Reply-To: <1191221196.29631.44.camel@code.and.org>
+References: <1191221196.29631.44.camel@code.and.org>
+From: "Todd Miller" <Tmiller@tresys.com>
+To: "James Antill" <jantill@redhat.com>, <selinux@tycho.nsa.gov>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This is a multi-part message in MIME format.
---------------030307070104030905090001
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+James Antill wrote:
+>  Here are two cleanups for ustr usage within libsemanage on the
+> policyrep branch.
+> 
+>  The first is a corner case where you have two or more replacements in
+> the "replace_all" function of genhomedircon, previously one of those
+> multiple replacements (in theory) could fail due to malloc() returning
+> NULL and that would be missed. The fix probably makes the free test
+> more readable too.
+> 
+>  The second is that semanage_is_prefix() was previously defined by
+> calling ustr functions (inefficiently, even), and so had to allocate a
+> ustr to do it's work ... the fix just calls strncmp() directly.
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+That looks sane to me.  Is there a reason you based this off of
+policyrep instead of trunk?
 
-This patch makes sure /root gets labeled even if it is using the default
-context.
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.7 (GNU/Linux)
-Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org
+ - todd
 
-iD8DBQFHASDNrlYvE4MpobMRAuAAAJ0edHnaWRQ/RuE8llb+RQ9Zh43j6ACg2qXK
-FsPmAB6fb4Ct9ytLVhxYijk=
-=S8km
------END PGP SIGNATURE-----
-
---------------030307070104030905090001
-Content-Type: text/plain;
- name="diff"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="diff"
-
-diff --exclude-from=exclude -N -u -r nsalibsemanage/src/genhomedircon.c libsemanage-2.0.11/src/genhomedircon.c
---- nsalibsemanage/src/genhomedircon.c	2007-10-01 09:54:35.000000000 -0400
-+++ libsemanage-2.0.11/src/genhomedircon.c	2007-10-01 12:24:39.000000000 -0400
-@@ -668,12 +668,11 @@
- 
- 	for (i = 0; i < nseusers; i++) {
- 		seuname = semanage_seuser_get_sename(seuser_list[i]);
-+		name = semanage_seuser_get_name(seuser_list[i]);
- 
--		if (strcmp(seuname, s->fallback_user) == 0)
-+		if (strcmp(name,"root") && strcmp(seuname, s->fallback_user) == 0)
- 			continue;
- 
--		name = semanage_seuser_get_name(seuser_list[i]);
--
- 		if (strcmp(name, DEFAULT_LOGIN) == 0)
- 			continue;
- 
-
---------------030307070104030905090001
-Content-Type: application/octet-stream;
- name="diff.sig"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment;
- filename="diff.sig"
-
-iD8DBQBHASDNrlYvE4MpobMRAvoTAJ9TOi/OV6+OTlMwyLRWlEtVHYJyrwCggndP+4f4AoZ6
-LlwgSewkVUduOh8=
---------------030307070104030905090001--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
