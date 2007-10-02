@@ -1,41 +1,45 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l92Ibai6009310
-	for <selinux@tycho.nsa.gov>; Tue, 2 Oct 2007 14:37:36 -0400
-Received: from atlrel7.hp.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id l92IbVK6023650
-	for <selinux@tycho.nsa.gov>; Tue, 2 Oct 2007 18:37:31 GMT
-Received: from smtp2.fc.hp.com (smtp.cnd.hp.com [15.11.136.114])
-	by atlrel7.hp.com (Postfix) with ESMTP id 212BD35A91
-	for <selinux@tycho.nsa.gov>; Tue,  2 Oct 2007 14:37:30 -0400 (EDT)
-From: Paul Moore <paul.moore@hp.com>
-Subject: [RFC PATCH v3 0/2] Small changes, now available in git form
-To: selinux@tycho.nsa.gov
-Date: Tue, 02 Oct 2007 14:37:24 -0400
-Message-ID: <20071002183121.24760.92916.stgit@flek.americas.hpqcorp.net>
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l92JeDdp014058
+	for <selinux@tycho.nsa.gov>; Tue, 2 Oct 2007 15:40:13 -0400
+Received: from ug-out-1314.google.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l92JeAFm015045
+	for <selinux@tycho.nsa.gov>; Tue, 2 Oct 2007 19:40:10 GMT
+Received: by ug-out-1314.google.com with SMTP id 30so2724715ugs
+        for <selinux@tycho.nsa.gov>; Tue, 02 Oct 2007 12:39:44 -0700 (PDT)
+Message-ID: <7e0fb38c0710021239o41485a61u338ac760ab5adb3d@mail.gmail.com>
+Date: Tue, 2 Oct 2007 15:39:42 -0400
+From: "Eric Paris" <eparis@parisplace.org>
+To: "Paul Moore" <paul.moore@hp.com>
+Subject: Re: [RFC PATCH v3 2/2] [SELINUX] Better integration between peer labeling subsystems
+Cc: selinux@tycho.nsa.gov
+In-Reply-To: <20071002183737.24760.64673.stgit@flek.americas.hpqcorp.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
+Content-Type: text/plain; charset=ISO-8859-1
+References: <20071002183121.24760.92916.stgit@flek.americas.hpqcorp.net>
+	 <20071002183737.24760.64673.stgit@flek.americas.hpqcorp.net>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Not a whole lot of changes in this revision, mostly just the policy version
-name change discussed on the list and some small fixes I've noticed while
-looking at the code.  I'm also making these patches available in git form
-for those of you who want to help out with testing ...
+On 10/2/07, Paul Moore <paul.moore@hp.com> wrote:
 
- * git://git.infradead.org/users/pcmoore/lblnet-2.6_testing
+> +       if (!ss_initialized || !selinux_mls_enabled) {
+> +               *peer_sid = SECSID_NULL;
+> +               return 0;
+> +       }
 
-You'll note the patches aren't signed off yet, that's because I'm not ready
-for them to get pulled anywhere important just yet.
+Is it possible for both netlbl_sid and xfrm_sid to be != SECSID_NULL
+if !ss_initialized?  What label to packets get while !ss_initialized?
 
-Next on my list is the ability to dynamically enable/disable the packet
-access checks for labeled IPsec and SECMARK based on the presence of any
-configuration - similar to what we are doing today with NetLabel and the
-netlbl_enabled() function.
+The selinux_mls_enabled check is (i think) also useless at the moment
+since if MLS is off won't netlbl_sid be null?  But I guess it doesn't
+hurt to leave it in there.   We can't call mls_context_cmp() the way
+you are below if !selinux_mls_enabled since apparently no MLS != no
+MLS (which i wonder if it's right, but i didn't check all the callers
+of it)
 
--- 
-paul moore
-linux security @ hp
+</nit picking>
 
+-Eric
 
 --
 This message was distributed to subscribers of the selinux mailing list.
