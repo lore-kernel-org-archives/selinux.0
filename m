@@ -1,148 +1,105 @@
 Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l92LFSNV020098
-	for <selinux@tycho.nsa.gov>; Tue, 2 Oct 2007 17:15:28 -0400
-Received: from an-out-0708.google.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l92LFRdd003174
-	for <selinux@tycho.nsa.gov>; Tue, 2 Oct 2007 21:15:28 GMT
-Received: by an-out-0708.google.com with SMTP id c38so690306ana
-        for <selinux@tycho.nsa.gov>; Tue, 02 Oct 2007 14:14:53 -0700 (PDT)
-Message-ID: <7e0fb38c0710021414u766766a7u9d619340d7ffc7b@mail.gmail.com>
-Date: Tue, 2 Oct 2007 17:14:52 -0400
-From: "Eric Paris" <eparis@parisplace.org>
-To: "Paul Moore" <paul.moore@hp.com>
-Subject: Re: [RFC PATCH v3 1/2] [SELINUX] Add a capabilities bitmap to SELinux policy version 22
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l92LLAXD020338
+	for <selinux@tycho.nsa.gov>; Tue, 2 Oct 2007 17:21:10 -0400
+Received: from atlrel7.hp.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l92LL9dd003679
+	for <selinux@tycho.nsa.gov>; Tue, 2 Oct 2007 21:21:09 GMT
+From: Paul Moore <paul.moore@hp.com>
+To: "Eric Paris" <eparis@parisplace.org>
+Subject: Re: [RFC PATCH v3 2/2] [SELINUX] Better integration between peer labeling subsystems
+Date: Tue, 2 Oct 2007 16:58:33 -0400
 Cc: selinux@tycho.nsa.gov
-In-Reply-To: <20071002183730.24760.37484.stgit@flek.americas.hpqcorp.net>
+References: <20071002183121.24760.92916.stgit@flek.americas.hpqcorp.net> <20071002183737.24760.64673.stgit@flek.americas.hpqcorp.net> <7e0fb38c0710021253x4c3a9bd2sd8006934801c2f74@mail.gmail.com>
+In-Reply-To: <7e0fb38c0710021253x4c3a9bd2sd8006934801c2f74@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-References: <20071002183121.24760.92916.stgit@flek.americas.hpqcorp.net>
-	 <20071002183730.24760.37484.stgit@flek.americas.hpqcorp.net>
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Message-Id: <200710021658.33949.paul.moore@hp.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
->  diff --git a/security/selinux/include/security.h b/security/selinux/include/security.h
->  index 83bdd4d..cc53ce4 100644
->  --- a/security/selinux/include/security.h
->  +++ b/security/selinux/include/security.h
->  @@ -25,13 +25,14 @@
->   #define POLICYDB_VERSION_MLS		19
->   #define POLICYDB_VERSION_AVTAB		20
->   #define POLICYDB_VERSION_RANGETRANS	21
->  +#define POLICYDB_VERSION_POLCAP		22
+On Tuesday 02 October 2007 3:39:42 pm Eric Paris wrote:
+> On 10/2/07, Paul Moore <paul.moore@hp.com> wrote:
+> > +       if (!ss_initialized || !selinux_mls_enabled) {
+> > +               *peer_sid = SECSID_NULL;
+> > +               return 0;
+> > +       }
 >
->   /* Range of policy versions we understand*/
->   #define POLICYDB_VERSION_MIN   POLICYDB_VERSION_BASE
->   #ifdef CONFIG_SECURITY_SELINUX_POLICYDB_VERSION_MAX
->   #define POLICYDB_VERSION_MAX	CONFIG_SECURITY_SELINUX_POLICYDB_VERSION_MAX_VALUE
->   #else
->  -#define POLICYDB_VERSION_MAX	POLICYDB_VERSION_RANGETRANS
->  +#define POLICYDB_VERSION_MAX	POLICYDB_VERSION_POLCAP
->   #endif
+> Is it possible for both netlbl_sid and xfrm_sid to be != SECSID_NULL
+> if !ss_initialized?  What label to packets get while !ss_initialized?
+
+Hmmm ... so you're thinking ss_initialized is redundant here.  Good catch.  
+Looking at the NetLabel secattr_to_sid code in ss/services.c you're right - 
+it has it's own ss_initialized check which will always result in netlbl_sid 
+== SECSID_NULL when the security server is not initialized.  While I don't 
+quickly see something similar in the labeled XFRM code I suspect it would get 
+tripped up on the context_to_sid and sid_to_context calls.  Regardless, we 
+only need one to be SECSID_NULL and netlbl_sid would catch it so you're 
+right - out with the check (and in with a comment so we don't wonder later 
+why it's not there).
+
+> The selinux_mls_enabled check is (i think) also useless at the moment
+> since if MLS is off won't netlbl_sid be null? But I guess it doesn't 
+> hurt to leave it in there.
+
+This is rather interesting, if you ignore the selinux_mls_enabled check I 
+believe you would end up a netlbl_sid which is equal to SECINITSID_NETMSG.  
+Look in security_netlbl_secattr_to_sid() in the if block when (secattr->flags 
+& NETLBL_SECATTR_MLS_LVL) and you'll see that the key security server MLS 
+calls are to mls_import_netlbl_lvl() which will be a no-op and to 
+mls_context_isvalid() which will declare the context valid as the 
+default "base sid" which in this case is SECINITSID_NETMSG.  Perhaps not the 
+most obvious conclusion at first glance but it does make sense.
+
+> We can't call mls_context_cmp() the way
+> you are below if !selinux_mls_enabled since apparently no MLS != no
+> MLS (which i wonder if it's right, but i didn't check all the callers
+> of it)
+
+You lost me on the "no MLS != no MLS".  Other than the obvious brain-o on the 
+mls_context_cmp() return value I think we'd be okay calling mls_context_cmp() 
+even when selinux_mls_enabled if false as we would end up returning the 
+xfrm_sid which would be the right thing to do in this case.
+
+I'm going to leave the selinux_mls_enabled check in for now as my gut tells me 
+it is "safer", although I believe the function would still operate correctly 
+even if the check were not in place.
+
+> </nit picking>
+
+Fine with me, I'm glad it's getting nit picked - that's why I keep posting the 
+patches :)  Once development slows a bit I'll start doing more testing which 
+should help sort out some of these problems too, but if anyone wants to get a 
+head start ...
+
+On Tuesday 02 October 2007 3:53:15 pm Eric Paris wrote:
+> > +out_slowpath:
+> > +       POLICY_RDUNLOCK;
+> > +       if (rc == 0)
+> > +               /* at present NetLabel SIDs/labels really only carry MLS
+> > +                * information so if the MLS portion of the NetLabel SID
+> > +                * matches the MLS portion of the labeled XFRM SID/label
+> > +                * then pass along the XFRM SID as it has the most peer
+> > label +                * information */
+> > +               *peer_sid = xfrm_sid;
+> > +       else
+> > +               *peer_sid = SECSID_NULL;
+> > +       return rc;
 >
->   struct netlbl_lsm_secattr;
+> Actually now that I look at it, doesn't mls_context_cmp return 1 if
+> they are the same and 0 if they are different?  So you'd need rc =
+> !mls_context_cmp ()  and we can then drop both the ss_initialized and
+> the mls_enabled stuff I was talking about before?
 
-This needs to be fixed and supported in security/selinux/Kconfig as well.
+See my comments above.  You are correct that I mixed up the return values.  I 
+remember checking that when I was writing the code but I guess I'm too used 
+to memcmp()/strcmp() and friends ...
 
+Thanks for taking the time to look at the code.
 
->  -#define SEL_INITCON_INO_OFFSET 	0x01000000
->  -#define SEL_BOOL_INO_OFFSET	0x02000000
->  -#define SEL_CLASS_INO_OFFSET	0x04000000
->  -#define SEL_INO_MASK		0x00ffffff
->  +#define SEL_INITCON_INO_OFFSET		0x01000000
->  +#define SEL_BOOL_INO_OFFSET		0x02000000
->  +#define SEL_CLASS_INO_OFFSET		0x04000000
->  +#define SEL_POLICYCAP_INO_OFFSET	0x08000000
->  +#define SEL_INO_MASK			0x00ffffff
-
-I like it no matter what they say   :)
-
->  +static ssize_t sel_read_policycap(struct file *file, char __user *buf,
->  +				  size_t count, loff_t *ppos)
->  +{
->  +	int value;
->  +	char tmpbuf[TMPBUFLEN];
->  +	ssize_t length;
->  +	unsigned long inode = file->f_path.dentry->d_inode->i_ino;
-
-can we call this i_ino please?  i know its a nit, but i was confused when i read
-the next line and initialy thought inode was a struct inode * like everywhere
-else
-
->  +
->  +	value = security_policycap_supported(inode & SEL_INO_MASK);
->  +	length = scnprintf(tmpbuf, TMPBUFLEN, "%d", value);
->  +
->  +	return simple_read_from_buffer(buf, count, ppos, tmpbuf, length);
->  +}
->  +
->  +static const struct file_operations sel_policycap_ops = {
->  +	.read		= sel_read_policycap,
->  +};
->  +
->   static int sel_make_perm_files(char *objclass, int classvalue,
->   				struct dentry *dir)
->   {
->  @@ -1530,6 +1569,36 @@ out:
->   	return rc;
->   }
->
->  +static int sel_make_policycap(void)
->  +{
->  +	unsigned int iter;
->  +	struct dentry *dentry = NULL;
->  +	struct inode *inode = NULL;
->  +
->  +	sel_remove_entries(policycap_dir);
->  +
->  +	for (iter = 0; iter <= POLICYDB_CAPABILITY_MAX; iter++) {
->  +		if (iter <= ARRAY_SIZE(policycap_names))
-
-aren't these going to grow together and always
-array_size(policycap_names) == POLICYDB_CAP_MAX + 1 ??
-
-assuming they were different, aren't you running one off the end of the
-policycap_names array?  Don't you need to be strictly < ARRAY_SIZE ?
-
-[snip]
-
->  @@ -102,6 +107,11 @@ static struct policydb_compat_info policydb_compat[] = {
->   		.sym_num        = SYM_NUM,
->   		.ocon_num       = OCON_NUM,
->   	},
->  +	{
->  +		.version        = POLICYDB_VERSION_POLCAP,
->  +		.sym_num        = SYM_NUM,
->  +		.ocon_num       = OCON_NUM,
->  +	}
->   };
-
-I don't care if policydb_compat[] does it wrong.  Tabs, not spaces.
-
-[snip]
-
->  +int security_get_policycaps(int *len, int **values)
-
-Who is using this function?  ints just seem huge to hold one bit each  :(
-
->  +{
->  +	int rc = -ENOMEM;
->  +	unsigned int iter;
->  +
->  +	POLICY_RDLOCK;
->  +
->  +	*values = kcalloc(POLICYDB_CAPABILITY_MAX, sizeof(int), GFP_ATOMIC);
-
-Depedning on who you think is going to use this, we might not need GFP_ATOMIC...
-
->  +	if (*values == NULL)
->  +		goto out;
->  +	for (iter = 0; iter < POLICYDB_CAPABILITY_MAX; iter++)
->  +		(*values)[iter] = ebitmap_get_bit(&policydb.policycaps, iter);
->  +	*len = POLICYDB_CAPABILITY_MAX;
->  +
->  +out:
->  +	POLICY_RDUNLOCK;
->  +	return rc;
+-- 
+paul moore
+linux security @ hp
 
 --
 This message was distributed to subscribers of the selinux mailing list.
