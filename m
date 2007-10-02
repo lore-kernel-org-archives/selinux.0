@@ -1,201 +1,227 @@
-Subject: Re: [PATCH] Improve SELinux performance when AVC misses.
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: KaiGai Kohei <kaigai@kaigai.gr.jp>
-Cc: James Morris <jmorris@namei.org>, KaiGai Kohei <kaigai@ak.jp.nec.com>,
-        selinux@tycho.nsa.gov, Paul Moore <paul.moore@hp.com>,
-        Yuichi Nakamura <ynakam@hitachisoft.jp>,
-        Eric Paris <eparis@parisplace.org>
-In-Reply-To: <47025FD6.3090803@kaigai.gr.jp>
-References: <20070821130540.7AD3.YNAKAM@hitachisoft.jp>
-	 <200708211111.27019.paul.moore@hp.com>
-	 <1187714269.1451.148.camel@moss-spartans.epoch.ncsc.mil>
-	 <200708211255.45132.paul.moore@hp.com> <46CC00F4.2090501@ak.jp.nec.com>
-	 <46E7583C.9030103@ak.jp.nec.com>
-	 <1190136066.14037.53.camel@moss-spartans.epoch.ncsc.mil>
-	 <46F22BEF.9050208@ak.jp.nec.com>
-	 <1190402479.17518.130.camel@moss-spartans.epoch.ncsc.mil>
-	 <46F89767.2090203@ak.jp.nec.com>
-	 <1190728430.24726.13.camel@moss-spartans.epoch.ncsc.mil>
-	 <46F9F2E2.4060406@ak.jp.nec.com> <46FB13EE.3040907@ak.jp.nec.com>
-	 <46FB18D1.6080608@ak.jp.nec.com>
-	 <Xine.LNX.4.64.0709271342000.21590@us.intercode.com.au>
-	 <46FCDDF0.9090707@ak.jp.nec.com>
-	 <1190990867.22078.29.camel@moss-spartans.epoch.ncsc.mil>
-	 <46FD37F7.4020602@ak.jp.nec.com>
-	 <Xine.LNX.4.64.0709281408080.18330@us.intercode.com.au>
-	 <47025FD6.3090803@kaigai.gr.jp>
-Content-Type: text/plain; charset=utf-8
-Date: Tue, 02 Oct 2007 11:28:35 -0400
-Message-Id: <1191338915.6799.17.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l92IbhPs009348
+	for <selinux@tycho.nsa.gov>; Tue, 2 Oct 2007 14:37:43 -0400
+Received: from atlrel7.hp.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id l92IbgK6023723
+	for <selinux@tycho.nsa.gov>; Tue, 2 Oct 2007 18:37:42 GMT
+Received: from smtp1.fc.hp.com (smtp.cnd.hp.com [15.15.136.127])
+	by atlrel7.hp.com (Postfix) with ESMTP id 135D035A0A
+	for <selinux@tycho.nsa.gov>; Tue,  2 Oct 2007 14:37:42 -0400 (EDT)
+From: Paul Moore <paul.moore@hp.com>
+Subject: [RFC PATCH v3 2/2] [SELINUX] Better integration between peer labeling
+	subsystems
+To: selinux@tycho.nsa.gov
+Date: Tue, 02 Oct 2007 14:37:37 -0400
+Message-ID: <20071002183737.24760.64673.stgit@flek.americas.hpqcorp.net>
+In-Reply-To: <20071002183121.24760.92916.stgit@flek.americas.hpqcorp.net>
+References: <20071002183121.24760.92916.stgit@flek.americas.hpqcorp.net>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2007-10-03 at 00:12 +0900, KaiGai Kohei wrote:
-> James Morris wrote:
-> > On Sat, 29 Sep 2007, KaiGai Kohei wrote:
-> > 
-> >> Stephen Smalley wrote:
-> >>> On Fri, 2007-09-28 at 19:56 +0900, KaiGai Kohei wrote:
-> >>>> James Morris wrote:
-> >>>>>> ++			struct ebitmap_node *_n;
-> >>>>>> ++			_n = kzalloc(sizeof(*_n), GFP_KERNEL);
-> >>>>> Leading underscores are usually used to indicate that core code is not 
-> >>>>> supposed to use the symbol.  Please change it to not have a leading 
-> >>>>> underscore.  'tmp' or 'n2' is probably ok.
-> >>>> OK, I replaced all of '_n' by 'tmp'.
-> >>>> Rest of the part in the following patch is same as the previous one.
-> >>> Seems to be damaged, or at least doesn't apply for me.  What is it
-> >>> relative to?
-> >> I generated the patch against to the latest of James's git tree
-> >> But it seems to me that all tab chatacters are translated into
-> >> four white spaces, when I copied and pasted the patch.
-> >> I'm sorry, it was my misoperation.
-> >>
-> >> Can you receive it with tab kept in this time?
-> > 
-> > Yes, but there are compiler warnings on 64-bit.
-> > 
-> > Please test it on a 64-bit machine.
-> > 
-> > $ make -j3 SUBDIRS=security
-> >   CC      security/selinux/ss/ebitmap.o
-> >   CC      security/selinux/ss/sidtab.o
-> >   CC      security/selinux/ss/avtab.o
-> > security/selinux/ss/ebitmap.c: In function â€˜ebitmap_netlbl_importâ€™:
-> > security/selinux/ss/ebitmap.c:196: warning: right shift count >= width of type
-> > security/selinux/ss/ebitmap.c: In function â€˜ebitmap_readâ€™:
-> > security/selinux/ss/ebitmap.c:393: warning: format â€˜%Zdâ€™ expects type â€˜signed size_tâ€™, but argument 3 has type â€˜u32â€™
-> > security/selinux/ss/ebitmap.c:399: warning: format â€˜%Zdâ€™ expects type â€˜signed size_tâ€™, but argument 3 has type â€˜u32â€™
-> > security/selinux/ss/ebitmap.c:437: warning: right shift count >= width of type
-> 
-> The attached patch kills these warnings.
-> 
-> While killing them, I faced to a serious bug.
-> At first, I expected the following while { ... } block is never looped
-> multiple time in 64-bit architecture.
-> 
-> --------
-> +#if EBITMAP_UNIT_SIZE == 64
-> +		n->maps[index] = map;
-> +#else
->   		while (map) {
->   			n->maps[index] = map & (-1UL);
->   			map = map >> EBITMAP_UNIT_SIZE;
->   			index++;
->   		}
-> +#endif
-> --------
-> 
-> However, I might misunderstand about the works of shift operations.
-> When we tries to shift a variable with the width of it, this operation
-> does not give us any effect.
-> 
-> See the following small code.
-> 
-> [kaigai@masu ~]$ cat hoge.c
-> #include <stdio.h>
-> 
-> int main(int argc, char *argv[]) {
->          unsigned long code = -1UL;
-> 
->          printf("code       = %016lx\n", code);
->          printf("code >> 16 = %016lx\n", code >> 16);
->          printf("code >> 63 = %016lx\n", code >> 63);
->          printf("code >> 64 = %016lx\n", code >> 64);
->          printf("code >> 65 = %016lx\n", code >> 65);
-> 
->          return 0;
-> }
-> [kaigai@masu ~]$ env LANG=C gcc hoge.c
-> hoge.c: In function 'main':
-> hoge.c:9: warning: right shift count >= width of type
-> hoge.c:10: warning: right shift count >= width of type
-> [kaigai@masu ~]$ ./a.out
-> code       = ffffffffffffffff
-> code >> 16 = 0000ffffffffffff
-> code >> 63 = 0000000000000001
-> code >> 64 = ffffffffffffffff
-> code >> 65 = 7fffffffffffffff
-> [kaigai@masu ~]$ uname -m
-> x86_64
-> 
-> I was suprised at. :-)
+Rename the existing selinux_skb_extlbl_sid() function to
+selinux_skb_peerlbl_sid() and modify it's behavior such that it now reconciles
+multiple peer/external labels and if reconciliation is not possible it returns
+an error to the caller.
+---
 
-Me too.  But see:
-http://gcc.gnu.org/ml/gcc/2004-11/msg01133.html
-http://marc.info/?t=118688311400003&r=1&w=2
+ security/selinux/hooks.c            |   42 +++++++++++--------
+ security/selinux/include/security.h |    2 +
+ security/selinux/ss/services.c      |   76 +++++++++++++++++++++++++++++++++++
+ 3 files changed, 101 insertions(+), 19 deletions(-)
 
-> It is the reason why I put #if block to separate 64bit/32bit cases.
-> 
-> Do you have any idea to write it more simply?
-> 
-> ----------------------------------------
-> [PATCH] kills warnings in Improve SELinux performance when AVC misses
-> 
-> This patch kills ugly warnings when the "Improve SELinux performance
-> when ACV misses" patch.
-> 
-> Signed-off-by: KaiGai Kohei <kaigai@ak.jp.nec.com>
-> ---
->   security/selinux/ss/ebitmap.c |   12 ++++++++++--
->   1 files changed, 10 insertions(+), 2 deletions(-)
-> 
-> diff --git a/security/selinux/ss/ebitmap.c b/security/selinux/ss/ebitmap.c
-> index ae44c0c..2e21ca1 100644
-> --- a/security/selinux/ss/ebitmap.c
-> +++ b/security/selinux/ss/ebitmap.c
-> @@ -191,10 +191,14 @@ int ebitmap_netlbl_import(struct ebitmap *ebmap,
->   			delta = c_pos - e_iter->startbit;
->   			e_idx = delta / EBITMAP_UNIT_SIZE;
->   			e_sft = delta % EBITMAP_UNIT_SIZE;
-> +#if EBITMAP_UNIT_SIZE == 64
-> +			e_iter->maps[e_idx] |= map;
-> +#else
->   			while (map) {
->   				e_iter->maps[e_idx++] |= map & (-1UL);
->   				map >>= EBITMAP_UNIT_SIZE;
->   			}
-> +#endif
->   		}
->   		c_iter = c_iter->next;
->   	} while (c_iter != NULL);
-> @@ -389,13 +393,13 @@ int ebitmap_read(struct ebitmap *e, void *fp)
-> 
->   		if (startbit & (mapunit - 1)) {
->   			printk(KERN_ERR "security: ebitmap start bit (%d) is "
-> -			       "not a multiple of the map unit size (%Zd)\n",
-> +			       "not a multiple of the map unit size (%u)\n",
->   			       startbit, mapunit);
->   			goto bad;
->   		}
->   		if (startbit > e->highbit - mapunit) {
->   			printk(KERN_ERR "security: ebitmap start bit (%d) is "
-> -			       "beyond the end of the bitmap (%Zd)\n",
-> +			       "beyond the end of the bitmap (%u)\n",
->   			       startbit, (e->highbit - mapunit));
->   			goto bad;
->   		}
-> @@ -432,11 +436,15 @@ int ebitmap_read(struct ebitmap *e, void *fp)
->   		map = le64_to_cpu(map);
-> 
->   		index = (startbit - n->startbit) / EBITMAP_UNIT_SIZE;
-> +#if EBITMAP_UNIT_SIZE == 64
-> +		n->maps[index] = map;
-> +#else
->   		while (map) {
->   			n->maps[index] = map & (-1UL);
->   			map = map >> EBITMAP_UNIT_SIZE;
->   			index++;
->   		}
-> +#endif
->   	}
->   ok:
->   	rc = 0;
-> 
--- 
-Stephen Smalley
-National Security Agency
+diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+index 0753b20..9923c01 100644
+--- a/security/selinux/hooks.c
++++ b/security/selinux/hooks.c
+@@ -3132,32 +3132,31 @@ static int selinux_parse_skb(struct sk_buff *skb, struct avc_audit_data *ad,
+ }
+ 
+ /**
+- * selinux_skb_extlbl_sid - Determine the external label of a packet
++ * selinux_skb_peerlbl_sid - Determine the peer label of a packet
+  * @skb: the packet
+- * @sid: the packet's SID
++ * @sid: the packet's peer label SID
+  *
+  * Description:
+- * Check the various different forms of external packet labeling and determine
+- * the external SID for the packet.  If only one form of external labeling is
+- * present then it is used, if both labeled IPsec and NetLabel labels are
+- * present then the SELinux type information is taken from the labeled IPsec
+- * SA and the MLS sensitivity label information is taken from the NetLabel
+- * security attributes.  This bit of "magic" is done in the call to
+- * selinux_netlbl_skbuff_getsid().
++ * Check the various different forms of network peer labeling and determine
++ * the peer label/SID for the packet; most of the magic actually occurs in
++ * the security server function security_net_peersid_cmp().  The function
++ * returns zero if the value in @sid is valid (although it may be SECSID_NULL)
++ * or -EACCES if @sid is invalid due to inconsistencies with the different
++ * peer labels.
+  *
+  */
+-static void selinux_skb_extlbl_sid(struct sk_buff *skb, u32 *sid)
++static int selinux_skb_peerlbl_sid(struct sk_buff *skb, u32 *sid)
+ {
+ 	u32 xfrm_sid;
+ 	u32 nlbl_sid;
+ 
+ 	selinux_skb_xfrm_sid(skb, &xfrm_sid);
+-	if (selinux_netlbl_skbuff_getsid(skb,
+-					 (xfrm_sid == SECSID_NULL ?
+-					  SECINITSID_NETMSG : xfrm_sid),
+-					 &nlbl_sid) != 0)
+-		nlbl_sid = SECSID_NULL;
+-	*sid = (nlbl_sid == SECSID_NULL ? xfrm_sid : nlbl_sid);
++	selinux_netlbl_skbuff_getsid(skb, SECINITSID_NETMSG, &nlbl_sid);
++
++	if (security_net_peersid_resolve(nlbl_sid, xfrm_sid, sid) != 0)
++		return -EACCES;
++
++	return 0;
+ }
+ 
+ /* socket security operations */
+@@ -3640,6 +3639,9 @@ static int selinux_socket_sock_rcv_skb(struct sock *sk, struct sk_buff *skb)
+ 	if (err)
+ 		goto out;
+ 
++	/* XXX - make use of selinux_skb_peerlbl_sid() here but only once we
++	 *       have the new peer object class in place */
++
+ 	err = selinux_netlbl_sock_rcv_skb(sksec, skb, &ad);
+ 	if (err)
+ 		goto out;
+@@ -3701,7 +3703,7 @@ static int selinux_socket_getpeersec_dgram(struct socket *sock, struct sk_buff *
+ 	if (sock && sock->sk->sk_family == PF_UNIX)
+ 		selinux_get_inode_sid(SOCK_INODE(sock), &peer_secid);
+ 	else if (skb)
+-		selinux_skb_extlbl_sid(skb, &peer_secid);
++		selinux_skb_peerlbl_sid(skb, &peer_secid);
+ 
+ 	if (peer_secid == SECSID_NULL)
+ 		err = -EINVAL;
+@@ -3762,7 +3764,9 @@ static int selinux_inet_conn_request(struct sock *sk, struct sk_buff *skb,
+ 	u32 newsid;
+ 	u32 peersid;
+ 
+-	selinux_skb_extlbl_sid(skb, &peersid);
++	err = selinux_skb_peerlbl_sid(skb, &peersid);
++	if (err)
++		return err;
+ 	if (peersid == SECSID_NULL) {
+ 		req->secid = sksec->sid;
+ 		req->peer_secid = SECSID_NULL;
+@@ -3800,7 +3804,7 @@ static void selinux_inet_conn_established(struct sock *sk,
+ {
+ 	struct sk_security_struct *sksec = sk->sk_security;
+ 
+-	selinux_skb_extlbl_sid(skb, &sksec->peer_sid);
++	selinux_skb_peerlbl_sid(skb, &sksec->peer_sid);
+ }
+ 
+ static void selinux_req_classify_flow(const struct request_sock *req,
+diff --git a/security/selinux/include/security.h b/security/selinux/include/security.h
+index cc53ce4..f193693 100644
+--- a/security/selinux/include/security.h
++++ b/security/selinux/include/security.h
+@@ -100,6 +100,8 @@ int security_validate_transition(u32 oldsid, u32 newsid, u32 tasksid,
+ 
+ int security_sid_mls_copy(u32 sid, u32 mls_sid, u32 *new_sid);
+ 
++int security_net_peersid_resolve(u32 nlbl_sid, u32 xfrm_sid, u32 *peer_sid);
++
+ int security_get_classes(char ***classes, int *nclasses);
+ int security_get_permissions(char *class, char ***perms, int *nperms);
+ int security_get_policycaps(int *len, int **values);
+diff --git a/security/selinux/ss/services.c b/security/selinux/ss/services.c
+index 60e07d4..5247758 100644
+--- a/security/selinux/ss/services.c
++++ b/security/selinux/ss/services.c
+@@ -2013,6 +2013,82 @@ out:
+ 	return rc;
+ }
+ 
++/**
++ * security_net_peersid_cmp - Compare and resolve two network peer SIDs
++ * @nlbl_sid: NetLabel SID
++ * @xfrm_sid: XFRM SID
++ *
++ * Description:
++ * Compare the @nlbl_sid and @xfrm_sid values and if the two SIDs can be
++ * resolved into a single SID it is returned via @peer_sid and the function
++ * returns zero.  Otherwise @peer_sid is set to SECSID_NULL and the function
++ * returns a negative value.  A table summarizing the behavior is below:
++ *
++ *                                 | function return |      @sid
++ *   ------------------------------+-----------------+-----------------
++ *   no peer labels                |        0        |    SECSID_NULL
++ *   single peer label             |        0        |    <peer_label>
++ *   multiple, consistent labels   |        0        |    <peer_label>
++ *   multiple, inconsistent labels |    -<errno>     |    SECSID_NULL
++ *
++ */
++int security_net_peersid_resolve(u32 nlbl_sid, u32 xfrm_sid, u32 *peer_sid)
++{
++	int rc;
++	struct context *nlbl_ctx;
++	struct context *xfrm_ctx;
++
++	/* handle the common (which also happens to be the set of easy) cases
++	 * right away, these two if statements catch everything involving a
++	 * single or absent peer SID/label */
++	if (xfrm_sid == SECSID_NULL) {
++		*peer_sid = nlbl_sid;
++		return 0;
++	}
++	if (nlbl_sid == SECSID_NULL) {
++		*peer_sid = xfrm_sid;
++		return 0;
++	}
++
++	if (!ss_initialized || !selinux_mls_enabled) {
++		*peer_sid = SECSID_NULL;
++		return 0;
++	}
++
++	POLICY_RDLOCK;
++
++	nlbl_ctx = sidtab_search(&sidtab, nlbl_sid);
++	if (!nlbl_ctx) {
++		printk(KERN_ERR
++		       "security_sid_mls_cmp:  unrecognized SID %d\n",
++		       nlbl_sid);
++		rc = -EINVAL;
++		goto out_slowpath;
++	}
++	xfrm_ctx = sidtab_search(&sidtab, xfrm_sid);
++	if (!xfrm_ctx) {
++		printk(KERN_ERR
++		       "security_sid_mls_cmp:  unrecognized SID %d\n",
++		       xfrm_sid);
++		rc = -EINVAL;
++		goto out_slowpath;
++	}
++	rc = mls_context_cmp(nlbl_ctx, xfrm_ctx);
++
++out_slowpath:
++	POLICY_RDUNLOCK;
++	if (rc == 0)
++		/* at present NetLabel SIDs/labels really only carry MLS
++		 * information so if the MLS portion of the NetLabel SID
++		 * matches the MLS portion of the labeled XFRM SID/label
++		 * then pass along the XFRM SID as it has the most peer label
++		 * information */
++		*peer_sid = xfrm_sid;
++	else
++		*peer_sid = SECSID_NULL;
++	return rc;
++}
++
+ static int get_classes_callback(void *k, void *d, void *args)
+ {
+ 	struct class_datum *datum = d;
 
 
 --
