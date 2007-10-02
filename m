@@ -1,81 +1,202 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l92FUJMD025762
-	for <selinux@tycho.nsa.gov>; Tue, 2 Oct 2007 11:30:19 -0400
-Received: from py-out-1112.google.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l92FUIA2018081
-	for <selinux@tycho.nsa.gov>; Tue, 2 Oct 2007 15:30:18 GMT
-Received: by py-out-1112.google.com with SMTP id u77so8680435pyb
-        for <selinux@tycho.nsa.gov>; Tue, 02 Oct 2007 08:29:58 -0700 (PDT)
-Message-ID: <f71a82820710020829h2e3707a6h1453ba9d4b6669be@mail.gmail.com>
-Date: Wed, 3 Oct 2007 00:29:54 +0900
-From: "Shintaro Fujiwara" <shintaro.fujiwara@gmail.com>
-To: "Christopher J. PeBenito" <cpebenito@tresys.com>,
-        selinux <selinux@tycho.nsa.gov>
-Subject: Re: ANN: Reference Policy Release
-In-Reply-To: <1190992795.4282.17.camel@gorn.columbia.tresys.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-References: <1190992795.4282.17.camel@gorn.columbia.tresys.com>
+Subject: Re: [PATCH] Improve SELinux performance when AVC misses.
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: KaiGai Kohei <kaigai@kaigai.gr.jp>
+Cc: James Morris <jmorris@namei.org>, KaiGai Kohei <kaigai@ak.jp.nec.com>,
+        selinux@tycho.nsa.gov, Paul Moore <paul.moore@hp.com>,
+        Yuichi Nakamura <ynakam@hitachisoft.jp>,
+        Eric Paris <eparis@parisplace.org>
+In-Reply-To: <47025FD6.3090803@kaigai.gr.jp>
+References: <20070821130540.7AD3.YNAKAM@hitachisoft.jp>
+	 <200708211111.27019.paul.moore@hp.com>
+	 <1187714269.1451.148.camel@moss-spartans.epoch.ncsc.mil>
+	 <200708211255.45132.paul.moore@hp.com> <46CC00F4.2090501@ak.jp.nec.com>
+	 <46E7583C.9030103@ak.jp.nec.com>
+	 <1190136066.14037.53.camel@moss-spartans.epoch.ncsc.mil>
+	 <46F22BEF.9050208@ak.jp.nec.com>
+	 <1190402479.17518.130.camel@moss-spartans.epoch.ncsc.mil>
+	 <46F89767.2090203@ak.jp.nec.com>
+	 <1190728430.24726.13.camel@moss-spartans.epoch.ncsc.mil>
+	 <46F9F2E2.4060406@ak.jp.nec.com> <46FB13EE.3040907@ak.jp.nec.com>
+	 <46FB18D1.6080608@ak.jp.nec.com>
+	 <Xine.LNX.4.64.0709271342000.21590@us.intercode.com.au>
+	 <46FCDDF0.9090707@ak.jp.nec.com>
+	 <1190990867.22078.29.camel@moss-spartans.epoch.ncsc.mil>
+	 <46FD37F7.4020602@ak.jp.nec.com>
+	 <Xine.LNX.4.64.0709281408080.18330@us.intercode.com.au>
+	 <47025FD6.3090803@kaigai.gr.jp>
+Content-Type: text/plain; charset=utf-8
+Date: Tue, 02 Oct 2007 11:28:35 -0400
+Message-Id: <1191338915.6799.17.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Thank you very much, for including my name on it.
-I think everybody would be more encouraged
-if you could make a page like this of refpolicy.
+On Wed, 2007-10-03 at 00:12 +0900, KaiGai Kohei wrote:
+> James Morris wrote:
+> > On Sat, 29 Sep 2007, KaiGai Kohei wrote:
+> > 
+> >> Stephen Smalley wrote:
+> >>> On Fri, 2007-09-28 at 19:56 +0900, KaiGai Kohei wrote:
+> >>>> James Morris wrote:
+> >>>>>> ++			struct ebitmap_node *_n;
+> >>>>>> ++			_n = kzalloc(sizeof(*_n), GFP_KERNEL);
+> >>>>> Leading underscores are usually used to indicate that core code is not 
+> >>>>> supposed to use the symbol.  Please change it to not have a leading 
+> >>>>> underscore.  'tmp' or 'n2' is probably ok.
+> >>>> OK, I replaced all of '_n' by 'tmp'.
+> >>>> Rest of the part in the following patch is same as the previous one.
+> >>> Seems to be damaged, or at least doesn't apply for me.  What is it
+> >>> relative to?
+> >> I generated the patch against to the latest of James's git tree
+> >> But it seems to me that all tab chatacters are translated into
+> >> four white spaces, when I copied and pasted the patch.
+> >> I'm sorry, it was my misoperation.
+> >>
+> >> Can you receive it with tab kept in this time?
+> > 
+> > Yes, but there are compiler warnings on 64-bit.
+> > 
+> > Please test it on a 64-bit machine.
+> > 
+> > $ make -j3 SUBDIRS=security
+> >   CC      security/selinux/ss/ebitmap.o
+> >   CC      security/selinux/ss/sidtab.o
+> >   CC      security/selinux/ss/avtab.o
+> > security/selinux/ss/ebitmap.c: In function â€˜ebitmap_netlbl_importâ€™:
+> > security/selinux/ss/ebitmap.c:196: warning: right shift count >= width of type
+> > security/selinux/ss/ebitmap.c: In function â€˜ebitmap_readâ€™:
+> > security/selinux/ss/ebitmap.c:393: warning: format â€˜%Zdâ€™ expects type â€˜signed size_tâ€™, but argument 3 has type â€˜u32â€™
+> > security/selinux/ss/ebitmap.c:399: warning: format â€˜%Zdâ€™ expects type â€˜signed size_tâ€™, but argument 3 has type â€˜u32â€™
+> > security/selinux/ss/ebitmap.c:437: warning: right shift count >= width of type
+> 
+> The attached patch kills these warnings.
+> 
+> While killing them, I faced to a serious bug.
+> At first, I expected the following while { ... } block is never looped
+> multiple time in 64-bit architecture.
+> 
+> --------
+> +#if EBITMAP_UNIT_SIZE == 64
+> +		n->maps[index] = map;
+> +#else
+>   		while (map) {
+>   			n->maps[index] = map & (-1UL);
+>   			map = map >> EBITMAP_UNIT_SIZE;
+>   			index++;
+>   		}
+> +#endif
+> --------
+> 
+> However, I might misunderstand about the works of shift operations.
+> When we tries to shift a variable with the width of it, this operation
+> does not give us any effect.
+> 
+> See the following small code.
+> 
+> [kaigai@masu ~]$ cat hoge.c
+> #include <stdio.h>
+> 
+> int main(int argc, char *argv[]) {
+>          unsigned long code = -1UL;
+> 
+>          printf("code       = %016lx\n", code);
+>          printf("code >> 16 = %016lx\n", code >> 16);
+>          printf("code >> 63 = %016lx\n", code >> 63);
+>          printf("code >> 64 = %016lx\n", code >> 64);
+>          printf("code >> 65 = %016lx\n", code >> 65);
+> 
+>          return 0;
+> }
+> [kaigai@masu ~]$ env LANG=C gcc hoge.c
+> hoge.c: In function 'main':
+> hoge.c:9: warning: right shift count >= width of type
+> hoge.c:10: warning: right shift count >= width of type
+> [kaigai@masu ~]$ ./a.out
+> code       = ffffffffffffffff
+> code >> 16 = 0000ffffffffffff
+> code >> 63 = 0000000000000001
+> code >> 64 = ffffffffffffffff
+> code >> 65 = 7fffffffffffffff
+> [kaigai@masu ~]$ uname -m
+> x86_64
+> 
+> I was suprised at. :-)
 
-http://www.nsa.gov/selinux/info/contrib.cfm
+Me too.  But see:
+http://gcc.gnu.org/ml/gcc/2004-11/msg01133.html
+http://marc.info/?t=118688311400003&r=1&w=2
 
-p.s.
-I'm encouraging people in my country to get involved in refpolicy.
-Not in Akihabara, but on SecureOS-Japan-ML, though...
+> It is the reason why I put #if block to separate 64bit/32bit cases.
+> 
+> Do you have any idea to write it more simply?
+> 
+> ----------------------------------------
+> [PATCH] kills warnings in Improve SELinux performance when AVC misses
+> 
+> This patch kills ugly warnings when the "Improve SELinux performance
+> when ACV misses" patch.
+> 
+> Signed-off-by: KaiGai Kohei <kaigai@ak.jp.nec.com>
+> ---
+>   security/selinux/ss/ebitmap.c |   12 ++++++++++--
+>   1 files changed, 10 insertions(+), 2 deletions(-)
+> 
+> diff --git a/security/selinux/ss/ebitmap.c b/security/selinux/ss/ebitmap.c
+> index ae44c0c..2e21ca1 100644
+> --- a/security/selinux/ss/ebitmap.c
+> +++ b/security/selinux/ss/ebitmap.c
+> @@ -191,10 +191,14 @@ int ebitmap_netlbl_import(struct ebitmap *ebmap,
+>   			delta = c_pos - e_iter->startbit;
+>   			e_idx = delta / EBITMAP_UNIT_SIZE;
+>   			e_sft = delta % EBITMAP_UNIT_SIZE;
+> +#if EBITMAP_UNIT_SIZE == 64
+> +			e_iter->maps[e_idx] |= map;
+> +#else
+>   			while (map) {
+>   				e_iter->maps[e_idx++] |= map & (-1UL);
+>   				map >>= EBITMAP_UNIT_SIZE;
+>   			}
+> +#endif
+>   		}
+>   		c_iter = c_iter->next;
+>   	} while (c_iter != NULL);
+> @@ -389,13 +393,13 @@ int ebitmap_read(struct ebitmap *e, void *fp)
+> 
+>   		if (startbit & (mapunit - 1)) {
+>   			printk(KERN_ERR "security: ebitmap start bit (%d) is "
+> -			       "not a multiple of the map unit size (%Zd)\n",
+> +			       "not a multiple of the map unit size (%u)\n",
+>   			       startbit, mapunit);
+>   			goto bad;
+>   		}
+>   		if (startbit > e->highbit - mapunit) {
+>   			printk(KERN_ERR "security: ebitmap start bit (%d) is "
+> -			       "beyond the end of the bitmap (%Zd)\n",
+> +			       "beyond the end of the bitmap (%u)\n",
+>   			       startbit, (e->highbit - mapunit));
+>   			goto bad;
+>   		}
+> @@ -432,11 +436,15 @@ int ebitmap_read(struct ebitmap *e, void *fp)
+>   		map = le64_to_cpu(map);
+> 
+>   		index = (startbit - n->startbit) / EBITMAP_UNIT_SIZE;
+> +#if EBITMAP_UNIT_SIZE == 64
+> +		n->maps[index] = map;
+> +#else
+>   		while (map) {
+>   			n->maps[index] = map & (-1UL);
+>   			map = map >> EBITMAP_UNIT_SIZE;
+>   			index++;
+>   		}
+> +#endif
+>   	}
+>   ok:
+>   	rc = 0;
+> 
+-- 
+Stephen Smalley
+National Security Agency
 
-
-2007/9/29, Christopher J. PeBenito <cpebenito@tresys.com>:
-> A new release of the SELinux Reference Policy is now available on the
-> Tresys OSS site, http://oss.tresys.com.  In this release, an option for
-> unknown permissions handling was added, several minor MLS enhancements
-> were merged, and XML building issues for external reference and headers
-> builds were fixed.  The complete change log for this release follows.
->
-> * Fri Sep 28 2007 Chris PeBenito <selinux@tresys.com> - 20070928
-> - Add support for setting the unknown permissions handling.
-> - Fix XML building for external reference builds and headers builds.
-> - Patch to add missing requirements in userdomain interfaces from Shintaro
->   Fujiwara.
-> - Add tcpd_wrapped_domain() for services that use tcp wrappers.
-> - Update MLS constraints from LSPP evaluated policy.
-> - Allow initrc_t file descriptors to be inherited regardless of MLS level.
->   Accordingly drop MLS permissions from daemons that inherit from any level.
-> - Files and radvd updates from Stefan Schulze Frielinghaus.
-> - Deprecate mls_file_write_down() and mls_file_read_up(), replaced with
->   mls_write_all_levels() and mls_read_all_levels(), for consistency.
-> - Add make kernel and init ranged interfaces pass the range transition MLS
->   constraints.  Also remove calls to mls_rangetrans_target() in modules that use
->   the kernel and init interfaces, since its redundant.
-> - Add interfaces for all MLS attributes except X object classes.
-> - Require all sensitivities and categories for MLS and MCS policies, not just
->   the low and high sensitivity and category.
-> - Database userspace object manager classes from KaiGai Kohei.
-> - Add third-party interface for Apache CGI.
-> - Add getserv and shmemserv nscd permissions.
-> - Add debian apcupsd binary location, from Stefan Schulze Frielinghaus.
-> - Added modules:
->         application
->         awstats (Stefan Schulze Frielinghaus)
->         bitlbee (Devin Carraway)
->         brctl (Dan Walsh)
->
-> --
-> Chris PeBenito
-> Tresys Technology, LLC
-> (410) 290-1411 x150
->
->
-> --
-> This message was distributed to subscribers of the selinux mailing list.
-> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
-> the words "unsubscribe selinux" without quotes as the message.
->
 
 --
 This message was distributed to subscribers of the selinux mailing list.
