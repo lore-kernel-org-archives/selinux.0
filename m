@@ -1,13 +1,13 @@
 Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l92JeDdp014058
-	for <selinux@tycho.nsa.gov>; Tue, 2 Oct 2007 15:40:13 -0400
-Received: from ug-out-1314.google.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l92JeAFm015045
-	for <selinux@tycho.nsa.gov>; Tue, 2 Oct 2007 19:40:10 GMT
-Received: by ug-out-1314.google.com with SMTP id 30so2724715ugs
-        for <selinux@tycho.nsa.gov>; Tue, 02 Oct 2007 12:39:44 -0700 (PDT)
-Message-ID: <7e0fb38c0710021239o41485a61u338ac760ab5adb3d@mail.gmail.com>
-Date: Tue, 2 Oct 2007 15:39:42 -0400
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l92JrIWc014948
+	for <selinux@tycho.nsa.gov>; Tue, 2 Oct 2007 15:53:18 -0400
+Received: from wr-out-0506.google.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l92JrHFm019034
+	for <selinux@tycho.nsa.gov>; Tue, 2 Oct 2007 19:53:17 GMT
+Received: by wr-out-0506.google.com with SMTP id c8so2213621wra
+        for <selinux@tycho.nsa.gov>; Tue, 02 Oct 2007 12:53:17 -0700 (PDT)
+Message-ID: <7e0fb38c0710021253x4c3a9bd2sd8006934801c2f74@mail.gmail.com>
+Date: Tue, 2 Oct 2007 15:53:15 -0400
 From: "Eric Paris" <eparis@parisplace.org>
 To: "Paul Moore" <paul.moore@hp.com>
 Subject: Re: [RFC PATCH v3 2/2] [SELINUX] Better integration between peer labeling subsystems
@@ -22,22 +22,29 @@ List-Id: selinux@tycho.nsa.gov
 
 On 10/2/07, Paul Moore <paul.moore@hp.com> wrote:
 
-> +       if (!ss_initialized || !selinux_mls_enabled) {
-> +               *peer_sid = SECSID_NULL;
-> +               return 0;
+> +               goto out_slowpath;
 > +       }
+> +       rc = mls_context_cmp(nlbl_ctx, xfrm_ctx);
+> +
+> +out_slowpath:
+> +       POLICY_RDUNLOCK;
+> +       if (rc == 0)
+> +               /* at present NetLabel SIDs/labels really only carry MLS
+> +                * information so if the MLS portion of the NetLabel SID
+> +                * matches the MLS portion of the labeled XFRM SID/label
+> +                * then pass along the XFRM SID as it has the most peer label
+> +                * information */
+> +               *peer_sid = xfrm_sid;
+> +       else
+> +               *peer_sid = SECSID_NULL;
+> +       return rc;
 
-Is it possible for both netlbl_sid and xfrm_sid to be != SECSID_NULL
-if !ss_initialized?  What label to packets get while !ss_initialized?
+Actually now that I look at it, doesn't mls_context_cmp return 1 if
+they are the same and 0 if they are different?  So you'd need rc =
+!mls_context_cmp ()  and we can then drop both the ss_initialized and
+the mls_enabled stuff I was talking about before?
 
-The selinux_mls_enabled check is (i think) also useless at the moment
-since if MLS is off won't netlbl_sid be null?  But I guess it doesn't
-hurt to leave it in there.   We can't call mls_context_cmp() the way
-you are below if !selinux_mls_enabled since apparently no MLS != no
-MLS (which i wonder if it's right, but i didn't check all the callers
-of it)
-
-</nit picking>
+Am reading this wrong?
 
 -Eric
 
