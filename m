@@ -1,95 +1,46 @@
-Message-ID: <47041CB6.8070408@tycho.nsa.gov>
-Date: Wed, 03 Oct 2007 18:50:30 -0400
-From: Eamon Walsh <ewalsh@tycho.nsa.gov>
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l940H632014946
+	for <selinux@tycho.nsa.gov>; Wed, 3 Oct 2007 20:17:06 -0400
+Received: from smtp.enter.net (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id l940H4Id029271
+	for <selinux@tycho.nsa.gov>; Thu, 4 Oct 2007 00:17:04 GMT
+Received: from smtp.enter.net (mail.enter.net [216.193.128.40])
+	by smtp.enter.net (Postfix) with ESMTP id E74FDCDF5E
+	for <selinux@tycho.nsa.gov>; Wed,  3 Oct 2007 19:52:45 -0400 (EDT)
+Received: from d500.localdomain (dhcp-14-173.dsl.enter.net [216.193.173.14])
+	by smtp.enter.net (Postfix) with ESMTP id 9BFA3CD90F
+	for <selinux@tycho.nsa.gov>; Wed,  3 Oct 2007 19:52:45 -0400 (EDT)
+Message-ID: <47042B4C.50004@enter.net>
+Date: Wed, 03 Oct 2007 19:52:44 -0400
+From: Michael Klinosky <mpk2@enter.net>
 MIME-Version: 1.0
-To: SELinux List <selinux@tycho.nsa.gov>
-CC: Stephen Smalley <sds@tycho.nsa.gov>
-Subject: [PATCH 1/3] libselinux: minor updates to AVC, mapping, callbacks
+To: NSA SElinux <selinux@tycho.nsa.gov>
+Subject: Re: ftpd is denied access to a dir
+References: <47019EAF.4050009@enter.net> <47024D25.4000102@redhat.com>
+In-Reply-To: <47024D25.4000102@redhat.com>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This patch introduces the selinux_get_callback() companion
-to selinux_set_callback() that was discussed on-list recently.
+Daniel:
+> Well first thing I would do is update to the latest selinux policy
 
-Added a format attribute to the callback union definition to
-squash a gcc warning.
+I did that already (about 2 weeks ago). I asked about this on the 
+general Fedora list, and that was recommended.
 
-Signed-off-by: Eamon Walsh <ewalsh@tycho.nsa.gov>
----
+> Looking at the current policy the creation of the pid file (var_run_t)
+> should be allowed.  The second avc is fixed in Fedora 8/Rawhide but not
+> in FC7.  So I will add it in the next update.
 
- include/selinux/selinux.h |    4 +++-
- src/callbacks.c           |   25 +++++++++++++++++++++++++
- 2 files changed, 28 insertions(+), 1 deletion(-)
+> A better list to ask about Fedora SELinux questions is
+> "Fedora SELinux support list for users & developers."
+> <fedora-selinux-list@redhat.com>
 
+OK - found it, and subscribed.
 
-Index: libselinux/include/selinux/selinux.h
-===================================================================
---- libselinux/include/selinux/selinux.h	(revision 2628)
-+++ libselinux/include/selinux/selinux.h	(working copy)
-@@ -142,7 +142,8 @@
- union selinux_callback {
- 	/* log the printf-style format and arguments,
- 	   with the type code indicating the type of message */
--	int (*func_log) (int type, const char *fmt, ...);
-+	int __attribute__((format(printf, 2, 3)))
-+	(*func_log) (int type, const char *fmt, ...);
- 	/* store a string representation of auditdata (corresponding
- 	   to the given security class) into msgbuf. */
- 	int (*func_audit) (void *auditdata, security_class_t cls,
-@@ -155,6 +156,7 @@
- #define SELINUX_CB_AUDIT	1
- #define SELINUX_CB_VALIDATE	2
- 
-+extern union selinux_callback selinux_get_callback(int type);
- extern void selinux_set_callback(int type, union selinux_callback cb);
- 
- 	/* Logging type codes, passed to the logging callback */
-Index: libselinux/src/callbacks.c
-===================================================================
---- libselinux/src/callbacks.c	(revision 2628)
-+++ libselinux/src/callbacks.c	(working copy)
-@@ -6,6 +6,7 @@
- #include <stdio.h>
- #include <stdlib.h>
- #include <stdarg.h>
-+#include <errno.h>
- #include <selinux/selinux.h>
- #include "callbacks.h"
- 
-@@ -65,3 +66,27 @@
- 		break;
- 	}
- }
-+
-+/* callback getting function */
-+union selinux_callback
-+selinux_get_callback(int type)
-+{
-+	union selinux_callback cb;
-+
-+	switch (type) {
-+	case SELINUX_CB_LOG:
-+		cb.func_log = selinux_log;
-+		break;
-+	case SELINUX_CB_AUDIT:
-+		cb.func_audit = selinux_audit;
-+		break;
-+	case SELINUX_CB_VALIDATE:
-+		cb.func_validate = selinux_validate;
-+		break;
-+	default:
-+		memset(&cb, 0, sizeof(cb));
-+		errno = EINVAL;
-+		break;
-+	}
-+	return cb;
-+}
-
-
--- 
-Eamon Walsh <ewalsh@tycho.nsa.gov>
-National Security Agency
+And, someone posted to the list about selinux denying httpd access to a 
+file. So, perhaps the SElinux people still have to tweak on things (as 
+you mentioned there, about the pid file).
 
 
 --
