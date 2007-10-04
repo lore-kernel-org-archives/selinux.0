@@ -1,50 +1,59 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l94DdDL3024214
-	for <selinux@tycho.nsa.gov>; Thu, 4 Oct 2007 09:39:13 -0400
-Received: from mx1.redhat.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l94DdCEU010770
-	for <selinux@tycho.nsa.gov>; Thu, 4 Oct 2007 13:39:12 GMT
-Message-ID: <4704ECF8.8050708@redhat.com>
-Date: Thu, 04 Oct 2007 09:39:04 -0400
-From: Daniel J Walsh <dwalsh@redhat.com>
+Message-ID: <47052C83.3020703@tycho.nsa.gov>
+Date: Thu, 04 Oct 2007 14:10:11 -0400
+From: Eamon Walsh <ewalsh@tycho.nsa.gov>
 MIME-Version: 1.0
-To: SE Linux <selinux@tycho.nsa.gov>, Todd Miller <tmiller@tresys.com>
-Subject: One more problem with genhomedircon replacement.
-Content-Type: text/plain; charset=ISO-8859-1
+To: SELinux List <selinux@tycho.nsa.gov>
+CC: Stephen Smalley <sds@tycho.nsa.gov>
+Subject: [PATCH 3/3] libselinux: minor updates to AVC, mapping, callbacks
+References: <47041CB6.8070408@tycho.nsa.gov>
+In-Reply-To: <47041CB6.8070408@tycho.nsa.gov>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+This patch allows empty strings to be specified as permissions in
+the dynamic permission mapping.  An empty string will be interpreted
+as a "skipped bit" which allows userspace object managers to use
+non-contiguous permission bits.
 
-Shadow-utils and perhaps others execute genhomedircon when adding users
-or modifying the homedir.  They are blowing up because the executable
-genhomedircon no longer exists.  I would like to just put out a script
-that would call semanage to tell it to run the semanage_genhomedircon().
+Signed-off-by: Eamon Walsh <ewalsh@tycho.nsa.gov>
+---
 
-I also think it is useful to have the ability to execute this without a
-rebuild/reload of policy for when the admin executes vipw or any other
-way of adding a user to the system
-
-But there are no Python bindings and no way to call this via semodule.
-
-I can call semanage -Bn, but this is slow and cumberson.
+ mapping.c |    6 ++++++
+ 1 file changed, 6 insertions(+)
 
 
-I looked into why semanage_genhomedircon is not in a python binding, but
-it uses sepol_policydb_t * policydb, which we would need to build.
+Index: libselinux/src/mapping.c
+===================================================================
+--- libselinux/src/mapping.c	(revision 2628)
++++ libselinux/src/mapping.c	(working copy)
+@@ -68,6 +68,11 @@
+ 
+ 		k = 0;
+ 		while (p_in->perms && p_in->perms[k]) {
++			/* An empty permission string skips ahead */
++			if (!*p_in->perms[k]) {
++				k++;
++				continue;
++			}
+ 			p_out->perms[k] = string_to_av_perm(p_out->value,
+ 							    p_in->perms[k]);
+ 			if (!p_out->perms[k])
+@@ -111,6 +116,7 @@
+ 
+ 		for (i=0; i<current_mapping[tclass].num_perms; i++)
+ 			if (tperm & (1<<i)) {
++				assert(current_mapping[tclass].perms[i]);
+ 				kperm |= current_mapping[tclass].perms[i];
+ 				tperm &= ~(1<<i);
+ 			}
 
-So what is the best way to do this?
 
-Dan
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.7 (GNU/Linux)
-Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org
 
-iD8DBQFHBOz4rlYvE4MpobMRAhPkAKCO4WCyQYQyxkSyfOOufo77HtgaCgCeMatS
-f6pmBcQoObZevpjtTdCFMHo=
-=wCF/
------END PGP SIGNATURE-----
+-- 
+Eamon Walsh <ewalsh@tycho.nsa.gov>
+National Security Agency
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
