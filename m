@@ -1,102 +1,135 @@
-Message-ID: <4706754C.9050602@redhat.com>
-Date: Fri, 05 Oct 2007 13:33:00 -0400
-From: Daniel J Walsh <dwalsh@redhat.com>
-MIME-Version: 1.0
-To: Stephen Smalley <sds@tycho.nsa.gov>
-CC: SE Linux <selinux@tycho.nsa.gov>
-Subject: Re: policycoreutils patch for semanage/seobject.py
-References: <4703B5CA.7040309@redhat.com>	 <1191594199.891.11.camel@moss-spartans.epoch.ncsc.mil>	 <1191594937.891.17.camel@moss-spartans.epoch.ncsc.mil>	 <4706710B.8050006@redhat.com> <1191604893.891.77.camel@moss-spartans.epoch.ncsc.mil>
-In-Reply-To: <1191604893.891.77.camel@moss-spartans.epoch.ncsc.mil>
-Content-Type: text/plain; charset=ISO-8859-1
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l95Hl0Mq031235
+	for <selinux@tycho.nsa.gov>; Fri, 5 Oct 2007 13:47:00 -0400
+Received: from exchange.columbia.tresys.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with SMTP id l95HkxT0029420
+	for <selinux@tycho.nsa.gov>; Fri, 5 Oct 2007 17:46:59 GMT
+Subject: Re: policyd module
+From: "Christopher J. PeBenito" <cpebenito@tresys.com>
+To: Jan-Frode Myklebust <janfrode@tanso.net>
+Cc: selinux@tycho.nsa.gov
+In-Reply-To: <20071003150600.GA16964@lc4eb8045376502.ibm.com>
+References: <20070929231049.GA14665@lc4eb8045376502.ibm.com>
+	 <1191243135.4282.42.camel@gorn>
+	 <20071003125323.GA15070@lc4eb8045376502.ibm.com>
+	 <1191416728.5843.6.camel@gorn>
+	 <20071003150600.GA16964@lc4eb8045376502.ibm.com>
+Content-Type: text/plain
+Date: Fri, 05 Oct 2007 13:44:02 -0400
+Message-Id: <1191606242.13098.4.camel@gorn.columbia.tresys.com>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
-
-Stephen Smalley wrote:
-> On Fri, 2007-10-05 at 13:14 -0400, Daniel J Walsh wrote:
->> -----BEGIN PGP SIGNED MESSAGE-----
->> Hash: SHA1
->>
->> Stephen Smalley wrote:
->>> On Fri, 2007-10-05 at 10:23 -0400, Stephen Smalley wrote:
->>>> On Wed, 2007-10-03 at 11:31 -0400, Daniel J Walsh wrote:
->>>>> -----BEGIN PGP SIGNED MESSAGE-----
->>>>> Hash: SHA1
->>>>>
->>>>> Patch implements handling of booleans via semanage
->>>>>
->>>>> Adds display of local list.  So you can either show all booleans,
->>>>> fcontext, ports or just your local modifications.
->>>>>
->>>>> Implements a store command, so you can use semanage to manage
->>>>> alternative stores.
->>>>>
->>>>> Implements deleteall so you can remove all local customizations.
->>>>>
->>>>> Add support for <<none>> as a context type for fcontext.
->>>> Thanks, merged, although I think we will want to eventually revisit the
->>>> division of labor between semanage and libsemanage for
->>>> interpreting/handling <<none>>.
->>>>
->>>> Also, it seems like the deleteall method should be implemented for all
->>>> relevant objects - seems useful for fcontext as well as boolean.
->>>>
->>>> When would use you use setsebool -P vs. semanage boolean -m?
->>> Actually, you don't appear to have fully implemented semanage boolean -m
->>> support (value is never defined).
->>>
->> Yes the boolean support needs to be fully implemented.  Most of the
->> changes up to this part have been for support of the gui, which still
->> uses setsebool.  I would like to implement the rest of them and then
->> start adding fancier search capabilities to the commandline/gui.
+On Wed, 2007-10-03 at 11:06 -0400, Jan-Frode Myklebust wrote:
+> On Wed, Oct 03, 2007 at 09:05:28AM -0400, Christopher J. PeBenito wrote:
+> >
+> > I haven't looked at the module closely but right away I see you need to
+> > follow the commenting style like in all of the other modules.  Also
+> > everything under the "analyzed avc denials" comment needs to be fixed to
+> > call interfaces except for the self ones.  For the last line, you would
+> > need a patch for corenetwork to define the port and to add the tcp
+> > connect to policyd port (these two changes can be in the same patch).
+> >
 > 
-> I'm just wondering whether this is intended to ultimately obsolete
-> setsebool -P, or what the tradeoffs are between the two.  A quick look
-> at the two suggests that setsebool differs in several ways from your
-> modify method:
-> - setsebool lets you set an entire set of booleans in a single
-> transaction,
-> - setsebool sets the active value directly (via
-> semanage_bool_set_active),
-> - setsebool disables the policy reload (via semanage_set_reload).
+> Here you go :-) Diffed against refpolicy-20070928.tar.bz2.
+
+Its not a problem in this case, since that version just went out, but in
+the future, the preference would be against svn HEAD.
+
+> I haven't tested this module after these changes, other than seeing that
+> it builds. But the replacement of allow rules with interfaces seemed
+> straight forward enough.
+
+Other comments:
+
 > 
-> And, of course, setsebool also handles non-persistent changes (via
-> libselinux security_set_boolean_list).
 > 
-> setsebool also does logging of changes.
 > 
->> Start to consolidate the translations, descriptions etc.
 > 
-Ultimately yes, but not until all this functionality is in place.
+> 
+> 
+> plain text
+> document
+> attachment
+> (policyd.patch),
+> "policyd.patch"
+> 
+> +
+> +allow policyd_t policyd_conf_t:dir r_dir_perms;
+> +allow policyd_t policyd_conf_t:file r_file_perms;
+> +allow policyd_t policyd_conf_t:lnk_file { getattr read };
+> +
+> +allow policyd_t policyd_var_run_t:dir rw_dir_perms;
+> +allow policyd_t policyd_var_run_t:file create_file_perms;
+> +files_pid_filetrans(policyd_t, policyd_var_run_t, file)
+> +
+> +allow policyd_t self:tcp_socket create_stream_socket_perms;
+> +allow policyd_t self:capability { sys_resource sys_chroot setgid setuid };
+> +allow policyd_t self:process setrlimit;
+> +allow policyd_t self:unix_dgram_socket { connect create write};
 
-Eventually setsebool/getsebool would just be a front end to libsemanage
-utilities.  Which should allow us to enhance the functionality.  Imagine
+This set of self lines should go at the top of this section
 
-getsebool -a -v
+> +corenet_tcp_sendrecv_all_if(policyd_t)
+> +corenet_tcp_sendrecv_all_nodes(policyd_t)
+> +corenet_tcp_sendrecv_all_ports(policyd_t)
+> +corenet_all_recvfrom_unlabeled(policyd_t)
+> +corenet_tcp_bind_all_nodes(policyd_t)
+> +corenet_tcp_bind_policyd_port(policyd_t)
+> +corenet_tcp_bind_mysqld_port(policyd_t)
+> +
+> +corenet_tcp_connect_policyd_port(postfix_smtpd_t)
+> +
+> +sysnet_dns_name_resolve(policyd_t)
+> +
+> +libs_use_ld_so(policyd_t)
+> +libs_use_shared_libs(policyd_t)
+> +term_use_generic_ptys(policyd_t)
+> +files_read_etc_files(policyd_t)
+> +logging_send_syslog_msg(policyd_t)
+> +
+> +
+> +# No existing interface for these:
 
-Which would return you a verbose explanation of all booleans in your
-native language.
+They do exist:
 
-Or get me the booleans that I have altered.
+> +allow policyd_t locale_t:file { getattr read };
 
-getsebool -a -t samba_t
-which would show all booleans that effect the samba domain.
+This one is is miscfiles.
 
+> +allow policyd_t usr_t:file { getattr read };
 
-Now if any enterprising python enthusiast wants to start hacking away, I
-say go for it.
+this one is in files.
 
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.7 (GNU/Linux)
-Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org
+> diff -ruN refpolicy.old/policy/modules.conf refpolicy/policy/modules.conf
+> --- refpolicy.old/policy/modules.conf   2007-09-28 15:57:26.000000000 +0200
+> +++ refpolicy/policy/modules.conf       2007-10-03 16:06:52.000000000 +0200
+> @@ -1137,6 +1137,13 @@
+>  perdition = module
+>  
+>  # Layer: services
+> +# Module: policyd
+> +#
+> +# Postfix policy server
+> +# 
+> +policyd = module
+> +
+> +# Layer: services
+>  # Module: portmap
+>  #
+>  # RPC port mapping service.
 
-iD8DBQFHBnVMrlYvE4MpobMRAif8AJ0fUE3eYQHIV76gGrP7ie/P46Ui0ACghupF
-cC3sv3aJc4y+RrZF3587P00=
-=lroU
------END PGP SIGNATURE-----
+This isn't needed.  A modules.conf is included in the release tarball so
+that users can just configure it and build it, but is not in the
+repository as it is a generated file.
+
+-- 
+Chris PeBenito
+Tresys Technology, LLC
+(410) 290-1411 x150
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
