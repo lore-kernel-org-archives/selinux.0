@@ -1,18 +1,18 @@
 Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l95JXEds008617
-	for <selinux@tycho.nsa.gov>; Fri, 5 Oct 2007 15:33:14 -0400
-Received: from atlrel7.hp.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l95JXDT0018244
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l95JXDHp008613
+	for <selinux@tycho.nsa.gov>; Fri, 5 Oct 2007 15:33:13 -0400
+Received: from atlrel9.hp.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l95JXCT0018243
 	for <selinux@tycho.nsa.gov>; Fri, 5 Oct 2007 19:33:13 GMT
-Received: from smtp2.fc.hp.com (smtp.fc.hp.com [15.11.136.114])
-	by atlrel7.hp.com (Postfix) with ESMTP id 834C037C1F
-	for <selinux@tycho.nsa.gov>; Fri,  5 Oct 2007 15:33:11 -0400 (EDT)
+Received: from smtp2.fc.hp.com (smtp.cnd.hp.com [15.11.136.114])
+	by atlrel9.hp.com (Postfix) with ESMTP id 536A1357A0
+	for <selinux@tycho.nsa.gov>; Fri,  5 Oct 2007 15:33:10 -0400 (EDT)
 From: Paul Moore <paul.moore@hp.com>
-Subject: [RFC PATCH v4 2/3] [SELinux] Better integration between peer labeling
-	subsystems
+Subject: [RFC PATCH v4 1/3] [SELinux] Add a capabilities bitmap to SELinux
+	policy version 22
 To: selinux@tycho.nsa.gov
-Date: Fri, 05 Oct 2007 15:32:54 -0400
-Message-ID: <20071005193254.28034.25327.stgit@flek.americas.hpqcorp.net>
+Date: Fri, 05 Oct 2007 15:32:45 -0400
+Message-ID: <20071005193245.28034.67610.stgit@flek.americas.hpqcorp.net>
 In-Reply-To: <20071005192619.28034.62276.stgit@flek.americas.hpqcorp.net>
 References: <20071005192619.28034.62276.stgit@flek.americas.hpqcorp.net>
 MIME-Version: 1.0
@@ -20,211 +20,405 @@ Content-Type: text/plain; charset="utf-8"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Rename the existing selinux_skb_extlbl_sid() function to
-selinux_skb_peerlbl_sid() and modify it's behavior such that it now reconciles
-multiple peer/external labels and if reconciliation is not possible it returns
-an error to the caller.
+Add a new policy capabilities bitmap to SELinux policy version 22.  This bitmap
+will enable the security server to query the policy to determine which features
+it supports.
 ---
 
- security/selinux/hooks.c            |   42 ++++++++++---------
- security/selinux/include/security.h |    2 +
- security/selinux/ss/services.c      |   79 +++++++++++++++++++++++++++++++++++
- 3 files changed, 104 insertions(+), 19 deletions(-)
+ security/selinux/Kconfig            |    2 -
+ security/selinux/include/security.h |   15 ++++++
+ security/selinux/selinuxfs.c        |   89 +++++++++++++++++++++++++++++++++--
+ security/selinux/ss/policydb.c      |   18 +++++++
+ security/selinux/ss/policydb.h      |    2 +
+ security/selinux/ss/services.c      |   62 ++++++++++++++++++++++++
+ 6 files changed, 181 insertions(+), 7 deletions(-)
 
-diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-index 0753b20..9923c01 100644
---- a/security/selinux/hooks.c
-+++ b/security/selinux/hooks.c
-@@ -3132,32 +3132,31 @@ static int selinux_parse_skb(struct sk_buff *skb, struct avc_audit_data *ad,
- }
- 
- /**
-- * selinux_skb_extlbl_sid - Determine the external label of a packet
-+ * selinux_skb_peerlbl_sid - Determine the peer label of a packet
-  * @skb: the packet
-- * @sid: the packet's SID
-+ * @sid: the packet's peer label SID
-  *
-  * Description:
-- * Check the various different forms of external packet labeling and determine
-- * the external SID for the packet.  If only one form of external labeling is
-- * present then it is used, if both labeled IPsec and NetLabel labels are
-- * present then the SELinux type information is taken from the labeled IPsec
-- * SA and the MLS sensitivity label information is taken from the NetLabel
-- * security attributes.  This bit of "magic" is done in the call to
-- * selinux_netlbl_skbuff_getsid().
-+ * Check the various different forms of network peer labeling and determine
-+ * the peer label/SID for the packet; most of the magic actually occurs in
-+ * the security server function security_net_peersid_cmp().  The function
-+ * returns zero if the value in @sid is valid (although it may be SECSID_NULL)
-+ * or -EACCES if @sid is invalid due to inconsistencies with the different
-+ * peer labels.
-  *
-  */
--static void selinux_skb_extlbl_sid(struct sk_buff *skb, u32 *sid)
-+static int selinux_skb_peerlbl_sid(struct sk_buff *skb, u32 *sid)
- {
- 	u32 xfrm_sid;
- 	u32 nlbl_sid;
- 
- 	selinux_skb_xfrm_sid(skb, &xfrm_sid);
--	if (selinux_netlbl_skbuff_getsid(skb,
--					 (xfrm_sid == SECSID_NULL ?
--					  SECINITSID_NETMSG : xfrm_sid),
--					 &nlbl_sid) != 0)
--		nlbl_sid = SECSID_NULL;
--	*sid = (nlbl_sid == SECSID_NULL ? xfrm_sid : nlbl_sid);
-+	selinux_netlbl_skbuff_getsid(skb, SECINITSID_NETMSG, &nlbl_sid);
-+
-+	if (security_net_peersid_resolve(nlbl_sid, xfrm_sid, sid) != 0)
-+		return -EACCES;
-+
-+	return 0;
- }
- 
- /* socket security operations */
-@@ -3640,6 +3639,9 @@ static int selinux_socket_sock_rcv_skb(struct sock *sk, struct sk_buff *skb)
- 	if (err)
- 		goto out;
- 
-+	/* XXX - make use of selinux_skb_peerlbl_sid() here but only once we
-+	 *       have the new peer object class in place */
-+
- 	err = selinux_netlbl_sock_rcv_skb(sksec, skb, &ad);
- 	if (err)
- 		goto out;
-@@ -3701,7 +3703,7 @@ static int selinux_socket_getpeersec_dgram(struct socket *sock, struct sk_buff *
- 	if (sock && sock->sk->sk_family == PF_UNIX)
- 		selinux_get_inode_sid(SOCK_INODE(sock), &peer_secid);
- 	else if (skb)
--		selinux_skb_extlbl_sid(skb, &peer_secid);
-+		selinux_skb_peerlbl_sid(skb, &peer_secid);
- 
- 	if (peer_secid == SECSID_NULL)
- 		err = -EINVAL;
-@@ -3762,7 +3764,9 @@ static int selinux_inet_conn_request(struct sock *sk, struct sk_buff *skb,
- 	u32 newsid;
- 	u32 peersid;
- 
--	selinux_skb_extlbl_sid(skb, &peersid);
-+	err = selinux_skb_peerlbl_sid(skb, &peersid);
-+	if (err)
-+		return err;
- 	if (peersid == SECSID_NULL) {
- 		req->secid = sksec->sid;
- 		req->peer_secid = SECSID_NULL;
-@@ -3800,7 +3804,7 @@ static void selinux_inet_conn_established(struct sock *sk,
- {
- 	struct sk_security_struct *sksec = sk->sk_security;
- 
--	selinux_skb_extlbl_sid(skb, &sksec->peer_sid);
-+	selinux_skb_peerlbl_sid(skb, &sksec->peer_sid);
- }
- 
- static void selinux_req_classify_flow(const struct request_sock *req,
+diff --git a/security/selinux/Kconfig b/security/selinux/Kconfig
+index b32a459..2b517d6 100644
+--- a/security/selinux/Kconfig
++++ b/security/selinux/Kconfig
+@@ -145,7 +145,7 @@ config SECURITY_SELINUX_POLICYDB_VERSION_MAX
+ config SECURITY_SELINUX_POLICYDB_VERSION_MAX_VALUE
+ 	int "NSA SELinux maximum supported policy format version value"
+ 	depends on SECURITY_SELINUX_POLICYDB_VERSION_MAX
+-	range 15 21
++	range 15 22
+ 	default 19
+ 	help
+ 	  This option sets the value for the maximum policy format version
 diff --git a/security/selinux/include/security.h b/security/selinux/include/security.h
-index cc53ce4..f193693 100644
+index 83bdd4d..cc53ce4 100644
 --- a/security/selinux/include/security.h
 +++ b/security/selinux/include/security.h
-@@ -100,6 +100,8 @@ int security_validate_transition(u32 oldsid, u32 newsid, u32 tasksid,
+@@ -25,13 +25,14 @@
+ #define POLICYDB_VERSION_MLS		19
+ #define POLICYDB_VERSION_AVTAB		20
+ #define POLICYDB_VERSION_RANGETRANS	21
++#define POLICYDB_VERSION_POLCAP		22
  
- int security_sid_mls_copy(u32 sid, u32 mls_sid, u32 *new_sid);
+ /* Range of policy versions we understand*/
+ #define POLICYDB_VERSION_MIN   POLICYDB_VERSION_BASE
+ #ifdef CONFIG_SECURITY_SELINUX_POLICYDB_VERSION_MAX
+ #define POLICYDB_VERSION_MAX	CONFIG_SECURITY_SELINUX_POLICYDB_VERSION_MAX_VALUE
+ #else
+-#define POLICYDB_VERSION_MAX	POLICYDB_VERSION_RANGETRANS
++#define POLICYDB_VERSION_MAX	POLICYDB_VERSION_POLCAP
+ #endif
  
-+int security_net_peersid_resolve(u32 nlbl_sid, u32 xfrm_sid, u32 *peer_sid);
+ struct netlbl_lsm_secattr;
+@@ -39,8 +40,19 @@ struct netlbl_lsm_secattr;
+ extern int selinux_enabled;
+ extern int selinux_mls_enabled;
+ 
++/* Policy capabilities */
++enum {
++	POLICYDB_CAPABILITY_NETPEER,
++	__POLICYDB_CAPABILITY_MAX
++};
++#define POLICYDB_CAPABILITY_MAX (__POLICYDB_CAPABILITY_MAX - 1)
 +
++extern int selinux_policycap_netpeer;
++
+ int security_load_policy(void * data, size_t len);
+ 
++int security_policycap_supported(unsigned int req_cap);
++
+ #define SEL_VEC_MAX 32
+ struct av_decision {
+ 	u32 allowed;
+@@ -90,6 +102,7 @@ int security_sid_mls_copy(u32 sid, u32 mls_sid, u32 *new_sid);
+ 
  int security_get_classes(char ***classes, int *nclasses);
  int security_get_permissions(char *class, char ***perms, int *nperms);
- int security_get_policycaps(int *len, int **values);
++int security_get_policycaps(int *len, int **values);
+ 
+ #define SECURITY_FS_USE_XATTR		1 /* use xattr */
+ #define SECURITY_FS_USE_TRANS		2 /* use transition SIDs, e.g. devpts/tmpfs */
+diff --git a/security/selinux/selinuxfs.c b/security/selinux/selinuxfs.c
+index c9e92da..3baeae8 100644
+--- a/security/selinux/selinuxfs.c
++++ b/security/selinux/selinuxfs.c
+@@ -2,6 +2,11 @@
+  *
+  * 	Added conditional policy language extensions
+  *
++ *  Updated: Hewlett-Packard <paul.moore@hp.com>
++ *
++ *      Added support for the policy capability bitmap
++ *
++ * Copyright (C) 2007 Hewlett-Packard Development Company, L.P.
+  * Copyright (C) 2003 - 2004 Tresys Technology, LLC
+  * Copyright (C) 2004 Red Hat, Inc., James Morris <jmorris@redhat.com>
+  *	This program is free software; you can redistribute it and/or modify
+@@ -35,6 +40,11 @@
+ #include "objsec.h"
+ #include "conditional.h"
+ 
++/* Policy capability filenames */
++static char *policycap_names[] = {
++	"network_peer_controls"
++};
++
+ unsigned int selinux_checkreqprot = CONFIG_SECURITY_SELINUX_CHECKREQPROT_VALUE;
+ 
+ #ifdef CONFIG_SECURITY_SELINUX_ENABLE_SECMARK_DEFAULT
+@@ -71,6 +81,9 @@ static int *bool_pending_values = NULL;
+ static struct dentry *class_dir = NULL;
+ static unsigned long last_class_ino;
+ 
++/* global data for policy capabilities */
++static struct dentry *policycap_dir = NULL;
++
+ extern void selnl_notify_setenforce(int val);
+ 
+ /* Check whether a task is allowed to use a security operation. */
+@@ -108,10 +121,11 @@ enum sel_inos {
+ 
+ static unsigned long sel_last_ino = SEL_INO_NEXT - 1;
+ 
+-#define SEL_INITCON_INO_OFFSET 	0x01000000
+-#define SEL_BOOL_INO_OFFSET	0x02000000
+-#define SEL_CLASS_INO_OFFSET	0x04000000
+-#define SEL_INO_MASK		0x00ffffff
++#define SEL_INITCON_INO_OFFSET		0x01000000
++#define SEL_BOOL_INO_OFFSET		0x02000000
++#define SEL_CLASS_INO_OFFSET		0x04000000
++#define SEL_POLICYCAP_INO_OFFSET	0x08000000
++#define SEL_INO_MASK			0x00ffffff
+ 
+ #define TMPBUFLEN	12
+ static ssize_t sel_read_enforce(struct file *filp, char __user *buf,
+@@ -243,6 +257,7 @@ static const struct file_operations sel_policyvers_ops = {
+ /* declaration for sel_write_load */
+ static int sel_make_bools(void);
+ static int sel_make_classes(void);
++static int sel_make_policycap(void);
+ 
+ /* declaration for sel_make_class_dirs */
+ static int sel_make_dir(struct inode *dir, struct dentry *dentry,
+@@ -303,6 +318,12 @@ static ssize_t sel_write_load(struct file * file, const char __user * buf,
+ 	}
+ 
+ 	ret = sel_make_classes();
++	if (ret) {
++		length = ret;
++		goto out1;
++	}
++
++	ret = sel_make_policycap();
+ 	if (ret)
+ 		length = ret;
+ 	else
+@@ -1384,6 +1405,24 @@ static const struct file_operations sel_perm_ops = {
+ 	.read		= sel_read_perm,
+ };
+ 
++static ssize_t sel_read_policycap(struct file *file, char __user *buf,
++				  size_t count, loff_t *ppos)
++{
++	int value;
++	char tmpbuf[TMPBUFLEN];
++	ssize_t length;
++	unsigned long i_ino = file->f_path.dentry->d_inode->i_ino;
++
++	value = security_policycap_supported(i_ino & SEL_INO_MASK);
++	length = scnprintf(tmpbuf, TMPBUFLEN, "%d", value);
++
++	return simple_read_from_buffer(buf, count, ppos, tmpbuf, length);
++}
++
++static const struct file_operations sel_policycap_ops = {
++	.read		= sel_read_policycap,
++};
++
+ static int sel_make_perm_files(char *objclass, int classvalue,
+ 				struct dentry *dir)
+ {
+@@ -1530,6 +1569,36 @@ out:
+ 	return rc;
+ }
+ 
++static int sel_make_policycap(void)
++{
++	unsigned int iter;
++	struct dentry *dentry = NULL;
++	struct inode *inode = NULL;
++
++	sel_remove_entries(policycap_dir);
++
++	for (iter = 0; iter <= POLICYDB_CAPABILITY_MAX; iter++) {
++		if (iter < ARRAY_SIZE(policycap_names))
++			dentry = d_alloc_name(policycap_dir,
++					      policycap_names[iter]);
++		else
++			dentry = d_alloc_name(policycap_dir, "unknown");
++
++		if (dentry == NULL)
++			return -ENOMEM;
++
++		inode = sel_make_inode(policycap_dir->d_sb, S_IFREG | S_IRUGO);
++		if (inode == NULL)
++			return -ENOMEM;
++
++		inode->i_fop = &sel_policycap_ops;
++		inode->i_ino = iter | SEL_POLICYCAP_INO_OFFSET;
++		d_add(dentry, inode);
++	}
++
++	return 0;
++}
++
+ static int sel_make_dir(struct inode *dir, struct dentry *dentry,
+ 			unsigned long *ino)
+ {
+@@ -1656,6 +1725,18 @@ static int sel_fill_super(struct super_block * sb, void * data, int silent)
+ 
+ 	class_dir = dentry;
+ 
++	dentry = d_alloc_name(sb->s_root, "policy_capabilities");
++	if (!dentry) {
++		ret = -ENOMEM;
++		goto err;
++	}
++
++	ret = sel_make_dir(root_inode, dentry, &sel_last_ino);
++	if (ret)
++		goto err;
++
++	policycap_dir = dentry;
++
+ out:
+ 	return ret;
+ err:
+diff --git a/security/selinux/ss/policydb.c b/security/selinux/ss/policydb.c
+index f05f97a..4c82a83 100644
+--- a/security/selinux/ss/policydb.c
++++ b/security/selinux/ss/policydb.c
+@@ -13,6 +13,11 @@
+  *
+  * 	Added conditional policy language extensions
+  *
++ * Updated: Hewlett-Packard <paul.moore@hp.com>
++ *
++ *      Added support for the policy capability bitmap
++ *
++ * Copyright (C) 2007 Hewlett-Packard Development Company, L.P.
+  * Copyright (C) 2004-2005 Trusted Computer Solutions, Inc.
+  * Copyright (C) 2003 - 2004 Tresys Technology, LLC
+  *	This program is free software; you can redistribute it and/or modify
+@@ -102,6 +107,11 @@ static struct policydb_compat_info policydb_compat[] = {
+ 		.sym_num        = SYM_NUM,
+ 		.ocon_num       = OCON_NUM,
+ 	},
++	{
++		.version	= POLICYDB_VERSION_POLCAP,
++		.sym_num	= SYM_NUM,
++		.ocon_num	= OCON_NUM,
++	}
+ };
+ 
+ static struct policydb_compat_info *policydb_lookup_compat(int version)
+@@ -183,6 +193,8 @@ static int policydb_init(struct policydb *p)
+ 	if (rc)
+ 		goto out_free_avtab;
+ 
++	ebitmap_init(&p->policycaps);
++
+ out:
+ 	return rc;
+ 
+@@ -677,6 +689,8 @@ void policydb_destroy(struct policydb *p)
+ 	}
+ 	kfree(p->type_attr_map);
+ 
++	ebitmap_destroy(&p->policycaps);
++
+ 	return;
+ }
+ 
+@@ -1531,6 +1545,10 @@ int policydb_read(struct policydb *p, void *fp)
+ 		}
+ 	}
+ 
++	if (p->policyvers >= POLICYDB_VERSION_POLCAP &&
++	    ebitmap_read(&p->policycaps, fp) != 0)
++		goto bad;
++
+ 	info = policydb_lookup_compat(p->policyvers);
+ 	if (!info) {
+ 		printk(KERN_ERR "security:  unable to find policy compat info "
+diff --git a/security/selinux/ss/policydb.h b/security/selinux/ss/policydb.h
+index 8319d5f..e621048 100644
+--- a/security/selinux/ss/policydb.h
++++ b/security/selinux/ss/policydb.h
+@@ -241,6 +241,8 @@ struct policydb {
+ 	/* type -> attribute reverse mapping */
+ 	struct ebitmap *type_attr_map;
+ 
++	struct ebitmap policycaps;
++
+ 	unsigned int policyvers;
+ };
+ 
 diff --git a/security/selinux/ss/services.c b/security/selinux/ss/services.c
-index 7059400..338aa09 100644
+index 6100fc0..7059400 100644
 --- a/security/selinux/ss/services.c
 +++ b/security/selinux/ss/services.c
-@@ -2013,6 +2013,85 @@ out:
+@@ -16,12 +16,13 @@
+  * Updated: Hewlett-Packard <paul.moore@hp.com>
+  *
+  *      Added support for NetLabel
++ *      Added support for the policy capability bitmap
+  *
+  * Updated: Chad Sellers <csellers@tresys.com>
+  *
+  *  Added validation of kernel classes and permissions
+  *
+- * Copyright (C) 2006 Hewlett-Packard Development Company, L.P.
++ * Copyright (C) 2006 - 2007 Hewlett-Packard Development Company, L.P.
+  * Copyright (C) 2004-2006 Trusted Computer Solutions, Inc.
+  * Copyright (C) 2003 - 2004, 2006 Tresys Technology, LLC
+  * Copyright (C) 2003 Red Hat, Inc., James Morris <jmorris@redhat.com>
+@@ -59,6 +60,8 @@
+ extern void selnl_notify_policyload(u32 seqno);
+ unsigned int policydb_loaded_version;
+ 
++int selinux_policycap_netpeer;
++
+ /*
+  * This is declared in avc.c
+  */
+@@ -1304,6 +1307,9 @@ int security_load_policy(void *data, size_t len)
+ 			return -EINVAL;
+ 		}
+ 		policydb_loaded_version = policydb.policyvers;
++		selinux_policycap_netpeer =
++		  ebitmap_get_bit(&policydb.policycaps,
++				  POLICYDB_CAPABILITY_NETPEER);
+ 		ss_initialized = 1;
+ 		seqno = ++latest_granting;
+ 		LOAD_UNLOCK;
+@@ -2102,6 +2108,60 @@ err:
  	return rc;
  }
  
 +/**
-+ * security_net_peersid_resolve - Compare and resolve two network peer SIDs
-+ * @nlbl_sid: NetLabel SID
-+ * @xfrm_sid: XFRM SID
++ * security_get_policycaps - Query the loaded policy for its capabilities
++ * @len: the number of capability bits
++ * @values: the capability bit array
 + *
 + * Description:
-+ * Compare the @nlbl_sid and @xfrm_sid values and if the two SIDs can be
-+ * resolved into a single SID it is returned via @peer_sid and the function
-+ * returns zero.  Otherwise @peer_sid is set to SECSID_NULL and the function
-+ * returns a negative value.  A table summarizing the behavior is below:
-+ *
-+ *                                 | function return |      @sid
-+ *   ------------------------------+-----------------+-----------------
-+ *   no peer labels                |        0        |    SECSID_NULL
-+ *   single peer label             |        0        |    <peer_label>
-+ *   multiple, consistent labels   |        0        |    <peer_label>
-+ *   multiple, inconsistent labels |    -<errno>     |    SECSID_NULL
++ * Get an array of the policy capabilities in @values where each entry in
++ * @values is either true (1) or false (0) depending the policy's support of
++ * that feature.  The policy capabilities are defined by the
++ * POLICYDB_CAPABILITY_* enums.  The size of the array is stored in @len and it
++ * is up to the caller to free the array in @values.  Returns zero on success,
++ * negative values on failure.
 + *
 + */
-+int security_net_peersid_resolve(u32 nlbl_sid, u32 xfrm_sid, u32 *peer_sid)
++int security_get_policycaps(int *len, int **values)
 +{
-+	int rc;
-+	struct context *nlbl_ctx;
-+	struct context *xfrm_ctx;
-+
-+	/* handle the common (which also happens to be the set of easy) cases
-+	 * right away, these two if statements catch everything involving a
-+	 * single or absent peer SID/label */
-+	if (xfrm_sid == SECSID_NULL) {
-+		*peer_sid = nlbl_sid;
-+		return 0;
-+	}
-+	if (nlbl_sid == SECSID_NULL) {
-+		*peer_sid = xfrm_sid;
-+		return 0;
-+	}
-+
-+	/* we don't need to check ss_initialized here since the only way both
-+	 * nlbl_sid and xfrm_sid are not equal to SECSID_NULL would be if the
-+	 * security server was initialized and ss_initialized was true */
-+	if (!selinux_mls_enabled) {
-+		*peer_sid = SECSID_NULL;
-+		return 0;
-+	}
++	int rc = -ENOMEM;
++	unsigned int iter;
 +
 +	POLICY_RDLOCK;
 +
-+	nlbl_ctx = sidtab_search(&sidtab, nlbl_sid);
-+	if (!nlbl_ctx) {
-+		printk(KERN_ERR
-+		       "security_sid_mls_cmp:  unrecognized SID %d\n",
-+		       nlbl_sid);
-+		rc = -EINVAL;
-+		goto out_slowpath;
-+	}
-+	xfrm_ctx = sidtab_search(&sidtab, xfrm_sid);
-+	if (!xfrm_ctx) {
-+		printk(KERN_ERR
-+		       "security_sid_mls_cmp:  unrecognized SID %d\n",
-+		       xfrm_sid);
-+		rc = -EINVAL;
-+		goto out_slowpath;
-+	}
-+	rc = (mls_context_cmp(nlbl_ctx, xfrm_ctx) ? 0 : -EACCES);
++	*values = kcalloc(POLICYDB_CAPABILITY_MAX, sizeof(int), GFP_ATOMIC);
++	if (*values == NULL)
++		goto out;
++	for (iter = 0; iter < POLICYDB_CAPABILITY_MAX; iter++)
++		(*values)[iter] = ebitmap_get_bit(&policydb.policycaps, iter);
++	*len = POLICYDB_CAPABILITY_MAX;
 +
-+out_slowpath:
++out:
 +	POLICY_RDUNLOCK;
-+	if (rc == 0)
-+		/* at present NetLabel SIDs/labels really only carry MLS
-+		 * information so if the MLS portion of the NetLabel SID
-+		 * matches the MLS portion of the labeled XFRM SID/label
-+		 * then pass along the XFRM SID as it has the most peer label
-+		 * information */
-+		*peer_sid = xfrm_sid;
-+	else
-+		*peer_sid = SECSID_NULL;
 +	return rc;
 +}
 +
- static int get_classes_callback(void *k, void *d, void *args)
- {
- 	struct class_datum *datum = d;
++/**
++ * security_policycap_supported - Check for a specific policy capability
++ * @req_cap: capability
++ *
++ * Description:
++ * This function queries the currently loaded policy to see if it supports the
++ * capability specified by @req_cap.  Returns true (1) if the capability is
++ * supported, false (0) if it isn't supported.
++ *
++ */
++int security_policycap_supported(unsigned int req_cap)
++{
++	int rc;
++
++	POLICY_RDLOCK;
++	rc = ebitmap_get_bit(&policydb.policycaps, req_cap);
++	POLICY_RDUNLOCK;
++
++	return rc;
++}
++
+ struct selinux_audit_rule {
+ 	u32 au_seqno;
+ 	struct context au_ctxt;
 
 
 --
