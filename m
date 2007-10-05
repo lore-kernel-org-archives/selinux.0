@@ -1,135 +1,117 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l95Hl0Mq031235
-	for <selinux@tycho.nsa.gov>; Fri, 5 Oct 2007 13:47:00 -0400
-Received: from exchange.columbia.tresys.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with SMTP id l95HkxT0029420
-	for <selinux@tycho.nsa.gov>; Fri, 5 Oct 2007 17:46:59 GMT
-Subject: Re: policyd module
-From: "Christopher J. PeBenito" <cpebenito@tresys.com>
-To: Jan-Frode Myklebust <janfrode@tanso.net>
+Date: Fri, 5 Oct 2007 13:52:08 -0400
+From: "Todd C. Miller" <tmiller@tresys.com>
+Message-Id: <200710051752.l95Hq8EA028040@cadmus.columbia.tresys.com>
+To: sds@tycho.nsa.gov
+Subject: Re: [PATCH] libsepol: add user to hierarchy checker
 Cc: selinux@tycho.nsa.gov
-In-Reply-To: <20071003150600.GA16964@lc4eb8045376502.ibm.com>
-References: <20070929231049.GA14665@lc4eb8045376502.ibm.com>
-	 <1191243135.4282.42.camel@gorn>
-	 <20071003125323.GA15070@lc4eb8045376502.ibm.com>
-	 <1191416728.5843.6.camel@gorn>
-	 <20071003150600.GA16964@lc4eb8045376502.ibm.com>
-Content-Type: text/plain
-Date: Fri, 05 Oct 2007 13:44:02 -0400
-Message-Id: <1191606242.13098.4.camel@gorn.columbia.tresys.com>
-Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2007-10-03 at 11:06 -0400, Jan-Frode Myklebust wrote:
-> On Wed, Oct 03, 2007 at 09:05:28AM -0400, Christopher J. PeBenito wrote:
-> >
-> > I haven't looked at the module closely but right away I see you need to
-> > follow the commenting style like in all of the other modules.  Also
-> > everything under the "analyzed avc denials" comment needs to be fixed to
-> > call interfaces except for the self ones.  For the last line, you would
-> > need a patch for corenetwork to define the port and to add the tcp
-> > connect to policyd port (these two changes can be in the same patch).
-> >
-> 
-> Here you go :-) Diffed against refpolicy-20070928.tar.bz2.
+Stephen Smalley wrote:
 
-Its not a problem in this case, since that version just went out, but in
-the future, the preference would be against svn HEAD.
+> Why not use ebitmap_contains()?
 
-> I haven't tested this module after these changes, other than seeing that
-> it builds. But the replacement of allow rules with interfaces seemed
-> straight forward enough.
+I was basically just cloning check_role_hierarchy_callback() so I just
+followed what it did.  Using ebitmap_contains() is more intuitive and
+is probably faster to boot.
 
-Other comments:
+Below is an updated patch that uses ebitmap_contains() for both
+check_role_hierarchy_callback() and check_user_hierarchy_callback().
 
-> 
-> 
-> 
-> 
-> 
-> 
-> plain text
-> document
-> attachment
-> (policyd.patch),
-> "policyd.patch"
-> 
-> +
-> +allow policyd_t policyd_conf_t:dir r_dir_perms;
-> +allow policyd_t policyd_conf_t:file r_file_perms;
-> +allow policyd_t policyd_conf_t:lnk_file { getattr read };
-> +
-> +allow policyd_t policyd_var_run_t:dir rw_dir_perms;
-> +allow policyd_t policyd_var_run_t:file create_file_perms;
-> +files_pid_filetrans(policyd_t, policyd_var_run_t, file)
-> +
-> +allow policyd_t self:tcp_socket create_stream_socket_perms;
-> +allow policyd_t self:capability { sys_resource sys_chroot setgid setuid };
-> +allow policyd_t self:process setrlimit;
-> +allow policyd_t self:unix_dgram_socket { connect create write};
-
-This set of self lines should go at the top of this section
-
-> +corenet_tcp_sendrecv_all_if(policyd_t)
-> +corenet_tcp_sendrecv_all_nodes(policyd_t)
-> +corenet_tcp_sendrecv_all_ports(policyd_t)
-> +corenet_all_recvfrom_unlabeled(policyd_t)
-> +corenet_tcp_bind_all_nodes(policyd_t)
-> +corenet_tcp_bind_policyd_port(policyd_t)
-> +corenet_tcp_bind_mysqld_port(policyd_t)
-> +
-> +corenet_tcp_connect_policyd_port(postfix_smtpd_t)
-> +
-> +sysnet_dns_name_resolve(policyd_t)
-> +
-> +libs_use_ld_so(policyd_t)
-> +libs_use_shared_libs(policyd_t)
-> +term_use_generic_ptys(policyd_t)
-> +files_read_etc_files(policyd_t)
-> +logging_send_syslog_msg(policyd_t)
-> +
-> +
-> +# No existing interface for these:
-
-They do exist:
-
-> +allow policyd_t locale_t:file { getattr read };
-
-This one is is miscfiles.
-
-> +allow policyd_t usr_t:file { getattr read };
-
-this one is in files.
-
-
-> diff -ruN refpolicy.old/policy/modules.conf refpolicy/policy/modules.conf
-> --- refpolicy.old/policy/modules.conf   2007-09-28 15:57:26.000000000 +0200
-> +++ refpolicy/policy/modules.conf       2007-10-03 16:06:52.000000000 +0200
-> @@ -1137,6 +1137,13 @@
->  perdition = module
->  
->  # Layer: services
-> +# Module: policyd
-> +#
-> +# Postfix policy server
-> +# 
-> +policyd = module
-> +
-> +# Layer: services
->  # Module: portmap
->  #
->  # RPC port mapping service.
-
-This isn't needed.  A modules.conf is included in the release tarball so
-that users can just configure it and build it, but is not in the
-repository as it is a generated file.
-
--- 
-Chris PeBenito
-Tresys Technology, LLC
-(410) 290-1411 x150
-
+Index: hierarchy.c
+===================================================================
+--- hierarchy.c	(revision 2628)
++++ hierarchy.c	(working copy)
+@@ -323,7 +323,6 @@
+ 	char *parent;
+ 	hierarchy_args_t *a;
+ 	role_datum_t *r, *rp;
+-	ebitmap_t eb;
+ 
+ 	a = (hierarchy_args_t *) args;
+ 	r = (role_datum_t *) d;
+@@ -346,25 +345,63 @@
+ 		return 0;
+ 	}
+ 
+-	if (ebitmap_or(&eb, &r->types.types, &rp->types.types)) {
+-		/* Memory error */
+-		free(parent);
+-		return -1;
+-	}
+-
+-	if (!ebitmap_cmp(&eb, &rp->types.types)) {
++	if (!ebitmap_contains(&rp->types.types, &r->types.types)) {
+ 		/* This is a violation of the hiearchal constraint, return error condition */
+ 		ERR(a->handle, "Role hierarchy violation, %s exceeds %s",
+ 		    a->p->p_role_val_to_name[r->s.value - 1], parent);
+ 		a->numerr++;
+ 	}
+ 
+-	ebitmap_destroy(&eb);
+ 	free(parent);
+ 
+ 	return 0;
+ }
+ 
++/* The user hierarchy is defined as: a child user cannot have a role that
++ * its parent doesn't have.  This function should be called with hashtab_map,
++ * it will return 0 on success, 1 on constraint violation and -1 on error.
++ */
++static int check_user_hierarchy_callback(hashtab_key_t k
++					 __attribute__ ((unused)),
++					 hashtab_datum_t d, void *args)
++{
++	char *parent;
++	hierarchy_args_t *a;
++	user_datum_t *u, *up;
++
++	a = (hierarchy_args_t *) args;
++	u = (user_datum_t *) d;
++
++	if (find_parent(a->p->p_user_val_to_name[u->s.value - 1], &parent))
++		return -1;
++
++	if (!parent) {
++		/* This user has no parent */
++		return 0;
++	}
++
++	up = hashtab_search(a->p->p_users.table, parent);
++	if (!up) {
++		/* Orphan user */
++		ERR(a->handle, "user %s doesn't exist, %s is an orphan",
++		    parent, a->p->p_user_val_to_name[u->s.value - 1]);
++		free(parent);
++		a->numerr++;
++		return 0;
++	}
++
++	if (!ebitmap_contains(&up->roles.roles, &u->roles.roles)) {
++		/* hierarchical constraint violation, return error */
++		ERR(a->handle, "User hierarchy violation, %s exceeds %s",
++		    a->p->p_user_val_to_name[u->s.value - 1], parent);
++		a->numerr++;
++	}
++
++	free(parent);
++
++	return 0;
++}
++
+ int hierarchy_check_constraints(sepol_handle_t * handle, policydb_t * p)
+ {
+ 	hierarchy_args_t args;
+@@ -395,6 +432,9 @@
+ 	if (hashtab_map(p->p_roles.table, check_role_hierarchy_callback, &args))
+ 		goto bad;
+ 
++	if (hashtab_map(p->p_users.table, check_user_hierarchy_callback, &args))
++		goto bad;
++
+ 	if (args.numerr) {
+ 		ERR(handle, "%d total errors found during hierarchy check",
+ 		    args.numerr);
 
 --
 This message was distributed to subscribers of the selinux mailing list.
