@@ -1,78 +1,102 @@
+Message-ID: <4706754C.9050602@redhat.com>
+Date: Fri, 05 Oct 2007 13:33:00 -0400
+From: Daniel J Walsh <dwalsh@redhat.com>
+MIME-Version: 1.0
+To: Stephen Smalley <sds@tycho.nsa.gov>
+CC: SE Linux <selinux@tycho.nsa.gov>
 Subject: Re: policycoreutils patch for semanage/seobject.py
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Daniel J Walsh <dwalsh@redhat.com>
-Cc: SE Linux <selinux@tycho.nsa.gov>
-In-Reply-To: <4706710B.8050006@redhat.com>
-References: <4703B5CA.7040309@redhat.com>
-	 <1191594199.891.11.camel@moss-spartans.epoch.ncsc.mil>
-	 <1191594937.891.17.camel@moss-spartans.epoch.ncsc.mil>
-	 <4706710B.8050006@redhat.com>
-Content-Type: text/plain
-Date: Fri, 05 Oct 2007 13:21:33 -0400
-Message-Id: <1191604893.891.77.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+References: <4703B5CA.7040309@redhat.com>	 <1191594199.891.11.camel@moss-spartans.epoch.ncsc.mil>	 <1191594937.891.17.camel@moss-spartans.epoch.ncsc.mil>	 <4706710B.8050006@redhat.com> <1191604893.891.77.camel@moss-spartans.epoch.ncsc.mil>
+In-Reply-To: <1191604893.891.77.camel@moss-spartans.epoch.ncsc.mil>
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2007-10-05 at 13:14 -0400, Daniel J Walsh wrote:
-> -----BEGIN PGP SIGNED MESSAGE-----
-> Hash: SHA1
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
+
+Stephen Smalley wrote:
+> On Fri, 2007-10-05 at 13:14 -0400, Daniel J Walsh wrote:
+>> -----BEGIN PGP SIGNED MESSAGE-----
+>> Hash: SHA1
+>>
+>> Stephen Smalley wrote:
+>>> On Fri, 2007-10-05 at 10:23 -0400, Stephen Smalley wrote:
+>>>> On Wed, 2007-10-03 at 11:31 -0400, Daniel J Walsh wrote:
+>>>>> -----BEGIN PGP SIGNED MESSAGE-----
+>>>>> Hash: SHA1
+>>>>>
+>>>>> Patch implements handling of booleans via semanage
+>>>>>
+>>>>> Adds display of local list.  So you can either show all booleans,
+>>>>> fcontext, ports or just your local modifications.
+>>>>>
+>>>>> Implements a store command, so you can use semanage to manage
+>>>>> alternative stores.
+>>>>>
+>>>>> Implements deleteall so you can remove all local customizations.
+>>>>>
+>>>>> Add support for <<none>> as a context type for fcontext.
+>>>> Thanks, merged, although I think we will want to eventually revisit the
+>>>> division of labor between semanage and libsemanage for
+>>>> interpreting/handling <<none>>.
+>>>>
+>>>> Also, it seems like the deleteall method should be implemented for all
+>>>> relevant objects - seems useful for fcontext as well as boolean.
+>>>>
+>>>> When would use you use setsebool -P vs. semanage boolean -m?
+>>> Actually, you don't appear to have fully implemented semanage boolean -m
+>>> support (value is never defined).
+>>>
+>> Yes the boolean support needs to be fully implemented.  Most of the
+>> changes up to this part have been for support of the gui, which still
+>> uses setsebool.  I would like to implement the rest of them and then
+>> start adding fancier search capabilities to the commandline/gui.
 > 
-> Stephen Smalley wrote:
-> > On Fri, 2007-10-05 at 10:23 -0400, Stephen Smalley wrote:
-> >> On Wed, 2007-10-03 at 11:31 -0400, Daniel J Walsh wrote:
-> >>> -----BEGIN PGP SIGNED MESSAGE-----
-> >>> Hash: SHA1
-> >>>
-> >>> Patch implements handling of booleans via semanage
-> >>>
-> >>> Adds display of local list.  So you can either show all booleans,
-> >>> fcontext, ports or just your local modifications.
-> >>>
-> >>> Implements a store command, so you can use semanage to manage
-> >>> alternative stores.
-> >>>
-> >>> Implements deleteall so you can remove all local customizations.
-> >>>
-> >>> Add support for <<none>> as a context type for fcontext.
-> >> Thanks, merged, although I think we will want to eventually revisit the
-> >> division of labor between semanage and libsemanage for
-> >> interpreting/handling <<none>>.
-> >>
-> >> Also, it seems like the deleteall method should be implemented for all
-> >> relevant objects - seems useful for fcontext as well as boolean.
-> >>
-> >> When would use you use setsebool -P vs. semanage boolean -m?
-> > 
-> > Actually, you don't appear to have fully implemented semanage boolean -m
-> > support (value is never defined).
-> > 
-> Yes the boolean support needs to be fully implemented.  Most of the
-> changes up to this part have been for support of the gui, which still
-> uses setsebool.  I would like to implement the rest of them and then
-> start adding fancier search capabilities to the commandline/gui.
+> I'm just wondering whether this is intended to ultimately obsolete
+> setsebool -P, or what the tradeoffs are between the two.  A quick look
+> at the two suggests that setsebool differs in several ways from your
+> modify method:
+> - setsebool lets you set an entire set of booleans in a single
+> transaction,
+> - setsebool sets the active value directly (via
+> semanage_bool_set_active),
+> - setsebool disables the policy reload (via semanage_set_reload).
+> 
+> And, of course, setsebool also handles non-persistent changes (via
+> libselinux security_set_boolean_list).
+> 
+> setsebool also does logging of changes.
+> 
+>> Start to consolidate the translations, descriptions etc.
+> 
+Ultimately yes, but not until all this functionality is in place.
 
-I'm just wondering whether this is intended to ultimately obsolete
-setsebool -P, or what the tradeoffs are between the two.  A quick look
-at the two suggests that setsebool differs in several ways from your
-modify method:
-- setsebool lets you set an entire set of booleans in a single
-transaction,
-- setsebool sets the active value directly (via
-semanage_bool_set_active),
-- setsebool disables the policy reload (via semanage_set_reload).
+Eventually setsebool/getsebool would just be a front end to libsemanage
+utilities.  Which should allow us to enhance the functionality.  Imagine
 
-And, of course, setsebool also handles non-persistent changes (via
-libselinux security_set_boolean_list).
+getsebool -a -v
 
-setsebool also does logging of changes.
+Which would return you a verbose explanation of all booleans in your
+native language.
 
-> Start to consolidate the translations, descriptions etc.
+Or get me the booleans that I have altered.
 
--- 
-Stephen Smalley
-National Security Agency
+getsebool -a -t samba_t
+which would show all booleans that effect the samba domain.
 
+
+Now if any enterprising python enthusiast wants to start hacking away, I
+say go for it.
+
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.7 (GNU/Linux)
+Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org
+
+iD8DBQFHBnVMrlYvE4MpobMRAif8AJ0fUE3eYQHIV76gGrP7ie/P46Ui0ACghupF
+cC3sv3aJc4y+RrZF3587P00=
+=lroU
+-----END PGP SIGNATURE-----
 
 --
 This message was distributed to subscribers of the selinux mailing list.
