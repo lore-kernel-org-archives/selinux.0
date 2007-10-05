@@ -1,54 +1,62 @@
-Subject: Re: [patch 0/4] libsemanage: genhomedircon regressions
+Subject: Re: [PATCH 3/3] libselinux: minor updates to AVC, mapping,
+	callbacks
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Daniel J Walsh <dwalsh@redhat.com>
-Cc: "Todd C. Miller" <tmiller@tresys.com>,
-        Joshua Brindle <jbrindle@tresys.com>, selinux@tycho.nsa.gov
-In-Reply-To: <470120CD.5050009@redhat.com>
-References: <200709281804.l8SI4Cuj031486@cadmus.columbia.tresys.com>
-	 <470120CD.5050009@redhat.com>
+To: Eamon Walsh <ewalsh@tycho.nsa.gov>
+Cc: SELinux List <selinux@tycho.nsa.gov>
+In-Reply-To: <47052C83.3020703@tycho.nsa.gov>
+References: <47041CB6.8070408@tycho.nsa.gov>
+	 <47052C83.3020703@tycho.nsa.gov>
 Content-Type: text/plain
-Date: Fri, 05 Oct 2007 10:19:19 -0400
-Message-Id: <1191593959.891.4.camel@moss-spartans.epoch.ncsc.mil>
+Date: Fri, 05 Oct 2007 10:23:53 -0400
+Message-Id: <1191594233.891.15.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 2007-10-01 at 12:31 -0400, Daniel J Walsh wrote:
-> -----BEGIN PGP SIGNED MESSAGE-----
-> Hash: SHA1
+On Thu, 2007-10-04 at 14:10 -0400, Eamon Walsh wrote:
+> This patch allows empty strings to be specified as permissions in
+> the dynamic permission mapping.  An empty string will be interpreted
+> as a "skipped bit" which allows userspace object managers to use
+> non-contiguous permission bits.
 > 
-> This patch makes sure /root gets labeled even if it is using the default
-> context.
+> Signed-off-by: Eamon Walsh <ewalsh@tycho.nsa.gov>
 
-Thanks, merged.
+Merged all three, although we can revisit the last one if you find a
+cleaner solution.
 
-> -----BEGIN PGP SIGNATURE-----
-> Version: GnuPG v1.4.7 (GNU/Linux)
-> Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org
+> ---
 > 
-> iD8DBQFHASDNrlYvE4MpobMRAuAAAJ0edHnaWRQ/RuE8llb+RQ9Zh43j6ACg2qXK
-> FsPmAB6fb4Ct9ytLVhxYijk=
-> =S8km
-> -----END PGP SIGNATURE-----
-> plain text document attachment (diff)
-> diff --exclude-from=exclude -N -u -r nsalibsemanage/src/genhomedircon.c libsemanage-2.0.11/src/genhomedircon.c
-> --- nsalibsemanage/src/genhomedircon.c	2007-10-01 09:54:35.000000000 -0400
-> +++ libsemanage-2.0.11/src/genhomedircon.c	2007-10-01 12:24:39.000000000 -0400
-> @@ -668,12 +668,11 @@
+>  mapping.c |    6 ++++++
+>  1 file changed, 6 insertions(+)
+> 
+> 
+> Index: libselinux/src/mapping.c
+> ===================================================================
+> --- libselinux/src/mapping.c	(revision 2628)
+> +++ libselinux/src/mapping.c	(working copy)
+> @@ -68,6 +68,11 @@
 >  
->  	for (i = 0; i < nseusers; i++) {
->  		seuname = semanage_seuser_get_sename(seuser_list[i]);
-> +		name = semanage_seuser_get_name(seuser_list[i]);
+>  		k = 0;
+>  		while (p_in->perms && p_in->perms[k]) {
+> +			/* An empty permission string skips ahead */
+> +			if (!*p_in->perms[k]) {
+> +				k++;
+> +				continue;
+> +			}
+>  			p_out->perms[k] = string_to_av_perm(p_out->value,
+>  							    p_in->perms[k]);
+>  			if (!p_out->perms[k])
+> @@ -111,6 +116,7 @@
 >  
-> -		if (strcmp(seuname, s->fallback_user) == 0)
-> +		if (strcmp(name,"root") && strcmp(seuname, s->fallback_user) == 0)
->  			continue;
->  
-> -		name = semanage_seuser_get_name(seuser_list[i]);
-> -
->  		if (strcmp(name, DEFAULT_LOGIN) == 0)
->  			continue;
->  
+>  		for (i=0; i<current_mapping[tclass].num_perms; i++)
+>  			if (tperm & (1<<i)) {
+> +				assert(current_mapping[tclass].perms[i]);
+>  				kperm |= current_mapping[tclass].perms[i];
+>  				tperm &= ~(1<<i);
+>  			}
+> 
+> 
+> 
 -- 
 Stephen Smalley
 National Security Agency
