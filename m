@@ -1,108 +1,54 @@
-Subject: Re: [PATCH] libsepol: add user to hierarchy checker
+Subject: Re: [patch 0/4] libsemanage: genhomedircon regressions
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: "Todd C. Miller" <tmiller@tresys.com>
-Cc: SELinux Mail List <selinux@tycho.nsa.gov>
-In-Reply-To: <200709242044.l8OKijdq013008@tex.courtesan.com>
-References: <200709242044.l8OKijdq013008@tex.courtesan.com>
+To: Daniel J Walsh <dwalsh@redhat.com>
+Cc: "Todd C. Miller" <tmiller@tresys.com>,
+        Joshua Brindle <jbrindle@tresys.com>, selinux@tycho.nsa.gov
+In-Reply-To: <470120CD.5050009@redhat.com>
+References: <200709281804.l8SI4Cuj031486@cadmus.columbia.tresys.com>
+	 <470120CD.5050009@redhat.com>
 Content-Type: text/plain
-Date: Fri, 05 Oct 2007 09:32:27 -0400
-Message-Id: <1191591147.891.1.camel@moss-spartans.epoch.ncsc.mil>
+Date: Fri, 05 Oct 2007 10:19:19 -0400
+Message-Id: <1191593959.891.4.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 2007-09-24 at 16:44 -0400, Todd C. Miller wrote:
-> This adds user support to the hierarchy checker for completeness.  A user
-> may not have more roles than its parent.  It is basically identical to the
-> role hierarchy support except that we constrain roles instead of types.
+On Mon, 2007-10-01 at 12:31 -0400, Daniel J Walsh wrote:
+> -----BEGIN PGP SIGNED MESSAGE-----
+> Hash: SHA1
 > 
-> Signed-Off-By: Todd C. Miller <tmiller@tresys.com>
-> 
->  hierarchy.c |   56 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++
->  1 file changed, 56 insertions(+)
-> 
-> Index: libsepol/src/hierarchy.c
-> ===================================================================
-> --- libsepol/src/hierarchy.c	(revision 2585)
-> +++ libsepol/src/hierarchy.c	(working copy)
-> @@ -365,6 +365,59 @@
->  	return 0;
->  }
->  
-> +/* The user hierarchy is defined as: a child user cannot have a role that
-> + * its parent doesn't have.  This function should be called with hashtab_map,
-> + * it will return 0 on success, 1 on constraint violation and -1 on error.
-> + */
-> +static int check_user_hierarchy_callback(hashtab_key_t k
-> +					 __attribute__ ((unused)),
-> +					 hashtab_datum_t d, void *args)
-> +{
-> +	char *parent;
-> +	hierarchy_args_t *a;
-> +	user_datum_t *u, *up;
-> +	ebitmap_t eb;
-> +
-> +	a = (hierarchy_args_t *) args;
-> +	u = (user_datum_t *) d;
-> +
-> +	if (find_parent(a->p->p_user_val_to_name[u->s.value - 1], &parent))
-> +		return -1;
-> +
-> +	if (!parent) {
-> +		/* This user has no parent */
-> +		return 0;
-> +	}
-> +
-> +	up = hashtab_search(a->p->p_users.table, parent);
-> +	if (!up) {
-> +		/* Orphan user */
-> +		ERR(a->handle, "user %s doesn't exist, %s is an orphan",
-> +		    parent, a->p->p_user_val_to_name[u->s.value - 1]);
-> +		free(parent);
-> +		a->numerr++;
-> +		return 0;
-> +	}
-> +
-> +	if (ebitmap_or(&eb, &u->roles.roles, &up->roles.roles)) {
-> +		/* Memory error */
-> +		free(parent);
-> +		return -1;
-> +	}
-> +
-> +	if (!ebitmap_cmp(&eb, &up->roles.roles)) {
-> +		/* hierarchical constraint violation, return error */
-> +		ERR(a->handle, "User hierarchy violation, %s exceeds %s",
-> +		    a->p->p_user_val_to_name[u->s.value - 1], parent);
-> +		a->numerr++;
-> +	}
+> This patch makes sure /root gets labeled even if it is using the default
+> context.
 
-Why not use ebitmap_contains()?
+Thanks, merged.
 
-> +
-> +	ebitmap_destroy(&eb);
-> +	free(parent);
-> +
-> +	return 0;
-> +}
-> +
->  int hierarchy_check_constraints(sepol_handle_t * handle, policydb_t * p)
->  {
->  	hierarchy_args_t args;
-> @@ -395,6 +448,9 @@
->  	if (hashtab_map(p->p_roles.table, check_role_hierarchy_callback, &args))
->  		goto bad;
->  
-> +	if (hashtab_map(p->p_users.table, check_user_hierarchy_callback, &args))
-> +		goto bad;
-> +
->  	if (args.numerr) {
->  		ERR(handle, "%d total errors found during hierarchy check",
->  		    args.numerr);
+> -----BEGIN PGP SIGNATURE-----
+> Version: GnuPG v1.4.7 (GNU/Linux)
+> Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org
 > 
-> --
-> This message was distributed to subscribers of the selinux mailing list.
-> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
-> the words "unsubscribe selinux" without quotes as the message.
+> iD8DBQFHASDNrlYvE4MpobMRAuAAAJ0edHnaWRQ/RuE8llb+RQ9Zh43j6ACg2qXK
+> FsPmAB6fb4Ct9ytLVhxYijk=
+> =S8km
+> -----END PGP SIGNATURE-----
+> plain text document attachment (diff)
+> diff --exclude-from=exclude -N -u -r nsalibsemanage/src/genhomedircon.c libsemanage-2.0.11/src/genhomedircon.c
+> --- nsalibsemanage/src/genhomedircon.c	2007-10-01 09:54:35.000000000 -0400
+> +++ libsemanage-2.0.11/src/genhomedircon.c	2007-10-01 12:24:39.000000000 -0400
+> @@ -668,12 +668,11 @@
+>  
+>  	for (i = 0; i < nseusers; i++) {
+>  		seuname = semanage_seuser_get_sename(seuser_list[i]);
+> +		name = semanage_seuser_get_name(seuser_list[i]);
+>  
+> -		if (strcmp(seuname, s->fallback_user) == 0)
+> +		if (strcmp(name,"root") && strcmp(seuname, s->fallback_user) == 0)
+>  			continue;
+>  
+> -		name = semanage_seuser_get_name(seuser_list[i]);
+> -
+>  		if (strcmp(name, DEFAULT_LOGIN) == 0)
+>  			continue;
+>  
 -- 
 Stephen Smalley
 National Security Agency
