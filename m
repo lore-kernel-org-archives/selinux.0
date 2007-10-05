@@ -1,44 +1,45 @@
-Subject: Re: Man page change for semodule -D qualifier
+Subject: Re: policycoreutils patch for semanage/seobject.py
 From: Stephen Smalley <sds@tycho.nsa.gov>
 To: Daniel J Walsh <dwalsh@redhat.com>
 Cc: SE Linux <selinux@tycho.nsa.gov>
-In-Reply-To: <4703B657.2010205@redhat.com>
-References: <4703B657.2010205@redhat.com>
+In-Reply-To: <1191594199.891.11.camel@moss-spartans.epoch.ncsc.mil>
+References: <4703B5CA.7040309@redhat.com>
+	 <1191594199.891.11.camel@moss-spartans.epoch.ncsc.mil>
 Content-Type: text/plain
-Date: Fri, 05 Oct 2007 10:23:33 -0400
-Message-Id: <1191594213.891.13.camel@moss-spartans.epoch.ncsc.mil>
+Date: Fri, 05 Oct 2007 10:35:37 -0400
+Message-Id: <1191594937.891.17.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2007-10-03 at 11:33 -0400, Daniel J Walsh wrote:
-> plain text document attachment (diff)
-> diff --exclude-from=exclude --exclude=sepolgen-1.0.10 --exclude=gui --exclude=po -N -u -r nsapolicycoreutils/semodule/semodule.8 policycoreutils-2.0.27/semodule/semodule.8
-> --- nsapolicycoreutils/semodule/semodule.8	2007-07-16 14:20:42.000000000 -0400
-> +++ policycoreutils-2.0.27/semodule/semodule.8	2007-10-03 11:23:39.000000000 -0400
-> @@ -23,6 +23,9 @@
->  .B \-B, \-\-build		
->  force a rebuild of policy (also reloads unless -n is used)
->  .TP
-> +.B \-D, \-\-disable_dontaudit
-> +Temporarily remove dontaudits from policy.  Reverts whenever policy is rebuilt
-> +.TP
->  .B \-i,\-\-install=MODULE_PKG
->  install/replace a module package
->  .TP
-> @@ -58,6 +61,10 @@
->  $ semodule -i httpd.pp
->  # List non-base modules.
->  $ semodule -l
-> +# Turn on all AVC Messages for which SELinux currently is "dontaudit"ing.
-> +$ semodule -DB
-> +# Turn "dontaudit" rules back on.
-> +$ semodule -B
->  # Install or replace all non-base modules in the current directory.
->  $ semodule -i *.pp
->  # Install or replace all modules in the current directory.
+On Fri, 2007-10-05 at 10:23 -0400, Stephen Smalley wrote:
+> On Wed, 2007-10-03 at 11:31 -0400, Daniel J Walsh wrote:
+> > -----BEGIN PGP SIGNED MESSAGE-----
+> > Hash: SHA1
+> > 
+> > Patch implements handling of booleans via semanage
+> > 
+> > Adds display of local list.  So you can either show all booleans,
+> > fcontext, ports or just your local modifications.
+> > 
+> > Implements a store command, so you can use semanage to manage
+> > alternative stores.
+> > 
+> > Implements deleteall so you can remove all local customizations.
+> > 
+> > Add support for <<none>> as a context type for fcontext.
+> 
+> Thanks, merged, although I think we will want to eventually revisit the
+> division of labor between semanage and libsemanage for
+> interpreting/handling <<none>>.
+> 
+> Also, it seems like the deleteall method should be implemented for all
+> relevant objects - seems useful for fcontext as well as boolean.
+> 
+> When would use you use setsebool -P vs. semanage boolean -m?
 
-Merged.
+Actually, you don't appear to have fully implemented semanage boolean -m
+support (value is never defined).
 
 -- 
 Stephen Smalley
