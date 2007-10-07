@@ -1,34 +1,29 @@
 Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l97CnPp3023905
-	for <selinux@tycho.nsa.gov>; Sun, 7 Oct 2007 08:49:26 -0400
-Received: from mx07.ms.so-net.ne.jp (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l97CnM43018532
-	for <selinux@tycho.nsa.gov>; Sun, 7 Oct 2007 12:49:24 GMT
-Subject: [Refpolicy PATCH] (just a m4macro description miss?)
-From: shintaro_fujiwara <shin216@xf7.so-net.ne.jp>
-To: selinux@tycho.nsa.gov, cpebenito@tresys.com
-Content-Type: text/plain
-Date: Sun, 07 Oct 2007 21:53:22 +0900
-Message-Id: <1191761602.3169.4.camel@notepc.intrajp-yokosuka.co.jp>
-Mime-Version: 1.0
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l97LrXGW012807
+	for <selinux@tycho.nsa.gov>; Sun, 7 Oct 2007 17:53:34 -0400
+Received: from us.intercode.com.au (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l97LrWLW005815
+	for <selinux@tycho.nsa.gov>; Sun, 7 Oct 2007 21:53:32 GMT
+Date: Mon, 8 Oct 2007 07:53:11 +1000 (EST)
+From: James Morris <jmorris@namei.org>
+To: Paul Moore <paul.moore@hp.com>
+cc: selinux@tycho.nsa.gov, Eric Paris <eparis@redhat.com>
+Subject: Re: [RFC PATCH v4 0/3] Added new checks for labeled IPsec & SECMARK
+ [en|dis]able
+In-Reply-To: <20071005192619.28034.62276.stgit@flek.americas.hpqcorp.net>
+Message-ID: <Xine.LNX.4.64.0710080752240.12306@us.intercode.com.au>
+References: <20071005192619.28034.62276.stgit@flek.americas.hpqcorp.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Index: policy/modules/services/ucspitcp.if
-===================================================================
---- policy/modules/services/ucspitcp.if (revision 2446)
-+++ policy/modules/services/ucspitcp.if (working copy)
-@@ -20,7 +20,7 @@
- ##     </summary>
- ## </param>
- #
--interface(`ucspitcp_service_domain', `
-+interface(`ucspitcp_service_domain',`
-	gen_require(`
-		type ucspitcp_t;
-		role system_r;
+I think it'd be good to get these into 2.6.24.  Any acks/nacks ?
 
 
+-- 
+James Morris
+<jmorris@namei.org>
 
 --
 This message was distributed to subscribers of the selinux mailing list.
