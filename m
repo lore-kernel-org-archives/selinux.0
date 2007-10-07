@@ -1,41 +1,34 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l97728kr002654
-	for <selinux@tycho.nsa.gov>; Sun, 7 Oct 2007 03:02:08 -0400
-Received: from mx.meyering.net (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id l97727HW002413
-	for <selinux@tycho.nsa.gov>; Sun, 7 Oct 2007 07:02:07 GMT
-From: Jim Meyering <jim@meyering.net>
-To: selinux@tycho.nsa.gov
-Subject: is any use of runcon by arbitrary users valid when enforcing?
-Date: Sun, 07 Oct 2007 09:01:36 +0200
-Message-ID: <87fy0n9zn3.fsf@rho.meyering.net>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l97CnPp3023905
+	for <selinux@tycho.nsa.gov>; Sun, 7 Oct 2007 08:49:26 -0400
+Received: from mx07.ms.so-net.ne.jp (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l97CnM43018532
+	for <selinux@tycho.nsa.gov>; Sun, 7 Oct 2007 12:49:24 GMT
+Subject: [Refpolicy PATCH] (just a m4macro description miss?)
+From: shintaro_fujiwara <shin216@xf7.so-net.ne.jp>
+To: selinux@tycho.nsa.gov, cpebenito@tresys.com
+Content-Type: text/plain
+Date: Sun, 07 Oct 2007 21:53:22 +0900
+Message-Id: <1191761602.3169.4.camel@notepc.intrajp-yokosuka.co.jp>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-In a simple test of runcon for coreutils test suite, I used the following,
-but see that it's failing in an enforcing F8t3 environment:
-[from coreutils/tests/misc/runcon]
+Index: policy/modules/services/ucspitcp.if
+===================================================================
+--- policy/modules/services/ucspitcp.if (revision 2446)
++++ policy/modules/services/ucspitcp.if (working copy)
+@@ -20,7 +20,7 @@
+ ##     </summary>
+ ## </param>
+ #
+-interface(`ucspitcp_service_domain', `
++interface(`ucspitcp_service_domain',`
+	gen_require(`
+		type ucspitcp_t;
+		role system_r;
 
-    ...
-    cat <<\EOF > exp || framework_failure
-    runcon: runcon may be used only on a SELinux kernel
-    EOF
 
-    fail=0
-
-    # This test works even on systems without SELinux.
-    # On such a system it fails with the above diagnostic, which is fine.
-    # Before the no-reorder change, it would have failed with a diagnostic
-    # about -j being an invalid option.
-    runcon -t unconfined_t true -j 2> out && : > exp
-
-    compare out exp || fail=1
-
-    (exit $fail); exit $fail
-
-Is there any similar use of runcon that can be expected to succeed?
 
 --
 This message was distributed to subscribers of the selinux mailing list.
