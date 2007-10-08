@@ -1,97 +1,52 @@
 Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l98F2Hob021238
-	for <selinux@tycho.nsa.gov>; Mon, 8 Oct 2007 11:02:17 -0400
-Received: from exchange.columbia.tresys.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with SMTP id l98F2G4K001815
-	for <selinux@tycho.nsa.gov>; Mon, 8 Oct 2007 15:02:16 GMT
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Subject: Re: policyd module
-Date: Mon, 8 Oct 2007 10:57:55 -0400
-Message-ID: <1191855475.13098.37.camel@gorn>
-In-Reply-To: <20071005234757.GA4249@lc4eb8045376502.ibm.com>
-References: <20070929231049.GA14665@lc4eb8045376502.ibm.com> <1191243135.4282.42.camel@gorn> <20071003125323.GA15070@lc4eb8045376502.ibm.com> <1191416728.5843.6.camel@gorn> <20071003150600.GA16964@lc4eb8045376502.ibm.com> <1191606242.13098.4.camel@gorn.columbia.tresys.com> <20071005234757.GA4249@lc4eb8045376502.ibm.com>
-From: "Christopher J. PeBenito" <cpebenito@tresys.com>
-To: "Jan-Frode Myklebust" <janfrode@tanso.net>
-Cc: <selinux@tycho.nsa.gov>
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l98J97aq002349
+	for <selinux@tycho.nsa.gov>; Mon, 8 Oct 2007 15:09:08 -0400
+Received: from mx1.redhat.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l98J96MG015457
+	for <selinux@tycho.nsa.gov>; Mon, 8 Oct 2007 19:09:07 GMT
+Received: from int-mx1.corp.redhat.com (int-mx1.corp.redhat.com [172.16.52.254])
+	by mx1.redhat.com (8.13.8/8.13.1) with ESMTP id l98J944n024301
+	for <selinux@tycho.nsa.gov>; Mon, 8 Oct 2007 15:09:04 -0400
+Subject: Shell redirection and denials
+From: Karl MacMillan <kmacmillan@mentalrootkit.com>
+To: SE Linux <selinux@tycho.nsa.gov>
+Cc: Daniel J Walsh <dwalsh@redhat.com>
+Content-Type: text/plain
+Date: Mon, 08 Oct 2007 15:08:57 -0400
+Message-Id: <1191870537.14569.23.camel@localhost.localdomain>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Sat, 2007-10-06 at 01:47 +0200, Jan-Frode Myklebust wrote:
-> diff -ruN refpolicy.old/policy/modules/services/policyd.te refpolicy/policy/modules/services/policyd.te
-> --- refpolicy.old/policy/modules/services/policyd.te    1970-01-01 01:00:00.000000000 +0100
-> +++ refpolicy/policy/modules/services/policyd.te        2007-10-06 01:46:26.000000000 +0200
-> @@ -0,0 +1,56 @@
-> +
-> +policy_module(policyd, 1.0.0)
-> +
-> +########################################
-> +#
-> +# Declarations
-> +#
-> +
-> +type policyd_t;
-> +type policyd_exec_t;
-> +init_daemon_domain(policyd_t, policyd_exec_t)
-> +
-> +type policyd_conf_t;
-> +files_config_file(policyd_conf_t)
-> +
-> +type policyd_var_run_t;
-> +files_pid_file(policyd_var_run_t)
-> +
-> +########################################
-> +#
-> +# Local Policy
-> +#
-> +
-> +allow policyd_t self:tcp_socket create_stream_socket_perms;
-> +allow policyd_t self:capability { sys_resource sys_chroot setgid setuid };
-> +allow policyd_t self:process setrlimit;
-> +allow policyd_t self:unix_dgram_socket { connect create write};
-> +
-> +allow policyd_t policyd_conf_t:dir r_dir_perms;
-> +allow policyd_t policyd_conf_t:file r_file_perms;
-> +allow policyd_t policyd_conf_t:lnk_file { getattr read };
-> +
-> +allow policyd_t policyd_var_run_t:dir rw_dir_perms;
-> +allow policyd_t policyd_var_run_t:file create_file_perms;
-> +files_pid_filetrans(policyd_t, policyd_var_run_t, file)
-> +
-> +corenet_tcp_sendrecv_all_if(policyd_t)
-> +corenet_tcp_sendrecv_all_nodes(policyd_t)
-> +corenet_tcp_sendrecv_all_ports(policyd_t)
-> +corenet_all_recvfrom_unlabeled(policyd_t)
-> +corenet_tcp_bind_all_nodes(policyd_t)
-> +corenet_tcp_bind_policyd_port(policyd_t)
-> +corenet_tcp_bind_mysqld_port(policyd_t)
-> +
-> +corenet_tcp_connect_policyd_port(postfix_smtpd_t)
+One of Dan's constant sources of avcs is something like:
 
-This line needs to be moved to the postfix module, as postfix_smtpd_t
-isn't owned by this module.
+/usr/sbin/my_confined_app > some_file
 
-> +sysnet_dns_name_resolve(policyd_t)
-> +
-> +libs_use_ld_so(policyd_t)
-> +libs_use_shared_libs(policyd_t)
-> +term_use_generic_ptys(policyd_t)
-> +files_read_etc_files(policyd_t)
-> +logging_send_syslog_msg(policyd_t)
-> +
-> +miscfiles_read_localization(policyd_t)
-> +files_read_usr_files(policyd_t)
+Because the file is created by the shell, opened, and the FD handed to
+the application avcs can occur on read and write.
 
-I didn't notice this before, but you are missing a .if file.  Even if
-there aren't currently any interfaces, there needs to be a .if file with
-at least the XML summary.
+Getting rid of these via policy is next to impossible - the destination
+file type is usually governed by the directory and we don't actually
+want to allow that access directly to the confined application. I'd like
+to see if there is some other way to get rid of these denials.
 
--- 
-Chris PeBenito
-Tresys Technology, LLC
-(410) 290-1411 x150
+I see two possible solutions:
 
+1) Make the shell create and pass a descriptor to a pipe to the
+application - the shell itself would read / write to the file. This
+seems, to me, to more accurately reflect how we want to enforce the
+permissions.
+
+2) Allow applications to confer access by passing the file descriptor
+(more like capabilities). This more closely matches how Unix actually
+works and, of course, is a huge source of vulnerabilities. Allowing this
+type of scheme just for shells might not be that bad.
+
+Has either of these been investigated? 1 seems pretty simple - is there
+something I'm missing here (perhaps the redirection should outlast the
+shell lifetime?).
+
+Karl
 
 
 --
