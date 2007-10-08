@@ -1,39 +1,66 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l98C7DGj013769
-	for <selinux@tycho.nsa.gov>; Mon, 8 Oct 2007 08:07:13 -0400
-Received: from ccerelrim02.cce.hp.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id l98C7Bts029129
-	for <selinux@tycho.nsa.gov>; Mon, 8 Oct 2007 12:07:11 GMT
-From: Paul Moore <paul.moore@hp.com>
-To: James Morris <jmorris@namei.org>
-Subject: Re: [RFC PATCH v4 0/3] Added new checks for labeled IPsec & SECMARK [en|dis]able
-Date: Mon, 8 Oct 2007 08:06:59 -0400
-Cc: selinux@tycho.nsa.gov, Eric Paris <eparis@redhat.com>
-References: <20071005192619.28034.62276.stgit@flek.americas.hpqcorp.net> <Xine.LNX.4.64.0710080752240.12306@us.intercode.com.au> <200710071955.26628.paul.moore@hp.com>
-In-Reply-To: <200710071955.26628.paul.moore@hp.com>
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l98E5kcQ018495
+	for <selinux@tycho.nsa.gov>; Mon, 8 Oct 2007 10:05:46 -0400
+Received: from py-out-1112.google.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l98E5j4K022639
+	for <selinux@tycho.nsa.gov>; Mon, 8 Oct 2007 14:05:45 GMT
+Received: by py-out-1112.google.com with SMTP id u77so2874008pyb
+        for <selinux@tycho.nsa.gov>; Mon, 08 Oct 2007 07:05:35 -0700 (PDT)
+Message-ID: <9f066ee90710080658k52f592e5q68d6cd2b27cbd93b@mail.gmail.com>
+Date: Mon, 8 Oct 2007 09:58:49 -0400
+From: Mark <elihusmails@gmail.com>
+To: selinux@tycho.nsa.gov
+Subject: confining certain user to their home directory
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Message-Id: <200710080806.59404.paul.moore@hp.com>
+Content-Type: multipart/alternative;
+	boundary="----=_Part_40504_14235180.1191851929716"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Sunday 07 October 2007 7:55:26 pm Paul Moore wrote:
-> On Sunday 07 October 2007 5:53:11 pm James Morris wrote:
-> > I think it'd be good to get these into 2.6.24.  Any acks/nacks ?
+------=_Part_40504_14235180.1191851929716
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-Sorry, I thought you were asking just about the last patch (dynamic 
-enable/disable) and not the whole patchset.
+Is there a way to confine users to their home directory using CentOS 5?  I
+have tried the steps Dan Walsh listed on his blog:
 
-I don't think we're going to be ready for 2.6.24 with these patches.  My goal 
-at this point is to get these three patches, the new unified peer label 
-access controls and the work Venkat has been doing on flow control into 
-2.6.25.  This should give us plenty of time to get the userspace pieces into 
-place and perform a decent amount of testing on the whole combination.
+http://danwalsh.livejournal.com/10461.html
+
+but could not get things to compile
+
+make -f /usr/share/selinux/devel/Makefile
+Compiling targeted guest module
+/usr/bin/checkmodule:  loading policy configuration from tmp/guest.tmp
+guest.te:150:ERROR 'syntax error' at token 'manage_dirs_pattern' on line
+85533:
+#line 150
+        manage_dirs_pattern(privhome,{ guest_home_dir_t guest_home_t
+},guest_home_t)
+/usr/bin/checkmodule:  error(s) encountered while parsing configuration
+make: *** [tmp/guest.mod] Error 1
+
+
+What all can I do to get this working?
+
+
+Thanks.
 
 -- 
-paul moore
-linux security @ hp
+..Cheers
+Mark
+
+------=_Part_40504_14235180.1191851929716
+Content-Type: text/html; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+Is there a way to confine users to their home directory using CentOS 5?&nbsp; I have tried the steps Dan Walsh listed on his blog:<br><br><a href="http://danwalsh.livejournal.com/10461.html">http://danwalsh.livejournal.com/10461.html
+</a><br><br>but could not get things to compile<br><br>make -f /usr/share/selinux/devel/Makefile<br>Compiling targeted guest module<br>/usr/bin/checkmodule:&nbsp; loading policy configuration from tmp/guest.tmp<br>guest.te:150:ERROR &#39;syntax error&#39; at token &#39;manage_dirs_pattern&#39; on line 85533:
+<br>#line 150<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; manage_dirs_pattern(privhome,{ guest_home_dir_t guest_home_t },guest_home_t)<br>/usr/bin/checkmodule:&nbsp; error(s) encountered while parsing configuration<br>make: *** [tmp/guest.mod] Error 1<br><br>
+<br clear="all">What all can I do to get this working?<br><br><br>Thanks.<br><br>-- <br>..Cheers<br>Mark
+
+------=_Part_40504_14235180.1191851929716--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
