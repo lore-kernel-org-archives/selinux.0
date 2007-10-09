@@ -1,60 +1,69 @@
-Subject: Re: is any use of runcon by arbitrary users valid when enforcing?
+Subject: Re: Shell redirection and denials
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Jim Meyering <jim@meyering.net>
-Cc: selinux@tycho.nsa.gov, Daniel J Walsh <dwalsh@redhat.com>,
-        "Christopher J. PeBenito" <cpebenito@tresys.com>,
-        Karl MacMillan <kmacmillan@mentalrootkit.com>
-In-Reply-To: <87fy0n9zn3.fsf@rho.meyering.net>
-References: <87fy0n9zn3.fsf@rho.meyering.net>
+To: Karl MacMillan <kmacmillan@mentalrootkit.com>
+Cc: SE Linux <selinux@tycho.nsa.gov>, Daniel J Walsh <dwalsh@redhat.com>
+In-Reply-To: <1191870537.14569.23.camel@localhost.localdomain>
+References: <1191870537.14569.23.camel@localhost.localdomain>
 Content-Type: text/plain
-Date: Tue, 09 Oct 2007 09:17:22 -0400
-Message-Id: <1191935842.24970.35.camel@moss-spartans.epoch.ncsc.mil>
+Date: Tue, 09 Oct 2007 10:37:40 -0400
+Message-Id: <1191940660.24970.94.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Sun, 2007-10-07 at 09:01 +0200, Jim Meyering wrote:
-> In a simple test of runcon for coreutils test suite, I used the following,
-> but see that it's failing in an enforcing F8t3 environment:
-> [from coreutils/tests/misc/runcon]
+On Mon, 2007-10-08 at 15:08 -0400, Karl MacMillan wrote:
+> One of Dan's constant sources of avcs is something like:
 > 
->     ...
->     cat <<\EOF > exp || framework_failure
->     runcon: runcon may be used only on a SELinux kernel
->     EOF
+> /usr/sbin/my_confined_app > some_file
 > 
->     fail=0
+> Because the file is created by the shell, opened, and the FD handed to
+> the application avcs can occur on read and write.
 > 
->     # This test works even on systems without SELinux.
->     # On such a system it fails with the above diagnostic, which is fine.
->     # Before the no-reorder change, it would have failed with a diagnostic
->     # about -j being an invalid option.
->     runcon -t unconfined_t true -j 2> out && : > exp
+> Getting rid of these via policy is next to impossible - the destination
+> file type is usually governed by the directory and we don't actually
+> want to allow that access directly to the confined application. I'd like
+> to see if there is some other way to get rid of these denials.
 > 
->     compare out exp || fail=1
+> I see two possible solutions:
 > 
->     (exit $fail); exit $fail
+> 1) Make the shell create and pass a descriptor to a pipe to the
+> application - the shell itself would read / write to the file. This
+> seems, to me, to more accurately reflect how we want to enforce the
+> permissions.
 > 
-> Is there any similar use of runcon that can be expected to succeed?
+> 2) Allow applications to confer access by passing the file descriptor
+> (more like capabilities). This more closely matches how Unix actually
+> works and, of course, is a huge source of vulnerabilities. Allowing this
+> type of scheme just for shells might not be that bad.
+> 
+> Has either of these been investigated? 1 seems pretty simple - is there
+> something I'm missing here (perhaps the redirection should outlast the
+> shell lifetime?).
 
-How does it fail?  The runcon in rawhide (coreutils-6.9-6.fc8) appears
-to work fine when invoked as above aside from needing to specify -- to
-stop option processing before it reaches the -j.  This was while
-enforcing with selinux-policy-3.0.8-18.fc8.  Possibly your system was
-left in a strange state after an update (I have seen that in rawhide,
-where a policy update left some processes with invalidated contexts).
+I believe we've told people to do (1) manually in the past (not
+automatically in the shell, but via the command line ala httpd -t |
+cat), and making that happen transparently in the shell would be a
+usability win.  But doing it always in the shell has implications for
+performance and scalability; the shell then becomes a major bottleneck.
+The shell could conceivably do a permission check to see whether the
+indirection is required, but that means that user shells always need
+permission to compute access decisions or that the shell would fall back
+to always using the indirection if it lacks permission to check for
+that.
 
-However, the above test is clearly policy-specific; a policy may or may
-not define unconfined_t, and a policy may or may not allow users to set
-their exec context at all.  Under strict or mls policy, the above should
-fail.
+(2) requires a kernel change, and requires care to avoid losing our
+ability to control propagation of access rights in accordance with
+policy (fundamental to MAC). I don't think you want the shell to be able
+to arbitrarily pass any descriptor, but being able to distinguish in
+policy between open (open_read, open_write) vs. transfer (transfer_read,
+transfer_write) vs. use (read, write) could be useful so that you can
+allow a process to inherit and use a descriptor without being able to
+directly open the file.  DTOS had similar kinds of distinctions via
+separate permissions on holding, using, and transferring port rights.
+But policy would still need to allow use to all desired file types.
 
-runcon `id -Z` true would be slightly more general (i.e. run in my own
-context), but it too could fail since some policies may prohibit users
-from writing to /proc/self/attr/exec altogether.
-
-Possibly you could distinguish based on exit code as to whether the
-cause was a permission failure?
+The hardest part there is just compatibility; it would have to leverage
+the proposed policy.22 capability bitmap to enable the new checks.
 
 -- 
 Stephen Smalley
