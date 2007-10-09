@@ -1,129 +1,66 @@
-Subject: Re: Shell redirection and denials
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Daniel J Walsh <dwalsh@redhat.com>
-Cc: Karl MacMillan <kmacmillan@mentalrootkit.com>,
-        SE Linux <selinux@tycho.nsa.gov>, James Morris <jmorris@namei.org>,
-        Eric Paris <eparis@parisplace.org>
-In-Reply-To: <470B8EF7.5030102@redhat.com>
-References: <1191870537.14569.23.camel@localhost.localdomain>
-	 <470B8EF7.5030102@redhat.com>
+Subject: Re: Are the reference policy abstractions the right ones?
+From: Karl MacMillan <kmacmillan@mentalrootkit.com>
+To: jwcart2@tycho.nsa.gov
+Cc: SELinux <selinux@tycho.nsa.gov>, Steve Smalley <sds@epoch.ncsc.mil>
+In-Reply-To: <1191942521.2794.89.camel@moss-lions.epoch.ncsc.mil>
+References: <1191942521.2794.89.camel@moss-lions.epoch.ncsc.mil>
 Content-Type: text/plain
-Date: Tue, 09 Oct 2007 12:55:13 -0400
-Message-Id: <1191948913.24970.135.camel@moss-spartans.epoch.ncsc.mil>
+Date: Tue, 09 Oct 2007 13:10:52 -0400
+Message-Id: <1191949852.23486.55.camel@dhcp-64-223.iad.redhat.com>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2007-10-09 at 10:23 -0400, Daniel J Walsh wrote:
-> -----BEGIN PGP SIGNED MESSAGE-----
-> Hash: SHA1
+On Tue, 2007-10-09 at 11:08 -0400, James Carter wrote:
+[...]
 > 
-> Karl MacMillan wrote:
-> > One of Dan's constant sources of avcs is something like:
-> > 
-> > /usr/sbin/my_confined_app > some_file
-> > 
-> > Because the file is created by the shell, opened, and the FD handed to
-> > the application avcs can occur on read and write.
-> > 
-> > Getting rid of these via policy is next to impossible - the destination
-> > file type is usually governed by the directory and we don't actually
-> > want to allow that access directly to the confined application. I'd like
-> > to see if there is some other way to get rid of these denials.
-> > 
-> > I see two possible solutions:
-> > 
-> > 1) Make the shell create and pass a descriptor to a pipe to the
-> > application - the shell itself would read / write to the file. This
-> > seems, to me, to more accurately reflect how we want to enforce the
-> > permissions.
-> > 
-> > 2) Allow applications to confer access by passing the file descriptor
-> > (more like capabilities). This more closely matches how Unix actually
-> > works and, of course, is a huge source of vulnerabilities. Allowing this
-> > type of scheme just for shells might not be that bad.
-> > 
-> > Has either of these been investigated? 1 seems pretty simple - is there
-> > something I'm missing here (perhaps the redirection should outlast the
-> > shell lifetime?).
-> > 
-> > Karl
-> > 
+> 1) A way to say, "I want a domain like that one, without this
+> permission, but with that one".  I think that inheritance is the answer,
+> because a macro requires you to know ahead of time that someone might be
+> interested in making something similar.  I believe that Karl tried to
+> start a discussion on inheritance a month ago, but there wasn't any
+> interest.  Let's restart that discussion.  I think that whether through
+> macros or inheritance, a rule to remove permissions is needed, because
+> without one, we have to get the base classes or macros perfect.
 > 
-> The biggest source of AVC's that I see reported is the handing off of
-> open file descriptors.  Mainly terminal descriptors.  Any app that
-> redirects STDIN/STDERR to a random file location, by opening a file and
-> handing the descriptor, generates avc messages that cause unexpected
-> behavior.
-> 
-> service XYZ start >> /tmp/my.log
-> 
-> Will almost always cause avc's and worse no output to my.log.  This
-> causes sysadmins to go nuts, and it makes no sense to them.
-> 
-> Applications, like rpm, hal, udev, system-config-*, testing tools, any
-> tools that restarts an init script all do this kind of thing.  As we
-> move to additional confined user domains and define additional terminal
-> types this problem proliferates.
-> 
-> The problem is SELinux is preventing READ/WRITE, and does not even look
-> at Open.  I understand that from a security lock down point of view this
-> is a big security consideration.  But I believe most sysadmins would
-> want to prevent their locked down domain to OPEN files in random
-> location, but if the domains, are handed an OPEN file descriptor from
-> another process then they should be allowed to READ/WRITE to that OPEN
-> Descriptor no matter where it is.
-> 
-> So a confined domain could talk to the terminals that were handed to it
-> but could not open random other terminals.
-> 
-> This is by far the biggest source of dontaudit's allowed in the policy
-> sources and ends up preventing us from seeing real potential
-> subversions, where a confined app actually tries to open and talk to
-> random terminals or the console.
 
-I understand the motivation, but merely dropping checks entirely on
-inheritance and transfer of descriptors means that we have no control
-over the propagation of access rights, which is important for confining
-malicious and flawed programs.
+Like I said I think this would be useful.
 
-Splitting the permissions such that we check one set of permissions
-(e.g. open_read, open_write) at open-time and a different set of
-permissions on transfer and/or use (read, write) would allow the policy
-writer to allow or dontaudit only the latter while denying w/audit the
-former.
-
-If we wanted to specifically control the ability to give a descriptor to
-another task (vs. the ability to receive/inherit/use it), we'd need
-another hook, as we currently only hook the receive side.  Then you
-could have distinct transfer_read, transfer_write permissions governing
-who could propagate a descriptor separate from read, write permissions
-governing who could inherit/receive/use it.  
-
-> Another side effect I often see is that apps tend to do a getcwd when
-> they start.  I do not know if this is a standard C/libc activity the way
-> apps are coded or maybe something about the way bash is coded, but this
-> ends up generating lots of  AVC messages.
+> 2) A way to export types in some manner that would still allow
+> flexibility in renaming or splitting a type locally, without having to
+> change the global name.  That global name would also have to be what
+> shows up in audit logs and other things.  Maybe this is impossible and
+> we are just stuck treating types as global entities.
 > 
-> If you look at the confined domains, almost all of them have a
-> dontaudit $1 sysadm_home_dir_t:dir search_dir_perms;
-> 
-> Because any sysadm who "su -" ends up in the /root homedir and if he
-> does a service APP restart.  That APP ends up generating and AVC.
-> 
-> I happened to be sitting in a unconfined_tmp_t directory today, when I
-> started vpnc and boom, setroubleshoot is telling me vpnc_t tried to read
-> unconfined_tmp_t.
 
-That's a different issue - it isn't an operation on an open file
-descriptor, and we can't distinguish it from any other lookup at least
-presently.  Actually though sys_getcwd() shouldn't trigger a permission
-check at all.  Traditional userland getcwd() would need to search the
-directory.
+It occurs to me that removing the distinction between types and
+attributes and allowing nesting of them gets a lot of this. Say you have
+a type:
 
--- 
-Stephen Smalley
-National Security Agency
+type foo;
+
+allow foo etc_t : file read;
+allow foo self : process signal;
+
+If you could then just say:
+
+type bar, foo;
+
+I.e., treat foo as an attribute. That would handle the type splitting
+issues for files as well. Nested attributes would also allow building up
+of more complex attributes:
+
+attribute domain;
+# rules for a process
+
+attribute daemon, domain;
+# daemon is also a domain. Add rules related
+# to being a daemon
+
+attribute network_server, daemon;
+# A daemon that can talk on the network.
+
+Karl
 
 
 --
