@@ -1,114 +1,104 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l99G5Qc0004202
-	for <selinux@tycho.nsa.gov>; Tue, 9 Oct 2007 12:05:26 -0400
-Received: from mx1.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id l99G5JuG013235
-	for <selinux@tycho.nsa.gov>; Tue, 9 Oct 2007 16:05:19 GMT
-Message-ID: <470B8EF7.5030102@redhat.com>
-Date: Tue, 09 Oct 2007 10:23:51 -0400
-From: Daniel J Walsh <dwalsh@redhat.com>
+From: Jim Meyering <jim@meyering.net>
+To: Stephen Smalley <sds@tycho.nsa.gov>
+Cc: selinux@tycho.nsa.gov, Daniel J Walsh <dwalsh@redhat.com>,
+        "Christopher J. PeBenito" <cpebenito@tresys.com>,
+        Karl MacMillan <kmacmillan@mentalrootkit.com>
+Subject: Re: is any use of runcon by arbitrary users valid when enforcing?
+In-Reply-To: <1191935842.24970.35.camel@moss-spartans.epoch.ncsc.mil> (Stephen
+	Smalley's message of "Tue, 09 Oct 2007 09:17:22 -0400")
+References: <87fy0n9zn3.fsf@rho.meyering.net>
+	<1191935842.24970.35.camel@moss-spartans.epoch.ncsc.mil>
+Date: Tue, 09 Oct 2007 18:01:15 +0200
+Message-ID: <878x6cwa44.fsf@rho.meyering.net>
 MIME-Version: 1.0
-To: Karl MacMillan <kmacmillan@mentalrootkit.com>
-CC: SE Linux <selinux@tycho.nsa.gov>
-Subject: Re: Shell redirection and denials
-References: <1191870537.14569.23.camel@localhost.localdomain>
-In-Reply-To: <1191870537.14569.23.camel@localhost.localdomain>
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=us-ascii
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+Stephen Smalley <sds@tycho.nsa.gov> wrote:
+> On Sun, 2007-10-07 at 09:01 +0200, Jim Meyering wrote:
+>> In a simple test of runcon for coreutils test suite, I used the following,
+>> but see that it's failing in an enforcing F8t3 environment:
+>> [from coreutils/tests/misc/runcon]
+>>
+>>     ...
+>>     cat <<\EOF > exp || framework_failure
+>>     runcon: runcon may be used only on a SELinux kernel
+>>     EOF
+>>
+>>     fail=0
+>>
+>>     # This test works even on systems without SELinux.
+>>     # On such a system it fails with the above diagnostic, which is fine.
+>>     # Before the no-reorder change, it would have failed with a diagnostic
+>>     # about -j being an invalid option.
+>>     runcon -t unconfined_t true -j 2> out && : > exp
+>>
+>>     compare out exp || fail=1
+>>
+>>     (exit $fail); exit $fail
+>>
+>> Is there any similar use of runcon that can be expected to succeed?
+>
+> How does it fail?  The runcon in rawhide (coreutils-6.9-6.fc8) appears
 
-Karl MacMillan wrote:
-> One of Dan's constant sources of avcs is something like:
-> 
-> /usr/sbin/my_confined_app > some_file
-> 
-> Because the file is created by the shell, opened, and the FD handed to
-> the application avcs can occur on read and write.
-> 
-> Getting rid of these via policy is next to impossible - the destination
-> file type is usually governed by the directory and we don't actually
-> want to allow that access directly to the confined application. I'd like
-> to see if there is some other way to get rid of these denials.
-> 
-> I see two possible solutions:
-> 
-> 1) Make the shell create and pass a descriptor to a pipe to the
-> application - the shell itself would read / write to the file. This
-> seems, to me, to more accurately reflect how we want to enforce the
-> permissions.
-> 
-> 2) Allow applications to confer access by passing the file descriptor
-> (more like capabilities). This more closely matches how Unix actually
-> works and, of course, is a huge source of vulnerabilities. Allowing this
-> type of scheme just for shells might not be that bad.
-> 
-> Has either of these been investigated? 1 seems pretty simple - is there
-> something I'm missing here (perhaps the redirection should outlast the
-> shell lifetime?).
-> 
-> Karl
-> 
+I think it failed with one of these:
 
-The biggest source of AVC's that I see reported is the handing off of
-open file descriptors.  Mainly terminal descriptors.  Any app that
-redirects STDIN/STDERR to a random file location, by opening a file and
-handing the descriptor, generates avc messages that cause unexpected
-behavior.
+    runcon: invalid context: ... Invalid argument
+    runcon: unable to set security context ...
 
-service XYZ start >> /tmp/my.log
+> to work fine when invoked as above aside from needing to specify -- to
+> stop option processing before it reaches the -j.  This was while
+> enforcing with selinux-policy-3.0.8-18.fc8.  Possibly your system was
+> left in a strange state after an update (I have seen that in rawhide,
+> where a policy update left some processes with invalidated contexts).
 
-Will almost always cause avc's and worse no output to my.log.  This
-causes sysadmins to go nuts, and it makes no sense to them.
+Ahh... maybe that's it.  It _was_ after a rawhide update.
+Since then, I've updated at least once and rebooted with
+the new kernel, and I can no longer reproduce it.
 
-Applications, like rpm, hal, udev, system-config-*, testing tools, any
-tools that restarts an init script all do this kind of thing.  As we
-move to additional confined user domains and define additional terminal
-types this problem proliferates.
+> However, the above test is clearly policy-specific; a policy may or may
+> not define unconfined_t, and a policy may or may not allow users to set
+> their exec context at all.  Under strict or mls policy, the above should
+> fail.
+>
+> runcon `id -Z` true would be slightly more general (i.e. run in my own
+> context),
 
-The problem is SELinux is preventing READ/WRITE, and does not even look
-at Open.  I understand that from a security lock down point of view this
-is a big security consideration.  But I believe most sysadmins would
-want to prevent their locked down domain to OPEN files in random
-location, but if the domains, are handed an OPEN file descriptor from
-another process then they should be allowed to READ/WRITE to that OPEN
-Descriptor no matter where it is.
+Good idea.  I've just done that:
 
-So a confined domain could talk to the terminals that were handed to it
-but could not open random other terminals.
+  http://git.sv.gnu.org/gitweb/?p=coreutils.git;a=commitdiff;h=3e53920470cf34
 
-This is by far the biggest source of dontaudit's allowed in the policy
-sources and ends up preventing us from seeing real potential
-subversions, where a confined app actually tries to open and talk to
-random terminals or the console.
+> but it too could fail since some policies may prohibit users
+> from writing to /proc/self/attr/exec altogether.
+>
+> Possibly you could distinguish based on exit code as to whether the
+> cause was a permission failure?
 
+Is that sort of set-up common?  Currently, runcon distinguishes these
+three types of failure:
 
+     1   if `runcon' itself fails
+     126 if COMMAND is found but cannot be invoked
+     127 if COMMAND cannot be found
+     the exit status of COMMAND otherwise
 
-Another side effect I often see is that apps tend to do a getcwd when
-they start.  I do not know if this is a standard C/libc activity the way
-apps are coded or maybe something about the way bash is coded, but this
-ends up generating lots of  AVC messages.
+I'll deal with that if anyone ever reports the problem.
+>From the amount of SELinux feedback I get for coreutils, I suspect
+I'm the only one who tests coreutils on SELinux-enabled systems.
 
-If you look at the confined domains, almost all of them have a
-dontaudit $1 sysadm_home_dir_t:dir search_dir_perms;
+FWIW, you'll be glad to know I've opted to leave in the controversial
+SELinux bits we talked about a few months ago, and coreutils-6.10 isn't
+far off.
 
-Because any sysadm who "su -" ends up in the /root homedir and if he
-does a service APP restart.  That APP ends up generating and AVC.
+In case any of you are interested, snapshots are here:
+  http://meyering.net/cu/
+  http://meyering.net/cu/coreutils-6.9-ss.tar.gz
+  http://meyering.net/cu/coreutils-6.9-ss.tar.gz.sig
 
-I happened to be sitting in a unconfined_tmp_t directory today, when I
-started vpnc and boom, setroubleshoot is telling me vpnc_t tried to read
-unconfined_tmp_t.
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.7 (GNU/Linux)
-Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org
-
-iD8DBQFHC473rlYvE4MpobMRAq2sAKCl5+icAs3Yz42TeEOJrYdmChsZVQCg3tZi
-o3ppR6kJaECaGU+sIVifvCE=
-=PNLZ
------END PGP SIGNATURE-----
+Or via git:
+  http://git.sv.gnu.org/gitweb/?p=coreutils.git
+  git clone git://git.sv.gnu.org/coreutils
 
 --
 This message was distributed to subscribers of the selinux mailing list.
