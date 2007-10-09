@@ -1,90 +1,98 @@
-Subject: Re: Shell redirection and denials
-From: Karl MacMillan <kmacmillan@mentalrootkit.com>
-To: Stephen Smalley <sds@tycho.nsa.gov>
-Cc: SE Linux <selinux@tycho.nsa.gov>, Daniel J Walsh <dwalsh@redhat.com>
-In-Reply-To: <1191940660.24970.94.camel@moss-spartans.epoch.ncsc.mil>
-References: <1191870537.14569.23.camel@localhost.localdomain>
-	 <1191940660.24970.94.camel@moss-spartans.epoch.ncsc.mil>
+Subject: Are the reference policy abstractions the right ones?
+From: James Carter <jwcart2@tycho.nsa.gov>
+Reply-To: jwcart2@tycho.nsa.gov
+To: SELinux <selinux@tycho.nsa.gov>
+Cc: Steve Smalley <sds@epoch.ncsc.mil>,
+        Karl MacMillan <kmacmillan@mentalrootkit.com>
 Content-Type: text/plain
-Date: Tue, 09 Oct 2007 11:04:44 -0400
-Message-Id: <1191942284.23486.22.camel@dhcp-64-223.iad.redhat.com>
+Date: Tue, 09 Oct 2007 11:08:41 -0400
+Message-Id: <1191942521.2794.89.camel@moss-lions.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2007-10-09 at 10:37 -0400, Stephen Smalley wrote:
-> On Mon, 2007-10-08 at 15:08 -0400, Karl MacMillan wrote:
-> > One of Dan's constant sources of avcs is something like:
-> > 
-> > /usr/sbin/my_confined_app > some_file
-> > 
-> > Because the file is created by the shell, opened, and the FD handed to
-> > the application avcs can occur on read and write.
-> > 
-> > Getting rid of these via policy is next to impossible - the destination
-> > file type is usually governed by the directory and we don't actually
-> > want to allow that access directly to the confined application. I'd like
-> > to see if there is some other way to get rid of these denials.
-> > 
-> > I see two possible solutions:
-> > 
-> > 1) Make the shell create and pass a descriptor to a pipe to the
-> > application - the shell itself would read / write to the file. This
-> > seems, to me, to more accurately reflect how we want to enforce the
-> > permissions.
-> > 
-> > 2) Allow applications to confer access by passing the file descriptor
-> > (more like capabilities). This more closely matches how Unix actually
-> > works and, of course, is a huge source of vulnerabilities. Allowing this
-> > type of scheme just for shells might not be that bad.
-> > 
-> > Has either of these been investigated? 1 seems pretty simple - is there
-> > something I'm missing here (perhaps the redirection should outlast the
-> > shell lifetime?).
-> 
-> I believe we've told people to do (1) manually in the past (not
-> automatically in the shell, but via the command line ala httpd -t |
-> cat),
+I would like to start a discussion on whether reference policy is
+providing the right abstractions for writing policy.
 
-Sure.
+This is not intended to be an attack on Chris or Dan, or their work.  I
+think that it is obvious that reference policy is much better organized,
+far more useful, and works way better than the old example policy.  We
+don't want to go back to example policy.
 
->  and making that happen transparently in the shell would be a
-> usability win.
+One of the goals of reference policy is to provide a more modern feel to
+the policy by eliminating the use of types in a global manner across the
+whole policy.  It does this by allowing interfaces to be defined through
+which permissions can be granted to the types of a module.  There seems
+to be several problems with this.
 
-Definitely - because explaining the piping above is difficult and
-requires lots of changes.
+1) The user is constantly presented with types.  They are in the audit
+logs, when the label of a process or file is displayed, and even in the
+man pages ("Set cgi scripts with httpd_sys_script_exec_t to allow them
+to run with access to all sys types.")
 
->   But doing it always in the shell has implications for
-> performance and scalability; the shell then becomes a major bottleneck.
-> The shell could conceivably do a permission check to see whether the
-> indirection is required, but that means that user shells always need
-> permission to compute access decisions or that the shell would fall back
-> to always using the indirection if it lacks permission to check for
-> that.
-> 
+2) We have traded needing to know about 2500 types or so to write
+policy, for needing to know around 4000 interfaces.  And no, I don't
+think that SELinux Clippy is the answer.
 
-Ok.
+3) We don't need to abstract class and permissions, because they don't
+change very much, but frequently the interfaces consist of only a few
+allow rules.  Over 60% of the interfaces have only one line (not
+counting gen_require or refpolicywarn lines).
+Lines   # of Interfaces
+     0    53	These only have a refpolicywarn line
+     1  3080    Around 300 of these consist of a single dontaudit rule
+     2  1224
+     3   269
+     4    80
+     5    29
+     6    14
+     7    11
+     8    10
+     9     5
+    10     7
+ 11-50    17
+51-100     2
+  >100     0
 
-> (2) requires a kernel change, and requires care to avoid losing our
-> ability to control propagation of access rights in accordance with
-> policy (fundamental to MAC). I don't think you want the shell to be able
-> to arbitrarily pass any descriptor, but being able to distinguish in
-> policy between open (open_read, open_write) vs. transfer (transfer_read,
-> transfer_write) vs. use (read, write) could be useful so that you can
-> allow a process to inherit and use a descriptor without being able to
-> directly open the file.  DTOS had similar kinds of distinctions via
-> separate permissions on holding, using, and transferring port rights.
-> But policy would still need to allow use to all desired file types.
-> 
-> The hardest part there is just compatibility; it would have to leverage
-> the proposed policy.22 capability bitmap to enable the new checks.
-> 
+It is true that some to many of these are calling other interfaces or
+macros, so they are a little bit longer than indicated here.  Templates
+are much more useful, but there are still many very short ones.
+Lines   # of Templates
+     1    51
+     2    32
+     3    12
+     4     7
+     5     5
+     6     3
+     7     1
+     8     4
+     9     2
+    10     1
+ 11-50    34
+51-100    24
+  >100    21
 
-Just what we need - more permissions! So, would 2 be useful beyond the
-shell? Chris / Dan, what do you think. Obviously if we can just make
-some changes to bash I'd rather do that.
 
-Karl
+I think that we need:
+
+1) A way to say, "I want a domain like that one, without this
+permission, but with that one".  I think that inheritance is the answer,
+because a macro requires you to know ahead of time that someone might be
+interested in making something similar.  I believe that Karl tried to
+start a discussion on inheritance a month ago, but there wasn't any
+interest.  Let's restart that discussion.  I think that whether through
+macros or inheritance, a rule to remove permissions is needed, because
+without one, we have to get the base classes or macros perfect.
+
+2) A way to export types in some manner that would still allow
+flexibility in renaming or splitting a type locally, without having to
+change the global name.  That global name would also have to be what
+shows up in audit logs and other things.  Maybe this is impossible and
+we are just stuck treating types as global entities.
+
+-- 
+James Carter <jwcart2@tycho.nsa.gov>
+National Security Agency
 
 
 --
