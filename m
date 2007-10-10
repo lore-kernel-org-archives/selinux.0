@@ -1,71 +1,38 @@
-Subject: Re: debugging confined domain with gdb
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Eric Paris <eparis@redhat.com>
-Cc: selinux@tycho.nsa.gov, dwalsh@redhat.com, cpebenito@tresys.com
-In-Reply-To: <1192044685.2687.88.camel@moss-spartans.epoch.ncsc.mil>
-References: <1192044493.3202.37.camel@localhost.localdomain>
-	 <1192044685.2687.88.camel@moss-spartans.epoch.ncsc.mil>
-Content-Type: text/plain
-Date: Wed, 10 Oct 2007 15:48:48 -0400
-Message-Id: <1192045728.2687.104.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+From: Paul Moore <paul.moore@hp.com>
+To: Stephen Smalley <sds@tycho.nsa.gov>
+Subject: Re: [RFC PATCH v4 1/3] [SELinux] Add a capabilities bitmap to SELinux policy version 22
+Date: Wed, 10 Oct 2007 14:31:57 -0400
+Cc: selinux@tycho.nsa.gov
+References: <20071005192619.28034.62276.stgit@flek.americas.hpqcorp.net> <20071005193245.28034.67610.stgit@flek.americas.hpqcorp.net> <1192040194.2687.75.camel@moss-spartans.epoch.ncsc.mil>
+In-Reply-To: <1192040194.2687.75.camel@moss-spartans.epoch.ncsc.mil>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Message-Id: <200710101431.57330.paul.moore@hp.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2007-10-10 at 15:31 -0400, Stephen Smalley wrote:
-> On Wed, 2007-10-10 at 15:28 -0400, Eric Paris wrote:
-> > So I've hit on this, and now I've run into 2 other people who had
-> > problems using the targeted policy when they attempt to use gdb to trace
-> > a running process in a confined domain.
-> > 
-> > The example today was:
-> > gdb /sbin/audispd $(pidof audispd)
-> > 
-> > type=SYSCALL msg=audit(1192471243.328:5985): arch=c000003e syscall=61 success=no exit=-13 a0=4bf6 a1=7fff23dfb32c 
-> > a2=ffffffff80000000 a3=0 items=0 ppid=11732 pid=11792 auid=0 uid=0 gid=0 euid=0 suid=0 fsuid=0 egid=0 sgid=0 
-> > fsgid=0 tty=pts0 comm="gdb" exe="/usr/bin/gdb" subj=root:system_r:unconfined_t:s0-s0:c0.c1023 key=(null)
-> > 
-> > type=AVC msg=audit(1192471243.328:5985): avc:  denied  { signal } for  pid=11792 comm="gdb" 
-> > scontext=root:system_r:auditd_t:s0 tcontext=root:system_r:unconfined_t:s0-s0:c0.c1023 tclass=process
-> > 
-> > Basically audispd now needs to be able to signal back to the unconfined
-> > gdb process.
-> > 
-> > So, policy gurus, I want gdb to work out of the box.  I also don't want
-> > to generically give everything in the world signal to unconfined_t
-> > permissions.  What options do I have in policy, run gdb in an unconfined
-> > domain and give every single other domain signal permission to it?  Is
-> > there an easy way to do that without thousands upon thousands of new
-> > rules?
-> > 
-> > I probably can do something horrible in the kernel like if my signal is
-> > denied then go back and check "if A can ptrace B then B can signal A"
-> > but this probably wouldn't go over well in some environments *evil grin*
-> > 
-> > So how do I make gdb and friends work out of the box?  Developers having
-> > to turn off selinux (ok, so i just load a policy module) to debug their
-> > work just isn't working and more....
-> 
-> Is this related to bug 232371?
+On Wednesday 10 October 2007 2:16:34 pm Stephen Smalley wrote:
+> On Fri, 2007-10-05 at 15:32 -0400, Paul Moore wrote:
+> > @@ -1304,6 +1307,9 @@ int security_load_policy(void *data, size_t len)
+> >  			return -EINVAL;
+> >  		}
+> >  		policydb_loaded_version = policydb.policyvers;
+> > +		selinux_policycap_netpeer =
+> > +		  ebitmap_get_bit(&policydb.policycaps,
+> > +				  POLICYDB_CAPABILITY_NETPEER);
+> >  		ss_initialized = 1;
+> >  		seqno = ++latest_granting;
+> >  		LOAD_UNLOCK;
+>
+> Only handles the initial policy load case, not reloads.
 
-...because adopting that patch might eliminate the need for signal
-permission (vs. sigchld), and sigchld is often granted already for
-reaping.
-
-Of course, the policy module for what you describe above is pretty
-trivial, right?
-
-policy_module(debug, 1.0)
-require {
-	type unconfined_t;
-	attribute domain;
-}
-allow domain unconfined_t:process signal;
+So it does, thanks.  I just added the same assignment further down in the 
+security_load_policy() function to handle the reload case.
 
 -- 
-Stephen Smalley
-National Security Agency
-
+paul moore
+linux security @ hp
 
 --
 This message was distributed to subscribers of the selinux mailing list.
