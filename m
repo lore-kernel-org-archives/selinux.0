@@ -1,250 +1,176 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l9A50FTi017328
-	for <selinux@tycho.nsa.gov>; Wed, 10 Oct 2007 01:00:15 -0400
-Received: from mail9.hitachi.co.jp (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id l9A509uW019441
-	for <selinux@tycho.nsa.gov>; Wed, 10 Oct 2007 05:00:10 GMT
-Received: from mlsv13.hitachi.co.jp (unknown [133.144.234.166])
-	by mail9.hitachi.co.jp (Postfix) with ESMTP id 6443C37C85
-	for <selinux@tycho.nsa.gov>; Wed, 10 Oct 2007 13:58:35 +0900 (JST)
-Date: Wed, 10 Oct 2007 13:58:09 +0900
-From: Yuichi Nakamura <ynakam@hitachisoft.jp>
-To: KaiGai Kohei <kaigai@ak.jp.nec.com>
-Subject: Re: The current status of sebusybox project
-Cc: ynakam@hitachisoft.jp, SELinux <selinux@tycho.nsa.gov>,
-        busybox@kaigai.gr.jp
-In-Reply-To: <470C532E.5020108@ak.jp.nec.com>
-References: <470C532E.5020108@ak.jp.nec.com>
-Message-Id: <20071010133958.6129.YNAKAM@hitachisoft.jp>
+Message-ID: <7D474B714E434FEBACADBB6F98F49BFE@HomePC>
+From: "Kroum Antov" <kroum@voicecho.com>
+To: "Stephen Smalley" <sds@tycho.nsa.gov>,
+        "Daniel J Walsh" <dwalsh@redhat.com>
+Cc: "Karl MacMillan" <kmacmillan@mentalrootkit.com>,
+        "SE Linux" <selinux@tycho.nsa.gov>, "James Morris" <jmorris@namei.org>,
+        "Eric Paris" <eparis@parisplace.org>
+References: <1191870537.14569.23.camel@localhost.localdomain> <470B8EF7.5030102@redhat.com> <1191948913.24970.135.camel@moss-spartans.epoch.ncsc.mil>
+In-Reply-To: <1191948913.24970.135.camel@moss-spartans.epoch.ncsc.mil>
+Subject: Re: Shell redirection and denials
+Date: Wed, 10 Oct 2007 00:10:51 -0700
 MIME-Version: 1.0
-Content-Type: text/plain; charset="US-ASCII"
+Content-Type: text/plain;
+	format=flowed;
+	charset="iso-8859-1";
+	reply-type=original
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+Dan's suggestion for dropping checks entirely on inheritance and transfer of 
+descriptors and do check for OPEN instead
+seems to be solid and simple solution.
+I don't see any potential security danger in doing this. Once an application 
+has the proper rights on a descriptor it can do anything with it anyway. By 
+passing the descriptor to other applications and allowing them to work with 
+this descriptor without problems there is No security issue with this.
+Controlling the Open of the confined applications is sufficient in my 
+opinion.
 
-On Wed, 10 Oct 2007 13:21:02 +0900
-KaiGai Kohei wrote:
-<snip>
-> [policycoreutils package] ... 2 of 7 completed
->  * /sbin/setfiles
->  * /usr/sbin/load_policy
->   - They are already merged.
-> 
->  * /usr/sbin/sestatus
->  * /sbin/restorecon
-restorecon is merged.
-When setfiles is selected, restorecon is also enabled.
+Introducing transfer_read and transfer_write permissions will do the work 
+too but in my opinion introduces unnecessary complexity to an already 
+complex system.
+
+SElinux has potential beyond the standard security control but these AVC 
+denials for file descriptors and ports transfers are greatly limiting the 
+SELinux usability.
+
+I surely would like to see this issue addressed soon.
+
+Kroum Antov
+VoicEcho LLC
 
 
->  * /usr/sbin/open_init_pty
->  * /usr/sbin/run_init
->  * /usr/bin/secon
->   - They should be ported later.
-> 
->  * /usr/sbin/setsebool
->   - -P option depends on libsemanage, so a limited feature
->     version should be ported now.
-> 
->  o /usr/sbin/restorecond
->  o /usr/sbin/semanage
->  o /usr/sbin/semodule
->  o /usr/bin/audit2allow
->  o /usr/bin/audit2why
->  o /usr/bin/chcat
->  o /sbin/fixfiles
->  o /usr/bin/semodule_deps
->  o /usr/bin/semodule_expand
->  o /usr/bin/semodule_link
->  o /usr/bin/semodule_package
->  o /usr/bin/sepolgen-ifgen
->   - We have no plan to port them.
-> 
-> [coreutils packages] ... 2 of 3 completed
->  * /usr/bin/chcon
->  * /usr/bin/runcon
->   - They are already merged.
-> 
->  * /usr/bin/runuser
->   - It should be ported later.
-> 
-> == SELinux related extensions in the existing commands ==
-> * We have 40 of SELinux related extensions in the existing commands,
->   and 19 of them should be ported into busybox. 12 of them are already
->   merged in the upstreamed busybox, and we have rest of 8 items now.
-> 
-> NOTE: Please tell me, if our understanding about these extension
->       was incorrect.
-> 
-> [SysVinit package] ... 1 of 1 completed
->  * /sbin/init (is already merged.)
->   - It enables to load the security policy, and to translate
->     its domain with itself as an entrypoint.
-> 
-> [util-linux package] ... 0 of 2 completed
->  o /usr/bin/chfn
->   - busybox doesn't have this applet.
->   - It enables to preserve the security context of "/etc/passwd",
->     and to check passwd:{chfn} permission.
-> 
->  o /usr/bin/chsh
->   - busybox doesn't have this applet.
->   - It enables to preserve the security context of "/etc/passwd",
->     and to check passwd:{chsh} permission.
-> 
->  o /usr/sbin/vipw
->   - busybox doesn't have this applet.
->   - It enables to preserve the security context of the target files.
-> 
->  * /sbin/mkswap (should be ported later.)
->   - It enables to relabel the target file as "swapfile_t", when we use
->     a regular file as a swap.
-> 
->  * /bin/mount (should be ported later.)
->   - It enables to parse mount options, like context="...", fscontext="..."
->     and defcontext="...". It strip quot character (") from them, and translates
->     MLS labels into raw format.
-> 
-> [openssh package] ... 0 of 0 completed
->  o /usr/sbin/sshd
->   - busybox doesn't have this applet.
->   - It enables to specify its role and MLS range explicitly, using
->     % ssh <username>[/<role>[/<MLS range>]]@hostname style invocation.
-> 
-> [vixies-cron package] ... 0 of 1 completed
->  * /usr/sbin/crond (should be ported later.)
->   - It enabled to invoke scheduled scripts with its user's security context.
-> 
-> [at] ... 0 of 0 completed
->  o /usr/bin/at
->   - busybox doesn't have this applet.
->   - It enables to invoke scheduled scripts with its user's security context.
-> 
-> [sudo] ... 0 of 0 completed
->  o /usr/bin/sudo
->  - busybox doesn't have this applet.
->  - It contained SELinux features in the past, but it is removed now.
-> 
-> [shadow-utils package] ... 0 of 1 completed
->  o /bin/chage
->   - busybox doesn't have this applet.
->   - It enables to preserve security context of the modified files,
->     and to check passwd:{rootok} permission.
-> 
->  * /usr/sbin/useradd (should be ported later.)
->   - It enables to relabel /home/<username>/* with appropriate context came
->     from matchpathcon() when new user's home directory is set up.
->   - -Z or --selinux-user option enables to associate the newly created user
->     with SELinux user, but this feature depends on libsemanege, so we have
->     no plan now.
-> 
->  o /usr/sbin/usermod
->   - busybox doesn't have this applet.
->   - It enables to relabel /home/<username>/* with appropriate context came
->     from matchpathcon() when the target user's home directory is set up.
-> 
->  o /usr/sbin/userdel
->   - It enables to detach an association between the deleted user and
->     SELinux user, but it depends on libsemanage, so we have no plan now.
-> 
-> [libuser package] ... 0 of 0 completed
->  o /usr/sbin/lchage
->  o /usr/sbin/lgroupadd
->  o /usr/sbin/lgroupdel
->  o /usr/sbin/lgroupmod
->  o /usr/sbin/lid
->  o /usr/sbin/lnewusers
->  o /usr/sbin/lpasswd
->  o /usr/sbin/luseradd
->  o /usr/sbin/luserdel
->  o /usr/sbin/lusermod
->   - busybox doesn't have this applet.
->   - It enables to preserve the security context of "/etc/passwd",
->     when it is modified.
-> 
-> [passwd package] ... 0 of 1 completed
->  * /usr/bin/passwd (should be ported later.)
->   - It enables to preserve the security context of the target files,
->     and check passwd:{passwd} permission when root attempt to modify
->     other's password.
-> 
-> [logrotate package] ... 0 of 0 completed
->  o /usr/sbin/logrotate
->   - busybox doesn't have this applet.
->   - It enables to preserve the security context of the lotated log file,
->     so it attach the same context onto rotated .gz file and new log file.
-> 
-> [coreutils package] ... 9/9 completed
->  * /bin/ls (is already merged.)
->   - It enables to display the security context of files with -Z option.
-> 
->  * /bin/cp (is already merged.)
->   - It enables to specify the security context with -Z option,
->     and preserve the original file's context with -c option.
-> 
->  * /bin/mkdir (is already merged.)
->   - It enables to specify the security context with -Z option.
-> 
->  * /bin/stat (is already merged.)
->   - It enables to display the security context of files with -Z option.
-> 
->  * /bin/mkfifo (is already merged.)
->   - It enables to specify the security context with -Z option.
-> 
->  * /bin/mknod (is already merged.)
->   - It enables to specify the security context with -Z option.
-> 
->  * /bin/id (is already merged.)
->   - It enables to display the security context of process.
-> 
->  * /bin/mv (is already merged.)
->   - It enables to preserve the original files.
-> 
->  * /bin/install (is already merged.)
->   - It enables to specify the security context with -Z option,
->     or preserve the original file's context with -P option,
->     or determine the newly installed file's context based on
->     matchpathcon().
-> 
-> [findutils package] ... 1 of 1 completed
->  * /usr/bin/find (is already merged.)
->   - It enables to filter files with its security context, using
->     -context <security context>.
-> 
-> [procps package] ... 1 of 1 completed
->  * /bin/ps (is already merged.)
->   - It enables to display the security context of processes with
->     -Z option.
-> 
-> [psmisc package] ... 0 of 1 completed
->  * /usr/bin/killall (should be ported later.)
->   - It enables to send a signal to the processes which have specified
->     security context with -Z option. We can specify this pattern using
->     regular expression.
-> 
->  o /usr/bin/pstree
->   - busybox doesn't have this applet.
->   - It enables to display the security context of the listed processes
->     with -Z option.
-> 
-> [net-tools package] ... 0 of 1 completed
->  * netstat (should be ported later.)
->   - It enables to display the security context of the listed sockets
->     with -Z option.
-> 
+
+----- Original Message ----- 
+From: "Stephen Smalley" <sds@tycho.nsa.gov>
+To: "Daniel J Walsh" <dwalsh@redhat.com>
+Cc: "Karl MacMillan" <kmacmillan@mentalrootkit.com>; "SE Linux" 
+<selinux@tycho.nsa.gov>; "James Morris" <jmorris@namei.org>; "Eric Paris" 
+<eparis@parisplace.org>
+Sent: Tuesday, October 09, 2007 9:55 AM
+Subject: Re: Shell redirection and denials
+
+
+> On Tue, 2007-10-09 at 10:23 -0400, Daniel J Walsh wrote:
+>> -----BEGIN PGP SIGNED MESSAGE-----
+>> Hash: SHA1
+>>
+>> Karl MacMillan wrote:
+>> > One of Dan's constant sources of avcs is something like:
+>> >
+>> > /usr/sbin/my_confined_app > some_file
+>> >
+>> > Because the file is created by the shell, opened, and the FD handed to
+>> > the application avcs can occur on read and write.
+>> >
+>> > Getting rid of these via policy is next to impossible - the destination
+>> > file type is usually governed by the directory and we don't actually
+>> > want to allow that access directly to the confined application. I'd 
+>> > like
+>> > to see if there is some other way to get rid of these denials.
+>> >
+>> > I see two possible solutions:
+>> >
+>> > 1) Make the shell create and pass a descriptor to a pipe to the
+>> > application - the shell itself would read / write to the file. This
+>> > seems, to me, to more accurately reflect how we want to enforce the
+>> > permissions.
+>> >
+>> > 2) Allow applications to confer access by passing the file descriptor
+>> > (more like capabilities). This more closely matches how Unix actually
+>> > works and, of course, is a huge source of vulnerabilities. Allowing 
+>> > this
+>> > type of scheme just for shells might not be that bad.
+>> >
+>> > Has either of these been investigated? 1 seems pretty simple - is there
+>> > something I'm missing here (perhaps the redirection should outlast the
+>> > shell lifetime?).
+>> >
+>> > Karl
+>> >
+>>
+>> The biggest source of AVC's that I see reported is the handing off of
+>> open file descriptors.  Mainly terminal descriptors.  Any app that
+>> redirects STDIN/STDERR to a random file location, by opening a file and
+>> handing the descriptor, generates avc messages that cause unexpected
+>> behavior.
+>>
+>> service XYZ start >> /tmp/my.log
+>>
+>> Will almost always cause avc's and worse no output to my.log.  This
+>> causes sysadmins to go nuts, and it makes no sense to them.
+>>
+>> Applications, like rpm, hal, udev, system-config-*, testing tools, any
+>> tools that restarts an init script all do this kind of thing.  As we
+>> move to additional confined user domains and define additional terminal
+>> types this problem proliferates.
+>>
+>> The problem is SELinux is preventing READ/WRITE, and does not even look
+>> at Open.  I understand that from a security lock down point of view this
+>> is a big security consideration.  But I believe most sysadmins would
+>> want to prevent their locked down domain to OPEN files in random
+>> location, but if the domains, are handed an OPEN file descriptor from
+>> another process then they should be allowed to READ/WRITE to that OPEN
+>> Descriptor no matter where it is.
+>>
+>> So a confined domain could talk to the terminals that were handed to it
+>> but could not open random other terminals.
+>>
+>> This is by far the biggest source of dontaudit's allowed in the policy
+>> sources and ends up preventing us from seeing real potential
+>> subversions, where a confined app actually tries to open and talk to
+>> random terminals or the console.
+>
+> I understand the motivation, but merely dropping checks entirely on
+> inheritance and transfer of descriptors means that we have no control
+> over the propagation of access rights, which is important for confining
+> malicious and flawed programs.
+>
+> Splitting the permissions such that we check one set of permissions
+> (e.g. open_read, open_write) at open-time and a different set of
+> permissions on transfer and/or use (read, write) would allow the policy
+> writer to allow or dontaudit only the latter while denying w/audit the
+> former.
+>
+> If we wanted to specifically control the ability to give a descriptor to
+> another task (vs. the ability to receive/inherit/use it), we'd need
+> another hook, as we currently only hook the receive side.  Then you
+> could have distinct transfer_read, transfer_write permissions governing
+> who could propagate a descriptor separate from read, write permissions
+> governing who could inherit/receive/use it.
+>
+>> Another side effect I often see is that apps tend to do a getcwd when
+>> they start.  I do not know if this is a standard C/libc activity the way
+>> apps are coded or maybe something about the way bash is coded, but this
+>> ends up generating lots of  AVC messages.
+>>
+>> If you look at the confined domains, almost all of them have a
+>> dontaudit $1 sysadm_home_dir_t:dir search_dir_perms;
+>>
+>> Because any sysadm who "su -" ends up in the /root homedir and if he
+>> does a service APP restart.  That APP ends up generating and AVC.
+>>
+>> I happened to be sitting in a unconfined_tmp_t directory today, when I
+>> started vpnc and boom, setroubleshoot is telling me vpnc_t tried to read
+>> unconfined_tmp_t.
+>
+> That's a different issue - it isn't an operation on an open file
+> descriptor, and we can't distinguish it from any other lookup at least
+> presently.  Actually though sys_getcwd() shouldn't trigger a permission
+> check at all.  Traditional userland getcwd() would need to search the
+> directory.
+>
 > -- 
-> OSS Platform Development Division, NEC
-> KaiGai Kohei <kaigai@ak.jp.nec.com>
-> 
+> Stephen Smalley
+> National Security Agency
+>
+>
 > --
 > This message was distributed to subscribers of the selinux mailing list.
-> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
-> the words "unsubscribe selinux" without quotes as the message.
-
--- 
-Yuichi Nakamura
-Hitachi Software Engineering Co., Ltd.
-Japan SELinux Users Group(JSELUG): http://www.selinux.gr.jp/
-SELinux Policy Editor: http://seedit.sourceforge.net/
+> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov 
+> with
+> the words "unsubscribe selinux" without quotes as the message. 
 
 
 --
