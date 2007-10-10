@@ -1,63 +1,50 @@
-Subject: Re: [RFC PATCH v4 1/3] [SELinux] Add a capabilities bitmap to
-	SELinux policy version 22
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Paul Moore <paul.moore@hp.com>
-Cc: selinux@tycho.nsa.gov
-In-Reply-To: <20071005193245.28034.67610.stgit@flek.americas.hpqcorp.net>
-References: <20071005192619.28034.62276.stgit@flek.americas.hpqcorp.net>
-	 <20071005193245.28034.67610.stgit@flek.americas.hpqcorp.net>
-Content-Type: text/plain
-Date: Wed, 10 Oct 2007 14:16:34 -0400
-Message-Id: <1192040194.2687.75.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+From: Paul Moore <paul.moore@hp.com>
+To: Karl MacMillan <kmacmillan@mentalrootkit.com>
+Subject: Re: Are the reference policy abstractions the right ones?
+Date: Wed, 10 Oct 2007 14:26:08 -0400
+Cc: jwcart2@tycho.nsa.gov, SELinux <selinux@tycho.nsa.gov>,
+        Steve Smalley <sds@epoch.ncsc.mil>
+References: <1191942521.2794.89.camel@moss-lions.epoch.ncsc.mil> <1192028999.2898.19.camel@localhost.localdomain>
+In-Reply-To: <1192028999.2898.19.camel@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Message-Id: <200710101426.08308.paul.moore@hp.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2007-10-05 at 15:32 -0400, Paul Moore wrote:
-> Add a new policy capabilities bitmap to SELinux policy version 22.  This bitmap
-> will enable the security server to query the policy to determine which features
-> it supports.
-> ---
-> 
->  security/selinux/Kconfig            |    2 -
->  security/selinux/include/security.h |   15 ++++++
->  security/selinux/selinuxfs.c        |   89 +++++++++++++++++++++++++++++++++--
->  security/selinux/ss/policydb.c      |   18 +++++++
->  security/selinux/ss/policydb.h      |    2 +
->  security/selinux/ss/services.c      |   62 ++++++++++++++++++++++++
->  6 files changed, 181 insertions(+), 7 deletions(-)
-> 
+On Wednesday 10 October 2007 11:09:59 am Karl MacMillan wrote:
+> Let me ask a different question. Both the old example policy and the
+> reference policy accomplish the same basic thing: comprehensive
+> least-privilege. The challenge with this approach is that the policy is
+> closely tied to applications and brittle in the face of application
+> changes.
+>
+> So - are there other useful approaches that we could take? Some modified
+> form of integrity policies like BIBA? Perhaps just for portions of the
+> policy - things like hal/udev that are basically in the TCB but need to
+> be protected from applications.
+>
+> Seems like a long-shot, but I thought I would ask.
 
-> diff --git a/security/selinux/ss/services.c b/security/selinux/ss/services.c
-> index 6100fc0..7059400 100644
-> --- a/security/selinux/ss/services.c
-> +++ b/security/selinux/ss/services.c
-> @@ -59,6 +60,8 @@
->  extern void selnl_notify_policyload(u32 seqno);
->  unsigned int policydb_loaded_version;
->  
-> +int selinux_policycap_netpeer;
-> +
->  /*
->   * This is declared in avc.c
->   */
-> @@ -1304,6 +1307,9 @@ int security_load_policy(void *data, size_t len)
->  			return -EINVAL;
->  		}
->  		policydb_loaded_version = policydb.policyvers;
-> +		selinux_policycap_netpeer =
-> +		  ebitmap_get_bit(&policydb.policycaps,
-> +				  POLICYDB_CAPABILITY_NETPEER);
->  		ss_initialized = 1;
->  		seqno = ++latest_granting;
->  		LOAD_UNLOCK;
+I definitely think it's a valid question, and one that I think is worth 
+pondering for a little bit.  One of the greatest strengths of SELinux, in my 
+opinion, is it's decoupling of policy from enforcement.  We have the ability 
+to offer many different types of policies yet we continue to focus on one 
+common policy source.  While the reference policy does provide the ability to 
+provide different variations, they are still rooted in the idea 
+of "comprehensive least-privilege".  
 
-Only handles the initial policy load case, not reloads.
+The reference policy is a huge improvement over the old example policy, but 
+I'm not convinced that it is the "everything to everyone" policy.  I think 
+adopting the founding concepts of the reference policy (modularity, 
+abstractions, etc.) and using these concept to start looking at alternative 
+approaches to SELinux policy (in parallel to refpolicy) as Karl suggested 
+would be a worthwhile exercise.
 
 -- 
-Stephen Smalley
-National Security Agency
-
+paul moore
+linux security @ hp
 
 --
 This message was distributed to subscribers of the selinux mailing list.
