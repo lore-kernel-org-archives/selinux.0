@@ -1,13 +1,13 @@
 Subject: Re: debugging confined domain with gdb
-From: Eric Paris <eparis@redhat.com>
-To: Stephen Smalley <sds@tycho.nsa.gov>
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Eric Paris <eparis@redhat.com>
 Cc: selinux@tycho.nsa.gov, dwalsh@redhat.com, cpebenito@tresys.com
 In-Reply-To: <1192044685.2687.88.camel@moss-spartans.epoch.ncsc.mil>
 References: <1192044493.3202.37.camel@localhost.localdomain>
 	 <1192044685.2687.88.camel@moss-spartans.epoch.ncsc.mil>
 Content-Type: text/plain
-Date: Wed, 10 Oct 2007 15:50:26 -0400
-Message-Id: <1192045826.3202.40.camel@localhost.localdomain>
+Date: Wed, 10 Oct 2007 15:48:48 -0400
+Message-Id: <1192045728.2687.104.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
@@ -48,11 +48,23 @@ On Wed, 2007-10-10 at 15:31 -0400, Stephen Smalley wrote:
 > 
 > Is this related to bug 232371?
 
-looks like it yes (adds self to that bz), but this is just me and 2
-other people internally getting mad that stuff doesn't work   :)
+...because adopting that patch might eliminate the need for signal
+permission (vs. sigchld), and sigchld is often granted already for
+reaping.
 
--Eric
+Of course, the policy module for what you describe above is pretty
+trivial, right?
 
+policy_module(debug, 1.0)
+require {
+	type unconfined_t;
+	attribute domain;
+}
+allow domain unconfined_t:process signal;
+
+-- 
+Stephen Smalley
+National Security Agency
 
 
 --
