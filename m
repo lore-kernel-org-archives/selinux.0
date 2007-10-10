@@ -1,107 +1,76 @@
-Subject: Re: Are the reference policy abstractions the right ones?
-From: Karl MacMillan <kmacmillan@mentalrootkit.com>
-To: jwcart2@tycho.nsa.gov
-Cc: SELinux <selinux@tycho.nsa.gov>, Steve Smalley <sds@epoch.ncsc.mil>
-In-Reply-To: <1191960025.23486.70.camel@dhcp-64-223.iad.redhat.com>
-References: <1191942521.2794.89.camel@moss-lions.epoch.ncsc.mil>
-	 <1191949852.23486.55.camel@dhcp-64-223.iad.redhat.com>
-	 <1191956082.2794.107.camel@moss-lions.epoch.ncsc.mil>
-	 <1191956863.23486.62.camel@dhcp-64-223.iad.redhat.com>
-	 <1191959097.2794.127.camel@moss-lions.epoch.ncsc.mil>
-	 <1191960025.23486.70.camel@dhcp-64-223.iad.redhat.com>
-Content-Type: text/plain
-Date: Wed, 10 Oct 2007 11:23:43 -0400
-Message-Id: <1192029823.2898.32.camel@localhost.localdomain>
-Mime-Version: 1.0
+Message-ID: <470CF814.5000808@redhat.com>
+Date: Wed, 10 Oct 2007 12:04:36 -0400
+From: Daniel J Walsh <dwalsh@redhat.com>
+MIME-Version: 1.0
+To: Stephen Smalley <sds@tycho.nsa.gov>
+CC: Kroum Antov <kroum@voicecho.com>,
+        Karl MacMillan <kmacmillan@mentalrootkit.com>,
+        SE Linux <selinux@tycho.nsa.gov>, James Morris <jmorris@namei.org>,
+        Eric Paris <eparis@parisplace.org>
+Subject: Re: Shell redirection and denials
+References: <1191870537.14569.23.camel@localhost.localdomain>	 <470B8EF7.5030102@redhat.com>	 <1191948913.24970.135.camel@moss-spartans.epoch.ncsc.mil>	 <7D474B714E434FEBACADBB6F98F49BFE@HomePC> <1192017616.2687.9.camel@moss-spartans.epoch.ncsc.mil>
+In-Reply-To: <1192017616.2687.9.camel@moss-spartans.epoch.ncsc.mil>
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2007-10-09 at 16:00 -0400, Karl MacMillan wrote:
-> On Tue, 2007-10-09 at 15:44 -0400, James Carter wrote:
-> > On Tue, 2007-10-09 at 15:07 -0400, Karl MacMillan wrote:
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
+
+Stephen Smalley wrote:
+> On Wed, 2007-10-10 at 00:10 -0700, Kroum Antov wrote:
+>> Dan's suggestion for dropping checks entirely on inheritance and transfer of 
+>> descriptors and do check for OPEN instead
+>> seems to be solid and simple solution.
+>> I don't see any potential security danger in doing this. Once an application 
+>> has the proper rights on a descriptor it can do anything with it anyway. By 
+>> passing the descriptor to other applications and allowing them to work with 
+>> this descriptor without problems there is No security issue with this.
+>> Controlling the Open of the confined applications is sufficient in my 
+>> opinion.
 > 
-> [...]
+> Not if you want to be able to claim that the system enforces mandatory
+> access control.  The ability to leak a descriptor at will (unwittingly
+> or maliciously) to an unauthorized entity violates the principles of
+> mandatory access control.  And SELinux controls on descriptor
+> inheritance have caught any number of unwitting leaks of descriptors by
+> programs.
 > 
-> > 
-> > > >  but why would you use the attribute
-> > > > statement?
-> > > > 
-> > > > wouldn't it be this?
-> > > > 
-> > > > type domain
-> > > > type daemon, domain
-> > > > type network_server, daemon
-> > > > 
-> > > 
-> > > Maybe - if we remove the distinction entirely. The only reason I can
-> > > think to leave the attribute statement is to mark a type as "abstract" -
-> > > i.e., can't actually be a label on a real subject or object in the
-> > > running system.
-> > > 
-> > There would be a few places where one might use an abstract type, domain
-> > being one of them, but I am not sure they would be needed.
-> > 
-> > Your idea does seem to be simple, but it still won't handle the case
-> > where there is type mangling.
-> > 
-> > if we have:
-> > 
-> > type foo;
-> > allow foo foo_bar : file read;
-> > type baz, foo;
-> > 
-> > Where foo_bar was created in some macro or interface.
-> > 
-> > It seems like baz would have read permission on foo_bar, when probably
-> > we would like it to have read permission on baz_bar.
-> > 
-> > All of which you know and previously mentioned a month ago:
-> > http://marc.info/?l=selinux&m=118961442411429&w=2
-> > 
+>> Introducing transfer_read and transfer_write permissions will do the work 
+>> too but in my opinion introduces unnecessary complexity to an already 
+>> complex system.
+>>
+>> SElinux has potential beyond the standard security control but these AVC 
+>> denials for file descriptors and ports transfers are greatly limiting the 
+>> SELinux usability.
+>>
+>> I surely would like to see this issue addressed soon.
 > 
-> Yeah - too bad I don't have an answer. We basically need a way to mark
-> groups of types as related and do self-like replacements. No good syntax
-> suggestions here.
+> Splitting the permissions to allow distinctions to be made is ok, but
+> entirely dropping the ability to control propagation of access rights is
+> not.
 > 
+I agree, but we can also use some common sense, there are levels of
+paranoia that differ depending on the context.  Allowing a confined
+domain read/write/use any FD that is handed to them that is connected to
+a terminal, logfile, tmpfile, and not allowing them to open a connection
+to a terminal, tmpfile, logfile is a big step forward.
 
-Here's a suggestion (this assumes that hierarchy stops using dot in
-favor of explicit statements):
+Perhaps also allowing them to talk to fifo_file file owned by user but
+not open one.
 
-type_group daemon {
-	type process, domain;
-	type exec, exec_file;
-	type conf, file_type;
-	type log, log_file;
-}
+We can also allow the addition of booleans or changes in policy.  Not ok
+for MLS but ok for Targeted.
 
-allow daemon.process daemon.exec : file entrypoint;
-# etc., etc. for the exec permissions - could
-# even have a type_transition.
-allow daemon.process daemon.conf : file read;
-allow daemon.process daemon.log : file { read write };
 
-# Apache gets all of the types defined in daemon and
-# access to the apache versions - so apache.process
-# can read apache.conf.
-type_group apache, daemon {
-	type html_files, file;
-}
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.7 (GNU/Linux)
+Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org
 
-allow apache.process apache.html_files : file read;
-
-This handles the new set of types that is separate from the existing
-set. We could also make some of the groups "abstract" - so that
-daemon.process can't be applied to a process.
-
-To handle the need for extension - Dan's java_t example. Assuming we
-have unconfined, wouldn't this work:
-
-type java_t, unconfined_t;
-
-allow java_t self : process execmem;
-
-Karl
-
+iD8DBQFHDPgUrlYvE4MpobMRAhTrAJ40w4lHmvXyUYhTNaF9o6DRG+KHDQCfYZUS
+Nng/pXmaQK/JmGotQ6jFif0=
+=9oR2
+-----END PGP SIGNATURE-----
 
 --
 This message was distributed to subscribers of the selinux mailing list.
