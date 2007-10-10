@@ -1,86 +1,142 @@
-Subject: Re: Shell redirection and denials
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Daniel J Walsh <dwalsh@redhat.com>
-Cc: Kroum Antov <kroum@voicecho.com>,
-        Karl MacMillan <kmacmillan@mentalrootkit.com>,
-        SE Linux <selinux@tycho.nsa.gov>, James Morris <jmorris@namei.org>,
-        Eric Paris <eparis@parisplace.org>
-In-Reply-To: <470CF814.5000808@redhat.com>
-References: <1191870537.14569.23.camel@localhost.localdomain>
-	 <470B8EF7.5030102@redhat.com>
-	 <1191948913.24970.135.camel@moss-spartans.epoch.ncsc.mil>
-	 <7D474B714E434FEBACADBB6F98F49BFE@HomePC>
-	 <1192017616.2687.9.camel@moss-spartans.epoch.ncsc.mil>
-	 <470CF814.5000808@redhat.com>
+Subject: Re: Are the reference policy abstractions the right ones?
+From: James Carter <jwcart2@tycho.nsa.gov>
+Reply-To: jwcart2@tycho.nsa.gov
+To: Karl MacMillan <kmacmillan@mentalrootkit.com>
+Cc: SELinux <selinux@tycho.nsa.gov>, Steve Smalley <sds@epoch.ncsc.mil>
+In-Reply-To: <1192029823.2898.32.camel@localhost.localdomain>
+References: <1191942521.2794.89.camel@moss-lions.epoch.ncsc.mil>
+	 <1191949852.23486.55.camel@dhcp-64-223.iad.redhat.com>
+	 <1191956082.2794.107.camel@moss-lions.epoch.ncsc.mil>
+	 <1191956863.23486.62.camel@dhcp-64-223.iad.redhat.com>
+	 <1191959097.2794.127.camel@moss-lions.epoch.ncsc.mil>
+	 <1191960025.23486.70.camel@dhcp-64-223.iad.redhat.com>
+	 <1192029823.2898.32.camel@localhost.localdomain>
 Content-Type: text/plain
-Date: Wed, 10 Oct 2007 12:18:52 -0400
-Message-Id: <1192033132.2687.63.camel@moss-spartans.epoch.ncsc.mil>
+Date: Wed, 10 Oct 2007 12:52:42 -0400
+Message-Id: <1192035162.15060.57.camel@moss-lions.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2007-10-10 at 12:04 -0400, Daniel J Walsh wrote:
-> -----BEGIN PGP SIGNED MESSAGE-----
-> Hash: SHA1
+On Wed, 2007-10-10 at 11:23 -0400, Karl MacMillan wrote:
+[...]
 > 
-> Stephen Smalley wrote:
-> > On Wed, 2007-10-10 at 00:10 -0700, Kroum Antov wrote:
-> >> Dan's suggestion for dropping checks entirely on inheritance and transfer of 
-> >> descriptors and do check for OPEN instead
-> >> seems to be solid and simple solution.
-> >> I don't see any potential security danger in doing this. Once an application 
-> >> has the proper rights on a descriptor it can do anything with it anyway. By 
-> >> passing the descriptor to other applications and allowing them to work with 
-> >> this descriptor without problems there is No security issue with this.
-> >> Controlling the Open of the confined applications is sufficient in my 
-> >> opinion.
-> > 
-> > Not if you want to be able to claim that the system enforces mandatory
-> > access control.  The ability to leak a descriptor at will (unwittingly
-> > or maliciously) to an unauthorized entity violates the principles of
-> > mandatory access control.  And SELinux controls on descriptor
-> > inheritance have caught any number of unwitting leaks of descriptors by
-> > programs.
-> > 
-> >> Introducing transfer_read and transfer_write permissions will do the work 
-> >> too but in my opinion introduces unnecessary complexity to an already 
-> >> complex system.
-> >>
-> >> SElinux has potential beyond the standard security control but these AVC 
-> >> denials for file descriptors and ports transfers are greatly limiting the 
-> >> SELinux usability.
-> >>
-> >> I surely would like to see this issue addressed soon.
-> > 
-> > Splitting the permissions to allow distinctions to be made is ok, but
-> > entirely dropping the ability to control propagation of access rights is
-> > not.
-> > 
-> I agree, but we can also use some common sense, there are levels of
-> paranoia that differ depending on the context.  Allowing a confined
-> domain read/write/use any FD that is handed to them that is connected to
-> a terminal, logfile, tmpfile, and not allowing them to open a connection
-> to a terminal, tmpfile, logfile is a big step forward.
+> Here's a suggestion (this assumes that hierarchy stops using dot in
+> favor of explicit statements):
 > 
-> Perhaps also allowing them to talk to fifo_file file owned by user but
-> not open one.
+> type_group daemon {
+> 	type process, domain;
+> 	type exec, exec_file;
+> 	type conf, file_type;
+> 	type log, log_file;
+> }
+> 
 
-As far as the kernel mechanism goes, it is just a matter of changing the
-open-time checks (selinux_inode_permission) to use a different set of
-permissions than the inherit/transfer/use checks
-(flush_unauthorized_files, selinux_file_receive,
-selinux_file_permission).  Then you can deny open but allow the rest for
-whatever file types and classes you want.
+Why not call it type_class?
 
-That's easy to implement (kernel-side, policy will take more work), but
-will require using something like Paul Moore's capability bitmap to
-avoid compatibility breakage.
+> allow daemon.process daemon.exec : file entrypoint;
+> # etc., etc. for the exec permissions - could
+> # even have a type_transition.
+> allow daemon.process daemon.conf : file read;
+> allow daemon.process daemon.log : file { read write };
+> 
+So, process, exec, conf, and log are in scope within the type_group
+block and are referred to outside of that block by identifying the
+namespace using a ".".  Sort of like referring to functions in a python
+module.  Is that right?
 
-> We can also allow the addition of booleans or changes in policy.  Not ok
-> for MLS but ok for Targeted.
+> # Apache gets all of the types defined in daemon and
+> # access to the apache versions - so apache.process
+> # can read apache.conf.
+> type_group apache, daemon {
+> 	type html_files, file;
+> }
+> 
+> allow apache.process apache.html_files : file read;
+> 
 
+Would there be allow rules inside the type_group block?  I think that it
+would be needed to distinguish between rules that can be inherited or
+not.
+
+For example,
+
+type_group daemon {
+	type process, domain;
+
+	allow process foo_t : file read;
+}
+allow daemon.process bar_t : file read;
+
+type_group apache, daemon {
+	...
+}
+
+apache.process would not have read access on bar_t, but it would on
+foo_t.
+
+
+Multiple inheritance would be possible, but tricky.
+
+If the following was also defined:
+
+type_group b {
+	type context;
+	type process;
+	...
+}
+
+type_group c, b, daemon {
+	type process;
+	...
+}
+
+What rules would c.process have?  Maybe a union of all the rules for
+process?  Maybe the namespacing should look like c.process, c.b.process,
+and c.daemon.process?
+
+If namsepacing worked in the later way, it could provide some useful
+information. if I see denials on a.daemon.log, b.daemon.log, and
+c.daemon.log, I have an idea where the problem is.  On the other hand,
+it could look pretty ugly: a.b.c.d.e.f.g.daemon.log.  Maybe type aliases
+could help with the ugliness though.  You also might be able to use type
+aliases to define both c.b.process and c.daemon.process to be c_process
+and have a union of the permissions.
+
+We still need a way to deny or disallow permissions.  It also might be
+useful to remove types.
+
+So, using the type_group daemon that you defined:
+
+type_group d, daemon {
+	remove_type daemon.conf;
+	remove_type daemon.log;
+
+	disallow daemon.process blah : file read;
+}
+
+I don't know; maybe I am the crazy one.
+
+> This handles the new set of types that is separate from the existing
+> set. We could also make some of the groups "abstract" - so that
+> daemon.process can't be applied to a process.
+> 
+> To handle the need for extension - Dan's java_t example. Assuming we
+> have unconfined, wouldn't this work:
+> 
+> type java_t, unconfined_t;
+> 
+> allow java_t self : process execmem;
+> 
+> Karl
+> 
+> 
+> --
+> This message was distributed to subscribers of the selinux mailing list.
+> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
+> the words "unsubscribe selinux" without quotes as the message.
 -- 
-Stephen Smalley
+James Carter <jwcart2@tycho.nsa.gov>
 National Security Agency
 
 
