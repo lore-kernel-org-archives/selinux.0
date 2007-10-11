@@ -1,52 +1,113 @@
-Subject: RE: Are the reference policy abstractions the right ones?
-From: James Carter <jwcart2@tycho.nsa.gov>
-Reply-To: jwcart2@tycho.nsa.gov
-To: "Frank L. Mayer" <mayerf@tresys.com>
-Cc: SELinux <selinux@tycho.nsa.gov>, Steve Smalley <sds@epoch.ncsc.mil>,
-        Karl MacMillan <kmacmillan@mentalrootkit.com>
-In-Reply-To: <6FE441CD9F0C0C479F2D88F959B01588F3C5@exchange.columbia.tresys.com>
-References: <1191942521.2794.89.camel@moss-lions.epoch.ncsc.mil>
-	 <6FE441CD9F0C0C479F2D88F959B01588F3C5@exchange.columbia.tresys.com>
+Subject: Re: deleteall added for ports and fcontext in semanage
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Daniel J Walsh <dwalsh@redhat.com>
+Cc: SE Linux <selinux@tycho.nsa.gov>
+In-Reply-To: <47098D24.6030509@redhat.com>
+References: <47098D24.6030509@redhat.com>
 Content-Type: text/plain
-Date: Thu, 11 Oct 2007 16:26:24 -0400
-Message-Id: <1192134384.21812.43.camel@moss-lions.epoch.ncsc.mil>
+Date: Thu, 11 Oct 2007 16:28:18 -0400
+Message-Id: <1192134498.608.56.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2007-10-11 at 03:18 -0400, Frank L. Mayer wrote:
-> > One of the goals of reference policy is to provide a more modern feel to
-> > the policy by eliminating the use of types in a global manner across the
-> > whole policy.  It does this by allowing interfaces to be defined through
-> > which permissions can be granted to the types of a module.  There seems
-> > to be several problems with this.
->  
-> Probably the primary motivation for this and other refpol goals was to allow tool manipulation of source policies and the creation of development tools and higher-level/domain-specific languages. Chris can talk better about the challenges with the implementation  (such as the weakness of m4 as an implementation language), but perhaps our real failure is not creating better higher level abstractions/languages/tools upoon the re-structured "assembly" policy language. 
- 
-The difficulty with trying to build a higher-level language on top of
-policy language is that, unlike a program that is being executed, there
-is no locality in the policy.  When a problem occurs while a program is
-executing, you can get a stack trace and see what functions were
-executing.  When there is a denial in policy, all you know is that that
-rule does not exist.  There is no way to say where that rule would have
-been if it had existed.  This makes it very hard to abstract away that
-lower level language.
+On Sun, 2007-10-07 at 21:51 -0400, Daniel J Walsh wrote:
 
-> > 1) The user is constantly presented with types. 
+Thanks, merged (but it was reversed ;)
+
+> plain text document attachment (diff)
+> diff --exclude-from=exclude --exclude=sepolgen-1.0.10 --exclude=gui --exclude=po -N -u -r nsapolicycoreutils/semanage/seobject.py policycoreutils-2.0.28/semanage/seobject.py
+> --- nsapolicycoreutils/semanage/seobject.py	2007-10-07 21:46:43.000000000 -0400
+> +++ policycoreutils-2.0.28/semanage/seobject.py	2007-10-05 13:10:29.000000000 -0400
+> @@ -139,7 +139,7 @@
+>  			translations = fd.readlines()
+>  			fd.close()
+>  		except IOError, e:
+> -			raise ValueError(_("Unable to open %s: translations not supported on non-MLS machines: %s") % (self.filename, e) )
+> +			raise ValueError(_("Unable to open %s: translations not supported on non-MLS machines") % (self.filename) )
+>  			
+>  		self.ddict = {}
+>  		self.comments = []
+> @@ -236,9 +236,6 @@
+>  		if rc < 0:
+>  			semanage_handle_destroy(self.sh)
+>  			raise ValueError(_("Could not establish semanage connection"))
+> -        def deleteall(self):
+> -               raise ValueError(_("Not yet implemented"))
+> -               
 >  
-> Which is perhaps the problem for simplication of development/admin. All I know is that it was impossible to create any type of policy source tools/domain-specific languages when types were gloablly used throughout the sources. Not that I have any concrete suggestions how to improve the situation off hand ;)
+>  class loginRecords(semanageRecords):
+>  	def __init__(self, store = ""):
+> @@ -779,34 +776,6 @@
+>  		semanage_port_key_free(k)
+>  		semanage_port_free(p)
 >  
-> Frank
-> 
+> -	def deleteall(self):
+> -		(rc, plist) = semanage_port_list_local(self.sh)
+> -		if rc < 0:
+> -			raise ValueError(_("Could not list the ports"))
+> -
+> -		rc = semanage_begin_transaction(self.sh)
+> -		if rc < 0:
+> -			raise ValueError(_("Could not start semanage transaction"))
+> -
+> -		for port in plist:
+> -                       proto = semanage_port_get_proto(port)
+> -                       proto_str = semanage_port_get_proto_str(proto)
+> -                       low = semanage_port_get_low(port)
+> -                       high = semanage_port_get_high(port)
+> -                       port_str = "%s-%s" % (low, high)
+> -                       ( k, proto_d, low, high ) = self.__genkey(port_str , proto_str)
+> -                       if rc < 0:
+> -                              raise ValueError(_("Could not create a key for %s") % port_str)
+> -
+> -                       rc = semanage_port_del_local(self.sh, k)
+> -                       if rc < 0:
+> -                              raise ValueError(_("Could not delete the port %s") % port_str)
+> -                       semanage_port_key_free(k)
+> -	
+> -		rc = semanage_commit(self.sh)
+> -		if rc < 0:
+> -			raise ValueError(_("Could not delete the %s") % port_str)
+> -
+>  	def delete(self, port, proto):
+>  		( k, proto_d, low, high ) = self.__genkey(port, proto)
+>  		(rc,exists) = semanage_port_exists(self.sh, k)
+> @@ -1206,32 +1175,6 @@
+>  		semanage_fcontext_key_free(k)
+>  		semanage_fcontext_free(fcontext)
 >  
-> 
-> 
-> --
-> This message was distributed to subscribers of the selinux mailing list.
-> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
-> the words "unsubscribe selinux" without quotes as the message.
+> -	def deleteall(self):
+> -		(rc, flist) = semanage_fcontext_list_local(self.sh)
+> -		if rc < 0:
+> -			raise ValueError(_("Could not list the file contexts"))
+> -
+> -		rc = semanage_begin_transaction(self.sh)
+> -		if rc < 0:
+> -			raise ValueError(_("Could not start semanage transaction"))
+> -
+> -		for fcontext in flist:
+> -                       target = semanage_fcontext_get_expr(fcontext)
+> -                       ftype = semanage_fcontext_get_type(fcontext)
+> -                       ftype_str = semanage_fcontext_get_type_str(ftype)
+> -                       (rc,k) = semanage_fcontext_key_create(self.sh, target, file_types[ftype_str])
+> -                       if rc < 0:
+> -                              raise ValueError(_("Could not create a key for %s") % target)
+> -
+> -                       rc = semanage_fcontext_del_local(self.sh, k)
+> -                       if rc < 0:
+> -                              raise ValueError(_("Could not delete the file context %s") % target)
+> -                       semanage_fcontext_key_free(k)
+> -	
+> -		rc = semanage_commit(self.sh)
+> -		if rc < 0:
+> -			raise ValueError(_("Could not delete the file context %s") % target)
+> -
+>  	def delete(self, target, ftype):
+>  		(rc,k) = semanage_fcontext_key_create(self.sh, target, file_types[ftype])
+>  		if rc < 0:
 -- 
-James Carter <jwcart2@tycho.nsa.gov>
+Stephen Smalley
 National Security Agency
 
 
