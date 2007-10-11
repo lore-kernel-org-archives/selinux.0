@@ -1,78 +1,56 @@
-Message-ID: <470E5904.9080204@tycho.nsa.gov>
-Date: Thu, 11 Oct 2007 13:10:28 -0400
-From: Eamon Walsh <ewalsh@tycho.nsa.gov>
-MIME-Version: 1.0
-To: SELinux List <selinux@tycho.nsa.gov>
-CC: Stephen Smalley <sds@tycho.nsa.gov>
-Subject: [PATCH] libselinux: stringrep / mapping fix
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Subject: Re: Question about domain transition and MLS
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Rosalie Hiebel <rosalie.hiebel@L-3Com.com>
+Cc: selinux@tycho.nsa.gov
+In-Reply-To: <p0600201ec333f539728d@[192.168.50.32]>
+References: <p0600201ec333f539728d@[192.168.50.32]>
+Content-Type: text/plain
+Date: Thu, 11 Oct 2007 13:18:17 -0400
+Message-Id: <1192123097.608.14.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On one of the paths through security_class_to_string, the unmapping is
-done twice.  Same with security_av_perm_to_string.
+On Thu, 2007-10-11 at 12:08 -0400, Rosalie Hiebel wrote:
+> I am writing policy for an application which runs in a domain with a
+> SystemHigh range and attempts to launch (via fork/exec) an application
+> (/bin/df) having it run in a domain with SystemLow range.  My
+> application performs a setexeccon, passing it the domain
+> root:sysadm_r:sysadm_t:SystemLow,  prior to the fork and exec.
+> 
+> 
+> My policy contains a rule to allow the application's domain type to do
+> a process dyntransition to sysadm_t, but I continue to get an audit
+> message indicating it cannot perform a dyntransition from its domain,
+> system_u:system_r:my_app_t:SystemHigh to
+> root:sysadm_r:sysadm_t:SystemLow.
+> 
+> 
+> I have added numerous mls macros to try to allow the process
+> transition, such as mls_rangetrans_source, mls_rangetrans_target, and
+> mls_process_set_level, but I still get the dyntransition audit
+> message.  Any suggestions for what mls attributes my application
+> needs?
 
-Signed-off-by: Eamon Walsh <ewalsh@tycho.nsa.gov>
----
-
- stringrep.c |   13 +++++--------
- 1 file changed, 5 insertions(+), 8 deletions(-)
-
-
-Index: libselinux/src/stringrep.c
-===================================================================
---- libselinux/src/stringrep.c	(revision 2644)
-+++ libselinux/src/stringrep.c	(working copy)
-@@ -370,8 +370,6 @@
- 
- static const char *security_class_to_string_compat(security_class_t tclass)
- {
--	tclass = unmap_class(tclass);
--
- 	if (tclass > 0 && tclass < NCLASSES)
- 		return class_to_string_data.str + class_to_string[tclass];
- 
-@@ -386,9 +384,6 @@
- 	access_vector_t common_base = 0;
- 	unsigned int i;
- 
--	av = unmap_perm(tclass, av);
--	tclass = unmap_class(tclass);
--
- 	if (!av)
- 		return NULL;
- 
-@@ -466,10 +461,11 @@
- {
- 	struct discover_class_node *node;
- 
-+	tclass = unmap_class(tclass);
-+
- 	if (obj_class_compat)
- 		return security_class_to_string_compat(tclass);
- 
--	tclass = unmap_class(tclass);
- 	node = get_class_cache_entry_value(tclass);
- 	if (node == NULL)
- 		return security_class_to_string_compat(tclass);
-@@ -483,11 +479,12 @@
- 	struct discover_class_node *node;
- 	size_t i;
- 
-+	av = unmap_perm(tclass, av);
-+	tclass = unmap_class(tclass);
-+
- 	if (obj_class_compat)
- 		return security_av_perm_to_string_compat(tclass,av);
- 
--	av = unmap_perm(tclass, av);
--	tclass = unmap_class(tclass);
- 	node = get_class_cache_entry_value(tclass);
- 	if (av && node)
- 		for (i = 0; i<MAXVECTORS; i++)
+A few observations:
+- If using setexeccon() and fork/exec to launch the application,
+dyntransition is not the right permission at all.  dyntransition is for
+dynamic context transitions within the process via setcon(3), not for
+regular context transitions upon exec (which would be governed by
+transition).
+- Why would you transition from your application domain to the domain
+for a system administrator shell to run df?  I doubt that you truly want
+your application to be able to spawn sysadm_t processes at all, and you
+certainly don't need df to run with all of sysadm_t's permissions.
+- Aside from MLS constraints (which it sounds like you have covered),
+there are constraints on user and role to prevent most domains from
+switching to another user identity or role.  These are in the
+policy/constraints file in the source and there are interfaces for
+allowing a domain to override them, but I'm not sure you really want to
+be doing that here.
 
 -- 
-Eamon Walsh <ewalsh@tycho.nsa.gov>
+Stephen Smalley
 National Security Agency
 
 
