@@ -1,77 +1,149 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l9BG9Rc2010174
-	for <selinux@tycho.nsa.gov>; Thu, 11 Oct 2007 12:09:27 -0400
-Received: from mailmac.ads-oh.atg.titan.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id l9BG9IK4019975
-	for <selinux@tycho.nsa.gov>; Thu, 11 Oct 2007 16:09:18 GMT
-Received: from [192.168.50.32] (unknown [66.218.141.135])
-	by mailmac.ads-oh.atg.titan.com (Postfix) with ESMTP id AA4E5EE66E
-	for <selinux@tycho.nsa.gov>; Thu, 11 Oct 2007 12:08:17 -0400 (EDT)
+Subject: Re: Are the reference policy abstractions the right ones?
+From: Karl MacMillan <kmacmillan@mentalrootkit.com>
+To: jwcart2@tycho.nsa.gov
+Cc: SELinux <selinux@tycho.nsa.gov>, Steve Smalley <sds@epoch.ncsc.mil>
+In-Reply-To: <1192048777.7524.9.camel@localhost.localdomain>
+References: <1191942521.2794.89.camel@moss-lions.epoch.ncsc.mil>
+	 <1191949852.23486.55.camel@dhcp-64-223.iad.redhat.com>
+	 <1191956082.2794.107.camel@moss-lions.epoch.ncsc.mil>
+	 <1191956863.23486.62.camel@dhcp-64-223.iad.redhat.com>
+	 <1191959097.2794.127.camel@moss-lions.epoch.ncsc.mil>
+	 <1191960025.23486.70.camel@dhcp-64-223.iad.redhat.com>
+	 <1192029823.2898.32.camel@localhost.localdomain>
+	 <1192035162.15060.57.camel@moss-lions.epoch.ncsc.mil>
+	 <1192048777.7524.9.camel@localhost.localdomain>
+Content-Type: text/plain
+Date: Thu, 11 Oct 2007 13:00:40 -0400
+Message-Id: <1192122040.26928.61.camel@dhcp-64-223.iad.redhat.com>
 Mime-Version: 1.0
-Message-Id: <p0600201ec333f539728d@[192.168.50.32]>
-Date: Thu, 11 Oct 2007 12:08:58 -0400
-To: selinux@tycho.nsa.gov
-From: Rosalie Hiebel <rosalie.hiebel@L-3Com.com>
-Subject: Question about domain transition and MLS
-Content-Type: multipart/alternative; boundary="============_-1020003553==_ma============"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
---============_-1020003553==_ma============
-Content-Type: text/plain; charset="us-ascii" ; format="flowed"
+On Wed, 2007-10-10 at 16:39 -0400, Karl MacMillan wrote:
+> On Wed, 2007-10-10 at 12:52 -0400, James Carter wrote:
+> > On Wed, 2007-10-10 at 11:23 -0400, Karl MacMillan wrote:
+> > [...]
+> > > 
+> > > Here's a suggestion (this assumes that hierarchy stops using dot in
+> > > favor of explicit statements):
+> > > 
+> > > type_group daemon {
+> > > 	type process, domain;
+> > > 	type exec, exec_file;
+> > > 	type conf, file_type;
+> > > 	type log, log_file;
+> > > }
+> > > 
+> > 
+> > Why not call it type_class?
+> 
+> Or type_struct :) I don't really care . . .
+> 
+> > 
+> > > allow daemon.process daemon.exec : file entrypoint;
+> > > # etc., etc. for the exec permissions - could
+> > > # even have a type_transition.
+> > > allow daemon.process daemon.conf : file read;
+> > > allow daemon.process daemon.log : file { read write };
+> > > 
+> > So, process, exec, conf, and log are in scope within the type_group
+> > block and are referred to outside of that block by identifying the
+> > namespace using a ".".  Sort of like referring to functions in a python
+> > module.  Is that right?
+> > 
+> 
+> Yep.
+> 
+> > > # Apache gets all of the types defined in daemon and
+> > > # access to the apache versions - so apache.process
+> > > # can read apache.conf.
+> > > type_group apache, daemon {
+> > > 	type html_files, file;
+> > > }
+> > > 
+> > > allow apache.process apache.html_files : file read;
+> > > 
+> > 
+> > Would there be allow rules inside the type_group block?  I think that it
+> > would be needed to distinguish between rules that can be inherited or
+> > not.
+> > 
+> > For example,
+> > 
+> > type_group daemon {
+> > 	type process, domain;
+> > 
+> > 	allow process foo_t : file read;
+> > }
+> > allow daemon.process bar_t : file read;
+> > 
+> > type_group apache, daemon {
+> > 	...
+> > }
+> > 
+> > apache.process would not have read access on bar_t, but it would on
+> > foo_t.
+> > 
+> 
+> That's interesting - I'm having trouble thinking of useful examples
+> though. And it would need to allow you to add rules "inside" outside of
+> the original declaration.
+> 
 
-I am writing policy for an application which runs in a domain with a 
-SystemHigh range and attempts to launch (via fork/exec) an 
-application (/bin/df) having it run in a domain with SystemLow range. 
-My application performs a setexeccon, passing it the domain 
-root:sysadm_r:sysadm_t:SystemLow,  prior to the fork and exec.
+Thinking about this more - this is actually the same mistake we have
+already made. Our whole model is that the flexibility has to be
+anticipated by the policy author ahead of time. Say I create a firefox
+policy and later some admin wants create a different firefox policy
+based on that (that, say, limits connections to only the intranet, or
+prevents writing to the home directory, etc.). Currently the policy
+author must:
 
-My policy contains a rule to allow the application's domain type to 
-do a process dyntransition to sysadm_t, but I continue to get an 
-audit message indicating it cannot perform a dyntransition from its 
-domain, system_u:system_r:my_app_t:SystemHigh to 
-root:sysadm_r:sysadm_t:SystemLow.
+a) make the whole policy into a template
+b) factor out all of the access that the later author may want to
+exclude.
 
-I have added numerous mls macros to try to allow the process 
-transition, such as mls_rangetrans_source, mls_rangetrans_target, and 
-mls_process_set_level, but I still get the dyntransition audit 
-message.  Any suggestions for what mls attributes my application 
-needs?
+It is killing us. So I think we need a way to exclude rules on
+inheritance. For example:
 
-Thanks,
-Rosalie
---============_-1020003553==_ma============
-Content-Type: text/html; charset="us-ascii"
+type_group firefox {
+	type process, domain;
+	type conf, conf_file;
+}
 
-<!doctype html public "-//W3C//DTD W3 HTML//EN">
-<html><head><style type="text/css"><!--
-blockquote, dl, ul, ol, li { padding-top: 0 ; padding-bottom: 0 }
- --></style><title>Question about domain transition and
-MLS</title></head><body>
-<div>I am writing policy for an application which runs in a domain
-with a SystemHigh range and attempts to launch (via fork/exec) an
-application (/bin/df) having it run in a domain with SystemLow range.&nbsp;
-My application performs a setexeccon, passing it the domain
-root:sysadm_r:sysadm_t:SystemLow<font face="Helvetica" size="+1"
-color="#000000">,&nbsp;</font> prior to the fork and exec.</div>
-<div><br></div>
-<div>My policy contains a rule to allow the application's domain type
-to do a process dyntransition to sysadm_t, but I continue to get an
-audit message indicating it cannot perform a dyntransition from its
-domain, system_u:system_r:my_app_t:SystemHigh to
-root:sysadm_r:sysadm_t:SystemLow.</div>
-<div><br></div>
-<div>I have added numerous mls macros to try to allow the process
-transition, such as mls_rangetrans_source, mls_rangetrans_target, and
-mls_process_set_level, but I still get the dyntransition audit
-message.&nbsp; Any suggestions for what mls attributes my application
-needs?</div>
-<div><br></div>
-<div>Thanks,</div>
-<div>Rosalie</div>
-</body>
-</html>
---============_-1020003553==_ma============--
+# bunch of rules, including reading user home dirs and
+# connect / send / receive anywhere
+
+type_group intranet_firefox {
+	except process user_home_t : file all_file_perms;
+	# also exclude network
+}
+
+# allow limited network access
+
+No idea about that syntax - they idea is to prevent access from being
+inherited. These are not deny rules - they only limit inheritance. I
+think this solves a lot of problems with deny rules - there is no
+ordering, precedence, or any related problems.
+
+It also gives the flexibility that we have been needing. I also think we
+should make it easy to except lots of access (e.g., except all access on
+sockets or all access to a source type). This will make the exception
+more robust.
+
+So - I'd like to hear from some other people. Are these ideas worth
+pursuing? The proposals:
+
+1) remove the distinction between attributes / types.
+2) allow nested types / attributes.
+3) type_class / type_group
+4) exceptions
+
+Karl
+
+
+
+
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
