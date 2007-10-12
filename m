@@ -1,13 +1,13 @@
 Subject: Re: concept of a permissive domain
-From: Karl MacMillan <kmacmillan@mentalrootkit.com>
+From: Stephen Smalley <sds@tycho.nsa.gov>
 To: Chad Sellers <csellers@tresys.com>
-Cc: Daniel J Walsh <dwalsh@redhat.com>, Stephen Smalley <sds@tycho.nsa.gov>,
-        Eric Paris <eparis@redhat.com>, selinux@tycho.nsa.gov
+Cc: Daniel J Walsh <dwalsh@redhat.com>, Eric Paris <eparis@redhat.com>,
+        Karl MacMillan <kmacmillan@mentalrootkit.com>, selinux@tycho.nsa.gov
 In-Reply-To: <C33537E7.2F014%csellers@tresys.com>
 References: <C33537E7.2F014%csellers@tresys.com>
 Content-Type: text/plain
-Date: Fri, 12 Oct 2007 15:05:28 -0400
-Message-Id: <1192215928.3294.40.camel@localhost.localdomain>
+Date: Fri, 12 Oct 2007 15:07:01 -0400
+Message-Id: <1192216021.11886.39.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
@@ -63,21 +63,44 @@ On Fri, 2007-10-12 at 14:40 -0400, Chad Sellers wrote:
 > 1) matches unconfined_t, perhaps call it unconfined_audit and make a domain
 > unconfined with auditallows. This could be done via Karl's earlier method.
 > Admittedly, the tool to create the policy would not be easy.
+
+Two possible stumbling blocks there:
+1) auditallow will audit every permission check, while permissive only
+audits the first occurrence (for a given source context, target context,
+target class triple, which may actually cover multiple processes and/or
+objects).  The permissive behavior was designed to avoid flooding the
+audit logs with duplicate information, but it does have the disadvantage
+that we don't see every denial, which could be useful when trying to
+generate a policy from the auxiliary audit information beyond just the
+contexts and classes (e.g. if you want to do pattern matching ala MITRE
+Polgen on application behavior).  Also, the flooding problem is somewhat
+alleviated by the recent change to not recheck on every read/write but
+only when necessary, although that only dealt with read/write, not e.g.
+socket sends and receives.
+
+2) auditallow yields avc granted messages, whereas all policy tools
+today look for avc denied messages.  And we use auditallow statements in
+policy today to catch certain important events, so we'd have to make
+sure that the tools don't accidentally generate from those audit
+messages (well, I suppose they would be redundant and filterable on
+domain).
+
 > 2) permissive domain that is the same as global permissive. This could be
 > done via an selinuxfs node (similar to global permissive) and made
 > persistent by some sort of state in /etc/selinux (like global permissive).
-> 
+
+That would be more like today's permissive mode, but as others have
+pointed out, the per-domain permissive mode is more like an unconfined
+domain and it would be useful to be able to see it in the policy for
+analysis and management purposes.
+
 > I know I may be in the minority here, but I really think we should consider
 > trying to minimize the differences in concepts we create as much as possible
 > to avoid complexity creep.
 
-Calling it a permissive domain uses the same concept as global
-permissive - so I think that is natural. It does not, to me, mean that
-it should be enabled in the same way as global permissive - that's just
-an implementation detail. I think it is much better to put it in the
-policy as that allows some sort of sane delivery mechanism.
-
-Karl
+-- 
+Stephen Smalley
+National Security Agency
 
 
 --
