@@ -1,62 +1,96 @@
-Subject: Re: Are the reference policy abstractions the right ones?
-From: Karl MacMillan <kmacmillan@mentalrootkit.com>
-To: jwcart2@tycho.nsa.gov
-Cc: Chad Sellers <csellers@tresys.com>, SELinux <selinux@tycho.nsa.gov>,
-        Steve Smalley <sds@epoch.ncsc.mil>
-In-Reply-To: <1192218818.28398.45.camel@moss-lions.epoch.ncsc.mil>
-References: <C3351CCC.2EFE6%csellers@tresys.com>
-	 <1192218818.28398.45.camel@moss-lions.epoch.ncsc.mil>
-Content-Type: text/plain
-Date: Fri, 12 Oct 2007 15:59:09 -0400
-Message-Id: <1192219149.3294.54.camel@localhost.localdomain>
-Mime-Version: 1.0
+Date: Fri, 12 Oct 2007 16:43:26 -0400
+Subject: Re: concept of a permissive domain
+From: Chad Sellers <csellers@tresys.com>
+To: Karl MacMillan <kmacmillan@mentalrootkit.com>
+CC: Daniel J Walsh <dwalsh@redhat.com>, Stephen Smalley <sds@tycho.nsa.gov>,
+        Eric Paris <eparis@redhat.com>, <selinux@tycho.nsa.gov>
+Message-ID: <C33554AE.2F045%csellers@tresys.com>
+In-Reply-To: <1192215928.3294.40.camel@localhost.localdomain>
+Mime-version: 1.0
+Content-type: text/plain;
+	charset="US-ASCII"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2007-10-12 at 15:53 -0400, James Carter wrote:
-> On Fri, 2007-10-12 at 12:45 -0400, Chad Sellers wrote:
+On 10/12/07 3:05 PM, "Karl MacMillan" <kmacmillan@mentalrootkit.com> wrote:
 
-[...]
-
-> > > 
-> > > So - I'd like to hear from some other people. Are these ideas worth
-> > > pursuing? The proposals:
-> > > 
-> > > 1) remove the distinction between attributes / types.
-> > > 2) allow nested types / attributes.
-> > > 3) type_class / type_group
-> > > 4) exceptions
-> > > 
-> > I think these are all very nice features that could definitely come in
-> > handy. But I'm not sure I see how they address our fundamental problems. I
-> > agree with you guys that our fundamental problem is the leaky abstractions
-> > in reference policy. I really don't see how these would solve that problem,
-> > unless you're proposing that these would negate the need for any
-> > abstractions. And I don't think that's what you're saying (or is it?).
-> > 
-> I am trying to argue that all resources are labeled with types, so it
-> does no good to try and hide them.  While I don't want to see types used
-> all over the policy like they were in the old example policy, a few here
-> and there for inheritance or attribute purposes doesn't seem harmful.
-> (Famous last words that will probably come back to haunt me.)
+> On Fri, 2007-10-12 at 14:40 -0400, Chad Sellers wrote:
+>> On 10/12/07 9:50 AM, "Daniel J Walsh" <dwalsh@redhat.com> wrote:
+>> 
+>>> -----BEGIN PGP SIGNED MESSAGE-----
+>>> Hash: SHA1
+>>> 
+>>> I would like to get this moving again.
+>>> 
+>>> I believe we came to a conclusion that the permissive domain should be
+>>> specified in userspace/policy.  So the next question is who can make the
+>>> change and what is the syntax?
+>>> 
+>>> I see we can do this in two ways.
+>>> 
+>>> One we add a new access to the Process Class called Permissive;
+>>> Which would cause the kernel to put this domain in the permissive
+>>> domain.  I am sure Steven dislikes this suggestion.  :^)
+>>> 
+>>> 
+>>> The second solution is to add a new command to audit, dontaudit,
+>>> auditallow, nerverallow
+>>> 
+>>> So if we add permissiveallow or just permissive.
+>>> 
+>>> What does the syntax look like?
+>>> 
+>>> permissive httpd_t;
+>>> 
+>>> permissive httpd_t self:process *;
+>>> 
+>>> In order to implement this, we need to modify libsepol,
+>>> checkmodule/checkpolicy?
+>>> 
+>>> Anything else?
+>> 
+>> The kernel, for one. Both of these involve new policy constructs that the
+>> kernel would use. Or am I misunderstanding what you're saying?
+>> 
+>> The last message on this thread seems to be Karl's message talking about
+>> potentially doing this in userspace (meaning make libsemanage or something
+>> similar go through policy, allow everything for a domain, auditallow
+>> everything that's not explicitly allowed) and how this is possible but
+>> painful. Did I miss any later follow up to this? Where are we with respect
+>> to doing this in kernel vs. in policy?
+>> 
+>> I really don't care either way any more. My main concern is I want us to
+>> come up with something that doesn't create another new concept to confuse
+>> users. To me, this means either
+>> 1) matches unconfined_t, perhaps call it unconfined_audit and make a domain
+>> unconfined with auditallows. This could be done via Karl's earlier method.
+>> Admittedly, the tool to create the policy would not be easy.
+>> 2) permissive domain that is the same as global permissive. This could be
+>> done via an selinuxfs node (similar to global permissive) and made
+>> persistent by some sort of state in /etc/selinux (like global permissive).
+>> 
+>> I know I may be in the minority here, but I really think we should consider
+>> trying to minimize the differences in concepts we create as much as possible
+>> to avoid complexity creep.
 > 
-> I am not arguing that we dump reference policy and get rid of
-> interfaces.  I do, however, think that nested types and the ability to
-> inherit with exceptions would give Chris and other policy developers the
-> ability to write interfaces that fit the common case instead of having
-> to target the lowest common denominator.  I just don't know how much
-> they would help.
+> Calling it a permissive domain uses the same concept as global
+> permissive - so I think that is natural. It does not, to me, mean that
+> it should be enabled in the same way as global permissive - that's just
+> an implementation detail. I think it is much better to put it in the
+> policy as that allows some sort of sane delivery mechanism.
 > 
+Calling it one thing and implementing it differently is fine as long as the
+implementation doesn't leak out to the user. And it will here. We're not
+exactly good at making leak-proof abstractions to begin with, but this is a
+case where the user will see a new statement in policy.
 
-That sounds about right to me - I think we should prototype the language
-extensions and see what problems they solve. Then we can understand
-better how they fit with the reference policy in its current form. I
-thought the plan was to add language features to enable the reference
-policy anyway. To me, we are just trying to take lessons learned from
-the reference policy to continue to move it forward.
+Think of this from the perspective of the user. We have to tell them that
+system-wide permissive is not part of policy, but is instead in a config
+file, done using setenforce, or done using selinuxfs, but per-domain
+permissive is not done by any of those methods, but instead is done in
+policy via a new language construct. This is confusing.
 
-Karl
-
+Chad
 
 
 --
