@@ -1,102 +1,54 @@
 Subject: Re: concept of a permissive domain
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Chad Sellers <csellers@tresys.com>
-Cc: Daniel J Walsh <dwalsh@redhat.com>, Eric Paris <eparis@redhat.com>,
-        Karl MacMillan <kmacmillan@mentalrootkit.com>, selinux@tycho.nsa.gov
-In-Reply-To: <C33537E7.2F014%csellers@tresys.com>
-References: <C33537E7.2F014%csellers@tresys.com>
+To: Karl MacMillan <kmacmillan@mentalrootkit.com>
+Cc: Eric Paris <eparis@parisplace.org>, Joshua Brindle <jbrindle@tresys.com>,
+        Daniel J Walsh <dwalsh@redhat.com>, Chad Sellers <csellers@tresys.com>,
+        Eric Paris <eparis@redhat.com>, selinux@tycho.nsa.gov
+In-Reply-To: <1192215788.3294.38.camel@localhost.localdomain>
+References: <C315C13B.2C502%csellers@tresys.com>
+	 <46F11C6C.4070306@redhat.com> <470F7BC0.4030003@redhat.com>
+	 <470FB394.8000106@tresys.com>
+	 <7e0fb38c0710121107h5cf3ed66l7725c794150bb821@mail.gmail.com>
+	 <1192215788.3294.38.camel@localhost.localdomain>
 Content-Type: text/plain
-Date: Fri, 12 Oct 2007 15:07:01 -0400
-Message-Id: <1192216021.11886.39.camel@moss-spartans.epoch.ncsc.mil>
+Date: Fri, 12 Oct 2007 15:09:01 -0400
+Message-Id: <1192216141.11886.42.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2007-10-12 at 14:40 -0400, Chad Sellers wrote:
-> On 10/12/07 9:50 AM, "Daniel J Walsh" <dwalsh@redhat.com> wrote:
+On Fri, 2007-10-12 at 15:03 -0400, Karl MacMillan wrote:
+> On Fri, 2007-10-12 at 14:07 -0400, Eric Paris wrote:
+> > On 10/12/07, Joshua Brindle <jbrindle@tresys.com> wrote:
+> > 
+> > > I don't like this one either. I'd rather do what we were thinking about
+> > > with selinuxfs where we have /selinux/types/foo_domain_t have a bitmap
+> > > of properties, one of them being permissive.
+> > 
+> > I still don't agree.  From the point of view of analysis a permissive
+> > domain and an unconfined domain are the same thing.  Thus this should
+> > be a part of the policy the same way unconfined domains are.
+> > 
+> > I also still disagree that the policy administrator and the
+> > application administrator are the same person or will have the ability
+> > to reasonably work together in such a close manner as to make the
+> > selinuxfs permissive domain implementation acceptable.  The guy who
+> > adds a new policy module might not be able to control enough of the
+> > system/application to echo 1 > /selinux/blah/blah/blah/enforcing every
+> > time the application is started.  Nor do we necessarily want to put
+> > the permissions to make an application permissive in the domains
+> > associated with the application itself.  aka I sure as heck don't want
+> > httpd_t to be allowed to make itself permissive and at the same time I
+> > personally don't think that the httpd init script is the right place
+> > either since I'd rather not give initrc_t permission to make anything
+> > permissive.  (ok I think initrc_t is still and unconfined domain, but
+> > I don't like it)
 > 
-> > -----BEGIN PGP SIGNED MESSAGE-----
-> > Hash: SHA1
-> > 
-> > I would like to get this moving again.
-> > 
-> > I believe we came to a conclusion that the permissive domain should be
-> > specified in userspace/policy.  So the next question is who can make the
-> > change and what is the syntax?
-> > 
-> > I see we can do this in two ways.
-> > 
-> > One we add a new access to the Process Class called Permissive;
-> > Which would cause the kernel to put this domain in the permissive
-> > domain.  I am sure Steven dislikes this suggestion.  :^)
-> > 
-> > 
-> > The second solution is to add a new command to audit, dontaudit,
-> > auditallow, nerverallow
-> > 
-> > So if we add permissiveallow or just permissive.
-> > 
-> > What does the syntax look like?
-> > 
-> > permissive httpd_t;
-> > 
-> > permissive httpd_t self:process *;
-> > 
-> > In order to implement this, we need to modify libsepol,
-> > checkmodule/checkpolicy?
-> > 
-> > Anything else?
-> 
-> The kernel, for one. Both of these involve new policy constructs that the
-> kernel would use. Or am I misunderstanding what you're saying?
-> 
-> The last message on this thread seems to be Karl's message talking about
-> potentially doing this in userspace (meaning make libsemanage or something
-> similar go through policy, allow everything for a domain, auditallow
-> everything that's not explicitly allowed) and how this is possible but
-> painful. Did I miss any later follow up to this? Where are we with respect
-> to doing this in kernel vs. in policy?
-> 
-> I really don't care either way any more. My main concern is I want us to
-> come up with something that doesn't create another new concept to confuse
-> users. To me, this means either
-> 1) matches unconfined_t, perhaps call it unconfined_audit and make a domain
-> unconfined with auditallows. This could be done via Karl's earlier method.
-> Admittedly, the tool to create the policy would not be easy.
+> So I agree - I _really_ don't understand why we say some selinux
+> configuration is part of the policy and some is not. It is just
+> confusing and requires that we built more infrastructure.
 
-Two possible stumbling blocks there:
-1) auditallow will audit every permission check, while permissive only
-audits the first occurrence (for a given source context, target context,
-target class triple, which may actually cover multiple processes and/or
-objects).  The permissive behavior was designed to avoid flooding the
-audit logs with duplicate information, but it does have the disadvantage
-that we don't see every denial, which could be useful when trying to
-generate a policy from the auxiliary audit information beyond just the
-contexts and classes (e.g. if you want to do pattern matching ala MITRE
-Polgen on application behavior).  Also, the flooding problem is somewhat
-alleviated by the recent change to not recheck on every read/write but
-only when necessary, although that only dealt with read/write, not e.g.
-socket sends and receives.
-
-2) auditallow yields avc granted messages, whereas all policy tools
-today look for avc denied messages.  And we use auditallow statements in
-policy today to catch certain important events, so we'd have to make
-sure that the tools don't accidentally generate from those audit
-messages (well, I suppose they would be redundant and filterable on
-domain).
-
-> 2) permissive domain that is the same as global permissive. This could be
-> done via an selinuxfs node (similar to global permissive) and made
-> persistent by some sort of state in /etc/selinux (like global permissive).
-
-That would be more like today's permissive mode, but as others have
-pointed out, the per-domain permissive mode is more like an unconfined
-domain and it would be useful to be able to see it in the policy for
-analysis and management purposes.
-
-> I know I may be in the minority here, but I really think we should consider
-> trying to minimize the differences in concepts we create as much as possible
-> to avoid complexity creep.
+Also makes it hard to measure the policy meaningfully...
 
 -- 
 Stephen Smalley
