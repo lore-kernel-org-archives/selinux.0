@@ -1,52 +1,56 @@
-Date: Thu, 11 Oct 2007 22:31:05 -0700 (PDT)
-From: run zhang <zhang4run@yahoo.com>
-Subject: cannot see boolean variable in /selinux/booleans
-To: SELinux@tycho.nsa.gov
+Message-ID: <470F7BC0.4030003@redhat.com>
+Date: Fri, 12 Oct 2007 09:50:56 -0400
+From: Daniel J Walsh <dwalsh@redhat.com>
 MIME-Version: 1.0
-Content-Type: multipart/alternative; boundary="0-1240250435-1192167065=:98070"
-Message-ID: <502597.98070.qm@web63011.mail.re1.yahoo.com>
+To: Chad Sellers <csellers@tresys.com>
+CC: Stephen Smalley <sds@tycho.nsa.gov>, Eric Paris <eparis@redhat.com>,
+        Karl MacMillan <kmacmillan@mentalrootkit.com>, selinux@tycho.nsa.gov
+Subject: Re: concept of a permissive domain
+References: <C315C13B.2C502%csellers@tresys.com> <46F11C6C.4070306@redhat.com>
+In-Reply-To: <46F11C6C.4070306@redhat.com>
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
---0-1240250435-1192167065=:98070
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-I declear a bool in a simple SELinux policy file (two types and one role). The binary policy is compiled and loaded and runs well. The dmesg shows that "1 bools" in the policy loaded when starts. However, I cannot see the bool variable in /selinux/booleans thus cannot chage its value during runtime . I think some steps are missed. The bool is defined as: 
-...
-type base_t;
-type test_t;
-bool test_verify false;
+I would like to get this moving again.
 
-if (test_verify) {
-allow base_t test_t: file *;
-allow base_t test_t: dir *; 
-}
-else {
-allow base_t test_t: file { getattr };
-allow base_t test_t: dir { getattr read search }; }
-...
+I believe we came to a conclusion that the permissive domain should be
+specified in userspace/policy.  So the next question is who can make the
+change and what is the syntax?
 
-The msg with getsebool: 
-getsebool:  Unable to get boolean names:  Success
-The msg with setsebool: 
-Could not change active booleans: Invalid boolean                                                            
-Could not change policy booleans
+I see we can do this in two ways.
 
-Thanks!
+One we add a new access to the Process Class called Permissive;
+Which would cause the kernel to put this domain in the permissive
+domain.  I am sure Steven dislikes this suggestion.  :^)
 
-       
----------------------------------
-Fussy? Opinionated? Impossible to please? Perfect.  Join Yahoo!'s user panel and lay it on us.
---0-1240250435-1192167065=:98070
-Content-Type: text/html; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
 
-I declear a bool in a simple SELinux policy file (two types and one role). The binary policy is compiled and loaded and runs well. The dmesg shows that "1 bools" in the policy loaded when starts. However, I cannot see the bool variable in /selinux/booleans thus cannot chage its value during runtime . I think some steps are missed. The bool is defined as: <br>...<br>type base_t;<br>type test_t;<br>bool test_verify false;<br><br>if (test_verify) {<br>allow base_t test_t: file *;<br>allow base_t test_t: dir *; <br>}<br>else {<br>allow base_t test_t: file { getattr };<br>allow base_t test_t: dir { getattr read search }; }<br>...<br><br>The msg with getsebool: <br>getsebool:&nbsp; Unable to get boolean names:&nbsp; Success<br>The msg with setsebool: <br>Could not change active booleans: Invalid
- boolean&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <br>Could not change policy booleans<br><br>Thanks!<br><p>&#32;
-      <hr size=1>Fussy? Opinionated? Impossible to please? Perfect.  <a href="http://us.rd.yahoo.com/evt=48516/*http://surveylink.yahoo.com/gmrs/yahoo_panel_invite.asp?a=7 ">Join Yahoo!'s user panel</a> and lay it on us.
+The second solution is to add a new command to audit, dontaudit,
+auditallow, nerverallow
 
---0-1240250435-1192167065=:98070--
+So if we add permissiveallow or just permissive.
+
+What does the syntax look like?
+
+permissive httpd_t;
+
+permissive httpd_t self:process *;
+
+In order to implement this, we need to modify libsepol,
+checkmodule/checkpolicy?
+
+Anything else?
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.7 (GNU/Linux)
+Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org
+
+iD8DBQFHD3u/rlYvE4MpobMRAsb8AKCknzQMPwWk8NlkQXR/Et4HJ3drCgCfRxjj
+wSFzHkV45PqsE/GwUMaf8bk=
+=bWur
+-----END PGP SIGNATURE-----
 
 --
 This message was distributed to subscribers of the selinux mailing list.
