@@ -1,33 +1,93 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l9CNkLNj014083
-	for <selinux@tycho.nsa.gov>; Fri, 12 Oct 2007 19:46:21 -0400
-Received: from ug-out-1314.google.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l9CNkKav002661
-	for <selinux@tycho.nsa.gov>; Fri, 12 Oct 2007 23:46:21 GMT
-Received: by ug-out-1314.google.com with SMTP id 30so825281ugs
-        for <selinux@tycho.nsa.gov>; Fri, 12 Oct 2007 16:46:20 -0700 (PDT)
-Message-ID: <4710018B.20607@gmail.com>
-Date: Sat, 13 Oct 2007 01:21:47 +0200
-From: Jax <cybercorecentre@gmail.com>
+Message-ID: <4710CA44.1040300@redhat.com>
+Date: Sat, 13 Oct 2007 09:38:12 -0400
+From: Daniel J Walsh <dwalsh@redhat.com>
 MIME-Version: 1.0
-To: selinux@tycho.nsa.gov
-Subject: configured virtual environment with SElinux
-Content-Type: text/plain; charset=ISO-8859-2; format=flowed
+To: Chad Sellers <csellers@tresys.com>
+CC: Karl MacMillan <kmacmillan@mentalrootkit.com>,
+        Stephen Smalley <sds@tycho.nsa.gov>, Eric Paris <eparis@redhat.com>,
+        selinux@tycho.nsa.gov
+Subject: Re: concept of a permissive domain
+References: <C3357D99.2F091%csellers@tresys.com>
+In-Reply-To: <C3357D99.2F091%csellers@tresys.com>
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hi guys,
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-I still learning many thing in selinux and I want to ask you about is 
-there any image where someone already configured selinux for many 
-application? It can be vmware, uml, openvz whatever, but it would help 
-me a lot in learning, and understanding selinux by examples because the 
-theory itself incredibly boring. I read many docs on the site and I 
-don't feel I making any progress in this.
+Chad Sellers wrote:
+> On 10/12/07 5:21 PM, "Karl MacMillan" <kmacmillan@mentalrootkit.com> wrote:
+> 
+>> On Fri, 2007-10-12 at 16:43 -0400, Chad Sellers wrote:
+>>> On 10/12/07 3:05 PM, "Karl MacMillan" <kmacmillan@mentalrootkit.com> wrote:
+>>>
+>>>> On Fri, 2007-10-12 at 14:40 -0400, Chad Sellers wrote:
+>> [...[
+>>
+>>>> Calling it a permissive domain uses the same concept as global
+>>>> permissive - so I think that is natural. It does not, to me, mean that
+>>>> it should be enabled in the same way as global permissive - that's just
+>>>> an implementation detail. I think it is much better to put it in the
+>>>> policy as that allows some sort of sane delivery mechanism.
+>>>>
+>>> Calling it one thing and implementing it differently is fine as long as the
+>>> implementation doesn't leak out to the user. And it will here. We're not
+>>> exactly good at making leak-proof abstractions to begin with, but this is a
+>>> case where the user will see a new statement in policy.
+>>>
+>>> Think of this from the perspective of the user. We have to tell them that
+>>> system-wide permissive is not part of policy, but is instead in a config
+>>> file, done using setenforce, or done using selinuxfs, but per-domain
+>>> permissive is not done by any of those methods, but instead is done in
+>>> policy via a new language construct. This is confusing.
+>>>
+>>> Chad
+>> See, now you are going to make me argue for putting permissive in the
+>> policy, which I think that it should be. The fact that we have
+>> permissive in a separate config file, have to write a little parser in
+>> libselinux, patch apps to set permissive on boot is just dumb.
+>>
+> I figured that might be your response. I actually don't mind that solution
+> at all. I'm just trying to minimize the number of different concepts in
+> SELinux.
+> 
+>> That doesn't mean when shouldn't allow small changes to the in-kernel
+>> policy - like switching permissive on or off - but I still think it
+>> makes no sense to have one big configuration file with lots of tiny
+>> supporting config files. Just put it all in one place and be done with
+>> it.
+>>
+> Note that we already have a mechanism for turning pieces of policy on/off
+> in-kernel (booleans). So, if permissive were policy based, we could
+> potentially simplify things by having the kernel "switch" be just another
+> boolean instead of a separate mechanism.
+> 
+> Chad
+> 
+>> Karl
+>>
+> 
+- From the user point of view we could change the setenforce command
 
-Thanks
+setenforce 0
+setenforce httpd_t 0
 
-Jax
+getenforce 0
+getenforce httpd_t 0
+
+Then we could replace both to do something in semanage to rebuild and
+reload policy.
+
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.7 (GNU/Linux)
+Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org
+
+iD8DBQFHEMpErlYvE4MpobMRApyIAKDPblk4zBoGsZyj8euc1JgTpvetcACgmpNI
+4zKVHCrPKOGtuFPnm35xM5c=
+=n6n2
+-----END PGP SIGNATURE-----
 
 --
 This message was distributed to subscribers of the selinux mailing list.
