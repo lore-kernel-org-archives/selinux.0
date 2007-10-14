@@ -1,101 +1,63 @@
-Subject: Re: concept of a permissive domain
-From: Stefan Schulze Frielinghaus <stefan@seekline.net>
-To: Daniel J Walsh <dwalsh@redhat.com>
-Cc: Chad Sellers <csellers@tresys.com>,
-        Karl MacMillan <kmacmillan@mentalrootkit.com>,
-        Stephen Smalley <sds@tycho.nsa.gov>, Eric Paris <eparis@redhat.com>,
-        selinux@tycho.nsa.gov
-In-Reply-To: <4710CA44.1040300@redhat.com>
-References: <C3357D99.2F091%csellers@tresys.com>
-	 <4710CA44.1040300@redhat.com>
-Content-Type: text/plain
-Date: Sun, 14 Oct 2007 11:14:38 +0100
-Message-Id: <1192356878.3376.3.camel@vogon>
-Mime-Version: 1.0
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l9EATYRr008013
+	for <selinux@tycho.nsa.gov>; Sun, 14 Oct 2007 06:29:34 -0400
+Received: from rv-out-0910.google.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l9EATWMP001073
+	for <selinux@tycho.nsa.gov>; Sun, 14 Oct 2007 10:29:33 GMT
+Received: by rv-out-0910.google.com with SMTP id k15so1076559rvb
+        for <selinux@tycho.nsa.gov>; Sun, 14 Oct 2007 03:29:28 -0700 (PDT)
+Message-ID: <f71a82820710140329l7bffc054vbc61d11aae572341@mail.gmail.com>
+Date: Sun, 14 Oct 2007 19:29:27 +0900
+From: "Shintaro Fujiwara" <shintaro.fujiwara@gmail.com>
+To: "Christopher J. PeBenito" <cpebenito@tresys.com>,
+        selinux <selinux@tycho.nsa.gov>
+Subject: Re: [Refpolicy PATCH] (just a m4macro description miss?)
+In-Reply-To: <1191854900.13098.30.camel@gorn>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
+References: <1191761602.3169.4.camel@notepc.intrajp-yokosuka.co.jp>
+	 <1191854900.13098.30.camel@gorn>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Sat, 2007-10-13 at 09:38 -0400, Daniel J Walsh wrote:
-> -----BEGIN PGP SIGNED MESSAGE-----
-> Hash: SHA1
-> 
-> Chad Sellers wrote:
-> > On 10/12/07 5:21 PM, "Karl MacMillan" <kmacmillan@mentalrootkit.com> wrote:
-> > 
-> >> On Fri, 2007-10-12 at 16:43 -0400, Chad Sellers wrote:
-> >>> On 10/12/07 3:05 PM, "Karl MacMillan" <kmacmillan@mentalrootkit.com> wrote:
-> >>>
-> >>>> On Fri, 2007-10-12 at 14:40 -0400, Chad Sellers wrote:
-> >> [...[
-> >>
-> >>>> Calling it a permissive domain uses the same concept as global
-> >>>> permissive - so I think that is natural. It does not, to me, mean that
-> >>>> it should be enabled in the same way as global permissive - that's just
-> >>>> an implementation detail. I think it is much better to put it in the
-> >>>> policy as that allows some sort of sane delivery mechanism.
-> >>>>
-> >>> Calling it one thing and implementing it differently is fine as long as the
-> >>> implementation doesn't leak out to the user. And it will here. We're not
-> >>> exactly good at making leak-proof abstractions to begin with, but this is a
-> >>> case where the user will see a new statement in policy.
-> >>>
-> >>> Think of this from the perspective of the user. We have to tell them that
-> >>> system-wide permissive is not part of policy, but is instead in a config
-> >>> file, done using setenforce, or done using selinuxfs, but per-domain
-> >>> permissive is not done by any of those methods, but instead is done in
-> >>> policy via a new language construct. This is confusing.
-> >>>
-> >>> Chad
-> >> See, now you are going to make me argue for putting permissive in the
-> >> policy, which I think that it should be. The fact that we have
-> >> permissive in a separate config file, have to write a little parser in
-> >> libselinux, patch apps to set permissive on boot is just dumb.
-> >>
-> > I figured that might be your response. I actually don't mind that solution
-> > at all. I'm just trying to minimize the number of different concepts in
-> > SELinux.
-> > 
-> >> That doesn't mean when shouldn't allow small changes to the in-kernel
-> >> policy - like switching permissive on or off - but I still think it
-> >> makes no sense to have one big configuration file with lots of tiny
-> >> supporting config files. Just put it all in one place and be done with
-> >> it.
-> >>
-> > Note that we already have a mechanism for turning pieces of policy on/off
-> > in-kernel (booleans). So, if permissive were policy based, we could
-> > potentially simplify things by having the kernel "switch" be just another
-> > boolean instead of a separate mechanism.
-> > 
-> > Chad
-> > 
-> >> Karl
-> >>
-> > 
-> - From the user point of view we could change the setenforce command
-> 
-> setenforce 0
-> setenforce httpd_t 0
-> 
-> getenforce 0
-> getenforce httpd_t 0
-> 
-> Then we could replace both to do something in semanage to rebuild and
-> reload policy.
+At second thought, I recommend to fix this one.
+Because only this one has one space in the interfaces
+in all layers.
+We will be collided by any trouble unless not fix it now.
 
-But that would mean e.g. consider apache that you would have to
-setenforce for every domain type?
 
-apache_t
-apache_helper_t
-apache_php_t
-httpd_rotatelogs_t
-httpd_suexec_t
-...
-
-There wouldn't be a setenforce for a whole module, right?
-
-	Stefan
-
+2007/10/8, Christopher J. PeBenito <cpebenito@tresys.com>:
+> On Sun, 2007-10-07 at 21:53 +0900, shintaro_fujiwara wrote:
+> > Index: policy/modules/services/ucspitcp.if
+> > ===================================================================
+> > --- policy/modules/services/ucspitcp.if (revision 2446)
+> > +++ policy/modules/services/ucspitcp.if (working copy)
+> > @@ -20,7 +20,7 @@
+> >  ##     </summary>
+> >  ## </param>
+> >  #
+> > -interface(`ucspitcp_service_domain', `
+> > +interface(`ucspitcp_service_domain',`
+> >       gen_require(`
+> >               type ucspitcp_t;
+> >               role system_r;
+> >
+>
+> This change shouldn't affect anything.  What incorrect behavior does
+> this fix?
+>
+> --
+> Chris PeBenito
+> Tresys Technology, LLC
+> (410) 290-1411 x150
+>
+>
+>
+> --
+> This message was distributed to subscribers of the selinux mailing list.
+> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
+> the words "unsubscribe selinux" without quotes as the message.
+>
 
 --
 This message was distributed to subscribers of the selinux mailing list.
