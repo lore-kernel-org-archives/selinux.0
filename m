@@ -1,32 +1,30 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l9E53WuG020043
-	for <selinux@tycho.nsa.gov>; Sun, 14 Oct 2007 01:03:32 -0400
-Received: from mx53.ms.so-net.ne.jp (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id l9E53UJR024006
-	for <selinux@tycho.nsa.gov>; Sun, 14 Oct 2007 05:03:31 GMT
-Subject: [PATCH] refpolicy:useradd_t needs process transition to nscd_t
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l9E9bRvr006147
+	for <selinux@tycho.nsa.gov>; Sun, 14 Oct 2007 05:37:27 -0400
+Received: from mx51.ms.so-net.ne.jp (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l9E9bPMP024562
+	for <selinux@tycho.nsa.gov>; Sun, 14 Oct 2007 09:37:26 GMT
+Subject: [PATCH] refpolicy:groupadd_t needs transition to nscd_t
 From: shintaro_fujiwara <shin216@xf7.so-net.ne.jp>
-To: selinux@tycho.nsa.gov, cpebenito@tresys.com
+To: selinux@tycho.nsa.gov, pebenito@tresys.com
 Content-Type: text/plain
-Date: Sun, 14 Oct 2007 14:08:31 +0900
-Message-Id: <1192338511.3126.11.camel@notepc.intrajp-yokosuka.co.jp>
+Date: Sun, 14 Oct 2007 18:42:23 +0900
+Message-Id: <1192354943.3074.1.camel@notepc.intrajp-yokosuka.co.jp>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Index: policy/modules/admin/usermanage.te
-===================================================================
 --- policy/modules/admin/usermanage.te  (revision 2454)
 +++ policy/modules/admin/usermanage.te  (working copy)
-@@ -502,6 +502,8 @@
+@@ -227,6 +227,8 @@
  
- miscfiles_read_localization(useradd_t)
+ miscfiles_read_localization(groupadd_t)
  
-+nscd_domtrans(useradd_t)
++nscd_domtrans(groupadd_t)
 +
- seutil_read_config(useradd_t)
- seutil_read_file_contexts(useradd_t)
- seutil_read_default_contexts(useradd_t)
+ auth_manage_shadow(groupadd_t)
+ auth_relabel_shadow(groupadd_t)
+ auth_etc_filetrans_shadow(groupadd_t)
 
 
 
