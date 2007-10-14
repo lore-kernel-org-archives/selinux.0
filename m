@@ -1,44 +1,32 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l9E4j4M6019243
-	for <selinux@tycho.nsa.gov>; Sun, 14 Oct 2007 00:45:05 -0400
-Received: from mx09.ms.so-net.ne.jp (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l9E4j2oq021290
-	for <selinux@tycho.nsa.gov>; Sun, 14 Oct 2007 04:45:03 GMT
-Subject: [PATCH] refpolicy:locallogin problem still exists?
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l9E53WuG020043
+	for <selinux@tycho.nsa.gov>; Sun, 14 Oct 2007 01:03:32 -0400
+Received: from mx53.ms.so-net.ne.jp (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id l9E53UJR024006
+	for <selinux@tycho.nsa.gov>; Sun, 14 Oct 2007 05:03:31 GMT
+Subject: [PATCH] refpolicy:useradd_t needs process transition to nscd_t
 From: shintaro_fujiwara <shin216@xf7.so-net.ne.jp>
 To: selinux@tycho.nsa.gov, cpebenito@tresys.com
 Content-Type: text/plain
-Date: Sun, 14 Oct 2007 13:49:58 +0900
-Message-Id: <1192337398.3126.8.camel@notepc.intrajp-yokosuka.co.jp>
+Date: Sun, 14 Oct 2007 14:08:31 +0900
+Message-Id: <1192338511.3126.11.camel@notepc.intrajp-yokosuka.co.jp>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Index: modules/system/locallogin.te
+Index: policy/modules/admin/usermanage.te
 ===================================================================
---- modules/system/locallogin.te        (revision 2454)
-+++ modules/system/locallogin.te        (working copy)
-@@ -33,7 +33,7 @@
- # Local login local policy
- #
+--- policy/modules/admin/usermanage.te  (revision 2454)
++++ policy/modules/admin/usermanage.te  (working copy)
+@@ -502,6 +502,8 @@
  
--allow local_login_t self:capability { dac_override chown fowner fsetid
-kill setgid setuid sys_nice sys_resource sys_tty_config };
-+allow local_login_t self:capability { audit_control dac_override chown
-fowner fsetid kill setgid setuid sys_nice sys_resource sys_tty_config };
- allow local_login_t self:process ~{ ptrace setcurrent setexec
-setfscreate setrlimit execmem execstack execheap };
- allow local_login_t self:process { setrlimit setexec };
- allow local_login_t self:fd use;
-@@ -102,6 +102,8 @@
- auth_rw_faillog(local_login_t)
- auth_manage_pam_console_data(local_login_t)
- auth_domtrans_pam_console(local_login_t)
-+auth_domtrans_chk_passwd(local_login_t)
-+logging_send_audit_msgs(local_login_t)
+ miscfiles_read_localization(useradd_t)
  
- corecmd_list_bin(local_login_t)
- corecmd_read_bin_symlinks(local_login_t)
++nscd_domtrans(useradd_t)
++
+ seutil_read_config(useradd_t)
+ seutil_read_file_contexts(useradd_t)
+ seutil_read_default_contexts(useradd_t)
 
 
 
