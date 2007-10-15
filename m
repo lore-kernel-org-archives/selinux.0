@@ -1,87 +1,85 @@
-Subject: Re: concept of a permissive domain
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Brett Lentz <blentz@cardomain.com>
-Cc: Daniel J Walsh <dwalsh@redhat.com>,
-        Stefan Schulze Frielinghaus <stefan@seekline.net>,
-        Chad Sellers <csellers@tresys.com>,
-        Karl MacMillan <kmacmillan@mentalrootkit.com>,
-        Eric Paris <eparis@redhat.com>, selinux@tycho.nsa.gov
-In-Reply-To: <1192467177.28762.7.camel@blentz>
-References: <C3357D99.2F091%csellers@tresys.com>
-	 <4710CA44.1040300@redhat.com> <1192356878.3376.3.camel@vogon>
-	 <47135FCE.5000403@redhat.com>  <1192467177.28762.7.camel@blentz>
-Content-Type: text/plain
-Date: Mon, 15 Oct 2007 12:58:58 -0400
-Message-Id: <1192467538.29203.52.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l9FHeT4v031630
+	for <selinux@tycho.nsa.gov>; Mon, 15 Oct 2007 13:40:29 -0400
+Received: from nz-out-0506.google.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id l9FHeSlE013295
+	for <selinux@tycho.nsa.gov>; Mon, 15 Oct 2007 17:40:29 GMT
+Received: by nz-out-0506.google.com with SMTP id i1so985441nzh
+        for <selinux@tycho.nsa.gov>; Mon, 15 Oct 2007 10:40:02 -0700 (PDT)
+Message-ID: <7b740b700710151033h77f51349rcaef35571da0646f@mail.gmail.com>
+Date: Mon, 15 Oct 2007 22:33:53 +0500
+From: "shahbaz khan" <shazalive@gmail.com>
+To: "Karl MacMillan" <kmacmillan@mentalrootkit.com>
+Subject: Re: configured virtual environment with SElinux
+Cc: Jax <cybercorecentre@gmail.com>, selinux@tycho.nsa.gov
+In-Reply-To: <1192455622.2913.3.camel@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: multipart/alternative;
+	boundary="----=_Part_44569_6630604.1192469633873"
+References: <4710018B.20607@gmail.com>
+	 <1192455622.2913.3.camel@localhost.localdomain>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 2007-10-15 at 09:52 -0700, Brett Lentz wrote:
-> On Mon, 2007-10-15 at 08:40 -0400, Daniel J Walsh wrote:
-> > >> - From the user point of view we could change the setenforce command
-> > >>
-> > >> setenforce 0
-> > >> setenforce httpd_t 0
-> > >>
-> > >> getenforce 0
-> > >> getenforce httpd_t 0
-> > >>
-> > >> Then we could replace both to do something in semanage to rebuild and
-> > >> reload policy.
-> > > 
-> > > But that would mean e.g. consider apache that you would have to
-> > > setenforce for every domain type?
-> > > 
-> > > apache_t
-> > > apache_helper_t
-> > > apache_php_t
-> > > httpd_rotatelogs_t
-> > > httpd_suexec_t
-> > > ...
-> > > 
-> > > There wouldn't be a setenforce for a whole module, right?
-> > > 
-> > > 	Stefan
-> > > 
-> > Yes although it is doubtful you would have all of those running at the
-> > same time.  (httpd_t and httpd_helper_t).
-> > 
-> > 
-> > -----BEGIN PGP SIGNATURE-----
-> > Version: GnuPG v1.4.7 (GNU/Linux)
-> > Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org
-> > 
-> > iD8DBQFHE1/NrlYvE4MpobMRAuiiAKDgSEfnJHsFI9R1nmvvPx6PrhuQ9QCeIQHh
-> > p4+2X7ixDbvoxSyMjrReLCE=
-> > =6X1D
-> > -----END PGP SIGNATURE-----
-> 
-> 
-> As an SELinux user, it makes the most sense to me for this capability to
-> be accessible on a per-module basis rather than per-domain.
-> 
-> I would much rather set the httpd module as a whole to permissive rather
-> than fiddle around trying to A) set all of httpd's domains to permissive
-> and B) requiring a fairly significant amount of knowledge of the
-> security policy to know which domains may require this intervention.
-> 
-> I think that per-domain permissive is probably useful for certain kinds
-> of policy development, but per-module permissive would be significantly
-> more useful for the work that I'm currently doing with SELinux.
+------=_Part_44569_6630604.1192469633873
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-So this suggests that the userland/policy approach is the better way to
-go than the kernel mechanism approach, as the former would provide the
-flexibility to turn on "permissive" behavior for all domains defined by
-a module more easily than the latter.  unconfined + auditallow, along
-with corresponding enhancements to audit2allow to select on avc granted.
-And possibly some way to enable/disable log-once behavior for avc
-grantings.
+On 10/15/07, Karl MacMillan <kmacmillan@mentalrootkit.com> wrote:
+>
+> On Sat, 2007-10-13 at 01:21 +0200, Jax wrote:
+> > Hi guys,
+> >
+> > I still learning many thing in selinux and I want to ask you about is
+> > there any image where someone already configured selinux for many
+> > application? It can be vmware, uml, openvz whatever, but it would help
+> > me a lot in learning, and understanding selinux by examples because the
+> > theory itself incredibly boring. I read many docs on the site and I
+> > don't feel I making any progress in this.
+> >
+> > Thanks
+> >
+> > Jax
+> >
+>
+> Installing Fedora (or one of the other supported distros) will get you a
+> fully configured selinux system.
+
+
+Fedora will give you an example system but you will need to download the
+reference policy from Tresys website. Refference policy is a nice division
+of policy into a base and then modular policy per package. It will enable
+you to understand the way the SELinux team handles policy. If I can remember
+correctly they did some work on Xen and VMware. Check out the mailing
+list archives as well. You might find something useful there. The theory
+might be boring to you but you will always need some reference material to
+grip on to the concepts and policy clearly.
+
 
 -- 
-Stephen Smalley
-National Security Agency
+Shaz
 
+Group: http://securityengineering.wordpress.com
+Email: shazalive@gmail.com
+cell: +92 91 0300 5944647
+
+------=_Part_44569_6630604.1192469633873
+Content-Type: text/html; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+<div><span class="gmail_quote">On 10/15/07, <b class="gmail_sendername">Karl MacMillan</b> &lt;<a href="mailto:kmacmillan@mentalrootkit.com">kmacmillan@mentalrootkit.com</a>&gt; wrote:</span>
+<blockquote class="gmail_quote" style="PADDING-LEFT: 1ex; MARGIN: 0px 0px 0px 0.8ex; BORDER-LEFT: #ccc 1px solid">On Sat, 2007-10-13 at 01:21 +0200, Jax wrote:<br>&gt; Hi guys,<br>&gt;<br>&gt; I still learning many thing in selinux and I want to ask you about is
+<br>&gt; there any image where someone already configured selinux for many<br>&gt; application? It can be vmware, uml, openvz whatever, but it would help<br>&gt; me a lot in learning, and understanding selinux by examples because the
+<br>&gt; theory itself incredibly boring. I read many docs on the site and I<br>&gt; don&#39;t feel I making any progress in this.<br>&gt;<br>&gt; Thanks<br>&gt;<br>&gt; Jax<br>&gt;<br><br>Installing Fedora (or one of the other supported distros) will get you a
+<br>fully configured selinux system.</blockquote>
+<div>&nbsp;</div>
+<div>Fedora will give you an example system but you will need to download the reference policy from Tresys website. Refference policy is a nice division of policy into a base and then modular policy per package. It will enable you to understand the way the SELinux team handles policy. If I can remember correctly they did some work on Xen and VMware. Check out the mailing list&nbsp;archives as well. You might find something useful there. The theory might be boring to you but you will always need some reference material to grip on to the concepts and policy clearly. 
+</div></div><br clear="all"><br>-- <br>Shaz<br><br>Group: <a href="http://securityengineering.wordpress.com">http://securityengineering.wordpress.com</a><br>Email: <a href="mailto:shazalive@gmail.com">shazalive@gmail.com</a>
+<br>cell: +92 91 0300 5944647 
+
+------=_Part_44569_6630604.1192469633873--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
