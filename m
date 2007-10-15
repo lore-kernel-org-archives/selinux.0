@@ -1,36 +1,32 @@
-Message-ID: <4713F56E.50002@manicmethod.com>
-Date: Mon, 15 Oct 2007 19:19:10 -0400
-From: Joshua Brindle <method@manicmethod.com>
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l9FNv3c5026358
+	for <selinux@tycho.nsa.gov>; Mon, 15 Oct 2007 19:57:03 -0400
+Received: from dmzmta101.na.baesystems.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l9FNuvsp010638
+	for <selinux@tycho.nsa.gov>; Mon, 15 Oct 2007 23:56:57 GMT
+Received: from BLUMS0035.bluelnk.net (blums0035.bluelnk.net [10.40.96.56])
+	by dmzmta101.na.baesystems.com (Switch-3.2.5/Switch-3.2.5) with ESMTP id l9FNAvSS025146
+	for <selinux@tycho.nsa.gov>; Mon, 15 Oct 2007 19:10:58 -0400
+Received: from blums0008.bluelnk.net (blums0008.sd.gd.com [134.120.81.40])
+	by usdmta001.na.baesystems.com (Switch-3.2.0/Switch-3.2.0) with ESMTP id l9FNA9gC032290
+	for <selinux@tycho.nsa.gov>; Mon, 15 Oct 2007 19:10:09 -0400
 MIME-Version: 1.0
-To: russell@coker.com.au
-CC: "Christopher J. PeBenito" <cpebenito@tresys.com>,
-        Stephen Smalley <sds@tycho.nsa.gov>, SE-Linux <selinux@tycho.nsa.gov>,
-        Karl MacMillan <kmacmillan@mentalrootkit.com>
-Subject: Re: checkmodule and MLS/MCS support
-References: <200710142206.29369.russell@coker.com.au> <1192456623.29203.14.camel@moss-spartans.epoch.ncsc.mil> <1192476945.13098.154.camel@gorn> <200710160827.06055.russell@coker.com.au>
-In-Reply-To: <200710160827.06055.russell@coker.com.au>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain;
+	charset="us-ascii"
+Subject: newrole authentication
+Date: Mon, 15 Oct 2007 16:12:29 -0700
+Message-ID: <FB39F4E77226B448BC1388D3BE4E00CD0236CA79@blums0008.bluelnk.net>
+From: "Clarkson, Mike R \(US SSA\)" <mike.clarkson@baesystems.com>
+To: <selinux@tycho.nsa.gov>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Russell Coker wrote:
-> On Tuesday 16 October 2007 05:35, "Christopher J. PeBenito" 
-> <cpebenito@tresys.com> wrote:
->   
->> If we're willing to say that non-refpolicy
->> building is a tiny minority/corner case, then this results in
->> practically no gain, since the compiler option is already taken care of
->> by the refpolicy build infrastructure.
->>     
->
-> This discussion started when I cited an example of a new SE Linux user who 
-> experienced great frustration due to the current mode of operation.
->
-> If we have some new users who decide that this is difficult enough that 
-> selinux=0 is the solution then solving the problem has some real benefits.
->   
+Will someone point me to information or send me an example on how to set
+up newrole so that is does not ask for a password, so that it can by
+used like this within software "newrole -l s1 -- -c <cmd>"?
 
-This is pretty extreme, its just a flag.
+Thanks
+
 
 
 --
