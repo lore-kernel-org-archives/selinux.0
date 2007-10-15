@@ -1,38 +1,51 @@
 Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l9FIC42O001523
-	for <selinux@tycho.nsa.gov>; Mon, 15 Oct 2007 14:12:04 -0400
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l9FIULMU003947
+	for <selinux@tycho.nsa.gov>; Mon, 15 Oct 2007 14:30:21 -0400
 Received: from exchange.columbia.tresys.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with SMTP id l9FIC4c6012860
-	for <selinux@tycho.nsa.gov>; Mon, 15 Oct 2007 18:12:04 GMT
-Subject: Re: [PATCH] refpolicy:useradd_t needs process transition to nscd_t
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with SMTP id l9FIUKc6015707
+	for <selinux@tycho.nsa.gov>; Mon, 15 Oct 2007 18:30:20 GMT
+Subject: Re: [PATCH] refpolicy:locallogin problem still exists?
 From: "Christopher J. PeBenito" <cpebenito@tresys.com>
 To: shintaro_fujiwara <shin216@xf7.so-net.ne.jp>
 Cc: selinux@tycho.nsa.gov
-In-Reply-To: <1192338511.3126.11.camel@notepc.intrajp-yokosuka.co.jp>
-References: <1192338511.3126.11.camel@notepc.intrajp-yokosuka.co.jp>
+In-Reply-To: <1192337398.3126.8.camel@notepc.intrajp-yokosuka.co.jp>
+References: <1192337398.3126.8.camel@notepc.intrajp-yokosuka.co.jp>
 Content-Type: text/plain
-Date: Mon, 15 Oct 2007 14:09:09 -0400
-Message-Id: <1192471749.13098.132.camel@gorn>
+Date: Mon, 15 Oct 2007 14:27:11 -0400
+Message-Id: <1192472831.13098.137.camel@gorn>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Sun, 2007-10-14 at 14:08 +0900, shintaro_fujiwara wrote:
-> Index: policy/modules/admin/usermanage.te
+On Sun, 2007-10-14 at 13:49 +0900, shintaro_fujiwara wrote:
+> Index: modules/system/locallogin.te
 > ===================================================================
-> --- policy/modules/admin/usermanage.te  (revision 2454)
-> +++ policy/modules/admin/usermanage.te  (working copy)
-> @@ -502,6 +502,8 @@
+> --- modules/system/locallogin.te        (revision 2454)
+> +++ modules/system/locallogin.te        (working copy)
+> @@ -33,7 +33,7 @@
+>  # Local login local policy
+>  #
 >  
->  miscfiles_read_localization(useradd_t)
+> -allow local_login_t self:capability { dac_override chown fowner fsetid
+> kill setgid setuid sys_nice sys_resource sys_tty_config };
+> +allow local_login_t self:capability { audit_control dac_override chown
+> fowner fsetid kill setgid setuid sys_nice sys_resource sys_tty_config };
+>  allow local_login_t self:process ~{ ptrace setcurrent setexec
+> setfscreate setrlimit execmem execstack execheap };
+>  allow local_login_t self:process { setrlimit setexec };
+>  allow local_login_t self:fd use;
+> @@ -102,6 +102,8 @@
+>  auth_rw_faillog(local_login_t)
+>  auth_manage_pam_console_data(local_login_t)
+>  auth_domtrans_pam_console(local_login_t)
+> +auth_domtrans_chk_passwd(local_login_t)
+> +logging_send_audit_msgs(local_login_t)
 >  
-> +nscd_domtrans(useradd_t)
-> +
->  seutil_read_config(useradd_t)
->  seutil_read_file_contexts(useradd_t)
->  seutil_read_default_contexts(useradd_t)
+>  corecmd_list_bin(local_login_t)
+>  corecmd_read_bin_symlinks(local_login_t)
 
-Theres already an optional nscd_domtrans(useradd_t).
+local_login_t already has these perms due to it being a
+auth_login_pgm_domain().
 
 -- 
 Chris PeBenito
