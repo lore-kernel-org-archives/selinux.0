@@ -1,82 +1,87 @@
 Subject: Re: concept of a permissive domain
-From: Brett Lentz <blentz@cardomain.com>
-To: Daniel J Walsh <dwalsh@redhat.com>
-Cc: Stefan Schulze Frielinghaus <stefan@seekline.net>,
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Brett Lentz <blentz@cardomain.com>
+Cc: Daniel J Walsh <dwalsh@redhat.com>,
+        Stefan Schulze Frielinghaus <stefan@seekline.net>,
         Chad Sellers <csellers@tresys.com>,
         Karl MacMillan <kmacmillan@mentalrootkit.com>,
-        Stephen Smalley <sds@tycho.nsa.gov>, Eric Paris <eparis@redhat.com>,
-        selinux@tycho.nsa.gov
-In-Reply-To: <47135FCE.5000403@redhat.com>
+        Eric Paris <eparis@redhat.com>, selinux@tycho.nsa.gov
+In-Reply-To: <1192467177.28762.7.camel@blentz>
 References: <C3357D99.2F091%csellers@tresys.com>
 	 <4710CA44.1040300@redhat.com> <1192356878.3376.3.camel@vogon>
-	 <47135FCE.5000403@redhat.com>
+	 <47135FCE.5000403@redhat.com>  <1192467177.28762.7.camel@blentz>
 Content-Type: text/plain
-Date: Mon, 15 Oct 2007 09:52:57 -0700
-Message-Id: <1192467177.28762.7.camel@blentz>
+Date: Mon, 15 Oct 2007 12:58:58 -0400
+Message-Id: <1192467538.29203.52.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 2007-10-15 at 08:40 -0400, Daniel J Walsh wrote:
-> >> - From the user point of view we could change the setenforce command
-> >>
-> >> setenforce 0
-> >> setenforce httpd_t 0
-> >>
-> >> getenforce 0
-> >> getenforce httpd_t 0
-> >>
-> >> Then we could replace both to do something in semanage to rebuild and
-> >> reload policy.
+On Mon, 2007-10-15 at 09:52 -0700, Brett Lentz wrote:
+> On Mon, 2007-10-15 at 08:40 -0400, Daniel J Walsh wrote:
+> > >> - From the user point of view we could change the setenforce command
+> > >>
+> > >> setenforce 0
+> > >> setenforce httpd_t 0
+> > >>
+> > >> getenforce 0
+> > >> getenforce httpd_t 0
+> > >>
+> > >> Then we could replace both to do something in semanage to rebuild and
+> > >> reload policy.
+> > > 
+> > > But that would mean e.g. consider apache that you would have to
+> > > setenforce for every domain type?
+> > > 
+> > > apache_t
+> > > apache_helper_t
+> > > apache_php_t
+> > > httpd_rotatelogs_t
+> > > httpd_suexec_t
+> > > ...
+> > > 
+> > > There wouldn't be a setenforce for a whole module, right?
+> > > 
+> > > 	Stefan
+> > > 
+> > Yes although it is doubtful you would have all of those running at the
+> > same time.  (httpd_t and httpd_helper_t).
 > > 
-> > But that would mean e.g. consider apache that you would have to
-> > setenforce for every domain type?
 > > 
-> > apache_t
-> > apache_helper_t
-> > apache_php_t
-> > httpd_rotatelogs_t
-> > httpd_suexec_t
-> > ...
+> > -----BEGIN PGP SIGNATURE-----
+> > Version: GnuPG v1.4.7 (GNU/Linux)
+> > Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org
 > > 
-> > There wouldn't be a setenforce for a whole module, right?
-> > 
-> > 	Stefan
-> > 
-> Yes although it is doubtful you would have all of those running at the
-> same time.  (httpd_t and httpd_helper_t).
+> > iD8DBQFHE1/NrlYvE4MpobMRAuiiAKDgSEfnJHsFI9R1nmvvPx6PrhuQ9QCeIQHh
+> > p4+2X7ixDbvoxSyMjrReLCE=
+> > =6X1D
+> > -----END PGP SIGNATURE-----
 > 
 > 
-> -----BEGIN PGP SIGNATURE-----
-> Version: GnuPG v1.4.7 (GNU/Linux)
-> Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org
+> As an SELinux user, it makes the most sense to me for this capability to
+> be accessible on a per-module basis rather than per-domain.
 > 
-> iD8DBQFHE1/NrlYvE4MpobMRAuiiAKDgSEfnJHsFI9R1nmvvPx6PrhuQ9QCeIQHh
-> p4+2X7ixDbvoxSyMjrReLCE=
-> =6X1D
-> -----END PGP SIGNATURE-----
+> I would much rather set the httpd module as a whole to permissive rather
+> than fiddle around trying to A) set all of httpd's domains to permissive
+> and B) requiring a fairly significant amount of knowledge of the
+> security policy to know which domains may require this intervention.
+> 
+> I think that per-domain permissive is probably useful for certain kinds
+> of policy development, but per-module permissive would be significantly
+> more useful for the work that I'm currently doing with SELinux.
 
+So this suggests that the userland/policy approach is the better way to
+go than the kernel mechanism approach, as the former would provide the
+flexibility to turn on "permissive" behavior for all domains defined by
+a module more easily than the latter.  unconfined + auditallow, along
+with corresponding enhancements to audit2allow to select on avc granted.
+And possibly some way to enable/disable log-once behavior for avc
+grantings.
 
-As an SELinux user, it makes the most sense to me for this capability to
-be accessible on a per-module basis rather than per-domain.
+-- 
+Stephen Smalley
+National Security Agency
 
-I would much rather set the httpd module as a whole to permissive rather
-than fiddle around trying to A) set all of httpd's domains to permissive
-and B) requiring a fairly significant amount of knowledge of the
-security policy to know which domains may require this intervention.
-
-I think that per-domain permissive is probably useful for certain kinds
-of policy development, but per-module permissive would be significantly
-more useful for the work that I'm currently doing with SELinux.
-
-_______________________________
-Brett Lentz | CarDomain Network
-System Administrator
-
-blentz@cardomain.com | tel 206.926.2109 | cell 206.851.6669
-http://www.cardomain.com/id/wakko666
-
-One organism, one vote.
 
 --
 This message was distributed to subscribers of the selinux mailing list.
