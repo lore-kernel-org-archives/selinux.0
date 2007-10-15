@@ -1,127 +1,54 @@
-Subject: Re: concept of a permissive domain
-From: Karl MacMillan <kmacmillan@mentalrootkit.com>
-To: Stephen Smalley <sds@tycho.nsa.gov>
-Cc: Daniel J Walsh <dwalsh@redhat.com>, Brett Lentz <blentz@cardomain.com>,
-        Stefan Schulze Frielinghaus <stefan@seekline.net>,
-        Chad Sellers <csellers@tresys.com>, Eric Paris <eparis@redhat.com>,
-        selinux@tycho.nsa.gov
-In-Reply-To: <1192473631.29203.56.camel@moss-spartans.epoch.ncsc.mil>
-References: <C3357D99.2F091%csellers@tresys.com>
-	 <4710CA44.1040300@redhat.com> <1192356878.3376.3.camel@vogon>
-	 <47135FCE.5000403@redhat.com>  <1192467177.28762.7.camel@blentz>
-	 <1192467538.29203.52.camel@moss-spartans.epoch.ncsc.mil>
-	 <4713B257.9020409@redhat.com>
-	 <1192473631.29203.56.camel@moss-spartans.epoch.ncsc.mil>
-Content-Type: text/plain
-Date: Mon, 15 Oct 2007 14:57:29 -0400
-Message-Id: <1192474649.2913.31.camel@localhost.localdomain>
-Mime-Version: 1.0
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l9FLeM58017755
+	for <selinux@tycho.nsa.gov>; Mon, 15 Oct 2007 17:40:22 -0400
+Received: from ug-out-1314.google.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id l9FLeKBC029159
+	for <selinux@tycho.nsa.gov>; Mon, 15 Oct 2007 21:40:20 GMT
+Received: by ug-out-1314.google.com with SMTP id 30so1187066ugs
+        for <selinux@tycho.nsa.gov>; Mon, 15 Oct 2007 14:39:50 -0700 (PDT)
+Message-ID: <f71a82820710151432h71fe336ag34af98b5b4897c3b@mail.gmail.com>
+Date: Tue, 16 Oct 2007 06:32:59 +0900
+From: "Shintaro Fujiwara" <shintaro.fujiwara@gmail.com>
+To: "Christopher J. PeBenito" <cpebenito@tresys.com>,
+        selinux <selinux@tycho.nsa.gov>
+Subject: Re: [PATCH] refpolicy:groupadd_t needs transition to nscd_t
+In-Reply-To: <1192471770.13098.134.camel@gorn>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
+References: <1192354943.3074.1.camel@notepc.intrajp-yokosuka.co.jp>
+	 <1192471770.13098.134.camel@gorn>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 2007-10-15 at 14:40 -0400, Stephen Smalley wrote:
-> On Mon, 2007-10-15 at 14:32 -0400, Daniel J Walsh wrote:
-> > -----BEGIN PGP SIGNED MESSAGE-----
-> > Hash: SHA1
-> > 
-> > Stephen Smalley wrote:
-> > > On Mon, 2007-10-15 at 09:52 -0700, Brett Lentz wrote:
-> > >> On Mon, 2007-10-15 at 08:40 -0400, Daniel J Walsh wrote:
-> > >>>>> - From the user point of view we could change the setenforce command
-> > >>>>>
-> > >>>>> setenforce 0
-> > >>>>> setenforce httpd_t 0
-> > >>>>>
-> > >>>>> getenforce 0
-> > >>>>> getenforce httpd_t 0
-> > >>>>>
-> > >>>>> Then we could replace both to do something in semanage to rebuild and
-> > >>>>> reload policy.
-> > >>>> But that would mean e.g. consider apache that you would have to
-> > >>>> setenforce for every domain type?
-> > >>>>
-> > >>>> apache_t
-> > >>>> apache_helper_t
-> > >>>> apache_php_t
-> > >>>> httpd_rotatelogs_t
-> > >>>> httpd_suexec_t
-> > >>>> ...
-> > >>>>
-> > >>>> There wouldn't be a setenforce for a whole module, right?
-> > >>>>
-> > >>>> 	Stefan
-> > >>>>
-> > >>> Yes although it is doubtful you would have all of those running at the
-> > >>> same time.  (httpd_t and httpd_helper_t).
-> > >>>
-> > >>>
-> > >>> -----BEGIN PGP SIGNATURE-----
-> > >>> Version: GnuPG v1.4.7 (GNU/Linux)
-> > >>> Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org
-> > >>>
-> > >>> iD8DBQFHE1/NrlYvE4MpobMRAuiiAKDgSEfnJHsFI9R1nmvvPx6PrhuQ9QCeIQHh
-> > >>> p4+2X7ixDbvoxSyMjrReLCE=
-> > >>> =6X1D
-> > >>> -----END PGP SIGNATURE-----
-> > >>
-> > >> As an SELinux user, it makes the most sense to me for this capability to
-> > >> be accessible on a per-module basis rather than per-domain.
-> > >>
-> > >> I would much rather set the httpd module as a whole to permissive rather
-> > >> than fiddle around trying to A) set all of httpd's domains to permissive
-> > >> and B) requiring a fairly significant amount of knowledge of the
-> > >> security policy to know which domains may require this intervention.
-> > >>
-> > >> I think that per-domain permissive is probably useful for certain kinds
-> > >> of policy development, but per-module permissive would be significantly
-> > >> more useful for the work that I'm currently doing with SELinux.
-> > > 
-> > > So this suggests that the userland/policy approach is the better way to
-> > > go than the kernel mechanism approach, as the former would provide the
-> > > flexibility to turn on "permissive" behavior for all domains defined by
-> > > a module more easily than the latter.  unconfined + auditallow, along
-> > > with corresponding enhancements to audit2allow to select on avc granted.
-> > > And possibly some way to enable/disable log-once behavior for avc
-> > > grantings.
-> > > 
-> > I would rather give them globing capability, something like
-> > 
-> > setenforce -t http*=0
-> > 
-> > 
-> > We do not separate everything out as per module and I think it is most
-> > likely only a certain domain is causing the problem, that the user or
-> > policy writer would be concerned with.
-> > 
-> > Steven, I don't see where you make the leap to this suggests a userland
-> > approach versus the kernel.
-> > 
-> > for i in `sesearch --allow | grep transition | awk '{ print $2}' | sort
-> > - -u | grep http`; do setenforce $i 0; done
-> > 
-> > setenforce in this example is either going to have to create a loadable
-> > policy module with all the allow and auditallow rules for the domain and
-> > load it, or a single newcommand to tell the kernel this domain is in
-> > permissive mode.
-> > 
-> > Either way I don't care.  I just need it soon.
-> 
-> Userland/policy approach is more flexible (per-domain, per-module,
-> matches domain prefix, ...) and lets you switch multiple domains
-> atomically between permissive and enforcing mode.  Kernel approach is
-> more limiting and either requires separate commit node like booleans or
-> won't support atomic transaction.
-> 
-> Also, userland/policy approach doesn't require a new kernel.  So it can
-> work on existing distributions (including RHEL5).
-> 
+Sorry, I understand.
 
-It will also be _very_ difficult to implement and prone to small errors.
-Basically, I don't think it is likely to happen unless someone is
-willing to step up and commit a large amount of time.
-
-Karl
-
+2007/10/16, Christopher J. PeBenito <cpebenito@tresys.com>:
+> On Sun, 2007-10-14 at 18:42 +0900, shintaro_fujiwara wrote:
+> > --- policy/modules/admin/usermanage.te  (revision 2454)
+> > +++ policy/modules/admin/usermanage.te  (working copy)
+> > @@ -227,6 +227,8 @@
+> >
+> >  miscfiles_read_localization(groupadd_t)
+> >
+> > +nscd_domtrans(groupadd_t)
+> > +
+> >  auth_manage_shadow(groupadd_t)
+> >  auth_relabel_shadow(groupadd_t)
+> >  auth_etc_filetrans_shadow(groupadd_t)
+>
+> Theres already an optional nscd_domtrans(groupadd_t).
+>
+> --
+> Chris PeBenito
+> Tresys Technology, LLC
+> (410) 290-1411 x150
+>
+>
+> --
+> This message was distributed to subscribers of the selinux mailing list.
+> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
+> the words "unsubscribe selinux" without quotes as the message.
+>
 
 --
 This message was distributed to subscribers of the selinux mailing list.
