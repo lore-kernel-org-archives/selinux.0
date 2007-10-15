@@ -1,52 +1,82 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l9FEhYNw017279
-	for <selinux@tycho.nsa.gov>; Mon, 15 Oct 2007 10:43:35 -0400
-Received: from nospam.sws.net.au (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id l9FEhUbS004922
-	for <selinux@tycho.nsa.gov>; Mon, 15 Oct 2007 14:43:31 GMT
-From: Russell Coker <russell@coker.com.au>
-Reply-To: russell@coker.com.au
-To: Joshua Brindle <method@manicmethod.com>
-Subject: Re: checkmodule and MLS/MCS support
-Date: Tue, 16 Oct 2007 00:42:40 +1000
-Cc: SE-Linux <selinux@tycho.nsa.gov>
-References: <200710142206.29369.russell@coker.com.au> <4712657A.5010105@manicmethod.com>
-In-Reply-To: <4712657A.5010105@manicmethod.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Message-Id: <200710160042.42915.russell@coker.com.au>
+Subject: Re: concept of a permissive domain
+From: Brett Lentz <blentz@cardomain.com>
+To: Daniel J Walsh <dwalsh@redhat.com>
+Cc: Stefan Schulze Frielinghaus <stefan@seekline.net>,
+        Chad Sellers <csellers@tresys.com>,
+        Karl MacMillan <kmacmillan@mentalrootkit.com>,
+        Stephen Smalley <sds@tycho.nsa.gov>, Eric Paris <eparis@redhat.com>,
+        selinux@tycho.nsa.gov
+In-Reply-To: <47135FCE.5000403@redhat.com>
+References: <C3357D99.2F091%csellers@tresys.com>
+	 <4710CA44.1040300@redhat.com> <1192356878.3376.3.camel@vogon>
+	 <47135FCE.5000403@redhat.com>
+Content-Type: text/plain
+Date: Mon, 15 Oct 2007 09:52:57 -0700
+Message-Id: <1192467177.28762.7.camel@blentz>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Monday 15 October 2007 04:52, Joshua Brindle <method@manicmethod.com> 
-wrote:
-> Russell Coker wrote:
-> > http://ramblingfoo.blogspot.com/2007/10/selinux-mlsmcs-support.html
-> >
-> > Given that everyone who is working on SE Linux seems to be working on MCS
-> > and MLS systems, would it make sense to have the default checkmodule
-> > operation be to generate modules for MLS/MCS policy?
->
-> Changing defaults is a bad idea. Gentoo, for example, builds policy on
-> end systems. Things would all of a sudden blow up on every policy
-> installation if the default changed.
+On Mon, 2007-10-15 at 08:40 -0400, Daniel J Walsh wrote:
+> >> - From the user point of view we could change the setenforce command
+> >>
+> >> setenforce 0
+> >> setenforce httpd_t 0
+> >>
+> >> getenforce 0
+> >> getenforce httpd_t 0
+> >>
+> >> Then we could replace both to do something in semanage to rebuild and
+> >> reload policy.
+> > 
+> > But that would mean e.g. consider apache that you would have to
+> > setenforce for every domain type?
+> > 
+> > apache_t
+> > apache_helper_t
+> > apache_php_t
+> > httpd_rotatelogs_t
+> > httpd_suexec_t
+> > ...
+> > 
+> > There wouldn't be a setenforce for a whole module, right?
+> > 
+> > 	Stefan
+> > 
+> Yes although it is doubtful you would have all of those running at the
+> same time.  (httpd_t and httpd_helper_t).
+> 
+> 
+> -----BEGIN PGP SIGNATURE-----
+> Version: GnuPG v1.4.7 (GNU/Linux)
+> Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org
+> 
+> iD8DBQFHE1/NrlYvE4MpobMRAuiiAKDgSEfnJHsFI9R1nmvvPx6PrhuQ9QCeIQHh
+> p4+2X7ixDbvoxSyMjrReLCE=
+> =6X1D
+> -----END PGP SIGNATURE-----
 
-No, it would only blow up systems that don't use the default if they don't 
-explicitly use the correct option.
 
-One possibility would be to have explicit options for MLS and non-MLS and the 
-default be to detect what is in use on the current systems (most times you 
-either produce policy for the current system or for an identical system).
+As an SELinux user, it makes the most sense to me for this capability to
+be accessible on a per-module basis rather than per-domain.
 
-Another possibility would be to have checkmodule produce a warning message if 
-it was building a module that would not load on the current system.
+I would much rather set the httpd module as a whole to permissive rather
+than fiddle around trying to A) set all of httpd's domains to permissive
+and B) requiring a fairly significant amount of knowledge of the
+security policy to know which domains may require this intervention.
 
--- 
-russell@coker.com.au
-http://etbe.coker.com.au/          My Blog
+I think that per-domain permissive is probably useful for certain kinds
+of policy development, but per-module permissive would be significantly
+more useful for the work that I'm currently doing with SELinux.
 
-http://www.coker.com.au/sponsorship.html Sponsoring Free Software development
+_______________________________
+Brett Lentz | CarDomain Network
+System Administrator
+
+blentz@cardomain.com | tel 206.926.2109 | cell 206.851.6669
+http://www.cardomain.com/id/wakko666
+
+One organism, one vote.
 
 --
 This message was distributed to subscribers of the selinux mailing list.
