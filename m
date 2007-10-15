@@ -1,48 +1,41 @@
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Subject: Re: [PATCH] refpolicy: gdm file context
-Date: Mon, 15 Oct 2007 13:40:24 -0400
-Message-ID: <1192470024.13098.130.camel@gorn>
-In-Reply-To: <470FF79D.7000003@tycho.nsa.gov>
-References: <470FF79D.7000003@tycho.nsa.gov>
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l9FIC6Je001526
+	for <selinux@tycho.nsa.gov>; Mon, 15 Oct 2007 14:12:06 -0400
+Received: from exchange.columbia.tresys.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with SMTP id l9FIC4c8012860
+	for <selinux@tycho.nsa.gov>; Mon, 15 Oct 2007 18:12:04 GMT
+Subject: Re: [PATCH] refpolicy:groupadd_t needs transition to nscd_t
 From: "Christopher J. PeBenito" <cpebenito@tresys.com>
-To: "Eamon Walsh" <ewalsh@tycho.nsa.gov>
-Cc: "SELinux List" <selinux@tycho.nsa.gov>
+To: shintaro_fujiwara <shin216@xf7.so-net.ne.jp>
+Cc: selinux@tycho.nsa.gov, pebenito@tresys.com
+In-Reply-To: <1192354943.3074.1.camel@notepc.intrajp-yokosuka.co.jp>
+References: <1192354943.3074.1.camel@notepc.intrajp-yokosuka.co.jp>
+Content-Type: text/plain
+Date: Mon, 15 Oct 2007 14:09:30 -0400
+Message-Id: <1192471770.13098.134.camel@gorn>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2007-10-12 at 18:39 -0400, Eamon Walsh wrote:
-> Looks like gdm has moved to /usr/sbin, at least on my rawhide box.
-
-Merged.
-
-> Signed-off-by: Eamon Walsh <ewalsh@tycho.nsa.gov>
-> ---
-> 
->  xserver.fc |    2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
-> 
-> 
-> Index: policy/modules/services/xserver.fc
-> ===================================================================
-> --- policy/modules/services/xserver.fc	(revision 2451)
-> +++ policy/modules/services/xserver.fc	(working copy)
-> @@ -63,7 +63,7 @@
->  #
+On Sun, 2007-10-14 at 18:42 +0900, shintaro_fujiwara wrote:
+> --- policy/modules/admin/usermanage.te  (revision 2454)
+> +++ policy/modules/admin/usermanage.te  (working copy)
+> @@ -227,6 +227,8 @@
 >  
->  /usr/(s)?bin/gdm-binary	--	gen_context(system_u:object_r:xdm_exec_t,s0)
-> -/usr/bin/[xgkw]dm	--	gen_context(system_u:object_r:xdm_exec_t,s0)
-> +/usr/(s)?bin/[xgkw]dm	--	gen_context(system_u:object_r:xdm_exec_t,s0)
->  /usr/bin/gpe-dm		--	gen_context(system_u:object_r:xdm_exec_t,s0)
->  /usr/bin/iceauth		--	gen_context(system_u:object_r:iceauth_exec_t,s0)
->  /usr/bin/Xair		--	gen_context(system_u:object_r:xserver_exec_t,s0)
-> 
+>  miscfiles_read_localization(groupadd_t)
+>  
+> +nscd_domtrans(groupadd_t)
+> +
+>  auth_manage_shadow(groupadd_t)
+>  auth_relabel_shadow(groupadd_t)
+>  auth_etc_filetrans_shadow(groupadd_t)
+
+Theres already an optional nscd_domtrans(groupadd_t).
+
 -- 
 Chris PeBenito
 Tresys Technology, LLC
 (410) 290-1411 x150
-
 
 
 --
