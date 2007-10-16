@@ -1,35 +1,30 @@
-From: Russell Coker <russell@coker.com.au>
-Reply-To: russell@coker.com.au
-To: Joshua Brindle <method@manicmethod.com>
-Subject: Re: checkmodule and MLS/MCS support
-Date: Tue, 16 Oct 2007 10:39:46 +1000
-Cc: "Christopher J. PeBenito" <cpebenito@tresys.com>,
-        Stephen Smalley <sds@tycho.nsa.gov>, SE-Linux <selinux@tycho.nsa.gov>,
-        Karl MacMillan <kmacmillan@mentalrootkit.com>
-References: <200710142206.29369.russell@coker.com.au> <200710160827.06055.russell@coker.com.au> <4713F56E.50002@manicmethod.com>
-In-Reply-To: <4713F56E.50002@manicmethod.com>
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l9G4WqPm006660
+	for <selinux@tycho.nsa.gov>; Tue, 16 Oct 2007 00:32:53 -0400
+Received: from exchange.columbia.tresys.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with SMTP id l9G4Wqco007940
+	for <selinux@tycho.nsa.gov>; Tue, 16 Oct 2007 04:32:52 GMT
+Message-ID: <47143EDB.7040906@manicmethod.com>
+Date: Tue, 16 Oct 2007 00:32:27 -0400
+From: Joshua Brindle <method@manicmethod.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Message-Id: <200710161039.50870.russell@coker.com.au>
+To: "Clarkson, Mike R \(US SSA\)" <mike.clarkson@baesystems.com>
+CC: selinux@tycho.nsa.gov
+Subject: Re: newrole authentication
+References: <FB39F4E77226B448BC1388D3BE4E00CD0236CA79@blums0008.bluelnk.net>
+In-Reply-To: <FB39F4E77226B448BC1388D3BE4E00CD0236CA79@blums0008.bluelnk.net>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tuesday 16 October 2007 09:19, Joshua Brindle <method@manicmethod.com> 
-wrote:
-> > If we have some new users who decide that this is difficult enough that
-> > selinux=0 is the solution then solving the problem has some real
-> > benefits. 
->
-> This is pretty extreme, its just a flag.
+Clarkson, Mike R (US SSA) wrote:
+> Will someone point me to information or send me an example on how to set
+> up newrole so that is does not ask for a password, so that it can by
+> used like this within software "newrole -l s1 -- -c <cmd>"?
+>   
+newrole is designed to be a human interface and therefore to ask for a 
+password, perhaps you are looking for runcon?
 
-Yes, it is extreme, but it's what we are up against.
-
--- 
-russell@coker.com.au
-http://etbe.coker.com.au/          My Blog
-
-http://www.coker.com.au/sponsorship.html Sponsoring Free Software development
 
 --
 This message was distributed to subscribers of the selinux mailing list.
