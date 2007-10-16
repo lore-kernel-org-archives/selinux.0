@@ -1,33 +1,35 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l9FNv3c5026358
-	for <selinux@tycho.nsa.gov>; Mon, 15 Oct 2007 19:57:03 -0400
-Received: from dmzmta101.na.baesystems.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l9FNuvsp010638
-	for <selinux@tycho.nsa.gov>; Mon, 15 Oct 2007 23:56:57 GMT
-Received: from BLUMS0035.bluelnk.net (blums0035.bluelnk.net [10.40.96.56])
-	by dmzmta101.na.baesystems.com (Switch-3.2.5/Switch-3.2.5) with ESMTP id l9FNAvSS025146
-	for <selinux@tycho.nsa.gov>; Mon, 15 Oct 2007 19:10:58 -0400
-Received: from blums0008.bluelnk.net (blums0008.sd.gd.com [134.120.81.40])
-	by usdmta001.na.baesystems.com (Switch-3.2.0/Switch-3.2.0) with ESMTP id l9FNA9gC032290
-	for <selinux@tycho.nsa.gov>; Mon, 15 Oct 2007 19:10:09 -0400
+From: Russell Coker <russell@coker.com.au>
+Reply-To: russell@coker.com.au
+To: Joshua Brindle <method@manicmethod.com>
+Subject: Re: checkmodule and MLS/MCS support
+Date: Tue, 16 Oct 2007 10:39:46 +1000
+Cc: "Christopher J. PeBenito" <cpebenito@tresys.com>,
+        Stephen Smalley <sds@tycho.nsa.gov>, SE-Linux <selinux@tycho.nsa.gov>,
+        Karl MacMillan <kmacmillan@mentalrootkit.com>
+References: <200710142206.29369.russell@coker.com.au> <200710160827.06055.russell@coker.com.au> <4713F56E.50002@manicmethod.com>
+In-Reply-To: <4713F56E.50002@manicmethod.com>
 MIME-Version: 1.0
 Content-Type: text/plain;
-	charset="us-ascii"
-Subject: newrole authentication
-Date: Mon, 15 Oct 2007 16:12:29 -0700
-Message-ID: <FB39F4E77226B448BC1388D3BE4E00CD0236CA79@blums0008.bluelnk.net>
-From: "Clarkson, Mike R \(US SSA\)" <mike.clarkson@baesystems.com>
-To: <selinux@tycho.nsa.gov>
+  charset="iso-8859-1"
+Message-Id: <200710161039.50870.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Will someone point me to information or send me an example on how to set
-up newrole so that is does not ask for a password, so that it can by
-used like this within software "newrole -l s1 -- -c <cmd>"?
+On Tuesday 16 October 2007 09:19, Joshua Brindle <method@manicmethod.com> 
+wrote:
+> > If we have some new users who decide that this is difficult enough that
+> > selinux=0 is the solution then solving the problem has some real
+> > benefits. 
+>
+> This is pretty extreme, its just a flag.
 
-Thanks
+Yes, it is extreme, but it's what we are up against.
 
+-- 
+russell@coker.com.au
+http://etbe.coker.com.au/          My Blog
 
+http://www.coker.com.au/sponsorship.html Sponsoring Free Software development
 
 --
 This message was distributed to subscribers of the selinux mailing list.
