@@ -1,80 +1,115 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l9GKwrWG013343
-	for <selinux@tycho.nsa.gov>; Tue, 16 Oct 2007 16:58:53 -0400
-Received: from wr-out-0506.google.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l9GKwqsg024526
-	for <selinux@tycho.nsa.gov>; Tue, 16 Oct 2007 20:58:52 GMT
-Received: by wr-out-0506.google.com with SMTP id c8so1134137wra
-        for <selinux@tycho.nsa.gov>; Tue, 16 Oct 2007 13:58:47 -0700 (PDT)
-Message-ID: <7e0fb38c0710161358g4c35a7b4t7d6f0020b7832c0c@mail.gmail.com>
-Date: Tue, 16 Oct 2007 16:58:45 -0400
-From: "Eric Paris" <eparis@parisplace.org>
-To: "Christopher J. PeBenito" <cpebenito@tresys.com>
-Subject: Re: kernel flask headers
-Cc: "Stephen Smalley" <sds@tycho.nsa.gov>, selinux@tycho.nsa.gov
-In-Reply-To: <1192560990.32627.34.camel@gorn>
+Date: Tue, 16 Oct 2007 14:34:11 -0500
+From: "Serge E. Hallyn" <serue@us.ibm.com>
+To: Stephen Smalley <sds@tycho.nsa.gov>
+Cc: selinux@tycho.nsa.gov, "Serge E. Hallyn" <serue@us.ibm.com>,
+        James Morris <jmorris@namei.org>, Eric Paris <eparis@parisplace.org>
+Subject: Re: Dealing with 64-bit capabilities
+Message-ID: <20071016193411.GC4115@sergelap.austin.ibm.com>
+References: <1192549264.8702.113.camel@moss-spartans.epoch.ncsc.mil>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-References: <1192547487.8702.90.camel@moss-spartans.epoch.ncsc.mil>
-	 <1192548290.32627.25.camel@gorn> <1192559110.32627.31.camel@gorn>
-	 <1192559516.8702.156.camel@moss-spartans.epoch.ncsc.mil>
-	 <1192560990.32627.34.camel@gorn>
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1192549264.8702.113.camel@moss-spartans.epoch.ncsc.mil>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Thanks, it's been around for a bit, I just fixed those things up by
-hand when I submitted my memprotect kernel patches and every time I
-played with adding stuff for my allow unknown work, I guess its all my
-fault for forgetting to say something. sorry.
+Quoting Stephen Smalley (sds@tycho.nsa.gov):
+> Given that Serge has put out a RFC patch on lsm and lkml for extending
+> capabilities to 64 bits, we should likely finalize how we want to handle
+> them in SELinux.
+> 
+> Extending the access vector to 64-bits isn't a good idea IMHO, as it
+> will waste quite a bit of space throughout the AVC and the security
+> server policydb.
+> 
+> In the past we've talked about introducing a second capability class and
+> access vector for the higher 32 capabilities, and optionally providing
+> syntactic sugar in checkpolicy so the user doesn't have to think about
+> it as two separate classes.
+> 
+> Possible kernel patch below to define the new class and change
+> task_has_capability to use it for the higher capabilities.  Comments?
 
--Eric
+Looks reasonable.  Note that if STRICT_CAP_T_TYPECHECKS were
+set your use of kernel_cap_t would trigger errors.  near as
+I can tell that isn't ever done, but still to get around that
+you'd just do
 
-On 10/16/07, Christopher J. PeBenito <cpebenito@tresys.com> wrote:
-> On Tue, 2007-10-16 at 14:31 -0400, Stephen Smalley wrote:
-> > On Tue, 2007-10-16 at 14:25 -0400, Christopher J. PeBenito wrote:
-> > > On Tue, 2007-10-16 at 11:24 -0400, Christopher J. PeBenito wrote:
-> > > > On Tue, 2007-10-16 at 11:11 -0400, Stephen Smalley wrote:
-> > > > > On the refpolicy trunk, if you run make in refpolicy/policy/flask and
-> > > > > try to use the resulting kernel headers, the kernel won't build.
-> > >
-> > > I fixed this in trunk, can you verify that its correct now?
-> > >
-> > > > > Looks like flask.py is inserting S_(0, 0, 0) lines into av_inherit.h,
-> > > > > which isn't valid in the kernel's definition of S_() there.  Should just
-> > > > > omit the line altogether I would expect.
-> > > >
-> > > > Odd, since the script hasn't changed since March, and I though we
-> > > > verified it was putting out correct headers.
-> > > >
-> > > > > Also, we don't presently seem to have a way of marking common
-> > > > > definitions as userspace-only and omitting them from the kernel's
-> > > > > headers, so it is adding the common database definitions
-> > > > > (unnecessarily).
-> > > >
-> > > > This should be interesting to fix, since they're not declared in
-> > > > security_classes like regular classes are.
-> > >
-> > > I modified the script to look at which classes inherit the common and if
-> > > only userspace object classes inherit it, the definition won't be
-> > > included in the kernel version of av_inherit.h.
-> >
-> > Generates buildable headers now, but still puts the COMMON_DATABASE
-> > definitions in av_permissions.h unnecessarily.
->
-> Fixed.
->
-> --
-> Chris PeBenito
-> Tresys Technology, LLC
-> (410) 290-1411 x150
->
->
->
-> --
-> This message was distributed to subscribers of the selinux mailing list.
-> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
-> the words "unsubscribe selinux" without quotes as the message.
->
+> diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+> index 0753b20..2e2f6f8 100644
+> --- a/security/selinux/hooks.c
+> +++ b/security/selinux/hooks.c
+> @@ -1043,6 +1045,9 @@ static int task_has_capability(struct task_struct *tsk,
+>  {
+>  	struct task_security_struct *tsec;
+>  	struct avc_audit_data ad;
+> +	kernel_cap_t mask = CAP_TO_MASK(cap);
+
+	kernel_cap_t mask = to_cap_t(CAP_TO_MASK(cap));
+
+> +	u16 sclass;
+> +	u32 av;	
+> 
+>  	tsec = tsk->security;
+> 
+> @@ -1050,8 +1055,14 @@ static int task_has_capability(struct task_struct *tsk,
+>  	ad.tsk = tsk;
+>  	ad.u.cap = cap;
+> 
+> -	return avc_has_perm(tsec->sid, tsec->sid,
+> -			    SECCLASS_CAPABILITY, CAP_TO_MASK(cap), &ad);
+> +	if (cap < 32) {
+> +		sclass = SECCLASS_CAPABILITY;
+> +		av = mask;
+
+		av = cap_t(mask);
+
+> +	} else {
+> +		sclass = SECCLASS_CAPABILITY2;
+> +		av = mask >> 32;
+
+		av = cap_t(mask) >> 32;
+
+which should generally compile away to nothing.
+
+thanks,
+-serge
+
+> +	}
+> +	return avc_has_perm(tsec->sid, tsec->sid, sclass, av, &ad);
+>  }
+> 
+>  /* Check whether a task is allowed to use a system operation. */
+> diff --git a/security/selinux/include/class_to_string.h b/security/selinux/include/class_to_string.h
+> index e77de0e..30d5cf6 100644
+> --- a/security/selinux/include/class_to_string.h
+> +++ b/security/selinux/include/class_to_string.h
+> @@ -64,3 +64,10 @@
+>      S_(NULL)
+>      S_("dccp_socket")
+>      S_("memprotect")
+> +    S_(NULL)
+> +    S_(NULL)
+> +    S_(NULL)
+> +    S_(NULL)
+> +    S_(NULL)
+> +    S_(NULL)
+> +    S_("capability2")
+> diff --git a/security/selinux/include/flask.h b/security/selinux/include/flask.h
+> index a9c2b20..a19c166 100644
+> --- a/security/selinux/include/flask.h
+> +++ b/security/selinux/include/flask.h
+> @@ -50,6 +50,7 @@
+>  #define SECCLASS_KEY                                     58
+>  #define SECCLASS_DCCP_SOCKET                             60
+>  #define SECCLASS_MEMPROTECT                              61
+> +#define SECCLASS_CAPABILITY2                             68
+> 
+>  /*
+>   * Security identifier indices for initial entities
+> 
+> -- 
+> Stephen Smalley
+> National Security Agency
 
 --
 This message was distributed to subscribers of the selinux mailing list.
