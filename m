@@ -1,29 +1,36 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l9G4WqPm006660
-	for <selinux@tycho.nsa.gov>; Tue, 16 Oct 2007 00:32:53 -0400
-Received: from exchange.columbia.tresys.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with SMTP id l9G4Wqco007940
-	for <selinux@tycho.nsa.gov>; Tue, 16 Oct 2007 04:32:52 GMT
-Message-ID: <47143EDB.7040906@manicmethod.com>
-Date: Tue, 16 Oct 2007 00:32:27 -0400
-From: Joshua Brindle <method@manicmethod.com>
-MIME-Version: 1.0
-To: "Clarkson, Mike R \(US SSA\)" <mike.clarkson@baesystems.com>
-CC: selinux@tycho.nsa.gov
 Subject: Re: newrole authentication
-References: <FB39F4E77226B448BC1388D3BE4E00CD0236CA79@blums0008.bluelnk.net>
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: "Clarkson, Mike R (US SSA)" <mike.clarkson@baesystems.com>
+Cc: selinux@tycho.nsa.gov, Joshua Brindle <method@manicmethod.com>
 In-Reply-To: <FB39F4E77226B448BC1388D3BE4E00CD0236CA79@blums0008.bluelnk.net>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+References: <FB39F4E77226B448BC1388D3BE4E00CD0236CA79@blums0008.bluelnk.net>
+Content-Type: text/plain
+Date: Tue, 16 Oct 2007 07:55:30 -0400
+Message-Id: <1192535730.8702.4.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Clarkson, Mike R (US SSA) wrote:
+On Mon, 2007-10-15 at 16:12 -0700, Clarkson, Mike R (US SSA) wrote:
 > Will someone point me to information or send me an example on how to set
 > up newrole so that is does not ask for a password, so that it can by
 > used like this within software "newrole -l s1 -- -c <cmd>"?
->   
-newrole is designed to be a human interface and therefore to ask for a 
-password, perhaps you are looking for runcon?
+
+You need policycoreutils 2.0.19 or later, or you need to back port that
+change to whatever newrole you have.
+
+See:
+http://marc.info/?t=117769973100008&r=1&w=2
+http://marc.info/?l=selinux&m=117865153827263&w=2
+
+Then you can set up a /etc/selinux/newrole_pam.conf file with e.g.:
+/path/to/cmd newrole-noauth
+and you can set up a /etc/pam.d/newrole-noauth file with pam_permit.so
+as the auth module.
+
+-- 
+Stephen Smalley
+National Security Agency
 
 
 --
