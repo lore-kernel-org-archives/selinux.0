@@ -1,35 +1,66 @@
-From: Russell Coker <russell@coker.com.au>
-Reply-To: russell@coker.com.au
-To: Karl MacMillan <kmacmillan@mentalrootkit.com>
-Subject: Re: checkmodule and MLS/MCS support
-Date: Tue, 16 Oct 2007 23:42:10 +1000
-Cc: Stephen Smalley <sds@tycho.nsa.gov>,
-        Joshua Brindle <method@manicmethod.com>,
-        "Christopher J. PeBenito" <cpebenito@tresys.com>,
-        SE-Linux <selinux@tycho.nsa.gov>
-References: <200710142206.29369.russell@coker.com.au> <1192536630.8702.12.camel@moss-spartans.epoch.ncsc.mil> <1192538623.3645.14.camel@localhost.localdomain>
-In-Reply-To: <1192538623.3645.14.camel@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
-Message-Id: <200710162342.15701.russell@coker.com.au>
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l9GELurR011506
+	for <selinux@tycho.nsa.gov>; Tue, 16 Oct 2007 10:21:56 -0400
+Received: from exchange.columbia.tresys.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with SMTP id l9GELrqH026561
+	for <selinux@tycho.nsa.gov>; Tue, 16 Oct 2007 14:21:53 GMT
+Subject: Re: [PATCH] refpolicy:useradd_t needs process transition to nscd_t
+From: "Christopher J. PeBenito" <cpebenito@tresys.com>
+To: Shintaro Fujiwara <shintaro.fujiwara@gmail.com>
+Cc: selinux <selinux@tycho.nsa.gov>
+In-Reply-To: <f71a82820710151504g6d9d31e1kf4682e8866300dd3@mail.gmail.com>
+References: <1192338511.3126.11.camel@notepc.intrajp-yokosuka.co.jp>
+	 <1192471749.13098.132.camel@gorn>
+	 <f71a82820710151504g6d9d31e1kf4682e8866300dd3@mail.gmail.com>
+Content-Type: text/plain
+Date: Tue, 16 Oct 2007 10:19:21 -0400
+Message-Id: <1192544361.32627.13.camel@gorn>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tuesday 16 October 2007 22:43, Karl MacMillan 
-<kmacmillan@mentalrootkit.com> wrote:
-> What about a config file with defaults? For most systems the policy type
-> never changes.
+On Tue, 2007-10-16 at 07:04 +0900, Shintaro Fujiwara wrote:
+> Sorry, I understand.
+> If I do not want to it loaded, leave it as it is, right?
 
-Sounds fine to me.  Most distributions only support one of the two possible 
-values for this option so they could supply a config file with the value they 
-desire.
+If you install the nscd policy module, useradd_t and groupadd_t can
+domtrans to nscd.  If you add the below patch, you're saying useradd_t
+unconditionally requires nscd because it always transitions to nscd.
 
+> 2007/10/16, Christopher J. PeBenito <cpebenito@tresys.com>:
+> > On Sun, 2007-10-14 at 14:08 +0900, shintaro_fujiwara wrote:
+> > > Index: policy/modules/admin/usermanage.te
+> > > ===================================================================
+> > > --- policy/modules/admin/usermanage.te  (revision 2454)
+> > > +++ policy/modules/admin/usermanage.te  (working copy)
+> > > @@ -502,6 +502,8 @@
+> > >
+> > >  miscfiles_read_localization(useradd_t)
+> > >
+> > > +nscd_domtrans(useradd_t)
+> > > +
+> > >  seutil_read_config(useradd_t)
+> > >  seutil_read_file_contexts(useradd_t)
+> > >  seutil_read_default_contexts(useradd_t)
+> >
+> > Theres already an optional nscd_domtrans(useradd_t).
+> >
+> > --
+> > Chris PeBenito
+> > Tresys Technology, LLC
+> > (410) 290-1411 x150
+> >
+> >
+> > --
+> > This message was distributed to subscribers of the selinux mailing list.
+> > If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
+> > the words "unsubscribe selinux" without quotes as the message.
+> >
 -- 
-russell@coker.com.au
-http://etbe.coker.com.au/          My Blog
+Chris PeBenito
+Tresys Technology, LLC
+(410) 290-1411 x150
 
-http://www.coker.com.au/sponsorship.html Sponsoring Free Software development
 
 --
 This message was distributed to subscribers of the selinux mailing list.
