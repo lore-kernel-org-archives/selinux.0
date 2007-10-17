@@ -1,36 +1,33 @@
 Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l9HLNYY4016295
-	for <selinux@tycho.nsa.gov>; Wed, 17 Oct 2007 17:23:34 -0400
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l9HLVrwG016835
+	for <selinux@tycho.nsa.gov>; Wed, 17 Oct 2007 17:31:53 -0400
 Received: from nospam.sws.net.au (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l9HLNVla027659
-	for <selinux@tycho.nsa.gov>; Wed, 17 Oct 2007 21:23:33 GMT
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l9HLVjla029025
+	for <selinux@tycho.nsa.gov>; Wed, 17 Oct 2007 21:31:51 GMT
 From: Russell Coker <russell@coker.com.au>
 Reply-To: russell@coker.com.au
-To: Karl MacMillan <kmacmillan@mentalrootkit.com>
-Subject: Re: configured virtual environment with SElinux
-Date: Thu, 18 Oct 2007 07:23:03 +1000
-Cc: Jax <cybercorecentre@gmail.com>, selinux@tycho.nsa.gov
-References: <4710018B.20607@gmail.com> <1192455622.2913.3.camel@localhost.localdomain>
-In-Reply-To: <1192455622.2913.3.camel@localhost.localdomain>
+To: "Shintaro Fujiwara" <shintaro.fujiwara@gmail.com>
+Subject: Re: [PATCH] refpolicy:locallogin problem still exists?
+Date: Thu, 18 Oct 2007 07:05:01 +1000
+Cc: "Christopher J. PeBenito" <cpebenito@tresys.com>,
+        selinux <selinux@tycho.nsa.gov>
+References: <1192337398.3126.8.camel@notepc.intrajp-yokosuka.co.jp> <1192544976.32627.17.camel@gorn> <f71a82820710160846k1dedd02sca1badb89de63fc7@mail.gmail.com>
+In-Reply-To: <f71a82820710160846k1dedd02sca1badb89de63fc7@mail.gmail.com>
 MIME-Version: 1.0
 Content-Type: text/plain;
-  charset="utf-8"
-Message-Id: <200710180723.06654.russell@coker.com.au>
+  charset="iso-8859-1"
+Message-Id: <200710180705.04516.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Monday 15 October 2007 23:40, Karl MacMillan <kmacmillan@mentalrootkit.com> 
-wrote:
-> Installing Fedora (or one of the other supported distros) will get you a
-> fully configured selinux system.
+On Wednesday 17 October 2007 01:46, "Shintaro Fujiwara" 
+<shintaro.fujiwara@gmail.com> wrote:
+> I started up new strict machine on F7.
 
-http://www.jailtime.org/ has Xen images, I haven't tested what the CentOS5 
-image is like (I hope it has SE Linux in the default configuration) and there 
-is no Debian 4.0.  It's not difficult to re-enable SE Linux if they happen to 
-have disabled it.
-
-Of course this relies on you using Xen, but most people seem to be using Xen 
-for such things at the moment.
+Incidentally I've just been working on strict policy in Debian.  I've got a 
+fully-functional strict machine running Debian/etch with minor policy 
+updates.  I'll release packages shortly (as soon as I get the gpg signature 
+checking feature of apt working).
 
 -- 
 russell@coker.com.au
