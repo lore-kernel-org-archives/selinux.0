@@ -1,39 +1,46 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l9HLVrwG016835
-	for <selinux@tycho.nsa.gov>; Wed, 17 Oct 2007 17:31:53 -0400
-Received: from nospam.sws.net.au (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l9HLVjla029025
-	for <selinux@tycho.nsa.gov>; Wed, 17 Oct 2007 21:31:51 GMT
-From: Russell Coker <russell@coker.com.au>
-Reply-To: russell@coker.com.au
-To: "Shintaro Fujiwara" <shintaro.fujiwara@gmail.com>
-Subject: Re: [PATCH] refpolicy:locallogin problem still exists?
-Date: Thu, 18 Oct 2007 07:05:01 +1000
-Cc: "Christopher J. PeBenito" <cpebenito@tresys.com>,
-        selinux <selinux@tycho.nsa.gov>
-References: <1192337398.3126.8.camel@notepc.intrajp-yokosuka.co.jp> <1192544976.32627.17.camel@gorn> <f71a82820710160846k1dedd02sca1badb89de63fc7@mail.gmail.com>
-In-Reply-To: <f71a82820710160846k1dedd02sca1badb89de63fc7@mail.gmail.com>
 MIME-Version: 1.0
 Content-Type: text/plain;
-  charset="iso-8859-1"
-Message-Id: <200710180705.04516.russell@coker.com.au>
+	charset="us-ascii"
+Subject: Recurring SELinux events for similar violations...
+Date: Wed, 17 Oct 2007 17:50:09 -0400
+Message-ID: <D06FE0A2807BC145B0D38744789D4F5D040E2506@de01exm68.ds.mot.com>
+In-Reply-To: <1192650454.20908.30.camel@moss-spartans.epoch.ncsc.mil>
+References: <C3357D99.2F091%csellers@tresys.com> <4710CA44.1040300@redhat.com> <1192356878.3376.3.camel@vogon> <47135FCE.5000403@redhat.com>  <1192467177.28762.7.camel@blentz> <1192467538.29203.52.camel@moss-spartans.epoch.ncsc.mil> <4713B257.9020409@redhat.com> <1192473631.29203.56.camel@moss-spartans.epoch.ncsc.mil> <1192475354.2910.14.camel@localhost.localdomain> <1192650454.20908.30.camel@moss-spartans.epoch.ncsc.mil>
+From: "Hasan Rezaul-CHR010" <CHR010@motorola.com>
+To: "Stephen Smalley" <sds@tycho.nsa.gov>
+Cc: "Daniel J Walsh" <dwalsh@redhat.com>, <selinux@tycho.nsa.gov>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wednesday 17 October 2007 01:46, "Shintaro Fujiwara" 
-<shintaro.fujiwara@gmail.com> wrote:
-> I started up new strict machine on F7.
+Hi All,
 
-Incidentally I've just been working on strict policy in Debian.  I've got a 
-fully-functional strict machine running Debian/etch with minor policy 
-updates.  I'll release packages shortly (as soon as I get the gpg signature 
-checking feature of apt working).
+I am using a Fedora 6 STRICT policy as my base, and have written some
+additional custom policies on top.
 
--- 
-russell@coker.com.au
-http://etbe.coker.com.au/          My Blog
+For example, I have allowed certain domains (e.g. staff_t) to modify
+file types of  etc_t
+And I have disallowed other domains (e.g. user_t) to modify file types
+of etc_t.
 
-http://www.coker.com.au/sponsorship.html Sponsoring Free Software development
+When user_t makes the first attempt to modify an etc_t file, I do get
+DENY events  :-)
+
+But subsequent attempts by user_t to modify etc_t files  *DO NOT*
+generate any more events ?!?
+
+- Is this by design ??? 
+
+- Is there something I can do such that  EVERY time user_t  attempts to
+modify a file type etc_t , I will get a corresponding DENY ?
+
+- In other words, I would like every violation attempt to be reported in
+the audit.log file, even if the same violation occurs multiple times in
+the same session.
+
+Thanks in advance,
+
+- Rezaul.
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
