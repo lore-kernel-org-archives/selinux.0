@@ -1,76 +1,61 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l9IFbem2014805
-	for <selinux@tycho.nsa.gov>; Thu, 18 Oct 2007 11:37:40 -0400
-Received: from an-out-0708.google.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id l9IFbdq6021991
-	for <selinux@tycho.nsa.gov>; Thu, 18 Oct 2007 15:37:40 GMT
-Received: by an-out-0708.google.com with SMTP id c3so31462ana
-        for <selinux@tycho.nsa.gov>; Thu, 18 Oct 2007 08:37:25 -0700 (PDT)
-Message-ID: <f71a82820710180837q7066df0s6f596af94a8442ee@mail.gmail.com>
-Date: Fri, 19 Oct 2007 00:37:24 +0900
-From: "Shintaro Fujiwara" <shintaro.fujiwara@gmail.com>
-To: russell@coker.com.au, selinux <selinux@tycho.nsa.gov>
-Subject: Re: [PATCH] refpolicy:locallogin problem still exists?
-In-Reply-To: <200710190125.47826.russell@coker.com.au>
+Message-ID: <4717A396.6070409@tycho.nsa.gov>
+Date: Thu, 18 Oct 2007 14:19:02 -0400
+From: Eamon Walsh <ewalsh@tycho.nsa.gov>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-References: <1192337398.3126.8.camel@notepc.intrajp-yokosuka.co.jp>
-	 <200710180705.04516.russell@coker.com.au>
-	 <f71a82820710180759t76a78c01lf48d91756122bd98@mail.gmail.com>
-	 <200710190125.47826.russell@coker.com.au>
+To: SELinux List <selinux@tycho.nsa.gov>
+CC: Stephen Smalley <sds@tycho.nsa.gov>
+Subject: [PATCH] libselinux: add "event" type to X contexts backend
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Debian-SELinux
-would be good option than
-Debian-AppArmor.
-I can study your policy.
+This patch adds an event type to the X contexts backend, so that
+X Flask module can support labeling events based on their protocol
+name.
 
-Cheers!
+Signed-off-by: Eamon Walsh <ewalsh@tycho.nsa.gov>
+---
+
+ include/selinux/label.h |    1 +
+ src/label_x.c           |    4 +++-
+ 2 files changed, 4 insertions(+), 1 deletion(-)
 
 
-2007/10/19, Russell Coker <russell@coker.com.au>:
-> On Friday 19 October 2007 00:59, "Shintaro Fujiwara"
-> <shintaro.fujiwara@gmail.com> wrote:
-> > Please inform me when you do release.
-> > I can check minor uptdates and incorporate
-> > into my own.
->
-> deb http://www.coker.com.au etch selinux
->
-> Above is the apt sources.list line, below is the blog post which goes live in
-> 5.5 hours.  But I doubt that anything other than the blog post will be of use
-> to people who aren't running Debian.
->
-> http://etbe.coker.com.au/2007/10/19/my-se-linux-etch-repository/
->
->
->
-> >
-> > 2007/10/18, Russell Coker <russell@coker.com.au>:
-> > > On Wednesday 17 October 2007 01:46, "Shintaro Fujiwara"
-> > >
-> > > <shintaro.fujiwara@gmail.com> wrote:
-> > > > I started up new strict machine on F7.
-> > >
-> > > Incidentally I've just been working on strict policy in Debian.  I've got
-> > > a fully-functional strict machine running Debian/etch with minor policy
-> > > updates.  I'll release packages shortly (as soon as I get the gpg
-> > > signature checking feature of apt working).
-> > >
-> > > --
-> > > russell@coker.com.au
-> > > http://etbe.coker.com.au/          My Blog
-> > >
-> > > http://www.coker.com.au/sponsorship.html Sponsoring Free Software
-> > > development
->
-> --
-> russell@coker.com.au
-> http://etbe.coker.com.au/          My Blog
->
-> http://www.coker.com.au/sponsorship.html Sponsoring Free Software development
->
+Index: libselinux/include/selinux/label.h
+===================================================================
+--- libselinux/include/selinux/label.h	(revision 2660)
++++ libselinux/include/selinux/label.h	(working copy)
+@@ -111,6 +111,7 @@
+ #define SELABEL_X_PROP		1
+ #define SELABEL_X_EXT		2
+ #define SELABEL_X_CLIENT	3
++#define SELABEL_X_EVENT		4
+ 
+ 
+ #ifdef __cplusplus
+Index: libselinux/src/label_x.c
+===================================================================
+--- libselinux/src/label_x.c	(revision 2660)
++++ libselinux/src/label_x.c	(working copy)
+@@ -65,9 +65,11 @@
+ 			data->spec_arr[data->nspec].type = SELABEL_X_EXT;
+ 		else if (!strcmp(type, "client"))
+ 			data->spec_arr[data->nspec].type = SELABEL_X_CLIENT;
++		else if (!strcmp(type, "event"))
++			data->spec_arr[data->nspec].type = SELABEL_X_EVENT;
+ 		else {
+ 			selinux_log(SELINUX_WARNING,
+-				    "%s:  line %d has invalid file type %s\n",
++				    "%s:  line %d has invalid object type %s\n",
+ 				    path, lineno, type);
+ 			return 0;
+ 		}
+
+
+-- 
+Eamon Walsh <ewalsh@tycho.nsa.gov>
+National Security Agency
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
