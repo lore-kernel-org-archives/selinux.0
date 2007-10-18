@@ -1,133 +1,48 @@
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l9IExSHY011901
+	for <selinux@tycho.nsa.gov>; Thu, 18 Oct 2007 10:59:28 -0400
+Received: from an-out-0708.google.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l9IExSnP023055
+	for <selinux@tycho.nsa.gov>; Thu, 18 Oct 2007 14:59:28 GMT
+Received: by an-out-0708.google.com with SMTP id c3so28851ana
+        for <selinux@tycho.nsa.gov>; Thu, 18 Oct 2007 07:59:28 -0700 (PDT)
+Message-ID: <f71a82820710180759t76a78c01lf48d91756122bd98@mail.gmail.com>
+Date: Thu, 18 Oct 2007 23:59:27 +0900
+From: "Shintaro Fujiwara" <shintaro.fujiwara@gmail.com>
+To: russell@coker.com.au, selinux <selinux@tycho.nsa.gov>
+Subject: Re: [PATCH] refpolicy:locallogin problem still exists?
+Cc: "Christopher J. PeBenito" <cpebenito@tresys.com>
+In-Reply-To: <200710180705.04516.russell@coker.com.au>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Subject: RE: Recurring SELinux events for similar violations...
-Date: Thu, 18 Oct 2007 10:32:04 -0400
-Message-ID: <D06FE0A2807BC145B0D38744789D4F5D0412BB0B@de01exm68.ds.mot.com>
-In-Reply-To: <1192713224.32671.11.camel@moss-spartans.epoch.ncsc.mil>
-References: <C3357D99.2F091%csellers@tresys.com> <1192356878.3376.3.camel@vogon> <47135FCE.5000403@redhat.com> <1192467177.28762.7.camel@blentz> <1192467538.29203.52.camel@moss-spartans.epoch.ncsc.mil> <4713B257.9020409@redhat.com> <1192473631.29203.56.camel@moss-spartans.epoch.ncsc.mil> <1192475354.2910.14.camel@localhost.localdomain> <1192650454.20908.30.camel@moss-spartans.epoch.ncsc.mil> <D06FE0A2807BC145B0D38744789D4F5D040E2506@de01exm68.ds.mot.com> <7e0fb38c0710171518r645c1ce1l3e0653109f2d27b2@mail.gmail.com> <D06FE0A2807BC145B0D38744789D4F5D040E251B@de01exm68.ds.mot.com> <1192713224.32671.11.camel@moss-spartans.epoch.ncsc.mil>
-From: "Hasan Rezaul-CHR010" <CHR010@motorola.com>
-To: "Stephen Smalley" <sds@tycho.nsa.gov>
-Cc: "Eric Paris" <eparis@parisplace.org>, "Daniel J Walsh" <dwalsh@redhat.com>,
-        <selinux@tycho.nsa.gov>
+Content-Type: text/plain; charset=ISO-8859-1
+References: <1192337398.3126.8.camel@notepc.intrajp-yokosuka.co.jp>
+	 <1192544976.32627.17.camel@gorn>
+	 <f71a82820710160846k1dedd02sca1badb89de63fc7@mail.gmail.com>
+	 <200710180705.04516.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Great.
+Please inform me when you do release.
+I can check minor uptdates and incorporate
+into my own.
+Thanks.
 
-Thanks a bunch !
-
-- Reza.
- 
-
------Original Message-----
-From: Stephen Smalley [mailto:sds@tycho.nsa.gov] 
-Sent: Thursday, October 18, 2007 8:14 AM
-To: Hasan Rezaul-CHR010
-Cc: Eric Paris; Daniel J Walsh; selinux@tycho.nsa.gov
-Subject: RE: Recurring SELinux events for similar violations...
-
-On Wed, 2007-10-17 at 18:22 -0400, Hasan Rezaul-CHR010 wrote:
-> Yes, I am running in "Permissive" mode right now, just for testing
-> purposes.
-> 
-> If this is by design, is there any way I can force SELinux to log
-every
-> denial even in Permissive mode ?
-
-It is by design, as otherwise you could end up with an unending stream
-of duplicate denials since the application will keep on processing
-(since the denials are not enforced), and thus flood the audit system
-and logs with redundant information.
-
-However, the denial will re-appear if the AVC entry is evicted.  You can
-manually flush the AVC by:
-- toggling enforcing mode (e.g. setenforce 1; setenforce 0),
-- setting a boolean (e.g. setsebool <somebool>=<somevalue>),
-- reloading policy (e.g. /usr/sbin/load_policy)
-
-Or you should be able to effectively turn off caching by setting the
-cache threshold down (performance will naturally suffer as a result):
-echo 0 > /selinux/avc/cache_threshold
-cat /selinux/avc/cache_threshold
-
-
-> Thanks,
-> 
-> - Rezaul.
->   
-> 
-> -----Original Message-----
-> From: Eric Paris [mailto:eparis@parisplace.org] 
-> Sent: Wednesday, October 17, 2007 5:19 PM
-> To: Hasan Rezaul-CHR010
-> Cc: Stephen Smalley; Daniel J Walsh; selinux@tycho.nsa.gov
-> Subject: Re: Recurring SELinux events for similar violations...
-> 
-> Are you running without enforcing just for testing?  When you turn off
-> enforcing it only logs once (by design) but I think it should log the
-> denial every single time in enforcing mode.
-> 
-> -Eric
-> 
-> On 10/17/07, Hasan Rezaul-CHR010 <CHR010@motorola.com> wrote:
-> > Hi All,
-> >
-> > I am using a Fedora 6 STRICT policy as my base, and have written
-some
-> > additional custom policies on top.
-> >
-> > For example, I have allowed certain domains (e.g. staff_t) to modify
-> > file types of  etc_t
-> > And I have disallowed other domains (e.g. user_t) to modify file
-types
-> > of etc_t.
-> >
-> > When user_t makes the first attempt to modify an etc_t file, I do
-get
-> > DENY events  :-)
-> >
-> > But subsequent attempts by user_t to modify etc_t files  *DO NOT*
-> > generate any more events ?!?
-> >
-> > - Is this by design ???
-> >
-> > - Is there something I can do such that  EVERY time user_t  attempts
-> to
-> > modify a file type etc_t , I will get a corresponding DENY ?
-> >
-> > - In other words, I would like every violation attempt to be
-reported
-> in
-> > the audit.log file, even if the same violation occurs multiple times
-> in
-> > the same session.
-> >
-> > Thanks in advance,
-> >
-> > - Rezaul.
-> >
-> >
-> > --
-> > This message was distributed to subscribers of the selinux mailing
-> list.
-> > If you no longer wish to subscribe, send mail to
-> majordomo@tycho.nsa.gov with
-> > the words "unsubscribe selinux" without quotes as the message.
-> >
-> 
-> 
+2007/10/18, Russell Coker <russell@coker.com.au>:
+> On Wednesday 17 October 2007 01:46, "Shintaro Fujiwara"
+> <shintaro.fujiwara@gmail.com> wrote:
+> > I started up new strict machine on F7.
+>
+> Incidentally I've just been working on strict policy in Debian.  I've got a
+> fully-functional strict machine running Debian/etch with minor policy
+> updates.  I'll release packages shortly (as soon as I get the gpg signature
+> checking feature of apt working).
+>
 > --
-> This message was distributed to subscribers of the selinux mailing
-list.
-> If you no longer wish to subscribe, send mail to
-majordomo@tycho.nsa.gov with
-> the words "unsubscribe selinux" without quotes as the message.
--- 
-Stephen Smalley
-National Security Agency
-
-
+> russell@coker.com.au
+> http://etbe.coker.com.au/          My Blog
+>
+> http://www.coker.com.au/sponsorship.html Sponsoring Free Software development
+>
 
 --
 This message was distributed to subscribers of the selinux mailing list.
