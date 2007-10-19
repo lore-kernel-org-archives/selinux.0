@@ -1,60 +1,41 @@
-Message-ID: <4717A396.6070409@tycho.nsa.gov>
-Date: Thu, 18 Oct 2007 14:19:02 -0400
-From: Eamon Walsh <ewalsh@tycho.nsa.gov>
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l9JEAsM6001288
+	for <selinux@tycho.nsa.gov>; Fri, 19 Oct 2007 10:10:54 -0400
+Received: from dmzmta102.na.baesystems.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l9JEArio017085
+	for <selinux@tycho.nsa.gov>; Fri, 19 Oct 2007 14:10:53 GMT
+Received: from BLUMS0033.bluelnk.net (blums0033.bluelnk.net [10.40.96.54])
+	by dmzmta102.na.baesystems.com (Switch-3.2.5/Switch-3.2.5) with ESMTP id l9JE9CvS014131
+	for <selinux@tycho.nsa.gov>; Fri, 19 Oct 2007 10:09:12 -0400
+Received: from blums0008.bluelnk.net (blums0008.sd.gd.com [134.120.81.40])
+	by usdmta003.na.baesystems.com (Switch-3.2.5/Switch-3.2.5) with ESMTP id l9JEA86I006624
+	for <selinux@tycho.nsa.gov>; Fri, 19 Oct 2007 10:10:09 -0400
 MIME-Version: 1.0
-To: SELinux List <selinux@tycho.nsa.gov>
-CC: Stephen Smalley <sds@tycho.nsa.gov>
-Subject: [PATCH] libselinux: add "event" type to X contexts backend
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain;
+	charset="us-ascii"
+Subject: thread level controls
+Date: Fri, 19 Oct 2007 07:10:50 -0700
+Message-ID: <FB39F4E77226B448BC1388D3BE4E00CD02554940@blums0008.bluelnk.net>
+From: "Clarkson, Mike R \(US SSA\)" <mike.clarkson@baesystems.com>
+To: <selinux@tycho.nsa.gov>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This patch adds an event type to the X contexts backend, so that
-X Flask module can support labeling events based on their protocol
-name.
+Are there any plans to extend SELinux to provide thread level controls?
 
-Signed-off-by: Eamon Walsh <ewalsh@tycho.nsa.gov>
----
+I recognize that this is considerably harder than process level controls
+given that threads share a number of resources, but it would be quite
+useful, at least from an MLS perspective.
 
- include/selinux/label.h |    1 +
- src/label_x.c           |    4 +++-
- 2 files changed, 4 insertions(+), 1 deletion(-)
+Today, most systems are going to contain web servers, corba services, or
+some other form of client-server architecture where a server runs as a
+single process and starts separate threads for client connections. It's
+often not going to be viable to have separate servers for each different
+compartment/classification, especially when considering the rainbow of
+possible compartment combinations (x, y, z, xy, xz, yz, xyz)
 
+Any thought?
 
-Index: libselinux/include/selinux/label.h
-===================================================================
---- libselinux/include/selinux/label.h	(revision 2660)
-+++ libselinux/include/selinux/label.h	(working copy)
-@@ -111,6 +111,7 @@
- #define SELABEL_X_PROP		1
- #define SELABEL_X_EXT		2
- #define SELABEL_X_CLIENT	3
-+#define SELABEL_X_EVENT		4
- 
- 
- #ifdef __cplusplus
-Index: libselinux/src/label_x.c
-===================================================================
---- libselinux/src/label_x.c	(revision 2660)
-+++ libselinux/src/label_x.c	(working copy)
-@@ -65,9 +65,11 @@
- 			data->spec_arr[data->nspec].type = SELABEL_X_EXT;
- 		else if (!strcmp(type, "client"))
- 			data->spec_arr[data->nspec].type = SELABEL_X_CLIENT;
-+		else if (!strcmp(type, "event"))
-+			data->spec_arr[data->nspec].type = SELABEL_X_EVENT;
- 		else {
- 			selinux_log(SELINUX_WARNING,
--				    "%s:  line %d has invalid file type %s\n",
-+				    "%s:  line %d has invalid object type %s\n",
- 				    path, lineno, type);
- 			return 0;
- 		}
-
-
--- 
-Eamon Walsh <ewalsh@tycho.nsa.gov>
-National Security Agency
 
 
 --
