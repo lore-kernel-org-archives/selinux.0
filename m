@@ -1,68 +1,65 @@
-Message-ID: <471907FA.7090601@tycho.nsa.gov>
-Date: Fri, 19 Oct 2007 15:39:38 -0400
-From: Eamon Walsh <ewalsh@tycho.nsa.gov>
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l9L6Yfuu026811
+	for <selinux@tycho.nsa.gov>; Sun, 21 Oct 2007 02:34:41 -0400
+Received: from rv-out-0910.google.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l9L6Yehx006455
+	for <selinux@tycho.nsa.gov>; Sun, 21 Oct 2007 06:34:40 GMT
+Received: by rv-out-0910.google.com with SMTP id k15so786875rvb
+        for <selinux@tycho.nsa.gov>; Sat, 20 Oct 2007 23:34:37 -0700 (PDT)
+Message-ID: <f71a82820710202334k2d049858n8c38f728a728d3cf@mail.gmail.com>
+Date: Sun, 21 Oct 2007 15:34:37 +0900
+From: "Shintaro Fujiwara" <shintaro.fujiwara@gmail.com>
+To: selinux <selinux@tycho.nsa.gov>
+Subject: [ANN] segatex_suite 2.0 released
 MIME-Version: 1.0
-To: SELinux List <selinux@tycho.nsa.gov>
-CC: Stephen Smalley <sds@tycho.nsa.gov>
-Subject: Re: [PATCH] libselinux: add "event" type to X contexts backend
-References: <4717A396.6070409@tycho.nsa.gov>
-In-Reply-To: <4717A396.6070409@tycho.nsa.gov>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Here is a revised version of the patch that adds not one but two
-backends, one for X event names and one for X "selections" which
-are the clipboard objects used in cut & paste.
+Note:
+This is private project and nothing to do with
+NSA or Tresys.
 
-This is so the X Flask module can support labeling these objects
-based on their names.
+You can download segatex_suite from,
 
-Signed-off-by: Eamon Walsh <ewalsh@tycho.nsa.gov>
----
+US
+http://sourceforge.net/projects/segatex/
+JP
+http://sourceforge.jp/projects/segatex
 
- include/selinux/label.h |    2 ++
- src/label_x.c           |    6 +++++-
- 2 files changed, 7 insertions(+), 1 deletion(-)
+Please read README.
+
+segatex_suite-2.0 can
+generate interfaced policy.
+Not yet require brace.
+I will refine it from now.
+
+Others.
+You can analize refpolicy.
+You can audit2allow by GUI.
+You can just see denied.log.
+You can change enforcing/permissive.
+You can check loaded/default policy.
+
+You need qt-devel.
+
+segatex_suite is
+segatex_editor and
+segatex ( the portion of it ).
+segatex latest version is 3.10, but
+soon emerge segatex-4.0 after
+segatex_editor and segatex_suite
+fruits incorporated.
 
 
-Index: libselinux/include/selinux/label.h
-===================================================================
---- libselinux/include/selinux/label.h	(revision 2660)
-+++ libselinux/include/selinux/label.h	(working copy)
-@@ -111,6 +111,8 @@
- #define SELABEL_X_PROP		1
- #define SELABEL_X_EXT		2
- #define SELABEL_X_CLIENT	3
-+#define SELABEL_X_EVENT		4
-+#define SELABEL_X_SELN		5
- 
- 
- #ifdef __cplusplus
-Index: libselinux/src/label_x.c
-===================================================================
---- libselinux/src/label_x.c	(revision 2660)
-+++ libselinux/src/label_x.c	(working copy)
-@@ -65,9 +65,13 @@
- 			data->spec_arr[data->nspec].type = SELABEL_X_EXT;
- 		else if (!strcmp(type, "client"))
- 			data->spec_arr[data->nspec].type = SELABEL_X_CLIENT;
-+		else if (!strcmp(type, "event"))
-+			data->spec_arr[data->nspec].type = SELABEL_X_EVENT;
-+		else if (!strcmp(type, "selection"))
-+			data->spec_arr[data->nspec].type = SELABEL_X_SELN;
- 		else {
- 			selinux_log(SELINUX_WARNING,
--				    "%s:  line %d has invalid file type %s\n",
-+				    "%s:  line %d has invalid object type %s\n",
- 				    path, lineno, type);
- 			return 0;
- 		}
-
--- 
-Eamon Walsh <ewalsh@tycho.nsa.gov>
-National Security Agency
-
+homepage
+http://intrajp.no-ip.com/
+blog
+http://intrajp.no-ip.com/nucleus/
+wiki
+http://intrajp.no-ip.com/pukiwiki/
+CSM
+http://intrajp.no-ip.com/xoops/
 
 --
 This message was distributed to subscribers of the selinux mailing list.
