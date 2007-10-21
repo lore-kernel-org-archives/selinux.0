@@ -1,65 +1,37 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l9L6Yfuu026811
-	for <selinux@tycho.nsa.gov>; Sun, 21 Oct 2007 02:34:41 -0400
-Received: from rv-out-0910.google.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l9L6Yehx006455
-	for <selinux@tycho.nsa.gov>; Sun, 21 Oct 2007 06:34:40 GMT
-Received: by rv-out-0910.google.com with SMTP id k15so786875rvb
-        for <selinux@tycho.nsa.gov>; Sat, 20 Oct 2007 23:34:37 -0700 (PDT)
-Message-ID: <f71a82820710202334k2d049858n8c38f728a728d3cf@mail.gmail.com>
-Date: Sun, 21 Oct 2007 15:34:37 +0900
-From: "Shintaro Fujiwara" <shintaro.fujiwara@gmail.com>
-To: selinux <selinux@tycho.nsa.gov>
-Subject: [ANN] segatex_suite 2.0 released
+Date: Mon, 22 Oct 2007 06:59:52 +1000 (EST)
+From: James Morris <jmorris@namei.org>
+To: "Serge E. Hallyn" <serue@us.ibm.com>
+cc: Stephen Smalley <sds@tycho.nsa.gov>, Chris Wright <chrisw@sous-sol.org>,
+        Andrew Morgan <morgan@kernel.org>, selinux@tycho.nsa.gov,
+        Eric Paris <eparis@parisplace.org>
+Subject: Re: Dealing with 64-bit capabilities
+In-Reply-To: <20071017140325.GC25692@sergelap.austin.ibm.com>
+Message-ID: <Xine.LNX.4.64.0710220658290.30363@us.intercode.com.au>
+References: <1192549264.8702.113.camel@moss-spartans.epoch.ncsc.mil>
+ <20071016193411.GC4115@sergelap.austin.ibm.com>
+ <1192626011.20908.1.camel@moss-spartans.epoch.ncsc.mil>
+ <20071017140325.GC25692@sergelap.austin.ibm.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Note:
-This is private project and nothing to do with
-NSA or Tresys.
+On Wed, 17 Oct 2007, Serge E. Hallyn wrote:
 
-You can download segatex_suite from,
+> Judging by
+> http://www.uwsg.iu.edu/hypermail/linux/kernel/9810.2/0705.html,
+> the option was actually introduced in 1998 because the use of
+> the struct was broken.  Given that, are there any objections to the
+> following patch?
 
-US
-http://sourceforge.net/projects/segatex/
-JP
-http://sourceforge.jp/projects/segatex
-
-Please read README.
-
-segatex_suite-2.0 can
-generate interfaced policy.
-Not yet require brace.
-I will refine it from now.
-
-Others.
-You can analize refpolicy.
-You can audit2allow by GUI.
-You can just see denied.log.
-You can change enforcing/permissive.
-You can check loaded/default policy.
-
-You need qt-devel.
-
-segatex_suite is
-segatex_editor and
-segatex ( the portion of it ).
-segatex latest version is 3.10, but
-soon emerge segatex-4.0 after
-segatex_editor and segatex_suite
-fruits incorporated.
+Not from me.
 
 
-homepage
-http://intrajp.no-ip.com/
-blog
-http://intrajp.no-ip.com/nucleus/
-wiki
-http://intrajp.no-ip.com/pukiwiki/
-CSM
-http://intrajp.no-ip.com/xoops/
+Acked-by: James Morris <jmorris@namei.org>
+
+-- 
+James Morris
+<jmorris@namei.org>
 
 --
 This message was distributed to subscribers of the selinux mailing list.
