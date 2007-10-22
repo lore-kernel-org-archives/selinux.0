@@ -1,45 +1,52 @@
-Date: Mon, 22 Oct 2007 12:21:32 -0500
-From: "Serge E. Hallyn" <serue@us.ibm.com>
-To: James Morris <jmorris@namei.org>
-Cc: "Serge E. Hallyn" <serue@us.ibm.com>, Stephen Smalley <sds@tycho.nsa.gov>,
-        Chris Wright <chrisw@sous-sol.org>, Andrew Morgan <morgan@kernel.org>,
-        selinux@tycho.nsa.gov, Eric Paris <eparis@parisplace.org>
-Subject: Re: Dealing with 64-bit capabilities
-Message-ID: <20071022172132.GA27035@sergelap.austin.ibm.com>
-References: <1192549264.8702.113.camel@moss-spartans.epoch.ncsc.mil> <20071016193411.GC4115@sergelap.austin.ibm.com> <1192626011.20908.1.camel@moss-spartans.epoch.ncsc.mil> <20071017140325.GC25692@sergelap.austin.ibm.com> <Xine.LNX.4.64.0710220658290.30363@us.intercode.com.au>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <Xine.LNX.4.64.0710220658290.30363@us.intercode.com.au>
+Subject: [PATCH] SELinux: always check SIGCHLD in selinux_task_wait
+From: Eric Paris <eparis@redhat.com>
+To: selinux@tycho.nsa.gov
+Cc: jmorris@namei.org, sds@tycho.nsa.gov, roland@redhat.com
+Content-Type: text/plain
+Date: Mon, 22 Oct 2007 15:07:53 -0400
+Message-Id: <1193080073.2948.28.camel@localhost.localdomain>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Quoting James Morris (jmorris@namei.org):
-> On Wed, 17 Oct 2007, Serge E. Hallyn wrote:
-> 
-> > Judging by
-> > http://www.uwsg.iu.edu/hypermail/linux/kernel/9810.2/0705.html,
-> > the option was actually introduced in 1998 because the use of
-> > the struct was broken.  Given that, are there any objections to the
-> > following patch?
-> 
-> Not from me.
-> 
-> 
-> Acked-by: James Morris <jmorris@namei.org>
+When checking if we can wait on a child we were looking at
+p->exit_signal and trying to make the decision based on if the signal
+would eventually be allowed.  One big flaw is that p->exit_signal is -1
+for NPTL threads and so aignal_to_av was not actually checking SIGCHLD
+which is what would have been sent.  Even is exit_signal was set to
+something strange it wouldn't change the fact that the child was there
+and needed to be waited on.  This patch just assumes wait is based on
+SIGCHLD.  Specific permission checks are made when the child actually
+attempts to send a signal.
 
-Thanks, James.
+This resolves the problem of things like using GDB on confined domains
+such as in RH BZ 232371.  The confined domain did not have permission to
+send a generic signal (exit_signal == -1) back to the unconfined GDB.
+With this patch the GDB wait works and since the actual signal sent is
+allowed everything functions as it should.
 
-Do you prefer this over the other version which fixes up compilation
-with strict type checking?
+---
 
-If we do this, do we get rid of cap_t(), to_cap_t(), and kernel_cap_t
-altogether?
+Signed-off-by: Eric Paris <eparis@redhat.com> 
 
-(For simplicity I'd like to make one of these patches a prereq to the
-64-bit capabilities patch)
+security/selinux/hooks.c |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
 
-thanks,
--serge
+diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+index 24e1b18..078fe82 100644
+--- a/security/selinux/hooks.c
++++ b/security/selinux/hooks.c
+@@ -2979,7 +2979,7 @@ static int selinux_task_wait(struct task_struct *p)
+ {
+ 	u32 perm;
+ 
+-	perm = signal_to_av(p->exit_signal);
++	perm = signal_to_av(SIGCHLD);
+ 
+ 	return task_has_perm(p, current, perm);
+ }
+
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
