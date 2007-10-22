@@ -1,55 +1,60 @@
-Subject: [PATCH] SELinux: always check SIGCHLD in selinux_task_wait
-From: Eric Paris <eparis@redhat.com>
-To: selinux@tycho.nsa.gov
-Cc: jmorris@namei.org, sds@tycho.nsa.gov, roland@redhat.com
-Content-Type: text/plain
-Date: Mon, 22 Oct 2007 16:10:31 -0400
-Message-Id: <1193083831.2950.7.camel@localhost.localdomain>
-Mime-Version: 1.0
+Date: Tue, 23 Oct 2007 07:10:37 +1000 (EST)
+From: James Morris <jmorris@namei.org>
+To: "Serge E. Hallyn" <serue@us.ibm.com>
+cc: Stephen Smalley <sds@tycho.nsa.gov>, Chris Wright <chrisw@sous-sol.org>,
+        Andrew Morgan <morgan@kernel.org>, selinux@tycho.nsa.gov,
+        Eric Paris <eparis@parisplace.org>
+Subject: Re: Dealing with 64-bit capabilities
+In-Reply-To: <20071022172132.GA27035@sergelap.austin.ibm.com>
+Message-ID: <Xine.LNX.4.64.0710230710260.9361@us.intercode.com.au>
+References: <1192549264.8702.113.camel@moss-spartans.epoch.ncsc.mil>
+ <20071016193411.GC4115@sergelap.austin.ibm.com>
+ <1192626011.20908.1.camel@moss-spartans.epoch.ncsc.mil>
+ <20071017140325.GC25692@sergelap.austin.ibm.com>
+ <Xine.LNX.4.64.0710220658290.30363@us.intercode.com.au>
+ <20071022172132.GA27035@sergelap.austin.ibm.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-When checking if we can wait on a child we were looking at
-p->exit_signal and trying to make the decision based on if the signal
-would eventually be allowed.  One big flaw is that p->exit_signal is -1
-for NPTL threads and so aignal_to_av was not actually checking SIGCHLD
-which is what would have been sent.  Even is exit_signal was set to
-something strange it wouldn't change the fact that the child was there
-and needed to be waited on.  This patch just assumes wait is based on
-SIGCHLD.  Specific permission checks are made when the child actually
-attempts to send a signal.
+On Mon, 22 Oct 2007, Serge E. Hallyn wrote:
 
-This resolves the problem of things like using GDB on confined domains
-such as in RH BZ 232371.  The confined domain did not have permission to
-send a generic signal (exit_signal == -1) back to the unconfined GDB.
-With this patch the GDB wait works and since the actual signal sent is
-allowed everything functions as it should.
+> Quoting James Morris (jmorris@namei.org):
+> > On Wed, 17 Oct 2007, Serge E. Hallyn wrote:
+> > 
+> > > Judging by
+> > > http://www.uwsg.iu.edu/hypermail/linux/kernel/9810.2/0705.html,
+> > > the option was actually introduced in 1998 because the use of
+> > > the struct was broken.  Given that, are there any objections to the
+> > > following patch?
+> > 
+> > Not from me.
+> > 
+> > 
+> > Acked-by: James Morris <jmorris@namei.org>
+> 
+> Thanks, James.
+> 
+> Do you prefer this over the other version which fixes up compilation
+> with strict type checking?
 
-Signed-off-by: Eric Paris <eparis@redhat.com>
+I don't have a preference.
 
----
- security/selinux/hooks.c |    6 +-----
- 1 files changed, 1 insertions(+), 5 deletions(-)
+> 
+> If we do this, do we get rid of cap_t(), to_cap_t(), and kernel_cap_t
+> altogether?
+> 
+> (For simplicity I'd like to make one of these patches a prereq to the
+> 64-bit capabilities patch)
+> 
+> thanks,
+> -serge
+> 
 
-diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-index 24e1b18..9f3124b 100644
---- a/security/selinux/hooks.c
-+++ b/security/selinux/hooks.c
-@@ -2977,11 +2977,7 @@ static int selinux_task_prctl(int option,
- 
- static int selinux_task_wait(struct task_struct *p)
- {
--	u32 perm;
--
--	perm = signal_to_av(p->exit_signal);
--
--	return task_has_perm(p, current, perm);
-+	return task_has_perm(p, current, PROCESS__SIGCHLD);
- }
- 
- static void selinux_task_reparent_to_init(struct task_struct *p)
-
-
+-- 
+James Morris
+<jmorris@namei.org>
 
 --
 This message was distributed to subscribers of the selinux mailing list.
