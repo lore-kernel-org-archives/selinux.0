@@ -1,60 +1,38 @@
-Date: Tue, 23 Oct 2007 07:10:37 +1000 (EST)
-From: James Morris <jmorris@namei.org>
-To: "Serge E. Hallyn" <serue@us.ibm.com>
-cc: Stephen Smalley <sds@tycho.nsa.gov>, Chris Wright <chrisw@sous-sol.org>,
-        Andrew Morgan <morgan@kernel.org>, selinux@tycho.nsa.gov,
-        Eric Paris <eparis@parisplace.org>
-Subject: Re: Dealing with 64-bit capabilities
-In-Reply-To: <20071022172132.GA27035@sergelap.austin.ibm.com>
-Message-ID: <Xine.LNX.4.64.0710230710260.9361@us.intercode.com.au>
-References: <1192549264.8702.113.camel@moss-spartans.epoch.ncsc.mil>
- <20071016193411.GC4115@sergelap.austin.ibm.com>
- <1192626011.20908.1.camel@moss-spartans.epoch.ncsc.mil>
- <20071017140325.GC25692@sergelap.austin.ibm.com>
- <Xine.LNX.4.64.0710220658290.30363@us.intercode.com.au>
- <20071022172132.GA27035@sergelap.austin.ibm.com>
+Received: from facesaver.epoch.ncsc.mil (facesaver [144.51.25.10])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id l9MLQlY5002909
+	for <selinux@tycho.nsa.gov>; Mon, 22 Oct 2007 17:26:47 -0400
+Message-ID: <471D1596.8070900@tycho.nsa.gov>
+Date: Mon, 22 Oct 2007 17:26:46 -0400
+From: Eamon Walsh <ewalsh@tycho.nsa.gov>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Daniel J Walsh <dwalsh@redhat.com>
+CC: "Christopher J. PeBenito" <cpebenito@tresys.com>,
+        SELinux List <selinux@tycho.nsa.gov>
+Subject: trouble with ssh in today's rawhide + refpolicy
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 22 Oct 2007, Serge E. Hallyn wrote:
+On a rawhide box updated this afternoon, running refpolicy trunk in mcs 
+mode, I get the following after rebooting the box and logging in over ssh:
 
-> Quoting James Morris (jmorris@namei.org):
-> > On Wed, 17 Oct 2007, Serge E. Hallyn wrote:
-> > 
-> > > Judging by
-> > > http://www.uwsg.iu.edu/hypermail/linux/kernel/9810.2/0705.html,
-> > > the option was actually introduced in 1998 because the use of
-> > > the struct was broken.  Given that, are there any objections to the
-> > > following patch?
-> > 
-> > Not from me.
-> > 
-> > 
-> > Acked-by: James Morris <jmorris@namei.org>
-> 
-> Thanks, James.
-> 
-> Do you prefer this over the other version which fixes up compilation
-> with strict type checking?
+$ id -Z
+sysadm_u:sysadm_r:system_chkpwd_t:s0
 
-I don't have a preference.
+After issuing a "service sshd restart" on the box and trying again, it 
+changes to:
 
-> 
-> If we do this, do we get rid of cap_t(), to_cap_t(), and kernel_cap_t
-> altogether?
-> 
-> (For simplicity I'd like to make one of these patches a prereq to the
-> 64-bit capabilities patch)
-> 
-> thanks,
-> -serge
-> 
+$ id -Z
+sysadm_u:sysadm_r:sysadm_t:s0
+
+I've seen this on 2 different machines, and it persists even after a 
+full filesystem relabel.  Am i missing something from the refpolicy 
+merge?  I haven't changed my seusers file from when I was running strict.
+
 
 -- 
-James Morris
-<jmorris@namei.org>
+Eamon Walsh <ewalsh@tycho.nsa.gov>
+National Security Agency
 
 --
 This message was distributed to subscribers of the selinux mailing list.
