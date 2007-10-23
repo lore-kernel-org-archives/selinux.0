@@ -1,50 +1,58 @@
-Message-ID: <471DD350.2020100@redhat.com>
-Date: Tue, 23 Oct 2007 06:56:16 -0400
-From: Daniel J Walsh <dwalsh@redhat.com>
-MIME-Version: 1.0
-To: Eamon Walsh <ewalsh@tycho.nsa.gov>
-CC: "Christopher J. PeBenito" <cpebenito@tresys.com>,
-        SELinux List <selinux@tycho.nsa.gov>
-Subject: Re: trouble with ssh in today's rawhide + refpolicy
-References: <471D1596.8070900@tycho.nsa.gov> <471D284D.70700@tycho.nsa.gov>
-In-Reply-To: <471D284D.70700@tycho.nsa.gov>
-Content-Type: text/plain; charset=ISO-8859-1
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l9NC2XLf021161
+	for <selinux@tycho.nsa.gov>; Tue, 23 Oct 2007 08:02:33 -0400
+Received: from mercury.gatech.edu (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id l9NC2WLH006699
+	for <selinux@tycho.nsa.gov>; Tue, 23 Oct 2007 12:02:32 GMT
+Subject: Re: MLS in the DoD
+From: rob myers <rob.myers@gtri.gatech.edu>
+To: Huntress Gary B NPRI <HuntressGB@Npt.NUWC.Navy.Mil>
+Cc: selinux@tycho.nsa.gov
+In-Reply-To: <7F93C0D0C6D8454B9B05720F713A09F10FD1F4E0@npri54exc14.npt.nuwc.navy.mil>
+References: 
+	 <7F93C0D0C6D8454B9B05720F713A09F10FD1F4E0@npri54exc14.npt.nuwc.navy.mil>
+Content-Type: text/plain
+Date: Tue, 23 Oct 2007 08:02:31 -0400
+Message-Id: <1193140951.18349.86.camel@rxm-581b.stl.gtri.gatech.edu>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Mon, 2007-10-22 at 12:05 -0400, Huntress Gary B NPRI wrote:
+> Hi Everyone,
+> 
+> I have some, but not a lot, of experience with SELinux.  I've recently
+> learned about the MLS aspect and this interests me a lot.   I manage a
+> number of small projects that have both an unclassified and a
+> classified component.   As I understand the capabilities of MLS, in
+> theory I could merge these functions onto a single hardware platform
+> at a significant total cost savings.  I could also, in theory,
+> implement my own "assurance guard" at a potential savings of over
+> $50K.   
+> 
+> There is a lot for me to learn and a lot of the issues are not
+> technical but administrative.  That is, it's not what I "can" do, it's
+> what I "may" do.   I'd like to hear from anyone in the DoD that has
+> successfully implemented an approved/accredited MLS workstation,
+> particularly if it is on a network.   Right now I cannot see how I
+> could ever convince my IA folks to let me run a system with a NIPRNET
+> eth0 and a SIPRNET eth1.
 
-Eamon Walsh wrote:
-> Eamon Walsh wrote:
->> On a rawhide box updated this afternoon, running refpolicy trunk in
->> mcs mode, I get the following after rebooting the box and logging in
->> over ssh:
->>
->> $ id -Z
->> sysadm_u:sysadm_r:system_chkpwd_t:s0
->>
->> After issuing a "service sshd restart" on the box and trying again, it
->> changes to:
-> 
-> Should have used run_init to restart sshd.  When I do this, it remains
-> system_chkpwd_t.  Also, I'm running in permissive mode and using public
-> key to authenticate.
-> 
-> Some searching revealed previous bug reports, most recently Sept 21:
-> http://archives.gentoo.org/gentoo-hardened/msg_07021.xml
-> 
-> 
-It sounds to me like sshd is not labeled correctly.  Or perhaps the
-entire machine.  What is sshd running as?
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.7 (GNU/Linux)
-Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org
+I doubt you could convince them, either.  According to wikipedia,
+"NIPRNet is, by design, a parallel airgapped analogue to the
+SIPRNET" [1].  Furthermore, RHEL5 has been evaluated against the LSPP
+which assumes [2] that any peers "are assumed to be under the same
+management control and operate under the same security policy
+constraints" as the TOE.  Meanwhile, CLIP [3] is only shooting for PL4.
 
-iD8DBQFHHdNQrlYvE4MpobMRAmNRAJ9XjTkqPfN3e18y+Ofhn4vWqg6vPwCfVMOt
-Wi8iSuVsdSkNvamccgS6dwc=
-=ksSk
------END PGP SIGNATURE-----
+Good luck, and please send along any success stories.
+
+rob.
+
+[1] http://en.wikipedia.org/wiki/NIPRNET
+[2] LSPP 3.3.4 A.PEER 
+[3] http://oss.tresys.com/projects/clip
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
