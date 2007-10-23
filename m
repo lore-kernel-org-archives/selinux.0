@@ -1,87 +1,59 @@
-Subject: Re: SE-DBUS policy
-From: "Christopher J. PeBenito" <cpebenito@tresys.com>
-To: Colin Walters <walters@redhat.com>
-Cc: Stephen Smalley <sds@tycho.nsa.gov>,
-        SELinux Mail List <selinux@tycho.nsa.gov>
-In-Reply-To: <471E1387.40100@redhat.com>
-References: <1193143580.9466.47.camel@gorn>
-	 <1193145875.2179.21.camel@moss-spartans.epoch.ncsc.mil>
-	 <471E1387.40100@redhat.com>
+Subject: Re: trouble with ssh in today's rawhide + refpolicy
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Daniel J Walsh <dwalsh@redhat.com>
+Cc: "Christopher J. PeBenito" <cpebenito@tresys.com>,
+        Eamon Walsh <ewalsh@tycho.nsa.gov>,
+        SELinux List <selinux@tycho.nsa.gov>
+In-Reply-To: <471DFC97.6040303@redhat.com>
+References: <471D1596.8070900@tycho.nsa.gov> <1193144985.9466.53.camel@gorn>
+	 <1193145799.2179.18.camel@moss-spartans.epoch.ncsc.mil>
+	 <1193146797.9466.64.camel@gorn>  <471DFC97.6040303@redhat.com>
 Content-Type: text/plain
-Date: Tue, 23 Oct 2007 17:15:10 +0000
-Message-Id: <1193159710.9466.86.camel@gorn>
+Date: Tue, 23 Oct 2007 13:18:47 -0400
+Message-Id: <1193159927.2179.33.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2007-10-23 at 11:30 -0400, Colin Walters wrote:
-> Stephen Smalley wrote:
-> > On Tue, 2007-10-23 at 12:46 +0000, Christopher J. PeBenito wrote:
-> >   
-> >> Is there any documentation on the SELinux behavior on dbus?  From some
-> >> discussion in the IRC channel, the policy templates (which is still
-> >> basically the NSA example policy stuff) don't match the code.
-> >>
-> >> The templates creates a type:
-> >>
-> >> type [connector domain prefix]_dbusd_[bus owner prefix]_t;
-> >>
-> >> so if you have staff_r's connection to the system bus, you get
-> >> staff_dbusd_system_t.  Then there is a type_change so dbus knows what
-> >> label to give the connection:
-> >>
-> >> type_change [domain] [bus owner prefix]_dbusd_t:dbus [connector type];
-> >>
-> >> which results in something like this:
-> >>
-> >> type user_mozilla_dbusd_system_t;
-> >> type_change user_mozilla_t system_dbusd_t:dbus user_mozilla_dbusd_system_t;
-> >>
-> >> Then based on the template, I believe the premise was that the dbus
-> >> permissions would be between these derived types.  However, in the
-> >> policy there are no dbus:send_msg rules for these types (except for the
-> >> ones given in the templates), and instead rules are against the real
-> >> domains, (e.g. allow NetworkManager_t dhcpd_t:dbus send_msg;).  So I
-> >> looked in the dbus code, and I didn't see any calls to
-> >> security_compute_relabel().  It looks like this bit of policy is dead,
-> >> and the templates need to be revised.
-> >>     
-> >
-> > Hmm...I see a post by Colin Walters back in Oct 2004 to add such logic
-> > to dbusd along with the corresponding policy patches, but no evidence
-> > that the code was ever merged.  I also see at least one other patch from
-> > Colin that added further dbus permissions, again with no evidence that
-> > it was ever merged.
-> >
-> > As far as I know, the dbus-daemon man page is the best documentation on
-> > the SELinux behavior in dbus - it has a description of the configuration
-> > for dbus contexts as well as the checks applied by SELinux.  Hopefully
-> > it is still up to date.
-> >
-> >   
-> I vaguely recall that at the time I was prototyping things out, and 
-> seeing what interest there was in the patches.  It could probably be 
-> revived if there was sufficient interest; we should step through the use 
-> cases for them.  The current :dbus object class is coarse but you can do 
-> quite a bit with it.
+On Tue, 2007-10-23 at 09:52 -0400, Daniel J Walsh wrote:
+> -----BEGIN PGP SIGNED MESSAGE-----
+> Hash: SHA1
+> 
+> Christopher J. PeBenito wrote:
+> > On Tue, 2007-10-23 at 09:23 -0400, Stephen Smalley wrote:
+> >> On Tue, 2007-10-23 at 13:09 +0000, Christopher J. PeBenito wrote:
+> >>> On Mon, 2007-10-22 at 17:26 -0400, Eamon Walsh wrote:
+> >>>> On a rawhide box updated this afternoon, running refpolicy trunk in mcs 
+> >>>> mode, I get the following after rebooting the box and logging in over ssh:
+> >>>>
+> >>>> $ id -Z
+> >>>> sysadm_u:sysadm_r:system_chkpwd_t:s0
+> >>> Do you have ssh_sysadm_login on?  Also, it seems odd that this would
+> >>> happen, since this combination doesn't show up in default_contexts, and
+> >>> the only auto transition to system_chkpwd_t from sshd_t is via
+> >>> chkpwd_exec_t.
+> >> We've seen this kind of behavior before when the
+> >> get_ordered_context_list() logic fails to get any contexts from
+> >> security_compute_user() that correspond with any of the partial contexts
+> >> in default_contexts - it then falls back to just returning the entire
+> >> reachable list.
+> > 
+> > Ok.  For some reason I always thought it would just fail if nothing
+> > worked from default_contexts.
+> > 
+> I think that is what should happen, but it does not.
 
-I think it boils down to if we want to be able to enforce over which bus
-the message is sent.  Since the type of the bus is encoded in the types
-you could say something like
-
-allow staff_mozilla_dbusd_staff_t staff_dbusd_staff_t:dbus send_msg;
-
-which says staff's mozilla can only send to the user domain over staff's
-dbus.  With the direct domain to domain (what we have right now) it says
-nothing about which bus the message goes over.
-
-That being said, I'm not sure that it matters which bus a message goes
-over.
+Well, two observations:
+- originally default_contexts was only supposed to specify defaults, not
+everything, so the system was supposed to work even if it was empty (but
+we have already migrated away from that to some degree),
+- if we fail entirely in that case, then we'll fail even in permissive
+mode, unless the caller is also checking for permissive mode and has
+some fallback behavior in that case.
 
 -- 
-Chris PeBenito
-Tresys Technology, LLC
-(410) 290-1411 x150
+Stephen Smalley
+National Security Agency
 
 
 --
