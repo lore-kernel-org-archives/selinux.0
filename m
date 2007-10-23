@@ -1,46 +1,27 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l9NCmw7S024941
-	for <selinux@tycho.nsa.gov>; Tue, 23 Oct 2007 08:48:58 -0400
-Received: from exchange.columbia.tresys.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with SMTP id l9NCmw1t019335
-	for <selinux@tycho.nsa.gov>; Tue, 23 Oct 2007 12:48:58 GMT
-Subject: SE-DBUS policy
+Subject: Re: trouble with ssh in today's rawhide + refpolicy
 From: "Christopher J. PeBenito" <cpebenito@tresys.com>
-To: SELinux Mail List <selinux@tycho.nsa.gov>
+To: Eamon Walsh <ewalsh@tycho.nsa.gov>
+Cc: Daniel J Walsh <dwalsh@redhat.com>, SELinux List <selinux@tycho.nsa.gov>
+In-Reply-To: <471D1596.8070900@tycho.nsa.gov>
+References: <471D1596.8070900@tycho.nsa.gov>
 Content-Type: text/plain
-Date: Tue, 23 Oct 2007 12:46:20 +0000
-Message-Id: <1193143580.9466.47.camel@gorn>
+Date: Tue, 23 Oct 2007 13:09:45 +0000
+Message-Id: <1193144985.9466.53.camel@gorn>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Is there any documentation on the SELinux behavior on dbus?  From some
-discussion in the IRC channel, the policy templates (which is still
-basically the NSA example policy stuff) don't match the code.
+On Mon, 2007-10-22 at 17:26 -0400, Eamon Walsh wrote:
+> On a rawhide box updated this afternoon, running refpolicy trunk in mcs 
+> mode, I get the following after rebooting the box and logging in over ssh:
+> 
+> $ id -Z
+> sysadm_u:sysadm_r:system_chkpwd_t:s0
 
-The templates creates a type:
-
-type [connector domain prefix]_dbusd_[bus owner prefix]_t;
-
-so if you have staff_r's connection to the system bus, you get
-staff_dbusd_system_t.  Then there is a type_change so dbus knows what
-label to give the connection:
-
-type_change [domain] [bus owner prefix]_dbusd_t:dbus [connector type];
-
-which results in something like this:
-
-type user_mozilla_dbusd_system_t;
-type_change user_mozilla_t system_dbusd_t:dbus user_mozilla_dbusd_system_t;
-
-Then based on the template, I believe the premise was that the dbus
-permissions would be between these derived types.  However, in the
-policy there are no dbus:send_msg rules for these types (except for the
-ones given in the templates), and instead rules are against the real
-domains, (e.g. allow NetworkManager_t dhcpd_t:dbus send_msg;).  So I
-looked in the dbus code, and I didn't see any calls to
-security_compute_relabel().  It looks like this bit of policy is dead,
-and the templates need to be revised.
+Do you have ssh_sysadm_login on?  Also, it seems odd that this would
+happen, since this combination doesn't show up in default_contexts, and
+the only auto transition to system_chkpwd_t from sshd_t is via
+chkpwd_exec_t.
 
 -- 
 Chris PeBenito
