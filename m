@@ -1,43 +1,43 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l9ODBC3A008431
-	for <selinux@tycho.nsa.gov>; Wed, 24 Oct 2007 09:11:12 -0400
-Received: from exchange.columbia.tresys.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with SMTP id l9ODBBjT005580
-	for <selinux@tycho.nsa.gov>; Wed, 24 Oct 2007 13:11:11 GMT
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l9ODpZRq012392
+	for <selinux@tycho.nsa.gov>; Wed, 24 Oct 2007 09:51:35 -0400
+Received: from nospam.sws.net.au (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id l9ODpRXg029133
+	for <selinux@tycho.nsa.gov>; Wed, 24 Oct 2007 13:51:29 GMT
+From: Russell Coker <russell@coker.com.au>
+Reply-To: russell@coker.com.au
+To: "Christopher J. PeBenito" <cpebenito@tresys.com>
 Subject: Re: policyd module
-From: "Christopher J. PeBenito" <cpebenito@tresys.com>
-To: Jan-Frode Myklebust <janfrode@tanso.net>
-Cc: selinux@tycho.nsa.gov
-In-Reply-To: <20071023160316.GA10042@lc4eb8045376502.ibm.com>
-References: <20070929231049.GA14665@lc4eb8045376502.ibm.com>
-	 <1191243135.4282.42.camel@gorn>
-	 <20071003125323.GA15070@lc4eb8045376502.ibm.com>
-	 <1191416728.5843.6.camel@gorn>
-	 <20071003150600.GA16964@lc4eb8045376502.ibm.com>
-	 <1191606242.13098.4.camel@gorn.columbia.tresys.com>
-	 <20071005234757.GA4249@lc4eb8045376502.ibm.com>
-	 <1191855475.13098.37.camel@gorn>
-	 <20071008164636.GA9601@lc4eb8045376502.ibm.com>
-	 <20071023160316.GA10042@lc4eb8045376502.ibm.com>
-Content-Type: text/plain
-Date: Wed, 24 Oct 2007 13:08:32 +0000
-Message-Id: <1193231312.9466.104.camel@gorn>
-Mime-Version: 1.0
+Date: Wed, 24 Oct 2007 23:49:53 +1000
+Cc: Jan-Frode Myklebust <janfrode@tanso.net>, selinux@tycho.nsa.gov
+References: <20070929231049.GA14665@lc4eb8045376502.ibm.com> <20071023160316.GA10042@lc4eb8045376502.ibm.com> <1193231312.9466.104.camel@gorn>
+In-Reply-To: <1193231312.9466.104.camel@gorn>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="utf-8"
+Message-Id: <200710242349.55640.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2007-10-23 at 18:03 +0200, Jan-Frode Myklebust wrote:
-> Resending this one, as it seems to have dropped of your radar. Still
-> applies to refpolicy-head.
+On Wednesday 24 October 2007 23:08, "Christopher J. PeBenito" 
+<cpebenito@tresys.com> wrote:
+> On Tue, 2007-10-23 at 18:03 +0200, Jan-Frode Myklebust wrote:
+> > Resending this one, as it seems to have dropped of your radar. Still
+> > applies to refpolicy-head.
+>
+> I'm wrestling with the naming.  Policyd, while its the name of the
+> server, seems far too generic.  It seems like postfix_policyd would be
+> better.
 
-I'm wrestling with the naming.  Policyd, while its the name of the
-server, seems far too generic.  It seems like postfix_policyd would be
-better.
+Or maybe even a more generic mta_policyd.  If you make a policy that's generic 
+enough for the majority of Postfix policy server modules then getting it to 
+also work for Sendmail milters etc should not be difficult.
 
 -- 
-Chris PeBenito
-Tresys Technology, LLC
-(410) 290-1411 x150
+russell@coker.com.au
+http://etbe.coker.com.au/          My Blog
+
+http://www.coker.com.au/sponsorship.html Sponsoring Free Software development
 
 
 --
