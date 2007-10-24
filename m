@@ -1,80 +1,44 @@
 Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l9OCDYgj003311
-	for <selinux@tycho.nsa.gov>; Wed, 24 Oct 2007 08:13:34 -0400
-Received: from wa-out-1112.google.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l9OCDXjT022726
-	for <selinux@tycho.nsa.gov>; Wed, 24 Oct 2007 12:13:34 GMT
-Received: by wa-out-1112.google.com with SMTP id k22so208806waf
-        for <selinux@tycho.nsa.gov>; Wed, 24 Oct 2007 05:13:30 -0700 (PDT)
-Message-ID: <9d1b82480710240513v269f8075yee754ada43ffca60@mail.gmail.com>
-Date: Wed, 24 Oct 2007 17:43:30 +0530
-From: Pravin <shindepravin@gmail.com>
-To: linux-kernel@vger.kernel.org, selinux@tycho.nsa.gov
-Subject: userspace Process Classifier based on SELinux Security Contexts for CPUSET, ELSA and Containers
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l9ODBC3A008431
+	for <selinux@tycho.nsa.gov>; Wed, 24 Oct 2007 09:11:12 -0400
+Received: from exchange.columbia.tresys.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with SMTP id l9ODBBjT005580
+	for <selinux@tycho.nsa.gov>; Wed, 24 Oct 2007 13:11:11 GMT
+Subject: Re: policyd module
+From: "Christopher J. PeBenito" <cpebenito@tresys.com>
+To: Jan-Frode Myklebust <janfrode@tanso.net>
+Cc: selinux@tycho.nsa.gov
+In-Reply-To: <20071023160316.GA10042@lc4eb8045376502.ibm.com>
+References: <20070929231049.GA14665@lc4eb8045376502.ibm.com>
+	 <1191243135.4282.42.camel@gorn>
+	 <20071003125323.GA15070@lc4eb8045376502.ibm.com>
+	 <1191416728.5843.6.camel@gorn>
+	 <20071003150600.GA16964@lc4eb8045376502.ibm.com>
+	 <1191606242.13098.4.camel@gorn.columbia.tresys.com>
+	 <20071005234757.GA4249@lc4eb8045376502.ibm.com>
+	 <1191855475.13098.37.camel@gorn>
+	 <20071008164636.GA9601@lc4eb8045376502.ibm.com>
+	 <20071023160316.GA10042@lc4eb8045376502.ibm.com>
+Content-Type: text/plain
+Date: Wed, 24 Oct 2007 13:08:32 +0000
+Message-Id: <1193231312.9466.104.camel@gorn>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hi,
+On Tue, 2007-10-23 at 18:03 +0200, Jan-Frode Myklebust wrote:
+> Resending this one, as it seems to have dropped of your radar. Still
+> applies to refpolicy-head.
 
-We are trying to solve the problem that, resource management solutions
-like CPUSET and Containers do need manual process classification into
-virtual filesystem provided by them as an interface. Also this
-classification needs to use PID of a process, so the classification
-can be done only after process is created. And this classification is
-not persist ant as if process is restarted then PID changes and it
-needs to be re-classified again.
-
-To solve above problem we are working on an idea of using SELinux
-security contexts as persistent tokens for classification of
-processes. Unlike PID of a process, SELinux security context does not
-change when process is restarted or machine is rebooted. So, if we can
-write rules using on these security contexts, then automatic process
-classification can be done entirely from userspace.
-
-We are using connectors for receiving notifications from kernel about
-events (ie. fork, exec, id change(uid, gid, suid), exit) in process
-management. We check the security context of process using system call
-"getpidcon" after system calls like fork and exec. and we use this
-security context to classify the process by comparing this security
-context against the security-contexts provided by
-system-administrators for classification. These rules provided by
-system administrators can be used to classify processes in respective
-class of CPUSET or containers.
-We also provide wild-character support in security context matching.
-
-We are using SELinux security context because they are persistent,
-flexible and configurable.
-For more reasons,
-http://pcss.sourceforge.net/faq.html
-
-Please refer the diagrams at http://pcss.sourceforge.net and
-http://pcss.sourceforge.net/pcss_cpuset.html for architecture of the design.
-
-The code for application which will work with CPUSET is hosted on
-sourceforge site.
-http://pcss.sourceforge.net/pcss-cpuset.tar
-This code is not very extensively tested, so there may be some problems with it.
-
-We have also applied similar solution to ELSA (Enhanced Linux System Accounting)
-http://elsa.sourceforge.net/
-
-We are also working on using it for classification for containers.
-Currently work is
- not yet over for containers.
-
-We are looking forward for some feedback/criticism about the Idea,
-architecture of the solution and the code.
-We think that it will be helpful in reducing the burden of system
-administrators as it uses
-all existing infrastructure to provide automatic classification
-solutions for different applications which need them.
+I'm wrestling with the naming.  Policyd, while its the name of the
+server, seems far too generic.  It seems like postfix_policyd would be
+better.
 
 -- 
-Regards,
-Pravin Shinde
-http://pcss.sourceforge.net
+Chris PeBenito
+Tresys Technology, LLC
+(410) 290-1411 x150
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
