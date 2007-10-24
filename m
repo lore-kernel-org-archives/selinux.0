@@ -1,104 +1,80 @@
-Message-ID: <471E5E91.4060904@redhat.com>
-Date: Tue, 23 Oct 2007 16:50:25 -0400
-From: Daniel J Walsh <dwalsh@redhat.com>
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l9OCDYgj003311
+	for <selinux@tycho.nsa.gov>; Wed, 24 Oct 2007 08:13:34 -0400
+Received: from wa-out-1112.google.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l9OCDXjT022726
+	for <selinux@tycho.nsa.gov>; Wed, 24 Oct 2007 12:13:34 GMT
+Received: by wa-out-1112.google.com with SMTP id k22so208806waf
+        for <selinux@tycho.nsa.gov>; Wed, 24 Oct 2007 05:13:30 -0700 (PDT)
+Message-ID: <9d1b82480710240513v269f8075yee754ada43ffca60@mail.gmail.com>
+Date: Wed, 24 Oct 2007 17:43:30 +0530
+From: Pravin <shindepravin@gmail.com>
+To: linux-kernel@vger.kernel.org, selinux@tycho.nsa.gov
+Subject: userspace Process Classifier based on SELinux Security Contexts for CPUSET, ELSA and Containers
 MIME-Version: 1.0
-To: "Christopher J. PeBenito" <cpebenito@tresys.com>
-CC: Colin Walters <walters@redhat.com>, Stephen Smalley <sds@tycho.nsa.gov>,
-        SELinux Mail List <selinux@tycho.nsa.gov>
-Subject: Re: SE-DBUS policy
-References: <1193143580.9466.47.camel@gorn>	 <1193145875.2179.21.camel@moss-spartans.epoch.ncsc.mil>	 <471E1387.40100@redhat.com> <1193159710.9466.86.camel@gorn>
-In-Reply-To: <1193159710.9466.86.camel@gorn>
 Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+Hi,
 
-Christopher J. PeBenito wrote:
-> On Tue, 2007-10-23 at 11:30 -0400, Colin Walters wrote:
->> Stephen Smalley wrote:
->>> On Tue, 2007-10-23 at 12:46 +0000, Christopher J. PeBenito wrote:
->>>   
->>>> Is there any documentation on the SELinux behavior on dbus?  From some
->>>> discussion in the IRC channel, the policy templates (which is still
->>>> basically the NSA example policy stuff) don't match the code.
->>>>
->>>> The templates creates a type:
->>>>
->>>> type [connector domain prefix]_dbusd_[bus owner prefix]_t;
->>>>
->>>> so if you have staff_r's connection to the system bus, you get
->>>> staff_dbusd_system_t.  Then there is a type_change so dbus knows what
->>>> label to give the connection:
->>>>
->>>> type_change [domain] [bus owner prefix]_dbusd_t:dbus [connector type];
->>>>
->>>> which results in something like this:
->>>>
->>>> type user_mozilla_dbusd_system_t;
->>>> type_change user_mozilla_t system_dbusd_t:dbus user_mozilla_dbusd_system_t;
->>>>
->>>> Then based on the template, I believe the premise was that the dbus
->>>> permissions would be between these derived types.  However, in the
->>>> policy there are no dbus:send_msg rules for these types (except for the
->>>> ones given in the templates), and instead rules are against the real
->>>> domains, (e.g. allow NetworkManager_t dhcpd_t:dbus send_msg;).  So I
->>>> looked in the dbus code, and I didn't see any calls to
->>>> security_compute_relabel().  It looks like this bit of policy is dead,
->>>> and the templates need to be revised.
->>>>     
->>> Hmm...I see a post by Colin Walters back in Oct 2004 to add such logic
->>> to dbusd along with the corresponding policy patches, but no evidence
->>> that the code was ever merged.  I also see at least one other patch from
->>> Colin that added further dbus permissions, again with no evidence that
->>> it was ever merged.
->>>
->>> As far as I know, the dbus-daemon man page is the best documentation on
->>> the SELinux behavior in dbus - it has a description of the configuration
->>> for dbus contexts as well as the checks applied by SELinux.  Hopefully
->>> it is still up to date.
->>>
->>>   
->> I vaguely recall that at the time I was prototyping things out, and 
->> seeing what interest there was in the patches.  It could probably be 
->> revived if there was sufficient interest; we should step through the use 
->> cases for them.  The current :dbus object class is coarse but you can do 
->> quite a bit with it.
-> 
-> I think it boils down to if we want to be able to enforce over which bus
-> the message is sent.  Since the type of the bus is encoded in the types
-> you could say something like
-> 
-> allow staff_mozilla_dbusd_staff_t staff_dbusd_staff_t:dbus send_msg;
-> 
-> which says staff's mozilla can only send to the user domain over staff's
-> dbus.  With the direct domain to domain (what we have right now) it says
-> nothing about which bus the message goes over.
-> 
-> That being said, I'm not sure that it matters which bus a message goes
-> over.
-> 
+We are trying to solve the problem that, resource management solutions
+like CPUSET and Containers do need manual process classification into
+virtual filesystem provided by them as an interface. Also this
+classification needs to use PID of a process, so the classification
+can be done only after process is created. And this classification is
+not persist ant as if process is restarted then PID changes and it
+needs to be re-classified again.
 
+To solve above problem we are working on an idea of using SELinux
+security contexts as persistent tokens for classification of
+processes. Unlike PID of a process, SELinux security context does not
+change when process is restarted or machine is rebooted. So, if we can
+write rules using on these security contexts, then automatic process
+classification can be done entirely from userspace.
 
+We are using connectors for receiving notifications from kernel about
+events (ie. fork, exec, id change(uid, gid, suid), exit) in process
+management. We check the security context of process using system call
+"getpidcon" after system calls like fork and exec. and we use this
+security context to classify the process by comparing this security
+context against the security-contexts provided by
+system-administrators for classification. These rules provided by
+system administrators can be used to classify processes in respective
+class of CPUSET or containers.
+We also provide wild-character support in security context matching.
 
-Colin is there any intension of setting context on the types of messages
-that can be sent.
+We are using SELinux security context because they are persistent,
+flexible and configurable.
+For more reasons,
+http://pcss.sourceforge.net/faq.html
 
-As an example:
-With the xguest user I want to be able to mount usb sticks.  So I need
-to allow xguest_t to dbus_chat with HAL.  I don't want the xguest user
-to suspend/hibernate, but that uses dbus_chat also.
+Please refer the diagrams at http://pcss.sourceforge.net and
+http://pcss.sourceforge.net/pcss_cpuset.html for architecture of the design.
 
-So I can not prevent one and allow the other.
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.7 (GNU/Linux)
-Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org
+The code for application which will work with CPUSET is hosted on
+sourceforge site.
+http://pcss.sourceforge.net/pcss-cpuset.tar
+This code is not very extensively tested, so there may be some problems with it.
 
-iD8DBQFHHl6RrlYvE4MpobMRAnU8AKC0N0i4SdHfifTOYLTV8BuzPUVF5gCcCBFc
-8fOfoomxBlSU/ZTINa/cqj0=
-=bRxd
------END PGP SIGNATURE-----
+We have also applied similar solution to ELSA (Enhanced Linux System Accounting)
+http://elsa.sourceforge.net/
+
+We are also working on using it for classification for containers.
+Currently work is
+ not yet over for containers.
+
+We are looking forward for some feedback/criticism about the Idea,
+architecture of the solution and the code.
+We think that it will be helpful in reducing the burden of system
+administrators as it uses
+all existing infrastructure to provide automatic classification
+solutions for different applications which need them.
+
+-- 
+Regards,
+Pravin Shinde
+http://pcss.sourceforge.net
 
 --
 This message was distributed to subscribers of the selinux mailing list.
