@@ -1,55 +1,34 @@
 Received: from facesaver.epoch.ncsc.mil (facesaver [144.51.25.10])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id l9PJvYn5022429
-	for <selinux@tycho.nsa.gov>; Thu, 25 Oct 2007 15:57:34 -0400
-Message-ID: <4720F528.7030305@tycho.nsa.gov>
-Date: Thu, 25 Oct 2007 15:57:28 -0400
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id l9PNSkNE004582
+	for <selinux@tycho.nsa.gov>; Thu, 25 Oct 2007 19:28:46 -0400
+Message-ID: <472126AC.5090008@tycho.nsa.gov>
+Date: Thu, 25 Oct 2007 19:28:44 -0400
 From: Eamon Walsh <ewalsh@tycho.nsa.gov>
 MIME-Version: 1.0
 To: "Christopher J. PeBenito" <cpebenito@tresys.com>
-CC: SELinux List <selinux@tycho.nsa.gov>, Daniel J Walsh <dwalsh@redhat.com>
-Subject: Re: What domain should the X server run in
-References: <4720D211.1000507@tycho.nsa.gov> <1193338226.9466.148.camel@gorn.columbia.tresys.com>
-In-Reply-To: <1193338226.9466.148.camel@gorn.columbia.tresys.com>
+CC: Daniel J Walsh <dwalsh@redhat.com>, SELinux List <selinux@tycho.nsa.gov>
+Subject: Re: trouble with ssh in today's rawhide + refpolicy
+References: <471D1596.8070900@tycho.nsa.gov> <1193144985.9466.53.camel@gorn> <471E2A72.2090903@tycho.nsa.gov>
+In-Reply-To: <471E2A72.2090903@tycho.nsa.gov>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Christopher J. PeBenito wrote:
-> On Thu, 2007-10-25 at 13:27 -0400, Eamon Walsh wrote:
->> The X server runs as xdm_xserver_t if it is started from a display
->> manager.  It runs as user_xserver_t if it is started with startx.
->>
->> Is the X server part of the user's session or not?
->>
->> If it is, then it should always run as user_xserver_t, and the display
->> managers should be "fixed" to label the X server with the user's context
->> at login time.
+Eamon Walsh wrote:
+> Christopher J. PeBenito wrote:
+>> On Mon, 2007-10-22 at 17:26 -0400, Eamon Walsh wrote:
+>>> On a rawhide box updated this afternoon, running refpolicy trunk in mcs 
+>>> mode, I get the following after rebooting the box and logging in over ssh:
+>>>
+>>> $ id -Z
+>>> sysadm_u:sysadm_r:system_chkpwd_t:s0
+>> Do you have ssh_sysadm_login on?
 > 
-> If you're running from [gkx]dm, then the server is running before the
-> user has logged in, and not restarted or anything after the user logs
-> in, so it stays xdm_xserver_t.  Whereas from startx, the user runs it,
-> so its a straightforward type_transition to get user_xserver_t.  Unless
-> the server can be restarted somehow when a user logs in, it seems that
-> the only other option would be a dyntransition.
-
-Among other solutions, a text-based or DirectFB-based display manager 
-could be written that doesn't need X.  But I'm going with the single 
-domain for now.
-
-> 
->> It if isn't, then it should always run in the same domain, and
->> startx/xinit should be "fixed" to transition into this context.
->>
->>  From my perspective I would favor the latter option for now since it's 
->> easier to write policy for.  The user's individual windows can be 
->> labeled with a per-user type, maintaining separation.
-> 
-> I agree.
+> Nope, didn't have this set.  That solves the problem, thanks.
 > 
 
-I tried to go into the xserver module and rip out all the $1_xserver_t 
-and xdm_xserver_t in favor of just "xserver_t".  But, I got bogged down 
-rather quickly so I gave up on that for now.
+I observed the same erroneous type today when I logged into X without 
+xdm_sysadm_login set.
 
 
 -- 
