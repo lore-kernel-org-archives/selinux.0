@@ -1,46 +1,46 @@
-Subject: Re: removing a module
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Steve G <linux_4ever@yahoo.com>
-Cc: SE Linux <selinux@tycho.nsa.gov>,
-        Karl MacMillan <kmacmillan@mentalrootkit.com>,
-        Joshua Brindle <method@manicmethod.com>
-In-Reply-To: <874986.66361.qm@web51507.mail.re2.yahoo.com>
-References: <874986.66361.qm@web51507.mail.re2.yahoo.com>
+Subject: Re: What domain should the X server run in
+From: "Christopher J. PeBenito" <cpebenito@tresys.com>
+To: Eamon Walsh <ewalsh@tycho.nsa.gov>
+Cc: SELinux List <selinux@tycho.nsa.gov>, Daniel J Walsh <dwalsh@redhat.com>
+In-Reply-To: <4720D211.1000507@tycho.nsa.gov>
+References: <4720D211.1000507@tycho.nsa.gov>
 Content-Type: text/plain
-Date: Thu, 25 Oct 2007 14:16:56 -0400
-Message-Id: <1193336216.2683.272.camel@moss-spartans.epoch.ncsc.mil>
+Date: Thu, 25 Oct 2007 14:50:26 -0400
+Message-Id: <1193338226.9466.148.camel@gorn.columbia.tresys.com>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2007-10-25 at 09:11 -0700, Steve G wrote:
-> Hi,
+On Thu, 2007-10-25 at 13:27 -0400, Eamon Walsh wrote:
+> The X server runs as xdm_xserver_t if it is started from a display
+> manager.  It runs as user_xserver_t if it is started with startx.
 > 
-> I was testing the new policy writing GUI in rawhide, and removed a
-> policy module. Prelink ran while I was working on a better policy
-> module and gave me a bunch of AVCs since the binaries are now
-> considered unlabeled_t. I was thinking that semodule should be able to
-> get to the file regexes that describes the files that the policy
-> module was responsible for. So why doesn't it save those regexes and
-> use them to do a restorecon after the module is removed? It might not
-> get all the files that are mislabeled due to the policy module being
-> removed, but it would be much better than doing nothing.
+> Is the X server part of the user's session or not?
+> 
+> If it is, then it should always run as user_xserver_t, and the display
+> managers should be "fixed" to label the X server with the user's context
+> at login time.
 
-Well, at present, semodule / libsemanage never causes anything to be
-relabeled automatically - you install a policy module via semodule -i
-and then install or restorecon the files, you add local file contexts
-via semanage and then install or restorecon the files, etc.  So what you
-seem to be after is fully integrated policy changes with relabeling,
-including not only module removal but also module install, local file
-context addition or removal, etc.
+If you're running from [gkx]dm, then the server is running before the
+user has logged in, and not restarted or anything after the user logs
+in, so it stays xdm_xserver_t.  Whereas from startx, the user runs it,
+so its a straightforward type_transition to get user_xserver_t.  Unless
+the server can be restarted somehow when a user logs in, it seems that
+the only other option would be a dyntransition.
 
-Ideally of course the files would be relabeled or removed _before_ the
-policy module was fully removed, so that they never exist in an
-unlabeled state at all.  
+> It if isn't, then it should always run in the same domain, and
+> startx/xinit should be "fixed" to transition into this context.
+> 
+>  From my perspective I would favor the latter option for now since it's 
+> easier to write policy for.  The user's individual windows can be 
+> labeled with a per-user type, maintaining separation.
+
+I agree.
 
 -- 
-Stephen Smalley
-National Security Agency
+Chris PeBenito
+Tresys Technology, LLC
+(410) 290-1411 x150
 
 
 --
