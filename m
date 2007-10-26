@@ -1,39 +1,53 @@
-Received: from facesaver.epoch.ncsc.mil (facesaver [144.51.25.10])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id l9PNSkNE004582
-	for <selinux@tycho.nsa.gov>; Thu, 25 Oct 2007 19:28:46 -0400
-Message-ID: <472126AC.5090008@tycho.nsa.gov>
-Date: Thu, 25 Oct 2007 19:28:44 -0400
-From: Eamon Walsh <ewalsh@tycho.nsa.gov>
+From: Russell Coker <russell@coker.com.au>
+Reply-To: russell@coker.com.au
+To: Eamon Walsh <ewalsh@tycho.nsa.gov>
+Subject: Re: What domain should the X server run in
+Date: Fri, 26 Oct 2007 22:52:27 +1000
+Cc: SELinux List <selinux@tycho.nsa.gov>,
+        "Christopher J. PeBenito" <cpebenito@tresys.com>,
+        Daniel J Walsh <dwalsh@redhat.com>
+References: <4720D211.1000507@tycho.nsa.gov>
+In-Reply-To: <4720D211.1000507@tycho.nsa.gov>
 MIME-Version: 1.0
-To: "Christopher J. PeBenito" <cpebenito@tresys.com>
-CC: Daniel J Walsh <dwalsh@redhat.com>, SELinux List <selinux@tycho.nsa.gov>
-Subject: Re: trouble with ssh in today's rawhide + refpolicy
-References: <471D1596.8070900@tycho.nsa.gov> <1193144985.9466.53.camel@gorn> <471E2A72.2090903@tycho.nsa.gov>
-In-Reply-To: <471E2A72.2090903@tycho.nsa.gov>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Message-Id: <200710262252.31838.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Eamon Walsh wrote:
-> Christopher J. PeBenito wrote:
->> On Mon, 2007-10-22 at 17:26 -0400, Eamon Walsh wrote:
->>> On a rawhide box updated this afternoon, running refpolicy trunk in mcs 
->>> mode, I get the following after rebooting the box and logging in over ssh:
->>>
->>> $ id -Z
->>> sysadm_u:sysadm_r:system_chkpwd_t:s0
->> Do you have ssh_sysadm_login on?
-> 
-> Nope, didn't have this set.  That solves the problem, thanks.
-> 
+On Friday 26 October 2007 03:27, Eamon Walsh <ewalsh@tycho.nsa.gov> wrote:
+> Is the X server part of the user's session or not?
 
-I observed the same erroneous type today when I logged into X without 
-xdm_sysadm_login set.
+It probably would be best to have the X server run in a domain specific to the 
+user.  Even without the domain-type issues if we want to use labelled 
+networking to control access to X servers (let's not assume there is a strict 
+1:1 mapping of X servers to user sessions) in a MLS/MCS environment then 
+having an X server instance per user makes sense.
 
+> If it is, then it should always run as user_xserver_t, and the display
+> managers should be "fixed" to label the X server with the user's context
+> at login time.
+>
+> It if isn't, then it should always run in the same domain, and
+> startx/xinit should be "fixed" to transition into this context.
+>
+>  From my perspective I would favor the latter option for now since it's
+> easier to write policy for.  The user's individual windows can be
+> labeled with a per-user type, maintaining separation.
+
+Why would either option be easier for policy writing?  Getting both to work 
+(as has currently been done) is tricky - and we have had repeated breakage 
+along the way.  For ease of policy writing we would support exactly one of 
+the options.
+
+I think that having the display manager start a new X server for each login 
+will give the best result.
 
 -- 
-Eamon Walsh <ewalsh@tycho.nsa.gov>
-National Security Agency
+russell@coker.com.au
+http://etbe.coker.com.au/          My Blog
+
+http://www.coker.com.au/sponsorship.html Sponsoring Free Software development
 
 --
 This message was distributed to subscribers of the selinux mailing list.
