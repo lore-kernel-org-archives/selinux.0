@@ -1,93 +1,58 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l9QIFeoj018131
-	for <selinux@tycho.nsa.gov>; Fri, 26 Oct 2007 14:15:40 -0400
-Received: from web36604.mail.mud.yahoo.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with SMTP id l9QIFdfN003377
-	for <selinux@tycho.nsa.gov>; Fri, 26 Oct 2007 18:15:39 GMT
-Date: Fri, 26 Oct 2007 11:15:34 -0700 (PDT)
-From: Casey Schaufler <casey@schaufler-ca.com>
-Reply-To: casey@schaufler-ca.com
-Subject: Re: What domain should the X server run in
-To: russell@coker.com.au, casey@schaufler-ca.com
-Cc: Eamon Walsh <ewalsh@tycho.nsa.gov>, SELinux List <selinux@tycho.nsa.gov>,
-        "Christopher J. PeBenito" <cpebenito@tresys.com>,
-        Daniel J Walsh <dwalsh@redhat.com>
-In-Reply-To: <200710270256.34064.russell@coker.com.au>
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l9RAdWRo010192
+	for <selinux@tycho.nsa.gov>; Sat, 27 Oct 2007 06:39:32 -0400
+Received: from nospam.sws.net.au (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id l9RAdOEf024105
+	for <selinux@tycho.nsa.gov>; Sat, 27 Oct 2007 10:39:30 GMT
+Received: from localhost (localhost [127.0.0.1])
+	by nospam.sws.net.au (Postfix) with ESMTP id 2019F18B21
+	for <selinux@tycho.nsa.gov>; Sat, 27 Oct 2007 20:39:22 +1000 (EST)
+Received: from nospam.sws.net.au ([127.0.0.1])
+	by localhost (etbe.coker.com.au [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id Z3qIm0FTrcT7 for <selinux@tycho.nsa.gov>;
+	Sat, 27 Oct 2007 20:39:21 +1000 (EST)
+Received: from aeon.coker.com.au (localhost [127.0.0.1])
+	by nospam.sws.net.au (Postfix) with ESMTP id C680B18AE9
+	for <selinux@tycho.nsa.gov>; Sat, 27 Oct 2007 20:39:21 +1000 (EST)
+Received: from localhost (localhost [127.0.0.1])
+	by aeon.coker.com.au (Postfix) with ESMTP id 160F321CA5
+	for <selinux@tycho.nsa.gov>; Sat, 27 Oct 2007 20:39:20 +1000 (EST)
+From: Russell Coker <russell@coker.com.au>
+Reply-To: russell@coker.com.au
+To: "SE-Linux" <selinux@tycho.nsa.gov>
+Subject: translation of Japanese blog posts
+Date: Sat, 27 Oct 2007 20:39:17 +1000
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Message-ID: <239140.31261.qm@web36604.mail.mud.yahoo.com>
+Content-Type: text/plain;
+  charset="us-ascii"
+Message-Id: <200710272039.19504.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+http://selinuxnews.org/planet/
+Planet SE Linux has quite a number of blog posts from KaiGai Kohei and Yuichi 
+Nakamura that are only in Japanese.
 
---- Russell Coker <russell@coker.com.au> wrote:
+It would be good if someone could provide an English translation of these 
+posts.  I would be happy to help by checking for correct grammar if a 
+Japanese person does the translation and for correct use of SE Linux 
+terminology if someone who is not involved with SE Linux development does the 
+translation.  I could also host a blog for such content if the people who do 
+the translation don't have one.
 
-> On Saturday 27 October 2007 01:43, Casey Schaufler <casey@schaufler-ca.com> 
-> wrote:
-> > > Why would either option be easier for policy writing?  Getting both to
-> > > work (as has currently been done) is tricky - and we have had repeated
-> > > breakage along the way.  For ease of policy writing we would support
-> > > exactly one of the options.
-> > >
-> > > I think that having the display manager start a new X server for each
-> > > login will give the best result.
-> >
-> > That certainly has advantages, including making the object reuse
-> > argument worlds simpler. In the Unix world it has been done both ways.
-> > Some instances treated the X server as a user application.
-> > Trix4.0.5epl, B1 evaluated, did it this way. Others made the X server a
-> > policy enforcing mechanism, and ran it as a system process.
-> 
-> My recollection of playing with Trix some years ago is that it enforced
-> policy 
-> in the X server (and for full functionality required turning off some GL 
-> features that would allow reading/writing outside window borders).
+http://etbe.coker.com.au/translation/
 
-That was (maybe still is) Trix6.5. As the corporate coffers dwindled
-the features included in the evaluation deminished and the windowing
-environment, although included in the product, was not included in
-the LSPP evaluation.
+The above URL has the current conditions for anyone who wants to translate my 
+blog posts into another language.  I encourage everyone who posts about SE 
+Linux to put a similar page on their blog to encourage anyone who might be 
+considering translating the content.  Also if you have any suggestions for 
+changes in the above page then please let me know.
 
-> > The important thing is that you have to decide if the X server is a
-> > policy enforcing entity or if it is not. Once you've made that choice
-> > it's pretty clear what you need to do. And who's going to get upset.
-> 
-> You make a good point about the conceptual design being clearer if you either
-> 
-> have the X server as a user application or as a policy enforcing system 
-> service.
-> 
-> But it seems to me that the best result is to have it running on behalf of a 
-> user but enforcing access control.  As an analogy consider a SETUID 
-> application such as /bin/passwd, it has policy (or rather enforces policy 
-> requested by the PAM configuration in a modern system) and is run by the user
-> 
-> but transitions to a context that has greater privs.
+-- 
+russell@coker.com.au
+http://etbe.coker.com.au/          My Blog
 
-If you are counting on the program to make access control decisions
-the analysis/assurance/trust required is the same regardless of the
-runtime attributes of the process. That includes the analysis of the
-SELinux policy. Once you have elevated the program to Security Enforcing
-status everything about it has to be called into question. Running it
-with limited privilege via capabilities, userid, or policy attributes
-can help with the analysis, but it can't remove the analysis.
-
-> We could of course have the password change operation on a Unix system be a 
-> system service that a user connects to (I'm sure that I'm not the only person
-> 
-> to have written a CGI-BIN script to change passwords over https or something 
-> conceptually similar).  There is nothing preventing a Unix system being 
-> implemented with passwd, chfn, etc all talking over Unix domain sockets to a 
-> privileged server process that does the work (it would probably be easier to 
-> secure than the current way of doing things).
-
-Believe it or not, the first Unix system to be evaluated under the
-Orange Book scheme did exactly that, back in 1987. Gould C2. It was
-a commercial failure because it didn't look enough like "real" Unix.
-
-
-Casey Schaufler
-casey@schaufler-ca.com
+http://www.coker.com.au/sponsorship.html Sponsoring Free Software development
 
 --
 This message was distributed to subscribers of the selinux mailing list.
