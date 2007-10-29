@@ -1,39 +1,41 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id l9TE9i9O014708
-	for <selinux@tycho.nsa.gov>; Mon, 29 Oct 2007 10:09:44 -0400
-Received: from rn-out-0102.google.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id l9TE9i9h021978
-	for <selinux@tycho.nsa.gov>; Mon, 29 Oct 2007 14:09:44 GMT
-Received: by rn-out-0102.google.com with SMTP id e13so483058rng
-        for <selinux@tycho.nsa.gov>; Mon, 29 Oct 2007 07:09:44 -0700 (PDT)
-Message-ID: <4725E91A.8010304@gmail.com>
-Date: Mon, 29 Oct 2007 09:07:22 -0500
-From: Ted X Toth <txtoth@gmail.com>
-MIME-Version: 1.0
-To: KaiGai Kohei <kaigai@kaigai.gr.jp>
-CC: SE-Linux <selinux@tycho.nsa.gov>,
-        Shintaro Fujiwara <shintaro.fujiwara@gmail.com>
-Subject: Re: http://intrajp.no-ip.com/nucleus/index.php?itemid=673
-References: <200710280414.33814.russell@coker.com.au>
-In-Reply-To: <200710280414.33814.russell@coker.com.au>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Subject: [PATCH] refpolicy: Fix range_transition rules in the
+	init_ranged_system_domain interface in system/init.if
+From: James Carter <jwcart2@tycho.nsa.gov>
+Reply-To: jwcart2@tycho.nsa.gov
+To: "Christopher J. PeBenito" <cpebenito@tresys.com>
+Cc: SELinux <selinux@tycho.nsa.gov>
+Content-Type: text/plain
+Date: Mon, 29 Oct 2007 13:21:52 -0400
+Message-Id: <1193678512.2796.14.camel@moss-lions.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Russell Coker wrote:
-> Congratulations KaiGai on the award you received.  SE-PostgreSQL is a great 
-> piece of work and it's good to see some wider recognition.
->
-> When I was in Japan some journalists wanted to interview me, unfortunately 
-> that wasn't possible.  It would be good if it was possible for someone to 
-> interview you about this work (if your employer permits it).
->
->   
-I too would like to add my congratulations. Hopefully this will 
-encourage some nice corporation to underwrite an evaluation for 
-CAPP/LSPP/etc...
+The interface init_ranged_system_domain is not currently used, so maybe it can be just deleted.
 
-Ted
+Index: policy/modules/system/init.if
+===================================================================
+--- policy/modules/system/init.if	(revision 2474)
++++ policy/modules/system/init.if	(working copy)
+@@ -242,11 +242,11 @@
+ 	init_system_domain($1,$2)
+ 
+ 	ifdef(`enable_mcs',`
+-		range_transition initrc_t $2 $3;
++		range_transition initrc_t $2:process $3;
+ 	')
+ 
+ 	ifdef(`enable_mls',`
+-		range_transition initrc_t $2 $3;
++		range_transition initrc_t $2:process $3;
+ 	')
+ ')
+ 
+
+-- 
+James Carter <jwcart2@tycho.nsa.gov>
+National Security Agency
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
