@@ -1,372 +1,257 @@
-Subject: Re: [PATCH] libselinux: refactor AVC netlink code
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Eamon Walsh <ewalsh@tycho.nsa.gov>
-Cc: SELinux List <selinux@tycho.nsa.gov>
-In-Reply-To: <471F8F8D.3040606@tycho.nsa.gov>
-References: <471F8F8D.3040606@tycho.nsa.gov>
+Subject: Re: [PATCH] checkpolicy: Remove use of REJECT and trailing context
+	in lex rules; make ipv4 address processing like ipv6
+From: Stephen Smalley <sds@epoch.ncsc.mil>
+To: jwcart2@tycho.nsa.gov
+Cc: SELinux <selinux@tycho.nsa.gov>
+In-Reply-To: <1193859825.19140.50.camel@moss-lions.epoch.ncsc.mil>
+References: <1193859825.19140.50.camel@moss-lions.epoch.ncsc.mil>
 Content-Type: text/plain
-Date: Thu, 01 Nov 2007 12:51:04 -0400
-Message-Id: <1193935864.12018.107.camel@moss-spartans.epoch.ncsc.mil>
+Date: Thu, 01 Nov 2007 16:11:15 -0400
+Message-Id: <1193947875.12018.123.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2007-10-24 at 14:31 -0400, Eamon Walsh wrote:
-> This patch removes duplication in the AVC netlink code
-> by introducing helper functions.
+On Wed, 2007-10-31 at 15:43 -0400, James Carter wrote:
+> This is a patch to remove the use of REJECT and trailing context in the
+> lex rules.  To help accomplish this, it also makes ipv4 address
+> processing like ipv6 address processing.
 > 
-> Did some basic testing and confirmed that messages are
-> received and processed.
+> It improves policy compile times on my laptop from ~95sec to ~85sec.  
 > 
-> More patches to follow.
+> REJECT was used to reject an identifier if it had two consecutive "."s
+> or one at the end.  The new rule should prevent both of these conditions
+> without the use of REJECT and the is_valid_identifier function.
 > 
-> Signed-off-by: Eamon Walsh <ewalsh@tycho.nsa.gov>
+> Trailing context was used in the rule to identify the module version.
+> Without the trailing context, the rule would match ipv4 addresses.  A
+> rule for ipv4 addresses was added to eliminate the need for the use of
+> trailing context and to allow ipv4 addresses to be handled in a manner
+> similar to ipv6 addresses.
+> 
+> Finally, the alnum character class was defined and some minor cleanup
+> was done.
+> 
+> I am, by the way, surprised by the rule to match the module version.
+> It is "[0-9]+(\.[A-Za-z0-9_.]*)?" when I would have expected something
+> like "[0-9]+(\.[0-9]+){0,2}".  I assumed that there is a reason why it
+> is like this and left it alone.
+> 
+> 
+> Signed off by: James Carter <jwcart2@tycho.nsa.gov>
 
-Merged.
-
-However, it occurs to me that this code may yield unaligned accesses
-(before and after this patch), just like the libsepol policy reading
-code until recently.
+Thanks, merged.
 
 > ---
 > 
->  avc_internal.c |  289 +++++++++++++++++++++------------------------------------
->  1 file changed, 107 insertions(+), 182 deletions(-)
+>  policy_parse.y |   79
+> ++++++++++++++++++++++++++++++++++++++-------------------
+>  policy_scan.l  |   34 +++++-------------------
+>  2 files changed, 62 insertions(+), 51 deletions(-)
 > 
 > 
-> Index: libselinux/src/avc_internal.c
+> Index: checkpolicy/policy_scan.l
 > ===================================================================
-> --- libselinux/src/avc_internal.c	(revision 2662)
-> +++ libselinux/src/avc_internal.c	(working copy)
-> @@ -89,221 +89,146 @@
->  	close(fd);
+> --- checkpolicy/policy_scan.l	(revision 2662)
+> +++ checkpolicy/policy_scan.l	(working copy)
+> @@ -31,7 +31,6 @@
+>  static char linebuf[2][255];
+>  static unsigned int lno = 0;
+>  int yywarn(char *msg);
+> -static int is_valid_identifier(char *id);
+>  
+>  char source_file[255];
+>  unsigned long source_lineno = 1;
+> @@ -46,8 +45,8 @@
+>  %array
+>  letter  [A-Za-z]
+>  digit   [0-9]
+> +alnum   [a-zA-Z0-9]
+>  hexval	[0-9A-Fa-f]
+> -version [0-9]+(\.[A-Za-z0-9_.]*)?
+>  
+>  %%
+>  \n.*				{ strncpy(linebuf[lno], yytext+1, 255);
+> @@ -199,17 +198,14 @@
+>  H1				{ return(H1); }
+>  h2 |
+>  H2				{ return(H2); }
+> -"/"({letter}|{digit}|_|"."|"-"|"/")*	{ return(PATH); }
+> -{letter}({letter}|{digit}|_|"."|"-")*	{ if (is_valid_identifier(yytext)) 
+> -						return(IDENTIFIER); 
+> -					  else 
+> -					  	REJECT;
+> -					}
+> -{digit}{digit}*                 { return(NUMBER); }
+> -{hexval}{0,4}":"{hexval}{0,4}":"({hexval}|":"|".")*	{ return(IPV6_ADDR); }
+> -{version}/([ \t\f]*;)           { return(VERSION_IDENTIFIER); }
+> +"/"({alnum}|[_.-/])*	        { return(PATH); }
+> +{letter}({alnum}|[_-])*([.]?({alnum}|[_-]))*	{ return(IDENTIFIER); }
+> +{digit}+                        { return(NUMBER); }
+> +{digit}{1,3}(\.{digit}{1,3}){3}    { return(IPV4_ADDR); }
+> +{hexval}{0,4}":"{hexval}{0,4}":"({hexval}|[:.])*  { return(IPV6_ADDR); }
+> +{digit}+(\.({alnum}|[_.])*)?    { return(VERSION_IDENTIFIER); }
+>  #line[ ]1[ ]\"[^\n]*\"		{ source_lineno = 1; strncpy(source_file, yytext+9, 255); source_file[strlen(source_file)-1] = '\0'; }
+> -#line[ ]{digit}{digit}*		{ source_lineno = atoi(yytext+6)-1; }
+> +#line[ ]{digit}+	        { source_lineno = atoi(yytext+6)-1; }
+>  #[^\n]*                         { /* delete comments */ }
+>  [ \t\f]+			{ /* delete whitespace */ }
+>  "==" 				{ return(EQUALS); }
+> @@ -263,17 +259,3 @@
+>  			linebuf[0], linebuf[1]);
+>  	return 0;
+>  }
+> -
+> -static int is_valid_identifier(char *id) {
+> -        if ((strrchr(id, '.')) != NULL) {
+> -                if (strstr(id, "..") != NULL) {
+> -                        /* identifier has consecutive '.' */
+> -                        return 0;
+> -                }
+> -		if (id[strlen(id) - 1] == '.') {
+> -			/* identifier ends in '.' */
+> -			return 0;
+> -		}
+> -        }
+> -        return 1;
+> -}
+> Index: checkpolicy/policy_parse.y
+> ===================================================================
+> --- checkpolicy/policy_parse.y	(revision 2662)
+> +++ checkpolicy/policy_parse.y	(working copy)
+> @@ -122,7 +122,7 @@
+>  static int define_fs_context(unsigned int major, unsigned int minor);
+>  static int define_port_context(unsigned int low, unsigned int high);
+>  static int define_netif_context(void);
+> -static int define_ipv4_node_context(unsigned int addr, unsigned int mask);
+> +static int define_ipv4_node_context(void);
+>  static int define_ipv6_node_context(void);
+>  
+>  typedef int (* require_func_t)();
+> @@ -195,6 +195,7 @@
+>  %token NUMBER
+>  %token EQUALS
+>  %token NOTEQUAL
+> +%token IPV4_ADDR
+>  %token IPV6_ADDR
+>  %token MODULE VERSION_IDENTIFIER REQUIRE OPTIONAL
+>  
+> @@ -654,7 +655,7 @@
+>  			| node_contexts node_context_def
+>  			;
+>  node_context_def	: NODECON ipv4_addr_def ipv4_addr_def security_context_def
+> -			{if (define_ipv4_node_context($2,$3)) return -1;}
+> +			{if (define_ipv4_node_context()) return -1;}
+>  			| NODECON ipv6_addr ipv6_addr security_context_def
+>  			{if (define_ipv6_node_context()) return -1;}
+>  			;
+> @@ -684,18 +685,9 @@
+>                          | GENFSCON identifier path security_context_def
+>  			{if (define_genfs_context(0)) return -1;}
+>  			;
+> -ipv4_addr_def		: number '.' number '.' number '.' number
+> -			{ 
+> -			  unsigned int addr;
+> -	  		  unsigned char *p = ((unsigned char *)&addr);
+> -
+> -			  p[0] = $1 & 0xff;				
+> -			  p[1] = $3 & 0xff;
+> -			  p[2] = $5 & 0xff;
+> -			  p[3] = $7 & 0xff;
+> -			  $$ = addr;
+> -			}
+> -    			;
+> +ipv4_addr_def		: IPV4_ADDR
+> +			{ if (insert_id(yytext,0)) return -1; }
+> +			;
+>  security_context_def	: identifier ':' identifier ':' identifier opt_mls_range_def
+>  	                ;
+>  opt_mls_range_def	: ':' mls_range_def
+> @@ -4184,27 +4176,63 @@
+>  	return 0;
 >  }
 >  
-> -int avc_netlink_check_nb(void)
-> +static int avc_netlink_receive(char *buf, unsigned buflen)
->  {
->  	int rc;
->  	struct sockaddr_nl nladdr;
->  	socklen_t nladdrlen = sizeof nladdr;
-> -	char buf[1024];
-> -	struct nlmsghdr *nlh;
-> +	struct nlmsghdr *nlh = (struct nlmsghdr *)buf;
+> -static int define_ipv4_node_context(unsigned int addr, unsigned int mask)
+> -{
+> +static int define_ipv4_node_context()
+> +{	
+> +	char *id;
+> +	int rc = 0;
+> +	struct in_addr addr, mask;
+>  	ocontext_t *newc, *c, *l, *head;
 >  
-> -	while (1) {
-> -		rc = recvfrom(fd, buf, sizeof(buf), 0,
-> -			      (struct sockaddr *)&nladdr, &nladdrlen);
-> -		if (rc < 0) {
-> -			if (errno == EINTR)
-> -				continue;
-> -			if (errno != EAGAIN) {
-> -				avc_log("%s:  socket error during read: %d\n",
-> -					avc_prefix, errno);
-> -			} else {
-> -				errno = 0;
-> -				rc = 0;
-> -			}
-> -			goto out;
-> -		}
-> +	rc = recvfrom(fd, buf, buflen, 0, (struct sockaddr *)&nladdr,
-> +		      &nladdrlen);
-> +	if (rc < 0)
-> +		return rc;
->  
-> -		if (nladdrlen != sizeof nladdr) {
-> -			avc_log
-> -			    ("%s:  warning: netlink address truncated, len %d?\n",
-> -			     avc_prefix, nladdrlen);
-> -			rc = -1;
-> -			goto out;
-> -		}
-> +	if (nladdrlen != sizeof nladdr) {
-> +		avc_log("%s:  warning: netlink address truncated, len %d?\n",
-> +			avc_prefix, nladdrlen);
-> +		return -1;
-> +	}
->  
-> -		if (nladdr.nl_pid) {
-> -			avc_log
-> -			    ("%s:  warning: received spoofed netlink packet from: %d\n",
-> -			     avc_prefix, nladdr.nl_pid);
-> -			continue;
-> -		}
-> +	if (nladdr.nl_pid) {
-> +		avc_log("%s:  warning: received spoofed netlink packet from: %d\n",
-> +			avc_prefix, nladdr.nl_pid);
-> +		return -1;
-> +	}
->  
-> -		if (rc == 0) {
-> -			avc_log("%s:  warning: received EOF on socket\n",
-> -				avc_prefix);
-> -			goto out;
-> -		}
-> +	if (rc == 0) {
-> +		avc_log("%s:  warning: received EOF on netlink socket\n",
-> +			avc_prefix);
-> +		errno = EBADFD;
-> +		return -1;
-> +	}
->  
-> -		nlh = (struct nlmsghdr *)buf;
-> +	if (nlh->nlmsg_flags & MSG_TRUNC || nlh->nlmsg_len > (unsigned)rc) {
-> +		avc_log("%s:  warning: incomplete netlink message\n",
-> +			avc_prefix);
-> +		return -1;
-> +	}
->  
-> -		if (nlh->nlmsg_flags & MSG_TRUNC
-> -		    || nlh->nlmsg_len > (unsigned)rc) {
-> -			avc_log("%s:  warning: incomplete netlink message\n",
-> -				avc_prefix);
-> -			goto out;
-> -		}
-> +	return 0;
-> +}
->  
-> -		rc = 0;
-> -		switch (nlh->nlmsg_type) {
-> -		case NLMSG_ERROR:{
-> -				struct nlmsgerr *err = NLMSG_DATA(nlh);
-> +static int avc_netlink_process(char *buf)
-> +{
-> +	int rc;
-> +	struct nlmsghdr *nlh = (struct nlmsghdr *)buf;
->  
-> -				/* Netlink ack */
-> -				if (err->error == 0)
-> -					break;
-> +	switch (nlh->nlmsg_type) {
-> +	case NLMSG_ERROR:{
-> +		struct nlmsgerr *err = NLMSG_DATA(nlh);
->  
-> -				errno = -err->error;
-> -				avc_log("%s:  netlink error: %d\n", avc_prefix,
-> -					errno);
-> -				rc = -1;
-> -				goto out;
-> -			}
-> +		/* Netlink ack */
-> +		if (err->error == 0)
-> +			break;
->  
-> -		case SELNL_MSG_SETENFORCE:{
-> -				struct selnl_msg_setenforce *msg =
-> -				    NLMSG_DATA(nlh);
-> -				avc_log
-> -				    ("%s:  received setenforce notice (enforcing=%d)\n",
-> -				     avc_prefix, msg->val);
-> -				avc_enforcing = msg->val;
-> -				if (avc_enforcing && (rc = avc_ss_reset(0)) < 0) {
-> -					avc_log
-> -					    ("%s:  cache reset returned %d (errno %d)\n",
-> -					     avc_prefix, rc, errno);
-> -					goto out;
-> -				}
-> -				break;
-> -			}
-> +		errno = -err->error;
-> +		avc_log("%s:  netlink error: %d\n", avc_prefix, errno);
-> +		return -1;
-> +	}
->  
-> -		case SELNL_MSG_POLICYLOAD:{
-> -				struct selnl_msg_policyload *msg =
-> -				    NLMSG_DATA(nlh);
-> -				avc_log
-> -				    ("%s:  received policyload notice (seqno=%d)\n",
-> -				     avc_prefix, msg->seqno);
-> -				rc = avc_ss_reset(msg->seqno);
-> -				if (rc < 0) {
-> -					avc_log
-> -					    ("%s:  cache reset returned %d (errno %d)\n",
-> -					     avc_prefix, rc, errno);
-> -					goto out;
-> -				}
-> -				break;
-> -			}
-> +	case SELNL_MSG_SETENFORCE:{
-> +		struct selnl_msg_setenforce *msg = NLMSG_DATA(nlh);
-> +		avc_log("%s:  received setenforce notice (enforcing=%d)\n",
-> +			avc_prefix, msg->val);
-> +		avc_enforcing = msg->val;
-> +		if (avc_enforcing && (rc = avc_ss_reset(0)) < 0) {
-> +			avc_log("%s:  cache reset returned %d (errno %d)\n",
-> +				avc_prefix, rc, errno);
-> +			return rc;
-> +		}
-> +		break;
-> +	}
->  
-> -		default:
-> -			avc_log("%s:  warning: unknown netlink message %d\n",
-> -				avc_prefix, nlh->nlmsg_type);
-> +	case SELNL_MSG_POLICYLOAD:{
-> +		struct selnl_msg_policyload *msg = NLMSG_DATA(nlh);
-> +		avc_log("%s:  received policyload notice (seqno=%d)\n",
-> +			avc_prefix, msg->seqno);
-> +		rc = avc_ss_reset(msg->seqno);
-> +		if (rc < 0) {
-> +			avc_log("%s:  cache reset returned %d (errno %d)\n",
-> +				avc_prefix, rc, errno);
-> +			return rc;
->  		}
-> +		break;
+>  	if (pass == 1) {
+> +		free(queue_remove(id_queue));
+> +		free(queue_remove(id_queue));
+>  		parse_security_context(NULL);
+> -		if (mlspol)
+> -			free(queue_remove(id_queue));
+> -		return 0;
+> +		goto out;
 >  	}
-> -      out:
-> -	return rc;
-> +
-> +	default:
-> +		avc_log("%s:  warning: unknown netlink message %d\n",
-> +			avc_prefix, nlh->nlmsg_type);
+>  
+> +	id = queue_remove(id_queue);
+> +	if (!id) {
+> +		yyerror("failed to read ipv4 address");
+> +		rc = -1;
+> +		goto out;
 > +	}
-> +	return 0;
+> +
+> +	rc = inet_pton(AF_INET, id, &addr);
+> +	free(id);
+> +	if (rc < 1) {
+> +		yyerror("failed to parse ipv4 address");
+> +		if (rc == 0)
+> +			rc = -1;
+> +		goto out;
+> +	}
+> +
+> +	id = queue_remove(id_queue);
+> +	if (!id) {
+> +		yyerror("failed to read ipv4 address");
+> +		rc = -1;
+> +		goto out;
+> +	}
+> +
+> +	rc = inet_pton(AF_INET, id, &mask);
+> +	free(id);
+> +	if (rc < 1) {
+> +		yyerror("failed to parse ipv4 mask");
+> +		if (rc == 0)
+> +			rc = -1;
+> +		goto out;
+> +	}
+> +
+>  	newc = malloc(sizeof(ocontext_t));
+>  	if (!newc) {
+>  		yyerror("out of memory");
+> -		return -1;
+> +		rc = -1;
+> +		goto out;
+>  	}
+> +
+>  	memset(newc, 0, sizeof(ocontext_t));
+> +	newc->u.node.addr = addr.s_addr;
+> +	newc->u.node.mask = mask.s_addr;
+>  
+> -	newc->u.node.addr = addr;
+> -	newc->u.node.mask = mask;
+> -
+>  	if (parse_security_context(&newc->context[0])) {
+>  		free(newc);
+>  		return -1;
+> @@ -4224,8 +4252,9 @@
+>  		l->next = newc;
+>  	else
+>  		policydbp->ocontexts[OCON_NODE] = newc;
+> -
+> -	return 0;
+> +	rc = 0;
+> +out:
+> +	return rc;
 >  }
 >  
-> -/* run routine for the netlink listening thread */
-> -void avc_netlink_loop(void)
-> +int avc_netlink_check_nb(void)
->  {
-> -	int ret;
-> -	struct sockaddr_nl nladdr;
-> -	socklen_t nladdrlen = sizeof nladdr;
-> +	int rc;
->  	char buf[1024];
-> -	struct nlmsghdr *nlh;
->  
->  	while (1) {
-> -		ret =
-> -		    recvfrom(fd, buf, sizeof(buf), 0,
-> -			     (struct sockaddr *)&nladdr, &nladdrlen);
-> -		if (ret < 0) {
-> -			if (errno == EINTR)
-> +		errno = 0;
-> +		rc = avc_netlink_receive(buf, sizeof(buf));
-> +		if (rc < 0) {
-> +			if (errno == EWOULDBLOCK)
-> +				return 0;
-> +			if (errno == 0 || errno == EINTR)
->  				continue;
-> -			avc_log("%s:  netlink thread: recvfrom: error %d\n",
-> -				avc_prefix, errno);
-> -			goto out;
-> +			else {
-> +				avc_log("%s:  netlink recvfrom: error %d\n",
-> +					avc_prefix, errno);
-> +				return rc;
-> +			}
->  		}
->  
-> -		if (nladdrlen != sizeof nladdr) {
-> -			avc_log
-> -			    ("%s:  warning: netlink address truncated, len %d?\n",
-> -			     avc_prefix, nladdrlen);
-> -			ret = -1;
-> -			goto out;
-> -		}
-> +		(void)avc_netlink_process(buf);
-> +	}
-> +	return 0;
-> +}
->  
-> -		if (nladdr.nl_pid) {
-> -			avc_log
-> -			    ("%s:  warning: received spoofed netlink packet from: %d\n",
-> -			     avc_prefix, nladdr.nl_pid);
-> -			continue;
-> -		}
-> +/* run routine for the netlink listening thread */
-> +void avc_netlink_loop(void)
-> +{
-> +	int rc;
-> +	char buf[1024];
->  
-> -		if (ret == 0) {
-> -			avc_log("%s:  netlink thread: received EOF on socket\n",
-> -				avc_prefix);
-> -			goto out;
-> -		}
-> -
-> -		nlh = (struct nlmsghdr *)buf;
-> -
-> -		if (nlh->nlmsg_flags & MSG_TRUNC
-> -		    || nlh->nlmsg_len > (unsigned)ret) {
-> -			avc_log
-> -			    ("%s:  netlink thread: incomplete netlink message\n",
-> -			     avc_prefix);
-> -			goto out;
-> -		}
-> -
-> -		switch (nlh->nlmsg_type) {
-> -		case NLMSG_ERROR:{
-> -				struct nlmsgerr *err = NLMSG_DATA(nlh);
-> -
-> -				/* Netlink ack */
-> -				if (err->error == 0)
-> -					break;
-> -
-> -				avc_log("%s:  netlink thread: msg: error %d\n",
-> -					avc_prefix, -err->error);
-> -				goto out;
-> -			}
-> -
-> -		case SELNL_MSG_SETENFORCE:{
-> -				struct selnl_msg_setenforce *msg =
-> -				    NLMSG_DATA(nlh);
-> -				avc_log
-> -				    ("%s:  received setenforce notice (enforcing=%d)\n",
-> -				     avc_prefix, msg->val);
-> -				avc_enforcing = msg->val;
-> -				if (avc_enforcing && (ret = avc_ss_reset(0)) < 0) {
-> -					avc_log
-> -					    ("%s:  cache reset returned %d (errno %d)\n",
-> -					     avc_prefix, ret, errno);
-> -					goto out;
-> -				}
-> +	while (1) {
-> +		errno = 0;
-> +		rc = avc_netlink_receive(buf, sizeof(buf));
-> +		if (rc < 0) {
-> +			if (errno == 0 || errno == EINTR)
-> +				continue;
-> +			else {
-> +				avc_log("%s:  netlink recvfrom: error %d\n",
-> +					avc_prefix, errno);
->  				break;
->  			}
-> -
-> -		case SELNL_MSG_POLICYLOAD:{
-> -				struct selnl_msg_policyload *msg =
-> -				    NLMSG_DATA(nlh);
-> -				avc_log
-> -				    ("%s:  received policyload notice (seqno=%d)\n",
-> -				     avc_prefix, msg->seqno);
-> -				ret = avc_ss_reset(msg->seqno);
-> -				if (ret < 0) {
-> -					avc_log
-> -					    ("%s:  netlink thread: cache reset returned %d (errno %d)\n",
-> -					     avc_prefix, ret, errno);
-> -					goto out;
-> -				}
-> -				break;
-> -			}
-> -
-> -		default:
-> -			avc_log
-> -			    ("%s:  netlink thread: warning: unknown msg type %d\n",
-> -			     avc_prefix, nlh->nlmsg_type);
->  		}
-> +
-> +		rc = avc_netlink_process(buf);
-> +		if (rc < 0)
-> +			break;
->  	}
-> -      out:
-> +
->  	close(fd);
->  	avc_netlink_trouble = 1;
->  	avc_log("%s:  netlink thread: errors encountered, terminating\n",
+>  static int define_ipv6_node_context(void)
 > 
 -- 
 Stephen Smalley
